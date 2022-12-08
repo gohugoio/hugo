@@ -1,20 +1,16 @@
 ---
 title: Multilingual Mode
-linktitle: Multilingual
+linkTitle: Multilingual
 description: Hugo supports the creation of websites with multiple languages side by side.
-date: 2017-01-10
-publishdate: 2017-01-10
-lastmod: 2017-01-10
 categories: [content management]
 keywords: [multilingual,i18n, internationalization]
 menu:
   docs:
-    parent: "content-management"
-    weight: 150
-weight: 150	#rem
-draft: false
-aliases: [/content/multilingual/,/tutorials/create-a-multilingual-site/]
+    parent: content-management
+    weight: 230
 toc: true
+weight: 230
+aliases: [/content/multilingual/,/tutorials/create-a-multilingual-site/]
 ---
 
 You should define the available languages in a `languages` section in your site configuration.
@@ -60,7 +56,7 @@ weight = 3
 
 Anything not defined in a `languages` block will fall back to the global value for that key (e.g., `copyright` for the English `en` language). This also works for `params`, as demonstrated with `help` above: You will get the value `Aide` in French and `Help` in all the languages without this parameter set.
 
-With the configuration above, all content, sitemap, RSS feeds, paginations,
+With the configuration above, all content, sitemap, RSS feeds, pagination,
 and taxonomy pages will be rendered below `/` in English (your default content language) and then below `/fr` in French.
 
 When working with front matter `Params` in [single page templates], omit the `params` in the key for the translation.
@@ -230,7 +226,7 @@ If using `url`, remember to include the language part as well: `/fr/compagnie/a-
 
 ### Page Bundles
 
-To avoid the burden of having to duplicate files, each Page Bundle inherits the resources of its linked translated pages' bundles except for the content files (markdown files, html files etc...).
+To avoid the burden of having to duplicate files, each Page Bundle inherits the resources of its linked translated pages' bundles except for the content files (Markdown files, HTML files etc...).
 
 Therefore, from within a template, the page will have access to the files from all linked pages' bundles.
 
@@ -335,13 +331,13 @@ This article has 101 words.
 
 ### Query a singular/plural translation
 
-In order to meet singular/plural requirement, you must pass a dictionary (map) with a numeric `.Count` property to the `i18n` function. The below example uses `.ReadingTime` variable which has a built-in `.Count` property.
+In other to meet singular/plural requirement, you must pass a dictionary (map) with a numeric `.Count` property to the `i18n` function. The below example uses `.ReadingTime` variable which has a built-in `.Count` property.
 
 ```go-html-template
 {{ i18n "readingTime" .ReadingTime }}
 ```
 
-The function will read `.Count` from `.ReadingTime` and evaluate where the number is singular (`one`) or plural (`other`). After that, it will pass to `readingTime` id:
+The function will read `.Count` from `.ReadingTime` and evaluate whether the number is singular (`one`) or plural (`other`). After that, it will pass to `readingTime` id in `i18n/en-US.toml` file:
 
 {{< code-toggle file="i18n/en-US" >}}
 [readingTime]
@@ -349,7 +345,7 @@ one = "One minute to read"
 other = "{{.Count}} minutes to read"
 {{< /code-toggle >}}
 
-Assume `.ReadingTime.Count` in the context has value of 525600. The result will be:
+Assuming `.ReadingTime.Count` in the context has value is 525600. The result will be:
 
 ```text
 525600 minutes to read
@@ -361,7 +357,7 @@ If `.ReadingTime.Count` in the context has value is 1. The result is:
 One minute to read
 ```
 
-In case you need to pass custom data: (`(dict "Count" 25)` is minimum requirement)
+In case you need to pass a custom data: (`(dict "Count" numeric_value_only)` is minimum requirement)
 
 ```go-html-template
 {{ i18n "readingTime" (dict "Count" 25 "FirstArgument" true "SecondArgument" false "Etc" "so on, so far") }}
@@ -372,7 +368,7 @@ In case you need to pass custom data: (`(dict "Count" 25)` is minimum requiremen
 The following localization examples assume your site's primary language is English, with translations to French and German.
 
 {{< code-toggle file="config" >}}
-defaultContentLang = 'en'
+defaultContentLanguage = 'en'
 
 [languages]
 [languages.en]
@@ -507,6 +503,40 @@ The rendering of the main navigation works as usual. `.Site.Menus` will just con
 </ul>
 ```
 
+### Dynamically localizing menus with i18n
+
+While customizing menus per language is useful, your config file can become hard to maintain if you have a lot of languages
+
+If your menus are the same in all languages (ie. if the only thing that changes is the translated name) you can use the `.Identifier` as a translation key for the menu name:
+
+{{< code-toggle file="config" >}}
+[[menu.main]]
+name = "About me"
+url = "about"
+weight = 1
+identifier = "about"
+{{< /code-toggle >}}
+
+You now need to specify the translations for the menu keys in the i18n files:
+
+{{< code file="i18n/pt.toml" >}}
+[about]
+other="Sobre mim"
+{{< /code >}}
+
+And do the appropriate changes in the menu code to use the `i18n` tag with the `.Identifier` as a key. You will also note that here we are using a `default` to fall back to `.Name`, in case the `.Identifier` key is also not present in the language specified in the `defaultContentLanguage` configuration.
+
+{{< code file="layouts/partials/menu.html" >}}
+<ul>
+    {{- $currentPage := . -}}
+    {{ range .Site.Menus.main -}}
+    <li class="{{ if $currentPage.IsMenuCurrent "main" . }}active{{ end }}">
+        <a href="{{ .URL | absLangURL }}">{{ i18n .Identifier | default .Name}}</a>
+    </li>
+    {{- end }}
+</ul>
+{{< /code >}}
+
 ## Missing Translations
 
 If a string does not have a translation for the current language, Hugo will use the value from the default language. If no default value is set, an empty string will be shown.
@@ -534,6 +564,23 @@ To support Multilingual mode in your themes, some considerations must be taken f
 * Be constructed with the [`relLangURL` template function][rellangurl] or the [`absLangURL` template function][abslangurl] **OR** be prefixed with `{{ .LanguagePrefix }}`
 
 If there is more than one language defined, the `LanguagePrefix` variable will equal `/en` (or whatever your `CurrentLanguage` is). If not enabled, it will be an empty string (and is therefore harmless for single-language Hugo websites).
+
+
+## Generate multilingual content with `hugo new`
+
+If you organize content with translations in the same directory:
+
+```text
+hugo new post/test.en.md
+hugo new post/test.de.md
+```
+
+If you organize content with translations in different directories:
+
+```text
+hugo new content/en/post/test.md
+hugo new content/de/post/test.md
+```
 
 [abslangurl]: /functions/abslangurl
 [config]: /getting-started/configuration/

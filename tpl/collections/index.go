@@ -35,12 +35,9 @@ import (
 func (ns *Namespace) Index(item any, args ...any) (any, error) {
 	v := reflect.ValueOf(item)
 	if !v.IsValid() {
-		return nil, errors.New("index of untyped nil")
-	}
-
-	lowerm, ok := item.(maps.Params)
-	if ok {
-		return lowerm.Get(cast.ToStringSlice(args)...), nil
+		// See issue 10489
+		// This used to be an error.
+		return nil, nil
 	}
 
 	var indices []any
@@ -51,18 +48,25 @@ func (ns *Namespace) Index(item any, args ...any) (any, error) {
 			for i := 0; i < v.Len(); i++ {
 				indices = append(indices, v.Index(i).Interface())
 			}
+		} else {
+			indices = append(indices, args[0])
 		}
+	} else {
+		indices = args
 	}
 
-	if indices == nil {
-		indices = args
+	lowerm, ok := item.(maps.Params)
+	if ok {
+		return lowerm.Get(cast.ToStringSlice(indices)...), nil
 	}
 
 	for _, i := range indices {
 		index := reflect.ValueOf(i)
 		var isNil bool
 		if v, isNil = indirect(v); isNil {
-			return nil, errors.New("index of nil pointer")
+			// See issue 10489
+			// This used to be an error.
+			return nil, nil
 		}
 		switch v.Kind() {
 		case reflect.Array, reflect.Slice, reflect.String:

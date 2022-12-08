@@ -11,7 +11,9 @@ menu:
   docs:
     parent: "functions"
 toc:
-signature: ["upper INPUT"]
+signature:
+  - "upper INPUT"
+  - "strings.ToUpper INPUT"
 workson: []
 hugoversion:
 relatedfuncs: []
@@ -22,7 +24,7 @@ aliases: []
 
 Note that `upper` can be applied in your templates in more than one way:
 
-```
+```go-html-template
 {{ upper "BatMan" }} → "BATMAN"
 {{ "BatMan" | upper }} → "BATMAN"
 ```

@@ -16,7 +16,7 @@ relatedfuncs: []
 deprecated: false
 ---
 
-`emoji` runs a passed string through the Emoji emoticons processor.
+`emojify` runs a passed string through the Emoji emoticons processor.
 
 See the [Emoji cheat sheet][emojis] for available emoticons.
 

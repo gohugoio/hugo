@@ -49,7 +49,7 @@ func NewFilenameFilter(inclusions, exclusions []string) (*FilenameFilter, error)
 
 	for _, include := range inclusions {
 		include = normalizeFilenameGlobPattern(include)
-		g, err := filenamesGlobCache.GetGlob(include)
+		g, err := GetGlob(include)
 		if err != nil {
 			return nil, err
 		}
@@ -60,9 +60,9 @@ func NewFilenameFilter(inclusions, exclusions []string) (*FilenameFilter, error)
 		// gets included.
 		dir := path.Dir(include)
 		parts := strings.Split(dir, "/")
-		for i, _ := range parts {
+		for i := range parts {
 			pattern := "/" + filepath.Join(parts[:i+1]...)
-			g, err := filenamesGlobCache.GetGlob(pattern)
+			g, err := GetGlob(pattern)
 			if err != nil {
 				return nil, err
 			}
@@ -72,7 +72,7 @@ func NewFilenameFilter(inclusions, exclusions []string) (*FilenameFilter, error)
 
 	for _, exclude := range exclusions {
 		exclude = normalizeFilenameGlobPattern(exclude)
-		g, err := filenamesGlobCache.GetGlob(exclude)
+		g, err := GetGlob(exclude)
 		if err != nil {
 			return nil, err
 		}

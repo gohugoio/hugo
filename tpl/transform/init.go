@@ -45,11 +45,11 @@ func init() {
 			[]string{"htmlEscape"},
 			[][2]string{
 				{
-					`{{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>" | safeHTML}}`,
+					`{{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>" | safeHTML }}`,
 					`Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;`,
 				},
 				{
-					`{{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>"}}`,
+					`{{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>" }}`,
 					`Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;`,
 				},
 				{
@@ -63,15 +63,15 @@ func init() {
 			[]string{"htmlUnescape"},
 			[][2]string{
 				{
-					`{{ htmlUnescape "Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;" | safeHTML}}`,
+					`{{ htmlUnescape "Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;" | safeHTML }}`,
 					`Cathal Garvey & The Sunshine Band <cathal@foo.bar>`,
 				},
 				{
-					`{{"Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;" | htmlUnescape | htmlUnescape | safeHTML}}`,
+					`{{ "Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;" | htmlUnescape | htmlUnescape | safeHTML }}`,
 					`Cathal Garvey & The Sunshine Band <cathal@foo.bar>`,
 				},
 				{
-					`{{"Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;" | htmlUnescape | htmlUnescape }}`,
+					`{{ "Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;" | htmlUnescape | htmlUnescape }}`,
 					`Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;`,
 				},
 				{
@@ -84,7 +84,7 @@ func init() {
 		ns.AddMethodMapping(ctx.Markdownify,
 			[]string{"markdownify"},
 			[][2]string{
-				{`{{ .Title | markdownify}}`, `<strong>BatMan</strong>`},
+				{`{{ .Title | markdownify }}`, `<strong>BatMan</strong>`},
 			},
 		)
 

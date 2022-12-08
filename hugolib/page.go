@@ -39,8 +39,6 @@ import (
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
-	"errors"
-
 	"github.com/gohugoio/hugo/parser/pageparser"
 
 	"github.com/gohugoio/hugo/output"
@@ -270,7 +268,10 @@ func (p *pageState) Pages() page.Pages {
 		case page.KindSection, page.KindHome:
 			pages = p.getPagesAndSections()
 		case page.KindTerm:
-			pages = p.bucket.getTaxonomyEntries()
+			b := p.treeRef.n
+			viewInfo := b.viewInfo
+			taxonomy := p.s.Taxonomies()[viewInfo.name.plural].Get(viewInfo.termKey)
+			pages = taxonomy.Pages()
 		case page.KindTaxonomy:
 			pages = p.bucket.getTaxonomies()
 		default:
@@ -762,7 +763,7 @@ Loop:
 		case it.IsEOF():
 			break Loop
 		case it.IsError():
-			err := fail(errors.New(it.ValStr(result.Input())), it)
+			err := fail(it.Err, it)
 			currShortcode.err = err
 			return err
 
@@ -911,6 +912,7 @@ func (p *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 				}
 				return cp, nil
 			})
+			p.pageOutput.contentRenderer = lcp
 			p.pageOutput.ContentProvider = lcp
 			p.pageOutput.TableOfContentsProvider = lcp
 			p.pageOutput.PageRenderProvider = lcp

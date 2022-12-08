@@ -2,6 +2,8 @@ package deps
 
 import (
 	"fmt"
+	"path/filepath"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -16,6 +18,7 @@ import (
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/resources/postpub"
 
 	"github.com/gohugoio/hugo/metrics"
 	"github.com/gohugoio/hugo/output"
@@ -77,6 +80,10 @@ type Deps struct {
 
 	// All the output formats available for the current site.
 	OutputFormatsConfig output.Formats
+
+	// FilenameHasPostProcessPrefix is a set of filenames in /public that
+	// contains a post-processing prefix.
+	FilenameHasPostProcessPrefix []string
 
 	templateProvider ResourceProvider
 	WithTemplate     func(templ tpl.TemplateManager) error `json:"-"`
@@ -202,6 +209,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 	var (
 		logger = cfg.Logger
 		fs     = cfg.Fs
+		d      *Deps
 	)
 
 	if cfg.TemplateProvider == nil {
@@ -239,6 +247,32 @@ func New(cfg DepsCfg) (*Deps, error) {
 	}
 	execHelper := hexec.New(securityConfig)
 
+	var filenameHasPostProcessPrefixMu sync.Mutex
+	hashBytesReceiverFunc := func(name string, match bool) {
+		if !match {
+			return
+		}
+		filenameHasPostProcessPrefixMu.Lock()
+		d.FilenameHasPostProcessPrefix = append(d.FilenameHasPostProcessPrefix, name)
+		filenameHasPostProcessPrefixMu.Unlock()
+	}
+
+	// Skip binary files.
+	hashBytesSHouldCheck := func(name string) bool {
+		ext := strings.TrimPrefix(filepath.Ext(name), ".")
+		mime, _, found := cfg.MediaTypes.GetBySuffix(ext)
+		if !found {
+			return false
+		}
+		switch mime.MainType {
+		case "text", "application":
+			return true
+		default:
+			return false
+		}
+	}
+	fs.PublishDir = hugofs.NewHasBytesReceiver(fs.PublishDir, hashBytesSHouldCheck, hashBytesReceiverFunc, []byte(postpub.PostProcessPrefix))
+
 	ps, err := helpers.NewPathSpec(fs, cfg.Language, logger)
 	if err != nil {
 		return nil, fmt.Errorf("create PathSpec: %w", err)
@@ -274,7 +308,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 
 	logDistinct := helpers.NewDistinctLogger(logger)
 
-	d := &Deps{
+	d = &Deps{
 		Fs:                      fs,
 		Log:                     ignorableLogger,
 		LogDistinct:             logDistinct,

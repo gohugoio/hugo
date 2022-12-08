@@ -42,6 +42,11 @@ func TestFilenameFilter(t *testing.T) {
 	c.Assert(excludeAllButFooJSON.Match(filepath.FromSlash("/a/b/"), true), qt.Equals, true)
 	c.Assert(excludeAllButFooJSON.Match(filepath.FromSlash("/"), true), qt.Equals, true)
 	c.Assert(excludeAllButFooJSON.Match(filepath.FromSlash("/b"), true), qt.Equals, false)
+
+	excludeAllButFooJSONMixedCasePattern, err := NewFilenameFilter([]string{"/**/Foo.json"}, nil)
+	c.Assert(excludeAllButFooJSONMixedCasePattern.Match(filepath.FromSlash("/a/b/c/d/e/foo.json"), false), qt.Equals, true)
+	c.Assert(excludeAllButFooJSONMixedCasePattern.Match(filepath.FromSlash("/a/b/c/d/e/FOO.json"), false), qt.Equals, true)
+
 	c.Assert(err, qt.IsNil)
 
 	nopFilter, err := NewFilenameFilter(nil, nil)

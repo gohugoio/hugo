@@ -247,7 +247,7 @@ func (p *ImageProcessor) ApplyFiltersFromConfig(src image.Image, conf ImageConfi
 		return nil, fmt.Errorf("unsupported action: %q", conf.Action)
 	}
 
-	img, err := p.Filter(src, filters...)
+	img, err := p.doFilter(src, conf.TargetFormat, filters...)
 	if err != nil {
 		return nil, err
 	}
@@ -256,25 +256,34 @@ func (p *ImageProcessor) ApplyFiltersFromConfig(src image.Image, conf ImageConfi
 }
 
 func (p *ImageProcessor) Filter(src image.Image, filters ...gift.Filter) (image.Image, error) {
+	return p.doFilter(src, 0, filters...)
+}
+
+func (p *ImageProcessor) doFilter(src image.Image, targetFormat Format, filters ...gift.Filter) (image.Image, error) {
 
 	filter := gift.New(filters...)
 
-	if giph, ok := src.(Giphy); ok && len(giph.GIF().Image) > 1 {
+	if giph, ok := src.(Giphy); ok {
 		g := giph.GIF()
-		var bounds image.Rectangle
-		firstFrame := g.Image[0]
-		tmp := image.NewNRGBA(firstFrame.Bounds())
-		for i := range g.Image {
-			gift.New().DrawAt(tmp, g.Image[i], g.Image[i].Bounds().Min, gift.OverOperator)
-			bounds = filter.Bounds(tmp.Bounds())
-			dst := image.NewPaletted(bounds, g.Image[i].Palette)
-			filter.Draw(dst, tmp)
-			g.Image[i] = dst
-		}
-		g.Config.Width = bounds.Dx()
-		g.Config.Height = bounds.Dy()
+		if len(g.Image) < 2 || (targetFormat == 0 || targetFormat != GIF) {
+			src = g.Image[0]
+		} else {
+			var bounds image.Rectangle
+			firstFrame := g.Image[0]
+			tmp := image.NewNRGBA(firstFrame.Bounds())
+			for i := range g.Image {
+				gift.New().DrawAt(tmp, g.Image[i], g.Image[i].Bounds().Min, gift.OverOperator)
+				bounds = filter.Bounds(tmp.Bounds())
+				dst := image.NewPaletted(bounds, g.Image[i].Palette)
+				filter.Draw(dst, tmp)
+				g.Image[i] = dst
+			}
+			g.Config.Width = bounds.Dx()
+			g.Config.Height = bounds.Dy()
 
-		return giph, nil
+			return giph, nil
+		}
+
 	}
 
 	bounds := filter.Bounds(src.Bounds())

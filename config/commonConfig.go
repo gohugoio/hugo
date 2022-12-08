@@ -180,10 +180,15 @@ type Headers struct {
 }
 
 type Redirect struct {
-	From   string
-	To     string
+	From string
+	To   string
+
+	// HTTP status code to use for the redirect.
+	// A status code of 200 will trigger a URL rewrite.
 	Status int
-	Force  bool
+
+	// Forcode redirect, even if original request path exists.
+	Force bool
 }
 
 func (r Redirect) IsZero() bool {
@@ -200,15 +205,30 @@ func DecodeServer(cfg Provider) (*Server, error) {
 	_ = mapstructure.WeakDecode(m, s)
 
 	for i, redir := range s.Redirects {
-		// Get it in line with the Hugo server.
-		redir.To = strings.TrimSuffix(redir.To, "index.html")
-		if !strings.HasPrefix(redir.To, "https") && !strings.HasSuffix(redir.To, "/") {
-			// There are some tricky infinite loop situations when dealing
-			// when the target does not have a trailing slash.
-			// This can certainly be handled better, but not time for that now.
-			return nil, fmt.Errorf("unsupported redirect to value %q in server config; currently this must be either a remote destination or a local folder, e.g. \"/blog/\" or \"/blog/index.html\"", redir.To)
+		// Get it in line with the Hugo server for OK responses.
+		// We currently treat the 404 as a special case, they are always "ugly", so keep them as is.
+		if redir.Status != 404 {
+			redir.To = strings.TrimSuffix(redir.To, "index.html")
+			if !strings.HasPrefix(redir.To, "https") && !strings.HasSuffix(redir.To, "/") {
+				// There are some tricky infinite loop situations when dealing
+				// when the target does not have a trailing slash.
+				// This can certainly be handled better, but not time for that now.
+				return nil, fmt.Errorf("unsupported redirect to value %q in server config; currently this must be either a remote destination or a local folder, e.g. \"/blog/\" or \"/blog/index.html\"", redir.To)
+			}
 		}
 		s.Redirects[i] = redir
+	}
+
+	if len(s.Redirects) == 0 {
+		// Set up a default redirect for 404s.
+		s.Redirects = []Redirect{
+			{
+				From:   "**",
+				To:     "/404.html",
+				Status: 404,
+			},
+		}
+
 	}
 
 	return s, nil

@@ -20,8 +20,8 @@ toc: false
 ---
 
 Hugo makes no assumptions about how your rendered HTML will be
-structured. Instead, it provides all of the functions you will need to be
-able to build your menu however you want.
+structured. Instead, it provides all the functions you will need to
+build your menu however you want.
 
 The following is an example:
 
@@ -72,15 +72,17 @@ Use the [`absLangURL`](/functions/abslangurl) or [`relLangURL`](/functions/rella
 
 To enable this menu, configure `sectionPagesMenu` in your site `config`:
 
-```
+```yml
 sectionPagesMenu = "main"
 ```
 
 The menu name can be anything, but take a note of what it is.
 
-This will create a menu with all the sections as menu items and all the sections' pages as "shadow-members". The _shadow_ implies that the pages isn't represented by a menu-item themselves, but this enables you to create a top-level menu like this:
+This will create a menu with all the sections as menu items and all the sections' pages as "shadow-members". Ensure that all first level directories that you would like to show up on this menu are [Branch Bundles](https://gohugo.io/content-management/sections/). Leaf Bundles do not form sections.
 
-```
+The _shadow_ implies that the pages isn't represented by a menu-item themselves, but this enables you to create a top-level menu like this:
+
+```go-html-template
 <nav class="sidebar-nav">
     {{ $currentPage := . }}
     {{ range .Site.Menus.main }}
@@ -90,7 +92,6 @@ This will create a menu with all the sections as menu items and all the sections
 ```
 
 In the above, the menu item is marked as active if on the current section's list page or on a page in that section.
-
 
 ## Site Config menus
 
@@ -115,7 +116,7 @@ It's also possible to create menu entries from the page (i.e. the `.md`-file).
 
 Here is a `yaml` example:
 
-```
+```yml
 ---
 title: Menu Templates
 linktitle: Menu Templates
@@ -146,7 +147,7 @@ That's why you have to use the go template's `with` keyword or something similar
 
 Here's an example:
 
-```
+```go-html-template
 <nav class="sidebar-nav">
   {{ range .Site.Menus.main }}
     <a href="{{ .URL }}" title="{{ .Title }}">
@@ -167,7 +168,7 @@ User-defined content on menu items are accessible via `.Params`.
 
 Here's an example:
 
-```
+```go-html-template
 <nav class="sidebar-nav">
   {{ range .Site.Menus.main }}
     <a href="{{ .URL }}" title="{{ .Title }}" class="{{ with .Params.class }}{{ . }}{{ end }}">

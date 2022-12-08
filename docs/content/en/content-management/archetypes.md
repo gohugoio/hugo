@@ -1,20 +1,17 @@
 ---
 title: Archetypes
-linktitle: Archetypes
+linkTitle: Archetypes
 description: Archetypes are templates used when creating new content.
-date: 2017-02-01
-publishdate: 2017-02-01
 keywords: [archetypes,generators,metadata,front matter]
-categories: ["content management"]
+categories: [content management]
 menu:
   docs:
-    parent: "content-management"
-    weight: 70
+    parent: content-management
+    weight: 140
   quicklinks:
-weight: 70	#rem
-draft: false
-aliases: [/content/archetypes/]
 toc: true
+weight: 140
+aliases: [/content/archetypes/]
 ---
 
 ## What are Archetypes?
@@ -69,7 +66,6 @@ It will create a new newsletter type of content file based on the archetype temp
 
 The above _newsletter type archetype_ illustrates the possibilities: The full Hugo `.Site` and all of Hugo&#39;s template funcs can be used in the archetype file.
 
-
 ## Directory based archetypes
 
 Since Hugo `0.49` you can use complete directories as archetype templates. Given this archetype directory:
@@ -89,8 +85,6 @@ hugo new --kind post-bundle posts/my-post
 ```
 
 Will create a new folder in `/content/posts/my-post` with the same set of files as in the `post-bundle` archetypes folder. All content files (`index.md` etc.) can contain template logic, and will receive the correct `.Site` for the content's language.
-
-
 
 [archetypes directory]: /getting-started/directory-structure/
 [content types]: /content-management/types/

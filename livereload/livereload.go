@@ -45,6 +45,7 @@ import (
 
 	_ "embed"
 
+	"github.com/gohugoio/hugo/media"
 	"github.com/gorilla/websocket"
 )
 
@@ -144,7 +145,7 @@ func refreshPathForPort(s string, port int) {
 
 // ServeJS serves the liverreload.js who's reference is injected into the page.
 func ServeJS(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/javascript")
+	w.Header().Set("Content-Type", media.JavascriptType.Type())
 	w.Write(liveReloadJS())
 }
 

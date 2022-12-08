@@ -79,8 +79,8 @@ type commandeer struct {
 	changeDetector *fileChangeDetector
 
 	// We need to reuse these on server rebuilds.
-	// These 2 will be different if --renderStaticToDisk is set.
 	publishDirFs       afero.Fs
+	publishDirStaticFs afero.Fs
 	publishDirServerFs afero.Fs
 
 	h    *hugoBuilderCommon
@@ -170,6 +170,7 @@ func (c *commandeer) Set(key string, value any) {
 
 func (c *commandeer) initFs(fs *hugofs.Fs) error {
 	c.publishDirFs = fs.PublishDir
+	c.publishDirStaticFs = fs.PublishDirStatic
 	c.publishDirServerFs = fs.PublishDirServer
 	c.DepsCfg.Fs = fs
 
@@ -426,6 +427,7 @@ func (c *commandeer) loadConfig() error {
 		if c.publishDirFs != nil {
 			// Need to reuse the destination on server rebuilds.
 			fs.PublishDir = c.publishDirFs
+			fs.PublishDirStatic = c.publishDirStaticFs
 			fs.PublishDirServer = c.publishDirServerFs
 		} else {
 			if c.renderStaticToDisk {

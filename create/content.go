@@ -52,7 +52,7 @@ draft: true
 
 // NewContent creates a new content file in h (or a full bundle if the archetype is a directory)
 // in targetPath.
-func NewContent(h *hugolib.HugoSites, kind, targetPath string) error {
+func NewContent(h *hugolib.HugoSites, kind, targetPath string, force bool) error {
 	if h.BaseFs.Content.Dirs == nil {
 		return errors.New("no existing content directory configured for this project")
 	}
@@ -76,6 +76,7 @@ func NewContent(h *hugolib.HugoSites, kind, targetPath string) error {
 
 		kind:       kind,
 		targetPath: targetPath,
+		force:      force,
 	}
 
 	ext := paths.Ext(targetPath)
@@ -132,6 +133,7 @@ type contentBuilder struct {
 	kind              string
 	isDir             bool
 	dirMap            archetypeMap
+	force             bool
 }
 
 func (b *contentBuilder) buildDir() error {
@@ -145,7 +147,7 @@ func (b *contentBuilder) buildDir() error {
 
 	for _, fi := range b.dirMap.contentFiles {
 		targetFilename := filepath.Join(b.targetPath, strings.TrimPrefix(fi.Meta().Path, b.archetypeFilename))
-		abs, err := b.cf.CreateContentPlaceHolder(targetFilename)
+		abs, err := b.cf.CreateContentPlaceHolder(targetFilename, b.force)
 		if err != nil {
 			return err
 		}
@@ -218,7 +220,7 @@ func (b *contentBuilder) buildDir() error {
 }
 
 func (b *contentBuilder) buildFile() (string, error) {
-	contentPlaceholderAbsFilename, err := b.cf.CreateContentPlaceHolder(b.targetPath)
+	contentPlaceholderAbsFilename, err := b.cf.CreateContentPlaceHolder(b.targetPath, b.force)
 	if err != nil {
 		return "", err
 	}

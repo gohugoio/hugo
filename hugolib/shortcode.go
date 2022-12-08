@@ -382,7 +382,7 @@ func renderShortcode(
 		// shortcode.
 		if sc.doMarkup && (level > 0 || sc.configVersion() == 1) {
 			var err error
-			b, err := p.pageOutput.cp.renderContent([]byte(inner), false)
+			b, err := p.pageOutput.contentRenderer.RenderContent([]byte(inner), false)
 			if err != nil {
 				return "", false, err
 			}
@@ -496,8 +496,6 @@ func (s *shortcodeHandler) renderShortcodesForPage(p *pageState, f output.Format
 
 	return rendered, hasVariants, nil
 }
-
-var errShortCodeIllegalState = errors.New("Illegal shortcode state")
 
 func (s *shortcodeHandler) parseError(err error, input []byte, pos int) error {
 	if s.p != nil {
@@ -640,7 +638,7 @@ Loop:
 					if params, ok := sc.params.(map[string]any); ok {
 						params[currItem.ValStr(source)] = pt.Next().ValTyped(source)
 					} else {
-						return sc, errShortCodeIllegalState
+						return sc, fmt.Errorf("%s: invalid state: invalid param type %T for shortcode %q, expected a map", errorPrefix, params, sc.name)
 					}
 				}
 			} else {
@@ -654,7 +652,7 @@ Loop:
 						params = append(params, currItem.ValTyped(source))
 						sc.params = params
 					} else {
-						return sc, errShortCodeIllegalState
+						return sc, fmt.Errorf("%s: invalid state: invalid param type %T for shortcode %q, expected a slice", errorPrefix, params, sc.name)
 					}
 				}
 			}

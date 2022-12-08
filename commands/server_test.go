@@ -25,6 +25,7 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/htesting"
 	"golang.org/x/net/context"
 	"golang.org/x/sync/errgroup"
 
@@ -41,12 +42,98 @@ func TestServerPanicOnConfigError(t *testing.T) {
 linenos='table'
 `
 
-	r := runServerTest(c, 0, config)
+	r := runServerTest(c,
+		serverTestOptions{
+			config: config,
+		},
+	)
 
 	c.Assert(r.err, qt.IsNotNil)
 	c.Assert(r.err.Error(), qt.Contains, "cannot parse 'Highlight.LineNos' as bool:")
 }
 
+func TestServer404(t *testing.T) {
+	c := qt.New(t)
+
+	r := runServerTest(c,
+		serverTestOptions{
+			pathsToGet:  []string{"this/does/not/exist"},
+			getNumHomes: 1,
+		},
+	)
+
+	c.Assert(r.err, qt.IsNil)
+	pr := r.pathsResults["this/does/not/exist"]
+	c.Assert(pr.statusCode, qt.Equals, http.StatusNotFound)
+	c.Assert(pr.body, qt.Contains, "404: 404 Page not found|Not Found.")
+}
+
+func TestServerPathEncodingIssues(t *testing.T) {
+	c := qt.New(t)
+
+	// Issue 10287
+	c.Run("Unicode paths", func(c *qt.C) {
+		r := runServerTest(c,
+			serverTestOptions{
+				pathsToGet:  []string{"hügö/"},
+				getNumHomes: 1,
+			},
+		)
+
+		c.Assert(r.err, qt.IsNil)
+		c.Assert(r.pathsResults["hügö/"].body, qt.Contains, "This is hügö")
+	})
+
+	// Issue 10314
+	c.Run("Windows multilingual 404", func(c *qt.C) {
+		config := `
+baseURL = 'https://example.org/'
+title = 'Hugo Forum Topic #40568'
+
+defaultContentLanguageInSubdir = true
+
+[languages.en]
+contentDir = 'content/en'
+languageCode = 'en-US'
+languageName = 'English'
+weight = 1
+
+[languages.es]
+contentDir = 'content/es'
+languageCode = 'es-ES'
+languageName = 'Espanol'
+weight = 2
+
+[server]
+[[server.redirects]]
+from = '/en/**'
+to = '/en/404.html'
+status = 404
+
+[[server.redirects]]
+from = '/es/**'
+to = '/es/404.html'
+status = 404
+`
+		r := runServerTest(c,
+			serverTestOptions{
+				config:      config,
+				pathsToGet:  []string{"en/this/does/not/exist", "es/this/does/not/exist"},
+				getNumHomes: 1,
+			},
+		)
+
+		c.Assert(r.err, qt.IsNil)
+		pr1 := r.pathsResults["en/this/does/not/exist"]
+		pr2 := r.pathsResults["es/this/does/not/exist"]
+		c.Assert(pr1.statusCode, qt.Equals, http.StatusNotFound)
+		c.Assert(pr2.statusCode, qt.Equals, http.StatusNotFound)
+		c.Assert(pr1.body, qt.Contains, "404: 404 Page not found|Not Found.")
+		c.Assert(pr2.body, qt.Contains, "404: 404 Page not found|Not Found.")
+
+	})
+
+}
 func TestServerFlags(t *testing.T) {
 	c := qt.New(t)
 
@@ -81,7 +168,13 @@ baseURL="https://example.org"
 				args = strings.Split(test.flag, "=")
 			}
 
-			r := runServerTest(c, 1, config, args...)
+			opts := serverTestOptions{
+				config:      config,
+				args:        args,
+				getNumHomes: 1,
+			}
+
+			r := runServerTest(c, opts)
 
 			test.assert(c, r)
 
@@ -92,6 +185,10 @@ baseURL="https://example.org"
 }
 
 func TestServerBugs(t *testing.T) {
+	// TODO(bep) this is flaky on Windows on GH Actions.
+	if htesting.IsGitHubAction() && runtime.GOOS == "windows" {
+		t.Skip("skipping on windows")
+	}
 	c := qt.New(t)
 
 	for _, test := range []struct {
@@ -101,6 +198,10 @@ func TestServerBugs(t *testing.T) {
 		numservers int
 		assert     func(c *qt.C, r serverTestResult)
 	}{
+		{"PostProcess, memory", "", "", 1, func(c *qt.C, r serverTestResult) {
+			c.Assert(r.err, qt.IsNil)
+			c.Assert(r.homesContent[0], qt.Contains, "PostProcess: /foo.min.css")
+		}},
 		// Issue 9788
 		{"PostProcess, memory", "", "", 1, func(c *qt.C, r serverTestResult) {
 			c.Assert(r.err, qt.IsNil)
@@ -140,7 +241,18 @@ baseURL="https://example.org"
 			if test.flag != "" {
 				args = strings.Split(test.flag, "=")
 			}
-			r := runServerTest(c, test.numservers, test.config, args...)
+
+			opts := serverTestOptions{
+				config:      test.config,
+				getNumHomes: test.numservers,
+				pathsToGet:  []string{"this/does/not/exist"},
+				args:        args,
+			}
+
+			r := runServerTest(c, opts)
+			pr := r.pathsResults["this/does/not/exist"]
+			c.Assert(pr.statusCode, qt.Equals, http.StatusNotFound)
+			c.Assert(pr.body, qt.Contains, "404: 404 Page not found|Not Found.")
 			test.assert(c, r)
 
 		})
@@ -152,11 +264,29 @@ baseURL="https://example.org"
 type serverTestResult struct {
 	err            error
 	homesContent   []string
+	content404     string
 	publicDirnames map[string]bool
+	pathsResults   map[string]pathResult
 }
 
-func runServerTest(c *qt.C, getNumHomes int, config string, args ...string) (result serverTestResult) {
-	dir := createSimpleTestSite(c, testSiteConfig{configTOML: config})
+type pathResult struct {
+	statusCode int
+	body       string
+}
+
+type serverTestOptions struct {
+	getNumHomes int
+	config      string
+	pathsToGet  []string
+	args        []string
+}
+
+func runServerTest(c *qt.C, opts serverTestOptions) serverTestResult {
+	dir := createSimpleTestSite(c, testSiteConfig{configTOML: opts.config})
+	result := serverTestResult{
+		publicDirnames: make(map[string]bool),
+		pathsResults:   make(map[string]pathResult),
+	}
 
 	sp, err := helpers.FindAvailablePort()
 	c.Assert(err, qt.IsNil)
@@ -172,7 +302,7 @@ func runServerTest(c *qt.C, getNumHomes int, config string, args ...string) (res
 	scmd := b.newServerCmdSignaled(stop)
 
 	cmd := scmd.getCommand()
-	args = append([]string{"-s=" + dir, fmt.Sprintf("-p=%d", port)}, args...)
+	args := append([]string{"-s=" + dir, fmt.Sprintf("-p=%d", port)}, opts.args...)
 	cmd.SetArgs(args)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -184,22 +314,42 @@ func runServerTest(c *qt.C, getNumHomes int, config string, args ...string) (res
 		return err
 	})
 
-	if getNumHomes > 0 {
+	if opts.getNumHomes > 0 {
 		// Esp. on slow CI machines, we need to wait a little before the web
 		// server is ready.
-		time.Sleep(567 * time.Millisecond)
-		result.homesContent = make([]string, getNumHomes)
-		for i := 0; i < getNumHomes; i++ {
+		wait := 567 * time.Millisecond
+		if os.Getenv("CI") != "" {
+			wait = 2 * time.Second
+		}
+		time.Sleep(wait)
+		result.homesContent = make([]string, opts.getNumHomes)
+		for i := 0; i < opts.getNumHomes; i++ {
 			func() {
 				resp, err := http.Get(fmt.Sprintf("http://localhost:%d/", port+i))
-				c.Check(err, qt.IsNil)
-				c.Check(resp.StatusCode, qt.Equals, http.StatusOK)
+				c.Assert(err, qt.IsNil)
+				c.Assert(resp.StatusCode, qt.Equals, http.StatusOK)
 				if err == nil {
 					defer resp.Body.Close()
 					result.homesContent[i] = helpers.ReaderToString(resp.Body)
 				}
 			}()
 		}
+	}
+
+	for _, path := range opts.pathsToGet {
+		func() {
+			resp, err := http.Get(fmt.Sprintf("http://localhost:%d/%s", port, path))
+			c.Assert(err, qt.IsNil)
+			pr := pathResult{
+				statusCode: resp.StatusCode,
+			}
+
+			if err == nil {
+				defer resp.Body.Close()
+				pr.body = helpers.ReaderToString(resp.Body)
+			}
+			result.pathsResults[path] = pr
+		}()
 	}
 
 	time.Sleep(1 * time.Second)
@@ -210,15 +360,14 @@ func runServerTest(c *qt.C, getNumHomes int, config string, args ...string) (res
 	}
 
 	pubFiles, err := os.ReadDir(filepath.Join(dir, "public"))
-	c.Check(err, qt.IsNil)
-	result.publicDirnames = make(map[string]bool)
+	c.Assert(err, qt.IsNil)
 	for _, f := range pubFiles {
 		result.publicDirnames[f.Name()] = true
 	}
 
 	result.err = wg.Wait()
 
-	return
+	return result
 
 }
 

@@ -127,6 +127,9 @@ type Options struct {
 
 	// When enabled, Hugo will generate a source map.
 	EnableSourceMap bool
+
+	// If enabled, sources will be embedded in the generated source map.
+	SourceMapIncludeSources bool
 }
 
 func decodeOptions(m map[string]any) (opts Options, err error) {

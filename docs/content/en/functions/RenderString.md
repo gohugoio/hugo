@@ -10,11 +10,7 @@ keywords: [markdown,goldmark,render]
 signature: [".RenderString MARKUP"]
 ---
 
-{{< new-in "0.62.0" >}} 
-
 `.RenderString` is a method on `Page` that renders some markup to HTML using the content renderer defined for that page (if not set in the options).
-
-*Note* that this method does not parse and render shortcodes.
 
 The method takes an optional map argument with these options:
 
@@ -34,5 +30,4 @@ Some examples:
 {{  "/italic org mode/" | $p.RenderString  $optOrg }}
 ```
 
-
-**Note** that this method is more powerful than the similar [markdownify](/functions/markdownify/) function as it also supports [Render Hooks](/getting-started/configuration-markup/#markdown-render-hooks) and it has options to render other markup formats.
+{{< new-in "0.93.0" >}} **Note**: [markdownify](/functions/markdownify/) uses this function in order to support [Render Hooks](/getting-started/configuration-markup/#markdown-render-hooks).

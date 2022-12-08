@@ -1,18 +1,17 @@
 ---
 title: 内容管理
-linktitle: 内容管理概览
+linkTitle: 内容管理概览
 description: Hugo 可以管理大型的静态网站，支持骨架、内容类型、菜单、引用、概要等等。
 date: 2018-04-23
 publishdate: 2018-04-23
 lastmod: 2018-04-23
 menu:
   docs:
-    parent: "content-management"
+    parent: content-management
     weight: 1
 keywords: [source, organization]
 categories: [content management]
 weight: 01	#rem
-draft: false
 aliases: [/content/,/content/organization]
 toc: false
 isCJKLanguage: true

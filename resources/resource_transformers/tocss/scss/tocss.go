@@ -163,7 +163,7 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		// This is a workaround for what looks like a bug in Libsass. But
 		// getting this resolution correct in tools like Chrome Workspaces
 		// is important enough to go this extra mile.
-		mapContent := strings.Replace(res.SourceMapContent, `stdin",`, fmt.Sprintf("%s\",", sourcePath), 1)
+		mapContent := strings.Replace(res.SourceMapContent, `stdin"`, fmt.Sprintf("%s\"", sourcePath), 1)
 
 		return ctx.PublishSourceMap(mapContent)
 	}

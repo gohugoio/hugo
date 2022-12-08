@@ -49,12 +49,19 @@ func TestGlob(t *testing.T) {
 	create("jsonfiles/sub/d3.json")
 	create("jsonfiles/d1.xml")
 	create("a/b/c/e/f.json")
+	create("UPPER/sub/style.css")
+	create("root/UPPER/sub/style.css")
+
+	c.Assert(collect(filepath.FromSlash("/jsonfiles/*.json")), qt.HasLen, 2)
 
 	c.Assert(collect("**.json"), qt.HasLen, 5)
-	c.Assert(collect("**"), qt.HasLen, 6)
+	c.Assert(collect("**"), qt.HasLen, 8)
 	c.Assert(collect(""), qt.HasLen, 0)
 	c.Assert(collect("jsonfiles/*.json"), qt.HasLen, 2)
 	c.Assert(collect("*.json"), qt.HasLen, 1)
 	c.Assert(collect("**.xml"), qt.HasLen, 1)
-	c.Assert(collect(filepath.FromSlash("/jsonfiles/*.json")), qt.HasLen, 2)
+
+	c.Assert(collect("root/UPPER/sub/style.css"), qt.HasLen, 1)
+	c.Assert(collect("UPPER/sub/style.css"), qt.HasLen, 1)
+
 }

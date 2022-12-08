@@ -1,16 +1,17 @@
 ---
-title : "Page Bundles"
-description : "Content organization using Page Bundles"
-date : 2018-01-24T13:09:00-05:00
-linktitle : "Page Bundles"
-keywords : ["page", "bundle", "leaf", "branch"]
-categories : ["content management"]
-toc : true
+title: Page Bundles
+linkTitle: Page Bundles
+description: Content organization using Page Bundles
+linkTitle: Page Bundles
+keywords: [page, bundle, leaf, branch]
+categories: [content management]
 menu :
   docs:
-    identifier : "page-bundles"
-    parent : "content-management"
-    weight : 11
+    identifier: "page-bundles"
+    parent: "content-management"
+    weight: 30
+toc: true
+weight: 30
 ---
 
 Page Bundles are a way to group [Page Resources](/content-management/page-resources/).
@@ -23,8 +24,8 @@ A Page Bundle can be one of:
 |                                     | Leaf Bundle                                              | Branch Bundle                                                                                                                                                                                                      |
 |-------------------------------------|----------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  |
 | Usage                               | Collection of content and attachments for single pages   | Collection of attachments for section pages (home page, section, taxonomy terms, taxonomy list)                                                                                                                    |
-| Index file name                     | `index.md` [^fn:1]                                       | `_index.md` [^fn:1]                                                                                                                                                                                                |
-| Allowed Resources                   | Page and non-page (like images, pdf, etc.) types         | Only non-page (like images, pdf, etc.) types                                                                                                                                                                       |
+| Index filename                     | `index.md` [^fn:1]                                       | `_index.md` [^fn:1]                                                                                                                                                                                                |
+| Allowed Resources                   | Page and non-page (like images, PDF, etc.) types         | Only non-page (like images, PDF, etc.) types                                                                                                                                                                       |
 | Where can the Resources live?       | At any directory level within the leaf bundle directory. | Only in the directory level **of** the branch bundle directory i.e. the directory containing the `_index.md` ([ref](https://discourse.gohugo.io/t/question-about-content-folder-structure/11822/4?u=kaushalmodi)). |
 | Layout type                         | `single`                                                 | `list`                                                                                                                                                                                                             |
 | Nesting                             | Does not allow nesting of more bundles under it          | Allows nesting of leaf or branch bundles under it                                                                                                                                                                  |
@@ -64,26 +65,27 @@ content/
 In the above example `content/` directory, there are four leaf
 bundles:
 
-about
+`about`
 : This leaf bundle is at the root level (directly under
     `content` directory) and has only the `index.md`.
 
-my-post
+`my-post`
 : This leaf bundle has the `index.md`, two other content
     Markdown files and two image files.
 
-image1
-: This image is a page resource of `my-post`
+- image1, image2:
+These images are page resources of `my-post`
     and only available in `my-post/index.md` resources.
 
-image2
-: This image is a page resource of `my-post`
+- content1, content2:
+These content files are page resources of `my-post`
     and only available in `my-post/index.md` resources.
+    They will **not** be rendered as individual pages.
 
-my-other-post
+`my-other-post`
 : This leaf bundle has only the `index.md`.
 
-another-leaf-bundle
+`another-leaf-bundle`
 : This leaf bundle is nested under couple of
     directories. This bundle also has only the `index.md`.
 
@@ -98,8 +100,8 @@ as long as it is not inside another **leaf** bundle.
 A headless bundle is a bundle that is configured to not get published
 anywhere:
 
--   It will have no `Permalink` and no rendered HTML in `public/`.
--   It will not be part of `.Site.RegularPages`, etc.
+- It will have no `Permalink` and no rendered HTML in `public/`.
+- It will not be part of `.Site.RegularPages`, etc.
 
 But you can get it by `.Site.GetPage`. Here is an example:
 
@@ -120,9 +122,9 @@ _In this example, we are assuming the `some-headless-bundle` to be a headless
 Explanation of the above example:
 
 1. Get the `some-headless-bundle` Page "object".
-2. Collect a *slice* of resources in this *Page Bundle* that matches
+2. Collect a _slice_ of resources in this _Page Bundle_ that matches
    `"author*"` using `.Resources.Match`.
-3. Loop through that *slice* of nested pages, and output their `.Title` and
+3. Loop through that _slice_ of nested pages, and output their `.Title` and
    `.Content`.
 
 ---
@@ -136,9 +138,8 @@ headless = true
 
 There are many use cases of such headless page bundles:
 
--   Shared media galleries
--   Reusable page content "snippets"
-
+- Shared media galleries
+- Reusable page content "snippets"
 
 ## Branch Bundles {#branch-bundles}
 

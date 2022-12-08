@@ -693,7 +693,7 @@ func TestEscape(t *testing.T) {
 			t.Errorf("%s: tree not set properly", test.name)
 			continue
 		}
-		b := new(bytes.Buffer)
+		b := new(strings.Builder)
 		if err := tmpl.Execute(b, data); err != nil {
 			t.Errorf("%s: template execution failed: %s", test.name, err)
 			continue
@@ -740,7 +740,7 @@ func TestEscapeMap(t *testing.T) {
 		},
 	} {
 		tmpl := Must(New("").Parse(test.input))
-		b := new(bytes.Buffer)
+		b := new(strings.Builder)
 		if err := tmpl.Execute(b, data); err != nil {
 			t.Errorf("%s: template execution failed: %s", test.desc, err)
 			continue
@@ -882,7 +882,7 @@ func TestEscapeSet(t *testing.T) {
 			t.Errorf("error parsing %q: %v", source, err)
 			continue
 		}
-		var b bytes.Buffer
+		var b strings.Builder
 
 		if err := tmpl.ExecuteTemplate(&b, "main", data); err != nil {
 			t.Errorf("%q executing %v", err.Error(), tmpl.Lookup("main"))
@@ -1833,7 +1833,7 @@ func TestIndirectPrint(t *testing.T) {
 	bp := &b
 	bpp := &bp
 	tmpl := Must(New("t").Parse(`{{.}}`))
-	var buf bytes.Buffer
+	var buf strings.Builder
 	err := tmpl.Execute(&buf, ap)
 	if err != nil {
 		t.Errorf("Unexpected error: %s", err)
@@ -1876,7 +1876,7 @@ func TestPipeToMethodIsEscaped(t *testing.T) {
 				t.Errorf("panicked: %v\n", panicValue)
 			}
 		}()
-		var b bytes.Buffer
+		var b strings.Builder
 		tmpl.Execute(&b, Issue7379(0))
 		return b.String()
 	}
@@ -1909,7 +1909,7 @@ func TestIdempotentExecute(t *testing.T) {
 		Parse(`{{define "main"}}<body>{{template "hello"}}</body>{{end}}`))
 	Must(tmpl.
 		Parse(`{{define "hello"}}Hello, {{"Ladies & Gentlemen!"}}{{end}}`))
-	got := new(bytes.Buffer)
+	got := new(strings.Builder)
 	var err error
 	// Ensure that "hello" produces the same output when executed twice.
 	want := "Hello, Ladies &amp; Gentlemen!"
@@ -1952,7 +1952,7 @@ func TestOrphanedTemplate(t *testing.T) {
 	t1 := Must(New("foo").Parse(`<a href="{{.}}">link1</a>`))
 	t2 := Must(t1.New("foo").Parse(`bar`))
 
-	var b bytes.Buffer
+	var b strings.Builder
 	const wantError = `template: "foo" is an incomplete or empty template`
 	if err := t1.Execute(&b, "javascript:alert(1)"); err == nil {
 		t.Fatal("expected error executing t1")
@@ -1981,7 +1981,7 @@ func TestAliasedParseTreeDoesNotOverescape(t *testing.T) {
 	if _, err := tpl.AddParseTree("bar", tpl.Tree); err != nil {
 		t.Fatalf("AddParseTree error: %v", err)
 	}
-	var b1, b2 bytes.Buffer
+	var b1, b2 strings.Builder
 	if err := tpl.ExecuteTemplate(&b1, "foo", data); err != nil {
 		t.Fatalf(`ExecuteTemplate failed for "foo": %v`, err)
 	}

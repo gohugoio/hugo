@@ -32,6 +32,7 @@ var _ cmder = (*newCmd)(nil)
 type newCmd struct {
 	contentEditor string
 	contentType   string
+	force         bool
 
 	*baseBuilderCmd
 }
@@ -54,6 +55,7 @@ Ensure you run this within the root directory of your site.`,
 
 	cmd.Flags().StringVarP(&cc.contentType, "kind", "k", "", "content type to create")
 	cmd.Flags().StringVar(&cc.contentEditor, "editor", "", "edit new content with this editor, if provided")
+	cmd.Flags().BoolVarP(&cc.force, "force", "f", false, "overwrite file if it already exists")
 
 	cmd.AddCommand(b.newNewSiteCmd().getCommand())
 	cmd.AddCommand(b.newNewThemeCmd().getCommand())
@@ -80,7 +82,7 @@ func (n *newCmd) newContent(cmd *cobra.Command, args []string) error {
 		return newUserError("path needs to be provided")
 	}
 
-	return create.NewContent(c.hugo(), n.contentType, args[0])
+	return create.NewContent(c.hugo(), n.contentType, args[0], n.force)
 }
 
 func mkdir(x ...string) {

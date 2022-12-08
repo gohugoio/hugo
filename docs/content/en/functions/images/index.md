@@ -15,8 +15,6 @@ See [images.Filter](#filter) for how to apply these filters to an image.
 
 ## Overlay
 
-{{< new-in "0.80.0" >}}
-
 {{% funcsig %}}
 images.Overlay SRC X Y
 {{% /funcsig %}}
@@ -38,8 +36,6 @@ A shorter version of the above, if you only need to apply the filter once:
 The above will overlay `$logo` in the upper left corner of `$img` (at position `x=50, y=50`).
 
 ## Text
-
-{{< new-in "0.90.0" >}}
 
 Using the `Text` filter, you can add text to an image.
 
@@ -217,6 +213,8 @@ Also see the [Filter Method](/content-management/image-processing/#filter).
 ### ImageConfig
 
 Parses the image and returns the height, width, and color model.
+
+The `imageConfig` function takes a single parameter, a file path (_string_) relative to the _project's root directory_, with or without a leading slash.
 
 {{% funcsig %}}
 images.ImageConfig PATH

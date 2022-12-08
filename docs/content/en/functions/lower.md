@@ -10,7 +10,9 @@ menu:
   docs:
     parent: "functions"
 keywords: [strings,casing]
-signature: ["lower INPUT"]
+signature:
+  - "lower INPUT"
+  - "strings.ToLower INPUT"
 workson: []
 hugoversion:
 relatedfuncs: []
@@ -18,6 +20,10 @@ deprecated: false
 aliases: []
 ---
 
-```
-{{lower "BatMan"}} → "batman"
+
+Note that `lower` can be applied in your templates in more than one way:
+
+```go-html-template
+{{ lower "BatMan" }} → "batman"
+{{ "BatMan" | lower }} → "batman"
 ```

@@ -42,10 +42,10 @@ var DefaultConfig = Config{
 		),
 		// These have been tested to work with Hugo's external programs
 		// on Windows, Linux and MacOS.
-		OsEnv: NewWhitelist("(?i)^(PATH|PATHEXT|APPDATA|TMP|TEMP|TERM)$"),
+		OsEnv: NewWhitelist("(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM)$"),
 	},
 	Funcs: Funcs{
-		Getenv: NewWhitelist("^HUGO_"),
+		Getenv: NewWhitelist("^HUGO_", "^CI$"),
 	},
 	HTTP: HTTP{
 		URLs:    NewWhitelist(".*"),

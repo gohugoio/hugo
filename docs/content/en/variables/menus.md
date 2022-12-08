@@ -40,7 +40,7 @@ Reference to the [page object][page-object] associated with the menu entry. This
 will be non-nil if the menu entry is set via a page's front-matter and not via
 the site config.
 
-.PageRef {{< new-in "0.86.0" >}}
+.PageRef
 : _string_ <br /> Can be set if defined in site config and the menu entry refers to a Page. [site.GetPage](/functions/getpage/) will be used to do the page lookup. If this is set, you don't need to set the `URL`.
 
 .Name
@@ -67,9 +67,9 @@ a string representing HTML.
 
 .Weight
 : _int_ <br />
-Value of the `weight` key if set for the menu entry. By default the entries in 
-a menu are sorted ascending by their `weight`. If that key is not set, and if 
-the menu entry is set in a page front-matter, this value defaults to the page's 
+Value of the `weight` key if set for the menu entry. By default the entries in
+a menu are sorted ascending by their `weight`. If that key is not set, and if
+the menu entry is set in a page front-matter, this value defaults to the page's
 `.Weight`.
 
 .Parent
@@ -122,7 +122,6 @@ See [`.IsMenuCurrent` method](/functions/ismenucurrent/).
 .HasMenuCurrent
 : _(menu string, menuEntry *MenuEntry) boolean_ <br />
 See [`.HasMenuCurrent` method](/functions/hasmenucurrent/).
-
 
 [menu-template]: /templates/menu-templates/
 [page-object]: /variables/page/

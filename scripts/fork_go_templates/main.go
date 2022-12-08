@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	// The current is built with 41a82aa9c3 text/template/parse: allow space after continue or break
+	// The current is built with be7068fb0804f661515c678bee9224b90b32869a text/template: correct assignment, not declaration, in range
 	fmt.Println("Forking ...")
 	defer fmt.Println("Done ...")
 

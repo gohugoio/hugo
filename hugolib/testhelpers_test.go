@@ -764,8 +764,12 @@ func (s *sitesBuilder) AssertImage(width, height int, filename string) {
 
 func (s *sitesBuilder) AssertNoDuplicateWrites() {
 	s.Helper()
-	d := s.Fs.PublishDir.(hugofs.DuplicatesReporter)
-	s.Assert(d.ReportDuplicates(), qt.Equals, "")
+	hugofs.WalkFilesystems(s.Fs.PublishDir, func(fs afero.Fs) bool {
+		if dfs, ok := fs.(hugofs.DuplicatesReporter); ok {
+			s.Assert(dfs.ReportDuplicates(), qt.Equals, "")
+		}
+		return false
+	})
 }
 
 func (s *sitesBuilder) FileContent(filename string) string {

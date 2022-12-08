@@ -36,8 +36,9 @@ var Default = Config{
 		Unsafe: false,
 	},
 	Parser: Parser{
-		AutoHeadingID:     true,
-		AutoHeadingIDType: AutoHeadingIDTypeGitHub,
+		AutoHeadingID:                      true,
+		AutoHeadingIDType:                  AutoHeadingIDTypeGitHub,
+		WrapStandAloneImageWithinParagraph: true,
 		Attribute: ParserAttribute{
 			Title: true,
 			Block: false,
@@ -88,6 +89,9 @@ type Parser struct {
 
 	// Enables custom attributes.
 	Attribute ParserAttribute
+
+	// Whether to wrap stand-alone images within a paragraph or not.
+	WrapStandAloneImageWithinParagraph bool
 }
 
 type ParserAttribute struct {

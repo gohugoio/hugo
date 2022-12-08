@@ -13,7 +13,6 @@ menu:
     weight: 01
 weight: 01
 sections_weight: 01
-draft: false
 ---
 
 One of Hugo's greatest strengths is its passionate---and always evolving---developer community. With the exception of the `highlight` shortcode mentioned in [Syntax Highlighting][syntax], the tools and other projects featured in this section are offerings from both commercial services and open-source projects, many of which are developed by Hugo developers just like you.

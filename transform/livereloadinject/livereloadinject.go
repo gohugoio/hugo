@@ -24,16 +24,24 @@ import (
 	"github.com/gohugoio/hugo/transform"
 )
 
+const warnMessage = `"head" or "body" tag is required in html to append livereload script. ` +
+	"As a fallback, Hugo injects it somewhere but it might not work properly."
+
+var warnScript = fmt.Sprintf(`<script data-no-instant defer>console.warn('%s');</script>`, warnMessage)
+
 type tag struct {
 	markup       []byte
 	appendScript bool
+	warnRequired bool
 }
 
 var tags = []tag{
-	{markup: []byte("<head>"), appendScript: true},
-	{markup: []byte("<HEAD>"), appendScript: true},
+	{markup: []byte("<head"), appendScript: true},
+	{markup: []byte("<HEAD"), appendScript: true},
 	{markup: []byte("</body>")},
 	{markup: []byte("</BODY>")},
+	{markup: []byte("<html"), appendScript: true, warnRequired: true},
+	{markup: []byte("<HTML"), appendScript: true, warnRequired: true},
 }
 
 // New creates a function that can be used
@@ -64,15 +72,19 @@ func New(baseURL url.URL) transform.Transformer {
 		copy(c, b)
 
 		if idx == -1 {
-			_, err := ft.To().Write(c)
-			return err
+			idx = len(b)
+			match = tag{warnRequired: true}
 		}
 
 		script := []byte(fmt.Sprintf(`<script src="%s" data-no-instant defer></script>`, html.EscapeString(src)))
 
 		i := idx
 		if match.appendScript {
-			i += len(match.markup)
+			i += bytes.Index(b[i:], []byte(">")) + 1
+		}
+
+		if match.warnRequired {
+			script = append(script, []byte(warnScript)...)
 		}
 
 		c = append(c[:i], append(script, c[i:]...)...)

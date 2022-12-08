@@ -59,7 +59,7 @@ It is important to note that all `_index.md` content files will render according
 
 The following is an example of a typical Hugo project directory's content:
 
-```
+```txt
 .
 ...
 ├── content
@@ -524,27 +524,27 @@ While these are logical defaults, they are not always the desired order. There a
 
 #### 1. Adding the Reverse Method
 
-```
+```go-html-template
 {{ range (.Pages.GroupBy "Section").Reverse }}
 ```
 
-```
+```go-html-template
 {{ range (.Pages.GroupByDate "2006-01").Reverse }}
 ```
 
 #### 2. Providing the Alternate Direction
 
-```
+```go-html-template
 {{ range .Pages.GroupByDate "2006-01" "asc" }}
 ```
 
-```
+```go-html-template
 {{ range .Pages.GroupBy "Section" "desc" }}
 ```
 
 ### Order Within Groups
 
-Because Grouping returns a `{{.Key}}` and a slice of pages, all of the ordering methods listed above are available.
+Because Grouping returns a `{{.Key}}` and a slice of pages, all the ordering methods listed above are available.
 
 Here is the ordering for the example that follows:
 

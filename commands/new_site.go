@@ -62,11 +62,12 @@ Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
 func (n *newSiteCmd) doNewSite(fs *hugofs.Fs, basepath string, force bool) error {
 	archeTypePath := filepath.Join(basepath, "archetypes")
 	dirs := []string{
-		filepath.Join(basepath, "layouts"),
-		filepath.Join(basepath, "content"),
 		archeTypePath,
-		filepath.Join(basepath, "static"),
+		filepath.Join(basepath, "assets"),
+		filepath.Join(basepath, "content"),
 		filepath.Join(basepath, "data"),
+		filepath.Join(basepath, "layouts"),
+		filepath.Join(basepath, "static"),
 		filepath.Join(basepath, "themes"),
 	}
 

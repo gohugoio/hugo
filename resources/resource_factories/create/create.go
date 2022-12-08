@@ -45,7 +45,7 @@ func New(rs *resources.Spec) *Client {
 	return &Client{
 		rs: rs,
 		httpClient: &http.Client{
-			Timeout: 10 * time.Second,
+			Timeout: time.Minute,
 		},
 		cacheGetResource: rs.FileCaches.GetResourceCache(),
 	}

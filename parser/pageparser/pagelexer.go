@@ -194,7 +194,12 @@ func (l *pageLexer) ignoreEscapesAndEmit(t ItemType, isString bool) {
 			if i > k {
 				segments = append(segments, lowHigh{k, i})
 			}
-			l.append(Item{Type: TypeIgnore, low: i, high: i + w})
+			// See issue #10236.
+			// We don't send the backslash back to the client,
+			// which makes the end parsing simpler.
+			// This means that we cannot render the AST back to be
+			// exactly the same as the input,
+			// but that was also the situation before we introduced the issue in #10236.
 			k = i + w
 		}
 		i += w

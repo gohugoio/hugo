@@ -43,11 +43,11 @@ The GitHub Actions used in these instructions pull source content from the `main
 As mentioned in the [GitHub Pages documentation][ghorgs], you can host a user/organization page in addition to project pages. Here are the key differences in GitHub Pages websites for Users and Organizations:
 
 1. You must create a repository named `<USERNAME>.github.io` or `<ORGANIZATION>.github.io` to host your pages
-2. By default, content from the `main` branch is used to publish GitHub Pages - rather than the `gh-pages` branch which is the default for project sites. However, the GitHub Actions in these instructions publish to the `gh-pages` branch. Therefore, if you are publishing Github pages for a user or organization, you will need to change the publishing branch to `gh-pages`. See the instructions later in this document.
+2. By default, content from the `main` branch is used to publish GitHub Pages - rather than the `gh-pages` branch which is the default for project sites. However, the GitHub Actions in these instructions publish to the `gh-pages` branch. Therefore, if you are publishing GitHub pages for a user or organization, you will need to change the publishing branch to `gh-pages`. See the instructions later in this document.
 
 ## Build Hugo With GitHub Action
 
-GitHub executes your software development workflows. Everytime you push your code on the Github repository, Github Actions will build the site automatically.
+GitHub executes your software development workflows. Every time you push your code on the GitHub repository, GitHub Actions will build the site automatically.
 
 Create a file in `.github/workflows/gh-pages.yml` containing the following content (based on [actions-hugo](https://github.com/marketplace/actions/hugo-setup)):
 
@@ -57,14 +57,14 @@ name: github pages
 on:
   push:
     branches:
-      - main  # Set a branch to deploy
+      - main  # Set a branch that will trigger a deployment
   pull_request:
 
 jobs:
   deploy:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true  # Fetch Hugo themes (true OR recursive)
           fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
@@ -88,10 +88,12 @@ jobs:
 
 For more advanced settings [actions-hugo](https://github.com/marketplace/actions/hugo-setup) and [actions-gh-pages](https://github.com/marketplace/actions/github-pages-action).
 
-## Github pages setting
+## GitHub pages setting
+
 By default, the GitHub action pushes the generated content to the `gh-pages` branch. This means GitHub has to serve your `gh-pages` branch as a GitHub Pages branch. You can change this setting by going to Settings > GitHub Pages, and change the source branch to `gh-pages`.
 
 ## Change baseURL in config.toml
+
 Don't forget to rename your `baseURL` in `config.toml` with the value `https://<USERNAME>.github.io` for your user repository or `https://<USERNAME>.github.io/<REPOSITORY_NAME>` for a project repository.
 
 Unless this is present in your `config.toml`, your website won't work.

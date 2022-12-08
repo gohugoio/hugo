@@ -26,7 +26,7 @@ To load completions for every new session, execute once:
 
 #### macOS:
 
-	hugo completion bash > /usr/local/etc/bash_completion.d/hugo
+	hugo completion bash > $(brew --prefix)/etc/bash_completion.d/hugo
 
 You will need to start a new shell for this setup to take effect.
 

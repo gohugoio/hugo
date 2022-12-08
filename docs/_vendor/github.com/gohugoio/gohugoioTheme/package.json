@@ -3,14 +3,7 @@
   "version": "1.1.0",
   "description": "Default Theme for Hugo Sites",
   "main": "index.js",
-  "homepage": "https://gohugo.io/",
-  "bugs": {
-    "url": "https://github.com/gohugoio/gohugoioTheme/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/gohugoio/gohugoioTheme.git"
-  },
+  "repository": "",
   "author": "budparr",
   "license": "MIT",
   "scripts": {
@@ -21,14 +14,13 @@
   "devDependencies": {
     "clean-webpack-plugin": "^1.0.0",
     "clipboard": "^2.0.4",
-    "css-loader": "^4.3.0",
+    "css-loader": "^1.0.1",
     "docsearch.js": "^2.6.1",
     "file-loader": "^2.0.0",
     "glob-all": "^3.1.0",
-    "highlight.js": "^9.13.1",
-    "lazysizes": "^5.2.1",
+    "lazysizes": "^5.3.2",
     "mini-css-extract-plugin": "^0.4.4",
-    "postcss": "^7.0.36",
+    "postcss": "^7.0.5",
     "postcss-cssnext": "^3.1.0",
     "postcss-import": "^12.0.1",
     "postcss-loader": "^3.0.0",
@@ -36,8 +28,7 @@
     "scrolldir": "^1.4.0",
     "tachyons": "^4.7.0",
     "typeface-muli": "0.0.54",
-    "webpack": "^4.44.1",
+    "webpack": "^4.25.1",
     "webpack-command": "^0.4.2"
-  },
-  "dependencies": {}
+  }
 }

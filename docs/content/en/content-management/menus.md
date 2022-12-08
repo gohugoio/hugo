@@ -1,20 +1,16 @@
 ---
 title: Menus
-linktitle: Menus
+linkTitle: Menus
 description: Hugo has a simple yet powerful menu system.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-03-31
 categories: [content management]
 keywords: [menus]
-draft: false
 menu:
   docs:
-    parent: "content-management"
-    weight: 120
-weight: 120
-aliases: [/extras/menus/]
+    parent: content-management
+    weight: 190
 toc: true
+weight: 190
+aliases: [/extras/menus/]
 ---
 
 {{% note "Lazy Blogger"%}}
@@ -69,7 +65,7 @@ menu:
 
 ## Add Non-content Entries to a Menu
 
-You can also add entries to menus that aren’t attached to a piece of content. This takes place in your Hugo project's [`config` file][config].
+You can also add entries to menus that aren’t attached to a piece of content. This takes place in your Hugo project's [`config` file][config] (see [Menu Entry Properties][me-props] for full details of available variables).
 
 Here’s an example snippet pulled from a configuration file:
 

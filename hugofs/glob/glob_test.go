@@ -66,7 +66,7 @@ func TestNormalizePath(t *testing.T) {
 }
 
 func TestGetGlob(t *testing.T) {
-	for _, cache := range []*globCache{defaultGlobCache, filenamesGlobCache} {
+	for _, cache := range []*globCache{defaultGlobCache} {
 		c := qt.New(t)
 		g, err := cache.GetGlob("**.JSON")
 		c.Assert(err, qt.IsNil)
@@ -89,8 +89,8 @@ func BenchmarkGetGlob(b *testing.B) {
 	}
 
 	runBench("Default cache", defaultGlobCache, "abcde")
-	runBench("Filenames cache, lowercase searchs", filenamesGlobCache, "abcde")
-	runBench("Filenames cache, mixed case searchs", filenamesGlobCache, "abCDe")
+	runBench("Filenames cache, lowercase searchs", defaultGlobCache, "abcde")
+	runBench("Filenames cache, mixed case searchs", defaultGlobCache, "abCDe")
 
 	b.Run("GetGlob", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {

@@ -168,6 +168,11 @@ HELLO: {{ $hello.RelPermalink }}
 HELLO: {{ $hello.RelPermalink }}|Integrity: {{ $hello.Data.Integrity }}|MediaType: {{ $hello.MediaType.Type }}
 HELLO2: Name: {{ $hello.Name }}|Content: {{ $hello.Content }}|Title: {{ $hello.Title }}|ResourceType: {{ $hello.ResourceType }}
 
+// Issue #10269
+{{ $m := dict "relPermalink"  $hello.RelPermalink "integrity" $hello.Data.Integrity "mediaType" $hello.MediaType.Type }}
+{{ $json := jsonify (dict "indent" "  ") $m | resources.FromString "hello.json" -}}
+JSON: {{ $json.RelPermalink }}
+
 // Issue #8884
 <a href="hugo.rocks">foo</a>
 <a href="{{ $hello.RelPermalink }}" integrity="{{ $hello.Data.Integrity}}">Hello</a>
@@ -188,6 +193,11 @@ End.`)
 
 	b.AssertFileContent("public/page1/index.html", `HELLO: /hello.min.a2d1cb24f24b322a7dad520414c523e9.html`)
 	b.AssertFileContent("public/page2/index.html", `HELLO: /hello.min.a2d1cb24f24b322a7dad520414c523e9.html`)
+	b.AssertFileContent("public/hello.json", `
+integrity": "md5-otHLJPJLMip9rVIEFMUj6Q==
+mediaType": "text/html
+relPermalink": "/hello.min.a2d1cb24f24b322a7dad520414c523e9.html"
+`)
 }
 
 func BenchmarkResourceChainPostProcess(b *testing.B) {

@@ -30,6 +30,8 @@ import (
 	"strings"
 	"sync"
 
+	color_extractor "github.com/marekm4/color-extractor"
+
 	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/disintegration/gift"
@@ -63,6 +65,9 @@ type imageResource struct {
 	metaInit    sync.Once
 	metaInitErr error
 	meta        *imageMeta
+
+	dominantColorInit sync.Once
+	dominantColors    []string
 
 	baseResource
 }
@@ -133,6 +138,24 @@ func (i *imageResource) getExif() *exif.ExifInfo {
 	}
 
 	return i.meta.Exif
+}
+
+// Colors returns a slice of the most dominant colors in an image
+// using a simple histogram method.
+func (i *imageResource) Colors() ([]string, error) {
+	var err error
+	i.dominantColorInit.Do(func() {
+		var img image.Image
+		img, err = i.DecodeImage()
+		if err != nil {
+			return
+		}
+		colors := color_extractor.ExtractColors(img)
+		for _, c := range colors {
+			i.dominantColors = append(i.dominantColors, images.ColorToHexString(c))
+		}
+	})
+	return i.dominantColors, nil
 }
 
 // Clone is for internal use.

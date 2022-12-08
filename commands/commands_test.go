@@ -47,7 +47,7 @@ func TestExecute(t *testing.T) {
 		c.Assert(resp.Err, qt.IsNil)
 		result := resp.Result
 		c.Assert(len(result.Sites) == 1, qt.Equals, true)
-		c.Assert(len(result.Sites[0].RegularPages()) == 1, qt.Equals, true)
+		c.Assert(len(result.Sites[0].RegularPages()) == 2, qt.Equals, true)
 		c.Assert(result.Sites[0].Info.Params()["myparam"], qt.Equals, "paramproduction")
 	})
 
@@ -117,11 +117,13 @@ func TestExecute(t *testing.T) {
 
 func checkNewSiteInited(c *qt.C, basepath string) {
 	paths := []string{
-		filepath.Join(basepath, "layouts"),
-		filepath.Join(basepath, "content"),
 		filepath.Join(basepath, "archetypes"),
-		filepath.Join(basepath, "static"),
+		filepath.Join(basepath, "assets"),
+		filepath.Join(basepath, "content"),
 		filepath.Join(basepath, "data"),
+		filepath.Join(basepath, "layouts"),
+		filepath.Join(basepath, "static"),
+		filepath.Join(basepath, "themes"),
 		filepath.Join(basepath, "config.toml"),
 	}
 
@@ -364,9 +366,23 @@ Content
 
 `)
 
+	writeFile(t, filepath.Join(dir, contentDir, "hügö.md"), `
+---
+weight: 2
+---
+
+This is hügö.
+
+`)
+
 	writeFile(t, filepath.Join(dir, "layouts", "_default", "single.html"), `
 
-Single: {{ .Title }}
+Single: {{ .Title }}|{{ .Content }}
+
+`)
+
+	writeFile(t, filepath.Join(dir, "layouts", "404.html"), `
+404: {{ .Title }}|Not Found.
 
 `)
 

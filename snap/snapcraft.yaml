@@ -1,5 +1,7 @@
 name: hugo
-version: git
+issues: https://github.com/gohugoio/hugo/issues
+source-code: https://github.com/gohugoio/hugo.git
+website: https://gohugo.io/
 summary: Fast and Flexible Static Site Generator
 description: |
   Hugo is a static HTML and CSS website generator written in Go. It is
@@ -8,7 +10,7 @@ description: |
 license: "Apache-2.0"
 base: core20
 confinement: strict
-grade: devel # "devel" or "stable"
+adopt-info: hugo
 
 package-repositories:
   - type: apt
@@ -21,17 +23,26 @@ plugs:
   etc-gitconfig:
     interface: system-files
     read:
-    - /etc/gitconfig
+      - /etc/gitconfig
   gitconfig:
     interface: personal-files
     read:
-    - $HOME/.gitconfig
-    - $HOME/.config/git/config
+      - $HOME/.gitconfig
+      - $HOME/.config/git/config
+
+environment:
+  HOME: $SNAP_REAL_HOME
+  GIT_EXEC_PATH: $SNAP/usr/lib/git-core
+  GOCACHE: $SNAP_USER_DATA/.cache/go-build
+  npm_config_cache: $SNAP_USER_DATA/.npm
+  npm_config_init_module: $SNAP_USER_DATA/.npm-init.js
+  npm_config_userconfig: $SNAP_USER_DATA/.npmrc
+  pandoc_datadir: $SNAP/usr/share/pandoc
+  PYTHONHOME: /usr:$SNAP/usr
+  RUBYLIB: $SNAP/usr/lib/ruby/vendor_ruby/2.7.0:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/ruby/vendor_ruby/2.7.0:$SNAP/usr/lib/ruby/vendor_ruby:$SNAP/usr/lib/ruby/2.7.0:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/ruby/2.7.0
 
 apps:
   hugo:
-    environment:
-      HOME: $SNAP_REAL_HOME
     command: bin/hugo
     completer: hugo-completion
     plugs:
@@ -46,21 +57,48 @@ parts:
     plugin: nil
     stage-packages:
       - git
-    organize:
-      usr/bin/: bin/
     prime:
-      - bin/git
+      - usr/bin/git
+      - usr/lib
+
+  go:
+    plugin: nil
+    stage-snaps:
+      - go/1.19/stable
+    prime:
+      - bin/go
+      - pkg/tool
+      - -pkg/tool/*
 
   hugo:
     plugin: nil
-    build-snaps: [go/1.18/stable]
     source: .
+    after:
+      - git
+      - go
+    override-pull: |
+      snapcraftctl pull
+      snapcraftctl set-version "$(git describe --tags --always --match 'v[0-9]*' | sed 's/^v//; s/-/+git/; s/-g/./')"
+      if grep -q 'Suffix:\s*""' common/hugo/version_current.go; then
+        snapcraftctl set-grade "stable"
+      else
+        snapcraftctl set-grade "devel"
+      fi
     override-build: |
+      echo "\nStarting override-build:"
       set -ex
 
-      echo "\nStarting override-build:"
       export GOPATH=$(realpath ../go)
       export PATH=$GOPATH/bin:$PATH
+
+      echo " * Patch securityConfig.go to allow"
+      echo "   - GIT_EXEC_PATH and LD_LIBRARY_PATH to be passed to git"
+      echo "   - npm_config_{cache,init_module,userconfig} to be passed to npx"
+      echo "   - pandoc_datadir to be passed to pandoc"
+      echo "   - PYTHONHOME and SNAP to be passed to rst2html"
+      echo "   - RUBYLIB to be passed to asciidoctor"
+      sed -i '/OsEnv: NewWhitelist/s/)\$/|GIT_EXEC_PATH|LD_LIBRARY_PATH|npm_config_(cache|init_module|userconfig)|pandoc_datadir|PYTHONHOME|RUBYLIB|SNAP&/' config/security/securityConfig.go
+      git diff config/security/securityConfig.go
 
       echo " * SNAPCRAFT_IMAGE_INFO=${SNAPCRAFT_IMAGE_INFO=}"
       # Example: SNAPCRAFT_IMAGE_INFO='{"build_url": "https://launchpad.net/~gohugoio/+snap/hugo-extended-dev/+build/344022"}'
@@ -68,8 +106,9 @@ parts:
       if echo $SNAPCRAFT_IMAGE_INFO | grep -q '/+snap/hugo-extended'; then
         HUGO_BUILD_TAGS="extended"
       fi
+
       echo " * Building hugo (HUGO_BUILD_TAGS=\"$HUGO_BUILD_TAGS\")..."
-      go build -v -ldflags '-X github.com/gohugoio/hugo/common/hugo.vendorInfo=snap' -tags "$HUGO_BUILD_TAGS"
+      go build -v -ldflags "-X github.com/gohugoio/hugo/common/hugo.vendorInfo=snap:$(git describe --tags --always --match 'v[0-9]*' | sed 's/^v//; s/-/+git/; s/-g/./')" -tags "$HUGO_BUILD_TAGS"
       ./hugo version
       ldd hugo || :
 
@@ -86,25 +125,53 @@ parts:
       strip --remove-section=.comment --remove-section=.note $SNAPCRAFT_PART_INSTALL/bin/hugo
       ls -l $SNAPCRAFT_PART_INSTALL/bin/hugo
 
+  asciidoctor:
+    plugin: nil
+    stage-packages:
+      - asciidoctor
+    override-build: |
+      set -ex
+      snapcraftctl build
+      sed -i '1s|#!/usr/bin/ruby|#!/usr/bin/env ruby|' $SNAPCRAFT_PART_INSTALL/usr/bin/asciidoctor
+
+  dart-sass-embedded:
+    plugin: nil
+    build-packages:
+      - curl
+    override-build: |
+      set -ex
+      snapcraftctl build
+      case "$SNAPCRAFT_TARGET_ARCH" in
+        amd64)  arch=x64    ;;
+        arm64)  arch=arm64  ;;
+        i386)   arch=ia32   ;;
+        *)      arch=""     ;;
+      esac
+      if [[ -n $arch ]]; then
+        url=$(curl -s https://api.github.com/repos/sass/dart-sass-embedded/releases/latest | awk -F\" "/browser_download_url.*-linux-${arch}.tar.gz/{print \$(NF-1)}")
+        curl -LO --retry-connrefused --retry 10 "$url"
+        tar xf sass_embedded-*-linux-$arch.tar.gz sass_embedded/dart-sass-embedded
+        install -d $SNAPCRAFT_PART_INSTALL/bin
+        cp -av sass_embedded/dart-sass-embedded $SNAPCRAFT_PART_INSTALL/bin/
+      fi
+
   node:
     plugin: nil
     stage-packages:
       - nodejs
-    organize:
-      usr/bin/: bin/
-      usr/lib/: lib/
-    prime:
-      - bin/node
-      - lib/*/lib*.so*
 
   pandoc:
     plugin: nil
     stage-packages:
-      - libatomic1
       - pandoc
-      - pandoc-data
+
+  rst2html:
+    plugin: nil
+    stage-packages:
+      - python3-docutils
+    override-build: |
+      set -ex
+      snapcraftctl build
+      sed -i "s|'/usr/share/docutils/'|os.path.expandvars('\$SNAP/usr/share/docutils/')|" $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages/docutils/__init__.py
     organize:
-      usr/bin/: bin/
-      usr/lib/: lib/
-    prime:
-      - bin/pandoc
+      usr/share/docutils/scripts/python3: usr/bin
