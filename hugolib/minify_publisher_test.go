@@ -59,5 +59,5 @@ func TestMinifyPublisher(t *testing.T) {
 	b.AssertFileContent("public/index.xml", "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?><rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\"><channel><title/><link>https://example.org/</link>")
 
 	// Sitemap
-	b.AssertFileContent("public/sitemap.xml", "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?><urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" xmlns:xhtml=\"http://www.w3.org/1999/xhtml\"><url><loc>h")
+	b.AssertFileContent("public/sitemap.xml", "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?><urlset xmlns=\"https://www.sitemaps.org/schemas/sitemap/0.9\" xmlns:xhtml=\"https://www.w3.org/1999/xhtml\"><url><loc>h")
 }
