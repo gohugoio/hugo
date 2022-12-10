@@ -37,7 +37,7 @@ type Decoder struct {
 	// Delimiter is the field delimiter used in the CSV decoder. It defaults to ','.
 	Delimiter rune
 
-	// Comment, if not 0, is the comment character ued in the CSV decoder. Lines beginning with the
+	// Comment, if not 0, is the comment character used in the CSV decoder. Lines beginning with the
 	// Comment character without preceding whitespace are ignored.
 	Comment rune
 }
