@@ -36,9 +36,10 @@ jobs:
           **/go.sum
           **/go.mod
     - name: Install Ruby
-      uses: actions/setup-ruby@5f29a1cd8dfebf420691c4c9a0e832e2fae5a526
+      uses: ruby/setup-ruby@ee2113536afb7f793eed4ce60e8d3b26db912da4
       with:
-        ruby-version: '2.7'
+        ruby-version: '2.7' 
+        bundler-cache: true #
     - name: Install Python
       uses: actions/setup-python@3105fb18c05ddd93efea5f9e0bef7a03a6e9e7df
       with:
