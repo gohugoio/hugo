@@ -122,6 +122,7 @@ func TestUnmarshalToInterface(t *testing.T) {
 	}{
 		{`[ "Brecker", "Blake", "Redman" ]`, JSON, []any{"Brecker", "Blake", "Redman"}},
 		{`{ "a": "b" }`, JSON, expect},
+		{``, JSON, map[string]any{}},
 		{`#+a: b`, ORG, expect},
 		{`#+DATE: <2020-06-26 Fri>`, ORG, map[string]any{"date": "2020-06-26"}},
 		{`a = "b"`, TOML, expect},
