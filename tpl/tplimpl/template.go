@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"reflect"
 	"regexp"
@@ -824,7 +823,7 @@ func (t *templateHandler) loadTemplates() error {
 	}
 
 	if err := helpers.SymbolicWalk(t.Layouts.Fs, "", walker); err != nil {
-		if !os.IsNotExist(err) {
+		if !herrors.IsNotExist(err) {
 			return err
 		}
 		return nil

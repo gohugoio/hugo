@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/bep/debounce"
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/spf13/cast"
@@ -539,7 +540,7 @@ func (c *collector) collectModulesTXT(owner Module) error {
 
 	f, err := c.fs.Open(filename)
 	if err != nil {
-		if os.IsNotExist(err) {
+		if herrors.IsNotExist(err) {
 			return nil
 		}
 

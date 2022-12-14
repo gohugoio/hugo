@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/spf13/afero"
 )
 
@@ -224,7 +225,7 @@ func (l *baseFileDecoratorFile) Readdir(c int) (ofi []os.FileInfo, err error) {
 		// We need to resolve any symlink info.
 		fi, _, err := lstatIfPossible(l.fs.Fs, filename)
 		if err != nil {
-			if os.IsNotExist(err) {
+			if herrors.IsNotExist(err) {
 				continue
 			}
 			return nil, err
