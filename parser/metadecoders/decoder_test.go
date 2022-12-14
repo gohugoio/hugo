@@ -116,22 +116,23 @@ func TestUnmarshalToInterface(t *testing.T) {
 	d := Default
 
 	for i, test := range []struct {
-		data   string
+		data   []byte
 		format Format
 		expect any
 	}{
-		{`[ "Brecker", "Blake", "Redman" ]`, JSON, []any{"Brecker", "Blake", "Redman"}},
-		{`{ "a": "b" }`, JSON, expect},
-		{``, JSON, map[string]any{}},
-		{`#+a: b`, ORG, expect},
-		{`#+DATE: <2020-06-26 Fri>`, ORG, map[string]any{"date": "2020-06-26"}},
-		{`a = "b"`, TOML, expect},
-		{`a: "b"`, YAML, expect},
-		{`<root><a>b</a></root>`, XML, expect},
-		{`a,b,c`, CSV, [][]string{{"a", "b", "c"}}},
-		{"a: Easy!\nb:\n  c: 2\n  d: [3, 4]", YAML, map[string]any{"a": "Easy!", "b": map[string]any{"c": 2, "d": []any{3, 4}}}},
+		{[]byte(`[ "Brecker", "Blake", "Redman" ]`), JSON, []any{"Brecker", "Blake", "Redman"}},
+		{[]byte(`{ "a": "b" }`), JSON, expect},
+		{[]byte(``), JSON, map[string]any{}},
+		{[]byte(nil), JSON, map[string]any{}},
+		{[]byte(`#+a: b`), ORG, expect},
+		{[]byte(`#+DATE: <2020-06-26 Fri>`), ORG, map[string]any{"date": "2020-06-26"}},
+		{[]byte(`a = "b"`), TOML, expect},
+		{[]byte(`a: "b"`), YAML, expect},
+		{[]byte(`<root><a>b</a></root>`), XML, expect},
+		{[]byte(`a,b,c`), CSV, [][]string{{"a", "b", "c"}}},
+		{[]byte("a: Easy!\nb:\n  c: 2\n  d: [3, 4]"), YAML, map[string]any{"a": "Easy!", "b": map[string]any{"c": 2, "d": []any{3, 4}}}},
 		// errors
-		{`a = "`, TOML, false},
+		{[]byte(`a = "`), TOML, false},
 	} {
 		msg := qt.Commentf("%d: %s", i, test.format)
 		m, err := d.Unmarshal([]byte(test.data), test.format)
