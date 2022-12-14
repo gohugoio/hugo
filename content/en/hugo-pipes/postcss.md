@@ -22,7 +22,7 @@ The resource will be processed using the project's or theme's own `postcss.confi
 You must install the required Node.js packages to use the PostCSS feature. For example, to use the `autoprefixer` package, run these commands from the root of your project:
 
 ```text
-npm install -D postcss postcss-cli autoprefixer
+npm install postcss postcss-cli autoprefixer
 ```
 
 ### Options
