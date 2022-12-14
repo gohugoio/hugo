@@ -135,7 +135,7 @@ func TestUnmarshalToInterface(t *testing.T) {
 		{[]byte(`a = "`), TOML, false},
 	} {
 		msg := qt.Commentf("%d: %s", i, test.format)
-		m, err := d.Unmarshal([]byte(test.data), test.format)
+		m, err := d.Unmarshal(test.data, test.format)
 		if b, ok := test.expect.(bool); ok && !b {
 			c.Assert(err, qt.Not(qt.IsNil), msg)
 		} else {
