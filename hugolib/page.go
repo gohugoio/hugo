@@ -16,7 +16,6 @@ package hugolib
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"path"
 	"path/filepath"
 	"sort"
@@ -489,7 +488,7 @@ func (p *pageState) renderResources() (err error) {
 			}
 
 			if err := src.Publish(); err != nil {
-				if os.IsNotExist(err) {
+				if herrors.IsNotExist(err) {
 					// The resource has been deleted from the file system.
 					// This should be extremely rare, but can happen on live reload in server
 					// mode when the same resource is member of different page bundles.

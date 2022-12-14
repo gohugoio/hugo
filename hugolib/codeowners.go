@@ -15,9 +15,9 @@ package hugolib
 
 import (
 	"io"
-	"os"
 	"path"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/hairyhenderson/go-codeowners"
@@ -32,7 +32,7 @@ func findCodeOwnersFile(dir string) (io.Reader, error) {
 
 		_, err := afs.Stat(f)
 		if err != nil {
-			if os.IsNotExist(err) {
+			if herrors.IsNotExist(err) {
 				continue
 			}
 			return nil, err

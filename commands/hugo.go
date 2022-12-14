@@ -579,7 +579,7 @@ func (c *commandeer) serverBuild() error {
 
 func (c *commandeer) copyStatic() (map[string]uint64, error) {
 	m, err := c.doWithPublishDirs(c.copyStaticTo)
-	if err == nil || os.IsNotExist(err) {
+	if err == nil || herrors.IsNotExist(err) {
 		return m, nil
 	}
 	return m, err
@@ -899,7 +899,7 @@ func (c *commandeer) newWatcher(pollIntervalStr string, dirList ...string) (*wat
 				}
 				unlock()
 			case err := <-watcher.Errors():
-				if err != nil && !os.IsNotExist(err) {
+				if err != nil && !herrors.IsNotExist(err) {
 					c.logger.Errorln("Error while watching:", err)
 				}
 			}
