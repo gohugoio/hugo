@@ -55,3 +55,41 @@ l1: {{ i18n "l1"  }}|l2: {{ i18n "l2"  }}|l3: {{ i18n "l3"  }}
 l1: l1main|l2: l2main|l3: l3theme
 	`)
 }
+
+func TestHasLanguage(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+baseURL = "https://example.org"
+defaultContentLanguage = "en"
+defaultContentLanguageInSubDir = true
+[languages]
+[languages.en]
+weight=10
+[languages.nn]
+weight=20
+-- i18n/en.toml --
+key1.other = "en key1"
+key2.other = "en key2"
+
+-- i18n/nn.toml --
+key1.other = "nn key1"
+key3.other = "nn key2"
+-- layouts/index.html --
+key1: {{ lang.HasTranslation "key1" }}|
+key2: {{ lang.HasTranslation "key2" }}|
+key3: {{ lang.HasTranslation "key3" }}|
+
+  `
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/en/index.html", "key1: true|\nkey2: true|\nkey3: false|")
+	b.AssertFileContent("public/nn/index.html", "key1: true|\nkey2: false|\nkey3: true|")
+}

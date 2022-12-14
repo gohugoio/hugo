@@ -60,7 +60,16 @@ func (ns *Namespace) Translate(id any, args ...any) (string, error) {
 		return "", nil
 	}
 
-	return ns.deps.Translate(sid, templateData), nil
+	return ns.deps.Translator.Translate(sid, templateData), nil
+}
+
+// HasTranslation returns true if the translation key is translated in the current language.
+func (ns *Namespace) HasTranslation(key any) bool {
+	keys, err := cast.ToStringE(key)
+	if err != nil {
+		return false
+	}
+	return ns.deps.Translator.HasTranslation(keys)
 }
 
 // FormatNumber formats number with the given precision for the current language.

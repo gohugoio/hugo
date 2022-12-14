@@ -329,3 +329,8 @@ type Collator struct {
 func (c *Collator) CompareStrings(a, b string) int {
 	return c.c.CompareString(a, b)
 }
+
+type Translator interface {
+	Translate(translationID string, templateData any) string
+	HasTranslation(translationID string) bool
+}

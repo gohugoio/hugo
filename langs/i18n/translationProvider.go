@@ -1,4 +1,4 @@
-// Copyright 2017 The Hugo Authors. All rights reserved.
+// Copyright 2022 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/deps"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"golang.org/x/text/language"
@@ -28,7 +29,6 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	toml "github.com/pelletier/go-toml/v2"
 
-	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/source"
 )
@@ -36,7 +36,7 @@ import (
 // TranslationProvider provides translation handling, i.e. loading
 // of bundles etc.
 type TranslationProvider struct {
-	t Translator
+	t Translators
 }
 
 // NewTranslationProvider creates a new translation provider.
@@ -73,7 +73,7 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 
 	tp.t = NewTranslator(bundle, d.Cfg, d.Log)
 
-	d.Translate = tp.t.Func(d.Language.Lang)
+	d.Translator = tp.t.Get(d.Language.Lang)
 
 	return nil
 }
@@ -119,7 +119,7 @@ func addTranslationFile(bundle *i18n.Bundle, r source.File) error {
 
 // Clone sets the language func for the new language.
 func (tp *TranslationProvider) Clone(d *deps.Deps) error {
-	d.Translate = tp.t.Func(d.Language.Lang)
+	d.Translator = tp.t.Get(d.Language.Lang)
 
 	return nil
 }

@@ -1,4 +1,4 @@
-// Copyright 2017 The Hugo Authors. All rights reserved.
+// Copyright 2022 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -407,10 +407,10 @@ other = "{{ . }} miesiąca"
 			c.Assert(err, qt.IsNil)
 			c.Assert(d.LoadResources(), qt.IsNil)
 
-			f := tp.t.Func(test.lang)
+			f := tp.t.Get(test.lang)
 
 			for _, variant := range test.variants {
-				c.Assert(f(test.id, variant.Key), qt.Equals, variant.Value, qt.Commentf("input: %v", variant.Key))
+				c.Assert(f.Translate(test.id, variant.Key), qt.Equals, variant.Value, qt.Commentf("input: %v", variant.Key))
 				c.Assert(int(depsCfg.Logger.LogCounters().WarnCounter.Count()), qt.Equals, 0)
 			}
 
@@ -421,8 +421,8 @@ other = "{{ . }} miesiąca"
 
 func doTestI18nTranslate(t testing.TB, test i18nTest, cfg config.Provider) string {
 	tp := prepareTranslationProvider(t, test, cfg)
-	f := tp.t.Func(test.lang)
-	return f(test.id, test.args)
+	f := tp.t.Get(test.lang)
+	return f.Translate(test.id, test.args)
 }
 
 type countField struct {
@@ -541,8 +541,8 @@ func BenchmarkI18nTranslate(b *testing.B) {
 			tp := prepareTranslationProvider(b, test, v)
 			b.ResetTimer()
 			for i := 0; i < b.N; i++ {
-				f := tp.t.Func(test.lang)
-				actual := f(test.id, test.args)
+				f := tp.t.Get(test.lang)
+				actual := f.Translate(test.id, test.args)
 				if actual != test.expected {
 					b.Fatalf("expected %v got %v", test.expected, actual)
 				}

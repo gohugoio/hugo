@@ -1,4 +1,4 @@
-// Copyright 2017 The Hugo Authors. All rights reserved.
+// Copyright 2022 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,54 +24,76 @@ import (
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/langs"
 
 	"github.com/gohugoio/go-i18n/v2/i18n"
 )
+
+type translator struct {
+	translate      func(translationID string, templateData any) string
+	hasTranslation func(translationID string) bool
+}
+
+var nopTranslator = translator{}
+
+func (t translator) Translate(translationID string, templateData any) string {
+	if t.translate == nil {
+		return ""
+	}
+	return t.translate(translationID, templateData)
+}
+
+func (t translator) HasTranslation(translationID string) bool {
+	if t.hasTranslation == nil {
+		return false
+	}
+	return t.hasTranslation(translationID)
+}
 
 type translateFunc func(translationID string, templateData any) string
 
 var i18nWarningLogger = helpers.NewDistinctErrorLogger()
 
-// Translator handles i18n translations.
-type Translator struct {
-	translateFuncs map[string]translateFunc
-	cfg            config.Provider
-	logger         loggers.Logger
+// Translators handles i18n translations.
+type Translators struct {
+	translators map[string]langs.Translator
+	cfg         config.Provider
+	logger      loggers.Logger
 }
 
 // NewTranslator creates a new Translator for the given language bundle and configuration.
-func NewTranslator(b *i18n.Bundle, cfg config.Provider, logger loggers.Logger) Translator {
-	t := Translator{cfg: cfg, logger: logger, translateFuncs: make(map[string]translateFunc)}
+func NewTranslator(b *i18n.Bundle, cfg config.Provider, logger loggers.Logger) Translators {
+	t := Translators{cfg: cfg, logger: logger, translators: make(map[string]langs.Translator)}
 	t.initFuncs(b)
 	return t
 }
 
-// Func gets the translate func for the given language, or for the default
+// Get gets the Translator for the given language, or for the default
 // configured language if not found.
-func (t Translator) Func(lang string) translateFunc {
-	if f, ok := t.translateFuncs[lang]; ok {
-		return f
+func (ts Translators) Get(lang string) langs.Translator {
+	if t, ok := ts.translators[lang]; ok {
+		return t
 	}
-	t.logger.Infof("Translation func for language %v not found, use default.", lang)
-	if f, ok := t.translateFuncs[t.cfg.GetString("defaultContentLanguage")]; ok {
-		return f
+	ts.logger.Infof("Translation func for language %v not found, use default.", lang)
+	if tt, ok := ts.translators[ts.cfg.GetString("defaultContentLanguage")]; ok {
+		return tt
 	}
 
-	t.logger.Infoln("i18n not initialized; if you need string translations, check that you have a bundle in /i18n that matches the site language or the default language.")
-	return func(translationID string, args any) string {
-		return ""
-	}
+	ts.logger.Infoln("i18n not initialized; if you need string translations, check that you have a bundle in /i18n that matches the site language or the default language.")
+
+	return nopTranslator
 }
 
-func (t Translator) initFuncs(bndl *i18n.Bundle) {
-	enableMissingTranslationPlaceholders := t.cfg.GetBool("enableMissingTranslationPlaceholders")
+func (ts Translators) initFuncs(bndl *i18n.Bundle) {
+	enableMissingTranslationPlaceholders := ts.cfg.GetBool("enableMissingTranslationPlaceholders")
 	for _, lang := range bndl.LanguageTags() {
 		currentLang := lang
 		currentLangStr := currentLang.String()
 		// This may be pt-BR; make it case insensitive.
 		currentLangKey := strings.ToLower(strings.TrimPrefix(currentLangStr, artificialLangTagPrefix))
 		localizer := i18n.NewLocalizer(bndl, currentLangStr)
-		t.translateFuncs[currentLangKey] = func(translationID string, templateData any) string {
+
+		translate := func(translationID string, templateData any) (string, error) {
 			pluralCount := getPluralCount(templateData)
 
 			if templateData != nil {
@@ -93,7 +115,7 @@ func (t Translator) initFuncs(bndl *i18n.Bundle) {
 			sameLang := currentLang == translatedLang
 
 			if err == nil && sameLang {
-				return translated
+				return translated, nil
 			}
 
 			if err != nil && sameLang && translated != "" {
@@ -102,23 +124,40 @@ func (t Translator) initFuncs(bndl *i18n.Bundle) {
 				// but currently we get an error even if the fallback to
 				// "other" succeeds.
 				if fmt.Sprintf("%T", err) == "i18n.pluralFormNotFoundError" {
-					return translated
+					return translated, nil
 				}
 			}
 
-			if _, ok := err.(*i18n.MessageNotFoundErr); !ok {
-				t.logger.Warnf("Failed to get translated string for language %q and ID %q: %s", currentLangStr, translationID, err)
+			return translated, err
+
+		}
+
+		translateAndLogIfNeeded := func(translationID string, templateData any) string {
+			translated, err := translate(translationID, templateData)
+			if err == nil {
+				return translated
 			}
 
-			if t.cfg.GetBool("logI18nWarnings") {
+			if _, ok := err.(*i18n.MessageNotFoundErr); !ok {
+				ts.logger.Warnf("Failed to get translated string for language %q and ID %q: %s", currentLangStr, translationID, err)
+			}
+
+			if ts.cfg.GetBool("logI18nWarnings") {
 				i18nWarningLogger.Printf("i18n|MISSING_TRANSLATION|%s|%s", currentLangStr, translationID)
 			}
 
 			if enableMissingTranslationPlaceholders {
 				return "[i18n] " + translationID
 			}
-
 			return translated
+		}
+
+		ts.translators[currentLangKey] = translator{
+			translate: translateAndLogIfNeeded,
+			hasTranslation: func(translationID string) bool {
+				_, err := translate(translationID, nil)
+				return err == nil
+			},
 		}
 	}
 }
