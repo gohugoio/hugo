@@ -36,6 +36,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.P,
+			[]string{"p"},
+			[][2]string{
+				//{`{{ partial "header.html" . }}`, `<title>Hugo Rocks!</title>`},
+			},
+		)
+
 		// TODO(bep) we need the return to be a valid identifier, but
 		// should consider another way of adding it.
 		ns.AddMethodMapping(func() string { return "" },

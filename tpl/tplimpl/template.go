@@ -442,6 +442,17 @@ func (t *templateHandler) LookupVariants(name string) []tpl.Template {
 	return variants
 }
 
+func (t *templateHandler) Partials() []tpl.Template {
+	var partials []tpl.Template
+
+	for _, ti := range t.main.templates {
+		if strings.HasPrefix(ti.info.name, "partials/") {
+			partials = append(partials, ti)
+		}
+	}
+	return partials
+}
+
 func (t *templateHandler) HasTemplate(name string) bool {
 	if _, found := t.baseof[name]; found {
 		return true

@@ -18,19 +18,18 @@ import (
 	"sync/atomic"
 )
 
-// onceMore is similar to sync.Once.
+// OnceMore is similar to sync.Once.
 //
 // Additional features are:
 // * it can be reset, so the action can be repeated if needed
 // * it has methods to check if it's done or in progress
-//
-type onceMore struct {
+type OnceMore struct {
 	mu   sync.Mutex
 	lock uint32
 	done uint32
 }
 
-func (t *onceMore) Do(f func()) {
+func (t *OnceMore) Do(f func()) {
 	if atomic.LoadUint32(&t.done) == 1 {
 		return
 	}
@@ -53,15 +52,19 @@ func (t *onceMore) Do(f func()) {
 	f()
 }
 
-func (t *onceMore) InProgress() bool {
+func (t *OnceMore) InProgress() bool {
 	return atomic.LoadUint32(&t.lock) == 1
 }
 
-func (t *onceMore) Done() bool {
+func (t *OnceMore) Done() bool {
 	return atomic.LoadUint32(&t.done) == 1
 }
 
-func (t *onceMore) ResetWithLock() *sync.Mutex {
+func (t *OnceMore) Reset() {
+	t.ResetWithLock().Unlock()
+}
+
+func (t *OnceMore) ResetWithLock() *sync.Mutex {
 	t.mu.Lock()
 	defer atomic.StoreUint32(&t.done, 0)
 	return &t.mu

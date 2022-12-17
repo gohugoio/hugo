@@ -83,7 +83,7 @@ var zeroType = reflect.TypeOf((*types.Zeroer)(nil)).Elem()
 // Based on:
 // https://github.com/golang/go/blob/178a2c42254166cffed1b25fb1d3c7a5727cada6/src/text/template/exec.go#L306
 func IsTruthfulValue(val reflect.Value) (truth bool) {
-	val = indirectInterface(val)
+	val = IndirectInterface(val)
 
 	if !val.IsValid() {
 		// Something like var x interface{}, never set. It's a form of nil.
@@ -209,7 +209,7 @@ func AsTime(v reflect.Value, loc *time.Location) (time.Time, bool) {
 }
 
 // Based on: https://github.com/golang/go/blob/178a2c42254166cffed1b25fb1d3c7a5727cada6/src/text/template/exec.go#L931
-func indirectInterface(v reflect.Value) reflect.Value {
+func IndirectInterface(v reflect.Value) reflect.Value {
 	if v.Kind() != reflect.Interface {
 		return v
 	}

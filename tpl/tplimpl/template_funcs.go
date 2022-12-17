@@ -121,7 +121,22 @@ func (t *templateExecHelper) GetMethod(ctx context.Context, tmpl texttemplate.Pr
 		}
 	}
 
-	fn := hreflect.GetMethodByName(receiver, name)
+	var fn reflect.Value
+
+	switch receiver.Kind() {
+	case reflect.Map:
+		// This is how custom functions in p.ToUpper etc. is implemented.
+		v := receiver.MapIndex(reflect.ValueOf(name))
+		if v.IsValid() {
+			vv := hreflect.IndirectInterface(v)
+			if vv.Kind() == reflect.Func {
+				fn = vv
+			}
+		}
+	default:
+		fn = hreflect.GetMethodByName(receiver, name)
+	}
+
 	if !fn.IsValid() {
 		return zero, zero
 	}

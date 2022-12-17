@@ -61,6 +61,7 @@ type TemplateHandler interface {
 	Execute(t Template, wr io.Writer, data any) error
 	ExecuteWithContext(ctx context.Context, t Template, wr io.Writer, data any) error
 	LookupLayout(d output.LayoutDescriptor, f output.Format) (Template, bool, error)
+	Partials() []Template
 	HasTemplate(name string) bool
 }
 

@@ -27,6 +27,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/lazy"
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -68,21 +70,27 @@ func (p *partialCache) clear() {
 // New returns a new instance of the templates-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
 	cache := &partialCache{p: make(map[partialCacheKey]any)}
-	deps.BuildStartListeners.Add(
-		func() {
-			cache.clear()
-		})
-
-	return &Namespace{
+	ns := &Namespace{
 		deps:           deps,
 		cachedPartials: cache,
 	}
+	deps.BuildStartListeners.Add(
+		func() {
+			cache.clear()
+			ns.pmapInit.Reset()
+		})
+
+	return ns
+
 }
 
 // Namespace provides template functions for the "templates" namespace.
 type Namespace struct {
 	deps           *deps.Deps
 	cachedPartials *partialCache
+
+	pmap     map[string]any
+	pmapInit lazy.OnceMore
 }
 
 // contextWrapper makes room for a return value in a partial invocation.
@@ -115,29 +123,47 @@ func (ns *Namespace) Include(ctx context.Context, name string, contextList ...an
 	return result, nil
 }
 
-// include is a helper function that lookups and executes the named partial.
-// Returns the final template name and the rendered output.
-func (ns *Namespace) include(ctx context.Context, name string, dataList ...any) (string, any, error) {
+func (ns *Namespace) P(ctx context.Context) map[string]any {
+	ns.pmapInit.Do(func() {
+		ns.pmap = map[string]any{}
+
+		partials := ns.deps.Tmpl().Partials()
+
+		for _, p := range partials {
+			p := p
+			parts := strings.Split(p.Name(), "/")[1:]
+			current := ns.pmap
+			for i := 0; i < len(parts)-1; i++ {
+				current[parts[i]] = map[string]any{}
+				current = current[parts[i]].(map[string]any)
+			}
+			last := parts[len(parts)-1]
+			lastNoExt := paths.PathNoExt(last)
+
+			// TODO(bep) use this cache also in the regular partial methods.
+			// Will probably speed things up (add a benchmark for this).
+			fn := func(ctx context.Context, contextList ...any) (any, error) {
+				name, result, err := ns.includeTmpl(ctx, p, p.Name(), contextList...)
+				if err == nil && ns.deps.Metrics != nil {
+					ns.deps.Metrics.TrackValue(name, result, false)
+				}
+				return result, err
+			}
+
+			current[last] = fn
+			if lastNoExt != last {
+				current[lastNoExt] = fn
+			}
+		}
+	})
+
+	return ns.pmap
+}
+
+func (ns *Namespace) includeTmpl(ctx context.Context, templ tpl.Template, name string, dataList ...any) (string, any, error) {
 	var data any
 	if len(dataList) > 0 {
 		data = dataList[0]
-	}
-
-	var n string
-	if strings.HasPrefix(name, "partials/") {
-		n = name
-	} else {
-		n = "partials/" + name
-	}
-
-	templ, found := ns.deps.Tmpl().Lookup(n)
-	if !found {
-		// For legacy reasons.
-		templ, found = ns.deps.Tmpl().Lookup(n + ".html")
-	}
-
-	if !found {
-		return "", "", fmt.Errorf("partial %q not found", name)
 	}
 
 	var info tpl.ParseInfo
@@ -178,6 +204,31 @@ func (ns *Namespace) include(ctx context.Context, name string, dataList ...any) 
 	}
 
 	return templ.Name(), result, nil
+}
+
+// include is a helper function that lookups and executes the named partial.
+// Returns the final template name and the rendered output.
+func (ns *Namespace) include(ctx context.Context, name string, dataList ...any) (string, any, error) {
+
+	var n string
+	if strings.HasPrefix(name, "partials/") {
+		n = name
+	} else {
+		n = "partials/" + name
+	}
+
+	templ, found := ns.deps.Tmpl().Lookup(n)
+	if !found {
+		// For legacy reasons.
+		templ, found = ns.deps.Tmpl().Lookup(n + ".html")
+	}
+
+	if !found {
+		return "", "", fmt.Errorf("partial %q not found", name)
+	}
+
+	return ns.includeTmpl(ctx, templ, name, dataList...)
+
 }
 
 // IncludeCached executes and caches partial templates.  The cache is created with name+variants as the key.

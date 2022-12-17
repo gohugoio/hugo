@@ -225,7 +225,32 @@ D1
 	b.Assert(got, hqt.IsSameString, expect)
 }
 
-//  gobench --package ./tpl/partials
+func TestP(t *testing.T) {
+	t.Parallel()
+
+	// TODO(bep) also add some error cases (missing partial, etc.)
+	files := `
+-- config.toml --
+baseURL = 'http://example.com/'
+-- layouts/index.html --
+{{ "abcd" | p.funcs.ToUpper }}
+-- layouts/partials/funcs/ToUpper.html --
+{{ return ( . | upper ) }}
+  `
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `
+ABCD
+`)
+}
+
+// gobench --package ./tpl/partials
 func BenchmarkIncludeCached(b *testing.B) {
 	files := `
 -- config.toml --
