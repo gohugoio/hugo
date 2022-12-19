@@ -60,6 +60,10 @@ type Options struct {
 
 	// When enabled, Hugo will generate a source map.
 	EnableSourceMap bool
+
+	// Vars will be available in 'hugo:vars', e.g:
+	//     @import "hugo:vars";
+	Vars map[string]string
 }
 
 func DecodeOptions(m map[string]any) (opts Options, err error) {
