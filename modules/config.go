@@ -15,6 +15,7 @@ package modules
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -260,6 +261,9 @@ func decodeConfig(cfg config.Provider, pathReplacements map[string]string) (Conf
 			if !filepath.IsAbs(c.Workspace) {
 				workingDir := cfg.GetString("workingDir")
 				c.Workspace = filepath.Join(workingDir, c.Workspace)
+			}
+			if _, err := os.Stat(c.Workspace); err != nil {
+				return c, fmt.Errorf("module workspace %q does not exist", c.Workspace)
 			}
 		}
 	}

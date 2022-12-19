@@ -107,9 +107,15 @@ func (h *Client) collect(tidy bool) (ModulesConfig, *collector) {
 		}
 	}*/
 
+	var workspaceFilename string
+	if h.ccfg.ModuleConfig.Workspace != WorkspaceDisabled {
+		workspaceFilename = h.ccfg.ModuleConfig.Workspace
+	}
+
 	return ModulesConfig{
-		AllModules:        c.modules,
-		GoModulesFilename: c.GoModulesFilename,
+		AllModules:          c.modules,
+		GoModulesFilename:   c.GoModulesFilename,
+		GoWorkspaceFilename: workspaceFilename,
 	}, c
 }
 
@@ -122,6 +128,9 @@ type ModulesConfig struct {
 
 	// Set if this is a Go modules enabled project.
 	GoModulesFilename string
+
+	// Set if a Go workspace file is configured.
+	GoWorkspaceFilename string
 }
 
 func (m *ModulesConfig) setActiveMods(logger loggers.Logger) error {

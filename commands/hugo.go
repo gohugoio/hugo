@@ -924,6 +924,7 @@ func (c *commandeer) printChangeDetected(typ string) {
 const (
 	configChangeConfig = "config file"
 	configChangeGoMod  = "go.mod file"
+	configChangeGoWork = "go work file"
 )
 
 func (c *commandeer) handleEvents(watcher *watcher.Batcher,
@@ -942,6 +943,9 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 		if isConfig {
 			if strings.Contains(ev.Name, "go.mod") {
 				configChangeType = configChangeGoMod
+			}
+			if strings.Contains(ev.Name, ".work") {
+				configChangeType = configChangeGoWork
 			}
 		}
 		if !isConfig {
