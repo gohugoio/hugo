@@ -44,13 +44,13 @@ func TestDecodeConfig(t *testing.T) {
 
 	c.Run("Basic", func(c *qt.C) {
 		tomlConfig := `
+workingDir = "/src/project"
 [module]
-
+workspace = "hugo.work"
 [module.hugoVersion]
 min = "0.54.2"
 max = "0.199.0"
 extended = true
-
 [[module.mounts]]
 source="src/project/blog"
 target="content/blog"
@@ -83,6 +83,8 @@ lang="en"
 			c.Assert(hv.IsValid(), qt.Equals, true)
 		}
 
+		c.Assert(mcfg.Workspace, qt.Equals, "/src/project/hugo.work")
+
 		c.Assert(len(mcfg.Mounts), qt.Equals, 1)
 		c.Assert(len(mcfg.Imports), qt.Equals, 1)
 		imp := mcfg.Imports[0]
@@ -90,6 +92,7 @@ lang="en"
 		c.Assert(imp.Mounts[1].Source, qt.Equals, "src/markdown/blog")
 		c.Assert(imp.Mounts[1].Target, qt.Equals, "content/blog")
 		c.Assert(imp.Mounts[1].Lang, qt.Equals, "en")
+
 	})
 
 	c.Run("Replacements", func(c *qt.C) {
