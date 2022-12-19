@@ -22,7 +22,7 @@ toc: true
 
 ## Partial Template Lookup Order
 
-Partial templates---like [single page templates][singletemps] and [list page templates][listtemps]---have a specific [lookup order][]. However, partials are simpler in that Hugo will only check in two places:
+Partial templates---like [single page templates][singletemps] and [list page templates][listtemps]---have a specific [lookup order]. However, partials are simpler in that Hugo will only check in two places:
 
 1. `layouts/partials/*<PARTIALNAME>.html`
 2. `themes/<THEME>/layouts/partials/*<PARTIALNAME>.html`

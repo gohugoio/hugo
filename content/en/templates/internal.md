@@ -29,7 +29,7 @@ While the following internal templates are called similar to partials, they do *
 
 Hugo ships with internal templates supporting Google Analytics, both [Google Analytics 4][GA4] (GA4) and Universal Analytics.
 
-**Note:** Universal Analytics are deprecated. For details, see [Universal Analytics will be going away][].
+**Note:** Universal Analytics are deprecated. For details, see [Universal Analytics will be going away].
 
 [GA4]: https://support.google.com/analytics/answer/10089681
 [Universal Analytics will be going away]: https://support.google.com/analytics/answer/11583528

@@ -578,7 +578,7 @@ HUGO_NUMWORKERMULTIPLIER
 
 ## Configuration Lookup Order
 
-Similar to the template [lookup order][], Hugo has a default set of rules for searching for a configuration file in the root of your website's source directory as a default behavior:
+Similar to the template [lookup order], Hugo has a default set of rules for searching for a configuration file in the root of your website's source directory as a default behavior:
 
 1. `./config.toml`
 2. `./config.yaml`
@@ -589,7 +589,7 @@ In your `config` file, you can direct Hugo as to how you want your website rende
 
 ## Example Configuration
 
-The following is a typical example of a configuration file. The values nested under `params:` will populate the [`.Site.Params`][] variable for use in [templates][]:
+The following is a typical example of a configuration file. The values nested under `params:` will populate the [`.Site.Params`] variable for use in [templates]:
 
 {{< code-toggle file="config">}}
 baseURL: "https://yoursite.example.com/"
@@ -710,7 +710,7 @@ The above will try first to extract the value for `.Date` from the filename, the
 
 ## Configure Additional Output Formats
 
-Hugo v0.20 introduced the ability to render your content to multiple output formats (e.g., to JSON, AMP html, or CSV). See [Output Formats][] for information on how to add these values to your Hugo project's configuration file.
+Hugo v0.20 introduced the ability to render your content to multiple output formats (e.g., to JSON, AMP html, or CSV). See [Output Formats] for information on how to add these values to your Hugo project's configuration file.
 
 ## Configure Minify
 

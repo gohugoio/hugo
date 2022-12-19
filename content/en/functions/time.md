@@ -43,7 +43,7 @@ If no `TIMEZONE` is set, the `timeZone` from site configuration will be used.
 
 ## Example: Using `time` to get Month Index
 
-The following example takes a UNIX timestamp---set as `utimestamp: "1489276800"` in a content's front matter---converts the timestamp (string) to an integer using the [`int` function][int], and then uses [`printf`][] to convert the `Month` property of `time` into an index.
+The following example takes a UNIX timestamp---set as `utimestamp: "1489276800"` in a content's front matter---converts the timestamp (string) to an integer using the [`int` function][int], and then uses [`printf`] to convert the `Month` property of `time` into an index.
 
 The following example may be useful when setting up [multilingual sites][multilingual]:
 

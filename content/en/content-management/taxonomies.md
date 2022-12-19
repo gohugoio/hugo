@@ -40,7 +40,7 @@ Let's assume you are making a website about movies. You may want to include the 
 * Year
 * Awards
 
-Then, in each of the movies, you would specify terms for each of these taxonomies (i.e., in the [front matter][] of each of your movie content files). From these terms, Hugo would automatically create pages for each Actor, Director, Studio, Genre, Year, and Award, with each listing all of the Movies that matched that specific Actor, Director, Studio, Genre, Year, and Award.
+Then, in each of the movies, you would specify terms for each of these taxonomies (i.e., in the [front matter] of each of your movie content files). From these terms, Hugo would automatically create pages for each Actor, Director, Studio, Genre, Year, and Award, with each listing all of the Movies that matched that specific Actor, Director, Studio, Genre, Year, and Award.
 
 ### Movie Taxonomy Organization
 
@@ -99,10 +99,10 @@ disableKinds = ["taxonomy","term"]
 
 ### Default Destinations
 
-When taxonomies are used---and [taxonomy templates][] are provided---Hugo will automatically create both a page listing all the taxonomy's terms and individual pages with lists of content associated with each term. For example, a `categories` taxonomy declared in your configuration and used in your content front matter will create the following pages:
+When taxonomies are used---and [taxonomy templates] are provided---Hugo will automatically create both a page listing all the taxonomy's terms and individual pages with lists of content associated with each term. For example, a `categories` taxonomy declared in your configuration and used in your content front matter will create the following pages:
 
-* A single page at `example.com/categories/` that lists all the [terms within the taxonomy][]
-* [Individual taxonomy list pages][taxonomy templates] (e.g., `/categories/development/`) for each of the terms that shows a listing of all pages marked as part of that taxonomy within any content file's [front matter][]
+* A single page at `example.com/categories/` that lists all the [terms within the taxonomy]
+* [Individual taxonomy list pages][taxonomy templates] (e.g., `/categories/development/`) for each of the terms that shows a listing of all pages marked as part of that taxonomy within any content file's [front matter]
 
 ## Configure Taxonomies
 
@@ -146,9 +146,9 @@ You can now use `.Page.Title` on the relevant taxonomy node to get the original 
 
 ## Add Taxonomies to Content
 
-Once a taxonomy is defined at the site level, any piece of content can be assigned to it, regardless of [content type][] or [content section][].
+Once a taxonomy is defined at the site level, any piece of content can be assigned to it, regardless of [content type] or [content section].
 
-Assigning content to a taxonomy is done in the [front matter][]. Simply create a variable with the *plural* name of the taxonomy and assign all terms you want to apply to the instance of the content type.
+Assigning content to a taxonomy is done in the [front matter]. Simply create a variable with the *plural* name of the taxonomy and assign all terms you want to apply to the instance of the content type.
 
 {{% note %}}
 If you would like the ability to quickly generate content files with preconfigured taxonomies or terms, read the docs on [Hugo archetypes](/content-management/archetypes/).
@@ -167,7 +167,7 @@ project_url = "https://github.com/gohugoio/hugo"
 
 ## Order Taxonomies
 
-A content file can assign weight for each of its associate taxonomies. Taxonomic weight can be used for sorting or ordering content in [taxonomy list templates][] and is declared in a content file's [front matter][]. The convention for declaring taxonomic weight is `taxonomyname_weight`.
+A content file can assign weight for each of its associate taxonomies. Taxonomic weight can be used for sorting or ordering content in [taxonomy list templates] and is declared in a content file's [front matter]. The convention for declaring taxonomic weight is `taxonomyname_weight`.
 
 The following show a piece of content that has a weight of 22, which can be used for ordering purposes when rendering the pages assigned to the "a", "b" and "c" values of the `tags` taxonomy. It has also been assigned the weight of 44 when rendering the "d" category page.
 

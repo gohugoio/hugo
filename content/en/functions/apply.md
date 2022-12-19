@@ -48,7 +48,7 @@ Which will result in the following:
 "derek-perkins", "joe-bergevin", "tanner-linsley"
 ```
 
-This is *roughly* equivalent to using the following with [range][]:
+This is *roughly* equivalent to using the following with [range]:
 
 ```
 {{ range .Params.names }}{{ . | urlize }}{{ end }}
@@ -56,7 +56,7 @@ This is *roughly* equivalent to using the following with [range][]:
 
 However, it is not possible to provide the output of a range to the [`delimit` function][delimit], so you need to `apply` it.
 
-If you have `post-tag-list.html` and `post-tag-link.html` as [partials][], you *could* use the following snippets, respectively:
+If you have `post-tag-list.html` and `post-tag-link.html` as [partials], you *could* use the following snippets, respectively:
 
 {{< code file="layouts/partials/post-tag-list.html" copy="false" >}}
 {{ with .Params.tags }}
@@ -96,7 +96,7 @@ This first version of `layouts/partials/post-tag-list.html` separates all of the
 {{ end }}
 ```
 
-Now in the completed version, you can sort the tags, convert the tags to links with `layouts/partials/post-tag-link.html`, [chomp][] off stray newlines, and join the tags together in a delimited list for presentation. Here is an even DRYer version of the preceding example:
+Now in the completed version, you can sort the tags, convert the tags to links with `layouts/partials/post-tag-link.html`, [chomp] off stray newlines, and join the tags together in a delimited list for presentation. Here is an even DRYer version of the preceding example:
 
 {{< code file="layouts/partials/post-tag-list.html" download="post-tag-list.html" >}}
     {{ with .Params.tags }}

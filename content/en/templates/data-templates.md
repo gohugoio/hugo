@@ -213,7 +213,7 @@ If you don't like caching at all, you can fully disable caching with the command
 
 ### Authentication When Using REST URLs
 
-Currently, you can only use those authentication methods that can be put into an URL. [OAuth][] and other authentication methods are not implemented.
+Currently, you can only use those authentication methods that can be put into an URL. [OAuth] and other authentication methods are not implemented.
 
 ## Load Local files
 
@@ -227,7 +227,7 @@ The local CSV files to be loaded using `getCSV` must be located **outside** the 
 
 ## LiveReload with Data Files
 
-There is no chance to trigger a [LiveReload][] when the content of a URL changes. However, when a *local* file changes (i.e., `data/*` and `themes/<THEME>/data/*`), a LiveReload will be triggered. Symlinks are not supported. Note too that because downloading of data takes a while, Hugo stops processing your Markdown files until the data download has completed.
+There is no chance to trigger a [LiveReload] when the content of a URL changes. However, when a *local* file changes (i.e., `data/*` and `themes/<THEME>/data/*`), a LiveReload will be triggered. Symlinks are not supported. Note too that because downloading of data takes a while, Hugo stops processing your Markdown files until the data download has completed.
 
 {{% warning "URL Data and LiveReload" %}}
 If you change any local file and the LiveReload is triggered, Hugo will read the data-driven (URL) content from the cache. If you have disabled the cache (i.e., by running the server with `hugo server --ignoreCache`), Hugo will re-download the content every time LiveReload triggers. This can create *huge* traffic. You may reach API limits quickly.

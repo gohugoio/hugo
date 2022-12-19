@@ -27,7 +27,7 @@ Hugo provides multiple ways to use taxonomies throughout your project templates:
 
 * Order the way content associated with a taxonomy term is displayed in a [taxonomy list template](#taxonomy-list-templates)
 * Order the way the terms for a taxonomy are displayed in a [taxonomy terms template](#taxonomy-terms-templates)
-* List a single content's taxonomy terms within a [single page template][]
+* List a single content's taxonomy terms within a [single page template]
 
 ## Taxonomy List Templates
 
