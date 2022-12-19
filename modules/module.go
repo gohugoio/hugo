@@ -184,5 +184,7 @@ func (m *moduleAdapter) Watch() bool {
 		return m.Replace().Version() == ""
 	}
 
-	return false
+	// Any module set up in a workspace file will have Indirect set to false.
+	// That leaves modules inside the read-only module cache.
+	return !m.gomod.Indirect
 }
