@@ -554,7 +554,7 @@ force = false
 
 Setting `force=true` will make a redirect even if there is existing content in the path. Note that before Hugo 0.76  `force` was the default behavior, but this is inline with how Netlify does it.
 
-## 404 Server Error Page {#404-server-error-page}
+## 404 Server Error Page {#_404-server-error-page}
 
 {{< new-in "0.103.0" >}}
 
