@@ -1,84 +1,140 @@
 ---
 title: Taxonomy Variables
 linktitle:
-description: Taxonomy pages are of type `Page` and have all page-, site-, and list-level variables available to them. However, taxonomy terms templates have additional variables available to their templates.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
+description: Hugo's taxonomy system exposes variables to taxonomy and term templates.
 categories: [variables and params]
-keywords: [taxonomies,terms]
-draft: false
+keywords: [taxonomy,term]
 menu:
   docs:
     parent: "variables"
     weight: 30
-weight: 30
-sections_weight: 30
-aliases: []
 toc: true
+weight: 30
+aliases: []
 ---
 
-## Taxonomy Terms Page Variables
+## Taxonomy templates
 
-[Taxonomy terms pages][taxonomytemplates] are of the type `Page` and have the following additional variables.
+Pages rendered by taxonomy templates have `.Kind` set to `taxonomy` and `.Type` set to the taxonomy name.
 
-For example, the following fields would be available in `layouts/_defaults/terms.html`, depending on how you organize your [taxonomy templates][taxonomytemplates]:
+In taxonomy templates you may access `.Site`, `.Page`. `.Section`, and `.File` variables, as well as the following _taxonomy_ variables:
 
 .Data.Singular
-: The singular name of the taxonomy (e.g., `tags => tag`)
+: The singular name of the taxonomy (e.g., `tags => tag`).
 
 .Data.Plural
-: The plural name of the taxonomy (e.g., `tags => tags`)
+: The plural name of the taxonomy (e.g., `tags => tags`).
 
 .Data.Pages
-: The list of pages in the taxonomy
+: The collection of term pages related to this taxonomy. Aliased by `.Pages`.
 
 .Data.Terms
-: The taxonomy itself
+: A map of terms and weighted pages related to this taxonomy.
 
 .Data.Terms.Alphabetical
-: The taxonomy terms alphabetized
+: A map of terms and weighted pages related to this taxonomy, sorted alphabetically in ascending order. Reverse the sort order with`.Data.Terms.Alphabetical.Reverse`.
 
 .Data.Terms.ByCount
-: The Terms ordered by popularity
+: A map of terms and weighted pages related to this taxonomy, sorted by count in ascending order. Reverse the sort order with`.Data.Terms.ByCount.Reverse`.
 
-Note that `.Data.Terms.Alphabetical` and `.Data.Terms.ByCount` can also be reversed:
+## Term templates
 
-* `.Data.Terms.Alphabetical.Reverse`
-* `.Data.Terms.ByCount.Reverse`
+Pages rendered by term templates have `.Kind` set to `term` and `.Type` set to the taxonomy name.
 
-## Use `.Site.Taxonomies` Outside of Taxonomy Templates
+In term templates you may access `.Site`, `.Page`. `.Section`, and `.File` variables, as well as the following _term_ variables:
 
-The `.Site.Taxonomies` variable holds all the taxonomies defined site-wide. `.Site.Taxonomies` is a map of the taxonomy name to a list of its values (e.g., `"tags" -> ["tag1", "tag2", "tag3"]`). Each value, though, is not a string but rather a *Taxonomy variable*.
+.Data.Singular
+: The singular name of the taxonomy (e.g., `tags => tag`).
 
-## The `.Taxonomy` Variable
+.Data.Plural
+: The plural name of the taxonomy (e.g., `tags => tags`).
 
-The `.Taxonomy` variable, available, for example, as `.Site.Taxonomies.tags`, contains the list of tags (values) and, for each tag, their corresponding content pages.
+.Data.Pages
+: The collection of content pages related to this taxonomy. Aliased by `.Pages`.
 
-### Example Usage of `.Site.Taxonomies`
+.Data.Term
+: The term itself (e.g., `tag-one`).
 
-The following [partial template][partials] will list all your site's taxonomies, each of their keys, and all the content assigned to each of the keys. For more examples of how to order and render your taxonomies, see  [Taxonomy Templates][taxonomytemplates].
+## Access taxonomy data from any template
 
-{{< code file="all-taxonomies-keys-and-pages.html" download="all-taxonomies-keys-and-pages.html" >}}
-<section>
-  <ul>
-    {{ range $taxonomyname, $taxonomy := .Site.Taxonomies }}
-      <li><a href="{{ "/" | relLangURL}}{{ $taxonomyname | urlize }}">{{ $taxonomyname }}</a>
-        <ul>
-          {{ range $key, $value := $taxonomy }}
-          <li> {{ $key }} </li>
-                <ul>
-                {{ range $value.Pages }}
-                    <li><a href="{{ .Permalink}}"> {{ .LinkTitle }} </a> </li>
-                {{ end }}
-                </ul>
+Access the entire taxonomy data structure from any template with `site.Taxonomies`. This returns a map of taxonomies, terms, and a collection of weighted content pages related to each term. For example:
+
+```json
+{
+  "categories": {
+    "news": [
+      {
+        "Weight": 0,
+        "Page": {
+          "Title": "Post 1",
+          "Date": "2022-12-18T15:13:35-08:00"
+          ...
+          }
+      },
+      {
+        "Weight": 0,
+        "Page": {
+          "Title": "Post 2",
+          "Date": "2022-12-18T15:13:46-08:00",
+          ...
+        }
+      }
+    ]
+  },
+  "tags": {
+    "international": [
+      {
+        "Weight": 0,
+        "Page": {
+          "Title": "Post 1",
+          "Date": "2021-01-01T00:00:00Z"
+          ... 
+        }
+      }
+    ]
+  }
+}
+```
+
+Access a subset of the taxonomy data structure by chaining one or more identifiers, or by using the [`index`] function with one or more keys. For example, to access the collection of weighted content pages related to the news category, use either of the following:
+
+[`index`]: /functions/index-function/
+
+```go-html-template
+{{ $pages := site.Taxonomies.categories.news }}
+{{ $pages := index site.Taxonomies "categories" "news" }}
+```
+
+For example, to render the entire taxonomy data structure as a nested unordered list:
+
+```go-html-template
+<ul>
+  {{ range $taxonomy, $terms := site.Taxonomies }}
+    <li>
+      {{ with site.GetPage $taxonomy }}
+        <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
+      {{ end }}
+      <ul>
+        {{ range $term, $weightedPages := $terms }}
+        <li>
+          {{ with site.GetPage (path.Join $taxonomy $term) }}
+            <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
           {{ end }}
-        </ul>
-      </li>
-    {{ end }}
-  </ul>
-</section>
-{{< /code >}}
+        </li>
+          <ul>
+            {{ range $weightedPages }}
+              <li>
+                <a href="{{ .RelPermalink}}"> {{ .LinkTitle }}</a>
+              </li>
+            {{ end }}
+          </ul>
+        {{ end }}
+      </ul>
+    </li>
+  {{ end }}
+</ul>
+```
 
-[partials]: /templates/partials/
-[taxonomytemplates]: /templates/taxonomy-templates/
+See [Taxonomy Templates] for more examples.
+
+[Taxonomy Templates]: /templates/taxonomy-templates/

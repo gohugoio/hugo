@@ -19,11 +19,11 @@ draft: false
 aliases: []
 ---
 
-In Hugo, you can declare [site-wide params][sitevars] (i.e. in your [configuration][]), as well as params for [individual pages][pagevars].
+In Hugo, you can declare [site-wide params][sitevars] (i.e. in your [configuration]), as well as params for [individual pages][pagevars].
 
 A common use case is to have a general value for the site and a more specific value for some of the pages (e.g., an image).
 
-You can use the `.Param` method to call these values into your template. The following will first look for an `image` param in a specific content's [front matter][]. If not found, Hugo will look for an `image` param in your site's configuration:
+You can use the `.Param` method to call these values into your template. The following will first look for an `image` param in a specific content's [front matter]. If not found, Hugo will look for an `image` param in your site's configuration:
 
 ```
 $.Param "image"

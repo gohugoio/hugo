@@ -554,24 +554,11 @@ force = false
 
 Setting `force=true` will make a redirect even if there is existing content in the path. Note that before Hugo 0.76  `force` was the default behavior, but this is inline with how Netlify does it.
 
-## 404 Server Error Page
+## 404 Server Error Page {#_404-server-error-page}
 
 {{< new-in "0.103.0" >}}
 
 Hugo will, by default, render all 404 errors when running `hugo server` with the `404.html` template. Note that if you have already added one or more redirects to your [Server Config](#configure-server), you need to add the 404 redirect explicitly, e.g:
-
-```toml
-[[redirects]]
-    from   = "/**"
-    to     = "/404.html"
-    status = 404
-```
-
-## 404 Server Error Page
-
-{{< new-in "0.103.0" >}}
-
-Hugo will, by default, render all 404 errors when running `hugo server` with the `404.html` template. Note that if you have already added one or more redirects to your [Server Config](#server-config), you need to add the 404 redirect explicitly, e.g:
 
 ```toml
 [[redirects]]
@@ -591,7 +578,7 @@ HUGO_NUMWORKERMULTIPLIER
 
 ## Configuration Lookup Order
 
-Similar to the template [lookup order][], Hugo has a default set of rules for searching for a configuration file in the root of your website's source directory as a default behavior:
+Similar to the template [lookup order], Hugo has a default set of rules for searching for a configuration file in the root of your website's source directory as a default behavior:
 
 1. `./config.toml`
 2. `./config.yaml`
@@ -602,7 +589,7 @@ In your `config` file, you can direct Hugo as to how you want your website rende
 
 ## Example Configuration
 
-The following is a typical example of a configuration file. The values nested under `params:` will populate the [`.Site.Params`][] variable for use in [templates][]:
+The following is a typical example of a configuration file. The values nested under `params:` will populate the [`.Site.Params`] variable for use in [templates]:
 
 {{< code-toggle file="config">}}
 baseURL: "https://yoursite.example.com/"
@@ -644,6 +631,8 @@ Test and document setting params via JSON env var.
 {{< /todo >}}
 
 ## Ignore Content and Data Files when Rendering
+
+**Note:** This works, but we recommend you use the newer and more powerful [includeFiles and excludeFiles](https://gohugo.io/hugo-modules/configuration/#module-config-mounts) mount options.
 
 To exclude specific files from the `content` and `data` directories when rendering your site, set `ignoreFiles` to one or more regular expressions to match against the absolute file path.
 
@@ -721,7 +710,7 @@ The above will try first to extract the value for `.Date` from the filename, the
 
 ## Configure Additional Output Formats
 
-Hugo v0.20 introduced the ability to render your content to multiple output formats (e.g., to JSON, AMP html, or CSV). See [Output Formats][] for information on how to add these values to your Hugo project's configuration file.
+Hugo v0.20 introduced the ability to render your content to multiple output formats (e.g., to JSON, AMP html, or CSV). See [Output Formats] for information on how to add these values to your Hugo project's configuration file.
 
 ## Configure Minify
 

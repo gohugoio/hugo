@@ -29,7 +29,7 @@ Disqus comments require you set a single value in your [site's configuration fil
 disqusShortname = "yourDisqusShortname"
 {{</ code-toggle >}}
 
-For many websites, this is enough configuration. However, you also have the option to set the following in the [front matter][] of a single content file:
+For many websites, this is enough configuration. However, you also have the option to set the following in the [front matter] of a single content file:
 
 * `disqus_identifier`
 * `disqus_title`
