@@ -31,7 +31,7 @@ aliases: []
 >
 > Channel: the number of elements queued (unread) in the channel buffer; if v is nil, len(v) is zero.
 
-`len` is also considered a [fundamental function for Hugo templating][].
+`len` is also considered a [fundamental function for Hugo templating].
 
 ## `len` Example 1: Longer Headings
 
@@ -45,15 +45,15 @@ You may want to append a class to a heading according to the length of the strin
 
 ## `len` Example 2: Counting Pages with `where`
 
-The following templating uses [`where`][] in conjunction with `len` to
-figure out the total number of content pages in a `posts` [section][]:
+The following templating uses [`where`] in conjunction with `len` to
+figure out the total number of content pages in a `posts` [section]:
 
 {{< code file="how-many-posts.html" >}}
 {{ $posts := (where .Site.RegularPages "Section" "==" "posts") }}
 {{ $postCount := len $posts }}
 {{< /code >}}
 
-Note the use of `.RegularPages`, a [site variable][] that counts all regular content pages but not the `_index.md` pages used to add front matter and content to [list templates][].
+Note the use of `.RegularPages`, a [site variable] that counts all regular content pages but not the `_index.md` pages used to add front matter and content to [list templates].
 
 
 [fundamental function for Hugo templating]: /templates/introduction/

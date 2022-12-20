@@ -86,11 +86,11 @@ Also see [Page Variables](/variables/page/).
 
 ## Content Section Lists
 
-Hugo will automatically create a page for each *root section* that lists all the content in that section. See the documentation on [section templates][] for details on customizing the way these pages are rendered.
+Hugo will automatically create a page for each *root section* that lists all the content in that section. See the documentation on [section templates] for details on customizing the way these pages are rendered.
 
 ## Content *Section* vs Content *Type*
 
-By default, everything created within a section will use the [content `type`][content type] that matches the *root section* name. For example, Hugo will assume that `posts/post-1.md` has a `posts` content `type`. If you are using an [archetype][] for your `posts` section, Hugo will generate front matter according to what it finds in `archetypes/posts.md`.
+By default, everything created within a section will use the [content `type`][content type] that matches the *root section* name. For example, Hugo will assume that `posts/post-1.md` has a `posts` content `type`. If you are using an [archetype] for your `posts` section, Hugo will generate front matter according to what it finds in `archetypes/posts.md`.
 
 [archetype]: /content-management/archetypes/
 [content type]: /content-management/types/

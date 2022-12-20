@@ -19,7 +19,7 @@ draft: false
 aliases: []
 ---
 
-It's named and used in the model of [GNU's seq][].
+It's named and used in the model of [GNU's seq].
 
 ```
 3 → 1, 2, 3

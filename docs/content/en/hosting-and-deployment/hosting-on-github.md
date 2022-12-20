@@ -17,13 +17,13 @@ toc: true
 aliases: [/tutorials/github-pages-blog/]
 ---
 
-GitHub provides free and fast static hosting over SSL for personal, organization, or project pages directly from a GitHub repository via its [GitHub Pages service][] and automating development workflows and build with [GitHub Actions].
+GitHub provides free and fast static hosting over SSL for personal, organization, or project pages directly from a GitHub repository via its [GitHub Pages service] and automating development workflows and build with [GitHub Actions].
 
 ## Assumptions
 
 1. You have Git 2.8 or greater [installed on your machine][installgit].
 2. You have a GitHub account. [Signing up][ghsignup] for GitHub is free.
-3. You have a ready-to-publish Hugo website or have at least completed the [Quick Start][].
+3. You have a ready-to-publish Hugo website or have at least completed the [Quick Start].
 
 ## Types of GitHub Pages
 

@@ -29,9 +29,6 @@ All the methods below, e.g. `.Site.RegularPages` can also be reached via the glo
 .Site.AllPages
 : array of all pages, regardless of their translation.
 
-.Site.Author
-: a map of the authors as defined in the site configuration.
-
 .Site.BaseURL
 : the base URL for the site as defined in the site configuration.
 

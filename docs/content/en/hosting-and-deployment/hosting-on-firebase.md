@@ -20,7 +20,7 @@ aliases: []
 ## Assumptions
 
 1. You have an account with [Firebase][signup]. (If you don't, you can sign up for free using your Google account.)
-2. You have completed the [Quick Start][] or have a completed Hugo website ready for deployment.
+2. You have completed the [Quick Start] or have a completed Hugo website ready for deployment.
 
 ## Initial setup
 
@@ -62,11 +62,11 @@ Here you will be redirected to login in your GitHub account to get permissions. 
 7. For which GitHub repository would you like to set up a GitHub workflow? (format: user/repository) 
 
 Include the repository you will use in the format above (Account/Repo)
-Firebase script with retrive credentials, create a service account you can later manage in yout github settings.
+Firebase script with retrive credentials, create a service account you can later manage in your github settings.
 
 8. Set up the workflow to run a build script before every deploy? 
 
-Here is your oportunity to include some commands before you run the deploy.
+Here is your opportunity to include some commands before you run the deploy.
 
 9. Set up automatic deployment to your site's live channel when a PR is merged? 
 
@@ -78,7 +78,7 @@ After that Firebase has been set in your project with CI/CD. After that run:
 hugo && firebase deploy
 ```
 
-With this you will have the app initialized manualy. After that you can manage and fix your github workflow from: https://github.com/your-account/yout-repo/actions
+With this you will have the app initialized manually. After that you can manage and fix your github workflow from: https://github.com/your-account/yout-repo/actions
 
 Don't forget to update your static pages before push!
 

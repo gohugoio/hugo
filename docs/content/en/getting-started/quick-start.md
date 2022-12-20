@@ -33,9 +33,13 @@ You must also be comfortable working from the command line.
 
 ### Commands
 
-Run these commands[^1] to create a Hugo site with the [Ananke] theme. The next section provides an explanation of each command.
+{{% note %}}
+If you are a Windows user, you must run these commands with [PowerShell]. You cannot use Windows Powershell, which is a different application, or the Command Prompt. You may also use a Linux shell if available.
 
-[^1]: If you are a Windows user, you must run these commands with [PowerShell]. You cannot use Windows Powershell, which is a different application, or the Command Prompt.
+[PowerShell]: https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows
+{{% /note %}}
+
+Run these commands to create a Hugo site with the [Ananke] theme. The next section provides an explanation of each command.
 
 ```text
 hugo new site quickstart
@@ -210,7 +214,6 @@ For other resources to help you learn Hugo, including books and video tutorials,
 [hosting and deployment]: /hosting-and-deployment/
 [Install Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
 [Install Hugo]: /installation/
-[PowerShell]: https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows
 [Requesting Help]: https://discourse.gohugo.io/t/requesting-help/9132
 [Requesting Help]: https://discourse.gohugo.io/t/requesting-help/9132
 [site configuration]: /getting-started/configuration/

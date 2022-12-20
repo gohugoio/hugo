@@ -22,12 +22,12 @@ toc: true
 ## Assumptions
 
 * You have an account with GitHub, GitLab, or Bitbucket.
-* You have completed the [Quick Start][] or have a Hugo website you are ready to deploy and share with the world.
+* You have completed the [Quick Start] or have a Hugo website you are ready to deploy and share with the world.
 * You do not already have a Netlify account.
 
 ## Create a Netlify account
 
-Go to [app.netlify.com][] and select your preferred signup method. This will likely be a hosted Git provider, although you also have the option to sign up with an email address.
+Go to [app.netlify.com] and select your preferred signup method. This will likely be a hosted Git provider, although you also have the option to sign up with an email address.
 
 The following examples use GitHub, but other git providers will follow a similar process.
 
@@ -55,7 +55,7 @@ Select the repo you want to use for continuous deployment. If you have a large n
 
 ![Screenshot of step 1 of create a new site for Netlify: selecting the git provider](/images/hosting-and-deployment/hosting-on-netlify/netlify-create-new-site-step-2.jpg)
 
-Once selected, you'll be brought to a screen for basic setup. Here you can select the branch you want to publish, your [build command][], and your publish (i.e. deploy) directory. The publish directory should mirror that of what you've set in your [site configuration][config], the default of which is `public`. The following steps assume you are publishing from the `master` branch.
+Once selected, you'll be brought to a screen for basic setup. Here you can select the branch you want to publish, your [build command], and your publish (i.e. deploy) directory. The publish directory should mirror that of what you've set in your [site configuration][config], the default of which is `public`. The following steps assume you are publishing from the `master` branch.
 
 ## Configure Hugo version in Netlify
 
@@ -136,9 +136,9 @@ git submodule update --rebase --remote
 
 You now have a live website served over HTTPS, distributed through CDN, and configured for continuous deployment. Dig deeper into the Netlify documentation:
 
-1. [Using a Custom Domain][]
+1. [Using a Custom Domain]
 2. [Setting up HTTPS on Custom Domains][httpscustom]
-3. [Redirects and Rewrite Rules][]
+3. [Redirects and Rewrite Rules]
 
 [app.netlify.com]: https://app.netlify.com
 [build command]: /getting-started/usage/#the-hugo-command

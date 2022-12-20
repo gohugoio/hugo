@@ -25,7 +25,7 @@ AWS Amplify is a combination of client library, CLI toolchain, and a Console for
 
 * [Sign up for an AWS Account](https://portal.aws.amazon.com/billing/signup?redirect_url=https%3A%2F%2Faws.amazon.com%2Fregistration-confirmation). There are no upfront charges or any term commitments to create an AWS account and signing up gives you immediate access to the AWS Free Tier.
 * You have an account with GitHub, GitLab, or Bitbucket.
-* You have completed the [Quick Start][] or have a Hugo website you are ready to deploy and share with the world.
+* You have completed the [Quick Start] or have a Hugo website you are ready to deploy and share with the world.
 
 ## Hosting
 

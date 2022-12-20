@@ -29,7 +29,7 @@ You can even nest this, and have the theme component itself include theme compon
 
 The theme definition example above in `config.toml` creates a theme with 3 theme components with precedence from left to right.
 
-For any given file, data entry, etc., Hugo will look first in the project and then in `my-shortcode`, `base-theme`, and lastly `hyde`.
+For any given file, data entry, etc., Hugo will look first in the project and then in `my-shortcodes`, `base-theme`, and lastly `hyde`.
 
 Hugo uses two different algorithms to merge the filesystems, depending on the file type:
 

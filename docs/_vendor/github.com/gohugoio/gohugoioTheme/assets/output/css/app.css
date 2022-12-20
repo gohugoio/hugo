@@ -4809,7 +4809,7 @@ pre {
   content: "Copied"
 }
 @media screen and (min-width: 60em) {
-  .full-width, pre.expand:hover
+  .full-width
   {
   /*width: 100vw;
   position: relative;
