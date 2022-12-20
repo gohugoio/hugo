@@ -263,7 +263,7 @@ func decodeConfig(cfg config.Provider, pathReplacements map[string]string) (Conf
 				c.Workspace = filepath.Join(workingDir, c.Workspace)
 			}
 			if _, err := os.Stat(c.Workspace); err != nil {
-				return c, fmt.Errorf("module workspace %q does not exist", c.Workspace)
+				return c, fmt.Errorf("module workspace %q does not exist. Check your module.workspace setting (or HUGO_MODULE_WORKSPACE env var).", c.Workspace)
 			}
 		}
 	}
