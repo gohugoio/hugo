@@ -23,7 +23,7 @@ You can use the "hugo deploy" command to upload your site directly to a Google C
 
 ## Assumptions
 
-* You have completed the [Quick Start][] or have a Hugo website you are ready to deploy and share with the world.
+* You have completed the [Quick Start] or have a Hugo website you are ready to deploy and share with the world.
 * You have an account with the service provider ([Google Cloud](https://cloud.google.com/), [AWS](https://aws.amazon.com), or [Azure](https://azure.microsoft.com)) that you want to deploy to.
 * You have authenticated.
   * Google Cloud: [Install the CLI](https://cloud.google.com/sdk) and run [`gcloud auth login`](https://cloud.google.com/sdk/gcloud/reference/auth/login).
@@ -140,4 +140,3 @@ See `hugo help deploy` for more command-line options.
 [Google Cloud]: [https://cloud.google.com]
 [AWS]: [https://aws.amazon.com]
 [Azure]: [https://azure.microsoft.com]
-

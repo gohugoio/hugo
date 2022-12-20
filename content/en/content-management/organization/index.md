@@ -33,7 +33,7 @@ The bundle documentation is a **work in progress**. We will publish more compreh
 
 In Hugo, your content should be organized in a manner that reflects the rendered website.
 
-While Hugo supports content nested at any level, the top levels (i.e. `content/<DIRECTORIES>`) are special in Hugo and are considered the content type used to determine layouts etc. To read more about sections, including how to nest them, see [sections][].
+While Hugo supports content nested at any level, the top levels (i.e. `content/<DIRECTORIES>`) are special in Hugo and are considered the content type used to determine layouts etc. To read more about sections, including how to nest them, see [sections].
 
 Without any additional configuration, the following will automatically work:
 
@@ -59,7 +59,7 @@ The following demonstrates the relationships between your content organization a
 
 ### Index Pages: `_index.md`
 
-`_index.md` has a special role in Hugo. It allows you to add front matter and content to your [list templates][lists]. These templates include those for [section templates][], [taxonomy templates][], [taxonomy terms templates][], and your [homepage template][].
+`_index.md` has a special role in Hugo. It allows you to add front matter and content to your [list templates][lists]. These templates include those for [section templates], [taxonomy templates], [taxonomy terms templates], and your [homepage template].
 
 {{% note %}}
 **Tip:** You can get a reference to the content and metadata in `_index.md` using the [`.Site.GetPage` function](/functions/getpage/).

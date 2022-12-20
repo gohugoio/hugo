@@ -55,7 +55,7 @@ The following example calls the `add` function with inputs of `1` and `2`:
 
 #### Methods and Fields are Accessed via dot Notation
 
-Accessing the Page Parameter `bar` defined in a piece of content's [front matter][].
+Accessing the Page Parameter `bar` defined in a piece of content's [front matter].
 
 ```go-html-template
 {{ .Params.bar }}
@@ -519,11 +519,11 @@ The templating engine will strip the content within the HTML comment, but will f
 
 ## Hugo Parameters
 
-Hugo provides the option of passing values to your template layer through your [site configuration][config] (i.e. for site-wide values) or through the metadata of each specific piece of content (i.e. the [front matter][]). You can define any values of any type and use them however you want in your templates, as long as the values are supported by the [front matter format]({{< ref "front-matter.md#front-matter-formats" >}}).
+Hugo provides the option of passing values to your template layer through your [site configuration][config] (i.e. for site-wide values) or through the metadata of each specific piece of content (i.e. the [front matter]). You can define any values of any type and use them however you want in your templates, as long as the values are supported by the [front matter format]({{< ref "front-matter.md#front-matter-formats" >}}).
 
 ## Use Content (`Page`) Parameters
 
-You can provide variables to be used by templates in individual content's [front matter][].
+You can provide variables to be used by templates in individual content's [front matter].
 
 An example of this is used in the Hugo docs. Most of the pages benefit from having the table of contents provided, but sometimes the table of contents doesn't make a lot of sense. We've defined a `notoc` variable in our front matter that will prevent a table of contents from rendering when specifically set to `true`.
 

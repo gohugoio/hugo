@@ -214,7 +214,7 @@ To see even more options for adding syntax-highlighted code blocks to your websi
 
 ### `instagram`
 
-If you'd like to embed a photo from [Instagram][], you only need the photo's ID. You can discern an Instagram photo ID from the URL:
+If you'd like to embed a photo from [Instagram], you only need the photo's ID. You can discern an Instagram photo ID from the URL:
 
 ```txt
 https://www.instagram.com/p/BWNjjyYFxVx/
@@ -329,7 +329,7 @@ Using the preceding `tweet` example, the following simulates the displayed exper
 
 ### `vimeo`
 
-Adding a video from [Vimeo][] is equivalent to the [YouTube Input shortcode][].
+Adding a video from [Vimeo] is equivalent to the [YouTube Input shortcode].
 
 ```txt
 https://vimeo.com/channels/staffpicks/146022717
@@ -367,7 +367,7 @@ Using the preceding `vimeo` example, the following simulates the displayed exper
 
 ### `youtube`
 
-The `youtube` shortcode embeds a responsive video player for [YouTube videos][]. Only the ID of the video is required, e.g.:
+The `youtube` shortcode embeds a responsive video player for [YouTube videos]. Only the ID of the video is required, e.g.:
 
 ```txt
 https://www.youtube.com/watch?v=w7Ft2ymGmfc
@@ -410,11 +410,11 @@ Using the preceding `youtube` example (without `autoplay="true"`), the following
 
 ## Privacy Config
 
-To learn how to configure your Hugo site to meet the new EU privacy regulation, see [Hugo and the GDPR][].
+To learn how to configure your Hugo site to meet the new EU privacy regulation, see [Hugo and the GDPR].
 
 ## Create Custom Shortcodes
 
-To learn more about creating custom shortcodes, see the [shortcode template documentation][].
+To learn more about creating custom shortcodes, see the [shortcode template documentation].
 
 [`figure` shortcode]: #figure
 [contentmanagementsection]: /content-management/formats/

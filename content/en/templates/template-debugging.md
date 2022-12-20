@@ -40,7 +40,7 @@ This will print out a list of all the variables scoped to the current context
 {{ printf "%#v" . }}
 ```
 
-When developing a [homepage][], what does one of the pages you're looping through look like?
+When developing a [homepage], what does one of the pages you're looping through look like?
 
 ```go-html-template
 {{ range .Pages }}

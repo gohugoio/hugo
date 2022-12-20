@@ -16,7 +16,7 @@ aliases: [/extras/pagination,/doc/pagination/]
 toc: true
 ---
 
-The real power of Hugo pagination shines when combined with the [`where` function][where] and its SQL-like operators: [`first`][], [`last`][], and [`after`][]. You can even [order the content][lists] the way you've become used to with Hugo.
+The real power of Hugo pagination shines when combined with the [`where` function][where] and its SQL-like operators: [`first`], [`last`], and [`after`]. You can even [order the content][lists] the way you've become used to with Hugo.
 
 ## Configure Pagination
 

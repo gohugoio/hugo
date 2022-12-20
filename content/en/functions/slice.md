@@ -20,7 +20,7 @@ aliases: []
 toc: false
 ---
 
-One use case is the concatenation of elements in combination with the [`delimit` function][]:
+One use case is the concatenation of elements in combination with the [`delimit` function]:
 
 {{< code file="slice.html" >}}
 {{ $sliceOfStrings := slice "foo" "bar" "buzz" }}

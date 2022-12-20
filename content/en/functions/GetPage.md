@@ -56,7 +56,7 @@ The previous examples have used the full content filename to look up the post. D
 
 This code snippet---in the form of a [partial template][partials]---allows you to do the following:
 
-1. Grab the index object of your `tags` [taxonomy][].
+1. Grab the index object of your `tags` [taxonomy].
 2. Assign this object to a variable, `$t`
 3. Sort the terms associated with the taxonomy by popularity.
 4. Grab the top two most popular terms in the taxonomy (i.e., the two most popular tags assigned to content.

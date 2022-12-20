@@ -53,7 +53,7 @@ Here is a visual explanation [taken directly from the Go docs][gdex]:
 
 The following examples show the layout string followed by the rendered output.
 
-The examples were rendered and tested in [CST][] and all point to the same field in a content file's front matter:
+The examples were rendered and tested in [CST] and all point to the same field in a content file's front matter:
 
 ```
 date: 2017-03-03T14:15:59-06:00

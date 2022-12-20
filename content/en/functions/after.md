@@ -29,7 +29,7 @@ The following shows `after` being used in conjunction with the [`slice` function
 
 ## Example of `after` with `first`: 2nd&ndash;4th Most Recent Articles
 
-You can use `after` in combination with the [`first` function][] and Hugo's [powerful sorting methods][lists]. Let's assume you have a list page at `example.com/articles`. You have 10 articles, but you want your templating for the [list/section page][] to show only two rows:
+You can use `after` in combination with the [`first` function] and Hugo's [powerful sorting methods][lists]. Let's assume you have a list page at `example.com/articles`. You have 10 articles, but you want your templating for the [list/section page] to show only two rows:
 
 1. The top row is titled "Featured" and shows only the most recently published article (i.e. by `publishdate` in the content files' front matter).
 2. The second row is titled "Recent Articles" and shows only the 2nd- to 4th-most recently published articles.
