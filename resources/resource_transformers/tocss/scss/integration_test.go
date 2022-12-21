@@ -263,6 +263,7 @@ func TestOptionVars(t *testing.T) {
 body {
 	body {
 		background: url($image) no-repeat center/cover;
+		font-family: $font;
 	  }	  
 }
 
@@ -276,7 +277,8 @@ b {
 }
 -- layouts/index.html --
 {{ $image := "images/hero.jpg" }}
-{{ $vars := dict "$color1" "blue" "$color2" "green" "font_size" "24px" "image" $image }}
+{{ $font := "Hugo's New Roman" }}
+{{ $vars := dict "$color1" "blue" "$color2" "green" "font_size" "24px" "image" $image "font" $font }}
 {{ $cssOpts := (dict "transpiler" "libsass" "outputStyle" "compressed" "vars" $vars ) }}
 {{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts }}
 T1: {{ $r.Content }}
@@ -289,5 +291,5 @@ T1: {{ $r.Content }}
 			NeedsOsFS:   true,
 		}).Build()
 
-	b.AssertFileContent("public/index.html", `T1: body body{background:url(images/hero.jpg) no-repeat center/cover}p{color:blue;font-size:var 24px}b{color:green}`)
+	b.AssertFileContent("public/index.html", `T1: body body{background:url(images/hero.jpg) no-repeat center/cover;font-family:Hugo&#39;s New Roman}p{color:blue;font-size:var 24px}b{color:green}`)
 }
