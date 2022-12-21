@@ -27,12 +27,11 @@ import (
 // arguments. Thus "index x 1 2 3" is, in Go syntax, x[1][2][3]. Each
 // indexed item must be a map, slice, or array.
 //
-// Copied from Go stdlib src/text/template/funcs.go.
+// Adapted from Go stdlib src/text/template/funcs.go.
 //
-// We deviate from the stdlib due to https://github.com/golang/go/issues/14751.
-//
-// TODO(moorereason): merge upstream changes.
+// We deviate from the stdlib mostly because of https://github.com/golang/go/issues/14751.
 func (ns *Namespace) Index(item any, args ...any) (any, error) {
+	// TODO(moorereason): merge upstream changes.
 	v := reflect.ValueOf(item)
 	if !v.IsValid() {
 		// See issue 10489

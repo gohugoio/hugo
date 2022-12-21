@@ -23,11 +23,11 @@ import (
 	"github.com/gohugoio/hugo/common/maps"
 )
 
-// Where returns a filtered subset of a given data type.
-func (ns *Namespace) Where(seq, key any, args ...any) (any, error) {
-	seqv, isNil := indirect(reflect.ValueOf(seq))
+// Where returns a filtered subset of collection c.
+func (ns *Namespace) Where(c, key any, args ...any) (any, error) {
+	seqv, isNil := indirect(reflect.ValueOf(c))
 	if isNil {
-		return nil, errors.New("can't iterate over a nil value of type " + reflect.ValueOf(seq).Type().String())
+		return nil, errors.New("can't iterate over a nil value of type " + reflect.ValueOf(c).Type().String())
 	}
 
 	mv, op, err := parseWhereArgs(args...)
@@ -47,7 +47,7 @@ func (ns *Namespace) Where(seq, key any, args ...any) (any, error) {
 	case reflect.Map:
 		return ns.checkWhereMap(seqv, kv, mv, path, op)
 	default:
-		return nil, fmt.Errorf("can't iterate over %v", seq)
+		return nil, fmt.Errorf("can't iterate over %v", c)
 	}
 }
 
