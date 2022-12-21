@@ -383,7 +383,7 @@ func (c *commandeer) loadConfig() error {
 
 	// Set some commonly used flags
 	c.doLiveReload = c.running && !c.Cfg.GetBool("disableLiveReload")
-	c.fastRenderMode = c.doLiveReload && !c.Cfg.GetBool("disableFastRender")
+	c.fastRenderMode = c.running && !c.Cfg.GetBool("disableFastRender")
 	c.showErrorInBrowser = c.doLiveReload && !c.Cfg.GetBool("disableBrowserError")
 
 	// This is potentially double work, but we need to do this one more time now
