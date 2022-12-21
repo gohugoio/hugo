@@ -364,8 +364,7 @@ func (ns *Namespace) ToCSS(args ...any) (resource.Resource, error) {
 	}
 
 	if m != nil {
-		maps.PrepareParams(m)
-		if t, found := m["transpiler"]; found {
+		if t, found := maps.LookupEqualFold(m, "transpiler"); found {
 			switch t {
 			case transpilerDart, transpilerLibSass:
 				transpiler = cast.ToString(t)
