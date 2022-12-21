@@ -57,7 +57,7 @@ func (ns *Namespace) Base64Encode(content any) (string, error) {
 }
 
 // Jsonify encodes a given object to JSON.  To pretty print the JSON, pass a map
-// or dictionary of options as the first argument.  Supported options are
+// or dictionary of options as the first value in args.  Supported options are
 // "prefix" and "indent".  Each JSON element in the output will begin on a new
 // line beginning with prefix followed by one or more copies of indent according
 // to the indentation nesting.

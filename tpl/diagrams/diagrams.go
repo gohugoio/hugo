@@ -64,6 +64,7 @@ type Namespace struct {
 	d *deps.Deps
 }
 
+// Goat creates a new SVG diagram from input v.
 func (d *Namespace) Goat(v any) SVGDiagram {
 	var r io.Reader
 

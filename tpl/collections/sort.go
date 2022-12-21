@@ -25,13 +25,13 @@ import (
 	"github.com/spf13/cast"
 )
 
-// Sort returns a sorted sequence.
-func (ns *Namespace) Sort(seq any, args ...any) (any, error) {
-	if seq == nil {
+// Sort returns a sorted copy of the list l.
+func (ns *Namespace) Sort(l any, args ...any) (any, error) {
+	if l == nil {
 		return nil, errors.New("sequence must be provided")
 	}
 
-	seqv, isNil := indirect(reflect.ValueOf(seq))
+	seqv, isNil := indirect(reflect.ValueOf(l))
 	if isNil {
 		return nil, errors.New("can't iterate over a nil value")
 	}
@@ -43,7 +43,7 @@ func (ns *Namespace) Sort(seq any, args ...any) (any, error) {
 	case reflect.Map:
 		sliceType = reflect.SliceOf(seqv.Type().Elem())
 	default:
-		return nil, errors.New("can't sort " + reflect.ValueOf(seq).Type().String())
+		return nil, errors.New("can't sort " + reflect.ValueOf(l).Type().String())
 	}
 
 	collator := langs.GetCollator(ns.deps.Language)

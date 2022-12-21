@@ -141,6 +141,7 @@ func TestMerge(t *testing.T) {
 	} {
 
 		test := test
+		i := i
 
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
