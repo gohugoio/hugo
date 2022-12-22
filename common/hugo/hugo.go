@@ -126,6 +126,8 @@ func GetExecEnviron(workDir string, cfg config.Provider, fs afero.Fs) []string {
 	config.SetEnvVars(&env, "HUGO_ENVIRONMENT", cfg.GetString("environment"))
 	config.SetEnvVars(&env, "HUGO_ENV", cfg.GetString("environment"))
 
+	config.SetEnvVars(&env, "HUGO_PUBLISHDIR", filepath.Join(workDir, cfg.GetString("publishDirOrig")))
+
 	if fs != nil {
 		fis, err := afero.ReadDir(fs, files.FolderJSConfig)
 		if err == nil {
