@@ -242,6 +242,7 @@ func (l configLoader) applyConfigDefaults() error {
 		"watch":                                false,
 		"resourceDir":                          "resources",
 		"publishDir":                           "public",
+		"publishDirOrig":                       "public",
 		"themesDir":                            "themes",
 		"buildDrafts":                          false,
 		"buildFuture":                          false,

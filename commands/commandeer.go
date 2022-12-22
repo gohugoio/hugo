@@ -408,6 +408,9 @@ func (c *commandeer) loadConfig() error {
 
 	createMemFs := config.GetBool("renderToMemory")
 	c.renderStaticToDisk = config.GetBool("renderStaticToDisk")
+	// TODO(bep) we/I really need to look at the config set up, but to prevent changing too much
+	// we store away the original.
+	config.Set("publishDirOrig", config.GetString("publishDir"))
 
 	if createMemFs {
 		// Rendering to memoryFS, publish to Root regardless of publishDir.
