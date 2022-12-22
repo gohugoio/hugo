@@ -196,3 +196,38 @@ title: "p3"
 Home: p1|p3|
 `)
 }
+
+// Issue #11279
+func TestWhereLikeOperator(t *testing.T) {
+	t.Parallel()
+	files := `
+-- content/p1.md --
+---
+title: P1
+foo: ab
+---
+-- content/p2.md --
+---
+title: P2
+foo: abc
+---
+-- content/p3.md --
+---
+title: P3
+foo: bc
+---
+-- layouts/index.html --
+<ul>
+  {{- range where site.RegularPages "Params.foo" "like" "^ab" -}}
+    <li>{{ .Title }}</li>
+  {{- end -}}
+</ul>
+  `
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+	b.AssertFileContent("public/index.html", "<ul><li>P1</li><li>P2</li></ul>")
+}
