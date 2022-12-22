@@ -21,7 +21,7 @@ func pagesToTranslationsMap(sites []*Site) map[string]page.Pages {
 	out := make(map[string]page.Pages)
 
 	for _, s := range sites {
-		s.pageMap.pageTrees.Walk(func(ss string, n *contentNode) bool {
+		s.pageMap.pageTrees.WalkLinkable(func(ss string, n *contentNode) bool {
 			p := n.p
 			// TranslationKey is implemented for all page types.
 			base := p.TranslationKey()
