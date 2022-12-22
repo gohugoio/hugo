@@ -65,20 +65,25 @@ tags: ['T1']
 	)
 	b.Build()
 
+	// Kind home
+	b.AssertFileContent("public/en/index.html",
+		"<ul><li>Issue-9073-en</li></ul>",
+	)
+	// Kind section
 	b.AssertFileContent("public/en/posts/index.html",
 		"<ul><li>Posts-en</li></ul>",
 	)
+	// Kind page
 	b.AssertFileContent("public/en/posts/p1/index.html",
 		"<ul><li>P1-en</li></ul>",
 	)
+	// Kind taxonomy
 	b.AssertFileContent("public/en/tags/index.html",
 		"<ul><li>Tags-en</li></ul>",
 	)
+	// Kind term
 	b.AssertFileContent("public/en/tags/t1/index.html",
 		"<ul><li>T1-en</li></ul>",
-	)
-	b.AssertFileContent("public/en/index.html",
-		"<ul><li>Issue-9073-en</li></ul>",
 	)
 
 }
