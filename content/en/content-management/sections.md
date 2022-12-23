@@ -63,19 +63,16 @@ If you need a specific template for a sub-section, you need to adjust either the
 With the available [section variables and methods](#section-page-variables-and-methods) you can build powerful navigation. One common example would be a partial to show Breadcrumb navigation:
 
 {{< code file="layouts/partials/breadcrumb.html" download="breadcrumb.html" >}}
-<ol  class="nav navbar-nav">
-  {{ template "breadcrumbnav" (dict "p1" . "p2" .) }}
-</ol>
-{{ define "breadcrumbnav" }}
-{{ if .p1.Parent }}
-{{ template "breadcrumbnav" (dict "p1" .p1.Parent "p2" .p2 )  }}
-{{ else if not .p1.IsHome }}
-{{ template "breadcrumbnav" (dict "p1" .p1.Site.Home "p2" .p2 )  }}
-{{ end }}
-<li{{ if eq .p1 .p2 }} class="active" aria-current="page" {{ end }}>
-  <a href="{{ .p1.Permalink }}">{{ .p1.Title }}</a>
+<ol class="nav navbar-nav">
+<ul>
+{{- range .Ancestors.Reverse }}
+<li><a href="{{ .Permalink }}">{{ .Title }}</a></li>
+{{- end }}
+<li class="active" aria-current="page">
+<a href="{{ .Permalink }}">{{ .Title }}</a>
 </li>
-{{ end }}
+</ul>
+</ol>
 {{< /code >}}
 
 ## Section Page Variables and Methods
