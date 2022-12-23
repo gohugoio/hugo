@@ -61,7 +61,7 @@ require (
 	go.uber.org/atomic v1.10.0
 	gocloud.dev v0.24.0
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
-	golang.org/x/net v0.3.0
+	golang.org/x/net v0.4.0
 	golang.org/x/sync v0.1.0
 	golang.org/x/text v0.5.0
 	golang.org/x/tools v0.4.0
