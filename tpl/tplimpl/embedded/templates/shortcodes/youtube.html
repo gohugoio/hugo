@@ -5,9 +5,13 @@
 {{- $class := .Get "class" | default (.Get 1) -}}
 {{- $title := .Get "title" | default "YouTube Video" -}}
 {{- $autoplay := .Get "autoplay" | default "" -}}
+{{- $start := .Get "start" | default "" -}}
 {{- $queryParams := slice -}}
 {{- if (and $autoplay (eq $autoplay "true")) -}}
 {{- $queryParams = $queryParams | append "autoplay" 1 -}}
+{{- end -}}
+{{- if $start -}}
+  {{- $queryParams = $queryParams | append "start" $start -}}
 {{- end -}}
 {{- $queryString := (querify $queryParams | safeURL) | default "" }}
 <div {{ with $class }}class="{{ . }}"{{ else }}style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;"{{ end }}>

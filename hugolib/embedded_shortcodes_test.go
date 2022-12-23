@@ -190,6 +190,16 @@ func TestShortcodeYoutube(t *testing.T) {
 			`{{< youtube id="w7Ft2ymGmfc" title="A New Hugo Site in Under Two Minutes" >}}`,
 			"(?s)\n<div style=\".*?\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\" style=\".*?\" allowfullscreen title=\"A New Hugo Site in Under Two Minutes\">.*?</iframe>.*?</div>",
 		},
+		// provide start time offset
+		{
+			`{{< youtube id="w7Ft2ymGmfc" title="A New Hugo Site in Under Two Minutes" start="90" >}}`,
+			"(?s)\n<div style=\".*?\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\\?start=90\" style=\".*?\" allowfullscreen title=\"A New Hugo Site in Under Two Minutes\">.*?</iframe>.*?</div>",
+		},
+		// provide start time offset AND autoplay
+		{
+			`{{< youtube id="w7Ft2ymGmfc" title="A New Hugo Site in Under Two Minutes" start="90" autoplay="true" >}}`,
+			"(?s)\n<div style=\".*?\">.*?<iframe src=\"https://www.youtube.com/embed/w7Ft2ymGmfc\\?autoplay=1&amp;start=90\" style=\".*?\" allowfullscreen title=\"A New Hugo Site in Under Two Minutes\">.*?</iframe>.*?</div>",
+		},
 	} {
 		var (
 			cfg, fs = newTestCfg()
