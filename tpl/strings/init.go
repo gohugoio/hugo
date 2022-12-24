@@ -74,6 +74,15 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(
+			ctx.ClassNames,
+			[]string{"classnames", "clsx"},
+			[][2]string{
+				{`{{ classnames "a" "b" }}`, "a b"},
+				{`{{ clsx "a" "b" }}`, "a b"},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.FindRE,
 			[]string{"findRE"},
 			[][2]string{
