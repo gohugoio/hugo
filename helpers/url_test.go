@@ -234,27 +234,3 @@ func TestSanitizeURL(t *testing.T) {
 	}
 }
 
-func TestURLPrep(t *testing.T) {
-	type test struct {
-		ugly   bool
-		input  string
-		output string
-	}
-
-	data := []test{
-		{false, "/section/name.html", "/section/name/"},
-		{true, "/section/name/index.html", "/section/name.html"},
-	}
-
-	for i, d := range data {
-		v := newTestCfg()
-		v.Set("uglyURLs", d.ugly)
-		l := langs.NewDefaultLanguage(v)
-		p, _ := NewPathSpec(hugofs.NewMem(v), l, nil)
-
-		output := p.URLPrep(d.input)
-		if d.output != output {
-			t.Errorf("Test #%d failed. Expected %q got %q", i, d.output, output)
-		}
-	}
-}

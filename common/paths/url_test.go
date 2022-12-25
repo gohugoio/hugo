@@ -15,8 +15,6 @@ package paths
 
 import (
 	"testing"
-
-	qt "github.com/frankban/quicktest"
 )
 
 func TestMakePermalink(t *testing.T) {
