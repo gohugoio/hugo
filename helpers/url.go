@@ -218,24 +218,3 @@ func (p *PathSpec) PrependBasePath(rel string, isAbs bool) string {
 	return rel
 }
 
-// URLizeAndPrep applies misc sanitation to the given URL to get it in line
-// with the Hugo standard.
-func (p *PathSpec) URLizeAndPrep(in string) string {
-	return p.URLPrep(p.URLize(in))
-}
-
-// URLPrep applies misc sanitation to the given URL.
-func (p *PathSpec) URLPrep(in string) string {
-	if p.UglyURLs {
-		return paths.Uglify(SanitizeURL(in))
-	}
-	pretty := paths.PrettifyURL(SanitizeURL(in))
-	if path.Ext(pretty) == ".xml" {
-		return pretty
-	}
-	url, err := purell.NormalizeURLString(pretty, purell.FlagAddTrailingSlash)
-	if err != nil {
-		return pretty
-	}
-	return url
-}
