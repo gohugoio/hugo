@@ -65,35 +65,3 @@ func TestAddContextRoot(t *testing.T) {
 		}
 	}
 }
-
-func TestPretty(t *testing.T) {
-	c := qt.New(t)
-	c.Assert("/section/name/index.html", qt.Equals, PrettifyURLPath("/section/name.html"))
-	c.Assert("/section/sub/name/index.html", qt.Equals, PrettifyURLPath("/section/sub/name.html"))
-	c.Assert("/section/name/index.html", qt.Equals, PrettifyURLPath("/section/name/"))
-	c.Assert("/section/name/index.html", qt.Equals, PrettifyURLPath("/section/name/index.html"))
-	c.Assert("/index.html", qt.Equals, PrettifyURLPath("/index.html"))
-	c.Assert("/name/index.xml", qt.Equals, PrettifyURLPath("/name.xml"))
-	c.Assert("/", qt.Equals, PrettifyURLPath("/"))
-	c.Assert("/", qt.Equals, PrettifyURLPath(""))
-	c.Assert("/section/name", qt.Equals, PrettifyURL("/section/name.html"))
-	c.Assert("/section/sub/name", qt.Equals, PrettifyURL("/section/sub/name.html"))
-	c.Assert("/section/name", qt.Equals, PrettifyURL("/section/name/"))
-	c.Assert("/section/name", qt.Equals, PrettifyURL("/section/name/index.html"))
-	c.Assert("/", qt.Equals, PrettifyURL("/index.html"))
-	c.Assert("/name/index.xml", qt.Equals, PrettifyURL("/name.xml"))
-	c.Assert("/", qt.Equals, PrettifyURL("/"))
-	c.Assert("/", qt.Equals, PrettifyURL(""))
-}
-
-func TestUgly(t *testing.T) {
-	c := qt.New(t)
-	c.Assert("/section/name.html", qt.Equals, Uglify("/section/name.html"))
-	c.Assert("/section/sub/name.html", qt.Equals, Uglify("/section/sub/name.html"))
-	c.Assert("/section/name.html", qt.Equals, Uglify("/section/name/"))
-	c.Assert("/section/name.html", qt.Equals, Uglify("/section/name/index.html"))
-	c.Assert("/index.html", qt.Equals, Uglify("/index.html"))
-	c.Assert("/name.xml", qt.Equals, Uglify("/name.xml"))
-	c.Assert("/", qt.Equals, Uglify("/"))
-	c.Assert("/", qt.Equals, Uglify(""))
-}

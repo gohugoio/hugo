@@ -98,62 +98,6 @@ func AddContextRoot(baseURL, relativePath string) string {
 	return newPath
 }
 
-// URLizeAn
-
-// PrettifyURL takes a URL string and returns a semantic, clean URL.
-func PrettifyURL(in string) string {
-	x := PrettifyURLPath(in)
-
-	if path.Base(x) == "index.html" {
-		return path.Dir(x)
-	}
-
-	if in == "" {
-		return "/"
-	}
-
-	return x
-}
-
-// PrettifyURLPath takes a URL path to a content and converts it
-// to enable pretty URLs.
-//     /section/name.html       becomes /section/name/index.html
-//     /section/name/           becomes /section/name/index.html
-//     /section/name/index.html becomes /section/name/index.html
-func PrettifyURLPath(in string) string {
-	return prettifyPath(in, pb)
-}
-
-// Uglify does the opposite of PrettifyURLPath().
-//     /section/name/index.html becomes /section/name.html
-//     /section/name/           becomes /section/name.html
-//     /section/name.html       becomes /section/name.html
-func Uglify(in string) string {
-	if path.Ext(in) == "" {
-		if len(in) < 2 {
-			return "/"
-		}
-		// /section/name/  -> /section/name.html
-		return path.Clean(in) + ".html"
-	}
-
-	name, ext := fileAndExt(in, pb)
-	if name == "index" {
-		// /section/name/index.html -> /section/name.html
-		d := path.Dir(in)
-		if len(d) > 1 {
-			return d + ext
-		}
-		return in
-	}
-	// /.xml -> /index.xml
-	if name == "" {
-		return path.Dir(in) + "index" + ext
-	}
-	// /section/name.html -> /section/name.html
-	return path.Clean(in)
-}
-
 // UrlToFilename converts the URL s to a filename.
 // If ParseRequestURI fails, the input is just converted to OS specific slashes and returned.
 func UrlToFilename(s string) (string, bool) {
