@@ -72,6 +72,8 @@ type Twitter struct {
 type RSS struct {
 	// Limit the number of pages.
 	Limit int
+	// Output the full content for each article instead of just the summary
+	FullContent bool
 }
 
 // DecodeConfig creates a services Config from a given Hugo configuration.

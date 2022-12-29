@@ -36,6 +36,8 @@ id = "ga_id"
 disableInlineCSS = true
 [services.twitter]
 disableInlineCSS = true
+[services.rss]
+fullContent = true
 `
 	cfg, err := config.FromConfigString(tomlConfig, "toml")
 	c.Assert(err, qt.IsNil)
@@ -48,6 +50,7 @@ disableInlineCSS = true
 	c.Assert(config.GoogleAnalytics.ID, qt.Equals, "ga_id")
 
 	c.Assert(config.Instagram.DisableInlineCSS, qt.Equals, true)
+	c.Assert(config.RSS.FullContent, qt.Equals, true)
 }
 
 // Support old root-level GA settings etc.

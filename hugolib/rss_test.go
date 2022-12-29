@@ -98,3 +98,24 @@ Figure:
 
 	b.AssertFileContent("public/index.xml", "img src=&#34;http://example.com/images/sunset.jpg")
 }
+
+func TestFullContent(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t)
+	b.WithSimpleConfigFile()
+	b.WithConfigFile("toml", `
+	[services]
+	[services.rss]
+	fullContent = true
+	`)
+	b.WithContent("page.md", `---
+Title: My Page
+Summary: summary-test
+---
+content-text
+`)
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.xml", "<description>&lt;p&gt;content-text&lt;/p&gt;\n</description>")
+}
