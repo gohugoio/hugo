@@ -254,8 +254,10 @@ func init() {
 	}
 }
 
+// Tags is a map of EXIF tags.
 type Tags map[string]any
 
+// UnmarshalJSON is for internal use only.
 func (v *Tags) UnmarshalJSON(b []byte) error {
 	vv := make(map[string]any)
 	if err := tcodec.Unmarshal(b, &vv); err != nil {
@@ -267,6 +269,7 @@ func (v *Tags) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// MarshalJSON is for internal use only.
 func (v Tags) MarshalJSON() ([]byte, error) {
 	return tcodec.Marshal(v)
 }

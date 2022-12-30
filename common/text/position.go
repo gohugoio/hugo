@@ -24,6 +24,8 @@ import (
 // Positioner represents a thing that knows its position in a text file or stream,
 // typically an error.
 type Positioner interface {
+	// Position returns the current position.
+	// Useful in error logging, e.g. {{ errorf "error in code block: %s" .Position }}.
 	Position() Position
 }
 

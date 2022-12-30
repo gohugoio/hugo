@@ -18,6 +18,7 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
 )
@@ -157,7 +158,7 @@ func TestJoin(t *testing.T) {
 			`baz/foo/bar.txt`,
 		},
 		{
-			[]any{"", "baz", DirFile{"big", "john"}, filepath.FromSlash(`foo/bar.txt`)},
+			[]any{"", "baz", paths.DirFile{Dir: "big", File: "john"}, filepath.FromSlash(`foo/bar.txt`)},
 			`baz/big|john/foo/bar.txt`,
 		},
 		{nil, ""},
@@ -186,10 +187,10 @@ func TestSplit(t *testing.T) {
 		path   any
 		expect any
 	}{
-		{filepath.FromSlash(`foo/bar.txt`), DirFile{`foo/`, `bar.txt`}},
-		{filepath.FromSlash(`foo/bar/txt `), DirFile{`foo/bar/`, `txt `}},
-		{`foo.bar.txt`, DirFile{``, `foo.bar.txt`}},
-		{``, DirFile{``, ``}},
+		{filepath.FromSlash(`foo/bar.txt`), paths.DirFile{Dir: `foo/`, File: `bar.txt`}},
+		{filepath.FromSlash(`foo/bar/txt `), paths.DirFile{Dir: `foo/bar/`, File: `txt `}},
+		{`foo.bar.txt`, paths.DirFile{Dir: ``, File: `foo.bar.txt`}},
+		{``, paths.DirFile{Dir: ``, File: ``}},
 		// errors
 		{tstNoStringer{}, false},
 	} {

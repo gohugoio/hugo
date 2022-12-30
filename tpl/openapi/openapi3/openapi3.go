@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package openapi3 provides functions for generating OpenAPI v3 (Swagger) documentation.
 package openapi3
 
 import (
@@ -54,6 +55,7 @@ type OpenAPIDocument struct {
 	*kopenapi3.T
 }
 
+// Unmarshal unmarshals the given resource into an OpenAPI 3 document.
 func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*OpenAPIDocument, error) {
 	key := r.Key()
 	if key == "" {

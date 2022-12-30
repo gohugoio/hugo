@@ -26,8 +26,7 @@ import (
 	"github.com/gohugoio/hugo/navigation"
 )
 
-// Site represents a site in the build. This is currently a very narrow interface,
-// but the actual implementation will be richer, see hugolib.SiteInfo.
+// Site represents a site. There can be multople sites in a multilingual setup.
 type Site interface {
 	// Returns the Language configured for this Site.
 	Language() *langs.Language
@@ -63,7 +62,7 @@ type Site interface {
 	BaseURL() template.URL
 
 	// Retuns a taxonomy map.
-	Taxonomies() any
+	Taxonomies() TaxonomyList
 
 	// Returns the last modification date of the content.
 	LastChange() time.Time
@@ -142,7 +141,7 @@ func (t testSite) Menus() navigation.Menus {
 	return nil
 }
 
-func (t testSite) Taxonomies() any {
+func (t testSite) Taxonomies() TaxonomyList {
 	return nil
 }
 

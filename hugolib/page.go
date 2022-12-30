@@ -31,8 +31,6 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs/files"
 
-	"github.com/bep/gitmap"
-
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/common/herrors"
@@ -150,7 +148,7 @@ func (p *pageState) GetIdentity() identity.Identity {
 	return identity.NewPathIdentity(files.ComponentFolderContent, filepath.FromSlash(p.Pathc()))
 }
 
-func (p *pageState) GitInfo() *gitmap.GitInfo {
+func (p *pageState) GitInfo() source.GitInfo {
 	return p.gitInfo
 }
 

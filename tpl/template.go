@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package tpl contains template functions and related types.
 package tpl
 
 import (

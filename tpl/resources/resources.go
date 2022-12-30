@@ -414,6 +414,7 @@ func (ns *Namespace) PostCSS(args ...any) (resource.Resource, error) {
 	return ns.postcssClient.Process(r, m)
 }
 
+// PostProcess processes r after the build.
 func (ns *Namespace) PostProcess(r resource.Resource) (postpub.PostPublishedResource, error) {
 	return ns.deps.ResourceSpec.PostProcess(r)
 }

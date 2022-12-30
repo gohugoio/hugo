@@ -404,7 +404,7 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 	}
 
 	var gitAuthorDate time.Time
-	if p.gitInfo != nil {
+	if !p.gitInfo.IsZero() {
 		gitAuthorDate = p.gitInfo.AuthorDate
 	}
 
