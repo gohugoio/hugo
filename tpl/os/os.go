@@ -22,6 +22,7 @@ import (
 	"path/filepath"
 
 	"github.com/bep/overlayfs"
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
@@ -101,7 +102,11 @@ func (ns *Namespace) ReadFile(i any) (string, error) {
 		s = ns.deps.PathSpec.RelPathify(s)
 	}
 
-	return readFile(ns.readFileFs, s)
+	s, err = readFile(ns.readFileFs, s)
+	if err != nil && herrors.IsNotExist(err) {
+		return "", nil
+	}
+	return s, err
 }
 
 // ReadDir lists the directory contents relative to the configured WorkingDir.
