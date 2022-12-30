@@ -41,7 +41,6 @@ import (
 
 	"github.com/gohugoio/hugo/source"
 
-	"github.com/bep/gitmap"
 	"github.com/gohugoio/hugo/config"
 
 	"github.com/gohugoio/hugo/publisher"
@@ -202,13 +201,13 @@ func (h *HugoSites) Data() map[string]any {
 	return h.data
 }
 
-func (h *HugoSites) gitInfoForPage(p page.Page) (*gitmap.GitInfo, error) {
+func (h *HugoSites) gitInfoForPage(p page.Page) (source.GitInfo, error) {
 	if _, err := h.init.gitInfo.Do(); err != nil {
-		return nil, err
+		return source.GitInfo{}, err
 	}
 
 	if h.gitInfo == nil {
-		return nil, nil
+		return source.GitInfo{}, nil
 	}
 
 	return h.gitInfo.forPage(p), nil

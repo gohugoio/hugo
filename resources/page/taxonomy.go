@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2023 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hugolib
+package page
 
 import (
 	"fmt"
@@ -19,8 +19,6 @@ import (
 
 	"github.com/gohugoio/hugo/compare"
 	"github.com/gohugoio/hugo/langs"
-
-	"github.com/gohugoio/hugo/resources/page"
 )
 
 // The TaxonomyList is a list of all taxonomies and their values
@@ -33,9 +31,10 @@ func (tl TaxonomyList) String() string {
 
 // A Taxonomy is a map of keywords to a list of pages.
 // For example
-//    TagTaxonomy['technology'] = page.WeightedPages
-//    TagTaxonomy['go']  =  page.WeightedPages
-type Taxonomy map[string]page.WeightedPages
+//
+//	TagTaxonomy['technology'] = WeightedPages
+//	TagTaxonomy['go']  =  WeightedPages
+type Taxonomy map[string]WeightedPages
 
 // OrderedTaxonomy is another representation of an Taxonomy using an array rather than a map.
 // Important because you can't order a map.
@@ -43,7 +42,7 @@ type OrderedTaxonomy []OrderedTaxonomyEntry
 
 // getOneOPage returns one page in the taxonomy,
 // nil if there is none.
-func (t OrderedTaxonomy) getOneOPage() page.Page {
+func (t OrderedTaxonomy) getOneOPage() Page {
 	if len(t) == 0 {
 		return nil
 	}
@@ -51,23 +50,19 @@ func (t OrderedTaxonomy) getOneOPage() page.Page {
 }
 
 // OrderedTaxonomyEntry is similar to an element of a Taxonomy, but with the key embedded (as name)
-// e.g:  {Name: Technology, page.WeightedPages: TaxonomyPages}
+// e.g:  {Name: Technology, WeightedPages: TaxonomyPages}
 type OrderedTaxonomyEntry struct {
 	Name string
-	page.WeightedPages
+	WeightedPages
 }
 
 // Get the weighted pages for the given key.
-func (i Taxonomy) Get(key string) page.WeightedPages {
+func (i Taxonomy) Get(key string) WeightedPages {
 	return i[key]
 }
 
 // Count the weighted pages for the given key.
 func (i Taxonomy) Count(key string) int { return len(i[key]) }
-
-func (i Taxonomy) add(key string, w page.WeightedPage) {
-	i[key] = append(i[key], w)
-}
 
 // TaxonomyArray returns an ordered taxonomy with a non defined order.
 func (i Taxonomy) TaxonomyArray() OrderedTaxonomy {
@@ -117,7 +112,7 @@ func (i Taxonomy) ByCount() OrderedTaxonomy {
 }
 
 // Pages returns the Pages for this taxonomy.
-func (ie OrderedTaxonomyEntry) Pages() page.Pages {
+func (ie OrderedTaxonomyEntry) Pages() Pages {
 	return ie.WeightedPages.Pages()
 }
 

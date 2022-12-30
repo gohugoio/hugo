@@ -33,6 +33,7 @@ type Whitelist struct {
 	patternsStrings []string
 }
 
+// MarshalJSON is for internal use only.
 func (w Whitelist) MarshalJSON() ([]byte, error) {
 	if w.acceptNone {
 		return json.Marshal(acceptNoneKeyword)

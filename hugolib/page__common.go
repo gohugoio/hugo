@@ -16,7 +16,6 @@ package hugolib
 import (
 	"sync"
 
-	"github.com/bep/gitmap"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/compare"
 	"github.com/gohugoio/hugo/lazy"
@@ -24,6 +23,7 @@ import (
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
+	"github.com/gohugoio/hugo/source"
 )
 
 type treeRefProvider interface {
@@ -106,7 +106,7 @@ type pageCommon struct {
 	shortcodeState *shortcodeHandler
 
 	// Set if feature enabled and this is in a Git repo.
-	gitInfo    *gitmap.GitInfo
+	gitInfo    source.GitInfo
 	codeowners []string
 
 	// Positional navigation

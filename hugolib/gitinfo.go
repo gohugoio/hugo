@@ -20,6 +20,7 @@ import (
 	"github.com/bep/gitmap"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/source"
 )
 
 type gitInfo struct {
@@ -27,11 +28,14 @@ type gitInfo struct {
 	repo       *gitmap.GitRepo
 }
 
-func (g *gitInfo) forPage(p page.Page) *gitmap.GitInfo {
+func (g *gitInfo) forPage(p page.Page) source.GitInfo {
 	name := strings.TrimPrefix(filepath.ToSlash(p.File().Filename()), g.contentDir)
 	name = strings.TrimPrefix(name, "/")
-
-	return g.repo.Files[name]
+	gi, found := g.repo.Files[name]
+	if !found {
+		return source.GitInfo{}
+	}
+	return source.NewGitInfo(*gi)
 }
 
 func newGitInfo(cfg config.Provider) (*gitInfo, error) {

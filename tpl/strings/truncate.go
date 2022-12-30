@@ -39,9 +39,9 @@ type htmlTag struct {
 	openTag bool
 }
 
-// Truncate truncates a given string to the specified length.
-func (ns *Namespace) Truncate(a any, options ...any) (template.HTML, error) {
-	length, err := cast.ToIntE(a)
+// Truncate truncates the string in s to the specified length.
+func (ns *Namespace) Truncate(s any, options ...any) (template.HTML, error) {
+	length, err := cast.ToIntE(s)
 	if err != nil {
 		return "", err
 	}

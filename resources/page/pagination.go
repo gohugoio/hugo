@@ -27,8 +27,10 @@ import (
 
 // PaginatorProvider provides two ways to create a page paginator.
 type PaginatorProvider interface {
+	// Paginator creates a paginator with the default page set.
 	Paginator(options ...any) (*Pager, error)
-	Paginate(seq any, options ...any) (*Pager, error)
+	// Paginate creates a paginator with the given page set in pages.
+	Paginate(pages any, options ...any) (*Pager, error)
 }
 
 // Pager represents one of the elements in a paginator.

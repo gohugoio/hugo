@@ -28,7 +28,6 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs"
 
-	"github.com/bep/gitmap"
 	"github.com/gohugoio/hugo/navigation"
 
 	"github.com/gohugoio/hugo/common/hugo"
@@ -200,8 +199,8 @@ func (p *nopPage) GetTerms(taxonomy string) Pages {
 	return nil
 }
 
-func (p *nopPage) GitInfo() *gitmap.GitInfo {
-	return nil
+func (p *nopPage) GitInfo() source.GitInfo {
+	return source.GitInfo{}
 }
 
 func (p *nopPage) CodeOwners() []string {

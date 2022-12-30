@@ -30,6 +30,7 @@ type Scratch struct {
 
 // Scratcher provides a scratching service.
 type Scratcher interface {
+	// Scratch returns a "scratch pad" that can be used to store state.
 	Scratch() *Scratch
 }
 

@@ -15,11 +15,11 @@
 package path
 
 import (
-	"fmt"
 	_path "path"
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/spf13/cast"
 )
@@ -34,17 +34,6 @@ func New(deps *deps.Deps) *Namespace {
 // Namespace provides template functions for the "os" namespace.
 type Namespace struct {
 	deps *deps.Deps
-}
-
-// DirFile holds the result from path.Split.
-type DirFile struct {
-	Dir  string
-	File string
-}
-
-// Used in test.
-func (df DirFile) String() string {
-	return fmt.Sprintf("%s|%s", df.Dir, df.File)
 }
 
 // Ext returns the file name extension used by path.
@@ -117,15 +106,15 @@ func (ns *Namespace) BaseName(path any) (string, error) {
 // The input path is passed into filepath.ToSlash converting any Windows slashes
 // to forward slashes.
 // The returned values have the property that path = dir+file.
-func (ns *Namespace) Split(path any) (DirFile, error) {
+func (ns *Namespace) Split(path any) (paths.DirFile, error) {
 	spath, err := cast.ToStringE(path)
 	if err != nil {
-		return DirFile{}, err
+		return paths.DirFile{}, err
 	}
 	spath = filepath.ToSlash(spath)
 	dir, file := _path.Split(spath)
 
-	return DirFile{Dir: dir, File: file}, nil
+	return paths.DirFile{Dir: dir, File: file}, nil
 }
 
 // Join joins any number of path elements into a single path, adding a

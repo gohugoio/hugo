@@ -263,3 +263,14 @@ func (n NamedSlice) String() string {
 	}
 	return fmt.Sprintf("%s%s{%s}", n.Name, FilePathSeparator, strings.Join(n.Slice, ","))
 }
+
+// DirFile holds the result from path.Split.
+type DirFile struct {
+	Dir  string
+	File string
+}
+
+// Used in test.
+func (df DirFile) String() string {
+	return fmt.Sprintf("%s|%s", df.Dir, df.File)
+}

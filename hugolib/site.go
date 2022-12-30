@@ -110,9 +110,9 @@ type Site struct {
 
 	*PageCollections
 
-	taxonomies TaxonomyList
+	taxonomies page.TaxonomyList
 
-	Sections Taxonomy
+	Sections page.Taxonomy
 	Info     *SiteInfo
 
 	language   *langs.Language
@@ -172,7 +172,7 @@ type Site struct {
 	init *siteInit
 }
 
-func (s *Site) Taxonomies() TaxonomyList {
+func (s *Site) Taxonomies() page.TaxonomyList {
 	s.init.taxonomies.Do()
 	return s.taxonomies
 }
@@ -708,7 +708,7 @@ func (s *SiteInfo) Menus() navigation.Menus {
 }
 
 // TODO(bep) type
-func (s *SiteInfo) Taxonomies() any {
+func (s *SiteInfo) Taxonomies() page.TaxonomyList {
 	return s.s.Taxonomies()
 }
 

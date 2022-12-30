@@ -157,10 +157,12 @@ type HightlightResult struct {
 	highlighted template.HTML
 }
 
+// Wrapped returns the highlighted code wrapped in a <div>, <pre> and <code> tag.
 func (h HightlightResult) Wrapped() template.HTML {
 	return h.highlighted
 }
 
+// Inner returns the highlighted code without the wrapping <div>, <pre> and <code> tag, suitable for inline use.
 func (h HightlightResult) Inner() template.HTML {
 	return h.highlighted[h.innerLow:h.innerHigh]
 }

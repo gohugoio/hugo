@@ -26,30 +26,56 @@ import (
 var _ AttributesOptionsSliceProvider = (*attributes.AttributesHolder)(nil)
 
 type AttributesProvider interface {
+	// Attributes passed in from Markdown (e.g. { attrName1=attrValue1 attrName2="attr Value 2" }).
 	Attributes() map[string]any
 }
 
 type LinkContext interface {
+	// The Page being rendered.
 	Page() any
+
+	// The link URL.
 	Destination() string
+
+	// The link title attribute.
 	Title() string
+
+	// The rendered (HTML) text.
 	Text() hstring.RenderedString
+
+	// The plain variant of Text.
 	PlainText() string
 }
 
 type ImageLinkContext interface {
 	LinkContext
+
+	// Returns true if this is a standalone image and the config option
+	// markup.goldmark.parser.wrapStandAloneImageWithinParagraph is disabled.
 	IsBlock() bool
+
+	// Zero-based ordinal for all the images in the current document.
 	Ordinal() int
 }
 
+// CodeblockContext is the context passed to a code block render hook.
 type CodeblockContext interface {
 	AttributesProvider
 	text.Positioner
+
+	// Chroma highlighting processing options. This will only be filled if Type is a known Chroma Lexer.
 	Options() map[string]any
+
+	// The type of code block. This will be the programming language, e.g. bash, when doing code highlighting.
 	Type() string
+
+	// The text between the code fences.
 	Inner() string
+
+	// Zero-based ordinal for all code blocks in the current document.
 	Ordinal() int
+
+	// The owning Page.
 	Page() any
 }
 

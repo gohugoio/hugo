@@ -21,7 +21,6 @@ import (
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/converter"
 
-	"github.com/bep/gitmap"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/tpl"
 
@@ -61,18 +60,17 @@ type AuthorProvider interface {
 
 // ChildCareProvider provides accessors to child resources.
 type ChildCareProvider interface {
+	// Pages returns a list of pages of all kinds.
 	Pages() Pages
 
 	// RegularPages returns a list of pages of kind 'Page'.
-	// In Hugo 0.57 we changed the Pages method so it returns all page
-	// kinds, even sections. If you want the old behaviour, you can
-	// use RegularPages.
 	RegularPages() Pages
 
 	// RegularPagesRecursive returns all regular pages below the current
 	// section.
 	RegularPagesRecursive() Pages
 
+	// Resources returns a list of all resources.
 	Resources() resource.Resources
 }
 
@@ -103,16 +101,21 @@ type ContentProvider interface {
 	ReadingTime() int
 
 	// Len returns the length of the content.
+	// This is for internal use only.
 	Len() int
 }
 
 // ContentRenderer provides the content rendering methods for some content.
 type ContentRenderer interface {
+	// RenderContent renders the given content.
+	// For internal use only.
 	RenderContent(content []byte, renderTOC bool) (converter.Result, error)
 }
 
 // FileProvider provides the source file.
 type FileProvider interface {
+	// File returns the source file for this Page,
+	// or a zero File if this Page is not backed by a file.
 	File() source.File
 }
 
@@ -131,13 +134,17 @@ type GetPageProvider interface {
 
 // GitInfoProvider provides Git info.
 type GitInfoProvider interface {
-	GitInfo() *gitmap.GitInfo
+	// GitInfo returns the Git info for this object.
+	GitInfo() source.GitInfo
+	// CodeOwners returns the code owners for this object.
 	CodeOwners() []string
 }
 
 // InSectionPositioner provides section navigation.
 type InSectionPositioner interface {
+	// NextInSection returns the next page in the same section.
 	NextInSection() Page
+	// PrevInSection returns the previous page in the same section.
 	PrevInSection() Page
 }
 
@@ -149,6 +156,7 @@ type InternalDependencies interface {
 
 // OutputFormatsProvider provides the OutputFormats of a Page.
 type OutputFormatsProvider interface {
+	// OutputFormats returns the OutputFormats for this Page.
 	OutputFormats() OutputFormats
 }
 
@@ -229,6 +237,7 @@ type PageMetaProvider interface {
 	SectionsPath() string
 
 	// Sitemap returns the sitemap configuration for this page.
+	// This is for internal use only.
 	Sitemap() config.Sitemap
 
 	// Type is a discriminator used to select layouts etc. It is typically set
@@ -242,7 +251,15 @@ type PageMetaProvider interface {
 
 // PageRenderProvider provides a way for a Page to render content.
 type PageRenderProvider interface {
+	// Render renders the given layout with this Page as context.
 	Render(layout ...string) (template.HTML, error)
+	// RenderString renders the first value in args with tPaginatorhe content renderer defined
+	// for this Page.
+	// It takes an optional map as a second argument:
+	//
+	// display (“inline”):
+	// - inline or block. If inline (default), surrounding <p></p> on short snippets will be trimmed.
+	// markup (defaults to the Page’s markup)
 	RenderString(args ...any) (template.HTML, error)
 }
 
@@ -311,7 +328,9 @@ type PageWithoutContent interface {
 
 // Positioner provides next/prev navigation.
 type Positioner interface {
+	// Next points up to the next regular page (sorted by Hugo’s default sort).
 	Next() Page
+	// Prev points down to the previous regular page (sorted by Hugo’s default sort).
 	Prev() Page
 
 	// Deprecated: Use Prev. Will be removed in Hugo 0.57
@@ -323,16 +342,19 @@ type Positioner interface {
 
 // RawContentProvider provides the raw, unprocessed content of the page.
 type RawContentProvider interface {
+	// RawContent returns the raw, unprocessed content of the page excluding any front matter.
 	RawContent() string
 }
 
 // RefProvider provides the methods needed to create reflinks to pages.
 type RefProvider interface {
+	// Ref returns an absolute URl to a page.
 	Ref(argsm map[string]any) (string, error)
 
 	// RefFrom is for internal use only.
 	RefFrom(argsm map[string]any, source any) (string, error)
 
+	// RelRef returns a relative URL to a page.
 	RelRef(argsm map[string]any) (string, error)
 
 	// RefFrom is for internal use only.
@@ -356,12 +378,15 @@ type ShortcodeInfoProvider interface {
 
 // SitesProvider provide accessors to get sites.
 type SitesProvider interface {
+	// Site returns the current site.
 	Site() Site
+	// Sites returns all sites.
 	Sites() Sites
 }
 
 // TableOfContentsProvider provides the table of contents for a Page.
 type TableOfContentsProvider interface {
+	// TableOfContents returns the table of contents for the page rendered as HTML.
 	TableOfContents() template.HTML
 }
 
@@ -382,7 +407,7 @@ type TranslationsProvider interface {
 // TreeProvider provides section tree navigation.
 type TreeProvider interface {
 
-	// IsAncestor returns whether the current page is an ancestor of the given
+	// IsAncestor returns whether the current page is an ancestor of other.
 	// Note that this method is not relevant for taxonomy lists and taxonomy terms pages.
 	IsAncestor(other any) (bool, error)
 
@@ -390,7 +415,7 @@ type TreeProvider interface {
 	// Note that this will return nil for pages that is not regular, home or section pages.
 	CurrentSection() Page
 
-	// IsDescendant returns whether the current page is a descendant of the given
+	// IsDescendant returns whether the current page is a descendant of other.
 	// Note that this method is not relevant for taxonomy lists and taxonomy terms pages.
 	IsDescendant(other any) (bool, error)
 
@@ -398,7 +423,7 @@ type TreeProvider interface {
 	// For the home page, this will return itself.
 	FirstSection() Page
 
-	// InSection returns whether the given page is in the current section.
+	// InSection returns whether other is in the current section.
 	// Note that this will always return false for pages that are
 	// not either regular, home or section pages.
 	InSection(other any) (bool, error)
