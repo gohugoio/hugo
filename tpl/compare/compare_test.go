@@ -217,6 +217,8 @@ func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b any)
 		{"a", "a", 0},
 		{"a", "b", -1},
 		{"b", "a", 1},
+		{"infinity", "infinity", 0},
+		{"nan", "nan", 0},
 		{tstEqerType1("a"), tstEqerType1("a"), 0},
 		{tstEqerType1("a"), tstEqerType2("a"), 0},
 		{tstEqerType2("a"), tstEqerType1("a"), 0},

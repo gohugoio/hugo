@@ -16,6 +16,7 @@ package compare
 
 import (
 	"fmt"
+	"math"
 	"reflect"
 	"strconv"
 	"time"
@@ -273,7 +274,8 @@ func (ns *Namespace) compareGetWithCollator(collator *langs.Collator, a any, b a
 	case reflect.String:
 		var err error
 		left, err = strconv.ParseFloat(av.String(), 64)
-		if err != nil {
+		// Check if float is a special floating value and cast value as string.
+		if math.IsInf(left, 0) || math.IsNaN(left) || err != nil {
 			str := av.String()
 			leftStr = &str
 		}
@@ -300,7 +302,8 @@ func (ns *Namespace) compareGetWithCollator(collator *langs.Collator, a any, b a
 	case reflect.String:
 		var err error
 		right, err = strconv.ParseFloat(bv.String(), 64)
-		if err != nil {
+		// Check if float is a special floating value and cast value as string.
+		if math.IsInf(right, 0) || math.IsNaN(right) || err != nil {
 			str := bv.String()
 			rightStr = &str
 		}
