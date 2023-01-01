@@ -68,22 +68,24 @@ $moolor: #fff;
 moo {
 	color: $moolor;
 }
--- assets/scss/another.css --
-
+-- node_modules/foo/another.css --
+another {
+	color: #000;
+}
 -- assets/scss/main.scss --
 @import "moo";
 @import "regular.css";
 @import "moo";
-@import "another.css";
+@import "another";
 
 /* foo */
 -- assets/scss/regular.css --
 
 -- config.toml --
 -- layouts/index.html --
-{{ $r := resources.Get "scss/main.scss" |  toCSS (dict "transpiler" "dartsass")  }}
+{{ $cssOpts := (dict "includePaths" (slice "node_modules/foo") "transpiler" "dartsass") }}
+{{ $r := resources.Get "scss/main.scss" | toCSS $cssOpts }}
 T1: {{ $r.Content | safeHTML }}
-
 	`
 
 	b := hugolib.NewIntegrationTestBuilder(
@@ -97,15 +99,18 @@ T1: {{ $r.Content | safeHTML }}
 	// Dart Sass does not follow regular CSS import, but they
 	// get pulled to the top.
 	b.AssertFileContent("public/index.html", `T1: @import "regular.css";
-		@import "another.css";
 		moo {
 		  color: #fff;
 		}
-		
+
 		moo {
 		  color: #fff;
 		}
-		
+
+		another {
+			color: #000;
+		}
+
 		/* foo */`)
 }
 
@@ -291,7 +296,7 @@ body {
 	body {
 		background: url(vars.$image) no-repeat center/cover;
 		font-family: vars.$font;
-	  }	  
+	  }
 }
 
 p {
@@ -341,7 +346,7 @@ image = "images/hero.jpg"
 body {
 	body {
 		background: url(vars.$image) no-repeat center/cover;
-	  }	  
+	  }
 }
 
 p {
