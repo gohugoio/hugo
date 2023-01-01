@@ -180,7 +180,9 @@ func waitForInit(dir string, w FileWatcher) (err error) {
 
 	wait := func() error {
 		createdOK := false
-		timeout := time.After(watchWaitTime * 2)
+		createdSkipped := false
+		skipCreatedCheck := time.After(watchWaitTime * 2)
+		timeout := time.After(watchWaitTime * 3)
 		for i := 0; true; i++ {
 			select {
 			case evt := <-w.Events():
@@ -196,11 +198,18 @@ func waitForInit(dir string, w FileWatcher) (err error) {
 					}
 				}
 				// second check: WRITE event of testfile
-				if createdOK && evt.Op == fsnotify.Write {
+				if (createdOK || createdSkipped) && evt.Op == fsnotify.Write {
 					return nil
 				}
 			case e := <-w.Errors():
 				return fmt.Errorf("got unexpected error waiting for FSEvents init %v", e)
+			case <-skipCreatedCheck:
+				// When CREATE event of testfile is missed, skip the check
+				createdSkipped = true
+				err := ioutil.WriteFile(testfile, []byte(fmt.Sprint(i)), 0600)
+				if err != nil {
+					return err
+				}
 			case <-timeout:
 				return fmt.Errorf("timeout during waiting for FSEvents init")
 			}
