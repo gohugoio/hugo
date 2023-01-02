@@ -16,11 +16,11 @@ package hugolib
 import (
 	"context"
 	"fmt"
-	"os"
 	pth "path"
 	"path/filepath"
 	"reflect"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gohugoio/hugo/parser/pageparser"
@@ -318,7 +318,7 @@ func (c *pagesCollector) cloneFileInfo(fi hugofs.FileMetaInfo) hugofs.FileMetaIn
 func (c *pagesCollector) collectDir(dirname string, partial bool, inFilter func(fim hugofs.FileMetaInfo) bool) error {
 	fi, err := c.fs.Stat(dirname)
 	if err != nil {
-		if os.IsNotExist(err) {
+		if herrors.IsNotExist(err) {
 			// May have been deleted.
 			return nil
 		}

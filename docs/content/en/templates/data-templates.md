@@ -4,7 +4,6 @@ linktitle:
 description: In addition to Hugo's built-in variables, you can specify your own custom data in templates or shortcodes that pull from both local and dynamic sources.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-03-12
 categories: [templates]
 keywords: [data,dynamic,csv,json,toml,yaml,xml]
 menu:
@@ -13,30 +12,53 @@ menu:
     weight: 80
 weight: 80
 sections_weight: 80
-draft: false
 aliases: [/extras/datafiles/,/extras/datadrivencontent/,/doc/datafiles/]
 toc: true
 ---
 
 <!-- begin data files -->
 
-Hugo supports loading data from YAML, JSON, XML, and TOML files located in the `data` directory in the root of your Hugo project.
+Hugo supports loading data from YAML, JSON, XML, and TOML files located in the `data` directory at the root of your Hugo project.
 
 {{< youtube FyPgSuwIMWQ >}}
 
 ## The Data Folder
 
-The `data` folder is where you can store additional data for Hugo to use when generating your site. Data files aren't used to generate standalone pages; rather, they're meant to be supplemental to content files. This feature can extend the content in case your front matter fields grow out of control. Or perhaps you want to show a larger dataset in a template (see example below). In both cases, it's a good idea to outsource the data in their own files.
+The `data` folder should store additional data for Hugo to use when generating your site. 
+
+Data files are not for generating standalone pages. They should supplement content files by:
+
+- extending the content when the front matter fields grow out of control, or
+- showing a larger dataset in a template (see the example below).
+
+In both cases, it's a good idea to outsource the data in their (own) files.
 
 These files must be YAML, JSON, XML, or TOML files (using the `.yml`, `.yaml`, `.json`, `.xml`, or `.toml` extension). The data will be accessible as a `map` in the `.Site.Data` variable.
 
+To access the data using the `site.Data.filename` notation, the filename must begin with an underscore or a Unicode letter, followed by zero or more underscores, Unicode letters, or Unicode digits. For example:
+
+- `123.json` - Invalid
+- `x123.json` - Valid
+- `_123.json` - Valid
+
+To access the data using the [`index`](/functions/index-function/) function, the filename is irrelevant. For example:
+
+Data file|Template code
+:--|:--
+`123.json`|`{{ index .Site.Data "123" }}`
+`x123.json`|`{{ index .Site.Data "x123" }}`
+`_123.json`|`{{ index .Site.Data "_123" }}`
+`x-123.json`|`{{ index .Site.Data "x-123" }}`
+
 ## Data Files in Themes
 
-Data Files can also be used in [Hugo themes][themes] but note that theme data files follow the same logic as other template files in the [Hugo lookup order][lookup] (i.e., given two files with the same name and relative path, the file in the root project `data` directory will override the file in the `themes/<THEME>/data` directory).
+Data Files can also be used in [Hugo themes][themes].
 
-Therefore, theme authors should take care to not include data files that could be easily overwritten by a user who decides to [customize a theme][customize]. For theme-specific data items that shouldn't be overridden, it can be wise to prefix the folder structure with a namespace; e.g. `mytheme/data/<THEME>/somekey/...`. To check if any such duplicate exists, run hugo with the `-v` flag.
+However, note that the theme data files are merged with the project directory taking precedence. That is, Given two files with the same name and relative path, the data in the file in the root project `data` directory will override the data from the file in the `themes/<THEME>/data` directory *for keys that are duplicated*).
 
-The keys in the map created with data templates from data files will be a dot-chained set of `path`, `filename`, and `key` in file (if applicable).
+Therefore, theme authors should be careful not to include data files that could be easily overwritten by a user who decides to [customize a theme][customize]. For theme-specific data items that shouldn't be overridden, it can be wise to prefix the folder structure with a namespace; e.g. `mytheme/data/<THEME>/somekey/...`. To check if any such duplicate exists, run hugo with the `-v` flag.
+
+The keys in the map created with data templates from data files will be a dot-chained set of `path`, `filename`, and `key` in the file (if applicable).
 
 This is best explained with an example:
 
@@ -75,7 +97,7 @@ The list of bass players can be accessed via `.Site.Data.jazz.bass`, a single ba
 
 You can now render the list of recordings for all the bass players in a template:
 
-```
+```go-html-template
 {{ range $.Site.Data.jazz.bass }}
    {{ partial "artist.html" . }}
 {{ end }}
@@ -83,7 +105,7 @@ You can now render the list of recordings for all the bass players in a template
 
 And then in the `partials/artist.html`:
 
-```
+```go-html-template
 <ul>
 {{ range .discography }}
   <li>{{ . }}</li>
@@ -108,7 +130,7 @@ Achievements:
 
 You can use the following code to render the `Short Description` in your layout:
 
-```
+```go-html-template
 <div>Short Description of {{.Site.Data.User0123.Name}}: <p>{{ index .Site.Data.User0123 "Short Description" | markdownify }}</p></div>
 ```
 
@@ -119,14 +141,14 @@ Note the use of the [`markdownify` template function][markdownify]. This will se
 
 Use `getJSON` or `getCSV` to get remote data:
 
-```
+```go-html-template
 {{ $dataJ := getJSON "url" }}
 {{ $dataC := getCSV "separator" "url" }}
 ```
 
 If you use a prefix or postfix for the URL, the functions accept [variadic arguments][variadic]:
 
-```
+```go-html-template
 {{ $dataJ := getJSON "url prefix" "arg1" "arg2" "arg n" }}
 {{ $dataC := getCSV  "separator" "url prefix" "arg1" "arg2" "arg n" }}
 ```
@@ -135,28 +157,28 @@ The separator for `getCSV` must be put in the first position and can only be one
 
 All passed arguments will be joined to the final URL:
 
-```
+```go-html-template
 {{ $urlPre := "https://api.github.com" }}
 {{ $gistJ := getJSON $urlPre "/users/GITHUB_USERNAME/gists" }}
 ```
 
 This will resolve internally to the following:
 
-```
+```go-html-template
 {{ $gistJ := getJSON "https://api.github.com/users/GITHUB_USERNAME/gists" }}
 ```
 
 ### Add HTTP headers
 
-{{< new-in "0.84.0" >}} Both `getJSON` and `getCSV` takes an optional map as the last argument, e.g.:
+Both `getJSON` and `getCSV` takes an optional map as the last argument, e.g.:
 
-```
+```go-html-template
 {{ $data := getJSON "https://example.org/api" (dict "Authorization" "Bearer abcd")  }}
 ```
 
 If you need multiple values for the same header key, use a slice:
 
-```
+```go-html-template
 {{ $data := getJSON "https://example.org/api" (dict "X-List" (slice "a" "b" "c"))  }}
 ```
 
@@ -197,11 +219,11 @@ With the command-line flag `--cacheDir`, you can specify any folder on your syst
 
 You can also set `cacheDir` in the [main configuration file][config].
 
-If you don't like caching at all, you can fully disable caching with the command line flag `--ignoreCache`.
+If you don't like caching at all, you can fully disable caching with the command-line flag `--ignoreCache`.
 
 ### Authentication When Using REST URLs
 
-Currently, you can only use those authentication methods that can be put into an URL. [OAuth][] and other authentication methods are not implemented.
+Currently, you can only use those authentication methods that can be put into an URL. [OAuth] and other authentication methods are not implemented.
 
 ## Load Local files
 
@@ -210,12 +232,12 @@ To load local files with `getJSON` and `getCSV`, the source files must reside wi
 It applies the same output logic as above in [Get Remote Data](#get-remote-data).
 
 {{% note %}}
-The local CSV files to be loaded using `getCSV` must be located **outside** of the `data` directory.
+The local CSV files to be loaded using `getCSV` must be located **outside** the `data` directory.
 {{% /note %}}
 
 ## LiveReload with Data Files
 
-There is no chance to trigger a [LiveReload][] when the content of a URL changes. However, when a *local* file changes (i.e., `data/*` and `themes/<THEME>/data/*`), a LiveReload will be triggered. Symlinks are not supported. Note too that because downloading of data takes a while, Hugo stops processing your Markdown files until the data download has completed.
+There is no chance to trigger a [LiveReload] when the content of a URL changes. However, when a *local* file changes (i.e., `data/*` and `themes/<THEME>/data/*`), a LiveReload will be triggered. Symlinks are not supported. Note too that because downloading data takes a while, Hugo stops processing your Markdown files until the data download has been completed.
 
 {{% warning "URL Data and LiveReload" %}}
 If you change any local file and the LiveReload is triggered, Hugo will read the data-driven (URL) content from the cache. If you have disabled the cache (i.e., by running the server with `hugo server --ignoreCache`), Hugo will re-download the content every time LiveReload triggers. This can create *huge* traffic. You may reach API limits quickly.

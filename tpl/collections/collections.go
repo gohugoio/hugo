@@ -63,45 +63,45 @@ type Namespace struct {
 	deps     *deps.Deps
 }
 
-// After returns all the items after the first N in a rangeable list.
-func (ns *Namespace) After(index any, seq any) (any, error) {
-	if index == nil || seq == nil {
+// After returns all the items after the first n items in list l.
+func (ns *Namespace) After(n any, l any) (any, error) {
+	if n == nil || l == nil {
 		return nil, errors.New("both limit and seq must be provided")
 	}
 
-	indexv, err := cast.ToIntE(index)
+	nv, err := cast.ToIntE(n)
 	if err != nil {
 		return nil, err
 	}
 
-	if indexv < 0 {
-		return nil, errors.New("sequence bounds out of range [" + cast.ToString(indexv) + ":]")
+	if nv < 0 {
+		return nil, errors.New("sequence bounds out of range [" + cast.ToString(nv) + ":]")
 	}
 
-	seqv := reflect.ValueOf(seq)
-	seqv, isNil := indirect(seqv)
+	lv := reflect.ValueOf(l)
+	lv, isNil := indirect(lv)
 	if isNil {
 		return nil, errors.New("can't iterate over a nil value")
 	}
 
-	switch seqv.Kind() {
+	switch lv.Kind() {
 	case reflect.Array, reflect.Slice, reflect.String:
 		// okay
 	default:
-		return nil, errors.New("can't iterate over " + reflect.ValueOf(seq).Type().String())
+		return nil, errors.New("can't iterate over " + reflect.ValueOf(l).Type().String())
 	}
 
-	if indexv >= seqv.Len() {
-		return seqv.Slice(0, 0).Interface(), nil
+	if nv >= lv.Len() {
+		return lv.Slice(0, 0).Interface(), nil
 	}
 
-	return seqv.Slice(indexv, seqv.Len()).Interface(), nil
+	return lv.Slice(nv, lv.Len()).Interface(), nil
 }
 
-// Delimit takes a given sequence and returns a delimited HTML string.
+// Delimit takes a given list l and returns a string delimited by sep.
 // If last is passed to the function, it will be used as the final delimiter.
-func (ns *Namespace) Delimit(seq, delimiter any, last ...any) (template.HTML, error) {
-	d, err := cast.ToStringE(delimiter)
+func (ns *Namespace) Delimit(l, sep any, last ...any) (template.HTML, error) {
+	d, err := cast.ToStringE(sep)
 	if err != nil {
 		return "", err
 	}
@@ -117,32 +117,32 @@ func (ns *Namespace) Delimit(seq, delimiter any, last ...any) (template.HTML, er
 		}
 	}
 
-	seqv := reflect.ValueOf(seq)
-	seqv, isNil := indirect(seqv)
+	lv := reflect.ValueOf(l)
+	lv, isNil := indirect(lv)
 	if isNil {
 		return "", errors.New("can't iterate over a nil value")
 	}
 
 	var str string
-	switch seqv.Kind() {
+	switch lv.Kind() {
 	case reflect.Map:
-		sortSeq, err := ns.Sort(seq)
+		sortSeq, err := ns.Sort(l)
 		if err != nil {
 			return "", err
 		}
-		seqv = reflect.ValueOf(sortSeq)
+		lv = reflect.ValueOf(sortSeq)
 		fallthrough
 	case reflect.Array, reflect.Slice, reflect.String:
-		for i := 0; i < seqv.Len(); i++ {
-			val := seqv.Index(i).Interface()
+		for i := 0; i < lv.Len(); i++ {
+			val := lv.Index(i).Interface()
 			valStr, err := cast.ToStringE(val)
 			if err != nil {
 				continue
 			}
 			switch {
-			case i == seqv.Len()-2 && dLast != nil:
+			case i == lv.Len()-2 && dLast != nil:
 				str += valStr + *dLast
-			case i == seqv.Len()-1:
+			case i == lv.Len()-1:
 				str += valStr
 			default:
 				str += valStr + d
@@ -150,15 +150,14 @@ func (ns *Namespace) Delimit(seq, delimiter any, last ...any) (template.HTML, er
 		}
 
 	default:
-		return "", fmt.Errorf("can't iterate over %v", seq)
+		return "", fmt.Errorf("can't iterate over %v", l)
 	}
 
 	return template.HTML(str), nil
 }
 
-// Dictionary creates a map[string]interface{} from the given parameters by
-// walking the parameters and treating them as key-value pairs.  The number
-// of parameters must be even.
+// Dictionary creates a new map from the given parameters by
+// treating values as key-value pairs.  The number of values must be even.
 // The keys can be string slices, which will create the needed nested structure.
 func (ns *Namespace) Dictionary(values ...any) (map[string]any, error) {
 	if len(values)%2 != 0 {
@@ -196,10 +195,10 @@ func (ns *Namespace) Dictionary(values ...any) (map[string]any, error) {
 	return root, nil
 }
 
-// EchoParam returns a given value if it is set; otherwise, it returns an
+// EchoParam returns a the value in the collection c with key k if is set; otherwise, it returns an
 // empty string.
-func (ns *Namespace) EchoParam(a, key any) any {
-	av, isNil := indirect(reflect.ValueOf(a))
+func (ns *Namespace) EchoParam(c, k any) any {
+	av, isNil := indirect(reflect.ValueOf(c))
 	if isNil {
 		return ""
 	}
@@ -207,12 +206,12 @@ func (ns *Namespace) EchoParam(a, key any) any {
 	var avv reflect.Value
 	switch av.Kind() {
 	case reflect.Array, reflect.Slice:
-		index, ok := key.(int)
+		index, ok := k.(int)
 		if ok && av.Len() > index {
 			avv = av.Index(index)
 		}
 	case reflect.Map:
-		kv := reflect.ValueOf(key)
+		kv := reflect.ValueOf(k)
 		if kv.Type().AssignableTo(av.Type().Key()) {
 			avv = av.MapIndex(kv)
 		}
@@ -240,9 +239,9 @@ func (ns *Namespace) EchoParam(a, key any) any {
 	return ""
 }
 
-// First returns the first N items in a rangeable list.
-func (ns *Namespace) First(limit any, seq any) (any, error) {
-	if limit == nil || seq == nil {
+// First returns the first limit items in list l.
+func (ns *Namespace) First(limit any, l any) (any, error) {
+	if limit == nil || l == nil {
 		return nil, errors.New("both limit and seq must be provided")
 	}
 
@@ -255,27 +254,27 @@ func (ns *Namespace) First(limit any, seq any) (any, error) {
 		return nil, errors.New("sequence length must be non-negative")
 	}
 
-	seqv := reflect.ValueOf(seq)
-	seqv, isNil := indirect(seqv)
+	lv := reflect.ValueOf(l)
+	lv, isNil := indirect(lv)
 	if isNil {
 		return nil, errors.New("can't iterate over a nil value")
 	}
 
-	switch seqv.Kind() {
+	switch lv.Kind() {
 	case reflect.Array, reflect.Slice, reflect.String:
 		// okay
 	default:
-		return nil, errors.New("can't iterate over " + reflect.ValueOf(seq).Type().String())
+		return nil, errors.New("can't iterate over " + reflect.ValueOf(l).Type().String())
 	}
 
-	if limitv > seqv.Len() {
-		limitv = seqv.Len()
+	if limitv > lv.Len() {
+		limitv = lv.Len()
 	}
 
-	return seqv.Slice(0, limitv).Interface(), nil
+	return lv.Slice(0, limitv).Interface(), nil
 }
 
-// In returns whether v is in the set l.  l may be an array or slice.
+// In returns whether v is in the list l.  l may be an array or slice.
 func (ns *Namespace) In(l any, v any) (bool, error) {
 	if l == nil || v == nil {
 		return false, nil
@@ -354,7 +353,7 @@ func (ns *Namespace) Intersect(l1, l2 any) (any, error) {
 	}
 }
 
-// Group groups a set of elements by the given key.
+// Group groups a set of items by the given key.
 // This is currently only supported for Pages.
 func (ns *Namespace) Group(key any, items any) (any, error) {
 	if key == nil {
@@ -374,10 +373,10 @@ func (ns *Namespace) Group(key any, items any) (any, error) {
 	return nil, fmt.Errorf("grouping not supported for type %T %T", items, in)
 }
 
-// IsSet returns whether a given array, channel, slice, or map has a key
+// IsSet returns whether a given array, channel, slice, or map in c has the given key
 // defined.
-func (ns *Namespace) IsSet(a any, key any) (bool, error) {
-	av := reflect.ValueOf(a)
+func (ns *Namespace) IsSet(c any, key any) (bool, error) {
+	av := reflect.ValueOf(c)
 	kv := reflect.ValueOf(key)
 
 	switch av.Kind() {
@@ -394,15 +393,15 @@ func (ns *Namespace) IsSet(a any, key any) (bool, error) {
 			return av.MapIndex(kv).IsValid(), nil
 		}
 	default:
-		helpers.DistinctErrorLog.Printf("WARNING: calling IsSet with unsupported type %q (%T) will always return false.\n", av.Kind(), a)
+		helpers.DistinctErrorLog.Printf("WARNING: calling IsSet with unsupported type %q (%T) will always return false.\n", av.Kind(), c)
 	}
 
 	return false, nil
 }
 
-// Last returns the last N items in a rangeable list.
-func (ns *Namespace) Last(limit any, seq any) (any, error) {
-	if limit == nil || seq == nil {
+// Last returns the last limit items in the list l.
+func (ns *Namespace) Last(limit any, l any) (any, error) {
+	if limit == nil || l == nil {
 		return nil, errors.New("both limit and seq must be provided")
 	}
 
@@ -415,7 +414,7 @@ func (ns *Namespace) Last(limit any, seq any) (any, error) {
 		return nil, errors.New("sequence length must be non-negative")
 	}
 
-	seqv := reflect.ValueOf(seq)
+	seqv := reflect.ValueOf(l)
 	seqv, isNil := indirect(seqv)
 	if isNil {
 		return nil, errors.New("can't iterate over a nil value")
@@ -425,7 +424,7 @@ func (ns *Namespace) Last(limit any, seq any) (any, error) {
 	case reflect.Array, reflect.Slice, reflect.String:
 		// okay
 	default:
-		return nil, errors.New("can't iterate over " + reflect.ValueOf(seq).Type().String())
+		return nil, errors.New("can't iterate over " + reflect.ValueOf(l).Type().String())
 	}
 
 	if limitv > seqv.Len() {
@@ -435,7 +434,7 @@ func (ns *Namespace) Last(limit any, seq any) (any, error) {
 	return seqv.Slice(seqv.Len()-limitv, seqv.Len()).Interface(), nil
 }
 
-// Querify encodes the given parameters in URL-encoded form ("bar=baz&foo=quux") sorted by key.
+// Querify encodes the given params in URL-encoded form ("bar=baz&foo=quux") sorted by key.
 func (ns *Namespace) Querify(params ...any) (string, error) {
 	qs := url.Values{}
 
@@ -476,12 +475,12 @@ func (ns *Namespace) Querify(params ...any) (string, error) {
 	return qs.Encode(), nil
 }
 
-// Reverse creates a copy of slice and reverses it.
-func (ns *Namespace) Reverse(slice any) (any, error) {
-	if slice == nil {
+// Reverse creates a copy of the list l and reverses it.
+func (ns *Namespace) Reverse(l any) (any, error) {
+	if l == nil {
 		return nil, nil
 	}
-	v := reflect.ValueOf(slice)
+	v := reflect.ValueOf(l)
 
 	switch v.Kind() {
 	case reflect.Slice:
@@ -499,14 +498,15 @@ func (ns *Namespace) Reverse(slice any) (any, error) {
 	return sliceCopy.Interface(), nil
 }
 
-// Seq creates a sequence of integers.  It's named and used as GNU's seq.
+// Seq creates a sequence of integers from args. It's named and used as GNU's seq.
 //
 // Examples:
-//     3 => 1, 2, 3
-//     1 2 4 => 1, 3
-//     -3 => -1, -2, -3
-//     1 4 => 1, 2, 3, 4
-//     1 -2 => 1, 0, -1, -2
+//
+//	3 => 1, 2, 3
+//	1 2 4 => 1, 3
+//	-3 => -1, -2, -3
+//	1 4 => 1, 2, 3, 4
+//	1 -2 => 1, 0, -1, -2
 func (ns *Namespace) Seq(args ...any) ([]int, error) {
 	if len(args) < 1 || len(args) > 3 {
 		return nil, errors.New("invalid number of arguments to Seq")
@@ -574,31 +574,31 @@ func (ns *Namespace) Seq(args ...any) ([]int, error) {
 	return seq, nil
 }
 
-// Shuffle returns the given rangeable list in a randomised order.
-func (ns *Namespace) Shuffle(seq any) (any, error) {
-	if seq == nil {
+// Shuffle returns list l in a randomised order.
+func (ns *Namespace) Shuffle(l any) (any, error) {
+	if l == nil {
 		return nil, errors.New("both count and seq must be provided")
 	}
 
-	seqv := reflect.ValueOf(seq)
-	seqv, isNil := indirect(seqv)
+	lv := reflect.ValueOf(l)
+	lv, isNil := indirect(lv)
 	if isNil {
 		return nil, errors.New("can't iterate over a nil value")
 	}
 
-	switch seqv.Kind() {
+	switch lv.Kind() {
 	case reflect.Array, reflect.Slice, reflect.String:
 		// okay
 	default:
-		return nil, errors.New("can't iterate over " + reflect.ValueOf(seq).Type().String())
+		return nil, errors.New("can't iterate over " + reflect.ValueOf(l).Type().String())
 	}
 
-	shuffled := reflect.MakeSlice(reflect.TypeOf(seq), seqv.Len(), seqv.Len())
+	shuffled := reflect.MakeSlice(reflect.TypeOf(l), lv.Len(), lv.Len())
 
-	randomIndices := rand.Perm(seqv.Len())
+	randomIndices := rand.Perm(lv.Len())
 
 	for index, value := range randomIndices {
-		shuffled.Index(value).Set(seqv.Index(index))
+		shuffled.Index(value).Set(lv.Index(index))
 	}
 
 	return shuffled.Interface(), nil
@@ -733,14 +733,14 @@ func (ns *Namespace) Union(l1, l2 any) (any, error) {
 	}
 }
 
-// Uniq takes in a slice or array and returns a slice with subsequent
+// Uniq takes returns a new list with all duplicate elements in the list l removed.
 // duplicate elements removed.
-func (ns *Namespace) Uniq(seq any) (any, error) {
-	if seq == nil {
+func (ns *Namespace) Uniq(l any) (any, error) {
+	if l == nil {
 		return make([]any, 0), nil
 	}
 
-	v := reflect.ValueOf(seq)
+	v := reflect.ValueOf(l)
 	var slice reflect.Value
 
 	switch v.Kind() {
@@ -750,7 +750,7 @@ func (ns *Namespace) Uniq(seq any) (any, error) {
 	case reflect.Array:
 		slice = reflect.MakeSlice(reflect.SliceOf(v.Type().Elem()), 0, 0)
 	default:
-		return nil, fmt.Errorf("type %T not supported", seq)
+		return nil, fmt.Errorf("type %T not supported", l)
 	}
 
 	seen := make(map[any]bool)
@@ -770,8 +770,8 @@ func (ns *Namespace) Uniq(seq any) (any, error) {
 }
 
 // KeyVals creates a key and values wrapper.
-func (ns *Namespace) KeyVals(key any, vals ...any) (types.KeyValues, error) {
-	return types.KeyValues{Key: key, Values: vals}, nil
+func (ns *Namespace) KeyVals(key any, values ...any) (types.KeyValues, error) {
+	return types.KeyValues{Key: key, Values: values}, nil
 }
 
 // NewScratch creates a new Scratch which can be used to store values in a

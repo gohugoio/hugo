@@ -101,15 +101,6 @@
         ]
       },
       {
-        "Name": "Base Makefile",
-        "Aliases": [
-          "make",
-          "makefile",
-          "mf",
-          "bsdmake"
-        ]
-      },
-      {
         "Name": "Bash",
         "Aliases": [
           "bash",
@@ -161,6 +152,12 @@
         "Name": "BNF",
         "Aliases": [
           "bnf"
+        ]
+      },
+      {
+        "Name": "BQN",
+        "Aliases": [
+          "bqn"
         ]
       },
       {
@@ -612,6 +609,12 @@
         ]
       },
       {
+        "Name": "HLSL",
+        "Aliases": [
+          "hlsl"
+        ]
+      },
+      {
         "Name": "HTML",
         "Aliases": [
           "html"
@@ -718,6 +721,15 @@
         "Name": "Lua",
         "Aliases": [
           "lua"
+        ]
+      },
+      {
+        "Name": "Makefile",
+        "Aliases": [
+          "make",
+          "makefile",
+          "mf",
+          "bsdmake"
         ]
       },
       {
@@ -1004,7 +1016,8 @@
           "posh",
           "ps1",
           "psm1",
-          "psd1"
+          "psd1",
+          "pwsh"
         ]
       },
       {
@@ -1030,6 +1043,12 @@
         "Aliases": [
           "protobuf",
           "proto"
+        ]
+      },
+      {
+        "Name": "PSL",
+        "Aliases": [
+          "psl"
         ]
       },
       {
@@ -1186,6 +1205,14 @@
         ]
       },
       {
+        "Name": "Sed",
+        "Aliases": [
+          "sed",
+          "gsed",
+          "ssed"
+        ]
+      },
+      {
         "Name": "Sieve",
         "Aliases": [
           "sieve"
@@ -1243,6 +1270,10 @@
         "Aliases": [
           "sml"
         ]
+      },
+      {
+        "Name": "stas",
+        "Aliases": null
       },
       {
         "Name": "Stylus",
@@ -1411,6 +1442,13 @@
         ]
       },
       {
+        "Name": "Vala",
+        "Aliases": [
+          "vala",
+          "vapi"
+        ]
+      },
+      {
         "Name": "VB.net",
         "Aliases": [
           "vb.net",
@@ -1428,6 +1466,14 @@
         "Name": "VHDL",
         "Aliases": [
           "vhdl"
+        ]
+      },
+      {
+        "Name": "VHS",
+        "Aliases": [
+          "vhs",
+          "tape",
+          "cassette"
         ]
       },
       {
@@ -1526,7 +1572,8 @@
           "attribute": {
             "title": true,
             "block": false
-          }
+          },
+          "wrapStandAloneImageWithinParagraph": true
         },
         "extensions": {
           "typographer": true,
@@ -1676,7 +1723,8 @@
       },
       "funcs": {
         "getenv": [
-          "^HUGO_"
+          "^HUGO_",
+          "^CI$"
         ]
       },
       "http": {
@@ -1691,22 +1739,6 @@
   },
   "media": {
     "types": [
-      {
-        "mainType": "application",
-        "subType": "javascript",
-        "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "js",
-          "fullSuffix": ".js"
-        },
-        "type": "application/javascript",
-        "string": "application/javascript",
-        "suffixes": [
-          "js",
-          "jsm",
-          "mjs"
-        ]
-      },
       {
         "mainType": "application",
         "subType": "json",
@@ -1790,20 +1822,6 @@
         "string": "application/toml",
         "suffixes": [
           "toml"
-        ]
-      },
-      {
-        "mainType": "application",
-        "subType": "typescript",
-        "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "ts",
-          "fullSuffix": ".ts"
-        },
-        "type": "application/typescript",
-        "string": "application/typescript",
-        "suffixes": [
-          "ts"
         ]
       },
       {
@@ -2009,6 +2027,22 @@
       },
       {
         "mainType": "text",
+        "subType": "javascript",
+        "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "js",
+          "fullSuffix": ".js"
+        },
+        "type": "text/javascript",
+        "string": "text/javascript",
+        "suffixes": [
+          "js",
+          "jsm",
+          "mjs"
+        ]
+      },
+      {
+        "mainType": "text",
         "subType": "jsx",
         "delimiter": ".",
         "firstSuffix": {
@@ -2062,6 +2096,20 @@
         "string": "text/tsx",
         "suffixes": [
           "tsx"
+        ]
+      },
+      {
+        "mainType": "text",
+        "subType": "typescript",
+        "delimiter": ".",
+        "firstSuffix": {
+          "suffix": "ts",
+          "fullSuffix": ".ts"
+        },
+        "type": "text/typescript",
+        "string": "text/typescript",
+        "suffixes": [
+          "ts"
         ]
       },
       {
@@ -2985,11 +3033,11 @@
       },
       "compare": {
         "Conditional": {
-          "Description": "Conditional can be used as a ternary operator.\nIt returns a if condition, else b.",
+          "Description": "Conditional can be used as a ternary operator.\n\nIt returns v1 if cond is true, else v2.",
           "Args": [
-            "condition",
-            "a",
-            "b"
+            "cond",
+            "v1",
+            "v2"
           ],
           "Aliases": [
             "cond"
@@ -3002,10 +3050,10 @@
           ]
         },
         "Default": {
-          "Description": "Default checks whether a given value is set and returns a default value if it\nis not.  \"Set\" in this context means non-zero for numeric types and times;\nnon-zero length for strings, arrays, slices, and maps;\nany boolean or struct value; or non-nil for any other types.",
+          "Description": "Default checks whether a givenv is set and returns the default value defaultv if it\nis not.  \"Set\" in this context means non-zero for numeric types and times;\nnon-zero length for strings, arrays, slices, and maps;\nany boolean or struct value; or non-nil for any other types.",
           "Args": [
-            "dflt",
-            "given"
+            "defaultv",
+            "givenv"
           ],
           "Aliases": [
             "default"
@@ -3106,10 +3154,10 @@
       },
       "collections": {
         "After": {
-          "Description": "After returns all the items after the first N in a rangeable list.",
+          "Description": "After returns all the items after the first n items in list l.",
           "Args": [
-            "index",
-            "seq"
+            "n",
+            "l"
           ],
           "Aliases": [
             "after"
@@ -3117,7 +3165,7 @@
           "Examples": []
         },
         "Append": {
-          "Description": "Append appends the arguments up to the last one to the slice in the last argument.\nThis construct allows template constructs like this:\n    {{ $pages = $pages | append $p2 $p1 }}\nNote that with 2 arguments where both are slices of the same type,\nthe first slice will be appended to the second:\n    {{ $pages = $pages | append .Site.RegularPages }}",
+          "Description": "Append appends args up to the last one to the slice in the last argument.\nThis construct allows template constructs like this:\n\n\t{{ $pages = $pages | append $p2 $p1 }}\n\nNote that with 2 arguments where both are slices of the same type,\nthe first slice will be appended to the second:\n\n\t{{ $pages = $pages | append .Site.RegularPages }}",
           "Args": [
             "args"
           ],
@@ -3127,10 +3175,10 @@
           "Examples": []
         },
         "Apply": {
-          "Description": "Apply takes a map, array, or slice and returns a new slice with the function fname applied over it.",
+          "Description": "Apply takes a map, array, or slice c and returns a new slice with the function fname applied over it.",
           "Args": [
             "ctx",
-            "seq",
+            "c",
             "fname",
             "args"
           ],
@@ -3140,25 +3188,25 @@
           "Examples": []
         },
         "Complement": {
-          "Description": "Complement gives the elements in the last element of seqs that are not in\nany of the others.\nAll elements of seqs must be slices or arrays of comparable types.\n\nThe reasoning behind this rather clumsy API is so we can do this in the templates:\n   {{ $c := .Pages | complement $last4 }}",
+          "Description": "Complement gives the elements in the last element of ls that are not in\nany of the others.\n\nAll elements of ls must be slices or arrays of comparable types.\n\nThe reasoning behind this rather clumsy API is so we can do this in the templates:\n\n\t{{ $c := .Pages | complement $last4 }}",
           "Args": [
-            "seqs"
+            "ls"
           ],
           "Aliases": [
             "complement"
           ],
           "Examples": [
             [
-              "{{ slice \"a\" \"b\" \"c\" \"d\" \"e\" \"f\" | complement (slice \"b\" \"c\") (slice \"d\" \"e\")  }}",
+              "{{ slice \"a\" \"b\" \"c\" \"d\" \"e\" \"f\" | complement (slice \"b\" \"c\") (slice \"d\" \"e\") }}",
               "[a f]"
             ]
           ]
         },
         "Delimit": {
-          "Description": "Delimit takes a given sequence and returns a delimited HTML string.\nIf last is passed to the function, it will be used as the final delimiter.",
+          "Description": "Delimit takes a given list l and returns a string delimited by sep.\nIf last is passed to the function, it will be used as the final delimiter.",
           "Args": [
-            "seq",
-            "delimiter",
+            "l",
+            "sep",
             "last"
           ],
           "Aliases": [
@@ -3172,7 +3220,7 @@
           ]
         },
         "Dictionary": {
-          "Description": "Dictionary creates a map[string]interface{} from the given parameters by\nwalking the parameters and treating them as key-value pairs.  The number\nof parameters must be even.\nThe keys can be string slices, which will create the needed nested structure.",
+          "Description": "Dictionary creates a new map from the given parameters by\ntreating values as key-value pairs.  The number of values must be even.\nThe keys can be string slices, which will create the needed nested structure.",
           "Args": [
             "values"
           ],
@@ -3182,10 +3230,10 @@
           "Examples": []
         },
         "EchoParam": {
-          "Description": "EchoParam returns a given value if it is set; otherwise, it returns an\nempty string.",
+          "Description": "EchoParam returns a the value in the collection c with key k if is set; otherwise, it returns an\nempty string.",
           "Args": [
-            "a",
-            "key"
+            "c",
+            "k"
           ],
           "Aliases": [
             "echoParam"
@@ -3198,10 +3246,10 @@
           ]
         },
         "First": {
-          "Description": "First returns the first N items in a rangeable list.",
+          "Description": "First returns the first limit items in list l.",
           "Args": [
             "limit",
-            "seq"
+            "l"
           ],
           "Aliases": [
             "first"
@@ -3209,7 +3257,7 @@
           "Examples": []
         },
         "Group": {
-          "Description": "Group groups a set of elements by the given key.\nThis is currently only supported for Pages.",
+          "Description": "Group groups a set of items by the given key.\nThis is currently only supported for Pages.",
           "Args": [
             "key",
             "items"
@@ -3220,7 +3268,7 @@
           "Examples": []
         },
         "In": {
-          "Description": "In returns whether v is in the set l.  l may be an array or slice.",
+          "Description": "In returns whether v is in the list l.  l may be an array or slice.",
           "Args": [
             "l",
             "v"
@@ -3236,7 +3284,7 @@
           ]
         },
         "Index": {
-          "Description": "Index returns the result of indexing its first argument by the following\narguments. Thus \"index x 1 2 3\" is, in Go syntax, x[1][2][3]. Each\nindexed item must be a map, slice, or array.\n\nCopied from Go stdlib src/text/template/funcs.go.\n\nWe deviate from the stdlib due to https://github.com/golang/go/issues/14751.\n\nTODO(moorereason): merge upstream changes.",
+          "Description": "Index returns the result of indexing its first argument by the following\narguments. Thus \"index x 1 2 3\" is, in Go syntax, x[1][2][3]. Each\nindexed item must be a map, slice, or array.\n\nAdapted from Go stdlib src/text/template/funcs.go.\n\nWe deviate from the stdlib mostly because of https://github.com/golang/go/issues/14751.",
           "Args": [
             "item",
             "args"
@@ -3258,9 +3306,9 @@
           "Examples": []
         },
         "IsSet": {
-          "Description": "IsSet returns whether a given array, channel, slice, or map has a key\ndefined.",
+          "Description": "IsSet returns whether a given array, channel, slice, or map in c has the given key\ndefined.",
           "Args": [
-            "a",
+            "c",
             "key"
           ],
           "Aliases": [
@@ -3273,7 +3321,7 @@
           "Description": "KeyVals creates a key and values wrapper.",
           "Args": [
             "key",
-            "vals"
+            "values"
           ],
           "Aliases": [
             "keyVals"
@@ -3286,10 +3334,10 @@
           ]
         },
         "Last": {
-          "Description": "Last returns the last N items in a rangeable list.",
+          "Description": "Last returns the last limit items in the list l.",
           "Args": [
             "limit",
-            "seq"
+            "l"
           ],
           "Aliases": [
             "last"
@@ -3297,7 +3345,7 @@
           "Examples": []
         },
         "Merge": {
-          "Description": "Merge creates a copy of the final parameter and merges the preceding\nparameters into it in reverse order.\nCurrently only maps are supported. Key handling is case insensitive.",
+          "Description": "Merge creates a copy of the final parameter in params and merges the preceding\nparameters into it in reverse order.\n\nCurrently only maps are supported. Key handling is case insensitive.",
           "Args": [
             "params"
           ],
@@ -3310,11 +3358,11 @@
               "[Yes, Hugo Rocks! Hugo Rocks!]"
             ],
             [
-              "{{  merge (dict \"title\" \"Default Title\" \"description\" \"Yes, Hugo Rocks!\") (dict \"title\" \"Hugo Rocks!\") | sort }}",
+              "{{ merge (dict \"title\" \"Default Title\" \"description\" \"Yes, Hugo Rocks!\") (dict \"title\" \"Hugo Rocks!\") | sort }}",
               "[Yes, Hugo Rocks! Hugo Rocks!]"
             ],
             [
-              "{{  merge (dict \"title\" \"Default Title\" \"description\" \"Yes, Hugo Rocks!\") (dict \"title\" \"Hugo Rocks!\") (dict \"extra\" \"For reals!\") | sort }}",
+              "{{ merge (dict \"title\" \"Default Title\" \"description\" \"Yes, Hugo Rocks!\") (dict \"title\" \"Hugo Rocks!\") (dict \"extra\" \"For reals!\") | sort }}",
               "[Yes, Hugo Rocks! For reals! Hugo Rocks!]"
             ]
           ]
@@ -3333,7 +3381,7 @@
           ]
         },
         "Querify": {
-          "Description": "Querify encodes the given parameters in URL-encoded form (\"bar=baz\u0026foo=quux\") sorted by key.",
+          "Description": "Querify encodes the given params in URL-encoded form (\"bar=baz\u0026foo=quux\") sorted by key.",
           "Args": [
             "params"
           ],
@@ -3362,7 +3410,7 @@
           "Examples": null
         },
         "Seq": {
-          "Description": "Seq creates a sequence of integers.  It's named and used as GNU's seq.\n\nExamples:\n    3 =\u003e 1, 2, 3\n    1 2 4 =\u003e 1, 3\n    -3 =\u003e -1, -2, -3\n    1 4 =\u003e 1, 2, 3, 4\n    1 -2 =\u003e 1, 0, -1, -2",
+          "Description": "Seq creates a sequence of integers from args. It's named and used as GNU's seq.\n\nExamples:\n\n\t3 =\u003e 1, 2, 3\n\t1 2 4 =\u003e 1, 3\n\t-3 =\u003e -1, -2, -3\n\t1 4 =\u003e 1, 2, 3, 4\n\t1 -2 =\u003e 1, 0, -1, -2",
           "Args": [
             "args"
           ],
@@ -3377,9 +3425,9 @@
           ]
         },
         "Shuffle": {
-          "Description": "Shuffle returns the given rangeable list in a randomised order.",
+          "Description": "Shuffle returns list l in a randomised order.",
           "Args": [
-            "seq"
+            "l"
           ],
           "Aliases": [
             "shuffle"
@@ -3402,9 +3450,9 @@
           ]
         },
         "Sort": {
-          "Description": "Sort returns a sorted sequence.",
+          "Description": "Sort returns a sorted copy of the list l.",
           "Args": [
-            "seq",
+            "l",
             "args"
           ],
           "Aliases": [
@@ -3445,9 +3493,9 @@
           ]
         },
         "Uniq": {
-          "Description": "Uniq takes in a slice or array and returns a slice with subsequent\nduplicate elements removed.",
+          "Description": "Uniq takes returns a new list with all duplicate elements in the list l removed.\nduplicate elements removed.",
           "Args": [
-            "seq"
+            "l"
           ],
           "Aliases": [
             "uniq"
@@ -3460,9 +3508,9 @@
           ]
         },
         "Where": {
-          "Description": "Where returns a filtered subset of a given data type.",
+          "Description": "Where returns a filtered subset of collection c.",
           "Args": [
-            "seq",
+            "c",
             "key",
             "args"
           ],
@@ -3474,9 +3522,9 @@
       },
       "crypto": {
         "FNV32a": {
-          "Description": "FNV32a hashes using fnv32a algorithm",
+          "Description": "FNV32a hashes v using fnv32a algorithm.",
           "Args": [
-            "in"
+            "v"
           ],
           "Aliases": null,
           "Examples": [
@@ -3505,9 +3553,9 @@
           ]
         },
         "MD5": {
-          "Description": "MD5 hashes the given input and returns its MD5 checksum.",
+          "Description": "MD5 hashes the v and returns its MD5 checksum.",
           "Args": [
-            "in"
+            "v"
           ],
           "Aliases": [
             "md5"
@@ -3524,9 +3572,9 @@
           ]
         },
         "SHA1": {
-          "Description": "SHA1 hashes the given input and returns its SHA1 checksum.",
+          "Description": "SHA1 hashes v and returns its SHA1 checksum.",
           "Args": [
-            "in"
+            "v"
           ],
           "Aliases": [
             "sha1"
@@ -3539,9 +3587,9 @@
           ]
         },
         "SHA256": {
-          "Description": "SHA256 hashes the given input and returns its SHA256 checksum.",
+          "Description": "SHA256 hashes v and returns its SHA256 checksum.",
           "Args": [
-            "in"
+            "v"
           ],
           "Aliases": [
             "sha256"
@@ -3556,7 +3604,7 @@
       },
       "data": {
         "GetCSV": {
-          "Description": "GetCSV expects a data separator and one or n-parts of a URL to a resource which\ncan either be a local or a remote one.\nThe data separator can be a comma, semi-colon, pipe, etc, but only one character.\nIf you provide multiple parts for the URL they will be joined together to the final URL.\nGetCSV returns nil or a slice slice to use in a short code.",
+          "Description": "GetCSV expects the separator sep and one or n-parts of a URL to a resource which\ncan either be a local or a remote one.\nThe data separator can be a comma, semi-colon, pipe, etc, but only one character.\nIf you provide multiple parts for the URL they will be joined together to the final URL.\nGetCSV returns nil or a slice slice to use in a short code.",
           "Args": [
             "sep",
             "args"
@@ -3567,7 +3615,7 @@
           "Examples": []
         },
         "GetJSON": {
-          "Description": "GetJSON expects one or n-parts of a URL to a resource which can either be a local or a remote one.\nIf you provide multiple parts they will be joined together to the final URL.\nGetJSON returns nil or parsed JSON to use in a short code.",
+          "Description": "GetJSON expects one or n-parts of a URL in args to a resource which can either be a local or a remote one.\nIf you provide multiple parts they will be joined together to the final URL.\nGetJSON returns nil or parsed JSON to use in a short code.",
           "Args": [
             "args"
           ],
@@ -3579,14 +3627,14 @@
       },
       "debug": {
         "Dump": {
-          "Description": "Dump returns a object dump of val as a string.\nNote that not every value passed to Dump will print so nicely, but\nwe'll improve on that. We recommend using the \"go\" Chroma lexer to format the output\nnicely.\nAlso note that the output from Dump may change from Hugo version to the next,\nso don't depend on a specific output.",
+          "Description": "Dump returns a object dump of val as a string.\nNote that not every value passed to Dump will print so nicely, but\nwe'll improve on that.\n\nWe recommend using the \"go\" Chroma lexer to format the output\nnicely.\n\nAlso note that the output from Dump may change from Hugo version to the next,\nso don't depend on a specific output.",
           "Args": [
             "val"
           ],
           "Aliases": null,
           "Examples": [
             [
-              "{{- $m := newScratch -}}\n{{- $m.Set \"Hugo\" \"Rocks!\" -}}\n{{- $m.Values | debug.Dump | safeHTML -}}",
+              "{{ $m := newScratch }}\n{{ $m.Set \"Hugo\" \"Rocks!\" }}\n{{ $m.Values | debug.Dump | safeHTML }}",
               "map[string]interface {}{\n  \"Hugo\": \"Rocks!\",\n}"
             ]
           ]
@@ -3636,7 +3684,7 @@
           ]
         },
         "Jsonify": {
-          "Description": "Jsonify encodes a given object to JSON.  To pretty print the JSON, pass a map\nor dictionary of options as the first argument.  Supported options are\n\"prefix\" and \"indent\".  Each JSON element in the output will begin on a new\nline beginning with prefix followed by one or more copies of indent according\nto the indentation nesting.",
+          "Description": "Jsonify encodes a given object to JSON.  To pretty print the JSON, pass a map\nor dictionary of options as the first value in args.  Supported options are\n\"prefix\" and \"indent\".  Each JSON element in the output will begin on a new\nline beginning with prefix followed by one or more copies of indent according\nto the indentation nesting.",
           "Args": [
             "args"
           ],
@@ -3673,7 +3721,7 @@
           ]
         },
         "Erroridf": {
-          "Description": "Erroridf formats args according to a format specifier and logs an ERROR and\nan information text that the error with the given ID can be suppressed in config.\nIt returns an empty string.",
+          "Description": "Erroridf formats args according to a format specifier and logs an ERROR and\nan information text that the error with the given id can be suppressed in config.\nIt returns an empty string.",
           "Args": [
             "id",
             "format",
@@ -3690,7 +3738,7 @@
           ]
         },
         "Print": {
-          "Description": "Print returns a string representation args.",
+          "Description": "Print returns a string representation of args.",
           "Args": [
             "args"
           ],
@@ -3705,7 +3753,7 @@
           ]
         },
         "Printf": {
-          "Description": "Printf returns a formatted string representation of args.",
+          "Description": "Printf returns string representation of args formatted with the layouut in format.",
           "Args": [
             "format",
             "args"
@@ -3900,9 +3948,9 @@
       },
       "inflect": {
         "Humanize": {
-          "Description": "Humanize returns the humanized form of a single parameter.\n\nIf the parameter is either an integer or a string containing an integer\nvalue, the behavior is to add the appropriate ordinal.\n\n    Example:  \"my-first-post\" -\u003e \"My first post\"\n    Example:  \"103\" -\u003e \"103rd\"\n    Example:  52 -\u003e \"52nd\"",
+          "Description": "Humanize returns the humanized form of v.\n\nIf v is either an integer or a string containing an integer\nvalue, the behavior is to add the appropriate ordinal.",
           "Args": [
-            "in"
+            "v"
           ],
           "Aliases": [
             "humanize"
@@ -3927,9 +3975,9 @@
           ]
         },
         "Pluralize": {
-          "Description": "Pluralize returns the plural form of a single word.",
+          "Description": "Pluralize returns the plural form of the single word in v.",
           "Args": [
-            "in"
+            "v"
           ],
           "Aliases": [
             "pluralize"
@@ -3942,9 +3990,9 @@
           ]
         },
         "Singularize": {
-          "Description": "Singularize returns the singular form of a single word.",
+          "Description": "Singularize returns the singular form of a single word in v.",
           "Args": [
-            "in"
+            "v"
           ],
           "Aliases": [
             "singularize"
@@ -4092,7 +4140,7 @@
           ],
           "Examples": [
             [
-              "{{add 1 2}}",
+              "{{ add 1 2 }}",
               "3"
             ]
           ]
@@ -4105,7 +4153,7 @@
           "Aliases": null,
           "Examples": [
             [
-              "{{math.Ceil 2.1}}",
+              "{{ math.Ceil 2.1 }}",
               "3"
             ]
           ]
@@ -4127,7 +4175,7 @@
           ],
           "Examples": [
             [
-              "{{div 6 3}}",
+              "{{ div 6 3 }}",
               "2"
             ]
           ]
@@ -4140,7 +4188,7 @@
           "Aliases": null,
           "Examples": [
             [
-              "{{math.Floor 1.9}}",
+              "{{ math.Floor 1.9 }}",
               "1"
             ]
           ]
@@ -4153,7 +4201,7 @@
           "Aliases": null,
           "Examples": [
             [
-              "{{math.Log 1}}",
+              "{{ math.Log 1 }}",
               "0"
             ]
           ]
@@ -4167,7 +4215,7 @@
           "Aliases": null,
           "Examples": [
             [
-              "{{math.Max 1 2 }}",
+              "{{ math.Max 1 2 }}",
               "2"
             ]
           ]
@@ -4181,7 +4229,7 @@
           "Aliases": null,
           "Examples": [
             [
-              "{{math.Min 1 2 }}",
+              "{{ math.Min 1 2 }}",
               "1"
             ]
           ]
@@ -4197,7 +4245,7 @@
           ],
           "Examples": [
             [
-              "{{mod 15 3}}",
+              "{{ mod 15 3 }}",
               "0"
             ]
           ]
@@ -4213,7 +4261,7 @@
           ],
           "Examples": [
             [
-              "{{modBool 15 3}}",
+              "{{ modBool 15 3 }}",
               "true"
             ]
           ]
@@ -4229,7 +4277,7 @@
           ],
           "Examples": [
             [
-              "{{mul 2 3}}",
+              "{{ mul 2 3 }}",
               "6"
             ]
           ]
@@ -4245,7 +4293,7 @@
           ],
           "Examples": [
             [
-              "{{math.Pow 2 3}}",
+              "{{ math.Pow 2 3 }}",
               "8"
             ]
           ]
@@ -4258,7 +4306,7 @@
           "Aliases": null,
           "Examples": [
             [
-              "{{math.Round 1.5}}",
+              "{{ math.Round 1.5 }}",
               "2"
             ]
           ]
@@ -4271,7 +4319,7 @@
           "Aliases": null,
           "Examples": [
             [
-              "{{math.Sqrt 81}}",
+              "{{ math.Sqrt 81 }}",
               "9"
             ]
           ]
@@ -4287,7 +4335,7 @@
           ],
           "Examples": [
             [
-              "{{sub 3 2}}",
+              "{{ sub 3 2 }}",
               "1"
             ]
           ]
@@ -4435,23 +4483,23 @@
           "Aliases": null,
           "Examples": [
             [
-              "{{ slice \"my/path\" \"filename.txt\" | path.Join  }}",
+              "{{ slice \"my/path\" \"filename.txt\" | path.Join }}",
               "my/path/filename.txt"
             ],
             [
-              "{{  path.Join \"my\" \"path\" \"filename.txt\" }}",
+              "{{ path.Join \"my\" \"path\" \"filename.txt\" }}",
               "my/path/filename.txt"
             ],
             [
-              "{{ \"my/path/filename.txt\" | path.Ext  }}",
+              "{{ \"my/path/filename.txt\" | path.Ext }}",
               ".txt"
             ],
             [
-              "{{ \"my/path/filename.txt\" | path.Base  }}",
+              "{{ \"my/path/filename.txt\" | path.Base }}",
               "filename.txt"
             ],
             [
-              "{{ \"my/path/filename.txt\" | path.Dir  }}",
+              "{{ \"my/path/filename.txt\" | path.Dir }}",
               "my/path"
             ]
           ]
@@ -4824,7 +4872,7 @@
           ],
           "Examples": [
             [
-              "{{chomp \"\u003cp\u003eBlockhead\u003c/p\u003e\\n\" | safeHTML }}",
+              "{{ chomp \"\u003cp\u003eBlockhead\u003c/p\u003e\\n\" | safeHTML }}",
               "\u003cp\u003eBlockhead\u003c/p\u003e"
             ]
           ]
@@ -4874,7 +4922,7 @@
           "Aliases": null,
           "Examples": [
             [
-              "{{\"aabab\" | strings.Count \"a\" }}",
+              "{{ \"aabab\" | strings.Count \"a\" }}",
               "3"
             ]
           ]
@@ -5032,11 +5080,11 @@
           ],
           "Examples": [
             [
-              "{{slicestr \"BatMan\" 0 3}}",
+              "{{ slicestr \"BatMan\" 0 3 }}",
               "Bat"
             ],
             [
-              "{{slicestr \"BatMan\" 3}}",
+              "{{ slicestr \"BatMan\" 3 }}",
               "Man"
             ]
           ]
@@ -5063,11 +5111,11 @@
           ],
           "Examples": [
             [
-              "{{substr \"BatMan\" 0 -3}}",
+              "{{ substr \"BatMan\" 0 -3 }}",
               "Bat"
             ],
             [
-              "{{substr \"BatMan\" 3 3}}",
+              "{{ substr \"BatMan\" 3 3 }}",
               "Man"
             ]
           ]
@@ -5082,11 +5130,11 @@
           ],
           "Examples": [
             [
-              "{{title \"Bat man\"}}",
+              "{{ title \"Bat man\" }}",
               "Bat Man"
             ],
             [
-              "{{title \"somewhere over the rainbow\"}}",
+              "{{ title \"somewhere over the rainbow\" }}",
               "Somewhere Over the Rainbow"
             ]
           ]
@@ -5101,7 +5149,7 @@
           ],
           "Examples": [
             [
-              "{{lower \"BatMan\"}}",
+              "{{ lower \"BatMan\" }}",
               "batman"
             ]
           ]
@@ -5116,7 +5164,7 @@
           ],
           "Examples": [
             [
-              "{{upper \"BatMan\"}}",
+              "{{ upper \"BatMan\" }}",
               "BATMAN"
             ]
           ]
@@ -5342,11 +5390,11 @@
           ],
           "Examples": [
             [
-              "{{ htmlEscape \"Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e\" | safeHTML}}",
+              "{{ htmlEscape \"Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e\" | safeHTML }}",
               "Cathal Garvey \u0026amp; The Sunshine Band \u0026lt;cathal@foo.bar\u0026gt;"
             ],
             [
-              "{{ htmlEscape \"Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e\"}}",
+              "{{ htmlEscape \"Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e\" }}",
               "Cathal Garvey \u0026amp;amp; The Sunshine Band \u0026amp;lt;cathal@foo.bar\u0026amp;gt;"
             ],
             [
@@ -5365,15 +5413,15 @@
           ],
           "Examples": [
             [
-              "{{ htmlUnescape \"Cathal Garvey \u0026amp; The Sunshine Band \u0026lt;cathal@foo.bar\u0026gt;\" | safeHTML}}",
+              "{{ htmlUnescape \"Cathal Garvey \u0026amp; The Sunshine Band \u0026lt;cathal@foo.bar\u0026gt;\" | safeHTML }}",
               "Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e"
             ],
             [
-              "{{\"Cathal Garvey \u0026amp;amp; The Sunshine Band \u0026amp;lt;cathal@foo.bar\u0026amp;gt;\" | htmlUnescape | htmlUnescape | safeHTML}}",
+              "{{ \"Cathal Garvey \u0026amp;amp; The Sunshine Band \u0026amp;lt;cathal@foo.bar\u0026amp;gt;\" | htmlUnescape | htmlUnescape | safeHTML }}",
               "Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e"
             ],
             [
-              "{{\"Cathal Garvey \u0026amp;amp; The Sunshine Band \u0026amp;lt;cathal@foo.bar\u0026amp;gt;\" | htmlUnescape | htmlUnescape }}",
+              "{{ \"Cathal Garvey \u0026amp;amp; The Sunshine Band \u0026amp;lt;cathal@foo.bar\u0026amp;gt;\" | htmlUnescape | htmlUnescape }}",
               "Cathal Garvey \u0026amp; The Sunshine Band \u0026lt;cathal@foo.bar\u0026gt;"
             ],
             [
@@ -5410,7 +5458,7 @@
           ],
           "Examples": [
             [
-              "{{ .Title | markdownify}}",
+              "{{ .Title | markdownify }}",
               "\u003cstrong\u003eBatMan\u003c/strong\u003e"
             ]
           ]

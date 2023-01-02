@@ -57,6 +57,7 @@ func TestMakePath(t *testing.T) {
 		{"this+is+a+test", "this+is+a+test", false}, // Issue #1290
 		{"~foo", "~foo", false},                     // Issue #2177
 		{"foo--bar", "foo--bar", true},              // Issue #7288
+		{"foo@bar", "foo@bar", true},                //	Issue #10548
 	}
 
 	for _, test := range tests {

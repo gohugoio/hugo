@@ -443,7 +443,7 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 					// Most likely because PostCSS is not installed.
 					errMsg = ". Check your PostCSS installation; install with \"npm install postcss-cli\". See https://gohugo.io/hugo-pipes/postcss/"
 				} else if tr.Key().Name == "tocss" {
-					errMsg = ". Check your Hugo installation; you need the extended version to build SCSS/SASS."
+					errMsg = ". Check your Hugo installation; you need the extended version to build SCSS/SASS with transpiler set to 'libsass'."
 				} else if tr.Key().Name == "tocss-dart" {
 					errMsg = ". You need dart-sass-embedded in your system $PATH."
 

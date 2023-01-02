@@ -32,7 +32,7 @@ func init() {
 		ns.AddMethodMapping(ctx.Chomp,
 			[]string{"chomp"},
 			[][2]string{
-				{`{{chomp "<p>Blockhead</p>\n" | safeHTML }}`, `<p>Blockhead</p>`},
+				{`{{ chomp "<p>Blockhead</p>\n" | safeHTML }}`, `<p>Blockhead</p>`},
 			},
 		)
 
@@ -54,7 +54,7 @@ func init() {
 		ns.AddMethodMapping(ctx.Count,
 			nil,
 			[][2]string{
-				{`{{"aabab" | strings.Count "a" }}`, `3`},
+				{`{{ "aabab" | strings.Count "a" }}`, `3`},
 			},
 		)
 
@@ -95,7 +95,7 @@ func init() {
 		ns.AddMethodMapping(ctx.ToLower,
 			[]string{"lower"},
 			[][2]string{
-				{`{{lower "BatMan"}}`, `batman`},
+				{`{{ lower "BatMan" }}`, `batman`},
 			},
 		)
 
@@ -130,8 +130,8 @@ func init() {
 		ns.AddMethodMapping(ctx.SliceString,
 			[]string{"slicestr"},
 			[][2]string{
-				{`{{slicestr "BatMan" 0 3}}`, `Bat`},
-				{`{{slicestr "BatMan" 3}}`, `Man`},
+				{`{{ slicestr "BatMan" 0 3 }}`, `Bat`},
+				{`{{ slicestr "BatMan" 3 }}`, `Man`},
 			},
 		)
 
@@ -143,8 +143,8 @@ func init() {
 		ns.AddMethodMapping(ctx.Substr,
 			[]string{"substr"},
 			[][2]string{
-				{`{{substr "BatMan" 0 -3}}`, `Bat`},
-				{`{{substr "BatMan" 3 3}}`, `Man`},
+				{`{{ substr "BatMan" 0 -3 }}`, `Bat`},
+				{`{{ substr "BatMan" 3 3 }}`, `Man`},
 			},
 		)
 
@@ -188,8 +188,8 @@ func init() {
 		ns.AddMethodMapping(ctx.Title,
 			[]string{"title"},
 			[][2]string{
-				{`{{title "Bat man"}}`, `Bat Man`},
-				{`{{title "somewhere over the rainbow"}}`, `Somewhere Over the Rainbow`},
+				{`{{ title "Bat man" }}`, `Bat Man`},
+				{`{{ title "somewhere over the rainbow" }}`, `Somewhere Over the Rainbow`},
 			},
 		)
 
@@ -218,7 +218,7 @@ func init() {
 		ns.AddMethodMapping(ctx.ToUpper,
 			[]string{"upper"},
 			[][2]string{
-				{`{{upper "BatMan"}}`, `BATMAN`},
+				{`{{ upper "BatMan" }}`, `BATMAN`},
 			},
 		)
 

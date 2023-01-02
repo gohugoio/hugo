@@ -47,12 +47,12 @@ type Namespace struct {
 	distinctLogger loggers.IgnorableLogger
 }
 
-// Print returns a string representation args.
+// Print returns a string representation of args.
 func (ns *Namespace) Print(args ...any) string {
 	return _fmt.Sprint(args...)
 }
 
-// Printf returns a formatted string representation of args.
+// Printf returns string representation of args formatted with the layouut in format.
 func (ns *Namespace) Printf(format string, args ...any) string {
 	return _fmt.Sprintf(format, args...)
 }
@@ -70,7 +70,7 @@ func (ns *Namespace) Errorf(format string, args ...any) string {
 }
 
 // Erroridf formats args according to a format specifier and logs an ERROR and
-// an information text that the error with the given ID can be suppressed in config.
+// an information text that the error with the given id can be suppressed in config.
 // It returns an empty string.
 func (ns *Namespace) Erroridf(id, format string, args ...any) string {
 	ns.distinctLogger.Errorsf(id, format, args...)

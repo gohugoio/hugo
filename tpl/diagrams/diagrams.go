@@ -59,11 +59,13 @@ func (d goatDiagram) Height() int {
 	return d.d.Height
 }
 
-type Diagrams struct {
+// Namespace provides template functions for the diagrams namespace.
+type Namespace struct {
 	d *deps.Deps
 }
 
-func (d *Diagrams) Goat(v any) SVGDiagram {
+// Goat creates a new SVG diagram from input v.
+func (d *Namespace) Goat(v any) SVGDiagram {
 	var r io.Reader
 
 	switch vv := v.(type) {

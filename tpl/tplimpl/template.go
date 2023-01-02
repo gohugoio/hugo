@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"reflect"
 	"regexp"
@@ -91,9 +90,15 @@ func needsBaseTemplate(templ string) bool {
 		if !inComment && strings.HasPrefix(templ[i:], "{{/*") {
 			inComment = true
 			i += 4
+		} else if !inComment && strings.HasPrefix(templ[i:], "{{- /*") {
+			inComment = true
+			i += 6
 		} else if inComment && strings.HasPrefix(templ[i:], "*/}}") {
 			inComment = false
 			i += 4
+		} else if inComment && strings.HasPrefix(templ[i:], "*/ -}}") {
+			inComment = false
+			i += 6
 		} else {
 			r, size := utf8.DecodeRuneInString(templ[i:])
 			if !inComment {
@@ -818,7 +823,7 @@ func (t *templateHandler) loadTemplates() error {
 	}
 
 	if err := helpers.SymbolicWalk(t.Layouts.Fs, "", walker); err != nil {
-		if !os.IsNotExist(err) {
+		if !herrors.IsNotExist(err) {
 			return err
 		}
 		return nil

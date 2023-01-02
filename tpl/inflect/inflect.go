@@ -30,16 +30,12 @@ func New() *Namespace {
 // Namespace provides template functions for the "inflect" namespace.
 type Namespace struct{}
 
-// Humanize returns the humanized form of a single parameter.
+// Humanize returns the humanized form of v.
 //
-// If the parameter is either an integer or a string containing an integer
+// If v is either an integer or a string containing an integer
 // value, the behavior is to add the appropriate ordinal.
-//
-//     Example:  "my-first-post" -> "My first post"
-//     Example:  "103" -> "103rd"
-//     Example:  52 -> "52nd"
-func (ns *Namespace) Humanize(in any) (string, error) {
-	word, err := cast.ToStringE(in)
+func (ns *Namespace) Humanize(v any) (string, error) {
+	word, err := cast.ToStringE(v)
 	if err != nil {
 		return "", err
 	}
@@ -48,7 +44,7 @@ func (ns *Namespace) Humanize(in any) (string, error) {
 		return "", nil
 	}
 
-	_, ok := in.(int)           // original param was literal int value
+	_, ok := v.(int)            // original param was literal int value
 	_, err = strconv.Atoi(word) // original param was string containing an int value
 	if ok || err == nil {
 		return _inflect.Ordinalize(word), nil
@@ -58,9 +54,9 @@ func (ns *Namespace) Humanize(in any) (string, error) {
 	return _inflect.Humanize(strings.ToLower(str)), nil
 }
 
-// Pluralize returns the plural form of a single word.
-func (ns *Namespace) Pluralize(in any) (string, error) {
-	word, err := cast.ToStringE(in)
+// Pluralize returns the plural form of the single word in v.
+func (ns *Namespace) Pluralize(v any) (string, error) {
+	word, err := cast.ToStringE(v)
 	if err != nil {
 		return "", err
 	}
@@ -68,9 +64,9 @@ func (ns *Namespace) Pluralize(in any) (string, error) {
 	return _inflect.Pluralize(word), nil
 }
 
-// Singularize returns the singular form of a single word.
-func (ns *Namespace) Singularize(in any) (string, error) {
-	word, err := cast.ToStringE(in)
+// Singularize returns the singular form of a single word in v.
+func (ns *Namespace) Singularize(v any) (string, error) {
+	word, err := cast.ToStringE(v)
 	if err != nil {
 		return "", err
 	}

@@ -17,13 +17,13 @@ toc: true
 aliases: [/tutorials/github-pages-blog/]
 ---
 
-GitHub provides free and fast static hosting over SSL for personal, organization, or project pages directly from a GitHub repository via its [GitHub Pages service][] and automating development workflows and build with [GitHub Actions].
+GitHub provides free and fast static hosting over SSL for personal, organization, or project pages directly from a GitHub repository via its [GitHub Pages service] and automating development workflows and build with [GitHub Actions].
 
 ## Assumptions
 
 1. You have Git 2.8 or greater [installed on your machine][installgit].
 2. You have a GitHub account. [Signing up][ghsignup] for GitHub is free.
-3. You have a ready-to-publish Hugo website or have at least completed the [Quick Start][].
+3. You have a ready-to-publish Hugo website or have at least completed the [Quick Start].
 
 ## Types of GitHub Pages
 
@@ -43,11 +43,11 @@ The GitHub Actions used in these instructions pull source content from the `main
 As mentioned in the [GitHub Pages documentation][ghorgs], you can host a user/organization page in addition to project pages. Here are the key differences in GitHub Pages websites for Users and Organizations:
 
 1. You must create a repository named `<USERNAME>.github.io` or `<ORGANIZATION>.github.io` to host your pages
-2. By default, content from the `main` branch is used to publish GitHub Pages - rather than the `gh-pages` branch which is the default for project sites. However, the GitHub Actions in these instructions publish to the `gh-pages` branch. Therefore, if you are publishing Github pages for a user or organization, you will need to change the publishing branch to `gh-pages`. See the instructions later in this document.
+2. By default, content from the `main` branch is used to publish GitHub Pages - rather than the `gh-pages` branch which is the default for project sites. However, the GitHub Actions in these instructions publish to the `gh-pages` branch. Therefore, if you are publishing GitHub pages for a user or organization, you will need to change the publishing branch to `gh-pages`. See the instructions later in this document.
 
 ## Build Hugo With GitHub Action
 
-GitHub executes your software development workflows. Everytime you push your code on the GitHub repository, Github Actions will build the site automatically.
+GitHub executes your software development workflows. Every time you push your code on the GitHub repository, GitHub Actions will build the site automatically.
 
 Create a file in `.github/workflows/gh-pages.yml` containing the following content (based on [actions-hugo](https://github.com/marketplace/actions/hugo-setup)):
 
@@ -57,7 +57,7 @@ name: github pages
 on:
   push:
     branches:
-      - main  # Set a branch to deploy
+      - main  # Set a branch that will trigger a deployment
   pull_request:
 
 jobs:

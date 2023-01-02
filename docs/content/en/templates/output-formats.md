@@ -6,7 +6,7 @@ date: 2017-03-22
 publishdate: 2017-03-22
 lastmod: 2019-12-11
 categories: [templates]
-keywords: ["amp","outputs","rss"]
+keywords: ["amp", "outputs", "rss"]
 menu:
   docs:
     parent: "templates"
@@ -22,7 +22,7 @@ This page describes how to properly configure your site with the media types and
 
 ## Media Types
 
-A [media type][] (also known as *MIME type* and *content type*) is a two-part identifier for file formats and format contents transmitted on the Internet.
+A [media type] (also known as _MIME type_ and _content type_) is a two-part identifier for file formats and format contents transmitted on the internet.
 
 This is the full set of built-in media types in Hugo:
 
@@ -30,10 +30,10 @@ This is the full set of built-in media types in Hugo:
 
 **Note:**
 
-* It is possible to add custom media types or change the defaults; e.g., if you want to change the suffix for `text/html` to `asp`.
-* `Suffixes` are the values that will be used for URLs and filenames for that media type in Hugo.
-* The `Type` is the identifier that must be used when defining new/custom `Output Formats` (see below).
-* The full set of media types will be registered in Hugo's built-in development server to make sure they are recognized by the browser.
+- It is possible to add custom media types or change the defaults; e.g., if you want to change the suffix for `text/html` to `asp`.
+- `Suffixes` are the values that will be used for URLs and filenames for that media type in Hugo.
+- The `Type` is the identifier that must be used when defining new/custom `Output Formats` (see below).
+- The full set of media types will be registered in Hugo's built-in development server to make sure they are recognized by the browser.
 
 To add or modify a media type, define it in a `mediaTypes` section in your [site configuration][config], either for all sites or for a given language.
 
@@ -70,9 +70,9 @@ This is the full set of Hugo's built-in output formats:
 
 {{< datatable "output" "formats" "name" "mediaType" "path" "baseName" "rel" "protocol" "isPlainText" "isHTML" "noUgly" "permalinkable" >}}
 
-* A page can be output in as many output formats as you want, and you can have an infinite amount of output formats defined **as long as they resolve to a unique path on the file system**. In the above table, the best example of this is `AMP` vs. `HTML`. `AMP` has the value `amp` for `Path` so it doesn't overwrite the `HTML` version; e.g. we can now have both `/index.html` and `/amp/index.html`.
-* The `MediaType` must match the `Type` of an already defined media type.
-* You can define new output formats or redefine built-in output formats; e.g., if you want to put `AMP` pages in a different path.
+- A page can be output in as many output formats as you want, and you can have an infinite amount of output formats defined **as long as they resolve to a unique path on the file system**. In the above table, the best example of this is `AMP` vs. `HTML`. `AMP` has the value `amp` for `Path` so it doesn't overwrite the `HTML` version; e.g. we can now have both `/index.html` and `/amp/index.html`.
+- The `MediaType` must match the `Type` of an already defined media type.
+- You can define new output formats or redefine built-in output formats; e.g., if you want to put `AMP` pages in a different path.
 
 To add or modify an output format, define it in an `outputFormats` section in your site's [configuration file](/getting-started/configuration/), either for all sites or for a given language.
 
@@ -118,7 +118,7 @@ The following is the full list of configuration options for output formats and t
 : used to turn off ugly URLs If `uglyURLs` is set to `true` in your site. **Default:** `false`.
 
 `notAlternative`
-: enable if it doesn't make sense to include this format in an `AlternativeOutputFormats` format listing on `Page` (e.g., with `CSS`). Note that we use the term *alternative* and not *alternate* here, as it does not necessarily replace the other format. **Default:** `false`.
+: enable if it doesn't make sense to include this format in an `AlternativeOutputFormats` format listing on `Page` (e.g., with `CSS`). Note that we use the term _alternative_ and not _alternate_ here, as it does not necessarily replace the other format. **Default:** `false`.
 
 `permalinkable`
 : make `.Permalink` and `.RelPermalink` return the rendering Output Format rather than main ([see below](#link-to-output-formats)). This is enabled by default for `HTML` and `AMP`. **Default:** `false`.
@@ -128,18 +128,19 @@ The following is the full list of configuration options for output formats and t
 
 ## Output Formats for Pages
 
-A `Page` in Hugo can be rendered to multiple *output formats* on the file
+A `Page` in Hugo can be rendered to multiple _output formats_ on the file
 system.
 
 ### Default Output Formats
+
 Every `Page` has a [`Kind`][page_kinds] attribute, and the default Output
 Formats are set based on that.
 
-| Kind           | Default Output Formats |
-|--------------- |----------------------- |
-| `page`         | HTML                   |
-| `home`         | HTML, RSS              |
-| `section`      | HTML, RSS              |
+| Kind       | Default Output Formats |
+| ---------- | ---------------------- |
+| `page`     | HTML                   |
+| `home`     | HTML, RSS              |
+| `section`  | HTML, RSS              |
 | `taxonomy` | HTML, RSS              |
 | `term`     | HTML, RSS              |
 
@@ -157,12 +158,8 @@ Example from site config file:
   page = ["HTML"]
 {{</ code-toggle >}}
 
-
-Note that in the above examples, the *output formats* for `section`,
-`taxonomy` and `term` will stay at their default value `["HTML",
-"RSS"]`.
-
-{{< new-in "0.73.0" >}} We have fixed the before confusing page kinds used for taxonomies (see the listing below) to be in line with the terms used when we talk about taxonomies. We have been careful to avoid site breakage, and you should get an ERROR in the console if you need to adjust your `outputs` section.
+Note that in the above examples, the _output formats_ for `section`,
+`taxonomy` and `term` will stay at their default value `["HTML", "RSS"]`.
 
 {{% page-kinds %}}
 
@@ -183,7 +180,7 @@ outputs:
 ---
 ```
 
-##  List Output formats
+## List Output formats
 
 Each `Page` has both an `.OutputFormats` (all formats, including the current) and an `.AlternativeOutputFormats` variable, the latter of which is useful for creating a `link rel` list in your site's `<head>`:
 
@@ -207,7 +204,7 @@ __from `single.json.json`:__
 
 In order for them to return the output format of the current template file instead, the given output format should have its `permalinkable` setting set to true.
 
-__Same template file as above with json output format's `permalinkable` set to true:__
+**Same template file as above with json output format's `permalinkable` set to true:**
 
 ```go-html-template
 {{ .RelPermalink }} > /that-page/index.json
@@ -231,7 +228,7 @@ A new output format needs a corresponding template in order to render anything u
 The key distinction for Hugo versions 0.20 and newer is that Hugo looks at an output format's `Name` and MediaType's `Suffixes` when choosing the template used to render a given `Page`.
 {{% /note %}}
 
-The following table shows examples of different output formats, the suffix used, and Hugo's respective template [lookup order][]. All of the examples in the table can:
+The following table shows examples of different output formats, the suffix used, and Hugo's respective template [lookup order]. All the examples in the table can:
 
 * Use a [base template][base].
 * Include [partial templates][partials]
@@ -242,13 +239,13 @@ Hugo will now also detect the media type and output format of partials, if possi
 
 Hugo will look for the name given, so you can name it whatever you want. But if you want it treated as plain text, you should use the file suffix and, if needed, the name of the Output Format. The pattern is as follows:
 
-```
+```go-html-template
 [partial name].[OutputFormat].[suffix]
 ```
 
 The partial below is a plain text template (Output Format is `CSV`, and since this is the only output format with the suffix `csv`, we don't need to include the Output Format's `Name`):
 
-```
+```go-html-template
 {{ partial "mytextpartial.csv" . }}
 ```
 

@@ -11,7 +11,9 @@ menu:
     parent: "functions"
 keywords: [strings]
 aliases: []
-signature: ["substr STRING START [LENGTH]"]
+signature:
+  - "substr STRING START [LENGTH]"
+  - "strings.Substr STRING START [LENGTH]"
 workson: []
 hugoversion:
 relatedfuncs: []

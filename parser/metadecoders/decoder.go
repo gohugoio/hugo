@@ -37,7 +37,7 @@ type Decoder struct {
 	// Delimiter is the field delimiter used in the CSV decoder. It defaults to ','.
 	Delimiter rune
 
-	// Comment, if not 0, is the comment character ued in the CSV decoder. Lines beginning with the
+	// Comment, if not 0, is the comment character used in the CSV decoder. Lines beginning with the
 	// Comment character without preceding whitespace are ignored.
 	Comment rune
 }
@@ -112,7 +112,7 @@ func (d Decoder) UnmarshalStringTo(data string, typ any) (any, error) {
 // Unmarshal will unmarshall data in format f into an interface{}.
 // This is what's needed for Hugo's /data handling.
 func (d Decoder) Unmarshal(data []byte, f Format) (any, error) {
-	if data == nil {
+	if len(data) == 0 {
 		switch f {
 		case CSV:
 			return make([][]string, 0), nil

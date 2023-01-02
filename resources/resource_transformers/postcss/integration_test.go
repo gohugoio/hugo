@@ -85,6 +85,7 @@ Styles Content: Len: {{ len $styles.Content }}|
 }
 -- postcss.config.js --
 console.error("Hugo Environment:", process.env.HUGO_ENVIRONMENT );
+console.error("Hugo PublishDir:", process.env.HUGO_PUBLISHDIR );
 // https://github.com/gohugoio/hugo/issues/7656
 console.error("package.json:", process.env.HUGO_FILE_PACKAGE_JSON );
 console.error("PostCSS Config File:", process.env.HUGO_FILE_POSTCSS_CONFIG_JS );
@@ -118,8 +119,6 @@ func TestTransformPostCSS(t *testing.T) {
 
 		files := repl.Replace(postCSSIntegrationTestFiles)
 
-		fmt.Println("===>", s, files)
-
 		b := hugolib.NewIntegrationTestBuilder(
 			hugolib.IntegrationTestConfig{
 				T:               c,
@@ -135,6 +134,10 @@ Styles RelPermalink: /foo/css/styles.css
 Styles Content: Len: 770917|
 `)
 
+		if s == "never" {
+			b.AssertLogContains("Hugo Environment: production")
+			b.AssertLogContains("Hugo PublishDir: " + filepath.Join(tempDir, "public"))
+		}
 	}
 
 }

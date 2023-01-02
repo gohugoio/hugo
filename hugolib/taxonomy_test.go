@@ -60,7 +60,6 @@ YAML frontmatter with tags and categories taxonomy.`
 	}
 }
 
-//
 func TestTaxonomiesWithAndWithoutContentFile(t *testing.T) {
 	for _, uglyURLs := range []bool{false, true} {
 		uglyURLs := uglyURLs
@@ -521,7 +520,7 @@ Funny:|/p1/|
 Funny:|/p2/|`)
 }
 
-//https://github.com/gohugoio/hugo/issues/6590
+// https://github.com/gohugoio/hugo/issues/6590
 func TestTaxonomiesListPages(t *testing.T) {
 	b := newTestSitesBuilder(t)
 	b.WithTemplates("_default/list.html", `
@@ -693,4 +692,43 @@ abcdefgs: {{ template "print-page" $abcdefgs }}|IsAncestor: {{ $abcdefgs.IsAnces
     abc: /abcdefgs/abc/|abc|term|Parent: /abcdefgs/|CurrentSection: /abcdefgs/|FirstSection: /|IsAncestor: false|IsDescendant: true
     abcdefgs: /abcdefgs/|Abcdefgs|taxonomy|Parent: /|CurrentSection: /|FirstSection: /|IsAncestor: true|IsDescendant: false
 `)
+}
+
+func TestTaxonomiesWeightSort(t *testing.T) {
+
+	files := `
+-- layouts/index.html --
+{{ $a := site.GetPage "tags/a"}}
+:{{ range $a.Pages }}{{ .RelPermalink }}|{{ end }}:
+-- content/p1.md --
+---
+title: P1
+weight: 100
+tags: ['a']
+tags_weight: 20
+---
+-- content/p3.md --
+---
+title: P2
+weight: 200
+tags: ['a']
+tags_weight: 30
+---
+-- content/p2.md --
+---
+title: P3
+weight: 50
+tags: ['a']
+tags_weight: 40
+---
+	`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `:/p1/|/p3/|/p2/|:`)
 }

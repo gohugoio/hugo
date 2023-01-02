@@ -49,7 +49,12 @@ type Namespace struct {
 	deps  *deps.Deps
 }
 
-func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*kopenapi3.T, error) {
+// OpenAPIDocument represents an OpenAPI 3 document.
+type OpenAPIDocument struct {
+	*kopenapi3.T
+}
+
+func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*OpenAPIDocument, error) {
 	key := r.Key()
 	if key == "" {
 		return nil, errors.New("no Key set in Resource")
@@ -85,11 +90,11 @@ func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*kopenapi3.T, er
 
 		err = kopenapi3.NewLoader().ResolveRefsIn(s, nil)
 
-		return s, err
+		return &OpenAPIDocument{T: s}, err
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return v.(*kopenapi3.T), nil
+	return v.(*OpenAPIDocument), nil
 }

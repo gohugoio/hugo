@@ -12,8 +12,6 @@ images:
 
 Hugo has been caching the highlighter output to disk, so for repeated builds it has been fine, but this little snippet, showing a build of the [gohugo.io](https://gohugo.io/) site without cache and with both Pygments and Chroma, should illustrate the improvement:
 
-{{< asciicast Lc5iwTVny2kuUC8lqvNnL6oDU >}}
-
 See the [Updated Documentation](https://gohugo.io/content-management/syntax-highlighting/) for more information about how this works.
 
 Worth mentioning is also the `liveReloadPort`  flag on `hugo server`, which makes it possible to do "live reloads" behind a HTTPS proxy, which makes for very cool remote customer demos.
@@ -56,9 +54,8 @@ Hugo now has:
 ### Other
 
 * Use Chroma as new default syntax highlighter [fb33d828](https://github.com/gohugoio/hugo/commit/fb33d8286d78a78a74deb44355b621852a1c4033) [@bep](https://github.com/bep) [#3888](https://github.com/gohugoio/hugo/issues/3888)
-* Trim newlines in the hightlight shortcode [0d29a0f7](https://github.com/gohugoio/hugo/commit/0d29a0f7819e8d73149701052c29f090cd6db42b) [@bep](https://github.com/bep) [#3898](https://github.com/gohugoio/hugo/issues/3898)
+* Trim newlines in the highlight shortcode [0d29a0f7](https://github.com/gohugoio/hugo/commit/0d29a0f7819e8d73149701052c29f090cd6db42b) [@bep](https://github.com/bep) [#3898](https://github.com/gohugoio/hugo/issues/3898)
 * Update `goorgeous` [b8fabce2](https://github.com/gohugoio/hugo/commit/b8fabce217fcb52e3f273491bef95c7977058732) [@bep](https://github.com/bep) [#3899](https://github.com/gohugoio/hugo/issues/3899)
 * Add `liveReloadPort` flag to server [b1804776](https://github.com/gohugoio/hugo/commit/b180477631555824a06293053e2b6e63c5f07361) [@bep](https://github.com/bep) [#3882](https://github.com/gohugoio/hugo/issues/3882)
 * Add `noHTTPCache` flag to hugo server (default on) [0b34af21](https://github.com/gohugoio/hugo/commit/0b34af216154367af7f53ce93d44e6b3d58c3f34) [@bep](https://github.com/bep) [#3897](https://github.com/gohugoio/hugo/issues/3897)
 * Make `noHTTPCache` default on [80c7ea60](https://github.com/gohugoio/hugo/commit/80c7ea60a0e0f488563a6b7311f3d4c23457aac7) [@bep](https://github.com/bep) [#3897](https://github.com/gohugoio/hugo/issues/3897)
-

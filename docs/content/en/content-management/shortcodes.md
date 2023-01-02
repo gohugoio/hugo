@@ -1,21 +1,17 @@
 ---
 title: Shortcodes
-linktitle:
+linkTitle: Shortcodes
 description: Shortcodes are simple snippets inside your content files calling built-in or custom templates.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2019-11-07
-menu:
-  docs:
-    parent: "content-management"
-    weight: 35
-weight: 35	#rem
 categories: [content management]
 keywords: [markdown,content,shortcodes]
-draft: false
+menu:
+  docs:
+    parent: content-management
+    weight: 100
+toc: true
+weight: 100
 aliases: [/extras/shortcodes/]
 testparam: "Hugo Rocks!"
-toc: true
 ---
 
 ## What a Shortcode is
@@ -40,11 +36,11 @@ Some shortcodes use or require closing shortcodes. Again like HTML, the opening 
 
 Here are two examples of paired shortcodes:
 
-```
+```go-html-template
 {{%/* mdshortcode */%}}Stuff to `process` in the *center*.{{%/* /mdshortcode */%}}
 ```
 
-```
+```go-html-template
 {{</* highlight go */>}} A bunch of code here {{</* /highlight */>}}
 ```
 
@@ -52,11 +48,9 @@ The examples above use two different delimiters, the difference being the `%` ch
 
 ### Shortcodes with raw string parameters
 
-{{< new-in "0.64.1" >}}
-
 You can pass multiple lines as parameters to a shortcode by using raw string literals:
 
-```
+```go-html-template
 {{</*  myshortcode `This is some <b>HTML</b>,
 and a new line with a "quoted string".` */>}}
 ```
@@ -67,16 +61,15 @@ In Hugo `0.55` we changed how the `%` delimiter works. Shortcodes using the `%` 
 
 If you want the old behavior, you can put the following line in the start of your shortcode template:
 
-```
+```go-html-template
 {{ $_hugo_config := `{ "version": 1 }` }}
 ```
 
-
 ### Shortcodes Without Markdown
 
-The `<` character indicates that the shortcode's inner content does *not* need further rendering. Often shortcodes without markdown include internal HTML:
+The `<` character indicates that the shortcode's inner content does *not* need further rendering. Often shortcodes without Markdown include internal HTML:
 
-```
+```go-html-template
 {{</* myshortcode */>}}<p>Hello <strong>World!</strong></p>{{</* /myshortcode */>}}
 ```
 
@@ -86,11 +79,11 @@ You can call shortcodes within other shortcodes by creating your own templates t
 
 ## Use Hugo's Built-in Shortcodes
 
-Hugo ships with a set of predefined shortcodes that represent very common usage. These shortcodes are provided for author convenience and to keep your markdown content clean.
+Hugo ships with a set of predefined shortcodes that represent very common usage. These shortcodes are provided for author convenience and to keep your Markdown content clean.
 
 ### `figure`
 
-`figure` is an extension of the image syntax in markdown, which does not provide a shorthand for the more semantic [HTML5 `<figure>` element][figureelement].
+`figure` is an extension of the image syntax in Markdown, which does not provide a shorthand for the more semantic [HTML5 `<figure>` element][figureelement].
 
 The `figure` shortcode can use the following named parameters:
 
@@ -151,13 +144,13 @@ attrlink
 
 Bloggers often want to include GitHub gists when writing posts. Let's suppose we want to use the [gist at the following url][examplegist]:
 
-```
+```txt
 https://gist.github.com/spf13/7896402
 ```
 
 We can embed the gist in our content via username and gist ID pulled from the URL:
 
-```
+```go-html-template
 {{</* gist spf13 7896402 */>}}
 ```
 
@@ -177,7 +170,7 @@ If the gist contains several files and you want to quote just one of them, you c
 
 #### Example `gist` Display
 
-To demonstrate the remarkably efficiency of Hugo's shortcode feature, we have embedded the `spf13` `gist` example in this page. The following simulates the experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
+To demonstrate the remarkable efficiency of Hugo's shortcode feature, we have embedded the `spf13` `gist` example in this page. The following simulates the experience for visitors to your website. Naturally, the final display will depend on your stylesheets and surrounding markup.
 
 {{< gist spf13 7896402 >}}
 
@@ -221,9 +214,9 @@ To see even more options for adding syntax-highlighted code blocks to your websi
 
 ### `instagram`
 
-If you'd like to embed a photo from [Instagram][], you only need the photo's ID. You can discern an Instagram photo ID from the URL:
+If you'd like to embed a photo from [Instagram], you only need the photo's ID. You can discern an Instagram photo ID from the URL:
 
-```
+```txt
 https://www.instagram.com/p/BWNjjyYFxVx/
 ```
 
@@ -249,10 +242,9 @@ By adding the preceding `hidecaption` example, the following HTML will be added 
 
 #### Example `instagram` Display
 
-Using the preceding `instagram` with `hidecaption` example above, the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
+Using the preceding `instagram` with `hidecaption` example above, the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your style sheets and surrounding markup.
 
 {{< instagram BWNjjyYFxVx hidecaption >}}
-
 
 
 {{% note %}}
@@ -261,7 +253,7 @@ The `instagram`-shortcode refers an endpoint of Instagram's API, that's deprecat
 
 ### `param`
 
-Gets a value from the current `Page's` params set in front matter, with a fall back to the site param value. It will log an `ERROR` if the param with the given key could not be found in either.
+Gets a value from the current `Page's` params set in front matter, with a fallback to the site param value. It will log an `ERROR` if the param with the given key could not be found in either.
 
 ```bash
 {{</* param testparam */>}}
@@ -291,7 +283,7 @@ Read a more extensive description of `ref` and `relref` in the [cross references
 
 #### Example `ref` and `relref` Input
 
-```
+```go-html-template
 [Neat]({{</* ref "blog/neat.md" */>}})
 [Who]({{</* relref "about.md#who" */>}})
 ```
@@ -300,7 +292,7 @@ Read a more extensive description of `ref` and `relref` in the [cross references
 
 Assuming that standard Hugo pretty URLs are turned on.
 
-```
+```html
 <a href="https://example.com/blog/neat">Neat</a>
 <a href="/about/#who">Who</a>
 ```
@@ -309,13 +301,13 @@ Assuming that standard Hugo pretty URLs are turned on.
 
 You want to include a single tweet into your blog post? Everything you need is the URL of the tweet:
 
-```
+```txt
 https://twitter.com/SanDiegoZoo/status/1453110110599868418
 ```
 
 #### Example `tweet` Input
 
-Pass the tweet's user (case-insensitive) and id from the URL as parameters to the `tweet` shortcode.
+Pass the tweet's user (case-insensitive) and ID from the URL as parameters to the `tweet` shortcode.
 
 {{< code file="example-tweet-input.md" >}}
 {{</* tweet user="SanDiegoZoo" id="1453110110599868418" */>}}
@@ -337,9 +329,9 @@ Using the preceding `tweet` example, the following simulates the displayed exper
 
 ### `vimeo`
 
-Adding a video from [Vimeo][] is equivalent to the [YouTube Input shortcode][].
+Adding a video from [Vimeo] is equivalent to the [YouTube Input shortcode].
 
-```
+```txt
 https://vimeo.com/channels/staffpicks/146022717
 ```
 
@@ -360,9 +352,9 @@ Using the preceding `vimeo` example, the following HTML will be added to your re
 {{< /output >}}
 
 {{% tip %}}
-If you want to further customize the visual styling of the YouTube or Vimeo output, add a `class` named parameter when calling the shortcode. The new `class` will be added to the `<div>` that wraps the `<iframe>` *and* will remove the inline styles. Note that you will need to call the `id` as a named parameter as well. You can also give the vimeo video a descriptive title with `title`. 
+If you want to further customize the visual styling of the YouTube or Vimeo output, add a `class` named parameter when calling the shortcode. The new `class` will be added to the `<div>` that wraps the `<iframe>` *and* will remove the inline styles. Note that you will need to call the `id` as a named parameter as well. You can also give the vimeo video a descriptive title with `title`.
 
-```
+```go
 {{</* vimeo id="146022717" class="my-vimeo-wrapper-class" title="My vimeo video" */>}}
 ```
 {{% /tip %}}
@@ -375,12 +367,11 @@ Using the preceding `vimeo` example, the following simulates the displayed exper
 
 ### `youtube`
 
-The `youtube` shortcode embeds a responsive video player for [YouTube videos][]. Only the ID of the video is required, e.g.:
+The `youtube` shortcode embeds a responsive video player for [YouTube videos]. Only the ID of the video is required, e.g.:
 
-```
+```txt
 https://www.youtube.com/watch?v=w7Ft2ymGmfc
 ```
-
 
 #### Example `youtube` Input
 
@@ -390,7 +381,7 @@ Copy the YouTube video ID that follows `v=` in the video's URL and pass it to th
 {{</* youtube w7Ft2ymGmfc */>}}
 {{< /code >}}
 
-Furthermore, you can automatically start playback of the embedded video by setting the `autoplay` parameter to `true`. Remember that you can't mix named and unnamed parameters, so you'll need to assign the yet unnamed video id to the parameter `id`:
+Furthermore, you can automatically start playback of the embedded video by setting the `autoplay` parameter to `true`. Remember that you can't mix named and unnamed parameters, so you'll need to assign the yet unnamed video ID to the parameter `id`:
 
 
 {{< code file="example-youtube-input-with-autoplay.md" >}}
@@ -403,7 +394,6 @@ For [accessibility reasons](https://dequeuniversity.com/tips/provide-iframe-titl
 {{</* youtube id="w7Ft2ymGmfc" title="A New Hugo Site in Under Two Minutes" */>}}
 {{< /code >}}
 
-
 #### Example `youtube` Output
 
 Using the preceding `youtube` example, the following HTML will be added to your rendered website's markup:
@@ -414,17 +404,17 @@ Using the preceding `youtube` example, the following HTML will be added to your 
 
 #### Example `youtube` Display
 
-Using the preceding `youtube` example (without `autoplay="true"`), the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup. The video is also include in the [Quick Start of the Hugo documentation][quickstart].
+Using the preceding `youtube` example (without `autoplay="true"`), the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your style sheets and surrounding markup. The video is also include in the [Quick Start of the Hugo documentation][quickstart].
 
 {{< youtube w7Ft2ymGmfc >}}
 
 ## Privacy Config
 
-To learn how to configure your Hugo site to meet the new EU privacy regulation, see [Hugo and the GDPR][].
+To learn how to configure your Hugo site to meet the new EU privacy regulation, see [Hugo and the GDPR].
 
 ## Create Custom Shortcodes
 
-To learn more about creating custom shortcodes, see the [shortcode template documentation][].
+To learn more about creating custom shortcodes, see the [shortcode template documentation].
 
 [`figure` shortcode]: #figure
 [contentmanagementsection]: /content-management/formats/

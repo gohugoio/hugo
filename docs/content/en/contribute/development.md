@@ -4,7 +4,6 @@ linktitle: Development
 description: Hugo relies heavily on contributions from the open source community.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [contribute]
 keywords: [dev,open source]
 authors: [digitalcraftsman]
@@ -14,13 +13,12 @@ menu:
     weight: 10
 weight: 10
 sections_weight: 10
-draft: false
 toc: true
 ---
 
 ## Introduction
 
-Hugo is an open-source project and lives by the work of its [contributors][]. There are plenty of [open issues][issues], and we need your help to make Hugo even more awesome. You don't need to be a Go guru to contribute to the project's development.
+Hugo is an open-source project and lives by the work of its [contributors]. There are plenty of [open issues][issues], and we need your help to make Hugo even more awesome. You don't need to be a Go guru to contribute to the project's development.
 
 ## Assumptions
 
@@ -45,13 +43,13 @@ If you are having trouble following the installation guides for Go, check out [G
 
 Once you're finished installing Go, let's confirm everything is working correctly. Open a terminal---or command line under Windows--and type the following:
 
-```
+```txt
 go version
 ```
 
 You should see something similar to the following written to the console. Note that the version here reflects the most recent version of Go as of the last update for this page:
 
-```
+```txt
 go version go1.12 darwin/amd64
 ```
 
@@ -59,13 +57,13 @@ Next, make sure that you set up your `GOPATH` [as described in the installation 
 
 You can print the `GOPATH` with `echo $GOPATH`. You should see a non-empty string containing a valid path to your Go workspace; for example:
 
-```
+```txt
 /Users/<yourusername>/Code/go
 ```
 
 ### Install Go with Homebrew
 
-If you are a MacOS user and have [Homebrew](https://brew.sh/) installed on your machine, installing Go is as simple as the following command:
+If you are a macOS user and have [Homebrew](https://brew.sh/) installed on your machine, installing Go is as simple as the following command:
 
 {{< code file="install-go.sh" >}}
 brew install go
@@ -87,7 +85,7 @@ You will need to have Git installed on your computer to contribute to Hugo devel
 
 Git is a [version control system](https://en.wikipedia.org/wiki/Version_control) to track the changes of source code. Hugo depends on smaller third-party packages that are used to extend the functionality. We use them because we don't want to reinvent the wheel.
 
-Go ships with a sub-command called `get` that will download these packages for us when we setup our working environment. The source code of the packages is tracked with Git. `get` will interact with the Git servers of the package hosters in order to fetch all dependencies.
+Go ships with a sub-command called `get` that will download these packages for us when we set up our working environment. The source code of the packages is tracked with Git. `get` will interact with the Git servers of the package hosters in order to fetch all dependencies.
 
 Move back to the terminal and check if Git is already installed. Type in `git version` and press enter. You can skip the rest of this section if the command returned a version number. Otherwise [download](https://git-scm.com/downloads) the latest version of Git and follow this [installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
 
@@ -95,7 +93,7 @@ Finally, check again with `git version` if Git was installed successfully.
 
 ### Git Graphical Front Ends
 
-There are several [GUI clients](https://git-scm.com/downloads/guis) that help you to operate Git. Not all are available for all operating systems and maybe differ in their usage. Because of this we will document how to use the command line, since the commands are the same everywhere.
+There are several [GUI clients](https://git-scm.com/downloads/guis) that help you to operate Git. Not all are available for all operating systems and maybe differ in their usage. Because of this we will document how to use the command-line, since the commands are the same everywhere.
 
 ### Install Hub on Your System (Optional)
 
@@ -103,19 +101,19 @@ Hub is a great tool for working with GitHub. The main site for it is [hub.github
 
 On a Mac, you can install [Hub](https://github.com/github/hub) using [Homebrew](https://brew.sh):
 
-```
+```txt
 brew install hub
 ```
 
 Now we'll create an [alias in Bash](https://tldp.org/LDP/abs/html/aliases.html) so that typing `git` actually runs `Hub`:
 
-```
+```txt
 echo "alias git='hub'" >> ~/.bash_profile
 ```
 
 Confirm the installation:
 
-```
+```txt
 git version 2.21.0
 hub version 2.10.0
 ```
@@ -134,26 +132,25 @@ We're going to clone the [master Hugo repository](https://github.com/gohugoio/hu
 
 So, let's make a new directory and clone that master repository:
 
-```
+```txt
 mkdir $HOME/src
 cd $HOME/src
 git clone https://github.com/gohugoio/hugo.git
 ```
 
-> Since Hugo 0.48, Hugo uses the Go Modules support built into Go 1.11 to build. 
+> Since Hugo 0.48, Hugo uses the Go Modules support built into Go 1.11 to build.
 > The easiest is to clone Hugo in a directory outside of GOPATH
 
 And then, install dependencies of Hugo by running the following in the cloned directory:
 
-```
+```txt
 cd $HOME/src/hugo
 go install
 ```
 
-
 Hugo relies on [mage](https://github.com/magefile/mage) for some convenient build and test targets. If you don't already have it, get it:
 
-```
+```txt
 go install github.com/magefile/mage@latest
 ```
 
@@ -169,19 +166,19 @@ Open the [Hugo repository](https://github.com/gohugoio/hugo) on GitHub and click
 
 ![Fork button](/images/contribute/development/forking-a-repository.png)
 
-Now open your fork repository on GitHub and copy the remote url of your fork. You can choose between HTTPS and SSH as protocol that Git should use for the following operations. HTTPS works always [if you're not sure](https://help.github.com/articles/which-remote-url-should-i-use/).
+Now open your fork repository on GitHub and copy the remote URL of your fork. You can choose between HTTPS and SSH as protocol that Git should use for the following operations. HTTPS works always [if you're not sure](https://help.github.com/articles/which-remote-url-should-i-use/).
 
 ![Copy remote url](/images/contribute/development/copy-remote-url.png)
 
 Switch back to the terminal and move into the directory of the cloned master repository from the last step.
 
-```
+```txt
 cd $HOME/src/hugo
 ```
 
 Now Git needs to know that our fork exists by adding the copied remote url:
 
-```
+```txt
 git remote add <YOUR-GITHUB-USERNAME> <COPIED REMOTE-URL>
 ```
 
@@ -189,7 +186,7 @@ git remote add <YOUR-GITHUB-USERNAME> <COPIED REMOTE-URL>
 
 Alternatively, you can use the Git wrapper Hub. Hub makes forking a repository easy:
 
-```
+```txt
 git fork
 ```
 
@@ -199,13 +196,13 @@ That command will log in to GitHub using your account, create a fork of the repo
 
 Let's check if everything went right by listing all known remotes:
 
-```
+```txt
 git remote -v
 ```
 
 The output should look similar:
 
-```
+```txt
 digitalcraftsman    git@github.com:digitalcraftsman/hugo.git (fetch)
 digitalcraftsman    git@github.com:digitalcraftsman/hugo.git (push)
 origin  https://github.com/gohugoio/hugo (fetch)
@@ -220,14 +217,14 @@ You should never develop against the "master" branch. The development team will 
 
 First, you should always pull the latest changes from the master repository:
 
-```
+```txt
 git checkout master
 git pull
 ```
 
 Now we can create a new branch for your additions:
 
-```
+```txt
 git checkout -b <BRANCH-NAME>
 ```
 
@@ -245,7 +242,7 @@ We have developed a [separate Hugo documentation contribution guide][docscontrib
 
 While making changes in the codebase it's a good idea to build the binary to test them:
 
-```
+```txt
 mage hugo
 ```
 
@@ -253,31 +250,33 @@ This command generates the binary file at the root of the repository.
 
 If you want to install the binary in `$GOPATH/bin`, run
 
-```
+```txt
 mage install
 ```
 
-### Test 
+### Test
+
 Sometimes changes on the codebase can cause unintended side effects. Or they don't work as expected. Most functions have their own test cases. You can find them in files ending with `_test.go`.
 
-Make sure the commands 
+Make sure the commands
 
-```
+```txt
 mage -v check
 ```
 
 passes.
 
-### Formatting 
-The Go code styleguide maybe is opinionated but it ensures that the codebase looks the same, regardless who wrote the code. Go comes with its own formatting tool. Let's apply the styleguide to our additions:
+### Formatting
 
-```
+The Go code style guide maybe is opinionated but it ensures that the codebase looks the same, regardless who wrote the code. Go comes with its own formatting tool. Let's apply the style guide to our additions:
+
+```txt
 mage fmt
 ```
 
 Once you made your additions commit your changes. Make sure that you follow our [code contribution guidelines](https://github.com/gohugoio/hugo/blob/master/CONTRIBUTING.md):
 
-```
+```txt
 # Add all changed files
 git add --all
 git commit --message "YOUR COMMIT MESSAGE"
@@ -295,20 +294,20 @@ If you are unsure what a command does leave the commit as it is. We can fix your
 
 Let's say you want to modify the last commit message. Run the following command and replace the current message:
 
-```
+```txt
 git commit --amend -m"YOUR NEW COMMIT MESSAGE"
 ```
 
 Take a look at the commit log to see the change:
 
-```
+```txt
 git log
 # Exit with q
 ```
 
-After making the last commit you may have forgot something. There is no need to create a new commit. Just add the latest changes and merge them into the intended commit:
+After making the last commit you may have forgotten something. There is no need to create a new commit. Just add the latest changes and merge them into the intended commit:
 
-```
+```txt
 git add --all
 git commit --amend
 ```
@@ -321,13 +320,13 @@ Modifications such as those described in this section can have serious unintende
 
 This is a bit more advanced. Git allows you to [rebase](https://git-scm.com/docs/git-rebase) commits interactively. In other words: it allows you to rewrite the commit history.
 
-```
+```txt
 git rebase --interactive @~6
 ```
 
 The `6` at the end of the command represents the number of commits that should be modified. An editor should open and present a list of last six commit messages:
 
-```
+```txt
 pick 80d02a1 tpl: Add hasPrefix to the template funcs' "smoke test"
 pick aaee038 tpl: Sort the smoke tests
 pick f0dbf2c tpl: Add the other test case for hasPrefix
@@ -340,7 +339,7 @@ In the case above we should merge the last two commits in the commit of this tut
 
 All operations are written before the commit message. Replace "pick" with an operation. In this case `squash` or `s` for short:
 
-```
+```txt
 pick 80d02a1 tpl: Add hasPrefix to the template funcs' "smoke test"
 pick aaee038 tpl: Sort the smoke tests
 pick f0dbf2c tpl: Add the other test case for hasPrefix
@@ -353,7 +352,7 @@ We also want to rewrite the commits message of the third last commit. We forgot 
 
 You should end up with a similar setup:
 
-```
+```txt
 pick 80d02a1 tpl: Add hasPrefix to the template funcs' "smoke test"
 pick aaee038 tpl: Sort the smoke tests
 pick f0dbf2c tpl: Add the other test case for hasPrefix
@@ -366,7 +365,7 @@ Close the editor. It should open again with a new tab. A text is instructing you
 
 A last time a new tab opens. Enter a new commit message and save again. Your terminal should contain a status message. Hopefully this one:
 
-```
+```txt
 Successfully rebased and updated refs/heads/<BRANCHNAME>.
 ```
 
@@ -374,9 +373,9 @@ Check the commit log if everything looks as expected. Should an error occur you 
 
 ### Push commits
 
-To push our commits to the fork on GitHub we need to specify a destination. A destination is defined by the remote and a branch name. Earlier, the defined that the remote url of our fork is the same as our GitHub handle, in my case `digitalcraftsman`. The branch should have the same as our local one. This makes it easy to identify corresponding branches.
+To push our commits to the fork on GitHub we need to specify a destination. A destination is defined by the remote and a branch name. Earlier, the defined that the remote URL of our fork is the same as our GitHub handle, in my case `digitalcraftsman`. The branch should have the same as our local one. This makes it easy to identify corresponding branches.
 
-```
+```txt
 git push --set-upstream <YOUR-GITHUB-USERNAME> <BRANCHNAME>
 ```
 
@@ -402,7 +401,7 @@ Last but not least you should accept the contributor license agreement (CLA). A 
 
 ### Automatic builds
 
-We use a GitHub Actions workflow to build and test. This is a matrix build across combinations of operating system (masOS, Windows, and Ubuntu) and Go versions. The workflow is triggered by the submission of a pull request. If you are a first-time contributor, the workflow requires approval from a project maintainer.
+We use a GitHub Actions workflow to build and test. This is a matrix build across combinations of operating system (macOS, Windows, and Ubuntu) and Go versions. The workflow is triggered by the submission of a pull request. If you are a first-time contributor, the workflow requires approval from a project maintainer.
 
 ## Where to start?
 
@@ -417,18 +416,17 @@ Feel free to [open an issue][newissue] if you think you found a bug or you have 
 * [The Git Book][gitbook] (Free)
 * [Go Bootcamp][gobootcamp]
 
-
 [codecademy]: https://www.codecademy.com/learn/learn-git
 [contributors]: https://github.com/gohugoio/hugo/graphs/contributors
 [docscontrib]: /contribute/documentation/
 [forums]: https://discourse.gohugo.io
 [gitbook]: https://git-scm.com/
 [gobootcamp]: https://www.golangbootcamp.com/book/get_setup
-[godl]: https://golang.org/dl/
-[goinstall]: https://golang.org/doc/install
+[godl]: https://go.dev/dl/
+[goinstall]: https://go.dev/doc/install
 [gvm]: https://github.com/moovweb/gvm
 [issues]: https://github.com/gohugoio/hugo/issues
 [newissue]: https://github.com/gohugoio/hugo/issues/new
 [releases]: /getting-started/
-[setupgopath]: https://golang.org/doc/code.html#Workspaces
+[setupgopath]: https://go.dev/doc/code#Workspaces
 [trygit]: https://try.github.io/levels/1/challenges/1

@@ -4,7 +4,6 @@ linktitle: Host on Netlify
 description: Netlify can host your Hugo site with CDN, continuous deployment, 1-click HTTPS, an admin GUI, and its own CLI.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-03-11
 categories: [hosting and deployment]
 keywords: [netlify,hosting,deployment]
 authors: [Ryan Watters, Seth MacLeod]
@@ -14,7 +13,6 @@ menu:
     weight: 10
 weight: 10
 sections_weight: 10
-draft: false
 aliases: []
 toc: true
 ---
@@ -24,12 +22,12 @@ toc: true
 ## Assumptions
 
 * You have an account with GitHub, GitLab, or Bitbucket.
-* You have completed the [Quick Start][] or have a Hugo website you are ready to deploy and share with the world.
+* You have completed the [Quick Start] or have a Hugo website you are ready to deploy and share with the world.
 * You do not already have a Netlify account.
 
 ## Create a Netlify account
 
-Go to [app.netlify.com][] and select your preferred signup method. This will likely be a hosted Git provider, although you also have the option to sign up with an email address.
+Go to [app.netlify.com] and select your preferred signup method. This will likely be a hosted Git provider, although you also have the option to sign up with an email address.
 
 The following examples use GitHub, but other git providers will follow a similar process.
 
@@ -39,7 +37,7 @@ Selecting GitHub will bring up an authorization modal for authentication. Select
 
 ![Screenshot of the authorization popup for Netlify and GitHub.](/images/hosting-and-deployment/hosting-on-netlify/netlify-first-authorize.jpg)
 
-## Create a New Site with Continuous Deployment
+## Create a new site with continuous deployment
 
 You're now already a Netlify member and should be brought to your new dashboard. Select "New site from git."
 
@@ -57,9 +55,9 @@ Select the repo you want to use for continuous deployment. If you have a large n
 
 ![Screenshot of step 1 of create a new site for Netlify: selecting the git provider](/images/hosting-and-deployment/hosting-on-netlify/netlify-create-new-site-step-2.jpg)
 
-Once selected, you'll be brought to a screen for basic setup. Here you can select the branch you wanted published, your [build command][], and your publish (i.e. deploy) directory. The publish directory should mirror that of what you've set in your [site configuration][config], the default of which is `public`. The following steps assume you are publishing from the `master` branch.
+Once selected, you'll be brought to a screen for basic setup. Here you can select the branch you want to publish, your [build command], and your publish (i.e. deploy) directory. The publish directory should mirror that of what you've set in your [site configuration][config], the default of which is `public`. The following steps assume you are publishing from the `master` branch.
 
-## Configure Hugo Version in Netlify
+## Configure Hugo version in Netlify
 
 You can [set Hugo version](https://www.netlify.com/blog/2017/04/11/netlify-plus-hugo-0.20-and-beyond/) for your environments in `netlify.toml` file or set `HUGO_VERSION` as a build environment variable in the Netlify console.
 
@@ -67,14 +65,14 @@ For production:
 
 {{< code file="netlify.toml" codeLang="toml" >}}
 [context.production.environment]
-  HUGO_VERSION = "0.83.1"
+  HUGO_VERSION = "0.99.1"
 {{< /code >}}
 
 For testing:
 
 {{< code file="netlify.toml" codeLang="toml" >}}
 [context.deploy-preview.environment]
-  HUGO_VERSION = "0.83.1"
+  HUGO_VERSION = "0.99.1"
 {{< /code >}}
 
 The Netlify configuration file can be a little hard to understand and get right for the different environment, and you may get some inspiration and tips from this site's `netlify.toml`:
@@ -107,7 +105,7 @@ The [`git clone` method for installing themes][installthemes] is not supported b
 
 A *better* approach is to install a theme as a proper git submodule. You can [read the GitHub documentation for submodules][ghsm] or those found on [Git's website][gitsm] for more information, but the command is similar to that of `git clone`:
 
-```
+```txt
 cd themes
 git submodule add https://github.com/<THEMECREATOR>/<THEMENAME>
 ```
@@ -116,7 +114,7 @@ It is recommended to only use stable versions of a theme (if it’s versioned) a
 
 Switch to the theme's directory and list all available versions:
 
-```
+```txt
 cd themes/<theme>
 git tag
 # exit with q
@@ -124,24 +122,23 @@ git tag
 
 You can checkout a specific version as follows:
 
-```
+```txt
 git checkout tags/<version-name>
 ```
 
 You can update a theme to the latest version by executing the following command in the *root* directory of your project:
 
-```
+```txt
 git submodule update --rebase --remote
 ```
 
 ## Next Steps
 
-You now have a live website served over https, distributed through CDN, and configured for continuous deployment. Dig deeper into the Netlify documentation:
+You now have a live website served over HTTPS, distributed through CDN, and configured for continuous deployment. Dig deeper into the Netlify documentation:
 
-1. [Using a Custom Domain][]
+1. [Using a Custom Domain]
 2. [Setting up HTTPS on Custom Domains][httpscustom]
-3. [Redirects and Rewrite Rules][]
-
+3. [Redirects and Rewrite Rules]
 
 [app.netlify.com]: https://app.netlify.com
 [build command]: /getting-started/usage/#the-hugo-command

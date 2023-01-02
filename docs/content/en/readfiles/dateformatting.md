@@ -1,12 +1,12 @@
 Go templates [format your dates][time] according to a single reference time:
 
-```
+```txt
 Mon Jan 2 15:04:05 MST 2006
 ```
 
 You can think of `MST` as `07`, thus making the reference format string a sequence of numbers. The following is [taken directly from the Go docs][gdex]:
 
-```
+```txt
 Jan 2 15:04:05 2006 MST
   1 2  3  4  5    6  -7
 ```
@@ -15,9 +15,9 @@ Jan 2 15:04:05 2006 MST
 
 Each of the following examples show the reference formatting string followed by the string Hugo will output in your HTML.
 
-Note that the examples were rendered and tested in [CST][] and pull from a single example date you might have in your content's front matter:
+Note that the examples were rendered and tested in [CST] and pull from a single example date you might have in your content's front matter:
 
-```
+```yml
 date: 2017-03-03T14:15:59-06:00
 ```
 
@@ -60,13 +60,13 @@ Spelled-out cardinal numbers (e.g. "one", "two", and "three") and ordinal abbrev
 
 To continue with the example above:
 
-```
+```go-html-template
 {{.Date.Format "Jan 2nd 2006"}}
 ```
 
 Hugo assumes you want to append `nd` as a string to the day of the month and outputs the following:
 
-```
+```txt
 Mar 3nd 2017
 ```
 

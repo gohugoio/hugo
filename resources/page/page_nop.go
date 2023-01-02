@@ -348,6 +348,10 @@ func (p *nopPage) Parent() Page {
 	return nil
 }
 
+func (p *nopPage) Ancestors() Pages {
+	return nil
+}
+
 func (p *nopPage) Path() string {
 	return ""
 }

@@ -46,7 +46,7 @@ And since `Page` also provides a `.GetPage` method, the above is the same as:
 
 ## .GetPage and Multilingual Sites
 
-The previous examples have used the full content filename to lookup the post. Depending on how you have organized your content (whether you have the language code in the file name or not, e.g. `my-post.en.md`), you may want to do the lookup without extension. This will get you the current language's version of the page:
+The previous examples have used the full content filename to look up the post. Depending on how you have organized your content (whether you have the language code in the file name or not, e.g. `my-post.en.md`), you may want to do the lookup without extension. This will get you the current language's version of the page:
 
 ```go-html-template
 {{ with .Site.GetPage "/blog/my-post" }}{{ .Title }}{{ end }}
@@ -56,7 +56,7 @@ The previous examples have used the full content filename to lookup the post. De
 
 This code snippet---in the form of a [partial template][partials]---allows you to do the following:
 
-1. Grab the index object of your `tags` [taxonomy][].
+1. Grab the index object of your `tags` [taxonomy].
 2. Assign this object to a variable, `$t`
 3. Sort the terms associated with the taxonomy by popularity.
 4. Grab the top two most popular terms in the taxonomy (i.e., the two most popular tags assigned to content.

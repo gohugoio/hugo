@@ -18,10 +18,10 @@ import (
 	"html"
 	"html/template"
 
-	"github.com/alecthomas/chroma/v2/lexers"
 	"github.com/gohugoio/hugo/cache/namedmemcache"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/highlight"
+	"github.com/gohugoio/hugo/markup/highlight/chromalexers"
 	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/deps"
@@ -93,7 +93,7 @@ func (ns *Namespace) HighlightCodeBlock(ctx hooks.CodeblockContext, opts ...any)
 
 // CanHighlight returns whether the given code language is supported by the Chroma highlighter.
 func (ns *Namespace) CanHighlight(language string) bool {
-	return lexers.Get(language) != nil
+	return chromalexers.Get(language) != nil
 }
 
 // HTMLEscape returns a copy of s with reserved HTML characters escaped.

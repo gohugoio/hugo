@@ -16,7 +16,6 @@ aliases: [/privacy/,/gdpr/]
 toc: true
 ---
 
-
  General Data Protection Regulation ([GDPR](https://en.wikipedia.org/wiki/General_Data_Protection_Regulation)) is a regulation in EU law on data protection and privacy for all individuals within the European Union and the European Economic Area. It became enforceable on 25 May 2018.
 
  **Hugo is a static site generator. By using Hugo you are already standing on very solid ground. Static HTML files on disk are much easier to reason about compared to server and database driven web sites.**
@@ -95,6 +94,7 @@ useSessionStorage
 {{% warning %}}
 `useSessionStorage` is not supported when using Google Analytics v4 (gtag.js).
 {{% /warning %}}
+
 ### Instagram
 
 simple
@@ -116,8 +116,7 @@ enableDNT
 simple
 : If simple mode is enabled, a static and no-JS version of a tweet will be built.
 
-
-**Note:** If you use the _simple mode_ for Twitter, you may want to disable the inlines styles provided by Hugo:
+**Note:** If you use the _simple mode_ for Twitter, you may want to disable the inline styles provided by Hugo:
 
  {{< code-toggle file="config">}}
 [services]
@@ -137,4 +136,3 @@ enableDNT
 
 simple
 : If simple mode is enabled, the video thumbnail is fetched from Vimeo's servers and it is overlayed with a play button. If the user clicks to play the video, it will open in a new tab directly on Vimeo's website.
-

@@ -22,6 +22,8 @@ The `partialCached` template function can offer significant performance gains fo
 
 **Note:** Each Site (or language) has its own `partialCached` cache, so each site will execute a partial once.
 
+**Note**: Hugo renders pages in parallel, and will render the partial more than once with concurrent calls to the `partialCached` function. After Hugo caches the rendered partial, new pages entering the build pipeline will use the cached result.
+
 Here is the simplest usage:
 
 ```
@@ -43,4 +45,4 @@ If you need to pass additional parameters to create unique variants, you can pas
 Note that the variant parameters are not made available to the underlying partial template. They are only use to create a unique cache key. Since Hugo `0.61.0` you can use any object as cache key(s), not just strings.
 
 
-> See also the [The Full Partial Series Part 1: Caching!](https://regisphilibert.com/blog/2019/12/hugo-partial-series-part-1-caching-with-partialcached/)
+> See also [The Full Partial Series Part 1: Caching!](https://regisphilibert.com/blog/2019/12/hugo-partial-series-part-1-caching-with-partialcached/)

@@ -24,6 +24,7 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/text"
 
 	"github.com/gohugoio/hugo/config"
@@ -101,7 +102,7 @@ func (p *PathSpec) UnicodeSanitize(s string) string {
 	)
 
 	for i, r := range source {
-		isAllowed := r == '.' || r == '/' || r == '\\' || r == '_' || r == '#' || r == '+' || r == '~' || r == '-'
+		isAllowed := r == '.' || r == '/' || r == '\\' || r == '_' || r == '#' || r == '+' || r == '~' || r == '-' || r == '@'
 		isAllowed = isAllowed || unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r)
 		isAllowed = isAllowed || (r == '%' && i+2 < len(source) && ishex(source[i+1]) && ishex(source[i+2]))
 
@@ -378,7 +379,7 @@ func OpenFileForWriting(fs afero.Fs, filename string) (afero.File, error) {
 	// os.Create will create any new files with mode 0666 (before umask).
 	f, err := fs.Create(filename)
 	if err != nil {
-		if !os.IsNotExist(err) {
+		if !herrors.IsNotExist(err) {
 			return nil, err
 		}
 		if err = fs.MkdirAll(filepath.Dir(filename), 0777); err != nil { //  before umask

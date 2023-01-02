@@ -1,20 +1,16 @@
 ---
 title: Content Organization
-linktitle: Organization
+linkTitle: Organization
 description: Hugo assumes that the same structure that works to organize your source content is used to organize the rendered site.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [content management,fundamentals]
 keywords: [sections,content,organization,bundle,resources]
 menu:
   docs:
-    parent: "content-management"
-    weight: 10
-weight: 10	#rem
-draft: false
-aliases: [/content/sections/]
+    parent: content-management
+    weight: 20
 toc: true
+weight: 20
+aliases: [/content/sections/]
 ---
 
 ## Page Bundles
@@ -35,14 +31,13 @@ The bundle documentation is a **work in progress**. We will publish more compreh
 
 ## Organization of Content Source
 
-
 In Hugo, your content should be organized in a manner that reflects the rendered website.
 
-While Hugo supports content nested at any level, the top levels (i.e. `content/<DIRECTORIES>`) are special in Hugo and are considered the content type used to determine layouts etc. To read more about sections, including how to nest them, see [sections][].
+While Hugo supports content nested at any level, the top levels (i.e. `content/<DIRECTORIES>`) are special in Hugo and are considered the content type used to determine layouts etc. To read more about sections, including how to nest them, see [sections].
 
 Without any additional configuration, the following will automatically work:
 
-```
+```txt
 .
 └── content
     └── about
@@ -64,7 +59,7 @@ The following demonstrates the relationships between your content organization a
 
 ### Index Pages: `_index.md`
 
-`_index.md` has a special role in Hugo. It allows you to add front matter and content to your [list templates][lists]. These templates include those for [section templates][], [taxonomy templates][], [taxonomy terms templates][], and your [homepage template][].
+`_index.md` has a special role in Hugo. It allows you to add front matter and content to your [list templates][lists]. These templates include those for [section templates], [taxonomy templates], [taxonomy terms templates], and your [homepage template].
 
 {{% note %}}
 **Tip:** You can get a reference to the content and metadata in `_index.md` using the [`.Site.GetPage` function](/functions/getpage/).
@@ -73,7 +68,7 @@ The following demonstrates the relationships between your content organization a
 You can create one `_index.md` for your homepage and one in each of your content sections, taxonomies, and taxonomy terms. The following shows typical placement of an `_index.md` that would contain content and front matter for a `posts` section list page on a Hugo website:
 
 
-```
+```txt
 .         url
 .       ⊢--^-⊣
 .        path    slug
@@ -85,7 +80,7 @@ content/posts/_index.md
 
 At build, this will output to the following destination with the associated values:
 
-```
+```txt
 
                      url ("/posts/")
                     ⊢-^-⊣
@@ -104,7 +99,7 @@ The [sections] can be nested as deeply as you want. The important thing to under
 Single content files in each of your sections will be rendered as [single page templates][singles]. Here is an example of a single `post` within `posts`:
 
 
-```
+```txt
                    path ("posts/my-first-hugo-post.md")
 .       ⊢-----------^------------⊣
 .      section        slug
@@ -114,7 +109,7 @@ content/posts/my-first-hugo-post.md
 
 When Hugo builds your site, the content will be output to the following destination:
 
-```
+```txt
 
                                url ("/posts/my-first-hugo-post/")
                    ⊢------------^----------⊣
@@ -180,7 +175,7 @@ slug: "new-post"
 
 This will render to the following destination according to Hugo's default behavior:
 
-```
+```txt
 example.com/posts/new-post/
 ```
 
@@ -217,7 +212,7 @@ url: /blog/new-url/
 
 Assuming your `baseURL` is [configured][config] to `https://example.com`, the addition of `url` to the front matter will make `old-url.md` render to the following destination:
 
-```
+```txt
 https://example.com/blog/new-url/
 ```
 

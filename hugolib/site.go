@@ -20,7 +20,6 @@ import (
 	"log"
 	"mime"
 	"net/url"
-	"os"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -30,6 +29,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/types"
@@ -90,16 +90,16 @@ import (
 //
 // 1. A list of Files is parsed and then converted into Pages.
 //
-// 2. Pages contain sections (based on the file they were generated from),
-//    aliases and slugs (included in a pages frontmatter) which are the
-//    various targets that will get generated.  There will be canonical
-//    listing.  The canonical path can be overruled based on a pattern.
+//  2. Pages contain sections (based on the file they were generated from),
+//     aliases and slugs (included in a pages frontmatter) which are the
+//     various targets that will get generated.  There will be canonical
+//     listing.  The canonical path can be overruled based on a pattern.
 //
-// 3. Taxonomies are created via configuration and will present some aspect of
-//    the final page and typically a perm url.
+//  3. Taxonomies are created via configuration and will present some aspect of
+//     the final page and typically a perm url.
 //
-// 4. All Pages are passed through a template based on their desired
-//    layout based on numerous different elements.
+//  4. All Pages are passed through a template based on their desired
+//     layout based on numerous different elements.
 //
 // 5. The entire collection of files is written to disk.
 type Site struct {
@@ -954,7 +954,7 @@ func (s *Site) filterFileEvents(events []fsnotify.Event) []fsnotify.Event {
 
 		// Throw away any directories
 		isRegular, err := s.SourceSpec.IsRegularSourceFile(ev.Name)
-		if err != nil && os.IsNotExist(err) && (ev.Op&fsnotify.Remove == fsnotify.Remove || ev.Op&fsnotify.Rename == fsnotify.Rename) {
+		if err != nil && herrors.IsNotExist(err) && (ev.Op&fsnotify.Remove == fsnotify.Remove || ev.Op&fsnotify.Rename == fsnotify.Rename) {
 			// Force keep of event
 			isRegular = true
 		}

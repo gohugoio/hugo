@@ -33,10 +33,10 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/markup/converter/hooks"
+	"github.com/gohugoio/hugo/markup/highlight/chromalexers"
 
 	"github.com/gohugoio/hugo/markup/converter"
 
-	"github.com/alecthomas/chroma/v2/lexers"
 	"github.com/gohugoio/hugo/lazy"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
@@ -545,7 +545,7 @@ func (p *pageContentOutput) initRenderHooks() error {
 				layoutDescriptor.Kind = "render-codeblock"
 				if id != nil {
 					lang := id.(string)
-					lexer := lexers.Get(lang)
+					lexer := chromalexers.Get(lang)
 					if lexer != nil {
 						layoutDescriptor.KindVariants = strings.Join(lexer.Config().Aliases, ",")
 					} else {

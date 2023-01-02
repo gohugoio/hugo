@@ -63,6 +63,7 @@ func TestPermalink(t *testing.T) {
 	}
 
 	for i, test := range tests {
+		i := i
 		test := test
 		t.Run(fmt.Sprintf("%s-%d", test.file, i), func(t *testing.T) {
 			t.Parallel()

@@ -32,9 +32,9 @@ func init() {
 		ns.AddMethodMapping(ctx.Dump,
 			nil,
 			[][2]string{
-				{`{{- $m := newScratch -}}
-{{- $m.Set "Hugo" "Rocks!" -}}
-{{- $m.Values | debug.Dump | safeHTML -}}`, "map[string]interface {}{\n  \"Hugo\": \"Rocks!\",\n}"},
+				{`{{ $m := newScratch }}
+{{ $m.Set "Hugo" "Rocks!" }}
+{{ $m.Values | debug.Dump | safeHTML }}`, "map[string]interface {}{\n  \"Hugo\": \"Rocks!\",\n}"},
 			},
 		)
 

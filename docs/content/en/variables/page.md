@@ -4,7 +4,6 @@ linktitle:
 description: Page-level variables are defined in a content file's front matter, derived from the content's file location, or extracted from the content body itself.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [variables and params]
 keywords: [pages]
 draft: false
@@ -33,6 +32,9 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 .Aliases
 : aliases of this page
 
+.Ancestors
+: get the ancestors of each page, simplify [breadcrumb navigation]({{< relref "content-management/sections#example-breadcrumb-navigation" >}}) implementation complexity  
+
 .BundleType
 : the [bundle] type: `leaf`, `branch`, or an empty string if the page is not a bundle.
 
@@ -55,7 +57,7 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 : the date on which the content is scheduled to expire; `.ExpiryDate` pulls from the `expirydate` field in a content's front matter. See also `.PublishDate`, `.Date`, and `.Lastmod`.
 
 .File
-: filesystem-related data for this content file. See also [File Variables][].
+: filesystem-related data for this content file. See also [File Variables].
 
 .FuzzyWordCount
 : the approximate number of words in the content.
@@ -106,16 +108,16 @@ See also `.ExpiryDate`, `.Date`, `.PublishDate`, and [`.GitInfo`][gitinfo].
 
 .Pages
 : a collection of associated pages. This value will be `nil` within
-  the context of regular content pages. See [`.Pages`](#pages).
+  the context of regular content pages. See [`.Pages`]({{< relref "page.md#pages" >}}).
 
 .Permalink
 : the Permanent link for this page; see [Permalinks](/content-management/urls/)
 
 .Plain
-: the Page content stripped of HTML tags and presented as a string.
+: the Page content stripped of HTML tags and presented as a string. You may need to pipe the result through the [`htmlUnescape`](/functions/htmlunescape/) function when rendering this value with the HTML [output format](/templates/output-formats#output-format-definitions).
 
 .PlainWords
-: the slice of strings that results from splitting .Plain into words, as defined in Go's [strings.Fields](https://golang.org/pkg/strings/#Fields).
+: the slice of strings that results from splitting .Plain into words, as defined in Go's [strings.Fields](https://pkg.go.dev/strings#Fields).
 
 .Prev
 : Points down to the previous [regular page](/variables/site/#site-pages) (sorted by Hugo's [default sort](/templates/lists#default-weight--date--linktitle--filepath)). Example: `{{if .Prev}}{{.Prev.Permalink}}{{end}}`.  Calling `.Prev` from the last page returns `nil`.
@@ -201,7 +203,7 @@ aliased form `.Pages`.
 
 Any other value defined in the front matter in a content file, including taxonomies, will be made available as part of the `.Params` variable.
 
-```
+```yml
 ---
 title: My First Post
 date: 2017-02-20T15:26:23-06:00
@@ -220,7 +222,7 @@ Page-level `.Params` are *only* accessible in lowercase.
 
 The `.Params` variable is particularly useful for the introduction of user-defined front matter fields in content files. For example, a Hugo website on book reviews could have the following front matter in `/content/review/book01.md`:
 
-```
+```yml
 ---
 ...
 affiliatelink: "http://www.my-book-link.here"
@@ -253,7 +255,7 @@ See [Archetypes](/content-management/archetypes/) for consistency of `Params` ac
 
 In Hugo, you can declare params in individual pages and globally for your entire website. A common use case is to have a general value for the site param and a more specific value for some of the pages (i.e., a header image):
 
-```
+```go-html-template
 {{ $.Param "header_image" }}
 ```
 
@@ -263,7 +265,7 @@ The `.Param` method provides a way to resolve a single value according to it's d
 
 When front matter contains nested fields like the following:
 
-```
+```yml
 ---
 author:
   given_name: John
@@ -273,13 +275,13 @@ author:
 ```
 `.Param` can access these fields by concatenating the field names together with a dot:
 
-```
+```go-html-template
 {{ $.Param "author.display_name" }}
 ```
 
 If your front matter contains a top-level key that is ambiguous with a nested key, as in the following case:
 
-```
+```yml
 ---
 favorites.flavor: vanilla
 favorites:
@@ -289,7 +291,7 @@ favorites:
 
 The top-level key will be preferred. Therefore, the following method, when applied to the previous example, will print `vanilla` and not `chocolate`:
 
-```
+```txt
 {{ $.Param "favorites.flavor" }}
 => vanilla
 ```

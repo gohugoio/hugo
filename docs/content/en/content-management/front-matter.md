@@ -1,23 +1,20 @@
 ---
 title: Front Matter
-linktitle:
+linkTitle: Front Matter
 description: Hugo allows you to add front matter in yaml, toml, or json to your content files.
-date: 2017-01-09
-publishdate: 2017-01-09
 lastmod: 2017-02-24
 categories: [content management]
 keywords: ["front matter", "yaml", "toml", "json", "metadata", "archetypes"]
 menu:
   docs:
-    parent: "content-management"
-    weight: 30
-weight: 30	#rem
-draft: false
-aliases: [/content/front-matter/]
+    parent: content-management
+    weight: 60
 toc: true
+weight: 60
+aliases: [/content/front-matter/]
 ---
 
-**Front matter** allows you to keep metadata attached to an instance of a [content type][]---i.e., embedded inside a content file---and is one of the many features that gives Hugo its strength.
+**Front matter** allows you to keep metadata attached to an instance of a [content type]---i.e., embedded inside a content file---and is one of the many features that gives Hugo its strength.
 
 {{< youtube Yh2xKRJGff4 >}}
 
@@ -68,7 +65,7 @@ cascade
 : a map of Front Matter keys whose values are passed down to the page's descendants unless overwritten by self or a closer ancestor's cascade. See [Front Matter Cascade](#front-matter-cascade) for details.
 
 date
-: the datetime assigned to this page. This is usually fetched from the `date` field in front matter, but this behaviour is configurable.
+: the datetime assigned to this page. This is usually fetched from the `date` field in front matter, but this behavior is configurable.
 
 description
 : the description for the content.
@@ -125,7 +122,7 @@ title
 : the title for the content.
 
 type
-: the type of the content; this value will be automatically derived from the directory (i.e., the [section][]) if not specified in front matter.
+: the type of the content; this value will be automatically derived from the directory (i.e., the [section]) if not specified in front matter.
 
 url
 : the full path to the content from the web root. It makes no assumptions about the path of the content file. See [URL Management](/content-management/urls/#set-url-in-front-matter).
@@ -137,7 +134,7 @@ weight
 : used for [ordering your content in lists][ordering]. Lower weight gets higher precedence. So content with lower weight will come first. If set, weights should be non-zero, as 0 is interpreted as an *unset* weight.
 
 \<taxonomies\>
-: field name of the *plural* form of the index. See `tags` and `categories` in the above front matter examples. _Note that the plural form of user-defined taxonomies cannot be the same as any of the predefined front matter variables._
+: field name of the *plural* form of the index. See `tags` and `categories` in the above front matter examples. *Note that the plural form of user-defined taxonomies cannot be the same as any of the predefined front matter variables.*
 
 {{% note "Hugo's Default URL Destinations" %}}
 If neither `slug` nor `url` is present and [permalinks are not configured otherwise in your site `config` file](/content-management/urls/#permalinks), Hugo will use the filename of your content to create the output URL. See [Content Organization](/content-management/organization) for an explanation of paths in Hugo and [URL Management](/content-management/urls/) for ways to customize Hugo's default behaviors.
@@ -147,7 +144,7 @@ If neither `slug` nor `url` is present and [permalinks are not configured otherw
 
 You can add fields to your front matter arbitrarily to meet your needs. These user-defined key-values are placed into a single `.Params` variable for use in your templates.
 
-The following fields can be accessed via `.Params.include_toc` and `.Params.show_comments`, respectively. The [Variables][] section provides more information on using Hugo's page- and site-level variables in your templates.
+The following fields can be accessed via `.Params.include_toc` and `.Params.show_comments`, respectively. The [Variables] section provides more information on using Hugo's page- and site-level variables in your templates.
 
 {{< code-toggle copy="false" >}}
 include_toc: true
@@ -160,9 +157,7 @@ Any node or section can pass down to descendants a set of Front Matter values as
 
 ### Target Specific Pages
 
-{{< new-in "0.76.0" >}}
-
-Since Hugo 0.76 the `cascade` block can be a slice with a optional `_target` keyword, allowing for multiple `cascade` values targeting different page sets.
+The `cascade` block can be a slice with a optional `_target` keyword, allowing for multiple `cascade` values targeting different page sets.
 
 {{< code-toggle copy="false" >}}
 title ="Blog"
@@ -181,7 +176,7 @@ kind="section"
 Keywords available for `_target`:
 
 path
-: A [Glob](https://github.com/gobwas/glob) pattern matching the content path below /content. Expects Unix-styled slashes. Note that this is the virtual path, so it starts at the mount root. The matching support double-asterisks so you can match for patterns like `/blog/*/**` to match anything from the third level and down.
+: A [Glob](https://github.com/gobwas/glob) pattern matching the content path below /content. Expects Unix-styled slashes. Note that this is the virtual path, so it starts at the mount root. The matching supports double-asterisks so you can match for patterns like `/blog/*/**` to match anything from the third level and down.
 
 kind
 : A Glob pattern matching the Page's Kind(s), e.g. "{home,section}".
@@ -192,7 +187,7 @@ lang
 environment
 : A Glob pattern matching the build environment, e.g. "{production,development}"
 
-Any of the above can be omitted. 
+Any of the above can be omitted.
 
 ### Example
 
@@ -206,10 +201,8 @@ cascade:
 
 With the above example the Blog section page and its descendants will return `images/typewriter.jpg` when `.Params.banner` is invoked unless:
 
-- Said descendant has its own `banner` value set 
+- Said descendant has its own `banner` value set
 - Or a closer ancestor node has its own `cascade.banner` value set.
-
-
 
 ## Order Content Through Front Matter
 
@@ -221,9 +214,9 @@ It's possible to set some options for Markdown rendering in a content's front ma
 
 ## Front Matter Format Specs
 
-* [TOML Spec][toml]
-* [YAML Spec][yaml]
-* [JSON Spec][json]
+- [TOML Spec][toml]
+- [YAML Spec][yaml]
+- [JSON Spec][json]
 
 [variables]: /variables/
 [aliases]: /content-management/urls/#aliases

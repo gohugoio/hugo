@@ -28,6 +28,7 @@ import (
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugofs/glob"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -295,15 +296,15 @@ func (s SourceFilesystems) StaticFs(lang string) afero.Fs {
 
 // StatResource looks for a resource in these filesystems in order: static, assets and finally content.
 // If found in any of them, it returns FileInfo and the relevant filesystem.
-// Any non os.IsNotExist error will be returned.
-// An os.IsNotExist error wil be returned only if all filesystems return such an error.
+// Any non herrors.IsNotExist error will be returned.
+// An herrors.IsNotExist error wil be returned only if all filesystems return such an error.
 // Note that if we only wanted to find the file, we could create a composite Afero fs,
 // but we also need to know which filesystem root it lives in.
 func (s SourceFilesystems) StatResource(lang, filename string) (fi os.FileInfo, fs afero.Fs, err error) {
 	for _, fsToCheck := range []afero.Fs{s.StaticFs(lang), s.Assets.Fs, s.Content.Fs} {
 		fs = fsToCheck
 		fi, err = fs.Stat(filename)
-		if err == nil || !os.IsNotExist(err) {
+		if err == nil || !herrors.IsNotExist(err) {
 			return
 		}
 	}

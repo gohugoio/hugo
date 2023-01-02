@@ -24,6 +24,7 @@ import (
 )
 
 func TestTransformIncludePaths(t *testing.T) {
+	t.Parallel()
 	if !dartsass.Supports() {
 		t.Skip()
 	}
@@ -55,6 +56,7 @@ T1: {{ $r.Content }}
 }
 
 func TestTransformImportRegularCSS(t *testing.T) {
+	t.Parallel()
 	if !dartsass.Supports() {
 		t.Skip()
 	}
@@ -108,6 +110,7 @@ T1: {{ $r.Content | safeHTML }}
 }
 
 func TestTransformThemeOverrides(t *testing.T) {
+	t.Parallel()
 	if !dartsass.Supports() {
 		t.Skip()
 	}
@@ -169,6 +172,7 @@ zoo {
 }
 
 func TestTransformLogging(t *testing.T) {
+	t.Parallel()
 	if !dartsass.Supports() {
 		t.Skip()
 	}
@@ -200,6 +204,7 @@ T1: {{ $r.Content }}
 }
 
 func TestTransformErrors(t *testing.T) {
+	t.Parallel()
 	if !dartsass.Supports() {
 		t.Skip()
 	}
@@ -270,4 +275,96 @@ T1: {{ $r.Content }}
 
 	})
 
+}
+
+func TestOptionVars(t *testing.T) {
+	t.Parallel()
+	if !dartsass.Supports() {
+		t.Skip()
+	}
+
+	files := `
+-- assets/scss/main.scss --
+@use "hugo:vars";
+
+body {
+	body {
+		background: url(vars.$image) no-repeat center/cover;
+		font-family: vars.$font;
+	  }	  
+}
+
+p {
+	color: vars.$color1;
+	font-size: vars.$font_size;
+}
+
+b {
+	color: vars.$color2;
+}
+-- layouts/index.html --
+{{ $image := "images/hero.jpg" }}
+{{ $font := "Hugo's New Roman" }}
+{{ $vars := dict "$color1" "blue" "$color2" "green" "font_size" "24px" "image" $image "font" $font }}
+{{ $cssOpts := (dict "transpiler" "dartsass" "outputStyle" "compressed" "vars" $vars ) }}
+{{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts }}
+T1: {{ $r.Content }}
+	`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   true,
+		}).Build()
+
+	b.AssertFileContent("public/index.html", `T1: body body{background:url(images/hero.jpg) no-repeat center/cover;font-family:Hugo&#39;s New Roman}p{color:blue;font-size:24px}b{color:green}`)
+}
+
+func TestOptionVarsParams(t *testing.T) {
+	t.Parallel()
+	if !dartsass.Supports() {
+		t.Skip()
+	}
+
+	files := `
+-- config.toml --
+[params]
+[params.sassvars]
+color1 = "blue"
+color2 = "green"
+font_size = "24px"
+image = "images/hero.jpg"
+-- assets/scss/main.scss --
+@use "hugo:vars";
+
+body {
+	body {
+		background: url(vars.$image) no-repeat center/cover;
+	  }	  
+}
+
+p {
+	color: vars.$color1;
+	font-size: vars.$font_size;
+}
+
+b {
+	color: vars.$color2;
+}
+-- layouts/index.html --
+{{ $vars := site.Params.sassvars}}
+{{ $cssOpts := (dict "transpiler" "dartsass" "outputStyle" "compressed" "vars" $vars ) }}
+{{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts }}
+T1: {{ $r.Content }}
+	`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   true,
+		}).Build()
+
+	b.AssertFileContent("public/index.html", `T1: body body{background:url(images/hero.jpg) no-repeat center/cover}p{color:blue;font-size:24px}b{color:green}`)
 }

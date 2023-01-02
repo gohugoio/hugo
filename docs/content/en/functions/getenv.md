@@ -41,3 +41,6 @@ And then retrieve the values within a template:
 {{ os.Getenv "MY_VAR1" }} --> foo
 {{ os.Getenv "MY_VAR2" }} --> bar
 ```
+
+With Hugo v0.91.0 and later, you must explicitly allow access to environment variables. For details, review [Hugo's Security Policy](/about/security-model/#security-policy). By default, environment variables beginning with `HUGO_` are allowed when using the `os.Getenv` function.
+

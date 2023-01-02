@@ -1,20 +1,16 @@
 ---
 title: Table of Contents
-linktitle:
+linkTitle: Table of Contents
 description: Hugo can automatically parse Markdown content and create a Table of Contents you can use in your templates.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [content management]
 keywords: [table of contents, toc]
 menu:
   docs:
-    parent: "content-management"
-    weight: 130
-weight: 130	#rem
-draft: false
-aliases: [/extras/toc/]
+    parent: content-management
+    weight: 210
 toc: true
+weight: 210
+aliases: [/extras/toc/]
 ---
 
 {{% note "TOC Heading Levels are Fixed" %}}
@@ -27,9 +23,9 @@ Hugo [v0.60.0](https://github.com/gohugoio/hugo/releases/tag/v0.60.0) made a swi
 
 ## Usage
 
-Create your markdown the way you normally would with the appropriate headings. Here is some example content:
+Create your Markdown the way you normally would with the appropriate headings. Here is some example content:
 
-```
+```md
 <!-- Your front matter up here -->
 
 ## Introduction
@@ -51,7 +47,7 @@ The built-in `.TableOfContents` variables outputs a `<nav id="TableOfContents">`
 
 ## Template Example: Basic TOC
 
-The following is an example of a very basic [single page template][]:
+The following is an example of a very basic [single page template]:
 
 {{< code file="layout/_default/single.html" download="single.html" >}}
 {{ define "main" }}
@@ -71,7 +67,7 @@ The following is an example of a very basic [single page template][]:
 
 ## Template Example: TOC Partial
 
-The following is a [partial template][partials] that adds slightly more logic for page-level control over your table of contents. It assumes you are using a `toc` field in your content's [front matter][] that, unless specifically set to `false`, will add a TOC to any page with a `.WordCount` (see [Page Variables][pagevars]) greater than 400. This example also demonstrates how to use [conditionals][] in your templating:
+The following is a [partial template][partials] that adds slightly more logic for page-level control over your table of contents. It assumes you are using a `toc` field in your content's [front matter] that, unless specifically set to `false`, will add a TOC to any page with a `.WordCount` (see [Page Variables][pagevars]) greater than 400. This example also demonstrates how to use [conditionals] in your templating:
 
 {{< code file="layouts/partials/toc.html" download="toc.html" >}}
 {{ if and (gt .WordCount 400 ) (.Params.toc) }}

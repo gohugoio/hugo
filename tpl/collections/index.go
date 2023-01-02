@@ -27,20 +27,16 @@ import (
 // arguments. Thus "index x 1 2 3" is, in Go syntax, x[1][2][3]. Each
 // indexed item must be a map, slice, or array.
 //
-// Copied from Go stdlib src/text/template/funcs.go.
+// Adapted from Go stdlib src/text/template/funcs.go.
 //
-// We deviate from the stdlib due to https://github.com/golang/go/issues/14751.
-//
-// TODO(moorereason): merge upstream changes.
+// We deviate from the stdlib mostly because of https://github.com/golang/go/issues/14751.
 func (ns *Namespace) Index(item any, args ...any) (any, error) {
+	// TODO(moorereason): merge upstream changes.
 	v := reflect.ValueOf(item)
 	if !v.IsValid() {
-		return nil, errors.New("index of untyped nil")
-	}
-
-	lowerm, ok := item.(maps.Params)
-	if ok {
-		return lowerm.Get(cast.ToStringSlice(args)...), nil
+		// See issue 10489
+		// This used to be an error.
+		return nil, nil
 	}
 
 	var indices []any
@@ -51,18 +47,25 @@ func (ns *Namespace) Index(item any, args ...any) (any, error) {
 			for i := 0; i < v.Len(); i++ {
 				indices = append(indices, v.Index(i).Interface())
 			}
+		} else {
+			indices = append(indices, args[0])
 		}
+	} else {
+		indices = args
 	}
 
-	if indices == nil {
-		indices = args
+	lowerm, ok := item.(maps.Params)
+	if ok {
+		return lowerm.Get(cast.ToStringSlice(indices)...), nil
 	}
 
 	for _, i := range indices {
 		index := reflect.ValueOf(i)
 		var isNil bool
 		if v, isNil = indirect(v); isNil {
-			return nil, errors.New("index of nil pointer")
+			// See issue 10489
+			// This used to be an error.
+			return nil, nil
 		}
 		switch v.Kind() {
 		case reflect.Array, reflect.Slice, reflect.String:

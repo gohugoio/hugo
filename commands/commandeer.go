@@ -383,7 +383,7 @@ func (c *commandeer) loadConfig() error {
 
 	// Set some commonly used flags
 	c.doLiveReload = c.running && !c.Cfg.GetBool("disableLiveReload")
-	c.fastRenderMode = c.doLiveReload && !c.Cfg.GetBool("disableFastRender")
+	c.fastRenderMode = c.running && !c.Cfg.GetBool("disableFastRender")
 	c.showErrorInBrowser = c.doLiveReload && !c.Cfg.GetBool("disableBrowserError")
 
 	// This is potentially double work, but we need to do this one more time now
@@ -408,6 +408,9 @@ func (c *commandeer) loadConfig() error {
 
 	createMemFs := config.GetBool("renderToMemory")
 	c.renderStaticToDisk = config.GetBool("renderStaticToDisk")
+	// TODO(bep) we/I really need to look at the config set up, but to prevent changing too much
+	// we store away the original.
+	config.Set("publishDirOrig", config.GetString("publishDir"))
 
 	if createMemFs {
 		// Rendering to memoryFS, publish to Root regardless of publishDir.

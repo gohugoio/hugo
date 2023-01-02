@@ -59,7 +59,7 @@ It is important to note that all `_index.md` content files will render according
 
 The following is an example of a typical Hugo project directory's content:
 
-```
+```txt
 .
 ...
 ├── content
@@ -199,7 +199,7 @@ This list template has been modified slightly from a template originally used in
 
 ## Order Content
 
-Hugo lists render the content based on metadata you provide in [front matter][]. In addition to sane defaults, Hugo also ships with multiple methods to make quick work of ordering content inside list templates:
+Hugo lists render the content based on metadata you provide in [front matter]. In addition to sane defaults, Hugo also ships with multiple methods to make quick work of ordering content inside list templates:
 
 ### Default: Weight > Date > LinkTitle > FilePath
 
@@ -499,7 +499,7 @@ In the above example, you may want `{{.Title}}` to point the `title` field you h
 
 ### By Page Parameter in Date Format
 
-The following template takes grouping by `date` a step further and uses Go's layout string. See the [`Format` function][] for more examples of how to use Go's layout string to format dates in Hugo.
+The following template takes grouping by `date` a step further and uses Go's layout string. See the [`Format` function] for more examples of how to use Go's layout string to format dates in Hugo.
 
 {{< code file="layouts/partials/by-page-param-as-date.html" >}}
 <!-- Groups content by month according to the "param_key" field in front matter -->
@@ -524,27 +524,27 @@ While these are logical defaults, they are not always the desired order. There a
 
 #### 1. Adding the Reverse Method
 
-```
+```go-html-template
 {{ range (.Pages.GroupBy "Section").Reverse }}
 ```
 
-```
+```go-html-template
 {{ range (.Pages.GroupByDate "2006-01").Reverse }}
 ```
 
 #### 2. Providing the Alternate Direction
 
-```
+```go-html-template
 {{ range .Pages.GroupByDate "2006-01" "asc" }}
 ```
 
-```
+```go-html-template
 {{ range .Pages.GroupBy "Section" "desc" }}
 ```
 
 ### Order Within Groups
 
-Because Grouping returns a `{{.Key}}` and a slice of pages, all of the ordering methods listed above are available.
+Because Grouping returns a `{{.Key}}` and a slice of pages, all the ordering methods listed above are available.
 
 Here is the ordering for the example that follows:
 

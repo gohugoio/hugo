@@ -41,7 +41,7 @@ Variables are denoted by capitalized text set within `<>`. Note that Hugo's defa
 
 ### Example Base Template Lookup Order
 
-As an example, let's assume your site is using a theme called "mytheme" when rendering the section list for a `posts` section. Hugo picks `layout/section/posts.html` as the template for [rendering the section][]. The `{{define}}` block in this template tells Hugo that the template is an extension of a base template.
+As an example, let's assume your site is using a theme called "mytheme" when rendering the section list for a `posts` section. Hugo picks `layout/section/posts.html` as the template for [rendering the section]. The `{{define}}` block in this template tells Hugo that the template is an extension of a base template.
 
 Here is the lookup order for the `posts` base template:
 
