@@ -17,7 +17,6 @@ import (
 	"fmt"
 	"sort"
 	"strings"
-	"sync"
 
 	"github.com/gohugoio/hugo/common/types"
 
@@ -25,16 +24,66 @@ import (
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cast"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
-var DefaultBuild = Build{
+type BaseConfig struct {
+	WorkingDir string
+	CacheDir   string
+	ThemesDir  string
+	PublishDir string
+}
+
+type CommonDirs struct {
+	// The directory where Hugo will look for themes.
+	ThemesDir string
+
+	// Where to put the generated files.
+	PublishDir string
+
+	// The directory to put the generated resources files. This directory should in most situations be considered temporary
+	// and not be committed to version control. But there may be cached content in here that you want to keep,
+	// e.g. resources/_gen/images for performance reasons or CSS built from SASS when your CI server doesn't have the full setup.
+	ResourceDir string
+
+	// The project root directory.
+	WorkingDir string
+
+	// The root directory for all cache files.
+	CacheDir string
+
+	// The content source directory.
+	// Deprecated: Use module mounts.
+	ContentDir string
+	// Deprecated: Use module mounts.
+	// The data source directory.
+	DataDir string
+	// Deprecated: Use module mounts.
+	// The layout source directory.
+	LayoutDir string
+	// Deprecated: Use module mounts.
+	// The i18n source directory.
+	I18nDir string
+	// Deprecated: Use module mounts.
+	// The archetypes source directory.
+	ArcheTypeDir string
+	// Deprecated: Use module mounts.
+	// The assets source directory.
+	AssetDir string
+}
+
+type LoadConfigResult struct {
+	Cfg         Provider
+	ConfigFiles []string
+	BaseConfig  BaseConfig
+}
+
+var DefaultBuild = BuildConfig{
 	UseResourceCacheWhen: "fallback",
 	WriteStats:           false,
 }
 
-// Build holds some build related configuration.
-type Build struct {
+// BuildConfig holds some build related configuration.
+type BuildConfig struct {
 	UseResourceCacheWhen string // never, fallback, always. Default is fallback
 
 	// When enabled, will collect and write a hugo_stats.json with some build
@@ -46,7 +95,7 @@ type Build struct {
 	NoJSConfigInAssets bool
 }
 
-func (b Build) UseResourceCache(err error) bool {
+func (b BuildConfig) UseResourceCache(err error) bool {
 	if b.UseResourceCacheWhen == "never" {
 		return false
 	}
@@ -58,7 +107,7 @@ func (b Build) UseResourceCache(err error) bool {
 	return true
 }
 
-func DecodeBuild(cfg Provider) Build {
+func DecodeBuildConfig(cfg Provider) BuildConfig {
 	m := cfg.GetStringMap("build")
 	b := DefaultBuild
 	if m == nil {
@@ -79,28 +128,19 @@ func DecodeBuild(cfg Provider) Build {
 	return b
 }
 
-// Sitemap configures the sitemap to be generated.
-type Sitemap struct {
+// SitemapConfig configures the sitemap to be generated.
+type SitemapConfig struct {
+	// The page change frequency.
 	ChangeFreq string
-	Priority   float64
-	Filename   string
+	// The priority of the page.
+	Priority float64
+	// The sitemap filename.
+	Filename string
 }
 
-func DecodeSitemap(prototype Sitemap, input map[string]any) Sitemap {
-	for key, value := range input {
-		switch key {
-		case "changefreq":
-			prototype.ChangeFreq = cast.ToString(value)
-		case "priority":
-			prototype.Priority = cast.ToFloat64(value)
-		case "filename":
-			prototype.Filename = cast.ToString(value)
-		default:
-			jww.WARN.Printf("Unknown Sitemap field: %s\n", key)
-		}
-	}
-
-	return prototype
+func DecodeSitemap(prototype SitemapConfig, input map[string]any) (SitemapConfig, error) {
+	err := mapstructure.WeakDecode(input, &prototype)
+	return prototype, err
 }
 
 // Config for the dev server.
@@ -108,25 +148,24 @@ type Server struct {
 	Headers   []Headers
 	Redirects []Redirect
 
-	compiledInit      sync.Once
 	compiledHeaders   []glob.Glob
 	compiledRedirects []glob.Glob
 }
 
-func (s *Server) init() {
-	s.compiledInit.Do(func() {
-		for _, h := range s.Headers {
-			s.compiledHeaders = append(s.compiledHeaders, glob.MustCompile(h.For))
-		}
-		for _, r := range s.Redirects {
-			s.compiledRedirects = append(s.compiledRedirects, glob.MustCompile(r.From))
-		}
-	})
+func (s *Server) CompileConfig() error {
+	if s.compiledHeaders != nil {
+		return nil
+	}
+	for _, h := range s.Headers {
+		s.compiledHeaders = append(s.compiledHeaders, glob.MustCompile(h.For))
+	}
+	for _, r := range s.Redirects {
+		s.compiledRedirects = append(s.compiledRedirects, glob.MustCompile(r.From))
+	}
+	return nil
 }
 
 func (s *Server) MatchHeaders(pattern string) []types.KeyValueStr {
-	s.init()
-
 	if s.compiledHeaders == nil {
 		return nil
 	}
@@ -150,8 +189,6 @@ func (s *Server) MatchHeaders(pattern string) []types.KeyValueStr {
 }
 
 func (s *Server) MatchRedirect(pattern string) Redirect {
-	s.init()
-
 	if s.compiledRedirects == nil {
 		return Redirect{}
 	}
@@ -195,14 +232,10 @@ func (r Redirect) IsZero() bool {
 	return r.From == ""
 }
 
-func DecodeServer(cfg Provider) (*Server, error) {
-	m := cfg.GetStringMap("server")
+func DecodeServer(cfg Provider) (Server, error) {
 	s := &Server{}
-	if m == nil {
-		return s, nil
-	}
 
-	_ = mapstructure.WeakDecode(m, s)
+	_ = mapstructure.WeakDecode(cfg.GetStringMap("server"), s)
 
 	for i, redir := range s.Redirects {
 		// Get it in line with the Hugo server for OK responses.
@@ -213,7 +246,7 @@ func DecodeServer(cfg Provider) (*Server, error) {
 				// There are some tricky infinite loop situations when dealing
 				// when the target does not have a trailing slash.
 				// This can certainly be handled better, but not time for that now.
-				return nil, fmt.Errorf("unsupported redirect to value %q in server config; currently this must be either a remote destination or a local folder, e.g. \"/blog/\" or \"/blog/index.html\"", redir.To)
+				return Server{}, fmt.Errorf("unsupported redirect to value %q in server config; currently this must be either a remote destination or a local folder, e.g. \"/blog/\" or \"/blog/index.html\"", redir.To)
 			}
 		}
 		s.Redirects[i] = redir
@@ -231,5 +264,5 @@ func DecodeServer(cfg Provider) (*Server, error) {
 
 	}
 
-	return s, nil
+	return *s, nil
 }

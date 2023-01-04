@@ -22,7 +22,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/config/testconfig"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/minifiers"
 	"github.com/gohugoio/hugo/output"
@@ -141,9 +141,8 @@ func TestClassCollector(t *testing.T) {
 					if skipMinifyTest[test.name] {
 						c.Skip("skip minify test")
 					}
-					v := config.NewWithTestDefaults()
-					m, _ := minifiers.New(media.DefaultTypes, output.DefaultFormats, v)
-					m.Minify(media.HTMLType, w, strings.NewReader(test.html))
+					m, _ := minifiers.New(media.DefaultTypes, output.DefaultFormats, testconfig.GetTestConfig(nil, nil))
+					m.Minify(media.Builtin.HTMLType, w, strings.NewReader(test.html))
 
 				} else {
 					var buff bytes.Buffer

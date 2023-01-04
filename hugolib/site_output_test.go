@@ -159,9 +159,9 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 
 	if hasHTML {
 		b.AssertFileContent("public/index.json",
-			"Alt Output: HTML",
-			"Output/Rel: JSON/alternate|",
-			"Output/Rel: HTML/canonical|",
+			"Alt Output: html",
+			"Output/Rel: json/alternate|",
+			"Output/Rel: html/canonical|",
 			"en: Elbow",
 			"ShortJSON",
 			"OtherShort: <h1>Hi!</h1>",
@@ -184,7 +184,7 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 			"nn: Olboge")
 	} else {
 		b.AssertFileContent("public/index.json",
-			"Output/Rel: JSON/canonical|",
+			"Output/Rel: json/canonical|",
 			// JSON is plain text, so no need to safeHTML this and that
 			`<atom:link href=http://example.com/blog/index.json rel="self" type="application/json" />`,
 			"ShortJSON",
@@ -248,7 +248,7 @@ baseName = "feed"
 	s := h.Sites[0]
 
 	// Issue #3450
-	c.Assert(s.Info.RSSLink, qt.Equals, "http://example.com/blog/feed.xml")
+	c.Assert(s.RSSLink(), qt.Equals, "http://example.com/blog/feed.xml")
 }
 
 // Issue #3614
@@ -363,7 +363,7 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 			page.KindSection: []string{"JSON"},
 		}
 
-		cfg := config.NewWithTestDefaults()
+		cfg := config.New()
 		cfg.Set("outputs", outputsConfig)
 
 		outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
@@ -388,7 +388,7 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 	// Issue #4528
 	t.Run("Mixed case", func(t *testing.T) {
 		c := qt.New(t)
-		cfg := config.NewWithTestDefaults()
+		cfg := config.New()
 
 		outputsConfig := map[string]any{
 			// Note that we in Hugo 0.53.0 renamed this Kind to "taxonomy",
@@ -410,7 +410,7 @@ func TestCreateSiteOutputFormatsInvalidConfig(t *testing.T) {
 		page.KindHome: []string{"FOO", "JSON"},
 	}
 
-	cfg := config.NewWithTestDefaults()
+	cfg := config.New()
 	cfg.Set("outputs", outputsConfig)
 
 	_, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
@@ -424,7 +424,7 @@ func TestCreateSiteOutputFormatsEmptyConfig(t *testing.T) {
 		page.KindHome: []string{},
 	}
 
-	cfg := config.NewWithTestDefaults()
+	cfg := config.New()
 	cfg.Set("outputs", outputsConfig)
 
 	outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
@@ -439,7 +439,7 @@ func TestCreateSiteOutputFormatsCustomFormats(t *testing.T) {
 		page.KindHome: []string{},
 	}
 
-	cfg := config.NewWithTestDefaults()
+	cfg := config.New()
 	cfg.Set("outputs", outputsConfig)
 
 	var (
@@ -550,37 +550,37 @@ Output Formats: {{ len .OutputFormats }};{{ range .OutputFormats }}{{ .Name }};{
 
 	b.AssertFileContent("public/index.html",
 		"This RelPermalink: /",
-		"Output Formats: 4;HTML;/|AMP;/amp/|damp;/damp/|base;/that.html|",
+		"Output Formats: 4;html;/|amp;/amp/|damp;/damp/|base;/that.html|",
 	)
 
 	b.AssertFileContent("public/amp/index.html",
 		"This RelPermalink: /amp/",
-		"Output Formats: 4;HTML;/|AMP;/amp/|damp;/damp/|base;/that.html|",
+		"Output Formats: 4;html;/|amp;/amp/|damp;/damp/|base;/that.html|",
 	)
 
 	b.AssertFileContent("public/blog/html-amp/index.html",
-		"Output Formats: 2;HTML;/blog/html-amp/|AMP;/amp/blog/html-amp/|",
+		"Output Formats: 2;html;/blog/html-amp/|amp;/amp/blog/html-amp/|",
 		"This RelPermalink: /blog/html-amp/")
 
 	b.AssertFileContent("public/amp/blog/html-amp/index.html",
-		"Output Formats: 2;HTML;/blog/html-amp/|AMP;/amp/blog/html-amp/|",
+		"Output Formats: 2;html;/blog/html-amp/|amp;/amp/blog/html-amp/|",
 		"This RelPermalink: /amp/blog/html-amp/")
 
 	// Damp is not permalinkable
 	b.AssertFileContent("public/damp/blog/html-damp/index.html",
 		"This RelPermalink: /blog/html-damp/",
-		"Output Formats: 2;HTML;/blog/html-damp/|damp;/damp/blog/html-damp/|")
+		"Output Formats: 2;html;/blog/html-damp/|damp;/damp/blog/html-damp/|")
 
 	b.AssertFileContent("public/blog/html-ramp/index.html",
 		"This RelPermalink: /blog/html-ramp/",
-		"Output Formats: 2;HTML;/blog/html-ramp/|ramp;/ramp/blog/html-ramp/|")
+		"Output Formats: 2;html;/blog/html-ramp/|ramp;/ramp/blog/html-ramp/|")
 
 	b.AssertFileContent("public/ramp/blog/html-ramp/index.html",
 		"This RelPermalink: /ramp/blog/html-ramp/",
-		"Output Formats: 2;HTML;/blog/html-ramp/|ramp;/ramp/blog/html-ramp/|")
+		"Output Formats: 2;html;/blog/html-ramp/|ramp;/ramp/blog/html-ramp/|")
 
 	// https://github.com/gohugoio/hugo/issues/5877
-	outputFormats := "Output Formats: 3;HTML;/blog/html-base-nobase/|base;/blog/html-base-nobase/that.html|nobase;/blog/html-base-nobase/index.json|"
+	outputFormats := "Output Formats: 3;html;/blog/html-base-nobase/|base;/blog/html-base-nobase/that.html|nobase;/blog/html-base-nobase/index.json|"
 
 	b.AssertFileContent("public/blog/html-base-nobase/index.json",
 		"This RelPermalink: /blog/html-base-nobase/index.json",

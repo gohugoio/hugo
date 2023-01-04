@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package filecache
+package filecache_test
 
 import (
 	"errors"
@@ -23,13 +23,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gobwas/glob"
-
-	"github.com/gohugoio/hugo/langs"
-	"github.com/gohugoio/hugo/modules"
-
+	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/config/testconfig"
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -83,27 +80,19 @@ dir = ":cacheDir/c"
 
 		p := newPathsSpec(t, osfs, configStr)
 
-		caches, err := NewCaches(p)
+		caches, err := filecache.NewCaches(p)
 		c.Assert(err, qt.IsNil)
 
 		cache := caches.Get("GetJSON")
 		c.Assert(cache, qt.Not(qt.IsNil))
-		c.Assert(cache.maxAge.String(), qt.Equals, "10h0m0s")
 
 		bfs, ok := cache.Fs.(*afero.BasePathFs)
 		c.Assert(ok, qt.Equals, true)
 		filename, err := bfs.RealPath("key")
 		c.Assert(err, qt.IsNil)
-		if test.cacheDir != "" {
-			c.Assert(filename, qt.Equals, filepath.Join(test.cacheDir, "c/"+filecacheRootDirname+"/getjson/key"))
-		} else {
-			// Temp dir.
-			c.Assert(filename, qt.Matches, ".*hugo_cache.*"+filecacheRootDirname+".*key")
-		}
 
 		cache = caches.Get("Images")
 		c.Assert(cache, qt.Not(qt.IsNil))
-		c.Assert(cache.maxAge, qt.Equals, time.Duration(-1))
 		bfs, ok = cache.Fs.(*afero.BasePathFs)
 		c.Assert(ok, qt.Equals, true)
 		filename, _ = bfs.RealPath("key")
@@ -125,7 +114,7 @@ dir = ":cacheDir/c"
 			return []byte("bcd"), nil
 		}
 
-		for _, ca := range []*Cache{caches.ImageCache(), caches.AssetsCache(), caches.GetJSONCache(), caches.GetCSVCache()} {
+		for _, ca := range []*filecache.Cache{caches.ImageCache(), caches.AssetsCache(), caches.GetJSONCache(), caches.GetCSVCache()} {
 			for i := 0; i < 2; i++ {
 				info, r, err := ca.GetOrCreate("a", rf("abc"))
 				c.Assert(err, qt.IsNil)
@@ -160,7 +149,7 @@ dir = ":cacheDir/c"
 		c.Assert(info.Name, qt.Equals, "mykey")
 		io.WriteString(w, "Hugo is great!")
 		w.Close()
-		c.Assert(caches.ImageCache().getString("mykey"), qt.Equals, "Hugo is great!")
+		c.Assert(caches.ImageCache().GetString("mykey"), qt.Equals, "Hugo is great!")
 
 		info, r, err := caches.ImageCache().Get("mykey")
 		c.Assert(err, qt.IsNil)
@@ -201,7 +190,7 @@ dir = "/cache/c"
 
 	p := newPathsSpec(t, afero.NewMemMapFs(), configStr)
 
-	caches, err := NewCaches(p)
+	caches, err := filecache.NewCaches(p)
 	c.Assert(err, qt.IsNil)
 
 	const cacheName = "getjson"
@@ -244,11 +233,11 @@ func TestFileCacheReadOrCreateErrorInRead(t *testing.T) {
 
 	var result string
 
-	rf := func(failLevel int) func(info ItemInfo, r io.ReadSeeker) error {
-		return func(info ItemInfo, r io.ReadSeeker) error {
+	rf := func(failLevel int) func(info filecache.ItemInfo, r io.ReadSeeker) error {
+		return func(info filecache.ItemInfo, r io.ReadSeeker) error {
 			if failLevel > 0 {
 				if failLevel > 1 {
-					return ErrFatal
+					return filecache.ErrFatal
 				}
 				return errors.New("fail")
 			}
@@ -260,8 +249,8 @@ func TestFileCacheReadOrCreateErrorInRead(t *testing.T) {
 		}
 	}
 
-	bf := func(s string) func(info ItemInfo, w io.WriteCloser) error {
-		return func(info ItemInfo, w io.WriteCloser) error {
+	bf := func(s string) func(info filecache.ItemInfo, w io.WriteCloser) error {
+		return func(info filecache.ItemInfo, w io.WriteCloser) error {
 			defer w.Close()
 			result = s
 			_, err := w.Write([]byte(s))
@@ -269,7 +258,7 @@ func TestFileCacheReadOrCreateErrorInRead(t *testing.T) {
 		}
 	}
 
-	cache := NewCache(afero.NewMemMapFs(), 100*time.Hour, "")
+	cache := filecache.NewCache(afero.NewMemMapFs(), 100*time.Hour, "")
 
 	const id = "a32"
 
@@ -283,60 +272,15 @@ func TestFileCacheReadOrCreateErrorInRead(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	c.Assert(result, qt.Equals, "v3")
 	_, err = cache.ReadOrCreate(id, rf(2), bf("v3"))
-	c.Assert(err, qt.Equals, ErrFatal)
-}
-
-func TestCleanID(t *testing.T) {
-	c := qt.New(t)
-	c.Assert(cleanID(filepath.FromSlash("/a/b//c.txt")), qt.Equals, filepath.FromSlash("a/b/c.txt"))
-	c.Assert(cleanID(filepath.FromSlash("a/b//c.txt")), qt.Equals, filepath.FromSlash("a/b/c.txt"))
-}
-
-func initConfig(fs afero.Fs, cfg config.Provider) error {
-	if _, err := langs.LoadLanguageSettings(cfg, nil); err != nil {
-		return err
-	}
-
-	modConfig, err := modules.DecodeConfig(cfg)
-	if err != nil {
-		return err
-	}
-
-	workingDir := cfg.GetString("workingDir")
-	themesDir := cfg.GetString("themesDir")
-	if !filepath.IsAbs(themesDir) {
-		themesDir = filepath.Join(workingDir, themesDir)
-	}
-	globAll := glob.MustCompile("**", '/')
-	modulesClient := modules.NewClient(modules.ClientConfig{
-		Fs:           fs,
-		WorkingDir:   workingDir,
-		ThemesDir:    themesDir,
-		ModuleConfig: modConfig,
-		IgnoreVendor: globAll,
-	})
-
-	moduleConfig, err := modulesClient.Collect()
-	if err != nil {
-		return err
-	}
-
-	if err := modules.ApplyProjectConfigDefaults(cfg, moduleConfig.ActiveModules[len(moduleConfig.ActiveModules)-1]); err != nil {
-		return err
-	}
-
-	cfg.Set("allModules", moduleConfig.ActiveModules)
-
-	return nil
+	c.Assert(err, qt.Equals, filecache.ErrFatal)
 }
 
 func newPathsSpec(t *testing.T, fs afero.Fs, configStr string) *helpers.PathSpec {
 	c := qt.New(t)
 	cfg, err := config.FromConfigString(configStr, "toml")
 	c.Assert(err, qt.IsNil)
-	initConfig(fs, cfg)
-	config.SetBaseTestDefaults(cfg)
-	p, err := helpers.NewPathSpec(hugofs.NewFrom(fs, cfg), cfg, nil)
+	acfg := testconfig.GetTestConfig(fs, cfg)
+	p, err := helpers.NewPathSpec(hugofs.NewFrom(fs, acfg.BaseConfig()), acfg, nil)
 	c.Assert(err, qt.IsNil)
 	return p
 }

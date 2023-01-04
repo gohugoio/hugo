@@ -208,6 +208,7 @@ var counter uint64
 // have the needed precision (especially on Windows).
 // Note that given the parallel nature of Hugo, you cannot use this to get sequences of numbers,
 // and the counter will reset on new builds.
+// <docsmeta>{"identifiers": ["now.UnixNano"] }</docsmeta>
 func (ns *Namespace) Counter() uint64 {
 	return atomic.AddUint64(&counter, uint64(1))
 }

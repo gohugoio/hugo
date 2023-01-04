@@ -199,7 +199,7 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	stderr := io.MultiWriter(infoW, &errBuf)
 	cmdArgs = append(cmdArgs, hexec.WithStderr(stderr))
 	cmdArgs = append(cmdArgs, hexec.WithStdout(ctx.To))
-	cmdArgs = append(cmdArgs, hexec.WithEnviron(hugo.GetExecEnviron(t.rs.WorkingDir, t.rs.Cfg, t.rs.BaseFs.Assets.Fs)))
+	cmdArgs = append(cmdArgs, hexec.WithEnviron(hugo.GetExecEnviron(t.rs.Cfg.BaseConfig().WorkingDir, t.rs.Cfg, t.rs.BaseFs.Assets.Fs)))
 
 	cmd, err := ex.Npx(binaryName, cmdArgs...)
 	if err != nil {
@@ -382,10 +382,13 @@ func (imp *importResolver) resolve() (io.Reader, error) {
 // See https://www.w3schools.com/cssref/pr_import_rule.asp
 // We currently only support simple file imports, no urls, no media queries.
 // So this is OK:
-//     @import "navigation.css";
+//
+//	@import "navigation.css";
+//
 // This is not:
-//     @import url("navigation.css");
-//     @import "mobstyle.css" screen and (max-width: 768px);
+//
+//	@import url("navigation.css");
+//	@import "mobstyle.css" screen and (max-width: 768px);
 func (imp *importResolver) shouldImport(s string) bool {
 	if !strings.HasPrefix(s, importIdentifier) {
 		return false

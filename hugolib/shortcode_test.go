@@ -758,7 +758,7 @@ title: "Hugo Rocks!"
 func TestShortcodeEmoji(t *testing.T) {
 	t.Parallel()
 
-	v := config.NewWithTestDefaults()
+	v := config.New()
 	v.Set("enableEmoji", true)
 
 	builder := newTestSitesBuilder(t).WithViper(v)
@@ -822,7 +822,7 @@ Get: {{ printf "%v (%T)" $b1 $b1 | safeHTML }}
 func TestShortcodeRef(t *testing.T) {
 	t.Parallel()
 
-	v := config.NewWithTestDefaults()
+	v := config.New()
 	v.Set("baseURL", "https://example.org")
 
 	builder := newTestSitesBuilder(t).WithViper(v)
@@ -935,6 +935,7 @@ func TestShortcodeMarkdownOutputFormat(t *testing.T) {
 title: "p1"
 ---
 {{< foo >}}
+# The below would have failed using the HTML template parser.
 -- layouts/shortcodes/foo.md --
 §§§
 <x

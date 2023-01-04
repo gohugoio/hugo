@@ -55,17 +55,12 @@ type Deployer struct {
 	localFs afero.Fs
 	bucket  *blob.Bucket
 
-	target        *target          // the target to deploy to
-	matchers      []*matcher       // matchers to apply to uploaded files
-	mediaTypes    media.Types      // Hugo's MediaType to guess ContentType
-	ordering      []*regexp.Regexp // orders uploads
-	quiet         bool             // true reduces STDOUT
-	confirm       bool             // true enables confirmation before making changes
-	dryRun        bool             // true skips conformations and prints changes instead of applying them
-	force         bool             // true forces upload of all files
-	invalidateCDN bool             // true enables invalidate CDN cache (if possible)
-	maxDeletes    int              // caps the # of files to delete; -1 to disable
-	workers       int              // The number of workers to transfer files
+	mediaTypes media.Types // Hugo's MediaType to guess ContentType
+	quiet      bool        // true reduces STDOUT
+
+	cfg DeployConfig
+
+	target *Target // the target to deploy to
 
 	// For tests...
 	summary deploySummary // summary of latest Deploy results
@@ -78,21 +73,18 @@ type deploySummary struct {
 const metaMD5Hash = "md5chksum" // the meta key to store md5hash in
 
 // New constructs a new *Deployer.
-func New(cfg config.Provider, localFs afero.Fs) (*Deployer, error) {
-	targetName := cfg.GetString("target")
+func New(cfg config.AllProvider, localFs afero.Fs) (*Deployer, error) {
 
-	// Load the [deployment] section of the config.
-	dcfg, err := decodeConfig(cfg)
-	if err != nil {
-		return nil, err
-	}
+	dcfg := cfg.GetConfigSection(deploymentConfigKey).(DeployConfig)
+	targetName := dcfg.Target
 
 	if len(dcfg.Targets) == 0 {
 		return nil, errors.New("no deployment targets found")
 	}
+	mediaTypes := cfg.GetConfigSection("mediaTypes").(media.Types)
 
 	// Find the target to deploy to.
-	var tgt *target
+	var tgt *Target
 	if targetName == "" {
 		// Default to the first target.
 		tgt = dcfg.Targets[0]
@@ -108,18 +100,11 @@ func New(cfg config.Provider, localFs afero.Fs) (*Deployer, error) {
 	}
 
 	return &Deployer{
-		localFs:       localFs,
-		target:        tgt,
-		matchers:      dcfg.Matchers,
-		ordering:      dcfg.ordering,
-		mediaTypes:    dcfg.mediaTypes,
-		quiet:         cfg.GetBool("quiet"),
-		confirm:       cfg.GetBool("confirm"),
-		dryRun:        cfg.GetBool("dryRun"),
-		force:         cfg.GetBool("force"),
-		invalidateCDN: cfg.GetBool("invalidateCDN"),
-		maxDeletes:    cfg.GetInt("maxDeletes"),
-		workers:       cfg.GetInt("workers"),
+		localFs:    localFs,
+		target:     tgt,
+		quiet:      cfg.BuildExpired(),
+		mediaTypes: mediaTypes,
+		cfg:        dcfg,
 	}, nil
 }
 
@@ -138,12 +123,16 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 		return err
 	}
 
+	if d.cfg.Workers <= 0 {
+		d.cfg.Workers = 10
+	}
+
 	// Load local files from the source directory.
 	var include, exclude glob.Glob
 	if d.target != nil {
 		include, exclude = d.target.includeGlob, d.target.excludeGlob
 	}
-	local, err := walkLocal(d.localFs, d.matchers, include, exclude, d.mediaTypes)
+	local, err := walkLocal(d.localFs, d.cfg.Matchers, include, exclude, d.mediaTypes)
 	if err != nil {
 		return err
 	}
@@ -159,7 +148,7 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 	d.summary.NumRemote = len(remote)
 
 	// Diff local vs remote to see what changes need to be applied.
-	uploads, deletes := findDiffs(local, remote, d.force)
+	uploads, deletes := findDiffs(local, remote, d.cfg.Force)
 	d.summary.NumUploads = len(uploads)
 	d.summary.NumDeletes = len(deletes)
 	if len(uploads)+len(deletes) == 0 {
@@ -173,7 +162,7 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 	}
 
 	// Ask for confirmation before proceeding.
-	if d.confirm && !d.dryRun {
+	if d.cfg.Confirm && !d.cfg.DryRun {
 		fmt.Printf("Continue? (Y/n) ")
 		var confirm string
 		if _, err := fmt.Scanln(&confirm); err != nil {
@@ -186,15 +175,9 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 
 	// Order the uploads. They are organized in groups; all uploads in a group
 	// must be complete before moving on to the next group.
-	uploadGroups := applyOrdering(d.ordering, uploads)
+	uploadGroups := applyOrdering(d.cfg.ordering, uploads)
 
-	// Apply the changes in parallel, using an inverted worker
-	// pool (https://www.youtube.com/watch?v=5zXAHh5tJqQ&t=26m58s).
-	// sem prevents more than nParallel concurrent goroutines.
-	if d.workers <= 0 {
-		d.workers = 10
-	}
-	nParallel := d.workers
+	nParallel := d.cfg.Workers
 	var errs []error
 	var errMu sync.Mutex // protects errs
 
@@ -207,7 +190,7 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 		// Within the group, apply uploads in parallel.
 		sem := make(chan struct{}, nParallel)
 		for _, upload := range uploads {
-			if d.dryRun {
+			if d.cfg.DryRun {
 				if !d.quiet {
 					jww.FEEDBACK.Printf("[DRY RUN] Would upload: %v\n", upload)
 				}
@@ -230,15 +213,15 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 		}
 	}
 
-	if d.maxDeletes != -1 && len(deletes) > d.maxDeletes {
-		jww.WARN.Printf("Skipping %d deletes because it is more than --maxDeletes (%d). If this is expected, set --maxDeletes to a larger number, or -1 to disable this check.\n", len(deletes), d.maxDeletes)
+	if d.cfg.MaxDeletes != -1 && len(deletes) > d.cfg.MaxDeletes {
+		jww.WARN.Printf("Skipping %d deletes because it is more than --maxDeletes (%d). If this is expected, set --maxDeletes to a larger number, or -1 to disable this check.\n", len(deletes), d.cfg.MaxDeletes)
 		d.summary.NumDeletes = 0
 	} else {
 		// Apply deletes in parallel.
 		sort.Slice(deletes, func(i, j int) bool { return deletes[i] < deletes[j] })
 		sem := make(chan struct{}, nParallel)
 		for _, del := range deletes {
-			if d.dryRun {
+			if d.cfg.DryRun {
 				if !d.quiet {
 					jww.FEEDBACK.Printf("[DRY RUN] Would delete %s\n", del)
 				}
@@ -264,6 +247,7 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 			sem <- struct{}{}
 		}
 	}
+
 	if len(errs) > 0 {
 		if !d.quiet {
 			jww.FEEDBACK.Printf("Encountered %d errors.\n", len(errs))
@@ -274,9 +258,9 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 		jww.FEEDBACK.Println("Success!")
 	}
 
-	if d.invalidateCDN {
+	if d.cfg.InvalidateCDN {
 		if d.target.CloudFrontDistributionID != "" {
-			if d.dryRun {
+			if d.cfg.DryRun {
 				if !d.quiet {
 					jww.FEEDBACK.Printf("[DRY RUN] Would invalidate CloudFront CDN with ID %s\n", d.target.CloudFrontDistributionID)
 				}
@@ -289,7 +273,7 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 			}
 		}
 		if d.target.GoogleCloudCDNOrigin != "" {
-			if d.dryRun {
+			if d.cfg.DryRun {
 				if !d.quiet {
 					jww.FEEDBACK.Printf("[DRY RUN] Would invalidate Google Cloud CDN with origin %s\n", d.target.GoogleCloudCDNOrigin)
 				}
@@ -356,14 +340,14 @@ type localFile struct {
 	UploadSize int64
 
 	fs         afero.Fs
-	matcher    *matcher
+	matcher    *Matcher
 	md5        []byte       // cache
 	gzipped    bytes.Buffer // cached of gzipped contents if gzipping
 	mediaTypes media.Types
 }
 
 // newLocalFile initializes a *localFile.
-func newLocalFile(fs afero.Fs, nativePath, slashpath string, m *matcher, mt media.Types) (*localFile, error) {
+func newLocalFile(fs afero.Fs, nativePath, slashpath string, m *Matcher, mt media.Types) (*localFile, error) {
 	f, err := fs.Open(nativePath)
 	if err != nil {
 		return nil, err
@@ -448,7 +432,7 @@ func (lf *localFile) ContentType() string {
 
 	ext := filepath.Ext(lf.NativePath)
 	if mimeType, _, found := lf.mediaTypes.GetFirstBySuffix(strings.TrimPrefix(ext, ".")); found {
-		return mimeType.Type()
+		return mimeType.Type
 	}
 
 	return mime.TypeByExtension(ext)
@@ -495,7 +479,7 @@ func knownHiddenDirectory(name string) bool {
 
 // walkLocal walks the source directory and returns a flat list of files,
 // using localFile.SlashPath as the map keys.
-func walkLocal(fs afero.Fs, matchers []*matcher, include, exclude glob.Glob, mediaTypes media.Types) (map[string]*localFile, error) {
+func walkLocal(fs afero.Fs, matchers []*Matcher, include, exclude glob.Glob, mediaTypes media.Types) (map[string]*localFile, error) {
 	retval := map[string]*localFile{}
 	err := afero.Walk(fs, "", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -534,7 +518,7 @@ func walkLocal(fs afero.Fs, matchers []*matcher, include, exclude glob.Glob, med
 		}
 
 		// Find the first matching matcher (if any).
-		var m *matcher
+		var m *Matcher
 		for _, cur := range matchers {
 			if cur.Matches(slashpath) {
 				m = cur

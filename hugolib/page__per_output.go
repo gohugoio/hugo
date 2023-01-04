@@ -259,7 +259,7 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 	})
 
 	// There may be recursive loops in shortcodes and render hooks.
-	cp.initMain = cp.initToC.BranchWithTimeout(p.s.siteCfg.timeout, func(ctx context.Context) (any, error) {
+	cp.initMain = cp.initToC.BranchWithTimeout(p.s.conf.C.Timeout, func(ctx context.Context) (any, error) {
 		return nil, initContent(ctx)
 	})
 

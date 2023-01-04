@@ -1,0 +1,23 @@
+# Test mod npm.
+
+hugo mod npm pack
+cmp package.hugo.json golden/package.hugo.json
+
+-- hugo.toml --
+baseURL = "https://example.org/"
+-- package.json --
+{
+  "name": "test",
+  "version": "1.0.0",
+  "dependencies": {
+    "mod": "foo-bar"
+  }
+}
+-- golden/package.hugo.json --
+{
+  "name": "test",
+  "version": "1.0.0",
+  "dependencies": {
+    "mod": "foo-bar"
+  }
+}

@@ -46,7 +46,7 @@ func (ns *Namespace) Sort(l any, args ...any) (any, error) {
 		return nil, errors.New("can't sort " + reflect.ValueOf(l).Type().String())
 	}
 
-	collator := langs.GetCollator(ns.deps.Language)
+	collator := langs.GetCollator(ns.deps.Conf.Language())
 
 	// Create a list of pairs that will be used to do the sort
 	p := pairList{Collator: collator, sortComp: ns.sortComp, SortAsc: true, SliceType: sliceType}
@@ -87,7 +87,7 @@ func (ns *Namespace) Sort(l any, args ...any) (any, error) {
 					}
 					// Special handling of lower cased maps.
 					if params, ok := v.Interface().(maps.Params); ok {
-						v = reflect.ValueOf(params.Get(path[i+1:]...))
+						v = reflect.ValueOf(params.GetNested(path[i+1:]...))
 						break
 					}
 				}
@@ -117,7 +117,7 @@ func (ns *Namespace) Sort(l any, args ...any) (any, error) {
 					}
 					// Special handling of lower cased maps.
 					if params, ok := v.Interface().(maps.Params); ok {
-						v = reflect.ValueOf(params.Get(path[i+1:]...))
+						v = reflect.ValueOf(params.GetNested(path[i+1:]...))
 						break
 					}
 				}

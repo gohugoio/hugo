@@ -222,8 +222,7 @@ func (c *pagesCollector) getLang(fi hugofs.FileMetaInfo) string {
 	if lang != "" {
 		return lang
 	}
-
-	return c.sp.DefaultContentLanguage
+	return c.sp.Cfg.DefaultContentLanguage()
 }
 
 func (c *pagesCollector) addToBundle(info hugofs.FileMetaInfo, btyp bundleDirType, bundles pageBundles) error {
@@ -240,7 +239,7 @@ func (c *pagesCollector) addToBundle(info hugofs.FileMetaInfo, btyp bundleDirTyp
 			found  bool
 		)
 
-		source, found = bundles[c.sp.DefaultContentLanguage]
+		source, found = bundles[c.sp.Cfg.DefaultContentLanguage()]
 		if !found {
 			for _, b := range bundles {
 				source = b

@@ -31,6 +31,7 @@ type AttributesProvider interface {
 	Attributes() map[string]any
 }
 
+// LinkContext is the context passed to a link render hook.
 type LinkContext interface {
 	// The Page being rendered.
 	Page() any
@@ -48,6 +49,7 @@ type LinkContext interface {
 	PlainText() string
 }
 
+// ImageLinkContext is the context passed to a image link render hook.
 type ImageLinkContext interface {
 	LinkContext
 

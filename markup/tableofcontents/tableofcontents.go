@@ -237,6 +237,7 @@ var DefaultConfig = Config{
 type Config struct {
 	// Heading start level to include in the table of contents, starting
 	// at h1 (inclusive).
+	// <docsmeta>{ "identifiers": ["h1"] }</docsmeta>
 	StartLevel int
 
 	// Heading end level, inclusive, to include in the table of contents.

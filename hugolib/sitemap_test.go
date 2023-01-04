@@ -20,7 +20,6 @@ import (
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/tpl"
 )
 
 const sitemapTemplate = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -47,24 +46,19 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 	c := qt.New(t)
 	cfg, fs := newTestCfg()
 	cfg.Set("baseURL", "http://auth/bub/")
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
+	writeSource(t, fs, "layouts/sitemap.xml", sitemapTemplate)
+	// We want to check that the 404 page is not included in the sitemap
+	// output. This template should have no effect either way, but include
+	// it for the clarity.
+	writeSource(t, fs, "layouts/404.html", "Not found")
 
-	depsCfg := deps.DepsCfg{Fs: fs, Cfg: cfg}
-
-	depsCfg.WithTemplate = func(templ tpl.TemplateManager) error {
-		if !internal {
-			templ.AddTemplate("sitemap.xml", sitemapTemplate)
-		}
-
-		// We want to check that the 404 page is not included in the sitemap
-		// output. This template should have no effect either way, but include
-		// it for the clarity.
-		templ.AddTemplate("404.html", "Not found")
-		return nil
-	}
+	depsCfg := deps.DepsCfg{Fs: fs, Configs: configs}
 
 	writeSourcesToSource(t, "content", fs, weightedSources...)
 	s := buildSingleSite(t, depsCfg, BuildCfg{})
-	th := newTestHelper(s.Cfg, s.Fs, t)
+	th := newTestHelper(s.conf, s.Fs, t)
 	outputSitemap := "public/sitemap.xml"
 
 	th.assertFileContent(outputSitemap,
@@ -87,14 +81,17 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 
 func TestParseSitemap(t *testing.T) {
 	t.Parallel()
-	expected := config.Sitemap{Priority: 3.0, Filename: "doo.xml", ChangeFreq: "3"}
+	expected := config.SitemapConfig{Priority: 3.0, Filename: "doo.xml", ChangeFreq: "3"}
 	input := map[string]any{
 		"changefreq": "3",
 		"priority":   3.0,
 		"filename":   "doo.xml",
 		"unknown":    "ignore",
 	}
-	result := config.DecodeSitemap(config.Sitemap{}, input)
+	result, err := config.DecodeSitemap(config.SitemapConfig{}, input)
+	if err != nil {
+		t.Fatalf("Failed to parse sitemap: %s", err)
+	}
 
 	if !reflect.DeepEqual(expected, result) {
 		t.Errorf("Got \n%v expected \n%v", result, expected)

@@ -64,6 +64,7 @@ func newPageBase(metaProvider *pageMeta) (*pageState, error) {
 			init:                 lazy.New(),
 			m:                    metaProvider,
 			s:                    s,
+			sWrapped:             page.WrapSite(s),
 		},
 	}
 
@@ -190,8 +191,8 @@ type pageDeprecatedWarning struct {
 }
 
 func (p *pageDeprecatedWarning) IsDraft() bool          { return p.p.m.draft }
-func (p *pageDeprecatedWarning) Hugo() hugo.Info        { return p.p.s.Info.Hugo() }
-func (p *pageDeprecatedWarning) LanguagePrefix() string { return p.p.s.Info.LanguagePrefix }
+func (p *pageDeprecatedWarning) Hugo() hugo.HugoInfo    { return p.p.s.Hugo() }
+func (p *pageDeprecatedWarning) LanguagePrefix() string { return p.p.s.GetLanguagePrefix() }
 func (p *pageDeprecatedWarning) GetParam(key string) any {
 	return p.p.m.params[strings.ToLower(key)]
 }

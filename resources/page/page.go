@@ -166,7 +166,7 @@ type OutputFormatsProvider interface {
 	OutputFormats() OutputFormats
 }
 
-// Page is the core interface in Hugo.
+// Page is the core interface in Hugo and what you get as the top level data context in your templates.
 type Page interface {
 	ContentProvider
 	TableOfContentsProvider
@@ -249,7 +249,7 @@ type PageMetaProvider interface {
 
 	// Sitemap returns the sitemap configuration for this page.
 	// This is for internal use only.
-	Sitemap() config.Sitemap
+	Sitemap() config.SitemapConfig
 
 	// Type is a discriminator used to select layouts etc. It is typically set
 	// in front matter, but will fall back to the root section.

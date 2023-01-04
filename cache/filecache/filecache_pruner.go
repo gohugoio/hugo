@@ -31,7 +31,6 @@ import (
 func (c Caches) Prune() (int, error) {
 	counter := 0
 	for k, cache := range c {
-
 		count, err := cache.Prune(false)
 
 		counter += count
@@ -58,6 +57,7 @@ func (c *Cache) Prune(force bool) (int, error) {
 	counter := 0
 
 	err := afero.Walk(c.Fs, "", func(name string, info os.FileInfo, err error) error {
+
 		if info == nil {
 			return nil
 		}

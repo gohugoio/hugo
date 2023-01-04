@@ -64,9 +64,10 @@ path="github.com/gohugoio/hugoTestModule2"
 		tempDir := t.TempDir()
 		workingDir := filepath.Join(tempDir, "myhugosite")
 		b.Assert(os.MkdirAll(workingDir, 0777), qt.IsNil)
-		cfg := config.NewWithTestDefaults()
+		cfg := config.New()
 		cfg.Set("workingDir", workingDir)
-		b.Fs = hugofs.NewDefault(cfg)
+		cfg.Set("publishDir", "public")
+		b.Fs = hugofs.NewDefaultOld(cfg)
 		b.WithWorkingDir(workingDir).WithConfigFile("toml", createConfig(workingDir, moduleOpts))
 		b.WithTemplates(
 			"index.html", `
@@ -329,8 +330,9 @@ func TestHugoModulesMatrix(t *testing.T) {
 		c.Assert(err, qt.IsNil)
 		defer clean()
 
-		v := config.NewWithTestDefaults()
+		v := config.New()
 		v.Set("workingDir", workingDir)
+		v.Set("publishDir", "public")
 
 		configTemplate := `
 baseURL = "https://example.com"
@@ -350,7 +352,7 @@ ignoreVendorPaths = %q
 		b := newTestSitesBuilder(t)
 
 		// Need to use OS fs for this.
-		b.Fs = hugofs.NewDefault(v)
+		b.Fs = hugofs.NewDefaultOld(v)
 
 		b.WithWorkingDir(workingDir).WithConfigFile("toml", config)
 		b.WithContent("page.md", `
@@ -667,9 +669,10 @@ func TestModulesSymlinks(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 
 	// We need to use the OS fs for this.
-	cfg := config.NewWithTestDefaults()
+	cfg := config.New()
 	cfg.Set("workingDir", workingDir)
-	fs := hugofs.NewFrom(hugofs.Os, cfg)
+	cfg.Set("publishDir", "public")
+	fs := hugofs.NewFromOld(hugofs.Os, cfg)
 
 	defer clean()
 
@@ -842,10 +845,11 @@ workingDir = %q
 
 	b := newTestSitesBuilder(t).Running()
 
-	cfg := config.NewWithTestDefaults()
+	cfg := config.New()
 	cfg.Set("workingDir", workingDir)
+	cfg.Set("publishDir", "public")
 
-	b.Fs = hugofs.NewDefault(cfg)
+	b.Fs = hugofs.NewDefaultOld(cfg)
 
 	b.WithWorkingDir(workingDir).WithConfigFile("toml", tomlConfig)
 	b.WithTemplatesAdded("index.html", `
@@ -967,9 +971,10 @@ workingDir = %q
 
 		b := newTestSitesBuilder(c).Running()
 
-		cfg := config.NewWithTestDefaults()
+		cfg := config.New()
 		cfg.Set("workingDir", workingDir)
-		b.Fs = hugofs.NewDefault(cfg)
+		cfg.Set("publishDir", "public")
+		b.Fs = hugofs.NewDefaultOld(cfg)
 
 		os.MkdirAll(filepath.Join(workingDir, "content", "blog"), 0777)
 
@@ -1068,9 +1073,10 @@ func TestSiteWithGoModButNoModules(t *testing.T) {
 	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-no-mod")
 	c.Assert(err, qt.IsNil)
 
-	cfg := config.NewWithTestDefaults()
+	cfg := config.New()
 	cfg.Set("workingDir", workDir)
-	fs := hugofs.NewFrom(hugofs.Os, cfg)
+	cfg.Set("publishDir", "public")
+	fs := hugofs.NewFromOld(hugofs.Os, cfg)
 
 	defer clean()
 
@@ -1094,9 +1100,10 @@ func TestModuleAbsMount(t *testing.T) {
 	absContentDir, clean2, err := htesting.CreateTempDir(hugofs.Os, "hugo-content")
 	c.Assert(err, qt.IsNil)
 
-	cfg := config.NewWithTestDefaults()
+	cfg := config.New()
 	cfg.Set("workingDir", workDir)
-	fs := hugofs.NewFrom(hugofs.Os, cfg)
+	cfg.Set("publishDir", "public")
+	fs := hugofs.NewFromOld(hugofs.Os, cfg)
 
 	config := fmt.Sprintf(`
 workingDir=%q

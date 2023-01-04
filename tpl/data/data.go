@@ -42,8 +42,8 @@ import (
 func New(deps *deps.Deps) *Namespace {
 	return &Namespace{
 		deps:         deps,
-		cacheGetCSV:  deps.FileCaches.GetCSVCache(),
-		cacheGetJSON: deps.FileCaches.GetJSONCache(),
+		cacheGetCSV:  deps.ResourceSpec.FileCaches.GetCSVCache(),
+		cacheGetJSON: deps.ResourceSpec.FileCaches.GetJSONCache(),
 		client:       http.DefaultClient,
 	}
 }

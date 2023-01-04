@@ -17,21 +17,22 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/gohugoio/hugo/config"
-
+	"github.com/gohugoio/hugo/config/testconfig"
 	"github.com/gohugoio/hugo/htesting/hqt"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/deps"
 )
 
-var ns = New(&deps.Deps{Cfg: config.New()})
+func newNs() *Namespace {
+	return New(testconfig.GetTestDeps(nil, nil))
+}
 
 type tstNoStringer struct{}
 
 func TestParse(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
+	ns := newNs()
 
 	for _, test := range []struct {
 		rawurl any

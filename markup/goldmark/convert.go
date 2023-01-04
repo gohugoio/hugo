@@ -54,7 +54,7 @@ func (p provide) New(cfg converter.ProviderConfig) (converter.Provider, error) {
 			cfg: cfg,
 			md:  md,
 			sanitizeAnchorName: func(s string) string {
-				return sanitizeAnchorNameString(s, cfg.MarkupConfig.Goldmark.Parser.AutoHeadingIDType)
+				return sanitizeAnchorNameString(s, cfg.MarkupConfig().Goldmark.Parser.AutoHeadingIDType)
 			},
 		}, nil
 	}), nil
@@ -75,8 +75,8 @@ func (c *goldmarkConverter) SanitizeAnchorName(s string) string {
 }
 
 func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
-	mcfg := pcfg.MarkupConfig
-	cfg := pcfg.MarkupConfig.Goldmark
+	mcfg := pcfg.MarkupConfig()
+	cfg := mcfg.Goldmark
 	var rendererOptions []renderer.Option
 
 	if cfg.Renderer.HardWraps {
@@ -265,7 +265,7 @@ func (c *goldmarkConverter) Supports(feature identity.Identity) bool {
 }
 
 func (c *goldmarkConverter) newParserContext(rctx converter.RenderContext) *parserContext {
-	ctx := parser.NewContext(parser.WithIDs(newIDFactory(c.cfg.MarkupConfig.Goldmark.Parser.AutoHeadingIDType)))
+	ctx := parser.NewContext(parser.WithIDs(newIDFactory(c.cfg.MarkupConfig().Goldmark.Parser.AutoHeadingIDType)))
 	ctx.Set(tocEnableKey, rctx.RenderTOC)
 	return &parserContext{
 		Context: ctx,

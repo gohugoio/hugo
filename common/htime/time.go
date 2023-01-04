@@ -14,6 +14,7 @@
 package htime
 
 import (
+	"log"
 	"strings"
 	"time"
 
@@ -162,4 +163,12 @@ func Since(t time.Time) time.Duration {
 // AsTimeProvider is implemented by go-toml's LocalDate and LocalDateTime.
 type AsTimeProvider interface {
 	AsTime(zone *time.Location) time.Time
+}
+
+// StopWatch is a simple helper to measure time during development.
+func StopWatch(name string) func() {
+	start := time.Now()
+	return func() {
+		log.Printf("StopWatch %q took %s", name, time.Since(start))
+	}
 }

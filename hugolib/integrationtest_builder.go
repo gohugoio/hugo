@@ -3,6 +3,7 @@ package hugolib
 import (
 	"bytes"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -19,7 +20,9 @@ import (
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/config/security"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -194,10 +197,11 @@ func (s *IntegrationTestBuilder) Build() *IntegrationTestBuilder {
 	if s.Cfg.Verbose || err != nil {
 		fmt.Println(s.logBuff.String())
 	}
+	s.Assert(err, qt.IsNil)
 	if s.Cfg.RunGC {
 		s.GCCount, err = s.H.GC()
 	}
-	s.Assert(err, qt.IsNil)
+
 	return s
 }
 
@@ -308,36 +312,55 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 			s.Assert(afero.WriteFile(afs, filename, data, 0666), qt.IsNil)
 		}
 
-		configDirFilename := filepath.Join(s.Cfg.WorkingDir, "config")
-		if _, err := afs.Stat(configDirFilename); err != nil {
-			configDirFilename = ""
+		configDir := "config"
+		if _, err := afs.Stat(filepath.Join(s.Cfg.WorkingDir, "config")); err != nil {
+			configDir = ""
 		}
 
-		cfg, _, err := LoadConfig(
-			ConfigSourceDescriptor{
-				WorkingDir:   s.Cfg.WorkingDir,
-				AbsConfigDir: configDirFilename,
-				Fs:           afs,
-				Logger:       logger,
-				Environ:      []string{},
-			},
-			func(cfg config.Provider) error {
-				return nil
+		var flags config.Provider
+		if s.Cfg.BaseCfg != nil {
+			flags = s.Cfg.BaseCfg
+		} else {
+			flags = config.New()
+		}
+
+		if s.Cfg.Running {
+			flags.Set("internal", maps.Params{
+				"running": s.Cfg.Running,
+			})
+		}
+
+		if s.Cfg.WorkingDir != "" {
+			flags.Set("workingDir", s.Cfg.WorkingDir)
+		}
+
+		res, err := allconfig.LoadConfig(
+			allconfig.ConfigSourceDescriptor{
+				Flags:     flags,
+				ConfigDir: configDir,
+				Fs:        afs,
+				Logger:    logger,
+				Environ:   s.Cfg.Environ,
 			},
 		)
 
+		if err != nil {
+			initErr = err
+			return
+		}
+
+		fs := hugofs.NewFrom(afs, res.LoadingInfo.BaseConfig)
+
 		s.Assert(err, qt.IsNil)
 
-		cfg.Set("workingDir", s.Cfg.WorkingDir)
-
-		fs := hugofs.NewFrom(afs, cfg)
-
-		s.Assert(err, qt.IsNil)
-
-		depsCfg := deps.DepsCfg{Cfg: cfg, Fs: fs, Running: s.Cfg.Running, Logger: logger}
+		depsCfg := deps.DepsCfg{Configs: res, Fs: fs, Logger: logger}
 		sites, err := NewHugoSites(depsCfg)
 		if err != nil {
 			initErr = err
+			return
+		}
+		if sites == nil {
+			initErr = errors.New("no sites")
 			return
 		}
 
@@ -481,6 +504,12 @@ type IntegrationTestConfig struct {
 	// The files to use on txtar format, see
 	// https://pkg.go.dev/golang.org/x/exp/cmd/txtar
 	TxtarString string
+
+	// COnfig to use as the base. We will also read the config from the txtar.
+	BaseCfg config.Provider
+
+	// Environment variables passed to the config loader.
+	Environ []string
 
 	// Whether to simulate server mode.
 	Running bool

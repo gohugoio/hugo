@@ -19,10 +19,7 @@ import (
 	"html/template"
 	"testing"
 
-	"github.com/gohugoio/hugo/config"
-
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/output"
 )
 
 func TestSplitPages(t *testing.T) {
@@ -192,58 +189,6 @@ func doTestPagerNoPages(t *testing.T, paginator *Paginator) {
 	c.Assert(pageOne.TotalPages(), qt.Equals, 0)
 	c.Assert(pageOne.PageNumber(), qt.Equals, 1)
 	c.Assert(pageOne.PageSize(), qt.Equals, 5)
-}
-
-func TestPaginationURLFactory(t *testing.T) {
-	t.Parallel()
-	c := qt.New(t)
-	cfg := config.New()
-	cfg.Set("paginatePath", "zoo")
-
-	for _, uglyURLs := range []bool{false, true} {
-		c.Run(fmt.Sprintf("uglyURLs=%t", uglyURLs), func(c *qt.C) {
-			tests := []struct {
-				name         string
-				d            TargetPathDescriptor
-				baseURL      string
-				page         int
-				expected     string
-				expectedUgly string
-			}{
-				{
-					"HTML home page 32",
-					TargetPathDescriptor{Kind: KindHome, Type: output.HTMLFormat},
-					"http://example.com/", 32, "/zoo/32/", "/zoo/32.html",
-				},
-				{
-					"JSON home page 42",
-					TargetPathDescriptor{Kind: KindHome, Type: output.JSONFormat},
-					"http://example.com/", 42, "/zoo/42/index.json", "/zoo/42.json",
-				},
-			}
-
-			for _, test := range tests {
-				d := test.d
-				cfg.Set("baseURL", test.baseURL)
-				cfg.Set("uglyURLs", uglyURLs)
-				d.UglyURLs = uglyURLs
-
-				pathSpec := newTestPathSpecFor(cfg)
-				d.PathSpec = pathSpec
-
-				factory := newPaginationURLFactory(d)
-
-				got := factory(test.page)
-
-				if uglyURLs {
-					c.Assert(got, qt.Equals, test.expectedUgly)
-				} else {
-					c.Assert(got, qt.Equals, test.expected)
-				}
-
-			}
-		})
-	}
 }
 
 func TestProbablyEqualPageLists(t *testing.T) {

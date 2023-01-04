@@ -54,14 +54,16 @@ var DefaultConfig = Config{
 }
 
 // Config is the top level security config.
+// <docsmeta>{"name": "security", "description": "This section holds the top level security config.", "newIn": "0.91.0" }</docsmeta>
 type Config struct {
-	// Restricts access to os.Exec.
+	// Restricts access to os.Exec....
+	// <docsmeta>{ "newIn": "0.91.0" }</docsmeta>
 	Exec Exec `json:"exec"`
 
 	// Restricts access to certain template funcs.
 	Funcs Funcs `json:"funcs"`
 
-	// Restricts access to resources.Get, getJSON, getCSV.
+	// Restricts access to resources.GetRemote, getJSON, getCSV.
 	HTTP HTTP `json:"http"`
 
 	// Allow inline shortcodes

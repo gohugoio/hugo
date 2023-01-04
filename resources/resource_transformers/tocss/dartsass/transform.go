@@ -59,7 +59,7 @@ func (t *transform) Key() internal.ResourceTransformationKey {
 }
 
 func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
-	ctx.OutMediaType = media.CSSType
+	ctx.OutMediaType = media.Builtin.CSSType
 
 	opts, err := decodeOptions(t.optsm)
 	if err != nil {
@@ -102,7 +102,7 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 		}
 	}
 
-	if ctx.InMediaType.SubType == media.SASSType.SubType {
+	if ctx.InMediaType.SubType == media.Builtin.SASSType.SubType {
 		args.SourceSyntax = godartsass.SourceSyntaxSASS
 	}
 

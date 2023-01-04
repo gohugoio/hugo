@@ -98,7 +98,7 @@ func TestGetCSV(t *testing.T) {
 
 			// Setup local test file for schema-less URLs
 			if !strings.Contains(test.url, ":") && !strings.HasPrefix(test.url, "fail/") {
-				f, err := ns.deps.Fs.Source.Create(filepath.Join(ns.deps.Cfg.GetString("workingDir"), test.url))
+				f, err := ns.deps.Fs.Source.Create(filepath.Join(ns.deps.Conf.BaseConfig().WorkingDir, test.url))
 				c.Assert(err, qt.IsNil, msg)
 				f.WriteString(test.content)
 				f.Close()
@@ -190,7 +190,7 @@ func TestGetJSON(t *testing.T) {
 
 			// Setup local test file for schema-less URLs
 			if !strings.Contains(test.url, ":") && !strings.HasPrefix(test.url, "fail/") {
-				f, err := ns.deps.Fs.Source.Create(filepath.Join(ns.deps.Cfg.GetString("workingDir"), test.url))
+				f, err := ns.deps.Fs.Source.Create(filepath.Join(ns.deps.Conf.BaseConfig().WorkingDir, test.url))
 				c.Assert(err, qt.IsNil, msg)
 				f.WriteString(test.content)
 				f.Close()

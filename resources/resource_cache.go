@@ -39,8 +39,6 @@ const (
 )
 
 type ResourceCache struct {
-	rs *Spec
-
 	sync.RWMutex
 
 	// Either resource.Resource or resource.Resources.
@@ -77,12 +75,12 @@ var extAliasKeywords = map[string][]string{
 // used to do resource cache invalidations.
 //
 // We use the first directory path element and the extension, so:
-//     a/b.json => "a", "json"
-//     b.json => "json"
+//
+//	a/b.json => "a", "json"
+//	b.json => "json"
 //
 // For some of the extensions we will also map to closely related types,
 // e.g. "scss" will also return "sass".
-//
 func ResourceKeyPartitions(filename string) []string {
 	var partitions []string
 	filename = glob.NormalizePath(filename)
@@ -122,15 +120,6 @@ func ResourceKeyContainsAny(key string, partitions []string) bool {
 		}
 	}
 	return false
-}
-
-func newResourceCache(rs *Spec) *ResourceCache {
-	return &ResourceCache{
-		rs:        rs,
-		fileCache: rs.FileCaches.AssetsCache(),
-		cache:     make(map[string]any),
-		nlocker:   locker.NewLocker(),
-	}
 }
 
 func (c *ResourceCache) clear() {

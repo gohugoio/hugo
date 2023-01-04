@@ -25,6 +25,7 @@ import (
 	"sync"
 
 	"github.com/bep/gowebp/libwebp/webpoptions"
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/resources/images/webp"
 
 	"github.com/gohugoio/hugo/media"
@@ -174,8 +175,8 @@ func (i *Image) initConfig() error {
 	return nil
 }
 
-func NewImageProcessor(cfg ImagingConfig) (*ImageProcessor, error) {
-	e := cfg.Cfg.Exif
+func NewImageProcessor(cfg *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]) (*ImageProcessor, error) {
+	e := cfg.Config.Imaging.Exif
 	exifDecoder, err := exif.NewDecoder(
 		exif.WithDateDisabled(e.DisableDate),
 		exif.WithLatLongDisabled(e.DisableLatLong),
@@ -193,7 +194,7 @@ func NewImageProcessor(cfg ImagingConfig) (*ImageProcessor, error) {
 }
 
 type ImageProcessor struct {
-	Cfg         ImagingConfig
+	Cfg         *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]
 	exifDecoder *exif.Decoder
 }
 
@@ -304,11 +305,14 @@ func (p *ImageProcessor) doFilter(src image.Image, targetFormat Format, filters 
 	return dst, nil
 }
 
-func GetDefaultImageConfig(action string, defaults ImagingConfig) ImageConfig {
+func GetDefaultImageConfig(action string, defaults *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]) ImageConfig {
+	if defaults == nil {
+		defaults = defaultImageConfig
+	}
 	return ImageConfig{
 		Action:  action,
-		Hint:    defaults.Hint,
-		Quality: defaults.Cfg.Quality,
+		Hint:    defaults.Config.Hint,
+		Quality: defaults.Config.Imaging.Quality,
 	}
 }
 
@@ -350,17 +354,17 @@ func (f Format) DefaultExtension() string {
 func (f Format) MediaType() media.Type {
 	switch f {
 	case JPEG:
-		return media.JPEGType
+		return media.Builtin.JPEGType
 	case PNG:
-		return media.PNGType
+		return media.Builtin.PNGType
 	case GIF:
-		return media.GIFType
+		return media.Builtin.GIFType
 	case TIFF:
-		return media.TIFFType
+		return media.Builtin.TIFFType
 	case BMP:
-		return media.BMPType
+		return media.Builtin.BMPType
 	case WEBP:
-		return media.WEBPType
+		return media.Builtin.WEBPType
 	default:
 		panic(fmt.Sprintf("%d is not a valid image format", f))
 	}

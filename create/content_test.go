@@ -21,6 +21,8 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/config/allconfig"
+	"github.com/gohugoio/hugo/config/testconfig"
 
 	"github.com/gohugoio/hugo/deps"
 
@@ -80,7 +82,8 @@ func TestNewContentFromFile(t *testing.T) {
 			mm := afero.NewMemMapFs()
 			c.Assert(initFs(mm), qt.IsNil)
 			cfg, fs := newTestCfg(c, mm)
-			h, err := hugolib.NewHugoSites(deps.DepsCfg{Cfg: cfg, Fs: fs})
+			conf := testconfig.GetTestConfigs(fs.Source, cfg)
+			h, err := hugolib.NewHugoSites(deps.DepsCfg{Configs: conf, Fs: fs})
 			c.Assert(err, qt.IsNil)
 			err = create.NewContent(h, cas.kind, cas.path, false)
 
@@ -141,7 +144,8 @@ i18n: {{ T "hugo" }}
 	c.Assert(initFs(mm), qt.IsNil)
 	cfg, fs := newTestCfg(c, mm)
 
-	h, err := hugolib.NewHugoSites(deps.DepsCfg{Cfg: cfg, Fs: fs})
+	conf := testconfig.GetTestConfigs(fs.Source, cfg)
+	h, err := hugolib.NewHugoSites(deps.DepsCfg{Configs: conf, Fs: fs})
 	c.Assert(err, qt.IsNil)
 	c.Assert(len(h.Sites), qt.Equals, 2)
 
@@ -183,7 +187,8 @@ site RegularPages: {{ len site.RegularPages  }}
 	c.Assert(initFs(mm), qt.IsNil)
 	cfg, fs := newTestCfg(c, mm)
 
-	h, err := hugolib.NewHugoSites(deps.DepsCfg{Cfg: cfg, Fs: fs})
+	conf := testconfig.GetTestConfigs(fs.Source, cfg)
+	h, err := hugolib.NewHugoSites(deps.DepsCfg{Configs: conf, Fs: fs})
 	c.Assert(err, qt.IsNil)
 	c.Assert(len(h.Sites), qt.Equals, 2)
 
@@ -232,8 +237,8 @@ i18n: {{ T "hugo" }}
 
 	c.Assert(initFs(mm), qt.IsNil)
 	cfg, fs := newTestCfg(c, mm)
-
-	h, err := hugolib.NewHugoSites(deps.DepsCfg{Cfg: cfg, Fs: fs})
+	conf := testconfig.GetTestConfigs(fs.Source, cfg)
+	h, err := hugolib.NewHugoSites(deps.DepsCfg{Configs: conf, Fs: fs})
 	c.Assert(err, qt.IsNil)
 	c.Assert(len(h.Sites), qt.Equals, 2)
 
@@ -264,7 +269,8 @@ func TestNewContentForce(t *testing.T) {
 	c.Assert(initFs(mm), qt.IsNil)
 	cfg, fs := newTestCfg(c, mm)
 
-	h, err := hugolib.NewHugoSites(deps.DepsCfg{Cfg: cfg, Fs: fs})
+	conf := testconfig.GetTestConfigs(fs.Source, cfg)
+	h, err := hugolib.NewHugoSites(deps.DepsCfg{Configs: conf, Fs: fs})
 	c.Assert(err, qt.IsNil)
 	c.Assert(len(h.Sites), qt.Equals, 2)
 
@@ -461,8 +467,8 @@ other = "Hugo Rokkar!"`), 0o755), qt.IsNil)
 
 	c.Assert(afero.WriteFile(mm, "config.toml", []byte(cfg), 0o755), qt.IsNil)
 
-	v, _, err := hugolib.LoadConfig(hugolib.ConfigSourceDescriptor{Fs: mm, Filename: "config.toml"})
+	res, err := allconfig.LoadConfig(allconfig.ConfigSourceDescriptor{Fs: mm, Filename: "config.toml"})
 	c.Assert(err, qt.IsNil)
 
-	return v, hugofs.NewFrom(mm, v)
+	return res.LoadingInfo.Cfg, hugofs.NewFrom(mm, res.LoadingInfo.BaseConfig)
 }
