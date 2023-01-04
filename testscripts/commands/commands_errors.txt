@@ -1,0 +1,7 @@
+# Testing various error situations.
+
+! hugo mods
+stderr 'Did you mean this\?'
+
+! hugo mod clea
+stderr 'Did you mean this\?'

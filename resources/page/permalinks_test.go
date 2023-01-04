@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2023 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@ package page
 import (
 	"fmt"
 	"regexp"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -52,6 +53,11 @@ var testdataPermalinks = []struct {
 	{"/:2006-01-02", false, ""}, // valid date format but invalid attribute name
 }
 
+func urlize(uri string) string {
+	// This is just an approximation of the real urlize function.
+	return strings.ToLower(strings.ReplaceAll(uri, " ", "-"))
+}
+
 func TestPermalinkExpansion(t *testing.T) {
 	t.Parallel()
 
@@ -73,17 +79,11 @@ func TestPermalinkExpansion(t *testing.T) {
 		name := specNameCleaner.ReplaceAllString(item.spec, "")
 
 		c.Run(name, func(c *qt.C) {
-
-			permalinksConfig := map[string]string{
+			patterns := map[string]string{
 				"posts": item.spec,
 			}
-
-			ps := newTestPathSpec()
-			ps.Cfg.Set("permalinks", permalinksConfig)
-
-			expander, err := NewPermalinkExpander(ps)
+			expander, err := NewPermalinkExpander(urlize, patterns)
 			c.Assert(err, qt.IsNil)
-
 			expanded, err := expander.Expand("posts", page)
 			c.Assert(err, qt.IsNil)
 			c.Assert(expanded, qt.Equals, item.expandsTo)
@@ -112,11 +112,7 @@ func TestPermalinkExpansionMultiSection(t *testing.T) {
 		"blog":    "/:section/:year",
 		"recipes": "/:slugorfilename",
 	}
-
-	ps := newTestPathSpec()
-	ps.Cfg.Set("permalinks", permalinksConfig)
-
-	expander, err := NewPermalinkExpander(ps)
+	expander, err := NewPermalinkExpander(urlize, permalinksConfig)
 	c.Assert(err, qt.IsNil)
 
 	expanded, err := expander.Expand("posts", page)
@@ -145,10 +141,7 @@ func TestPermalinkExpansionConcurrent(t *testing.T) {
 		"posts": "/:slug/",
 	}
 
-	ps := newTestPathSpec()
-	ps.Cfg.Set("permalinks", permalinksConfig)
-
-	expander, err := NewPermalinkExpander(ps)
+	expander, err := NewPermalinkExpander(urlize, permalinksConfig)
 	c.Assert(err, qt.IsNil)
 
 	var wg sync.WaitGroup
@@ -174,7 +167,8 @@ func TestPermalinkExpansionSliceSyntax(t *testing.T) {
 	t.Parallel()
 
 	c := qt.New(t)
-	exp, _ := NewPermalinkExpander(newTestPathSpec())
+	exp, err := NewPermalinkExpander(urlize, nil)
+	c.Assert(err, qt.IsNil)
 	slice := []string{"a", "b", "c", "d"}
 	fn := func(s string) []string {
 		return exp.toSliceFunc(s)(slice)
@@ -219,11 +213,7 @@ func BenchmarkPermalinkExpand(b *testing.B) {
 	permalinksConfig := map[string]string{
 		"posts": "/:year-:month-:title",
 	}
-
-	ps := newTestPathSpec()
-	ps.Cfg.Set("permalinks", permalinksConfig)
-
-	expander, err := NewPermalinkExpander(ps)
+	expander, err := NewPermalinkExpander(urlize, permalinksConfig)
 	if err != nil {
 		b.Fatal(err)
 	}

@@ -31,7 +31,7 @@ func TestBuild(t *testing.T) {
 		"useResourceCacheWhen": "always",
 	})
 
-	b := DecodeBuild(v)
+	b := DecodeBuildConfig(v)
 
 	c.Assert(b.UseResourceCacheWhen, qt.Equals, "always")
 
@@ -39,7 +39,7 @@ func TestBuild(t *testing.T) {
 		"useResourceCacheWhen": "foo",
 	})
 
-	b = DecodeBuild(v)
+	b = DecodeBuildConfig(v)
 
 	c.Assert(b.UseResourceCacheWhen, qt.Equals, "fallback")
 
@@ -91,6 +91,7 @@ status = 301
 
 	s, err := DecodeServer(cfg)
 	c.Assert(err, qt.IsNil)
+	c.Assert(s.CompileConfig(), qt.IsNil)
 
 	c.Assert(s.MatchHeaders("/foo.jpg"), qt.DeepEquals, []types.KeyValueStr{
 		{Key: "X-Content-Type-Options", Value: "nosniff"},

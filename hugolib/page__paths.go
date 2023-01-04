@@ -128,8 +128,8 @@ func createTargetPathDescriptor(s *Site, p page.Page, pm *pageMeta) (page.Target
 		PathSpec:    d.PathSpec,
 		Kind:        p.Kind(),
 		Sections:    p.SectionsEntries(),
-		UglyURLs:    s.Info.uglyURLs(p),
-		ForcePrefix: s.h.IsMultihost() || alwaysInSubDir,
+		UglyURLs:    s.h.Conf.IsUglyURLs(p.Section()),
+		ForcePrefix: s.h.Conf.IsMultihost() || alwaysInSubDir,
 		Dir:         dir,
 		URL:         pm.urlPaths.URL,
 	}

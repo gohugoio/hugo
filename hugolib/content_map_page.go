@@ -148,7 +148,7 @@ func (m *pageMap) newPageFromContentNode(n *contentNode, parentBucket *pagesMapB
 
 	parseResult, err := pageparser.Parse(
 		r,
-		pageparser.Config{EnableEmoji: s.siteCfg.enableEmoji},
+		pageparser.Config{EnableEmoji: s.conf.EnableEmoji},
 	)
 	if err != nil {
 		return nil, err
@@ -742,13 +742,11 @@ func (m *pageMaps) AssemblePages() error {
 
 		sw := &sectionWalker{m: pm.contentMap}
 		a := sw.applyAggregates()
-		_, mainSectionsSet := pm.s.s.Info.Params()["mainsections"]
-		if !mainSectionsSet && a.mainSection != "" {
-			mainSections := []string{strings.TrimRight(a.mainSection, "/")}
-			pm.s.s.Info.Params()["mainSections"] = mainSections
-			pm.s.s.Info.Params()["mainsections"] = mainSections
-		}
 
+		if a.mainSection != "" && len(pm.s.s.conf.C.MainSections) == 0 {
+			mainSections := []string{strings.TrimRight(a.mainSection, "/")}
+			pm.s.s.conf.C.SetMainSections(mainSections)
+		}
 		pm.s.lastmod = a.datesAll.Lastmod()
 		if resource.IsZeroDates(pm.s.home) {
 			pm.s.home.m.Dates = a.datesAll

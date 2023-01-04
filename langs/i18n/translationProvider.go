@@ -45,10 +45,10 @@ func NewTranslationProvider() *TranslationProvider {
 }
 
 // Update updates the i18n func in the provided Deps.
-func (tp *TranslationProvider) Update(d *deps.Deps) error {
-	spec := source.NewSourceSpec(d.PathSpec, nil, nil)
+func (tp *TranslationProvider) NewResource(dst *deps.Deps) error {
+	spec := source.NewSourceSpec(dst.PathSpec, nil, nil)
 
-	var defaultLangTag, err = language.Parse(d.Cfg.GetString("defaultContentLanguage"))
+	var defaultLangTag, err = language.Parse(dst.Conf.DefaultContentLanguage())
 	if err != nil {
 		defaultLangTag = language.English
 	}
@@ -61,7 +61,7 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 
 	// The source dirs are ordered so the most important comes first. Since this is a
 	// last key win situation, we have to reverse the iteration order.
-	dirs := d.BaseFs.I18n.Dirs
+	dirs := dst.BaseFs.I18n.Dirs
 	for i := len(dirs) - 1; i >= 0; i-- {
 		dir := dirs[i]
 		src := spec.NewFilesystemFromFileMetaInfo(dir)
@@ -76,11 +76,12 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 		}
 	}
 
-	tp.t = NewTranslator(bundle, d.Cfg, d.Log)
+	tp.t = NewTranslator(bundle, dst.Conf, dst.Log)
 
-	d.Translate = tp.t.Func(d.Language.Lang)
+	dst.Translate = tp.t.Func(dst.Conf.Language().Lang)
 
 	return nil
+
 }
 
 const artificialLangTagPrefix = "art-x-"
@@ -123,9 +124,8 @@ func addTranslationFile(bundle *i18n.Bundle, r source.File) error {
 }
 
 // Clone sets the language func for the new language.
-func (tp *TranslationProvider) Clone(d *deps.Deps) error {
-	d.Translate = tp.t.Func(d.Language.Lang)
-
+func (tp *TranslationProvider) CloneResource(dst, src *deps.Deps) error {
+	dst.Translate = tp.t.Func(dst.Conf.Language().Lang)
 	return nil
 }
 

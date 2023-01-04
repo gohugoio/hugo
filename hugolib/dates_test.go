@@ -201,7 +201,7 @@ timeZone = "America/LosAngeles"   # Should be America/Los_Angeles
 
 	err := b.CreateSitesE()
 	b.Assert(err, qt.Not(qt.IsNil))
-	b.Assert(err.Error(), qt.Contains, `failed to load config: invalid timeZone for language "en": unknown time zone America/LosAngeles`)
+	b.Assert(err.Error(), qt.Contains, `invalid timeZone for language "en": unknown time zone America/LosAngeles`)
 }
 
 // Issue 8835

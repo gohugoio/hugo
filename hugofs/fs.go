@@ -62,37 +62,53 @@ type Fs struct {
 
 // NewDefault creates a new Fs with the OS file system
 // as source and destination file systems.
-func NewDefault(cfg config.Provider) *Fs {
+func NewDefault(conf config.BaseConfig) *Fs {
 	fs := Os
-	return newFs(fs, fs, cfg)
+	return NewFrom(fs, conf)
 }
 
-// NewMem creates a new Fs with the MemMapFs
-// as source and destination file systems.
-// Useful for testing.
-func NewMem(cfg config.Provider) *Fs {
-	fs := &afero.MemMapFs{}
-	return newFs(fs, fs, cfg)
+func NewDefaultOld(cfg config.Provider) *Fs {
+	workingDir, publishDir := getWorkingPublishDir(cfg)
+	fs := Os
+	return newFs(fs, fs, workingDir, publishDir)
 }
 
 // NewFrom creates a new Fs based on the provided Afero Fs
 // as source and destination file systems.
 // Useful for testing.
-func NewFrom(fs afero.Fs, cfg config.Provider) *Fs {
-	return newFs(fs, fs, cfg)
+func NewFrom(fs afero.Fs, conf config.BaseConfig) *Fs {
+	return newFs(fs, fs, conf.WorkingDir, conf.PublishDir)
+}
+
+func NewFromOld(fs afero.Fs, cfg config.Provider) *Fs {
+	workingDir, publishDir := getWorkingPublishDir(cfg)
+	return newFs(fs, fs, workingDir, publishDir)
 }
 
 // NewFrom creates a new Fs based on the provided Afero Fss
 // as the source and destination file systems.
 func NewFromSourceAndDestination(source, destination afero.Fs, cfg config.Provider) *Fs {
-	return newFs(source, destination, cfg)
+	workingDir, publishDir := getWorkingPublishDir(cfg)
+	return newFs(source, destination, workingDir, publishDir)
 }
 
-func newFs(source, destination afero.Fs, cfg config.Provider) *Fs {
+func getWorkingPublishDir(cfg config.Provider) (string, string) {
 	workingDir := cfg.GetString("workingDir")
-	publishDir := cfg.GetString("publishDir")
+	publishDir := cfg.GetString("publishDirDynamic")
+	if publishDir == "" {
+		publishDir = cfg.GetString("publishDir")
+	}
+	return workingDir, publishDir
+
+}
+
+func newFs(source, destination afero.Fs, workingDir, publishDir string) *Fs {
 	if publishDir == "" {
 		panic("publishDir is empty")
+	}
+
+	if workingDir == "." {
+		workingDir = ""
 	}
 
 	// Sanity check
@@ -158,6 +174,7 @@ func MakeReadableAndRemoveAllModulePkgDir(fs afero.Fs, dir string) (int, error) 
 		}
 		return nil
 	})
+
 	return counter, fs.RemoveAll(dir)
 }
 

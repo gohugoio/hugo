@@ -23,6 +23,7 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/hugofs/glob"
 
 	"github.com/fsnotify/fsnotify"
@@ -34,42 +35,30 @@ import (
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
-	"errors"
-
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/para"
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/source"
 
-	"github.com/gohugoio/hugo/config"
-
-	"github.com/gohugoio/hugo/publisher"
-
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/lazy"
 
-	"github.com/gohugoio/hugo/langs/i18n"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
 	"github.com/gohugoio/hugo/tpl"
-	"github.com/gohugoio/hugo/tpl/tplimpl"
 )
 
 // HugoSites represents the sites to build. Each site represents a language.
 type HugoSites struct {
 	Sites []*Site
 
-	multilingual *Multilingual
+	Configs *allconfig.Configs
 
-	// Multihost is set if multilingual and baseURL set on the language level.
-	multihost bool
-
-	// If this is running in the dev server.
-	running bool
+	hugoInfo hugo.HugoInfo
 
 	// Render output formats for all sites.
 	renderFormats output.Formats
@@ -225,14 +214,6 @@ func (h *HugoSites) codeownersForPage(p page.Page) ([]string, error) {
 	return h.codeownerInfo.forPage(p), nil
 }
 
-func (h *HugoSites) siteInfos() page.Sites {
-	infos := make(page.Sites, len(h.Sites))
-	for i, site := range h.Sites {
-		infos[i] = site.Info
-	}
-	return infos
-}
-
 func (h *HugoSites) pickOneAndLogTheRest(errors []error) error {
 	if len(errors) == 0 {
 		return nil
@@ -267,8 +248,8 @@ func (h *HugoSites) pickOneAndLogTheRest(errors []error) error {
 	return errors[i]
 }
 
-func (h *HugoSites) IsMultihost() bool {
-	return h != nil && h.multihost
+func (h *HugoSites) isMultiLingual() bool {
+	return len(h.Sites) > 1
 }
 
 // TODO(bep) consolidate
@@ -316,126 +297,16 @@ func (h *HugoSites) GetContentPage(filename string) page.Page {
 	return p
 }
 
-// NewHugoSites creates a new collection of sites given the input sites, building
-// a language configuration based on those.
-func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
-	if cfg.Language != nil {
-		return nil, errors.New("Cannot provide Language in Cfg when sites are provided")
-	}
-
-	// Return error at the end. Make the caller decide if it's fatal or not.
-	var initErr error
-
-	langConfig, err := newMultiLingualFromSites(cfg.Cfg, sites...)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create language config: %w", err)
-	}
-
-	var contentChangeTracker *contentChangeMap
-
-	numWorkers := config.GetNumWorkerMultiplier()
-	if numWorkers > len(sites) {
-		numWorkers = len(sites)
-	}
-	var workers *para.Workers
-	if numWorkers > 1 {
-		workers = para.New(numWorkers)
-	}
-
-	h := &HugoSites{
-		running:                 cfg.Running,
-		multilingual:            langConfig,
-		multihost:               cfg.Cfg.GetBool("multihost"),
-		Sites:                   sites,
-		workers:                 workers,
-		numWorkers:              numWorkers,
-		skipRebuildForFilenames: make(map[string]bool),
-		init: &hugoSitesInit{
-			data:         lazy.New(),
-			layouts:      lazy.New(),
-			gitInfo:      lazy.New(),
-			translations: lazy.New(),
-		},
-	}
-
-	h.fatalErrorHandler = &fatalErrorHandler{
-		h:     h,
-		donec: make(chan bool),
-	}
-
-	h.init.data.Add(func(context.Context) (any, error) {
-		err := h.loadData(h.PathSpec.BaseFs.Data.Dirs)
-		if err != nil {
-			return nil, fmt.Errorf("failed to load data: %w", err)
-		}
-		return nil, nil
-	})
-
-	h.init.layouts.Add(func(context.Context) (any, error) {
-		for _, s := range h.Sites {
-			if err := s.Tmpl().(tpl.TemplateManager).MarkReady(); err != nil {
-				return nil, err
-			}
-		}
-		return nil, nil
-	})
-
-	h.init.translations.Add(func(context.Context) (any, error) {
-		if len(h.Sites) > 1 {
-			allTranslations := pagesToTranslationsMap(h.Sites)
-			assignTranslationsToPages(allTranslations, h.Sites)
-		}
-
-		return nil, nil
-	})
-
-	h.init.gitInfo.Add(func(context.Context) (any, error) {
-		err := h.loadGitInfo()
-		if err != nil {
-			return nil, fmt.Errorf("failed to load Git info: %w", err)
-		}
-		return nil, nil
-	})
-
-	for _, s := range sites {
-		s.h = h
-	}
-
-	var l configLoader
-	if err := l.applyDeps(cfg, sites...); err != nil {
-		initErr = fmt.Errorf("add site dependencies: %w", err)
-	}
-
-	h.Deps = sites[0].Deps
-	if h.Deps == nil {
-		return nil, initErr
-	}
-
-	// Only needed in server mode.
-	// TODO(bep) clean up the running vs watching terms
-	if cfg.Running {
-		contentChangeTracker = &contentChangeMap{
-			pathSpec:      h.PathSpec,
-			symContent:    make(map[string]map[string]bool),
-			leafBundles:   radix.New(),
-			branchBundles: make(map[string]bool),
-		}
-		h.ContentChanges = contentChangeTracker
-	}
-
-	return h, initErr
-}
-
 func (h *HugoSites) loadGitInfo() error {
-	if h.Cfg.GetBool("enableGitInfo") {
-		gi, err := newGitInfo(h.Cfg)
+	if h.Configs.Base.EnableGitInfo {
+		gi, err := newGitInfo(h.Conf)
 		if err != nil {
 			h.Log.Errorln("Failed to read Git log:", err)
 		} else {
 			h.gitInfo = gi
 		}
 
-		co, err := newCodeOwners(h.Cfg)
+		co, err := newCodeOwners(h.Configs.LoadingInfo.BaseConfig.WorkingDir)
 		if err != nil {
 			h.Log.Errorln("Failed to read CODEOWNERS:", err)
 		} else {
@@ -443,115 +314,6 @@ func (h *HugoSites) loadGitInfo() error {
 		}
 	}
 	return nil
-}
-
-func (l configLoader) applyDeps(cfg deps.DepsCfg, sites ...*Site) error {
-	if cfg.TemplateProvider == nil {
-		cfg.TemplateProvider = tplimpl.DefaultTemplateProvider
-	}
-
-	if cfg.TranslationProvider == nil {
-		cfg.TranslationProvider = i18n.NewTranslationProvider()
-	}
-
-	var (
-		d   *deps.Deps
-		err error
-	)
-
-	for _, s := range sites {
-		if s.Deps != nil {
-			continue
-		}
-
-		onCreated := func(d *deps.Deps) error {
-			s.Deps = d
-
-			// Set up the main publishing chain.
-			pub, err := publisher.NewDestinationPublisher(
-				d.ResourceSpec,
-				s.outputFormatsConfig,
-				s.mediaTypesConfig,
-			)
-			if err != nil {
-				return err
-			}
-			s.publisher = pub
-
-			if err := s.initializeSiteInfo(); err != nil {
-				return err
-			}
-
-			d.Site = s.Info
-
-			siteConfig, err := l.loadSiteConfig(s.language)
-			if err != nil {
-				return fmt.Errorf("load site config: %w", err)
-			}
-			s.siteConfigConfig = siteConfig
-
-			pm := &pageMap{
-				contentMap: newContentMap(contentMapConfig{
-					lang:                 s.Lang(),
-					taxonomyConfig:       s.siteCfg.taxonomiesConfig.Values(),
-					taxonomyDisabled:     !s.isEnabled(page.KindTerm),
-					taxonomyTermDisabled: !s.isEnabled(page.KindTaxonomy),
-					pageDisabled:         !s.isEnabled(page.KindPage),
-				}),
-				s: s,
-			}
-
-			s.PageCollections = newPageCollections(pm)
-
-			s.siteRefLinker, err = newSiteRefLinker(s.language, s)
-			return err
-		}
-
-		cfg.Language = s.language
-		cfg.MediaTypes = s.mediaTypesConfig
-		cfg.OutputFormats = s.outputFormatsConfig
-
-		if d == nil {
-			cfg.WithTemplate = s.withSiteTemplates(cfg.WithTemplate)
-
-			var err error
-			d, err = deps.New(cfg)
-			if err != nil {
-				return fmt.Errorf("create deps: %w", err)
-			}
-
-			d.OutputFormatsConfig = s.outputFormatsConfig
-
-			if err := onCreated(d); err != nil {
-				return fmt.Errorf("on created: %w", err)
-			}
-
-			if err = d.LoadResources(); err != nil {
-				return fmt.Errorf("load resources: %w", err)
-			}
-
-		} else {
-			d, err = d.ForLanguage(cfg, onCreated)
-			if err != nil {
-				return err
-			}
-			d.OutputFormatsConfig = s.outputFormatsConfig
-		}
-	}
-
-	return nil
-}
-
-// NewHugoSites creates HugoSites from the given config.
-func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
-	if cfg.Logger == nil {
-		cfg.Logger = loggers.NewErrorLogger()
-	}
-	sites, err := createSitesFromConfig(cfg)
-	if err != nil {
-		return nil, fmt.Errorf("from config: %w", err)
-	}
-	return newHugoSites(cfg, sites...)
 }
 
 func (s *Site) withSiteTemplates(withTemplates ...func(templ tpl.TemplateManager) error) func(templ tpl.TemplateManager) error {
@@ -569,35 +331,10 @@ func (s *Site) withSiteTemplates(withTemplates ...func(templ tpl.TemplateManager
 	}
 }
 
-func createSitesFromConfig(cfg deps.DepsCfg) ([]*Site, error) {
-	var sites []*Site
-
-	languages := getLanguages(cfg.Cfg)
-
-	for _, lang := range languages {
-		if lang.Disabled {
-			continue
-		}
-		var s *Site
-		var err error
-		cfg.Language = lang
-		s, err = newSite(cfg)
-
-		if err != nil {
-			return nil, err
-		}
-
-		sites = append(sites, s)
-	}
-
-	return sites, nil
-}
-
 // Reset resets the sites and template caches etc., making it ready for a full rebuild.
 func (h *HugoSites) reset(config *BuildCfg) {
 	if config.ResetState {
-		for i, s := range h.Sites {
-			h.Sites[i] = s.reset()
+		for _, s := range h.Sites {
 			if r, ok := s.Fs.PublishDir.(hugofs.Reseter); ok {
 				r.Reset()
 			}
@@ -642,60 +379,10 @@ func (h *HugoSites) withSite(fn func(s *Site) error) error {
 	return g.Wait()
 }
 
-func (h *HugoSites) createSitesFromConfig(cfg config.Provider) error {
-	oldLangs, _ := h.Cfg.Get("languagesSorted").(langs.Languages)
-
-	l := configLoader{cfg: h.Cfg}
-	if err := l.loadLanguageSettings(oldLangs); err != nil {
-		return err
-	}
-
-	depsCfg := deps.DepsCfg{Fs: h.Fs, Cfg: l.cfg}
-
-	sites, err := createSitesFromConfig(depsCfg)
-	if err != nil {
-		return err
-	}
-
-	langConfig, err := newMultiLingualFromSites(depsCfg.Cfg, sites...)
-	if err != nil {
-		return err
-	}
-
-	h.Sites = sites
-
-	for _, s := range sites {
-		s.h = h
-	}
-
-	var cl configLoader
-	if err := cl.applyDeps(depsCfg, sites...); err != nil {
-		return err
-	}
-
-	h.Deps = sites[0].Deps
-
-	h.multilingual = langConfig
-	h.multihost = h.Deps.Cfg.GetBool("multihost")
-
-	return nil
-}
-
-func (h *HugoSites) toSiteInfos() []*SiteInfo {
-	infos := make([]*SiteInfo, len(h.Sites))
-	for i, s := range h.Sites {
-		infos[i] = s.Info
-	}
-	return infos
-}
-
 // BuildCfg holds build options used to, as an example, skip the render step.
 type BuildCfg struct {
 	// Reset site state before build. Use to force full rebuilds.
 	ResetState bool
-	// If set, we re-create the sites from the given configuration before a build.
-	// This is needed if new languages are added.
-	NewConfig config.Provider
 	// Skip rendering. Useful for testing.
 	SkipRender bool
 	// Use this to indicate what changed (for rebuilds).
@@ -750,13 +437,13 @@ func (cfg *BuildCfg) shouldRender(p *pageState) bool {
 }
 
 func (h *HugoSites) renderCrossSitesSitemap() error {
-	if !h.multilingual.enabled() || h.IsMultihost() {
+	if !h.isMultiLingual() || h.Conf.IsMultihost() {
 		return nil
 	}
 
 	sitemapEnabled := false
 	for _, s := range h.Sites {
-		if s.isEnabled(kindSitemap) {
+		if s.conf.IsKindEnabled(kindSitemap) {
 			sitemapEnabled = true
 			break
 		}
@@ -772,14 +459,14 @@ func (h *HugoSites) renderCrossSitesSitemap() error {
 
 	templ := s.lookupLayouts("sitemapindex.xml", "_default/sitemapindex.xml", "_internal/_default/sitemapindex.xml")
 	return s.renderAndWriteXML(ctx, &s.PathSpec.ProcessingStats.Sitemaps, "sitemapindex",
-		s.siteCfg.sitemap.Filename, h.toSiteInfos(), templ)
+		s.conf.Sitemap.Filename, h.Sites, templ)
 }
 
 func (h *HugoSites) renderCrossSitesRobotsTXT() error {
-	if h.multihost {
+	if h.Configs.IsMultihost {
 		return nil
 	}
-	if !h.Cfg.GetBool("enableRobotsTXT") {
+	if !h.Configs.Base.EnableRobotsTXT {
 		return nil
 	}
 

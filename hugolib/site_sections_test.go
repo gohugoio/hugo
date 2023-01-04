@@ -28,7 +28,6 @@ func TestNestedSections(t *testing.T) {
 	var (
 		c       = qt.New(t)
 		cfg, fs = newTestCfg()
-		th      = newTestHelper(cfg, fs, t)
 	)
 
 	cfg.Set("permalinks", map[string]string{
@@ -114,7 +113,9 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 
 	cfg.Set("paginate", 2)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	th, configs := newTestHelperFromProvider(cfg, fs, t)
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 21)
 
@@ -315,7 +316,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 	c.Assert(len(home.Ancestors()), qt.Equals, 0)
 
 	c.Assert(len(home.Sections()), qt.Equals, 9)
-	c.Assert(s.Info.Sections(), deepEqualsPages, home.Sections())
+	c.Assert(s.Sections(), deepEqualsPages, home.Sections())
 
 	rootPage := s.getPage(page.KindPage, "mypage.md")
 	c.Assert(rootPage, qt.Not(qt.IsNil))

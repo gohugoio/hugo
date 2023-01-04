@@ -26,6 +26,7 @@ import (
 	"github.com/bep/lazycache"
 
 	"github.com/gohugoio/hugo/identity"
+
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 
 	"github.com/gohugoio/hugo/tpl"
@@ -33,10 +34,6 @@ import (
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/deps"
 )
-
-// TestTemplateProvider is global deps.ResourceProvider.
-// NOTE: It's currently unused.
-var TestTemplateProvider deps.ResourceProvider
 
 type partialCacheKey struct {
 	Name     string
@@ -130,7 +127,7 @@ func (ns *Namespace) Include(ctx context.Context, name string, contextList ...an
 
 func (ns *Namespace) includWithTimeout(ctx context.Context, name string, dataList ...any) includeResult {
 	// Create a new context with a timeout not connected to the incoming context.
-	timeoutCtx, cancel := context.WithTimeout(context.Background(), ns.deps.Timeout)
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), ns.deps.Conf.Timeout())
 	defer cancel()
 
 	res := make(chan includeResult, 1)
@@ -145,7 +142,7 @@ func (ns *Namespace) includWithTimeout(ctx context.Context, name string, dataLis
 	case <-timeoutCtx.Done():
 		err := timeoutCtx.Err()
 		if err == context.DeadlineExceeded {
-			err = fmt.Errorf("partial %q timed out after %s. This is most likely due to infinite recursion. If this is just a slow template, you can try to increase the 'timeout' config setting.", name, ns.deps.Timeout)
+			err = fmt.Errorf("partial %q timed out after %s. This is most likely due to infinite recursion. If this is just a slow template, you can try to increase the 'timeout' config setting.", name, ns.deps.Conf.Timeout())
 		}
 		return includeResult{err: err}
 	}

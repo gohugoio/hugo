@@ -1,4 +1,4 @@
-package resources
+package resources_test
 
 import (
 	"image"
@@ -10,15 +10,13 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/langs"
-	"github.com/gohugoio/hugo/modules"
+	"github.com/gohugoio/hugo/config/testconfig"
+	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/resources"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/media"
-	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources/images"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -31,28 +29,7 @@ type specDescriptor struct {
 	fs      afero.Fs
 }
 
-func createTestCfg() config.Provider {
-	cfg := config.New()
-	cfg.Set("resourceDir", "resources")
-	cfg.Set("contentDir", "content")
-	cfg.Set("dataDir", "data")
-	cfg.Set("i18nDir", "i18n")
-	cfg.Set("layoutDir", "layouts")
-	cfg.Set("assetDir", "assets")
-	cfg.Set("archetypeDir", "archetypes")
-	cfg.Set("publishDir", "public")
-
-	langs.LoadLanguageSettings(cfg, nil)
-	mod, err := modules.CreateProjectModule(cfg)
-	if err != nil {
-		panic(err)
-	}
-	cfg.Set("allModules", modules.Modules{mod})
-
-	return cfg
-}
-
-func newTestResourceSpec(desc specDescriptor) *Spec {
+func newTestResourceSpec(desc specDescriptor) *resources.Spec {
 	baseURL := desc.baseURL
 	if baseURL == "" {
 		baseURL = "https://example.com/"
@@ -63,12 +40,17 @@ func newTestResourceSpec(desc specDescriptor) *Spec {
 		afs = afero.NewMemMapFs()
 	}
 
-	afs = hugofs.NewBaseFileDecorator(afs)
+	if hugofs.IsOsFs(afs) {
+		panic("osFs not supported for this test")
+	}
 
-	c := desc.c
+	if err := afs.MkdirAll("assets", 0755); err != nil {
+		panic(err)
+	}
 
-	cfg := createTestCfg()
+	cfg := config.New()
 	cfg.Set("baseURL", baseURL)
+	cfg.Set("publishDir", "public")
 
 	imagingCfg := map[string]any{
 		"resampleFilter": "linear",
@@ -77,19 +59,12 @@ func newTestResourceSpec(desc specDescriptor) *Spec {
 	}
 
 	cfg.Set("imaging", imagingCfg)
+	d := testconfig.GetTestDeps(
+		afs, cfg,
+		func(d *deps.Deps) { d.Fs.PublishDir = hugofs.NewCreateCountingFs(d.Fs.PublishDir) },
+	)
 
-	fs := hugofs.NewFrom(afs, cfg)
-	fs.PublishDir = hugofs.NewCreateCountingFs(fs.PublishDir)
-
-	s, err := helpers.NewPathSpec(fs, cfg, nil)
-	c.Assert(err, qt.IsNil)
-
-	filecaches, err := filecache.NewCaches(s)
-	c.Assert(err, qt.IsNil)
-
-	spec, err := NewSpec(s, filecaches, nil, nil, nil, nil, output.DefaultFormats, media.DefaultTypes)
-	c.Assert(err, qt.IsNil)
-	return spec
+	return d.ResourceSpec
 }
 
 func newTargetPaths(link string) func() page.TargetPaths {
@@ -101,8 +76,8 @@ func newTargetPaths(link string) func() page.TargetPaths {
 	}
 }
 
-func newTestResourceOsFs(c *qt.C) (*Spec, string) {
-	cfg := createTestCfg()
+func newTestResourceOsFs(c *qt.C) (*resources.Spec, string) {
+	cfg := config.New()
 	cfg.Set("baseURL", "https://example.com")
 
 	workDir, err := os.MkdirTemp("", "hugores")
@@ -117,50 +92,37 @@ func newTestResourceOsFs(c *qt.C) (*Spec, string) {
 
 	cfg.Set("workingDir", workDir)
 
-	fs := hugofs.NewFrom(hugofs.NewBaseFileDecorator(hugofs.Os), cfg)
+	os.MkdirAll(filepath.Join(workDir, "assets"), 0755)
 
-	s, err := helpers.NewPathSpec(fs, cfg, nil)
-	c.Assert(err, qt.IsNil)
+	d := testconfig.GetTestDeps(hugofs.Os, cfg)
 
-	filecaches, err := filecache.NewCaches(s)
-	c.Assert(err, qt.IsNil)
-
-	spec, err := NewSpec(s, filecaches, nil, nil, nil, nil, output.DefaultFormats, media.DefaultTypes)
-	c.Assert(err, qt.IsNil)
-
-	return spec, workDir
+	return d.ResourceSpec, workDir
 }
 
-func fetchSunset(c *qt.C) images.ImageResource {
+func fetchSunset(c *qt.C) (*resources.Spec, images.ImageResource) {
 	return fetchImage(c, "sunset.jpg")
 }
 
-func fetchImage(c *qt.C, name string) images.ImageResource {
+func fetchImage(c *qt.C, name string) (*resources.Spec, images.ImageResource) {
 	spec := newTestResourceSpec(specDescriptor{c: c})
-	return fetchImageForSpec(spec, c, name)
+	return spec, fetchImageForSpec(spec, c, name)
 }
 
-func fetchImageForSpec(spec *Spec, c *qt.C, name string) images.ImageResource {
+func fetchImageForSpec(spec *resources.Spec, c *qt.C, name string) images.ImageResource {
 	r := fetchResourceForSpec(spec, c, name)
-
 	img := r.(images.ImageResource)
-
 	c.Assert(img, qt.Not(qt.IsNil))
-	c.Assert(img.(specProvider).getSpec(), qt.Not(qt.IsNil))
-
 	return img
 }
 
-func fetchResourceForSpec(spec *Spec, c *qt.C, name string, targetPathAddends ...string) resource.ContentResource {
+func fetchResourceForSpec(spec *resources.Spec, c *qt.C, name string, targetPathAddends ...string) resource.ContentResource {
 	src, err := os.Open(filepath.FromSlash("testdata/" + name))
 	c.Assert(err, qt.IsNil)
-	workDir := spec.WorkingDir
 	if len(targetPathAddends) > 0 {
 		addends := strings.Join(targetPathAddends, "_")
 		name = addends + "_" + name
 	}
-	targetFilename := filepath.Join(workDir, name)
-	out, err := helpers.OpenFileForWriting(spec.Fs.Source, targetFilename)
+	out, err := helpers.OpenFileForWriting(spec.Fs.WorkingDirWritable, filepath.Join(filepath.Join("assets", name)))
 	c.Assert(err, qt.IsNil)
 	_, err = io.Copy(out, src)
 	out.Close()
@@ -169,7 +131,7 @@ func fetchResourceForSpec(spec *Spec, c *qt.C, name string, targetPathAddends ..
 
 	factory := newTargetPaths("/a")
 
-	r, err := spec.New(ResourceSourceDescriptor{Fs: spec.Fs.Source, TargetPaths: factory, LazyPublish: true, RelTargetFilename: name, SourceFilename: targetFilename})
+	r, err := spec.New(resources.ResourceSourceDescriptor{Fs: spec.BaseFs.Assets.Fs, TargetPaths: factory, LazyPublish: true, RelTargetFilename: name, SourceFilename: name})
 	c.Assert(err, qt.IsNil)
 	c.Assert(r, qt.Not(qt.IsNil))
 

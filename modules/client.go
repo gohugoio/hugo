@@ -433,9 +433,9 @@ func (c *Client) Clean(pattern string) error {
 		if g != nil && !g.Match(m.Path) {
 			continue
 		}
-		_, err = hugofs.MakeReadableAndRemoveAllModulePkgDir(c.fs, m.Dir)
+		dirCount, err := hugofs.MakeReadableAndRemoveAllModulePkgDir(c.fs, m.Dir)
 		if err == nil {
-			c.logger.Printf("hugo: cleaned module cache for %q", m.Path)
+			c.logger.Printf("hugo: removed %d dirs in module cache for %q", dirCount, m.Path)
 		}
 	}
 	return err

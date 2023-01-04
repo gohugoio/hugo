@@ -29,7 +29,7 @@ import (
 func New(deps *deps.Deps) *Namespace {
 	return &Namespace{
 		deps:      deps,
-		multihost: deps.Cfg.GetBool("multihost"),
+		multihost: deps.Conf.IsMultihost(),
 	}
 }
 

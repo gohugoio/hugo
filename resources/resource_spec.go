@@ -23,12 +23,15 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/BurntSushi/locker"
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/config/allconfig"
+	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources/jsconfig"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hexec"
 
-	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/identity"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -38,7 +41,6 @@ import (
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/media"
-	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources/images"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -48,17 +50,19 @@ import (
 
 func NewSpec(
 	s *helpers.PathSpec,
-	fileCaches filecache.Caches,
+	common *SpecCommon, // may be nil
 	incr identity.Incrementer,
 	logger loggers.Logger,
 	errorHandler herrors.ErrorSender,
-	execHelper *hexec.Exec,
-	outputFormats output.Formats,
-	mimeTypes media.Types) (*Spec, error) {
-	imgConfig, err := images.DecodeConfig(s.Cfg.GetStringMap("imaging"))
+	execHelper *hexec.Exec) (*Spec, error) {
+
+	fileCaches, err := filecache.NewCaches(s)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create file caches from configuration: %w", err)
 	}
+
+	conf := s.Cfg.GetConfig().(*allconfig.Config)
+	imgConfig := conf.Imaging
 
 	imaging, err := images.NewImageProcessor(imgConfig)
 	if err != nil {
@@ -73,35 +77,43 @@ func NewSpec(
 		logger = loggers.NewErrorLogger()
 	}
 
-	permalinks, err := page.NewPermalinkExpander(s)
+	permalinks, err := page.NewPermalinkExpander(s.URLize, conf.Permalinks)
 	if err != nil {
 		return nil, err
 	}
 
-	rs := &Spec{
-		PathSpec:      s,
-		Logger:        logger,
-		ErrorSender:   errorHandler,
-		imaging:       imaging,
-		ExecHelper:    execHelper,
-		incr:          incr,
-		MediaTypes:    mimeTypes,
-		OutputFormats: outputFormats,
-		Permalinks:    permalinks,
-		BuildConfig:   config.DecodeBuild(s.Cfg),
-		FileCaches:    fileCaches,
-		PostBuildAssets: &PostBuildAssets{
-			PostProcessResources: make(map[string]postpub.PostPublishedResource),
-			JSConfigBuilder:      jsconfig.NewBuilder(),
-		},
-		imageCache: newImageCache(
-			fileCaches.ImageCache(),
+	if common == nil {
+		common = &SpecCommon{
+			incr:       incr,
+			FileCaches: fileCaches,
+			PostBuildAssets: &PostBuildAssets{
+				PostProcessResources: make(map[string]postpub.PostPublishedResource),
+				JSConfigBuilder:      jsconfig.NewBuilder(),
+			},
+			imageCache: newImageCache(
+				fileCaches.ImageCache(),
 
-			s,
-		),
+				s,
+			),
+			ResourceCache: &ResourceCache{
+				fileCache: fileCaches.AssetsCache(),
+				cache:     make(map[string]any),
+				nlocker:   locker.NewLocker(),
+			},
+		}
 	}
 
-	rs.ResourceCache = newResourceCache(rs)
+	rs := &Spec{
+		PathSpec:    s,
+		Logger:      logger,
+		ErrorSender: errorHandler,
+		imaging:     imaging,
+		ExecHelper:  execHelper,
+
+		Permalinks: permalinks,
+
+		SpecCommon: common,
+	}
 
 	return rs, nil
 }
@@ -109,22 +121,23 @@ func NewSpec(
 type Spec struct {
 	*helpers.PathSpec
 
-	MediaTypes    media.Types
-	OutputFormats output.Formats
-
 	Logger      loggers.Logger
 	ErrorSender herrors.ErrorSender
 
 	TextTemplates tpl.TemplateParseFinder
 
-	Permalinks  page.PermalinkExpander
-	BuildConfig config.Build
+	Permalinks page.PermalinkExpander
 
 	// Holds default filter settings etc.
 	imaging *images.ImageProcessor
 
 	ExecHelper *hexec.Exec
 
+	*SpecCommon
+}
+
+// The parts of Spec that's comoon for all sites.
+type SpecCommon struct {
 	incr          identity.Incrementer
 	imageCache    *imageCache
 	ResourceCache *ResourceCache
@@ -143,6 +156,18 @@ type PostBuildAssets struct {
 
 func (r *Spec) New(fd ResourceSourceDescriptor) (resource.Resource, error) {
 	return r.newResourceFor(fd)
+}
+
+func (r *Spec) MediaTypes() media.Types {
+	return r.Cfg.GetConfigSection("mediaTypes").(media.Types)
+}
+
+func (r *Spec) OutputFormats() output.Formats {
+	return r.Cfg.GetConfigSection("outputFormats").(output.Formats)
+}
+
+func (r *Spec) BuildConfig() config.BuildConfig {
+	return r.Cfg.GetConfigSection("build").(config.BuildConfig)
 }
 
 func (r *Spec) CacheStats() string {
@@ -283,11 +308,11 @@ func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (reso
 			found      bool
 			suffixInfo media.SuffixInfo
 		)
-		mimeType, suffixInfo, found = r.MediaTypes.GetFirstBySuffix(strings.TrimPrefix(ext, "."))
+		mimeType, suffixInfo, found = r.MediaTypes().GetFirstBySuffix(strings.TrimPrefix(ext, "."))
 		// TODO(bep) we need to handle these ambiguous types better, but in this context
 		// we most likely want the application/xml type.
 		if suffixInfo.Suffix == "xml" && mimeType.SubType == "rss" {
-			mimeType, found = r.MediaTypes.GetByType("application/xml")
+			mimeType, found = r.MediaTypes().GetByType("application/xml")
 		}
 
 		if !found {
@@ -322,7 +347,6 @@ func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (reso
 			ir.root = ir
 			return newResourceAdapter(gr.spec, fd.LazyPublish, ir), nil
 		}
-
 	}
 
 	return newResourceAdapter(gr.spec, fd.LazyPublish, gr), nil

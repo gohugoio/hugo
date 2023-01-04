@@ -1,0 +1,34 @@
+# Test the hugo list commands.
+
+hugo list drafts
+! stderr .
+stdout 'draft.md,2019-01-01T00:00:00Z'
+
+hugo list future
+stdout 'future.md,2030-01-01T00:00:00Z'
+
+hugo list expired
+stdout 'expired.md,2018-01-01T00:00:00Z'
+
+hugo list all
+stdout 'future.md,2030-01-01T00:00:00Z'
+stdout 'draft.md,2019-01-01T00:00:00Z'
+stdout 'expired.md,2018-01-01T00:00:00Z'
+
+-- hugo.toml --
+baseURL = "https://example.org/"
+disableKinds = ["taxonomy", "term"]
+-- content/draft.md --
+---
+draft: true
+date: 2019-01-01
+---
+-- content/expired.md --
+---
+date: 2018-01-01
+expiryDate: 2019-01-01
+---
+-- content/future.md --
+---
+date: 2030-01-01
+---

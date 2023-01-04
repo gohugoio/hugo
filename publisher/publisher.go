@@ -81,7 +81,7 @@ func NewDestinationPublisher(rs *resources.Spec, outputFormats output.Formats, m
 	fs := rs.BaseFs.PublishFs
 	cfg := rs.Cfg
 	var classCollector *htmlElementsCollector
-	if rs.BuildConfig.WriteStats {
+	if rs.BuildConfig().WriteStats {
 		classCollector = newHTMLElementsCollector()
 	}
 	pub = DestinationPublisher{fs: fs, htmlElementsCollector: classCollector}

@@ -16,8 +16,6 @@ package metadecoders
 import (
 	"testing"
 
-	"github.com/gohugoio/hugo/media"
-
 	qt "github.com/frankban/quicktest"
 )
 
@@ -38,23 +36,6 @@ func TestFormatFromString(t *testing.T) {
 		{"foo", ""},
 	} {
 		c.Assert(FormatFromString(test.s), qt.Equals, test.expect)
-	}
-}
-
-func TestFormatFromMediaType(t *testing.T) {
-	c := qt.New(t)
-	for _, test := range []struct {
-		m      media.Type
-		expect Format
-	}{
-		{media.JSONType, JSON},
-		{media.YAMLType, YAML},
-		{media.XMLType, XML},
-		{media.RSSType, XML},
-		{media.TOMLType, TOML},
-		{media.CalendarType, ""},
-	} {
-		c.Assert(FormatFromMediaType(test.m), qt.Equals, test.expect)
 	}
 }
 

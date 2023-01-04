@@ -340,7 +340,7 @@ func (b *contentBuilder) mapArcheTypeDir() error {
 }
 
 func (b *contentBuilder) openInEditorIfConfigured(filename string) error {
-	editor := b.h.Cfg.GetString("newContentEditor")
+	editor := b.h.Conf.NewContentEditor()
 	if editor == "" {
 		return nil
 	}

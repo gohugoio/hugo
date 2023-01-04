@@ -1,0 +1,18 @@
+# Testing error output.
+
+# The hugo mod get command handles flags a little special, but the -h flag should print the help.
+hugo mod get -h
+stdout 'Resolves dependencies in your current Hugo Project'
+
+# Invalid flag. Should print an error message to stderr and the help to stdout.
+! hugo --asdf
+stderr 'unknown flag: --asdf'
+stdout 'hugo is the main command'
+
+# This should fail the build, print an error message to stderr, but no help output.
+! hugo
+! stdout 'hugo is the main command'
+stderr 'failed to load config'
+
+-- hugo.toml --
+invalid: toml

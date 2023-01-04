@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2023 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,19 +14,15 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	"github.com/gohugoio/hugo/commands"
 )
 
 func main() {
-	resp := commands.Execute(os.Args[1:])
-
-	if resp.Err != nil {
-		if resp.IsUserError() {
-			resp.Cmd.Println("")
-			resp.Cmd.Println(resp.Cmd.UsageString())
-		}
-		os.Exit(-1)
+	err := commands.Execute(os.Args[1:])
+	if err != nil {
+		log.Fatal(err)
 	}
 }

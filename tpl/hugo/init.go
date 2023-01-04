@@ -25,6 +25,9 @@ const name = "hugo"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
+		if d.Site == nil {
+			panic("no site in deps")
+		}
 		h := d.Site.Hugo()
 
 		ns := &internal.TemplateFuncsNamespace{

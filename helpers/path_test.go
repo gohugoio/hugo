@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2023 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package helpers
+package helpers_test
 
 import (
 	"fmt"
@@ -24,16 +24,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gohugoio/hugo/langs"
-
 	qt "github.com/frankban/quicktest"
-
-	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/afero"
 )
 
 func TestMakePath(t *testing.T) {
-	c := qt.New(t)
 	tests := []struct {
 		input         string
 		expected      string
@@ -60,13 +56,7 @@ func TestMakePath(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		v := newTestCfg()
-		v.Set("removePathAccents", test.removeAccents)
-
-		l := langs.NewDefaultLanguage(v)
-		p, err := NewPathSpec(hugofs.NewMem(v), l, nil)
-		c.Assert(err, qt.IsNil)
-
+		p := newTestPathSpec("removePathAccents", test.removeAccents)
 		output := p.MakePath(test.input)
 		if output != test.expected {
 			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
@@ -75,9 +65,7 @@ func TestMakePath(t *testing.T) {
 }
 
 func TestMakePathSanitized(t *testing.T) {
-	v := newTestCfg()
-
-	p, _ := NewPathSpec(hugofs.NewMem(v), v, nil)
+	p := newTestPathSpec()
 
 	tests := []struct {
 		input    string
@@ -100,12 +88,7 @@ func TestMakePathSanitized(t *testing.T) {
 }
 
 func TestMakePathSanitizedDisablePathToLower(t *testing.T) {
-	v := newTestCfg()
-
-	v.Set("disablePathToLower", true)
-
-	l := langs.NewDefaultLanguage(v)
-	p, _ := NewPathSpec(hugofs.NewMem(v), l, nil)
+	p := newTestPathSpec("disablePathToLower", true)
 
 	tests := []struct {
 		input    string
@@ -138,12 +121,12 @@ func TestMakePathRelative(t *testing.T) {
 	}
 
 	for i, d := range data {
-		output, _ := makePathRelative(d.inPath, d.path1, d.path2)
+		output, _ := helpers.MakePathRelative(d.inPath, d.path1, d.path2)
 		if d.output != output {
 			t.Errorf("Test #%d failed. Expected %q got %q", i, d.output, output)
 		}
 	}
-	_, error := makePathRelative("a/b/c.ss", "/a/c", "/d/c", "/e/f")
+	_, error := helpers.MakePathRelative("a/b/c.ss", "/a/c", "/d/c", "/e/f")
 
 	if error == nil {
 		t.Errorf("Test failed, expected error")
@@ -181,7 +164,7 @@ func doTestGetDottedRelativePath(urlFixer func(string) string, t *testing.T) {
 		{"/404.html", "./"},
 	}
 	for i, d := range data {
-		output := GetDottedRelativePath(d.input)
+		output := helpers.GetDottedRelativePath(d.input)
 		if d.expected != output {
 			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
 		}
@@ -198,7 +181,7 @@ func TestMakeTitle(t *testing.T) {
 		{"make_title", "make_title"},
 	}
 	for i, d := range data {
-		output := MakeTitle(d.input)
+		output := helpers.MakeTitle(d.input)
 		if d.expected != output {
 			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
 		}
@@ -219,7 +202,7 @@ func TestDirExists(t *testing.T) {
 		{"./..", true},
 		{"./../", true},
 		{os.TempDir(), true},
-		{os.TempDir() + FilePathSeparator, true},
+		{os.TempDir() + helpers.FilePathSeparator, true},
 		{"/", true},
 		{"/some-really-random-directory-name", false},
 		{"/some/really/random/directory/name", false},
@@ -228,7 +211,7 @@ func TestDirExists(t *testing.T) {
 	}
 
 	for i, d := range data {
-		exists, _ := DirExists(filepath.FromSlash(d.input), new(afero.OsFs))
+		exists, _ := helpers.DirExists(filepath.FromSlash(d.input), new(afero.OsFs))
 		if d.expected != exists {
 			t.Errorf("Test %d failed. Expected %t got %t", i, d.expected, exists)
 		}
@@ -249,7 +232,7 @@ func TestIsDir(t *testing.T) {
 
 	for i, d := range data {
 
-		exists, _ := IsDir(d.input, new(afero.OsFs))
+		exists, _ := helpers.IsDir(d.input, new(afero.OsFs))
 		if d.expected != exists {
 			t.Errorf("Test %d failed. Expected %t got %t", i, d.expected, exists)
 		}
@@ -310,7 +293,7 @@ func TestExists(t *testing.T) {
 		{nonExistentDir, false, nil},
 	}
 	for i, d := range data {
-		exists, err := Exists(d.input, new(afero.OsFs))
+		exists, err := helpers.Exists(d.input, new(afero.OsFs))
 		if d.expectedResult != exists {
 			t.Errorf("Test %d failed. Expected result %t got %t", i, d.expectedResult, exists)
 		}
@@ -341,7 +324,7 @@ func TestAbsPathify(t *testing.T) {
 
 	for i, d := range data {
 		// todo see comment in AbsPathify
-		ps := newTestDefaultPathSpec("workingDir", d.workingDir)
+		ps := newTestPathSpec("workingDir", d.workingDir)
 
 		expected := ps.AbsPathify(d.inPath)
 		if d.expected != expected {
@@ -351,7 +334,7 @@ func TestAbsPathify(t *testing.T) {
 	t.Logf("Running platform specific path tests for %s", runtime.GOOS)
 	if runtime.GOOS == "windows" {
 		for i, d := range windowsData {
-			ps := newTestDefaultPathSpec("workingDir", d.workingDir)
+			ps := newTestPathSpec("workingDir", d.workingDir)
 
 			expected := ps.AbsPathify(d.inPath)
 			if d.expected != expected {
@@ -360,7 +343,7 @@ func TestAbsPathify(t *testing.T) {
 		}
 	} else {
 		for i, d := range unixData {
-			ps := newTestDefaultPathSpec("workingDir", d.workingDir)
+			ps := newTestPathSpec("workingDir", d.workingDir)
 
 			expected := ps.AbsPathify(d.inPath)
 			if d.expected != expected {
@@ -383,7 +366,7 @@ func TestExtractAndGroupRootPaths(t *testing.T) {
 	inCopy := make([]string, len(in))
 	copy(inCopy, in)
 
-	result := ExtractAndGroupRootPaths(in)
+	result := helpers.ExtractAndGroupRootPaths(in)
 
 	c := qt.New(t)
 	c.Assert(fmt.Sprint(result), qt.Equals, filepath.FromSlash("[/a/b/{c,e} /c/d/e]"))
@@ -405,7 +388,7 @@ func TestExtractRootPaths(t *testing.T) {
 	}}
 
 	for _, test := range tests {
-		output := ExtractRootPaths(test.input)
+		output := helpers.ExtractRootPaths(test.input)
 		if !reflect.DeepEqual(output, test.expected) {
 			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
 		}
@@ -426,7 +409,7 @@ func TestFindCWD(t *testing.T) {
 		// I really don't know a better way to test this function. - SPF 2014.11.04
 	}
 	for i, d := range data {
-		dir, err := FindCWD()
+		dir, err := helpers.FindCWD()
 		if d.expectedDir != dir {
 			t.Errorf("Test %d failed. Expected %q but got %q", i, d.expectedDir, dir)
 		}
@@ -459,7 +442,7 @@ func TestSafeWriteToDisk(t *testing.T) {
 	}
 
 	for i, d := range data {
-		e := SafeWriteToDisk(d.filename, reader, new(afero.OsFs))
+		e := helpers.SafeWriteToDisk(d.filename, reader, new(afero.OsFs))
 		if d.expectedErr != nil {
 			if d.expectedErr.Error() != e.Error() {
 				t.Errorf("Test %d failed. Expected error %q but got %q", i, d.expectedErr.Error(), e.Error())
@@ -498,7 +481,7 @@ func TestWriteToDisk(t *testing.T) {
 	}
 
 	for i, d := range data {
-		e := WriteToDisk(d.filename, reader, new(afero.OsFs))
+		e := helpers.WriteToDisk(d.filename, reader, new(afero.OsFs))
 		if d.expectedErr != e {
 			t.Errorf("Test %d failed. WriteToDisk Error Expected %q but got %q", i, d.expectedErr, e)
 		}
@@ -515,27 +498,27 @@ func TestWriteToDisk(t *testing.T) {
 
 func TestGetTempDir(t *testing.T) {
 	dir := os.TempDir()
-	if FilePathSeparator != dir[len(dir)-1:] {
-		dir = dir + FilePathSeparator
+	if helpers.FilePathSeparator != dir[len(dir)-1:] {
+		dir = dir + helpers.FilePathSeparator
 	}
-	testDir := "hugoTestFolder" + FilePathSeparator
+	testDir := "hugoTestFolder" + helpers.FilePathSeparator
 	tests := []struct {
 		input    string
 		expected string
 	}{
 		{"", dir},
-		{testDir + "  Foo bar  ", dir + testDir + "  Foo bar  " + FilePathSeparator},
-		{testDir + "Foo.Bar/foo_Bar-Foo", dir + testDir + "Foo.Bar/foo_Bar-Foo" + FilePathSeparator},
-		{testDir + "fOO,bar:foo%bAR", dir + testDir + "fOObarfoo%bAR" + FilePathSeparator},
-		{testDir + "fOO,bar:foobAR", dir + testDir + "fOObarfoobAR" + FilePathSeparator},
-		{testDir + "FOo/BaR.html", dir + testDir + "FOo/BaR.html" + FilePathSeparator},
-		{testDir + "трям/трям", dir + testDir + "трям/трям" + FilePathSeparator},
-		{testDir + "은행", dir + testDir + "은행" + FilePathSeparator},
-		{testDir + "Банковский кассир", dir + testDir + "Банковский кассир" + FilePathSeparator},
+		{testDir + "  Foo bar  ", dir + testDir + "  Foo bar  " + helpers.FilePathSeparator},
+		{testDir + "Foo.Bar/foo_Bar-Foo", dir + testDir + "Foo.Bar/foo_Bar-Foo" + helpers.FilePathSeparator},
+		{testDir + "fOO,bar:foo%bAR", dir + testDir + "fOObarfoo%bAR" + helpers.FilePathSeparator},
+		{testDir + "fOO,bar:foobAR", dir + testDir + "fOObarfoobAR" + helpers.FilePathSeparator},
+		{testDir + "FOo/BaR.html", dir + testDir + "FOo/BaR.html" + helpers.FilePathSeparator},
+		{testDir + "трям/трям", dir + testDir + "трям/трям" + helpers.FilePathSeparator},
+		{testDir + "은행", dir + testDir + "은행" + helpers.FilePathSeparator},
+		{testDir + "Банковский кассир", dir + testDir + "Банковский кассир" + helpers.FilePathSeparator},
 	}
 
 	for _, test := range tests {
-		output := GetTempDir(test.input, new(afero.MemMapFs))
+		output := helpers.GetTempDir(test.input, new(afero.MemMapFs))
 		if output != test.expected {
 			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
 		}

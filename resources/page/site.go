@@ -18,7 +18,10 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/config/privacy"
+	"github.com/gohugoio/hugo/config/services"
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/config"
 
@@ -32,13 +35,15 @@ type Site interface {
 	// Returns the Language configured for this Site.
 	Language() *langs.Language
 
+	GetPage(ref ...string) (Page, error)
+
 	// Returns all the regular Pages in this Site.
 	RegularPages() Pages
 
 	// Returns all Pages in this Site.
 	Pages() Pages
 
-	// A shortcut to the home page.
+	// A shortcut to the home
 	Home() Page
 
 	// Returns true if we're running in a server.
@@ -50,6 +55,12 @@ type Site interface {
 	// Returns the configured title for this Site.
 	Title() string
 
+	// Returns the configured language code for this Site.
+	LanguageCode() string
+
+	// Returns the configured copyright information for this Site.
+	Copyright() string
+
 	// Returns all Sites for all languages.
 	Sites() Sites
 
@@ -57,7 +68,7 @@ type Site interface {
 	Current() Site
 
 	// Returns a struct with some information about the build.
-	Hugo() hugo.Info
+	Hugo() hugo.HugoInfo
 
 	// Returns the BaseURL for this Site.
 	BaseURL() template.URL
@@ -71,14 +82,36 @@ type Site interface {
 	// Returns the Menus for this site.
 	Menus() navigation.Menus
 
+	// The main sections in the site.
+	MainSections() []string
+
 	// Returns the Params configured for this site.
 	Params() maps.Params
 
 	// Returns a map of all the data inside /data.
 	Data() map[string]any
 
+	// Returns the site config.
+	Config() SiteConfig
+
 	// Returns the identity of this site.
+	// This is for internal use only.
 	GetIdentity() identity.Identity
+
+	// Author is deprecated and will be removed in a future release.
+	Author() map[string]interface{}
+
+	// Returns the social links for this site.
+	Social() map[string]string
+
+	// Deprecated: Use Config().Services.GoogleAnalytics instead.
+	GoogleAnalytics() string
+
+	// Deprecated: Use Config().Privacy.Disqus instead.
+	DisqusShortname() string
+
+	// For internal use only.
+	GetPageWithTemplateInfo(info tpl.Info, ref ...string) (Page, error)
 }
 
 // Sites represents an ordered list of sites (languages).
@@ -92,12 +125,139 @@ func (s Sites) First() Site {
 	return s[0]
 }
 
+type siteWrapper struct {
+	s Site
+}
+
+func WrapSite(s Site) Site {
+	if s == nil {
+		panic("Site is nil")
+	}
+	return &siteWrapper{s: s}
+}
+
+func (s *siteWrapper) Social() map[string]string {
+	return s.s.Social()
+}
+
+func (s *siteWrapper) Author() map[string]interface{} {
+	return s.s.Author()
+}
+
+func (s *siteWrapper) GoogleAnalytics() string {
+	return s.s.GoogleAnalytics()
+}
+
+func (s *siteWrapper) GetPage(ref ...string) (Page, error) {
+	return s.s.GetPage(ref...)
+}
+
+func (s *siteWrapper) Language() *langs.Language {
+	return s.s.Language()
+}
+
+func (s *siteWrapper) RegularPages() Pages {
+	return s.s.RegularPages()
+}
+
+func (s *siteWrapper) Pages() Pages {
+	return s.s.Pages()
+}
+
+func (s *siteWrapper) Home() Page {
+	return s.s.Home()
+}
+
+func (s *siteWrapper) IsServer() bool {
+	return s.s.IsServer()
+}
+
+func (s *siteWrapper) ServerPort() int {
+	return s.s.ServerPort()
+}
+
+func (s *siteWrapper) Title() string {
+	return s.s.Title()
+}
+
+func (s *siteWrapper) LanguageCode() string {
+	return s.s.LanguageCode()
+}
+
+func (s *siteWrapper) Copyright() string {
+	return s.s.Copyright()
+}
+
+func (s *siteWrapper) Sites() Sites {
+	return s.s.Sites()
+}
+
+func (s *siteWrapper) Current() Site {
+	return s.s.Current()
+}
+
+func (s *siteWrapper) Config() SiteConfig {
+	return s.s.Config()
+}
+
+func (s *siteWrapper) Hugo() hugo.HugoInfo {
+	return s.s.Hugo()
+}
+
+func (s *siteWrapper) BaseURL() template.URL {
+	return s.s.BaseURL()
+}
+
+func (s *siteWrapper) Taxonomies() TaxonomyList {
+	return s.s.Taxonomies()
+}
+
+func (s *siteWrapper) LastChange() time.Time {
+	return s.s.LastChange()
+}
+
+func (s *siteWrapper) Menus() navigation.Menus {
+	return s.s.Menus()
+}
+
+func (s *siteWrapper) MainSections() []string {
+	return s.s.MainSections()
+}
+
+func (s *siteWrapper) Params() maps.Params {
+	return s.s.Params()
+}
+
+func (s *siteWrapper) Data() map[string]any {
+	return s.s.Data()
+}
+
+func (s *siteWrapper) GetIdentity() identity.Identity {
+	return s.s.GetIdentity()
+}
+
+func (s *siteWrapper) GetPageWithTemplateInfo(info tpl.Info, ref ...string) (Page, error) {
+	return s.s.GetPageWithTemplateInfo(info, ref...)
+}
+
+func (s *siteWrapper) DisqusShortname() string {
+	return s.s.DisqusShortname()
+}
+
 type testSite struct {
-	h hugo.Info
+	h hugo.HugoInfo
 	l *langs.Language
 }
 
-func (t testSite) Hugo() hugo.Info {
+func (s testSite) Author() map[string]interface{} {
+	return nil
+}
+
+func (s testSite) Social() map[string]string {
+	return make(map[string]string)
+}
+
+func (t testSite) Hugo() hugo.HugoInfo {
 	return t.h
 }
 
@@ -113,12 +273,32 @@ func (t testSite) Title() string {
 	return "foo"
 }
 
+func (t testSite) LanguageCode() string {
+	return t.l.Lang
+}
+
+func (t testSite) Copyright() string {
+	return ""
+}
+
 func (t testSite) Sites() Sites {
 	return nil
 }
 
+func (t testSite) GetPage(ref ...string) (Page, error) {
+	return nil, nil
+}
+
 func (t testSite) Current() Site {
 	return t
+}
+
+func (t testSite) GoogleAnalytics() string {
+	return ""
+}
+
+func (t testSite) MainSections() []string {
+	return nil
 }
 
 func (t testSite) GetIdentity() identity.Identity {
@@ -165,10 +345,34 @@ func (t testSite) Data() map[string]any {
 	return nil
 }
 
+func (s testSite) Config() SiteConfig {
+	return SiteConfig{}
+}
+
+func (testSite) GetPageWithTemplateInfo(info tpl.Info, ref ...string) (Page, error) {
+	return nil, nil
+}
+
+func (testSite) DisqusShortname() string {
+	return ""
+}
+
 // NewDummyHugoSite creates a new minimal test site.
 func NewDummyHugoSite(cfg config.Provider) Site {
 	return testSite{
 		h: hugo.NewInfo(hugo.EnvironmentProduction, nil),
-		l: langs.NewLanguage("en", cfg),
+		l: &langs.Language{
+			Lang: "en",
+		},
 	}
+}
+
+// SiteConfig holds the config in site.Config.
+type SiteConfig struct {
+	// This contains all privacy related settings that can be used to
+	// make the YouTube template etc. GDPR compliant.
+	Privacy privacy.Config
+
+	// Services contains config for services such as Google Analytics etc.
+	Services services.Config
 }

@@ -20,6 +20,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/config/security"
 	"github.com/gohugoio/hugo/htesting"
 
@@ -53,12 +54,14 @@ import (
 var (
 	deepEqualsPages         = qt.CmpEquals(cmp.Comparer(func(p1, p2 *pageState) bool { return p1 == p2 }))
 	deepEqualsOutputFormats = qt.CmpEquals(cmp.Comparer(func(o1, o2 output.Format) bool {
-		return o1.Name == o2.Name && o1.MediaType.Type() == o2.MediaType.Type()
+		return o1.Name == o2.Name && o1.MediaType.Type == o2.MediaType.Type
 	}))
 )
 
 type sitesBuilder struct {
 	Cfg     config.Provider
+	Configs *allconfig.Configs
+
 	environ []string
 
 	Fs      *hugofs.Fs
@@ -113,8 +116,9 @@ type filenameContent struct {
 }
 
 func newTestSitesBuilder(t testing.TB) *sitesBuilder {
-	v := config.NewWithTestDefaults()
-	fs := hugofs.NewMem(v)
+	v := config.New()
+	v.Set("publishDir", "public")
+	fs := hugofs.NewFromOld(afero.NewMemMapFs(), v)
 
 	litterOptions := litter.Options{
 		HidePrivateFields: true,
@@ -138,11 +142,11 @@ func newTestSitesBuilderFromDepsCfg(t testing.TB, d deps.DepsCfg) *sitesBuilder 
 	}
 
 	b := &sitesBuilder{T: t, C: c, depsCfg: d, Fs: d.Fs, dumper: litterOptions, rnd: rand.New(rand.NewSource(time.Now().Unix()))}
-	workingDir := d.Cfg.GetString("workingDir")
+	workingDir := d.Configs.LoadingInfo.BaseConfig.WorkingDir
 
 	b.WithWorkingDir(workingDir)
 
-	return b.WithViper(d.Cfg.(config.Provider))
+	return b
 }
 
 func (s *sitesBuilder) Running() *sitesBuilder {
@@ -479,20 +483,28 @@ func (s *sitesBuilder) LoadConfig() error {
 		s.WithSimpleConfigFile()
 	}
 
-	cfg, _, err := LoadConfig(ConfigSourceDescriptor{
-		WorkingDir: s.workingDir,
-		Fs:         s.Fs.Source,
-		Logger:     s.logger,
-		Environ:    s.environ,
-		Filename:   "config." + s.configFormat,
-	}, func(cfg config.Provider) error {
-		return nil
+	flags := config.New()
+	flags.Set("internal", map[string]any{
+		"running": s.running,
+	})
+
+	if s.workingDir != "" {
+		flags.Set("workingDir", s.workingDir)
+	}
+
+	res, err := allconfig.LoadConfig(allconfig.ConfigSourceDescriptor{
+		Fs:       s.Fs.Source,
+		Logger:   s.logger,
+		Flags:    flags,
+		Environ:  s.environ,
+		Filename: "config." + s.configFormat,
 	})
 	if err != nil {
 		return err
 	}
 
-	s.Cfg = cfg
+	s.Cfg = res.LoadingInfo.Cfg
+	s.Configs = res
 
 	return nil
 }
@@ -536,11 +548,13 @@ func (s *sitesBuilder) CreateSitesE() error {
 
 	depsCfg := s.depsCfg
 	depsCfg.Fs = s.Fs
-	depsCfg.Cfg = s.Cfg
+	if depsCfg.Configs.IsZero() {
+		depsCfg.Configs = s.Configs
+	}
 	depsCfg.Logger = s.logger
-	depsCfg.Running = s.running
 
 	sites, err := NewHugoSites(depsCfg)
+
 	if err != nil {
 		return fmt.Errorf("failed to create sites: %w", err)
 	}
@@ -640,8 +654,8 @@ date: "2018-02-28"
 		defaultTemplates = []string{
 			"_default/single.html", "Single: {{ .Title }}|{{ i18n \"hello\" }}|{{.Language.Lang}}|RelPermalink: {{ .RelPermalink }}|Permalink: {{ .Permalink }}|{{ .Content }}|Resources: {{ range .Resources }}{{ .MediaType }}: {{ .RelPermalink}} -- {{ end }}|Summary: {{ .Summary }}|Truncated: {{ .Truncated }}|Parent: {{ .Parent.Title }}",
 			"_default/list.html", "List Page " + listTemplateCommon,
-			"index.html", "{{ $p := .Paginator }}Default Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}|String Resource: {{ ( \"Hugo Pipes\" | resources.FromString \"text/pipes.txt\").RelPermalink  }}",
-			"index.fr.html", "{{ $p := .Paginator }}French Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}|String Resource: {{ ( \"Hugo Pipes\" | resources.FromString \"text/pipes.txt\").RelPermalink  }}",
+			"index.html", "{{ $p := .Paginator }}Default Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}|String Resource: {{ ( \"Hugo Pipes\" | resources.FromString \"text/pipes.txt\").RelPermalink  }}|String Resource Permalink: {{ ( \"Hugo Pipes\" | resources.FromString \"text/pipes.txt\").Permalink  }}",
+			"index.fr.html", "{{ $p := .Paginator }}French Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}|String Resource: {{ ( \"Hugo Pipes\" | resources.FromString \"text/pipes.txt\").RelPermalink  }}|String Resource Permalink: {{ ( \"Hugo Pipes\" | resources.FromString \"text/pipes.txt\").Permalink  }}",
 			"_default/terms.html", "Taxonomy Term Page " + listTemplateCommon,
 			"_default/taxonomy.html", "Taxonomy List Page " + listTemplateCommon,
 			// Shortcodes
@@ -741,7 +755,7 @@ func (s *sitesBuilder) AssertFileContent(filename string, matches ...string) {
 				continue
 			}
 			if !strings.Contains(content, match) {
-				s.Fatalf("No match for %q in content for %s\n%s\n%q", match, filename, content, content)
+				s.Fatalf("No match for \n%q in content\n%q\nin file %s\n", match, content, filename)
 			}
 		}
 	}
@@ -826,7 +840,18 @@ func (s *sitesBuilder) NpmInstall() hexec.Runner {
 	return command
 }
 
-func newTestHelper(cfg config.Provider, fs *hugofs.Fs, t testing.TB) testHelper {
+func newTestHelperFromProvider(cfg config.Provider, fs *hugofs.Fs, t testing.TB) (testHelper, *allconfig.Configs) {
+	res, err := allconfig.LoadConfig(allconfig.ConfigSourceDescriptor{
+		Flags: cfg,
+		Fs:    fs.Source,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return newTestHelper(res.Base, fs, t), res
+}
+
+func newTestHelper(cfg *allconfig.Config, fs *hugofs.Fs, t testing.TB) testHelper {
 	return testHelper{
 		Cfg: cfg,
 		Fs:  fs,
@@ -835,7 +860,7 @@ func newTestHelper(cfg config.Provider, fs *hugofs.Fs, t testing.TB) testHelper 
 }
 
 type testHelper struct {
-	Cfg config.Provider
+	Cfg *allconfig.Config
 	Fs  *hugofs.Fs
 	*qt.C
 }
@@ -871,8 +896,8 @@ func (th testHelper) assertFileNotExist(filename string) {
 }
 
 func (th testHelper) replaceDefaultContentLanguageValue(value string) string {
-	defaultInSubDir := th.Cfg.GetBool("defaultContentLanguageInSubDir")
-	replace := th.Cfg.GetString("defaultContentLanguage") + "/"
+	defaultInSubDir := th.Cfg.DefaultContentLanguageInSubdir
+	replace := th.Cfg.DefaultContentLanguage + "/"
 
 	if !defaultInSubDir {
 		value = strings.Replace(value, replace, "", 1)
@@ -880,42 +905,42 @@ func (th testHelper) replaceDefaultContentLanguageValue(value string) string {
 	return value
 }
 
-func loadTestConfig(fs afero.Fs, withConfig ...func(cfg config.Provider) error) (config.Provider, error) {
-	v, _, err := LoadConfig(ConfigSourceDescriptor{Fs: fs}, withConfig...)
-	return v, err
+func loadTestConfig(fs afero.Fs) (*allconfig.Configs, error) {
+	res, err := allconfig.LoadConfig(allconfig.ConfigSourceDescriptor{Fs: fs})
+	return res, err
+}
+
+func loadTestConfigFromProvider(cfg config.Provider) (*allconfig.Configs, error) {
+	workingDir := cfg.GetString("workingDir")
+	fs := afero.NewMemMapFs()
+	if workingDir != "" {
+		fs.MkdirAll(workingDir, 0755)
+	}
+	res, err := allconfig.LoadConfig(allconfig.ConfigSourceDescriptor{Flags: cfg, Fs: fs})
+	return res, err
 }
 
 func newTestCfgBasic() (config.Provider, *hugofs.Fs) {
 	mm := afero.NewMemMapFs()
-	v := config.NewWithTestDefaults()
+	v := config.New()
+	v.Set("publishDir", "public")
 	v.Set("defaultContentLanguageInSubdir", true)
 
-	fs := hugofs.NewFrom(hugofs.NewBaseFileDecorator(mm), v)
+	fs := hugofs.NewFromOld(hugofs.NewBaseFileDecorator(mm), v)
 
 	return v, fs
 }
 
 func newTestCfg(withConfig ...func(cfg config.Provider) error) (config.Provider, *hugofs.Fs) {
 	mm := afero.NewMemMapFs()
+	cfg := config.New()
+	// Default is false, but true is easier to use as default in tests
+	cfg.Set("defaultContentLanguageInSubdir", true)
+	cfg.Set("publishDir", "public")
 
-	v, err := loadTestConfig(mm, func(cfg config.Provider) error {
-		// Default is false, but true is easier to use as default in tests
-		cfg.Set("defaultContentLanguageInSubdir", true)
+	fs := hugofs.NewFromOld(hugofs.NewBaseFileDecorator(mm), cfg)
 
-		for _, w := range withConfig {
-			w(cfg)
-		}
-
-		return nil
-	})
-
-	if err != nil && err != ErrNoConfigFile {
-		panic(err)
-	}
-
-	fs := hugofs.NewFrom(hugofs.NewBaseFileDecorator(mm), v)
-
-	return v, fs
+	return cfg, fs
 }
 
 func newTestSitesFromConfig(t testing.TB, afs afero.Fs, tomlConfig string, layoutPathContentPairs ...string) (testHelper, *HugoSites) {
@@ -928,17 +953,17 @@ func newTestSitesFromConfig(t testing.TB, afs afero.Fs, tomlConfig string, layou
 	writeToFs(t, afs, filepath.Join("content", ".gitkeep"), "")
 	writeToFs(t, afs, "config.toml", tomlConfig)
 
-	cfg, err := LoadConfigDefault(afs)
+	cfg, err := allconfig.LoadConfig(allconfig.ConfigSourceDescriptor{Fs: afs})
 	c.Assert(err, qt.IsNil)
 
-	fs := hugofs.NewFrom(afs, cfg)
-	th := newTestHelper(cfg, fs, t)
+	fs := hugofs.NewFrom(afs, cfg.LoadingInfo.BaseConfig)
+	th := newTestHelper(cfg.Base, fs, t)
 
 	for i := 0; i < len(layoutPathContentPairs); i += 2 {
 		writeSource(t, fs, layoutPathContentPairs[i], layoutPathContentPairs[i+1])
 	}
 
-	h, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
+	h, err := NewHugoSites(deps.DepsCfg{Fs: fs, Configs: cfg})
 
 	c.Assert(err, qt.IsNil)
 

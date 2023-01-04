@@ -43,20 +43,6 @@ import (
 // FilePathSeparator as defined by os.Separator.
 const FilePathSeparator = string(filepath.Separator)
 
-// FindAvailablePort returns an available and valid TCP port.
-func FindAvailablePort() (*net.TCPAddr, error) {
-	l, err := net.Listen("tcp", ":0")
-	if err == nil {
-		defer l.Close()
-		addr := l.Addr()
-		if a, ok := addr.(*net.TCPAddr); ok {
-			return a, nil
-		}
-		return nil, fmt.Errorf("unable to obtain a valid tcp port: %v", addr)
-	}
-	return nil, err
-}
-
 // TCPListen starts listening on a valid TCP port.
 func TCPListen() (net.Listener, *net.TCPAddr, error) {
 	l, err := net.Listen("tcp", ":0")

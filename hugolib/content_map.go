@@ -129,7 +129,7 @@ type cmInsertKeyBuilder struct {
 }
 
 func (b cmInsertKeyBuilder) ForPage(s string) *cmInsertKeyBuilder {
-	// fmt.Println("ForPage:", s, "baseKey:", b.baseKey, "key:", b.key)
+	//fmt.Println("ForPage:", s, "baseKey:", b.baseKey, "key:", b.key, "tree:", b.tree.Name)
 	baseKey := b.baseKey
 	b.baseKey = s
 

@@ -197,7 +197,7 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 		}
 
 		// Now resolve the media type primarily using the content.
-		mediaType = media.FromContent(c.rs.MediaTypes, extensionHints, body)
+		mediaType = media.FromContent(c.rs.MediaTypes(), extensionHints, body)
 
 	}
 

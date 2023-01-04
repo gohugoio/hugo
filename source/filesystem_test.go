@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2023 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package source
+package source_test
 
 import (
 	"fmt"
@@ -19,17 +19,14 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/gohugoio/hugo/config"
-
-	"github.com/gohugoio/hugo/modules"
-
-	"github.com/gohugoio/hugo/langs"
-
 	"github.com/spf13/afero"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/config/testconfig"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/source"
 )
 
 func TestEmptySourceFilesystem(t *testing.T) {
@@ -60,13 +57,11 @@ func TestUnicodeNorm(t *testing.T) {
 	}
 
 	ss := newTestSourceSpec()
-	fi := hugofs.NewFileMetaInfo(nil, hugofs.NewFileMeta())
 
 	for i, path := range paths {
 		base := fmt.Sprintf("base%d", i)
 		c.Assert(afero.WriteFile(ss.Fs.Source, filepath.Join(base, path.NFD), []byte("some data"), 0777), qt.IsNil)
 		src := ss.NewFilesystem(base)
-		_ = src.add(path.NFD, fi)
 		files, err := src.Files()
 		c.Assert(err, qt.IsNil)
 		f := files[0]
@@ -76,27 +71,14 @@ func TestUnicodeNorm(t *testing.T) {
 	}
 }
 
-func newTestConfig() config.Provider {
-	v := config.NewWithTestDefaults()
-	_, err := langs.LoadLanguageSettings(v, nil)
+func newTestSourceSpec() *source.SourceSpec {
+	v := config.New()
+	afs := hugofs.NewBaseFileDecorator(afero.NewMemMapFs())
+	conf := testconfig.GetTestConfig(afs, v)
+	fs := hugofs.NewFrom(afs, conf.BaseConfig())
+	ps, err := helpers.NewPathSpec(fs, conf, nil)
 	if err != nil {
 		panic(err)
 	}
-	mod, err := modules.CreateProjectModule(v)
-	if err != nil {
-		panic(err)
-	}
-	v.Set("allModules", modules.Modules{mod})
-
-	return v
-}
-
-func newTestSourceSpec() *SourceSpec {
-	v := newTestConfig()
-	fs := hugofs.NewFrom(hugofs.NewBaseFileDecorator(afero.NewMemMapFs()), v)
-	ps, err := helpers.NewPathSpec(fs, v, nil)
-	if err != nil {
-		panic(err)
-	}
-	return NewSourceSpec(ps, nil, fs.Source)
+	return source.NewSourceSpec(ps, nil, fs.Source)
 }

@@ -25,6 +25,9 @@ import (
 	"go.uber.org/atomic"
 
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/output"
+	"github.com/gohugoio/hugo/output/layouts"
 	"github.com/gohugoio/hugo/related"
 
 	"github.com/gohugoio/hugo/markup/converter"
@@ -41,9 +44,6 @@ import (
 
 	"github.com/gohugoio/hugo/parser/pageparser"
 
-	"github.com/gohugoio/hugo/output"
-
-	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/source"
 
 	"github.com/gohugoio/hugo/common/collections"
@@ -60,7 +60,7 @@ var (
 )
 
 var (
-	pageTypesProvider = resource.NewResourceTypesProvider(media.OctetType, pageResourceType)
+	pageTypesProvider = resource.NewResourceTypesProvider(media.Builtin.OctetType, pageResourceType)
 	nopPageOutput     = &pageOutput{
 		pagePerOutputProviders: nopPagePerOutput,
 		ContentProvider:        page.NopPage,
@@ -146,6 +146,7 @@ func (p *pageState) Eq(other any) bool {
 	return p == pp
 }
 
+// GetIdentify is for internal use.
 func (p *pageState) GetIdentity() identity.Identity {
 	return identity.NewPathIdentity(files.ComponentFolderContent, filepath.FromSlash(p.Pathc()))
 }
@@ -369,7 +370,7 @@ func (p *pageState) HasShortcode(name string) bool {
 }
 
 func (p *pageState) Site() page.Site {
-	return p.s.Info
+	return p.sWrapped
 }
 
 func (p *pageState) String() string {
@@ -427,12 +428,12 @@ func (ps *pageState) initCommonProviders(pp pagePaths) error {
 	ps.OutputFormatsProvider = pp
 	ps.targetPathDescriptor = pp.targetPathDescriptor
 	ps.RefProvider = newPageRef(ps)
-	ps.SitesProvider = ps.s.Info
+	ps.SitesProvider = ps.s
 
 	return nil
 }
 
-func (p *pageState) getLayoutDescriptor() output.LayoutDescriptor {
+func (p *pageState) getLayoutDescriptor() layouts.LayoutDescriptor {
 	p.layoutDescriptorInit.Do(func() {
 		var section string
 		sections := p.SectionsEntries()
@@ -448,7 +449,7 @@ func (p *pageState) getLayoutDescriptor() output.LayoutDescriptor {
 		default:
 		}
 
-		p.layoutDescriptor = output.LayoutDescriptor{
+		p.layoutDescriptor = layouts.LayoutDescriptor{
 			Kind:    p.Kind(),
 			Type:    p.Type(),
 			Lang:    p.Language().Lang,

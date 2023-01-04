@@ -1,4 +1,4 @@
-// Copyright 2016 The Hugo Authors. All rights reserved.
+// Copyright 2023 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,55 +14,50 @@
 package commands
 
 import (
+	"context"
 	"runtime"
 
+	"github.com/bep/simplecobra"
 	"github.com/gohugoio/hugo/common/hugo"
-
-	"github.com/spf13/cobra"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
-var _ cmder = (*envCmd)(nil)
+func newEnvCommand() simplecobra.Commander {
+	return &simpleCommand{
+		name:  "env",
+		short: "Print Hugo version and environment info",
+		long:  "Print Hugo version and environment info. This is useful in Hugo bug reports",
+		run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
+			r.Printf("%s\n", hugo.BuildVersionString())
+			r.Printf("GOOS=%q\n", runtime.GOOS)
+			r.Printf("GOARCH=%q\n", runtime.GOARCH)
+			r.Printf("GOVERSION=%q\n", runtime.Version())
 
-type envCmd struct {
-	*baseCmd
+			if r.verbose {
+				deps := hugo.GetDependencyList()
+				for _, dep := range deps {
+					r.Printf("%s\n", dep)
+				}
+			} else {
+				// These are also included in the GetDependencyList above;
+				// always print these as these are most likely the most useful to know about.
+				deps := hugo.GetDependencyListNonGo()
+				for _, dep := range deps {
+					r.Printf("%s\n", dep)
+				}
+			}
+			return nil
+		},
+	}
 }
 
-func newEnvCmd() *envCmd {
-	return &envCmd{
-		baseCmd: newBaseCmd(&cobra.Command{
-			Use:   "env",
-			Short: "Print Hugo version and environment info",
-			Long: `Print Hugo version and environment info. This is useful in Hugo bug reports.
-
-If you add the -v flag, you will get a full dependency list.
-`,
-			RunE: func(cmd *cobra.Command, args []string) error {
-				printHugoVersion()
-				jww.FEEDBACK.Printf("GOOS=%q\n", runtime.GOOS)
-				jww.FEEDBACK.Printf("GOARCH=%q\n", runtime.GOARCH)
-				jww.FEEDBACK.Printf("GOVERSION=%q\n", runtime.Version())
-
-				isVerbose, _ := cmd.Flags().GetBool("verbose")
-
-				if isVerbose {
-					deps := hugo.GetDependencyList()
-					for _, dep := range deps {
-						jww.FEEDBACK.Printf("%s\n", dep)
-					}
-				} else {
-					// These are also included in the GetDependencyList above;
-					// always print these as these are most likely the most useful to know about.
-					deps := hugo.GetDependencyListNonGo()
-					for _, dep := range deps {
-						jww.FEEDBACK.Printf("%s\n", dep)
-					}
-
-				}
-
-				return nil
-			},
-		}),
+func newVersionCmd() simplecobra.Commander {
+	return &simpleCommand{
+		name: "version",
+		run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
+			r.Println(hugo.BuildVersionString())
+			return nil
+		},
+		short: "Print Hugo version and environment info",
+		long:  "Print Hugo version and environment info. This is useful in Hugo bug reports.",
 	}
-
 }

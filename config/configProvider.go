@@ -14,9 +14,57 @@
 package config
 
 import (
+	"time"
+
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
+	"github.com/gohugoio/hugo/common/urls"
+	"github.com/gohugoio/hugo/langs"
 )
+
+// AllProvider is a sub set of all config settings.
+type AllProvider interface {
+	Language() *langs.Language
+	Languages() langs.Languages
+	LanguagesDefaultFirst() langs.Languages
+	BaseURL() urls.BaseURL
+	BaseURLLiveReload() urls.BaseURL
+	Environment() string
+	IsMultihost() bool
+	IsMultiLingual() bool
+	NoBuildLock() bool
+	BaseConfig() BaseConfig
+	Dirs() CommonDirs
+	Quiet() bool
+	DirsBase() CommonDirs
+	GetConfigSection(string) any
+	GetConfig() any
+	CanonifyURLs() bool
+	DisablePathToLower() bool
+	RemovePathAccents() bool
+	IsUglyURLs(section string) bool
+	DefaultContentLanguage() string
+	DefaultContentLanguageInSubdir() bool
+	IsLangDisabled(string) bool
+	SummaryLength() int
+	Paginate() int
+	PaginatePath() string
+	BuildExpired() bool
+	BuildFuture() bool
+	BuildDrafts() bool
+	Running() bool
+	PrintUnusedTemplates() bool
+	EnableMissingTranslationPlaceholders() bool
+	TemplateMetrics() bool
+	TemplateMetricsHints() bool
+	LogI18nWarnings() bool
+	CreateTitle(s string) string
+	IgnoreFile(s string) bool
+	NewContentEditor() string
+	Timeout() time.Duration
+	StaticDirs() []string
+	IgnoredErrors() map[string]bool
+}
 
 // Provider provides the configuration settings for Hugo.
 type Provider interface {
@@ -29,10 +77,11 @@ type Provider interface {
 	GetStringSlice(key string) []string
 	Get(key string) any
 	Set(key string, value any)
+	Keys() []string
 	Merge(key string, value any)
 	SetDefaults(params maps.Params)
 	SetDefaultMergeStrategy()
-	WalkParams(walkFn func(params ...KeyParams) bool)
+	WalkParams(walkFn func(params ...maps.KeyParams) bool)
 	IsSet(key string) bool
 }
 
@@ -42,22 +91,6 @@ type Provider interface {
 func GetStringSlicePreserveString(cfg Provider, key string) []string {
 	sd := cfg.Get(key)
 	return types.ToStringSlicePreserveString(sd)
-}
-
-// SetBaseTestDefaults provides some common config defaults used in tests.
-func SetBaseTestDefaults(cfg Provider) Provider {
-	setIfNotSet(cfg, "baseURL", "https://example.org")
-	setIfNotSet(cfg, "resourceDir", "resources")
-	setIfNotSet(cfg, "contentDir", "content")
-	setIfNotSet(cfg, "dataDir", "data")
-	setIfNotSet(cfg, "i18nDir", "i18n")
-	setIfNotSet(cfg, "layoutDir", "layouts")
-	setIfNotSet(cfg, "assetDir", "assets")
-	setIfNotSet(cfg, "archetypeDir", "archetypes")
-	setIfNotSet(cfg, "publishDir", "public")
-	setIfNotSet(cfg, "workingDir", "")
-	setIfNotSet(cfg, "defaultContentLanguage", "en")
-	return cfg
 }
 
 func setIfNotSet(cfg Provider, key string, value any) {

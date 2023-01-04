@@ -17,14 +17,16 @@ import (
 	"html/template"
 	"testing"
 
-	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/config/testconfig"
 	"github.com/gohugoio/hugo/deps"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/spf13/cast"
 )
 
-var ns = New(&deps.Deps{Cfg: config.New()})
+var ns = New(&deps.Deps{
+	Conf: testconfig.GetTestConfig(nil, nil),
+})
 
 type tstNoStringer struct{}
 

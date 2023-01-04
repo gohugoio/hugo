@@ -101,7 +101,7 @@ func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFo
 		OutputFormat: outputFormat,
 	}
 
-	if s.Info.relativeURLs || s.Info.canonifyURLs {
+	if s.conf.RelativeURLs || s.conf.CanonifyURLs {
 		pd.AbsURLPath = s.absURLPath(targetPath)
 	}
 

@@ -30,13 +30,15 @@ import (
 
 // ProviderConfig configures a new Provider.
 type ProviderConfig struct {
-	MarkupConfig markup_config.Config
-
-	Cfg       config.Provider // Site config
+	Conf      config.AllProvider // Site config
 	ContentFs afero.Fs
 	Logger    loggers.Logger
 	Exec      *hexec.Exec
 	highlight.Highlighter
+}
+
+func (p ProviderConfig) MarkupConfig() markup_config.Config {
+	return p.Conf.GetConfigSection("markup").(markup_config.Config)
 }
 
 // ProviderProvider creates converter providers.

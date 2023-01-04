@@ -27,7 +27,7 @@ import (
 func New(d *deps.Deps) *Namespace {
 	ignorableLogger, ok := d.Log.(loggers.IgnorableLogger)
 	if !ok {
-		ignorableLogger = loggers.NewIgnorableLogger(d.Log)
+		ignorableLogger = loggers.NewIgnorableLogger(d.Log, nil)
 	}
 
 	distinctLogger := helpers.NewDistinctLogger(d.Log)
