@@ -31,6 +31,8 @@ import (
 	"github.com/yuin/goldmark/renderer"
 	"github.com/yuin/goldmark/renderer/html"
 	"github.com/yuin/goldmark/text"
+
+	"github.com/graemephi/goldmark-qjs-katex"
 )
 
 const (
