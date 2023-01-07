@@ -1,4 +1,4 @@
-module github.com/gohugoio/hugo
+module github.com/anakojm/hugo-katex
 
 require (
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
