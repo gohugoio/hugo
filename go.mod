@@ -126,4 +126,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
+replace github.com/gohugoio/hugo => ./
+
 go 1.18
