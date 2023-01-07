@@ -142,6 +142,10 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 	if cfg.Parser.Attribute.Block {
 		extensions = append(extensions, attributes.New())
 	}
+	
+	 if cfg.Katex.Enable {
+      		extensions = append(extensions, &qjskatex.Extension{EnableWarnings: cfg.Katex.Warnings})
+ 	}
 
 	md := goldmark.New(
 		goldmark.WithExtensions(
