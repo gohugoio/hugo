@@ -126,7 +126,7 @@ type ResourceParamsProvider interface {
 
 type ResourceDataProvider interface {
 	// Resource specific data set by Hugo.
-	// One example would be.Data.Digest for fingerprinted resources.
+	// One example would be .Data.Integrity for fingerprinted resources.
 	Data() any
 }
 
