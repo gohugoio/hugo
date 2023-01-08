@@ -1,3 +1,26 @@
+# Install
+
+```bash
+git clone https://github.com/anakojm/hugo-katex
+cd hugo-katex/
+go build
+```
+
+Don't forget to enable it in `config.toml`:
+```toml
+[markup.goldmark.katex]
+    enabled = true
+    warnings = false
+```
+
+And voilà, using the `hugo-katex` binary, `$\LaTeX$` and `$$\LaTeX$$` will get correctly rendered with the only need of the KaTeX [css file](https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css).
+
+Checkout the [README](https://github.com/gohugoio/hugo) of the author of this patch and of the parser for more informations.
+
+None of these changes are from me, I just applied graemephi's patch on a more recent version of Hugo.
+
+# Original Hugo Readme
+
 <a href="https://gohugo.io/"><img src="https://raw.githubusercontent.com/gohugoio/gohugoioTheme/master/static/images/hugo-logo-wide.svg?sanitize=true" alt="Hugo" width="565"></a>
 
 A Fast and Flexible Static Site Generator built with love by [bep](https://github.com/bep), [spf13](https://spf13.com/) and [friends](https://github.com/gohugoio/hugo/graphs/contributors) in [Go](https://go.dev/).
