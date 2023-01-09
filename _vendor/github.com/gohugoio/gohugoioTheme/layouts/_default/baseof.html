@@ -33,7 +33,7 @@
     {{/* NOTE: the Site's title, and if there is a page title, that is set too */}}
     <title>
       {{ block "title" . }}
-        {{ with .Title }}{{ . }} |{{ end }}{{ .Site.Title }}
+        {{ with .Title }}{{ . }} | {{ end }}{{ .Site.Title }}
       {{ end }}
 
     </title>

@@ -5,17 +5,18 @@
     utm_campaign = "hugosponsor"
 
 [[banners]]
-    name         = "eSolia"
-    link         = "https://esolia.com/post/why-did-esolia-choose-hugo/"
-    logo         = "/images/sponsors/esolia-logo.svg"
-    utm_campaign = "hugosponsor"
-
-[[banners]]
     name         = "ButterCMS"
     link         = "https://buttercms.com/hugo-cms/"
     logo         = "/images/sponsors/butter-light.svg"
     utm_campaign = "sponsorship"
     bgcolor      = "#131A3E"
+
+[[banners]]
+    name         = "Your Company?"
+    link         = "https://bep.is/en/hugo-sponsor-2023-01/"
+    logo         = "/images/sponsors/your-company.svg"
+    utm_campaign = "hugosponsor"
+    bgcolor      = "#004887"
 
     #hugohome
     #hugofooter
