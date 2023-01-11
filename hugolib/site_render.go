@@ -386,22 +386,15 @@ func (s *Site) renderMainLanguageRedirect() error {
 	}
 
 	html, found := s.outputFormatsConfig.GetByName("HTML")
-	if found {
-		mainLang := s.h.multilingual.DefaultLang
-		if s.Info.defaultContentLanguageInSubdir {
-			mainLangURL := s.PathSpec.AbsURL(mainLang.Lang+"/", false)
-			s.Log.Debugf("Write redirect to main language %s: %s", mainLang, mainLangURL)
-			if err := s.publishDestAlias(true, "/", mainLangURL, html, nil); err != nil {
-				return err
-			}
-		} else {
-			mainLangURL := s.PathSpec.AbsURL("", false)
-			s.Log.Debugf("Write redirect to main language %s: %s", mainLang, mainLangURL)
-			if err := s.publishDestAlias(true, mainLang.Lang, mainLangURL, html, nil); err != nil {
-				return err
-			}
-		}
+	if !found {
+		return nil
 	}
 
-	return nil
+	mainLang := s.h.multilingual.DefaultLang
+	mainLangURL := s.PathSpec.AbsURL("", false)
+	if s.Info.defaultContentLanguageInSubdir {
+		mainLangURL = s.PathSpec.AbsURL(mainLang.Lang+"/", false)
+	}
+	s.Log.Debugf("Write redirect to main language %s: %s", mainLang, mainLangURL)
+	return s.publishDestAlias(true, mainLang.Lang, mainLangURL, html, s.home)
 }
