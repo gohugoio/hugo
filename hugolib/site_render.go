@@ -198,7 +198,7 @@ func (s *Site) renderPaginator(p *pageState, templ tpl.Template) error {
 		d.Addends = fmt.Sprintf("/%s/%d", paginatePath, 1)
 		targetPaths := page.CreateTargetPaths(d)
 
-		if err := s.writeDestAlias(targetPaths.TargetFilename, p.Permalink(), f, nil); err != nil {
+		if err := s.writeDestAlias(targetPaths.TargetFilename, p.Permalink(), f, s.home); err != nil {
 			return err
 		}
 	}
