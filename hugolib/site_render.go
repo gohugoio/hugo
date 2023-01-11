@@ -391,10 +391,11 @@ func (s *Site) renderMainLanguageRedirect() error {
 	}
 
 	mainLang := s.h.multilingual.DefaultLang
-	mainLangURL := s.PathSpec.AbsURL("", false)
+	mainLangURL := ""
 	if s.Info.defaultContentLanguageInSubdir {
-		mainLangURL = s.PathSpec.AbsURL(mainLang.Lang+"/", false)
+		mainLangURL = mainLang.Lang + "/"
 	}
+	mainLangURL = s.PathSpec.AbsURL(mainLangURL, false)
 	s.Log.Debugf("Write redirect to main language %s: %s", mainLang, mainLangURL)
 	return s.publishDestAlias(true, mainLang.Lang, mainLangURL, html, s.home)
 }
