@@ -301,13 +301,18 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 			s.Assert(afero.WriteFile(afs, filename, data, 0666), qt.IsNil)
 		}
 
+		configDirFilename := filepath.Join(s.Cfg.WorkingDir, "config")
+		if _, err := afs.Stat(configDirFilename); err != nil {
+			configDirFilename = ""
+		}
+
 		cfg, _, err := LoadConfig(
 			ConfigSourceDescriptor{
-				WorkingDir: s.Cfg.WorkingDir,
-				Fs:         afs,
-				Logger:     logger,
-				Environ:    []string{},
-				Filename:   "config.toml",
+				WorkingDir:   s.Cfg.WorkingDir,
+				AbsConfigDir: configDirFilename,
+				Fs:           afs,
+				Logger:       logger,
+				Environ:      []string{},
 			},
 			func(cfg config.Provider) error {
 				return nil
