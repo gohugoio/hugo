@@ -303,3 +303,44 @@ IMPORT_SRC_DIR:imp3/foo.ts
 	}
 
 }
+
+// See https://github.com/evanw/esbuild/issues/2745
+func TestPreserveLegalComments(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- assets/js/main.js --
+/* @license
+ * Main license.
+ */
+import * as foo from 'js/utils';
+console.log("Hello Main");
+-- assets/js/utils/index.js --
+export * from './util1';
+export * from './util2';
+-- assets/js/utils/util1.js --
+/*! License util1  */
+console.log("Hello 1");
+-- assets/js/utils/util2.js --
+//! License util2  */
+console.log("Hello 2");
+-- layouts/index.html --
+{{ $js := resources.Get "js/main.js" | js.Build (dict "minify" false) }}
+{{ $js.RelPermalink }}
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			NeedsOsFS:   true,
+			TxtarString: files,
+		}).Build()
+
+	b.AssertFileContent("public/js/main.js", `
+License util1
+License util2
+Main license
+	
+	`)
+
+}
