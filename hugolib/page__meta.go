@@ -482,7 +482,7 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 					p.s.Log.Warnf(`Front matter in %q with the url %q with no leading / has what looks like the language prefix added. In Hugo 0.55 we added support for page relative URLs in front matter, no language prefix needed. Check the URL and consider to either add a leading / or remove the language prefix.`, p.pathOrTitle(), url)
 				}
 			}
-			if !strings.HasSuffix(url, "/") {
+			if url != "" && !strings.HasSuffix(url, "/") && !strings.HasSuffix(url, ".html") && !strings.HasSuffix(url, ".htm") {
 				url += "/"
 			}
 			pm.urlPaths.URL = url
