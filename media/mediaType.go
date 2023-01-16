@@ -117,7 +117,7 @@ func FromContent(types Types, extensionHints []string, content []byte) Type {
 
 // FromStringAndExt creates a Type from a MIME string and a given extension.
 func FromStringAndExt(t, ext string) (Type, error) {
-	tp, err := fromString(t)
+	tp, err := FromString(t)
 	if err != nil {
 		return tp, err
 	}
@@ -129,7 +129,7 @@ func FromStringAndExt(t, ext string) (Type, error) {
 
 // FromString creates a new Type given a type string on the form MainType/SubType and
 // an optional suffix, e.g. "text/html" or "text/html+html".
-func fromString(t string) (Type, error) {
+func FromString(t string) (Type, error) {
 	t = strings.ToLower(t)
 	parts := strings.Split(t, "/")
 	if len(parts) != 2 {
@@ -470,7 +470,7 @@ func DecodeTypes(mms ...map[string]any) (Types, error) {
 			mediaType, found := mmm[k]
 			if !found {
 				var err error
-				mediaType, err = fromString(k)
+				mediaType, err = FromString(k)
 				if err != nil {
 					return m, err
 				}
