@@ -70,6 +70,8 @@ type ResourceSourceDescriptor struct {
 
 	Fs afero.Fs
 
+	Data map[string]any
+
 	// Set when its known up front, else it's resolved from the target filename.
 	MediaType media.Type
 

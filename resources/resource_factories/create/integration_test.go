@@ -35,7 +35,7 @@ func TestGetResourceHead(t *testing.T) {
   {{ with .Err }}
     {{ errorf "Unable to get remote resource: %s" . }}
   {{ else }}
-    Head Content: {{ .Content }}.
+    Head Content: {{ .Content }}. Head Data: {{ .Data }}
   {{ end }}
 {{ else }}
   {{ errorf "Unable to get remote resource: %s" $url }}
@@ -51,6 +51,9 @@ func TestGetResourceHead(t *testing.T) {
 
 	b.Build()
 
-	b.AssertFileContent("public/index.html", "Head Content: .")
+	b.AssertFileContent("public/index.html",
+		"Head Content: .",
+		"Head Data: map[ContentLength:18210 ContentType:image/png Status:200 OK StatusCode:200 TransferEncoding:[]]",
+	)
 
 }

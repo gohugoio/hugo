@@ -207,10 +207,12 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 	}
 
 	resourceID = filename[:len(filename)-len(path.Ext(filename))] + "_" + resourceID + mediaType.FirstSuffix.FullSuffix
+	data := responseToData(res, false)
 
 	return c.rs.New(
 		resources.ResourceSourceDescriptor{
 			MediaType:   mediaType,
+			Data:        data,
 			LazyPublish: true,
 			OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
 				return hugio.NewReadSeekerNoOpCloser(bytes.NewReader(body)), nil
