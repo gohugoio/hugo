@@ -91,14 +91,9 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 			return nil, err
 		}
 
-		req, err := http.NewRequest(options.Method, uri, options.BodyReader())
+		req, err := options.NewRequest(uri)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create request for resource %s: %w", uri, err)
-		}
-		addDefaultHeaders(req)
-
-		if options.Headers != nil {
-			addUserProvidedHeaders(options.Headers, req)
 		}
 
 		res, err := c.httpClient.Do(req)
@@ -207,12 +202,7 @@ func calculateResourceID(uri string, optionsm map[string]any) string {
 	return helpers.HashString(uri, optionsm)
 }
 
-func addDefaultHeaders(req *http.Request, accepts ...string) {
-	for _, accept := range accepts {
-		if !hasHeaderValue(req.Header, "Accept", accept) {
-			req.Header.Add("Accept", accept)
-		}
-	}
+func addDefaultHeaders(req *http.Request) {
 	if !hasHeaderKey(req.Header, "User-Agent") {
 		req.Header.Add("User-Agent", "Hugo Static Site Generator")
 	}
@@ -262,6 +252,23 @@ func (o fromRemoteOptions) BodyReader() io.Reader {
 		return nil
 	}
 	return bytes.NewBuffer(o.Body)
+}
+
+func (o fromRemoteOptions) NewRequest(url string) (*http.Request, error) {
+	req, err := http.NewRequest(o.Method, url, o.BodyReader())
+	if err != nil {
+		return nil, err
+	}
+
+	// First add any user provided headers.
+	if o.Headers != nil {
+		addUserProvidedHeaders(o.Headers, req)
+	}
+
+	// Then add default headers not provided by the user.
+	addDefaultHeaders(req)
+
+	return req, nil
 }
 
 func decodeRemoteOptions(optionsm map[string]any) (fromRemoteOptions, error) {

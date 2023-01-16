@@ -20,6 +20,8 @@ import (
 )
 
 func TestDecodeRemoteOptions(t *testing.T) {
+	t.Parallel()
+
 	c := qt.New(t)
 
 	for _, test := range []struct {
@@ -81,10 +83,43 @@ func TestDecodeRemoteOptions(t *testing.T) {
 		})
 
 	}
+}
+
+func TestOptionsNewRequest(t *testing.T) {
+	t.Parallel()
+
+	c := qt.New(t)
+
+	opts := fromRemoteOptions{
+		Method: "GET",
+		Body:   []byte("foo"),
+	}
+
+	req, err := opts.NewRequest("https://example.com/api")
+
+	c.Assert(err, qt.IsNil)
+	c.Assert(req.Method, qt.Equals, "GET")
+	c.Assert(req.Header["User-Agent"], qt.DeepEquals, []string{"Hugo Static Site Generator"})
+
+	opts = fromRemoteOptions{
+		Method: "GET",
+		Body:   []byte("foo"),
+		Headers: map[string]any{
+			"User-Agent": "foo",
+		},
+	}
+
+	req, err = opts.NewRequest("https://example.com/api")
+
+	c.Assert(err, qt.IsNil)
+	c.Assert(req.Method, qt.Equals, "GET")
+	c.Assert(req.Header["User-Agent"], qt.DeepEquals, []string{"foo"})
 
 }
 
 func TestCalculateResourceID(t *testing.T) {
+	t.Parallel()
+
 	c := qt.New(t)
 
 	c.Assert(calculateResourceID("foo", nil), qt.Equals, "5917621528921068675")
