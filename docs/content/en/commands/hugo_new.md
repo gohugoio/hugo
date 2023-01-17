@@ -67,7 +67,7 @@ hugo new [path] [flags]
 ### Options inherited from parent commands
 
 ```
-      --config string      config file (default is path/config.yaml|json|toml)
+      --config string      config file (default is hugo.yaml|json|toml)
       --configDir string   config dir (default "config")
       --debug              debug output
       --log                enable Logging
