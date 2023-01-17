@@ -32,6 +32,9 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 .Aliases
 : aliases of this page
 
+.Ancestors
+: get the ancestors of each page, simplify [breadcrumb navigation]({{< relref "content-management/sections#example-breadcrumb-navigation" >}}) implementation complexity  
+
 .BundleType
 : the [bundle] type: `leaf`, `branch`, or an empty string if the page is not a bundle.
 

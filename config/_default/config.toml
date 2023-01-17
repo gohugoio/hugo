@@ -1,7 +1,7 @@
 baseURL = "https://gohugo.io/"
 defaultContentLanguage = "en"
 enableEmoji = true
-googleAnalytics = "UA-7131036-4"
+googleAnalytics = "G-MBZGKNMDWC"
 ignoreErrors = ["error-remote-getjson", "error-missing-instagram-accesstoken"]
 languageCode = "en-us"
 paginate = 100
