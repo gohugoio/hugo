@@ -173,6 +173,12 @@ Pass down default configuration values (front matter) to pages in the content tr
 
 Enable to turn relative URLs into absolute.
 
+### cleanDestinationDir
+
+**Default value:** false
+
+When building, removes files from destination not found in static directories.
+
 ### contentDir
 
 **Default value:** "content"
@@ -231,7 +237,7 @@ Disable automatic live reloading of browser window.
 
 **Default value:**  false
 
-: Do not convert the url/path to lowercase.
+Do not convert the url/path to lowercase.
 
 ### enableEmoji
 

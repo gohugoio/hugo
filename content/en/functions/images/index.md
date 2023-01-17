@@ -60,7 +60,7 @@ You can load a custom font if needed. Load the font as a Hugo `Resource` and set
 
 ```go-html-template
 
-{{ $font := resources.Get "https://github.com/google/fonts/raw/main/apache/roboto/static/Roboto-Black.ttf" }}
+{{ $font := resources.GetRemote "https://github.com/google/fonts/raw/main/apache/roboto/static/Roboto-Black.ttf" }}
 {{ $img := resources.Get "/images/background.png"}}
 {{ $img = $img.Filter (images.Text "Hugo rocks!" (dict
     "font" $font
