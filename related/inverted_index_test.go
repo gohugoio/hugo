@@ -212,6 +212,19 @@ func TestToKeywordsToLower(t *testing.T) {
 	})
 }
 
+func TestToKeywordsAnySlice(t *testing.T) {
+	c := qt.New(t)
+	var config IndexConfig
+	slice := []any{"A", 32, "C"}
+	keywords, err := config.ToKeywords(slice)
+	c.Assert(err, qt.IsNil)
+	c.Assert(keywords, qt.DeepEquals, []Keyword{
+		StringKeyword("A"),
+		StringKeyword("32"),
+		StringKeyword("C"),
+	})
+}
+
 func BenchmarkRelatedNewIndex(b *testing.B) {
 	pages := make([]*testDoc, 100)
 	numkeywords := 30
