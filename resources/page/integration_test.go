@@ -136,3 +136,42 @@ Sort: [éclair emma xylophone zulu]
 ByWeight: alpha|émotion|zulu|
 `)
 }
+
+// See #10377
+func TestPermalinkExpansionSectionsRepeated(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["home", "taxonomy", "taxonomyTerm", "sitemap"]
+[outputs]
+home = ["HTML"]
+page = ["HTML"]
+section = ["HTML"]
+[outputFormats]
+[permalinks]
+posts = '/:sections[1]/:sections[last]/:slug'
+-- content/posts/_index.md --
+-- content/posts/a/_index.md --
+-- content/posts/a/b/_index.md --
+-- content/posts/a/b/c/_index.md --
+-- content/posts/a/b/c/d.md --
+---
+title: "D"
+slug: "d"
+---
+D
+-- layouts/_default/single.html --
+RelPermalink: {{ .RelPermalink }}
+
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		}).Build()
+
+	b.AssertFileContent("public/a/c/d/index.html", "RelPermalink: /a/c/d/")
+
+}

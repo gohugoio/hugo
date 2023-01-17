@@ -42,6 +42,7 @@ var testdataPermalinks = []struct {
 	{"/:2006_01_02_15_04_05.000", true, "/2012_04_06_03_01_59.000"}, // Complicated custom date format
 	{"/:sections/", true, "/a/b/c/"},                                // Sections
 	{"/:sections[last]/", true, "/c/"},                              // Sections
+	{"/:sections[0]/:sections[last]/", true, "/a/c/"},               // Sections
 
 	// Failures
 	{"/blog/:fred", false, ""},
