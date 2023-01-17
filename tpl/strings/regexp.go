@@ -45,6 +45,31 @@ func (ns *Namespace) FindRE(expr string, content any, limit ...any) ([]string, e
 	return re.FindAllString(conv, lim), nil
 }
 
+// FindRESubmatch returns returns a slice of strings holding the text of the leftmost match of the regular expression in s and the matches, if any, of its subexpressions.
+//
+// By default all matches will be included. The number of matches can be limited with the optional limit parameter. A return value of nil indicates no match.
+func (ns *Namespace) FindRESubmatch(expr string, content any, limit ...any) ([][]string, error) {
+	re, err := reCache.Get(expr)
+	if err != nil {
+		return nil, err
+	}
+
+	conv, err := cast.ToStringE(content)
+	if err != nil {
+		return nil, err
+	}
+	n := -1
+	if len(limit) > 0 {
+		n, err = cast.ToIntE(limit[0])
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return re.FindAllStringSubmatch(conv, n), nil
+
+}
+
 // ReplaceRE returns a copy of s, replacing all matches of the regular
 // expression pattern with the replacement text repl. The number of replacements
 // can be limited with an optional fourth parameter.

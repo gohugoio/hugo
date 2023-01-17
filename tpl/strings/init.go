@@ -78,8 +78,18 @@ func init() {
 			[]string{"findRE"},
 			[][2]string{
 				{
-					`{{ findRE "[G|g]o" "Hugo is a static side generator written in Go." "1" }}`,
+					`{{ findRE "[G|g]o" "Hugo is a static side generator written in Go." 1 }}`,
 					`[go]`,
+				},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.FindRESubmatch,
+			[]string{"findRESubmatch"},
+			[][2]string{
+				{
+					`{{ findRESubmatch §§<a\s*href="(.+?)">(.+?)</a>§§ §§<li><a href="#foo">Foo</a></li> <li><a href="#bar">Bar</a></li>§§ | print | safeHTML }}`,
+					"[[<a href=\"#foo\">Foo</a> #foo Foo] [<a href=\"#bar\">Bar</a> #bar Bar]]",
 				},
 			},
 		)
