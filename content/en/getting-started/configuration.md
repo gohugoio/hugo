@@ -41,7 +41,7 @@ Multiple site config files can be specified as a comma-separated string to the `
 
 In Hugo 0.110.0 we changed the default config base filename to `hugo`, e.g. `hugo.toml`. We will still look for `config.toml` etc., but we recommend you eventuall rename it (but you need to wait if you want to support older Hugo versions). The main reason we're doing this is to make it easier code editors and build tools to identify this as a Hugo configuration file and project. 
 
-{{new-in "0.110.0" }}
+{{< new-in "0.110.0" >}}
 
 ## Configuration Directory
 
