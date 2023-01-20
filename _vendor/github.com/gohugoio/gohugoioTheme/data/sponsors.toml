@@ -12,9 +12,9 @@
     bgcolor      = "#131A3E"
 
 [[banners]]
-    name         = "Your Company?"
-    link         = "https://bep.is/en/hugo-sponsor-2023-01/"
-    logo         = "/images/sponsors/your-company.svg"
+    name         = "BEP Consulting"
+    link         = "https://bep.consulting"
+    logo         = "/images/sponsors/bep-consulting.svg"
     utm_campaign = "hugosponsor"
     bgcolor      = "#004887"
 
