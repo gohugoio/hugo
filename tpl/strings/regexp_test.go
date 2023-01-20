@@ -50,6 +50,39 @@ func TestFindRE(t *testing.T) {
 	}
 }
 
+func TestFindRESubmatch(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		expr    string
+		content any
+		limit   any
+		expect  any
+	}{
+		{`<a\s*href="(.+?)">(.+?)</a>`, `<li><a href="#foo">Foo</a></li><li><a href="#bar">Bar</a></li>`, -1, [][]string{
+			{"<a href=\"#foo\">Foo</a>", "#foo", "Foo"},
+			{"<a href=\"#bar\">Bar</a>", "#bar", "Bar"},
+		}},
+		// Some simple cases.
+		{"([G|g]o)", "Hugo is a static site generator written in Go.", -1, [][]string{{"go", "go"}, {"Go", "Go"}}},
+		{"([G|g]o)", "Hugo is a static site generator written in Go.", 1, [][]string{{"go", "go"}}},
+
+		// errors
+		{"([G|go", "Hugo is a static site generator written in Go.", nil, false},
+		{"([G|g]o)", t, nil, false},
+	} {
+		result, err := ns.FindRESubmatch(test.expr, test.content, test.limit)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Check(result, qt.DeepEquals, test.expect)
+	}
+}
 func TestReplaceRE(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)

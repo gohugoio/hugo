@@ -177,7 +177,7 @@ Complete documentation is available at https://gohugo.io/.`,
 		},
 	})
 
-	cc.cmd.PersistentFlags().StringVar(&cc.cfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
+	cc.cmd.PersistentFlags().StringVar(&cc.cfgFile, "config", "", "config file (default is hugo.yaml|json|toml)")
 	cc.cmd.PersistentFlags().StringVar(&cc.cfgDir, "configDir", "config", "config dir")
 	cc.cmd.PersistentFlags().BoolVar(&cc.quiet, "quiet", false, "build in quiet mode")
 

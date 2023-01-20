@@ -1718,7 +1718,7 @@
           "^postcss$"
         ],
         "osEnv": [
-          "(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM)$"
+          "(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\\w+)$"
         ]
       },
       "funcs": {
@@ -4959,8 +4959,25 @@
           ],
           "Examples": [
             [
-              "{{ findRE \"[G|g]o\" \"Hugo is a static side generator written in Go.\" \"1\" }}",
+              "{{ findRE \"[G|g]o\" \"Hugo is a static side generator written in Go.\" 1 }}",
               "[go]"
+            ]
+          ]
+        },
+        "FindRESubmatch": {
+          "Description": "FindRESubmatch returns returns a slice of strings holding the text of the leftmost match of the regular expression in s and the matches, if any, of its subexpressions.\n\nBy default all matches will be included. The number of matches can be limited with the optional limit parameter. A return value of nil indicates no match.",
+          "Args": [
+            "expr",
+            "content",
+            "limit"
+          ],
+          "Aliases": [
+            "findRESubmatch"
+          ],
+          "Examples": [
+            [
+              "{{ findRESubmatch `\u003ca\\s*href=\"(.+?)\"\u003e(.+?)\u003c/a\u003e` `\u003cli\u003e\u003ca href=\"#foo\"\u003eFoo\u003c/a\u003e\u003c/li\u003e \u003cli\u003e\u003ca href=\"#bar\"\u003eBar\u003c/a\u003e\u003c/li\u003e` | print | safeHTML }}",
+              "[[\u003ca href=\"#foo\"\u003eFoo\u003c/a\u003e #foo Foo] [\u003ca href=\"#bar\"\u003eBar\u003c/a\u003e #bar Bar]]"
             ]
           ]
         },
@@ -5250,9 +5267,9 @@
           ]
         },
         "Truncate": {
-          "Description": "Truncate truncates a given string to the specified length.",
+          "Description": "Truncate truncates the string in s to the specified length.",
           "Args": [
-            "a",
+            "s",
             "options"
           ],
           "Aliases": [

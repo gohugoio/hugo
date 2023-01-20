@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/mitchellh/mapstructure"
@@ -283,6 +284,8 @@ func (cfg IndexConfig) ToKeywords(v any) ([]Keyword, error) {
 			vv = vc
 		}
 		keywords = append(keywords, StringsToKeywords(vv...)...)
+	case []any:
+		return cfg.ToKeywords(cast.ToStringSlice(vv))
 	case time.Time:
 		layout := "2006"
 		if cfg.Pattern != "" {

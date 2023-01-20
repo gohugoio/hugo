@@ -66,6 +66,11 @@ func (t *TemplateFuncsNamespace) AddMethodMapping(m any, aliases []string, examp
 
 	name := methodToName(m)
 
+	// Rewrite §§ to ` in example commands.
+	for i, e := range examples {
+		examples[i][0] = strings.ReplaceAll(e[0], "§§", "`")
+	}
+
 	// sanity check
 	for _, e := range examples {
 		if e[0] == "" {

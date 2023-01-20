@@ -423,12 +423,14 @@ func (c *collector) applyThemeConfig(tc *moduleAdapter) error {
 		err            error
 	)
 
-	// Viper supports more, but this is the sub-set supported by Hugo.
-	for _, configFormats := range config.ValidConfigFileExtensions {
-		configFilename = filepath.Join(tc.Dir(), "config."+configFormats)
-		hasConfigFile, _ = afero.Exists(c.fs, configFilename)
-		if hasConfigFile {
-			break
+LOOP:
+	for _, configBaseName := range config.DefaultConfigNames {
+		for _, configFormats := range config.ValidConfigFileExtensions {
+			configFilename = filepath.Join(tc.Dir(), configBaseName+"."+configFormats)
+			hasConfigFile, _ = afero.Exists(c.fs, configFilename)
+			if hasConfigFile {
+				break LOOP
+			}
 		}
 	}
 

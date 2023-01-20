@@ -176,7 +176,7 @@ func (l PermalinkExpander) parse(patterns map[string]string) (map[string]func(Pa
 // can return a string to go in that position in the page (or an error)
 type pageToPermaAttribute func(Page, string) (string, error)
 
-var attributeRegexp = regexp.MustCompile(`:\w+(\[.+\])?`)
+var attributeRegexp = regexp.MustCompile(`:\w+(\[.+?\])?`)
 
 // validate determines if a PathPattern is well-formed
 func (l PermalinkExpander) validate(pp string) bool {

@@ -29,6 +29,9 @@ transpiler [string]
 targetPath [string]
 : If not set, the resource's target path will be the asset file original path with its extension replaced by `.css`.
 
+vars [map]
+: Map of key/value pairs that will be available in the `hugo:vars` namespace, e.g. with `@use "hugo:vars" as v;` or (globally) with `@import "hugo:vars";` {{< new-in "0.109.0" >}}
+
 outputStyle [string]
 : Default is `nested` (LibSass) and `expanded` (Dart Sass). Other available output styles for LibSass are `expanded`, `compact` and `compressed`. Dart Sass only supports `expanded` and `compressed`.
 

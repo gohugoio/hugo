@@ -19,6 +19,15 @@ Spelling fixes are most welcomed, and if you want to contribute longer sections 
 * For example, try to find short snippets that teaches people about the concept. If the example is also useful as-is (copy and paste), then great. Don't list long and similar examples just so people can use them on their sites.
 * Hugo has users from all over the world, so easy to understand and [simple English](https://simple.wikipedia.org/wiki/Basic_English) is good.
 
+
+## Edit the theme
+
+If you want to do docs-related theme changes, the simplest way is to have both `hugoDocs` and `gohugoioTheme` cloned as sibling directories, and then run:
+
+```
+HUGO_MODULE_WORKSPACE=hugo.work hugo server --ignoreVendorPaths "**"
+```
+
 ## Branches
 
 * The `master` branch is where the site is automatically built from, and is the place to put changes relevant to the current Hugo version.

@@ -120,7 +120,7 @@ hugo server --navigateToChanged
 As noted above, Hugo does not clear the public directory before building your site. Manually clear the contents of the public directory before each build to remove draft, expired, and future content.
 {{% /note %}}
 
-When are ready to deploy your site, run:
+When you are ready to deploy your site, run:
 
 ```bash
 hugo
