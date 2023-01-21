@@ -16,6 +16,7 @@
 package page
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/gohugoio/hugo/media"
@@ -24,6 +25,15 @@ import (
 
 // OutputFormats holds a list of the relevant output formats for a given page.
 type OutputFormats []OutputFormat
+
+func (o OutputFormats) String() string {
+	var builder strings.Builder
+	for _, link := range o {
+		builder.WriteString(link.String())
+		builder.WriteRune('\n')
+	}
+	return builder.String()
+}
 
 // OutputFormat links to a representation of a resource.
 type OutputFormat struct {
@@ -43,6 +53,10 @@ type OutputFormat struct {
 
 	relPermalink string
 	permalink    string
+}
+
+func (o OutputFormat) String() string {
+	return fmt.Sprintf("<link rel=%q type=%q href=%q>", o.Rel, o.MediaType().Type(), o.Permalink())
 }
 
 // Name returns this OutputFormat's name, i.e. HTML, AMP, JSON etc.
