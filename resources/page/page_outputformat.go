@@ -18,6 +18,7 @@ package page
 import (
 	"fmt"
 	"strings"
+	"text/template"
 
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/output"
@@ -56,7 +57,10 @@ type OutputFormat struct {
 }
 
 func (o OutputFormat) String() string {
-	return fmt.Sprintf("<link rel=%q type=%q href=%q>", o.Rel, o.MediaType().Type(), o.Permalink())
+	rel := template.HTMLEscapeString(o.Rel)
+	mediaType := template.HTMLEscapeString(o.MediaType().Type())
+	permalink := template.HTMLEscapeString(o.Permalink())
+	return fmt.Sprintf(`<link rel=%q type=%q href=%q>`, rel, mediaType, permalink)
 }
 
 // Name returns this OutputFormat's name, i.e. HTML, AMP, JSON etc.
