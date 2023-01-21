@@ -60,7 +60,7 @@ func (o OutputFormat) String() string {
 	rel := template.HTMLEscapeString(o.Rel)
 	mediaType := template.HTMLEscapeString(o.MediaType().Type())
 	permalink := template.HTMLEscapeString(o.Permalink())
-	return fmt.Sprintf(`<link rel=%q type=%q href=%q>`, rel, mediaType, permalink)
+	return fmt.Sprintf(`<link rel="%s" type="%s" href="%s">`, rel, mediaType, permalink)
 }
 
 // Name returns this OutputFormat's name, i.e. HTML, AMP, JSON etc.
