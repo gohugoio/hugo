@@ -20,7 +20,6 @@ import (
 	"sync/atomic"
 
 	_math "github.com/gohugoio/hugo/common/math"
-
 	"github.com/spf13/cast"
 )
 
@@ -75,11 +74,15 @@ func (ns *Namespace) Log(n any) (float64, error) {
 // Max returns the greater of the two numbers n1 or n2.
 func (ns *Namespace) Max(inputs ...any) (maximum float64, err error) {
 	var value float64
-	for input := range inputs {
+	for index, input := range inputs {
 		value, err = cast.ToFloat64E(input)
 		if err != nil {
 			err = errors.New("Max operator can't be used with non-float value")
 			return
+		}
+		if index == 0 {
+			maximum = value
+			continue
 		}
 		maximum = math.Max(value, maximum)
 	}
@@ -89,11 +92,15 @@ func (ns *Namespace) Max(inputs ...any) (maximum float64, err error) {
 // Min returns the smaller of two numbers n1 or n2.
 func (ns *Namespace) Min(inputs ...any) (minimum float64, err error) {
 	var value float64
-	for input := range inputs {
+	for index, input := range inputs {
 		value, err = cast.ToFloat64E(input)
 		if err != nil {
 			err = errors.New("Max operator can't be used with non-float value")
 			return
+		}
+		if index == 0 {
+			minimum = value
+			continue
 		}
 		minimum = math.Min(value, minimum)
 	}
@@ -171,7 +178,8 @@ func (ns *Namespace) Sub(inputs ...any) (any, error) {
 func (ns *Namespace) doArithmetic(inputs []any, operation rune) (value any, err error) {
 	value = inputs[0]
 	for i := 1; i < len(inputs); i++ {
-		if value, err = _math.DoArithmetic(value, inputs[i], operation); err != nil {
+		value, err = _math.DoArithmetic(value, inputs[i], operation)
+		if err != nil {
 			return
 		}
 	}
