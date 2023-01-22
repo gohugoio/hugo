@@ -33,8 +33,8 @@ func New() *Namespace {
 type Namespace struct{}
 
 // Add adds the two addends n1 and n2.
-func (ns *Namespace) Add(n1, n2 any) (any, error) {
-	return _math.DoArithmetic(n1, n2, '+')
+func (ns *Namespace) Add(inputs ...any) (any, error) {
+	return ns.doArithmetic(inputs, '+')
 }
 
 // Ceil returns the least integer value greater than or equal to n.
@@ -48,8 +48,8 @@ func (ns *Namespace) Ceil(n any) (float64, error) {
 }
 
 // Div divides n1 by n2.
-func (ns *Namespace) Div(n1, n2 any) (any, error) {
-	return _math.DoArithmetic(n1, n2, '/')
+func (ns *Namespace) Div(inputs ...any) (any, error) {
+	return ns.doArithmetic(inputs, '/')
 }
 
 // Floor returns the greatest integer value less than or equal to n.
@@ -73,27 +73,31 @@ func (ns *Namespace) Log(n any) (float64, error) {
 }
 
 // Max returns the greater of the two numbers n1 or n2.
-func (ns *Namespace) Max(n1, n2 any) (float64, error) {
-	af, erra := cast.ToFloat64E(n1)
-	bf, errb := cast.ToFloat64E(n2)
-
-	if erra != nil || errb != nil {
-		return 0, errors.New("Max operator can't be used with non-float value")
+func (ns *Namespace) Max(inputs ...any) (maximum float64, err error) {
+	var value float64
+	for input := range inputs {
+		value, err = cast.ToFloat64E(input)
+		if err != nil {
+			err = errors.New("Max operator can't be used with non-float value")
+			return
+		}
+		maximum = math.Max(value, maximum)
 	}
-
-	return math.Max(af, bf), nil
+	return
 }
 
 // Min returns the smaller of two numbers n1 or n2.
-func (ns *Namespace) Min(n1, n2 any) (float64, error) {
-	af, erra := cast.ToFloat64E(n1)
-	bf, errb := cast.ToFloat64E(n2)
-
-	if erra != nil || errb != nil {
-		return 0, errors.New("Min operator can't be used with non-float value")
+func (ns *Namespace) Min(inputs ...any) (minimum float64, err error) {
+	var value float64
+	for input := range inputs {
+		value, err = cast.ToFloat64E(input)
+		if err != nil {
+			err = errors.New("Max operator can't be used with non-float value")
+			return
+		}
+		minimum = math.Min(value, minimum)
 	}
-
-	return math.Min(af, bf), nil
+	return
 }
 
 // Mod returns n1 % n2.
@@ -123,8 +127,8 @@ func (ns *Namespace) ModBool(n1, n2 any) (bool, error) {
 }
 
 // Mul multiplies the two numbers n1 and n2.
-func (ns *Namespace) Mul(n1, n2 any) (any, error) {
-	return _math.DoArithmetic(n1, n2, '*')
+func (ns *Namespace) Mul(inputs ...any) (any, error) {
+	return ns.doArithmetic(inputs, '*')
 }
 
 // Pow returns n1 raised to the power of n2.
@@ -160,8 +164,18 @@ func (ns *Namespace) Sqrt(n any) (float64, error) {
 }
 
 // Sub subtracts n2 from n1.
-func (ns *Namespace) Sub(n1, n2 any) (any, error) {
-	return _math.DoArithmetic(n1, n2, '-')
+func (ns *Namespace) Sub(inputs ...any) (any, error) {
+	return ns.doArithmetic(inputs, '-')
+}
+
+func (ns *Namespace) doArithmetic(inputs []any, operation rune) (value any, err error) {
+	value = inputs[0]
+	for i := 1; i < len(inputs); i++ {
+		if value, err = _math.DoArithmetic(value, inputs[i], operation); err != nil {
+			return
+		}
+	}
+	return
 }
 
 var counter uint64
