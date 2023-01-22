@@ -27,7 +27,7 @@ func TestBasicNSArithmetic(t *testing.T) {
 	ns := New()
 
 	for _, test := range []struct {
-		fn     func(a, b any) (any, error)
+		fn     func(inputs ...any) (any, error)
 		a      any
 		b      any
 		expect any
