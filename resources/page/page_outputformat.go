@@ -28,12 +28,11 @@ import (
 type OutputFormats []OutputFormat
 
 func (o OutputFormats) String() string {
-	var builder strings.Builder
-	for _, link := range o {
-		builder.WriteString(link.String())
-		builder.WriteRune('\n')
+	links := make([]string, len(o))
+	for index, link := range o {
+		links[index] = link.String()
 	}
-	return builder.String()
+	return strings.Join(links, "\n")
 }
 
 // OutputFormat links to a representation of a resource.
