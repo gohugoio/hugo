@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/identity"
 
 	"github.com/gohugoio/hugo/config"
 
@@ -75,6 +76,9 @@ type Site interface {
 
 	// Returns a map of all the data inside /data.
 	Data() map[string]any
+
+	// Returns the identity of this site.
+	GetIdentity() identity.Identity
 }
 
 // Sites represents an ordered list of sites (languages).
@@ -115,6 +119,10 @@ func (t testSite) Sites() Sites {
 
 func (t testSite) Current() Site {
 	return t
+}
+
+func (t testSite) GetIdentity() identity.Identity {
+	return identity.KeyValueIdentity{Key: "site", Value: t.l.Lang}
 }
 
 func (t testSite) IsServer() bool {

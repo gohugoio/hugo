@@ -19,7 +19,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/media"
 
 	"errors"
@@ -139,7 +139,7 @@ func DecodeConfig(m map[string]any) (ImagingConfig, error) {
 
 	i := ImagingConfig{
 		Cfg:     defaultImaging,
-		CfgHash: helpers.HashString(m),
+		CfgHash: identity.HashString(m),
 	}
 
 	if err := mapstructure.WeakDecode(m, &i.Cfg); err != nil {
