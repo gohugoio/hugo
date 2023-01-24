@@ -24,6 +24,7 @@ import (
 
 	"github.com/bep/clock"
 	"github.com/gohugoio/hugo/htesting"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/asciidocext"
 	"github.com/gohugoio/hugo/markup/rst"
 	"github.com/gohugoio/hugo/tpl"
@@ -2000,4 +2001,38 @@ Page1: {{ $p1.Path }}
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent("public/index.html", "Lang: no", filepath.FromSlash("Page1: a/B/C/Page1.md"))
+}
+
+func TestPageHashString(t *testing.T) {
+	files := `
+-- config.toml --
+baseURL = "https://example.org"
+[languages]
+[languages.en]
+weight = 1
+title = "English"
+[languages.no]
+weight = 2
+title = "Norsk"
+-- content/p1.md --
+---
+title: "p1"
+---
+-- content/p2.md --
+---
+title: "p2"
+---
+`
+
+	b := NewIntegrationTestBuilder(IntegrationTestConfig{
+		T:           t,
+		TxtarString: files,
+	}).Build()
+
+	p1 := b.H.Sites[0].RegularPages()[0]
+	p2 := b.H.Sites[0].RegularPages()[1]
+	sites := p1.Sites()
+
+	b.Assert(identity.HashString(p1), qt.Not(qt.Equals), identity.HashString(p2))
+	b.Assert(identity.HashString(sites[0]), qt.Not(qt.Equals), identity.HashString(sites[1]))
 }
