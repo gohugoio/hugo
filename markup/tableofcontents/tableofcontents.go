@@ -88,8 +88,11 @@ func (b *tocBuilder) Build() {
 }
 
 func (b *tocBuilder) writeNav(h Headings) {
+	if len(h) == 0 {
+		return
+	}
 	b.s.WriteString("<nav id=\"TableOfContents\">")
-	b.writeHeadings(1, 0, b.h)
+	b.writeHeadings(1, 0, h)
 	b.s.WriteString("</nav>")
 }
 
