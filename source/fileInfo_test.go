@@ -13,7 +13,7 @@
 
 package source
 
-import (
+import (@@ -247,11 +247,38 @@ i18n: {{ T "hugo" }}
 	"path/filepath"
 	"strings"
 	"testing"
@@ -21,7 +21,47 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
-func TestFileInfo(t *testing.T) {
+func TestFileInfo(t *testing.T) {func TestNewContentForce(t *testing.T) {
+
+	mm := afero.NewMemMapFs()
+
+	c := qt.New(t)
+
+	archetypeDir := filepath.Join("archetypes", "my-bundle")
+
+	c.Assert(mm.MkdirAll(archetypeDir, 0o755), qt.IsNil)
+
+	c.Assert(afero.WriteFile(mm, filepath.Join(archetypeDir, "index.md"), []byte(""), 0o755), qt.IsNil)
+
+	c.Assert(afero.WriteFile(mm, filepath.Join(archetypeDir, "index.nn.md"), []byte(""), 0o755), qt.IsNil)
+
+	c.Assert(initFs(mm), qt.IsNil)
+
+	cfg, fs := newTestCfg(c, mm)
+
+	h, err := hugolib.NewHugoSites(deps.DepsCfg{Cfg: cfg, Fs: fs})
+
+	c.Assert(err, qt.IsNil)
+
+	c.Assert(len(h.Sites), qt.Equals, 2)
+
+	// from file
+
+	c.Assert(create.NewContent(h, "post", "post/my-post.md", false), qt.IsNil)
+
+	c.Assert(create.NewContent(h, "post", "post/my-post.md", false), qt.IsNotNil)
+
+	c.Assert(create.NewContent(h, "post", "post/my-post.md", true), qt.IsNil)
+
+	// from dir
+
+	c.Assert(create.NewContent(h, "my-bundle", "post/my-post", false), qt.IsNil)
+
+	c.Assert(create.NewContent(h, "my-bundle", "post/my-post", false), qt.IsNotNil)
+
+	c.Assert(create.NewContent(h, "my-bundle", "post/my-post", true), qt.IsNil)
+
+}
 	c := qt.New(t)
 
 	s := newTestSourceSpec()
