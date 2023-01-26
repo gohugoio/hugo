@@ -190,3 +190,39 @@ Has other: false
 `)
 
 }
+
+func TestRenderStringWithShortcodeIssue10654(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+timeout = '300ms'
+-- content/p1.md --
+---
+title: "P1"
+---
+{{< toc >}}
+
+## Heading 1
+
+{{< noop >}}
+     {{ not a shortcode
+{{< /noop >}}
+}
+-- layouts/shortcodes/noop.html --
+{{ .Inner | $.Page.RenderString }}
+-- layouts/shortcodes/toc.html --
+{{ .Page.TableOfContents }}
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", `TableOfContents`)
+}

@@ -384,8 +384,8 @@ func (p *pageContentOutput) RenderString(args ...any) (template.HTML, error) {
 
 	var rendered []byte
 
-	if strings.Contains(contentToRender, "{{") {
-		// Probably a shortcode.
+	if pageparser.HasShortcode(contentToRender) {
+		// String contains a shortcode.
 		parsed, err := pageparser.ParseMain(strings.NewReader(contentToRender), pageparser.Config{})
 		if err != nil {
 			return "", err
