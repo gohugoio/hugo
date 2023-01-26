@@ -33,6 +33,7 @@ import (
 	color_extractor "github.com/marekm4/color-extractor"
 
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/identity"
 
 	"github.com/disintegration/gift"
 
@@ -278,7 +279,7 @@ func (i *imageResource) Filter(filters ...any) (images.ImageResource, error) {
 		gfilters = append(gfilters, images.ToFilters(f)...)
 	}
 
-	conf.Key = helpers.HashString(gfilters)
+	conf.Key = identity.HashString(gfilters)
 	conf.TargetFormat = i.Format
 
 	return i.doWithImageConfig(conf, func(src image.Image) (image.Image, error) {
@@ -430,7 +431,7 @@ func (i *imageResource) getImageMetaCacheTargetPath() string {
 	}
 	p1, _ := paths.FileAndExt(df.file)
 	h, _ := i.hash()
-	idStr := helpers.HashString(h, i.size(), imageMetaVersionNumber, cfgHash)
+	idStr := identity.HashString(h, i.size(), imageMetaVersionNumber, cfgHash)
 	p := path.Join(df.dir, fmt.Sprintf("%s_%s.json", p1, idStr))
 	return p
 }

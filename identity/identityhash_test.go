@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2023 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,22 +11,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package images
+package identity
 
 import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/identity"
 )
 
-func TestFilterHash(t *testing.T) {
+func TestHashString(t *testing.T) {
 	c := qt.New(t)
 
-	f := &Filters{}
+	c.Assert(HashString("a", "b"), qt.Equals, "2712570657419664240")
+	c.Assert(HashString("ab"), qt.Equals, "590647783936702392")
 
-	c.Assert(identity.HashString(f.Grayscale()), qt.Equals, identity.HashString(f.Grayscale()))
-	c.Assert(identity.HashString(f.Grayscale()), qt.Not(qt.Equals), identity.HashString(f.Invert()))
-	c.Assert(identity.HashString(f.Gamma(32)), qt.Not(qt.Equals), identity.HashString(f.Gamma(33)))
-	c.Assert(identity.HashString(f.Gamma(32)), qt.Equals, identity.HashString(f.Gamma(32)))
+	var vals []any = []any{"a", "b", tstKeyer{"c"}}
+
+	c.Assert(HashString(vals...), qt.Equals, "12599484872364427450")
+	c.Assert(vals[2], qt.Equals, tstKeyer{"c"})
+
+}
+
+type tstKeyer struct {
+	key string
+}
+
+func (t tstKeyer) Key() string {
+	return t.key
+}
+
+func (t tstKeyer) String() string {
+	return "key: " + t.key
 }

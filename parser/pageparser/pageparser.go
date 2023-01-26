@@ -19,6 +19,8 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"regexp"
+	"strings"
 
 	"github.com/gohugoio/hugo/parser/metadecoders"
 )
@@ -233,4 +235,15 @@ func IsProbablySourceOfItems(source []byte, items Items) bool {
 	}
 
 	return true
+}
+
+var hasShortcodeRe = regexp.MustCompile(`{{[%,<][^\/]`)
+
+// HasShortcode returns true if the given string contains a shortcode.
+func HasShortcode(s string) bool {
+	// Fast path for the common case.
+	if !strings.Contains(s, "{{") {
+		return false
+	}
+	return hasShortcodeRe.MatchString(s)
 }

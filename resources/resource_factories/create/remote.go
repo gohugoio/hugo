@@ -30,7 +30,7 @@ import (
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
-	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -235,9 +235,9 @@ func (c *Client) validateFromRemoteArgs(uri string, options fromRemoteOptions) e
 
 func calculateResourceID(uri string, optionsm map[string]any) string {
 	if key, found := maps.LookupEqualFold(optionsm, "key"); found {
-		return helpers.HashString(key)
+		return identity.HashString(key)
 	}
-	return helpers.HashString(uri, optionsm)
+	return identity.HashString(uri, optionsm)
 }
 
 func addDefaultHeaders(req *http.Request) {
