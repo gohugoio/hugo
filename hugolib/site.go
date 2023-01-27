@@ -778,6 +778,10 @@ func (s *SiteInfo) DisqusShortname() string {
 	return s.Config().Services.Disqus.Shortname
 }
 
+func (s *SiteInfo) GetIdentity() identity.Identity {
+	return identity.KeyValueIdentity{Key: "site", Value: s.language.Lang}
+}
+
 // SiteSocial is a place to put social details on a site level. These are the
 // standard keys that themes will expect to have available, but can be
 // expanded to any others on a per site basis
