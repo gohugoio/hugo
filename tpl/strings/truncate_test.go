@@ -47,6 +47,23 @@ func TestTruncate(t *testing.T) {
 		{3, template.HTML(strings.Repeat("<p>P</p>", 20)), nil, template.HTML("<p>P</p><p>P</p><p>P …</p>"), false},
 		{18, template.HTML("<p>test <b>hello</b> test something</p>"), nil, template.HTML("<p>test <b>hello</b> test …</p>"), false},
 		{4, template.HTML("<p>a<b><i>b</b>c d e</p>"), nil, template.HTML("<p>a<b><i>b</b>c …</p>"), false},
+		{
+			42,
+			template.HTML(`With strangely formatted
+							<a
+							href="#"
+								target="_blank"
+							>HTML</a
+							>
+							inside.`),
+			nil,
+			template.HTML(`With strangely formatted
+							<a
+							href="#"
+								target="_blank"
+							>HTML …</a>`),
+			false,
+		},
 		{10, nil, nil, template.HTML(""), true},
 		{nil, nil, nil, template.HTML(""), true},
 	}

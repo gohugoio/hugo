@@ -18,6 +18,7 @@ import (
 	"html"
 	"html/template"
 	"regexp"
+	"strings"
 	"unicode"
 	"unicode/utf8"
 
@@ -92,12 +93,12 @@ func (ns *Namespace) Truncate(s any, options ...any) (template.HTML, error) {
 		}
 
 		if isHTML {
-			// Make sure we keep tag of HTML tags
+			// Make sure we keep tagname of HTML tags
 			slice := text[i:]
 			m := tagRE.FindStringSubmatchIndex(slice)
 			if len(m) > 0 && m[0] == 0 {
 				nextTag = i + m[1]
-				tagname := slice[m[4]:m[5]]
+				tagname := strings.Fields(slice[m[4]:m[5]])[0]
 				lastWordIndex = lastNonSpace
 				_, singlet := htmlSinglets[tagname]
 				if !singlet && m[6] == -1 {
