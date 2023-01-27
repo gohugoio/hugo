@@ -27,7 +27,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/compare"
-	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/identity"
 )
 
 // The Provider interface defines an interface for measuring metrics.
@@ -242,7 +242,7 @@ func howSimilar(a, b any) int {
 		return 90
 	}
 
-	h1, h2 := helpers.HashString(a), helpers.HashString(b)
+	h1, h2 := identity.HashString(a), identity.HashString(b)
 	if h1 == h2 {
 		return 100
 	}

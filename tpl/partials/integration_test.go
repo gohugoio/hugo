@@ -21,6 +21,8 @@ import (
 	"strings"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
+
 	"github.com/gohugoio/hugo/htesting/hqt"
 	"github.com/gohugoio/hugo/hugolib"
 )
@@ -225,7 +227,7 @@ D1
 	b.Assert(got, hqt.IsSameString, expect)
 }
 
-//  gobench --package ./tpl/partials
+// gobench --package ./tpl/partials
 func BenchmarkIncludeCached(b *testing.B) {
 	files := `
 -- config.toml --
@@ -262,7 +264,7 @@ ABCDE
 	}
 	builders := make([]*hugolib.IntegrationTestBuilder, b.N)
 
-	for i, _ := range builders {
+	for i := range builders {
 		builders[i] = hugolib.NewIntegrationTestBuilder(cfg)
 	}
 
@@ -271,4 +273,54 @@ ABCDE
 	for i := 0; i < b.N; i++ {
 		builders[i].Build()
 	}
+}
+
+func TestIncludeTimeout(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+baseURL = 'http://example.com/'
+timeout = '200ms'
+-- layouts/index.html --
+{{ partials.Include "foo.html" . }}
+-- layouts/partials/foo.html --
+{{ partial "foo.html" . }}
+  `
+
+	b, err := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).BuildE()
+
+	b.Assert(err, qt.Not(qt.IsNil))
+	b.Assert(err.Error(), qt.Contains, "timed out")
+
+}
+
+func TestIncludeCachedTimeout(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+baseURL = 'http://example.com/'
+timeout = '200ms'
+-- layouts/index.html --
+{{ partials.IncludeCached "foo.html" . }}
+-- layouts/partials/foo.html --
+{{ partialCached "foo.html" . }}
+  `
+
+	b, err := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).BuildE()
+
+	b.Assert(err, qt.Not(qt.IsNil))
+	b.Assert(err.Error(), qt.Contains, "timed out")
+
 }
