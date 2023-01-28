@@ -46,6 +46,28 @@ func (ns *Namespace) ToFloat(v any) (float64, error) {
 	return _cast.ToFloat64E(v)
 }
 
+// ToBool converts v to a boolean.
+func (ns *Namespace) ToBool(v any) (bool, error) {
+	v = convertTemplateToString(v)
+	return _cast.ToBoolE(v)
+}
+
+// ToTruth yields the same behavior as ToBool when possible.
+// If the cast is unsuccessful, ToTruth converts v to a boolean using the JavaScript [definition of truthy](https://developer.mozilla.org/en-US/docs/Glossary/Truthy).
+// Accordingly, it never yields an error, but maintains the signature of other cast methods for consistency.
+func (ns *Namespace) ToTruth(v any) (bool, error) {
+	result, err := ns.ToBool(v)
+	if err != nil {
+		switch v {
+		case "", "nil", "null", "undefined", "NaN":
+			return false, nil
+		default:
+			return true, nil
+		}
+	}
+	return result, nil
+}
+
 func convertTemplateToString(v any) any {
 	switch vv := v.(type) {
 	case template.HTML:

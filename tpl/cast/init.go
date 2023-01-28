@@ -52,6 +52,24 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.ToBool,
+			[]string{"bool"},
+			[][2]string{
+				{`{{ "0" | bool | printf "%T" }}`, `bool`},
+				{`{{ "true" | bool }}`, `true`},
+				{`{{ "false" | bool }}`, `false`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.ToTruth,
+			[]string{"truth"},
+			[][2]string{
+				{`{{ "1234" | truth | printf "%T" }}`, `bool`},
+				{`{{ "1234" | truth }}`, `true`},
+				{`{{ "" | truth }}`, `false`},
+			},
+		)
+
 		return ns
 	}
 

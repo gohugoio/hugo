@@ -117,3 +117,92 @@ func TestToFloat(t *testing.T) {
 		c.Assert(result, qt.Equals, test.expect, errMsg)
 	}
 }
+
+func TestToBool(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	ns := New()
+
+	for i, test := range []struct {
+		v      any
+		expect any
+		error  any
+	}{
+		{"true", true, nil},
+		{"false", false, nil},
+		{"TRUE", true, nil},
+		{"FALSE", false, nil},
+		{"t", true, nil},
+		{"f", false, nil},
+		{"T", true, nil},
+		{"F", false, nil},
+		{"1", true, nil},
+		{"0", false, nil},
+		{1, true, nil},
+		{0, false, nil},
+		{true, true, nil},
+		{false, false, nil},
+		{nil, false, nil},
+
+		// error cases
+		{"cheese", nil, false},
+		{"", nil, false},
+		{1.67, nil, false},
+	} {
+		errMsg := qt.Commentf("[%d] %v", i, test.v)
+
+		result, err := ns.ToBool(test.v)
+
+		if b, ok := test.error.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			continue
+		}
+
+		c.Assert(err, qt.IsNil, errMsg)
+		c.Assert(result, qt.Equals, test.expect, errMsg)
+	}
+}
+
+func TestToTruth(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	ns := New()
+
+	for i, test := range []struct {
+		v      any
+		expect any
+	}{
+		{"true", true},
+		{"false", false},
+		{"TRUE", true},
+		{"FALSE", false},
+		{"t", true},
+		{"f", false},
+		{"T", true},
+		{"F", false},
+		{"1", true},
+		{"0", false},
+		{1, true},
+		{0, false},
+		{"cheese", true},
+		{"", false},
+		{1.67, true},
+		{template.HTML("2"), true},
+		{template.CSS("3"), true},
+		{template.HTMLAttr("4"), true},
+		{template.JS("-5.67"), true},
+		{template.JSStr("6"), true},
+		{t, true},
+		{nil, false},
+		{"null", false},
+		{"undefined", false},
+		{"NaN", false},
+	} {
+		errMsg := qt.Commentf("[%d] %v", i, test.v)
+
+		result, err := ns.ToTruth(test.v)
+
+		c.Assert(err, qt.IsNil, errMsg)
+		c.Assert(result, qt.Equals, test.expect, errMsg)
+	}
+}
