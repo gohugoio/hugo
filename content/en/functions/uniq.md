@@ -1,7 +1,8 @@
 ---
 title: uniq
 linktitle: uniq
-description: Takes in a slice or array and returns a slice with subsequent duplicate elements removed.
+description: Takes in a slice or array and returns a slice with duplicate elements removed.
+subsequent
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
