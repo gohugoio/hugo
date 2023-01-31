@@ -1198,3 +1198,46 @@ C'est un test
 	b.AssertFileContent("public/fr/p2/index.html", `plus-dinformations`)
 
 }
+
+// Issue 10671.
+func TestShortcodeInnerShouldBeEmptyWhenNotClosed(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+disableKinds = ["home", "taxonomy", "term"]
+-- content/p1.md --
+---
+title: "p1"
+---
+
+{{< sc "self-closing" />}}
+
+Text.
+
+{{< sc "closing-no-newline" >}}{{< /sc >}}
+
+-- layouts/shortcodes/sc.html --
+Inner: {{ .Get 0 }}: {{ len .Inner }}
+InnerDeindent: {{ .Get 0 }}: {{ len .InnerDeindent }}
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			Running:     true,
+			Verbose:     true,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", `
+Inner: self-closing: 0
+InnerDeindent: self-closing: 0
+Inner: closing-no-newline: 0
+InnerDeindent: closing-no-newline: 0
+
+`)
+}
