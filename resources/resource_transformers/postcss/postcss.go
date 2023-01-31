@@ -19,7 +19,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -179,7 +178,7 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 		configFile = t.rs.BaseFs.ResolveJSConfigFile(configFile)
 		if configFile == "" && options.Config != "" {
 			// Only fail if the user specified config file is not found.
-			return fmt.Errorf("postcss config %q not found:", options.Config)
+			return fmt.Errorf("postcss config %q not found: ", options.Config)
 		}
 	}
 
@@ -363,9 +362,7 @@ func (imp *importResolver) importRecursive(
 }
 
 func (imp *importResolver) resolve() (io.Reader, error) {
-	const importIdentifier = "@import"
-
-	content, err := ioutil.ReadAll(imp.r)
+	content, err := io.ReadAll(imp.r)
 	if err != nil {
 		return nil, err
 	}

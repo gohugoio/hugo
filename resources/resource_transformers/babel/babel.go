@@ -17,7 +17,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -141,7 +140,7 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		configFile = t.rs.BaseFs.ResolveJSConfigFile(configFile)
 		if configFile == "" && t.options.Config != "" {
 			// Only fail if the user specified config file is not found.
-			return fmt.Errorf("babel config %q not found:", configFile)
+			return fmt.Errorf("babel config %q not found: ", configFile)
 		}
 	}
 
@@ -162,7 +161,7 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	// Create compile into a real temp file:
 	// 1. separate stdout/stderr messages from babel (https://github.com/gohugoio/hugo/issues/8136)
 	// 2. allow generation and retrieval of external source map.
-	compileOutput, err := ioutil.TempFile("", "compileOut-*.js")
+	compileOutput, err := os.CreateTemp("", "compileOut-*.js")
 	if err != nil {
 		return err
 	}
@@ -206,7 +205,7 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		return fmt.Errorf(errBuf.String()+": %w", err)
 	}
 
-	content, err := ioutil.ReadAll(compileOutput)
+	content, err := io.ReadAll(compileOutput)
 	if err != nil {
 		return err
 	}
@@ -214,7 +213,7 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	mapFile := compileOutput.Name() + ".map"
 	if _, err := os.Stat(mapFile); err == nil {
 		defer os.Remove(mapFile)
-		sourceMap, err := ioutil.ReadFile(mapFile)
+		sourceMap, err := os.ReadFile(mapFile)
 		if err != nil {
 			return err
 		}

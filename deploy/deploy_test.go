@@ -23,7 +23,6 @@ import (
 	"crypto/md5"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -407,7 +406,7 @@ func TestLocalFile(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			gotContent, err := ioutil.ReadAll(r)
+			gotContent, err := io.ReadAll(r)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -420,7 +419,7 @@ func TestLocalFile(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			gotContent, err = ioutil.ReadAll(r)
+			gotContent, err = io.ReadAll(r)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -521,11 +520,11 @@ type fsTest struct {
 // 2. A filesystem-based afero.Fs paired with an filesystem-based Go CDK bucket.
 // It returns the pair of tests and a cleanup function.
 func initFsTests() ([]*fsTest, func(), error) {
-	tmpfsdir, err := ioutil.TempDir("", "fs")
+	tmpfsdir, err := os.MkdirTemp("", "fs")
 	if err != nil {
 		return nil, nil, err
 	}
-	tmpbucketdir, err := ioutil.TempDir("", "bucket")
+	tmpbucketdir, err := os.MkdirTemp("", "bucket")
 	if err != nil {
 		return nil, nil, err
 	}

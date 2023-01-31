@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"strings"
 	"time"
 
@@ -145,7 +144,7 @@ func (ns *Namespace) includWithTimeout(ctx context.Context, name string, dataLis
 	case <-ctx.Done():
 		err := ctx.Err()
 		if err == context.DeadlineExceeded {
-			err = fmt.Errorf("partial %q timed out after %s. This is most likely due to infinite recursion. If this is just a slow template, you can try to increase the 'timeout' config setting.", name, ns.deps.Timeout)
+			err = fmt.Errorf("partial %q timed out after %s. This is most likely due to infinite recursion. If this is just a slow template, you can try to increase the 'timeout' config setting", name, ns.deps.Timeout)
 		}
 		return includeResult{err: err}
 	}
@@ -193,7 +192,7 @@ func (ns *Namespace) include(ctx context.Context, name string, dataList ...any) 
 		}
 
 		// We don't care about any template output.
-		w = ioutil.Discard
+		w = io.Discard
 	} else {
 		b := bp.GetBuffer()
 		defer bp.PutBuffer(b)

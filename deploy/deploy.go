@@ -24,7 +24,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"mime"
 	"os"
 	"path/filepath"
@@ -403,7 +402,7 @@ func (lf *localFile) Reader() (io.ReadCloser, error) {
 		// We've got the gzipped contents cached in gzipped.
 		// Note: we can't use lf.gzipped directly as a Reader, since we it discards
 		// data after it is read, and we may read it more than once.
-		return ioutil.NopCloser(bytes.NewReader(lf.gzipped.Bytes())), nil
+		return io.NopCloser(bytes.NewReader(lf.gzipped.Bytes())), nil
 	}
 	// Not expected to fail since we did it successfully earlier in newLocalFile,
 	// but could happen due to changes in the underlying filesystem.
@@ -682,9 +681,7 @@ func findDiffs(localFiles map[string]*localFile, remoteFiles map[string]*blob.Li
 			} else if !bytes.Equal(lf.MD5(), remoteFile.MD5) {
 				upload = true
 				reason = reasonMD5Differs
-			} else {
-				// Nope! Leave uploaded = false.
-			}
+			} 
 			found[path] = true
 		} else {
 			// The file doesn't exist in remote.

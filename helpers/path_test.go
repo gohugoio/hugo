@@ -15,7 +15,6 @@ package helpers
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -259,7 +258,7 @@ func TestIsDir(t *testing.T) {
 
 func createZeroSizedFileInTempDir() (*os.File, error) {
 	filePrefix := "_path_test_"
-	f, e := ioutil.TempFile("", filePrefix) // dir is os.TempDir()
+	f, e := os.CreateTemp("", filePrefix) // dir is os.TempDir()
 	if e != nil {
 		// if there was an error no file was created.
 		// => no requirement to delete the file
@@ -275,7 +274,7 @@ func createNonZeroSizedFileInTempDir() (*os.File, error) {
 		return nil, err
 	}
 	byteString := []byte("byteString")
-	err = ioutil.WriteFile(f.Name(), byteString, 0644)
+	err = os.WriteFile(f.Name(), byteString, 0644)
 	if err != nil {
 		// delete the file
 		deleteFileInTempDir(f)
@@ -290,7 +289,7 @@ func deleteFileInTempDir(f *os.File) {
 
 func createEmptyTempDir() (string, error) {
 	dirPrefix := "_dir_prefix_"
-	d, e := ioutil.TempDir("", dirPrefix) // will be in os.TempDir()
+	d, e := os.MkdirTemp("", dirPrefix) // will be in os.TempDir()
 	if e != nil {
 		// no directory to delete - it was never created
 		return "", e
@@ -485,7 +484,7 @@ func TestSafeWriteToDisk(t *testing.T) {
 			if d.expectedErr != e {
 				t.Errorf("Test %d failed. Expected %q but got %q", i, d.expectedErr, e)
 			}
-			contents, _ := ioutil.ReadFile(d.filename)
+			contents, _ := os.ReadFile(d.filename)
 			if randomString != string(contents) {
 				t.Errorf("Test %d failed. Expected contents %q but got %q", i, randomString, string(contents))
 			}
@@ -520,7 +519,7 @@ func TestWriteToDisk(t *testing.T) {
 		if d.expectedErr != e {
 			t.Errorf("Test %d failed. WriteToDisk Error Expected %q but got %q", i, d.expectedErr, e)
 		}
-		contents, e := ioutil.ReadFile(d.filename)
+		contents, e := os.ReadFile(d.filename)
 		if e != nil {
 			t.Errorf("Test %d failed. Could not read file %s. Reason: %s\n", i, d.filename, e)
 		}
