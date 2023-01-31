@@ -20,6 +20,7 @@ import (
 	"html/template"
 	"regexp"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/gohugoio/hugo/common/text"
@@ -158,6 +159,19 @@ func (ns *Namespace) ContainsAny(s, chars any) (bool, error) {
 	}
 
 	return strings.ContainsAny(ss, sc), nil
+}
+
+// ContainsNonSpace reports whether s contains any non-space characters as defined
+// by Unicode's White Space property,
+func (ns *Namespace) ContainsNonSpace(s any) bool {
+	ss := cast.ToString(s)
+
+	for _, r := range ss {
+		if !unicode.IsSpace(r) {
+			return true
+		}
+	}
+	return false
 }
 
 // HasPrefix tests whether the input s begins with prefix.
