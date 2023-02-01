@@ -733,8 +733,7 @@ func (ns *Namespace) Union(l1, l2 any) (any, error) {
 	}
 }
 
-// Uniq takes returns a new list with all duplicate elements in the list l removed.
-// duplicate elements removed.
+// Uniq returns a new list with duplicate elements in the list l removed.
 func (ns *Namespace) Uniq(l any) (any, error) {
 	if l == nil {
 		return make([]any, 0), nil

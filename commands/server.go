@@ -449,7 +449,6 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 							requestURI = redirect.To
 							r = r2
 						}
-						fallthrough
 					default:
 						w.Header().Set("Content-Type", "")
 						http.Redirect(w, r, redirect.To, redirect.Status)
