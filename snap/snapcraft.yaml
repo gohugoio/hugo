@@ -28,7 +28,8 @@ plugs:
     interface: personal-files
     read:
       - $HOME/.gitconfig
-      - $HOME/.config/git/config
+      - $HOME/.config/git       # Allows $HOME/.config/git/config and more
+      - $HOME/.gitconfig.local  # See #10337
 
 environment:
   HOME: $SNAP_REAL_HOME
@@ -144,6 +145,7 @@ parts:
       case "$SNAPCRAFT_TARGET_ARCH" in
         amd64)  arch=x64    ;;
         arm64)  arch=arm64  ;;
+        armhf)  arch=arm    ;;
         i386)   arch=ia32   ;;
         *)      arch=""     ;;
       esac
