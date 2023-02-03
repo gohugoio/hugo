@@ -145,6 +145,7 @@ parts:
       case "$SNAPCRAFT_TARGET_ARCH" in
         amd64)  arch=x64    ;;
         arm64)  arch=arm64  ;;
+        armhf)  arch=arm    ;;
         i386)   arch=ia32   ;;
         *)      arch=""     ;;
       esac
