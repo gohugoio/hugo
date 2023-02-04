@@ -198,7 +198,7 @@ func parseHightlightOptions(in string) (map[string]any, error) {
 
 	for _, v := range strings.Split(in, ",") {
 		keyVal := strings.Split(v, "=")
-		key := strings.ToLower(strings.Trim(keyVal[0], " "))
+		key := strings.Trim(keyVal[0], " ")
 		if len(keyVal) != 2 {
 			return opts, fmt.Errorf("invalid Highlight option: %s", key)
 		}
@@ -214,6 +214,12 @@ func parseHightlightOptions(in string) (map[string]any, error) {
 func normalizeHighlightOptions(m map[string]any) {
 	if m == nil {
 		return
+	}
+
+	// lowercase all keys
+	for k, v := range m {
+		delete(m, k)
+		m[strings.ToLower(k)] = v
 	}
 
 	baseLineNumber := 1
@@ -232,7 +238,6 @@ func normalizeHighlightOptions(m map[string]any) {
 			if vs, ok := v.(string); ok {
 				m[k] = vs != "false"
 			}
-
 		case hlLinesKey:
 			if hlRanges, ok := v.([][2]int); ok {
 				for i := range hlRanges {
