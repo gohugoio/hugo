@@ -155,6 +155,34 @@ func TestClassCollector(t *testing.T) {
 
 }
 
+func TestEndsWithTag(t *testing.T) {
+	c := qt.New((t))
+
+	for _, test := range []struct {
+		name    string
+		s       string
+		tagName string
+		expect  bool
+	}{
+		{"empty", "", "div", false},
+		{"no match", "foo", "div", false},
+		{"no close", "foo<div>", "div", false},
+		{"no close 2", "foo/div>", "div", false},
+		{"no close 2", "foo//div>", "div", false},
+		{"no tag", "foo</>", "div", false},
+		{"match", "foo</div>", "div", true},
+		{"match space", "foo<  / div>", "div", true},
+		{"match space 2", "foo<  / div   \n>", "div", true},
+		{"match case", "foo</DIV>", "div", true},
+	} {
+		c.Run(test.name, func(c *qt.C) {
+			got := isClosedByTag([]byte(test.s), []byte(test.tagName))
+			c.Assert(got, qt.Equals, test.expect)
+		})
+	}
+
+}
+
 func BenchmarkElementsCollectorWriter(b *testing.B) {
 	const benchHTML = `
 <!DOCTYPE html>
