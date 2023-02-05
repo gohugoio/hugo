@@ -214,3 +214,26 @@ func BenchmarkElementsCollectorWriter(b *testing.B) {
 
 	}
 }
+
+func BenchmarkElementsCollectorWriterPre(b *testing.B) {
+	const benchHTML = `
+<pre class="preclass">
+<span>foo</span><span>bar</span>
+<!-- many more span elements -->
+<span class="foo">foo</span>
+<span class="bar">bar</span>
+<span class="baz">baz</span>
+<span class="qux">qux</span>
+<span class="quux">quux</span>
+<span class="quuz">quuz</span>
+<span class="corge">corge</span>
+</pre>
+<div class="foo"></div>
+
+`
+	w := newHTMLElementsCollectorWriter(newHTMLElementsCollector())
+	for i := 0; i < b.N; i++ {
+		fmt.Fprint(w, benchHTML)
+
+	}
+}
