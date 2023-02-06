@@ -110,6 +110,9 @@ func TestClassCollector(t *testing.T) {
 		{"DOCTYPE should beskipped", `<!DOCTYPE html>`, f("", "", "")},
 		{"Comments should be skipped", `<!-- example comment -->`, f("", "", "")},
 		{"Comments with elements before and after", `<div></div><!-- example comment --><span><span>`, f("div span", "", "")},
+		{"Self closing tag", `<div><hr/></div>`, f("div hr", "", "")},
+		// svg with self closing style tag.
+		{"SVG with self closing style tag", `<svg><style/><g><path class="foo"/></g></svg>`, f("g path style svg", "foo", "")},
 		// Issue #8530
 		{"Comment with single quote", `<!-- Hero Area Image d'accueil --><i class="foo">`, f("i", "foo", "")},
 		{"Uppercase tags", `<DIV></DIV>`, f("div", "", "")},
@@ -174,6 +177,7 @@ func TestEndsWithTag(t *testing.T) {
 		{"match space", "foo<  / div>", "div", true},
 		{"match space 2", "foo<  / div   \n>", "div", true},
 		{"match case", "foo</DIV>", "div", true},
+		{"self closing", `</defs><g><g><path fill="#010101" d=asdf"/>`, "div", false},
 	} {
 		c.Run(test.name, func(c *qt.C) {
 			got := isClosedByTag([]byte(test.s), []byte(test.tagName))
