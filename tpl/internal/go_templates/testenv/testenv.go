@@ -14,9 +14,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/cfg"
-
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -25,6 +22,8 @@ import (
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/cfg"
 )
 
 // Builder reports the name of the builder running this test
@@ -256,6 +255,21 @@ func MustHaveCGO(t testing.TB) {
 	}
 }
 
+// CanInternalLink reports whether the current system can link programs with
+// internal linking.
+func CanInternalLink() bool {
+	return false
+}
+
+// MustInternalLink checks that the current system can link programs with internal
+// linking.
+// If not, MustInternalLink calls t.Skip with an explanation.
+func MustInternalLink(t testing.TB) {
+	if !CanInternalLink() {
+		t.Skipf("skipping test: internal linking on %s/%s is not supported", runtime.GOOS, runtime.GOARCH)
+	}
+}
+
 // HasSymlink reports whether the current system can use os.Symlink.
 func HasSymlink() bool {
 	ok, _ := hasSymlink()
@@ -329,4 +343,21 @@ func SkipIfOptimizationOff(t testing.TB) {
 		t.Helper()
 		t.Skip("skipping test with optimization disabled")
 	}
+}
+
+// WriteImportcfg writes an importcfg file used by the compiler or linker to
+// dstPath containing entries for the packages in std and cmd in addition
+// to the package to package file mappings in additionalPackageFiles.
+func WriteImportcfg(t testing.TB, dstPath string, additionalPackageFiles map[string]string) {
+	/*importcfg, err := goroot.Importcfg()
+	for k, v := range additionalPackageFiles {
+		importcfg += fmt.Sprintf("\npackagefile %s=%s", k, v)
+	}
+	if err != nil {
+		t.Fatalf("preparing the importcfg failed: %s", err)
+	}
+	err = os.WriteFile(dstPath, []byte(importcfg), 0655)
+	if err != nil {
+		t.Fatalf("writing the importcfg failed: %s", err)
+	}*/
 }
