@@ -16,11 +16,7 @@ jobs:
   test:
     strategy:
       matrix:
-        # Note: We upgraded to Go 1.18 in Hugo v0.95.0
-        # Go 1.18 had some breaking changes on the source level which means Hugo cannot be built
-        # with older Go versions, but the improvements in Go 1.18 were too good to pass on (e.g. break and continue).
-        # Note that you don't need Go (or Go 1.18) to run a pre-built binary.
-        go-version: [1.18.x,1.19.x]
+        go-version: [1.19.x,1.20.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
