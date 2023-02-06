@@ -145,6 +145,27 @@ func TestContainsAny(t *testing.T) {
 	}
 }
 
+func TestContainsNonSpace(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		s      any
+		expect bool
+	}{
+		{"", false},
+		{" ", false},
+		{"        ", false},
+		{"\t", false},
+		{"\r", false},
+		{"a", true},
+		{"    a", true},
+		{"a\n", true},
+	} {
+		c.Assert(ns.ContainsNonSpace(test.s), qt.Equals, test.expect)
+	}
+}
+
 func TestCountRunes(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)

@@ -36,7 +36,6 @@ var (
 
 	skipInnerElementRe = regexp.MustCompile(`(?i)^(pre|textarea|script|style)`)
 	skipAllElementRe   = regexp.MustCompile(`(?i)^!DOCTYPE`)
-	endTagRe           = regexp.MustCompile(`(?i)<\/\s*([a-zA-Z]+)\s*>$`)
 
 	exceptionList = map[string]bool{
 		"thead": true,
@@ -312,11 +311,7 @@ func htmlLexElementStart(w *htmlElementsCollectorWriter) htmlCollectorStateFunc 
 						if w.r != '>' {
 							return false
 						}
-						m := endTagRe.FindSubmatch(w.buff.Bytes())
-						if m == nil {
-							return false
-						}
-						return bytes.EqualFold(m[1], tagNameCopy)
+						return isClosedByTag(w.buff.Bytes(), tagNameCopy)
 					},
 					htmlLexStart,
 				))
@@ -428,8 +423,9 @@ func parseHTMLElement(elStr string) (el htmlElement, err error) {
 }
 
 // Variants of s
-//    <body class="b a">
-//    <div>
+//
+//	<body class="b a">
+//	<div>
 func parseStartTag(s string) string {
 	spaceIndex := strings.IndexFunc(s, func(r rune) bool {
 		return unicode.IsSpace(r)
@@ -440,4 +436,65 @@ func parseStartTag(s string) string {
 	}
 
 	return s[1:spaceIndex]
+}
+
+// isClosedByTag reports whether b ends with a closing tag for tagName.
+func isClosedByTag(b, tagName []byte) bool {
+	if len(b) == 0 {
+		return false
+	}
+
+	if b[len(b)-1] != '>' {
+		return false
+	}
+
+	var (
+		lo int
+		hi int
+
+		state  int
+		inWord bool
+	)
+
+LOOP:
+	for i := len(b) - 2; i >= 0; i-- {
+		switch {
+		case b[i] == '<':
+			if state != 1 {
+				return false
+			}
+			state = 2
+			break LOOP
+		case b[i] == '/':
+			if state != 0 {
+				return false
+			}
+			state++
+			if inWord {
+				lo = i + 1
+				inWord = false
+			}
+		case isSpace(b[i]):
+			if inWord {
+				lo = i + 1
+				inWord = false
+			}
+		default:
+			if !inWord {
+				hi = i + 1
+				inWord = true
+			}
+		}
+	}
+
+	if state != 2 {
+		return false
+	}
+
+	return bytes.EqualFold(tagName, b[lo:hi])
+
+}
+
+func isSpace(b byte) bool {
+	return b == ' ' || b == '\t' || b == '\n'
 }
