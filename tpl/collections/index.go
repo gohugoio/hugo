@@ -31,6 +31,14 @@ import (
 //
 // We deviate from the stdlib mostly because of https://github.com/golang/go/issues/14751.
 func (ns *Namespace) Index(item any, args ...any) (any, error) {
+	v, err := ns.doIndex(item, args...)
+	if err != nil {
+		return nil, fmt.Errorf("index of type %T with args %v failed: %s", item, args, err)
+	}
+	return v, nil
+}
+
+func (ns *Namespace) doIndex(item any, args ...any) (any, error) {
 	// TODO(moorereason): merge upstream changes.
 	v := reflect.ValueOf(item)
 	if !v.IsValid() {
