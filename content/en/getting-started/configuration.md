@@ -123,8 +123,7 @@ Note that you don't need to be so verbose as in the default setup below; a `_mer
 
 ## All Configuration Settings
 
-The following is the full list of Hugo-defined variables with their default
-value in parentheses. Users may choose to override those values in their site
+The following is the full list of Hugo-defined variables. Users may choose to override those values in their site
 config file(s).
 
 ### archetypeDir
