@@ -294,9 +294,10 @@ func htmlLexElementStart(w *htmlElementsCollectorWriter) htmlCollectorStateFunc 
 		}
 
 		tagName := w.buff.Bytes()[1:]
+		isSelfClosing := tagName[len(tagName)-1] == '/'
 
 		switch {
-		case skipInnerElementRe.Match(tagName):
+		case !isSelfClosing && skipInnerElementRe.Match(tagName):
 			// pre, script etc. We collect classes etc. on the surrounding
 			// element, but skip the inner content.
 			w.backup()
@@ -432,10 +433,18 @@ func parseStartTag(s string) string {
 	})
 
 	if spaceIndex == -1 {
-		return s[1 : len(s)-1]
+		s = s[1 : len(s)-1]
+	} else {
+		s = s[1:spaceIndex]
 	}
 
-	return s[1:spaceIndex]
+	if s[len(s)-1] == '/' {
+		// Self closing.
+		s = s[:len(s)-1]
+	}
+
+	return s
+
 }
 
 // isClosedByTag reports whether b ends with a closing tag for tagName.
@@ -487,7 +496,7 @@ LOOP:
 		}
 	}
 
-	if state != 2 {
+	if state != 2 || lo >= hi {
 		return false
 	}
 
