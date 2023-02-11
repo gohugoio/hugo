@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"os"
@@ -311,13 +312,13 @@ func normalizeContent(c string) string {
 
 func checkPageTOC(t *testing.T, page page.Page, toc string) {
 	t.Helper()
-	if page.TableOfContents() != template.HTML(toc) {
-		t.Fatalf("Page TableOfContents is:\n%q.\nExpected %q", page.TableOfContents(), toc)
+	if page.TableOfContents(context.Background()) != template.HTML(toc) {
+		t.Fatalf("Page TableOfContents is:\n%q.\nExpected %q", page.TableOfContents(context.Background()), toc)
 	}
 }
 
 func checkPageSummary(t *testing.T, page page.Page, summary string, msg ...any) {
-	a := normalizeContent(string(page.Summary()))
+	a := normalizeContent(string(page.Summary(context.Background())))
 	b := normalizeContent(summary)
 	if a != b {
 		t.Fatalf("Page summary is:\n%q.\nExpected\n%q (%q)", a, b, msg)
@@ -443,9 +444,9 @@ func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 
 	p := s.RegularPages()[0]
 
-	if p.Summary() != template.HTML(
+	if p.Summary(context.Background()) != template.HTML(
 		"<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup id=\"fnref:1\"><a href=\"#fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup></p>") {
-		t.Fatalf("Got summary:\n%q", p.Summary())
+		t.Fatalf("Got summary:\n%q", p.Summary(context.Background()))
 	}
 
 	cnt := content(p)
@@ -719,7 +720,7 @@ func TestSummaryWithHTMLTagsOnNextLine(t *testing.T) {
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
 		c := qt.New(t)
 		p := pages[0]
-		s := string(p.Summary())
+		s := string(p.Summary(context.Background()))
 		c.Assert(s, qt.Contains, "Happy new year everyone!")
 		c.Assert(s, qt.Not(qt.Contains), "User interface")
 	}
@@ -1122,8 +1123,8 @@ func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
 	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
 		p := pages[0]
-		if p.WordCount() != 8 {
-			t.Fatalf("[%s] incorrect word count. expected %v, got %v", ext, 8, p.WordCount())
+		if p.WordCount(context.Background()) != 8 {
+			t.Fatalf("[%s] incorrect word count. expected %v, got %v", ext, 8, p.WordCount(context.Background()))
 		}
 	}
 
@@ -1136,8 +1137,8 @@ func TestWordCountWithAllCJKRunesHasCJKLanguage(t *testing.T) {
 
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
 		p := pages[0]
-		if p.WordCount() != 15 {
-			t.Fatalf("[%s] incorrect word count, expected %v, got %v", ext, 15, p.WordCount())
+		if p.WordCount(context.Background()) != 15 {
+			t.Fatalf("[%s] incorrect word count, expected %v, got %v", ext, 15, p.WordCount(context.Background()))
 		}
 	}
 	testAllMarkdownEnginesForPages(t, assertFunc, settings, simplePageWithAllCJKRunes)
@@ -1149,13 +1150,13 @@ func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
 
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
 		p := pages[0]
-		if p.WordCount() != 74 {
-			t.Fatalf("[%s] incorrect word count, expected %v, got %v", ext, 74, p.WordCount())
+		if p.WordCount(context.Background()) != 74 {
+			t.Fatalf("[%s] incorrect word count, expected %v, got %v", ext, 74, p.WordCount(context.Background()))
 		}
 
-		if p.Summary() != simplePageWithMainEnglishWithCJKRunesSummary {
-			t.Fatalf("[%s] incorrect Summary for content '%s'. expected %v, got %v", ext, p.Plain(),
-				simplePageWithMainEnglishWithCJKRunesSummary, p.Summary())
+		if p.Summary(context.Background()) != simplePageWithMainEnglishWithCJKRunesSummary {
+			t.Fatalf("[%s] incorrect Summary for content '%s'. expected %v, got %v", ext, p.Plain(context.Background()),
+				simplePageWithMainEnglishWithCJKRunesSummary, p.Summary(context.Background()))
 		}
 	}
 
@@ -1170,13 +1171,13 @@ func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
 
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
 		p := pages[0]
-		if p.WordCount() != 75 {
-			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.Plain(), 74, p.WordCount())
+		if p.WordCount(context.Background()) != 75 {
+			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.Plain(context.Background()), 74, p.WordCount(context.Background()))
 		}
 
-		if p.Summary() != simplePageWithIsCJKLanguageFalseSummary {
-			t.Fatalf("[%s] incorrect Summary for content '%s'. expected %v, got %v", ext, p.Plain(),
-				simplePageWithIsCJKLanguageFalseSummary, p.Summary())
+		if p.Summary(context.Background()) != simplePageWithIsCJKLanguageFalseSummary {
+			t.Fatalf("[%s] incorrect Summary for content '%s'. expected %v, got %v", ext, p.Plain(context.Background()),
+				simplePageWithIsCJKLanguageFalseSummary, p.Summary(context.Background()))
 		}
 	}
 
@@ -1187,16 +1188,16 @@ func TestWordCount(t *testing.T) {
 	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
 		p := pages[0]
-		if p.WordCount() != 483 {
-			t.Fatalf("[%s] incorrect word count. expected %v, got %v", ext, 483, p.WordCount())
+		if p.WordCount(context.Background()) != 483 {
+			t.Fatalf("[%s] incorrect word count. expected %v, got %v", ext, 483, p.WordCount(context.Background()))
 		}
 
-		if p.FuzzyWordCount() != 500 {
-			t.Fatalf("[%s] incorrect word count. expected %v, got %v", ext, 500, p.FuzzyWordCount())
+		if p.FuzzyWordCount(context.Background()) != 500 {
+			t.Fatalf("[%s] incorrect word count. expected %v, got %v", ext, 500, p.FuzzyWordCount(context.Background()))
 		}
 
-		if p.ReadingTime() != 3 {
-			t.Fatalf("[%s] incorrect min read. expected %v, got %v", ext, 3, p.ReadingTime())
+		if p.ReadingTime(context.Background()) != 3 {
+			t.Fatalf("[%s] incorrect min read. expected %v, got %v", ext, 3, p.ReadingTime(context.Background()))
 		}
 	}
 

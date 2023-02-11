@@ -14,6 +14,7 @@
 package resources
 
 import (
+	"context"
 	"fmt"
 	"image"
 	"image/gif"
@@ -436,7 +437,7 @@ func TestSVGImageContent(t *testing.T) {
 	svg := fetchResourceForSpec(spec, c, "circle.svg")
 	c.Assert(svg, qt.Not(qt.IsNil))
 
-	content, err := svg.Content()
+	content, err := svg.Content(context.Background())
 	c.Assert(err, qt.IsNil)
 	c.Assert(content, hqt.IsSameType, "")
 	c.Assert(content.(string), qt.Contains, `<svg height="100" width="100">`)

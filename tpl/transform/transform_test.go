@@ -14,6 +14,7 @@
 package transform_test
 
 import (
+	"context"
 	"html/template"
 	"strings"
 	"testing"
@@ -185,7 +186,7 @@ func TestMarkdownify(t *testing.T) {
 		{tstNoStringer{}, false},
 	} {
 
-		result, err := ns.Markdownify(test.s)
+		result, err := ns.Markdownify(context.Background(), test.s)
 
 		if bb, ok := test.expect.(bool); ok && !bb {
 			b.Assert(err, qt.Not(qt.IsNil))
@@ -218,7 +219,7 @@ This is some more text.
 And then some.
 `
 
-	result, err := ns.Markdownify(text)
+	result, err := ns.Markdownify(context.Background(), text)
 	b.Assert(err, qt.IsNil)
 	b.Assert(result, qt.Equals, template.HTML(
 		"<p>#First</p>\n<p>This is some <em>bold</em> text.</p>\n<h2 id=\"second\">Second</h2>\n<p>This is some more text.</p>\n<p>And then some.</p>\n"))

@@ -14,11 +14,13 @@
 package page
 
 import (
+	"context"
 	"fmt"
 	"sync"
 
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/related"
+	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cast"
 )
 
@@ -34,74 +36,90 @@ type PageGenealogist interface {
 
 	// Template example:
 	// {{ $related := .RegularPages.Related . }}
-	Related(doc related.Document) (Pages, error)
+	Related(ctx context.Context, opts any) (Pages, error)
 
 	// Template example:
 	// {{ $related := .RegularPages.RelatedIndices . "tags" "date" }}
-	RelatedIndices(doc related.Document, indices ...any) (Pages, error)
+	// Deprecated: Use Related instead.
+	RelatedIndices(ctx context.Context, doc related.Document, indices ...any) (Pages, error)
 
 	// Template example:
 	// {{ $related := .RegularPages.RelatedTo ( keyVals "tags" "hugo", "rocks")  ( keyVals "date" .Date ) }}
-	RelatedTo(args ...types.KeyValues) (Pages, error)
+	// Deprecated: Use Related instead.
+	RelatedTo(ctx context.Context, args ...types.KeyValues) (Pages, error)
 }
 
 // Related searches all the configured indices with the search keywords from the
 // supplied document.
-func (p Pages) Related(doc related.Document) (Pages, error) {
-	result, err := p.searchDoc(doc)
+func (p Pages) Related(ctx context.Context, optsv any) (Pages, error) {
+	if len(p) == 0 {
+		return nil, nil
+	}
+
+	var opts related.SearchOpts
+	switch v := optsv.(type) {
+	case related.Document:
+		opts.Document = v
+	case map[string]any:
+		if err := mapstructure.WeakDecode(v, &opts); err != nil {
+			return nil, err
+		}
+	default:
+		return nil, fmt.Errorf("invalid argument type %T", optsv)
+	}
+
+	result, err := p.search(ctx, opts)
 	if err != nil {
 		return nil, err
 	}
 
-	if page, ok := doc.(Page); ok {
-		return result.removeFirstIfFound(page), nil
-	}
-
 	return result, nil
+
 }
 
 // RelatedIndices searches the given indices with the search keywords from the
 // supplied document.
-func (p Pages) RelatedIndices(doc related.Document, indices ...any) (Pages, error) {
+// Deprecated: Use Related instead.
+func (p Pages) RelatedIndices(ctx context.Context, doc related.Document, indices ...any) (Pages, error) {
 	indicesStr, err := cast.ToStringSliceE(indices)
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := p.searchDoc(doc, indicesStr...)
-	if err != nil {
-		return nil, err
+	opts := related.SearchOpts{
+		Document: doc,
+		Indices:  indicesStr,
 	}
 
-	if page, ok := doc.(Page); ok {
-		return result.removeFirstIfFound(page), nil
+	result, err := p.search(ctx, opts)
+	if err != nil {
+		return nil, err
 	}
 
 	return result, nil
 }
 
 // RelatedTo searches the given indices with the corresponding values.
-func (p Pages) RelatedTo(args ...types.KeyValues) (Pages, error) {
+// Deprecated: Use Related instead.
+func (p Pages) RelatedTo(ctx context.Context, args ...types.KeyValues) (Pages, error) {
 	if len(p) == 0 {
 		return nil, nil
 	}
 
-	return p.search(args...)
+	opts := related.SearchOpts{
+		NamedSlices: args,
+	}
+
+	return p.search(ctx, opts)
 }
 
-func (p Pages) search(args ...types.KeyValues) (Pages, error) {
-	return p.withInvertedIndex(func(idx *related.InvertedIndex) ([]related.Document, error) {
-		return idx.SearchKeyValues(args...)
+func (p Pages) search(ctx context.Context, opts related.SearchOpts) (Pages, error) {
+	return p.withInvertedIndex(ctx, func(idx *related.InvertedIndex) ([]related.Document, error) {
+		return idx.Search(ctx, opts)
 	})
 }
 
-func (p Pages) searchDoc(doc related.Document, indices ...string) (Pages, error) {
-	return p.withInvertedIndex(func(idx *related.InvertedIndex) ([]related.Document, error) {
-		return idx.SearchDoc(doc, indices...)
-	})
-}
-
-func (p Pages) withInvertedIndex(search func(idx *related.InvertedIndex) ([]related.Document, error)) (Pages, error) {
+func (p Pages) withInvertedIndex(ctx context.Context, search func(idx *related.InvertedIndex) ([]related.Document, error)) (Pages, error) {
 	if len(p) == 0 {
 		return nil, nil
 	}
@@ -113,7 +131,7 @@ func (p Pages) withInvertedIndex(search func(idx *related.InvertedIndex) ([]rela
 
 	cache := d.GetRelatedDocsHandler()
 
-	searchIndex, err := cache.getOrCreateIndex(p)
+	searchIndex, err := cache.getOrCreateIndex(ctx, p)
 	if err != nil {
 		return nil, err
 	}
@@ -164,8 +182,7 @@ func (s *RelatedDocsHandler) getIndex(p Pages) *related.InvertedIndex {
 	}
 	return nil
 }
-
-func (s *RelatedDocsHandler) getOrCreateIndex(p Pages) (*related.InvertedIndex, error) {
+func (s *RelatedDocsHandler) getOrCreateIndex(ctx context.Context, p Pages) (*related.InvertedIndex, error) {
 	s.mu.RLock()
 	cachedIndex := s.getIndex(p)
 	if cachedIndex != nil {
@@ -184,7 +201,7 @@ func (s *RelatedDocsHandler) getOrCreateIndex(p Pages) (*related.InvertedIndex, 
 	searchIndex := related.NewInvertedIndex(s.cfg)
 
 	for _, page := range p {
-		if err := searchIndex.Add(page); err != nil {
+		if err := searchIndex.Add(ctx, page); err != nil {
 			return nil, err
 		}
 	}

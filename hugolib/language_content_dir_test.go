@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -245,7 +246,7 @@ Content.
 	c.Assert(svP2.Language().Lang, qt.Equals, "sv")
 	c.Assert(nnP2.Language().Lang, qt.Equals, "nn")
 
-	content, _ := nnP2.Content()
+	content, _ := nnP2.Content(context.Background())
 	contentStr := cast.ToString(content)
 	c.Assert(contentStr, qt.Contains, "SVP3-REF: https://example.org/sv/sect/p-sv-3/")
 	c.Assert(contentStr, qt.Contains, "SVP3-RELREF: /sv/sect/p-sv-3/")

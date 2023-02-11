@@ -14,6 +14,7 @@
 package page
 
 import (
+	"context"
 	"reflect"
 	"strings"
 	"testing"
@@ -68,7 +69,7 @@ func TestGroupByWithFieldNameArg(t *testing.T) {
 		{Key: 3, Pages: Pages{pages[0], pages[1]}},
 	}
 
-	groups, err := pages.GroupBy("Weight")
+	groups, err := pages.GroupBy(context.Background(), "Weight")
 	if err != nil {
 		t.Fatalf("Unable to make PagesGroup array: %s", err)
 	}
@@ -85,7 +86,7 @@ func TestGroupByWithMethodNameArg(t *testing.T) {
 		{Key: "section2", Pages: Pages{pages[3], pages[4]}},
 	}
 
-	groups, err := pages.GroupBy("Type")
+	groups, err := pages.GroupBy(context.Background(), "Type")
 	if err != nil {
 		t.Fatalf("Unable to make PagesGroup array: %s", err)
 	}
@@ -102,7 +103,7 @@ func TestGroupByWithSectionArg(t *testing.T) {
 		{Key: "section2", Pages: Pages{pages[3], pages[4]}},
 	}
 
-	groups, err := pages.GroupBy("Section")
+	groups, err := pages.GroupBy(context.Background(), "Section")
 	if err != nil {
 		t.Fatalf("Unable to make PagesGroup array: %s", err)
 	}
@@ -120,7 +121,7 @@ func TestGroupByInReverseOrder(t *testing.T) {
 		{Key: 1, Pages: Pages{pages[3], pages[4]}},
 	}
 
-	groups, err := pages.GroupBy("Weight", "desc")
+	groups, err := pages.GroupBy(context.Background(), "Weight", "desc")
 	if err != nil {
 		t.Fatalf("Unable to make PagesGroup array: %s", err)
 	}
@@ -132,7 +133,7 @@ func TestGroupByInReverseOrder(t *testing.T) {
 func TestGroupByCalledWithEmptyPages(t *testing.T) {
 	t.Parallel()
 	var pages Pages
-	groups, err := pages.GroupBy("Weight")
+	groups, err := pages.GroupBy(context.Background(), "Weight")
 	if err != nil {
 		t.Fatalf("Unable to make PagesGroup array: %s", err)
 	}
@@ -154,12 +155,12 @@ func TestReverse(t *testing.T) {
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 
-	groups1, err := pages.GroupBy("Weight", "desc")
+	groups1, err := pages.GroupBy(context.Background(), "Weight", "desc")
 	if err != nil {
 		t.Fatalf("Unable to make PagesGroup array: %s", err)
 	}
 
-	groups2, err := pages.GroupBy("Weight")
+	groups2, err := pages.GroupBy(context.Background(), "Weight")
 	if err != nil {
 		t.Fatalf("Unable to make PagesGroup array: %s", err)
 	}

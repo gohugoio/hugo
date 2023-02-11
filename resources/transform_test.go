@@ -14,6 +14,7 @@
 package resources
 
 import (
+	"context"
 	"encoding/base64"
 	"fmt"
 	"io"
@@ -115,7 +116,7 @@ func TestTransform(t *testing.T) {
 
 		tr, err := r.Transform(transformation)
 		c.Assert(err, qt.IsNil)
-		content, err := tr.(resource.ContentProvider).Content()
+		content, err := tr.(resource.ContentProvider).Content(context.Background())
 		c.Assert(err, qt.IsNil)
 
 		c.Assert(content, qt.Equals, "color is green")
@@ -149,7 +150,7 @@ func TestTransform(t *testing.T) {
 
 		tr, err := r.Transform(transformation)
 		c.Assert(err, qt.IsNil)
-		content, err := tr.(resource.ContentProvider).Content()
+		content, err := tr.(resource.ContentProvider).Content(context.Background())
 		c.Assert(err, qt.IsNil)
 
 		c.Assert(content, qt.Equals, "color is blue")
@@ -184,7 +185,7 @@ func TestTransform(t *testing.T) {
 		for i, transformation := range []ResourceTransformation{t1, t2} {
 			r := createTransformer(spec, "f1.txt", "color is blue")
 			tr, _ := r.Transform(transformation)
-			content, err := tr.(resource.ContentProvider).Content()
+			content, err := tr.(resource.ContentProvider).Content(context.Background())
 			c.Assert(err, qt.IsNil)
 			c.Assert(content, qt.Equals, "color is green", qt.Commentf("i=%d", i))
 
@@ -237,7 +238,7 @@ func TestTransform(t *testing.T) {
 
 			tr, _ := r.Transform(transformation)
 			c.Assert(tr.RelPermalink(), qt.Equals, "/f1.cached.txt", msg)
-			content, err := tr.(resource.ContentProvider).Content()
+			content, err := tr.(resource.ContentProvider).Content(context.Background())
 			c.Assert(err, qt.IsNil)
 			c.Assert(content, qt.Equals, "color is green", msg)
 			c.Assert(tr.MediaType(), eq, media.CSVType)
@@ -264,7 +265,7 @@ func TestTransform(t *testing.T) {
 
 		relPermalink := tr.RelPermalink()
 
-		content, err := tr.(resource.ContentProvider).Content()
+		content, err := tr.(resource.ContentProvider).Content(context.Background())
 		c.Assert(err, qt.IsNil)
 
 		c.Assert(relPermalink, qt.Equals, "/f1.t1.txt")
@@ -286,7 +287,7 @@ func TestTransform(t *testing.T) {
 		r := createTransformer(spec, "f1.txt", "color is blue")
 
 		tr, _ := r.Transform(t1, t2)
-		content, err := tr.(resource.ContentProvider).Content()
+		content, err := tr.(resource.ContentProvider).Content(context.Background())
 		c.Assert(err, qt.IsNil)
 
 		c.Assert(content, qt.Equals, "car is green")
@@ -308,9 +309,9 @@ func TestTransform(t *testing.T) {
 		tr1, _ := r.Transform(t1)
 		tr2, _ := tr1.Transform(t2)
 
-		content1, err := tr1.(resource.ContentProvider).Content()
+		content1, err := tr1.(resource.ContentProvider).Content(context.Background())
 		c.Assert(err, qt.IsNil)
-		content2, err := tr2.(resource.ContentProvider).Content()
+		content2, err := tr2.(resource.ContentProvider).Content(context.Background())
 		c.Assert(err, qt.IsNil)
 
 		c.Assert(content1, qt.Equals, "color is green")
@@ -339,7 +340,7 @@ func TestTransform(t *testing.T) {
 		r := createTransformer(spec, "f1.txt", countstr.String())
 
 		tr, _ := r.Transform(transformations...)
-		content, err := tr.(resource.ContentProvider).Content()
+		content, err := tr.(resource.ContentProvider).Content(context.Background())
 		c.Assert(err, qt.IsNil)
 
 		c.Assert(content, qt.Equals, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -417,7 +418,7 @@ func TestTransform(t *testing.T) {
 					id := (i + j) % 10
 					tr, err := transformers[id].Transform(transformations[id])
 					c.Assert(err, qt.IsNil)
-					content, err := tr.(resource.ContentProvider).Content()
+					content, err := tr.(resource.ContentProvider).Content(context.Background())
 					c.Assert(err, qt.IsNil)
 					c.Assert(content, qt.Equals, "color is blue")
 					c.Assert(tr.RelPermalink(), qt.Equals, fmt.Sprintf("/f%d.test.txt", id))

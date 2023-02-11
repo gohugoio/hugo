@@ -62,6 +62,7 @@ func NewExecuter(helper ExecHelper) Executer {
 type (
 	dataContextKeyType    string
 	hasLockContextKeyType string
+	stackContextKeyType   string
 )
 
 const (
