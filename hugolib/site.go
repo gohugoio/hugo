@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"io"
@@ -173,7 +174,7 @@ type Site struct {
 }
 
 func (s *Site) Taxonomies() page.TaxonomyList {
-	s.init.taxonomies.Do()
+	s.init.taxonomies.Do(context.Background())
 	return s.taxonomies
 }
 
@@ -214,8 +215,9 @@ func (init *siteInit) Reset() {
 	init.taxonomies.Reset()
 }
 
-func (s *Site) initInit(init *lazy.Init, pctx pageContext) bool {
-	_, err := init.Do()
+func (s *Site) initInit(ctx context.Context, init *lazy.Init, pctx pageContext) bool {
+	_, err := init.Do(ctx)
+
 	if err != nil {
 		s.h.FatalError(pctx.wrapError(err))
 	}
@@ -227,7 +229,7 @@ func (s *Site) prepareInits() {
 
 	var init lazy.Init
 
-	s.init.prevNext = init.Branch(func() (any, error) {
+	s.init.prevNext = init.Branch(func(context.Context) (any, error) {
 		regularPages := s.RegularPages()
 		for i, p := range regularPages {
 			np, ok := p.(nextPrevProvider)
@@ -254,7 +256,7 @@ func (s *Site) prepareInits() {
 		return nil, nil
 	})
 
-	s.init.prevNextInSection = init.Branch(func() (any, error) {
+	s.init.prevNextInSection = init.Branch(func(context.Context) (any, error) {
 		var sections page.Pages
 		s.home.treeRef.m.collectSectionsRecursiveIncludingSelf(pageMapQuery{Prefix: s.home.treeRef.key}, func(n *contentNode) {
 			sections = append(sections, n.p)
@@ -311,12 +313,12 @@ func (s *Site) prepareInits() {
 		return nil, nil
 	})
 
-	s.init.menus = init.Branch(func() (any, error) {
+	s.init.menus = init.Branch(func(context.Context) (any, error) {
 		s.assembleMenus()
 		return nil, nil
 	})
 
-	s.init.taxonomies = init.Branch(func() (any, error) {
+	s.init.taxonomies = init.Branch(func(context.Context) (any, error) {
 		err := s.pageMap.assembleTaxonomies()
 		return nil, err
 	})
@@ -327,7 +329,7 @@ type siteRenderingContext struct {
 }
 
 func (s *Site) Menus() navigation.Menus {
-	s.init.menus.Do()
+	s.init.menus.Do(context.Background())
 	return s.menus
 }
 
@@ -1821,7 +1823,9 @@ func (s *Site) renderForTemplate(name, outputFormat string, d any, w io.Writer, 
 		return nil
 	}
 
-	if err = s.Tmpl().Execute(templ, w, d); err != nil {
+	ctx := context.Background()
+
+	if err = s.Tmpl().ExecuteWithContext(ctx, templ, w, d); err != nil {
 		return fmt.Errorf("render of %q failed: %w", name, err)
 	}
 	return

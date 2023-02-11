@@ -160,11 +160,11 @@ var _ identity.IdentitiesProvider = (*converterResult)(nil)
 
 type converterResult struct {
 	converter.Result
-	toc tableofcontents.Root
+	toc *tableofcontents.Fragments
 	ids identity.Identities
 }
 
-func (c converterResult) TableOfContents() tableofcontents.Root {
+func (c converterResult) TableOfContents() *tableofcontents.Fragments {
 	return c.toc
 }
 
@@ -228,9 +228,9 @@ type parserContext struct {
 	parser.Context
 }
 
-func (p *parserContext) TableOfContents() tableofcontents.Root {
+func (p *parserContext) TableOfContents() *tableofcontents.Fragments {
 	if v := p.Get(tocResultKey); v != nil {
-		return v.(tableofcontents.Root)
+		return v.(*tableofcontents.Fragments)
 	}
-	return tableofcontents.Root{}
+	return nil
 }

@@ -14,6 +14,7 @@
 package resources
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -256,7 +257,7 @@ func (l *genericResource) cloneTo(targetPath string) resource.Resource {
 
 }
 
-func (l *genericResource) Content() (any, error) {
+func (l *genericResource) Content(context.Context) (any, error) {
 	if err := l.initContent(); err != nil {
 		return nil, err
 	}

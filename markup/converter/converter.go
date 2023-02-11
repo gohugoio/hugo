@@ -101,7 +101,7 @@ type DocumentInfo interface {
 
 // TableOfContentsProvider provides the content as a ToC structure.
 type TableOfContentsProvider interface {
-	TableOfContents() tableofcontents.Root
+	TableOfContents() *tableofcontents.Fragments
 }
 
 // AnchorNameSanitizer tells how a converter sanitizes anchor names.

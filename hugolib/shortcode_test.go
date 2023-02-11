@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 	"reflect"
@@ -247,7 +248,7 @@ CSV: {{< myShort >}}
 func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 	type input struct {
 		in           []byte
-		replacements map[string]string
+		tokenHandler func(ctx context.Context, token string) ([]byte, error)
 		expect       []byte
 	}
 
@@ -263,22 +264,30 @@ func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 		{strings.Repeat("A ", 3000) + " HAHAHUGOSHORTCODE-1HBHB." + strings.Repeat("BC ", 1000) + " HAHAHUGOSHORTCODE-1HBHB.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World"}, []byte(strings.Repeat("A ", 3000) + " Hello World." + strings.Repeat("BC ", 1000) + " Hello World.")},
 	}
 
-	in := make([]input, b.N*len(data))
 	cnt := 0
+	in := make([]input, b.N*len(data))
 	for i := 0; i < b.N; i++ {
 		for _, this := range data {
-			in[cnt] = input{[]byte(this.input), this.replacements, this.expect}
+			replacements := make(map[string]shortcodeRenderer)
+			for k, v := range this.replacements {
+				replacements[k] = prerenderedShortcode{s: v}
+			}
+			tokenHandler := func(ctx context.Context, token string) ([]byte, error) {
+				return []byte(this.replacements[token]), nil
+			}
+			in[cnt] = input{[]byte(this.input), tokenHandler, this.expect}
 			cnt++
 		}
 	}
 
 	b.ResetTimer()
 	cnt = 0
+	ctx := context.Background()
 	for i := 0; i < b.N; i++ {
 		for j := range data {
 			currIn := in[cnt]
 			cnt++
-			results, err := replaceShortcodeTokens(currIn.in, currIn.replacements)
+			results, err := expandShortcodeTokens(ctx, currIn.in, currIn.tokenHandler)
 			if err != nil {
 				b.Fatalf("[%d] failed: %s", i, err)
 				continue
@@ -383,7 +392,16 @@ func TestReplaceShortcodeTokens(t *testing.T) {
 		},
 	} {
 
-		results, err := replaceShortcodeTokens([]byte(this.input), this.replacements)
+		replacements := make(map[string]shortcodeRenderer)
+		for k, v := range this.replacements {
+			replacements[k] = prerenderedShortcode{s: v}
+		}
+		tokenHandler := func(ctx context.Context, token string) ([]byte, error) {
+			return []byte(this.replacements[token]), nil
+		}
+
+		ctx := context.Background()
+		results, err := expandShortcodeTokens(ctx, []byte(this.input), tokenHandler)
 
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {

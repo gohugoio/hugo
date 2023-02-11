@@ -2,6 +2,7 @@ package hugolib
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"image/jpeg"
 	"io"
@@ -1005,7 +1006,7 @@ func getPage(in page.Page, ref string) page.Page {
 }
 
 func content(c resource.ContentProvider) string {
-	cc, err := c.Content()
+	cc, err := c.Content(context.Background())
 	if err != nil {
 		panic(err)
 	}

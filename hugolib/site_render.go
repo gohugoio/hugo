@@ -19,9 +19,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gohugoio/hugo/tpl"
-
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/tpl"
 
 	"errors"
 

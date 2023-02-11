@@ -194,7 +194,7 @@ func (h *hugoSitesInit) Reset() {
 }
 
 func (h *HugoSites) Data() map[string]any {
-	if _, err := h.init.data.Do(); err != nil {
+	if _, err := h.init.data.Do(context.Background()); err != nil {
 		h.SendError(fmt.Errorf("failed to load data: %w", err))
 		return nil
 	}
@@ -202,7 +202,7 @@ func (h *HugoSites) Data() map[string]any {
 }
 
 func (h *HugoSites) gitInfoForPage(p page.Page) (source.GitInfo, error) {
-	if _, err := h.init.gitInfo.Do(); err != nil {
+	if _, err := h.init.gitInfo.Do(context.Background()); err != nil {
 		return source.GitInfo{}, err
 	}
 
@@ -214,7 +214,7 @@ func (h *HugoSites) gitInfoForPage(p page.Page) (source.GitInfo, error) {
 }
 
 func (h *HugoSites) codeownersForPage(p page.Page) ([]string, error) {
-	if _, err := h.init.gitInfo.Do(); err != nil {
+	if _, err := h.init.gitInfo.Do(context.Background()); err != nil {
 		return nil, err
 	}
 
@@ -363,7 +363,7 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 		donec: make(chan bool),
 	}
 
-	h.init.data.Add(func() (any, error) {
+	h.init.data.Add(func(context.Context) (any, error) {
 		err := h.loadData(h.PathSpec.BaseFs.Data.Dirs)
 		if err != nil {
 			return nil, fmt.Errorf("failed to load data: %w", err)
@@ -371,7 +371,7 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 		return nil, nil
 	})
 
-	h.init.layouts.Add(func() (any, error) {
+	h.init.layouts.Add(func(context.Context) (any, error) {
 		for _, s := range h.Sites {
 			if err := s.Tmpl().(tpl.TemplateManager).MarkReady(); err != nil {
 				return nil, err
@@ -380,7 +380,7 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 		return nil, nil
 	})
 
-	h.init.translations.Add(func() (any, error) {
+	h.init.translations.Add(func(context.Context) (any, error) {
 		if len(h.Sites) > 1 {
 			allTranslations := pagesToTranslationsMap(h.Sites)
 			assignTranslationsToPages(allTranslations, h.Sites)
@@ -389,7 +389,7 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 		return nil, nil
 	})
 
-	h.init.gitInfo.Add(func() (any, error) {
+	h.init.gitInfo.Add(func(context.Context) (any, error) {
 		err := h.loadGitInfo()
 		if err != nil {
 			return nil, fmt.Errorf("failed to load Git info: %w", err)

@@ -14,6 +14,7 @@
 package page
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"path"
@@ -22,6 +23,7 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/modules"
@@ -153,7 +155,7 @@ func (p *testPage) BundleType() files.ContentClass {
 	panic("not implemented")
 }
 
-func (p *testPage) Content() (any, error) {
+func (p *testPage) Content(context.Context) (any, error) {
 	panic("not implemented")
 }
 
@@ -225,7 +227,7 @@ func (p *testPage) FirstSection() Page {
 	panic("not implemented")
 }
 
-func (p *testPage) FuzzyWordCount() int {
+func (p *testPage) FuzzyWordCount(context.Context) int {
 	return p.fuzzyWordCount
 }
 
@@ -329,11 +331,19 @@ func (p *testPage) LanguagePrefix() string {
 	return ""
 }
 
+func (p *testPage) Fragments(context.Context) *tableofcontents.Fragments {
+	return nil
+}
+
+func (p *testPage) HeadingsFiltered(context.Context) tableofcontents.Headings {
+	return nil
+}
+
 func (p *testPage) Lastmod() time.Time {
 	return p.lastMod
 }
 
-func (p *testPage) Len() int {
+func (p *testPage) Len(context.Context) int {
 	return len(p.content)
 }
 
@@ -431,11 +441,11 @@ func (p *testPage) Permalink() string {
 	panic("not implemented")
 }
 
-func (p *testPage) Plain() string {
+func (p *testPage) Plain(context.Context) string {
 	panic("not implemented")
 }
 
-func (p *testPage) PlainWords() []string {
+func (p *testPage) PlainWords(context.Context) []string {
 	panic("not implemented")
 }
 
@@ -463,7 +473,7 @@ func (p *testPage) RawContent() string {
 	panic("not implemented")
 }
 
-func (p *testPage) ReadingTime() int {
+func (p *testPage) ReadingTime(context.Context) int {
 	panic("not implemented")
 }
 
@@ -487,11 +497,11 @@ func (p *testPage) RelRefFrom(argsm map[string]any, source any) (string, error) 
 	return "", nil
 }
 
-func (p *testPage) Render(layout ...string) (template.HTML, error) {
+func (p *testPage) Render(ctx context.Context, layout ...string) (template.HTML, error) {
 	panic("not implemented")
 }
 
-func (p *testPage) RenderString(args ...any) (template.HTML, error) {
+func (p *testPage) RenderString(ctx context.Context, args ...any) (template.HTML, error) {
 	panic("not implemented")
 }
 
@@ -552,11 +562,11 @@ func (p *testPage) String() string {
 	return p.path
 }
 
-func (p *testPage) Summary() template.HTML {
+func (p *testPage) Summary(context.Context) template.HTML {
 	panic("not implemented")
 }
 
-func (p *testPage) TableOfContents() template.HTML {
+func (p *testPage) TableOfContents(context.Context) template.HTML {
 	panic("not implemented")
 }
 
@@ -576,7 +586,7 @@ func (p *testPage) Translations() Pages {
 	panic("not implemented")
 }
 
-func (p *testPage) Truncated() bool {
+func (p *testPage) Truncated(context.Context) bool {
 	panic("not implemented")
 }
 
@@ -596,7 +606,7 @@ func (p *testPage) Weight() int {
 	return p.weight
 }
 
-func (p *testPage) WordCount() int {
+func (p *testPage) WordCount(context.Context) int {
 	panic("not implemented")
 }
 

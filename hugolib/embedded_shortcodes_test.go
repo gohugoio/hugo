@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -70,7 +71,7 @@ func doTestShortcodeCrossrefs(t *testing.T, relative bool) {
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 1)
 
-	content, err := s.RegularPages()[0].Content()
+	content, err := s.RegularPages()[0].Content(context.Background())
 	c.Assert(err, qt.IsNil)
 	output := cast.ToString(content)
 
