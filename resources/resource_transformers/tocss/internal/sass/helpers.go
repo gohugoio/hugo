@@ -38,11 +38,32 @@ func CreateVarsStyleSheet(vars map[string]string) string {
 		// These variables can be a combination of Sass identifiers (e.g. sans-serif), which
 		// should not be quoted, and URLs et, which should be quoted.
 		// unquote() is knowing what to do with each.
-		varsSlice = append(varsSlice, fmt.Sprintf("%s%s: unquote(%q);", prefix, k, v))
+		// Use quoteVar() to check if the variables should be quoted or not.
+		if quoteVar(v) {
+			varsSlice = append(varsSlice, fmt.Sprintf("%s%s: unquote(%q);", prefix, k, v))
+		} else {
+			varsSlice = append(varsSlice, fmt.Sprintf("%s%s: %s;", prefix, k, v))
+		}
 	}
 	sort.Strings(varsSlice)
 	varsStylesheet = strings.Join(varsSlice, "\n")
 
 	return varsStylesheet
 
+}
+
+func quoteVar(v string) bool {
+	v = strings.Trim(v, "\"")
+	for _, p := range cssValues.prefix {
+		if strings.HasPrefix(v, p) {
+			return false
+		}
+	}
+	for _, s := range cssValues.sufix {
+		if strings.HasSuffix(v, s) {
+			return false
+		}
+	}
+
+	return true
 }
