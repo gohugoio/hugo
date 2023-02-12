@@ -368,3 +368,55 @@ T1: {{ $r.Content }}
 
 	b.AssertFileContent("public/index.html", `T1: body body{background:url(images/hero.jpg) no-repeat center/cover}p{color:blue;font-size:24px}b{color:green}`)
 }
+
+func TestVarsCasting(t *testing.T) {
+	t.Parallel()
+	if !dartsass.Supports() {
+		t.Skip()
+	}
+
+	files := `
+-- config.toml --
+disableKinds = ["term", "taxonomy", "section", "page"]
+
+[params]
+[params.sassvars]
+color_hex = "#fff"
+color_rgb = "rgb(255, 255, 255)"
+color_hsl = "hsl(0, 0%, 100%)"
+dimension = "24px"
+percentage = "10%"
+flex = "5fr"
+-- assets/scss/main.scss --
+@use "hugo:vars";
+@use "sass:meta";
+
+@debug meta.type-of(vars.$color_hex);
+@debug meta.type-of(vars.$color_rgb);
+@debug meta.type-of(vars.$color_hsl);
+@debug meta.type-of(vars.$dimension);
+@debug meta.type-of(vars.$percentage);
+@debug meta.type-of(vars.$flex);
+-- layouts/index.html --
+{{ $vars := site.Params.sassvars}}
+{{ $cssOpts := (dict "transpiler" "dartsass" "vars" $vars ) }}
+{{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts }}
+T1: {{ $r.Content }}
+		`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   true,
+			LogLevel:    jww.LevelInfo,
+		}).Build()
+
+	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:3:0: color`)
+	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:4:0: color`)
+	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:5:0: color`)
+	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:6:0: number`)
+	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:7:0: number`)
+	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:8:0: number`)
+
+}
