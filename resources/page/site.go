@@ -62,7 +62,7 @@ type Site interface {
 	// Returns the BaseURL for this Site.
 	BaseURL() template.URL
 
-	// Retuns a taxonomy map.
+	// Returns a taxonomy map.
 	Taxonomies() TaxonomyList
 
 	// Returns the last modification date of the content.

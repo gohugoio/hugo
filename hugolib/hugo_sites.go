@@ -723,7 +723,7 @@ type BuildCfg struct {
 // shouldRender is used in the Fast Render Mode to determine if we need to re-render
 // a Page: If it is recently visited (the home pages will always be in this set) or changed.
 // Note that a page does not have to have a content page / file.
-// For regular builds, this will allways return true.
+// For regular builds, this will always return true.
 // TODO(bep) rename/work this.
 func (cfg *BuildCfg) shouldRender(p *pageState) bool {
 	if p == nil {

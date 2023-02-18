@@ -774,8 +774,8 @@ func (t *templateHandler) loadEmbedded() error {
 		name := strings.TrimPrefix(filepath.ToSlash(path), "embedded/templates/")
 		templateName := name
 
-		// For the render hooks and the server templates it does not make sense to preseve the
-		// double _indternal double book-keeping,
+		// For the render hooks and the server templates it does not make sense to preserve the
+		// double _internal double book-keeping,
 		// just add it if its now provided by the user.
 		if !strings.Contains(path, "_default/_markup") && !strings.HasPrefix(name, "_server/") {
 			templateName = internalPathPrefix + name

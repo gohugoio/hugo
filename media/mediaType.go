@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package media containes Media Type (MIME type) related types and functions.
+// Package media contains Media Type (MIME type) related types and functions.
 package media
 
 import (

@@ -211,7 +211,7 @@ func TestServerBugs(t *testing.T) {
 			c.Assert(r.err, qt.IsNil)
 			c.Assert(r.homesContent[0], qt.Contains, "PostProcess: /foo.min.css")
 		}},
-		// Isue 9901
+		// Issue 9901
 		{"Multihost", `
 defaultContentLanguage = 'en'
 [languages]
