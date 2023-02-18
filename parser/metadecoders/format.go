@@ -23,7 +23,7 @@ import (
 type Format string
 
 const (
-	// These are the supported metdata  formats in Hugo. Most of these are also
+	// These are the supported metadata  formats in Hugo. Most of these are also
 	// supported as /data formats.
 	ORG  Format = "org"
 	JSON Format = "json"

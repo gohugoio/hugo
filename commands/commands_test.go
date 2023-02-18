@@ -230,7 +230,7 @@ func TestFlags(t *testing.T) {
 				if cmd.getCommand() == nil {
 					continue
 				}
-				// We are only intereseted in the flag handling here.
+				// We are only interested in the flag handling here.
 				cmd.getCommand().RunE = noOpRunE
 			}
 			rootCmd := root.getCommand()

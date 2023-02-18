@@ -22,7 +22,7 @@ func (p Pages) Next(cur Page) Page {
 	return p[x-1]
 }
 
-// Prev returns the previous page reletive to the given
+// Prev returns the previous page relative to the given
 func (p Pages) Prev(cur Page) Page {
 	x := searchPage(cur, p)
 

@@ -82,7 +82,7 @@ func (gc *globCache) GetGlob(pattern string) (glob.Glob, error) {
 
 type globDecorator struct {
 	// On Windows we may get filenames with Windows slashes to match,
-	// which wee need to normalize.
+	// which we need to normalize.
 	isWindows bool
 
 	g glob.Glob

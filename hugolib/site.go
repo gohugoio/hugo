@@ -426,7 +426,7 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 
 		delete(disabledKinds, "taxonomyTerm")
 	} else if disabledKinds[page.KindTaxonomy] && !disabledKinds[page.KindTerm] {
-		// This is a potentially ambigous situation. It may be correct.
+		// This is a potentially ambiguous situation. It may be correct.
 		ignorableLogger.Errorsf(constants.ErrIDAmbigousDisableKindTaxonomy, `You have the value 'taxonomy' in the disabledKinds list. In Hugo 0.73.0 we fixed these to be what most people expect (taxonomy and term).
 But this also means that your site configuration may not do what you expect. If it is correct, you can suppress this message by following the instructions below.`)
 	}
@@ -485,7 +485,7 @@ But this also means that your site configuration may not do what you expect. If 
 			siteOutputs[page.KindTerm] = v2
 			delete(siteOutputs, "taxonomyTerm")
 		} else if hasTaxonomy && !hasTerm {
-			// This is a potentially ambigous situation. It may be correct.
+			// This is a potentially ambiguous situation. It may be correct.
 			ignorableLogger.Errorsf(constants.ErrIDAmbigousOutputKindTaxonomy, `You have configured output formats for 'taxonomy' in your site configuration. In Hugo 0.73.0 we fixed these to be what most people expect (taxonomy and term).
 But this also means that your site configuration may not do what you expect. If it is correct, you can suppress this message by following the instructions below.`)
 		}

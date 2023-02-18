@@ -301,7 +301,7 @@ func NewGitInfo(info gitmap.GitInfo) GitInfo {
 	return GitInfo(info)
 }
 
-// GitInfo provides information about a version controled source file.
+// GitInfo provides information about a version controlled source file.
 type GitInfo struct {
 	// Commit hash.
 	Hash string `json:"hash"`

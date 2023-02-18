@@ -209,7 +209,7 @@ func (c *PageCollections) getSectionOrPage(ref string) (*contentNode, string) {
 	return m.getPage(s, name), name
 }
 
-// For Ref/Reflink and .Site.GetPage do simple name lookups for the potentially ambigous myarticle.md and /myarticle.md,
+// For Ref/Reflink and .Site.GetPage do simple name lookups for the potentially ambiguous myarticle.md and /myarticle.md,
 // but not when we get ./myarticle*, section/myarticle.
 func shouldDoSimpleLookup(ref string) bool {
 	if ref[0] == '.' {
@@ -325,7 +325,7 @@ func (c *PageCollections) getContentNode(context page.Page, isReflink bool, ref 
 		return nil, nil
 	}
 
-	// Ref/relref supports this potentially ambigous lookup.
+	// Ref/relref supports this potentially ambiguous lookup.
 	return getByName(path.Base(name))
 }
 
