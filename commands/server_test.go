@@ -14,6 +14,7 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -26,7 +27,6 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/htesting"
-	"golang.org/x/net/context"
 	"golang.org/x/sync/errgroup"
 
 	qt "github.com/frankban/quicktest"
