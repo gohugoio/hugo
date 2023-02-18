@@ -23,7 +23,6 @@ import (
 	"crypto/md5"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -407,7 +406,7 @@ func TestLocalFile(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			gotContent, err := ioutil.ReadAll(r)
+			gotContent, err := io.ReadAll(r)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -420,7 +419,7 @@ func TestLocalFile(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			gotContent, err = ioutil.ReadAll(r)
+			gotContent, err = io.ReadAll(r)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -520,47 +519,35 @@ type fsTest struct {
 // 1. An in-memory afero.Fs paired with an in-memory Go CDK bucket.
 // 2. A filesystem-based afero.Fs paired with an filesystem-based Go CDK bucket.
 // It returns the pair of tests and a cleanup function.
-func initFsTests() ([]*fsTest, func(), error) {
-	tmpfsdir, err := ioutil.TempDir("", "fs")
-	if err != nil {
-		return nil, nil, err
-	}
-	tmpbucketdir, err := ioutil.TempDir("", "bucket")
-	if err != nil {
-		return nil, nil, err
-	}
+func initFsTests(t *testing.T) []*fsTest {
+	t.Helper()
+
+	tmpfsdir := t.TempDir()
+	tmpbucketdir := t.TempDir()
 
 	memfs := afero.NewMemMapFs()
 	membucket := memblob.OpenBucket(nil)
+	t.Cleanup(func() { membucket.Close() })
 
 	filefs := afero.NewBasePathFs(afero.NewOsFs(), tmpfsdir)
 	filebucket, err := fileblob.OpenBucket(tmpbucketdir, nil)
 	if err != nil {
-		return nil, nil, err
+		t.Fatal(err)
 	}
+	t.Cleanup(func() { filebucket.Close() })
 
 	tests := []*fsTest{
 		{"mem", memfs, membucket},
 		{"file", filefs, filebucket},
 	}
-	cleanup := func() {
-		membucket.Close()
-		filebucket.Close()
-		os.RemoveAll(tmpfsdir)
-		os.RemoveAll(tmpbucketdir)
-	}
-	return tests, cleanup, nil
+	return tests
 }
 
 // TestEndToEndSync verifies that basic adds, updates, and deletes are working
 // correctly.
 func TestEndToEndSync(t *testing.T) {
 	ctx := context.Background()
-	tests, cleanup, err := initFsTests()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer cleanup()
+	tests := initFsTests(t)
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			local, err := initLocalFs(ctx, test.fs)
@@ -643,11 +630,7 @@ func TestEndToEndSync(t *testing.T) {
 // TestMaxDeletes verifies that the "maxDeletes" flag is working correctly.
 func TestMaxDeletes(t *testing.T) {
 	ctx := context.Background()
-	tests, cleanup, err := initFsTests()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer cleanup()
+	tests := initFsTests(t)
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			local, err := initLocalFs(ctx, test.fs)
@@ -772,14 +755,10 @@ func TestIncludeExclude(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("include %q exclude %q", test.Include, test.Exclude), func(t *testing.T) {
-			fsTests, cleanup, err := initFsTests()
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer cleanup()
+			fsTests := initFsTests(t)
 			fsTest := fsTests[1] // just do file-based test
 
-			_, err = initLocalFs(ctx, fsTest.fs)
+			_, err := initLocalFs(ctx, fsTest.fs)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -841,11 +820,7 @@ func TestIncludeExcludeRemoteDelete(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("include %q exclude %q", test.Include, test.Exclude), func(t *testing.T) {
-			fsTests, cleanup, err := initFsTests()
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer cleanup()
+			fsTests := initFsTests(t)
 			fsTest := fsTests[1] // just do file-based test
 
 			local, err := initLocalFs(ctx, fsTest.fs)
@@ -897,11 +872,7 @@ func TestIncludeExcludeRemoteDelete(t *testing.T) {
 func TestCompression(t *testing.T) {
 	ctx := context.Background()
 
-	tests, cleanup, err := initFsTests()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer cleanup()
+	tests := initFsTests(t)
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			local, err := initLocalFs(ctx, test.fs)
@@ -956,11 +927,7 @@ func TestCompression(t *testing.T) {
 // attribute for matcher works.
 func TestMatching(t *testing.T) {
 	ctx := context.Background()
-	tests, cleanup, err := initFsTests()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer cleanup()
+	tests := initFsTests(t)
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			_, err := initLocalFs(ctx, test.fs)
