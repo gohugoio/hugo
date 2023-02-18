@@ -20,7 +20,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -443,7 +442,7 @@ func (c *Client) Clean(pattern string) error {
 }
 
 func (c *Client) runVerify() error {
-	return c.runGo(context.Background(), ioutil.Discard, "mod", "verify")
+	return c.runGo(context.Background(), io.Discard, "mod", "verify")
 }
 
 func isProbablyModule(path string) bool {
@@ -458,7 +457,7 @@ func (c *Client) listGoMods() (goModules, error) {
 	downloadModules := func(modules ...string) error {
 		args := []string{"mod", "download"}
 		args = append(args, modules...)
-		out := ioutil.Discard
+		out := io.Discard
 		err := c.runGo(context.Background(), out, args...)
 		if err != nil {
 			return fmt.Errorf("failed to download modules: %w", err)

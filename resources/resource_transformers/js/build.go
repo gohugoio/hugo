@@ -15,7 +15,7 @@ package js
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path"
 	"path/filepath"
@@ -77,7 +77,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		ctx.ReplaceOutPathExtension(".js")
 	}
 
-	src, err := ioutil.ReadAll(ctx.From)
+	src, err := io.ReadAll(ctx.From)
 	if err != nil {
 		return err
 	}
@@ -98,7 +98,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	}
 
 	if buildOptions.Sourcemap == api.SourceMapExternal && buildOptions.Outdir == "" {
-		buildOptions.Outdir, err = ioutil.TempDir(os.TempDir(), "compileOutput")
+		buildOptions.Outdir, err = os.MkdirTemp(os.TempDir(), "compileOutput")
 		if err != nil {
 			return err
 		}

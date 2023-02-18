@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"image"
 	"image/gif"
-	"io/ioutil"
 	"math/big"
 	"math/rand"
 	"os"
@@ -750,9 +749,9 @@ func TestImageOperationsGolden(t *testing.T) {
 func assetGoldenDirs(c *qt.C, dir1, dir2 string) {
 
 	// The two dirs above should now be the same.
-	dirinfos1, err := ioutil.ReadDir(dir1)
+	dirinfos1, err := os.ReadDir(dir1)
 	c.Assert(err, qt.IsNil)
-	dirinfos2, err := ioutil.ReadDir(dir2)
+	dirinfos2, err := os.ReadDir(dir2)
 	c.Assert(err, qt.IsNil)
 	c.Assert(len(dirinfos1), qt.Equals, len(dirinfos2))
 

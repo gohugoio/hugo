@@ -16,7 +16,7 @@ package data
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"path/filepath"
@@ -62,7 +62,7 @@ func (ns *Namespace) getRemote(cache *filecache.Cache, unmarshal func([]byte) (b
 			}
 
 			var b []byte
-			b, err = ioutil.ReadAll(res.Body)
+			b, err = io.ReadAll(res.Body)
 			if err != nil {
 				return nil, err
 			}

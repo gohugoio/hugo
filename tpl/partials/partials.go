@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"strings"
 	"time"
 
@@ -193,7 +192,7 @@ func (ns *Namespace) include(ctx context.Context, name string, dataList ...any) 
 		}
 
 		// We don't care about any template output.
-		w = ioutil.Discard
+		w = io.Discard
 	} else {
 		b := bp.GetBuffer()
 		defer bp.PutBuffer(b)

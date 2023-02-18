@@ -15,7 +15,7 @@ package media
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -190,7 +190,7 @@ func TestFromContent(t *testing.T) {
 	for _, filename := range files {
 		name := filepath.Base(filename)
 		c.Run(name, func(c *qt.C) {
-			content, err := ioutil.ReadFile(filename)
+			content, err := os.ReadFile(filename)
 			c.Assert(err, qt.IsNil)
 			ext := strings.TrimPrefix(paths.Ext(filename), ".")
 			var exts []string
@@ -217,7 +217,7 @@ func TestFromContentFakes(t *testing.T) {
 	for _, filename := range files {
 		name := filepath.Base(filename)
 		c.Run(name, func(c *qt.C) {
-			content, err := ioutil.ReadFile(filename)
+			content, err := os.ReadFile(filename)
 			c.Assert(err, qt.IsNil)
 			ext := strings.TrimPrefix(paths.Ext(filename), ".")
 			got := FromContent(mtypes, []string{ext}, content)
