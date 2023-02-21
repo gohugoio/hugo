@@ -36,6 +36,7 @@ import (
 	_ "github.com/gohugoio/hugo/tpl/collections"
 	_ "github.com/gohugoio/hugo/tpl/compare"
 	_ "github.com/gohugoio/hugo/tpl/crypto"
+	_ "github.com/gohugoio/hugo/tpl/css"
 	_ "github.com/gohugoio/hugo/tpl/data"
 	_ "github.com/gohugoio/hugo/tpl/debug"
 	_ "github.com/gohugoio/hugo/tpl/diagrams"
