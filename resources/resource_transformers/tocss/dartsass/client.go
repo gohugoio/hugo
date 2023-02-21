@@ -135,7 +135,7 @@ type Options struct {
 	// Vars will be available in 'hugo:vars', e.g:
 	//     @use "hugo:vars";
 	//     $color: vars.$color;
-	Vars map[string]string
+	Vars map[string]any
 }
 
 func decodeOptions(m map[string]any) (opts Options, err error) {

@@ -387,6 +387,10 @@ color_hsl = "hsl(0, 0%, 100%)"
 dimension = "24px"
 percentage = "10%"
 flex = "5fr"
+name = "Hugo"
+url = "https://gohugo.io"
+integer = 32
+float = 3.14
 -- assets/scss/main.scss --
 @use "hugo:vars";
 @use "sass:meta";
@@ -397,8 +401,15 @@ flex = "5fr"
 @debug meta.type-of(vars.$dimension);
 @debug meta.type-of(vars.$percentage);
 @debug meta.type-of(vars.$flex);
+@debug meta.type-of(vars.$name);
+@debug meta.type-of(vars.$url);
+@debug meta.type-of(vars.$not_a_number);
+@debug meta.type-of(vars.$integer);
+@debug meta.type-of(vars.$float);
+@debug meta.type-of(vars.$a_number);
 -- layouts/index.html --
 {{ $vars := site.Params.sassvars}}
+{{ $vars = merge $vars (dict "not_a_number" ("32xxx" | css.Quoted) "a_number" ("234" | css.Unquoted) )}}
 {{ $cssOpts := (dict "transpiler" "dartsass" "vars" $vars ) }}
 {{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts }}
 T1: {{ $r.Content }}
@@ -418,5 +429,11 @@ T1: {{ $r.Content }}
 	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:6:0: number`)
 	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:7:0: number`)
 	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:8:0: number`)
+	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:9:0: string`)
+	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:10:0: string`)
+	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:11:0: string`)
+	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:12:0: number`)
+	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:13:0: number`)
+	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:14:0: number`)
 
 }
