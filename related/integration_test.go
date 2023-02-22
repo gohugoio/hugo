@@ -155,9 +155,6 @@ disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT"]
   type = 'fragments'
   weight = 30	
 -- layouts/_default/single.html --
-{{ range site.RegularPages }}
-{{ $tmp := .WordCount }}
-{{ end }}
 Len related: {{ site.RegularPages.Related . | len }}
 `
 
