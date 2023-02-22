@@ -198,6 +198,11 @@ func (s *RelatedDocsHandler) getOrCreateIndex(ctx context.Context, p Pages) (*re
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	// Double check.
+	if cachedIndex := s.getIndex(p); cachedIndex != nil {
+		return cachedIndex, nil
+	}
+
 	for _, c := range s.cfg.Indices {
 		if c.Type == related.TypeFragments {
 			// This will trigger building the Pages' fragment map.
@@ -219,11 +224,6 @@ func (s *RelatedDocsHandler) getOrCreateIndex(ctx context.Context, p Pages) (*re
 
 			break
 		}
-
-	}
-
-	if cachedIndex := s.getIndex(p); cachedIndex != nil {
-		return cachedIndex, nil
 	}
 
 	searchIndex := related.NewInvertedIndex(s.cfg)
