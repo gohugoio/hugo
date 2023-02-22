@@ -18,7 +18,9 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/gohugoio/hugo/common/para"
 	"github.com/gohugoio/hugo/common/types"
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/related"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cast"
@@ -163,10 +165,12 @@ type RelatedDocsHandler struct {
 
 	postingLists []*cachedPostingList
 	mu           sync.RWMutex
+
+	workers *para.Workers
 }
 
 func NewRelatedDocsHandler(cfg related.Config) *RelatedDocsHandler {
-	return &RelatedDocsHandler{cfg: cfg}
+	return &RelatedDocsHandler{cfg: cfg, workers: para.New(config.GetNumWorkerMultiplier())}
 }
 
 func (s *RelatedDocsHandler) Clone() *RelatedDocsHandler {
@@ -193,6 +197,30 @@ func (s *RelatedDocsHandler) getOrCreateIndex(ctx context.Context, p Pages) (*re
 
 	s.mu.Lock()
 	defer s.mu.Unlock()
+
+	for _, c := range s.cfg.Indices {
+		if c.Type == related.TypeFragments {
+			// This will trigger building the Pages' fragment map.
+			g, _ := s.workers.Start(ctx)
+			for _, page := range p {
+				fp, ok := page.(related.FragmentProvider)
+				if !ok {
+					continue
+				}
+				g.Run(func() error {
+					fp.Fragments(ctx)
+					return nil
+				})
+			}
+
+			if err := g.Wait(); err != nil {
+				return nil, err
+			}
+
+			break
+		}
+
+	}
 
 	if cachedIndex := s.getIndex(p); cachedIndex != nil {
 		return cachedIndex, nil
