@@ -55,11 +55,6 @@ func CreateVarsStyleSheet(vars map[string]any) string {
 	}
 	sort.Strings(varsSlice)
 	varsStylesheet = strings.Join(varsSlice, "\n")
-
-	fmt.Println(varsStylesheet)
-
-	fmt.Println(varsStylesheet)
-
 	return varsStylesheet
 
 }
