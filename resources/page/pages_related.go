@@ -236,5 +236,9 @@ func (s *RelatedDocsHandler) getOrCreateIndex(ctx context.Context, p Pages) (*re
 
 	s.postingLists = append(s.postingLists, &cachedPostingList{p: p, postingList: searchIndex})
 
+	if err := searchIndex.Finalize(ctx); err != nil {
+		return nil, err
+	}
+
 	return searchIndex, nil
 }

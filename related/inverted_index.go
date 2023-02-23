@@ -135,9 +135,21 @@ type IndexConfig struct {
 	// This field's weight when doing multi-index searches. Higher is "better".
 	Weight int
 
+	// A percentage (0-100) used to remove common keywords from the index.
+	// As an example, setting this to 50 will remove all keywords that are
+	// used in more than 50% of the documents in the index.
+	CardinalityThreshold int
+
 	// Will lower case all string values in and queries tothis index.
 	// May get better accurate results, but at a slight performance cost.
 	ToLower bool
+
+	// Counts the number of documents in the index.
+	numDocs int
+}
+
+func (cfg *IndexConfig) incrNumDocs() {
+	cfg.numDocs++
 }
 
 // Document is the interface an indexable document in Hugo must fulfill.
@@ -169,6 +181,9 @@ type InvertedIndex struct {
 
 	minWeight int
 	maxWeight int
+
+	// No modifications after this is set.
+	finalized bool
 }
 
 func (idx *InvertedIndex) getIndexCfg(name string) (IndexConfig, bool) {
@@ -202,8 +217,11 @@ func NewInvertedIndex(cfg Config) *InvertedIndex {
 // Add documents to the inverted index.
 // The value must support == and !=.
 func (idx *InvertedIndex) Add(ctx context.Context, docs ...Document) error {
+	if idx.finalized {
+		panic("index is finalized")
+	}
 	var err error
-	for _, config := range idx.cfg.Indices {
+	for i, config := range idx.cfg.Indices {
 		if config.Weight == 0 {
 			// Disabled
 			continue
@@ -211,6 +229,7 @@ func (idx *InvertedIndex) Add(ctx context.Context, docs ...Document) error {
 		setm := idx.index[config.Name]
 
 		for _, doc := range docs {
+			var added bool
 			var words []Keyword
 			words, err = doc.RelatedKeywords(config)
 			if err != nil {
@@ -218,20 +237,58 @@ func (idx *InvertedIndex) Add(ctx context.Context, docs ...Document) error {
 			}
 
 			for _, keyword := range words {
+				added = true
 				setm[keyword] = append(setm[keyword], doc)
 			}
 
 			if config.Type == TypeFragments {
 				if fp, ok := doc.(FragmentProvider); ok {
 					for _, fragment := range fp.Fragments(ctx).Identifiers {
+						added = true
 						setm[FragmentKeyword(fragment)] = append(setm[FragmentKeyword(fragment)], doc)
 					}
 				}
+			}
+
+			if added {
+				c := &idx.cfg.Indices[i]
+				(*c).incrNumDocs()
 			}
 		}
 	}
 
 	return err
+}
+
+func (idx *InvertedIndex) Finalize(ctx context.Context) error {
+	if idx.finalized {
+		return nil
+	}
+
+	for _, config := range idx.cfg.Indices {
+		if config.CardinalityThreshold == 0 {
+			continue
+		}
+		setm := idx.index[config.Name]
+		numDocs := config.numDocs
+		if numDocs == 0 {
+			continue
+		}
+
+		// Remove high cardinality terms.
+		for k, v := range setm {
+			percentageWithKeyword := int(math.Ceil(float64(len(v)) / float64(numDocs) * 100))
+			if percentageWithKeyword > config.CardinalityThreshold {
+				delete(setm, k)
+			}
+		}
+
+	}
+
+	idx.finalized = true
+
+	return nil
+
 }
 
 // queryElement holds the index name and keywords that can be used to compose a
@@ -548,11 +605,15 @@ func DecodeConfig(m maps.Params) (Config, error) {
 		}
 	}
 	for i := range c.Indices {
-		if c.Indices[i].Type == "" {
+		icfg := c.Indices[i]
+		if icfg.Type == "" {
 			c.Indices[i].Type = TypeBasic
 		}
 		if !validTypes[c.Indices[i].Type] {
 			return c, fmt.Errorf("invalid index type %q. Must be one of %v", c.Indices[i].Type, xmaps.Keys(validTypes))
+		}
+		if icfg.CardinalityThreshold < 0 || icfg.CardinalityThreshold > 100 {
+			return Config{}, errors.New("cardinalityThreshold threshold must be between 0 and 100")
 		}
 	}
 

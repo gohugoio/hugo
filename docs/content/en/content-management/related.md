@@ -160,6 +160,10 @@ applyFilter
 weight
 : An integer weight that indicates _how important_ this parameter is relative to the other parameters.  It can be 0, which has the effect of turning this index off, or even negative. Test with different values to see what fits your content best.
 
+
+cardinalityThreshold (default 0)
+: {{< new-in "0.111.0" >}}. A percentage (0-100) used to remove common keywords from the index. As an example, setting this to 50 will remove all keywords that are used in more than 50% of the documents in the index.
+
 pattern
 : This is currently only relevant for dates. When listing related content, we may want to list content that is also close in time. Setting "2006" (default value for date indexes) as the pattern for a date index will add weight to pages published in the same year. For busier blogs, "200601" (year and month) may be a better default.
 
