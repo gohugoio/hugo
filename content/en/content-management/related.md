@@ -88,13 +88,13 @@ weight      = 80
 {{ with $related }}
   <h2>See Also</h2>
   <ul>
-    {{ range . }}
+    {{ range $i, $p := . }}
       <li>
         <a href="{{ .RelPermalink }}">{{ .Title }}</a>
         {{ with .HeadingsFiltered }}
           <ul>
             {{ range . }}
-              {{ $link := printf "%s#%s" $.RelPermalink .ID | safeURL }}
+              {{ $link := printf "%s#%s" $p.RelPermalink .ID | safeURL }}
               <li>
                 <a href="{{ $link }}">{{ .Title }}</a>
               </li>
