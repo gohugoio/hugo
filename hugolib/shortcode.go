@@ -224,6 +224,10 @@ func (s shortcode) insertPlaceholder() bool {
 	return !s.doMarkup || s.configVersion() == 1
 }
 
+func (s shortcode) needsInner() bool {
+	return s.info != nil && s.info.ParseInfo().IsInner
+}
+
 func (s shortcode) configVersion() int {
 	if s.info == nil {
 		// Not set for inline shortcodes.
@@ -557,6 +561,7 @@ func (s *shortcodeHandler) extractShortcode(ordinal, level int, source []byte, p
 	cnt := 0
 	nestedOrdinal := 0
 	nextLevel := level + 1
+	closed := false
 	const errorPrefix = "failed to extract shortcode"
 
 	fail := func(err error, i pageparser.Item) error {
@@ -612,9 +617,10 @@ Loop:
 			}
 
 		case currItem.IsShortcodeClose():
+			closed = true
 			next := pt.Peek()
 			if !sc.isInline {
-				if sc.info == nil || !sc.info.ParseInfo().IsInner {
+				if !sc.needsInner() {
 					if next.IsError() {
 						// return that error, more specific
 						continue
@@ -689,6 +695,11 @@ Loop:
 				}
 			}
 		case currItem.IsDone():
+			if !currItem.IsError() {
+				if !closed && sc.needsInner() {
+					return sc, fmt.Errorf("%s: unclosed shortcode %q", errorPrefix, sc.name)
+				}
+			}
 			// handled by caller
 			pt.Backup()
 			break Loop

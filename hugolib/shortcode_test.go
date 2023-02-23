@@ -1241,3 +1241,38 @@ InnerDeindent: closing-no-newline: 0
 
 `)
 }
+
+// Issue 10675.
+func TestShortcodeErrorWhenItShouldBeClosed(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+disableKinds = ["home", "taxonomy", "term"]
+-- content/p1.md --
+---
+title: "p1"
+---
+
+{{< sc >}}
+
+Text.
+
+-- layouts/shortcodes/sc.html --
+Inner: {{ .Get 0 }}: {{ len .Inner }}
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b, err := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			Running:     true,
+			Verbose:     true,
+		},
+	).BuildE()
+
+	b.Assert(err, qt.Not(qt.IsNil))
+	b.Assert(err.Error(), qt.Contains, `p1.md:5:1": failed to extract shortcode: unclosed shortcode "sc"`)
+}
