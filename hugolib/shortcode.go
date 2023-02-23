@@ -564,10 +564,6 @@ func (s *shortcodeHandler) extractShortcode(ordinal, level int, source []byte, p
 	closed := false
 	const errorPrefix = "failed to extract shortcode"
 
-	fail := func(err error, i pageparser.Item) error {
-		return s.parseError(fmt.Errorf("%s: %w", errorPrefix, err), source, i.Pos())
-	}
-
 Loop:
 	for {
 		currItem := pt.Next()
@@ -607,10 +603,6 @@ Loop:
 			// we trust the template on this:
 			// if there's no inner, we're done
 			if !sc.isInline {
-				if sc.info == nil {
-					// This should not happen.
-					return sc, fail(errors.New("BUG: template info not set"), currItem)
-				}
 				if !sc.info.ParseInfo().IsInner {
 					return sc, nil
 				}
@@ -625,7 +617,7 @@ Loop:
 						// return that error, more specific
 						continue
 					}
-					return sc, fail(fmt.Errorf("shortcode %q has no .Inner, yet a closing tag was provided", next.ValStr(source)), next)
+					return nil, fmt.Errorf("%s: shortcode %q does not evaluate .Inner or .InnerDeindent, yet a closing tag was provided", errorPrefix, next.ValStr(source))
 				}
 			}
 			if next.IsRightShortcodeDelim() {
