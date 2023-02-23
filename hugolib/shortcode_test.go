@@ -875,7 +875,7 @@ title: "No Inner!"
 		"layouts/shortcodes/noinner.html", `No inner here.`)
 
 	err := b.BuildE(BuildCfg{})
-	b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`"content/mypage.md:4:21": failed to extract shortcode: shortcode "noinner" has no .Inner, yet a closing tag was provided`))
+	b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`"content/mypage.md:4:16": failed to extract shortcode: shortcode "noinner" does not evaluate .Inner or .InnerDeindent, yet a closing tag was provided`))
 }
 
 func TestShortcodeStableOutputFormatTemplates(t *testing.T) {
