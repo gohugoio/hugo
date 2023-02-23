@@ -36,19 +36,19 @@ Display a number at the beginning of each line.
 
 lineNumbersInTable
 : Boolean. Default is `true`.\
-Render the highlighted code in an HTML table with two cells. The left table cell contains the line numbers. The right table cell contains the code, allowing a user to select and copy the code without line numbers. Irrelevant if `lineNos` is false.
+Render the highlighted code in an HTML table with two cells. The left table cell contains the line numbers. The right table cell contains the code, allowing a user to select and copy the code without line numbers. Irrelevant if `lineNos` is `false`.
 
 anchorLineNos
 : Boolean. Default is `false`.\
-Render each line number as an HTML anchor element, and set the `id` attribute of the surrounding `<span>` to the line number. Irrelevant if `lineNos` is false.
+Render each line number as an HTML anchor element, and set the `id` attribute of the surrounding `<span>` to the line number. Irrelevant if `lineNos` is `false`.
 
 lineAnchors
 : String. Default is `""`.\
-When rendering a line number as an HTML anchor element, prepend this value to the `id` attribute of the surrounding `<span>`. This provides unique `id` attributes when a page contains two or more code blocks. Irrelevant if `lineNos` or `anchorLineNos` is false.
+When rendering a line number as an HTML anchor element, prepend this value to the `id` attribute of the surrounding `<span>`. This provides unique `id` attributes when a page contains two or more code blocks. Irrelevant if `lineNos` or `anchorLineNos` is `false`.
 
 lineNoStart
 : Integer. Default is `1`.\
-The number to display at the beginning of the first line. Irrelevant if `lineNos` is false.
+The number to display at the beginning of the first line. Irrelevant if `lineNos` is `false`.
 
 hl_Lines
 : String. Default is `""`.\
@@ -68,7 +68,7 @@ Use inline CSS styles instead of an external CSS file. To use an external CSS fi
 
 tabWidth
 : Integer. Default is `4`.\
-Substitute this number of spaces for each tab character in your highlighted code.
+Substitute this number of spaces for each tab character in your highlighted code. Irrelevant if `noClasses` is `false`.
 
 guessSyntax
 : Boolean. Default is `false`.\

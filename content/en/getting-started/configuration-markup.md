@@ -32,7 +32,7 @@ For details on the extensions, refer to [this section](https://github.com/yuin/g
 
 Some settings explained:
 
-hardWrap
+hardWraps
 : By default, Goldmark ignores newlines within a paragraph. Set to `true` to render newlines as `<br>` elements.
 
 unsafe

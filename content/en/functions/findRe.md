@@ -36,5 +36,24 @@ To limit the number of matches to one:
 You can write and test your regular expression using [regex101.com](https://regex101.com/). Be sure to select the Go flavor before you begin.
 {{% /note %}}
 
+## findRESubmatch
+
+In Hugo 0.110.0 we added a variant of `findRe` that returns a slice of strings holding the text of the leftmost match of the regular expression in s and the matches, if any, of its subexpressions.
+
+This:
+
+```go-html-template
+{{ findRESubmatch §§<a\s*href="(.+?)">(.+?)</a>§§ §§<li><a href="#foo">Foo</a></li> <li><a href="#bar">Bar</a></li>§§ | print | safeHTML }}
+```
+
+Will print:
+
+```
+[[<a href=\"#foo\">Foo</a> #foo Foo] [<a href=\"#bar\">Bar</a> #bar Bar]]
+```
+
+{{< new-in "0.110.0" >}}
+
+
 [RE2]: https://github.com/google/re2/wiki/Syntax
 [string literal]: https://go.dev/ref/spec#String_literals
