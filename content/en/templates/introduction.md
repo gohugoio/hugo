@@ -496,7 +496,17 @@ Will render `Bonsoir, Eliott.`, and not care about the syntax error (`add 0 + 2`
 
 ### HTML comments
 
-If you need to produce HTML comments from your templates, take a look at the [Internet Explorer conditional comments]({{< relref "introduction.md#ie-conditional-comments" >}}) example. If you need variables to construct such HTML comments, just pipe `printf` to `safeHTML`. For example:
+You can add html comments by piping a string HTML code comment to `safeHTML`.
+
+For example:
+
+```go-html-template
+{{ "<!-- This is an HTML comment -->" | safeHTML }}
+```
+
+If you need variables to construct such HTML comments, just pipe `printf` to `safeHTML`. 
+
+For example:
 
 ```go-html-template
 {{ printf "<!-- Our website is named: %s -->" .Site.Title | safeHTML }}

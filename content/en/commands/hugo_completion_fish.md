@@ -37,7 +37,7 @@ hugo completion fish [flags]
 
 ```
       --clock string               set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00
-      --config string              config file (default is path/config.yaml|json|toml)
+      --config string              config file (default is hugo.yaml|json|toml)
       --configDir string           config dir (default "config")
       --debug                      debug output
   -e, --environment string         build environment

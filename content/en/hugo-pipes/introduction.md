@@ -50,6 +50,30 @@ With `resources.GetRemote`, the first argument is a remote URL:
 
 `resources.Get` and `resources.GetRemote` return `nil` if the resource is not found.
 
+{{< new-in "0.110.0" >}} You can get information about the HTTP Response using `.Data` in the returned `Resource`. This is especially useful for HEAD request without any body. The Data object contains:
+
+StatusCode
+: The HTTP status code, e.g. 200
+Status
+: The HTTP status text, e.g. "200 OK"
+TransferEncoding
+: The transfer encoding, e.g. "chunked"
+ContentLength
+: The content length, e.g. 1234
+ContentType
+: The content type, e.g. "text/html"
+
+
+## Copy a Resource
+
+{{< new-in "0.100.0" >}}
+
+`resources.Copy` allows you to copy almost any Hugo `Resource` (the one exception is the `Page`), possibly most useful for renaming things:
+
+```go-html-template
+{{ $resized := $image.Resize "400x400" |  resources.Copy "images/mynewname.jpg" }}
+<img src="{{ $resized.RelPermalink }}">
+```
 
 ### Caching
 
