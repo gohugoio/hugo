@@ -94,7 +94,7 @@ weight      = 80
         {{ with .HeadingsFiltered }}
           <ul>
             {{ range . }}
-              {{ $link := printf "%s#%s" $.RelPermalink .ID }}
+              {{ $link := printf "%s#%s" $.RelPermalink .ID | safeURL }}
               <li>
                 <a href="{{ $link }}">{{ .Title }}</a>
               </li>
