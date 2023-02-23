@@ -86,6 +86,41 @@ func (d *testDoc) PublishDate() time.Time {
 	return d.date
 }
 
+func TestCardinalityThreshold(t *testing.T) {
+	c := qt.New(t)
+	config := Config{
+		Threshold:    90,
+		IncludeNewer: false,
+		Indices: IndexConfigs{
+			IndexConfig{Name: "tags", Weight: 50, CardinalityThreshold: 79},
+			IndexConfig{Name: "keywords", Weight: 65, CardinalityThreshold: 90},
+		},
+	}
+
+	idx := NewInvertedIndex(config)
+	hasKeyword := func(index, keyword string) bool {
+		_, found := idx.index[index][StringKeyword(keyword)]
+		return found
+	}
+
+	docs := []Document{
+		newTestDoc("tags", "a", "b", "c", "d"),
+		newTestDoc("tags", "b", "d", "g"),
+		newTestDoc("tags", "b", "d", "g"),
+		newTestDoc("tags", "b", "h").addKeywords("keywords", "a"),
+		newTestDoc("tags", "g", "h").addKeywords("keywords", "a", "b", "z"),
+	}
+
+	idx.Add(context.Background(), docs...)
+	c.Assert(idx.Finalize(context.Background()), qt.IsNil)
+	// Only tags=b should be removed.
+	c.Assert(hasKeyword("tags", "a"), qt.Equals, true)
+	c.Assert(hasKeyword("tags", "b"), qt.Equals, false)
+	c.Assert(hasKeyword("tags", "d"), qt.Equals, true)
+	c.Assert(hasKeyword("keywords", "b"), qt.Equals, true)
+
+}
+
 func TestSearch(t *testing.T) {
 	config := Config{
 		Threshold:    90,
