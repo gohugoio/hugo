@@ -109,9 +109,13 @@ type ContentProvider interface {
 
 // ContentRenderer provides the content rendering methods for some content.
 type ContentRenderer interface {
-	// RenderContent renders the given content.
+	// ParseAndRenderContent renders the given content.
 	// For internal use only.
-	RenderContent(ctx context.Context, content []byte, renderTOC bool) (converter.Result, error)
+	ParseAndRenderContent(ctx context.Context, content []byte, enableTOC bool) (converter.ResultRender, error)
+	// For internal use only.
+	ParseContent(ctx context.Context, content []byte) (converter.ResultParse, bool, error)
+	// For internal use only.
+	RenderContent(ctx context.Context, content []byte, doc any) (converter.ResultRender, bool, error)
 }
 
 // FileProvider provides the source file.

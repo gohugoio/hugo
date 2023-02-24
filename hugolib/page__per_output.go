@@ -115,14 +115,7 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 		isHTML := cp.p.m.markup == "html"
 
 		if !isHTML {
-			r, err := po.contentRenderer.RenderContent(ctx, cp.workContent, true)
-			if err != nil {
-				return err
-			}
-
-			cp.workContent = r.Bytes()
-
-			if tocProvider, ok := r.(converter.TableOfContentsProvider); ok {
+			createAndSetToC := func(tocProvider converter.TableOfContentsProvider) {
 				cfg := p.s.ContentSpec.Converters.GetMarkupConfig()
 				cp.tableOfContents = tocProvider.TableOfContents()
 				cp.tableOfContentsHTML = template.HTML(
@@ -132,6 +125,31 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 						cfg.TableOfContents.Ordered,
 					),
 				)
+			}
+			// If the converter supports doing the parsing separately, we do that.
+			parseResult, ok, err := po.contentRenderer.ParseContent(ctx, cp.workContent)
+			if err != nil {
+				return err
+			}
+			if ok {
+				// This is Goldmark.
+				// Store away the parse result for later use.
+				createAndSetToC(parseResult)
+				cp.astDoc = parseResult.Doc()
+
+				return nil
+			}
+
+			// This is Asciidoctor etc.
+			r, err := po.contentRenderer.ParseAndRenderContent(ctx, cp.workContent, true)
+			if err != nil {
+				return err
+			}
+
+			cp.workContent = r.Bytes()
+
+			if tocProvider, ok := r.(converter.TableOfContentsProvider); ok {
+				createAndSetToC(tocProvider)
 			} else {
 				tmpContent, tmpTableOfContents := helpers.ExtractTOC(cp.workContent)
 				cp.tableOfContentsHTML = helpers.BytesToHTML(tmpTableOfContents)
@@ -151,6 +169,19 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 		if p.cmap == nil {
 			// Nothing to do.
 			return nil
+		}
+
+		if cp.astDoc != nil {
+			// The content is parsed, but not rendered.
+			r, ok, err := po.contentRenderer.RenderContent(ctx, cp.workContent, cp.astDoc)
+			if err != nil {
+				return err
+			}
+			if !ok {
+				return errors.New("invalid state: astDoc is set but RenderContent returned false")
+			}
+
+			cp.workContent = r.Bytes()
 		}
 
 		if p.cmap.hasNonMarkdownShortcode || cp.placeholdersEnabled {
@@ -210,7 +241,7 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 				}
 			}
 		} else if cp.p.m.summary != "" {
-			b, err := po.contentRenderer.RenderContent(ctx, []byte(cp.p.m.summary), false)
+			b, err := po.contentRenderer.ParseAndRenderContent(ctx, []byte(cp.p.m.summary), false)
 			if err != nil {
 				return err
 			}
@@ -282,6 +313,8 @@ type pageContentOutput struct {
 	summary             template.HTML
 	tableOfContents     *tableofcontents.Fragments
 	tableOfContentsHTML template.HTML
+	// For Goldmark we split Parse and Render.
+	astDoc any
 
 	truncated bool
 
@@ -682,15 +715,66 @@ func (p *pageContentOutput) setAutoSummary() error {
 	return nil
 }
 
-func (cp *pageContentOutput) RenderContent(ctx context.Context, content []byte, renderTOC bool) (converter.Result, error) {
+func (cp *pageContentOutput) getContentConverter() (converter.Converter, error) {
 	if err := cp.initRenderHooks(); err != nil {
 		return nil, err
 	}
-	c := cp.p.getContentConverter()
+	return cp.p.getContentConverter(), nil
+}
+
+func (cp *pageContentOutput) ParseAndRenderContent(ctx context.Context, content []byte, renderTOC bool) (converter.ResultRender, error) {
+	c, err := cp.getContentConverter()
+	if err != nil {
+		return nil, err
+	}
 	return cp.renderContentWithConverter(ctx, c, content, renderTOC)
 }
 
-func (cp *pageContentOutput) renderContentWithConverter(ctx context.Context, c converter.Converter, content []byte, renderTOC bool) (converter.Result, error) {
+func (cp *pageContentOutput) ParseContent(ctx context.Context, content []byte) (converter.ResultParse, bool, error) {
+	c, err := cp.getContentConverter()
+	if err != nil {
+		return nil, false, err
+	}
+	p, ok := c.(converter.ParseRenderer)
+	if !ok {
+		return nil, ok, nil
+	}
+	rctx := converter.RenderContext{
+		Src:         content,
+		RenderTOC:   true,
+		GetRenderer: cp.renderHooks.getRenderer,
+	}
+	r, err := p.Parse(rctx)
+	return r, ok, err
+
+}
+func (cp *pageContentOutput) RenderContent(ctx context.Context, content []byte, doc any) (converter.ResultRender, bool, error) {
+	c, err := cp.getContentConverter()
+	if err != nil {
+		return nil, false, err
+	}
+	p, ok := c.(converter.ParseRenderer)
+	if !ok {
+		return nil, ok, nil
+	}
+	rctx := converter.RenderContext{
+		Src:         content,
+		RenderTOC:   true,
+		GetRenderer: cp.renderHooks.getRenderer,
+	}
+	r, err := p.Render(rctx, doc)
+	if err == nil {
+		if ids, ok := r.(identity.IdentitiesProvider); ok {
+			for _, v := range ids.GetIdentities() {
+				cp.trackDependency(v)
+			}
+		}
+	}
+
+	return r, ok, err
+}
+
+func (cp *pageContentOutput) renderContentWithConverter(ctx context.Context, c converter.Converter, content []byte, renderTOC bool) (converter.ResultRender, error) {
 	r, err := c.Convert(
 		converter.RenderContext{
 			Src:         content,

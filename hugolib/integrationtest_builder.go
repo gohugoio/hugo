@@ -32,6 +32,8 @@ import (
 func NewIntegrationTestBuilder(conf IntegrationTestConfig) *IntegrationTestBuilder {
 	// Code fences.
 	conf.TxtarString = strings.ReplaceAll(conf.TxtarString, "§§§", "```")
+	// Multiline strings.
+	conf.TxtarString = strings.ReplaceAll(conf.TxtarString, "§§", "`")
 
 	data := txtar.Parse([]byte(conf.TxtarString))
 
