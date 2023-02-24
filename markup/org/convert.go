@@ -43,7 +43,7 @@ type orgConverter struct {
 	cfg converter.ProviderConfig
 }
 
-func (c *orgConverter) Convert(ctx converter.RenderContext) (converter.Result, error) {
+func (c *orgConverter) Convert(ctx converter.RenderContext) (converter.ResultRender, error) {
 	logger := c.cfg.Logger
 	config := org.New()
 	config.Log = logger.Warn()

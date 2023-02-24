@@ -133,7 +133,16 @@ func (lcp *LazyContentProvider) TableOfContents(ctx context.Context) template.HT
 	return lcp.cp.TableOfContents(ctx)
 }
 
-func (lcp *LazyContentProvider) RenderContent(ctx context.Context, content []byte, renderTOC bool) (converter.Result, error) {
+func (lcp *LazyContentProvider) ParseAndRenderContent(ctx context.Context, content []byte, renderTOC bool) (converter.ResultRender, error) {
 	lcp.init.Do(ctx)
-	return lcp.cp.RenderContent(ctx, content, renderTOC)
+	return lcp.cp.ParseAndRenderContent(ctx, content, renderTOC)
+}
+
+func (lcp *LazyContentProvider) ParseContent(ctx context.Context, content []byte) (converter.ResultParse, bool, error) {
+	lcp.init.Do(ctx)
+	return lcp.cp.ParseContent(ctx, content)
+}
+func (lcp *LazyContentProvider) RenderContent(ctx context.Context, content []byte, doc any) (converter.ResultRender, bool, error) {
+	lcp.init.Do(ctx)
+	return lcp.cp.RenderContent(ctx, content, doc)
 }

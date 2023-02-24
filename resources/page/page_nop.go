@@ -538,7 +538,14 @@ func (p *nopPage) HeadingsFiltered(context.Context) tableofcontents.Headings {
 
 type nopContentRenderer int
 
-func (r *nopContentRenderer) RenderContent(ctx context.Context, content []byte, renderTOC bool) (converter.Result, error) {
+func (r *nopContentRenderer) ParseAndRenderContent(ctx context.Context, content []byte, renderTOC bool) (converter.ResultRender, error) {
 	b := &bytes.Buffer{}
 	return b, nil
+}
+
+func (r *nopContentRenderer) ParseContent(ctx context.Context, content []byte) (converter.ResultParse, bool, error) {
+	return nil, false, nil
+}
+func (r *nopContentRenderer) RenderContent(ctx context.Context, content []byte, doc any) (converter.ResultRender, bool, error) {
+	return nil, false, nil
 }

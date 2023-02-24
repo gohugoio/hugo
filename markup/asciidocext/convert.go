@@ -52,7 +52,7 @@ func (p provider) New(cfg converter.ProviderConfig) (converter.Provider, error) 
 }
 
 type asciidocResult struct {
-	converter.Result
+	converter.ResultRender
 	toc *tableofcontents.Fragments
 }
 
@@ -65,7 +65,7 @@ type asciidocConverter struct {
 	cfg converter.ProviderConfig
 }
 
-func (a *asciidocConverter) Convert(ctx converter.RenderContext) (converter.Result, error) {
+func (a *asciidocConverter) Convert(ctx converter.RenderContext) (converter.ResultRender, error) {
 	b, err := a.getAsciidocContent(ctx.Src, a.ctx)
 	if err != nil {
 		return nil, err
@@ -75,8 +75,8 @@ func (a *asciidocConverter) Convert(ctx converter.RenderContext) (converter.Resu
 		return nil, err
 	}
 	return asciidocResult{
-		Result: converter.Bytes(content),
-		toc:    toc,
+		ResultRender: converter.Bytes(content),
+		toc:          toc,
 	}, nil
 }
 
