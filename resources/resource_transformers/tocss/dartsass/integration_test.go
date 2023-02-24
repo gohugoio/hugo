@@ -101,12 +101,73 @@ T1: {{ $r.Content | safeHTML }}
 		moo {
 		  color: #fff;
 		}
-		
+
 		moo {
 		  color: #fff;
 		}
-		
+
 		/* foo */`)
+}
+
+// Issue 10592
+func TestTransformImportMountedCSS(t *testing.T) {
+	t.Parallel()
+	if !dartsass.Supports() {
+		t.Skip()
+	}
+
+	files := `
+-- assets/main.scss --
+@import "import-this-file.css";
+@import "foo/import-this-mounted-file.css";
+@import "compile-this-file";
+@import "foo/compile-this-mounted-file";
+a {color: main-scss;}
+-- assets/_compile-this-file.css --
+a {color: compile-this-file-css;}
+-- assets/_import-this-file.css --
+a {color: import-this-file-css;}
+-- foo/_compile-this-mounted-file.css --
+a {color: compile-this-mounted-file-css;}
+-- foo/_import-this-mounted-file.css --
+a {color: import-this-mounted-file-css;}
+-- layouts/index.html --
+{{- $opts := dict "transpiler" "dartsass" }}
+{{- with resources.Get "main.scss" | toCSS $opts }}{{ .Content | safeHTML }}{{ end }}
+-- config.toml --
+disableKinds = ['RSS','sitemap','taxonomy','term','page','section']
+
+[[module.mounts]]
+source = 'assets'
+target = 'assets'
+
+[[module.mounts]]
+source = 'foo'
+target = 'assets/foo'
+	`
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   true,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `
+		@import "import-this-file.css";
+		@import "foo/import-this-mounted-file.css";
+		a {
+			color: compile-this-file-css;
+		}
+
+		a {
+			color: compile-this-mounted-file-css;
+		}
+
+		a {
+			color: main-scss;
+		}
+	`)
 }
 
 func TestTransformThemeOverrides(t *testing.T) {
@@ -291,7 +352,7 @@ body {
 	body {
 		background: url(vars.$image) no-repeat center/cover;
 		font-family: vars.$font;
-	  }	  
+	  }
 }
 
 p {
@@ -341,7 +402,7 @@ image = "images/hero.jpg"
 body {
 	body {
 		background: url(vars.$image) no-repeat center/cover;
-	  }	  
+	  }
 }
 
 p {
