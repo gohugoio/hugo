@@ -25,24 +25,10 @@ import (
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/navigation"
 	"github.com/gohugoio/hugo/source"
-	"html/template"
 	"time"
 )
 
 func MarshalPageToJSON(p Page) ([]byte, error) {
-	content, err := p.Content()
-	if err != nil {
-		return nil, err
-	}
-	plain := p.Plain()
-	plainWords := p.PlainWords()
-	summary := p.Summary()
-	truncated := p.Truncated()
-	fuzzyWordCount := p.FuzzyWordCount()
-	wordCount := p.WordCount()
-	readingTime := p.ReadingTime()
-	length := p.Len()
-	tableOfContents := p.TableOfContents()
 	rawContent := p.RawContent()
 	resourceType := p.ResourceType()
 	mediaType := p.MediaType()
@@ -93,16 +79,6 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 	getIdentity := p.GetIdentity()
 
 	s := struct {
-		Content                  interface{}
-		Plain                    string
-		PlainWords               []string
-		Summary                  template.HTML
-		Truncated                bool
-		FuzzyWordCount           int
-		WordCount                int
-		ReadingTime              int
-		Len                      int
-		TableOfContents          template.HTML
 		RawContent               string
 		ResourceType             string
 		MediaType                media.Type
@@ -152,16 +128,6 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 		Store                    *maps.Scratch
 		GetIdentity              identity.Identity
 	}{
-		Content:                  content,
-		Plain:                    plain,
-		PlainWords:               plainWords,
-		Summary:                  summary,
-		Truncated:                truncated,
-		FuzzyWordCount:           fuzzyWordCount,
-		WordCount:                wordCount,
-		ReadingTime:              readingTime,
-		Len:                      length,
-		TableOfContents:          tableOfContents,
 		RawContent:               rawContent,
 		ResourceType:             resourceType,
 		MediaType:                mediaType,

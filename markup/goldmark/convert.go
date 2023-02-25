@@ -18,6 +18,7 @@ import (
 	"bytes"
 
 	"github.com/gohugoio/hugo/identity"
+
 	"github.com/gohugoio/hugo/markup/goldmark/codeblocks"
 	"github.com/gohugoio/hugo/markup/goldmark/images"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/extensions/attributes"
@@ -26,6 +27,7 @@ import (
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer"
@@ -164,26 +166,41 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 
 var _ identity.IdentitiesProvider = (*converterResult)(nil)
 
-type converterResult struct {
-	converter.Result
-	toc tableofcontents.Root
+type parserResult struct {
+	doc any
+	toc *tableofcontents.Fragments
+}
+
+func (p parserResult) Doc() any {
+	return p.doc
+}
+
+func (p parserResult) TableOfContents() *tableofcontents.Fragments {
+	return p.toc
+}
+
+type renderResult struct {
+	converter.ResultRender
 	ids identity.Identities
 }
 
-func (c converterResult) TableOfContents() tableofcontents.Root {
-	return c.toc
+func (r renderResult) GetIdentities() identity.Identities {
+	return r.ids
 }
 
-func (c converterResult) GetIdentities() identity.Identities {
-	return c.ids
+type converterResult struct {
+	converter.ResultRender
+	tableOfContentsProvider
+	identity.IdentitiesProvider
+}
+
+type tableOfContentsProvider interface {
+	TableOfContents() *tableofcontents.Fragments
 }
 
 var converterIdentity = identity.KeyValueIdentity{Key: "goldmark", Value: "converter"}
 
-func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result converter.Result, err error) {
-
-	buf := &render.BufWriter{Buffer: &bytes.Buffer{}}
-	result = buf
+func (c *goldmarkConverter) Parse(ctx converter.RenderContext) (converter.ResultParse, error) {
 	pctx := c.newParserContext(ctx)
 	reader := text.NewReader(ctx.Src)
 
@@ -191,6 +208,16 @@ func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result convert
 		reader,
 		parser.WithContext(pctx),
 	)
+
+	return parserResult{
+		doc: doc,
+		toc: pctx.TableOfContents(),
+	}, nil
+
+}
+func (c *goldmarkConverter) Render(ctx converter.RenderContext, doc any) (converter.ResultRender, error) {
+	n := doc.(ast.Node)
+	buf := &render.BufWriter{Buffer: &bytes.Buffer{}}
 
 	rcx := &render.RenderContextDataHolder{
 		Rctx: ctx,
@@ -203,15 +230,32 @@ func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result convert
 		ContextData: rcx,
 	}
 
-	if err := c.md.Renderer().Render(w, ctx.Src, doc); err != nil {
+	if err := c.md.Renderer().Render(w, ctx.Src, n); err != nil {
 		return nil, err
 	}
 
-	return converterResult{
-		Result: buf,
-		ids:    rcx.IDs.GetIdentities(),
-		toc:    pctx.TableOfContents(),
+	return renderResult{
+		ResultRender: buf,
+		ids:          rcx.IDs.GetIdentities(),
 	}, nil
+
+}
+
+func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (converter.ResultRender, error) {
+	parseResult, err := c.Parse(ctx)
+	if err != nil {
+		return nil, err
+	}
+	renderResult, err := c.Render(ctx, parseResult.Doc())
+	if err != nil {
+		return nil, err
+	}
+	return converterResult{
+		ResultRender:            renderResult,
+		tableOfContentsProvider: parseResult,
+		IdentitiesProvider:      renderResult.(identity.IdentitiesProvider),
+	}, nil
+
 }
 
 var featureSet = map[identity.Identity]bool{
@@ -234,9 +278,9 @@ type parserContext struct {
 	parser.Context
 }
 
-func (p *parserContext) TableOfContents() tableofcontents.Root {
+func (p *parserContext) TableOfContents() *tableofcontents.Fragments {
 	if v := p.Get(tocResultKey); v != nil {
-		return v.(tableofcontents.Root)
+		return v.(*tableofcontents.Fragments)
 	}
-	return tableofcontents.Root{}
+	return nil
 }

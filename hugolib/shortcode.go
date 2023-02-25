@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"html/template"
 	"path"
@@ -223,6 +224,10 @@ func (s shortcode) insertPlaceholder() bool {
 	return !s.doMarkup || s.configVersion() == 1
 }
 
+func (s shortcode) needsInner() bool {
+	return s.info != nil && s.info.ParseInfo().IsInner
+}
+
 func (s shortcode) configVersion() int {
 	if s.info == nil {
 		// Not set for inline shortcodes.
@@ -302,13 +307,44 @@ const (
 	innerCleanupExpand = "$1"
 )
 
-func renderShortcode(
+func prepareShortcode(
+	ctx context.Context,
 	level int,
 	s *Site,
 	tplVariants tpl.TemplateVariants,
 	sc *shortcode,
 	parent *ShortcodeWithPage,
-	p *pageState) (string, bool, error) {
+	p *pageState) (shortcodeRenderer, error) {
+
+	toParseErr := func(err error) error {
+		return p.parseError(fmt.Errorf("failed to render shortcode %q: %w", sc.name, err), p.source.parsed.Input(), sc.pos)
+	}
+
+	// Allow the caller to delay the rendering of the shortcode if needed.
+	var fn shortcodeRenderFunc = func(ctx context.Context) ([]byte, bool, error) {
+		r, err := doRenderShortcode(ctx, level, s, tplVariants, sc, parent, p)
+		if err != nil {
+			return nil, false, toParseErr(err)
+		}
+		b, hasVariants, err := r.renderShortcode(ctx)
+		if err != nil {
+			return nil, false, toParseErr(err)
+		}
+		return b, hasVariants, nil
+	}
+
+	return fn, nil
+
+}
+
+func doRenderShortcode(
+	ctx context.Context,
+	level int,
+	s *Site,
+	tplVariants tpl.TemplateVariants,
+	sc *shortcode,
+	parent *ShortcodeWithPage,
+	p *pageState) (shortcodeRenderer, error) {
 	var tmpl tpl.Template
 
 	// Tracks whether this shortcode or any of its children has template variations
@@ -319,7 +355,7 @@ func renderShortcode(
 
 	if sc.isInline {
 		if !p.s.ExecHelper.Sec().EnableInlineShortcodes {
-			return "", false, nil
+			return zeroShortcode, nil
 		}
 		templName := path.Join("_inline_shortcode", p.File().Path(), sc.name)
 		if sc.isClosing {
@@ -332,7 +368,7 @@ func renderShortcode(
 				pos := fe.Position()
 				pos.LineNumber += p.posOffset(sc.pos).LineNumber
 				fe = fe.UpdatePosition(pos)
-				return "", false, p.wrapError(fe)
+				return zeroShortcode, p.wrapError(fe)
 			}
 
 		} else {
@@ -340,7 +376,7 @@ func renderShortcode(
 			var found bool
 			tmpl, found = s.TextTmpl().Lookup(templName)
 			if !found {
-				return "", false, fmt.Errorf("no earlier definition of shortcode %q found", sc.name)
+				return zeroShortcode, fmt.Errorf("no earlier definition of shortcode %q found", sc.name)
 			}
 		}
 	} else {
@@ -348,7 +384,7 @@ func renderShortcode(
 		tmpl, found, more = s.Tmpl().LookupVariant(sc.name, tplVariants)
 		if !found {
 			s.Log.Errorf("Unable to locate template for shortcode %q in page %q", sc.name, p.File().Path())
-			return "", false, nil
+			return zeroShortcode, nil
 		}
 		hasVariants = hasVariants || more
 	}
@@ -365,16 +401,20 @@ func renderShortcode(
 			case string:
 				inner += innerData
 			case *shortcode:
-				s, more, err := renderShortcode(level+1, s, tplVariants, innerData, data, p)
+				s, err := prepareShortcode(ctx, level+1, s, tplVariants, innerData, data, p)
 				if err != nil {
-					return "", false, err
+					return zeroShortcode, err
 				}
+				ss, more, err := s.renderShortcodeString(ctx)
 				hasVariants = hasVariants || more
-				inner += s
+				if err != nil {
+					return zeroShortcode, err
+				}
+				inner += ss
 			default:
 				s.Log.Errorf("Illegal state on shortcode rendering of %q in page %q. Illegal type in inner data: %s ",
 					sc.name, p.File().Path(), reflect.TypeOf(innerData))
-				return "", false, nil
+				return zeroShortcode, nil
 			}
 		}
 
@@ -382,9 +422,9 @@ func renderShortcode(
 		// shortcode.
 		if sc.doMarkup && (level > 0 || sc.configVersion() == 1) {
 			var err error
-			b, err := p.pageOutput.contentRenderer.RenderContent([]byte(inner), false)
+			b, err := p.pageOutput.contentRenderer.ParseAndRenderContent(ctx, []byte(inner), false)
 			if err != nil {
-				return "", false, err
+				return zeroShortcode, err
 			}
 
 			newInner := b.Bytes()
@@ -418,14 +458,14 @@ func renderShortcode(
 
 	}
 
-	result, err := renderShortcodeWithPage(s.Tmpl(), tmpl, data)
+	result, err := renderShortcodeWithPage(ctx, s.Tmpl(), tmpl, data)
 
 	if err != nil && sc.isInline {
 		fe := herrors.NewFileErrorFromName(err, p.File().Filename())
 		pos := fe.Position()
 		pos.LineNumber += p.posOffset(sc.pos).LineNumber
 		fe = fe.UpdatePosition(pos)
-		return "", false, fe
+		return zeroShortcode, fe
 	}
 
 	if len(sc.inner) == 0 && len(sc.indentation) > 0 {
@@ -444,7 +484,7 @@ func renderShortcode(
 		bp.PutBuffer(b)
 	}
 
-	return result, hasVariants, err
+	return prerenderedShortcode{s: result, hasVariants: hasVariants}, err
 }
 
 func (s *shortcodeHandler) hasShortcodes() bool {
@@ -473,28 +513,24 @@ func (s *shortcodeHandler) hasName(name string) bool {
 	return ok
 }
 
-func (s *shortcodeHandler) renderShortcodesForPage(p *pageState, f output.Format) (map[string]string, bool, error) {
-	rendered := make(map[string]string)
+func (s *shortcodeHandler) prepareShortcodesForPage(ctx context.Context, p *pageState, f output.Format) (map[string]shortcodeRenderer, error) {
+	rendered := make(map[string]shortcodeRenderer)
 
 	tplVariants := tpl.TemplateVariants{
 		Language:     p.Language().Lang,
 		OutputFormat: f,
 	}
 
-	var hasVariants bool
-
 	for _, v := range s.shortcodes {
-		s, more, err := renderShortcode(0, s.s, tplVariants, v, nil, p)
+		s, err := prepareShortcode(ctx, 0, s.s, tplVariants, v, nil, p)
 		if err != nil {
-			err = p.parseError(fmt.Errorf("failed to render shortcode %q: %w", v.name, err), p.source.parsed.Input(), v.pos)
-			return nil, false, err
+			return nil, err
 		}
-		hasVariants = hasVariants || more
 		rendered[v.placeholder] = s
 
 	}
 
-	return rendered, hasVariants, nil
+	return rendered, nil
 }
 
 func (s *shortcodeHandler) parseError(err error, input []byte, pos int) error {
@@ -525,11 +561,8 @@ func (s *shortcodeHandler) extractShortcode(ordinal, level int, source []byte, p
 	cnt := 0
 	nestedOrdinal := 0
 	nextLevel := level + 1
+	closed := false
 	const errorPrefix = "failed to extract shortcode"
-
-	fail := func(err error, i pageparser.Item) error {
-		return s.parseError(fmt.Errorf("%s: %w", errorPrefix, err), source, i.Pos())
-	}
 
 Loop:
 	for {
@@ -570,24 +603,21 @@ Loop:
 			// we trust the template on this:
 			// if there's no inner, we're done
 			if !sc.isInline {
-				if sc.info == nil {
-					// This should not happen.
-					return sc, fail(errors.New("BUG: template info not set"), currItem)
-				}
 				if !sc.info.ParseInfo().IsInner {
 					return sc, nil
 				}
 			}
 
 		case currItem.IsShortcodeClose():
+			closed = true
 			next := pt.Peek()
 			if !sc.isInline {
-				if sc.info == nil || !sc.info.ParseInfo().IsInner {
+				if !sc.needsInner() {
 					if next.IsError() {
 						// return that error, more specific
 						continue
 					}
-					return sc, fail(fmt.Errorf("shortcode %q has no .Inner, yet a closing tag was provided", next.ValStr(source)), next)
+					return nil, fmt.Errorf("%s: shortcode %q does not evaluate .Inner or .InnerDeindent, yet a closing tag was provided", errorPrefix, next.ValStr(source))
 				}
 			}
 			if next.IsRightShortcodeDelim() {
@@ -657,6 +687,11 @@ Loop:
 				}
 			}
 		case currItem.IsDone():
+			if !currItem.IsError() {
+				if !closed && sc.needsInner() {
+					return sc, fmt.Errorf("%s: unclosed shortcode %q", errorPrefix, sc.name)
+				}
+			}
 			// handled by caller
 			pt.Backup()
 			break Loop
@@ -668,11 +703,11 @@ Loop:
 
 // Replace prefixed shortcode tokens with the real content.
 // Note: This function will rewrite the input slice.
-func replaceShortcodeTokens(source []byte, replacements map[string]string) ([]byte, error) {
-	if len(replacements) == 0 {
-		return source, nil
-	}
-
+func expandShortcodeTokens(
+	ctx context.Context,
+	source []byte,
+	tokenHandler func(ctx context.Context, token string) ([]byte, error),
+) ([]byte, error) {
 	start := 0
 
 	pre := []byte(shortcodePlaceholderPrefix)
@@ -691,8 +726,11 @@ func replaceShortcodeTokens(source []byte, replacements map[string]string) ([]by
 		}
 
 		end := j + postIdx + 4
-
-		newVal := []byte(replacements[string(source[j:end])])
+		key := string(source[j:end])
+		newVal, err := tokenHandler(ctx, key)
+		if err != nil {
+			return nil, err
+		}
 
 		// Issue #1148: Check for wrapping p-tags <p>
 		if j >= 3 && bytes.Equal(source[j-3:j], pStart) {
@@ -712,11 +750,11 @@ func replaceShortcodeTokens(source []byte, replacements map[string]string) ([]by
 	return source, nil
 }
 
-func renderShortcodeWithPage(h tpl.TemplateHandler, tmpl tpl.Template, data *ShortcodeWithPage) (string, error) {
+func renderShortcodeWithPage(ctx context.Context, h tpl.TemplateHandler, tmpl tpl.Template, data *ShortcodeWithPage) (string, error) {
 	buffer := bp.GetBuffer()
 	defer bp.PutBuffer(buffer)
 
-	err := h.Execute(tmpl, buffer, data)
+	err := h.ExecuteWithContext(ctx, tmpl, buffer, data)
 	if err != nil {
 		return "", fmt.Errorf("failed to process shortcode: %w", err)
 	}

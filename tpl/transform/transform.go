@@ -15,6 +15,7 @@
 package transform
 
 import (
+	"context"
 	"html"
 	"html/template"
 
@@ -118,13 +119,13 @@ func (ns *Namespace) HTMLUnescape(s any) (string, error) {
 }
 
 // Markdownify renders s from Markdown to HTML.
-func (ns *Namespace) Markdownify(s any) (template.HTML, error) {
+func (ns *Namespace) Markdownify(ctx context.Context, s any) (template.HTML, error) {
 
 	home := ns.deps.Site.Home()
 	if home == nil {
 		panic("home must not be nil")
 	}
-	ss, err := home.RenderString(s)
+	ss, err := home.RenderString(ctx, s)
 	if err != nil {
 		return "", err
 	}

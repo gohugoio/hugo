@@ -52,11 +52,11 @@ func (p provider) New(cfg converter.ProviderConfig) (converter.Provider, error) 
 }
 
 type asciidocResult struct {
-	converter.Result
-	toc tableofcontents.Root
+	converter.ResultRender
+	toc *tableofcontents.Fragments
 }
 
-func (r asciidocResult) TableOfContents() tableofcontents.Root {
+func (r asciidocResult) TableOfContents() *tableofcontents.Fragments {
 	return r.toc
 }
 
@@ -65,7 +65,7 @@ type asciidocConverter struct {
 	cfg converter.ProviderConfig
 }
 
-func (a *asciidocConverter) Convert(ctx converter.RenderContext) (converter.Result, error) {
+func (a *asciidocConverter) Convert(ctx converter.RenderContext) (converter.ResultRender, error) {
 	b, err := a.getAsciidocContent(ctx.Src, a.ctx)
 	if err != nil {
 		return nil, err
@@ -75,8 +75,8 @@ func (a *asciidocConverter) Convert(ctx converter.RenderContext) (converter.Resu
 		return nil, err
 	}
 	return asciidocResult{
-		Result: converter.Bytes(content),
-		toc:    toc,
+		ResultRender: converter.Bytes(content),
+		toc:          toc,
 	}, nil
 }
 
@@ -205,16 +205,16 @@ func hasAsciiDoc() bool {
 
 // extractTOC extracts the toc from the given src html.
 // It returns the html without the TOC, and the TOC data
-func (a *asciidocConverter) extractTOC(src []byte) ([]byte, tableofcontents.Root, error) {
+func (a *asciidocConverter) extractTOC(src []byte) ([]byte, *tableofcontents.Fragments, error) {
 	var buf bytes.Buffer
 	buf.Write(src)
 	node, err := html.Parse(&buf)
 	if err != nil {
-		return nil, tableofcontents.Root{}, err
+		return nil, nil, err
 	}
 	var (
 		f       func(*html.Node) bool
-		toc     tableofcontents.Root
+		toc     *tableofcontents.Fragments
 		toVisit []*html.Node
 	)
 	f = func(n *html.Node) bool {
@@ -242,12 +242,12 @@ func (a *asciidocConverter) extractTOC(src []byte) ([]byte, tableofcontents.Root
 	}
 	f(node)
 	if err != nil {
-		return nil, tableofcontents.Root{}, err
+		return nil, nil, err
 	}
 	buf.Reset()
 	err = html.Render(&buf, node)
 	if err != nil {
-		return nil, tableofcontents.Root{}, err
+		return nil, nil, err
 	}
 	// ltrim <html><head></head><body> and rtrim </body></html> which are added by html.Render
 	res := buf.Bytes()[25:]
@@ -256,9 +256,9 @@ func (a *asciidocConverter) extractTOC(src []byte) ([]byte, tableofcontents.Root
 }
 
 // parseTOC returns a TOC root from the given toc Node
-func parseTOC(doc *html.Node) tableofcontents.Root {
+func parseTOC(doc *html.Node) *tableofcontents.Fragments {
 	var (
-		toc tableofcontents.Root
+		toc tableofcontents.Builder
 		f   func(*html.Node, int, int)
 	)
 	f = func(n *html.Node, row, level int) {
@@ -276,9 +276,9 @@ func parseTOC(doc *html.Node) tableofcontents.Root {
 						continue
 					}
 					href := attr(c, "href")[1:]
-					toc.AddAt(tableofcontents.Heading{
-						Text: nodeContent(c),
-						ID:   href,
+					toc.AddAt(&tableofcontents.Heading{
+						Title: nodeContent(c),
+						ID:    href,
 					}, row, level)
 				}
 				f(n.FirstChild, row, level)
@@ -289,7 +289,7 @@ func parseTOC(doc *html.Node) tableofcontents.Root {
 		}
 	}
 	f(doc.FirstChild, -1, 0)
-	return toc
+	return toc.Build()
 }
 
 func attr(node *html.Node, key string) string {

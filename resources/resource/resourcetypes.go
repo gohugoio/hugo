@@ -14,6 +14,8 @@
 package resource
 
 import (
+	"context"
+
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/media"
@@ -162,7 +164,7 @@ type ContentProvider interface {
 	// * Page: template.HTML
 	// * JSON: String
 	// * Etc.
-	Content() (any, error)
+	Content(context.Context) (any, error)
 }
 
 // OpenReadSeekCloser allows setting some other way (than reading from a filesystem)
@@ -178,7 +180,7 @@ type ReadSeekCloserResource interface {
 // LengthProvider is a Resource that provides a length
 // (typically the length of the content).
 type LengthProvider interface {
-	Len() int
+	Len(context.Context) int
 }
 
 // LanguageProvider is a Resource in a language.

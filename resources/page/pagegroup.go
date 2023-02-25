@@ -14,6 +14,7 @@
 package page
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"reflect"
@@ -110,7 +111,7 @@ var (
 
 // GroupBy groups by the value in the given field or method name and with the given order.
 // Valid values for order is asc, desc, rev and reverse.
-func (p Pages) GroupBy(key string, order ...string) (PagesGroup, error) {
+func (p Pages) GroupBy(ctx context.Context, key string, order ...string) (PagesGroup, error) {
 	if len(p) < 1 {
 		return nil, nil
 	}
@@ -158,7 +159,12 @@ func (p Pages) GroupBy(key string, order ...string) (PagesGroup, error) {
 		case reflect.StructField:
 			fv = ppv.Elem().FieldByName(key)
 		case reflect.Method:
-			fv = hreflect.GetMethodByName(ppv, key).Call([]reflect.Value{})[0]
+			var args []reflect.Value
+			fn := hreflect.GetMethodByName(ppv, key)
+			if fn.Type().NumIn() > 0 && fn.Type().In(0).Implements(hreflect.ContextInterface) {
+				args = []reflect.Value{reflect.ValueOf(ctx)}
+			}
+			fv = fn.Call(args)[0]
 		}
 		if !fv.IsValid() {
 			continue

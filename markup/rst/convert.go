@@ -47,7 +47,7 @@ type rstConverter struct {
 	cfg converter.ProviderConfig
 }
 
-func (c *rstConverter) Convert(ctx converter.RenderContext) (converter.Result, error) {
+func (c *rstConverter) Convert(ctx converter.RenderContext) (converter.ResultRender, error) {
 	b, err := c.getRstContent(ctx.Src, c.ctx)
 	if err != nil {
 		return nil, err

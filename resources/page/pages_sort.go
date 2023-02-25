@@ -14,6 +14,7 @@
 package page
 
 import (
+	"context"
 	"sort"
 
 	"github.com/gohugoio/hugo/common/collections"
@@ -299,7 +300,7 @@ func (p Pages) ByLastmod() Pages {
 // Adjacent invocations on the same receiver will return a cached result.
 //
 // This may safely be executed  in parallel.
-func (p Pages) ByLength() Pages {
+func (p Pages) ByLength(ctx context.Context) Pages {
 	const key = "pageSort.ByLength"
 
 	length := func(p1, p2 Page) bool {
@@ -314,7 +315,7 @@ func (p Pages) ByLength() Pages {
 			return false
 		}
 
-		return p1l.Len() < p2l.Len()
+		return p1l.Len(ctx) < p2l.Len(ctx)
 	}
 
 	pages, _ := spc.get(key, pageBy(length).Sort, p)

@@ -15,6 +15,7 @@ package resources
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"image"
 	"io"
@@ -159,12 +160,12 @@ type resourceAdapter struct {
 	*resourceAdapterInner
 }
 
-func (r *resourceAdapter) Content() (any, error) {
+func (r *resourceAdapter) Content(context.Context) (any, error) {
 	r.init(false, true)
 	if r.transformationsErr != nil {
 		return nil, r.transformationsErr
 	}
-	return r.target.Content()
+	return r.target.Content(context.Background())
 }
 
 func (r *resourceAdapter) Err() resource.ResourceError {

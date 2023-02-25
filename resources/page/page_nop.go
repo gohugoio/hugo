@@ -17,11 +17,13 @@ package page
 
 import (
 	"bytes"
+	"context"
 	"html/template"
 	"time"
 
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/converter"
+	"github.com/gohugoio/hugo/markup/tableofcontents"
 
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/tpl"
@@ -105,7 +107,7 @@ func (p *nopPage) BundleType() files.ContentClass {
 	return ""
 }
 
-func (p *nopPage) Content() (any, error) {
+func (p *nopPage) Content(context.Context) (any, error) {
 	return "", nil
 }
 
@@ -179,7 +181,7 @@ func (p *nopPage) FirstSection() Page {
 	return nil
 }
 
-func (p *nopPage) FuzzyWordCount() int {
+func (p *nopPage) FuzzyWordCount(context.Context) int {
 	return 0
 }
 
@@ -279,7 +281,7 @@ func (p *nopPage) Lastmod() (t time.Time) {
 	return
 }
 
-func (p *nopPage) Len() int {
+func (p *nopPage) Len(context.Context) int {
 	return 0
 }
 
@@ -363,11 +365,11 @@ func (p *nopPage) Permalink() string {
 	return ""
 }
 
-func (p *nopPage) Plain() string {
+func (p *nopPage) Plain(context.Context) string {
 	return ""
 }
 
-func (p *nopPage) PlainWords() []string {
+func (p *nopPage) PlainWords(context.Context) []string {
 	return nil
 }
 
@@ -399,7 +401,7 @@ func (p *nopPage) RawContent() string {
 	return ""
 }
 
-func (p *nopPage) ReadingTime() int {
+func (p *nopPage) ReadingTime(context.Context) int {
 	return 0
 }
 
@@ -415,11 +417,11 @@ func (p *nopPage) RelRef(argsm map[string]any) (string, error) {
 	return "", nil
 }
 
-func (p *nopPage) Render(layout ...string) (template.HTML, error) {
+func (p *nopPage) Render(ctx context.Context, layout ...string) (template.HTML, error) {
 	return "", nil
 }
 
-func (p *nopPage) RenderString(args ...any) (template.HTML, error) {
+func (p *nopPage) RenderString(ctx context.Context, args ...any) (template.HTML, error) {
 	return "", nil
 }
 
@@ -475,11 +477,11 @@ func (p *nopPage) String() string {
 	return "nopPage"
 }
 
-func (p *nopPage) Summary() template.HTML {
+func (p *nopPage) Summary(context.Context) template.HTML {
 	return ""
 }
 
-func (p *nopPage) TableOfContents() template.HTML {
+func (p *nopPage) TableOfContents(context.Context) template.HTML {
 	return ""
 }
 
@@ -499,7 +501,7 @@ func (p *nopPage) Translations() Pages {
 	return nil
 }
 
-func (p *nopPage) Truncated() bool {
+func (p *nopPage) Truncated(context.Context) bool {
 	return false
 }
 
@@ -519,7 +521,7 @@ func (p *nopPage) Weight() int {
 	return 0
 }
 
-func (p *nopPage) WordCount() int {
+func (p *nopPage) WordCount(context.Context) int {
 	return 0
 }
 
@@ -527,9 +529,23 @@ func (p *nopPage) GetIdentity() identity.Identity {
 	return identity.NewPathIdentity("content", "foo/bar.md")
 }
 
+func (p *nopPage) Fragments(context.Context) *tableofcontents.Fragments {
+	return nil
+}
+func (p *nopPage) HeadingsFiltered(context.Context) tableofcontents.Headings {
+	return nil
+}
+
 type nopContentRenderer int
 
-func (r *nopContentRenderer) RenderContent(content []byte, renderTOC bool) (converter.Result, error) {
+func (r *nopContentRenderer) ParseAndRenderContent(ctx context.Context, content []byte, renderTOC bool) (converter.ResultRender, error) {
 	b := &bytes.Buffer{}
 	return b, nil
+}
+
+func (r *nopContentRenderer) ParseContent(ctx context.Context, content []byte) (converter.ResultParse, bool, error) {
+	return nil, false, nil
+}
+func (r *nopContentRenderer) RenderContent(ctx context.Context, content []byte, doc any) (converter.ResultRender, bool, error) {
+	return nil, false, nil
 }

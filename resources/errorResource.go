@@ -14,6 +14,7 @@
 package resources
 
 import (
+	"context"
 	"image"
 
 	"github.com/gohugoio/hugo/common/hugio"
@@ -55,7 +56,7 @@ func (e *errorResource) ReadSeekCloser() (hugio.ReadSeekCloser, error) {
 	panic(e.ResourceError)
 }
 
-func (e *errorResource) Content() (any, error) {
+func (e *errorResource) Content(context.Context) (any, error) {
 	panic(e.ResourceError)
 }
 

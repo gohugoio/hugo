@@ -34,7 +34,7 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
-func convert(c *qt.C, mconf markup_config.Config, content string) converter.Result {
+func convert(c *qt.C, mconf markup_config.Config, content string) converter.ResultRender {
 	p, err := Provider.New(
 		converter.ProviderConfig{
 			MarkupConfig: mconf,
