@@ -208,6 +208,23 @@ func AsTime(v reflect.Value, loc *time.Location) (time.Time, bool) {
 	return time.Time{}, false
 }
 
+func CallMethodByName(cxt context.Context, name string, v reflect.Value) []reflect.Value {
+	fn := v.MethodByName(name)
+	var args []reflect.Value
+	tp := fn.Type()
+	if tp.NumIn() > 0 {
+		if tp.NumIn() > 1 {
+			panic("not supported")
+		}
+		first := tp.In(0)
+		if first.Implements(ContextInterface) {
+			args = append(args, reflect.ValueOf(cxt))
+		}
+	}
+
+	return fn.Call(args)
+}
+
 // Based on: https://github.com/golang/go/blob/178a2c42254166cffed1b25fb1d3c7a5727cada6/src/text/template/exec.go#L931
 func indirectInterface(v reflect.Value) reflect.Value {
 	if v.Kind() != reflect.Interface {

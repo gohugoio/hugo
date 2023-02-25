@@ -14,6 +14,7 @@
 package time
 
 import (
+	"context"
 	"errors"
 
 	"github.com/gohugoio/hugo/deps"
@@ -32,7 +33,7 @@ func init() {
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name: name,
-			Context: func(args ...any) (any, error) {
+			Context: func(cctx context.Context, args ...any) (any, error) {
 				// Handle overlapping "time" namespace and func.
 				//
 				// If no args are passed to `time`, assume namespace usage and

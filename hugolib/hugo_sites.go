@@ -767,10 +767,11 @@ func (h *HugoSites) renderCrossSitesSitemap() error {
 	}
 
 	s := h.Sites[0]
+	// We don't have any page context to pass in here.
+	ctx := context.Background()
 
 	templ := s.lookupLayouts("sitemapindex.xml", "_default/sitemapindex.xml", "_internal/_default/sitemapindex.xml")
-
-	return s.renderAndWriteXML(&s.PathSpec.ProcessingStats.Sitemaps, "sitemapindex",
+	return s.renderAndWriteXML(ctx, &s.PathSpec.ProcessingStats.Sitemaps, "sitemapindex",
 		s.siteCfg.sitemap.Filename, h.toSiteInfos(), templ)
 }
 

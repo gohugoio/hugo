@@ -577,7 +577,7 @@ func (c *commandeer) serve(s *serverCmd) error {
 			// to cached values if nil.
 			templ, handler := getErrorTemplateAndHandler(c.hugoTry())
 			b := &bytes.Buffer{}
-			err := handler.Execute(templ, b, ctx)
+			err := handler.ExecuteWithContext(context.Background(), templ, b, ctx)
 			return b, err
 		},
 	}

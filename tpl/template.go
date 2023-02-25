@@ -59,7 +59,6 @@ type UnusedTemplatesProvider interface {
 // TemplateHandler finds and executes templates.
 type TemplateHandler interface {
 	TemplateFinder
-	Execute(t Template, wr io.Writer, data any) error
 	ExecuteWithContext(ctx context.Context, t Template, wr io.Writer, data any) error
 	LookupLayout(d output.LayoutDescriptor, f output.Format) (Template, bool, error)
 	HasTemplate(name string) bool
@@ -153,10 +152,18 @@ type TemplateFuncGetter interface {
 	GetFunc(name string) (reflect.Value, bool)
 }
 
-// GetDataFromContext returns the template data context (usually .Page) from ctx if set.
-// NOte: This is not fully implemented yet.
-func GetDataFromContext(ctx context.Context) any {
-	return ctx.Value(texttemplate.DataContextKey)
+// GetPageFromContext returns the top level Page.
+func GetPageFromContext(ctx context.Context) any {
+	return ctx.Value(texttemplate.PageContextKey)
+}
+
+// SetPageInContext sets the top level Page.
+func SetPageInContext(ctx context.Context, p page) context.Context {
+	return context.WithValue(ctx, texttemplate.PageContextKey, p)
+}
+
+type page interface {
+	IsNode() bool
 }
 
 func GetHasLockFromContext(ctx context.Context) bool {

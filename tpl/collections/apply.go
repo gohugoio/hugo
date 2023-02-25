@@ -40,7 +40,7 @@ func (ns *Namespace) Apply(ctx context.Context, c any, fname string, args ...any
 		return nil, errors.New("can't iterate over a nil value")
 	}
 
-	fnv, found := ns.lookupFunc(fname)
+	fnv, found := ns.lookupFunc(ctx, fname)
 	if !found {
 		return nil, errors.New("can't find function " + fname)
 	}
@@ -106,7 +106,7 @@ func applyFnToThis(ctx context.Context, fn, this reflect.Value, args ...any) (re
 	return reflect.ValueOf(nil), res[1].Interface().(error)
 }
 
-func (ns *Namespace) lookupFunc(fname string) (reflect.Value, bool) {
+func (ns *Namespace) lookupFunc(ctx context.Context, fname string) (reflect.Value, bool) {
 	namespace, methodName, ok := strings.Cut(fname, ".")
 	if !ok {
 		templ := ns.deps.Tmpl().(tpl.TemplateFuncGetter)
@@ -114,16 +114,16 @@ func (ns *Namespace) lookupFunc(fname string) (reflect.Value, bool) {
 	}
 
 	// Namespace
-	nv, found := ns.lookupFunc(namespace)
+	nv, found := ns.lookupFunc(ctx, namespace)
 	if !found {
 		return reflect.Value{}, false
 	}
 
-	fn, ok := nv.Interface().(func(...any) (any, error))
+	fn, ok := nv.Interface().(func(context.Context, ...any) (any, error))
 	if !ok {
 		return reflect.Value{}, false
 	}
-	v, err := fn()
+	v, err := fn(ctx)
 	if err != nil {
 		panic(err)
 	}
