@@ -104,6 +104,7 @@ type ResourceTransformer interface {
 
 type Transformer interface {
 	Transform(...ResourceTransformation) (ResourceTransformer, error)
+	TransformWithContext(context.Context, ...ResourceTransformation) (ResourceTransformer, error)
 }
 
 func NewFeatureNotAvailableTransformer(key string, elements ...any) ResourceTransformation {

@@ -1710,12 +1710,12 @@ func (s *Site) lookupLayouts(layouts ...string) tpl.Template {
 	return nil
 }
 
-func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath string, d any, templ tpl.Template) error {
+func (s *Site) renderAndWriteXML(ctx context.Context, statCounter *uint64, name string, targetPath string, d any, templ tpl.Template) error {
 	s.Log.Debugf("Render XML for %q to %q", name, targetPath)
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
-	if err := s.renderForTemplate(name, "", d, renderBuffer, templ); err != nil {
+	if err := s.renderForTemplate(ctx, name, "", d, renderBuffer, templ); err != nil {
 		return err
 	}
 
@@ -1739,8 +1739,9 @@ func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath s
 	defer bp.PutBuffer(renderBuffer)
 
 	of := p.outputFormat()
+	ctx := tpl.SetPageInContext(context.Background(), p)
 
-	if err := s.renderForTemplate(p.Kind(), of.Name, p, renderBuffer, templ); err != nil {
+	if err := s.renderForTemplate(ctx, p.Kind(), of.Name, p, renderBuffer, templ); err != nil {
 		return err
 	}
 
@@ -1797,16 +1798,16 @@ type hookRendererTemplate struct {
 	resolvePosition func(ctx any) text.Position
 }
 
-func (hr hookRendererTemplate) RenderLink(w io.Writer, ctx hooks.LinkContext) error {
-	return hr.templateHandler.Execute(hr.templ, w, ctx)
+func (hr hookRendererTemplate) RenderLink(cctx context.Context, w io.Writer, ctx hooks.LinkContext) error {
+	return hr.templateHandler.ExecuteWithContext(cctx, hr.templ, w, ctx)
 }
 
-func (hr hookRendererTemplate) RenderHeading(w io.Writer, ctx hooks.HeadingContext) error {
-	return hr.templateHandler.Execute(hr.templ, w, ctx)
+func (hr hookRendererTemplate) RenderHeading(cctx context.Context, w io.Writer, ctx hooks.HeadingContext) error {
+	return hr.templateHandler.ExecuteWithContext(cctx, hr.templ, w, ctx)
 }
 
-func (hr hookRendererTemplate) RenderCodeblock(w hugio.FlexiWriter, ctx hooks.CodeblockContext) error {
-	return hr.templateHandler.Execute(hr.templ, w, ctx)
+func (hr hookRendererTemplate) RenderCodeblock(cctx context.Context, w hugio.FlexiWriter, ctx hooks.CodeblockContext) error {
+	return hr.templateHandler.ExecuteWithContext(cctx, hr.templ, w, ctx)
 }
 
 func (hr hookRendererTemplate) ResolvePosition(ctx any) text.Position {
@@ -1817,13 +1818,15 @@ func (hr hookRendererTemplate) IsDefaultCodeBlockRenderer() bool {
 	return false
 }
 
-func (s *Site) renderForTemplate(name, outputFormat string, d any, w io.Writer, templ tpl.Template) (err error) {
+func (s *Site) renderForTemplate(ctx context.Context, name, outputFormat string, d any, w io.Writer, templ tpl.Template) (err error) {
 	if templ == nil {
 		s.logMissingLayout(name, "", "", outputFormat)
 		return nil
 	}
 
-	ctx := context.Background()
+	if ctx == nil {
+		panic("nil context")
+	}
 
 	if err = s.Tmpl().ExecuteWithContext(ctx, templ, w, d); err != nil {
 		return fmt.Errorf("render of %q failed: %w", name, err)

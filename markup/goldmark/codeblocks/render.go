@@ -124,6 +124,7 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 	cr := renderer.(hooks.CodeBlockRenderer)
 
 	err := cr.RenderCodeblock(
+		ctx.RenderContext().Ctx,
 		w,
 		cbctx,
 	)

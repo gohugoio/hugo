@@ -740,6 +740,7 @@ func (cp *pageContentOutput) ParseContent(ctx context.Context, content []byte) (
 		return nil, ok, nil
 	}
 	rctx := converter.RenderContext{
+		Ctx:         ctx,
 		Src:         content,
 		RenderTOC:   true,
 		GetRenderer: cp.renderHooks.getRenderer,
@@ -758,6 +759,7 @@ func (cp *pageContentOutput) RenderContent(ctx context.Context, content []byte, 
 		return nil, ok, nil
 	}
 	rctx := converter.RenderContext{
+		Ctx:         ctx,
 		Src:         content,
 		RenderTOC:   true,
 		GetRenderer: cp.renderHooks.getRenderer,
@@ -777,6 +779,7 @@ func (cp *pageContentOutput) RenderContent(ctx context.Context, content []byte, 
 func (cp *pageContentOutput) renderContentWithConverter(ctx context.Context, c converter.Converter, content []byte, renderTOC bool) (converter.ResultRender, error) {
 	r, err := c.Convert(
 		converter.RenderContext{
+			Ctx:         ctx,
 			Src:         content,
 			RenderTOC:   renderTOC,
 			GetRenderer: cp.renderHooks.getRenderer,

@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"context"
 	"fmt"
 	"path"
 	"strings"
@@ -197,7 +198,7 @@ func (s *Site) renderPaginator(p *pageState, templ tpl.Template) error {
 		d.Addends = fmt.Sprintf("/%s/%d", paginatePath, 1)
 		targetPaths := page.CreateTargetPaths(d)
 
-		if err := s.writeDestAlias(targetPaths.TargetFilename, p.Permalink(), f, nil); err != nil {
+		if err := s.writeDestAlias(targetPaths.TargetFilename, p.Permalink(), f, p); err != nil {
 			return err
 		}
 	}
@@ -278,6 +279,7 @@ func (s *Site) renderSitemap() error {
 	}
 
 	targetPath := p.targetPaths().TargetFilename
+	ctx := tpl.SetPageInContext(context.Background(), p)
 
 	if targetPath == "" {
 		return errors.New("failed to create targetPath for sitemap")
@@ -285,7 +287,7 @@ func (s *Site) renderSitemap() error {
 
 	templ := s.lookupLayouts("sitemap.xml", "_default/sitemap.xml", "_internal/_default/sitemap.xml")
 
-	return s.renderAndWriteXML(&s.PathSpec.ProcessingStats.Sitemaps, "sitemap", targetPath, p, templ)
+	return s.renderAndWriteXML(ctx, &s.PathSpec.ProcessingStats.Sitemaps, "sitemap", targetPath, p, templ)
 }
 
 func (s *Site) renderRobotsTXT() error {
