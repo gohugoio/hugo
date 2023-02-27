@@ -40,7 +40,7 @@ require (
 	github.com/kyokomi/emoji/v2 v2.2.11
 	github.com/magefile/mage v1.14.0
 	github.com/marekm4/color-extractor v1.2.0
-	github.com/mattn/go-isatty v0.0.16
+	github.com/mattn/go-isatty v0.0.17
 	github.com/mitchellh/hashstructure v1.1.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/muesli/smartcrop v0.3.0
