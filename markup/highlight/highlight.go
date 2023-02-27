@@ -14,6 +14,7 @@
 package highlight
 
 import (
+	"context"
 	"fmt"
 	gohtml "html"
 	"html/template"
@@ -122,7 +123,7 @@ func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts a
 	}, nil
 }
 
-func (h chromaHighlighter) RenderCodeblock(w hugio.FlexiWriter, ctx hooks.CodeblockContext) error {
+func (h chromaHighlighter) RenderCodeblock(cctx context.Context, w hugio.FlexiWriter, ctx hooks.CodeblockContext) error {
 	cfg := h.cfg
 
 	attributes := ctx.(hooks.AttributesOptionsSliceProvider).AttributesSlice()

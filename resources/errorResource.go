@@ -135,3 +135,7 @@ func (e *errorResource) DecodeImage() (image.Image, error) {
 func (e *errorResource) Transform(...ResourceTransformation) (ResourceTransformer, error) {
 	panic(e.ResourceError)
 }
+
+func (e *errorResource) TransformWithContext(context.Context, ...ResourceTransformation) (ResourceTransformer, error) {
+	panic(e.ResourceError)
+}

@@ -232,6 +232,10 @@ func (t templateExec) Clone(d *deps.Deps) *templateExec {
 }
 
 func (t *templateExec) Execute(templ tpl.Template, wr io.Writer, data any) error {
+	// TOD1
+	if true {
+		//panic("not implemented")
+	}
 	return t.ExecuteWithContext(context.Background(), templ, wr, data)
 }
 

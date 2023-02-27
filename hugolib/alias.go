@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -64,8 +65,10 @@ func (a aliasHandler) renderAlias(permalink string, p page.Page) (io.Reader, err
 		p,
 	}
 
+	ctx := tpl.SetPageInContext(context.Background(), p)
+
 	buffer := new(bytes.Buffer)
-	err := a.t.Execute(templ, buffer, data)
+	err := a.t.ExecuteWithContext(ctx, templ, buffer, data)
 	if err != nil {
 		return nil, err
 	}

@@ -133,3 +133,183 @@ var eq = qt.CmpEquals(
 		return v1.Unix() == v2.Unix()
 	}),
 )
+
+func TestIssue10738(t *testing.T) {
+
+	c := qt.New(t)
+
+	testFunc := func(path, include string) any {
+		f, err := os.Open(filepath.FromSlash(path))
+		c.Assert(err, qt.IsNil)
+		defer f.Close()
+
+		d, err := NewDecoder(IncludeFields(include))
+		c.Assert(err, qt.IsNil)
+		x, err := d.Decode(f)
+		c.Assert(err, qt.IsNil)
+
+		// Verify that it survives a round-trip to JSON and back.
+		data, err := json.Marshal(x)
+		c.Assert(err, qt.IsNil)
+		x2 := &ExifInfo{}
+		err = json.Unmarshal(data, x2)
+
+		c.Assert(x2, eq, x)
+
+		v, found := x.Tags["ExposureTime"]
+		c.Assert(found, qt.Equals, true)
+		return v
+	}
+
+	type args struct {
+		path    string // imagePath
+		include string // includeFields
+	}
+
+	type want struct {
+		vN int64 // numerator
+		vD int64 // denominator
+	}
+
+	type testCase struct {
+		name string
+		args args
+		want want
+	}
+
+	tests := []testCase{
+		{
+			"canon_cr2_fraction", args{
+				path:    "../../testdata/issue10738/canon_cr2_fraction.jpg",
+				include: "Lens|Date|ExposureTime",
+			}, want{
+				1,
+				500,
+			},
+		},
+		{
+			"canon_cr2_integer", args{
+				path:    "../../testdata/issue10738/canon_cr2_integer.jpg",
+				include: "Lens|Date|ExposureTime",
+			}, want{
+				10,
+				0,
+			},
+		},
+		{
+			"dji_dng_fraction", args{
+				path:    "../../testdata/issue10738/dji_dng_fraction.jpg",
+				include: "Lens|Date|ExposureTime",
+			}, want{
+				1,
+				4000,
+			},
+		},
+		{
+			"fuji_raf_fraction", args{
+				path:    "../../testdata/issue10738/fuji_raf_fraction.jpg",
+				include: "Lens|Date|ExposureTime",
+			}, want{
+				1,
+				250,
+			},
+		},
+		{
+			"fuji_raf_integer", args{
+				path:    "../../testdata/issue10738/fuji_raf_integer.jpg",
+				include: "Lens|Date|ExposureTime",
+			}, want{
+				1,
+				0,
+			},
+		},
+		{
+			"leica_dng_fraction", args{
+				path:    "../../testdata/issue10738/leica_dng_fraction.jpg",
+				include: "Lens|Date|ExposureTime",
+			}, want{
+				1,
+				100,
+			},
+		},
+		{
+			"lumix_rw2_fraction", args{
+				path:    "../../testdata/issue10738/lumix_rw2_fraction.jpg",
+				include: "Lens|Date|ExposureTime",
+			}, want{
+				1,
+				400,
+			},
+		},
+		{
+			"nikon_nef_d5600", args{
+				path:    "../../testdata/issue10738/nikon_nef_d5600.jpg",
+				include: "Lens|Date|ExposureTime",
+			}, want{
+				1,
+				1000,
+			},
+		},
+		{
+			"nikon_nef_fraction", args{
+				path:    "../../testdata/issue10738/nikon_nef_fraction.jpg",
+				include: "Lens|Date|ExposureTime",
+			}, want{
+				1,
+				640,
+			},
+		},
+		{
+			"nikon_nef_integer", args{
+				path:    "../../testdata/issue10738/nikon_nef_integer.jpg",
+				include: "Lens|Date|ExposureTime",
+			}, want{
+				30,
+				0,
+			},
+		},
+		{
+			"nikon_nef_fraction_2", args{
+				path:    "../../testdata/issue10738/nikon_nef_fraction_2.jpg",
+				include: "Lens|Date|ExposureTime",
+			}, want{
+				1,
+				6400,
+			},
+		},
+		{
+			"sony_arw_fraction", args{
+				path:    "../../testdata/issue10738/sony_arw_fraction.jpg",
+				include: "Lens|Date|ExposureTime",
+			}, want{
+				1,
+				160,
+			},
+		},
+		{
+			"sony_arw_integer", args{
+				path:    "../../testdata/issue10738/sony_arw_integer.jpg",
+				include: "Lens|Date|ExposureTime",
+			}, want{
+				4,
+				0,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		c.Run(tt.name, func(c *qt.C) {
+			got := testFunc(tt.args.path, tt.args.include)
+			switch got.(type) {
+			case float64:
+				eTime, ok := got.(float64)
+				c.Assert(ok, qt.Equals, true)
+				c.Assert(eTime, qt.Equals, float64(tt.want.vN))
+			case *big.Rat:
+				eTime, ok := got.(*big.Rat)
+				c.Assert(ok, qt.Equals, true)
+				c.Assert(eTime, eq, big.NewRat(tt.want.vN, tt.want.vD))
+			}
+		})
+	}
+}

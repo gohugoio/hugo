@@ -40,7 +40,7 @@ require (
 	github.com/kyokomi/emoji/v2 v2.2.11
 	github.com/magefile/mage v1.14.0
 	github.com/marekm4/color-extractor v1.2.0
-	github.com/mattn/go-isatty v0.0.16
+	github.com/mattn/go-isatty v0.0.17
 	github.com/mitchellh/hashstructure v1.1.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/muesli/smartcrop v0.3.0
@@ -62,7 +62,7 @@ require (
 	go.uber.org/atomic v1.10.0
 	gocloud.dev v0.28.0
 	golang.org/x/exp v0.0.0-20221031165847-c99f073a8326
-	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
+	golang.org/x/image v0.5.0
 	golang.org/x/net v0.7.0
 	golang.org/x/sync v0.1.0
 	golang.org/x/text v0.7.0

@@ -1,4 +1,4 @@
-// Copyright 2020 The Hugo Authors. All rights reserved.
+// Copyright 2022 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,24 +11,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package js
+// Package page provides template functions for accessing the current Page object,
+// the entry level context for the current template.
+package page
 
 import (
 	"context"
 
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/tpl"
+
 	"github.com/gohugoio/hugo/tpl/internal"
 )
 
-const name = "js"
+const name = "page"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		ctx := New(d)
-
 		ns := &internal.TemplateFuncsNamespace{
-			Name:    name,
-			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
+			Name: name,
+			Context: func(ctx context.Context, args ...interface{}) (interface{}, error) {
+				v := tpl.GetPageFromContext(ctx)
+				if v == nil {
+					// The multilingual sitemap does not have a page as its context.
+					return nil, nil
+				}
+
+				return v.(page.Page), nil
+			},
 		}
 
 		return ns
