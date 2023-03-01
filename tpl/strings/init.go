@@ -104,6 +104,14 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.HasSuffix,
+			[]string{"hasSuffix"},
+			[][2]string{
+				{`{{ hasSuffix "Hugo" "go" }}`, `true`},
+				{`{{ hasSuffix "Hugo" "du" }}`, `false`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.ToLower,
 			[]string{"lower"},
 			[][2]string{
