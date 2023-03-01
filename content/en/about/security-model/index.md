@@ -57,7 +57,7 @@ For HTML output, this is the core security model:
 
 In short:
 
-Templates authors (you) are trusted, but the data you send in is not.
+Template and configuration authors (you) are trusted, but the data you send in is not.
 This is why you sometimes need to use the _safe_ functions, such as `safeHTML`, to avoid escaping of data you know is safe.
 There is one exception to the above, as noted in the documentation: If you enable inline shortcodes, you also say that the shortcodes and data handling in content files are trusted, as those macros are treated as pure text.
 It may be worth adding that Hugo is a static site generator with no concept of dynamic user input.

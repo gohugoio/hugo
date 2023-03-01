@@ -34,7 +34,13 @@ You must also be comfortable working from the command line.
 ### Commands
 
 {{% note %}}
-If you are a Windows user, you must run these commands with [PowerShell]. You cannot use Windows Powershell, which is a different application, or the Command Prompt. You may also use a Linux shell if available.
+**If you are a Windows user:**
+
+- Do not use the Command Prompt
+- Do not use Windows PowerShell
+- Run these commands from [PowerShell] or a Linux terminal such as WSL or Git Bash
+
+PowerShell and Windows PowerShell are different applications.
 
 [PowerShell]: https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows
 {{% /note %}}
