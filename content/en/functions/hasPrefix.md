@@ -9,11 +9,11 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-keywords: []
+keywords: [strings]
 signature: ["hasPrefix STRING PREFIX"]
 workson: []
 hugoversion:
-relatedfuncs: []
+relatedfuncs: [hasSuffix]
 deprecated: false
 aliases: []
 ---
