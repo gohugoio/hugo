@@ -81,3 +81,9 @@ func TestTruncate(t *testing.T) {
 		t.Errorf("Should have errored")
 	}
 }
+
+func BenchmarkTruncate(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		ns.Truncate(10, "<p>test <b>hello</b> test something</p>")
+	}
+}
