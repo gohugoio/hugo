@@ -34,10 +34,14 @@ func TestPollerAddRemove(t *testing.T) {
 	c.Assert(w.Add("foo"), qt.Not(qt.IsNil))
 	c.Assert(w.Remove("foo"), qt.Not(qt.IsNil))
 
-	f, err := os.CreateTemp(t.TempDir(), "asdf")
+	f, err := os.CreateTemp("", "asdf")
 	if err != nil {
 		t.Fatal(err)
 	}
+	c.Cleanup(func() {
+		c.Assert(w.Close(), qt.IsNil)
+		os.Remove(f.Name())
+	})
 	c.Assert(w.Add(f.Name()), qt.IsNil)
 	c.Assert(w.Remove(f.Name()), qt.IsNil)
 
