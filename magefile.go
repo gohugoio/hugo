@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"path"
 	"path/filepath"
@@ -298,7 +297,7 @@ func TestCoverHTML() error {
 		if err := sh.Run(goexe, "test", "-coverprofile="+cover, "-covermode=count", pkg); err != nil {
 			return err
 		}
-		b, err := io.ReadFile(cover)
+		b, err := os.ReadFile(cover)
 		if err != nil {
 			if os.IsNotExist(err) {
 				continue

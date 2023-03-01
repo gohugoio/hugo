@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"image"
 	"image/gif"
+	"io/fs"
 	"math/big"
 	"math/rand"
 	"os"
@@ -54,6 +55,14 @@ var eq = qt.CmpEquals(
 		return p1.resourceAdapterInner == p2.resourceAdapterInner
 	}),
 	cmp.Comparer(func(p1, p2 os.FileInfo) bool {
+		return p1.Name() == p2.Name() && p1.Size() == p2.Size() && p1.IsDir() == p2.IsDir()
+	}),
+	cmp.Comparer(func(d1, d2 fs.DirEntry) bool {
+		p1, err1 := d1.Info()
+		p2, err2 := d2.Info()
+		if err1 != nil || err2 != nil {
+			return false
+		}
 		return p1.Name() == p2.Name() && p1.Size() == p2.Size() && p1.IsDir() == p2.IsDir()
 	}),
 	cmp.Comparer(func(p1, p2 *genericResource) bool { return p1 == p2 }),
