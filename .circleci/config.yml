@@ -60,7 +60,7 @@ jobs:
     environment:
         <<: [*buildenv]
     docker:
-    - image: bepsays/ci-hugoreleaser-linux-arm64:1.21900.20200
+    - image: bepsays/ci-hugoreleaser-linux-arm64:1.22000.20000
     steps:
       - *restore-cache
       - &attach-workspace
