@@ -3493,7 +3493,7 @@
           ]
         },
         "Uniq": {
-          "Description": "Uniq takes returns a new list with all duplicate elements in the list l removed.\nduplicate elements removed.",
+          "Description": "Uniq returns a new list with duplicate elements in the list l removed.",
           "Args": [
             "l"
           ],
@@ -3600,6 +3600,20 @@
               "6ec43b78da9669f50e4e422575c54bf87536954ccd58280219c393f2ce352b46"
             ]
           ]
+        }
+      },
+      "css": {
+        "Quoted": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Unquoted": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
         }
       },
       "data": {
@@ -4782,6 +4796,12 @@
           "Aliases": null,
           "Examples": null
         },
+        "GetIdentity": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "Home": {
           "Description": "",
           "Args": null,
@@ -4912,6 +4932,12 @@
               "false"
             ]
           ]
+        },
+        "ContainsNonSpace": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
         },
         "Count": {
           "Description": "Count counts the number of non-overlapping instances of substr in s.\nIf substr is an empty string, Count returns 1 + the number of Unicode code points in s.",
@@ -5468,6 +5494,7 @@
         "Markdownify": {
           "Description": "Markdownify renders s from Markdown to HTML.",
           "Args": [
+            "ctx",
             "s"
           ],
           "Aliases": [
