@@ -1,6 +1,7 @@
 {{ if .Page.Store.Get "hasMermaid" }}
-  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-  <script>
+  <script type="module" async>
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@9/+esm';
+    
     mermaid.initialize({ startOnLoad: true });
   </script>
 {{ end }}
