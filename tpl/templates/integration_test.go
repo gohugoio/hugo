@@ -83,3 +83,29 @@ post/doesnotexist.html: false
 
 `)
 }
+
+
+// See #10774
+func TestPageFunctionExists(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+baseURL = 'http://example.com/'
+-- layouts/index.html --
+Home: {{ page.IsHome }}
+
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `
+Home: true
+
+`)
+}
