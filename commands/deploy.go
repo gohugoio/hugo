@@ -31,6 +31,7 @@ type deployCmd struct {
 
 	invalidateCDN bool
 	maxDeletes    int
+	transfers     int
 }
 
 // TODO: In addition to the "deploy" command, consider adding a "--deploy"
@@ -59,6 +60,7 @@ documentation.
 			cfgInit := func(c *commandeer) error {
 				c.Set("invalidateCDN", cc.invalidateCDN)
 				c.Set("maxDeletes", cc.maxDeletes)
+				c.Set("transfers", cc.transfers)
 				return nil
 			}
 			comm, err := initializeConfig(true, true, false, &cc.hugoBuilderCommon, cc, cfgInit)
@@ -79,6 +81,7 @@ documentation.
 	cmd.Flags().Bool("force", false, "force upload of all files")
 	cmd.Flags().BoolVar(&cc.invalidateCDN, "invalidateCDN", true, "invalidate the CDN cache listed in the deployment target")
 	cmd.Flags().IntVar(&cc.maxDeletes, "maxDeletes", 256, "maximum # of files to delete, or -1 to disable")
+	cmd.Flags().IntVar(&cc.transfers, "transfers", 10, "number of file transfers to run in parallel. defaults to 10")
 
 	cc.baseBuilderCmd = b.newBuilderBasicCmd(cmd)
 
