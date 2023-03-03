@@ -189,7 +189,7 @@ Some content.
 			
 `
 				for i := 1; i <= 100; i++ {
-					content := strings.Replace(pageTemplate, "GR", strconv.Itoa(i/3), -1)
+					content := strings.ReplaceAll(pageTemplate, "GR", strconv.Itoa(i/3))
 					sb.WithContent(fmt.Sprintf("content/page%d.md", i), content)
 				}
 

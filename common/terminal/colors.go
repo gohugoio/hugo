@@ -71,9 +71,9 @@ func colorize(s, color string) string {
 }
 
 func doublePercent(str string) string {
-	return strings.Replace(str, "%", "%%", -1)
+	return strings.ReplaceAll(str, "%", "%%")
 }
 
 func singlePercent(str string) string {
-	return strings.Replace(str, "%%", "%", -1)
+	return strings.ReplaceAll(str, "%%", "%")
 }

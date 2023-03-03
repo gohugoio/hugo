@@ -41,7 +41,7 @@ func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 
 	if !defaultInSubDir {
 		pathMod = func(s string) string {
-			return strings.Replace(s, "/fr/", "/", -1)
+			return strings.ReplaceAll(s, "/fr/", "/")
 		}
 	}
 

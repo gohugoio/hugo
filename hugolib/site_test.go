@@ -527,7 +527,7 @@ func TestAbsURLify(t *testing.T) {
 				}
 
 				if !canonify {
-					expected = strings.Replace(expected, baseURL, "", -1)
+					expected = strings.ReplaceAll(expected, baseURL, "")
 				}
 
 				th.assertFileContent(test.file, expected)

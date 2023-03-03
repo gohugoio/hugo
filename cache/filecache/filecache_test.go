@@ -79,7 +79,7 @@ dir = ":cacheDir/c"
 		replacer := strings.NewReplacer("CACHEDIR", test.cacheDir, "WORKING_DIR", test.workingDir)
 
 		configStr = replacer.Replace(configStr)
-		configStr = strings.Replace(configStr, "\\", winPathSep, -1)
+		configStr = strings.ReplaceAll(configStr, "\\", winPathSep)
 
 		p := newPathsSpec(t, osfs, configStr)
 

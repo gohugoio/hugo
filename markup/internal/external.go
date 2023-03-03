@@ -56,7 +56,7 @@ func ExternallyRenderContent(
 
 // Strips carriage returns from third-party / external processes (useful for Windows)
 func normalizeExternalHelperLineFeeds(content []byte) []byte {
-	return bytes.Replace(content, []byte("\r"), []byte(""), -1)
+	return bytes.ReplaceAll(content, []byte("\r"), []byte(""))
 }
 
 var pythonBinaryCandidates = []string{"python", "python.exe"}

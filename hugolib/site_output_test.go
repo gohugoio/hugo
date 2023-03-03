@@ -39,7 +39,7 @@ func TestSiteWithPageOutputs(t *testing.T) {
 }
 
 func doTestSiteWithPageOutputs(t *testing.T, outputs []string) {
-	outputsStr := strings.Replace(fmt.Sprintf("%q", outputs), " ", ", ", -1)
+	outputsStr := strings.ReplaceAll(fmt.Sprintf("%q", outputs), " ", ", ")
 
 	siteConfig := `
 baseURL = "http://example.com/blog"

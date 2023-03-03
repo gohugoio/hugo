@@ -32,20 +32,20 @@ func TestChainZeroTransformers(t *testing.T) {
 
 func TestChainingMultipleTransformers(t *testing.T) {
 	f1 := func(ct FromTo) error {
-		_, err := ct.To().Write(bytes.Replace(ct.From().Bytes(), []byte("f1"), []byte("f1r"), -1))
+		_, err := ct.To().Write(bytes.ReplaceAll(ct.From().Bytes(), []byte("f1"), []byte("f1r")))
 		return err
 	}
 	f2 := func(ct FromTo) error {
-		_, err := ct.To().Write(bytes.Replace(ct.From().Bytes(), []byte("f2"), []byte("f2r"), -1))
+		_, err := ct.To().Write(bytes.ReplaceAll(ct.From().Bytes(), []byte("f2"), []byte("f2r")))
 		return err
 	}
 	f3 := func(ct FromTo) error {
-		_, err := ct.To().Write(bytes.Replace(ct.From().Bytes(), []byte("f3"), []byte("f3r"), -1))
+		_, err := ct.To().Write(bytes.ReplaceAll(ct.From().Bytes(), []byte("f3"), []byte("f3r")))
 		return err
 	}
 
 	f4 := func(ct FromTo) error {
-		_, err := ct.To().Write(bytes.Replace(ct.From().Bytes(), []byte("f4"), []byte("f4r"), -1))
+		_, err := ct.To().Write(bytes.ReplaceAll(ct.From().Bytes(), []byte("f4"), []byte("f4r")))
 		return err
 	}
 

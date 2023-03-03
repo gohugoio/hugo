@@ -133,9 +133,9 @@ func (i *importCmd) importFromJekyll(cmd *cobra.Command, args []string) error {
 
 		switch {
 		case strings.Contains(relPath, "_posts/"):
-			relPath = filepath.Join("content/post", strings.Replace(relPath, "_posts/", "", -1))
+			relPath = filepath.Join("content/post", strings.ReplaceAll(relPath, "_posts/", ""))
 		case strings.Contains(relPath, "_drafts/"):
-			relPath = filepath.Join("content/draft", strings.Replace(relPath, "_drafts/", "", -1))
+			relPath = filepath.Join("content/draft", strings.ReplaceAll(relPath, "_drafts/", ""))
 			draft = true
 		default:
 			return nil
@@ -484,7 +484,7 @@ func convertJekyllContent(m any, content string) (string, error) {
 	excerptSep := "<!--more-->"
 	if value, ok := metadata["excerpt_separator"]; ok {
 		if str, strOk := value.(string); strOk {
-			content = strings.Replace(content, strings.TrimSpace(str), excerptSep, -1)
+			content = strings.ReplaceAll(content, strings.TrimSpace(str), excerptSep)
 		}
 	}
 
@@ -551,7 +551,7 @@ func replaceHighlightTag(match string) string {
 	result.WriteString(items[0]) // language
 	options := items[1:]
 	for i, opt := range options {
-		opt = strings.Replace(opt, "\"", "", -1)
+		opt = strings.ReplaceAll(opt, "\"", "")
 		if opt == "linenos" {
 			opt = "linenos=table"
 		}
