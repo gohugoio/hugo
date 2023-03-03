@@ -49,6 +49,8 @@ Some use cases for the above:
 
 ## Render Hooks for Headings, Links and Images
 
+### Context passed to `render-link` and `render-image`
+
 The `render-link` and `render-image` templates will receive this context:
 
 Page
@@ -65,6 +67,8 @@ Text
 
 PlainText
 : The plain variant of the above.
+
+### Context passed to `render-heading`
 
 The `render-heading` template will receive this context:
 
