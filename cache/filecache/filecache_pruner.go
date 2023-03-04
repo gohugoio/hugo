@@ -17,8 +17,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"runtime"
-	"strings"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/hugofs"
@@ -73,8 +71,8 @@ func (c *Cache) Prune(force bool) (int, error) {
 				// This cache dir may not exist.
 				return nil
 			}
-			defer f.Close()
 			_, err = f.Readdirnames(1)
+			f.Close()
 			if err == io.EOF {
 				// Empty dir.
 				if name == "." {
@@ -82,18 +80,6 @@ func (c *Cache) Prune(force bool) (int, error) {
 					err = nil
 				} else {
 					err = c.Fs.Remove(name)
-					if err != nil {
-						if runtime.GOOS == "windows" {
-							if strings.Contains(err.Error(), "used by another process") {
-								// See https://github.com/gohugoio/hugo/issues/10781
-								// This is a known issue on Windows with Go 1.20.
-								// There's not much we can do about it.
-								// So just return nil.
-								err = nil
-
-							}
-						}
-					}
 				}
 			}
 
