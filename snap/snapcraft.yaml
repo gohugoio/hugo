@@ -152,9 +152,9 @@ parts:
       if [[ -n $arch ]]; then
         url=$(curl -s https://api.github.com/repos/sass/dart-sass-embedded/releases/latest | awk -F\" "/browser_download_url.*-linux-${arch}.tar.gz/{print \$(NF-1)}")
         curl -LO --retry-connrefused --retry 10 "$url"
-        tar xf sass_embedded-*-linux-$arch.tar.gz sass_embedded/dart-sass-embedded
+        tar xf sass_embedded-*-linux-$arch.tar.gz
         install -d $SNAPCRAFT_PART_INSTALL/bin
-        cp -av sass_embedded/dart-sass-embedded $SNAPCRAFT_PART_INSTALL/bin/
+        cp -av sass_embedded/* $SNAPCRAFT_PART_INSTALL/bin/
       fi
 
   node:
