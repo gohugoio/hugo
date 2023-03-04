@@ -129,7 +129,10 @@ func (ns *Namespace) Include(ctx context.Context, name string, contextList ...an
 }
 
 func (ns *Namespace) includWithTimeout(ctx context.Context, name string, dataList ...any) includeResult {
-	ctx, cancel := context.WithTimeout(ctx, ns.deps.Timeout)
+	// There are situation where the ctx we pass on to the partial lives longer than
+	// the partial itself. For example, when the partial returns the result from reosurces.ExecuteAsTemplate.
+	// Because of that, create a completely new context here.
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), ns.deps.Timeout)
 	defer cancel()
 
 	res := make(chan includeResult, 1)
@@ -141,8 +144,8 @@ func (ns *Namespace) includWithTimeout(ctx context.Context, name string, dataLis
 	select {
 	case r := <-res:
 		return r
-	case <-ctx.Done():
-		err := ctx.Err()
+	case <-timeoutCtx.Done():
+		err := timeoutCtx.Err()
 		if err == context.DeadlineExceeded {
 			err = fmt.Errorf("partial %q timed out after %s. This is most likely due to infinite recursion. If this is just a slow template, you can try to increase the 'timeout' config setting.", name, ns.deps.Timeout)
 		}
