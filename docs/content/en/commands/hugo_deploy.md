@@ -31,7 +31,7 @@ hugo deploy [flags]
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --invalidateCDN              invalidate the CDN cache listed in the deployment target (default true)
       --maxDeletes int             maximum # of files to delete, or -1 to disable (default 256)
-      --transfers int              number of file transfers to run in parallel (default 10)
+      --workers int                number of workers to transfer files. (default 10)
   -s, --source string              filesystem path to read files relative from
       --target string              target deployment from deployments section in config file; defaults to the first one
       --themesDir string           filesystem path to themes directory

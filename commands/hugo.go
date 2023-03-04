@@ -236,9 +236,9 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"target",
 		"theme",
 		"themesDir",
-		"transfers",
 		"verbose",
 		"verboseLog",
+		"workers",
 		"duplicateTargetPaths",
 	}
 
