@@ -65,7 +65,7 @@ type Deployer struct {
 	force         bool             // true forces upload of all files
 	invalidateCDN bool             // true enables invalidate CDN cache (if possible)
 	maxDeletes    int              // caps the # of files to delete; -1 to disable
-	transfers     int              // The number of file transfers to run in parallel
+	workers       int              // The number of workers to transfer files
 
 	// For tests...
 	summary deploySummary // summary of latest Deploy results
@@ -119,7 +119,7 @@ func New(cfg config.Provider, localFs afero.Fs) (*Deployer, error) {
 		force:         cfg.GetBool("force"),
 		invalidateCDN: cfg.GetBool("invalidateCDN"),
 		maxDeletes:    cfg.GetInt("maxDeletes"),
-		transfers:     cfg.GetInt("transfers"),
+		workers:       cfg.GetInt("workers"),
 	}, nil
 }
 
@@ -191,7 +191,7 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 	// Apply the changes in parallel, using an inverted worker
 	// pool (https://www.youtube.com/watch?v=5zXAHh5tJqQ&t=26m58s).
 	// sem prevents more than nParallel concurrent goroutines.
-	nParallel := d.transfers
+	nParallel := d.workers
 	var errs []error
 	var errMu sync.Mutex // protects errs
 
