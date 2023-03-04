@@ -15,7 +15,6 @@ package filecache_test
 
 import (
 	"path/filepath"
-	"runtime"
 	"testing"
 	"time"
 
@@ -90,12 +89,8 @@ iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAA
 	b.Assert(b.GCCount, qt.Equals, 1)
 	// Build it again to GC the empty a dir.
 	b.Build()
-	if runtime.GOOS != "windows" {
-		// See issue #58860 -- this sometimes fails on Windows,
-		// but the empty directory will be removed on the next run.
-		_, err = b.H.BaseFs.ResourcesCache.Stat(filepath.Join(imagesCacheDir, "a"))
-		b.Assert(err, qt.Not(qt.IsNil))
-	}
+	_, err = b.H.BaseFs.ResourcesCache.Stat(filepath.Join(imagesCacheDir, "a"))
+	b.Assert(err, qt.Not(qt.IsNil))
 	_, err = b.H.BaseFs.ResourcesCache.Stat(imagesCacheDir)
 	b.Assert(err, qt.IsNil)
 
