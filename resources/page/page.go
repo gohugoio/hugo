@@ -471,3 +471,45 @@ type DeprecatedWarningPageMethods any // This was emptied in Hugo 0.93.0.
 // Move here to trigger ERROR instead of WARNING.
 // TODO(bep) create wrappers and put into the Page once it has some methods.
 type DeprecatedErrorPageMethods any
+
+// PageWithContext is a Page with a context.Context.
+type PageWithContext struct {
+	Page
+	Ctx context.Context
+}
+
+func (p PageWithContext) Content() (any, error) {
+	return p.Page.Content(p.Ctx)
+}
+
+func (p PageWithContext) Plain() string {
+	return p.Page.Plain(p.Ctx)
+}
+
+func (p PageWithContext) PlainWords() []string {
+	return p.Page.PlainWords(p.Ctx)
+}
+
+func (p PageWithContext) Summary() template.HTML {
+	return p.Page.Summary(p.Ctx)
+}
+
+func (p PageWithContext) Truncated() bool {
+	return p.Page.Truncated(p.Ctx)
+}
+
+func (p PageWithContext) FuzzyWordCount() int {
+	return p.Page.FuzzyWordCount(p.Ctx)
+}
+
+func (p PageWithContext) WordCount() int {
+	return p.Page.WordCount(p.Ctx)
+}
+
+func (p PageWithContext) ReadingTime() int {
+	return p.Page.ReadingTime(p.Ctx)
+}
+
+func (p PageWithContext) Len() int {
+	return p.Page.Len(p.Ctx)
+}

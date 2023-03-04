@@ -1,6 +1,7 @@
 package deps
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -71,7 +72,7 @@ type Deps struct {
 	FileCaches filecache.Caches
 
 	// The translation func to use
-	Translate func(translationID string, templateData any) string `json:"-"`
+	Translate func(ctx context.Context, translationID string, templateData any) string `json:"-"`
 
 	// The language in use. TODO(bep) consolidate with site
 	Language *langs.Language

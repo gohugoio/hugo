@@ -14,6 +14,7 @@
 package i18n
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"strings"
@@ -24,11 +25,12 @@ import (
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/gohugoio/go-i18n/v2/i18n"
 )
 
-type translateFunc func(translationID string, templateData any) string
+type translateFunc func(ctx context.Context, translationID string, templateData any) string
 
 var i18nWarningLogger = helpers.NewDistinctErrorLogger()
 
@@ -58,7 +60,7 @@ func (t Translator) Func(lang string) translateFunc {
 	}
 
 	t.logger.Infoln("i18n not initialized; if you need string translations, check that you have a bundle in /i18n that matches the site language or the default language.")
-	return func(translationID string, args any) string {
+	return func(ctx context.Context, translationID string, args any) string {
 		return ""
 	}
 }
@@ -71,7 +73,7 @@ func (t Translator) initFuncs(bndl *i18n.Bundle) {
 		// This may be pt-BR; make it case insensitive.
 		currentLangKey := strings.ToLower(strings.TrimPrefix(currentLangStr, artificialLangTagPrefix))
 		localizer := i18n.NewLocalizer(bndl, currentLangStr)
-		t.translateFuncs[currentLangKey] = func(translationID string, templateData any) string {
+		t.translateFuncs[currentLangKey] = func(ctx context.Context, translationID string, templateData any) string {
 			pluralCount := getPluralCount(templateData)
 
 			if templateData != nil {
@@ -81,6 +83,16 @@ func (t Translator) initFuncs(bndl *i18n.Bundle) {
 					// and we keep it like this to avoid breaking
 					// lots of sites in the wild.
 					templateData = intCount(cast.ToInt(templateData))
+				} else {
+					if p, ok := templateData.(page.Page); ok {
+						// See issue 10782.
+						// The i18n has its own template handling and does not know about
+						// the context.Context.
+						// A common pattern is to pass Page to i18n, and use .ReadingTime etc.
+						// We need to improve this, but that requires some upstream changes.
+						// For now, just creata a wrepper.
+						templateData = page.PageWithContext{Page: p, Ctx: ctx}
+					}
 				}
 			}
 
