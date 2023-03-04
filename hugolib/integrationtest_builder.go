@@ -84,6 +84,7 @@ type IntegrationTestBuilder struct {
 	renamedFiles []string
 
 	buildCount int
+	GCCount    int
 	counters   *testCounters
 	logBuff    lockingBuffer
 
@@ -193,6 +194,9 @@ func (s *IntegrationTestBuilder) Build() *IntegrationTestBuilder {
 	if s.Cfg.Verbose || err != nil {
 		fmt.Println(s.logBuff.String())
 	}
+	if s.Cfg.RunGC {
+		s.GCCount, err = s.H.GC()
+	}
 	s.Assert(err, qt.IsNil)
 	return s
 }
@@ -263,6 +267,7 @@ func (s *IntegrationTestBuilder) RenameFile(old, new string) *IntegrationTestBui
 	absNewFilename := s.absFilename(new)
 	s.renamedFiles = append(s.renamedFiles, absOldFilename)
 	s.createdFiles = append(s.createdFiles, absNewFilename)
+	s.Assert(s.fs.Source.MkdirAll(filepath.Dir(absNewFilename), 0777), qt.IsNil)
 	s.Assert(s.fs.Source.Rename(absOldFilename, absNewFilename), qt.IsNil)
 	return s
 }
@@ -487,6 +492,9 @@ type IntegrationTestConfig struct {
 
 	// Whether it needs the real file system (e.g. for js.Build tests).
 	NeedsOsFS bool
+
+	// Whether to run GC after each build.
+	RunGC bool
 
 	// Do not remove the temp dir after the test.
 	PrintAndKeepTempDir bool
