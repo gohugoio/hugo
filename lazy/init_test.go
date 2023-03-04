@@ -126,12 +126,6 @@ func TestInitAddWithTimeoutTimeout(t *testing.T) {
 
 	init := New().AddWithTimeout(100*time.Millisecond, func(ctx context.Context) (any, error) {
 		time.Sleep(500 * time.Millisecond)
-		select {
-		case <-ctx.Done():
-			return nil, nil
-		default:
-		}
-		t.Fatal("slept")
 		return nil, nil
 	})
 

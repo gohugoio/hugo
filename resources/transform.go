@@ -164,12 +164,12 @@ type resourceAdapter struct {
 	*resourceAdapterInner
 }
 
-func (r *resourceAdapter) Content(context.Context) (any, error) {
+func (r *resourceAdapter) Content(ctx context.Context) (any, error) {
 	r.init(false, true)
 	if r.transformationsErr != nil {
 		return nil, r.transformationsErr
 	}
-	return r.target.Content(context.Background())
+	return r.target.Content(ctx)
 }
 
 func (r *resourceAdapter) Err() resource.ResourceError {
