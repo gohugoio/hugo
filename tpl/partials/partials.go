@@ -129,9 +129,7 @@ func (ns *Namespace) Include(ctx context.Context, name string, contextList ...an
 }
 
 func (ns *Namespace) includWithTimeout(ctx context.Context, name string, dataList ...any) includeResult {
-	// There are situation where the ctx we pass on to the partial lives longer than
-	// the partial itself. For example, when the partial returns the result from reosurces.ExecuteAsTemplate.
-	// Because of that, create a completely new context here.
+	// Create a new context with a timeout not connected to the incoming context.
 	timeoutCtx, cancel := context.WithTimeout(context.Background(), ns.deps.Timeout)
 	defer cancel()
 
