@@ -17,7 +17,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"html/template"
 	"path"
 	"path/filepath"
 	"sort"
@@ -149,19 +148,6 @@ func (p *pageState) Eq(other any) bool {
 
 func (p *pageState) GetIdentity() identity.Identity {
 	return identity.NewPathIdentity(files.ComponentFolderContent, filepath.FromSlash(p.Pathc()))
-}
-
-func (p *pageState) Fragments(ctx context.Context) *tableofcontents.Fragments {
-	p.s.initInit(ctx, p.cp.initToC, p)
-	if p.pageOutput.cp.tableOfContents == nil {
-		return tableofcontents.Empty
-	}
-	return p.pageOutput.cp.tableOfContents
-}
-
-func (p *pageState) TableOfContents(ctx context.Context) template.HTML {
-	p.s.initInit(ctx, p.cp.initToC, p)
-	return p.pageOutput.cp.tableOfContentsHTML
 }
 
 func (p *pageState) HeadingsFiltered(context.Context) tableofcontents.Headings {
@@ -957,6 +943,7 @@ func (p *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 			p.pageOutput.contentRenderer = lcp
 			p.pageOutput.ContentProvider = lcp
 			p.pageOutput.PageRenderProvider = lcp
+			p.pageOutput.TableOfContentsProvider = lcp
 		}
 	}
 
