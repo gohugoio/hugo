@@ -54,12 +54,13 @@ func newPageOutput(
 	}
 
 	po := &pageOutput{
-		f:                      f,
-		pagePerOutputProviders: providers,
-		ContentProvider:        page.NopPage,
-		PageRenderProvider:     page.NopPage,
-		render:                 render,
-		paginator:              pag,
+		f:                       f,
+		pagePerOutputProviders:  providers,
+		ContentProvider:         page.NopPage,
+		PageRenderProvider:      page.NopPage,
+		TableOfContentsProvider: page.NopPage,
+		render:                  render,
+		paginator:               pag,
 	}
 
 	return po
@@ -84,6 +85,7 @@ type pageOutput struct {
 	pagePerOutputProviders
 	page.ContentProvider
 	page.PageRenderProvider
+	page.TableOfContentsProvider
 
 	// May be nil.
 	cp *pageContentOutput
@@ -96,6 +98,7 @@ func (p *pageOutput) initContentProvider(cp *pageContentOutput) {
 	p.contentRenderer = cp
 	p.ContentProvider = cp
 	p.PageRenderProvider = cp
+	p.TableOfContentsProvider = cp
 	p.cp = cp
 
 }

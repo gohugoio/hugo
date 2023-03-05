@@ -342,6 +342,19 @@ func (p *pageContentOutput) Reset() {
 	p.renderHooks = &renderHooks{}
 }
 
+func (p *pageContentOutput) Fragments(ctx context.Context) *tableofcontents.Fragments {
+	p.p.s.initInit(ctx, p.initToC, p.p)
+	if p.tableOfContents == nil {
+		return tableofcontents.Empty
+	}
+	return p.tableOfContents
+}
+
+func (p *pageContentOutput) TableOfContents(ctx context.Context) template.HTML {
+	p.p.s.initInit(ctx, p.initToC, p.p)
+	return p.tableOfContentsHTML
+}
+
 func (p *pageContentOutput) Content(ctx context.Context) (any, error) {
 	p.p.s.initInit(ctx, p.initMain, p.p)
 	return p.content, nil
@@ -378,11 +391,6 @@ func (p *pageContentOutput) Summary(ctx context.Context) template.HTML {
 		p.p.s.initInit(ctx, p.initPlain, p.p)
 	}
 	return p.summary
-}
-
-func (p *pageContentOutput) TableOfContents(ctx context.Context) template.HTML {
-	p.p.s.initInit(ctx, p.initMain, p.p)
-	return p.tableOfContentsHTML
 }
 
 func (p *pageContentOutput) Truncated(ctx context.Context) bool {
