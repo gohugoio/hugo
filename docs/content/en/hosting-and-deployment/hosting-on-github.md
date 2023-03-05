@@ -59,7 +59,8 @@ on:
     branches:
       - main  # Set a branch that will trigger a deployment
   pull_request:
-
+permissions:
+  contents: write
 jobs:
   deploy:
     runs-on: ubuntu-22.04
