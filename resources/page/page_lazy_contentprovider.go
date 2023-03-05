@@ -128,11 +128,6 @@ func (lcp *LazyContentProvider) RenderString(ctx context.Context, args ...any) (
 	return lcp.cp.RenderString(ctx, args...)
 }
 
-func (lcp *LazyContentProvider) TableOfContents(ctx context.Context) template.HTML {
-	lcp.init.Do(ctx)
-	return lcp.cp.TableOfContents(ctx)
-}
-
 func (lcp *LazyContentProvider) ParseAndRenderContent(ctx context.Context, content []byte, renderTOC bool) (converter.ResultRender, error) {
 	lcp.init.Do(ctx)
 	return lcp.cp.ParseAndRenderContent(ctx, content, renderTOC)
