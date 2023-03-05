@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"html/template"
 	"path"
 	"path/filepath"
 	"sort"
@@ -62,9 +63,8 @@ var (
 var (
 	pageTypesProvider = resource.NewResourceTypesProvider(media.OctetType, pageResourceType)
 	nopPageOutput     = &pageOutput{
-		pagePerOutputProviders:  nopPagePerOutput,
-		ContentProvider:         page.NopPage,
-		TableOfContentsProvider: page.NopPage,
+		pagePerOutputProviders: nopPagePerOutput,
+		ContentProvider:        page.NopPage,
 	}
 )
 
@@ -157,6 +157,11 @@ func (p *pageState) Fragments(ctx context.Context) *tableofcontents.Fragments {
 		return tableofcontents.Empty
 	}
 	return p.pageOutput.cp.tableOfContents
+}
+
+func (p *pageState) TableOfContents(ctx context.Context) template.HTML {
+	p.s.initInit(ctx, p.cp.initToC, p)
+	return p.pageOutput.cp.tableOfContentsHTML
 }
 
 func (p *pageState) HeadingsFiltered(context.Context) tableofcontents.Headings {
@@ -951,7 +956,6 @@ func (p *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 			})
 			p.pageOutput.contentRenderer = lcp
 			p.pageOutput.ContentProvider = lcp
-			p.pageOutput.TableOfContentsProvider = lcp
 			p.pageOutput.PageRenderProvider = lcp
 		}
 	}
