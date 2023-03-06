@@ -191,6 +191,9 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 	// Apply the changes in parallel, using an inverted worker
 	// pool (https://www.youtube.com/watch?v=5zXAHh5tJqQ&t=26m58s).
 	// sem prevents more than nParallel concurrent goroutines.
+	if d.workers <= 0 {
+		d.workers = 10
+	}
 	nParallel := d.workers
 	var errs []error
 	var errMu sync.Mutex // protects errs
