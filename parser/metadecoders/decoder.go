@@ -244,7 +244,7 @@ func (d Decoder) unmarshalORG(data []byte, v any) error {
 		} else if k == "tags" || k == "categories" || k == "aliases" {
 			jww.WARN.Printf("Please use '#+%s[]:' notation, automatic conversion is deprecated.", k)
 			frontMatter[k] = strings.Fields(v)
-		} else if k == "date" {
+		} else if k == "date" || k == "lastmod" || k == "publishdate" || k == "expirydate" {
 			frontMatter[k] = parseORGDate(v)
 		} else {
 			frontMatter[k] = v
