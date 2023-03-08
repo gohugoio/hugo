@@ -65,10 +65,16 @@ const vendord = "_vendor"
 
 const (
 	hugoModFilename = "hugo.mod"
+	hugoSumFilename = "hugo.sum"
+	goModFilename   = "go.mod"
 	goSumFilename   = "go.sum"
 )
 
-var goModFilenames = []string{"hugo.mod", "go.mod"}
+var goModFilenames = []string{hugoModFilename, goModFilename}
+var mapGoSumFilenames = map[string]string{
+	hugoModFilename: hugoSumFilename,
+	goModFilename:   goSumFilename,
+}
 
 var isGoModRe = regexp.MustCompile(`(hu)?go\.mod$`)
 
@@ -374,7 +380,11 @@ func (c *Client) get(args ...string) error {
 		args = append([]string{"-d"}, args...)
 	}
 
-	if err := c.runGo(context.Background(), c.logger.Out(), append([]string{"get"}, args...)...); err != nil {
+	getArgs := []string{"get"}
+	c.appendModfileArg(&getArgs)
+	getArgs = append(getArgs, args...)
+
+	if err := c.runGo(context.Background(), c.logger.Out(), true, getArgs...); err != nil {
 		return fmt.Errorf("failed to get %q: %w", args, err)
 	}
 	return nil
@@ -384,7 +394,10 @@ func (c *Client) get(args ...string) error {
 // If path is empty, Go will try to guess.
 // If this succeeds, this project will be marked as Go Module.
 func (c *Client) Init(path string) error {
-	err := c.runGo(context.Background(), c.logger.Out(), "mod", "init", path)
+	args := []string{"mod", "init"}
+	c.appendModfileArg(&args)
+	args = append(args, path)
+	err := c.runGo(context.Background(), c.logger.Out(), false, args...)
 	if err != nil {
 		return fmt.Errorf("failed to init modules: %w", err)
 	}
@@ -454,7 +467,9 @@ func (c *Client) Clean(pattern string) error {
 }
 
 func (c *Client) runVerify() error {
-	return c.runGo(context.Background(), io.Discard, "mod", "verify")
+	args := []string{"mod", "verify"}
+	c.appendModfileArg(&args)
+	return c.runGo(context.Background(), io.Discard, false, args...)
 }
 
 func isProbablyModule(path string) bool {
@@ -467,25 +482,11 @@ func (c *Client) listGoMods() (goModules, error) {
 	}
 
 	downloadModules := func(modules ...string) error {
-		// if hugo.mod is enabled and there is no go.mod file, create an empty go.mod file
-		goModPath := filepath.Join(c.ccfg.WorkingDir, "go.mod")
-		_, errStatGoMod := os.Stat(goModPath)
-		if errStatGoMod != nil {
-			if errors.Is(errStatGoMod, os.ErrNotExist) {
-				_, err := os.Create(goModPath)
-				if err != nil {
-					return fmt.Errorf("failed to create temporary go.mod file: %w", err)
-				}
-
-				// if a temporary go.mod file was created remove it again
-				defer os.Remove(goModPath)
-			}
-		}
-
 		args := []string{"mod", "download"}
+		c.appendModfileArg(&args)
 		args = append(args, modules...)
 		out := io.Discard
-		err := c.runGo(context.Background(), out, args...)
+		err := c.runGo(context.Background(), out, true, args...)
 		if err != nil {
 			return fmt.Errorf("failed to download modules: %w", err)
 		}
@@ -499,12 +500,13 @@ func (c *Client) listGoMods() (goModules, error) {
 	listAndDecodeModules := func(handle func(m *goModule) error, modules ...string) error {
 		b := &bytes.Buffer{}
 		args := []string{"list", "-m", "-json"}
+		c.appendModfileArg(&args)
 		if len(modules) > 0 {
 			args = append(args, modules...)
 		} else {
 			args = append(args, "all")
 		}
-		err := c.runGo(context.Background(), b, args...)
+		err := c.runGo(context.Background(), b, true, args...)
 		if err != nil {
 			return fmt.Errorf("failed to list modules: %w", err)
 		}
@@ -579,6 +581,7 @@ func (c *Client) rewriteGoMod(name string, isGoMod map[string]bool) error {
 
 func (c *Client) rewriteGoModRewrite(name string, isGoMod map[string]bool) ([]byte, error) {
 	// TODO1 both go.mod and hugo.mod?
+	// dionysius: No, technically only the active configured mod from c.GoModFilename, no?
 	if name == hugoModFilename && c.GoModulesFilename == "" {
 		// Already checked.
 		return nil, nil
@@ -648,18 +651,13 @@ func (c *Client) rmVendorDir(vendorDir string) error {
 func (c *Client) runGo(
 	ctx context.Context,
 	stdout io.Writer,
+	tmpGoMod bool, // whether the current command will need at least an empty go.mod file. I suggest to use this workaround as few as possible, so it got to be this flag
 	args ...string) error {
 	if c.goBinaryStatus != 0 {
 		return nil
 	}
 
 	stderr := new(bytes.Buffer)
-
-	var isHugoMod bool
-	isHugoMod = true
-	if isHugoMod {
-		args = append(args, "-modfile=hugo.mod")
-	}
 
 	argsv := collections.StringSliceToInterfaceSlice(args)
 	argsv = append(argsv, hexec.WithEnviron(c.environ))
@@ -671,6 +669,16 @@ func (c *Client) runGo(
 	cmd, err := c.ccfg.Exec.New("go", argsv...)
 	if err != nil {
 		return err
+	}
+
+	// if needed, handle that at minimum an empty go.mod exists during go command execution
+	if tmpGoMod {
+		cleanup, err := c.tmpGoMod()
+		defer cleanup()
+
+		if err != nil {
+			return err
+		}
 	}
 
 	if err := cmd.Run(); err != nil {
@@ -722,7 +730,9 @@ func (c *Client) tidy(mods Modules, goModOnly bool) error {
 		}
 	}
 
-	if err := c.rewriteGoMod(hugoModFilename, isGoMod); err != nil {
+	activeMod := filepath.Base(c.GoModulesFilename)
+
+	if err := c.rewriteGoMod(activeMod, isGoMod); err != nil {
 		return err
 	}
 
@@ -730,7 +740,7 @@ func (c *Client) tidy(mods Modules, goModOnly bool) error {
 		return nil
 	}
 
-	if err := c.rewriteGoMod(goSumFilename, isGoMod); err != nil {
+	if err := c.rewriteGoMod(mapGoSumFilenames[activeMod], isGoMod); err != nil {
 		return err
 	}
 
@@ -757,6 +767,44 @@ func (c *Client) createThemeDirname(modulePath string, isProjectMod bool) (strin
 		return "", invalid
 	}
 	return moduleDir, nil
+}
+
+// If hugo.mod is enabled and there is no go.mod file, create an empty go.mod file. Execute the returned func to cleanup the trick
+func (c *Client) tmpGoMod() (func(), error) {
+	activeMod := filepath.Base(c.GoModulesFilename)
+
+	if activeMod != hugoModFilename {
+		return func() {}, nil
+	}
+
+	goModPath := filepath.Join(c.ccfg.WorkingDir, goModFilename)
+
+	exists, err := afero.Exists(c.fs, goModPath)
+	if err != nil {
+		return func() {}, fmt.Errorf("failed to check for existing %s file: %w", goModFilename, err)
+	}
+
+	if exists {
+		return func() {}, nil
+	}
+
+	err = afero.WriteFile(c.fs, goModPath, []byte{}, 0666)
+	if err != nil {
+		return func() {}, fmt.Errorf("failed to create temporary %s file: %w", goModFilename, err)
+	}
+
+	// if a temporary go.mod file was created remove it again
+	return func() {
+		c.fs.Remove(goModPath)
+	}, nil
+}
+
+// Append args slice with -modfile= argument if client handles the hugo.mod file
+func (c *Client) appendModfileArg(args *[]string) {
+	activeMod := filepath.Base(c.GoModulesFilename)
+	if activeMod == hugoModFilename {
+		*args = append(*args, fmt.Sprintf("-modfile=%s", hugoModFilename))
+	}
 }
 
 // ClientConfig configures the module Client.
