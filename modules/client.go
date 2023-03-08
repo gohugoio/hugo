@@ -64,9 +64,11 @@ const (
 const vendord = "_vendor"
 
 const (
-	goModFilename = "go.mod"
-	goSumFilename = "go.sum"
+	hugoModFilename = "hugo.mod"
+	goSumFilename   = "go.sum"
 )
+
+var goModFilenames = []string{"hugo.mod", "go.mod"}
 
 var isGoModRe = regexp.MustCompile(`(hu)?go\.mod$`)
 
@@ -80,11 +82,14 @@ func IsGoMod(filename string) bool {
 // level imports to start out.
 func NewClient(cfg ClientConfig) *Client {
 	fs := cfg.Fs
-	n := filepath.Join(cfg.WorkingDir, goModFilename)
-	goModEnabled, _ := afero.Exists(fs, n)
 	var goModFilename string
-	if goModEnabled {
-		goModFilename = n
+	for _, filename := range goModFilenames {
+		n := filepath.Join(cfg.WorkingDir, filename)
+		exists, _ := afero.Exists(fs, n)
+		if exists {
+			goModFilename = n
+			break
+		}
 	}
 
 	var env []string
@@ -368,6 +373,7 @@ func (c *Client) get(args ...string) error {
 		// it will try to build and install go packages.
 		args = append([]string{"-d"}, args...)
 	}
+
 	if err := c.runGo(context.Background(), c.logger.Out(), append([]string{"get"}, args...)...); err != nil {
 		return fmt.Errorf("failed to get %q: %w", args, err)
 	}
@@ -383,7 +389,7 @@ func (c *Client) Init(path string) error {
 		return fmt.Errorf("failed to init modules: %w", err)
 	}
 
-	c.GoModulesFilename = filepath.Join(c.ccfg.WorkingDir, goModFilename)
+	c.GoModulesFilename = filepath.Join(c.ccfg.WorkingDir, hugoModFilename)
 
 	return nil
 }
@@ -557,12 +563,13 @@ func (c *Client) rewriteGoMod(name string, isGoMod map[string]bool) error {
 }
 
 func (c *Client) rewriteGoModRewrite(name string, isGoMod map[string]bool) ([]byte, error) {
-	if name == goModFilename && c.GoModulesFilename == "" {
+	// TODO1 both go.mod and hugo.mod?
+	if name == hugoModFilename && c.GoModulesFilename == "" {
 		// Already checked.
 		return nil, nil
 	}
 
-	modlineSplitter := getModlineSplitter(name == goModFilename)
+	modlineSplitter := getModlineSplitter(name == hugoModFilename)
 
 	b := &bytes.Buffer{}
 	f, err := c.fs.Open(filepath.Join(c.ccfg.WorkingDir, name))
@@ -584,7 +591,7 @@ func (c *Client) rewriteGoModRewrite(name string, isGoMod map[string]bool) ([]by
 
 		if parts := modlineSplitter(line); parts != nil {
 			modname, modver := parts[0], parts[1]
-			modver = strings.TrimSuffix(modver, "/"+goModFilename)
+			modver = strings.TrimSuffix(modver, "/"+hugoModFilename)
 			modnameVer := modname + " " + modver
 			doWrite = isGoMod[modnameVer]
 		} else {
@@ -632,6 +639,12 @@ func (c *Client) runGo(
 	}
 
 	stderr := new(bytes.Buffer)
+
+	var isHugoMod bool
+	isHugoMod = true
+	if isHugoMod {
+		args = append(args, "-modfile=hugo.mod ")
+	}
 
 	argsv := collections.StringSliceToInterfaceSlice(args)
 	argsv = append(argsv, hexec.WithEnviron(c.environ))
@@ -694,7 +707,7 @@ func (c *Client) tidy(mods Modules, goModOnly bool) error {
 		}
 	}
 
-	if err := c.rewriteGoMod(goModFilename, isGoMod); err != nil {
+	if err := c.rewriteGoMod(hugoModFilename, isGoMod); err != nil {
 		return err
 	}
 

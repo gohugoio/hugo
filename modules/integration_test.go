@@ -33,7 +33,7 @@ path = "github.com/bep/hugo-mod-with-hugodotmod/v5"
 // This comes from the module imported.
 {{ $foo := resources.Get "foo.txt" }}
 Foo: {{ with $foo }}{{ .Content }}{{ end }}|
--- go.mod --
+-- hugo.mod --
 module github.com/gohugoio/testmod
 
 go 1.20
