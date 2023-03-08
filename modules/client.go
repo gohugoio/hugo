@@ -467,6 +467,21 @@ func (c *Client) listGoMods() (goModules, error) {
 	}
 
 	downloadModules := func(modules ...string) error {
+		// if hugo.mod is enabled and there is no go.mod file, create an empty go.mod file
+		goModPath := filepath.Join(c.ccfg.WorkingDir, "go.mod")
+		_, errStatGoMod := os.Stat(goModPath)
+		if errStatGoMod != nil {
+			if errors.Is(errStatGoMod, os.ErrNotExist) {
+				_, err := os.Create(goModPath)
+				if err != nil {
+					return fmt.Errorf("failed to create temporary go.mod file: %w", err)
+				}
+
+				// if a temporary go.mod file was created remove it again
+				defer os.Remove(goModPath)
+			}
+		}
+
 		args := []string{"mod", "download"}
 		args = append(args, modules...)
 		out := io.Discard
@@ -643,7 +658,7 @@ func (c *Client) runGo(
 	var isHugoMod bool
 	isHugoMod = true
 	if isHugoMod {
-		args = append(args, "-modfile=hugo.mod ")
+		args = append(args, "-modfile=hugo.mod")
 	}
 
 	argsv := collections.StringSliceToInterfaceSlice(args)
