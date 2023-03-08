@@ -31,6 +31,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/modules"
 	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/common/herrors"
@@ -942,7 +943,7 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 		isConfig := configSet[ev.Name]
 		configChangeType := configChangeConfig
 		if isConfig {
-			if strings.Contains(ev.Name, "go.mod") {
+			if modules.IsGoMod(ev.Name) {
 				configChangeType = configChangeGoMod
 			}
 			if strings.Contains(ev.Name, ".work") {

@@ -211,3 +211,13 @@ func TestGetModlineSplitter(t *testing.T) {
 	gosumSplitter := getModlineSplitter(false)
 	c.Assert(gosumSplitter("github.com/BurntSushi/toml v0.3.1"), qt.DeepEquals, []string{"github.com/BurntSushi/toml", "v0.3.1"})
 }
+
+func TestIsGoMod(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(IsGoMod("go.mod"), qt.IsTrue)
+	c.Assert(IsGoMod("a/b/go.mod"), qt.IsTrue)
+	c.Assert(IsGoMod("hugo.mod"), qt.IsTrue)
+	c.Assert(IsGoMod("go.sum"), qt.IsFalse)
+	c.Assert(IsGoMod("go.mod.go"), qt.IsFalse)
+}

@@ -68,6 +68,12 @@ const (
 	goSumFilename = "go.sum"
 )
 
+var isGoModRe = regexp.MustCompile(`(hu)?go\.mod$`)
+
+func IsGoMod(filename string) bool {
+	return isGoModRe.MatchString(filename)
+}
+
 // NewClient creates a new Client that can be used to manage the Hugo Components
 // in a given workingDir.
 // The Client will resolve the dependencies recursively, but needs the top
