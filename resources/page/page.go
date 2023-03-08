@@ -334,9 +334,6 @@ type PageWithoutContent interface {
 	// Used in change/dependency tracking.
 	identity.Provider
 
-	// Fragments returns the fragments for this page.
-	Fragments(context.Context) *tableofcontents.Fragments
-
 	// Headings returns the headings for this page when a filter is set.
 	// This is currently only triggered with the Related content feature
 	// and the "fragments" type of index.
@@ -407,6 +404,9 @@ type SitesProvider interface {
 type TableOfContentsProvider interface {
 	// TableOfContents returns the table of contents for the page rendered as HTML.
 	TableOfContents(context.Context) template.HTML
+
+	// Fragments returns the fragments for this page.
+	Fragments(context.Context) *tableofcontents.Fragments
 }
 
 // TranslationsProvider provides access to any translations.
