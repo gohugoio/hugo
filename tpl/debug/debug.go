@@ -15,6 +15,10 @@
 package debug
 
 import (
+	"reflect"
+	"sort"
+
+	"github.com/sanity-io/litter"
 	"encoding/json"
 	"sort"
 	"sync"
@@ -180,4 +184,48 @@ func (ns *Namespace) TestDeprecationErr(item, alternative string) string {
 	v.Minor -= 12
 	hugo.Deprecate(item, alternative, v.String())
 	return ""
+}
+
+// List returns a slice of field names and method names of the struct/pointer or keys of the map
+// This method scans the provided value shallow, non-recursively.
+func (ns *Namespace) List(val any) []string {
+
+	fields := make([]string, 0)
+	value := reflect.ValueOf(val)
+
+	if value.Kind() == reflect.Map {
+		for _, key := range value.MapKeys() {
+			fields = append(fields, key.String())
+			sort.Strings(fields)
+		}
+	}
+
+	// Dereference the pointer if needed
+	if value.Kind() == reflect.Pointer {
+		value = value.Elem()
+	}
+
+	if value.Kind() == reflect.Struct {
+		// Iterate over the fields
+		for i := 0; i < value.NumField(); i++ {
+			field := value.Type().Field(i)
+
+			// Only add exported fields
+			if field.PkgPath == "" {
+				fields = append(fields, field.Name)
+			}
+		}
+
+		// Calling NumMethod() on the pointer type returns the number of methods
+		// defined for the pointer type as well as the non pointer type.
+		// Calling NumMethod() on the non pointer type returns on the other hand only the number of non pointer methods.
+		pointerType := reflect.PointerTo(value.Type())
+
+		for i := 0; i < pointerType.NumMethod(); i++ {
+			method := pointerType.Method(i)
+			fields = append(fields, method.Name)
+		}
+	}
+
+	return fields
 }
