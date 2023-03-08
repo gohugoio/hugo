@@ -277,11 +277,11 @@ func Paginate(td TargetPathDescriptor, seq any, pagerSize int) (*Paginator, erro
 
 	var paginator *Paginator
 
-	groups, err := ToPagesGroup(seq)
+	groups, ok, err := ToPagesGroup(seq)
 	if err != nil {
 		return nil, err
 	}
-	if groups != nil {
+	if ok {
 		paginator, _ = newPaginatorFromPageGroups(groups, pagerSize, urlFactory)
 	} else {
 		pages, err := ToPages(seq)
