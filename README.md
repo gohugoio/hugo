@@ -124,7 +124,7 @@ Hugo stands on the shoulder of many great open source libraries.
 
 If you run `hugo env -v` you will get a complete and up to date list.
 
-In Hugo 0.110.2 that list is, in lexical order:
+In Hugo 0.111.2 that list is, in lexical order:
 
 ```
 cloud.google.com/go/compute="v1.6.1"
