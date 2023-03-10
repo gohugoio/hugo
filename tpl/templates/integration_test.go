@@ -84,7 +84,6 @@ post/doesnotexist.html: false
 `)
 }
 
-
 // See #10774
 func TestPageFunctionExists(t *testing.T) {
 	t.Parallel()
