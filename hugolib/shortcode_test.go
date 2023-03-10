@@ -1274,5 +1274,5 @@ Inner: {{ .Get 0 }}: {{ len .Inner }}
 	).BuildE()
 
 	b.Assert(err, qt.Not(qt.IsNil))
-	b.Assert(err.Error(), qt.Contains, `p1.md:5:1": failed to extract shortcode: unclosed shortcode "sc"`)
+	b.Assert(err.Error(), qt.Contains, `p1.md:5:1": failed to extract shortcode: shortcode "sc" must be closed or self-closed`)
 }
