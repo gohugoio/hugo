@@ -31,7 +31,7 @@ func New() *Namespace {
 // Namespace provides template functions for the "math" namespace.
 type Namespace struct{}
 
-// Add adds the two addends n1 and n2.
+// Add adds the multivalued addends n1 and n2 or more values.
 func (ns *Namespace) Add(inputs ...any) (any, error) {
 	return ns.doArithmetic(inputs, '+')
 }
@@ -71,7 +71,7 @@ func (ns *Namespace) Log(n any) (float64, error) {
 	return math.Log(af), nil
 }
 
-// Max returns the greater of the two numbers n1 or n2.
+// Max returns the greater of the multivalued numbers n1 and n2 or more values.
 func (ns *Namespace) Max(inputs ...any) (maximum float64, err error) {
 	var value float64
 	for index, input := range inputs {
@@ -89,7 +89,7 @@ func (ns *Namespace) Max(inputs ...any) (maximum float64, err error) {
 	return
 }
 
-// Min returns the smaller of two numbers n1 or n2.
+// Min returns the smaller of multivalued numbers n1 and n2 or more values.
 func (ns *Namespace) Min(inputs ...any) (minimum float64, err error) {
 	var value float64
 	for index, input := range inputs {
@@ -133,7 +133,7 @@ func (ns *Namespace) ModBool(n1, n2 any) (bool, error) {
 	return res == int64(0), nil
 }
 
-// Mul multiplies the two numbers n1 and n2.
+// Mul multiplies the multivalued numbers n1 and n2 or more values.
 func (ns *Namespace) Mul(inputs ...any) (any, error) {
 	return ns.doArithmetic(inputs, '*')
 }
@@ -170,7 +170,7 @@ func (ns *Namespace) Sqrt(n any) (float64, error) {
 	return math.Sqrt(af), nil
 }
 
-// Sub subtracts n2 from n1.
+// Sub subtracts multivalued.
 func (ns *Namespace) Sub(inputs ...any) (any, error) {
 	return ns.doArithmetic(inputs, '-')
 }
