@@ -1,10 +1,9 @@
 <meta itemprop="name" content="{{ .Title }}">
 <meta itemprop="description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}">
 
-{{- if .IsPage -}}
-{{- $iso8601 := "2006-01-02T15:04:05-07:00" -}}
-{{ with .PublishDate }}<meta itemprop="datePublished" {{ .Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />{{ end}}
-{{ with .Lastmod }}<meta itemprop="dateModified" {{ .Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />{{ end}}
+{{- if .IsPage }}
+{{ with .PublishDate }}<meta itemprop="datePublished" content="{{ . | dateFormat `:rfc3339` }}" />{{ end }}
+{{ with .Lastmod }}<meta itemprop="dateModified" content="{{ . | dateFormat `:rfc3339` }}" />{{ end }}
 <meta itemprop="wordCount" content="{{ .WordCount }}">
 
 {{- with $.Params.images -}}

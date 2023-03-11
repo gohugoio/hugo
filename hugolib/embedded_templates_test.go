@@ -78,12 +78,12 @@ title: My Site
 <meta name="twitter:image" content="https://example.org/pageimg1.jpg"/>
 <meta property="og:image" content="https://example.org/pageimg1.jpg" />
 <meta property="og:image" content="https://example.org/pageimg2.jpg" />
-<meta property="article:published_time" content="2021-02-26T18:02:00+01:00" />
-<meta property="article:modified_time" content="2021-05-22T19:25:00+01:00" />
+<meta property="article:published_time" content="2021-02-26T18:02:00&#43;01:00" />
+<meta property="article:modified_time" content="2021-05-22T19:25:00&#43;01:00" />
 <meta itemprop="image" content="https://example.org/pageimg1.jpg">
 <meta itemprop="image" content="https://example.org/pageimg2.jpg">
-<meta itemprop="datePublished" content="2021-02-26T18:02:00+01:00" />
-<meta itemprop="dateModified" content="2021-05-22T19:25:00+01:00" />
+<meta itemprop="datePublished" content="2021-02-26T18:02:00&#43;01:00" />
+<meta itemprop="dateModified" content="2021-05-22T19:25:00&#43;01:00" />
 `)
 	b.AssertFileContent("public/mysite/index.html", `
 <meta name="twitter:image" content="https://example.org/siteimg1.jpg"/>

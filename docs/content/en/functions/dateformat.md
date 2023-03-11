@@ -3,7 +3,7 @@ title: time.Format
 description: Converts a date/time to a localized string.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
+lastmod: 2023-03-11
 categories: [functions]
 menu:
   docs:
@@ -53,3 +53,8 @@ The full list of custom layouts with examples for English:
 * `:time_long` => `2:09:37 am UTC`
 * `:time_medium` => `2:09:37 am`
 * `:time_short` => `2:09 am`
+
+Standard time format:
+
+* `:rfc1123` => `Mon, 02 Jan 2006 15:04:05 MST`, see [RFC1123](https://www.rfc-editor.org/rfc/rfc1123)
+* `:rfc3339` => `2006-01-02T15:04:05Z07:00`, see [RFC3339](https://www.rfc-editor.org/rfc/rfc3339)

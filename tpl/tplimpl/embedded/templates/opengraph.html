@@ -17,10 +17,9 @@
 {{- end -}}
 
 {{- if .IsPage }}
-{{- $iso8601 := "2006-01-02T15:04:05-07:00" -}}
 <meta property="article:section" content="{{ .Section }}" />
-{{ with .PublishDate }}<meta property="article:published_time" {{ .Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />{{ end }}
-{{ with .Lastmod }}<meta property="article:modified_time" {{ .Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />{{ end }}
+{{ with .PublishDate }}<meta property="article:published_time" content="{{ . | dateFormat `:rfc3339` }}" />{{ end }}
+{{ with .Lastmod }}<meta property="article:modified_time" content="{{ . | dateFormat `:rfc3339` }}" />{{ end }}
 {{- end -}}
 
 {{- with .Params.audio }}<meta property="og:audio" content="{{ . }}" />{{ end }}
