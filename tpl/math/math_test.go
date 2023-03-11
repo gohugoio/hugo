@@ -26,23 +26,28 @@ func TestBasicNSArithmetic(t *testing.T) {
 
 	ns := New()
 
-	for _, test := range []struct {
-		fn     func(a, b any) (any, error)
-		a      any
-		b      any
+	type TestCase struct {
+		fn     func(inputs ...any) (any, error)
+		values []any
 		expect any
-	}{
-		{ns.Add, 4, 2, int64(6)},
-		{ns.Add, 1.0, "foo", false},
-		{ns.Sub, 4, 2, int64(2)},
-		{ns.Sub, 1.0, "foo", false},
-		{ns.Mul, 4, 2, int64(8)},
-		{ns.Mul, 1.0, "foo", false},
-		{ns.Div, 4, 2, int64(2)},
-		{ns.Div, 1.0, "foo", false},
+	}
+
+	for _, test := range []TestCase{
+		{ns.Add, []any{4, 2}, int64(6)},
+		{ns.Add, []any{4, 2, 5}, int64(11)},
+		{ns.Add, []any{1.0, "foo"}, false},
+		{ns.Sub, []any{4, 2}, int64(2)},
+		{ns.Sub, []any{4, 2, 5}, int64(-3)},
+		{ns.Sub, []any{1.0, "foo"}, false},
+		{ns.Mul, []any{4, 2}, int64(8)},
+		{ns.Mul, []any{4, 2, 5}, int64(40)},
+		{ns.Mul, []any{1.0, "foo"}, false},
+		{ns.Div, []any{4, 2}, int64(2)},
+		{ns.Div, []any{4, 2, 5}, int64(0)},
+		{ns.Div, []any{1.0, "foo"}, false},
 	} {
 
-		result, err := test.fn(test.a, test.b)
+		result, err := test.fn(test.values...)
 
 		if b, ok := test.expect.(bool); ok && !b {
 			c.Assert(err, qt.Not(qt.IsNil))
@@ -129,11 +134,11 @@ func TestLog(t *testing.T) {
 		a      any
 		expect any
 	}{
-		{1, float64(0)},
-		{3, float64(1.0986)},
-		{0, float64(math.Inf(-1))},
-		{1.0, float64(0)},
-		{3.1, float64(1.1314)},
+		{1, 0.0},
+		{3, 1.0986},
+		{0, math.Inf(-1)},
+		{1.0, 0.0},
+		{3.1, 1.1314},
 		{"abc", false},
 	} {
 
@@ -170,9 +175,9 @@ func TestSqrt(t *testing.T) {
 		a      any
 		expect any
 	}{
-		{81, float64(9)},
-		{0.25, float64(0.5)},
-		{0, float64(0)},
+		{81, 9.0},
+		{0.25, 0.5},
+		{0, 0.0},
 		{"abc", false},
 	} {
 
@@ -329,15 +334,15 @@ func TestPow(t *testing.T) {
 		b      any
 		expect any
 	}{
-		{0, 0, float64(1)},
-		{2, 0, float64(1)},
-		{2, 3, float64(8)},
-		{-2, 3, float64(-8)},
-		{2, -3, float64(0.125)},
-		{-2, -3, float64(-0.125)},
-		{0.2, 3, float64(0.008)},
-		{2, 0.3, float64(1.2311)},
-		{0.2, 0.3, float64(0.617)},
+		{0, 0, 1.0},
+		{2, 0, 1.0},
+		{2, 3, 8.0},
+		{-2, 3, -8.0},
+		{2, -3, 0.125},
+		{-2, -3, -0.125},
+		{0.2, 3, 0.008},
+		{2, 0.3, 1.2311},
+		{0.2, 0.3, 0.617},
 		{"aaa", "3", false},
 		{"2", "aaa", false},
 	} {
@@ -364,28 +369,33 @@ func TestMax(t *testing.T) {
 
 	ns := New()
 
-	for _, test := range []struct {
-		a      any
-		b      any
+	type TestCase struct {
+		values []any
 		expect any
-	}{
-		{-1, -1, float64(-1)},
-		{-1, 0, float64(0)},
-		{-1, 1, float64(1)},
-		{0, -1, float64(0)},
-		{0, 0, float64(0)},
-		{0, 1, float64(1)},
-		{1, -1, float64(1)},
-		{1, 0, float64(1)},
-		{1, 1, float64(1)},
-		{1.2, 1.23, float64(1.23)},
-		{-1.2, -1.23, float64(-1.2)},
-		{0, "a", false},
-		{"a", 0, false},
-		{"a", "b", false},
-	} {
+	}
 
-		result, err := ns.Max(test.a, test.b)
+	for _, test := range []TestCase{
+		// two values
+		{[]any{-1, -1}, -1.0},
+		{[]any{-1, 0}, 0.0},
+		{[]any{-1, 1}, 1.0},
+		{[]any{0, -1}, 0.0},
+		{[]any{0, 0}, 0.0},
+		{[]any{0, 1}, 1.0},
+		{[]any{1, -1}, 1.0},
+		{[]any{1, 0}, 1.0},
+		{[]any{1, 1}, 1.0},
+		{[]any{1.2, 1.23}, 1.23},
+		{[]any{-1.2, -1.23}, -1.2},
+		{[]any{0, "a"}, false},
+		{[]any{"a", 0}, false},
+		{[]any{"a", "b"}, false},
+		// multi values
+		{[]any{-1, -2, -3}, -1.0},
+		{[]any{1, 2, 3}, 3.0},
+		{[]any{"a", 2, 3}, false},
+	} {
+		result, err := ns.Max(test.values...)
 
 		if b, ok := test.expect.(bool); ok && !b {
 			c.Assert(err, qt.Not(qt.IsNil))
@@ -403,28 +413,34 @@ func TestMin(t *testing.T) {
 
 	ns := New()
 
-	for _, test := range []struct {
-		a      any
-		b      any
+	type TestCase struct {
+		values []any
 		expect any
-	}{
-		{-1, -1, float64(-1)},
-		{-1, 0, float64(-1)},
-		{-1, 1, float64(-1)},
-		{0, -1, float64(-1)},
-		{0, 0, float64(0)},
-		{0, 1, float64(0)},
-		{1, -1, float64(-1)},
-		{1, 0, float64(0)},
-		{1, 1, float64(1)},
-		{1.2, 1.23, float64(1.2)},
-		{-1.2, -1.23, float64(-1.23)},
-		{0, "a", false},
-		{"a", 0, false},
-		{"a", "b", false},
+	}
+
+	for _, test := range []TestCase{
+		// two values
+		{[]any{-1, -1}, -1.0},
+		{[]any{-1, 0}, -1.0},
+		{[]any{-1, 1}, -1.0},
+		{[]any{0, -1}, -1.0},
+		{[]any{0, 0}, 0.0},
+		{[]any{0, 1}, 0.0},
+		{[]any{1, -1}, -1.0},
+		{[]any{1, 0}, 0.0},
+		{[]any{1, 1}, 1.0},
+		{[]any{1.2, 1.23}, 1.2},
+		{[]any{-1.2, -1.23}, -1.23},
+		{[]any{0, "a"}, false},
+		{[]any{"a", 0}, false},
+		{[]any{"a", "b"}, false},
+		// multi values
+		{[]any{-1, -2, -3}, -3.0},
+		{[]any{1, 2, 3}, 1.0},
+		{[]any{"a", 2, 3}, false},
 	} {
 
-		result, err := ns.Min(test.a, test.b)
+		result, err := ns.Min(test.values...)
 
 		if b, ok := test.expect.(bool); ok && !b {
 			c.Assert(err, qt.Not(qt.IsNil))
