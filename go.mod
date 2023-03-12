@@ -44,7 +44,7 @@ require (
 	github.com/mitchellh/hashstructure v1.1.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/muesli/smartcrop v0.3.0
-	github.com/niklasfasching/go-org v1.6.5
+	github.com/niklasfasching/go-org v1.6.6
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/pelletier/go-toml/v2 v2.0.6
 	github.com/rogpeppe/go-internal v1.9.0

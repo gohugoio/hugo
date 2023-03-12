@@ -51,7 +51,7 @@ func (c *orgConverter) Convert(ctx converter.RenderContext) (converter.ResultRen
 		return afero.ReadFile(c.cfg.ContentFs, filename)
 	}
 	writer := org.NewHTMLWriter()
-	writer.HighlightCodeBlock = func(source, lang string, inline bool) string {
+	writer.HighlightCodeBlock = func(source, lang string, inline bool, params map[string]string) string {
 		highlightedSource, err := c.cfg.Highlight(source, lang, "")
 		if err != nil {
 			logger.Errorf("Could not highlight source as lang %s. Using raw source.", lang)
