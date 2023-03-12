@@ -25,6 +25,7 @@ import (
 	"github.com/niklasfasching/go-org/org"
 
 	xml "github.com/clbanning/mxj/v2"
+	feed "github.com/mmcdole/gofeed"
 	toml "github.com/pelletier/go-toml/v2"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
@@ -136,23 +137,30 @@ func (d Decoder) UnmarshalTo(data []byte, f Format, v any) error {
 	case JSON:
 		err = json.Unmarshal(data, v)
 	case XML:
-		var xmlRoot xml.Map
-		xmlRoot, err = xml.NewMapXml(data)
+		fp := feed.NewParser()
+		if feedData, feedErr := fp.Parse(bytes.NewReader(data)); feedErr == nil {
+			// convert feed parser data to a map
+			d, _ := json.Marshal(feedData)
+			json.Unmarshal(d, v)
+		} else {
+			var xmlRoot xml.Map
+			xmlRoot, err = xml.NewMapXml(data)
 
-		var xmlValue map[string]any
-		if err == nil {
-			xmlRootName, err := xmlRoot.Root()
-			if err != nil {
-				return toFileError(f, data, fmt.Errorf("failed to unmarshal XML: %w", err))
+			var xmlValue map[string]any
+			if err == nil {
+				xmlRootName, err := xmlRoot.Root()
+				if err != nil {
+					return toFileError(f, data, fmt.Errorf("failed to unmarshal XML: %w", err))
+				}
+				xmlValue = xmlRoot[xmlRootName].(map[string]any)
 			}
-			xmlValue = xmlRoot[xmlRootName].(map[string]any)
-		}
 
-		switch v := v.(type) {
-		case *map[string]any:
-			*v = xmlValue
-		case *any:
-			*v = xmlValue
+			switch v := v.(type) {
+			case *map[string]any:
+				*v = xmlValue
+			case *any:
+				*v = xmlValue
+			}
 		}
 	case TOML:
 		err = toml.Unmarshal(data, v)
