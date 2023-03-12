@@ -186,7 +186,7 @@ func (scp *ShortcodeWithPage) page() page.Page {
 const shortcodePlaceholderPrefix = "HAHAHUGOSHORTCODE"
 
 func createShortcodePlaceholder(id string, ordinal int) string {
-	return shortcodePlaceholderPrefix + "-" + id + strconv.Itoa(ordinal) + "-HBHB"
+	return shortcodePlaceholderPrefix + id + strconv.Itoa(ordinal) + "HBHB"
 }
 
 type shortcode struct {
