@@ -36,15 +36,19 @@ func TestBasicNSArithmetic(t *testing.T) {
 		{ns.Add, []any{4, 2}, int64(6)},
 		{ns.Add, []any{4, 2, 5}, int64(11)},
 		{ns.Add, []any{1.0, "foo"}, false},
+		{ns.Add, []any{0}, false},
 		{ns.Sub, []any{4, 2}, int64(2)},
 		{ns.Sub, []any{4, 2, 5}, int64(-3)},
 		{ns.Sub, []any{1.0, "foo"}, false},
+		{ns.Sub, []any{0}, false},
 		{ns.Mul, []any{4, 2}, int64(8)},
 		{ns.Mul, []any{4, 2, 5}, int64(40)},
 		{ns.Mul, []any{1.0, "foo"}, false},
+		{ns.Mul, []any{0}, false},
 		{ns.Div, []any{4, 2}, int64(2)},
 		{ns.Div, []any{4, 2, 5}, int64(0)},
 		{ns.Div, []any{1.0, "foo"}, false},
+		{ns.Div, []any{0}, false},
 	} {
 
 		result, err := test.fn(test.values...)
@@ -390,6 +394,9 @@ func TestMax(t *testing.T) {
 		{[]any{0, "a"}, false},
 		{[]any{"a", 0}, false},
 		{[]any{"a", "b"}, false},
+		// miss values
+		{[]any{}, false},
+		{[]any{0}, false},
 		// multi values
 		{[]any{-1, -2, -3}, -1.0},
 		{[]any{1, 2, 3}, 3.0},
@@ -434,6 +441,9 @@ func TestMin(t *testing.T) {
 		{[]any{0, "a"}, false},
 		{[]any{"a", 0}, false},
 		{[]any{"a", "b"}, false},
+		// miss values
+		{[]any{}, false},
+		{[]any{0}, false},
 		// multi values
 		{[]any{-1, -2, -3}, -3.0},
 		{[]any{1, 2, 3}, 1.0},
