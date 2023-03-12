@@ -23,6 +23,10 @@ import (
 	"github.com/spf13/cast"
 )
 
+var (
+	errMustTwoValueError = errors.New("A minimum of two values is REQUIRED")
+)
+
 // New returns a new instance of the math-namespaced template functions.
 func New() *Namespace {
 	return &Namespace{}
@@ -33,6 +37,9 @@ type Namespace struct{}
 
 // Add adds the multivalued addends n1 and n2 or more values.
 func (ns *Namespace) Add(inputs ...any) (any, error) {
+	if len(inputs) < 2 {
+		return nil, errMustTwoValueError
+	}
 	return ns.doArithmetic(inputs, '+')
 }
 
@@ -48,6 +55,9 @@ func (ns *Namespace) Ceil(n any) (float64, error) {
 
 // Div divides n1 by n2.
 func (ns *Namespace) Div(inputs ...any) (any, error) {
+	if len(inputs) < 2 {
+		return nil, errMustTwoValueError
+	}
 	return ns.doArithmetic(inputs, '/')
 }
 
@@ -73,6 +83,10 @@ func (ns *Namespace) Log(n any) (float64, error) {
 
 // Max returns the greater of the multivalued numbers n1 and n2 or more values.
 func (ns *Namespace) Max(inputs ...any) (maximum float64, err error) {
+	if len(inputs) < 2 {
+		err = errMustTwoValueError
+		return
+	}
 	var value float64
 	for index, input := range inputs {
 		value, err = cast.ToFloat64E(input)
@@ -91,6 +105,10 @@ func (ns *Namespace) Max(inputs ...any) (maximum float64, err error) {
 
 // Min returns the smaller of multivalued numbers n1 and n2 or more values.
 func (ns *Namespace) Min(inputs ...any) (minimum float64, err error) {
+	if len(inputs) < 2 {
+		err = errMustTwoValueError
+		return
+	}
 	var value float64
 	for index, input := range inputs {
 		value, err = cast.ToFloat64E(input)
@@ -135,6 +153,9 @@ func (ns *Namespace) ModBool(n1, n2 any) (bool, error) {
 
 // Mul multiplies the multivalued numbers n1 and n2 or more values.
 func (ns *Namespace) Mul(inputs ...any) (any, error) {
+	if len(inputs) < 2 {
+		return nil, errMustTwoValueError
+	}
 	return ns.doArithmetic(inputs, '*')
 }
 
@@ -172,6 +193,9 @@ func (ns *Namespace) Sqrt(n any) (float64, error) {
 
 // Sub subtracts multivalued.
 func (ns *Namespace) Sub(inputs ...any) (any, error) {
+	if len(inputs) < 2 {
+		return nil, errMustTwoValueError
+	}
 	return ns.doArithmetic(inputs, '-')
 }
 
