@@ -473,8 +473,8 @@ github.com/muesli/smartcrop v0.3.0/go.mod h1:i2fCI/UorTfgEpPPLWiFBv4pye+YAG78Rwc
 github.com/neurosnap/sentences v1.0.6/go.mod h1:pg1IapvYpWCJJm/Etxeh0+gtMf1rI1STY9S7eUCPbDc=
 github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 h1:zYyBkD/k9seD2A7fsi6Oo2LfFZAehjjQMERAvZLEDnQ=
 github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646/go.mod h1:jpp1/29i3P1S/RLdc7JQKbRpFeM1dOBd8T9ki5s+AY8=
-github.com/niklasfasching/go-org v1.6.5 h1:5YAIqNTdl6lAOb7lD2AyQ1RuFGPVrAKvUexphk8PGbo=
-github.com/niklasfasching/go-org v1.6.5/go.mod h1:ybv0eGDnxylFUfFE+ySaQc734j/L3+/ChKZ/h63a2wM=
+github.com/niklasfasching/go-org v1.6.6 h1:U6+mJ80p3weR4oP+Z+Pb2EVkSbt1MUwweBbUcF1hVqQ=
+github.com/niklasfasching/go-org v1.6.6/go.mod h1:o3pMQpO9n6RNBXz2Oc2DiRkaVwjns0JElyKiG7yXwA4=
 github.com/olekukonko/tablewriter v0.0.5 h1:P2Ga83D34wi1o9J6Wh1mRuqd4mF/x/lgBS7N7AbDhec=
 github.com/olekukonko/tablewriter v0.0.5/go.mod h1:hPp6KlRPjbx+hW8ykQs1w3UBbZlj6HuIJcUGPhkA7kY=
 github.com/pelletier/go-toml/v2 v2.0.6 h1:nrzqCb7j9cDFj2coyLNLaZuJTLjWjlaz6nvTvIwycIU=
