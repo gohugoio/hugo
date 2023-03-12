@@ -1,5 +1,5 @@
 ---
-title: hassuffix
+title: hasSuffix
 linktitle: hasSuffix
 description: Tests whether a string ends with suffix.
 date: 2023-03-01
