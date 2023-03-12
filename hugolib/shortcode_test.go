@@ -1276,3 +1276,40 @@ Inner: {{ .Get 0 }}: {{ len .Inner }}
 	b.Assert(err, qt.Not(qt.IsNil))
 	b.Assert(err.Error(), qt.Contains, `p1.md:5:1": failed to extract shortcode: shortcode "sc" must be closed or self-closed`)
 }
+
+// Issue 10819.
+func TestShortcodeInCodeFenceHyphen(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+disableKinds = ["home", "taxonomy", "term"]
+-- content/p1.md --
+---
+title: "p1"
+---
+
+§§§go
+{{< sc >}}
+§§§
+
+Text.
+
+-- layouts/shortcodes/sc.html --
+Hello.
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			Running:     true,
+			Verbose:     true,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", "<span style=\"color:#a6e22e\">Hello.</span>")
+
+}
