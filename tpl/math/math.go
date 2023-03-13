@@ -37,9 +37,6 @@ type Namespace struct{}
 
 // Add adds the multivalued addends n1 and n2 or more values.
 func (ns *Namespace) Add(inputs ...any) (any, error) {
-	if len(inputs) < 2 {
-		return nil, errMustTwoValueError
-	}
 	return ns.doArithmetic(inputs, '+')
 }
 
@@ -55,9 +52,6 @@ func (ns *Namespace) Ceil(n any) (float64, error) {
 
 // Div divides n1 by n2.
 func (ns *Namespace) Div(inputs ...any) (any, error) {
-	if len(inputs) < 2 {
-		return nil, errMustTwoValueError
-	}
 	return ns.doArithmetic(inputs, '/')
 }
 
@@ -153,9 +147,6 @@ func (ns *Namespace) ModBool(n1, n2 any) (bool, error) {
 
 // Mul multiplies the multivalued numbers n1 and n2 or more values.
 func (ns *Namespace) Mul(inputs ...any) (any, error) {
-	if len(inputs) < 2 {
-		return nil, errMustTwoValueError
-	}
 	return ns.doArithmetic(inputs, '*')
 }
 
@@ -193,13 +184,13 @@ func (ns *Namespace) Sqrt(n any) (float64, error) {
 
 // Sub subtracts multivalued.
 func (ns *Namespace) Sub(inputs ...any) (any, error) {
-	if len(inputs) < 2 {
-		return nil, errMustTwoValueError
-	}
 	return ns.doArithmetic(inputs, '-')
 }
 
 func (ns *Namespace) doArithmetic(inputs []any, operation rune) (value any, err error) {
+	if len(inputs) < 2 {
+		return nil, errMustTwoValueError
+	}
 	value = inputs[0]
 	for i := 1; i < len(inputs); i++ {
 		value, err = _math.DoArithmetic(value, inputs[i], operation)
