@@ -24,7 +24,7 @@ import (
 )
 
 var (
-	errMustTwoValueError = errors.New("A minimum of two values is REQUIRED")
+	errMustTwoValueError = errors.New("must provide at least two numbers")
 )
 
 // New returns a new instance of the math-namespaced template functions.
