@@ -24,7 +24,7 @@ import (
 )
 
 var (
-	errMustTwoValueError = errors.New("must provide at least two numbers")
+	errMustTwoNumbersError = errors.New("must provide at least two numbers")
 )
 
 // New returns a new instance of the math-namespaced template functions.
@@ -78,7 +78,7 @@ func (ns *Namespace) Log(n any) (float64, error) {
 // Max returns the greater of the multivalued numbers n1 and n2 or more values.
 func (ns *Namespace) Max(inputs ...any) (maximum float64, err error) {
 	if len(inputs) < 2 {
-		err = errMustTwoValueError
+		err = errMustTwoNumbersError
 		return
 	}
 	var value float64
@@ -100,7 +100,7 @@ func (ns *Namespace) Max(inputs ...any) (maximum float64, err error) {
 // Min returns the smaller of multivalued numbers n1 and n2 or more values.
 func (ns *Namespace) Min(inputs ...any) (minimum float64, err error) {
 	if len(inputs) < 2 {
-		err = errMustTwoValueError
+		err = errMustTwoNumbersError
 		return
 	}
 	var value float64
@@ -189,7 +189,7 @@ func (ns *Namespace) Sub(inputs ...any) (any, error) {
 
 func (ns *Namespace) doArithmetic(inputs []any, operation rune) (value any, err error) {
 	if len(inputs) < 2 {
-		return nil, errMustTwoValueError
+		return nil, errMustTwoNumbersError
 	}
 	value = inputs[0]
 	for i := 1; i < len(inputs); i++ {
