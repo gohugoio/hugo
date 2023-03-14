@@ -23,6 +23,10 @@ import (
 	"github.com/spf13/cast"
 )
 
+var (
+	errMustTwoNumbersError = errors.New("must provide at least two numbers")
+)
+
 // New returns a new instance of the math-namespaced template functions.
 func New() *Namespace {
 	return &Namespace{}
@@ -73,6 +77,10 @@ func (ns *Namespace) Log(n any) (float64, error) {
 
 // Max returns the greater of the multivalued numbers n1 and n2 or more values.
 func (ns *Namespace) Max(inputs ...any) (maximum float64, err error) {
+	if len(inputs) < 2 {
+		err = errMustTwoNumbersError
+		return
+	}
 	var value float64
 	for index, input := range inputs {
 		value, err = cast.ToFloat64E(input)
@@ -91,6 +99,10 @@ func (ns *Namespace) Max(inputs ...any) (maximum float64, err error) {
 
 // Min returns the smaller of multivalued numbers n1 and n2 or more values.
 func (ns *Namespace) Min(inputs ...any) (minimum float64, err error) {
+	if len(inputs) < 2 {
+		err = errMustTwoNumbersError
+		return
+	}
 	var value float64
 	for index, input := range inputs {
 		value, err = cast.ToFloat64E(input)
@@ -176,6 +188,9 @@ func (ns *Namespace) Sub(inputs ...any) (any, error) {
 }
 
 func (ns *Namespace) doArithmetic(inputs []any, operation rune) (value any, err error) {
+	if len(inputs) < 2 {
+		return nil, errMustTwoNumbersError
+	}
 	value = inputs[0]
 	for i := 1; i < len(inputs); i++ {
 		value, err = _math.DoArithmetic(value, inputs[i], operation)
