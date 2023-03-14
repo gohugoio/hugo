@@ -415,7 +415,7 @@ func Deprecated(item, alternative string, err bool) {
 		DistinctErrorLog.Errorf("%s is deprecated and will be removed in Hugo %s. %s", item, hugo.CurrentVersion.Next().ReleaseVersion(), alternative)
 	} else {
 		var warnPanicMessage string
-		if !loggers.PanicOnWarning {
+		if !loggers.PanicOnWarning.Load() {
 			warnPanicMessage = "\n\nRe-run Hugo with the flag --panicOnWarning to get a better error message."
 		}
 		DistinctWarnLog.Warnf("%s is deprecated and will be removed in a future release. %s%s", item, alternative, warnPanicMessage)

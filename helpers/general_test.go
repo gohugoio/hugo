@@ -65,10 +65,10 @@ func TestDistinctLoggerDoesNotLockOnWarningPanic(t *testing.T) {
 
 	// Set PanicOnWarning to true to reproduce issue 9380
 	// Ensure global variable loggers.PanicOnWarning is reset to old value after test
-	if loggers.PanicOnWarning == false {
-		loggers.PanicOnWarning = true
+	if !loggers.PanicOnWarning.Load() {
+		loggers.PanicOnWarning.Store(true)
 		defer func() {
-			loggers.PanicOnWarning = false
+			loggers.PanicOnWarning.Store(false)
 		}()
 	}
 

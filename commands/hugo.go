@@ -255,6 +255,7 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 	setValueFromFlag(cmd.Flags(), "destination", cfg, "publishDir", false)
 	setValueFromFlag(cmd.Flags(), "printI18nWarnings", cfg, "logI18nWarnings", false)
 	setValueFromFlag(cmd.Flags(), "printPathWarnings", cfg, "logPathWarnings", false)
+
 }
 
 func setValueFromFlag(flags *flag.FlagSet, key string, cfg config.Provider, targetKey string, force bool) {

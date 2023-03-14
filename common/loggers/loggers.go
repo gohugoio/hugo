@@ -21,6 +21,7 @@ import (
 	"os"
 	"regexp"
 	"runtime"
+	"sync/atomic"
 	"time"
 
 	"github.com/gohugoio/hugo/common/terminal"
@@ -31,7 +32,7 @@ import (
 var (
 	// Counts ERROR logs to the global jww logger.
 	GlobalErrorCounter *jww.Counter
-	PanicOnWarning     bool
+	PanicOnWarning     atomic.Bool
 )
 
 func init() {
@@ -136,14 +137,14 @@ const panicOnWarningMessage = "Warning trapped. Remove the --panicOnWarning flag
 
 func (l *logger) Warnf(format string, v ...any) {
 	l.WARN.Printf(format, v...)
-	if PanicOnWarning {
+	if PanicOnWarning.Load() {
 		panic(panicOnWarningMessage)
 	}
 }
 
 func (l *logger) Warnln(v ...any) {
 	l.WARN.Println(v...)
-	if PanicOnWarning {
+	if PanicOnWarning.Load() {
 		panic(panicOnWarningMessage)
 	}
 }

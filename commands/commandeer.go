@@ -302,6 +302,7 @@ func (c *commandeer) loadConfig() error {
 	cfg := c.DepsCfg
 	c.configured = false
 	cfg.Running = c.running
+	loggers.PanicOnWarning.Store(c.h.panicOnWarning)
 
 	var dir string
 	if c.h.source != "" {
