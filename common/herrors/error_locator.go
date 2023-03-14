@@ -61,6 +61,16 @@ var OffsetMatcher = func(m LineMatcher) int {
 	return -1
 }
 
+// ContainsMatcher is a line matcher that matches by line content.
+func ContainsMatcher(text string) func(m LineMatcher) int {
+	return func(m LineMatcher) int {
+		if idx := strings.Index(m.Line, text); idx != -1 {
+			return idx + 1
+		}
+		return -1
+	}
+}
+
 // ErrorContext contains contextual information about an error. This will
 // typically be the lines surrounding some problem in a file.
 type ErrorContext struct {

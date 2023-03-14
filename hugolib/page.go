@@ -617,7 +617,13 @@ func (p *pageState) wrapError(err error) error {
 		}
 	}
 
-	return herrors.NewFileErrorFromFile(err, filename, p.s.SourceSpec.Fs.Source, herrors.NopLineMatcher)
+	lineMatcher := herrors.NopLineMatcher
+
+	if textSegmentErr, ok := err.(*herrors.TextSegmentError); ok {
+		lineMatcher = herrors.ContainsMatcher(textSegmentErr.Segment)
+	}
+
+	return herrors.NewFileErrorFromFile(err, filename, p.s.SourceSpec.Fs.Source, lineMatcher)
 
 }
 
