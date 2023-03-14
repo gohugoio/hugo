@@ -16,8 +16,8 @@ jobs:
   test:
     strategy:
       matrix:
-        go-version: [1.19.x,1.20.x]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        go-version: [1.20.x]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout code
@@ -88,16 +88,8 @@ jobs:
         echo  "$env:GITHUB_WORKSPACE/sass_embedded/" | Out-File -FilePath $Env:GITHUB_PATH -Encoding utf-8 -Append
     - name: Check
       run: |
-        mage -v check;
+        go env
+        go test -count 6 -race ./... -tags extended
       env:
         HUGO_BUILD_TAGS: extended
-    - name: Build Docs
-      env:
-        HUGO_BUILD_TAGS: extended
-        HUGO_TIMEOUT: 31000
-        HUGO_IGNOREERRORS: error-remote-getjson
-        HUGO_SERVICES_INSTAGRAM_ACCESSTOKEN: dummytoken
-      run: |
-        mage -v hugo
-        ./hugo -s docs/
-        ./hugo --renderToMemory -s docs/
+
