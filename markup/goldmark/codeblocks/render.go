@@ -15,6 +15,7 @@ package codeblocks
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"strings"
 	"sync"
@@ -101,7 +102,10 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 	}
 
 	// IsDefaultCodeBlockRendererProvider
-	attrs := getAttributes(n.b, info)
+	attrs, attrStr, err := getAttributes(n.b, info)
+	if err != nil {
+		return ast.WalkStop, &herrors.TextSegmentError{Err: err, Segment: attrStr}
+	}
 	cbctx := &codeBlockContext{
 		page:             ctx.DocumentContext().Document,
 		lang:             lang,
@@ -123,7 +127,7 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 
 	cr := renderer.(hooks.CodeBlockRenderer)
 
-	err := cr.RenderCodeblock(
+	err = cr.RenderCodeblock(
 		ctx.RenderContext().Ctx,
 		w,
 		cbctx,
@@ -182,30 +186,36 @@ func getLang(node *ast.FencedCodeBlock, src []byte) string {
 	return lang
 }
 
-func getAttributes(node *ast.FencedCodeBlock, infostr []byte) []ast.Attribute {
+func getAttributes(node *ast.FencedCodeBlock, infostr []byte) ([]ast.Attribute, string, error) {
 	if node.Attributes() != nil {
-		return node.Attributes()
+		return node.Attributes(), "", nil
 	}
 	if infostr != nil {
 		attrStartIdx := -1
+		attrEndIdx := -1
 
 		for idx, char := range infostr {
-			if char == '{' {
+			if attrEndIdx == -1 && char == '{' {
 				attrStartIdx = idx
+			}
+			if attrStartIdx != -1 && char == '}' {
+				attrEndIdx = idx
 				break
 			}
 		}
 
-		if attrStartIdx != -1 {
+		if attrStartIdx != -1 && attrEndIdx != -1 {
 			n := ast.NewTextBlock() // dummy node for storing attributes
-			attrStr := infostr[attrStartIdx:]
+			attrStr := infostr[attrStartIdx : attrEndIdx+1]
 			if attrs, hasAttr := parser.ParseAttributes(text.NewReader(attrStr)); hasAttr {
 				for _, attr := range attrs {
 					n.SetAttribute(attr.Name, attr.Value)
 				}
-				return n.Attributes()
+				return n.Attributes(), "", nil
+			} else {
+				return nil, string(attrStr), errors.New("failed to parse Markdown attributes; you may need to quote the values")
 			}
 		}
 	}
-	return nil
+	return nil, "", nil
 }
