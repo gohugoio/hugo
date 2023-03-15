@@ -155,9 +155,9 @@ Their language is __assigned__ according to the language code added as a __suffi
 
 By having the same **path and base filename**, the content pieces are __linked__ together as translated pages.
 
-{{< note >}}
+{{% note %}}
 If a file has no language code, it will be assigned the default language.
-{{</ note >}}
+{{% /note %}}
 
 ### Translation by content directory
 
@@ -209,16 +209,22 @@ By setting the `translationKey` front matter param to `about` in all three pages
 
 Because paths and filenames are used to handle linking, all translated pages will share the same URL (apart from the language subdirectory).
 
-To localize the URLs, the [`slug`]({{< ref "/content-management/organization/index.md#slug" >}}) or [`url`]({{< ref "/content-management/organization/index.md#url" >}}) front matter param can be set in any of the non-default language file.
+To localize URLs:
 
-For example, a French translation (`content/about.fr.md`) can have its own localized slug.
+- For a regular page, set either [`slug`] or [`url`] in front matter
+- For a section page, set [`url`] in front matter
 
-{{< code-toggle >}}
-Title: A Propos
+[`slug`]: /content-management/urls/#slug
+[`url`]: /content-management/urls/#url
+
+For example, a French translation can have its own localized slug.
+
+{{< code-toggle file="content/about.fr.md" fm=true copy=false >}}
+title: A Propos
 slug: "a-propos"
 {{< /code-toggle >}}
 
-At render, Hugo will build both `/about/` and `/fr/a-propos/` while maintaining their translation linking.
+At render, Hugo will build both `/about/` and `/fr/a-propos/` without affecting the translation link.
 
 ### Page Bundles
 
