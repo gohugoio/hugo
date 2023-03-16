@@ -91,7 +91,7 @@ func newHash(algo string) (hash.Hash, error) {
 	case "sha512":
 		return sha512.New(), nil
 	default:
-		return nil, fmt.Errorf("unsupported crypto algo: %q, use either md5, sha256, sha384 or sha512", algo)
+		return nil, fmt.Errorf("unsupported hash algorithm: %q, use either md5, sha256, sha384 or sha512", algo)
 	}
 }
 
