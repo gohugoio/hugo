@@ -105,7 +105,7 @@ Note that if you do not handle `.Err` yourself, Hugo will fail the build the fir
 
 ### Remote Options
 
-When fetching a remote `Resource`, `resources.GetRemote` takes an optional options map as the last argument, e.g.:
+When fetching a remote `Resource`, `resources.GetRemote` takes an optional options map as the second argument, e.g.:
 
 ```go-html-template
 {{ $resource := resources.GetRemote "https://example.org/api" (dict "headers" (dict "Authorization" "Bearer abcd"))  }}
