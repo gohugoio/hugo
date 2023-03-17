@@ -67,6 +67,7 @@ And then include this snippet at the bottom of the content template (**Note**: b
 
 With that you can use the `mermaid` language in Markdown code blocks:
 
+````
 ```mermaid
 sequenceDiagram
     participant Alice
@@ -80,6 +81,7 @@ sequenceDiagram
     John->>Bob: How about you?
     Bob-->>John: Jolly good!
 ```
+````
 
 ## Goat Ascii Diagram Examples
 
