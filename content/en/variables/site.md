@@ -93,7 +93,7 @@ All the methods below, e.g. `.Site.RegularPages` can also be reached via the glo
 : top-level directories of the site.
 
 .Site.Taxonomies
-: the [taxonomies](/taxonomies/usage/) for the entire site. Also see section [Use `.Site.Taxonomies` Outside of Taxonomy Templates](/variables/taxonomy/#use-sitetaxonomies-outside-of-taxonomy-templates).
+: the [taxonomies](/content-management/taxonomies/) for the entire site. Also see section [Access taxonomy data from any template](/variables/taxonomy/#access-taxonomy-data-from-any-template).
 
 .Site.Title
 : a string representing the title of the site.

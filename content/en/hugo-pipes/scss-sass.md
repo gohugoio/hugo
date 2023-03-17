@@ -27,7 +27,7 @@ transpiler [string]
 : The `transpiler` to use, valid values are `libsass` (default) and `dartsass`. If you want to use Hugo with Dart Sass you need to download a release binary from [Embedded Dart Sass](https://github.com/sass/dart-sass-embedded/releases) and make sure it's in your PC's `$PATH` (or `%PATH%` on Windows).
 
 targetPath [string]
-: If not set, the resource's target path will be the asset file original path with its extension replaced by `.css`.
+: If not set, the transformed resource's target path will be the asset file original path with its extension replaced by `.css`.
 
 vars [map]
 : Map of key/value pairs that will be available in the `hugo:vars` namespace, e.g. with `@use "hugo:vars" as v;` or (globally) with `@import "hugo:vars";` {{< new-in "0.109.0" >}}

@@ -151,7 +151,7 @@ The `url` is the entire URL path, defined by the file path and optionally overri
 [homepage template]: /templates/homepage/
 [homepage]: /templates/homepage/
 [lists]: /templates/lists/
-[pretty]: /content-management/urls/#pretty-urls
+[pretty]: /content-management/urls/#appearance
 [section templates]: /templates/section-templates/
 [sections]: /content-management/sections/
 [singles]: /templates/single-page-templates/

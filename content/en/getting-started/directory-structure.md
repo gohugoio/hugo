@@ -75,7 +75,7 @@ From **Hugo 0.31** you can have multiple static directories.
 : Caches some files to speed up generation. Can be also used by template authors to distribute built Sass files, so you don't have to have the preprocessor installed. Note: resources directory is not created by default.
 
 [archetypes]: /content-management/archetypes/
-[`assets`]: /hugo-pipes/introduction#asset-directory/
+[`assets`]: /hugo-pipes/introduction#asset-directory
 [configuration directives]: /getting-started/configuration/#all-configuration-settings
 [`content`]: /content-management/organization/
 [content section]: /content-management/sections/

@@ -141,7 +141,7 @@ You now have a live website served over HTTPS, distributed through CDN, and conf
 3. [Redirects and Rewrite Rules]
 
 [app.netlify.com]: https://app.netlify.com
-[build command]: /getting-started/usage/#the-hugo-command
+[build command]: /getting-started/usage/#build-your-site
 [config]: /getting-started/configuration/
 [ghsm]: https://github.com/blog/2104-working-with-submodules
 [gitsm]: https://git-scm.com/book/en/v2/Git-Tools-Submodules

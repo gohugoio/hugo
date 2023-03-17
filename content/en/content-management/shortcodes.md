@@ -209,7 +209,7 @@ The `highlight` shortcode example above would produce the following HTML when th
 {{< /output >}}
 
 {{% note "More on Syntax Highlighting" %}}
-To see even more options for adding syntax-highlighted code blocks to your website, see [Syntax Highlighting in Developer Tools](/tools/syntax-highlighting/).
+To see even more options for adding syntax-highlighted code blocks to your website, see [Syntax Highlighting in Developer Tools](/content-management/syntax-highlighting/).
 {{% /note %}}
 
 ### `instagram`
