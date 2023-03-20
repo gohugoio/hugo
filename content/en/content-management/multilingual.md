@@ -468,76 +468,91 @@ See [lang.FormatPercent] for details.
 
 ## Menus
 
-You can define your menus for each language independently. Creating multilingual menus works just like [creating regular menus][menus], except they're defined in language-specific blocks in the configuration file:
+Localization of menu entries depends on the how you define them:
 
-{{< code-toggle file="config" >}}
-defaultContentLanguage = "en"
+- When you define menu entries [automatically] using the section pages menu, you must use translation tables to localize each entry.
+- When you define menu entries [in front matter], they are already localized based on the front matter itself. If the front matter values are insufficient, use translation tables to localize each entry.
+- When you define menu entries [in site configuration], you can (a) use translation tables, or (b) create language-specific menu entries under each language key.
 
-[languages.en]
-weight = 0
-languageName = "English"
+### Use translation tables
 
-[[languages.en.menu.main]]
-url    = "/"
-name   = "Home"
-weight = 0
-
-[languages.de]
-weight = 10
-languageName = "Deutsch"
-
-[[languages.de.menu.main]]
-url    = "/"
-name   = "Startseite"
-weight = 0
-{{< /code-toggle >}}
-
-The rendering of the main navigation works as usual. `.Site.Menus` will just contain the menu in the current language. Note that `absLangURL` below will link to the correct locale of your website. Without it, menu entries in all languages would link to the English version, since it's the default content language that resides in the root directory.
+When rendering the text that appears in menu each entry, the [example menu template] does this:
 
 ```go-html-template
-<ul>
-    {{- $currentPage := . -}}
-    {{ range .Site.Menus.main -}}
-    <li class="{{ if $currentPage.IsMenuCurrent "main" . }}active{{ end }}">
-        <a href="{{ .URL | absLangURL }}">{{ .Name }}</a>
-    </li>
-    {{- end }}
-</ul>
+{{ or (T .Identifier) .Name | safeHTML }}
 ```
 
-### Dynamically localizing menus with i18n
+It queries the translation table for the current language using the menu entry's `identifier` and returns the translated string. If the translation table does not exist, or if the `identifier` key is not present in the translation table, it falls back to `name`.
 
-While customizing menus per language is useful, your config file can become hard to maintain if you have a lot of languages
+The `identifier` depends on how you define menu entries:
 
-If your menus are the same in all languages (ie. if the only thing that changes is the translated name) you can use the `.Identifier` as a translation key for the menu name:
+- If you define the menu entry [automatically] using the section pages menu, the `identifier` is the page's `.Section`.
+- If you define the menu entry [in site configuration] or [in front matter], set the `identifier` property to the desired value.
 
-{{< code-toggle file="config" >}}
+For example, if you define menu entries in site configuration:
+
+{{< code-toggle file="config" copy=false >}}
 [[menu.main]]
-name = "About me"
-url = "about"
+  identifier = 'products'
+  name = 'Products'
+  pageRef = '/products'
+  weight = 10
+[[menu.main]]
+  identifier = 'services'
+  name = 'Services'
+  pageRef = '/services'
+  weight = 20
+{{< / code-toggle >}}
+
+Create corresponding entries in the translation tables:
+
+{{< code-toggle file="i18n/de" copy=false >}}
+products = 'Produkte'
+services = 'Leistungen'
+{{< / code-toggle >}}
+
+[example menu template]: http://localhost:1313/templates/menu-templates/#example
+[automatically]: /content-management/menus/#define-automatically
+[in front matter]: /content-management/menus/#define-in-front-matter
+[in site configuration]: /content-management/menus/#define-in-site-configuration
+
+### Create language-specific menu entries
+
+For example:
+
+{{< code-toggle file="config" copy=false >}}
+[languages.de]
+languageCode = 'de-DE'
+languageName = 'Deutsch'
 weight = 1
-identifier = "about"
+
+[[languages.de.menu.main]]
+name = 'Produkte'
+pageRef = '/products'
+weight = 10
+
+[[languages.de.menu.main]]
+name = 'Leistungen'
+pageRef = '/services'
+weight = 20
+
+[languages.en]
+languageCode = 'en-US'
+languageName = 'English'
+weight = 2
+
+[[languages.en.menu.main]]
+name = 'Products'
+pageRef = '/products'
+weight = 10
+
+[[languages.en.menu.main]]
+name = 'Services'
+pageRef = '/services'
+weight = 20
 {{< /code-toggle >}}
 
-You now need to specify the translations for the menu keys in the i18n files:
-
-{{< code file="i18n/pt.toml" >}}
-[about]
-other="Sobre mim"
-{{< /code >}}
-
-And do the appropriate changes in the menu code to use the `i18n` tag with the `.Identifier` as a key. You will also note that here we are using a `default` to fall back to `.Name`, in case the `.Identifier` key is also not present in the language specified in the `defaultContentLanguage` configuration.
-
-{{< code file="layouts/partials/menu.html" >}}
-<ul>
-    {{- $currentPage := . -}}
-    {{ range .Site.Menus.main -}}
-    <li class="{{ if $currentPage.IsMenuCurrent "main" . }}active{{ end }}">
-        <a href="{{ .URL | absLangURL }}">{{ i18n .Identifier | default .Name}}</a>
-    </li>
-    {{- end }}
-</ul>
-{{< /code >}}
+For a simple menu with two languages, these menu entries are easy to create and maintain. For a larger menu, or with more than two languages, using translation tables as described above is preferable.
 
 ## Missing Translations
 
