@@ -36,7 +36,7 @@ Although you can use these methods in combination when defining a menu, the menu
 ## Define automatically
 
 To automatically define menu entries for each top-level section of your site, enable the section pages menu in your site configuration.
-q
+
 {{< code-toggle file="config" copy=false >}}
 sectionPagesMenu = "main"
 {{< /code-toggle >}}
