@@ -235,20 +235,20 @@ func TestImagePermalinkPublishOrder(t *testing.T) {
 				assertImageFile(c, spec.PublishFs, "a/sunset.jpg", 900, 562)
 			}
 
-			orignal := fetchImageForSpec(spec, c, "sunset.jpg")
-			c.Assert(orignal, qt.Not(qt.IsNil))
+			original := fetchImageForSpec(spec, c, "sunset.jpg")
+			c.Assert(original, qt.Not(qt.IsNil))
 
 			if checkOriginalFirst {
-				check2(orignal)
+				check2(original)
 			}
 
-			resized, err := orignal.Resize("100x50")
+			resized, err := original.Resize("100x50")
 			c.Assert(err, qt.IsNil)
 
 			check1(resized.(images.ImageResource))
 
 			if !checkOriginalFirst {
-				check2(orignal)
+				check2(original)
 			}
 		})
 	}
