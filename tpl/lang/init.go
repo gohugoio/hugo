@@ -72,6 +72,7 @@ func init() {
 				{`{{ lang.FormatNumberCustom 2 12345.6789 "- , ." }}`, `12.345,68`},
 				{`{{ lang.FormatNumberCustom 6 -12345.6789 "- ." }}`, `-12345.678900`},
 				{`{{ lang.FormatNumberCustom 0 -12345.6789 "- . ," }}`, `-12,346`},
+				{`{{ lang.FormatNumberCustom 0 -12345.6789 "-|.| " "|" }}`, `-12 346`},
 				{`{{ -98765.4321 | lang.FormatNumberCustom 2 }}`, `-98,765.43`},
 			},
 		)
