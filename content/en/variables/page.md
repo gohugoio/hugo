@@ -20,10 +20,6 @@ toc: true
 
 The following is a list of page-level variables. Many of these will be defined in the front matter, derived from file location, or extracted from the content itself.
 
-{{% note "`.Scratch`" %}}
-See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
-{{% /note %}}
-
 ## Page Variables
 
 .AlternativeOutputFormats
@@ -186,6 +182,14 @@ https://remarkjs.com)
 
 .WordCount
 : the number of words in the content.
+
+## Writable Page-scoped Variables
+
+[.Scratch][scratch]
+: returns a Scratch to store and manipulate data. In contrast to the [`.Store`][store] method, this scratch is reset on server rebuilds.
+
+[.Store][store]
+: returns a Scratch to store and manipulate data. In contrast to the [`.Scratch`][scratch] method, this scratch is not reset on server rebuilds.
 
 ## Section Variables and Methods
 
@@ -352,4 +356,5 @@ The top-level key will be preferred. Therefore, the following method, when appli
 [gitinfo]: /variables/git/
 [File Variables]: /variables/files/
 [bundle]: {{< relref "content-management/page-bundles" >}}
-
+[scratch]: /functions/scratch
+[store]: /functions/store

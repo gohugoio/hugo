@@ -39,9 +39,13 @@ toc: false
 .Inner
 : represents the content between the opening and closing shortcode tags when a [closing shortcode][markdownshortcode] is used
 
-[getfunction]: /functions/get/
-[markdownshortcode]: /content-management/shortcodes/#shortcodes-with-markdown
-[shortcodes]: /templates/shortcode-templates/
+.Scratch
+: returns a writable [`Scratch`][scratch] to store and manipulate data which will be attached to the shortcode context. This scratch is reset on server rebuilds.
 
 .InnerDeindent {{< new-in "0.100.0" >}}
 : Gets the `.Inner` with any indentation removed. This is what's used in the built-in `{{</* highlight */>}}` shortcode.
+
+[getfunction]: /functions/get/
+[markdownshortcode]: /content-management/shortcodes/#shortcodes-with-markdown
+[shortcodes]: /templates/shortcode-templates/
+[scratch]: /functions/scratch
