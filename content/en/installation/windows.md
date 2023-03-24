@@ -38,6 +38,16 @@ scoop install hugo-extended
 
 [Scoop]: https://scoop.sh/
 
+### Winget
+
+[Winget] is Microsoft's official free and open source package manager for Windows. This will install the extended edition of Hugo:
+
+```sh
+winget install Hugo.Hugo.Extended
+```
+
+[Winget]: https://learn.microsoft.com/en-us/windows/package-manager/
+
 {{% readfile file="/installation/common/04-docker.md" %}}
 
 {{% readfile file="/installation/common/05-build-from-source.md" %}}
