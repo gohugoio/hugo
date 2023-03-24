@@ -1,6 +1,6 @@
 ---
 title: PostCSS
-description: Use PostCSS to transform CSS using any of the available plugins.
+description: Process CSS files with PostCSS, using any of the available plugins.
 categories: [asset management]
 keywords: []
 menu:
@@ -9,6 +9,7 @@ menu:
     weight: 40
 toc: true
 weight: 40
+signature: ["resources.PostCSS RESOURCE [OPTIONS]", "postCSS RESOURCE [OPTIONS]"]
 ---
 
 ## Setup

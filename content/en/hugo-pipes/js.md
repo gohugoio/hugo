@@ -1,6 +1,7 @@
 ---
-title: JavaScript Building
-description: Hugo Pipes can process JavaScript files with [ESBuild](https://github.com/evanw/esbuild).
+title: js.Build
+linkTitle: JavaScript Building
+description: Process a JavaScript file with [ESBuild](https://github.com/evanw/esbuild).
 date: 2020-07-20
 publishdate: 2020-07-20
 categories: [asset management]
@@ -11,7 +12,10 @@ menu:
     weight: 45
 weight: 45
 sections_weight: 45
+signature: ["js.Build RESOURCE [OPTIONS]"]
 ---
+
+## Usage
 
 Any JavaScript resource file can be transpiled and "tree shaken" using `js.Build` which takes for argument either a string for the filepath or a dict of options listed below.
 

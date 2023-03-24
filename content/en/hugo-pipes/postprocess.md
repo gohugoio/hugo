@@ -10,7 +10,10 @@ menu:
     weight: 39
 weight: 39
 sections_weight: 39
+signature: ["resources.PostProcess RESOURCE"]
 ---
+
+## Usage
 
 Marking a resource with `resources.PostProcess` delays any transformations to after the build, typically because one or more of the steps in the transformation chain depends on the result of the build (e.g. files in `public`).
 

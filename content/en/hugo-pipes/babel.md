@@ -11,7 +11,10 @@ menu:
     weight: 48
 weight: 48
 sections_weight: 48
+signature: ["resources.Babel RESOURCE [OPTIONS]", "babel RESOURCE [OPTIONS]"]
 ---
+
+## Usage
 
 Any JavaScript resource file can be transpiled to another JavaScript version using `resources.Babel` which takes for argument the resource object and an optional dict of options listed below. Babel uses the [babel cli](https://babeljs.io/docs/en/babel-cli).
 

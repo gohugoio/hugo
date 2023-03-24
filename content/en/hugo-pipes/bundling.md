@@ -1,6 +1,7 @@
 ---
-title: Asset bundling
-description: Hugo Pipes can bundle any number of assets together.
+title: Concat
+linkTitle: Concatenating assets
+description: Bundle any number of assets into one resource.
 date: 2018-07-14
 publishdate: 2018-07-14
 lastmod: 2018-07-14
@@ -12,9 +13,12 @@ menu:
     weight: 60
 weight: 60
 sections_weight: 60
+signature: ["resources.Concat TARGET_PATH SLICE_RESOURCES"]
 ---
 
-Asset files of the same MIME type can be bundled into one resource using `resources.Concat` which takes two arguments, a target path and a slice of resource objects.
+## Usage
+
+Asset files of the same MIME type can be bundled into one resource using `resources.Concat` which takes two arguments, the target path for the created resource bundle and a slice of resource objects to be concatenated.
 
 ```go-html-template
 {{ $plugins := resources.Get "js/plugins.js" }}
