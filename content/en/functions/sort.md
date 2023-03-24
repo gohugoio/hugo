@@ -1,63 +1,127 @@
 ---
 title: sort
-# linktitle: sort
-description: Sorts maps, arrays, and slices and returns a sorted slice.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
+description: Sorts slices, maps, and page collections.
 categories: [functions]
+signature: ["sort COLLECTION [KEY] [ORDER]"]
 menu:
   docs:
     parent: "functions"
 keywords: [ordering,sorting,lists]
-signature: []
-workson: [lists,taxonomies,terms,groups]
-hugoversion:
-relatedfuncs: []
-deprecated: false
+toc: true
 aliases: []
 ---
 
-A sorted array of map values will be returned with the keys eliminated. There are two optional arguments: `sortByField` and `sortAsc`. If left blank, sort will sort by keys (for maps) in ascending order as its default behavior.
+The `KEY` is optional when sorting slices in ascending order, otherwise it is required. When sorting slices, use the literal `value` in place of the `KEY`. See examples below.
 
+The `ORDER` may be either `asc` (ascending) or `desc` (descending). The default sort order is ascending.
+
+## Sort a slice
+
+The examples below assume this site configuration:
+
+{{< code-toggle file="config" copy=false >}}
+[params]
+grades = ['b','a','c']
+{{< /code-toggle >}}
+
+### Ascending order {#slice-ascending-order}
+
+Sort slice elements in ascending order using either of these constructs:
+
+{{< code file="layouts/_default/single.html" copy="false" >}}
+{{ sort site.Params.grades }} → [a b c]
+{{ sort site.Params.grades "value" "asc" }} → [a b c]
+{{< /code >}}
+
+In the examples above, `value` is the `KEY` representing the value of the slice element.
+
+### Descending order {#slice-descending-order}
+
+Sort slice elements in descending order:
+
+{{< code file="layouts/_default/single.html" copy="false" >}}
+{{ sort site.Params.grades "value" "desc" }} → [c b a]
+{{< /code >}}
+
+In the example above, `value` is the `KEY` representing the value of the slice element.
+
+## Sort a map
+
+The examples below assume this site configuration:
+
+{{< code-toggle file="config" copy=false >}}
+[params.authors.a]
+firstName = "Marius"
+lastName  = "Pontmercy"
+[params.authors.b]
+firstName = "Victor"
+lastName  = "Hugo"
+[params.authors.c]
+firstName = "Jean"
+lastName  = "Valjean"
+{{< /code-toggle >}}
+
+{{% note %}}
+When sorting maps, the `KEY` argument must be lowercase.
+{{% /note %}}
+
+### Ascending order {#map-ascending-order}
+
+Sort map objects in ascending order using either of these constructs:
+
+{{< code file="layouts/_default/single.html" copy="false" >}}
+{{ range sort site.Params.authors "firstname" }}
+  {{ .firstName }}
+{{ end }}
+
+{{ range sort site.Params.authors "firstname" "asc" }}
+  {{ .firstName }}
+{{ end }}
+{{< /code >}}
+
+These produce:
+
+```text
+Jean Marius Victor
 ```
----
-tags: ["tag3", "tag1", "tag2"]
----
 
-// Site config
-+++
-[params.authors]
-  [params.authors.Joe]
-    firstName = "Joe"
-    lastName  = "Bergevin"
-  [params.authors.Derek]
-    firstName = "Derek"
-    lastName  = "Perkins"
-  [params.authors.Tanner]
-    firstName = "Tanner"
-    lastName  = "Linsley"
-+++
+### Descending order {#map-descending-order}
+
+Sort map objects in descending order:
+
+{{< code file="layouts/_default/single.html" copy="false" >}}
+{{ range sort site.Params.authors "firstname" "desc" }}
+  {{ .firstName }}
+{{ end }}
+{{< /code >}}
+
+This produces:
+
+```text
+Victor Marius Jean
 ```
 
-```
-// Sort by value, ascending (default for lists)
-Tags: {{ range sort .Params.tags }}{{ . }} {{ end }}
+## Sort a page collection
 
-→ Outputs Tags: tag1 tag2 tag3
+Although you can use the `sort` function to sort a page collection, Hugo provides [built-in methods for sorting page collections] by:
 
-// Sort by value, descending
-Tags: {{ range sort .Params.tags "value" "desc" }}{{ . }} {{ end }}
+- weight
+- linktitle
+- title
+- front matter parameter
+- date
+- expiration date
+- last modified date
+- publish date
+- length
 
-→ Outputs Tags: tag3 tag2 tag1
+In this contrived example, sort the site's regular pages by `.Type` in descending order:
 
-// Sort by key, ascending (default for maps)
-Authors: {{ range sort .Site.Params.authors }}{{ .firstName }} {{ end }}
+{{< code file="layouts/_default/home.html" copy="false" >}}
+{{ range sort site.RegularPages "Type" "desc" }}
+  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+{{ end }}
+{{< /code >}}
 
-→ Outputs Authors: Derek Joe Tanner
 
-// Sort by field, descending
-Authors: {{ range sort .Site.Params.authors "lastName" "desc" }}{{ .lastName }} {{ end }}
-
-→ Outputs Authors: Perkins Linsley Bergevin
-```
+[built-in methods for sorting page collections]: /templates/lists/#order-content
