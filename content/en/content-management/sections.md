@@ -63,8 +63,7 @@ If you need a specific template for a sub-section, you need to adjust either the
 With the available [section variables and methods](#section-page-variables-and-methods) you can build powerful navigation. One common example would be a partial to show Breadcrumb navigation:
 
 {{< code file="layouts/partials/breadcrumb.html" download="breadcrumb.html" >}}
-<ol class="nav navbar-nav">
-<ul>
+<ul class="nav navbar-nav">
 {{- range .Ancestors.Reverse }}
 <li><a href="{{ .Permalink }}">{{ .Title }}</a></li>
 {{- end }}
@@ -72,7 +71,6 @@ With the available [section variables and methods](#section-page-variables-and-m
 <a href="{{ .Permalink }}">{{ .Title }}</a>
 </li>
 </ul>
-</ol>
 {{< /code >}}
 
 ## Section Page Variables and Methods
