@@ -134,13 +134,19 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	}
 
 	configFile = filepath.Clean(configFile)
+	isConfigFileDir := false
 
 	// We need an absolute filename to the config file.
 	if !filepath.IsAbs(configFile) {
-		configFile = t.rs.BaseFs.ResolveJSConfigFile(configFile)
-		if configFile == "" && t.options.Config != "" {
-			// Only fail if the user specified config file is not found.
-			return fmt.Errorf("babel config %q not found", configFile)
+		configFile, isConfigFileDir = t.rs.BaseFs.ResolveJSConfigFile(configFile)
+		if t.options.Config != "" {
+			if configFile == "" {
+				// Only fail if the user specified config file is not found.
+				return fmt.Errorf("babel config file %q not found", configFile)
+			}
+			if isConfigFileDir {
+				loggers.Log().Warnf("babel config %q must be a file, not a directory", configFile)
+			}
 		}
 	}
 
