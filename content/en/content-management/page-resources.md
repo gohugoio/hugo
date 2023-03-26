@@ -11,8 +11,7 @@ menu:
 toc: true
 weight: 80
 ---
-Page resources are only accessible from [page bundles]({{< relref
-"/content-management/page-bundles" >}}), those directories with `index.md` or
+Page resources are only accessible from [page bundles](/content-management/page-bundles), those directories with `index.md` or
 `_index.md` files at their root. Page resources are only available to the
 page with which they are bundled.
 

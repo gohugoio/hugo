@@ -35,7 +35,7 @@ For template lookup order, see [Template Lookup](/templates/lookup-order/).
 
 The idea of a list page comes from the [hierarchical mental model of the web][mentalmodel] and is best demonstrated visually:
 
-[![Image demonstrating a hierarchical website sitemap.](/images/site-hierarchy.svg)](/images/site-hierarchy.svg)
+[![Image demonstrating a hierarchical website sitemap.](site-hierarchy.svg)](site-hierarchy.svg)
 
 ## List Defaults
 

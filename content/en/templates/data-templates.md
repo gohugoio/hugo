@@ -52,7 +52,7 @@ Data file|Template code
 
 ## Data Files in Themes
 
-Data Files can also be used in [Hugo themes][themes].
+Data Files can also be used in themes.
 
 However, note that the theme data files are merged with the project directory taking precedence. That is, Given two files with the same name and relative path, the data in the file in the root project `data` directory will override the data from the file in the `themes/<THEME>/data` directory *for keys that are duplicated*).
 
@@ -258,14 +258,13 @@ If you change any local file and the LiveReload is triggered, Hugo will read the
 
 [config]: /getting-started/configuration/
 [csv]: https://tools.ietf.org/html/rfc4180
-[customize]: /themes/customizing/
+[customize]: /hugo-modules/theme-components/
 [json]: https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf "Specification for JSON, JavaScript Object Notation"
 [LiveReload]: /getting-started/usage/#livereload
 [lookup]: /templates/lookup-order/
 [markdownify]: /functions/markdownify/
 [OAuth]: https://en.wikipedia.org/wiki/OAuth
 [partials]: /templates/partials/
-[themes]: /themes/
 [toml]: https://github.com/toml-lang/toml
 [variadic]: https://en.wikipedia.org/wiki/Variadic_function
 [vars]: /variables/

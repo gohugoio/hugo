@@ -197,10 +197,10 @@ The following `footer.html` partial template is used for [spf13.com](https://spf
 </footer>
 {{< /code >}}
 
-[context]: /templates/introduction/ "The most easily overlooked concept to understand about Go templating is how the dot always refers to the current context."
-[customize]: /themes/customizing/ "Hugo provides easy means to customize themes as long as users are familiar with Hugo's template lookup order."
-[listtemps]: /templates/lists/ "To effectively leverage Hugo's system, see how Hugo handles list pages, where content for sections, taxonomies, and the homepage are listed and ordered."
-[lookup order]: /templates/lookup-order/ "To keep your templating dry, read the documentation on Hugo's lookup order."
-[partialcached]: /functions/partialcached/ "Use the partial cached function to improve build times in cases where Hugo can cache partials that don't need to be rendered with every page."
-[singletemps]: /templates/single-page-templates/ "The most common form of template in Hugo is the single content template. Read the docs on how to create templates for individual pages."
+[context]: /templates/introduction/
+[customize]: /hugo-modules/theme-components/
+[listtemps]: /templates/lists/
+[lookup order]: /templates/lookup-order/
+[partialcached]: /functions/partialcached/
+[singletemps]: /templates/single-page-templates/
 [themes]: /themes/

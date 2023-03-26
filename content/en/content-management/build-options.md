@@ -56,11 +56,11 @@ If true, the page will be treated as part of the project's collections and, when
 
 #### publishResources
 
-If set to true the [Bundle's Resources]({{< relref "content-management/page-bundles" >}}) will be published.
+If set to true the [Bundle's Resources](/content-management/page-bundles) will be published.
 Setting this to false will still publish Resources on demand (when a resource's `.Permalink` or `.RelPermalink` is invoked from the templates) but will skip the others.
 
 {{% note %}}
-Any page, regardless of their build options, will always be available using the [`.GetPage`]({{< relref "functions/GetPage" >}}) methods.
+Any page, regardless of their build options, will always be available using the [`.GetPage`](/functions/GetPage) methods.
 {{% /note %}}
 
 ------
@@ -92,7 +92,7 @@ _build:
 
 Website needs to showcase a few of the hundred "testimonials" available as content files without publishing any of them.
 
-To avoid setting the build options on every testimonials, one can use [`cascade`]({{< relref "/content-management/front-matter#front-matter-cascade" >}}) on the testimonial section's content file.
+To avoid setting the build options on every testimonials, one can use [`cascade`](/content-management/front-matter#front-matter-cascade) on the testimonial section's content file.
 
 {{< code-toggle >}}
 title: Testimonials

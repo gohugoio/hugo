@@ -91,4 +91,4 @@ parameters to `partialCached` beyond the initial context. See the
 `partialCached` documentation for more details.
 {{% /tip %}}
 
-[partialCached]:{{< ref "/functions/partialCached.md" >}}
+[partialCached]: /functions/partialCached

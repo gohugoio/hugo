@@ -17,7 +17,7 @@ aliases: [/content/sections/]
 
 Hugo `0.32` announced page-relative images and other resources packaged into `Page Bundles`.
 
-These terms are connected, and you also need to read about [Page Resources]({{< relref "/content-management/page-resources" >}}) and [Image Processing]({{< relref "/content-management/image-processing" >}}) to get the full picture.
+These terms are connected, and you also need to read about [Page Resources](/content-management/page-resources) and [Image Processing](/content-management/image-processing) to get the full picture.
 
 {{< imgproc 1-featured Resize "300x" >}}
 The illustration shows three bundles. Note that the home page bundle cannot contain other content pages, although other files (images etc.) are allowed.

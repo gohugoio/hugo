@@ -457,15 +457,15 @@ If you change image processing methods or options, or if you rename or remove im
 hugo --gc
 ```
 
-[`anchor`]: {{< relref "content-management/image-processing#anchor" >}}
-[`lang.FormatNumber`]: {{< relref "functions/lang#langformatnumber" >}}
-[Exif]: <https://en.wikipedia.org/wiki/Exif>
-[filters]: {{< relref "functions/images" >}}
+[time.Format]: /functions/dateformat
+[`anchor`]: /content-management/image-processing#anchor
+[mounted]: /hugo-modules/configuration#module-config-mounts
+[page bundle]: /content-management/page-bundles
+[`lang.FormatNumber`]: /functions/lang
+[filters]: /functions/images
 [github.com/disintegration/imaging]: <https://github.com/disintegration/imaging#image-resizing>
-[mounted]: {{< relref "hugo-modules/configuration#module-config-mounts">}}
-[page bundle]: {{< relref "content-management/page-bundles" >}}
 [Smartcrop]: <https://github.com/muesli/smartcrop#smartcrop>
-[time.Format]: {{< relref "functions/dateformat" >}}
+[Exif]: <https://en.wikipedia.org/wiki/Exif>
 [`Colors`]: #colors
 [`Crop`]: #crop
 [`Exif`]: #exif

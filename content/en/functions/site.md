@@ -20,4 +20,4 @@ draft: false
 aliases: []
 ---
 
-`site` is a global function which returns the same data as the `.Site` page method. See: [Site Variables]({{< relref "/variables/site" >}}).
+`site` is a global function which returns the same data as the `.Site` page method. See: [Site Variables](/variables/site).

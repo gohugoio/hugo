@@ -251,7 +251,7 @@ The partial below is a plain text template (Output Format is `CSV`, and since th
 
 [base]: /templates/base/
 [config]: /getting-started/configuration/
-[lookup order]: /templates/lookup/
+[lookup order]: /templates/lookup-order/
 [media type]: https://en.wikipedia.org/wiki/Media_type
 [partials]: /templates/partials/
 [page_kinds]: /templates/section-templates/#page-kinds

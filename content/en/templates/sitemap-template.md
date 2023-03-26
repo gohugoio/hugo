@@ -79,7 +79,7 @@ You may disable sitemap generation in your site configuration:
 disableKinds = ['sitemap']
 {{</ code-toggle >}}
 
-[`publishDir`]: {{< relref "getting-started/configuration#publishdir" >}}
+[`publishDir`]: /getting-started/configuration#publishdir
 [change frequency]: <https://www.sitemaps.org/protocol.html#changefreqdef>
 [priority]: <https://www.sitemaps.org/protocol.html#priority>
 [sitemap protocol]: <https://www.sitemaps.org/protocol.html>

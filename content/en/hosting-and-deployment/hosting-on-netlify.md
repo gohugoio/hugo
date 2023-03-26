@@ -101,7 +101,7 @@ See [this blog post](https://www.netlify.com/blog/2017/04/11/netlify-plus-hugo-0
 
 ## Use Hugo Themes with Netlify
 
-The [`git clone` method for installing themes][installthemes] is not supported by Netlify. If you were to use `git clone`, it would require you to recursively remove the `.git` subdirectory from the theme folder and would therefore prevent compatibility with future versions of the theme.
+The `git clone` method for installing themes is not supported by Netlify. If you were to use `git clone`, it would require you to recursively remove the `.git` subdirectory from the theme folder and would therefore prevent compatibility with future versions of the theme.
 
 A *better* approach is to install a theme as a proper git submodule. You can [read the GitHub documentation for submodules][ghsm] or those found on [Git's website][gitsm] for more information, but the command is similar to that of `git clone`:
 
@@ -147,7 +147,6 @@ You now have a live website served over HTTPS, distributed through CDN, and conf
 [gitsm]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
 [httpscustom]: https://www.netlify.com/docs/ssl/
 [hugoversions]: https://github.com/netlify/build-image/blob/master/Dockerfile#L216
-[installthemes]: /themes/installing/
 [netlify]: https://www.netlify.com/
 [netlifysignup]: https://app.netlify.com/signup
 [Quick Start]: /getting-started/quick-start/

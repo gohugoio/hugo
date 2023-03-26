@@ -67,5 +67,5 @@ Example 4
 ```
 
 {{% note %}}
-Regardless of depth, merging only applies to maps. For slices, use [append]({{< ref "functions/append" >}}).
+Regardless of depth, merging only applies to maps. For slices, use [append](/functions/append).
 {{% /note %}}

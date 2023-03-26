@@ -607,11 +607,11 @@ hugo new content/de/post/test.md
 [homepage]: /templates/homepage/
 [Hugo Multilingual Part 1: Content translation]: https://regisphilibert.com/blog/2018/08/hugo-multilingual-part-1-managing-content-translation/
 [i18func]: /functions/i18n/
-[lang.FormatAccounting]: /functions/lang/#langformataccounting
-[lang.FormatCurrency]: /functions/lang/#langformatcurrency
-[lang.FormatNumber]: /functions/lang/#langformatnumber
-[lang.FormatNumberCustom]: /functions/lang/#langformatnumbercustom
-[lang.FormatPercent]: /functions/lang/#langformatpercent
+[lang.FormatAccounting]: /functions/lang
+[lang.FormatCurrency]: /functions/lang
+[lang.FormatNumber]: /functions/lang
+[lang.FormatNumberCustom]: /functions/lang
+[lang.FormatPercent]: /functions/lang
 [lang.Merge]: /functions/lang.merge/
 [menus]: /content-management/menus/
 [OS environment]: /getting-started/configuration/#configure-with-environment-variables

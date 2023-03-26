@@ -48,4 +48,4 @@ Note that `os.ReadDir` is not recursive.
 
 Details of the `FileInfo` structure are available in the [Go documentation](https://pkg.go.dev/io/fs#FileInfo).
 
-For more information on using `readDir` and `readFile` in your templates, see [Local File Templates]({{< relref "/templates/files" >}}).
+For more information on using `readDir` and `readFile` in your templates, see [Local File Templates](/templates/files).

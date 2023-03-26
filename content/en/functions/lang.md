@@ -11,6 +11,4 @@ menu:
 signature: ["lang.NumFmt PRECISION NUMBER [OPTIONS [DELIMITER]]"]
 aliases: ['/functions/numfmt/']
 type: 'template-func'
-
 ---
-

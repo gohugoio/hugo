@@ -31,8 +31,7 @@ Go Templates are HTML files with the addition of [variables][variables] and [fun
 ### Access a Predefined Variable
 
 A _predefined variable_ could be a variable already existing in the
-current scope (like the `.Title` example in the [Variables]({{< relref
-"#variables" >}}) section below) or a custom variable (like the
+current scope (like the `.Title` example in the [Variables](#variables) section below) or a custom variable (like the
 `$address` example in that same section).
 
 
@@ -529,7 +528,7 @@ The templating engine will strip the content within the HTML comment, but will f
 
 ## Hugo Parameters
 
-Hugo provides the option of passing values to your template layer through your [site configuration][config] (i.e. for site-wide values) or through the metadata of each specific piece of content (i.e. the [front matter]). You can define any values of any type and use them however you want in your templates, as long as the values are supported by the [front matter format]({{< ref "front-matter.md#front-matter-formats" >}}).
+Hugo provides the option of passing values to your template layer through your [site configuration][config] (i.e. for site-wide values) or through the metadata of each specific piece of content (i.e. the [front matter]). You can define any values of any type and use them however you want in your templates, as long as the values are supported by the [front matter format](/content-management/front-matter#front-matter-formats).
 
 ## Use Content (`Page`) Parameters
 
@@ -663,19 +662,19 @@ If you restrict front matter to the TOML format, and omit quotation marks surrou
 </ul>
 {{< /code >}}
 
-[config]: {{< relref "getting-started/configuration" >}}
 [dotdoc]: https://golang.org/pkg/text/template/#hdr-Variables
-[first]: {{< relref "functions/first" >}}
-[front matter]: {{< relref "content-management/front-matter" >}}
-[functions]: {{< relref "functions" >}}
-[internal templates]: {{< relref "templates/internal" >}}
-[isset]: {{< relref "functions/isset" >}}
-[math]: {{< relref "functions/math" >}}
-[pagevars]: {{< relref "variables/page" >}}
-[param]: {{< relref "functions/param" >}}
-[partials]: {{< relref "templates/partials" >}}
-[relpermalink]: {{< relref "variables/page#page-variables" >}}
-[safehtml]: {{< relref "functions/safehtml" >}}
-[sitevars]: {{< relref "variables/site" >}}
-[variables]: {{< relref "variables" >}}
-[with]: {{< relref "functions/with" >}}
+[config]: /getting-started/configuration
+[first]: /functions/first
+[front matter]: /content-management/front-matter
+[functions]: /functions
+[internal templates]: /templates/internal
+[isset]: /functions/isset
+[math]: /functions/math
+[pagevars]: /variables/page
+[param]: /functions/param
+[partials]: /templates/partials
+[relpermalink]: /variables/page#page-variables
+[safehtml]: /functions/safehtml
+[sitevars]: /variables/site
+[variables]: /variables
+[with]: /functions/with

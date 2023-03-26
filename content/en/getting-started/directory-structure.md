@@ -85,7 +85,7 @@ From **Hugo 0.31** you can have multiple static directories.
 [`layouts`]: /templates/
 [`static`]: /content-management/static-files/
 [`resources`]: /getting-started/configuration/#configure-file-caches
-[lists]: /templates/list/
+[lists]: /templates/lists/
 [pagevars]: /variables/page/
 [partials]: /templates/partials/
 [searchconsole]: https://support.google.com/webmasters/answer/9008080#zippy=%2Chtml-file-upload

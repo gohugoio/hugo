@@ -177,16 +177,16 @@ There are two different templates that the use of taxonomies will require you to
 
 Both templates are covered in detail in the templates section.
 
-A [list template](/templates/list/) is any template that will be used to render multiple pieces of content in a single html page. This template will be used to generate all the automatically created taxonomy pages.
+A [list template](/templates/lists/) is any template that will be used to render multiple pieces of content in a single html page. This template will be used to generate all the automatically created taxonomy pages.
 
-A [taxonomy terms template](/templates/terms/) is a template used to
+A [taxonomy template](/templates/taxonomy-templates/) is a template used to
 generate the list of terms for a given template.
 
 <!-- Begin /taxonomies/displaying/ -->
 
 There are four common ways you can display the data in your
 taxonomies in addition to the automatic taxonomy pages created by hugo
-using the [list templates](/templates/list/):
+using the [list templates](/templates/lists/):
 
 1. For a given piece of content, you can list the terms attached
 2. For a given piece of content, you can list other content with the same
@@ -315,7 +315,7 @@ This example will list all taxonomies and their terms, as well as all the conten
 
 ## `.Site.GetPage` for Taxonomies
 
-Because taxonomies are lists, the [`.GetPage` function][getpage] can be used to get all the pages associated with a particular taxonomy term using a terse syntax. The following ranges over the full list of tags on your site and links to each of the individual taxonomy pages for each term without having to use the more fragile URL construction of the ["List All Site Tags" example above]({{< relref "#example-list-all-site-tags" >}}):
+Because taxonomies are lists, the [`.GetPage` function][getpage] can be used to get all the pages associated with a particular taxonomy term using a terse syntax. The following ranges over the full list of tags on your site and links to each of the individual taxonomy pages for each term without having to use the more fragile URL construction of the ["List All Site Tags" example above](#example-list-all-site-tags):
 
 {{< code file="links-to-all-tags.html" >}}
 {{ $taxo := "tags" }}

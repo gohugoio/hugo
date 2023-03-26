@@ -321,7 +321,7 @@ See [Configure Media Types](/templates/output-formats/#media-types).
 
 ### menus
 
-See [Add Non-content Entries to a Menu](/content-management/menus/#add-non-content-entries-to-a-menu).
+See [Menus](/content-management/menus/#define-in-site-configuration).
 
 ### minify
 
@@ -419,7 +419,7 @@ Maximum number of items in the RSS feed.
 
 ### sectionPagesMenu
 
-See ["Section Menu for Lazy Bloggers"](/templates/menu-templates/#section-menu-for-lazy-bloggers).
+See [Menus](/content-management/menus/#define-in-site-configuration).
 
 ### security
 

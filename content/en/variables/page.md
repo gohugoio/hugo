@@ -29,7 +29,7 @@ The following is a list of page-level variables. Many of these will be defined i
 : aliases of this page
 
 .Ancestors
-: get the ancestors of each page, simplify [breadcrumb navigation]({{< relref "content-management/sections#example-breadcrumb-navigation" >}}) implementation complexity  
+: get the ancestors of each page, simplify [breadcrumb navigation](/content-management/sections#example-breadcrumb-navigation) implementation complexity  
 
 .BundleType
 : the [bundle] type: `leaf`, `branch`, or an empty string if the page is not a bundle.
@@ -107,7 +107,7 @@ See also `.ExpiryDate`, `.Date`, `.PublishDate`, and [`.GitInfo`][gitinfo].
 
 .Pages
 : a collection of associated pages. This value will be `nil` within
-  the context of regular content pages. See [`.Pages`]({{< relref "page.md#pages" >}}).
+  the context of regular content pages. See [`.Pages`](#pages).
 
 .Permalink
 : the Permanent link for this page; see [Permalinks](/content-management/urls/)
@@ -355,6 +355,6 @@ The top-level key will be preferred. Therefore, the following method, when appli
 
 [gitinfo]: /variables/git/
 [File Variables]: /variables/files/
-[bundle]: {{< relref "content-management/page-bundles" >}}
+[bundle]: /content-management/page-bundles
 [scratch]: /functions/scratch
 [store]: /functions/store

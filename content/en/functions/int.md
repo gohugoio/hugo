@@ -30,8 +30,7 @@ leading 0's, then those 0's will have to be removed before passing the string
 to the `int` function, else that string will be tried to be parsed as an octal
 number representation.
 
-The [`strings.TrimLeft` function](/functions/strings.trimleft/) can be used for
-this purpose.
+The `strings.TrimLeft` can be used for this purpose.
 
 ```
 {{ int ("0987" | strings.TrimLeft "0") }}
