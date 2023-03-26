@@ -511,7 +511,7 @@ products = 'Produkte'
 services = 'Leistungen'
 {{< / code-toggle >}}
 
-[example menu template]: http://localhost:1313/templates/menu-templates/#example
+[example menu template]: /templates/menu-templates/#example
 [automatically]: /content-management/menus/#define-automatically
 [in front matter]: /content-management/menus/#define-in-front-matter
 [in site configuration]: /content-management/menus/#define-in-site-configuration

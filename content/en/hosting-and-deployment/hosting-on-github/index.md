@@ -23,7 +23,7 @@ GitHub provides free and fast static hosting over SSL for personal, organization
 
 [Create a GitHub account]: https://github.com/signup
 [Install Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
-[Create a Hugo site]: http://localhost:1313/getting-started/quick-start/
+[Create a Hugo site]: /getting-started/quick-start/
 
 ## Types of sites
 
