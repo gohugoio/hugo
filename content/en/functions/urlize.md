@@ -19,13 +19,11 @@ relatedfuncs: []
 
 The following examples pull from a content file with the following front matter:
 
-{{< code file="content/blog/greatest-city.md" copy="false" >}}
-+++
+{{< code-toggle file="content/blog/greatest-city.md" fm=true copy=false >}}
 title = "The World's Greatest City"
 location = "Chicago IL"
 tags = ["pizza","beer","hot dogs"]
-+++
-{{< /code >}}
+{{< /code-toggle >}}
 
 The following might be used as a partial within a [single page template][singletemplate]:
 

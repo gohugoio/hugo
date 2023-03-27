@@ -94,16 +94,16 @@ You can now access this `_index.md`'s' content in your list template:
 <main>
     <article>
         <header>
-            <h1>{{.Title }}</h1>
+            <h1>{{.Title}}</h1>
         </header>
-        <!-- "{{.Content }}" pulls from the markdown content of the corresponding _index.md -->
-        {{.Content }}
+        <!-- "{{.Content}}" pulls from the markdown content of the corresponding _index.md -->
+        {{.Content}}
     </article>
     <ul>
     <!-- Ranges through content/posts/*.md -->
     {{ range .Pages }}
         <li>
-            <a href="{{.Permalink }}">{{.Date.Format "2006-01-02"}} | {{.Title }}</a>
+            <a href="{{.Permalink}}">{{.Date.Format "2006-01-02"}} | {{.Title}}</a>
         </li>
     {{ end }}
     </ul>
@@ -133,7 +133,7 @@ This above will output the following HTML:
 
 ### List Pages Without `_index.md`
 
-You do *not* have to create an `_index.md` file for every list page (i.e. section, taxonomy, taxonomy terms, etc) or the homepage. If Hugo does not find an `_index.md` within the respective content section when rendering a list template, the page will be created but with no `{{.Content }}` and only the default values for `.Title` etc.
+You do *not* have to create an `_index.md` file for every list page (i.e. section, taxonomy, taxonomy terms, etc) or the homepage. If Hugo does not find an `_index.md` within the respective content section when rendering a list template, the page will be created but with no `{{.Content}}` and only the default values for `.Title` etc.
 
 Using this same `layouts/_default/list.html` template and applying it to the `quotes` section above will render the following output. Note that `quotes` does not have an `_index.md` file to pull from:
 
@@ -381,14 +381,14 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 {{ end }}
 {{< /code >}}
 
-In the above example, you may want `{{.Title }}` to point the `title` field you have added to your `_index.md` file instead. You can access this value using the [`.GetPage` function][getpage]:
+In the above example, you may want `{{.Title}}` to point the `title` field you have added to your `_index.md` file instead. You can access this value using the [`.GetPage` function][getpage]:
 
 {{< code file="layouts/partials/by-page-field.html" >}}
 <!-- Groups content according to content section.-->
 {{ range .Pages.GroupBy "Section" }}
 <!-- Checks for existence of _index.md for a section; if available, pulls from "title" in front matter -->
 {{ with $.Site.GetPage "section" .Key }}
-<h3>{{.Title }}</h3>
+<h3>{{.Title}}</h3>
 {{ else }}
 <!-- If no _index.md is available, ".Key" defaults to the section title and filters to title casing -->
 <h3>{{ .Key | title }}</h3>
@@ -544,7 +544,7 @@ While these are logical defaults, they are not always the desired order. There a
 
 ### Order Within Groups
 
-Because Grouping returns a `{{.Key }}` and a slice of pages, all the ordering methods listed above are available.
+Because Grouping returns a `{{.Key}}` and a slice of pages, all the ordering methods listed above are available.
 
 Here is the ordering for the example that follows:
 

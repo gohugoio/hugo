@@ -30,11 +30,10 @@ POTENTIAL NEW CONTENT: see apply/sequence discussion: https://discourse.gohugo.i
 
 Here is an example of a content file with `names:` as a front matter field:
 
-```
-+++
+{{< code-toggle file="content/example.md" fm=true copy=false >}}
+title: Example
 names: [ "Derek Perkins", "Joe Bergevin", "Tanner Linsley" ]
-+++
-```
+{{< /code-toggle >}}
 
 You can then use `apply` as follows:
 

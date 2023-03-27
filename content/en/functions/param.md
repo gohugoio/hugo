@@ -25,8 +25,8 @@ display_toc = true
 
 **Content**
 
-{{< code-toggle file="content/about.md" fm=true copy=false >}}
-title = 'About'
+{{< code-toggle file="content/example.md" fm=true copy=false >}}
+title = 'Example'
 date = 2023-01-01
 draft = false
 display_toc = false

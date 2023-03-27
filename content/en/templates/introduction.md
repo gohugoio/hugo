@@ -536,16 +536,12 @@ You can provide variables to be used by templates in individual content's [front
 
 An example of this is used in the Hugo docs. Most of the pages benefit from having the table of contents provided, but sometimes the table of contents doesn't make a lot of sense. We've defined a `notoc` variable in our front matter that will prevent a table of contents from rendering when specifically set to `true`.
 
-Here is the example front matter (YAML):
+Here is the example front matter:
 
-```yml
----
-title: Roadmap
-lastmod: 2017-03-05
-date: 2013-11-18
+{{< code-toggle file="content/example.md" fm=true copy=false >}}
+title: Example
 notoc: true
----
-```
+{{< /code-toggle >}}
 
 Here is an example of corresponding code that could be used inside a `toc.html` [partial template][partials]:
 

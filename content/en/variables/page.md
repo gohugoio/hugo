@@ -260,13 +260,11 @@ There are one caveat with this, and this isn't new, but it's worth mentioning he
 
 Any other value defined in the front matter in a content file, including taxonomies, will be made available as part of the `.Params` variable.
 
-```yml
----
-title: My First Post
-date: 2017-02-20T15:26:23-06:00
+{{< code-toggle file="content/example.md" fm=true copy=false >}}
+title: Example
 categories: [one]
 tags: [two,three,four]
-```
+{{< /code-toggle >}}
 
 With the above front matter, the `tags` and `categories` taxonomies are accessible via the following:
 
@@ -279,14 +277,11 @@ Page-level `.Params` are *only* accessible in lowercase.
 
 The `.Params` variable is particularly useful for the introduction of user-defined front matter fields in content files. For example, a Hugo website on book reviews could have the following front matter in `/content/review/book01.md`:
 
-```yml
----
-...
+{{< code-toggle file="content/example.md" fm=true copy=false >}}
+title: Example
 affiliatelink: "http://www.my-book-link.here"
 recommendedby: "My Mother"
-...
----
-```
+{{< /code-toggle >}}
 
 These fields would then be accessible to the `/themes/yourtheme/layouts/review/single.html` template through `.Params.affiliatelink` and `.Params.recommendedby`, respectively.
 
@@ -322,35 +317,18 @@ The `.Param` method provides a way to resolve a single value according to it's d
 
 When front matter contains nested fields like the following:
 
-```yml
----
+{{< code-toggle file="content/example.md" fm=true copy=false >}}
+title: Example
 author:
   given_name: John
   family_name: Feminella
   display_name: John Feminella
----
-```
+{{< /code-toggle >}}
+
 `.Param` can access these fields by concatenating the field names together with a dot:
 
 ```go-html-template
 {{ $.Param "author.display_name" }}
-```
-
-If your front matter contains a top-level key that is ambiguous with a nested key, as in the following case:
-
-```yml
----
-favorites.flavor: vanilla
-favorites:
-  flavor: chocolate
----
-```
-
-The top-level key will be preferred. Therefore, the following method, when applied to the previous example, will print `vanilla` and not `chocolate`:
-
-```txt
-{{ $.Param "favorites.flavor" }}
-=> vanilla
 ```
 
 [gitinfo]: /variables/git/

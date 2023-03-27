@@ -168,17 +168,15 @@ Note that in the above examples, the _output formats_ for `section`,
   * These names are case insensitive.
 * These can be overridden per `Page` in the front matter of content files.
 
-The following is an example of `YAML` front matter in a content file that defines output formats for the rendered `Page`:
+The following is an example of front matter in a content file that defines output formats for the rendered `Page`:
 
-```yaml
----
-date: "2016-03-19"
+{{< code-toggle file="content/example.md" fm=true copy=false >}}
+title: Example
 outputs:
 - html
 - amp
 - json
----
-```
+{{< /code-toggle >}}
 
 ## List Output formats
 

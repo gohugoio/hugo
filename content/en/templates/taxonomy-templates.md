@@ -150,16 +150,14 @@ Weights of zero are thus treated specially: if two pages have unequal weights, a
 
 Content can be assigned weight for each taxonomy that it's assigned to.
 
-```txt
-+++
+
+{{< code-toggle file="content/example.md" fm=true copy=false >}}
 tags = [ "a", "b", "c" ]
 tags_weight = 22
 categories = ["d"]
-title = "foo"
+title = "Example"
 categories_weight = 44
-+++
-Front Matter with weighted tags and categories
-```
+{{< /code-toggle >}}
 
 The convention is `taxonomyname_weight`.
 

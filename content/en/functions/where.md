@@ -33,11 +33,10 @@ SQL][wherekeyword].
 
 It can be used by dot-chaining the second argument to refer to a nested element of a value.
 
-```
-+++
+{{< code-toggle file="content/example.md" fm=true copy=false >}}
+title: Example
 series: golang
-+++
-```
+{{< /code-toggle >}}
 
 ```go-html-template
 {{ range where .Site.Pages "Params.series" "golang" }}
