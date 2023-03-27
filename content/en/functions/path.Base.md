@@ -22,7 +22,7 @@ If `PATH` is empty, `.` is returned.
 
 **Note:** On Windows, `PATH` is converted to slash (`/`) separators.
 
-```
+```go-html-template
 {{ path.Base "a/news.html" }} → "news.html"
 {{ path.Base "news.html" }} → "news.html"
 {{ path.Base "a/b/c" }} → "c"
