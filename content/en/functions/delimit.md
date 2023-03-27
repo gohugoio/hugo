@@ -31,12 +31,10 @@ To maintain a consistent output order, maps will be sorted by keys and only a sl
 
 The examples of `delimit` that follow all use the same front matter:
 
-{{< code file="delimit-example-front-matter.toml" nocopy="true" >}}
-+++
-title: I love Delimit
+{{< code-toggle file="content/about.md" copy=false fm=true >}}
+title: About
 tags: [ "tag1", "tag2", "tag3" ]
-+++
-{{< /code >}}
+{{< /code-toggle >}}
 
 {{< code file="delimit-page-tags-input.html" >}}
 <p>Tags: {{ delimit .Params.tags ", " }}</p>

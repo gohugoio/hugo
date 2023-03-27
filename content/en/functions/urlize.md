@@ -19,7 +19,7 @@ relatedfuncs: []
 
 The following examples pull from a content file with the following front matter:
 
-{{< code file="content/blog/greatest-city.md" copy="false">}}
+{{< code file="content/blog/greatest-city.md" copy="false" >}}
 +++
 title = "The World's Greatest City"
 location = "Chicago IL"

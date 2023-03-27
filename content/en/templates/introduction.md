@@ -624,7 +624,7 @@ content/
     └── event-3.md
 ```
 
-{{< code-toggle file="content/events/event-1.md" copy="false" >}}
+{{< code-toggle file="content/events/event-1.md" copy=false >}}
 title = 'Event 1'
 date = 2021-12-06T10:37:16-08:00
 draft = false

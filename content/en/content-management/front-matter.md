@@ -146,7 +146,7 @@ You can add fields to your front matter arbitrarily to meet your needs. These us
 
 The following fields can be accessed via `.Params.include_toc` and `.Params.show_comments`, respectively. The [Variables] section provides more information on using Hugo's page- and site-level variables in your templates.
 
-{{< code-toggle copy="false" >}}
+{{< code-toggle copy=false >}}
 include_toc: true
 show_comments: false
 {{</ code-toggle >}}
@@ -159,7 +159,7 @@ Any node or section can pass down to descendants a set of Front Matter values as
 
 The `cascade` block can be a slice with a optional `_target` keyword, allowing for multiple `cascade` values targeting different page sets.
 
-{{< code-toggle copy="false" >}}
+{{< code-toggle copy=false >}}
 title ="Blog"
 [[cascade]]
 background = "yosemite.jpg"
@@ -193,7 +193,7 @@ Any of the above can be omitted.
 
 In `content/blog/_index.md`
 
-{{< code-toggle copy="false" >}}
+{{< code-toggle copy=false >}}
 title: Blog
 cascade:
   banner: images/typewriter.jpg

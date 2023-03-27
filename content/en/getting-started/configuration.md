@@ -649,13 +649,13 @@ To exclude specific files from the `content` and `data` directories when renderi
 
 To ignore files ending with `.foo` or `.boo`:
 
-{{< code-toggle copy="false" >}}
+{{< code-toggle copy=false >}}
 ignoreFiles = ['\.foo$', '\.boo$']
 {{< /code-toggle >}}
 
 To ignore a file using the absolute file path:
 
-{{< code-toggle copy="false" >}}
+{{< code-toggle copy=false >}}
 ignoreFiles = ['^/home/user/project/content/test\.md$']
 {{< /code-toggle >}}
 

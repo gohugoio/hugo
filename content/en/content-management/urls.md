@@ -29,7 +29,7 @@ You can change the structure and appearance of URLs with front matter values and
 
 Set the `slug` in front matter to override the last segment of the path. The `slug` value does not affect section pages.
 
-{{< code-toggle file="content/posts/post-1.md" copy="false" fm=true >}}
+{{< code-toggle file="content/posts/post-1.md" copy=false fm=true >}}
 title = 'My First Post'
 slug = 'my-first-post'
 {{< /code-toggle >}}
@@ -46,7 +46,7 @@ Set the `url` in front matter to override the entire path. Use this with either 
 
 With this front matter:
 
-{{< code-toggle file="content/posts/post-1.md" copy="false" fm=true >}}
+{{< code-toggle file="content/posts/post-1.md" copy=false fm=true >}}
 title = 'My First Article'
 url = '/articles/my-first-article'
 {{< /code-toggle >}}
@@ -59,7 +59,7 @@ https://example.org/articles/my-first-article/
 
 If you include a file extension:
 
-{{< code-toggle file="content/posts/post-1.md" copy="false" fm=true >}}
+{{< code-toggle file="content/posts/post-1.md" copy=false fm=true >}}
 title = 'My First Article'
 url = '/articles/my-first-article.html'
 {{< /code-toggle >}}
@@ -111,7 +111,7 @@ content/
 
 Create a date-based hierarchy, recursively, for regular pages within the `posts` section:
 
-{{< code-toggle file="config" copy="false" >}}
+{{< code-toggle file="config" copy=false >}}
 posts = '/posts/:year/:month/:title/'
 {{< /code-toggle >}}
 
@@ -133,7 +133,7 @@ public/
 
 To create a date-based hierarchy for regular pages in the content root:
 
-{{< code-toggle file="config" copy="false" >}}
+{{< code-toggle file="config" copy=false >}}
 '/' = '/:year/:month/:title/'
 {{< /code-toggle >}}
 
@@ -143,7 +143,7 @@ A URL pattern defined for the content root is not recursive.
 
 Use the same approach with taxonomies. For example, to omit the taxonomy segment of the URL:
 
-{{< code-toggle file="config" copy="false" >}}
+{{< code-toggle file="config" copy=false >}}
 'tags' = '/:title/'
 {{< /code-toggle >}}
 
@@ -196,7 +196,7 @@ For time-related values, you can also use the layout string components defined i
 
 [time package]: https://pkg.go.dev/time#pkg-constants
 
-{{< code-toggle file="config" copy="false" >}}
+{{< code-toggle file="config" copy=false >}}
 permalinks:
   posts: /:06/:1/:2/:title/
 {{< /code-toggle >}}
@@ -212,7 +212,7 @@ pretty|content/about.md|`https://example.org/about/`
 
 By default, Hugo produces pretty URLs. To generate ugly URLs, change your site configuration:
 
-{{< code-toggle file="config" copy="false" >}}
+{{< code-toggle file="config" copy=false >}}
 uglyURLs = true
 {{< /code-toggle >}}
 
@@ -239,7 +239,7 @@ This is an imperfect, brute force approach that can affect content as well as HT
 
 To enable:
 
-{{< code-toggle file="config" copy="false" >}}
+{{< code-toggle file="config" copy=false >}}
 canonifyURLs = true
 {{< /code-toggle >}}
 
@@ -262,7 +262,7 @@ This is an imperfect, brute force approach that can affect content as well as HT
 
 To enable:
 
-{{< code-toggle file="config" copy="false" >}}
+{{< code-toggle file="config" copy=false >}}
 relativeURLs = true
 {{< /code-toggle >}}
 
@@ -277,7 +277,7 @@ Create redirects from old URLs to new URLs with aliases:
 
 Change the file name of an existing page, and create an alias from the previous URL to the new URL:
 
-{{< code-toggle file="content/posts/new-file-name.md" copy="false" >}}
+{{< code-toggle file="content/posts/new-file-name.md" copy=false >}}
 aliases = ['/posts/previous-file-name']
 {{< /code-toggle >}}
 
@@ -289,13 +289,13 @@ Each of these directory-relative aliases is equivalent to the site-relative alia
 
 You can create more than one alias to the current page:
 
-{{< code-toggle file="content/posts/new-file-name.md" copy="false" >}}
+{{< code-toggle file="content/posts/new-file-name.md" copy=false >}}
 aliases = ['previous-file-name','original-file-name']
 {{< /code-toggle >}}
 
 In a multilingual site, use a directory-relative alias, or include the language prefix with a site-relative alias:
 
-{{< code-toggle file="content/posts/new-file-name.de.md" copy="false" >}}
+{{< code-toggle file="content/posts/new-file-name.de.md" copy=false >}}
 aliases = ['/de/posts/previous-file-name']
 {{< /code-toggle >}}
 
