@@ -54,7 +54,7 @@ Examples:
       {{ .Content }}
           <ul class="contents">
           {{ range .Paginator.Pages }}
-              <li>{{.Title}}
+              <li>{{.Title }}
                   <div>
                     {{ partial "summary.html" . }}
                   </div>

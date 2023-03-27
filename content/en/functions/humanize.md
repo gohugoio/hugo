@@ -22,8 +22,8 @@ If the input is either an int64 value or the string representation of an integer
 
 
 ```
-{{humanize "my-first-post"}} → "My first post"
-{{humanize "myCamelPost"}} → "My camel post"
-{{humanize "52"}} → "52nd"
-{{humanize 103}} → "103rd"
+{{ humanize "my-first-post"}} → "My first post"
+{{ humanize "myCamelPost"}} → "My camel post"
+{{ humanize "52"}} → "52nd"
+{{ humanize 103 }} → "103rd"
 ```

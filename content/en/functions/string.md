@@ -18,4 +18,4 @@ deprecated: false
 aliases: []
 ---
 
-* `{{string "BatMan"}}` → "BatMan"
+* `{{ string "BatMan"}}` → "BatMan"

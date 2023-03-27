@@ -38,20 +38,20 @@ See the homepage template below or [Content Organization][contentorg] for more i
 
 ## Example Homepage Template
 
-The following is an example of a homepage template that uses [partial][partials], [base] templates, and a content file at `content/_index.md` to populate the `{{.Title}}` and `{{.Content}}` [page variables][pagevars].
+The following is an example of a homepage template that uses [partial][partials], [base] templates, and a content file at `content/_index.md` to populate the `{{.Title }}` and `{{.Content }}` [page variables][pagevars].
 
 {{< code file="layouts/index.html" download="index.html" >}}
 {{ define "main" }}
     <main aria-role="main">
       <header class="homepage-header">
-        <h1>{{.Title}}</h1>
+        <h1>{{.Title }}</h1>
         {{ with .Params.subtitle }}
         <span class="subtitle">{{.}}</span>
         {{ end }}
       </header>
       <div class="homepage-content">
         <!-- Note that the content for index.html, as a sort of list page, will pull from content/_index.md -->
-        {{.Content}}
+        {{.Content }}
       </div>
       <div>
         {{ range first 10 .Site.RegularPages }}

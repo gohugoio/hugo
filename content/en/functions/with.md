@@ -26,9 +26,9 @@ If you want to render a block if an index or key is present in a slice, array, c
 The following example checks for a [user-defined site variable](/variables/site/) called `twitteruser`. If the key-value is not set, the following will render nothing:
 
 {{< code file="layouts/partials/twitter.html" >}}
-{{with .Site.Params.twitteruser}}<span class="twitter">
+{{ with .Site.Params.twitteruser }}<span class="twitter">
 <a href="https://twitter.com/{{.}}" rel="author">
 <img src="/images/twitter.png" width="48" height="48" title="Twitter: {{.}}"
  alt="Twitter"></a>
-</span>{{end}}
+</span>{{ end }}
 {{< /code >}}

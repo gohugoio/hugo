@@ -241,7 +241,7 @@ If the _map_, _array_, or _slice_ passed into the range is zero-length then the 
 ```go-html-template
 {{ range $array }}
     {{ . }}
-{{else}}
+{{ else }}
     <!-- This is only evaluated if $array is empty -->
 {{ end }}
 ```
@@ -414,7 +414,7 @@ The following shows how to define a variable independent of the context.
 {{< /code >}}
 
 {{% note %}}
-Notice how once we have entered the loop (i.e. `range`), the value of `{{ . }}` has changed. We have defined a variable outside the loop (`{{$title}}`) that we've assigned a value so that we have access to the value from within the loop as well.
+Notice how once we have entered the loop (i.e. `range`), the value of `{{ . }}` has changed. We have defined a variable outside the loop (`{{ $title }}`) that we've assigned a value so that we have access to the value from within the loop as well.
 {{% /note %}}
 
 ### 2. Use `$.` to Access the Global Context
@@ -553,11 +553,11 @@ Here is an example of corresponding code that could be used inside a `toc.html` 
 {{ if not .Params.notoc }}
 <aside>
   <header>
-    <a href="#{{.Title | urlize}}">
-    <h3>{{.Title}}</h3>
+    <a href="#{{.Title | urlize }}">
+    <h3>{{.Title }}</h3>
     </a>
   </header>
-  {{.TableOfContents}}
+  {{.TableOfContents }}
 </aside>
 <a href="#" id="toc-toggle"></a>
 {{ end }}
@@ -583,7 +583,7 @@ Within a footer layout, you might then declare a `<footer>` that is only rendere
 ```go-html-template
 {{ if .Site.Params.copyrighthtml }}
     <footer>
-        <div class="text-center">{{.Site.Params.CopyrightHTML | safeHTML}}</div>
+        <div class="text-center">{{.Site.Params.CopyrightHTML | safeHTML }}</div>
     </footer>
 {{ end }}
 ```
@@ -606,7 +606,7 @@ Finally, you can pull "magic constants" out of your layouts as well. The followi
   <h1>Recent Posts</h1>
   <ul>
   {{- range first .Site.Params.SidebarRecentLimit .Site.Pages -}}
-      <li><a href="{{.RelPermalink}}">{{.Title}}</a></li>
+      <li><a href="{{.RelPermalink }}">{{.Title }}</a></li>
   {{- end -}}
   </ul>
 </nav>

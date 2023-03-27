@@ -108,13 +108,13 @@ Note that if you do not handle `.Err` yourself, Hugo will fail the build the fir
 When fetching a remote `Resource`, `resources.GetRemote` takes an optional options map as the second argument, e.g.:
 
 ```go-html-template
-{{ $resource := resources.GetRemote "https://example.org/api" (dict "headers" (dict "Authorization" "Bearer abcd"))  }}
+{{ $resource := resources.GetRemote "https://example.org/api" (dict "headers" (dict "Authorization" "Bearer abcd")) }}
 ```
 
 If you need multiple values for the same header key, use a slice:
 
 ```go-html-template
-{{ $resource := resources.GetRemote "https://example.org/api"  (dict "headers" (dict "X-List" (slice "a" "b" "c")))  }}
+{{ $resource := resources.GetRemote "https://example.org/api"  (dict "headers" (dict "X-List" (slice "a" "b" "c"))) }}
 ```
 
 You can also change the request method and set the request body:

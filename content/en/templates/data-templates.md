@@ -131,7 +131,7 @@ Achievements:
 You can use the following code to render the `Short Description` in your layout:
 
 ```go-html-template
-<div>Short Description of {{.Site.Data.User0123.Name}}: <p>{{ index .Site.Data.User0123 "Short Description" | markdownify }}</p></div>
+<div>Short Description of {{.Site.Data.User0123.Name }}: <p>{{ index .Site.Data.User0123 "Short Description" | markdownify }}</p></div>
 ```
 
 Note the use of the [`markdownify` template function][markdownify]. This will send the description through the Markdown rendering engine.
@@ -173,13 +173,13 @@ This will resolve internally to the following:
 Both `getJSON` and `getCSV` takes an optional map as the last argument, e.g.:
 
 ```go-html-template
-{{ $data := getJSON "https://example.org/api" (dict "Authorization" "Bearer abcd")  }}
+{{ $data := getJSON "https://example.org/api" (dict "Authorization" "Bearer abcd") }}
 ```
 
 If you need multiple values for the same header key, use a slice:
 
 ```go-html-template
-{{ $data := getJSON "https://example.org/api" (dict "X-List" (slice "a" "b" "c"))  }}
+{{ $data := getJSON "https://example.org/api" (dict "X-List" (slice "a" "b" "c")) }}
 ```
 
 ### Example for CSV files
@@ -209,7 +209,7 @@ For `getCSV`, the one-character-long separator must be placed in the first posit
   </table>
 {{< /code >}}
 
-The expression `{{index $r number}}` must be used to output the nth-column from the current row.
+The expression `{{ index $r number }}` must be used to output the nth-column from the current row.
 
 ### Cache URLs
 

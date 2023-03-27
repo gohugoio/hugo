@@ -43,7 +43,7 @@ Using base64 to decode and encode becomes really powerful if we have to handle
 responses from APIs.
 
 ```
-{{ $resp := getJSON "https://api.github.com/repos/gohugoio/hugo/readme"  }}
+{{ $resp := getJSON "https://api.github.com/repos/gohugoio/hugo/readme" }}
 {{ $resp.content | base64Decode | markdownify }}
 ```
 

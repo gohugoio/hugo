@@ -17,7 +17,7 @@ To find the elements within `$c3` that do not exist in `$c1` or `$c2`:
 
 ```go-html-template
 {{ $c1 := slice 3 }}
-{{ $c2 := slice 4 5  }}
+{{ $c2 := slice 4 5 }}
 {{ $c3 := slice 1 2 3 4 5 }}
 
 {{ complement $c1 $c2 $c3 }} → [1 2]

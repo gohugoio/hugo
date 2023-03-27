@@ -15,7 +15,7 @@ aliases: [/extras/toc/]
 
 {{% note "TOC Heading Levels are Fixed" %}}
 
-Previously, there was no out-of-the-box way to specify which heading levels you want the TOC to render. [See the related GitHub discussion (#1778)](https://github.com/gohugoio/hugo/issues/1778). As such, the resulting `<nav id="TableOfContents"><ul></ul></nav>` was going to start at `<h1>` when pulling from `{{.Content}}`.
+Previously, there was no out-of-the-box way to specify which heading levels you want the TOC to render. [See the related GitHub discussion (#1778)](https://github.com/gohugoio/hugo/issues/1778). As such, the resulting `<nav id="TableOfContents"><ul></ul></nav>` was going to start at `<h1>` when pulling from `{{.Content }}`.
 
 Hugo [v0.60.0](https://github.com/gohugoio/hugo/releases/tag/v0.60.0) made a switch to [Goldmark](https://github.com/yuin/goldmark/) as the default library for Markdown which has improved and configurable implementation of TOC. Take a look at [how to configure TOC](/getting-started/configuration-markup/#table-of-contents) for Goldmark renderer.
 
@@ -73,15 +73,15 @@ The following is a [partial template][partials] that adds slightly more logic fo
 {{ if and (gt .WordCount 400 ) (.Params.toc) }}
 <aside>
     <header>
-    <h2>{{.Title}}</h2>
+    <h2>{{.Title }}</h2>
     </header>
-    {{.TableOfContents}}
+    {{.TableOfContents }}
 </aside>
 {{ end }}
 {{< /code >}}
 
 {{% note %}}
-With the preceding example, even pages with > 400 words *and* `toc` not set to `false` will not render a table of contents if there are no headings in the page for the `{{.TableOfContents}}` variable to pull from.
+With the preceding example, even pages with > 400 words *and* `toc` not set to `false` will not render a table of contents if there are no headings in the page for the `{{.TableOfContents }}` variable to pull from.
 {{% /note %}}
 
 ## Usage with AsciiDoc

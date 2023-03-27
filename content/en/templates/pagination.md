@@ -59,7 +59,7 @@ The global page size setting (`Paginate`) can be overridden by providing a posit
 It is also possible to use the `GroupBy` functions in combination with pagination:
 
 ```go-html-template
-{{ range (.Paginate (.Pages.GroupByDate "2006")).PageGroups  }}
+{{ range (.Paginate (.Pages.GroupByDate "2006")).PageGroups }}
 ```
 
 ## Build the navigation

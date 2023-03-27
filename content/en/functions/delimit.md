@@ -22,7 +22,7 @@ aliases: []
 `delimit` called in your template takes the form of
 
 ```
-{{ delimit array/slice/map delimiter optionallastdelimiter}}
+{{ delimit array/slice/map delimiter optionallastdelimiter }}
 ```
 
 `delimit` loops through any array, slice, or map and returns a string of all the values separated by a delimiter, the second argument in the function call. There is an optional third parameter that lets you choose a different delimiter to go between the last two values in the loop.

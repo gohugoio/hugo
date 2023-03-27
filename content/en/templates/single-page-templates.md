@@ -64,10 +64,10 @@ This single page template makes use of Hugo [base templates], the [`.Format` fun
     </div>
     <div>
         {{ with .PrevInSection }}
-          <a class="previous" href="{{.Permalink}}"> {{.Title}}</a>
+          <a class="previous" href="{{.Permalink }}"> {{.Title }}</a>
         {{ end }}
         {{ with .NextInSection }}
-          <a class="next" href="{{.Permalink}}"> {{.Title}}</a>
+          <a class="next" href="{{.Permalink }}"> {{.Title }}</a>
         {{ end }}
     </div>
 </aside>

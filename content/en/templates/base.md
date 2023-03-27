@@ -87,7 +87,7 @@ The following shows how you can override both the `"main"` and `"title"` block a
 
 {{< code file="layouts/_default/single.html" download="single.html" >}}
 {{ define "title" }}
-  <!-- This will override the default value set in baseof.html; i.e., "{{.Site.Title}}" in the original example-->
+  <!-- This will override the default value set in baseof.html; i.e., "{{.Site.Title }}" in the original example-->
   {{ .Title }} &ndash; {{ .Site.Title }}
 {{ end }}
 {{ define "main" }}

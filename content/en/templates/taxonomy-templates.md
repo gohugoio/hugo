@@ -258,7 +258,7 @@ This would be very useful in a sidebar as “featured content”. You could even
         <li>{{ $key }}</li>
         <ul>
             {{ range $taxonomy.Pages }}
-            <li hugo-nav="{{ .RelPermalink}}"><a href="{{ .Permalink}}">{{ .LinkTitle }}</a></li>
+            <li hugo-nav="{{ .RelPermalink }}"><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
             {{ end }}
         </ul>
         {{ end }}
@@ -299,8 +299,8 @@ This example will list all taxonomies and their terms, as well as all the conten
                             <li>{{ $key }}</li>
                             <ul>
                                 {{ range $value.Pages }}
-                                    <li hugo-nav="{{ .RelPermalink}}">
-                                        <a href="{{ .Permalink}}">{{ .LinkTitle }}</a>
+                                    <li hugo-nav="{{ .RelPermalink }}">
+                                        <a href="{{ .Permalink }}">{{ .LinkTitle }}</a>
                                     </li>
                                 {{ end }}
                             </ul>
@@ -322,7 +322,7 @@ Because taxonomies are lists, the [`.GetPage` function][getpage] can be used to 
 <ul class="{{ $taxo }}">
     {{ with ($.Site.GetPage (printf "/%s" $taxo)) }}
         {{ range .Pages }}
-            <li><a href="{{ .Permalink }}">{{ .Title}}</a></li>
+            <li><a href="{{ .Permalink }}">{{ .Title }}</a></li>
         {{ end }}
     {{ end }}
 </ul>

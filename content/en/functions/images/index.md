@@ -222,6 +222,6 @@ images.ImageConfig PATH
 
 ```go-html-template
 {{ with (imageConfig "favicon.ico") }}
-favicon.ico: {{.Width}} x {{.Height}}
+favicon.ico: {{.Width }} x {{.Height }}
 {{ end }}
 ```

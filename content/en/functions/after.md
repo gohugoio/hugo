@@ -40,9 +40,9 @@ You can use `after` in combination with the [`first` function] and Hugo's [power
     <h2>Featured Article</h2>
     {{ range first 1 .Pages.ByPublishDate.Reverse }}
      <header>
-        <h3><a href="{{.Permalink}}">{{.Title}}</a></h3>
+        <h3><a href="{{.Permalink }}">{{.Title }}</a></h3>
     </header>
-    <p>{{.Description}}</p>
+    <p>{{.Description }}</p>
     {{ end }}
 </section>
 <div class="row recent-articles">
@@ -50,9 +50,9 @@ You can use `after` in combination with the [`first` function] and Hugo's [power
     {{ range first 3 (after 1 .Pages.ByPublishDate.Reverse) }}
         <section class="recent-article">
             <header>
-                <h3><a href="{{.Permalink}}">{{.Title}}</a></h3>
+                <h3><a href="{{.Permalink }}">{{.Title }}</a></h3>
             </header>
-            <p>{{.Description}}</p>
+            <p>{{.Description }}</p>
         </section>
     {{ end }}
 </div>

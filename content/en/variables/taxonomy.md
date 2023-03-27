@@ -124,7 +124,7 @@ For example, to render the entire taxonomy data structure as a nested unordered 
           <ul>
             {{ range $weightedPages }}
               <li>
-                <a href="{{ .RelPermalink}}"> {{ .LinkTitle }}</a>
+                <a href="{{ .RelPermalink }}"> {{ .LinkTitle }}</a>
               </li>
             {{ end }}
           </ul>

@@ -22,7 +22,7 @@ aliases: []
 
 
 ```
-{{title "BatMan"}}` → "Batman"
+{{ title "BatMan"}}` → "Batman"
 ```
 
 Can be combined in pipes. In the following snippet, the link text is cleaned up using `humanize` to remove dashes and `title` to convert the value of `$name` to Initial Caps.

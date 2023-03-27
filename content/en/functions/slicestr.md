@@ -23,5 +23,5 @@ aliases: []
 For example, 1 and 4 creates a slice including elements 1 through 3.
 The `end` index can be omitted; it defaults to the string's length.
 
-* `{{slicestr "BatMan" 3}}` → "Man"
-* `{{slicestr "BatMan" 0 3}}` → "Bat"
+* `{{ slicestr "BatMan" 3 }}` → "Man"
+* `{{ slicestr "BatMan" 0 3 }}` → "Bat"

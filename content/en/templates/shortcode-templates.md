@@ -321,9 +321,9 @@ You also have an `img` shortcode with a single named `src` parameter that you wa
 {{< code file="layouts/shortcodes/img.html" >}}
 {{- $src := .Get "src" -}}
 {{- with .Parent -}}
-  <img src="{{$src}}" class="{{ .Get "class" }}-image">
+  <img src="{{ $src }}" class="{{ .Get "class" }}-image">
 {{- else -}}
-  <img src="{{$src}}">
+  <img src="{{ $src }}">
 {{- end -}}
 {{< /code >}}
 

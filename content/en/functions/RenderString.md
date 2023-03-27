@@ -26,8 +26,8 @@ Some examples:
 {{ $optBlock := dict "display" "block" }}
 {{ $optOrg := dict "markup" "org" }}
 {{ "**Bold Markdown**" | $p.RenderString }}
-{{  "**Bold Block Markdown**" | $p.RenderString  $optBlock }}
-{{  "/italic org mode/" | $p.RenderString  $optOrg }}
+{{ "**Bold Block Markdown**" | $p.RenderString  $optBlock }}
+{{ "/italic org mode/" | $p.RenderString  $optOrg }}
 ```
 
 {{< new-in "0.93.0" >}} **Note**: [markdownify](/functions/markdownify/) uses this function in order to support [Render Hooks](/getting-started/configuration-markup/#markdown-render-hooks).

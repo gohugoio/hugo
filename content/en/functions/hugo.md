@@ -100,7 +100,7 @@ An example table listing the dependencies:
       <td>{{ with $element.Owner }}{{.Path }}{{ end }}</td>
       <td>
         {{ $element.Path }}
-        {{ with $element.Replace}}
+        {{ with $element.Replace }}
         => {{ .Path }}
         {{ end }}
       </td>

@@ -44,7 +44,7 @@ This partial template recursively "walks" a menu structure, rendering a localize
 {{- define "partials/inline/menu/walk.html" }}
   {{- $page := .page }}
   {{- range .menuEntries }}
-    {{- $attrs := dict "href" .URL}}
+    {{- $attrs := dict "href" .URL }}
     {{- if $page.IsMenuCurrent .Menu . }}
       {{- $attrs = merge $attrs (dict "class" "active" "aria-current" "page") }}
     {{- else if $page.HasMenuCurrent .Menu .}}

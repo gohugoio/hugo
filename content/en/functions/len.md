@@ -39,7 +39,7 @@ You may want to append a class to a heading according to the length of the strin
 
 {{< code file="check-title-length.html" >}}
 <header>
-    <h1{{if gt (len .Title) 80}} class="long-title"{{end}}>{{.Title}}</h1>
+    <h1{{ if gt (len .Title) 80 }} class="long-title"{{ end }}>{{.Title }}</h1>
 </header>
 {{< /code >}}
 
