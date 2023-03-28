@@ -68,28 +68,28 @@ Access the entry with `site.Menus.main` and `site.Menus.footer` in your template
 Use these properties when defining menu entries in front matter:
 
 identifier
-: (string) Required when two or more menu entries have the same `name`, or when localizing the `name` using translation tables. Must start with a letter, followed by letters, digits, or underscores.
+: (`string`) Required when two or more menu entries have the same `name`, or when localizing the `name` using translation tables. Must start with a letter, followed by letters, digits, or underscores.
 
 name
-: (string) The text to display when rendering the menu entry.
+: (`string`) The text to display when rendering the menu entry.
 
 params
-: (map) User-defined properties for the menu entry.
+: (`map`) User-defined properties for the menu entry.
 
 parent
-: (string) The `identifier` of the parent menu entry. If `identifier` is not defined, use `name`. Required for child entries in a nested menu.
+: (`string`) The `identifier` of the parent menu entry. If `identifier` is not defined, use `name`. Required for child entries in a nested menu.
 
 post
-: (string) The HTML to append when rendering the menu entry.
+: (`string`) The HTML to append when rendering the menu entry.
 
 pre
-: (string) The HTML to prepend when rendering the menu entry.
+: (`string`) The HTML to prepend when rendering the menu entry.
 
 title
-: (string) The HTML `title` attribute of the rendered menu entry.
+: (`string`) The HTML `title` attribute of the rendered menu entry.
 
 weight
-: (int) A non-zero integer indicating the entry's position relative the root of the menu, or to its parent for a child entry. Lighter entries float to the top, while heavier entries sink to the bottom.
+: (`int`) A non-zero integer indicating the entry's position relative the root of the menu, or to its parent for a child entry. Lighter entries float to the top, while heavier entries sink to the bottom.
 
 ### Example {#example-front-matter}
 
@@ -155,10 +155,10 @@ Each menu entry defined in site configuration requires two or more properties:
 - Specify `name` and `url` for external links
 
 pageRef
-: (string) The file path of the target page, relative to the `content` directory. Required for *internal* links.
+: (`string`) The file path of the target page, relative to the `content` directory. Required for *internal* links.
 
 url
-: (string) Required for *external* links.
+: (`string`) Required for *external* links.
 
 {{% note %}}
 The [properties] available to entries defined in front matter are also available to entries defined in site configuration.

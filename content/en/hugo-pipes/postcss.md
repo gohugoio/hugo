@@ -68,19 +68,19 @@ If starting with a Sass file within the `assets` directory:
 The `resources.PostCSS` method takes an optional map of options.
 
 config
-: (string) The directory that contains the PostCSS configuration file. Default is the root of the project directory.
+: (`string`) The directory that contains the PostCSS configuration file. Default is the root of the project directory.
 
 noMap
-: (bool) Default is `false`. If `true`, disables inline sourcemaps.
+: (`bool`) Default is `false`. If `true`, disables inline sourcemaps.
 
 inlineImports
-: (bool) Default is `false`. Enable inlining of @import statements. It does so recursively, but will only import a file once.
+: (`bool`) Default is `false`. Enable inlining of @import statements. It does so recursively, but will only import a file once.
 URL imports (e.g. `@import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');`) and imports with media queries will be ignored.
 Note that this import routine does not care about the CSS spec, so you can have @import anywhere in the file.
 Hugo will look for imports relative to the module mount and will respect theme overrides.
 
 skipInlineImportsNotFound {{< new-in "0.99.0" >}}
-: (bool) Default is `false`. Before Hugo 0.99.0 when `inlineImports` was enabled and we failed to resolve an import, we logged it as a warning. We now fail the build. If you have regular CSS imports in your CSS that you want to preserve, you can either use imports with URL or media queries (Hugo does not try to resolve those) or set `skipInlineImportsNotFound` to true.
+: (`bool`) Default is `false`. Before Hugo 0.99.0 when `inlineImports` was enabled and we failed to resolve an import, we logged it as a warning. We now fail the build. If you have regular CSS imports in your CSS that you want to preserve, you can either use imports with URL or media queries (Hugo does not try to resolve those) or set `skipInlineImportsNotFound` to true.
 
 {{< code file="layouts/partials/css.html" >}}
 {{ $opts := dict "config" "config-directory" "noMap" true }}
@@ -94,16 +94,16 @@ skipInlineImportsNotFound {{< new-in "0.99.0" >}}
 To avoid using a PostCSS configuration file, you can specify a minimal configuration using the options map.
 
 use
-: (string) A space-delimited list of PostCSS plugins to use.
+: (`string`) A space-delimited list of PostCSS plugins to use.
 
 parser
-: (string) A custom PostCSS parser.
+: (`string`) A custom PostCSS parser.
 
 stringifier
-: (string) A custom PostCSS stringifier.
+: (`string`) A custom PostCSS stringifier.
 
 syntax
-: (string) Custom postcss syntax.
+: (`string`) Custom postcss syntax.
 
 {{< code file="layouts/partials/css.html" >}}
 {{ $opts := dict "use" "autoprefixer postcss-color-alpha" }}
