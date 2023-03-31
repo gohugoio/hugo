@@ -38,7 +38,7 @@ You can write and test your regular expression using [regex101.com](https://rege
 
 ## findRESubmatch
 
-In Hugo 0.110.0 we added a variant of `findRe` that returns a slice of strings holding the text of the leftmost match of the regular expression in s and the matches, if any, of its subexpressions.
+In Hugo 0.110.0 we added a variant of `findRE` that returns a slice of strings holding the text of the leftmost match of the regular expression in s and the matches, if any, of its subexpressions.
 
 This:
 
