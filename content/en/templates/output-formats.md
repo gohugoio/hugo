@@ -4,7 +4,7 @@ linktitle: Custom Output Formats
 description: Hugo can output content in multiple formats, including calendar events, e-book formats, Google AMP, and JSON search indexes, or any custom text format.
 date: 2017-03-22
 publishdate: 2017-03-22
-lastmod: 2019-12-11
+lastmod: 2023-03-31
 categories: [templates]
 keywords: ["amp", "outputs", "rss"]
 menu:
@@ -49,16 +49,16 @@ The above example adds one new media type, `text/enriched`, and changes the suff
 
 **Note:** these media types are configured for **your output formats**. If you want to redefine one of Hugo's default output formats (e.g. `HTML`), you also need to redefine the media type. So, if you want to change the suffix of the `HTML` output format from `html` (default) to `htm`:
 
-```toml
+{{< code-toggle file="config" >}}
 [mediaTypes]
-[mediaTypes."text/html"]
-suffixes = ["htm"]
+  [mediaTypes."text/html"]
+    suffixes = ["htm"]
 
 # Redefine HTML to update its media type.
 [outputFormats]
-[outputFormats.HTML]
-mediaType = "text/html"
-```
+  [outputFormats.HTML]
+    mediaType = "text/html"
+{{</ code-toggle >}}
 
 **Note** that for the above to work, you also need to add an `outputs` definition in your site config.
 
