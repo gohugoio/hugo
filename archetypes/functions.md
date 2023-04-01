@@ -1,9 +1,11 @@
 ---
-linktitle: ""
+title: {{ replace .Name "-" " " | title }}
 description: ""
-categories: [functions]
-tags: []
-ns: ""
 signature: []
+categories: [functions]
+keywords: []
+menu:
+  docs:
+    parent: functions
 relatedfuncs: []
 ---
