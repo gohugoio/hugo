@@ -1,15 +1,16 @@
 ---
 title: strings.HasSuffix
-description: Determine whether a given string ends with the provided trailing suffix string.
+description: Tests whether a string ends with suffix.
 categories: [functions]
 menu:
   docs:
     parent: functions
 keywords: [strings]
-signature: ["strings.HasSuffix STRING SUFFIX"]
+signature: ["hasSuffix STRING SUFFIX","strings.HasSuffix STRING SUFFIX"]
 relatedfuncs: [hasPrefix]
+aliases: [/functions/hassuffix/]
 ---
 
-    {{ $pdfPath := "/path/to/some.pdf" }}
-    {{ strings.HasSuffix $pdfPath "pdf" }} → true
-    {{ strings.HasSuffix $pdfPath "txt" }} → false
+```go-html-template
+{{ hasSuffix "Hugo" "go" }} → true
+```
