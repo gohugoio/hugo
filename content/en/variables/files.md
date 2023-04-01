@@ -1,10 +1,6 @@
 ---
 title: File Variables
-linktitle:
-description: "You can access filesystem-related data for a content file in the `.File` variable."
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
+description: "Use File variables to access file-related values for each page that is backed by a file."
 categories: [variables and params]
 keywords: [files]
 draft: false
@@ -12,43 +8,96 @@ menu:
   docs:
     parent: "variables"
     weight: 40
+toc: true
 weight: 40
-sections_weight: 40
 aliases: [/variables/file-variables/]
-toc: false
 ---
+## Variables
 
-{{% note "Rendering Local Files" %}}
-For information on creating shortcodes and templates that tap into Hugo's file-related feature set, see [Local File Templates](/templates/files/).
+{{% note %}}
+The path separators (slash or backslash) in `.File.Path`, `.File.Dir`, and `.File.Filename` depend on the operating system.
 {{% /note %}}
 
-The `.File` object contains the following fields:
-
 .File.Path
-: the original relative path of the page, relative to the content dir (e.g., `posts/foo.en.md`)
-
-.File.LogicalName
-: the name of the content file that represents a page (e.g., `foo.en.md`)
-
-.File.TranslationBaseName
-: the filename without extension or optional language identifier (e.g., `foo`)
-
-.File.ContentBaseName
-: is either a TranslationBaseName or name of containing folder if file is a leaf bundle.
-
-.File.BaseFileName
-: the filename without extension (e.g., `foo.en`)
-
-.File.Ext
-: the file extension of the content file (e.g., `md`).
-
-.File.Lang
-: the language associated with the given file if Hugo's [Multilingual features][multilingual] are enabled (e.g., `en`)
+: (`string`) The file path, relative to the `content` directory.
 
 .File.Dir
-: given the path `content/posts/dir1/dir2/`, the relative directory path of the content file will be returned (e.g., `posts/dir1/dir2/`). Note that the path separator (`\` or `/`) could be dependent on the operating system.
+: (`string`) The file path, excluding the file name, relative to the `content` directory.
+
+.File.LogicalName
+: (`string`) The file name.
+
+.File.BaseFileName
+: (`string`) The file name, excluding the extension.
+
+.File.TranslationBaseName
+: (`string`) The file name, excluding the extension and language identifier.
+
+.File.Ext
+: (`string`) The file extension.
+
+.File.Lang
+: (`string`) The language associated with the given file.
+
+
+.File.ContentBaseName
+: (`string`) If the page is a branch or leaf bundle, the name of the containing directory, else the `.TranslationBaseName`.
+
+.File.Filename
+: (`string`) The absolute file path.
 
 .File.UniqueID
-: the MD5-checksum of the content file's path.
+: (`string`) The MD5 hash of `.File.Path`.
 
-[Multilingual]: /content-management/multilingual/
+## Examples
+
+```text
+content/
+├── news/
+│   ├── b/
+│   │   ├── index.de.md   <-- leaf bundle
+│   │   └── index.en.md   <-- leaf bundle
+│   ├── a.de.md           <-- regular content
+│   ├── a.en.md           <-- regular content
+│   ├── _index.de.md      <-- branch bundle
+│   └── _index.en.md      <-- branch bundle
+├── _index.de.md
+└── _index.en.md
+```
+
+With the content structure above, the `.File` objects for the English pages contain the following properties:
+
+&nbsp;|regular content|leaf bundle|branch bundle
+:--|:--|:--|:--
+Path|news/a.en.md|news/b/index.en.md|news/_index.en.md
+Dir|news/|news/b/|news/
+LogicalName|a.en.md|index.en.md|_index.en.md
+BaseFileName|a.en|index.en|_index.en
+TranslationBaseName|a|index|_index
+Ext|md|md|md
+Lang|en|en|en
+ContentBaseName|a|b|news
+Filename|/home/user/...|/home/user/...|/home/user/...
+UniqueID|15be14b...|186868f...|7d9159d...
+
+## Defensive coding
+
+Some of the pages on a site may not be backed by a file. For example:
+
+- Top level section pages
+- Taxonomy pages
+- Term pages
+
+Without a backing file, Hugo will throw a warning if you attempt to access a `.File` property. For example:
+
+```text
+WARN .File.ContentBaseName on zero object. Wrap it in if or with...
+```
+
+To code defensively:
+
+```go-html-template
+{{ with .File }}
+  {{ .ContentBaseName }}
+{{ end }}
+```
