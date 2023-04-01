@@ -1,15 +1,12 @@
 ---
 title: Menu Variables
-linktitle: Menu Variables
 description: Use these variables and methods in your menu templates.
 categories: [variables and params]
 keywords: [menus]
-draft: false
 menu:
   docs:
-    parent: "variables"
+    parent: variables
     weight: 50
-toc: false
 weight: 50
 aliases: [/variables/menu/]
 ---

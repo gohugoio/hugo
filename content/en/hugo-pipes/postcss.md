@@ -5,7 +5,7 @@ categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: "pipes"
+    parent: pipes
     weight: 40
 toc: true
 weight: 40

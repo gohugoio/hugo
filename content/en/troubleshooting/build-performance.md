@@ -1,17 +1,10 @@
 ---
 title: Build Performance
-linktitle: Build Performance
 description: An overview of features used for diagnosing and improving performance issues in site builds.
-date: 2017-03-12
-publishdate: 2017-03-12
-keywords: [performance, build]
-categories: [troubleshooting]
 menu:
   docs:
-    parent: "troubleshooting"
+    parent: troubleshooting
 weight: 3
-slug:
-aliases: []
 toc: true
 ---
 

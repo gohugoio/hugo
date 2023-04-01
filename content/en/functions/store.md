@@ -4,7 +4,7 @@ description: Returns a Scratch that is not reset on server rebuilds.
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [scratch]
 signature: []
 ---

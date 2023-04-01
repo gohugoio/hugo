@@ -2,18 +2,13 @@
 title: Homepage Template
 linktitle: Homepage Template
 description: The homepage of a website is often formatted differently than the other pages. For this reason, Hugo makes it easy for you to define your new site's homepage as a unique template.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [templates]
 keywords: [homepage]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 30
 weight: 30
-sections_weight: 30
-draft: false
 aliases: [/layout/homepage/,/templates/homepage-template/]
 toc: true
 ---

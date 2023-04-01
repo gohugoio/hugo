@@ -4,8 +4,6 @@ categories: ["Releases"]
 description: "Hugo 0.20 introduces the powerful and long sought after feature Custom Output Formats"
 link: ""
 title: "Hugo 0.20"
-draft: false
-author: bep
 aliases: [/0-20/]
 ---
 

@@ -2,16 +2,13 @@
 title: Fingerprint
 linkTitle: Fingerprinting and SRI
 description: Process a given resource, adding a hash string of the resource's content.
-date: 2018-07-14
-publishdate: 2018-07-14
 categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: "pipes"
+    parent: pipes
     weight: 70
 weight: 70
-sections_weight: 70
 signature: ["resources.Fingerprint RESOURCE [ALGORITHM]", "fingerprint RESOURCE [ALGORITHM]"]
 ---
 

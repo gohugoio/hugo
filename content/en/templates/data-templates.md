@@ -1,17 +1,13 @@
 ---
 title: Data Templates
-linktitle:
 description: In addition to Hugo's built-in variables, you can specify your own custom data in templates or shortcodes that pull from both local and dynamic sources.
-date: 2017-02-01
-publishdate: 2017-02-01
 categories: [templates]
 keywords: [data,dynamic,csv,json,toml,yaml,xml]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 80
 weight: 80
-sections_weight: 80
 aliases: [/extras/datafiles/,/extras/datadrivencontent/,/doc/datafiles/]
 toc: true
 ---

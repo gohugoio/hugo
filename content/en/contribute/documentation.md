@@ -2,16 +2,13 @@
 title: Contribute to the Hugo Docs
 linktitle: Documentation
 description: Documentation is an integral part of any open source project. The Hugo docs are as much a work in progress as the source it attempts to cover.
-date: 2017-02-01
-publishdate: 2017-02-01
 categories: [contribute]
 keywords: [docs,documentation,community, contribute]
 menu:
   docs:
-    parent: "contribute"
+    parent: contribute
     weight: 20
 weight: 20
-sections_weight: 20
 aliases: [/contribute/docs/]
 toc: true
 ---
@@ -72,19 +69,13 @@ Here is a review of the front matter fields automatically generated for you usin
 `signature`
 : this is a signature/syntax definition for calling the function (e.g., `apply SEQUENCE FUNCTION [PARAM...]`).
 
-`workson`
-: acceptable values include `lists`,`taxonomies`, `terms`, `groups`, and `files`.
-
-`hugoversion`
-: the version of Hugo that will ship with this new function.
-
 `relatedfuncs`
 : other [templating functions] you feel are related to your new function to help fellow Hugo users.
 
 `{{.Content }}`
 : an extended description of the new function; examples are not only welcomed but encouraged.
 
-In the body of your function, expand the short description used in the front matter. Include as many examples as possible, and leverage the Hugo docs [`code` shortcode](#add-code-blocks). If you are unable to add examples but would like to solicit help from the Hugo community, add `needsexample: true` to your front matter.
+In the body of your function, expand the short description used in the front matter. Include as many examples as possible, and leverage the Hugo docs [`code` shortcode](#add-code-blocks).
 
 ## Add Code Blocks
 

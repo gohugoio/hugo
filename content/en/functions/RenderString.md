@@ -1,11 +1,10 @@
 ---
 title: .RenderString
 description: "Renders markup to HTML."
-date: 2019-12-18
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [markdown,goldmark,render]
 signature: [".RenderString MARKUP"]
 ---

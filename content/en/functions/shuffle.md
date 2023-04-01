@@ -1,22 +1,13 @@
 ---
 title: shuffle
-# linktitle:
 description: Returns a random permutation of a given array or slice.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-04-30
 keywords: [ordering]
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 signature: ["shuffle COLLECTION"]
-workson: []
-hugoversion:
 relatedfuncs: [seq]
-deprecated: false
-draft: false
-aliases: []
 ---
 
 {{< code file="shuffle-input.html" >}}

@@ -2,14 +2,12 @@
 title: "Markdown Render Hooks"
 linkTitle: "Render Hooks"
 description: "Render Hooks allow custom templates to override markdown rendering functionality."
-date: 2017-03-11
 categories: [templates]
 keywords: [markdown]
 toc: true
 menu:
   docs:
-    title: "Markdown Render Hooks"
-    parent: "templates"
+    parent: templates
     weight: 20
 ---
 

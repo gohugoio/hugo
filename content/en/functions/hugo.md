@@ -1,22 +1,14 @@
 ---
 title: hugo
-linktitle: hugo
 description: The `hugo` function provides easy access to Hugo-related data.
-date: 2019-01-31
-publishdate: 2019-01-31
 keywords: []
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 toc:
 signature: ["hugo"]
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
-draft: false
-aliases: []
 ---
 
 `hugo` returns an instance that contains the following functions:

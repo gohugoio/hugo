@@ -1,22 +1,13 @@
 ---
 title: len
-linktitle: len
 description: Returns the length of a variable according to its type.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-04-18
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: []
 signature: ["len INPUT"]
-workson: [lists,taxonomies,terms]
-hugoversion:
 relatedfuncs: []
-deprecated: false
-toc: false
-aliases: []
 ---
 
 `len` is a built-in function in Go that returns the length of a variable according to its type. From the Go documentation:

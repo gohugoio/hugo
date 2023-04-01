@@ -1,19 +1,13 @@
 ---
 title: errorf and warnf
 description: Log ERROR or WARNING from the templates.
-date: 2017-09-30
-publishdate: 2017-09-30
-lastmod: 2017-09-30
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [strings, log, error]
 signature: ["errorf FORMAT INPUT"]
-workson: []
-hugoversion:
 relatedfuncs: [printf]
-deprecated: false
 ---
 
 `errorf` or `warnf` will evaluate a format string, then output the result to the ERROR or WARNING log (and only once per error message to avoid flooding the log).

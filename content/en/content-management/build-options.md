@@ -63,30 +63,26 @@ Setting this to false will still publish Resources on demand (when a resource's 
 Any page, regardless of their build options, will always be available using the [`.GetPage`](/functions/GetPage) methods.
 {{% /note %}}
 
-------
-
 ### Illustrative use cases
 
 #### Not publishing a page
 
 Project needs a "Who We Are" content file for Front Matter and body to be used by the homepage but nowhere else.
 
-```yaml
-# content/who-we-are.md`
+{{< code-toggle file="content/who-we-are.md" fm=true copy=false >}}
 title: Who we are
 _build:
  list: false
  render: false
-```
+{{< /code-toggle >}}
 
-```go-html-template
-{{/* layouts/index.html */}}
+{{< code file="layouts/index.html" copy="false" >}}
 <section id="who-we-are">
-{{ with site.GetPage "who-we-are" }}
-  {{ .Content }}
-{{ end }}
+  {{ with site.GetPage "who-we-are" }}
+    {{ .Content }}
+  {{ end }}
 </section>
-```
+{{< /code >}}
 
 #### Listing pages without publishing them
 
@@ -104,12 +100,12 @@ cascade:
     list: true # default
 {{< /code-toggle >}}
 
-```go-html-template
-{{/* layouts/_defaults/testimonials.html */}}
+{{< code file="layouts/_defaults/testimonials.html" copy="false" >}}
 <section id="testimonials">
-{{ range first 5 .Pages }}
-  <blockquote cite="{{ .Params.cite }}">
-    {{ .Content }}
-  </blockquote>
-{{ end }}
+  {{ range first 5 .Pages }}
+    <blockquote cite="{{ .Params.cite }}">
+      {{ .Content }}
+    </blockquote>
+  {{ end }}
 </section>
+{{< /code >}}

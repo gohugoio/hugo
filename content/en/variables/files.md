@@ -3,10 +3,9 @@ title: File Variables
 description: "Use File variables to access file-related values for each page that is backed by a file."
 categories: [variables and params]
 keywords: [files]
-draft: false
 menu:
   docs:
-    parent: "variables"
+    parent: variables
     weight: 40
 toc: true
 weight: 40

@@ -2,16 +2,13 @@
 title: js.Build
 linkTitle: JavaScript Building
 description: Process a JavaScript file with [ESBuild](https://github.com/evanw/esbuild).
-date: 2020-07-20
-publishdate: 2020-07-20
 categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: "pipes"
+    parent: pipes
     weight: 45
 weight: 45
-sections_weight: 45
 signature: ["js.Build RESOURCE [OPTIONS]"]
 ---
 

@@ -1,20 +1,13 @@
 ---
 title: sha
-# linktitle: sha
 description: Hashes the given input and returns either an SHA1 or SHA256 checksum.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [sha,checksum]
 signature: ["sha1 INPUT", "sha256 INPUT"]
-workson: []
-hugoversion:
 relatedfuncs: [md5]
-deprecated: false
 aliases: [sha1, sha256]
 ---
 

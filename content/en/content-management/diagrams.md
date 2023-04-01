@@ -1,6 +1,5 @@
 ---
 title: Diagrams
-LinkTitle: Diagrams
 description: Use fenced code blocks and markdown render hooks to display diagrams.
 categories: [content management]
 keywords: [diagrams,drawing]

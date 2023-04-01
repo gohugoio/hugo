@@ -1,12 +1,11 @@
 ---
 title: Menu Templates
-linkTitle: Menu Templates
 description: Use menu variables and methods in your templates to render a menu.
 categories: [templates]
 keywords: [lists,sections,menus]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 130
 toc: true
 weight: 130

@@ -2,9 +2,6 @@
 title: Content Sections
 linkTitle: Sections
 description: Hugo generates a **section tree** that matches your content.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [content management]
 keywords: [lists,sections,content types,organization]
 menu:

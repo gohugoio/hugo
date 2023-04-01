@@ -2,17 +2,13 @@
 title: Concat
 linkTitle: Concatenating assets
 description: Bundle any number of assets into one resource.
-date: 2018-07-14
-publishdate: 2018-07-14
-lastmod: 2018-07-14
 categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: "pipes"
+    parent: pipes
     weight: 60
 weight: 60
-sections_weight: 60
 signature: ["resources.Concat TARGET_PATH SLICE_RESOURCES"]
 ---
 

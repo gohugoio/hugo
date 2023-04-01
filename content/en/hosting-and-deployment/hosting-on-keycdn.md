@@ -1,16 +1,12 @@
 ---
 title: "Host on KeyCDN"
-date: 2017-09-12
 description: "Accelerate your Hugo site globally with a KeyCDN integration. This tutorial shows you how to set up your static site as a GitLab page behind a KeyCDN pull zone."
 categories: [hosting and deployment]
 keywords: [keycdn,hosting,deployment,cdn]
 menu:
   docs:
-    parent: "hosting-and-deployment"
+    parent: hosting-and-deployment
     weight: 40
-slug: ""
-aliases: []
-toc: false
 ---
 
 [KeyCDN](https://www.keycdn.com/) provides a multitude of features to help accelerate and secure your Hugo site globally including Brotli compression, Let's Encrypt support, Origin Shield, and more.

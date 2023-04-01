@@ -2,18 +2,13 @@
 title: Lists of Content in Hugo
 linktitle: List Templates
 description: Lists have a specific meaning and usage in Hugo when it comes to rendering your site homepage, section page, taxonomy list, or taxonomy terms list.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [templates]
 keywords: [lists,sections,rss,taxonomies,terms]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 22
 weight: 22
-sections_weight: 22
-draft: false
 aliases: [/templates/list/,/layout/indexes/]
 toc: true
 ---

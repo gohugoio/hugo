@@ -1,21 +1,13 @@
 ---
 title: md5
-linktitle: md5
 description: hashes the given input and returns its MD5 checksum.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: []
 signature: ["md5 INPUT"]
-workson: []
-hugoversion:
 relatedfuncs: [sha]
-deprecated: false
-aliases: []
 ---
 
 ```go-html-template

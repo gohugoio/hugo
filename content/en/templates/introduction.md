@@ -2,18 +2,13 @@
 title: Introduction to Hugo Templating
 linktitle: Templating
 description: Hugo uses Go's `html/template` and `text/template` libraries as the basis for the templating.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2022-09-20
 categories: [templates,fundamentals]
 keywords: [go]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 10
 weight: 10
-sections_weight: 10
-draft: false
 aliases: [/layouts/introduction/,/layout/introduction/, /templates/go-templates/]
 toc: true
 ---

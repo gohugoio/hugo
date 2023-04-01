@@ -1,16 +1,12 @@
 ---
 title: Host on Cloudflare Pages
-linktitle: Host on Cloudflare Pages
 description: Cloudflare Pages can host your Hugo site with CDN, continuous deployment, 1-click HTTPS, an admin GUI, and its own environment variables.
-date: 2022-04-07
-publishdate: 2022-04-07
 categories: [hosting and deployment]
 menu:
   docs:
-    parent: "hosting-and-deployment"
+    parent: hosting-and-deployment
     weight: 50
 weight: 50
-sections_weight: 50
 toc: true
 ---
 

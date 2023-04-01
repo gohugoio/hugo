@@ -1,19 +1,13 @@
 ---
 title: Site Variables
-linktitle: Site Variables
 description: Many, but not all, site-wide variables are defined in your site's configuration. However, Hugo provides a number of built-in variables for convenient access to global values in your templates.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [variables and params]
 keywords: [global,site]
-draft: false
 menu:
   docs:
-    parent: "variables"
+    parent: variables
     weight: 10
 weight: 10
-sections_weight: 10
 aliases: [/variables/site-variables/]
 toc: true
 ---

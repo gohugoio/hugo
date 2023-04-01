@@ -1,12 +1,11 @@
 ---
 title: Image Filters
 description: The images namespace provides a list of filters and other image related functions.
-date: 2017-02-01
 categories: [functions]
 aliases: [/functions/imageconfig/]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [images]
 toc: true
 ---

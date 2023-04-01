@@ -1,20 +1,13 @@
 ---
 title: safeURL
 description: Declares the provided string as a safe URL or URL substring.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 keywords: [strings,urls]
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 signature: ["safeURL INPUT"]
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
-aliases: []
 ---
 
 `safeURL` declares the provided string as a "safe" URL or URL substring (see [RFC 3986]). A URL like `javascript:checkThatFormNotEditedBeforeLeavingPage()` from a trusted source should go in the page, but by default dynamic `javascript:` URLs are filtered out since they are a frequently exploited injection vector.

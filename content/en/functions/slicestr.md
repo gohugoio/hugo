@@ -1,23 +1,15 @@
 ---
 title: slicestr
-# linktitle:
 description: Creates a slice of a half-open range, including start and end indices.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [strings]
 signature:
   - "slicestr STRING START [END]"
   - "strings.SliceString STRING START [END]"
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
-aliases: []
 ---
 
 For example, 1 and 4 creates a slice including elements 1 through 3.

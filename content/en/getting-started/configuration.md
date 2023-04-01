@@ -2,16 +2,13 @@
 title: Configure Hugo
 linktitle: Configuration
 description: How to configure your Hugo site.
-date: 2013-07-01
-publishdate: 2017-01-02
 categories: [getting started,fundamentals]
 keywords: [configuration,toml,yaml,json]
 menu:
   docs:
-    parent: "getting-started"
+    parent: getting-started
     weight: 60
 weight: 60
-sections_weight: 60
 aliases: [/overview/source-directory/,/overview/configuration/]
 toc: true
 ---
@@ -39,7 +36,7 @@ Multiple site config files can be specified as a comma-separated string to the `
 
 ## hugo.toml vs config.toml
 
-In Hugo 0.110.0 we changed the default config base filename to `hugo`, e.g. `hugo.toml`. We will still look for `config.toml` etc., but we recommend you eventually rename it (but you need to wait if you want to support older Hugo versions). The main reason we're doing this is to make it easier code editors and build tools to identify this as a Hugo configuration file and project. 
+In Hugo 0.110.0 we changed the default config base filename to `hugo`, e.g. `hugo.toml`. We will still look for `config.toml` etc., but we recommend you eventually rename it (but you need to wait if you want to support older Hugo versions). The main reason we're doing this is to make it easier code editors and build tools to identify this as a Hugo configuration file and project.
 
 {{< new-in "0.110.0" >}}
 
@@ -571,12 +568,12 @@ Setting `force=true` will make a redirect even if there is existing content in t
 
 Hugo will, by default, render all 404 errors when running `hugo server` with the `404.html` template. Note that if you have already added one or more redirects to your [Server Config](#configure-server), you need to add the 404 redirect explicitly, e.g:
 
-```toml
+{{< code-toggle file="config/development/server" copy=false >}}
 [[redirects]]
-    from   = "/**"
-    to     = "/404.html"
-    status = 404
-```
+from   = "/**"
+to     = "/404.html"
+status = 404
+{{< /code-toggle >}}
 
 ## Configure Title Case
 

@@ -1,19 +1,13 @@
 ---
 title: Local File Templates
-linktitle: Local File Templates
 description: Hugo's `readDir` and `readFile` functions make it easy to traverse your project's directory structure and write file contents to your templates.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [templates]
 keywords: [files,directories]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 110
 weight: 110
-sections_weight: 110
-draft: false
 aliases: [/extras/localfiles/,/templates/local-files/]
 toc: true
 ---

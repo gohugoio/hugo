@@ -1,21 +1,13 @@
 ---
 title: base64
 description: "`base64Encode` and `base64Decode` let you easily decode content with a base64 encoding and vice versa through pipes."
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: []
 relatedfuncs: []
 signature: ["base64Decode INPUT", "base64Encode INPUT"]
-workson: []
-hugoversion:
-deprecated: false
-draft: false
-aliases: []
 ---
 
 An example:
@@ -32,7 +24,7 @@ An example:
 
 You can also pass other data types as arguments to the template function which tries to convert them. The following will convert *42* from an integer to a string because both `base64Encode` and `base64Decode` always return a string.
 
-```
+```go-html-template
 {{ 42 | base64Encode | base64Decode }}
 => "42" rather than 42
 ```

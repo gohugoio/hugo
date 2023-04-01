@@ -1,6 +1,5 @@
 ---
 title: Table of Contents
-linkTitle: Table of Contents
 description: Hugo can automatically parse Markdown content and create a Table of Contents you can use in your templates.
 categories: [content management]
 keywords: [table of contents, toc]

@@ -2,16 +2,13 @@
 title: ToCSS
 linkTitle: Transpile Sass to SCSS
 description: Transpile Sass to CSS.
-date: 2018-07-14
-publishdate: 2018-07-14
 categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: "pipes"
+    parent: pipes
     weight: 30
 weight: 02
-sections_weight: 02
 signature: ["resources.ToCSS RESOURCE [OPTIONS]", "toCSS RESOURCE [OPTIONS]"]
 ---
 

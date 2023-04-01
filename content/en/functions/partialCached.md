@@ -1,21 +1,13 @@
 ---
 title: partialCached
-linktitle: partialCached
 description: Allows for caching of partials that do not need to be re-rendered on every invocation.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [performance]
 signature: ["partialCached LAYOUT INPUT [VARIANT...]"]
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
-aliases: []
 ---
 
 The `partialCached` template function can offer significant performance gains for complex templates that don't need to be re-rendered on every invocation.
@@ -26,7 +18,7 @@ The `partialCached` template function can offer significant performance gains fo
 
 Here is the simplest usage:
 
-```
+```go-html-template
 {{ partialCached "footer.html" . }}
 ```
 

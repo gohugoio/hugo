@@ -1,19 +1,13 @@
 ---
 title: Partial Templates
-linktitle: Partial Templates
 description: Partials are smaller, context-aware components in your list and page templates that can be used economically to keep your templating DRY.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [templates]
 keywords: [lists,sections,partials]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 90
 weight: 90
-sections_weight: 90
-draft: false
 aliases: [/templates/partial/,/layout/chrome/,/extras/analytics/]
 toc: true
 ---

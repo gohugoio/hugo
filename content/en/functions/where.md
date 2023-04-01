@@ -1,22 +1,14 @@
 ---
 title: where
-# linktitle: where
 description: Filters an array to only the elements containing a matching value for a given field.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [filtering]
 signature: ["where COLLECTION KEY [OPERATOR] MATCH"]
-workson: [lists,taxonomies,terms,groups]
-hugoversion:
 relatedfuncs: [intersect,first,after,last]
-deprecated: false
 toc: true
-needsexample: true
 ---
 
 `where` filters an array to only the elements containing a matching

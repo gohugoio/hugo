@@ -1,19 +1,13 @@
 ---
 title: Shortcode Variables
-linktitle: Shortcode Variables
 description: Shortcodes can access page variables and also have their own specific built-in variables.
-date: 2017-03-12
-publishdate: 2017-03-12
 categories: [variables and params]
 keywords: [shortcodes]
 menu:
   docs:
-    parent: "variables"
+    parent: variables
     weight: 20
 weight: 20
-sections_weight: 20
-aliases: []
-toc: false
 ---
 
 [Shortcodes][shortcodes] have access to parameters delimited in the shortcode declaration via [`.Get`][getfunction], page- and site-level variables, and also the following shortcode-specific fields:

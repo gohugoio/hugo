@@ -1,19 +1,13 @@
 ---
 title: Custom Output Formats
-linktitle: Custom Output Formats
 description: Hugo can output content in multiple formats, including calendar events, e-book formats, Google AMP, and JSON search indexes, or any custom text format.
-date: 2017-03-22
-publishdate: 2017-03-22
-lastmod: 2023-03-31
 categories: [templates]
 keywords: ["amp", "outputs", "rss"]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 18
 weight: 18
-sections_weight: 18
-draft: false
 aliases: [/templates/outputs/,/extras/output-formats/,/content-management/custom-outputs/]
 toc: true
 ---

@@ -1,21 +1,13 @@
 ---
 title: apply
 description: Given a map, array, or slice, `apply` returns a new slice with a function applied over it.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [advanced]
 signature: ["apply COLLECTION FUNCTION [PARAM...]"]
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
-draft: false
-aliases: []
 ---
 
 {{< todo >}}
@@ -59,19 +51,19 @@ If you have `post-tag-list.html` and `post-tag-link.html` as [partials], you *co
 
 {{< code file="layouts/partials/post-tag-list.html" copy="false" >}}
 {{ with .Params.tags }}
-<div class="tags-list">
-  Tags:
-  {{ $len := len . }}
-  {{ if eq $len 1 }}
-    {{ partial "post-tag-link.html" (index . 0) }}
-  {{ else }}
-    {{ $last := sub $len 1 }}
-    {{ range first $last . }}
-      {{ partial "post-tag-link.html" . }},
+  <div class="tags-list">
+    Tags:
+    {{ $len := len . }}
+    {{ if eq $len 1 }}
+      {{ partial "post-tag-link.html" (index . 0) }}
+    {{ else }}
+      {{ $last := sub $len 1 }}
+      {{ range first $last . }}
+        {{ partial "post-tag-link.html" . }},
+      {{ end }}
+      {{ partial "post-tag-link.html" (index . $last) }}
     {{ end }}
-    {{ partial "post-tag-link.html" (index . $last) }}
-  {{ end }}
-</div>
+  </div>
 {{ end }}
 {{< /code >}}
 
@@ -85,25 +77,25 @@ This first version of `layouts/partials/post-tag-list.html` separates all of the
 
 ```go-html-template
 {{ with .Params.tags }}
-    <div class="tags-list">
-      Tags:
-      {{ $sort := sort . }}
-      {{ $links := apply $sort "partial" "post-tag-link.html" "." }}
-      {{ $clean := apply $links "chomp" "." }}
-      {{ delimit $clean ", " }}
-    </div>
+  <div class="tags-list">
+    Tags:
+    {{ $sort := sort . }}
+    {{ $links := apply $sort "partial" "post-tag-link.html" "." }}
+    {{ $clean := apply $links "chomp" "." }}
+    {{ delimit $clean ", " }}
+  </div>
 {{ end }}
 ```
 
 Now in the completed version, you can sort the tags, convert the tags to links with `layouts/partials/post-tag-link.html`, [chomp] off stray newlines, and join the tags together in a delimited list for presentation. Here is an even DRYer version of the preceding example:
 
 {{< code file="layouts/partials/post-tag-list.html" download="post-tag-list.html" >}}
-    {{ with .Params.tags }}
-    <div class="tags-list">
-      Tags:
-      {{ delimit (apply (apply (sort .) "partial" "post-tag-link.html" ".") "chomp" ".") ", " }}
-    </div>
-    {{ end }}
+{{ with .Params.tags }}
+  <div class="tags-list">
+    Tags:
+    {{ delimit (apply (apply (sort .) "partial" "post-tag-link.html" ".") "chomp" ".") ", " }}
+  </div>
+{{ end }}
 {{< /code >}}
 
 {{% note %}}

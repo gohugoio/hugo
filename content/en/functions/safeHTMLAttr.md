@@ -8,7 +8,6 @@ menu:
 keywords: [strings]
 signature: ["safeHTMLAttr INPUT"]
 relatedfuncs: []
-aliases: []
 ---
 
 Given a site configuration that contains this menu entry:

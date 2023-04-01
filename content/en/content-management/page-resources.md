@@ -1,6 +1,5 @@
 ---
 title: Page Resources
-linkTitle: Page Resources
 description: Page resources -- images, other pages, documents, etc. -- have page-relative URLs and their own metadata.
 categories: [content management]
 keywords: [bundle,content,resources]

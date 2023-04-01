@@ -1,6 +1,5 @@
 ---
 title: Windows
-linkTitle: Windows
 description: Install Hugo on Windows.
 categories: [installation]
 menu:

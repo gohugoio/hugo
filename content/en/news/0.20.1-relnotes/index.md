@@ -4,8 +4,6 @@ categories: ["Releases"]
 description: "Hugo 0.20.1 is a bug fix release, fixing some important regressions introduced in 0.20"
 link: ""
 title: "Hugo 0.20.1"
-draft: false
-author: bep
 aliases: [/0-20-1/]
 ---
 

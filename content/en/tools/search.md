@@ -2,17 +2,11 @@
 title: Search for your Hugo Website
 linktitle: Search
 description: See some of the open-source and commercial search options for your newly created Hugo website.
-date: 2017-02-01
-publishdate: 2017-02-01
-categories: [developer tools]
-keywords: [search,tools]
 menu:
   docs:
-    parent: "tools"
+    parent: tools
     weight: 60
 weight: 60
-sections_weight: 60
-aliases: []
 toc: true
 ---
 

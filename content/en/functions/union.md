@@ -1,21 +1,13 @@
 ---
 title: union
-# linktitle: union
 description: Given two arrays or slices, returns a new array that contains the elements or objects that belong to either or both arrays/slices.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-03-12
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [collections,intersect,union,complement]
 signature: ["union SET1 SET2"]
-workson: []
-hugoversion: 0.20
 relatedfuncs: [intersect,where]
-deprecated: false
-aliases: []
 ---
 
 Given two arrays (or slices) A and B, this function will return a new array that contains the elements or objects that belong to either A or to B or to both. The elements supported are strings, integers, and floats (only float64).

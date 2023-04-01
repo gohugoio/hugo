@@ -1,20 +1,13 @@
 ---
 title: with
-# linktitle: with
 description: Rebinds the context (`.`) within its scope and skips the block if the variable is absent or empty.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-03-12
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [conditionals]
 signature: ["with INPUT"]
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
 ---
 
 An alternative way of writing an `if` statement and then referencing the same value is to use `with` instead. `with` rebinds the context (`.`) within its scope and skips the block if the variable is absent, unset or empty.

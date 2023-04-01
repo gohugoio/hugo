@@ -1,20 +1,13 @@
 ---
 title: Page Variables
-linktitle:
 description: Page-level variables are defined in a content file's front matter, derived from the content's file location, or extracted from the content body itself.
-date: 2017-02-01
-publishdate: 2017-02-01
 categories: [variables and params]
 keywords: [pages]
-draft: false
 menu:
   docs:
-    title: "variables defined by a page"
-    parent: "variables"
+    parent: variables
     weight: 20
 weight: 20
-sections_weight: 20
-aliases: []
 toc: true
 ---
 

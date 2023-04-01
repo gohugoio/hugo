@@ -1,20 +1,13 @@
 ---
 title: safeHTML
-# linktitle:
 description: Declares a provided string as a "safe" HTML document to avoid escaping by Go templates.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [strings]
 signature: ["safeHTML INPUT"]
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
 ---
 
 It should not be used for HTML from a third-party, or HTML with unclosed tags or comments.

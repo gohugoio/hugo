@@ -4,8 +4,6 @@ categories: ["Releases"]
 description: "Hugo 0.20.2 adds support for plain text partials included into HTML templates"
 link: ""
 title: "Hugo 0.20.2"
-draft: false
-author: bep
 aliases: [/0-20-2/]
 ---
 

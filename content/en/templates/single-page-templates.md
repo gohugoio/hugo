@@ -1,19 +1,13 @@
 ---
 title: Single Page Templates
-linktitle:
 description: The primary view of content in Hugo is the single view. Hugo will render every Markdown file provided with a corresponding single template.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-04-06
 categories: [templates]
 keywords: [page, templates]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 60
 weight: 60
-sections_weight: 60
-draft: false
 aliases: [/layout/content/]
 toc: true
 ---

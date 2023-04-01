@@ -1,6 +1,5 @@
 ---
 title: Taxonomies
-linkTitle: Taxonomies
 description: Hugo includes support for user-defined taxonomies.
 keywords: [taxonomies,metadata,front matter,terms]
 categories: [content management]

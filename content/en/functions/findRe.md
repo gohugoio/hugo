@@ -10,7 +10,6 @@ signature:
   - "findRE PATTERN INPUT [LIMIT]"
   - "strings.FindRE PATTERN INPUT [LIMIT]"
 relatedfuncs: [replaceRE]
-aliases: []
 ---
 By default, the `findRE` function finds all matches. You can limit the number of matches with an optional LIMIT parameter.
 

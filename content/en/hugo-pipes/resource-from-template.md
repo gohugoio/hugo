@@ -2,16 +2,13 @@
 title: ExecuteAsTemplate
 linkTitle: Resource from Template
 description: Creates a resource from a template
-date: 2018-07-14
-publishdate: 2018-07-14
 categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: "pipes"
+    parent: pipes
     weight: 80
 weight: 80
-sections_weight: 80
 signature: ["resources.ExecuteAsTemplate TARGET_PATH CONTEXT RESOURCE"]
 ---
 

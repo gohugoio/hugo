@@ -2,17 +2,13 @@
 title: Apache License
 linktitle: License
 description: Hugo v0.15 and later are released under the Apache 2.0 license.
-date: 2016-02-01
-publishdate: 2016-02-01
-lastmod: 2016-03-02
 categories: ["about hugo"]
 keywords: ["License","apache"]
 menu:
   docs:
-    parent: "about"
+    parent: about
     weight: 60
 weight: 60
-sections_weight: 60
 aliases: [/meta/license]
 toc: true
 ---

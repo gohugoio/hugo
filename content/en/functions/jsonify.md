@@ -1,21 +1,13 @@
 ---
 title: jsonify
-linktitle: jsonify
 description: Encodes a given object to JSON.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2020-04-13
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [strings,json]
 signature: ["jsonify INPUT", "jsonify OPTIONS INPUT"]
-workson: []
-hugoversion:
 relatedfuncs: [plainify]
-deprecated: false
-aliases: []
 ---
 
 Jsonify encodes a given object to JSON.

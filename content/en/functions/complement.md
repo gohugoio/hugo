@@ -10,7 +10,6 @@ signature:
 - "complement COLLECTION [COLLECTION]..."
 - "collections.Complement COLLECTION [COLLECTION]..."
 relatedfuncs: [intersect,symdiff,union]
-aliases: []
 ---
 
 To find the elements within `$c3` that do not exist in `$c1` or `$c2`:

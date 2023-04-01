@@ -1,6 +1,5 @@
 ---
 title: Syntax Highlighting
-linkTitle: Syntax Highlighting
 description: Hugo comes with really fast syntax highlighting from Chroma.
 keywords: [highlighting,chroma,code blocks,syntax]
 categories: [content management]

@@ -1,27 +1,18 @@
 ---
 title: title
-# linktitle:
 description: Converts all characters in the provided string to title case.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [strings]
 signature:
   - "title INPUT"
   - "strings.Title INPUT"
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
-aliases: []
 ---
 
-
-```
+```go-html-template
 {{ title "BatMan"}}` → "Batman"
 ```
 
@@ -29,7 +20,7 @@ Can be combined in pipes. In the following snippet, the link text is cleaned up 
 
 ```go-html-template
 {{ range $name, $items := .Site.Taxonomies.categories }}
-    <li><a href="{{ printf "%s/%s" "categories" ($name | urlize | lower) | absURL }}">{{ $name | humanize | title }} ({{ len $items }})</a></li>
+  <li><a href="{{ printf "%s/%s" "categories" ($name | urlize | lower) | absURL }}">{{ $name | humanize | title }} ({{ len $items }})</a></li>
 {{ end }}
 ```
 

@@ -1,20 +1,13 @@
 ---
 title: after
 description: "`after` slices an array to only the items after the <em>N</em>th item."
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [iteration]
 signature: ["after INDEX COLLECTION"]
-workson: []
-hugoversion:
 relatedfuncs: [last,first,seq]
-deprecated: false
-aliases: []
 ---
 
 The following shows `after` being used in conjunction with the [`slice` function][slice]:

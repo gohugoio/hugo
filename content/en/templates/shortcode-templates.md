@@ -2,19 +2,13 @@
 title: Create Your Own Shortcodes
 linktitle: Shortcode Templates
 description: You can extend Hugo's built-in shortcodes by creating your own using the same templating syntax as that for single and list pages.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [templates]
 keywords: [shortcodes,templates]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 100
 weight: 100
-sections_weight: 100
-draft: false
-aliases: []
 toc: true
 ---
 

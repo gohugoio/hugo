@@ -1,22 +1,13 @@
 ---
 title: delimit
 description: Loops through any array, slice, or map and returns a string of all the values separated by a delimiter.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [iteration]
-toc: false
 signature: ["delimit COLLECTION DELIMIT LAST"]
-workson: [lists,taxonomies,terms]
-hugoversion:
 relatedfuncs: []
-deprecated: false
-draft: false
-aliases: []
 ---
 
 `delimit` called in your template takes the form of

@@ -2,17 +2,13 @@
 title: Hugo Pipes Introduction
 linkTitle: Hugo Pipes
 description: Hugo Pipes is Hugo's asset processing set of functions.
-date: 2018-07-14
-publishdate: 2018-07-14
 categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: "pipes"
+    parent: pipes
     weight: 20
 weight: 01
-sections_weight: 01
-draft: false
 toc: true
 aliases: [/assets/]
 ---

@@ -1,6 +1,5 @@
 ---
 title: URL Management
-linkTitle: URL Management
 description: Control the structure and appearance of URLs through front matter entries and settings in your site configuration.
 categories: [content management]
 keywords: [aliases,redirects,permalinks,urls]

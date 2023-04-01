@@ -1,6 +1,5 @@
 ---
 title: Shortcodes
-linkTitle: Shortcodes
 description: Shortcodes are simple snippets inside your content files calling built-in or custom templates.
 categories: [content management]
 keywords: [markdown,content,shortcodes]

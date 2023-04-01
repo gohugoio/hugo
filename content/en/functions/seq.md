@@ -1,22 +1,13 @@
 ---
 title: seq
-# linktitle:
 description: Creates a sequence of integers.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: []
 signature: ["seq LAST", "seq FIRST LAST", "seq FIRST INCREMENT LAST"]
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
-draft: false
-aliases: []
 ---
 
 It's named and used in the model of [GNU's seq].
@@ -34,15 +25,15 @@ It's named and used in the model of [GNU's seq].
 You can use `seq` in combination with `range` and `after`. The following will return 19 elements:
 
 ```go-html-template
-{{ range after 1 (seq 20)}}
+{{ range after 1 (seq 20) }}
 {{ end }}
 ```
 
 However, when ranging with an index, the following may be less confusing in that `$indexStartingAt1` and `$num` will return `1,2,3 ... 20`:
 
 ```go-html-template
-{{ range $index, $num := (seq 20) }}
-$indexStartingAt1 := (add $index 1)
+{{ range $index, $num := seq 20 }}
+  {{ $indexStartingAt1 := add $index 1 }}
 {{ end }}
 ```
 

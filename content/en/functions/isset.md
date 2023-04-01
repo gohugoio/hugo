@@ -1,21 +1,13 @@
 ---
 title: isset
-linktitle: isset
 description: Returns true if the parameter is set.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: []
 signature: ["isset COLLECTION INDEX", "isset COLLECTION KEY"]
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
-aliases: []
 ---
 
 Takes either a slice, array, or channel and an index or a map and a key as input.

@@ -1,16 +1,12 @@
 ---
-title: "cond"
-date: 2017-09-08
+title: cond
 description: "Return one of two arguments, depending on the value of a third argument."
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 signature: ["cond CONTROL VAR1 VAR2"]
-hugoversion: 0.27
 relatedfuncs: [default]
-toc: false
-draft: false
 ---
 
 `cond` returns *VAR1* if *CONTROL* is true, or *VAR2* if it is not.

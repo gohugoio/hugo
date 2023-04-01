@@ -1,6 +1,5 @@
 ---
 title: Linux
-linkTitle: Linux
 description: Install Hugo on Linux.
 categories: [installation]
 menu:

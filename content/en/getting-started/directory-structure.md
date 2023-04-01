@@ -1,17 +1,13 @@
 ---
 title: Directory Structure
-linktitle: Directory Structure
 description: Hugo's CLI scaffolds a project directory structure and then takes that single directory and uses it as the input to create a complete website.
-date: 2017-01-02
-publishdate: 2017-02-01
 categories: [getting started,fundamentals]
 keywords: [source, organization, directories]
 menu:
   docs:
-    parent: "getting-started"
+    parent: getting-started
     weight: 50
 weight: 50
-sections_weight: 50
 aliases: [/overview/source-directory/]
 toc: true
 ---

@@ -2,22 +2,14 @@
 title: default
 description: Allows setting a default value that can be returned if a first value is not set.
 qref: "Returns a default value if a value is not set when checked."
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 keywords: [defaults]
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 toc:
 signature: ["default DEFAULT INPUT"]
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
-draft: false
-aliases: []
 ---
 
 `default` checks whether a given value is set and returns a default value if it is not. *Set* in this context means different things depending on the data type:

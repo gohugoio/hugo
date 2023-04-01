@@ -1,25 +1,18 @@
 ---
 title: trim
-# linktitle:
 description: Returns a slice of a passed string with all leading and trailing characters from cutset removed.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [strings]
 signature:
   - "trim INPUT CUTSET"
   - "strings.Trim INPUT CUTSET"
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
 ---
 
-```
+```go-html-template
 {{ trim "++Batman--" "+-" }} → "Batman"
 ```
 

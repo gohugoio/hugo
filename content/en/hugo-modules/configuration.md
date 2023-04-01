@@ -1,16 +1,13 @@
 ---
 title: Configure Modules
-linktitle: Configure Modules
 description: This page describes the configuration options for a module.
-date: 2019-07-24
 categories: [hugo modules]
 keywords: [themes, source, organization, directories]
 menu:
   docs:
-    parent: "modules"
+    parent: modules
     weight: 10
 weight: 10
-sections_weight: 10
 toc: true
 ---
 

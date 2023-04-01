@@ -1,18 +1,13 @@
 ---
 title: highlight
-linktitle: highlight
 description: Renders code with a syntax highlighter.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2021-12-06
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [highlighting,code blocks,syntax]
 signature: ["transform.Highlight INPUT LANG [OPTIONS]","highlight INPUT LANG [OPTIONS]"]
 relatedfuncs: []
-deprecated: false
 toc: true
 ---
 The `highlight` function uses the [Chroma] syntax highlighter, supporting over 200 languages with more than 40 available styles.

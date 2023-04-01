@@ -2,17 +2,13 @@
 title: Contribute to Hugo Development
 linktitle: Development
 description: Hugo relies heavily on contributions from the open source community.
-date: 2017-02-01
-publishdate: 2017-02-01
 categories: [contribute]
 keywords: [dev,open source]
-authors: [digitalcraftsman]
 menu:
   docs:
-    parent: "contribute"
+    parent: contribute
     weight: 10
 weight: 10
-sections_weight: 10
 toc: true
 ---
 

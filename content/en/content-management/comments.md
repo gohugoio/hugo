@@ -1,6 +1,5 @@
 ---
 title: Comments
-linkTitle: Comments
 description: Hugo ships with an internal Disqus template, but this isn't the only commenting system that will work with your new Hugo website.
 keywords: [sections,content,organization]
 categories: [project organization, fundamentals]

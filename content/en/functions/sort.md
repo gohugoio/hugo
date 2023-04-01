@@ -5,10 +5,9 @@ categories: [functions]
 signature: ["sort COLLECTION [KEY] [ORDER]"]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [ordering,sorting,lists]
 toc: true
-aliases: []
 ---
 
 The `KEY` is optional when sorting slices in ascending order, otherwise it is required. When sorting slices, use the literal `value` in place of the `KEY`. See examples below.

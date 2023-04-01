@@ -1,16 +1,13 @@
 ---
 title: Babel
 description: Hugo Pipes can process JS files with Babel.
-date: 2019-03-21
-publishdate: 2019-03-21
 categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: "pipes"
+    parent: pipes
     weight: 48
 weight: 48
-sections_weight: 48
 signature: ["resources.Babel RESOURCE [OPTIONS]", "babel RESOURCE [OPTIONS]"]
 ---
 

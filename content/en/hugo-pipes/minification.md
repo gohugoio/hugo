@@ -2,16 +2,13 @@
 title: Minify
 linkTitle: Asset minification
 description: Minifies a given resource.
-date: 2018-07-14
-publishdate: 2018-07-14
 categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: "pipes"
+    parent: pipes
     weight: 50
 weight: 50
-sections_weight: 50
 signature: ["resources.Minify RESOURCE", "minify RESOURCE"]
 ---
 

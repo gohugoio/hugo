@@ -1,19 +1,13 @@
 ---
 title: emojify
 description: Runs a string through the Emoji emoticons processor.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [strings,emojis]
 signature: ["emojify INPUT"]
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
 ---
 
 `emojify` runs a passed string through the Emoji emoticons processor.

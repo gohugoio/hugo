@@ -2,16 +2,13 @@
 title: Pagination
 linktitle: Pagination
 description: Hugo supports pagination for your homepage, section pages, and taxonomies.
-date: 2017-02-01
-publishdate: 2017-02-01
 categories: [templates]
 keywords: [lists,sections,pagination]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 140
 weight: 140
-sections_weight: 140
 aliases: [/extras/pagination,/doc/pagination/]
 toc: true
 ---

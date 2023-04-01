@@ -9,7 +9,6 @@ menu:
   docs:
     parent: installation
     weight: 10
-toc: false
 ---
 
 {{% param "description" %}}

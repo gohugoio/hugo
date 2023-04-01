@@ -1,21 +1,13 @@
 ---
 title: relref
-linktitle: relref
 description: Returns the relative permalink to a page.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2020-09-05
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [cross references, anchors]
 signature: ["relref . PAGE"]
-workson: []
-hugoversion:
 relatedfuncs: [ref]
-deprecated: false
-aliases: []
 ---
 
 This function takes two parameters:

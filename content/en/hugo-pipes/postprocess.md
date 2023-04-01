@@ -1,15 +1,13 @@
 ---
 title: PostProcess
 description: Allows delaying of resource transformations to after the build.
-date: 2020-04-09
 categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: "pipes"
+    parent: pipes
     weight: 39
 weight: 39
-sections_weight: 39
 signature: ["resources.PostProcess RESOURCE"]
 ---
 
@@ -97,4 +95,3 @@ These will get environment variables named on the form `HUGO_FILE_:filename:` wh
 ```js
 let tailwindConfig = process.env.HUGO_FILE_TAILWIND_CONFIG_JS || './tailwind.config.js';
 ```
-

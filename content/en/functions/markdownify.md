@@ -1,18 +1,13 @@
 ---
 title: markdownify
-linktitle: markdownify
 description: Renders markdown to HTML.
 keywords: [markdown,content]
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 signature: ["markdownify INPUT"]
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
-aliases: []
 ---
 
 ```go-html-template

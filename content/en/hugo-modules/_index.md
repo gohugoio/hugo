@@ -2,17 +2,13 @@
 title: Hugo Modules
 linktitle: Hugo Modules Overview
 description: How to use Hugo Modules.
-date: 2017-02-01
-publishdate: 2017-02-01
 menu:
   docs:
-    parent: "modules"
+    parent: modules
     weight: 01
 weight: 01
-sections_weight: 01
 categories: [hugo modules]
 keywords: [themes,modules]
-draft: false
 aliases: [/themes/overview/,/themes/]
 toc: true
 ---

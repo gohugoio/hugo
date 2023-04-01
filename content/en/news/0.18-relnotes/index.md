@@ -4,8 +4,6 @@ categories: ["Releases"]
 description: "The primary new feature in Hugo 0.18 is that every piece of content is now a Page."
 link: ""
 title: "Hugo 0.18"
-draft: false
-author: bep
 aliases: [/0-18/]
 ---
 

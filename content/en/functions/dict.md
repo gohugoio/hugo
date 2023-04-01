@@ -1,19 +1,13 @@
 ---
 title: dict
 description: Creates a dictionary from a list of key and value pairs.
-date: 2017-02-01
-publishdate: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [dictionary]
 signature: ["dict KEY VALUE [KEY VALUE]..."]
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
-aliases: []
 ---
 
 `dict` is especially useful for passing more than one value to a partial template.
