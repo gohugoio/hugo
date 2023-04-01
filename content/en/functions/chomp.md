@@ -16,5 +16,5 @@ relatedfuncs: [truncate]
 Useful in a pipeline to remove newlines added by other processing (e.g., [`markdownify`](/functions/markdownify/)).
 
 ```go-html-template
-{{ chomp "<p>Blockhead</p>\n"}} → "<p>Blockhead</p>"
+{{ chomp "<p>Blockhead</p>\n" }} → "<p>Blockhead</p>"
 ```

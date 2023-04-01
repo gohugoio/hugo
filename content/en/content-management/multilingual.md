@@ -344,7 +344,7 @@ The function will read `.Count` from `.ReadingTime` and evaluate whether the num
 {{< code-toggle file="i18n/en-US" >}}
 [readingTime]
 one = "One minute to read"
-other = "{{.Count }} minutes to read"
+other = "{{ .Count }} minutes to read"
 {{< /code-toggle >}}
 
 Assuming `.ReadingTime.Count` in the context has value is 525600. The result will be:

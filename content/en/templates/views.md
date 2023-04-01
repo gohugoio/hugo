@@ -65,10 +65,10 @@ In this example, `.Render` is passed into the template to call the [render funct
 {{< code file="layouts/_default/list.html" download="list.html" >}}
 <main id="main">
   <div>
-  <h1 id="title">{{ .Title }}</h1>
-  {{ range .Pages }}
-    {{ .Render "summary"}}
-  {{ end }}
+    <h1 id="title">{{ .Title }}</h1>
+    {{ range .Pages }}
+      {{ .Render "summary" }}
+    {{ end }}
   </div>
 </main>
 {{< /code >}}

@@ -89,7 +89,7 @@ An example table listing the dependencies:
     {{ range $index, $element := hugo.Deps }}
     <tr>
       <th scope="row">{{ add $index 1 }}</th>
-      <td>{{ with $element.Owner }}{{.Path }}{{ end }}</td>
+      <td>{{ with $element.Owner }}{{ .Path }}{{ end }}</td>
       <td>
         {{ $element.Path }}
         {{ with $element.Replace }}

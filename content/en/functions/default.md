@@ -71,13 +71,13 @@ The following have equivalent return values but are far less terse. This demonst
 Using `if`:
 
 {{< code file="if-instead-of-default.html" copy="false" >}}
-<title>{{ if .Params.seo_title }}{{.Params.seo_title }}{{ else }}{{.Title }}{{ end }}</title>
+<title>{{ if .Params.seo_title }}{{ .Params.seo_title }}{{ else }}{{ .Title }}{{ end }}</title>
 => Sane Defaults
 {{< /code >}}
 
 Using `with`:
 
 {{< code file="with-instead-of-default.html" copy="false" >}}
-<title>{{ with .Params.seo_title }}{{.}}{{ else }}{{.Title }}{{ end }}</title>
+<title>{{ with .Params.seo_title }}{{ . }}{{ else }}{{ .Title }}{{ end }}</title>
 => Sane Defaults
 {{< /code >}}

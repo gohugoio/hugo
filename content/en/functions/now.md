@@ -16,7 +16,7 @@ For example, building your site on June 24, 2017, with the following templating:
 
 ```go-html-template
 <div>
-    <small>&copy; {{ now.Format "2006"}}</small>
+    <small>&copy; {{ now.Format "2006" }}</small>
 </div>
 ```
 

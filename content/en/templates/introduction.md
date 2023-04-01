@@ -544,11 +544,11 @@ Here is an example of corresponding code that could be used inside a `toc.html` 
 {{ if not .Params.notoc }}
 <aside>
   <header>
-    <a href="#{{.Title | urlize }}">
-    <h3>{{.Title }}</h3>
+    <a href="#{{ .Title | urlize }}">
+    <h3>{{ .Title }}</h3>
     </a>
   </header>
-  {{.TableOfContents }}
+  {{ .TableOfContents }}
 </aside>
 <a href="#" id="toc-toggle"></a>
 {{ end }}
@@ -574,7 +574,7 @@ Within a footer layout, you might then declare a `<footer>` that is only rendere
 ```go-html-template
 {{ if .Site.Params.copyrighthtml }}
     <footer>
-        <div class="text-center">{{.Site.Params.CopyrightHTML | safeHTML }}</div>
+        <div class="text-center">{{ .Site.Params.CopyrightHTML | safeHTML }}</div>
     </footer>
 {{ end }}
 ```
@@ -584,8 +584,8 @@ An alternative way of writing the "`if`" and then referencing the same value is 
 {{< code file="layouts/partials/twitter.html" >}}
 {{ with .Site.Params.twitteruser }}
     <div>
-        <a href="https://twitter.com/{{.}}" rel="author">
-        <img src="/images/twitter.png" width="48" height="48" title="Twitter: {{.}}" alt="Twitter"></a>
+        <a href="https://twitter.com/{{ . }}" rel="author">
+        <img src="/images/twitter.png" width="48" height="48" title="Twitter: {{ . }}" alt="Twitter"></a>
     </div>
 {{ end }}
 {{< /code >}}
@@ -597,7 +597,7 @@ Finally, you can pull "magic constants" out of your layouts as well. The followi
   <h1>Recent Posts</h1>
   <ul>
   {{- range first .Site.Params.SidebarRecentLimit .Site.Pages -}}
-      <li><a href="{{.RelPermalink }}">{{.Title }}</a></li>
+      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
   {{- end -}}
   </ul>
 </nav>

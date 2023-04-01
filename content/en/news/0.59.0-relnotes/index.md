@@ -19,13 +19,13 @@ See [Image Processing Options](https://gohugo.io/content-management/image-proces
 Another useful addon is the `$pages.Next` and `$pages.Prev` methods on the core page collections in Hugo. These works the same way as the built-in static variants one `Page`, e.g. `.Next` and `.NextInSection`:
 
 ```
-{{ with .Site.RegularPages.Next . }}{{.RelPermalink }}{{ end }}
+{{ with .Site.RegularPages.Next . }}{{ .RelPermalink }}{{ end }}
 ```
 
 The above is a functionally equivalent (but slightly slower) variant of:
 
 ```
-{{ with .Next }}{{.RelPermalink }}{{ end }}
+{{ with .Next }}{{ .RelPermalink }}{{ end }}
 ```
 
 See [Pages Methods](https://gohugo.io/variables/pages/) for more information.

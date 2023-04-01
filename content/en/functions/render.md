@@ -18,7 +18,7 @@ This example could render a piece of content using the content view located at `
 
 ```go-html-template
 {{ range .Pages }}
-  {{ .Render "summary"}}
+  {{ .Render "summary" }}
 {{ end }}
 ```
 

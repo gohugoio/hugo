@@ -72,7 +72,7 @@ Here is a review of the front matter fields automatically generated for you usin
 `relatedfuncs`
 : other [templating functions] you feel are related to your new function to help fellow Hugo users.
 
-`{{.Content }}`
+`{{ .Content }}`
 : an extended description of the new function; examples are not only welcomed but encouraged.
 
 In the body of your function, expand the short description used in the front matter. Include as many examples as possible, and leverage the Hugo docs [`code` shortcode](#add-code-blocks).
@@ -136,15 +136,15 @@ This example HTML code block tells Hugo users the following:
 <main>
     <article>
         <header>
-            <h1>{{.Title }}</h1>
+            <h1>{{ .Title }}</h1>
             {{ with .Params.subtitle }}
-            <span>{{.}}</span>
+            <span>{{ . }}</span>
         </header>
         <div>
-            {{.Content }}
+            {{ .Content }}
         </div>
         <aside>
-            {{.TableOfContents }}
+            {{ .TableOfContents }}
         </aside>
     </article>
 </main>
@@ -161,15 +161,15 @@ The output of this example will render to the Hugo docs as follows:
 <main>
     <article>
         <header>
-            <h1>{{.Title }}</h1>
+            <h1>{{ .Title }}</h1>
             {{ with .Params.subtitle }}
-            <span>{{.}}</span>
+            <span>{{ . }}</span>
         </header>
         <div>
-            {{.Content }}
+            {{ .Content }}
         </div>
         <aside>
-            {{.TableOfContents }}
+            {{ .TableOfContents }}
         </aside>
     </article>
 </main>

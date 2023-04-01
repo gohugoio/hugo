@@ -20,8 +20,8 @@ The following example checks for a [user-defined site variable](/variables/site/
 
 {{< code file="layouts/partials/twitter.html" >}}
 {{ with .Site.Params.twitteruser }}<span class="twitter">
-<a href="https://twitter.com/{{.}}" rel="author">
-<img src="/images/twitter.png" width="48" height="48" title="Twitter: {{.}}"
+<a href="https://twitter.com/{{ . }}" rel="author">
+<img src="/images/twitter.png" width="48" height="48" title="Twitter: {{ . }}"
  alt="Twitter"></a>
 </span>{{ end }}
 {{< /code >}}

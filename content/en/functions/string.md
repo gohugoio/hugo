@@ -10,4 +10,4 @@ signature: ["string INPUT"]
 relatedfuncs: []
 ---
 
-* `{{ string "BatMan"}}` → "BatMan"
+* `{{ string "BatMan" }}` → "BatMan"

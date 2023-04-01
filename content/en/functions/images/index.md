@@ -45,7 +45,7 @@ images.Text TEXT DICT)
 The following example will add the text `Hugo rocks!` to the image with the specified color, size and position.
 
 ```go-html-template
-{{ $img := resources.Get "/images/background.png"}}
+{{ $img := resources.Get "/images/background.png" }}
 {{ $img = $img.Filter (images.Text "Hugo rocks!" (dict
     "color" "#ffffff"
     "size" 60
@@ -60,7 +60,7 @@ You can load a custom font if needed. Load the font as a Hugo `Resource` and set
 ```go-html-template
 
 {{ $font := resources.GetRemote "https://github.com/google/fonts/raw/main/apache/roboto/static/Roboto-Black.ttf" }}
-{{ $img := resources.Get "/images/background.png"}}
+{{ $img := resources.Get "/images/background.png" }}
 {{ $img = $img.Filter (images.Text "Hugo rocks!" (dict
     "font" $font
 ))}}
@@ -221,6 +221,6 @@ images.ImageConfig PATH
 
 ```go-html-template
 {{ with (imageConfig "favicon.ico") }}
-favicon.ico: {{.Width }} x {{.Height }}
+favicon.ico: {{ .Width }} x {{ .Height }}
 {{ end }}
 ```

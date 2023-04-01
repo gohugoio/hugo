@@ -14,8 +14,8 @@ If the input is either an int64 value or the string representation of an integer
 
 
 ```go-html-template
-{{ humanize "my-first-post"}} → "My first post"
-{{ humanize "myCamelPost"}} → "My camel post"
-{{ humanize "52"}} → "52nd"
+{{ humanize "my-first-post" }} → "My first post"
+{{ humanize "myCamelPost" }} → "My camel post"
+{{ humanize "52" }} → "52nd"
 {{ humanize 103 }} → "103rd"
 ```

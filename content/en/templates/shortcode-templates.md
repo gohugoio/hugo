@@ -209,21 +209,21 @@ You have created the shortcode at `/layouts/shortcodes/img.html`, which loads th
 
 {{< code file="/layouts/shortcodes/img.html" >}}
 <!-- image -->
-<figure {{ with .Get "class" }}class="{{.}}"{{ end }}>
-    {{ with .Get "link" }}<a href="{{ . }}">{{ end }}
-        <img src="{{ .Get "src" }}" {{ if or (.Get "alt") (.Get "caption") }}alt="{{ with .Get "alt" }}{{ . }}{{ else }}{{ .Get "caption" }}{{ end }}"{{ end }} />
+<figure {{ with .Get "class" }}class="{{ . }}"{{ end }}>
+  {{ with .Get "link" }}<a href="{{ . }}">{{ end }}
+    <img src="{{ .Get "src" }}" {{ if or (.Get "alt") (.Get "caption") }}alt="{{ with .Get "alt" }}{{ . }}{{ else }}{{ .Get "caption" }}{{ end }}"{{ end }} />
     {{ if .Get "link" }}</a>{{ end }}
     {{ if or (or (.Get "title") (.Get "caption")) (.Get "attr") }}
-    <figcaption>{{ if isset .Params "title" }}
+      <figcaption>{{ if isset .Params "title" }}
         <h4>{{ .Get "title" }}</h4>{{ end }}
         {{ if or (.Get "caption") (.Get "attr") }}<p>
         {{ .Get "caption" }}
         {{ with .Get "attrlink" }}<a href="{{ . }}"> {{ end }}
-            {{ .Get "attr" }}
+          {{ .Get "attr" }}
         {{ if .Get "attrlink" }}</a> {{ end }}
         </p> {{ end }}
-    </figcaption>
-    {{ end }}
+      </figcaption>
+  {{ end }}
 </figure>
 <!-- image -->
 {{< /code >}}
@@ -232,10 +232,10 @@ Would be rendered as:
 
 {{< code file="img-output.html" copy="false" >}}
 <figure>
-    <img src="/media/spf13.jpg"  />
-    <figcaption>
-        <h4>Steve Francia</h4>
-    </figcaption>
+  <img src="/media/spf13.jpg"  />
+  <figcaption>
+      <h4>Steve Francia</h4>
+  </figcaption>
 </figure>
 {{< /code >}}
 

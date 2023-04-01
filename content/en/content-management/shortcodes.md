@@ -185,7 +185,7 @@ This shortcode will convert the source code provided into syntax-highlighted HTM
   <div>
    <h1 id="title">{{ .Title }}</h1>
     {{ range .Pages }}
-        {{ .Render "summary"}}
+        {{ .Render "summary" }}
     {{ end }}
   </div>
 </section>

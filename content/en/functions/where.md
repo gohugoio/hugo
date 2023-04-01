@@ -77,7 +77,7 @@ The following logical operators are available with `where`:
 When using booleans you should not put quotation marks.
 ```go-html-template
 {{ range where .Pages "Draft" true }}
-        <p>{{.Title }}</p>
+        <p>{{ .Title }}</p>
 {{ end }}
 ```
   

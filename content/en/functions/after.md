@@ -30,24 +30,24 @@ You can use `after` in combination with the [`first` function] and Hugo's [power
 {{< code file="layouts/section/articles.html" download="articles.html" >}}
 {{ define "main" }}
 <section class="row featured-article">
-    <h2>Featured Article</h2>
-    {{ range first 1 .Pages.ByPublishDate.Reverse }}
-     <header>
-        <h3><a href="{{.Permalink }}">{{.Title }}</a></h3>
-    </header>
-    <p>{{.Description }}</p>
-    {{ end }}
+  <h2>Featured Article</h2>
+  {{ range first 1 .Pages.ByPublishDate.Reverse }}
+  <header>
+      <h3><a href="{{ . Permalink }}">{{ .Title }}</a></h3>
+  </header>
+  <p>{{ .Description }}</p>
+{{ end }}
 </section>
 <div class="row recent-articles">
-    <h2>Recent Articles</h2>
-    {{ range first 3 (after 1 .Pages.ByPublishDate.Reverse) }}
-        <section class="recent-article">
-            <header>
-                <h3><a href="{{.Permalink }}">{{.Title }}</a></h3>
-            </header>
-            <p>{{.Description }}</p>
-        </section>
-    {{ end }}
+  <h2>Recent Articles</h2>
+  {{ range first 3 (after 1 .Pages.ByPublishDate.Reverse) }}
+    <section class="recent-article">
+      <header>
+          <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+      </header>
+      <p>{{ .Description }}</p>
+    </section>
+  {{ end }}
 </div>
 {{ end }}
 {{< /code >}}
