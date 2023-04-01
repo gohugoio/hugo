@@ -48,7 +48,6 @@ If you are going to create [custom shortcodes](/templates/shortcode-templates/) 
 {{% /warning %}}
 
 [called directly in the Hugo docs]: https://github.com/gohugoio/hugoDocs/blob/master/content/en/templates/files.md
-[dirindex]: https://github.com/gohugoio/hugo/blob/master/docs/layouts/shortcodes/directoryindex.html
 [osfileinfo]: https://golang.org/pkg/os/#FileInfo
 [readDir]: /functions/readdir/
 [readFile]: /functions/readfile/
