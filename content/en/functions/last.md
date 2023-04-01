@@ -20,7 +20,7 @@ draft: false
 aliases: []
 ---
 
-```
+```go-html-template
 {{ range last 10 .Pages }}
     {{ .Render "summary" }}
 {{ end }}

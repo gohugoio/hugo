@@ -15,7 +15,7 @@ deprecated: false
 aliases: []
 ---
 
-```
+```go-html-template
 {{ .Title | markdownify }}
 ```
 

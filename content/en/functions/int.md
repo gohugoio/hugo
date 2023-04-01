@@ -32,7 +32,7 @@ number representation.
 
 The `strings.TrimLeft` can be used for this purpose.
 
-```
+```go-html-template
 {{ int ("0987" | strings.TrimLeft "0") }}
 {{ int ("00987" | strings.TrimLeft "0") }}
 ```

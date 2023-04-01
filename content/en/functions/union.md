@@ -20,7 +20,7 @@ aliases: []
 
 Given two arrays (or slices) A and B, this function will return a new array that contains the elements or objects that belong to either A or to B or to both. The elements supported are strings, integers, and floats (only float64).
 
-```
+```go-html-template
 {{ union (slice 1 2 3) (slice 3 4 5) }}
 <!-- returns [1 2 3 4 5] -->
 
@@ -38,7 +38,7 @@ Given two arrays (or slices) A and B, this function will return a new array that
 
 This is also very useful to use as `OR` filters when combined with where:
 
-```
+```go-html-template
 {{ $pages := where .Site.RegularPages "Type" "not in" (slice "page" "about") }}
 {{ $pages = $pages | union (where .Site.RegularPages "Params.pinned" true) }}
 {{ $pages = $pages | intersect (where .Site.RegularPages "Params.images" "!=" nil) }}

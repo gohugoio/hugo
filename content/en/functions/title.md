@@ -27,7 +27,7 @@ aliases: []
 
 Can be combined in pipes. In the following snippet, the link text is cleaned up using `humanize` to remove dashes and `title` to convert the value of `$name` to Initial Caps.
 
-```
+```go-html-template
 {{ range $name, $items := .Site.Taxonomies.categories }}
     <li><a href="{{ printf "%s/%s" "categories" ($name | urlize | lower) | absURL }}">{{ $name | humanize | title }} ({{ len $items }})</a></li>
 {{ end }}

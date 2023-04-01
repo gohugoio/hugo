@@ -22,11 +22,11 @@ The elements supported are strings, integers and floats, although only float64 w
 
 In addition, `in` can also check if a substring exists in a string.
 
-```
+```go-html-template
 {{ if in .Params.tags "Git" }}Follow me on GitHub!{{ end }}
 ```
 
 
-```
+```go-html-template
 {{ if in "this string contains a substring" "substring" }}Substring found!{{ end }}
 ```

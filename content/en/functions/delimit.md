@@ -21,7 +21,7 @@ aliases: []
 
 `delimit` called in your template takes the form of
 
-```
+```go-html-template
 {{ delimit array/slice/map delimiter optionallastdelimiter }}
 ```
 

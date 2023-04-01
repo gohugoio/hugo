@@ -69,7 +69,7 @@ pop_metro = 1717900
 
 The example we will use will be an article on Oslo, whose front matter should be set to exactly the same name as the corresponding file name in `data/locations/`:
 
-```
+```toml
 title = "My Norwegian Vacation"
 location = "oslo"
 ```
@@ -81,8 +81,8 @@ This is where the `index` function is needed. `index` takes 2 parameters in this
 1. The node path
 2. A string corresponding to the desired data; e.g.&mdash;
 
-```
-{{ index .Site.Data.locations “oslo” }}
+```go-html-template
+{{ index .Site.Data.locations "oslo" }}
 ```
 
 The variable for `.Params.location` is a string and can therefore replace `oslo` in the example above:

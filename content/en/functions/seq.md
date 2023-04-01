@@ -33,14 +33,14 @@ It's named and used in the model of [GNU's seq].
 
 You can use `seq` in combination with `range` and `after`. The following will return 19 elements:
 
-```
+```go-html-template
 {{ range after 1 (seq 20)}}
 {{ end }}
 ```
 
 However, when ranging with an index, the following may be less confusing in that `$indexStartingAt1` and `$num` will return `1,2,3 ... 20`:
 
-```
+```go-html-template
 {{ range $index, $num := (seq 20) }}
 $indexStartingAt1 := (add $index 1)
 {{ end }}

@@ -26,7 +26,7 @@ the output will begin on a new line beginning with *prefix* followed by one or
 more copies of *indent* according to the indentation nesting.
 
 
-```
+```go-html-template
 {{ dict "title" .Title "content" .Plain | jsonify }}
 {{ dict "title" .Title "content" .Plain | jsonify (dict "indent" "  ") }}
 {{ dict "title" .Title "content" .Plain | jsonify (dict "prefix" " " "indent" "  ") }}

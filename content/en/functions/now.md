@@ -22,7 +22,7 @@ See [`time.Time`](https://godoc.org/time#Time).
 
 For example, building your site on June 24, 2017, with the following templating:
 
-```
+```go-html-template
 <div>
     <small>&copy; {{ now.Format "2006"}}</small>
 </div>
@@ -30,7 +30,7 @@ For example, building your site on June 24, 2017, with the following templating:
 
 would produce the following:
 
-```
+```html
 <div>
     <small>&copy; 2017</small>
 </div>

@@ -25,13 +25,13 @@ deprecated: false
 
 `trim` *requires* the second argument, which tells the function specifically what to remove from the first argument. There is no default value for the second argument, so **the following usage will not work**:
 
-```
+```go-html-template
 {{ trim .Inner }}
 ```
 
 Instead, the following example tells `trim` to remove extra new lines from the content contained in the [shortcode `.Inner` variable][shortcodevars]:
 
-```
+```go-html-template
 {{ trim .Inner "\n" }}
 ```
 

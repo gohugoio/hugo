@@ -19,6 +19,6 @@ aliases: []
 ---
 
 
-```
+```go-html-template
 {{ if ge 10 5 }}true{{ end }}
 ```

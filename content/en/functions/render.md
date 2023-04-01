@@ -23,7 +23,7 @@ This function is only available when applied to a single piece of content within
 
 This example could render a piece of content using the content view located at `/layouts/_default/summary.html`:
 
-```
+```go-html-template
 {{ range .Pages }}
     {{ .Render "summary"}}
 {{ end }}

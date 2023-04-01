@@ -19,6 +19,6 @@ aliases: []
 ---
 
 
-```
+```go-html-template
 {{ if eq .Section "blog" }}current{{ end }}
 ```

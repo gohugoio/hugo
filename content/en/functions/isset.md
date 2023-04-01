@@ -20,7 +20,7 @@ aliases: []
 
 Takes either a slice, array, or channel and an index or a map and a key as input.
 
-```
+```go-html-template
 {{ if isset .Params "project_url" }} {{ index .Params "project_url" }}{{ end }}
 ```
 

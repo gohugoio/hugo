@@ -37,7 +37,7 @@ names: [ "Derek Perkins", "Joe Bergevin", "Tanner Linsley" ]
 
 You can then use `apply` as follows:
 
-```
+```go-html-template
 {{ apply .Params.names "urlize" "." }}
 ```
 
@@ -49,7 +49,7 @@ Which will result in the following:
 
 This is *roughly* equivalent to using the following with [range]:
 
-```
+```go-html-template
 {{ range .Params.names }}{{ . | urlize }}{{ end }}
 ```
 
@@ -83,7 +83,7 @@ This works, but the complexity of `post-tag-list.html` is fairly high. The Hugo 
 
 This first version of `layouts/partials/post-tag-list.html` separates all of the operations for ease of reading. The combined and DRYer version is shown next:
 
-```
+```go-html-template
 {{ with .Params.tags }}
     <div class="tags-list">
       Tags:

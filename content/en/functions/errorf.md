@@ -22,11 +22,11 @@ Any ERROR will also cause the build to fail (the `hugo` command will `exit -1`).
 
 Both functions return an empty string, so the messages are only printed to the console.
 
-```
+```go-html-template
 {{ errorf "Failed to handle page %q" .Path }}
 ```
 
-```
+```go-html-template
 {{ warnf "You should update the shortcodes in %q" .Path }}
 ```
 
@@ -38,7 +38,7 @@ Sometimes it may make sense to let the user suppress an ERROR and make the build
 
 You can do this by using the `erroridf` function. This functions takes an error ID as the first argument.
 
-```
+```go-html-template
 {{ erroridf "my-custom-error" "You should consider fixing this." }}
 ```  
 

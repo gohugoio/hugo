@@ -19,7 +19,7 @@ aliases: []
 
 The following shows `after` being used in conjunction with the [`slice` function][slice]:
 
-```
+```go-html-template
 {{ $data := slice "one" "two" "three" "four" }}
 {{ range after 2 $data }}
     {{ . }}

@@ -38,7 +38,7 @@ You can also pass additional parameters to `partialCached` to create *variants* 
 
 If you need to pass additional parameters to create unique variants, you can pass as many variant parameters as you need:
 
-```
+```go-html-template
 {{ partialCached "footer.html" . .Params.country .Params.province }}
 ```
 

@@ -97,7 +97,7 @@ Spelled-out cardinal numbers (e.g. "one", "two", and "three") are not currently 
 
 Use the [`humanize`](/functions/humanize) function to render the day of the month as an ordinal number:
 
-```
+```go-html-template
 {{ humanize .Date.Day }} of {{ .Date.Format "January 2006" }}
 ```
 

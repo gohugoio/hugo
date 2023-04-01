@@ -33,7 +33,7 @@ copyright = "© 2015 Jane Doe.  <a href=\"https://creativecommons.org/licenses/b
 
 However, without the `safeHTML` function, html/template assumes `.Site.Copyright` to be unsafe and therefore escapes all HTML tags and renders the whole string as plain text:
 
-```
+```html
 <p>© 2015 Jane Doe.  &lt;a href=&#34;https://creativecommons.org/licenses by/4.0/&#34;&gt;Some rights reserved&lt;/a&gt;.</p>
 ```
 

@@ -42,7 +42,7 @@ newparam:
 
 `default` can be written in more than one way:
 
-```
+```go-html-template
 {{ index .Params "font" | default "Roboto" }}
 {{ default "Roboto" (index .Params "font") }}
 ```
@@ -58,7 +58,7 @@ A `default` value, however, does not need to be hard coded like the previous exa
 
 Which would return:
 
-```
+```html
 <p>The default function helps make your templating DRYer.</p>
 ```
 

@@ -42,7 +42,7 @@ You can also pass other data types as arguments to the template function which t
 Using base64 to decode and encode becomes really powerful if we have to handle
 responses from APIs.
 
-```
+```go-html-template
 {{ $resp := getJSON "https://api.github.com/repos/gohugoio/hugo/readme" }}
 {{ $resp.content | base64Decode | markdownify }}
 ```

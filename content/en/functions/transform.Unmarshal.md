@@ -52,7 +52,7 @@ As a convenience, Hugo allows you to access XML data in the same way that you ac
 
 To get the contents of `<title>` in the document below, you use `{{ .message.title }}`:
 
-```
+```xml
 <root>
     <message>
         <title>Hugo rocks!</title>
@@ -63,7 +63,7 @@ To get the contents of `<title>` in the document below, you use `{{ .message.tit
 
 The following example lists the items of an RSS feed:
 
-```
+```go-html-template
 {{ with resources.Get "https://example.com/rss.xml" | transform.Unmarshal }}
     {{ range .channel.item }}
         <strong>{{ .title | plainify | htmlUnescape }}</strong><br />

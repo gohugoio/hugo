@@ -19,6 +19,6 @@ aliases: []
 ---
 
 
-```
+```go-html-template
 {{ echoParam .Params "project_url" }}
 ```

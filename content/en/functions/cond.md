@@ -17,7 +17,7 @@ draft: false
 
 Example:
 
-```
+```go-html-template
 {{ cond (eq (len $geese) 1) "goose" "geese" }}
 ```
 
