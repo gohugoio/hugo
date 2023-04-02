@@ -76,7 +76,7 @@ _build:
  render: false
 {{< /code-toggle >}}
 
-{{< code file="layouts/index.html" copy="false" >}}
+{{< code file="layouts/index.html" copy=false >}}
 <section id="who-we-are">
   {{ with site.GetPage "who-we-are" }}
     {{ .Content }}
@@ -100,7 +100,7 @@ cascade:
     list: true # default
 {{< /code-toggle >}}
 
-{{< code file="layouts/_defaults/testimonials.html" copy="false" >}}
+{{< code file="layouts/_defaults/testimonials.html" copy=false >}}
 <section id="testimonials">
   {{ range first 5 .Pages }}
     <blockquote cite="{{ .Params.cite }}">

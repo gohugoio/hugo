@@ -16,7 +16,7 @@ Without `safeURL`, only the URI schemes `http:`, `https:` and `mailto:` are cons
 
 The following examples use a [site `config.toml`][configuration] with the following [menu entry][menus]:
 
-{{< code file="config.toml" copy="false" >}}
+{{< code file="config.toml" copy=false >}}
 [[menu.main]]
     name = "IRC: #golang at freenode"
     url = "irc://irc.freenode.net/#golang"
@@ -24,7 +24,7 @@ The following examples use a [site `config.toml`][configuration] with the follow
 
 The following is an example of a sidebar partial that may be used in conjunction with the preceding front matter example:
 
-{{< code file="layouts/partials/bad-url-sidebar-menu.html" copy="false" >}}
+{{< code file="layouts/partials/bad-url-sidebar-menu.html" copy=false >}}
 <!-- This unordered list may be part of a sidebar menu -->
 <ul>
   {{ range .Site.Menus.main }}
@@ -44,7 +44,7 @@ This partial would produce the following HTML output:
 
 The odd output can be remedied by adding ` | safeURL` to our `.URL` page variable:
 
-{{< code file="layouts/partials/correct-url-sidebar-menu.html" copy="false" >}}
+{{< code file="layouts/partials/correct-url-sidebar-menu.html" copy=false >}}
 <!-- This unordered list may be part of a sidebar menu -->
 <ul>
     <li><a href="{{ .URL | safeURL }}">{{ .Name }}</a></li>

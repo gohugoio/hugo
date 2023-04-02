@@ -33,7 +33,7 @@ display_toc = false
 
 **Template**
 
-{{< code file="layouts/_default/single.html" copy="false" >}}
+{{< code file="layouts/_default/single.html" copy=false >}}
 {{ if .Param "display_toc" }}
   {{ .TableOfContents }}
 {{ end }}
@@ -41,6 +41,6 @@ display_toc = false
 
 The `.Param` method returns the value associated with the given `KEY`, regardless of whether the value is truthy or falsy. If you need to ignore falsy values, use this construct instead:
 
-{{< code file="layouts/_default/single.html" copy="false" >}}
+{{< code file="layouts/_default/single.html" copy=false >}}
 {{ or .Params.foo site.Params.foo }}
 {{< /code >}}

@@ -35,7 +35,7 @@ You may overwrite the internal template with a custom template. Hugo selects the
 
 ## Robots.txt Template Example
 
-{{< code file="layouts/robots.txt" download="robots.txt" >}}
+{{< code file="layouts/robots.txt" >}}
 User-agent: *
 {{ range .Pages }}
 Disallow: {{ .RelPermalink }}

@@ -90,7 +90,7 @@ Users have noticed that enabling Disqus comments when running the Hugo web serve
 
 You can create the following `layouts/partials/disqus.html`:
 
-{{< code file="layouts/partials/disqus.html" download="disqus.html" >}}
+{{< code file="layouts/partials/disqus.html" >}}
 <div id="disqus_thread"></div>
 <script type="text/javascript">
 

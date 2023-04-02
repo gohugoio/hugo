@@ -540,7 +540,7 @@ notoc: true
 
 Here is an example of corresponding code that could be used inside a `toc.html` [partial template][partials]:
 
-{{< code file="layouts/partials/toc.html" download="toc.html" >}}
+{{< code file="layouts/partials/toc.html" >}}
 {{ if not .Params.notoc }}
 <aside>
   <header>

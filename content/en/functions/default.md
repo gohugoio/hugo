@@ -43,7 +43,7 @@ Both of the above `default` function calls return `Roboto`.
 
 A `default` value, however, does not need to be hard coded like the previous example. The `default` value can be a variable or pulled directly from the front matter using dot notation:
 
-{{< code file="variable-as-default-value.html" copy="false" >}}
+{{< code file="variable-as-default-value.html" copy=false >}}
 {{ $old := .Params.oldparam }}
 <p>{{ .Params.newparam | default $old }}</p>
 {{< /code >}}
@@ -70,14 +70,14 @@ The following have equivalent return values but are far less terse. This demonst
 
 Using `if`:
 
-{{< code file="if-instead-of-default.html" copy="false" >}}
+{{< code file="if-instead-of-default.html" copy=false >}}
 <title>{{ if .Params.seo_title }}{{ .Params.seo_title }}{{ else }}{{ .Title }}{{ end }}</title>
 => Sane Defaults
 {{< /code >}}
 
 Using `with`:
 
-{{< code file="with-instead-of-default.html" copy="false" >}}
+{{< code file="with-instead-of-default.html" copy=false >}}
 <title>{{ with .Params.seo_title }}{{ . }}{{ else }}{{ .Title }}{{ end }}</title>
 => Sane Defaults
 {{< /code >}}

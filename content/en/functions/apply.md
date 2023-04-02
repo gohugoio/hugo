@@ -45,7 +45,7 @@ However, it is not possible to provide the output of a range to the [`delimit` f
 
 If you have `post-tag-list.html` and `post-tag-link.html` as [partials], you *could* use the following snippets, respectively:
 
-{{< code file="layouts/partials/post-tag-list.html" copy="false" >}}
+{{< code file="layouts/partials/post-tag-list.html" copy=false >}}
 {{ with .Params.tags }}
   <div class="tags-list">
     Tags:
@@ -63,7 +63,7 @@ If you have `post-tag-list.html` and `post-tag-link.html` as [partials], you *co
 {{ end }}
 {{< /code >}}
 
-{{< code file="layouts/partials/post-tag-link.html" copy="false" >}}
+{{< code file="layouts/partials/post-tag-link.html" copy=false >}}
 <a class="post-tag post-tag-{{ . | urlize }}" href="/tags/{{ . | urlize }}">{{ . }}</a>
 {{< /code >}}
 
@@ -85,7 +85,7 @@ This first version of `layouts/partials/post-tag-list.html` separates all of the
 
 Now in the completed version, you can sort the tags, convert the tags to links with `layouts/partials/post-tag-link.html`, [chomp] off stray newlines, and join the tags together in a delimited list for presentation. Here is an even DRYer version of the preceding example:
 
-{{< code file="layouts/partials/post-tag-list.html" download="post-tag-list.html" >}}
+{{< code file="layouts/partials/post-tag-list.html" >}}
 {{ with .Params.tags }}
   <div class="tags-list">
     Tags:

@@ -48,7 +48,7 @@ The built-in `.TableOfContents` variables outputs a `<nav id="TableOfContents">`
 
 The following is an example of a very basic [single page template]:
 
-{{< code file="layout/_default/single.html" download="single.html" >}}
+{{< code file="layout/_default/single.html" >}}
 {{ define "main" }}
 <main>
     <article>
@@ -68,7 +68,7 @@ The following is an example of a very basic [single page template]:
 
 The following is a [partial template][partials] that adds slightly more logic for page-level control over your table of contents. It assumes you are using a `toc` field in your content's [front matter] that, unless specifically set to `false`, will add a TOC to any page with a `.WordCount` (see [Page Variables][pagevars]) greater than 400. This example also demonstrates how to use [conditionals] in your templating:
 
-{{< code file="layouts/partials/toc.html" download="toc.html" >}}
+{{< code file="layouts/partials/toc.html" >}}
 {{ if and (gt .WordCount 400 ) (.Params.toc) }}
 <aside>
     <header>

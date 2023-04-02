@@ -20,7 +20,7 @@ tags = ["pizza","beer","hot dogs"]
 
 The following might be used as a partial within a [single page template][singletemplate]:
 
-{{< code file="layouts/partials/content-header.html" download="content-header.html" >}}
+{{< code file="layouts/partials/content-header.html" >}}
 <header>
     <h1>{{ .Title }}</h1>
     {{ with .Params.location }}

@@ -187,7 +187,7 @@ Would load the template at `/layouts/shortcodes/youtube.html`:
 </div>
 {{< /code >}}
 
-{{< code file="youtube-embed.html" copy="false" >}}
+{{< code file="youtube-embed.html" copy=false >}}
 <div class="embed video-player">
     <iframe class="youtube-player" type="text/html"
         width="640" height="385"
@@ -230,7 +230,7 @@ You have created the shortcode at `/layouts/shortcodes/img.html`, which loads th
 
 Would be rendered as:
 
-{{< code file="img-output.html" copy="false" >}}
+{{< code file="img-output.html" copy=false >}}
 <figure>
   <img src="/media/spf13.jpg"  />
   <figcaption>
@@ -262,7 +262,7 @@ Would load the template found at `/layouts/shortcodes/vimeo.html`:
 
 Would be rendered as:
 
-{{< code file="vimeo-iframes.html" copy="false" >}}
+{{< code file="vimeo-iframes.html" copy=false >}}
 <div class="vimeo-container">
   <iframe src="https://player.vimeo.com/video/49718712" allowfullscreen></iframe>
 </div>
@@ -291,7 +291,7 @@ The template for the `highlight` shortcode uses the following code, which is alr
 
 The rendered output of the HTML example code block will be as follows:
 
-{{< code file="syntax-highlighted.html" copy="false" >}}
+{{< code file="syntax-highlighted.html" copy=false >}}
 <div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span style="color: #f92672">&lt;html&gt;</span>
     <span style="color: #f92672">&lt;body&gt;</span> This HTML <span style="color: #f92672">&lt;/body&gt;</span>
 <span style="color: #f92672">&lt;/html&gt;</span>

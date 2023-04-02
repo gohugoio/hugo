@@ -27,7 +27,7 @@ grades = ['b','a','c']
 
 Sort slice elements in ascending order using either of these constructs:
 
-{{< code file="layouts/_default/single.html" copy="false" >}}
+{{< code file="layouts/_default/single.html" copy=false >}}
 {{ sort site.Params.grades }} → [a b c]
 {{ sort site.Params.grades "value" "asc" }} → [a b c]
 {{< /code >}}
@@ -38,7 +38,7 @@ In the examples above, `value` is the `KEY` representing the value of the slice 
 
 Sort slice elements in descending order:
 
-{{< code file="layouts/_default/single.html" copy="false" >}}
+{{< code file="layouts/_default/single.html" copy=false >}}
 {{ sort site.Params.grades "value" "desc" }} → [c b a]
 {{< /code >}}
 
@@ -68,7 +68,7 @@ When sorting maps, the `KEY` argument must be lowercase.
 
 Sort map objects in ascending order using either of these constructs:
 
-{{< code file="layouts/_default/single.html" copy="false" >}}
+{{< code file="layouts/_default/single.html" copy=false >}}
 {{ range sort site.Params.authors "firstname" }}
   {{ .firstName }}
 {{ end }}
@@ -88,7 +88,7 @@ Jean Marius Victor
 
 Sort map objects in descending order:
 
-{{< code file="layouts/_default/single.html" copy="false" >}}
+{{< code file="layouts/_default/single.html" copy=false >}}
 {{ range sort site.Params.authors "firstname" "desc" }}
   {{ .firstName }}
 {{ end }}
@@ -116,7 +116,7 @@ Although you can use the `sort` function to sort a page collection, Hugo provide
 
 In this contrived example, sort the site's regular pages by `.Type` in descending order:
 
-{{< code file="layouts/_default/home.html" copy="false" >}}
+{{< code file="layouts/_default/home.html" copy=false >}}
 {{ range sort site.RegularPages "Type" "desc" }}
   <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
 {{ end }}

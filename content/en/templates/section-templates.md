@@ -43,7 +43,7 @@ Examples:
 
 ## Example: Creating a Default Section Template
 
-{{< code file="layouts/_default/section.html" download="section.html" >}}
+{{< code file="layouts/_default/section.html" >}}
 {{ define "main" }}
   <main>
       {{ .Content }}

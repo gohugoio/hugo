@@ -62,7 +62,7 @@ The following example demonstrates how to use content views inside your [list te
 
 In this example, `.Render` is passed into the template to call the [render function][render]. `.Render` is a special function that instructs content to render itself with the view template provided as the first argument. In this case, the template is going to render the `summary.html` view that follows:
 
-{{< code file="layouts/_default/list.html" download="list.html" >}}
+{{< code file="layouts/_default/list.html" >}}
 <main id="main">
   <div>
     <h1 id="title">{{ .Title }}</h1>
@@ -77,7 +77,7 @@ In this example, `.Render` is passed into the template to call the [render funct
 
 Hugo will pass the entire page object to the following `summary.html` view template. (See [Page Variables][pagevars] for a complete list.)
 
-{{< code file="layouts/_default/summary.html" download="summary.html" >}}
+{{< code file="layouts/_default/summary.html" >}}
 <article class="post">
   <header>
     <h2><a href='{{ .Permalink }}'> {{ .Title }}</a> </h2>
@@ -94,7 +94,7 @@ Hugo will pass the entire page object to the following `summary.html` view templ
 
 Continuing on the previous example, we can change our render function to use a smaller `li.html` view by changing the argument in the call to the `.Render` function (i.e., `{{ .Render "li" }}`).
 
-{{< code file="layouts/_default/li.html" download="li.html" >}}
+{{< code file="layouts/_default/li.html" >}}
 <li>
   <a href="{{ .Permalink }}">{{ .Title }}</a>
   <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>

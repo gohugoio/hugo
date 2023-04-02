@@ -57,23 +57,21 @@ You can [set Hugo version](https://www.netlify.com/blog/2017/04/11/netlify-plus-
 
 For production:
 
-{{< code file="netlify.toml" codeLang="toml" >}}
+{{< code file="netlify.toml" >}}
 [context.production.environment]
   HUGO_VERSION = "0.99.1"
 {{< /code >}}
 
 For testing:
 
-{{< code file="netlify.toml" codeLang="toml" >}}
+{{< code file="netlify.toml" >}}
 [context.deploy-preview.environment]
   HUGO_VERSION = "0.99.1"
 {{< /code >}}
 
 The Netlify configuration file can be a little hard to understand and get right for the different environment, and you may get some inspiration and tips from this site's `netlify.toml`:
 
-{{< code file="netlify.toml" nocode="true" >}}
 {{< readfile file="netlify.toml" highlight="toml" >}}
-{{< /code >}}
 
 ## Build and Deploy Site
 
