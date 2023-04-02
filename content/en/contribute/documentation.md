@@ -55,6 +55,13 @@ Step 7
 
 ## Including sample code
 
+{{% note %}}
+Use this syntax to include shortcodes calls within your code samples:
+
+`{{</*/* foo */*/>}}`\
+`{{%/*/* foo */*/%}}`
+{{% /note %}}
+
 ### Fenced code blocks
 
 Include the language when using a fenced code block.
