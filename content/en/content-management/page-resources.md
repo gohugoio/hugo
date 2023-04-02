@@ -126,9 +126,9 @@ Resources of type `page` get `Title` etc. from their own front matter.
 name
 : Sets the value returned in `Name`.
 
-{{% warning %}}
+{{% note %}}
 The methods `Match`, `Get` and `GetMatch` use `Name` to match the resources.
-{{%/ warning %}}
+{{% /note %}}
 
 title
 : Sets the value returned in `Title`
@@ -172,9 +172,9 @@ From the example above:
 - All `PDF` files will get a new `Name`. The `name` parameter contains a special placeholder [`:counter`](#the-counter-placeholder-in-name-and-title), so the `Name` will be `pdf-file-1`, `pdf-file-2`, `pdf-file-3`.
 - Every docx in the bundle will receive the `word` icon.
 
-{{% warning %}}
+{{% note %}}
 The __order matters__ --- Only the **first set** values of the `title`, `name` and `params`-**keys** will be used. Consecutive parameters will be set only for the ones not already set. In the above example, `.Params.icon` is first set to `"photo"` in `src = "documents/photo_specs.pdf"`. So that would not get overridden to `"pdf"` by the later set `src = "**.pdf"` rule.
-{{%/ warning %}}
+{{% /note %}}
 
 ### The `:counter` placeholder in `name` and `title`
 

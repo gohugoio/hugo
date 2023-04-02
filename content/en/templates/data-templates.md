@@ -237,7 +237,7 @@ There is no chance to trigger a [LiveReload] when the content of a URL changes. 
 
 {{% warning "URL Data and LiveReload" %}}
 If you change any local file and the LiveReload is triggered, Hugo will read the data-driven (URL) content from the cache. If you have disabled the cache (i.e., by running the server with `hugo server --ignoreCache`), Hugo will re-download the content every time LiveReload triggers. This can create *huge* traffic. You may reach API limits quickly.
-{{% /warning %}}
+{{% /note %}}
 
 ## Examples of Data-driven Content
 

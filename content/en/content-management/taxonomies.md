@@ -137,11 +137,11 @@ You can add content and front matter to your taxonomy list and taxonomy terms pa
 Much like regular pages, taxonomy list [permalinks](/content-management/urls/) are configurable, but taxonomy term page permalinks are not.
 {{% /note %}}
 
-{{% warning %}}
+{{% note %}}
 The configuration option `preserveTaxonomyNames` was removed in Hugo 0.55.
 
 You can now use `.Page.Title` on the relevant taxonomy node to get the original value.
-{{% /warning %}}
+{{% /note %}}
 
 ## Add Taxonomies to Content
 

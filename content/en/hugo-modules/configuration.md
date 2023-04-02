@@ -115,9 +115,9 @@ noVendor
 When the `mounts` config was introduced in Hugo 0.56.0, we were careful to preserve the existing `contentDir`, `staticDir`, and similar configuration to make sure all existing sites just continued to work. But you should not have both: if you add a `mounts` section you should remove the old `contentDir`, `staticDir`, etc. settings.
 {{% /note %}}
 
-{{% warning %}}
+{{% note %}}
 When you add a mount, the default mount for the concerned target root is ignored: be sure to explicitly add it.
-{{% /warning %}}
+{{% /note %}}
 
 **Default mounts**
 {{< code-toggle file="config">}}

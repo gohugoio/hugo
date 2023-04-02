@@ -429,7 +429,7 @@ Notice how once we have entered the loop (i.e. `range`), the value of `{{ . }}` 
 
 {{% warning "Don't Redefine the Dot" %}}
 The built-in magic of `$` would cease to work if someone were to mischievously redefine the special character; e.g. `{{ $ := .Site }}`. *Don't do it.* You may, of course, recover from this mischief by using `{{ $ := . }}` in a global context to reset `$` to its default value.
-{{% /warning %}}
+{{% /note %}}
 
 ## Whitespace
 

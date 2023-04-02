@@ -78,10 +78,10 @@ the desired output, the template may benefit from caching to reduce the number
 of executions. The [`partialCached`][partialcached] template function provides
 caching capabilities for `partial` templates.
 
-{{% tip %}}
+{{% note %}}
 Note that you can create cached variants of each `partial` by passing additional
 parameters to `partialCached` beyond the initial context. See the
 `partialCached` documentation for more details.
-{{% /tip %}}
+{{% /note %}}
 
 [partialCached]: /functions/partialCached

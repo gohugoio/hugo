@@ -312,7 +312,7 @@ git commit --amend
 
 {{% warning "Be Careful Modifying Multiple Commits"%}}
 Modifications such as those described in this section can have serious unintended consequences. Skip this section if you're not sure!
-{{% /warning %}}
+{{% /note %}}
 
 This is a bit more advanced. Git allows you to [rebase](https://git-scm.com/docs/git-rebase) commits interactively. In other words: it allows you to rewrite the commit history.
 
