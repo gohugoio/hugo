@@ -264,11 +264,7 @@ With the above front matter, the `tags` and `categories` taxonomies are accessib
 * `.Params.tags`
 * `.Params.categories`
 
-{{% note "Casing of Params" %}}
-Page-level `.Params` are *only* accessible in lowercase.
-{{% /note %}}
-
-The `.Params` variable is particularly useful for the introduction of user-defined front matter fields in content files. For example, a Hugo website on book reviews could have the following front matter in `/content/review/book01.md`:
+The `.Params` variable is particularly useful for the introduction of user-defined front matter fields in content files. For example, a Hugo website on book reviews could have the following front matter:
 
 {{< code-toggle file="content/example.md" fm=true copy=false >}}
 title: Example
@@ -276,21 +272,19 @@ affiliatelink: "http://www.my-book-link.here"
 recommendedby: "My Mother"
 {{< /code-toggle >}}
 
-These fields would then be accessible to the `/themes/yourtheme/layouts/review/single.html` template through `.Params.affiliatelink` and `.Params.recommendedby`, respectively.
+These fields would then be accessible to via `.Params.affiliatelink` and `.Params.recommendedby`.
 
-Two common situations where this type of front matter field could be introduced is as a value of a certain attribute like `href=""` or by itself to be displayed as text to the website's visitors.
-
-{{< code file="/themes/yourtheme/layouts/review/single.html" >}}
-<h3><a href={{ printf "%s" $.Params.affiliatelink }}>Buy this book</a></h3>
+```go-html-template
+<h3><a href="{{ .Params.affiliatelink }}">Buy this book</a></h3>
 <p>It was recommended by {{ .Params.recommendedby }}.</p>
-{{< /code >}}
+```
 
-This template would render as follows, assuming you've set [`uglyURLs`](/content-management/urls/) to `false` in your [site `config`](/getting-started/configuration/):
+This template would render as follows:
 
-{{< output file="yourbaseurl/review/book01/index.html" >}}
+```html
 <h3><a href="http://www.my-book-link.here">Buy this book</a></h3>
 <p>It was recommended by my Mother.</p>
-{{< /output >}}
+```
 
 {{% note %}}
 See [Archetypes](/content-management/archetypes/) for consistency of `Params` across pieces of content.

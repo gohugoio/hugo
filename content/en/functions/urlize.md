@@ -39,24 +39,24 @@ The following might be used as a partial within a [single page template][singlet
 </header>
 {{< /code >}}
 
-The preceding partial would then output to the rendered page as follows, assuming the page is being built with Hugo's default pretty URLs.
+The preceding partial would then output to the rendered page as follows:
 
-{{< output file="/blog/greatest-city/index.html" >}}
+```html
 <header>
-    <h1>The World&#39;s Greatest City</h1>
-    <div><a href="/locations/chicago-il">Chicago IL</a></div>
-    <ul>
-        <li>
-            <a href="/tags/pizza">pizza</a>
-        </li>
-        <li>
-            <a href="/tags/beer">beer</a>
-        </li>
-        <li>
-            <a href="/tags/hot-dogs">hot dogs</a>
-        </li>
-    </ul>
+  <h1>The World&#39;s Greatest City</h1>
+  <div><a href="/locations/chicago-il">Chicago IL</a></div>
+  <ul>
+    <li>
+      <a href="/tags/pizza">pizza</a>
+    </li>
+    <li>
+      <a href="/tags/beer">beer</a>
+    </li>
+    <li>
+      <a href="/tags/hot-dogs">hot dogs</a>
+    </li>
+  </ul>
 </header>
-{{< /output >}}
+```
 
 [singletemplate]: /templates/single-page-templates/

@@ -35,18 +35,18 @@ newparam:
 `default` can be written in more than one way:
 
 ```go-html-template
-{{ index .Params "font" | default "Roboto" }}
-{{ default "Roboto" (index .Params "font") }}
+{{ .Params.font | default "Roboto" }}
+{{ default "Roboto" .Params.font }}
 ```
 
 Both of the above `default` function calls return `Roboto`.
 
 A `default` value, however, does not need to be hard coded like the previous example. The `default` value can be a variable or pulled directly from the front matter using dot notation:
 
-{{< code file="variable-as-default-value.html" copy=false >}}
+```go-html-template
 {{ $old := .Params.oldparam }}
 <p>{{ .Params.newparam | default $old }}</p>
-{{< /code >}}
+```
 
 Which would return:
 
@@ -56,28 +56,28 @@ Which would return:
 
 And then using dot notation
 
-{{< code file="dot-notation-default-value.html" >}}
+```go-html-template
 <title>{{ .Params.seo_title | default .Title }}</title>
-{{< /code >}}
+```
 
 Which would return
 
-{{< output file="dot-notation-default-return-value.html" >}}
+```html
 <title>Sane Defaults</title>
-{{< /output >}}
+```
 
 The following have equivalent return values but are far less terse. This demonstrates the utility of `default`:
 
 Using `if`:
 
-{{< code file="if-instead-of-default.html" copy=false >}}
+```go-html-template
 <title>{{ if .Params.seo_title }}{{ .Params.seo_title }}{{ else }}{{ .Title }}{{ end }}</title>
 => Sane Defaults
-{{< /code >}}
+```
 
 Using `with`:
 
-{{< code file="with-instead-of-default.html" copy=false >}}
+```go-html-template
 <title>{{ with .Params.seo_title }}{{ . }}{{ else }}{{ .Title }}{{ end }}</title>
 => Sane Defaults
-{{< /code >}}
+```
