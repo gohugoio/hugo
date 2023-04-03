@@ -219,9 +219,9 @@ The `.Fragments` method returns a list of fragments for the current page.
 {{ end }}
 
 {{ if gt (.Fragments.Identifiers.Count "my-identifier")  1 }}
-    <p>Page contains duplicate "my-idenfifier" fragments</p>
+    <p>Page contains duplicate "my-identifier" fragments</p>
 {{ end }}
-``` 
+```
 
 .HeadingsMap
 : Holds a map of headings for the current page. Can be used to start the table of contents from a specific heading.
