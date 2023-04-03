@@ -212,7 +212,7 @@ Rendered:
 The `instagram` shortcode uses Facebook's **oEmbed Read** feature. The  Facebook [developer documentation] states:
 
 - This permission or feature requires successful completion of the App Review process before your app can access live data. [Learn More]
-- This permission or feature is only available with business verification. You may also need to sign additional contracts before your app can access data. [Learn More Here]s
+- This permission or feature is only available with business verification. You may also need to sign additional contracts before your app can access data. [Learn More Here]
 
 [developer documentation]: https://developers.facebook.com/docs/features-reference/oembed-read
 [Learn More]: https://developers.facebook.com/docs/app-review
