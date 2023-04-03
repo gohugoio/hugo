@@ -23,7 +23,7 @@ This contribution guide takes a step-by-step approach in hopes of helping newcom
 * You are new to Git or open-source projects in general
 * You are a fan of Hugo and enthusiastic about contributing to the project
 
-{{% note "Additional Questions?" %}}
+{{% note %}}
 If you're struggling at any point in this contribution guide, reach out to the Hugo community in [Hugo's Discussion forum](https://discourse.gohugo.io).
 {{% /note %}}
 

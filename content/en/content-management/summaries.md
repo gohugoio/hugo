@@ -43,7 +43,7 @@ For [Org mode content][org], use `# more` where you want to split the article.
 
 Content that comes before the summary divider will be used as that content's summary and stored in the `.Summary` page variable with all HTML formatting intact.
 
-{{% note "Summary Divider"%}}
+{{% note %}}
 The concept of a *summary divider* is not unique to Hugo. It is also called the "more tag" or "excerpt separator" in other literature.
 {{% /note %}}
 

@@ -12,7 +12,7 @@ weight: 70
 aliases: [/extras/gitinfo/]
 ---
 
-{{% note "`.GitInfo` Performance Considerations"  %}}
+{{% note %}}
 Hugo's Git integrations should be fairly performant but *can* increase your build time. This will depend on the size of your Git history.
 {{% /note %}}
 

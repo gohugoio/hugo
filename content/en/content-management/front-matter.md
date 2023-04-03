@@ -134,7 +134,7 @@ weight
 \<taxonomies\>
 : Field name of the *plural* form of the index. See `tags` and `categories` in the above front matter examples. *Note that the plural form of user-defined taxonomies cannot be the same as any of the predefined front matter variables.*
 
-{{% note "Hugo's Default URL Destinations" %}}
+{{% note %}}
 If neither `slug` nor `url` is present and [permalinks are not configured otherwise in your site `config` file](/content-management/urls/#permalinks), Hugo will use the filename of your content to create the output URL. See [Content Organization](/content-management/organization) for an explanation of paths in Hugo and [URL Management](/content-management/urls/) for ways to customize Hugo's default behaviors.
 {{% /note %}}
 

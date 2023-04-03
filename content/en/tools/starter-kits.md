@@ -12,7 +12,7 @@ aliases: [/developer-tools/migrations/,/developer-tools/migrated/]
 
 Know of a Hugo-related starter kit that isn't mentioned here? [Please add it to the list.][addkit]
 
-{{% note "Starter Kits are Not Maintained by the Hugo Team"%}}
+{{% note %}}
 The following starter kits are developed by active members of the Hugo community. If you find yourself having issues with any of the projects, it's best to file an issue directly with the project's maintainer(s).
 {{% /note %}}
 

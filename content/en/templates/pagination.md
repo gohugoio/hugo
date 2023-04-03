@@ -69,7 +69,7 @@ The easiest way to add this to your pages is to include the built-in template (w
 {{ template "_internal/pagination.html" . }}
 ```
 
-{{% note "When to Create `.Paginator`" %}}
+{{% note %}}
 If you use any filters or ordering functions to create your `.Paginator` *and* you want the navigation buttons to be shown before the page listing, you must create the `.Paginator` before it's used.
 {{% /note %}}
 

@@ -136,7 +136,7 @@ Go Templates only ship with a few basic functions but also provide a mechanism f
 
 Note that both examples make use of Go Template's [math][math] functions.
 
-{{% note "Additional Boolean Operators" %}}
+{{% note %}}
 There are more boolean operators than those listed in the Hugo docs in the [Go Template documentation](https://golang.org/pkg/text/template/#hdr-Functions).
 {{% /note %}}
 

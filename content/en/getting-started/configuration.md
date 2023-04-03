@@ -630,7 +630,7 @@ $ env HUGO_TITLE="Some Title" hugo
 
 This is really useful if you use a service such as Netlify to deploy your site. Look at the Hugo docs [Netlify configuration file](https://github.com/gohugoio/hugoDocs/blob/master/netlify.toml) for an example.
 
-{{% note "Setting Environment Variables" %}}
+{{% note %}}
 Names must be prefixed with `HUGO_` and the configuration key must be set in uppercase when setting operating system environment variables.
 
 To set config params, prefix the name with `HUGO_PARAMS_`

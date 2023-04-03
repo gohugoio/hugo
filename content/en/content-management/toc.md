@@ -12,7 +12,7 @@ weight: 210
 aliases: [/extras/toc/]
 ---
 
-{{% note "TOC Heading Levels are Fixed" %}}
+{{% note %}}
 
 Previously, there was no out-of-the-box way to specify which heading levels you want the TOC to render. [See the related GitHub discussion (#1778)](https://github.com/gohugoio/hugo/issues/1778). As such, the resulting `<nav id="TableOfContents"><ul></ul></nav>` was going to start at `<h1>` when pulling from `{{ .Content }}`.
 

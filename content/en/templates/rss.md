@@ -15,7 +15,7 @@ toc: true
 
 See [Template Lookup Order](/templates/lookup-order/) for the complete reference.
 
-{{% note "Hugo Ships with an RSS Template" %}}
+{{% note %}}
 Hugo ships with its own [RSS 2.0 template](#the-embedded-rssxml). The embedded template will be sufficient for most use cases.
 {{% /note %}}
 
