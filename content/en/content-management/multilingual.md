@@ -15,7 +15,7 @@ aliases: [/content/multilingual/,/tutorials/create-a-multilingual-site/]
 
 You should define the available languages in a `languages` section in your site configuration.
 
-> Also See [Hugo Multilingual Part 1: Content translation]
+Also See [Hugo Multilingual Part 1: Content translation].
 
 ## Configure Languages
 
@@ -97,7 +97,9 @@ From **Hugo 0.31** we support multiple languages in a multihost configuration. S
 
 This means that you can now configure a `baseURL` per `language`:
 
-> If a `baseURL` is set on the `language` level, then all languages must have one and they must all be different.
+{{% note %}}
+If a `baseURL` is set on the `language` level, then all languages must have one and they must all be different.
+{{% /note %}}
 
 Example:
 

@@ -122,7 +122,9 @@ You set up the working copy of the repository locally on your computer. Your loc
 
 We assume that you've set up your `GOPATH` (see the section above if you're unsure about this). You should now copy the Hugo repository down to your computer. You'll hear this called "clone the repo". GitHub's [help pages](https://help.github.com/articles/cloning-a-repository/) give us a short explanation:
 
-> When you create a repository on GitHub, it exists as a remote repository. You can create a local clone of your repository on your computer and sync between the two locations.
+{{% note %}}
+When you create a repository on GitHub, it exists as a remote repository. You can create a local clone of your repository on your computer and sync between the two locations.
+{{% /note %}}
 
 We're going to clone the [master Hugo repository](https://github.com/gohugoio/hugo). That seems counter-intuitive, since you won't have commit rights on it. But it's required for the Go workflow. You'll work on a copy of the master and push your changes to your own repository on GitHub.
 
@@ -134,8 +136,7 @@ cd $HOME/src
 git clone https://github.com/gohugoio/hugo.git
 ```
 
-> Since Hugo 0.48, Hugo uses the Go Modules support built into Go 1.11 to build.
-> The easiest is to clone Hugo in a directory outside of GOPATH
+Since Hugo 0.48, Hugo uses the Go Modules support built into Go 1.11 to build. The easiest is to clone Hugo in a directory outside of GOPATH
 
 And then, install dependencies of Hugo by running the following in the cloned directory:
 
@@ -154,7 +155,9 @@ go install github.com/magefile/mage@latest
 
 If you're not familiar with this term, GitHub's [help pages](https://help.github.com/articles/fork-a-repo/) provide again a simple explanation:
 
-> A fork is a copy of a repository. Forking a repository allows you to freely experiment with changes without affecting the original project.
+{{% note %}}
+A fork is a copy of a repository. Forking a repository allows you to freely experiment with changes without affecting the original project.
+{{% /note %}}
 
 #### Fork by hand
 
