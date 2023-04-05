@@ -163,3 +163,12 @@ The search is case-insensitive.
 
 excludeFiles (string or slice)
 : One or more glob patterns matching files to exclude.
+
+**Example**
+{{< code-toggle file="config">}}
+[module]
+[[module.mounts]]
+    source="content"
+    target="content"
+    excludeFiles="docs/*"
+{{< /code-toggle >}}
