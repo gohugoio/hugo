@@ -134,7 +134,7 @@ type ListItemContext interface {
 }
 
 type ListItemRenderer interface {
-	RenderListItem(w io.Writer, ctx ListItemContext) error
+	RenderListItem(cctx context.Context, w io.Writer, ctx ListItemContext) error
 	identity.Provider
 }
 
@@ -149,7 +149,7 @@ type ListContext interface {
 }
 
 type ListRenderer interface {
-	RenderList(w io.Writer, ctx ListContext) error
+	RenderList(cctx context.Context, w io.Writer, ctx ListContext) error
 	identity.Provider
 }
 

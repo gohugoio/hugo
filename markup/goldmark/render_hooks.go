@@ -558,6 +558,7 @@ func (r *hookedRenderer) renderListItem(w util.BufWriter, source []byte, node as
 	ctx.Buffer.Truncate(pos)
 
 	err := hli.RenderListItem(
+		ctx.RenderContext().Ctx,
 		w,
 		listItemContext{
 			page:      ctx.DocumentContext().Document,
@@ -645,6 +646,7 @@ func (r *hookedRenderer) renderList(w util.BufWriter, source []byte, node ast.No
 	ctx.Buffer.Truncate(pos)
 
 	err := hli.RenderList(
+		ctx.RenderContext().Ctx,
 		w,
 		listContext{
 			page:             ctx.DocumentContext().Document,
