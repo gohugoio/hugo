@@ -43,7 +43,7 @@ type pandocConverter struct {
 	cfg converter.ProviderConfig
 }
 
-func (c *pandocConverter) Convert(ctx converter.RenderContext) (converter.Result, error) {
+func (c *pandocConverter) Convert(ctx converter.RenderContext) (converter.ResultRender, error) {
 	b, err := c.getPandocContent(ctx.Src, c.ctx)
 	if err != nil {
 		return nil, err

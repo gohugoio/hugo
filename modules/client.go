@@ -20,7 +20,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -29,6 +28,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/collections"
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hexec"
 
 	hglob "github.com/gohugoio/hugo/hugofs/glob"
@@ -193,7 +193,8 @@ func (c *Client) Tidy() error {
 //
 // We, by default, use the /_vendor folder first, if found. To disable,
 // run with
-//    hugo --ignoreVendorPaths=".*"
+//
+//	hugo --ignoreVendorPaths=".*"
 //
 // Given a module tree, Hugo will pick the first module for a given path,
 // meaning that if the top-level module is vendored, that will be the full
@@ -297,7 +298,7 @@ func (c *Client) Vendor() error {
 		configFiles = append(configFiles, filepath.Join(dir, "theme.toml"))
 		for _, configFile := range configFiles {
 			if err := hugio.CopyFile(c.fs, configFile, filepath.Join(vendorDir, t.Path(), filepath.Base(configFile))); err != nil {
-				if !os.IsNotExist(err) {
+				if !herrors.IsNotExist(err) {
 					return err
 				}
 			}
@@ -441,7 +442,7 @@ func (c *Client) Clean(pattern string) error {
 }
 
 func (c *Client) runVerify() error {
-	return c.runGo(context.Background(), ioutil.Discard, "mod", "verify")
+	return c.runGo(context.Background(), io.Discard, "mod", "verify")
 }
 
 func isProbablyModule(path string) bool {
@@ -456,7 +457,7 @@ func (c *Client) listGoMods() (goModules, error) {
 	downloadModules := func(modules ...string) error {
 		args := []string{"mod", "download"}
 		args = append(args, modules...)
-		out := ioutil.Discard
+		out := io.Discard
 		err := c.runGo(context.Background(), out, args...)
 		if err != nil {
 			return fmt.Errorf("failed to download modules: %w", err)
@@ -560,7 +561,7 @@ func (c *Client) rewriteGoModRewrite(name string, isGoMod map[string]bool) ([]by
 	b := &bytes.Buffer{}
 	f, err := c.fs.Open(filepath.Join(c.ccfg.WorkingDir, name))
 	if err != nil {
-		if os.IsNotExist(err) {
+		if herrors.IsNotExist(err) {
 			// It's been deleted.
 			return nil, nil
 		}

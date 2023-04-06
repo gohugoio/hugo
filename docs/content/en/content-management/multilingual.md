@@ -220,10 +220,6 @@ slug: "a-propos"
 
 At render, Hugo will build both `/about/` and `/fr/a-propos/` while maintaining their translation linking.
 
-{{% note %}}
-If using `url`, remember to include the language part as well: `/fr/compagnie/a-propos/`.
-{{%/ note %}}
-
 ### Page Bundles
 
 To avoid the burden of having to duplicate files, each Page Bundle inherits the resources of its linked translated pages' bundles except for the content files (Markdown files, HTML files etc...).

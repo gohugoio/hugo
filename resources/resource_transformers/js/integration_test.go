@@ -259,3 +259,88 @@ JS Content:{{ $js.Content }}:End:
 	})
 
 }
+
+// See issue 10527.
+func TestImportHugoVsESBuild(t *testing.T) {
+	c := qt.New(t)
+
+	for _, importSrcDir := range []string{"node_modules", "assets"} {
+		c.Run(importSrcDir, func(c *qt.C) {
+			files := `
+-- IMPORT_SRC_DIR/imp1/index.js --
+console.log("IMPORT_SRC_DIR:imp1/index.js");
+-- IMPORT_SRC_DIR/imp2/index.ts --
+console.log("IMPORT_SRC_DIR:imp2/index.ts");
+-- IMPORT_SRC_DIR/imp3/foo.ts --
+console.log("IMPORT_SRC_DIR:imp3/foo.ts");
+-- assets/js/main.js --
+import 'imp1/index.js';
+import 'imp2/index.js';
+import 'imp3/foo.js';
+-- layouts/index.html --
+{{ $js := resources.Get "js/main.js" | js.Build }}
+{{ $js.RelPermalink }}
+			`
+
+			files = strings.ReplaceAll(files, "IMPORT_SRC_DIR", importSrcDir)
+
+			b := hugolib.NewIntegrationTestBuilder(
+				hugolib.IntegrationTestConfig{
+					T:           c,
+					NeedsOsFS:   true,
+					TxtarString: files,
+				}).Build()
+
+			expected := `
+IMPORT_SRC_DIR:imp1/index.js	
+IMPORT_SRC_DIR:imp2/index.ts
+IMPORT_SRC_DIR:imp3/foo.ts		
+`
+			expected = strings.ReplaceAll(expected, "IMPORT_SRC_DIR", importSrcDir)
+
+			b.AssertFileContent("public/js/main.js", expected)
+		})
+	}
+
+}
+
+// See https://github.com/evanw/esbuild/issues/2745
+func TestPreserveLegalComments(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- assets/js/main.js --
+/* @license
+ * Main license.
+ */
+import * as foo from 'js/utils';
+console.log("Hello Main");
+-- assets/js/utils/index.js --
+export * from './util1';
+export * from './util2';
+-- assets/js/utils/util1.js --
+/*! License util1  */
+console.log("Hello 1");
+-- assets/js/utils/util2.js --
+//! License util2  */
+console.log("Hello 2");
+-- layouts/index.html --
+{{ $js := resources.Get "js/main.js" | js.Build (dict "minify" false) }}
+{{ $js.RelPermalink }}
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			NeedsOsFS:   true,
+			TxtarString: files,
+		}).Build()
+
+	b.AssertFileContent("public/js/main.js", `
+License util1
+License util2
+Main license
+	
+	`)
+
+}

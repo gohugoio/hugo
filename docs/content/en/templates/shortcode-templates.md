@@ -18,7 +18,7 @@ aliases: []
 toc: true
 ---
 
-Shortcodes are a means to consolidate templating into small, reusable snippets that you can embed directly inside your content. In this sense, you can think of shortcodes as the intermediary between [page and list templates][templates] and [basic content files][].
+Shortcodes are a means to consolidate templating into small, reusable snippets that you can embed directly inside your content. In this sense, you can think of shortcodes as the intermediary between [page and list templates][templates] and [basic content files].
 
 {{% note %}}
 Hugo also ships with built-in shortcodes for common use cases. (See [Content Management: Shortcodes](/content-management/shortcodes/).)
@@ -32,7 +32,7 @@ Hugo's built-in shortcodes cover many common, but not all, use cases. Luckily, H
 
 ### File Location
 
-To create a shortcode, place an HTML template in the `layouts/shortcodes` directory of your [source organization][]. Consider the file name carefully since the shortcode name will mirror that of the file but without the `.html` extension. For example, `layouts/shortcodes/myshortcode.html` will be called with either `{{</* myshortcode /*/>}}` or `{{%/* myshortcode /*/%}}` depending on the type of parameters you choose.
+To create a shortcode, place an HTML template in the `layouts/shortcodes` directory of your [source organization]. Consider the file name carefully since the shortcode name will mirror that of the file but without the `.html` extension. For example, `layouts/shortcodes/myshortcode.html` will be called with either `{{</* myshortcode /*/>}}` or `{{%/* myshortcode /*/%}}` depending on the type of parameters you choose.
 
 You can organize your shortcodes in subfolders, e.g. in `layouts/shortcodes/boxes`. These shortcodes would then be accessible with their relative path, e.g:
 
@@ -44,7 +44,7 @@ Note the forward slash.
 
 ### Shortcode Template Lookup Order
 
-Shortcode templates have a simple [lookup order][]:
+Shortcode templates have a simple [lookup order]:
 
 1. `/layouts/shortcodes/<SHORTCODE>.html`
 2. `/themes/<THEME>/layouts/shortcodes/<SHORTCODE>.html`
@@ -279,7 +279,7 @@ Would be rendered as:
 
 ### Paired Example: `highlight`
 
-The following is taken from `highlight`, which is a [built-in shortcode][] that ships with Hugo.
+The following is taken from `highlight`, which is a [built-in shortcode] that ships with Hugo.
 
 {{< code file="highlight-example.md" >}}
 {{</* highlight html */>}}

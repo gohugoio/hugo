@@ -29,7 +29,7 @@ func New() *Init {
 
 // Init holds a graph of lazily initialized dependencies.
 type Init struct {
-	// Used in tests
+	// Used mainly for testing.
 	initCount uint64
 
 	mu sync.Mutex
@@ -40,11 +40,11 @@ type Init struct {
 	init onceMore
 	out  any
 	err  error
-	f    func() (any, error)
+	f    func(context.Context) (any, error)
 }
 
 // Add adds a func as a new child dependency.
-func (ini *Init) Add(initFn func() (any, error)) *Init {
+func (ini *Init) Add(initFn func(context.Context) (any, error)) *Init {
 	if ini == nil {
 		ini = New()
 	}
@@ -59,14 +59,14 @@ func (ini *Init) InitCount() int {
 
 // AddWithTimeout is same as Add, but with a timeout that aborts initialization.
 func (ini *Init) AddWithTimeout(timeout time.Duration, f func(ctx context.Context) (any, error)) *Init {
-	return ini.Add(func() (any, error) {
-		return ini.withTimeout(timeout, f)
+	return ini.Add(func(ctx context.Context) (any, error) {
+		return ini.withTimeout(ctx, timeout, f)
 	})
 }
 
 // Branch creates a new dependency branch based on an existing and adds
 // the given dependency as a child.
-func (ini *Init) Branch(initFn func() (any, error)) *Init {
+func (ini *Init) Branch(initFn func(context.Context) (any, error)) *Init {
 	if ini == nil {
 		ini = New()
 	}
@@ -75,13 +75,13 @@ func (ini *Init) Branch(initFn func() (any, error)) *Init {
 
 // BranchdWithTimeout is same as Branch, but with a timeout.
 func (ini *Init) BranchWithTimeout(timeout time.Duration, f func(ctx context.Context) (any, error)) *Init {
-	return ini.Branch(func() (any, error) {
-		return ini.withTimeout(timeout, f)
+	return ini.Branch(func(ctx context.Context) (any, error) {
+		return ini.withTimeout(ctx, timeout, f)
 	})
 }
 
 // Do initializes the entire dependency graph.
-func (ini *Init) Do() (any, error) {
+func (ini *Init) Do(ctx context.Context) (any, error) {
 	if ini == nil {
 		panic("init is nil")
 	}
@@ -92,7 +92,7 @@ func (ini *Init) Do() (any, error) {
 		if prev != nil {
 			// A branch. Initialize the ancestors.
 			if prev.shouldInitialize() {
-				_, err := prev.Do()
+				_, err := prev.Do(ctx)
 				if err != nil {
 					ini.err = err
 					return
@@ -105,12 +105,12 @@ func (ini *Init) Do() (any, error) {
 		}
 
 		if ini.f != nil {
-			ini.out, ini.err = ini.f()
+			ini.out, ini.err = ini.f(ctx)
 		}
 
 		for _, child := range ini.children {
 			if child.shouldInitialize() {
-				_, err := child.Do()
+				_, err := child.Do(ctx)
 				if err != nil {
 					ini.err = err
 					return
@@ -154,7 +154,7 @@ func (ini *Init) Reset() {
 	}
 }
 
-func (ini *Init) add(branch bool, initFn func() (any, error)) *Init {
+func (ini *Init) add(branch bool, initFn func(context.Context) (any, error)) *Init {
 	ini.mu.Lock()
 	defer ini.mu.Unlock()
 
@@ -179,15 +179,16 @@ func (ini *Init) checkDone() {
 	}
 }
 
-func (ini *Init) withTimeout(timeout time.Duration, f func(ctx context.Context) (any, error)) (any, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+func (ini *Init) withTimeout(ctx context.Context, timeout time.Duration, f func(ctx context.Context) (any, error)) (any, error) {
+	// Create a new context with a timeout not connected to the incoming context.
+	waitCtx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	c := make(chan verr, 1)
 
 	go func() {
 		v, err := f(ctx)
 		select {
-		case <-ctx.Done():
+		case <-waitCtx.Done():
 			return
 		default:
 			c <- verr{v: v, err: err}
@@ -195,7 +196,7 @@ func (ini *Init) withTimeout(timeout time.Duration, f func(ctx context.Context) 
 	}()
 
 	select {
-	case <-ctx.Done():
+	case <-waitCtx.Done():
 		return nil, errors.New("timed out initializing value. You may have a circular loop in a shortcode, or your site may have resources that take longer to build than the `timeout` limit in your Hugo config file.")
 	case ve := <-c:
 		return ve.v, ve.err

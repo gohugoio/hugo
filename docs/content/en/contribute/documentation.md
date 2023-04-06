@@ -28,7 +28,7 @@ git checkout -b jon-doe-showcase-addition
 
 ## Add New Content
 
-The Hugo docs make heavy use of Hugo's [archetypes][] feature. All content sections in Hugo documentation have an assigned archetype.
+The Hugo docs make heavy use of Hugo's [archetypes] feature. All content sections in Hugo documentation have an assigned archetype.
 
 Adding new content to the Hugo docs follows the same pattern, regardless of the content section:
 
@@ -79,7 +79,7 @@ Here is a review of the front matter fields automatically generated for you usin
 : the version of Hugo that will ship with this new function.
 
 `relatedfuncs`
-: other [templating functions][] you feel are related to your new function to help fellow Hugo users.
+: other [templating functions] you feel are related to your new function to help fellow Hugo users.
 
 `{{.Content}}`
 : an extended description of the new function; examples are not only welcomed but encouraged.

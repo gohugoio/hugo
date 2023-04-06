@@ -16,7 +16,7 @@ aliases: [/content/archetypes/]
 
 ## What are Archetypes?
 
-**Archetypes** are content template files in the [archetypes directory][] of your project that contain preconfigured [front matter][] and possibly also a content disposition for your website's [content types][]. These will be used when you run `hugo new`.
+**Archetypes** are content template files in the [archetypes directory] of your project that contain preconfigured [front matter] and possibly also a content disposition for your website's [content types]. These will be used when you run `hugo new`.
 
 
 The `hugo new` uses the `content-section` to find the most suitable archetype template in your project. If your project does not contain any archetype files, it will also look in the theme.

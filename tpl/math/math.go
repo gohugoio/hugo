@@ -20,8 +20,11 @@ import (
 	"sync/atomic"
 
 	_math "github.com/gohugoio/hugo/common/math"
-
 	"github.com/spf13/cast"
+)
+
+var (
+	errMustTwoNumbersError = errors.New("must provide at least two numbers")
 )
 
 // New returns a new instance of the math-namespaced template functions.
@@ -32,9 +35,9 @@ func New() *Namespace {
 // Namespace provides template functions for the "math" namespace.
 type Namespace struct{}
 
-// Add adds the two addends n1 and n2.
-func (ns *Namespace) Add(n1, n2 any) (any, error) {
-	return _math.DoArithmetic(n1, n2, '+')
+// Add adds the multivalued addends n1 and n2 or more values.
+func (ns *Namespace) Add(inputs ...any) (any, error) {
+	return ns.doArithmetic(inputs, '+')
 }
 
 // Ceil returns the least integer value greater than or equal to n.
@@ -48,8 +51,8 @@ func (ns *Namespace) Ceil(n any) (float64, error) {
 }
 
 // Div divides n1 by n2.
-func (ns *Namespace) Div(n1, n2 any) (any, error) {
-	return _math.DoArithmetic(n1, n2, '/')
+func (ns *Namespace) Div(inputs ...any) (any, error) {
+	return ns.doArithmetic(inputs, '/')
 }
 
 // Floor returns the greatest integer value less than or equal to n.
@@ -72,28 +75,48 @@ func (ns *Namespace) Log(n any) (float64, error) {
 	return math.Log(af), nil
 }
 
-// Max returns the greater of the two numbers n1 or n2.
-func (ns *Namespace) Max(n1, n2 any) (float64, error) {
-	af, erra := cast.ToFloat64E(n1)
-	bf, errb := cast.ToFloat64E(n2)
-
-	if erra != nil || errb != nil {
-		return 0, errors.New("Max operator can't be used with non-float value")
+// Max returns the greater of the multivalued numbers n1 and n2 or more values.
+func (ns *Namespace) Max(inputs ...any) (maximum float64, err error) {
+	if len(inputs) < 2 {
+		err = errMustTwoNumbersError
+		return
 	}
-
-	return math.Max(af, bf), nil
+	var value float64
+	for index, input := range inputs {
+		value, err = cast.ToFloat64E(input)
+		if err != nil {
+			err = errors.New("Max operator can't be used with non-float value")
+			return
+		}
+		if index == 0 {
+			maximum = value
+			continue
+		}
+		maximum = math.Max(value, maximum)
+	}
+	return
 }
 
-// Min returns the smaller of two numbers n1 or n2.
-func (ns *Namespace) Min(n1, n2 any) (float64, error) {
-	af, erra := cast.ToFloat64E(n1)
-	bf, errb := cast.ToFloat64E(n2)
-
-	if erra != nil || errb != nil {
-		return 0, errors.New("Min operator can't be used with non-float value")
+// Min returns the smaller of multivalued numbers n1 and n2 or more values.
+func (ns *Namespace) Min(inputs ...any) (minimum float64, err error) {
+	if len(inputs) < 2 {
+		err = errMustTwoNumbersError
+		return
 	}
-
-	return math.Min(af, bf), nil
+	var value float64
+	for index, input := range inputs {
+		value, err = cast.ToFloat64E(input)
+		if err != nil {
+			err = errors.New("Max operator can't be used with non-float value")
+			return
+		}
+		if index == 0 {
+			minimum = value
+			continue
+		}
+		minimum = math.Min(value, minimum)
+	}
+	return
 }
 
 // Mod returns n1 % n2.
@@ -122,9 +145,9 @@ func (ns *Namespace) ModBool(n1, n2 any) (bool, error) {
 	return res == int64(0), nil
 }
 
-// Mul multiplies the two numbers n1 and n2.
-func (ns *Namespace) Mul(n1, n2 any) (any, error) {
-	return _math.DoArithmetic(n1, n2, '*')
+// Mul multiplies the multivalued numbers n1 and n2 or more values.
+func (ns *Namespace) Mul(inputs ...any) (any, error) {
+	return ns.doArithmetic(inputs, '*')
 }
 
 // Pow returns n1 raised to the power of n2.
@@ -159,9 +182,23 @@ func (ns *Namespace) Sqrt(n any) (float64, error) {
 	return math.Sqrt(af), nil
 }
 
-// Sub subtracts n2 from n1.
-func (ns *Namespace) Sub(n1, n2 any) (any, error) {
-	return _math.DoArithmetic(n1, n2, '-')
+// Sub subtracts multivalued.
+func (ns *Namespace) Sub(inputs ...any) (any, error) {
+	return ns.doArithmetic(inputs, '-')
+}
+
+func (ns *Namespace) doArithmetic(inputs []any, operation rune) (value any, err error) {
+	if len(inputs) < 2 {
+		return nil, errMustTwoNumbersError
+	}
+	value = inputs[0]
+	for i := 1; i < len(inputs); i++ {
+		value, err = _math.DoArithmetic(value, inputs[i], operation)
+		if err != nil {
+			return
+		}
+	}
+	return
 }
 
 var counter uint64

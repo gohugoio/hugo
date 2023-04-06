@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/identity"
 
 	"github.com/gohugoio/hugo/config"
 
@@ -26,8 +27,7 @@ import (
 	"github.com/gohugoio/hugo/navigation"
 )
 
-// Site represents a site in the build. This is currently a very narrow interface,
-// but the actual implementation will be richer, see hugolib.SiteInfo.
+// Site represents a site. There can be multople sites in a multilingual setup.
 type Site interface {
 	// Returns the Language configured for this Site.
 	Language() *langs.Language
@@ -62,8 +62,8 @@ type Site interface {
 	// Returns the BaseURL for this Site.
 	BaseURL() template.URL
 
-	// Retuns a taxonomy map.
-	Taxonomies() any
+	// Returns a taxonomy map.
+	Taxonomies() TaxonomyList
 
 	// Returns the last modification date of the content.
 	LastChange() time.Time
@@ -76,6 +76,9 @@ type Site interface {
 
 	// Returns a map of all the data inside /data.
 	Data() map[string]any
+
+	// Returns the identity of this site.
+	GetIdentity() identity.Identity
 }
 
 // Sites represents an ordered list of sites (languages).
@@ -118,6 +121,10 @@ func (t testSite) Current() Site {
 	return t
 }
 
+func (t testSite) GetIdentity() identity.Identity {
+	return identity.KeyValueIdentity{Key: "site", Value: t.l.Lang}
+}
+
 func (t testSite) IsServer() bool {
 	return false
 }
@@ -142,7 +149,7 @@ func (t testSite) Menus() navigation.Menus {
 	return nil
 }
 
-func (t testSite) Taxonomies() any {
+func (t testSite) Taxonomies() TaxonomyList {
 	return nil
 }
 

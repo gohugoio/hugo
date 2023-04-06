@@ -16,7 +16,7 @@ package js
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -150,7 +150,7 @@ func resolveComponentInAssets(fs afero.Fs, impPath string) *hugofs.FileMeta {
 		for _, ext := range []string{".js", ".ts", ".tsx", ".jsx"} {
 			if strings.HasSuffix(impPath, ext) {
 				// Import of foo.js.js need the full name.
-				return nil
+				continue
 			}
 			if fi, err := fs.Stat(base + ext); err == nil {
 				return fi.(hugofs.FileMetaInfo).Meta()
@@ -163,12 +163,10 @@ func resolveComponentInAssets(fs afero.Fs, impPath string) *hugofs.FileMeta {
 
 	var m *hugofs.FileMeta
 
-	// See issue #8949.
 	// We need to check if this is a regular file imported without an extension.
-	// There may be ambigous situations where both foo.js and foo/index.js exists.
+	// There may be ambiguous situations where both foo.js and foo/index.js exists.
 	// This import order is in line with both how Node and ESBuild's native
 	// import resolver works.
-	// This was fixed in Hugo 0.88.
 
 	// It may be a regular file imported without an extension, e.g.
 	// foo or foo/index.
@@ -176,14 +174,17 @@ func resolveComponentInAssets(fs afero.Fs, impPath string) *hugofs.FileMeta {
 	if m != nil {
 		return m
 	}
-	if filepath.Base(impPath) == "index" {
+
+	base := filepath.Base(impPath)
+	if base == "index" {
+		// try index.esm.js etc.
 		m = findFirst(impPath + ".esm")
 		if m != nil {
 			return m
 		}
 	}
 
-	// Finally check the path as is.
+	// Check the path as is.
 	fi, err := fs.Stat(impPath)
 
 	if err == nil {
@@ -195,6 +196,8 @@ func resolveComponentInAssets(fs afero.Fs, impPath string) *hugofs.FileMeta {
 		} else {
 			m = fi.(hugofs.FileMetaInfo).Meta()
 		}
+	} else if strings.HasSuffix(base, ".js") {
+		m = findFirst(strings.TrimSuffix(impPath, ".js"))
 	}
 
 	return m
@@ -257,7 +260,7 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 				})
 			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: nsImportHugo},
 				func(args api.OnLoadArgs) (api.OnLoadResult, error) {
-					b, err := ioutil.ReadFile(args.Path)
+					b, err := os.ReadFile(args.Path)
 					if err != nil {
 						return api.OnLoadResult{}, fmt.Errorf("failed to read %q: %w", args.Path, err)
 					}

@@ -449,7 +449,6 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 							requestURI = redirect.To
 							r = r2
 						}
-						fallthrough
 					default:
 						w.Header().Set("Content-Type", "")
 						http.Redirect(w, r, redirect.To, redirect.Status)
@@ -506,7 +505,7 @@ func removeErrorPrefixFromLog(content string) string {
 }
 
 var logReplacer = strings.NewReplacer(
-	"can't", "can’t", // Chroma lexer does'nt do well with "can't"
+	"can't", "can’t", // Chroma lexer doesn't do well with "can't"
 	"*hugolib.pageState", "page.Page", // Page is the public interface.
 	"Rebuild failed:", "",
 )
@@ -548,7 +547,7 @@ func (c *commandeer) serve(s *serverCmd) error {
 		roots = []string{""}
 	}
 
-	// Cache it here. The HugoSites object may be unavaialble later on due to intermitent configuration errors.
+	// Cache it here. The HugoSites object may be unavailable later on due to intermittent configuration errors.
 	// To allow the en user to change the error template while the server is running, we use
 	// the freshest template we can provide.
 	var (
@@ -578,7 +577,7 @@ func (c *commandeer) serve(s *serverCmd) error {
 			// to cached values if nil.
 			templ, handler := getErrorTemplateAndHandler(c.hugoTry())
 			b := &bytes.Buffer{}
-			err := handler.Execute(templ, b, ctx)
+			err := handler.ExecuteWithContext(context.Background(), templ, b, ctx)
 			return b, err
 		},
 	}

@@ -15,7 +15,6 @@ package commands
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -230,7 +229,7 @@ func TestFlags(t *testing.T) {
 				if cmd.getCommand() == nil {
 					continue
 				}
-				// We are only intereseted in the flag handling here.
+				// We are only interested in the flag handling here.
 				cmd.getCommand().RunE = noOpRunE
 			}
 			rootCmd := root.getCommand()
@@ -402,7 +401,7 @@ PostProcess: {{ $foo.RelPermalink }}
 
 func writeFile(t testing.TB, filename, content string) {
 	must(t, os.MkdirAll(filepath.Dir(filename), os.FileMode(0755)))
-	must(t, ioutil.WriteFile(filename, []byte(content), os.FileMode(0755)))
+	must(t, os.WriteFile(filename, []byte(content), os.FileMode(0755)))
 }
 
 func must(t testing.TB, err error) {

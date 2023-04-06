@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package markup contains the markup handling (e.g. Markdown).
 package markup
 
 import (

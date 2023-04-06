@@ -23,15 +23,12 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
-	"strconv"
 	"strings"
 	"sync"
 	"unicode"
 	"unicode/utf8"
 
 	"github.com/gohugoio/hugo/common/loggers"
-
-	"github.com/mitchellh/hashstructure"
 
 	"github.com/gohugoio/hugo/common/hugo"
 
@@ -219,7 +216,7 @@ func ReaderContains(r io.Reader, subslice []byte) bool {
 // GetTitleFunc returns a func that can be used to transform a string to
 // title case.
 //
-// The supported styles are
+// # The supported styles are
 //
 // - "Go" (strings.Title)
 // - "AP" (see https://www.apstylebook.com/)
@@ -418,7 +415,7 @@ func Deprecated(item, alternative string, err bool) {
 		DistinctErrorLog.Errorf("%s is deprecated and will be removed in Hugo %s. %s", item, hugo.CurrentVersion.Next().ReleaseVersion(), alternative)
 	} else {
 		var warnPanicMessage string
-		if !loggers.PanicOnWarning {
+		if !loggers.PanicOnWarning.Load() {
 			warnPanicMessage = "\n\nRe-run Hugo with the flag --panicOnWarning to get a better error message."
 		}
 		DistinctWarnLog.Warnf("%s is deprecated and will be removed in a future release. %s%s", item, alternative, warnPanicMessage)
@@ -522,21 +519,4 @@ func PrintFs(fs afero.Fs, path string, w io.Writer) {
 		fmt.Println(path)
 		return nil
 	})
-}
-
-// HashString returns a hash from the given elements.
-// It will panic if the hash cannot be calculated.
-func HashString(elements ...any) string {
-	var o any
-	if len(elements) == 1 {
-		o = elements[0]
-	} else {
-		o = elements
-	}
-
-	hash, err := hashstructure.Hash(o, nil)
-	if err != nil {
-		panic(err)
-	}
-	return strconv.FormatUint(hash, 10)
 }

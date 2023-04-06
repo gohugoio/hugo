@@ -18,6 +18,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/spf13/afero"
@@ -36,7 +37,7 @@ func (c Caches) Prune() (int, error) {
 		counter += count
 
 		if err != nil {
-			if os.IsNotExist(err) {
+			if herrors.IsNotExist(err) {
 				continue
 			}
 			return counter, fmt.Errorf("failed to prune cache %q: %w", k, err)
@@ -65,18 +66,24 @@ func (c *Cache) Prune(force bool) (int, error) {
 
 		if info.IsDir() {
 			f, err := c.Fs.Open(name)
+
 			if err != nil {
 				// This cache dir may not exist.
 				return nil
 			}
-			defer f.Close()
 			_, err = f.Readdirnames(1)
+			f.Close()
 			if err == io.EOF {
 				// Empty dir.
-				err = c.Fs.Remove(name)
+				if name == "." {
+					// e.g. /_gen/images -- keep it even if empty.
+					err = nil
+				} else {
+					err = c.Fs.Remove(name)
+				}
 			}
 
-			if err != nil && !os.IsNotExist(err) {
+			if err != nil && !herrors.IsNotExist(err) {
 				return err
 			}
 
@@ -97,7 +104,7 @@ func (c *Cache) Prune(force bool) (int, error) {
 				counter++
 			}
 
-			if err != nil && !os.IsNotExist(err) {
+			if err != nil && !herrors.IsNotExist(err) {
 				return err
 			}
 
@@ -112,7 +119,7 @@ func (c *Cache) Prune(force bool) (int, error) {
 func (c *Cache) pruneRootDir(force bool) (int, error) {
 	info, err := c.Fs.Stat(c.pruneAllRootDir)
 	if err != nil {
-		if os.IsNotExist(err) {
+		if herrors.IsNotExist(err) {
 			return 0, nil
 		}
 		return 0, err

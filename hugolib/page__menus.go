@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"context"
 	"sync"
 
 	"github.com/gohugoio/hugo/navigation"
@@ -29,13 +30,13 @@ type pageMenus struct {
 }
 
 func (p *pageMenus) HasMenuCurrent(menuID string, me *navigation.MenuEntry) bool {
-	p.p.s.init.menus.Do()
+	p.p.s.init.menus.Do(context.Background())
 	p.init()
 	return p.q.HasMenuCurrent(menuID, me)
 }
 
 func (p *pageMenus) IsMenuCurrent(menuID string, inme *navigation.MenuEntry) bool {
-	p.p.s.init.menus.Do()
+	p.p.s.init.menus.Do(context.Background())
 	p.init()
 	return p.q.IsMenuCurrent(menuID, inme)
 }
@@ -43,7 +44,7 @@ func (p *pageMenus) IsMenuCurrent(menuID string, inme *navigation.MenuEntry) boo
 func (p *pageMenus) Menus() navigation.PageMenus {
 	// There is a reverse dependency here. initMenus will, once, build the
 	// site menus and update any relevant page.
-	p.p.s.init.menus.Do()
+	p.p.s.init.menus.Do(context.Background())
 
 	return p.menus()
 }

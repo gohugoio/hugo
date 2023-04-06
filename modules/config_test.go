@@ -14,6 +14,9 @@
 package modules
 
 import (
+	"fmt"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/gohugoio/hugo/common/hugo"
@@ -43,14 +46,15 @@ func TestDecodeConfig(t *testing.T) {
 	c := qt.New(t)
 
 	c.Run("Basic", func(c *qt.C) {
+		tempDir := c.TempDir()
 		tomlConfig := `
+workingDir = %q
 [module]
-
+workspace = "hugo.work"
 [module.hugoVersion]
 min = "0.54.2"
 max = "0.199.0"
 extended = true
-
 [[module.mounts]]
 source="src/project/blog"
 target="content/blog"
@@ -65,7 +69,11 @@ source="src/markdown/blog"
 target="content/blog"
 lang="en"
 `
-		cfg, err := config.FromConfigString(tomlConfig, "toml")
+
+		hugoWorkFilename := filepath.Join(tempDir, "hugo.work")
+		f, _ := os.Create(hugoWorkFilename)
+		f.Close()
+		cfg, err := config.FromConfigString(fmt.Sprintf(tomlConfig, tempDir), "toml")
 		c.Assert(err, qt.IsNil)
 
 		mcfg, err := DecodeConfig(cfg)
@@ -83,6 +91,8 @@ lang="en"
 			c.Assert(hv.IsValid(), qt.Equals, true)
 		}
 
+		c.Assert(mcfg.Workspace, qt.Equals, hugoWorkFilename)
+
 		c.Assert(len(mcfg.Mounts), qt.Equals, 1)
 		c.Assert(len(mcfg.Imports), qt.Equals, 1)
 		imp := mcfg.Imports[0]
@@ -90,6 +100,7 @@ lang="en"
 		c.Assert(imp.Mounts[1].Source, qt.Equals, "src/markdown/blog")
 		c.Assert(imp.Mounts[1].Target, qt.Equals, "content/blog")
 		c.Assert(imp.Mounts[1].Lang, qt.Equals, "en")
+
 	})
 
 	c.Run("Replacements", func(c *qt.C) {

@@ -6,21 +6,17 @@ name: Test
 env:
     GOPROXY: https://proxy.golang.org
     GO111MODULE: on
-    DART_SASS_VERSION: 1.56.1
-    DART_SASS_SHA_LINUX: c6dd75ab1acb2cab98982a32622c0ba631cfaa753e7bac84efd32c6c19ea9303
-    DART_SASS_SHA_MACOS: df6f4813501f906ffc8f8af865452b037bc1c3a17448c4b8ffa3be82793eb0c8
-    DART_SASS_SHA_WINDOWS: c8bf9c009afd6bbeb1742e010845b84e1021fdba6edc80b4dd1fbbee75354b39
+    DART_SASS_VERSION: 1.56.2
+    DART_SASS_SHA_LINUX: 9e4f455f7b8619959d7878af2862383be58392eb963a14ff87cc512c03701e2a
+    DART_SASS_SHA_MACOS: 5992e979e2c30ec363f8e338822bb2b4443c74232b3340501a76180f5652cb09
+    DART_SASS_SHA_WINDOWS: 8d3d9117c54840e3e6a4919e43acf75ea52f28a64fc87a8e29d80ec72ee36cfb
 permissions:
   contents: read
 jobs:
   test:
     strategy:
       matrix:
-        # Note: We upgraded to Go 1.18 in Hugo v0.95.0
-        # Go 1.18 had some breaking changes on the source level which means Hugo cannot be built
-        # with older Go versions, but the improvements in Go 1.18 were too good to pass on (e.g. break and continue).
-        # Note that you don't need Go (or Go 1.18) to run a pre-built binary.
-        go-version: [1.18.x,1.19.x]
+        go-version: [1.19.x,1.20.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -36,9 +32,10 @@ jobs:
           **/go.sum
           **/go.mod
     - name: Install Ruby
-      uses: actions/setup-ruby@5f29a1cd8dfebf420691c4c9a0e832e2fae5a526
+      uses: ruby/setup-ruby@ee2113536afb7f793eed4ce60e8d3b26db912da4
       with:
-        ruby-version: '2.7'
+        ruby-version: '2.7' 
+        bundler-cache: true #
     - name: Install Python
       uses: actions/setup-python@3105fb18c05ddd93efea5f9e0bef7a03a6e9e7df
       with:

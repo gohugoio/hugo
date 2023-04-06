@@ -31,8 +31,11 @@ type Namespace struct {
 
 // Dump returns a object dump of val as a string.
 // Note that not every value passed to Dump will print so nicely, but
-// we'll improve on that. We recommend using the "go" Chroma lexer to format the output
+// we'll improve on that.
+//
+// We recommend using the "go" Chroma lexer to format the output
 // nicely.
+//
 // Also note that the output from Dump may change from Hugo version to the next,
 // so don't depend on a specific output.
 func (ns *Namespace) Dump(val any) string {

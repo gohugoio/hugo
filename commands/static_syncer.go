@@ -14,9 +14,9 @@
 package commands
 
 import (
-	"os"
 	"path/filepath"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 
 	"github.com/fsnotify/fsnotify"
@@ -95,7 +95,7 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 			// the source of that static file. In this case Hugo will incorrectly remove that file
 			// from the published directory.
 			if ev.Op&fsnotify.Rename == fsnotify.Rename || ev.Op&fsnotify.Remove == fsnotify.Remove {
-				if _, err := sourceFs.Fs.Stat(relPath); os.IsNotExist(err) {
+				if _, err := sourceFs.Fs.Stat(relPath); herrors.IsNotExist(err) {
 					// If file doesn't exist in any static dir, remove it
 					logger.Println("File no longer exists in static dir, removing", relPath)
 					_ = c.Fs.PublishDirStatic.RemoveAll(relPath)

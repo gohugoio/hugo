@@ -14,6 +14,8 @@
 package strings
 
 import (
+	"context"
+
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/tpl/internal"
 )
@@ -26,7 +28,7 @@ func init() {
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
-			Context: func(args ...any) (any, error) { return ctx, nil },
+			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
 		}
 
 		ns.AddMethodMapping(ctx.Chomp,
@@ -78,8 +80,18 @@ func init() {
 			[]string{"findRE"},
 			[][2]string{
 				{
-					`{{ findRE "[G|g]o" "Hugo is a static side generator written in Go." "1" }}`,
+					`{{ findRE "[G|g]o" "Hugo is a static side generator written in Go." 1 }}`,
 					`[go]`,
+				},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.FindRESubmatch,
+			[]string{"findRESubmatch"},
+			[][2]string{
+				{
+					`{{ findRESubmatch §§<a\s*href="(.+?)">(.+?)</a>§§ §§<li><a href="#foo">Foo</a></li> <li><a href="#bar">Bar</a></li>§§ | print | safeHTML }}`,
+					"[[<a href=\"#foo\">Foo</a> #foo Foo] [<a href=\"#bar\">Bar</a> #bar Bar]]",
 				},
 			},
 		)
@@ -89,6 +101,14 @@ func init() {
 			[][2]string{
 				{`{{ hasPrefix "Hugo" "Hu" }}`, `true`},
 				{`{{ hasPrefix "Hugo" "Fu" }}`, `false`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.HasSuffix,
+			[]string{"hasSuffix"},
+			[][2]string{
+				{`{{ hasSuffix "Hugo" "go" }}`, `true`},
+				{`{{ hasSuffix "Hugo" "du" }}`, `false`},
 			},
 		)
 

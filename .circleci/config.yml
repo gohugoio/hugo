@@ -4,7 +4,7 @@ parameters:
 defaults: &defaults
   resource_class: large
   docker:
-      - image: bepsays/ci-hugoreleaser:1.21900.20200
+      - image: bepsays/ci-hugoreleaser:1.22000.20100
 environment: &buildenv
       GOMODCACHE: /root/project/gomodcache
 version: 2
@@ -60,7 +60,7 @@ jobs:
     environment:
         <<: [*buildenv]
     docker:
-    - image: bepsays/ci-hugoreleaser-linux-arm64:1.21900.20200
+    - image: bepsays/ci-hugoreleaser-linux-arm64:1.22000.20100
     steps:
       - *restore-cache
       - &attach-workspace

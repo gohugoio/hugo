@@ -3,7 +3,7 @@ module github.com/gohugoio/hugo
 require (
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
 	github.com/PuerkitoBio/purell v1.1.1
-	github.com/alecthomas/chroma/v2 v2.4.0
+	github.com/alecthomas/chroma/v2 v2.5.0
 	github.com/armon/go-radix v1.0.0
 	github.com/aws/aws-sdk-go v1.43.5
 	github.com/bep/clock v0.3.0
@@ -13,13 +13,14 @@ require (
 	github.com/bep/godartsass v0.16.0
 	github.com/bep/golibsass v1.1.0
 	github.com/bep/gowebp v0.2.0
+	github.com/bep/lazycache v0.2.0
 	github.com/bep/overlayfs v0.6.0
 	github.com/bep/tmc v0.5.1
 	github.com/clbanning/mxj/v2 v2.5.7
 	github.com/cli/safeexec v1.0.0
 	github.com/disintegration/gift v1.2.1
 	github.com/dustin/go-humanize v1.0.0
-	github.com/evanw/esbuild v0.15.18
+	github.com/evanw/esbuild v0.17.0
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/frankban/quicktest v1.14.4
 	github.com/fsnotify/fsnotify v1.6.0
@@ -36,14 +37,14 @@ require (
 	github.com/hairyhenderson/go-codeowners v0.2.3-0.20201026200250-cdc7c0759690
 	github.com/jdkato/prose v1.2.1
 	github.com/kylelemons/godebug v1.1.0
-	github.com/kyokomi/emoji/v2 v2.2.10
+	github.com/kyokomi/emoji/v2 v2.2.11
 	github.com/magefile/mage v1.14.0
 	github.com/marekm4/color-extractor v1.2.0
-	github.com/mattn/go-isatty v0.0.16
+	github.com/mattn/go-isatty v0.0.17
 	github.com/mitchellh/hashstructure v1.1.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/muesli/smartcrop v0.3.0
-	github.com/niklasfasching/go-org v1.6.5
+	github.com/niklasfasching/go-org v1.6.6
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/pelletier/go-toml/v2 v2.0.6
 	github.com/rogpeppe/go-internal v1.9.0
@@ -56,15 +57,16 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/pflag v1.0.5
 	github.com/tdewolff/minify/v2 v2.12.4
-	github.com/tdewolff/parse/v2 v2.6.4
-	github.com/yuin/goldmark v1.5.3
+	github.com/tdewolff/parse/v2 v2.6.5
+	github.com/yuin/goldmark v1.5.4
 	go.uber.org/atomic v1.10.0
 	gocloud.dev v0.24.0
-	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
-	golang.org/x/net v0.2.0
+	golang.org/x/exp v0.0.0-20221031165847-c99f073a8326
+	golang.org/x/image v0.5.0
+	golang.org/x/net v0.7.0
 	golang.org/x/sync v0.1.0
-	golang.org/x/text v0.5.0
-	golang.org/x/tools v0.3.0
+	golang.org/x/text v0.7.0
+	golang.org/x/tools v0.4.0
 	google.golang.org/api v0.76.0
 	gopkg.in/yaml.v2 v2.4.0
 )
@@ -103,6 +105,7 @@ require (
 	github.com/google/wire v0.5.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.3.0 // indirect
 	github.com/googleapis/go-type-adapters v1.0.0 // indirect
+	github.com/hashicorp/golang-lru/v2 v2.0.1 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/invopop/yaml v0.1.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
@@ -114,11 +117,11 @@ require (
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	go.opencensus.io v0.23.0 // indirect
-	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa // indirect
-	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5 // indirect
-	golang.org/x/sys v0.2.0 // indirect
-	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f // indirect
+	go.opencensus.io v0.24.0 // indirect
+	golang.org/x/crypto v0.3.0 // indirect
+	golang.org/x/oauth2 v0.2.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20220426171045-31bebdecfb46 // indirect
 	google.golang.org/grpc v1.46.0 // indirect

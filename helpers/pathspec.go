@@ -42,7 +42,7 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider, logger loggers.Logger) (*Pa
 	return NewPathSpecWithBaseBaseFsProvided(fs, cfg, logger, nil)
 }
 
-// NewPathSpecWithBaseBaseFsProvided creats a new PathSpec from the given filesystems and language.
+// NewPathSpecWithBaseBaseFsProvided creates a new PathSpec from the given filesystems and language.
 // If an existing BaseFs is provided, parts of that is reused.
 func NewPathSpecWithBaseBaseFsProvided(fs *hugofs.Fs, cfg config.Provider, logger loggers.Logger, baseBaseFs *filesystems.BaseFs) (*PathSpec, error) {
 	p, err := paths.New(fs, cfg)

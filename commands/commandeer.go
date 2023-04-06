@@ -16,7 +16,7 @@ package commands
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net"
 	"os"
 	"path/filepath"
@@ -201,7 +201,7 @@ func newCommandeer(mustHaveConfigFile, failOnInitErr, running bool, h *hugoBuild
 		rebuildDebouncer = debounce.New(4 * time.Second)
 	}
 
-	out := ioutil.Discard
+	out := io.Discard
 	if !h.quiet {
 		out = os.Stdout
 	}
@@ -221,7 +221,7 @@ func newCommandeer(mustHaveConfigFile, failOnInitErr, running bool, h *hugoBuild
 		running:            running,
 
 		// This will be replaced later, but we need something to log to before the configuration is read.
-		logger: loggers.NewLogger(jww.LevelWarn, jww.LevelError, out, ioutil.Discard, running),
+		logger: loggers.NewLogger(jww.LevelWarn, jww.LevelError, out, io.Discard, running),
 	}
 
 	return c, c.loadConfig()
@@ -302,6 +302,7 @@ func (c *commandeer) loadConfig() error {
 	cfg := c.DepsCfg
 	c.configured = false
 	cfg.Running = c.running
+	loggers.PanicOnWarning.Store(c.h.panicOnWarning)
 
 	var dir string
 	if c.h.source != "" {
@@ -383,7 +384,7 @@ func (c *commandeer) loadConfig() error {
 
 	// Set some commonly used flags
 	c.doLiveReload = c.running && !c.Cfg.GetBool("disableLiveReload")
-	c.fastRenderMode = c.doLiveReload && !c.Cfg.GetBool("disableFastRender")
+	c.fastRenderMode = c.running && !c.Cfg.GetBool("disableFastRender")
 	c.showErrorInBrowser = c.doLiveReload && !c.Cfg.GetBool("disableBrowserError")
 
 	// This is potentially double work, but we need to do this one more time now
@@ -408,6 +409,9 @@ func (c *commandeer) loadConfig() error {
 
 	createMemFs := config.GetBool("renderToMemory")
 	c.renderStaticToDisk = config.GetBool("renderStaticToDisk")
+	// TODO(bep) we/I really need to look at the config set up, but to prevent changing too much
+	// we store away the original.
+	config.Set("publishDirOrig", config.GetString("publishDir"))
 
 	if createMemFs {
 		// Rendering to memoryFS, publish to Root regardless of publishDir.

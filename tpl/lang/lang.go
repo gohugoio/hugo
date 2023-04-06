@@ -15,6 +15,7 @@
 package lang
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"strconv"
@@ -45,7 +46,7 @@ type Namespace struct {
 }
 
 // Translate returns a translated string for id.
-func (ns *Namespace) Translate(id any, args ...any) (string, error) {
+func (ns *Namespace) Translate(ctx context.Context, id any, args ...any) (string, error) {
 	var templateData any
 
 	if len(args) > 0 {
@@ -60,7 +61,7 @@ func (ns *Namespace) Translate(id any, args ...any) (string, error) {
 		return "", nil
 	}
 
-	return ns.deps.Translate(sid, templateData), nil
+	return ns.deps.Translate(ctx, sid, templateData), nil
 }
 
 // FormatNumber formats number with the given precision for the current language.

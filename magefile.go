@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -268,7 +267,7 @@ func Lint() error {
 	return nil
 }
 
-//  Run go vet linter
+// Run go vet linter
 func Vet() error {
 	if err := sh.Run(goexe, "vet", "./..."); err != nil {
 		return fmt.Errorf("error running go vet: %v", err)
@@ -298,7 +297,7 @@ func TestCoverHTML() error {
 		if err := sh.Run(goexe, "test", "-coverprofile="+cover, "-covermode=count", pkg); err != nil {
 			return err
 		}
-		b, err := ioutil.ReadFile(cover)
+		b, err := os.ReadFile(cover)
 		if err != nil {
 			if os.IsNotExist(err) {
 				continue

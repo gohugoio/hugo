@@ -18,12 +18,14 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
 	"unicode"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/text"
 
 	"github.com/gohugoio/hugo/config"
@@ -101,7 +103,7 @@ func (p *PathSpec) UnicodeSanitize(s string) string {
 	)
 
 	for i, r := range source {
-		isAllowed := r == '.' || r == '/' || r == '\\' || r == '_' || r == '#' || r == '+' || r == '~' || r == '-'
+		isAllowed := r == '.' || r == '/' || r == '\\' || r == '_' || r == '#' || r == '+' || r == '~' || r == '-' || r == '@'
 		isAllowed = isAllowed || unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r)
 		isAllowed = isAllowed || (r == '%' && i+2 < len(source) && ishex(source[i+1]) && ishex(source[i+2]))
 
@@ -141,25 +143,25 @@ var isFileRe = regexp.MustCompile(`.*\..{1,6}$`)
 // GetDottedRelativePath expects a relative path starting after the content directory.
 // It returns a relative path with dots ("..") navigating up the path structure.
 func GetDottedRelativePath(inPath string) string {
-	inPath = filepath.Clean(filepath.FromSlash(inPath))
+	inPath = path.Clean(filepath.ToSlash(inPath))
 
 	if inPath == "." {
 		return "./"
 	}
 
-	if !isFileRe.MatchString(inPath) && !strings.HasSuffix(inPath, FilePathSeparator) {
-		inPath += FilePathSeparator
+	if !isFileRe.MatchString(inPath) && !strings.HasSuffix(inPath, "/") {
+		inPath += "/"
 	}
 
-	if !strings.HasPrefix(inPath, FilePathSeparator) {
-		inPath = FilePathSeparator + inPath
+	if !strings.HasPrefix(inPath, "/") {
+		inPath = "/" + inPath
 	}
 
-	dir, _ := filepath.Split(inPath)
+	dir, _ := path.Split(inPath)
 
-	sectionCount := strings.Count(dir, FilePathSeparator)
+	sectionCount := strings.Count(dir, "/")
 
-	if sectionCount == 0 || dir == FilePathSeparator {
+	if sectionCount == 0 || dir == "/" {
 		return "./"
 	}
 
@@ -378,7 +380,7 @@ func OpenFileForWriting(fs afero.Fs, filename string) (afero.File, error) {
 	// os.Create will create any new files with mode 0666 (before umask).
 	f, err := fs.Create(filename)
 	if err != nil {
-		if !os.IsNotExist(err) {
+		if !herrors.IsNotExist(err) {
 			return nil, err
 		}
 		if err = fs.MkdirAll(filepath.Dir(filename), 0777); err != nil { //  before umask

@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/bep/debounce"
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/spf13/cast"
@@ -106,9 +107,15 @@ func (h *Client) collect(tidy bool) (ModulesConfig, *collector) {
 		}
 	}*/
 
+	var workspaceFilename string
+	if h.ccfg.ModuleConfig.Workspace != WorkspaceDisabled {
+		workspaceFilename = h.ccfg.ModuleConfig.Workspace
+	}
+
 	return ModulesConfig{
-		AllModules:        c.modules,
-		GoModulesFilename: c.GoModulesFilename,
+		AllModules:          c.modules,
+		GoModulesFilename:   c.GoModulesFilename,
+		GoWorkspaceFilename: workspaceFilename,
 	}, c
 }
 
@@ -121,6 +128,9 @@ type ModulesConfig struct {
 
 	// Set if this is a Go modules enabled project.
 	GoModulesFilename string
+
+	// Set if a Go workspace file is configured.
+	GoWorkspaceFilename string
 }
 
 func (m *ModulesConfig) setActiveMods(logger loggers.Logger) error {
@@ -413,12 +423,14 @@ func (c *collector) applyThemeConfig(tc *moduleAdapter) error {
 		err            error
 	)
 
-	// Viper supports more, but this is the sub-set supported by Hugo.
-	for _, configFormats := range config.ValidConfigFileExtensions {
-		configFilename = filepath.Join(tc.Dir(), "config."+configFormats)
-		hasConfigFile, _ = afero.Exists(c.fs, configFilename)
-		if hasConfigFile {
-			break
+LOOP:
+	for _, configBaseName := range config.DefaultConfigNames {
+		for _, configFormats := range config.ValidConfigFileExtensions {
+			configFilename = filepath.Join(tc.Dir(), configBaseName+"."+configFormats)
+			hasConfigFile, _ = afero.Exists(c.fs, configFilename)
+			if hasConfigFile {
+				break LOOP
+			}
 		}
 	}
 
@@ -539,7 +551,7 @@ func (c *collector) collectModulesTXT(owner Module) error {
 
 	f, err := c.fs.Open(filename)
 	if err != nil {
-		if os.IsNotExist(err) {
+		if herrors.IsNotExist(err) {
 			return nil
 		}
 

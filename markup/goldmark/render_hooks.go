@@ -246,6 +246,7 @@ func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.N
 	attrs := r.filterInternalAttributes(n.Attributes())
 
 	err := lr.RenderLink(
+		ctx.RenderContext().Ctx,
 		w,
 		imageLinkContext{
 			linkContext: linkContext{
@@ -336,6 +337,7 @@ func (r *hookedRenderer) renderLink(w util.BufWriter, source []byte, node ast.No
 	ctx.Buffer.Truncate(pos)
 
 	err := lr.RenderLink(
+		ctx.RenderContext().Ctx,
 		w,
 		linkContext{
 			page:             ctx.DocumentContext().Document,
@@ -405,6 +407,7 @@ func (r *hookedRenderer) renderAutoLink(w util.BufWriter, source []byte, node as
 	}
 
 	err := lr.RenderLink(
+		ctx.RenderContext().Ctx,
 		w,
 		linkContext{
 			page:             ctx.DocumentContext().Document,
@@ -493,6 +496,7 @@ func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast
 	anchor := anchori.([]byte)
 
 	err := hr.RenderHeading(
+		ctx.RenderContext().Ctx,
 		w,
 		headingContext{
 			page:             ctx.DocumentContext().Document,

@@ -83,6 +83,7 @@ func (n *newSiteCmd) doNewSite(fs *hugofs.Fs, basepath string, force bool) error
 			return errors.New(basepath + " already exists and is not empty. See --force.")
 
 		case !isEmpty && force:
+			// TODO(bep) eventually rename this to hugo.
 			all := append(dirs, filepath.Join(basepath, "config."+n.configFormat))
 			for _, path := range all {
 				if exists, _ := helpers.Exists(path, fs.Source); exists {

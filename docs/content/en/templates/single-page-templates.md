@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-04-06
 categories: [templates]
-keywords: [page,templates]
+keywords: [page, templates]
 menu:
   docs:
     parent: "templates"
@@ -24,14 +24,15 @@ See [Template Lookup](/templates/lookup-order/).
 
 ## Example Single Page Templates
 
-Content pages are of the type `page` and will therefore have all the [page variables][pagevars] and [site variables][] available to use in their templates.
+Content pages are of the type `page` and will therefore have all the [page variables][pagevars] and [site variables] available to use in their templates.
 
 ### `posts/single.html`
 
-This single page template makes use of Hugo [base templates][], the [`.Format` function][] for dates, the [`.WordCount` page variable][pagevars], and ranges through the single content's specific [taxonomies][pagetaxonomy]. [`with`][] is also used to check whether the taxonomies are set in the front matter.
+This single page template makes use of Hugo [base templates], the [`.Format` function] for dates, the [`.WordCount` page variable][pagevars], and ranges through the single content's specific [taxonomies][pagetaxonomy]. [`with`] is also used to check whether the taxonomies are set in the front matter.
 
 {{< code file="layouts/posts/single.html" download="single.html" >}}
 {{ define "main" }}
+
 <section id="main">
   <h1 id="title">{{ .Title }}</h1>
   <div>
@@ -46,20 +47,20 @@ This single page template makes use of Hugo [base templates][], the [`.Format` f
       <h4 id="date"> {{ .Date.Format "Mon Jan 2, 2006" }} </h4>
       <h5 id="wordcount"> {{ .WordCount }} Words </h5>
     </section>
-    {{ with .Params.topics }}
-    <ul id="topics">
-      {{ range . }}
-        <li><a href="{{ "topics" | absURL}}{{ . | urlize }}">{{ . }}</a> </li>
+      {{ with .GetTerms "topics" }}
+        <ul id="topics">
+          {{ range . }}
+            <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+          {{ end }}
+        </ul>
       {{ end }}
-    </ul>
-    {{ end }}
-    {{ with .Params.tags }}
-    <ul id="tags">
-      {{ range . }}
-        <li> <a href="{{ "tags" | absURL }}{{ . | urlize }}">{{ . }}</a> </li>
+      {{ with .GetTerms "tags" }}
+        <ul id="tags">
+          {{ range . }}
+            <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+          {{ end }}
+        </ul>
       {{ end }}
-    </ul>
-    {{ end }}
     </div>
     <div>
         {{ with .PrevInSection }}
@@ -81,7 +82,7 @@ To easily generate new instances of a content type (e.g., new `.md` files in a s
 [content type]: /content-management/types/
 [directory structure]: /getting-started/directory-structure/
 [dry]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
-[`.Format` function]: /functions/format/
+[`.format` function]: /functions/format/
 [front matter]: /content-management/front-matter/
 [pagetaxonomy]: /templates/taxonomy-templates/#display-a-single-piece-of-contents-taxonomies
 [pagevars]: /variables/page/

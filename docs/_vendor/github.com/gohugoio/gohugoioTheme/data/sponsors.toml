@@ -1,21 +1,23 @@
 [[banners]]
     name         = "Linode"
     link         = "https://www.linode.com/"
-    logo         = "/images/sponsors/linode-logo_standard_light_medium.png"
-    utm_campaign = "hugosponsor"
-
-[[banners]]
-    name         = "eSolia"
-    link         = "https://esolia.com/post/why-did-esolia-choose-hugo/"
-    logo         = "/images/sponsors/esolia-logo.svg"
+    logo         = "images/sponsors/linode-logo.svg"
     utm_campaign = "hugosponsor"
 
 [[banners]]
     name         = "ButterCMS"
     link         = "https://buttercms.com/hugo-cms/"
-    logo         = "/images/sponsors/butter-light.svg"
+    logo         = "images/sponsors/butter-light.svg"
     utm_campaign = "sponsorship"
     bgcolor      = "#131A3E"
+
+[[banners]]
+    name         = "Gravity Kit"
+    link         = "https://www.gravitykit.com/"
+    logo         = "images/sponsors/graitykit-dark.svg"
+    query_params = "ref=532&campaign=hugo&"
+    utm_campaign = "hugosponsor"
+    bgcolor      = "#e0ecf3"
 
     #hugohome
     #hugofooter

@@ -268,7 +268,7 @@ func (h *HugoSites) assemble(bcfg *BuildCfg) error {
 }
 
 func (h *HugoSites) render(config *BuildCfg) error {
-	if _, err := h.init.layouts.Do(); err != nil {
+	if _, err := h.init.layouts.Do(context.Background()); err != nil {
 		return err
 	}
 

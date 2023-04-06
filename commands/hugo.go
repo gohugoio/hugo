@@ -18,7 +18,7 @@ package commands
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -138,10 +138,10 @@ func initializeConfig(mustHaveConfigFile, failOnInitErr, running bool,
 
 func (c *commandeer) createLogger(cfg config.Provider) (loggers.Logger, error) {
 	var (
-		logHandle       = ioutil.Discard
+		logHandle       = io.Discard
 		logThreshold    = jww.LevelWarn
 		logFile         = cfg.GetString("logFile")
-		outHandle       = ioutil.Discard
+		outHandle       = io.Discard
 		stdoutThreshold = jww.LevelWarn
 	)
 
@@ -157,7 +157,7 @@ func (c *commandeer) createLogger(cfg config.Provider) (loggers.Logger, error) {
 				return nil, newSystemError("Failed to open log file:", logFile, err)
 			}
 		} else {
-			logHandle, err = ioutil.TempFile("", "hugo")
+			logHandle, err = os.CreateTemp("", "hugo")
 			if err != nil {
 				return nil, newSystemError(err)
 			}
@@ -238,6 +238,7 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"themesDir",
 		"verbose",
 		"verboseLog",
+		"workers",
 		"duplicateTargetPaths",
 	}
 
@@ -254,6 +255,7 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 	setValueFromFlag(cmd.Flags(), "destination", cfg, "publishDir", false)
 	setValueFromFlag(cmd.Flags(), "printI18nWarnings", cfg, "logI18nWarnings", false)
 	setValueFromFlag(cmd.Flags(), "printPathWarnings", cfg, "logPathWarnings", false)
+
 }
 
 func setValueFromFlag(flags *flag.FlagSet, key string, cfg config.Provider, targetKey string, force bool) {
@@ -579,7 +581,7 @@ func (c *commandeer) serverBuild() error {
 
 func (c *commandeer) copyStatic() (map[string]uint64, error) {
 	m, err := c.doWithPublishDirs(c.copyStaticTo)
-	if err == nil || os.IsNotExist(err) {
+	if err == nil || herrors.IsNotExist(err) {
 		return m, nil
 	}
 	return m, err
@@ -899,7 +901,7 @@ func (c *commandeer) newWatcher(pollIntervalStr string, dirList ...string) (*wat
 				}
 				unlock()
 			case err := <-watcher.Errors():
-				if err != nil && !os.IsNotExist(err) {
+				if err != nil && !herrors.IsNotExist(err) {
 					c.logger.Errorln("Error while watching:", err)
 				}
 			}
@@ -924,6 +926,7 @@ func (c *commandeer) printChangeDetected(typ string) {
 const (
 	configChangeConfig = "config file"
 	configChangeGoMod  = "go.mod file"
+	configChangeGoWork = "go work file"
 )
 
 func (c *commandeer) handleEvents(watcher *watcher.Batcher,
@@ -942,6 +945,9 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 		if isConfig {
 			if strings.Contains(ev.Name, "go.mod") {
 				configChangeType = configChangeGoMod
+			}
+			if strings.Contains(ev.Name, ".work") {
+				configChangeType = configChangeGoWork
 			}
 		}
 		if !isConfig {

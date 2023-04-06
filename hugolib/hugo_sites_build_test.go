@@ -206,6 +206,7 @@ func TestMultiSitesBuild(t *testing.T) {
 		{multiSiteYAMLConfigTemplate, "yml"},
 		{multiSiteJSONConfigTemplate, "json"},
 	} {
+		config := config
 		t.Run(config.suffix, func(t *testing.T) {
 			t.Parallel()
 			doTestMultiSitesBuild(t, config.content, config.suffix)

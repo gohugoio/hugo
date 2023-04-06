@@ -62,18 +62,14 @@ doas pkg_add hugo
 
 [OpenBSD]: https://www.openbsd.org/
 
-{{% readfile file="/installation/common/04-docker.md" %}}
-
 {{% readfile file="/installation/common/05-build-from-source.md" %}}
 
 ## Comparison
 
-||Prebuilt binaries|Repository packages|Docker|Build from source
-:--|:--:|:--:|:--:|:--:
-Easy to install?|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-Easy to upgrade?|:heavy_check_mark:|varies|:heavy_check_mark:|:heavy_check_mark:
-Easy to downgrade?|:heavy_check_mark:|varies|:heavy_check_mark:|:heavy_check_mark:
-Automatic updates?|:x:|varies|:x: [^1]|:x:
-Latest version available?|:heavy_check_mark:|varies|:heavy_check_mark:|:heavy_check_mark:
-
-[^1]: Possible but requires advanced configuration.
+||Prebuilt binaries|Repository packages|Build from source
+:--|:--:|:--:|:--:
+Easy to install?|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:
+Easy to upgrade?|:heavy_check_mark:|varies|:heavy_check_mark:
+Easy to downgrade?|:heavy_check_mark:|varies|:heavy_check_mark:
+Automatic updates?|:x:|varies|:x:
+Latest version available?|:heavy_check_mark:|varies|:heavy_check_mark:

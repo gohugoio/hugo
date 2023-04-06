@@ -21,13 +21,13 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/security"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/markup_config"
-	"github.com/gohugoio/hugo/markup/tableofcontents"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -343,49 +343,8 @@ testContent
 	c.Assert(err, qt.IsNil)
 	toc, ok := r.(converter.TableOfContentsProvider)
 	c.Assert(ok, qt.Equals, true)
-	expected := tableofcontents.Root{
-		Headings: tableofcontents.Headings{
-			{
-				ID:   "",
-				Text: "",
-				Headings: tableofcontents.Headings{
-					{
-						ID:       "_introduction",
-						Text:     "Introduction",
-						Headings: nil,
-					},
-					{
-						ID:   "_section_1",
-						Text: "Section 1",
-						Headings: tableofcontents.Headings{
-							{
-								ID:   "_section_1_1",
-								Text: "Section 1.1",
-								Headings: tableofcontents.Headings{
-									{
-										ID:       "_section_1_1_1",
-										Text:     "Section 1.1.1",
-										Headings: nil,
-									},
-								},
-							},
-							{
-								ID:       "_section_1_2",
-								Text:     "Section 1.2",
-								Headings: nil,
-							},
-						},
-					},
-					{
-						ID:       "_section_2",
-						Text:     "Section 2",
-						Headings: nil,
-					},
-				},
-			},
-		},
-	}
-	c.Assert(toc.TableOfContents(), qt.DeepEquals, expected)
+
+	c.Assert(toc.TableOfContents().Identifiers, qt.DeepEquals, collections.SortedStringSlice{"_introduction", "_section_1", "_section_1_1", "_section_1_1_1", "_section_1_2", "_section_2"})
 	c.Assert(string(r.Bytes()), qt.Not(qt.Contains), "<div id=\"toc\" class=\"toc\">")
 }
 
@@ -404,22 +363,7 @@ func TestTableOfContentsWithCode(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	toc, ok := r.(converter.TableOfContentsProvider)
 	c.Assert(ok, qt.Equals, true)
-	expected := tableofcontents.Root{
-		Headings: tableofcontents.Headings{
-			{
-				ID:   "",
-				Text: "",
-				Headings: tableofcontents.Headings{
-					{
-						ID:       "_some_code_in_the_title",
-						Text:     "Some <code>code</code> in the title",
-						Headings: nil,
-					},
-				},
-			},
-		},
-	}
-	c.Assert(toc.TableOfContents(), qt.DeepEquals, expected)
+	c.Assert(toc.TableOfContents().HeadingsMap["_some_code_in_the_title"].Title, qt.Equals, "Some <code>code</code> in the title")
 	c.Assert(string(r.Bytes()), qt.Not(qt.Contains), "<div id=\"toc\" class=\"toc\">")
 }
 
@@ -443,21 +387,7 @@ func TestTableOfContentsPreserveTOC(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	toc, ok := r.(converter.TableOfContentsProvider)
 	c.Assert(ok, qt.Equals, true)
-	expected := tableofcontents.Root{
-		Headings: tableofcontents.Headings{
-			{
-				ID:   "",
-				Text: "",
-				Headings: tableofcontents.Headings{
-					{
-						ID:       "some-title",
-						Text:     "Some title",
-						Headings: nil,
-					},
-				},
-			},
-		},
-	}
-	c.Assert(toc.TableOfContents(), qt.DeepEquals, expected)
+
+	c.Assert(toc.TableOfContents().Identifiers, qt.DeepEquals, collections.SortedStringSlice{"some-title"})
 	c.Assert(string(r.Bytes()), qt.Contains, "<div id=\"toc\" class=\"toc\">")
 }

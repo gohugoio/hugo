@@ -392,3 +392,17 @@ func extractPosition(e error) (pos text.Position) {
 	}
 	return
 }
+
+// TextSegmentError is an error with a text segment attached.
+type TextSegmentError struct {
+	Segment string
+	Err     error
+}
+
+func (e TextSegmentError) Unwrap() error {
+	return e.Err
+}
+
+func (e TextSegmentError) Error() string {
+	return e.Err.Error()
+}

@@ -24,9 +24,9 @@ import (
 	"github.com/gohugoio/hugo/tpl"
 )
 
-// Apply takes a map, array, or slice and returns a new slice with the function fname applied over it.
-func (ns *Namespace) Apply(ctx context.Context, seq any, fname string, args ...any) (any, error) {
-	if seq == nil {
+// Apply takes a map, array, or slice c and returns a new slice with the function fname applied over it.
+func (ns *Namespace) Apply(ctx context.Context, c any, fname string, args ...any) (any, error) {
+	if c == nil {
 		return make([]any, 0), nil
 	}
 
@@ -34,13 +34,13 @@ func (ns *Namespace) Apply(ctx context.Context, seq any, fname string, args ...a
 		return nil, errors.New("can't apply myself (no turtles allowed)")
 	}
 
-	seqv := reflect.ValueOf(seq)
+	seqv := reflect.ValueOf(c)
 	seqv, isNil := indirect(seqv)
 	if isNil {
 		return nil, errors.New("can't iterate over a nil value")
 	}
 
-	fnv, found := ns.lookupFunc(fname)
+	fnv, found := ns.lookupFunc(ctx, fname)
 	if !found {
 		return nil, errors.New("can't find function " + fname)
 	}
@@ -61,7 +61,7 @@ func (ns *Namespace) Apply(ctx context.Context, seq any, fname string, args ...a
 
 		return r, nil
 	default:
-		return nil, fmt.Errorf("can't apply over %v", seq)
+		return nil, fmt.Errorf("can't apply over %v", c)
 	}
 }
 
@@ -106,7 +106,7 @@ func applyFnToThis(ctx context.Context, fn, this reflect.Value, args ...any) (re
 	return reflect.ValueOf(nil), res[1].Interface().(error)
 }
 
-func (ns *Namespace) lookupFunc(fname string) (reflect.Value, bool) {
+func (ns *Namespace) lookupFunc(ctx context.Context, fname string) (reflect.Value, bool) {
 	namespace, methodName, ok := strings.Cut(fname, ".")
 	if !ok {
 		templ := ns.deps.Tmpl().(tpl.TemplateFuncGetter)
@@ -114,16 +114,16 @@ func (ns *Namespace) lookupFunc(fname string) (reflect.Value, bool) {
 	}
 
 	// Namespace
-	nv, found := ns.lookupFunc(namespace)
+	nv, found := ns.lookupFunc(ctx, namespace)
 	if !found {
 		return reflect.Value{}, false
 	}
 
-	fn, ok := nv.Interface().(func(...any) (any, error))
+	fn, ok := nv.Interface().(func(context.Context, ...any) (any, error))
 	if !ok {
 		return reflect.Value{}, false
 	}
-	v, err := fn()
+	v, err := fn(ctx)
 	if err != nil {
 		panic(err)
 	}

@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package langs contains the language related types and function.
 package langs
 
 import (
@@ -91,7 +92,7 @@ type Language struct {
 	collator      *Collator
 	location      *time.Location
 
-	// Error during initialization. Will fail the buld.
+	// Error during initialization. Will fail the build.
 	initErr error
 }
 
@@ -222,7 +223,7 @@ func (l Languages) AsOrdinalSet() map[string]int {
 }
 
 // IsMultihost returns whether there are more than one language and at least one of
-// the languages has baseURL specificed on the language level.
+// the languages has baseURL specified on the language level.
 func (l Languages) IsMultihost() bool {
 	if len(l) <= 1 {
 		return false
@@ -325,7 +326,7 @@ type Collator struct {
 // CompareStrings compares a and b.
 // It returns -1 if a < b, 1 if a > b and 0 if a == b.
 // Note that the Collator is not thread safe, so you may want
-// to aquire a lock on it before calling this method.
+// to acquire a lock on it before calling this method.
 func (c *Collator) CompareStrings(a, b string) int {
 	return c.c.CompareString(a, b)
 }

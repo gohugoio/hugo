@@ -14,9 +14,9 @@
 package hugolib
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -630,7 +630,7 @@ func TestOrderedPages(t *testing.T) {
 		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "Three", rbypubdate[0].Title())
 	}
 
-	bylength := s.RegularPages().ByLength()
+	bylength := s.RegularPages().ByLength(context.Background())
 	if bylength[0].Title() != "One" {
 		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "One", bylength[0].Title())
 	}
@@ -662,7 +662,7 @@ func TestGroupedPages(t *testing.T) {
 	writeSourcesToSource(t, "content", fs, groupedSources...)
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-	rbysection, err := s.RegularPages().GroupBy("Section", "desc")
+	rbysection, err := s.RegularPages().GroupBy(context.Background(), "Section", "desc")
 	if err != nil {
 		t.Fatalf("Unable to make PageGroup array: %s", err)
 	}
@@ -683,7 +683,7 @@ func TestGroupedPages(t *testing.T) {
 		t.Errorf("PageGroup has unexpected number of pages. Third group should have '%d' pages, got '%d' pages", 2, len(rbysection[2].Pages))
 	}
 
-	bytype, err := s.RegularPages().GroupBy("Type", "asc")
+	bytype, err := s.RegularPages().GroupBy(context.Background(), "Type", "asc")
 	if err != nil {
 		t.Fatalf("Unable to make PageGroup array: %s", err)
 	}
@@ -1093,7 +1093,7 @@ ABC.
 	b.Build(BuildCfg{})
 
 	contentMem := b.FileContent(statsFilename)
-	cb, err := ioutil.ReadFile(statsFilename)
+	cb, err := os.ReadFile(statsFilename)
 	b.Assert(err, qt.IsNil)
 	contentFile := string(cb)
 

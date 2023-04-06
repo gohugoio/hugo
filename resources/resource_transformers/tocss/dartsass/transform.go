@@ -1,4 +1,4 @@
-// Copyright 2020 The Hugo Authors. All rights reserved.
+// Copyright 2022 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import (
 	"github.com/gohugoio/hugo/resources"
 
 	"github.com/gohugoio/hugo/resources/internal"
+	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/internal/sass"
 
 	"github.com/spf13/afero"
 
@@ -84,6 +85,8 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 		ImportResolver: importResolver{
 			baseDir: baseDir,
 			c:       t.c,
+
+			varsStylesheet: sass.CreateVarsStyleSheet(opts.Vars),
 		},
 		OutputStyle:             godartsass.ParseOutputStyle(opts.OutputStyle),
 		EnableSourceMap:         opts.EnableSourceMap,
@@ -128,9 +131,14 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 type importResolver struct {
 	baseDir string
 	c       *Client
+
+	varsStylesheet string
 }
 
 func (t importResolver) CanonicalizeURL(url string) (string, error) {
+	if url == sass.HugoVarsNamespace {
+		return url, nil
+	}
 	filePath, isURL := paths.UrlToFilename(url)
 	var prevDir string
 	var pathDir string
@@ -155,9 +163,9 @@ func (t importResolver) CanonicalizeURL(url string) (string, error) {
 	if strings.Contains(name, ".") {
 		namePatterns = []string{"_%s", "%s"}
 	} else if strings.HasPrefix(name, "_") {
-		namePatterns = []string{"_%s.scss", "_%s.sass"}
+		namePatterns = []string{"_%s.scss", "_%s.sass", "_%s.css"}
 	} else {
-		namePatterns = []string{"_%s.scss", "%s.scss", "_%s.sass", "%s.sass"}
+		namePatterns = []string{"_%s.scss", "%s.scss", "_%s.sass", "%s.sass", "_%s.css", "%s.css"}
 	}
 
 	name = strings.TrimPrefix(name, "_")
@@ -177,6 +185,9 @@ func (t importResolver) CanonicalizeURL(url string) (string, error) {
 }
 
 func (t importResolver) Load(url string) (string, error) {
+	if url == sass.HugoVarsNamespace {
+		return t.varsStylesheet, nil
+	}
 	filename, _ := paths.UrlToFilename(url)
 	b, err := afero.ReadFile(hugofs.Os, filename)
 	return string(b), err

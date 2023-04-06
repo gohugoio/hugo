@@ -32,6 +32,9 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 .Aliases
 : aliases of this page
 
+.Ancestors
+: get the ancestors of each page, simplify [breadcrumb navigation]({{< relref "content-management/sections#example-breadcrumb-navigation" >}}) implementation complexity  
+
 .BundleType
 : the [bundle] type: `leaf`, `branch`, or an empty string if the page is not a bundle.
 
@@ -54,7 +57,7 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 : the date on which the content is scheduled to expire; `.ExpiryDate` pulls from the `expirydate` field in a content's front matter. See also `.PublishDate`, `.Date`, and `.Lastmod`.
 
 .File
-: filesystem-related data for this content file. See also [File Variables][].
+: filesystem-related data for this content file. See also [File Variables].
 
 .FuzzyWordCount
 : the approximate number of words in the content.

@@ -29,11 +29,22 @@ import (
 )
 
 var (
+	// See issue #8979 for context.
+	// Hugo has always used config.toml etc. as the default config file name.
+	// But hugo.toml is a more descriptive name, but we need to check for both.
+	DefaultConfigNames = []string{"hugo", "config"}
+
+	DefaultConfigNamesSet = make(map[string]bool)
+
 	ValidConfigFileExtensions                    = []string{"toml", "yaml", "yml", "json"}
 	validConfigFileExtensionsMap map[string]bool = make(map[string]bool)
 )
 
 func init() {
+	for _, name := range DefaultConfigNames {
+		DefaultConfigNamesSet[name] = true
+	}
+
 	for _, ext := range ValidConfigFileExtensions {
 		validConfigFileExtensionsMap[ext] = true
 	}
@@ -142,8 +153,7 @@ func LoadConfigFromDir(sourceFs afero.Fs, configDir, environment string) (Provid
 			}
 
 			var keyPath []string
-
-			if name != "config" {
+			if !DefaultConfigNamesSet[name] {
 				// Can be params.jp, menus.en etc.
 				name, lang := paths.FileAndExtNoDelimiter(name)
 

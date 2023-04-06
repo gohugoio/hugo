@@ -15,7 +15,6 @@ package helpers
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -57,6 +56,7 @@ func TestMakePath(t *testing.T) {
 		{"this+is+a+test", "this+is+a+test", false}, // Issue #1290
 		{"~foo", "~foo", false},                     // Issue #2177
 		{"foo--bar", "foo--bar", true},              // Issue #7288
+		{"foo@bar", "foo@bar", true},                //	Issue #10548
 	}
 
 	for _, test := range tests {
@@ -258,7 +258,7 @@ func TestIsDir(t *testing.T) {
 
 func createZeroSizedFileInTempDir() (*os.File, error) {
 	filePrefix := "_path_test_"
-	f, e := ioutil.TempFile("", filePrefix) // dir is os.TempDir()
+	f, e := os.CreateTemp("", filePrefix) // dir is os.TempDir()
 	if e != nil {
 		// if there was an error no file was created.
 		// => no requirement to delete the file
@@ -274,7 +274,7 @@ func createNonZeroSizedFileInTempDir() (*os.File, error) {
 		return nil, err
 	}
 	byteString := []byte("byteString")
-	err = ioutil.WriteFile(f.Name(), byteString, 0644)
+	err = os.WriteFile(f.Name(), byteString, 0644)
 	if err != nil {
 		// delete the file
 		deleteFileInTempDir(f)
@@ -287,27 +287,12 @@ func deleteFileInTempDir(f *os.File) {
 	_ = os.Remove(f.Name())
 }
 
-func createEmptyTempDir() (string, error) {
-	dirPrefix := "_dir_prefix_"
-	d, e := ioutil.TempDir("", dirPrefix) // will be in os.TempDir()
-	if e != nil {
-		// no directory to delete - it was never created
-		return "", e
-	}
-	return d, nil
-}
-
-func deleteTempDir(d string) {
-	_ = os.RemoveAll(d)
-}
-
 func TestExists(t *testing.T) {
 	zeroSizedFile, _ := createZeroSizedFileInTempDir()
 	defer deleteFileInTempDir(zeroSizedFile)
 	nonZeroSizedFile, _ := createNonZeroSizedFileInTempDir()
 	defer deleteFileInTempDir(nonZeroSizedFile)
-	emptyDirectory, _ := createEmptyTempDir()
-	defer deleteTempDir(emptyDirectory)
+	emptyDirectory := t.TempDir()
 	nonExistentFile := os.TempDir() + "/this-file-does-not-exist.txt"
 	nonExistentDir := os.TempDir() + "/this/directory/does/not/exist/"
 
@@ -454,8 +439,7 @@ func TestFindCWD(t *testing.T) {
 func TestSafeWriteToDisk(t *testing.T) {
 	emptyFile, _ := createZeroSizedFileInTempDir()
 	defer deleteFileInTempDir(emptyFile)
-	tmpDir, _ := createEmptyTempDir()
-	defer deleteTempDir(tmpDir)
+	tmpDir := t.TempDir()
 
 	randomString := "This is a random string!"
 	reader := strings.NewReader(randomString)
@@ -484,7 +468,7 @@ func TestSafeWriteToDisk(t *testing.T) {
 			if d.expectedErr != e {
 				t.Errorf("Test %d failed. Expected %q but got %q", i, d.expectedErr, e)
 			}
-			contents, _ := ioutil.ReadFile(d.filename)
+			contents, _ := os.ReadFile(d.filename)
 			if randomString != string(contents) {
 				t.Errorf("Test %d failed. Expected contents %q but got %q", i, randomString, string(contents))
 			}
@@ -496,8 +480,7 @@ func TestSafeWriteToDisk(t *testing.T) {
 func TestWriteToDisk(t *testing.T) {
 	emptyFile, _ := createZeroSizedFileInTempDir()
 	defer deleteFileInTempDir(emptyFile)
-	tmpDir, _ := createEmptyTempDir()
-	defer deleteTempDir(tmpDir)
+	tmpDir := t.TempDir()
 
 	randomString := "This is a random string!"
 	reader := strings.NewReader(randomString)
@@ -519,7 +502,7 @@ func TestWriteToDisk(t *testing.T) {
 		if d.expectedErr != e {
 			t.Errorf("Test %d failed. WriteToDisk Error Expected %q but got %q", i, d.expectedErr, e)
 		}
-		contents, e := ioutil.ReadFile(d.filename)
+		contents, e := os.ReadFile(d.filename)
 		if e != nil {
 			t.Errorf("Test %d failed. Could not read file %s. Reason: %s\n", i, d.filename, e)
 		}

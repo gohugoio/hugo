@@ -177,7 +177,7 @@ Complete documentation is available at https://gohugo.io/.`,
 		},
 	})
 
-	cc.cmd.PersistentFlags().StringVar(&cc.cfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
+	cc.cmd.PersistentFlags().StringVar(&cc.cfgFile, "config", "", "config file (default is hugo.yaml|json|toml)")
 	cc.cmd.PersistentFlags().StringVar(&cc.cfgDir, "configDir", "config", "config dir")
 	cc.cmd.PersistentFlags().BoolVar(&cc.quiet, "quiet", false, "build in quiet mode")
 
@@ -208,9 +208,10 @@ type hugoBuilderCommon struct {
 	baseURL     string
 	environment string
 
-	buildWatch bool
-	poll       string
-	clock      string
+	buildWatch     bool
+	panicOnWarning bool
+	poll           string
+	clock          string
 
 	gc bool
 
@@ -299,7 +300,7 @@ func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
 	cmd.Flags().Bool("enableGitInfo", false, "add Git revision, date, author, and CODEOWNERS info to the pages")
 	cmd.Flags().BoolVar(&cc.gc, "gc", false, "enable to run some cleanup tasks (remove unused cache files) after the build")
 	cmd.Flags().StringVar(&cc.poll, "poll", "", "set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes")
-	cmd.Flags().BoolVar(&loggers.PanicOnWarning, "panicOnWarning", false, "panic on first WARNING log")
+	cmd.Flags().BoolVar(&cc.panicOnWarning, "panicOnWarning", false, "panic on first WARNING log")
 	cmd.Flags().Bool("templateMetrics", false, "display metrics about template executions")
 	cmd.Flags().Bool("templateMetricsHints", false, "calculate some improvement hints when combined with --templateMetrics")
 	cmd.Flags().BoolP("forceSyncStatic", "", false, "copy all files when static is changed.")

@@ -14,7 +14,7 @@ weight: 60
 aliases: [/content/front-matter/]
 ---
 
-**Front matter** allows you to keep metadata attached to an instance of a [content type][]---i.e., embedded inside a content file---and is one of the many features that gives Hugo its strength.
+**Front matter** allows you to keep metadata attached to an instance of a [content type]---i.e., embedded inside a content file---and is one of the many features that gives Hugo its strength.
 
 {{< youtube Yh2xKRJGff4 >}}
 
@@ -122,7 +122,7 @@ title
 : the title for the content.
 
 type
-: the type of the content; this value will be automatically derived from the directory (i.e., the [section][]) if not specified in front matter.
+: the type of the content; this value will be automatically derived from the directory (i.e., the [section]) if not specified in front matter.
 
 url
 : the full path to the content from the web root. It makes no assumptions about the path of the content file. See [URL Management](/content-management/urls/#set-url-in-front-matter).
@@ -144,7 +144,7 @@ If neither `slug` nor `url` is present and [permalinks are not configured otherw
 
 You can add fields to your front matter arbitrarily to meet your needs. These user-defined key-values are placed into a single `.Params` variable for use in your templates.
 
-The following fields can be accessed via `.Params.include_toc` and `.Params.show_comments`, respectively. The [Variables][] section provides more information on using Hugo's page- and site-level variables in your templates.
+The following fields can be accessed via `.Params.include_toc` and `.Params.show_comments`, respectively. The [Variables] section provides more information on using Hugo's page- and site-level variables in your templates.
 
 {{< code-toggle copy="false" >}}
 include_toc: true

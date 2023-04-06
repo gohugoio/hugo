@@ -19,19 +19,21 @@ import (
 	"reflect"
 )
 
-// Complement gives the elements in the last element of seqs that are not in
+// Complement gives the elements in the last element of ls that are not in
 // any of the others.
-// All elements of seqs must be slices or arrays of comparable types.
+//
+// All elements of ls must be slices or arrays of comparable types.
 //
 // The reasoning behind this rather clumsy API is so we can do this in the templates:
-//    {{ $c := .Pages | complement $last4 }}
-func (ns *Namespace) Complement(seqs ...any) (any, error) {
-	if len(seqs) < 2 {
+//
+//	{{ $c := .Pages | complement $last4 }}
+func (ns *Namespace) Complement(ls ...any) (any, error) {
+	if len(ls) < 2 {
 		return nil, errors.New("complement needs at least two arguments")
 	}
 
-	universe := seqs[len(seqs)-1]
-	as := seqs[:len(seqs)-1]
+	universe := ls[len(ls)-1]
+	as := ls[:len(ls)-1]
 
 	aset, err := collectIdentities(as...)
 	if err != nil {

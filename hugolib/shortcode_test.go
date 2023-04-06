@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 	"reflect"
@@ -247,7 +248,7 @@ CSV: {{< myShort >}}
 func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 	type input struct {
 		in           []byte
-		replacements map[string]string
+		tokenHandler func(ctx context.Context, token string) ([]byte, error)
 		expect       []byte
 	}
 
@@ -263,22 +264,30 @@ func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 		{strings.Repeat("A ", 3000) + " HAHAHUGOSHORTCODE-1HBHB." + strings.Repeat("BC ", 1000) + " HAHAHUGOSHORTCODE-1HBHB.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World"}, []byte(strings.Repeat("A ", 3000) + " Hello World." + strings.Repeat("BC ", 1000) + " Hello World.")},
 	}
 
-	in := make([]input, b.N*len(data))
 	cnt := 0
+	in := make([]input, b.N*len(data))
 	for i := 0; i < b.N; i++ {
 		for _, this := range data {
-			in[cnt] = input{[]byte(this.input), this.replacements, this.expect}
+			replacements := make(map[string]shortcodeRenderer)
+			for k, v := range this.replacements {
+				replacements[k] = prerenderedShortcode{s: v}
+			}
+			tokenHandler := func(ctx context.Context, token string) ([]byte, error) {
+				return []byte(this.replacements[token]), nil
+			}
+			in[cnt] = input{[]byte(this.input), tokenHandler, this.expect}
 			cnt++
 		}
 	}
 
 	b.ResetTimer()
 	cnt = 0
+	ctx := context.Background()
 	for i := 0; i < b.N; i++ {
 		for j := range data {
 			currIn := in[cnt]
 			cnt++
-			results, err := replaceShortcodeTokens(currIn.in, currIn.replacements)
+			results, err := expandShortcodeTokens(ctx, currIn.in, currIn.tokenHandler)
 			if err != nil {
 				b.Fatalf("[%d] failed: %s", i, err)
 				continue
@@ -383,7 +392,16 @@ func TestReplaceShortcodeTokens(t *testing.T) {
 		},
 	} {
 
-		results, err := replaceShortcodeTokens([]byte(this.input), this.replacements)
+		replacements := make(map[string]shortcodeRenderer)
+		for k, v := range this.replacements {
+			replacements[k] = prerenderedShortcode{s: v}
+		}
+		tokenHandler := func(ctx context.Context, token string) ([]byte, error) {
+			return []byte(this.replacements[token]), nil
+		}
+
+		ctx := context.Background()
+		results, err := expandShortcodeTokens(ctx, []byte(this.input), tokenHandler)
 
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
@@ -857,7 +875,7 @@ title: "No Inner!"
 		"layouts/shortcodes/noinner.html", `No inner here.`)
 
 	err := b.BuildE(BuildCfg{})
-	b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`"content/mypage.md:4:21": failed to extract shortcode: shortcode "noinner" has no .Inner, yet a closing tag was provided`))
+	b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`"content/mypage.md:4:16": failed to extract shortcode: shortcode "noinner" does not evaluate .Inner or .InnerDeindent, yet a closing tag was provided`))
 }
 
 func TestShortcodeStableOutputFormatTemplates(t *testing.T) {
@@ -1178,5 +1196,120 @@ C'est un test
 	).Build()
 
 	b.AssertFileContent("public/fr/p2/index.html", `plus-dinformations`)
+
+}
+
+// Issue 10671.
+func TestShortcodeInnerShouldBeEmptyWhenNotClosed(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+disableKinds = ["home", "taxonomy", "term"]
+-- content/p1.md --
+---
+title: "p1"
+---
+
+{{< sc "self-closing" />}}
+
+Text.
+
+{{< sc "closing-no-newline" >}}{{< /sc >}}
+
+-- layouts/shortcodes/sc.html --
+Inner: {{ .Get 0 }}: {{ len .Inner }}
+InnerDeindent: {{ .Get 0 }}: {{ len .InnerDeindent }}
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			Running:     true,
+			Verbose:     true,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", `
+Inner: self-closing: 0
+InnerDeindent: self-closing: 0
+Inner: closing-no-newline: 0
+InnerDeindent: closing-no-newline: 0
+
+`)
+}
+
+// Issue 10675.
+func TestShortcodeErrorWhenItShouldBeClosed(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+disableKinds = ["home", "taxonomy", "term"]
+-- content/p1.md --
+---
+title: "p1"
+---
+
+{{< sc >}}
+
+Text.
+
+-- layouts/shortcodes/sc.html --
+Inner: {{ .Get 0 }}: {{ len .Inner }}
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b, err := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			Running:     true,
+			Verbose:     true,
+		},
+	).BuildE()
+
+	b.Assert(err, qt.Not(qt.IsNil))
+	b.Assert(err.Error(), qt.Contains, `p1.md:5:1": failed to extract shortcode: shortcode "sc" must be closed or self-closed`)
+}
+
+// Issue 10819.
+func TestShortcodeInCodeFenceHyphen(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+disableKinds = ["home", "taxonomy", "term"]
+-- content/p1.md --
+---
+title: "p1"
+---
+
+§§§go
+{{< sc >}}
+§§§
+
+Text.
+
+-- layouts/shortcodes/sc.html --
+Hello.
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			Running:     true,
+			Verbose:     true,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", "<span style=\"color:#a6e22e\">Hello.</span>")
 
 }

@@ -91,6 +91,7 @@ func (ns *Namespace) Config(path any) (image.Config, error) {
 	return config, nil
 }
 
+// Filter applies the given filters to the image given as the last element in args.
 func (ns *Namespace) Filter(args ...any) (images.ImageResource, error) {
 	if len(args) < 2 {
 		return nil, errors.New("must provide an image and one or more filters")

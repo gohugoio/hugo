@@ -14,9 +14,9 @@
 package resources
 
 import (
+	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -70,6 +70,8 @@ type ResourceSourceDescriptor struct {
 
 	Fs afero.Fs
 
+	Data map[string]any
+
 	// Set when its known up front, else it's resolved from the target filename.
 	MediaType media.Type
 
@@ -101,6 +103,7 @@ type ResourceTransformer interface {
 
 type Transformer interface {
 	Transform(...ResourceTransformation) (ResourceTransformer, error)
+	TransformWithContext(context.Context, ...ResourceTransformation) (ResourceTransformer, error)
 }
 
 func NewFeatureNotAvailableTransformer(key string, elements ...any) ResourceTransformation {
@@ -254,7 +257,7 @@ func (l *genericResource) cloneTo(targetPath string) resource.Resource {
 
 }
 
-func (l *genericResource) Content() (any, error) {
+func (l *genericResource) Content(context.Context) (any, error) {
 	if err := l.initContent(); err != nil {
 		return nil, err
 	}
@@ -366,7 +369,7 @@ func (l *genericResource) initContent() error {
 		defer r.Close()
 
 		var b []byte
-		b, err = ioutil.ReadAll(r)
+		b, err = io.ReadAll(r)
 		if err != nil {
 			return
 		}

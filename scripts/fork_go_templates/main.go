@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -17,7 +16,7 @@ import (
 )
 
 func main() {
-	// The current is built with be7068fb0804f661515c678bee9224b90b32869a text/template: correct assignment, not declaration, in range
+	// The current is built with de4748c47c67392a57f250714509f590f68ad395 HEAD, tag: go1.20.
 	fmt.Println("Forking ...")
 	defer fmt.Println("Done ...")
 
@@ -186,7 +185,7 @@ func doWithGoFiles(dir string,
 			return nil
 		}
 
-		data, err := ioutil.ReadFile(path)
+		data, err := os.ReadFile(path)
 		must(err)
 		f, err := os.Create(path)
 		must(err)

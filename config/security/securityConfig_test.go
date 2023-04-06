@@ -140,7 +140,7 @@ func TestToTOML(t *testing.T) {
 	got := DefaultConfig.ToTOML()
 
 	c.Assert(got, qt.Equals,
-		"[security]\n  enableInlineShortcodes = false\n\n  [security.exec]\n    allow = ['^dart-sass-embedded$', '^go$', '^npx$', '^postcss$']\n    osEnv = ['(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM)$']\n\n  [security.funcs]\n    getenv = ['^HUGO_', '^CI$']\n\n  [security.http]\n    methods = ['(?i)GET|POST']\n    urls = ['.*']",
+		"[security]\n  enableInlineShortcodes = false\n\n  [security.exec]\n    allow = ['^dart-sass-embedded$', '^go$', '^npx$', '^postcss$']\n    osEnv = ['(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\\w+)$']\n\n  [security.funcs]\n    getenv = ['^HUGO_', '^CI$']\n\n  [security.http]\n    methods = ['(?i)GET|POST']\n    urls = ['.*']",
 	)
 }
 
@@ -163,4 +163,8 @@ func TestDecodeConfigDefault(t *testing.T) {
 	c.Assert(pc.HTTP.Methods.Accept("GET"), qt.IsTrue)
 	c.Assert(pc.HTTP.Methods.Accept("get"), qt.IsTrue)
 	c.Assert(pc.HTTP.Methods.Accept("DELETE"), qt.IsFalse)
+
+	c.Assert(pc.Exec.OsEnv.Accept("PATH"), qt.IsTrue)
+	c.Assert(pc.Exec.OsEnv.Accept("GOROOT"), qt.IsTrue)
+	c.Assert(pc.Exec.OsEnv.Accept("MYSECRET"), qt.IsFalse)
 }

@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2022 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"runtime"
 	"runtime/debug"
 	"strconv"
@@ -38,7 +39,8 @@ type ErrorSender interface {
 
 // Recover is a helper function that can be used to capture panics.
 // Put this at the top of a method/function that crashes in a template:
-//     defer herrors.Recover()
+//
+//	defer herrors.Recover()
 func Recover(args ...any) {
 	if r := recover(); r != nil {
 		fmt.Println("ERR:", r)
@@ -68,4 +70,19 @@ func Must(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+// IsNotExist returns true if the error is a file not found error.
+// Unlike os.IsNotExist, this also considers wrapped errors.
+func IsNotExist(err error) bool {
+	if os.IsNotExist(err) {
+		return true
+	}
+
+	// os.IsNotExist does not consider wrapped errors.
+	if os.IsNotExist(errors.Unwrap(err)) {
+		return true
+	}
+
+	return false
 }

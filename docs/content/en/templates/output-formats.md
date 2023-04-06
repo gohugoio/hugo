@@ -22,7 +22,7 @@ This page describes how to properly configure your site with the media types and
 
 ## Media Types
 
-A [media type][] (also known as _MIME type_ and _content type_) is a two-part identifier for file formats and format contents transmitted on the internet.
+A [media type] (also known as _MIME type_ and _content type_) is a two-part identifier for file formats and format contents transmitted on the internet.
 
 This is the full set of built-in media types in Hugo:
 
@@ -228,7 +228,7 @@ A new output format needs a corresponding template in order to render anything u
 The key distinction for Hugo versions 0.20 and newer is that Hugo looks at an output format's `Name` and MediaType's `Suffixes` when choosing the template used to render a given `Page`.
 {{% /note %}}
 
-The following table shows examples of different output formats, the suffix used, and Hugo's respective template [lookup order][]. All the examples in the table can:
+The following table shows examples of different output formats, the suffix used, and Hugo's respective template [lookup order]. All the examples in the table can:
 
 * Use a [base template][base].
 * Include [partial templates][partials]

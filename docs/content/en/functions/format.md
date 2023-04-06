@@ -53,7 +53,7 @@ Here is a visual explanation [taken directly from the Go docs][gdex]:
 
 The following examples show the layout string followed by the rendered output.
 
-The examples were rendered and tested in [CST][] and all point to the same field in a content file's front matter:
+The examples were rendered and tested in [CST] and all point to the same field in a content file's front matter:
 
 ```
 date: 2017-03-03T14:15:59-06:00
@@ -95,10 +95,10 @@ More examples can be found in Go's [documentation for the time package][timecons
 
 Spelled-out cardinal numbers (e.g. "one", "two", and "three") are not currently supported.
 
-Ordinal abbreviations (i.e., with shorted suffixes like "1st", "2nd", and "3rd") are not currently directly supported. By using `{{.Date.Format "Jan 2nd 2006"}}`, Hugo assumes you want to append `nd` as a string to the day of the month. However, you can chain functions together to create something like this:
+Use the [`humanize`](/functions/humanize) function to render the day of the month as an ordinal number:
 
 ```
-{{ .Date.Format "2" }}{{ if in (slice 1 21 31) .Date.Day}}st{{ else if in (slice 2 22) .Date.Day}}nd{{ else if in (slice 3 23) .Date.Day}}rd{{ else }}th{{ end }} of {{ .Date.Format "January 2006" }}
+{{ humanize .Date.Day }} of {{ .Date.Format "January 2006" }}
 ```
 
 This will output:

@@ -3,7 +3,6 @@ package resources
 import (
 	"image"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -106,7 +105,7 @@ func newTestResourceOsFs(c *qt.C) (*Spec, string) {
 	cfg := createTestCfg()
 	cfg.Set("baseURL", "https://example.com")
 
-	workDir, err := ioutil.TempDir("", "hugores")
+	workDir, err := os.MkdirTemp("", "hugores")
 	c.Assert(err, qt.IsNil)
 	c.Assert(workDir, qt.Not(qt.Equals), "")
 

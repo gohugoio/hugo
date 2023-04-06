@@ -15,7 +15,7 @@ package media
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -132,22 +132,22 @@ func TestGetFirstBySuffix(t *testing.T) {
 
 func TestFromTypeString(t *testing.T) {
 	c := qt.New(t)
-	f, err := fromString("text/html")
+	f, err := FromString("text/html")
 	c.Assert(err, qt.IsNil)
 	c.Assert(f.Type(), qt.Equals, HTMLType.Type())
 
-	f, err = fromString("application/custom")
+	f, err = FromString("application/custom")
 	c.Assert(err, qt.IsNil)
 	c.Assert(f, qt.Equals, Type{MainType: "application", SubType: "custom", mimeSuffix: ""})
 
-	f, err = fromString("application/custom+sfx")
+	f, err = FromString("application/custom+sfx")
 	c.Assert(err, qt.IsNil)
 	c.Assert(f, qt.Equals, Type{MainType: "application", SubType: "custom", mimeSuffix: "sfx"})
 
-	_, err = fromString("noslash")
+	_, err = FromString("noslash")
 	c.Assert(err, qt.Not(qt.IsNil))
 
-	f, err = fromString("text/xml; charset=utf-8")
+	f, err = FromString("text/xml; charset=utf-8")
 	c.Assert(err, qt.IsNil)
 
 	c.Assert(f, qt.Equals, Type{MainType: "text", SubType: "xml", mimeSuffix: ""})
@@ -190,7 +190,7 @@ func TestFromContent(t *testing.T) {
 	for _, filename := range files {
 		name := filepath.Base(filename)
 		c.Run(name, func(c *qt.C) {
-			content, err := ioutil.ReadFile(filename)
+			content, err := os.ReadFile(filename)
 			c.Assert(err, qt.IsNil)
 			ext := strings.TrimPrefix(paths.Ext(filename), ".")
 			var exts []string
@@ -217,7 +217,7 @@ func TestFromContentFakes(t *testing.T) {
 	for _, filename := range files {
 		name := filepath.Base(filename)
 		c.Run(name, func(c *qt.C) {
-			content, err := ioutil.ReadFile(filename)
+			content, err := os.ReadFile(filename)
 			c.Assert(err, qt.IsNil)
 			ext := strings.TrimPrefix(paths.Ext(filename), ".")
 			got := FromContent(mtypes, []string{ext}, content)

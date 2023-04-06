@@ -396,7 +396,7 @@ line 4
 
 }
 
-func TestErrorNestedShortocde(t *testing.T) {
+func TestErrorNestedShortcode(t *testing.T) {
 	t.Parallel()
 
 	files := `

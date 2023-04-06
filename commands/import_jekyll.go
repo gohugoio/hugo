@@ -17,7 +17,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -164,7 +164,7 @@ func (i *importCmd) importFromJekyll(cmd *cobra.Command, args []string) error {
 func (i *importCmd) getJekyllDirInfo(fs afero.Fs, jekyllRoot string) (map[string]bool, bool) {
 	postDirs := make(map[string]bool)
 	hasAnyPost := false
-	if entries, err := ioutil.ReadDir(jekyllRoot); err == nil {
+	if entries, err := os.ReadDir(jekyllRoot); err == nil {
 		for _, entry := range entries {
 			if entry.IsDir() {
 				subDir := filepath.Join(jekyllRoot, entry.Name())
@@ -186,7 +186,7 @@ func (i *importCmd) retrieveJekyllPostDir(fs afero.Fs, dir string) (bool, bool) 
 		return true, !isEmpty
 	}
 
-	if entries, err := ioutil.ReadDir(dir); err == nil {
+	if entries, err := os.ReadDir(dir); err == nil {
 		for _, entry := range entries {
 			if entry.IsDir() {
 				subDir := filepath.Join(dir, entry.Name())
@@ -247,7 +247,7 @@ func (i *importCmd) loadJekyllConfig(fs afero.Fs, jekyllRoot string) map[string]
 
 	defer f.Close()
 
-	b, err := ioutil.ReadAll(f)
+	b, err := io.ReadAll(f)
 	if err != nil {
 		return nil
 	}
@@ -310,7 +310,7 @@ func (i *importCmd) copyJekyllFilesAndFolders(jekyllRoot, dest string, jekyllPos
 	if err != nil {
 		return err
 	}
-	entries, err := ioutil.ReadDir(jekyllRoot)
+	entries, err := os.ReadDir(jekyllRoot)
 	if err != nil {
 		return err
 	}
@@ -386,7 +386,7 @@ func convertJekyllPost(path, relPath, targetDir string, draft bool) error {
 	targetParentDir := filepath.Dir(targetFile)
 	os.MkdirAll(targetParentDir, 0777)
 
-	contentBytes, err := ioutil.ReadFile(path)
+	contentBytes, err := os.ReadFile(path)
 	if err != nil {
 		jww.ERROR.Println("Read file error:", path)
 		return err

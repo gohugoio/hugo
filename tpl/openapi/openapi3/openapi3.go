@@ -11,11 +11,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package openapi3 provides functions for generating OpenAPI v3 (Swagger) documentation.
 package openapi3
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 
 	gyaml "github.com/ghodss/yaml"
 
@@ -49,7 +50,13 @@ type Namespace struct {
 	deps  *deps.Deps
 }
 
-func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*kopenapi3.T, error) {
+// OpenAPIDocument represents an OpenAPI 3 document.
+type OpenAPIDocument struct {
+	*kopenapi3.T
+}
+
+// Unmarshal unmarshals the given resource into an OpenAPI 3 document.
+func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*OpenAPIDocument, error) {
 	key := r.Key()
 	if key == "" {
 		return nil, errors.New("no Key set in Resource")
@@ -67,7 +74,7 @@ func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*kopenapi3.T, er
 		}
 		defer reader.Close()
 
-		b, err := ioutil.ReadAll(reader)
+		b, err := io.ReadAll(reader)
 		if err != nil {
 			return nil, err
 		}
@@ -85,11 +92,11 @@ func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*kopenapi3.T, er
 
 		err = kopenapi3.NewLoader().ResolveRefsIn(s, nil)
 
-		return s, err
+		return &OpenAPIDocument{T: s}, err
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return v.(*kopenapi3.T), nil
+	return v.(*OpenAPIDocument), nil
 }

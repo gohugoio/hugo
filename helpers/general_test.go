@@ -65,10 +65,10 @@ func TestDistinctLoggerDoesNotLockOnWarningPanic(t *testing.T) {
 
 	// Set PanicOnWarning to true to reproduce issue 9380
 	// Ensure global variable loggers.PanicOnWarning is reset to old value after test
-	if loggers.PanicOnWarning == false {
-		loggers.PanicOnWarning = true
+	if !loggers.PanicOnWarning.Load() {
+		loggers.PanicOnWarning.Store(true)
 		defer func() {
-			loggers.PanicOnWarning = false
+			loggers.PanicOnWarning.Store(false)
 		}()
 	}
 
@@ -457,11 +457,4 @@ func BenchmarkUniqueStrings(b *testing.B) {
 			}
 		}
 	})
-}
-
-func TestHashString(t *testing.T) {
-	c := qt.New(t)
-
-	c.Assert(HashString("a", "b"), qt.Equals, "2712570657419664240")
-	c.Assert(HashString("ab"), qt.Equals, "590647783936702392")
 }

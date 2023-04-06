@@ -15,7 +15,7 @@ Jan 2 15:04:05 2006 MST
 
 Each of the following examples show the reference formatting string followed by the string Hugo will output in your HTML.
 
-Note that the examples were rendered and tested in [CST][] and pull from a single example date you might have in your content's front matter:
+Note that the examples were rendered and tested in [CST] and pull from a single example date you might have in your content's front matter:
 
 ```yml
 date: 2017-03-03T14:15:59-06:00

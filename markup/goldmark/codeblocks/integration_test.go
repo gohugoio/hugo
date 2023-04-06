@@ -18,6 +18,8 @@ import (
 	"strings"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
+
 	"github.com/gohugoio/hugo/hugolib"
 )
 
@@ -369,6 +371,7 @@ Common
 	}{
 		{"issue-9819", "asdf\n: {#myid}"},
 	} {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 			b := hugolib.NewIntegrationTestBuilder(
@@ -381,5 +384,42 @@ Common
 			b.AssertFileContent("public/p1/index.html", "Common")
 		})
 	}
+
+}
+
+// Issue 10835
+func TestAttributesValidation(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term"]
+-- content/p1.md --
+---
+title: "p1"
+---
+
+## Issue 10835
+
+§§§bash { color=red dimensions=300x200 }
+Hello, World!
+§§§
+
+-- layouts/index.html --
+-- layouts/_default/single.html --
+{{ .Content }}
+-- layouts/_default/_markup/render-codeblock.html --
+Attributes: {{ .Attributes }}|Type: {{ .Type }}|
+`
+
+	b, err := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).BuildE()
+
+	b.Assert(err, qt.Not(qt.IsNil))
+	b.Assert(err.Error(), qt.Contains, "p1.md:7:9\": failed to parse Markdown attributes; you may need to quote the values")
 
 }

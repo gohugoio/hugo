@@ -68,3 +68,30 @@ Note that in the example above, the "CSS purge step" will only be applied to the
 {{ end }}
 <link href="{{ $css.RelPermalink }}" rel="stylesheet" />
 ```
+
+
+## Hugo Environment variables available in PostCSS
+
+These are the environment variables Hugo passes down to PostCSS (and Babel), which allows you do do `process.env.HUGO_ENVIRONMENT === 'production' ? [autoprefixer] : []` and similar:
+
+PWD
+: The absolute path to the project working directory.
+HUGO_ENVIRONMENT (and the alias HUGO_ENV)
+: The value e.g. set with `hugo -e production` (defaults to `production` for `hugo` and `development` for `hugo server`).
+
+HUGO_PUBLISHDIR
+: {{ new-in "0.109.0" }} The absolute path to the publish directory (the `public` directory). Note that the value will always point to a directory on disk even when running `hugo server` in memory mode. If you write to this folder from PostCSS when running the server, you could run the server with one of these flags:
+
+```
+hugo server --renderToDisk
+hugo server --renderStaticToDisk
+```
+
+Also, Hugo will add environment variables for all files mounted below `assets/_jsconfig`. A default mount will be set up with files in the project root matching this regexp: `(babel|postcss|tailwind)\.config\.js`.
+
+These will get environment variables named on the form `HUGO_FILE_:filename:` where `:filename:` is all upper case with periods replaced with underscore. This allows you do do this and similar:
+
+```js
+let tailwindConfig = process.env.HUGO_FILE_TAILWIND_CONFIG_JS || './tailwind.config.js';
+```
+

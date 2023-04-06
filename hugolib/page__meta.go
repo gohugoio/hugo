@@ -404,7 +404,7 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 	}
 
 	var gitAuthorDate time.Time
-	if p.gitInfo != nil {
+	if !p.gitInfo.IsZero() {
 		gitAuthorDate = p.gitInfo.AuthorDate
 	}
 
@@ -579,41 +579,30 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 		default:
 			// If not one of the explicit values, store in Params
 			switch vv := v.(type) {
-			case bool:
-				pm.params[loki] = vv
-			case string:
-				pm.params[loki] = vv
-			case int64, int32, int16, int8, int:
-				pm.params[loki] = vv
-			case float64, float32:
-				pm.params[loki] = vv
-			case time.Time:
-				pm.params[loki] = vv
-			default: // handle array of strings as well
-				switch vvv := vv.(type) {
-				case []any:
-					if len(vvv) > 0 {
-						switch vvv[0].(type) {
-						case map[any]any:
-							pm.params[loki] = vvv
-						case map[string]any:
-							pm.params[loki] = vvv
-						case []any:
-							pm.params[loki] = vvv
-						default:
-							a := make([]string, len(vvv))
-							for i, u := range vvv {
-								a[i] = cast.ToString(u)
-							}
-
-							pm.params[loki] = a
+			case []any:
+				if len(vv) > 0 {
+					allStrings := true
+					for _, vvv := range vv {
+						if _, ok := vvv.(string); !ok {
+							allStrings = false
+							break
 						}
-					} else {
-						pm.params[loki] = []string{}
 					}
-				default:
-					pm.params[loki] = vv
+					if allStrings {
+						// We need tags, keywords etc. to be []string, not []interface{}.
+						a := make([]string, len(vv))
+						for i, u := range vv {
+							a[i] = cast.ToString(u)
+						}
+						pm.params[loki] = a
+					} else {
+						pm.params[loki] = vv
+					}
+				} else {
+					pm.params[loki] = []string{}
 				}
+			default:
+				pm.params[loki] = vv
 			}
 		}
 	}

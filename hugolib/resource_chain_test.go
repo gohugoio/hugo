@@ -16,7 +16,6 @@ package hugolib
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
@@ -26,11 +25,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gohugoio/hugo/helpers"
-
 	qt "github.com/frankban/quicktest"
 
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/scss"
 )
 
@@ -122,7 +120,7 @@ FAILED REMOTE ERROR DETAILS CONTENT: |failed to fetch remote resource: Internal 
 |StatusCode: 500|ContentLength: 16|ContentType: text/plain; charset=utf-8|
 
 
-`, helpers.HashString(ts.URL+"/sunset.jpg", map[string]any{})))
+`, identity.HashString(ts.URL+"/sunset.jpg", map[string]any{})))
 
 		b.AssertFileContent("public/styles.min.a1df58687c3c9cc38bf26532f7b4b2f2c2b0315dcde212376959995c04f11fef.css", "body{background-color:#add8e6}")
 		b.AssertFileContent("public//styles2.min.1cfc52986836405d37f9998a63fd6dd8608e8c410e5e3db1daaa30f78bc273ba.css", "body{background-color:orange}")
@@ -306,7 +304,7 @@ func TestResourceChains(t *testing.T) {
 		case "/post":
 			w.Header().Set("Content-Type", "text/plain")
 			if r.Method == http.MethodPost {
-				body, err := ioutil.ReadAll(r.Body)
+				body, err := io.ReadAll(r.Body)
 				if err != nil {
 					http.Error(w, "Internal server error", http.StatusInternalServerError)
 					return

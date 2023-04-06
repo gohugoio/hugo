@@ -58,7 +58,7 @@ type Namespace struct {
 	client *http.Client
 }
 
-// GetCSV expects a data separator and one or n-parts of a URL to a resource which
+// GetCSV expects the separator sep and one or n-parts of a URL to a resource which
 // can either be a local or a remote one.
 // The data separator can be a comma, semi-colon, pipe, etc, but only one character.
 // If you provide multiple parts for the URL they will be joined together to the final URL.
@@ -99,7 +99,7 @@ func (ns *Namespace) GetCSV(sep string, args ...any) (d [][]string, err error) {
 	return
 }
 
-// GetJSON expects one or n-parts of a URL to a resource which can either be a local or a remote one.
+// GetJSON expects one or n-parts of a URL in args to a resource which can either be a local or a remote one.
 // If you provide multiple parts they will be joined together to the final URL.
 // GetJSON returns nil or parsed JSON to use in a short code.
 func (ns *Namespace) GetJSON(args ...any) (any, error) {

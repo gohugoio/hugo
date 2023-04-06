@@ -14,13 +14,13 @@
 package hugolib
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"io"
 	"log"
 	"mime"
 	"net/url"
-	"os"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -30,6 +30,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/types"
@@ -90,16 +91,16 @@ import (
 //
 // 1. A list of Files is parsed and then converted into Pages.
 //
-// 2. Pages contain sections (based on the file they were generated from),
-//    aliases and slugs (included in a pages frontmatter) which are the
-//    various targets that will get generated.  There will be canonical
-//    listing.  The canonical path can be overruled based on a pattern.
+//  2. Pages contain sections (based on the file they were generated from),
+//     aliases and slugs (included in a pages frontmatter) which are the
+//     various targets that will get generated.  There will be canonical
+//     listing.  The canonical path can be overruled based on a pattern.
 //
-// 3. Taxonomies are created via configuration and will present some aspect of
-//    the final page and typically a perm url.
+//  3. Taxonomies are created via configuration and will present some aspect of
+//     the final page and typically a perm url.
 //
-// 4. All Pages are passed through a template based on their desired
-//    layout based on numerous different elements.
+//  4. All Pages are passed through a template based on their desired
+//     layout based on numerous different elements.
 //
 // 5. The entire collection of files is written to disk.
 type Site struct {
@@ -110,9 +111,9 @@ type Site struct {
 
 	*PageCollections
 
-	taxonomies TaxonomyList
+	taxonomies page.TaxonomyList
 
-	Sections Taxonomy
+	Sections page.Taxonomy
 	Info     *SiteInfo
 
 	language   *langs.Language
@@ -172,8 +173,8 @@ type Site struct {
 	init *siteInit
 }
 
-func (s *Site) Taxonomies() TaxonomyList {
-	s.init.taxonomies.Do()
+func (s *Site) Taxonomies() page.TaxonomyList {
+	s.init.taxonomies.Do(context.Background())
 	return s.taxonomies
 }
 
@@ -214,8 +215,9 @@ func (init *siteInit) Reset() {
 	init.taxonomies.Reset()
 }
 
-func (s *Site) initInit(init *lazy.Init, pctx pageContext) bool {
-	_, err := init.Do()
+func (s *Site) initInit(ctx context.Context, init *lazy.Init, pctx pageContext) bool {
+	_, err := init.Do(ctx)
+
 	if err != nil {
 		s.h.FatalError(pctx.wrapError(err))
 	}
@@ -227,7 +229,7 @@ func (s *Site) prepareInits() {
 
 	var init lazy.Init
 
-	s.init.prevNext = init.Branch(func() (any, error) {
+	s.init.prevNext = init.Branch(func(context.Context) (any, error) {
 		regularPages := s.RegularPages()
 		for i, p := range regularPages {
 			np, ok := p.(nextPrevProvider)
@@ -254,7 +256,7 @@ func (s *Site) prepareInits() {
 		return nil, nil
 	})
 
-	s.init.prevNextInSection = init.Branch(func() (any, error) {
+	s.init.prevNextInSection = init.Branch(func(context.Context) (any, error) {
 		var sections page.Pages
 		s.home.treeRef.m.collectSectionsRecursiveIncludingSelf(pageMapQuery{Prefix: s.home.treeRef.key}, func(n *contentNode) {
 			sections = append(sections, n.p)
@@ -311,12 +313,12 @@ func (s *Site) prepareInits() {
 		return nil, nil
 	})
 
-	s.init.menus = init.Branch(func() (any, error) {
+	s.init.menus = init.Branch(func(context.Context) (any, error) {
 		s.assembleMenus()
 		return nil, nil
 	})
 
-	s.init.taxonomies = init.Branch(func() (any, error) {
+	s.init.taxonomies = init.Branch(func(context.Context) (any, error) {
 		err := s.pageMap.assembleTaxonomies()
 		return nil, err
 	})
@@ -327,7 +329,7 @@ type siteRenderingContext struct {
 }
 
 func (s *Site) Menus() navigation.Menus {
-	s.init.menus.Do()
+	s.init.menus.Do(context.Background())
 	return s.menus
 }
 
@@ -426,7 +428,7 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 
 		delete(disabledKinds, "taxonomyTerm")
 	} else if disabledKinds[page.KindTaxonomy] && !disabledKinds[page.KindTerm] {
-		// This is a potentially ambigous situation. It may be correct.
+		// This is a potentially ambiguous situation. It may be correct.
 		ignorableLogger.Errorsf(constants.ErrIDAmbigousDisableKindTaxonomy, `You have the value 'taxonomy' in the disabledKinds list. In Hugo 0.73.0 we fixed these to be what most people expect (taxonomy and term).
 But this also means that your site configuration may not do what you expect. If it is correct, you can suppress this message by following the instructions below.`)
 	}
@@ -485,7 +487,7 @@ But this also means that your site configuration may not do what you expect. If 
 			siteOutputs[page.KindTerm] = v2
 			delete(siteOutputs, "taxonomyTerm")
 		} else if hasTaxonomy && !hasTerm {
-			// This is a potentially ambigous situation. It may be correct.
+			// This is a potentially ambiguous situation. It may be correct.
 			ignorableLogger.Errorsf(constants.ErrIDAmbigousOutputKindTaxonomy, `You have configured output formats for 'taxonomy' in your site configuration. In Hugo 0.73.0 we fixed these to be what most people expect (taxonomy and term).
 But this also means that your site configuration may not do what you expect. If it is correct, you can suppress this message by following the instructions below.`)
 		}
@@ -708,7 +710,7 @@ func (s *SiteInfo) Menus() navigation.Menus {
 }
 
 // TODO(bep) type
-func (s *SiteInfo) Taxonomies() any {
+func (s *SiteInfo) Taxonomies() page.TaxonomyList {
 	return s.s.Taxonomies()
 }
 
@@ -776,6 +778,10 @@ func (s *SiteInfo) GoogleAnalytics() string {
 // DisqusShortname is kept here for historic reasons.
 func (s *SiteInfo) DisqusShortname() string {
 	return s.Config().Services.Disqus.Shortname
+}
+
+func (s *SiteInfo) GetIdentity() identity.Identity {
+	return identity.KeyValueIdentity{Key: "site", Value: s.language.Lang}
 }
 
 // SiteSocial is a place to put social details on a site level. These are the
@@ -954,7 +960,7 @@ func (s *Site) filterFileEvents(events []fsnotify.Event) []fsnotify.Event {
 
 		// Throw away any directories
 		isRegular, err := s.SourceSpec.IsRegularSourceFile(ev.Name)
-		if err != nil && os.IsNotExist(err) && (ev.Op&fsnotify.Remove == fsnotify.Remove || ev.Op&fsnotify.Rename == fsnotify.Rename) {
+		if err != nil && herrors.IsNotExist(err) && (ev.Op&fsnotify.Remove == fsnotify.Remove || ev.Op&fsnotify.Rename == fsnotify.Rename) {
 			// Force keep of event
 			isRegular = true
 		}
@@ -1704,12 +1710,12 @@ func (s *Site) lookupLayouts(layouts ...string) tpl.Template {
 	return nil
 }
 
-func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath string, d any, templ tpl.Template) error {
+func (s *Site) renderAndWriteXML(ctx context.Context, statCounter *uint64, name string, targetPath string, d any, templ tpl.Template) error {
 	s.Log.Debugf("Render XML for %q to %q", name, targetPath)
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
-	if err := s.renderForTemplate(name, "", d, renderBuffer, templ); err != nil {
+	if err := s.renderForTemplate(ctx, name, "", d, renderBuffer, templ); err != nil {
 		return err
 	}
 
@@ -1733,8 +1739,9 @@ func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath s
 	defer bp.PutBuffer(renderBuffer)
 
 	of := p.outputFormat()
+	ctx := tpl.SetPageInContext(context.Background(), p)
 
-	if err := s.renderForTemplate(p.Kind(), of.Name, p, renderBuffer, templ); err != nil {
+	if err := s.renderForTemplate(ctx, p.Kind(), of.Name, p, renderBuffer, templ); err != nil {
 		return err
 	}
 
@@ -1791,16 +1798,16 @@ type hookRendererTemplate struct {
 	resolvePosition func(ctx any) text.Position
 }
 
-func (hr hookRendererTemplate) RenderLink(w io.Writer, ctx hooks.LinkContext) error {
-	return hr.templateHandler.Execute(hr.templ, w, ctx)
+func (hr hookRendererTemplate) RenderLink(cctx context.Context, w io.Writer, ctx hooks.LinkContext) error {
+	return hr.templateHandler.ExecuteWithContext(cctx, hr.templ, w, ctx)
 }
 
-func (hr hookRendererTemplate) RenderHeading(w io.Writer, ctx hooks.HeadingContext) error {
-	return hr.templateHandler.Execute(hr.templ, w, ctx)
+func (hr hookRendererTemplate) RenderHeading(cctx context.Context, w io.Writer, ctx hooks.HeadingContext) error {
+	return hr.templateHandler.ExecuteWithContext(cctx, hr.templ, w, ctx)
 }
 
-func (hr hookRendererTemplate) RenderCodeblock(w hugio.FlexiWriter, ctx hooks.CodeblockContext) error {
-	return hr.templateHandler.Execute(hr.templ, w, ctx)
+func (hr hookRendererTemplate) RenderCodeblock(cctx context.Context, w hugio.FlexiWriter, ctx hooks.CodeblockContext) error {
+	return hr.templateHandler.ExecuteWithContext(cctx, hr.templ, w, ctx)
 }
 
 func (hr hookRendererTemplate) RenderListItem(w io.Writer, ctx hooks.ListItemContext) error {
@@ -1819,13 +1826,17 @@ func (hr hookRendererTemplate) IsDefaultCodeBlockRenderer() bool {
 	return false
 }
 
-func (s *Site) renderForTemplate(name, outputFormat string, d any, w io.Writer, templ tpl.Template) (err error) {
+func (s *Site) renderForTemplate(ctx context.Context, name, outputFormat string, d any, w io.Writer, templ tpl.Template) (err error) {
 	if templ == nil {
 		s.logMissingLayout(name, "", "", outputFormat)
 		return nil
 	}
 
-	if err = s.Tmpl().Execute(templ, w, d); err != nil {
+	if ctx == nil {
+		panic("nil context")
+	}
+
+	if err = s.Tmpl().ExecuteWithContext(ctx, templ, w, d); err != nil {
 		return fmt.Errorf("render of %q failed: %w", name, err)
 	}
 	return

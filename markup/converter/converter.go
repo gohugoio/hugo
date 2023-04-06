@@ -15,6 +15,7 @@ package converter
 
 import (
 	"bytes"
+	"context"
 
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
@@ -74,7 +75,7 @@ var NopConverter = new(nopConverter)
 
 type nopConverter int
 
-func (nopConverter) Convert(ctx RenderContext) (Result, error) {
+func (nopConverter) Convert(ctx RenderContext) (ResultRender, error) {
 	return &bytes.Buffer{}, nil
 }
 
@@ -85,13 +86,27 @@ func (nopConverter) Supports(feature identity.Identity) bool {
 // Converter wraps the Convert method that converts some markup into
 // another format, e.g. Markdown to HTML.
 type Converter interface {
-	Convert(ctx RenderContext) (Result, error)
+	Convert(ctx RenderContext) (ResultRender, error)
 	Supports(feature identity.Identity) bool
 }
 
-// Result represents the minimum returned from Convert.
-type Result interface {
+// ParseRenderer is an optional interface.
+// The Goldmark converter implements this, and this allows us
+// to extract the ToC without having to render the content.
+type ParseRenderer interface {
+	Parse(RenderContext) (ResultParse, error)
+	Render(RenderContext, any) (ResultRender, error)
+}
+
+// ResultRender represents the minimum returned from Convert and Render.
+type ResultRender interface {
 	Bytes() []byte
+}
+
+// ResultParse represents the minimum returned from Parse.
+type ResultParse interface {
+	Doc() any
+	TableOfContents() *tableofcontents.Fragments
 }
 
 // DocumentInfo holds additional information provided by some converters.
@@ -101,7 +116,7 @@ type DocumentInfo interface {
 
 // TableOfContentsProvider provides the content as a ToC structure.
 type TableOfContentsProvider interface {
-	TableOfContents() tableofcontents.Root
+	TableOfContents() *tableofcontents.Fragments
 }
 
 // AnchorNameSanitizer tells how a converter sanitizes anchor names.
@@ -127,6 +142,9 @@ type DocumentContext struct {
 
 // RenderContext holds contextual information about the content to render.
 type RenderContext struct {
+	// Ctx is the context.Context for the current Page render.
+	Ctx context.Context
+
 	// Src is the content to render.
 	Src []byte
 

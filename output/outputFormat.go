@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package output contains Output Format types and functions.
 package output
 
 import (
@@ -400,6 +401,7 @@ func (f Format) BaseFilename() string {
 }
 
 // MarshalJSON returns the JSON encoding of f.
+// For internal use only.
 func (f Format) MarshalJSON() ([]byte, error) {
 	type Alias Format
 	return json.Marshal(&struct {

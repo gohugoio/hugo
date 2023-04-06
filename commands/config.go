@@ -126,6 +126,7 @@ type modMount struct {
 	Lang   string `json:"lang,omitempty"`
 }
 
+// MarshalJSON is for internal use only.
 func (m *modMounts) MarshalJSON() ([]byte, error) {
 	var mounts []modMount
 

@@ -41,7 +41,6 @@ import (
 
 	"github.com/gohugoio/hugo/source"
 
-	"github.com/bep/gitmap"
 	"github.com/gohugoio/hugo/config"
 
 	"github.com/gohugoio/hugo/publisher"
@@ -195,27 +194,27 @@ func (h *hugoSitesInit) Reset() {
 }
 
 func (h *HugoSites) Data() map[string]any {
-	if _, err := h.init.data.Do(); err != nil {
+	if _, err := h.init.data.Do(context.Background()); err != nil {
 		h.SendError(fmt.Errorf("failed to load data: %w", err))
 		return nil
 	}
 	return h.data
 }
 
-func (h *HugoSites) gitInfoForPage(p page.Page) (*gitmap.GitInfo, error) {
-	if _, err := h.init.gitInfo.Do(); err != nil {
-		return nil, err
+func (h *HugoSites) gitInfoForPage(p page.Page) (source.GitInfo, error) {
+	if _, err := h.init.gitInfo.Do(context.Background()); err != nil {
+		return source.GitInfo{}, err
 	}
 
 	if h.gitInfo == nil {
-		return nil, nil
+		return source.GitInfo{}, nil
 	}
 
 	return h.gitInfo.forPage(p), nil
 }
 
 func (h *HugoSites) codeownersForPage(p page.Page) ([]string, error) {
-	if _, err := h.init.gitInfo.Do(); err != nil {
+	if _, err := h.init.gitInfo.Do(context.Background()); err != nil {
 		return nil, err
 	}
 
@@ -364,7 +363,7 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 		donec: make(chan bool),
 	}
 
-	h.init.data.Add(func() (any, error) {
+	h.init.data.Add(func(context.Context) (any, error) {
 		err := h.loadData(h.PathSpec.BaseFs.Data.Dirs)
 		if err != nil {
 			return nil, fmt.Errorf("failed to load data: %w", err)
@@ -372,7 +371,7 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 		return nil, nil
 	})
 
-	h.init.layouts.Add(func() (any, error) {
+	h.init.layouts.Add(func(context.Context) (any, error) {
 		for _, s := range h.Sites {
 			if err := s.Tmpl().(tpl.TemplateManager).MarkReady(); err != nil {
 				return nil, err
@@ -381,7 +380,7 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 		return nil, nil
 	})
 
-	h.init.translations.Add(func() (any, error) {
+	h.init.translations.Add(func(context.Context) (any, error) {
 		if len(h.Sites) > 1 {
 			allTranslations := pagesToTranslationsMap(h.Sites)
 			assignTranslationsToPages(allTranslations, h.Sites)
@@ -390,7 +389,7 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 		return nil, nil
 	})
 
-	h.init.gitInfo.Add(func() (any, error) {
+	h.init.gitInfo.Add(func(context.Context) (any, error) {
 		err := h.loadGitInfo()
 		if err != nil {
 			return nil, fmt.Errorf("failed to load Git info: %w", err)
@@ -724,7 +723,7 @@ type BuildCfg struct {
 // shouldRender is used in the Fast Render Mode to determine if we need to re-render
 // a Page: If it is recently visited (the home pages will always be in this set) or changed.
 // Note that a page does not have to have a content page / file.
-// For regular builds, this will allways return true.
+// For regular builds, this will always return true.
 // TODO(bep) rename/work this.
 func (cfg *BuildCfg) shouldRender(p *pageState) bool {
 	if p == nil {
@@ -768,10 +767,11 @@ func (h *HugoSites) renderCrossSitesSitemap() error {
 	}
 
 	s := h.Sites[0]
+	// We don't have any page context to pass in here.
+	ctx := context.Background()
 
 	templ := s.lookupLayouts("sitemapindex.xml", "_default/sitemapindex.xml", "_internal/_default/sitemapindex.xml")
-
-	return s.renderAndWriteXML(&s.PathSpec.ProcessingStats.Sitemaps, "sitemapindex",
+	return s.renderAndWriteXML(ctx, &s.PathSpec.ProcessingStats.Sitemaps, "sitemapindex",
 		s.siteCfg.sitemap.Filename, h.toSiteInfos(), templ)
 }
 

@@ -14,6 +14,7 @@
 package postpub
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -101,7 +102,7 @@ func (r *PostPublishResource) GetFieldString(pattern string) (string, bool) {
 	case fieldAccessor == "ResourceType":
 		return d.ResourceType(), true
 	case fieldAccessor == "Content":
-		content, err := d.(resource.ContentProvider).Content()
+		content, err := d.(resource.ContentProvider).Content(context.Background())
 		if err != nil {
 			return "", true
 		}
@@ -172,7 +173,7 @@ func (r *PostPublishResource) Params() maps.Params {
 	panic(r.fieldNotSupported("Params"))
 }
 
-func (r *PostPublishResource) Content() (any, error) {
+func (r *PostPublishResource) Content(context.Context) (any, error) {
 	return r.field("Content"), nil
 }
 
