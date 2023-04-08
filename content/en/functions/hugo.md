@@ -37,10 +37,6 @@ hugo.IsExtended
 hugo.IsProduction
 : returns true if `hugo.Environment` is set to the production environment
 
-{{% note %}}
-We highly recommend using `hugo.Generator` in your website's `<head>`. `hugo.Generator` is included by default in all themes hosted on [themes.gohugo.io](https://themes.gohugo.io). The generator tag allows the Hugo team to track the usage and popularity of Hugo.
-{{% /note %}}
-
 hugo.Deps
 : See [hugo.Deps](#hugodeps)
 
