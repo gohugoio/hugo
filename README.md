@@ -82,10 +82,10 @@ To fetch, build and install from the Github source:
 go install github.com/gohugoio/hugo@latest
 ```
 
-If you want to compile with Sass/SCSS support use `--tags extended` and make sure `CGO_ENABLED=1` is set in your go environment. If you don't want to have CGO enabled, you may use the following command to temporarily enable CGO only for hugo compilation:
+If you want to compile with Sass/SCSS support use `-tags extended` and make sure `CGO_ENABLED=1` is set in your go environment. If you don't want to have CGO enabled, you may use the following command to temporarily enable CGO only for hugo compilation:
 
 ```bash
-CGO_ENABLED=1 go install --tags extended github.com/gohugoio/hugo@latest
+CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@latest
 ```
 
 ## The Hugo Documentation
