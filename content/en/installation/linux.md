@@ -19,13 +19,18 @@ weight: 30
 
 ### Snap
 
-[Snap] is a free and open source package manager for Linux. Available for [most distributions], Snap packages are simple to install and are automatically updated. This will install the extended edition of Hugo:
+[Snap] is a free and open source package manager for Linux. Available for [most distributions], snap packages are simple to install and are automatically updated.
+
+The Hugo snap package is [strictly confined]. Strictly confined snaps run in complete isolation, up to a minimal access level that’s deemed always safe. The sites you create and build must be located within your home directory, or on removable media.
+
+This will install the extended edition of Hugo:
 
 ```sh
 sudo snap install hugo
 ```
 
 [most distributions]: https://snapcraft.io/docs/installing-snapd
+[strictly confined]: https://snapcraft.io/docs/snap-confinement
 [Snap]: https://snapcraft.io/
 
 {{% readfile file="/installation/common/homebrew.md" %}}
