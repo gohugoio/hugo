@@ -33,6 +33,7 @@ import (
 	"github.com/yuin/goldmark/renderer"
 	"github.com/yuin/goldmark/renderer/html"
 	"github.com/yuin/goldmark/text"
+    goldmarkkatex "github.com/FurqanSoftware/goldmark-katex"
 )
 
 const (
@@ -130,6 +131,10 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 
 	if cfg.Extensions.Footnote {
 		extensions = append(extensions, extension.Footnote)
+	}
+
+	if cfg.Extensions.Katex {
+		extensions = append(extensions, &goldmarkkatex.Extender{})
 	}
 
 	if cfg.Parser.AutoHeadingID {
