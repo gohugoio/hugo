@@ -126,19 +126,18 @@ func (f FrontMatterHandler) IsDateKey(key string) bool {
 func dateAndSlugFromBaseFilename(location *time.Location, name string) (time.Time, string) {
 	withoutExt, _ := paths.FileAndExt(name)
 
-	if len(withoutExt) < 10 {
-		// This can not be a date.
-		return time.Time{}, ""
+	slug := strings.TrimLeft(withoutExt, "0123456789-_")
+	lastIdx := len(withoutExt) - len(slug)
+	if lastIdx == -1 {
+		lastIdx = 0
 	}
+	prefix := withoutExt[:lastIdx]
 
-	d, err := htime.ToTimeInDefaultLocationE(withoutExt[:10], location)
+	d, err := htime.ToTimeInDefaultLocationE(prefix, location)
 	if err != nil {
-		return time.Time{}, ""
+		d = time.Time{}
 	}
-
-	// Be a little lenient with the format here.
-	slug := strings.Trim(withoutExt[10:], " -_")
-
+	
 	return d, slug
 }
 
@@ -391,17 +390,15 @@ func (f *frontmatterFieldHandlers) newDateFieldHandler(key string, setter func(d
 func (f *frontmatterFieldHandlers) newDateFilenameHandler(setter func(d *FrontMatterDescriptor, t time.Time)) frontMatterFieldHandler {
 	return func(d *FrontMatterDescriptor) (bool, error) {
 		date, slug := dateAndSlugFromBaseFilename(d.Location, d.BaseFilename)
-		if date.IsZero() {
-			return false, nil
-		}
-
-		setter(d, date)
 
 		if _, found := d.Frontmatter["slug"]; !found {
 			// Use slug from filename
 			d.PageURLs.Slug = slug
 		}
-
+		if date.IsZero() {
+			return false, nil
+		}
+		setter(d, date)
 		return true, nil
 	}
 }
