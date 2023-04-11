@@ -129,6 +129,18 @@ You can also change the request method and set the request body:
 
 Remote resources fetched with `resources.GetRemote` will be cached on disk. See [Configure File Caches](/getting-started/configuration/#configure-file-caches) for details.
 
+
+## Copy a Resource
+
+{{< new-in "0.100.0" >}}
+
+`resources.Copy` allows you to copy almost any Hugo `Resource` (the one exception is the `Page`), possibly most useful for renaming things:
+
+```go-html-template
+{{ $resized := $image.Resize "400x400" |  resources.Copy "images/mynewname.jpg" }}
+<img src="{{ $resized.RelPermalink }}">
+```
+
 ## Asset directory
 
 Asset files must be stored in the asset directory. This is `/assets` by default, but can be configured via the configuration file's `assetDir` key.
