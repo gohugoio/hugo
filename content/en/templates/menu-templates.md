@@ -18,7 +18,7 @@ After [defining menu entries], use [menu variables and methods] to render a menu
 
 Three factors determine how to render a menu:
 
-1. The method used to define the menu entries: [automatic], [in front matter]. or [in site configuration]
+1. The method used to define the menu entries: [automatic], [in front matter], or [in site configuration]
 1. The menu structure: flat or nested
 1. The method used to [localize the menu entries]: site configuration or translation tables
 
