@@ -108,7 +108,7 @@ The [Solus] distribution of Linux includes Hugo in its package repository. This 
 sudo eopkg install hugo
 ```
 
-[Solus]: https://getsol.us/home/
+[Solus]: https://getsol.us/
 
 {{% readfile file="/installation/common/04-docker.md" %}}
 
