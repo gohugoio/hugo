@@ -73,7 +73,7 @@ Alternatively, you can use the new [Jekyll import command](/commands/hugo_import
 
 ## Contentful
 
-- [contentful2hugo](https://github.com/ArnoNuyts/contentful2hugo) - A tool to create content-files for Hugo from content on [Contentful](https://www.contentful.com/).
+- [contentful-hugo](https://github.com/ModiiMedia/contentful-hugo) - A tool to create content-files for Hugo from content on [Contentful](https://www.contentful.com/).
 
 ## BlogML
 
