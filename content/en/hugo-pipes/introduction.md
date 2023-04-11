@@ -59,18 +59,6 @@ ContentLength
 ContentType
 : The content type, e.g. "text/html"
 
-
-## Copy a Resource
-
-{{< new-in "0.100.0" >}}
-
-`resources.Copy` allows you to copy almost any Hugo `Resource` (the one exception is the `Page`), possibly most useful for renaming things:
-
-```go-html-template
-{{ $resized := $image.Resize "400x400" |  resources.Copy "images/mynewname.jpg" }}
-<img src="{{ $resized.RelPermalink }}">
-```
-
 ### Caching
 
 By default, Hugo calculates a cache key based on the `URL` and the `options` (e.g. headers) given.
@@ -128,7 +116,6 @@ You can also change the request method and set the request body:
 ### Caching of Remote Resources
 
 Remote resources fetched with `resources.GetRemote` will be cached on disk. See [Configure File Caches](/getting-started/configuration/#configure-file-caches) for details.
-
 
 ## Copy a Resource
 
