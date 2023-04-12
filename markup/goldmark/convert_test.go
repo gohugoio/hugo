@@ -499,3 +499,18 @@ LINE5
 		c.Assert(result, qt.Contains, "<span class=\"ln\">2</span><span class=\"cl\">LINE2\n</span></span>")
 	})
 }
+
+func TestTypographerConfig(t *testing.T) {
+	c := qt.New(t)
+
+	content := `
+A "quote" and 'another quote' and a "quote with a 'nested' quote" and a 'quote with a "nested" quote' and an ellipsis...
+`
+	mconf := markup_config.Default
+	mconf.Goldmark.Extensions.Typographer.LeftDoubleQuote = "&laquo;"
+	mconf.Goldmark.Extensions.Typographer.RightDoubleQuote = "&raquo;"
+	b := convert(c, mconf, content)
+	got := string(b.Bytes())
+
+	c.Assert(got, qt.Contains, "<p>A &laquo;quote&raquo; and &lsquo;another quote&rsquo; and a &laquo;quote with a &rsquo;nested&rsquo; quote&raquo; and a &lsquo;quote with a &laquo;nested&raquo; quote&rsquo; and an ellipsis&hellip;</p>\n")
+}
