@@ -20,6 +20,7 @@ import (
 	"github.com/gohugoio/hugo/identity"
 
 	"github.com/gohugoio/hugo/markup/goldmark/codeblocks"
+	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
 	"github.com/gohugoio/hugo/markup/goldmark/images"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/extensions/attributes"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
@@ -120,8 +121,11 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 		extensions = append(extensions, extension.TaskList)
 	}
 
-	if cfg.Extensions.Typographer {
-		extensions = append(extensions, extension.Typographer)
+	if !cfg.Extensions.Typographer.Disable {
+		t := extension.NewTypographer(
+			extension.WithTypographicSubstitutions(toTypographicPunctuationMap(cfg.Extensions.Typographer)),
+		)
+		extensions = append(extensions, t)
 	}
 
 	if cfg.Extensions.DefinitionList {
@@ -277,4 +281,22 @@ func (p *parserContext) TableOfContents() *tableofcontents.Fragments {
 		return v.(*tableofcontents.Fragments)
 	}
 	return nil
+}
+
+// Note: It's tempting to put this in the config package, but that doesn't work.
+// TODO(bep) create upstream issue.
+func toTypographicPunctuationMap(t goldmark_config.Typographer) map[extension.TypographicPunctuation][]byte {
+	return map[extension.TypographicPunctuation][]byte{
+		extension.LeftSingleQuote:  []byte(t.LeftSingleQuote),
+		extension.RightSingleQuote: []byte(t.RightSingleQuote),
+		extension.LeftDoubleQuote:  []byte(t.LeftDoubleQuote),
+		extension.RightDoubleQuote: []byte(t.RightDoubleQuote),
+		extension.EnDash:           []byte(t.EnDash),
+		extension.EmDash:           []byte(t.EmDash),
+		extension.Ellipsis:         []byte(t.Ellipsis),
+		extension.LeftAngleQuote:   []byte(t.LeftAngleQuote),
+		extension.RightAngleQuote:  []byte(t.RightAngleQuote),
+		extension.Apostrophe:       []byte(t.Apostrophe),
+	}
+
 }
