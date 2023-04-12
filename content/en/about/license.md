@@ -15,7 +15,7 @@ toc: true
 
 {{% note %}}
 Hugo v0.15 and later are released under the Apache 2.0 license.
-Earlier versions of Hugo were released under the [Simple Public License](https://opensource.org/licenses/Simple-2.0).
+Earlier versions of Hugo were released under the [Simple Public License](https://opensource.org/license/simpl-2-0-html/).
 {{% /note %}}
 
 _Version 2.0, January 2004_ <br>

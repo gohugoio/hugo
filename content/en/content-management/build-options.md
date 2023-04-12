@@ -60,7 +60,7 @@ If set to true the [Bundle's Resources](/content-management/page-bundles) will b
 Setting this to false will still publish Resources on demand (when a resource's `.Permalink` or `.RelPermalink` is invoked from the templates) but will skip the others.
 
 {{% note %}}
-Any page, regardless of their build options, will always be available using the [`.GetPage`](/functions/GetPage) methods.
+Any page, regardless of their build options, will always be available using the [`.GetPage`](/functions/getpage) methods.
 {{% /note %}}
 
 ### Illustrative use cases

@@ -84,4 +84,4 @@ parameters to `partialCached` beyond the initial context. See the
 `partialCached` documentation for more details.
 {{% /note %}}
 
-[partialCached]: /functions/partialCached
+[partialCached]: /functions/partialcached

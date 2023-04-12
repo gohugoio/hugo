@@ -72,7 +72,7 @@ After that Firebase has been set in your project with CI/CD. After that run:
 hugo && firebase deploy
 ```
 
-With this you will have the app initialized manually. After that you can manage and fix your github workflow from: https://github.com/your-account/yout-repo/actions
+With this you will have the app initialized manually. After that you can manage and fix your github workflow from: https://github.com/your-account/your-repo/actions
 
 Don't forget to update your static pages before push!
 

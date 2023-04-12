@@ -420,7 +420,7 @@ Feel free to [open an issue][newissue] if you think you found a bug or you have 
 [docscontrib]: /contribute/documentation/
 [forums]: https://discourse.gohugo.io
 [gitbook]: https://git-scm.com/
-[gobootcamp]: https://www.golangbootcamp.com/book/get_setup
+[gobootcamp]: https://www.golang-book.com/guides/machine_setup
 [godl]: https://go.dev/dl/
 [goinstall]: https://go.dev/doc/install
 [gvm]: https://github.com/moovweb/gvm

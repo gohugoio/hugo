@@ -25,7 +25,7 @@ The following starter kits are developed by active members of the Hugo community
 [addkit]: https://github.com/gohugoio/hugo/edit/master/docs/content/en/tools/starter-kits.md
 [amp]: https://amp.dev
 [GOHUGO AMP]: https://github.com/wildhaber/gohugo-amp
-[gohugodocs]: https://gohugo-amp.gohugohq.com/
+[gohugodocs]: https://github.com/wildhaber/gohugo-amp.gohugohq.com
 [hugow]: https://github.com/khos2ow/hugo-wrapper
 [hugow-test]: https://github.com/khos2ow/hugo-wrapper#tested-on
 [Hyas]: https://github.com/h-enk/hyas
