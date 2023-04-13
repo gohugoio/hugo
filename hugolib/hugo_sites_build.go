@@ -163,12 +163,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		h.Log.Println(b.String())
 	}
 
-	select {
-	// Make sure the channel always gets something.
-	case errCollector <- nil:
-	default:
-	}
-	close(errCollector)
+	h.StopErrorCollector()
 
 	err := <-errs
 	if err != nil {
