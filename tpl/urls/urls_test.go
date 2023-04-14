@@ -68,3 +68,38 @@ func TestParse(t *testing.T) {
 			qt.CmpEquals(hqt.DeepAllowUnexported(&url.URL{}, url.Userinfo{})), test.expect)
 	}
 }
+
+func TestJoinPath(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		elements any
+		expect   any
+	}{
+		{"", `/`},
+		{"a", `a`},
+		{"/a/b", `/a/b`},
+		{"./../a/b", `a/b`},
+		{[]any{""}, `/`},
+		{[]any{"a"}, `a`},
+		{[]any{"/a", "b"}, `/a/b`},
+		{[]any{".", "..", "/a", "b"}, `a/b`},
+		{[]any{"https://example.org", "a"}, `https://example.org/a`},
+		{[]any{nil}, `/`},
+		// errors
+		{tstNoStringer{}, false},
+		{[]any{tstNoStringer{}}, false},
+	} {
+
+		result, err := ns.JoinPath(test.elements)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}
