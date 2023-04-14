@@ -119,6 +119,8 @@ type Deps struct {
 type globalErrHandler struct {
 	// Channel for some "hard to get to" build errors
 	buildErrors chan error
+	// Used to signal that the build is done.
+	quit chan struct{}
 }
 
 // SendErr sends the error on a channel to be handled later.
@@ -127,6 +129,7 @@ type globalErrHandler struct {
 func (e *globalErrHandler) SendError(err error) {
 	if e.buildErrors != nil {
 		select {
+		case <-e.quit:
 		case e.buildErrors <- err:
 		default:
 		}
@@ -137,8 +140,16 @@ func (e *globalErrHandler) SendError(err error) {
 }
 
 func (e *globalErrHandler) StartErrorCollector() chan error {
+	e.quit = make(chan struct{})
 	e.buildErrors = make(chan error, 10)
 	return e.buildErrors
+}
+
+func (e *globalErrHandler) StopErrorCollector() {
+	if e.buildErrors != nil {
+		close(e.quit)
+		close(e.buildErrors)
+	}
 }
 
 // Listeners represents an event listener.
