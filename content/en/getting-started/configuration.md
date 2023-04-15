@@ -83,7 +83,7 @@ Let's take an example to understand this better. Let's say you are using Google 
   - `G-SSSSSSSS` for staging
 
 This is how you need to configure your `config.toml` files considering the above scenario:
-1. In `_default/config.toml` you don't need to mention `googleAnalytics` parameter at all. This ensures that no Google Analytics code is loaded in your development server i.e. when you run `hugo serve`. This works since, by default Hugo sets `Environment=development` when you run `hugo serve` which uses the config files from `_default` folder
+1. In `_default/config.toml` you don't need to mention `googleAnalytics` parameter at all. This ensures that no Google Analytics code is loaded in your development server i.e. when you run `hugo server`. This works since, by default Hugo sets `Environment=development` when you run `hugo server` which uses the config files from `_default` folder
 2. In `production/config.toml` you just need to have one line:
 
     ```googleAnalytics = "G-PPPPPPPP"```
