@@ -13,7 +13,7 @@ aliases: [/variables/menu/]
 
 ## Variables
 
-After [defining the menu entries], access their properties with these variables.
+After [defining menu entries], access their properties in [menu templates] with these variables.
 
 .Children
 : (`menu`) A collection of child menu entries, if any, under the current menu entry.
@@ -86,6 +86,7 @@ After [defining the menu entries], access their properties with these variables.
 : (`bool`) Use this method to determine the active menu entry. See [details](/functions/ismenucurrent/).
 
 [automatically]: /content-management/menus/#define-automatically
-[defining the menu entries]: /content-management/menus/#overview
+[defining menu entries]: /content-management/menus/#overview
 [in front matter]: /content-management/menus/#define-in-front-matter
 [in site configuration]: /content-management/menus/#define-in-site-configuration
+[menu templates]: /templates/menu-templates/

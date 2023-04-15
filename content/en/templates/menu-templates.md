@@ -120,7 +120,7 @@ Hugo provides two methods to localize your menu entries. See [multilingual].
 [in front matter]: /content-management/menus/#define-in-front-matter
 [in site configuration]: /content-management/menus/#define-in-site-configuration
 [localize the menu entries]: /content-management/multilingual/#menus
-[Menu entry defined in front matter]: /content-management/menus/#example-front-matter
-[Menu entry defined in site configuration]: /content-management/menus/#example-site-configuration
+[menu entry defined in front matter]: /content-management/menus/#example-front-matter
+[menu entry defined in site configuration]: /content-management/menus/#example-site-configuration
 [menu variables and methods]: /variables/menus/
 [multilingual]: /content-management/multilingual/#menus

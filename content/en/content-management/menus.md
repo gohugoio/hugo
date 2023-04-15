@@ -148,22 +148,30 @@ This creates a menu structure that you can access with `site.Menus.footer` in yo
 
 ### Properties {#properties-site-configuration}
 
+{{% note %}}
+The [properties available to entries defined in front matter] are also available to entries defined in site configuration.
+
+[properties available to entries defined in front matter]: /content-management/menus/#properties-front-matter
+{{% /note %}}
+
 Each menu entry defined in site configuration requires two or more properties:
 
 - Specify `name` and `pageRef` for internal links
 - Specify `name` and `url` for external links
 
 pageRef
-: (`string`) The file path of the target page, relative to the `content` directory. Required for *internal* links.
+: (`string`) The file path of the target page, relative to the `content` directory. Omit language code and file extension. Required for *internal* links.
+
+Kind|pageRef
+:--|:--
+home|`/`
+page|`/books/book-1`
+section|`/books`
+taxonomy|`/tags`
+term|`/tags/foo`
 
 url
 : (`string`) Required for *external* links.
-
-{{% note %}}
-The [properties] available to entries defined in front matter are also available to entries defined in site configuration.
-
-[properties]: /content-management/menus/#properties-front-matter
-{{% /note %}}
 
 ### Example {#example-site-configuration}
 
@@ -211,7 +219,7 @@ Hugo provides two methods to localize your menu entries. See [multilingual].
 
 See [menu templates].
 
-[Localize]: /content-management/multilingual/#menus
+[localize]: /content-management/multilingual/#menus
 [menu templates]: /templates/menu-templates/
 [multilingual]: /content-management/multilingual/#menus
 [template]: /templates/menu-templates/
