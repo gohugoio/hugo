@@ -5,11 +5,12 @@
     utm_campaign = "hugosponsor"
 
 [[banners]]
-    name         = "ButterCMS"
-    link         = "https://buttercms.com/hugo-cms/"
-    logo         = "images/sponsors/butter-light.svg"
-    utm_campaign = "sponsorship"
-    bgcolor      = "#131A3E"
+    name          = "Your Company?"
+    link          = "https://bep.is/en/hugo-sponsor-2023-01/"
+    logo          = "/images/sponsors/your-company.svg"
+    utm_campaign  = "hugosponsor"
+    show_on_hover = true
+    bgcolor       = "#004887"
 
 [[banners]]
     name          = "Your Company?"
