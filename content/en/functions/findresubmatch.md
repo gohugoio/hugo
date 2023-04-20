@@ -1,6 +1,6 @@
 ---
 title: findRESubmatch
-description: Returns a slice of strings holding the text of the leftmost match of the regular expression and the matches, if any, of its subexpressions
+description: Returns a slice of all successive matches of the regular expression. Each element is a slice of strings holding the text of the leftmost match of the regular expression and the matches, if any, of its subexpressions.
 categories: [functions]
 menu:
   docs:
