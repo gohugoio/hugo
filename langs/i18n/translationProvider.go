@@ -48,7 +48,12 @@ func NewTranslationProvider() *TranslationProvider {
 func (tp *TranslationProvider) Update(d *deps.Deps) error {
 	spec := source.NewSourceSpec(d.PathSpec, nil, nil)
 
-	bundle := i18n.NewBundle(language.English)
+	var defaultLangTag, err = language.Parse(d.Cfg.GetString("defaultContentLanguage"))
+	if err != nil {
+		defaultLangTag = language.English
+	}
+	bundle := i18n.NewBundle(defaultLangTag)
+
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 	bundle.RegisterUnmarshalFunc("yaml", yaml.Unmarshal)
 	bundle.RegisterUnmarshalFunc("yml", yaml.Unmarshal)
