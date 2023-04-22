@@ -103,3 +103,41 @@ i18n: {{ i18n "a" . }}|
 	i18n: Reading time: 3|
 	`)
 }
+
+// Issue 9216
+func TestI18nDefaultContentLanguage(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+disableKinds = ['RSS','sitemap','taxonomy','term','page','section']
+defaultContentLanguage = 'es'
+defaultContentLanguageInSubdir = true
+[languages.es]
+[languages.fr]
+-- i18n/es.toml --
+cat = 'gato'
+-- i18n/fr.toml --
+# this file intentionally empty
+-- layouts/index.html --
+{{ .Title }}_{{ T "cat" }}
+-- content/_index.fr.md --
+---
+title: home_fr
+---
+-- content/_index.md --
+---
+title: home_es
+---
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/es/index.html", `home_es_gato`)
+	b.AssertFileContent("public/fr/index.html", `home_fr_gato`)
+}
