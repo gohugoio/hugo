@@ -20,7 +20,7 @@ import (
 	"sync/atomic"
 )
 
-// NewIdentityManager creates a new Manager starting at id.
+// NewManager creates a new Manager starting at id.
 func NewManager(id Provider) Manager {
 	return &identityManager{
 		Provider: id,

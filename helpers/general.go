@@ -131,7 +131,7 @@ func UniqueStringsReuse(s []string) []string {
 	return result
 }
 
-// UniqueStringsReuse returns a sorted slice with any duplicates removed.
+// UniqueStringsSorted returns a sorted slice with any duplicates removed.
 // It will modify the input slice.
 func UniqueStringsSorted(s []string) []string {
 	if len(s) == 0 {
