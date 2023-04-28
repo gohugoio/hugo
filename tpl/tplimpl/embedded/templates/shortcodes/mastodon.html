@@ -1,0 +1,15 @@
+{{- $pc := .Page.Site.Config.Privacy.Mastodon -}}
+{{- if not $pc.Disable -}}
+  {{- $msg1 := "The %q shortcode requires three named parameters: server, user and id. See %s" -}}
+  {{- $server := .Get "server" | default (.Get 0) -}}
+  {{- $user := .Get "user" | default (.Get 1) -}}
+  {{- $tootID := .Get "tootID" | default (.Get 2) -}}
+  {{- if and $server $user $tootID -}}
+<div style="position: relative; overflow: hidden; height: auto;">
+  <iframe src="https://{{ $server }}/@{{ $user }}/{{ $tootID }}/embed" class="mastodon-embed" style="border: 0px; max-width: 550px; width: 100%;" allowfullscreen="allowfullscreen"></iframe>
+  <script src="https://{{ $server }}/embed.js" async="async"></script>
+</div>
+  {{- else -}}
+    {{- errorf $msg1 .Name .Position -}}
+  {{- end -}}
+{{- end -}}

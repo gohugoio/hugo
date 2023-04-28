@@ -34,6 +34,8 @@ shortname = "DS"
 id = "ga_id"
 [services.instagram]
 disableInlineCSS = true
+[services.mastodon]
+disableInlineCSS = true
 [services.twitter]
 disableInlineCSS = true
 `

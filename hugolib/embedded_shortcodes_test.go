@@ -362,6 +362,35 @@ title: Shorty
 	}
 }
 
+func TestShortCodeMastodon(t *testing.T) {
+	t.Parallel()
+
+	for _, this := range []struct {
+		in, expected string
+	}{
+		{
+			`{{< mastodon hachyderm.io andrii 109335849364316929 >}}`,
+			"(?s)<div style=\".*?\">.*?<iframe src=\"https://hachyderm.io/@andrii/109335849364316929/embed\" class=\"mastodon-embed\" style=\".*?\" allowfullscreen=\".*?\">.*?</iframe>.*?<script src=\"https://hachyderm.io/embed.js\" async=\"async\"></script>.*?</div>",
+		},
+	} {
+		var (
+			cfg, fs = newTestCfg()
+			th      = newTestHelper(cfg, fs, t)
+		)
+
+		writeSource(t, fs, filepath.Join("content", "simple.md"), fmt.Sprintf(`---
+title: Shorty
+---
+%s`, this.in))
+		writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), `{{ .Content }}`)
+
+		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+
+		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), this.expected)
+
+	}
+}
+
 func TestShortcodeInstagram(t *testing.T) {
 	t.Parallel()
 

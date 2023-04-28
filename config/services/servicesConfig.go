@@ -31,6 +31,7 @@ type Config struct {
 	Disqus          Disqus
 	GoogleAnalytics GoogleAnalytics
 	Instagram       Instagram
+	Mastodon        Mastodon
 	Twitter         Twitter
 	RSS             RSS
 }
@@ -58,6 +59,14 @@ type Instagram struct {
 	// If you are using a Client Access Token, remember that you must combine it with your App ID
 	// using a pipe symbol (<APPID>|<CLIENTTOKEN>) otherwise the request will fail.
 	AccessToken string
+}
+
+// Mastodon holds the functional configuration settings related to the Mastodon shortcodes
+type Mastodon struct {
+	// The Simple variant of Mastodon is decorated with a basic set of inline styles.
+	// This means that if you want to provide your own CSS, you want
+	// to disable the inline CSS provided by Hugo.
+	DisableInlineCSS bool
 }
 
 // Twitter holds the functional configuration settings related to the Twitter shortcodes.
