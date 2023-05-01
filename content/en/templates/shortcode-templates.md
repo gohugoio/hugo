@@ -26,7 +26,7 @@ Hugo's built-in shortcodes cover many common, but not all, use cases. Luckily, H
 
 ### File Location
 
-To create a shortcode, place an HTML template in the `layouts/shortcodes` directory of your [source organization]. Consider the file name carefully since the shortcode name will mirror that of the file but without the `.html` extension. For example, `layouts/shortcodes/myshortcode.html` will be called with either `{{</* myshortcode /*/>}}` or `{{%/* myshortcode /*/%}}` depending on the type of parameters you choose.
+To create a shortcode, place an HTML template in the `layouts/shortcodes` directory of your [source organization]. Consider the file name carefully since the shortcode name will mirror that of the file but without the `.html` extension. For example, `layouts/shortcodes/myshortcode.html` will be called with either `{{</* myshortcode /*/>}}` or `{{%/* myshortcode /*/%}}`.
 
 You can organize your shortcodes in subfolders, e.g. in `layouts/shortcodes/boxes`. These shortcodes would then be accessible with their relative path, e.g:
 
