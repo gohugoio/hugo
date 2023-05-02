@@ -140,8 +140,15 @@ func (d Decoder) UnmarshalTo(data []byte, f Format, v any) error {
 		fp := feed.NewParser()
 		if feedData, feedErr := fp.Parse(bytes.NewReader(data)); feedErr == nil {
 			// convert feed parser data to a map
-			d, _ := json.Marshal(feedData)
-			json.Unmarshal(d, v)
+			// We marshal and unmarshal the content, so that the feed data matches the target struct in v.
+			var marshalled []byte
+			marshalled, err = json.Marshal(feedData)
+			if err != nil {
+				return toFileError(f, data, fmt.Errorf("temporary JSON marshalling of feed into JSON: %w", err)
+			}
+			if err := json.Unmarshal(marshalled, v); err != nil {
+				return toFileError(f, data, fmt.Errorf("unmarshalling temporary feed JSON: %w", err)
+			}
 		} else {
 			var xmlRoot xml.Map
 			xmlRoot, err = xml.NewMapXml(data)
