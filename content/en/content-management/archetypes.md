@@ -1,6 +1,6 @@
 ---
 title: Archetypes
-description: Archestypes are templates used when creating new content.
+description: Archetypes are templates used when creating new content.
 keywords: [archetypes,generators,metadata,front matter]
 categories: [content management]
 menu:
