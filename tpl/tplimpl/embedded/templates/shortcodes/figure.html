@@ -8,6 +8,13 @@
          {{- end -}}
          {{- with .Get "width" }} width="{{ . }}"{{ end -}}
          {{- with .Get "height" }} height="{{ . }}"{{ end -}}
+         {{- with .Get "ismap" }} ismap="{{ . }}"{{ end -}}
+         {{- with .Get "loading" }} loading="{{ . }}"{{ end -}}
+         {{- with .Get "longdesc" }} longdesc="{{ . }}"{{ end -}}
+         {{- with .Get "referrerpolicy" }} referrerpolicy="{{ . }}"{{ end -}}
+         {{- with .Get "size" }} size="{{ . }}"{{ end -}}
+         {{- with .Get "srcset" }} srcset="{{ . }}"{{ end -}}
+         {{- with .Get "usemap" }} usemap="{{ . }}"{{ end -}}
     /><!-- Closing img tag -->
     {{- if .Get "link" }}</a>{{ end -}}
     {{- if or (or (.Get "title") (.Get "caption")) (.Get "attr") -}}
