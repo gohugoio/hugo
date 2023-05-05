@@ -135,7 +135,7 @@ The directory where Hugo finds asset files used in [Hugo Pipes](/hugo-pipes/). {
 
 ### baseURL
 
-Hostname (and path) to the root, e.g. https://bep.is/
+The absolute URL (protocol, host, path, and trailing slash) of your published site (e.g., `https://www.example.org/docs/`).
 
 ### build
 
