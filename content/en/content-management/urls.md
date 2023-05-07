@@ -111,7 +111,8 @@ content/
 Create a date-based hierarchy, recursively, for regular pages within the `posts` section:
 
 {{< code-toggle file="config" copy=false >}}
-posts = '/posts/:year/:month/:title/'
+[permalinks]
+  posts = '/posts/:year/:month/:title/'
 {{< /code-toggle >}}
 
 The structure of the published site will be:
@@ -133,7 +134,8 @@ public/
 To create a date-based hierarchy for regular pages in the content root:
 
 {{< code-toggle file="config" copy=false >}}
-'/' = '/:year/:month/:title/'
+[permalinks]
+  '/' = '/:year/:month/:title/'
 {{< /code-toggle >}}
 
 {{% note %}}
@@ -143,7 +145,8 @@ A URL pattern defined for the content root is not recursive.
 Use the same approach with taxonomies. For example, to omit the taxonomy segment of the URL:
 
 {{< code-toggle file="config" copy=false >}}
-'tags' = '/:title/'
+[permalinks]
+  'tags' = '/:title/'
 {{< /code-toggle >}}
 
 Front matter `url` values take precedence over URL patterns defined in `permalinks`.
