@@ -171,4 +171,10 @@ excludeFiles (string or slice)
     source="content"
     target="content"
     excludeFiles="docs/*"
+[[module.mounts]]
+    source="node_modules"
+    target="assets"
+[[module.mounts]]
+    source="assets"
+    target="assets"
 {{< /code-toggle >}}
