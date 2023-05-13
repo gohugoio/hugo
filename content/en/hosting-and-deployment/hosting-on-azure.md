@@ -19,7 +19,7 @@ _The following documentation covers how to use GitHub Actions for the deployment
 
 1. You have Git 2.8 or greater [installed on your machine][installgit].
 2. You have a GitHub account. [Signing up][ghsignup] for GitHub is free.
-3. You have an Azure account. You can sign up for a [Free Trail][azuretrial].
+3. You have an Azure account. You can sign up for a [Free Trial][azuretrial].
 4. You have a ready-to-publish Hugo website or have at least completed the [Quick Start].
 
 ## Deploy Hugo to Azure Static Web Apps
