@@ -25,6 +25,7 @@ import (
 	"github.com/niklasfasching/go-org/org"
 
 	xml "github.com/clbanning/mxj/v2"
+	feed "github.com/mmcdole/gofeed"
 	toml "github.com/pelletier/go-toml/v2"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
@@ -136,23 +137,37 @@ func (d Decoder) UnmarshalTo(data []byte, f Format, v any) error {
 	case JSON:
 		err = json.Unmarshal(data, v)
 	case XML:
-		var xmlRoot xml.Map
-		xmlRoot, err = xml.NewMapXml(data)
-
-		var xmlValue map[string]any
-		if err == nil {
-			xmlRootName, err := xmlRoot.Root()
+		fp := feed.NewParser()
+		if feedData, feedErr := fp.Parse(bytes.NewReader(data)); feedErr == nil {
+			// convert feed parser data to a map
+			// We marshal and unmarshal the content, so that the feed data matches the target struct in v.
+			var marshalled []byte
+			marshalled, err = json.Marshal(feedData)
 			if err != nil {
-				return toFileError(f, data, fmt.Errorf("failed to unmarshal XML: %w", err))
+				return toFileError(f, data, fmt.Errorf("temporary JSON marshalling of feed into JSON: %w", err)
 			}
-			xmlValue = xmlRoot[xmlRootName].(map[string]any)
-		}
+			if err := json.Unmarshal(marshalled, v); err != nil {
+				return toFileError(f, data, fmt.Errorf("unmarshalling temporary feed JSON: %w", err)
+			}
+		} else {
+			var xmlRoot xml.Map
+			xmlRoot, err = xml.NewMapXml(data)
 
-		switch v := v.(type) {
-		case *map[string]any:
-			*v = xmlValue
-		case *any:
-			*v = xmlValue
+			var xmlValue map[string]any
+			if err == nil {
+				xmlRootName, err := xmlRoot.Root()
+				if err != nil {
+					return toFileError(f, data, fmt.Errorf("failed to unmarshal XML: %w", err))
+				}
+				xmlValue = xmlRoot[xmlRootName].(map[string]any)
+			}
+
+			switch v := v.(type) {
+			case *map[string]any:
+				*v = xmlValue
+			case *any:
+				*v = xmlValue
+			}
 		}
 	case TOML:
 		err = toml.Unmarshal(data, v)

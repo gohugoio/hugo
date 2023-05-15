@@ -20,7 +20,7 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
-func TestUnmarshalXML(t *testing.T) {
+func TestUnmarshalXMLFeed(t *testing.T) {
 	c := qt.New(t)
 
 	xmlDoc := `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
@@ -44,6 +44,78 @@ func TestUnmarshalXML(t *testing.T) {
 			</item>
 		</channel>
 	</rss>`
+
+	expect := map[string]any{
+		"copyright":   "Example",
+		"description": "Example feed",
+		"extensions": map[string]any{
+			"atom": map[string]any{
+				"link": []any{
+					map[string]any{
+						"attrs": map[string]any{
+							"href": "https://example.com/feed.xml",
+							"rel":  "self",
+							"type": "application/rss+xml",
+						},
+						"children": map[string]any{},
+						"name":     "link",
+						"value":    "",
+					},
+				},
+			},
+		},
+		"feedLink":    "https://example.com/feed.xml",
+		"feedType":    "rss",
+		"feedVersion": "2.0",
+		"generator":   "Hugo -- gohugo.io",
+		"items": []interface{}{map[string]any{
+			"description":     "Example description",
+			"guid":            "https://example.com/2021/11/30/example-title/",
+			"link":            "https://example.com/2021/11/30/example-title/",
+			"links":           []any{"https://example.com/2021/11/30/example-title/"},
+			"published":       "Tue, 30 Nov 2021 15:00:00 +0000",
+			"publishedParsed": "2021-11-30T15:00:00Z",
+			"title":           "Example title",
+		}},
+		"language":      "en-us",
+		"link":          "https://example.com/",
+		"links":         []any{"https://example.com/", "https://example.com/feed.xml"},
+		"title":         "Example feed",
+		"updated":       "Fri, 08 Jan 2021 14:44:10 +0000",
+		"updatedParsed": "2021-01-08T14:44:10Z",
+	}
+
+	d := Default
+
+	m, err := d.Unmarshal([]byte(xmlDoc), XML)
+	c.Assert(err, qt.IsNil)
+	c.Assert(m, qt.DeepEquals, expect)
+}
+
+func TestUnmarshalXML(t *testing.T) {
+	c := qt.New(t)
+
+	xmlDoc := `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+	<notrss version="2.0"
+		xmlns:atom="http://www.w3.org/2005/Atom">
+		<channel>
+			<title>Example feed</title>
+			<link>https://example.com/</link>
+			<description>Example feed</description>
+			<generator>Hugo -- gohugo.io</generator>
+			<language>en-us</language>
+			<copyright>Example</copyright>
+			<lastBuildDate>Fri, 08 Jan 2021 14:44:10 +0000</lastBuildDate>
+			<atom:link href="https://example.com/feed.xml" rel="self" type="application/rss+xml"/>
+			<item>
+				<title>Example title</title>
+				<link>https://example.com/2021/11/30/example-title/</link>
+				<pubDate>Tue, 30 Nov 2021 15:00:00 +0000</pubDate>
+				<guid>https://example.com/2021/11/30/example-title/</guid>
+				<description>Example description</description>
+			</item>
+		</channel>
+	</notrss>`
 
 	expect := map[string]any{
 		"-atom": "http://www.w3.org/2005/Atom", "-version": "2.0",
@@ -71,8 +143,8 @@ func TestUnmarshalXML(t *testing.T) {
 	m, err := d.Unmarshal([]byte(xmlDoc), XML)
 	c.Assert(err, qt.IsNil)
 	c.Assert(m, qt.DeepEquals, expect)
-
 }
+
 func TestUnmarshalToMap(t *testing.T) {
 	c := qt.New(t)
 
