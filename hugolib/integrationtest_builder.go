@@ -207,7 +207,7 @@ func (s *IntegrationTestBuilder) BuildE() (*IntegrationTestBuilder, error) {
 		return s, err
 	}
 
-	err := s.build(BuildCfg{})
+	err := s.build(s.Cfg.BuildCfg)
 	return s, err
 }
 
@@ -503,4 +503,6 @@ type IntegrationTestConfig struct {
 	NeedsNpmInstall bool
 
 	WorkingDir string
+
+	BuildCfg BuildCfg
 }

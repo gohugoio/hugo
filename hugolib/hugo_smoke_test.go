@@ -339,20 +339,42 @@ func TestBenchmarkBaseline(t *testing.T) {
 }
 
 func BenchmarkBaseline(b *testing.B) {
-	cfg := IntegrationTestConfig{
-		T:           b,
-		TxtarString: benchmarkBaselineFiles(),
-	}
-	builders := make([]*IntegrationTestBuilder, b.N)
+	b.Run("withrender", func(b *testing.B) {
+		cfg := IntegrationTestConfig{
+			T:           b,
+			TxtarString: benchmarkBaselineFiles(),
+		}
+		builders := make([]*IntegrationTestBuilder, b.N)
 
-	for i := range builders {
-		builders[i] = NewIntegrationTestBuilder(cfg)
-	}
+		for i := range builders {
+			builders[i] = NewIntegrationTestBuilder(cfg)
+		}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		builders[i].Build()
-	}
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			builders[i].Build()
+		}
+	})
+
+	b.Run("skiprender", func(b *testing.B) {
+		cfg := IntegrationTestConfig{
+			T:           b,
+			TxtarString: benchmarkBaselineFiles(),
+			BuildCfg: BuildCfg{
+				SkipRender: true,
+			},
+		}
+		builders := make([]*IntegrationTestBuilder, b.N)
+
+		for i := range builders {
+			builders[i] = NewIntegrationTestBuilder(cfg)
+		}
+
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			builders[i].Build()
+		}
+	})
 }
 
 func benchmarkBaselineFiles() string {
