@@ -38,6 +38,9 @@ useSessionStorage = true
 [privacy.instagram]
 disable = true
 simple = true
+[privacy.mastodon]
+disable = true
+simple = true
 [privacy.twitter]
 disable = true
 enableDNT = true
@@ -63,6 +66,7 @@ simple = true
 		pc.GoogleAnalytics.RespectDoNotTrack, pc.GoogleAnalytics.AnonymizeIP,
 		pc.GoogleAnalytics.UseSessionStorage, pc.Instagram.Disable,
 		pc.Instagram.Simple, pc.Twitter.Disable, pc.Twitter.EnableDNT,
+		pc.Mastodon.Simple, pc.Mastodon.Disable,
 		pc.Twitter.Simple, pc.Vimeo.Disable, pc.Vimeo.EnableDNT, pc.Vimeo.Simple,
 		pc.YouTube.PrivacyEnhanced, pc.YouTube.Disable,
 	}
