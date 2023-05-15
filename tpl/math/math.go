@@ -39,7 +39,7 @@ type Namespace struct{}
 func (ns *Namespace) Abs(n any) (float64, error) {
 	af, err := cast.ToFloat64E(n)
 	if err != nil {
-		return 0, errors.New("Sqrt operator can't be used with non integer or float value")
+		return 0, errors.New("the math.Abs function requires a numeric argument")
 	}
 
 	return math.Abs(af), nil
