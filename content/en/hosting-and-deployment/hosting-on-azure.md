@@ -1,6 +1,6 @@
 ---
 title: Host on Azure Static Web Apps
-description: Deploy Hugo to Azure Static Web Apps and automate the whole process with Github Action Workflow
+description: Deploy Hugo to Azure Static Web Apps and automate the whole process with GitHub Action Workflow
 categories: [hosting and deployment]
 keywords: [azure,git,deployment,hosting]
 menu:

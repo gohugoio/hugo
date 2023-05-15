@@ -82,7 +82,7 @@ git remote add origin git@gitlab.com:youruser/ci-example.git
 git push -u origin master
 ```
 
-You can watch the progress and CI job output in your Gitlab project under “Pipelines”.
+You can watch the progress and CI job output in your GitLab project under “Pipelines”.
 
 After verifying your CI job ran without issues, first check that your GitLab page shows up under `https://youruser.gitlab.io/reponame/` (it might look broken depending on your browser settings as all links point to your KeyCDN zone – don’t worry about that) and then by heading to whatever Zone alias / Zone URL you defined.
 
