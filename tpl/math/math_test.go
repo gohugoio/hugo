@@ -63,6 +63,33 @@ func TestBasicNSArithmetic(t *testing.T) {
 	}
 }
 
+func TestAbs(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	ns := New()
+
+	for _, test := range []struct {
+		x      any
+		expect any
+	}{
+		{0.0, 0.0},
+		{1.5, 1.5},
+		{-1.5, 1.5},
+		{-2, 2.0},
+		{"abc", false},
+	} {
+		result, err := ns.Abs(test.x)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}
+
 func TestCeil(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)

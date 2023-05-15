@@ -35,6 +35,16 @@ func New() *Namespace {
 // Namespace provides template functions for the "math" namespace.
 type Namespace struct{}
 
+// Abs returns the absolute value of n.
+func (ns *Namespace) Abs(n any) (float64, error) {
+	af, err := cast.ToFloat64E(n)
+	if err != nil {
+		return 0, errors.New("Sqrt operator can't be used with non integer or float value")
+	}
+
+	return math.Abs(af), nil
+}
+
 // Add adds the multivalued addends n1 and n2 or more values.
 func (ns *Namespace) Add(inputs ...any) (any, error) {
 	return ns.doArithmetic(inputs, '+')
