@@ -1,7 +1,7 @@
 ---
 title: Host on GitHub
 linktitle: Host on GitHub
-description: Deploy Hugo as a GitHub Pages project or personal/organizational site and automate the whole process with Github Action Workflow
+description: Deploy Hugo as a GitHub Pages project or personal/organizational site and automate the whole process with GitHub Action Workflow
 date: 2014-03-21
 publishdate: 2014-03-21
 categories: [hosting and deployment]
@@ -52,7 +52,7 @@ GitHub executes your software development workflows. Every time you push your co
 Create a file in `.github/workflows/gh-pages.yml` containing the following content (based on [actions-hugo](https://github.com/marketplace/actions/hugo-setup)):
 
 ```yml
-name: github pages
+name: GitHub pages
 
 on:
   push:
