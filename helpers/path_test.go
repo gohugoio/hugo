@@ -256,42 +256,35 @@ func TestIsDir(t *testing.T) {
 	}
 }
 
-func createZeroSizedFileInTempDir() (*os.File, error) {
+func createZeroSizedFileInTempDir(t *testing.T) *os.File {
+	t.Helper()
+
 	filePrefix := "_path_test_"
-	f, e := os.CreateTemp("", filePrefix) // dir is os.TempDir()
-	if e != nil {
-		// if there was an error no file was created.
-		// => no requirement to delete the file
-		return nil, e
+	f, err := os.CreateTemp(t.TempDir(), filePrefix)
+	if err != nil {
+		t.Error(err)
 	}
-	return f, nil
+	if err := f.Close(); err != nil {
+		t.Error(err)
+	}
+	return f
 }
 
-func createNonZeroSizedFileInTempDir() (*os.File, error) {
-	f, err := createZeroSizedFileInTempDir()
-	if err != nil {
-		// no file ??
-		return nil, err
-	}
+func createNonZeroSizedFileInTempDir(t *testing.T) *os.File {
+	t.Helper()
+
+	f := createZeroSizedFileInTempDir(t)
 	byteString := []byte("byteString")
-	err = os.WriteFile(f.Name(), byteString, 0644)
+	err := os.WriteFile(f.Name(), byteString, 0644)
 	if err != nil {
-		// delete the file
-		deleteFileInTempDir(f)
-		return nil, err
+		t.Error(err)
 	}
-	return f, nil
-}
-
-func deleteFileInTempDir(f *os.File) {
-	_ = os.Remove(f.Name())
+	return f
 }
 
 func TestExists(t *testing.T) {
-	zeroSizedFile, _ := createZeroSizedFileInTempDir()
-	defer deleteFileInTempDir(zeroSizedFile)
-	nonZeroSizedFile, _ := createNonZeroSizedFileInTempDir()
-	defer deleteFileInTempDir(nonZeroSizedFile)
+	zeroSizedFile := createZeroSizedFileInTempDir(t)
+	nonZeroSizedFile := createNonZeroSizedFileInTempDir(t)
 	emptyDirectory := t.TempDir()
 	nonExistentFile := os.TempDir() + "/this-file-does-not-exist.txt"
 	nonExistentDir := os.TempDir() + "/this/directory/does/not/exist/"
@@ -437,8 +430,7 @@ func TestFindCWD(t *testing.T) {
 }
 
 func TestSafeWriteToDisk(t *testing.T) {
-	emptyFile, _ := createZeroSizedFileInTempDir()
-	defer deleteFileInTempDir(emptyFile)
+	emptyFile := createZeroSizedFileInTempDir(t)
 	tmpDir := t.TempDir()
 
 	randomString := "This is a random string!"
@@ -478,8 +470,7 @@ func TestSafeWriteToDisk(t *testing.T) {
 }
 
 func TestWriteToDisk(t *testing.T) {
-	emptyFile, _ := createZeroSizedFileInTempDir()
-	defer deleteFileInTempDir(emptyFile)
+	emptyFile := createZeroSizedFileInTempDir(t)
 	tmpDir := t.TempDir()
 
 	randomString := "This is a random string!"
