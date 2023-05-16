@@ -67,7 +67,7 @@ To continue with the example above:
 Hugo assumes you want to append `nd` as a string to the day of the month and outputs the following:
 
 ```txt
-Mar 3nd 2017
+Mar 2nd 2017
 ```
 
 ### Use `.Local` and `.UTC`
