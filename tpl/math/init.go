@@ -31,6 +31,13 @@ func init() {
 			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
 		}
 
+		ns.AddMethodMapping(ctx.Abs,
+			nil,
+			[][2]string{
+				{"{{ math.Abs -2.1 }}", "2.1"},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Add,
 			[]string{"add"},
 			[][2]string{
