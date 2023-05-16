@@ -43,6 +43,9 @@ type Site interface {
 	// Returns all Pages in this Site.
 	Pages() Pages
 
+	// Returns all the top level sections.
+	Sections() Pages
+
 	// A shortcut to the home
 	Home() Page
 
@@ -164,6 +167,10 @@ func (s *siteWrapper) Pages() Pages {
 	return s.s.Pages()
 }
 
+func (s *siteWrapper) Sections() Pages {
+	return s.s.Sections()
+}
+
 func (s *siteWrapper) Home() Page {
 	return s.s.Home()
 }
@@ -282,6 +289,10 @@ func (t testSite) Copyright() string {
 }
 
 func (t testSite) Sites() Sites {
+	return nil
+}
+
+func (t testSite) Sections() Pages {
 	return nil
 }
 

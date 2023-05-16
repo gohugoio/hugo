@@ -741,3 +741,30 @@ themeconfigdirparam: {{ site.Params.themeconfigdirparam }}
 	}
 
 }
+
+// TODO(beo) find a better place for this.
+func TestReproCommentsIn10947(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+-- content/mysection/_index.md --
+---
+title: "My Section"
+---
+-- layouts/index.html --
+Sections: {{ if site.Sections }}true{{ end }}|
+
+
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", "Sections: true|")
+
+}
