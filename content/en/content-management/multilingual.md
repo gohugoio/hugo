@@ -69,6 +69,35 @@ Only the obvious non-global options can be overridden per language. Examples of 
 
 **Please note:** use lowercase language codes, even when using regional languages (ie. use pt-pt instead of pt-PT). Currently Hugo language internals lowercase language codes, which can cause conflicts with settings like `defaultContentLanguage` which are not lowercased. Please track the evolution of this issue in [Hugo repository issue tracker](https://github.com/gohugoio/hugo/issues/7344)
 
+### Changes in Hugo 0.112.0
+
+{{< new-in "0.112.0 >}}
+
+In version `0.112.0` of Hugo we did a major we consolidated all configuration options, but also improved how the languages and their params gets merged with the main configuration. But while testing this on Hugo sites out there, we got some error reports.
+
+1. `site.Language.Params` is deprecated. Use `site.Params` directly.
+1. The `params` sections on site and language is the only place to put custom user parameters, and `site.Params` will only contain these user defined parameters (see example below). 
+
+```toml
+title = "My blog"
+languageCode = "en-us"
+
+[languages]
+[languages.sv]
+title = "Min blogg"
+languageCode = "sv"
+[languages.en.params]
+color = "blue"
+```
+
+In the example above, all the settings exept the `color` below `params` maps to predefined configuration options in Hguo for the site and its language, and should be accessed via the documented accessors:
+
+```
+{{ site.Title }}
+{{ site.LanguageCode }}
+{{ site.Params.color }}
+```
+
 ### Disable a Language
 
 You can disable one or more languages. This can be useful when working on a new translation.
