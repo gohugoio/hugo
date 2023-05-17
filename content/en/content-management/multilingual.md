@@ -71,7 +71,7 @@ Only the obvious non-global options can be overridden per language. Examples of 
 
 ### Changes in Hugo 0.112.0
 
-{{< new-in "0.112.0 >}}
+{{< new-in "0.112.0" >}}
 
 In version `0.112.0` of Hugo we did a major we consolidated all configuration options, but also improved how the languages and their params gets merged with the main configuration. But while testing this on Hugo sites out there, we got some error reports.
 
