@@ -63,6 +63,31 @@ type InternalConfig struct {
 	LiveReloadPort    int
 }
 
+// All non-params config keys for language.
+var configLanguageKeys map[string]bool
+
+func init() {
+	skip := map[string]bool{
+		"internal":   true,
+		"c":          true,
+		"rootconfig": true,
+	}
+	configLanguageKeys = make(map[string]bool)
+	addKeys := func(v reflect.Value) {
+		for i := 0; i < v.NumField(); i++ {
+			name := strings.ToLower(v.Type().Field(i).Name)
+			if skip[name] {
+				continue
+			}
+			configLanguageKeys[name] = true
+		}
+	}
+	addKeys(reflect.ValueOf(Config{}))
+	addKeys(reflect.ValueOf(RootConfig{}))
+	addKeys(reflect.ValueOf(config.CommonDirs{}))
+	addKeys(reflect.ValueOf(langs.LanguageConfig{}))
+}
+
 type Config struct {
 	// For internal use only.
 	Internal InternalConfig `mapstructure:"-" json:"-"`
@@ -328,7 +353,7 @@ type ConfigCompiled struct {
 	Clock             time.Time
 
 	// This is set to the last transient error found during config compilation.
-	// With themes/modules we compule the configuration in multiple passes, and
+	// With themes/modules we compute the configuration in multiple passes, and
 	// errors with missing output format definitions may resolve itself.
 	transientErr error
 }
@@ -659,7 +684,30 @@ func FromLoadConfigResult(fs afero.Fs, res config.LoadConfigResult) (*Configs, e
 		var differentRootKeys []string
 		switch x := v.(type) {
 		case maps.Params:
+			var params maps.Params
+			pv, found := x["params"]
+			if found {
+				params = pv.(maps.Params)
+			} else {
+				params = maps.Params{
+					maps.MergeStrategyKey: maps.ParamsMergeStrategyDeep,
+				}
+				x["params"] = params
+			}
+
 			for kk, vv := range x {
+				if kk == "_merge" {
+					continue
+				}
+				if kk != maps.MergeStrategyKey && !configLanguageKeys[kk] {
+					// This should have been placed below params.
+					// We accidently allowed it in the past, so we need to support it a little longer,
+					// But log a warning.
+					if _, found := params[kk]; !found {
+						helpers.Deprecated(fmt.Sprintf("config: languages.%s.%s: custom params on the language top level", k, kk), fmt.Sprintf("Put the value below [languages.%s.params]. See See https://gohugo.io/content-management/multilingual/#changes-in-hugo-01120", k), false)
+						params[kk] = vv
+					}
+				}
 				if kk == "baseurl" {
 					// baseURL configure don the language level is a multihost setup.
 					isMultiHost = true

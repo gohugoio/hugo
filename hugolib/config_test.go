@@ -778,6 +778,43 @@ Home.
 
 }
 
+func TestConfigParamSetOnLanguageLevel(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT"]
+[languages]
+[languages.en]
+title = "English Title"
+thisIsAParam = "thisIsAParamValue"
+[languages.en.params]
+myparam = "enParamValue"
+[languages.sv]
+title = "Svensk Title"
+[languages.sv.params]
+myparam = "svParamValue"
+-- layouts/index.html --
+MyParam: {{ site.Params.myparam }}
+ThisIsAParam: {{ site.Params.thisIsAParam }}
+
+
+`
+
+	b, err := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).BuildE()
+
+	b.Assert(err, qt.IsNil)
+	b.AssertFileContent("public/index.html", `		
+MyParam: enParamValue
+ThisIsAParam: thisIsAParamValue	
+`)
+}
+
 func TestReproCommentsIn10947(t *testing.T) {
 	t.Parallel()
 
@@ -817,7 +854,9 @@ title: "My Swedish Section"
 		},
 	).Build()
 
-	b.Assert(b.H.Log.LogCounters().WarnCounter.Count(), qt.Equals, uint64(2))
+	{
+		b.Assert(b.H.Log.LogCounters().WarnCounter.Count(), qt.Equals, uint64(2))
+	}
 	b.AssertFileContent("public/index.html", `
 AllPages: 4|
 Sections: true|
