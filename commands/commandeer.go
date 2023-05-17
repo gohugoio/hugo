@@ -106,21 +106,12 @@ type rootCommand struct {
 	commands []simplecobra.Commander
 
 	// Flags
-	source          string
-	baseURL         string
-	buildWatch      bool
-	forceSyncStatic bool
-	panicOnWarning  bool
-	environment     string
-	poll            string
-	gc              bool
+	source      string
+	buildWatch  bool
+	environment string
 
-	// Profile flags (for debugging of performance problems)
-	cpuprofile   string
-	memprofile   string
-	mutexprofile string
-	traceprofile string
-	printm       bool
+	// Common build flags.
+	*buildFlags
 
 	// TODO(bep) var vs string
 	logging        bool
@@ -133,6 +124,21 @@ type rootCommand struct {
 	cfgFile string
 	cfgDir  string
 	logFile string
+}
+
+type buildFlags struct {
+	baseURL         string
+	gc              bool
+	poll            string
+	panicOnWarning  bool
+	forceSyncStatic bool
+
+	// Profile flags (for debugging of performance problems)
+	cpuprofile   string
+	memprofile   string
+	mutexprofile string
+	traceprofile string
+	printm       bool
 }
 
 func (r *rootCommand) Build(cd *simplecobra.Commandeer, bcfg hugolib.BuildCfg, cfg config.Provider) (*hugolib.HugoSites, error) {
@@ -470,6 +476,9 @@ Complete documentation is available at https://gohugo.io/.`
 	// Configure persistent flags
 	cmd.PersistentFlags().StringVarP(&r.source, "source", "s", "", "filesystem path to read files relative from")
 	cmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
+	cmd.PersistentFlags().StringP("destination", "d", "", "filesystem path to write files to")
+	cmd.PersistentFlags().SetAnnotation("destination", cobra.BashCompSubdirsInDir, []string{})
+
 	cmd.PersistentFlags().StringVarP(&r.environment, "environment", "e", "", "build environment")
 	cmd.PersistentFlags().StringP("themesDir", "", "", "filesystem path to themes directory")
 	cmd.PersistentFlags().StringP("ignoreVendorPaths", "", "", "ignores any _vendor for module paths matching the given Glob pattern")
@@ -494,6 +503,16 @@ Complete documentation is available at https://gohugo.io/.`
 	_ = cmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
 
 	// Configure local flags
+	applyLocalBuildFlags(cmd, r.buildFlags)
+
+	// Set bash-completion.
+	// Each flag must first be defined before using the SetAnnotation() call.
+	_ = cmd.Flags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
+
+	return nil
+}
+
+func applyLocalBuildFlags(cmd *cobra.Command, f *buildFlags) {
 	cmd.Flags().Bool("cleanDestinationDir", false, "remove files from destination not found in static directories")
 	cmd.Flags().BoolP("buildDrafts", "D", false, "include content marked as draft")
 	cmd.Flags().BoolP("buildFuture", "F", false, "include content with publishdate in the future")
@@ -502,27 +521,26 @@ Complete documentation is available at https://gohugo.io/.`
 	cmd.Flags().StringP("layoutDir", "l", "", "filesystem path to layout directory")
 	cmd.Flags().StringP("cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
 	cmd.Flags().BoolP("ignoreCache", "", false, "ignores the cache directory")
-	cmd.Flags().StringP("destination", "d", "", "filesystem path to write files to")
 	cmd.Flags().StringSliceP("theme", "t", []string{}, "themes to use (located in /themes/THEMENAME/)")
-	cmd.Flags().StringVarP(&r.baseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. https://spf13.com/")
+	cmd.Flags().StringVarP(&f.baseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. https://spf13.com/")
 	cmd.Flags().Bool("enableGitInfo", false, "add Git revision, date, author, and CODEOWNERS info to the pages")
-	cmd.Flags().BoolVar(&r.gc, "gc", false, "enable to run some cleanup tasks (remove unused cache files) after the build")
-	cmd.Flags().StringVar(&r.poll, "poll", "", "set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes")
-	cmd.Flags().BoolVar(&r.panicOnWarning, "panicOnWarning", false, "panic on first WARNING log")
+	cmd.Flags().BoolVar(&f.gc, "gc", false, "enable to run some cleanup tasks (remove unused cache files) after the build")
+	cmd.Flags().StringVar(&f.poll, "poll", "", "set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes")
+	cmd.Flags().BoolVar(&f.panicOnWarning, "panicOnWarning", false, "panic on first WARNING log")
 	cmd.Flags().Bool("templateMetrics", false, "display metrics about template executions")
 	cmd.Flags().Bool("templateMetricsHints", false, "calculate some improvement hints when combined with --templateMetrics")
-	cmd.Flags().BoolVar(&r.forceSyncStatic, "forceSyncStatic", false, "copy all files when static is changed.")
+	cmd.Flags().BoolVar(&f.forceSyncStatic, "forceSyncStatic", false, "copy all files when static is changed.")
 	cmd.Flags().BoolP("noTimes", "", false, "don't sync modification time of files")
 	cmd.Flags().BoolP("noChmod", "", false, "don't sync permission mode of files")
 	cmd.Flags().BoolP("noBuildLock", "", false, "don't create .hugo_build.lock file")
 	cmd.Flags().BoolP("printI18nWarnings", "", false, "print missing translations")
 	cmd.Flags().BoolP("printPathWarnings", "", false, "print warnings on duplicate target paths etc.")
 	cmd.Flags().BoolP("printUnusedTemplates", "", false, "print warnings on unused templates.")
-	cmd.Flags().StringVarP(&r.cpuprofile, "profile-cpu", "", "", "write cpu profile to `file`")
-	cmd.Flags().StringVarP(&r.memprofile, "profile-mem", "", "", "write memory profile to `file`")
-	cmd.Flags().BoolVarP(&r.printm, "printMemoryUsage", "", false, "print memory usage to screen at intervals")
-	cmd.Flags().StringVarP(&r.mutexprofile, "profile-mutex", "", "", "write Mutex profile to `file`")
-	cmd.Flags().StringVarP(&r.traceprofile, "trace", "", "", "write trace to `file` (not useful in general)")
+	cmd.Flags().StringVarP(&f.cpuprofile, "profile-cpu", "", "", "write cpu profile to `file`")
+	cmd.Flags().StringVarP(&f.memprofile, "profile-mem", "", "", "write memory profile to `file`")
+	cmd.Flags().BoolVarP(&f.printm, "printMemoryUsage", "", false, "print memory usage to screen at intervals")
+	cmd.Flags().StringVarP(&f.mutexprofile, "profile-mutex", "", "", "write Mutex profile to `file`")
+	cmd.Flags().StringVarP(&f.traceprofile, "trace", "", "", "write trace to `file` (not useful in general)")
 
 	// Hide these for now.
 	cmd.Flags().MarkHidden("profile-cpu")
@@ -533,14 +551,10 @@ Complete documentation is available at https://gohugo.io/.`
 
 	cmd.Flags().Bool("minify", false, "minify any supported output format (HTML, XML etc.)")
 
-	// Set bash-completion.
-	// Each flag must first be defined before using the SetAnnotation() call.
-	_ = cmd.Flags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
 	_ = cmd.Flags().SetAnnotation("cacheDir", cobra.BashCompSubdirsInDir, []string{})
 	_ = cmd.Flags().SetAnnotation("destination", cobra.BashCompSubdirsInDir, []string{})
 	_ = cmd.Flags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
 
-	return nil
 }
 
 func (r *rootCommand) timeTrack(start time.Time, name string) {

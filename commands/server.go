@@ -99,7 +99,8 @@ func newHugoBuilder(r *rootCommand, s *serverCommand, onConfigLoaded ...func(rel
 func newServerCommand() *serverCommand {
 	var c *serverCommand
 	c = &serverCommand{
-		quit: make(chan bool),
+		buildFlags: &buildFlags{},
+		quit:       make(chan bool),
 	}
 	return c
 }
@@ -408,6 +409,9 @@ type serverCommand struct {
 
 	// Flags.
 
+	// Common build flags.
+	*buildFlags
+
 	renderToDisk        bool
 	renderStaticToDisk  bool
 	navigateToChanged   bool
@@ -499,6 +503,9 @@ of a second, you will be able to save and see your changes nearly instantly.`
 
 	cmd.Flags().String("memstats", "", "log memory usage to this file")
 	cmd.Flags().String("meminterval", "100ms", "interval to poll memory usage (requires --memstats), valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".")
+
+	applyLocalBuildFlags(cmd, c.buildFlags)
+
 	return nil
 }
 
