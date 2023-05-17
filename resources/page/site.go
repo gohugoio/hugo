@@ -37,6 +37,9 @@ type Site interface {
 
 	GetPage(ref ...string) (Page, error)
 
+	// AllPages returns all pages for all languages.
+	AllPages() Pages
+
 	// Returns all the regular Pages in this Site.
 	RegularPages() Pages
 
@@ -104,6 +107,9 @@ type Site interface {
 	// Author is deprecated and will be removed in a future release.
 	Author() map[string]interface{}
 
+	// Authors is deprecated and will be removed in a future release.
+	Authors() AuthorList
+
 	// Returns the social links for this site.
 	Social() map[string]string
 
@@ -115,6 +121,12 @@ type Site interface {
 
 	// For internal use only.
 	GetPageWithTemplateInfo(info tpl.Info, ref ...string) (Page, error)
+
+	// BuildDraft is deprecated and will be removed in a future release.
+	BuildDrafts() bool
+
+	// IsMultilingual reports whether this site is configured with more than one language.
+	IsMultiLingual() bool
 }
 
 // Sites represents an ordered list of sites (languages).
@@ -146,6 +158,9 @@ func (s *siteWrapper) Social() map[string]string {
 func (s *siteWrapper) Author() map[string]interface{} {
 	return s.s.Author()
 }
+func (s *siteWrapper) Authors() AuthorList {
+	return AuthorList{}
+}
 
 func (s *siteWrapper) GoogleAnalytics() string {
 	return s.s.GoogleAnalytics()
@@ -157,6 +172,10 @@ func (s *siteWrapper) GetPage(ref ...string) (Page, error) {
 
 func (s *siteWrapper) Language() *langs.Language {
 	return s.s.Language()
+}
+
+func (s *siteWrapper) AllPages() Pages {
+	return s.s.AllPages()
 }
 
 func (s *siteWrapper) RegularPages() Pages {
@@ -247,6 +266,14 @@ func (s *siteWrapper) GetPageWithTemplateInfo(info tpl.Info, ref ...string) (Pag
 	return s.s.GetPageWithTemplateInfo(info, ref...)
 }
 
+func (s *siteWrapper) BuildDrafts() bool {
+	return s.s.BuildDrafts()
+}
+
+func (s *siteWrapper) IsMultiLingual() bool {
+	return s.s.IsMultiLingual()
+}
+
 func (s *siteWrapper) DisqusShortname() string {
 	return s.s.DisqusShortname()
 }
@@ -258,6 +285,9 @@ type testSite struct {
 
 func (s testSite) Author() map[string]interface{} {
 	return nil
+}
+func (s testSite) Authors() AuthorList {
+	return AuthorList{}
 }
 
 func (s testSite) Social() map[string]string {
@@ -332,6 +362,10 @@ func (t testSite) Pages() Pages {
 	return nil
 }
 
+func (t testSite) AllPages() Pages {
+	return nil
+}
+
 func (t testSite) RegularPages() Pages {
 	return nil
 }
@@ -366,6 +400,14 @@ func (testSite) GetPageWithTemplateInfo(info tpl.Info, ref ...string) (Page, err
 
 func (testSite) DisqusShortname() string {
 	return ""
+}
+
+func (s testSite) BuildDrafts() bool {
+	return false
+}
+
+func (s testSite) IsMultiLingual() bool {
+	return false
 }
 
 // NewDummyHugoSite creates a new minimal test site.

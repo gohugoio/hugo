@@ -742,19 +742,35 @@ themeconfigdirparam: {{ site.Params.themeconfigdirparam }}
 
 }
 
-// TODO(beo) find a better place for this.
 func TestReproCommentsIn10947(t *testing.T) {
 	t.Parallel()
 
 	files := `
 -- hugo.toml --
 baseURL = "https://example.com"
--- content/mysection/_index.md --
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT"]
+[languages]
+[languages.en]
+title = "English Title"
+[languages.en.params]
+myparam = "enParamValue"
+[languages.sv]
+title = "Svensk Title"
+[languages.sv.params]
+myparam = "svParamValue"
+-- content/mysection/_index.en.md --
 ---
-title: "My Section"
+title: "My English Section"
+---
+-- content/mysection/_index.sv.md --
+---
+title: "My Swedish Section"
 ---
 -- layouts/index.html --
-Sections: {{ if site.Sections }}true{{ end }}|
+{{ range $i, $e := (slice site .Site) }}
+{{ $i }}|AllPages: {{ len .AllPages }}|Sections: {{ if .Sections }}true{{ end }}| Author: {{ .Authors }}|BuildDrafts: {{ .BuildDrafts }}|IsMultiLingual: {{ .IsMultiLingual }}|Param: {{ .Language.Params.myparam }}|
+{{ end }}
+
 
 
 `
@@ -765,6 +781,18 @@ Sections: {{ if site.Sections }}true{{ end }}|
 		},
 	).Build()
 
-	b.AssertFileContent("public/index.html", "Sections: true|")
+	b.Assert(b.H.Log.LogCounters().WarnCounter.Count(), qt.Equals, uint64(2))
+	b.AssertFileContent("public/index.html", `
+AllPages: 4|
+Sections: true|
+Param: enParamValue	
+Param: enParamValue	
+IsMultiLingual: true
+`)
+
+	b.AssertFileContent("public/sv/index.html", `
+Param: svParamValue	
+
+`)
 
 }

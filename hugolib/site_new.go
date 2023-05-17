@@ -132,6 +132,8 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 			return nil, err
 		}
 
+		langs.SetParams(language, conf.Params)
+
 		s := &Site{
 			conf:     conf,
 			language: language,
@@ -411,6 +413,10 @@ func (s *Site) Author() map[string]any {
 	return s.conf.Author
 }
 
+func (s *Site) Authors() page.AuthorList {
+	return page.AuthorList{}
+}
+
 func (s *Site) Social() map[string]string {
 	return s.conf.Social
 }
@@ -432,6 +438,14 @@ func (s *Site) Param(key string) (any, error) {
 // Returns a map of all the data inside /data.
 func (s *Site) Data() map[string]any {
 	return s.s.h.Data()
+}
+
+func (s *Site) BuildDrafts() bool {
+	return s.conf.BuildDrafts
+}
+
+func (s *Site) IsMultiLingual() bool {
+	return s.h.isMultiLingual()
 }
 
 func (s *Site) LanguagePrefix() string {

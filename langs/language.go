@@ -23,6 +23,7 @@ import (
 	"golang.org/x/text/language"
 
 	"github.com/gohugoio/hugo/common/htime"
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/locales"
 	translators "github.com/gohugoio/localescompressed"
 )
@@ -42,6 +43,9 @@ type Language struct {
 	tag           language.Tag
 	collator      *Collator
 	location      *time.Location
+
+	// This is just an alias of Site.Params.
+	params maps.Params
 }
 
 // NewLanguage creates a new language.
@@ -76,7 +80,25 @@ func NewLanguage(lang, defaultContentLanguage, timeZone string, languageConfig L
 	}
 
 	return l, l.loadLocation(timeZone)
+}
 
+// This is injected from hugolib to avoid cirular dependencies.
+var DeprecationFunc = func(item, alternative string, err bool) {}
+
+const paramsDeprecationWarning = `.Language.Params is deprecated and will be removed in a future release. Use site.Params instead.
+
+Also, for all but custom parameters, you need to use the built in Hugo variables, e.g. site.Title, site.LanguageCode; site.Language.Params.Title will not work.
+
+See https://gohugo.io/content-management/multilingual/#changes-in-hugo-01120
+
+`
+
+// Params returns the language params.
+// Note that this is the same as the Site.Params, but we keep it here for legacy reasons.
+// Deprecated: Use the site.Params instead.
+func (l *Language) Params() maps.Params {
+	DeprecationFunc(".Language.Params", paramsDeprecationWarning, false)
+	return l.params
 }
 
 func (l *Language) loadLocation(tzStr string) error {
@@ -112,6 +134,10 @@ func (l Languages) AsOrdinalSet() map[string]int {
 
 // Internal access to unexported Language fields.
 // This construct is to prevent them from leaking to the templates.
+
+func SetParams(l *Language, params maps.Params) {
+	l.params = params
+}
 
 func GetTimeFormatter(l *Language) htime.TimeFormatter {
 	return l.timeFormatter
