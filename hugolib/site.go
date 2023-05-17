@@ -273,6 +273,10 @@ func (s *Site) Language() *langs.Language {
 	return s.language
 }
 
+func (s *Site) Languages() langs.Languages {
+	return s.h.Configs.Languages
+}
+
 func (s *Site) isEnabled(kind string) bool {
 	if kind == kindUnknown {
 		panic("Unknown kind")

@@ -431,7 +431,7 @@ func (s *Site) GoogleAnalytics() string {
 	return s.Config().Services.GoogleAnalytics.ID
 }
 
-func (s *Site) Param(key string) (any, error) {
+func (s *Site) Param(key any) (any, error) {
 	return resource.Param(s, nil, key)
 }
 

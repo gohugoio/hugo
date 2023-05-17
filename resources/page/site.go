@@ -35,6 +35,9 @@ type Site interface {
 	// Returns the Language configured for this Site.
 	Language() *langs.Language
 
+	// Returns all the languages configured for all sites.
+	Languages() langs.Languages
+
 	GetPage(ref ...string) (Page, error)
 
 	// AllPages returns all pages for all languages.
@@ -93,6 +96,9 @@ type Site interface {
 
 	// Returns the Params configured for this site.
 	Params() maps.Params
+
+	// Param is a convenience method to do lookups in Params.
+	Param(key any) (any, error)
 
 	// Returns a map of all the data inside /data.
 	Data() map[string]any
@@ -172,6 +178,10 @@ func (s *siteWrapper) GetPage(ref ...string) (Page, error) {
 
 func (s *siteWrapper) Language() *langs.Language {
 	return s.s.Language()
+}
+
+func (s *siteWrapper) Languages() langs.Languages {
+	return s.s.Languages()
 }
 
 func (s *siteWrapper) AllPages() Pages {
@@ -254,6 +264,10 @@ func (s *siteWrapper) Params() maps.Params {
 	return s.s.Params()
 }
 
+func (s *siteWrapper) Param(key any) (any, error) {
+	return s.s.Param(key)
+}
+
 func (s *siteWrapper) Data() map[string]any {
 	return s.s.Data()
 }
@@ -334,6 +348,10 @@ func (t testSite) Current() Site {
 	return t
 }
 
+func (t testSite) Languages() langs.Languages {
+	return nil
+}
+
 func (t testSite) GoogleAnalytics() string {
 	return ""
 }
@@ -408,6 +426,10 @@ func (s testSite) BuildDrafts() bool {
 
 func (s testSite) IsMultiLingual() bool {
 	return false
+}
+
+func (s testSite) Param(key any) (any, error) {
+	return nil, nil
 }
 
 // NewDummyHugoSite creates a new minimal test site.

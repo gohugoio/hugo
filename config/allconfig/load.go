@@ -63,13 +63,19 @@ func LoadConfig(d ConfigSourceDescriptor) (*Configs, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to load modules: %w", err)
 	}
+
 	if len(l.ModulesConfigFiles) > 0 {
 		// Config merged in from modules.
 		// Re-read the config.
 		configs, err = FromLoadConfigResult(d.Fs, res)
 		if err != nil {
-			return nil, fmt.Errorf("failed to create config: %w", err)
+			return nil, fmt.Errorf("failed to create config from modules config: %w", err)
 		}
+		if err := configs.transientErr(); err != nil {
+			return nil, fmt.Errorf("failed to create config from modules config: %w", err)
+		}
+	} else if err := configs.transientErr(); err != nil {
+		return nil, fmt.Errorf("failed to create config: %w", err)
 	}
 
 	configs.Modules = moduleConfig.ActiveModules

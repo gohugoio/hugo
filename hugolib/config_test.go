@@ -742,6 +742,42 @@ themeconfigdirparam: {{ site.Params.themeconfigdirparam }}
 
 }
 
+func TestConfigOutputFormatDefinedInTheme(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+theme = "mytheme"
+[outputFormats]
+[outputFormats.myotherformat]
+baseName = 'myotherindex'
+mediaType = 'text/html'
+[outputs]
+  home = ['myformat']
+-- themes/mytheme/hugo.toml --
+[outputFormats]
+[outputFormats.myformat]
+baseName = 'myindex'
+mediaType = 'text/html'
+-- layouts/index.html --
+Home.
+
+
+
+`
+
+	b, err := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).BuildE()
+
+	b.Assert(err, qt.IsNil)
+	b.AssertFileContent("public/myindex.html", "Home.")
+
+}
+
 func TestReproCommentsIn10947(t *testing.T) {
 	t.Parallel()
 
@@ -768,7 +804,7 @@ title: "My Swedish Section"
 ---
 -- layouts/index.html --
 {{ range $i, $e := (slice site .Site) }}
-{{ $i }}|AllPages: {{ len .AllPages }}|Sections: {{ if .Sections }}true{{ end }}| Author: {{ .Authors }}|BuildDrafts: {{ .BuildDrafts }}|IsMultiLingual: {{ .IsMultiLingual }}|Param: {{ .Language.Params.myparam }}|
+{{ $i }}|AllPages: {{ len .AllPages }}|Sections: {{ if .Sections }}true{{ end }}| Author: {{ .Authors }}|BuildDrafts: {{ .BuildDrafts }}|IsMultiLingual: {{ .IsMultiLingual }}|Param: {{ .Language.Params.myparam }}|Language string: {{ .Language }}|Languages: {{ .Languages }}
 {{ end }}
 
 
