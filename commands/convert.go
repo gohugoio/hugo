@@ -100,7 +100,8 @@ func (c *convertCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, ar
 	return nil
 }
 
-func (c *convertCommand) WithCobraCommand(cmd *cobra.Command) error {
+func (c *convertCommand) Init(cd *simplecobra.Commandeer) error {
+	cmd := cd.CobraCommand
 	cmd.Short = "Convert your content to different formats"
 	cmd.Long = `Convert your content (e.g. front matter) to different formats.
 
@@ -112,7 +113,7 @@ See convert's subcommands toJSON, toTOML and toYAML for more information.`
 	return nil
 }
 
-func (c *convertCommand) Init(cd, runner *simplecobra.Commandeer) error {
+func (c *convertCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 	c.r = cd.Root.Command.(*rootCommand)
 	cfg := config.New()
 	cfg.Set("buildDrafts", true)

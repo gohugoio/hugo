@@ -293,7 +293,8 @@ func (c *modCommands) Run(ctx context.Context, cd *simplecobra.Commandeer, args 
 	return nil
 }
 
-func (c *modCommands) WithCobraCommand(cmd *cobra.Command) error {
+func (c *modCommands) Init(cd *simplecobra.Commandeer) error {
+	cmd := cd.CobraCommand
 	cmd.Short = "Various Hugo Modules helpers."
 	cmd.Long = `Various helpers to help manage the modules in your project's dependency graph.
 Most operations here requires a Go version installed on your system (>= Go 1.12) and the relevant VCS client (typically Git).
@@ -304,7 +305,7 @@ This is not needed if you only operate on modules inside /themes or if you have 
 	return nil
 }
 
-func (c *modCommands) Init(cd, runner *simplecobra.Commandeer) error {
+func (c *modCommands) PreRun(cd, runner *simplecobra.Commandeer) error {
 	c.r = cd.Root.Command.(*rootCommand)
 	return nil
 }

@@ -54,7 +54,6 @@ import (
 	"github.com/gohugoio/hugo/transform"
 	"github.com/gohugoio/hugo/transform/livereloadinject"
 	"github.com/spf13/afero"
-	"github.com/spf13/cobra"
 	"github.com/spf13/fsync"
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/sync/semaphore"
@@ -99,8 +98,7 @@ func newHugoBuilder(r *rootCommand, s *serverCommand, onConfigLoaded ...func(rel
 func newServerCommand() *serverCommand {
 	var c *serverCommand
 	c = &serverCommand{
-		buildFlags: &buildFlags{},
-		quit:       make(chan bool),
+		quit: make(chan bool),
 	}
 	return c
 }
@@ -408,10 +406,6 @@ type serverCommand struct {
 	doLiveReload bool
 
 	// Flags.
-
-	// Common build flags.
-	*buildFlags
-
 	renderToDisk        bool
 	renderStaticToDisk  bool
 	navigateToChanged   bool
@@ -472,7 +466,8 @@ func (c *serverCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 	return c.serve()
 }
 
-func (c *serverCommand) WithCobraCommand(cmd *cobra.Command) error {
+func (c *serverCommand) Init(cd *simplecobra.Commandeer) error {
+	cmd := cd.CobraCommand
 	cmd.Short = "A high performance webserver"
 	cmd.Long = `Hugo provides its own webserver which builds and serves the site.
 While hugo server is high performance, it is a webserver with limited options.
@@ -504,12 +499,13 @@ of a second, you will be able to save and see your changes nearly instantly.`
 	cmd.Flags().String("memstats", "", "log memory usage to this file")
 	cmd.Flags().String("meminterval", "100ms", "interval to poll memory usage (requires --memstats), valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".")
 
-	applyLocalBuildFlags(cmd, c.buildFlags)
+	r := cd.Root.Command.(*rootCommand)
+	applyLocalBuildFlags(cmd, r)
 
 	return nil
 }
 
-func (c *serverCommand) Init(cd, runner *simplecobra.Commandeer) error {
+func (c *serverCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 	c.r = cd.Root.Command.(*rootCommand)
 
 	c.hugoBuilder = newHugoBuilder(

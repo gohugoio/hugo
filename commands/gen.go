@@ -202,12 +202,13 @@ func (c *genCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args [
 	return nil
 }
 
-func (c *genCommand) WithCobraCommand(cmd *cobra.Command) error {
+func (c *genCommand) Init(cd *simplecobra.Commandeer) error {
+	cmd := cd.CobraCommand
 	cmd.Short = "A collection of several useful generators."
 	return nil
 }
 
-func (c *genCommand) Init(cd, runner *simplecobra.Commandeer) error {
+func (c *genCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 	c.rootCmd = cd.Root.Command.(*rootCommand)
 	return nil
 }

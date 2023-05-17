@@ -90,7 +90,8 @@ func (c *importCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 	return nil
 }
 
-func (c *importCommand) WithCobraCommand(cmd *cobra.Command) error {
+func (c *importCommand) Init(cd *simplecobra.Commandeer) error {
+	cmd := cd.CobraCommand
 	cmd.Short = "Import your site from others."
 	cmd.Long = `Import your site from other web site generators like Jekyll.
 
@@ -99,7 +100,7 @@ Import requires a subcommand, e.g. ` + "`hugo import jekyll jekyll_root_path tar
 	return nil
 }
 
-func (c *importCommand) Init(cd, runner *simplecobra.Commandeer) error {
+func (c *importCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 	c.r = cd.Root.Command.(*rootCommand)
 	return nil
 }

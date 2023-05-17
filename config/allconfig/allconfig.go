@@ -23,6 +23,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gohugoio/hugo/cache/filecache"
@@ -92,7 +93,7 @@ type Config struct {
 	// For internal use only.
 	Internal InternalConfig `mapstructure:"-" json:"-"`
 	// For internal use only.
-	C ConfigCompiled `mapstructure:"-" json:"-"`
+	C *ConfigCompiled `mapstructure:"-" json:"-"`
 
 	RootConfig
 
@@ -188,6 +189,8 @@ type configCompiler interface {
 
 func (c Config) cloneForLang() *Config {
 	x := c
+	x.C = nil
+
 	// Collapse all static dirs to one.
 	x.StaticDir = x.staticDirs()
 	// These will go away soon ...
@@ -302,7 +305,7 @@ func (c *Config) CompileConfig() error {
 		}
 	}
 
-	c.C = ConfigCompiled{
+	c.C = &ConfigCompiled{
 		Timeout:           timeout,
 		BaseURL:           baseURL,
 		BaseURLLiveReload: baseURL,
@@ -329,11 +332,11 @@ func (c *Config) CompileConfig() error {
 	return nil
 }
 
-func (c Config) IsKindEnabled(kind string) bool {
+func (c *Config) IsKindEnabled(kind string) bool {
 	return !c.C.DisabledKinds[kind]
 }
 
-func (c Config) IsLangDisabled(lang string) bool {
+func (c *Config) IsLangDisabled(lang string) bool {
 	return c.C.DisabledLanguages[lang]
 }
 
@@ -356,10 +359,17 @@ type ConfigCompiled struct {
 	// With themes/modules we compute the configuration in multiple passes, and
 	// errors with missing output format definitions may resolve itself.
 	transientErr error
+
+	mu sync.Mutex
 }
 
 // This may be set after the config is compiled.
-func (c *ConfigCompiled) SetMainSections(sections []string) {
+func (c *ConfigCompiled) SetMainSectionsIfNotSet(sections []string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if len(c.MainSections) > 0 {
+		return
+	}
 	c.MainSections = sections
 }
 

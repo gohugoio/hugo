@@ -20,7 +20,6 @@ import (
 // newExec wires up all of Hugo's CLI.
 func newExec() (*simplecobra.Exec, error) {
 	rootCmd := &rootCommand{
-		buildFlags: &buildFlags{},
 		commands: []simplecobra.Commander{
 			newVersionCmd(),
 			newEnvCommand(),
