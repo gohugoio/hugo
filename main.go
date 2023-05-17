@@ -18,6 +18,9 @@ import (
 	"os"
 
 	"github.com/gohugoio/hugo/commands"
+
+	// default GOMAXPROCS to be CPU limit aware, still respecting GOMAXPROCS env
+	_ "go.uber.org/automaxprocs"
 )
 
 func main() {
