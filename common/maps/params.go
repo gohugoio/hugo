@@ -70,7 +70,7 @@ func (p Params) IsZero() bool {
 	}
 
 	for k := range p {
-		return k == mergeStrategyKey
+		return k == MergeStrategyKey
 	}
 
 	return false
@@ -103,7 +103,7 @@ func (p Params) merge(ps ParamsMergeStrategy, pp Params) {
 
 	for k, v := range pp {
 
-		if k == mergeStrategyKey {
+		if k == MergeStrategyKey {
 			continue
 		}
 		vv, found := p[k]
@@ -124,7 +124,7 @@ func (p Params) merge(ps ParamsMergeStrategy, pp Params) {
 
 // For internal use.
 func (p Params) GetMergeStrategy() (ParamsMergeStrategy, bool) {
-	if v, found := p[mergeStrategyKey]; found {
+	if v, found := p[MergeStrategyKey]; found {
 		if s, ok := v.(ParamsMergeStrategy); ok {
 			return s, true
 		}
@@ -134,8 +134,8 @@ func (p Params) GetMergeStrategy() (ParamsMergeStrategy, bool) {
 
 // For internal use.
 func (p Params) DeleteMergeStrategy() bool {
-	if _, found := p[mergeStrategyKey]; found {
-		delete(p, mergeStrategyKey)
+	if _, found := p[MergeStrategyKey]; found {
+		delete(p, MergeStrategyKey)
 		return true
 	}
 	return false
@@ -148,7 +148,7 @@ func (p Params) SetMergeStrategy(s ParamsMergeStrategy) {
 	default:
 		panic(fmt.Sprintf("invalid merge strategy %q", s))
 	}
-	p[mergeStrategyKey] = s
+	p[MergeStrategyKey] = s
 }
 
 func getNested(m map[string]any, indices []string) (any, string, map[string]any) {
@@ -242,7 +242,7 @@ const (
 	// Add new keys, merge existing.
 	ParamsMergeStrategyDeep ParamsMergeStrategy = "deep"
 
-	mergeStrategyKey = "_merge"
+	MergeStrategyKey = "_merge"
 )
 
 // CleanConfigStringMapString removes any processing instructions from m,
@@ -251,13 +251,13 @@ func CleanConfigStringMapString(m map[string]string) map[string]string {
 	if m == nil || len(m) == 0 {
 		return m
 	}
-	if _, found := m[mergeStrategyKey]; !found {
+	if _, found := m[MergeStrategyKey]; !found {
 		return m
 	}
 	// Create a new map and copy all the keys except the merge strategy key.
 	m2 := make(map[string]string, len(m)-1)
 	for k, v := range m {
-		if k != mergeStrategyKey {
+		if k != MergeStrategyKey {
 			m2[k] = v
 		}
 	}
@@ -270,13 +270,13 @@ func CleanConfigStringMap(m map[string]any) map[string]any {
 	if m == nil || len(m) == 0 {
 		return m
 	}
-	if _, found := m[mergeStrategyKey]; !found {
+	if _, found := m[MergeStrategyKey]; !found {
 		return m
 	}
 	// Create a new map and copy all the keys except the merge strategy key.
 	m2 := make(map[string]any, len(m)-1)
 	for k, v := range m {
-		if k != mergeStrategyKey {
+		if k != MergeStrategyKey {
 			m2[k] = v
 		}
 		switch v2 := v.(type) {
@@ -313,7 +313,7 @@ func PrepareParams(m Params) {
 	for k, v := range m {
 		var retyped bool
 		lKey := strings.ToLower(k)
-		if lKey == mergeStrategyKey {
+		if lKey == MergeStrategyKey {
 			v = toMergeStrategy(v)
 			retyped = true
 		} else {

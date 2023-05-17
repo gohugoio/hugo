@@ -75,7 +75,7 @@ func TestParamsSetAndMerge(t *testing.T) {
 
 	createParamsPair := func() (Params, Params) {
 		p1 := Params{"a": "av", "c": "cv", "nested": Params{"al2": "al2v", "cl2": "cl2v"}}
-		p2 := Params{"b": "bv", "a": "abv", "nested": Params{"bl2": "bl2v", "al2": "al2bv"}, mergeStrategyKey: ParamsMergeStrategyDeep}
+		p2 := Params{"b": "bv", "a": "abv", "nested": Params{"bl2": "bl2v", "al2": "al2bv"}, MergeStrategyKey: ParamsMergeStrategyDeep}
 		return p1, p2
 	}
 
@@ -92,7 +92,7 @@ func TestParamsSetAndMerge(t *testing.T) {
 			"bl2": "bl2v",
 		},
 		"b":              "bv",
-		mergeStrategyKey: ParamsMergeStrategyDeep,
+		MergeStrategyKey: ParamsMergeStrategyDeep,
 	})
 
 	p1, p2 = createParamsPair()
