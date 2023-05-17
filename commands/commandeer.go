@@ -28,6 +28,8 @@ import (
 
 	jww "github.com/spf13/jwalterweatherman"
 
+	"go.uber.org/automaxprocs/maxprocs"
+
 	"github.com/bep/clock"
 	"github.com/bep/lazycache"
 	"github.com/bep/overlayfs"
@@ -53,6 +55,8 @@ var (
 
 // Execute executes a command.
 func Execute(args []string) error {
+	// Default GOMAXPROCS to be CPU limit aware, still respecting GOMAXPROCS env.
+	maxprocs.Set()
 	x, err := newExec()
 	if err != nil {
 		return err
