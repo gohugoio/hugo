@@ -182,6 +182,7 @@ func (c Config) cloneForLang() *Config {
 }
 
 func (c *Config) CompileConfig() error {
+	var transientErr error
 	s := c.Timeout
 	if _, err := strconv.Atoi(s); err == nil {
 		// A number, assume seconds.
@@ -209,7 +210,8 @@ func (c *Config) CompileConfig() error {
 			}
 			f, found := outputFormats.GetByName(format)
 			if !found {
-				return fmt.Errorf("unknown output format %q for kind %q", format, kind)
+				transientErr = fmt.Errorf("unknown output format %q for kind %q", format, kind)
+				continue
 			}
 			kindOutputFormats[kind] = append(kindOutputFormats[kind], f)
 		}
@@ -288,6 +290,7 @@ func (c *Config) CompileConfig() error {
 		IgnoreFile:        ignoreFile,
 		MainSections:      c.MainSections,
 		Clock:             clock,
+		transientErr:      transientErr,
 	}
 
 	for _, s := range allDecoderSetups {
@@ -323,6 +326,11 @@ type ConfigCompiled struct {
 	IgnoreFile        func(filename string) bool
 	MainSections      []string
 	Clock             time.Time
+
+	// This is set to the last transient error found during config compilation.
+	// With themes/modules we compule the configuration in multiple passes, and
+	// errors with missing output format definitions may resolve itself.
+	transientErr error
 }
 
 // This may be set after the config is compiled.
@@ -563,6 +571,16 @@ type Configs struct {
 	ModulesClient *modules.Client
 
 	configLangs []config.AllProvider
+}
+
+// transientErr returns the last transient error found during config compilation.
+func (c *Configs) transientErr() error {
+	for _, l := range c.LanguageConfigSlice {
+		if l.C.transientErr != nil {
+			return l.C.transientErr
+		}
+	}
+	return nil
 }
 
 func (c *Configs) IsZero() bool {

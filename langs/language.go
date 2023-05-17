@@ -87,7 +87,8 @@ var DeprecationFunc = func(item, alternative string, err bool) {}
 
 const paramsDeprecationWarning = `.Language.Params is deprecated and will be removed in a future release. Use site.Params instead.
 
-Also, for all but custom parameters, you need to use the built in Hugo variables, e.g. site.Title, site.LanguageCode; site.Language.Params.Title will not work.
+- For all but custom parameters, you need to use the built in Hugo variables, e.g. site.Title, site.LanguageCode; site.Language.Params.Title will not work.
+- All custom parameters needs to be placed below params, e.g. [languages.en.params] in TOML.
 
 See https://gohugo.io/content-management/multilingual/#changes-in-hugo-01120
 
@@ -109,6 +110,10 @@ func (l *Language) loadLocation(tzStr string) error {
 	l.location = location
 
 	return nil
+}
+
+func (l *Language) String() string {
+	return l.Lang
 }
 
 // Languages is a sortable list of languages.
