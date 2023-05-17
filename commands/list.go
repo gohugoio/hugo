@@ -23,7 +23,6 @@ import (
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
-	"github.com/spf13/cobra"
 )
 
 // newListCommand creates a new list command and its subcommands.
@@ -153,7 +152,8 @@ func (c *listCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args 
 	return nil
 }
 
-func (c *listCommand) WithCobraCommand(cmd *cobra.Command) error {
+func (c *listCommand) Init(cd *simplecobra.Commandeer) error {
+	cmd := cd.CobraCommand
 	cmd.Short = "Listing out various types of content"
 	cmd.Long = `Listing out various types of content.
 
@@ -162,6 +162,6 @@ List requires a subcommand, e.g. hugo list drafts`
 	return nil
 }
 
-func (c *listCommand) Init(cd, runner *simplecobra.Commandeer) error {
+func (c *listCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 	return nil
 }

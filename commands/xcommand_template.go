@@ -66,13 +66,14 @@ func (c *templateCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, a
 	return nil
 }
 
-func (c *templateCommand) WithCobraCommand(cmd *cobra.Command) error {
+func (c *templateCommand) Init(cd *simplecobra.Commandeer) error {
+	cmd := cd.CobraCommand
 	cmd.Short = "Print the site configuration"
 	cmd.Long = `Print the site configuration, both default and custom settings.`
 	return nil
 }
 
-func (c *templateCommand) Init(cd, runner *simplecobra.Commandeer) error {
+func (c *templateCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 	c.r = cd.Root.Command.(*rootCommand)
 	return nil
 }

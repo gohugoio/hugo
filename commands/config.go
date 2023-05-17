@@ -23,7 +23,6 @@ import (
 	"github.com/gohugoio/hugo/modules"
 	"github.com/gohugoio/hugo/parser"
 	"github.com/gohugoio/hugo/parser/metadecoders"
-	"github.com/spf13/cobra"
 )
 
 // newConfigCommand creates a new config command and its subcommands.
@@ -68,13 +67,14 @@ func (c *configCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 	return nil
 }
 
-func (c *configCommand) WithCobraCommand(cmd *cobra.Command) error {
+func (c *configCommand) Init(cd *simplecobra.Commandeer) error {
+	cmd := cd.CobraCommand
 	cmd.Short = "Print the site configuration"
 	cmd.Long = `Print the site configuration, both default and custom settings.`
 	return nil
 }
 
-func (c *configCommand) Init(cd, runner *simplecobra.Commandeer) error {
+func (c *configCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 	c.r = cd.Root.Command.(*rootCommand)
 	return nil
 }
@@ -176,12 +176,13 @@ func (c *configMountsCommand) Run(ctx context.Context, cd *simplecobra.Commandee
 	return nil
 }
 
-func (c *configMountsCommand) WithCobraCommand(cmd *cobra.Command) error {
+func (c *configMountsCommand) Init(cd *simplecobra.Commandeer) error {
+	cmd := cd.CobraCommand
 	cmd.Short = "Print the configured file mounts"
 	return nil
 }
 
-func (c *configMountsCommand) Init(cd, runner *simplecobra.Commandeer) error {
+func (c *configMountsCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 	c.configCmd = cd.Parent.Command.(*configCommand)
 	return nil
 }

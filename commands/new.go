@@ -271,7 +271,8 @@ func (c *newCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args [
 	return nil
 }
 
-func (c *newCommand) WithCobraCommand(cmd *cobra.Command) error {
+func (c *newCommand) Init(cd *simplecobra.Commandeer) error {
+	cmd := cd.CobraCommand
 	cmd.Short = "Create new content for your site"
 	cmd.Long = `Create a new content file and automatically set the date and title.
 It will guess which kind of file to create based on the path provided.
@@ -284,7 +285,7 @@ Ensure you run this within the root directory of your site.`
 	return nil
 }
 
-func (c *newCommand) Init(cd, runner *simplecobra.Commandeer) error {
+func (c *newCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 	c.rootCmd = cd.Root.Command.(*rootCommand)
 	return nil
 }
