@@ -133,6 +133,9 @@ type Site interface {
 
 	// IsMultilingual reports whether this site is configured with more than one language.
 	IsMultiLingual() bool
+
+	// LanguagePrefi returns the language prefix for this site.
+	LanguagePrefix() string
 }
 
 // Sites represents an ordered list of sites (languages).
@@ -292,6 +295,10 @@ func (s *siteWrapper) DisqusShortname() string {
 	return s.s.DisqusShortname()
 }
 
+func (s *siteWrapper) LanguagePrefix() string {
+	return s.s.LanguagePrefix()
+}
+
 type testSite struct {
 	h hugo.HugoInfo
 	l *langs.Language
@@ -346,6 +353,10 @@ func (t testSite) GetPage(ref ...string) (Page, error) {
 
 func (t testSite) Current() Site {
 	return t
+}
+
+func (s testSite) LanguagePrefix() string {
+	return ""
 }
 
 func (t testSite) Languages() langs.Languages {
