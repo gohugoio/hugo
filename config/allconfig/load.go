@@ -208,8 +208,9 @@ func (l configLoader) applyDefaultConfig() error {
 }
 
 func (l configLoader) normalizeCfg(cfg config.Provider) error {
-	minify := cfg.Get("minify")
-	if b, ok := minify.(bool); ok && b {
+	if b, ok := cfg.Get("minifyOutput").(bool); ok && b {
+		cfg.Set("minify.minifyOutput", true)
+	} else if b, ok := cfg.Get("minify").(bool); ok && b {
 		cfg.Set("minify", maps.Params{"minifyOutput": true})
 	}
 

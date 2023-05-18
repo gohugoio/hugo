@@ -347,7 +347,7 @@ func (c *collector) addAndRecurse(owner *moduleAdapter, disabled bool) error {
 	moduleConfig := owner.Config()
 	if owner.projectMod {
 		if err := c.applyMounts(Import{}, owner); err != nil {
-			return fmt.Errorf("failed to apply mounts for project module: %w", err)
+			return fmt.Errorf("failed to apply mounts for project: %w", err)
 		}
 	}
 

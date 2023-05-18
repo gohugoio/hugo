@@ -201,17 +201,37 @@ func (r *rootCommand) ConfigFromProvider(key int32, cfg config.Provider) (*commo
 		if cfg == nil {
 			cfg = config.New()
 		}
-		if !cfg.IsSet("publishDir") {
-			cfg.Set("publishDir", "public")
-		}
+
 		if !cfg.IsSet("renderToDisk") {
 			cfg.Set("renderToDisk", true)
 		}
 		if !cfg.IsSet("workingDir") {
 			cfg.Set("workingDir", dir)
+		} else {
+			if err := os.MkdirAll(cfg.GetString("workingDir"), 0777); err != nil {
+				return nil, fmt.Errorf("failed to create workingDir: %w", err)
+			}
 		}
-		cfg.Set("publishDirStatic", cfg.Get("publishDir"))
-		cfg.Set("publishDirDynamic", cfg.Get("publishDir"))
+
+		// Load the config first to allow publishDir to be configured in config file.
+		configs, err := allconfig.LoadConfig(
+			allconfig.ConfigSourceDescriptor{
+				Flags:       cfg,
+				Fs:          hugofs.Os,
+				Filename:    r.cfgFile,
+				ConfigDir:   r.cfgDir,
+				Environment: r.environment,
+			},
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		base := configs.Base
+
+		cfg.Set("publishDir", base.PublishDir)
+		cfg.Set("publishDirStatic", base.PublishDir)
+		cfg.Set("publishDirDynamic", base.PublishDir)
 
 		renderStaticToDisk := cfg.GetBool("renderStaticToDisk")
 
@@ -257,21 +277,6 @@ func (r *rootCommand) ConfigFromProvider(key int32, cfg config.Provider) (*commo
 
 		}
 
-		configs, err := allconfig.LoadConfig(
-			allconfig.ConfigSourceDescriptor{
-				Flags:       cfg,
-				Fs:          fs.Source,
-				Filename:    r.cfgFile,
-				ConfigDir:   r.cfgDir,
-				Environment: r.environment,
-			},
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		base := configs.Base
-
 		if !base.C.Clock.IsZero() {
 			// TODO(bep) find a better place for this.
 			htime.Clock = clock.Start(configs.Base.C.Clock)
@@ -300,6 +305,7 @@ func (r *rootCommand) HugFromConfig(conf *commonConfig) (*hugolib.HugoSites, err
 	h, _, err := r.hugoSites.GetOrCreate(r.configVersionID.Load(), func(key int32) (*hugolib.HugoSites, error) {
 		conf.mu.Lock()
 		defer conf.mu.Unlock()
+
 		depsCfg := deps.DepsCfg{Configs: conf.configs, Fs: conf.fs, Logger: r.logger}
 		return hugolib.NewHugoSites(depsCfg)
 	})
