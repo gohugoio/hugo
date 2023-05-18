@@ -12,7 +12,7 @@
 // limitations under the License.
 
 // Package allconfig contains the full configuration for Hugo.
-// <docsmeta>{ "name": "Configuration", "description": "This section holds all configiration options in Hugo." }</docsmeta>
+// <docsmeta>{ "name": "Configuration", "description": "This section holds all configuration options in Hugo." }</docsmeta>
 package allconfig
 
 import (
@@ -711,10 +711,10 @@ func FromLoadConfigResult(fs afero.Fs, res config.LoadConfigResult) (*Configs, e
 				}
 				if kk != maps.MergeStrategyKey && !configLanguageKeys[kk] {
 					// This should have been placed below params.
-					// We accidently allowed it in the past, so we need to support it a little longer,
+					// We accidentally allowed it in the past, so we need to support it a little longer,
 					// But log a warning.
 					if _, found := params[kk]; !found {
-						helpers.Deprecated(fmt.Sprintf("config: languages.%s.%s: custom params on the language top level", k, kk), fmt.Sprintf("Put the value below [languages.%s.params]. See See https://gohugo.io/content-management/multilingual/#changes-in-hugo-01120", k), false)
+						helpers.Deprecated(fmt.Sprintf("config: languages.%s.%s: custom params on the language top level", k, kk), fmt.Sprintf("Put the value below [languages.%s.params]. See https://gohugo.io/content-management/multilingual/#changes-in-hugo-01120", k), false)
 						params[kk] = vv
 					}
 				}
