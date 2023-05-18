@@ -35,7 +35,7 @@ import (
 type FileError interface {
 	error
 
-	// ErroContext holds some context information about the error.
+	// ErrorContext holds some context information about the error.
 	ErrorContext() *ErrorContext
 
 	text.Positioner

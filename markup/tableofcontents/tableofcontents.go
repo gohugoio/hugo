@@ -31,7 +31,7 @@ type Builder struct {
 	toc *Fragments
 }
 
-// Add adds the heading to the ToC.
+// AddAt adds the heading to the ToC.
 func (b *Builder) AddAt(h *Heading, row, level int) {
 	if b.toc == nil {
 		b.toc = &Fragments{}

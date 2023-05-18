@@ -334,7 +334,7 @@ type PageWithoutContent interface {
 	// Used in change/dependency tracking.
 	identity.Provider
 
-	// Headings returns the headings for this page when a filter is set.
+	// HeadingsFiltered returns the headings for this page when a filter is set.
 	// This is currently only triggered with the Related content feature
 	// and the "fragments" type of index.
 	HeadingsFiltered(context.Context) tableofcontents.Headings
@@ -373,7 +373,7 @@ type RefProvider interface {
 	// RelRef returns a relative URL to a page.
 	RelRef(argsm map[string]any) (string, error)
 
-	// RefFrom is for internal use only.
+	// RelRefFrom is for internal use only.
 	RelRefFrom(argsm map[string]any, source any) (string, error)
 }
 

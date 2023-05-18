@@ -146,7 +146,7 @@ func (p *pageState) Eq(other any) bool {
 	return p == pp
 }
 
-// GetIdentify is for internal use.
+// GetIdentity is for internal use.
 func (p *pageState) GetIdentity() identity.Identity {
 	return identity.NewPathIdentity(files.ComponentFolderContent, filepath.FromSlash(p.Pathc()))
 }

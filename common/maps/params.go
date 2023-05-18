@@ -37,7 +37,7 @@ func (p Params) GetNested(indices ...string) any {
 	return v
 }
 
-// Set overwrites values in dst with values in src for common or new keys.
+// SetParams overwrites values in dst with values in src for common or new keys.
 // This is done recursively.
 func SetParams(dst, src Params) {
 	for k, v := range src {
@@ -83,7 +83,7 @@ func MergeParamsWithStrategy(strategy string, dst, src Params) {
 	dst.merge(ParamsMergeStrategy(strategy), src)
 }
 
-// MergeParamsWithStrategy transfers values from src to dst for new keys using the merge encoded in dst.
+// MergeParams transfers values from src to dst for new keys using the merge encoded in dst.
 // This is done recursively.
 func MergeParams(dst, src Params) {
 	ms, _ := dst.GetMergeStrategy()
