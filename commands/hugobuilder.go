@@ -954,6 +954,7 @@ func (c *hugoBuilder) loadConfig(cd *simplecobra.Commandeer, running bool) error
 	if err != nil {
 		return err
 	}
+
 	c.setConf(conf)
 	if c.onConfigLoaded != nil {
 		if err := c.onConfigLoaded(false); err != nil {
