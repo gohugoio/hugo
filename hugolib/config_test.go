@@ -871,3 +871,29 @@ Param: svParamValue
 `)
 
 }
+
+func TestConfigEmptyMainSections(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.yml --
+params:
+  mainSections:
+-- content/mysection/_index.md --
+-- content/mysection/mycontent.md --
+-- layouts/index.html --
+mainSections: {{ site.Params.mainSections }}
+
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `
+mainSections: []
+`)
+
+}
