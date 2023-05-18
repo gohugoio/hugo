@@ -57,7 +57,7 @@ func (c *PageCollections) AllPages() page.Pages {
 	return c.allPages.get()
 }
 
-// AllPages returns all regular pages for all languages.
+// AllRegularPages returns all regular pages for all languages.
 func (c *PageCollections) AllRegularPages() page.Pages {
 	return c.allRegularPages.get()
 }

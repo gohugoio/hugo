@@ -123,7 +123,7 @@ func addTranslationFile(bundle *i18n.Bundle, r source.File) error {
 	return nil
 }
 
-// Clone sets the language func for the new language.
+// CloneResource sets the language func for the new language.
 func (tp *TranslationProvider) CloneResource(dst, src *deps.Deps) error {
 	dst.Translate = tp.t.Func(dst.Conf.Language().Lang)
 	return nil

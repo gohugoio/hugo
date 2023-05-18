@@ -85,7 +85,7 @@ func NewFromOld(fs afero.Fs, cfg config.Provider) *Fs {
 	return newFs(fs, fs, workingDir, publishDir)
 }
 
-// NewFrom creates a new Fs based on the provided Afero Fss
+// NewFromSourceAndDestination creates a new Fs based on the provided Afero Fss
 // as the source and destination file systems.
 func NewFromSourceAndDestination(source, destination afero.Fs, cfg config.Provider) *Fs {
 	workingDir, publishDir := getWorkingPublishDir(cfg)
@@ -178,7 +178,7 @@ func MakeReadableAndRemoveAllModulePkgDir(fs afero.Fs, dir string) (int, error) 
 	return counter, fs.RemoveAll(dir)
 }
 
-// HasOsFs returns whether fs is an OsFs or if it fs wraps an OsFs.
+// IsOsFs returns whether fs is an OsFs or if it fs wraps an OsFs.
 // TODO(bep) make this nore robust.
 func IsOsFs(fs afero.Fs) bool {
 	var isOsFs bool
@@ -202,7 +202,7 @@ type FilesystemsUnwrapper interface {
 	UnwrapFilesystems() []afero.Fs
 }
 
-// FilesystemsProvider returns the underlying filesystem.
+// FilesystemUnwrapper returns the underlying filesystem.
 type FilesystemUnwrapper interface {
 	UnwrapFilesystem() afero.Fs
 }

@@ -20,7 +20,7 @@ const (
 	AutoHeadingIDTypeBlackfriday = "blackfriday"
 )
 
-// DefaultConfig holds the default Goldmark configuration.
+// Default holds the default Goldmark configuration.
 var Default = Config{
 	Extensions: Extensions{
 		Typographer: Typographer{

@@ -128,13 +128,13 @@ type Site interface {
 	// For internal use only.
 	GetPageWithTemplateInfo(info tpl.Info, ref ...string) (Page, error)
 
-	// BuildDraft is deprecated and will be removed in a future release.
+	// BuildDrafts is deprecated and will be removed in a future release.
 	BuildDrafts() bool
 
-	// IsMultilingual reports whether this site is configured with more than one language.
+	// IsMultiLingual reports whether this site is configured with more than one language.
 	IsMultiLingual() bool
 
-	// LanguagePrefi returns the language prefix for this site.
+	// LanguagePrefix returns the language prefix for this site.
 	LanguagePrefix() string
 }
 

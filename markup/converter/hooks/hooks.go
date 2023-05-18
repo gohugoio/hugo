@@ -121,7 +121,7 @@ type HeadingContext interface {
 
 // HeadingRenderer describes a uniquely identifiable rendering hook.
 type HeadingRenderer interface {
-	// Render writes the rendered content to w using the data in w.
+	// RenderHeading writes the rendered content to w using the data in w.
 	RenderHeading(cctx context.Context, w io.Writer, ctx HeadingContext) error
 	identity.Provider
 }

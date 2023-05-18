@@ -73,7 +73,7 @@ func (ini *Init) Branch(initFn func(context.Context) (any, error)) *Init {
 	return ini.add(true, initFn)
 }
 
-// BranchdWithTimeout is same as Branch, but with a timeout.
+// BranchWithTimeout is same as Branch, but with a timeout.
 func (ini *Init) BranchWithTimeout(timeout time.Duration, f func(ctx context.Context) (any, error)) *Init {
 	return ini.Branch(func(ctx context.Context) (any, error) {
 		return ini.withTimeout(ctx, timeout, f)

@@ -84,7 +84,7 @@ func NewWhitelist(patterns ...string) Whitelist {
 	return Whitelist{patterns: patternsr, patternsStrings: patternsStrings}
 }
 
-// Accepted reports whether name is whitelisted.
+// Accept reports whether name is whitelisted.
 func (w Whitelist) Accept(name string) bool {
 	if w.acceptNone {
 		return false

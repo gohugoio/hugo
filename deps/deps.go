@@ -231,7 +231,7 @@ type globalErrHandler struct {
 	quit chan struct{}
 }
 
-// SendErr sends the error on a channel to be handled later.
+// SendError sends the error on a channel to be handled later.
 // This can be used in situations where returning and aborting the current
 // operation isn't practical.
 func (e *globalErrHandler) SendError(err error) {
