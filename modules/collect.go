@@ -299,7 +299,7 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool
 					return nil, nil
 				}
 				if found, _ := afero.Exists(c.fs, moduleDir); !found {
-					c.err = c.wrapModuleNotFound(fmt.Errorf(`module %q not found in % q; either add it as a Hugo Module or store it in %q.`, modulePath, moduleDir, c.ccfg.ThemesDir))
+					c.err = c.wrapModuleNotFound(fmt.Errorf(`module %q not found in %q; either add it as a Hugo Module or store it in %q.`, modulePath, moduleDir, c.ccfg.ThemesDir))
 					return nil, nil
 				}
 			}
