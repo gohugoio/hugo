@@ -338,9 +338,6 @@ func (r *rootCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args 
 			defer r.timeTrack(time.Now(), "Built")
 		}
 		err := b.build()
-		if err != nil {
-			r.Println("Error:", err.Error())
-		}
 		return err
 	}()
 

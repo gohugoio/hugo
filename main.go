@@ -21,8 +21,9 @@ import (
 )
 
 func main() {
+	log.SetFlags(0)
 	err := commands.Execute(os.Args[1:])
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error: %s", err)
 	}
 }

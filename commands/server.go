@@ -234,7 +234,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 				// First check the error state
 				err := f.c.getErrorWithContext()
 				if err != nil {
-					f.c.errState.setWasErr(false)
+					f.c.errState.setWasErr(true)
 					w.WriteHeader(500)
 					r, err := f.errorTemplate(err)
 					if err != nil {
@@ -242,8 +242,8 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 					}
 
 					port = 1313
-					if !f.c.errState.isPaused() {
-						port = conf.configs.Base.Internal.LiveReloadPort
+					if lrport := conf.configs.GetFirstLanguageConfig().BaseURLLiveReload().Port(); lrport != 0 {
+						port = lrport
 					}
 					lr := *u
 					lr.Host = fmt.Sprintf("%s:%d", lr.Hostname(), port)
@@ -432,9 +432,6 @@ func (c *serverCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 	err := func() error {
 		defer c.r.timeTrack(time.Now(), "Built")
 		err := c.build()
-		if err != nil {
-			c.r.Println("Error:", err.Error())
-		}
 		return err
 	}()
 	if err != nil {
@@ -703,8 +700,12 @@ func (c *serverCommand) partialReRender(urls ...string) error {
 		visited[url] = true
 	}
 
+	h, err := c.hugo()
+	if err != nil {
+		return err
+	}
 	// Note: We do not set NoBuildLock as the file lock is not acquired at this stage.
-	return c.hugo().Build(hugolib.BuildCfg{NoBuildLock: false, RecentlyVisited: visited, PartialReRender: true, ErrRecovery: c.errState.wasErr()})
+	return h.Build(hugolib.BuildCfg{NoBuildLock: false, RecentlyVisited: visited, PartialReRender: true, ErrRecovery: c.errState.wasErr()})
 }
 
 func (c *serverCommand) serve() error {
@@ -877,8 +878,8 @@ type staticSyncer struct {
 	c *hugoBuilder
 }
 
-func (s *staticSyncer) isStatic(filename string) bool {
-	return s.c.hugo().BaseFs.SourceFilesystems.IsStatic(filename)
+func (s *staticSyncer) isStatic(h *hugolib.HugoSites, filename string) bool {
+	return h.BaseFs.SourceFilesystems.IsStatic(filename)
 }
 
 func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
@@ -1013,7 +1014,7 @@ func injectLiveReloadScript(src io.Reader, baseURL url.URL) string {
 
 func partitionDynamicEvents(sourceFs *filesystems.SourceFilesystems, events []fsnotify.Event) (de dynamicEvents) {
 	for _, e := range events {
-		if sourceFs.IsAsset(e.Name) {
+		if !sourceFs.IsContent(e.Name) {
 			de.AssetEvents = append(de.AssetEvents, e)
 		} else {
 			de.ContentEvents = append(de.ContentEvents, e)
