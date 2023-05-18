@@ -177,6 +177,9 @@ var allDecoderSetups = map[string]decodeWeight{
 			// Before Hugo 0.112.0 this was configured via site Params.
 			if mainSections, found := p.c.Params["mainsections"]; found {
 				p.c.MainSections = types.ToStringSlicePreserveString(mainSections)
+				if p.c.MainSections == nil {
+					p.c.MainSections = []string{}
+				}
 			}
 
 			return nil

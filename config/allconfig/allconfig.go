@@ -367,7 +367,7 @@ type ConfigCompiled struct {
 func (c *ConfigCompiled) SetMainSectionsIfNotSet(sections []string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	if len(c.MainSections) > 0 {
+	if c.MainSections != nil {
 		return
 	}
 	c.MainSections = sections
