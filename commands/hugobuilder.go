@@ -52,8 +52,8 @@ import (
 type hugoBuilder struct {
 	r *rootCommand
 
-	cunfMu sync.Mutex
-	conf_  *commonConfig
+	confmu sync.Mutex
+	conf   *commonConfig
 
 	// May be nil.
 	s *serverCommand
@@ -74,16 +74,17 @@ type hugoBuilder struct {
 	errState hugoBuilderErrState
 }
 
-func (c *hugoBuilder) conf() *commonConfig {
-	c.cunfMu.Lock()
-	defer c.cunfMu.Unlock()
-	return c.conf_
+func (c *hugoBuilder) withConfE(fn func(conf *commonConfig) error) error {
+	c.confmu.Lock()
+	defer c.confmu.Unlock()
+	return fn(c.conf)
 }
 
-func (c *hugoBuilder) setConf(conf *commonConfig) {
-	c.cunfMu.Lock()
-	defer c.cunfMu.Unlock()
-	c.conf_ = conf
+func (c *hugoBuilder) withConf(fn func(conf *commonConfig)) {
+	c.confmu.Lock()
+	defer c.confmu.Unlock()
+	fn(c.conf)
+
 }
 
 type hugoBuilderErrState struct {
@@ -357,7 +358,10 @@ func (c *hugoBuilder) newWatcher(pollIntervalStr string, dirList ...string) (*wa
 
 	// Identifies changes to config (config.toml) files.
 	configSet := make(map[string]bool)
-	configFiles := c.conf().configs.LoadingInfo.ConfigFiles
+	var configFiles []string
+	c.withConf(func(conf *commonConfig) {
+		configFiles = conf.configs.LoadingInfo.ConfigFiles
+	})
 
 	c.r.logger.Println("Watching for config changes in", strings.Join(configFiles, ", "))
 	for _, configFile := range configFiles {
@@ -466,14 +470,18 @@ func (c *hugoBuilder) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint
 	fs := &countingStatFs{Fs: sourceFs.Fs}
 
 	syncer := fsync.NewSyncer()
-	syncer.NoTimes = c.conf().configs.Base.NoTimes
-	syncer.NoChmod = c.conf().configs.Base.NoChmod
-	syncer.ChmodFilter = chmodFilter
+	c.withConf(func(conf *commonConfig) {
+		syncer.NoTimes = conf.configs.Base.NoTimes
+		syncer.NoChmod = conf.configs.Base.NoChmod
+		syncer.ChmodFilter = chmodFilter
+
+		syncer.DestFs = conf.fs.PublishDirStatic
+		// Now that we are using a unionFs for the static directories
+		// We can effectively clean the publishDir on initial sync
+		syncer.Delete = conf.configs.Base.CleanDestinationDir
+	})
+
 	syncer.SrcFs = fs
-	syncer.DestFs = c.conf().fs.PublishDirStatic
-	// Now that we are using a unionFs for the static directories
-	// We can effectively clean the publishDir on initial sync
-	syncer.Delete = c.conf().configs.Base.CleanDestinationDir
 
 	if syncer.Delete {
 		c.r.logger.Infoln("removing all files from destination that don't exist in static dirs")
@@ -518,9 +526,11 @@ func (c *hugoBuilder) doWithPublishDirs(f func(sourceFs *filesystems.SourceFiles
 		}
 		if lang == "" {
 			// Not multihost
-			for _, l := range c.conf().configs.Languages {
-				langCount[l.Lang] = cnt
-			}
+			c.withConf(func(conf *commonConfig) {
+				for _, l := range conf.configs.Languages {
+					langCount[l.Lang] = cnt
+				}
+			})
 		} else {
 			langCount[lang] = cnt
 		}
@@ -562,7 +572,11 @@ func (c *hugoBuilder) fullBuild(noBuildLock bool) error {
 	// Do not copy static files and build sites in parallel if cleanDestinationDir is enabled.
 	// This flag deletes all static resources in /public folder that are missing in /static,
 	// and it does so at the end of copyStatic() call.
-	if c.conf().configs.Base.CleanDestinationDir {
+	var cleanDestinationDir bool
+	c.withConf(func(conf *commonConfig) {
+		cleanDestinationDir = conf.configs.Base.CleanDestinationDir
+	})
+	if cleanDestinationDir {
 		if err := copyStaticFunc(); err != nil {
 			return err
 		}
@@ -692,17 +706,18 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 			}
 
 			if ev.Op&fsnotify.Remove == fsnotify.Remove || ev.Op&fsnotify.Rename == fsnotify.Rename {
-				configFiles := c.conf().configs.LoadingInfo.ConfigFiles
-				for _, configFile := range configFiles {
-					counter := 0
-					for watcher.Add(configFile) != nil {
-						counter++
-						if counter >= 100 {
-							break
+				c.withConf(func(conf *commonConfig) {
+					for _, configFile := range conf.configs.LoadingInfo.ConfigFiles {
+						counter := 0
+						for watcher.Add(configFile) != nil {
+							counter++
+							if counter >= 100 {
+								break
+							}
+							time.Sleep(100 * time.Millisecond)
 						}
-						time.Sleep(100 * time.Millisecond)
 					}
-				}
+				})
 			}
 
 			// Config file(s) changed. Need full rebuild.
@@ -834,9 +849,11 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 		// recursively add new directories to watch list
 		// When mkdir -p is used, only the top directory triggers an event (at least on OSX)
 		if ev.Op&fsnotify.Create == fsnotify.Create {
-			if s, err := c.conf().fs.Source.Stat(ev.Name); err == nil && s.Mode().IsDir() {
-				_ = helpers.SymbolicWalk(c.conf().fs.Source, ev.Name, walkAdder)
-			}
+			c.withConf(func(conf *commonConfig) {
+				if s, err := conf.fs.Source.Stat(ev.Name); err == nil && s.Mode().IsDir() {
+					_ = helpers.SymbolicWalk(conf.fs.Source, ev.Name, walkAdder)
+				}
+			})
 		}
 
 		if staticSyncer.isStatic(h, ev.Name) {
@@ -942,10 +959,16 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 }
 
 func (c *hugoBuilder) hugo() (*hugolib.HugoSites, error) {
-	h, err := c.r.HugFromConfig(c.conf())
-	if err != nil {
+	var h *hugolib.HugoSites
+	if err := c.withConfE(func(conf *commonConfig) error {
+		var err error
+		h, err = c.r.HugFromConfig(conf)
+		return err
+
+	}); err != nil {
 		return nil, err
 	}
+
 	if c.s != nil {
 		// A running server, register the media types.
 		for _, s := range h.Sites {
@@ -956,7 +979,10 @@ func (c *hugoBuilder) hugo() (*hugolib.HugoSites, error) {
 }
 
 func (c *hugoBuilder) hugoTry() *hugolib.HugoSites {
-	h, _ := c.r.HugFromConfig(c.conf())
+	var h *hugolib.HugoSites
+	c.withConf(func(conf *commonConfig) {
+		h, _ = c.r.HugFromConfig(conf)
+	})
 	return h
 }
 
@@ -977,7 +1003,7 @@ func (c *hugoBuilder) loadConfig(cd *simplecobra.Commandeer, running bool) error
 		return err
 	}
 
-	c.setConf(conf)
+	c.conf = conf
 	if c.onConfigLoaded != nil {
 		if err := c.onConfigLoaded(false); err != nil {
 			return err
@@ -1014,15 +1040,17 @@ func (c *hugoBuilder) rebuildSites(events []fsnotify.Event) error {
 		return err
 	}
 	if c.fastRenderMode {
-		// Make sure we always render the home pages
-		for _, l := range c.conf().configs.Languages {
-			langPath := h.GetLangSubDir(l.Lang)
-			if langPath != "" {
-				langPath = langPath + "/"
+		c.withConf(func(conf *commonConfig) {
+			// Make sure we always render the home pages
+			for _, l := range conf.configs.Languages {
+				langPath := h.GetLangSubDir(l.Lang)
+				if langPath != "" {
+					langPath = langPath + "/"
+				}
+				home := h.PrependBasePath("/"+langPath, false)
+				visited[home] = true
 			}
-			home := h.PrependBasePath("/"+langPath, false)
-			visited[home] = true
-		}
+		})
 	}
 	return h.Build(hugolib.BuildCfg{NoBuildLock: true, RecentlyVisited: visited, ErrRecovery: c.errState.wasErr()}, events...)
 }
@@ -1030,18 +1058,25 @@ func (c *hugoBuilder) rebuildSites(events []fsnotify.Event) error {
 func (c *hugoBuilder) reloadConfig() error {
 	c.r.Reset()
 	c.r.configVersionID.Add(1)
-	oldConf := c.conf()
-	conf, err := c.r.ConfigFromConfig(c.r.configVersionID.Load(), c.conf())
-	if err != nil {
+
+	if err := c.withConfE(func(conf *commonConfig) error {
+		oldConf := conf
+		newConf, err := c.r.ConfigFromConfig(c.r.configVersionID.Load(), conf)
+		if err != nil {
+			return err
+		}
+		sameLen := len(oldConf.configs.Languages) == len(newConf.configs.Languages)
+		if !sameLen {
+			if oldConf.configs.IsMultihost || newConf.configs.IsMultihost {
+				return errors.New("multihost change detected, please restart server")
+			}
+		}
+		c.conf = newConf
+		return nil
+	}); err != nil {
 		return err
 	}
-	sameLen := len(oldConf.configs.Languages) == len(conf.configs.Languages)
-	if !sameLen {
-		if oldConf.configs.IsMultihost || conf.configs.IsMultihost {
-			return errors.New("multihost change detected, please restart server")
-		}
-	}
-	c.setConf(conf)
+
 	if c.onConfigLoaded != nil {
 		if err := c.onConfigLoaded(true); err != nil {
 			return err

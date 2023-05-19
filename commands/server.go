@@ -44,6 +44,7 @@ import (
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/common/urls"
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -197,7 +198,6 @@ type fileServer struct {
 
 func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string, string, error) {
 	r := f.c.r
-	conf := f.c.conf()
 	baseURL := f.baseURLs[i]
 	root := f.roots[i]
 	port := f.c.serverPorts[i].p
@@ -216,7 +216,11 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 		}
 	}
 
-	httpFs := afero.NewHttpFs(conf.fs.PublishDirServer)
+	var httpFs *afero.HttpFs
+	f.c.withConf(func(conf *commonConfig) {
+		httpFs = afero.NewHttpFs(conf.fs.PublishDirServer)
+	})
+
 	fs := filesOnlyFs{httpFs.Dir(path.Join("/", root))}
 	if i == 0 && f.c.fastRenderMode {
 		r.Println("Running in Fast Render Mode. For full rebuilds on change: hugo server --disableFastRender")
@@ -242,9 +246,11 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 					}
 
 					port = 1313
-					if lrport := conf.configs.GetFirstLanguageConfig().BaseURLLiveReload().Port(); lrport != 0 {
-						port = lrport
-					}
+					f.c.withConf(func(conf *commonConfig) {
+						if lrport := conf.configs.GetFirstLanguageConfig().BaseURLLiveReload().Port(); lrport != 0 {
+							port = lrport
+						}
+					})
 					lr := *u
 					lr.Host = fmt.Sprintf("%s:%d", lr.Hostname(), port)
 					fmt.Fprint(w, injectLiveReloadScript(r, lr))
@@ -258,7 +264,10 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 				w.Header().Set("Pragma", "no-cache")
 			}
 
-			serverConfig := f.c.conf().configs.Base.Server
+			var serverConfig config.Server
+			f.c.withConf(func(conf *commonConfig) {
+				serverConfig = conf.configs.Base.Server
+			})
 
 			// Ignore any query params for the operations below.
 			requestURI, _ := url.PathUnescape(strings.TrimSuffix(r.RequestURI, "?"+r.URL.RawQuery))
@@ -277,7 +286,10 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 					if root != "" {
 						path = filepath.Join(root, path)
 					}
-					fs := f.c.conf().getFs().PublishDir
+					var fs afero.Fs
+					f.c.withConf(func(conf *commonConfig) {
+						fs = conf.fs.PublishDir
+					})
 
 					fi, err := fs.Stat(path)
 
@@ -519,8 +531,10 @@ func (c *serverCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 			}
 
 			if !reloaded && c.fastRenderMode {
-				c.conf().fs.PublishDir = hugofs.NewHashingFs(c.conf().fs.PublishDir, c.changeDetector)
-				c.conf().fs.PublishDirStatic = hugofs.NewHashingFs(c.conf().fs.PublishDirStatic, c.changeDetector)
+				c.withConf(func(conf *commonConfig) {
+					conf.fs.PublishDir = hugofs.NewHashingFs(conf.fs.PublishDir, c.changeDetector)
+					conf.fs.PublishDirStatic = hugofs.NewHashingFs(conf.fs.PublishDirStatic, c.changeDetector)
+				})
 			}
 
 			return nil
@@ -562,31 +576,33 @@ func (c *serverCommand) setBaseURLsInConfig() error {
 	if len(c.serverPorts) == 0 {
 		panic("no server ports set")
 	}
-	isMultiHost := c.conf().configs.IsMultihost
-	for i, language := range c.conf().configs.Languages {
-		var serverPort int
-		if isMultiHost {
-			serverPort = c.serverPorts[i].p
-		} else {
-			serverPort = c.serverPorts[0].p
-		}
-		langConfig := c.conf().configs.LanguageConfigMap[language.Lang]
-		baseURLStr, err := c.fixURL(langConfig.BaseURL, c.r.baseURL, serverPort)
-		if err != nil {
-			return nil
-		}
-		baseURL, err := urls.NewBaseURLFromString(baseURLStr)
-		if err != nil {
-			return fmt.Errorf("failed to create baseURL from %q: %s", baseURLStr, err)
-		}
+	return c.withConfE(func(conf *commonConfig) error {
+		for i, language := range conf.configs.Languages {
+			isMultiHost := conf.configs.IsMultihost
+			var serverPort int
+			if isMultiHost {
+				serverPort = c.serverPorts[i].p
+			} else {
+				serverPort = c.serverPorts[0].p
+			}
+			langConfig := conf.configs.LanguageConfigMap[language.Lang]
+			baseURLStr, err := c.fixURL(langConfig.BaseURL, c.r.baseURL, serverPort)
+			if err != nil {
+				return err
+			}
+			baseURL, err := urls.NewBaseURLFromString(baseURLStr)
+			if err != nil {
+				return fmt.Errorf("failed to create baseURL from %q: %s", baseURLStr, err)
+			}
 
-		baseURLLiveReload := baseURL
-		if c.liveReloadPort != -1 {
-			baseURLLiveReload, _ = baseURLLiveReload.WithPort(c.liveReloadPort)
+			baseURLLiveReload := baseURL
+			if c.liveReloadPort != -1 {
+				baseURLLiveReload, _ = baseURLLiveReload.WithPort(c.liveReloadPort)
+			}
+			langConfig.C.SetBaseURL(baseURL, baseURLLiveReload)
 		}
-		langConfig.C.SetBaseURL(baseURL, baseURLLiveReload)
-	}
-	return nil
+		return nil
+	})
 }
 
 func (c *serverCommand) getErrorWithContext() any {
@@ -609,35 +625,42 @@ func (c *serverCommand) getErrorWithContext() any {
 
 func (c *serverCommand) createServerPorts(cd *simplecobra.Commandeer) error {
 	flags := cd.CobraCommand.Flags()
-	isMultiHost := c.conf().configs.IsMultihost
-	c.serverPorts = make([]serverPortListener, 1)
-	if isMultiHost {
-		if !c.serverAppend {
-			return errors.New("--appendPort=false not supported when in multihost mode")
-		}
-		c.serverPorts = make([]serverPortListener, len(c.conf().configs.Languages))
-	}
-	currentServerPort := c.serverPort
-	for i := 0; i < len(c.serverPorts); i++ {
-		l, err := net.Listen("tcp", net.JoinHostPort(c.serverInterface, strconv.Itoa(currentServerPort)))
-		if err == nil {
-			c.serverPorts[i] = serverPortListener{ln: l, p: currentServerPort}
-		} else {
-			if i == 0 && flags.Changed("port") {
-				// port set explicitly by user -- he/she probably meant it!
-				return fmt.Errorf("server startup failed: %s", err)
+	var cerr error
+	c.withConf(func(conf *commonConfig) {
+		isMultiHost := conf.configs.IsMultihost
+		c.serverPorts = make([]serverPortListener, 1)
+		if isMultiHost {
+			if !c.serverAppend {
+				cerr = errors.New("--appendPort=false not supported when in multihost mode")
+				return
 			}
-			c.r.Println("port", currentServerPort, "already in use, attempting to use an available port")
-			l, sp, err := helpers.TCPListen()
-			if err != nil {
-				return fmt.Errorf("unable to find alternative port to use: %s", err)
-			}
-			c.serverPorts[i] = serverPortListener{ln: l, p: sp.Port}
+			c.serverPorts = make([]serverPortListener, len(conf.configs.Languages))
 		}
+		currentServerPort := c.serverPort
+		for i := 0; i < len(c.serverPorts); i++ {
+			l, err := net.Listen("tcp", net.JoinHostPort(c.serverInterface, strconv.Itoa(currentServerPort)))
+			if err == nil {
+				c.serverPorts[i] = serverPortListener{ln: l, p: currentServerPort}
+			} else {
+				if i == 0 && flags.Changed("port") {
+					// port set explicitly by user -- he/she probably meant it!
+					cerr = fmt.Errorf("server startup failed: %s", err)
+					return
+				}
+				c.r.Println("port", currentServerPort, "already in use, attempting to use an available port")
+				l, sp, err := helpers.TCPListen()
+				if err != nil {
+					cerr = fmt.Errorf("unable to find alternative port to use: %s", err)
+					return
+				}
+				c.serverPorts[i] = serverPortListener{ln: l, p: sp.Port}
+			}
 
-		currentServerPort = c.serverPorts[i].p + 1
-	}
-	return nil
+			currentServerPort = c.serverPorts[i].p + 1
+		}
+	})
+
+	return cerr
 }
 
 // fixURL massages the baseURL into a form needed for serving
@@ -709,28 +732,35 @@ func (c *serverCommand) partialReRender(urls ...string) error {
 }
 
 func (c *serverCommand) serve() error {
-	isMultiHost := c.conf().configs.IsMultihost
-	var err error
-	h, err := c.r.HugFromConfig(c.conf())
-	if err != nil {
-		return err
-	}
-	r := c.r
-
 	var (
 		baseURLs []string
 		roots    []string
+		h        *hugolib.HugoSites
 	)
-
-	if isMultiHost {
-		for _, l := range c.conf().configs.ConfigLangs() {
-			baseURLs = append(baseURLs, l.BaseURL().String())
-			roots = append(roots, l.Language().Lang)
+	err := c.withConfE(func(conf *commonConfig) error {
+		isMultiHost := conf.configs.IsMultihost
+		var err error
+		h, err = c.r.HugFromConfig(conf)
+		if err != nil {
+			return err
 		}
-	} else {
-		l := c.conf().configs.GetFirstLanguageConfig()
-		baseURLs = []string{l.BaseURL().String()}
-		roots = []string{""}
+
+		if isMultiHost {
+			for _, l := range conf.configs.ConfigLangs() {
+				baseURLs = append(baseURLs, l.BaseURL().String())
+				roots = append(roots, l.Language().Lang)
+			}
+		} else {
+			l := conf.configs.GetFirstLanguageConfig()
+			baseURLs = []string{l.BaseURL().String()}
+			roots = []string{""}
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return err
 	}
 
 	// Cache it here. The HugoSites object may be unavailable later on due to intermittent configuration errors.
@@ -796,7 +826,7 @@ func (c *serverCommand) serve() error {
 			mu.HandleFunc(u.Path+"/livereload.js", livereload.ServeJS)
 			mu.HandleFunc(u.Path+"/livereload", livereload.Handler)
 		}
-		r.Printf("Web Server is available at %s (bind address %s)\n", serverURL, c.serverInterface)
+		c.r.Printf("Web Server is available at %s (bind address %s)\n", serverURL, c.serverInterface)
 		wg1.Go(func() error {
 			err = srv.Serve(listener)
 			if err != nil && err != http.ErrServerClosed {
@@ -829,7 +859,7 @@ func (c *serverCommand) serve() error {
 
 	}
 
-	r.Println("Press Ctrl+C to stop")
+	c.r.Println("Press Ctrl+C to stop")
 
 	err = func() error {
 		for {
@@ -845,7 +875,7 @@ func (c *serverCommand) serve() error {
 	}()
 
 	if err != nil {
-		r.Println("Error:", err)
+		c.r.Println("Error:", err)
 	}
 
 	if h := c.hugoTry(); h != nil {
@@ -892,17 +922,17 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 			publishDir = filepath.Join(publishDir, sourceFs.PublishFolder)
 		}
 
-		conf := s.c.conf().configs.Base
-		fs := s.c.conf().fs
 		syncer := fsync.NewSyncer()
-		syncer.NoTimes = conf.NoTimes
-		syncer.NoChmod = conf.NoChmod
-		syncer.ChmodFilter = chmodFilter
-		syncer.SrcFs = sourceFs.Fs
-		syncer.DestFs = fs.PublishDir
-		if c.s != nil && c.s.renderStaticToDisk {
-			syncer.DestFs = fs.PublishDirStatic
-		}
+		c.withConf(func(conf *commonConfig) {
+			syncer.NoTimes = conf.configs.Base.NoTimes
+			syncer.NoChmod = conf.configs.Base.NoChmod
+			syncer.ChmodFilter = chmodFilter
+			syncer.SrcFs = sourceFs.Fs
+			syncer.DestFs = conf.fs.PublishDir
+			if c.s != nil && c.s.renderStaticToDisk {
+				syncer.DestFs = conf.fs.PublishDirStatic
+			}
+		})
 
 		// prevent spamming the log on changes
 		logger := helpers.NewDistinctErrorLogger()
@@ -946,7 +976,9 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 				if _, err := sourceFs.Fs.Stat(relPath); herrors.IsNotExist(err) {
 					// If file doesn't exist in any static dir, remove it
 					logger.Println("File no longer exists in static dir, removing", relPath)
-					_ = c.conf().fs.PublishDirStatic.RemoveAll(relPath)
+					c.withConf(func(conf *commonConfig) {
+						_ = conf.fs.PublishDirStatic.RemoveAll(relPath)
+					})
 
 				} else if err == nil {
 					// If file still exists, sync it

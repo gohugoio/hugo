@@ -79,16 +79,10 @@ func Execute(args []string) error {
 }
 
 type commonConfig struct {
-	mu      sync.Mutex
+	mu      *sync.Mutex
 	configs *allconfig.Configs
 	cfg     config.Provider
 	fs      *hugofs.Fs
-}
-
-func (c *commonConfig) getFs() *hugofs.Fs {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	return c.fs
 }
 
 // This is the root command.
@@ -181,6 +175,7 @@ func (r *rootCommand) ConfigFromConfig(key int32, oldConf *commonConfig) (*commo
 		}
 
 		return &commonConfig{
+			mu:      oldConf.mu,
 			configs: configs,
 			cfg:     oldConf.cfg,
 			fs:      fs,
@@ -295,6 +290,7 @@ func (r *rootCommand) ConfigFromProvider(key int32, cfg config.Provider) (*commo
 		}
 
 		commonConfig := &commonConfig{
+			mu:      &sync.Mutex{},
 			configs: configs,
 			cfg:     cfg,
 			fs:      fs,
@@ -309,9 +305,6 @@ func (r *rootCommand) ConfigFromProvider(key int32, cfg config.Provider) (*commo
 
 func (r *rootCommand) HugFromConfig(conf *commonConfig) (*hugolib.HugoSites, error) {
 	h, _, err := r.hugoSites.GetOrCreate(r.configVersionID.Load(), func(key int32) (*hugolib.HugoSites, error) {
-		conf.mu.Lock()
-		defer conf.mu.Unlock()
-
 		depsCfg := deps.DepsCfg{Configs: conf.configs, Fs: conf.fs, Logger: r.logger}
 		return hugolib.NewHugoSites(depsCfg)
 	})
