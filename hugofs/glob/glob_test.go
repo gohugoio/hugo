@@ -89,8 +89,8 @@ func BenchmarkGetGlob(b *testing.B) {
 	}
 
 	runBench("Default cache", defaultGlobCache, "abcde")
-	runBench("Filenames cache, lowercase searchs", defaultGlobCache, "abcde")
-	runBench("Filenames cache, mixed case searchs", defaultGlobCache, "abCDe")
+	runBench("Filenames cache, lowercase searches", defaultGlobCache, "abcde")
+	runBench("Filenames cache, mixed case searches", defaultGlobCache, "abCDe")
 
 	b.Run("GetGlob", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
