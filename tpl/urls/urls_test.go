@@ -73,6 +73,7 @@ func TestParse(t *testing.T) {
 func TestJoinPath(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
+	ns := newNs()
 
 	for _, test := range []struct {
 		elements any
