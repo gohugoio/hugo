@@ -41,7 +41,9 @@ import (
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 	"github.com/gohugoio/hugo/livereload"
 	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/tpl"
 	"github.com/gohugoio/hugo/watcher"
+	"github.com/spf13/afero"
 	"github.com/spf13/fsync"
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/sync/semaphore"
@@ -411,6 +413,26 @@ func (c *hugoBuilder) build() error {
 		if err != nil {
 			return err
 		}
+
+		if c.r.printPathWarnings {
+			hugofs.WalkFilesystems(h.Fs.PublishDir, func(fs afero.Fs) bool {
+				if dfs, ok := fs.(hugofs.DuplicatesReporter); ok {
+					dupes := dfs.ReportDuplicates()
+					if dupes != "" {
+						c.r.logger.Warnln("Duplicate target paths:", dupes)
+					}
+				}
+				return false
+			})
+		}
+
+		if c.r.printUnusedTemplates {
+			unusedTemplates := h.Tmpl().(tpl.UnusedTemplatesProvider).UnusedTemplates()
+			for _, unusedTemplate := range unusedTemplates {
+				c.r.logger.Warnf("Template %s is unused, source file %s", unusedTemplate.Name(), unusedTemplate.Filename())
+			}
+		}
+
 		h.PrintProcessingStats(os.Stdout)
 		c.r.Println()
 	}

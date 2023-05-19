@@ -115,11 +115,13 @@ type rootCommand struct {
 	environment string
 
 	// Common build flags.
-	baseURL         string
-	gc              bool
-	poll            string
-	panicOnWarning  bool
-	forceSyncStatic bool
+	baseURL              string
+	gc                   bool
+	poll                 string
+	panicOnWarning       bool
+	forceSyncStatic      bool
+	printPathWarnings    bool
+	printUnusedTemplates bool
 
 	// Profile flags (for debugging of performance problems)
 	cpuprofile   string
@@ -538,8 +540,8 @@ func applyLocalBuildFlags(cmd *cobra.Command, r *rootCommand) {
 	cmd.Flags().BoolP("noChmod", "", false, "don't sync permission mode of files")
 	cmd.Flags().BoolP("noBuildLock", "", false, "don't create .hugo_build.lock file")
 	cmd.Flags().BoolP("printI18nWarnings", "", false, "print missing translations")
-	cmd.Flags().BoolP("printPathWarnings", "", false, "print warnings on duplicate target paths etc.")
-	cmd.Flags().BoolP("printUnusedTemplates", "", false, "print warnings on unused templates.")
+	cmd.Flags().BoolVarP(&r.printPathWarnings, "printPathWarnings", "", false, "print warnings on duplicate target paths etc.")
+	cmd.Flags().BoolVarP(&r.printUnusedTemplates, "printUnusedTemplates", "", false, "print warnings on unused templates.")
 	cmd.Flags().StringVarP(&r.cpuprofile, "profile-cpu", "", "", "write cpu profile to `file`")
 	cmd.Flags().StringVarP(&r.memprofile, "profile-mem", "", "", "write memory profile to `file`")
 	cmd.Flags().BoolVarP(&r.printm, "printMemoryUsage", "", false, "print memory usage to screen at intervals")
