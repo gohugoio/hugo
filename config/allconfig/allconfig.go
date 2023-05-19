@@ -222,7 +222,12 @@ func (c *Config) CompileConfig() error {
 	}
 	disabledKinds := make(map[string]bool)
 	for _, kind := range c.DisableKinds {
-		disabledKinds[strings.ToLower(kind)] = true
+		kind = strings.ToLower(kind)
+		if kind == "taxonomyterm" {
+			// Legacy config.
+			kind = "term"
+		}
+		disabledKinds[kind] = true
 	}
 	kindOutputFormats := make(map[string]output.Formats)
 	isRssDisabled := disabledKinds["rss"]

@@ -897,3 +897,32 @@ mainSections: []
 `)
 
 }
+
+func TestConfigLegacyValues(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+# taxonomyTerm was renamed to term in Hugo 0.60.0.
+disableKinds = ["taxonomyTerm"]
+
+-- layouts/index.html --
+Home
+
+`
+
+	b, err := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).BuildE()
+
+	b.Assert(err, qt.IsNil)
+	b.AssertFileContent("public/index.html", `		
+Home
+`)
+
+	conf := b.H.Configs.Base
+	b.Assert(conf.IsKindEnabled("term"), qt.Equals, false)
+}
