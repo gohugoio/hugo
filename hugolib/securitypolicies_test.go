@@ -138,9 +138,9 @@ func TestSecurityPolicies(t *testing.T) {
 		}
 		cb := func(b *sitesBuilder) {
 			b.WithConfigFile("toml", `
-			[security]
-			[security.exec]
-			allow="none"	
+[security]
+[security.exec]
+allow="none"	
 		
 			`)
 			b.WithTemplatesAdded("index.html", `{{ $scss := "body { color: #333; }" | resources.FromString "foo.scss"  | resources.ToCSS (dict "transpiler" "dartsass") }}`)
@@ -166,6 +166,28 @@ func TestSecurityPolicies(t *testing.T) {
 [security]		
 [security.http]
 urls="none"
+`)
+			})
+	})
+
+	c.Run("resources.GetRemote, fake JSON", func(c *qt.C) {
+		c.Parallel()
+		httpTestVariant(c, `{{ $json := resources.GetRemote "%[1]s/fakejson.json" }}{{ $json.Content }}`, `(?s).*failed to resolve media type.*`,
+			func(b *sitesBuilder) {
+				b.WithConfigFile("toml", `
+`)
+			})
+	})
+
+	c.Run("resources.GetRemote, fake JSON whitelisted", func(c *qt.C) {
+		c.Parallel()
+		httpTestVariant(c, `{{ $json := resources.GetRemote "%[1]s/fakejson.json" }}{{ $json.Content }}`, ``,
+			func(b *sitesBuilder) {
+				b.WithConfigFile("toml", `
+[security]		
+[security.http]
+mediaTypes=["application/json"]
+
 `)
 			})
 	})

@@ -88,6 +88,9 @@ type HTTP struct {
 
 	// HTTP methods to allow.
 	Methods Whitelist `json:"methods"`
+
+	// Media types where the Content-Type in the response is used instead of resolving from the file content.
+	MediaTypes Whitelist `json:"mediaTypes"`
 }
 
 // ToTOML converts c to TOML with [security] as the root.
