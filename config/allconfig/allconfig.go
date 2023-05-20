@@ -748,8 +748,13 @@ func FromLoadConfigResult(fs afero.Fs, res config.LoadConfigResult) (*Configs, e
 						}
 					}
 				} else {
-					// Apply new values to the root.
-					differentRootKeys = append(differentRootKeys, "")
+					switch vv.(type) {
+					case maps.Params:
+						differentRootKeys = append(differentRootKeys, kk)
+					default:
+						// Apply new values to the root.
+						differentRootKeys = append(differentRootKeys, "")
+					}
 				}
 			}
 			differentRootKeys = helpers.UniqueStringsSorted(differentRootKeys)

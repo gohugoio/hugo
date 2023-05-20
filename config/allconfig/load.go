@@ -214,22 +214,6 @@ func (l configLoader) normalizeCfg(cfg config.Provider) error {
 		cfg.Set("minify", maps.Params{"minifyOutput": true})
 	}
 
-	// Simplify later merge.
-	languages := cfg.GetStringMap("languages")
-	for _, v := range languages {
-		switch m := v.(type) {
-		case maps.Params:
-			// params have merge strategy deep by default.
-			// The languages config key has strategy none by default.
-			// This means that if these two sections does not exist on the left side,
-			// they will not get merged in, so just create some empty maps.
-			if _, ok := m["params"]; !ok {
-				m["params"] = maps.Params{}
-			}
-		}
-
-	}
-
 	return nil
 }
 

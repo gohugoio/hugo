@@ -898,6 +898,59 @@ mainSections: []
 
 }
 
+func TestConfigMergeLanguageDeepEmptyLefSide(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+[params]
+p1 = "p1base"
+[languages.en]
+languageCode = 'en-US'
+languageName = 'English'
+weight = 1
+[languages.en.markup.goldmark.extensions.typographer]
+leftDoubleQuote = '&ldquo;'   # default &ldquo;
+rightDoubleQuote = '&rdquo;'  # default &rdquo;
+
+[languages.de]
+languageCode = 'de-DE'
+languageName = 'Deutsch'
+weight = 2
+[languages.de.params]
+p1 = "p1de"
+[languages.de.markup.goldmark.extensions.typographer]
+leftDoubleQuote = '&laquo;'   # default &ldquo;
+rightDoubleQuote = '&raquo;'  # default &rdquo;
+-- layouts/index.html --
+{{ .Content }}
+p1: {{ site.Params.p1 }}|
+-- content/_index.en.md --
+---
+title: "English Title"
+---
+A "quote" in English.
+-- content/_index.de.md --
+---
+title: "Deutsch Title"
+---
+Ein "Zitat" auf Deutsch.
+
+
+
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", "p1: p1base", "<p>A &ldquo;quote&rdquo; in English.</p>")
+	b.AssertFileContent("public/de/index.html", "p1: p1de", "<p>Ein &laquo;Zitat&raquo; auf Deutsch.</p>")
+
+}
+
 func TestConfigLegacyValues(t *testing.T) {
 	t.Parallel()
 
