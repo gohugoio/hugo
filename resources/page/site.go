@@ -444,9 +444,9 @@ func (s testSite) Param(key any) (any, error) {
 }
 
 // NewDummyHugoSite creates a new minimal test site.
-func NewDummyHugoSite(cfg config.Provider) Site {
+func NewDummyHugoSite(conf config.AllProvider) Site {
 	return testSite{
-		h: hugo.NewInfo(hugo.EnvironmentProduction, nil),
+		h: hugo.NewInfo(conf, nil),
 		l: &langs.Language{
 			Lang: "en",
 		},

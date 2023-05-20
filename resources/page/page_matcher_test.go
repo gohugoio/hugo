@@ -25,8 +25,8 @@ import (
 
 func TestPageMatcher(t *testing.T) {
 	c := qt.New(t)
-	developmentTestSite := testSite{h: hugo.NewInfo("development", nil)}
-	productionTestSite := testSite{h: hugo.NewInfo("production", nil)}
+	developmentTestSite := testSite{h: hugo.NewInfo(testConfig{environment: "development"}, nil)}
+	productionTestSite := testSite{h: hugo.NewInfo(testConfig{environment: "production"}, nil)}
 
 	p1, p2, p3 :=
 		&testPage{path: "/p1", kind: "section", lang: "en", site: developmentTestSite},
@@ -155,4 +155,17 @@ func TestDecodeCascadeConfig(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	c.Assert(got, qt.IsNotNil)
 
+}
+
+type testConfig struct {
+	environment string
+	workingDir  string
+}
+
+func (c testConfig) Environment() string {
+	return c.environment
+}
+
+func (c testConfig) WorkingDir() string {
+	return c.workingDir
 }

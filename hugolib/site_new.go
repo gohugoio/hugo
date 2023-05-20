@@ -261,7 +261,7 @@ func newHugoSitesNew(cfg deps.DepsCfg, d *deps.Deps, sites []*Site) (*HugoSites,
 		dependencies = append(dependencies, depFromMod(m))
 	}
 
-	h.hugoInfo = hugo.NewInfo(h.Configs.Base.Environment, dependencies)
+	h.hugoInfo = hugo.NewInfo(h.Configs.GetFirstLanguageConfig(), dependencies)
 
 	var prototype *deps.Deps
 	for i, s := range sites {

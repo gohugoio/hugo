@@ -29,7 +29,8 @@ func init() {
 		if err := d.Init(); err != nil {
 			panic(err)
 		}
-		d.Site = page.NewDummyHugoSite(newTestConfig())
+		conf := testconfig.GetTestConfig(nil, newTestConfig())
+		d.Site = page.NewDummyHugoSite(conf)
 
 		var namespaces internal.TemplateFuncsNamespaces
 

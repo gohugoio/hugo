@@ -898,6 +898,29 @@ mainSections: []
 
 }
 
+func TestConfigHugoWorkingDir(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/index.html --
+WorkingDir: {{ hugo.WorkingDir }}|
+
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			WorkingDir:  "myworkingdir",
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `
+WorkingDir: myworkingdir|
+`)
+
+}
+
 func TestConfigMergeLanguageDeepEmptyLefSide(t *testing.T) {
 	t.Parallel()
 

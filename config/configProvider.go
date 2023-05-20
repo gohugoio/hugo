@@ -64,6 +64,7 @@ type AllProvider interface {
 	Timeout() time.Duration
 	StaticDirs() []string
 	IgnoredErrors() map[string]bool
+	WorkingDir() string
 }
 
 // Provider provides the configuration settings for Hugo.
