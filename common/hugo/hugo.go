@@ -60,6 +60,7 @@ type HugoInfo struct {
 	// version of go that the Hugo binary was built with
 	GoVersion string
 
+	conf ConfigProvider
 	deps []*Dependency
 }
 
@@ -81,15 +82,26 @@ func (i HugoInfo) IsExtended() bool {
 	return IsExtended
 }
 
+// WorkingDir returns the project working directory.
+func (i HugoInfo) WorkingDir() string {
+	return i.conf.WorkingDir()
+}
+
 // Deps gets a list of dependencies for this Hugo build.
 func (i HugoInfo) Deps() []*Dependency {
 	return i.deps
 }
 
+// ConfigProvider represents the config options that are relevant for HugoInfo.
+type ConfigProvider interface {
+	Environment() string
+	WorkingDir() string
+}
+
 // NewInfo creates a new Hugo Info object.
-func NewInfo(environment string, deps []*Dependency) HugoInfo {
-	if environment == "" {
-		environment = EnvironmentProduction
+func NewInfo(conf ConfigProvider, deps []*Dependency) HugoInfo {
+	if conf.Environment() == "" {
+		panic("environment not set")
 	}
 	var (
 		commitHash string
@@ -107,7 +119,8 @@ func NewInfo(environment string, deps []*Dependency) HugoInfo {
 	return HugoInfo{
 		CommitHash:  commitHash,
 		BuildDate:   buildDate,
-		Environment: environment,
+		Environment: conf.Environment(),
+		conf:        conf,
 		deps:        deps,
 		GoVersion:   goVersion,
 	}

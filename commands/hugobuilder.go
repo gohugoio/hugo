@@ -990,7 +990,9 @@ func (c *hugoBuilder) loadConfig(cd *simplecobra.Commandeer, running bool) error
 	cfg := config.New()
 	cfg.Set("renderToDisk", (c.s == nil && !c.r.renderToMemory) || (c.s != nil && c.s.renderToDisk))
 	watch := c.r.buildWatch || (c.s != nil && c.s.serverWatch)
-	cfg.Set("environment", c.r.environment)
+	if c.r.environment != "" {
+		cfg.Set("environment", c.r.environment)
+	}
 
 	cfg.Set("internal", maps.Params{
 		"running": running,

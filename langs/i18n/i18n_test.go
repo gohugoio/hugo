@@ -480,7 +480,7 @@ func prepareDeps(afs afero.Fs, cfg config.Provider) (*deps.Deps, *TranslationPro
 	translationProvider := NewTranslationProvider()
 	d.TemplateProvider = tplimpl.DefaultTemplateProvider
 	d.TranslationProvider = translationProvider
-	d.Site = page.NewDummyHugoSite(cfg)
+	d.Site = page.NewDummyHugoSite(d.Conf)
 	if err := d.Compile(nil); err != nil {
 		panic(err)
 	}

@@ -101,6 +101,10 @@ func (c ConfigLanguage) DirsBase() config.CommonDirs {
 	return c.m.Base.CommonDirs
 }
 
+func (c ConfigLanguage) WorkingDir() string {
+	return c.m.Base.WorkingDir
+}
+
 func (c ConfigLanguage) Quiet() bool {
 	return c.m.Base.Internal.Quiet
 }
