@@ -73,7 +73,11 @@ func newListCommand() *listCommand {
 							p.PublishDate().Format(time.RFC3339)}
 
 					}
-					return list(cd, r, createRecord, "buildDrafts", true)
+					return list(cd, r, createRecord,
+						"buildDrafts", true,
+						"buildFuture", true,
+						"buildExpired", true,
+					)
 				},
 			},
 			&simpleCommand{
@@ -91,7 +95,10 @@ func newListCommand() *listCommand {
 						}
 
 					}
-					return list(cd, r, createRecord, "buildFuture", true)
+					return list(cd, r, createRecord,
+						"buildFuture", true,
+						"buildDrafts", true,
+					)
 				},
 			},
 			&simpleCommand{
@@ -109,7 +116,10 @@ func newListCommand() *listCommand {
 						}
 
 					}
-					return list(cd, r, createRecord, "buildExpired", true)
+					return list(cd, r, createRecord,
+						"buildExpired", true,
+						"buildDrafts", true,
+					)
 				},
 			},
 			&simpleCommand{
