@@ -162,6 +162,7 @@ func (r *rootCommand) ConfigFromConfig(key int32, oldConf *commonConfig) (*commo
 				Fs:          fs.Source,
 				Filename:    r.cfgFile,
 				ConfigDir:   r.cfgDir,
+				Logger:      r.logger,
 				Environment: r.environment,
 			},
 		)
@@ -222,6 +223,7 @@ func (r *rootCommand) ConfigFromProvider(key int32, cfg config.Provider) (*commo
 				Filename:    r.cfgFile,
 				ConfigDir:   r.cfgDir,
 				Environment: r.environment,
+				Logger:      r.logger,
 			},
 		)
 		if err != nil {

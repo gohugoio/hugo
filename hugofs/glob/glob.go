@@ -80,6 +80,31 @@ func (gc *globCache) GetGlob(pattern string) (glob.Glob, error) {
 	return eg.glob, eg.err
 }
 
+// Or creates a new Glob from the given globs.
+func Or(globs ...glob.Glob) glob.Glob {
+	return globSlice{globs: globs}
+}
+
+// MatchesFunc is a convenience type to create a glob.Glob from a function.
+type MatchesFunc func(s string) bool
+
+func (m MatchesFunc) Match(s string) bool {
+	return m(s)
+}
+
+type globSlice struct {
+	globs []glob.Glob
+}
+
+func (g globSlice) Match(s string) bool {
+	for _, g := range g.globs {
+		if g.Match(s) {
+			return true
+		}
+	}
+	return false
+}
+
 type globDecorator struct {
 	// On Windows we may get filenames with Windows slashes to match,
 	// which we need to normalize.

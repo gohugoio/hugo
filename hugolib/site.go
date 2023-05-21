@@ -22,7 +22,6 @@ import (
 	"net/url"
 	"path"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"sort"
 	"strings"
@@ -36,8 +35,6 @@ import (
 
 	"github.com/gohugoio/hugo/common/paths"
 
-	"github.com/gohugoio/hugo/resources"
-
 	"github.com/gohugoio/hugo/identity"
 
 	"github.com/gohugoio/hugo/markup/converter/hooks"
@@ -45,6 +42,7 @@ import (
 	"github.com/gohugoio/hugo/markup/converter"
 
 	"github.com/gohugoio/hugo/hugofs/files"
+	hglob "github.com/gohugoio/hugo/hugofs/glob"
 
 	"github.com/gohugoio/hugo/common/maps"
 
@@ -483,16 +481,6 @@ func (s *Site) translateFileEvents(events []fsnotify.Event) []fsnotify.Event {
 	return filtered
 }
 
-var (
-	// These are only used for cache busting, so false positives are fine.
-	// We also deliberately do not match for file suffixes to also catch
-	// directory names.
-	// TODO(bep) consider this when completing the relevant PR rewrite on this.
-	cssFileRe   = regexp.MustCompile("(css|sass|scss)")
-	cssConfigRe = regexp.MustCompile(`(postcss|tailwind)\.config\.js`)
-	jsFileRe    = regexp.MustCompile("(js|ts|jsx|tsx)")
-)
-
 // reBuild partially rebuilds a site given the filesystem events.
 // It returns whatever the content source was changed.
 // TODO(bep) clean up/rewrite this method.
@@ -524,24 +512,16 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 		logger = helpers.NewDistinctErrorLogger()
 	)
 
-	var cachePartitions []string
-	// Special case
-	// TODO(bep) I have a ongoing branch where I have redone the cache. Consider this there.
-	var (
-		evictCSSRe *regexp.Regexp
-		evictJSRe  *regexp.Regexp
-	)
+	var cacheBusters []func(string) bool
+	bcfg := s.conf.Build
 
 	for _, ev := range events {
-		if assetsFilename, _ := s.BaseFs.Assets.MakePathRelative(ev.Name); assetsFilename != "" {
-			cachePartitions = append(cachePartitions, resources.ResourceKeyPartitions(assetsFilename)...)
-			if evictCSSRe == nil {
-				if cssFileRe.MatchString(assetsFilename) || cssConfigRe.MatchString(assetsFilename) {
-					evictCSSRe = cssFileRe
-				}
-			}
-			if evictJSRe == nil && jsFileRe.MatchString(assetsFilename) {
-				evictJSRe = jsFileRe
+		component, relFilename := s.BaseFs.MakePathRelative(ev.Name)
+		if relFilename != "" {
+			p := hglob.NormalizePath(path.Join(component, relFilename))
+			g, err := bcfg.MatchCacheBuster(s.Log, p)
+			if err == nil && g != nil {
+				cacheBusters = append(cacheBusters, g)
 			}
 		}
 
@@ -586,15 +566,21 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 		return err
 	}
 
+	var cacheBusterOr func(string) bool
+	if len(cacheBusters) > 0 {
+		cacheBusterOr = func(s string) bool {
+			for _, cb := range cacheBusters {
+				if cb(s) {
+					return true
+				}
+			}
+			return false
+		}
+	}
+
 	// These in memory resource caches will be rebuilt on demand.
-	for _, s := range s.h.Sites {
-		s.ResourceSpec.ResourceCache.DeletePartitions(cachePartitions...)
-		if evictCSSRe != nil {
-			s.ResourceSpec.ResourceCache.DeleteMatches(evictCSSRe)
-		}
-		if evictJSRe != nil {
-			s.ResourceSpec.ResourceCache.DeleteMatches(evictJSRe)
-		}
+	if len(cacheBusters) > 0 {
+		s.h.ResourceSpec.ResourceCache.DeleteMatches(cacheBusterOr)
 	}
 
 	if tmplChanged || i18nChanged {
@@ -1024,7 +1010,6 @@ func (s *Site) lookupLayouts(layouts ...string) tpl.Template {
 }
 
 func (s *Site) renderAndWriteXML(ctx context.Context, statCounter *uint64, name string, targetPath string, d any, templ tpl.Template) error {
-	s.Log.Debugf("Render XML for %q to %q", name, targetPath)
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
@@ -1046,7 +1031,6 @@ func (s *Site) renderAndWriteXML(ctx context.Context, statCounter *uint64, name 
 }
 
 func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath string, p *pageState, templ tpl.Template) error {
-	s.Log.Debugf("Render %s to %q", name, targetPath)
 	s.h.IncrPageRender()
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)

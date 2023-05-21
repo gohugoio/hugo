@@ -92,6 +92,9 @@ var allDecoderSetups = map[string]decodeWeight{
 			p.c.Build = config.DecodeBuildConfig(p.p)
 			return nil
 		},
+		getCompiler: func(c *Config) configCompiler {
+			return &c.Build
+		},
 	},
 	"frontmatter": {
 		key: "frontmatter",

@@ -44,6 +44,10 @@ func LoadConfig(d ConfigSourceDescriptor) (*Configs, error) {
 		d.Environ = os.Environ()
 	}
 
+	if d.Logger == nil {
+		d.Logger = loggers.NewErrorLogger()
+	}
+
 	l := &configLoader{ConfigSourceDescriptor: d, cfg: config.New()}
 	// Make sure we always do this, even in error situations,
 	// as we have commands (e.g. "hugo mod init") that will
@@ -54,7 +58,7 @@ func LoadConfig(d ConfigSourceDescriptor) (*Configs, error) {
 		return nil, fmt.Errorf("failed to load config: %w", err)
 	}
 
-	configs, err := FromLoadConfigResult(d.Fs, res)
+	configs, err := fromLoadConfigResult(d.Fs, d.Logger, res)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create config from result: %w", err)
 	}
@@ -67,7 +71,7 @@ func LoadConfig(d ConfigSourceDescriptor) (*Configs, error) {
 	if len(l.ModulesConfigFiles) > 0 {
 		// Config merged in from modules.
 		// Re-read the config.
-		configs, err = FromLoadConfigResult(d.Fs, res)
+		configs, err = fromLoadConfigResult(d.Fs, d.Logger, res)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create config from modules config: %w", err)
 		}

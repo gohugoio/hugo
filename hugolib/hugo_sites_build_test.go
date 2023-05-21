@@ -8,6 +8,7 @@ import (
 	"time"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/resources/page"
 
@@ -1393,7 +1394,7 @@ other = %q
 }
 
 func TestRebuildOnAssetChange(t *testing.T) {
-	b := newTestSitesBuilder(t).Running()
+	b := newTestSitesBuilder(t).Running().WithLogger(loggers.NewInfoLogger())
 	b.WithTemplatesAdded("index.html", `
 {{ (resources.Get "data.json").Content }}
 `)
