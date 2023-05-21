@@ -15,12 +15,14 @@ package config
 
 import (
 	"fmt"
+	"regexp"
 	"sort"
 	"strings"
 
+	"github.com/gobwas/glob"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/types"
 
-	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cast"
@@ -77,9 +79,29 @@ type LoadConfigResult struct {
 	BaseConfig  BaseConfig
 }
 
-var DefaultBuild = BuildConfig{
+var defaultBuild = BuildConfig{
 	UseResourceCacheWhen: "fallback",
 	WriteStats:           false,
+
+	CacheBusters: []CacheBuster{
+		{
+			Source: `assets/.*\.(js|ts|jsx|tsx)`,
+			Target: `(js|scripts|javascript)`,
+		},
+		{
+			Source: `assets/.*\.(css|sass|scss)$`,
+			Target: cssTargetCachebusterRe,
+		},
+		{
+			Source: `(postcss|tailwind)\.config\.js`,
+			Target: cssTargetCachebusterRe,
+		},
+		// This is deliberatly coarse grained; it will cache bust resources with "json" in the cache key when js files changes, which is good.
+		{
+			Source: `assets/.*\.(.*)$`,
+			Target: `$1`,
+		},
+	},
 }
 
 // BuildConfig holds some build related configuration.
@@ -93,6 +115,14 @@ type BuildConfig struct {
 	// Can be used to toggle off writing of the intellinsense /assets/jsconfig.js
 	// file.
 	NoJSConfigInAssets bool
+
+	// Can used to control how the resource cache gets evicted on rebuilds.
+	CacheBusters []CacheBuster
+}
+
+func (b BuildConfig) clone() BuildConfig {
+	b.CacheBusters = append([]CacheBuster{}, b.CacheBusters...)
+	return b
 }
 
 func (b BuildConfig) UseResourceCache(err error) bool {
@@ -107,16 +137,47 @@ func (b BuildConfig) UseResourceCache(err error) bool {
 	return true
 }
 
+// MatchCacheBuster returns the cache buster for the given path p, nil if none.
+func (s BuildConfig) MatchCacheBuster(logger loggers.Logger, p string) (func(string) bool, error) {
+	var matchers []func(string) bool
+	for _, cb := range s.CacheBusters {
+		if matcher := cb.compiledSource(p); matcher != nil {
+			matchers = append(matchers, matcher)
+		}
+	}
+	if len(matchers) > 0 {
+		return (func(cacheKey string) bool {
+			for _, m := range matchers {
+				if m(cacheKey) {
+					return true
+				}
+			}
+			return false
+		}), nil
+	}
+	return nil, nil
+}
+
+func (b *BuildConfig) CompileConfig(logger loggers.Logger) error {
+	for i, cb := range b.CacheBusters {
+		if err := cb.CompileConfig(logger); err != nil {
+			return fmt.Errorf("failed to compile cache buster %q: %w", cb.Source, err)
+		}
+		b.CacheBusters[i] = cb
+	}
+	return nil
+}
+
 func DecodeBuildConfig(cfg Provider) BuildConfig {
 	m := cfg.GetStringMap("build")
-	b := DefaultBuild
+	b := defaultBuild.clone()
 	if m == nil {
 		return b
 	}
 
 	err := mapstructure.WeakDecode(m, &b)
 	if err != nil {
-		return DefaultBuild
+		return defaultBuild
 	}
 
 	b.UseResourceCacheWhen = strings.ToLower(b.UseResourceCacheWhen)
@@ -152,7 +213,7 @@ type Server struct {
 	compiledRedirects []glob.Glob
 }
 
-func (s *Server) CompileConfig() error {
+func (s *Server) CompileConfig(logger loggers.Logger) error {
 	if s.compiledHeaders != nil {
 		return nil
 	}
@@ -162,6 +223,7 @@ func (s *Server) CompileConfig() error {
 	for _, r := range s.Redirects {
 		s.compiledRedirects = append(s.compiledRedirects, glob.MustCompile(r.From))
 	}
+
 	return nil
 }
 
@@ -228,9 +290,74 @@ type Redirect struct {
 	Force bool
 }
 
+// CacheBuster configures cache busting for assets.
+type CacheBuster struct {
+	// Trigger for files matching this regexp.
+	Source string
+
+	// Cache bust targets matching this regexp.
+	// This regexp can contain group matches (e.g. $1) from the source regexp.
+	Target string
+
+	compiledSource func(string) func(string) bool
+}
+
+func (c *CacheBuster) CompileConfig(logger loggers.Logger) error {
+	if c.compiledSource != nil {
+		return nil
+	}
+	source := c.Source
+	target := c.Target
+	sourceRe, err := regexp.Compile(source)
+	if err != nil {
+		return fmt.Errorf("failed to compile cache buster source %q: %w", c.Source, err)
+	}
+	var compileErr error
+	c.compiledSource = func(s string) func(string) bool {
+		m := sourceRe.FindStringSubmatch(s)
+		matchString := "no match"
+		match := m != nil
+		if match {
+			matchString = "match!"
+		}
+		logger.Debugf("cachebuster: Matching %q with source %q: %s\n", s, source, matchString)
+		if !match {
+			return nil
+		}
+		groups := m[1:]
+		// Replace $1, $2 etc. in target.
+
+		for i, g := range groups {
+			target = strings.ReplaceAll(target, fmt.Sprintf("$%d", i+1), g)
+		}
+		targetRe, err := regexp.Compile(target)
+		if err != nil {
+			compileErr = fmt.Errorf("failed to compile cache buster target %q: %w", target, err)
+			return nil
+		}
+		return func(s string) bool {
+			match = targetRe.MatchString(s)
+			matchString := "no match"
+			if match {
+				matchString = "match!"
+			}
+			logger.Debugf("cachebuster: Matching %q with target %q: %s\n", s, target, matchString)
+
+			return match
+		}
+
+	}
+	return compileErr
+}
+
 func (r Redirect) IsZero() bool {
 	return r.From == ""
 }
+
+const (
+	// Keep this a little coarse grained, some false positives are OK.
+	cssTargetCachebusterRe = `(css|styles|scss|sass)`
+)
 
 func DecodeServer(cfg Provider) (Server, error) {
 	s := &Server{}

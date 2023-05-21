@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/cache/filecache"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/urls"
 	"github.com/gohugoio/hugo/config"
@@ -184,7 +185,7 @@ type Config struct {
 }
 
 type configCompiler interface {
-	CompileConfig() error
+	CompileConfig(logger loggers.Logger) error
 }
 
 func (c Config) cloneForLang() *Config {
@@ -209,7 +210,7 @@ func (c Config) cloneForLang() *Config {
 	return &x
 }
 
-func (c *Config) CompileConfig() error {
+func (c *Config) CompileConfig(logger loggers.Logger) error {
 	var transientErr error
 	s := c.Timeout
 	if _, err := strconv.Atoi(s); err == nil {
@@ -328,7 +329,7 @@ func (c *Config) CompileConfig() error {
 
 	for _, s := range allDecoderSetups {
 		if getCompiler := s.getCompiler; getCompiler != nil {
-			if err := getCompiler(c).CompileConfig(); err != nil {
+			if err := getCompiler(c).CompileConfig(logger); err != nil {
 				return err
 			}
 		}
@@ -668,8 +669,8 @@ func (c Configs) GetByLang(lang string) config.AllProvider {
 	return nil
 }
 
-// FromLoadConfigResult creates a new Config from res.
-func FromLoadConfigResult(fs afero.Fs, res config.LoadConfigResult) (*Configs, error) {
+// fromLoadConfigResult creates a new Config from res.
+func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadConfigResult) (*Configs, error) {
 	if !res.Cfg.IsSet("languages") {
 		// We need at least one
 		lang := res.Cfg.GetString("defaultContentLanguage")
@@ -690,7 +691,7 @@ func FromLoadConfigResult(fs afero.Fs, res config.LoadConfigResult) (*Configs, e
 	languagesConfig := cfg.GetStringMap("languages")
 	var isMultiHost bool
 
-	if err := all.CompileConfig(); err != nil {
+	if err := all.CompileConfig(logger); err != nil {
 		return nil, err
 	}
 
@@ -769,7 +770,7 @@ func FromLoadConfigResult(fs afero.Fs, res config.LoadConfigResult) (*Configs, e
 			if err := decodeConfigFromParams(fs, bcfg, mergedConfig, clone, differentRootKeys); err != nil {
 				return nil, fmt.Errorf("failed to decode config for language %q: %w", k, err)
 			}
-			if err := clone.CompileConfig(); err != nil {
+			if err := clone.CompileConfig(logger); err != nil {
 				return nil, err
 			}
 			langConfigMap[k] = clone

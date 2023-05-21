@@ -24,7 +24,7 @@ import (
 
 	"github.com/gohugoio/hugo/helpers"
 
-	"github.com/gohugoio/hugo/hugofs/glob"
+	hglob "github.com/gohugoio/hugo/hugofs/glob"
 
 	"github.com/gohugoio/hugo/resources/resource"
 
@@ -83,7 +83,7 @@ var extAliasKeywords = map[string][]string{
 // e.g. "scss" will also return "sass".
 func ResourceKeyPartitions(filename string) []string {
 	var partitions []string
-	filename = glob.NormalizePath(filename)
+	filename = hglob.NormalizePath(filename)
 	dir, name := path.Split(filename)
 	ext := strings.TrimPrefix(path.Ext(filepath.ToSlash(name)), ".")
 
@@ -282,12 +282,23 @@ func (c *ResourceCache) DeletePartitions(partitions ...string) {
 	}
 }
 
-func (c *ResourceCache) DeleteMatches(re *regexp.Regexp) {
+func (c *ResourceCache) DeleteMatchesRe(re *regexp.Regexp) {
 	c.Lock()
 	defer c.Unlock()
 
 	for k := range c.cache {
 		if re.MatchString(k) {
+			delete(c.cache, k)
+		}
+	}
+}
+
+func (c *ResourceCache) DeleteMatches(match func(string) bool) {
+	c.Lock()
+	defer c.Unlock()
+
+	for k := range c.cache {
+		if match(k) {
 			delete(c.cache, k)
 		}
 	}
