@@ -117,6 +117,9 @@ height
 width
 : `width` attribute of the image.
 
+loading
+: `loading` attribute of the image.
+
 attr
 : Image attribution text. Markdown within the value of `attr` will be rendered.
 
