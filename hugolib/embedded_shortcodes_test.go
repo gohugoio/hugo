@@ -30,7 +30,7 @@ func TestEmbeddedShortcodes(t *testing.T) {
 		files := `
 -- hugo.toml --
 baseURL = "https://example.com"
-disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "setion"]
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "section"]
 ignoreErrors = ["error-missing-instagram-accesstoken"]
 [params]
 foo = "bar"

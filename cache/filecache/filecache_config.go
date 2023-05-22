@@ -81,7 +81,7 @@ type FileCacheConfig struct {
 	// Max age of cache entries in this cache. Any items older than this will
 	// be removed and not returned from the cache.
 	// A negative value means forever, 0 means cache is disabled.
-	// Hugo is leninent with what types it accepts here, but we recommend using
+	// Hugo is lenient with what types it accepts here, but we recommend using
 	// a duration string, a sequence of  decimal numbers, each with optional fraction and a unit suffix,
 	// such as "300ms", "1.5h" or "2h45m".
 	// Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".

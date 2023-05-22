@@ -25,7 +25,7 @@ func TestData(t *testing.T) {
 		files := `
 -- hugo.toml --
 baseURL = "https://example.com"
-disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "setion"]
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "section"]
 theme = "mytheme"
 -- data/a.toml --
 v1 = "a_v1"

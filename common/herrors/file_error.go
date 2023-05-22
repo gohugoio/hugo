@@ -292,7 +292,7 @@ func extractFileTypePos(err error) (string, text.Position) {
 	}
 
 	// The error type from the minifier contains line number and column number.
-	if line, col := exctractLineNumberAndColumnNumber(err); line >= 0 {
+	if line, col := extractLineNumberAndColumnNumber(err); line >= 0 {
 		pos.LineNumber = line
 		pos.ColumnNumber = col
 		return fileType, pos
@@ -364,7 +364,7 @@ func extractOffsetAndType(e error) (int, string) {
 	}
 }
 
-func exctractLineNumberAndColumnNumber(e error) (int, int) {
+func extractLineNumberAndColumnNumber(e error) (int, int) {
 	switch v := e.(type) {
 	case *parse.Error:
 		return v.Line, v.Column

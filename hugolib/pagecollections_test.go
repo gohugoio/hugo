@@ -235,7 +235,7 @@ func TestGetPage(t *testing.T) {
 		{"Root relative, no slash, root page", page.KindPage, nil, []string{"about.md", "ABOUT.md"}, "about page"},
 		{"Root relative, no slash, section", page.KindSection, nil, []string{"sect3"}, "section 3"},
 		{"Root relative, no slash, section page", page.KindPage, nil, []string{"sect3/page1.md"}, "Title3_1"},
-		{"Root relative, no slash, sub setion", page.KindSection, nil, []string{"sect3/sect7"}, "another sect7"},
+		{"Root relative, no slash, sub section", page.KindSection, nil, []string{"sect3/sect7"}, "another sect7"},
 		{"Root relative, no slash, nested page", page.KindPage, nil, []string{"sect3/subsect/deep.md"}, "deep page"},
 		{"Root relative, no slash, OS slashes", page.KindPage, nil, []string{filepath.FromSlash("sect5/page3.md")}, "Title5_3"},
 
@@ -247,7 +247,7 @@ func TestGetPage(t *testing.T) {
 		// content root relative paths without a leading slash, the lookup
 		// returns /sect7. This undermines ambiguity detection, but we have no choice.
 		//{"Ambiguous", nil, []string{"sect7"}, ""},
-		{"Section, ambigous", page.KindSection, nil, []string{"sect7"}, "Sect7s"},
+		{"Section, ambiguous", page.KindSection, nil, []string{"sect7"}, "Sect7s"},
 
 		{"Absolute, home", page.KindHome, nil, []string{"/", ""}, "home page"},
 		{"Absolute, page", page.KindPage, nil, []string{"/about.md", "/about"}, "about page"},

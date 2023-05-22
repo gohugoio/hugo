@@ -408,10 +408,10 @@ type RootConfig struct {
 	// Copyright information.
 	Copyright string
 
-	// The language to apply to content without any Clolanguage indicator.
+	// The language to apply to content without any language indicator.
 	DefaultContentLanguage string
 
-	// By defefault, we put the default content language in the root and the others below their language ID, e.g. /no/.
+	// By default, we put the default content language in the root and the others below their language ID, e.g. /no/.
 	// Set this to true to put all languages below their language ID.
 	DefaultContentLanguageInSubdir bool
 

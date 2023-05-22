@@ -324,7 +324,7 @@ func (h *HugoSites) postProcess() error {
 	// This will only be set when js.Build have been triggered with
 	// imports that resolves to the project or a module.
 	// Write a jsconfig.json file to the project's /asset directory
-	// to help JS intellisense in VS Code etc.
+	// to help JS IntelliSense in VS Code etc.
 	if !h.ResourceSpec.BuildConfig().NoJSConfigInAssets && h.BaseFs.Assets.Dirs != nil {
 		fi, err := h.BaseFs.Assets.Fs.Stat("")
 		if err != nil {

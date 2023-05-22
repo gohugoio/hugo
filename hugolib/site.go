@@ -886,7 +886,7 @@ func (s *Site) getLanguageTargetPathLang(alwaysInSubDir bool) string {
 	return s.getLanguagePermalinkLang(alwaysInSubDir)
 }
 
-// get any lanaguagecode to prefix the relative permalink with.
+// get any language code to prefix the relative permalink with.
 func (s *Site) getLanguagePermalinkLang(alwaysInSubDir bool) string {
 	if !s.h.isMultiLingual() || s.h.Conf.IsMultihost() {
 		return ""

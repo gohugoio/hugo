@@ -38,7 +38,7 @@ func init() {
 }
 
 // CreateTempDir creates a temp dir in the given filesystem and
-// returns the dirnam and a func that removes it when done.
+// returns the dirname and a func that removes it when done.
 func CreateTempDir(fs afero.Fs, prefix string) (string, func(), error) {
 	tempDir, err := afero.TempDir(fs, "", prefix)
 	if err != nil {

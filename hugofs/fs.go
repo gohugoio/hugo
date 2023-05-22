@@ -179,7 +179,7 @@ func MakeReadableAndRemoveAllModulePkgDir(fs afero.Fs, dir string) (int, error) 
 }
 
 // IsOsFs returns whether fs is an OsFs or if it fs wraps an OsFs.
-// TODO(bep) make this nore robust.
+// TODO(bep) make this more robust.
 func IsOsFs(fs afero.Fs) bool {
 	var isOsFs bool
 	WalkFilesystems(fs, func(fs afero.Fs) bool {

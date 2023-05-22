@@ -30,7 +30,7 @@ b = "bc1"
 
 -- hugo.toml --
 baseURL = "https://example.com"
-disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "setion"]
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "section"]
 ignoreErrors = ["error-missing-instagram-accesstoken"]
 [params]
 a = "a1"
