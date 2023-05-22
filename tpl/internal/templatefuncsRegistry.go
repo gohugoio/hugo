@@ -170,14 +170,17 @@ func (namespaces TemplateFuncsNamespaces) MarshalJSON() ([]byte, error) {
 	buf.WriteString("{")
 
 	for i, ns := range namespaces {
-		if i != 0 {
-			buf.WriteString(",")
-		}
+
 		b, err := ns.toJSON(context.TODO())
 		if err != nil {
 			return nil, err
 		}
-		buf.Write(b)
+		if b != nil {
+			if i != 0 {
+				buf.WriteString(",")
+			}
+			buf.Write(b)
+		}
 	}
 
 	buf.WriteString("}")
@@ -201,6 +204,11 @@ func (t *TemplateFuncsNamespace) toJSON(ctx context.Context) ([]byte, error) {
 	tctx, err := t.Context(ctx)
 	if err != nil {
 		return nil, err
+	}
+	if tctx == nil {
+		// E.g. page.
+		// We should fix this, but we're going to abandon this construct in a little while.
+		return nil, nil
 	}
 	ctxType := reflect.TypeOf(tctx)
 	for i := 0; i < ctxType.NumMethod(); i++ {
