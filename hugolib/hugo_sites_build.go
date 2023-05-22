@@ -455,12 +455,21 @@ func (h *HugoSites) writeBuildStats() error {
 		HTMLElements: *htmlElements,
 	}
 
+	const hugoStatsName = "hugo_stats.json"
+
 	js, err := json.MarshalIndent(stats, "", "  ")
 	if err != nil {
 		return err
 	}
 
-	filename := filepath.Join(h.Configs.LoadingInfo.BaseConfig.WorkingDir, "hugo_stats.json")
+	filename := filepath.Join(h.Configs.LoadingInfo.BaseConfig.WorkingDir, hugoStatsName)
+
+	if existingContent, err := afero.ReadFile(hugofs.Os, filename); err == nil {
+		// Check if the content has changed.
+		if bytes.Equal(existingContent, js) {
+			return nil
+		}
+	}
 
 	// Make sure it's always written to the OS fs.
 	if err := afero.WriteFile(hugofs.Os, filename, js, 0666); err != nil {
