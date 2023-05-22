@@ -16,6 +16,10 @@ package commands
 import (
 	"context"
 	"encoding/csv"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/bep/simplecobra"
@@ -28,7 +32,20 @@ import (
 // newListCommand creates a new list command and its subcommands.
 func newListCommand() *listCommand {
 
-	list := func(cd *simplecobra.Commandeer, r *rootCommand, createRecord func(page.Page) []string, opts ...any) error {
+	createRecord := func(workingDir string, p page.Page) []string {
+		return []string{
+			filepath.ToSlash(strings.TrimPrefix(p.File().Filename(), workingDir+string(os.PathSeparator))),
+			p.Slug(),
+			p.Title(),
+			p.Date().Format(time.RFC3339),
+			p.ExpiryDate().Format(time.RFC3339),
+			p.PublishDate().Format(time.RFC3339),
+			strconv.FormatBool(p.Draft()),
+			p.Permalink(),
+		}
+	}
+
+	list := func(cd *simplecobra.Commandeer, r *rootCommand, shouldInclude func(page.Page) bool, opts ...any) error {
 		bcfg := hugolib.BuildCfg{SkipRender: true}
 		cfg := config.New()
 		for i := 0; i < len(opts); i += 2 {
@@ -42,8 +59,20 @@ func newListCommand() *listCommand {
 		writer := csv.NewWriter(r.Out)
 		defer writer.Flush()
 
+		writer.Write([]string{
+			"path",
+			"slug",
+			"title",
+			"date",
+			"expiryDate",
+			"publishDate",
+			"draft",
+			"permalink",
+		})
+
 		for _, p := range h.Pages() {
-			if record := createRecord(p); record != nil {
+			if shouldInclude(p) {
+				record := createRecord(h.Conf.BaseConfig().WorkingDir, p)
 				if err := writer.Write(record); err != nil {
 					return err
 				}
@@ -64,16 +93,14 @@ func newListCommand() *listCommand {
 				short: "List all drafts",
 				long:  `List all of the drafts in your content directory.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
-					createRecord := func(p page.Page) []string {
+					shouldInclude := func(p page.Page) bool {
 						if !p.Draft() || p.File().IsZero() {
-							return nil
+							return false
 						}
-						return []string{
-							p.File().Path(),
-							p.PublishDate().Format(time.RFC3339)}
+						return true
 
 					}
-					return list(cd, r, createRecord,
+					return list(cd, r, shouldInclude,
 						"buildDrafts", true,
 						"buildFuture", true,
 						"buildExpired", true,
@@ -85,17 +112,14 @@ func newListCommand() *listCommand {
 				short: "List all posts dated in the future",
 				long:  `List all of the posts in your content directory which will be posted in the future.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
-					createRecord := func(p page.Page) []string {
+					shouldInclude := func(p page.Page) bool {
 						if !resource.IsFuture(p) || p.File().IsZero() {
-							return nil
+							return false
 						}
-						return []string{
-							p.File().Path(),
-							p.PublishDate().Format(time.RFC3339),
-						}
+						return true
 
 					}
-					return list(cd, r, createRecord,
+					return list(cd, r, shouldInclude,
 						"buildFuture", true,
 						"buildDrafts", true,
 					)
@@ -106,17 +130,13 @@ func newListCommand() *listCommand {
 				short: "List all posts already expired",
 				long:  `List all of the posts in your content directory which has already expired.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
-					createRecord := func(p page.Page) []string {
+					shouldInclude := func(p page.Page) bool {
 						if !resource.IsExpired(p) || p.File().IsZero() {
-							return nil
+							return false
 						}
-						return []string{
-							p.File().Path(),
-							p.PublishDate().Format(time.RFC3339),
-						}
-
+						return true
 					}
-					return list(cd, r, createRecord,
+					return list(cd, r, shouldInclude,
 						"buildExpired", true,
 						"buildDrafts", true,
 					)
@@ -127,17 +147,10 @@ func newListCommand() *listCommand {
 				short: "List all posts",
 				long:  `List all of the posts in your content directory, include drafts, future and expired pages.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
-					createRecord := func(p page.Page) []string {
-						if p.File().IsZero() {
-							return nil
-						}
-						return []string{
-							p.File().Path(),
-							p.PublishDate().Format(time.RFC3339),
-						}
-
+					shouldInclude := func(p page.Page) bool {
+						return !p.File().IsZero()
 					}
-					return list(cd, r, createRecord, "buildDrafts", true, "buildFuture", true, "buildExpired", true)
+					return list(cd, r, shouldInclude, "buildDrafts", true, "buildFuture", true, "buildExpired", true)
 				},
 			},
 		},

@@ -2,32 +2,43 @@
 
 hugo list drafts
 ! stderr .
-stdout 'draft.md,2019-01-01T00:00:00Z'
-stdout 'draftexpired.md,2018-01-01T00:00:00Z'
-stdout 'draftfuture.md,2030-01-01T00:00:00Z'
+stdout 'path,slug,title,date,expiryDate,publishDate,draft,permalink'
+stdout 'content/draft.md,draft,The Draft,2019-01-01T00:00:00Z,2032-01-01T00:00:00Z,2018-01-01T00:00:00Z,true,https://example.org/draft/'
+stdout 'draftexpired.md'
+stdout 'draftfuture.md'
+! stdout '/expired.md'
 
 hugo list future
-stdout 'future.md,2030-01-01T00:00:00Z'
-stdout 'draftfuture.md,2030-01-01T00:00:00Z'
+stdout 'path,slug,title,date,expiryDate,publishDate,draft,permalink'
+stdout 'future.md'
+stdout 'draftfuture.md'
+! stdout 'expired.md'
 
 hugo list expired
-stdout 'expired.md,2018-01-01T00:00:00Z'
-stdout 'draftexpired.md,2018-01-01T00:00:00Z'
+stdout 'path,slug,title,date,expiryDate,publishDate,draft,permalink'
+stdout 'expired.md'
+stdout 'draftexpired.md'
+! stdout 'future.md'
 
 hugo list all
-stdout 'future.md,2030-01-01T00:00:00Z'
-stdout 'draft.md,2019-01-01T00:00:00Z'
-stdout 'expired.md,2018-01-01T00:00:00Z'
-stdout 'draftexpired.md,2018-01-01T00:00:00Z'
-stdout 'draftfuture.md,2030-01-01T00:00:00Z'
+stdout 'path,slug,title,date,expiryDate,publishDate,draft,permalink'
+stdout 'future.md'
+stdout 'draft.md'
+stdout 'expired.md'
+stdout 'draftexpired.md'
+stdout 'draftfuture.md'
 
 -- hugo.toml --
 baseURL = "https://example.org/"
 disableKinds = ["taxonomy", "term"]
 -- content/draft.md --
 ---
+title: "The Draft"
+slug: "draft"
 draft: true
 date: 2019-01-01
+expiryDate: 2032-01-01
+publishDate: 2018-01-01
 ---
 -- content/expired.md --
 ---
