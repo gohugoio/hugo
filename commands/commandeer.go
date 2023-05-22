@@ -108,6 +108,9 @@ type rootCommand struct {
 	buildWatch  bool
 	environment string
 
+	// File format to read or write (TOML, YAML, JSON).
+	format string
+
 	// Common build flags.
 	baseURL              string
 	gc                   bool
@@ -405,6 +408,12 @@ func (r *rootCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 	if err != nil {
 		return err
 	}
+	switch r.format {
+	case "json", "toml", "yaml":
+		// OK
+	default:
+		return fmt.Errorf("unsupported format %q; must be one of json, toml or yaml", r.format)
+	}
 
 	loggers.PanicOnWarning.Store(r.panicOnWarning)
 	r.commonConfigs = lazycache.New[int32, *commonConfig](lazycache.Options{MaxEntries: 5})
@@ -476,6 +485,7 @@ Complete documentation is available at https://gohugo.io/.`
 
 	// Configure persistent flags
 	cmd.PersistentFlags().StringVarP(&r.source, "source", "s", "", "filesystem path to read files relative from")
+	cmd.PersistentFlags().StringVar(&r.format, "format", "toml", "preferred file format (toml, yaml or json)")
 	cmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
 	cmd.PersistentFlags().StringP("destination", "d", "", "filesystem path to write files to")
 	cmd.PersistentFlags().SetAnnotation("destination", cobra.BashCompSubdirsInDir, []string{})

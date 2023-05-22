@@ -34,9 +34,8 @@ import (
 
 func newNewCommand() *newCommand {
 	var (
-		configFormat string
-		force        bool
-		contentType  string
+		force       bool
+		contentType string
 	)
 
 	var c *newCommand
@@ -119,7 +118,7 @@ Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
 							return errors.New(createpath + " already exists and is not empty. See --force.")
 
 						case !isEmpty && force:
-							all := append(dirs, filepath.Join(createpath, "hugo."+configFormat))
+							all := append(dirs, filepath.Join(createpath, "hugo."+r.format))
 							for _, path := range all {
 								if exists, _ := helpers.Exists(path, sourceFs); exists {
 									return errors.New(path + " already exists")
@@ -134,7 +133,7 @@ Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
 						}
 					}
 
-					c.newSiteCreateConfig(sourceFs, createpath, configFormat)
+					c.newSiteCreateConfig(sourceFs, createpath, r.format)
 
 					// Create a default archetype file.
 					helpers.SafeWriteToDisk(filepath.Join(archeTypePath, "default.md"),
@@ -146,7 +145,6 @@ Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
 					return nil
 				},
 				withc: func(cmd *cobra.Command) {
-					cmd.Flags().StringVarP(&configFormat, "format", "f", "toml", "config file format")
 					cmd.Flags().BoolVar(&force, "force", false, "init inside non-empty directory")
 				},
 			},
