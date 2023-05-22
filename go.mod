@@ -50,7 +50,7 @@ require (
 	github.com/rogpeppe/go-internal v1.9.0
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 	github.com/sanity-io/litter v1.5.5
-	github.com/spf13/afero v1.9.3
+	github.com/spf13/afero v1.9.5
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/fsync v0.9.0
