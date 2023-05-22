@@ -1,17 +1,18 @@
 ---
-title: Sass / SCSS
-description: Hugo Pipes allows the processing of Sass and SCSS files.
-date: 2018-07-14
-publishdate: 2018-07-14
+title: ToCSS
+linkTitle: Transpile Sass to SCSS
+description: Transpile Sass to CSS.
 categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: "pipes"
+    parent: pipes
     weight: 30
 weight: 02
-sections_weight: 02
+signature: ["resources.ToCSS RESOURCE [OPTIONS]", "toCSS RESOURCE [OPTIONS]"]
 ---
+
+## Usage
 
 Any Sass or SCSS file can be transformed into a CSS file using `resources.ToCSS` which takes two arguments, the resource object and a map of options listed below.
 
@@ -27,7 +28,7 @@ transpiler [string]
 : The `transpiler` to use, valid values are `libsass` (default) and `dartsass`. If you want to use Hugo with Dart Sass you need to download a release binary from [Embedded Dart Sass](https://github.com/sass/dart-sass-embedded/releases) and make sure it's in your PC's `$PATH` (or `%PATH%` on Windows).
 
 targetPath [string]
-: If not set, the resource's target path will be the asset file original path with its extension replaced by `.css`.
+: If not set, the transformed resource's target path will be the asset file original path with its extension replaced by `.css`.
 
 vars [map]
 : Map of key/value pairs that will be available in the `hugo:vars` namespace, e.g. with `@use "hugo:vars" as v;` or (globally) with `@import "hugo:vars";` {{< new-in "0.109.0" >}}
@@ -53,5 +54,5 @@ includePaths [string slice]
 ```
 
 {{% note %}}
-Setting `outputStyle` to `compressed` will handle Sass/SCSS files minification better than the more generic [`resources.Minify`]({{< ref "minification">}}).
+Setting `outputStyle` to `compressed` will handle Sass/SCSS files minification better than the more generic [`resources.Minify`](/hugo-pipes/minification).
 {{% /note %}}

@@ -2,21 +2,14 @@
 title: Hugo's Lookup Order
 linktitle: Template Lookup Order
 description: Hugo searches for the layout to use for a given page in a well defined order, starting from the most specific.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-07-05
 categories: [templates,fundamentals]
 keywords: [templates]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 15
   quicklinks:
 weight: 15
-sections_weight: 15
-draft: false
-aliases: [/templates/lookup/]
-toc: true
 ---
 
 ## Hugo Layouts Lookup Rules

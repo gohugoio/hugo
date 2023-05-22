@@ -1,19 +1,13 @@
 ---
 title: RSS Templates
-linktitle: RSS Templates
 description: Hugo ships with its own RSS 2.0 template that requires almost no configuration, or you can create your own RSS templates.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 keywords: [rss, xml, templates]
 categories: [templates]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 150
 weight: 150
-sections_weight: 150
-draft: false
 toc: true
 ---
 
@@ -21,7 +15,7 @@ toc: true
 
 See [Template Lookup Order](/templates/lookup-order/) for the complete reference.
 
-{{% note "Hugo Ships with an RSS Template" %}}
+{{% note %}}
 Hugo ships with its own [RSS 2.0 template](#the-embedded-rssxml). The embedded template will be sufficient for most use cases.
 {{% /note %}}
 

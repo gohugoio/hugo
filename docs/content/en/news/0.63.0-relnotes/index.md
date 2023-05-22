@@ -6,8 +6,6 @@ description: "In Hugo 0.63 we have improved the base template lookup logic, and 
 categories: ["Releases"]
 ---
 
-**Note:** There is already a [patch release](/news/0.63.1-relnotes/) with some fixes.
-
 Hugo `0.63` is, in general, **considerably faster and more memory effective** (see the site-building benchmarks below comparing it to `v0.62`). Not that we are particularly concerned about Hugo's build speed. We leave that to others. But we would hate if it got slower, so we have a comprehensive benchmark suite. And when we needed to simplify the template handling code to solve a concurrency issue, it also became more effective. And as a bonus, we also finally got the [base template lookup order](https://gohugo.io/templates/base/#base-template-lookup-order) that you really, really wanted!
 
 ```bash
@@ -119,8 +117,3 @@ Hugo now has:
 
 * Fix 0.62.1 server rebuild slowdown regression [17af79a0](https://github.com/gohugoio/hugo/commit/17af79a03e249a731cf5634ffea23ca00774333d) [@bep](https://github.com/bep) [#6784](https://github.com/gohugoio/hugo/issues/6784)
 * Fix blog not building [d61bee5e](https://github.com/gohugoio/hugo/commit/d61bee5e0916b5d2b388e66ef85c336312a21a06) [@colonelpopcorn](https://github.com/colonelpopcorn) [#6752](https://github.com/gohugoio/hugo/issues/6752)
-
-
-
-
-

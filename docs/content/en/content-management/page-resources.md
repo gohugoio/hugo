@@ -1,6 +1,5 @@
 ---
 title: Page Resources
-linkTitle: Page Resources
 description: Page resources -- images, other pages, documents, etc. -- have page-relative URLs and their own metadata.
 categories: [content management]
 keywords: [bundle,content,resources]
@@ -11,8 +10,7 @@ menu:
 toc: true
 weight: 80
 ---
-Page resources are only accessible from [page bundles]({{< relref
-"/content-management/page-bundles" >}}), those directories with `index.md` or
+Page resources are only accessible from [page bundles](/content-management/page-bundles), those directories with `index.md` or
 `_index.md` files at their root. Page resources are only available to the
 page with which they are bundled.
 
@@ -128,9 +126,9 @@ Resources of type `page` get `Title` etc. from their own front matter.
 name
 : Sets the value returned in `Name`.
 
-{{% warning %}}
+{{% note %}}
 The methods `Match`, `Get` and `GetMatch` use `Name` to match the resources.
-{{%/ warning %}}
+{{% /note %}}
 
 title
 : Sets the value returned in `Title`
@@ -140,7 +138,7 @@ params
 
 ### Resources metadata example
 
-{{< code-toggle copy="false">}}
+{{< code-toggle copy=false >}}
 title: Application
 date : 2018-01-25
 resources :
@@ -174,9 +172,9 @@ From the example above:
 - All `PDF` files will get a new `Name`. The `name` parameter contains a special placeholder [`:counter`](#the-counter-placeholder-in-name-and-title), so the `Name` will be `pdf-file-1`, `pdf-file-2`, `pdf-file-3`.
 - Every docx in the bundle will receive the `word` icon.
 
-{{% warning %}}
+{{% note %}}
 The __order matters__ --- Only the **first set** values of the `title`, `name` and `params`-**keys** will be used. Consecutive parameters will be set only for the ones not already set. In the above example, `.Params.icon` is first set to `"photo"` in `src = "documents/photo_specs.pdf"`. So that would not get overridden to `"pdf"` by the later set `src = "**.pdf"` rule.
-{{%/ warning %}}
+{{% /note %}}
 
 ### The `:counter` placeholder in `name` and `title`
 
@@ -186,7 +184,7 @@ The counter starts at 1 the first time they are used in either `name` or `title`
 
 For example, if a bundle has the resources `photo_specs.pdf`, `other_specs.pdf`, `guide.pdf` and `checklist.pdf`, and the front matter has specified the `resources` as:
 
-{{< code-toggle copy="false">}}
+{{< code-toggle copy=false >}}
 [[resources]]
   src = "*specs.pdf"
   title = "Specification #:counter"

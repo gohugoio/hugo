@@ -1,16 +1,12 @@
 ---
 title: "Host on KeyCDN"
-date: 2017-09-12
 description: "Accelerate your Hugo site globally with a KeyCDN integration. This tutorial shows you how to set up your static site as a GitLab page behind a KeyCDN pull zone."
 categories: [hosting and deployment]
 keywords: [keycdn,hosting,deployment,cdn]
 menu:
   docs:
-    parent: "hosting-and-deployment"
+    parent: hosting-and-deployment
     weight: 40
-slug: ""
-aliases: []
-toc: false
 ---
 
 [KeyCDN](https://www.keycdn.com/) provides a multitude of features to help accelerate and secure your Hugo site globally including Brotli compression, Let's Encrypt support, Origin Shield, and more.
@@ -86,7 +82,7 @@ git remote add origin git@gitlab.com:youruser/ci-example.git
 git push -u origin master
 ```
 
-You can watch the progress and CI job output in your Gitlab project under “Pipelines”.
+You can watch the progress and CI job output in your GitLab project under “Pipelines”.
 
 After verifying your CI job ran without issues, first check that your GitLab page shows up under `https://youruser.gitlab.io/reponame/` (it might look broken depending on your browser settings as all links point to your KeyCDN zone – don’t worry about that) and then by heading to whatever Zone alias / Zone URL you defined.
 

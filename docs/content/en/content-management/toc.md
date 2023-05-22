@@ -1,6 +1,5 @@
 ---
 title: Table of Contents
-linkTitle: Table of Contents
 description: Hugo can automatically parse Markdown content and create a Table of Contents you can use in your templates.
 categories: [content management]
 keywords: [table of contents, toc]
@@ -13,9 +12,9 @@ weight: 210
 aliases: [/extras/toc/]
 ---
 
-{{% note "TOC Heading Levels are Fixed" %}}
+{{% note %}}
 
-Previously, there was no out-of-the-box way to specify which heading levels you want the TOC to render. [See the related GitHub discussion (#1778)](https://github.com/gohugoio/hugo/issues/1778). As such, the resulting `<nav id="TableOfContents"><ul></ul></nav>` was going to start at `<h1>` when pulling from `{{.Content}}`.
+Previously, there was no out-of-the-box way to specify which heading levels you want the TOC to render. [See the related GitHub discussion (#1778)](https://github.com/gohugoio/hugo/issues/1778). As such, the resulting `<nav id="TableOfContents"><ul></ul></nav>` was going to start at `<h1>` when pulling from `{{ .Content }}`.
 
 Hugo [v0.60.0](https://github.com/gohugoio/hugo/releases/tag/v0.60.0) made a switch to [Goldmark](https://github.com/yuin/goldmark/) as the default library for Markdown which has improved and configurable implementation of TOC. Take a look at [how to configure TOC](/getting-started/configuration-markup/#table-of-contents) for Goldmark renderer.
 
@@ -49,7 +48,7 @@ The built-in `.TableOfContents` variables outputs a `<nav id="TableOfContents">`
 
 The following is an example of a very basic [single page template]:
 
-{{< code file="layout/_default/single.html" download="single.html" >}}
+{{< code file="layout/_default/single.html" >}}
 {{ define "main" }}
 <main>
     <article>
@@ -69,19 +68,19 @@ The following is an example of a very basic [single page template]:
 
 The following is a [partial template][partials] that adds slightly more logic for page-level control over your table of contents. It assumes you are using a `toc` field in your content's [front matter] that, unless specifically set to `false`, will add a TOC to any page with a `.WordCount` (see [Page Variables][pagevars]) greater than 400. This example also demonstrates how to use [conditionals] in your templating:
 
-{{< code file="layouts/partials/toc.html" download="toc.html" >}}
+{{< code file="layouts/partials/toc.html" >}}
 {{ if and (gt .WordCount 400 ) (.Params.toc) }}
 <aside>
     <header>
-    <h2>{{.Title}}</h2>
+    <h2>{{ .Title }}</h2>
     </header>
-    {{.TableOfContents}}
+    {{ .TableOfContents }}
 </aside>
 {{ end }}
 {{< /code >}}
 
 {{% note %}}
-With the preceding example, even pages with > 400 words *and* `toc` not set to `false` will not render a table of contents if there are no headings in the page for the `{{.TableOfContents}}` variable to pull from.
+With the preceding example, even pages with > 400 words *and* `toc` not set to `false` will not render a table of contents if there are no headings in the page for the `{{ .TableOfContents }}` variable to pull from.
 {{% /note %}}
 
 ## Usage with AsciiDoc

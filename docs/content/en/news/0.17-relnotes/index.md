@@ -1,11 +1,9 @@
 ---
-author: bep
 categories: ["Releases"]
 date: 2016-10-07T13:54:06-04:00
 description: "Hugo now supports multilingual sites with the most simple and elegant experience."
 link: ""
 title: "0.17: Hugo is going global"
-draft: false
 aliases: [/0-17/]
 ---
 Hugo is going global with our 0.17 release.  We put a lot of thought into how we could extend Hugo

@@ -4,8 +4,6 @@ categories: ["Releases"]
 description: "Hugo 0.19 brings native Emacs Org-mode content support, and Hugo has its own Twitter account"
 link: ""
 title: "Hugo 0.19"
-draft: false
-author: budparr
 aliases: [/0-19/]
 ---
 

@@ -1,27 +1,19 @@
 ---
 title: time
-linktitle:
 description: Converts a timestamp string into a `time.Time` structure.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [dates,time,location]
 signature: ["time INPUT [TIMEZONE]"]
-workson: []
-hugoversion: "v0.77.0"
 relatedfuncs: []
-deprecated: false
-aliases: []
 ---
 
 
 `time` converts a timestamp string with an optional default location into a [`time.Time`](https://godoc.org/time#Time) structure so you can access its fields:
 
-```
+```go-html-template
 {{ time "2016-05-28" }} → "2016-05-28T00:00:00Z"
 {{ (time "2016-05-28").YearDay }} → 149
 {{ mul 1000 (time "2016-05-28T10:30:00.00+10:00").Unix }} → 1464395400000, or Unix time in milliseconds
@@ -35,7 +27,7 @@ The list of valid locations may be system dependent, but should include `UTC`, `
 
 If no `TIMEZONE` is set, the `timeZone` from site configuration will be used.
 
-```
+```go-html-template
 {{ time "2020-10-20" }} → 2020-10-20 00:00:00 +0000 UTC
 {{ time "2020-10-20" "America/Los_Angeles" }} → 2020-10-20 00:00:00 -0700 PDT
 {{ time "2020-01-20" "America/Los_Angeles" }} → 2020-01-20 00:00:00 -0800 PST
@@ -48,11 +40,11 @@ The following example takes a UNIX timestamp---set as `utimestamp: "1489276800"`
 The following example may be useful when setting up [multilingual sites][multilingual]:
 
 {{< code file="unix-to-month-integer.html" >}}
-{{$time := time (int .Params.addDate)}}
+{{ $time := time (int .Params.addDate)}}
 => $time = 1489276800
-{{$time.Month}}
+{{ $time.Month }}
 => "March"
-{{$monthindex := printf "%d" $time.Month }}
+{{ $monthindex := printf "%d" $time.Month }}
 => $monthindex = 3
 {{< /code >}}
 

@@ -1,22 +1,14 @@
 ---
 title: hugo
-linktitle: hugo
 description: The `hugo` function provides easy access to Hugo-related data.
-date: 2019-01-31
-publishdate: 2019-01-31
 keywords: []
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 toc:
 signature: ["hugo"]
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
-draft: false
-aliases: []
 ---
 
 `hugo` returns an instance that contains the following functions:
@@ -44,10 +36,6 @@ hugo.IsExtended
 
 hugo.IsProduction
 : returns true if `hugo.Environment` is set to the production environment
-
-{{% note "Use the Hugo Generator Tag" %}}
-We highly recommend using `hugo.Generator` in your website's `<head>`. `hugo.Generator` is included by default in all themes hosted on [themes.gohugo.io](https://themes.gohugo.io). The generator tag allows the Hugo team to track the usage and popularity of Hugo.
-{{% /note %}}
 
 hugo.Deps
 : See [hugo.Deps](#hugodeps)
@@ -97,10 +85,10 @@ An example table listing the dependencies:
     {{ range $index, $element := hugo.Deps }}
     <tr>
       <th scope="row">{{ add $index 1 }}</th>
-      <td>{{ with $element.Owner }}{{.Path }}{{ end }}</td>
+      <td>{{ with $element.Owner }}{{ .Path }}{{ end }}</td>
       <td>
         {{ $element.Path }}
-        {{ with $element.Replace}}
+        {{ with $element.Replace }}
         => {{ .Path }}
         {{ end }}
       </td>

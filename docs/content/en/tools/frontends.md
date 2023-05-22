@@ -2,20 +2,13 @@
 title: Frontend Interfaces with Hugo
 linktitle: Frontends
 description: Do you prefer a graphical user interface over a text editor? Give these frontends a try.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [developer tools]
 keywords: [frontend, gui]
 menu:
   docs:
-    parent: "tools"
+    parent: tools
     weight: 40
 weight: 40
-sections_weight: 40
-draft: false
-aliases: []
-toc: false
 ---
 
 - [enwrite](https://github.com/zzamboni/enwrite). Enwrite enables evernote-powered, statically generated blogs and websites. Now posting to your blog or updating your website is as easy as writing a new note in Evernote!

@@ -1,16 +1,17 @@
 ---
 title: PostProcess
 description: Allows delaying of resource transformations to after the build.
-date: 2020-04-09
 categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: "pipes"
+    parent: pipes
     weight: 39
 weight: 39
-sections_weight: 39
+signature: ["resources.PostProcess RESOURCE"]
 ---
+
+## Usage
 
 Marking a resource with `resources.PostProcess` delays any transformations to after the build, typically because one or more of the steps in the transformation chain depends on the result of the build (e.g. files in `public`).
 
@@ -80,7 +81,7 @@ HUGO_ENVIRONMENT (and the alias HUGO_ENV)
 : The value e.g. set with `hugo -e production` (defaults to `production` for `hugo` and `development` for `hugo server`).
 
 HUGO_PUBLISHDIR
-: {{ new-in "0.109.0" }} The absolute path to the publish directory (the `public` directory). Note that the value will always point to a directory on disk even when running `hugo server` in memory mode. If you write to this folder from PostCSS when running the server, you could run the server with one of these flags:
+: {{< new-in "0.109.0" >}} The absolute path to the publish directory (the `public` directory). Note that the value will always point to a directory on disk even when running `hugo server` in memory mode. If you write to this folder from PostCSS when running the server, you could run the server with one of these flags:
 
 ```
 hugo server --renderToDisk
@@ -89,9 +90,8 @@ hugo server --renderStaticToDisk
 
 Also, Hugo will add environment variables for all files mounted below `assets/_jsconfig`. A default mount will be set up with files in the project root matching this regexp: `(babel|postcss|tailwind)\.config\.js`.
 
-These will get environment variables named on the form `HUGO_FILE_:filename:` where `:filename:` is all upper case with periods replaced with underscore. This allows you do do this and similar:
+These will get environment variables named on the form `HUGO_FILE_:filename:` where `:filename:` is all upper case with periods replaced with underscore. This allows you to do this and similar:
 
 ```js
 let tailwindConfig = process.env.HUGO_FILE_TAILWIND_CONFIG_JS || './tailwind.config.js';
 ```
-

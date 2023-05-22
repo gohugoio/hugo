@@ -2,24 +2,20 @@
 title: Apache License
 linktitle: License
 description: Hugo v0.15 and later are released under the Apache 2.0 license.
-date: 2016-02-01
-publishdate: 2016-02-01
-lastmod: 2016-03-02
 categories: ["about hugo"]
 keywords: ["License","apache"]
 menu:
   docs:
-    parent: "about"
+    parent: about
     weight: 60
 weight: 60
-sections_weight: 60
 aliases: [/meta/license]
 toc: true
 ---
 
 {{% note %}}
 Hugo v0.15 and later are released under the Apache 2.0 license.
-Earlier versions of Hugo were released under the [Simple Public License](https://opensource.org/licenses/Simple-2.0).
+Earlier versions of Hugo were released under the [Simple Public License](https://opensource.org/license/simpl-2-0-html/).
 {{% /note %}}
 
 _Version 2.0, January 2004_ <br>
@@ -148,7 +144,7 @@ _END OF TERMS AND CONDITIONS_
 
 To apply the Apache License to your work, attach the following boilerplate notice, with the fields enclosed by brackets `[]` replaced with your own identifying information. (Don't include the brackets!) The text should be enclosed in the appropriate comment syntax for the file format. We also recommend that a file or class name and description of purpose be included on the same “printed page” as the copyright notice for easier identification within third-party archives.
 
-{{< code file="apache-notice.txt" download="apache-notice.txt" >}}
+{{< code file="apache-notice.txt" >}}
 Copyright [yyyy] [name of copyright owner]
 
 Licensed under the Apache License, Version 2.0 (the "License");

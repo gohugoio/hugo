@@ -2,24 +2,17 @@
 title: Git Info Variables
 linktitle: Git Variables
 description: Get the last Git revision information for every content file.
-date: 2017-03-12
-publishdate: 2017-03-12
-lastmod: 2017-03-12
 categories: [variables and params]
 keywords: [git]
-draft: false
 menu:
   docs:
-    parent: "variables"
+    parent: variables
     weight: 70
 weight: 70
-sections_weight: 70
 aliases: [/extras/gitinfo/]
-toc: false
-wip: false
 ---
 
-{{% note "`.GitInfo` Performance Considerations"  %}}
+{{% note %}}
 Hugo's Git integrations should be fairly performant but *can* increase your build time. This will depend on the size of your Git history.
 {{% /note %}}
 

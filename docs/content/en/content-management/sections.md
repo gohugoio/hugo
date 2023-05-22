@@ -2,9 +2,6 @@
 title: Content Sections
 linkTitle: Sections
 description: Hugo generates a **section tree** that matches your content.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [content management]
 keywords: [lists,sections,content types,organization]
 menu:
@@ -62,17 +59,19 @@ If you need a specific template for a sub-section, you need to adjust either the
 
 With the available [section variables and methods](#section-page-variables-and-methods) you can build powerful navigation. One common example would be a partial to show Breadcrumb navigation:
 
-{{< code file="layouts/partials/breadcrumb.html" download="breadcrumb.html" >}}
-<ol class="nav navbar-nav">
-<ul>
-{{- range .Ancestors.Reverse }}
-<li><a href="{{ .Permalink }}">{{ .Title }}</a></li>
-{{- end }}
-<li class="active" aria-current="page">
-<a href="{{ .Permalink }}">{{ .Title }}</a>
-</li>
-</ul>
-</ol>
+{{< code file="layouts/partials/breadcrumb.html" >}}
+<nav aria-label="breadcrumb">
+  <ol>
+    {{ range .Ancestors.Reverse }}
+      <li>
+        <a href="{{ .Permalink }}">{{ .LinkTitle }}</a>
+      </li>
+    {{ end }}
+    <li class="active">
+      <a aria-current="page" href="{{ .Permalink }}">{{ .LinkTitle }}</a>
+    </li>
+  </ol>
+</nav>
 {{< /code >}}
 
 ## Section Page Variables and Methods

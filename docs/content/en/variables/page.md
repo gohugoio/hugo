@@ -1,28 +1,17 @@
 ---
 title: Page Variables
-linktitle:
 description: Page-level variables are defined in a content file's front matter, derived from the content's file location, or extracted from the content body itself.
-date: 2017-02-01
-publishdate: 2017-02-01
 categories: [variables and params]
 keywords: [pages]
-draft: false
 menu:
   docs:
-    title: "variables defined by a page"
-    parent: "variables"
+    parent: variables
     weight: 20
 weight: 20
-sections_weight: 20
-aliases: []
 toc: true
 ---
 
 The following is a list of page-level variables. Many of these will be defined in the front matter, derived from file location, or extracted from the content itself.
-
-{{% note "`.Scratch`" %}}
-See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
-{{% /note %}}
 
 ## Page Variables
 
@@ -33,7 +22,7 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 : aliases of this page
 
 .Ancestors
-: get the ancestors of each page, simplify [breadcrumb navigation]({{< relref "content-management/sections#example-breadcrumb-navigation" >}}) implementation complexity  
+: get the ancestors of each page, simplify [breadcrumb navigation](/content-management/sections#example-breadcrumb-navigation) implementation complexity  
 
 .BundleType
 : the [bundle] type: `leaf`, `branch`, or an empty string if the page is not a bundle.
@@ -58,6 +47,9 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 
 .File
 : filesystem-related data for this content file. See also [File Variables].
+
+.Fragments
+: Fragments returns the fragments for this page. See [Page Fragments](#page-fragments).
 
 .FuzzyWordCount
 : the approximate number of words in the content.
@@ -98,17 +90,17 @@ See also `.ExpiryDate`, `.Date`, `.PublishDate`, and [`.GitInfo`][gitinfo].
 : access when creating links to the content. If set, Hugo will use the `linktitle` from the front matter before `title`.
 
 .Next
-: Points up to the next [regular page](/variables/site/#site-pages) (sorted by Hugo's [default sort](/templates/lists#default-weight--date--linktitle--filepath)). Example: `{{with .Next}}{{.Permalink}}{{end}}`. Calling `.Next` from the first page returns `nil`.
+: Points up to the next [regular page](/variables/site/#site-pages) (sorted by Hugo's [default sort](/templates/lists#default-weight--date--linktitle--filepath)). Example: `{{ with .Next }}{{ .Permalink }}{{ end }}`. Calling `.Next` from the first page returns `nil`.
 
 .NextInSection
-: Points up to the next [regular page](/variables/site/#site-pages) below the same top level section (e.g. in `/blog`)). Pages are sorted by Hugo's [default sort](/templates/lists#default-weight--date--linktitle--filepath). Example: `{{with .NextInSection}}{{.Permalink}}{{end}}`. Calling `.NextInSection` from the first page returns `nil`.
+: Points up to the next [regular page](/variables/site/#site-pages) below the same top level section (e.g. in `/blog`)). Pages are sorted by Hugo's [default sort](/templates/lists#default-weight--date--linktitle--filepath). Example: `{{ with .NextInSection }}{{ .Permalink }}{{ end }}`. Calling `.NextInSection` from the first page returns `nil`.
 
 .OutputFormats
 : contains all formats, including the current format, for a given page. Can be combined the with [`.Get` function](/functions/get/) to grab a specific format. (See [Output Formats](/templates/output-formats/).)
 
 .Pages
 : a collection of associated pages. This value will be `nil` within
-  the context of regular content pages. See [`.Pages`]({{< relref "page.md#pages" >}}).
+  the context of regular content pages. See [`.Pages`](#pages).
 
 .Permalink
 : the Permanent link for this page; see [Permalinks](/content-management/urls/)
@@ -120,10 +112,10 @@ See also `.ExpiryDate`, `.Date`, `.PublishDate`, and [`.GitInfo`][gitinfo].
 : the slice of strings that results from splitting .Plain into words, as defined in Go's [strings.Fields](https://pkg.go.dev/strings#Fields).
 
 .Prev
-: Points down to the previous [regular page](/variables/site/#site-pages) (sorted by Hugo's [default sort](/templates/lists#default-weight--date--linktitle--filepath)). Example: `{{if .Prev}}{{.Prev.Permalink}}{{end}}`.  Calling `.Prev` from the last page returns `nil`.
+: Points down to the previous [regular page](/variables/site/#site-pages) (sorted by Hugo's [default sort](/templates/lists#default-weight--date--linktitle--filepath)). Example: `{{ if .Prev }}{{ .Prev.Permalink }}{{ end }}`.  Calling `.Prev` from the last page returns `nil`.
 
 .PrevInSection
-: Points down to the previous [regular page](/variables/site/#site-pages) below the same top level section (e.g. `/blog`). Pages are sorted by Hugo's [default sort](/templates/lists#default-weight--date--linktitle--filepath). Example: `{{if .PrevInSection}}{{.PrevInSection.Permalink}}{{end}}`.  Calling `.PrevInSection` from the last page returns `nil`.
+: Points down to the previous [regular page](/variables/site/#site-pages) below the same top level section (e.g. `/blog`). Pages are sorted by Hugo's [default sort](/templates/lists#default-weight--date--linktitle--filepath). Example: `{{ if .PrevInSection }}{{ .PrevInSection.Permalink }}{{ end }}`.  Calling `.PrevInSection` from the last page returns `nil`.
 
 .PublishDate
 : the date on which the content was or will be published; `.Publishdate` pulls from the `publishdate` field in a content's front matter. See also `.ExpiryDate`, `.Date`, and `.Lastmod`.
@@ -184,6 +176,14 @@ https://remarkjs.com)
 .WordCount
 : the number of words in the content.
 
+## Writable Page-scoped Variables
+
+[.Scratch][scratch]
+: returns a Scratch to store and manipulate data. In contrast to the [`.Store`][store] method, this scratch is reset on server rebuilds.
+
+[.Store][store]
+: returns a Scratch to store and manipulate data. In contrast to the [`.Scratch`][scratch] method, this scratch is not reset on server rebuilds.
+
 ## Section Variables and Methods
 
 Also see [Sections](/content-management/sections/).
@@ -199,53 +199,92 @@ aliased form `.Pages`.
 
 {{< getcontent path="readfiles/pages-vs-site-pages.md" >}}
 
+## Page Fragments
+
+{{< new-in "0.111.0" >}}
+
+The `.Fragments` method returns a list of fragments for the current page.
+
+.Headings
+: A recursive list of headings for the current page. Can be used to generate a table of contents.
+
+{{< todo >}}add .Headings toc example{{< /todo >}}
+
+.Identifiers
+: A sorted list of identifiers for the current page. Can be used to check if a page contains a specific identifier or if a page contains duplicate identifiers:
+
+```go-html-template
+{{ if .Fragments.Identifiers.Contains "my-identifier" }}
+    <p>Page contains identifier "my-identifier"</p>
+{{ end }}
+
+{{ if gt (.Fragments.Identifiers.Count "my-identifier")  1 }}
+    <p>Page contains duplicate "my-identifier" fragments</p>
+{{ end }}
+```
+
+.HeadingsMap
+: Holds a map of headings for the current page. Can be used to start the table of contents from a specific heading.
+
+Also see the [Go Doc](https://pkg.go.dev/github.com/gohugoio/hugo@v0.111.0/markup/tableofcontents#Fragments) for the return type.
+
+### Fragments in hooks and shortcodes
+
+`.Fragments` are safe to call from render hooks, even on the page you're on (`.Page.Fragments`). For shortcodes we recommend that all `.Fragments` usage is nested inside the `{{</**/>}}` shortcode delimiter (`{{%/**/%}}` takes part in the ToC creation so it's easy to end up in a situation where you bite yourself in the tail).
+
+
+## The global page function
+
+{{< new-in "0.111.1" >}}
+
+Hugo almost always passes a `Page` as the data context into the top level template (e.g. `single.html`) (the one exception is the multihost sitemap template). This means that you can access the current page with the `.` variable in the template.
+
+But when you're deeply nested inside `.Render`, partial etc., accessing that `Page` object isn't always practical or possible.
+
+For this reason, Hugo provides a global `page` function that you can use to access the current page from anywhere in any template.
+
+```go-html-template
+{{ page.Title }}
+```
+
+There are one caveat with this, and this isn't new, but it's worth mentioning here: There are situations in Hugo where you may see a cached value, e.g. when using `partialCached` or in a shortcode. 
+
 ## Page-level Params
 
 Any other value defined in the front matter in a content file, including taxonomies, will be made available as part of the `.Params` variable.
 
-```yml
----
-title: My First Post
-date: 2017-02-20T15:26:23-06:00
+{{< code-toggle file="content/example.md" fm=true copy=false >}}
+title: Example
 categories: [one]
 tags: [two,three,four]
-```
+{{< /code-toggle >}}
 
 With the above front matter, the `tags` and `categories` taxonomies are accessible via the following:
 
 * `.Params.tags`
 * `.Params.categories`
 
-{{% note "Casing of Params" %}}
-Page-level `.Params` are *only* accessible in lowercase.
-{{% /note %}}
+The `.Params` variable is particularly useful for the introduction of user-defined front matter fields in content files. For example, a Hugo website on book reviews could have the following front matter:
 
-The `.Params` variable is particularly useful for the introduction of user-defined front matter fields in content files. For example, a Hugo website on book reviews could have the following front matter in `/content/review/book01.md`:
-
-```yml
----
-...
+{{< code-toggle file="content/example.md" fm=true copy=false >}}
+title: Example
 affiliatelink: "http://www.my-book-link.here"
 recommendedby: "My Mother"
-...
----
+{{< /code-toggle >}}
+
+These fields would then be accessible to via `.Params.affiliatelink` and `.Params.recommendedby`.
+
+```go-html-template
+<h3><a href="{{ .Params.affiliatelink }}">Buy this book</a></h3>
+<p>It was recommended by {{ .Params.recommendedby }}.</p>
 ```
 
-These fields would then be accessible to the `/themes/yourtheme/layouts/review/single.html` template through `.Params.affiliatelink` and `.Params.recommendedby`, respectively.
+This template would render as follows:
 
-Two common situations where this type of front matter field could be introduced is as a value of a certain attribute like `href=""` or by itself to be displayed as text to the website's visitors.
-
-{{< code file="/themes/yourtheme/layouts/review/single.html" >}}
-<h3><a href={{ printf "%s" $.Params.affiliatelink }}>Buy this book</a></h3>
-<p>It was recommended by {{ .Params.recommendedby }}.</p>
-{{< /code >}}
-
-This template would render as follows, assuming you've set [`uglyURLs`](/content-management/urls/) to `false` in your [site `config`](/getting-started/configuration/):
-
-{{< output file="yourbaseurl/review/book01/index.html" >}}
+```html
 <h3><a href="http://www.my-book-link.here">Buy this book</a></h3>
 <p>It was recommended by my Mother.</p>
-{{< /output >}}
+```
 
 {{% note %}}
 See [Archetypes](/content-management/archetypes/) for consistency of `Params` across pieces of content.
@@ -265,37 +304,22 @@ The `.Param` method provides a way to resolve a single value according to it's d
 
 When front matter contains nested fields like the following:
 
-```yml
----
+{{< code-toggle file="content/example.md" fm=true copy=false >}}
+title: Example
 author:
   given_name: John
   family_name: Feminella
   display_name: John Feminella
----
-```
+{{< /code-toggle >}}
+
 `.Param` can access these fields by concatenating the field names together with a dot:
 
 ```go-html-template
 {{ $.Param "author.display_name" }}
 ```
 
-If your front matter contains a top-level key that is ambiguous with a nested key, as in the following case:
-
-```yml
----
-favorites.flavor: vanilla
-favorites:
-  flavor: chocolate
----
-```
-
-The top-level key will be preferred. Therefore, the following method, when applied to the previous example, will print `vanilla` and not `chocolate`:
-
-```txt
-{{ $.Param "favorites.flavor" }}
-=> vanilla
-```
-
 [gitinfo]: /variables/git/
 [File Variables]: /variables/files/
-[bundle]: {{< relref "content-management/page-bundles" >}}
+[bundle]: /content-management/page-bundles
+[scratch]: /functions/scratch
+[store]: /functions/store

@@ -1,18 +1,12 @@
 ---
 title: What is Hugo
-linktitle: What is Hugo
 description: Hugo is a fast and modern static site generator written in Go, and designed to make website creation fun again.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 layout: single
 menu:
   docs:
-    parent: "about"
+    parent: about
     weight: 10
 weight: 10
-sections_weight: 10
-draft: false
 aliases: [/overview/introduction/,/about/why-i-built-hugo/]
 toc: true
 ---
