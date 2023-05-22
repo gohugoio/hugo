@@ -15,6 +15,7 @@ package commands
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path"
@@ -26,6 +27,7 @@ import (
 	"github.com/alecthomas/chroma/v2/styles"
 	"github.com/bep/simplecobra"
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/docshelper"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/cobra"
@@ -174,11 +176,47 @@ url: %s
 
 	}
 
+	var docsHelperTarget string
+
+	newDocsHelper := func() simplecobra.Commander {
+		return &simpleCommand{
+			name:  "docshelper",
+			short: "Generate some data files for the Hugo docs.",
+
+			run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
+				r.Println("Generate docs data to", docsHelperTarget)
+
+				targetFile := filepath.Join(docsHelperTarget, "docs.json")
+
+				f, err := os.Create(targetFile)
+				if err != nil {
+					return err
+				}
+				defer f.Close()
+
+				enc := json.NewEncoder(f)
+				enc.SetIndent("", "  ")
+
+				if err := enc.Encode(docshelper.GetDocProvider()); err != nil {
+					return err
+				}
+
+				r.Println("Done!")
+				return nil
+			},
+			withc: func(cmd *cobra.Command) {
+				cmd.Hidden = true
+				cmd.PersistentFlags().StringVarP(&docsHelperTarget, "dir", "", "docs/data", "data dir")
+			},
+		}
+	}
+
 	return &genCommand{
 		commands: []simplecobra.Commander{
 			newChromaStyles(),
 			newGen(),
 			newMan(),
+			newDocsHelper(),
 		},
 	}
 
