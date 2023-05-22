@@ -35,7 +35,7 @@ func TestLoadConfigLanguageParamsOverrideIssue10620(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "https://example.com"
-disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "setion"]
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "section"]
 title = "Base Title"
 staticDir = "mystatic"
 [params]
@@ -79,7 +79,7 @@ func TestLoadConfig(t *testing.T) {
 		files := `
 -- hugo.toml --
 baseURL = "https://example.com"
-disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "setion"]
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "section"]
 title = "Base Title"
 staticDir = "mystatic"
 [params]
@@ -131,7 +131,7 @@ myparam = "svParamValue"
 		files := `
 -- hugo.toml --
 baseURL = "https://example.com"
-disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "setion"]
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "section"]
 title = "Base Title"
 defaultContentLanguage = "sv"
 disableLanguages = ["sv"]
@@ -178,7 +178,7 @@ running = true
 		files := `
 -- hugo.toml --
 baseURL = "https://example.com"
-disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "setion"]
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "section"]
 title = "Base Title"
 [params]
 p1 = "p1base"

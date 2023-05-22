@@ -238,11 +238,11 @@ func (r *rootCommand) ConfigFromProvider(key int32, cfg config.Provider) (*commo
 		renderStaticToDisk := cfg.GetBool("renderStaticToDisk")
 
 		sourceFs := hugofs.Os
-		var desinationFs afero.Fs
+		var destinationFs afero.Fs
 		if cfg.GetBool("renderToDisk") {
-			desinationFs = hugofs.Os
+			destinationFs = hugofs.Os
 		} else {
-			desinationFs = afero.NewMemMapFs()
+			destinationFs = afero.NewMemMapFs()
 			if renderStaticToDisk {
 				// Hybrid, render dynamic content to Root.
 				cfg.Set("publishDirDynamic", "/")
@@ -253,7 +253,7 @@ func (r *rootCommand) ConfigFromProvider(key int32, cfg config.Provider) (*commo
 			}
 		}
 
-		fs := hugofs.NewFromSourceAndDestination(sourceFs, desinationFs, cfg)
+		fs := hugofs.NewFromSourceAndDestination(sourceFs, destinationFs, cfg)
 
 		if renderStaticToDisk {
 			dynamicFs := fs.PublishDir

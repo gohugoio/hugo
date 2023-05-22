@@ -1,2 +1,2 @@
-// Package cache contains the differenct cache implementations.
+// Package cache contains the different cache implementations.
 package cache

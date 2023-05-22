@@ -92,7 +92,7 @@ func NewLanguage(lang, defaultContentLanguage, timeZone string, languageConfig L
 	return l, l.loadLocation(timeZone)
 }
 
-// This is injected from hugolib to avoid cirular dependencies.
+// This is injected from hugolib to avoid circular dependencies.
 var DeprecationFunc = func(item, alternative string, err bool) {}
 
 const paramsDeprecationWarning = `.Language.Params is deprecated and will be removed in a future release. Use site.Params instead.

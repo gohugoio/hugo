@@ -84,7 +84,7 @@ type convertCommand struct {
 	r *rootCommand
 	h *hugolib.HugoSites
 
-	// Commmands.
+	// Commands.
 	commands []simplecobra.Commander
 }
 

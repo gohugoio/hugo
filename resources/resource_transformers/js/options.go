@@ -239,7 +239,7 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 
 		if m != nil {
 			// Store the source root so we can create a jsconfig.json
-			// to help intellisense when the build is done.
+			// to help IntelliSense when the build is done.
 			// This should be a small number of elements, and when
 			// in server mode, we may get stale entries on renames etc.,
 			// but that shouldn't matter too much.

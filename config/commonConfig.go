@@ -97,7 +97,7 @@ var defaultBuild = BuildConfig{
 			Source: `(postcss|tailwind)\.config\.js`,
 			Target: cssTargetCachebusterRe,
 		},
-		// This is deliberatly coarse grained; it will cache bust resources with "json" in the cache key when js files changes, which is good.
+		// This is deliberately coarse grained; it will cache bust resources with "json" in the cache key when js files changes, which is good.
 		{
 			Source: `assets/.*\.(.*)$`,
 			Target: `$1`,
@@ -113,7 +113,7 @@ type BuildConfig struct {
 	// related aggregated data (e.g. CSS class names).
 	WriteStats bool
 
-	// Can be used to toggle off writing of the intellinsense /assets/jsconfig.js
+	// Can be used to toggle off writing of the IntelliSense /assets/jsconfig.js
 	// file.
 	NoJSConfigInAssets bool
 
