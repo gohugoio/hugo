@@ -16,7 +16,7 @@ require (
 	github.com/bep/helpers v0.4.0
 	github.com/bep/lazycache v0.2.0
 	github.com/bep/overlayfs v0.6.0
-	github.com/bep/simplecobra v0.3.0
+	github.com/bep/simplecobra v0.3.1
 	github.com/bep/tmc v0.5.1
 	github.com/clbanning/mxj/v2 v2.5.7
 	github.com/cli/safeexec v1.0.1
