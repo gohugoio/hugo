@@ -188,19 +188,19 @@ func (b *BaseFs) AbsProjectContentDir(filename string) (string, string, error) {
 
 // ResolveJSConfigFile resolves the JS-related config file to a absolute
 // filename. One example of such would be postcss.config.js.
-func (fs *BaseFs) ResolveJSConfigFile(name string) (string, bool) {
+func (fs *BaseFs) ResolveJSConfigFile(name string) string {
 	// First look in assets/_jsconfig
 	fi, err := fs.Assets.Fs.Stat(filepath.Join(files.FolderJSConfig, name))
 	if err == nil {
-		return fi.(hugofs.FileMetaInfo).Meta().Filename, fi.IsDir()
+		return fi.(hugofs.FileMetaInfo).Meta().Filename
 	}
 	// Fall back to the work dir.
 	fi, err = fs.Work.Stat(name)
 	if err == nil {
-		return fi.(hugofs.FileMetaInfo).Meta().Filename, fi.IsDir()
+		return fi.(hugofs.FileMetaInfo).Meta().Filename
 	}
 
-	return "", false
+	return ""
 }
 
 // MakePathRelative creates a relative path from the given filename.

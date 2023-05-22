@@ -172,17 +172,13 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	}
 
 	configFile = filepath.Clean(configFile)
-	isConfigFileDir := false
 
 	// We need an absolute filename to the config file.
 	if !filepath.IsAbs(configFile) {
-		configFile, isConfigFileDir = t.rs.BaseFs.ResolveJSConfigFile(configFile)
+		configFile = t.rs.BaseFs.ResolveJSConfigFile(configFile)
 		if configFile == "" && options.Config != "" {
 			// Only fail if the user specified config file is not found.
-			return fmt.Errorf("postcss config directory %q not found", options.Config)
-		}
-		if !isConfigFileDir {
-			logger.Warnf("postcss config %q must be a directory", options.Config)
+			return fmt.Errorf("postcss config %q not found:", options.Config)
 		}
 	}
 
