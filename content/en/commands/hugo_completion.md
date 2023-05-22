@@ -26,6 +26,7 @@ See each sub-command's help for details on how to use the generated script.
       --config string              config file (default is hugo.yaml|json|toml)
       --configDir string           config dir (default "config")
       --debug                      debug output
+  -d, --destination string         filesystem path to write files to
   -e, --environment string         build environment
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --log                        enable Logging
