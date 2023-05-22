@@ -10,12 +10,11 @@ Vendor all module dependencies into the _vendor directory.
 ### Synopsis
 
 Vendor all module dependencies into the _vendor directory.
-
-If a module is vendored, that is where Hugo will look for it's dependencies.
-
+	If a module is vendored, that is where Hugo will look for it's dependencies.
+	
 
 ```
-hugo mod vendor [flags]
+hugo mod vendor [flags] [args]
 ```
 
 ### Options
@@ -31,6 +30,7 @@ hugo mod vendor [flags]
       --config string              config file (default is hugo.yaml|json|toml)
       --configDir string           config dir (default "config")
       --debug                      debug output
+  -d, --destination string         filesystem path to write files to
   -e, --environment string         build environment
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --log                        enable Logging

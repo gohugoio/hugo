@@ -82,5 +82,5 @@ hugo [flags]
 * [hugo mod](/commands/hugo_mod/)	 - Various Hugo Modules helpers.
 * [hugo new](/commands/hugo_new/)	 - Create new content for your site
 * [hugo server](/commands/hugo_server/)	 - A high performance webserver
-* [hugo version](/commands/hugo_version/)	 - Print the version number of Hugo
+* [hugo version](/commands/hugo_version/)	 - Print Hugo version and environment info
 

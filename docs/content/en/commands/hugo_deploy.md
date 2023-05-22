@@ -16,38 +16,39 @@ documentation.
 
 
 ```
-hugo deploy [flags]
+hugo deploy [flags] [args]
 ```
 
 ### Options
 
 ```
-      --clock string               set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00
-      --confirm                    ask for confirmation before making changes to the target
-      --dryRun                     dry run
-  -e, --environment string         build environment
-      --force                      force upload of all files
-  -h, --help                       help for deploy
-      --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
-      --invalidateCDN              invalidate the CDN cache listed in the deployment target (default true)
-      --maxDeletes int             maximum # of files to delete, or -1 to disable (default 256)
-      --workers int                number of workers to transfer files. (default 10)
-  -s, --source string              filesystem path to read files relative from
-      --target string              target deployment from deployments section in config file; defaults to the first one
-      --themesDir string           filesystem path to themes directory
+      --confirm          ask for confirmation before making changes to the target
+      --dryRun           dry run
+      --force            force upload of all files
+  -h, --help             help for deploy
+      --invalidateCDN    invalidate the CDN cache listed in the deployment target (default true)
+      --maxDeletes int   maximum # of files to delete, or -1 to disable (default 256)
+      --target string    target deployment from deployments section in config file; defaults to the first one
+      --workers int      number of workers to transfer files. defaults to 10 (default 10)
 ```
 
 ### Options inherited from parent commands
 
 ```
-      --config string      config file (default is hugo.yaml|json|toml)
-      --configDir string   config dir (default "config")
-      --debug              debug output
-      --log                enable Logging
-      --logFile string     log File path (if set, logging enabled automatically)
-      --quiet              build in quiet mode
-  -v, --verbose            verbose output
-      --verboseLog         verbose logging
+      --clock string               set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00
+      --config string              config file (default is hugo.yaml|json|toml)
+      --configDir string           config dir (default "config")
+      --debug                      debug output
+  -d, --destination string         filesystem path to write files to
+  -e, --environment string         build environment
+      --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
+      --log                        enable Logging
+      --logFile string             log File path (if set, logging enabled automatically)
+      --quiet                      build in quiet mode
+  -s, --source string              filesystem path to read files relative from
+      --themesDir string           filesystem path to themes directory
+  -v, --verbose                    verbose output
+      --verboseLog                 verbose logging
 ```
 
 ### SEE ALSO
