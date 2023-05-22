@@ -33,6 +33,7 @@
       {{ with .Site.Author.email }}<author>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</author>{{end}}
       <guid>{{ .Permalink }}</guid>
       <description>{{ .Summary | html }}</description>
+      <content:encoded>{{ safeHTML "<![CDATA[" }}{{- .Content | safeHTML -}}{{ safeHTML "]]>" }}</content>
     </item>
     {{ end }}
   </channel>
