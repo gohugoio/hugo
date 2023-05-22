@@ -14,9 +14,11 @@
 package commands
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/bep/simplecobra"
@@ -56,14 +58,34 @@ func (c *configCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 	}
 	config := conf.configs.Base
 
-	// Print it as JSON.
-	dec := json.NewEncoder(os.Stdout)
+	var buf bytes.Buffer
+	dec := json.NewEncoder(&buf)
 	dec.SetIndent("", "  ")
 	dec.SetEscapeHTML(false)
 
 	if err := dec.Encode(parser.ReplacingJSONMarshaller{Value: config, KeysToLower: true, OmitEmpty: true}); err != nil {
 		return err
 	}
+
+	format := strings.ToLower(c.r.format)
+
+	switch format {
+	case "json":
+		os.Stdout.Write(buf.Bytes())
+	default:
+		// Decode the JSON to a map[string]interface{} and then unmarshal it again to the correct format.
+		var m map[string]interface{}
+		if err := json.Unmarshal(buf.Bytes(), &m); err != nil {
+			return err
+		}
+		switch format {
+		case "yaml":
+			return parser.InterfaceToConfig(m, metadecoders.YAML, os.Stdout)
+		case "toml":
+			return parser.InterfaceToConfig(m, metadecoders.TOML, os.Stdout)
+		}
+	}
+
 	return nil
 }
 
