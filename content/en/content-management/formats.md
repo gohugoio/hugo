@@ -46,9 +46,9 @@ Hugo passes reasonable default arguments to these external helpers by default:
 - `rst2html`: `--leave-comments --initial-header-level=2`
 - `pandoc`: `--mathjax`
 
-{{% warning "Performance of External Helpers" %}}
+{{% note %}}
 Because additional formats are external commands, generation performance will rely heavily on the performance of the external tool you are using. As this feature is still in its infancy, feedback is welcome.
-{{% /warning %}}
+{{% /note %}}
 
 ### External Helper AsciiDoc
 

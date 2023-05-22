@@ -4,8 +4,6 @@ categories: ["Releases"]
 description: "Hugo 0.22.1 fixes a couple of issues reported after the 0.22 release"
 link: ""
 title: "Hugo 0.22.1"
-draft: false
-author: bep
 aliases: [/0-22-1/]
 ---
 

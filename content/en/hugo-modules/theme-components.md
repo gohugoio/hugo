@@ -1,17 +1,13 @@
 ---
 title: Theme Components
-linktitle: Theme Components
 description: Hugo provides advanced theming support with Theme Components.
-date: 2017-02-01
 categories: [hugo modules]
 keywords: [themes, theme, source, organization, directories]
 menu:
   docs:
-    parent: "modules"
+    parent: modules
     weight: 50
 weight: 50
-sections_weight: 50
-draft: false
 aliases: [/themes/customize/,/themes/customizing/]
 toc: true
 ---

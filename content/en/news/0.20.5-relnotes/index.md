@@ -4,8 +4,6 @@ categories: ["Releases"]
 description: ""
 link: ""
 title: "Hugo 0.20.5"
-draft: false
-author: bep
 aliases: [/0-20-5/]
 ---
 

@@ -61,13 +61,13 @@ Spelled-out cardinal numbers (e.g. "one", "two", and "three") and ordinal abbrev
 To continue with the example above:
 
 ```go-html-template
-{{.Date.Format "Jan 2nd 2006"}}
+{{ .Date.Format "Jan 2nd 2006" }}
 ```
 
 Hugo assumes you want to append `nd` as a string to the day of the month and outputs the following:
 
 ```txt
-Mar 3nd 2017
+Mar 2nd 2017
 ```
 
 ### Use `.Local` and `.UTC`

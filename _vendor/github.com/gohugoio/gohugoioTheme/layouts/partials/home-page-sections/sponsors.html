@@ -5,6 +5,14 @@
 {{ $isFooter := (eq $gtag "footer") }}
 {{ $utmSource := cond $isFooter "hugofooter" "hugohome" }}
 {{ with .cx.Site.Data.sponsors }}
+  <style>
+    a.show-on-hover {
+      opacity: 0;
+    }
+    a.show-on-hover:hover {
+      opacity: 1;
+    }
+  </style>
   <section
     class="{{ $.classes_section | default "bg-primary-color-dark b--dark-gray bb bt ph5 pv4 w-100" }}">
     <div class="center mw9">
@@ -22,11 +30,18 @@
               <a
                 href="{{ $url }}"
                 onclick="trackOutboundLink({{ printf "'%s', '%s'" $gtagID $url | safeJS }});"
-                class="w-100 grow pa3">
+                class="w-100 grow pa3{{ if .show_on_hover }}
+                  show-on-hover
+                {{ end }}"
+                style="">
                 {{ $logo.Content | safeHTML }}
               </a>
             {{ else }}
-              <a href="{{ $url }}" class="w-100 grow pa3" style="">
+              <a
+                href="{{ $url }}"
+                class="w-100 grow pa3{{ if .show_on_hover }}
+                  show-on-hover
+                {{ end }}">
                 {{ $logo.Content | safeHTML }}
               </a>
             {{ end }}

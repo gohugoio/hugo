@@ -2,16 +2,13 @@
 title: Hugo and the  General Data Protection Regulation (GDPR)
 linktitle: Hugo and GDPR
 description: About how to configure your Hugo site to meet the new regulations.
-date: 2018-05-25
 layout: single
 keywords: ["GDPR", "Privacy", "Data Protection"]
 menu:
   docs:
-    parent: "about"
+    parent: about
     weight: 5
 weight: 5
-sections_weight: 5
-draft: false
 aliases: [/privacy/,/gdpr/]
 toc: true
 ---
@@ -57,7 +54,6 @@ disable = false
 privacyEnhanced = false
 {{< /code-toggle >}}
 
-
 ## Disable All Services
 
 An example Privacy Config that disables all the relevant services in Hugo. With this configuration, the other settings will not matter.
@@ -91,9 +87,9 @@ respectDoNotTrack
 useSessionStorage
 : Enabling this will disable the use of Cookies and use Session Storage to Store the GA Client ID.
 
-{{% warning %}}
+{{% note %}}
 `useSessionStorage` is not supported when using Google Analytics v4 (gtag.js).
-{{% /warning %}}
+{{% /note %}}
 
 ### Instagram
 

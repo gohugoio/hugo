@@ -1,17 +1,10 @@
 ---
 title: Build Performance
-linktitle: Build Performance
 description: An overview of features used for diagnosing and improving performance issues in site builds.
-date: 2017-03-12
-publishdate: 2017-03-12
-keywords: [performance, build]
-categories: [troubleshooting]
 menu:
   docs:
-    parent: "troubleshooting"
+    parent: troubleshooting
 weight: 3
-slug:
-aliases: []
 toc: true
 ---
 
@@ -85,10 +78,10 @@ the desired output, the template may benefit from caching to reduce the number
 of executions. The [`partialCached`][partialcached] template function provides
 caching capabilities for `partial` templates.
 
-{{% tip %}}
+{{% note %}}
 Note that you can create cached variants of each `partial` by passing additional
 parameters to `partialCached` beyond the initial context. See the
 `partialCached` documentation for more details.
-{{% /tip %}}
+{{% /note %}}
 
-[partialCached]:{{< ref "/functions/partialCached.md" >}}
+[partialCached]: /functions/partialcached

@@ -1,16 +1,13 @@
 ---
 title: Configure Modules
-linktitle: Configure Modules
 description: This page describes the configuration options for a module.
-date: 2019-07-24
 categories: [hugo modules]
 keywords: [themes, source, organization, directories]
 menu:
   docs:
-    parent: "modules"
+    parent: modules
     weight: 10
 weight: 10
-sections_weight: 10
 toc: true
 ---
 
@@ -45,7 +42,7 @@ workspace
 : The workspace file to use. This enables Go workspace mode. Note that this can also be set via OS env, e.g. `export HUGO_MODULE_WORKSPACE=/my/hugo.work` This only works with Go 1.18+. In Hugo `v0.109.0` we changed the default to `off` and we now resolve any relative work filenames relative to the working directory.
 
 replacements
-: A comma separated (or a slice) list of module path to directory replacement mapping, e.g. `github.com/bep/my-theme -> ../..,github.com/bep/shortcodes -> /some/path`. This is mostly useful for temporary locally development of a module, and then it makes sense to set it as an OS environment variable, e.g: `env HUGO_MODULE_REPLACEMENTS="github.com/bep/my-theme -> ../.."`. Any relative path is relate to [themesDir](https://gohugo.io/getting-started/configuration/#all-configuration-settings), and absolute paths are allowed.
+: A comma-separated list of mappings from module paths to directories, e.g. `github.com/bep/my-theme -> ../..,github.com/bep/shortcodes -> /some/path`. This is mostly useful for temporary local development of a module, in which case you might want to save it as an environment variable, e.g: `env HUGO_MODULE_REPLACEMENTS="github.com/bep/my-theme -> ../.."`. Relative paths are relative to [themesDir](https://gohugo.io/getting-started/configuration/#all-configuration-settings). Absolute paths are allowed.
 
 Note that the above terms maps directly to their counterparts in Go Modules. Some of these setting may be natural to set as OS environment variables. To set the proxy server to use, as an example:
 
@@ -118,9 +115,9 @@ noVendor
 When the `mounts` config was introduced in Hugo 0.56.0, we were careful to preserve the existing `contentDir`, `staticDir`, and similar configuration to make sure all existing sites just continued to work. But you should not have both: if you add a `mounts` section you should remove the old `contentDir`, `staticDir`, etc. settings.
 {{% /note %}}
 
-{{% warning %}}
+{{% note %}}
 When you add a mount, the default mount for the concerned target root is ignored: be sure to explicitly add it.
-{{% /warning %}}
+{{% /note %}}
 
 **Default mounts**
 {{< code-toggle file="config">}}
@@ -166,3 +163,18 @@ The search is case-insensitive.
 
 excludeFiles (string or slice)
 : One or more glob patterns matching files to exclude.
+
+**Example**
+{{< code-toggle file="config">}}
+[module]
+[[module.mounts]]
+    source="content"
+    target="content"
+    excludeFiles="docs/*"
+[[module.mounts]]
+    source="node_modules"
+    target="assets"
+[[module.mounts]]
+    source="assets"
+    target="assets"
+{{< /code-toggle >}}

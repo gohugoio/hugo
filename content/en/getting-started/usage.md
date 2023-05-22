@@ -1,15 +1,13 @@
 ---
 title: Basic usage
-linktitle: Basic usage
 description: Hugo's command line interface (CLI) is fully featured but simple to use, even for those with limited experience working from the command line.
 categories: [getting started]
 keywords: [usage,livereload,command,flags]
 menu:
   docs:
-    parent: "getting-started"
+    parent: getting-started
     weight: 40
 weight: 40
-sections_weight: 40
 aliases: [/overview/usage/,/extras/livereload/,/doc/usage/,/usage/]
 toc: true
 ---

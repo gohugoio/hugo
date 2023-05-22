@@ -1,20 +1,13 @@
 ---
 title: getenv
 description: Returns the value of an environment variable, or an empty string if the environment variable is not set.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2021-11-26
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: []
 signature: ["os.Getenv VARIABLE", "getenv VARIABLE"]
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
-aliases: []
 ---
 Examples:
 
@@ -43,4 +36,3 @@ And then retrieve the values within a template:
 ```
 
 With Hugo v0.91.0 and later, you must explicitly allow access to environment variables. For details, review [Hugo's Security Policy](/about/security-model/#security-policy). By default, environment variables beginning with `HUGO_` are allowed when using the `os.Getenv` function.
-

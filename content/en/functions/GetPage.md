@@ -1,20 +1,13 @@
 ---
 title: .GetPage
 description: "Gets a `Page` of a given `path`."
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [sections,lists,indexes]
 signature: [".GetPage PATH"]
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
-aliases: []
 ---
 
 `.GetPage` returns a page of a given `path`. Both `Site` and `Page` implements this method. The `Page` variant will, if given a relative path -- i.e. a path without a leading `/` -- try look for the page relative to the current page.

@@ -1,12 +1,11 @@
 ---
-linktitle: ""
+title: {{ replace .Name "-" " " | title }}
 description: ""
-categories: [functions]
-tags: []
-ns: ""
 signature: []
-hugoversion: ""
-aliases: []
+categories: [functions]
+keywords: []
+menu:
+  docs:
+    parent: functions
 relatedfuncs: []
-toc: false
 ---

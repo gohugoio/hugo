@@ -4,8 +4,6 @@ categories: ["Releases"]
 description: "Hugo 0.22 brings nested sections, by popular demand and a long sought after feature"
 link: ""
 title: "Hugo 0.22"
-draft: false
-author: bep
 aliases: [/0-22/]
 ---
 

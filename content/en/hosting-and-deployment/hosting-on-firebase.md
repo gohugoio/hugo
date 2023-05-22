@@ -1,20 +1,14 @@
 ---
 title: Host on Firebase
-linktitle: Host on Firebase
 description: You can use Firebase's free tier to host your static website; this also gives you access to Firebase's NOSQL API.
-date: 2017-03-12
-publishdate: 2017-03-12
 categories: [hosting and deployment]
 keywords: [hosting,firebase]
-authors: [Michel Racic]
 menu:
   docs:
-    parent: "hosting-and-deployment"
+    parent: hosting-and-deployment
     weight: 20
 weight: 20
-sections_weight: 20
 toc: true
-aliases: []
 ---
 
 ## Assumptions
@@ -51,7 +45,7 @@ From here:
 4. Accept the default for the publish directory, which is `public`
 5. Choose "No" in the question if you are deploying a single-page app
 
-## Using Firebase & Github CI/CD
+## Using Firebase & GitHub CI/CD
 
 In new versions of Firebase, some other questions apply:
 
@@ -62,7 +56,7 @@ Here you will be redirected to login in your GitHub account to get permissions. 
 7. For which GitHub repository would you like to set up a GitHub workflow? (format: user/repository) 
 
 Include the repository you will use in the format above (Account/Repo)
-Firebase script with retrive credentials, create a service account you can later manage in your github settings.
+Firebase script with retrive credentials, create a service account you can later manage in your GitHub settings.
 
 8. Set up the workflow to run a build script before every deploy? 
 
@@ -78,7 +72,7 @@ After that Firebase has been set in your project with CI/CD. After that run:
 hugo && firebase deploy
 ```
 
-With this you will have the app initialized manually. After that you can manage and fix your github workflow from: https://github.com/your-account/yout-repo/actions
+With this you will have the app initialized manually. After that you can manage and fix your GitHub workflow from: https://github.com/your-account/your-repo/actions
 
 Don't forget to update your static pages before push!
 

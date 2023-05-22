@@ -1,20 +1,13 @@
 ---
 title: split
 description: Returns a slice of strings by splitting STRING by DELIM.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2022-11-06
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [strings]
 signature: ["split STRING DELIM"]
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
-aliases: []
 ---
 
 Examples:
@@ -26,5 +19,5 @@ Examples:
 
 
 {{% note %}}
-`split` essentially does the opposite of [delimit]({{< ref "functions/delimit" >}}). While `split` creates a slice from a string, `delimit` creates a string from a slice.
+`split` essentially does the opposite of [delimit](/functions/delimit). While `split` creates a slice from a string, `delimit` creates a string from a slice.
 {{% /note %}}
