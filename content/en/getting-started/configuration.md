@@ -2,16 +2,13 @@
 title: Configure Hugo
 linktitle: Configuration
 description: How to configure your Hugo site.
-date: 2013-07-01
-publishdate: 2017-01-02
 categories: [getting started,fundamentals]
 keywords: [configuration,toml,yaml,json]
 menu:
   docs:
-    parent: "getting-started"
+    parent: getting-started
     weight: 60
 weight: 60
-sections_weight: 60
 aliases: [/overview/source-directory/,/overview/configuration/]
 toc: true
 ---
@@ -35,11 +32,9 @@ hugo --config a.toml,b.toml,c.toml
 Multiple site config files can be specified as a comma-separated string to the `--config` switch.
 {{% /note %}}
 
-{{< todo >}}TODO: distinct config.toml and others (the root object files){{< /todo >}}
-
 ## hugo.toml vs config.toml
 
-In Hugo 0.110.0 we changed the default config base filename to `hugo`, e.g. `hugo.toml`. We will still look for `config.toml` etc., but we recommend you eventually rename it (but you need to wait if you want to support older Hugo versions). The main reason we're doing this is to make it easier code editors and build tools to identify this as a Hugo configuration file and project. 
+In Hugo 0.110.0 we changed the default config base filename to `hugo`, e.g. `hugo.toml`. We will still look for `config.toml` etc., but we recommend you eventually rename it (but you need to wait if you want to support older Hugo versions). The main reason we're doing this is to make it easier for code editors and build tools to identify this as a Hugo configuration file and project.
 
 {{< new-in "0.110.0" >}}
 
@@ -88,7 +83,7 @@ Let's take an example to understand this better. Let's say you are using Google 
   - `G-SSSSSSSS` for staging
 
 This is how you need to configure your `config.toml` files considering the above scenario:
-1. In `_default/config.toml` you don't need to mention `googleAnalytics` parameter at all. This ensures that no Google Analytics code is loaded in your development server i.e. when you run `hugo serve`. This works since, by default Hugo sets `Environment=development` when you run `hugo serve` which uses the config files from `_default` folder
+1. In `_default/config.toml` you don't need to mention `googleAnalytics` parameter at all. This ensures that no Google Analytics code is loaded in your development server i.e. when you run `hugo server`. This works since, by default Hugo sets `Environment=development` when you run `hugo server` which uses the config files from `_default` folder
 2. In `production/config.toml` you just need to have one line:
 
     ```googleAnalytics = "G-PPPPPPPP"```
@@ -140,7 +135,7 @@ The directory where Hugo finds asset files used in [Hugo Pipes](/hugo-pipes/). {
 
 ### baseURL
 
-Hostname (and path) to the root, e.g. https://bep.is/
+The absolute URL (protocol, host, path, and trailing slash) of your published site (e.g., `https://www.example.org/docs/`).
 
 ### build
 
@@ -321,7 +316,7 @@ See [Configure Media Types](/templates/output-formats/#media-types).
 
 ### menus
 
-See [Add Non-content Entries to a Menu](/content-management/menus/#add-non-content-entries-to-a-menu).
+See [Menus](/content-management/menus/#define-in-site-configuration).
 
 ### minify
 
@@ -419,7 +414,7 @@ Maximum number of items in the RSS feed.
 
 ### sectionPagesMenu
 
-See ["Section Menu for Lazy Bloggers"](/templates/menu-templates/#section-menu-for-lazy-bloggers).
+See [Menus](/content-management/menus/#define-in-site-configuration).
 
 ### security
 
@@ -571,16 +566,22 @@ Setting `force=true` will make a redirect even if there is existing content in t
 
 Hugo will, by default, render all 404 errors when running `hugo server` with the `404.html` template. Note that if you have already added one or more redirects to your [Server Config](#configure-server), you need to add the 404 redirect explicitly, e.g:
 
-```toml
+{{< code-toggle file="config/development/server" copy=false >}}
 [[redirects]]
-    from   = "/**"
-    to     = "/404.html"
-    status = 404
-```
+from   = "/**"
+to     = "/404.html"
+status = 404
+{{< /code-toggle >}}
 
 ## Configure Title Case
 
-Set `titleCaseStyle` to specify the title style used by the [title](/functions/title/) template function and the automatic section titles in Hugo. It defaults to [AP Stylebook](https://www.apstylebook.com/) for title casing, but you can also set it to `Chicago` or `Go` (every word starts with a capital letter).
+Set `titleCaseStyle` to specify the title style used by the [title](/functions/title/) template function and the automatic section titles in Hugo. 
+
+By default, Hugo adheres to the capitalization rules in the [Associated Press (AP) Stylebook]. Set `titleCaseStyle` to `chicago` if you would prefer to follow the [Chicago Manual of Style], or set if to `go` to use Go's convention of capitalizing every word.
+
+[Associated Press (AP) Stylebook]: https://www.apstylebook.com/
+[Chicago Manual of Style]: https://www.chicagomanualofstyle.org/home.html
+[site configuration]: /getting-started/configuration/#configure-title-case
 
 ## Configuration Environment Variables
 
@@ -629,7 +630,7 @@ $ env HUGO_TITLE="Some Title" hugo
 
 This is really useful if you use a service such as Netlify to deploy your site. Look at the Hugo docs [Netlify configuration file](https://github.com/gohugoio/hugoDocs/blob/master/netlify.toml) for an example.
 
-{{% note "Setting Environment Variables" %}}
+{{% note %}}
 Names must be prefixed with `HUGO_` and the configuration key must be set in uppercase when setting operating system environment variables.
 
 To set config params, prefix the name with `HUGO_PARAMS_`
@@ -645,17 +646,17 @@ Test and document setting params via JSON env var.
 
 **Note:** This works, but we recommend you use the newer and more powerful [includeFiles and excludeFiles](https://gohugo.io/hugo-modules/configuration/#module-config-mounts) mount options.
 
-To exclude specific files from the `content` and `data` directories when rendering your site, set `ignoreFiles` to one or more regular expressions to match against the absolute file path.
+To exclude specific files from the `content`, `data`, and `i18n` directories when rendering your site, set `ignoreFiles` to one or more regular expressions to match against the absolute file path.
 
 To ignore files ending with `.foo` or `.boo`:
 
-{{< code-toggle copy="false" >}}
+{{< code-toggle copy=false >}}
 ignoreFiles = ['\.foo$', '\.boo$']
 {{< /code-toggle >}}
 
 To ignore a file using the absolute file path:
 
-{{< code-toggle copy="false" >}}
+{{< code-toggle copy=false >}}
 ignoreFiles = ['^/home/user/project/content/test\.md$']
 {{< /code-toggle >}}
 

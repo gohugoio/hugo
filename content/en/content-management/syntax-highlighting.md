@@ -1,6 +1,5 @@
 ---
 title: Syntax Highlighting
-linkTitle: Syntax Highlighting
 description: Hugo comes with really fast syntax highlighting from Chroma.
 keywords: [highlighting,chroma,code blocks,syntax]
 categories: [content management]
@@ -131,7 +130,7 @@ func GetTitleFunc(style string) func(s string) string {
 }
 ```
 
-The options are the same as in the [highlighting shortcode](/content-management/syntax-highlighting/#highlight-shortcode),including `linenos=false`, but note the slightly different Markdown attribute syntax.
+The options are the same as in the [highlighting shortcode](/content-management/syntax-highlighting/#highlight-shortcode), including `linenos=false`, but note the slightly different Markdown attribute syntax.
 
 ## List of Chroma Highlighting Languages
 

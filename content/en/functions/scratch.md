@@ -1,21 +1,14 @@
 ---
 title: .Scratch
 description: Acts as a "scratchpad" to store and manipulate data.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 keywords: [iteration]
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 toc:
 signature: []
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
-draft: false
 aliases: [/extras/scratch/,/doc/scratch/]
 ---
 

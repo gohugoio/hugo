@@ -16,7 +16,7 @@ This release represents over **240 contributions by 36 contributors** to the mai
 Big shout out to [@bep](https://github.com/bep) who led the development of Hugo this release, [@anthonyfok](https://github.com/anthonyfok), [@eparis](https://github.com/eparis), [@SchumacherFM](https://github.com/SchumacherFM), [@RickCogley](https://github.com/RickCogley) & [@mdhender](https://github.com/mdhender) for their significant contributions and [@tatsushid](https://github.com/tatsushid) for his continuous improvements to the templates. Also a big thanks to all the theme creators. 11 new themes have been added since last release and the [hugoThemes repo now has previews of all of them](https://github.com/spf13/hugoThemes/blob/master/README.md#theme-list).
 
 Hugo also depends on a lot of other great projects. A big thanks to all of our dependencies inclding:
-[cobra](https://github.com/spf13/cobra), [viper](https://github.com/spf13/viper), [blackfriday](https://github.com/russross/blackfriday), [pflag](https://github.com/spf13/pflag), [HugoThemes](https://github.com/spf13/hugothemes), [BurntSushi/Toml](github.com/BurntSushi/toml), [goYaml](https://github.com/go-yaml/yaml/tree/v2), and the Go standard library.
+[cobra](https://github.com/spf13/cobra), [viper](https://github.com/spf13/viper), [blackfriday](https://github.com/russross/blackfriday), [pflag](https://github.com/spf13/pflag), [HugoThemes](https://github.com/spf13/hugothemes), [BurntSushi/Toml](https://github.com/BurntSushi/toml), [goYaml](https://github.com/go-yaml/yaml/tree/v2), and the Go standard library.
 
 ## New features
 - Support for all file types in content directory.

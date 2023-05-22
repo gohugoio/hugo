@@ -1,6 +1,5 @@
 ---
 title: Content Types
-linkTitle: Content Types
 description: Hugo is built around content organized in sections.
 categories: [content management]
 keywords: [lists, sections, content types, types, organization]

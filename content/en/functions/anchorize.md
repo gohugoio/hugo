@@ -1,15 +1,12 @@
 ---
 title: anchorize
 description: Takes a string and sanitizes it the same way as the [`defaultMarkdownHandler`](https://gohugo.io/getting-started/configuration-markup#configure-markup) does for markdown headers.
-date: 2018-10-13
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [markdown,strings]
 signature: ["anchorize INPUT"]
-hugoversion: "0.39"
-workson: []
 relatedfuncs: [humanize]
 ---
 

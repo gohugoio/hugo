@@ -1,21 +1,13 @@
 ---
 title: hmac
-linktitle: hmac
 description: Returns a cryptographic hash that uses a key to sign a message.
-date: 2020-05-29
-publishdate: 2020-05-29
-lastmod: 2020-05-29
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [hmac,checksum]
 signature: ["crypto.HMAC HASH_TYPE KEY MESSAGE [ENCODING]","hmac HASH_TYPE KEY MESSAGE [ENCODING]" ]
-workson: []
-hugoversion:
 relatedfuncs: [hmac]
-deprecated: false
-aliases: []
 ---
 
 Set the `HASH_TYPE` argument to `md5`, `sha1`, `sha256`, or `sha512`.

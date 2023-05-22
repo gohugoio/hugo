@@ -1,19 +1,13 @@
 ---
 title: Taxonomy Templates
-# linktitle:
 description: Taxonomy templating includes taxonomy list pages, taxonomy terms pages, and using taxonomies in your single page templates.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [templates]
 keywords: [taxonomies,metadata,front matter,terms,templates]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 50
 weight: 50
-sections_weight: 50
-draft: false
 aliases: [/taxonomies/displaying/,/templates/terms/,/indexes/displaying/,/taxonomies/templates/,/indexes/ordering/, /templates/taxonomies/, /templates/taxonomy/]
 toc: true
 ---
@@ -150,16 +144,14 @@ Weights of zero are thus treated specially: if two pages have unequal weights, a
 
 Content can be assigned weight for each taxonomy that it's assigned to.
 
-```txt
-+++
+
+{{< code-toggle file="content/example.md" fm=true copy=false >}}
 tags = [ "a", "b", "c" ]
 tags_weight = 22
 categories = ["d"]
-title = "foo"
+title = "Example"
 categories_weight = 44
-+++
-Front Matter with weighted tags and categories
-```
+{{< /code-toggle >}}
 
 The convention is `taxonomyname_weight`.
 
@@ -177,16 +169,16 @@ There are two different templates that the use of taxonomies will require you to
 
 Both templates are covered in detail in the templates section.
 
-A [list template](/templates/list/) is any template that will be used to render multiple pieces of content in a single html page. This template will be used to generate all the automatically created taxonomy pages.
+A [list template](/templates/lists/) is any template that will be used to render multiple pieces of content in a single html page. This template will be used to generate all the automatically created taxonomy pages.
 
-A [taxonomy terms template](/templates/terms/) is a template used to
+A [taxonomy template](/templates/taxonomy-templates/) is a template used to
 generate the list of terms for a given template.
 
 <!-- Begin /taxonomies/displaying/ -->
 
 There are four common ways you can display the data in your
 taxonomies in addition to the automatic taxonomy pages created by hugo
-using the [list templates](/templates/list/):
+using the [list templates](/templates/lists/):
 
 1. For a given piece of content, you can list the terms attached
 2. For a given piece of content, you can list other content with the same
@@ -258,7 +250,7 @@ This would be very useful in a sidebar as “featured content”. You could even
         <li>{{ $key }}</li>
         <ul>
             {{ range $taxonomy.Pages }}
-            <li hugo-nav="{{ .RelPermalink}}"><a href="{{ .Permalink}}">{{ .LinkTitle }}</a></li>
+            <li hugo-nav="{{ .RelPermalink }}"><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
             {{ end }}
         </ul>
         {{ end }}
@@ -288,7 +280,7 @@ The following example displays all terms in a site's tags taxonomy:
 
 This example will list all taxonomies and their terms, as well as all the content assigned to each of the terms.
 
-{{< code file="layouts/partials/all-taxonomies.html" download="all-taxonomies.html" download="all-taxonomies.html" >}}
+{{< code file="layouts/partials/all-taxonomies.html" >}}
 <section>
     <ul id="all-taxonomies">
         {{ range $taxonomy_term, $taxonomy := .Site.Taxonomies }}
@@ -299,8 +291,8 @@ This example will list all taxonomies and their terms, as well as all the conten
                             <li>{{ $key }}</li>
                             <ul>
                                 {{ range $value.Pages }}
-                                    <li hugo-nav="{{ .RelPermalink}}">
-                                        <a href="{{ .Permalink}}">{{ .LinkTitle }}</a>
+                                    <li hugo-nav="{{ .RelPermalink }}">
+                                        <a href="{{ .Permalink }}">{{ .LinkTitle }}</a>
                                     </li>
                                 {{ end }}
                             </ul>
@@ -315,14 +307,14 @@ This example will list all taxonomies and their terms, as well as all the conten
 
 ## `.Site.GetPage` for Taxonomies
 
-Because taxonomies are lists, the [`.GetPage` function][getpage] can be used to get all the pages associated with a particular taxonomy term using a terse syntax. The following ranges over the full list of tags on your site and links to each of the individual taxonomy pages for each term without having to use the more fragile URL construction of the ["List All Site Tags" example above]({{< relref "#example-list-all-site-tags" >}}):
+Because taxonomies are lists, the [`.GetPage` function][getpage] can be used to get all the pages associated with a particular taxonomy term using a terse syntax. The following ranges over the full list of tags on your site and links to each of the individual taxonomy pages for each term without having to use the more fragile URL construction of the ["List All Site Tags" example above](#example-list-all-site-tags):
 
 {{< code file="links-to-all-tags.html" >}}
 {{ $taxo := "tags" }}
 <ul class="{{ $taxo }}">
     {{ with ($.Site.GetPage (printf "/%s" $taxo)) }}
         {{ range .Pages }}
-            <li><a href="{{ .Permalink }}">{{ .Title}}</a></li>
+            <li><a href="{{ .Permalink }}">{{ .Title }}</a></li>
         {{ end }}
     {{ end }}
 </ul>

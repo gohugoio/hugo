@@ -2,17 +2,13 @@
 title: Hugo Pipes Introduction
 linkTitle: Hugo Pipes
 description: Hugo Pipes is Hugo's asset processing set of functions.
-date: 2018-07-14
-publishdate: 2018-07-14
 categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: "pipes"
+    parent: pipes
     weight: 20
 weight: 01
-sections_weight: 01
-draft: false
 toc: true
 aliases: [/assets/]
 ---
@@ -63,18 +59,6 @@ ContentLength
 ContentType
 : The content type, e.g. "text/html"
 
-
-## Copy a Resource
-
-{{< new-in "0.100.0" >}}
-
-`resources.Copy` allows you to copy almost any Hugo `Resource` (the one exception is the `Page`), possibly most useful for renaming things:
-
-```go-html-template
-{{ $resized := $image.Resize "400x400" |  resources.Copy "images/mynewname.jpg" }}
-<img src="{{ $resized.RelPermalink }}">
-```
-
 ### Caching
 
 By default, Hugo calculates a cache key based on the `URL` and the `options` (e.g. headers) given.
@@ -105,16 +89,16 @@ Note that if you do not handle `.Err` yourself, Hugo will fail the build the fir
 
 ### Remote Options
 
-When fetching a remote `Resource`, `resources.GetRemote` takes an optional options map as the last argument, e.g.:
+When fetching a remote `Resource`, `resources.GetRemote` takes an optional options map as the second argument, e.g.:
 
 ```go-html-template
-{{ $resource := resources.GetRemote "https://example.org/api" (dict "headers" (dict "Authorization" "Bearer abcd"))  }}
+{{ $resource := resources.GetRemote "https://example.org/api" (dict "headers" (dict "Authorization" "Bearer abcd")) }}
 ```
 
 If you need multiple values for the same header key, use a slice:
 
 ```go-html-template
-{{ $resource := resources.GetRemote "https://example.org/api"  (dict "headers" (dict "X-List" (slice "a" "b" "c")))  }}
+{{ $resource := resources.GetRemote "https://example.org/api"  (dict "headers" (dict "X-List" (slice "a" "b" "c"))) }}
 ```
 
 You can also change the request method and set the request body:
@@ -132,7 +116,6 @@ You can also change the request method and set the request body:
 ### Caching of Remote Resources
 
 Remote resources fetched with `resources.GetRemote` will be cached on disk. See [Configure File Caches](/getting-started/configuration/#configure-file-caches) for details.
-
 
 ## Copy a Resource
 

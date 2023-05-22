@@ -1,17 +1,13 @@
 ---
 title: Directory Structure
-linktitle: Directory Structure
 description: Hugo's CLI scaffolds a project directory structure and then takes that single directory and uses it as the input to create a complete website.
-date: 2017-01-02
-publishdate: 2017-02-01
 categories: [getting started,fundamentals]
 keywords: [source, organization, directories]
 menu:
   docs:
-    parent: "getting-started"
+    parent: getting-started
     weight: 50
 weight: 50
-sections_weight: 50
 aliases: [/overview/source-directory/]
 toc: true
 ---
@@ -75,7 +71,7 @@ From **Hugo 0.31** you can have multiple static directories.
 : Caches some files to speed up generation. Can be also used by template authors to distribute built Sass files, so you don't have to have the preprocessor installed. Note: resources directory is not created by default.
 
 [archetypes]: /content-management/archetypes/
-[`assets`]: /hugo-pipes/introduction#asset-directory/
+[`assets`]: /hugo-pipes/introduction#asset-directory
 [configuration directives]: /getting-started/configuration/#all-configuration-settings
 [`content`]: /content-management/organization/
 [content section]: /content-management/sections/
@@ -85,7 +81,7 @@ From **Hugo 0.31** you can have multiple static directories.
 [`layouts`]: /templates/
 [`static`]: /content-management/static-files/
 [`resources`]: /getting-started/configuration/#configure-file-caches
-[lists]: /templates/list/
+[lists]: /templates/lists/
 [pagevars]: /variables/page/
 [partials]: /templates/partials/
 [searchconsole]: https://support.google.com/webmasters/answer/9008080#zippy=%2Chtml-file-upload

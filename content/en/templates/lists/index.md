@@ -2,18 +2,13 @@
 title: Lists of Content in Hugo
 linktitle: List Templates
 description: Lists have a specific meaning and usage in Hugo when it comes to rendering your site homepage, section page, taxonomy list, or taxonomy terms list.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [templates]
 keywords: [lists,sections,rss,taxonomies,terms]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 22
 weight: 22
-sections_weight: 22
-draft: false
 aliases: [/templates/list/,/layout/indexes/]
 toc: true
 ---
@@ -35,7 +30,7 @@ For template lookup order, see [Template Lookup](/templates/lookup-order/).
 
 The idea of a list page comes from the [hierarchical mental model of the web][mentalmodel] and is best demonstrated visually:
 
-[![Image demonstrating a hierarchical website sitemap.](/images/site-hierarchy.svg)](/images/site-hierarchy.svg)
+[![Image demonstrating a hierarchical website sitemap.](site-hierarchy.svg)](site-hierarchy.svg)
 
 ## List Defaults
 
@@ -89,31 +84,31 @@ Follow my journey through this new blog.
 
 You can now access this `_index.md`'s' content in your list template:
 
-{{< code file="layouts/_default/list.html" download="list.html" >}}
+{{< code file="layouts/_default/list.html" >}}
 {{ define "main" }}
 <main>
-    <article>
-        <header>
-            <h1>{{.Title}}</h1>
-        </header>
-        <!-- "{{.Content}}" pulls from the markdown content of the corresponding _index.md -->
-        {{.Content}}
-    </article>
-    <ul>
+  <article>
+    <header>
+      <h1>{{ .Title} }</h1>
+    </header>
+    <!-- "{{ .Content} }" pulls from the markdown content of the corresponding _index.md -->
+    {{ .Content }}
+  </article>
+  <ul>
     <!-- Ranges through content/posts/*.md -->
     {{ range .Pages }}
-        <li>
-            <a href="{{.Permalink}}">{{.Date.Format "2006-01-02"}} | {{.Title}}</a>
-        </li>
+      <li>
+        <a href="{{ .Permalink }}">{{ .Date.Format "2006-01-02" }} | {{ .Title }}</a>
+      </li>
     {{ end }}
-    </ul>
+  </ul>
 </main>
 {{ end }}
 {{< /code >}}
 
 This above will output the following HTML:
 
-{{< code file="example.com/posts/index.html" copy="false" >}}
+{{< code file="example.com/posts/index.html" copy=false >}}
 <!--top of your baseof code-->
 <main>
     <article>
@@ -133,11 +128,11 @@ This above will output the following HTML:
 
 ### List Pages Without `_index.md`
 
-You do *not* have to create an `_index.md` file for every list page (i.e. section, taxonomy, taxonomy terms, etc) or the homepage. If Hugo does not find an `_index.md` within the respective content section when rendering a list template, the page will be created but with no `{{.Content}}` and only the default values for `.Title` etc.
+You do *not* have to create an `_index.md` file for every list page (i.e. section, taxonomy, taxonomy terms, etc) or the homepage. If Hugo does not find an `_index.md` within the respective content section when rendering a list template, the page will be created but with no `{{ .Content }}` and only the default values for `.Title` etc.
 
 Using this same `layouts/_default/list.html` template and applying it to the `quotes` section above will render the following output. Note that `quotes` does not have an `_index.md` file to pull from:
 
-{{< code file="example.com/quote/index.html" copy="false" >}}
+{{< code file="example.com/quote/index.html" copy=false >}}
 <!--baseof-->
 <main>
     <article>
@@ -173,7 +168,7 @@ This list template has been modified slightly from a template originally used in
         <ul>
         <!-- Renders the li.html content view for each content/posts/*.md -->
             {{ range .Pages }}
-                {{ .Render "li"}}
+                {{ .Render "li" }}
             {{ end }}
         </ul>
   </div>
@@ -183,14 +178,14 @@ This list template has been modified slightly from a template originally used in
 
 ### Taxonomy Template
 
-{{< code file="layouts/_default/taxonomy.html" download="taxonomy.html" >}}
+{{< code file="layouts/_default/taxonomy.html" >}}
 {{ define "main" }}
 <main>
   <div>
    <h1>{{ .Title }}</h1>
    <!-- ranges through each of the content files associated with a particular taxonomy term and renders the summary.html content view -->
     {{ range .Pages }}
-        {{ .Render "summary"}}
+        {{ .Render "summary" }}
     {{ end }}
   </div>
 </main>
@@ -381,14 +376,14 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 {{ end }}
 {{< /code >}}
 
-In the above example, you may want `{{.Title}}` to point the `title` field you have added to your `_index.md` file instead. You can access this value using the [`.GetPage` function][getpage]:
+In the above example, you may want `{{ .Title }}` to point the `title` field you have added to your `_index.md` file instead. You can access this value using the [`.GetPage` function][getpage]:
 
 {{< code file="layouts/partials/by-page-field.html" >}}
 <!-- Groups content according to content section.-->
 {{ range .Pages.GroupBy "Section" }}
 <!-- Checks for existence of _index.md for a section; if available, pulls from "title" in front matter -->
 {{ with $.Site.GetPage "section" .Key }}
-<h3>{{.Title}}</h3>
+<h3>{{ .Title }}</h3>
 {{ else }}
 <!-- If no _index.md is available, ".Key" defaults to the section title and filters to title casing -->
 <h3>{{ .Key | title }}</h3>
@@ -544,7 +539,7 @@ While these are logical defaults, they are not always the desired order. There a
 
 ### Order Within Groups
 
-Because Grouping returns a `{{.Key}}` and a slice of pages, all the ordering methods listed above are available.
+Because Grouping returns a `{{ .Key }}` and a slice of pages, all the ordering methods listed above are available.
 
 Here is the ordering for the example that follows:
 

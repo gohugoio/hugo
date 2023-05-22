@@ -1,18 +1,13 @@
 ---
 title: Template Debugging
 description: You can use Go templates' `printf` function to debug your Hugo  templates. These snippets provide a quick and easy visualization of the variables available to you in different contexts.
-date: 2017-02-01
-publishdate: 2017-02-01
 categories: [templates]
 keywords: [debugging,troubleshooting]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 180
 weight: 180
-sections_weight: 180
-aliases: []
-toc: false
 ---
 
 Here are some snippets you can add to your template to answer some common questions.

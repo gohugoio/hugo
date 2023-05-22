@@ -4,8 +4,6 @@ categories: ["Releases"]
 description: "Hugo 0.21 brings full support for shortcodes per Output Format, the last vital piece of that puzzle"
 link: ""
 title: "Hugo 0.21"
-draft: false
-author: bep
 aliases: [/0-21/]
 ---
 

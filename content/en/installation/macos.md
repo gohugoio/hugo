@@ -1,6 +1,5 @@
 ---
 title: macOS
-linkTitle: macOS
 description: Install Hugo on macOS.
 categories: [installation]
 menu:

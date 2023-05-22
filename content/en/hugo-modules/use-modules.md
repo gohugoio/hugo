@@ -1,17 +1,13 @@
 ---
 title: Use Hugo Modules
-linktitle: Use Hugo Modules
 description: How to use Hugo Modules to build and manage your site.
-date: 2019-07-24
 categories: [hugo modules]
 keywords: [install, themes, source, organization, directories,usage,modules]
 menu:
   docs:
-    parent: "modules"
+    parent: modules
     weight: 20
 weight: 20
-sections_weight: 20
-draft: false
 aliases: [/themes/usage/,/themes/installing/,/installing-and-using-themes/]
 toc: true
 ---
@@ -164,4 +160,3 @@ HUGO_MODULE_WORKSPACE=hugo.work hugo server --ignoreVendorPaths "**"
 ```
 
 The `--ignoreVendorPaths` flag is added above to ignore any of the vendored dependencies inside `_vendor`. If you don't use vendoring, you don't need that flag. But now the server is set up watching the files and directories in the workspace and you can see your local edits reloaded.
-

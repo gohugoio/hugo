@@ -1,22 +1,14 @@
 ---
 title: Math
 description: Hugo provides mathematical operators in templates.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2023-05-15
 keywords: [math, operators]
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 toc:
 signature: []
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
-draft: false
-aliases: []
 ---
 
 | Function     | Description                                                                 | Example                             |

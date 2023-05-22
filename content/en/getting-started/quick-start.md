@@ -1,6 +1,5 @@
 ---
 title: Quick Start
-linktitle: Quick Start
 description: Learn to create a Hugo site in minutes.
 categories: [getting started]
 keywords: [quick start,usage]
