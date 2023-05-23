@@ -17,8 +17,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/fs"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -203,7 +203,7 @@ var commonTestScriptsParam = testscript.Params{
 				}
 
 				defer resp.Body.Close()
-				body, err := ioutil.ReadAll(resp.Body)
+				body, err := io.ReadAll(resp.Body)
 				if err != nil {
 					return fmt.Errorf("failed to read response body: %v", err)
 				}
