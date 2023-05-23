@@ -32,6 +32,11 @@ type OutputFormatConfig struct {
 	Format
 }
 
+var defaultOutputFormat = Format{
+	BaseName: "index",
+	Rel:      "alternate",
+}
+
 func DecodeConfig(mediaTypes media.Types, in any) (*config.ConfigNamespace[map[string]OutputFormatConfig, Formats], error) {
 	buildConfig := func(in any) (Formats, any, error) {
 		f := make(Formats, len(DefaultFormats))
@@ -59,18 +64,10 @@ func DecodeConfig(mediaTypes media.Types, in any) (*config.ConfigNamespace[map[s
 					continue
 				}
 
-				var newOutFormat Format
+				newOutFormat := defaultOutputFormat
 				newOutFormat.Name = k
 				if err := decode(mediaTypes, v, &newOutFormat); err != nil {
 					return f, nil, err
-				}
-
-				// We need values for these
-				if newOutFormat.BaseName == "" {
-					newOutFormat.BaseName = "index"
-				}
-				if newOutFormat.Rel == "" {
-					newOutFormat.Rel = "alternate"
 				}
 
 				f = append(f, newOutFormat)

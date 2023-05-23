@@ -1002,3 +1002,41 @@ Home
 	conf := b.H.Configs.Base
 	b.Assert(conf.IsKindEnabled("term"), qt.Equals, false)
 }
+
+// Issue #11000
+func TestConfigEmptyTOMLString(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+[mediaTypes]
+[mediaTypes."text/htaccess"]
+suffixes = ["htaccess"]
+[outputFormats]
+[outputFormats.htaccess]
+mediaType = "text/htaccess"
+baseName = ""
+isPlainText = false
+notAlternative = true
+-- content/_index.md --
+---
+outputs: ["html", "htaccess"]
+---
+-- layouts/index.html --
+HTML.
+-- layouts/_default/list.htaccess --
+HTACCESS.
+
+
+	
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/.htaccess", "HTACCESS")
+
+}
