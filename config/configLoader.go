@@ -157,7 +157,7 @@ func LoadConfigFromDir(sourceFs afero.Fs, configDir, environment string) (Provid
 			if err != nil {
 				// This will be used in error reporting, use the most specific value.
 				dirnames = []string{path}
-				return fmt.Errorf("failed to unmarshl config for path %q: %w", path, err)
+				return fmt.Errorf("failed to unmarshal config for path %q: %w", path, err)
 			}
 
 			var keyPath []string
