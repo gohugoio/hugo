@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
@@ -851,7 +850,7 @@ func (c *serverCommand) serve() error {
 			if err != nil {
 				return err
 			}
-			err = ioutil.WriteFile(readyFile, b, 0777)
+			err = os.WriteFile(readyFile, b, 0777)
 			if err != nil {
 				return err
 			}
