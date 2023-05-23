@@ -23,6 +23,7 @@ relatedfuncs: []
 |              | *If one of the numbers is a float, the result is a float.*                  | `{{ div 6 4.0 }}` &rarr; `1.5`      |
 | `mod`        | Modulus of two integers.                                                    | `{{ mod 15 3 }}` &rarr; `0`         |
 | `modBool`    | Boolean of modulus of two integers. Evaluates to `true` if result equals 0. | `{{ modBool 15 3 }}` &rarr; `true`  |
+| `math.Abs`   | Returns the absolute value of the given number.                             | `{{ math.Abs -2.1 }}` &rarr; `2.1`  |
 | `math.Ceil`  | Returns the least integer value greater than or equal to the given number.  | `{{ math.Ceil 2.1 }}` &rarr; `3`    |
 | `math.Floor` | Returns the greatest integer value less than or equal to the given number.  | `{{ math.Floor 1.9 }}` &rarr; `1`   |
 | `math.Log`   | Returns the natural logarithm of the given number.                          | `{{ math.Log 42 }}` &rarr; `3.737`  |
