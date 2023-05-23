@@ -140,7 +140,7 @@ func (c *convertCommand) convertAndSavePage(p page.Page, site *hugolib.Site, tar
 
 	errMsg := fmt.Errorf("error processing file %q", p.File().Path())
 
-	site.Log.Infoln("ttempting to convert", p.File().Filename())
+	site.Log.Infoln("attempting to convert", p.File().Filename())
 
 	f := p.File()
 	file, err := f.FileInfo().Meta().Open()
