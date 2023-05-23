@@ -73,7 +73,7 @@ Only the obvious non-global options can be overridden per language. Examples of 
 
 {{< new-in "0.112.0" >}}
 
-In version `0.112.0` of Hugo we did a major we consolidated all configuration options, but also improved how the languages and their params gets merged with the main configuration. But while testing this on Hugo sites out there, we got some error reports, and reverted some of the changes in favour of deprecation warnings:
+In Hugo `v0.112.0` we consolidated all configuration options, and improved how the languages and their parameters are merged with the main configuration. But while testing this on Hugo sites out there, we received some error reports and reverted some of the changes in favor of deprecation warnings:
 
 1. `site.Language.Params` is deprecated. Use `site.Params` directly.
 1. Adding custom params to the top level language config is deprecated, add all of these below `[params]`, see `color` in the example below.
@@ -90,7 +90,7 @@ languageCode = "sv"
 color = "blue"
 ```
 
-In the example above, all the settings exept the `color` below `params` maps to predefined configuration options in Hguo for the site and its language, and should be accessed via the documented accessors:
+In the example above, all settings except `color` below `params` map to predefined configuration options in Hugo for the site and its language, and should be accessed via the documented accessors:
 
 ```
 {{ site.Title }}
