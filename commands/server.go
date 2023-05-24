@@ -546,9 +546,6 @@ func (c *serverCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 	c.doLiveReload = !c.disableLiveReload
 	c.fastRenderMode = !c.disableFastRender
 	c.showErrorInBrowser = c.doLiveReload && !c.disableBrowserError
-	if c.r.environment == "" {
-		c.r.environment = hugo.EnvironmentDevelopment
-	}
 
 	if c.fastRenderMode {
 		// For now, fast render mode only. It should, however, be fast enough
