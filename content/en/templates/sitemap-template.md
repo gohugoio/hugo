@@ -27,7 +27,7 @@ With a multilingual project, Hugo generates:
 
 Set the default values for [change frequency] and [priority], and the name of the generated file, in your site configuration.
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 [sitemap]
   changefreq = 'monthly'
   filename = 'sitemap.xml'
@@ -72,7 +72,7 @@ To override the built-in sitemapindex.xml template, create a new file in either 
 
 You may disable sitemap generation in your site configuration:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 disableKinds = ['sitemap']
 {{</ code-toggle >}}
 

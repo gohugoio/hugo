@@ -31,12 +31,12 @@ Hugo ships with internal templates supporting Google Analytics, both [Google Ana
 Provide your tracking ID in your configuration file:
 
 **Google Analytics 4 (gtag.js)**
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 googleAnalytics = "G-MEASUREMENT_ID"
 {{</ code-toggle >}}
 
 **Google Universal Analytics (analytics.js)**
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 googleAnalytics = "UA-PROPERTY_ID"
 {{</ code-toggle >}}
 
@@ -64,7 +64,7 @@ Hugo also ships with an internal template for [Disqus comments][disqus], a popul
 
 To use Hugo's Disqus template, you first need to set a single configuration value:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 disqusShortname = "your-disqus-shortname"
 {{</ code-toggle >}}
 
@@ -127,7 +127,7 @@ This format is used for Facebook and some other sites.
 
 Hugo's Open Graph template is configured using a mix of configuration variables and [front-matter](/content-management/front-matter/) on individual pages.
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 [params]
   title = "My cool site"
   images = ["site-feature-image.jpg"]
@@ -177,7 +177,7 @@ metadata used to attach rich media to Tweets linking to your site.
 
 Hugo's Twitter Card template is configured using a mix of configuration variables and [front-matter](/content-management/front-matter/) on individual pages.
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 [params]
   images = ["site-feature-image.jpg"]
   description = "Text about my cool site"
@@ -197,7 +197,7 @@ Hugo uses the page title and description for the card's title and description fi
 
 The `.Site.Social.twitter` variable is exposed from the config as the value for `twitter:site`.
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 [social]
   twitter = "GoHugoIO"
 {{</ code-toggle >}}

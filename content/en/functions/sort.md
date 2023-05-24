@@ -18,7 +18,7 @@ The `ORDER` may be either `asc` (ascending) or `desc` (descending). The default 
 
 The examples below assume this site configuration:
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 [params]
 grades = ['b','a','c']
 {{< /code-toggle >}}
@@ -48,7 +48,7 @@ In the example above, `value` is the `KEY` representing the value of the slice e
 
 The examples below assume this site configuration:
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 [params.authors.a]
 firstName = "Marius"
 lastName  = "Pontmercy"

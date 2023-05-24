@@ -82,7 +82,7 @@ Hugo natively supports taxonomies.
 
 Without adding a single line to your [site config][config] file, Hugo will automatically create taxonomies for `tags` and `categories`. That would be the same as manually [configuring your taxonomies](#configure-taxonomies) as below:
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 [taxonomies]
   tag = "tags"
   category = "categories"
@@ -90,7 +90,7 @@ Without adding a single line to your [site config][config] file, Hugo will autom
 
 If you do not want Hugo to create any taxonomies, set `disableKinds` in your [site config][config] to the following:
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 disableKinds = ["taxonomy","term"]
 {{</ code-toggle >}}
 
@@ -113,7 +113,7 @@ Custom taxonomies other than the [defaults](#default-taxonomies) must be defined
 While adding custom taxonomies, you need to put in the default taxonomies too, _if you want to keep them_.
 {{% /note %}}
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 [taxonomies]
   tag = "tags"
   category = "categories"
@@ -124,7 +124,7 @@ While adding custom taxonomies, you need to put in the default taxonomies too, _
 
 If you want to have just the default `tags` taxonomy, and remove the `categories` taxonomy for your site, you can do so by modifying the `taxonomies` value in your [site config][config].
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 [taxonomies]
   tag = "tags"
 {{</ code-toggle >}}

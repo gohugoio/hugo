@@ -29,7 +29,7 @@ example/
 ├── public/
 ├── static/
 ├── themes/
-└── config.toml
+└── hugo.toml
 ```
 
 ## Directory Structure Explained
@@ -46,7 +46,7 @@ By default, Hugo will create new content files with at least `date`, `title` (in
 [`config`](/getting-started/configuration/)
 : Hugo ships with a large number of [configuration directives].
 The [config directory](/getting-started/configuration/#configuration-directory) is where those directives are stored as JSON, YAML, or TOML files. Every root setting object can stand as its own file and structured by environments.
-Projects with minimal settings and no need for environment awareness can use a single `config.toml` file at its root.
+Projects with minimal settings and no need for environment awareness can use a single `hugo.toml` file at its root.
 
 Many sites may need little to no configuration, but Hugo ships with a large number of [configuration directives] for more granular directions on how you want Hugo to build your website. Note: config directory is not created by default.
 
