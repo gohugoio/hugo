@@ -389,8 +389,8 @@ func (s *siteRefLinker) refLink(ref string, source any, relative bool, outputFor
 	return link, nil
 }
 
-func (s *Site) running() bool {
-	return s.h != nil && s.h.Configs.Base.Internal.Running
+func (s *Site) watching() bool {
+	return s.h != nil && s.h.Configs.Base.Internal.Watch
 }
 
 type whatChanged struct {
@@ -1064,7 +1064,7 @@ func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath s
 			pd.AbsURLPath = s.absURLPath(targetPath)
 		}
 
-		if s.running() && s.conf.Internal.Watch && !s.conf.Internal.DisableLiveReload {
+		if s.watching() && s.conf.Internal.Watch && !s.conf.Internal.DisableLiveReload {
 			pd.LiveReloadBaseURL = s.Conf.BaseURLLiveReload().URL()
 		}
 

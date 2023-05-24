@@ -339,7 +339,7 @@ func (r *rootCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args 
 
 	b := newHugoBuilder(r, nil)
 
-	if err := b.loadConfig(cd, true); err != nil {
+	if err := b.loadConfig(cd, false); err != nil {
 		return err
 	}
 

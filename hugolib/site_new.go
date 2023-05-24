@@ -280,7 +280,7 @@ func newHugoSitesNew(cfg deps.DepsCfg, d *deps.Deps, sites []*Site) (*HugoSites,
 	}
 
 	// Only needed in server mode.
-	if cfg.Configs.Base.Internal.Running {
+	if cfg.Configs.Base.Internal.Watch {
 		h.ContentChanges = &contentChangeMap{
 			pathSpec:      h.PathSpec,
 			symContent:    make(map[string]map[string]bool),

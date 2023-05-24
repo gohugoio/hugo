@@ -583,7 +583,7 @@ var defaultRenderStringOpts = renderStringOpts{
 }
 
 func (p *pageState) addDependency(dep identity.Provider) {
-	if !p.s.running() || p.pageOutput.cp == nil {
+	if !p.s.watching() || p.pageOutput.cp == nil {
 		return
 	}
 	p.pageOutput.cp.dependencyTracker.Add(dep)

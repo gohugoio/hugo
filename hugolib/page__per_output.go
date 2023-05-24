@@ -76,7 +76,7 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 	parent := p.init
 
 	var dependencyTracker identity.Manager
-	if p.s.running() {
+	if p.s.watching() {
 		dependencyTracker = identity.NewManager(pageContentOutputDependenciesID)
 	}
 

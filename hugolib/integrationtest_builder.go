@@ -327,6 +327,7 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 		if s.Cfg.Running {
 			flags.Set("internal", maps.Params{
 				"running": s.Cfg.Running,
+				"watch":   s.Cfg.Running,
 			})
 		}
 
