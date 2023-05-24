@@ -20,9 +20,8 @@ hugo new site [path] [flags]
 ### Options
 
 ```
-      --force           init inside non-empty directory
-  -f, --format string   config file format (default "toml")
-  -h, --help            help for site
+      --force   init inside non-empty directory
+  -h, --help    help for site
 ```
 
 ### Options inherited from parent commands
@@ -34,6 +33,7 @@ hugo new site [path] [flags]
       --debug                      debug output
   -d, --destination string         filesystem path to write files to
   -e, --environment string         build environment
+      --format string              preferred file format (toml, yaml or json) (default "toml")
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --log                        enable Logging
       --logFile string             log File path (if set, logging enabled automatically)
