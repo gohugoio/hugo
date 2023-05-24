@@ -185,7 +185,7 @@ func (h *HugoSites) initRebuild(config *BuildCfg) error {
 		return errors.New("rebuild does not support 'ResetState'")
 	}
 
-	if !h.Configs.Base.Internal.Running {
+	if !h.Configs.Base.Internal.Watch {
 		return errors.New("rebuild called when not in watch mode")
 	}
 

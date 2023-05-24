@@ -486,6 +486,7 @@ func (s *sitesBuilder) LoadConfig() error {
 	flags := config.New()
 	flags.Set("internal", map[string]any{
 		"running": s.running,
+		"watch":   s.running,
 	})
 
 	if s.workingDir != "" {
