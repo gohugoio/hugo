@@ -40,7 +40,9 @@ var defaultTdewolffConfig = TdewolffConfig{
 		Precision: 0,
 		KeepCSS2:  true,
 	},
-	JS:   js.Minifier{},
+	JS: js.Minifier{
+		Version: 2022,
+	},
 	JSON: json.Minifier{},
 	SVG: svg.Minifier{
 		KeepComments: false,
