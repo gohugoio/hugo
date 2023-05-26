@@ -1040,3 +1040,60 @@ HTACCESS.
 	b.AssertFileContent("public/.htaccess", "HTACCESS")
 
 }
+
+func TestBaseSignalChildParent(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- content/_index.md --
+-- content/p1.md --
+-- layouts/_default/baseof.html --
+{{ block "_baseof_start" . }}{{ end }}
+<html>
+<head>
+{{/* Lots of imports of SEO partials, stylesheets, JS and whatnot. */}}
+</head>
+<body>
+{{ $flow := .Store.Get "_baseof_flow" | default "default" }}
+{{ if eq $flow "default" }}
+	<div>
+	<h1>Default flow</h1>
+	{{ block "main" . }}{{ end }}
+	</div>
+{{ else if eq $flow "foo" }}
+	<div>
+		<h1>Foo flow</h1>
+		{{ block "main" . }}{{ end }}
+	</div>
+{{ else if eq $flow "bar" }}
+	<div>
+		<h1>Bar flow</h1>
+		{{ block "main" . }}{{ end }}
+	</div>
+{{ end }}
+</body>
+</html>
+-- layouts/index.html --
+{{ define "_baseof_start" }}{{ .Page.Store.Set "_baseof_flow" "foo" }}{{ end }}
+{{ define "main" }}Main Home{{ end }}
+-- layouts/_default/single.html --
+{{ define "_baseof_start" }}{{ .Page.Store.Set "_baseof_flow" "bar" }}{{ end }}
+{{ define "main" }}Main Single{{ end }}
+
+
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `
+Foo flow
+Main Home	
+	
+`)
+
+}
