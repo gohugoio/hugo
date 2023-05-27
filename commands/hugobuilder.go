@@ -1019,6 +1019,10 @@ func (c *hugoBuilder) loadConfig(cd *simplecobra.Commandeer, running bool) error
 		return err
 	}
 
+	if len(conf.configs.LoadingInfo.ConfigFiles) == 0 {
+		return errors.New("Unable to locate config file or config directory. Perhaps you need to create a new site.\nRun `hugo help new` for details.")
+	}
+
 	c.conf = conf
 	if c.onConfigLoaded != nil {
 		if err := c.onConfigLoaded(false); err != nil {

@@ -11,6 +11,8 @@ grep '<body>Home' newpublic/index.html
 hugo --quiet
 ! stdout .
 
+-- hugo.toml --
+title = "Hugo Test"
 -- myconfig.toml --
 baseURL = "http://example.org/"
 disableKinds = ["RSS", "sitemap", "robotsTXT", "404", "taxonomy", "term"]
