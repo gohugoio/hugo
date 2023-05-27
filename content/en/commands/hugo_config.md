@@ -18,7 +18,8 @@ hugo config [command] [flags]
 ### Options
 
 ```
-  -h, --help   help for config
+      --format string   preferred file format (toml, yaml or json) (default "toml")
+  -h, --help            help for config
 ```
 
 ### Options inherited from parent commands
