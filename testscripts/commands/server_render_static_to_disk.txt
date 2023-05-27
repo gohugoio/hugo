@@ -6,6 +6,7 @@ hugo server --renderStaticToDisk &
 waitServer
 
 httpget $HUGOTEST_BASEURL_0 'Title: Hugo Server Test' $HUGOTEST_BASEURL_0
+httpget ${HUGOTEST_BASEURL_0}mystatic.txt 'This is a static file.'
 
 ! exists public/index.html
 exists public/mystatic.txt
