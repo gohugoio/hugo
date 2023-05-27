@@ -288,7 +288,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 					}
 					var fs afero.Fs
 					f.c.withConf(func(conf *commonConfig) {
-						fs = conf.fs.PublishDir
+						fs = conf.fs.PublishDirServer
 					})
 
 					fi, err := fs.Stat(path)
