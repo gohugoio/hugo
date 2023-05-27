@@ -20,9 +20,8 @@ hugo new site [path] [flags]
 ### Options
 
 ```
-      --force           init inside non-empty directory
-  -f, --format string   config file format (default "toml")
-  -h, --help            help for site
+  -f, --force   init inside non-empty directory
+  -h, --help    help for site
 ```
 
 ### Options inherited from parent commands

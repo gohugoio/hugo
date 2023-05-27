@@ -27,6 +27,7 @@ hugo new content [path] [flags]
 ```
       --editor string   edit new content with this editor, if provided
   -f, --force           overwrite file if it already exists
+      --format string   preferred file format (toml, yaml or json) (default "toml")
   -h, --help            help for content
   -k, --kind string     content type to create
 ```
