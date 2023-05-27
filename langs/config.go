@@ -24,6 +24,9 @@ type LanguageConfig struct {
 	// The language name, e.g. "English".
 	LanguageName string
 
+	// The language code, e.g. "en-US".
+	LanguageCode string
+
 	// The language title. When set, this will
 	// override site.Title for this language.
 	Title string

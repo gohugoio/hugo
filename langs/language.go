@@ -102,6 +102,13 @@ func (l *Language) Params() maps.Params {
 	return l.params
 }
 
+func (l *Language) LanguageCode() string {
+	if l.LanguageConfig.LanguageCode != "" {
+		return l.LanguageConfig.LanguageCode
+	}
+	return l.Lang
+}
+
 func (l *Language) loadLocation(tzStr string) error {
 	location, err := time.LoadLocation(tzStr)
 	if err != nil {
