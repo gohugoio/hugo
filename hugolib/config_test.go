@@ -824,6 +824,7 @@ baseURL = "https://example.com"
 disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT"]
 [languages]
 [languages.en]
+languageCode = "en-US"
 title = "English Title"
 [languages.en.params]
 myparam = "enParamValue"
@@ -840,6 +841,7 @@ title: "My English Section"
 title: "My Swedish Section"
 ---
 -- layouts/index.html --
+LanguageCode: {{ eq site.LanguageCode site.Language.LanguageCode }}|{{ site.Language.LanguageCode }}|
 {{ range $i, $e := (slice site .Site) }}
 {{ $i }}|AllPages: {{ len .AllPages }}|Sections: {{ if .Sections }}true{{ end }}| Author: {{ .Authors }}|BuildDrafts: {{ .BuildDrafts }}|IsMultiLingual: {{ .IsMultiLingual }}|Param: {{ .Language.Params.myparam }}|Language string: {{ .Language }}|Languages: {{ .Languages }}
 {{ end }}
@@ -863,10 +865,12 @@ Sections: true|
 Param: enParamValue	
 Param: enParamValue	
 IsMultiLingual: true
+LanguageCode: true|en-US|
 `)
 
 	b.AssertFileContent("public/sv/index.html", `
-Param: svParamValue	
+Param: svParamValue
+LanguageCode: true|sv|
 
 `)
 

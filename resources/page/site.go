@@ -65,6 +65,7 @@ type Site interface {
 	Title() string
 
 	// Returns the configured language code for this Site.
+	// Deprecated: Use .Language.LanguageCode instead.
 	LanguageCode() string
 
 	// Returns the configured copyright information for this Site.

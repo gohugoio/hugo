@@ -361,10 +361,7 @@ func (s *Site) Config() page.SiteConfig {
 }
 
 func (s *Site) LanguageCode() string {
-	if s.conf.LanguageCode != "" {
-		return s.conf.LanguageCode
-	}
-	return s.language.Lang
+	return s.Language().LanguageCode()
 }
 
 // Returns all Sites for all languages.
