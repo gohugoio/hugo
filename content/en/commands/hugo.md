@@ -39,6 +39,7 @@ hugo [flags]
       --enableGitInfo              add Git revision, date, author, and CODEOWNERS info to the pages
   -e, --environment string         build environment
       --forceSyncStatic            copy all files when static is changed.
+      --format string              preferred file format (toml, yaml or json) (default "toml")
       --gc                         enable to run some cleanup tasks (remove unused cache files) after the build
   -h, --help                       help for hugo
       --ignoreCache                ignores the cache directory
@@ -82,5 +83,5 @@ hugo [flags]
 * [hugo mod](/commands/hugo_mod/)	 - Various Hugo Modules helpers.
 * [hugo new](/commands/hugo_new/)	 - Create new content for your site
 * [hugo server](/commands/hugo_server/)	 - A high performance webserver
-* [hugo version](/commands/hugo_version/)	 - Print the version number of Hugo
+* [hugo version](/commands/hugo_version/)	 - Print Hugo version and environment info
 

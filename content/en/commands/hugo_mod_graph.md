@@ -14,13 +14,14 @@ Note that for vendored modules, that is the version listed and not the one from 
 
 
 ```
-hugo mod graph [flags]
+hugo mod graph [flags] [args]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for graph
+      --clean   delete module cache for dependencies that fail verification
+  -h, --help    help for graph
 ```
 
 ### Options inherited from parent commands
@@ -30,7 +31,9 @@ hugo mod graph [flags]
       --config string              config file (default is hugo.yaml|json|toml)
       --configDir string           config dir (default "config")
       --debug                      debug output
+  -d, --destination string         filesystem path to write files to
   -e, --environment string         build environment
+      --format string              preferred file format (toml, yaml or json) (default "toml")
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --log                        enable Logging
       --logFile string             log File path (if set, logging enabled automatically)

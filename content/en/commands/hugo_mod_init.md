@@ -10,16 +10,16 @@ Initialize this project as a Hugo Module.
 ### Synopsis
 
 Initialize this project as a Hugo Module.
-It will try to guess the module path, but you may help by passing it as an argument, e.g:
-
-    hugo mod init github.com/gohugoio/testshortcodes
-
-Note that Hugo Modules supports multi-module projects, so you can initialize a Hugo Module
-inside a subfolder on GitHub, as one example.
-
+	It will try to guess the module path, but you may help by passing it as an argument, e.g:
+	
+		hugo mod init github.com/gohugoio/testshortcodes
+	
+	Note that Hugo Modules supports multi-module projects, so you can initialize a Hugo Module
+	inside a subfolder on GitHub, as one example.
+	
 
 ```
-hugo mod init [flags]
+hugo mod init [flags] [args]
 ```
 
 ### Options
@@ -35,7 +35,9 @@ hugo mod init [flags]
       --config string              config file (default is hugo.yaml|json|toml)
       --configDir string           config dir (default "config")
       --debug                      debug output
+  -d, --destination string         filesystem path to write files to
   -e, --environment string         build environment
+      --format string              preferred file format (toml, yaml or json) (default "toml")
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --log                        enable Logging
       --logFile string             log File path (if set, logging enabled automatically)

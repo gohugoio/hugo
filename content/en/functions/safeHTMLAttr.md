@@ -12,7 +12,7 @@ relatedfuncs: []
 
 Given a site configuration that contains this menu entry:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 [[menu.main]]
   name = "IRC"
   url = "irc://irc.freenode.net/#golang"

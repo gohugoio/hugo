@@ -13,6 +13,10 @@ Import your site from other web site generators like Jekyll.
 
 Import requires a subcommand, e.g. `hugo import jekyll jekyll_root_path target_path`.
 
+```
+hugo import [command] [flags]
+```
+
 ### Options
 
 ```
@@ -26,7 +30,9 @@ Import requires a subcommand, e.g. `hugo import jekyll jekyll_root_path target_p
       --config string              config file (default is hugo.yaml|json|toml)
       --configDir string           config dir (default "config")
       --debug                      debug output
+  -d, --destination string         filesystem path to write files to
   -e, --environment string         build environment
+      --format string              preferred file format (toml, yaml or json) (default "toml")
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --log                        enable Logging
       --logFile string             log File path (if set, logging enabled automatically)

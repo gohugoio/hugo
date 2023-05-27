@@ -1,35 +1,34 @@
 ---
-title: "hugo deploy"
-slug: hugo_deploy
-url: /commands/hugo_deploy/
+title: "hugo new content"
+slug: hugo_new_content
+url: /commands/hugo_new_content/
 ---
-## hugo deploy
+## hugo new content
 
-Deploy your site to a Cloud provider.
+Create new content for your site
 
 ### Synopsis
 
-Deploy your site to a Cloud provider.
-
-See https://gohugo.io/hosting-and-deployment/hugo-deploy/ for detailed
-documentation.
-
+Create a new content file and automatically set the date and title.
+		It will guess which kind of file to create based on the path provided.
+		
+		You can also specify the kind with `-k KIND`.
+		
+		If archetypes are provided in your theme or site, they will be used.
+		
+		Ensure you run this within the root directory of your site.
 
 ```
-hugo deploy [flags] [args]
+hugo new content [path] [flags]
 ```
 
 ### Options
 
 ```
-      --confirm          ask for confirmation before making changes to the target
-      --dryRun           dry run
-      --force            force upload of all files
-  -h, --help             help for deploy
-      --invalidateCDN    invalidate the CDN cache listed in the deployment target (default true)
-      --maxDeletes int   maximum # of files to delete, or -1 to disable (default 256)
-      --target string    target deployment from deployments section in config file; defaults to the first one
-      --workers int      number of workers to transfer files. defaults to 10 (default 10)
+      --editor string   edit new content with this editor, if provided
+  -f, --force           overwrite file if it already exists
+  -h, --help            help for content
+  -k, --kind string     content type to create
 ```
 
 ### Options inherited from parent commands
@@ -54,5 +53,5 @@ hugo deploy [flags] [args]
 
 ### SEE ALSO
 
-* [hugo](/commands/hugo/)	 - hugo builds your site
+* [hugo new](/commands/hugo_new/)	 - Create new content for your site
 

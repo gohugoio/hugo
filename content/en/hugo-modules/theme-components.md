@@ -17,13 +17,13 @@ This section contain information that may be outdated and is in the process of b
 {{% /note %}}
 Since Hugo `0.42` a project can configure a theme as a composite of as many theme components you need:
 
-{{< code-toggle file="config">}}
+{{< code-toggle file="hugo" >}}
 theme = ["my-shortcodes", "base-theme", "hyde"]
 {{< /code-toggle >}}
 
-You can even nest this, and have the theme component itself include theme components in its own `config.toml` (theme inheritance).[^1]
+You can even nest this, and have the theme component itself include theme components in its own `hugo.toml` (theme inheritance).[^1]
 
-The theme definition example above in `config.toml` creates a theme with 3 theme components with precedence from left to right.
+The theme definition example above in `hugo.toml` creates a theme with 3 theme components with precedence from left to right.
 
 For any given file, data entry, etc., Hugo will look first in the project and then in `my-shortcodes`, `base-theme`, and lastly `hyde`.
 
@@ -34,7 +34,7 @@ Hugo uses two different algorithms to merge the filesystems, depending on the fi
 
 The name used in the `theme` definition above must match a folder in `/your-site/themes`, e.g. `/your-site/themes/my-shortcodes`. There are plans to improve on this and get a URL scheme so this can be resolved automatically.
 
-Also note that a component that is part of a theme can have its own configuration file, e.g. `config.toml`. There are currently some restrictions to what a theme component can configure:
+Also note that a component that is part of a theme can have its own configuration file, e.g. `hugo.toml`. There are currently some restrictions to what a theme component can configure:
 
 * `params` (global and per language)
 * `menu` (global and per language)

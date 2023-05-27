@@ -368,7 +368,7 @@ You can also implement your shortcodes inline -- e.g. where you use them in the 
 
 This feature is disabled by default, but can be enabled in your site config:
 
-{{< code-toggle file="config">}}
+{{< code-toggle file="hugo" >}}
 enableInlineShortcodes = true
 {{< /code-toggle >}}
 

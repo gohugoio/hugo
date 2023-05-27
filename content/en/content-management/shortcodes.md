@@ -116,6 +116,9 @@ height
 width
 : `width` attribute of the image.
 
+loading
+: `loading` attribute of the image.
+
 attr
 : Image attribution text. Markdown within the value of `attr` will be rendered.
 
@@ -222,7 +225,7 @@ You must obtain an Access Token to use the `instagram` shortcode.
 
 If your site configuration is private:
 
-{{< code-toggle file=config copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 [services.instagram]
 accessToken = 'xxx'
 {{< /code-toggle >}}

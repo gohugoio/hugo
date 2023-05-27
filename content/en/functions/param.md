@@ -17,7 +17,7 @@ For example, to show a table of contents on every page, but allow authors to hid
 
 **Configuration**
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 [params]
 display_toc = true
 {{< /code-toggle >}}

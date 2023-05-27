@@ -11,9 +11,8 @@ Verify dependencies.
 
 Verify checks that the dependencies of the current module, which are stored in a local downloaded source cache, have not been modified since being downloaded.
 
-
 ```
-hugo mod verify [flags]
+hugo mod verify [flags] [args]
 ```
 
 ### Options
@@ -30,7 +29,9 @@ hugo mod verify [flags]
       --config string              config file (default is hugo.yaml|json|toml)
       --configDir string           config dir (default "config")
       --debug                      debug output
+  -d, --destination string         filesystem path to write files to
   -e, --environment string         build environment
+      --format string              preferred file format (toml, yaml or json) (default "toml")
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --log                        enable Logging
       --logFile string             log File path (if set, logging enabled automatically)

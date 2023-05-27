@@ -10,11 +10,11 @@ hugo import from Jekyll
 ### Synopsis
 
 hugo import from Jekyll.
-
+		
 Import from Jekyll requires two paths, e.g. `hugo import jekyll jekyll_root_path target_path`.
 
 ```
-hugo import jekyll [flags]
+hugo import jekyll [flags] [args]
 ```
 
 ### Options
@@ -31,7 +31,9 @@ hugo import jekyll [flags]
       --config string              config file (default is hugo.yaml|json|toml)
       --configDir string           config dir (default "config")
       --debug                      debug output
+  -d, --destination string         filesystem path to write files to
   -e, --environment string         build environment
+      --format string              preferred file format (toml, yaml or json) (default "toml")
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --log                        enable Logging
       --logFile string             log File path (if set, logging enabled automatically)

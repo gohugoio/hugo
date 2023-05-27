@@ -66,7 +66,7 @@ We improved and simplified this feature in Hugo 0.111.0. Before this we had 3 di
 
 Hugo can index the headings in your content and use this to find related content. You can enable this by adding a index of type `fragments` to your `related` configuration:
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 [related]
 threshold    = 20
 includeNewer = true
@@ -113,7 +113,7 @@ Hugo provides a sensible default configuration of Related Content, but you can f
 
 Without any `related` configuration set on the project, Hugo's Related Content methods will use the following.
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 related:
   threshold: 80
   includeNewer: false

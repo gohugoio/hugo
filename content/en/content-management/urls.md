@@ -110,7 +110,7 @@ content/
 
 Create a date-based hierarchy, recursively, for regular pages within the `posts` section:
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 [permalinks]
   posts = '/posts/:year/:month/:title/'
 {{< /code-toggle >}}
@@ -133,7 +133,7 @@ public/
 
 To create a date-based hierarchy for regular pages in the content root:
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 [permalinks]
   '/' = '/:year/:month/:title/'
 {{< /code-toggle >}}
@@ -144,7 +144,7 @@ A URL pattern defined for the content root is not recursive.
 
 Use the same approach with taxonomies. For example, to omit the taxonomy segment of the URL:
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 [permalinks]
   'tags' = '/:title/'
 {{< /code-toggle >}}
@@ -198,7 +198,7 @@ For time-related values, you can also use the layout string components defined i
 
 [time package]: https://pkg.go.dev/time#pkg-constants
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 permalinks:
   posts: /:06/:1/:2/:title/
 {{< /code-toggle >}}
@@ -214,7 +214,7 @@ pretty|content/about.md|`https://example.org/about/`
 
 By default, Hugo produces pretty URLs. To generate ugly URLs, change your site configuration:
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 uglyURLs = true
 {{< /code-toggle >}}
 
@@ -241,7 +241,7 @@ This is an imperfect, brute force approach that can affect content as well as HT
 
 To enable:
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 canonifyURLs = true
 {{< /code-toggle >}}
 
@@ -264,7 +264,7 @@ This is an imperfect, brute force approach that can affect content as well as HT
 
 To enable:
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 relativeURLs = true
 {{< /code-toggle >}}
 
