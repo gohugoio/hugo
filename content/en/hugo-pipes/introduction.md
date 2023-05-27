@@ -124,9 +124,18 @@ Remote resources fetched with `resources.GetRemote` will be cached on disk. See 
 `resources.Copy` allows you to copy almost any Hugo `Resource` (the one exception is the `Page`), possibly most useful for renaming things:
 
 ```go-html-template
-{{ $resized := $image.Resize "400x400" |  resources.Copy "images/mynewname.jpg" }}
-<img src="{{ $resized.RelPermalink }}">
+{{ with resources.Get "img/a.jpg" }}
+  {{ with .Resize "300x" }}
+    {{ with resources.Copy "img/a-new.jpg" . }}
+      <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
+    {{ end }}
+  {{ end }}
+{{ end }}
 ```
+
+{{% note %}}
+The target path must be different than the source path, as shown in the example above. See GitHub issue [#10412](https://github.com/gohugoio/hugo/issues/10412).
+{{% /note %}}
 
 ## Asset directory
 

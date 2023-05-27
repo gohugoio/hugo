@@ -225,7 +225,7 @@ You must obtain an Access Token to use the `instagram` shortcode.
 
 If your site configuration is private:
 
-{{< code-toggle file=config copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 [services.instagram]
 accessToken = 'xxx'
 {{< /code-toggle >}}

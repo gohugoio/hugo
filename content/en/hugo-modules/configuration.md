@@ -13,7 +13,7 @@ toc: true
 
 ## Module Config: Top level
 
-{{< code-toggle file="config">}}
+{{< code-toggle file="hugo" >}}
 [module]
 noVendor = ""
 proxy = "direct"
@@ -56,7 +56,7 @@ env HUGO_MODULE_PROXY=https://proxy.example.org hugo
 
 If your module requires a particular version of Hugo to work, you can indicate that in the `module` section and the user will be warned if using a too old/new version.
 
-{{< code-toggle file="config">}}
+{{< code-toggle file="hugo" >}}
 [module]
 [module.hugoVersion]
   min = ""
@@ -78,7 +78,7 @@ extended
 
 ## Module Config: imports
 
-{{< code-toggle file="config">}}
+{{< code-toggle file="hugo" >}}
 [module]
 [[module.imports]]
   path = "github.com/gohugoio/hugoTestModules1_linux/modh1_2_1v"
@@ -93,7 +93,7 @@ path
 : Can be either a valid Go Module module path, e.g. `github.com/gohugoio/myShortcodes`, or the directory name for the module as stored in your themes folder.
 
 ignoreConfig
-: If enabled, any module configuration file, e.g. `config.toml`, will not be loaded. Note that this will also stop the loading of any transitive module dependencies.
+: If enabled, any module configuration file, e.g. `hugo.toml`, will not be loaded. Note that this will also stop the loading of any transitive module dependencies.
 
 ignoreImports
 : If enabled, module imports will not be followed.
@@ -120,7 +120,7 @@ When you add a mount, the default mount for the concerned target root is ignored
 {{% /note %}}
 
 **Default mounts**
-{{< code-toggle file="config">}}
+{{< code-toggle file="hugo" >}}
 [module]
 [[module.mounts]]
     source="content"
@@ -165,7 +165,7 @@ excludeFiles (string or slice)
 : One or more glob patterns matching files to exclude.
 
 **Example**
-{{< code-toggle file="config">}}
+{{< code-toggle file="hugo" >}}
 [module]
 [[module.mounts]]
     source="content"

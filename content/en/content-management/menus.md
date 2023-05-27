@@ -36,7 +36,7 @@ Although you can use these methods in combination when defining a menu, the menu
 
 To automatically define menu entries for each top-level section of your site, enable the section pages menu in your site configuration.
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 sectionPagesMenu = "main"
 {{< /code-toggle >}}
 
@@ -111,7 +111,7 @@ Access the entry with `site.Menus.main` in your templates. See [menu templates] 
 
 To define entries for the "main" menu:
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 [[menu.main]]
 name = 'Home'
 pageRef = '/'
@@ -132,7 +132,7 @@ This creates a menu structure that you can access with `site.Menus.main` in your
 
 To define entries for the "footer" menu:
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 [[menu.footer]]
 name = 'Terms'
 pageRef = '/terms'
@@ -177,7 +177,7 @@ url
 
 This nested menu demonstrates some of the available properties:
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 [[menu.main]]
 name = 'Products'
 pageRef = '/products'

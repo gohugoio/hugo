@@ -14,9 +14,9 @@ relatedfuncs: []
 
 Without `safeURL`, only the URI schemes `http:`, `https:` and `mailto:` are considered safe by Go templates. If any other URI schemes (e.g., `irc:` and `javascript:`) are detected, the whole URL will be replaced with `#ZgotmplZ`. This is to "defang" any potential attack in the URL by rendering it useless.
 
-The following examples use a [site `config.toml`][configuration] with the following [menu entry][menus]:
+The following examples use a [site `hugo.toml`][configuration] with the following [menu entry][menus]:
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 [[menu.main]]
 name = "IRC: #golang at freenode"
 url = "irc://irc.freenode.net/#golang"

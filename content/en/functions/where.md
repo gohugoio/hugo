@@ -158,7 +158,7 @@ will default to the *section with the most pages*.
 
 The user can override the default:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 [params]
   mainSections = ["blog", "docs"]
 {{< /code-toggle >}}

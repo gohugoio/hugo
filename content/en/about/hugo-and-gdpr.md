@@ -27,9 +27,9 @@ toc: true
 
 ## All Privacy Settings
 
-Below are all privacy settings and their default value. These settings need to be put in your site config (e.g. `config.toml`).
+Below are all privacy settings and their default value. These settings need to be put in your site config (e.g. `hugo.toml`).
 
- {{< code-toggle file="config">}}
+{{< code-toggle file="hugo" >}}
 [privacy]
 [privacy.disqus]
 disable = false
@@ -58,7 +58,7 @@ privacyEnhanced = false
 
 An example Privacy Config that disables all the relevant services in Hugo. With this configuration, the other settings will not matter.
 
- {{< code-toggle file="config">}}
+ {{< code-toggle file="hugo" >}}
 [privacy]
 [privacy.disqus]
 disable = true
@@ -98,7 +98,7 @@ simple
 
 **Note:** If you use the _simple mode_ for Instagram and a site styled with Bootstrap 4, you may want to disable the inline styles provided by Hugo:
 
- {{< code-toggle file="config">}}
+ {{< code-toggle file="hugo" >}}
 [services]
 [services.instagram]
 disableInlineCSS = true
@@ -114,7 +114,7 @@ simple
 
 **Note:** If you use the _simple mode_ for Twitter, you may want to disable the inline styles provided by Hugo:
 
- {{< code-toggle file="config">}}
+ {{< code-toggle file="hugo" >}}
 [services]
 [services.twitter]
 disableInlineCSS = true

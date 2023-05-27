@@ -12,9 +12,9 @@ relatedfuncs: []
 
 It should not be used for HTML from a third-party, or HTML with unclosed tags or comments.
 
-Given a site-wide [`config.toml`][config] with the following `copyright` value:
+Given a site-wide [`hugo.toml`][config] with the following `copyright` value:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 copyright = "© 2015 Jane Doe.  <a href=\"https://creativecommons.org/licenses/by/4.0/\">Some rights reserved</a>."
 {{< /code-toggle >}}
 

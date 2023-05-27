@@ -384,7 +384,7 @@ Note the self-closing shortcode syntax above. You may call the `imgproc` shortco
 
 Define an `imaging` section in your site configuration to set the default [image processing options](#image-processing-options).
 
-{{< code-toggle file="config" copy=true >}}
+{{< code-toggle file="hugo" copy=true >}}
 [imaging]
 resampleFilter = "Box"
 quality = 75
@@ -412,7 +412,7 @@ resampleFilter
 
 Define an `imaging.exif` section in your site configuration to control the availability of Exif data.
 
-{{< code-toggle file="config" copy=true >}}
+{{< code-toggle file="hugo" copy=true >}}
 [imaging.exif]
 includeFields = ""
 excludeFields = ""
