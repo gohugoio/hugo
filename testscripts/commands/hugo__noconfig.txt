@@ -1,0 +1,4 @@
+
+! hugo
+
+stderr 'Unable to locate config file or config directory'
