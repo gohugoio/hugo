@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -39,6 +40,8 @@ func newConfigCommand() *configCommand {
 
 type configCommand struct {
 	r *rootCommand
+
+	format string
 
 	commands []simplecobra.Commander
 }
@@ -67,7 +70,7 @@ func (c *configCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 		return err
 	}
 
-	format := strings.ToLower(c.r.format)
+	format := strings.ToLower(c.format)
 
 	switch format {
 	case "json":
@@ -83,6 +86,8 @@ func (c *configCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 			return parser.InterfaceToConfig(m, metadecoders.YAML, os.Stdout)
 		case "toml":
 			return parser.InterfaceToConfig(m, metadecoders.TOML, os.Stdout)
+		default:
+			return fmt.Errorf("unsupported format: %q", format)
 		}
 	}
 
@@ -93,6 +98,8 @@ func (c *configCommand) Init(cd *simplecobra.Commandeer) error {
 	cmd := cd.CobraCommand
 	cmd.Short = "Print the site configuration"
 	cmd.Long = `Print the site configuration, both default and custom settings.`
+	cmd.Flags().StringVar(&c.format, "format", "toml", "preferred file format (toml, yaml or json)")
+
 	return nil
 }
 

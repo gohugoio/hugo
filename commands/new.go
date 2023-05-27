@@ -36,6 +36,7 @@ func newNewCommand() *newCommand {
 	var (
 		force       bool
 		contentType string
+		format      string
 	)
 
 	var c *newCommand
@@ -67,6 +68,8 @@ func newNewCommand() *newCommand {
 					cmd.Flags().StringVarP(&contentType, "kind", "k", "", "content type to create")
 					cmd.Flags().String("editor", "", "edit new content with this editor, if provided")
 					cmd.Flags().BoolVarP(&force, "force", "f", false, "overwrite file if it already exists")
+					cmd.Flags().StringVar(&format, "format", "toml", "preferred file format (toml, yaml or json)")
+
 				},
 			},
 			&simpleCommand{
@@ -118,7 +121,7 @@ Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
 							return errors.New(createpath + " already exists and is not empty. See --force.")
 
 						case !isEmpty && force:
-							all := append(dirs, filepath.Join(createpath, "hugo."+r.format))
+							all := append(dirs, filepath.Join(createpath, "hugo."+format))
 							for _, path := range all {
 								if exists, _ := helpers.Exists(path, sourceFs); exists {
 									return errors.New(path + " already exists")
@@ -133,7 +136,7 @@ Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
 						}
 					}
 
-					c.newSiteCreateConfig(sourceFs, createpath, r.format)
+					c.newSiteCreateConfig(sourceFs, createpath, format)
 
 					// Create a default archetype file.
 					helpers.SafeWriteToDisk(filepath.Join(archeTypePath, "default.md"),
