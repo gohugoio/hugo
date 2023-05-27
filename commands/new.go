@@ -148,7 +148,7 @@ Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
 					return nil
 				},
 				withc: func(cmd *cobra.Command) {
-					cmd.Flags().BoolVar(&force, "force", false, "init inside non-empty directory")
+					cmd.Flags().BoolVarP(&force, "force", "f", false, "init inside non-empty directory")
 				},
 			},
 			&simpleCommand{

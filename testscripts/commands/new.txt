@@ -2,7 +2,7 @@
 
 hugo new site -h
 stdout 'Create a new site in the provided directory'
-hugo new site mysite
+hugo new site mysite -f
 stdout 'Congratulations! Your new Hugo site is created in'
 cd mysite
 checkfile hugo.toml
