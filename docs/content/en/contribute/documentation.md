@@ -128,7 +128,7 @@ fm
 #### Site configuration example
 
 ```text
-{{</* code-toggle file="config" */>}}
+{{</* code-toggle file="hugo" */>}}
 baseURL = 'https://example.org'
 languageCode = 'en-US'
 title = "Example Site"
@@ -137,7 +137,7 @@ title = "Example Site"
 
 Rendered:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 baseURL = 'https://example.org'
 languageCode = 'en-US'
 title = "Example Site"

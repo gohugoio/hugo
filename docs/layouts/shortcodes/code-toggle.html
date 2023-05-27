@@ -44,7 +44,7 @@ Renders syntax-highlighted configuration data in JSON, TOML, and YAML formats.
 {{- /* Render. */}}
 {{- $code := "" }}
 {{- with $config }}
-  {{- $file = $file | default "config" }}
+  {{- $file = $file | default "hugo" }}
   {{- $sections := (split . ".") }}
   {{- $configSection := index $.Site.Data.docs.config $sections }}
   {{- $code = dict $sections $configSection }}

@@ -76,7 +76,7 @@ The following is a list of page-level variables. Many of these will be defined i
 : the page's *kind*. Possible return values are `page`, `home`, `section`, `taxonomy`, or `term`. Note that there are also `RSS`, `sitemap`, `robotsTXT`, and `404` kinds, but these are only available during the rendering of each of these respective page's kind and therefore *not* available in any of the `Pages` collections.
 
 .Language
-: a language object that points to the language's definition in the site `config`. `.Language.Lang` gives you the language code.
+: a language object that points to the language's definition in the site configuration. `.Language.Lang` gives you the language code.
 
 .Lastmod
 : the date the content was last modified. `.Lastmod` pulls from the `lastmod` field in a content's front matter.
@@ -298,7 +298,7 @@ In Hugo, you can declare params in individual pages and globally for your entire
 {{ $.Param "header_image" }}
 ```
 
-The `.Param` method provides a way to resolve a single value according to it's definition in a page parameter (i.e. in the content's front matter) or a site parameter (i.e., in your `config`).
+The `.Param` method provides a way to resolve a single value according to it's definition in a page parameter (i.e. in the content's front matter) or a site parameter (i.e., in your site configuration).
 
 ### Access Nested Fields in Front Matter
 

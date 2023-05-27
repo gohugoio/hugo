@@ -100,7 +100,7 @@ All the methods below, e.g. `.Site.RegularPages` can also be reached via the glo
 
 The following `config.[yaml|toml|json]` defines a site-wide param for `description`:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 baseURL = "https://yoursite.example.com/"
 
 [params]

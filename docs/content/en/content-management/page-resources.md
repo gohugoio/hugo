@@ -78,7 +78,7 @@ MediaType.MainType
 : The main type of the resource's MIME type. For example, a file of MIME type `application/pdf` has for MainType `application`.
 
 MediaType.SubType
-: The subtype of the resource's MIME type. For example, a file of MIME type `application/pdf` has for SubType `pdf`. Note that this is not the same as the file extension - PowerPoint files have a subtype of `vnd.mspowerpoint`.
+: The subtype of the resource's MIME type. For example, a file of MIME type `application/pdf` has for SubType `pdf`. Note that this is not the same as the file extension. For example, Microsoft PowerPoint files (`.ppt`) have a subtype of `vnd.ms-powerpoint`.
 
 MediaType.Suffixes
 : A slice of possible suffixes for the resource's MIME type.

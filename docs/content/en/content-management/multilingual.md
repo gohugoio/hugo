@@ -21,7 +21,7 @@ Also See [Hugo Multilingual Part 1: Content translation].
 
 The following is an example of a site configuration for a multilingual Hugo project:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 defaultContentLanguage = "en"
 copyright = "Everything is mine"
 
@@ -73,10 +73,10 @@ Only the obvious non-global options can be overridden per language. Examples of 
 
 {{< new-in "0.112.0" >}}
 
-In version `0.112.0` of Hugo we did a major we consolidated all configuration options, but also improved how the languages and their params gets merged with the main configuration. But while testing this on Hugo sites out there, we got some error reports.
+In Hugo `v0.112.0` we consolidated all configuration options, and improved how the languages and their parameters are merged with the main configuration. But while testing this on Hugo sites out there, we received some error reports and reverted some of the changes in favor of deprecation warnings:
 
 1. `site.Language.Params` is deprecated. Use `site.Params` directly.
-1. The `params` sections on site and language is the only place to put custom user parameters, and `site.Params` will only contain these user defined parameters (see example below). 
+1. Adding custom params to the top level language config is deprecated, add all of these below `[params]`, see `color` in the example below.
 
 ```toml
 title = "My blog"
@@ -90,7 +90,7 @@ languageCode = "sv"
 color = "blue"
 ```
 
-In the example above, all the settings exept the `color` below `params` maps to predefined configuration options in Hguo for the site and its language, and should be accessed via the documented accessors:
+In the example above, all settings except `color` below `params` map to predefined configuration options in Hugo for the site and its language, and should be accessed via the documented accessors:
 
 ```
 {{ site.Title }}
@@ -102,7 +102,7 @@ In the example above, all the settings exept the `color` below `params` maps to 
 
 You can disable one or more languages. This can be useful when working on a new translation.
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 disableLanguages = ["fr", "ja"]
 {{< /code-toggle >}}
 
@@ -114,7 +114,7 @@ We kept this as a standalone setting to make it easier to set via [OS environmen
 HUGO_DISABLELANGUAGES="fr ja" hugo
 ```
 
-If you have already a list of disabled languages in `config.toml`, you can enable them in development like this:
+If you have already a list of disabled languages in `hugo.toml`, you can enable them in development like this:
 
 ```bash
 HUGO_DISABLELANGUAGES=" " hugo server
@@ -132,7 +132,7 @@ If a `baseURL` is set on the `language` level, then all languages must have one 
 
 Example:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 [languages]
 [languages.fr]
 baseURL = "https://example.fr"
@@ -194,7 +194,7 @@ If a file has no language code, it will be assigned the default language.
 
 This system uses different content directories for each of the languages. Each language's content directory is set using the `contentDir` param.
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 languages:
   en:
     weight: 10
@@ -400,7 +400,7 @@ In case you need to pass a custom data: (`(dict "Count" numeric_value_only)` is 
 
 The following localization examples assume your site's primary language is English, with translations to French and German.
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 defaultContentLanguage = 'en'
 
 [languages]
@@ -522,7 +522,7 @@ The `identifier` depends on how you define menu entries:
 
 For example, if you define menu entries in site configuration:
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 [[menu.main]]
   identifier = 'products'
   name = 'Products'
@@ -551,7 +551,7 @@ services = 'Leistungen'
 
 For example:
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 [languages.de]
 languageCode = 'de-DE'
 languageName = 'Deutsch'
