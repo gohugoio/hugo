@@ -98,7 +98,9 @@ See https://gohugo.io/content-management/multilingual/#changes-in-hugo-01120
 // Note that this is the same as the Site.Params, but we keep it here for legacy reasons.
 // Deprecated: Use the site.Params instead.
 func (l *Language) Params() maps.Params {
-	DeprecationFunc(".Language.Params", paramsDeprecationWarning, false)
+	// TODO(bep) Remove this for now as it created a little too much noise. Need to think about this.
+	// See https://github.com/gohugoio/hugo/issues/11025
+	//DeprecationFunc(".Language.Params", paramsDeprecationWarning, false)
 	return l.params
 }
 
