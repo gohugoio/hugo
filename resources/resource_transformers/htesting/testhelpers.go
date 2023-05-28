@@ -43,7 +43,7 @@ func NewTestResourceSpec() (*resources.Spec, error) {
 		return nil, err
 	}
 
-	spec, err := resources.NewSpec(s, nil, nil, nil, nil, nil)
+	spec, err := resources.NewSpec(s, nil, nil, nil, nil, nil, nil)
 	return spec, err
 }
 

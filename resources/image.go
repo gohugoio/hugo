@@ -126,7 +126,7 @@ func (i *imageResource) getExif() *exif.ExifInfo {
 			return enc.Encode(i.meta)
 		}
 
-		_, i.metaInitErr = i.getSpec().imageCache.fileCache.ReadOrCreate(key, read, create)
+		_, i.metaInitErr = i.getSpec().ImageCache.fileCache.ReadOrCreate(key, read, create)
 	})
 
 	if i.metaInitErr != nil {
@@ -296,7 +296,7 @@ const imageProcWorkers = 1
 var imageProcSem = make(chan bool, imageProcWorkers)
 
 func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src image.Image) (image.Image, error)) (images.ImageResource, error) {
-	img, err := i.getSpec().imageCache.getOrCreate(i, conf, func() (*imageResource, image.Image, error) {
+	img, err := i.getSpec().ImageCache.getOrCreate(i, conf, func() (*imageResource, image.Image, error) {
 		imageProcSem <- true
 		defer func() {
 			<-imageProcSem
