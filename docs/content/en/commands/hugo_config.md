@@ -18,8 +18,12 @@ hugo config [command] [flags]
 ### Options
 
 ```
-      --format string   preferred file format (toml, yaml or json) (default "toml")
-  -h, --help            help for config
+  -b, --baseURL string      hostname (and path) to the root, e.g. https://spf13.com/
+      --cacheDir string     filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
+  -c, --contentDir string   filesystem path to content directory
+      --format string       preferred file format (toml, yaml or json) (default "toml")
+  -h, --help                help for config
+  -t, --theme strings       themes to use (located in /themes/THEMENAME/)
 ```
 
 ### Options inherited from parent commands

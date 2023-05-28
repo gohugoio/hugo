@@ -14,7 +14,11 @@ hugo mod tidy [flags] [args]
 ### Options
 
 ```
-  -h, --help   help for tidy
+  -b, --baseURL string      hostname (and path) to the root, e.g. https://spf13.com/
+      --cacheDir string     filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
+  -c, --contentDir string   filesystem path to content directory
+  -h, --help                help for tidy
+  -t, --theme strings       themes to use (located in /themes/THEMENAME/)
 ```
 
 ### Options inherited from parent commands
