@@ -51,6 +51,7 @@ import (
 func NewSpec(
 	s *helpers.PathSpec,
 	common *SpecCommon, // may be nil
+	imageCache *ImageCache, // may be nil
 	incr identity.Incrementer,
 	logger loggers.Logger,
 	errorHandler herrors.ErrorSender,
@@ -90,11 +91,6 @@ func NewSpec(
 				PostProcessResources: make(map[string]postpub.PostPublishedResource),
 				JSConfigBuilder:      jsconfig.NewBuilder(),
 			},
-			imageCache: newImageCache(
-				fileCaches.ImageCache(),
-
-				s,
-			),
 			ResourceCache: &ResourceCache{
 				fileCache: fileCaches.AssetsCache(),
 				cache:     make(map[string]any),
@@ -103,11 +99,22 @@ func NewSpec(
 		}
 	}
 
+	if imageCache == nil {
+		imageCache = newImageCache(
+			fileCaches.ImageCache(),
+			s,
+		)
+	} else {
+		imageCache = imageCache.WithPathSpec(s)
+
+	}
+
 	rs := &Spec{
 		PathSpec:    s,
 		Logger:      logger,
 		ErrorSender: errorHandler,
 		imaging:     imaging,
+		ImageCache:  imageCache,
 		ExecHelper:  execHelper,
 
 		Permalinks: permalinks,
@@ -128,6 +135,8 @@ type Spec struct {
 
 	Permalinks page.PermalinkExpander
 
+	ImageCache *ImageCache
+
 	// Holds default filter settings etc.
 	imaging *images.ImageProcessor
 
@@ -139,7 +148,6 @@ type Spec struct {
 // The parts of Spec that's comoon for all sites.
 type SpecCommon struct {
 	incr          identity.Incrementer
-	imageCache    *imageCache
 	ResourceCache *ResourceCache
 	FileCaches    filecache.Caches
 
@@ -171,13 +179,13 @@ func (r *Spec) BuildConfig() config.BuildConfig {
 }
 
 func (r *Spec) CacheStats() string {
-	r.imageCache.mu.RLock()
-	defer r.imageCache.mu.RUnlock()
+	r.ImageCache.mu.RLock()
+	defer r.ImageCache.mu.RUnlock()
 
-	s := fmt.Sprintf("Cache entries: %d", len(r.imageCache.store))
+	s := fmt.Sprintf("Cache entries: %d", len(r.ImageCache.store))
 
 	count := 0
-	for k := range r.imageCache.store {
+	for k := range r.ImageCache.store {
 		if count > 5 {
 			break
 		}
@@ -189,12 +197,12 @@ func (r *Spec) CacheStats() string {
 }
 
 func (r *Spec) ClearCaches() {
-	r.imageCache.clear()
+	r.ImageCache.clear()
 	r.ResourceCache.clear()
 }
 
 func (r *Spec) DeleteBySubstring(s string) {
-	r.imageCache.deleteIfContains(s)
+	r.ImageCache.deleteIfContains(s)
 }
 
 func (s *Spec) String() string {

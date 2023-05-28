@@ -370,11 +370,14 @@ var commonTestScriptsParam = testscript.Params{
 }
 
 func testSetupFunc() func(env *testscript.Env) error {
+	sourceDir, _ := os.Getwd()
 	return func(env *testscript.Env) error {
 		var keyVals []string
 		keyVals = append(keyVals, "HUGO_TESTRUN", "true")
 		hugoCachedDir := filepath.Join(env.WorkDir, "hugocache")
 		keyVals = append(keyVals, "HUGO_CACHEDIR", hugoCachedDir)
+
+		keyVals = append(keyVals, "SOURCE", sourceDir)
 
 		goVersion := runtime.Version()
 		// Strip all but the major and minor version.

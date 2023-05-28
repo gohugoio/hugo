@@ -189,10 +189,13 @@ func (d *Deps) Init() error {
 	}
 
 	var common *resources.SpecCommon
+	var imageCache *resources.ImageCache
 	if d.ResourceSpec != nil {
 		common = d.ResourceSpec.SpecCommon
+		imageCache = d.ResourceSpec.ImageCache
 	}
-	resourceSpec, err := resources.NewSpec(d.PathSpec, common, d.BuildState, d.Log, d, d.ExecHelper)
+
+	resourceSpec, err := resources.NewSpec(d.PathSpec, common, imageCache, d.BuildState, d.Log, d, d.ExecHelper)
 	if err != nil {
 		return fmt.Errorf("failed to create resource spec: %w", err)
 	}
