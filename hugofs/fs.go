@@ -116,12 +116,8 @@ func newFs(source, destination afero.Fs, workingDir, publishDir string) *Fs {
 		panic("workingDir is too short")
 	}
 
+	// If this does not exist, it will be created later.
 	absPublishDir := paths.AbsPathify(workingDir, publishDir)
-
-	// Make sure we always have the /public folder ready to use.
-	if err := source.MkdirAll(absPublishDir, 0777); err != nil && !os.IsExist(err) {
-		panic(err)
-	}
 
 	pubFs := afero.NewBasePathFs(destination, absPublishDir)
 
