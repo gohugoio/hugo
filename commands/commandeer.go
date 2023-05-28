@@ -520,7 +520,6 @@ func applyLocalFlagsBuildConfig(cmd *cobra.Command, r *rootCommand) {
 	cmd.Flags().StringP("cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
 	_ = cmd.Flags().SetAnnotation("cacheDir", cobra.BashCompSubdirsInDir, []string{})
 	cmd.Flags().StringP("contentDir", "c", "", "filesystem path to content directory")
-	cmd.Flags().StringP("layoutDir", "l", "", "filesystem path to layout directory")
 	_ = cmd.Flags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
 
 }
@@ -534,6 +533,7 @@ func applyLocalFlagsBuild(cmd *cobra.Command, r *rootCommand) {
 	cmd.Flags().BoolP("buildExpired", "E", false, "include expired content")
 	cmd.Flags().BoolP("ignoreCache", "", false, "ignores the cache directory")
 	cmd.Flags().Bool("enableGitInfo", false, "add Git revision, date, author, and CODEOWNERS info to the pages")
+	cmd.Flags().StringP("layoutDir", "l", "", "filesystem path to layout directory")
 	cmd.Flags().BoolVar(&r.gc, "gc", false, "enable to run some cleanup tasks (remove unused cache files) after the build")
 	cmd.Flags().StringVar(&r.poll, "poll", "", "set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes")
 	cmd.Flags().BoolVar(&r.panicOnWarning, "panicOnWarning", false, "panic on first WARNING log")

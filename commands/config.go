@@ -95,16 +95,17 @@ func (c *configCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 }
 
 func (c *configCommand) Init(cd *simplecobra.Commandeer) error {
+	c.r = cd.Root.Command.(*rootCommand)
 	cmd := cd.CobraCommand
 	cmd.Short = "Print the site configuration"
 	cmd.Long = `Print the site configuration, both default and custom settings.`
 	cmd.Flags().StringVar(&c.format, "format", "toml", "preferred file format (toml, yaml or json)")
+	applyLocalFlagsBuildConfig(cmd, c.r)
 
 	return nil
 }
 
 func (c *configCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
-	c.r = cd.Root.Command.(*rootCommand)
 	return nil
 }
 
@@ -179,6 +180,7 @@ func (m *configModMounts) MarshalJSON() ([]byte, error) {
 }
 
 type configMountsCommand struct {
+	r         *rootCommand
 	configCmd *configCommand
 }
 
@@ -206,8 +208,10 @@ func (c *configMountsCommand) Run(ctx context.Context, cd *simplecobra.Commandee
 }
 
 func (c *configMountsCommand) Init(cd *simplecobra.Commandeer) error {
+	c.r = cd.Root.Command.(*rootCommand)
 	cmd := cd.CobraCommand
 	cmd.Short = "Print the configured file mounts"
+	applyLocalFlagsBuildConfig(cmd, c.r)
 	return nil
 }
 
