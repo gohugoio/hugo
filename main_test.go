@@ -132,6 +132,11 @@ var commonTestScriptsParam = testscript.Params{
 			if err != nil {
 				ts.Fatalf("%v", err)
 			}
+			if len(fis) == 0 {
+				// To simplify empty dir checks.
+				fmt.Fprintln(ts.Stdout(), "Empty dir")
+				return
+			}
 			for _, fi := range fis {
 				fmt.Fprintf(ts.Stdout(), "%s %04o %s %s\n", fi.Mode(), fi.Mode().Perm(), fi.ModTime().Format(time.RFC3339Nano), fi.Name())
 			}
