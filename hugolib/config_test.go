@@ -1044,3 +1044,25 @@ HTACCESS.
 	b.AssertFileContent("public/.htaccess", "HTACCESS")
 
 }
+
+func TestConfigLanguageCodeTopLevel(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+languageCode = "en-US"
+-- layouts/index.html --
+LanguageCode: {{ .Site.LanguageCode }}|{{ site.Language.LanguageCode }}|
+
+	
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", "LanguageCode: en-US|en-US|")
+
+}

@@ -241,8 +241,24 @@ var allDecoderSetups = map[string]decodeWeight{
 		key: "languages",
 		decode: func(d decodeWeight, p decodeConfig) error {
 			var err error
-			p.c.Languages, err = langs.DecodeConfig(p.p.GetStringMap(d.key))
-			return err
+			m := p.p.GetStringMap(d.key)
+			if len(m) == 1 {
+				// In v0.112.4 we moved this to the language config, but it's very commmon for mono language sites to have this at the top level.
+				var first maps.Params
+				for _, v := range m {
+					first = v.(maps.Params)
+					break
+				}
+				if _, found := first["languagecode"]; !found {
+					first["languagecode"] = p.p.GetString("languagecode")
+				}
+			}
+			p.c.Languages, err = langs.DecodeConfig(m)
+			if err != nil {
+				return err
+			}
+
+			return nil
 		},
 	},
 	"cascade": {
