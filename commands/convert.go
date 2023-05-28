@@ -45,7 +45,7 @@ to use JSON for the front matter.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					return c.convertContents(metadecoders.JSON)
 				},
-				withc: func(cmd *cobra.Command) {
+				withc: func(cmd *cobra.Command, r *rootCommand) {
 				},
 			},
 			&simpleCommand{
@@ -56,7 +56,7 @@ to use TOML for the front matter.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					return c.convertContents(metadecoders.TOML)
 				},
-				withc: func(cmd *cobra.Command) {
+				withc: func(cmd *cobra.Command, r *rootCommand) {
 				},
 			},
 			&simpleCommand{
@@ -67,7 +67,7 @@ to use YAML for the front matter.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					return c.convertContents(metadecoders.YAML)
 				},
-				withc: func(cmd *cobra.Command) {
+				withc: func(cmd *cobra.Command, r *rootCommand) {
 				},
 			},
 		},

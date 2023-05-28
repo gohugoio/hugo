@@ -509,7 +509,7 @@ of a second, you will be able to save and see your changes nearly instantly.`
 	cmd.Flags().String("meminterval", "100ms", "interval to poll memory usage (requires --memstats), valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".")
 
 	r := cd.Root.Command.(*rootCommand)
-	applyLocalBuildFlags(cmd, r)
+	applyLocalFlagsBuild(cmd, r)
 
 	return nil
 }

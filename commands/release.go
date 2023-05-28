@@ -42,7 +42,7 @@ func newReleaseCommand() simplecobra.Commander {
 
 			return rel.Run()
 		},
-		withc: func(cmd *cobra.Command) {
+		withc: func(cmd *cobra.Command, r *rootCommand) {
 			cmd.Hidden = true
 			cmd.PersistentFlags().BoolVarP(&skipPush, "skip-push", "", false, "skip pushing to remote")
 			cmd.PersistentFlags().BoolVarP(&try, "try", "", false, "no changes")

@@ -504,7 +504,7 @@ Complete documentation is available at https://gohugo.io/.`
 	_ = cmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
 
 	// Configure local flags
-	applyLocalBuildFlags(cmd, r)
+	applyLocalFlagsBuild(cmd, r)
 
 	// Set bash-completion.
 	// Each flag must first be defined before using the SetAnnotation() call.
@@ -513,17 +513,26 @@ Complete documentation is available at https://gohugo.io/.`
 	return nil
 }
 
-func applyLocalBuildFlags(cmd *cobra.Command, r *rootCommand) {
+// A sub set of the complete build flags. These flags are used by new and mod.
+func applyLocalFlagsBuildConfig(cmd *cobra.Command, r *rootCommand) {
+	cmd.Flags().StringSliceP("theme", "t", []string{}, "themes to use (located in /themes/THEMENAME/)")
+	cmd.Flags().StringVarP(&r.baseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. https://spf13.com/")
+	cmd.Flags().StringP("cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
+	_ = cmd.Flags().SetAnnotation("cacheDir", cobra.BashCompSubdirsInDir, []string{})
+	cmd.Flags().StringP("contentDir", "c", "", "filesystem path to content directory")
+	cmd.Flags().StringP("layoutDir", "l", "", "filesystem path to layout directory")
+	_ = cmd.Flags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
+
+}
+
+// Flags needed to do a build (used by hugo and hugo server commands)
+func applyLocalFlagsBuild(cmd *cobra.Command, r *rootCommand) {
+	applyLocalFlagsBuildConfig(cmd, r)
 	cmd.Flags().Bool("cleanDestinationDir", false, "remove files from destination not found in static directories")
 	cmd.Flags().BoolP("buildDrafts", "D", false, "include content marked as draft")
 	cmd.Flags().BoolP("buildFuture", "F", false, "include content with publishdate in the future")
 	cmd.Flags().BoolP("buildExpired", "E", false, "include expired content")
-	cmd.Flags().StringP("contentDir", "c", "", "filesystem path to content directory")
-	cmd.Flags().StringP("layoutDir", "l", "", "filesystem path to layout directory")
-	cmd.Flags().StringP("cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
 	cmd.Flags().BoolP("ignoreCache", "", false, "ignores the cache directory")
-	cmd.Flags().StringSliceP("theme", "t", []string{}, "themes to use (located in /themes/THEMENAME/)")
-	cmd.Flags().StringVarP(&r.baseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. https://spf13.com/")
 	cmd.Flags().Bool("enableGitInfo", false, "add Git revision, date, author, and CODEOWNERS info to the pages")
 	cmd.Flags().BoolVar(&r.gc, "gc", false, "enable to run some cleanup tasks (remove unused cache files) after the build")
 	cmd.Flags().StringVar(&r.poll, "poll", "", "set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes")
@@ -549,12 +558,8 @@ func applyLocalBuildFlags(cmd *cobra.Command, r *rootCommand) {
 	cmd.Flags().MarkHidden("profile-mutex")
 
 	cmd.Flags().StringSlice("disableKinds", []string{}, "disable different kind of pages (home, RSS etc.)")
-
 	cmd.Flags().Bool("minify", false, "minify any supported output format (HTML, XML etc.)")
-
-	_ = cmd.Flags().SetAnnotation("cacheDir", cobra.BashCompSubdirsInDir, []string{})
 	_ = cmd.Flags().SetAnnotation("destination", cobra.BashCompSubdirsInDir, []string{})
-	_ = cmd.Flags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
 
 }
 
@@ -569,7 +574,7 @@ type simpleCommand struct {
 	short string
 	long  string
 	run   func(ctx context.Context, cd *simplecobra.Commandeer, rootCmd *rootCommand, args []string) error
-	withc func(cmd *cobra.Command)
+	withc func(cmd *cobra.Command, r *rootCommand)
 	initc func(cd *simplecobra.Commandeer) error
 
 	commands []simplecobra.Commander
@@ -593,6 +598,7 @@ func (c *simpleCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 }
 
 func (c *simpleCommand) Init(cd *simplecobra.Commandeer) error {
+	c.rootCmd = cd.Root.Command.(*rootCommand)
 	cmd := cd.CobraCommand
 	cmd.Short = c.short
 	cmd.Long = c.long
@@ -600,13 +606,12 @@ func (c *simpleCommand) Init(cd *simplecobra.Commandeer) error {
 		cmd.Use = c.use
 	}
 	if c.withc != nil {
-		c.withc(cmd)
+		c.withc(cmd, c.rootCmd)
 	}
 	return nil
 }
 
 func (c *simpleCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
-	c.rootCmd = cd.Root.Command.(*rootCommand)
 	if c.initc != nil {
 		return c.initc(cd)
 	}
