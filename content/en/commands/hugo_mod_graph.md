@@ -20,8 +20,12 @@ hugo mod graph [flags] [args]
 ### Options
 
 ```
-      --clean   delete module cache for dependencies that fail verification
-  -h, --help    help for graph
+  -b, --baseURL string      hostname (and path) to the root, e.g. https://spf13.com/
+      --cacheDir string     filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
+      --clean               delete module cache for dependencies that fail verification
+  -c, --contentDir string   filesystem path to content directory
+  -h, --help                help for graph
+  -t, --theme strings       themes to use (located in /themes/THEMENAME/)
 ```
 
 ### Options inherited from parent commands
