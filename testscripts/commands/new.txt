@@ -25,3 +25,26 @@ stdout 'Create a new content file.'
 hugo new posts/my-first-post.md
 checkfile content/posts/my-first-post.md
 
+cd ..
+cd myexistingsite
+hugo new post/foo.md -t mytheme
+grep 'Dummy content' content/post/foo.md
+
+-- myexistingsite/hugo.toml --
+theme = "mytheme"
+-- myexistingsite/content/p1.md --
+---
+title: "P1"
+---
+-- myexistingsite/themes/mytheme/hugo.toml --
+-- myexistingsite/themes/mytheme/archetypes/post.md --
+---
+title: "{{ replace .Name "-" " " | title }}"
+date: {{ .Date }}
+draft: true
+---
+
+Dummy content.
+
+
+

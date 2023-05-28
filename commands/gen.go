@@ -70,7 +70,7 @@ See https://xyproto.github.io/splash/docs/all.html for a preview of the availabl
 				formatter.WriteCSS(os.Stdout, style)
 				return nil
 			},
-			withc: func(cmd *cobra.Command) {
+			withc: func(cmd *cobra.Command, r *rootCommand) {
 				cmd.PersistentFlags().StringVar(&style, "style", "friendly", "highlighter style (see https://xyproto.github.io/splash/docs/)")
 				cmd.PersistentFlags().StringVar(&highlightStyle, "highlightStyle", "bg:#ffffcc", "style used for highlighting lines (see https://github.com/alecthomas/chroma)")
 				cmd.PersistentFlags().StringVar(&linesStyle, "linesStyle", "", "style used for line numbers (see https://github.com/alecthomas/chroma)")
@@ -110,7 +110,7 @@ See https://xyproto.github.io/splash/docs/all.html for a preview of the availabl
 
 				return nil
 			},
-			withc: func(cmd *cobra.Command) {
+			withc: func(cmd *cobra.Command, r *rootCommand) {
 				cmd.PersistentFlags().StringVar(&genmandir, "dir", "man/", "the directory to write the man pages.")
 				// For bash-completion
 				cmd.PersistentFlags().SetAnnotation("dir", cobra.BashCompSubdirsInDir, []string{})
@@ -167,7 +167,7 @@ url: %s
 
 				return nil
 			},
-			withc: func(cmd *cobra.Command) {
+			withc: func(cmd *cobra.Command, r *rootCommand) {
 				cmd.PersistentFlags().StringVar(&gendocdir, "dir", "/tmp/hugodoc/", "the directory to write the doc.")
 				// For bash-completion
 				cmd.PersistentFlags().SetAnnotation("dir", cobra.BashCompSubdirsInDir, []string{})
@@ -204,7 +204,7 @@ url: %s
 				r.Println("Done!")
 				return nil
 			},
-			withc: func(cmd *cobra.Command) {
+			withc: func(cmd *cobra.Command, r *rootCommand) {
 				cmd.Hidden = true
 				cmd.PersistentFlags().StringVarP(&docsHelperTarget, "dir", "", "docs/data", "data dir")
 			},

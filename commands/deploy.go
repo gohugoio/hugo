@@ -58,7 +58,7 @@ documentation.
 			}
 			return deployer.Deploy(ctx)
 		},
-		withc: func(cmd *cobra.Command) {
+		withc: func(cmd *cobra.Command, r *rootCommand) {
 			cmd.Flags().String("target", "", "target deployment from deployments section in config file; defaults to the first one")
 			cmd.Flags().Bool("confirm", false, "ask for confirmation before making changes to the target")
 			cmd.Flags().Bool("dryRun", false, "dry run")

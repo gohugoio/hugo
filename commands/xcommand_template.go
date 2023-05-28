@@ -28,7 +28,7 @@ func newSimpleTemplateCommand() simplecobra.Commander {
 
 			return nil
 		},
-		withc: func(cmd *cobra.Command) {
+		withc: func(cmd *cobra.Command, r *rootCommand) {
 
 		},
 	}
