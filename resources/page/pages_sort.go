@@ -361,16 +361,14 @@ func (p Pages) Reverse() Pages {
 }
 
 // ByParam sorts the pages according to the given page Params key.
-//
-// Adjacent invocations on the same receiver with the same paramsKey will return a cached result.
-//
-// This may safely be executed  in parallel.
+// Note that there's no caching set up for this method as there is a potential deadlock
+// with the collator cache used for string sorting.
+// But this sorts by individual page params, so it should not cache very well anyway.
 func (p Pages) ByParam(paramsKey any) Pages {
 	if len(p) < 2 {
 		return p
 	}
 	paramsKeyStr := cast.ToString(paramsKey)
-	key := "pageSort.ByParam." + paramsKeyStr
 
 	stringLess, close := collatorStringLess(p[0])
 	defer close()
@@ -407,7 +405,9 @@ func (p Pages) ByParam(paramsKey any) Pages {
 
 	}
 
-	pages, _ := spc.get(key, pageBy(paramsKeyComparator).Sort, p)
+	pagesCopy := make(Pages, len(p))
+	copy(pagesCopy, p)
+	pageBy(paramsKeyComparator).Sort(pagesCopy)
 
-	return pages
+	return pagesCopy
 }
