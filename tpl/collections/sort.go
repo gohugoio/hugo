@@ -46,7 +46,7 @@ func (ns *Namespace) Sort(l any, args ...any) (any, error) {
 		return nil, errors.New("can't sort " + reflect.ValueOf(l).Type().String())
 	}
 
-	collator := langs.GetCollator(ns.deps.Conf.Language())
+	collator := langs.GetCollator1(ns.deps.Conf.Language())
 
 	// Create a list of pairs that will be used to do the sort
 	p := pairList{Collator: collator, sortComp: ns.sortComp, SortAsc: true, SliceType: sliceType}
