@@ -372,9 +372,6 @@ func (p Pages) ByParam(paramsKey any) Pages {
 	paramsKeyStr := cast.ToString(paramsKey)
 	key := "pageSort.ByParam." + paramsKeyStr
 
-	stringLess, close := collatorStringLess(p[0])
-	defer close()
-
 	paramsKeyComparator := func(p1, p2 Page) bool {
 		v1, _ := p1.Param(paramsKeyStr)
 		v2, _ := p2.Param(paramsKeyStr)
@@ -403,7 +400,8 @@ func (p Pages) ByParam(paramsKey any) Pages {
 		s1 := cast.ToString(v1)
 		s2 := cast.ToString(v2)
 
-		return stringLess(s1, s2)
+		// Hold the lock as short as possible, see #11039.
+		return langs.CompareStrings(p1.CurrentSection().Language(), s1, s2) < 0
 
 	}
 

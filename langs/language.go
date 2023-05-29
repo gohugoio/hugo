@@ -181,3 +181,14 @@ type Collator struct {
 func (c *Collator) CompareStrings(a, b string) int {
 	return c.c.CompareString(a, b)
 }
+
+// CompareStrings compares a and b using the Collator in l.
+// It returns -1 if a < b, 1 if a > b and 0 if a == b.
+// Note that the Collator is not thread safe, so you may want
+// to acquire a lock on it before calling this method.
+func CompareStrings(l *Language, a, b string) int {
+	l.collator.Lock()
+	defer l.collator.Unlock()
+	return l.collator.CompareStrings(a, b)
+
+}
