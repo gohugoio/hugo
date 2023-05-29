@@ -41,8 +41,11 @@ type Language struct {
 	translator    locales.Translator
 	timeFormatter htime.TimeFormatter
 	tag           language.Tag
-	collator      *Collator
-	location      *time.Location
+	// collator1 and collator2 are the same, we have 2 to prevent deadlocks.
+	collator1 *Collator
+	collator2 *Collator
+
+	location *time.Location
 
 	// This is just an alias of Site.Params.
 	params maps.Params
@@ -58,14 +61,20 @@ func NewLanguage(lang, defaultContentLanguage, timeZone string, languageConfig L
 		}
 	}
 
-	var coll *Collator
+	var coll1, coll2 *Collator
 	tag, err := language.Parse(lang)
 	if err == nil {
-		coll = &Collator{
+		coll1 = &Collator{
+			c: collate.New(tag),
+		}
+		coll2 = &Collator{
 			c: collate.New(tag),
 		}
 	} else {
-		coll = &Collator{
+		coll1 = &Collator{
+			c: collate.New(language.English),
+		}
+		coll2 = &Collator{
 			c: collate.New(language.English),
 		}
 	}
@@ -76,7 +85,8 @@ func NewLanguage(lang, defaultContentLanguage, timeZone string, languageConfig L
 		translator:     translator,
 		timeFormatter:  htime.NewTimeFormatter(translator),
 		tag:            tag,
-		collator:       coll,
+		collator1:      coll1,
+		collator2:      coll2,
 	}
 
 	return l, l.loadLocation(timeZone)
@@ -165,8 +175,12 @@ func GetLocation(l *Language) *time.Location {
 	return l.location
 }
 
-func GetCollator(l *Language) *Collator {
-	return l.collator
+func GetCollator1(l *Language) *Collator {
+	return l.collator1
+}
+
+func GetCollator2(l *Language) *Collator {
+	return l.collator2
 }
 
 type Collator struct {
