@@ -45,9 +45,14 @@ func (ns *Namespace) FindRE(expr string, content any, limit ...any) ([]string, e
 	return re.FindAllString(conv, lim), nil
 }
 
-// FindRESubmatch returns returns a slice of strings holding the text of the leftmost match of the regular expression in s and the matches, if any, of its subexpressions.
+// FindRESubmatch returns a slice of all successive matches of the regular
+// expression in content. Each element is a slice of strings holding the text
+// of the leftmost match of the regular expression and the matches, if any, of
+// its subexpressions.
 //
-// By default all matches will be included. The number of matches can be limited with the optional limit parameter. A return value of nil indicates no match.
+// By default all matches will be included. The number of matches can be
+// limited with the optional limit parameter. A return value of nil indicates
+// no match.
 func (ns *Namespace) FindRESubmatch(expr string, content any, limit ...any) ([][]string, error) {
 	re, err := reCache.Get(expr)
 	if err != nil {

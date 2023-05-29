@@ -84,7 +84,7 @@ type Config struct {
 	GuessSyntax bool
 }
 
-func (cfg Config) ToHTMLOptions() []html.Option {
+func (cfg Config) toHTMLOptions() []html.Option {
 	var lineAnchors string
 	if cfg.LineAnchors != "" {
 		lineAnchors = cfg.LineAnchors + "-"

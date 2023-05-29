@@ -1,25 +1,18 @@
 ---
 title: Starter Kits
-linktitle: Starter Kits
 description: A list of community-developed projects designed to help you get up and running with Hugo.
-date: 2017-02-22
-publishdate: 2017-02-01
-lastmod: 2018-08-11
 keywords: [starters,assets,pipeline]
 menu:
   docs:
-    parent: "tools"
+    parent: tools
     weight: 30
 weight: 30
-sections_weight: 30
-draft: false
 aliases: [/developer-tools/migrations/,/developer-tools/migrated/]
-toc: false
 ---
 
 Know of a Hugo-related starter kit that isn't mentioned here? [Please add it to the list.][addkit]
 
-{{% note "Starter Kits are Not Maintained by the Hugo Team"%}}
+{{% note %}}
 The following starter kits are developed by active members of the Hugo community. If you find yourself having issues with any of the projects, it's best to file an issue directly with the project's maintainer(s).
 {{% /note %}}
 
@@ -32,7 +25,7 @@ The following starter kits are developed by active members of the Hugo community
 [addkit]: https://github.com/gohugoio/hugo/edit/master/docs/content/en/tools/starter-kits.md
 [amp]: https://amp.dev
 [GOHUGO AMP]: https://github.com/wildhaber/gohugo-amp
-[gohugodocs]: https://gohugo-amp.gohugohq.com/
+[gohugodocs]: https://github.com/wildhaber/gohugo-amp.gohugohq.com
 [hugow]: https://github.com/khos2ow/hugo-wrapper
 [hugow-test]: https://github.com/khos2ow/hugo-wrapper#tested-on
 [Hyas]: https://github.com/h-enk/hyas

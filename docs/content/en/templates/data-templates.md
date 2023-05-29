@@ -1,17 +1,13 @@
 ---
 title: Data Templates
-linktitle:
 description: In addition to Hugo's built-in variables, you can specify your own custom data in templates or shortcodes that pull from both local and dynamic sources.
-date: 2017-02-01
-publishdate: 2017-02-01
 categories: [templates]
 keywords: [data,dynamic,csv,json,toml,yaml,xml]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 80
 weight: 80
-sections_weight: 80
 aliases: [/extras/datafiles/,/extras/datadrivencontent/,/doc/datafiles/]
 toc: true
 ---
@@ -52,7 +48,7 @@ Data file|Template code
 
 ## Data Files in Themes
 
-Data Files can also be used in [Hugo themes][themes].
+Data Files can also be used in themes.
 
 However, note that the theme data files are merged with the project directory taking precedence. That is, Given two files with the same name and relative path, the data in the file in the root project `data` directory will override the data from the file in the `themes/<THEME>/data` directory *for keys that are duplicated*).
 
@@ -131,7 +127,7 @@ Achievements:
 You can use the following code to render the `Short Description` in your layout:
 
 ```go-html-template
-<div>Short Description of {{.Site.Data.User0123.Name}}: <p>{{ index .Site.Data.User0123 "Short Description" | markdownify }}</p></div>
+<div>Short Description of {{ .Site.Data.User0123.Name }}: <p>{{ index .Site.Data.User0123 "Short Description" | markdownify }}</p></div>
 ```
 
 Note the use of the [`markdownify` template function][markdownify]. This will send the description through the Markdown rendering engine.
@@ -173,13 +169,13 @@ This will resolve internally to the following:
 Both `getJSON` and `getCSV` takes an optional map as the last argument, e.g.:
 
 ```go-html-template
-{{ $data := getJSON "https://example.org/api" (dict "Authorization" "Bearer abcd")  }}
+{{ $data := getJSON "https://example.org/api" (dict "Authorization" "Bearer abcd") }}
 ```
 
 If you need multiple values for the same header key, use a slice:
 
 ```go-html-template
-{{ $data := getJSON "https://example.org/api" (dict "X-List" (slice "a" "b" "c"))  }}
+{{ $data := getJSON "https://example.org/api" (dict "X-List" (slice "a" "b" "c")) }}
 ```
 
 ### Example for CSV files
@@ -209,7 +205,7 @@ For `getCSV`, the one-character-long separator must be placed in the first posit
   </table>
 {{< /code >}}
 
-The expression `{{index $r number}}` must be used to output the nth-column from the current row.
+The expression `{{ index $r number }}` must be used to output the nth-column from the current row.
 
 ### Cache URLs
 
@@ -241,7 +237,7 @@ There is no chance to trigger a [LiveReload] when the content of a URL changes. 
 
 {{% warning "URL Data and LiveReload" %}}
 If you change any local file and the LiveReload is triggered, Hugo will read the data-driven (URL) content from the cache. If you have disabled the cache (i.e., by running the server with `hugo server --ignoreCache`), Hugo will re-download the content every time LiveReload triggers. This can create *huge* traffic. You may reach API limits quickly.
-{{% /warning %}}
+{{% /note %}}
 
 ## Examples of Data-driven Content
 
@@ -258,14 +254,13 @@ If you change any local file and the LiveReload is triggered, Hugo will read the
 
 [config]: /getting-started/configuration/
 [csv]: https://tools.ietf.org/html/rfc4180
-[customize]: /themes/customizing/
+[customize]: /hugo-modules/theme-components/
 [json]: https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf "Specification for JSON, JavaScript Object Notation"
 [LiveReload]: /getting-started/usage/#livereload
 [lookup]: /templates/lookup-order/
 [markdownify]: /functions/markdownify/
 [OAuth]: https://en.wikipedia.org/wiki/OAuth
 [partials]: /templates/partials/
-[themes]: /themes/
 [toml]: https://github.com/toml-lang/toml
 [variadic]: https://en.wikipedia.org/wiki/Variadic_function
 [vars]: /variables/

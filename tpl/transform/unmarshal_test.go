@@ -105,26 +105,26 @@ func TestUnmarshal(t *testing.T) {
 		{`slogan = "Hugo Rocks!"`, nil, func(m map[string]any) {
 			assertSlogan(m)
 		}},
-		{testContentResource{key: "r1", content: `slogan: "Hugo Rocks!"`, mime: media.YAMLType}, nil, func(m map[string]any) {
+		{testContentResource{key: "r1", content: `slogan: "Hugo Rocks!"`, mime: media.Builtin.YAMLType}, nil, func(m map[string]any) {
 			assertSlogan(m)
 		}},
-		{testContentResource{key: "r1", content: `{ "slogan": "Hugo Rocks!" }`, mime: media.JSONType}, nil, func(m map[string]any) {
+		{testContentResource{key: "r1", content: `{ "slogan": "Hugo Rocks!" }`, mime: media.Builtin.JSONType}, nil, func(m map[string]any) {
 			assertSlogan(m)
 		}},
-		{testContentResource{key: "r1", content: `slogan = "Hugo Rocks!"`, mime: media.TOMLType}, nil, func(m map[string]any) {
+		{testContentResource{key: "r1", content: `slogan = "Hugo Rocks!"`, mime: media.Builtin.TOMLType}, nil, func(m map[string]any) {
 			assertSlogan(m)
 		}},
-		{testContentResource{key: "r1", content: `<root><slogan>Hugo Rocks!</slogan></root>"`, mime: media.XMLType}, nil, func(m map[string]any) {
+		{testContentResource{key: "r1", content: `<root><slogan>Hugo Rocks!</slogan></root>"`, mime: media.Builtin.XMLType}, nil, func(m map[string]any) {
 			assertSlogan(m)
 		}},
 		{testContentResource{key: "r1", content: `1997,Ford,E350,"ac, abs, moon",3000.00
-1999,Chevy,"Venture ""Extended Edition""","",4900.00`, mime: media.CSVType}, nil, func(r [][]string) {
+1999,Chevy,"Venture ""Extended Edition""","",4900.00`, mime: media.Builtin.CSVType}, nil, func(r [][]string) {
 			b.Assert(len(r), qt.Equals, 2)
 			first := r[0]
 			b.Assert(len(first), qt.Equals, 5)
 			b.Assert(first[1], qt.Equals, "Ford")
 		}},
-		{testContentResource{key: "r1", content: `a;b;c`, mime: media.CSVType}, map[string]any{"delimiter": ";"}, func(r [][]string) {
+		{testContentResource{key: "r1", content: `a;b;c`, mime: media.Builtin.CSVType}, map[string]any{"delimiter": ";"}, func(r [][]string) {
 			b.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
 		}},
 		{"a,b,c", nil, func(r [][]string) {
@@ -135,13 +135,13 @@ func TestUnmarshal(t *testing.T) {
 		}},
 		{testContentResource{key: "r1", content: `
 % This is a comment
-a;b;c`, mime: media.CSVType}, map[string]any{"DElimiter": ";", "Comment": "%"}, func(r [][]string) {
+a;b;c`, mime: media.Builtin.CSVType}, map[string]any{"DElimiter": ";", "Comment": "%"}, func(r [][]string) {
 			b.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
 		}},
 		// errors
 		{"thisisnotavaliddataformat", nil, false},
-		{testContentResource{key: "r1", content: `invalid&toml"`, mime: media.TOMLType}, nil, false},
-		{testContentResource{key: "r1", content: `unsupported: MIME"`, mime: media.CalendarType}, nil, false},
+		{testContentResource{key: "r1", content: `invalid&toml"`, mime: media.Builtin.TOMLType}, nil, false},
+		{testContentResource{key: "r1", content: `unsupported: MIME"`, mime: media.Builtin.CalendarType}, nil, false},
 		{"thisisnotavaliddataformat", nil, false},
 		{`{ notjson }`, nil, false},
 		{tstNoStringer{}, nil, false},
@@ -217,7 +217,7 @@ func BenchmarkUnmarshalResource(b *testing.B) {
 	var jsons [numJsons]testContentResource
 	for i := 0; i < numJsons; i++ {
 		key := fmt.Sprintf("root%d", i)
-		jsons[i] = testContentResource{key: key, content: strings.Replace(testJSON, "ROOT_KEY", key, 1), mime: media.JSONType}
+		jsons[i] = testContentResource{key: key, content: strings.Replace(testJSON, "ROOT_KEY", key, 1), mime: media.Builtin.JSONType}
 	}
 
 	b.ResetTimer()

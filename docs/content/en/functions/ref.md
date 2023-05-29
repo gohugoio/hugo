@@ -1,21 +1,13 @@
 ---
 title: ref
-linktitle: ref
 description: Returns the absolute permalink to a page.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2020-09-05
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [cross references, anchors]
 signature: ["ref . PAGE"]
-workson: []
-hugoversion:
 relatedfuncs: [relref]
-deprecated: false
-aliases: []
 ---
 
 This function takes two parameters:

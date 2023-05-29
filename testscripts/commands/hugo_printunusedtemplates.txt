@@ -1,0 +1,11 @@
+hugo  --printUnusedTemplates
+
+stdout 'Template _default/list.html is unused'
+
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "404", "section", "page"]
+baseURL = "https://example.org/"
+-- layouts/index.html --
+Home.
+-- layouts/_default/list.html --
+{{ errorf "unused template: %s" .Kind }}

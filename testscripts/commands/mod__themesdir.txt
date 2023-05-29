@@ -1,0 +1,7 @@
+hugo --theme mytheme mod graph
+stdout 'project mytheme'
+
+-- hugo.toml --
+title = "Hugo Module"
+-- themes/mytheme/hugo.toml --
+title = "My Theme"

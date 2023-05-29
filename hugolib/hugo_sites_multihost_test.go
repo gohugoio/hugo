@@ -89,10 +89,12 @@ languageName = "Nynorsk"
 	s2h := s2.getPage(page.KindHome)
 	c.Assert(s2h.Permalink(), qt.Equals, "https://example.fr/")
 
+	// See https://github.com/gohugoio/hugo/issues/10912
 	b.AssertFileContent("public/fr/index.html", "French Home Page", "String Resource: /docs/text/pipes.txt")
 	b.AssertFileContent("public/fr/text/pipes.txt", "Hugo Pipes")
 	b.AssertFileContent("public/en/index.html", "Default Home Page", "String Resource: /docs/text/pipes.txt")
 	b.AssertFileContent("public/en/text/pipes.txt", "Hugo Pipes")
+	b.AssertFileContent("public/nn/index.html", "Default Home Page", "String Resource: /docs/text/pipes.txt")
 
 	// Check paginators
 	b.AssertFileContent("public/en/page/1/index.html", `refresh" content="0; url=https://example.com/docs/"`)

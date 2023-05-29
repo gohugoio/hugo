@@ -1,20 +1,20 @@
 ---
-title: Creating a resource from a string
+title: FromString
 linkTitle: Resource from String
-description: Hugo Pipes allows the creation of a resource from a string.
-date: 2018-07-14
-publishdate: 2018-07-14
+description: Creates a resource from a string.
 categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: "pipes"
+    parent: pipes
     weight: 90
 weight: 90
-sections_weight: 90
+signature: ["resources.FromString TARGET_PATH CONTENT"]
 ---
 
-It is possible to create a resource directly from the template using `resources.FromString` which takes two arguments, the given string and the resource target path.
+## Usage
+
+It is possible to create a resource directly from the template using `resources.FromString` which takes two arguments, the target path for the created resource and the given content string.
 
 The following example creates a resource file containing localized variables for every project's languages.
 

@@ -49,7 +49,7 @@ func Recover(args ...any) {
 	}
 }
 
-// Get the current goroutine id. Used only for debugging.
+// GetGID the current goroutine id. Used only for debugging.
 func GetGID() uint64 {
 	b := make([]byte, 64)
 	b = b[:runtime.Stack(b, false)]

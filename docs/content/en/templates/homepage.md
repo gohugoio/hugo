@@ -2,25 +2,20 @@
 title: Homepage Template
 linktitle: Homepage Template
 description: The homepage of a website is often formatted differently than the other pages. For this reason, Hugo makes it easy for you to define your new site's homepage as a unique template.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [templates]
 keywords: [homepage]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 30
 weight: 30
-sections_weight: 30
-draft: false
 aliases: [/layout/homepage/,/templates/homepage-template/]
 toc: true
 ---
 
 Homepage is a `Page` and therefore has all the [page variables][pagevars] and [site variables][sitevars] available for use.
 
-{{% note "The Only Required Template" %}}
+{{% note %}}
 The homepage template is the *only* required template for building a site and therefore useful when bootstrapping a new site and template. It is also the only required template if you are developing a single-page website.
 {{% /note %}}
 
@@ -38,27 +33,27 @@ See the homepage template below or [Content Organization][contentorg] for more i
 
 ## Example Homepage Template
 
-The following is an example of a homepage template that uses [partial][partials], [base] templates, and a content file at `content/_index.md` to populate the `{{.Title}}` and `{{.Content}}` [page variables][pagevars].
+The following is an example of a homepage template that uses [partial][partials], [base] templates, and a content file at `content/_index.md` to populate the `{{ .Title }}` and `{{ .Content }}` [page variables][pagevars].
 
-{{< code file="layouts/index.html" download="index.html" >}}
+{{< code file="layouts/index.html" >}}
 {{ define "main" }}
-    <main aria-role="main">
-      <header class="homepage-header">
-        <h1>{{.Title}}</h1>
-        {{ with .Params.subtitle }}
-        <span class="subtitle">{{.}}</span>
-        {{ end }}
-      </header>
-      <div class="homepage-content">
-        <!-- Note that the content for index.html, as a sort of list page, will pull from content/_index.md -->
-        {{.Content}}
-      </div>
-      <div>
-        {{ range first 10 .Site.RegularPages }}
-            {{ .Render "summary"}}
-        {{ end }}
-      </div>
-    </main>
+  <main aria-role="main">
+    <header class="homepage-header">
+      <h1>{{ .Title }}</h1>
+      {{ with .Params.subtitle }}
+      <span class="subtitle">{{ . }}</span>
+      {{ end }}
+    </header>
+    <div class="homepage-content">
+      <!-- Note that the content for index.html, as a sort of list page, will pull from content/_index.md -->
+      {{ .Content }}
+    </div>
+    <div>
+      {{ range first 10 .Site.RegularPages }}
+          {{ .Render "summary" }}
+      {{ end }}
+    </div>
+  </main>
 {{ end }}
 {{< /code >}}
 

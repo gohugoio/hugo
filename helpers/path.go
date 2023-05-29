@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2023 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,8 +28,6 @@ import (
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/text"
 
-	"github.com/gohugoio/hugo/config"
-
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/common/hugio"
@@ -54,7 +52,7 @@ func (p *PathSpec) MakePathsSanitized(paths []string) {
 
 // MakePathSanitized creates a Unicode-sanitized string, with the spaces replaced
 func (p *PathSpec) MakePathSanitized(s string) string {
-	if p.DisablePathToLower {
+	if p.Cfg.DisablePathToLower() {
 		return p.MakePath(s)
 	}
 	return strings.ToLower(p.MakePath(s))
@@ -91,7 +89,7 @@ func ishex(c rune) bool {
 // Hyphens in the original input are maintained.
 // Spaces will be replaced with a single hyphen, and sequential replacement hyphens will be reduced to one.
 func (p *PathSpec) UnicodeSanitize(s string) string {
-	if p.RemovePathAccents {
+	if p.Cfg.RemovePathAccents() {
 		s = text.RemoveAccentsString(s)
 	}
 
@@ -128,7 +126,7 @@ func (p *PathSpec) UnicodeSanitize(s string) string {
 	return string(target)
 }
 
-func makePathRelative(inPath string, possibleDirectories ...string) (string, error) {
+func MakePathRelative(inPath string, possibleDirectories ...string) (string, error) {
 	for _, currentPath := range possibleDirectories {
 		if strings.HasPrefix(inPath, currentPath) {
 			return strings.TrimPrefix(inPath, currentPath), nil
@@ -394,8 +392,8 @@ func OpenFileForWriting(fs afero.Fs, filename string) (afero.File, error) {
 
 // GetCacheDir returns a cache dir from the given filesystem and config.
 // The dir will be created if it does not exist.
-func GetCacheDir(fs afero.Fs, cfg config.Provider) (string, error) {
-	cacheDir := getCacheDir(cfg)
+func GetCacheDir(fs afero.Fs, cacheDir string) (string, error) {
+	cacheDir = cacheDirDefault(cacheDir)
 	if cacheDir != "" {
 		exists, err := DirExists(cacheDir, fs)
 		if err != nil {
@@ -414,9 +412,8 @@ func GetCacheDir(fs afero.Fs, cfg config.Provider) (string, error) {
 	return GetTempDir("hugo_cache", fs), nil
 }
 
-func getCacheDir(cfg config.Provider) string {
+func cacheDirDefault(cacheDir string) string {
 	// Always use the cacheDir config if set.
-	cacheDir := cfg.GetString("cacheDir")
 	if len(cacheDir) > 1 {
 		return addTrailingFileSeparator(cacheDir)
 	}

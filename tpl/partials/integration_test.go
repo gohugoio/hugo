@@ -324,3 +324,31 @@ timeout = '200ms'
 	b.Assert(err.Error(), qt.Contains, "timed out")
 
 }
+
+// See Issue #10789
+func TestReturnExecuteFromTemplateInPartial(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+baseURL = 'http://example.com/'
+-- layouts/index.html --
+{{ $r :=  partial "foo" }}
+FOO:{{ $r.Content }}
+-- layouts/partials/foo.html --
+{{ $r := §§{{ partial "bar" }}§§ | resources.FromString "bar.html" | resources.ExecuteAsTemplate "bar.html" . }}
+{{ return $r }}
+-- layouts/partials/bar.html --
+BAR
+  `
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", "OO:BAR")
+
+}

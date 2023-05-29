@@ -6,7 +6,7 @@ import (
 	"github.com/yuin/goldmark/text"
 )
 
-// Kind is the kind of an Hugo code block.
+// KindCodeBlock is the kind of an Hugo code block.
 var KindCodeBlock = ast.NewNodeKind("HugoCodeBlock")
 
 // Its raw contents are the plain text of the code block.

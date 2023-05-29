@@ -2,18 +2,12 @@
 title: Templates
 linktitle: Templates Overview
 description: Go templating, template types and lookup order, shortcodes, and data.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 01
-weight: 01	#rem
+weight: 01
 categories: [templates]
 keywords: []
-draft: false
 aliases: [/templates/overview/,/templates/content]
-toc: false
-notesforauthors:
 ---

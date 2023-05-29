@@ -28,7 +28,7 @@ const robotTxtTemplate = `User-agent: Googlebot
 func TestRobotsTXTOutput(t *testing.T) {
 	t.Parallel()
 
-	cfg := config.NewWithTestDefaults()
+	cfg := config.New()
 	cfg.Set("baseURL", "http://auth/bub/")
 	cfg.Set("enableRobotsTXT", true)
 

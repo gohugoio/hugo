@@ -20,13 +20,13 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"strings"
 	"time"
 
 	"github.com/bep/lazycache"
 
 	"github.com/gohugoio/hugo/identity"
+
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 
 	"github.com/gohugoio/hugo/tpl"
@@ -34,10 +34,6 @@ import (
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/deps"
 )
-
-// TestTemplateProvider is global deps.ResourceProvider.
-// NOTE: It's currently unused.
-var TestTemplateProvider deps.ResourceProvider
 
 type partialCacheKey struct {
 	Name     string
@@ -130,7 +126,8 @@ func (ns *Namespace) Include(ctx context.Context, name string, contextList ...an
 }
 
 func (ns *Namespace) includWithTimeout(ctx context.Context, name string, dataList ...any) includeResult {
-	ctx, cancel := context.WithTimeout(ctx, ns.deps.Timeout)
+	// Create a new context with a timeout not connected to the incoming context.
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), ns.deps.Conf.Timeout())
 	defer cancel()
 
 	res := make(chan includeResult, 1)
@@ -142,10 +139,10 @@ func (ns *Namespace) includWithTimeout(ctx context.Context, name string, dataLis
 	select {
 	case r := <-res:
 		return r
-	case <-ctx.Done():
-		err := ctx.Err()
+	case <-timeoutCtx.Done():
+		err := timeoutCtx.Err()
 		if err == context.DeadlineExceeded {
-			err = fmt.Errorf("partial %q timed out after %s. This is most likely due to infinite recursion. If this is just a slow template, you can try to increase the 'timeout' config setting.", name, ns.deps.Timeout)
+			err = fmt.Errorf("partial %q timed out after %s. This is most likely due to infinite recursion. If this is just a slow template, you can try to increase the 'timeout' config setting.", name, ns.deps.Conf.Timeout())
 		}
 		return includeResult{err: err}
 	}
@@ -193,7 +190,7 @@ func (ns *Namespace) include(ctx context.Context, name string, dataList ...any) 
 		}
 
 		// We don't care about any template output.
-		w = ioutil.Discard
+		w = io.Discard
 	} else {
 		b := bp.GetBuffer()
 		defer bp.PutBuffer(b)

@@ -35,7 +35,7 @@ import (
 type FileError interface {
 	error
 
-	// ErroContext holds some context information about the error.
+	// ErrorContext holds some context information about the error.
 	ErrorContext() *ErrorContext
 
 	text.Positioner
@@ -391,4 +391,18 @@ func extractPosition(e error) (pos text.Position) {
 		pos.ColumnNumber = v.Column
 	}
 	return
+}
+
+// TextSegmentError is an error with a text segment attached.
+type TextSegmentError struct {
+	Segment string
+	Err     error
+}
+
+func (e TextSegmentError) Unwrap() error {
+	return e.Err
+}
+
+func (e TextSegmentError) Error() string {
+	return e.Err.Error()
 }

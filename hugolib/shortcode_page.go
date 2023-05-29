@@ -63,6 +63,7 @@ var zeroShortcode = prerenderedShortcode{}
 // the best we can do.
 type pageForShortcode struct {
 	page.PageWithoutContent
+	page.TableOfContentsProvider
 	page.ContentProvider
 
 	// We need to replace it after we have rendered it, so provide a
@@ -74,10 +75,11 @@ type pageForShortcode struct {
 
 func newPageForShortcode(p *pageState) page.Page {
 	return &pageForShortcode{
-		PageWithoutContent: p,
-		ContentProvider:    page.NopPage,
-		toc:                template.HTML(tocShortcodePlaceholder),
-		p:                  p,
+		PageWithoutContent:      p,
+		TableOfContentsProvider: p,
+		ContentProvider:         page.NopPage,
+		toc:                     template.HTML(tocShortcodePlaceholder),
+		p:                       p,
 	}
 }
 
@@ -105,7 +107,7 @@ func newPageForRenderHook(p *pageState) page.Page {
 	return &pageForRenderHooks{
 		PageWithoutContent:      p,
 		ContentProvider:         page.NopPage,
-		TableOfContentsProvider: page.NopPage,
+		TableOfContentsProvider: p,
 	}
 }
 

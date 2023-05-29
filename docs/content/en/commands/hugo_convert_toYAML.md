@@ -13,7 +13,7 @@ toYAML converts all front matter in the content directory
 to use YAML for the front matter.
 
 ```
-hugo convert toYAML [flags]
+hugo convert toYAML [flags] [args]
 ```
 
 ### Options
@@ -29,6 +29,7 @@ hugo convert toYAML [flags]
       --config string              config file (default is hugo.yaml|json|toml)
       --configDir string           config dir (default "config")
       --debug                      debug output
+  -d, --destination string         filesystem path to write files to
   -e, --environment string         build environment
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --log                        enable Logging

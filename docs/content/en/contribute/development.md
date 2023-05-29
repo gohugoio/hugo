@@ -2,17 +2,13 @@
 title: Contribute to Hugo Development
 linktitle: Development
 description: Hugo relies heavily on contributions from the open source community.
-date: 2017-02-01
-publishdate: 2017-02-01
 categories: [contribute]
 keywords: [dev,open source]
-authors: [digitalcraftsman]
 menu:
   docs:
-    parent: "contribute"
+    parent: contribute
     weight: 10
 weight: 10
-sections_weight: 10
 toc: true
 ---
 
@@ -27,7 +23,7 @@ This contribution guide takes a step-by-step approach in hopes of helping newcom
 * You are new to Git or open-source projects in general
 * You are a fan of Hugo and enthusiastic about contributing to the project
 
-{{% note "Additional Questions?" %}}
+{{% note %}}
 If you're struggling at any point in this contribution guide, reach out to the Hugo community in [Hugo's Discussion forum](https://discourse.gohugo.io).
 {{% /note %}}
 
@@ -126,7 +122,9 @@ You set up the working copy of the repository locally on your computer. Your loc
 
 We assume that you've set up your `GOPATH` (see the section above if you're unsure about this). You should now copy the Hugo repository down to your computer. You'll hear this called "clone the repo". GitHub's [help pages](https://help.github.com/articles/cloning-a-repository/) give us a short explanation:
 
-> When you create a repository on GitHub, it exists as a remote repository. You can create a local clone of your repository on your computer and sync between the two locations.
+{{% note %}}
+When you create a repository on GitHub, it exists as a remote repository. You can create a local clone of your repository on your computer and sync between the two locations.
+{{% /note %}}
 
 We're going to clone the [master Hugo repository](https://github.com/gohugoio/hugo). That seems counter-intuitive, since you won't have commit rights on it. But it's required for the Go workflow. You'll work on a copy of the master and push your changes to your own repository on GitHub.
 
@@ -138,8 +136,7 @@ cd $HOME/src
 git clone https://github.com/gohugoio/hugo.git
 ```
 
-> Since Hugo 0.48, Hugo uses the Go Modules support built into Go 1.11 to build.
-> The easiest is to clone Hugo in a directory outside of GOPATH
+Since Hugo 0.48, Hugo uses the Go Modules support built into Go 1.11 to build. The easiest is to clone Hugo in a directory outside of GOPATH
 
 And then, install dependencies of Hugo by running the following in the cloned directory:
 
@@ -158,7 +155,9 @@ go install github.com/magefile/mage@latest
 
 If you're not familiar with this term, GitHub's [help pages](https://help.github.com/articles/fork-a-repo/) provide again a simple explanation:
 
-> A fork is a copy of a repository. Forking a repository allows you to freely experiment with changes without affecting the original project.
+{{% note %}}
+A fork is a copy of a repository. Forking a repository allows you to freely experiment with changes without affecting the original project.
+{{% /note %}}
 
 #### Fork by hand
 
@@ -316,7 +315,7 @@ git commit --amend
 
 {{% warning "Be Careful Modifying Multiple Commits"%}}
 Modifications such as those described in this section can have serious unintended consequences. Skip this section if you're not sure!
-{{% /warning %}}
+{{% /note %}}
 
 This is a bit more advanced. Git allows you to [rebase](https://git-scm.com/docs/git-rebase) commits interactively. In other words: it allows you to rewrite the commit history.
 
@@ -421,7 +420,7 @@ Feel free to [open an issue][newissue] if you think you found a bug or you have 
 [docscontrib]: /contribute/documentation/
 [forums]: https://discourse.gohugo.io
 [gitbook]: https://git-scm.com/
-[gobootcamp]: https://www.golangbootcamp.com/book/get_setup
+[gobootcamp]: https://www.golang-book.com/guides/machine_setup
 [godl]: https://go.dev/dl/
 [goinstall]: https://go.dev/doc/install
 [gvm]: https://github.com/moovweb/gvm

@@ -20,7 +20,7 @@ import (
 	"github.com/gohugoio/hugo/compare"
 	"github.com/gohugoio/hugo/lazy"
 	"github.com/gohugoio/hugo/navigation"
-	"github.com/gohugoio/hugo/output"
+	"github.com/gohugoio/hugo/output/layouts"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/gohugoio/hugo/source"
@@ -53,6 +53,8 @@ func (p *pageCommon) getNextPrevInSection() *nextPrev {
 type pageCommon struct {
 	s *Site
 	m *pageMeta
+
+	sWrapped page.Site
 
 	bucket  *pagesMapBucket
 	treeRef *contentTreeRef
@@ -96,7 +98,7 @@ type pageCommon struct {
 	// should look like.
 	targetPathDescriptor page.TargetPathDescriptor
 
-	layoutDescriptor     output.LayoutDescriptor
+	layoutDescriptor     layouts.LayoutDescriptor
 	layoutDescriptorInit sync.Once
 
 	// The parsed page content.

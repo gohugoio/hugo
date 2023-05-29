@@ -1,8 +1,6 @@
 ---
 title: Front Matter
-linkTitle: Front Matter
 description: Hugo allows you to add front matter in yaml, toml, or json to your content files.
-lastmod: 2017-02-24
 categories: [content management]
 keywords: ["front matter", "yaml", "toml", "json", "metadata", "archetypes"]
 menu:
@@ -56,88 +54,88 @@ slug = "spf13-vim-3-0-release-and-new-website"
 There are a few predefined variables that Hugo is aware of. See [Page Variables][pagevars] for how to call many of these predefined variables in your templates.
 
 aliases
-: an array of one or more aliases (e.g., old published paths of renamed content) that will be created in the output directory structure . See [Aliases][aliases] for details.
+: An array of one or more aliases (e.g., old published paths of renamed content) that will be created in the output directory structure . See [Aliases][aliases] for details.
 
 audio
-: an array of paths to audio files related to the page; used by the `opengraph` [internal template](/templates/internal) to populate `og:audio`.
+: An array of paths to audio files related to the page; used by the `opengraph` [internal template](/templates/internal) to populate `og:audio`.
 
 cascade
-: a map of Front Matter keys whose values are passed down to the page's descendants unless overwritten by self or a closer ancestor's cascade. See [Front Matter Cascade](#front-matter-cascade) for details.
+: A map of front matter keys whose values are passed down to the page's descendants unless overwritten by self or a closer ancestor's cascade. See [Front Matter Cascade](#front-matter-cascade) for details.
 
 date
-: the datetime assigned to this page. This is usually fetched from the `date` field in front matter, but this behavior is configurable.
+: The datetime assigned to this page. This is usually fetched from the `date` field in front matter, but this behavior is configurable.
 
 description
-: the description for the content.
+: The description for the content.
 
 draft
-: if `true`, the content will not be rendered unless the `--buildDrafts` flag is passed to the `hugo` command.
+: If `true`, the content will not be rendered unless the `--buildDrafts` flag is passed to the `hugo` command.
 
 expiryDate
-: the datetime at which the content should no longer be published by Hugo; expired content will not be rendered unless the `--buildExpired` flag is passed to the `hugo` command.
+: The datetime at which the content should no longer be published by Hugo; expired content will not be rendered unless the `--buildExpired` flag is passed to the `hugo` command.
 
 headless
-: if `true`, sets a leaf bundle to be [headless][headless-bundle].
+: If `true`, sets a leaf bundle to be [headless][headless-bundle].
 
 images
-: an array of paths to images related to the page; used by [internal templates](/templates/internal) such as `_internal/twitter_cards.html`.
+: An array of paths to images related to the page; used by [internal templates](/templates/internal) such as `_internal/twitter_cards.html`.
 
 isCJKLanguage
-: if `true`, Hugo will explicitly treat the content as a CJK language; both `.Summary` and `.WordCount` work properly in CJK languages.
+: If `true`, Hugo will explicitly treat the content as a CJK language; both `.Summary` and `.WordCount` work properly in CJK languages.
 
 keywords
-: the meta keywords for the content.
+: The meta keywords for the content.
 
 layout
-: the layout Hugo should select from the [lookup order][lookup] when rendering the content. If a `type` is not specified in the front matter, Hugo will look for the layout of the same name in the layout directory that corresponds with a content's section. See [Content Types][content type].
+: The layout Hugo should select from the [lookup order][lookup] when rendering the content. If a `type` is not specified in the front matter, Hugo will look for the layout of the same name in the layout directory that corresponds with a content's section. See [Content Types][content type].
 
 lastmod
-: the datetime at which the content was last modified.
+: The datetime at which the content was last modified.
 
 linkTitle
-: used for creating links to content; if set, Hugo defaults to using the `linktitle` before the `title`. Hugo can also [order lists of content by `linktitle`][bylinktitle].
+: Used for creating links to content; if set, Hugo defaults to using the `linktitle` before the `title`. Hugo can also [order lists of content by `linktitle`][bylinktitle].
 
 markup
 : **experimental**; specify `"rst"` for reStructuredText (requires`rst2html`) or `"md"` (default) for Markdown.
 
 outputs
-: allows you to specify output formats specific to the content. See [output formats][outputs].
+: Allows you to specify output formats specific to the content. See [output formats][outputs].
 
 publishDate
-: if in the future, content will not be rendered unless the `--buildFuture` flag is passed to `hugo`.
+: If in the future, content will not be rendered unless the `--buildFuture` flag is passed to `hugo`.
 
 resources
-: used for configuring page bundle resources. See [Page Resources][page-resources].
+: Used for configuring page bundle resources. See [Page Resources][page-resources].
 
 series
-: an array of series this page belongs to, as a subset of the `series` [taxonomy](/content-management/taxonomies/); used by the `opengraph` [internal template](/templates/internal) to populate `og:see_also`.
+: An array of series this page belongs to, as a subset of the `series` [taxonomy](/content-management/taxonomies/); used by the `opengraph` [internal template](/templates/internal) to populate `og:see_also`.
 
 slug
-: appears as the tail of the output URL. A value specified in front matter will override the segment of the URL based on the filename.
+: Overrides the last segment of the URL path. Not applicable to section pages. See [URL Management](/content-management/urls/#slug) for details.
 
 summary
-: text used when providing a summary of the article in the `.Summary` page variable; details available in the [content-summaries](/content-management/summaries/) section.
+: Text used when providing a summary of the article in the `.Summary` page variable; details available in the [content-summaries](/content-management/summaries/) section.
 
 title
-: the title for the content.
+: The title for the content.
 
 type
-: the type of the content; this value will be automatically derived from the directory (i.e., the [section]) if not specified in front matter.
+: The type of the content; this value will be automatically derived from the directory (i.e., the [section]) if not specified in front matter.
 
 url
-: the full path to the content from the web root. It makes no assumptions about the path of the content file. See [URL Management](/content-management/urls/#set-url-in-front-matter).
+: Overrides the entire URL path. Applicable to regular pages and section pages. See [URL Management](/content-management/urls/#url) for details.
 
 videos
-: an array of paths to videos related to the page; used by the `opengraph` [internal template](/templates/internal) to populate `og:video`.
+: An array of paths to videos related to the page; used by the `opengraph` [internal template](/templates/internal) to populate `og:video`.
 
 weight
 : used for [ordering your content in lists][ordering]. Lower weight gets higher precedence. So content with lower weight will come first. If set, weights should be non-zero, as 0 is interpreted as an *unset* weight.
 
 \<taxonomies\>
-: field name of the *plural* form of the index. See `tags` and `categories` in the above front matter examples. *Note that the plural form of user-defined taxonomies cannot be the same as any of the predefined front matter variables.*
+: Field name of the *plural* form of the index. See `tags` and `categories` in the above front matter examples. *Note that the plural form of user-defined taxonomies cannot be the same as any of the predefined front matter variables.*
 
-{{% note "Hugo's Default URL Destinations" %}}
-If neither `slug` nor `url` is present and [permalinks are not configured otherwise in your site `config` file](/content-management/urls/#permalinks), Hugo will use the filename of your content to create the output URL. See [Content Organization](/content-management/organization) for an explanation of paths in Hugo and [URL Management](/content-management/urls/) for ways to customize Hugo's default behaviors.
+{{% note %}}
+If neither `slug` nor `url` is present and [permalinks are not configured otherwise in your site configuration file](/content-management/urls/#permalinks), Hugo will use the filename of your content to create the output URL. See [Content Organization](/content-management/organization) for an explanation of paths in Hugo and [URL Management](/content-management/urls/) for ways to customize Hugo's default behaviors.
 {{% /note %}}
 
 ### User-Defined
@@ -146,7 +144,7 @@ You can add fields to your front matter arbitrarily to meet your needs. These us
 
 The following fields can be accessed via `.Params.include_toc` and `.Params.show_comments`, respectively. The [Variables] section provides more information on using Hugo's page- and site-level variables in your templates.
 
-{{< code-toggle copy="false" >}}
+{{< code-toggle copy=false >}}
 include_toc: true
 show_comments: false
 {{</ code-toggle >}}
@@ -159,7 +157,7 @@ Any node or section can pass down to descendants a set of Front Matter values as
 
 The `cascade` block can be a slice with a optional `_target` keyword, allowing for multiple `cascade` values targeting different page sets.
 
-{{< code-toggle copy="false" >}}
+{{< code-toggle copy=false >}}
 title ="Blog"
 [[cascade]]
 background = "yosemite.jpg"
@@ -193,7 +191,7 @@ Any of the above can be omitted.
 
 In `content/blog/_index.md`
 
-{{< code-toggle copy="false" >}}
+{{< code-toggle copy=false >}}
 title: Blog
 cascade:
   banner: images/typewriter.jpg

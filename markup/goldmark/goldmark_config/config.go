@@ -20,10 +20,22 @@ const (
 	AutoHeadingIDTypeBlackfriday = "blackfriday"
 )
 
-// DefaultConfig holds the default Goldmark configuration.
+// Default holds the default Goldmark configuration.
 var Default = Config{
 	Extensions: Extensions{
-		Typographer:     true,
+		Typographer: Typographer{
+			Disable:          false,
+			LeftSingleQuote:  "&lsquo;",
+			RightSingleQuote: "&rsquo;",
+			LeftDoubleQuote:  "&ldquo;",
+			RightDoubleQuote: "&rdquo;",
+			EnDash:           "&ndash;",
+			EmDash:           "&mdash;",
+			Ellipsis:         "&hellip;",
+			LeftAngleQuote:   "&laquo;",
+			RightAngleQuote:  "&raquo;",
+			Apostrophe:       "&rsquo;",
+		},
 		Footnote:        true,
 		DefinitionList:  true,
 		Table:           true,
@@ -59,7 +71,7 @@ type Config struct {
 }
 
 type Extensions struct {
-	Typographer    bool
+	Typographer    Typographer
 	Footnote       bool
 	DefinitionList bool
 
@@ -69,6 +81,33 @@ type Extensions struct {
 	Linkify         bool
 	LinkifyProtocol string
 	TaskList        bool
+}
+
+// Typographer holds typographer configuration.
+type Typographer struct {
+	// Whether to disable typographer.
+	Disable bool
+
+	// Value used for left single quote.
+	LeftSingleQuote string
+	// Value used for right single quote.
+	RightSingleQuote string
+	// Value used for left double quote.
+	LeftDoubleQuote string
+	// Value used for right double quote.
+	RightDoubleQuote string
+	// Value used for en dash.
+	EnDash string
+	// Value used for em dash.
+	EmDash string
+	// Value used for ellipsis.
+	Ellipsis string
+	// Value used for left angle quote.
+	LeftAngleQuote string
+	// Value used for right angle quote.
+	RightAngleQuote string
+	// Value used for apostrophe.
+	Apostrophe string
 }
 
 type Renderer struct {

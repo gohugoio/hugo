@@ -2,25 +2,19 @@
 title: Robots.txt File
 linktitle: Robots.txt
 description: Hugo can generate a customized robots.txt in the same way as any other template.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [templates]
 keywords: [robots,search engines]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 165
 weight: 165
-sections_weight: 165
-draft: false
 aliases: [/extras/robots-txt/]
-toc: false
 ---
 
 To generate a robots.txt file from a template, change the [site configuration][config]:
 
-{{< code-toggle file="config">}}
+{{< code-toggle file="hugo" >}}
 enableRobotsTXT = true
 {{< /code-toggle >}}
 
@@ -41,7 +35,7 @@ You may overwrite the internal template with a custom template. Hugo selects the
 
 ## Robots.txt Template Example
 
-{{< code file="layouts/robots.txt" download="robots.txt" >}}
+{{< code file="layouts/robots.txt" >}}
 User-agent: *
 {{ range .Pages }}
 Disallow: {{ .RelPermalink }}

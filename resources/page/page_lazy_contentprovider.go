@@ -19,6 +19,7 @@ import (
 
 	"github.com/gohugoio/hugo/lazy"
 	"github.com/gohugoio/hugo/markup/converter"
+	"github.com/gohugoio/hugo/markup/tableofcontents"
 )
 
 // OutputFormatContentProvider represents the method set that is "outputFormat aware" and that we
@@ -71,6 +72,17 @@ func NewLazyContentProvider(f func() (OutputFormatContentProvider, error)) *Lazy
 
 func (lcp *LazyContentProvider) Reset() {
 	lcp.init.Reset()
+}
+
+func (lcp *LazyContentProvider) TableOfContents(ctx context.Context) template.HTML {
+	lcp.init.Do(ctx)
+	return lcp.cp.TableOfContents(ctx)
+
+}
+
+func (lcp *LazyContentProvider) Fragments(ctx context.Context) *tableofcontents.Fragments {
+	lcp.init.Do(ctx)
+	return lcp.cp.Fragments(ctx)
 }
 
 func (lcp *LazyContentProvider) Content(ctx context.Context) (any, error) {
@@ -126,11 +138,6 @@ func (lcp *LazyContentProvider) Render(ctx context.Context, layout ...string) (t
 func (lcp *LazyContentProvider) RenderString(ctx context.Context, args ...any) (template.HTML, error) {
 	lcp.init.Do(ctx)
 	return lcp.cp.RenderString(ctx, args...)
-}
-
-func (lcp *LazyContentProvider) TableOfContents(ctx context.Context) template.HTML {
-	lcp.init.Do(ctx)
-	return lcp.cp.TableOfContents(ctx)
 }
 
 func (lcp *LazyContentProvider) ParseAndRenderContent(ctx context.Context, content []byte, renderTOC bool) (converter.ResultRender, error) {

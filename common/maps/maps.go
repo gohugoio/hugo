@@ -43,25 +43,25 @@ func ToStringMapE(in any) (map[string]any, error) {
 // ToParamsAndPrepare converts in to Params and prepares it for use.
 // If in is nil, an empty map is returned.
 // See PrepareParams.
-func ToParamsAndPrepare(in any) (Params, bool) {
+func ToParamsAndPrepare(in any) (Params, error) {
 	if types.IsNil(in) {
-		return Params{}, true
+		return Params{}, nil
 	}
 	m, err := ToStringMapE(in)
 	if err != nil {
-		return nil, false
+		return nil, err
 	}
 	PrepareParams(m)
-	return m, true
+	return m, nil
 }
 
 // MustToParamsAndPrepare calls ToParamsAndPrepare and panics if it fails.
 func MustToParamsAndPrepare(in any) Params {
-	if p, ok := ToParamsAndPrepare(in); ok {
-		return p
-	} else {
-		panic(fmt.Sprintf("cannot convert %T to maps.Params", in))
+	p, err := ToParamsAndPrepare(in)
+	if err != nil {
+		panic(fmt.Sprintf("cannot convert %T to maps.Params: %s", in, err))
 	}
+	return p
 }
 
 // ToStringMap converts in to map[string]interface{}.
@@ -96,6 +96,8 @@ func ToSliceStringMap(in any) ([]map[string]any, error) {
 	switch v := in.(type) {
 	case []map[string]any:
 		return v, nil
+	case Params:
+		return []map[string]any{v}, nil
 	case []any:
 		var s []map[string]any
 		for _, entry := range v {
@@ -121,6 +123,23 @@ func LookupEqualFold[T any | string](m map[string]T, key string) (T, bool) {
 	}
 	var s T
 	return s, false
+}
+
+// MergeShallow merges src into dst, but only if the key does not already exist in dst.
+// The keys are compared case insensitively.
+func MergeShallow(dst, src map[string]any) {
+	for k, v := range src {
+		found := false
+		for dk := range dst {
+			if strings.EqualFold(dk, k) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			dst[k] = v
+		}
+	}
 }
 
 type keyRename struct {

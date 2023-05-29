@@ -43,7 +43,7 @@ import (
 //
 // For bundled pages (/mybundle/index.md), we use the folder name.
 //
-// An exmple of a full page key would be "/blog/__hb_page1__hl_"
+// An example of a full page key would be "/blog/__hb_page1__hl_"
 //
 // Bundled resources are stored in the `resources` having their path prefixed
 // with the bundle they belong to, e.g.
@@ -129,7 +129,7 @@ type cmInsertKeyBuilder struct {
 }
 
 func (b cmInsertKeyBuilder) ForPage(s string) *cmInsertKeyBuilder {
-	// fmt.Println("ForPage:", s, "baseKey:", b.baseKey, "key:", b.key)
+	//fmt.Println("ForPage:", s, "baseKey:", b.baseKey, "key:", b.key, "tree:", b.tree.Name)
 	baseKey := b.baseKey
 	b.baseKey = s
 
@@ -317,7 +317,7 @@ type contentMap struct {
 	// There are currently two cases where this is used:
 	// 1. Short name lookups in ref/relRef, e.g. using only "mypage.md" without a path.
 	// 2. Links resolved from a remounted content directory. These are restricted to the same module.
-	// Both of the above cases can  result in ambigous lookup errors.
+	// Both of the above cases can  result in ambiguous lookup errors.
 	pageReverseIndex *contentTreeReverseIndex
 
 	// Section nodes.

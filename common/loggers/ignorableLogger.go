@@ -15,7 +15,6 @@ package loggers
 
 import (
 	"fmt"
-	"strings"
 )
 
 // IgnorableLogger is a logger that ignores certain log statements.
@@ -31,14 +30,13 @@ type ignorableLogger struct {
 }
 
 // NewIgnorableLogger wraps the given logger and ignores the log statement IDs given.
-func NewIgnorableLogger(logger Logger, statements ...string) IgnorableLogger {
-	statementsSet := make(map[string]bool)
-	for _, s := range statements {
-		statementsSet[strings.ToLower(s)] = true
+func NewIgnorableLogger(logger Logger, statements map[string]bool) IgnorableLogger {
+	if statements == nil {
+		statements = make(map[string]bool)
 	}
 	return ignorableLogger{
 		Logger:     logger,
-		statements: statementsSet,
+		statements: statements,
 	}
 }
 

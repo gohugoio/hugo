@@ -43,11 +43,11 @@ func init() {
 
 // New returns a new instance of the collections-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
-	if deps.Language == nil {
+	language := deps.Conf.Language()
+	if language == nil {
 		panic("language must be set")
 	}
-
-	loc := langs.GetLocation(deps.Language)
+	loc := langs.GetLocation(language)
 
 	return &Namespace{
 		loc:      loc,

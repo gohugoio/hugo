@@ -70,6 +70,7 @@ func (ns *Namespace) SHA256(v any) (string, error) {
 }
 
 // FNV32a hashes v using fnv32a algorithm.
+// <docsmeta>{"newIn": "0.98.0" }</docsmeta>
 func (ns *Namespace) FNV32a(v any) (int, error) {
 	conv, err := cast.ToStringE(v)
 	if err != nil {

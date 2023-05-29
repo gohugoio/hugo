@@ -20,6 +20,7 @@ import (
 	"github.com/gohugoio/hugo/identity"
 
 	"github.com/gohugoio/hugo/markup/goldmark/codeblocks"
+	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
 	"github.com/gohugoio/hugo/markup/goldmark/images"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/extensions/attributes"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
@@ -55,7 +56,7 @@ func (p provide) New(cfg converter.ProviderConfig) (converter.Provider, error) {
 			cfg: cfg,
 			md:  md,
 			sanitizeAnchorName: func(s string) string {
-				return sanitizeAnchorNameString(s, cfg.MarkupConfig.Goldmark.Parser.AutoHeadingIDType)
+				return sanitizeAnchorNameString(s, cfg.MarkupConfig().Goldmark.Parser.AutoHeadingIDType)
 			},
 		}, nil
 	}), nil
@@ -76,8 +77,8 @@ func (c *goldmarkConverter) SanitizeAnchorName(s string) string {
 }
 
 func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
-	mcfg := pcfg.MarkupConfig
-	cfg := pcfg.MarkupConfig.Goldmark
+	mcfg := pcfg.MarkupConfig()
+	cfg := mcfg.Goldmark
 	var rendererOptions []renderer.Option
 
 	if cfg.Renderer.HardWraps {
@@ -122,8 +123,11 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 		extensions = append(extensions, extension.TaskList)
 	}
 
-	if cfg.Extensions.Typographer {
-		extensions = append(extensions, extension.Typographer)
+	if !cfg.Extensions.Typographer.Disable {
+		t := extension.NewTypographer(
+			extension.WithTypographicSubstitutions(toTypographicPunctuationMap(cfg.Extensions.Typographer)),
+		)
+		extensions = append(extensions, t)
 	}
 
 	if cfg.Extensions.DefinitionList {
@@ -267,7 +271,7 @@ func (c *goldmarkConverter) Supports(feature identity.Identity) bool {
 }
 
 func (c *goldmarkConverter) newParserContext(rctx converter.RenderContext) *parserContext {
-	ctx := parser.NewContext(parser.WithIDs(newIDFactory(c.cfg.MarkupConfig.Goldmark.Parser.AutoHeadingIDType)))
+	ctx := parser.NewContext(parser.WithIDs(newIDFactory(c.cfg.MarkupConfig().Goldmark.Parser.AutoHeadingIDType)))
 	ctx.Set(tocEnableKey, rctx.RenderTOC)
 	return &parserContext{
 		Context: ctx,
@@ -283,4 +287,22 @@ func (p *parserContext) TableOfContents() *tableofcontents.Fragments {
 		return v.(*tableofcontents.Fragments)
 	}
 	return nil
+}
+
+// Note: It's tempting to put this in the config package, but that doesn't work.
+// TODO(bep) create upstream issue.
+func toTypographicPunctuationMap(t goldmark_config.Typographer) map[extension.TypographicPunctuation][]byte {
+	return map[extension.TypographicPunctuation][]byte{
+		extension.LeftSingleQuote:  []byte(t.LeftSingleQuote),
+		extension.RightSingleQuote: []byte(t.RightSingleQuote),
+		extension.LeftDoubleQuote:  []byte(t.LeftDoubleQuote),
+		extension.RightDoubleQuote: []byte(t.RightDoubleQuote),
+		extension.EnDash:           []byte(t.EnDash),
+		extension.EmDash:           []byte(t.EmDash),
+		extension.Ellipsis:         []byte(t.Ellipsis),
+		extension.LeftAngleQuote:   []byte(t.LeftAngleQuote),
+		extension.RightAngleQuote:  []byte(t.RightAngleQuote),
+		extension.Apostrophe:       []byte(t.Apostrophe),
+	}
+
 }

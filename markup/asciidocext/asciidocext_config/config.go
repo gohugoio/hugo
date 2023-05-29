@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package asciidoc_config holds asciidoc related configuration.
+// Package asciidocext_config holds asciidoc related configuration.
 package asciidocext_config
 
 var (

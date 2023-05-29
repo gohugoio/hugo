@@ -10,22 +10,26 @@ Initialize this project as a Hugo Module.
 ### Synopsis
 
 Initialize this project as a Hugo Module.
-It will try to guess the module path, but you may help by passing it as an argument, e.g:
-
-    hugo mod init github.com/gohugoio/testshortcodes
-
-Note that Hugo Modules supports multi-module projects, so you can initialize a Hugo Module
-inside a subfolder on GitHub, as one example.
-
+	It will try to guess the module path, but you may help by passing it as an argument, e.g:
+	
+		hugo mod init github.com/gohugoio/testshortcodes
+	
+	Note that Hugo Modules supports multi-module projects, so you can initialize a Hugo Module
+	inside a subfolder on GitHub, as one example.
+	
 
 ```
-hugo mod init [flags]
+hugo mod init [flags] [args]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for init
+  -b, --baseURL string      hostname (and path) to the root, e.g. https://spf13.com/
+      --cacheDir string     filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
+  -c, --contentDir string   filesystem path to content directory
+  -h, --help                help for init
+  -t, --theme strings       themes to use (located in /themes/THEMENAME/)
 ```
 
 ### Options inherited from parent commands
@@ -35,6 +39,7 @@ hugo mod init [flags]
       --config string              config file (default is hugo.yaml|json|toml)
       --configDir string           config dir (default "config")
       --debug                      debug output
+  -d, --destination string         filesystem path to write files to
   -e, --environment string         build environment
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --log                        enable Logging

@@ -16,14 +16,12 @@ package metadecoders
 import (
 	"path/filepath"
 	"strings"
-
-	"github.com/gohugoio/hugo/media"
 )
 
 type Format string
 
 const (
-	// These are the supported metdata  formats in Hugo. Most of these are also
+	// These are the supported metadata  formats in Hugo. Most of these are also
 	// supported as /data formats.
 	ORG  Format = "org"
 	JSON Format = "json"
@@ -32,6 +30,16 @@ const (
 	CSV  Format = "csv"
 	XML  Format = "xml"
 )
+
+// FormatFromStrings returns the first non-empty Format from the given strings.
+func FormatFromStrings(ss ...string) Format {
+	for _, s := range ss {
+		if f := FormatFromString(s); f != "" {
+			return f
+		}
+	}
+	return ""
+}
 
 // FormatFromString turns formatStr, typically a file extension without any ".",
 // into a Format. It returns an empty string for unknown formats.
@@ -54,18 +62,6 @@ func FormatFromString(formatStr string) Format {
 		return CSV
 	case "xml":
 		return XML
-	}
-
-	return ""
-}
-
-// FormatFromMediaType gets the Format given a MIME type, empty string
-// if unknown.
-func FormatFromMediaType(m media.Type) Format {
-	for _, suffix := range m.Suffixes() {
-		if f := FormatFromString(suffix); f != "" {
-			return f
-		}
 	}
 
 	return ""

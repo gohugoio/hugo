@@ -53,32 +53,15 @@ var (
 	// DefaultConfig is the default related config.
 	DefaultConfig = Config{
 		Threshold: 80,
-		Indices: IndexConfigs{
+		Indices: IndicesConfig{
 			IndexConfig{Name: "keywords", Weight: 100, Type: TypeBasic},
 			IndexConfig{Name: "date", Weight: 10, Type: TypeBasic},
 		},
 	}
 )
 
-/*
-Config is the top level configuration element used to configure how to retrieve
-related content in Hugo.
-
-An example site config.toml:
-
-	[related]
-	threshold = 1
-	[[related.indices]]
-	name = "keywords"
-	weight = 200
-	[[related.indices]]
-	name  = "tags"
-	weight = 100
-	[[related.indices]]
-	name  = "date"
-	weight = 1
-	pattern = "2006"
-*/
+// Config is the top level configuration element used to configure how to retrieve
+// related content in Hugo.
 type Config struct {
 	// Only include matches >= threshold, a normalized rank between 0 and 100.
 	Threshold int
@@ -90,7 +73,7 @@ type Config struct {
 	// May get better results, but at a slight performance cost.
 	ToLower bool
 
-	Indices IndexConfigs
+	Indices IndicesConfig
 }
 
 // Add adds a given index.
@@ -110,8 +93,8 @@ func (c *Config) HasType(s string) bool {
 	return false
 }
 
-// IndexConfigs holds a set of index configurations.
-type IndexConfigs []IndexConfig
+// IndicesConfig holds a set of index configurations.
+type IndicesConfig []IndexConfig
 
 // IndexConfig configures an index.
 type IndexConfig struct {
@@ -143,13 +126,6 @@ type IndexConfig struct {
 	// Will lower case all string values in and queries tothis index.
 	// May get better accurate results, but at a slight performance cost.
 	ToLower bool
-
-	// Counts the number of documents in the index.
-	numDocs int
-}
-
-func (cfg *IndexConfig) incrNumDocs() {
-	cfg.numDocs++
 }
 
 // Document is the interface an indexable document in Hugo must fulfill.
@@ -178,6 +154,8 @@ type FragmentProvider interface {
 type InvertedIndex struct {
 	cfg   Config
 	index map[string]map[Keyword][]Document
+	// Counts the number of documents added to each index.
+	indexDocCount map[string]int
 
 	minWeight int
 	maxWeight int
@@ -199,7 +177,7 @@ func (idx *InvertedIndex) getIndexCfg(name string) (IndexConfig, bool) {
 // NewInvertedIndex creates a new InvertedIndex.
 // Documents to index must be added in Add.
 func NewInvertedIndex(cfg Config) *InvertedIndex {
-	idx := &InvertedIndex{index: make(map[string]map[Keyword][]Document), cfg: cfg}
+	idx := &InvertedIndex{index: make(map[string]map[Keyword][]Document), indexDocCount: make(map[string]int), cfg: cfg}
 	for _, conf := range cfg.Indices {
 		idx.index[conf.Name] = make(map[Keyword][]Document)
 		if conf.Weight < idx.minWeight {
@@ -221,7 +199,7 @@ func (idx *InvertedIndex) Add(ctx context.Context, docs ...Document) error {
 		panic("index is finalized")
 	}
 	var err error
-	for i, config := range idx.cfg.Indices {
+	for _, config := range idx.cfg.Indices {
 		if config.Weight == 0 {
 			// Disabled
 			continue
@@ -251,8 +229,7 @@ func (idx *InvertedIndex) Add(ctx context.Context, docs ...Document) error {
 			}
 
 			if added {
-				c := &idx.cfg.Indices[i]
-				(*c).incrNumDocs()
+				idx.indexDocCount[config.Name]++
 			}
 		}
 	}
@@ -270,12 +247,12 @@ func (idx *InvertedIndex) Finalize(ctx context.Context) error {
 			continue
 		}
 		setm := idx.index[config.Name]
-		numDocs := config.numDocs
-		if numDocs == 0 {
+		if idx.indexDocCount[config.Name] == 0 {
 			continue
 		}
 
 		// Remove high cardinality terms.
+		numDocs := idx.indexDocCount[config.Name]
 		for k, v := range setm {
 			percentageWithKeyword := int(math.Ceil(float64(len(v)) / float64(numDocs) * 100))
 			if percentageWithKeyword > config.CardinalityThreshold {
@@ -372,13 +349,13 @@ func (idx *InvertedIndex) Search(ctx context.Context, opts SearchOpts) ([]Docume
 
 	var (
 		queryElements []queryElement
-		configs       IndexConfigs
+		configs       IndicesConfig
 	)
 
 	if len(opts.Indices) == 0 {
 		configs = idx.cfg.Indices
 	} else {
-		configs = make(IndexConfigs, len(opts.Indices))
+		configs = make(IndicesConfig, len(opts.Indices))
 		for i, indexName := range opts.Indices {
 			cfg, found := idx.getIndexCfg(indexName)
 			if !found {
@@ -402,12 +379,14 @@ func (idx *InvertedIndex) Search(ctx context.Context, opts SearchOpts) ([]Docume
 				keywords = append(keywords, FragmentKeyword(fragment))
 			}
 			if opts.Document != nil {
+
 				if fp, ok := opts.Document.(FragmentProvider); ok {
 					for _, fragment := range fp.Fragments(ctx).Identifiers {
 						keywords = append(keywords, FragmentKeyword(fragment))
 					}
 				}
 			}
+
 		}
 		queryElements = append(queryElements, newQueryElement(cfg.Name, keywords...))
 	}
@@ -559,6 +538,7 @@ func (idx *InvertedIndex) searchDate(ctx context.Context, self Document, upperDa
 
 	for i, m := range matches {
 		result[i] = m.Doc
+
 		if len(fragmentsFilter) > 0 {
 			if dp, ok := result[i].(FragmentProvider); ok {
 				result[i] = dp.ApplyFilterToHeadings(ctx, func(h *tableofcontents.Heading) bool {

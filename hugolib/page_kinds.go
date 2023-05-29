@@ -29,9 +29,9 @@ const (
 
 	// The following are (currently) temporary nodes,
 	// i.e. nodes we create just to render in isolation.
-	kindRSS       = "RSS"
+	kindRSS       = "rss"
 	kindSitemap   = "sitemap"
-	kindRobotsTXT = "robotsTXT"
+	kindRobotsTXT = "robotstxt"
 	kind404       = "404"
 
 	pageResourceType = "page"

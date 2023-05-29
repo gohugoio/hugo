@@ -1,6 +1,5 @@
 ---
 title: Quick Start
-linktitle: Quick Start
 description: Learn to create a Hugo site in minutes.
 categories: [getting started]
 keywords: [quick start,usage]
@@ -24,7 +23,7 @@ In this tutorial you will:
 
 Before you begin this tutorial you must:
 
-1. [Install Hugo] (the extended edition)
+1. [Install Hugo] (extended edition, v0.112.0 or later)
 1. [Install Git]
 
 You must also be comfortable working from the command line.
@@ -52,7 +51,7 @@ hugo new site quickstart
 cd quickstart
 git init
 git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke themes/ananke
-echo "theme = 'ananke'" >> config.toml
+echo "theme = 'ananke'" >> hugo.toml
 hugo server
 ```
 
@@ -87,7 +86,7 @@ git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke themes/an
 Append a line to the site configuration file, indicating the current theme.
 
 ```text
-echo "theme = 'ananke'" >> config.toml
+echo "theme = 'ananke'" >> hugo.toml
 ```
 
 Start Hugo's development server to view the site.
@@ -153,7 +152,7 @@ Hugo's rendering engine conforms to the CommonMark [specification] for markdown.
 
 ## Configure the site
 
-With your editor, open the [site configuration] file (`config.toml`) in the root of your project.
+With your editor, open the [site configuration] file (`hugo.toml`) in the root of your project.
 
 ```text
 baseURL = 'http://example.org/'

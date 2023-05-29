@@ -44,7 +44,7 @@ func (w Whitelist) MarshalJSON() ([]byte, error) {
 
 // NewWhitelist creates a new Whitelist from zero or more patterns.
 // An empty patterns list or a pattern with the value 'none' will create
-// a whitelist that will Accept noone.
+// a whitelist that will Accept none.
 func NewWhitelist(patterns ...string) Whitelist {
 	if len(patterns) == 0 {
 		return Whitelist{acceptNone: true}
@@ -84,7 +84,7 @@ func NewWhitelist(patterns ...string) Whitelist {
 	return Whitelist{patterns: patternsr, patternsStrings: patternsStrings}
 }
 
-// Accepted reports whether name is whitelisted.
+// Accept reports whether name is whitelisted.
 func (w Whitelist) Accept(name string) bool {
 	if w.acceptNone {
 		return false

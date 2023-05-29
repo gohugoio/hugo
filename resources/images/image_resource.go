@@ -62,6 +62,6 @@ type ImageResourceOps interface {
 	// using a simple histogram method.
 	Colors() ([]string, error)
 
-	// Internal
+	// For internal use.
 	DecodeImage() (image.Image, error)
 }

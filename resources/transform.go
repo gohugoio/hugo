@@ -164,12 +164,12 @@ type resourceAdapter struct {
 	*resourceAdapterInner
 }
 
-func (r *resourceAdapter) Content(context.Context) (any, error) {
+func (r *resourceAdapter) Content(ctx context.Context) (any, error) {
 	r.init(false, true)
 	if r.transformationsErr != nil {
 		return nil, r.transformationsErr
 	}
-	return r.target.Content(context.Background())
+	return r.target.Content(ctx)
 }
 
 func (r *resourceAdapter) Err() resource.ResourceError {
@@ -447,7 +447,7 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 		}
 
 		newErr := func(err error) error {
-			msg := fmt.Sprintf("%s: failed to transform %q (%s)", strings.ToUpper(tr.Key().Name), tctx.InPath, tctx.InMediaType.Type())
+			msg := fmt.Sprintf("%s: failed to transform %q (%s)", strings.ToUpper(tr.Key().Name), tctx.InPath, tctx.InMediaType.Type)
 
 			if err == herrors.ErrFeatureNotAvailable {
 				var errMsg string
@@ -470,9 +470,9 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 			return fmt.Errorf(msg+": %w", err)
 		}
 
+		bcfg := r.spec.BuildConfig()
 		var tryFileCache bool
-
-		if mayBeCachedOnDisk && r.spec.BuildConfig.UseResourceCache(nil) {
+		if mayBeCachedOnDisk && bcfg.UseResourceCache(nil) {
 			tryFileCache = true
 		} else {
 			err = tr.Transform(tctx)
@@ -481,7 +481,7 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 			}
 
 			if mayBeCachedOnDisk {
-				tryFileCache = r.spec.BuildConfig.UseResourceCache(err)
+				tryFileCache = bcfg.UseResourceCache(err)
 			}
 			if err != nil && !tryFileCache {
 				return newErr(err)
@@ -654,7 +654,7 @@ func (u *transformationUpdate) isContentChanged() bool {
 
 func (u *transformationUpdate) toTransformedResourceMetadata() transformedResourceMetadata {
 	return transformedResourceMetadata{
-		MediaTypeV: u.mediaType.Type(),
+		MediaTypeV: u.mediaType.Type,
 		Target:     u.targetPath,
 		MetaData:   u.data,
 	}

@@ -89,8 +89,11 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 						})
 
 						cfg.Set("uglyURLs", ugly)
+						configs, err := loadTestConfigFromProvider(cfg)
 
-						b := newTestSitesBuilderFromDepsCfg(c, deps.DepsCfg{Logger: loggers.NewErrorLogger(), Fs: fs, Cfg: cfg}).WithNothingAdded()
+						c.Assert(err, qt.IsNil)
+
+						b := newTestSitesBuilderFromDepsCfg(c, deps.DepsCfg{Logger: loggers.NewErrorLogger(), Fs: fs, Configs: configs}).WithNothingAdded()
 
 						b.Build(BuildCfg{})
 
@@ -150,7 +153,7 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 						c.Assert(leafBundle1.Section(), qt.Equals, "b")
 						sectionB := s.getPage(page.KindSection, "b")
 						c.Assert(sectionB, qt.Not(qt.IsNil))
-						home := s.Info.Home()
+						home := s.Home()
 						c.Assert(home.BundleType(), qt.Equals, files.ContentClassBranch)
 
 						// This is a root bundle and should live in the "home section"
@@ -278,8 +281,10 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 				c := qt.New(t)
 				fs, cfg := newTestBundleSourcesMultilingual(t)
 				cfg.Set("uglyURLs", ugly)
+				configs, err := loadTestConfigFromProvider(cfg)
+				c.Assert(err, qt.IsNil)
 
-				b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{Fs: fs, Cfg: cfg}).WithNothingAdded()
+				b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{Fs: fs, Configs: configs}).WithNothingAdded()
 				b.Build(BuildCfg{})
 
 				sites := b.H
@@ -349,28 +354,16 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 	}
 }
 
-func TestMultilingualDisableDefaultLanguage(t *testing.T) {
-	t.Parallel()
-
-	c := qt.New(t)
-	_, cfg := newTestBundleSourcesMultilingual(t)
-	cfg.Set("disableLanguages", []string{"en"})
-	l := configLoader{cfg: cfg}
-	err := l.applyConfigDefaults()
-	c.Assert(err, qt.IsNil)
-	err = l.loadLanguageSettings(nil)
-	c.Assert(err, qt.Not(qt.IsNil))
-	c.Assert(err.Error(), qt.Contains, "cannot disable default language")
-}
-
 func TestMultilingualDisableLanguage(t *testing.T) {
 	t.Parallel()
 
 	c := qt.New(t)
 	fs, cfg := newTestBundleSourcesMultilingual(t)
 	cfg.Set("disableLanguages", []string{"nn"})
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
-	b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{Fs: fs, Cfg: cfg}).WithNothingAdded()
+	b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{Fs: fs, Configs: configs}).WithNothingAdded()
 	b.Build(BuildCfg{})
 	sites := b.H
 
@@ -401,9 +394,10 @@ func TestPageBundlerSiteWitSymbolicLinksInContent(t *testing.T) {
 	// We need to use the OS fs for this.
 	workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugosym")
 	c.Assert(err, qt.IsNil)
-	cfg := config.NewWithTestDefaults()
+	cfg := config.New()
 	cfg.Set("workingDir", workingDir)
-	fs := hugofs.NewFrom(hugofs.Os, cfg)
+	cfg.Set("publishDir", "public")
+	fs := hugofs.NewFromOld(hugofs.Os, cfg)
 
 	contentDirName := "content"
 
@@ -439,6 +433,8 @@ func TestPageBundlerSiteWitSymbolicLinksInContent(t *testing.T) {
 	cfg.Set("workingDir", workingDir)
 	cfg.Set("contentDir", contentDirName)
 	cfg.Set("baseURL", "https://example.com")
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
 	layout := `{{ .Title }}|{{ .Content }}`
 	pageContent := `---
@@ -450,8 +446,8 @@ TheContent.
 `
 
 	b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{
-		Fs:  fs,
-		Cfg: cfg,
+		Fs:      fs,
+		Configs: configs,
 	})
 
 	b.WithTemplates(
@@ -504,6 +500,8 @@ func TestPageBundlerHeadless(t *testing.T) {
 	cfg.Set("workingDir", workDir)
 	cfg.Set("contentDir", "base")
 	cfg.Set("baseURL", "https://example.com")
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
 	pageContent := `---
 title: "Bundle Galore"
@@ -538,7 +536,7 @@ HEADLESS {{< myShort >}}
 	writeSource(t, fs, filepath.Join(workDir, "base", "b", "l2.png"), "PNG image")
 	writeSource(t, fs, filepath.Join(workDir, "base", "b", "p1.md"), pageContent)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 1)
 
@@ -562,7 +560,7 @@ HEADLESS {{< myShort >}}
 	c.Assert(content(p), qt.Contains, "SHORTCODE")
 	c.Assert(p.Name(), qt.Equals, "p1.md")
 
-	th := newTestHelper(s.Cfg, s.Fs, t)
+	th := newTestHelper(s.conf, s.Fs, t)
 
 	th.assertFileContent(filepath.FromSlash("public/s1/index.html"), "TheContent")
 	th.assertFileContent(filepath.FromSlash("public/s1/l1.png"), "PNG")
@@ -1322,9 +1320,10 @@ func TestPageBundlerHome(t *testing.T) {
 	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-bundler-home")
 	c.Assert(err, qt.IsNil)
 
-	cfg := config.NewWithTestDefaults()
+	cfg := config.New()
 	cfg.Set("workingDir", workDir)
-	fs := hugofs.NewFrom(hugofs.Os, cfg)
+	cfg.Set("publishDir", "public")
+	fs := hugofs.NewFromOld(hugofs.Os, cfg)
 
 	os.MkdirAll(filepath.Join(workDir, "content"), 0777)
 

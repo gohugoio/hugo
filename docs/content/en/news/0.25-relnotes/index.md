@@ -4,8 +4,6 @@ categories: ["Releases"]
 description: "Hugo 0.25 automatically opens the page you&#39;re working on in the browser"
 link: ""
 title: "Hugo 0.25"
-draft: false
-author: bep
 aliases: [/0-25/]
 ---
 

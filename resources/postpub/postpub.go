@@ -55,7 +55,7 @@ func NewPostPublishResource(id int, r resource.Resource) PostPublishedResource {
 	}
 }
 
-// postPublishResource holds a Resource to be transformed post publishing.
+// PostPublishResource holds a Resource to be transformed post publishing.
 type PostPublishResource struct {
 	prefix   string
 	delegate resource.Resource

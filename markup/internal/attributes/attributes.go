@@ -199,9 +199,9 @@ func RenderASTAttributes(w hugio.FlexiWriter, attributes ...ast.Attribute) {
 	}
 }
 
-// Render writes the attributes to the given as attributes to an HTML element.
-// This is used for the default codeblock renderering.
-// This performs HTML esacaping of string attributes.
+// RenderAttributes Render writes the attributes to the given as attributes to an HTML element.
+// This is used for the default codeblock rendering.
+// This performs HTML escaping of string attributes.
 func RenderAttributes(w hugio.FlexiWriter, skipClass bool, attributes ...Attribute) {
 	for _, attr := range attributes {
 		a := strings.ToLower(string(attr.Name))

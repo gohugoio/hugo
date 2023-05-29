@@ -19,13 +19,13 @@ See [Image Processing Options](https://gohugo.io/content-management/image-proces
 Another useful addon is the `$pages.Next` and `$pages.Prev` methods on the core page collections in Hugo. These works the same way as the built-in static variants one `Page`, e.g. `.Next` and `.NextInSection`:
 
 ```
-{{with .Site.RegularPages.Next . }}{{.RelPermalink}}{{end}}
+{{ with .Site.RegularPages.Next . }}{{ .RelPermalink }}{{ end }}
 ```
 
 The above is a functionally equivalent (but slightly slower) variant of:
 
 ```
-{{with .Next }}{{.RelPermalink}}{{end}}
+{{ with .Next }}{{ .RelPermalink }}{{ end }}
 ```
 
 See [Pages Methods](https://gohugo.io/variables/pages/) for more information.
@@ -113,8 +113,3 @@ Hugo now has:
 * Fix cache key transformed resources [6dec671f](https://github.com/gohugoio/hugo/commit/6dec671fb930029e18ba9aa5135b3a27adcddb21) [@bep](https://github.com/bep) [#6348](https://github.com/gohugoio/hugo/issues/6348)
 * Fix cache keys for bundled resoures in transform.Unmarshal [c0d75736](https://github.com/gohugoio/hugo/commit/c0d7573677e9726c14749ccd432dccb75e0d194d) [@bep](https://github.com/bep) [#6327](https://github.com/gohugoio/hugo/issues/6327)
 * Fix concat with fingerprint regression [3be2c253](https://github.com/gohugoio/hugo/commit/3be2c25351b421a26ee1ff2a38cbab00280c0583) [@bep](https://github.com/bep) [#6309](https://github.com/gohugoio/hugo/issues/6309)
-
-
-
-
-

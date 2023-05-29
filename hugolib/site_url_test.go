@@ -15,7 +15,6 @@ package hugolib
 
 import (
 	"fmt"
-	"html/template"
 	"path/filepath"
 	"testing"
 
@@ -39,44 +38,19 @@ var urlFakeSource = [][2]string{
 	{filepath.FromSlash("content/blue/doc2.md"), slugDoc2},
 }
 
-// Issue #1105
-func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
-	t.Parallel()
-	c := qt.New(t)
-
-	for i, this := range []struct {
-		in       string
-		expected string
-	}{
-		{"http://base.com/", "http://base.com/"},
-		{"http://base.com/sub/", "http://base.com/sub/"},
-		{"http://base.com/sub", "http://base.com/sub"},
-		{"http://base.com", "http://base.com"},
-	} {
-
-		cfg, fs := newTestCfg()
-		cfg.Set("baseURL", this.in)
-		d := deps.DepsCfg{Cfg: cfg, Fs: fs}
-		s, err := NewSiteForCfg(d)
-		c.Assert(err, qt.IsNil)
-		c.Assert(s.initializeSiteInfo(), qt.IsNil)
-
-		if s.Info.BaseURL() != template.URL(this.expected) {
-			t.Errorf("[%d] got %s expected %s", i, s.Info.BaseURL(), this.expected)
-		}
-	}
-}
-
 func TestPageCount(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 	cfg, fs := newTestCfg()
 	cfg.Set("uglyURLs", false)
 	cfg.Set("paginate", 10)
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
 	writeSourcesToSource(t, "", fs, urlFakeSource...)
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
 
-	_, err := s.Fs.WorkingDirReadOnly.Open("public/blue")
+	_, err = s.Fs.WorkingDirReadOnly.Open("public/blue")
 	if err != nil {
 		t.Errorf("No indexed rendered.")
 	}
@@ -113,11 +87,13 @@ Do not go gentle into that good night.
 	cfg.Set("uglyURLs", map[string]bool{
 		"sect2": true,
 	})
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
 	writeSource(t, fs, filepath.Join("content", "sect1", "p1.md"), dt)
 	writeSource(t, fs, filepath.Join("content", "sect2", "p2.md"), dt)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 2)
 
@@ -159,9 +135,8 @@ Do not go gentle into that good night.
 `
 
 	cfg, fs := newTestCfg()
-	th := newTestHelper(cfg, fs, t)
-
 	cfg.Set("paginate", 1)
+	th, configs := newTestHelperFromProvider(cfg, fs, t)
 
 	writeSource(t, fs, filepath.Join("content", "sect1", "_index.md"), fmt.Sprintf(st, "/ss1/"))
 	writeSource(t, fs, filepath.Join("content", "sect2", "_index.md"), fmt.Sprintf(st, "/ss2/"))
@@ -175,7 +150,7 @@ Do not go gentle into that good night.
 	writeSource(t, fs, filepath.Join("layouts", "_default", "list.html"),
 		"<html><body>P{{.Paginator.PageNumber}}|URL: {{.Paginator.URL}}|{{ if .Paginator.HasNext }}Next: {{.Paginator.Next.URL }}{{ end }}</body></html>")
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 10)
 

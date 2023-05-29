@@ -2,11 +2,10 @@
 title: Frequently Asked Questions
 linktitle: FAQ
 description: Solutions to some common Hugo problems.
-date: 2018-02-10
 categories: [troubleshooting]
 menu:
   docs:
-    parent: "troubleshooting"
+    parent: troubleshooting
 keywords: [faqs]
 weight: 2
 toc: true

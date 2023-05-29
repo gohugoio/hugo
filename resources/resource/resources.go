@@ -144,6 +144,7 @@ func (r Resources) MergeByLanguage(r2 Resources) Resources {
 
 // MergeByLanguageInterface is the generic version of MergeByLanguage. It
 // is here just so it can be called from the tpl package.
+// This is for internal use.
 func (r Resources) MergeByLanguageInterface(in any) (any, error) {
 	r2, ok := in.(Resources)
 	if !ok {

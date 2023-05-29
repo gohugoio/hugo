@@ -37,7 +37,7 @@ type PermalinkExpander struct {
 
 	expanders map[string]func(Page) (string, error)
 
-	ps *helpers.PathSpec
+	urlize func(uri string) string
 }
 
 // Time for checking date formats. Every field is different than the
@@ -67,9 +67,9 @@ func (p PermalinkExpander) callback(attr string) (pageToPermaAttribute, bool) {
 }
 
 // NewPermalinkExpander creates a new PermalinkExpander configured by the given
-// PathSpec.
-func NewPermalinkExpander(ps *helpers.PathSpec) (PermalinkExpander, error) {
-	p := PermalinkExpander{ps: ps}
+// urlize func.
+func NewPermalinkExpander(urlize func(uri string) string, patterns map[string]string) (PermalinkExpander, error) {
+	p := PermalinkExpander{urlize: urlize}
 
 	p.knownPermalinkAttributes = map[string]pageToPermaAttribute{
 		"year":           p.pageToPermalinkDate,
@@ -85,11 +85,6 @@ func NewPermalinkExpander(ps *helpers.PathSpec) (PermalinkExpander, error) {
 		"slug":           p.pageToPermalinkSlugElseTitle,
 		"slugorfilename": p.pageToPermalinkSlugElseFilename,
 		"filename":       p.pageToPermalinkFilename,
-	}
-
-	patterns := ps.Cfg.GetStringMapString("permalinks")
-	if patterns == nil {
-		return p, nil
 	}
 
 	e, err := p.parse(patterns)
@@ -180,6 +175,9 @@ var attributeRegexp = regexp.MustCompile(`:\w+(\[.+?\])?`)
 
 // validate determines if a PathPattern is well-formed
 func (l PermalinkExpander) validate(pp string) bool {
+	if len(pp) == 0 {
+		return false
+	}
 	fragments := strings.Split(pp[1:], "/")
 	bail := false
 	for i := range fragments {
@@ -244,7 +242,7 @@ func (l PermalinkExpander) pageToPermalinkDate(p Page, dateField string) (string
 
 // pageToPermalinkTitle returns the URL-safe form of the title
 func (l PermalinkExpander) pageToPermalinkTitle(p Page, _ string) (string, error) {
-	return l.ps.URLize(p.Title()), nil
+	return l.urlize(p.Title()), nil
 }
 
 // pageToPermalinkFilename returns the URL-safe form of the filename
@@ -256,13 +254,13 @@ func (l PermalinkExpander) pageToPermalinkFilename(p Page, _ string) (string, er
 		_, name = filepath.Split(dir)
 	}
 
-	return l.ps.URLize(name), nil
+	return l.urlize(name), nil
 }
 
 // if the page has a slug, return the slug, else return the title
 func (l PermalinkExpander) pageToPermalinkSlugElseTitle(p Page, a string) (string, error) {
 	if p.Slug() != "" {
-		return l.ps.URLize(p.Slug()), nil
+		return l.urlize(p.Slug()), nil
 	}
 	return l.pageToPermalinkTitle(p, a)
 }
@@ -270,7 +268,7 @@ func (l PermalinkExpander) pageToPermalinkSlugElseTitle(p Page, a string) (strin
 // if the page has a slug, return the slug, else return the filename
 func (l PermalinkExpander) pageToPermalinkSlugElseFilename(p Page, a string) (string, error) {
 	if p.Slug() != "" {
-		return l.ps.URLize(p.Slug()), nil
+		return l.urlize(p.Slug()), nil
 	}
 	return l.pageToPermalinkFilename(p, a)
 }

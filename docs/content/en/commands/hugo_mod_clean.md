@@ -11,22 +11,20 @@ Delete the Hugo Module cache for the current project.
 
 Delete the Hugo Module cache for the current project.
 
-Note that after you run this command, all of your dependencies will be re-downloaded next time you run "hugo".
-
-Also note that if you configure a positive maxAge for the "modules" file cache, it will also be cleaned as part of "hugo --gc".
- 
-
-
 ```
-hugo mod clean [flags]
+hugo mod clean [flags] [args]
 ```
 
 ### Options
 
 ```
-      --all              clean entire module cache
-  -h, --help             help for clean
-      --pattern string   pattern matching module paths to clean (all if not set), e.g. "**hugo*"
+      --all                 clean entire module cache
+  -b, --baseURL string      hostname (and path) to the root, e.g. https://spf13.com/
+      --cacheDir string     filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
+  -c, --contentDir string   filesystem path to content directory
+  -h, --help                help for clean
+      --pattern string      pattern matching module paths to clean (all if not set), e.g. "**hugo*"
+  -t, --theme strings       themes to use (located in /themes/THEMENAME/)
 ```
 
 ### Options inherited from parent commands
@@ -36,6 +34,7 @@ hugo mod clean [flags]
       --config string              config file (default is hugo.yaml|json|toml)
       --configDir string           config dir (default "config")
       --debug                      debug output
+  -d, --destination string         filesystem path to write files to
   -e, --environment string         build environment
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --log                        enable Logging

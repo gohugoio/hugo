@@ -15,13 +15,13 @@ aliases: [/content/multilingual/,/tutorials/create-a-multilingual-site/]
 
 You should define the available languages in a `languages` section in your site configuration.
 
-> Also See [Hugo Multilingual Part 1: Content translation]
+Also See [Hugo Multilingual Part 1: Content translation].
 
 ## Configure Languages
 
 The following is an example of a site configuration for a multilingual Hugo project:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 defaultContentLanguage = "en"
 copyright = "Everything is mine"
 
@@ -69,11 +69,40 @@ Only the obvious non-global options can be overridden per language. Examples of 
 
 **Please note:** use lowercase language codes, even when using regional languages (ie. use pt-pt instead of pt-PT). Currently Hugo language internals lowercase language codes, which can cause conflicts with settings like `defaultContentLanguage` which are not lowercased. Please track the evolution of this issue in [Hugo repository issue tracker](https://github.com/gohugoio/hugo/issues/7344)
 
+### Changes in Hugo 0.112.0
+
+{{< new-in "0.112.0" >}}
+
+In Hugo `v0.112.0` we consolidated all configuration options, and improved how the languages and their parameters are merged with the main configuration. But while testing this on Hugo sites out there, we received some error reports and reverted some of the changes in favor of deprecation warnings:
+
+1. `site.Language.Params` is deprecated. Use `site.Params` directly.
+1. Adding custom params to the top level language config is deprecated, add all of these below `[params]`, see `color` in the example below.
+
+```toml
+title = "My blog"
+languageCode = "en-us"
+
+[languages]
+[languages.sv]
+title = "Min blogg"
+languageCode = "sv"
+[languages.en.params]
+color = "blue"
+```
+
+In the example above, all settings except `color` below `params` map to predefined configuration options in Hugo for the site and its language, and should be accessed via the documented accessors:
+
+```
+{{ site.Title }}
+{{ site.LanguageCode }}
+{{ site.Params.color }}
+```
+
 ### Disable a Language
 
 You can disable one or more languages. This can be useful when working on a new translation.
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 disableLanguages = ["fr", "ja"]
 {{< /code-toggle >}}
 
@@ -85,7 +114,7 @@ We kept this as a standalone setting to make it easier to set via [OS environmen
 HUGO_DISABLELANGUAGES="fr ja" hugo
 ```
 
-If you have already a list of disabled languages in `config.toml`, you can enable them in development like this:
+If you have already a list of disabled languages in `hugo.toml`, you can enable them in development like this:
 
 ```bash
 HUGO_DISABLELANGUAGES=" " hugo server
@@ -97,11 +126,13 @@ From **Hugo 0.31** we support multiple languages in a multihost configuration. S
 
 This means that you can now configure a `baseURL` per `language`:
 
-> If a `baseURL` is set on the `language` level, then all languages must have one and they must all be different.
+{{% note %}}
+If a `baseURL` is set on the `language` level, then all languages must have one and they must all be different.
+{{% /note %}}
 
 Example:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 [languages]
 [languages.fr]
 baseURL = "https://example.fr"
@@ -155,15 +186,15 @@ Their language is __assigned__ according to the language code added as a __suffi
 
 By having the same **path and base filename**, the content pieces are __linked__ together as translated pages.
 
-{{< note >}}
+{{% note %}}
 If a file has no language code, it will be assigned the default language.
-{{</ note >}}
+{{% /note %}}
 
 ### Translation by content directory
 
 This system uses different content directories for each of the languages. Each language's content directory is set using the `contentDir` param.
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 languages:
   en:
     weight: 10
@@ -209,16 +240,22 @@ By setting the `translationKey` front matter param to `about` in all three pages
 
 Because paths and filenames are used to handle linking, all translated pages will share the same URL (apart from the language subdirectory).
 
-To localize the URLs, the [`slug`]({{< ref "/content-management/organization/index.md#slug" >}}) or [`url`]({{< ref "/content-management/organization/index.md#url" >}}) front matter param can be set in any of the non-default language file.
+To localize URLs:
 
-For example, a French translation (`content/about.fr.md`) can have its own localized slug.
+- For a regular page, set either [`slug`] or [`url`] in front matter
+- For a section page, set [`url`] in front matter
 
-{{< code-toggle >}}
-Title: A Propos
+[`slug`]: /content-management/urls/#slug
+[`url`]: /content-management/urls/#url
+
+For example, a French translation can have its own localized slug.
+
+{{< code-toggle file="content/about.fr.md" fm=true copy=false >}}
+title: A Propos
 slug: "a-propos"
 {{< /code-toggle >}}
 
-At render, Hugo will build both `/about/` and `/fr/a-propos/` while maintaining their translation linking.
+At render, Hugo will build both `/about/` and `/fr/a-propos/` without affecting the translation link.
 
 ### Page Bundles
 
@@ -338,7 +375,7 @@ The function will read `.Count` from `.ReadingTime` and evaluate whether the num
 {{< code-toggle file="i18n/en-US" >}}
 [readingTime]
 one = "One minute to read"
-other = "{{.Count}} minutes to read"
+other = "{{ .Count }} minutes to read"
 {{< /code-toggle >}}
 
 Assuming `.ReadingTime.Count` in the context has value is 525600. The result will be:
@@ -363,7 +400,7 @@ In case you need to pass a custom data: (`(dict "Count" numeric_value_only)` is 
 
 The following localization examples assume your site's primary language is English, with translations to French and German.
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 defaultContentLanguage = 'en'
 
 [languages]
@@ -462,76 +499,91 @@ See [lang.FormatPercent] for details.
 
 ## Menus
 
-You can define your menus for each language independently. Creating multilingual menus works just like [creating regular menus][menus], except they're defined in language-specific blocks in the configuration file:
+Localization of menu entries depends on the how you define them:
 
-{{< code-toggle file="config" >}}
-defaultContentLanguage = "en"
+- When you define menu entries [automatically] using the section pages menu, you must use translation tables to localize each entry.
+- When you define menu entries [in front matter], they are already localized based on the front matter itself. If the front matter values are insufficient, use translation tables to localize each entry.
+- When you define menu entries [in site configuration], you can (a) use translation tables, or (b) create language-specific menu entries under each language key.
 
-[languages.en]
-weight = 0
-languageName = "English"
+### Use translation tables
 
-[[languages.en.menu.main]]
-url    = "/"
-name   = "Home"
-weight = 0
-
-[languages.de]
-weight = 10
-languageName = "Deutsch"
-
-[[languages.de.menu.main]]
-url    = "/"
-name   = "Startseite"
-weight = 0
-{{< /code-toggle >}}
-
-The rendering of the main navigation works as usual. `.Site.Menus` will just contain the menu in the current language. Note that `absLangURL` below will link to the correct locale of your website. Without it, menu entries in all languages would link to the English version, since it's the default content language that resides in the root directory.
+When rendering the text that appears in menu each entry, the [example menu template] does this:
 
 ```go-html-template
-<ul>
-    {{- $currentPage := . -}}
-    {{ range .Site.Menus.main -}}
-    <li class="{{ if $currentPage.IsMenuCurrent "main" . }}active{{ end }}">
-        <a href="{{ .URL | absLangURL }}">{{ .Name }}</a>
-    </li>
-    {{- end }}
-</ul>
+{{ or (T .Identifier) .Name | safeHTML }}
 ```
 
-### Dynamically localizing menus with i18n
+It queries the translation table for the current language using the menu entry's `identifier` and returns the translated string. If the translation table does not exist, or if the `identifier` key is not present in the translation table, it falls back to `name`.
 
-While customizing menus per language is useful, your config file can become hard to maintain if you have a lot of languages
+The `identifier` depends on how you define menu entries:
 
-If your menus are the same in all languages (ie. if the only thing that changes is the translated name) you can use the `.Identifier` as a translation key for the menu name:
+- If you define the menu entry [automatically] using the section pages menu, the `identifier` is the page's `.Section`.
+- If you define the menu entry [in site configuration] or [in front matter], set the `identifier` property to the desired value.
 
-{{< code-toggle file="config" >}}
+For example, if you define menu entries in site configuration:
+
+{{< code-toggle file="hugo" copy=false >}}
 [[menu.main]]
-name = "About me"
-url = "about"
+  identifier = 'products'
+  name = 'Products'
+  pageRef = '/products'
+  weight = 10
+[[menu.main]]
+  identifier = 'services'
+  name = 'Services'
+  pageRef = '/services'
+  weight = 20
+{{< / code-toggle >}}
+
+Create corresponding entries in the translation tables:
+
+{{< code-toggle file="i18n/de" copy=false >}}
+products = 'Produkte'
+services = 'Leistungen'
+{{< / code-toggle >}}
+
+[example menu template]: /templates/menu-templates/#example
+[automatically]: /content-management/menus/#define-automatically
+[in front matter]: /content-management/menus/#define-in-front-matter
+[in site configuration]: /content-management/menus/#define-in-site-configuration
+
+### Create language-specific menu entries
+
+For example:
+
+{{< code-toggle file="hugo" copy=false >}}
+[languages.de]
+languageCode = 'de-DE'
+languageName = 'Deutsch'
 weight = 1
-identifier = "about"
+
+[[languages.de.menu.main]]
+name = 'Produkte'
+pageRef = '/products'
+weight = 10
+
+[[languages.de.menu.main]]
+name = 'Leistungen'
+pageRef = '/services'
+weight = 20
+
+[languages.en]
+languageCode = 'en-US'
+languageName = 'English'
+weight = 2
+
+[[languages.en.menu.main]]
+name = 'Products'
+pageRef = '/products'
+weight = 10
+
+[[languages.en.menu.main]]
+name = 'Services'
+pageRef = '/services'
+weight = 20
 {{< /code-toggle >}}
 
-You now need to specify the translations for the menu keys in the i18n files:
-
-{{< code file="i18n/pt.toml" >}}
-[about]
-other="Sobre mim"
-{{< /code >}}
-
-And do the appropriate changes in the menu code to use the `i18n` tag with the `.Identifier` as a key. You will also note that here we are using a `default` to fall back to `.Name`, in case the `.Identifier` key is also not present in the language specified in the `defaultContentLanguage` configuration.
-
-{{< code file="layouts/partials/menu.html" >}}
-<ul>
-    {{- $currentPage := . -}}
-    {{ range .Site.Menus.main -}}
-    <li class="{{ if $currentPage.IsMenuCurrent "main" . }}active{{ end }}">
-        <a href="{{ .URL | absLangURL }}">{{ i18n .Identifier | default .Name}}</a>
-    </li>
-    {{- end }}
-</ul>
-{{< /code >}}
+For a simple menu with two languages, these menu entries are easy to create and maintain. For a larger menu, or with more than two languages, using translation tables as described above is preferable.
 
 ## Missing Translations
 
@@ -586,11 +638,11 @@ hugo new content/de/post/test.md
 [homepage]: /templates/homepage/
 [Hugo Multilingual Part 1: Content translation]: https://regisphilibert.com/blog/2018/08/hugo-multilingual-part-1-managing-content-translation/
 [i18func]: /functions/i18n/
-[lang.FormatAccounting]: /functions/lang/#langformataccounting
-[lang.FormatCurrency]: /functions/lang/#langformatcurrency
-[lang.FormatNumber]: /functions/lang/#langformatnumber
-[lang.FormatNumberCustom]: /functions/lang/#langformatnumbercustom
-[lang.FormatPercent]: /functions/lang/#langformatpercent
+[lang.FormatAccounting]: /functions/lang
+[lang.FormatCurrency]: /functions/lang
+[lang.FormatNumber]: /functions/lang
+[lang.FormatNumberCustom]: /functions/lang
+[lang.FormatPercent]: /functions/lang
 [lang.Merge]: /functions/lang.merge/
 [menus]: /content-management/menus/
 [OS environment]: /getting-started/configuration/#configure-with-environment-variables

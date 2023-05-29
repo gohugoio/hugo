@@ -96,6 +96,7 @@ type FileWithoutOverlap interface {
 	// Hugo content files being one of them, considered to be unique.
 	UniqueID() string
 
+	// For internal use only.
 	FileInfo() hugofs.FileMetaInfo
 }
 
@@ -182,6 +183,7 @@ func (fi *FileInfo) UniqueID() string {
 }
 
 // FileInfo returns a file's underlying os.FileInfo.
+// For internal use only.
 func (fi *FileInfo) FileInfo() hugofs.FileMetaInfo { return fi.fi }
 
 func (fi *FileInfo) String() string { return fi.BaseFileName() }
@@ -301,7 +303,7 @@ func NewGitInfo(info gitmap.GitInfo) GitInfo {
 	return GitInfo(info)
 }
 
-// GitInfo provides information about a version controled source file.
+// GitInfo provides information about a version controlled source file.
 type GitInfo struct {
 	// Commit hash.
 	Hash string `json:"hash"`

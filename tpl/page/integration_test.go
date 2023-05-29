@@ -177,3 +177,35 @@ Shortcode in bundled page OK.
 	}
 
 }
+
+// Issue 10791.
+func TestPageTableOfContentsInShortcode(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+baseURL = 'http://example.com/'
+disableKinds = ["taxonomy", "term"]
+-- content/p1.md --
+---
+title: "P1"
+---
+{{< toc >}}
+
+# Heading 1
+-- layouts/shortcodes/toc.html --
+{{ page.TableOfContents }} 
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", "<nav id=\"TableOfContents\"></nav> \n<h1 id=\"heading-1\">Heading 1</h1>")
+
+}

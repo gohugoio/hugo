@@ -1,19 +1,13 @@
 ---
 title: Site Variables
-linktitle: Site Variables
 description: Many, but not all, site-wide variables are defined in your site's configuration. However, Hugo provides a number of built-in variables for convenient access to global values in your templates.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [variables and params]
 keywords: [global,site]
-draft: false
 menu:
   docs:
-    parent: "variables"
+    parent: variables
     weight: 10
 weight: 10
-sections_weight: 10
 aliases: [/variables/site-variables/]
 toc: true
 ---
@@ -84,16 +78,16 @@ All the methods below, e.g. `.Site.RegularPages` can also be reached via the glo
 : all the menus in the site.
 
 .Site.Pages
-: array of all content ordered by Date with the newest first. This array contains only the pages in the current language. See [`.Site.Pages`]({{< relref "site.md#site-pages" >}}).
+: array of all content ordered by Date with the newest first. This array contains only the pages in the current language. See [`.Site.Pages`](#site-pages).
 
 .Site.RegularPages
-: a shortcut to the *regular* page collection. `.Site.RegularPages` is equivalent to `where .Site.Pages "Kind" "page"`. See [`.Site.Pages`]({{< relref "site.md#site-pages" >}}).
+: a shortcut to the *regular* page collection. `.Site.RegularPages` is equivalent to `where .Site.Pages "Kind" "page"`. See [`.Site.Pages`](#site-pages).
 
 .Site.Sections
 : top-level directories of the site.
 
 .Site.Taxonomies
-: the [taxonomies](/taxonomies/usage/) for the entire site. Also see section [Use `.Site.Taxonomies` Outside of Taxonomy Templates](/variables/taxonomy/#use-sitetaxonomies-outside-of-taxonomy-templates).
+: the [taxonomies](/content-management/taxonomies/) for the entire site. Also see section [Access taxonomy data from any template](/variables/taxonomy/#access-taxonomy-data-from-any-template).
 
 .Site.Title
 : a string representing the title of the site.
@@ -106,7 +100,7 @@ All the methods below, e.g. `.Site.RegularPages` can also be reached via the glo
 
 The following `config.[yaml|toml|json]` defines a site-wide param for `description`:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 baseURL = "https://yoursite.example.com/"
 
 [params]
@@ -117,7 +111,7 @@ baseURL = "https://yoursite.example.com/"
 You can use `.Site.Params` in a [partial template](/templates/partials/) to call the default site description:
 
 {{< code file="layouts/partials/head.html" >}}
-<meta name="description" content="{{if .IsHome}}{{ $.Site.Params.description }}{{else}}{{.Description}}{{end}}" />
+<meta name="description" content="{{ if .IsHome }}{{ $.Site.Params.description }}{{ else }}{{ .Description }}{{ end }}" />
 {{< /code >}}
 
 ## The `.Site.Pages` Variable {#site-pages}

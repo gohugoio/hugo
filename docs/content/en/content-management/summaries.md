@@ -43,7 +43,7 @@ For [Org mode content][org], use `# more` where you want to split the article.
 
 Content that comes before the summary divider will be used as that content's summary and stored in the `.Summary` page variable with all HTML formatting intact.
 
-{{% note "Summary Divider"%}}
+{{% note %}}
 The concept of a *summary divider* is not unique to Hugo. It is also called the "more tag" or "excerpt separator" in other literature.
 {{% /note %}}
 
@@ -55,7 +55,7 @@ Cons
 
 {{% warning "Be Precise with the Summary Divider" %}}
 Be careful to enter <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> exactly; i.e., all lowercase and with no whitespace.
-{{% /warning %}}
+{{% /note %}}
 
 ### Front Matter Summary
 
@@ -77,7 +77,7 @@ Because there are multiple ways in which a summary can be specified it is useful
 
 {{% warning "Competing selections" %}}
 Hugo uses the _first_ of the above steps that returns text.  So if, for example, your article has both `summary` variable in its front matter and a <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> summary divider Hugo will use the manual summary split method.
-{{% /warning %}}
+{{% /note %}}
 
 ## Example: First 10 Articles with Summaries
 

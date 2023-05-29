@@ -1,19 +1,13 @@
 ---
 title: Custom Output Formats
-linktitle: Custom Output Formats
 description: Hugo can output content in multiple formats, including calendar events, e-book formats, Google AMP, and JSON search indexes, or any custom text format.
-date: 2017-03-22
-publishdate: 2017-03-22
-lastmod: 2019-12-11
 categories: [templates]
 keywords: ["amp", "outputs", "rss"]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 18
 weight: 18
-sections_weight: 18
-draft: false
 aliases: [/templates/outputs/,/extras/output-formats/,/content-management/custom-outputs/]
 toc: true
 ---
@@ -37,7 +31,7 @@ This is the full set of built-in media types in Hugo:
 
 To add or modify a media type, define it in a `mediaTypes` section in your [site configuration][config], either for all sites or for a given language.
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 [mediaTypes]
   [mediaTypes."text/enriched"]
   suffixes = ["enr"]
@@ -49,16 +43,16 @@ The above example adds one new media type, `text/enriched`, and changes the suff
 
 **Note:** these media types are configured for **your output formats**. If you want to redefine one of Hugo's default output formats (e.g. `HTML`), you also need to redefine the media type. So, if you want to change the suffix of the `HTML` output format from `html` (default) to `htm`:
 
-```toml
+{{< code-toggle file="hugo" >}}
 [mediaTypes]
-[mediaTypes."text/html"]
-suffixes = ["htm"]
+  [mediaTypes."text/html"]
+    suffixes = ["htm"]
 
 # Redefine HTML to update its media type.
 [outputFormats]
-[outputFormats.HTML]
-mediaType = "text/html"
-```
+  [outputFormats.HTML]
+    mediaType = "text/html"
+{{</ code-toggle >}}
 
 **Note** that for the above to work, you also need to add an `outputs` definition in your site config.
 
@@ -76,7 +70,7 @@ This is the full set of Hugo's built-in output formats:
 
 To add or modify an output format, define it in an `outputFormats` section in your site's [configuration file](/getting-started/configuration/), either for all sites or for a given language.
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 [outputFormats.MyEnrichedFormat]
 mediaType = "text/enriched"
 baseName = "myindex"
@@ -152,7 +146,7 @@ per language).
 
 Example from site config file:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 [outputs]
   home = ["HTML", "AMP", "RSS"]
   page = ["HTML"]
@@ -168,17 +162,15 @@ Note that in the above examples, the _output formats_ for `section`,
   * These names are case insensitive.
 * These can be overridden per `Page` in the front matter of content files.
 
-The following is an example of `YAML` front matter in a content file that defines output formats for the rendered `Page`:
+The following is an example of front matter in a content file that defines output formats for the rendered `Page`:
 
-```yaml
----
-date: "2016-03-19"
+{{< code-toggle file="content/example.md" fm=true copy=false >}}
+title: Example
 outputs:
 - html
 - amp
 - json
----
-```
+{{< /code-toggle >}}
 
 ## List Output formats
 
@@ -251,7 +243,7 @@ The partial below is a plain text template (Output Format is `CSV`, and since th
 
 [base]: /templates/base/
 [config]: /getting-started/configuration/
-[lookup order]: /templates/lookup/
+[lookup order]: /templates/lookup-order/
 [media type]: https://en.wikipedia.org/wiki/Media_type
 [partials]: /templates/partials/
 [page_kinds]: /templates/section-templates/#page-kinds

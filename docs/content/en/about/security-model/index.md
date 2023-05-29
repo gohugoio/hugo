@@ -1,15 +1,13 @@
 ---
 title: Hugo's Security Model
 description: A summary of Hugo's security model.
-date: 2019-10-01
 layout: single
 keywords: ["Security", "Privacy"]
 menu:
   docs:
-    parent: "about"
+    parent: about
     weight: 4
 weight: 5
-sections_weight: 5
 aliases: [/security/]
 toc: true
 ---

@@ -1,20 +1,13 @@
 ---
 title: Host on Render
-linktitle: Host on Render
 description: Host your Hugo site for free with Render's global CDN, fully-managed SSL and auto deploys from GitHub.
-date: 2019-06-06
-publishdate: 2019-06-06
 categories: [hosting and deployment]
 keywords: [hosting,deployment]
-authors: [Anurag Goel]
 menu:
   docs:
-    parent: "hosting-and-deployment"
+    parent: hosting-and-deployment
     weight: 10
 weight: 10
-sections_weight: 10
-draft: false
-aliases: []
 toc: true
 ---
 
@@ -45,7 +38,7 @@ Static sites are **completely free** on Render and include the following:
 
 You can set up a Hugo site on Render in two quick steps:
 
-1. Create a new **Static Site** on Render, and give Render permission to access your GitHub/Gitlab repo.
+1. Create a new **Static Site** on Render, and give Render permission to access your GitHub/GitLab repo.
 2. Use the following values during creation:
 
   Field                | Value
@@ -57,7 +50,7 @@ That's it! Your site will be live on your Render URL (which looks like `yoursite
 
 ## Continuous Deploys
 
-Now that Render is connected to your repo, it will **automatically build and publish your site** any time you push to your GitHub/Gitlab.
+Now that Render is connected to your repo, it will **automatically build and publish your site** any time you push to your GitHub/GitLab.
 
 You can choose to disable auto deploys under the **Settings** section for your site and deploy it manually from the Render dashboard.
 

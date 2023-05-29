@@ -31,6 +31,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/gohugoio/hugo/common/types"
+	"github.com/gohugoio/hugo/output/layouts"
 
 	"github.com/gohugoio/hugo/helpers"
 
@@ -131,7 +132,7 @@ func newStandaloneTextTemplate(funcs map[string]any) tpl.TemplateParseFinder {
 	}
 }
 
-func newTemplateExec(d *deps.Deps) (*templateExec, error) {
+func newTemplateHandlers(d *deps.Deps) (*tpl.TemplateHandlers, error) {
 	exec, funcs := newTemplateExecuter(d)
 	funcMap := make(map[string]any)
 	for k, v := range funcs {
@@ -139,7 +140,7 @@ func newTemplateExec(d *deps.Deps) (*templateExec, error) {
 	}
 
 	var templateUsageTracker map[string]templateInfo
-	if d.Cfg.GetBool("printUnusedTemplates") {
+	if d.Conf.PrintUnusedTemplates() {
 		templateUsageTracker = make(map[string]templateInfo)
 	}
 
@@ -156,7 +157,7 @@ func newTemplateExec(d *deps.Deps) (*templateExec, error) {
 		main: newTemplateNamespace(funcMap),
 
 		Deps:                d,
-		layoutHandler:       output.NewLayoutHandler(),
+		layoutHandler:       layouts.NewLayoutHandler(),
 		layoutsFs:           d.BaseFs.Layouts.Fs,
 		layoutTemplateCache: make(map[layoutCacheKey]layoutCacheEntry),
 
@@ -178,16 +179,15 @@ func newTemplateExec(d *deps.Deps) (*templateExec, error) {
 		templateHandler: h,
 	}
 
-	d.SetTmpl(e)
-	d.SetTextTmpl(newStandaloneTextTemplate(funcMap))
-
-	if d.WithTemplate != nil {
-		if err := d.WithTemplate(e); err != nil {
-			return nil, err
-		}
+	if err := e.postTransform(); err != nil {
+		return nil, err
 	}
 
-	return e, nil
+	return &tpl.TemplateHandlers{
+		Tmpl:    e,
+		TxtTmpl: newStandaloneTextTemplate(funcMap),
+	}, nil
+
 }
 
 func newTemplateNamespace(funcs map[string]any) *templateNamespace {
@@ -211,7 +211,7 @@ func newTemplateState(templ tpl.Template, info templateInfo) *templateState {
 }
 
 type layoutCacheKey struct {
-	d output.LayoutDescriptor
+	d layouts.LayoutDescriptor
 	f string
 }
 
@@ -232,10 +232,6 @@ func (t templateExec) Clone(d *deps.Deps) *templateExec {
 }
 
 func (t *templateExec) Execute(templ tpl.Template, wr io.Writer, data any) error {
-	// TOD1
-	if true {
-		//panic("not implemented")
-	}
 	return t.ExecuteWithContext(context.Background(), templ, wr, data)
 }
 
@@ -250,6 +246,7 @@ func (t *templateExec) ExecuteWithContext(ctx context.Context, templ tpl.Templat
 
 	if t.templateUsageTracker != nil {
 		if ts, ok := templ.(*templateState); ok {
+
 			t.templateUsageTrackerMu.Lock()
 			if _, found := t.templateUsageTracker[ts.Name()]; !found {
 				t.templateUsageTracker[ts.Name()] = ts.info
@@ -335,7 +332,7 @@ type templateHandler struct {
 	// stored in the root of this filesystem.
 	layoutsFs afero.Fs
 
-	layoutHandler *output.LayoutHandler
+	layoutHandler *layouts.LayoutHandler
 
 	layoutTemplateCache   map[layoutCacheKey]layoutCacheEntry
 	layoutTemplateCacheMu sync.RWMutex
@@ -392,7 +389,7 @@ func (t *templateHandler) Lookup(name string) (tpl.Template, bool) {
 	return nil, false
 }
 
-func (t *templateHandler) LookupLayout(d output.LayoutDescriptor, f output.Format) (tpl.Template, bool, error) {
+func (t *templateHandler) LookupLayout(d layouts.LayoutDescriptor, f output.Format) (tpl.Template, bool, error) {
 	key := layoutCacheKey{d, f.Name}
 	t.layoutTemplateCacheMu.RLock()
 	if cacheVal, found := t.layoutTemplateCache[key]; found {
@@ -459,8 +456,10 @@ func (t *templateHandler) HasTemplate(name string) bool {
 	return found
 }
 
-func (t *templateHandler) findLayout(d output.LayoutDescriptor, f output.Format) (tpl.Template, bool, error) {
-	layouts, _ := t.layoutHandler.For(d, f)
+func (t *templateHandler) findLayout(d layouts.LayoutDescriptor, f output.Format) (tpl.Template, bool, error) {
+	d.OutputFormatName = f.Name
+	d.Suffix = f.MediaType.FirstSuffix.Suffix
+	layouts, _ := t.layoutHandler.For(d)
 	for _, name := range layouts {
 		templ, found := t.main.Lookup(name)
 		if found {
@@ -474,7 +473,7 @@ func (t *templateHandler) findLayout(d output.LayoutDescriptor, f output.Format)
 		}
 
 		d.Baseof = true
-		baseLayouts, _ := t.layoutHandler.For(d, f)
+		baseLayouts, _ := t.layoutHandler.For(d)
 		var base templateInfo
 		found = false
 		for _, l := range baseLayouts {
@@ -774,8 +773,8 @@ func (t *templateHandler) loadEmbedded() error {
 		name := strings.TrimPrefix(filepath.ToSlash(path), "embedded/templates/")
 		templateName := name
 
-		// For the render hooks and the server templates it does not make sense to preseve the
-		// double _indternal double book-keeping,
+		// For the render hooks and the server templates it does not make sense to preserve the
+		// double _internal double book-keeping,
 		// just add it if its now provided by the user.
 		if !strings.Contains(path, "_default/_markup") && !strings.HasPrefix(name, "_server/") {
 			templateName = internalPathPrefix + name
@@ -813,7 +812,8 @@ func (t *templateHandler) loadTemplates() error {
 
 		name := strings.TrimPrefix(filepath.ToSlash(path), "/")
 		filename := filepath.Base(path)
-		outputFormat, found := t.OutputFormatsConfig.FromFilename(filename)
+		outputFormats := t.Conf.GetConfigSection("outputFormats").(output.Formats)
+		outputFormat, found := outputFormats.FromFilename(filename)
 
 		if found && outputFormat.IsPlainText {
 			name = textTmplNamePrefix + name

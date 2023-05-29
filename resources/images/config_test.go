@@ -32,18 +32,18 @@ func TestDecodeConfig(t *testing.T) {
 	imagingConfig, err := DecodeConfig(m)
 
 	c.Assert(err, qt.IsNil)
-	imaging := imagingConfig.Cfg
-	c.Assert(imaging.Quality, qt.Equals, 42)
-	c.Assert(imaging.ResampleFilter, qt.Equals, "nearestneighbor")
-	c.Assert(imaging.Anchor, qt.Equals, "topleft")
+	conf := imagingConfig.Config
+	c.Assert(conf.Imaging.Quality, qt.Equals, 42)
+	c.Assert(conf.Imaging.ResampleFilter, qt.Equals, "nearestneighbor")
+	c.Assert(conf.Imaging.Anchor, qt.Equals, "topleft")
 
 	m = map[string]any{}
 
 	imagingConfig, err = DecodeConfig(m)
 	c.Assert(err, qt.IsNil)
-	imaging = imagingConfig.Cfg
-	c.Assert(imaging.ResampleFilter, qt.Equals, "box")
-	c.Assert(imaging.Anchor, qt.Equals, "smart")
+	conf = imagingConfig.Config
+	c.Assert(conf.Imaging.ResampleFilter, qt.Equals, "box")
+	c.Assert(conf.Imaging.Anchor, qt.Equals, "smart")
 
 	_, err = DecodeConfig(map[string]any{
 		"quality": 123,
@@ -63,9 +63,9 @@ func TestDecodeConfig(t *testing.T) {
 	imagingConfig, err = DecodeConfig(map[string]any{
 		"anchor": "Smart",
 	})
-	imaging = imagingConfig.Cfg
+	conf = imagingConfig.Config
 	c.Assert(err, qt.IsNil)
-	c.Assert(imaging.Anchor, qt.Equals, "smart")
+	c.Assert(conf.Imaging.Anchor, qt.Equals, "smart")
 
 	imagingConfig, err = DecodeConfig(map[string]any{
 		"exif": map[string]any{
@@ -73,9 +73,9 @@ func TestDecodeConfig(t *testing.T) {
 		},
 	})
 	c.Assert(err, qt.IsNil)
-	imaging = imagingConfig.Cfg
-	c.Assert(imaging.Exif.DisableLatLong, qt.Equals, true)
-	c.Assert(imaging.Exif.ExcludeFields, qt.Equals, "GPS|Exif|Exposure[M|P|B]|Contrast|Resolution|Sharp|JPEG|Metering|Sensing|Saturation|ColorSpace|Flash|WhiteBalance")
+	conf = imagingConfig.Config
+	c.Assert(conf.Imaging.Exif.DisableLatLong, qt.Equals, true)
+	c.Assert(conf.Imaging.Exif.ExcludeFields, qt.Equals, "GPS|Exif|Exposure[M|P|B]|Contrast|Resolution|Sharp|JPEG|Metering|Sensing|Saturation|ColorSpace|Flash|WhiteBalance")
 }
 
 func TestDecodeImageConfig(t *testing.T) {
@@ -123,7 +123,7 @@ func TestDecodeImageConfig(t *testing.T) {
 }
 
 func newImageConfig(action string, width, height, quality, rotate int, filter, anchor, bgColor string) ImageConfig {
-	var c ImageConfig = GetDefaultImageConfig(action, ImagingConfig{})
+	var c ImageConfig = GetDefaultImageConfig(action, nil)
 	c.TargetFormat = PNG
 	c.Hint = 2
 	c.Width = width
