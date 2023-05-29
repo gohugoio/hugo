@@ -1,6 +1,5 @@
 ---
 title: Diagrams
-LinkTitle: Diagrams
 description: Use fenced code blocks and markdown render hooks to display diagrams.
 categories: [content management]
 keywords: [diagrams,drawing]
@@ -58,8 +57,8 @@ And then include this snippet at the bottom of the content template (**Note**: b
 
 ```go-html-template
 {{ if .Page.Store.Get "hasMermaid" }}
-  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-  <script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad: true });
   </script>
 {{ end }}
@@ -67,6 +66,7 @@ And then include this snippet at the bottom of the content template (**Note**: b
 
 With that you can use the `mermaid` language in Markdown code blocks:
 
+````
 ```mermaid
 sequenceDiagram
     participant Alice
@@ -80,6 +80,7 @@ sequenceDiagram
     John->>Bob: How about you?
     Bob-->>John: Jolly good!
 ```
+````
 
 ## Goat Ascii Diagram Examples
 

@@ -1,16 +1,13 @@
 ---
 title: Sitemap Templates
 description: Hugo provides built-in sitemap templates.
-date: 2017-02-01
 categories: [templates]
 keywords: [sitemap, xml, templates]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 160
 weight: 160
-sections_weight: 160
-draft: false
 aliases: [/layout/sitemap/,/templates/sitemap/]
 toc: true
 ---
@@ -30,7 +27,7 @@ With a multilingual project, Hugo generates:
 
 Set the default values for [change frequency] and [priority], and the name of the generated file, in your site configuration.
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 [sitemap]
   changefreq = 'monthly'
   filename = 'sitemap.xml'
@@ -75,11 +72,11 @@ To override the built-in sitemapindex.xml template, create a new file in either 
 
 You may disable sitemap generation in your site configuration:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 disableKinds = ['sitemap']
 {{</ code-toggle >}}
 
-[`publishDir`]: {{< relref "getting-started/configuration#publishdir" >}}
+[`publishDir`]: /getting-started/configuration#publishdir
 [change frequency]: <https://www.sitemaps.org/protocol.html#changefreqdef>
 [priority]: <https://www.sitemaps.org/protocol.html#priority>
 [sitemap protocol]: <https://www.sitemaps.org/protocol.html>

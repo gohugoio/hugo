@@ -1,0 +1,12 @@
+# Test the hugo command.
+
+hugo
+
+grep 'Home' newpublic/index.html
+
+-- hugo.toml --
+baseURL = "http://example.org/"
+disableKinds = ["RSS", "sitemap", "robotsTXT", "404", "taxonomy", "term"]
+publishDir = "newpublic"
+-- layouts/index.html --
+Home.

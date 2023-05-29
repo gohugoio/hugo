@@ -19,6 +19,8 @@ import (
 	"regexp"
 	"unicode"
 	"unicode/utf8"
+
+	"github.com/gohugoio/hugo/common/hreflect"
 )
 
 // Regexp definitions
@@ -54,6 +56,61 @@ func (c LowerCaseCamelJSONMarshaller) MarshalJSON() ([]byte, error) {
 			return match
 		},
 	)
+
+	return converted, err
+}
+
+type ReplacingJSONMarshaller struct {
+	Value any
+
+	KeysToLower bool
+	OmitEmpty   bool
+}
+
+func (c ReplacingJSONMarshaller) MarshalJSON() ([]byte, error) {
+	converted, err := json.Marshal(c.Value)
+
+	if c.KeysToLower {
+		converted = keyMatchRegex.ReplaceAllFunc(
+			converted,
+			func(match []byte) []byte {
+				return bytes.ToLower(match)
+			},
+		)
+	}
+
+	if c.OmitEmpty {
+		// It's tricky to do this with a regexp, so convert it to a map, remove zero values and convert back.
+		var m map[string]interface{}
+		err = json.Unmarshal(converted, &m)
+		if err != nil {
+			return nil, err
+		}
+		var removeZeroVAlues func(m map[string]any)
+		removeZeroVAlues = func(m map[string]any) {
+			for k, v := range m {
+				if !hreflect.IsTruthful(v) {
+					delete(m, k)
+				} else {
+					switch v.(type) {
+					case map[string]interface{}:
+						removeZeroVAlues(v.(map[string]any))
+					case []interface{}:
+						for _, vv := range v.([]interface{}) {
+							if m, ok := vv.(map[string]any); ok {
+								removeZeroVAlues(m)
+							}
+						}
+					}
+
+				}
+
+			}
+		}
+		removeZeroVAlues(m)
+		converted, err = json.Marshal(m)
+
+	}
 
 	return converted, err
 }

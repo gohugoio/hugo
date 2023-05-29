@@ -2,18 +2,13 @@
 title: Section Page Templates
 linktitle: Section Templates
 description: Templates used for section pages are **lists** and therefore have all the variables and methods available to list pages.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [templates]
 keywords: [lists,sections,templates]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 40
 weight: 40
-sections_weight: 40
-draft: false
 aliases: [/templates/sections/]
 toc: true
 ---
@@ -48,13 +43,13 @@ Examples:
 
 ## Example: Creating a Default Section Template
 
-{{< code file="layouts/_default/section.html" download="section.html" >}}
+{{< code file="layouts/_default/section.html" >}}
 {{ define "main" }}
   <main>
       {{ .Content }}
           <ul class="contents">
           {{ range .Paginator.Pages }}
-              <li>{{.Title}}
+              <li>{{ .Title }}
                   <div>
                     {{ partial "summary.html" . }}
                   </div>

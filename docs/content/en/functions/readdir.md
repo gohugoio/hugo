@@ -1,19 +1,13 @@
 ---
 title: readDir
 description: Returns an array of FileInfo structures sorted by filename, one element for each directory entry.
-publishdate: 2017-02-01
-lastmod: 2021-11-26
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [files]
 signature: ["os.ReadDir PATH", "readDir PATH"]
-workson: []
-hugoversion:
 relatedfuncs: ['os.FileExists','os.ReadFile','os.Stat']
-deprecated: false
-aliases: []
 ---
 The `os.ReadDir` function resolves the path relative to the root of your project directory. A leading path separator (`/`) is optional.
 
@@ -48,4 +42,4 @@ Note that `os.ReadDir` is not recursive.
 
 Details of the `FileInfo` structure are available in the [Go documentation](https://pkg.go.dev/io/fs#FileInfo).
 
-For more information on using `readDir` and `readFile` in your templates, see [Local File Templates]({{< relref "/templates/files" >}}).
+For more information on using `readDir` and `readFile` in your templates, see [Local File Templates](/templates/files).

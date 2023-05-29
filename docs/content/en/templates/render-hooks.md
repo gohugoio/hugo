@@ -2,14 +2,12 @@
 title: "Markdown Render Hooks"
 linkTitle: "Render Hooks"
 description: "Render Hooks allow custom templates to override markdown rendering functionality."
-date: 2017-03-11
 categories: [templates]
 keywords: [markdown]
 toc: true
 menu:
   docs:
-    title: "Markdown Render Hooks"
-    parent: "templates"
+    parent: templates
     weight: 20
 ---
 
@@ -49,6 +47,8 @@ Some use cases for the above:
 
 ## Render Hooks for Headings, Links and Images
 
+### Context passed to `render-link` and `render-image`
+
 The `render-link` and `render-image` templates will receive this context:
 
 Page
@@ -65,6 +65,8 @@ Text
 
 PlainText
 : The plain variant of the above.
+
+### Context passed to `render-heading`
 
 The `render-heading` template will receive this context:
 
@@ -104,7 +106,7 @@ Ordinal  {{< new-in "0.108.0" >}}
 Here is a code example for how the render-link.html template could look:
 
 {{< code file="layouts/_default/_markup/render-link.html" >}}
-<a href="{{ .Destination | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}{{ if strings.HasPrefix .Destination "http" }} target="_blank" rel="noopener"{{ end }}>{{ .Text | safeHTML }}</a>
+<a href="{{ .Destination | safeURL }}"{{ with .Title }} title="{{ . }}"{{ end }}{{ if strings.HasPrefix .Destination "http" }} target="_blank" rel="noopener"{{ end }}>{{ .Text | safeHTML }}</a>
 {{< /code >}}
 
 ### Image Markdown example
@@ -117,7 +119,7 @@ Here is a code example for how the render-image.html template could look:
 
 {{< code file="layouts/_default/_markup/render-image.html" >}}
 <p class="md__image">
-  <img src="{{ .Destination | safeURL }}" alt="{{ .Text }}" {{ with .Title}} title="{{ . }}"{{ end }} />
+  <img src="{{ .Destination | safeURL }}" alt="{{ .Text }}" {{ with .Title }} title="{{ . }}"{{ end }} />
 </p>
 {{< /code >}}
 

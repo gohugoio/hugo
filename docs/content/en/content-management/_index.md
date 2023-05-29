@@ -8,7 +8,6 @@ menu:
     weight: 10
 keywords: [source, organization]
 categories: [content management]
-toc: false
 weight: 10
 aliases: [/content/,/content/organization]
 ---

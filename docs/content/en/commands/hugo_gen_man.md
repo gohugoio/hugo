@@ -10,11 +10,11 @@ Generate man pages for the Hugo CLI
 ### Synopsis
 
 This command automatically generates up-to-date man pages of Hugo's
-command-line interface.  By default, it creates the man page files
-in the "man" directory under the current directory.
+	command-line interface.  By default, it creates the man page files
+	in the "man" directory under the current directory.
 
 ```
-hugo gen man [flags]
+hugo gen man [flags] [args]
 ```
 
 ### Options
@@ -31,6 +31,7 @@ hugo gen man [flags]
       --config string              config file (default is hugo.yaml|json|toml)
       --configDir string           config dir (default "config")
       --debug                      debug output
+  -d, --destination string         filesystem path to write files to
   -e, --environment string         build environment
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --log                        enable Logging

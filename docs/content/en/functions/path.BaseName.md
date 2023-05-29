@@ -1,15 +1,13 @@
 ---
 title: path.BaseName
 description: BaseName returns the last element of a path, removing the extension if present.
-date: 2022-06-04
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [path, base]
 signature: ["path.BaseName PATH"]
 relatedfuncs: [path.Base, path.Clean, path.Dir, path.Ext, path.Join, path.Split]
-deprecated: false
 ---
 
 If `PATH` is empty, `.` is returned.

@@ -31,7 +31,7 @@ import (
 // FrontMatterHandler maps front matter into Page fields and .Params.
 // Note that we currently have only extracted the date logic.
 type FrontMatterHandler struct {
-	fmConfig frontmatterConfig
+	fmConfig FrontmatterConfig
 
 	dateHandler        frontMatterFieldHandler
 	lastModHandler     frontMatterFieldHandler
@@ -159,11 +159,15 @@ func (f FrontMatterHandler) newChainedFrontMatterFieldHandler(handlers ...frontM
 	}
 }
 
-type frontmatterConfig struct {
-	date        []string
-	lastmod     []string
-	publishDate []string
-	expiryDate  []string
+type FrontmatterConfig struct {
+	// Controls how the Date is set from front matter.
+	Date []string
+	// Controls how the Lastmod is set from front matter.
+	Lastmod []string
+	// Controls how the PublishDate is set from front matter.
+	PublishDate []string
+	// Controls how the ExpiryDate is set from front matter.
+	ExpiryDate []string
 }
 
 const (
@@ -185,16 +189,16 @@ const (
 )
 
 // This is the config you get when doing nothing.
-func newDefaultFrontmatterConfig() frontmatterConfig {
-	return frontmatterConfig{
-		date:        []string{fmDate, fmPubDate, fmLastmod},
-		lastmod:     []string{fmGitAuthorDate, fmLastmod, fmDate, fmPubDate},
-		publishDate: []string{fmPubDate, fmDate},
-		expiryDate:  []string{fmExpiryDate},
+func newDefaultFrontmatterConfig() FrontmatterConfig {
+	return FrontmatterConfig{
+		Date:        []string{fmDate, fmPubDate, fmLastmod},
+		Lastmod:     []string{fmGitAuthorDate, fmLastmod, fmDate, fmPubDate},
+		PublishDate: []string{fmPubDate, fmDate},
+		ExpiryDate:  []string{fmExpiryDate},
 	}
 }
 
-func newFrontmatterConfig(cfg config.Provider) (frontmatterConfig, error) {
+func DecodeFrontMatterConfig(cfg config.Provider) (FrontmatterConfig, error) {
 	c := newDefaultFrontmatterConfig()
 	defaultConfig := c
 
@@ -204,13 +208,13 @@ func newFrontmatterConfig(cfg config.Provider) (frontmatterConfig, error) {
 			loki := strings.ToLower(k)
 			switch loki {
 			case fmDate:
-				c.date = toLowerSlice(v)
+				c.Date = toLowerSlice(v)
 			case fmPubDate:
-				c.publishDate = toLowerSlice(v)
+				c.PublishDate = toLowerSlice(v)
 			case fmLastmod:
-				c.lastmod = toLowerSlice(v)
+				c.Lastmod = toLowerSlice(v)
 			case fmExpiryDate:
-				c.expiryDate = toLowerSlice(v)
+				c.ExpiryDate = toLowerSlice(v)
 			}
 		}
 	}
@@ -221,10 +225,10 @@ func newFrontmatterConfig(cfg config.Provider) (frontmatterConfig, error) {
 		return out
 	}
 
-	c.date = expander(c.date, defaultConfig.date)
-	c.publishDate = expander(c.publishDate, defaultConfig.publishDate)
-	c.lastmod = expander(c.lastmod, defaultConfig.lastmod)
-	c.expiryDate = expander(c.expiryDate, defaultConfig.expiryDate)
+	c.Date = expander(c.Date, defaultConfig.Date)
+	c.PublishDate = expander(c.PublishDate, defaultConfig.PublishDate)
+	c.Lastmod = expander(c.Lastmod, defaultConfig.Lastmod)
+	c.ExpiryDate = expander(c.ExpiryDate, defaultConfig.ExpiryDate)
 
 	return c, nil
 }
@@ -264,14 +268,9 @@ func toLowerSlice(in any) []string {
 
 // NewFrontmatterHandler creates a new FrontMatterHandler with the given logger and configuration.
 // If no logger is provided, one will be created.
-func NewFrontmatterHandler(logger loggers.Logger, cfg config.Provider) (FrontMatterHandler, error) {
+func NewFrontmatterHandler(logger loggers.Logger, frontMatterConfig FrontmatterConfig) (FrontMatterHandler, error) {
 	if logger == nil {
 		logger = loggers.NewErrorLogger()
-	}
-
-	frontMatterConfig, err := newFrontmatterConfig(cfg)
-	if err != nil {
-		return FrontMatterHandler{}, err
 	}
 
 	allDateKeys := make(map[string]bool)
@@ -283,10 +282,10 @@ func NewFrontmatterHandler(logger loggers.Logger, cfg config.Provider) (FrontMat
 		}
 	}
 
-	addKeys(frontMatterConfig.date)
-	addKeys(frontMatterConfig.expiryDate)
-	addKeys(frontMatterConfig.lastmod)
-	addKeys(frontMatterConfig.publishDate)
+	addKeys(frontMatterConfig.Date)
+	addKeys(frontMatterConfig.ExpiryDate)
+	addKeys(frontMatterConfig.Lastmod)
+	addKeys(frontMatterConfig.PublishDate)
 
 	f := FrontMatterHandler{logger: logger, fmConfig: frontMatterConfig, allDateKeys: allDateKeys}
 
@@ -300,7 +299,7 @@ func NewFrontmatterHandler(logger loggers.Logger, cfg config.Provider) (FrontMat
 func (f *FrontMatterHandler) createHandlers() error {
 	var err error
 
-	if f.dateHandler, err = f.createDateHandler(f.fmConfig.date,
+	if f.dateHandler, err = f.createDateHandler(f.fmConfig.Date,
 		func(d *FrontMatterDescriptor, t time.Time) {
 			d.Dates.FDate = t
 			setParamIfNotSet(fmDate, t, d)
@@ -308,7 +307,7 @@ func (f *FrontMatterHandler) createHandlers() error {
 		return err
 	}
 
-	if f.lastModHandler, err = f.createDateHandler(f.fmConfig.lastmod,
+	if f.lastModHandler, err = f.createDateHandler(f.fmConfig.Lastmod,
 		func(d *FrontMatterDescriptor, t time.Time) {
 			setParamIfNotSet(fmLastmod, t, d)
 			d.Dates.FLastmod = t
@@ -316,7 +315,7 @@ func (f *FrontMatterHandler) createHandlers() error {
 		return err
 	}
 
-	if f.publishDateHandler, err = f.createDateHandler(f.fmConfig.publishDate,
+	if f.publishDateHandler, err = f.createDateHandler(f.fmConfig.PublishDate,
 		func(d *FrontMatterDescriptor, t time.Time) {
 			setParamIfNotSet(fmPubDate, t, d)
 			d.Dates.FPublishDate = t
@@ -324,7 +323,7 @@ func (f *FrontMatterHandler) createHandlers() error {
 		return err
 	}
 
-	if f.expiryDateHandler, err = f.createDateHandler(f.fmConfig.expiryDate,
+	if f.expiryDateHandler, err = f.createDateHandler(f.fmConfig.ExpiryDate,
 		func(d *FrontMatterDescriptor, t time.Time) {
 			setParamIfNotSet(fmExpiryDate, t, d)
 			d.Dates.FExpiryDate = t

@@ -29,14 +29,17 @@ import (
 
 func TestTaxonomiesCountOrder(t *testing.T) {
 	t.Parallel()
-	taxonomies := make(map[string]string)
+	c := qt.New(t)
 
+	taxonomies := make(map[string]string)
 	taxonomies["tag"] = "tags"
 	taxonomies["category"] = "categories"
 
 	cfg, fs := newTestCfg()
 
 	cfg.Set("taxonomies", taxonomies)
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
 	const pageContent = `---
 tags: ['a', 'B', 'c']
@@ -46,7 +49,7 @@ YAML frontmatter with tags and categories taxonomy.`
 
 	writeSource(t, fs, filepath.Join("content", "page.md"), pageContent)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
 
 	st := make([]string, 0)
 	for _, t := range s.Taxonomies()["tags"].ByCount() {

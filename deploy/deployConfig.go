@@ -25,23 +25,37 @@ import (
 	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/config"
 	hglob "github.com/gohugoio/hugo/hugofs/glob"
-	"github.com/gohugoio/hugo/media"
 	"github.com/mitchellh/mapstructure"
 )
 
 const deploymentConfigKey = "deployment"
 
-// deployConfig is the complete configuration for deployment.
-type deployConfig struct {
-	Targets  []*target
-	Matchers []*matcher
+// DeployConfig is the complete configuration for deployment.
+type DeployConfig struct {
+	Targets  []*Target
+	Matchers []*Matcher
 	Order    []string
 
-	ordering   []*regexp.Regexp // compiled Order
-	mediaTypes media.Types
+	// Usually set via flags.
+	// Target deployment Name; defaults to the first one.
+	Target string
+	// Show a confirm prompt before deploying.
+	Confirm bool
+	// DryRun will try the deployment without any remote changes.
+	DryRun bool
+	// Force will re-upload all files.
+	Force bool
+	// Invalidate the CDN cache listed in the deployment target.
+	InvalidateCDN bool
+	// MaxDeletes is the maximum number of files to delete.
+	MaxDeletes int
+	// Number of concurrent workers to use when uploading files.
+	Workers int
+
+	ordering []*regexp.Regexp // compiled Order
 }
 
-type target struct {
+type Target struct {
 	Name string
 	URL  string
 
@@ -61,7 +75,7 @@ type target struct {
 	excludeGlob glob.Glob
 }
 
-func (tgt *target) parseIncludeExclude() error {
+func (tgt *Target) parseIncludeExclude() error {
 	var err error
 	if tgt.Include != "" {
 		tgt.includeGlob, err = hglob.GetGlob(tgt.Include)
@@ -78,9 +92,9 @@ func (tgt *target) parseIncludeExclude() error {
 	return nil
 }
 
-// matcher represents configuration to be applied to files whose paths match
+// Matcher represents configuration to be applied to files whose paths match
 // a specified pattern.
-type matcher struct {
+type Matcher struct {
 	// Pattern is the string pattern to match against paths.
 	// Matching is done against paths converted to use / as the path separator.
 	Pattern string
@@ -109,15 +123,14 @@ type matcher struct {
 	re *regexp.Regexp
 }
 
-func (m *matcher) Matches(path string) bool {
+func (m *Matcher) Matches(path string) bool {
 	return m.re.MatchString(path)
 }
 
-// decode creates a config from a given Hugo configuration.
-func decodeConfig(cfg config.Provider) (deployConfig, error) {
+// DecodeConfig creates a config from a given Hugo configuration.
+func DecodeConfig(cfg config.Provider) (DeployConfig, error) {
 	var (
-		mediaTypesConfig []map[string]any
-		dcfg             deployConfig
+		dcfg DeployConfig
 	)
 
 	if !cfg.IsSet(deploymentConfigKey) {
@@ -126,8 +139,13 @@ func decodeConfig(cfg config.Provider) (deployConfig, error) {
 	if err := mapstructure.WeakDecode(cfg.GetStringMap(deploymentConfigKey), &dcfg); err != nil {
 		return dcfg, err
 	}
+
+	if dcfg.Workers <= 0 {
+		dcfg.Workers = 10
+	}
+
 	for _, tgt := range dcfg.Targets {
-		if *tgt == (target{}) {
+		if *tgt == (Target{}) {
 			return dcfg, errors.New("empty deployment target")
 		}
 		if err := tgt.parseIncludeExclude(); err != nil {
@@ -136,7 +154,7 @@ func decodeConfig(cfg config.Provider) (deployConfig, error) {
 	}
 	var err error
 	for _, m := range dcfg.Matchers {
-		if *m == (matcher{}) {
+		if *m == (Matcher{}) {
 			return dcfg, errors.New("empty deployment matcher")
 		}
 		m.re, err = regexp.Compile(m.Pattern)
@@ -152,13 +170,5 @@ func decodeConfig(cfg config.Provider) (deployConfig, error) {
 		dcfg.ordering = append(dcfg.ordering, re)
 	}
 
-	if cfg.IsSet("mediaTypes") {
-		mediaTypesConfig = append(mediaTypesConfig, cfg.GetStringMap("mediaTypes"))
-	}
-
-	dcfg.mediaTypes, err = media.DecodeTypes(mediaTypesConfig...)
-	if err != nil {
-		return dcfg, err
-	}
 	return dcfg, nil
 }

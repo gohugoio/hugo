@@ -166,7 +166,7 @@ type OutputFormatsProvider interface {
 	OutputFormats() OutputFormats
 }
 
-// Page is the core interface in Hugo.
+// Page is the core interface in Hugo and what you get as the top level data context in your templates.
 type Page interface {
 	ContentProvider
 	TableOfContentsProvider
@@ -249,7 +249,7 @@ type PageMetaProvider interface {
 
 	// Sitemap returns the sitemap configuration for this page.
 	// This is for internal use only.
-	Sitemap() config.Sitemap
+	Sitemap() config.SitemapConfig
 
 	// Type is a discriminator used to select layouts etc. It is typically set
 	// in front matter, but will fall back to the root section.
@@ -334,10 +334,7 @@ type PageWithoutContent interface {
 	// Used in change/dependency tracking.
 	identity.Provider
 
-	// Fragments returns the fragments for this page.
-	Fragments(context.Context) *tableofcontents.Fragments
-
-	// Headings returns the headings for this page when a filter is set.
+	// HeadingsFiltered returns the headings for this page when a filter is set.
 	// This is currently only triggered with the Related content feature
 	// and the "fragments" type of index.
 	HeadingsFiltered(context.Context) tableofcontents.Headings
@@ -376,7 +373,7 @@ type RefProvider interface {
 	// RelRef returns a relative URL to a page.
 	RelRef(argsm map[string]any) (string, error)
 
-	// RefFrom is for internal use only.
+	// RelRefFrom is for internal use only.
 	RelRefFrom(argsm map[string]any, source any) (string, error)
 }
 
@@ -407,6 +404,9 @@ type SitesProvider interface {
 type TableOfContentsProvider interface {
 	// TableOfContents returns the table of contents for the page rendered as HTML.
 	TableOfContents(context.Context) template.HTML
+
+	// Fragments returns the fragments for this page.
+	Fragments(context.Context) *tableofcontents.Fragments
 }
 
 // TranslationsProvider provides access to any translations.
@@ -471,3 +471,45 @@ type DeprecatedWarningPageMethods any // This was emptied in Hugo 0.93.0.
 // Move here to trigger ERROR instead of WARNING.
 // TODO(bep) create wrappers and put into the Page once it has some methods.
 type DeprecatedErrorPageMethods any
+
+// PageWithContext is a Page with a context.Context.
+type PageWithContext struct {
+	Page
+	Ctx context.Context
+}
+
+func (p PageWithContext) Content() (any, error) {
+	return p.Page.Content(p.Ctx)
+}
+
+func (p PageWithContext) Plain() string {
+	return p.Page.Plain(p.Ctx)
+}
+
+func (p PageWithContext) PlainWords() []string {
+	return p.Page.PlainWords(p.Ctx)
+}
+
+func (p PageWithContext) Summary() template.HTML {
+	return p.Page.Summary(p.Ctx)
+}
+
+func (p PageWithContext) Truncated() bool {
+	return p.Page.Truncated(p.Ctx)
+}
+
+func (p PageWithContext) FuzzyWordCount() int {
+	return p.Page.FuzzyWordCount(p.Ctx)
+}
+
+func (p PageWithContext) WordCount() int {
+	return p.Page.WordCount(p.Ctx)
+}
+
+func (p PageWithContext) ReadingTime() int {
+	return p.Page.ReadingTime(p.Ctx)
+}
+
+func (p PageWithContext) Len() int {
+	return p.Page.Len(p.Ctx)
+}

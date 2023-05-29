@@ -148,10 +148,12 @@ func (h chromaHighlighter) IsDefaultCodeBlockRenderer() bool {
 
 var id = identity.NewPathIdentity("chroma", "highlight")
 
+// GetIdentity is for internal use.
 func (h chromaHighlighter) GetIdentity() identity.Identity {
 	return id
 }
 
+// HightlightResult holds the result of an highlighting operation.
 type HightlightResult struct {
 	innerLow    int
 	innerHigh   int
@@ -211,7 +213,7 @@ func highlight(fw hugio.FlexiWriter, code, lang string, attributes []attributes.
 		writeDivStart(w, attributes)
 	}
 
-	options := cfg.ToHTMLOptions()
+	options := cfg.toHTMLOptions()
 	var wrapper html.PreWrapper
 
 	if cfg.Hl_inline {

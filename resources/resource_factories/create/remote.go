@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"mime"
 	"net/http"
 	"net/http/httputil"
@@ -48,7 +47,7 @@ type HTTPError struct {
 func responseToData(res *http.Response, readBody bool) map[string]any {
 	var body []byte
 	if readBody {
-		body, _ = ioutil.ReadAll(res.Body)
+		body, _ = io.ReadAll(res.Body)
 	}
 
 	m := map[string]any{
@@ -157,7 +156,7 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 	// A response to a HEAD method should not have a body. If it has one anyway, that body must be ignored.
 	// See https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/HEAD
 	if !isHeadMethod && res.Body != nil {
-		body, err = ioutil.ReadAll(res.Body)
+		body, err = io.ReadAll(res.Body)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read remote resource %q: %w", uri, err)
 		}
@@ -172,10 +171,17 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 
 	contentType := res.Header.Get("Content-Type")
 
-	if isHeadMethod {
-		// We have no body to work with, so we need to use the Content-Type header.
-		mediaType, _ = media.FromString(contentType)
-	} else {
+	// For HEAD requests we have no body to work with, so we need to use the Content-Type header.
+	if isHeadMethod || c.rs.ExecHelper.Sec().HTTP.MediaTypes.Accept(contentType) {
+		var found bool
+		mediaType, found = c.rs.MediaTypes().GetByType(contentType)
+		if !found {
+			// A media type not configured in Hugo, just create one from the content type string.
+			mediaType, _ = media.FromString(contentType)
+		}
+	}
+
+	if mediaType.IsZero() {
 
 		var extensionHints []string
 
@@ -198,7 +204,7 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 		}
 
 		// Now resolve the media type primarily using the content.
-		mediaType = media.FromContent(c.rs.MediaTypes, extensionHints, body)
+		mediaType = media.FromContent(c.rs.MediaTypes(), extensionHints, body)
 
 	}
 

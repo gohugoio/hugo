@@ -1,14 +1,11 @@
 ---
 title: Page Bundles
-linkTitle: Page Bundles
 description: Content organization using Page Bundles
-linkTitle: Page Bundles
 keywords: [page, bundle, leaf, branch]
 categories: [content management]
 menu :
   docs:
-    identifier: "page-bundles"
-    parent: "content-management"
+    parent: content-management
     weight: 30
 toc: true
 weight: 30
@@ -132,9 +129,9 @@ Explanation of the above example:
 A leaf bundle can be made headless by adding below in the Front Matter
 (in the `index.md`):
 
-```toml
+{{< code-toggle file="content/headless/index.md" fm=true copy=false >}}
 headless = true
-```
+{{< /code-toggle >}}
 
 There are many use cases of such headless page bundles:
 

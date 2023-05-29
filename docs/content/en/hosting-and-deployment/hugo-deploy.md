@@ -1,21 +1,13 @@
 ---
 title: Hugo Deploy
-linktitle: Hugo Deploy
 description: You can upload your site to GCS, S3, or Azure using the Hugo CLI.
-date: 2019-05-30
-publishdate: 2019-05-30
-lastmod: 2021-05-03
 categories: [hosting and deployment]
 keywords: [s3,gcs,azure,hosting,deployment]
-authors: [Robert van Gent]
 menu:
   docs:
-    parent: "hosting-and-deployment"
+    parent: hosting-and-deployment
     weight: 2
 weight: 2
-sections_weight: 2
-draft: false
-aliases: []
 toc: true
 ---
 

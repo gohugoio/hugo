@@ -17,7 +17,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -155,7 +154,7 @@ type baseResourceInternal interface {
 
 	ReadSeekCloser() (hugio.ReadSeekCloser, error)
 
-	// Internal
+	// For internal use.
 	cloneWithUpdates(*transformationUpdate) (baseResource, error)
 	tryTransformedFileCache(key string, u *transformationUpdate) io.ReadCloser
 
@@ -275,10 +274,11 @@ func (l *genericResource) Data() any {
 }
 
 func (l *genericResource) Key() string {
-	if l.spec.BasePath == "" {
+	basePath := l.spec.Cfg.BaseURL().BasePath
+	if basePath == "" {
 		return l.RelPermalink()
 	}
-	return strings.TrimPrefix(l.RelPermalink(), l.spec.BasePath)
+	return strings.TrimPrefix(l.RelPermalink(), basePath)
 }
 
 func (l *genericResource) MediaType() media.Type {
@@ -298,7 +298,7 @@ func (l *genericResource) Params() maps.Params {
 }
 
 func (l *genericResource) Permalink() string {
-	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(l.relTargetDirFile.path(), true), l.spec.BaseURL.HostURL())
+	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(l.relTargetDirFile.path(), true), l.spec.Cfg.BaseURL().HostURL())
 }
 
 func (l *genericResource) Publish() error {
@@ -370,7 +370,7 @@ func (l *genericResource) initContent() error {
 		defer r.Close()
 
 		var b []byte
-		b, err = ioutil.ReadAll(r)
+		b, err = io.ReadAll(r)
 		if err != nil {
 			return
 		}
@@ -411,7 +411,7 @@ func (r *genericResource) tryTransformedFileCache(key string, u *transformationU
 		return nil
 	}
 	u.sourceFilename = &fi.Name
-	mt, _ := r.spec.MediaTypes.GetByType(meta.MediaTypeV)
+	mt, _ := r.spec.MediaTypes().GetByType(meta.MediaTypeV)
 	u.mediaType = mt
 	u.data = meta.MetaData
 	u.targetPath = meta.Target
@@ -507,7 +507,7 @@ func (r *genericResource) openPublishFileForWriting(relTargetPath string) (io.Wr
 }
 
 func (l *genericResource) permalinkFor(target string) string {
-	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(target, true), l.spec.BaseURL.HostURL())
+	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(target, true), l.spec.Cfg.BaseURL().HostURL())
 }
 
 func (l *genericResource) relPermalinkFor(target string) string {

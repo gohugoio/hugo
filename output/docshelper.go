@@ -6,6 +6,7 @@ import (
 	//	"fmt"
 
 	"github.com/gohugoio/hugo/docshelper"
+	"github.com/gohugoio/hugo/output/layouts"
 )
 
 // This is is just some helpers used to create some JSON used in the Hugo docs.
@@ -39,44 +40,43 @@ func createLayoutExamples() any {
 
 	for _, example := range []struct {
 		name string
-		d    LayoutDescriptor
-		f    Format
+		d    layouts.LayoutDescriptor
 	}{
-		// Taxonomy output.LayoutDescriptor={categories category taxonomy en  false Type Section
-		{"Single page in \"posts\" section", LayoutDescriptor{Kind: "page", Type: "posts"}, HTMLFormat},
-		{"Base template for single page in \"posts\" section", LayoutDescriptor{Baseof: true, Kind: "page", Type: "posts"}, HTMLFormat},
-		{"Single page in \"posts\" section with layout set", LayoutDescriptor{Kind: "page", Type: "posts", Layout: demoLayout}, HTMLFormat},
-		{"Base template for single page in \"posts\" section with layout set", LayoutDescriptor{Baseof: true, Kind: "page", Type: "posts", Layout: demoLayout}, HTMLFormat},
-		{"AMP single page", LayoutDescriptor{Kind: "page", Type: "posts"}, AMPFormat},
-		{"AMP single page, French language", LayoutDescriptor{Kind: "page", Type: "posts", Lang: "fr"}, AMPFormat},
+		// Taxonomy layouts.LayoutDescriptor={categories category taxonomy en  false Type Section
+		{"Single page in \"posts\" section", layouts.LayoutDescriptor{Kind: "page", Type: "posts", OutputFormatName: "html", Suffix: "html"}},
+		{"Base template for single page in \"posts\" section", layouts.LayoutDescriptor{Baseof: true, Kind: "page", Type: "posts", OutputFormatName: "html", Suffix: "html"}},
+		{"Single page in \"posts\" section with layout set", layouts.LayoutDescriptor{Kind: "page", Type: "posts", Layout: demoLayout, OutputFormatName: "html", Suffix: "html"}},
+		{"Base template for single page in \"posts\" section with layout set", layouts.LayoutDescriptor{Baseof: true, Kind: "page", Type: "posts", Layout: demoLayout, OutputFormatName: "html", Suffix: "html"}},
+		{"AMP single page", layouts.LayoutDescriptor{Kind: "page", Type: "posts", OutputFormatName: "amp", Suffix: "html"}},
+		{"AMP single page, French language", layouts.LayoutDescriptor{Kind: "page", Type: "posts", Lang: "fr", OutputFormatName: "html", Suffix: "html"}},
 		// All section or typeless pages gets "page" as type
-		{"Home page", LayoutDescriptor{Kind: "home", Type: "page"}, HTMLFormat},
-		{"Base template for home page", LayoutDescriptor{Baseof: true, Kind: "home", Type: "page"}, HTMLFormat},
-		{"Home page with type set", LayoutDescriptor{Kind: "home", Type: demoType}, HTMLFormat},
-		{"Base template for home page with type set", LayoutDescriptor{Baseof: true, Kind: "home", Type: demoType}, HTMLFormat},
-		{"Home page with layout set", LayoutDescriptor{Kind: "home", Type: "page", Layout: demoLayout}, HTMLFormat},
-		{"AMP home, French language", LayoutDescriptor{Kind: "home", Type: "page", Lang: "fr"}, AMPFormat},
-		{"JSON home", LayoutDescriptor{Kind: "home", Type: "page"}, JSONFormat},
-		{"RSS home", LayoutDescriptor{Kind: "home", Type: "page"}, RSSFormat},
-		{"RSS section posts", LayoutDescriptor{Kind: "section", Type: "posts"}, RSSFormat},
-		{"Taxonomy in categories", LayoutDescriptor{Kind: "taxonomy", Type: "categories", Section: "category"}, RSSFormat},
-		{"Term in categories", LayoutDescriptor{Kind: "term", Type: "categories", Section: "category"}, RSSFormat},
-		{"Section list for \"posts\" section", LayoutDescriptor{Kind: "section", Type: "posts", Section: "posts"}, HTMLFormat},
-		{"Section list for \"posts\" section with type set to \"blog\"", LayoutDescriptor{Kind: "section", Type: "blog", Section: "posts"}, HTMLFormat},
-		{"Section list for \"posts\" section with layout set to \"demoLayout\"", LayoutDescriptor{Kind: "section", Layout: demoLayout, Section: "posts"}, HTMLFormat},
+		{"Home page", layouts.LayoutDescriptor{Kind: "home", Type: "page", OutputFormatName: "html", Suffix: "html"}},
+		{"Base template for home page", layouts.LayoutDescriptor{Baseof: true, Kind: "home", Type: "page", OutputFormatName: "html", Suffix: "html"}},
+		{"Home page with type set", layouts.LayoutDescriptor{Kind: "home", Type: demoType, OutputFormatName: "html", Suffix: "html"}},
+		{"Base template for home page with type set", layouts.LayoutDescriptor{Baseof: true, Kind: "home", Type: demoType, OutputFormatName: "html", Suffix: "html"}},
+		{"Home page with layout set", layouts.LayoutDescriptor{Kind: "home", Type: "page", Layout: demoLayout, OutputFormatName: "html", Suffix: "html"}},
+		{"AMP home, French language", layouts.LayoutDescriptor{Kind: "home", Type: "page", Lang: "fr", OutputFormatName: "amp", Suffix: "html"}},
+		{"JSON home", layouts.LayoutDescriptor{Kind: "home", Type: "page", OutputFormatName: "json", Suffix: "json"}},
+		{"RSS home", layouts.LayoutDescriptor{Kind: "home", Type: "page", OutputFormatName: "rss", Suffix: "xml"}},
+		{"RSS section posts", layouts.LayoutDescriptor{Kind: "section", Type: "posts", OutputFormatName: "rss", Suffix: "xml"}},
+		{"Taxonomy in categories", layouts.LayoutDescriptor{Kind: "taxonomy", Type: "categories", Section: "category", OutputFormatName: "rss", Suffix: "xml"}},
+		{"Term in categories", layouts.LayoutDescriptor{Kind: "term", Type: "categories", Section: "category", OutputFormatName: "rss", Suffix: "xml"}},
+		{"Section list for \"posts\" section", layouts.LayoutDescriptor{Kind: "section", Type: "posts", Section: "posts", OutputFormatName: "html", Suffix: "html"}},
+		{"Section list for \"posts\" section with type set to \"blog\"", layouts.LayoutDescriptor{Kind: "section", Type: "blog", Section: "posts", OutputFormatName: "html", Suffix: "html"}},
+		{"Section list for \"posts\" section with layout set to \"demoLayout\"", layouts.LayoutDescriptor{Kind: "section", Layout: demoLayout, Section: "posts", OutputFormatName: "html", Suffix: "html"}},
 
-		{"Taxonomy list in categories", LayoutDescriptor{Kind: "taxonomy", Type: "categories", Section: "category"}, HTMLFormat},
-		{"Taxonomy term in categories", LayoutDescriptor{Kind: "term", Type: "categories", Section: "category"}, HTMLFormat},
+		{"Taxonomy list in categories", layouts.LayoutDescriptor{Kind: "taxonomy", Type: "categories", Section: "category", OutputFormatName: "html", Suffix: "html"}},
+		{"Taxonomy term in categories", layouts.LayoutDescriptor{Kind: "term", Type: "categories", Section: "category", OutputFormatName: "html", Suffix: "html"}},
 	} {
 
-		l := NewLayoutHandler()
-		layouts, _ := l.For(example.d, example.f)
+		l := layouts.NewLayoutHandler()
+		layouts, _ := l.For(example.d)
 
 		basicExamples = append(basicExamples, Example{
 			Example:      example.name,
 			Kind:         example.d.Kind,
-			OutputFormat: example.f.Name,
-			Suffix:       example.f.MediaType.FirstSuffix.Suffix,
+			OutputFormat: example.d.OutputFormatName,
+			Suffix:       example.d.Suffix,
 			Layouts:      makeLayoutsPresentable(layouts),
 		})
 	}

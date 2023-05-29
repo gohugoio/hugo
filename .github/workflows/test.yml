@@ -91,13 +91,4 @@ jobs:
         mage -v check;
       env:
         HUGO_BUILD_TAGS: extended
-    - name: Build Docs
-      env:
-        HUGO_BUILD_TAGS: extended
-        HUGO_TIMEOUT: 31000
-        HUGO_IGNOREERRORS: error-remote-getjson
-        HUGO_SERVICES_INSTAGRAM_ACCESSTOKEN: dummytoken
-      run: |
-        mage -v hugo
-        ./hugo -s docs/
-        ./hugo --renderToMemory -s docs/
+

@@ -71,8 +71,9 @@ func SanitizeURLKeepTrailingSlash(in string) string {
 
 // URLize is similar to MakePath, but with Unicode handling
 // Example:
-//     uri: Vim (text editor)
-//     urlize: vim-text-editor
+//
+//	uri: Vim (text editor)
+//	urlize: vim-text-editor
 func (p *PathSpec) URLize(uri string) string {
 	return p.URLEscape(p.MakePathSanitized(uri))
 }
@@ -141,16 +142,16 @@ func (p *PathSpec) AbsURL(in string, addLanguage bool) string {
 func (p *PathSpec) getBaseURLRoot(path string) string {
 	if strings.HasPrefix(path, "/") {
 		// Treat it as relative to the server root.
-		return p.BaseURLNoPathString
+		return p.Cfg.BaseURL().WithoutPath
 	} else {
 		// Treat it as relative to the baseURL.
-		return p.BaseURLString
+		return p.Cfg.BaseURL().WithPath
 	}
 }
 
 func (p *PathSpec) RelURL(in string, addLanguage bool) string {
 	baseURL := p.getBaseURLRoot(in)
-	canonifyURLs := p.CanonifyURLs
+	canonifyURLs := p.Cfg.CanonifyURLs()
 	if (!strings.HasPrefix(in, baseURL) && strings.HasPrefix(in, "http")) || strings.HasPrefix(in, "//") {
 		return in
 	}
@@ -216,26 +217,4 @@ func (p *PathSpec) PrependBasePath(rel string, isAbs bool) string {
 		}
 	}
 	return rel
-}
-
-// URLizeAndPrep applies misc sanitation to the given URL to get it in line
-// with the Hugo standard.
-func (p *PathSpec) URLizeAndPrep(in string) string {
-	return p.URLPrep(p.URLize(in))
-}
-
-// URLPrep applies misc sanitation to the given URL.
-func (p *PathSpec) URLPrep(in string) string {
-	if p.UglyURLs {
-		return paths.Uglify(SanitizeURL(in))
-	}
-	pretty := paths.PrettifyURL(SanitizeURL(in))
-	if path.Ext(pretty) == ".xml" {
-		return pretty
-	}
-	url, err := purell.NormalizeURLString(pretty, purell.FlagAddTrailingSlash)
-	if err != nil {
-		return pretty
-	}
-	return url
 }

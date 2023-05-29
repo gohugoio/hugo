@@ -1,22 +1,22 @@
 ---
-title: Creating a resource from template
+title: ExecuteAsTemplate
 linkTitle: Resource from Template
-description: Hugo Pipes allows the creation of a resource from an asset file using Go Template.
-date: 2018-07-14
-publishdate: 2018-07-14
+description: Creates a resource from a template
 categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: "pipes"
+    parent: pipes
     weight: 80
 weight: 80
-sections_weight: 80
+signature: ["resources.ExecuteAsTemplate TARGET_PATH CONTEXT RESOURCE"]
 ---
+
+## Usage
 
 In order to use Hugo Pipes function on an asset file containing Go Template magic the function `resources.ExecuteAsTemplate` must be used.
 
-The function takes three arguments: the resource target path, the template context, and the resource object.
+The function takes three arguments: the target path for the created resource, the template context, and the resource object.
 
 ```go-html-template
 // assets/sass/template.scss

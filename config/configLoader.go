@@ -57,6 +57,14 @@ func IsValidConfigFilename(filename string) bool {
 	return validConfigFileExtensionsMap[ext]
 }
 
+func FromTOMLConfigString(config string) Provider {
+	cfg, err := FromConfigString(config, "toml")
+	if err != nil {
+		panic(err)
+	}
+	return cfg
+}
+
 // FromConfigString creates a config from the given YAML, JSON or TOML config. This is useful in tests.
 func FromConfigString(config, configType string) (Provider, error) {
 	m, err := readConfig(metadecoders.FormatFromString(configType), []byte(config))

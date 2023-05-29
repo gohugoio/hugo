@@ -23,6 +23,7 @@ import (
 	"unicode"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
+	"github.com/gohugoio/hugo/output/layouts"
 
 	"github.com/gohugoio/hugo/output"
 
@@ -56,11 +57,17 @@ type UnusedTemplatesProvider interface {
 	UnusedTemplates() []FileInfo
 }
 
+// TemplateHandlers holds the templates needed by Hugo.
+type TemplateHandlers struct {
+	Tmpl    TemplateHandler
+	TxtTmpl TemplateParseFinder
+}
+
 // TemplateHandler finds and executes templates.
 type TemplateHandler interface {
 	TemplateFinder
 	ExecuteWithContext(ctx context.Context, t Template, wr io.Writer, data any) error
-	LookupLayout(d output.LayoutDescriptor, f output.Format) (Template, bool, error)
+	LookupLayout(d layouts.LayoutDescriptor, f output.Format) (Template, bool, error)
 	HasTemplate(name string) bool
 }
 

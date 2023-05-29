@@ -2,19 +2,12 @@
 title: The Benefits of Static Site Generators
 linktitle: The Benefits of Static
 description: Improved performance, security and ease of use are just a few of the reasons static site generators are so appealing.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 keywords: [ssg,static,performance,security]
 menu:
   docs:
-    parent: "about"
+    parent: about
     weight: 30
 weight: 30
-sections_weight: 30
-draft: false
-aliases: []
-toc: false
 ---
 
 The purpose of website generators is to render content into HTML files. Most are "dynamic site generators." That means the HTTP server---i.e., the program that sends files to the browser to be viewed---runs the generator to create a new HTML file every time an end user requests a page.

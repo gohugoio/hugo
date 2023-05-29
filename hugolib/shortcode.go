@@ -186,7 +186,7 @@ func (scp *ShortcodeWithPage) page() page.Page {
 const shortcodePlaceholderPrefix = "HAHAHUGOSHORTCODE"
 
 func createShortcodePlaceholder(id string, ordinal int) string {
-	return shortcodePlaceholderPrefix + "-" + id + strconv.Itoa(ordinal) + "-HBHB"
+	return shortcodePlaceholderPrefix + id + strconv.Itoa(ordinal) + "HBHB"
 }
 
 type shortcode struct {
@@ -689,7 +689,7 @@ Loop:
 		case currItem.IsDone():
 			if !currItem.IsError() {
 				if !closed && sc.needsInner() {
-					return sc, fmt.Errorf("%s: unclosed shortcode %q", errorPrefix, sc.name)
+					return sc, fmt.Errorf("%s: shortcode %q must be closed or self-closed", errorPrefix, sc.name)
 				}
 			}
 			// handled by caller

@@ -1,6 +1,5 @@
 ---
 title: Related Content
-linkTitle: Related Content
 description: List related content in "See Also" sections.
 categories: [content management]
 keywords: [content]
@@ -67,8 +66,7 @@ We improved and simplified this feature in Hugo 0.111.0. Before this we had 3 di
 
 Hugo can index the headings in your content and use this to find related content. You can enable this by adding a index of type `fragments` to your `related` configuration:
 
-
-```toml
+{{< code-toggle file="hugo" copy=false >}}
 [related]
 threshold    = 20
 includeNewer = true
@@ -78,7 +76,7 @@ name        = "fragmentrefs"
 type        = "fragments"
 applyFilter = false
 weight      = 80
-```
+{{< /code-toggle >}}
 
 * The `name` maps to a optional front matter slice attribute that can be used to link from the page level down to the fragment/heading level.
 * If `applyFilter`is enabled, the `.HeadingsFiltered` on each page in the result will reflect the filtered headings. This is useful if you want to show the headings in the related content listing:
@@ -115,7 +113,7 @@ Hugo provides a sensible default configuration of Related Content, but you can f
 
 Without any `related` configuration set on the project, Hugo's Related Content methods will use the following.
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 related:
   threshold: 80
   includeNewer: false

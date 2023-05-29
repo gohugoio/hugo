@@ -1,19 +1,13 @@
 ---
 title: RSS Templates
-linktitle: RSS Templates
 description: Hugo ships with its own RSS 2.0 template that requires almost no configuration, or you can create your own RSS templates.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 keywords: [rss, xml, templates]
 categories: [templates]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 150
 weight: 150
-sections_weight: 150
-draft: false
 toc: true
 ---
 
@@ -21,7 +15,7 @@ toc: true
 
 See [Template Lookup Order](/templates/lookup-order/) for the complete reference.
 
-{{% note "Hugo Ships with an RSS Template" %}}
+{{% note %}}
 Hugo ships with its own [RSS 2.0 template](#the-embedded-rssxml). The embedded template will be sufficient for most use cases.
 {{% /note %}}
 
@@ -41,11 +35,11 @@ The table below shows the RSS template lookup order for the different page kinds
 
 ## Configure RSS
 
-By default, Hugo will create an unlimited number of RSS entries. You can limit the number of articles included in the built-in RSS templates by assigning a numeric value to `rssLimit:` field in your project's [`config` file][config].
+By default, Hugo will create an unlimited number of RSS entries. You can limit the number of articles included in the built-in RSS templates by assigning a numeric value to `rssLimit:` field in your project's configuration file.
 
 The following values will also be included in the RSS output if specified:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 languageCode = "en-us"
 copyright = "This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License."
 

@@ -46,8 +46,8 @@ var (
 	vendorInfo string
 )
 
-// Info contains information about the current Hugo environment
-type Info struct {
+// HugoInfo contains information about the current Hugo environment
+type HugoInfo struct {
 	CommitHash string
 	BuildDate  string
 
@@ -60,36 +60,48 @@ type Info struct {
 	// version of go that the Hugo binary was built with
 	GoVersion string
 
+	conf ConfigProvider
 	deps []*Dependency
 }
 
 // Version returns the current version as a comparable version string.
-func (i Info) Version() VersionString {
+func (i HugoInfo) Version() VersionString {
 	return CurrentVersion.Version()
 }
 
 // Generator a Hugo meta generator HTML tag.
-func (i Info) Generator() template.HTML {
+func (i HugoInfo) Generator() template.HTML {
 	return template.HTML(fmt.Sprintf(`<meta name="generator" content="Hugo %s">`, CurrentVersion.String()))
 }
 
-func (i Info) IsProduction() bool {
+func (i HugoInfo) IsProduction() bool {
 	return i.Environment == EnvironmentProduction
 }
 
-func (i Info) IsExtended() bool {
+func (i HugoInfo) IsExtended() bool {
 	return IsExtended
 }
 
+// WorkingDir returns the project working directory.
+func (i HugoInfo) WorkingDir() string {
+	return i.conf.WorkingDir()
+}
+
 // Deps gets a list of dependencies for this Hugo build.
-func (i Info) Deps() []*Dependency {
+func (i HugoInfo) Deps() []*Dependency {
 	return i.deps
 }
 
+// ConfigProvider represents the config options that are relevant for HugoInfo.
+type ConfigProvider interface {
+	Environment() string
+	WorkingDir() string
+}
+
 // NewInfo creates a new Hugo Info object.
-func NewInfo(environment string, deps []*Dependency) Info {
-	if environment == "" {
-		environment = EnvironmentProduction
+func NewInfo(conf ConfigProvider, deps []*Dependency) HugoInfo {
+	if conf.Environment() == "" {
+		panic("environment not set")
 	}
 	var (
 		commitHash string
@@ -104,10 +116,11 @@ func NewInfo(environment string, deps []*Dependency) Info {
 		goVersion = bi.GoVersion
 	}
 
-	return Info{
+	return HugoInfo{
 		CommitHash:  commitHash,
 		BuildDate:   buildDate,
-		Environment: environment,
+		Environment: conf.Environment(),
+		conf:        conf,
 		deps:        deps,
 		GoVersion:   goVersion,
 	}
@@ -115,7 +128,7 @@ func NewInfo(environment string, deps []*Dependency) Info {
 
 // GetExecEnviron creates and gets the common os/exec environment used in the
 // external programs we interact with via os/exec, e.g. postcss.
-func GetExecEnviron(workDir string, cfg config.Provider, fs afero.Fs) []string {
+func GetExecEnviron(workDir string, cfg config.AllProvider, fs afero.Fs) []string {
 	var env []string
 	nodepath := filepath.Join(workDir, "node_modules")
 	if np := os.Getenv("NODE_PATH"); np != "" {
@@ -123,10 +136,9 @@ func GetExecEnviron(workDir string, cfg config.Provider, fs afero.Fs) []string {
 	}
 	config.SetEnvVars(&env, "NODE_PATH", nodepath)
 	config.SetEnvVars(&env, "PWD", workDir)
-	config.SetEnvVars(&env, "HUGO_ENVIRONMENT", cfg.GetString("environment"))
-	config.SetEnvVars(&env, "HUGO_ENV", cfg.GetString("environment"))
-
-	config.SetEnvVars(&env, "HUGO_PUBLISHDIR", filepath.Join(workDir, cfg.GetString("publishDirOrig")))
+	config.SetEnvVars(&env, "HUGO_ENVIRONMENT", cfg.Environment())
+	config.SetEnvVars(&env, "HUGO_ENV", cfg.Environment())
+	config.SetEnvVars(&env, "HUGO_PUBLISHDIR", filepath.Join(workDir, cfg.BaseConfig().PublishDir))
 
 	if fs != nil {
 		fis, err := afero.ReadDir(fs, files.FolderJSConfig)

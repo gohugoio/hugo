@@ -11,13 +11,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package filecache
+package filecache_test
 
 import (
 	"fmt"
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/spf13/afero"
 
 	qt "github.com/frankban/quicktest"
@@ -52,10 +53,10 @@ maxAge = "200ms"
 dir = ":resourceDir/_gen"
 `
 
-	for _, name := range []string{cacheKeyGetCSV, cacheKeyGetJSON, cacheKeyAssets, cacheKeyImages} {
+	for _, name := range []string{filecache.CacheKeyGetCSV, filecache.CacheKeyGetJSON, filecache.CacheKeyAssets, filecache.CacheKeyImages} {
 		msg := qt.Commentf("cache: %s", name)
 		p := newPathsSpec(t, afero.NewMemMapFs(), configStr)
-		caches, err := NewCaches(p)
+		caches, err := filecache.NewCaches(p)
 		c.Assert(err, qt.IsNil)
 		cache := caches[name]
 		for i := 0; i < 10; i++ {
@@ -75,7 +76,7 @@ dir = ":resourceDir/_gen"
 
 		for i := 0; i < 10; i++ {
 			id := fmt.Sprintf("i%d", i)
-			v := cache.getString(id)
+			v := cache.GetString(id)
 			if i < 5 {
 				c.Assert(v, qt.Equals, "")
 			} else {
@@ -83,7 +84,7 @@ dir = ":resourceDir/_gen"
 			}
 		}
 
-		caches, err = NewCaches(p)
+		caches, err = filecache.NewCaches(p)
 		c.Assert(err, qt.IsNil)
 		cache = caches[name]
 		// Touch one and then prune.
@@ -98,7 +99,7 @@ dir = ":resourceDir/_gen"
 		// Now only the i5 should be left.
 		for i := 0; i < 10; i++ {
 			id := fmt.Sprintf("i%d", i)
-			v := cache.getString(id)
+			v := cache.GetString(id)
 			if i != 5 {
 				c.Assert(v, qt.Equals, "")
 			} else {

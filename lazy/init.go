@@ -73,7 +73,7 @@ func (ini *Init) Branch(initFn func(context.Context) (any, error)) *Init {
 	return ini.add(true, initFn)
 }
 
-// BranchdWithTimeout is same as Branch, but with a timeout.
+// BranchWithTimeout is same as Branch, but with a timeout.
 func (ini *Init) BranchWithTimeout(timeout time.Duration, f func(ctx context.Context) (any, error)) *Init {
 	return ini.Branch(func(ctx context.Context) (any, error) {
 		return ini.withTimeout(ctx, timeout, f)
@@ -180,14 +180,15 @@ func (ini *Init) checkDone() {
 }
 
 func (ini *Init) withTimeout(ctx context.Context, timeout time.Duration, f func(ctx context.Context) (any, error)) (any, error) {
-	ctx, cancel := context.WithTimeout(ctx, timeout)
+	// Create a new context with a timeout not connected to the incoming context.
+	waitCtx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	c := make(chan verr, 1)
 
 	go func() {
 		v, err := f(ctx)
 		select {
-		case <-ctx.Done():
+		case <-waitCtx.Done():
 			return
 		default:
 			c <- verr{v: v, err: err}
@@ -195,7 +196,7 @@ func (ini *Init) withTimeout(ctx context.Context, timeout time.Duration, f func(
 	}()
 
 	select {
-	case <-ctx.Done():
+	case <-waitCtx.Done():
 		return nil, errors.New("timed out initializing value. You may have a circular loop in a shortcode, or your site may have resources that take longer to build than the `timeout` limit in your Hugo config file.")
 	case ve := <-c:
 		return ve.v, ve.err

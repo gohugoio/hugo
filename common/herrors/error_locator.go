@@ -16,7 +16,6 @@ package herrors
 
 import (
 	"io"
-	"io/ioutil"
 	"path/filepath"
 	"strings"
 
@@ -60,6 +59,16 @@ var OffsetMatcher = func(m LineMatcher) int {
 		return 0
 	}
 	return -1
+}
+
+// ContainsMatcher is a line matcher that matches by line content.
+func ContainsMatcher(text string) func(m LineMatcher) int {
+	return func(m LineMatcher) int {
+		if idx := strings.Index(m.Line, text); idx != -1 {
+			return idx + 1
+		}
+		return -1
+	}
 }
 
 // ErrorContext contains contextual information about an error. This will
@@ -114,7 +123,7 @@ func locateError(r io.Reader, le FileError, matches LineMatcherFn) *ErrorContext
 
 	ectx := &ErrorContext{LinesPos: -1, Position: text.Position{Offset: -1}}
 
-	b, err := ioutil.ReadAll(r)
+	b, err := io.ReadAll(r)
 	if err != nil {
 		return ectx
 	}

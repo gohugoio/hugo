@@ -2,16 +2,13 @@
 title: Hugo and the  General Data Protection Regulation (GDPR)
 linktitle: Hugo and GDPR
 description: About how to configure your Hugo site to meet the new regulations.
-date: 2018-05-25
 layout: single
 keywords: ["GDPR", "Privacy", "Data Protection"]
 menu:
   docs:
-    parent: "about"
+    parent: about
     weight: 5
 weight: 5
-sections_weight: 5
-draft: false
 aliases: [/privacy/,/gdpr/]
 toc: true
 ---
@@ -30,9 +27,9 @@ toc: true
 
 ## All Privacy Settings
 
-Below are all privacy settings and their default value. These settings need to be put in your site config (e.g. `config.toml`).
+Below are all privacy settings and their default value. These settings need to be put in your site config (e.g. `hugo.toml`).
 
- {{< code-toggle file="config">}}
+{{< code-toggle file="hugo" >}}
 [privacy]
 [privacy.disqus]
 disable = false
@@ -57,12 +54,11 @@ disable = false
 privacyEnhanced = false
 {{< /code-toggle >}}
 
-
 ## Disable All Services
 
 An example Privacy Config that disables all the relevant services in Hugo. With this configuration, the other settings will not matter.
 
- {{< code-toggle file="config">}}
+ {{< code-toggle file="hugo" >}}
 [privacy]
 [privacy.disqus]
 disable = true
@@ -91,9 +87,9 @@ respectDoNotTrack
 useSessionStorage
 : Enabling this will disable the use of Cookies and use Session Storage to Store the GA Client ID.
 
-{{% warning %}}
+{{% note %}}
 `useSessionStorage` is not supported when using Google Analytics v4 (gtag.js).
-{{% /warning %}}
+{{% /note %}}
 
 ### Instagram
 
@@ -102,7 +98,7 @@ simple
 
 **Note:** If you use the _simple mode_ for Instagram and a site styled with Bootstrap 4, you may want to disable the inline styles provided by Hugo:
 
- {{< code-toggle file="config">}}
+ {{< code-toggle file="hugo" >}}
 [services]
 [services.instagram]
 disableInlineCSS = true
@@ -118,7 +114,7 @@ simple
 
 **Note:** If you use the _simple mode_ for Twitter, you may want to disable the inline styles provided by Hugo:
 
- {{< code-toggle file="config">}}
+ {{< code-toggle file="hugo" >}}
 [services]
 [services.twitter]
 disableInlineCSS = true

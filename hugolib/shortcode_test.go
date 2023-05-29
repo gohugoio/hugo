@@ -758,7 +758,7 @@ title: "Hugo Rocks!"
 func TestShortcodeEmoji(t *testing.T) {
 	t.Parallel()
 
-	v := config.NewWithTestDefaults()
+	v := config.New()
 	v.Set("enableEmoji", true)
 
 	builder := newTestSitesBuilder(t).WithViper(v)
@@ -822,7 +822,7 @@ Get: {{ printf "%v (%T)" $b1 $b1 | safeHTML }}
 func TestShortcodeRef(t *testing.T) {
 	t.Parallel()
 
-	v := config.NewWithTestDefaults()
+	v := config.New()
 	v.Set("baseURL", "https://example.org")
 
 	builder := newTestSitesBuilder(t).WithViper(v)
@@ -935,6 +935,7 @@ func TestShortcodeMarkdownOutputFormat(t *testing.T) {
 title: "p1"
 ---
 {{< foo >}}
+# The below would have failed using the HTML template parser.
 -- layouts/shortcodes/foo.md --
 §§§
 <x
@@ -1274,5 +1275,42 @@ Inner: {{ .Get 0 }}: {{ len .Inner }}
 	).BuildE()
 
 	b.Assert(err, qt.Not(qt.IsNil))
-	b.Assert(err.Error(), qt.Contains, `p1.md:5:1": failed to extract shortcode: unclosed shortcode "sc"`)
+	b.Assert(err.Error(), qt.Contains, `p1.md:5:1": failed to extract shortcode: shortcode "sc" must be closed or self-closed`)
+}
+
+// Issue 10819.
+func TestShortcodeInCodeFenceHyphen(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+disableKinds = ["home", "taxonomy", "term"]
+-- content/p1.md --
+---
+title: "p1"
+---
+
+§§§go
+{{< sc >}}
+§§§
+
+Text.
+
+-- layouts/shortcodes/sc.html --
+Hello.
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			Running:     true,
+			Verbose:     true,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", "<span style=\"color:#a6e22e\">Hello.</span>")
+
 }

@@ -1,24 +1,17 @@
 ---
 title: println
-linktitle: println
 description: Prints the default representation of the given argument using the standard `fmt.Print` function and enforces a linebreak.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [strings]
 signature: ["println INPUT"]
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
 ---
 
 See [the go doc](https://golang.org/pkg/fmt/) for additional information. `\n` denotes the linebreak but isn't printed in the templates as seen below:
 
-```
+```go-html-template
 {{ println "foo" }} → "foo\n"
 ```

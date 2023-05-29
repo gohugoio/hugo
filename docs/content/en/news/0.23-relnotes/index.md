@@ -4,8 +4,6 @@ categories: ["Releases"]
 description: "Hugo 0.23 is mainly a release that handles all the small changes needed to get Hugo moved to a GitHub organisation"
 link: ""
 title: "Hugo 0.23"
-draft: false
-author: bep
 aliases: [/0-23/]
 ---
 

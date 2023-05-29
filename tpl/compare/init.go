@@ -25,11 +25,12 @@ const name = "compare"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		if d.Language == nil {
+		language := d.Conf.Language()
+		if language == nil {
 			panic("language must be set")
 		}
 
-		ctx := New(langs.GetLocation(d.Language), false)
+		ctx := New(langs.GetLocation(language), false)
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,

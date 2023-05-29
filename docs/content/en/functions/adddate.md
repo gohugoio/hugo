@@ -1,20 +1,13 @@
 ---
 title: .AddDate
 description: Returns the time corresponding to adding the given number of years, months, and days to the given time.Time value.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [dates,time]
 signature: [".AddDate YEARS MONTHS DAYS"]
-workson: [times]
-hugoversion:
 relatedfuncs: [now]
-deprecated: false
-aliases: []
 ---
 
 ```go-html-template

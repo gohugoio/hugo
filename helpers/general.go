@@ -43,20 +43,6 @@ import (
 // FilePathSeparator as defined by os.Separator.
 const FilePathSeparator = string(filepath.Separator)
 
-// FindAvailablePort returns an available and valid TCP port.
-func FindAvailablePort() (*net.TCPAddr, error) {
-	l, err := net.Listen("tcp", ":0")
-	if err == nil {
-		defer l.Close()
-		addr := l.Addr()
-		if a, ok := addr.(*net.TCPAddr); ok {
-			return a, nil
-		}
-		return nil, fmt.Errorf("unable to obtain a valid tcp port: %v", addr)
-	}
-	return nil, err
-}
-
 // TCPListen starts listening on a valid TCP port.
 func TCPListen() (net.Listener, *net.TCPAddr, error) {
 	l, err := net.Listen("tcp", ":0")
@@ -131,7 +117,7 @@ func UniqueStringsReuse(s []string) []string {
 	return result
 }
 
-// UniqueStringsReuse returns a sorted slice with any duplicates removed.
+// UniqueStringsSorted returns a sorted slice with any duplicates removed.
 // It will modify the input slice.
 func UniqueStringsSorted(s []string) []string {
 	if len(s) == 0 {
@@ -415,7 +401,7 @@ func Deprecated(item, alternative string, err bool) {
 		DistinctErrorLog.Errorf("%s is deprecated and will be removed in Hugo %s. %s", item, hugo.CurrentVersion.Next().ReleaseVersion(), alternative)
 	} else {
 		var warnPanicMessage string
-		if !loggers.PanicOnWarning {
+		if !loggers.PanicOnWarning.Load() {
 			warnPanicMessage = "\n\nRe-run Hugo with the flag --panicOnWarning to get a better error message."
 		}
 		DistinctWarnLog.Warnf("%s is deprecated and will be removed in a future release. %s%s", item, alternative, warnPanicMessage)

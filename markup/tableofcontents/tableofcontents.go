@@ -31,7 +31,7 @@ type Builder struct {
 	toc *Fragments
 }
 
-// Add adds the heading to the ToC.
+// AddAt adds the heading to the ToC.
 func (b *Builder) AddAt(h *Heading, row, level int) {
 	if b.toc == nil {
 		b.toc = &Fragments{}
@@ -237,6 +237,7 @@ var DefaultConfig = Config{
 type Config struct {
 	// Heading start level to include in the table of contents, starting
 	// at h1 (inclusive).
+	// <docsmeta>{ "identifiers": ["h1"] }</docsmeta>
 	StartLevel int
 
 	// Heading end level, inclusive, to include in the table of contents.

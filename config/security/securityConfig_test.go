@@ -163,8 +163,10 @@ func TestDecodeConfigDefault(t *testing.T) {
 	c.Assert(pc.HTTP.Methods.Accept("GET"), qt.IsTrue)
 	c.Assert(pc.HTTP.Methods.Accept("get"), qt.IsTrue)
 	c.Assert(pc.HTTP.Methods.Accept("DELETE"), qt.IsFalse)
+	c.Assert(pc.HTTP.MediaTypes.Accept("application/msword"), qt.IsFalse)
 
 	c.Assert(pc.Exec.OsEnv.Accept("PATH"), qt.IsTrue)
 	c.Assert(pc.Exec.OsEnv.Accept("GOROOT"), qt.IsTrue)
 	c.Assert(pc.Exec.OsEnv.Accept("MYSECRET"), qt.IsFalse)
+
 }

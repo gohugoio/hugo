@@ -1,19 +1,13 @@
 ---
 title: Local File Templates
-linktitle: Local File Templates
 description: Hugo's `readDir` and `readFile` functions make it easy to traverse your project's directory structure and write file contents to your templates.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [templates]
 keywords: [files,directories]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 110
 weight: 110
-sections_weight: 110
-draft: false
 aliases: [/extras/localfiles/,/templates/local-files/]
 toc: true
 ---
@@ -49,12 +43,11 @@ As `readFile` is a function, it is only available to you in your templates and n
 {{</* readfile file="/path/to/local/file.txt" markdown="true" */>}}
 ```
 
-{{% warning %}}
+{{% note %}}
 If you are going to create [custom shortcodes](/templates/shortcode-templates/) with `readFile` for a theme, note that usage of the shortcode will refer to the project root and *not* your `themes` directory.
-{{% /warning %}}
+{{% /note %}}
 
 [called directly in the Hugo docs]: https://github.com/gohugoio/hugoDocs/blob/master/content/en/templates/files.md
-[dirindex]: https://github.com/gohugoio/hugo/blob/master/docs/layouts/shortcodes/directoryindex.html
 [osfileinfo]: https://golang.org/pkg/os/#FileInfo
 [readDir]: /functions/readdir/
 [readFile]: /functions/readfile/

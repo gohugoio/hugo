@@ -2,24 +2,21 @@
 title: Configure Hugo
 linktitle: Configuration
 description: How to configure your Hugo site.
-date: 2013-07-01
-publishdate: 2017-01-02
 categories: [getting started,fundamentals]
 keywords: [configuration,toml,yaml,json]
 menu:
   docs:
-    parent: "getting-started"
+    parent: getting-started
     weight: 60
 weight: 60
-sections_weight: 60
 aliases: [/overview/source-directory/,/overview/configuration/]
 toc: true
 ---
 
 ## Configuration File
 
-Hugo uses the `config.toml`, `config.yaml`, or `config.json` (if found in the
-site root) as the default site config file.
+Hugo uses the `hugo.toml`, `hugo.yaml`, or `hugo.json` (if found in the
+site root) as the default site configuration file.
 
 The user can choose to override that default with one or more site config files
 using the command-line `--config` switch.
@@ -35,11 +32,9 @@ hugo --config a.toml,b.toml,c.toml
 Multiple site config files can be specified as a comma-separated string to the `--config` switch.
 {{% /note %}}
 
-{{< todo >}}TODO: distinct config.toml and others (the root object files){{< /todo >}}
-
 ## hugo.toml vs config.toml
 
-In Hugo 0.110.0 we changed the default config base filename to `hugo`, e.g. `hugo.toml`. We will still look for `config.toml` etc., but we recommend you eventually rename it (but you need to wait if you want to support older Hugo versions). The main reason we're doing this is to make it easier code editors and build tools to identify this as a Hugo configuration file and project. 
+In Hugo 0.110.0 we changed the default config base filename to `hugo`, e.g. `hugo.toml`. We will still look for `config.toml` etc., but we recommend you eventually rename it (but you need to wait if you want to support older Hugo versions). The main reason we're doing this is to make it easier for code editors and build tools to identify this as a Hugo configuration file and project.
 
 {{< new-in "0.110.0" >}}
 
@@ -50,7 +45,7 @@ In addition to using a single site config file, one can use the `configDir` dire
 - Each file represents a configuration root object, such as `params.toml` for `[Params]`, `menu(s).toml` for `[Menu]`, `languages.toml` for `[Languages]` etc...
 - Each file's content must be top-level, for example:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 [Params]
   foo = "bar"
 {{< /code-toggle >}}
@@ -66,35 +61,35 @@ foo = "bar"
 ```txt
 ├── config
 │   ├── _default
-│   │   ├── config.toml
+│   │   ├── hugo.toml
 │   │   ├── languages.toml
 │   │   ├── menus.en.toml
 │   │   ├── menus.zh.toml
 │   │   └── params.toml
 │   ├── production
-│   │   ├── config.toml
+│   │   ├── hugo.toml
 │   │   └── params.toml
 │   └── staging
-│       ├── config.toml
+│       ├── hugo.toml
 │       └── params.toml
 ```
 
 Considering the structure above, when running `hugo --environment staging`, Hugo will use every setting from `config/_default` and merge `staging`'s on top of those.
 
-Let's take an example to understand this better. Let's say you are using Google Analytics for your website. This requires you to specify `googleAnalytics = "G-XXXXXXXX"` in `config.toml`. Now consider the following scenario:
+Let's take an example to understand this better. Let's say you are using Google Analytics for your website. This requires you to specify `googleAnalytics = "G-XXXXXXXX"` in `hugo.toml`. Now consider the following scenario:
 - You don't want the Analytics code to be loaded in development i.e. in your `localhost`
 - You want to use separate googleAnalytics IDs for your production & staging environments (say):
   - `G-PPPPPPPP` for production
   - `G-SSSSSSSS` for staging
 
-This is how you need to configure your `config.toml` files considering the above scenario:
-1. In `_default/config.toml` you don't need to mention `googleAnalytics` parameter at all. This ensures that no Google Analytics code is loaded in your development server i.e. when you run `hugo serve`. This works since, by default Hugo sets `Environment=development` when you run `hugo serve` which uses the config files from `_default` folder
-2. In `production/config.toml` you just need to have one line:
+This is how you need to configure your `hugo.toml` files considering the above scenario:
+1. In `_default/hugo.toml` you don't need to mention `googleAnalytics` parameter at all. This ensures that no Google Analytics code is loaded in your development server i.e. when you run `hugo server`. This works since, by default Hugo sets `Environment=development` when you run `hugo server` which uses the config files from `_default` folder
+2. In `production/hugo.toml` you just need to have one line:
 
     ```googleAnalytics = "G-PPPPPPPP"```
 
-    You don't need to mention all other parameters like `title`, `baseURL`, `theme` etc. again in this config file. You need to mention only those parameters which are different or new for the production environment. This is due to the fact that Hugo is going to __merge__ this on top of `_default/config.toml`. Now when you run `hugo` (build command), by default hugo sets `Environment=production`, so the `G-PPPPPPPP` analytics code will be there in your production website
-3. Similarly in `staging/config.toml` you just need to have one line:
+    You don't need to mention all other parameters like `title`, `baseURL`, `theme` etc. again in this config file. You need to mention only those parameters which are different or new for the production environment. This is due to the fact that Hugo is going to __merge__ this on top of `_default/hugo.toml`. Now when you run `hugo` (build command), by default hugo sets `Environment=production`, so the `G-PPPPPPPP` analytics code will be there in your production website
+3. Similarly in `staging/hugo.toml` you just need to have one line:
 
     ```googleAnalytics = "G-SSSSSSSS"```
 
@@ -140,7 +135,7 @@ The directory where Hugo finds asset files used in [Hugo Pipes](/hugo-pipes/). {
 
 ### baseURL
 
-Hostname (and path) to the root, e.g. https://bep.is/
+The absolute URL (protocol, host, path, and trailing slash) of your published site (e.g., `https://www.example.org/docs/`).
 
 ### build
 
@@ -321,7 +316,7 @@ See [Configure Media Types](/templates/output-formats/#media-types).
 
 ### menus
 
-See [Add Non-content Entries to a Menu](/content-management/menus/#add-non-content-entries-to-a-menu).
+See [Menus](/content-management/menus/#define-in-site-configuration).
 
 ### minify
 
@@ -383,7 +378,7 @@ The directory to where Hugo will write the final static site (the HTML files etc
 
 ### related
 
-: See [Related Content](/content-management/related/#configure-related-content).
+See [Related Content](/content-management/related/#configure-related-content).
 
 ### relativeURLs
 
@@ -419,7 +414,7 @@ Maximum number of items in the RSS feed.
 
 ### sectionPagesMenu
 
-See ["Section Menu for Lazy Bloggers"](/templates/menu-templates/#section-menu-for-lazy-bloggers).
+See [Menus](/content-management/menus/#define-in-site-configuration).
 
 ### security
 
@@ -499,7 +494,7 @@ enableemoji: true
 
 The `build` configuration section contains global build-related configuration options.
 
-{{< code-toggle file="config">}}
+{{< code-toggle file="hugo" >}}
 [build]
 useResourceCacheWhen="fallback"
 writeStats = false
@@ -523,7 +518,7 @@ noJSConfigInAssets
 This is only relevant when running `hugo server`, and it allows to set HTTP headers during development, which allows you to test out your Content Security Policy and similar. The configuration format matches [Netlify's](https://docs.netlify.com/routing/headers/#syntax-for-the-netlify-configuration-file) with slightly more powerful [Glob matching](https://github.com/gobwas/glob):
 
 
-{{< code-toggle file="config">}}
+{{< code-toggle file="hugo" >}}
 [server]
 [[server.headers]]
 for = "/**"
@@ -571,16 +566,22 @@ Setting `force=true` will make a redirect even if there is existing content in t
 
 Hugo will, by default, render all 404 errors when running `hugo server` with the `404.html` template. Note that if you have already added one or more redirects to your [Server Config](#configure-server), you need to add the 404 redirect explicitly, e.g:
 
-```toml
+{{< code-toggle file="config/development/server" copy=false >}}
 [[redirects]]
-    from   = "/**"
-    to     = "/404.html"
-    status = 404
-```
+from   = "/**"
+to     = "/404.html"
+status = 404
+{{< /code-toggle >}}
 
 ## Configure Title Case
 
-Set `titleCaseStyle` to specify the title style used by the [title](/functions/title/) template function and the automatic section titles in Hugo. It defaults to [AP Stylebook](https://www.apstylebook.com/) for title casing, but you can also set it to `Chicago` or `Go` (every word starts with a capital letter).
+Set `titleCaseStyle` to specify the title style used by the [title](/functions/title/) template function and the automatic section titles in Hugo. 
+
+By default, Hugo adheres to the capitalization rules in the [Associated Press (AP) Stylebook]. Set `titleCaseStyle` to `chicago` if you would prefer to follow the [Chicago Manual of Style], or set if to `go` to use Go's convention of capitalizing every word.
+
+[Associated Press (AP) Stylebook]: https://www.apstylebook.com/
+[Chicago Manual of Style]: https://www.chicagomanualofstyle.org/home.html
+[site configuration]: /getting-started/configuration/#configure-title-case
 
 ## Configuration Environment Variables
 
@@ -591,18 +592,18 @@ HUGO_NUMWORKERMULTIPLIER
 
 Similar to the template [lookup order], Hugo has a default set of rules for searching for a configuration file in the root of your website's source directory as a default behavior:
 
-1. `./config.toml`
-2. `./config.yaml`
-3. `./config.json`
+1. `./hugo.toml`
+2. `./hugo.yaml`
+3. `./hugo.json`
 
-In your `config` file, you can direct Hugo as to how you want your website rendered, control your website's menus, and arbitrarily define site-wide parameters specific to your project.
+In your configuration file, you can direct Hugo as to how you want your website rendered, control your website's menus, and arbitrarily define site-wide parameters specific to your project.
 
 
 ## Example Configuration
 
 The following is a typical example of a configuration file. The values nested under `params:` will populate the [`.Site.Params`] variable for use in [templates]:
 
-{{< code-toggle file="config">}}
+{{< code-toggle file="hugo" >}}
 baseURL: "https://yoursite.example.com/"
 title: "My Hugo Site"
 permalinks:
@@ -629,7 +630,7 @@ $ env HUGO_TITLE="Some Title" hugo
 
 This is really useful if you use a service such as Netlify to deploy your site. Look at the Hugo docs [Netlify configuration file](https://github.com/gohugoio/hugoDocs/blob/master/netlify.toml) for an example.
 
-{{% note "Setting Environment Variables" %}}
+{{% note %}}
 Names must be prefixed with `HUGO_` and the configuration key must be set in uppercase when setting operating system environment variables.
 
 To set config params, prefix the name with `HUGO_PARAMS_`
@@ -645,17 +646,17 @@ Test and document setting params via JSON env var.
 
 **Note:** This works, but we recommend you use the newer and more powerful [includeFiles and excludeFiles](https://gohugo.io/hugo-modules/configuration/#module-config-mounts) mount options.
 
-To exclude specific files from the `content` and `data` directories when rendering your site, set `ignoreFiles` to one or more regular expressions to match against the absolute file path.
+To exclude specific files from the `content`, `data`, and `i18n` directories when rendering your site, set `ignoreFiles` to one or more regular expressions to match against the absolute file path.
 
 To ignore files ending with `.foo` or `.boo`:
 
-{{< code-toggle copy="false" >}}
+{{< code-toggle copy=false file="hugo" >}}
 ignoreFiles = ['\.foo$', '\.boo$']
 {{< /code-toggle >}}
 
 To ignore a file using the absolute file path:
 
-{{< code-toggle copy="false" >}}
+{{< code-toggle copy=false file="hugo" >}}
 ignoreFiles = ['^/home/user/project/content/test\.md$']
 {{< /code-toggle >}}
 
@@ -663,11 +664,11 @@ ignoreFiles = ['^/home/user/project/content/test\.md$']
 
 ### Configure Dates
 
-Dates are important in Hugo, and you can configure how Hugo assigns dates to your content pages. You do this by adding a `frontmatter` section to your `config.toml`.
+Dates are important in Hugo, and you can configure how Hugo assigns dates to your content pages. You do this by adding a `frontmatter` section to your `hugo.toml`.
 
 The default configuration is:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 [frontmatter]
 date = ["date", "publishDate", "lastmod"]
 lastmod = [":git", "lastmod", "date", "publishDate"]
@@ -677,7 +678,7 @@ expiryDate = ["expiryDate"]
 
 If you, as an example, have a non-standard date parameter in some of your content, you can override the setting for `date`:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 [frontmatter]
 date = ["myDate", ":default"]
 {{< /code-toggle >}}
@@ -694,7 +695,7 @@ The special date handlers are:
 
 An example:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 [frontmatter]
 lastmod = ["lastmod", ":fileModTime", ":default"]
 {{< /code-toggle >}}
@@ -708,7 +709,7 @@ The above will try first to extract the value for `.Lastmod` starting with the `
 
 An example:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 [frontmatter]
 date  = [":filename", ":default"]
 {{< /code-toggle >}}
@@ -733,7 +734,7 @@ Default configuration:
 
 Since Hugo 0.52 you can configure more than just the `cacheDir`. This is the default configuration:
 
-{{< code-toggle >}}
+{{< code-toggle file="hugo" >}}
 [caches]
 [caches.getjson]
 dir = ":cacheDir/:project"
@@ -755,7 +756,7 @@ dir = ":cacheDir/modules"
 maxAge = -1
 {{< /code-toggle >}}
 
-You can override any of these cache settings in your own `config.toml`.
+You can override any of these cache settings in your own `hugo.toml`.
 
 ### The keywords explained
 

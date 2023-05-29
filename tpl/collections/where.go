@@ -380,7 +380,7 @@ func (ns *Namespace) checkWhereArray(seqv, kv, mv reflect.Value, path []string, 
 
 		if kv.Kind() == reflect.String {
 			if params, ok := rvv.Interface().(maps.Params); ok {
-				vvv = reflect.ValueOf(params.Get(path...))
+				vvv = reflect.ValueOf(params.GetNested(path...))
 			} else {
 				vvv = rvv
 				for i, elemName := range path {
@@ -394,7 +394,7 @@ func (ns *Namespace) checkWhereArray(seqv, kv, mv reflect.Value, path []string, 
 					if i < len(path)-1 && vvv.IsValid() {
 						if params, ok := vvv.Interface().(maps.Params); ok {
 							// The current path element is the map itself, .Params.
-							vvv = reflect.ValueOf(params.Get(path[i+1:]...))
+							vvv = reflect.ValueOf(params.GetNested(path[i+1:]...))
 							break
 						}
 					}

@@ -2,19 +2,13 @@
 title: Create Your Own Shortcodes
 linktitle: Shortcode Templates
 description: You can extend Hugo's built-in shortcodes by creating your own using the same templating syntax as that for single and list pages.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [templates]
 keywords: [shortcodes,templates]
 menu:
   docs:
-    parent: "templates"
+    parent: templates
     weight: 100
 weight: 100
-sections_weight: 100
-draft: false
-aliases: []
 toc: true
 ---
 
@@ -32,7 +26,7 @@ Hugo's built-in shortcodes cover many common, but not all, use cases. Luckily, H
 
 ### File Location
 
-To create a shortcode, place an HTML template in the `layouts/shortcodes` directory of your [source organization]. Consider the file name carefully since the shortcode name will mirror that of the file but without the `.html` extension. For example, `layouts/shortcodes/myshortcode.html` will be called with either `{{</* myshortcode /*/>}}` or `{{%/* myshortcode /*/%}}` depending on the type of parameters you choose.
+To create a shortcode, place an HTML template in the `layouts/shortcodes` directory of your [source organization]. Consider the file name carefully since the shortcode name will mirror that of the file but without the `.html` extension. For example, `layouts/shortcodes/myshortcode.html` will be called with either `{{</* myshortcode /*/>}}` or `{{%/* myshortcode /*/%}}`.
 
 You can organize your shortcodes in subfolders, e.g. in `layouts/shortcodes/boxes`. These shortcodes would then be accessible with their relative path, e.g:
 
@@ -102,16 +96,16 @@ most helpful when the condition depends on either of the values, or both:
 
 If a closing shortcode is used, the `.Inner` variable will be populated with the content between the opening and closing shortcodes. If a closing shortcode is required, you can check the length of `.Inner` as an indicator of its existence.
 
-A shortcode with content declared via the `.Inner` variable can also be declared without the content and without the closing by using the self-closing syntax:
+A shortcode with content declared via the `.Inner` variable can also be declared without the content and without the closing tag by using the self-closing syntax:
 
 ```go-html-template
 {{</* innershortcode /*/>}}
 ```
 
-{{% warning %}}
+{{% note %}}
 Any shortcode that refers to `.Inner` must be closed or self-closed.
 
-{{% /warning %}}
+{{% /note %}}
 
 #### `.Params`
 
@@ -148,9 +142,9 @@ You could then include the following as part of your shortcode templating:
 
 See the [example Vimeo shortcode][vimeoexample] below for `.IsNamedParams` in action.
 
-{{% warning %}}
+{{% note %}}
 While you can create shortcode templates that accept both positional and named parameters, you *cannot* declare shortcodes in content with a mix of parameter types. Therefore, a shortcode declared like `{{</* image src="images/my-image.jpg" "This is my alt text" */>}}` will return an error.
-{{% /warning %}}
+{{% /note %}}
 
 You can also use the variable `.Page` to access all the normal [page variables][pagevars].
 
@@ -193,7 +187,7 @@ Would load the template at `/layouts/shortcodes/youtube.html`:
 </div>
 {{< /code >}}
 
-{{< code file="youtube-embed.html" copy="false" >}}
+{{< code file="youtube-embed.html" copy=false >}}
 <div class="embed video-player">
     <iframe class="youtube-player" type="text/html"
         width="640" height="385"
@@ -215,33 +209,33 @@ You have created the shortcode at `/layouts/shortcodes/img.html`, which loads th
 
 {{< code file="/layouts/shortcodes/img.html" >}}
 <!-- image -->
-<figure {{ with .Get "class" }}class="{{.}}"{{ end }}>
-    {{ with .Get "link" }}<a href="{{ . }}">{{ end }}
-        <img src="{{ .Get "src" }}" {{ if or (.Get "alt") (.Get "caption") }}alt="{{ with .Get "alt" }}{{ . }}{{ else }}{{ .Get "caption" }}{{ end }}"{{ end }} />
+<figure {{ with .Get "class" }}class="{{ . }}"{{ end }}>
+  {{ with .Get "link" }}<a href="{{ . }}">{{ end }}
+    <img src="{{ .Get "src" }}" {{ if or (.Get "alt") (.Get "caption") }}alt="{{ with .Get "alt" }}{{ . }}{{ else }}{{ .Get "caption" }}{{ end }}"{{ end }} />
     {{ if .Get "link" }}</a>{{ end }}
     {{ if or (or (.Get "title") (.Get "caption")) (.Get "attr") }}
-    <figcaption>{{ if isset .Params "title" }}
+      <figcaption>{{ if isset .Params "title" }}
         <h4>{{ .Get "title" }}</h4>{{ end }}
         {{ if or (.Get "caption") (.Get "attr") }}<p>
         {{ .Get "caption" }}
         {{ with .Get "attrlink" }}<a href="{{ . }}"> {{ end }}
-            {{ .Get "attr" }}
+          {{ .Get "attr" }}
         {{ if .Get "attrlink" }}</a> {{ end }}
         </p> {{ end }}
-    </figcaption>
-    {{ end }}
+      </figcaption>
+  {{ end }}
 </figure>
 <!-- image -->
 {{< /code >}}
 
 Would be rendered as:
 
-{{< code file="img-output.html" copy="false" >}}
+{{< code file="img-output.html" copy=false >}}
 <figure>
-    <img src="/media/spf13.jpg"  />
-    <figcaption>
-        <h4>Steve Francia</h4>
-    </figcaption>
+  <img src="/media/spf13.jpg"  />
+  <figcaption>
+      <h4>Steve Francia</h4>
+  </figcaption>
 </figure>
 {{< /code >}}
 
@@ -268,7 +262,7 @@ Would load the template found at `/layouts/shortcodes/vimeo.html`:
 
 Would be rendered as:
 
-{{< code file="vimeo-iframes.html" copy="false" >}}
+{{< code file="vimeo-iframes.html" copy=false >}}
 <div class="vimeo-container">
   <iframe src="https://player.vimeo.com/video/49718712" allowfullscreen></iframe>
 </div>
@@ -297,7 +291,7 @@ The template for the `highlight` shortcode uses the following code, which is alr
 
 The rendered output of the HTML example code block will be as follows:
 
-{{< code file="syntax-highlighted.html" copy="false" >}}
+{{< code file="syntax-highlighted.html" copy=false >}}
 <div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span style="color: #f92672">&lt;html&gt;</span>
     <span style="color: #f92672">&lt;body&gt;</span> This HTML <span style="color: #f92672">&lt;/body&gt;</span>
 <span style="color: #f92672">&lt;/html&gt;</span>
@@ -321,9 +315,9 @@ You also have an `img` shortcode with a single named `src` parameter that you wa
 {{< code file="layouts/shortcodes/img.html" >}}
 {{- $src := .Get "src" -}}
 {{- with .Parent -}}
-  <img src="{{$src}}" class="{{ .Get "class" }}-image">
+  <img src="{{ $src }}" class="{{ .Get "class" }}-image">
 {{- else -}}
-  <img src="{{$src}}">
+  <img src="{{ $src }}">
 {{- end -}}
 {{< /code >}}
 
@@ -374,7 +368,7 @@ You can also implement your shortcodes inline -- e.g. where you use them in the 
 
 This feature is disabled by default, but can be enabled in your site config:
 
-{{< code-toggle file="config">}}
+{{< code-toggle file="hugo" >}}
 enableInlineShortcodes = true
 {{< /code-toggle >}}
 

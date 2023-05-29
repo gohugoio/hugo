@@ -50,6 +50,7 @@ import (
 	_ "github.com/gohugoio/hugo/tpl/math"
 	_ "github.com/gohugoio/hugo/tpl/openapi/openapi3"
 	_ "github.com/gohugoio/hugo/tpl/os"
+	_ "github.com/gohugoio/hugo/tpl/page"
 	_ "github.com/gohugoio/hugo/tpl/partials"
 	_ "github.com/gohugoio/hugo/tpl/path"
 	_ "github.com/gohugoio/hugo/tpl/reflect"
@@ -70,8 +71,10 @@ var (
 )
 
 type templateExecHelper struct {
-	running bool // whether we're in server mode.
-	funcs   map[string]reflect.Value
+	running    bool // whether we're in server mode.
+	site       reflect.Value
+	siteParams reflect.Value
+	funcs      map[string]reflect.Value
 }
 
 func (t *templateExecHelper) GetFunc(ctx context.Context, tmpl texttemplate.Preparer, name string) (fn reflect.Value, firstArg reflect.Value, found bool) {
@@ -110,6 +113,8 @@ func (t *templateExecHelper) GetMapValue(ctx context.Context, tmpl texttemplate.
 	return v, v.IsValid()
 }
 
+var typeParams = reflect.TypeOf(maps.Params{})
+
 func (t *templateExecHelper) GetMethod(ctx context.Context, tmpl texttemplate.Preparer, receiver reflect.Value, name string) (method reflect.Value, firstArg reflect.Value) {
 	if t.running {
 		switch name {
@@ -120,6 +125,13 @@ func (t *templateExecHelper) GetMethod(ctx context.Context, tmpl texttemplate.Pr
 				}
 			}
 		}
+	}
+
+	if strings.EqualFold(name, "mainsections") && receiver.Type() == typeParams && receiver.Pointer() == t.siteParams.Pointer() {
+		// MOved to site.MainSections in Hugo 0.112.0.
+		receiver = t.site
+		name = "MainSections"
+
 	}
 
 	fn := hreflect.GetMethodByName(receiver, name)
@@ -166,8 +178,10 @@ func newTemplateExecuter(d *deps.Deps) (texttemplate.Executer, map[string]reflec
 	}
 
 	exeHelper := &templateExecHelper{
-		running: d.Running,
-		funcs:   funcsv,
+		running:    d.Conf.Running(),
+		funcs:      funcsv,
+		site:       reflect.ValueOf(d.Site),
+		siteParams: reflect.ValueOf(d.Site.Params()),
 	}
 
 	return texttemplate.NewExecuter(

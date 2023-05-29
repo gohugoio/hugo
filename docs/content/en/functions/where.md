@@ -1,22 +1,14 @@
 ---
 title: where
-# linktitle: where
 description: Filters an array to only the elements containing a matching value for a given field.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [filtering]
 signature: ["where COLLECTION KEY [OPERATOR] MATCH"]
-workson: [lists,taxonomies,terms,groups]
-hugoversion:
 relatedfuncs: [intersect,first,after,last]
-deprecated: false
 toc: true
-needsexample: true
 ---
 
 `where` filters an array to only the elements containing a matching
@@ -33,11 +25,10 @@ SQL][wherekeyword].
 
 It can be used by dot-chaining the second argument to refer to a nested element of a value.
 
-```
-+++
+{{< code-toggle file="content/example.md" fm=true copy=false >}}
+title: Example
 series: golang
-+++
-```
+{{< /code-toggle >}}
 
 ```go-html-template
 {{ range where .Site.Pages "Params.series" "golang" }}
@@ -85,9 +76,9 @@ The following logical operators are available with `where`:
 ## Use `where` with `Booleans`
 When using booleans you should not put quotation marks.
 ```go-html-template
-{{range where .Pages "Draft" true}}
-        <p>{{.Title}}</p>
-{{end}}
+{{ range where .Pages "Draft" true }}
+        <p>{{ .Title }}</p>
+{{ end }}
 ```
   
 
@@ -115,7 +106,7 @@ You can also put the returned value of the `where` clauses into a variable:
 
 Using `first` and `where` together can be very
 powerful. Below snippet gets a list of posts only from [**main
-sections**]({{< relref "where.md#mainsections" >}}), sorts it using the [default
+sections**](#mainsections), sorts it using the [default
 ordering](/templates/lists/) for lists (i.e., `weight => date`), and
 then ranges through only the first 5 posts in that list:
 
@@ -167,7 +158,7 @@ will default to the *section with the most pages*.
 
 The user can override the default:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 [params]
   mainSections = ["blog", "docs"]
 {{< /code-toggle >}}

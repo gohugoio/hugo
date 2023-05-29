@@ -615,6 +615,12 @@
         ]
       },
       {
+        "Name": "HolyC",
+        "Aliases": [
+          "holyc"
+        ]
+      },
+      {
         "Name": "HTML",
         "Aliases": [
           "html"
@@ -835,6 +841,12 @@
         "Name": "NASM",
         "Aliases": [
           "nasm"
+        ]
+      },
+      {
+        "Name": "Natural",
+        "Aliases": [
+          "natural"
         ]
       },
       {
@@ -1524,6 +1536,12 @@
         ]
       },
       {
+        "Name": "Z80 Assembly",
+        "Aliases": [
+          "z80"
+        ]
+      },
+      {
         "Name": "Zed",
         "Aliases": [
           "zed"
@@ -1576,7 +1594,19 @@
           "wrapStandAloneImageWithinParagraph": true
         },
         "extensions": {
-          "typographer": true,
+          "typographer": {
+            "disable": false,
+            "leftSingleQuote": "\u0026lsquo;",
+            "rightSingleQuote": "\u0026rsquo;",
+            "leftDoubleQuote": "\u0026ldquo;",
+            "rightDoubleQuote": "\u0026rdquo;",
+            "enDash": "\u0026ndash;",
+            "emDash": "\u0026mdash;",
+            "ellipsis": "\u0026hellip;",
+            "leftAngleQuote": "\u0026laquo;",
+            "rightAngleQuote": "\u0026raquo;",
+            "apostrophe": "\u0026rsquo;"
+          },
           "footnote": true,
           "definitionList": true,
           "table": true,
@@ -1693,7 +1723,8 @@
         "js": {
           "precision": 0,
           "keepVarNames": false,
-          "noNullishOperator": false
+          "noNullishOperator": false,
+          "version": 0
         },
         "json": {
           "precision": 0,
@@ -1728,6 +1759,7 @@
         ]
       },
       "http": {
+        "mediaTypes": null,
         "methods": [
           "(?i)GET|POST"
         ],
@@ -1743,10 +1775,6 @@
         "mainType": "application",
         "subType": "json",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "json",
-          "fullSuffix": ".json"
-        },
         "type": "application/json",
         "string": "application/json",
         "suffixes": [
@@ -1757,10 +1785,6 @@
         "mainType": "application",
         "subType": "manifest",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "webmanifest",
-          "fullSuffix": ".webmanifest"
-        },
         "type": "application/manifest+json",
         "string": "application/manifest+json",
         "suffixes": [
@@ -1771,10 +1795,6 @@
         "mainType": "application",
         "subType": "octet-stream",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "",
-          "fullSuffix": ""
-        },
         "type": "application/octet-stream",
         "string": "application/octet-stream",
         "suffixes": [
@@ -1785,10 +1805,6 @@
         "mainType": "application",
         "subType": "pdf",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "pdf",
-          "fullSuffix": ".pdf"
-        },
         "type": "application/pdf",
         "string": "application/pdf",
         "suffixes": [
@@ -1799,10 +1815,6 @@
         "mainType": "application",
         "subType": "rss",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "xml",
-          "fullSuffix": ".xml"
-        },
         "type": "application/rss+xml",
         "string": "application/rss+xml",
         "suffixes": [
@@ -1814,10 +1826,6 @@
         "mainType": "application",
         "subType": "toml",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "toml",
-          "fullSuffix": ".toml"
-        },
         "type": "application/toml",
         "string": "application/toml",
         "suffixes": [
@@ -1826,12 +1834,18 @@
       },
       {
         "mainType": "application",
+        "subType": "wasm",
+        "delimiter": ".",
+        "type": "application/wasm",
+        "string": "application/wasm",
+        "suffixes": [
+          "wasm"
+        ]
+      },
+      {
+        "mainType": "application",
         "subType": "xml",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "xml",
-          "fullSuffix": ".xml"
-        },
         "type": "application/xml",
         "string": "application/xml",
         "suffixes": [
@@ -1842,10 +1856,6 @@
         "mainType": "application",
         "subType": "yaml",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "yaml",
-          "fullSuffix": ".yaml"
-        },
         "type": "application/yaml",
         "string": "application/yaml",
         "suffixes": [
@@ -1857,10 +1867,6 @@
         "mainType": "font",
         "subType": "otf",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "otf",
-          "fullSuffix": ".otf"
-        },
         "type": "font/otf",
         "string": "font/otf",
         "suffixes": [
@@ -1871,10 +1877,6 @@
         "mainType": "font",
         "subType": "ttf",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "ttf",
-          "fullSuffix": ".ttf"
-        },
         "type": "font/ttf",
         "string": "font/ttf",
         "suffixes": [
@@ -1885,10 +1887,6 @@
         "mainType": "image",
         "subType": "bmp",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "bmp",
-          "fullSuffix": ".bmp"
-        },
         "type": "image/bmp",
         "string": "image/bmp",
         "suffixes": [
@@ -1899,10 +1897,6 @@
         "mainType": "image",
         "subType": "gif",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "gif",
-          "fullSuffix": ".gif"
-        },
         "type": "image/gif",
         "string": "image/gif",
         "suffixes": [
@@ -1913,10 +1907,6 @@
         "mainType": "image",
         "subType": "jpeg",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "jpg",
-          "fullSuffix": ".jpg"
-        },
         "type": "image/jpeg",
         "string": "image/jpeg",
         "suffixes": [
@@ -1931,10 +1921,6 @@
         "mainType": "image",
         "subType": "png",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "png",
-          "fullSuffix": ".png"
-        },
         "type": "image/png",
         "string": "image/png",
         "suffixes": [
@@ -1945,10 +1931,6 @@
         "mainType": "image",
         "subType": "svg",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "svg",
-          "fullSuffix": ".svg"
-        },
         "type": "image/svg+xml",
         "string": "image/svg+xml",
         "suffixes": [
@@ -1957,12 +1939,19 @@
       },
       {
         "mainType": "image",
+        "subType": "tiff",
+        "delimiter": ".",
+        "type": "image/tiff",
+        "string": "image/tiff",
+        "suffixes": [
+          "tif",
+          "tiff"
+        ]
+      },
+      {
+        "mainType": "image",
         "subType": "webp",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "webp",
-          "fullSuffix": ".webp"
-        },
         "type": "image/webp",
         "string": "image/webp",
         "suffixes": [
@@ -1973,10 +1962,6 @@
         "mainType": "text",
         "subType": "calendar",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "ics",
-          "fullSuffix": ".ics"
-        },
         "type": "text/calendar",
         "string": "text/calendar",
         "suffixes": [
@@ -1987,10 +1972,6 @@
         "mainType": "text",
         "subType": "css",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "css",
-          "fullSuffix": ".css"
-        },
         "type": "text/css",
         "string": "text/css",
         "suffixes": [
@@ -2001,10 +1982,6 @@
         "mainType": "text",
         "subType": "csv",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "csv",
-          "fullSuffix": ".csv"
-        },
         "type": "text/csv",
         "string": "text/csv",
         "suffixes": [
@@ -2015,10 +1992,6 @@
         "mainType": "text",
         "subType": "html",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "html",
-          "fullSuffix": ".html"
-        },
         "type": "text/html",
         "string": "text/html",
         "suffixes": [
@@ -2029,10 +2002,6 @@
         "mainType": "text",
         "subType": "javascript",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "js",
-          "fullSuffix": ".js"
-        },
         "type": "text/javascript",
         "string": "text/javascript",
         "suffixes": [
@@ -2045,10 +2014,6 @@
         "mainType": "text",
         "subType": "jsx",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "jsx",
-          "fullSuffix": ".jsx"
-        },
         "type": "text/jsx",
         "string": "text/jsx",
         "suffixes": [
@@ -2059,10 +2024,6 @@
         "mainType": "text",
         "subType": "markdown",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "md",
-          "fullSuffix": ".md"
-        },
         "type": "text/markdown",
         "string": "text/markdown",
         "suffixes": [
@@ -2074,10 +2035,6 @@
         "mainType": "text",
         "subType": "plain",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "txt",
-          "fullSuffix": ".txt"
-        },
         "type": "text/plain",
         "string": "text/plain",
         "suffixes": [
@@ -2088,10 +2045,6 @@
         "mainType": "text",
         "subType": "tsx",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "tsx",
-          "fullSuffix": ".tsx"
-        },
         "type": "text/tsx",
         "string": "text/tsx",
         "suffixes": [
@@ -2102,10 +2055,6 @@
         "mainType": "text",
         "subType": "typescript",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "ts",
-          "fullSuffix": ".ts"
-        },
         "type": "text/typescript",
         "string": "text/typescript",
         "suffixes": [
@@ -2116,10 +2065,6 @@
         "mainType": "text",
         "subType": "x-sass",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "sass",
-          "fullSuffix": ".sass"
-        },
         "type": "text/x-sass",
         "string": "text/x-sass",
         "suffixes": [
@@ -2130,10 +2075,6 @@
         "mainType": "text",
         "subType": "x-scss",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "scss",
-          "fullSuffix": ".scss"
-        },
         "type": "text/x-scss",
         "string": "text/x-scss",
         "suffixes": [
@@ -2144,10 +2085,6 @@
         "mainType": "video",
         "subType": "3gpp",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "3gpp",
-          "fullSuffix": ".3gpp"
-        },
         "type": "video/3gpp",
         "string": "video/3gpp",
         "suffixes": [
@@ -2159,10 +2096,6 @@
         "mainType": "video",
         "subType": "mp4",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "mp4",
-          "fullSuffix": ".mp4"
-        },
         "type": "video/mp4",
         "string": "video/mp4",
         "suffixes": [
@@ -2173,10 +2106,6 @@
         "mainType": "video",
         "subType": "mpeg",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "mpg",
-          "fullSuffix": ".mpg"
-        },
         "type": "video/mpeg",
         "string": "video/mpeg",
         "suffixes": [
@@ -2188,10 +2117,6 @@
         "mainType": "video",
         "subType": "ogg",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "ogv",
-          "fullSuffix": ".ogv"
-        },
         "type": "video/ogg",
         "string": "video/ogg",
         "suffixes": [
@@ -2202,10 +2127,6 @@
         "mainType": "video",
         "subType": "webm",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "webm",
-          "fullSuffix": ".webm"
-        },
         "type": "video/webm",
         "string": "video/webm",
         "suffixes": [
@@ -2216,10 +2137,6 @@
         "mainType": "video",
         "subType": "x-msvideo",
         "delimiter": ".",
-        "firstSuffix": {
-          "suffix": "avi",
-          "fullSuffix": ".avi"
-        },
         "type": "video/x-msvideo",
         "string": "video/x-msvideo",
         "suffixes": [
@@ -2232,7 +2149,7 @@
     "formats": [
       {
         "mediaType": "text/html",
-        "name": "HTML",
+        "name": "html",
         "path": "",
         "baseName": "index",
         "rel": "canonical",
@@ -2246,7 +2163,7 @@
       },
       {
         "mediaType": "text/html",
-        "name": "AMP",
+        "name": "amp",
         "path": "amp",
         "baseName": "index",
         "rel": "amphtml",
@@ -2259,8 +2176,22 @@
         "weight": 0
       },
       {
+        "mediaType": "text/calendar",
+        "name": "calendar",
+        "path": "",
+        "baseName": "index",
+        "rel": "alternate",
+        "protocol": "webcal://",
+        "isPlainText": true,
+        "isHTML": false,
+        "noUgly": false,
+        "notAlternative": false,
+        "permalinkable": false,
+        "weight": 0
+      },
+      {
         "mediaType": "text/css",
-        "name": "CSS",
+        "name": "css",
         "path": "",
         "baseName": "styles",
         "rel": "stylesheet",
@@ -2274,7 +2205,7 @@
       },
       {
         "mediaType": "text/csv",
-        "name": "CSV",
+        "name": "csv",
         "path": "",
         "baseName": "index",
         "rel": "alternate",
@@ -2287,22 +2218,8 @@
         "weight": 0
       },
       {
-        "mediaType": "text/calendar",
-        "name": "Calendar",
-        "path": "",
-        "baseName": "index",
-        "rel": "alternate",
-        "protocol": "webcal://",
-        "isPlainText": true,
-        "isHTML": false,
-        "noUgly": false,
-        "notAlternative": false,
-        "permalinkable": false,
-        "weight": 0
-      },
-      {
         "mediaType": "application/json",
-        "name": "JSON",
+        "name": "json",
         "path": "",
         "baseName": "index",
         "rel": "alternate",
@@ -2316,7 +2233,7 @@
       },
       {
         "mediaType": "text/markdown",
-        "name": "MARKDOWN",
+        "name": "markdown",
         "path": "",
         "baseName": "index",
         "rel": "alternate",
@@ -2330,7 +2247,7 @@
       },
       {
         "mediaType": "text/plain",
-        "name": "ROBOTS",
+        "name": "robots",
         "path": "",
         "baseName": "robots",
         "rel": "alternate",
@@ -2344,7 +2261,7 @@
       },
       {
         "mediaType": "application/rss+xml",
-        "name": "RSS",
+        "name": "rss",
         "path": "",
         "baseName": "index",
         "rel": "alternate",
@@ -2358,7 +2275,7 @@
       },
       {
         "mediaType": "application/xml",
-        "name": "Sitemap",
+        "name": "sitemap",
         "path": "",
         "baseName": "sitemap",
         "rel": "sitemap",
@@ -2372,7 +2289,7 @@
       },
       {
         "mediaType": "application/manifest+json",
-        "name": "WebAppManifest",
+        "name": "webappmanifest",
         "path": "",
         "baseName": "manifest",
         "rel": "manifest",
@@ -2389,7 +2306,7 @@
       {
         "Example": "Single page in \"posts\" section",
         "Kind": "page",
-        "OutputFormat": "HTML",
+        "OutputFormat": "html",
         "Suffix": "html",
         "Template Lookup Order": [
           "layouts/posts/single.html.html",
@@ -2401,7 +2318,7 @@
       {
         "Example": "Base template for single page in \"posts\" section",
         "Kind": "page",
-        "OutputFormat": "HTML",
+        "OutputFormat": "html",
         "Suffix": "html",
         "Template Lookup Order": [
           "layouts/posts/single-baseof.html.html",
@@ -2417,7 +2334,7 @@
       {
         "Example": "Single page in \"posts\" section with layout set",
         "Kind": "page",
-        "OutputFormat": "HTML",
+        "OutputFormat": "html",
         "Suffix": "html",
         "Template Lookup Order": [
           "layouts/posts/demolayout.html.html",
@@ -2433,7 +2350,7 @@
       {
         "Example": "Base template for single page in \"posts\" section with layout set",
         "Kind": "page",
-        "OutputFormat": "HTML",
+        "OutputFormat": "html",
         "Suffix": "html",
         "Template Lookup Order": [
           "layouts/posts/demolayout-baseof.html.html",
@@ -2453,7 +2370,7 @@
       {
         "Example": "AMP single page",
         "Kind": "page",
-        "OutputFormat": "AMP",
+        "OutputFormat": "amp",
         "Suffix": "html",
         "Template Lookup Order": [
           "layouts/posts/single.amp.html",
@@ -2465,15 +2382,15 @@
       {
         "Example": "AMP single page, French language",
         "Kind": "page",
-        "OutputFormat": "AMP",
+        "OutputFormat": "html",
         "Suffix": "html",
         "Template Lookup Order": [
-          "layouts/posts/single.fr.amp.html",
-          "layouts/posts/single.amp.html",
+          "layouts/posts/single.fr.html.html",
+          "layouts/posts/single.html.html",
           "layouts/posts/single.fr.html",
           "layouts/posts/single.html",
-          "layouts/_default/single.fr.amp.html",
-          "layouts/_default/single.amp.html",
+          "layouts/_default/single.fr.html.html",
+          "layouts/_default/single.html.html",
           "layouts/_default/single.fr.html",
           "layouts/_default/single.html"
         ]
@@ -2481,7 +2398,7 @@
       {
         "Example": "Home page",
         "Kind": "home",
-        "OutputFormat": "HTML",
+        "OutputFormat": "html",
         "Suffix": "html",
         "Template Lookup Order": [
           "layouts/index.html.html",
@@ -2501,7 +2418,7 @@
       {
         "Example": "Base template for home page",
         "Kind": "home",
-        "OutputFormat": "HTML",
+        "OutputFormat": "html",
         "Suffix": "html",
         "Template Lookup Order": [
           "layouts/index-baseof.html.html",
@@ -2525,7 +2442,7 @@
       {
         "Example": "Home page with type set",
         "Kind": "home",
-        "OutputFormat": "HTML",
+        "OutputFormat": "html",
         "Suffix": "html",
         "Template Lookup Order": [
           "layouts/demotype/index.html.html",
@@ -2551,7 +2468,7 @@
       {
         "Example": "Base template for home page with type set",
         "Kind": "home",
-        "OutputFormat": "HTML",
+        "OutputFormat": "html",
         "Suffix": "html",
         "Template Lookup Order": [
           "layouts/demotype/index-baseof.html.html",
@@ -2583,7 +2500,7 @@
       {
         "Example": "Home page with layout set",
         "Kind": "home",
-        "OutputFormat": "HTML",
+        "OutputFormat": "html",
         "Suffix": "html",
         "Template Lookup Order": [
           "layouts/demolayout.html.html",
@@ -2607,7 +2524,7 @@
       {
         "Example": "AMP home, French language",
         "Kind": "home",
-        "OutputFormat": "AMP",
+        "OutputFormat": "amp",
         "Suffix": "html",
         "Template Lookup Order": [
           "layouts/index.fr.amp.html",
@@ -2639,7 +2556,7 @@
       {
         "Example": "JSON home",
         "Kind": "home",
-        "OutputFormat": "JSON",
+        "OutputFormat": "json",
         "Suffix": "json",
         "Template Lookup Order": [
           "layouts/index.json.json",
@@ -2659,7 +2576,7 @@
       {
         "Example": "RSS home",
         "Kind": "home",
-        "OutputFormat": "RSS",
+        "OutputFormat": "rss",
         "Suffix": "xml",
         "Template Lookup Order": [
           "layouts/index.rss.xml",
@@ -2682,7 +2599,7 @@
       {
         "Example": "RSS section posts",
         "Kind": "section",
-        "OutputFormat": "RSS",
+        "OutputFormat": "rss",
         "Suffix": "xml",
         "Template Lookup Order": [
           "layouts/posts/section.rss.xml",
@@ -2706,7 +2623,7 @@
       {
         "Example": "Taxonomy in categories",
         "Kind": "taxonomy",
-        "OutputFormat": "RSS",
+        "OutputFormat": "rss",
         "Suffix": "xml",
         "Template Lookup Order": [
           "layouts/categories/category.terms.rss.xml",
@@ -2751,7 +2668,7 @@
       {
         "Example": "Term in categories",
         "Kind": "term",
-        "OutputFormat": "RSS",
+        "OutputFormat": "rss",
         "Suffix": "xml",
         "Template Lookup Order": [
           "layouts/categories/term.rss.xml",
@@ -2805,7 +2722,7 @@
       {
         "Example": "Section list for \"posts\" section",
         "Kind": "section",
-        "OutputFormat": "HTML",
+        "OutputFormat": "html",
         "Suffix": "html",
         "Template Lookup Order": [
           "layouts/posts/posts.html.html",
@@ -2831,7 +2748,7 @@
       {
         "Example": "Section list for \"posts\" section with type set to \"blog\"",
         "Kind": "section",
-        "OutputFormat": "HTML",
+        "OutputFormat": "html",
         "Suffix": "html",
         "Template Lookup Order": [
           "layouts/blog/posts.html.html",
@@ -2863,7 +2780,7 @@
       {
         "Example": "Section list for \"posts\" section with layout set to \"demoLayout\"",
         "Kind": "section",
-        "OutputFormat": "HTML",
+        "OutputFormat": "html",
         "Suffix": "html",
         "Template Lookup Order": [
           "layouts/posts/demolayout.html.html",
@@ -2895,7 +2812,7 @@
       {
         "Example": "Taxonomy list in categories",
         "Kind": "taxonomy",
-        "OutputFormat": "HTML",
+        "OutputFormat": "html",
         "Suffix": "html",
         "Template Lookup Order": [
           "layouts/categories/category.terms.html.html",
@@ -2935,7 +2852,7 @@
       {
         "Example": "Taxonomy term in categories",
         "Kind": "term",
-        "OutputFormat": "HTML",
+        "OutputFormat": "html",
         "Suffix": "html",
         "Template Lookup Order": [
           "layouts/categories/term.html.html",
@@ -3493,7 +3410,7 @@
           ]
         },
         "Uniq": {
-          "Description": "Uniq takes returns a new list with all duplicate elements in the list l removed.\nduplicate elements removed.",
+          "Description": "Uniq returns a new list with duplicate elements in the list l removed.",
           "Args": [
             "l"
           ],
@@ -3522,7 +3439,7 @@
       },
       "crypto": {
         "FNV32a": {
-          "Description": "FNV32a hashes v using fnv32a algorithm.",
+          "Description": "FNV32a hashes v using fnv32a algorithm.\n\u003cdocsmeta\u003e{\"newIn\": \"0.98.0\" }\u003c/docsmeta\u003e",
           "Args": [
             "v"
           ],
@@ -3602,6 +3519,20 @@
           ]
         }
       },
+      "css": {
+        "Quoted": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Unquoted": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        }
+      },
       "data": {
         "GetCSV": {
           "Description": "GetCSV expects the separator sep and one or n-parts of a URL to a resource which\ncan either be a local or a remote one.\nThe data separator can be a comma, semi-colon, pipe, etc, but only one character.\nIf you provide multiple parts for the URL they will be joined together to the final URL.\nGetCSV returns nil or a slice slice to use in a short code.",
@@ -3638,6 +3569,12 @@
               "map[string]interface {}{\n  \"Hugo\": \"Rocks!\",\n}"
             ]
           ]
+        },
+        "VisualizeSpaces": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
         }
       },
       "diagrams": {
@@ -3826,6 +3763,12 @@
           "Examples": null
         },
         "Version": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "WorkingDir": {
           "Description": "",
           "Args": null,
           "Aliases": null,
@@ -4059,7 +4002,7 @@
           ]
         },
         "FormatNumberCustom": {
-          "Description": "FormatNumberCustom formats a number with the given precision using the\nnegative, decimal, and grouping options.  The `options`\nparameter is a string consisting of `\u003cnegative\u003e \u003cdecimal\u003e \u003cgrouping\u003e`.  The\ndefault `options` value is `- . ,`.\n\nNote that numbers are rounded up at 5 or greater.\nSo, with precision set to 0, 1.5 becomes `2`, and 1.4 becomes `1`.\n\nFor a simpler function that adapts to the current language, see FormatNumber.",
+          "Description": "FormatNumberCustom formats a number with the given precision. The first\noptions parameter is a space-delimited string of characters to represent\nnegativity, the decimal point, and grouping. The default value is `- . ,`.\nThe second options parameter defines an alternate delimiting character.\n\nNote that numbers are rounded up at 5 or greater.\nSo, with precision set to 0, 1.5 becomes `2`, and 1.4 becomes `1`.\n\nFor a simpler function that adapts to the current language, see FormatNumber.",
           "Args": [
             "precision",
             "number",
@@ -4082,6 +4025,10 @@
             [
               "{{ lang.FormatNumberCustom 0 -12345.6789 \"- . ,\" }}",
               "-12,346"
+            ],
+            [
+              "{{ lang.FormatNumberCustom 0 -12345.6789 \"-|.| \" \"|\" }}",
+              "-12 346"
             ],
             [
               "{{ -98765.4321 | lang.FormatNumberCustom 2 }}",
@@ -4118,6 +4065,7 @@
         "Translate": {
           "Description": "Translate returns a translated string for id.",
           "Args": [
+            "ctx",
             "id",
             "args"
           ],
@@ -4129,11 +4077,23 @@
         }
       },
       "math": {
-        "Add": {
-          "Description": "Add adds the two addends n1 and n2.",
+        "Abs": {
+          "Description": "Abs returns the absolute value of n.",
           "Args": [
-            "n1",
-            "n2"
+            "n"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ math.Abs -2.1 }}",
+              "2.1"
+            ]
+          ]
+        },
+        "Add": {
+          "Description": "Add adds the multivalued addends n1 and n2 or more values.",
+          "Args": [
+            "inputs"
           ],
           "Aliases": [
             "add"
@@ -4167,8 +4127,7 @@
         "Div": {
           "Description": "Div divides n1 by n2.",
           "Args": [
-            "n1",
-            "n2"
+            "inputs"
           ],
           "Aliases": [
             "div"
@@ -4207,10 +4166,9 @@
           ]
         },
         "Max": {
-          "Description": "Max returns the greater of the two numbers n1 or n2.",
+          "Description": "Max returns the greater of the multivalued numbers n1 and n2 or more values.",
           "Args": [
-            "n1",
-            "n2"
+            "inputs"
           ],
           "Aliases": null,
           "Examples": [
@@ -4221,10 +4179,9 @@
           ]
         },
         "Min": {
-          "Description": "Min returns the smaller of two numbers n1 or n2.",
+          "Description": "Min returns the smaller of multivalued numbers n1 and n2 or more values.",
           "Args": [
-            "n1",
-            "n2"
+            "inputs"
           ],
           "Aliases": null,
           "Examples": [
@@ -4267,10 +4224,9 @@
           ]
         },
         "Mul": {
-          "Description": "Mul multiplies the two numbers n1 and n2.",
+          "Description": "Mul multiplies the multivalued numbers n1 and n2 or more values.",
           "Args": [
-            "n1",
-            "n2"
+            "inputs"
           ],
           "Aliases": [
             "mul"
@@ -4325,10 +4281,9 @@
           ]
         },
         "Sub": {
-          "Description": "Sub subtracts n2 from n1.",
+          "Description": "Sub subtracts multivalued.",
           "Args": [
-            "n1",
-            "n2"
+            "inputs"
           ],
           "Aliases": [
             "sub"
@@ -4616,7 +4571,7 @@
           "Examples": null
         },
         "GetRemote": {
-          "Description": "GetRemote gets the URL (via HTTP(s)) in the first argument in args and creates Resource object that can be used for\nfurther transformations.\n\nA second argument may be provided with an option map.\n\nNote: This method does not return any error as a second argument,\nfor any error situations the error can be checked in .Err.",
+          "Description": "GetRemote gets the URL (via HTTP(s)) in the first argument in args and creates Resource object that can be used for\nfurther transformations.\n\nA second argument may be provided with an option map.\n\nNote: This method does not return any error as a second return value,\nfor any error situations the error can be checked in .Err.",
           "Args": [
             "args"
           ],
@@ -4656,7 +4611,7 @@
           "Examples": null
         },
         "ToCSS": {
-          "Description": "ToCSS converts the given Resource to CSS. You can optional provide an Options\nobject or a target path (string) as first argument.",
+          "Description": "ToCSS converts the given Resource to CSS. You can optional provide an Options object\nas second argument. As an option, you can e.g. specify e.g. the target path (string)\nfor the converted CSS resource.",
           "Args": [
             "args"
           ],
@@ -4764,7 +4719,43 @@
         }
       },
       "site": {
+        "AllPages": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Author": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Authors": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "BaseURL": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "BuildDrafts": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Config": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Copyright": {
           "Description": "",
           "Args": null,
           "Aliases": null,
@@ -4782,6 +4773,36 @@
           "Aliases": null,
           "Examples": null
         },
+        "DisqusShortname": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "GetIdentity": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "GetPage": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "GetPageWithTemplateInfo": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "GoogleAnalytics": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "Home": {
           "Description": "",
           "Args": null,
@@ -4789,6 +4810,12 @@
           "Examples": null
         },
         "Hugo": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "IsMultiLingual": {
           "Description": "",
           "Args": null,
           "Aliases": null,
@@ -4806,7 +4833,31 @@
           "Aliases": null,
           "Examples": null
         },
+        "LanguageCode": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "LanguagePrefix": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Languages": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "LastChange": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "MainSections": {
           "Description": "",
           "Args": null,
           "Aliases": null,
@@ -4824,6 +4875,12 @@
           "Aliases": null,
           "Examples": null
         },
+        "Param": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "Params": {
           "Description": "",
           "Args": null,
@@ -4836,6 +4893,12 @@
           "Aliases": null,
           "Examples": null
         },
+        "Sections": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "ServerPort": {
           "Description": "",
           "Args": null,
@@ -4843,6 +4906,12 @@
           "Examples": null
         },
         "Sites": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Social": {
           "Description": "",
           "Args": null,
           "Aliases": null,
@@ -4913,6 +4982,12 @@
             ]
           ]
         },
+        "ContainsNonSpace": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "Count": {
           "Description": "Count counts the number of non-overlapping instances of substr in s.\nIf substr is an empty string, Count returns 1 + the number of Unicode code points in s.",
           "Args": [
@@ -4965,7 +5040,7 @@
           ]
         },
         "FindRESubmatch": {
-          "Description": "FindRESubmatch returns returns a slice of strings holding the text of the leftmost match of the regular expression in s and the matches, if any, of its subexpressions.\n\nBy default all matches will be included. The number of matches can be limited with the optional limit parameter. A return value of nil indicates no match.",
+          "Description": "FindRESubmatch returns a slice of all successive matches of the regular\nexpression in content. Each element is a slice of strings holding the text\nof the leftmost match of the regular expression and the matches, if any, of\nits subexpressions.\n\nBy default all matches will be included. The number of matches can be\nlimited with the optional limit parameter. A return value of nil indicates\nno match.",
           "Args": [
             "expr",
             "content",
@@ -5015,10 +5090,24 @@
           ]
         },
         "HasSuffix": {
-          "Description": "",
-          "Args": null,
-          "Aliases": null,
-          "Examples": null
+          "Description": "HasSuffix tests whether the input s begins with suffix.",
+          "Args": [
+            "s",
+            "suffix"
+          ],
+          "Aliases": [
+            "hasSuffix"
+          ],
+          "Examples": [
+            [
+              "{{ hasSuffix \"Hugo\" \"go\" }}",
+              "true"
+            ],
+            [
+              "{{ hasSuffix \"Hugo\" \"du\" }}",
+              "false"
+            ]
+          ]
         },
         "Repeat": {
           "Description": "Repeat returns a new string consisting of n copies of the string s.",
@@ -5468,6 +5557,7 @@
         "Markdownify": {
           "Description": "Markdownify renders s from Markdown to HTML.",
           "Args": [
+            "ctx",
             "s"
           ],
           "Aliases": [
@@ -5562,6 +5652,23 @@
             [
               "{{ \"This is a title\" | anchorize }}",
               "this-is-a-title"
+            ]
+          ]
+        },
+        "JoinPath": {
+          "Description": "JoinPath joins the provided elements into a URL string and cleans the result\nof any ./ or ../ elements. If the argument list is empty, JoinPath returns\nan empty string.",
+          "Args": [
+            "elements"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ urls.JoinPath \"https://example.org\" \"foo\" }}",
+              "https://example.org/foo"
+            ],
+            [
+              "{{ urls.JoinPath (slice \"a\" \"b\") }}",
+              "a/b"
             ]
           ]
         },

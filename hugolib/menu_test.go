@@ -588,3 +588,36 @@ Page IsAncestor Self: false
 Page IsDescendant Self: false
 `)
 }
+
+func TestMenusNewConfigSetup(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+title = "Hugo Menu Test"
+[menus]
+[[menus.main]]
+name = "Home"
+url = "/"
+pre = "<span>"
+post = "</span>"
+weight = 1
+-- layouts/index.html --
+{{ range $i, $e := site.Menus.main }}
+Menu Item: {{ $i }}: {{ .Pre }}{{ .Name }}{{ .Post }}|{{ .URL }}|
+{{ end }}
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `
+Menu Item: 0: <span>Home</span>|/|	
+`)
+
+}

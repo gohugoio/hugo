@@ -12,7 +12,7 @@ List all posts
 List all of the posts in your content directory, include drafts, future and expired pages.
 
 ```
-hugo list all [flags]
+hugo list all [flags] [args]
 ```
 
 ### Options
@@ -28,6 +28,7 @@ hugo list all [flags]
       --config string              config file (default is hugo.yaml|json|toml)
       --configDir string           config dir (default "config")
       --debug                      debug output
+  -d, --destination string         filesystem path to write files to
   -e, --environment string         build environment
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --log                        enable Logging
