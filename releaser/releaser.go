@@ -46,6 +46,12 @@ func New(skipPush, try bool, step int) (*ReleaseHandler, error) {
 		return nil, fmt.Errorf("branch %q is not a release branch", branch)
 	}
 
+	// Trim any cache busting suffix, e.g "release-0.90.0-take2"
+	takeIdx := strings.Index(branch, "-take")
+	if takeIdx > 0 {
+		branch = branch[:takeIdx]
+	}
+
 	version := strings.TrimPrefix(branch, prefix)
 	version = strings.TrimPrefix(version, "v")
 
