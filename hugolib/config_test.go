@@ -1066,3 +1066,26 @@ LanguageCode: {{ .Site.LanguageCode }}|{{ site.Language.LanguageCode }}|
 	b.AssertFileContent("public/index.html", "LanguageCode: en-US|en-US|")
 
 }
+
+// Issue 11047
+func TestConfigYamlNil(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.yaml --
+params:
+-- layouts/index.html --
+Foo: {{ site.Params.foo }}|
+
+	
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", "Foo: |")
+
+}
