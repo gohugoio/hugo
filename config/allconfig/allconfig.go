@@ -729,8 +729,8 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 					isMultiHost = true
 				}
 				mergedConfig.Set(kk, vv)
-				if cfg.IsSet(kk) {
-					rootv := cfg.Get(kk)
+				rootv := cfg.Get(kk)
+				if rootv != nil && cfg.IsSet(kk) {
 					// This overrides a root key and potentially needs a merge.
 					if !reflect.DeepEqual(rootv, vv) {
 						switch vvv := vv.(type) {
