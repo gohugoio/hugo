@@ -499,6 +499,18 @@ The `build` configuration section contains global build-related configuration op
 useResourceCacheWhen="fallback"
 writeStats = false
 noJSConfigInAssets = false
+  [[build.cachebusters]]
+    source = "assets/watching/hugo_stats\\.json"
+    target = "styles\\.css"
+  [[build.cachebusters]]
+    source = "(postcss|tailwind)\\.config\\.js"
+    target = "css"
+  [[build.cachebusters]]
+    source = "assets/.*\\.(js|ts|jsx|tsx)"
+    target = "js"
+  [[build.cachebusters]]
+    source = "assets/.*\\.(.*)$"
+    target = "$1"
 {{< /code-toggle >}}
 
 
@@ -512,6 +524,40 @@ writeStats
 
 noJSConfigInAssets
 : Turn off writing a `jsconfig.json` into your `/assets` folder with mapping of imports from running [js.Build](https://gohugo.io/hugo-pipes/js). This file is intended to help with intellisense/navigation inside code editors such as [VS Code](https://code.visualstudio.com/). Note that if you do not use `js.Build`, no file will be written.
+
+cachebusters
+: See [Configure Cache Busters](#configure-cache-busters)
+
+## Configure Cache Busters
+
+{{< new-in "0.112.0" >}}
+
+The `build.cachebusters` configuration option was added to support development using Tailwind 3.x's JIT compiler where a `build` config may look like this:
+
+{{< code-toggle file="hugo" >}}
+[build]
+writeStats = true
+  [[build.cachebusters]]
+    source = "assets/watching/hugo_stats\\.json"
+    target = "styles\\.css"
+  [[build.cachebusters]]
+    source = "(postcss|tailwind)\\.config\\.js"
+    target = "css"
+  [[build.cachebusters]]
+    source = "assets/.*\\.(js|ts|jsx|tsx)"
+    target = "js"
+  [[build.cachebusters]]
+    source = "assets/.*\\.(.*)$"
+    target = "$1"
+{{< /code-toggle >}}
+
+Some key points in the above are `writeStats = true`, which writes a `hugo_stats.json` file on each build with HTML classes etc. that's used in the rendered output. Changes to this file will trigger a rebuild of the `styles.css` file. You also need to add `hugo_stats.json` to Hugo's server watcher. See [Hugo Starter Tailwind Basic](https://github.com/bep/hugo-starter-tailwind-basic) for a running example.
+
+source
+: A regexp matching file(s) relative to one of the virtual component directories in Hugo, typically `assets/...`.
+
+target
+: A regexp matching the keys in the resource cache that should be expired when `source` changes. You can use the matching regexp groups from `source` in the expression, e.g. `$1`.
 
 ## Configure Server
 
