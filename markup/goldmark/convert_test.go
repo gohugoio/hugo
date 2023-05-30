@@ -584,6 +584,29 @@ rightDoubleQuote = "&raquo;"
 	c.Assert(got, qt.Contains, "<p>A &laquo;quote&raquo; and &lsquo;another quote&rsquo; and a &laquo;quote with a &rsquo;nested&rsquo; quote&raquo; and a &lsquo;quote with a &laquo;nested&raquo; quote&rsquo; and an ellipsis&hellip;</p>\n")
 }
 
+// Issue #11045
+func TestTypographerImageAltText(t *testing.T) {
+	c := qt.New(t)
+
+	content := `
+!["They didn't even say 'hello'!" I exclaimed.](https://example.com/image.jpg)
+`
+
+	confStr := `
+[markup]
+[markup.goldmark]
+
+`
+
+	cfg := config.FromTOMLConfigString(confStr)
+	conf := testconfig.GetTestConfig(nil, cfg)
+
+	b := convert(c, conf, content)
+	got := string(b.Bytes())
+
+	c.Assert(got, qt.Contains, "&ldquo;They didn&rsquo;t even say &lsquo;hello&rsquo;!&rdquo; I exclaimed.")
+}
+
 func unsafeConf() config.AllProvider {
 	cfg := config.FromTOMLConfigString(`
 [markup]
