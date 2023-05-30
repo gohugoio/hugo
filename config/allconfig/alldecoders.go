@@ -60,7 +60,14 @@ var allDecoderSetups = map[string]decodeWeight{
 		key:    "",
 		weight: -100, // Always first.
 		decode: func(d decodeWeight, p decodeConfig) error {
-			return mapstructure.WeakDecode(p.p.Get(""), &p.c.RootConfig)
+			if err := mapstructure.WeakDecode(p.p.Get(""), &p.c.RootConfig); err != nil {
+				return err
+			}
+
+			// This need to match with Lang which is always lower case.
+			p.c.RootConfig.DefaultContentLanguage = strings.ToLower(p.c.RootConfig.DefaultContentLanguage)
+
+			return nil
 		},
 	},
 	"imaging": {
@@ -261,6 +268,18 @@ var allDecoderSetups = map[string]decodeWeight{
 			p.c.Languages, err = langs.DecodeConfig(m)
 			if err != nil {
 				return err
+			}
+
+			// Validate defaultContentLanguage.
+			var found bool
+			for lang := range p.c.Languages {
+				if lang == p.c.DefaultContentLanguage {
+					found = true
+					break
+				}
+			}
+			if !found {
+				return fmt.Errorf("config value %q for defaultContentLanguage does not match any language definition", p.c.DefaultContentLanguage)
 			}
 
 			return nil

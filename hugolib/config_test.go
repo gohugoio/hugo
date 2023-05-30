@@ -1122,4 +1122,32 @@ Foo: {{ site.Params.foo }}|
 		b.Assert(err.Error(), qt.Contains, "no languages")
 	})
 
+	// Issue 11044
+	t.Run("invalid defaultContentLanguage", func(t *testing.T) {
+
+		files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+defaultContentLanguage = "sv"
+
+[languages]
+[languages.en]
+languageCode = "en"
+languageName = "English"
+weight = 1
+
+	
+		
+	`
+		b, err := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		).BuildE()
+
+		b.Assert(err, qt.IsNotNil)
+		b.Assert(err.Error(), qt.Contains, "defaultContentLanguage does not match any language definition")
+	})
+
 }
