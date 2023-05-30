@@ -1067,25 +1067,59 @@ LanguageCode: {{ .Site.LanguageCode }}|{{ site.Language.LanguageCode }}|
 
 }
 
-// Issue 11047
-func TestConfigYamlNil(t *testing.T) {
+func TestConfigMiscPanics(t *testing.T) {
 	t.Parallel()
 
-	files := `
+	// Issue 11047,
+	t.Run("empty params", func(t *testing.T) {
+
+		files := `
 -- hugo.yaml --
 params:
 -- layouts/index.html --
 Foo: {{ site.Params.foo }}|
-
 	
-`
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+		
+	`
+		b := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		).Build()
 
-	b.AssertFileContent("public/index.html", "Foo: |")
+		b.AssertFileContent("public/index.html", "Foo: |")
+	})
+
+	// Issue 11046
+	t.Run("invalid language setup", func(t *testing.T) {
+
+		files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+languageCode = "en-us"
+title = "Blog of me"
+defaultContentLanguage = "en"
+
+[languages]
+	[en]
+	lang = "en"
+	languageName = "English"
+	weight = 1
+-- layouts/index.html --
+Foo: {{ site.Params.foo }}|
+	
+		
+	`
+		b, err := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		).BuildE()
+
+		b.Assert(err, qt.IsNotNil)
+		b.Assert(err.Error(), qt.Contains, "no languages")
+	})
 
 }

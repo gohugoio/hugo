@@ -14,6 +14,8 @@
 package langs
 
 import (
+	"errors"
+
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/mitchellh/mapstructure"
 )
@@ -45,6 +47,9 @@ func DecodeConfig(m map[string]any) (map[string]LanguageConfig, error) {
 
 	if err := mapstructure.WeakDecode(m, &langs); err != nil {
 		return nil, err
+	}
+	if len(langs) == 0 {
+		return nil, errors.New("no languages configured")
 	}
 	return langs, nil
 }
