@@ -245,12 +245,17 @@ var allDecoderSetups = map[string]decodeWeight{
 			if len(m) == 1 {
 				// In v0.112.4 we moved this to the language config, but it's very commmon for mono language sites to have this at the top level.
 				var first maps.Params
+				var ok bool
 				for _, v := range m {
-					first = v.(maps.Params)
-					break
+					first, ok = v.(maps.Params)
+					if ok {
+						break
+					}
 				}
-				if _, found := first["languagecode"]; !found {
-					first["languagecode"] = p.p.GetString("languagecode")
+				if first != nil {
+					if _, found := first["languagecode"]; !found {
+						first["languagecode"] = p.p.GetString("languagecode")
+					}
 				}
 			}
 			p.c.Languages, err = langs.DecodeConfig(m)
