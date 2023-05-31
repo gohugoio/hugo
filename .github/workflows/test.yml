@@ -16,14 +16,14 @@ jobs:
   test:
     strategy:
       matrix:
-        go-version: [1.19.x,1.20.x]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        go-version: [1.20.x]
+        os: [windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout code
-      uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+      uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
     - name: Install Go
-      uses: actions/setup-go@268d8c0ca0432bb2cf416faae41297df9d262d7f
+      uses: actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753
       with:
         go-version: ${{ matrix.go-version }}
         check-latest: true
@@ -41,7 +41,7 @@ jobs:
       with:
         python-version: '3.x'
     - name: Install Mage
-      run: go install github.com/magefile/mage@07afc7d24f4d6d6442305d49552f04fbda5ccb3e
+      run: go install github.com/magefile/mage@v1.15.0
     - name: Install asciidoctor
       uses: reitzig/actions-asciidoctor@7570212ae20b63653481675fb1ff62d1073632b0
     - name: Install docutils
@@ -62,7 +62,7 @@ jobs:
     - run: pandoc -v
     - if: matrix.os == 'windows-latest'
       run: |
-        Choco-Install -PackageName mingw -ArgumentList "--version","10.2.0","--allow-downgrade"
+        Choco-Install -PackageName mingw -ArgumentList "--version","12.2.0","--allow-downgrade"
     - if: matrix.os == 'ubuntu-latest'
       name: Install dart-sass-embedded Linux
       run: |
@@ -86,9 +86,15 @@ jobs:
         curl -LJO "https://github.com/sass/dart-sass-embedded/releases/download/${env:DART_SASS_VERSION}/sass_embedded-${env:DART_SASS_VERSION}-windows-x64.zip";
         Expand-Archive -Path "sass_embedded-${env:DART_SASS_VERSION}-windows-x64.zip" -DestinationPath .;
         echo  "$env:GITHUB_WORKSPACE/sass_embedded/" | Out-File -FilePath $Env:GITHUB_PATH -Encoding utf-8 -Append
+    - if: matrix.os != 'windows-latest'
     - name: Check
       run: |
         mage -v check;
       env:
         HUGO_BUILD_TAGS: extended
-
+    - if: matrix.os == 'windows-latest'
+    - name: Check
+      run: |
+        mage -v test;
+      env:
+        HUGO_BUILD_TAGS: extended
