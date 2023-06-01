@@ -23,6 +23,7 @@ hugo config [command] [flags]
   -c, --contentDir string   filesystem path to content directory
       --format string       preferred file format (toml, yaml or json) (default "toml")
   -h, --help                help for config
+      --lang string         the language to display config for. Defaults to the first language defined.
   -t, --theme strings       themes to use (located in /themes/THEMENAME/)
 ```
 
