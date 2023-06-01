@@ -649,6 +649,21 @@ func (c *Configs) Init() error {
 		return err
 	}
 
+	// We should consolidate this, but to get a full view of the mounts in e.g. "hugo config" we need to
+	// transfer any default mounts added above to the config used to print the config.
+	for _, m := range c.Modules[0].Mounts() {
+		var found bool
+		for _, cm := range c.Base.Module.Mounts {
+			if cm.Source == m.Source && cm.Target == m.Target && cm.Lang == m.Lang {
+				found = true
+				break
+			}
+		}
+		if !found {
+			c.Base.Module.Mounts = append(c.Base.Module.Mounts, m)
+		}
+	}
+
 	return nil
 }
 
