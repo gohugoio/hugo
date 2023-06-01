@@ -14,7 +14,11 @@ hugo config mounts [flags] [args]
 ### Options
 
 ```
-  -h, --help   help for mounts
+  -b, --baseURL string      hostname (and path) to the root, e.g. https://spf13.com/
+      --cacheDir string     filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
+  -c, --contentDir string   filesystem path to content directory
+  -h, --help                help for mounts
+  -t, --theme strings       themes to use (located in /themes/THEMENAME/)
 ```
 
 ### Options inherited from parent commands
@@ -26,7 +30,6 @@ hugo config mounts [flags] [args]
       --debug                      debug output
   -d, --destination string         filesystem path to write files to
   -e, --environment string         build environment
-      --format string              preferred file format (toml, yaml or json) (default "toml")
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --log                        enable Logging
       --logFile string             log File path (if set, logging enabled automatically)
