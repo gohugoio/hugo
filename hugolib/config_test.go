@@ -1151,3 +1151,29 @@ weight = 1
 	})
 
 }
+
+// Issue #11040
+func TestConfigModuleDefaultMountsInConfig(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+contentDir = "mycontent"
+-- layouts/index.html --
+Home.
+
+	
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	modConf := b.H.Configs.Base.Module
+
+	b.Assert(modConf.Mounts, qt.HasLen, 7)
+
+}
