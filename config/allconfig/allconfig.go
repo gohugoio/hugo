@@ -664,6 +664,11 @@ func (c *Configs) Init() error {
 		}
 	}
 
+	// Transfer the changed mounts to the language versions (all share the same mount set, but can be displayed in different languages).
+	for _, l := range c.LanguageConfigSlice {
+		l.Module.Mounts = c.Base.Module.Mounts
+	}
+
 	return nil
 }
 

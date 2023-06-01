@@ -60,7 +60,7 @@ Title: {{ .Title }}
 
 	b.Assert(enConcp.BaseURL().String(), qt.Equals, "https://example.com")
 	modConf := enConf.Module
-	b.Assert(modConf.Mounts, qt.HasLen, 2)
+	b.Assert(modConf.Mounts, qt.HasLen, 8)
 	b.Assert(modConf.Mounts[0].Source, qt.Equals, filepath.FromSlash("content/en"))
 	b.Assert(modConf.Mounts[0].Target, qt.Equals, "content")
 	b.Assert(modConf.Mounts[0].Lang, qt.Equals, "en")

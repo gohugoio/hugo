@@ -1172,8 +1172,7 @@ Home.
 		},
 	).Build()
 
-	modConf := b.H.Configs.Base.Module
-
-	b.Assert(modConf.Mounts, qt.HasLen, 7)
+	b.Assert(b.H.Configs.Base.Module.Mounts, qt.HasLen, 7)
+	b.Assert(b.H.Configs.LanguageConfigSlice[0].Module.Mounts, qt.HasLen, 7)
 
 }

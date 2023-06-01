@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/bep/simplecobra"
+	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/modules"
 	"github.com/gohugoio/hugo/parser"
 	"github.com/gohugoio/hugo/parser/metadecoders"
@@ -42,6 +43,7 @@ type configCommand struct {
 	r *rootCommand
 
 	format string
+	lang   string
 
 	commands []simplecobra.Commander
 }
@@ -59,7 +61,16 @@ func (c *configCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 	if err != nil {
 		return err
 	}
-	config := conf.configs.Base
+	var config *allconfig.Config
+	if c.lang != "" {
+		var found bool
+		config, found = conf.configs.LanguageConfigMap[c.lang]
+		if !found {
+			return fmt.Errorf("language %q not found", c.lang)
+		}
+	} else {
+		config = conf.configs.LanguageConfigSlice[0]
+	}
 
 	var buf bytes.Buffer
 	dec := json.NewEncoder(&buf)
@@ -100,6 +111,7 @@ func (c *configCommand) Init(cd *simplecobra.Commandeer) error {
 	cmd.Short = "Print the site configuration"
 	cmd.Long = `Print the site configuration, both default and custom settings.`
 	cmd.Flags().StringVar(&c.format, "format", "toml", "preferred file format (toml, yaml or json)")
+	cmd.Flags().StringVar(&c.lang, "lang", "", "the language to display config for. Defaults to the first language defined.")
 	applyLocalFlagsBuildConfig(cmd, c.r)
 
 	return nil
