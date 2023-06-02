@@ -1064,7 +1064,7 @@ func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath s
 			pd.AbsURLPath = s.absURLPath(targetPath)
 		}
 
-		if s.watching() && s.conf.Internal.Watch && !s.conf.Internal.DisableLiveReload {
+		if s.watching() && s.conf.Internal.Running && !s.conf.Internal.DisableLiveReload {
 			pd.LiveReloadBaseURL = s.Conf.BaseURLLiveReload().URL()
 		}
 
