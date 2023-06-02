@@ -18,6 +18,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -389,6 +390,9 @@ func (r *rootCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 	if r.quiet {
 		r.Out = io.Discard
 	}
+	// Used by mkcert (server).
+	log.SetOutput(r.Out)
+
 	r.Printf = func(format string, v ...interface{}) {
 		if !r.quiet {
 			fmt.Fprintf(r.Out, format, v...)
