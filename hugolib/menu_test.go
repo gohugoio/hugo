@@ -621,3 +621,35 @@ Menu Item: 0: <span>Home</span>|/|
 `)
 
 }
+
+// Issue #11062
+func TestMenusSubDirInBaseURL(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com/foo/"
+title = "Hugo Menu Test"
+[menus]
+[[menus.main]]
+name = "Posts"
+url = "/posts"
+weight = 1
+-- layouts/index.html --
+{{ range $i, $e := site.Menus.main }}
+Menu Item: {{ $i }}|{{ .URL }}|
+{{ end }}
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `
+Menu Item: 0|/foo/posts|
+`)
+
+}
