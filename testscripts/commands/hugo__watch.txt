@@ -11,6 +11,7 @@ grep 'P1start' public/p1/index.html
 replace content/p1.md 'P1start' 'P1end'
 sleep 2
 grep 'P1end' public/p1/index.html
+! grep 'livereload' public/p1/index.html
 
 stop
 
