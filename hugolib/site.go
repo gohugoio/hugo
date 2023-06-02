@@ -789,8 +789,10 @@ func (s *Site) assembleMenus() {
 						navigation.SetPageValues(me, p)
 					}
 				}
+			}
 
-			} else {
+			// If page is still nill, we must make sure that we have a URL that considers baseURL etc.
+			if types.IsNil(me.Page) {
 				me.ConfiguredURL = s.createNodeMenuEntryURL(me.MenuConfig.URL)
 			}
 
