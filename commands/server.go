@@ -694,7 +694,7 @@ func (c *serverCommand) createCertificates(conf *commonConfig) error {
 	if err == nil {
 		rootPem, err := ioutil.ReadFile(filepath.Join(mclib.GetCAROOT(), "rootCA.pem"))
 		if err == nil {
-			if err := c.verifyCert(string(rootPem), string(certPEM), hostname); err == nil {
+			if err := c.verifyCert(rootPem, certPEM, hostname); err == nil {
 				c.r.Println("Using existing", c.tlsCertFile, "and", c.tlsKeyFile)
 				return nil
 			}
@@ -709,14 +709,14 @@ func (c *serverCommand) createCertificates(conf *commonConfig) error {
 
 }
 
-func (c *serverCommand) verifyCert(rootPEM, certPEM string, name string) error {
+func (c *serverCommand) verifyCert(rootPEM, certPEM []byte, name string) error {
 	roots := x509.NewCertPool()
-	ok := roots.AppendCertsFromPEM([]byte(rootPEM))
+	ok := roots.AppendCertsFromPEM(rootPEM)
 	if !ok {
 		return fmt.Errorf("failed to parse root certificate")
 	}
 
-	block, _ := pem.Decode([]byte(certPEM))
+	block, _ := pem.Decode(certPEM)
 	if block == nil {
 		return fmt.Errorf("failed to parse certificate PEM")
 	}
