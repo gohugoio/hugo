@@ -15,6 +15,7 @@ require (
 	github.com/bep/gowebp v0.2.0
 	github.com/bep/helpers v0.4.0
 	github.com/bep/lazycache v0.2.0
+	github.com/bep/mclib v1.20400.20402
 	github.com/bep/overlayfs v0.6.0
 	github.com/bep/simplecobra v0.3.1
 	github.com/bep/tmc v0.5.1
@@ -98,7 +99,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.4.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.7.0 // indirect
 	github.com/aws/smithy-go v1.8.0 // indirect
-	github.com/bep/mclib v1.20400.20402 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/dlclark/regexp2 v1.10.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
