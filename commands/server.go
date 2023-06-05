@@ -512,8 +512,6 @@ func (c *serverCommand) Init(cd *simplecobra.Commandeer) error {
 	cmd.Short = "A high performance webserver"
 	cmd.Long = `Hugo provides its own webserver which builds and serves the site.
 While hugo server is high performance, it is a webserver with limited options.
-Many run it in production, but the standard behavior is for people to use it
-in development and use a more full featured server such as Nginx or Caddy.
 
 'hugo server' will avoid writing the rendered and served content to disk,
 preferring to store it in memory.
