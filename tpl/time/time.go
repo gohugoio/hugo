@@ -17,7 +17,6 @@ package time
 import (
 	"fmt"
 	"time"
-	_time "time"
 
 	"github.com/gohugoio/hugo/common/htime"
 
@@ -47,7 +46,7 @@ func (ns *Namespace) AsTime(v any, args ...any) (any, error) {
 		if err != nil {
 			return nil, err
 		}
-		loc, err = _time.LoadLocation(locStr)
+		loc, err = time.LoadLocation(locStr)
 		if err != nil {
 			return nil, err
 		}
@@ -69,7 +68,7 @@ func (ns *Namespace) Format(layout string, v any) (string, error) {
 }
 
 // Now returns the current local time or `clock` time
-func (ns *Namespace) Now() _time.Time {
+func (ns *Namespace) Now() time.Time {
 	return htime.Now()
 }
 
@@ -79,34 +78,34 @@ func (ns *Namespace) Now() _time.Time {
 // such as "300ms", "-1.5h" or "2h45m".
 // Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
 // See https://golang.org/pkg/time/#ParseDuration
-func (ns *Namespace) ParseDuration(s any) (_time.Duration, error) {
+func (ns *Namespace) ParseDuration(s any) (time.Duration, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return 0, err
 	}
 
-	return _time.ParseDuration(ss)
+	return time.ParseDuration(ss)
 }
 
-var durationUnits = map[string]_time.Duration{
-	"nanosecond":  _time.Nanosecond,
-	"ns":          _time.Nanosecond,
-	"microsecond": _time.Microsecond,
-	"us":          _time.Microsecond,
-	"µs":          _time.Microsecond,
-	"millisecond": _time.Millisecond,
-	"ms":          _time.Millisecond,
-	"second":      _time.Second,
-	"s":           _time.Second,
-	"minute":      _time.Minute,
-	"m":           _time.Minute,
-	"hour":        _time.Hour,
-	"h":           _time.Hour,
+var durationUnits = map[string]time.Duration{
+	"nanosecond":  time.Nanosecond,
+	"ns":          time.Nanosecond,
+	"microsecond": time.Microsecond,
+	"us":          time.Microsecond,
+	"µs":          time.Microsecond,
+	"millisecond": time.Millisecond,
+	"ms":          time.Millisecond,
+	"second":      time.Second,
+	"s":           time.Second,
+	"minute":      time.Minute,
+	"m":           time.Minute,
+	"hour":        time.Hour,
+	"h":           time.Hour,
 }
 
 // Duration converts the given number to a time.Duration.
 // Unit is one of nanosecond/ns, microsecond/us/µs, millisecond/ms, second/s, minute/m or hour/h.
-func (ns *Namespace) Duration(unit any, number any) (_time.Duration, error) {
+func (ns *Namespace) Duration(unit any, number any) (time.Duration, error) {
 	unitStr, err := cast.ToStringE(unit)
 	if err != nil {
 		return 0, err
@@ -119,5 +118,5 @@ func (ns *Namespace) Duration(unit any, number any) (_time.Duration, error) {
 	if err != nil {
 		return 0, err
 	}
-	return _time.Duration(n) * unitDuration, nil
+	return time.Duration(n) * unitDuration, nil
 }
