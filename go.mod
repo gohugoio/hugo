@@ -15,6 +15,7 @@ require (
 	github.com/bep/gowebp v0.2.0
 	github.com/bep/helpers v0.4.0
 	github.com/bep/lazycache v0.2.0
+	github.com/bep/mclib v1.20400.20402
 	github.com/bep/overlayfs v0.6.0
 	github.com/bep/simplecobra v0.3.1
 	github.com/bep/tmc v0.5.1
@@ -125,7 +126,7 @@ require (
 	github.com/perimeterx/marshmallow v1.1.4 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
-	golang.org/x/crypto v0.3.0 // indirect
+	golang.org/x/crypto v0.9.0 // indirect
 	golang.org/x/mod v0.10.0 // indirect
 	golang.org/x/oauth2 v0.7.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
@@ -135,6 +136,8 @@ require (
 	google.golang.org/grpc v1.54.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	howett.net/plist v1.0.0 // indirect
+	software.sslmate.com/src/go-pkcs12 v0.2.0 // indirect
 )
 
 go 1.18

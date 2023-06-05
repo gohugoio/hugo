@@ -16,16 +16,22 @@ package commands
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"sync"
 	"sync/atomic"
+
+	"github.com/bep/mclib"
 
 	"os/signal"
 	"path"
@@ -54,6 +60,7 @@ import (
 	"github.com/gohugoio/hugo/transform"
 	"github.com/gohugoio/hugo/transform/livereloadinject"
 	"github.com/spf13/afero"
+	"github.com/spf13/cobra"
 	"github.com/spf13/fsync"
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/sync/semaphore"
@@ -96,11 +103,38 @@ func newHugoBuilder(r *rootCommand, s *serverCommand, onConfigLoaded ...func(rel
 }
 
 func newServerCommand() *serverCommand {
+	// Flags.
+	var uninstall bool
+
 	var c *serverCommand
+
 	c = &serverCommand{
 		quit: make(chan bool),
+		commands: []simplecobra.Commander{
+			&simpleCommand{
+				name:  "trust",
+				short: "Install the local CA in the system trust store.",
+				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
+					action := "-install"
+					if uninstall {
+						action = "-uninstall"
+					}
+					os.Args = []string{action}
+					return mclib.RunMain()
+				},
+				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.Flags().BoolVar(&uninstall, "uninstall", false, "Uninstall the local CA (but do not delete it).")
+
+				},
+			},
+		},
 	}
+
 	return c
+}
+
+func (c *serverCommand) Commands() []simplecobra.Commander {
+	return c.commands
 }
 
 type countingStatFs struct {
@@ -422,6 +456,9 @@ type serverCommand struct {
 	navigateToChanged   bool
 	serverAppend        bool
 	serverInterface     string
+	tlsCertFile         string
+	tlsKeyFile          string
+	tlsAuto             bool
 	serverPort          int
 	liveReloadPort      int
 	serverWatch         bool
@@ -429,10 +466,6 @@ type serverCommand struct {
 	disableLiveReload   bool
 	disableFastRender   bool
 	disableBrowserError bool
-}
-
-func (c *serverCommand) Commands() []simplecobra.Commander {
-	return c.commands
 }
 
 func (c *serverCommand) Name() string {
@@ -494,6 +527,9 @@ of a second, you will be able to save and see your changes nearly instantly.`
 	cmd.Flags().IntVarP(&c.serverPort, "port", "p", 1313, "port on which the server will listen")
 	cmd.Flags().IntVar(&c.liveReloadPort, "liveReloadPort", -1, "port for live reloading (i.e. 443 in HTTPS proxy situations)")
 	cmd.Flags().StringVarP(&c.serverInterface, "bind", "", "127.0.0.1", "interface to which the server will bind")
+	cmd.Flags().StringVarP(&c.tlsCertFile, "tlsCertFile", "", "", "path to TLS certificate file")
+	cmd.Flags().StringVarP(&c.tlsKeyFile, "tlsKeyFile", "", "", "path to TLS key file")
+	cmd.Flags().BoolVar(&c.tlsAuto, "tlsAuto", false, "generate and use locally-trusted certificates.")
 	cmd.Flags().BoolVarP(&c.serverWatch, "watch", "w", true, "watch filesystem for changes and recreate as needed")
 	cmd.Flags().BoolVar(&c.noHTTPCache, "noHTTPCache", false, "prevent HTTP caching")
 	cmd.Flags().BoolVarP(&c.serverAppend, "appendPort", "", true, "append port to baseURL")
@@ -506,6 +542,9 @@ of a second, you will be able to save and see your changes nearly instantly.`
 
 	cmd.Flags().String("memstats", "", "log memory usage to this file")
 	cmd.Flags().String("meminterval", "100ms", "interval to poll memory usage (requires --memstats), valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".")
+
+	cmd.Flags().SetAnnotation("tlsCertFile", cobra.BashCompSubdirsInDir, []string{})
+	cmd.Flags().SetAnnotation("tlsKeyFile", cobra.BashCompSubdirsInDir, []string{})
 
 	r := cd.Root.Command.(*rootCommand)
 	applyLocalFlagsBuild(cmd, r)
@@ -524,7 +563,14 @@ func (c *serverCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 				if err := c.createServerPorts(cd); err != nil {
 					return err
 				}
+
+				if (c.tlsCertFile == "" || c.tlsKeyFile == "") && c.tlsAuto {
+					c.withConfE(func(conf *commonConfig) error {
+						return c.createCertificates(conf)
+					})
+				}
 			}
+
 			if err := c.setBaseURLsInConfig(); err != nil {
 				return err
 			}
@@ -619,6 +665,78 @@ func (c *serverCommand) getErrorWithContext() any {
 	return m
 }
 
+func (c *serverCommand) createCertificates(conf *commonConfig) error {
+	hostname := "localhost"
+	if c.r.baseURL != "" {
+		u, err := url.Parse(c.r.baseURL)
+		if err != nil {
+			return err
+		}
+		hostname = u.Hostname()
+	}
+
+	// For now, store these in the Hugo cache dir.
+	// Hugo should probably introduce some concept of a less temporary application directory.
+	keyDir := filepath.Join(conf.configs.LoadingInfo.BaseConfig.CacheDir, "_mkcerts")
+
+	// Create the directory if it doesn't exist.
+	if _, err := os.Stat(keyDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(keyDir, 0777); err != nil {
+			return err
+		}
+	}
+
+	c.tlsCertFile = filepath.Join(keyDir, fmt.Sprintf("%s.pem", hostname))
+	c.tlsKeyFile = filepath.Join(keyDir, fmt.Sprintf("%s-key.pem", hostname))
+
+	// Check if the certificate already exists and is valid.
+	certPEM, err := ioutil.ReadFile(c.tlsCertFile)
+	if err == nil {
+		rootPem, err := ioutil.ReadFile(filepath.Join(mclib.GetCAROOT(), "rootCA.pem"))
+		if err == nil {
+			if err := c.verifyCert(rootPem, certPEM, hostname); err == nil {
+				c.r.Println("Using existing", c.tlsCertFile, "and", c.tlsKeyFile)
+				return nil
+			}
+		}
+	}
+
+	c.r.Println("Creating TLS certificates in", keyDir)
+
+	// Yes, this is unfortunate, but it's currently the only way to use Mkcert as a library.
+	os.Args = []string{"-cert-file", c.tlsCertFile, "-key-file", c.tlsKeyFile, hostname}
+	return mclib.RunMain()
+
+}
+
+func (c *serverCommand) verifyCert(rootPEM, certPEM []byte, name string) error {
+	roots := x509.NewCertPool()
+	ok := roots.AppendCertsFromPEM(rootPEM)
+	if !ok {
+		return fmt.Errorf("failed to parse root certificate")
+	}
+
+	block, _ := pem.Decode(certPEM)
+	if block == nil {
+		return fmt.Errorf("failed to parse certificate PEM")
+	}
+	cert, err := x509.ParseCertificate(block.Bytes)
+	if err != nil {
+		return fmt.Errorf("failed to parse certificate: %v", err.Error())
+	}
+
+	opts := x509.VerifyOptions{
+		DNSName: name,
+		Roots:   roots,
+	}
+
+	if _, err := cert.Verify(opts); err != nil {
+		return fmt.Errorf("failed to verify certificate: %v", err.Error())
+	}
+
+	return nil
+}
+
 func (c *serverCommand) createServerPorts(cd *simplecobra.Commandeer) error {
 	flags := cd.CobraCommand.Flags()
 	var cerr error
@@ -661,36 +779,40 @@ func (c *serverCommand) createServerPorts(cd *simplecobra.Commandeer) error {
 
 // fixURL massages the baseURL into a form needed for serving
 // all pages correctly.
-func (c *serverCommand) fixURL(baseURL, s string, port int) (string, error) {
+func (c *serverCommand) fixURL(baseURLFromConfig, baseURLFromFlag string, port int) (string, error) {
+	certsSet := (c.tlsCertFile != "" && c.tlsKeyFile != "") || c.tlsAuto
 	useLocalhost := false
-	if s == "" {
-		s = baseURL
+	baseURL := baseURLFromFlag
+	if baseURL == "" {
+		baseURL = baseURLFromConfig
 		useLocalhost = true
 	}
 
-	if !strings.HasSuffix(s, "/") {
-		s = s + "/"
+	if !strings.HasSuffix(baseURL, "/") {
+		baseURL = baseURL + "/"
 	}
 
 	// do an initial parse of the input string
-	u, err := url.Parse(s)
+	u, err := url.Parse(baseURL)
 	if err != nil {
 		return "", err
 	}
 
 	// if no Host is defined, then assume that no schema or double-slash were
 	// present in the url.  Add a double-slash and make a best effort attempt.
-	if u.Host == "" && s != "/" {
-		s = "//" + s
+	if u.Host == "" && baseURL != "/" {
+		baseURL = "//" + baseURL
 
-		u, err = url.Parse(s)
+		u, err = url.Parse(baseURL)
 		if err != nil {
 			return "", err
 		}
 	}
 
 	if useLocalhost {
-		if u.Scheme == "https" {
+		if certsSet {
+			u.Scheme = "https"
+		} else if u.Scheme == "https" {
 			u.Scheme = "http"
 		}
 		u.Host = "localhost"
@@ -807,10 +929,22 @@ func (c *serverCommand) serve() error {
 
 	for i := range baseURLs {
 		mu, listener, serverURL, endpoint, err := srv.createEndpoint(i)
-		srv := &http.Server{
-			Addr:    endpoint,
-			Handler: mu,
+		var srv *http.Server
+		if c.tlsCertFile != "" && c.tlsKeyFile != "" {
+			srv = &http.Server{
+				Addr:    endpoint,
+				Handler: mu,
+				TLSConfig: &tls.Config{
+					MinVersion: tls.VersionTLS12,
+				},
+			}
+		} else {
+			srv = &http.Server{
+				Addr:    endpoint,
+				Handler: mu,
+			}
 		}
+
 		servers = append(servers, srv)
 
 		if doLiveReload {
@@ -824,7 +958,11 @@ func (c *serverCommand) serve() error {
 		}
 		c.r.Printf("Web Server is available at %s (bind address %s)\n", serverURL, c.serverInterface)
 		wg1.Go(func() error {
-			err = srv.Serve(listener)
+			if c.tlsCertFile != "" && c.tlsKeyFile != "" {
+				err = srv.ServeTLS(listener, c.tlsCertFile, c.tlsKeyFile)
+			} else {
+				err = srv.Serve(listener)
+			}
 			if err != nil && err != http.ErrServerClosed {
 				return err
 			}
