@@ -86,7 +86,7 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 			baseDir: baseDir,
 			c:       t.c,
 
-			varsStylesheet: sass.CreateVarsStyleSheet(opts.Vars),
+			varsStylesheet: godartsass.Import{Content: sass.CreateVarsStyleSheet(opts.Vars)},
 		},
 		OutputStyle:             godartsass.ParseOutputStyle(opts.OutputStyle),
 		EnableSourceMap:         opts.EnableSourceMap,
@@ -132,7 +132,7 @@ type importResolver struct {
 	baseDir string
 	c       *Client
 
-	varsStylesheet string
+	varsStylesheet godartsass.Import
 }
 
 func (t importResolver) CanonicalizeURL(url string) (string, error) {
@@ -184,11 +184,20 @@ func (t importResolver) CanonicalizeURL(url string) (string, error) {
 	return "", nil
 }
 
-func (t importResolver) Load(url string) (string, error) {
+func (t importResolver) Load(url string) (godartsass.Import, error) {
 	if url == sass.HugoVarsNamespace {
 		return t.varsStylesheet, nil
 	}
 	filename, _ := paths.UrlToFilename(url)
 	b, err := afero.ReadFile(hugofs.Os, filename)
-	return string(b), err
+
+	sourceSyntax := godartsass.SourceSyntaxSCSS
+	if strings.HasSuffix(filename, ".sass") {
+		sourceSyntax = godartsass.SourceSyntaxSASS
+	} else if strings.HasSuffix(filename, ".css") {
+		sourceSyntax = godartsass.SourceSyntaxCSS
+	}
+
+	return godartsass.Import{Content: string(b), SourceSyntax: sourceSyntax}, err
+
 }
