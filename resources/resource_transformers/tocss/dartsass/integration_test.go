@@ -109,6 +109,38 @@ T1: {{ $r.Content | safeHTML }}
 		/* foo */`)
 }
 
+func TestTransformImportIndentedSASS(t *testing.T) {
+	t.Parallel()
+	if !dartsass.Supports() {
+		t.Skip()
+	}
+
+	files := `
+-- assets/scss/_moo.sass --
+#main
+	color: blue
+-- assets/scss/main.scss --
+@import "moo";
+
+/* foo */
+-- config.toml --
+-- layouts/index.html --
+{{ $r := resources.Get "scss/main.scss" |  toCSS (dict "transpiler" "dartsass")  }}
+T1: {{ $r.Content | safeHTML }}
+
+	`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   true,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", "T1: #main {\n  color: blue;\n}\n\n/* foo */")
+}
+
 // Issue 10592
 func TestTransformImportMountedCSS(t *testing.T) {
 	t.Parallel()
