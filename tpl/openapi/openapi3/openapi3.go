@@ -17,6 +17,8 @@ package openapi3
 import (
 	"fmt"
 	"io"
+	"net/url"
+	"strings"
 
 	gyaml "github.com/ghodss/yaml"
 
@@ -90,7 +92,25 @@ func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*OpenAPIDocument
 			return nil, err
 		}
 
-		err = kopenapi3.NewLoader().ResolveRefsIn(s, nil)
+		loader := kopenapi3.NewLoader()
+		loader.IsExternalRefsAllowed = true
+		loader.ReadFromURIFunc = func(loader *kopenapi3.Loader, url *url.URL) ([]byte, error) {
+			relativePath := url.Path
+
+			if strings.HasPrefix(url.Path, "./") {
+				relativePath = strings.TrimRightFunc(key, func(r rune) bool { return r != '/' }) + strings.TrimPrefix(url.Path, "./")
+			}
+
+			file, err := ns.deps.SourceFilesystems.Assets.Fs.Open(relativePath)
+			if err != nil {
+				return nil, err
+			}
+			defer file.Close()
+
+			return io.ReadAll(file)
+		}
+
+		err = loader.ResolveRefsIn(s, nil)
 
 		return &OpenAPIDocument{T: s}, err
 	})

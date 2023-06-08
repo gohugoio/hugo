@@ -37,18 +37,20 @@ servers:
     description: Optional server description, e.g. Internal staging server for testing
 paths:
   /users:
-    get:
-      summary: Returns a list of users.
-      description: Optional extended description in CommonMark or HTML.
-      responses:
-        '200':    # status code
-          description: A JSON array of user names
-          content:
-            application/json:
-              schema: 
-                type: array
-                items: 
-                  type: string
+    $ref: ./methods/get.yaml
+-- assets/api/methods/get.yaml --
+get:
+  summary: Returns a list of users.
+  description: Optional extended description in CommonMark or HTML.
+  responses:
+    '200':    # status code
+      description: A JSON array of user names
+      content:
+        application/json:
+          schema: 
+            type: array
+            items: 
+              type: string
 -- config.toml --
 baseURL = 'http://example.com/'
 -- layouts/index.html --
