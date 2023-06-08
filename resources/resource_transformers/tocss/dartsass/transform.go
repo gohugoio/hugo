@@ -20,7 +20,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/media"
@@ -34,11 +34,8 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs"
 
-	"github.com/bep/godartsass"
-)
-
-const (
-	dartSassEmbeddedBinaryName = "dart-sass-embedded"
+	godartsassv1 "github.com/bep/godartsass"
+	"github.com/bep/godartsass/v2"
 )
 
 // Supports returns whether dart-sass-embedded is found in $PATH.
@@ -46,7 +43,7 @@ func Supports() bool {
 	if htesting.SupportsAll() {
 		return true
 	}
-	return hexec.InPath(dartSassEmbeddedBinaryName)
+	return hugo.DartSassBinaryName != ""
 }
 
 type transform struct {
@@ -200,4 +197,13 @@ func (t importResolver) Load(url string) (godartsass.Import, error) {
 
 	return godartsass.Import{Content: string(b), SourceSyntax: sourceSyntax}, err
 
+}
+
+type importResolverV1 struct {
+	godartsass.ImportResolver
+}
+
+func (t importResolverV1) Load(url string) (godartsassv1.Import, error) {
+	res, err := t.ImportResolver.Load(url)
+	return godartsassv1.Import{Content: res.Content, SourceSyntax: godartsassv1.SourceSyntax(res.SourceSyntax)}, err
 }

@@ -42,7 +42,6 @@ func TestSecurityPolicies(t *testing.T) {
 		} else {
 			b.Build(BuildCfg{})
 		}
-
 	}
 
 	httpTestVariant := func(c *qt.C, templ, expectErr string, withBuilder func(b *sitesBuilder)) {
@@ -145,7 +144,7 @@ allow="none"
 			`)
 			b.WithTemplatesAdded("index.html", `{{ $scss := "body { color: #333; }" | resources.FromString "foo.scss"  | resources.ToCSS (dict "transpiler" "dartsass") }}`)
 		}
-		testVariant(c, cb, `(?s).*"dart-sass-embedded" is not whitelisted in policy "security\.exec\.allow".*`)
+		testVariant(c, cb, `(?s).*sass(-embedded)?" is not whitelisted in policy "security\.exec\.allow".*`)
 	})
 
 	c.Run("resources.GetRemote, OK", func(c *qt.C) {

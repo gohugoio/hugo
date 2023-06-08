@@ -35,9 +35,9 @@ const securityConfigKey = "security"
 var DefaultConfig = Config{
 	Exec: Exec{
 		Allow: NewWhitelist(
-			"^dart-sass-embedded$",
-			"^go$",  // for Go Modules
-			"^npx$", // used by all Node tools (Babel, PostCSS).
+			"^(dart-)?sass(-embedded)?$", // sass, dart-sass, dart-sass-embedded.
+			"^go$",                       // for Go Modules
+			"^npx$",                      // used by all Node tools (Babel, PostCSS).
 			"^postcss$",
 		),
 		// These have been tested to work with Hugo's external programs

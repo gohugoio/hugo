@@ -15,11 +15,14 @@ package herrors
 
 import (
 	"encoding/json"
+
+	godartsassv1 "github.com/bep/godartsass"
+
 	"fmt"
 	"io"
 	"path/filepath"
 
-	"github.com/bep/godartsass"
+	"github.com/bep/godartsass/v2"
 	"github.com/bep/golibsass/libsass/libsasserrors"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/text"
@@ -144,6 +147,8 @@ func (e *fileError) causeString() string {
 	switch v := e.cause.(type) {
 	// Avoid repeating the file info in the error message.
 	case godartsass.SassError:
+		return v.Message
+	case godartsassv1.SassError:
 		return v.Message
 	case libsasserrors.Error:
 		return v.Message
@@ -379,6 +384,13 @@ func exctractLineNumberAndColumnNumber(e error) (int, int) {
 func extractPosition(e error) (pos text.Position) {
 	switch v := e.(type) {
 	case godartsass.SassError:
+		span := v.Span
+		start := span.Start
+		filename, _ := paths.UrlToFilename(span.Url)
+		pos.Filename = filename
+		pos.Offset = start.Offset
+		pos.ColumnNumber = start.Column
+	case godartsassv1.SassError:
 		span := v.Span
 		start := span.Start
 		filename, _ := paths.UrlToFilename(span.Url)
