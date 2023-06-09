@@ -111,7 +111,7 @@ var Default = Config{
 
 func init() {
 	docsProvider := func() docshelper.DocProvider {
-		return docshelper.DocProvider{"config": map[string]any{"markup": parser.LowerCaseCamelJSONMarshaller{Value: Default}}}
+		return docshelper.DocProvider{"config": map[string]any{"markup": parser.LowerCaseCamelJSONMarshaler{Value: Default}}}
 	}
 	docshelper.AddDocProviderFunc(docsProvider)
 }

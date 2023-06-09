@@ -77,7 +77,7 @@ func (c *configCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 	dec.SetIndent("", "  ")
 	dec.SetEscapeHTML(false)
 
-	if err := dec.Encode(parser.ReplacingJSONMarshaller{Value: config, KeysToLower: true, OmitEmpty: true}); err != nil {
+	if err := dec.Encode(parser.ReplacingJSONMarshaler{Value: config, KeysToLower: true, OmitEmpty: true}); err != nil {
 		return err
 	}
 

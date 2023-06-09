@@ -55,7 +55,7 @@ var Default = Decoder{
 	Delimiter: ',',
 }
 
-// UnmarshalToMap will unmarshall data in format f into a new map. This is
+// UnmarshalToMap will unmarshal data in format f into a new map. This is
 // what's needed for Hugo's front matter decoding.
 func (d Decoder) UnmarshalToMap(data []byte, f Format) (map[string]any, error) {
 	m := make(map[string]any)
@@ -109,7 +109,7 @@ func (d Decoder) UnmarshalStringTo(data string, typ any) (any, error) {
 	}
 }
 
-// Unmarshal will unmarshall data in format f into an interface{}.
+// Unmarshal will unmarshal data in format f into an interface{}.
 // This is what's needed for Hugo's /data handling.
 func (d Decoder) Unmarshal(data []byte, f Format) (any, error) {
 	if len(data) == 0 {

@@ -116,7 +116,7 @@ func DecodeConfig(v any) (conf MinifyConfig, err error) {
 
 func init() {
 	docsProvider := func() docshelper.DocProvider {
-		return docshelper.DocProvider{"config": map[string]any{"minify": parser.LowerCaseCamelJSONMarshaller{Value: defaultConfig}}}
+		return docshelper.DocProvider{"config": map[string]any{"minify": parser.LowerCaseCamelJSONMarshaler{Value: defaultConfig}}}
 	}
 	docshelper.AddDocProviderFunc(docsProvider)
 }

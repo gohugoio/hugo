@@ -30,15 +30,15 @@ var (
 )
 
 // Code adapted from https://gist.github.com/piersy/b9934790a8892db1a603820c0c23e4a7
-type LowerCaseCamelJSONMarshaller struct {
+type LowerCaseCamelJSONMarshaler struct {
 	Value any
 }
 
-func (c LowerCaseCamelJSONMarshaller) MarshalJSON() ([]byte, error) {
-	marshalled, err := json.Marshal(c.Value)
+func (c LowerCaseCamelJSONMarshaler) MarshalJSON() ([]byte, error) {
+	marshaled, err := json.Marshal(c.Value)
 
 	converted := keyMatchRegex.ReplaceAllFunc(
-		marshalled,
+		marshaled,
 		func(match []byte) []byte {
 			// Attributes on the form XML, JSON etc.
 			if bytes.Equal(match, bytes.ToUpper(match)) {
@@ -60,14 +60,14 @@ func (c LowerCaseCamelJSONMarshaller) MarshalJSON() ([]byte, error) {
 	return converted, err
 }
 
-type ReplacingJSONMarshaller struct {
+type ReplacingJSONMarshaler struct {
 	Value any
 
 	KeysToLower bool
 	OmitEmpty   bool
 }
 
-func (c ReplacingJSONMarshaller) MarshalJSON() ([]byte, error) {
+func (c ReplacingJSONMarshaler) MarshalJSON() ([]byte, error) {
 	converted, err := json.Marshal(c.Value)
 
 	if c.KeysToLower {

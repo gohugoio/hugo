@@ -6,7 +6,7 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
-func TestReplacingJSONMarshaller(t *testing.T) {
+func TestReplacingJSONMarshaler(t *testing.T) {
 	c := qt.New(t)
 
 	m := map[string]any{
@@ -20,13 +20,13 @@ func TestReplacingJSONMarshaller(t *testing.T) {
 		"nil":        nil,
 	}
 
-	marshaller := ReplacingJSONMarshaller{
+	marshaler := ReplacingJSONMarshaler{
 		Value:       m,
 		KeysToLower: true,
 		OmitEmpty:   true,
 	}
 
-	b, err := marshaller.MarshalJSON()
+	b, err := marshaler.MarshalJSON()
 	c.Assert(err, qt.IsNil)
 
 	c.Assert(string(b), qt.Equals, `{"baz":42,"foo":"bar"}`)
