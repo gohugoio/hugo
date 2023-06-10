@@ -177,6 +177,10 @@ func doTestRelURL(t testing.TB, defaultInSubDir, addLanguage, multilingual bool,
 		{"/foo/bar", "https://example.org/foo/", false, "MULTI/foo/bar"},
 		{"foo/bar", "https://example.org/foo/", false, "/fooMULTI/foo/bar"},
 
+		// Issue 11080
+		{"mailto:a@b.com", "http://base/", false, "mailto:a@b.com"},
+		{"ftp://b.com/a.txt", "http://base/", false, "ftp://b.com/a.txt"},
+
 		{"/test/foo", "http://base/", false, "MULTI/test/foo"},
 		{"/" + lang + "/test/foo", "http://base/", false, "/" + lang + "/test/foo"},
 		{lang + "/test/foo", "http://base/", false, "/" + lang + "/test/foo"},
