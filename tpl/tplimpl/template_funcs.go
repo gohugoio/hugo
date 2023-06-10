@@ -41,6 +41,7 @@ import (
 	_ "github.com/gohugoio/hugo/tpl/debug"
 	_ "github.com/gohugoio/hugo/tpl/diagrams"
 	_ "github.com/gohugoio/hugo/tpl/encoding"
+	_ "github.com/gohugoio/hugo/tpl/external"
 	_ "github.com/gohugoio/hugo/tpl/fmt"
 	_ "github.com/gohugoio/hugo/tpl/hugo"
 	_ "github.com/gohugoio/hugo/tpl/images"
