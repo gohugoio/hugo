@@ -209,7 +209,7 @@ The expression `{{ index $r number }}` must be used to output the nth-column fro
 
 ### Cache URLs
 
-Each downloaded URL will be cached in the default folder `$TMPDIR/hugo_cache/`. The variable `$TMPDIR` will be resolved to your system-dependent temporary directory.
+Each downloaded URL will be cached in the default folder `$TMPDIR/hugo_cache_$USER/`. The variable `$TMPDIR` will be resolved to your system-dependent temporary directory.
 
 With the command-line flag `--cacheDir`, you can specify any folder on your system as a caching directory.
 
