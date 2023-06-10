@@ -152,7 +152,13 @@ func (p *PathSpec) getBaseURLRoot(path string) string {
 func (p *PathSpec) RelURL(in string, addLanguage bool) string {
 	baseURL := p.getBaseURLRoot(in)
 	canonifyURLs := p.Cfg.CanonifyURLs()
-	if (!strings.HasPrefix(in, baseURL) && strings.HasPrefix(in, "http")) || strings.HasPrefix(in, "//") {
+
+	url, err := url.Parse(in)
+	if err != nil {
+		return in
+	}
+
+	if (!strings.HasPrefix(in, baseURL) && url.IsAbs()) || strings.HasPrefix(in, "//") {
 		return in
 	}
 
