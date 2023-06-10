@@ -409,7 +409,12 @@ func GetCacheDir(fs afero.Fs, cacheDir string) (string, error) {
 	}
 
 	// Fall back to a cache in /tmp.
-	return GetTempDir("hugo_cache", fs), nil
+	userName := os.Getenv("USER")
+	if userName != "" {
+		return GetTempDir("hugo_cache_"+userName, fs), nil
+	} else {
+		return GetTempDir("hugo_cache", fs), nil
+	}
 }
 
 func cacheDirDefault(cacheDir string) string {
