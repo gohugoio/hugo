@@ -12,18 +12,19 @@ import (
 
 	"github.com/clarkmcc/go-typescript"
 	"github.com/dop251/goja"
+	"github.com/gohugoio/hugo/helpers"
 )
 
 const maxFuncFileLoadTime = time.Second
 
 type FunctionDetails struct {
 	Name     string
-	Func     func(args ...reflect.Value) string
+	Func     func(args ...reflect.Value) (string, error)
 	Examples [][2]string
 }
 
 type Namespace struct {
-	funcs map[string]map[string]func(...reflect.Value) string
+	funcs map[string]map[string]func(...reflect.Value) (string, error)
 }
 
 func (ns *Namespace) Function(name string, args ...reflect.Value) (string, error) {
@@ -42,7 +43,7 @@ func (ns *Namespace) Function(name string, args ...reflect.Value) (string, error
 		return "", fmt.Errorf("the function named %s does not exist in %s", parts[1], parts[0])
 	}
 
-	return fn(args...), nil
+	return fn(args...)
 }
 
 func LoadFunctionFiles(funcsPath string) (*Namespace, error) {
@@ -52,24 +53,26 @@ func LoadFunctionFiles(funcsPath string) (*Namespace, error) {
 	}
 
 	ns := &Namespace{
-		funcs: make(map[string]map[string]func(...reflect.Value) string),
+		funcs: make(map[string]map[string]func(...reflect.Value) (string, error)),
 	}
 
 	for _, tsPath := range tsPaths {
 		mName := strings.TrimSuffix(path.Base(tsPath), ".ts")
 		funcs, warns := loadTsFunctionsFile(tsPath)
 
-		// TODO: Send warnings to the console
-		_ = warns
+		for _, warn := range warns {
+			helpers.DistinctWarnLog.Warnf("Issue loading functions from %s: %v\n", tsPath, warn)
+		}
 
 		if len(funcs) == 0 {
 			continue
 		}
 
-		ns.funcs[mName] = make(map[string]func(...reflect.Value) string)
+		ns.funcs[mName] = make(map[string]func(...reflect.Value) (string, error))
 
 		for _, fn := range funcs {
 			ns.funcs[mName][fn.Name] = fn.Func
+			helpers.DistinctWarnLog.Infof("Loaded function: %s.%s\n", mName, fn.Name)
 		}
 	}
 
@@ -132,18 +135,18 @@ func extractFunctions(vm *goja.Runtime, exports goja.Value) ([]FunctionDetails, 
 
 		detail := FunctionDetails{
 			Name: name,
-			Func: func(args ...reflect.Value) string {
+			Func: func(args ...reflect.Value) (string, error) {
 				valueArgs := make([]goja.Value, len(args))
 				for i, arg := range args {
-					// TODO: Be better at converting types; dates, for example?
-					valueArgs[i] = vm.ToValue(arg)
+					// TODO: Actually convert types, rather than leaning on coersion.
+					valueArgs[i] = vm.ToValue(arg.Interface())
 				}
 
 				val := fn(goja.FunctionCall{Arguments: valueArgs})
 
 				var out string
-				vm.ExportTo(val, &out)
-				return out
+				err := vm.ExportTo(val, &out)
+				return out, err
 			},
 		}
 
