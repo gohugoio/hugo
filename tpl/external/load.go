@@ -138,8 +138,11 @@ func extractFunctions(vm *goja.Runtime, exports goja.Value) ([]FunctionDetails, 
 			Func: func(args ...reflect.Value) (string, error) {
 				valueArgs := make([]goja.Value, len(args))
 				for i, arg := range args {
-					// TODO: Actually convert types, rather than leaning on coersion.
-					valueArgs[i] = vm.ToValue(arg.Interface())
+					val, err := toGojaType(vm, arg)
+					if err != nil {
+						return "", err
+					}
+					valueArgs[i] = val
 				}
 
 				val := fn(goja.FunctionCall{Arguments: valueArgs})
@@ -171,4 +174,14 @@ func extractExamples(ifaces []interface{}) ([][2]string, error) {
 	_ = ifaces
 
 	return examples, nil
+}
+
+func toGojaType(vm *goja.Runtime, val reflect.Value) (goja.Value, error) {
+	iface := val.Interface()
+
+	if t, ok := iface.(time.Time); ok {
+		return vm.New(vm.Get("Date").ToObject(vm), vm.ToValue(t.UnixNano()/1e6))
+	}
+
+	return vm.ToValue(val.Interface()), nil
 }

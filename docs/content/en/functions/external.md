@@ -60,20 +60,12 @@ error calling fn: the function file named heLLo has not been loaded
 
 The exported functions can accept any number of arguments, of any type, but must only return a single string. any exceptions `throw`n will be handled gracefully.
 
-Arguments are converted using [goja's `ToValue` method](https://pkg.go.dev/github.com/dop251/goja#Runtime.ToValue)). Note in particular that [dates do not work as expected](https://pkg.go.dev/github.com/dop251/goja#hdr-Handling_of_time_Time) in order to provide access to timezone information. If timezone is unimportant you can use `.UnixNano()`:
+Arguments are automatically converted to Javascript native formats using [goja's `ToValue` method](https://pkg.go.dev/github.com/dop251/goja#Runtime.ToValue)).
 
-```typescript
-export function WorkWithDates(myDateObj: object): string {
-  const myDate = new Date(myDateObj.UnixNano()/1e6);
-
-  return myDate.toString();
-}
-```
-
-Which could be called with:
+Dates/times are also converted to native `Date` objects (ie. _not_ like [default goja](https://pkg.go.dev/github.com/dop251/goja#hdr-Handling_of_time_Time)). This does mean that Timezone information is lost; the `Date` object in your function will be in the timezone of the machine Hugo is running on (not the timezone of the passed argument). You can work around this by sending any needed timezone information as a separate argument, eg:
 
 ```go-template
-{{ fb "yours.WorkWithDates" .Date }} → Sun Jun 11 2023 12:00:00 GMT+0100 (British Summer Time)
+{{ fn "example.Timezone" .Date (.Date.Format "-0700") }}
 ```
 
 ## Imports
