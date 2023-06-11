@@ -56,11 +56,25 @@ Similarly calling `{{ fn "heLLo.Name" }}` would fail with:
 error calling fn: the function file named heLLo has not been loaded
 ```
 
-## Function signature
+## Function signatures
 
-The exported functions can accept any number of arguments, but must only return a single string.
+The exported functions can accept any number of arguments, of any type, but must only return a single string. any exceptions `throw`n will be handled gracefully.
 
-Arguments are converted using [goja](https://github.com/dop251/goja)), currently only the most basic types are supported (strings, numbers). Times/dates aren't supported yet.
+Arguments are converted using [goja's `ToValue` method](https://pkg.go.dev/github.com/dop251/goja#Runtime.ToValue)). Note in particular that [dates do not work as expected](https://pkg.go.dev/github.com/dop251/goja#hdr-Handling_of_time_Time) in order to provide access to timezone information. If timezone is unimportant you can use `.UnixNano()`:
+
+```typescript
+export function WorkWithDates(myDateObj: object): string {
+  const myDate = new Date(myDateObj.UnixNano()/1e6);
+
+  return myDate.toString();
+}
+```
+
+Which could be called with:
+
+```go-template
+{{ fb "yours.WorkWithDates" .Date }} → Sun Jun 11 2023 12:00:00 GMT+0100 (British Summer Time)
+```
 
 ## Imports
 
