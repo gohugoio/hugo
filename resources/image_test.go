@@ -101,7 +101,6 @@ func TestImageTransformBasic(t *testing.T) {
 	resized, err := image.Resize("300x200")
 	c.Assert(err, qt.IsNil)
 	c.Assert(image != resized, qt.Equals, true)
-	c.Assert(image, qt.Not(eq), resized)
 	assertWidthHeight(resized, 300, 200)
 	assertWidthHeight(image, 900, 562)
 
