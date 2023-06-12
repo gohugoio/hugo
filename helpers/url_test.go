@@ -149,7 +149,7 @@ func TestRelURL(t *testing.T) {
 	}
 }
 
-func doTestRelURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool, lang string) {
+func doTestRelURL(t testing.TB, defaultInSubDir, addLanguage, multilingual bool, lang string) {
 	t.Helper()
 	c := qt.New(t)
 	v := config.New()
@@ -260,5 +260,15 @@ func TestSanitizeURL(t *testing.T) {
 		if o2 != expected2 {
 			t.Errorf("[%d] 2: Expected %#v, got %#v\n", i, expected2, o2)
 		}
+	}
+}
+
+func BenchmarkRelURL(b *testing.B) {
+	v := config.New()
+	v.Set("baseURL", "http://base/")
+	p := newTestPathSpecFromCfgAndLang(v, "")
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = p.RelURL("https://base/foo/bar", false)
 	}
 }
