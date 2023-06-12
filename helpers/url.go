@@ -98,12 +98,11 @@ func (p *PathSpec) URLEscape(uri string) string {
 
 // AbsURL creates an absolute URL from the relative path given and the BaseURL set in config.
 func (p *PathSpec) AbsURL(in string, addLanguage bool) string {
-	url, err := url.Parse(in)
+	isAbs, err := p.IsAbsURL(in)
 	if err != nil {
 		return in
 	}
-
-	if url.IsAbs() || strings.HasPrefix(in, "//") {
+	if isAbs || strings.HasPrefix(in, "//") {
 		// It  is already  absolute, return it as is.
 		return in
 	}
@@ -149,16 +148,27 @@ func (p *PathSpec) getBaseURLRoot(path string) string {
 	}
 }
 
-func (p *PathSpec) RelURL(in string, addLanguage bool) string {
-	baseURL := p.getBaseURLRoot(in)
-	canonifyURLs := p.Cfg.CanonifyURLs()
+func (p *PathSpec) IsAbsURL(in string) (bool, error) {
+	// Fast path.
+	if strings.HasPrefix(in, "http://") || strings.HasPrefix(in, "https://") {
+		return true, nil
+	}
+	u, err := url.Parse(in)
+	if err != nil {
+		return false, err
+	}
+	return u.IsAbs(), nil
+}
 
-	url, err := url.Parse(in)
+func (p *PathSpec) RelURL(in string, addLanguage bool) string {
+	isAbs, err := p.IsAbsURL(in)
 	if err != nil {
 		return in
 	}
+	baseURL := p.getBaseURLRoot(in)
+	canonifyURLs := p.Cfg.CanonifyURLs()
 
-	if (!strings.HasPrefix(in, baseURL) && url.IsAbs()) || strings.HasPrefix(in, "//") {
+	if (!strings.HasPrefix(in, baseURL) && isAbs) || strings.HasPrefix(in, "//") {
 		return in
 	}
 
