@@ -269,7 +269,7 @@ func TestSanitizeURL(t *testing.T) {
 
 func BenchmarkRelURL(b *testing.B) {
 	v := config.New()
-	v.Set("baseURL", "http://base/")
+	v.Set("baseURL", "https://base/")
 	p := newTestPathSpecFromCfgAndLang(v, "")
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -279,7 +279,7 @@ func BenchmarkRelURL(b *testing.B) {
 
 func BenchmarkAbsURL(b *testing.B) {
 	v := config.New()
-	v.Set("baseURL", "http://base/")
+	v.Set("baseURL", "https://base/")
 	p := newTestPathSpecFromCfgAndLang(v, "")
 	b.ResetTimer()
 	b.Run("relurl", func(b *testing.B) {
