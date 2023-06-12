@@ -22,6 +22,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"syscall"
@@ -125,17 +126,16 @@ type rootCommand struct {
 	traceprofile string
 	printm       bool
 
-	// TODO(bep) var vs string
-	logging        bool
-	verbose        bool
-	verboseLog     bool
-	debug          bool
-	quiet          bool
+	logLevel string
+
+	verbose bool
+	debug   bool
+	quiet   bool
+
 	renderToMemory bool
 
 	cfgFile string
 	cfgDir  string
-	logFile string
 }
 
 func (r *rootCommand) Build(cd *simplecobra.Commandeer, bcfg hugolib.BuildCfg, cfg config.Provider) (*hugolib.HugoSites, error) {
@@ -419,43 +419,38 @@ func (r *rootCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 
 func (r *rootCommand) createLogger(running bool) (loggers.Logger, error) {
 	var (
-		logHandle       = io.Discard
-		logThreshold    = jww.LevelWarn
 		outHandle       = r.Out
 		stdoutThreshold = jww.LevelWarn
 	)
 
-	if r.verboseLog || r.logging || (r.logFile != "") {
-		var err error
-		if r.logFile != "" {
-			logHandle, err = os.OpenFile(r.logFile, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
-			if err != nil {
-				return nil, fmt.Errorf("Failed to open log file %q: %s", r.logFile, err)
-			}
-		} else {
-			logHandle, err = os.CreateTemp("", "hugo")
-			if err != nil {
-				return nil, err
-			}
-		}
-	} else if r.verbose {
+	if r.verbose {
+		helpers.Deprecated("--verbose", "use --logLevel info", false)
 		stdoutThreshold = jww.LevelInfo
 	}
 
 	if r.debug {
+		helpers.Deprecated("--debug", "use --logLevel debug", false)
 		stdoutThreshold = jww.LevelDebug
 	}
 
-	if r.verboseLog {
-		logThreshold = jww.LevelInfo
-		if r.debug {
-			logThreshold = jww.LevelDebug
+	if r.logLevel != "" {
+		switch strings.ToLower(r.logLevel) {
+		case "debug":
+			stdoutThreshold = jww.LevelDebug
+		case "info":
+			stdoutThreshold = jww.LevelInfo
+		case "warn", "warning":
+			stdoutThreshold = jww.LevelWarn
+		case "error":
+			stdoutThreshold = jww.LevelError
+		default:
+			return nil, fmt.Errorf("invalid log level: %q, must be one of debug, warn, info or error", r.logLevel)
 		}
 	}
 
-	loggers.InitGlobalLogger(stdoutThreshold, logThreshold, outHandle, logHandle)
+	loggers.InitGlobalLogger(stdoutThreshold, jww.LevelWarn, outHandle, io.Discard)
 	helpers.InitLoggers()
-	return loggers.NewLogger(stdoutThreshold, logThreshold, outHandle, logHandle, running), nil
+	return loggers.NewLogger(stdoutThreshold, jww.LevelWarn, outHandle, io.Discard, running), nil
 }
 
 func (r *rootCommand) Reset() {
@@ -498,14 +493,9 @@ Complete documentation is available at https://gohugo.io/.`
 
 	cmd.PersistentFlags().BoolVarP(&r.verbose, "verbose", "v", false, "verbose output")
 	cmd.PersistentFlags().BoolVarP(&r.debug, "debug", "", false, "debug output")
-	cmd.PersistentFlags().BoolVar(&r.logging, "log", false, "enable Logging")
-	cmd.PersistentFlags().StringVar(&r.logFile, "logFile", "", "log File path (if set, logging enabled automatically)")
-	cmd.PersistentFlags().BoolVar(&r.verboseLog, "verboseLog", false, "verbose logging")
+	cmd.PersistentFlags().StringVar(&r.logLevel, "logLevel", "", "log level (debug|info|warn|error)")
 	cmd.Flags().BoolVarP(&r.buildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 	cmd.Flags().BoolVar(&r.renderToMemory, "renderToMemory", false, "render to memory (only useful for benchmark testing)")
-
-	// Set bash-completion
-	_ = cmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
 
 	// Configure local flags
 	applyLocalFlagsBuild(cmd, r)
