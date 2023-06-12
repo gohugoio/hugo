@@ -695,6 +695,10 @@ func TestHugoConfig(t *testing.T) {
 	filesTemplate := `
 -- hugo.toml --
 theme = "mytheme"
+[social]
+twitter = "bepsays"
+[author]
+name = "bep"
 [params]
 rootparam = "rootvalue"
 -- config/_default/hugo.toml --
@@ -711,6 +715,8 @@ rootparam: {{ site.Params.rootparam }}
 rootconfigparam: {{ site.Params.rootconfigparam }}
 themeparam: {{ site.Params.themeparam }}
 themeconfigdirparam: {{ site.Params.themeconfigdirparam }}
+social: {{ site.Social }}
+author: {{ site.Author }}
 
 
 `
@@ -735,6 +741,8 @@ themeconfigdirparam: {{ site.Params.themeconfigdirparam }}
 				"rootconfigparam: rootconfigvalue",
 				"themeparam: themevalue",
 				"themeconfigdirparam: themeconfigdirvalue",
+				"social: map[twitter:bepsays]",
+				"author: map[name:bep]",
 			)
 
 		})

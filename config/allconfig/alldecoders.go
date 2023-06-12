@@ -336,14 +336,14 @@ var allDecoderSetups = map[string]decodeWeight{
 	"author": {
 		key: "author",
 		decode: func(d decodeWeight, p decodeConfig) error {
-			p.c.Author = p.p.GetStringMap(d.key)
+			p.c.Author = maps.CleanConfigStringMap(p.p.GetStringMap(d.key))
 			return nil
 		},
 	},
 	"social": {
 		key: "social",
 		decode: func(d decodeWeight, p decodeConfig) error {
-			p.c.Social = p.p.GetStringMapString(d.key)
+			p.c.Social = maps.CleanConfigStringMapString(p.p.GetStringMapString(d.key))
 			return nil
 		},
 	},
