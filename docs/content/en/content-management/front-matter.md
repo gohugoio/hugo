@@ -233,7 +233,7 @@ It's possible to set some options for Markdown rendering in a content's front ma
 [pagevars]: /variables/page/
 [section]: /content-management/sections/
 [taxweight]: /content-management/taxonomies/
-[toml]: https://github.com/toml-lang/toml "Specification for TOML, Tom's Obvious Minimal Language"
+[toml]: https://toml.io/
 [urls]: /content-management/urls/
 [variables]: /variables/
 [yaml]: https://yaml.org/spec/ "Specification for YAML, YAML Ain't Markup Language"
