@@ -191,6 +191,22 @@ type configCompiler interface {
 func (c Config) cloneForLang() *Config {
 	x := c
 	x.C = nil
+	copyStringSlice := func(in []string) []string {
+		if in == nil {
+			return nil
+		}
+		out := make([]string, len(in))
+		copy(out, in)
+		return out
+	}
+
+	// Copy all the slices to avoid sharing.
+	x.DisableKinds = copyStringSlice(x.DisableKinds)
+	x.DisableLanguages = copyStringSlice(x.DisableLanguages)
+	x.MainSections = copyStringSlice(x.MainSections)
+	x.IgnoreErrors = copyStringSlice(x.IgnoreErrors)
+	x.IgnoreFiles = copyStringSlice(x.IgnoreFiles)
+	x.Theme = copyStringSlice(x.Theme)
 
 	// Collapse all static dirs to one.
 	x.StaticDir = x.staticDirs()
@@ -787,12 +803,14 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 
 			// Create a copy of the complete config and replace the root keys with the language specific ones.
 			clone := all.cloneForLang()
+
 			if err := decodeConfigFromParams(fs, bcfg, mergedConfig, clone, differentRootKeys); err != nil {
 				return nil, fmt.Errorf("failed to decode config for language %q: %w", k, err)
 			}
 			if err := clone.CompileConfig(logger); err != nil {
 				return nil, err
 			}
+
 			langConfigMap[k] = clone
 		case maps.ParamsMergeStrategy:
 		default:
