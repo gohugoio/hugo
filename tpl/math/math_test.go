@@ -415,15 +415,21 @@ func TestMax(t *testing.T) {
 		{[]any{0, 1}, 1.0},
 		{[]any{1, -1}, 1.0},
 		{[]any{1, 0}, 1.0},
+		{[]any{32}, 32.0},
 		{[]any{1, 1}, 1.0},
 		{[]any{1.2, 1.23}, 1.23},
 		{[]any{-1.2, -1.23}, -1.2},
 		{[]any{0, "a"}, false},
 		{[]any{"a", 0}, false},
 		{[]any{"a", "b"}, false},
-		// miss values
+		// Issue #11030
+		{[]any{7, []any{3, 4}}, 7.0},
+		{[]any{8, []any{3, 12}, 3}, 12.0},
+		{[]any{[]any{3, 5, 2}}, 5.0},
+		{[]any{3, []int{3, 6}, 3}, 6.0},
+		// No values.
 		{[]any{}, false},
-		{[]any{0}, false},
+
 		// multi values
 		{[]any{-1, -2, -3}, -1.0},
 		{[]any{1, 2, 3}, 3.0},
@@ -436,8 +442,9 @@ func TestMax(t *testing.T) {
 			continue
 		}
 
-		c.Assert(err, qt.IsNil)
-		c.Assert(result, qt.Equals, test.expect)
+		msg := qt.Commentf("values: %v", test.values)
+		c.Assert(err, qt.IsNil, msg)
+		c.Assert(result, qt.Equals, test.expect, msg)
 	}
 }
 
@@ -463,14 +470,21 @@ func TestMin(t *testing.T) {
 		{[]any{1, -1}, -1.0},
 		{[]any{1, 0}, 0.0},
 		{[]any{1, 1}, 1.0},
+		{[]any{2}, 2.0},
 		{[]any{1.2, 1.23}, 1.2},
 		{[]any{-1.2, -1.23}, -1.23},
 		{[]any{0, "a"}, false},
 		{[]any{"a", 0}, false},
 		{[]any{"a", "b"}, false},
-		// miss values
+		// Issue #11030
+		{[]any{1, []any{3, 4}}, 1.0},
+		{[]any{8, []any{3, 2}, 3}, 2.0},
+		{[]any{[]any{3, 2, 2}}, 2.0},
+		{[]any{8, []int{3, 2}, 3}, 2.0},
+
+		// No values.
 		{[]any{}, false},
-		{[]any{0}, false},
+
 		// multi values
 		{[]any{-1, -2, -3}, -3.0},
 		{[]any{1, 2, 3}, 1.0},
@@ -484,7 +498,54 @@ func TestMin(t *testing.T) {
 			continue
 		}
 
-		c.Assert(err, qt.IsNil)
+		c.Assert(err, qt.IsNil, qt.Commentf("values: %v", test.values))
 		c.Assert(result, qt.Equals, test.expect)
 	}
+}
+
+func TestSum(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	mustSum := func(values ...any) any {
+		result, err := ns.Sum(values...)
+		c.Assert(err, qt.IsNil)
+		return result
+	}
+
+	c.Assert(mustSum(1, 2, 3), qt.Equals, 6.0)
+	c.Assert(mustSum(1, 2, 3.0), qt.Equals, 6.0)
+	c.Assert(mustSum(1, 2, []any{3, 4}), qt.Equals, 10.0)
+	c.Assert(mustSum(23), qt.Equals, 23.0)
+	c.Assert(mustSum([]any{23}), qt.Equals, 23.0)
+	c.Assert(mustSum([]any{}), qt.Equals, 0.0)
+
+	_, err := ns.Sum()
+	c.Assert(err, qt.Not(qt.IsNil))
+
+}
+
+func TestProduct(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	mustProduct := func(values ...any) any {
+		result, err := ns.Product(values...)
+		c.Assert(err, qt.IsNil)
+		return result
+	}
+
+	c.Assert(mustProduct(2, 2, 3), qt.Equals, 12.0)
+	c.Assert(mustProduct(1, 2, 3.0), qt.Equals, 6.0)
+	c.Assert(mustProduct(1, 2, []any{3, 4}), qt.Equals, 24.0)
+	c.Assert(mustProduct(3.0), qt.Equals, 3.0)
+	c.Assert(mustProduct([]string{}), qt.Equals, 0.0)
+
+	_, err := ns.Product()
+	c.Assert(err, qt.Not(qt.IsNil))
+
 }

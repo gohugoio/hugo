@@ -16,7 +16,9 @@ package math
 
 import (
 	"errors"
+	"fmt"
 	"math"
+	"reflect"
 	"sync/atomic"
 
 	_math "github.com/gohugoio/hugo/common/math"
@@ -25,6 +27,7 @@ import (
 
 var (
 	errMustTwoNumbersError = errors.New("must provide at least two numbers")
+	errMustOneNumberError  = errors.New("must provide at least one number")
 )
 
 // New returns a new instance of the math-namespaced template functions.
@@ -85,48 +88,30 @@ func (ns *Namespace) Log(n any) (float64, error) {
 	return math.Log(af), nil
 }
 
-// Max returns the greater of the multivalued numbers n1 and n2 or more values.
+// Max returns the greater of all numbers in inputs. Any slices in inputs are flattened.
 func (ns *Namespace) Max(inputs ...any) (maximum float64, err error) {
-	if len(inputs) < 2 {
-		err = errMustTwoNumbersError
-		return
-	}
-	var value float64
-	for index, input := range inputs {
-		value, err = cast.ToFloat64E(input)
-		if err != nil {
-			err = errors.New("Max operator can't be used with non-float value")
-			return
-		}
-		if index == 0 {
-			maximum = value
-			continue
-		}
-		maximum = math.Max(value, maximum)
-	}
-	return
+	return ns.applyOpToScalarsOrSlices("Max", math.Max, inputs...)
 }
 
-// Min returns the smaller of multivalued numbers n1 and n2 or more values.
+// Min returns the smaller of all numbers in inputs. Any slices in inputs are flattened.
 func (ns *Namespace) Min(inputs ...any) (minimum float64, err error) {
-	if len(inputs) < 2 {
-		err = errMustTwoNumbersError
-		return
+	return ns.applyOpToScalarsOrSlices("Min", math.Min, inputs...)
+}
+
+// Sum returns the sum of all numbers in inputs. Any slices in inputs are flattened.
+func (ns *Namespace) Sum(inputs ...any) (sum float64, err error) {
+	fn := func(x, y float64) float64 {
+		return x + y
 	}
-	var value float64
-	for index, input := range inputs {
-		value, err = cast.ToFloat64E(input)
-		if err != nil {
-			err = errors.New("Max operator can't be used with non-float value")
-			return
-		}
-		if index == 0 {
-			minimum = value
-			continue
-		}
-		minimum = math.Min(value, minimum)
+	return ns.applyOpToScalarsOrSlices("Sum", fn, inputs...)
+}
+
+// Product returns the product of all numbers in inputs. Any slices in inputs are flattened.
+func (ns *Namespace) Product(inputs ...any) (product float64, err error) {
+	fn := func(x, y float64) float64 {
+		return x * y
 	}
-	return
+	return ns.applyOpToScalarsOrSlices("Product", fn, inputs...)
 }
 
 // Mod returns n1 % n2.
@@ -195,6 +180,58 @@ func (ns *Namespace) Sqrt(n any) (float64, error) {
 // Sub subtracts multivalued.
 func (ns *Namespace) Sub(inputs ...any) (any, error) {
 	return ns.doArithmetic(inputs, '-')
+}
+
+func (ns *Namespace) applyOpToScalarsOrSlices(opName string, op func(x, y float64) float64, inputs ...any) (result float64, err error) {
+	var i int
+	var hasValue bool
+	for _, input := range inputs {
+		var values []float64
+		var isSlice bool
+		values, isSlice, err = ns.toFloatsE(input)
+		if err != nil {
+			err = fmt.Errorf("%s operator can't be used with non-float values", opName)
+			return
+		}
+		hasValue = hasValue || len(values) > 0 || isSlice
+		for _, value := range values {
+			i++
+			if i == 1 {
+				result = value
+				continue
+			}
+			result = op(result, value)
+		}
+	}
+
+	if !hasValue {
+		err = errMustOneNumberError
+		return
+	}
+	return
+
+}
+
+func (ns *Namespace) toFloatsE(v any) ([]float64, bool, error) {
+	vv := reflect.ValueOf(v)
+	switch vv.Kind() {
+	case reflect.Slice, reflect.Array:
+		var floats []float64
+		for i := 0; i < vv.Len(); i++ {
+			f, err := cast.ToFloat64E(vv.Index(i).Interface())
+			if err != nil {
+				return nil, true, err
+			}
+			floats = append(floats, f)
+		}
+		return floats, true, nil
+	default:
+		f, err := cast.ToFloat64E(v)
+		if err != nil {
+			return nil, false, err
+		}
+		return []float64{f}, false, nil
+	}
 }
 
 func (ns *Namespace) doArithmetic(inputs []any, operation rune) (value any, err error) {
