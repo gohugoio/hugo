@@ -34,6 +34,10 @@ type testSlicerInterface interface {
 
 type testSlicerInterfaces []testSlicerInterface
 
+func (t testSlicerInterfaces) Name() string {
+	return "testSlicerInterfaces"
+}
+
 type tstSlicerIn1 struct {
 	TheName string
 }

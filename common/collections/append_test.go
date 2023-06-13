@@ -24,7 +24,7 @@ func TestAppend(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	for _, test := range []struct {
+	for i, test := range []struct {
 		start    any
 		addend   []any
 		expected any
@@ -66,6 +66,40 @@ func TestAppend(t *testing.T) {
 			[]any{&tstSlicer{"a"}},
 			[]any{"a", "b", &tstSlicer{"a"}},
 		},
+		// Issue ##11004
+		{
+			testSlicerInterfaces{testSlicerInterfaces{&tstSlicerIn1{"a"}, &tstSlicerIn1{"b"}}},
+			[]any{testSlicerInterfaces{testSlicerInterfaces{&tstSlicerIn1{"c"}}}},
+			testSlicerInterfaces{
+				testSlicerInterfaces{
+					&tstSlicerIn1{TheName: "a"},
+					&tstSlicerIn1{TheName: "b"},
+				},
+				testSlicerInterfaces{
+					&tstSlicerIn1{TheName: "c"},
+				},
+			},
+		},
+		{
+			[]any{[]string{"a", "b"}},
+			[]any{&tstSlicer{"a"}},
+			[]interface{}{
+				[]string{"a", "b"},
+				[]interface{}{
+					&tstSlicer{TheName: "a"},
+				},
+			},
+		},
+		{
+			[]any{[]string{"a", "b"}},
+			[]any{"c"},
+			[]interface{}{
+				[]string{"a", "b"},
+				[]interface{}{
+					"c",
+				},
+			},
+		},
 		// Errors
 		{"", []any{[]string{"a", "b"}}, false},
 		// No string concatenation.
@@ -85,6 +119,6 @@ func TestAppend(t *testing.T) {
 		}
 
 		c.Assert(err, qt.IsNil)
-		c.Assert(result, qt.DeepEquals, test.expected)
+		c.Assert(result, qt.DeepEquals, test.expected, qt.Commentf("[%d] %v", i, test.start))
 	}
 }

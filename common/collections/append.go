@@ -60,6 +60,27 @@ func Append(to any, from ...any) (any, error) {
 		return Slice(from...), nil
 	}
 
+	// See issue #11004.
+	isToASliceOfSlices := tov.Len() > 0
+	for i := 0; i < tov.Len(); i++ {
+		v, isNil := indirect(tov.Index(i))
+		if isNil || v.Kind() != reflect.Slice {
+			isToASliceOfSlices = false
+			break
+		}
+	}
+
+	if isToASliceOfSlices {
+		fv := reflect.ValueOf(from)
+		if !fv.Type().AssignableTo(tot) {
+			// Fall back to a []interface{} slice.
+			tov, _ := indirect(reflect.ValueOf(to))
+			return appendToInterfaceSlice(tov, from)
+		}
+
+		return reflect.Append(tov, fv).Interface(), nil
+	}
+
 	for _, f := range from {
 		fv := reflect.ValueOf(f)
 		if !fv.Type().AssignableTo(tot) {
@@ -67,6 +88,7 @@ func Append(to any, from ...any) (any, error) {
 			tov, _ := indirect(reflect.ValueOf(to))
 			return appendToInterfaceSlice(tov, from...)
 		}
+
 		tov = reflect.Append(tov, fv)
 	}
 

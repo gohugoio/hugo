@@ -34,6 +34,11 @@ func TestAppend(t *testing.T) {
 		{[]string{"a", "b"}, []any{"c"}, []string{"a", "b", "c"}},
 		{[]string{"a", "b"}, []any{"c", "d", "e"}, []string{"a", "b", "c", "d", "e"}},
 		{[]string{"a", "b"}, []any{[]string{"c", "d", "e"}}, []string{"a", "b", "c", "d", "e"}},
+		// Issue #11004
+		{[]any{[]any{"a"}}, []any{"b"}, []any{[]any{"a"}, []any{"b"}}},
+		{[]any{[]string{"a"}}, []any{"b"}, []any{[]string{"a"}, []any{"b"}}},
+		{[]any{[]any{"a"}, "b"}, []any{"c"}, []any{[]any{"a"}, "b", "c"}},
+
 		// Errors
 		{"", []any{[]string{"a", "b"}}, false},
 		{[]string{"a", "b"}, []any{}, false},
