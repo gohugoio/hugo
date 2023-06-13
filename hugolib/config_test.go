@@ -750,6 +750,74 @@ author: {{ site.Author }}
 
 }
 
+// Issue #11089
+func TestHugoConfigSliceOverrides(t *testing.T) {
+	t.Parallel()
+
+	filesTemplate := `
+-- hugo.toml --
+disableKinds = ["section"]
+[languages]
+[languages.en]
+disableKinds = []
+title = "English"
+weigHt = WEIGHT_EN
+[languages.sv]
+title = "Swedish"
+wEight =  WEIGHT_SV
+disableKinds = ["page"]
+-- layouts/index.html --
+Home: {{ .Lang}}|{{ len site.RegularPages }}|
+-- layouts/_default/single.html --
+Single.
+-- content/p1.en.md --
+-- content/p2.en.md --
+-- content/p1.sv.md --
+-- content/p2.sv.md --
+
+`
+
+	t.Run("En first", func(t *testing.T) {
+		files := strings.ReplaceAll(filesTemplate, "WEIGHT_EN", "1")
+		files = strings.ReplaceAll(files, "WEIGHT_SV", "2")
+
+		cfg := config.New()
+		b, err := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+				BaseCfg:     cfg,
+			},
+		).BuildE()
+
+		b.Assert(err, qt.IsNil)
+		b.AssertFileContent("public/index.html", "Home: en|2|")
+		b.AssertFileContent("public/sv/index.html", "Home: sv|0|")
+
+	})
+
+	t.Run("Sv first", func(t *testing.T) {
+		files := strings.ReplaceAll(filesTemplate, "WEIGHT_EN", "2")
+		files = strings.ReplaceAll(files, "WEIGHT_SV", "1")
+
+		for i := 0; i < 20; i++ {
+			cfg := config.New()
+			b, err := NewIntegrationTestBuilder(
+				IntegrationTestConfig{
+					T:           t,
+					TxtarString: files,
+					BaseCfg:     cfg,
+				},
+			).BuildE()
+
+			b.Assert(err, qt.IsNil)
+			b.AssertFileContent("public/index.html", "Home: en|2|")
+			b.AssertFileContent("public/sv/index.html", "Home: sv|0|")
+		}
+	})
+
+}
+
 func TestConfigOutputFormatDefinedInTheme(t *testing.T) {
 	t.Parallel()
 
