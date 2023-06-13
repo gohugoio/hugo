@@ -11,8 +11,6 @@ A high performance webserver
 
 Hugo provides its own webserver which builds and serves the site.
 While hugo server is high performance, it is a webserver with limited options.
-Many run it in production, but the standard behavior is for people to use it
-in development and use a more full featured server such as Nginx or Caddy.
 
 'hugo server' will avoid writing the rendered and served content to disk,
 preferring to store it in memory.
@@ -23,7 +21,7 @@ and push the latest content to them. As most Hugo sites are built in a fraction
 of a second, you will be able to save and see your changes nearly instantly.
 
 ```
-hugo server [flags] [args]
+hugo server [command] [flags]
 ```
 
 ### Options
@@ -69,6 +67,9 @@ hugo server [flags] [args]
       --templateMetrics        display metrics about template executions
       --templateMetricsHints   calculate some improvement hints when combined with --templateMetrics
   -t, --theme strings          themes to use (located in /themes/THEMENAME/)
+      --tlsAuto                generate and use locally-trusted certificates.
+      --tlsCertFile string     path to TLS certificate file
+      --tlsKeyFile string      path to TLS key file
       --trace file             write trace to file (not useful in general)
   -w, --watch                  watch filesystem for changes and recreate as needed (default true)
 ```
@@ -95,4 +96,5 @@ hugo server [flags] [args]
 ### SEE ALSO
 
 * [hugo](/commands/hugo/)	 - hugo builds your site
+* [hugo server trust](/commands/hugo_server_trust/)	 - Install the local CA in the system trust store.
 

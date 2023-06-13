@@ -1,30 +1,21 @@
 ---
-title: "hugo config"
-slug: hugo_config
-url: /commands/hugo_config/
+title: "hugo server trust"
+slug: hugo_server_trust
+url: /commands/hugo_server_trust/
 ---
-## hugo config
+## hugo server trust
 
-Print the site configuration
-
-### Synopsis
-
-Print the site configuration, both default and custom settings.
+Install the local CA in the system trust store.
 
 ```
-hugo config [command] [flags]
+hugo server trust [flags] [args]
 ```
 
 ### Options
 
 ```
-  -b, --baseURL string      hostname (and path) to the root, e.g. https://spf13.com/
-      --cacheDir string     filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
-  -c, --contentDir string   filesystem path to content directory
-      --format string       preferred file format (toml, yaml or json) (default "toml")
-  -h, --help                help for config
-      --lang string         the language to display config for. Defaults to the first language defined.
-  -t, --theme strings       themes to use (located in /themes/THEMENAME/)
+  -h, --help        help for trust
+      --uninstall   Uninstall the local CA (but do not delete it).
 ```
 
 ### Options inherited from parent commands
@@ -48,6 +39,5 @@ hugo config [command] [flags]
 
 ### SEE ALSO
 
-* [hugo](/commands/hugo/)	 - hugo builds your site
-* [hugo config mounts](/commands/hugo_config_mounts/)	 - Print the configured file mounts
+* [hugo server](/commands/hugo_server/)	 - A high performance webserver
 

@@ -1,6 +1,6 @@
 ---
 title: plainify
-description: Strips any HTML and returns the plain text version of the provided string.
+description: Returns a string with all HTML tags removed.
 categories: [functions]
 menu:
   docs:
