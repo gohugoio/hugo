@@ -27,6 +27,7 @@ import (
 
 var (
 	errMustTwoNumbersError = errors.New("must provide at least two numbers")
+	errMustOneNumberError  = errors.New("must provide at least one number")
 )
 
 // New returns a new instance of the math-namespaced template functions.
@@ -183,13 +184,16 @@ func (ns *Namespace) Sub(inputs ...any) (any, error) {
 
 func (ns *Namespace) applyOpToScalarsOrSlices(opName string, op func(x, y float64) float64, inputs ...any) (result float64, err error) {
 	var i int
+	var hasValue bool
 	for _, input := range inputs {
 		var values []float64
-		values, err = ns.toFloatsE(input)
+		var isSlice bool
+		values, isSlice, err = ns.toFloatsE(input)
 		if err != nil {
 			err = fmt.Errorf("%s operator can't be used with non-float values", opName)
 			return
 		}
+		hasValue = hasValue || len(values) > 0 || isSlice
 		for _, value := range values {
 			i++
 			if i == 1 {
@@ -200,11 +204,15 @@ func (ns *Namespace) applyOpToScalarsOrSlices(opName string, op func(x, y float6
 		}
 	}
 
+	if !hasValue {
+		err = errMustOneNumberError
+		return
+	}
 	return
 
 }
 
-func (ns *Namespace) toFloatsE(v any) ([]float64, error) {
+func (ns *Namespace) toFloatsE(v any) ([]float64, bool, error) {
 	vv := reflect.ValueOf(v)
 	switch vv.Kind() {
 	case reflect.Slice, reflect.Array:
@@ -212,17 +220,17 @@ func (ns *Namespace) toFloatsE(v any) ([]float64, error) {
 		for i := 0; i < vv.Len(); i++ {
 			f, err := cast.ToFloat64E(vv.Index(i).Interface())
 			if err != nil {
-				return nil, err
+				return nil, true, err
 			}
 			floats = append(floats, f)
 		}
-		return floats, nil
+		return floats, true, nil
 	default:
 		f, err := cast.ToFloat64E(v)
 		if err != nil {
-			return nil, err
+			return nil, false, err
 		}
-		return []float64{f}, nil
+		return []float64{f}, false, nil
 	}
 }
 
