@@ -1,7 +1,8 @@
 # Test the hugo server command.
 
 # We run these tests in parallel so let Hugo decide which port to use.
-hugo server &
+# Deliberately using the alias 'serve' here.
+hugo serve &
 
 waitServer
 
