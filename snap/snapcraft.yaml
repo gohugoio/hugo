@@ -8,7 +8,7 @@ description: |
   optimized for speed, easy use and configurability. Hugo takes a directory
   with content and templates and renders them into a full HTML website.
 license: "Apache-2.0"
-base: core20
+base: core22
 confinement: strict
 adopt-info: hugo
 
@@ -40,7 +40,7 @@ environment:
   npm_config_userconfig: $SNAP_USER_DATA/.npmrc
   pandoc_datadir: $SNAP/usr/share/pandoc
   PYTHONHOME: /usr:$SNAP/usr
-  RUBYLIB: $SNAP/usr/lib/ruby/vendor_ruby/2.7.0:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/ruby/vendor_ruby/2.7.0:$SNAP/usr/lib/ruby/vendor_ruby:$SNAP/usr/lib/ruby/2.7.0:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/ruby/2.7.0
+  RUBYLIB: $SNAP/usr/lib/ruby/vendor_ruby/3.0.0:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/ruby/vendor_ruby/3.0.0:$SNAP/usr/lib/ruby/vendor_ruby:$SNAP/usr/lib/ruby/3.0.0:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/ruby/3.0.0
 
 apps:
   hugo:
@@ -65,7 +65,7 @@ parts:
   go:
     plugin: nil
     stage-snaps:
-      - go/1.19/stable
+      - go/1.20/stable
     prime:
       - bin/go
       - pkg/tool
@@ -78,12 +78,12 @@ parts:
       - git
       - go
     override-pull: |
-      snapcraftctl pull
-      snapcraftctl set-version "$(git describe --tags --always --match 'v[0-9]*' | sed 's/^v//; s/-/+git/; s/-g/./')"
+      craftctl default
+      craftctl set version="$(git describe --tags --always --match 'v[0-9]*' | sed 's/^v//; s/-/+git/; s/-g/./')"
       if grep -q 'Suffix:\s*""' common/hugo/version_current.go; then
-        snapcraftctl set-grade "stable"
+        craftctl set grade=stable
       else
-        snapcraftctl set-grade "devel"
+        craftctl set grade=devel
       fi
     override-build: |
       echo "\nStarting override-build:"
@@ -99,15 +99,9 @@ parts:
       echo "   - PYTHONHOME and SNAP to be passed to rst2html"
       echo "   - RUBYLIB to be passed to asciidoctor"
       sed -i '/OsEnv: NewWhitelist/s/)\$/|GIT_EXEC_PATH|LD_LIBRARY_PATH|npm_config_(cache|init_module|userconfig)|pandoc_datadir|PYTHONHOME|RUBYLIB|SNAP&/' config/security/securityConfig.go
-      git diff config/security/securityConfig.go
+      git --no-pager diff config/security/securityConfig.go
 
-      echo " * SNAPCRAFT_IMAGE_INFO=${SNAPCRAFT_IMAGE_INFO=}"
-      # Example: SNAPCRAFT_IMAGE_INFO='{"build_url": "https://launchpad.net/~gohugoio/+snap/hugo-extended-dev/+build/344022"}'
-      export HUGO_BUILD_TAGS=""
-      if echo $SNAPCRAFT_IMAGE_INFO | grep -q '/+snap/hugo-extended'; then
-        HUGO_BUILD_TAGS="extended"
-      fi
-
+      export HUGO_BUILD_TAGS="extended"
       echo " * Building hugo (HUGO_BUILD_TAGS=\"$HUGO_BUILD_TAGS\")..."
       go build -v -ldflags "-X github.com/gohugoio/hugo/common/hugo.vendorInfo=snap:$(git describe --tags --always --match 'v[0-9]*' | sed 's/^v//; s/-/+git/; s/-g/./')" -tags "$HUGO_BUILD_TAGS"
       ./hugo version
@@ -116,15 +110,15 @@ parts:
       echo " * Building shell completion..."
       ./hugo completion bash > hugo-completion
 
-      echo " * Installing to ${SNAPCRAFT_PART_INSTALL}..."
-      install -d $SNAPCRAFT_PART_INSTALL/bin
-      cp -av hugo $SNAPCRAFT_PART_INSTALL/bin/
-      mv -v hugo-completion $SNAPCRAFT_PART_INSTALL/
+      echo " * Installing to ${CRAFT_PART_INSTALL}..."
+      install -d $CRAFT_PART_INSTALL/bin
+      cp -av hugo $CRAFT_PART_INSTALL/bin/
+      mv -v hugo-completion $CRAFT_PART_INSTALL/
 
       echo " * Stripping binary..."
-      ls -l $SNAPCRAFT_PART_INSTALL/bin/hugo
-      strip --remove-section=.comment --remove-section=.note $SNAPCRAFT_PART_INSTALL/bin/hugo
-      ls -l $SNAPCRAFT_PART_INSTALL/bin/hugo
+      ls -l $CRAFT_PART_INSTALL/bin/hugo
+      strip --remove-section=.comment --remove-section=.note $CRAFT_PART_INSTALL/bin/hugo
+      ls -l $CRAFT_PART_INSTALL/bin/hugo
 
   asciidoctor:
     plugin: nil
@@ -132,8 +126,8 @@ parts:
       - asciidoctor
     override-build: |
       set -ex
-      snapcraftctl build
-      sed -i '1s|#!/usr/bin/ruby|#!/usr/bin/env ruby|' $SNAPCRAFT_PART_INSTALL/usr/bin/asciidoctor
+      craftctl default
+      sed -i '1s|#!/usr/bin/ruby|#!/usr/bin/env ruby|' $CRAFT_PART_INSTALL/usr/bin/asciidoctor
 
   dart-sass-embedded:
     plugin: nil
@@ -141,8 +135,8 @@ parts:
       - curl
     override-build: |
       set -ex
-      snapcraftctl build
-      case "$SNAPCRAFT_TARGET_ARCH" in
+      craftctl default
+      case "$CRAFT_TARGET_ARCH" in
         amd64)  arch=x64    ;;
         arm64)  arch=arm64  ;;
         armhf)  arch=arm    ;;
@@ -153,8 +147,8 @@ parts:
         url=$(curl -s https://api.github.com/repos/sass/dart-sass-embedded/releases/latest | awk -F\" "/browser_download_url.*-linux-${arch}.tar.gz/{print \$(NF-1)}")
         curl -LO --retry-connrefused --retry 10 "$url"
         tar xf sass_embedded-*-linux-$arch.tar.gz
-        install -d $SNAPCRAFT_PART_INSTALL/bin
-        cp -av sass_embedded/* $SNAPCRAFT_PART_INSTALL/bin/
+        install -d $CRAFT_PART_INSTALL/bin
+        cp -av sass_embedded/* $CRAFT_PART_INSTALL/bin/
       fi
 
   node:
@@ -173,7 +167,7 @@ parts:
       - python3-docutils
     override-build: |
       set -ex
-      snapcraftctl build
-      sed -i "s|'/usr/share/docutils/'|os.path.expandvars('\$SNAP/usr/share/docutils/')|" $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages/docutils/__init__.py
+      craftctl default
+      sed -i "s|'/usr/share/docutils/'|os.path.expandvars('\$SNAP/usr/share/docutils/')|" $CRAFT_PART_INSTALL/usr/lib/python3/dist-packages/docutils/__init__.py
     organize:
       usr/share/docutils/scripts/python3: usr/bin
