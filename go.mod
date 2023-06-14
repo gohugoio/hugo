@@ -41,7 +41,7 @@ require (
 	github.com/hairyhenderson/go-codeowners v0.3.0
 	github.com/jdkato/prose v1.2.1
 	github.com/kylelemons/godebug v1.1.0
-	github.com/kyokomi/emoji/v2 v2.2.11
+	github.com/kyokomi/emoji/v2 v2.2.12
 	github.com/magefile/mage v1.15.0
 	github.com/marekm4/color-extractor v1.2.0
 	github.com/mattn/go-isatty v0.0.19
