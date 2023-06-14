@@ -24,7 +24,7 @@ func TestAppend(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	for _, test := range []struct {
+	for i, test := range []struct {
 		start    any
 		addend   []any
 		expected any
@@ -85,6 +85,47 @@ func TestAppend(t *testing.T) {
 		}
 
 		c.Assert(err, qt.IsNil)
-		c.Assert(result, qt.DeepEquals, test.expected)
+		c.Assert(result, qt.DeepEquals, test.expected, qt.Commentf("test: [%d] %v", i, test))
 	}
+}
+
+// #11093
+func TestAppendToMultiDimensionalSlice(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		to       any
+		from     []any
+		expected any
+	}{
+		{[][]string{{"a", "b"}},
+			[]any{[]string{"c", "d"}},
+			[][]string{
+				{"a", "b"},
+				{"c", "d"},
+			},
+		},
+		{[][]string{{"a", "b"}},
+			[]any{[]string{"c", "d"}, []string{"e", "f"}},
+			[][]string{
+				{"a", "b"},
+				{"c", "d"},
+				{"e", "f"},
+			},
+		},
+		{[][]string{{"a", "b"}},
+			[]any{[]int{1, 2}},
+			false,
+		},
+	} {
+		result, err := Append(test.to, test.from...)
+		if b, ok := test.expected.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+		} else {
+			c.Assert(err, qt.IsNil)
+			c.Assert(result, qt.DeepEquals, test.expected)
+		}
+	}
+
 }

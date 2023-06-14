@@ -73,3 +73,34 @@ Desc: [map[a:3 b:3] map[a:3 b:1] map[a:3 b:1] map[a:3 b:1] map[a:3 b:0] map[a:3 
 
 	}
 }
+
+// Issue #11004.
+func TestAppendSliceToASliceOfSlices(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/index.html --
+{{ $obj := slice (slice "a") }}
+{{ $obj = $obj | append (slice "b") }}
+{{ $obj = $obj | append (slice "c") }}
+
+{{ $obj }}
+
+
+  `
+
+	for i := 0; i < 4; i++ {
+
+		b := hugolib.NewIntegrationTestBuilder(
+			hugolib.IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		).Build()
+
+		b.AssertFileContent("public/index.html", "[[a] [b] [c]]")
+
+	}
+
+}
