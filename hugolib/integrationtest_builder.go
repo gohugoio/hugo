@@ -299,10 +299,20 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 
 		isBinaryRe := regexp.MustCompile(`^(.*)(\.png|\.jpg)$`)
 
+		const dataSourceFilenamePrefix = "sourcefilename:"
+
 		for _, f := range s.data.Files {
 			filename := filepath.Join(s.Cfg.WorkingDir, f.Name)
 			data := bytes.TrimSuffix(f.Data, []byte("\n"))
-			if isBinaryRe.MatchString(filename) {
+			datastr := strings.TrimSpace(string(data))
+			if strings.HasPrefix(datastr, dataSourceFilenamePrefix) {
+				// Read from file relative to tue current dir.
+				var err error
+				wd, _ := os.Getwd()
+				filename := filepath.Join(wd, strings.TrimSpace(strings.TrimPrefix(datastr, dataSourceFilenamePrefix)))
+				data, err = os.ReadFile(filename)
+				s.Assert(err, qt.IsNil)
+			} else if isBinaryRe.MatchString(filename) {
 				var err error
 				data, err = base64.StdEncoding.DecodeString(string(data))
 				s.Assert(err, qt.IsNil)
