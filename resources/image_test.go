@@ -658,11 +658,12 @@ func TestImageOperationsGolden(t *testing.T) {
 
 	// A simple Gif file (no animation).
 	orig := fetchImageForSpec(spec, c, "gohugoio-card.gif")
-	for _, resizeSpec := range []string{"100x", "220x"} {
-		resized, err := orig.Resize(resizeSpec)
+	for _, width := range []int{100, 220} {
+		resized, err := orig.Resize(fmt.Sprintf("%dx", width))
 		c.Assert(err, qt.IsNil)
 		rel := resized.RelPermalink()
 		c.Assert(rel, qt.Not(qt.Equals), "")
+		c.Assert(resized.Width(), qt.Equals, width)
 	}
 
 	// Animated GIF

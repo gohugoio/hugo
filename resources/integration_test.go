@@ -34,15 +34,21 @@ title: "My Bundle"
 ---
 -- content/mybundle/pixel.png --
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+-- content/mybundle/giphy.gif --
+sourcefilename: testdata/giphy.gif
 -- layouts/foo.html --
 -- layouts/index.html --
 {{ $p := site.GetPage "mybundle"}}
 {{ $img := $p.Resources.Get "pixel.png" }}
-{{ $gif := $img.Resize "1x1 gif" }}
-{{ $bmp := $img.Resize "1x1 bmp" }}
+{{ $giphy := $p.Resources.Get "giphy.gif" }}
+{{ $gif := $img.Resize "1x2 gif" }}
+{{ $bmp := $img.Resize "2x3 bmp" }}
+{{ $anigif := $giphy.Resize "4x5" }}
 
-gif: {{ $gif.RelPermalink }}|{{ $gif.MediaType }}|
-bmp: {{ $bmp.RelPermalink }}|{{ $bmp.MediaType }}|	
+
+gif: {{ $gif.RelPermalink }}|}|{{ $gif.Width }}|{{ $gif.Height }}|{{ $gif.MediaType }}|
+bmp: {{ $bmp.RelPermalink }}|}|{{ $bmp.Width }}|{{ $bmp.Height }}|{{ $bmp.MediaType }}|
+anigif: {{ $anigif.RelPermalink }}|{{ $anigif.Width }}|{{ $anigif.Height }}|{{ $anigif.MediaType }}|
 `
 
 	b := hugolib.NewIntegrationTestBuilder(
@@ -55,9 +61,9 @@ bmp: {{ $bmp.RelPermalink }}|{{ $bmp.MediaType }}|
 
 	assertImages := func() {
 		b.AssertFileContent("public/index.html", `
-		gif: /mybundle/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_1x1_resize_box_3.gif|image/gif|
-		bmp: /mybundle/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_1x1_resize_box_3.bmp|image/bmp|
-		
+		gif: /mybundle/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_1x2_resize_box_3.gif|}|1|2|image/gif|
+		bmp: /mybundle/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_2x3_resize_box_3.bmp|}|2|3|image/bmp|
+		anigif: /mybundle/giphy_hu3eafc418e52414ace6236bf1d31f82e1_52213_4x5_resize_box_1.gif|4|5|image/gif|
 		`)
 	}
 

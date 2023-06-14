@@ -377,6 +377,9 @@ type imageConfig struct {
 }
 
 func imageConfigFromImage(img image.Image) image.Config {
+	if giphy, ok := img.(Giphy); ok {
+		return giphy.GIF().Config
+	}
 	b := img.Bounds()
 	return image.Config{Width: b.Max.X, Height: b.Max.Y}
 }
