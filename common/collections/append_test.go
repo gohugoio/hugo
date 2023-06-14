@@ -129,3 +129,15 @@ func TestAppendToMultiDimensionalSlice(t *testing.T) {
 	}
 
 }
+
+func TestAppendShouldMakeACopyOfTheInputSlice(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	slice := make([]string, 0, 100)
+	slice = append(slice, "a", "b")
+	result, err := Append(slice, "c")
+	c.Assert(err, qt.IsNil)
+	slice[0] = "d"
+	c.Assert(result, qt.DeepEquals, []string{"a", "b", "c"})
+	c.Assert(slice, qt.DeepEquals, []string{"d", "b"})
+}

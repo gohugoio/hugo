@@ -31,6 +31,13 @@ func Append(to any, from ...any) (any, error) {
 	var tot reflect.Type
 
 	if !toIsNil {
+		if tov.Kind() == reflect.Slice {
+			// Create a copy of tov, so we don't modify the original.
+			c := reflect.MakeSlice(tov.Type(), tov.Len(), tov.Len()+len(from))
+			reflect.Copy(c, tov)
+			tov = c
+		}
+
 		if tov.Kind() != reflect.Slice {
 			return nil, fmt.Errorf("expected a slice, got %T", to)
 		}
