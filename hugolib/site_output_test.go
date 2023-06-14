@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"fmt"
+	"html/template"
 	"strings"
 	"testing"
 
@@ -248,7 +249,7 @@ baseName = "feed"
 	s := h.Sites[0]
 
 	// Issue #3450
-	c.Assert(s.RSSLink(), qt.Equals, "http://example.com/blog/feed.xml")
+	c.Assert(s.RSSLink(), qt.Equals, template.URL("http://example.com/blog/feed.xml"))
 }
 
 // Issue #3614

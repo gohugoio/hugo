@@ -29,6 +29,7 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/langs/i18n"
@@ -345,12 +346,10 @@ func (s *Site) Copyright() string {
 	return s.conf.Copyright
 }
 
-func (s *Site) RSSLink() string {
-	rssOutputFormat, found := s.conf.C.KindOutputFormats[page.KindHome].GetByName("rss")
-	if !found {
-		return ""
-	}
-	return s.permalink(rssOutputFormat.BaseFilename())
+func (s *Site) RSSLink() template.URL {
+	helpers.Deprecated("Site.RSSLink", "Use the Output Format's Permalink method instead, e.g. .OutputFormats.Get \"RSS\".Permalink", false)
+	rssOutputFormat := s.home.OutputFormats().Get("rss")
+	return template.URL(rssOutputFormat.Permalink())
 }
 
 func (s *Site) Config() page.SiteConfig {

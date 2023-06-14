@@ -137,6 +137,9 @@ type Site interface {
 
 	// LanguagePrefix returns the language prefix for this site.
 	LanguagePrefix() string
+
+	// Deprecated. Use site.Home.OutputFormats.Get "rss" instead.
+	RSSLink() template.URL
 }
 
 // Sites represents an ordered list of sites (languages).
@@ -300,6 +303,10 @@ func (s *siteWrapper) LanguagePrefix() string {
 	return s.s.LanguagePrefix()
 }
 
+func (s *siteWrapper) RSSLink() template.URL {
+	return s.s.RSSLink()
+}
+
 type testSite struct {
 	h hugo.HugoInfo
 	l *langs.Language
@@ -442,6 +449,10 @@ func (s testSite) IsMultiLingual() bool {
 
 func (s testSite) Param(key any) (any, error) {
 	return nil, nil
+}
+
+func (s testSite) RSSLink() template.URL {
+	return ""
 }
 
 // NewDummyHugoSite creates a new minimal test site.
