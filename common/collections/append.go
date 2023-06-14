@@ -22,6 +22,9 @@ import (
 // If length of from is one and the only element is a slice of same type as to,
 // it will be appended.
 func Append(to any, from ...any) (any, error) {
+	if len(from) == 0 {
+		return to, nil
+	}
 	tov, toIsNil := indirect(reflect.ValueOf(to))
 
 	toIsNil = toIsNil || to == nil
@@ -33,17 +36,38 @@ func Append(to any, from ...any) (any, error) {
 		}
 
 		tot = tov.Type().Elem()
+		if tot.Kind() == reflect.Slice {
+			totvt := tot.Elem()
+			fromvs := make([]reflect.Value, len(from))
+			for i, f := range from {
+				fromv := reflect.ValueOf(f)
+				fromt := fromv.Type()
+				if fromt.Kind() == reflect.Slice {
+					fromt = fromt.Elem()
+				}
+				if totvt != fromt {
+					return nil, fmt.Errorf("cannot append slice of %s to slice of %s", fromt, totvt)
+				} else {
+					fromvs[i] = fromv
+				}
+			}
+			return reflect.Append(tov, fromvs...).Interface(), nil
+
+		}
+
 		toIsNil = tov.Len() == 0
 
 		if len(from) == 1 {
 			fromv := reflect.ValueOf(from[0])
+			fromt := fromv.Type()
+			if fromt.Kind() == reflect.Slice {
+				fromt = fromt.Elem()
+			}
 			if fromv.Kind() == reflect.Slice {
 				if toIsNil {
 					// If we get nil []string, we just return the []string
 					return from[0], nil
 				}
-
-				fromt := reflect.TypeOf(from[0]).Elem()
 
 				// If we get []string []string, we append the from slice to to
 				if tot == fromt {
@@ -52,6 +76,7 @@ func Append(to any, from ...any) (any, error) {
 					// Fall back to a []interface{} slice.
 					return appendToInterfaceSliceFromValues(tov, fromv)
 				}
+
 			}
 		}
 	}
