@@ -5,17 +5,15 @@
     utm_campaign = "hugosponsor"
 
 [[banners]]
-    name          = "Your Company?"
-    link          = "https://bep.is/en/hugo-sponsor-2023-01/"
-    logo          = "/images/sponsors/your-company.svg"
-    utm_campaign  = "hugosponsor"
-    show_on_hover = true
-    bgcolor       = "#004887"
+    name         = "BEP Consulting"
+    link         = "https://github.com/bep/"
+    logo         = "/images/sponsors/bep-consulting.svg"
+    utm_campaign = "hugosponsor"
+    bgcolor      = "#AD1E1E"
 
 [[banners]]
     name          = "Your Company?"
     link          = "https://bep.is/en/hugo-sponsor-2023-01/"
-    logo          = "/images/sponsors/your-company.svg"
     utm_campaign  = "hugosponsor"
     show_on_hover = true
     bgcolor       = "#004887"

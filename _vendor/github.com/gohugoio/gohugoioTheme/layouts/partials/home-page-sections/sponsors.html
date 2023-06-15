@@ -34,7 +34,7 @@
                   show-on-hover
                 {{ end }}"
                 style="">
-                {{ $logo.Content | safeHTML }}
+                {{ with $logo }}{{ .Content | safeHTML }}{{ end }}
               </a>
             {{ else }}
               <a
@@ -42,7 +42,7 @@
                 class="w-100 grow pa3{{ if .show_on_hover }}
                   show-on-hover
                 {{ end }}">
-                {{ $logo.Content | safeHTML }}
+                {{ with $logo }}{{ .Content | safeHTML }}{{ end }}
               </a>
             {{ end }}
           </div>
