@@ -169,6 +169,13 @@ func SetPageInContext(ctx context.Context, p page) context.Context {
 	return context.WithValue(ctx, texttemplate.PageContextKey, p)
 }
 
+// SetSecurityAllowActionJSTmpl sets the global setting for allowing tempalte actions in JS template literals.
+// This was added in Hugo 0.114.0.
+// See https://github.com/golang/go/issues/59234
+func SetSecurityAllowActionJSTmpl(b bool) {
+	htmltemplate.SecurityAllowActionJSTmpl.Store(b)
+}
+
 type page interface {
 	IsNode() bool
 }

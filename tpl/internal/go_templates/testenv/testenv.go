@@ -258,7 +258,7 @@ func MustHaveCGO(t testing.TB) {
 // CanInternalLink reports whether the current system can link programs with
 // internal linking.
 func CanInternalLink() bool {
-	return false
+	panic("not implemented, not needed by Hugo")
 }
 
 // MustInternalLink checks that the current system can link programs with internal
@@ -349,15 +349,5 @@ func SkipIfOptimizationOff(t testing.TB) {
 // dstPath containing entries for the packages in std and cmd in addition
 // to the package to package file mappings in additionalPackageFiles.
 func WriteImportcfg(t testing.TB, dstPath string, additionalPackageFiles map[string]string) {
-	/*importcfg, err := goroot.Importcfg()
-	for k, v := range additionalPackageFiles {
-		importcfg += fmt.Sprintf("\npackagefile %s=%s", k, v)
-	}
-	if err != nil {
-		t.Fatalf("preparing the importcfg failed: %s", err)
-	}
-	err = os.WriteFile(dstPath, []byte(importcfg), 0655)
-	if err != nil {
-		t.Fatalf("writing the importcfg failed: %s", err)
-	}*/
+	panic("not implemented, not needed by Hugo")
 }

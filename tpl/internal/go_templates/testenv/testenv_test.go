@@ -13,7 +13,8 @@ import (
 	"github.com/gohugoio/hugo/tpl/internal/go_templates/testenv"
 )
 
-func _TestGoToolLocation(t *testing.T) {
+func TestGoToolLocation(t *testing.T) {
+	t.Skip("skipping test that requires go command")
 	testenv.MustHaveGoBuild(t)
 
 	var exeSuffix string
