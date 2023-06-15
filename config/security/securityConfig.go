@@ -68,6 +68,9 @@ type Config struct {
 
 	// Allow inline shortcodes
 	EnableInlineShortcodes bool `json:"enableInlineShortcodes"`
+
+	// Go templates related security config.
+	GoTemplates GoTemplates `json:"goTemplates"`
 }
 
 // Exec holds os/exec policies.
@@ -91,6 +94,15 @@ type HTTP struct {
 
 	// Media types where the Content-Type in the response is used instead of resolving from the file content.
 	MediaTypes Whitelist `json:"mediaTypes"`
+}
+
+type GoTemplates struct {
+
+	// Enable to allow template actions inside bakcticks in ES6 template literals.
+	// This was blocked in Hugo 0.114.0 for security reasons and you now get errors on the form
+	// "... appears in a JS template literal" if you have this in your templates.
+	// See https://github.com/golang/go/issues/59234
+	AllowActionJSTmpl bool
 }
 
 // ToTOML converts c to TOML with [security] as the root.

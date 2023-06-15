@@ -34,6 +34,7 @@ import (
 	hglob "github.com/gohugoio/hugo/hugofs/glob"
 	"github.com/gohugoio/hugo/modules"
 	"github.com/gohugoio/hugo/parser/metadecoders"
+	"github.com/gohugoio/hugo/tpl"
 	"github.com/spf13/afero"
 )
 
@@ -88,6 +89,9 @@ func LoadConfig(d ConfigSourceDescriptor) (*Configs, error) {
 	if err := configs.Init(); err != nil {
 		return nil, fmt.Errorf("failed to init config: %w", err)
 	}
+
+	// This is unfortunate, but this is a global setting.
+	tpl.SetSecurityAllowActionJSTmpl(configs.Base.Security.GoTemplates.AllowActionJSTmpl)
 
 	return configs, nil
 
