@@ -22,6 +22,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/maps"
 
 	qt "github.com/frankban/quicktest"
@@ -108,13 +109,13 @@ func TestGetCSV(t *testing.T) {
 			got, err := ns.GetCSV(test.sep, test.url)
 
 			if _, ok := test.expect.(bool); ok {
-				c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 1)
+				c.Assert(int(ns.deps.Log.LoggCount(logg.LevelError)), qt.Equals, 1)
 				c.Assert(got, qt.IsNil)
 				return
 			}
 
 			c.Assert(err, qt.IsNil, msg)
-			c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 0)
+			c.Assert(int(ns.deps.Log.LoggCount(logg.LevelError)), qt.Equals, 0)
 			c.Assert(got, qt.Not(qt.IsNil), msg)
 			c.Assert(got, qt.DeepEquals, test.expect, msg)
 		})
@@ -200,11 +201,11 @@ func TestGetJSON(t *testing.T) {
 			got, _ := ns.GetJSON(test.url)
 
 			if _, ok := test.expect.(bool); ok {
-				c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 1)
+				c.Assert(int(ns.deps.Log.LoggCount(logg.LevelError)), qt.Equals, 1)
 				return
 			}
 
-			c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 0, msg)
+			c.Assert(int(ns.deps.Log.LoggCount(logg.LevelError)), qt.Equals, 0, msg)
 			c.Assert(got, qt.Not(qt.IsNil), msg)
 			c.Assert(got, qt.DeepEquals, test.expect)
 
@@ -283,7 +284,7 @@ func TestHeaders(t *testing.T) {
 				err := fn("http://example.org/api", "?foo", test.headers)
 
 				c.Assert(err, qt.IsNil)
-				c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 0)
+				c.Assert(int(ns.deps.Log.LoggCount(logg.LevelError)), qt.Equals, 0)
 				test.assert(c, headers.String())
 			}
 

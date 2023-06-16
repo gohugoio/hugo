@@ -18,9 +18,9 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/htime"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/paths"
 
-	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources/resource"
 
@@ -270,7 +270,7 @@ func toLowerSlice(in any) []string {
 // If no logger is provided, one will be created.
 func NewFrontmatterHandler(logger loggers.Logger, frontMatterConfig FrontmatterConfig) (FrontMatterHandler, error) {
 	if logger == nil {
-		logger = loggers.NewErrorLogger()
+		logger = loggers.NewDefault()
 	}
 
 	allDateKeys := make(map[string]bool)

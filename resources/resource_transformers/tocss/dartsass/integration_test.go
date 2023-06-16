@@ -17,10 +17,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bep/logg"
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/dartsass"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 func TestTransformIncludePaths(t *testing.T) {
@@ -288,11 +288,11 @@ T1: {{ $r.Content }}
 			T:           t,
 			TxtarString: files,
 			NeedsOsFS:   true,
-			LogLevel:    jww.LevelInfo,
+			LogLevel:    logg.LevelInfo,
 		}).Build()
 
-	b.AssertLogMatches(`WARN.*Dart Sass: foo`)
-	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:1:0: bar`)
+	b.AssertLogMatches(`Dart Sass: foo`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:1:0: bar`)
 
 }
 
@@ -513,20 +513,20 @@ T1: {{ $r.Content }}
 			T:           t,
 			TxtarString: files,
 			NeedsOsFS:   true,
-			LogLevel:    jww.LevelInfo,
+			LogLevel:    logg.LevelInfo,
 		}).Build()
 
-	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:3:0: color`)
-	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:4:0: color`)
-	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:5:0: color`)
-	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:6:0: number`)
-	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:7:0: number`)
-	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:8:0: number`)
-	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:9:0: string`)
-	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:10:0: string`)
-	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:11:0: string`)
-	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:12:0: number`)
-	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:13:0: number`)
-	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:14:0: number`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:3:0: color`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:4:0: color`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:5:0: color`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:6:0: number`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:7:0: number`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:8:0: number`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:9:0: string`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:10:0: string`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:11:0: string`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:12:0: number`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:13:0: number`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:14:0: number`)
 
 }

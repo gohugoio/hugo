@@ -19,12 +19,13 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/bep/logg"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/config/testconfig"
 
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 
-	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/spf13/afero"
 
@@ -34,7 +35,7 @@ import (
 	"github.com/gohugoio/hugo/config"
 )
 
-var logger = loggers.NewErrorLogger()
+var logger = loggers.NewDefault()
 
 type i18nTest struct {
 	name                             string
@@ -406,7 +407,7 @@ other = "{{ . }} miesiąca"
 
 			for _, variant := range test.variants {
 				c.Assert(f(ctx, test.id, variant.Key), qt.Equals, variant.Value, qt.Commentf("input: %v", variant.Key))
-				c.Assert(int(d.Log.LogCounters().WarnCounter.Count()), qt.Equals, 0)
+				c.Assert(d.Log.LoggCount(logg.LevelWarn), qt.Equals, 0)
 			}
 
 		})

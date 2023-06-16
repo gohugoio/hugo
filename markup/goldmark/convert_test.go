@@ -46,7 +46,7 @@ noclasses=false
 
 func convert(c *qt.C, conf config.AllProvider, content string) converter.ResultRender {
 	pconf := converter.ProviderConfig{
-		Logger: loggers.NewErrorLogger(),
+		Logger: loggers.NewDefault(),
 		Conf:   conf,
 	}
 
@@ -442,7 +442,7 @@ LINE5
 		conf := testconfig.GetTestConfig(nil, cfg)
 		pcfg := converter.ProviderConfig{
 			Conf:   conf,
-			Logger: loggers.NewErrorLogger(),
+			Logger: loggers.NewDefault(),
 		}
 		p, err := goldmark.Provider.New(
 			pcfg,

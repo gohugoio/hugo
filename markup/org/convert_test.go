@@ -29,7 +29,7 @@ import (
 func TestConvert(t *testing.T) {
 	c := qt.New(t)
 	p, err := org.Provider.New(converter.ProviderConfig{
-		Logger: loggers.NewErrorLogger(),
+		Logger: loggers.NewDefault(),
 		Conf:   testconfig.GetTestConfig(afero.NewMemMapFs(), nil),
 	})
 	c.Assert(err, qt.IsNil)

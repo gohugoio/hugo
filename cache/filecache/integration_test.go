@@ -16,11 +16,10 @@ package filecache_test
 import (
 	"path/filepath"
 
-	jww "github.com/spf13/jwalterweatherman"
-
 	"testing"
 	"time"
 
+	"github.com/bep/logg"
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
@@ -80,7 +79,7 @@ iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAA
 `
 
 	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{T: t, TxtarString: files, Running: true, RunGC: true, NeedsOsFS: true, LogLevel: jww.LevelInfo},
+		hugolib.IntegrationTestConfig{T: t, TxtarString: files, Running: true, RunGC: true, NeedsOsFS: true, LogLevel: logg.LevelInfo},
 	).Build()
 
 	b.Assert(b.GCCount, qt.Equals, 0)

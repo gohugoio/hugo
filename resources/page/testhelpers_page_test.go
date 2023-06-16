@@ -30,7 +30,7 @@ func newTestPathSpecFor(cfg config.Provider) *helpers.PathSpec {
 	mfs := afero.NewMemMapFs()
 	conf := testconfig.GetTestConfig(mfs, cfg)
 	fs := hugofs.NewFrom(mfs, conf.BaseConfig())
-	ps, err := helpers.NewPathSpec(fs, conf, loggers.NewErrorLogger())
+	ps, err := helpers.NewPathSpec(fs, conf, loggers.NewDefault())
 	if err != nil {
 		panic(err)
 	}

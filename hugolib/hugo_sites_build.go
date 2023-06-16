@@ -22,6 +22,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/publisher"
 
@@ -64,6 +65,8 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		}
 		defer unlock()
 	}
+
+	infol := h.Log.InfoCommand("build")
 
 	errCollector := h.StartErrorCollector()
 	errs := make(chan error)
@@ -120,11 +123,11 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 				return nil
 			}
 
-			if err := h.process(conf, init, events...); err != nil {
+			if err := h.process(infol, conf, init, events...); err != nil {
 				return fmt.Errorf("process: %w", err)
 			}
 
-			if err := h.assemble(conf); err != nil {
+			if err := h.assemble(infol, conf); err != nil {
 				return fmt.Errorf("assemble: %w", err)
 			}
 
@@ -137,10 +140,10 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 	}
 
 	if prepareErr == nil {
-		if err := h.render(conf); err != nil {
+		if err := h.render(infol, conf); err != nil {
 			h.SendError(fmt.Errorf("render: %w", err))
 		}
-		if err := h.postProcess(); err != nil {
+		if err := h.postProcess(infol); err != nil {
 			h.SendError(fmt.Errorf("postProcess: %w", err))
 		}
 	}
@@ -164,7 +167,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		return err
 	}
 
-	errorCount := h.Log.LogCounters().ErrorCounter.Count()
+	errorCount := h.Log.LoggCount(logg.LevelError)
 	if errorCount > 0 {
 		return fmt.Errorf("logged %d error(s)", errorCount)
 	}
@@ -195,13 +198,12 @@ func (h *HugoSites) initRebuild(config *BuildCfg) error {
 
 	h.reset(config)
 	h.resetLogs()
-	helpers.InitLoggers()
 
 	return nil
 }
 
-func (h *HugoSites) process(config *BuildCfg, init func(config *BuildCfg) error, events ...fsnotify.Event) error {
-	defer h.timeTrack(time.Now(), "process")
+func (h *HugoSites) process(l logg.LevelLogger, config *BuildCfg, init func(config *BuildCfg) error, events ...fsnotify.Event) error {
+	defer h.timeTrack(l, time.Now(), "process")
 
 	// We should probably refactor the Site and pull up most of the logic from there to here,
 	// but that seems like a daunting task.
@@ -218,8 +220,8 @@ func (h *HugoSites) process(config *BuildCfg, init func(config *BuildCfg) error,
 	return firstSite.process(*config)
 }
 
-func (h *HugoSites) assemble(bcfg *BuildCfg) error {
-	defer h.timeTrack(time.Now(), "assemble")
+func (h *HugoSites) assemble(l logg.LevelLogger, bcfg *BuildCfg) error {
+	defer h.timeTrack(l, time.Now(), "assemble")
 
 	if !bcfg.whatChanged.source {
 		return nil
@@ -236,13 +238,13 @@ func (h *HugoSites) assemble(bcfg *BuildCfg) error {
 	return nil
 }
 
-func (h *HugoSites) timeTrack(start time.Time, name string) {
+func (h *HugoSites) timeTrack(l logg.LevelLogger, start time.Time, name string) {
 	elapsed := time.Since(start)
-	h.Log.Infof("%s in %v ms\n", name, int(1000*elapsed.Seconds()))
+	l.WithField("step", name).WithField("duration", elapsed).Logf("running")
 }
 
-func (h *HugoSites) render(config *BuildCfg) error {
-	defer h.timeTrack(time.Now(), "render")
+func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
+	defer h.timeTrack(l, time.Now(), "render")
 	if _, err := h.init.layouts.Do(context.Background()); err != nil {
 		return err
 	}
@@ -312,8 +314,8 @@ func (h *HugoSites) render(config *BuildCfg) error {
 	return nil
 }
 
-func (h *HugoSites) postProcess() error {
-	defer h.timeTrack(time.Now(), "postProcess")
+func (h *HugoSites) postProcess(l logg.LevelLogger) error {
+	defer h.timeTrack(l, time.Now(), "postProcess")
 
 	// Make sure to write any build stats to disk first so it's available
 	// to the post processors.

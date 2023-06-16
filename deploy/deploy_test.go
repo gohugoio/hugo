@@ -30,6 +30,7 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/media"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -197,7 +198,8 @@ func TestFindDiffs(t *testing.T) {
 			for _, r := range tc.Remote {
 				remote[r.Key] = r
 			}
-			gotUpdates, gotDeletes := findDiffs(local, remote, tc.Force)
+			d := newDeployer()
+			gotUpdates, gotDeletes := d.findDiffs(local, remote, tc.Force)
 			gotUpdates = applyOrdering(nil, gotUpdates)[0]
 			sort.Slice(gotDeletes, func(i, j int) bool { return gotDeletes[i] < gotDeletes[j] })
 			if diff := cmp.Diff(gotUpdates, tc.WantUpdates, cmpopts.IgnoreUnexported(localFile{})); diff != "" {
@@ -249,7 +251,8 @@ func TestWalkLocal(t *testing.T) {
 					fd.Close()
 				}
 			}
-			if got, err := walkLocal(fs, nil, nil, nil, media.DefaultTypes); err != nil {
+			d := newDeployer()
+			if got, err := d.walkLocal(fs, nil, nil, nil, media.DefaultTypes); err != nil {
 				t.Fatal(err)
 			} else {
 				expect := map[string]any{}
@@ -1025,4 +1028,10 @@ func verifyRemote(ctx context.Context, bucket *blob.Bucket, local []*fileData) (
 		diff += fmt.Sprintf("  %s: %s\n", f.Name, f.Contents)
 	}
 	return diff, nil
+}
+
+func newDeployer() *Deployer {
+	return &Deployer{
+		logger: loggers.NewDefault(),
+	}
 }

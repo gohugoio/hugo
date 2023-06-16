@@ -58,6 +58,8 @@ func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) (*Client, error) 
 		transpiler   *godartsass.Transpiler
 		transpilerv1 *godartsassv1.Transpiler
 		err          error
+		infol        = rs.Logger.InfoCommand("Dart Sass")
+		warnl        = rs.Logger.WarnCommand("Dart Sass")
 	)
 
 	if hugo.IsDartSassV2() {
@@ -68,10 +70,10 @@ func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) (*Client, error) 
 				switch event.Type {
 				case godartsass.LogEventTypeDebug:
 					// Log as Info for now, we may adjust this if it gets too chatty.
-					rs.Logger.Infof("Dart Sass: %s", message)
+					infol.Logf(message)
 				default:
 					// The rest are either deprecations or @warn statements.
-					rs.Logger.Warnf("Dart Sass: %s", message)
+					warnl.Logf(message)
 				}
 			},
 		})
@@ -84,10 +86,10 @@ func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) (*Client, error) 
 				switch event.Type {
 				case godartsassv1.LogEventTypeDebug:
 					// Log as Info for now, we may adjust this if it gets too chatty.
-					rs.Logger.Infof("Dart Sass: %s", message)
+					infol.Logf(message)
 				default:
 					// The rest are either deprecations or @warn statements.
-					rs.Logger.Warnf("Dart Sass: %s", message)
+					warnl.Logf(message)
 				}
 			},
 		})

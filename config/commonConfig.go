@@ -19,6 +19,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/bep/logg"
 	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/types"
@@ -306,6 +307,7 @@ func (c *CacheBuster) CompileConfig(logger loggers.Logger) error {
 	if c.compiledSource != nil {
 		return nil
 	}
+
 	source := c.Source
 	target := c.Target
 	sourceRe, err := regexp.Compile(source)
@@ -313,6 +315,8 @@ func (c *CacheBuster) CompileConfig(logger loggers.Logger) error {
 		return fmt.Errorf("failed to compile cache buster source %q: %w", c.Source, err)
 	}
 	var compileErr error
+	debugl := logger.Logger().WithLevel(logg.LevelDebug).WithField(loggers.FieldNameCmd, "cachebuster")
+
 	c.compiledSource = func(s string) func(string) bool {
 		m := sourceRe.FindStringSubmatch(s)
 		matchString := "no match"
@@ -320,7 +324,7 @@ func (c *CacheBuster) CompileConfig(logger loggers.Logger) error {
 		if match {
 			matchString = "match!"
 		}
-		logger.Debugf("cachebuster: Matching %q with source %q: %s\n", s, source, matchString)
+		debugl.Logf("Matching %q with source %q: %s", s, source, matchString)
 		if !match {
 			return nil
 		}
@@ -341,7 +345,7 @@ func (c *CacheBuster) CompileConfig(logger loggers.Logger) error {
 			if match {
 				matchString = "match!"
 			}
-			logger.Debugf("cachebuster: Matching %q with target %q: %s\n", s, target, matchString)
+			logger.Debugf("Matching %q with target %q: %s", s, target, matchString)
 
 			return match
 		}

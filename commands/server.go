@@ -67,7 +67,6 @@ import (
 )
 
 var (
-	logErrorRe                    = regexp.MustCompile(`(?s)ERROR \d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2} `)
 	logDuplicateTemplateExecuteRe = regexp.MustCompile(`: template: .*?:\d+:\d+: executing ".*?"`)
 	logDuplicateTemplateParseRe   = regexp.MustCompile(`: template: .*?:\d+:\d*`)
 )
@@ -106,9 +105,7 @@ func newServerCommand() *serverCommand {
 	// Flags.
 	var uninstall bool
 
-	var c *serverCommand
-
-	c = &serverCommand{
+	c := &serverCommand{
 		quit: make(chan bool),
 		commands: []simplecobra.Commander{
 			&simpleCommand{
@@ -654,8 +651,8 @@ func (c *serverCommand) getErrorWithContext() any {
 
 	m := make(map[string]any)
 
-	//xwm["Error"] = errors.New(cleanErrorLog(removeErrorPrefixFromLog(c.r.logger.Errors())))
-	m["Error"] = errors.New(cleanErrorLog(removeErrorPrefixFromLog(c.r.logger.Errors())))
+	m["Error"] = cleanErrorLog(c.r.logger.Errors())
+
 	m["Version"] = hugo.BuildVersionString()
 	ferrors := herrors.UnwrapFileErrorsWithErrorContext(c.errState.buildErr())
 	m["Files"] = ferrors
@@ -860,6 +857,9 @@ func (c *serverCommand) serve() error {
 		if err != nil {
 			return err
 		}
+
+		// We need the server to share the same logger as the Hugo build (for error counts etc.)
+		c.r.logger = h.Log
 
 		if isMultiHost {
 			for _, l := range conf.configs.ConfigLangs() {
@@ -1066,8 +1066,7 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 			}
 		})
 
-		// prevent spamming the log on changes
-		logger := helpers.NewDistinctErrorLogger()
+		logger := s.c.r.logger
 
 		for _, ev := range staticEvents {
 			// Due to our approach of layering both directories and the content's rendered output
@@ -1204,10 +1203,6 @@ func pickOneWriteOrCreatePath(events []fsnotify.Event) string {
 	}
 
 	return name
-}
-
-func removeErrorPrefixFromLog(content string) string {
-	return logErrorRe.ReplaceAllLiteralString(content, "")
 }
 
 func formatByteCount(b uint64) string {

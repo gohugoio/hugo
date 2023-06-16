@@ -26,11 +26,13 @@ import (
 	"sync"
 	"time"
 
+	"github.com/bep/logg"
 	"github.com/bep/simplecobra"
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/terminal"
 	"github.com/gohugoio/hugo/common/types"
@@ -68,7 +70,6 @@ type hugoBuilder struct {
 	onConfigLoaded func(reloaded bool) error
 
 	fastRenderMode     bool
-	buildWatch         bool
 	showErrorInBrowser bool
 
 	errState hugoBuilderErrState
@@ -131,7 +132,7 @@ func (e *hugoBuilderErrState) wasErr() bool {
 }
 
 func (c *hugoBuilder) errCount() int {
-	return int(c.r.logger.LogCounters().ErrorCounter.Count())
+	return c.r.logger.LoggCount(logg.LevelError) + loggers.Log().LoggCount(logg.LevelError)
 }
 
 // getDirList provides NewWatcher() with a list of directories to watch for changes.
@@ -363,7 +364,7 @@ func (c *hugoBuilder) newWatcher(pollIntervalStr string, dirList ...string) (*wa
 		configFiles = conf.configs.LoadingInfo.ConfigFiles
 	})
 
-	c.r.logger.Println("Watching for config changes in", strings.Join(configFiles, ", "))
+	c.r.Println("Watching for config changes in", strings.Join(configFiles, ", "))
 	for _, configFile := range configFiles {
 		watcher.Add(configFile)
 		configSet[configFile] = true
@@ -461,6 +462,7 @@ func (c *hugoBuilder) copyStatic() (map[string]uint64, error) {
 }
 
 func (c *hugoBuilder) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint64, error) {
+	infol := c.r.logger.InfoCommand("copy static")
 	publishDir := helpers.FilePathSeparator
 
 	if sourceFs.PublishFolder != "" {
@@ -484,13 +486,13 @@ func (c *hugoBuilder) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint
 	syncer.SrcFs = fs
 
 	if syncer.Delete {
-		c.r.logger.Infoln("removing all files from destination that don't exist in static dirs")
+		infol.Logf("removing all files from destination that don't exist in static dirs")
 
 		syncer.DeleteFilter = func(f os.FileInfo) bool {
 			return f.IsDir() && strings.HasPrefix(f.Name(), ".")
 		}
 	}
-	c.r.logger.Infoln("syncing static files to", publishDir)
+	infol.Logf("syncing static files to %s", publishDir)
 
 	// because we are using a baseFs (to get the union right).
 	// set sync src to root
@@ -545,14 +547,13 @@ func (c *hugoBuilder) fullBuild(noBuildLock bool) error {
 		langCount map[string]uint64
 	)
 
-	if !c.r.quiet {
-		fmt.Println("Start building sites … ")
-		fmt.Println(hugo.BuildVersionString())
-		if terminal.IsTerminal(os.Stdout) {
-			defer func() {
-				fmt.Print(showCursor + clearLine)
-			}()
-		}
+	c.r.logger.Println("Start building sites … ")
+	c.r.logger.Println(hugo.BuildVersionString())
+	c.r.logger.Println()
+	if terminal.IsTerminal(os.Stdout) {
+		defer func() {
+			fmt.Print(showCursor + clearLine)
+		}()
 	}
 
 	copyStaticFunc := func() error {

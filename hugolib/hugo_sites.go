@@ -23,6 +23,7 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/hugofs/glob"
 
@@ -42,7 +43,6 @@ import (
 	"github.com/gohugoio/hugo/source"
 
 	"github.com/gohugoio/hugo/common/herrors"
-	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/lazy"
@@ -265,7 +265,7 @@ func (h *HugoSites) NumLogErrors() int {
 	if h == nil {
 		return 0
 	}
-	return int(h.Log.LogCounters().ErrorCounter.Count())
+	return h.Log.LoggCount(logg.LevelError)
 }
 
 func (h *HugoSites) PrintProcessingStats(w io.Writer) {
@@ -352,10 +352,8 @@ func (h *HugoSites) reset(config *BuildCfg) {
 // resetLogs resets the log counters etc. Used to do a new build on the same sites.
 func (h *HugoSites) resetLogs() {
 	h.Log.Reset()
-	loggers.GlobalErrorCounter.Reset()
 	for _, s := range h.Sites {
 		s.Deps.Log.Reset()
-		s.Deps.LogDistinct.Reset()
 	}
 }
 
