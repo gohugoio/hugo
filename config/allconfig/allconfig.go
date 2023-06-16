@@ -490,6 +490,9 @@ type RootConfig struct {
 	// ENable to print warnings for multiple files published to the same destination.
 	LogPathWarnings bool
 
+	// Enable to panic on warning log entries. This may make it easier to detect the source.
+	PanicOnWarning bool
+
 	// The configured environment. Default is "development" for server and "production" for build.
 	Environment string
 

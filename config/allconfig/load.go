@@ -46,7 +46,7 @@ func LoadConfig(d ConfigSourceDescriptor) (*Configs, error) {
 	}
 
 	if d.Logger == nil {
-		d.Logger = loggers.NewErrorLogger()
+		d.Logger = loggers.NewDefault()
 	}
 
 	l := &configLoader{ConfigSourceDescriptor: d, cfg: config.New()}
@@ -90,8 +90,9 @@ func LoadConfig(d ConfigSourceDescriptor) (*Configs, error) {
 		return nil, fmt.Errorf("failed to init config: %w", err)
 	}
 
-	// This is unfortunate, but this is a global setting.
+	// This is unfortunate, but these are global settings.
 	tpl.SetSecurityAllowActionJSTmpl(configs.Base.Security.GoTemplates.AllowActionJSTmpl)
+	loggers.InitGlobalLogger(configs.Base.PanicOnWarning)
 
 	return configs, nil
 

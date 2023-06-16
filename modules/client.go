@@ -30,6 +30,7 @@ import (
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/common/loggers"
 
 	hglob "github.com/gohugoio/hugo/hugofs/glob"
 
@@ -38,8 +39,6 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/hugofs/files"
-
-	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/config"
 
@@ -98,7 +97,7 @@ func NewClient(cfg ClientConfig) *Client {
 
 	logger := cfg.Logger
 	if logger == nil {
-		logger = loggers.NewWarningLogger()
+		logger = loggers.NewDefault()
 	}
 
 	var noVendor glob.Glob

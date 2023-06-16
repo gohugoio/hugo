@@ -13,7 +13,7 @@ import (
 	"sync"
 	"testing"
 
-	jww "github.com/spf13/jwalterweatherman"
+	"github.com/bep/logg"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/fsnotify/fsnotify"
@@ -292,10 +292,8 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 		}
 
 		if s.Cfg.LogLevel == 0 {
-			s.Cfg.LogLevel = jww.LevelWarn
+			s.Cfg.LogLevel = logg.LevelWarn
 		}
-
-		logger := loggers.NewBasicLoggerForWriter(s.Cfg.LogLevel, &s.logBuff)
 
 		isBinaryRe := regexp.MustCompile(`^(.*)(\.png|\.jpg)$`)
 
@@ -350,7 +348,7 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 				Flags:     flags,
 				ConfigDir: configDir,
 				Fs:        afs,
-				Logger:    logger,
+				Logger:    loggers.NewDefault(),
 				Environ:   s.Cfg.Environ,
 			},
 		)
@@ -364,7 +362,7 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 
 		s.Assert(err, qt.IsNil)
 
-		depsCfg := deps.DepsCfg{Configs: res, Fs: fs, Logger: logger}
+		depsCfg := deps.DepsCfg{Configs: res, Fs: fs, LogLevel: s.Cfg.LogLevel, LogOut: &s.logBuff}
 		sites, err := NewHugoSites(depsCfg)
 		if err != nil {
 			initErr = err
@@ -528,7 +526,7 @@ type IntegrationTestConfig struct {
 	// Will print the log buffer after the build
 	Verbose bool
 
-	LogLevel jww.Threshold
+	LogLevel logg.Level
 
 	// Whether it needs the real file system (e.g. for js.Build tests).
 	NeedsOsFS bool

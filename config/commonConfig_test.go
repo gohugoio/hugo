@@ -92,7 +92,7 @@ status = 301
 
 	s, err := DecodeServer(cfg)
 	c.Assert(err, qt.IsNil)
-	c.Assert(s.CompileConfig(loggers.NewErrorLogger()), qt.IsNil)
+	c.Assert(s.CompileConfig(loggers.NewDefault()), qt.IsNil)
 
 	c.Assert(s.MatchHeaders("/foo.jpg"), qt.DeepEquals, []types.KeyValueStr{
 		{Key: "X-Content-Type-Options", Value: "nosniff"},
@@ -145,7 +145,7 @@ func TestBuildConfigCacheBusters(t *testing.T) {
 	c := qt.New(t)
 	cfg := New()
 	conf := DecodeBuildConfig(cfg)
-	l := loggers.NewInfoLogger()
+	l := loggers.NewDefault()
 	c.Assert(conf.CompileConfig(l), qt.IsNil)
 
 	m, err := conf.MatchCacheBuster(l, "assets/foo/main.js")

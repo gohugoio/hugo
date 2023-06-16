@@ -22,16 +22,16 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/modules/npm"
-
-	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugofs"
@@ -646,14 +646,14 @@ min_version = 0.55.0
 
 `)
 
-	logger := loggers.NewWarningLogger()
+	logger := loggers.NewDefault()
 	b.WithLogger(logger)
 
 	b.Build(BuildCfg{})
 
 	c := qt.New(t)
 
-	c.Assert(logger.LogCounters().WarnCounter.Count(), qt.Equals, uint64(3))
+	c.Assert(logger.LoggCount(logg.LevelWarn), qt.Equals, 3)
 }
 
 func TestModulesSymlinks(t *testing.T) {
@@ -727,7 +727,7 @@ weight = 2
 `
 
 	b := newTestSitesBuilder(t).WithNothingAdded().WithWorkingDir(workingDir)
-	b.WithLogger(loggers.NewErrorLogger())
+	b.WithLogger(loggers.NewDefault())
 	b.Fs = fs
 
 	b.WithConfigFile("toml", config)

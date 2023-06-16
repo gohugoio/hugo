@@ -181,7 +181,7 @@ func (s *Site) logMissingLayout(name, layout, kind, outputFormat string) {
 
 	msg += ": " + errMsg
 
-	log.Printf(msg, args...)
+	log.Logf(msg, args...)
 }
 
 // renderPaginator must be run after the owning Page has been rendered.

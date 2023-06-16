@@ -19,11 +19,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"regexp"
-
-	jww "github.com/spf13/jwalterweatherman"
 
 	"strconv"
 	"strings"
@@ -299,7 +298,7 @@ func (c *importCommand) convertJekyllMetaData(m any, postName string, postDate t
 }
 
 func (c *importCommand) convertJekyllPost(path, relPath, targetDir string, draft bool) error {
-	jww.TRACE.Println("Converting", path)
+	log.Println("Converting", path)
 
 	filename := filepath.Base(path)
 	postDate, postName, err := c.parseJekyllFilename(filename)
@@ -308,7 +307,7 @@ func (c *importCommand) convertJekyllPost(path, relPath, targetDir string, draft
 		return nil
 	}
 
-	jww.TRACE.Println(filename, postDate, postName)
+	log.Println(filename, postDate, postName)
 
 	targetFile := filepath.Join(targetDir, relPath)
 	targetParentDir := filepath.Dir(targetFile)
@@ -367,7 +366,7 @@ func (c *importCommand) copyJekyllFilesAndFolders(jekyllRoot, dest string, jekyl
 				if _, ok := jekyllPostDirs[entry.Name()]; !ok {
 					err = hugio.CopyDir(fs, sfp, dfp, nil)
 					if err != nil {
-						jww.ERROR.Println(err)
+						c.r.logger.Errorln(err)
 					}
 				}
 			}
@@ -388,7 +387,7 @@ func (c *importCommand) copyJekyllFilesAndFolders(jekyllRoot, dest string, jekyl
 			if !isExcept && entry.Name()[0] != '.' && entry.Name()[0] != '_' {
 				err = hugio.CopyFile(fs, sfp, dfp)
 				if err != nil {
-					jww.ERROR.Println(err)
+					c.r.logger.Errorln(err)
 				}
 			}
 		}

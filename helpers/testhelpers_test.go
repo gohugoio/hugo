@@ -23,7 +23,7 @@ func newTestPathSpecFromCfgAndLang(cfg config.Provider, lang string) *helpers.Pa
 		}
 	}
 	fs := hugofs.NewFrom(mfs, conf.BaseConfig())
-	ps, err := helpers.NewPathSpec(fs, conf, loggers.NewErrorLogger())
+	ps, err := helpers.NewPathSpec(fs, conf, loggers.NewDefault())
 	if err != nil {
 		panic(err)
 	}
@@ -41,7 +41,7 @@ func newTestPathSpec(configKeyValues ...any) *helpers.PathSpec {
 func newTestContentSpec(cfg config.Provider) *helpers.ContentSpec {
 	fs := afero.NewMemMapFs()
 	conf := testconfig.GetTestConfig(fs, cfg)
-	spec, err := helpers.NewContentSpec(conf, loggers.NewErrorLogger(), fs, nil)
+	spec, err := helpers.NewContentSpec(conf, loggers.NewDefault(), fs, nil)
 	if err != nil {
 		panic(err)
 	}

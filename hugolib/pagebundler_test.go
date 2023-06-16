@@ -20,6 +20,9 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+
+	"github.com/gohugoio/hugo/common/loggers"
+
 	"strings"
 	"testing"
 
@@ -31,7 +34,6 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs"
 
-	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/gohugoio/hugo/htesting"
@@ -93,7 +95,7 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 
 						c.Assert(err, qt.IsNil)
 
-						b := newTestSitesBuilderFromDepsCfg(c, deps.DepsCfg{Logger: loggers.NewErrorLogger(), Fs: fs, Configs: configs}).WithNothingAdded()
+						b := newTestSitesBuilderFromDepsCfg(c, deps.DepsCfg{Fs: fs, Configs: configs}).WithNothingAdded()
 
 						b.Build(BuildCfg{})
 
@@ -1044,7 +1046,7 @@ title: %q
 	}
 
 	b := newTestSitesBuilder(t).WithConfigFile("toml", config)
-	b.WithLogger(loggers.NewWarningLogger())
+	b.WithLogger(loggers.NewDefault())
 
 	b.WithTemplates("_default/list.html", `{{ range .Site.Pages }}
 {{ .Kind }}|{{ .Path }}|{{ with .CurrentSection }}CurrentSection: {{ .Path }}{{ end }}|{{ .RelPermalink }}{{ end }}
@@ -1215,7 +1217,7 @@ title: %q
 	}
 
 	b := newTestSitesBuilder(t).WithConfigFile("toml", config)
-	b.WithLogger(loggers.NewWarningLogger())
+	b.WithLogger(loggers.NewDefault())
 
 	b.WithTemplates("_default/single.html", `{{ range .Resources }}
 {{ .ResourceType }}|{{ .Title }}|

@@ -35,7 +35,7 @@ func TestConvert(t *testing.T) {
 
 	p, err := Provider.New(
 		converter.ProviderConfig{
-			Logger: loggers.NewErrorLogger(),
+			Logger: loggers.NewDefault(),
 			Exec:   hexec.New(sc),
 		})
 	c.Assert(err, qt.IsNil)

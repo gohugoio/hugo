@@ -44,7 +44,7 @@ func TestAsciidoctorDefaultArgs(t *testing.T) {
 	p, err := asciidocext.Provider.New(
 		converter.ProviderConfig{
 			Conf:   conf,
-			Logger: loggers.NewErrorLogger(),
+			Logger: loggers.NewDefault(),
 		},
 	)
 	c.Assert(err, qt.IsNil)
@@ -76,7 +76,7 @@ func TestAsciidoctorNonDefaultArgs(t *testing.T) {
 	p, err := asciidocext.Provider.New(
 		converter.ProviderConfig{
 			Conf:   conf,
-			Logger: loggers.NewErrorLogger(),
+			Logger: loggers.NewDefault(),
 		},
 	)
 	c.Assert(err, qt.IsNil)
@@ -106,7 +106,7 @@ func TestAsciidoctorDisallowedArgs(t *testing.T) {
 	p, err := asciidocext.Provider.New(
 		converter.ProviderConfig{
 			Conf:   conf,
-			Logger: loggers.NewErrorLogger(),
+			Logger: loggers.NewDefault(),
 		},
 	)
 	c.Assert(err, qt.IsNil)
@@ -130,7 +130,7 @@ func TestAsciidoctorArbitraryExtension(t *testing.T) {
 	p, err := asciidocext.Provider.New(
 		converter.ProviderConfig{
 			Conf:   conf,
-			Logger: loggers.NewErrorLogger(),
+			Logger: loggers.NewDefault(),
 		},
 	)
 	c.Assert(err, qt.IsNil)
@@ -164,7 +164,7 @@ func TestAsciidoctorDisallowedExtension(t *testing.T) {
 		p, err := asciidocext.Provider.New(
 			converter.ProviderConfig{
 				Conf:   conf,
-				Logger: loggers.NewErrorLogger(),
+				Logger: loggers.NewDefault(),
 			},
 		)
 		c.Assert(err, qt.IsNil)
@@ -195,7 +195,7 @@ trace = false
 	p, err := asciidocext.Provider.New(
 		converter.ProviderConfig{
 			Conf:   conf,
-			Logger: loggers.NewErrorLogger(),
+			Logger: loggers.NewDefault(),
 		},
 	)
 	c.Assert(err, qt.IsNil)
@@ -232,7 +232,7 @@ extensions = ["asciidoctor-html5s", "asciidoctor-diagram"]
 	p, err := asciidocext.Provider.New(
 		converter.ProviderConfig{
 			Conf:   conf,
-			Logger: loggers.NewErrorLogger(),
+			Logger: loggers.NewDefault(),
 		},
 	)
 	c.Assert(err, qt.IsNil)
@@ -272,7 +272,7 @@ my-attribute-name = "my value"
 	p, err := asciidocext.Provider.New(
 		converter.ProviderConfig{
 			Conf:   conf,
-			Logger: loggers.NewErrorLogger(),
+			Logger: loggers.NewDefault(),
 		},
 	)
 	c.Assert(err, qt.IsNil)
@@ -311,7 +311,7 @@ allow = ['asciidoctor']
 
 	p, err := asciidocext.Provider.New(
 		converter.ProviderConfig{
-			Logger: loggers.NewErrorLogger(),
+			Logger: loggers.NewDefault(),
 			Conf:   conf,
 			Exec:   hexec.New(securityConfig),
 		},

@@ -31,6 +31,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/identity"
 
@@ -39,7 +40,6 @@ import (
 	"github.com/gohugoio/hugo/resources/postpub"
 
 	"github.com/gohugoio/hugo/cache/filecache"
-	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/images"
 	"github.com/gohugoio/hugo/resources/page"
@@ -75,7 +75,7 @@ func NewSpec(
 	}
 
 	if logger == nil {
-		logger = loggers.NewErrorLogger()
+		logger = loggers.NewDefault()
 	}
 
 	permalinks, err := page.NewPermalinkExpander(s.URLize, conf.Permalinks)

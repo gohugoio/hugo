@@ -28,12 +28,11 @@ import (
 	"syscall"
 	"time"
 
-	jww "github.com/spf13/jwalterweatherman"
-
 	"go.uber.org/automaxprocs/maxprocs"
 
 	"github.com/bep/clock"
 	"github.com/bep/lazycache"
+	"github.com/bep/logg"
 	"github.com/bep/overlayfs"
 	"github.com/bep/simplecobra"
 
@@ -114,7 +113,6 @@ type rootCommand struct {
 	baseURL              string
 	gc                   bool
 	poll                 string
-	panicOnWarning       bool
 	forceSyncStatic      bool
 	printPathWarnings    bool
 	printUnusedTemplates bool
@@ -308,7 +306,7 @@ func (r *rootCommand) ConfigFromProvider(key int32, cfg config.Provider) (*commo
 
 func (r *rootCommand) HugFromConfig(conf *commonConfig) (*hugolib.HugoSites, error) {
 	h, _, err := r.hugoSites.GetOrCreate(r.configVersionID.Load(), func(key int32) (*hugolib.HugoSites, error) {
-		depsCfg := deps.DepsCfg{Configs: conf.configs, Fs: conf.fs, Logger: r.logger}
+		depsCfg := deps.DepsCfg{Configs: conf.configs, Fs: conf.fs, LogOut: r.logger.Out(), LogLevel: r.logger.Level()}
 		return hugolib.NewHugoSites(depsCfg)
 	})
 	return h, err
@@ -320,7 +318,7 @@ func (r *rootCommand) Hugo(cfg config.Provider) (*hugolib.HugoSites, error) {
 		if err != nil {
 			return nil, err
 		}
-		depsCfg := deps.DepsCfg{Configs: conf.configs, Fs: conf.fs, Logger: r.logger}
+		depsCfg := deps.DepsCfg{Configs: conf.configs, Fs: conf.fs, LogOut: r.logger.Out(), LogLevel: r.logger.Level()}
 		return hugolib.NewHugoSites(depsCfg)
 	})
 	return h, err
@@ -410,7 +408,6 @@ func (r *rootCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 		return err
 	}
 
-	loggers.PanicOnWarning.Store(r.panicOnWarning)
 	r.commonConfigs = lazycache.New[int32, *commonConfig](lazycache.Options{MaxEntries: 5})
 	r.hugoSites = lazycache.New[int32, *hugolib.HugoSites](lazycache.Options{MaxEntries: 5})
 
@@ -418,43 +415,48 @@ func (r *rootCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 }
 
 func (r *rootCommand) createLogger(running bool) (loggers.Logger, error) {
-	var (
-		outHandle       = r.Out
-		stdoutThreshold = jww.LevelWarn
-	)
-
-	if r.verbose {
-		helpers.Deprecated("--verbose", "use --logLevel info", false)
-		stdoutThreshold = jww.LevelInfo
-	}
-
-	if r.debug {
-		helpers.Deprecated("--debug", "use --logLevel debug", false)
-		stdoutThreshold = jww.LevelDebug
-	}
+	level := logg.LevelWarn
 
 	if r.logLevel != "" {
 		switch strings.ToLower(r.logLevel) {
 		case "debug":
-			stdoutThreshold = jww.LevelDebug
+			level = logg.LevelDebug
 		case "info":
-			stdoutThreshold = jww.LevelInfo
+			level = logg.LevelInfo
 		case "warn", "warning":
-			stdoutThreshold = jww.LevelWarn
+			level = logg.LevelWarn
 		case "error":
-			stdoutThreshold = jww.LevelError
+			level = logg.LevelError
 		default:
 			return nil, fmt.Errorf("invalid log level: %q, must be one of debug, warn, info or error", r.logLevel)
 		}
+	} else {
+		if r.verbose {
+			helpers.Deprecated("--verbose", "use --logLevel info", false)
+			level = logg.LevelInfo
+		}
+
+		if r.debug {
+			helpers.Deprecated("--debug", "use --logLevel debug", false)
+			level = logg.LevelDebug
+		}
 	}
 
-	loggers.InitGlobalLogger(stdoutThreshold, jww.LevelWarn, outHandle, io.Discard)
-	helpers.InitLoggers()
-	return loggers.NewLogger(stdoutThreshold, jww.LevelWarn, outHandle, io.Discard, running), nil
+	optsLogger := loggers.Options{
+		Distinct:    true,
+		Level:       level,
+		Stdout:      r.Out,
+		Stderr:      r.Out,
+		StoreErrors: running,
+	}
+
+	return loggers.New(optsLogger), nil
+
 }
 
 func (r *rootCommand) Reset() {
 	r.logger.Reset()
+	loggers.Log().Reset()
 }
 
 // IsTestRun reports whether the command is running as a test.
@@ -530,7 +532,7 @@ func applyLocalFlagsBuild(cmd *cobra.Command, r *rootCommand) {
 	cmd.Flags().StringP("layoutDir", "l", "", "filesystem path to layout directory")
 	cmd.Flags().BoolVar(&r.gc, "gc", false, "enable to run some cleanup tasks (remove unused cache files) after the build")
 	cmd.Flags().StringVar(&r.poll, "poll", "", "set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes")
-	cmd.Flags().BoolVar(&r.panicOnWarning, "panicOnWarning", false, "panic on first WARNING log")
+	cmd.Flags().Bool("panicOnWarning", false, "panic on first WARNING log")
 	cmd.Flags().Bool("templateMetrics", false, "display metrics about template executions")
 	cmd.Flags().Bool("templateMetricsHints", false, "calculate some improvement hints when combined with --templateMetrics")
 	cmd.Flags().BoolVar(&r.forceSyncStatic, "forceSyncStatic", false, "copy all files when static is changed.")

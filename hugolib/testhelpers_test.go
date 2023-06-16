@@ -33,6 +33,7 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
@@ -47,7 +48,6 @@ import (
 	"github.com/gohugoio/hugo/resources/resource"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/hugofs"
 )
 
@@ -552,7 +552,7 @@ func (s *sitesBuilder) CreateSitesE() error {
 	if depsCfg.Configs.IsZero() {
 		depsCfg.Configs = s.Configs
 	}
-	depsCfg.Logger = s.logger
+	depsCfg.TestLogger = s.logger
 
 	sites, err := NewHugoSites(depsCfg)
 

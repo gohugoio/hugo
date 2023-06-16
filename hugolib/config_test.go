@@ -20,6 +20,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/allconfig"
 
@@ -933,7 +934,7 @@ LanguageCode: {{ eq site.LanguageCode site.Language.LanguageCode }}|{{ site.Lang
 	).Build()
 
 	{
-		b.Assert(b.H.Log.LogCounters().WarnCounter.Count(), qt.Equals, uint64(2))
+		b.Assert(b.H.Log.LoggCount(logg.LevelWarn), qt.Equals, 1)
 	}
 	b.AssertFileContent("public/index.html", `
 AllPages: 4|

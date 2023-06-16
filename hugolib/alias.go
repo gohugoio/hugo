@@ -25,7 +25,6 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/loggers"
-
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/publisher"
 	"github.com/gohugoio/hugo/resources/page"

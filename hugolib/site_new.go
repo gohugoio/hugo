@@ -18,10 +18,12 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"os"
 	"sort"
 	"time"
 
 	radix "github.com/armon/go-radix"
+	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
@@ -100,19 +102,41 @@ func (s *Site) Debug() {
 func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 	conf := cfg.Configs.GetFirstLanguageConfig()
 
-	logger := cfg.Logger
-	if logger == nil {
-		logger = loggers.NewErrorLogger()
+	var logger loggers.Logger
+	if cfg.TestLogger != nil {
+		logger = cfg.TestLogger
+	} else {
+		var logHookLast func(e *logg.Entry) error
+		if cfg.Configs.Base.PanicOnWarning {
+			logHookLast = loggers.PanicOnWarningHook
+		}
+		if cfg.LogOut == nil {
+			cfg.LogOut = os.Stdout
+		}
+		if cfg.LogLevel == 0 {
+			cfg.LogLevel = logg.LevelWarn
+		}
+
+		logOpts := loggers.Options{
+			Level:               cfg.LogLevel,
+			Distinct:            true, // This will drop duplicate log warning and errors.
+			HandlerPost:         logHookLast,
+			Stdout:              cfg.LogOut,
+			Stderr:              cfg.LogOut,
+			StoreErrors:         conf.Running(),
+			SuppresssStatements: conf.IgnoredErrors(),
+		}
+		logger = loggers.New(logOpts)
 	}
-	ignorableLogger := loggers.NewIgnorableLogger(logger, conf.IgnoredErrors())
 
 	firstSiteDeps := &deps.Deps{
 		Fs:                  cfg.Fs,
-		Log:                 ignorableLogger,
+		Log:                 logger,
 		Conf:                conf,
 		TemplateProvider:    tplimpl.DefaultTemplateProvider,
 		TranslationProvider: i18n.NewTranslationProvider(),
 	}
+
 	if err := firstSiteDeps.Init(); err != nil {
 		return nil, err
 	}
@@ -128,7 +152,7 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 		k := language.Lang
 		conf := confm.LanguageConfigMap[k]
 
-		frontmatterHandler, err := pagemeta.NewFrontmatterHandler(cfg.Logger, conf.Frontmatter)
+		frontmatterHandler, err := pagemeta.NewFrontmatterHandler(firstSiteDeps.Log, conf.Frontmatter)
 		if err != nil {
 			return nil, err
 		}
@@ -209,6 +233,7 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 	}
 
 	return h, err
+
 }
 
 func newHugoSitesNew(cfg deps.DepsCfg, d *deps.Deps, sites []*Site) (*HugoSites, error) {

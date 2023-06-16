@@ -21,6 +21,7 @@ import (
 	"reflect"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gohugoio/hugo/parser/pageparser"
@@ -29,7 +30,6 @@ import (
 
 	"github.com/gohugoio/hugo/source"
 
-	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
 )

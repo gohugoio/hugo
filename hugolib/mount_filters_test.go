@@ -20,7 +20,6 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/common/loggers"
-
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/gohugoio/hugo/htesting"
@@ -39,7 +38,7 @@ func TestMountFilters(t *testing.T) {
 	for _, component := range files.ComponentFolders {
 		b.Assert(os.MkdirAll(filepath.Join(workingDir, component), 0777), qt.IsNil)
 	}
-	b.WithWorkingDir(workingDir).WithLogger(loggers.NewInfoLogger())
+	b.WithWorkingDir(workingDir).WithLogger(loggers.NewDefault())
 	b.WithConfigFile("toml", fmt.Sprintf(`
 workingDir = %q
 

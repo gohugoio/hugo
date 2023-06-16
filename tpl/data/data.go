@@ -30,7 +30,6 @@ import (
 	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/gohugoio/hugo/common/constants"
-	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/spf13/cast"
 
@@ -92,7 +91,7 @@ func (ns *Namespace) GetCSV(sep string, args ...any) (d [][]string, err error) {
 		if security.IsAccessDenied(err) {
 			return nil, err
 		}
-		ns.deps.Log.(loggers.IgnorableLogger).Errorsf(constants.ErrRemoteGetCSV, "Failed to get CSV resource %q: %s", url, err)
+		ns.deps.Log.Errorsf(constants.ErrRemoteGetCSV, "Failed to get CSV resource %q: %s", url, err)
 		return nil, nil
 	}
 
@@ -128,7 +127,7 @@ func (ns *Namespace) GetJSON(args ...any) (any, error) {
 		if security.IsAccessDenied(err) {
 			return nil, err
 		}
-		ns.deps.Log.(loggers.IgnorableLogger).Errorsf(constants.ErrRemoteGetJSON, "Failed to get JSON resource %q: %s", url, err)
+		ns.deps.Log.Errorsf(constants.ErrRemoteGetJSON, "Failed to get JSON resource %q: %s", url, err)
 		return nil, nil
 	}
 

@@ -15,6 +15,9 @@ package data
 
 import (
 	"bytes"
+
+	"github.com/gohugoio/hugo/common/loggers"
+
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -29,7 +32,6 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/cache/filecache"
-	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
@@ -182,7 +184,7 @@ func TestScpGetRemoteParallel(t *testing.T) {
 
 func newDeps(cfg config.Provider) *deps.Deps {
 	conf := testconfig.GetTestConfig(nil, cfg)
-	logger := loggers.NewIgnorableLogger(loggers.NewErrorLogger(), nil)
+	logger := loggers.NewDefault()
 	fs := hugofs.NewFrom(afero.NewMemMapFs(), conf.BaseConfig())
 
 	d := &deps.Deps{
