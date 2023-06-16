@@ -16,7 +16,6 @@ package time
 
 import (
 	"fmt"
-	"time"
 	_time "time"
 
 	"github.com/gohugoio/hugo/common/htime"
@@ -25,7 +24,7 @@ import (
 )
 
 // New returns a new instance of the time-namespaced template functions.
-func New(timeFormatter htime.TimeFormatter, location *time.Location) *Namespace {
+func New(timeFormatter htime.TimeFormatter, location *_time.Location) *Namespace {
 	return &Namespace{
 		timeFormatter: timeFormatter,
 		location:      location,
@@ -35,7 +34,7 @@ func New(timeFormatter htime.TimeFormatter, location *time.Location) *Namespace 
 // Namespace provides template functions for the "time" namespace.
 type Namespace struct {
 	timeFormatter htime.TimeFormatter
-	location      *time.Location
+	location      *_time.Location
 }
 
 // AsTime converts the textual representation of the datetime string into

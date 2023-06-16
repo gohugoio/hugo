@@ -20,7 +20,6 @@ import (
 	"image/color"
 	"image/draw"
 	"image/gif"
-	_ "image/gif"
 	_ "image/png"
 	"io"
 	"os"
