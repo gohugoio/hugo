@@ -61,7 +61,7 @@ To get the contents of `<title>` in the document below, you use `{{ .message.tit
 The following example lists the items of an RSS feed:
 
 ```go-html-template
-{{ with resources.Get "https://example.com/rss.xml" | transform.Unmarshal }}
+{{ with resources.GetRemote "https://example.com/rss.xml" | transform.Unmarshal }}
     {{ range .channel.item }}
         <strong>{{ .title | plainify | htmlUnescape }}</strong><br />
         <p>{{ .description | plainify | htmlUnescape }}</p>
