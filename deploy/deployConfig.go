@@ -127,11 +127,16 @@ func (m *Matcher) Matches(path string) bool {
 	return m.re.MatchString(path)
 }
 
+var DefaultConfig = DeployConfig{
+	Workers:       10,
+	InvalidateCDN: true,
+	MaxDeletes:    256,
+}
+
 // DecodeConfig creates a config from a given Hugo configuration.
 func DecodeConfig(cfg config.Provider) (DeployConfig, error) {
-	var (
-		dcfg DeployConfig
-	)
+
+	dcfg := DefaultConfig
 
 	if !cfg.IsSet(deploymentConfigKey) {
 		return dcfg, nil
