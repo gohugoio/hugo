@@ -3,10 +3,10 @@
 hugo deploy -h
 stdout 'Deploy your site to a Cloud provider\.'
 mkdir mybucket
-hugo deploy --target mydeployment
+hugo deploy --target mydeployment --invalidateCDN=false
 grep 'hello' mybucket/index.html
 replace  public/index.html 'hello' 'changed'
-hugo deploy --target mydeployment --invalidateCDN --dryRun
+hugo deploy --target mydeployment --dryRun
 stdout 'Would upload: index.html'
 stdout 'Would invalidate CloudFront CDN with ID foobar'
 -- hugo.toml --
