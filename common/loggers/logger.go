@@ -242,6 +242,10 @@ func (l *logAdapter) PrintTimerIfDelayed(start time.Time, name string) {
 }
 
 func (l *logAdapter) Printf(format string, v ...any) {
+	// Add trailing newline if not present.
+	if !strings.HasSuffix(format, "\n") {
+		format += "\n"
+	}
 	fmt.Fprintf(l.out, format, v...)
 }
 
