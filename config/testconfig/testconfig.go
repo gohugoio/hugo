@@ -41,7 +41,7 @@ func GetTestConfigs(fs afero.Fs, cfg config.Provider) *allconfig.Configs {
 		}
 	}
 
-	configs, err := allconfig.LoadConfig(allconfig.ConfigSourceDescriptor{Fs: fs, Flags: cfg})
+	configs, err := allconfig.LoadConfig(allconfig.ConfigSourceDescriptor{Fs: fs, Flags: cfg, Environ: []string{"EMPTY_TEST_ENVIRONMENT"}})
 	if err != nil {
 		panic(err)
 	}
