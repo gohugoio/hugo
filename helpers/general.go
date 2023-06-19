@@ -261,7 +261,7 @@ func Deprecated(item, alternative string, err bool) {
 	if err {
 		loggers.Log().Errorf("%s is deprecated and will be removed in Hugo %s. %s", item, hugo.CurrentVersion.Next().ReleaseVersion(), alternative)
 	} else {
-		loggers.Log().Warnf("%s is deprecated and will be removed in a future release. %s%s", item, alternative)
+		loggers.Log().Warnf("%s is deprecated and will be removed in a future release. %s", item, alternative)
 	}
 }
 
