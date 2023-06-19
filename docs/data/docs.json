@@ -1724,7 +1724,7 @@
           "precision": 0,
           "keepVarNames": false,
           "noNullishOperator": false,
-          "version": 0
+          "version": 2022
         },
         "json": {
           "precision": 0,
@@ -1743,7 +1743,7 @@
       "enableInlineShortcodes": false,
       "exec": {
         "allow": [
-          "^dart-sass-embedded$",
+          "^(dart-)?sass(-embedded)?$",
           "^go$",
           "^npx$",
           "^postcss$"
@@ -1757,6 +1757,9 @@
           "^HUGO_",
           "^CI$"
         ]
+      },
+      "goTemplates": {
+        "AllowActionJSTmpl": false
       },
       "http": {
         "mediaTypes": null,
@@ -3674,6 +3677,12 @@
             ]
           ]
         },
+        "Errormf": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "Print": {
           "Description": "Print returns a string representation of args.",
           "Args": [
@@ -3735,6 +3744,12 @@
               ""
             ]
           ]
+        },
+        "Warnmf": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
         }
       },
       "hugo": {
@@ -4166,7 +4181,7 @@
           ]
         },
         "Max": {
-          "Description": "Max returns the greater of the multivalued numbers n1 and n2 or more values.",
+          "Description": "Max returns the greater of all numbers in inputs. Any slices in inputs are flattened.",
           "Args": [
             "inputs"
           ],
@@ -4179,7 +4194,7 @@
           ]
         },
         "Min": {
-          "Description": "Min returns the smaller of multivalued numbers n1 and n2 or more values.",
+          "Description": "Min returns the smaller of all numbers in inputs. Any slices in inputs are flattened.",
           "Args": [
             "inputs"
           ],
@@ -4254,6 +4269,12 @@
             ]
           ]
         },
+        "Product": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "Round": {
           "Description": "Round returns the integer nearest to n, rounding half away from zero.",
           "Args": [
@@ -4294,6 +4315,12 @@
               "1"
             ]
           ]
+        },
+        "Sum": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
         }
       },
       "openapi3": {
@@ -4882,6 +4909,12 @@
           "Examples": null
         },
         "Params": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "RSSLink": {
           "Description": "",
           "Args": null,
           "Aliases": null,
