@@ -91,7 +91,7 @@ func (h *defaultHandler) HandleLog(e *logg.Entry) error {
 		prefix = prefix + ": "
 	}
 
-	color.Fprintf(w, "%s %s%s", bold.Sprintf("%*s", h.Padding+1, level), color.Sprint(prefix), e.Message)
+	color.Fprintf(w, "%s %s%s", fmt.Sprintf("%*s", h.Padding+1, level), color.Sprint(prefix), e.Message)
 
 	for _, field := range e.Fields {
 		if strings.HasPrefix(field.Name, reservedFieldNamePrefix) {
