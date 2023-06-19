@@ -67,21 +67,21 @@ with the contents of the file. Use this to create inline resources.
 {{ end }}
 
 {{ with .Resources.GetMatch "img.png" }}
-  <img src="data:{{ .MediaType }};base64,{{ .Content | base64Encode }}">
+  <img src="data:{{ .MediaType.Type }};base64,{{ .Content | base64Encode }}">
 {{ end }}
 ```
 
-MediaType
-: The MIME type of the resource, such as `image/jpeg`.
+MediaType.Type
+: The media type (formerly known as a MIME type) of the resource (e.g., `image/jpeg`).
 
 MediaType.MainType
-: The main type of the resource's MIME type. For example, a file of MIME type `application/pdf` has for MainType `application`.
+: The main type of the resource's media type (e.g., `image`).
 
 MediaType.SubType
-: The subtype of the resource's MIME type. For example, a file of MIME type `application/pdf` has for SubType `pdf`. Note that this is not the same as the file extension. For example, Microsoft PowerPoint files (`.ppt`) have a subtype of `vnd.ms-powerpoint`.
+: The subtype of the resource's type (e.g., `jpeg`). This may or may not correspond to the file suffix.
 
 MediaType.Suffixes
-: A slice of possible suffixes for the resource's MIME type.
+: A slice of possible file suffixes for the resource's media type (e.g., `[jpg jpeg jpe jif jfif]`).
 
 ## Methods
 
