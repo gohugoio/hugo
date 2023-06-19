@@ -44,8 +44,7 @@ hugo [flags]
       --ignoreCache                ignores the cache directory
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
   -l, --layoutDir string           filesystem path to layout directory
-      --log                        enable Logging
-      --logFile string             log File path (if set, logging enabled automatically)
+      --logLevel string            log level (debug|info|warn|error)
       --minify                     minify any supported output format (HTML, XML etc.)
       --noBuildLock                don't create .hugo_build.lock file
       --noChmod                    don't sync permission mode of files
@@ -65,7 +64,6 @@ hugo [flags]
       --themesDir string           filesystem path to themes directory
       --trace file                 write trace to file (not useful in general)
   -v, --verbose                    verbose output
-      --verboseLog                 verbose logging
   -w, --watch                      watch filesystem for changes and recreate as needed
 ```
 
