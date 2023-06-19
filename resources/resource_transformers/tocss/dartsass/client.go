@@ -22,6 +22,7 @@ import (
 
 	godartsassv1 "github.com/bep/godartsass"
 	"github.com/bep/godartsass/v2"
+	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/helpers"
@@ -70,10 +71,10 @@ func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) (*Client, error) 
 				switch event.Type {
 				case godartsass.LogEventTypeDebug:
 					// Log as Info for now, we may adjust this if it gets too chatty.
-					infol.Logf(message)
+					infol.Log(logg.String(message))
 				default:
 					// The rest are either deprecations or @warn statements.
-					warnl.Logf(message)
+					warnl.Log(logg.String(message))
 				}
 			},
 		})
@@ -86,10 +87,10 @@ func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) (*Client, error) 
 				switch event.Type {
 				case godartsassv1.LogEventTypeDebug:
 					// Log as Info for now, we may adjust this if it gets too chatty.
-					infol.Logf(message)
+					infol.Log(logg.String(message))
 				default:
 					// The rest are either deprecations or @warn statements.
-					warnl.Logf(message)
+					warnl.Log(logg.String(message))
 				}
 			},
 		})
