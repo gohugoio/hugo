@@ -27,7 +27,7 @@ hugo [flags]
   -D, --buildDrafts                include content marked as draft
   -E, --buildExpired               include expired content
   -F, --buildFuture                include content with publishdate in the future
-      --cacheDir string            filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
+      --cacheDir string            filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache_$USER/
       --cleanDestinationDir        remove files from destination not found in static directories
       --clock string               set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00
       --config string              config file (default is hugo.yaml|json|toml)
@@ -44,8 +44,7 @@ hugo [flags]
       --ignoreCache                ignores the cache directory
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
   -l, --layoutDir string           filesystem path to layout directory
-      --log                        enable Logging
-      --logFile string             log File path (if set, logging enabled automatically)
+      --logLevel string            log level (debug|info|warn|error)
       --minify                     minify any supported output format (HTML, XML etc.)
       --noBuildLock                don't create .hugo_build.lock file
       --noChmod                    don't sync permission mode of files
@@ -65,7 +64,6 @@ hugo [flags]
       --themesDir string           filesystem path to themes directory
       --trace file                 write trace to file (not useful in general)
   -v, --verbose                    verbose output
-      --verboseLog                 verbose logging
   -w, --watch                      watch filesystem for changes and recreate as needed
 ```
 
