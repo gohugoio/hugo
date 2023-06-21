@@ -468,9 +468,12 @@ func (c *importCommand) importFromJekyll(args []string) error {
 	}
 
 	c.r.Println("Congratulations!", fileCount, "post(s) imported!")
-	c.r.Println("Now, start Hugo by yourself:\n" +
-		"$ git clone https://github.com/spf13/herring-cove.git " + args[1] + "/themes/herring-cove")
-	c.r.Println("$ cd " + args[1] + "\n$ hugo server --theme=herring-cove")
+	c.r.Println("Now, start Hugo by yourself:\n")
+	c.r.Println("cd " + args[1])
+	c.r.Println("git init")
+	c.r.Println("git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke themes/ananke")
+	c.r.Println("echo \"theme = 'ananke'\" > hugo.toml")
+	c.r.Println("hugo server")
 
 	return nil
 }
