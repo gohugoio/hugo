@@ -101,13 +101,7 @@ parts:
       sed -i '/OsEnv: NewWhitelist/s/)\$/|GIT_EXEC_PATH|LD_LIBRARY_PATH|npm_config_(cache|init_module|userconfig)|pandoc_datadir|PYTHONHOME|RUBYLIB|SNAP&/' config/security/securityConfig.go
       git diff config/security/securityConfig.go
 
-      echo " * SNAPCRAFT_IMAGE_INFO=${SNAPCRAFT_IMAGE_INFO=}"
-      # Example: SNAPCRAFT_IMAGE_INFO='{"build_url": "https://launchpad.net/~gohugoio/+snap/hugo-extended-dev/+build/344022"}'
-      export HUGO_BUILD_TAGS=""
-      if echo $SNAPCRAFT_IMAGE_INFO | grep -q '/+snap/hugo-extended'; then
-        HUGO_BUILD_TAGS="extended"
-      fi
-
+      HUGO_BUILD_TAGS="extended"
       echo " * Building hugo (HUGO_BUILD_TAGS=\"$HUGO_BUILD_TAGS\")..."
       go build -v -ldflags "-X github.com/gohugoio/hugo/common/hugo.vendorInfo=snap:$(git describe --tags --always --match 'v[0-9]*' | sed 's/^v//; s/-/+git/; s/-g/./')" -tags "$HUGO_BUILD_TAGS"
       ./hugo version
@@ -150,11 +144,11 @@ parts:
         *)      arch=""     ;;
       esac
       if [[ -n $arch ]]; then
-        url=$(curl -s https://api.github.com/repos/sass/dart-sass-embedded/releases/latest | awk -F\" "/browser_download_url.*-linux-${arch}.tar.gz/{print \$(NF-1)}")
-        curl -LO --retry-connrefused --retry 10 "$url"
-        tar xf sass_embedded-*-linux-$arch.tar.gz
+        url=$(curl -s https://api.github.com/repos/sass/dart-sass/releases/latest | awk -F\" "/browser_download_url.*-linux-${arch}.tar.gz/{print \$(NF-1)}")
+        curl -LO --retry-connrefused --retry 10 "${url}"
+        tar xf dart-sass-*-linux-${arch}.tar.gz
         install -d $SNAPCRAFT_PART_INSTALL/bin
-        cp -av sass_embedded/* $SNAPCRAFT_PART_INSTALL/bin/
+        cp -av dart-sass/* $SNAPCRAFT_PART_INSTALL/bin/
       fi
 
   node:
