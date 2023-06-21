@@ -44,6 +44,14 @@ When developing a [homepage], what does one of the pages you're looping through 
 {{ end }}
 ```
 
+In some cases it might be more helpful to use the following snippet on the current context to get a pretty printed view of what you're able to work with:
+
+```go-html-template
+<pre>{{ . | jsonify (dict "indent" " ") }}</pre>
+```
+
+Note that Hugo will throw an error if you attempt to use this construct to display context that includes a page collection (e.g., the context passed to home, section, taxonomy, and term templates).
+
 ## Why Am I Showing No Defined Variables?
 
 Check that you are passing variables in the `partial` function:
