@@ -212,7 +212,7 @@ func (c *configMountsCommand) Run(ctx context.Context, cd *simplecobra.Commandee
 	}
 
 	for _, m := range conf.configs.Modules {
-		if err := parser.InterfaceToConfig(&configModMounts{m: m, verbose: r.verbose}, metadecoders.JSON, os.Stdout); err != nil {
+		if err := parser.InterfaceToConfig(&configModMounts{m: m, verbose: r.isVerbose()}, metadecoders.JSON, os.Stdout); err != nil {
 			return err
 		}
 	}

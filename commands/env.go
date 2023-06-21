@@ -32,7 +32,7 @@ func newEnvCommand() simplecobra.Commander {
 			r.Printf("GOARCH=%q\n", runtime.GOARCH)
 			r.Printf("GOVERSION=%q\n", runtime.Version())
 
-			if r.verbose {
+			if r.isVerbose() {
 				deps := hugo.GetDependencyList()
 				for _, dep := range deps {
 					r.Printf("%s\n", dep)

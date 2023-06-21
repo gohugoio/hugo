@@ -136,6 +136,10 @@ type rootCommand struct {
 	cfgDir  string
 }
 
+func (r *rootCommand) isVerbose() bool {
+	return r.logger.Level() <= logg.LevelInfo
+}
+
 func (r *rootCommand) Build(cd *simplecobra.Commandeer, bcfg hugolib.BuildCfg, cfg config.Provider) (*hugolib.HugoSites, error) {
 	h, err := r.Hugo(cfg)
 	if err != nil {

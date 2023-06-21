@@ -1012,7 +1012,7 @@ func (c *hugoBuilder) loadConfig(cd *simplecobra.Commandeer, running bool) error
 	cfg.Set("internal", maps.Params{
 		"running": running,
 		"watch":   watch,
-		"verbose": c.r.verbose,
+		"verbose": c.r.isVerbose(),
 	})
 
 	conf, err := c.r.ConfigFromProvider(c.r.configVersionID.Load(), flagsToCfg(cd, cfg))
