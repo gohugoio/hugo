@@ -472,7 +472,7 @@ func (c *importCommand) importFromJekyll(args []string) error {
 	c.r.Println("cd " + args[1])
 	c.r.Println("git init")
 	c.r.Println("git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke themes/ananke")
-	c.r.Println("echo \"theme = 'ananke'\" > config.toml")
+	c.r.Println("echo \"theme = 'ananke'\" > hugo.toml")
 	c.r.Println("hugo server")
 
 	return nil
