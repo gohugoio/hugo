@@ -1,27 +1,36 @@
 ## Prerequisites
 
-Although not required in all cases, Git and Go are often used when working with Hugo.
+Although not required in all cases, [Git], [Go], and [Dart Sass] are commonly used when working with Hugo.
 
 Git is required to:
 
-- Use the [Hugo Modules] feature
 - Build Hugo from source
+- Use the [Hugo Modules] feature
 - Install a theme as a Git submodule
 - Access [commit information] from a local Git repository
-- Host your site with services such as [AWS Amplify], [CloudCannon], [Cloudflare Pages], [GitHub Pages], [GitLab Pages], and [Netlify].
+- Host your site with services such as [CloudCannon], [Cloudflare Pages], [GitHub Pages], [GitLab Pages], and [Netlify]
 
 Go is required to:
 
-- Use the Hugo Modules feature
 - Build Hugo from source
+- Use the Hugo Modules feature
 
-Please refer to the [Git] and [Go] documentation for installation instructions.
+Dart Sass is required to transpile Sass to CSS when using the latest features of the Sass language.
 
-[AWS Amplify]: https://aws.amazon.com/amplify/
-[CloudCannon]: https://cloudcannon.com/
-[Cloudflare Pages]: https://pages.cloudflare.com/
-[Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
-[GitHub Pages]: https://pages.github.com/
-[GitLab Pages]: https://docs.gitlab.com/ee/user/project/pages/
-[Go]: https://go.dev/doc/install
-[Netlify]: https://www.netlify.com/
+Please refer to the relevant documentation for installation instructions:
+
+- [Git][git install]
+- [Go][go install]
+- [Dart Sass][dart sass install]
+
+[cloudcannon]: https://cloudcannon.com/
+[cloudflare pages]: https://pages.cloudflare.com/
+[dart sass install]: /hugo-pipes/transpile-sass-to-css/#dart-sass
+[dart sass]: https://sass-lang.com/dart-sass
+[git install]: https://git-scm.com/book/en/v2/getting-started-installing-git
+[git]: https://git-scm.com/
+[github pages]: https://pages.github.com/
+[gitlab pages]: https://docs.gitlab.com/ee/user/project/pages/
+[go install]: https://go.dev/doc/install
+[go]: https://go.dev/
+[netlify]: https://www.netlify.com/
