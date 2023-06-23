@@ -166,21 +166,20 @@ pages:
 To install Dart Sass for your builds on Netlify, the `netlify.toml` file should look something like this:
 
 ```toml
+[build.environment]
+HUGO_VERSION = "0.114.0"
+DART_SASS_VERSION = "1.63.5"
+TZ = "America/Los_Angeles"
+
 [build]
 publish = "public"
 command = """\
   curl -LJO https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz && \
   tar -xf dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz && \
-  mkdir -p /opt/build/repo/node_modules/.bin && \
-  cp -r dart-sass/* /opt/build/repo/node_modules/.bin && \
-  rm -rf dart-sass* && \
+  rm dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz && \
+  export PATH=/opt/build/repo/dart-sass:$PATH && \
   hugo --gc --minify \
   """
-
-[build.environment]
-DART_SASS_VERSION = "1.63.5"
-HUGO_VERSION = "0.114.0"
-TZ = "America/Los_Angeles"
 ```
 
 ### Example
