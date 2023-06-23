@@ -30,8 +30,9 @@
 package commands
 
 import (
-	"errors"
+	"context"
 
+	"github.com/bep/simplecobra"
 	"github.com/spf13/cobra"
 )
 
