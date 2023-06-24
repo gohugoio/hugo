@@ -3,17 +3,22 @@
     link         = "https://www.linode.com/"
     logo         = "images/sponsors/linode-logo.svg"
     utm_campaign = "hugosponsor"
+    bgcolor      = "#ffffff"
 
 [[banners]]
-    name         = "BEP Consulting"
-    link         = "https://github.com/bep/"
-    logo         = "/images/sponsors/bep-consulting.svg"
-    utm_campaign = "hugosponsor"
-    bgcolor      = "#AD1E1E"
+    name         = "CloudCannon"
+    link         = "https://cloudcannon.com/"
+    logo         = "/images/sponsors/cloudcannon-white.svg"
+    utm_campaign = "HugoSponsorship"
+    utm_source   = "sponsor"
+    utm_content  = "gohugo"
+    bgcolor      = "#034AD8"
+
+    # https://cloudcannon.com/?utm_campaign=HugoSponsorship&utm_source=sponsor&utm_content=gohugo
 
 [[banners]]
     name          = "Your Company?"
     link          = "https://bep.is/en/hugo-sponsor-2023-01/"
     utm_campaign  = "hugosponsor"
     show_on_hover = true
-    bgcolor       = "#004887"
+    bgcolor       = "#4e4f4f"
