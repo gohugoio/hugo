@@ -61,9 +61,7 @@ func (l *pageLexer) Input() []byte {
 	return l.input
 }
 
-type Config struct {
-	EnableEmoji bool
-}
+type Config struct{}
 
 // note: the input position here is normally 0 (start), but
 // can be set if position of first shortcode is known
@@ -103,8 +101,6 @@ var (
 	delimOrg          = []byte("#+")
 	htmlCommentStart  = []byte("<!--")
 	htmlCommentEnd    = []byte("-->")
-
-	emojiDelim = byte(':')
 )
 
 func (l *pageLexer) next() rune {
@@ -276,34 +272,6 @@ func (l *pageLexer) consumeSpace() {
 	}
 }
 
-// lex a string starting at ":"
-func lexEmoji(l *pageLexer) stateFunc {
-	pos := l.pos + 1
-	valid := false
-
-	for i := pos; i < len(l.input); i++ {
-		if i > pos && l.input[i] == emojiDelim {
-			pos = i + 1
-			valid = true
-			break
-		}
-		r, _ := utf8.DecodeRune(l.input[i:])
-		if !(isAlphaNumericOrHyphen(r) || r == '+') {
-			break
-		}
-	}
-
-	if valid {
-		l.pos = pos
-		l.emit(TypeEmoji)
-	} else {
-		l.pos++
-		l.emit(tText)
-	}
-
-	return lexMainSection
-}
-
 type sectionHandlers struct {
 	l *pageLexer
 
@@ -398,20 +366,6 @@ func createSectionHandlers(l *pageLexer) *sectionHandlers {
 	}
 
 	handlers := []*sectionHandler{shortCodeHandler, summaryDividerHandler}
-
-	if l.cfg.EnableEmoji {
-		emojiHandler := &sectionHandler{
-			l: l,
-			skipFunc: func(l *pageLexer) int {
-				return l.indexByte(emojiDelim)
-			},
-			lexFunc: func(origin stateFunc, l *pageLexer) (stateFunc, bool) {
-				return lexEmoji, true
-			},
-		}
-
-		handlers = append(handlers, emojiHandler)
-	}
 
 	return &sectionHandlers{
 		l:           l,
