@@ -96,6 +96,7 @@ func (c *importCommand) Init(cd *simplecobra.Commandeer) error {
 
 Import requires a subcommand, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`."
 
+	cmd.RunE = nil
 	return nil
 }
 

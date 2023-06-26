@@ -243,6 +243,8 @@ func (c *genCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args [
 func (c *genCommand) Init(cd *simplecobra.Commandeer) error {
 	cmd := cd.CobraCommand
 	cmd.Short = "A collection of several useful generators."
+
+	cmd.RunE = nil
 	return nil
 }
 

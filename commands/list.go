@@ -182,6 +182,7 @@ func (c *listCommand) Init(cd *simplecobra.Commandeer) error {
 
 List requires a subcommand, e.g. hugo list drafts`
 
+	cmd.RunE = nil
 	return nil
 }
 
