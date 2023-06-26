@@ -110,6 +110,7 @@ See convert's subcommands toJSON, toTOML and toYAML for more information.`
 	cmd.PersistentFlags().StringVarP(&c.outputDir, "output", "o", "", "filesystem path to write files to")
 	cmd.PersistentFlags().BoolVar(&c.unsafe, "unsafe", false, "enable less safe operations, please backup first")
 
+	cmd.RunE = nil
 	return nil
 }
 

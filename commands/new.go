@@ -285,6 +285,8 @@ You can also specify the kind with ` + "`-k KIND`" + `.
 If archetypes are provided in your theme or site, they will be used.
 
 Ensure you run this within the root directory of your site.`
+
+	cmd.RunE = nil
 	return nil
 }
 
