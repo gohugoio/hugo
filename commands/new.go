@@ -47,13 +47,13 @@ func newNewCommand() *newCommand {
 				use:   "content [path]",
 				short: "Create new content for your site",
 				long: `Create a new content file and automatically set the date and title.
-		It will guess which kind of file to create based on the path provided.
-		
-		You can also specify the kind with ` + "`-k KIND`" + `.
-		
-		If archetypes are provided in your theme or site, they will be used.
-		
-		Ensure you run this within the root directory of your site.`,
+It will guess which kind of file to create based on the path provided.
+
+You can also specify the kind with ` + "`-k KIND`" + `.
+
+If archetypes are provided in your theme or site, they will be used.
+
+Ensure you run this within the root directory of your site.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					if len(args) < 1 {
 						return errors.New("path needs to be provided")
@@ -150,6 +150,7 @@ Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
 				},
 				withc: func(cmd *cobra.Command, r *rootCommand) {
 					cmd.Flags().BoolVarP(&force, "force", "f", false, "init inside non-empty directory")
+					cmd.Flags().StringVar(&format, "format", "toml", "preferred file format (toml, yaml or json)")
 				},
 			},
 			&simpleCommand{

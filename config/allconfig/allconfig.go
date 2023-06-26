@@ -150,7 +150,7 @@ type Config struct {
 	Minify minifiers.MinifyConfig `mapstructure:"-"`
 
 	// Permalink configuration.
-	Permalinks map[string]string `mapstructure:"-"`
+	Permalinks map[string]map[string]string `mapstructure:"-"`
 
 	// Taxonomy configuration.
 	Taxonomies map[string]string `mapstructure:"-"`

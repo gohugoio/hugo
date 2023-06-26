@@ -69,6 +69,7 @@ func TestPermalinkExpansion(t *testing.T) {
 	page.date = d
 	page.section = "blue"
 	page.slug = "The Slug"
+	page.kind = "page"
 
 	for _, item := range testdataPermalinks {
 		if !item.valid {
@@ -79,8 +80,10 @@ func TestPermalinkExpansion(t *testing.T) {
 		name := specNameCleaner.ReplaceAllString(item.spec, "")
 
 		c.Run(name, func(c *qt.C) {
-			patterns := map[string]string{
-				"posts": item.spec,
+			patterns := map[string]map[string]string{
+				"page": {
+					"posts": item.spec,
+				},
 			}
 			expander, err := NewPermalinkExpander(urlize, patterns)
 			c.Assert(err, qt.IsNil)
@@ -103,14 +106,18 @@ func TestPermalinkExpansionMultiSection(t *testing.T) {
 	page.date = d
 	page.section = "blue"
 	page.slug = "The Slug"
+	page.kind = "page"
 
 	page_slug_fallback := newTestPageWithFile("/page-filename/index.md")
 	page_slug_fallback.title = "Page Title"
+	page_slug_fallback.kind = "page"
 
-	permalinksConfig := map[string]string{
-		"posts":   "/:slug",
-		"blog":    "/:section/:year",
-		"recipes": "/:slugorfilename",
+	permalinksConfig := map[string]map[string]string{
+		"page": {
+			"posts":   "/:slug",
+			"blog":    "/:section/:year",
+			"recipes": "/:slugorfilename",
+		},
 	}
 	expander, err := NewPermalinkExpander(urlize, permalinksConfig)
 	c.Assert(err, qt.IsNil)
@@ -137,8 +144,10 @@ func TestPermalinkExpansionConcurrent(t *testing.T) {
 
 	c := qt.New(t)
 
-	permalinksConfig := map[string]string{
-		"posts": "/:slug/",
+	permalinksConfig := map[string]map[string]string{
+		"page": {
+			"posts": "/:slug/",
+		},
 	}
 
 	expander, err := NewPermalinkExpander(urlize, permalinksConfig)
@@ -151,6 +160,7 @@ func TestPermalinkExpansionConcurrent(t *testing.T) {
 		go func(i int) {
 			defer wg.Done()
 			page := newTestPage()
+			page.kind = "page"
 			for j := 1; j < 20; j++ {
 				page.slug = fmt.Sprintf("slug%d", i+j)
 				expanded, err := expander.Expand("posts", page)
@@ -209,9 +219,12 @@ func BenchmarkPermalinkExpand(b *testing.B) {
 	page.title = "Hugo Rocks"
 	d, _ := time.Parse("2006-01-02", "2019-02-28")
 	page.date = d
+	page.kind = "page"
 
-	permalinksConfig := map[string]string{
-		"posts": "/:year-:month-:title",
+	permalinksConfig := map[string]map[string]string{
+		"page": {
+			"posts": "/:year-:month-:title",
+		},
 	}
 	expander, err := NewPermalinkExpander(urlize, permalinksConfig)
 	if err != nil {

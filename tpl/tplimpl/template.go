@@ -754,15 +754,15 @@ func (t *templateHandler) applyTemplateTransformers(ns *templateNamespace, ts *t
 //go:embed embedded/templates/*
 //go:embed embedded/templates/_default/*
 //go:embed embedded/templates/_server/*
-var embededTemplatesFs embed.FS
+var embeddedTemplatesFs embed.FS
 
 func (t *templateHandler) loadEmbedded() error {
-	return fs.WalkDir(embededTemplatesFs, ".", func(path string, d fs.DirEntry, err error) error {
+	return fs.WalkDir(embeddedTemplatesFs, ".", func(path string, d fs.DirEntry, err error) error {
 		if d == nil || d.IsDir() {
 			return nil
 		}
 
-		templb, err := embededTemplatesFs.ReadFile(path)
+		templb, err := embeddedTemplatesFs.ReadFile(path)
 		if err != nil {
 			return err
 		}

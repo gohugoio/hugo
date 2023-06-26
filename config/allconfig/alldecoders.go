@@ -206,7 +206,48 @@ var allDecoderSetups = map[string]decodeWeight{
 	"permalinks": {
 		key: "permalinks",
 		decode: func(d decodeWeight, p decodeConfig) error {
-			p.c.Permalinks = maps.CleanConfigStringMapString(p.p.GetStringMapString(d.key))
+			p.c.Permalinks = make(map[string]map[string]string)
+
+			p.c.Permalinks["page"] = make(map[string]string)
+			p.c.Permalinks["section"] = make(map[string]string)
+			p.c.Permalinks["taxonomy"] = make(map[string]string)
+			p.c.Permalinks["term"] = make(map[string]string)
+
+			config := maps.CleanConfigStringMap(p.p.GetStringMap(d.key))
+			for k, v := range config {
+				switch v := v.(type) {
+				case string:
+					// [permalinks]
+					//   key = '...'
+
+					// To sucessfully be backward compatible, "default" patterns need to be set for both page and term
+					p.c.Permalinks["page"][k] = v;
+					p.c.Permalinks["term"][k] = v;
+				
+				case maps.Params:
+					// [permalinks.key]
+					//   xyz = ???
+
+					if (k == "page") || (k == "section") || (k == "taxonomy") || (k == "term") {
+						// TODO: warn if we overwrite an already set value
+						for k2, v2 := range v {
+							switch v2 := v2.(type) {
+							case string:
+								p.c.Permalinks[k][k2] = v2
+							
+							default:
+								return fmt.Errorf("permalinks configuration invalid: unknown value %q for key %q for kind %q", v2, k2, k)
+							}
+						}
+					} else {
+						return fmt.Errorf("permalinks configuration only allows per-kind configuration 'page', 'section', 'taxonomy' and 'term'; unknown kind: %q", k)
+					}
+
+				default:
+					return fmt.Errorf("permalinks configuration invalid: unknown value %q for key %q", v, k)
+				}
+			}
+
 			return nil
 		},
 	},
