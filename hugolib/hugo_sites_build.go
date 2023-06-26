@@ -317,6 +317,14 @@ func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
 func (h *HugoSites) postProcess(l logg.LevelLogger) error {
 	defer h.timeTrack(l, time.Now(), "postProcess")
 
+	hugofs.WalkFilesystems(h.Fs.PublishDir, func(fs afero.Fs) bool {
+		if dfs, ok := fs.(hugofs.DuplicatesReporter); ok {
+			// We will rewrite to the same files, so we need to stop any duplicate counting.
+			dfs.Stop()
+		}
+		return false
+	})
+
 	// Make sure to write any build stats to disk first so it's available
 	// to the post processors.
 	if err := h.writeBuildStats(); err != nil {

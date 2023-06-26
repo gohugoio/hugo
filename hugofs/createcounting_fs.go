@@ -31,6 +31,7 @@ type Reseter interface {
 // DuplicatesReporter reports about duplicate filenames.
 type DuplicatesReporter interface {
 	ReportDuplicates() string
+	Stop()
 }
 
 var (
@@ -67,10 +68,18 @@ func (c *createCountingFs) ReportDuplicates() string {
 	return strings.Join(dupes, ", ")
 }
 
+func (c *createCountingFs) Stop() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.stopped = true
+}
+
 // createCountingFs counts filenames of created files or files opened
 // for writing.
 type createCountingFs struct {
 	afero.Fs
+
+	stopped bool
 
 	mu        sync.Mutex
 	fileCount map[string]int
@@ -86,6 +95,9 @@ func (c *createCountingFs) Reset() {
 func (fs *createCountingFs) onCreate(filename string) {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
+	if fs.stopped {
+		return
+	}
 
 	fs.fileCount[filename] = fs.fileCount[filename] + 1
 }
