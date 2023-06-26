@@ -26,6 +26,7 @@ import (
 	"errors"
 
 	"github.com/gohugoio/hugo/helpers"
+
 )
 
 // PermalinkExpander holds permalin mappings per section.
@@ -35,7 +36,7 @@ type PermalinkExpander struct {
 	// to be used to replace that tag.
 	knownPermalinkAttributes map[string]pageToPermaAttribute
 
-	expanders map[string]func(Page) (string, error)
+	expanders map[string]map[string]func(Page) (string, error)
 
 	urlize func(uri string) string
 }
@@ -68,7 +69,7 @@ func (p PermalinkExpander) callback(attr string) (pageToPermaAttribute, bool) {
 
 // NewPermalinkExpander creates a new PermalinkExpander configured by the given
 // urlize func.
-func NewPermalinkExpander(urlize func(uri string) string, patterns map[string]string) (PermalinkExpander, error) {
+func NewPermalinkExpander(urlize func(uri string) string, patterns map[string]map[string]string) (PermalinkExpander, error) {
 	p := PermalinkExpander{urlize: urlize}
 
 	p.knownPermalinkAttributes = map[string]pageToPermaAttribute{
@@ -87,12 +88,15 @@ func NewPermalinkExpander(urlize func(uri string) string, patterns map[string]st
 		"filename":       p.pageToPermalinkFilename,
 	}
 
-	e, err := p.parse(patterns)
-	if err != nil {
-		return p, err
-	}
+	p.expanders = make(map[string]map[string]func(Page) (string, error))
 
-	p.expanders = e
+	for kind, patterns := range patterns {
+		e, err := p.parse(patterns)
+		if err != nil {
+			return p, err
+		}
+		p.expanders[kind] = e
+	}
 
 	return p, nil
 }
@@ -100,7 +104,13 @@ func NewPermalinkExpander(urlize func(uri string) string, patterns map[string]st
 // Expand expands the path in p according to the rules defined for the given key.
 // If no rules are found for the given key, an empty string is returned.
 func (l PermalinkExpander) Expand(key string, p Page) (string, error) {
-	expand, found := l.expanders[key]
+	expanders, found := l.expanders[p.Kind()]
+
+	if !found {
+		return "", nil
+	}
+
+	expand, found := expanders[key]
 
 	if !found {
 		return "", nil
@@ -242,6 +252,10 @@ func (l PermalinkExpander) pageToPermalinkDate(p Page, dateField string) (string
 
 // pageToPermalinkTitle returns the URL-safe form of the title
 func (l PermalinkExpander) pageToPermalinkTitle(p Page, _ string) (string, error) {
+	if p.File().TranslationBaseName() == "_index" {
+		return "", nil
+	}
+
 	return l.urlize(p.Title()), nil
 }
 
@@ -252,6 +266,8 @@ func (l PermalinkExpander) pageToPermalinkFilename(p Page, _ string) (string, er
 		// Page bundles; the directory name will hopefully have a better name.
 		dir := strings.TrimSuffix(p.File().Dir(), helpers.FilePathSeparator)
 		_, name = filepath.Split(dir)
+	} else if name == "_index" {
+		return "", nil
 	}
 
 	return l.urlize(name), nil
