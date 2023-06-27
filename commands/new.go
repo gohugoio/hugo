@@ -56,7 +56,7 @@ If archetypes are provided in your theme or site, they will be used.
 Ensure you run this within the root directory of your site.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					if len(args) < 1 {
-						return errors.New("path needs to be provided")
+						return newUserError("path needs to be provided")
 					}
 					h, err := r.Hugo(flagsToCfg(cd, nil))
 					if err != nil {
@@ -82,7 +82,7 @@ The new site will have the correct structure, but no content or theme yet.
 Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					if len(args) < 1 {
-						return errors.New("path needs to be provided")
+						return newUserError("path needs to be provided")
 					}
 					createpath, err := filepath.Abs(filepath.Clean(args[0]))
 					if err != nil {
@@ -162,6 +162,9 @@ New theme is a skeleton. Please add content to the touched files. Add your
 name to the copyright line in the license and adjust the theme.toml file
 according to your needs.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
+					if len(args) < 1 {
+						return newUserError("theme name needs to be provided")
+					}
 					h, err := r.Hugo(flagsToCfg(cd, nil))
 					if err != nil {
 						return err
