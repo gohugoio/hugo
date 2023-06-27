@@ -104,3 +104,63 @@ func TestAppendSliceToASliceOfSlices(t *testing.T) {
 	}
 
 }
+
+func TestAppendNilToSlice(t *testing.T) {
+
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/index.html --
+{{ $obj := (slice "a") }}
+{{ $obj = $obj | append nil }}
+
+{{ $obj }}
+
+
+  `
+
+	for i := 0; i < 4; i++ {
+
+		b := hugolib.NewIntegrationTestBuilder(
+			hugolib.IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		).Build()
+
+		b.AssertFileContent("public/index.html", "[a &lt;nil&gt;]")
+
+	}
+
+}
+
+func TestAppendNilsToSliceWithNils(t *testing.T) {
+
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/index.html --
+{{ $obj := (slice "a" nil "c") }}
+{{ $obj = $obj | append nil }}
+
+{{ $obj }}
+
+
+  `
+
+	for i := 0; i < 4; i++ {
+
+		b := hugolib.NewIntegrationTestBuilder(
+			hugolib.IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		).Build()
+
+		b.AssertFileContent("public/index.html", "[a &lt;nil&gt; c &lt;nil&gt;]")
+
+	}
+
+}
