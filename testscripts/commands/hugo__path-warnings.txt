@@ -1,0 +1,26 @@
+hugo --printPathWarnings
+
+stdout 'Duplicate'
+
+-- hugo.toml --
+-- assets/css/styles.css --
+body {
+  background-color: #000;
+}
+-- content/p1.md --
+---
+url: /p1/
+---
+-- content/p2.md --
+---
+url: /p1/
+---
+-- content/p3.md --
+---
+url: /p1/
+---
+-- layouts/index.html --
+Home.
+-- layouts/_default/single.html --
+Single.
+

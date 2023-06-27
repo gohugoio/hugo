@@ -143,6 +143,21 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		if err := h.render(infol, conf); err != nil {
 			h.SendError(fmt.Errorf("render: %w", err))
 		}
+
+		if h.Configs.Base.LogPathWarnings {
+			// We need to do this before any post processing, as that may write to the same files twice
+			// and create false positives.
+			hugofs.WalkFilesystems(h.Fs.PublishDir, func(fs afero.Fs) bool {
+				if dfs, ok := fs.(hugofs.DuplicatesReporter); ok {
+					dupes := dfs.ReportDuplicates()
+					if dupes != "" {
+						h.Log.Warnln("Duplicate target paths:", dupes)
+					}
+				}
+				return false
+			})
+		}
+
 		if err := h.postProcess(infol); err != nil {
 			h.SendError(fmt.Errorf("postProcess: %w", err))
 		}
