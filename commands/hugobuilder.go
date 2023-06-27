@@ -45,7 +45,6 @@ import (
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/gohugoio/hugo/watcher"
-	"github.com/spf13/afero"
 	"github.com/spf13/fsync"
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/sync/semaphore"
@@ -417,18 +416,6 @@ func (c *hugoBuilder) build() error {
 		h, err := c.hugo()
 		if err != nil {
 			return err
-		}
-
-		if c.r.printPathWarnings {
-			hugofs.WalkFilesystems(h.Fs.PublishDir, func(fs afero.Fs) bool {
-				if dfs, ok := fs.(hugofs.DuplicatesReporter); ok {
-					dupes := dfs.ReportDuplicates()
-					if dupes != "" {
-						c.r.logger.Warnln("Duplicate target paths:", dupes)
-					}
-				}
-				return false
-			})
 		}
 
 		if c.r.printUnusedTemplates {
