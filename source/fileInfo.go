@@ -92,9 +92,6 @@ type FileWithoutOverlap interface {
 	// if file is a leaf bundle.
 	ContentBaseName() string
 
-	// Classifier is the ContentClass of the file
-	Classifier() files.ContentClass
-
 	// UniqueID is the MD5 hash of the file's path and is for most practical applications,
 	// Hugo content files being one of them, considered to be unique.
 	UniqueID() string
@@ -171,11 +168,6 @@ func (fi *FileInfo) TranslationBaseName() string { return fi.translationBaseName
 func (fi *FileInfo) ContentBaseName() string {
 	fi.init()
 	return fi.contentBaseName
-}
-
-// Classifier is the ContentClass of the file
-func (fi *FileInfo) Classifier() files.ContentClass {
-	return fi.classifier;
 }
 
 // Section returns a file's section.

@@ -25,8 +25,8 @@ import (
 
 	"errors"
 
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/helpers"
-
 )
 
 // PermalinkExpander holds permalin mappings per section.
@@ -252,16 +252,12 @@ func (l PermalinkExpander) pageToPermalinkDate(p Page, dateField string) (string
 
 // pageToPermalinkTitle returns the URL-safe form of the title
 func (l PermalinkExpander) pageToPermalinkTitle(p Page, _ string) (string, error) {
-	if p.File().TranslationBaseName() == "_index" {
-		return "", nil
-	}
-
 	return l.urlize(p.Title()), nil
 }
 
 // pageToPermalinkFilename returns the URL-safe form of the filename
 func (l PermalinkExpander) pageToPermalinkFilename(p Page, _ string) (string, error) {
-	name := p.File().TranslationBaseName()
+	name := l.translationBaseName(p)
 	if name == "index" {
 		// Page bundles; the directory name will hopefully have a better name.
 		dir := strings.TrimSuffix(p.File().Dir(), helpers.FilePathSeparator)
@@ -295,6 +291,13 @@ func (l PermalinkExpander) pageToPermalinkSection(p Page, _ string) (string, err
 
 func (l PermalinkExpander) pageToPermalinkSections(p Page, _ string) (string, error) {
 	return p.CurrentSection().SectionsPath(), nil
+}
+
+func (l PermalinkExpander) translationBaseName(p Page) string {
+	if p.File().IsZero() {
+		return ""
+	}
+	return p.File().TranslationBaseName()
 }
 
 var (
@@ -349,7 +352,10 @@ func (l PermalinkExpander) toSliceFunc(cut string) func(s []string) []string {
 		return func(ss []string) int {
 			// Prevent out of bound situations. It would not make
 			// much sense to panic here.
-			if n > len(ss) {
+			if n >= len(ss) {
+				if low {
+					return -1
+				}
 				return len(ss)
 			}
 			return n
@@ -365,7 +371,11 @@ func (l PermalinkExpander) toSliceFunc(cut string) func(s []string) []string {
 			if len(s) == 0 {
 				return nil
 			}
-			v := s[toN(s)]
+			n := toN(s)
+			if n < 0 {
+				return []string{}
+			}
+			v := s[n]
 			if v == "" {
 				return nil
 			}
@@ -379,7 +389,59 @@ func (l PermalinkExpander) toSliceFunc(cut string) func(s []string) []string {
 		if len(s) == 0 {
 			return nil
 		}
-		return s[toN1(s):toN2(s)]
+		n1, n2 := toN1(s), toN2(s)
+		if n1 < 0 || n2 < 0 {
+			return []string{}
+		}
+		return s[n1:n2]
 	}
 
+}
+
+var permalinksKindsSuppurt = []string{KindPage, KindSection, KindTaxonomy, KindTerm}
+
+// DecodePermalinksConfig decodes the permalinks configuration in the given map
+func DecodePermalinksConfig(m map[string]any) (map[string]map[string]string, error) {
+	permalinksConfig := make(map[string]map[string]string)
+
+	permalinksConfig[KindPage] = make(map[string]string)
+	permalinksConfig[KindSection] = make(map[string]string)
+	permalinksConfig[KindTaxonomy] = make(map[string]string)
+	permalinksConfig[KindTerm] = make(map[string]string)
+
+	config := maps.CleanConfigStringMap(m)
+	for k, v := range config {
+		switch v := v.(type) {
+		case string:
+			// [permalinks]
+			//   key = '...'
+
+			// To sucessfully be backward compatible, "default" patterns need to be set for both page and term
+			permalinksConfig[KindPage][k] = v
+			permalinksConfig[KindTerm][k] = v
+
+		case maps.Params:
+			// [permalinks.key]
+			//   xyz = ???
+
+			if helpers.InStringArray(permalinksKindsSuppurt, k) {
+				// TODO: warn if we overwrite an already set value
+				for k2, v2 := range v {
+					switch v2 := v2.(type) {
+					case string:
+						permalinksConfig[k][k2] = v2
+
+					default:
+						return nil, fmt.Errorf("permalinks configuration invalid: unknown value %q for key %q for kind %q", v2, k2, k)
+					}
+				}
+			} else {
+				return nil, fmt.Errorf("permalinks configuration not supported for kind %q, supported kinds are %v", k, permalinksKindsSuppurt)
+			}
+
+		default:
+			return nil, fmt.Errorf("permalinks configuration invalid: unknown value %q for key %q", v, k)
+		}
+	}
+	return permalinksConfig, nil
 }

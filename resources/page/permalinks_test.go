@@ -179,36 +179,45 @@ func TestPermalinkExpansionSliceSyntax(t *testing.T) {
 	c := qt.New(t)
 	exp, err := NewPermalinkExpander(urlize, nil)
 	c.Assert(err, qt.IsNil)
-	slice := []string{"a", "b", "c", "d"}
-	fn := func(s string) []string {
-		return exp.toSliceFunc(s)(slice)
+	slice4 := []string{"a", "b", "c", "d"}
+	fn4 := func(s string) []string {
+		return exp.toSliceFunc(s)(slice4)
+	}
+
+	slice1 := []string{"a"}
+	fn1 := func(s string) []string {
+		return exp.toSliceFunc(s)(slice1)
 	}
 
 	c.Run("Basic", func(c *qt.C) {
-		c.Assert(fn("[1:3]"), qt.DeepEquals, []string{"b", "c"})
-		c.Assert(fn("[1:]"), qt.DeepEquals, []string{"b", "c", "d"})
-		c.Assert(fn("[:2]"), qt.DeepEquals, []string{"a", "b"})
-		c.Assert(fn("[0:2]"), qt.DeepEquals, []string{"a", "b"})
-		c.Assert(fn("[:]"), qt.DeepEquals, []string{"a", "b", "c", "d"})
-		c.Assert(fn(""), qt.DeepEquals, []string{"a", "b", "c", "d"})
-		c.Assert(fn("[last]"), qt.DeepEquals, []string{"d"})
-		c.Assert(fn("[:last]"), qt.DeepEquals, []string{"a", "b", "c"})
+		c.Assert(fn4("[1:3]"), qt.DeepEquals, []string{"b", "c"})
+		c.Assert(fn4("[1:]"), qt.DeepEquals, []string{"b", "c", "d"})
+		c.Assert(fn4("[:2]"), qt.DeepEquals, []string{"a", "b"})
+		c.Assert(fn4("[0:2]"), qt.DeepEquals, []string{"a", "b"})
+		c.Assert(fn4("[:]"), qt.DeepEquals, []string{"a", "b", "c", "d"})
+		c.Assert(fn4(""), qt.DeepEquals, []string{"a", "b", "c", "d"})
+		c.Assert(fn4("[last]"), qt.DeepEquals, []string{"d"})
+		c.Assert(fn4("[:last]"), qt.DeepEquals, []string{"a", "b", "c"})
+		c.Assert(fn1("[last]"), qt.DeepEquals, []string{"a"})
+		c.Assert(fn1("[:last]"), qt.DeepEquals, []string{})
+		c.Assert(fn1("[1:last]"), qt.DeepEquals, []string{})
+		c.Assert(fn1("[1]"), qt.DeepEquals, []string{})
 
 	})
 
 	c.Run("Out of bounds", func(c *qt.C) {
-		c.Assert(fn("[1:5]"), qt.DeepEquals, []string{"b", "c", "d"})
-		c.Assert(fn("[-1:5]"), qt.DeepEquals, []string{"a", "b", "c", "d"})
-		c.Assert(fn("[5:]"), qt.DeepEquals, []string{})
-		c.Assert(fn("[5:]"), qt.DeepEquals, []string{})
-		c.Assert(fn("[5:32]"), qt.DeepEquals, []string{})
+		c.Assert(fn4("[1:5]"), qt.DeepEquals, []string{"b", "c", "d"})
+		c.Assert(fn4("[-1:5]"), qt.DeepEquals, []string{"a", "b", "c", "d"})
+		c.Assert(fn4("[5:]"), qt.DeepEquals, []string{})
+		c.Assert(fn4("[5:]"), qt.DeepEquals, []string{})
+		c.Assert(fn4("[5:32]"), qt.DeepEquals, []string{})
 		c.Assert(exp.toSliceFunc("[:1]")(nil), qt.DeepEquals, []string(nil))
 		c.Assert(exp.toSliceFunc("[:1]")([]string{}), qt.DeepEquals, []string(nil))
 
 		// These all return nil
-		c.Assert(fn("[]"), qt.IsNil)
-		c.Assert(fn("[1:}"), qt.IsNil)
-		c.Assert(fn("foo"), qt.IsNil)
+		c.Assert(fn4("[]"), qt.IsNil)
+		c.Assert(fn4("[1:}"), qt.IsNil)
+		c.Assert(fn4("foo"), qt.IsNil)
 
 	})
 

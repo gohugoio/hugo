@@ -680,7 +680,14 @@ func (m *contentMap) splitKey(k string) []string {
 		return nil
 	}
 
-	return strings.Split(k, "/")[1:]
+	parts := strings.Split(k, "/")[1:]
+	if len(parts) == 0 {
+		return nil
+	}
+	if parts[len(parts)-1] == "" {
+		parts = parts[:len(parts)-1]
+	}
+	return parts
 }
 
 func (m *contentMap) testDump() string {
