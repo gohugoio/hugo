@@ -93,7 +93,6 @@ const (
 	ContentClassBranch  ContentClass = "branch"
 	ContentClassFile    ContentClass = "zfile" // Sort below
 	ContentClassContent ContentClass = "zcontent"
-	ContentClassZero    ContentClass = "zero"  // Special value for zeroFile
 )
 
 func (c ContentClass) IsBundle() bool {

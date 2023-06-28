@@ -18,7 +18,6 @@ package page
 import (
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/source"
 )
 
@@ -33,11 +32,6 @@ func NewZeroFile(log loggers.Logger) source.File {
 
 func (zeroFile) IsZero() bool {
 	return true
-}
-
-func (z zeroFile) Classifier() files.ContentClass {
-	z.log.Warnln(".File.Classifier on zero object. Wrap it in if or with: {{ with .File }}{{ .Classifier }}{{ end }}")
-	return files.ContentClassZero
 }
 
 func (z zeroFile) Path() (o0 string) {

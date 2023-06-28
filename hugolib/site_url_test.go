@@ -160,3 +160,25 @@ Do not go gentle into that good night.
 	th.assertFileContent(filepath.Join("public", "ss1", "index.html"), "P1|URL: /ss1/|Next: /ss1/page/2/")
 	th.assertFileContent(filepath.Join("public", "ss1", "page", "2", "index.html"), "P2|URL: /ss1/page/2/|Next: /ss1/page/3/")
 }
+
+func TestSectionsEntries(t *testing.T) {
+	files := `
+-- hugo.toml --
+-- content/withfile/_index.md --
+-- content/withoutfile/p1.md --
+-- layouts/_default/list.html --
+SectionsEntries: {{ .SectionsEntries }}
+
+
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/withfile/index.html", "SectionsEntries: [withfile]")
+	b.AssertFileContent("public/withoutfile/index.html", "SectionsEntries: [withoutfile]")
+}

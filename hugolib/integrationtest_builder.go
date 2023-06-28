@@ -205,6 +205,10 @@ func (s *IntegrationTestBuilder) Build() *IntegrationTestBuilder {
 	return s
 }
 
+func (s *IntegrationTestBuilder) LogString() string {
+	return s.logBuff.String()
+}
+
 func (s *IntegrationTestBuilder) BuildE() (*IntegrationTestBuilder, error) {
 	s.Helper()
 	if err := s.initBuilder(); err != nil {

@@ -109,13 +109,13 @@ func createTargetPathDescriptor(s *Site, p page.Page, pm *pageMeta) (page.Target
 	)
 
 	d := s.Deps
-	classifier := files.ContentClassZero
+	var classifier files.ContentClass
 
 	if !p.File().IsZero() {
 		dir = p.File().Dir()
 		baseName = p.File().TranslationBaseName()
 		contentBaseName = p.File().ContentBaseName()
-		classifier = p.File().Classifier()
+		classifier = p.File().FileInfo().Meta().Classifier
 	}
 
 	if classifier == files.ContentClassLeaf {
