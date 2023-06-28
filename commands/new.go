@@ -155,11 +155,12 @@ Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
 			},
 			&simpleCommand{
 				name:  "theme",
-				use:   "theme [path]",
-				short: "Create a new site (skeleton)",
-				long: `Create a new site in the provided directory.
-The new site will have the correct structure, but no content or theme yet.
-Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
+				use:   "theme [name]",
+				short: "Create a new theme (skeleton)",
+				long: `Create a new theme (skeleton) called [name] in ./themes.
+New theme is a skeleton. Please add content to the touched files. Add your
+name to the copyright line in the license and adjust the theme.toml file
+according to your needs.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					h, err := r.Hugo(flagsToCfg(cd, nil))
 					if err != nil {
