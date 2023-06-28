@@ -138,8 +138,8 @@ var allDecoderSetups = map[string]decodeWeight{
 			return err
 		},
 	},
-	"mediaTypes": {
-		key: "mediaTypes",
+	"mediatypes": {
+		key: "mediatypes",
 		decode: func(d decodeWeight, p decodeConfig) error {
 			var err error
 			p.c.MediaTypes, err = media.DecodeTypes(p.p.GetStringMap(d.key))
@@ -168,8 +168,8 @@ var allDecoderSetups = map[string]decodeWeight{
 			return nil
 		},
 	},
-	"outputFormats": {
-		key: "outputFormats",
+	"outputformats": {
+		key: "outputformats",
 		decode: func(d decodeWeight, p decodeConfig) error {
 			var err error
 			p.c.OutputFormats, err = output.DecodeConfig(p.c.MediaTypes.Config, p.p.Get(d.key))
@@ -221,9 +221,9 @@ var allDecoderSetups = map[string]decodeWeight{
 					//   key = '...'
 
 					// To sucessfully be backward compatible, "default" patterns need to be set for both page and term
-					p.c.Permalinks["page"][k] = v;
-					p.c.Permalinks["term"][k] = v;
-				
+					p.c.Permalinks["page"][k] = v
+					p.c.Permalinks["term"][k] = v
+
 				case maps.Params:
 					// [permalinks.key]
 					//   xyz = ???
@@ -234,7 +234,7 @@ var allDecoderSetups = map[string]decodeWeight{
 							switch v2 := v2.(type) {
 							case string:
 								p.c.Permalinks[k][k2] = v2
-							
+
 							default:
 								return fmt.Errorf("permalinks configuration invalid: unknown value %q for key %q for kind %q", v2, k2, k)
 							}
@@ -409,4 +409,20 @@ var allDecoderSetups = map[string]decodeWeight{
 			return mapstructure.WeakDecode(p.p.GetStringMap(d.key), &p.c.Internal)
 		},
 	},
+}
+
+func init() {
+	for k, v := range allDecoderSetups {
+		// Verify that k and v.key is all lower case.
+		if k != strings.ToLower(k) {
+			panic(fmt.Sprintf("key %q is not lower case", k))
+		}
+		if v.key != strings.ToLower(v.key) {
+			panic(fmt.Sprintf("key %q is not lower case", v.key))
+		}
+
+		if k != v.key {
+			panic(fmt.Sprintf("key %q is not the same as the map key %q", k, v.key))
+		}
+	}
 }

@@ -1144,6 +1144,48 @@ LanguageCode: {{ .Site.LanguageCode }}|{{ site.Language.LanguageCode }}|
 
 }
 
+// See #11159
+func TestConfigOutputFormatsPerLanguage(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+[languages]
+[languages.en]
+title = "English Title"
+[languages.sv]
+title = "Swedish Title"
+[languages.sv.outputFormats.html]
+path = "foo"
+[languages.sv.mediatypes."text/html"]
+suffixes = ["bar"]
+
+-- layouts/index.html --
+Home.
+
+	
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", "Home.")
+
+	enConfig := b.H.Sites[0].conf
+	m, _ := enConfig.MediaTypes.Config.GetByType("text/html")
+	b.Assert(m.Suffixes(), qt.DeepEquals, []string{"html"})
+
+	svConfig := b.H.Sites[1].conf
+	f, _ := svConfig.OutputFormats.Config.GetByName("html")
+	b.Assert(f.Path, qt.Equals, "foo")
+	m, _ = svConfig.MediaTypes.Config.GetByType("text/html")
+	b.Assert(m.Suffixes(), qt.DeepEquals, []string{"bar"})
+
+}
+
 func TestConfigMiscPanics(t *testing.T) {
 	t.Parallel()
 

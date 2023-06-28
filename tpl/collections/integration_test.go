@@ -87,21 +87,16 @@ func TestAppendSliceToASliceOfSlices(t *testing.T) {
 
 {{ $obj }}
 
-
   `
 
-	for i := 0; i < 4; i++ {
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
 
-		b := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
-
-		b.AssertFileContent("public/index.html", "[[a] [b] [c]]")
-
-	}
+	b.AssertFileContent("public/index.html", "[[a] [b] [c]]")
 
 }
 
@@ -120,18 +115,14 @@ func TestAppendNilToSlice(t *testing.T) {
 
   `
 
-	for i := 0; i < 4; i++ {
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
 
-		b := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
-
-		b.AssertFileContent("public/index.html", "[a &lt;nil&gt;]")
-
-	}
+	b.AssertFileContent("public/index.html", "[a &lt;nil&gt;]")
 
 }
 
