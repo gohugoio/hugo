@@ -66,6 +66,10 @@ func Append(to any, from ...any) (any, error) {
 
 		if len(from) == 1 {
 			fromv := reflect.ValueOf(from[0])
+			if !fromv.IsValid() {
+				// from[0] is nil
+				return appendToInterfaceSliceFromValues(tov, fromv)
+			}
 			fromt := fromv.Type()
 			if fromt.Kind() == reflect.Slice {
 				fromt = fromt.Elem()
@@ -94,7 +98,7 @@ func Append(to any, from ...any) (any, error) {
 
 	for _, f := range from {
 		fv := reflect.ValueOf(f)
-		if !fv.Type().AssignableTo(tot) {
+		if !fv.IsValid() || !fv.Type().AssignableTo(tot) {
 			// Fall back to a []interface{} slice.
 			tov, _ := indirect(reflect.ValueOf(to))
 			return appendToInterfaceSlice(tov, from...)
@@ -109,6 +113,10 @@ func appendToInterfaceSliceFromValues(slice1, slice2 reflect.Value) ([]any, erro
 	var tos []any
 
 	for _, slice := range []reflect.Value{slice1, slice2} {
+		if !slice.IsValid() {
+			tos = append(tos, nil)
+			continue
+		}
 		for i := 0; i < slice.Len(); i++ {
 			tos = append(tos, slice.Index(i).Interface())
 		}
