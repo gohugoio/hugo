@@ -34,7 +34,7 @@ const securityConfigKey = "security"
 // DefaultConfig holds the default security policy.
 var DefaultConfig = Config{
 	Exec: Exec{
-		Allow: NewWhitelist(
+		Allow: MustNewWhitelist(
 			"^(dart-)?sass(-embedded)?$", // sass, dart-sass, dart-sass-embedded.
 			"^go$",                       // for Go Modules
 			"^npx$",                      // used by all Node tools (Babel, PostCSS).
@@ -42,14 +42,14 @@ var DefaultConfig = Config{
 		),
 		// These have been tested to work with Hugo's external programs
 		// on Windows, Linux and MacOS.
-		OsEnv: NewWhitelist(`(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+)$`),
+		OsEnv: MustNewWhitelist(`(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+)$`),
 	},
 	Funcs: Funcs{
-		Getenv: NewWhitelist("^HUGO_", "^CI$"),
+		Getenv: MustNewWhitelist("^HUGO_", "^CI$"),
 	},
 	HTTP: HTTP{
-		URLs:    NewWhitelist(".*"),
-		Methods: NewWhitelist("(?i)GET|POST"),
+		URLs:    MustNewWhitelist(".*"),
+		Methods: MustNewWhitelist("(?i)GET|POST"),
 	},
 }
 
@@ -221,7 +221,7 @@ func stringSliceToWhitelistHook() mapstructure.DecodeHookFuncType {
 
 		wl := types.ToStringSlicePreserveString(data)
 
-		return NewWhitelist(wl...), nil
+		return NewWhitelist(wl...)
 
 	}
 }

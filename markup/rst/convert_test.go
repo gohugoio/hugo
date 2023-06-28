@@ -31,7 +31,7 @@ func TestConvert(t *testing.T) {
 	}
 	c := qt.New(t)
 	sc := security.DefaultConfig
-	sc.Exec.Allow = security.NewWhitelist("rst", "python")
+	sc.Exec.Allow = security.MustNewWhitelist("rst", "python")
 
 	p, err := Provider.New(
 		converter.ProviderConfig{

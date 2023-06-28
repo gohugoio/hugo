@@ -45,9 +45,9 @@ func (w Whitelist) MarshalJSON() ([]byte, error) {
 // NewWhitelist creates a new Whitelist from zero or more patterns.
 // An empty patterns list or a pattern with the value 'none' will create
 // a whitelist that will Accept none.
-func NewWhitelist(patterns ...string) Whitelist {
+func NewWhitelist(patterns ...string) (Whitelist, error) {
 	if len(patterns) == 0 {
-		return Whitelist{acceptNone: true}
+		return Whitelist{acceptNone: true}, nil
 	}
 
 	var acceptSome bool
@@ -68,7 +68,7 @@ func NewWhitelist(patterns ...string) Whitelist {
 	if !acceptSome {
 		return Whitelist{
 			acceptNone: true,
-		}
+		}, nil
 	}
 
 	var patternsr []*regexp.Regexp
@@ -78,10 +78,23 @@ func NewWhitelist(patterns ...string) Whitelist {
 		if p == "" {
 			continue
 		}
-		patternsr = append(patternsr, regexp.MustCompile(p))
+		re, err := regexp.Compile(p)
+		if err != nil {
+			return Whitelist{}, fmt.Errorf("failed to compile whitelist pattern %q: %w", p, err)
+		}
+		patternsr = append(patternsr, re)
 	}
 
-	return Whitelist{patterns: patternsr, patternsStrings: patternsStrings}
+	return Whitelist{patterns: patternsr, patternsStrings: patternsStrings}, nil
+}
+
+// MustNewWhitelist creates a new Whitelist from zero or more patterns and panics on error.
+func MustNewWhitelist(patterns ...string) Whitelist {
+	w, err := NewWhitelist(patterns...)
+	if err != nil {
+		panic(err)
+	}
+	return w
 }
 
 // Accept reports whether name is whitelisted.

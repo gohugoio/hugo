@@ -381,7 +381,8 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 			s.Assert(os.Chdir(s.Cfg.WorkingDir), qt.IsNil)
 			s.C.Cleanup(func() { os.Chdir(wd) })
 			sc := security.DefaultConfig
-			sc.Exec.Allow = security.NewWhitelist("npm")
+			sc.Exec.Allow, err = security.NewWhitelist("npm")
+			s.Assert(err, qt.IsNil)
 			ex := hexec.New(sc)
 			command, err := ex.New("npm", "install")
 			s.Assert(err, qt.IsNil)

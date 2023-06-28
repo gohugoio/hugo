@@ -834,7 +834,9 @@ func (s *sitesBuilder) GetPageRel(p page.Page, ref string) page.Page {
 
 func (s *sitesBuilder) NpmInstall() hexec.Runner {
 	sc := security.DefaultConfig
-	sc.Exec.Allow = security.NewWhitelist("npm")
+	var err error
+	sc.Exec.Allow, err = security.NewWhitelist("npm")
+	s.Assert(err, qt.IsNil)
 	ex := hexec.New(sc)
 	command, err := ex.New("npm", "install")
 	s.Assert(err, qt.IsNil)
