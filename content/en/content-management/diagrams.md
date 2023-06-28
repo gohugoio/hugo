@@ -47,9 +47,9 @@ Will be rendered as:
 Hugo currently does not provide default templates for Mermaid diagrams. But you can easily add your own. One way to do it would be to create `layouts/_default/_markup/render-codeblock-mermaid.html`:
 
 ```go-html-template
-<div class="mermaid">
+<pre class="mermaid">
   {{- .Inner | safeHTML }}
-</div>
+</pre>
 {{ .Page.Store.Set "hasMermaid" true }}
 ```
 
