@@ -22,6 +22,10 @@ stdout 'Deleted 2\d{2} files from module cache\.'
 cd submod
 hugo mod init testsubmod
 cmpenv go.mod $WORK/golden/go.mod.testsubmod
+hugo mod get -h
+stdout 'hugo mod get \[flags\] \[args\]'
+hugo mod get --help
+stdout 'hugo mod get \[flags\] \[args\]'
 -- hugo.toml --
 title = "Hugo Modules Test"
 [module]
