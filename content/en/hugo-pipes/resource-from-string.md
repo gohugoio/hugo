@@ -16,6 +16,8 @@ signature: ["resources.FromString TARGET_PATH CONTENT"]
 
 It is possible to create a resource directly from the template using `resources.FromString` which takes two arguments, the target path for the created resource and the given content string.
 
+The result is cached using the target path as the cache key.
+
 The following example creates a resource file containing localized variables for every project's languages.
 
 ```go-html-template
