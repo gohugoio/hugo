@@ -69,3 +69,21 @@ Title: {{ .Title }}
 	b.Assert(modConf.Mounts[1].Lang, qt.Equals, "sv")
 
 }
+
+func TestConfigAliases(t *testing.T) {
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+logI18nWarnings = true
+logPathWarnings = true
+`
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{T: t, TxtarString: files},
+	).Build()
+
+	conf := b.H.Configs.Base
+
+	b.Assert(conf.PrintI18nWarnings, qt.Equals, true)
+	b.Assert(conf.PrintPathWarnings, qt.Equals, true)
+}

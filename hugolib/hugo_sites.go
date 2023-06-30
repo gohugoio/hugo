@@ -77,6 +77,8 @@ type HugoSites struct {
 	contentInit sync.Once
 	content     *pageMaps
 
+	postRenderInit sync.Once
+
 	// Keeps track of bundle directories and symlinks to enable partial rebuilding.
 	ContentChanges *contentChangeMap
 

@@ -110,12 +110,10 @@ type rootCommand struct {
 	environment string
 
 	// Common build flags.
-	baseURL              string
-	gc                   bool
-	poll                 string
-	forceSyncStatic      bool
-	printPathWarnings    bool
-	printUnusedTemplates bool
+	baseURL         string
+	gc              bool
+	poll            string
+	forceSyncStatic bool
 
 	// Profile flags (for debugging of performance problems)
 	cpuprofile   string
@@ -288,7 +286,7 @@ func (r *rootCommand) ConfigFromProvider(key int32, cfg config.Provider) (*commo
 			htime.Clock = clock.Start(configs.Base.C.Clock)
 		}
 
-		if base.LogPathWarnings {
+		if base.PrintPathWarnings {
 			// Note that we only care about the "dynamic creates" here,
 			// so skip the static fs.
 			fs.PublishDir = hugofs.NewCreateCountingFs(fs.PublishDir)
@@ -544,8 +542,8 @@ func applyLocalFlagsBuild(cmd *cobra.Command, r *rootCommand) {
 	cmd.Flags().BoolP("noChmod", "", false, "don't sync permission mode of files")
 	cmd.Flags().BoolP("noBuildLock", "", false, "don't create .hugo_build.lock file")
 	cmd.Flags().BoolP("printI18nWarnings", "", false, "print missing translations")
-	cmd.Flags().BoolVarP(&r.printPathWarnings, "printPathWarnings", "", false, "print warnings on duplicate target paths etc.")
-	cmd.Flags().BoolVarP(&r.printUnusedTemplates, "printUnusedTemplates", "", false, "print warnings on unused templates.")
+	cmd.Flags().BoolP("printPathWarnings", "", false, "print warnings on duplicate target paths etc.")
+	cmd.Flags().BoolP("printUnusedTemplates", "", false, "print warnings on unused templates.")
 	cmd.Flags().StringVarP(&r.cpuprofile, "profile-cpu", "", "", "write cpu profile to `file`")
 	cmd.Flags().StringVarP(&r.memprofile, "profile-mem", "", "", "write memory profile to `file`")
 	cmd.Flags().BoolVarP(&r.printm, "printMemoryUsage", "", false, "print memory usage to screen at intervals")

@@ -199,8 +199,8 @@ func (c ConfigLanguage) EnableMissingTranslationPlaceholders() bool {
 	return c.config.EnableMissingTranslationPlaceholders
 }
 
-func (c ConfigLanguage) LogI18nWarnings() bool {
-	return c.config.LogI18nWarnings
+func (c ConfigLanguage) PrintI18nWarnings() bool {
+	return c.config.PrintI18nWarnings
 }
 
 func (c ConfigLanguage) CreateTitle(s string) string {

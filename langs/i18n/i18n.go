@@ -119,7 +119,7 @@ func (t Translator) initFuncs(bndl *i18n.Bundle) {
 				t.logger.Warnf("Failed to get translated string for language %q and ID %q: %s", currentLangStr, translationID, err)
 			}
 
-			if t.cfg.LogI18nWarnings() {
+			if t.cfg.PrintI18nWarnings() {
 				t.logger.Warnf("i18n|MISSING_TRANSLATION|%s|%s", currentLangStr, translationID)
 			}
 

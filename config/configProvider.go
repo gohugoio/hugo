@@ -57,7 +57,7 @@ type AllProvider interface {
 	EnableMissingTranslationPlaceholders() bool
 	TemplateMetrics() bool
 	TemplateMetricsHints() bool
-	LogI18nWarnings() bool
+	PrintI18nWarnings() bool
 	CreateTitle(s string) string
 	IgnoreFile(s string) bool
 	NewContentEditor() string
