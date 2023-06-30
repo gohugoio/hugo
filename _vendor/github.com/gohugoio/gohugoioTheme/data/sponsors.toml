@@ -7,14 +7,12 @@
 
 [[banners]]
     name         = "CloudCannon"
-    link         = "https://cloudcannon.com/"
+    link         = "https://cloudcannon.com/hugo-cms/"
     logo         = "/images/sponsors/cloudcannon-white.svg"
     utm_campaign = "HugoSponsorship"
     utm_source   = "sponsor"
     utm_content  = "gohugo"
     bgcolor      = "#034AD8"
-
-    # https://cloudcannon.com/?utm_campaign=HugoSponsorship&utm_source=sponsor&utm_content=gohugo
 
 [[banners]]
     name          = "Your Company?"
