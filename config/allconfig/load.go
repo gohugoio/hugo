@@ -139,7 +139,11 @@ type configLoader struct {
 
 // Handle some legacy values.
 func (l configLoader) applyConfigAliases() error {
-	aliases := []types.KeyValueStr{{Key: "taxonomies", Value: "indexes"}}
+	aliases := []types.KeyValueStr{
+		{Key: "indexes", Value: "taxonomies"},
+		{Key: "logI18nWarnings", Value: "printI18nWarnings"},
+		{Key: "logPathWarnings", Value: "printPathWarnings"},
+	}
 
 	for _, alias := range aliases {
 		if l.cfg.IsSet(alias.Key) {

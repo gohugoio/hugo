@@ -484,12 +484,6 @@ type RootConfig struct {
 	// Enable to print greppable placeholders (on the form "[i18n] TRANSLATIONID") for missing translation strings.
 	EnableMissingTranslationPlaceholders bool
 
-	// Enable to print warnings for missing translation strings.
-	LogI18nWarnings bool
-
-	// ENable to print warnings for multiple files published to the same destination.
-	LogPathWarnings bool
-
 	// Enable to panic on warning log entries. This may make it easier to detect the source.
 	PanicOnWarning bool
 
@@ -524,6 +518,12 @@ type RootConfig struct {
 
 	// Whether to track and print unused templates during the build.
 	PrintUnusedTemplates bool
+
+	// Enable to print warnings for missing translation strings.
+	PrintI18nWarnings bool
+
+	// ENable to print warnings for multiple files published to the same destination.
+	PrintPathWarnings bool
 
 	// URL to be used as a placeholder when a page reference cannot be found in ref or relref. Is used as-is.
 	RefLinksNotFoundURL string

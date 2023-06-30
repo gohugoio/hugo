@@ -25,6 +25,7 @@ import (
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/publisher"
+	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/hugofs"
 
@@ -144,18 +145,8 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 			h.SendError(fmt.Errorf("render: %w", err))
 		}
 
-		if h.Configs.Base.LogPathWarnings {
-			// We need to do this before any post processing, as that may write to the same files twice
-			// and create false positives.
-			hugofs.WalkFilesystems(h.Fs.PublishDir, func(fs afero.Fs) bool {
-				if dfs, ok := fs.(hugofs.DuplicatesReporter); ok {
-					dupes := dfs.ReportDuplicates()
-					if dupes != "" {
-						h.Log.Warnln("Duplicate target paths:", dupes)
-					}
-				}
-				return false
-			})
+		if err := h.postRenderOnce(); err != nil {
+			h.SendError(fmt.Errorf("postRenderOnce: %w", err))
 		}
 
 		if err := h.postProcess(infol); err != nil {
@@ -326,6 +317,34 @@ func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
 		}
 	}
 
+	return nil
+}
+
+func (h *HugoSites) postRenderOnce() error {
+	h.postRenderInit.Do(func() {
+		conf := h.Configs.Base
+		if conf.PrintPathWarnings {
+			// We need to do this before any post processing, as that may write to the same files twice
+			// and create false positives.
+			hugofs.WalkFilesystems(h.Fs.PublishDir, func(fs afero.Fs) bool {
+				if dfs, ok := fs.(hugofs.DuplicatesReporter); ok {
+					dupes := dfs.ReportDuplicates()
+					if dupes != "" {
+						h.Log.Warnln("Duplicate target paths:", dupes)
+					}
+				}
+				return false
+			})
+		}
+
+		if conf.PrintUnusedTemplates {
+			unusedTemplates := h.Tmpl().(tpl.UnusedTemplatesProvider).UnusedTemplates()
+			for _, unusedTemplate := range unusedTemplates {
+				h.Log.Warnf("Template %s is unused, source file %s", unusedTemplate.Name(), unusedTemplate.Filename())
+			}
+		}
+
+	})
 	return nil
 }
 

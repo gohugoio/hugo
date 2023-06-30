@@ -43,7 +43,6 @@ import (
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 	"github.com/gohugoio/hugo/livereload"
 	"github.com/gohugoio/hugo/resources/page"
-	"github.com/gohugoio/hugo/tpl"
 	"github.com/gohugoio/hugo/watcher"
 	"github.com/spf13/fsync"
 	"golang.org/x/sync/errgroup"
@@ -416,13 +415,6 @@ func (c *hugoBuilder) build() error {
 		h, err := c.hugo()
 		if err != nil {
 			return err
-		}
-
-		if c.r.printUnusedTemplates {
-			unusedTemplates := h.Tmpl().(tpl.UnusedTemplatesProvider).UnusedTemplates()
-			for _, unusedTemplate := range unusedTemplates {
-				c.r.logger.Warnf("Template %s is unused, source file %s", unusedTemplate.Name(), unusedTemplate.Filename())
-			}
 		}
 
 		h.PrintProcessingStats(os.Stdout)
