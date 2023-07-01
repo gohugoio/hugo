@@ -98,7 +98,7 @@ parts:
       echo "   - pandoc_datadir to be passed to pandoc"
       echo "   - PYTHONHOME and SNAP to be passed to rst2html"
       echo "   - RUBYLIB to be passed to asciidoctor"
-      sed -i '/OsEnv: NewWhitelist/s/)\$/|GIT_EXEC_PATH|LD_LIBRARY_PATH|npm_config_(cache|init_module|userconfig)|pandoc_datadir|PYTHONHOME|RUBYLIB|SNAP&/' config/security/securityConfig.go
+      sed -i '/OsEnv: MustNewWhitelist/s/)\$/|GIT_EXEC_PATH|LD_LIBRARY_PATH|npm_config_(cache|init_module|userconfig)|pandoc_datadir|PYTHONHOME|RUBYLIB|SNAP&/' config/security/securityConfig.go
       git diff config/security/securityConfig.go
 
       HUGO_BUILD_TAGS="extended"
