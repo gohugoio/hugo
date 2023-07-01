@@ -1162,6 +1162,89 @@ Some text.
 	}
 }
 
+func TestClassCollectorConfigWriteStats(t *testing.T) {
+	r := func(writeStatsConfig string) *IntegrationTestBuilder {
+		files := `
+-- hugo.toml --
+WRITE_STATS_CONFIG
+-- layouts/_default/list.html --
+<div id="myid" class="myclass">Foo</div>
+
+`
+		files = strings.Replace(files, "WRITE_STATS_CONFIG", writeStatsConfig, 1)
+
+		b := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+				NeedsOsFS:   true,
+			},
+		).Build()
+
+		return b
+	}
+
+	// Legacy config.
+	b := r(`
+[build]
+writeStats = true
+`)
+
+	b.AssertFileContent("hugo_stats.json", "myclass", "div", "myid")
+
+	b = r(`
+[build]
+writeStats = false
+	`)
+
+	b.AssertDestinationExists("hugo_stats.json", false)
+
+	b = r(`
+[build.writeStats]
+tags = true
+classes = true
+ids = true
+	`)
+
+	b.AssertFileContent("hugo_stats.json", "myclass", "div", "myid")
+
+	b = r(`
+[build.writeStats]
+tags = true
+classes = true
+ids = false
+`)
+
+	b.AssertFileContent("hugo_stats.json", "myclass", "div", "! myid")
+
+	b = r(`
+[build.writeStats]
+tags = true
+classes = false
+ids = true
+`)
+
+	b.AssertFileContent("hugo_stats.json", "! myclass", "div", "myid")
+
+	b = r(`
+[build.writeStats]
+tags = false
+classes = true
+ids = true
+	`)
+
+	b.AssertFileContent("hugo_stats.json", "myclass", "! div", "myid")
+
+	b = r(`
+[build.writeStats]
+tags = false
+classes = false
+ids = false
+	`)
+	b.AssertDestinationExists("hugo_stats.json", false)
+
+}
+
 func TestClassCollectorStress(t *testing.T) {
 	statsFilename := "hugo_stats.json"
 	defer os.Remove(statsFilename)

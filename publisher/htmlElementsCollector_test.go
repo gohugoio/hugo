@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/testconfig"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/minifiers"
@@ -136,7 +137,13 @@ func TestClassCollector(t *testing.T) {
 		} {
 
 			c.Run(fmt.Sprintf("%s--minify-%t", test.name, variant.minify), func(c *qt.C) {
-				w := newHTMLElementsCollectorWriter(newHTMLElementsCollector())
+				w := newHTMLElementsCollectorWriter(newHTMLElementsCollector(
+					config.WriteStats{
+						Tags:    true,
+						Classes: true,
+						IDs:     true,
+					},
+				))
 				if variant.minify {
 					if skipMinifyTest[test.name] {
 						c.Skip("skip minify test")
@@ -240,7 +247,13 @@ func BenchmarkElementsCollectorWriter(b *testing.B) {
 </html>
 `
 	for i := 0; i < b.N; i++ {
-		w := newHTMLElementsCollectorWriter(newHTMLElementsCollector())
+		w := newHTMLElementsCollectorWriter(newHTMLElementsCollector(
+			config.WriteStats{
+				Tags:    true,
+				Classes: true,
+				IDs:     true,
+			},
+		))
 		fmt.Fprint(w, benchHTML)
 
 	}
@@ -262,7 +275,13 @@ func BenchmarkElementsCollectorWriterPre(b *testing.B) {
 <div class="foo"></div>
 
 `
-	w := newHTMLElementsCollectorWriter(newHTMLElementsCollector())
+	w := newHTMLElementsCollectorWriter(newHTMLElementsCollector(
+		config.WriteStats{
+			Tags:    true,
+			Classes: true,
+			IDs:     true,
+		},
+	))
 	for i := 0; i < b.N; i++ {
 		fmt.Fprint(w, benchHTML)
 

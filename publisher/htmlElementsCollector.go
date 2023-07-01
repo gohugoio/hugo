@@ -24,6 +24,7 @@ import (
 
 	"golang.org/x/net/html"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 )
 
@@ -46,8 +47,9 @@ var (
 	}
 )
 
-func newHTMLElementsCollector() *htmlElementsCollector {
+func newHTMLElementsCollector(conf config.WriteStats) *htmlElementsCollector {
 	return &htmlElementsCollector{
+		conf:       conf,
 		elementSet: make(map[string]bool),
 	}
 }
@@ -93,6 +95,8 @@ type htmlElement struct {
 }
 
 type htmlElementsCollector struct {
+	conf config.WriteStats
+
 	// Contains the raw HTML string. We will get the same element
 	// several times, and want to avoid costly reparsing when this
 	// is used for aggregated data only.
@@ -113,7 +117,9 @@ func (c *htmlElementsCollector) getHTMLElements() HTMLElements {
 	for _, el := range c.elements {
 		classes = append(classes, el.Classes...)
 		ids = append(ids, el.IDs...)
-		tags = append(tags, el.Tag)
+		if c.conf.Tags {
+			tags = append(tags, el.Tag)
+		}
 	}
 
 	classes = helpers.UniqueStringsSorted(classes)
@@ -246,7 +252,7 @@ func (w *htmlElementsCollectorWriter) lexElementInside(resolve htmlCollectorStat
 			}
 
 			// Parse each collected element.
-			el, err := parseHTMLElement(s)
+			el, err := w.parseHTMLElement(s)
 			if err != nil {
 				w.err = err
 				return resolve
@@ -363,7 +369,13 @@ func htmlLexToEndOfComment(w *htmlElementsCollectorWriter) htmlCollectorStateFun
 	return htmlLexToEndOfComment
 }
 
-func parseHTMLElement(elStr string) (el htmlElement, err error) {
+func (w *htmlElementsCollectorWriter) parseHTMLElement(elStr string) (el htmlElement, err error) {
+	conf := w.collector.conf
+
+	if !conf.IDs && !conf.Classes {
+		// Nothing to do.
+		return
+	}
 
 	tagName := parseStartTag(elStr)
 
@@ -390,8 +402,13 @@ func parseHTMLElement(elStr string) (el htmlElement, err error) {
 				switch {
 				case strings.EqualFold(a.Key, "id"):
 					// There should be only one, but one never knows...
-					el.IDs = append(el.IDs, a.Val)
+					if conf.IDs {
+						el.IDs = append(el.IDs, a.Val)
+					}
 				default:
+					if !conf.Classes {
+						continue
+					}
 					if classAttrRe.MatchString(a.Key) {
 						el.Classes = append(el.Classes, strings.Fields(a.Val)...)
 					} else {
