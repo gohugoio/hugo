@@ -147,6 +147,15 @@ func (s *IntegrationTestBuilder) AssertFileContent(filename string, matches ...s
 			if match == "" || strings.HasPrefix(match, "#") {
 				continue
 			}
+			var negate bool
+			if strings.HasPrefix(match, "! ") {
+				negate = true
+				match = strings.TrimPrefix(match, "! ")
+			}
+			if negate {
+				s.Assert(content, qt.Not(qt.Contains), match, qt.Commentf(m))
+				continue
+			}
 			s.Assert(content, qt.Contains, match, qt.Commentf(m))
 		}
 	}
