@@ -104,3 +104,10 @@ jobs:
     - name: Build tags
       run: |
         go install -tags extended,nodeploy
+    - if: matrix.os == 'ubuntu-latest'
+      name: Build for dragonfly
+      run: |
+        go install
+      env:
+        GOARCH: amd64
+        GOOS: dragonfly
