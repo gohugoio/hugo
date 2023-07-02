@@ -81,8 +81,8 @@ func NewDestinationPublisher(rs *resources.Spec, outputFormats output.Formats, m
 	fs := rs.BaseFs.PublishFs
 	cfg := rs.Cfg
 	var classCollector *htmlElementsCollector
-	if rs.BuildConfig().WriteStats.Enabled() {
-		classCollector = newHTMLElementsCollector(rs.BuildConfig().WriteStats)
+	if rs.BuildConfig().BuildStats.Enabled() {
+		classCollector = newHTMLElementsCollector(rs.BuildConfig().BuildStats)
 	}
 	pub = DestinationPublisher{fs: fs, htmlElementsCollector: classCollector}
 	pub.min, err = minifiers.New(mediaTypes, outputFormats, cfg)

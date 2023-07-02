@@ -82,7 +82,7 @@ type LoadConfigResult struct {
 
 var defaultBuild = BuildConfig{
 	UseResourceCacheWhen: "fallback",
-	WriteStats:           WriteStats{},
+	BuildStats:           BuildStats{},
 
 	CacheBusters: []CacheBuster{
 		{
@@ -112,7 +112,7 @@ type BuildConfig struct {
 	// When enabled, will collect and write a hugo_stats.json with some build
 	// related aggregated data (e.g. CSS class names).
 	// Note that this was a bool <= v0.115.0.
-	WriteStats WriteStats
+	BuildStats BuildStats
 
 	// Can be used to toggle off writing of the IntelliSense /assets/jsconfig.js
 	// file.
@@ -122,15 +122,19 @@ type BuildConfig struct {
 	CacheBusters []CacheBuster
 }
 
-// WriteStats configures what to write to the hugo_stats.json file.
-type WriteStats struct {
-	Tags    bool
-	Classes bool
-	IDs     bool
+// BuildStats configures if and what to write to the hugo_stats.json file.
+type BuildStats struct {
+	Enable         bool
+	DisableTags    bool
+	DisableClasses bool
+	DisableIDs     bool
 }
 
-func (w WriteStats) Enabled() bool {
-	return w.Tags || w.Classes || w.IDs
+func (w BuildStats) Enabled() bool {
+	if !w.Enable {
+		return false
+	}
+	return !w.DisableTags || !w.DisableClasses || !w.DisableIDs
 }
 
 func (b BuildConfig) clone() BuildConfig {
@@ -192,11 +196,7 @@ func DecodeBuildConfig(cfg Provider) BuildConfig {
 	// writeStats was a bool <= v0.115.0.
 	if writeStats, ok := m["writestats"]; ok {
 		if bb, ok := writeStats.(bool); ok {
-			m["writestats"] = WriteStats{
-				Tags:    bb,
-				Classes: bb,
-				IDs:     bb,
-			}
+			m["buildstats"] = BuildStats{Enable: bb}
 		}
 	}
 
