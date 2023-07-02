@@ -27,7 +27,7 @@ Please refer to the relevant documentation for installation instructions:
 [cloudflare pages]: https://pages.cloudflare.com/
 [dart sass install]: /hugo-pipes/transpile-sass-to-css/#dart-sass
 [dart sass]: https://sass-lang.com/dart-sass
-[git install]: https://git-scm.com/book/en/v2/getting-started-installing-git
+[git install]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
 [git]: https://git-scm.com/
 [github pages]: https://pages.github.com/
 [gitlab pages]: https://docs.gitlab.com/ee/user/project/pages/
