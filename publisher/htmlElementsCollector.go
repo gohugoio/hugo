@@ -47,7 +47,7 @@ var (
 	}
 )
 
-func newHTMLElementsCollector(conf config.WriteStats) *htmlElementsCollector {
+func newHTMLElementsCollector(conf config.BuildStats) *htmlElementsCollector {
 	return &htmlElementsCollector{
 		conf:       conf,
 		elementSet: make(map[string]bool),
@@ -95,7 +95,7 @@ type htmlElement struct {
 }
 
 type htmlElementsCollector struct {
-	conf config.WriteStats
+	conf config.BuildStats
 
 	// Contains the raw HTML string. We will get the same element
 	// several times, and want to avoid costly reparsing when this
@@ -117,7 +117,7 @@ func (c *htmlElementsCollector) getHTMLElements() HTMLElements {
 	for _, el := range c.elements {
 		classes = append(classes, el.Classes...)
 		ids = append(ids, el.IDs...)
-		if c.conf.Tags {
+		if !c.conf.DisableTags {
 			tags = append(tags, el.Tag)
 		}
 	}
@@ -372,7 +372,7 @@ func htmlLexToEndOfComment(w *htmlElementsCollectorWriter) htmlCollectorStateFun
 func (w *htmlElementsCollectorWriter) parseHTMLElement(elStr string) (el htmlElement, err error) {
 	conf := w.collector.conf
 
-	if !conf.IDs && !conf.Classes {
+	if conf.DisableTags && conf.DisableClasses {
 		// Nothing to do.
 		return
 	}
@@ -402,11 +402,11 @@ func (w *htmlElementsCollectorWriter) parseHTMLElement(elStr string) (el htmlEle
 				switch {
 				case strings.EqualFold(a.Key, "id"):
 					// There should be only one, but one never knows...
-					if conf.IDs {
+					if !conf.DisableIDs {
 						el.IDs = append(el.IDs, a.Val)
 					}
 				default:
-					if !conf.Classes {
+					if conf.DisableClasses {
 						continue
 					}
 					if classAttrRe.MatchString(a.Key) {

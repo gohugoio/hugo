@@ -1200,46 +1200,39 @@ writeStats = false
 	b.AssertDestinationExists("hugo_stats.json", false)
 
 	b = r(`
-[build.writeStats]
-tags = true
-classes = true
-ids = true
-	`)
+[build.buildStats]
+enable = true
+`)
 
 	b.AssertFileContent("hugo_stats.json", "myclass", "div", "myid")
 
 	b = r(`
-[build.writeStats]
-tags = true
-classes = true
-ids = false
+[build.buildStats]
+enable = true
+disableids = true
 `)
 
 	b.AssertFileContent("hugo_stats.json", "myclass", "div", "! myid")
 
 	b = r(`
-[build.writeStats]
-tags = true
-classes = false
-ids = true
+[build.buildStats]
+enable = true
+disableclasses = true
 `)
 
 	b.AssertFileContent("hugo_stats.json", "! myclass", "div", "myid")
 
 	b = r(`
-[build.writeStats]
-tags = false
-classes = true
-ids = true
+[build.buildStats]
+enable = true
+disabletags = true
 	`)
 
 	b.AssertFileContent("hugo_stats.json", "myclass", "! div", "myid")
 
 	b = r(`
-[build.writeStats]
-tags = false
-classes = false
-ids = false
+[build.buildStats]
+enable = false
 	`)
 	b.AssertDestinationExists("hugo_stats.json", false)
 

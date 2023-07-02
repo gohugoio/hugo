@@ -138,11 +138,7 @@ func TestClassCollector(t *testing.T) {
 
 			c.Run(fmt.Sprintf("%s--minify-%t", test.name, variant.minify), func(c *qt.C) {
 				w := newHTMLElementsCollectorWriter(newHTMLElementsCollector(
-					config.WriteStats{
-						Tags:    true,
-						Classes: true,
-						IDs:     true,
-					},
+					config.BuildStats{Enable: true},
 				))
 				if variant.minify {
 					if skipMinifyTest[test.name] {
@@ -248,11 +244,7 @@ func BenchmarkElementsCollectorWriter(b *testing.B) {
 `
 	for i := 0; i < b.N; i++ {
 		w := newHTMLElementsCollectorWriter(newHTMLElementsCollector(
-			config.WriteStats{
-				Tags:    true,
-				Classes: true,
-				IDs:     true,
-			},
+			config.BuildStats{Enable: true},
 		))
 		fmt.Fprint(w, benchHTML)
 
@@ -276,11 +268,7 @@ func BenchmarkElementsCollectorWriterPre(b *testing.B) {
 
 `
 	w := newHTMLElementsCollectorWriter(newHTMLElementsCollector(
-		config.WriteStats{
-			Tags:    true,
-			Classes: true,
-			IDs:     true,
-		},
+		config.BuildStats{Enable: true},
 	))
 	for i := 0; i < b.N; i++ {
 		fmt.Fprint(w, benchHTML)

@@ -475,7 +475,7 @@ func (h *HugoSites) writeBuildStats() error {
 	if h.ResourceSpec == nil {
 		panic("h.ResourceSpec is nil")
 	}
-	if !h.ResourceSpec.BuildConfig().WriteStats.Enabled() {
+	if !h.ResourceSpec.BuildConfig().BuildStats.Enabled() {
 		return nil
 	}
 
