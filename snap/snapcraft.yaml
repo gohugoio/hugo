@@ -41,6 +41,17 @@ environment:
   pandoc_datadir: $SNAP/usr/share/pandoc
   PYTHONHOME: /usr:$SNAP/usr
   RUBYLIB: $SNAP/usr/lib/ruby/vendor_ruby/2.7.0:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/ruby/vendor_ruby/2.7.0:$SNAP/usr/lib/ruby/vendor_ruby:$SNAP/usr/lib/ruby/2.7.0:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/ruby/2.7.0
+  # HUGO_SECURITY_EXEC_OSENV
+  #
+  # Default value:
+  #   (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+)$
+  # Bundled applications require additional access:
+  #   git:          GIT_EXEC_PATH and LD_LIBRARY_PATH
+  #   npx:          npm_config_{cache,init_module,userconfig}
+  #   pandoc:       pandoc_datadir
+  #   rst2html:     PYTHONHOME and SNAP
+  #   asciidoctor:  RUBYLIB
+  HUGO_SECURITY_EXEC_OSENV: (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|GIT_EXEC_PATH|LD_LIBRARY_PATH|npm_config_(cache|init_module|userconfig)|pandoc_datadir|PYTHONHOME|SNAP|RUBYLIB)$
 
 apps:
   hugo:
@@ -91,15 +102,6 @@ parts:
 
       export GOPATH=$(realpath ../go)
       export PATH=$GOPATH/bin:$PATH
-
-      echo " * Patch securityConfig.go to allow"
-      echo "   - GIT_EXEC_PATH and LD_LIBRARY_PATH to be passed to git"
-      echo "   - npm_config_{cache,init_module,userconfig} to be passed to npx"
-      echo "   - pandoc_datadir to be passed to pandoc"
-      echo "   - PYTHONHOME and SNAP to be passed to rst2html"
-      echo "   - RUBYLIB to be passed to asciidoctor"
-      sed -i '/OsEnv: MustNewWhitelist/s/)\$/|GIT_EXEC_PATH|LD_LIBRARY_PATH|npm_config_(cache|init_module|userconfig)|pandoc_datadir|PYTHONHOME|RUBYLIB|SNAP&/' config/security/securityConfig.go
-      git diff config/security/securityConfig.go
 
       HUGO_BUILD_TAGS="extended"
       echo " * Building hugo (HUGO_BUILD_TAGS=\"$HUGO_BUILD_TAGS\")..."
