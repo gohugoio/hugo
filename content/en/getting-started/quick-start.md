@@ -39,9 +39,10 @@ You must also be comfortable working from the command line.
 - Do not use Windows PowerShell
 - Run these commands from [PowerShell] or a Linux terminal such as WSL or Git Bash
 
-PowerShell and Windows PowerShell are different applications.
+PowerShell and Windows PowerShell [are different applications].
 
 [PowerShell]: https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows
+[are different applications]: https://learn.microsoft.com/en-us/powershell/scripting/whats-new/differences-from-windows-powershell?view=powershell-7.3
 {{% /note %}}
 
 Run these commands to create a Hugo site with the [Ananke] theme. The next section provides an explanation of each command.
