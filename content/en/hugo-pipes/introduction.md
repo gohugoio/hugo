@@ -121,7 +121,7 @@ Remote resources fetched with `resources.GetRemote` will be cached on disk. See 
 
 {{< new-in "0.100.0" >}}
 
-`resources.Copy` allows you to copy almost any Hugo `Resource` (the one exception is the `Page`), possibly most useful for renaming things:
+Use `resources.Copy` to copy a page resource or a global resource. Commonly used to change a resource's published path, `resources.Copy` takes two arguments: the target path relative to the root of the `publishDir` (with or without a leading `/`), and the resource to copy.
 
 ```go-html-template
 {{ with resources.Get "img/a.jpg" }}
