@@ -74,6 +74,12 @@
         ]
       },
       {
+        "Name": "ArangoDB AQL",
+        "Aliases": [
+          "aql"
+        ]
+      },
+      {
         "Name": "Arduino",
         "Aliases": [
           "arduino"
@@ -83,6 +89,19 @@
         "Name": "ArmAsm",
         "Aliases": [
           "armasm"
+        ]
+      },
+      {
+        "Name": "AutoHotkey",
+        "Aliases": [
+          "autohotkey",
+          "ahk"
+        ]
+      },
+      {
+        "Name": "AutoIt",
+        "Aliases": [
+          "autoit"
         ]
       },
       {
@@ -667,6 +686,12 @@
         ]
       },
       {
+        "Name": "ISCdhcpd",
+        "Aliases": [
+          "iscdhcpd"
+        ]
+      },
+      {
         "Name": "J",
         "Aliases": [
           "j"
@@ -1231,6 +1256,12 @@
         ]
       },
       {
+        "Name": "Smali",
+        "Aliases": [
+          "smali"
+        ]
+      },
+      {
         "Name": "Smalltalk",
         "Aliases": [
           "smalltalk",
@@ -1322,6 +1353,13 @@
         "Name": "TableGen",
         "Aliases": [
           "tablegen"
+        ]
+      },
+      {
+        "Name": "Tal",
+        "Aliases": [
+          "tal",
+          "uxntal"
         ]
       },
       {
@@ -1504,6 +1542,12 @@
       {
         "Name": "WDTE",
         "Aliases": null
+      },
+      {
+        "Name": "WebGPU Shading Language",
+        "Aliases": [
+          "wgsl"
+        ]
       },
       {
         "Name": "Whiley",
@@ -1723,7 +1767,6 @@
         "js": {
           "precision": 0,
           "keepVarNames": false,
-          "noNullishOperator": false,
           "version": 2022
         },
         "json": {
