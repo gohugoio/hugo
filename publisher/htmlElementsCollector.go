@@ -372,11 +372,6 @@ func htmlLexToEndOfComment(w *htmlElementsCollectorWriter) htmlCollectorStateFun
 func (w *htmlElementsCollectorWriter) parseHTMLElement(elStr string) (el htmlElement, err error) {
 	conf := w.collector.conf
 
-	if conf.DisableTags && conf.DisableClasses {
-		// Nothing to do.
-		return
-	}
-
 	tagName := parseStartTag(elStr)
 
 	el.Tag = strings.ToLower(tagName)

@@ -1232,6 +1232,15 @@ disabletags = true
 
 	b = r(`
 [build.buildStats]
+enable = true
+disabletags = true
+disableclasses = true
+	`)
+
+	b.AssertFileContent("hugo_stats.json", "! myclass", "! div", "myid")
+
+	b = r(`
+[build.buildStats]
 enable = false
 	`)
 	b.AssertDestinationExists("hugo_stats.json", false)
