@@ -36,10 +36,16 @@ There are several ways to set up CSS purging with PostCSS in Hugo. If you have a
 
 The below configuration will write a `hugo_stats.json` file to the project root as part of the build. If you're only using this for the production build, you should consider placing it below [config/production](/getting-started/configuration/#configuration-directory).
 
+<!-- TODO (jmm) writeStats => build.buildStats -->
+
 {{< code-toggle file="hugo" >}}
-[build]
-  writeStats = true
+[build.buildStats]
+  enable = true
 {{< /code-toggle >}}
+
+See the [configure build] documentation for details and options.
+
+[configure build]: http://localhost:1313/getting-started/configuration/#configure-build
 
 `postcss.config.js`
 
@@ -83,7 +89,7 @@ HUGO_ENVIRONMENT (and the alias HUGO_ENV)
 HUGO_PUBLISHDIR
 : {{< new-in "0.109.0" >}} The absolute path to the publish directory (the `public` directory). Note that the value will always point to a directory on disk even when running `hugo server` in memory mode. If you write to this folder from PostCSS when running the server, you could run the server with one of these flags:
 
-```
+```text
 hugo server --renderToDisk
 hugo server --renderStaticToDisk
 ```

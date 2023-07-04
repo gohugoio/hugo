@@ -496,37 +496,54 @@ The `build` configuration section contains global build-related configuration op
 
 {{< code-toggle file="hugo" >}}
 [build]
-useResourceCacheWhen="fallback"
-writeStats = false
-noJSConfigInAssets = false
-  [[build.cachebusters]]
-    source = "assets/watching/hugo_stats\\.json"
-    target = "styles\\.css"
-  [[build.cachebusters]]
-    source = "(postcss|tailwind)\\.config\\.js"
-    target = "css"
-  [[build.cachebusters]]
-    source = "assets/.*\\.(js|ts|jsx|tsx)"
-    target = "js"
-  [[build.cachebusters]]
-    source = "assets/.*\\.(.*)$"
-    target = "$1"
+  noJSConfigInAssets = false
+  useResourceCacheWhen = 'fallback'
+  [build.buildStats]
+    disableClasses = false
+    disableIDs = false
+    disableTags = false
+    enable = false
+[[build.cachebusters]]
+  source = 'assets/.*\.(js|ts|jsx|tsx)'
+  target = '(js|scripts|javascript)'
+[[build.cachebusters]]
+  source = 'assets/.*\.(css|sass|scss)$'
+  target = '(css|styles|scss|sass)'
+[[build.cachebusters]]
+  source = '(postcss|tailwind)\.config\.js'
+  target = '(css|styles|scss|sass)'
+[[build.cachebusters]]
+  source = 'assets/.*\.(.*)$'
+  target = '$1'
 {{< /code-toggle >}}
 
+buildStats {{< new-in "0.115.1" >}}
+: When enabled, creates a `hugo_stats.json` file in the root of your project. This file contains arrays of the `class` attributes, `id` attributes, and tags of every HTML element within your published site. Use this file as data source when [removing unused CSS] from your site. This process is also known as pruning, purging, or tree shaking.
 
-useResourceCacheWhen
-: When to use the cached resources in `/resources/_gen` for PostCSS and ToCSS. Valid values are `never`, `always` and `fallback`. The last value means that the cache will be tried if PostCSS/extended version is not available.
+[removing unused CSS]: http://localhost:1313/hugo-pipes/postprocess/#css-purging-with-postcss
 
-writeStats
-: When enabled, a file named `hugo_stats.json` will be written to your project root with some aggregated data about the build, e.g. list of HTML entities published to be used to do [CSS pruning](/hugo-pipes/postprocess/#css-purging-with-postcss). If you're only using this for the production build, you should consider placing it below [config/production](/getting-started/configuration/#configuration-directory). It's also worth mentioning that, due to the nature of the partial server builds, new HTML entities will be added when you add or change them while the server is running, but the old values will not be removed until you restart the server or run a regular `hugo` build.
+Exclude `class` attributes, `id` attributes, or tags from `hugo_stats.json` with the `disableClasses`, `disableIDs`, and `disableTags` keys.
 
-**Note** that the prime use case for this is purging of unused CSS; it is built for speed and there may be false positives (e.g., detection of HTML elements that are not HTML elements).
+{{% note %}}
+With v0.115.0 and earlier this feature was enabled by setting `writeStats` to `true`. Although still functional, the `writeStats` key will be deprecated in a future release.
+
+Given that CSS purging is typically limited to production builds, place the `buildStats` object below [config/production].
+
+[config/production]: /getting-started/configuration/#configuration-directory
+
+Built for speed, there may be "false positive" detections (e.g., HTML elements that are not HTML elements) while parsing the published site. These "false positives" are infrequent and inconsequential.
+{{% /note %}}
+
+Due to the nature of partial server builds, new HTML entities are added while the server is running, but old values will not be removed until you restart the server or run a regular `hugo` build.
+
+cachebusters
+: See [Configure Cache Busters](#configure-cache-busters)
 
 noJSConfigInAssets
 : Turn off writing a `jsconfig.json` into your `/assets` folder with mapping of imports from running [js.Build](https://gohugo.io/hugo-pipes/js). This file is intended to help with intellisense/navigation inside code editors such as [VS Code](https://code.visualstudio.com/). Note that if you do not use `js.Build`, no file will be written.
 
-cachebusters
-: See [Configure Cache Busters](#configure-cache-busters)
+useResourceCacheWhen
+: When to use the cached resources in `/resources/_gen` for PostCSS and ToCSS. Valid values are `never`, `always` and `fallback`. The last value means that the cache will be tried if PostCSS/extended version is not available.
 
 ## Configure Cache Busters
 
@@ -534,9 +551,12 @@ cachebusters
 
 The `build.cachebusters` configuration option was added to support development using Tailwind 3.x's JIT compiler where a `build` config may look like this:
 
+<!-- TODO (jmm) writeStats => build.buildStats -->
+
 {{< code-toggle file="hugo" >}}
 [build]
-writeStats = true
+  [build.buildStats]
+    enable = true
   [[build.cachebusters]]
     source = "assets/watching/hugo_stats\\.json"
     target = "styles\\.css"
@@ -621,7 +641,7 @@ status = 404
 
 ## Configure Title Case
 
-Set `titleCaseStyle` to specify the title style used by the [title](/functions/title/) template function and the automatic section titles in Hugo. 
+Set `titleCaseStyle` to specify the title style used by the [title](/functions/title/) template function and the automatic section titles in Hugo.
 
 By default, Hugo adheres to the capitalization rules in the [Associated Press (AP) Stylebook]. Set `titleCaseStyle` to `chicago` if you would prefer to follow the [Chicago Manual of Style], or set if to `go` to use Go's convention of capitalizing every word.
 
