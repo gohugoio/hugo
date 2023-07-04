@@ -22,7 +22,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bep/clock"
+	"github.com/bep/clocks"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/asciidocext"
 	"github.com/gohugoio/hugo/markup/rst"
@@ -1502,8 +1502,8 @@ func TestShouldBuild(t *testing.T) {
 }
 
 func TestShouldBuildWithClock(t *testing.T) {
-	htime.Clock = clock.Start(time.Date(2021, 11, 17, 20, 34, 58, 651387237, time.UTC))
-	t.Cleanup(func() { htime.Clock = clock.System() })
+	htime.Clock = clocks.Start(time.Date(2021, 11, 17, 20, 34, 58, 651387237, time.UTC))
+	t.Cleanup(func() { htime.Clock = clocks.System() })
 	past := time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC)
 	future := time.Date(2037, 11, 17, 20, 34, 58, 651387237, time.UTC)
 	zero := time.Time{}

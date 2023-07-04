@@ -6,7 +6,7 @@ require (
 	github.com/alecthomas/chroma/v2 v2.8.0
 	github.com/armon/go-radix v1.0.0
 	github.com/aws/aws-sdk-go v1.43.5
-	github.com/bep/clock v0.3.0
+	github.com/bep/clocks v0.5.0
 	github.com/bep/debounce v1.2.0
 	github.com/bep/gitmap v1.1.2
 	github.com/bep/goat v0.5.0
@@ -104,7 +104,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.14.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.18.3 // indirect
 	github.com/aws/smithy-go v1.13.5 // indirect
-	github.com/bep/clocks v0.5.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/dlclark/regexp2 v1.10.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect

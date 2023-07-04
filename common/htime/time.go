@@ -18,7 +18,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bep/clock"
+	"github.com/bep/clocks"
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/locales"
@@ -75,7 +75,7 @@ var (
 		"December",
 	}
 
-	Clock = clock.System()
+	Clock = clocks.System()
 )
 
 func NewTimeFormatter(ltr locales.Translator) TimeFormatter {

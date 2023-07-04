@@ -30,7 +30,7 @@ import (
 
 	"go.uber.org/automaxprocs/maxprocs"
 
-	"github.com/bep/clock"
+	"github.com/bep/clocks"
 	"github.com/bep/lazycache"
 	"github.com/bep/logg"
 	"github.com/bep/overlayfs"
@@ -173,7 +173,7 @@ func (r *rootCommand) ConfigFromConfig(key int32, oldConf *commonConfig) (*commo
 
 		if !configs.Base.C.Clock.IsZero() {
 			// TODO(bep) find a better place for this.
-			htime.Clock = clock.Start(configs.Base.C.Clock)
+			htime.Clock = clocks.Start(configs.Base.C.Clock)
 		}
 
 		return &commonConfig{
@@ -283,7 +283,7 @@ func (r *rootCommand) ConfigFromProvider(key int32, cfg config.Provider) (*commo
 
 		if !base.C.Clock.IsZero() {
 			// TODO(bep) find a better place for this.
-			htime.Clock = clock.Start(configs.Base.C.Clock)
+			htime.Clock = clocks.Start(configs.Base.C.Clock)
 		}
 
 		if base.PrintPathWarnings {
