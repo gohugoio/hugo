@@ -2,7 +2,6 @@
 title: Theme Components
 description: Hugo provides advanced theming support with Theme Components.
 categories: [hugo modules]
-url: /templates/introduction/
 keywords: [themes, theme, source, organization, directories]
 menu:
   docs:
