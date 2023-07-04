@@ -174,8 +174,6 @@ github.com/aws/smithy-go v1.8.0/go.mod h1:SObp3lf9smib00L/v3U2eAKG8FyQ7iLrJnQiAm
 github.com/aws/smithy-go v1.13.5 h1:hgz0X/DX0dGqTYpGALqXJoRKRj5oQ7150i5FdTePzO8=
 github.com/aws/smithy-go v1.13.5/go.mod h1:Tg+OJXh4MB2R/uN61Ko2f6hTZwB/ZYGOtib8J3gBHzA=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
-github.com/bep/clock v0.3.0 h1:vfOA6+wVb6pPQEiXow9f/too92vNTLe9MuwO13PfI0M=
-github.com/bep/clock v0.3.0/go.mod h1:6Gz2lapnJ9vxpvPxQ2u6FcXFRoj4kkiqQ6pm0ERZlwk=
 github.com/bep/clocks v0.5.0 h1:hhvKVGLPQWRVsBP/UB7ErrHYIO42gINVbvqxvYTPVps=
 github.com/bep/clocks v0.5.0/go.mod h1:SUq3q+OOq41y2lRQqH5fsOoxN8GbxSiT6jvoVVLCVhU=
 github.com/bep/debounce v1.2.0 h1:wXds8Kq8qRfwAOpAxHrJDbCXgC5aHSzgQb/0gKsHQqo=
