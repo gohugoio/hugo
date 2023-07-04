@@ -1,16 +1,33 @@
 name: hugo
-issues: https://github.com/gohugoio/hugo/issues
-source-code: https://github.com/gohugoio/hugo.git
-website: https://gohugo.io/
-summary: Fast and Flexible Static Site Generator
-description: |
-  Hugo is a static HTML and CSS website generator written in Go. It is
-  optimized for speed, easy use and configurability. Hugo takes a directory
-  with content and templates and renders them into a full HTML website.
-license: "Apache-2.0"
 base: core20
 confinement: strict
 adopt-info: hugo
+title: Hugo
+icon: snap/local/logo.png
+summary: Fast and Flexible Static Site Generator
+description: |
+  Hugo is a static site generator written in Go, optimized for speed and
+  designed for flexibility. With its advanced templating system and fast asset
+  pipelines, Hugo renders a complete site in seconds, often less.
+
+  Due to its flexible framework, multilingual support, and powerful taxonomy
+  system, Hugo is widely used to create:
+
+  * Corporate, government, nonprofit, education, news, event, and project sites
+  * Documentation sites
+  * Image portfolios
+  * Landing pages
+  * Business, professional, and personal blogs
+  * Resumes and CVs
+
+  Use Hugo's embedded web server during development to instantly see changes to
+  content, structure, behavior, and presentation. Then deploy the site to your
+  host, or push changes to your Git provider for automated builds and
+  deployment.
+issues: https://github.com/gohugoio/hugo/issues
+license: "Apache-2.0"
+source-code: https://github.com/gohugoio/hugo.git
+website: https://gohugo.io/
 
 package-repositories:
   - type: apt
@@ -44,14 +61,14 @@ environment:
   # HUGO_SECURITY_EXEC_OSENV
   #
   # Default value:
-  #   (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+)$
+  #   (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG)$
   # Bundled applications require additional access:
   #   git:          GIT_EXEC_PATH and LD_LIBRARY_PATH
   #   npx:          npm_config_{cache,init_module,userconfig}
   #   pandoc:       pandoc_datadir
   #   rst2html:     PYTHONHOME and SNAP
   #   asciidoctor:  RUBYLIB
-  HUGO_SECURITY_EXEC_OSENV: (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|GIT_EXEC_PATH|LD_LIBRARY_PATH|npm_config_(cache|init_module|userconfig)|pandoc_datadir|PYTHONHOME|SNAP|RUBYLIB)$
+  HUGO_SECURITY_EXEC_OSENV: (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|GIT_EXEC_PATH|LD_LIBRARY_PATH|npm_config_(cache|init_module|userconfig)|pandoc_datadir|PYTHONHOME|SNAP|RUBYLIB)$
 
 apps:
   hugo:
