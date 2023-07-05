@@ -13,10 +13,6 @@ Listing out various types of content.
 
 List requires a subcommand, e.g. hugo list drafts
 
-```
-hugo list [command] [flags]
-```
-
 ### Options
 
 ```

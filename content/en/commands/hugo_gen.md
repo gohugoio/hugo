@@ -7,10 +7,6 @@ url: /commands/hugo_gen/
 
 A collection of several useful generators.
 
-```
-hugo gen [command] [flags]
-```
-
 ### Options
 
 ```

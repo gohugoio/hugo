@@ -13,10 +13,6 @@ Convert your content (e.g. front matter) to different formats.
 
 See convert's subcommands toJSON, toTOML and toYAML for more information.
 
-```
-hugo convert [command] [flags]
-```
-
 ### Options
 
 ```

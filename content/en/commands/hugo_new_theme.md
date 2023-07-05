@@ -5,16 +5,17 @@ url: /commands/hugo_new_theme/
 ---
 ## hugo new theme
 
-Create a new site (skeleton)
+Create a new theme (skeleton)
 
 ### Synopsis
 
-Create a new site in the provided directory.
-The new site will have the correct structure, but no content or theme yet.
-Use `hugo new [contentPath]` to create new content.
+Create a new theme (skeleton) called [name] in ./themes.
+New theme is a skeleton. Please add content to the touched files. Add your
+name to the copyright line in the license and adjust the theme.toml file
+according to your needs.
 
 ```
-hugo new theme [path] [flags]
+hugo new theme [name] [flags]
 ```
 
 ### Options
