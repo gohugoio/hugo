@@ -205,6 +205,8 @@ func ReaderContains(r io.Reader, subslice []byte) bool {
 // - "Go" (strings.Title)
 // - "AP" (see https://www.apstylebook.com/)
 // - "Chicago" (see http://www.chicagomanualofstyle.org/home.html)
+// - "FirstUpper" (only the first character is upper case)
+// - "None" (no transformation)
 //
 // If an unknown or empty style is provided, AP style is what you get.
 func GetTitleFunc(style string) func(s string) string {
@@ -214,6 +216,10 @@ func GetTitleFunc(style string) func(s string) string {
 	case "chicago":
 		tc := transform.NewTitleConverter(transform.ChicagoStyle)
 		return tc.Title
+	case "none":
+		return func(s string) string { return s }
+	case "firstupper":
+		return FirstUpper
 	default:
 		tc := transform.NewTitleConverter(transform.APStyle)
 		return tc.Title

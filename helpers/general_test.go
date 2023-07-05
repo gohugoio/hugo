@@ -203,7 +203,7 @@ func TestReaderContains(t *testing.T) {
 }
 
 func TestGetTitleFunc(t *testing.T) {
-	title := "somewhere over the rainbow"
+	title := "somewhere over the Rainbow"
 	c := qt.New(t)
 
 	c.Assert(helpers.GetTitleFunc("go")(title), qt.Equals, "Somewhere Over The Rainbow")
@@ -213,6 +213,8 @@ func TestGetTitleFunc(t *testing.T) {
 	c.Assert(helpers.GetTitleFunc("ap")(title), qt.Equals, "Somewhere Over the Rainbow")
 	c.Assert(helpers.GetTitleFunc("")(title), qt.Equals, "Somewhere Over the Rainbow")
 	c.Assert(helpers.GetTitleFunc("unknown")(title), qt.Equals, "Somewhere Over the Rainbow")
+	c.Assert(helpers.GetTitleFunc("none")(title), qt.Equals, title)
+	c.Assert(helpers.GetTitleFunc("firstupper")(title), qt.Equals, "Somewhere over the Rainbow")
 }
 
 func BenchmarkReaderContains(b *testing.B) {
