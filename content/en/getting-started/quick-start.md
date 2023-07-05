@@ -51,7 +51,7 @@ Run these commands to create a Hugo site with the [Ananke] theme. The next secti
 hugo new site quickstart
 cd quickstart
 git init
-git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke themes/ananke
+git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke.git themes/ananke
 echo "theme = 'ananke'" >> hugo.toml
 hugo server
 ```
@@ -81,7 +81,7 @@ git init
 Clone the [Ananke] theme into the `themes` directory, adding it to your project as a [Git submodule].
 
 ```text
-git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke themes/ananke
+git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke.git themes/ananke
 ```
 
 Append a line to the site configuration file, indicating the current theme.
