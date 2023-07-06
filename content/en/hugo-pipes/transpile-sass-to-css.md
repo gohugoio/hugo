@@ -1,6 +1,6 @@
 ---
 title: ToCSS
-linkTitle: Transpile Sass to SCSS
+linkTitle: Transpile Sass to CSS
 description: Transpile Sass to CSS.
 categories: [asset management]
 keywords: []
