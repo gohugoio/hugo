@@ -101,12 +101,12 @@ If you need to display custom metadata for each taxonomy term, you will need to 
 
 ```go-html-template
 <ul>
-    {{ range .Pages }}
-        <li>
-            <a href="{{ .Permalink }}">{{ .Title }}</a>
-            {{ .Params.wikipedia }}
-        </li>
-    {{ end }}
+  {{ range .Pages }}
+    <li>
+      <a href="{{ .Permalink }}">{{ .Title }}</a>
+      {{ .Params.wikipedia }}
+    </li>
+  {{ end }}
 </ul>
 ```
 
@@ -120,9 +120,9 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
 
 ```go-html-template
 <ul>
-    {{ range .Data.Terms.Alphabetical }}
-            <li><a href="{{ .Page.Permalink }}">{{ .Page.Title }}</a> {{ .Count }}</li>
-    {{ end }}
+  {{ range .Data.Terms.Alphabetical }}
+    <li><a href="{{ .Page.Permalink }}">{{ .Page.Title }}</a> {{ .Count }}</li>
+  {{ end }}
 </ul>
 ```
 
@@ -186,42 +186,38 @@ using the [list templates](/templates/lists/):
 3. You can list all terms for a taxonomy
 4. You can list all taxonomies (with their terms)
 
-## Display a Single Piece of Content's Taxonomies
+## List Terms Assigned to a Page
 
-Within your content templates, you may wish to display the taxonomies that piece of content is assigned to.
+List the terms assigned to a page using the `.Page.GetTerms` method.
 
-Because we are leveraging the front matter system to define taxonomies for content, the taxonomies assigned to each content piece are located in the usual place (i.e., `.Params.<TAXONOMYPLURAL>`).
-
-### Example: List Tags in a Single Page Template
+To render an unordered list:
 
 ```go-html-template
-<ul>
-    {{ range (.GetTerms "tags") }}
-        <li><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
+{{ $taxonomy := "tags" }}
+{{ with .GetTerms $taxonomy }}
+  <p>{{ (site.GetPage $taxonomy).LinkTitle }}:</p>
+  <ul>
+    {{ range . }}
+      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
     {{ end }}
-</ul>
-```
-
-If you want to list taxonomies inline, you will have to take care of optional plural endings in the title (if multiple taxonomies), as well as commas. Let's say we have a taxonomy "directors" such as `directors: [ "Joel Coen", "Ethan Coen" ]` in the TOML-format front matter.
-
-To list such taxonomies, use the following:
-
-### Example: Comma-delimit Tags in a Single Page Template
-
-```go-html-template
-{{ $taxo := "directors" }} <!-- Use the plural form here -->
-{{ with .Param $taxo }}
-    <strong>Director{{ if gt (len .) 1 }}s{{ end }}:</strong>
-    {{ range $index, $director := . }}
-        {{- if gt $index 0 }}, {{ end -}}
-        {{ with $.Site.GetPage (printf "/%s/%s" $taxo $director) -}}
-            <a href="{{ .Permalink }}">{{ $director }}</a>
-        {{- end -}}
-    {{- end -}}
+  </ul>
 {{ end }}
 ```
 
-Alternatively, you may use the [delimit template function][delimit] as a shortcut if the taxonomies should just be listed with a separator. See {{< gh 2143 >}} on GitHub for discussion.
+To render a comma-delimited list:
+
+```go-html-template
+{{ $taxonomy := "tags" }}
+{{ with .GetTerms $taxonomy }}
+  <p>
+    {{ (site.GetPage $taxonomy).LinkTitle }}:
+    {{ range $k, $_ := . -}}
+      {{ if $k }}, {{ end }}
+      <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
+    {{- end }}
+  </p>
+{{ end }}
+```
 
 ## List Content with the Same Taxonomy Term
 
@@ -231,9 +227,9 @@ If you are using a taxonomy for something like a series of posts, you can list i
 
 ```go-html-template
 <ul>
-    {{ range .Site.Taxonomies.series.golang }}
-        <li><a href="{{ .Page.RelPermalink }}">{{ .Page.Title }}</a></li>
-    {{ end }}
+  {{ range .Site.Taxonomies.series.golang }}
+    <li><a href="{{ .Page.RelPermalink }}">{{ .Page.Title }}</a></li>
+  {{ end }}
 </ul>
 ```
 
@@ -245,16 +241,16 @@ This would be very useful in a sidebar as “featured content”. You could even
 
 ```go-html-template
 <section id="menu">
-    <ul>
-        {{ range $key, $taxonomy := .Site.Taxonomies.featured }}
-        <li>{{ $key }}</li>
-        <ul>
-            {{ range $taxonomy.Pages }}
-            <li hugo-nav="{{ .RelPermalink }}"><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
-            {{ end }}
-        </ul>
+  <ul>
+    {{ range $key, $taxonomy := .Site.Taxonomies.featured }}
+      <li>{{ $key }}</li>
+      <ul>
+        {{ range $taxonomy.Pages }}
+          <li hugo-nav="{{ .RelPermalink }}"><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
         {{ end }}
-    </ul>
+      </ul>
+    {{ end }}
+  </ul>
 </section>
 ```
 
@@ -270,9 +266,9 @@ The following example displays all terms in a site's tags taxonomy:
 
 ```go-html-template
 <ul>
-    {{ range .Site.Taxonomies.tags }}
-            <li><a href="{{ .Page.Permalink }}">{{ .Page.Title }}</a> {{ .Count }}</li>
-    {{ end }}
+  {{ range .Site.Taxonomies.tags }}
+    <li><a href="{{ .Page.Permalink }}">{{ .Page.Title }}</a> {{ .Count }}</li>
+  {{ end }}
 </ul>
 ```
 
@@ -281,28 +277,27 @@ The following example displays all terms in a site's tags taxonomy:
 This example will list all taxonomies and their terms, as well as all the content assigned to each of the terms.
 
 {{< code file="layouts/partials/all-taxonomies.html" >}}
-<section>
-    <ul id="all-taxonomies">
-        {{ range $taxonomy_term, $taxonomy := .Site.Taxonomies }}
-            {{ with $.Site.GetPage (printf "/%s" $taxonomy_term) }}
-                <li><a href="{{ .Permalink }}">{{ $taxonomy_term }}</a>
-                    <ul>
-                        {{ range $key, $value := $taxonomy }}
-                            <li>{{ $key }}</li>
-                            <ul>
-                                {{ range $value.Pages }}
-                                    <li hugo-nav="{{ .RelPermalink }}">
-                                        <a href="{{ .Permalink }}">{{ .LinkTitle }}</a>
-                                    </li>
-                                {{ end }}
-                            </ul>
-                        {{ end }}
-                    </ul>
-                </li>
-            {{ end }}
+<ul>
+  {{ range $taxonomy, $terms := site.Taxonomies }}
+    <li>
+      {{ with site.GetPage $taxonomy }}
+        <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
+      {{ end }}
+      <ul>
+        {{ range $term, $weightedPages := $terms }}
+          <li>
+            <a href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }}</a>
+            <ul>
+              {{ range $weightedPages }}
+                <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+              {{ end }}
+            </ul>
+          </li>
         {{ end }}
-    </ul>
-</section>
+      </ul>
+    </li>
+  {{ end }}
+</ul>
 {{< /code >}}
 
 ## `.Site.GetPage` for Taxonomies
@@ -312,11 +307,11 @@ Because taxonomies are lists, the [`.GetPage` function][getpage] can be used to 
 {{< code file="links-to-all-tags.html" >}}
 {{ $taxo := "tags" }}
 <ul class="{{ $taxo }}">
-    {{ with ($.Site.GetPage (printf "/%s" $taxo)) }}
-        {{ range .Pages }}
-            <li><a href="{{ .Permalink }}">{{ .Title }}</a></li>
-        {{ end }}
+  {{ with ($.Site.GetPage (printf "/%s" $taxo)) }}
+    {{ range .Pages }}
+      <li><a href="{{ .Permalink }}">{{ .Title }}</a></li>
     {{ end }}
+  {{ end }}
 </ul>
 {{< /code >}}
 
