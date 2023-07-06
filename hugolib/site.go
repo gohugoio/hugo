@@ -1048,6 +1048,10 @@ func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath s
 	isHTML := of.IsHTML
 	isRSS := of.Name == "rss"
 
+	if isRSS && stringSliceContains(p.Kind(), s.conf.Rss.DisableKinds...) {
+		return nil
+	}
+
 	pd := publisher.Descriptor{
 		Src:          renderBuffer,
 		TargetPath:   targetPath,

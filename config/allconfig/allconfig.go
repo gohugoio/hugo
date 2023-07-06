@@ -182,6 +182,9 @@ type Config struct {
 
 	// UglyURLs configuration. Either a boolean or a sections map.
 	UglyURLs any `mapstructure:"-"`
+
+    // RSS configuration
+    Rss config.Rss `mapstructure:"-"`
 }
 
 type configCompiler interface {

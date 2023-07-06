@@ -47,6 +47,16 @@ copyright = "This work is licensed under a Creative Commons Attribution-ShareAli
     name = "My Name Here"
 {{< /code-toggle >}}
 
+You can opt-out RSS generation for some kinds of content:
+
+
+{{< code-toggle file="hugo" >}}
+[rss]
+    disableKinds = ["taxonomy", "term"]
+{{< /code-toggle >}}
+
+The folowing values didn't produce `public/<TAXONOMY>/index.xml` and `public/<TAXONOMY>/<TERM>/index.xml` files.
+
 ## The Embedded rss.xml
 
 This is the default RSS template that ships with Hugo:

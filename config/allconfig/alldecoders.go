@@ -363,6 +363,14 @@ var allDecoderSetups = map[string]decodeWeight{
 			return nil
 		},
 	},
+	"rss": {
+		key: "rss",
+		decode: func(d decodeWeight, p decodeConfig) error {
+			var err error
+			p.c.Rss, err = config.DecodeRss(p.p)
+			return err
+		},
+	},
 	"internal": {
 		key: "internal",
 		decode: func(d decodeWeight, p decodeConfig) error {

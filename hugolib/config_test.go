@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -25,6 +26,7 @@ import (
 	"github.com/gohugoio/hugo/config/allconfig"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/spf13/afero"
 )
@@ -1294,4 +1296,47 @@ Home.
 	b.Assert(b.H.Configs.Base.Module.Mounts, qt.HasLen, 7)
 	b.Assert(b.H.Configs.LanguageConfigSlice[0].Module.Mounts, qt.HasLen, 7)
 
+}
+
+func TestRssConfig(t *testing.T) {
+    t.Parallel()
+
+	t.Run("No config", func(t *testing.T) {
+
+		files := ``
+		b := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		).Build()
+
+		b.AssertFileContent("public/index.xml", "")
+	})
+
+	t.Run("Disable kinds", func(t *testing.T) {
+
+		files := `
+-- hugo.toml --
+[rss]
+  disableKinds = ["section", "taxonomy", "term"]
+-- content/posts/_index.md --
+# My posts
+-- content/posts/foo.md
+---
+tags: ["test"]
+---
+# Foo
+`
+		b := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		).Build()
+
+		b.AssertIsFileError(herrors.NewFileErrorFromName(errors.New(""), "public/posts/index.html"))
+		b.AssertIsFileError(herrors.NewFileErrorFromName(errors.New(""), "public/tags/index.xml"))
+		b.AssertIsFileError(herrors.NewFileErrorFromName(errors.New(""), "public/tags/test/index.xml"))
+	})
 }

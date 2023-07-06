@@ -421,3 +421,15 @@ func DecodeServer(cfg Provider) (Server, error) {
 
 	return *s, nil
 }
+
+type Rss struct {
+    DisableKinds []string
+}
+
+func DecodeRss(cfg Provider) (Rss, error) {
+    r := &Rss{}
+
+    _ = mapstructure.WeakDecode(cfg.GetStringMap("rss"), r)
+
+    return *r, nil
+}
