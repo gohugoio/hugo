@@ -133,8 +133,8 @@ To install Dart Sass for your builds on GitLab Pages, the `.gitlab-ci.yml` file 
 
 ```yaml
 variables:
-  HUGO_VERSION: 0.114.0
-  DART_SASS_VERSION: 1.63.5
+  HUGO_VERSION: 0.115.1
+  DART_SASS_VERSION: 1.63.6
   GIT_DEPTH: 0
   GIT_STRATEGY: clone
   GIT_SUBMODULE_STRATEGY: recursive
@@ -167,8 +167,8 @@ To install Dart Sass for your builds on Netlify, the `netlify.toml` file should 
 
 ```toml
 [build.environment]
-HUGO_VERSION = "0.114.0"
-DART_SASS_VERSION = "1.63.5"
+HUGO_VERSION = "0.115.1"
+DART_SASS_VERSION = "1.63.6"
 TZ = "America/Los_Angeles"
 
 [build]
@@ -184,7 +184,7 @@ command = """\
 
 ### Example
 
-To tranpile with Dart Sass, set `transpiler` to `dartsass` in the options map passed to `resources.ToCSS`. For example:
+To transpile with Dart Sass, set `transpiler` to `dartsass` in the options map passed to `resources.ToCSS`. For example:
 
 ```go-html-template
 {{ $options := dict "transpiler" "dartsass" "targetPath" "css/style.css" }}
