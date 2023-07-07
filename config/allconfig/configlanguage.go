@@ -41,6 +41,16 @@ func (c ConfigLanguage) LanguagesDefaultFirst() langs.Languages {
 	return c.m.LanguagesDefaultFirst
 }
 
+func (c ConfigLanguage) LanguagePrefix() string {
+	if c.DefaultContentLanguageInSubdir() && c.DefaultContentLanguage() == c.Language().Lang {
+		return c.Language().Lang
+	}
+	if !c.IsMultiLingual() || c.DefaultContentLanguage() == c.Language().Lang {
+		return ""
+	}
+	return c.Language().Lang
+}
+
 func (c ConfigLanguage) BaseURL() urls.BaseURL {
 	return c.config.C.BaseURL
 }

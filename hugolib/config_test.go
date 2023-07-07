@@ -1295,3 +1295,94 @@ Home.
 	b.Assert(b.H.Configs.LanguageConfigSlice[0].Module.Mounts, qt.HasLen, 7)
 
 }
+
+func TestDefaultContentLanguageInSubdirOnlyOneLanguage(t *testing.T) {
+
+	t.Run("One language, default in sub dir", func(t *testing.T) {
+		t.Skip()
+		t.Parallel()
+
+		files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+disableKinds = ["taxonomy", "term", "page", "section"]
+-- content/foo/bar.txt --
+Foo.
+-- layouts/index.html --
+Home.
+`
+		b := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		).Build()
+
+		b.AssertFileContent("public/en/index.html", "Home.")
+		b.AssertFileContent("public/en/foo/bar.txt", "Foo.")
+	})
+
+	t.Run("Two languages, default in sub dir", func(t *testing.T) {
+		t.Skip()
+		t.Parallel()
+
+		files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+disableKinds = ["taxonomy", "term", "page", "section"]
+[languages]
+[languages.en]
+title = "English Title"
+[languages.sv]
+title = "Swedish Title"
+-- content/foo/bar.txt --
+Foo.
+-- layouts/index.html --
+Home.
+`
+		b := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		).Build()
+
+		b.AssertFileContent("public/en/index.html", "Home.")
+		b.AssertFileContent("public/en/foo/bar.txt", "Foo.")
+	})
+
+	t.Run("Two languages, default in root", func(t *testing.T) {
+		t.Parallel()
+
+		files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = false
+disableKinds = ["taxonomy", "term", "page", "section"]
+[languages]
+[languages.en]
+title = "English Title"
+[languages.sv]
+title = "Swedish Title"
+-- content/foo/bar.txt --
+Foo.
+-- layouts/index.html --
+Home.
+`
+		b := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		).Build()
+
+		b.AssertFileContent("public/index.html", "Home.")
+		b.AssertFileContent("public/foo/bar.txt", "Foo.")
+	})
+
+}

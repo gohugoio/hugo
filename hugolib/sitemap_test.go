@@ -46,6 +46,7 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 	c := qt.New(t)
 	cfg, fs := newTestCfg()
 	cfg.Set("baseURL", "http://auth/bub/")
+	cfg.Set("defaultContentLanguageInSubdir", false)
 	configs, err := loadTestConfigFromProvider(cfg)
 	c.Assert(err, qt.IsNil)
 	writeSource(t, fs, "layouts/sitemap.xml", sitemapTemplate)

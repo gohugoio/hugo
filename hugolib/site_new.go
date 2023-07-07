@@ -470,16 +470,11 @@ func (s *Site) IsMultiLingual() bool {
 }
 
 func (s *Site) LanguagePrefix() string {
-	conf := s.s.Conf
-	if !conf.IsMultiLingual() {
+	prefix := s.GetLanguagePrefix()
+	if prefix == "" {
 		return ""
 	}
-
-	if !conf.DefaultContentLanguageInSubdir() && s.language.Lang == conf.DefaultContentLanguage() {
-		return ""
-	}
-
-	return "/" + s.language.Lang
+	return "/" + prefix
 }
 
 // Returns the identity of this site.

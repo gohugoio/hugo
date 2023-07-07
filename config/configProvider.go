@@ -27,6 +27,7 @@ type AllProvider interface {
 	Language() *langs.Language
 	Languages() langs.Languages
 	LanguagesDefaultFirst() langs.Languages
+	LanguagePrefix() string
 	BaseURL() urls.BaseURL
 	BaseURLLiveReload() urls.BaseURL
 	Environment() string
