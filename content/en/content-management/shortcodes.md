@@ -128,7 +128,7 @@ attrlink
 #### Example `figure` Input
 
 {{< code file="figure-input-example.md" >}}
-{{</* figure src="elephant.jpg" title=">An elephant at sunset" */>}}
+{{</* figure src="elephant.jpg" title="An elephant at sunset" */>}}
 {{< /code >}}
 
 #### Example `figure` Output
