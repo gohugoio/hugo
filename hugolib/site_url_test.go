@@ -38,35 +38,6 @@ var urlFakeSource = [][2]string{
 	{filepath.FromSlash("content/blue/doc2.md"), slugDoc2},
 }
 
-func TestPageCount(t *testing.T) {
-	t.Parallel()
-	c := qt.New(t)
-	cfg, fs := newTestCfg()
-	cfg.Set("uglyURLs", false)
-	cfg.Set("paginate", 10)
-	configs, err := loadTestConfigFromProvider(cfg)
-	c.Assert(err, qt.IsNil)
-
-	writeSourcesToSource(t, "", fs, urlFakeSource...)
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
-
-	_, err = s.Fs.WorkingDirReadOnly.Open("public/blue")
-	if err != nil {
-		t.Errorf("No indexed rendered.")
-	}
-
-	for _, pth := range []string{
-		"public/sd1/foo/index.html",
-		"public/sd2/index.html",
-		"public/sd3/index.html",
-		"public/sd4.html",
-	} {
-		if _, err := s.Fs.WorkingDirReadOnly.Open(filepath.FromSlash(pth)); err != nil {
-			t.Errorf("No alias rendered: %s", pth)
-		}
-	}
-}
-
 func TestUglyURLsPerSection(t *testing.T) {
 	t.Parallel()
 

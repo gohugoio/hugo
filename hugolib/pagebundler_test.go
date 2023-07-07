@@ -67,6 +67,7 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 						fs, cfg := newTestBundleSources(c)
 						cfg.Set("baseURL", baseURL)
 						cfg.Set("canonifyURLs", canonify)
+						cfg.Set("defaultContentLanguageInSubdir", false)
 
 						cfg.Set("permalinks", map[string]string{
 							"a": ":sections/:filename",

@@ -1042,8 +1042,8 @@ func (c *hugoBuilder) rebuildSites(events []fsnotify.Event) error {
 	if c.fastRenderMode {
 		c.withConf(func(conf *commonConfig) {
 			// Make sure we always render the home pages
-			for _, l := range conf.configs.Languages {
-				langPath := h.GetLangSubDir(l.Lang)
+			for _, l := range conf.configs.ConfigLangs() {
+				langPath := l.LanguagePrefix()
 				if langPath != "" {
 					langPath = langPath + "/"
 				}

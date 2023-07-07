@@ -937,8 +937,7 @@ func newTestCfgBasic() (config.Provider, *hugofs.Fs) {
 func newTestCfg(withConfig ...func(cfg config.Provider) error) (config.Provider, *hugofs.Fs) {
 	mm := afero.NewMemMapFs()
 	cfg := config.New()
-	// Default is false, but true is easier to use as default in tests
-	cfg.Set("defaultContentLanguageInSubdir", true)
+	cfg.Set("defaultContentLanguageInSubdir", false)
 	cfg.Set("publishDir", "public")
 
 	fs := hugofs.NewFromOld(hugofs.NewBaseFileDecorator(mm), cfg)

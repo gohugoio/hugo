@@ -102,6 +102,7 @@ func (p *Paths) Lang() string {
 	return p.Cfg.Language().Lang
 }
 
+// TODO1 check this.
 func (p *Paths) GetTargetLanguageBasePath() string {
 	if len(p.Cfg.Languages()) > 1 {
 		// In a multihost configuration all assets will be published below the language code.
@@ -110,41 +111,8 @@ func (p *Paths) GetTargetLanguageBasePath() string {
 	return p.GetLanguagePrefix()
 }
 
-func (p *Paths) GetURLLanguageBasePath() string {
-	if len(p.Cfg.Languages()) > 1 {
-		return ""
-	}
-	return p.GetLanguagePrefix()
-}
-
 func (p *Paths) GetLanguagePrefix() string {
-	if len(p.Cfg.Languages()) < 2 {
-		return ""
-	}
-	defaultLang := p.Cfg.DefaultContentLanguage()
-	defaultInSubDir := p.Cfg.DefaultContentLanguageInSubdir()
-	currentLang := p.Cfg.Language().Lang
-	if currentLang == "" || (currentLang == defaultLang && !defaultInSubDir) {
-		return ""
-	}
-	return currentLang
-}
-
-// GetLangSubDir returns the given language's subdir if needed.
-func (p *Paths) GetLangSubDir(lang string) string {
-	if len(p.Cfg.Languages()) < 2 {
-		return ""
-	}
-
-	if p.Cfg.IsMultihost() {
-		return ""
-	}
-
-	if lang == "" || (lang == p.Cfg.DefaultContentLanguage() && !p.Cfg.DefaultContentLanguageInSubdir()) {
-		return ""
-	}
-
-	return lang
+	return p.Cfg.LanguagePrefix()
 }
 
 // AbsPathify creates an absolute path if given a relative path. If already

@@ -887,21 +887,16 @@ func (s *Site) getLanguageTargetPathLang(alwaysInSubDir bool) string {
 
 // get any language code to prefix the relative permalink with.
 func (s *Site) getLanguagePermalinkLang(alwaysInSubDir bool) string {
-	if !s.h.isMultiLingual() || s.h.Conf.IsMultihost() {
+	if s.h.Conf.IsMultihost() {
 		return ""
 	}
 
-	if alwaysInSubDir {
+	if s.h.Conf.IsMultiLingual() && alwaysInSubDir {
 		return s.Language().Lang
 	}
 
-	isDefault := s.Language().Lang == s.conf.DefaultContentLanguage
+	return s.GetLanguagePrefix()
 
-	if !isDefault || s.conf.DefaultContentLanguageInSubdir {
-		return s.Language().Lang
-	}
-
-	return ""
 }
 
 func (s *Site) getTaxonomyKey(key string) string {

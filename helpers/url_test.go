@@ -109,8 +109,16 @@ func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 						"weight": 10,
 					},
 				})
+				v.Set("defaultContentLanguage", "en")
+			} else {
+				v.Set("defaultContentLanguage", lang)
+				v.Set("languages", map[string]any{
+					lang: map[string]interface{}{
+						"weight": 10,
+					},
+				})
 			}
-			v.Set("defaultContentLanguage", "en")
+
 			v.Set("defaultContentLanguageInSubdir", defaultInSubDir)
 			v.Set("baseURL", test.baseURL)
 
@@ -118,16 +126,21 @@ func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 			if multilingual {
 				configLang = lang
 			}
+			defaultContentLanguage := lang
+			if multilingual {
+				defaultContentLanguage = "en"
+			}
+
 			p := newTestPathSpecFromCfgAndLang(v, configLang)
 
 			output := p.AbsURL(test.input, addLanguage)
 			expected := test.expected
-			if multilingual && addLanguage {
-				if !defaultInSubDir && lang == "en" {
-					expected = strings.Replace(expected, "MULTI", "", 1)
-				} else {
-					expected = strings.Replace(expected, "MULTI", lang+"/", 1)
-				}
+			if addLanguage {
+				addLanguage = defaultInSubDir && lang == defaultContentLanguage
+				addLanguage = addLanguage || (lang != defaultContentLanguage && multilingual)
+			}
+			if addLanguage {
+				expected = strings.Replace(expected, "MULTI", lang+"/", 1)
 			} else {
 				expected = strings.Replace(expected, "MULTI", "", 1)
 			}
@@ -162,8 +175,16 @@ func doTestRelURL(t testing.TB, defaultInSubDir, addLanguage, multilingual bool,
 				"weight": 10,
 			},
 		})
+		v.Set("defaultContentLanguage", "en")
+	} else {
+		v.Set("defaultContentLanguage", lang)
+		v.Set("languages", map[string]any{
+			lang: map[string]interface{}{
+				"weight": 10,
+			},
+		})
 	}
-	v.Set("defaultContentLanguage", "en")
+
 	v.Set("defaultContentLanguageInSubdir", defaultInSubDir)
 
 	tests := []struct {
@@ -209,25 +230,25 @@ func doTestRelURL(t testing.TB, defaultInSubDir, addLanguage, multilingual bool,
 	}
 
 	for i, test := range tests {
-		c.Run(fmt.Sprintf("%v/%t%t%t/%s", test, defaultInSubDir, addLanguage, multilingual, lang), func(c *qt.C) {
+		c.Run(fmt.Sprintf("%v/defaultInSubDir=%t;addLanguage=%t;multilingual=%t/%s", test, defaultInSubDir, addLanguage, multilingual, lang), func(c *qt.C) {
 
 			v.Set("baseURL", test.baseURL)
 			v.Set("canonifyURLs", test.canonify)
-			var configLang string
+			defaultContentLanguage := lang
 			if multilingual {
-				configLang = lang
+				defaultContentLanguage = "en"
 			}
-			p := newTestPathSpecFromCfgAndLang(v, configLang)
+			p := newTestPathSpecFromCfgAndLang(v, lang)
 
 			output := p.RelURL(test.input, addLanguage)
 
 			expected := test.expected
-			if multilingual && addLanguage {
-				if !defaultInSubDir && lang == "en" {
-					expected = strings.Replace(expected, "MULTI", "", 1)
-				} else {
-					expected = strings.Replace(expected, "MULTI", "/"+lang, 1)
-				}
+			if addLanguage {
+				addLanguage = defaultInSubDir && lang == defaultContentLanguage
+				addLanguage = addLanguage || (lang != defaultContentLanguage && multilingual)
+			}
+			if addLanguage {
+				expected = strings.Replace(expected, "MULTI", "/"+lang, 1)
 			} else {
 				expected = strings.Replace(expected, "MULTI", "", 1)
 			}
