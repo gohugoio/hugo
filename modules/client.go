@@ -292,8 +292,10 @@ func (c *Client) Vendor() error {
 			}
 		}
 
-		// Also include any theme.toml or config.* files in the root.
+		// Also include any theme.toml or config.* or hugo.* files in the root.
 		configFiles, _ := afero.Glob(c.fs, filepath.Join(dir, "config.*"))
+		configFiles2, _ := afero.Glob(c.fs, filepath.Join(dir, "hugo.*"))
+		configFiles = append(configFiles, configFiles2...)
 		configFiles = append(configFiles, filepath.Join(dir, "theme.toml"))
 		for _, configFile := range configFiles {
 			if err := hugio.CopyFile(c.fs, configFile, filepath.Join(vendorDir, t.Path(), filepath.Base(configFile))); err != nil {
