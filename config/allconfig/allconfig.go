@@ -553,7 +553,7 @@ type RootConfig struct {
 	// See Modules for more a more flexible way to load themes.
 	Theme []string
 
-	// Timeout for generating page contents, specified as a duration or in milliseconds.
+	// Timeout for generating page contents, specified as a duration or in seconds.
 	Timeout string
 
 	// The time zone (or location), e.g. Europe/Oslo, used to parse front matter dates without such information and in the time function.
