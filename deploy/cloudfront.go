@@ -18,6 +18,7 @@ package deploy
 
 import (
 	"context"
+	"net/url"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -26,14 +27,18 @@ import (
 )
 
 // InvalidateCloudFront invalidates the CloudFront cache for distributionID.
-// It uses the default AWS credentials from the environment.
-func InvalidateCloudFront(ctx context.Context, distributionID string) error {
-	sess, err := gcaws.NewDefaultSession()
+// Uses AWS credentials config from the bucket URL.
+func InvalidateCloudFront(ctx context.Context, target *Target) error {
+	u, err := url.Parse(target.URL)
+	if err != nil {
+		return err
+	}
+	sess, _, err := gcaws.NewSessionFromURLParams(u.Query())
 	if err != nil {
 		return err
 	}
 	req := &cloudfront.CreateInvalidationInput{
-		DistributionId: aws.String(distributionID),
+		DistributionId: aws.String(target.CloudFrontDistributionID),
 		InvalidationBatch: &cloudfront.InvalidationBatch{
 			CallerReference: aws.String(time.Now().Format("20060102150405")),
 			Paths: &cloudfront.Paths{
