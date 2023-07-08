@@ -39,6 +39,9 @@ type LanguageConfig struct {
 	// The language weight. When set to a non-zero value, this will
 	// be the main sort criteria for the language.
 	Weight int
+
+	// Set to true to disable this language.
+	Disabled bool
 }
 
 func DecodeConfig(m map[string]any) (map[string]LanguageConfig, error) {

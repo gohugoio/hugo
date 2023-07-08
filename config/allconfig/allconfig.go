@@ -274,6 +274,14 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 		}
 		disabledLangs[lang] = true
 	}
+	for lang, language := range c.Languages {
+		if language.Disabled {
+			disabledLangs[lang] = true
+			if lang == c.DefaultContentLanguage {
+				return fmt.Errorf("cannot disable default content language %q", lang)
+			}
+		}
+	}
 
 	ignoredErrors := make(map[string]bool)
 	for _, err := range c.IgnoreErrors {

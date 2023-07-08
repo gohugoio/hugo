@@ -1384,3 +1384,30 @@ Home.
 	})
 
 }
+
+func TestLanguagesDisabled(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+[languages]
+[languages.en]
+title = "English Title"
+[languages.sv]
+title = "Swedish Title"
+disabled = true
+-- layouts/index.html --
+Home.
+
+	
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.Assert(len(b.H.Sites), qt.Equals, 1)
+
+}
