@@ -20,6 +20,7 @@ import (
 
 	"errors"
 
+	"github.com/bep/overlayfs"
 	"github.com/gohugoio/hugo/resources/images"
 
 	// Importing image codecs for image.DecodeConfig
@@ -31,23 +32,38 @@ import (
 	_ "golang.org/x/image/webp"
 
 	"github.com/gohugoio/hugo/deps"
+	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 )
 
 // New returns a new instance of the images-namespaced template functions.
-func New(deps *deps.Deps) *Namespace {
+func New(d *deps.Deps) *Namespace {
+	var readFileFs afero.Fs
+
+	// The docshelper script does not have or need all the dependencies set up.
+	if d.PathSpec != nil {
+		readFileFs = overlayfs.New(overlayfs.Options{
+			Fss: []afero.Fs{
+				d.PathSpec.BaseFs.Work,
+				d.PathSpec.BaseFs.Content.Fs,
+			},
+		})
+	}
+
 	return &Namespace{
-		Filters: &images.Filters{},
-		cache:   map[string]image.Config{},
-		deps:    deps,
+		readFileFs: readFileFs,
+		Filters:    &images.Filters{},
+		cache:      map[string]image.Config{},
+		deps:       d,
 	}
 }
 
 // Namespace provides template functions for the "images" namespace.
 type Namespace struct {
 	*images.Filters
-	cacheMu sync.RWMutex
-	cache   map[string]image.Config
+	readFileFs afero.Fs
+	cacheMu    sync.RWMutex
+	cache      map[string]image.Config
 
 	deps *deps.Deps
 }
@@ -73,7 +89,7 @@ func (ns *Namespace) Config(path any) (image.Config, error) {
 		return config, nil
 	}
 
-	f, err := ns.deps.Fs.WorkingDirReadOnly.Open(filename)
+	f, err := ns.readFileFs.Open(filename)
 	if err != nil {
 		return image.Config{}, err
 	}

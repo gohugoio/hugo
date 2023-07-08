@@ -24,8 +24,6 @@ import (
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/testconfig"
-	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 )
@@ -86,11 +84,10 @@ func TestNSConfig(t *testing.T) {
 	afs := afero.NewMemMapFs()
 	v := config.New()
 	v.Set("workingDir", "/a/b")
-	conf := testconfig.GetTestConfig(afs, v)
-	bcfg := conf.BaseConfig()
-	fs := hugofs.NewFrom(afs, bcfg)
+	d := testconfig.GetTestDeps(afs, v)
+	bcfg := d.Conf
 
-	ns := New(&deps.Deps{Fs: fs, Conf: conf})
+	ns := New(d)
 
 	for _, test := range configTests {
 
@@ -104,7 +101,7 @@ func TestNSConfig(t *testing.T) {
 		// cast path to string for afero.WriteFile
 		sp, err := cast.ToStringE(test.path)
 		c.Assert(err, qt.IsNil)
-		afero.WriteFile(ns.deps.Fs.Source, filepath.Join(bcfg.WorkingDir, sp), test.input, 0755)
+		afero.WriteFile(ns.deps.Fs.Source, filepath.Join(bcfg.WorkingDir(), sp), test.input, 0755)
 
 		result, err := ns.Config(test.path)
 
