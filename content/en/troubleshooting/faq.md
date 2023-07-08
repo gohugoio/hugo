@@ -28,7 +28,7 @@ Yes you can! See [Configure with Environment Variables](/getting-started/configu
 
 ## How do I schedule posts?
 
-1. Set `publishDate` in the page [Front Matter](/content-management/front-matter/) to a datetime in the future. If you want the creation and publication datetime to be the same, it's also sufficient to only set `date`[^date-hierarchy].
+1. Set `publishDate` in the page [front matter](/content-management/front-matter/) to a datetime in the future. If you want the creation and publication datetime to be the same, it's also sufficient to only set `date`[^date-hierarchy].
 2. Build and publish at intervals.
 
 How to automate the "publish at intervals" part depends on your situation:

@@ -13,7 +13,7 @@ weight: 70
 aliases: [/content/build-options/]
 ---
 
-They are stored in a reserved Front Matter object named `_build` with the following defaults:
+They are stored in a reserved front matter object named `_build` with the following defaults:
 
 {{< code-toggle >}}
 _build:
@@ -67,7 +67,7 @@ Any page, regardless of their build options, will always be available using the 
 
 #### Not publishing a page
 
-Project needs a "Who We Are" content file for Front Matter and body to be used by the homepage but nowhere else.
+Project needs a "Who We Are" content file for front matter and body to be used by the homepage but nowhere else.
 
 {{< code-toggle file="content/who-we-are.md" fm=true copy=false >}}
 title: Who we are

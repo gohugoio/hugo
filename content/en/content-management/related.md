@@ -12,7 +12,7 @@ weight: 110
 aliases: [/content/related/,/related/]
 ---
 
-Hugo uses a set of factors to identify a page's related content based on Front Matter parameters. This can be tuned to the desired set of indices and parameters or left to Hugo's default [Related Content configuration](#configure-related-content).
+Hugo uses a set of factors to identify a page's related content based on front matter parameters. This can be tuned to the desired set of indices and parameters or left to Hugo's default [Related Content configuration](#configure-related-content).
 
 ## List Related Content
 

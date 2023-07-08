@@ -151,7 +151,7 @@ show_comments: false
 
 ## Front Matter Cascade
 
-Any node or section can pass down to descendants a set of Front Matter values as long as defined underneath the reserved `cascade` Front Matter key.
+Any node or section can pass down to descendants a set of front matter values as long as defined underneath the reserved `cascade` front matter key.
 
 ### Target Specific Pages
 
