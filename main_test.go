@@ -50,6 +50,7 @@ func TestUnfinished(t *testing.T) {
 
 	p := commonTestScriptsParam
 	p.Dir = "testscripts/unfinished"
+	//p.UpdateScripts = true
 
 	testscript.Run(t, p)
 }
