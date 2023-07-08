@@ -271,7 +271,7 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 				}
 			} else {
 				d.logger.Println("Invalidating CloudFront CDN...")
-				if err := InvalidateCloudFront(ctx, d.target.CloudFrontDistributionID); err != nil {
+				if err := InvalidateCloudFront(ctx, d.target); err != nil {
 					d.logger.Printf("Failed to invalidate CloudFront CDN: %v\n", err)
 					return err
 				}
