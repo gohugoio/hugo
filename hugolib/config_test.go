@@ -1299,7 +1299,6 @@ Home.
 func TestDefaultContentLanguageInSubdirOnlyOneLanguage(t *testing.T) {
 
 	t.Run("One language, default in sub dir", func(t *testing.T) {
-		t.Skip()
 		t.Parallel()
 
 		files := `
@@ -1325,7 +1324,6 @@ Home.
 	})
 
 	t.Run("Two languages, default in sub dir", func(t *testing.T) {
-		t.Skip()
 		t.Parallel()
 
 		files := `
