@@ -45,8 +45,20 @@ plugs:
     interface: personal-files
     read:
       - $HOME/.gitconfig
-      - $HOME/.config/git       # Allows $HOME/.config/git/config and more
-      - $HOME/.gitconfig.local  # See #10337
+      - $HOME/.config/git
+      - $HOME/.gitconfig.local
+  dot-aws:
+    interface: personal-files
+    read:
+      - $HOME/.aws
+  dot-azure:
+    interface: personal-files
+    read:
+      - $HOME/.azure
+  dot-config-gcloud:
+    interface: personal-files
+    read:
+      - $HOME/.config/gcloud
 
 environment:
   HOME: $SNAP_REAL_HOME
@@ -80,6 +92,9 @@ apps:
       - removable-media
       - etc-gitconfig
       - gitconfig
+      - dot-aws
+      - dot-azure
+      - dot-config-gcloud
 
 parts:
   git:
