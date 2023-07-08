@@ -102,9 +102,8 @@ func (p *Paths) Lang() string {
 	return p.Cfg.Language().Lang
 }
 
-// TODO1 check this.
 func (p *Paths) GetTargetLanguageBasePath() string {
-	if len(p.Cfg.Languages()) > 1 {
+	if p.Cfg.IsMultihost() {
 		// In a multihost configuration all assets will be published below the language code.
 		return p.Lang()
 	}
