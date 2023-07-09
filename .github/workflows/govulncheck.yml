@@ -1,0 +1,11 @@
+name: govulncheck
+on: [push, pull_request]
+permissions: 
+  security-events: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Scan for Vulnerabilities in Code
+        uses: Templum/govulncheck-action@v0.0.9
