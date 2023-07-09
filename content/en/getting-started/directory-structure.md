@@ -38,7 +38,7 @@ The following is a high-level overview of each of the directories with links to 
 
 [`archetypes`](/content-management/archetypes/)
 : You can create new content files in Hugo using the `hugo new` command.
-By default, Hugo will create new content files with at least `date`, `title` (inferred from the filename), and `draft = true`. This saves time and promotes consistency for sites using multiple content types. You can create your own [archetypes] with custom preconfigured front matter fields as well.
+By default, Hugo will create new content files with at least `date`, `title` (inferred from the file name), and `draft = true`. This saves time and promotes consistency for sites using multiple content types. You can create your own [archetypes] with custom preconfigured front matter fields as well.
 
 [`assets`]
 : Stores all the files which need be processed by [Hugo Pipes](/hugo-pipes/). Only the files whose `.Permalink` or `.RelPermalink` are used will be published to the `public` directory.

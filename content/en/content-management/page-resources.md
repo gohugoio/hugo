@@ -42,7 +42,7 @@ ResourceType
 : The main type of the resource's [Media Type](/templates/output-formats/#media-types). For example, a file of MIME type `image/jpeg` has the ResourceType `image`. A `Page` will have `ResourceType` with value `page`.
 
 Name
-: Default value is the filename (relative to the owning page). Can be set in front matter.
+: Default value is the file name (relative to the owning page). Can be set in front matter.
 
 Title
 : Default value is the same as `.Name`. Can be set in front matter.

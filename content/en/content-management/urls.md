@@ -271,10 +271,10 @@ Use these tokens when defining the URL pattern. The `date` field in front matter
 : the content's slug (or title if no slug is provided in the front matter)
 
 `:slugorfilename`
-: the content's slug (or filename if no slug is provided in the front matter)
+: the content's slug (or file name if no slug is provided in the front matter)
 
 `:filename`
-: the content's filename (without extension)
+: the content's file name (without extension)
 
 For time-related values, you can also use the layout string components defined in Go's [time package]. For example:
 

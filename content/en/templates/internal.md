@@ -149,7 +149,7 @@ tags = []
 
 Hugo uses the page title and description for the title and description metadata.
 The first 6 URLs from the `images` array are used for image metadata.
-If [page bundles](/content-management/page-bundles/) are used and the `images` array is empty or undefined, images with filenames matching `*feature*` or `*cover*,*thumbnail*` are used for image metadata.
+If [page bundles](/content-management/page-bundles/) are used and the `images` array is empty or undefined, images with file names matching `*feature*` or `*cover*,*thumbnail*` are used for image metadata.
 
 Various optional metadata can also be set:
 

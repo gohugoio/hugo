@@ -89,7 +89,7 @@ subtitle = 'Reference, Tutorials, and Explanations'
 [built-in RSS template]: https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/rss.xml
 [built-in alias template]: https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/alias.html
 [RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646
-[translating by file name]: #translation-by-filename
+[translating by file name]: #translation-by-file-name
 
 ### Changes in Hugo 0.112.0
 
@@ -195,7 +195,7 @@ Live reload and `--navigateToChanged` between the servers work as expected.
 
 There are two ways to manage your content translations. Both ensure each page is assigned a language and is linked to its counterpart translations.
 
-### Translation by filename
+### Translation by file name
 
 Considering the following example:
 
@@ -205,9 +205,9 @@ Considering the following example:
 The first file is assigned the English language and is linked to the second.
 The second file is assigned the French language and is linked to the first.
 
-Their language is __assigned__ according to the language code added as a __suffix to the filename__.
+Their language is __assigned__ according to the language code added as a __suffix to the file name__.
 
-By having the same **path and base filename**, the content pieces are __linked__ together as translated pages.
+By having the same **path and base file name**, the content pieces are __linked__ together as translated pages.
 
 {{% note %}}
 If a file has no language code, it will be assigned the default language.
@@ -261,7 +261,7 @@ By setting the `translationKey` front matter param to `about` in all three pages
 
 ### Localizing permalinks
 
-Because paths and filenames are used to handle linking, all translated pages will share the same URL (apart from the language subdirectory).
+Because paths and file names are used to handle linking, all translated pages will share the same URL (apart from the language subdirectory).
 
 To localize URLs:
 
@@ -292,7 +292,7 @@ If, across the linked bundles, two or more files share the same basename, only o
 * First file found across bundles by order of language `Weight`.
 
 {{% note %}}
-Page Bundle resources follow the same language assignment logic as content files, both by filename (`image.jpg`, `image.fr.jpg`) and by directory (`english/about/header.jpg`, `french/about/header.jpg`).
+Page Bundle resources follow the same language assignment logic as content files, both by file name (`image.jpg`, `image.fr.jpg`) and by directory (`english/about/header.jpg`, `french/about/header.jpg`).
 {{%/ note %}}
 
 ## Reference the Translated Content

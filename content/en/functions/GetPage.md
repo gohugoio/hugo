@@ -39,7 +39,7 @@ And since `Page` also provides a `.GetPage` method, the above is the same as:
 
 ## .GetPage and Multilingual Sites
 
-The previous examples have used the full content filename to look up the post. Depending on how you have organized your content (whether you have the language code in the file name or not, e.g. `my-post.en.md`), you may want to do the lookup without extension. This will get you the current language's version of the page:
+The previous examples have used the full content file name to look up the post. Depending on how you have organized your content (whether you have the language code in the file name or not, e.g. `my-post.en.md`), you may want to do the lookup without extension. This will get you the current language's version of the page:
 
 ```go-html-template
 {{ with .Site.GetPage "/blog/my-post" }}{{ .Title }}{{ end }}

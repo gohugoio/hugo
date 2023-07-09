@@ -20,6 +20,6 @@ A sitemap is a `Page` and therefore has all the [page variables][pagevars] avail
 : the priority of the page
 
 .Sitemap.Filename
-: the sitemap filename
+: the sitemap file name
 
 [pagevars]: /variables/page/

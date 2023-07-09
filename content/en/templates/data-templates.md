@@ -31,13 +31,13 @@ In both cases, it's a good idea to outsource the data in their (own) files.
 
 These files must be YAML, JSON, XML, or TOML files (using the `.yml`, `.yaml`, `.json`, `.xml`, or `.toml` extension). The data will be accessible as a `map` in the `.Site.Data` variable.
 
-To access the data using the `site.Data.filename` notation, the filename must begin with an underscore or a Unicode letter, followed by zero or more underscores, Unicode letters, or Unicode digits. For example:
+To access the data using the `site.Data.filename` notation, the file name must begin with an underscore or a Unicode letter, followed by zero or more underscores, Unicode letters, or Unicode digits. For example:
 
 - `123.json` - Invalid
 - `x123.json` - Valid
 - `_123.json` - Valid
 
-To access the data using the [`index`](/functions/index-function/) function, the filename is irrelevant. For example:
+To access the data using the [`index`](/functions/index-function/) function, the file name is irrelevant. For example:
 
 Data file|Template code
 :--|:--
@@ -89,7 +89,7 @@ discography = [
 ]
 {{< /code-toggle >}}
 
-The list of bass players can be accessed via `.Site.Data.jazz.bass`, a single bass player by adding the filename without the suffix, e.g. `.Site.Data.jazz.bass.jacopastorius`.
+The list of bass players can be accessed via `.Site.Data.jazz.bass`, a single bass player by adding the file name without the suffix, e.g. `.Site.Data.jazz.bass.jacopastorius`.
 
 You can now render the list of recordings for all the bass players in a template:
 

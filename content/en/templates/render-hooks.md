@@ -180,4 +180,4 @@ Page
 : The owning `Page`.
 
 Position
-: Useful in error logging as it prints the filename and position (linenumber, column), e.g. `{{ errorf "error in code block: %s" .Position }}`.
+: Useful in error logging as it prints the file name and position (linenumber, column), e.g. `{{ errorf "error in code block: %s" .Position }}`.

@@ -25,7 +25,7 @@ weight: 20
 : provides access to the parent shortcode context in nested shortcodes. This can be very useful for inheritance of common shortcode parameters from the root.
 
 .Position
-: Contains [filename and position](https://godoc.org/github.com/gohugoio/hugo/common/text#Position) for the shortcode in a page. Note that this can be relatively expensive to calculate, and is meant for error reporting. See [Error Handling in Shortcodes](/templates/shortcode-templates/#error-handling-in-shortcodes).
+: Contains [file name and position](https://godoc.org/github.com/gohugoio/hugo/common/text#Position) for the shortcode in a page. Note that this can be relatively expensive to calculate, and is meant for error reporting. See [Error Handling in Shortcodes](/templates/shortcode-templates/#error-handling-in-shortcodes).
 
 .IsNamedParams
 : boolean that returns `true` when the shortcode in question uses [named rather than positional parameters][shortcodes]

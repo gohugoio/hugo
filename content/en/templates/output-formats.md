@@ -25,7 +25,7 @@ This is the full set of built-in media types in Hugo:
 **Note:**
 
 - It is possible to add custom media types or change the defaults; e.g., if you want to change the suffix for `text/html` to `asp`.
-- `Suffixes` are the values that will be used for URLs and filenames for that media type in Hugo.
+- `Suffixes` are the values that will be used for URLs and file names for that media type in Hugo.
 - The `Type` is the identifier that must be used when defining new/custom `Output Formats` (see below).
 - The full set of media types will be registered in Hugo's built-in development server to make sure they are recognized by the browser.
 
@@ -94,7 +94,7 @@ The following is the full list of configuration options for output formats and t
 : sub path to save the output files.
 
 `baseName`
-: the base filename for the list filenames (homepage, etc.). **Default:** `index`.
+: the base file name for the list file names (homepage, etc.). **Default:** `index`.
 
 `rel`
 : can be used to create `rel` values in `link` tags. **Default:** `alternate`.

@@ -34,7 +34,7 @@ Multiple site config files can be specified as a comma-separated string to the `
 
 ## hugo.toml vs config.toml
 
-In Hugo 0.110.0 we changed the default config base filename to `hugo`, e.g. `hugo.toml`. We will still look for `config.toml` etc., but we recommend you eventually rename it (but you need to wait if you want to support older Hugo versions). The main reason we're doing this is to make it easier for code editors and build tools to identify this as a Hugo configuration file and project.
+In Hugo 0.110.0 we changed the default config base file name to `hugo`, e.g. `hugo.toml`. We will still look for `config.toml` etc., but we recommend you eventually rename it (but you need to wait if you want to support older Hugo versions). The main reason we're doing this is to make it easier for code editors and build tools to identify this as a Hugo configuration file and project.
 
 {{< new-in "0.110.0" >}}
 
@@ -777,7 +777,7 @@ The above will try first to extract the value for `.Lastmod` starting with the `
 
 
 `:filename`
-: Fetches the date from the content file's filename. For example, `2018-02-22-mypage.md` will extract the date `2018-02-22`. Also, if `slug` is not set, `mypage` will be used as the value for `.Slug`.
+: Fetches the date from the content file's file name. For example, `2018-02-22-mypage.md` will extract the date `2018-02-22`. Also, if `slug` is not set, `mypage` will be used as the value for `.Slug`.
 
 An example:
 
@@ -786,7 +786,7 @@ An example:
 date  = [":filename", ":default"]
 {{< /code-toggle >}}
 
-The above will try first to extract the value for `.Date` from the filename, then it will look in front matter parameters `date`, `publishDate` and lastly `lastmod`.
+The above will try first to extract the value for `.Date` from the file name, then it will look in front matter parameters `date`, `publishDate` and lastly `lastmod`.
 
 
 `:git`

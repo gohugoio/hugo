@@ -21,7 +21,7 @@ Note that you can mount any directory into Hugo's virtual `assets` folder using 
 
 | Function  | Description |
 | ------------- | ------------- |
-| `resources.Get`  | Get locates the filename given in Hugo's assets filesystem and creates a `Resource` object that can be used for further transformations. See [Get Resource with resources.Get and resources.GetRemote](#get-resource-with-resourcesget-and-resourcesgetremote).  |
+| `resources.Get`  | Get locates the file name given in Hugo's assets filesystem and creates a `Resource` object that can be used for further transformations. See [Get Resource with resources.Get and resources.GetRemote](#get-resource-with-resourcesget-and-resourcesgetremote).  |
 | `resources.GetRemote`  | Same as `Get`, but it accepts remote URLs. See [Get Resource with resources.Get and resources.GetRemote](#get-resource-with-resourcesget-and-resourcesgetremote).|
 | `resources.GetMatch`  | `GetMatch` finds the first Resource matching the given pattern, or nil if none found. See Match for a more complete explanation about the rules used. |
 | `resources.Match`  | `Match` gets all resources matching the given base path prefix, e.g "*.png" will match all png files. The "*" does not match path delimiters (/), so if you organize your resources in sub-folders, you need to be explicit about it, e.g.: "images/*.png". To match any PNG image anywhere in the bundle you can do "\*\*.png", and to match all PNG images below the images folder, use "images/\*\*.jpg". The matching is case insensitive. Match matches by using the files name with path relative to the file system root with Unix style slashes (/) and no leading slash, e.g. "images/logo.png". See https://github.com/gobwas/glob for the full rules set.|
