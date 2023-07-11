@@ -86,6 +86,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	opts.resolveDir = t.c.rs.Cfg.BaseConfig().WorkingDir // where node_modules gets resolved
 	opts.contents = string(src)
 	opts.mediaType = ctx.InMediaType
+	opts.tsConfig = t.c.rs.ResolveJSConfigFile("tsconfig.json")
 
 	buildOptions, err := toBuildOptions(opts)
 	if err != nil {
