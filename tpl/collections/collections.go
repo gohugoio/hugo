@@ -16,6 +16,7 @@
 package collections
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"math/rand"
@@ -99,7 +100,7 @@ func (ns *Namespace) After(n any, l any) (any, error) {
 
 // Delimit takes a given list l and returns a string delimited by sep.
 // If last is passed to the function, it will be used as the final delimiter.
-func (ns *Namespace) Delimit(l, sep any, last ...any) (template.HTML, error) {
+func (ns *Namespace) Delimit(ctx context.Context, l, sep any, last ...any) (template.HTML, error) {
 	d, err := cast.ToStringE(sep)
 	if err != nil {
 		return "", err
@@ -125,7 +126,7 @@ func (ns *Namespace) Delimit(l, sep any, last ...any) (template.HTML, error) {
 	var str string
 	switch lv.Kind() {
 	case reflect.Map:
-		sortSeq, err := ns.Sort(l)
+		sortSeq, err := ns.Sort(ctx, l)
 		if err != nil {
 			return "", err
 		}

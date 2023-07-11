@@ -14,6 +14,7 @@
 package collections
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"reflect"
@@ -641,9 +642,9 @@ func TestWhere(t *testing.T) {
 				var err error
 
 				if len(test.op) > 0 {
-					results, err = ns.Where(test.seq, test.key, test.op, test.match)
+					results, err = ns.Where(context.Background(), test.seq, test.key, test.op, test.match)
 				} else {
-					results, err = ns.Where(test.seq, test.key, test.match)
+					results, err = ns.Where(context.Background(), test.seq, test.key, test.match)
 				}
 				if b, ok := test.expect.(bool); ok && !b {
 					if err == nil {
@@ -662,17 +663,17 @@ func TestWhere(t *testing.T) {
 	}
 
 	var err error
-	_, err = ns.Where(map[string]int{"a": 1, "b": 2}, "a", []byte("="), 1)
+	_, err = ns.Where(context.Background(), map[string]int{"a": 1, "b": 2}, "a", []byte("="), 1)
 	if err == nil {
 		t.Errorf("Where called with none string op value didn't return an expected error")
 	}
 
-	_, err = ns.Where(map[string]int{"a": 1, "b": 2}, "a", []byte("="), 1, 2)
+	_, err = ns.Where(context.Background(), map[string]int{"a": 1, "b": 2}, "a", []byte("="), 1, 2)
 	if err == nil {
 		t.Errorf("Where called with more than two variable arguments didn't return an expected error")
 	}
 
-	_, err = ns.Where(map[string]int{"a": 1, "b": 2}, "a")
+	_, err = ns.Where(context.Background(), map[string]int{"a": 1, "b": 2}, "a")
 	if err == nil {
 		t.Errorf("Where called with no variable arguments didn't return an expected error")
 	}
@@ -842,7 +843,7 @@ func TestEvaluateSubElem(t *testing.T) {
 		{reflect.ValueOf(map[int]string{1: "foo", 2: "bar"}), "1", false},
 		{reflect.ValueOf([]string{"foo", "bar"}), "1", false},
 	} {
-		result, err := evaluateSubElem(test.value, test.key)
+		result, err := evaluateSubElem(reflect.ValueOf(context.Background()), test.value, test.key)
 		if b, ok := test.expect.(bool); ok && !b {
 			if err == nil {
 				t.Errorf("[%d] evaluateSubElem didn't return an expected error", i)

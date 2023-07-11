@@ -14,6 +14,7 @@
 package collections
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"html/template"
@@ -166,9 +167,9 @@ func TestDelimit(t *testing.T) {
 		var err error
 
 		if test.last == nil {
-			result, err = ns.Delimit(test.seq, test.delimiter)
+			result, err = ns.Delimit(context.Background(), test.seq, test.delimiter)
 		} else {
-			result, err = ns.Delimit(test.seq, test.delimiter, test.last)
+			result, err = ns.Delimit(context.Background(), test.seq, test.delimiter, test.last)
 		}
 
 		c.Assert(err, qt.IsNil, errMsg)
