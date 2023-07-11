@@ -14,6 +14,7 @@
 package collections
 
 import (
+	"context"
 	"errors"
 	"reflect"
 	"sort"
@@ -26,7 +27,7 @@ import (
 )
 
 // Sort returns a sorted copy of the list l.
-func (ns *Namespace) Sort(l any, args ...any) (any, error) {
+func (ns *Namespace) Sort(ctx context.Context, l any, args ...any) (any, error) {
 	if l == nil {
 		return nil, errors.New("sequence must be provided")
 	}
@@ -35,6 +36,8 @@ func (ns *Namespace) Sort(l any, args ...any) (any, error) {
 	if isNil {
 		return nil, errors.New("can't iterate over a nil value")
 	}
+
+	ctxv := reflect.ValueOf(ctx)
 
 	var sliceType reflect.Type
 	switch seqv.Kind() {
@@ -78,7 +81,7 @@ func (ns *Namespace) Sort(l any, args ...any) (any, error) {
 				v := p.Pairs[i].Value
 				var err error
 				for i, elemName := range path {
-					v, err = evaluateSubElem(v, elemName)
+					v, err = evaluateSubElem(ctxv, v, elemName)
 					if err != nil {
 						return nil, err
 					}
@@ -108,7 +111,7 @@ func (ns *Namespace) Sort(l any, args ...any) (any, error) {
 				v := p.Pairs[i].Value
 				var err error
 				for i, elemName := range path {
-					v, err = evaluateSubElem(v, elemName)
+					v, err = evaluateSubElem(ctxv, v, elemName)
 					if err != nil {
 						return nil, err
 					}

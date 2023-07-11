@@ -155,3 +155,44 @@ func TestAppendNilsToSliceWithNils(t *testing.T) {
 	}
 
 }
+
+// Issue 11234.
+func TestWhereWithWordCount(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+baseURL = 'http://example.com/'
+-- layouts/index.html --
+Home: {{ range where site.RegularPages "WordCount" "gt" 50 }}{{ .Title }}|{{ end }}
+-- layouts/shortcodes/lorem.html --
+{{ "ipsum " | strings.Repeat (.Get 0 | int) }}
+
+-- content/p1.md --
+---
+title: "p1"
+---
+{{< lorem 100 >}}
+-- content/p2.md --
+---
+title: "p2"
+---
+{{< lorem 20 >}}
+-- content/p3.md --
+---
+title: "p3"
+---
+{{< lorem 60 >}}
+  `
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `
+Home: p1|p3|
+`)
+}
