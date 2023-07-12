@@ -13,7 +13,7 @@ weight: 40
 
 - [enwrite](https://github.com/zzamboni/enwrite). Enwrite enables evernote-powered, statically generated blogs and websites. Now posting to your blog or updating your website is as easy as writing a new note in Evernote!
 - [Lipi](https://github.com/SohanChy/Lipi). Lipi is a native GUI frontend written in Java to manage your Hugo websites.
-- [Netlify CMS](https://netlifycms.org). Netlify CMS is an open source, serverless solution for managing Git based content in static sites, and it works on any platform that can host static sites. A [Hugo/Netlify CMS starter](https://github.com/netlify-templates/one-click-hugo-cms) is available to get new projects running quickly.
+- [Decap CMS (formerly Netlify CMS)](https://decapcms.org/). Decap CMS is an open source, serverless solution for managing Git based content in static sites, and it works on any platform that can host static sites. A [Hugo/Decap CMS starter](https://github.com/decaporg/one-click-hugo-cms) is available to get new projects running quickly.
 - [Hokus CMS](https://github.com/julianoappelklein/hokus). Hokus CMS is an open source, multi-platform, easy to use, desktop application for Hugo. Build from simple to complex user interfaces for Hugo websites by choosing from a dozen ready-to-use components — all for free, with no vendor lock-in.
 
 ## Commercial Services
