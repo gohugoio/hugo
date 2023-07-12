@@ -1623,6 +1623,7 @@ config:
   timeout: 30s
   title: ""
   titleCaseStyle: AP
+  transliteratePaths: false
   uglyURLs: false
   workingDir: ""
 config_helpers:
@@ -4367,6 +4368,16 @@ tpl:
             {
                "title": "Hello World"
             }
+      Transliterate:
+        Aliases: null
+        Args:
+        - s
+        Description: Transliterate converts Unicode to ASCII.
+        Examples:
+        - - '{{ "áéíñóú" | transform.Transliterate }}'
+          - aeinou
+        - - '{{ "çđħłƚŧ" | transform.Transliterate }}'
+          - cdhllt
       Unmarshal:
         Aliases:
         - unmarshal

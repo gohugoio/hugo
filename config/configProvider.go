@@ -43,6 +43,7 @@ type AllProvider interface {
 	CanonifyURLs() bool
 	DisablePathToLower() bool
 	RemovePathAccents() bool
+	TransliteratePaths() bool
 	IsUglyURLs(section string) bool
 	DefaultContentLanguage() string
 	DefaultContentLanguageInSubdir() bool

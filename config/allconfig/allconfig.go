@@ -541,6 +541,9 @@ type RootConfig struct {
 	// Removes non-spacing marks from composite characters in content paths.
 	RemovePathAccents bool
 
+	// Converts content paths from Unicode to ASCII.
+	TransliteratePaths bool
+
 	// Whether to track and print unused templates during the build.
 	PrintUnusedTemplates bool
 

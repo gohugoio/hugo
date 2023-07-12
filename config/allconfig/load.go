@@ -180,6 +180,7 @@ func (l configLoader) applyDefaultConfig() error {
 		"canonifyURLs":                         false,
 		"relativeURLs":                         false,
 		"removePathAccents":                    false,
+		"transliteratePaths":                   false,
 		"titleCaseStyle":                       "AP",
 		"taxonomies":                           maps.Params{"tag": "tags", "category": "categories"},
 		"permalinks":                           maps.Params{},

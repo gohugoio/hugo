@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/cache/namedmemcache"
+	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/highlight"
 	"github.com/gohugoio/hugo/markup/highlight/chromalexers"
@@ -178,6 +179,15 @@ func (ns *Namespace) Plainify(s any) (string, error) {
 	}
 
 	return tpl.StripHTML(ss), nil
+}
+
+// Transliterate returns the given string, converting Unicode to ASCII.
+func (ns *Namespace) Transliterate(s any) (string, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+	return text.Transliterate(ss, ns.deps.Conf.DefaultContentLanguage()), nil
 }
 
 // For internal use.

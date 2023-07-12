@@ -173,6 +173,10 @@ func (c ConfigLanguage) RemovePathAccents() bool {
 	return c.config.RemovePathAccents
 }
 
+func (c ConfigLanguage) TransliteratePaths() bool {
+	return c.config.TransliteratePaths
+}
+
 func (c ConfigLanguage) DefaultContentLanguage() string {
 	return c.config.DefaultContentLanguage
 }

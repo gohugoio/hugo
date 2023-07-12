@@ -19,7 +19,30 @@ Hugo uses the `hugo.toml`, `hugo.yaml`, or `hugo.json` (if found in the
 site root) as the default site configuration file.
 
 The user can choose to override that default with one or more site configuration files using the command-line `--config` switch.
+### transliteratePath
 
+**Default value:** false
+
+Converts path characters from Unicode to ASCII using rules predefined for your site's `defaultContentLanguage`, or using default rules if language-specific rules do not exist.
+
+Hugo provides language-specific transliteration rules for Bosnian (bs), Bulgarian (bg), Catalan (ca), Croatian (hr), Danish (da), Esperanto (eo), German (de), Hungarian (hu), Macedonian (mk), Norwegian Bokmål (nb), Russian (ru), Serbian (sr), Slovenian (sl), Swedish (sv), and Ukrainian (uk).
+
+Hugo ignores the `removePathAccents` setting if you enable `transliteratePath`.
+
+For a site with English (en) as the default content language:
+
+```text
+content/Hugo.md → https://example.org/hugo/
+content/çđħłƚŧ.md → https://example.org/cdhllt/
+content/áéíñóú.md → https://example.org/aeinou/
+content/ÄÖÜäöüß.md → https://example.org/AOUaouss/
+```
+
+For a site with German (de) as the default content language:
+
+```text
+content/ÄÖÜäöüß.md → https://example.org/AeOeUeaeoeuess/
+```
 Examples:
 
 ```txt
@@ -455,7 +478,7 @@ See [Configure Taxonomies](/content-management/taxonomies#configure-taxonomies).
 
 ### theme
 
-: See [module configuration](/hugo-modules/configuration/#module-configuration-imports) for how to import a theme.
+See [module configuration](/hugo-modules/configuration/#module-configuration-imports) for how to import a theme.
 
 ### themesDir
 
@@ -482,6 +505,31 @@ Site title.
 **Default value:** "ap"
 
 See [Configure Title Case](#configure-title-case)
+
+### transliteratePath
+
+**Default value:** false
+
+Converts path characters from Unicode to ASCII using rules predefined for your site's `defaultContentLanguage`, or using default rules if language-specific rules do not exist.
+
+Hugo provides language-specific transliteration rules for Bosnian (bs), Bulgarian (bg), Catalan (ca), Croatian (hr), Danish (da), Esperanto (eo), German (de), Hungarian (hu), Macedonian (mk), Norwegian Bokmål (nb), Russian (ru), Serbian (sr), Slovenian (sl), Swedish (sv), and Ukrainian (uk).
+
+Hugo ignores the `removePathAccents` setting if you enable `transliteratePath`.
+
+For a site with English (en) as the default content language:
+
+```text
+content/Hugo.md → https://example.org/hugo/
+content/çđħłƚŧ.md → https://example.org/cdhllt/
+content/áéíñóú.md → https://example.org/aeinou/
+content/ÄÖÜäöüß.md → https://example.org/AOUaouss/
+```
+
+For a site with German (de) as the default content language:
+
+```text
+content/ÄÖÜäöüß.md → https://example.org/AeOeUeaeoeuess/
+```
 
 ### uglyURLs
 

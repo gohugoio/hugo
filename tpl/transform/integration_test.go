@@ -97,6 +97,7 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 -- layouts/index.html --
 {{ highlight "a" "b" 0 }}
   `
+
 	b := hugolib.NewIntegrationTestBuilder(
 		hugolib.IntegrationTestConfig{
 			T:           t,
@@ -106,4 +107,28 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 
 	_, err := b.BuildE()
 	b.Assert(err.Error(), qt.Contains, "error calling highlight: invalid Highlight option: 0")
+}
+
+func TestTransliterate(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+disableKinds = ['RSS','sitemap','taxonomy','term']
+defaultContentLanguage = 'de'
+-- layouts/index.html --
+{{ transform.Transliterate "Hugo" }}
+{{ transform.Transliterate "áéíñóú" }}
+{{ transform.Transliterate "çđħłƚŧ" }}
+{{ transform.Transliterate "ÄÖÜäöüß" }}
+  `
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", `
+	Hugo
+	aeinou
+	cdhllt
+	AeOeUeaeoeuess
+	`)
 }

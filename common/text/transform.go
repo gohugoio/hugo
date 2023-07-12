@@ -18,6 +18,8 @@ import (
 	"sync"
 	"unicode"
 
+	"github.com/alexsergivan/transliterator"
+	"golang.org/x/text/language"
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
@@ -75,4 +77,12 @@ func VisitLinesAfter(s string, fn func(line string)) {
 	if s != "" {
 		fn(s)
 	}
+}
+
+// Transliterate converts the given string s from Unicode to ASCII using rules
+// predefined for the given language lang.
+func Transliterate(s string, lang string) string {
+	trans := transliterator.NewTransliterator(nil)
+	language, _ := language.Make(lang).Base()
+	return trans.Transliterate(s, language.String())
 }

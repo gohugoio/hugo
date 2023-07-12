@@ -104,6 +104,14 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Transliterate,
+			nil,
+			[][2]string{
+				{`{{ transform.Transliterate "áéíñóú" }}`, `aeinou`},
+				{`{{ transform.Transliterate "çđħłƚŧ" }}`, `cdhllt`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Unmarshal,
 			[]string{"unmarshal"},
 			[][2]string{

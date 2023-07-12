@@ -85,13 +85,19 @@ func ishex(c rune) bool {
 
 // UnicodeSanitize sanitizes string to be used in Hugo URL's, allowing only
 // a predefined set of special Unicode characters.
-// If RemovePathAccents configuration flag is enabled, Unicode accents
-// are also removed.
+// If the TransliteratePaths configuration flag is enabled, Unicode characters
+// will be converted to ASCII.
+// If the RemovePathAccents configuration flag is enabled, non-spacing marks in
+// composite characters are removed.
 // Hyphens in the original input are maintained.
 // Spaces will be replaced with a single hyphen, and sequential replacement hyphens will be reduced to one.
 func (p *PathSpec) UnicodeSanitize(s string) string {
-	if p.Cfg.RemovePathAccents() {
-		s = text.RemoveAccentsString(s)
+	if p.Cfg.TransliteratePaths() {
+		s = text.Transliterate(s, p.Cfg.DefaultContentLanguage())
+	} else {
+		if p.Cfg.RemovePathAccents() {
+			s = text.RemoveAccentsString(s)
+		}
 	}
 
 	source := []rune(s)

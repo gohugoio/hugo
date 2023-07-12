@@ -27,6 +27,15 @@ func TestRemoveAccents(t *testing.T) {
 	c.Assert(string(RemoveAccentsString("Resumé")), qt.Equals, "Resume")
 }
 
+func TestTransliterate(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(string(Transliterate("Hugo", "en")), qt.Equals, "Hugo")
+	c.Assert(string(Transliterate("áéíñóú", "en")), qt.Equals, "aeinou")
+	c.Assert(string(Transliterate("ÄÖÜäöüß", "en")), qt.Equals, "AOUaouss")
+	c.Assert(string(Transliterate("ÄÖÜäöüß", "de")), qt.Equals, "AeOeUeaeoeuess")
+}
+
 func TestChomp(t *testing.T) {
 	c := qt.New(t)
 
@@ -63,7 +72,7 @@ line 3`
 func BenchmarkVisitLinesAfter(b *testing.B) {
 	const lines = `line 1
 	line 2
-	
+
 	line 3`
 
 	for i := 0; i < b.N; i++ {
