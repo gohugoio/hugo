@@ -86,7 +86,6 @@ From **Hugo 0.31** you can have multiple static directories.
 [partials]: /templates/partials/
 [searchconsole]: https://support.google.com/webmasters/answer/9008080#zippy=%2Chtml-file-upload
 [singles]: /templates/single-page-templates/
-[starters]: /tools/starter-kits/
 [taxonomies]: /content-management/taxonomies/
 [taxonomy templates]: /templates/taxonomy-templates/
 [types]: /content-management/types/
