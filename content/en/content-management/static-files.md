@@ -1,6 +1,5 @@
 ---
-title: Static Files
-linkTitle: Static Files
+title: Static files
 description: Files that get served **statically** (as-is, no modification) on the site root.
 categories: [content management]
 keywords: [source, directories]
@@ -18,7 +17,7 @@ all **static files** (e.g. stylesheets, JavaScript, images). The static files ar
 
 Hugo can be configured to look into a different directory, or even
 **multiple directories** for such static files by configuring the
-`staticDir` parameter in the [site config]. All the files in all the
+`staticDir` parameter in the [site configuration]. All the files in all the
 static directories will form a union filesystem.
 
 This union filesystem will be served from your site root. So a file
@@ -65,5 +64,5 @@ Note 2
 : The example above is a [multihost setup]. In a regular setup, all
   the static directories will be available to all sites.
 
-[site config]: /getting-started/configuration/#all-configuration-settings
+[site configuration]: /getting-started/configuration/#all-configuration-settings
 [multihost setup]: /content-management/multilingual/#configure-multilingual-multihost

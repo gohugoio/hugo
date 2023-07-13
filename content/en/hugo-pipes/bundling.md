@@ -6,9 +6,9 @@ categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: pipes
-    weight: 60
-weight: 60
+    parent: hugo-pipes
+    weight: 90
+weight: 90
 signature: ["resources.Concat TARGET_PATH SLICE_RESOURCES"]
 ---
 

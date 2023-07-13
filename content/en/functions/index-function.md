@@ -37,7 +37,7 @@ You may write multiple indices as a slice:
 {{ index $map $slice }} => 20
 ```
 
-## Example: Load Data from a Path Based on Front Matter Params
+## Example: load data from a path based on front matter parameters
 
 Assume you want to add a `location = ""` field to your front matter for every article written in `content/vacations/`. You want to use this field to populate information about the location at the bottom of the article in your `single.html` template. You also have a directory in `data/locations/` that looks like the following:
 

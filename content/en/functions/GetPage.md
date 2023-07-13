@@ -37,7 +37,7 @@ And since `Page` also provides a `.GetPage` method, the above is the same as:
 {{ end }}
 ```
 
-## .GetPage and Multilingual Sites
+## .GetPage and multilingual sites
 
 The previous examples have used the full content file name to look up the post. Depending on how you have organized your content (whether you have the language code in the file name or not, e.g. `my-post.en.md`), you may want to do the lookup without extension. This will get you the current language's version of the page:
 
@@ -45,7 +45,7 @@ The previous examples have used the full content file name to look up the post. 
 {{ with .Site.GetPage "/blog/my-post" }}{{ .Title }}{{ end }}
 ```
 
-## .GetPage Example
+## .GetPage example
 
 This code snippet---in the form of a [partial template][partials]---allows you to do the following:
 
@@ -63,7 +63,7 @@ This code snippet---in the form of a [partial template][partials]---allows you t
 </ul>
 {{< /code >}}
 
-## `.GetPage` on Page Bundles
+## `.GetPage` on page bundles
 
 If the page retrieved by `.GetPage` is a [Leaf Bundle][leaf_bundle], and you
 need to get the nested _**page** resources_ in that, you will need to use the

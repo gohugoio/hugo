@@ -1,5 +1,5 @@
 ---
-title: Related Content
+title: Related content
 description: List related content in "See Also" sections.
 categories: [content management]
 keywords: [content]
@@ -14,7 +14,7 @@ aliases: [/content/related/,/related/]
 
 Hugo uses a set of factors to identify a page's related content based on front matter parameters. This can be tuned to the desired set of indices and parameters or left to Hugo's default [Related Content configuration](#configure-related-content).
 
-## List Related Content
+## List related content
 
 To list up to 5 related pages (which share the same _date_ or _keyword_ parameters) is as simple as including something similar to this partial in your single page template:
 
@@ -60,7 +60,7 @@ A fictional example using all of the above options:
 We improved and simplified this feature in Hugo 0.111.0. Before this we had 3 different methods: `Related`, `RelatedTo` and `RelatedIndicies`. Now we have only one method: `Related`. The old methods are still available but deprecated. Also see [this blog article](https://regisphilibert.com/blog/2018/04/hugo-optmized-relashionships-with-related-content/) for a great explanation of more advanced usage of this feature.
 {{% /note %}}
 
-## Index Content Headings in Related Content
+## Index content headings in related content
 
 {{< new-in "0.111.0" >}}
 
@@ -105,7 +105,7 @@ weight      = 80
 {{ end }}
 ```
 
-## Configure Related Content
+## Configure related content
 
 Hugo provides a sensible default configuration of Related Content, but you can fine-tune this in your configuration, on the global or language level if needed.
 
@@ -130,10 +130,10 @@ Note that if you have configured `tags` as a taxonomy, `tags` will also be added
 Custom configuration should be set using the same syntax.
 
 {{% note %}}
-If you add a `related` config section, you need to add a complete configuration. It is not possible to just set, say, `includeNewer` and use the rest  from the Hugo defaults.
+If you add a `related` configuration section, you need to add a complete configuration. It is not possible to just set, say, `includeNewer` and use the rest  from the Hugo defaults.
 {{% /note %}}
 
-### Top Level Config Options
+### Top level configuration options
 
 threshold
 :  A value between 0-100. Lower value will give more, but maybe not so relevant, matches.
@@ -144,10 +144,10 @@ includeNewer
 toLower
 : Set to true to lower case keywords in both the indexes and the queries. This may give more accurate results at a slight performance penalty. Note that this can also be set per index.
 
-### Config Options per Index
+### Configuration options per index
 
 name
-:  The index name. This value maps directly to a page param. Hugo supports string values (`author` in the example) and lists (`tags`, `keywords` etc.) and time and date objects.
+:  The index name. This value maps directly to a page parameter. Hugo supports string values (`author` in the example) and lists (`tags`, `keywords` etc.) and time and date objects.
 
 type
 : {{< new-in "0.111.0" >}}. One of `basic`(default) or `fragments`.
@@ -168,7 +168,7 @@ pattern
 toLower
 : See above.
 
-## Performance Considerations
+## Performance considerations
 
 **Fast is Hugo's middle name** and we would not have released this feature had it not been blistering fast.
 

@@ -13,7 +13,7 @@ weight: 140
 aliases: [/content/archetypes/]
 ---
 
-## What are Archetypes?
+## What are archetypes?
 
 **Archetypes** are content template files in the [archetypes directory] of your project that contain preconfigured [front matter] and possibly also a content disposition for your website's [content types]. These will be used when you run `hugo new`.
 
@@ -33,7 +33,7 @@ The above will create a new content file in `content/posts/my-first-post.md` usi
 
 The last two list items are only applicable if you use a theme and it uses the `my-theme` theme name as an example.
 
-## Create a New Archetype Template
+## Create a new archetype template
 
 A fictional example for the section `newsletter` and the archetype file `archetypes/newsletter.md`. Create a new file in `archetypes/newsletter.md` and open it in a text editor.
 
@@ -46,7 +46,7 @@ draft: true
 
 **Insert Lead paragraph here.**
 
-## New Cool Posts
+## New cool posts
 
 {{ range first 10 ( where .Site.RegularPages "Type" "cool" ) }}
 * {{ .Title }}

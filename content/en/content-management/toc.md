@@ -1,5 +1,5 @@
 ---
-title: Table of Contents
+title: Table of contents
 description: Hugo can automatically parse Markdown content and create a Table of Contents you can use in your templates.
 categories: [content management]
 keywords: [table of contents, toc]
@@ -44,7 +44,7 @@ Hugo will take this Markdown and create a table of contents from `## Introductio
 
 The built-in `.TableOfContents` variables outputs a `<nav id="TableOfContents">` element with a child `<ul>`, whose child `<li>` elements begin with appropriate HTML headings. See [the available settings](/getting-started/configuration-markup/#table-of-contents) to configure what heading levels you want to include in TOC.
 
-## Template Example: Basic TOC
+## Template example: basic TOC
 
 The following is an example of a very basic [single page template]:
 
@@ -64,7 +64,7 @@ The following is an example of a very basic [single page template]:
 {{ end }}
 {{< /code >}}
 
-## Template Example: TOC Partial
+## Template example: TOC partial
 
 The following is a [partial template][partials] that adds slightly more logic for page-level control over your table of contents. It assumes you are using a `toc` field in your content's [front matter] that, unless specifically set to `false`, will add a TOC to any page with a `.WordCount` (see [Page Variables][pagevars]) greater than 400. This example also demonstrates how to use [conditionals] in your templating:
 
@@ -92,7 +92,7 @@ In the header of your content file, specify the AsciiDoc TOC directives necessar
 ```asciidoc
 // <!-- Your front matter up here -->
 :toc:
-// Set toclevels to be at least your hugo [markup.tableOfContents.endLevel] config key
+// Set toclevels to be at least your hugo [markup.tableOfContents.endLevel] configuration key
 :toclevels: 4
 
 == Introduction

@@ -6,8 +6,8 @@ keywords: [s3,gcs,azure,hosting,deployment]
 menu:
   docs:
     parent: hosting-and-deployment
-    weight: 2
-weight: 2
+    weight: 20
+weight: 20
 toc: true
 ---
 

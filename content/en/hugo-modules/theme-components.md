@@ -1,13 +1,13 @@
 ---
-title: Theme Components
+title: Theme components
 description: Hugo provides advanced theming support with Theme Components.
 categories: [hugo modules]
 keywords: [themes, theme, source, organization, directories]
 menu:
   docs:
     parent: modules
-    weight: 50
-weight: 50
+    weight: 40
+weight: 40
 aliases: [/themes/customize/,/themes/customizing/]
 toc: true
 ---
@@ -43,6 +43,6 @@ Also note that a component that is part of a theme can have its own configuratio
 * `menu` (global and per language)
 * `outputformats` and `mediatypes`
 
-The same rules apply here: The left-most param/menu etc. with the same ID will win. There are some hidden and experimental namespace support in the above, which we will work to improve in the future, but theme authors are encouraged to create their own namespaces to avoid naming conflicts.
+The same rules apply here: The left-most parameter/menu etc. with the same ID will win. There are some hidden and experimental namespace support in the above, which we will work to improve in the future, but theme authors are encouraged to create their own namespaces to avoid naming conflicts.
 
 [^1]: For themes hosted on the [Hugo Themes Showcase](https://themes.gohugo.io/) components need to be added as git submodules that point to the directory `exampleSite/themes`

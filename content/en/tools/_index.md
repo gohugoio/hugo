@@ -1,14 +1,15 @@
 ---
-title: Developer Tools
-linktitle: Developer Tools Overview
+title: Developer tools
+linkTitle: Overview
 description: In addition to Hugo's powerful CLI, there is a large number of community-developed tool chains for Hugo developers.
 categories: [developer tools]
 keywords: []
 menu:
   docs:
-    parent: tools
-    weight: 01
-weight: 01
+    identifier: developer-tools-overview
+    parent: developer-tools
+    weight: 10
+weight: 10
 ---
 
 One of Hugo's greatest strengths is its passionate---and always evolving---developer community. With the exception of the `highlight` shortcode mentioned in [Syntax Highlighting][syntax], the tools and other projects featured in this section are offerings from both commercial services and open-source projects, many of which are developed by Hugo developers just like you.

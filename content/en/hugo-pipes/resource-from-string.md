@@ -1,14 +1,14 @@
 ---
 title: FromString
-linkTitle: Resource from String
+linkTitle: Resource from string
 description: Creates a resource from a string.
 categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: pipes
-    weight: 90
-weight: 90
+    parent: hugo-pipes
+    weight: 110
+weight: 110
 signature: ["resources.FromString TARGET_PATH CONTENT"]
 ---
 

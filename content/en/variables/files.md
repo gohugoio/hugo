@@ -1,7 +1,7 @@
 ---
-title: File Variables
+title: File variables
 description: "Use File variables to access file-related values for each page that is backed by a file."
-categories: [variables and params]
+categories: [variables and parameters]
 keywords: [files]
 menu:
   docs:

@@ -6,9 +6,9 @@ categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: pipes
+    parent: hugo-pipes
     weight: 30
-weight: 02
+weight: 30
 signature: ["resources.ToCSS RESOURCE [OPTIONS]", "toCSS RESOURCE [OPTIONS]"]
 toc: true
 aliases: [/hugo-pipes/transform-to-css/]
@@ -204,7 +204,7 @@ If you build Hugo from source and run `mage test -v`, the test will fail if you 
 [libsass]: https://sass-lang.com/libsass
 [prebuilt binaries]: https://github.com/sass/dart-sass/releases/latest
 [scoop.sh]: https://scoop.sh/#/apps?q=sass
-[site configuration]: https://gohugo.io/getting-started/configuration/#configure-build
-[snap package]: https://gohugo.io/installation/linux/#snap
+[site configuration]: /getting-started/configuration/#configure-build
+[snap package]: /installation/linux/#snap
 [snapcraft.io]: https://snapcraft.io/dart-sass
 [starter workflow]: https://github.com/actions/starter-workflows/blob/main/pages/hugo.yml

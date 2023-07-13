@@ -1,21 +1,20 @@
 ---
 title: Pagination
-linktitle: Pagination
 description: Hugo supports pagination for your homepage, section pages, and taxonomies.
 categories: [templates]
 keywords: [lists,sections,pagination]
 menu:
   docs:
     parent: templates
-    weight: 140
-weight: 140
+    weight: 100
+weight: 100
 aliases: [/extras/pagination,/doc/pagination/]
 toc: true
 ---
 
 The real power of Hugo pagination shines when combined with the [`where` function][where] and its SQL-like operators: [`first`], [`last`], and [`after`]. You can even [order the content][lists] the way you've become used to with Hugo.
 
-## Configure Pagination
+## Configure pagination
 
 Pagination can be configured in your [site configuration][configuration]:
 
@@ -29,7 +28,7 @@ Setting `paginate` to a positive value will split the list pages for the homepag
 
 `paginatePath` is used to adapt the `URL` to the pages in the paginator (the default setting will produce URLs on the form `/page/1/`.
 
-## List Paginator Pages
+## List paginator pages
 
 {{% note %}}
 `.Paginator` is provided to help you build a pager menu. This feature is currently only supported on homepage and list pages (i.e., taxonomies and section lists).

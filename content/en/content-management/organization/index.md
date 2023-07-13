@@ -1,8 +1,8 @@
 ---
-title: Content Organization
+title: Content organization
 linkTitle: Organization
 description: Hugo assumes that the same structure that works to organize your source content is used to organize the rendered site.
-categories: [content management,fundamentals]
+categories: [fundamentals,content management]
 keywords: [sections,content,organization,bundle,resources]
 menu:
   docs:
@@ -13,7 +13,7 @@ weight: 20
 aliases: [/content/sections/]
 ---
 
-## Page Bundles
+## Page bundles
 
 Hugo `0.32` announced page-relative images and other resources packaged into `Page Bundles`.
 
@@ -29,7 +29,7 @@ The bundle documentation is a **work in progress**. We will publish more compreh
 {{% /note %}}
 
 
-## Organization of Content Source
+## Organization of content source
 
 In Hugo, your content should be organized in a manner that reflects the rendered website.
 
@@ -52,12 +52,12 @@ Without any additional configuration, the following will automatically work:
         └── second.md      // <- https://example.com/quote/second/
 ```
 
-## Path Breakdown in Hugo
+## Path breakdown in Hugo
 
 
 The following demonstrates the relationships between your content organization and the output URL structure for your Hugo website when it renders. These examples assume you are [using pretty URLs][pretty], which is the default behavior for Hugo. The examples also assume a key-value of `baseURL = "https://example.com"` in your [site's configuration file][config].
 
-### Index Pages: `_index.md`
+### Index pages: `_index.md`
 
 `_index.md` has a special role in Hugo. It allows you to add front matter and content to your [list templates][lists]. These templates include those for [section templates], [taxonomy templates], [taxonomy terms templates], and your [homepage template].
 
@@ -94,7 +94,7 @@ https://example.com/posts/index.html
 The [sections] can be nested as deeply as you want. The important thing to understand is that to make the section tree fully navigational, at least the lower-most section must include a content file. (i.e. `_index.md`).
 
 
-### Single Pages in Sections
+### Single pages in sections
 
 Single content files in each of your sections will be rendered as [single page templates][singles]. Here is an example of a single `post` within `posts`:
 
@@ -121,7 +121,7 @@ https://example.com/posts/my-first-hugo-post/index.html
 ```
 
 
-## Paths Explained
+## Paths explained
 
 The following concepts provide more insight into the relationship between your project's organization and the default Hugo behavior when building output for the website.
 

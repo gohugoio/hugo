@@ -1,13 +1,13 @@
 ---
 title: Migrate to Hugo
-linktitle: Migrations
+linkTitle: Migrations
 description: A list of community-developed tools for migrating from your existing static site generator or content management system to Hugo.
 keywords: [migrations, jekyll, wordpress, drupal, ghost, contentful]
 menu:
   docs:
-    parent: tools
-    weight: 10
-weight: 10
+    parent: developer-tools
+    weight: 50
+weight: 50
 aliases: [/developer-tools/migrations/, /developer-tools/migrated/]
 toc: true
 ---

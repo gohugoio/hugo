@@ -1,5 +1,5 @@
 ---
-title: Multilingual Mode
+title: Multilingual mode
 linkTitle: Multilingual
 description: Hugo supports the creation of websites with multiple languages side by side.
 categories: [content management]
@@ -17,7 +17,7 @@ You should define the available languages in a `languages` section in your site 
 
 Also See [Hugo Multilingual Part 1: Content translation].
 
-## Configure Languages
+## Configure languages
 
 This is an example of a site configuration for a multilingual project. Any key not defined in a `languages` object will fall back to the global value in the root of your site configuration.
 
@@ -98,7 +98,7 @@ subtitle = 'Reference, Tutorials, and Explanations'
 In Hugo `v0.112.0` we consolidated all configuration options, and improved how the languages and their parameters are merged with the main configuration. But while testing this on Hugo sites out there, we received some error reports and reverted some of the changes in favor of deprecation warnings:
 
 1. `site.Language.Params` is deprecated. Use `site.Params` directly.
-1. Adding custom params to the top level language config is deprecated, add all of these below `[params]`, see `color` in the example below.
+1. Adding custom parameters to the top level language configuration is deprecated, add all of these below `[params]`, see `color` in the example below.
 
 ```toml
 title = "My blog"
@@ -120,7 +120,7 @@ In the example above, all settings except `color` below `params` map to predefin
 {{ site.Params.color }}
 ```
 
-### Disable a Language
+### Disable a language
 
 To disable a language within a `languages` object in your site configuration:
 
@@ -143,7 +143,7 @@ HUGO_DISABLELANGUAGES="es fr" hugo
 
 Note that you cannot disable the default content language.
 
-### Configure Multilingual Multihost
+### Configure multilingual multihost
 
 From **Hugo 0.31** we support multiple languages in a multihost configuration. See [this issue](https://github.com/gohugoio/hugo/issues/4027) for details.
 
@@ -190,8 +190,7 @@ Press Ctrl+C to stop
 
 Live reload and `--navigateToChanged` between the servers work as expected.
 
-
-## Translate Your Content
+## Translate your content
 
 There are two ways to manage your content translations. Both ensure each page is assigned a language and is linked to its counterpart translations.
 
@@ -215,7 +214,7 @@ If a file has no language code, it will be assigned the default language.
 
 ### Translation by content directory
 
-This system uses different content directories for each of the languages. Each language's content directory is set using the `contentDir` param.
+This system uses different content directories for each of the languages. Each language's content directory is set using the `contentDir` parameter.
 
 {{< code-toggle file="hugo" >}}
 languages:
@@ -257,7 +256,7 @@ Considering the following example:
 translationKey: "about"
 {{< /code-toggle >}}
 
-By setting the `translationKey` front matter param to `about` in all three pages, they will be __linked__ as translated pages.
+By setting the `translationKey` front matter parameter to `about` in all three pages, they will be __linked__ as translated pages.
 
 ### Localizing permalinks
 
@@ -280,7 +279,7 @@ slug: "a-propos"
 
 At render, Hugo will build both `/about/` and `/fr/a-propos/` without affecting the translation link.
 
-### Page Bundles
+### Page bundles
 
 To avoid the burden of having to duplicate files, each Page Bundle inherits the resources of its linked translated pages' bundles except for the content files (Markdown files, HTML files etc...).
 
@@ -295,7 +294,7 @@ If, across the linked bundles, two or more files share the same basename, only o
 Page Bundle resources follow the same language assignment logic as content files, both by file name (`image.jpg`, `image.fr.jpg`) and by directory (`english/about/header.jpg`, `french/about/header.jpg`).
 {{%/ note %}}
 
-## Reference the Translated Content
+## Reference translated content
 
 To create a list of links to translated content, use a template similar to the following:
 
@@ -316,7 +315,7 @@ The above can be put in a `partial` (i.e., inside `layouts/partials/`) and inclu
 
 The above also uses the [`i18n` function][i18func] described in the next section.
 
-### List All Available Languages
+### List all available languages
 
 `.AllTranslations` on a `Page` can be used to list all translations, including the page itself. On the home page it can be used to build a language navigator:
 
@@ -328,7 +327,7 @@ The above also uses the [`i18n` function][i18func] described in the next section
 </ul>
 {{< /code >}}
 
-## Translation of Strings
+## Translation of strings
 
 Hugo uses [go-i18n] to support string translations. [See the project's source repository][go-i18n-source] to find tools that will help you manage your translation workflows.
 
@@ -608,7 +607,7 @@ weight = 20
 
 For a simple menu with two languages, these menu entries are easy to create and maintain. For a larger menu, or with more than two languages, using translation tables as described above is preferable.
 
-## Missing Translations
+## Missing translations
 
 If a string does not have a translation for the current language, Hugo will use the value from the default language. If no default value is set, an empty string will be shown.
 
@@ -627,7 +626,7 @@ hugo --printI18nWarnings | grep i18n
 i18n|MISSING_TRANSLATION|en|wordCount
 ```
 
-## Multilingual Themes support
+## Multilingual themes support
 
 To support Multilingual mode in your themes, some considerations must be taken for the URLs in the templates. If there is more than one language, URLs must meet the following criteria:
 

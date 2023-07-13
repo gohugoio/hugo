@@ -5,9 +5,9 @@ categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: pipes
-    weight: 48
-weight: 48
+    parent: hugo-pipes
+    weight: 70
+weight: 70
 signature: ["resources.Babel RESOURCE [OPTIONS]", "babel RESOURCE [OPTIONS]"]
 ---
 
@@ -22,7 +22,7 @@ Hugo Pipe's Babel requires the `@babel/cli` and `@babel/core` JavaScript package
 If you are using the Hugo Snap package, Babel and plugin(s) need to be installed locally within your Hugo site directory, e.g., `npm install @babel/cli @babel/core --save-dev` without the `-g` flag.
 {{% /note %}}
 
-### Config
+### configuration
 
 We add the main project's `node_modules` to `NODE_PATH` when running Babel and similar tools. There are some known [issues](https://github.com/babel/babel/issues/5618) with Babel in this area, so if you have a `babel.config.js` living in a Hugo Module (and not in the project itself), we recommend using `require` to load the presets/plugins, e.g.:
 

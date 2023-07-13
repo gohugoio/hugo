@@ -6,8 +6,6 @@ keywords: [netlify,hosting,deployment]
 menu:
   docs:
     parent: hosting-and-deployment
-    weight: 10
-weight: 10
 toc: true
 ---
 
@@ -49,7 +47,7 @@ Select the repo you want to use for continuous deployment. If you have a large n
 
 ![Screenshot of step 1 of create a new site for Netlify: selecting the git provider](/images/hosting-and-deployment/hosting-on-netlify/netlify-create-new-site-step-2.jpg)
 
-Once selected, you'll be brought to a screen for basic setup. Here you can select the branch you want to publish, your [build command], and your publish (i.e. deploy) directory. The publish directory should mirror that of what you've set in your [site configuration][config], the default of which is `public`. The following steps assume you are publishing from the `master` branch.
+Once selected, you'll be brought to a screen for basic setup. Here you can select the branch you want to publish, your [build command], and your publish (i.e. deploy) directory. The publish directory should mirror that of what you've set in your [site configuration], the default of which is `public`. The following steps assume you are publishing from the `master` branch.
 
 ## Configure Hugo version in Netlify
 
@@ -73,7 +71,7 @@ The Netlify configuration file can be a little hard to understand and get right 
 
 {{< readfile file="netlify.toml" highlight="toml" >}}
 
-## Build and Deploy Site
+## Build and deploy site
 
 In the Netlify console, selecting "Deploy site" will immediately take you to a terminal for your build:.
 
@@ -91,7 +89,7 @@ Now every time you push changes to your hosted git repository, Netlify will rebu
 
 See [this blog post](https://www.netlify.com/blog/2017/04/11/netlify-plus-hugo-0.20-and-beyond/) for more details about how Netlify handles Hugo versions.
 
-## Use Hugo Themes with Netlify
+## Use Hugo themes with Netlify
 
 The `git clone` method for installing themes is not supported by Netlify. If you were to use `git clone`, it would require you to recursively remove the `.git` subdirectory from the theme folder and would therefore prevent compatibility with future versions of the theme.
 
@@ -124,7 +122,7 @@ You can update a theme to the latest version by executing the following command 
 git submodule update --rebase --remote
 ```
 
-## Next Steps
+## Next steps
 
 You now have a live website served over HTTPS, distributed through CDN, and configured for continuous deployment. Dig deeper into the Netlify documentation:
 
@@ -134,7 +132,7 @@ You now have a live website served over HTTPS, distributed through CDN, and conf
 
 [app.netlify.com]: https://app.netlify.com
 [build command]: /getting-started/usage/#build-your-site
-[config]: /getting-started/configuration/
+[site configuration]: /getting-started/configuration/
 [ghsm]: https://github.com/blog/2104-working-with-submodules
 [gitsm]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
 [httpscustom]: https://www.netlify.com/docs/ssl/

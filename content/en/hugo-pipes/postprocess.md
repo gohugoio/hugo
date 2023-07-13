@@ -5,9 +5,9 @@ categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: pipes
-    weight: 39
-weight: 39
+    parent: hugo-pipes
+    weight: 50
+weight: 50
 signature: ["resources.PostProcess RESOURCE"]
 ---
 
@@ -77,7 +77,7 @@ Note that in the example above, the "CSS purge step" will only be applied to the
 ```
 
 
-## Hugo Environment variables available in PostCSS
+## Hugo environment variables available in PostCSS
 
 These are the environment variables Hugo passes down to PostCSS (and Babel), which allows you do do `process.env.HUGO_ENVIRONMENT === 'production' ? [autoprefixer] : []` and similar:
 

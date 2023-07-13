@@ -1,18 +1,18 @@
 ---
-title: Directory Structure
+title: Directory structure
 description: Hugo's CLI scaffolds a project directory structure and then takes that single directory and uses it as the input to create a complete website.
-categories: [getting started,fundamentals]
+categories: [fundamentals,getting started]
 keywords: [source, organization, directories]
 menu:
   docs:
     parent: getting-started
-    weight: 50
-weight: 50
+    weight: 30
+weight: 30
 aliases: [/overview/source-directory/]
 toc: true
 ---
 
-## New Site Scaffolding
+## New site scaffolding
 
 {{< youtube sB0HLHjgQ7E >}}
 
@@ -32,7 +32,7 @@ example/
 └── hugo.toml
 ```
 
-## Directory Structure Explained
+## Directory structure explained
 
 The following is a high-level overview of each of the directories with links to each of their respective sections within the Hugo docs.
 
@@ -45,10 +45,10 @@ By default, Hugo will create new content files with at least `date`, `title` (in
 
 [`config`](/getting-started/configuration/)
 : Hugo ships with a large number of [configuration directives].
-The [config directory](/getting-started/configuration/#configuration-directory) is where those directives are stored as JSON, YAML, or TOML files. Every root setting object can stand as its own file and structured by environments.
+The [configuration directory](/getting-started/configuration/#configuration-directory) is where those directives are stored as JSON, YAML, or TOML files. Every root setting object can stand as its own file and structured by environments.
 Projects with minimal settings and no need for environment awareness can use a single `hugo.toml` file at its root.
 
-Many sites may need little to no configuration, but Hugo ships with a large number of [configuration directives] for more granular directions on how you want Hugo to build your website. Note: config directory is not created by default.
+Many sites may need little to no configuration, but Hugo ships with a large number of [configuration directives] for more granular directions on how you want Hugo to build your website. Note: the `config` directory is not created by default.
 
 [`content`]
 : All content for your website will live inside this directory. Each top-level folder in Hugo is considered a [content section]. For example, if your site has three main sections---`blog`, `articles`, and `tutorials`---you will have three directories at `content/blog`, `content/articles`, and `content/tutorials`. Hugo uses sections to assign default [content types].

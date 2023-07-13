@@ -5,8 +5,6 @@ categories: [hosting and deployment]
 menu:
   docs:
     parent: hosting-and-deployment
-    weight: 50
-weight: 50
 toc: true
 ---
 

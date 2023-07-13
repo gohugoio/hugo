@@ -1,13 +1,13 @@
 ---
-title: Quick Start
+title: Quick start
 description: Learn to create a Hugo site in minutes.
 categories: [getting started]
 keywords: [quick start,usage]
 menu:
   docs:
     parent: getting-started
-    weight: 10
-weight: 10
+    weight: 20
+weight: 20
 toc: true
 aliases: [/quickstart/,/overview/quickstart/]
 ---

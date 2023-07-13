@@ -1,5 +1,5 @@
 ---
-title: Page Resources
+title: Page resources
 description: Page resources -- images, other pages, documents, etc. -- have page-relative URLs and their own metadata.
 categories: [content management]
 keywords: [bundle,content,resources]
@@ -101,7 +101,7 @@ Match
 GetMatch
 : Same as `Match` but will return the first match.
 
-### Pattern Matching
+### Pattern matching
 
 ```go
 // Using Match/GetMatch to find this images/sunset.jpg ?
@@ -115,7 +115,7 @@ GetMatch
 
 ```
 
-## Page Resources Metadata
+## Page resources metadata
 
 The page resources' metadata is managed from the corresponding page's front matter with an array/table parameter named `resources`. You can batch assign values using [wildcards](https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm).
 

@@ -1,7 +1,7 @@
 ---
-title: Shortcode Variables
+title: Shortcode variables
 description: Shortcodes can access page variables and also have their own specific built-in variables.
-categories: [variables and params]
+categories: [variables and parameters]
 keywords: [shortcodes]
 menu:
   docs:

@@ -1,13 +1,13 @@
 ---
-title: Taxonomy Templates
+title: Taxonomy templates
 description: Taxonomy templating includes taxonomy list pages, taxonomy terms pages, and using taxonomies in your single page templates.
 categories: [templates]
 keywords: [taxonomies,metadata,front matter,terms,templates]
 menu:
   docs:
     parent: templates
-    weight: 50
-weight: 50
+    weight: 90
+weight: 90
 aliases: [/taxonomies/displaying/,/templates/terms/,/indexes/displaying/,/taxonomies/templates/,/indexes/ordering/, /templates/taxonomies/, /templates/taxonomy/]
 toc: true
 ---
@@ -23,21 +23,21 @@ Hugo provides multiple ways to use taxonomies throughout your project templates:
 * Order the way the terms for a taxonomy are displayed in a [taxonomy terms template](#taxonomy-terms-templates)
 * List a single content's taxonomy terms within a [single page template]
 
-## Taxonomy List Templates
+## Taxonomy list templates
 
 Taxonomy list page templates are lists and therefore have all the variables and methods available to [list pages][lists].
 
-### Taxonomy List Template Lookup Order
+### Taxonomy list template lookup order
 
 See [Template Lookup](/templates/lookup-order/).
 
-## Taxonomy Terms Templates
+## Taxonomy terms templates
 
-### Taxonomy Terms Templates Lookup Order
+### Taxonomy terms templates lookup order
 
 See [Template Lookup](/templates/lookup-order/).
 
-### Taxonomy Methods
+### Taxonomy methods
 
 A Taxonomy is a `map[string]WeightedPages`.
 
@@ -95,7 +95,7 @@ type WeightedPages []WeightedPage
 .Pages
 : Returns a slice of pages, which then can be ordered using any of the [list methods][renderlists].
 
-## Displaying custom metadata in Taxonomy Terms Templates
+## Displaying custom metadata in taxonomy terms templates
 
 If you need to display custom metadata for each taxonomy term, you will need to create a page for that term at `/content/<TAXONOMY>/<TERM>/_index.md` and add your metadata in its front matter, [as explained in the taxonomies documentation](/content-management/taxonomies/#add-custom-metadata-to-a-taxonomy-or-term). Based on the Actors taxonomy example shown there, within your taxonomy terms template, you may access your custom fields by iterating through the variable `.Pages` as such:
 
@@ -112,11 +112,11 @@ If you need to display custom metadata for each taxonomy term, you will need to 
 
 <!-- Begin /taxonomies/ordering/ -->
 
-## Order Taxonomies
+## Order taxonomies
 
 Taxonomies can be ordered by either alphabetical key or by the number of content pieces assigned to that key.
 
-### Order Alphabetically Example
+### Order alphabetically example
 
 ```go-html-template
 <ul>
@@ -128,7 +128,7 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
 
 <!-- [See Also Taxonomy Lists](/templates/list/) -->
 
-## Order Content within Taxonomies
+## Order content within taxonomies
 
 Hugo uses both `date` and `weight` to order content within taxonomies.
 
@@ -140,10 +140,9 @@ The default weight for any piece of content is 0. Zero means "does not have a we
 
 Weights of zero are thus treated specially: if two pages have unequal weights, and one of them is zero, then the zero-weighted page will always appear after the other one, regardless of the other's weight. Zero weights should thus be used with care: for example, if both positive and negative weights are used to extend a sequence in both directions, a zero-weighted page will appear not in the middle of the list, but at the end.
 
-### Assign Weight
+### Assign weight
 
 Content can be assigned weight for each taxonomy that it's assigned to.
-
 
 {{< code-toggle file="content/example.md" fm=true copy=false >}}
 tags = [ "a", "b", "c" ]
@@ -186,7 +185,7 @@ using the [list templates](/templates/lists/):
 3. You can list all terms for a taxonomy
 4. You can list all taxonomies (with their terms)
 
-## List Terms Assigned to a Page
+## List terms assigned to a page
 
 List the terms assigned to a page using the `.Page.GetTerms` method.
 
@@ -219,11 +218,11 @@ To render a comma-delimited list:
 {{ end }}
 ```
 
-## List Content with the Same Taxonomy Term
+## List content with the same taxonomy term
 
 If you are using a taxonomy for something like a series of posts, you can list individual pages associated with the same taxonomy. This is also a quick and dirty method for showing related content:
 
-### Example: Showing Content in Same Series
+### Example: showing content in same series
 
 ```go-html-template
 <ul>
@@ -233,11 +232,11 @@ If you are using a taxonomy for something like a series of posts, you can list i
 </ul>
 ```
 
-## List All content in a Given taxonomy
+## List all content in a given taxonomy
 
 This would be very useful in a sidebar as “featured content”. You could even have different sections of “featured content” by assigning different terms to the content.
 
-### Example: Grouping "Featured" Content
+### Example: grouping "featured" content
 
 ```go-html-template
 <section id="menu">
@@ -254,7 +253,7 @@ This would be very useful in a sidebar as “featured content”. You could even
 </section>
 ```
 
-## Render a Site's Taxonomies
+## Render a site's taxonomies
 
 If you wish to display the list of all keys for your site's taxonomy, you can retrieve them from the [`.Site` variable][sitevars] available on every page.
 
@@ -262,7 +261,7 @@ This may take the form of a tag cloud, a menu, or simply a list.
 
 The following example displays all terms in a site's tags taxonomy:
 
-### Example: List All Site Tags {#example-list-all-site-tags}
+### Example: list all site tags 
 
 ```go-html-template
 <ul>
@@ -272,7 +271,7 @@ The following example displays all terms in a site's tags taxonomy:
 </ul>
 ```
 
-### Example: List All Taxonomies, Terms, and Assigned Content
+### Example: list all taxonomies, terms, and assigned content
 
 This example will list all taxonomies and their terms, as well as all the content assigned to each of the terms.
 
@@ -300,7 +299,7 @@ This example will list all taxonomies and their terms, as well as all the conten
 </ul>
 {{< /code >}}
 
-## `.Site.GetPage` for Taxonomies
+## `.Site.GetPage` for taxonomies
 
 Because taxonomies are lists, the [`.GetPage` function][getpage] can be used to get all the pages associated with a particular taxonomy term using a terse syntax. The following ranges over the full list of tags on your site and links to each of the individual taxonomy pages for each term without having to use the more fragile URL construction of the ["List All Site Tags" example above](#example-list-all-site-tags):
 

@@ -1,9 +1,8 @@
 ---
-title: Build Options
-linkTitle: Build Options
+title: Build options
 description: Build options help define how Hugo must treat a given page when building the site.
 keywords: [build,content,front matter, page resources]
-categories: [content management]
+categories: [fundamentals,content management]
 menu:
   docs:
     parent: content-management

@@ -1,14 +1,14 @@
 ---
 title: ExecuteAsTemplate
-linkTitle: Resource from Template
+linkTitle: Resource from template
 description: Creates a resource from a template
 categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: pipes
-    weight: 80
-weight: 80
+    parent: hugo-pipes
+    weight: 120
+weight: 120
 signature: ["resources.ExecuteAsTemplate TARGET_PATH CONTEXT RESOURCE"]
 ---
 

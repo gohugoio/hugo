@@ -1,14 +1,15 @@
 ---
 title: About Hugo
-linktitle: Overview
+linkTitle: Overview
 description: Hugo's features, roadmap, license, and motivation.
 categories: []
 keywords: []
 menu:
   docs:
+    identifier: about-hugo-overview
     parent: about
-    weight: 1
-weight: 1
+    weight: 10
+weight: 10
 aliases: [/about-hugo/,/docs/]
 ---
 

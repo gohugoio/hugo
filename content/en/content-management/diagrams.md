@@ -12,7 +12,7 @@ weight: 50
 ---
 {{< new-in "0.93.0" >}}
 
-## GoAT Diagrams (Ascii)
+## GoAT diagrams (Ascii)
 
 Hugo supports [GoAT](https://github.com/bep/goat) natively. This means that this code block:
 
@@ -42,7 +42,7 @@ Will be rendered as:
      1   2 3   4    1   2   3   4    1   2   3   4         '--- 4          '-- 4     \ 4
 ```
 
-## Mermaid Diagrams
+## Mermaid diagrams
 
 Hugo currently does not provide default templates for Mermaid diagrams. But you can easily add your own. One way to do it would be to create `layouts/_default/_markup/render-codeblock-mermaid.html`:
 
@@ -66,7 +66,7 @@ And then include this snippet at the bottom of the content template (**Note**: b
 
 With that you can use the `mermaid` language in Markdown code blocks:
 
-````
+````text
 ```mermaid
 sequenceDiagram
     participant Alice
@@ -82,7 +82,7 @@ sequenceDiagram
 ```
 ````
 
-## Goat Ascii Diagram Examples
+## Goat ASCII diagram examples
 
 ### Graphics
 
@@ -166,7 +166,7 @@ Created from <https://arthursonzogni.com/Diagon/#Tree>
 ```
 
 
-### Sequence Diagram
+### Sequence diagram
 
 <https://arthursonzogni.com/Diagon/#Sequence>
 

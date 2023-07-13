@@ -1,17 +1,17 @@
 ---
-title: Configure Modules
+title: Configure Hugo modules
 description: This page describes the configuration options for a module.
 categories: [hugo modules]
 keywords: [themes, source, organization, directories]
 menu:
   docs:
     parent: modules
-    weight: 10
-weight: 10
+    weight: 20
+weight: 20
 toc: true
 ---
 
-## Module Config: Top level
+## Module configuration: top level
 
 {{< code-toggle file="hugo" >}}
 [module]
@@ -42,7 +42,7 @@ workspace
 : The workspace file to use. This enables Go workspace mode. Note that this can also be set via OS env, e.g. `export HUGO_MODULE_WORKSPACE=/my/hugo.work` This only works with Go 1.18+. In Hugo `v0.109.0` we changed the default to `off` and we now resolve any relative work file names relative to the working directory.
 
 replacements
-: A comma-separated list of mappings from module paths to directories, e.g. `github.com/bep/my-theme -> ../..,github.com/bep/shortcodes -> /some/path`. This is mostly useful for temporary local development of a module, in which case you might want to save it as an environment variable, e.g: `env HUGO_MODULE_REPLACEMENTS="github.com/bep/my-theme -> ../.."`. Relative paths are relative to [themesDir](https://gohugo.io/getting-started/configuration/#all-configuration-settings). Absolute paths are allowed.
+: A comma-separated list of mappings from module paths to directories, e.g. `github.com/bep/my-theme -> ../..,github.com/bep/shortcodes -> /some/path`. This is mostly useful for temporary local development of a module, in which case you might want to save it as an environment variable, e.g: `env HUGO_MODULE_REPLACEMENTS="github.com/bep/my-theme -> ../.."`. Relative paths are relative to [themesDir](/getting-started/configuration/#all-configuration-settings). Absolute paths are allowed.
 
 Note that the above terms maps directly to their counterparts in Go Modules. Some of these setting may be natural to set as OS environment variables. To set the proxy server to use, as an example:
 
@@ -52,7 +52,7 @@ env HUGO_MODULE_PROXY=https://proxy.example.org hugo
 
 {{< gomodules-info >}}
 
-## Module Config: hugoVersion
+## Module configuration: hugoVersion
 
 If your module requires a particular version of Hugo to work, you can indicate that in the `module` section and the user will be warned if using a too old/new version.
 
@@ -76,7 +76,7 @@ max
 extended
 : Whether the extended version of Hugo is required.
 
-## Module Config: imports
+## Module configuration: imports
 
 {{< code-toggle file="hugo" >}}
 [module]
@@ -109,10 +109,10 @@ noVendor
 
 {{< gomodules-info >}}
 
-## Module Config: mounts
+## Module configuration: mounts
 
 {{% note %}}
-When the `mounts` config was introduced in Hugo 0.56.0, we were careful to preserve the existing `contentDir`, `staticDir`, and similar configuration to make sure all existing sites just continued to work. But you should not have both: if you add a `mounts` section you should remove the old `contentDir`, `staticDir`, etc. settings.
+When the `mounts` configuration was introduced in Hugo 0.56.0, we were careful to preserve the existing `contentDir`, `staticDir`, and similar configuration to make sure all existing sites just continued to work. But you should not have both: if you add a `mounts` section you should remove the old `contentDir`, `staticDir`, etc. settings.
 {{% /note %}}
 
 {{% note %}}

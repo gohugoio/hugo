@@ -1,14 +1,14 @@
 ---
-title: Editor Plug-ins for Hugo
-linktitle: Editor Plug-ins
+title: Editor plugins for Hugo
+linkTitle: Editor plugins
 description: The Hugo community uses a wide range of preferred tools and has developed plug-ins for some of the most popular text editors to help automate parts of your workflow.
 categories: [developer tools]
 keywords: [editor, plug-ins]
 menu:
   docs:
-    parent: tools
-    weight: 50
-weight: 50
+    parent: developer-tools
+    weight: 20
+weight: 20
 ---
 
 The Hugo community uses a wide range of preferred tools and has developed plug-ins for some of the most popular text editors to help automate parts of your workflow.

@@ -1,15 +1,15 @@
 ---
-title: Contribute to the Hugo Docs
-linktitle: Documentation
+title: Contribute to documentation
+linkTitle: Documentation
 description: Documentation is an integral part of any open source project. The Hugo documentation is as much a work in progress as the source it attempts to cover.
 categories: [contribute]
 keywords: [docs,documentation,community, contribute]
 menu:
   docs:
     parent: contribute
-    weight: 20
+    weight: 30
 toc: true
-weight: 20
+weight: 30
 aliases: [/contribute/docs/]
 ---
 

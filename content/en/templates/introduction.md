@@ -1,14 +1,14 @@
 ---
-title: Introduction to Hugo Templating
-linktitle: Templating
+title: Templating
+linkTitle: Templating
 description: Hugo uses Go's `html/template` and `text/template` libraries as the basis for the templating.
-categories: [templates,fundamentals]
+categories: [fundamentals,templates]
 keywords: [go]
 menu:
   docs:
     parent: templates
-    weight: 10
-weight: 10
+    weight: 20
+weight: 20
 aliases: [/layouts/introduction/,/layout/introduction/, /templates/go-templates/]
 toc: true
 ---
@@ -19,11 +19,11 @@ The following is only a primer on Go Templates. For an in-depth look into Go Tem
 
 Go Templates provide an extremely simple template language that adheres to the belief that only the most basic of logic belongs in the template or view layer.
 
-## Basic Syntax
+## Basic syntax
 
 Go Templates are HTML files with the addition of [variables][variables] and [functions][functions]. Go Template variables and functions are accessible within `{{ }}`.
 
-### Access a Predefined Variable
+### Access a predefined variable
 
 A _predefined variable_ could be a variable already existing in the
 current scope (like the `.Title` example in the [Variables](#variables) section below) or a custom variable (like the
@@ -47,7 +47,7 @@ The following example calls the `add` function with inputs of `1` and `2`:
 {{ add 1 2 }}
 ```
 
-#### Methods and Fields are Accessed via dot Notation
+#### Methods and fields are accessed via dot notation
 
 Accessing the Page Parameter `bar` defined in a piece of content's [front matter].
 
@@ -55,13 +55,13 @@ Accessing the Page Parameter `bar` defined in a piece of content's [front matter
 {{ .Params.bar }}
 ```
 
-#### Parentheses Can be Used to Group Items Together
+#### Parentheses can be used to group items together
 
 ```go-html-template
 {{ if or (isset .Params "alt") (isset .Params "caption") }} Caption {{ end }}
 ```
 
-#### A Single Statement Can be Split over Multiple Lines
+#### A single statement can be split over multiple lines
 
 ```go-html-template
 {{ if or
@@ -70,14 +70,14 @@ Accessing the Page Parameter `bar` defined in a piece of content's [front matter
 }}
 ```
 
-#### Raw String Literals Can Include Newlines
+#### Raw string literals can include newlines
 
 ```go-html-template
 {{ $msg := `Line one.
 Line two.` }}
 ```
 
-## Variables {#variables}
+## Variables
 
 Each Go Template gets a data object. In Hugo, each template is passed
 a `Page`.  In the below example, `.Title` is one of the elements
@@ -120,14 +120,14 @@ Go Templates only ship with a few basic functions but also provide a mechanism f
 
 [Hugo template functions][functions] provide additional functionality specific to building websites. Functions are called by using their name followed by the required parameters separated by spaces. Template functions cannot be added without recompiling Hugo.
 
-### Example 1: Adding Numbers
+### Example 1: adding numbers
 
 ```go-html-template
 {{ add 1 2 }}
 <!-- prints 3 -->
 ```
 
-### Example 2: Comparing Numbers
+### Example 2: comparing numbers
 
 ```go-html-template
 {{ lt 1 2 }}
@@ -191,7 +191,7 @@ The Go Templates make heavy use of `range` to iterate over a _map_,
 _array_, or _slice_. The following are different examples of how to
 use `range`.
 
-#### Example 1: Using Context (`.`)
+#### Example 1: using context (`.`)
 
 ```go-html-template
 {{ range $array }}
@@ -199,7 +199,7 @@ use `range`.
 {{ end }}
 ```
 
-#### Example 2: Declaring a variable name for an array element's value
+#### Example 2: declaring a variable name for an array element's value
 
 ```go-html-template
 {{ range $elem_val := $array }}
@@ -207,7 +207,7 @@ use `range`.
 {{ end }}
 ```
 
-#### Example 3: Declaring variable names for an array element's index _and_ value
+#### Example 3: declaring variable names for an array element's index _and_ value
 
 For an array or slice, the first declared variable will map to each
 element's index.
@@ -218,7 +218,7 @@ element's index.
 {{ end }}
 ```
 
-#### Example 4: Declaring variable names for a map element's key _and_ value
+#### Example 4: declaring variable names for a map element's key _and_ value
 
 For a map, the first declared variable will map to each map element's
 key.
@@ -229,7 +229,7 @@ key.
 {{ end }}
 ```
 
-#### Example 5: Conditional on empty _map_, _array_, or _slice_
+#### Example 5: conditional on empty _map_, _array_, or _slice_
 
 If the _map_, _array_, or _slice_ passed into the range is zero-length then the else statement is evaluated.
 
@@ -388,11 +388,11 @@ that `{{ . }}` always refers to the **current context**.
   current item in the loop; i.e., `{{ . }}` will no longer refer to
   the data available to the entire page.
 
-If you need to access page-level data (e.g., page params set in front
+If you need to access page-level data (e.g., page parameters set in front
 matter) from within the loop, you will likely want to do one of the
 following:
 
-### 1. Define a Variable Independent of Context
+### 1. Define a variable independent of context
 
 The following shows how to define a variable independent of the context.
 
@@ -412,7 +412,7 @@ The following shows how to define a variable independent of the context.
 Notice how once we have entered the loop (i.e. `range`), the value of `{{ . }}` has changed. We have defined a variable outside the loop (`{{ $title }}`) that we've assigned a value so that we have access to the value from within the loop as well.
 {{% /note %}}
 
-### 2. Use `$.` to Access the Global Context
+### 2. Use `$.` to access the global context
 
 `$` has special significance in your templates. `$` is set to the starting value of `.` ("the dot") by default. This is a [documented feature of Go text/template][dotdoc]. This means you have access to the global context from anywhere. Here is an equivalent example of the preceding code block but now using `$` to grab `.Site.Title` from the global context:
 
@@ -476,7 +476,7 @@ Go considers the following characters _whitespace_:
 
 In order to keep your templates organized and share information throughout your team, you may want to add comments to your templates. There are two ways to do that with Hugo.
 
-### Go Templates comments
+### Go templates comments
 
 Go Templates support `{{/*` and `*/}}` to open and close a comment block. Nothing within that block will be rendered.
 
@@ -498,7 +498,7 @@ For example:
 {{ "<!-- This is an HTML comment -->" | safeHTML }}
 ```
 
-If you need variables to construct such HTML comments, just pipe `printf` to `safeHTML`. 
+If you need variables to construct such HTML comments, just pipe `printf` to `safeHTML`.
 
 For example:
 
@@ -506,7 +506,7 @@ For example:
 {{ printf "<!-- Our website is named: %s -->" .Site.Title | safeHTML }}
 ```
 
-#### HTML comments containing Go Templates
+#### HTML comments containing Go templates
 
 HTML comments are by default stripped, but their content is still evaluated. That means that although the HTML comment will never render any content to the final HTML pages, code contained within the comment may fail the build process.
 
@@ -521,11 +521,11 @@ Do **not** try to comment out Go Template code using HTML comments.
 
 The templating engine will strip the content within the HTML comment, but will first evaluate any Go Template code if present within. So the above example will render `Emma Goldman`, as the `$author` variable got evaluated in the HTML comment. But the build would have failed if that code in the HTML comment had an error.
 
-## Hugo Parameters
+## Hugo parameters
 
 Hugo provides the option of passing values to your template layer through your [site configuration][config] (i.e. for site-wide values) or through the metadata of each specific piece of content (i.e. the [front matter]). You can define any values of any type and use them however you want in your templates, as long as the values are supported by the [front matter format](/content-management/front-matter#front-matter-formats).
 
-## Use Content (`Page`) Parameters
+## Use content (`Page`) parameters
 
 You can provide variables to be used by templates in individual content's [front matter].
 
@@ -556,7 +556,7 @@ Here is an example of corresponding code that could be used inside a `toc.html` 
 
 We want the *default* behavior to be for pages to include a TOC unless otherwise specified. This template checks to make sure that the `notoc:` field in this page's front matter is not `true`.
 
-## Use Site Configuration Parameters
+## Use site configuration parameters
 
 You can arbitrarily define as many site-level parameters as you want in your [site's configuration file][config]. These parameters are globally available in your templates.
 
@@ -569,7 +569,7 @@ params:
   sidebarrecentlimit: 5
 {{< /code >}}
 
-Within a footer layout, you might then declare a `<footer>` that is only rendered if the `copyrighthtml` parameter is provided. If it *is* provided, you will then need to declare the string is safe to use via the [`safeHTML` function][safehtml] so that the HTML entity is not escaped again. This would let you easily update just your top-level config file each January 1st, instead of hunting through your templates.
+Within a footer layout, you might then declare a `<footer>` that is only rendered if the `copyrighthtml` parameter is provided. If it *is* provided, you will then need to declare the string is safe to use via the [`safeHTML` function][safehtml] so that the HTML entity is not escaped again. This would let you easily update just your top-level configuration file each January 1st, instead of hunting through your templates.
 
 ```go-html-template
 {{ if .Site.Params.copyrighthtml }}
@@ -603,7 +603,7 @@ Finally, you can pull "magic constants" out of your layouts as well. The followi
 </nav>
 ```
 
-## Example: Show Future Events
+## Example: show future events
 
 Given the following content structure and [front matter]:
 

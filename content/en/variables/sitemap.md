@@ -1,8 +1,7 @@
 ---
-title: Sitemap Variables
-linktitle: Sitemap Variables
+title: Sitemap variables
 description:
-categories: [variables and params]
+categories: [variables and parameters]
 keywords: [sitemap]
 menu:
   docs:

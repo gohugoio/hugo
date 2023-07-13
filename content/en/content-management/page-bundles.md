@@ -1,5 +1,5 @@
 ---
-title: Page Bundles
+title: Page bundles
 description: Content organization using Page Bundles
 keywords: [page, bundle, leaf, branch]
 categories: [content management]
@@ -29,12 +29,12 @@ A Page Bundle can be one of:
 | Example                             | `content/posts/my-post/index.md`                         | `content/posts/_index.md`                                                                                                                                                                                          |
 | Content from non-index page files...| Accessed only as page resources                          | Accessed only as regular pages                                                                                                                                                                                     |
 
-## Leaf Bundles {#leaf-bundles}
+## Leaf bundles
 
 A _Leaf Bundle_ is a directory at any hierarchy within the `content/`
 directory, that contains an **`index.md`** file.
 
-### Examples of Leaf Bundle organization {#examples-of-leaf-bundle-organization}
+### Examples of leaf bundle organization {#examples-of-leaf-bundle-organization}
 
 ```text
 content/
@@ -91,7 +91,7 @@ as long as it is not inside another **leaf** bundle.
 {{% /note %}}
 
 
-### Headless Bundle {#headless-bundle}
+### Headless bundle
 
 A headless bundle is a bundle that is configured to not get published
 anywhere:
@@ -137,7 +137,7 @@ There are many use cases of such headless page bundles:
 - Shared media galleries
 - Reusable page content "snippets"
 
-## Branch Bundles {#branch-bundles}
+## Branch bundles
 
 A _Branch Bundle_ is any directory at any hierarchy within the
 `content/` directory, that contains at least an **`_index.md`** file.
@@ -150,7 +150,7 @@ type as a content resource as long as it is a content type recognized by Hugo.
 {{% /note %}}
 
 
-### Examples of Branch Bundle organization {#examples-of-branch-bundle-organization}
+### Examples of branch bundle organization
 
 ```text
 content/

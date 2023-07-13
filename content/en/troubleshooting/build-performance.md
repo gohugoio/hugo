@@ -1,14 +1,15 @@
 ---
-title: Build Performance
+title: Build performance
 description: An overview of features used for diagnosing and improving performance issues in site builds.
 menu:
   docs:
     parent: troubleshooting
-weight: 3
+    weight: 30
+weight: 30
 toc: true
 ---
 
-## Template Metrics
+## Template metrics
 
 Hugo is a very fast static site generator, but it is possible to write
 inefficient templates. Hugo's _template metrics_ feature is extremely helpful
@@ -63,14 +64,14 @@ Template Metrics:
 ```
 
 {{% note %}}
-**A Note About Parallelism**
+**A note about parallelism**
 
 Hugo builds pages in parallel where multiple pages are generated
 simultaneously. Because of this parallelism, the sum of "cumulative duration"
 values is usually greater than the actual time it takes to build a site.
 {{% /note %}}
 
-## Cached Partials
+## Cached partials
 
 Some `partial` templates such as sidebars or menus are executed many times
 during a site build. Depending on the content within the `partial` template and

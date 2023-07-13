@@ -27,7 +27,7 @@ In both the above examples, you get a map you can work with:
 
 The above prints `Hello Hugo`.
 
-## CSV Options
+## CSV options
 
 Unmarshal with CSV as input has some options you can set:
 

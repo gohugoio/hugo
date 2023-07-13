@@ -1,7 +1,7 @@
 
 ---
 date: 2019-12-23
-title: "Hugo Christmas Edition!"
+title: Hugo Christmas edition!
 description: "Hugo 0.62 brings Markdown Render Hooks. And it's faster!"
 categories: ["Releases"]
 ---
@@ -76,8 +76,3 @@ Hugo now has:
 
 * Fix abs path handling in module mounts [ad6504e6](https://github.com/gohugoio/hugo/commit/ad6504e6b504277bbc7b60d093cdccd4f3baaa4f) [@bep](https://github.com/bep) [#6622](https://github.com/gohugoio/hugo/issues/6622)
 * Fix incorrect MIME type from image/jpg to image/jpeg [158e7ec2](https://github.com/gohugoio/hugo/commit/158e7ec204e5149d77893d353cac9f55946d3e9a) [@zaitseff](https://github.com/zaitseff) 
-
-
-
-
-

@@ -1,14 +1,14 @@
 ---
 title: js.Build
-linkTitle: JavaScript Building
+linkTitle: JavaScript building
 description: Process a JavaScript file with [ESBuild](https://github.com/evanw/esbuild).
 categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: pipes
-    weight: 45
-weight: 45
+    parent: hugo-pipes
+    weight: 60
+weight: 60
 signature: ["js.Build RESOURCE [OPTIONS]"]
 ---
 
@@ -34,7 +34,7 @@ And then in your JS file:
 import * as params from '@params';
 ```
 
-Note that this is meant for small data sets, e.g. config settings. For larger data, please put/mount the files into `/assets` and import them directly.
+Note that this is meant for small data sets, e.g. configuration settings. For larger data, please put/mount the files into `/assets` and import them directly.
 
 minify [bool]
 : Let `js.Build` handle the minification.
@@ -137,7 +137,7 @@ import * as params from '@params';
 Hugo will, by default, generate a `assets/jsconfig.json` file that maps the imports. This is useful for navigation/intellisense help inside code editors, but if you don't need/want it, you can [turn it off](/getting-started/configuration/#configure-build).
 
 
-### Include Dependencies In package.json / node_modules
+### Include dependencies In package.json / node_modules
 
 Any imports in a file outside `/assets` or that does not resolve to a component inside `/assets` will be resolved by [ESBuild](https://esbuild.github.io/) with the **project directory** as the resolve directory (used as the starting point when looking for `node_modules` etc.). Also see [hugo mod npm pack](/commands/hugo_mod_npm_pack/).  If you have any imported npm dependencies in your project, you need to make sure to run `npm install` before you run `hugo`.
 

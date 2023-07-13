@@ -1,18 +1,18 @@
 ---
-title: Local File Templates
+title: Local file templates
 description: Hugo's `readDir` and `readFile` functions make it easy to traverse your project's directory structure and write file contents to your templates.
 categories: [templates]
 keywords: [files,directories]
 menu:
   docs:
     parent: templates
-    weight: 110
-weight: 110
+    weight: 180
+weight: 180
 aliases: [/extras/localfiles/,/templates/local-files/]
 toc: true
 ---
 
-## Traverse Local Files
+## Traverse local files
 
 With Hugo's [`readDir`][readDir] and [`readFile`][readFile] template functions, you can traverse your website's files on your server.
 

@@ -1,20 +1,20 @@
 ---
-title: Template Debugging
+title: Template debugging
 description: You can use Go templates' `printf` function to debug your Hugo  templates. These snippets provide a quick and easy visualization of the variables available to you in different contexts.
 categories: [templates]
 keywords: [debugging,troubleshooting]
 menu:
   docs:
     parent: templates
-    weight: 180
-weight: 180
+    weight: 240
+weight: 240
 ---
 
 Here are some snippets you can add to your template to answer some common questions.
 
 These snippets use the `printf` function available in all Go templates.  This function is an alias to the Go function, [fmt.Printf](https://pkg.go.dev/fmt).
 
-## What Variables are Available in this Context?
+## What variables are available in this context?
 
 You can use the template syntax, `$.`, to get the top-level template context from anywhere in your template. This will print out all the values under, `.Site`.
 
@@ -52,7 +52,7 @@ In some cases it might be more helpful to use the following snippet on the curre
 
 Note that Hugo will throw an error if you attempt to use this construct to display context that includes a page collection (e.g., the context passed to home, section, taxonomy, and term templates).
 
-## Why Am I Showing No Defined Variables?
+## Why am I showing no defined variables?
 
 Check that you are passing variables in the `partial` function:
 
