@@ -557,6 +557,9 @@ func (p *pageContentOutput) RenderWithTemplateInfo(ctx context.Context, info tpl
 }
 
 func (p *pageContentOutput) Render(ctx context.Context, layout ...string) (template.HTML, error) {
+	if len(layout) == 0 {
+		return "", errors.New("no layout given")
+	}
 	templ, found, err := p.p.resolveTemplate(layout...)
 	if err != nil {
 		return "", p.p.wrapError(err)
