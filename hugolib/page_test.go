@@ -1983,3 +1983,25 @@ title: "p2"
 	b.Assert(identity.HashString(p1), qt.Not(qt.Equals), identity.HashString(p2))
 	b.Assert(identity.HashString(sites[0]), qt.Not(qt.Equals), identity.HashString(sites[1]))
 }
+
+// Issue #11243
+func TestRenderWithoutArgument(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/index.html --
+{{ .Render }}
+`
+
+	b, err := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			Running:     true,
+		},
+	).BuildE()
+
+	b.Assert(err, qt.IsNotNil)
+
+}
