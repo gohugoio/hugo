@@ -437,7 +437,7 @@ func (cfg *BuildCfg) shouldRender(p *pageState) bool {
 }
 
 func (h *HugoSites) renderCrossSitesSitemap() error {
-	if !h.isMultiLingual() || h.Conf.IsMultihost() {
+	if h.Conf.IsMultihost() || !(h.Conf.DefaultContentLanguageInSubdir() || h.Conf.IsMultiLingual()) {
 		return nil
 	}
 

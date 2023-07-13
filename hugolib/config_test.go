@@ -1321,6 +1321,9 @@ Home.
 
 		b.AssertFileContent("public/en/index.html", "Home.")
 		b.AssertFileContent("public/en/foo/bar.txt", "Foo.")
+		b.AssertFileContent("public/index.html", "refresh")
+		b.AssertFileContent("public/sitemap.xml", "sitemapindex")
+		b.AssertFileContent("public/en/sitemap.xml", "urlset")
 	})
 
 	t.Run("Two languages, default in sub dir", func(t *testing.T) {
@@ -1351,6 +1354,9 @@ Home.
 
 		b.AssertFileContent("public/en/index.html", "Home.")
 		b.AssertFileContent("public/en/foo/bar.txt", "Foo.")
+		b.AssertFileContent("public/index.html", "refresh")
+		b.AssertFileContent("public/sitemap.xml", "sitemapindex")
+		b.AssertFileContent("public/en/sitemap.xml", "urlset")
 	})
 
 	t.Run("Two languages, default in root", func(t *testing.T) {
@@ -1381,6 +1387,8 @@ Home.
 
 		b.AssertFileContent("public/index.html", "Home.")
 		b.AssertFileContent("public/foo/bar.txt", "Foo.")
+		b.AssertFileContent("public/sitemap.xml", "sitemapindex")
+		b.AssertFileContent("public/en/sitemap.xml", "urlset")
 	})
 
 }
