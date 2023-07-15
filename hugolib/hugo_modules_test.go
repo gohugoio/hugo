@@ -1178,3 +1178,32 @@ target = "content/resources-b"
 	b.AssertFileContent("public/resources-a/subdir/about/index.html", "Single")
 	b.AssertFileContent("public/resources-b/subdir/about/index.html", "Single")
 }
+
+func TestMountData(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = 'https://example.org/'
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "section"]
+
+[[module.mounts]]
+source = "data"
+target = "data"
+
+[[module.mounts]]
+source = "extra-data"
+target = "data/extra"
+-- extra-data/test.yaml --
+message: Hugo Rocks
+-- layouts/index.html --
+{{ site.Data.extra.test.message }}
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", "Hugo Rocks")
+}
