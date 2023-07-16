@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/niklasfasching/go-org/org"
 
 	xml "github.com/clbanning/mxj/v2"
@@ -90,7 +91,7 @@ func (d Decoder) UnmarshalStringTo(data string, typ any) (any, error) {
 	switch typ.(type) {
 	case string:
 		return data, nil
-	case map[string]any:
+	case map[string]any, maps.Params:
 		format := d.FormatFromContentString(data)
 		return d.UnmarshalToMap([]byte(data), format)
 	case []any:

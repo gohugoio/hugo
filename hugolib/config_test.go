@@ -1419,3 +1419,118 @@ Home.
 	b.Assert(len(b.H.Sites), qt.Equals, 1)
 
 }
+
+func TestLoadConfigYamlEnvVar(t *testing.T) {
+
+	defaultEnv := []string{`HUGO_OUTPUTS=home: ['json']`}
+
+	runVariant := func(t testing.TB, files string, env []string) *IntegrationTestBuilder {
+		if env == nil {
+			env = defaultEnv
+		}
+
+		b := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+				Environ:     env,
+				BuildCfg:    BuildCfg{SkipRender: true},
+			},
+		).Build()
+
+		outputs := b.H.Configs.Base.Outputs
+		if env == nil {
+			home := outputs["home"]
+			b.Assert(home, qt.Not(qt.IsNil))
+			b.Assert(home, qt.DeepEquals, []string{"json"})
+		}
+
+		return b
+
+	}
+
+	t.Run("with empty slice", func(t *testing.T) {
+		t.Parallel()
+
+		files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "section"]
+[outputs]
+home = ["html"]
+
+		`
+		b := runVariant(t, files, []string{`HUGO_OUTPUTS=section: []`})
+		outputs := b.H.Configs.Base.Outputs
+		b.Assert(outputs, qt.DeepEquals, map[string][]string{
+			"home":     {"html"},
+			"page":     {"html"},
+			"rss":      {"rss"},
+			"section":  nil,
+			"taxonomy": {"html", "rss"},
+			"term":     {"html", "rss"},
+		})
+
+	})
+
+	t.Run("with existing outputs", func(t *testing.T) {
+		t.Parallel()
+
+		files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "section"]
+[outputs]
+home = ["html"]
+
+		`
+
+		runVariant(t, files, nil)
+
+	})
+
+	{
+		t.Run("with existing outputs direct", func(t *testing.T) {
+			t.Parallel()
+
+			files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "section"]
+[outputs]
+home = ["html"]
+
+		`
+			runVariant(t, files, []string{"HUGO_OUTPUTS_HOME=json"})
+
+		})
+	}
+
+	t.Run("without existing outputs", func(t *testing.T) {
+		t.Parallel()
+
+		files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "section"]
+		
+		`
+
+		runVariant(t, files, nil)
+
+	})
+
+	t.Run("without existing outputs direct", func(t *testing.T) {
+		t.Parallel()
+
+		files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "section"]
+		`
+
+		runVariant(t, files, []string{"HUGO_OUTPUTS_HOME=json"})
+
+	})
+
+}

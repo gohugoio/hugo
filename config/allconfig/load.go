@@ -293,11 +293,19 @@ func (l configLoader) applyOsEnvOverrides(environ []string) error {
 			} else {
 				l.cfg.Set(env.Key, val)
 			}
-		} else if nestedKey != "" {
-			owner[nestedKey] = env.Value
 		} else {
-			// The container does not exist yet.
-			l.cfg.Set(strings.ReplaceAll(env.Key, delim, "."), env.Value)
+			if nestedKey != "" {
+				owner[nestedKey] = env.Value
+			} else {
+				var val any = env.Value
+				if _, ok := allDecoderSetups[env.Key]; ok {
+					// A map.
+					val, err = metadecoders.Default.UnmarshalStringTo(env.Value, map[string]interface{}{})
+				}
+				if err == nil {
+					l.cfg.Set(strings.ReplaceAll(env.Key, delim, "."), val)
+				}
+			}
 		}
 	}
 

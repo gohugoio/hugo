@@ -150,7 +150,7 @@ var allDecoderSetups = map[string]decodeWeight{
 		key: "outputs",
 		decode: func(d decodeWeight, p decodeConfig) error {
 			defaults := createDefaultOutputFormats(p.c.OutputFormats.Config)
-			m := p.p.GetStringMap("outputs")
+			m := maps.CleanConfigStringMap(p.p.GetStringMap("outputs"))
 			p.c.Outputs = make(map[string][]string)
 			for k, v := range m {
 				s := types.ToStringSlicePreserveString(v)
