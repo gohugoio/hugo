@@ -14,6 +14,7 @@
 package herrors
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -33,4 +34,13 @@ func TestIsNotExist(t *testing.T) {
 
 	// os.IsNotExist returns false for wrapped errors.
 	c.Assert(IsNotExist(fmt.Errorf("foo: %w", afero.ErrFileNotFound)), qt.Equals, true)
+}
+
+func TestIsFeatureNotAvailableError(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(IsFeatureNotAvailableError(ErrFeatureNotAvailable), qt.Equals, true)
+	c.Assert(IsFeatureNotAvailableError(&FeatureNotAvailableError{}), qt.Equals, true)
+	c.Assert(IsFeatureNotAvailableError(errors.New("asdf")), qt.Equals, false)
+
 }

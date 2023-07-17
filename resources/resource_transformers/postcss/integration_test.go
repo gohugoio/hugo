@@ -168,6 +168,25 @@ func TestTransformPostCSSError(t *testing.T) {
 
 }
 
+func TestTransformPostCSSNotInstalledError(t *testing.T) {
+	if !htesting.IsCI() {
+		t.Skip("Skip long running test when running locally")
+	}
+
+	c := qt.New(t)
+
+	s, err := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           c,
+			NeedsOsFS:   true,
+			TxtarString: postCSSIntegrationTestFiles,
+		}).BuildE()
+
+	s.AssertIsFileError(err)
+	c.Assert(err.Error(), qt.Contains, `binary with name "npx" not found`)
+
+}
+
 // #9895
 func TestTransformPostCSSImportError(t *testing.T) {
 	if !htesting.IsCI() {

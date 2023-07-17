@@ -449,7 +449,7 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 		newErr := func(err error) error {
 			msg := fmt.Sprintf("%s: failed to transform %q (%s)", strings.ToUpper(tr.Key().Name), tctx.InPath, tctx.InMediaType.Type)
 
-			if err == herrors.ErrFeatureNotAvailable {
+			if herrors.IsFeatureNotAvailableError(err) {
 				var errMsg string
 				if tr.Key().Name == "postcss" {
 					// This transformation is not available in this
