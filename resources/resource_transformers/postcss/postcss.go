@@ -205,7 +205,7 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	if err != nil {
 		if hexec.IsNotFound(err) {
 			// This may be on a CI server etc. Will fall back to pre-built assets.
-			return herrors.ErrFeatureNotAvailable
+			return &herrors.FeatureNotAvailableError{Cause: err}
 		}
 		return err
 	}
@@ -240,7 +240,9 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	err = cmd.Run()
 	if err != nil {
 		if hexec.IsNotFound(err) {
-			return herrors.ErrFeatureNotAvailable
+			return &herrors.FeatureNotAvailableError{
+				Cause: err,
+			}
 		}
 		return imp.toFileError(errBuf.String())
 	}

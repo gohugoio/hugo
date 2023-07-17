@@ -181,7 +181,7 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	if err != nil {
 		if hexec.IsNotFound(err) {
 			// This may be on a CI server etc. Will fall back to pre-built assets.
-			return herrors.ErrFeatureNotAvailable
+			return &herrors.FeatureNotAvailableError{Cause: err}
 		}
 		return err
 	}
@@ -200,7 +200,7 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	err = cmd.Run()
 	if err != nil {
 		if hexec.IsNotFound(err) {
-			return herrors.ErrFeatureNotAvailable
+			return &herrors.FeatureNotAvailableError{Cause: err}
 		}
 		return fmt.Errorf(errBuf.String()+": %w", err)
 	}
