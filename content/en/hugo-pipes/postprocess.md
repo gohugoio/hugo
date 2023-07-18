@@ -45,7 +45,7 @@ The below configuration will write a `hugo_stats.json` file to the project root 
 
 See the [configure build] documentation for details and options.
 
-[configure build]: http://localhost:1313/getting-started/configuration/#configure-build
+[configure build]: /getting-started/configuration/#configure-build
 
 `postcss.config.js`
 
