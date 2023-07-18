@@ -26,24 +26,48 @@ The `baseURL` in your [site configuration](/getting-started/configuration/) must
 Define your [CI/CD](https://docs.gitlab.com/ee/ci/quick_start/) jobs by creating a `.gitlab-ci.yml` file in the root of your project.
 
 {{< code file=".gitlab-ci.yml" >}}
-image: registry.gitlab.com/pages/hugo/hugo_extended:latest
-
 variables:
+  DART_SASS_VERSION: 1.63.6
+  HUGO_VERSION: 0.115.3
+  NODE_VERSION: 20.x
+  GIT_DEPTH: 0
+  GIT_STRATEGY: clone
   GIT_SUBMODULE_STRATEGY: recursive
+  TZ: America/Los_Angeles
+
+image:
+  name: golang:1.20.6-bookworm
 
 pages:
   script:
-  - hugo
+    # Install brotli
+    - apt-get update
+    - apt-get install -y brotli
+    # Install Dart Sass
+    - curl -LJO https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz
+    - tar -xf dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz
+    - cp -r dart-sass/* /usr/local/bin
+    - rm -rf dart-sass*
+    # Install Hugo
+    - curl -LJO https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb
+    - apt-get install -y ./hugo_extended_${HUGO_VERSION}_linux-amd64.deb
+    - rm hugo_extended_${HUGO_VERSION}_linux-amd64.deb
+    # Install Node.js
+    - curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION} | bash -
+    - apt-get install -y nodejs
+    # Install Node.js dependencies
+    - "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
+    # Build
+    - hugo --gc --minify
+    # Compress
+    - find public -type f -regex '.*\.\(css\|html\|js\|txt\|xml\)$' -exec gzip -f -k {} \;
+    - find public -type f -regex '.*\.\(css\|html\|js\|txt\|xml\)$' -exec brotli -f -k {} \;
   artifacts:
     paths:
-    - public
+      - public
   rules:
-  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-{{< /code >}}
-
-{{% note %}}
-See [this list](https://gitlab.com/pages/hugo/container_registry) if you wish to use a particular Hugo version to build your site.
-{{% /note %}}
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+{{% /code %}}
 
 ## Push your Hugo website to GitLab
 
