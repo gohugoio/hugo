@@ -56,7 +56,6 @@ foo = "bar"
 - Each directory holds a group of files containing settings unique to an environment.
 - Files can be localized to become language specific.
 
-
 ```txt
 ├── config
 │   ├── _default
@@ -85,14 +84,14 @@ This is how you need to configure your `hugo.toml` files considering the above s
 1. In `_default/hugo.toml` you don't need to mention `googleAnalytics` parameter at all. This ensures that no Google Analytics code is loaded in your development server i.e. when you run `hugo server`. This works since, by default Hugo sets `Environment=development` when you run `hugo server` which uses the configuration files from `_default` folder
 2. In `production/hugo.toml` you just need to have one line:
 
-    ```googleAnalytics = "G-PPPPPPPP"```
+   ```googleAnalytics = "G-PPPPPPPP"```
 
-    You don't need to mention all other parameters like `title`, `baseURL`, `theme` etc. again in this configuration file. You need to mention only those parameters which are different or new for the production environment. This is due to the fact that Hugo is going to __merge__ this on top of `_default/hugo.toml`. Now when you run `hugo` (build command), by default hugo sets `Environment=production`, so the `G-PPPPPPPP` analytics code will be there in your production website
+   You don't need to mention all other parameters like `title`, `baseURL`, `theme` etc. again in this configuration file. You need to mention only those parameters which are different or new for the production environment. This is due to the fact that Hugo is going to __merge__ this on top of `_default/hugo.toml`. Now when you run `hugo` (build command), by default hugo sets `Environment=production`, so the `G-PPPPPPPP` analytics code will be there in your production website
 3. Similarly in `staging/hugo.toml` you just need to have one line:
 
-    ```googleAnalytics = "G-SSSSSSSS"```
+   ```googleAnalytics = "G-SSSSSSSS"```
 
-    Now you need to tell Hugo that you are using the staging environment. So your build command should be `hugo --environment staging` which will load the `G-SSSSSSSS` analytics code in your staging website
+   Now you need to tell Hugo that you are using the staging environment. So your build command should be `hugo --environment staging` which will load the `G-SSSSSSSS` analytics code in your staging website
 
 {{% note %}}
 Default environments are __development__ with `hugo server` and __production__ with `hugo`.
@@ -203,61 +202,61 @@ Content without language indicator will default to this language.
 
 ### defaultContentLanguageInSubdir
 
-**Default value:**  false
+**Default value:** false
 
 Render the default content language in subdir, e.g. `content/en/`. The site root `/` will then redirect to `/en/`.
 
 ### disableAliases
 
-**Default value:**  false
+**Default value:** false
 
 Will disable generation of alias redirects. Note that even if `disableAliases` is set, the aliases themselves are preserved on the page. The motivation with this is to be able to generate 301 redirects in an `.htaccess`, a Netlify `_redirects` file or similar using a custom output format.
 
 ### disableHugoGeneratorInject
 
-**Default value:**  false
+**Default value:** false
 
 Hugo will, by default, inject a generator meta tag in the HTML head on the _home page only_. You can turn it off, but we would really appreciate if you don't, as this is a good way to watch Hugo's popularity on the rise.
 
 ### disableKinds
 
-**Default value:**  []
+**Default value:** []
 
 Enable disabling of all pages of the specified *Kinds*. Allowed values in this list: `"page"`, `"home"`, `"section"`, `"taxonomy"`, `"term"`, `"RSS"`, `"sitemap"`, `"robotsTXT"`, `"404"`.
 
 ### disablePathToLower
 
-**Default value:**  false
+**Default value:** false
 
 Do not convert the url/path to lowercase.
 
 ### enableEmoji
 
-**Default value:**  false
+**Default value:** false
 
 Enable Emoji emoticons support for page content; see the [Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet/).
 
 ### enableGitInfo
 
-**Default value:**  false
+**Default value:** false
 
 Enable `.GitInfo` object for each page (if the Hugo site is versioned by Git). This will then update the `Lastmod` parameter for each page using the last git commit date for that content file.
 
 ### enableInlineShortcodes
 
-**Default value:**  false
+**Default value:** false
 
 Enable inline shortcode support. See [Inline Shortcodes](/templates/shortcode-templates/#inline-shortcodes).
 
 ### enableMissingTranslationPlaceholders
 
-**Default value:**  false
+**Default value:** false
 
 Show a placeholder instead of the default value or an empty string if a translation is missing.
 
 ### enableRobotsTXT
 
-**Default value:**  false
+**Default value:** false
 
 Enable generation of `robots.txt` file.
 
@@ -267,7 +266,7 @@ See [Front matter Configuration](#configure-front-matter).
 
 ### googleAnalytics
 
-**Default value:**  ""
+**Default value:** ""
 
 Google Analytics tracking ID.
 
@@ -283,7 +282,7 @@ See [image processing configuration](/content-management/image-processing/#imagi
 
 ### languageCode
 
-**Default value:**  ""
+**Default value:** ""
 
 A language tag as defined by [RFC 5646](https://datatracker.ietf.org/doc/html/rfc5646). This value is used to populate:
 
@@ -432,7 +431,7 @@ See [Configure Taxonomies](/content-management/taxonomies#configure-taxonomies).
 
 ### themesDir
 
-**Default value:**  "themes"
+**Default value:** "themes"
 
 The directory where Hugo reads the themes from.
 
@@ -444,7 +443,7 @@ Timeout for generating page contents, specified as a [duration](https://pkg.go.d
 
 ### timeZone
 
-The time zone (or location), e.g. `Europe/Oslo`,  used to parse front matter dates without such information and in the [`time` function](/functions/time/). The list of valid values may be system dependent, but should include `UTC`, `Local`, and any location in the [IANA Time Zone database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+The time zone (or location), e.g. `Europe/Oslo`, used to parse front matter dates without such information and in the [`time` function](/functions/time/). The list of valid values may be system dependent, but should include `UTC`, `Local`, and any location in the [IANA Time Zone database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
 ### title
 
@@ -452,7 +451,7 @@ Site title.
 
 ### titleCaseStyle
 
-**Default value:**  "ap"
+**Default value:** "ap"
 
 See [Configure Title Case](#configure-title-case)
 
@@ -591,7 +590,6 @@ Content-Security-Policy = "script-src localhost:1313"
 
 Since this is "development only", it may make sense to put it below the `development` environment:
 
-
 {{< code-toggle file="config/development/server">}}
 [[headers]]
 for = "/**"
@@ -616,7 +614,7 @@ status = 200
 force = false
 {{< /code-toggle >}}
 
-Setting `force=true` will make a redirect even if there is existing content in the path. Note that before Hugo 0.76  `force` was the default behavior, but this is inline with how Netlify does it.
+Setting `force=true` will make a redirect even if there is existing content in the path. Note that before Hugo 0.76 `force` was the default behavior, but this is inline with how Netlify does it.
 
 ## 404 server error page {#_404-server-error-page}
 
@@ -637,7 +635,7 @@ Set `titleCaseStyle` to specify the title style used by the [title](/functions/t
 
 Can be one of:
 
-* `ap` (default),  the capitalization rules in the [Associated Press (AP) Stylebook]
+* `ap` (default), the capitalization rules in the [Associated Press (AP) Stylebook]
 * `chicago`, the [Chicago Manual of Style]
 * `go`, Go's convention of capitalizing every word.
 * `firstupper`, capitalize the first letter of the first word.
@@ -661,7 +659,6 @@ Similar to the template [lookup order], Hugo has a default set of rules for sear
 3. `./hugo.json`
 
 In your configuration file, you can direct Hugo as to how you want your website rendered, control your website's menus, and arbitrarily define site-wide parameters specific to your project.
-
 
 ## Example configuration
 
@@ -749,10 +746,9 @@ date = ["myDate", ":default"]
 
 The `:default` is a shortcut to the default settings. The above will set `.Date` to the date value in `myDate` if present, if not we will look in `date`,`publishDate`, `lastmod` and pick the first valid date.
 
-In the list to the right, values starting with ":" are date handlers with a special meaning (see below). The others are just names of date parameters (case insensitive) in your front matter configuration.  Also note that Hugo have some built-in aliases to the above: `lastmod` => `modified`, `publishDate` => `pubdate`, `published` and `expiryDate` => `unpublishdate`. With that, as an example, using `pubDate` as a date in front matter, will, by default, be assigned to `.PublishDate`.
+In the list to the right, values starting with ":" are date handlers with a special meaning (see below). The others are just names of date parameters (case insensitive) in your front matter configuration. Also note that Hugo have some built-in aliases to the above: `lastmod` => `modified`, `publishDate` => `pubdate`, `published` and `expiryDate` => `unpublishdate`. With that, as an example, using `pubDate` as a date in front matter, will, by default, be assigned to `.PublishDate`.
 
 The special date handlers are:
-
 
 `:fileModTime`
 : Fetches the date from the content file's last modification timestamp.
@@ -764,9 +760,7 @@ An example:
 lastmod = ["lastmod", ":fileModTime", ":default"]
 {{< /code-toggle >}}
 
-
 The above will try first to extract the value for `.Lastmod` starting with the `lastmod` front matter parameter, then the content file's modification timestamp. The last, `:default` should not be needed here, but Hugo will finally look for a valid date in `:git`, `date` and then `publishDate`.
-
 
 `:filename`
 : Fetches the date from the content file's file name. For example, `2018-02-22-mypage.md` will extract the date `2018-02-22`. Also, if `slug` is not set, `mypage` will be used as the value for `.Slug`.
@@ -779,7 +773,6 @@ date  = [":filename", ":default"]
 {{< /code-toggle >}}
 
 The above will try first to extract the value for `.Date` from the file name, then it will look in front matter parameters `date`, `publishDate` and lastly `lastmod`.
-
 
 `:git`
 : This is the Git author date for the last revision of this content file. This will only be set if `--enableGitInfo` is set or `enableGitInfo = true` is set in site configuration.
