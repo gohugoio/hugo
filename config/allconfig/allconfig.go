@@ -242,7 +242,7 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 		kind = strings.ToLower(kind)
 		if kind == "taxonomyterm" {
 			// Legacy config.
-			kind = "term"
+			kind = "taxonomy"
 		}
 		disabledKinds[kind] = true
 	}
