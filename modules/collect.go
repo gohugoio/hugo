@@ -664,7 +664,21 @@ func (c *collector) normalizeMounts(owner *moduleAdapter, mounts []Mount) ([]Mou
 		// Verify that Source exists
 		_, err := c.fs.Stat(sourceDir)
 		if err != nil {
-			continue
+			if strings.HasSuffix(sourceDir, files.FilenameHugoStatsJSON) {
+				// A common pattern for Tailwind 3 is to mount that file to get it on the server watch list.
+
+				// A common pattern is also to add hugo_stats.json to .gitignore.
+
+				// Create an empty file.
+				f, err := c.fs.Create(sourceDir)
+				if err != nil {
+					return nil, fmt.Errorf("%s: %q", errMsg, err)
+				}
+				f.Close()
+			} else {
+				continue
+			}
+
 		}
 
 		// Verify that target points to one of the predefined component dirs
