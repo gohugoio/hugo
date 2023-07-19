@@ -1060,7 +1060,7 @@ func TestConfigLegacyValues(t *testing.T) {
 
 	files := `
 -- hugo.toml --
-# taxonomyTerm was renamed to term in Hugo 0.60.0.
+# taxonomyTerm was renamed to taxonomy in Hugo 0.60.0.
 disableKinds = ["taxonomyTerm"]
 
 -- layouts/index.html --
@@ -1081,7 +1081,7 @@ Home
 `)
 
 	conf := b.H.Configs.Base
-	b.Assert(conf.IsKindEnabled("term"), qt.Equals, false)
+	b.Assert(conf.IsKindEnabled("taxonomy"), qt.Equals, false)
 }
 
 // Issue #11000
@@ -1532,5 +1532,41 @@ disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "sect
 		runVariant(t, files, []string{"HUGO_OUTPUTS_HOME=json"})
 
 	})
+
+}
+
+// Issue #11257
+func TestDisableKindsTaxonomyTerm(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ['taxonomyTerm']
+[taxonomies]
+category = 'categories'
+-- content/p1.md --
+---
+title: "P1"
+categories: ["c1"]
+---
+-- layouts/index.html --
+Home.
+-- layouts/_default/list.html --
+List.
+
+
+
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertDestinationExists("index.html", true)
+	b.AssertDestinationExists("categories/c1/index.html", true)
+	b.AssertDestinationExists("categories/index.html", false)
 
 }
