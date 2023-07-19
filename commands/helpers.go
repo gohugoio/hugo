@@ -86,13 +86,12 @@ func flagsToCfgWithAdditionalConfigBase(cd *simplecobra.Commandeer, cfg config.P
 
 	// Flags that we for some reason don't want to expose in the site config.
 	internalKeySet := map[string]bool{
-		"quiet":             true,
-		"verbose":           true,
-		"watch":             true,
-		"disableLiveReload": true,
-		"liveReloadPort":    true,
-		"renderToMemory":    true,
-		"clock":             true,
+		"quiet":          true,
+		"verbose":        true,
+		"watch":          true,
+		"liveReloadPort": true,
+		"renderToMemory": true,
+		"clock":          true,
 	}
 
 	cmd := cd.CobraCommand

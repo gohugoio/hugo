@@ -57,12 +57,11 @@ type InternalConfig struct {
 	// Server mode?
 	Running bool
 
-	Quiet             bool
-	Verbose           bool
-	Clock             string
-	Watch             bool
-	DisableLiveReload bool
-	LiveReloadPort    int
+	Quiet          bool
+	Verbose        bool
+	Clock          string
+	Watch          bool
+	LiveReloadPort int
 }
 
 // All non-params config keys for language.
@@ -453,6 +452,9 @@ type RootConfig struct {
 
 	// Disable the injection of the Hugo generator tag on the home page.
 	DisableHugoGeneratorInject bool
+
+	// Disable live reloading in server mode.
+	DisableLiveReload bool
 
 	// Enable replacement in Pages' Content of Emoji shortcodes with their equivalent Unicode characters.
 	// <docsmeta>{"identifiers": ["Content", "Unicode"] }</docsmeta>
