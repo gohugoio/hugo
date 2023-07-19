@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/bep/logg"
+	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/publisher"
 	"github.com/gohugoio/hugo/tpl"
@@ -491,14 +492,12 @@ func (h *HugoSites) writeBuildStats() error {
 		HTMLElements: *htmlElements,
 	}
 
-	const hugoStatsName = "hugo_stats.json"
-
 	js, err := json.MarshalIndent(stats, "", "  ")
 	if err != nil {
 		return err
 	}
 
-	filename := filepath.Join(h.Configs.LoadingInfo.BaseConfig.WorkingDir, hugoStatsName)
+	filename := filepath.Join(h.Configs.LoadingInfo.BaseConfig.WorkingDir, files.FilenameHugoStatsJSON)
 
 	if existingContent, err := afero.ReadFile(hugofs.Os, filename); err == nil {
 		// Check if the content has changed.
