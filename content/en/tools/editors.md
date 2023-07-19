@@ -7,7 +7,7 @@ keywords: [editor, plug-ins]
 menu:
   docs:
     parent: developer-tools
-    weight: 20```
+    weight: 20
 weight: 20
 ---
 
