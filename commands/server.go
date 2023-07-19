@@ -470,14 +470,6 @@ func (c *serverCommand) Name() string {
 }
 
 func (c *serverCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args []string) error {
-	err := func() error {
-		defer c.r.timeTrack(time.Now(), "Built")
-		err := c.build()
-		return err
-	}()
-	if err != nil {
-		return err
-	}
 
 	// Watch runs its own server as part of the routine
 	if c.serverWatch {
@@ -499,6 +491,15 @@ func (c *serverCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 
 		defer watcher.Close()
 
+	}
+
+	err := func() error {
+		defer c.r.timeTrack(time.Now(), "Built")
+		err := c.build()
+		return err
+	}()
+	if err != nil {
+		return err
 	}
 
 	return c.serve()
