@@ -99,6 +99,8 @@ func TestClassCollector(t *testing.T) {
                  pl-2: b == 3,
                 'text-gray-600': (a > 1)
                 }" class="block w-36 cursor-pointer pr-3 no-underline capitalize"></a>`, f("a", "block capitalize cursor-pointer no-underline pl-2 pl-3 pr-3 text-a text-b text-gray-600 w-36", "")},
+		{"AlpineJS bind 6", `<button :class="isActive(32) ? 'border-gray-500 bg-white pt border-t-2' : 'border-transparent hover:bg-gray-100'"></button>`, f("button", "bg-white border-gray-500 border-t-2 border-transparent hover:bg-gray-100 pt", "")},
+		{"AlpineJS bind 7", `<button :class="{ 'border-gray-500 bg-white pt border-t-2': isActive(32), 'border-transparent hover:bg-gray-100': !isActive(32) }"></button>`, f("button", "bg-white border-gray-500 border-t-2 border-transparent hover:bg-gray-100 pt", "")},
 		{"AlpineJS transition 1", `<div x-transition:enter-start="opacity-0 transform mobile:-translate-x-8 sm:-translate-y-8">`, f("div", "mobile:-translate-x-8 opacity-0 sm:-translate-y-8 transform", "")},
 		{"Vue bind", `<div v-bind:class="{ active: isActive }"></div>`, f("div", "active", "")},
 		// Issue #7746
@@ -136,7 +138,9 @@ func TestClassCollector(t *testing.T) {
 			{minify: true},
 		} {
 
-			c.Run(fmt.Sprintf("%s--minify-%t", test.name, variant.minify), func(c *qt.C) {
+			name := fmt.Sprintf("%s--minify-%t", test.name, variant.minify)
+
+			c.Run(name, func(c *qt.C) {
 				w := newHTMLElementsCollectorWriter(newHTMLElementsCollector(
 					config.BuildStats{Enable: true},
 				))
