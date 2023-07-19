@@ -333,11 +333,11 @@ func (c *CacheBuster) CompileConfig(logger loggers.Logger) error {
 	}
 
 	source := c.Source
-	target := c.Target
 	sourceRe, err := regexp.Compile(source)
 	if err != nil {
 		return fmt.Errorf("failed to compile cache buster source %q: %w", c.Source, err)
 	}
+	target := c.Target
 	var compileErr error
 	debugl := logger.Logger().WithLevel(logg.LevelDebug).WithField(loggers.FieldNameCmd, "cachebuster")
 
@@ -353,23 +353,23 @@ func (c *CacheBuster) CompileConfig(logger loggers.Logger) error {
 			return nil
 		}
 		groups := m[1:]
+		currentTarget := target
 		// Replace $1, $2 etc. in target.
-
 		for i, g := range groups {
-			target = strings.ReplaceAll(target, fmt.Sprintf("$%d", i+1), g)
+			currentTarget = strings.ReplaceAll(target, fmt.Sprintf("$%d", i+1), g)
 		}
-		targetRe, err := regexp.Compile(target)
+		targetRe, err := regexp.Compile(currentTarget)
 		if err != nil {
-			compileErr = fmt.Errorf("failed to compile cache buster target %q: %w", target, err)
+			compileErr = fmt.Errorf("failed to compile cache buster target %q: %w", currentTarget, err)
 			return nil
 		}
-		return func(s string) bool {
-			match = targetRe.MatchString(s)
+		return func(ss string) bool {
+			match = targetRe.MatchString(ss)
 			matchString := "no match"
 			if match {
 				matchString = "match!"
 			}
-			logger.Debugf("Matching %q with target %q: %s", s, target, matchString)
+			logger.Debugf("Matching %q with target %q: %s", ss, currentTarget, matchString)
 
 			return match
 		}
