@@ -452,7 +452,7 @@ Site title.
 
 ### titleCaseStyle
 
-**Default value:**  "AP"
+**Default value:**  "ap"
 
 See [Configure Title Case](#configure-title-case)
 
