@@ -32,7 +32,7 @@ const eof = -1
 
 var (
 	htmlJsonFixer = strings.NewReplacer(", ", "\n")
-	jsonAttrRe    = regexp.MustCompile(`'?(.*?)'?:.*`)
+	jsonAttrRe    = regexp.MustCompile(`'?(.*?)'?:\s.*`)
 	classAttrRe   = regexp.MustCompile(`(?i)^class$|transition`)
 
 	skipInnerElementRe = regexp.MustCompile(`(?i)^(pre|textarea|script|style)`)
@@ -404,21 +404,31 @@ func (w *htmlElementsCollectorWriter) parseHTMLElement(elStr string) (el htmlEle
 					if conf.DisableClasses {
 						continue
 					}
+
 					if classAttrRe.MatchString(a.Key) {
 						el.Classes = append(el.Classes, strings.Fields(a.Val)...)
 					} else {
 						key := strings.ToLower(a.Key)
 						val := strings.TrimSpace(a.Val)
-						if strings.Contains(key, "class") && strings.HasPrefix(val, "{") {
-							// This looks like a Vue or AlpineJS class binding.
-							val = htmlJsonFixer.Replace(strings.Trim(val, "{}"))
-							lines := strings.Split(val, "\n")
-							for i, l := range lines {
-								lines[i] = strings.TrimSpace(l)
+
+						if strings.Contains(key, ":class") {
+							if strings.HasPrefix(val, "{") {
+								// This looks like a Vue or AlpineJS class binding.
+								val = htmlJsonFixer.Replace(strings.Trim(val, "{}"))
+								lines := strings.Split(val, "\n")
+								for i, l := range lines {
+									lines[i] = strings.TrimSpace(l)
+								}
+								val = strings.Join(lines, "\n")
+
+								val = jsonAttrRe.ReplaceAllString(val, "$1")
+
+								el.Classes = append(el.Classes, strings.Fields(val)...)
 							}
-							val = strings.Join(lines, "\n")
-							val = jsonAttrRe.ReplaceAllString(val, "$1")
-							el.Classes = append(el.Classes, strings.Fields(val)...)
+							// Also add single quoted strings.
+							// This may introduce some false positives, but it covers some missing cases in the above.
+							// E.g. AlpinesJS' :class="isTrue 'class1' : 'class2'"
+							el.Classes = append(el.Classes, extractSingleQuotedStrings(val)...)
 						}
 					}
 				}
@@ -518,4 +528,30 @@ LOOP:
 
 func isSpace(b byte) bool {
 	return b == ' ' || b == '\t' || b == '\n'
+}
+
+func extractSingleQuotedStrings(s string) []string {
+	var (
+		inQuote bool
+		lo      int
+		hi      int
+	)
+
+	var words []string
+
+	for i, r := range s {
+		switch {
+		case r == '\'':
+			if !inQuote {
+				inQuote = true
+				lo = i + 1
+			} else {
+				inQuote = false
+				hi = i
+				words = append(words, strings.Fields(s[lo:hi])...)
+			}
+		}
+	}
+
+	return words
 }
