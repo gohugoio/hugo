@@ -225,12 +225,6 @@ Hugo will, by default, inject a generator meta tag in the HTML head on the _home
 
 Enable disabling of all pages of the specified *Kinds*. Allowed values in this list: `"page"`, `"home"`, `"section"`, `"taxonomy"`, `"term"`, `"RSS"`, `"sitemap"`, `"robotsTXT"`, `"404"`.
 
-### disableLiveReload
-
-**Default value:**  false
-
-Disable automatic live reloading of browser window.
-
 ### disablePathToLower
 
 **Default value:**  false
