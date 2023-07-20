@@ -126,6 +126,35 @@ type HeadingRenderer interface {
 	identity.Provider
 }
 
+type ListItemContext interface {
+	Page() interface{}
+	Text() hstring.RenderedString
+	PlainText() string
+	IsFirst() bool
+	IsLast() bool
+	Parent() interface{}
+}
+
+type ListItemRenderer interface {
+	RenderListItem(cctx context.Context, w io.Writer, ctx ListItemContext) error
+	identity.Provider
+}
+
+type ListContext interface {
+	Page() interface{}
+	Text() hstring.RenderedString
+	PlainText() string
+	IsOrdered() bool
+	Parent() interface{}
+
+	AttributesProvider
+}
+
+type ListRenderer interface {
+	RenderList(cctx context.Context, w io.Writer, ctx ListContext) error
+	identity.Provider
+}
+
 // ElementPositionResolver provides a way to resolve the start Position
 // of a markdown element in the original source document.
 // This may be both slow and approximate, so should only be
@@ -141,6 +170,8 @@ const (
 	ImageRendererType
 	HeadingRendererType
 	CodeBlockRendererType
+	ListItemRendererType
+	ListRendererType
 )
 
 type GetRendererFunc func(t RendererType, id any) any

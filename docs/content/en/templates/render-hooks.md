@@ -23,6 +23,8 @@ The hook kinds currently supported are:
 * `link`
 * `heading`
 * `codeblock`{{< new-in "0.93.0" >}}
+* `list`{{< new-in "0.99.0" >}}
+* `listitem`{{< new-in "0.99.0" >}}
 
 You can define [Output-Format-](/templates/output-formats) and [language-](/content-management/multilingual/)specific templates if needed. Your `layouts` folder may look like this:
 
@@ -181,3 +183,98 @@ Page
 
 Position
 : Useful in error logging as it prints the filename and position (linenumber, column), e.g. `{{ errorf "error in code block: %s" .Position }}`.
+
+## Render Hooks for Lists and List Items
+
+{{< new-in "0.99.0" >}}
+
+You can add a hook template for lists and list items e.g. for different output types
+
+```goat { class="black f7" }
+layouts
+└── _default
+    └── _markup
+        └── render-listitem.html
+        └── render-listitem.json
+        └── render-list.html
+        └── render-list.json
+```
+
+The `render-list` template will receive this context:
+
+Page
+: The [Page](/variables/page/) being rendered.
+
+Text
+: The rendered (HTML) list content.
+
+PlainText
+: The plain variant of the above.
+
+IsOrdered (bool)
+: If this is an ordered list.
+
+Parent 
+: The Parent node of the list.
+
+Attributes (map) {{< new-in "0.82.0" >}}
+: A map of attributes (e.g. `id`, `class`)
+
+
+The `render-listitem` template will receive this context:
+
+Page
+: The [Page](/variables/page/) being rendered.
+
+Text
+: The rendered (HTML) list content.
+
+PlainText
+: The plain variant of the above.
+
+IsFirst (bool)
+: If this is the first item in the list.
+
+IsLast (bool)
+: If this is the last item in the list.
+
+Parent 
+: The Parent node of the item, the list node.
+
+### ListItem rendered as JSON-LD example:
+
+```md
+1. Do This
+2. Then That
+```
+
+Here is a code example for how the render-listitem.json template could look:
+
+{{< code file="layouts/_default/_markup/render-list.html" >}}
+{{- if eq .Parent.IsOrdered true -}}
+{
+    "@type": "HowToStep",
+    "text": "{{ .Text | plainify}}"
+}{{ if not .IsLast }},{{ end }}{{ print "\n"}}
+{{- else -}}
+{{- if not .IsLast -}}
+    {{ printf "\"%s\",\n" .Text | plainify}}
+{{- else -}}
+    {{ printf "\"%s\"" .Text | plainify}}
+{{- end -}}
+{{- end -}}
+{{< /code >}}
+
+
+The rendered html will be
+
+```js
+{
+    "@type": "HowToStep",
+    "text": "Do This"
+},
+{
+    "@type": "HowToStep",
+    "text": "Then That"
+}
+```

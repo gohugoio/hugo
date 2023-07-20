@@ -15,6 +15,7 @@ package goldmark
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/types/hstring"
@@ -119,6 +120,68 @@ func (ctx headingContext) PlainText() string {
 	return ctx.plainText
 }
 
+type listItemContext struct {
+	page      interface{}
+	text      hstring.RenderedString
+	plainText string
+	isFirst   bool
+	isLast    bool
+	parent    interface{}
+}
+
+func (ctx listItemContext) Page() interface{} {
+	return ctx.page
+}
+
+func (ctx listItemContext) Text() hstring.RenderedString {
+	return ctx.text
+}
+
+func (ctx listItemContext) PlainText() string {
+	return ctx.plainText
+}
+
+func (ctx listItemContext) IsFirst() bool {
+	return ctx.isFirst
+}
+
+func (ctx listItemContext) IsLast() bool {
+	return ctx.isLast
+}
+
+func (ctx listItemContext) Parent() interface{} {
+	return ctx.parent
+}
+
+type listContext struct {
+	page      interface{}
+	text      hstring.RenderedString
+	plainText string
+	isOrdered bool
+	parent    interface{}
+	*attributes.AttributesHolder
+}
+
+func (ctx listContext) Page() interface{} {
+	return ctx.page
+}
+
+func (ctx listContext) Text() hstring.RenderedString {
+	return ctx.text
+}
+
+func (ctx listContext) PlainText() string {
+	return ctx.plainText
+}
+
+func (ctx listContext) IsOrdered() bool {
+	return ctx.isOrdered
+}
+
+func (ctx listContext) Parent() interface{} {
+	return ctx.parent
+}
+
 type hookedRenderer struct {
 	linkifyProtocol []byte
 	html.Config
@@ -134,6 +197,8 @@ func (r *hookedRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) 
 	reg.Register(ast.KindAutoLink, r.renderAutoLink)
 	reg.Register(ast.KindImage, r.renderImage)
 	reg.Register(ast.KindHeading, r.renderHeading)
+	reg.Register(ast.KindListItem, r.renderListItem)
+	reg.Register(ast.KindList, r.renderList)
 }
 
 func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
@@ -463,6 +528,139 @@ func (r *hookedRenderer) renderHeadingDefault(w util.BufWriter, source []byte, n
 		_, _ = w.WriteString(">\n")
 	}
 	return ast.WalkContinue, nil
+}
+
+func (r *hookedRenderer) renderListItem(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*ast.ListItem)
+	var hli hooks.ListItemRenderer
+
+	ctx, ok := w.(*render.Context)
+	if ok {
+		h := ctx.RenderContext().GetRenderer(hooks.ListItemRendererType, nil)
+		ok = h != nil
+		if ok {
+			hli = h.(hooks.ListItemRenderer)
+		}
+	}
+
+	if !ok {
+		return r.renderListItemDefault(w, source, node, entering)
+	}
+
+	if entering {
+		// Store the current pos so we can capture the rendered text.
+		ctx.PushPos(ctx.Buffer.Len())
+		return ast.WalkContinue, nil
+	}
+
+	pos := ctx.PopPos()
+	text := ctx.Buffer.Bytes()[pos:]
+	ctx.Buffer.Truncate(pos)
+
+	err := hli.RenderListItem(
+		ctx.RenderContext().Ctx,
+		w,
+		listItemContext{
+			page:      ctx.DocumentContext().Document,
+			text:      hstring.RenderedString(text),
+			plainText: string(n.Text(source)),
+			isFirst:   n.PreviousSibling() == nil,
+			isLast:    n.NextSibling() == nil,
+			parent:    n.Parent(),
+		},
+	)
+
+	ctx.AddIdentity(hli)
+
+	return ast.WalkContinue, err
+}
+
+// Fall back to the default Goldmark render funcs. Method below borrowed from:
+// https://github.com/yuin/goldmark/blob/5588d92a56fe1642791cf4aa8e9eae8227cfeecd/renderer/html/html.go#L353
+func (r *hookedRenderer) renderListItemDefault(w util.BufWriter, source []byte, n ast.Node, entering bool) (ast.WalkStatus, error) {
+	if entering {
+		_, _ = w.WriteString("<li>")
+		fc := n.FirstChild()
+		if fc != nil {
+			if _, ok := fc.(*ast.TextBlock); !ok {
+				_ = w.WriteByte('\n')
+			}
+		}
+	} else {
+		_, _ = w.WriteString("</li>\n")
+	}
+	return ast.WalkContinue, nil
+}
+
+// Fall back to the default Goldmark render funcs. Method below borrowed from:
+// https://github.com/yuin/goldmark/blob/5588d92a56fe1642791cf4aa8e9eae8227cfeecd/renderer/html/html.go#L324
+func (r *hookedRenderer) renderListDefault(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*ast.List)
+	tag := "ul"
+	if n.IsOrdered() {
+		tag = "ol"
+	}
+	if entering {
+		_ = w.WriteByte('<')
+		_, _ = w.WriteString(tag)
+		if n.IsOrdered() && n.Start != 1 {
+			fmt.Fprintf(w, " start=\"%d\"", n.Start)
+		}
+		if n.Attributes() != nil {
+			html.RenderAttributes(w, n, html.ListAttributeFilter)
+		}
+		_, _ = w.WriteString(">\n")
+	} else {
+		_, _ = w.WriteString("</")
+		_, _ = w.WriteString(tag)
+		_, _ = w.WriteString(">\n")
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *hookedRenderer) renderList(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*ast.List)
+	var hli hooks.ListRenderer
+
+	ctx, ok := w.(*render.Context)
+	if ok {
+		h := ctx.RenderContext().GetRenderer(hooks.ListRendererType, nil)
+		ok = h != nil
+		if ok {
+			hli = h.(hooks.ListRenderer)
+		}
+	}
+
+	if !ok {
+		return r.renderListDefault(w, source, node, entering)
+	}
+
+	if entering {
+		// Store the current pos so we can capture the rendered text.
+		ctx.PushPos(ctx.Buffer.Len())
+		return ast.WalkContinue, nil
+	}
+
+	pos := ctx.PopPos()
+	text := ctx.Buffer.Bytes()[pos:]
+	ctx.Buffer.Truncate(pos)
+
+	err := hli.RenderList(
+		ctx.RenderContext().Ctx,
+		w,
+		listContext{
+			page:             ctx.DocumentContext().Document,
+			text:             hstring.RenderedString(text),
+			plainText:        string(n.Text(source)),
+			isOrdered:        n.IsOrdered(),
+			parent:           n.Parent(),
+			AttributesHolder: attributes.New(n.Attributes(), attributes.AttributesOwnerGeneral),
+		},
+	)
+
+	ctx.AddIdentity(hli)
+
+	return ast.WalkContinue, err
 }
 
 type links struct {

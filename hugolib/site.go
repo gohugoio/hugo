@@ -1098,6 +1098,14 @@ func (hr hookRendererTemplate) RenderCodeblock(cctx context.Context, w hugio.Fle
 	return hr.templateHandler.ExecuteWithContext(cctx, hr.templ, w, ctx)
 }
 
+func (hr hookRendererTemplate) RenderListItem(cctx context.Context, w io.Writer, ctx hooks.ListItemContext) error {
+	return hr.templateHandler.ExecuteWithContext(cctx, hr.templ, w, ctx)
+}
+
+func (hr hookRendererTemplate) RenderList(cctx context.Context, w io.Writer, ctx hooks.ListContext) error {
+	return hr.templateHandler.ExecuteWithContext(cctx, hr.templ, w, ctx)
+}
+
 func (hr hookRendererTemplate) ResolvePosition(ctx any) text.Position {
 	return hr.resolvePosition(ctx)
 }

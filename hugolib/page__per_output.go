@@ -649,6 +649,10 @@ func (p *pageContentOutput) initRenderHooks() error {
 						layoutDescriptor.KindVariants = lang
 					}
 				}
+			case hooks.ListItemRendererType:
+				layoutDescriptor.Kind = "render-listitem"
+			case hooks.ListRendererType:
+				layoutDescriptor.Kind = "render-list"
 			}
 
 			getHookTemplate := func(f output.Format) (tpl.Template, bool) {
