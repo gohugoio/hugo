@@ -24,7 +24,7 @@ import (
 	"github.com/gohugoio/hugo/tpl"
 )
 
-// Apply takes a map, array, or slice c and returns a new slice with the function fname applied over it.
+// Apply takes an array or slice c and returns a new slice with the function fname applied over it.
 func (ns *Namespace) Apply(ctx context.Context, c any, fname string, args ...any) (any, error) {
 	if c == nil {
 		return make([]any, 0), nil
