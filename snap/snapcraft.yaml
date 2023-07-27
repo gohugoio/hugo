@@ -62,7 +62,7 @@ plugs:
   dot-cache-hugo:
     interface: personal-files
     write:
-      - $HOME/.cache/hugo
+      - $HOME/.cache/hugo_cache
   ssh-keys:
     interface: ssh-keys
 
