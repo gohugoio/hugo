@@ -375,8 +375,23 @@ func testSetupFunc() func(env *testscript.Env) error {
 	return func(env *testscript.Env) error {
 		var keyVals []string
 		keyVals = append(keyVals, "HUGO_TESTRUN", "true")
-		hugoCachedDir := filepath.Join(env.WorkDir, "hugocache")
-		keyVals = append(keyVals, "HUGO_CACHEDIR", hugoCachedDir)
+		keyVals = append(keyVals, "HUGO_CACHEDIR", filepath.Join(env.WorkDir, "hugocache"))
+		xdghome := filepath.Join(env.WorkDir, "xdgcachehome")
+		keyVals = append(keyVals, "XDG_CACHE_HOME", xdghome)
+		home := filepath.Join(env.WorkDir, "home")
+		keyVals = append(keyVals, "HOME", home)
+
+		if runtime.GOOS == "darwin" {
+			if err := os.MkdirAll(filepath.Join(home, "Library", "Caches"), 0777); err != nil {
+				return err
+			}
+		}
+
+		if runtime.GOOS == "linux" {
+			if err := os.MkdirAll(xdghome, 0777); err != nil {
+				return err
+			}
+		}
 
 		keyVals = append(keyVals, "SOURCE", sourceDir)
 

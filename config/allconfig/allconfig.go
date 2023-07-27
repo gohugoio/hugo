@@ -729,6 +729,7 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 	cfg := res.Cfg
 
 	all := &Config{}
+
 	err := decodeConfigFromParams(fs, bcfg, cfg, all, nil)
 	if err != nil {
 		return nil, err
@@ -871,6 +872,10 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 
 	bcfg.PublishDir = all.PublishDir
 	res.BaseConfig = bcfg
+	all.CommonDirs.CacheDir = bcfg.CacheDir
+	for _, l := range langConfigs {
+		l.CommonDirs.CacheDir = bcfg.CacheDir
+	}
 
 	cm := &Configs{
 		Base:                  all,

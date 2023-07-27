@@ -1,0 +1,18 @@
+
+[windows] skip
+
+env HUGO_CACHEDIR=
+hugo config
+
+[darwin] stdout 'home/Library/Caches/hugo_cache'
+[linux] stdout 'xdgcachehome/hugo_cache'
+
+# Repeat it to make sure it handles an existing hugo_cache dir.
+hugo config
+
+[darwin] stdout 'home/Library/Caches/hugo_cache'
+[linux] stdout 'xdgcachehome/hugo_cache'
+
+-- hugo.toml --
+baseURL="https://example.com/"
+title="My New Hugo Site"
