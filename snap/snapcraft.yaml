@@ -59,6 +59,12 @@ plugs:
     interface: personal-files
     read:
       - $HOME/.config/gcloud
+  dot-cache-hugo:
+    interface: personal-files
+    write:
+      - $HOME/.cache/hugo
+  ssh-keys:
+    interface: ssh-keys
 
 environment:
   HOME: $SNAP_REAL_HOME
@@ -95,6 +101,8 @@ apps:
       - dot-aws
       - dot-azure
       - dot-config-gcloud
+      - dot-cache-hugo
+      - ssh-keys
 
 parts:
   git:
