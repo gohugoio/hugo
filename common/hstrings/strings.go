@@ -15,7 +15,9 @@ package hstrings
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/gohugoio/hugo/compare"
 )
@@ -54,4 +56,46 @@ func EqualAny(a string, b ...string) bool {
 		}
 	}
 	return false
+}
+
+// regexpCache represents a cache of regexp objects protected by a mutex.
+type regexpCache struct {
+	mu sync.RWMutex
+	re map[string]*regexp.Regexp
+}
+
+func (rc *regexpCache) getOrCompileRegexp(pattern string) (re *regexp.Regexp, err error) {
+	var ok bool
+
+	if re, ok = rc.get(pattern); !ok {
+		re, err = regexp.Compile(pattern)
+		if err != nil {
+			return nil, err
+		}
+		rc.set(pattern, re)
+	}
+
+	return re, nil
+}
+
+func (rc *regexpCache) get(key string) (re *regexp.Regexp, ok bool) {
+	rc.mu.RLock()
+	re, ok = rc.re[key]
+	rc.mu.RUnlock()
+	return
+}
+
+func (rc *regexpCache) set(key string, re *regexp.Regexp) {
+	rc.mu.Lock()
+	rc.re[key] = re
+	rc.mu.Unlock()
+}
+
+var reCache = regexpCache{re: make(map[string]*regexp.Regexp)}
+
+// GetOrCompileRegexp retrieves a regexp object from the cache based upon the pattern.
+// If the pattern is not found in the cache, the pattern is compiled and added to
+// the cache.
+func GetOrCompileRegexp(pattern string) (re *regexp.Regexp, err error) {
+	return reCache.getOrCompileRegexp(pattern)
 }
