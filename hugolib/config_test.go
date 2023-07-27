@@ -259,6 +259,47 @@ sub: map[sub1:sub1en]
 
 }
 
+func TestDisableRootSlicesFromEnv(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+[languages]
+[languages.en]
+weight = 1
+[languages.sv]
+weight = 2
+[languages.no]
+weight = 3
+
+-- layouts/index.html --
+Home.
+`
+
+	for _, delim := range []string{" ", ","} {
+		environ := []string{"HUGO_DISABLELANGUAGES=sv no", "HUGO_DISABLEKINDS=taxonomy term"}
+		for i, v := range environ {
+			environ[i] = strings.ReplaceAll(v, " ", delim)
+		}
+		b := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+				Environ:     environ,
+				BuildCfg:    BuildCfg{SkipRender: true},
+			},
+		).Build()
+
+		conf := b.H.Configs.Base
+		b.Assert(conf.DisableLanguages, qt.DeepEquals, []string{"sv", "no"})
+		b.Assert(conf.DisableKinds, qt.DeepEquals, []string{"taxonomy", "term"})
+	}
+
+}
+
 func TestLoadMultiConfig(t *testing.T) {
 	t.Parallel()
 

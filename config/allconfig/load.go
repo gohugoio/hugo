@@ -297,19 +297,39 @@ func (l configLoader) applyOsEnvOverrides(environ []string) error {
 			if nestedKey != "" {
 				owner[nestedKey] = env.Value
 			} else {
-				var val any = env.Value
-				if _, ok := allDecoderSetups[env.Key]; ok {
+				var val any
+				key := strings.ReplaceAll(env.Key, delim, ".")
+				_, ok := allDecoderSetups[key]
+				if ok {
 					// A map.
-					val, err = metadecoders.Default.UnmarshalStringTo(env.Value, map[string]interface{}{})
+					if v, err := metadecoders.Default.UnmarshalStringTo(env.Value, map[string]interface{}{}); err == nil {
+						val = v
+					}
 				}
-				if err == nil {
-					l.cfg.Set(strings.ReplaceAll(env.Key, delim, "."), val)
+				if val == nil {
+					// A string.
+					val = l.envStringToVal(key, env.Value)
 				}
+				l.cfg.Set(key, val)
 			}
 		}
 	}
 
 	return nil
+}
+
+func (l *configLoader) envStringToVal(k, v string) any {
+	switch k {
+	case "disablekinds", "disablelanguages":
+		if strings.Contains(v, ",") {
+			return strings.Split(v, ",")
+		} else {
+			return strings.Fields(v)
+		}
+	default:
+		return v
+	}
+
 }
 
 func (l *configLoader) loadConfigMain(d ConfigSourceDescriptor) (config.LoadConfigResult, modules.ModulesConfig, error) {
