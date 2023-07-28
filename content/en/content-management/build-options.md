@@ -25,37 +25,29 @@ _build:
 
 If `always`, the page will be treated as a published page, holding its dedicated output files (`index.html`, etc...) and permalink.
 
-We extended this property from a boolean to an enum in Hugo 0.76.0. Valid values are:
+Valid values are:
 
-never
-: The page will not be included in any page collection.
-
-always (default)
-: The page will be rendered to disk and get a `RelPermalink` etc.
-
-link
-: The page will be not be rendered to disk, but will get a `RelPermalink`.
+  - `never`
+    : The page will not be included in any page collection.
+  - `always (default)`
+    : The page will be rendered to disk and get a `RelPermalink` etc.
+  - `link`
+    : The page will be not be rendered to disk, but will get a `RelPermalink`.
 
 #### list
 
-Note that we extended this property from a boolean to an enum in Hugo 0.68.0.
-
 Valid values are:
-
-never
-: The page will not be included in any page collection.
-
-always (default)
-: The page will be included in all page collections, e.g. `site.RegularPages`, `$page.Pages`.
-
-local
-: The page will be included in any _local_ page collection, e.g. `$page.RegularPages`, `$page.Pages`. One use case for this would be to create fully navigable, but headless content sections.
-
-If true, the page will be treated as part of the project's collections and, when appropriate, returned by Hugo's listing methods (`.Pages`, `.RegularPages` etc...).
+  
+  - `never`
+    : The page will not be included in any page collection.
+  - `always (default)`
+    : The page will be included in all page collections, e.g. `site.RegularPages`, `.Pages`.
+  - `local`
+    : The page will be included in any _local_ page collection, e.g. `$page.RegularPages`, `.Pages`. One use case for this would be to create fully navigable, but headless content sections.
 
 #### publishResources
 
-If set to true the [Bundle's Resources](/content-management/page-bundles) will be published.
+If set to true (default) the [Bundle's Resources](/content-management/page-bundles) will be published.
 Setting this to false will still publish Resources on demand (when a resource's `.Permalink` or `.RelPermalink` is invoked from the templates) but will skip the others.
 
 {{% note %}}
