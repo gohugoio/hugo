@@ -43,12 +43,12 @@ Valid values are:
   - `always (default)`
     : The page will be included in all page collections, e.g. `site.RegularPages`, `.Pages`.
   - `local`
-    : The page will be included in any _local_ page collection, e.g. `$page.RegularPages`, `.Pages`. One use case for this would be to create fully navigable, but headless content sections.
+    : The page will be included in any _local_ page collection, e.g. `.RegularPages`, `.Pages`. One use case for this would be to create fully navigable, but headless content sections.
 
 #### publishResources
 
-If set to true (default) the [Bundle's Resources](/content-management/page-bundles) will be published.
-Setting this to false will still publish Resources on demand (when a resource's `.Permalink` or `.RelPermalink` is invoked from the templates) but will skip the others.
+If set to `true` (default) the [Bundle's Resources](/content-management/page-bundles) will be published.
+Setting this to `false` will still publish Resources on demand (when a resource's `.Permalink` or `.RelPermalink` is invoked from the templates) but will skip the others.
 
 {{% note %}}
 Any page, regardless of their build options, will always be available using the [`.GetPage`](/functions/getpage) methods.
