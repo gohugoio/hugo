@@ -228,6 +228,14 @@ func (s *IntegrationTestBuilder) BuildE() (*IntegrationTestBuilder, error) {
 	return s, err
 }
 
+func (s *IntegrationTestBuilder) Init() *IntegrationTestBuilder {
+	if err := s.initBuilder(); err != nil {
+		s.Fatalf("Failed to init builder: %s", err)
+	}
+	return s
+
+}
+
 type IntegrationTestDebugConfig struct {
 	Out io.Writer
 
@@ -356,12 +364,23 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 			flags.Set("workingDir", s.Cfg.WorkingDir)
 		}
 
+		w := &s.logBuff
+
+		logger := loggers.New(
+			loggers.Options{
+				Stdout:   w,
+				Stderr:   w,
+				Level:    s.Cfg.LogLevel,
+				Distinct: true,
+			},
+		)
+
 		res, err := allconfig.LoadConfig(
 			allconfig.ConfigSourceDescriptor{
 				Flags:     flags,
 				ConfigDir: configDir,
 				Fs:        afs,
-				Logger:    loggers.NewDefault(),
+				Logger:    logger,
 				Environ:   s.Cfg.Environ,
 			},
 		)
@@ -375,7 +394,7 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 
 		s.Assert(err, qt.IsNil)
 
-		depsCfg := deps.DepsCfg{Configs: res, Fs: fs, LogLevel: s.Cfg.LogLevel, LogOut: &s.logBuff}
+		depsCfg := deps.DepsCfg{Configs: res, Fs: fs, LogLevel: logger.Level(), LogOut: logger.Out()}
 		sites, err := NewHugoSites(depsCfg)
 		if err != nil {
 			initErr = err
