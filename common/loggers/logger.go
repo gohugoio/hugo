@@ -173,6 +173,7 @@ type Logger interface {
 	WarnCommand(command string) logg.LevelLogger
 	Warnf(format string, v ...any)
 	Warnln(v ...any)
+	Deprecatef(fail bool, format string, v ...any)
 }
 
 type logAdapter struct {
@@ -295,6 +296,15 @@ func (l *logAdapter) Errorsf(id, format string, v ...any) {
 
 func (l *logAdapter) sprint(v ...any) string {
 	return strings.TrimRight(fmt.Sprintln(v...), "\n")
+}
+
+func (l *logAdapter) Deprecatef(fail bool, format string, v ...any) {
+	format = "DEPRECATED: " + format
+	if fail {
+		l.errorl.Logf(format, v...)
+	} else {
+		l.warnl.Logf(format, v...)
+	}
 }
 
 type logWriter struct {

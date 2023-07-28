@@ -1612,12 +1612,41 @@ List.
 
 }
 
-func TestDisableKindsUnknown(t *testing.T) {
+func TestKindsUnknown(t *testing.T) {
 	t.Parallel()
 
 	files := `
 -- hugo.toml --
 disableKinds = ['foo', 'home']
+[outputs]
+foo = ['HTML', 'AMP', 'RSS']
+-- layouts/_default/list.html --
+List.
+
+
+
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			LogLevel:    logg.LevelWarn,
+		},
+	).Init()
+
+	b.AssertLogContains("WARN  Unknown kind \"foo\" in disableKinds configuration.\n")
+	b.AssertLogContains("WARN  Unknown kind \"foo\" in outputs configuration.\n")
+
+}
+
+func TestDeprecateTaxonomyTerm(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['taxonomyTerm']
+[outputs]
+taxonomyterm = ['HTML', 'AMP', 'RSS']
 -- layouts/_default/list.html --
 List.
 
@@ -1633,8 +1662,7 @@ List.
 		},
 	).Init()
 
-	fmt.Println("LOG:", b.LogString())
-
-	b.AssertLogContains("WARN  Unknown kind \"foo\" in disableKinds\n")
+	b.AssertLogContains("WARN  DEPRECATED: Kind \"taxonomyterm\" used in disableKinds is deprecated, use \"taxonomy\" instead.\n")
+	b.AssertLogContains("WARN  DEPRECATED: Kind \"taxonomyterm\" used in outputs configuration is deprecated, use \"taxonomy\" instead.\n")
 
 }

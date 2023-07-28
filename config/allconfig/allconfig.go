@@ -240,12 +240,13 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 	disabledKinds := make(map[string]bool)
 	for _, kind := range c.DisableKinds {
 		kind = strings.ToLower(kind)
-		if kind == "taxonomyterm" {
+		if newKind := kinds.IsDeprecatedAndReplacedWith(kind); newKind != "" {
+			logger.Deprecatef(false, "Kind %q used in disableKinds is deprecated, use %q instead.", kind, newKind)
 			// Legacy config.
-			kind = "taxonomy"
+			kind = newKind
 		}
 		if kinds.GetKindAny(kind) == "" {
-			logger.Warnf("Unknown kind %q in disableKinds", kind)
+			logger.Warnf("Unknown kind %q in disableKinds configuration.", kind)
 			continue
 		}
 		disabledKinds[kind] = true
@@ -254,7 +255,15 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 	isRssDisabled := disabledKinds["rss"]
 	outputFormats := c.OutputFormats.Config
 	for kind, formats := range c.Outputs {
+		if newKind := kinds.IsDeprecatedAndReplacedWith(kind); newKind != "" {
+			logger.Deprecatef(false, "Kind %q used in outputs configuration is deprecated, use %q instead.", kind, newKind)
+			kind = newKind
+		}
 		if disabledKinds[kind] {
+			continue
+		}
+		if kinds.GetKindAny(kind) == "" {
+			logger.Warnf("Unknown kind %q in outputs configuration.", kind)
 			continue
 		}
 		for _, format := range formats {
