@@ -244,6 +244,10 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 			// Legacy config.
 			kind = "taxonomy"
 		}
+		if kinds.GetKindAny(kind) == "" {
+			logger.Warnf("Unknown kind %q in disableKinds", kind)
+			continue
+		}
 		disabledKinds[kind] = true
 	}
 	kindOutputFormats := make(map[string]output.Formats)

@@ -1611,3 +1611,30 @@ List.
 	b.AssertDestinationExists("categories/index.html", false)
 
 }
+
+func TestDisableKindsUnknown(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['foo', 'home']
+-- layouts/_default/list.html --
+List.
+
+
+
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			LogLevel:    logg.LevelWarn,
+			BuildCfg:    BuildCfg{SkipRender: true},
+		},
+	).Init()
+
+	fmt.Println("LOG:", b.LogString())
+
+	b.AssertLogContains("WARN  Unknown kind \"foo\" in disableKinds\n")
+
+}

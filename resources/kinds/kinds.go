@@ -93,15 +93,3 @@ func GetKindAny(s string) string {
 	}
 	return kindMapTemporary[strings.ToLower(s)]
 }
-
-// IsDeprecated returns whether the given kind is deprecated.
-func IsDeprecated(s string) bool {
-	s = strings.ToLower(s)
-
-	switch s {
-	case "taxonomyterm":
-		return true
-	default:
-		return false
-	}
-}
