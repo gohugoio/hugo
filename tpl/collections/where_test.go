@@ -17,6 +17,7 @@ import (
 	"context"
 	"fmt"
 	"html/template"
+	"math/rand"
 	"reflect"
 	"strings"
 	"testing"
@@ -858,4 +859,47 @@ func TestEvaluateSubElem(t *testing.T) {
 			}
 		}
 	}
+}
+
+func BenchmarkWhereOps(b *testing.B) {
+	ns := newNs()
+	var seq []map[string]string
+	ctx := context.Background()
+	for i := 0; i < 500; i++ {
+		seq = append(seq, map[string]string{"foo": "bar"})
+	}
+	for i := 0; i < 500; i++ {
+		seq = append(seq, map[string]string{"foo": "baz"})
+	}
+	// Shuffle the sequence.
+	for i := range seq {
+		j := rand.Intn(i + 1)
+		seq[i], seq[j] = seq[j], seq[i]
+	}
+	//results, err = ns.Where(context.Background(), test.seq, test.key, test.op, test.match)
+	runOps := func(b *testing.B, op, match string) {
+		_, err := ns.Where(ctx, seq, "foo", op, match)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+
+	b.Run("eq", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			runOps(b, "eq", "bar")
+		}
+	})
+
+	b.Run("ne", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			runOps(b, "ne", "baz")
+		}
+	})
+
+	b.Run("like", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			runOps(b, "like", "^bar")
+		}
+	})
+
 }
