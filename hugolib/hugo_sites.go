@@ -47,6 +47,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/lazy"
 
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
 	"github.com/gohugoio/hugo/tpl"
@@ -443,7 +444,7 @@ func (h *HugoSites) renderCrossSitesSitemap() error {
 
 	sitemapEnabled := false
 	for _, s := range h.Sites {
-		if s.conf.IsKindEnabled(kindSitemap) {
+		if s.conf.IsKindEnabled(kinds.KindSitemap) {
 			sitemapEnabled = true
 			break
 		}
@@ -474,7 +475,7 @@ func (h *HugoSites) renderCrossSitesRobotsTXT() error {
 
 	p, err := newPageStandalone(&pageMeta{
 		s:    s,
-		kind: kindRobotsTXT,
+		kind: kinds.KindRobotsTXT,
 		urlPaths: pagemeta.URLPath{
 			URL: "robots.txt",
 		},
@@ -523,7 +524,7 @@ func (h *HugoSites) createPageCollections() error {
 	})
 
 	allRegularPages := newLazyPagesFactory(func() page.Pages {
-		return h.findPagesByKindIn(page.KindPage, allPages.get())
+		return h.findPagesByKindIn(kinds.KindPage, allPages.get())
 	})
 
 	for _, s := range h.Sites {

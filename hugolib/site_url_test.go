@@ -18,10 +18,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/gohugoio/hugo/resources/page"
-
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/resources/kinds"
 )
 
 const slugDoc1 = "---\ntitle: slug doc 1\nslug: slug-doc-1\naliases:\n - /sd1/foo/\n - /sd2\n - /sd3/\n - /sd4.html\n---\nslug doc 1 content\n"
@@ -68,12 +67,12 @@ Do not go gentle into that good night.
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 2)
 
-	notUgly := s.getPage(page.KindPage, "sect1/p1.md")
+	notUgly := s.getPage(kinds.KindPage, "sect1/p1.md")
 	c.Assert(notUgly, qt.Not(qt.IsNil))
 	c.Assert(notUgly.Section(), qt.Equals, "sect1")
 	c.Assert(notUgly.RelPermalink(), qt.Equals, "/sect1/p1/")
 
-	ugly := s.getPage(page.KindPage, "sect2/p2.md")
+	ugly := s.getPage(kinds.KindPage, "sect2/p2.md")
 	c.Assert(ugly, qt.Not(qt.IsNil))
 	c.Assert(ugly.Section(), qt.Equals, "sect2")
 	c.Assert(ugly.RelPermalink(), qt.Equals, "/sect2/p2.html")
@@ -125,7 +124,7 @@ Do not go gentle into that good night.
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 10)
 
-	sect1 := s.getPage(page.KindSection, "sect1")
+	sect1 := s.getPage(kinds.KindSection, "sect1")
 	c.Assert(sect1, qt.Not(qt.IsNil))
 	c.Assert(sect1.RelPermalink(), qt.Equals, "/ss1/")
 	th.assertFileContent(filepath.Join("public", "ss1", "index.html"), "P1|URL: /ss1/|Next: /ss1/page/2/")

@@ -40,6 +40,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/output"
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -164,7 +165,7 @@ func (p *pageMeta) File() source.File {
 }
 
 func (p *pageMeta) IsHome() bool {
-	return p.Kind() == page.KindHome
+	return p.Kind() == kinds.KindHome
 }
 
 func (p *pageMeta) Keywords() []string {
@@ -199,7 +200,7 @@ func (p *pageMeta) IsNode() bool {
 }
 
 func (p *pageMeta) IsPage() bool {
-	return p.Kind() == page.KindPage
+	return p.Kind() == kinds.KindPage
 }
 
 // Param is a convenience method to do lookups in Page's and Site's Params map,
@@ -251,7 +252,7 @@ func (p *pageMeta) RelatedKeywords(cfg related.IndexConfig) ([]related.Keyword, 
 }
 
 func (p *pageMeta) IsSection() bool {
-	return p.Kind() == page.KindSection
+	return p.Kind() == kinds.KindSection
 }
 
 func (p *pageMeta) Section() string {
@@ -680,9 +681,9 @@ func (p *pageMeta) applyDefaultValues(n *contentNode) error {
 
 	if p.title == "" && p.f.IsZero() {
 		switch p.Kind() {
-		case page.KindHome:
+		case kinds.KindHome:
 			p.title = p.s.Title()
-		case page.KindSection:
+		case kinds.KindSection:
 			var sectionName string
 			if n != nil {
 				sectionName = n.rootSection()
@@ -696,13 +697,13 @@ func (p *pageMeta) applyDefaultValues(n *contentNode) error {
 			} else {
 				p.title = sectionName
 			}
-		case page.KindTerm:
+		case kinds.KindTerm:
 			// TODO(bep) improve
 			key := p.sections[len(p.sections)-1]
 			p.title = strings.Replace(p.s.conf.C.CreateTitle(key), "-", " ", -1)
-		case page.KindTaxonomy:
+		case kinds.KindTaxonomy:
 			p.title = p.s.conf.C.CreateTitle(p.sections[0])
-		case kind404:
+		case kinds.Kind404:
 			p.title = "404 Page not found"
 
 		}

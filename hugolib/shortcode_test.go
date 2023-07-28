@@ -22,9 +22,9 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/resources/kinds"
 
 	"github.com/gohugoio/hugo/parser/pageparser"
-	"github.com/gohugoio/hugo/resources/page"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -186,7 +186,7 @@ CSV: {{< myShort >}}
 	b.Assert(len(h.Sites), qt.Equals, 1)
 
 	s := h.Sites[0]
-	home := s.getPage(page.KindHome)
+	home := s.getPage(kinds.KindHome)
 	b.Assert(home, qt.Not(qt.IsNil))
 	b.Assert(len(home.OutputFormats()), qt.Equals, 3)
 

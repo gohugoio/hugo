@@ -22,6 +22,7 @@ import (
 
 	"github.com/gohugoio/hugo/helpers"
 
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -275,13 +276,13 @@ type contentBundleViewInfo struct {
 
 func (c *contentBundleViewInfo) kind() string {
 	if c.termKey != "" {
-		return page.KindTerm
+		return kinds.KindTerm
 	}
-	return page.KindTaxonomy
+	return kinds.KindTaxonomy
 }
 
 func (c *contentBundleViewInfo) sections() []string {
-	if c.kind() == page.KindTaxonomy {
+	if c.kind() == kinds.KindTaxonomy {
 		return []string{c.name.plural}
 	}
 

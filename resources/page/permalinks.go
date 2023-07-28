@@ -27,6 +27,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/resources/kinds"
 )
 
 // PermalinkExpander holds permalin mappings per section.
@@ -398,16 +399,16 @@ func (l PermalinkExpander) toSliceFunc(cut string) func(s []string) []string {
 
 }
 
-var permalinksKindsSuppurt = []string{KindPage, KindSection, KindTaxonomy, KindTerm}
+var permalinksKindsSuppurt = []string{kinds.KindPage, kinds.KindSection, kinds.KindTaxonomy, kinds.KindTerm}
 
 // DecodePermalinksConfig decodes the permalinks configuration in the given map
 func DecodePermalinksConfig(m map[string]any) (map[string]map[string]string, error) {
 	permalinksConfig := make(map[string]map[string]string)
 
-	permalinksConfig[KindPage] = make(map[string]string)
-	permalinksConfig[KindSection] = make(map[string]string)
-	permalinksConfig[KindTaxonomy] = make(map[string]string)
-	permalinksConfig[KindTerm] = make(map[string]string)
+	permalinksConfig[kinds.KindPage] = make(map[string]string)
+	permalinksConfig[kinds.KindSection] = make(map[string]string)
+	permalinksConfig[kinds.KindTaxonomy] = make(map[string]string)
+	permalinksConfig[kinds.KindTerm] = make(map[string]string)
 
 	config := maps.CleanConfigStringMap(m)
 	for k, v := range config {
@@ -417,8 +418,8 @@ func DecodePermalinksConfig(m map[string]any) (map[string]map[string]string, err
 			//   key = '...'
 
 			// To sucessfully be backward compatible, "default" patterns need to be set for both page and term
-			permalinksConfig[KindPage][k] = v
-			permalinksConfig[KindTerm][k] = v
+			permalinksConfig[kinds.KindPage][k] = v
+			permalinksConfig[kinds.KindTerm][k] = v
 
 		case maps.Params:
 			// [permalinks.key]

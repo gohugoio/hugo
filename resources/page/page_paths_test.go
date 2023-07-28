@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/gohugoio/hugo/output"
@@ -47,31 +48,31 @@ func TestPageTargetPath(t *testing.T) {
 					d        page.TargetPathDescriptor
 					expected page.TargetPaths
 				}{
-					{"JSON home", page.TargetPathDescriptor{Kind: page.KindHome, Type: output.JSONFormat}, page.TargetPaths{TargetFilename: "/index.json", SubResourceBaseTarget: "", Link: "/index.json"}},
-					{"AMP home", page.TargetPathDescriptor{Kind: page.KindHome, Type: output.AMPFormat}, page.TargetPaths{TargetFilename: "/amp/index.html", SubResourceBaseTarget: "/amp", Link: "/amp/"}},
-					{"HTML home", page.TargetPathDescriptor{Kind: page.KindHome, BaseName: "_index", Type: output.HTMLFormat}, page.TargetPaths{TargetFilename: "/index.html", SubResourceBaseTarget: "", Link: "/"}},
-					{"Netlify redirects", page.TargetPathDescriptor{Kind: page.KindHome, BaseName: "_index", Type: noExtDelimFormat}, page.TargetPaths{TargetFilename: "/_redirects", SubResourceBaseTarget: "", Link: "/_redirects"}},
+					{"JSON home", page.TargetPathDescriptor{Kind: kinds.KindHome, Type: output.JSONFormat}, page.TargetPaths{TargetFilename: "/index.json", SubResourceBaseTarget: "", Link: "/index.json"}},
+					{"AMP home", page.TargetPathDescriptor{Kind: kinds.KindHome, Type: output.AMPFormat}, page.TargetPaths{TargetFilename: "/amp/index.html", SubResourceBaseTarget: "/amp", Link: "/amp/"}},
+					{"HTML home", page.TargetPathDescriptor{Kind: kinds.KindHome, BaseName: "_index", Type: output.HTMLFormat}, page.TargetPaths{TargetFilename: "/index.html", SubResourceBaseTarget: "", Link: "/"}},
+					{"Netlify redirects", page.TargetPathDescriptor{Kind: kinds.KindHome, BaseName: "_index", Type: noExtDelimFormat}, page.TargetPaths{TargetFilename: "/_redirects", SubResourceBaseTarget: "", Link: "/_redirects"}},
 					{"HTML section list", page.TargetPathDescriptor{
-						Kind:     page.KindSection,
+						Kind:     kinds.KindSection,
 						Sections: []string{"sect1"},
 						BaseName: "_index",
 						Type:     output.HTMLFormat,
 					}, page.TargetPaths{TargetFilename: "/sect1/index.html", SubResourceBaseTarget: "/sect1", Link: "/sect1/"}},
 					{"HTML taxonomy term", page.TargetPathDescriptor{
-						Kind:     page.KindTerm,
+						Kind:     kinds.KindTerm,
 						Sections: []string{"tags", "hugo"},
 						BaseName: "_index",
 						Type:     output.HTMLFormat,
 					}, page.TargetPaths{TargetFilename: "/tags/hugo/index.html", SubResourceBaseTarget: "/tags/hugo", Link: "/tags/hugo/"}},
 					{"HTML taxonomy", page.TargetPathDescriptor{
-						Kind:     page.KindTaxonomy,
+						Kind:     kinds.KindTaxonomy,
 						Sections: []string{"tags"},
 						BaseName: "_index",
 						Type:     output.HTMLFormat,
 					}, page.TargetPaths{TargetFilename: "/tags/index.html", SubResourceBaseTarget: "/tags", Link: "/tags/"}},
 					{
 						"HTML page", page.TargetPathDescriptor{
-							Kind:     page.KindPage,
+							Kind:     kinds.KindPage,
 							Dir:      "/a/b",
 							BaseName: "mypage",
 							Sections: []string{"a"},
@@ -81,7 +82,7 @@ func TestPageTargetPath(t *testing.T) {
 
 					{
 						"HTML page with index as base", page.TargetPathDescriptor{
-							Kind:     page.KindPage,
+							Kind:     kinds.KindPage,
 							Dir:      "/a/b",
 							BaseName: "index",
 							Sections: []string{"a"},
@@ -91,7 +92,7 @@ func TestPageTargetPath(t *testing.T) {
 
 					{
 						"HTML page with special chars", page.TargetPathDescriptor{
-							Kind:     page.KindPage,
+							Kind:     kinds.KindPage,
 							Dir:      "/a/b",
 							BaseName: "My Page!",
 							Type:     output.HTMLFormat,
@@ -105,7 +106,7 @@ func TestPageTargetPath(t *testing.T) {
 					}, page.TargetPaths{TargetFilename: "/sect1/index.xml", SubResourceBaseTarget: "/sect1", Link: "/sect1/index.xml"}},
 					{
 						"AMP page", page.TargetPathDescriptor{
-							Kind:     page.KindPage,
+							Kind:     kinds.KindPage,
 							Dir:      "/a/b/c",
 							BaseName: "myamp",
 							Type:     output.AMPFormat,
@@ -113,7 +114,7 @@ func TestPageTargetPath(t *testing.T) {
 					},
 					{
 						"AMP page with URL with suffix", page.TargetPathDescriptor{
-							Kind:     page.KindPage,
+							Kind:     kinds.KindPage,
 							Dir:      "/sect/",
 							BaseName: "mypage",
 							URL:      "/some/other/url.xhtml",
@@ -122,7 +123,7 @@ func TestPageTargetPath(t *testing.T) {
 					},
 					{
 						"JSON page with URL without suffix", page.TargetPathDescriptor{
-							Kind:     page.KindPage,
+							Kind:     kinds.KindPage,
 							Dir:      "/sect/",
 							BaseName: "mypage",
 							URL:      "/some/other/path/",
@@ -131,7 +132,7 @@ func TestPageTargetPath(t *testing.T) {
 					},
 					{
 						"JSON page with URL without suffix and no trailing slash", page.TargetPathDescriptor{
-							Kind:     page.KindPage,
+							Kind:     kinds.KindPage,
 							Dir:      "/sect/",
 							BaseName: "mypage",
 							URL:      "/some/other/path",
@@ -140,7 +141,7 @@ func TestPageTargetPath(t *testing.T) {
 					},
 					{
 						"HTML page with URL without suffix and no trailing slash", page.TargetPathDescriptor{
-							Kind:     page.KindPage,
+							Kind:     kinds.KindPage,
 							Dir:      "/sect/",
 							BaseName: "mypage",
 							URL:      "/some/other/path",
@@ -149,7 +150,7 @@ func TestPageTargetPath(t *testing.T) {
 					},
 					{
 						"HTML page with URL containing double hyphen", page.TargetPathDescriptor{
-							Kind:     page.KindPage,
+							Kind:     kinds.KindPage,
 							Dir:      "/sect/",
 							BaseName: "mypage",
 							URL:      "/some/other--url/",
@@ -158,7 +159,7 @@ func TestPageTargetPath(t *testing.T) {
 					},
 					{
 						"HTML page with expanded permalink", page.TargetPathDescriptor{
-							Kind:              page.KindPage,
+							Kind:              kinds.KindPage,
 							Dir:               "/a/b",
 							BaseName:          "mypage",
 							ExpandedPermalink: "/2017/10/my-title/",
@@ -167,7 +168,7 @@ func TestPageTargetPath(t *testing.T) {
 					},
 					{
 						"Paginated HTML home", page.TargetPathDescriptor{
-							Kind:     page.KindHome,
+							Kind:     kinds.KindHome,
 							BaseName: "_index",
 							Type:     output.HTMLFormat,
 							Addends:  "page/3",
@@ -175,7 +176,7 @@ func TestPageTargetPath(t *testing.T) {
 					},
 					{
 						"Paginated Taxonomy terms list", page.TargetPathDescriptor{
-							Kind:     page.KindTerm,
+							Kind:     kinds.KindTerm,
 							BaseName: "_index",
 							Sections: []string{"tags", "hugo"},
 							Type:     output.HTMLFormat,
@@ -184,7 +185,7 @@ func TestPageTargetPath(t *testing.T) {
 					},
 					{
 						"Regular page with addend", page.TargetPathDescriptor{
-							Kind:     page.KindPage,
+							Kind:     kinds.KindPage,
 							Dir:      "/a/b",
 							BaseName: "mypage",
 							Addends:  "c/d/e",
@@ -207,8 +208,8 @@ func TestPageTargetPath(t *testing.T) {
 							expected := test.expected
 
 							// TODO(bep) simplify
-							if test.d.Kind == page.KindPage && test.d.BaseName == test.d.Type.BaseName {
-							} else if test.d.Kind == page.KindHome && test.d.Type.Path != "" {
+							if test.d.Kind == kinds.KindPage && test.d.BaseName == test.d.Type.BaseName {
+							} else if test.d.Kind == kinds.KindHome && test.d.Type.Path != "" {
 							} else if test.d.Type.MediaType.FirstSuffix.Suffix != "" && (!strings.HasPrefix(expected.TargetFilename, "/index") || test.d.Addends != "") && test.d.URL == "" && isUgly {
 								expected.TargetFilename = strings.Replace(expected.TargetFilename,
 									"/"+test.d.Type.BaseName+"."+test.d.Type.MediaType.FirstSuffix.Suffix,
@@ -250,12 +251,12 @@ func TestPageTargetPathPrefix(t *testing.T) {
 	}{
 		{
 			"URL set, prefix both, no force",
-			page.TargetPathDescriptor{Kind: page.KindPage, Type: output.JSONFormat, URL: "/mydir/my.json", ForcePrefix: false, PrefixFilePath: "pf", PrefixLink: "pl"},
+			page.TargetPathDescriptor{Kind: kinds.KindPage, Type: output.JSONFormat, URL: "/mydir/my.json", ForcePrefix: false, PrefixFilePath: "pf", PrefixLink: "pl"},
 			page.TargetPaths{TargetFilename: "/mydir/my.json", SubResourceBaseTarget: "/mydir", SubResourceBaseLink: "/mydir", Link: "/mydir/my.json"},
 		},
 		{
 			"URL set, prefix both, force",
-			page.TargetPathDescriptor{Kind: page.KindPage, Type: output.JSONFormat, URL: "/mydir/my.json", ForcePrefix: true, PrefixFilePath: "pf", PrefixLink: "pl"},
+			page.TargetPathDescriptor{Kind: kinds.KindPage, Type: output.JSONFormat, URL: "/mydir/my.json", ForcePrefix: true, PrefixFilePath: "pf", PrefixLink: "pl"},
 			page.TargetPaths{TargetFilename: "/pf/mydir/my.json", SubResourceBaseTarget: "/pf/mydir", SubResourceBaseLink: "/pl/mydir", Link: "/pl/mydir/my.json"},
 		},
 	}

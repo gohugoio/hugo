@@ -21,6 +21,7 @@ import (
 	"github.com/gohugoio/hugo/common/urls"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/output"
+	"github.com/gohugoio/hugo/resources/kinds"
 )
 
 const slash = "/"
@@ -147,7 +148,7 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 		isUgly = true
 	}
 
-	if d.Kind != KindPage && d.URL == "" && len(d.Sections) > 0 {
+	if d.Kind != kinds.KindPage && d.URL == "" && len(d.Sections) > 0 {
 		if d.ExpandedPermalink != "" {
 			pagePath = pjoin(pagePath, d.ExpandedPermalink)
 		} else {
@@ -160,7 +161,7 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 		pagePath = pjoin(pagePath, d.Type.Path)
 	}
 
-	if d.Kind != KindHome && d.URL != "" {
+	if d.Kind != kinds.KindHome && d.URL != "" {
 		pagePath = pjoin(pagePath, d.URL)
 
 		if d.Addends != "" {
@@ -200,7 +201,7 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 			}
 		}
 
-	} else if d.Kind == KindPage {
+	} else if d.Kind == kinds.KindPage {
 
 		if d.ExpandedPermalink != "" {
 			pagePath = pjoin(pagePath, d.ExpandedPermalink)
@@ -307,7 +308,7 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 
 	// if page URL is explicitly set in frontmatter,
 	// preserve its value without sanitization
-	if d.Kind != KindPage || d.URL == "" {
+	if d.Kind != kinds.KindPage || d.URL == "" {
 		// Note: MakePathSanitized will lower case the path if
 		// disablePathToLower isn't set.
 		pagePath = d.PathSpec.MakePathSanitized(pagePath)

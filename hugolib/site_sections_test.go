@@ -21,6 +21,7 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 )
 
@@ -293,7 +294,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 		}},
 	}
 
-	home := s.getPage(page.KindHome)
+	home := s.getPage(kinds.KindHome)
 
 	for _, test := range tests {
 		test := test
@@ -301,7 +302,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			t.Parallel()
 			c := qt.New(t)
 			sections := strings.Split(test.sections, ",")
-			p := s.getPage(page.KindSection, sections...)
+			p := s.getPage(kinds.KindSection, sections...)
 			c.Assert(p, qt.Not(qt.IsNil), qt.Commentf(fmt.Sprint(sections)))
 
 			if p.Pages() != nil {
@@ -318,7 +319,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 	c.Assert(len(home.Sections()), qt.Equals, 9)
 	c.Assert(s.Sections(), deepEqualsPages, home.Sections())
 
-	rootPage := s.getPage(page.KindPage, "mypage.md")
+	rootPage := s.getPage(kinds.KindPage, "mypage.md")
 	c.Assert(rootPage, qt.Not(qt.IsNil))
 	c.Assert(rootPage.Parent().IsHome(), qt.Equals, true)
 	// https://github.com/gohugoio/hugo/issues/6365
@@ -330,7 +331,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 	// If we later decide to do something about this, we will have to do some normalization in
 	// getPage.
 	// TODO(bep)
-	sectionWithSpace := s.getPage(page.KindSection, "Spaces in Section")
+	sectionWithSpace := s.getPage(kinds.KindSection, "Spaces in Section")
 	c.Assert(sectionWithSpace, qt.Not(qt.IsNil))
 	c.Assert(sectionWithSpace.RelPermalink(), qt.Equals, "/spaces-in-section/")
 

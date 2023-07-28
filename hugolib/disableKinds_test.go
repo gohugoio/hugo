@@ -17,6 +17,7 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 )
 
@@ -134,7 +135,7 @@ title: Headless Local Lists Sub
 		return nil
 	}
 
-	disableKind := page.KindPage
+	disableKind := kinds.KindPage
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
@@ -149,7 +150,7 @@ title: Headless Local Lists Sub
 		b.Assert(len(s.Taxonomies()["categories"]), qt.Equals, 0)
 	})
 
-	disableKind = page.KindTerm
+	disableKind = kinds.KindTerm
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
@@ -161,7 +162,7 @@ title: Headless Local Lists Sub
 		b.Assert(getPage(b, "/categories/mycat"), qt.IsNil)
 	})
 
-	disableKind = page.KindTaxonomy
+	disableKind = kinds.KindTaxonomy
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
@@ -177,7 +178,7 @@ title: Headless Local Lists Sub
 		b.Assert(getPageInPagePages(getPage(b, "/"), "/categories"), qt.IsNil)
 	})
 
-	disableKind = page.KindHome
+	disableKind = kinds.KindHome
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
@@ -190,7 +191,7 @@ title: Headless Local Lists Sub
 		b.Assert(getPage(b, "/sect/page.md"), qt.Not(qt.IsNil))
 	})
 
-	disableKind = page.KindSection
+	disableKind = kinds.KindSection
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
@@ -210,7 +211,7 @@ title: Headless Local Lists Sub
 		b.AssertFileContent("public/index.xml", "rss")
 	})
 
-	disableKind = kindRSS
+	disableKind = kinds.KindRSS
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
@@ -219,21 +220,21 @@ title: Headless Local Lists Sub
 		b.Assert(home.OutputFormats(), qt.HasLen, 1)
 	})
 
-	disableKind = kindSitemap
+	disableKind = kinds.KindSitemap
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
 		b.Assert(b.CheckExists("public/sitemap.xml"), qt.Equals, false)
 	})
 
-	disableKind = kind404
+	disableKind = kinds.Kind404
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
 		b.Assert(b.CheckExists("public/404.html"), qt.Equals, false)
 	})
 
-	disableKind = kindRobotsTXT
+	disableKind = kinds.KindRobotsTXT
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.WithTemplatesAdded("robots.txt", "myrobots")

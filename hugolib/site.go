@@ -52,6 +52,7 @@ import (
 
 	"github.com/gohugoio/hugo/langs"
 
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/gohugoio/hugo/config"
@@ -248,7 +249,7 @@ func (s *Site) initRenderFormats() {
 	})
 
 	// Add the per kind configured output formats
-	for _, kind := range allKindsInPages {
+	for _, kind := range kinds.AllKindsInPages {
 		if siteFormats, found := s.conf.C.KindOutputFormats[kind]; found {
 			for _, f := range siteFormats {
 				if !formatSet[f.Name] {
@@ -276,9 +277,6 @@ func (s *Site) Languages() langs.Languages {
 }
 
 func (s *Site) isEnabled(kind string) bool {
-	if kind == kindUnknown {
-		panic("Unknown kind")
-	}
 	return s.conf.IsKindEnabled(kind)
 }
 
@@ -1141,19 +1139,19 @@ func (s *Site) publish(statCounter *uint64, path string, r io.Reader, fs afero.F
 func (s *Site) kindFromFileInfoOrSections(fi *fileInfo, sections []string) string {
 	if fi.TranslationBaseName() == "_index" {
 		if fi.Dir() == "" {
-			return page.KindHome
+			return kinds.KindHome
 		}
 
 		return s.kindFromSections(sections)
 
 	}
 
-	return page.KindPage
+	return kinds.KindPage
 }
 
 func (s *Site) kindFromSections(sections []string) string {
 	if len(sections) == 0 {
-		return page.KindHome
+		return kinds.KindHome
 	}
 
 	return s.kindFromSectionPath(path.Join(sections...))
@@ -1163,16 +1161,16 @@ func (s *Site) kindFromSectionPath(sectionPath string) string {
 	var taxonomiesConfig taxonomiesConfig = s.conf.Taxonomies
 	for _, plural := range taxonomiesConfig {
 		if plural == sectionPath {
-			return page.KindTaxonomy
+			return kinds.KindTaxonomy
 		}
 
 		if strings.HasPrefix(sectionPath, plural) {
-			return page.KindTerm
+			return kinds.KindTerm
 		}
 
 	}
 
-	return page.KindSection
+	return kinds.KindSection
 }
 
 func (s *Site) newPage(

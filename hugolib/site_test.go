@@ -28,6 +28,7 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 )
 
@@ -717,7 +718,7 @@ func TestOrderedPages(t *testing.T) {
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
 
-	if s.getPage(page.KindSection, "sect").Pages()[1].Title() != "Three" || s.getPage(page.KindSection, "sect").Pages()[2].Title() != "Four" {
+	if s.getPage(kinds.KindSection, "sect").Pages()[1].Title() != "Three" || s.getPage(kinds.KindSection, "sect").Pages()[2].Title() != "Four" {
 		t.Error("Pages in unexpected order.")
 	}
 
@@ -1010,7 +1011,7 @@ func TestRefLinking(t *testing.T) {
 	t.Parallel()
 	site := setupLinkingMockSite(t)
 
-	currentPage := site.getPage(page.KindPage, "level2/level3/start.md")
+	currentPage := site.getPage(kinds.KindPage, "level2/level3/start.md")
 	if currentPage == nil {
 		t.Fatalf("failed to find current page in site")
 	}
