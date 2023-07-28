@@ -23,7 +23,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
@@ -686,9 +685,9 @@ func (c *serverCommand) createCertificates(conf *commonConfig) error {
 	c.tlsKeyFile = filepath.Join(keyDir, fmt.Sprintf("%s-key.pem", hostname))
 
 	// Check if the certificate already exists and is valid.
-	certPEM, err := ioutil.ReadFile(c.tlsCertFile)
+	certPEM, err := os.ReadFile(c.tlsCertFile)
 	if err == nil {
-		rootPem, err := ioutil.ReadFile(filepath.Join(mclib.GetCAROOT(), "rootCA.pem"))
+		rootPem, err := os.ReadFile(filepath.Join(mclib.GetCAROOT(), "rootCA.pem"))
 		if err == nil {
 			if err := c.verifyCert(rootPem, certPEM, hostname); err == nil {
 				c.r.Println("Using existing", c.tlsCertFile, "and", c.tlsKeyFile)
