@@ -21,7 +21,7 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/resources/kinds"
 
 	"github.com/spf13/afero"
 
@@ -142,7 +142,7 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 	s := b.H.Sites[0]
 	b.Assert(s.language.Lang, qt.Equals, "en")
 
-	home := s.getPage(page.KindHome)
+	home := s.getPage(kinds.KindHome)
 
 	b.Assert(home, qt.Not(qt.IsNil))
 
@@ -314,7 +314,7 @@ baseName = "customdelimbase"
 	th.assertFileContent("public/nosuffixbase", "no suffix")
 	th.assertFileContent("public/customdelimbase_del", "custom delim")
 
-	home := s.getPage(page.KindHome)
+	home := s.getPage(kinds.KindHome)
 	c.Assert(home, qt.Not(qt.IsNil))
 
 	outputs := home.OutputFormats()
@@ -360,8 +360,8 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 		c := qt.New(t)
 
 		outputsConfig := map[string]any{
-			page.KindHome:    []string{"HTML", "JSON"},
-			page.KindSection: []string{"JSON"},
+			kinds.KindHome:    []string{"HTML", "JSON"},
+			kinds.KindSection: []string{"JSON"},
 		}
 
 		cfg := config.New()
@@ -369,21 +369,21 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 
 		outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
 		c.Assert(err, qt.IsNil)
-		c.Assert(outputs[page.KindSection], deepEqualsOutputFormats, output.Formats{output.JSONFormat})
-		c.Assert(outputs[page.KindHome], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.JSONFormat})
+		c.Assert(outputs[kinds.KindSection], deepEqualsOutputFormats, output.Formats{output.JSONFormat})
+		c.Assert(outputs[kinds.KindHome], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.JSONFormat})
 
 		// Defaults
-		c.Assert(outputs[page.KindTerm], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
-		c.Assert(outputs[page.KindTaxonomy], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
-		c.Assert(outputs[page.KindPage], deepEqualsOutputFormats, output.Formats{output.HTMLFormat})
+		c.Assert(outputs[kinds.KindTerm], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
+		c.Assert(outputs[kinds.KindTaxonomy], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
+		c.Assert(outputs[kinds.KindPage], deepEqualsOutputFormats, output.Formats{output.HTMLFormat})
 
 		// These aren't (currently) in use when rendering in Hugo,
 		// but the pages needs to be assigned an output format,
 		// so these should also be correct/sensible.
-		c.Assert(outputs[kindRSS], deepEqualsOutputFormats, output.Formats{output.RSSFormat})
-		c.Assert(outputs[kindSitemap], deepEqualsOutputFormats, output.Formats{output.SitemapFormat})
-		c.Assert(outputs[kindRobotsTXT], deepEqualsOutputFormats, output.Formats{output.RobotsTxtFormat})
-		c.Assert(outputs[kind404], deepEqualsOutputFormats, output.Formats{output.HTMLFormat})
+		c.Assert(outputs[kinds.KindRSS], deepEqualsOutputFormats, output.Formats{output.RSSFormat})
+		c.Assert(outputs[kinds.KindSitemap], deepEqualsOutputFormats, output.Formats{output.SitemapFormat})
+		c.Assert(outputs[kinds.KindRobotsTXT], deepEqualsOutputFormats, output.Formats{output.RobotsTxtFormat})
+		c.Assert(outputs[kinds.Kind404], deepEqualsOutputFormats, output.Formats{output.HTMLFormat})
 	})
 
 	// Issue #4528
@@ -400,7 +400,7 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 
 		outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
 		c.Assert(err, qt.IsNil)
-		c.Assert(outputs[page.KindTaxonomy], deepEqualsOutputFormats, output.Formats{output.JSONFormat})
+		c.Assert(outputs[kinds.KindTaxonomy], deepEqualsOutputFormats, output.Formats{output.JSONFormat})
 	})
 }
 
@@ -408,7 +408,7 @@ func TestCreateSiteOutputFormatsInvalidConfig(t *testing.T) {
 	c := qt.New(t)
 
 	outputsConfig := map[string]any{
-		page.KindHome: []string{"FOO", "JSON"},
+		kinds.KindHome: []string{"FOO", "JSON"},
 	}
 
 	cfg := config.New()
@@ -422,7 +422,7 @@ func TestCreateSiteOutputFormatsEmptyConfig(t *testing.T) {
 	c := qt.New(t)
 
 	outputsConfig := map[string]any{
-		page.KindHome: []string{},
+		kinds.KindHome: []string{},
 	}
 
 	cfg := config.New()
@@ -430,14 +430,14 @@ func TestCreateSiteOutputFormatsEmptyConfig(t *testing.T) {
 
 	outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
 	c.Assert(err, qt.IsNil)
-	c.Assert(outputs[page.KindHome], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
+	c.Assert(outputs[kinds.KindHome], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
 }
 
 func TestCreateSiteOutputFormatsCustomFormats(t *testing.T) {
 	c := qt.New(t)
 
 	outputsConfig := map[string]any{
-		page.KindHome: []string{},
+		kinds.KindHome: []string{},
 	}
 
 	cfg := config.New()
@@ -450,7 +450,7 @@ func TestCreateSiteOutputFormatsCustomFormats(t *testing.T) {
 
 	outputs, err := createSiteOutputFormats(output.Formats{customRSS, customHTML}, cfg.GetStringMap("outputs"), false)
 	c.Assert(err, qt.IsNil)
-	c.Assert(outputs[page.KindHome], deepEqualsOutputFormats, output.Formats{customHTML, customRSS})
+	c.Assert(outputs[kinds.KindHome], deepEqualsOutputFormats, output.Formats{customHTML, customRSS})
 }
 
 // https://github.com/gohugoio/hugo/issues/5849

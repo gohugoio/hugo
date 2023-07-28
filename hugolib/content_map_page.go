@@ -19,6 +19,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+
 	"sync"
 
 	"github.com/gohugoio/hugo/common/maps"
@@ -30,6 +31,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/parser/pageparser"
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/cast"
@@ -105,7 +107,7 @@ func (m *pageMap) newPageFromContentNode(n *contentNode, parentBucket *pagesMapB
 	sections := s.sectionsFromFile(f)
 
 	kind := s.kindFromFileInfoOrSections(f, sections)
-	if kind == page.KindTerm {
+	if kind == kinds.KindTerm {
 		s.PathSpec.MakePathsSanitized(sections)
 	}
 
@@ -366,7 +368,7 @@ func (m *pageMap) assemblePages() error {
 			return true
 		}
 
-		shouldBuild = !(n.p.Kind() == page.KindPage && m.cfg.pageDisabled) && m.s.shouldBuild(n.p)
+		shouldBuild = !(n.p.Kind() == kinds.KindPage && m.cfg.pageDisabled) && m.s.shouldBuild(n.p)
 		if !shouldBuild {
 			m.deletePage(s)
 			return false
@@ -469,9 +471,9 @@ func (m *pageMap) assembleSections() error {
 			parentBucket = m.s.siteBucket
 		}
 
-		kind := page.KindSection
+		kind := kinds.KindSection
 		if s == "/" {
-			kind = page.KindHome
+			kind = kinds.KindHome
 		}
 
 		if n.fi != nil {
@@ -537,7 +539,7 @@ func (m *pageMap) assembleTaxonomies() error {
 			}
 		} else {
 			title := ""
-			if kind == page.KindTerm {
+			if kind == kinds.KindTerm {
 				title = n.viewInfo.term()
 			}
 			n.p = m.s.newPage(n, parent.p.bucket, kind, title, sections...)

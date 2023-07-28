@@ -49,6 +49,7 @@ import (
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/resources"
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 )
@@ -249,7 +250,7 @@ func (p *pageState) RegularPagesRecursive() page.Pages {
 	p.regularPagesRecursiveInit.Do(func() {
 		var pages page.Pages
 		switch p.Kind() {
-		case page.KindSection:
+		case kinds.KindSection:
 			pages = p.getPagesRecursive()
 		default:
 			pages = p.RegularPages()
@@ -268,10 +269,10 @@ func (p *pageState) RegularPages() page.Pages {
 		var pages page.Pages
 
 		switch p.Kind() {
-		case page.KindPage:
-		case page.KindSection, page.KindHome, page.KindTaxonomy:
+		case kinds.KindPage:
+		case kinds.KindSection, kinds.KindHome, kinds.KindTaxonomy:
 			pages = p.getPages()
-		case page.KindTerm:
+		case kinds.KindTerm:
 			all := p.Pages()
 			for _, p := range all {
 				if p.IsPage() {
@@ -293,15 +294,15 @@ func (p *pageState) Pages() page.Pages {
 		var pages page.Pages
 
 		switch p.Kind() {
-		case page.KindPage:
-		case page.KindSection, page.KindHome:
+		case kinds.KindPage:
+		case kinds.KindSection, kinds.KindHome:
 			pages = p.getPagesAndSections()
-		case page.KindTerm:
+		case kinds.KindTerm:
 			b := p.treeRef.n
 			viewInfo := b.viewInfo
 			taxonomy := p.s.Taxonomies()[viewInfo.name.plural].Get(viewInfo.termKey)
 			pages = taxonomy.Pages()
-		case page.KindTaxonomy:
+		case kinds.KindTaxonomy:
 			pages = p.bucket.getTaxonomies()
 		default:
 			pages = p.s.Pages()
@@ -439,11 +440,11 @@ func (p *pageState) getLayoutDescriptor() layouts.LayoutDescriptor {
 		sections := p.SectionsEntries()
 
 		switch p.Kind() {
-		case page.KindSection:
+		case kinds.KindSection:
 			if len(sections) > 0 {
 				section = sections[0]
 			}
-		case page.KindTaxonomy, page.KindTerm:
+		case kinds.KindTaxonomy, kinds.KindTerm:
 			b := p.getTreeRef().n
 			section = b.viewInfo.name.singular
 		default:

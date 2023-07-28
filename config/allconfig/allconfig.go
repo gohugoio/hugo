@@ -45,6 +45,7 @@ import (
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/related"
 	"github.com/gohugoio/hugo/resources/images"
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
 	"github.com/spf13/afero"
@@ -940,11 +941,11 @@ func createDefaultOutputFormats(allFormats output.Formats) map[string][]string {
 	}
 
 	m := map[string][]string{
-		page.KindPage:     {htmlOut.Name},
-		page.KindHome:     defaultListTypes,
-		page.KindSection:  defaultListTypes,
-		page.KindTerm:     defaultListTypes,
-		page.KindTaxonomy: defaultListTypes,
+		kinds.KindPage:     {htmlOut.Name},
+		kinds.KindHome:     defaultListTypes,
+		kinds.KindSection:  defaultListTypes,
+		kinds.KindTerm:     defaultListTypes,
+		kinds.KindTaxonomy: defaultListTypes,
 	}
 
 	// May be disabled

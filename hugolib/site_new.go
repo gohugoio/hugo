@@ -40,6 +40,7 @@ import (
 	"github.com/gohugoio/hugo/navigation"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/publisher"
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -185,9 +186,9 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 			contentMap: newContentMap(contentMapConfig{
 				lang:                 k,
 				taxonomyConfig:       taxonomiesConfig.Values(),
-				taxonomyDisabled:     !conf.IsKindEnabled(page.KindTerm),
-				taxonomyTermDisabled: !conf.IsKindEnabled(page.KindTaxonomy),
-				pageDisabled:         !conf.IsKindEnabled(page.KindPage),
+				taxonomyDisabled:     !conf.IsKindEnabled(kinds.KindTerm),
+				taxonomyTermDisabled: !conf.IsKindEnabled(kinds.KindTaxonomy),
+				pageDisabled:         !conf.IsKindEnabled(kinds.KindPage),
 			}),
 			s: s,
 		}

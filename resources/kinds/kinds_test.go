@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2023 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package page
+package kinds
 
 import (
 	"testing"
@@ -29,9 +29,12 @@ func TestKind(t *testing.T) {
 	c.Assert(KindTaxonomy, qt.Equals, "taxonomy")
 	c.Assert(KindTerm, qt.Equals, "term")
 
-	c.Assert(GetKind("TAXONOMYTERM"), qt.Equals, KindTaxonomy)
-	c.Assert(GetKind("Taxonomy"), qt.Equals, KindTaxonomy)
-	c.Assert(GetKind("Page"), qt.Equals, KindPage)
-	c.Assert(GetKind("Home"), qt.Equals, KindHome)
-	c.Assert(GetKind("SEction"), qt.Equals, KindSection)
+	c.Assert(GetKindMain("TAXONOMYTERM"), qt.Equals, KindTaxonomy)
+	c.Assert(GetKindMain("Taxonomy"), qt.Equals, KindTaxonomy)
+	c.Assert(GetKindMain("Page"), qt.Equals, KindPage)
+	c.Assert(GetKindMain("Home"), qt.Equals, KindHome)
+	c.Assert(GetKindMain("SEction"), qt.Equals, KindSection)
+
+	c.Assert(GetKindAny("Page"), qt.Equals, KindPage)
+	c.Assert(GetKindAny("Robotstxt"), qt.Equals, KindRobotsTXT)
 }
