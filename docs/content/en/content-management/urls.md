@@ -1,5 +1,5 @@
 ---
-title: URL Management
+title: URL management
 description: Control the structure and appearance of URLs through front matter entries and settings in your site configuration.
 categories: [content management]
 keywords: [aliases,redirects,permalinks,urls]
@@ -93,7 +93,7 @@ In your site configuration, define a URL pattern for each top-level section. Eac
 
 Front matter `url` values override the URL patterns defined in the `permalinks` section of your site configuration.
 
-[page kind]: https://gohugo.io/templates/section-templates/#page-kinds
+[page kind]: /templates/section-templates/#page-kinds
 
 #### Monolingual examples {#permalinks-monolingual-examples}
 
@@ -271,10 +271,10 @@ Use these tokens when defining the URL pattern. The `date` field in front matter
 : the content's slug (or title if no slug is provided in the front matter)
 
 `:slugorfilename`
-: the content's slug (or filename if no slug is provided in the front matter)
+: the content's slug (or file name if no slug is provided in the front matter)
 
 `:filename`
-: the content's filename (without extension)
+: the content's file name (without extension)
 
 For time-related values, you can also use the layout string components defined in Go's [time package]. For example:
 
@@ -383,7 +383,7 @@ In a multilingual site, use a directory-relative alias, or include the language 
 aliases = ['/de/posts/previous-file-name']
 {{< /code-toggle >}}
 
-### How Aliases Work
+### How aliases work
 
 Using the first example above, Hugo generates the following site structure:
 

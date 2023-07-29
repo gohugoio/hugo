@@ -1,13 +1,13 @@
 ---
-title: Base Templates and Blocks
+title: Base templates and blocks
 description: The base and block constructs allow you to define the outer shell of your master templates (i.e., the chrome of the page).
-categories: [templates,fundamentals]
+categories: [fundamentals,templates]
 keywords: [blocks,base]
 menu:
   docs:
     parent: templates
-    weight: 20
-weight: 20
+    weight: 40
+weight: 40
 aliases: [/templates/blocks/,/templates/base-templates-and-blocks/]
 toc: true
 ---
@@ -16,13 +16,13 @@ The `block` keyword allows you to define the outer shell of your pages' one or m
 
 {{< youtube QVOMCYitLEc >}}
 
-## Base Template Lookup Order
+## Base template lookup order
 
 The base template lookup order closely follows that of the template it applies to (e.g. `_default/list.html`).
 
 See [Template Lookup Order](/templates/lookup-order/) for details and examples.
 
-## Define the Base Template
+## Define the base template
 
 The following defines a simple base template at `_default/baseof.html`. As a default template, it is the shell from which all your pages will be rendered unless you specify another `*baseof.html` closer to the beginning of the lookup order.
 
@@ -48,7 +48,7 @@ The following defines a simple base template at `_default/baseof.html`. As a def
 </html>
 {{< /code >}}
 
-## Override the Base Template
+## Override the base template
 
 From the above base template, you can define a [default list template][hugolists]. The default list template will inherit all of the code defined above and can then implement its own `"main"` block from:
 

@@ -1,13 +1,14 @@
 ---
-title: Frequently Asked Questions
-linktitle: FAQ
+title: Frequently asked questions
+linkTitle: Frequently asked questions
 description: Solutions to some common Hugo problems.
 categories: [troubleshooting]
 menu:
   docs:
     parent: troubleshooting
+    weight: 20
+weight: 20
 keywords: [faqs]
-weight: 2
 toc: true
 aliases: [/faq/]
 ---
@@ -18,7 +19,7 @@ aliases: [/faq/]
 
 ## I can't see my content!
 
-Is your Markdown file [in draft mode](https://gohugo.io/content-management/front-matter/#front-matter-variables)? When testing, run `hugo server` with the `-D` or `--buildDrafts` [switch](https://gohugo.io/getting-started/usage/#draft-future-and-expired-content).
+Is your Markdown file [in draft mode](/content-management/front-matter/#front-matter-variables)? When testing, run `hugo server` with the `-D` or `--buildDrafts` [switch](/getting-started/usage/#draft-future-and-expired-content).
 
 Is your Markdown file part of a [leaf bundle](/content-management/page-bundles/)? If there is an `index.md` file in the same or any parent directory then other Markdown files will not be rendered as individual pages.
 
@@ -28,7 +29,7 @@ Yes you can! See [Configure with Environment Variables](/getting-started/configu
 
 ## How do I schedule posts?
 
-1. Set `publishDate` in the page [Front Matter](/content-management/front-matter/) to a datetime in the future. If you want the creation and publication datetime to be the same, it's also sufficient to only set `date`[^date-hierarchy].
+1. Set `publishDate` in the page [front matter](/content-management/front-matter/) to a datetime in the future. If you want the creation and publication datetime to be the same, it's also sufficient to only set `date`[^date-hierarchy].
 2. Build and publish at intervals.
 
 How to automate the "publish at intervals" part depends on your situation:
@@ -42,7 +43,7 @@ Also see this Twitter thread:
 
 {{< tweet user="ChrisShort" id="962380712027590657" >}}
 
-[^date-hierarchy]: See [Configure Dates](https://gohugo.io/getting-started/configuration/#configure-dates) for the order in which the different date variables are complemented by each other when not explicitly set.
+[^date-hierarchy]: See [Configure Dates](/getting-started/configuration/#configure-dates) for the order in which the different date variables are complemented by each other when not explicitly set.
 
 ## Can I use the latest Hugo version on Netlify?
 

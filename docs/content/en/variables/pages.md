@@ -1,7 +1,7 @@
 ---
-title: Pages Methods
+title: Pages methods
 description: Pages is the core page collection in Hugo and has many useful methods.
-categories: [variables and params]
+categories: [variables and parameters]
 keywords: [pages]
 menu:
   docs:

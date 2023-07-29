@@ -1,13 +1,13 @@
 ---
-title: Content View Templates
-description: Hugo can render alternative views of your content, which is especially useful in list and summary views.
+title: Content view templates
+description: Hugo can render alternative views of your content, useful in list and summary views.
 categories: [templates]
 keywords: [views]
 menu:
   docs:
     parent: templates
-    weight: 70
-weight: 70
+    weight: 110
+weight: 110
 toc: true
 ---
 
@@ -18,7 +18,7 @@ The following are common use cases for content views:
 * You want content of every type to be shown on the homepage but only with limited [summary views][summaries].
 * You only want a bulleted list of your content on a [taxonomy list page][taxonomylists]. Views make this very straightforward by delegating the rendering of each different type of content to the content itself.
 
-## Create a Content View
+## Create a content view
 
 To create a new view, create a template in each of your different content type directories with the view name. The following example contains an "li" view and a "summary" view for the `posts` and `project` content types. As you can see, these sit next to the [single content view][single] template, `single.html`. You can even provide a specific view for a given type and continue to use the `_default/single.html` for the primary view.
 
@@ -45,7 +45,7 @@ Hugo also has support for a default content template to be used in the event tha
       summary.html
 ```
 
-## Which Template Will be Rendered?
+## Which template will be rendered?
 
 The following is the [lookup order][lookup] for content views:
 
@@ -54,7 +54,7 @@ The following is the [lookup order][lookup] for content views:
 3. `/themes/<THEME>/layouts/<TYPE>/<VIEW>.html`
 4. `/themes/<THEME>/layouts/_default/<VIEW>.html`
 
-## Example: Content View Inside a List
+## Example: content view inside a list
 
 The following example demonstrates how to use content views inside your [list templates][lists].
 

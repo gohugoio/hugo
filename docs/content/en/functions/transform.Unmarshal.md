@@ -27,7 +27,7 @@ In both the above examples, you get a map you can work with:
 
 The above prints `Hello Hugo`.
 
-## CSV Options
+## CSV options
 
 Unmarshal with CSV as input has some options you can set:
 
@@ -61,7 +61,7 @@ To get the contents of `<title>` in the document below, you use `{{ .message.tit
 The following example lists the items of an RSS feed:
 
 ```go-html-template
-{{ with resources.Get "https://example.com/rss.xml" | transform.Unmarshal }}
+{{ with resources.GetRemote "https://example.com/rss.xml" | transform.Unmarshal }}
     {{ range .channel.item }}
         <strong>{{ .title | plainify | htmlUnescape }}</strong><br />
         <p>{{ .description | plainify | htmlUnescape }}</p>

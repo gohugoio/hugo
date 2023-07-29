@@ -1,33 +1,33 @@
 ---
-title: Section Page Templates
-linktitle: Section Templates
+title: Section page templates
+linkTitle: Section templates
 description: Templates used for section pages are **lists** and therefore have all the variables and methods available to list pages.
 categories: [templates]
 keywords: [lists,sections,templates]
 menu:
   docs:
     parent: templates
-    weight: 40
-weight: 40
+    weight: 80
+weight: 80
 aliases: [/templates/sections/]
 toc: true
 ---
 
-## Add Content and Front Matter to Section Templates
+## Add content and front matter to section templates
 
 To effectively leverage section page templates, you should first understand Hugo's [content organization](/content-management/organization/) and, specifically, the purpose of `_index.md` for adding content and front matter to section and other list pages.
 
-## Section Template Lookup Order
+## Section template lookup order
 
 See [Template Lookup](/templates/lookup-order/).
 
-## Page Kinds
+## Page kinds
 
 Every `Page` in Hugo has a `.Kind` attribute.
 
 {{% page-kinds %}}
 
-## `.Site.GetPage` with Sections
+## `.Site.GetPage` with sections
 
 `Kind` can easily be combined with the [`where` function][where] in your templates to create kind-specific lists of content. This method is ideal for creating lists, but there are times where you may want to fetch just the index page of a single section via the section's path.
 
@@ -41,7 +41,7 @@ Examples:
 - `{{ .Site.GetPage "section" "posts" }}`
 - `{{ .Site.GetPage "page" "search" }}`
 
-## Example: Creating a Default Section Template
+## Example: creating a default section template
 
 {{< code file="layouts/_default/section.html" >}}
 {{ define "main" }}
@@ -61,7 +61,7 @@ Examples:
 {{ end }}
 {{< /code >}}
 
-### Example: Using `.Site.GetPage`
+### Example: using `.Site.GetPage`
 
 The `.Site.GetPage` example that follows assumes the following project directory structure:
 

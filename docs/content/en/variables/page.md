@@ -1,7 +1,7 @@
 ---
-title: Page Variables
+title: Page variables
 description: Page-level variables are defined in a content file's front matter, derived from the content's file location, or extracted from the content body itself.
-categories: [variables and params]
+categories: [variables and parameters]
 keywords: [pages]
 menu:
   docs:
@@ -13,7 +13,7 @@ toc: true
 
 The following is a list of page-level variables. Many of these will be defined in the front matter, derived from file location, or extracted from the content itself.
 
-## Page Variables
+## Page variables
 
 .AlternativeOutputFormats
 : contains all alternative formats for a given page; this variable is especially useful `link rel` list in your site's `<head>`. (See [Output Formats](/templates/output-formats/).)
@@ -176,7 +176,7 @@ https://remarkjs.com)
 .WordCount
 : the number of words in the content.
 
-## Writable Page-scoped Variables
+## Writable page-scoped variables
 
 [.Scratch][scratch]
 : returns a Scratch to store and manipulate data. In contrast to the [`.Store`][store] method, this scratch is reset on server rebuilds.
@@ -184,13 +184,13 @@ https://remarkjs.com)
 [.Store][store]
 : returns a Scratch to store and manipulate data. In contrast to the [`.Scratch`][scratch] method, this scratch is not reset on server rebuilds.
 
-## Section Variables and Methods
+## Section variables and methods
 
 Also see [Sections](/content-management/sections/).
 
 {{< readfile file="/content/en/readfiles/sectionvars.md" markdown="true" >}}
 
-## The `.Pages` Variable {#pages}
+## The `.Pages` variable {#pages}
 
 `.Pages` is an alias to `.Data.Pages`. It is conventional to use the
 aliased form `.Pages`.
@@ -199,7 +199,7 @@ aliased form `.Pages`.
 
 {{< getcontent path="readfiles/pages-vs-site-pages.md" >}}
 
-## Page Fragments
+## Page fragments
 
 {{< new-in "0.111.0" >}}
 
@@ -249,7 +249,7 @@ For this reason, Hugo provides a global `page` function that you can use to acce
 
 There are one caveat with this, and this isn't new, but it's worth mentioning here: There are situations in Hugo where you may see a cached value, e.g. when using `partialCached` or in a shortcode. 
 
-## Page-level Params
+## Page-level params
 
 Any other value defined in the front matter in a content file, including taxonomies, will be made available as part of the `.Params` variable.
 
@@ -290,9 +290,9 @@ This template would render as follows:
 See [Archetypes](/content-management/archetypes/) for consistency of `Params` across pieces of content.
 {{% /note %}}
 
-### The `.Param` Method
+### The `.Param` method
 
-In Hugo, you can declare params in individual pages and globally for your entire website. A common use case is to have a general value for the site param and a more specific value for some of the pages (i.e., a header image):
+In Hugo, you can declare parameters in individual pages and globally for your entire website. A common use case is to have a general value for the site parameter and a more specific value for some of the pages (i.e., a header image):
 
 ```go-html-template
 {{ $.Param "header_image" }}
@@ -300,7 +300,7 @@ In Hugo, you can declare params in individual pages and globally for your entire
 
 The `.Param` method provides a way to resolve a single value according to it's definition in a page parameter (i.e. in the content's front matter) or a site parameter (i.e., in your site configuration).
 
-### Access Nested Fields in Front Matter
+### Access nested fields in front matter
 
 When front matter contains nested fields like the following:
 

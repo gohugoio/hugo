@@ -1,5 +1,5 @@
 ---
-title: Page Resources
+title: Page resources
 description: Page resources -- images, other pages, documents, etc. -- have page-relative URLs and their own metadata.
 categories: [content management]
 keywords: [bundle,content,resources]
@@ -42,7 +42,7 @@ ResourceType
 : The main type of the resource's [Media Type](/templates/output-formats/#media-types). For example, a file of MIME type `image/jpeg` has the ResourceType `image`. A `Page` will have `ResourceType` with value `page`.
 
 Name
-: Default value is the filename (relative to the owning page). Can be set in front matter.
+: Default value is the file name (relative to the owning page). Can be set in front matter.
 
 Title
 : Default value is the same as `.Name`. Can be set in front matter.
@@ -67,21 +67,21 @@ with the contents of the file. Use this to create inline resources.
 {{ end }}
 
 {{ with .Resources.GetMatch "img.png" }}
-  <img src="data:{{ .MediaType }};base64,{{ .Content | base64Encode }}">
+  <img src="data:{{ .MediaType.Type }};base64,{{ .Content | base64Encode }}">
 {{ end }}
 ```
 
-MediaType
-: The MIME type of the resource, such as `image/jpeg`.
+MediaType.Type
+: The media type (formerly known as a MIME type) of the resource (e.g., `image/jpeg`).
 
 MediaType.MainType
-: The main type of the resource's MIME type. For example, a file of MIME type `application/pdf` has for MainType `application`.
+: The main type of the resource's media type (e.g., `image`).
 
 MediaType.SubType
-: The subtype of the resource's MIME type. For example, a file of MIME type `application/pdf` has for SubType `pdf`. Note that this is not the same as the file extension. For example, Microsoft PowerPoint files (`.ppt`) have a subtype of `vnd.ms-powerpoint`.
+: The subtype of the resource's type (e.g., `jpeg`). This may or may not correspond to the file suffix.
 
 MediaType.Suffixes
-: A slice of possible suffixes for the resource's MIME type.
+: A slice of possible file suffixes for the resource's media type (e.g., `[jpg jpeg jpe jif jfif]`).
 
 ## Methods
 
@@ -101,7 +101,7 @@ Match
 GetMatch
 : Same as `Match` but will return the first match.
 
-### Pattern Matching
+### Pattern matching
 
 ```go
 // Using Match/GetMatch to find this images/sunset.jpg ?
@@ -115,7 +115,7 @@ GetMatch
 
 ```
 
-## Page Resources Metadata
+## Page resources metadata
 
 The page resources' metadata is managed from the corresponding page's front matter with an array/table parameter named `resources`. You can batch assign values using [wildcards](https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm).
 

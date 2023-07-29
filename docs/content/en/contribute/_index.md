@@ -1,14 +1,15 @@
 ---
-title: Contribute to the Hugo Project
-linktitle: Contribute to Hugo
+title: Contribute to the Hugo project
+linkTitle: Overview
 description: Contribute to Hugo development and documentation.
 categories: [contribute]
 keywords: []
 menu:
   docs:
+    identifier: contribute-overview
     parent: contribute
-    weight: 01
-weight: 01
+    weight: 10
+weight: 10
 aliases: [/tutorials/how-to-contribute-to-hugo/,/community/contributing/]
 ---
 

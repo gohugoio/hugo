@@ -1,19 +1,19 @@
 ---
-title: Lists of Content in Hugo
-linktitle: List Templates
+title: Lists of content in Hugo
+linkTitle: List templates
 description: Lists have a specific meaning and usage in Hugo when it comes to rendering your site homepage, section page, taxonomy list, or taxonomy terms list.
 categories: [templates]
 keywords: [lists,sections,rss,taxonomies,terms]
 menu:
   docs:
     parent: templates
-    weight: 22
-weight: 22
+    weight: 60
+weight: 60
 aliases: [/templates/list/,/layout/indexes/]
 toc: true
 ---
 
-## What is a List Page Template?
+## What is a list page template?
 
 {{< youtube 8b2YTSMdMps >}}
 
@@ -21,10 +21,12 @@ A list page template is a template used to render multiple pieces of content in 
 
 Hugo uses the term *list* in its truest sense; i.e. a sequential arrangement of material, especially in alphabetical or numerical order. Hugo uses list templates on any output HTML page where content is traditionally listed:
 
-* [Taxonomy terms pages][taxterms]
-* [Taxonomy list pages][taxlists]
-* [Section list pages][sectiontemps]
-* [RSS][rss]
+* [Home page](/templates/homepage)
+* [Section pages](/templates/section-templates)
+* [Taxonomy pages](/templates/taxonomy-templates)
+* [Taxonomy term pages](/templates/taxonomy-templates)
+* [RSS feeds](/templates/rss)
+* [Sitemaps](/templates/sitemap-template)
 
 For template lookup order, see [Template Lookup](/templates/lookup-order/).
 
@@ -32,15 +34,15 @@ The idea of a list page comes from the [hierarchical mental model of the web][me
 
 [![Image demonstrating a hierarchical website sitemap.](site-hierarchy.svg)](site-hierarchy.svg)
 
-## List Defaults
+## List defaults
 
-### Default Templates
+### Default templates
 
 Since section lists and taxonomy lists (N.B., *not* [taxonomy terms lists][taxterms]) are both *lists* with regards to their templates, both have the same terminating default of `_default/list.html` or `themes/<THEME>/layouts/_default/list.html` in their lookup order. In addition, both [section lists][sectiontemps] and [taxonomy lists][taxlists] have their own default list templates in `_default`.
 
 See [Template Lookup Order](/templates/lookup-order/) for the complete reference.
 
-## Add Content and Front Matter to List Pages
+## Add content and front matter to list pages
 
 Since v0.18, [everything in Hugo is a `Page`][bepsays]. This means list pages and the homepage can have associated content files (i.e. `_index.md`) that contain page metadata (i.e., front matter) and content.
 
@@ -50,7 +52,7 @@ This new model allows you to include list-specific front matter via `.Params` an
 It is important to note that all `_index.md` content files will render according to a *list* template and not according to a [single page template](/templates/single-page-templates/).
 {{% /note %}}
 
-### Example Project Directory
+### Example project directory
 
 The following is an example of a typical Hugo project directory's content:
 
@@ -89,9 +91,9 @@ You can now access this `_index.md`'s' content in your list template:
 <main>
   <article>
     <header>
-      <h1>{{ .Title} }</h1>
+      <h1>{{ .Title }}</h1>
     </header>
-    <!-- "{{ .Content} }" pulls from the markdown content of the corresponding _index.md -->
+    <!-- "{{ .Content }}" pulls from the markdown content of the corresponding _index.md -->
     {{ .Content }}
   </article>
   <ul>
@@ -126,7 +128,7 @@ This above will output the following HTML:
 <!--bottom of your baseof-->
 {{< /code >}}
 
-### List Pages Without `_index.md`
+### List pages without `_index.md`
 
 You do *not* have to create an `_index.md` file for every list page (i.e. section, taxonomy, taxonomy terms, etc) or the homepage. If Hugo does not find an `_index.md` within the respective content section when rendering a list template, the page will be created but with no `{{ .Content }}` and only the default values for `.Title` etc.
 
@@ -153,9 +155,9 @@ Using this same `layouts/_default/list.html` template and applying it to the `qu
 The default behavior of Hugo is to pluralize list titles; hence the inflection of the `quote` section to "Quotes" when called with the `.Title` [page variable](/variables/page/). You can change this via the `pluralizeListTitles` directive in your [site configuration](/getting-started/configuration/).
 {{% /note %}}
 
-## Example List Templates
+## Example list templates
 
-### Section Template
+### Section template
 
 This list template has been modified slightly from a template originally used in [spf13.com](https://spf13.com/). It makes use of [partial templates][partials] for the chrome of the rendered page rather than using a [base template][base]. The examples that follow also use the [content view templates][views] `li.html` or `summary.html`.
 
@@ -176,7 +178,7 @@ This list template has been modified slightly from a template originally used in
 {{ partial "footer.html" . }}
 {{< /code >}}
 
-### Taxonomy Template
+### Taxonomy template
 
 {{< code file="layouts/_default/taxonomy.html" >}}
 {{ define "main" }}
@@ -192,7 +194,7 @@ This list template has been modified slightly from a template originally used in
 {{ end }}
 {{< /code >}}
 
-## Order Content
+## Order content
 
 Hugo lists render the content based on metadata you provide in [front matter]. In addition to sane defaults, Hugo also ships with multiple methods to make quick work of ordering content inside list templates:
 
@@ -209,7 +211,7 @@ Hugo lists render the content based on metadata you provide in [front matter]. I
 </ul>
 {{< /code >}}
 
-### By Weight
+### By weight
 
 Lower weight gets higher precedence. So content with lower weight will come first.
 
@@ -224,7 +226,7 @@ Lower weight gets higher precedence. So content with lower weight will come firs
 </ul>
 {{< /code >}}
 
-### By Date
+### By date
 
 {{< code file="layouts/partials/by-date.html" >}}
 <ul>
@@ -238,7 +240,7 @@ Lower weight gets higher precedence. So content with lower weight will come firs
 </ul>
 {{< /code >}}
 
-### By Publish Date
+### By publish date
 
 {{< code file="layouts/partials/by-publish-date.html" >}}
 <ul>
@@ -252,7 +254,7 @@ Lower weight gets higher precedence. So content with lower weight will come firs
 </ul>
 {{< /code >}}
 
-### By Expiration Date
+### By expiration date
 
 {{< code file="layouts/partials/by-expiry-date.html" >}}
 <ul>
@@ -265,7 +267,7 @@ Lower weight gets higher precedence. So content with lower weight will come firs
 </ul>
 {{< /code >}}
 
-### By Last Modified Date
+### By last modified date
 
 {{< code file="layouts/partials/by-last-mod.html" >}}
 <ul>
@@ -279,7 +281,7 @@ Lower weight gets higher precedence. So content with lower weight will come firs
 </ul>
 {{< /code >}}
 
-### By Length
+### By length
 
 {{< code file="layouts/partials/by-length.html" >}}
 <ul>
@@ -293,7 +295,7 @@ Lower weight gets higher precedence. So content with lower weight will come firs
 </ul>
 {{< /code >}}
 
-### By Title
+### By title
 
 {{< code file="layouts/partials/by-title.html" >}}
 <ul>
@@ -307,7 +309,7 @@ Lower weight gets higher precedence. So content with lower weight will come firs
 </ul>
 {{< /code >}}
 
-### By Link Title
+### By link title
 
 {{< code file="layouts/partials/by-link-title.html" >}}
 <ul>
@@ -321,7 +323,7 @@ Lower weight gets higher precedence. So content with lower weight will come firs
 </ul>
 {{< /code >}}
 
-### By Parameter
+### By page parameter
 
 Order based on the specified front matter parameter. Content that does not have the specified front matter field  will use the site's `.Site.Params` default. If the parameter is not found at all in some entries, those entries will appear together at the end of the ordering.
 
@@ -340,7 +342,7 @@ If the targeted front matter field is nested beneath another field, you can acce
 {{ end }}
 {{< /code >}}
 
-### Reverse Order
+### Reverse order
 
 Reversing order can be applied to any of the above methods. The following uses `ByDate` as an example:
 
@@ -355,11 +357,11 @@ Reversing order can be applied to any of the above methods. The following uses `
 </ul>
 {{< /code >}}
 
-## Group Content
+## Group content
 
 Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 
-### By Page Field
+### By page field
 
 {{< code file="layouts/partials/by-page-field.html" >}}
 <!-- Groups content according to content section. The ".Key" in this instance will be the section's title. -->
@@ -399,7 +401,7 @@ In the above example, you may want `{{ .Title }}` to point the `title` field you
 {{ end }}
 {{< /code >}}
 
-### By Date
+### By date
 
 {{< code file="layouts/partials/by-page-date.html" >}}
 <!-- Groups content by month according to the "date" field in front matter -->
@@ -418,7 +420,7 @@ In the above example, you may want `{{ .Title }}` to point the `title` field you
 
 {{< new-in "0.97.0" >}} `GroupByDate` accepts the same time layouts as in [time.Format](/functions/dateformat/) and The `.Key` in the result will be localized for the current language.
 
-### By Publish Date
+### By publish date
 
 {{< code file="layouts/partials/by-page-publish-date.html" >}}
 <!-- Groups content by month according to the "publishDate" field in front matter -->
@@ -437,26 +439,8 @@ In the above example, you may want `{{ .Title }}` to point the `title` field you
 
 {{< new-in "0.97.0" >}} `GroupByDate` accepts the same time layouts as in [time.Format](/functions/dateformat/) and The `.Key` in the result will be localized for the current language.
 
-### By Lastmod
 
-{{< code file="layouts/partials/by-page-lastmod.html" >}}
-<!-- Groups content by month according to the "lastMod" field in front matter -->
-{{ range .Pages.GroupByLastmod "2006-01" }}
-<h3>{{ .Key }}</h3>
-<ul>
-    {{ range .Pages }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .Lastmod.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-    {{ end }}
-</ul>
-{{ end }}
-{{< /code >}}
-
-{{< new-in "0.97.0" >}} `GroupByDate` accepts the same time layouts as in [time.Format](/functions/dateformat/) and The `.Key` in the result will be localized for the current language.
-
-### By Expiry Date
+### By expiration date
 
 {{< code file="layouts/partials/by-page-expiry-date.html" >}}
 <!-- Groups content by month according to the "expiryDate" field in front matter -->
@@ -475,7 +459,26 @@ In the above example, you may want `{{ .Title }}` to point the `title` field you
 
 {{< new-in "0.97.0" >}} `GroupByDate` accepts the same time layouts as in [time.Format](/functions/dateformat/) and The `.Key` in the result will be localized for the current language.
 
-### By Page Parameter
+### By last modified date
+
+{{< code file="layouts/partials/by-page-lastmod.html" >}}
+<!-- Groups content by month according to the "lastMod" field in front matter -->
+{{ range .Pages.GroupByLastmod "2006-01" }}
+<h3>{{ .Key }}</h3>
+<ul>
+    {{ range .Pages }}
+    <li>
+    <a href="{{ .Permalink }}">{{ .Title }}</a>
+    <div class="meta">{{ .Lastmod.Format "Mon, Jan 2, 2006" }}</div>
+    </li>
+    {{ end }}
+</ul>
+{{ end }}
+{{< /code >}}
+
+{{< new-in "0.97.0" >}} `GroupByDate` accepts the same time layouts as in [time.Format](/functions/dateformat/) and The `.Key` in the result will be localized for the current language.
+
+### By page parameter
 
 {{< code file="layouts/partials/by-page-param.html" >}}
 <!-- Groups content according to the "param_key" field in front matter -->
@@ -492,7 +495,7 @@ In the above example, you may want `{{ .Title }}` to point the `title` field you
 {{ end }}
 {{< /code >}}
 
-### By Page Parameter in Date Format
+### By page parameter in date format
 
 The following template takes grouping by `date` a step further and uses Go's layout string. See the [`Format` function] for more examples of how to use Go's layout string to format dates in Hugo.
 
@@ -511,13 +514,13 @@ The following template takes grouping by `date` a step further and uses Go's lay
 {{ end }}
 {{< /code >}}
 
-### Reverse Key Order
+### Reverse key order
 
 Ordering of groups is performed by keys in alphanumeric order (A–Z, 1–100) and in reverse chronological order (i.e., with the newest first) for dates.
 
 While these are logical defaults, they are not always the desired order. There are two different syntaxes to change Hugo's default ordering for groups, both of which work the same way.
 
-#### 1. Adding the Reverse Method
+#### 1. Adding the reverse method
 
 ```go-html-template
 {{ range (.Pages.GroupBy "Section").Reverse }}
@@ -527,7 +530,7 @@ While these are logical defaults, they are not always the desired order. There a
 {{ range (.Pages.GroupByDate "2006-01").Reverse }}
 ```
 
-#### 2. Providing the Alternate Direction
+#### 2. Providing the alternate direction
 
 ```go-html-template
 {{ range .Pages.GroupByDate "2006-01" "asc" }}
@@ -537,7 +540,7 @@ While these are logical defaults, they are not always the desired order. There a
 {{ range .Pages.GroupBy "Section" "desc" }}
 ```
 
-### Order Within Groups
+### Order within groups
 
 Because Grouping returns a `{{ .Key }}` and a slice of pages, all the ordering methods listed above are available.
 
@@ -561,7 +564,7 @@ Here is the ordering for the example that follows:
 {{ end }}
 {{< /code >}}
 
-## Filtering and Limiting Lists {#filtering-and-limiting-lists}
+## Filtering and limiting lists
 
 Sometimes you only want to list a subset of the available content. A
 common is to only display posts from [**main sections**][mainsections]

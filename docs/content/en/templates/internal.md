@@ -1,13 +1,13 @@
 ---
-title: Internal Templates
+title: Internal templates
 description: Hugo ships with a group of boilerplate templates that cover the most common use cases for static websites.
 categories: [templates]
 keywords: [internal, analytics,]
 menu:
   docs:
     parent: templates
-    weight: 168
-weight: 168
+    weight: 190
+weight: 190
 toc: true
 ---
 <!-- reference: https://discourse.gohugo.io/t/lookup-order-for-partials/5705/6
@@ -40,7 +40,7 @@ googleAnalytics = "G-MEASUREMENT_ID"
 googleAnalytics = "UA-PROPERTY_ID"
 {{</ code-toggle >}}
 
-### Use the Google Analytics Template
+### Use the Google Analytics template
 
 You can then include the Google Analytics internal template:
 
@@ -74,7 +74,7 @@ You also have the option to set the following in the front matter for a given pi
 * `disqus_title`
 * `disqus_url`
 
-### Use the Disqus Template
+### Use the Disqus template
 
 To add Disqus, include the following line in templates where you want your comments to appear:
 
@@ -82,9 +82,9 @@ To add Disqus, include the following line in templates where you want your comme
 {{ template "_internal/disqus.html" . }}
 ```
 
-A `.Site.DisqusShortname` variable is also exposed from the config.
+A `.Site.DisqusShortname` variable is also exposed from the configuration.
 
-### Conditional Loading of Disqus Comments
+### Conditional loading of Disqus comments
 
 Users have noticed that enabling Disqus comments when running the Hugo web server on `localhost` (i.e. via `hugo server`) causes the creation of unwanted discussions on the associated Disqus account.
 
@@ -149,7 +149,7 @@ tags = []
 
 Hugo uses the page title and description for the title and description metadata.
 The first 6 URLs from the `images` array are used for image metadata.
-If [page bundles](/content-management/page-bundles/) are used and the `images` array is empty or undefined, images with filenames matching `*feature*` or `*cover*,*thumbnail*` are used for image metadata.
+If [page bundles](/content-management/page-bundles/) are used and the `images` array is empty or undefined, images with file names matching `*feature*` or `*cover*,*thumbnail*` are used for image metadata.
 
 Various optional metadata can also be set:
 
@@ -160,7 +160,7 @@ Various optional metadata can also be set:
 
 If using YouTube this will produce a og:video tag like `<meta property="og:video" content="url">`. Use the `https://youtu.be/<id>` format with YouTube videos (example: `https://youtu.be/qtIqKaDlqXo`).
 
-### Use the Open Graph Template
+### Use the Open Graph template
 
 To add Open Graph metadata, include the following line between the `<head>` tags in your templates:
 
@@ -195,7 +195,7 @@ If no images are found at all, then an image-less Twitter `summary` card is used
 
 Hugo uses the page title and description for the card's title and description fields. The page summary is used if no description is given.
 
-The `.Site.Social.twitter` variable is exposed from the config as the value for `twitter:site`.
+The `.Site.Social.twitter` variable is exposed from the configuration as the value for `twitter:site`.
 
 {{< code-toggle file="hugo" >}}
 [social]
@@ -208,7 +208,7 @@ NOTE: The `@` will be added for you
 <meta name="twitter:site" content="@GoHugoIO"/>
 ```
 
-### Use the Twitter Cards Template
+### Use the Twitter Cards template
 
 To add Twitter card metadata, include the following line immediately after the `<head>` element in your templates:
 
@@ -216,7 +216,7 @@ To add Twitter card metadata, include the following line immediately after the `
 {{ template "_internal/twitter_cards.html" . }}
 ```
 
-## The Internal Templates
+## The internal templates
 
 The code for these templates is located [here](https://github.com/gohugoio/hugo/tree/master/tpl/tplimpl/embedded/templates).
 

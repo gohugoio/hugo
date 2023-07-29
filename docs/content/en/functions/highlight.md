@@ -91,8 +91,8 @@ Instead of specifying both `lineNos` and `lineNumbersInTable`, you can use the f
 
 {{ $input := `echo "Hello World!"` }}
 {{ $lang := "bash" }}
-{{ $options := slice "lineNos=table" "style=dracula" }}
-{{ transform.Highlight $input $lang (delimit $options ",") }}
+{{ $options := dict "lineNos" "table" "style" "dracula" }}
+{{ transform.Highlight $input $lang $options }}
 ```
 
 [Chroma]: https://github.com/alecthomas/chroma

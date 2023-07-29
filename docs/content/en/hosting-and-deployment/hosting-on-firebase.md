@@ -6,8 +6,6 @@ keywords: [hosting,firebase]
 menu:
   docs:
     parent: hosting-and-deployment
-    weight: 20
-weight: 20
 toc: true
 ---
 
@@ -76,7 +74,7 @@ With this you will have the app initialized manually. After that you can manage 
 
 Don't forget to update your static pages before push!
 
-## Manual Deploy
+## Manual deploy
 
 To deploy your Hugo site, execute the `firebase deploy` command, and your site will be up in no time:
 
@@ -84,7 +82,7 @@ To deploy your Hugo site, execute the `firebase deploy` command, and your site w
 hugo && firebase deploy
 ```
 
-## CI Setup (Other tools)
+## CI setup (other tools)
 
 You can generate a deploy token using
 

@@ -1,13 +1,13 @@
 ---
-title: Quick Start
+title: Quick start
 description: Learn to create a Hugo site in minutes.
 categories: [getting started]
 keywords: [quick start,usage]
 menu:
   docs:
     parent: getting-started
-    weight: 10
-weight: 10
+    weight: 20
+weight: 20
 toc: true
 aliases: [/quickstart/,/overview/quickstart/]
 ---
@@ -39,9 +39,10 @@ You must also be comfortable working from the command line.
 - Do not use Windows PowerShell
 - Run these commands from [PowerShell] or a Linux terminal such as WSL or Git Bash
 
-PowerShell and Windows PowerShell are different applications.
+PowerShell and Windows PowerShell [are different applications].
 
 [PowerShell]: https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows
+[are different applications]: https://learn.microsoft.com/en-us/powershell/scripting/whats-new/differences-from-windows-powershell?view=powershell-7.3
 {{% /note %}}
 
 Run these commands to create a Hugo site with the [Ananke] theme. The next section provides an explanation of each command.
@@ -50,7 +51,7 @@ Run these commands to create a Hugo site with the [Ananke] theme. The next secti
 hugo new site quickstart
 cd quickstart
 git init
-git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke themes/ananke
+git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke.git themes/ananke
 echo "theme = 'ananke'" >> hugo.toml
 hugo server
 ```
@@ -80,7 +81,7 @@ git init
 Clone the [Ananke] theme into the `themes` directory, adding it to your project as a [Git submodule].
 
 ```text
-git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke themes/ananke
+git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke.git themes/ananke
 ```
 
 Append a line to the site configuration file, indicating the current theme.

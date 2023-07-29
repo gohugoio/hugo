@@ -1,34 +1,34 @@
 ---
-title: Hugo Pipes Introduction
-linkTitle: Hugo Pipes
+title: Hugo Pipes
+linkTitle: Introduction
 description: Hugo Pipes is Hugo's asset processing set of functions.
 categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: pipes
+    parent: hugo-pipes
     weight: 20
-weight: 01
+weight: 20
 toc: true
 aliases: [/assets/]
 ---
 
-## Find Resources in /assets
+## Find resources in /assets
 
 This is about the global Resources mounted inside `/assets`. For the `.Page` scoped Resources, see [Page Resources](/content-management/page-resources/).
 
-Note that you can mount any directory into Hugo's virtual `assets` folder using the [Mount Configuration](/hugo-modules/configuration/#module-config-mounts).
+Note that you can mount any directory into Hugo's virtual `assets` folder using the [Mount Configuration](/hugo-modules/configuration/#module-configuration-mounts).
 
 | Function  | Description |
 | ------------- | ------------- |
-| `resources.Get`  | Get locates the filename given in Hugo's assets filesystem and creates a `Resource` object that can be used for further transformations. See [Get Resource with resources.Get and resources.GetRemote](#get-resource-with-resourcesget-and-resourcesgetremote).  |
-| `resources.GetRemote`  | Same as `Get`, but it accepts remote URLs. See [Get Resource with resources.Get and resources.GetRemote](#get-resource-with-resourcesget-and-resourcesgetremote).|
+| `resources.Get`  | Get locates the file name given in Hugo's assets filesystem and creates a `Resource` object that can be used for further transformations. See [Get a resource](#get-a-resource).  |
+| `resources.GetRemote`  | Same as `Get`, but it accepts remote URLs. See [Get a resource](#get-a-resource).|
 | `resources.GetMatch`  | `GetMatch` finds the first Resource matching the given pattern, or nil if none found. See Match for a more complete explanation about the rules used. |
 | `resources.Match`  | `Match` gets all resources matching the given base path prefix, e.g "*.png" will match all png files. The "*" does not match path delimiters (/), so if you organize your resources in sub-folders, you need to be explicit about it, e.g.: "images/*.png". To match any PNG image anywhere in the bundle you can do "\*\*.png", and to match all PNG images below the images folder, use "images/\*\*.jpg". The matching is case insensitive. Match matches by using the files name with path relative to the file system root with Unix style slashes (/) and no leading slash, e.g. "images/logo.png". See https://github.com/gobwas/glob for the full rules set.|
 
 See the [GoDoc Page](https://pkg.go.dev/github.com/gohugoio/hugo@v0.93.1/tpl/resources) for the `resources` package for an up to date overview of all template functions in this namespace.
 
-## Get Resource with resources.Get and resources.GetRemote
+## Get a resource
 
 In order to process an asset with Hugo Pipes, it must be retrieved as a `Resource` using `resources.Get` or `resources.GetRemote`.
 
@@ -71,7 +71,7 @@ By default, Hugo calculates a cache key based on the `URL` and the `options` (e.
 {{ $resource := resource.GetRemote $url (dict "key" $cacheKey) }}
 ```
 
-### Error Handling
+### Error handling
 
 The return value from `resources.GetRemote` includes an `.Err` method that will return an error if the call failed. If you want to just log any error as a `WARNING` you can use a construct similar to the one below.
 
@@ -87,7 +87,7 @@ The return value from `resources.GetRemote` includes an `.Err` method that will 
 
 Note that if you do not handle `.Err` yourself, Hugo will fail the build the first time you start using the `Resource` object.
 
-### Remote Options
+### Remote options
 
 When fetching a remote `Resource`, `resources.GetRemote` takes an optional options map as the second argument, e.g.:
 
@@ -113,15 +113,15 @@ You can also change the request method and set the request body:
 )}}
 ```
 
-### Caching of Remote Resources
+### Caching of remote resources
 
 Remote resources fetched with `resources.GetRemote` will be cached on disk. See [Configure File Caches](/getting-started/configuration/#configure-file-caches) for details.
 
-## Copy a Resource
+## Copy a resource
 
 {{< new-in "0.100.0" >}}
 
-`resources.Copy` allows you to copy almost any Hugo `Resource` (the one exception is the `Page`), possibly most useful for renaming things:
+Use `resources.Copy` to copy a page resource or a global resource. Commonly used to change a resource's published path, `resources.Copy` takes two arguments: the target path relative to the root of the `publishDir` (with or without a leading `/`), and the resource to copy.
 
 ```go-html-template
 {{ with resources.Get "img/a.jpg" }}
@@ -141,7 +141,7 @@ The target path must be different than the source path, as shown in the example 
 
 Asset files must be stored in the asset directory. This is `/assets` by default, but can be configured via the configuration file's `assetDir` key.
 
-### Asset Publishing
+### Asset publishing
 
 Hugo publishes assets to the `publishDir` (typically `public`) when you invoke `.Permalink`, `.RelPermalink`, or `.Publish`. You can use `.Content` to inline the asset.
 

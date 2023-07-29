@@ -1,9 +1,10 @@
 ---
-title: Content Management
-linkTitle: Content Management Overview
+title: Content management
+linkTitle: Overview
 description: Hugo makes managing large static sites easy with support for archetypes, content types, menus, cross references, summaries, and more.
 menu:
   docs:
+    identifier: content-management-overview
     parent: content-management
     weight: 10
 keywords: [source, organization]

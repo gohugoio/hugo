@@ -1,7 +1,7 @@
 ---
-title: Image Processing
+title: Image processing
 description: Resize, crop, rotate, filter, and convert images.
-categories: [content management]
+categories: [fundamentals,content management]
 keywords: [resources, images]
 menu:
   docs:
@@ -10,11 +10,11 @@ menu:
 toc: true
 weight: 90
 ---
-## Image Resources
+## Image resources
 
 To process an image, you must access the image as either a page resource or a global resource.
 
-### Page Resources
+### Page resources
 
 A page resource is a file within a [page bundle]. A page bundle is a directory with an `index.md` or `_index.md` file at its root.
 
@@ -26,7 +26,7 @@ content/
         └── sunset.jpg    <-- page resource
 ```
 
-### Global Resources
+### Global resources
 
 A global resource is a file:
 
@@ -52,7 +52,7 @@ To access a remote image as a global resource:
 {{ $image := resources.GetRemote "https://gohugo.io/img/hugo-logo.png" }}
 ```
 
-## Image Rendering
+## Image rendering
 
 Once you have accessed an image as either a page resource or a global resource, render it in your templates using the `Permalink`, `RelPermalink`, `Width`, and `Height` properties.
 
@@ -80,12 +80,12 @@ Example 3: A more concise way to skip image rendering if the resource is not fou
 {{ end }}
 ```
 
-## Image Processing Methods
+## Image processing methods
 
 The `image` resource implements the  [`Resize`], [`Fit`], [`Fill`], [`Crop`], [`Filter`], [`Colors`] and [`Exif`] methods.
 
 {{% note %}}
-Metadata (Exif, IPTC, XMP, etc.) is not preserved during image transformation. Use the [`Exif`] method with the _original_ image to extract Exif metadata from JPEG or TIFF images.
+Metadata (EXIF, IPTC, XMP, etc.) is not preserved during image transformation. Use the [`Exif`] method with the _original_ image to extract EXIF metadata from JPEG or TIFF images.
 {{% /note %}}
 
 ### Resize
@@ -164,11 +164,11 @@ Sometimes it can be useful to create the filter chain once and then reuse it.
 This method is fast, but if you also scale down your images, it would be good for performance to extract the colors from the scaled down image.
 
 
-### Exif
+### EXIF
 
-Provides an [Exif] object containing image metadata.
+Provides an [EXIF] object containing image metadata.
 
-You may access Exif data in JPEG and TIFF images. To prevent errors when processing images without Exif data, wrap the access in a [`with`] statement.
+You may access EXIF data in JPEG and TIFF images. To prevent errors when processing images without EXIF data, wrap the access in a [`with`] statement.
 
 ```go-html-template
 {{ with $image.Exif }}
@@ -181,7 +181,7 @@ You may access Exif data in JPEG and TIFF images. To prevent errors when process
 {{ end }}
 ```
 
-You may also access Exif fields individually, using the [`lang.FormatNumber`] function to format the fields as needed.
+You may also access EXIF fields individually, using the [`lang.FormatNumber`] function to format the fields as needed.
 
 ```go-html-template
 {{ with $image.Exif }}
@@ -198,7 +198,7 @@ You may also access Exif fields individually, using the [`lang.FormatNumber`] fu
 {{ end }}
 ```
 
-#### Exif Variables
+#### EXIF variables
 
 .Date
 : Image creation date/time. Format with the [time.Format] function.
@@ -210,9 +210,9 @@ You may also access Exif fields individually, using the [`lang.FormatNumber`] fu
 : GPS longitude in degrees.
 
 .Tags
-: A collection of the available Exif tags for this image. You may include or exclude specific tags from this collection in the [site configuration](#exif-data).
+: A collection of the available EXIF tags for this image. You may include or exclude specific tags from this collection in the [site configuration](#exif-data).
 
-## Image Processing Options
+## Image processing options
 
 The [`Resize`], [`Fit`], [`Fill`], and [`Crop`] methods accept a space-separated, case-insensitive list of options. The order of the options within the list is irrelevant.
 
@@ -265,7 +265,7 @@ For example, if you have a 400x200 image with a bird in the upper left quadrant,
 
 If you apply [rotation](#rotation) when using the [`Crop`] or [`Fill`] method, specify the anchor relative to the rotated image.
 
-### Target Format
+### Target format
 
 By default, Hugo encodes the image in the source format. You may convert the image to another format by specifying `bmp`, `gif`, `jpeg`, `jpg`, `png`, `tif`, `tiff`, or `webp`.
 
@@ -313,7 +313,7 @@ The default value is `photo`. You may override the default value in the [site co
 {{ $image.Resize "600x webp picture" }}
 ```
 
-### Background Color
+### Background color
 
 When converting an image from a format that supports transparency (e.g., PNG) to a format that does _not_ support transparency (e.g., JPEG), you may specify the background color of the resulting image.
 
@@ -325,7 +325,7 @@ The default value is `#ffffff` (white). You may override the default value in th
 {{ $image.Resize "600x jpg #b31280" }}
 ```
 
-### Resampling Filter
+### Resampling filter
 
 You may specify the resampling filter used when resizing an image. Commonly used resampling filters include:
 
@@ -346,7 +346,7 @@ The default value is `Box`. You may override the default value in the [site conf
 
 See [github.com/disintegration/imaging] for the complete list of resampling filters. If you wish to improve image quality at the expense of performance, you may wish to experiment with the alternative filters.
 
-## Image Processing Examples
+## Image processing examples
 
 _The photo of the sunset used in the examples below is Copyright [Bjørn Erik Pedersen](https://commons.wikimedia.org/wiki/User:Bep) (Creative Commons Attribution-Share Alike 4.0 International license)_
 
@@ -378,9 +378,9 @@ Call the shortcode from your Markdown like this:
 Note the self-closing shortcode syntax above. You may call the `imgproc` shortcode with or without **inner content**.
 {{% /note %}}
 
-## Imaging Configuration
+## Imaging configuration
 
-### Processing Options
+### Processing options
 
 Define an `imaging` section in your site configuration to set the default [image processing options](#image-processing-options).
 
@@ -408,9 +408,9 @@ quality
 resampleFilter
 : See image processing options: [resampling filter](#resampling-filter).
 
-### Exif Data
+### EXIF data
 
-Define an `imaging.exif` section in your site configuration to control the availability of Exif data.
+Define an `imaging.exif` section in your site configuration to control the availability of EXIF data.
 
 {{< code-toggle file="hugo" copy=true >}}
 [imaging.exif]
@@ -427,16 +427,16 @@ disableLatLong
 : Hugo extracts the GPS latitude and longitude into `.Lat` and `.Long`. Set this to `true` to disable. Default is `false`.
 
 excludeFields
-: Regular expression matching the Exif tags to exclude from the `.Tags` collection. Default is&nbsp;`""`.
+: Regular expression matching the EXIF tags to exclude from the `.Tags` collection. Default is&nbsp;`""`.
 
 includeFields
-: Regular expression matching the Exif tags to include in the `.Tags` collection. Default is&nbsp;`""`. To include all available tags, set this value to&nbsp;`".*"`.
+: Regular expression matching the EXIF tags to include in the `.Tags` collection. Default is&nbsp;`""`. To include all available tags, set this value to&nbsp;`".*"`.
 
 {{% note %}}
 To improve performance and decrease cache size, if you set neither `excludeFields` nor `includeFields`, Hugo excludes the following tags: `ColorSpace`, `Contrast`, `Exif`, `Exposure[M|P|B]`, `Flash`, `GPS`, `JPEG`, `Metering`, `Resolution`, `Saturation`, `Sensing`, `Sharp`, and `WhiteBalance`.
 {{% /note %}}
 
-## Smart Cropping of Images
+## Smart cropping of images
 
 By default, Hugo uses the [Smartcrop] library when cropping images with the `Crop` or`Fill` methods. You can set the anchor point manually, but in most cases the `Smart` option will make a good choice.
 
@@ -446,7 +446,7 @@ Examples using the sunset image from above:
 
 {{< imgproc sunset Crop "200x200 smart" />}}
 
-## Image Processing Performance Consideration
+## Image processing performance consideration
 
 Hugo caches processed images in the `resources` directory. If you include this directory in source control, Hugo will not have to regenerate the images in a CI/CD workflow (e.g., GitHub Pages, GitLab Pages, Netlify, etc.). This results in faster builds.
 
@@ -458,7 +458,7 @@ hugo --gc
 
 [time.Format]: /functions/dateformat
 [`anchor`]: /content-management/image-processing#anchor
-[mounted]: /hugo-modules/configuration#module-config-mounts
+[mounted]: /hugo-modules/configuration#module-configuration-mounts
 [page bundle]: /content-management/page-bundles
 [`lang.FormatNumber`]: /functions/lang
 [filters]: /functions/images

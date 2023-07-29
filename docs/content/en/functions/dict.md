@@ -18,7 +18,7 @@ Note that the `key` can be either a `string` or a `string slice`. The latter is 
 {{ $m := dict (slice "a" "b" "c") "value" }}
 ```
 
-## Example: Using `dict` to pass multiple values to a `partial`
+## Example: using `dict` to pass multiple values to a `partial`
 
 The partial below creates an SVG and expects `fill`, `height` and `width` from the caller:
 

@@ -1,5 +1,5 @@
 ---
-title: Content Summaries
+title: Content summaries
 linkTitle: Summaries
 description: Hugo generates summaries of your content.
 categories: [content management]
@@ -15,7 +15,7 @@ aliases: [/content/summaries/,/content-management/content-summaries/]
 
 With the use of the `.Summary` [page variable][pagevariables], Hugo generates summaries of content to use as a short version in summary views.
 
-## Summary Splitting Options
+## Summary splitting options
 
 * Automatic Summary Split
 * Manual Summary Split
@@ -23,7 +23,7 @@ With the use of the `.Summary` [page variable][pagevariables], Hugo generates su
 
 It is natural to accompany the summary with links to the original content, and a common design pattern is to see this link in the form of a "Read More ..." button. See the `.RelPermalink`, `.Permalink`, and `.Truncated` [page variables][pagevariables].
 
-### Automatic Summary Splitting
+### Automatic summary splitting
 
 By default, Hugo automatically takes the first 70 words of your content as its summary and stores it into the `.Summary` page variable for use in your templates. You may customize the summary length by setting `summaryLength` in your [site configuration](/getting-started/configuration/).
 
@@ -35,7 +35,7 @@ You can customize how HTML tags in the summary are loaded using functions such a
 The Hugo-defined summaries are set to use word count calculated by splitting the text by one or more consecutive whitespace characters. If you are creating content in a `CJK` language and want to use Hugo's automatic summary splitting, set `hasCJKLanguage` to `true` in your [site configuration](/getting-started/configuration/).
 {{% /note %}}
 
-### Manual Summary Splitting
+### Manual summary splitting
 
 Alternatively, you may add the <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> summary divider where you want to split the article.
 
@@ -57,7 +57,7 @@ Cons
 Be careful to enter <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> exactly; i.e., all lowercase and with no whitespace.
 {{% /note %}}
 
-### Front Matter Summary
+### Front matter summary
 
 You might want your summary to be something other than the text that starts the article.  In this case you can provide a separate summary in the `summary` variable of the article front matter.
 
@@ -67,7 +67,7 @@ Pros
 Cons
 : Extra work for content authors as they need to write an entirely separate piece of text as the summary of the article.
 
-## Summary Selection Order
+## Summary selection order
 
 Because there are multiple ways in which a summary can be specified it is useful to understand the order of selection Hugo follows when deciding on the text to be returned by `.Summary`.  It is as follows:
 
@@ -79,7 +79,7 @@ Because there are multiple ways in which a summary can be specified it is useful
 Hugo uses the _first_ of the above steps that returns text.  So if, for example, your article has both `summary` variable in its front matter and a <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> summary divider Hugo will use the manual summary split method.
 {{% /note %}}
 
-## Example: First 10 Articles with Summaries
+## Example: first 10 articles with summaries
 
 You can show content summaries with the following code. You could use the following snippet, for example, in a [section template].
 

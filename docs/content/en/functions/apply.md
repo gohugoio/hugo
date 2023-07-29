@@ -1,6 +1,6 @@
 ---
 title: apply
-description: Given a map, array, or slice, `apply` returns a new slice with a function applied over it.
+description: Given an array or slice, `apply` returns a new slice with a function applied over it.
 categories: [functions]
 menu:
   docs:

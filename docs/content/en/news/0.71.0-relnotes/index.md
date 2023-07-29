@@ -1,7 +1,7 @@
 
 ---
 date: 2020-05-18
-title: "Markdown Render Hooks for Headings"
+title: Markdown render hooks for headings
 description: "Render hooks for headings, update to Go 1.14.3, several bug fixes etc."
 categories: ["Releases"]
 ---
@@ -43,8 +43,3 @@ Hugo now has:
 
 * Fix Babel on Windows [723ec555](https://github.com/gohugoio/hugo/commit/723ec555e75fbfa94d90d3ecbcd5775d6c7800e1) [@bep](https://github.com/bep) [#7251](https://github.com/gohugoio/hugo/issues/7251)
 * Upgrade chroma to 0.7.3 to fix invalid css [b342e8fb](https://github.com/gohugoio/hugo/commit/b342e8fbdb23157f3979af91cb5d8d3438003707) [@apexskier](https://github.com/apexskier) [#7207](https://github.com/gohugoio/hugo/issues/7207)
-
-
-
-
-

@@ -1,12 +1,12 @@
 ---
-title: Search for your Hugo Website
-linktitle: Search
+title: Search for your Hugo website
+linkTitle: Search
 description: See some of the open-source and commercial search options for your newly created Hugo website.
 menu:
   docs:
-    parent: tools
-    weight: 60
-weight: 60
+    parent: developer-tools
+    weight: 40
+weight: 40
 toc: true
 ---
 
@@ -23,7 +23,7 @@ A static website with a dynamic search function? Yes, Hugo provides an alternati
 * [Pagefind](https://github.com/cloudcannon/pagefind). A fully static search library that aims to perform well on large sites, while using as little of your users' bandwidth as possible.
 * [Hugo Lyra](https://github.com/paolomainardi/hugo-lyra). Hugo-Lyra is a JavaScript module to integrate [Lyra](https://github.com/LyraSearch/lyra) into a Hugo website. It contains the server-side part to generate the index and the client-side library (optional) to bootstrap the search engine easily.
 
-## Commercial Search Services
+## Commercial search services
 
 * [Algolia](https://www.algolia.com/)'s Search API makes it easy to deliver a great search experience in your apps and websites. Algolia Search provides hosted full-text, numerical, faceted, and geolocalized search.
 * [Bonsai](https://www.bonsai.io) is a fully-managed hosted Elasticsearch service that is fast, reliable, and simple to set up. Easily ingest your docs from Hugo into Elasticsearch following [this guide from the docs](https://docs.bonsai.io/hc/en-us/articles/13929190788756-Hugo).

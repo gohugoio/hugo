@@ -1,22 +1,22 @@
 ---
-title: RSS Templates
+title: RSS templates
 description: Hugo ships with its own RSS 2.0 template that requires almost no configuration, or you can create your own RSS templates.
 keywords: [rss, xml, templates]
 categories: [templates]
 menu:
   docs:
     parent: templates
-    weight: 150
-weight: 150
+    weight: 160
+weight: 160
 toc: true
 ---
 
-## RSS Template Lookup Order
+## RSS template lookup order
 
 See [Template Lookup Order](/templates/lookup-order/) for the complete reference.
 
 {{% note %}}
-Hugo ships with its own [RSS 2.0 template](#the-embedded-rssxml). The embedded template will be sufficient for most use cases.
+Hugo ships with its own [RSS 2.0 template](#the-embedded-rssxml-template). The embedded template will be sufficient for most use cases.
 {{% /note %}}
 
 RSS pages are of the type `Page` and have all the [page variables](/variables/page/) available to use in the templates.
@@ -27,7 +27,7 @@ A [section’s][section] RSS will be rendered at `/<SECTION>/index.xml` (e.g., [
 
 Hugo provides the ability for you to define any RSS type you wish and can have different RSS files for each section and taxonomy.
 
-## Lookup Order for RSS Templates
+## Lookup order for RSS templates
 
 The table below shows the RSS template lookup order for the different page kinds. The first listing shows the lookup order when running with a theme (`demoTheme`).
 
@@ -47,13 +47,13 @@ copyright = "This work is licensed under a Creative Commons Attribution-ShareAli
     name = "My Name Here"
 {{< /code-toggle >}}
 
-## The Embedded rss.xml
+## The embedded rss.xml template
 
 This is the default RSS template that ships with Hugo:
 
 <https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/rss.xml>
 
-## Reference your RSS Feed in `<head>`
+## Reference your RSS feed in `<head>`
 
 In your `header.html` template, you can specify your RSS feed in your `<head></head>` tag using Hugo's [Output Formats][Output Formats] like this:
 
@@ -79,7 +79,6 @@ Either of the two snippets above will generate the below `link` tag on the site 
 
 _We are assuming `BaseURL` to be `https://example.com/` and `$.Site.Title` to be `"Site Title"` in this example._
 
-[config]: /getting-started/configuration/
 [embedded]: #the-embedded-rss-xml
 [RSS 2.0]: https://cyber.harvard.edu/rss/rss.html "RSS 2.0 Specification"
 [section]: /content-management/sections/
