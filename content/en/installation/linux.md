@@ -29,6 +29,18 @@ This will install the extended edition of Hugo:
 sudo snap install hugo
 ```
 
+To enable access to removable media:
+
+```sh
+sudo snap connect hugo:removable-media
+```
+
+To revoke access to removable media:
+
+```sh
+sudo snap disconnect hugo:removable-media
+```
+
 [most distributions]: https://snapcraft.io/docs/installing-snapd
 [strictly confined]: https://snapcraft.io/docs/snap-confinement
 [Snap]: https://snapcraft.io/

@@ -1,11 +1,14 @@
 ---
-title: Functions Quick Reference
+title: Functions
+linkTitle: Overview
 description: Comprehensive list of Hugo templating functions, including basic and advanced usage examples.
 keywords: []
 menu:
   docs:
+    identifier: functions-overview
     parent: functions
-weight: 01
+    weight: 10
+weight: 10
 aliases: [/layout/functions/,/templates/functions]
 ---
 

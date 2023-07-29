@@ -1,12 +1,12 @@
 ---
-title: External Learning Resources
+title: External learning resources
 description: A list of tutorials and books on Hugo.
 keywords: [books, tutorials, learning, usage]
 menu:
   docs:
     parent: getting-started
-    weight: 70
-weight: 70
+    weight: 60
+weight: 60
 ---
 
 ## Books

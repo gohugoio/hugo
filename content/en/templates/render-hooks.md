@@ -1,14 +1,15 @@
 ---
-title: "Markdown Render Hooks"
-linkTitle: "Render Hooks"
-description: "Render Hooks allow custom templates to override markdown rendering functionality."
+title: Markdown render hooks
+linkTitle: Render hooks
+description: Render Hooks allow custom templates to override markdown rendering functionality.
 categories: [templates]
 keywords: [markdown]
 toc: true
 menu:
   docs:
     parent: templates
-    weight: 20
+    weight: 200
+weight: 200
 ---
 
 Note that this is only supported with the [Goldmark](/getting-started/configuration-markup#goldmark) renderer.
@@ -45,7 +46,7 @@ Some use cases for the above:
 * Resolve and [process](/content-management/image-processing/) images.
 * Add [header links](https://remysharp.com/2014/08/08/automatic-permalinks-for-blog-posts).
 
-## Render Hooks for Headings, Links and Images
+## Render hooks for headings, links and images
 
 ### Context passed to `render-link` and `render-image`
 
@@ -91,13 +92,13 @@ Attributes (map)
 The `render-image` templates will also receive:
 
 IsBlock {{< new-in "0.108.0" >}}
-: Returns true if this is a standalone image and the config option [markup.goldmark.parser.wrapStandAloneImageWithinParagraph](/getting-started/configuration-markup/#goldmark) is disabled.
+: Returns true if this is a standalone image and the configuration option [markup.goldmark.parser.wrapStandAloneImageWithinParagraph](/getting-started/configuration-markup/#goldmark) is disabled.
 
 Ordinal  {{< new-in "0.108.0" >}}
 : Zero-based ordinal for all the images in the current document.
 
 
-### Link with title Markdown example
+### Link with title markdown example
 
 ```md
 [Text](https://www.gohugo.io "Title")
@@ -109,7 +110,7 @@ Here is a code example for how the render-link.html template could look:
 <a href="{{ .Destination | safeURL }}"{{ with .Title }} title="{{ . }}"{{ end }}{{ if strings.HasPrefix .Destination "http" }} target="_blank" rel="noopener"{{ end }}>{{ .Text | safeHTML }}</a>
 {{< /code >}}
 
-### Image Markdown example
+### Image markdown example
 
 ```md
 ![Text](https://gohugo.io/images/hugo-logo-wide.svg "Title")
@@ -143,7 +144,7 @@ The rendered html will be
 <h3 id="section-a">Section A <a href="#section-a">¶</a></h3>
 ```
 
-## Render Hooks for Code Blocks
+## Render hooks for code blocks
 
 {{< new-in "0.93.0" >}}
 
@@ -180,4 +181,4 @@ Page
 : The owning `Page`.
 
 Position
-: Useful in error logging as it prints the filename and position (linenumber, column), e.g. `{{ errorf "error in code block: %s" .Position }}`.
+: Useful in error logging as it prints the file name and position (linenumber, column), e.g. `{{ errorf "error in code block: %s" .Position }}`.

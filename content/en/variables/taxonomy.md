@@ -1,7 +1,7 @@
 ---
-title: Taxonomy Variables
+title: Taxonomy variables
 description: Hugo's taxonomy system exposes variables to taxonomy and term templates.
-categories: [variables and params]
+categories: [variables and parameters]
 keywords: [taxonomy,term]
 menu:
   docs:

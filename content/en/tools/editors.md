@@ -1,14 +1,14 @@
 ---
-title: Editor Plug-ins for Hugo
-linktitle: Editor Plug-ins
+title: Editor plugins for Hugo
+linkTitle: Editor plugins
 description: The Hugo community uses a wide range of preferred tools and has developed plug-ins for some of the most popular text editors to help automate parts of your workflow.
 categories: [developer tools]
 keywords: [editor, plug-ins]
 menu:
   docs:
-    parent: tools
-    weight: 50
-weight: 50
+    parent: developer-tools
+    weight: 20
+weight: 20
 ---
 
 The Hugo community uses a wide range of preferred tools and has developed plug-ins for some of the most popular text editors to help automate parts of your workflow.
@@ -36,10 +36,5 @@ The Hugo community uses a wide range of preferred tools and has developed plug-i
 
 * [Vim Hugo Helper](https://github.com/robertbasic/vim-hugo-helper). A small Vim plugin to help me with writing posts with Hugo.
 * [vim-hugo](https://github.com/phelipetls/vim-hugo). A Vim plugin with syntax highlighting for templates and a few other features.
-
-## Atom
-
-* [Hugofy](https://atom.io/packages/hugofy). A Hugo Static Website Generator package for Atom.
-* [language-hugo](https://atom.io/packages/language-hugo). Adds syntax highlighting to Hugo files.
 
 [formats]: /content-management/formats/

@@ -23,7 +23,7 @@
             class="{{ $classes_box }} o-100"
             style="background-color: {{ .bgcolor }};">
             {{ $query_params := .query_params | default "" }}
-            {{ $url := printf "%s?%s%s" .link $query_params (querify "utm_source" $utmSource "utm_medium" "banner" "utm_campaign" (.utm_campaign | default "hugosponsor")) | safeURL }}
+            {{ $url := printf "%s?%s%s" .link $query_params (querify "utm_source" (.utm_source | default $utmSource ) "utm_medium" "banner" "utm_campaign" (.utm_campaign | default "hugosponsor") "utm_content" (.utm_content | default "gohugoio")) | safeURL }}
             {{ $logo := resources.Get .logo }}
             {{ if hugo.IsProduction }}
               {{ $gtagID := printf "Sponsor %s %s" .name $gtag | title }}
@@ -34,7 +34,7 @@
                   show-on-hover
                 {{ end }}"
                 style="">
-                {{ $logo.Content | safeHTML }}
+                {{ with $logo }}{{ .Content | safeHTML }}{{ end }}
               </a>
             {{ else }}
               <a
@@ -42,7 +42,7 @@
                 class="w-100 grow pa3{{ if .show_on_hover }}
                   show-on-hover
                 {{ end }}">
-                {{ $logo.Content | safeHTML }}
+                {{ with $logo }}{{ .Content | safeHTML }}{{ end }}
               </a>
             {{ end }}
           </div>

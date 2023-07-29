@@ -1,14 +1,14 @@
 ---
-title: Contribute to Hugo Development
-linktitle: Development
+title: Contribute to development
+linkTitle: Development
 description: Hugo relies heavily on contributions from the open source community.
 categories: [contribute]
 keywords: [dev,open source]
 menu:
   docs:
     parent: contribute
-    weight: 10
-weight: 10
+    weight: 20
+weight: 20
 toc: true
 ---
 
@@ -33,7 +33,7 @@ The installation of Go should take only a few minutes. You have more than one op
 
 If you are having trouble following the installation guides for Go, check out [Go Bootcamp, which contains setups for every platform][gobootcamp] or reach out to the Hugo community in the [Hugo Discussion Forums][forums].
 
-### Install Go From Source
+### Install Go from source
 
 [Download the latest stable version of Go][godl] and follow the official [Go installation guide][goinstall].
 
@@ -71,11 +71,11 @@ More experienced users can use the [Go Version Manager][gvm] (GVM). GVM allows y
 
 GVM comes in especially handy if you follow the development of Hugo over a longer period of time. Future versions of Hugo will usually be compiled with the latest version of Go. Sooner or later, you will have to upgrade if you want to keep up.
 
-## Create a GitHub Account
+## Create a GitHub account
 
 If you're going to contribute code, you'll need to have an account on GitHub. Go to [www.github.com/join](https://github.com/join) and set up a personal account.
 
-## Install Git on Your System
+## Install Git on your system
 
 You will need to have Git installed on your computer to contribute to Hugo development. Teaching Git is outside the scope of the Hugo docs, but if you're looking for an excellent reference to learn the basics of Git, we recommend the [Git book][gitbook] if you are not sure where to begin. We will include short explanations of the Git commands in this document.
 
@@ -87,11 +87,11 @@ Move back to the terminal and check if Git is already installed. Type in `git ve
 
 Finally, check again with `git version` if Git was installed successfully.
 
-### Git Graphical Front Ends
+### Git graphical front ends
 
 There are several [GUI clients](https://git-scm.com/downloads/guis) that help you to operate Git. Not all are available for all operating systems and maybe differ in their usage. Because of this we will document how to use the command-line, since the commands are the same everywhere.
 
-### Install Hub on Your System (Optional)
+### Install Hub on your system (optional)
 
 Hub is a great tool for working with GitHub. The main site for it is [hub.github.com](https://hub.github.com/). Feel free to install this little Git wrapper.
 
@@ -208,7 +208,7 @@ origin  https://github.com/gohugoio/hugo (fetch)
 origin  https://github.com/gohugoio/hugo (push)
 ```
 
-## The Hugo Git Contribution Workflow
+## The Hugo Git contribution workflow
 
 ### Create a new branch
 
@@ -229,7 +229,7 @@ git checkout -b <BRANCH-NAME>
 
 You can check on which branch you are with `git branch`. You should see a list of all local branches. The current branch is indicated with a little asterisk.
 
-### Contribute to Documentation
+### Contribute to documentation
 
 Perhaps you want to start contributing to the Hugo docs. If so, you can ignore most of the following steps and focus on the `/docs` directory within your newly cloned repository. You can change directories into the Hugo docs using `cd docs`.
 
@@ -408,7 +408,7 @@ Thank you for reading through this contribution guide. Hopefully, we will see yo
 
 Feel free to [open an issue][newissue] if you think you found a bug or you have a new idea to improve Hugo. We are happy to hear from you.
 
-## Additional References for Learning Git and Go
+## Additional references for learning Git and Go
 
 * [Codecademy's Free "Learn Git" Course][codecademy] (Free)
 * [Code School and GitHub's "Try Git" Tutorial][trygit] (Free)

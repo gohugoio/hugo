@@ -13,7 +13,7 @@ aliases: [/extras/shortcodes/]
 testparam: "Hugo Rocks!"
 ---
 
-## What a Shortcode is
+## What a shortcode is
 
 Hugo loves Markdown because of its simple content format, but there are times when Markdown falls short. Often, content authors are forced to add raw HTML (e.g., video `<iframe>`'s) to Markdown content. We think this contradicts the beautiful simplicity of Markdown's syntax.
 
@@ -23,7 +23,7 @@ A shortcode is a simple snippet inside a content file that Hugo will render usin
 
 In addition to cleaner Markdown, shortcodes can be updated any time to reflect new classes, techniques, or standards. At the point of site generation, Hugo shortcodes will easily merge in your changes. You avoid a possibly complicated search and replace operation.
 
-## Use Shortcodes
+## Use shortcodes
 
 {{< youtube 2xkNJL4gJ9E >}}
 
@@ -54,7 +54,7 @@ You can pass multiple lines as parameters to a shortcode by using raw string lit
 and a new line with a "quoted string".` */>}}
 ```
 
-### Shortcodes with Markdown
+### Shortcodes with markdown
 
 In Hugo `0.55` we changed how the `%` delimiter works. Shortcodes using the `%` as the outer-most delimiter will now be fully rendered when sent to the content renderer. They can be part of the generated table of contents, footnotes, etc.
 
@@ -64,7 +64,7 @@ If you want the old behavior, you can put the following line in the start of you
 {{ $_hugo_config := `{ "version": 1 }` }}
 ```
 
-### Shortcodes Without Markdown
+### Shortcodes without markdown
 
 The `<` character indicates that the shortcode's inner content does *not* need further rendering. Often shortcodes without Markdown include internal HTML:
 
@@ -72,11 +72,11 @@ The `<` character indicates that the shortcode's inner content does *not* need f
 {{</* myshortcode */>}}<p>Hello <strong>World!</strong></p>{{</* /myshortcode */>}}
 ```
 
-### Nested Shortcodes
+### Nested shortcodes
 
 You can call shortcodes within other shortcodes by creating your own templates that leverage the `.Parent` variable. `.Parent` allows you to check the context in which the shortcode is being called. See [Shortcode templates][sctemps].
 
-## Use Hugo's Built-in Shortcodes
+## Use Hugo's built-in shortcodes
 
 Hugo ships with a set of predefined shortcodes that represent very common usage. These shortcodes are provided for author convenience and to keep your Markdown content clean.
 
@@ -125,13 +125,13 @@ attr
 attrlink
 : If the attribution text needs to be hyperlinked, URL of the destination.
 
-#### Example `figure` Input
+#### Example `figure` input
 
 {{< code file="figure-input-example.md" >}}
-{{</* figure src="elephant.jpg" title=">An elephant at sunset" */>}}
+{{</* figure src="elephant.jpg" title="An elephant at sunset" */>}}
 {{< /code >}}
 
-#### Example `figure` Output
+#### Example `figure` output
 
 ```html
 <figure>
@@ -254,17 +254,17 @@ Include this in your markdown:
 
 ### `param`
 
-Gets a value from the current `Page's` params set in front matter, with a fallback to the site param value. It will log an `ERROR` if the param with the given key could not be found in either.
+Gets a value from the current `Page's` parameters set in front matter, with a fallback to the site parameter value. It will log an `ERROR` if the parameter with the given key could not be found in either.
 
 ```bash
 {{</* param testparam */>}}
 ```
 
-Since `testparam` is a param defined in front matter of this page with the value `Hugo Rocks!`, the above will print:
+Since `testparam` is a parameter defined in front matter of this page with the value `Hugo Rocks!`, the above will print:
 
 {{< param testparam >}}
 
-To access deeply nested params, use "dot syntax", e.g:
+To access deeply nested parameters, use "dot syntax", e.g:
 
 ```bash
 {{</* param "my.nested.param" */>}}
@@ -282,14 +282,14 @@ Read a more extensive description of `ref` and `relref` in the [cross references
 
 `ref` and `relref` take exactly one required parameter of _reference_, quoted and in position `0`.
 
-#### Example `ref` and `relref` Input
+#### Example `ref` and `relref` input
 
 ```go-html-template
 [Neat]({{</* ref "blog/neat.md" */>}})
 [Who]({{</* relref "about.md#who" */>}})
 ```
 
-#### Example `ref` and `relref` Output
+#### Example `ref` and `relref` output
 
 Assuming that standard Hugo pretty URLs are turned on.
 
@@ -350,7 +350,7 @@ The `youtube` shortcode embeds a responsive video player for [YouTube videos]. O
 https://www.youtube.com/watch?v=w7Ft2ymGmfc
 ```
 
-#### Example `youtube` Input
+#### Example `youtube` input
 
 Copy the YouTube video ID that follows `v=` in the video's URL and pass it to the `youtube` shortcode:
 
@@ -371,7 +371,7 @@ For [accessibility reasons](https://dequeuniversity.com/tips/provide-iframe-titl
 {{</* youtube id="w7Ft2ymGmfc" title="A New Hugo Site in Under Two Minutes" */>}}
 {{< /code >}}
 
-#### Example `youtube` Output
+#### Example `youtube` output
 
 Using the preceding `youtube` example, the following HTML will be added to your rendered website's markup:
 
@@ -379,17 +379,17 @@ Using the preceding `youtube` example, the following HTML will be added to your 
 {{< youtube id="w7Ft2ymGmfc" autoplay="true" >}}
 {{< /code >}}
 
-#### Example `youtube` Display
+#### Example `youtube` display
 
 Using the preceding `youtube` example (without `autoplay="true"`), the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your style sheets and surrounding markup. The video is also include in the [Quick Start of the Hugo documentation][quickstart].
 
 {{< youtube w7Ft2ymGmfc >}}
 
-## Privacy Config
+## Privacy configuration
 
 To learn how to configure your Hugo site to meet the new EU privacy regulation, see [Hugo and the GDPR].
 
-## Create Custom Shortcodes
+## Create custom shortcodes
 
 To learn more about creating custom shortcodes, see the [shortcode template documentation].
 

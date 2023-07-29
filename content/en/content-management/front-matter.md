@@ -1,5 +1,5 @@
 ---
-title: Front Matter
+title: Front matter
 description: Hugo allows you to add front matter in yaml, toml, or json to your content files.
 categories: [content management]
 keywords: ["front matter", "yaml", "toml", "json", "metadata", "archetypes"]
@@ -16,7 +16,7 @@ aliases: [/content/front-matter/]
 
 {{< youtube Yh2xKRJGff4 >}}
 
-## Front Matter Formats
+## Front matter formats
 
 Hugo supports four formats for front matter, each with their own identifying tokens.
 
@@ -47,7 +47,7 @@ categories = [
 slug = "spf13-vim-3-0-release-and-new-website"
 {{< /code-toggle >}}
 
-## Front Matter Variables
+## Front matter variables
 
 ### Predefined
 
@@ -93,7 +93,7 @@ lastmod
 : The datetime at which the content was last modified.
 
 linkTitle
-: Used for creating links to content; if set, Hugo defaults to using the `linktitle` before the `title`. Hugo can also [order lists of content by `linktitle`][bylinktitle].
+: Used for creating links to content; if set, Hugo defaults to using the `linkTitle` before the `title`. Hugo can also [order lists of content by `linkTitle`][bylinktitle].
 
 markup
 : **experimental**; specify `"rst"` for reStructuredText (requires`rst2html`) or `"md"` (default) for Markdown.
@@ -135,10 +135,10 @@ weight
 : Field name of the *plural* form of the index. See `tags` and `categories` in the above front matter examples. *Note that the plural form of user-defined taxonomies cannot be the same as any of the predefined front matter variables.*
 
 {{% note %}}
-If neither `slug` nor `url` is present and [permalinks are not configured otherwise in your site configuration file](/content-management/urls/#permalinks), Hugo will use the filename of your content to create the output URL. See [Content Organization](/content-management/organization) for an explanation of paths in Hugo and [URL Management](/content-management/urls/) for ways to customize Hugo's default behaviors.
+If neither `slug` nor `url` is present and [permalinks are not configured otherwise in your site configuration file](/content-management/urls/#permalinks), Hugo will use the file name of your content to create the output URL. See [Content Organization](/content-management/organization) for an explanation of paths in Hugo and [URL Management](/content-management/urls/) for ways to customize Hugo's default behaviors.
 {{% /note %}}
 
-### User-Defined
+### User-defined
 
 You can add fields to your front matter arbitrarily to meet your needs. These user-defined key-values are placed into a single `.Params` variable for use in your templates.
 
@@ -149,11 +149,11 @@ include_toc: true
 show_comments: false
 {{</ code-toggle >}}
 
-## Front Matter Cascade
+## Front matter cascade
 
-Any node or section can pass down to descendants a set of Front Matter values as long as defined underneath the reserved `cascade` Front Matter key.
+Any node or section can pass down to descendants a set of front matter values as long as defined underneath the reserved `cascade` front matter key.
 
-### Target Specific Pages
+### Target specific pages
 
 The `cascade` block can be a slice with a optional `_target` keyword, allowing for multiple `cascade` values targeting different page sets.
 
@@ -202,15 +202,15 @@ With the above example the Blog section page and its descendants will return `im
 - Said descendant has its own `banner` value set
 - Or a closer ancestor node has its own `cascade.banner` value set.
 
-## Order Content Through Front Matter
+## Order content through front matter
 
 You can assign content-specific `weight` in the front matter of your content. These values are especially useful for [ordering][ordering] in list views. You can use `weight` for ordering of content and the convention of [`<TAXONOMY>_weight`][taxweight] for ordering content within a taxonomy. See [Ordering and Grouping Hugo Lists][lists] to see how `weight` can be used to organize your content in list views.
 
-## Override Global Markdown Configuration
+## Override global markdown configuration
 
-It's possible to set some options for Markdown rendering in a content's front matter as an override to the [Rendering options set in your project configuration][config].
+It's possible to set some options for Markdown rendering in a content's front matter as an override to the [rendering options set in your project configuration][config].
 
-## Front Matter Format Specs
+## Front matter format specs
 
 - [TOML Spec][toml]
 - [YAML Spec][yaml]
@@ -220,15 +220,15 @@ It's possible to set some options for Markdown rendering in a content's front ma
 [aliases]: /content-management/urls/#aliases
 [archetype]: /content-management/archetypes/
 [bylinktitle]: /templates/lists/#by-link-title
-[config]: /getting-started/configuration/ "Hugo documentation for site configuration"
+[config]: /getting-started/configuration/
 [content type]: /content-management/types/
 [contentorg]: /content-management/organization/
 [headless-bundle]: /content-management/page-bundles/#headless-bundle
-[json]: https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf "Specification for JSON, JavaScript Object Notation"
-[lists]: /templates/lists/#order-content "See how to order content in list pages; for example, templates that look to specific _index.md for content and front matter."
-[lookup]: /templates/lookup-order/ "Hugo traverses your templates in a specific order when rendering content to allow for DRYer templating."
-[ordering]: /templates/lists/ "Hugo provides multiple ways to sort and order your content in list templates"
-[outputs]: /templates/output-formats/ "With the release of v22, you can output your content to any text format using Hugo's familiar templating"
+[json]: https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf
+[lists]: /templates/lists/#order-content
+[lookup]: /templates/lookup-order/
+[ordering]: /templates/lists/
+[outputs]: /templates/output-formats/
 [page-resources]: /content-management/page-resources/
 [pagevars]: /variables/page/
 [section]: /content-management/sections/
@@ -236,4 +236,4 @@ It's possible to set some options for Markdown rendering in a content's front ma
 [toml]: https://toml.io/
 [urls]: /content-management/urls/
 [variables]: /variables/
-[yaml]: https://yaml.org/spec/ "Specification for YAML, YAML Ain't Markup Language"
+[yaml]: https://yaml.org/spec/

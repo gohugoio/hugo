@@ -1,6 +1,5 @@
 ---
-title: Links and Cross References
-linkTitle: Links and Cross References
+title: Links and cross references
 description: Shortcodes for creating links to documents.
 categories: [content management]
 keywords: ["cross references","references", "anchors", "urls"]
@@ -19,7 +18,7 @@ The `ref` and `relref` shortcodes display the absolute and relative permalinks t
 
 The `ref` and `relref` shortcodes require a single parameter: the path to a content document, with or without a file extension, with or without an anchor. Paths without a leading `/` are first resolved relative to the current page, then to the remainder of the site.
 
-```
+```text
 .
 └── content
     ├── about
@@ -78,7 +77,7 @@ To link to another language version of a document, use this syntax:
 {{</* relref path="document.md" lang="ja" */>}}
 ```
 
-### Get another Output Format
+### Get another output format
 
 To link to another Output Format of a document, use this syntax:
 

@@ -6,8 +6,6 @@ keywords: [hosting,deployment]
 menu:
   docs:
     parent: hosting-and-deployment
-    weight: 10
-weight: 10
 toc: true
 ---
 
@@ -48,23 +46,23 @@ You can set up a Hugo site on Render in two quick steps:
 
 That's it! Your site will be live on your Render URL (which looks like `yoursite.onrender.com`) as soon as the build is done.
 
-## Continuous Deploys
+## Continuous deploys
 
 Now that Render is connected to your repo, it will **automatically build and publish your site** any time you push to your GitHub/GitLab.
 
 You can choose to disable auto deploys under the **Settings** section for your site and deploy it manually from the Render dashboard.
 
-## CDN and Cache Invalidation
+## CDN and cache invalidation
 
 Render hosts your site on a global, lightning fast CDN which ensures the fastest possible download times for all your users across the globe.
 
 Every deploy automatically and instantly invalidates the CDN cache, so your users can always access the latest content on your site.
 
-## Custom Domains
+## Custom domains
 
 Add your own domains to your site easily using Render's [custom domains](https://render.com/docs/custom-domains) guide.
 
-## Pull Request Previews
+## Pull Request previews
 
 With Pull Request (PR) previews, you can visualize changes introduced in a pull request instead of simply relying on code reviews.
 
@@ -72,7 +70,7 @@ Once enabled, every PR for your site will automatically generate a new static si
 
 Read more about [Pull Request Previews](https://render.com/docs/pull-request-previews) on Render.
 
-## Hugo Themes
+## Hugo themes
 
 Render automatically downloads all Git submodules defined in your Git repo on every build. This way Hugo themes added as submodules work as expected.
 

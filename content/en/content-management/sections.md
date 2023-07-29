@@ -1,6 +1,5 @@
 ---
-title: Content Sections
-linkTitle: Sections
+title: Sections
 description: Hugo generates a **section tree** that matches your content.
 categories: [content management]
 keywords: [lists,sections,content types,organization]
@@ -31,7 +30,7 @@ A **section** cannot be defined or overridden by a front matter parameter -- it
 is strictly derived from the content organization structure.
 {{% /note %}}
 
-## Nested Sections
+## Nested sections
 
 The sections can be nested as deeply as you need.
 
@@ -55,7 +54,7 @@ currently always the *root section* only (`/blog/funny-cats/mypost/ => blog`).
 If you need a specific template for a sub-section, you need to adjust either the `type` or `layout` in front matter.
 {{% /note %}}
 
-## Example: Breadcrumb Navigation
+## Example: breadcrumb navigation
 
 With the available [section variables and methods](#section-page-variables-and-methods) you can build powerful navigation. One common example would be a partial to show Breadcrumb navigation:
 
@@ -74,17 +73,17 @@ With the available [section variables and methods](#section-page-variables-and-m
 </nav>
 {{< /code >}}
 
-## Section Page Variables and Methods
+## Section page variables and methods
 
 Also see [Page Variables](/variables/page/).
 
 {{< readfile file="/content/en/readfiles/sectionvars.md" markdown="true" >}}
 
-## Content Section Lists
+## Content section lists
 
 Hugo will automatically create a page for each *root section* that lists all the content in that section. See the documentation on [section templates] for details on customizing the way these pages are rendered.
 
-## Content *Section* vs Content *Type*
+## Content *section* vs. content *type*
 
 By default, everything created within a section will use the [content `type`][content type] that matches the *root section* name. For example, Hugo will assume that `posts/post-1.md` has a `posts` content `type`. If you are using an [archetype] for your `posts` section, Hugo will generate front matter according to what it finds in `archetypes/posts.md`.
 

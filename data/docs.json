@@ -74,6 +74,12 @@
         ]
       },
       {
+        "Name": "ArangoDB AQL",
+        "Aliases": [
+          "aql"
+        ]
+      },
+      {
         "Name": "Arduino",
         "Aliases": [
           "arduino"
@@ -83,6 +89,19 @@
         "Name": "ArmAsm",
         "Aliases": [
           "armasm"
+        ]
+      },
+      {
+        "Name": "AutoHotkey",
+        "Aliases": [
+          "autohotkey",
+          "ahk"
+        ]
+      },
+      {
+        "Name": "AutoIt",
+        "Aliases": [
+          "autoit"
         ]
       },
       {
@@ -667,6 +686,12 @@
         ]
       },
       {
+        "Name": "ISCdhcpd",
+        "Aliases": [
+          "iscdhcpd"
+        ]
+      },
+      {
         "Name": "J",
         "Aliases": [
           "j"
@@ -1231,6 +1256,12 @@
         ]
       },
       {
+        "Name": "Smali",
+        "Aliases": [
+          "smali"
+        ]
+      },
+      {
         "Name": "Smalltalk",
         "Aliases": [
           "smalltalk",
@@ -1322,6 +1353,13 @@
         "Name": "TableGen",
         "Aliases": [
           "tablegen"
+        ]
+      },
+      {
+        "Name": "Tal",
+        "Aliases": [
+          "tal",
+          "uxntal"
         ]
       },
       {
@@ -1504,6 +1542,12 @@
       {
         "Name": "WDTE",
         "Aliases": null
+      },
+      {
+        "Name": "WebGPU Shading Language",
+        "Aliases": [
+          "wgsl"
+        ]
       },
       {
         "Name": "Whiley",
@@ -1723,8 +1767,7 @@
         "js": {
           "precision": 0,
           "keepVarNames": false,
-          "noNullishOperator": false,
-          "version": 0
+          "version": 2022
         },
         "json": {
           "precision": 0,
@@ -1743,13 +1786,13 @@
       "enableInlineShortcodes": false,
       "exec": {
         "allow": [
-          "^dart-sass-embedded$",
+          "^(dart-)?sass(-embedded)?$",
           "^go$",
           "^npx$",
           "^postcss$"
         ],
         "osEnv": [
-          "(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\\w+)$"
+          "(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG)$"
         ]
       },
       "funcs": {
@@ -1757,6 +1800,9 @@
           "^HUGO_",
           "^CI$"
         ]
+      },
+      "goTemplates": {
+        "AllowActionJSTmpl": false
       },
       "http": {
         "mediaTypes": null,
@@ -3674,6 +3720,12 @@
             ]
           ]
         },
+        "Errormf": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "Print": {
           "Description": "Print returns a string representation of args.",
           "Args": [
@@ -3735,6 +3787,12 @@
               ""
             ]
           ]
+        },
+        "Warnmf": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
         }
       },
       "hugo": {
@@ -4166,7 +4224,7 @@
           ]
         },
         "Max": {
-          "Description": "Max returns the greater of the multivalued numbers n1 and n2 or more values.",
+          "Description": "Max returns the greater of all numbers in inputs. Any slices in inputs are flattened.",
           "Args": [
             "inputs"
           ],
@@ -4179,7 +4237,7 @@
           ]
         },
         "Min": {
-          "Description": "Min returns the smaller of multivalued numbers n1 and n2 or more values.",
+          "Description": "Min returns the smaller of all numbers in inputs. Any slices in inputs are flattened.",
           "Args": [
             "inputs"
           ],
@@ -4254,6 +4312,12 @@
             ]
           ]
         },
+        "Product": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "Round": {
           "Description": "Round returns the integer nearest to n, rounding half away from zero.",
           "Args": [
@@ -4294,6 +4358,12 @@
               "1"
             ]
           ]
+        },
+        "Sum": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
         }
       },
       "openapi3": {
@@ -4882,6 +4952,12 @@
           "Examples": null
         },
         "Params": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "RSSLink": {
           "Description": "",
           "Args": null,
           "Aliases": null,

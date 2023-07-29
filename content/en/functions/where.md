@@ -73,7 +73,7 @@ The following logical operators are available with `where`:
 `intersect`
 : `true` if a given field value that is a slice/array of strings or integers contains elements in common with the matching value; it follows the same rules as the [`intersect` function][intersect].
 
-## Use `where` with `Booleans`
+## Use `where` with boolean values
 When using booleans you should not put quotation marks.
 ```go-html-template
 {{ range where .Pages "Draft" true }}
@@ -116,7 +116,7 @@ then ranges through only the first 5 posts in that list:
 {{ end }}
 {{< /code >}}
 
-## Nest `where` Clauses
+## Nest `where` clauses
 
 You can also nest `where` clauses to drill down on lists of content by more than one parameter. The following first grabs all pages in the "blog" section and then ranges through the result of the first `where` clause and finds all pages that are *not* featured:
 
@@ -124,7 +124,7 @@ You can also nest `where` clauses to drill down on lists of content by more than
 {{ range where (where .Pages "Section" "blog" ) "Params.featured" "!=" true }}
 ```
 
-## Unset Fields
+## Unset fields
 
 Filtering only works for set fields. To check whether a field is set or exists, you can use the operand `nil`.
 
@@ -153,8 +153,7 @@ section names to hard-coded values like `"posts"` or `"post"`.
 {{ $pages := where site.RegularPages "Type" "in" site.Params.mainSections }}
 ```
 
-If the user has not set this config parameter in their site config, it
-will default to the *section with the most pages*.
+If the user has not set this configuration parameter in their site configuration, it will default to the *section with the most pages*.
 
 The user can override the default:
 

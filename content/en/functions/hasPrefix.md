@@ -1,6 +1,5 @@
 ---
 title: hasprefix
-linktitle: hasPrefix
 description: Tests whether a string begins with prefix.
 date: 2017-02-01
 publishdate: 2017-02-01

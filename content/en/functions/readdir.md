@@ -1,6 +1,6 @@
 ---
 title: readDir
-description: Returns an array of FileInfo structures sorted by filename, one element for each directory entry.
+description: Returns an array of FileInfo structures sorted by file name, one element for each directory entry.
 categories: [functions]
 menu:
   docs:

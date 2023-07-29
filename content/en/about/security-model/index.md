@@ -1,18 +1,18 @@
 ---
-title: Hugo's Security Model
+title: Hugo's security model
 description: A summary of Hugo's security model.
 layout: single
 keywords: ["Security", "Privacy"]
 menu:
   docs:
     parent: about
-    weight: 4
-weight: 5
+    weight: 50
+weight: 50
 aliases: [/security/]
 toc: true
 ---
 
-## Runtime Security
+## Runtime security
 
 Hugo produces static output, so once built, the runtime is the browser (assuming the output is HTML) and any server (API) that you integrate with.
 
@@ -25,7 +25,7 @@ But when developing and building your site, the runtime is the `hugo` executable
 * User-defined components have read-only access to the filesystem.
 * We shell out to some external binaries to support [Asciidoctor](/content-management/formats/#list-of-content-formats) and similar, but those binaries and their flags are predefined and disabled by default (see [Security Policy](#security-policy)). General functions to run arbitrary external OS commands have been [discussed](https://github.com/gohugoio/hugo/issues/796), but not implemented because of security concerns.
 
-## Security Policy
+## Security policy
 
 Hugo has a built-in security policy that restricts access to [os/exec](https://pkg.go.dev/os/exec), remote communication and similar.
 
@@ -33,19 +33,19 @@ The default configuration is listed below. Any build using features not in the a
 
 {{< code-toggle config="security" />}}
 
-Note that these and other config settings in Hugo can be overridden by the OS environment. If you want to block all remote HTTP fetching of data:
+Note that these and other configuration settings in Hugo can be overridden by the OS environment. If you want to block all remote HTTP fetching of data:
 
 ```txt
 HUGO_SECURITY_HTTP_URLS=none hugo
 ```
 
-## Dependency Security
+## Dependency security
 
 Hugo is built as a static binary using [Go Modules](https://github.com/golang/go/wiki/Modules) to manage its dependencies. Go Modules have several safeguards, one of them being the `go.sum` file. This is a database of the expected cryptographic checksums of all of your dependencies, including transitive dependencies.
 
 [Hugo Modules](/hugo-modules/) is a feature built on top of the functionality of Go Modules. Like Go Modules, a Hugo project using Hugo Modules will have a `go.sum` file. We recommend that you commit this file to your version control system. The Hugo build will fail if there is a checksum mismatch, which would be an indication of [dependency tampering](https://julienrenaux.fr/2019/12/20/github-actions-security-risk/).
 
-## Web Application Security
+## Web application security
 
 These are the security threats as defined by [OWASP](https://en.wikipedia.org/wiki/OWASP).
 

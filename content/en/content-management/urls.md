@@ -1,5 +1,5 @@
 ---
-title: URL Management
+title: URL management
 description: Control the structure and appearance of URLs through front matter entries and settings in your site configuration.
 categories: [content management]
 keywords: [aliases,redirects,permalinks,urls]
@@ -89,67 +89,149 @@ If you set both `slug` and `url` in front matter, the `url` value takes preceden
 
 ### Permalinks
 
-In your site configuration, set a URL pattern for regular pages within a top-level section. This is recursive, affecting descendant regular pages.
+In your site configuration, define a URL pattern for each top-level section. Each URL pattern can target a given language and/or [page kind].
 
-{{% note %}}
-The  `permalinks` defined in your site configuration do not apply to section pages. To adjust the URL for section pages, set `url` in front matter.
-{{% /note %}}
+Front matter `url` values override the URL patterns defined in the `permalinks` section of your site configuration.
 
-#### Examples {#permalinks-examples}
+[page kind]: /templates/section-templates/#page-kinds
+
+#### Monolingual examples {#permalinks-monolingual-examples}
 
 With this content structure:
 
 ```text
 content/
 ├── posts/
-│   ├── _index.md
-│   ├── post-1.md
-│   └── post-2.md
+│   ├── bash-in-slow-motion.md
+│   └── tls-in-a-nutshell.md
+├── tutorials/
+│   ├── git-for-beginners.md
+│   └── javascript-bundling-with-hugo.md
 └── _index.md
 ```
 
-Create a date-based hierarchy, recursively, for regular pages within the `posts` section:
+Render tutorials under "training", and render the posts under "articles" with a date-base hierarchy:
 
 {{< code-toggle file="hugo" copy=false >}}
-[permalinks]
-  posts = '/posts/:year/:month/:title/'
+[permalinks.page]
+posts = '/articles/:year/:month/:slug/'
+tutorials = '/training/:slug/'
+[permalinks.section]
+posts = '/articles/'
+tutorials = '/training/'
 {{< /code-toggle >}}
 
 The structure of the published site will be:
 
 ```text
 public/
-├── posts/
-│   ├── 2023/
-│   │   └── 03/
-│   │       ├── post-1/
-│   │       │   └── index.html
-│   │       └── post-2/
-│   │           └── index.html
-│   └── index.html
-├── favicon.ico
+├── articles/
+│   ├── 2023/
+│   │   ├── 04/
+│   │   │   └── bash-in-slow-motion/
+│   │   │       └── index.html
+│   │   └── 06/
+│   │       └── tls-in-a-nutshell/
+│   │           └── index.html
+│   └── index.html
+├── training/
+│   ├── git-for-beginners/
+│   │   └── index.html
+│   ├── javascript-bundling-with-hugo/
+│   │   └── index.html
+│   └── index.html
 └── index.html
 ```
 
 To create a date-based hierarchy for regular pages in the content root:
 
 {{< code-toggle file="hugo" copy=false >}}
-[permalinks]
-  '/' = '/:year/:month/:title/'
+[permalinks.page]
+"/" = "/:year/:month/:slug/"
 {{< /code-toggle >}}
 
-{{% note %}}
-A URL pattern defined for the content root is not recursive.
-{{% /note %}}
-
-Use the same approach with taxonomies. For example, to omit the taxonomy segment of the URL:
+Use the same approach with taxonomy terms. For example, to omit the taxonomy segment of the URL:
 
 {{< code-toggle file="hugo" copy=false >}}
-[permalinks]
-  'tags' = '/:title/'
+[permalinks.term]
+'tags' = '/:slug/'
 {{< /code-toggle >}}
 
-Front matter `url` values take precedence over URL patterns defined in `permalinks`.
+#### Multilingual example {#permalinks-multilingual-example}
+
+Use the `permalinks` configuration as a component of your localization strategy.
+
+With this content structure:
+
+```text
+content/
+├── de/
+│   ├── books/
+│   │   ├── les-miserables.md
+│   │   └── the-hunchback-of-notre-dame.md
+│   └── _index.md
+└── en/
+    ├── books/
+    │   ├── les-miserables.md
+    │   └── the-hunchback-of-notre-dame.md
+    └── _index.md
+```
+
+And this site configuration:
+
+{{< code-toggle file="hugo" copy=false >}}
+defaultContentLanguage = 'en'
+defaultContentLanguageInSubdir = true
+
+[languages.en]
+contentDir = 'content/en'
+languageCode = 'en-US'
+languageDirection = 'ltr'
+languageName = 'English'
+weight = 1
+
+[languages.en.permalinks.page]
+books = "/books/:slug/"
+
+[languages.en.permalinks.section]
+books = "/books/"
+
+[languages.es]
+contentDir = 'content/de'
+languageCode = 'es-ES'
+languageDirection = 'ltr'
+languageName = 'Español'
+weight = 2
+
+[languages.es.permalinks.page]
+books = "/libros/:slug/"
+
+[languages.es.permalinks.section]
+books = "/libros/"
+{{< /code-toggle >}}
+
+The structure of the published site will be:
+
+```text
+public/
+├── en/
+│   ├── books/
+│   │   ├── les-miserables/
+│   │   │   └── index.html
+│   │   ├── the-hunchback-of-notre-dame/
+│   │   │   └── index.html
+│   │   └── index.html
+│   └── index.html
+├── es/
+│   ├── libros/
+│   │   ├── les-miserables/
+│   │   │   └── index.html
+│   │   ├── the-hunchback-of-notre-dame/
+│   │   │   └── index.html
+│   │   └── index.html
+│   └── index.html
+└── index.html
+````
 
 #### Tokens
 
@@ -189,10 +271,10 @@ Use these tokens when defining the URL pattern. The `date` field in front matter
 : the content's slug (or title if no slug is provided in the front matter)
 
 `:slugorfilename`
-: the content's slug (or filename if no slug is provided in the front matter)
+: the content's slug (or file name if no slug is provided in the front matter)
 
 `:filename`
-: the content's filename (without extension)
+: the content's file name (without extension)
 
 For time-related values, you can also use the layout string components defined in Go's [time package]. For example:
 
@@ -301,7 +383,7 @@ In a multilingual site, use a directory-relative alias, or include the language 
 aliases = ['/de/posts/previous-file-name']
 {{< /code-toggle >}}
 
-### How Aliases Work
+### How aliases work
 
 Using the first example above, Hugo generates the following site structure:
 

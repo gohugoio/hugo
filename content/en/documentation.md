@@ -1,11 +1,11 @@
 ---
 title: Hugo Documentation
-linktitle: Hugo
+linkTitle: Hugo
 description: Hugo is the world's fastest static website engine. It's written in Go (aka Golang) and developed by bep, spf13 and friends.
 menu:
   main:
-    weight: 01
-weight: 01
+    weight: 1
+weight: 1
 layout: documentation-home
 ---
 

@@ -40,6 +40,6 @@ This will produce:
 
 ```
 ERROR 2021/06/07 17:47:38 You should consider fixing this.
-If you feel that this should not be logged as an ERROR, you can ignore it by adding this to your site config:
+If you feel that this should not be logged as an ERROR, you can ignore it by adding this to your site configuration:
 ignoreErrors = ["my-custom-error"]
 ```

@@ -19,7 +19,7 @@ relatedfuncs: []
 {{ mul 1000 (time "2016-05-28T10:30:00.00+10:00").Unix }} → 1464395400000, or Unix time in milliseconds
 ```
 
-## Using Locations
+## Using locations
 
 The optional `TIMEZONE` parameter is a string that sets a default time zone (or more specific, the location, which represents the collection of time offsets in a geographical area) that is associated with the specified time value. If the time value has an explicit timezone or offset specified, it will take precedence over the `TIMEZONE` parameter.
 
@@ -33,7 +33,7 @@ If no `TIMEZONE` is set, the `timeZone` from site configuration will be used.
 {{ time "2020-01-20" "America/Los_Angeles" }} → 2020-01-20 00:00:00 -0800 PST
 ```
 
-## Example: Using `time` to get Month Index
+## Example: Using `time` to get month index
 
 The following example takes a UNIX timestamp---set as `utimestamp: "1489276800"` in a content's front matter---converts the timestamp (string) to an integer using the [`int` function][int], and then uses [`printf`] to convert the `Month` property of `time` into an index.
 

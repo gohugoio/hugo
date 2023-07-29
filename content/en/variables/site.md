@@ -1,7 +1,7 @@
 ---
-title: Site Variables
+title: Site variables
 description: Many, but not all, site-wide variables are defined in your site's configuration. However, Hugo provides a number of built-in variables for convenient access to global values in your templates.
-categories: [variables and params]
+categories: [variables and parameters]
 keywords: [global,site]
 menu:
   docs:
@@ -14,11 +14,11 @@ toc: true
 
 The following is a list of site-level (aka "global") variables. Many of these variables are defined in your site's [configuration file][config], whereas others are built into Hugo's core for convenient usage in your templates.
 
-## Get the Site object from a partial
+## Get the site object from a partial
 
 All the methods below, e.g. `.Site.RegularPages` can also be reached via the global [`site`](/functions/site/) function, e.g. `site.RegularPages`, which can be handy in partials where the `Page` object isn't easily available.
 
-## Site Variables List
+## Site variables list
 
 .Site.AllPages
 : array of all pages, regardless of their translation.
@@ -42,7 +42,7 @@ All the methods below, e.g. `.Site.RegularPages` can also be reached via the glo
 : a string representing your tracking code for Google Analytics as defined in the site configuration.
 
 .Site.Home
-: reference to the homepage's [page object](https://gohugo.io/variables/page/)
+: reference to the homepage's [page object](/variables/page/)
 
 .Site.IsMultiLingual
 : whether there are more than one language in this site. See [Multilingual](/content-management/multilingual/) for more information.
@@ -92,13 +92,13 @@ All the methods below, e.g. `.Site.RegularPages` can also be reached via the glo
 .Site.Title
 : a string representing the title of the site.
 
-## The `.Site.Params` Variable
+## The `.Site.Params` variable
 
 `.Site.Params` is a container holding the values from the `params` section of your site configuration.
 
 ### Example: `.Site.Params`
 
-The following `config.[yaml|toml|json]` defines a site-wide param for `description`:
+The following `config.[yaml|toml|json]` defines a site-wide parameter for `description`:
 
 {{< code-toggle file="hugo" >}}
 baseURL = "https://yoursite.example.com/"
@@ -114,7 +114,7 @@ You can use `.Site.Params` in a [partial template](/templates/partials/) to call
 <meta name="description" content="{{ if .IsHome }}{{ $.Site.Params.description }}{{ else }}{{ .Description }}{{ end }}" />
 {{< /code >}}
 
-## The `.Site.Pages` Variable {#site-pages}
+## The `.Site.Pages` variable {#site-pages}
 
 ### `.Site.Pages` compared to `.Pages`
 

@@ -1,11 +1,11 @@
 ---
-title: Hugo Features
+title: Hugo features
 description: Hugo boasts blistering speed, robust content management, and a powerful templating language making it a great fit for all kinds of static websites.
 menu:
   docs:
     parent: about
-    weight: 20
-weight: 20
+    weight: 30
+weight: 30
 toc: true
 ---
 
@@ -40,7 +40,7 @@ toc: true
 * ["Minutes to Read"][pagevars] functionality
 * ["WordCount"][pagevars] functionality
 
-## Additional Features
+## Additional features
 
 * Integrated [Disqus] comment support
 * Integrated [Google Analytics] support

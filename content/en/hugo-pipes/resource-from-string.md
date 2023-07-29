@@ -1,20 +1,22 @@
 ---
 title: FromString
-linkTitle: Resource from String
+linkTitle: Resource from string
 description: Creates a resource from a string.
 categories: [asset management]
 keywords: []
 menu:
   docs:
-    parent: pipes
-    weight: 90
-weight: 90
+    parent: hugo-pipes
+    weight: 110
+weight: 110
 signature: ["resources.FromString TARGET_PATH CONTENT"]
 ---
 
 ## Usage
 
 It is possible to create a resource directly from the template using `resources.FromString` which takes two arguments, the target path for the created resource and the given content string.
+
+The result is cached using the target path as the cache key.
 
 The following example creates a resource file containing localized variables for every project's languages.
 

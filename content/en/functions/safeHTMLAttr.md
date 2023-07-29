@@ -34,12 +34,16 @@ Will produce:
 
 `ZgotmplZ` is a special value, inserted by Go's [template/html] package, that indicates that unsafe content reached a CSS or URL context.
 
-To override the safety check, use the `safeHTMLAttr` function:
+To indicate that the HTML attribute is safe:
 
 ```go-html-template
 {{ range site.Menus.main }}
   <a {{ printf "href=%q" .URL | safeHTMLAttr }}>{{ .Name }}</a>
 {{ end }}
-``` 
+```
+
+{{% note %}}
+As demonstrated above, you must pass the HTML attribute name _and_ value through the function. Applying `safeHTMLAttr` to the attribute value has no effect.
+{{% /note %}}
 
 [template/html]: https://pkg.go.dev/html/template

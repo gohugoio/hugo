@@ -1,14 +1,15 @@
 ---
-title: Variables and Params
-linktitle: Variables Overview
+title: Variables and parameters
+linkTitle: Overview
 description: Page-, file-, taxonomy-, and site-level variables and parameters available in templates.
-categories: [variables and params]
+categories: [variables and parameters]
 keywords: [variables,params,values,globals]
 menu:
   docs:
+    identifier: variables-overview
     parent: variables
     weight: 1
-weight: 01
+weight: 1
 aliases: [/templates/variables/]
 ---
 

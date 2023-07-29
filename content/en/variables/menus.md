@@ -1,7 +1,7 @@
 ---
-title: Menu Variables
+title: Menu variables
 description: Use these variables and methods in your menu templates.
-categories: [variables and params]
+categories: [variables and parameters]
 keywords: [menus]
 menu:
   docs:

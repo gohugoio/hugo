@@ -6,8 +6,6 @@ keywords: [21yunbox,hosting,deployment]
 menu:
   docs:
     parent: hosting-and-deployment
-    weight: 10
-weight: 10
 toc: true
 ---
 

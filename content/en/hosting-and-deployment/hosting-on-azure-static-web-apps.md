@@ -1,13 +1,11 @@
 ---
-title: Hosting on Azure Static Web Apps
-description: Learn how to deploy a Hugo application to Azure Static Web Apps.
+title: Host on Azure Static Web Apps
+description: Publish a Hugo site to Azure Static Web Apps.
 categories: [hosting and deployment]
 keywords: [hosting,Azure Static Web Apps]
 menu:
   docs:
     parent: hosting-and-deployment
-    weight: 200
-weight: 200
 toc: true
 ---
 

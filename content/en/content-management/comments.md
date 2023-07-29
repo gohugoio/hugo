@@ -2,7 +2,7 @@
 title: Comments
 description: Hugo ships with an internal Disqus template, but this isn't the only commenting system that will work with your new Hugo website.
 keywords: [sections,content,organization]
-categories: [project organization, fundamentals]
+categories: [project organization]
 menu:
   docs:
     parent: content-management
@@ -34,9 +34,9 @@ For many websites, this is enough configuration. However, you also have the opti
 * `disqus_title`
 * `disqus_url`
 
-### Render Hugo's Built-in Disqus Partial Template
+### Render Hugo's built-in Disqus partial template
 
-Disqus has its own [internal template](https://gohugo.io/templates/internal/#disqus) available, to render it add the following code where you want comments to appear:
+Disqus has its own [internal template](/templates/internal/#disqus) available, to render it add the following code where you want comments to appear:
 
 ```go-html-template
 {{ template "_internal/disqus.html" . }}

@@ -10,13 +10,13 @@ Create new content for your site
 ### Synopsis
 
 Create a new content file and automatically set the date and title.
-		It will guess which kind of file to create based on the path provided.
-		
-		You can also specify the kind with `-k KIND`.
-		
-		If archetypes are provided in your theme or site, they will be used.
-		
-		Ensure you run this within the root directory of your site.
+It will guess which kind of file to create based on the path provided.
+
+You can also specify the kind with `-k KIND`.
+
+If archetypes are provided in your theme or site, they will be used.
+
+Ensure you run this within the root directory of your site.
 
 ```
 hugo new content [path] [flags]
@@ -26,7 +26,7 @@ hugo new content [path] [flags]
 
 ```
   -b, --baseURL string      hostname (and path) to the root, e.g. https://spf13.com/
-      --cacheDir string     filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
+      --cacheDir string     filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache_$USER/
   -c, --contentDir string   filesystem path to content directory
       --editor string       edit new content with this editor, if provided
   -f, --force               overwrite file if it already exists
@@ -46,13 +46,11 @@ hugo new content [path] [flags]
   -d, --destination string         filesystem path to write files to
   -e, --environment string         build environment
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
-      --log                        enable Logging
-      --logFile string             log File path (if set, logging enabled automatically)
+      --logLevel string            log level (debug|info|warn|error)
       --quiet                      build in quiet mode
   -s, --source string              filesystem path to read files relative from
       --themesDir string           filesystem path to themes directory
   -v, --verbose                    verbose output
-      --verboseLog                 verbose logging
 ```
 
 ### SEE ALSO

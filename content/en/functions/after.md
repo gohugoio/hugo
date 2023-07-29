@@ -20,7 +20,7 @@ The following shows `after` being used in conjunction with the [`slice` function
 → ["three", "four"]
 ```
 
-## Example of `after` with `first`: 2nd&ndash;4th Most Recent Articles
+## Example of `after` with `first`: 2nd&ndash;4th most recent articles
 
 You can use `after` in combination with the [`first` function] and Hugo's [powerful sorting methods][lists]. Let's assume you have a list page at `example.com/articles`. You have 10 articles, but you want your templating for the [list/section page] to show only two rows:
 
