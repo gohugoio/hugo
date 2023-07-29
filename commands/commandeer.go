@@ -515,7 +515,7 @@ Complete documentation is available at https://gohugo.io/.`
 func applyLocalFlagsBuildConfig(cmd *cobra.Command, r *rootCommand) {
 	cmd.Flags().StringSliceP("theme", "t", []string{}, "themes to use (located in /themes/THEMENAME/)")
 	cmd.Flags().StringVarP(&r.baseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. https://spf13.com/")
-	cmd.Flags().StringP("cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache_$USER/")
+	cmd.Flags().StringP("cacheDir", "", "", "filesystem path to cache directory")
 	_ = cmd.Flags().SetAnnotation("cacheDir", cobra.BashCompSubdirsInDir, []string{})
 	cmd.Flags().StringP("contentDir", "c", "", "filesystem path to content directory")
 	_ = cmd.Flags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
