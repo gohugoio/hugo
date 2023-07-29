@@ -120,7 +120,7 @@ When specifying the regular expression, use a raw [string literal] (backticks) i
 
 Go's regular expression package implements the [RE2 syntax]. Note that the RE2 `\C` escape sequence is not supported.
 
-[RE2 syntax documentation]: https://github.com/google/re2/wiki/Syntax/
+[RE2 syntax]: https://github.com/google/re2/wiki/Syntax/
 
 {{% note %}}
 The RE2 syntax is a subset of that accepted by [PCRE], roughly speaking, and with various [caveats].
