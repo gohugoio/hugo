@@ -118,9 +118,8 @@ When specifying the regular expression, use a raw [string literal] (backticks) i
 
 [string literal]: https://go.dev/ref/spec#String_literals
 
-This function uses the [RE2] regular expression library. See the [RE2 syntax documentation] for details. Note that the RE2 `\C` escape sequence is not supported.
+Go's regular expression package implements the [RE2 syntax]. Note that the RE2 `\C` escape sequence is not supported.
 
-[RE2]: https://github.com/google/re2/
 [RE2 syntax documentation]: https://github.com/google/re2/wiki/Syntax/
 
 {{% note %}}
