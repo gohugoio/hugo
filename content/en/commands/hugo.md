@@ -27,7 +27,7 @@ hugo [flags]
   -D, --buildDrafts                include content marked as draft
   -E, --buildExpired               include expired content
   -F, --buildFuture                include content with publishdate in the future
-      --cacheDir string            filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache_$USER/
+      --cacheDir string            filesystem path to cache directory
       --cleanDestinationDir        remove files from destination not found in static directories
       --clock string               set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00
       --config string              config file (default is hugo.yaml|json|toml)
