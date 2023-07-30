@@ -106,28 +106,10 @@ func (c *ImageCache) getOrCreate(
 		rp := img.getResourcePaths()
 		rp.relTargetDirFile.file = relTarget.file
 		img.setSourceFilename(info.Name)
+		img.setSourfeFilenameIsHash(true)
 		img.setMediaType(conf.TargetFormat.MediaType())
 
-		if err := img.InitConfig(r); err != nil {
-			return err
-		}
-
-		r.Seek(0, 0)
-
-		w, err := img.openDestinationsForWriting()
-		if err != nil {
-			return err
-		}
-
-		if w == nil {
-			// Nothing to write.
-			return nil
-		}
-
-		defer w.Close()
-		_, err = io.Copy(w, r)
-
-		return err
+		return img.InitConfig(r)
 	}
 
 	// create creates the image and encodes it to the cache (w).

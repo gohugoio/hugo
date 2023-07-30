@@ -100,3 +100,42 @@ Width: {{ $svg.Width }}
 	b.Assert(err.Error(), qt.Contains, `error calling Width: this method is only available for raster images. To determine if an image is SVG, you can do {{ if eq .MediaType.SubType "svg" }}{{ end }}`)
 
 }
+
+// Issue 10255.
+func TestNoPublishOfUnusedProcessedImage(t *testing.T) {
+	t.Parallel()
+
+	workingDir := t.TempDir()
+
+	files := `
+-- assets/images/pixel.png --
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+-- layouts/index.html --
+{{ $image := resources.Get "images/pixel.png" }}
+{{ $image = $image.Resize "400x" }}
+{{ $image = $image.Resize "300x" }}
+{{ $image = $image.Resize "200x" }}
+{{ $image = $image.Resize "100x" }}
+{{ $image = $image.Crop "50x50" }}
+{{ $image = $image.Filter (images.GaussianBlur 6) }}
+{{ ($image | fingerprint).Permalink }}
+
+
+`
+
+	for i := 0; i < 3; i++ {
+
+		b := hugolib.NewIntegrationTestBuilder(
+			hugolib.IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+				NeedsOsFS:   true,
+				WorkingDir:  workingDir,
+			}).Build()
+
+		b.AssertFileCount("resources/_gen/images", 6)
+		b.AssertFileCount("public/images", 1)
+		b.Build()
+	}
+
+}
