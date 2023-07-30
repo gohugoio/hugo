@@ -106,7 +106,7 @@ func (c *ImageCache) getOrCreate(
 		rp := img.getResourcePaths()
 		rp.relTargetDirFile.file = relTarget.file
 		img.setSourceFilename(info.Name)
-		img.setSourfeFilenameIsHash(true)
+		img.setSourceFilenameIsHash(true)
 		img.setMediaType(conf.TargetFormat.MediaType())
 
 		return img.InitConfig(r)

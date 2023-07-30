@@ -215,7 +215,7 @@ func (d dirFile) path() string {
 type fileInfo interface {
 	getSourceFilename() string
 	setSourceFilename(string)
-	setSourfeFilenameIsHash(bool)
+	setSourceFilenameIsHash(bool)
 	setSourceFs(afero.Fs)
 	getFileInfo() hugofs.FileMetaInfo
 	hash() (string, error)
@@ -645,7 +645,7 @@ func (fi *resourceFileInfo) setSourceFilename(s string) {
 	fi.sourceFilename = s
 }
 
-func (fi *resourceFileInfo) setSourfeFilenameIsHash(b bool) {
+func (fi *resourceFileInfo) setSourceFilenameIsHash(b bool) {
 	fi.sourceFilenameIsHash = b
 }
 
