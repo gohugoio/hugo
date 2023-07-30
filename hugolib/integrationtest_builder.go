@@ -137,6 +137,24 @@ func (s *IntegrationTestBuilder) AssertBuildCountTranslations(count int) {
 	s.Assert(s.H.init.translations.InitCount(), qt.Equals, count)
 }
 
+func (s *IntegrationTestBuilder) AssertFileCount(dirname string, expected int) {
+	s.Helper()
+	fs := s.fs.WorkingDirReadOnly
+	count := 0
+	afero.Walk(fs, dirname, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		count++
+		return nil
+	})
+	s.Assert(count, qt.Equals, expected)
+
+}
+
 func (s *IntegrationTestBuilder) AssertFileContent(filename string, matches ...string) {
 	s.Helper()
 	content := strings.TrimSpace(s.FileContent(filename))
