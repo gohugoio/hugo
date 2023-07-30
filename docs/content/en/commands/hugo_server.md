@@ -33,7 +33,7 @@ hugo server [command] [flags]
   -D, --buildDrafts            include content marked as draft
   -E, --buildExpired           include expired content
   -F, --buildFuture            include content with publishdate in the future
-      --cacheDir string        filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache_$USER/
+      --cacheDir string        filesystem path to cache directory
       --cleanDestinationDir    remove files from destination not found in static directories
   -c, --contentDir string      filesystem path to content directory
       --disableBrowserError    do not show build errors in the browser
