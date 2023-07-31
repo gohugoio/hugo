@@ -744,7 +744,7 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 
 	all := &Config{}
 
-	err := decodeConfigFromParams(fs, bcfg, cfg, all, nil)
+	err := decodeConfigFromParams(fs, logger, bcfg, cfg, all, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -832,7 +832,7 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 			// Create a copy of the complete config and replace the root keys with the language specific ones.
 			clone := all.cloneForLang()
 
-			if err := decodeConfigFromParams(fs, bcfg, mergedConfig, clone, differentRootKeys); err != nil {
+			if err := decodeConfigFromParams(fs, logger, bcfg, mergedConfig, clone, differentRootKeys); err != nil {
 				return nil, fmt.Errorf("failed to decode config for language %q: %w", k, err)
 			}
 			if err := clone.CompileConfig(logger); err != nil {
@@ -904,7 +904,7 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 	return cm, nil
 }
 
-func decodeConfigFromParams(fs afero.Fs, bcfg config.BaseConfig, p config.Provider, target *Config, keys []string) error {
+func decodeConfigFromParams(fs afero.Fs, logger loggers.Logger, bcfg config.BaseConfig, p config.Provider, target *Config, keys []string) error {
 
 	var decoderSetups []decodeWeight
 
@@ -917,7 +917,7 @@ func decodeConfigFromParams(fs afero.Fs, bcfg config.BaseConfig, p config.Provid
 			if v, found := allDecoderSetups[key]; found {
 				decoderSetups = append(decoderSetups, v)
 			} else {
-				return fmt.Errorf("unknown config key %q", key)
+				logger.Warnf("Skip unknown config key %q", key)
 			}
 		}
 	}
