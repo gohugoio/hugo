@@ -62,3 +62,4 @@ hugo completion bash
 ### SEE ALSO
 
 * [hugo completion](/commands/hugo_completion/)	 - Generate the autocompletion script for the specified shell
+

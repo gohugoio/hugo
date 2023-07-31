@@ -73,6 +73,9 @@ The following logical operators are available with `where`:
 `intersect`
 : `true` if a given field value that is a slice/array of strings or integers contains elements in common with the matching value; it follows the same rules as the [`intersect` function][intersect].
 
+`like`
+: `true` if a given field value matches a regular expression. Use the `like` operator to compare `string` values. Returns `false` when comparing other data types to the regular expression.
+
 ## Use `where` with boolean values
 When using booleans you should not put quotation marks.
 ```go-html-template
@@ -80,7 +83,6 @@ When using booleans you should not put quotation marks.
         <p>{{ .Title }}</p>
 {{ end }}
 ```
-  
 
 ## Use `where` with `intersect`
 
@@ -101,6 +103,31 @@ You can also put the returned value of the `where` clauses into a variable:
 {{ range $filtered }}
 {{ end }}
 {{< /code >}}
+
+## Use `where` with `like`
+
+This example matches pages where the "foo" parameter begins with "ab":
+
+```go-html-template
+{{ range where site.RegularPages "Params.foo" "like" "^ab" }}
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+{{ end }}
+```
+
+When specifying the regular expression, use a raw [string literal] (backticks) instead of an interpreted string literal (double quotes) to simplify the syntax. With an interpreted string literal you must escape backslashes.
+
+[string literal]: https://go.dev/ref/spec#String_literals
+
+Go's regular expression package implements the [RE2 syntax]. Note that the RE2 `\C` escape sequence is not supported.
+
+[RE2 syntax]: https://github.com/google/re2/wiki/Syntax/
+
+{{% note %}}
+The RE2 syntax is a subset of that accepted by [PCRE], roughly speaking, and with various [caveats].
+
+[caveats]: https://swtch.com/~rsc/regexp/regexp3.html#caveats
+[PCRE]: https://www.pcre.org/
+{{% /note %}}
 
 ## Use `where` with `first`
 
