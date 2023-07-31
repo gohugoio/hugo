@@ -517,7 +517,7 @@ The `build` configuration section contains global build-related configuration op
 buildStats {{< new-in "0.115.1" >}}
 : When enabled, creates a `hugo_stats.json` file in the root of your project. This file contains arrays of the `class` attributes, `id` attributes, and tags of every HTML element within your published site. Use this file as data source when [removing unused CSS] from your site. This process is also known as pruning, purging, or tree shaking.
 
-[removing unused CSS]: http://localhost:1313/hugo-pipes/postprocess/#css-purging-with-postcss
+[removing unused CSS]: /hugo-pipes/postprocess/#css-purging-with-postcss
 
 Exclude `class` attributes, `id` attributes, or tags from `hugo_stats.json` with the `disableClasses`, `disableIDs`, and `disableTags` keys.
 
