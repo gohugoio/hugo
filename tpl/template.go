@@ -191,6 +191,14 @@ func SetHasLockInContext(ctx context.Context, hasLock bool) context.Context {
 	return context.WithValue(ctx, texttemplate.HasLockContextKey, hasLock)
 }
 
+func GetCallbackFunctionFromContext(ctx context.Context) any {
+	return ctx.Value(texttemplate.CallbackContextKey)
+}
+
+func SetCallbackFunctionInContext(ctx context.Context, fn any) context.Context {
+	return context.WithValue(ctx, texttemplate.CallbackContextKey, fn)
+}
+
 const hugoNewLinePlaceholder = "___hugonl_"
 
 var (

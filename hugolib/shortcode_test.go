@@ -948,7 +948,6 @@ title: "p1"
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			Running:     true,
 		},
 	).Build()
 
@@ -991,7 +990,6 @@ title: "p1"
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			Running:     true,
 		},
 	).Build()
 
@@ -1023,7 +1021,6 @@ echo "foo";
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			Running:     true,
 		},
 	).Build()
 
@@ -1061,7 +1058,6 @@ title: "p1"
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			Running:     true,
 		},
 	).Build()
 
@@ -1098,8 +1094,8 @@ Title: {{ .Get "title" | safeHTML }}
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			Running:     true,
-			Verbose:     true,
+
+			Verbose: true,
 		},
 	).Build()
 
@@ -1191,8 +1187,8 @@ C'est un test
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			Running:     true,
-			Verbose:     true,
+
+			Verbose: true,
 		},
 	).Build()
 
@@ -1229,8 +1225,8 @@ InnerDeindent: {{ .Get 0 }}: {{ len .InnerDeindent }}
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			Running:     true,
-			Verbose:     true,
+
+			Verbose: true,
 		},
 	).Build()
 
@@ -1269,8 +1265,8 @@ Inner: {{ .Get 0 }}: {{ len .Inner }}
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			Running:     true,
-			Verbose:     true,
+
+			Verbose: true,
 		},
 	).BuildE()
 
@@ -1306,8 +1302,8 @@ Hello.
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			Running:     true,
-			Verbose:     true,
+
+			Verbose: true,
 		},
 	).Build()
 

@@ -114,6 +114,10 @@ func (pa pageSiteAdapter) GetPage(ref string) (page.Page, error) {
 }
 
 type pageState struct {
+	// Incremented for each new page created.
+	// Note that this will change between builds for a given Page.
+	id int
+
 	// This slice will be of same length as the number of global slice of output
 	// formats (for all sites).
 	pageOutputs []*pageOutput
@@ -772,7 +776,7 @@ Loop:
 			currShortcode.pos = it.Pos()
 			currShortcode.length = iter.Current().Pos() - it.Pos()
 			if currShortcode.placeholder == "" {
-				currShortcode.placeholder = createShortcodePlaceholder("s", currShortcode.ordinal)
+				currShortcode.placeholder = createShortcodePlaceholder("s", p.id, currShortcode.ordinal)
 			}
 
 			if currShortcode.name != "" {
@@ -784,7 +788,7 @@ Loop:
 				currShortcode.params = s
 			}
 
-			currShortcode.placeholder = createShortcodePlaceholder("s", ordinal)
+			currShortcode.placeholder = createShortcodePlaceholder("s", p.id, ordinal)
 			ordinal++
 			s.shortcodes = append(s.shortcodes, currShortcode)
 

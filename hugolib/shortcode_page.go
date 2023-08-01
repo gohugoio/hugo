@@ -21,7 +21,7 @@ import (
 )
 
 // A placeholder for the TableOfContents markup. This is what we pass to the Goldmark etc. renderers.
-var tocShortcodePlaceholder = createShortcodePlaceholder("TOC", 0)
+var tocShortcodePlaceholder = createShortcodePlaceholder("TOC", 0, 0)
 
 // shortcodeRenderer is typically used to delay rendering of inner shortcodes
 // marked with placeholders in the content.
