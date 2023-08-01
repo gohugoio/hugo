@@ -65,7 +65,7 @@ require (
 	github.com/tdewolff/parse/v2 v2.6.6
 	github.com/yuin/goldmark v1.5.5
 	go.uber.org/atomic v1.11.0
-	go.uber.org/automaxprocs v1.5.2
+	go.uber.org/automaxprocs v1.5.3
 	gocloud.dev v0.24.0
 	golang.org/x/exp v0.0.0-20221031165847-c99f073a8326
 	golang.org/x/image v0.9.0
