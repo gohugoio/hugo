@@ -31,14 +31,19 @@ import (
 	"github.com/gohugoio/hugo/resources/page"
 )
 
+var pageIdCounter atomic.Int64
+
 func newPageBase(metaProvider *pageMeta) (*pageState, error) {
 	if metaProvider.s == nil {
 		panic("must provide a Site")
 	}
 
+	id := int(pageIdCounter.Add(1))
+
 	s := metaProvider.s
 
 	ps := &pageState{
+		id:                                id,
 		pageOutput:                        nopPageOutput,
 		pageOutputTemplateVariationsState: atomic.NewUint32(0),
 		pageCommon: &pageCommon{

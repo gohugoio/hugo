@@ -277,6 +277,7 @@ type PageRenderProvider interface {
 // PageWithoutContent is the Page without any of the content methods.
 type PageWithoutContent interface {
 	RawContentProvider
+	RenderShortcodesProvider
 	resource.Resource
 	PageMetaProvider
 	resource.LanguageProvider
@@ -360,6 +361,11 @@ type Positioner interface {
 type RawContentProvider interface {
 	// RawContent returns the raw, unprocessed content of the page excluding any front matter.
 	RawContent() string
+}
+
+type RenderShortcodesProvider interface {
+	// RenderShortcodes returns RawContent with any shortcodes rendered.
+	RenderShortcodes(context.Context) (template.HTML, error)
 }
 
 // RefProvider provides the methods needed to create reflinks to pages.

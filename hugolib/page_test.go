@@ -1998,7 +1998,6 @@ func TestRenderWithoutArgument(t *testing.T) {
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			Running:     true,
 		},
 	).BuildE()
 

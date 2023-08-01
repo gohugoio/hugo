@@ -401,6 +401,10 @@ func (p *nopPage) RawContent() string {
 	return ""
 }
 
+func (p *nopPage) RenderShortcodes(ctx context.Context) (template.HTML, error) {
+	return "", nil
+}
+
 func (p *nopPage) ReadingTime(context.Context) int {
 	return 0
 }

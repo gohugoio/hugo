@@ -103,6 +103,30 @@ func newPageContentOutput(p *pageState, po *pageOutput) (*pageContentOutput, err
 			return err
 		}
 
+		ctxCallback := func(cp2 *pageContentOutput) {
+			cp.p.cmap.hasNonMarkdownShortcode = cp.p.cmap.hasNonMarkdownShortcode || cp2.p.cmap.hasNonMarkdownShortcode
+			// Merge content placeholders
+			for k, v := range cp2.contentPlaceholders {
+				cp.contentPlaceholders[k] = v
+			}
+
+			if p.s.watching() {
+				for _, s := range cp2.p.shortcodeState.shortcodes {
+					for _, templ := range s.templs {
+						dependencyTracker.Add(templ.(identity.Manager))
+					}
+				}
+			}
+
+			// Transfer shortcode names so HasShortcode works for shortcodes from included pages.
+			cp.p.shortcodeState.transferNames(cp2.p.shortcodeState)
+			if cp2.p.pageOutputTemplateVariationsState.Load() == 2 {
+				cp.p.pageOutputTemplateVariationsState.Store(2)
+			}
+		}
+
+		ctx = tpl.SetCallbackFunctionInContext(ctx, ctxCallback)
+
 		var hasVariants bool
 		cp.workContent, hasVariants, err = p.contentToRender(ctx, p.source.parsed, p.cmap, cp.contentPlaceholders)
 		if err != nil {
@@ -348,6 +372,63 @@ func (p *pageContentOutput) Fragments(ctx context.Context) *tableofcontents.Frag
 		return tableofcontents.Empty
 	}
 	return p.tableOfContents
+}
+
+func (p *pageContentOutput) RenderShortcodes(ctx context.Context) (template.HTML, error) {
+	p.p.s.initInit(ctx, p.initToC, p.p)
+	source := p.p.source.parsed.Input()
+	renderedShortcodes := p.contentPlaceholders
+	var insertPlaceholders bool
+	var hasVariants bool
+	var cb func(*pageContentOutput)
+	if v := tpl.GetCallbackFunctionFromContext(ctx); v != nil {
+		if fn, ok := v.(func(*pageContentOutput)); ok {
+			insertPlaceholders = true
+			cb = fn
+		}
+	}
+	c := make([]byte, 0, len(source)+(len(source)/10))
+	for _, it := range p.p.cmap.items {
+		switch v := it.(type) {
+		case pageparser.Item:
+			c = append(c, source[v.Pos():v.Pos()+len(v.Val(source))]...)
+		case pageContentReplacement:
+			// Ignore.
+		case *shortcode:
+			if !insertPlaceholders || !v.insertPlaceholder() {
+				// Insert the rendered shortcode.
+				renderedShortcode, found := renderedShortcodes[v.placeholder]
+				if !found {
+					// This should never happen.
+					panic(fmt.Sprintf("rendered shortcode %q not found", v.placeholder))
+				}
+
+				b, more, err := renderedShortcode.renderShortcode(ctx)
+				if err != nil {
+					return "", fmt.Errorf("failed to render shortcode: %w", err)
+				}
+				hasVariants = hasVariants || more
+				c = append(c, []byte(b)...)
+
+			} else {
+				// Insert the placeholder so we can insert the content after
+				// markdown processing.
+				c = append(c, []byte(v.placeholder)...)
+			}
+		default:
+			panic(fmt.Sprintf("unknown item type %T", it))
+		}
+	}
+
+	if hasVariants {
+		p.p.pageOutputTemplateVariationsState.Store(2)
+	}
+
+	if cb != nil {
+		cb(p)
+	}
+
+	return helpers.BytesToHTML(c), nil
 }
 
 func (p *pageContentOutput) TableOfContents(ctx context.Context) template.HTML {
