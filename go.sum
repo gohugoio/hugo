@@ -419,8 +419,8 @@ github.com/gorilla/websocket v1.4.1/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/ad
 github.com/gorilla/websocket v1.5.0 h1:PPwGk2jz7EePpoHN/+ClbZu8SPxiqlu12wZP/3sWmnc=
 github.com/gorilla/websocket v1.5.0/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/grpc-ecosystem/grpc-gateway v1.16.0/go.mod h1:BDjrQk3hbvj6Nolgz8mAMFbcEtjT1g+wF4CSlocrBnw=
-github.com/hairyhenderson/go-codeowners v0.3.0 h1:StTUwFO+E6gaAcsAx8h6Pgc88OO0oC95mTyRC0S9LPw=
-github.com/hairyhenderson/go-codeowners v0.3.0/go.mod h1:sbmEivkk3c2tqw05ch4AVtpnOb4un1CQTJ6rtGfODJE=
+github.com/hairyhenderson/go-codeowners v0.4.0 h1:Wx/tRXb07sCyHeC8mXfio710Iu35uAy5KYiBdLHdv4Q=
+github.com/hairyhenderson/go-codeowners v0.4.0/go.mod h1:iJgZeCt+W/GzXo5uchFCqvVHZY2T4TAIpvuVlKVkLxc=
 github.com/hashicorp/golang-lru v0.5.0/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
 github.com/hashicorp/golang-lru v0.5.1/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
 github.com/hashicorp/golang-lru/v2 v2.0.1 h1:5pv5N1lT1fjLg2VQ5KWc7kmucp2x/kvFOnxuVTqZ6x4=
