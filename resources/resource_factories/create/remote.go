@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"math/rand"
 	"mime"
 	"net/http"
 	"net/http/httputil"
@@ -25,6 +26,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
@@ -83,6 +85,15 @@ func toHTTPError(err error, res *http.Response, readBody bool) *HTTPError {
 	}
 }
 
+var temporaryHTTPStatusCodes = map[int]bool{
+	408: true,
+	429: true,
+	500: true,
+	502: true,
+	503: true,
+	504: true,
+}
+
 // FromRemote expects one or n-parts of a URL to a resource
 // If you provide multiple parts they will be joined together to the final URL.
 func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resource, error) {
@@ -108,30 +119,61 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 			return nil, err
 		}
 
-		req, err := options.NewRequest(uri)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create request for resource %s: %w", uri, err)
-		}
+		var (
+			start          time.Time
+			nextSleep      = time.Duration((rand.Intn(1000) + 100)) * time.Millisecond
+			nextSleepLimit = time.Duration(5) * time.Second
+		)
 
-		res, err := c.httpClient.Do(req)
-		if err != nil {
-			return nil, err
-		}
-		defer res.Body.Close()
+		for {
+			b, retry, err := func() ([]byte, bool, error) {
+				req, err := options.NewRequest(uri)
+				if err != nil {
+					return nil, false, fmt.Errorf("failed to create request for resource %s: %w", uri, err)
+				}
 
-		httpResponse, err := httputil.DumpResponse(res, true)
-		if err != nil {
-			return nil, toHTTPError(err, res, !isHeadMethod)
-		}
+				res, err := c.httpClient.Do(req)
+				if err != nil {
+					return nil, false, err
+				}
+				defer res.Body.Close()
 
-		if res.StatusCode != http.StatusNotFound {
-			if res.StatusCode < 200 || res.StatusCode > 299 {
-				return nil, toHTTPError(fmt.Errorf("failed to fetch remote resource: %s", http.StatusText(res.StatusCode)), res, !isHeadMethod)
+				if res.StatusCode != http.StatusNotFound {
+					if res.StatusCode < 200 || res.StatusCode > 299 {
+						return nil, temporaryHTTPStatusCodes[res.StatusCode], toHTTPError(fmt.Errorf("failed to fetch remote resource: %s", http.StatusText(res.StatusCode)), res, !isHeadMethod)
 
+					}
+				}
+
+				b, err := httputil.DumpResponse(res, true)
+				if err != nil {
+					return nil, false, toHTTPError(err, res, !isHeadMethod)
+				}
+
+				return b, false, nil
+
+			}()
+
+			if err != nil {
+				if retry {
+					if start.IsZero() {
+						start = time.Now()
+					} else if d := time.Since(start) + nextSleep; d >= c.rs.Cfg.Timeout() {
+						return nil, fmt.Errorf("timeout (configured to %s) fetching remote resource %s: last error: %w", c.rs.Cfg.Timeout(), uri, err)
+					}
+					time.Sleep(nextSleep)
+					if nextSleep < nextSleepLimit {
+						nextSleep *= 2
+					}
+					continue
+				}
+				return nil, err
 			}
+
+			return hugio.ToReadCloser(bytes.NewReader(b)), nil
+
 		}
 
-		return hugio.ToReadCloser(bytes.NewReader(httpResponse)), nil
 	})
 	if err != nil {
 		return nil, err
