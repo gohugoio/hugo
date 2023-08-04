@@ -21,6 +21,7 @@ import (
 	"strings"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugolib"
 )
 
@@ -67,10 +68,10 @@ func TestGetRemoteRetry(t *testing.T) {
 	t.Parallel()
 
 	temporaryHTTPCodes := []int{408, 429, 500, 502, 503, 504}
-	numPages := 30
+	numPages := 20
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		if rand.Intn(4) == 0 {
+		if rand.Intn(3) == 0 {
 			w.WriteHeader(temporaryHTTPCodes[rand.Intn(len(temporaryHTTPCodes))])
 			return
 		}
@@ -81,9 +82,10 @@ func TestGetRemoteRetry(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(handler))
 	t.Cleanup(func() { srv.Close() })
 
-	files := `
+	filesTemplate := `
 -- hugo.toml --
 disableKinds = ["home", "taxonomy", "term"]
+timeout = "TIMEOUT"
 [security]
 [security.http]
 urls = ['.*']
@@ -93,7 +95,7 @@ mediaTypes = ['text/plain']
 {{ $opts := dict }}
 {{ with resources.GetRemote $url $opts }}
   {{ with .Err }}
-    {{ errorf "Unable to get remote resource: %s" . }}
+    {{ errorf "Got Err: %s. Data: %v" . .Data }}
   {{ else }}
     Content: {{ .Content }}
   {{ end }}
@@ -103,22 +105,41 @@ mediaTypes = ['text/plain']
 `
 
 	for i := 0; i < numPages; i++ {
-		files += fmt.Sprintf("-- content/post/p%d.md --\n", i)
+		filesTemplate += fmt.Sprintf("-- content/post/p%d.md --\n", i)
 	}
 
-	files = strings.ReplaceAll(files, "URL", srv.URL)
+	filesTemplate = strings.ReplaceAll(filesTemplate, "URL", srv.URL)
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	)
+	t.Run("OK", func(t *testing.T) {
+		files := strings.ReplaceAll(filesTemplate, "TIMEOUT", "60s")
+		b := hugolib.NewIntegrationTestBuilder(
+			hugolib.IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		)
 
-	b.Build()
+		b.Build()
 
-	for i := 0; i < numPages; i++ {
-		b.AssertFileContent(fmt.Sprintf("public/post/p%d/index.html", i), fmt.Sprintf("Content: Response for /post/p%d/.", i))
-	}
+		for i := 0; i < numPages; i++ {
+			b.AssertFileContent(fmt.Sprintf("public/post/p%d/index.html", i), fmt.Sprintf("Content: Response for /post/p%d/.", i))
+		}
+	})
+
+	t.Run("Timeout", func(t *testing.T) {
+		files := strings.ReplaceAll(filesTemplate, "TIMEOUT", "100ms")
+		b, err := hugolib.NewIntegrationTestBuilder(
+			hugolib.IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		).BuildE()
+
+		b.Assert(err, qt.IsNotNil)
+		b.AssertLogContains("Got Err")
+		b.AssertLogContains("Retry timeout")
+		b.AssertLogContains("ContentLength:0")
+
+	})
 
 }
