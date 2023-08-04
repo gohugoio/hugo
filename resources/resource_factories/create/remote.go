@@ -159,7 +159,8 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 					if start.IsZero() {
 						start = time.Now()
 					} else if d := time.Since(start) + nextSleep; d >= c.rs.Cfg.Timeout() {
-						return nil, fmt.Errorf("timeout (configured to %s) fetching remote resource %s: last error: %w", c.rs.Cfg.Timeout(), uri, err)
+						c.rs.Logger.Errorf("Retry timeout (configured to %s) fetching remote resource.", c.rs.Cfg.Timeout())
+						return nil, err
 					}
 					time.Sleep(nextSleep)
 					if nextSleep < nextSleepLimit {
