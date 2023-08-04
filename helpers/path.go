@@ -27,6 +27,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/text"
+	"github.com/gohugoio/hugo/htesting"
 
 	"github.com/gohugoio/hugo/hugofs"
 
@@ -411,11 +412,14 @@ func GetCacheDir(fs afero.Fs, cacheDir string) (string, error) {
 
 	const hugoCacheBase = "hugo_cache"
 
-	userCacheDir, err := os.UserCacheDir()
-	if err == nil {
-		cacheDir := filepath.Join(userCacheDir, hugoCacheBase)
-		if err := fs.Mkdir(cacheDir, 0777); err == nil || os.IsExist(err) {
-			return cacheDir, nil
+	// Avoid filling up the home dir with Hugo cache dirs from development.
+	if !htesting.IsTest {
+		userCacheDir, err := os.UserCacheDir()
+		if err == nil {
+			cacheDir := filepath.Join(userCacheDir, hugoCacheBase)
+			if err := fs.Mkdir(cacheDir, 0777); err == nil || os.IsExist(err) {
+				return cacheDir, nil
+			}
 		}
 	}
 
