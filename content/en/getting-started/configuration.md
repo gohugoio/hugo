@@ -168,7 +168,7 @@ Pass down default configuration values (front matter) to pages in the content tr
 
 **Default value:** false
 
-Enable to turn relative URLs into absolute.
+Enable to turn relative URLs into absolute. See [details](/content-management/urls/#canonical-urls).
 
 ### cleanDestinationDir
 
@@ -381,7 +381,7 @@ See [Related Content](/content-management/related/#configure-related-content).
 
 **Default value:** false
 
-Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.
+Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs. See [details](/content-management/urls/#relative-urls).
 
 ### refLinksErrorLevel
 
