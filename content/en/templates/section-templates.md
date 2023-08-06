@@ -46,17 +46,17 @@ Examples:
 {{< code file="layouts/_default/section.html" >}}
 {{ define "main" }}
   <main>
-      {{ .Content }}
-          <ul class="contents">
-          {{ range .Paginator.Pages }}
-              <li>{{ .Title }}
-                  <div>
-                    {{ partial "summary.html" . }}
-                  </div>
-              </li>
-          {{ end }}
-          </ul>
-      {{ partial "pagination.html" . }}
+    {{ .Content }}
+      <ul class="contents">
+        {{ range .Paginator.Pages }}
+          <li>{{ .Title }}
+            <div>
+              {{ partial "summary.html" . }}
+            </div>
+          </li>
+        {{ end }}
+      </ul>
+    {{ partial "pagination.html" . }}
   </main>
 {{ end }}
 {{< /code >}}
