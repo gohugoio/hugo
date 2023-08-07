@@ -240,7 +240,7 @@ var allDecoderSetups = map[string]decodeWeight{
 			} else {
 				p.c.Related = related.DefaultConfig
 				if _, found := p.c.Taxonomies["tag"]; found {
-					p.c.Related.Add(related.IndexConfig{Name: "tags", Weight: 80})
+					p.c.Related.Add(related.IndexConfig{Name: "tags", Weight: 80, Type: related.TypeBasic})
 				}
 			}
 			return nil
