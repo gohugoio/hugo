@@ -129,13 +129,7 @@ system.
 Every `Page` has a [`Kind`][page_kinds] attribute, and the default Output
 Formats are set based on that.
 
-| Kind       | Default Output Formats |
-| ---------- | ---------------------- |
-| `page`     | HTML                   |
-| `home`     | HTML, RSS              |
-| `section`  | HTML, RSS              |
-| `taxonomy` | HTML, RSS              |
-| `term`     | HTML, RSS              |
+{{< code-toggle config="outputs" />}}
 
 ### Customizing output formats
 

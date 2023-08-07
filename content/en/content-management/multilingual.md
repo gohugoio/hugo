@@ -19,6 +19,10 @@ Also See [Hugo Multilingual Part 1: Content translation].
 
 ## Configure languages
 
+This is the default language configuration:
+
+{{< code-toggle config="languages" />}}
+
 This is an example of a site configuration for a multilingual project. Any key not defined in a `languages` object will fall back to the global value in the root of your site configuration.
 
 {{< code-toggle file="hugo" >}}

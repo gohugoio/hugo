@@ -384,14 +384,7 @@ Note the self-closing shortcode syntax above. You may call the `imgproc` shortco
 
 Define an `imaging` section in your site configuration to set the default [image processing options](#image-processing-options).
 
-{{< code-toggle file="hugo" copy=true >}}
-[imaging]
-resampleFilter = "Box"
-quality = 75
-hint = "photo"
-anchor = "Smart"
-bgColor = "#ffffff"
-{{< /code-toggle >}}
+{{< code-toggle config="imaging" />}}
 
 anchor
 : See image processing options: [anchor](#anchor).
