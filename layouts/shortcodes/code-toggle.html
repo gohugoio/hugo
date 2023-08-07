@@ -1,17 +1,18 @@
 {{- /*
-Renders syntax-highlighted configuration data in JSON, TOML, and YAML formats.
+  Renders syntax-highlighted configuration data in JSON, TOML, and YAML formats.
 
-@param {string} [config] The section of site.Data.docs.config to render.
-@param {bool} [copy=true] If true, display a copy to clipboard button.
-@param {string} [file] The file name to display above the rendered code.
-@param {bool} [fm=false] If true, render the code as front matter.
-@param {bool} [skipHeader=false] If false, omit top level key(s) when rendering a section of site.Data.docs.config.
+  @param {string} [config] The section of site.Data.docs.config to render.
+  @param {bool} [copy=true] If true, display a copy to clipboard button.
+  @param {string} [file] The file name to display above the rendered code.
+  @param {bool} [fm=false] If true, render the code as front matter.
+  @param {bool} [skipHeader=false] If false, omit top level key(s) when rendering a section of site.Data.docs.config.
 
-@returns {template.HTML}
+  @returns {template.HTML}
 */}}
 
 {{- /* Initialize. */}}
 {{- $config := "" }}
+{{- $dataKey := "" }}
 {{- $copy := true }}
 {{- $file := "" }}
 {{- $fm := false }}
@@ -19,20 +20,21 @@ Renders syntax-highlighted configuration data in JSON, TOML, and YAML formats.
 
 {{- /* Get parameters. */}}
 {{- $config = .Get "config" }}
+{{- $dataKey = .Get "dataKey" }}
 {{- $file = .Get "file" }}
 {{- if in (slice "false" false 0) (.Get "copy") }}
   {{- $copy = false }}
-{{- else if in (slice "true" true 1) (.Get "copy")}}
+{{- else if in (slice "true" true 1) (.Get "copy") }}
   {{- $copy = true }}
 {{- end }}
 {{- if in (slice "false" false 0) (.Get "fm") }}
   {{- $fm = false }}
-{{- else if in (slice "true" true 1) (.Get "fm")}}
+{{- else if in (slice "true" true 1) (.Get "fm") }}
   {{- $fm = true }}
 {{- end }}
 {{- if in (slice "false" false 0) (.Get "skipHeader") }}
   {{- $skipHeader = false }}
-{{- else if in (slice "true" true 1) (.Get "skipHeader")}}
+{{- else if in (slice "true" true 1) (.Get "skipHeader") }}
   {{- $skipHeader = true }}
 {{- end }}
 
@@ -43,14 +45,18 @@ Renders syntax-highlighted configuration data in JSON, TOML, and YAML formats.
 
 {{- /* Render. */}}
 {{- $code := "" }}
-{{- with $config }}
+{{- if $config }}
   {{- $file = $file | default "hugo" }}
-  {{- $sections := (split . ".") }}
+  {{- $sections := (split $config ".") }}
   {{- $configSection := index $.Site.Data.docs.config $sections }}
   {{- $code = dict $sections $configSection }}
   {{- if $skipHeader }}
     {{- $code = $configSection }}
   {{- end }}
+{{- else if $dataKey }}
+  {{- $file = $file | default $dataKey }}
+  {{- $sections := (split $dataKey ".") }}
+  {{- $code = index $.Site.Data.docs $sections }}
 {{- else }}
   {{- $code = $.Inner }}
 {{- end }}
@@ -62,7 +68,9 @@ Renders syntax-highlighted configuration data in JSON, TOML, and YAML formats.
       </div>
     {{- end }}
     {{- range $langs }}
-      <button data-toggle-tab="{{ . }}" class="tab-button {{ cond (eq . "yaml") "active" "" }} ba san-serif f6 dib lh-solid ph2 pv2">
+      <button
+        data-toggle-tab="{{ . }}"
+        class="tab-button {{ cond (eq . "yaml") "active" "" }} ba san-serif f6 dib lh-solid ph2 pv2">
         {{ . }}
       </button>
       &nbsp;
@@ -70,7 +78,9 @@ Renders syntax-highlighted configuration data in JSON, TOML, and YAML formats.
   </div>
   <div class="tab-content">
     {{- range $langs }}
-      <div data-pane="{{ . }}" class="code-copy-content nt3 tab-pane {{ cond (eq . "yaml") "active" "" }}">
+      <div
+        data-pane="{{ . }}"
+        class="code-copy-content nt3 tab-pane {{ cond (eq . "yaml") "active" "" }}">
         {{- $hCode := $code | transform.Remarshal . }}
         {{- if and $fm (in (slice "toml" "yaml") .) }}
           {{- $hCode = printf "%s\n%s\n%s" $placeHolder $hCode $placeHolder }}
@@ -79,7 +89,11 @@ Renders syntax-highlighted configuration data in JSON, TOML, and YAML formats.
         {{ highlight $hCode . "" | replaceRE $placeHolder (index $delimiters .) | safeHTML }}
       </div>
       {{- if $copy }}
-        <button class="needs-js copy copy-toggle bg-accent-color-dark f6 absolute top-0 right-0 lh-solid hover-bg-primary-color-dark bn white ph3 pv2" title="Copy this code to your clipboard." data-clipboard-action="copy" aria-label="copy button"></button>
+        <button
+          class="needs-js copy copy-toggle bg-accent-color-dark f6 absolute top-0 right-0 lh-solid hover-bg-primary-color-dark bn white ph3 pv2"
+          title="Copy this code to your clipboard."
+          data-clipboard-action="copy"
+          aria-label="copy button"></button>
         {{- /* Functionality located within filesaver.js The copy here is located in the css with .copy class so it can be replaced with JS on success */}}
       {{- end }}
     {{- end }}
