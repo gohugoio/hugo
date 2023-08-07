@@ -52,10 +52,7 @@ winget install Hugo.Hugo.Extended
 {{% readfile file="/installation/common/05-build-from-source.md" %}}
 
 {{% note %}}
-When building the extended edition of Hugo from source on Windows, you will also need to install the [GCC compiler]. See these [detailed instructions].
-
-[detailed instructions]: https://discourse.gohugo.io/t/41370
-[GCC compiler]: https://gcc.gnu.org/
+See these [detailed instructions](https://discourse.gohugo.io/t/41370) to install GCC on Windows.
 {{% /note %}}
 
 ## Comparison

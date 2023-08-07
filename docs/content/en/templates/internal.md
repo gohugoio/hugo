@@ -19,12 +19,12 @@ While the following internal templates are called similar to partials, they do *
 
 ## Google Analytics
 
-Hugo ships with internal templates supporting Google Analytics, both [Google Analytics 4][GA4] (GA4) and Universal Analytics.
+Hugo ships with an internal template supporting [Google Analytics 4][GA4] (GA4).
 
-**Note:** Universal Analytics are deprecated. For details, see [Universal Analytics will be going away].
+**Note:** Universal Analytics are [deprecated].
 
 [GA4]: https://support.google.com/analytics/answer/10089681
-[Universal Analytics will be going away]: https://support.google.com/analytics/answer/11583528
+[deprecated]: https://support.google.com/analytics/answer/11583528
 
 ### Configure Google Analytics
 
@@ -35,40 +35,29 @@ Provide your tracking ID in your configuration file:
 googleAnalytics = "G-MEASUREMENT_ID"
 {{</ code-toggle >}}
 
-**Google Universal Analytics (analytics.js)**
-{{< code-toggle file="hugo" >}}
-googleAnalytics = "UA-PROPERTY_ID"
-{{</ code-toggle >}}
-
 ### Use the Google Analytics template
 
-You can then include the Google Analytics internal template:
-
-```go-html-template
-{{ template "_internal/google_analytics_async.html" . }}
-```
-
-**Note:** The async template is _not_ suitable for Google Analytics 4.
+Include the Google Analytics internal template in your templates where you want the code to appear:
 
 ```go-html-template
 {{ template "_internal/google_analytics.html" . }}
 ```
 
-If you want to create your own template, you can access the configured ID with `{{ site.Config.Services.GoogleAnalytics.ID }}`.
+To create your own template, access the configured ID with `{{ site.Config.Services.GoogleAnalytics.ID }}`.
 
 ## Disqus
 
-Hugo also ships with an internal template for [Disqus comments][disqus], a popular commenting system for both static and dynamic websites. In order to effectively use Disqus, you will need to secure a Disqus "shortname" by [signing up for the free service][disqussignup].
+Hugo also ships with an internal template for [Disqus comments][disqus], a popular commenting system for both static and dynamic websites. To effectively use Disqus, secure a Disqus "shortname" by [signing up for the free service][disqussignup].
 
 ### Configure Disqus
 
-To use Hugo's Disqus template, you first need to set a single configuration value:
+To use Hugo's Disqus template, first set up a single configuration value:
 
 {{< code-toggle file="hugo" >}}
 disqusShortname = "your-disqus-shortname"
 {{</ code-toggle >}}
 
-You also have the option to set the following in the front matter for a given piece of content:
+You can also set the following in the front matter for a given piece of content:
 
 * `disqus_identifier`
 * `disqus_title`
@@ -76,7 +65,7 @@ You also have the option to set the following in the front matter for a given pi
 
 ### Use the Disqus template
 
-To add Disqus, include the following line in templates where you want your comments to appear:
+To add Disqus, include the following line in the templates where you want your comments to appear:
 
 ```go-html-template
 {{ template "_internal/disqus.html" . }}
@@ -222,7 +211,6 @@ The code for these templates is located [here](https://github.com/gohugoio/hugo/
 
 * `_internal/disqus.html`
 * `_internal/google_analytics.html`
-* `_internal/google_analytics_async.html`
 * `_internal/opengraph.html`
 * `_internal/pagination.html`
 * `_internal/schema.html`

@@ -14,21 +14,7 @@ relatedfuncs: [findRE, replaceRE]
 
 By default, `findRESubmatch` finds all matches. You can limit the number of matches with an optional LIMIT parameter. A return value of nil indicates no match.
 
-When specifying the regular expression, use a raw [string literal] (backticks) instead of an interpreted string literal (double quotes) to simplify the syntax. With an interpreted string literal you must escape backslashes.
-
-[string literal]: https://go.dev/ref/spec#String_literals
-
-This function uses the [RE2] regular expression library. See the [RE2 syntax documentation] for details. Note that the RE2 `\C` escape sequence is not supported.
-
-[RE2]: https://github.com/google/re2/
-[RE2 syntax documentation]: https://github.com/google/re2/wiki/Syntax/
-
-{{% note %}}
-The RE2 syntax is a subset of that accepted by [PCRE], roughly speaking, and with various [caveats].
-
-[caveats]: https://swtch.com/~rsc/regexp/regexp3.html#caveats
-[PCRE]: https://www.pcre.org/
-{{% /note %}}
+{{% readfile file="/functions/common/regular-expressions.md" %}}
 
 ## Demonstrative examples
 

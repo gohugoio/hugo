@@ -11,5 +11,5 @@ signature: [uniq SET]
 
 
 ```go-html-template
-{{ slice 1 3 2 1 | uniq }} --> [1 3 2]
+{{ slice 1 3 2 1 | uniq }} → [1 3 2]
 ```

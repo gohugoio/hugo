@@ -11,8 +11,6 @@ menu:
 weight: 20
 ---
 
-The Hugo community uses a wide range of preferred tools and has developed plug-ins for some of the most popular text editors to help automate parts of your workflow.
-
 ## Sublime Text
 
 * [Hugofy](https://github.com/akmittal/Hugofy). Hugofy is a plugin for Sublime Text 3 to make life easier to use Hugo static site generator.
@@ -25,7 +23,7 @@ The Hugo community uses a wide range of preferred tools and has developed plug-i
 * [Hugo Language and Syntax Support](https://marketplace.visualstudio.com/items?itemName=budparr.language-hugo-vscode). Hugo Language and Syntax Support is a Visual Studio Code plugin for Hugo syntax highlighting and snippets. The source code can be found [here](https://github.com/budparr/language-hugo-vscode).
 * [Hugo Themer](https://marketplace.visualstudio.com/items?itemName=eliostruyf.vscode-hugo-themer). Hugo Themer is an extension to help you while developing themes. It allows you to easily navigate through your theme files.
 * [Front Matter](https://marketplace.visualstudio.com/items?itemName=eliostruyf.vscode-front-matter). Once you go for a static site, you need to think about how you are going to manage your articles. Front matter is a tool that helps you maintain the metadata/front matter of your articles like: creation date, modified date, slug, tile, SEO check, and many more...
-* [Syntax Highlighting for Hugo Shortcodes](https://marketplace.visualstudio.com/items?itemName=kaellarkin.hugo-shortcode-syntax). This extension add some syntax highlighting for Shortcodes, making visual identification of individual pieces easier.
+* [Syntax Highlighting for Hugo Shortcodes](https://marketplace.visualstudio.com/items?itemName=kaellarkin.hugo-shortcode-syntax). This extension adds some syntax highlighting for Shortcodes, making visual identification of individual pieces easier.
 
 ## Emacs
 
@@ -34,7 +32,7 @@ The Hugo community uses a wide range of preferred tools and has developed plug-i
 
 ## Vim
 
-* [Vim Hugo Helper](https://github.com/robertbasic/vim-hugo-helper). A small Vim plugin to help me with writing posts with Hugo.
+* [Vim Hugo Helper](https://github.com/robertbasic/vim-hugo-helper). A small Vim plugin that facilitates authoring pages and blog posts with Hugo.
 * [vim-hugo](https://github.com/phelipetls/vim-hugo). A Vim plugin with syntax highlighting for templates and a few other features.
 
 [formats]: /content-management/formats/

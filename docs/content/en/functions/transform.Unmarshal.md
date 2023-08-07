@@ -62,12 +62,12 @@ The following example lists the items of an RSS feed:
 
 ```go-html-template
 {{ with resources.GetRemote "https://example.com/rss.xml" | transform.Unmarshal }}
-    {{ range .channel.item }}
-        <strong>{{ .title | plainify | htmlUnescape }}</strong><br />
-        <p>{{ .description | plainify | htmlUnescape }}</p>
-        {{ $link := .link | plainify | htmlUnescape }}
-        <a href="{{ $link }}">{{ $link }}</a><br />
-        <hr>
-    {{ end }}
+  {{ range .channel.item }}
+    <strong>{{ .title | plainify | htmlUnescape }}</strong><br>
+    <p>{{ .description | plainify | htmlUnescape }}</p>
+    {{ $link := .link | plainify | htmlUnescape }}
+    <a href="{{ $link }}">{{ $link }}</a><br>
+    <hr>
+  {{ end }}
 {{ end }}
 ```

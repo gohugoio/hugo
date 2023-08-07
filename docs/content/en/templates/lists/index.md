@@ -166,13 +166,13 @@ This list template has been modified slightly from a template originally used in
 {{ partial "subheader.html" . }}
 <main>
   <div>
-   <h1>{{ .Title }}</h1>
-        <ul>
-        <!-- Renders the li.html content view for each content/posts/*.md -->
-            {{ range .Pages }}
-                {{ .Render "li" }}
-            {{ end }}
-        </ul>
+    <h1>{{ .Title }}</h1>
+    <ul>
+      <!-- Renders the li.html content view for each content/posts/*.md -->
+      {{ range .Pages }}
+        {{ .Render "li" }}
+      {{ end }}
+    </ul>
   </div>
 </main>
 {{ partial "footer.html" . }}
@@ -184,10 +184,10 @@ This list template has been modified slightly from a template originally used in
 {{ define "main" }}
 <main>
   <div>
-   <h1>{{ .Title }}</h1>
-   <!-- ranges through each of the content files associated with a particular taxonomy term and renders the summary.html content view -->
+    <h1>{{ .Title }}</h1>
+    <!-- ranges through each of the content files associated with a particular taxonomy term and renders the summary.html content view -->
     {{ range .Pages }}
-        {{ .Render "summary" }}
+      {{ .Render "summary" }}
     {{ end }}
   </div>
 </main>

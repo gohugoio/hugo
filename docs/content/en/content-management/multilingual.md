@@ -506,7 +506,7 @@ See [lang.FormatNumber] and [lang.FormatNumberCustom] for details.
 With this template code:
 
 ```go-html-template
-{{ 512.5032 | lang.FormatPercent 2 }} ---> 512.50%
+{{ 512.5032 | lang.FormatPercent 2 }} → 512.50%
 ```
 
 The rendered page displays:

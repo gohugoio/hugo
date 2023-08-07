@@ -24,11 +24,11 @@ content/
 The function returns these values:
 
 ```go-html-template
-{{ os.FileExists "content" }} --> true
-{{ os.FileExists "content/news" }} --> true
-{{ os.FileExists "content/news/article-1" }} --> false
-{{ os.FileExists "content/news/article-1.md" }} --> true
-{{ os.FileExists "news" }} --> true
-{{ os.FileExists "news/article-1" }} --> false
-{{ os.FileExists "news/article-1.md" }} --> true
+{{ os.FileExists "content" }} → true
+{{ os.FileExists "content/news" }} → true
+{{ os.FileExists "content/news/article-1" }} → false
+{{ os.FileExists "content/news/article-1.md" }} → true
+{{ os.FileExists "news" }} → true
+{{ os.FileExists "news/article-1" }} → false
+{{ os.FileExists "news/article-1.md" }} → true
 ```

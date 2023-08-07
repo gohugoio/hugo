@@ -85,19 +85,19 @@ You can show content summaries with the following code. You could use the follow
 
 {{< code file="page-list-with-summaries.html" >}}
 {{ range first 10 .Pages }}
-    <article>
-      <!-- this <div> includes the title summary -->
-      <div>
-        <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-        {{ .Summary }}
-      </div>
-      {{ if .Truncated }}
+  <article>
+    <!-- this <div> includes the title summary -->
+    <div>
+      <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+      {{ .Summary }}
+    </div>
+    {{ if .Truncated }}
       <!-- This <div> includes a read more link, but only if the summary is truncated... -->
       <div>
         <a href="{{ .RelPermalink }}">Read More…</a>
       </div>
-      {{ end }}
-    </article>
+    {{ end }}
+  </article>
 {{ end }}
 {{< /code >}}
 

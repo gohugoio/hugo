@@ -1,10 +1,6 @@
 
   enableInlineShortcodes = false
 
-  [exec]
-    allow = ['^go$']
-    osEnv = ['^PATH$']
-
   [funcs]
     getenv = ['^HUGO_', '^REPOSITORY_URL$', '^BRANCH$']
 

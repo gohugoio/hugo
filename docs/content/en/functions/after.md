@@ -33,7 +33,7 @@ You can use `after` in combination with the [`first` function] and Hugo's [power
   <h2>Featured Article</h2>
   {{ range first 1 .Pages.ByPublishDate.Reverse }}
   <header>
-      <h3><a href="{{ . Permalink }}">{{ .Title }}</a></h3>
+      <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
   </header>
   <p>{{ .Description }}</p>
 {{ end }}

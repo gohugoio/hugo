@@ -109,25 +109,12 @@ You can also put the returned value of the `where` clauses into a variable:
 This example matches pages where the "foo" parameter begins with "ab":
 
 ```go-html-template
-{{ range where site.RegularPages "Params.foo" "like" "^ab" }}
+{{ range where site.RegularPages "Params.foo" "like" `^ab` }}
   <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 ```
 
-When specifying the regular expression, use a raw [string literal] (backticks) instead of an interpreted string literal (double quotes) to simplify the syntax. With an interpreted string literal you must escape backslashes.
-
-[string literal]: https://go.dev/ref/spec#String_literals
-
-Go's regular expression package implements the [RE2 syntax]. Note that the RE2 `\C` escape sequence is not supported.
-
-[RE2 syntax]: https://github.com/google/re2/wiki/Syntax/
-
-{{% note %}}
-The RE2 syntax is a subset of that accepted by [PCRE], roughly speaking, and with various [caveats].
-
-[caveats]: https://swtch.com/~rsc/regexp/regexp3.html#caveats
-[PCRE]: https://www.pcre.org/
-{{% /note %}}
+{{% readfile file="/functions/common/regular-expressions.md" %}}
 
 ## Use `where` with `first`
 

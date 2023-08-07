@@ -168,7 +168,7 @@ Pass down default configuration values (front matter) to pages in the content tr
 
 **Default value:** false
 
-Enable to turn relative URLs into absolute.
+Enable to turn relative URLs into absolute. See [details](/content-management/urls/#canonical-urls).
 
 ### cleanDestinationDir
 
@@ -381,7 +381,7 @@ See [Related Content](/content-management/related/#configure-related-content).
 
 **Default value:** false
 
-Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.
+Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs. See [details](/content-management/urls/#relative-urls).
 
 ### refLinksErrorLevel
 
@@ -517,7 +517,7 @@ The `build` configuration section contains global build-related configuration op
 buildStats {{< new-in "0.115.1" >}}
 : When enabled, creates a `hugo_stats.json` file in the root of your project. This file contains arrays of the `class` attributes, `id` attributes, and tags of every HTML element within your published site. Use this file as data source when [removing unused CSS] from your site. This process is also known as pruning, purging, or tree shaking.
 
-[removing unused CSS]: http://localhost:1313/hugo-pipes/postprocess/#css-purging-with-postcss
+[removing unused CSS]: /hugo-pipes/postprocess/#css-purging-with-postcss
 
 Exclude `class` attributes, `id` attributes, or tags from `hugo_stats.json` with the `disableClasses`, `disableIDs`, and `disableTags` keys.
 
@@ -864,7 +864,7 @@ This can be set using the `cacheDir` config option or via the OS env variable `H
 If this is not set, Hugo will use, in order of preference:
 
 1. If running on Netlify: `/opt/build/cache/hugo_cache/`. This means that if you run your builds on Netlify, all caches configured with `:cacheDir` will be saved and restored on the next build. For other CI vendors, please read their documentation. For an CircleCI example, see [this configuration](https://github.com/bep/hugo-sass-test/blob/6c3960a8f4b90e8938228688bc49bdcdd6b2d99e/.circleci/config.yml).
-1. In a `hugo_cache` directory below the OS user cache directory as defined by Go's [os.UserCacheDir](https://pkg.go.dev/os#UserCacheDir). On Unix systems, this is `$XDG_CONFIG_HOME` as specified by [basedir-spec-latest](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html) if non-empty, else `$HOME/.config`. On MacOS, this is `$HOME/Library/Application Support`. On Windows, this is`%AppData%`. On Plan 9, this is `$home/lib`. {{< new-in "0.116.0" >}}
+1. In a `hugo_cache` directory below the OS user cache directory as defined by Go's [os.UserCacheDir](https://pkg.go.dev/os#UserCacheDir). On Unix systems, this is `$XDG_CACHE_HOME` as specified by [basedir-spec-latest](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html) if non-empty, else `$HOME/.cache`. On MacOS, this is `$HOME/Library/Caches`. On Windows, this is`%LocalAppData%`. On Plan 9, this is `$home/lib/cache`. {{< new-in "0.116.0" >}}
 1. In a  `hugo_cache_$USER` directory below the OS temp dir.
 
 If you want to know the current value of `cacheDir`, you can run `hugo config`, e.g: `hugo config | grep cachedir`.
