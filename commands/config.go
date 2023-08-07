@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/bep/simplecobra"
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/modules"
 	"github.com/gohugoio/hugo/parser"
@@ -92,6 +93,7 @@ func (c *configCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 		if err := json.Unmarshal(buf.Bytes(), &m); err != nil {
 			return err
 		}
+		maps.ConvertFloat64WithNoDecimalsToInt(m)
 		switch format {
 		case "yaml":
 			return parser.InterfaceToConfig(m, metadecoders.YAML, os.Stdout)

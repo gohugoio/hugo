@@ -210,3 +210,28 @@ func (r KeyRenamer) renamePath(parentKeyPath string, m map[string]any) {
 		}
 	}
 }
+
+// ConvertFloat64WithNoDecimalsToInt converts float64 values with no decimals to int recursively.
+func ConvertFloat64WithNoDecimalsToInt(m map[string]any) {
+	for k, v := range m {
+		switch vv := v.(type) {
+		case float64:
+			if v == float64(int64(vv)) {
+				m[k] = int64(vv)
+			}
+		case map[string]any:
+			ConvertFloat64WithNoDecimalsToInt(vv)
+		case []any:
+			for i, vvv := range vv {
+				switch vvvv := vvv.(type) {
+				case float64:
+					if vvv == float64(int64(vvvv)) {
+						vv[i] = int64(vvvv)
+					}
+				case map[string]any:
+					ConvertFloat64WithNoDecimalsToInt(vvvv)
+				}
+			}
+		}
+	}
+}
