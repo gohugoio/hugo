@@ -14,6 +14,7 @@
 package commands
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -34,6 +35,7 @@ import (
 	"github.com/gohugoio/hugo/parser"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
+	"gopkg.in/yaml.v2"
 )
 
 func newGenCommand() *genCommand {
@@ -188,16 +190,8 @@ url: %s
 			run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 				r.Println("Generate docs data to", docsHelperTarget)
 
-				targetFile := filepath.Join(docsHelperTarget, "docs.json")
-
-				f, err := os.Create(targetFile)
-				if err != nil {
-					return err
-				}
-				defer f.Close()
-
-				enc := json.NewEncoder(f)
-				enc.SetIndent("", "  ")
+				var buf bytes.Buffer
+				jsonEnc := json.NewEncoder(&buf)
 
 				configProvider := func() docshelper.DocProvider {
 					conf := hugolib.DefaultConfig()
@@ -207,7 +201,25 @@ url: %s
 				}
 
 				docshelper.AddDocProviderFunc(configProvider)
-				if err := enc.Encode(docshelper.GetDocProvider()); err != nil {
+				if err := jsonEnc.Encode(docshelper.GetDocProvider()); err != nil {
+					return err
+				}
+
+				// Decode the JSON to a map[string]interface{} and then unmarshal it again to the correct format.
+				var m map[string]interface{}
+				if err := json.Unmarshal(buf.Bytes(), &m); err != nil {
+					return err
+				}
+
+				targetFile := filepath.Join(docsHelperTarget, "docs.yaml")
+
+				f, err := os.Create(targetFile)
+				if err != nil {
+					return err
+				}
+				defer f.Close()
+				yamlEnc := yaml.NewEncoder(f)
+				if err := yamlEnc.Encode(m); err != nil {
 					return err
 				}
 
