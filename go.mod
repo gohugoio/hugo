@@ -68,10 +68,10 @@ require (
 	go.uber.org/automaxprocs v1.5.3
 	gocloud.dev v0.33.0
 	golang.org/x/exp v0.0.0-20221031165847-c99f073a8326
-	golang.org/x/image v0.10.0
+	golang.org/x/image v0.11.0
 	golang.org/x/net v0.13.0
 	golang.org/x/sync v0.3.0
-	golang.org/x/text v0.11.0
+	golang.org/x/text v0.12.0
 	golang.org/x/tools v0.11.1
 	google.golang.org/api v0.134.0
 	gopkg.in/yaml.v2 v2.4.0
