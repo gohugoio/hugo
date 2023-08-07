@@ -72,7 +72,7 @@ Get the value of a given key.
 
 Add a given value to existing value(s) of the given key.
 
-For single values, `Add` accepts values that support Go's `+` operator. If the first `Add` for a key is an array or slice, the following adds will be appended to that list.
+For single values, `Add` accepts values that support Go's `+` operator. If the first `Add` for a key is an array or slice, the following adds will be [appended](/functions/append/) to that list.
 
 ```go-html-template
 {{ $scratch.Add "greetings" "Hello" }}

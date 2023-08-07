@@ -50,17 +50,17 @@ The following is an example of a very basic [single page template]:
 
 {{< code file="layout/_default/single.html" >}}
 {{ define "main" }}
-<main>
+  <main>
     <article>
-    <header>
+      <header>
         <h1>{{ .Title }}</h1>
-    </header>
-        {{ .Content }}
+      </header>
+      {{ .Content }}
     </article>
     <aside>
-        {{ .TableOfContents }}
+      {{ .TableOfContents }}
     </aside>
-</main>
+  </main>
 {{ end }}
 {{< /code >}}
 

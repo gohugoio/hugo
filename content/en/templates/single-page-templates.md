@@ -36,10 +36,10 @@ This single page template makes use of Hugo [base templates], the [`.Format` fun
   </section>
   <aside id="meta">
     <div>
-    <section>
-      <h4 id="date"> {{ .Date.Format "Mon Jan 2, 2006" }} </h4>
-      <h5 id="wordcount"> {{ .WordCount }} Words </h5>
-    </section>
+      <section>
+        <h4 id="date"> {{ .Date.Format "Mon Jan 2, 2006" }} </h4>
+        <h5 id="wordcount"> {{ .WordCount }} Words </h5>
+      </section>
       {{ with .GetTerms "topics" }}
         <ul id="topics">
           {{ range . }}

@@ -26,7 +26,7 @@ This template code:
 
 ```go-html-template
 {{ range os.ReadDir "content" }}
-  {{ .Name }} --> {{ .IsDir }}
+  {{ .Name }} → {{ .IsDir }}
 {{ end }}
 ```
 

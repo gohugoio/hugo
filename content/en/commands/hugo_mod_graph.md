@@ -21,7 +21,7 @@ hugo mod graph [flags] [args]
 
 ```
   -b, --baseURL string      hostname (and path) to the root, e.g. https://spf13.com/
-      --cacheDir string     filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache_$USER/
+      --cacheDir string     filesystem path to cache directory
       --clean               delete module cache for dependencies that fail verification
   -c, --contentDir string   filesystem path to content directory
   -h, --help                help for graph

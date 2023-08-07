@@ -22,20 +22,20 @@ The following might be used as a partial within a [single page template][singlet
 
 {{< code file="layouts/partials/content-header.html" >}}
 <header>
-    <h1>{{ .Title }}</h1>
-    {{ with .Params.location }}
-        <div><a href="/locations/{{ . | urlize }}">{{ . }}</a></div>
-    {{ end }}
-    <!-- Creates a list of tags for the content and links to each of their pages -->
-    {{ with .Params.tags }}
+  <h1>{{ .Title }}</h1>
+  {{ with .Params.location }}
+    <div><a href="/locations/{{ . | urlize }}">{{ . }}</a></div>
+  {{ end }}
+  <!-- Creates a list of tags for the content and links to each of their pages -->
+  {{ with .Params.tags }}
     <ul>
-        {{ range .}}
-            <li>
-                <a href="/tags/{{ . | urlize }}">{{ . }}</a>
-            </li>
-        {{ end }}
+      {{ range .}}
+        <li>
+          <a href="/tags/{{ . | urlize }}">{{ . }}</a>
+        </li>
+      {{ end }}
     </ul>
-    {{ end }}
+  {{ end }}
 </header>
 {{< /code >}}
 

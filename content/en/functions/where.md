@@ -73,6 +73,9 @@ The following logical operators are available with `where`:
 `intersect`
 : `true` if a given field value that is a slice/array of strings or integers contains elements in common with the matching value; it follows the same rules as the [`intersect` function][intersect].
 
+`like`
+: `true` if a given field value matches a regular expression. Use the `like` operator to compare `string` values. Returns `false` when comparing other data types to the regular expression.
+
 ## Use `where` with boolean values
 When using booleans you should not put quotation marks.
 ```go-html-template
@@ -80,7 +83,6 @@ When using booleans you should not put quotation marks.
         <p>{{ .Title }}</p>
 {{ end }}
 ```
-  
 
 ## Use `where` with `intersect`
 
@@ -101,6 +103,18 @@ You can also put the returned value of the `where` clauses into a variable:
 {{ range $filtered }}
 {{ end }}
 {{< /code >}}
+
+## Use `where` with `like`
+
+This example matches pages where the "foo" parameter begins with "ab":
+
+```go-html-template
+{{ range where site.RegularPages "Params.foo" "like" `^ab` }}
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+{{ end }}
+```
+
+{{% readfile file="/functions/common/regular-expressions.md" %}}
 
 ## Use `where` with `first`
 
