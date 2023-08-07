@@ -118,6 +118,9 @@ The following is a list of page-level variables. Many of these will be defined i
 : Raw markdown content without the front matter. Useful with [remarkjs.com](
 https://remarkjs.com)
 
+.RenderShortcodes
+: See [Render Shortcodes](#rendershortcodes).
+
 .ReadingTime
 : The estimated time, in minutes, it takes to read the content.
 
@@ -242,6 +245,34 @@ For this reason, Hugo provides a global `page` function that you can use to acce
 ```
 
 There are one caveat with this, and this isn't new, but it's worth mentioning here: There are situations in Hugo where you may see a cached value, e.g. when using `partialCached` or in a shortcode.
+
+## The `.RenderShortcodes` method {#rendershortcodes}
+
+{{< new-in "0.117.0" >}} This renders all the shortcodes in the content, preserving the surrounding markup (e.g. Markdown) as is.
+
+The common use case this is to composing a page from multiple content files while preserving a global context for table of contents and foot notes.
+
+This method is most often used in shortcode templates. A simple example of shortcode template including content from another page would look like:
+
+```go-html-template
+{{ $p := site.GetPage (.Get 0) }}
+{{ $p.RenderShortcodes }}
+```
+
+In the above it's important to understand  and the difference between the two delimiters used when including a shortcode:
+
+* `{{</* myshortcode */>}}` tells Hugo that the rendered shortcode does not need further processing (e.g. it's HTML).
+* `{{%/* myshortcode */%}}` tells Hugo that the rendered shortcode needs further processing (e.g. it's Markdown).
+
+The latter is what you want to use for the include shortcode outlined above:
+
+```md
+## Mypage
+{{%/* include "mypage" */%}}
+``````
+
+
+Also see [Use Shortcodes](/content-management/shortcodes/#use-shortcodes).
 
 ## Page-level params
 
