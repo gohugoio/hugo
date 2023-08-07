@@ -112,7 +112,7 @@ deep
 
 Note that you don't need to be so verbose as in the default setup below; a `_merge` value higher up will be inherited if not set.
 
-{{< code-toggle config="mergeStrategy" skipHeader=true />}}
+{{< code-toggle file="hugo" dataKey="config_helpers.mergeStrategy" skipHeader=true />}}
 
 ## All configuration settings
 

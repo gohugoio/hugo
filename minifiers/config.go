@@ -15,8 +15,6 @@ package minifiers
 
 import (
 	"github.com/gohugoio/hugo/common/maps"
-	"github.com/gohugoio/hugo/docshelper"
-	"github.com/gohugoio/hugo/parser"
 	"github.com/spf13/cast"
 
 	"github.com/mitchellh/mapstructure"
@@ -112,11 +110,4 @@ func DecodeConfig(v any) (conf MinifyConfig, err error) {
 	}
 
 	return
-}
-
-func init() {
-	docsProvider := func() docshelper.DocProvider {
-		return docshelper.DocProvider{"config": map[string]any{"minify": parser.LowerCaseCamelJSONMarshaller{Value: defaultConfig}}}
-	}
-	docshelper.AddDocProviderFunc(docsProvider)
 }

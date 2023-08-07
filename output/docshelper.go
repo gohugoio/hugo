@@ -14,7 +14,6 @@ func init() {
 	docsProvider := func() docshelper.DocProvider {
 		return docshelper.DocProvider{
 			"output": map[string]any{
-				"formats": DefaultFormats,
 				"layouts": createLayoutExamples(),
 			},
 		}

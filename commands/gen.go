@@ -30,6 +30,8 @@ import (
 	"github.com/gohugoio/hugo/docshelper"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/hugolib"
+	"github.com/gohugoio/hugo/parser"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 )
@@ -197,6 +199,14 @@ url: %s
 				enc := json.NewEncoder(f)
 				enc.SetIndent("", "  ")
 
+				configProvider := func() docshelper.DocProvider {
+					conf := hugolib.DefaultConfig()
+					conf.CacheDir = "" // The default value does not make sense in the docs.
+					defaultConfig := parser.LowerCaseCamelJSONMarshaller{Value: conf}
+					return docshelper.DocProvider{"config": defaultConfig}
+				}
+
+				docshelper.AddDocProviderFunc(configProvider)
 				if err := enc.Encode(docshelper.GetDocProvider()); err != nil {
 					return err
 				}
