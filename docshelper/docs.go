@@ -15,9 +15,11 @@
 // is of limited interest for the general Hugo user.
 package docshelper
 
+import "fmt"
+
 type (
 	DocProviderFunc = func() DocProvider
-	DocProvider     map[string]map[string]any
+	DocProvider     map[string]any
 )
 
 var docProviderFuncs []DocProviderFunc
@@ -32,20 +34,14 @@ func GetDocProvider() DocProvider {
 	for _, fn := range docProviderFuncs {
 		p := fn()
 		for k, v := range p {
-			if prev, found := provider[k]; !found {
-				provider[k] = v
-			} else {
-				merge(prev, v)
+			if _, found := provider[k]; found {
+				// We use to merge config, but not anymore.
+				// These constructs will eventually go away, so just make it simple.
+				panic(fmt.Sprintf("Duplicate doc provider key: %q", k))
 			}
+			provider[k] = v
 		}
 	}
 
 	return provider
-}
-
-// Shallow merge
-func merge(dst, src map[string]any) {
-	for k, v := range src {
-		dst[k] = v
-	}
 }

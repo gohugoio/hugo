@@ -49,10 +49,11 @@ type decodeConfig struct {
 }
 
 type decodeWeight struct {
-	key         string
-	decode      func(decodeWeight, decodeConfig) error
-	getCompiler func(c *Config) configCompiler
-	weight      int
+	key                  string
+	decode               func(decodeWeight, decodeConfig) error
+	getCompiler          func(c *Config) configCompiler
+	weight               int
+	internalOrDeprecated bool // Hide it from the docs.
 }
 
 var allDecoderSetups = map[string]decodeWeight{
@@ -340,6 +341,7 @@ var allDecoderSetups = map[string]decodeWeight{
 			p.c.Author = maps.CleanConfigStringMap(p.p.GetStringMap(d.key))
 			return nil
 		},
+		internalOrDeprecated: true,
 	},
 	"social": {
 		key: "social",
@@ -347,6 +349,7 @@ var allDecoderSetups = map[string]decodeWeight{
 			p.c.Social = maps.CleanConfigStringMapString(p.p.GetStringMapString(d.key))
 			return nil
 		},
+		internalOrDeprecated: true,
 	},
 	"uglyurls": {
 		key: "uglyurls",
@@ -362,12 +365,14 @@ var allDecoderSetups = map[string]decodeWeight{
 			}
 			return nil
 		},
+		internalOrDeprecated: true,
 	},
 	"internal": {
 		key: "internal",
 		decode: func(d decodeWeight, p decodeConfig) error {
 			return mapstructure.WeakDecode(p.p.GetStringMap(d.key), &p.c.Internal)
 		},
+		internalOrDeprecated: true,
 	},
 }
 

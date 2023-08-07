@@ -1600,6 +1600,144 @@
     ]
   },
   "config": {
+    "baseURL": "",
+    "buildDrafts": false,
+    "buildExpired": false,
+    "buildFuture": false,
+    "copyright": "",
+    "defaultContentLanguage": "en",
+    "defaultContentLanguageInSubdir": false,
+    "disableAliases": false,
+    "disablePathToLower": false,
+    "disableKinds": null,
+    "disableLanguages": null,
+    "disableHugoGeneratorInject": false,
+    "disableLiveReload": false,
+    "enableEmoji": false,
+    "mainSections": null,
+    "enableRobotsTXT": false,
+    "enableGitInfo": false,
+    "templateMetrics": false,
+    "templateMetricsHints": false,
+    "noBuildLock": false,
+    "ignoreErrors": null,
+    "ignoreFiles": [],
+    "ignoreCache": false,
+    "enableMissingTranslationPlaceholders": false,
+    "panicOnWarning": false,
+    "environment": "production",
+    "languageCode": "",
+    "hasCJKLanguage": false,
+    "paginate": 10,
+    "paginatePath": "page",
+    "pluralizeListTitles": true,
+    "canonifyURLs": false,
+    "relativeURLs": false,
+    "removePathAccents": false,
+    "printUnusedTemplates": false,
+    "printI18nWarnings": false,
+    "printPathWarnings": false,
+    "refLinksNotFoundURL": "",
+    "refLinksErrorLevel": "",
+    "sectionPagesMenu": "",
+    "summaryLength": 70,
+    "title": "",
+    "theme": null,
+    "timeout": "30s",
+    "timeZone": "",
+    "titleCaseStyle": "AP",
+    "newContentEditor": "",
+    "noTimes": false,
+    "noChmod": false,
+    "cleanDestinationDir": false,
+    "ignoreVendorPaths": "",
+    "themesDir": "themes",
+    "publishDir": "public",
+    "resourceDir": "resources",
+    "workingDir": "",
+    "cacheDir": "",
+    "contentDir": "content",
+    "dataDir": "data",
+    "layoutDir": "layouts",
+    "i18nDir": "i18n",
+    "archeTypeDir": "archetypes",
+    "assetDir": "assets",
+    "staticDir": [
+      "static"
+    ],
+    "staticDir0": null,
+    "staticDir1": null,
+    "staticDir2": null,
+    "staticDir3": null,
+    "staticDir4": null,
+    "staticDir5": null,
+    "staticDir6": null,
+    "staticDir7": null,
+    "staticDir8": null,
+    "staticDir9": null,
+    "staticDir10": null,
+    "author": {},
+    "social": null,
+    "build": {
+      "useResourceCacheWhen": "fallback",
+      "buildStats": {
+        "enable": false,
+        "disableTags": false,
+        "disableClasses": false,
+        "disableIDs": false
+      },
+      "noJSConfigInAssets": false,
+      "cacheBusters": [
+        {
+          "source": "assets/.*\\.(js|ts|jsx|tsx)",
+          "target": "(js|scripts|javascript)"
+        },
+        {
+          "source": "assets/.*\\.(css|sass|scss)$",
+          "target": "(css|styles|scss|sass)"
+        },
+        {
+          "source": "(postcss|tailwind)\\.config\\.js",
+          "target": "(css|styles|scss|sass)"
+        },
+        {
+          "source": "assets/.*\\.(.*)$",
+          "target": "$1"
+        }
+      ]
+    },
+    "caches": {
+      "assets": {
+        "maxAge": -1,
+        "dir": ":resourceDir/_gen",
+        "isResourceDir": true
+      },
+      "getcsv": {
+        "maxAge": -1,
+        "dir": ":cacheDir/:project",
+        "isResourceDir": false
+      },
+      "getjson": {
+        "maxAge": -1,
+        "dir": ":cacheDir/:project",
+        "isResourceDir": false
+      },
+      "getresource": {
+        "maxAge": -1,
+        "dir": ":cacheDir/:project",
+        "isResourceDir": false
+      },
+      "images": {
+        "maxAge": 1800000000000000,
+        "dir": ":cacheDir/images",
+        "isResourceDir": false
+      },
+      "modules": {
+        "maxAge": -1,
+        "dir": ":cacheDir/modules",
+        "isResourceDir": false
+      }
+    },
     "markup": {
       "defaultMarkdownHandler": "goldmark",
       "highlight": {
@@ -1674,73 +1812,528 @@
         "preserveTOC": false
       }
     },
-    "mergeStrategy": {
-      "build": {
-        "_merge": "none"
+    "mediaTypes": {
+      "application/json": {
+        "delimiter": ".",
+        "suffixes": [
+          "json"
+        ]
       },
-      "caches": {
-        "_merge": "none"
+      "application/manifest+json": {
+        "delimiter": ".",
+        "suffixes": [
+          "webmanifest"
+        ]
       },
-      "cascade": {
-        "_merge": "none"
+      "application/octet-stream": {
+        "delimiter": "."
       },
-      "frontmatter": {
-        "_merge": "none"
+      "application/pdf": {
+        "delimiter": ".",
+        "suffixes": [
+          "pdf"
+        ]
       },
-      "imaging": {
-        "_merge": "none"
+      "application/rss+xml": {
+        "delimiter": ".",
+        "suffixes": [
+          "xml",
+          "rss"
+        ]
       },
-      "languages": {
-        "_merge": "none",
-        "en": {
-          "_merge": "none",
-          "menus": {
-            "_merge": "shallow"
-          },
-          "params": {
-            "_merge": "deep"
-          }
-        }
+      "application/toml": {
+        "delimiter": ".",
+        "suffixes": [
+          "toml"
+        ]
       },
-      "markup": {
-        "_merge": "none"
+      "application/wasm": {
+        "delimiter": ".",
+        "suffixes": [
+          "wasm"
+        ]
       },
-      "mediatypes": {
-        "_merge": "shallow"
+      "application/xml": {
+        "delimiter": ".",
+        "suffixes": [
+          "xml"
+        ]
       },
-      "menus": {
-        "_merge": "shallow"
+      "application/yaml": {
+        "delimiter": ".",
+        "suffixes": [
+          "yaml",
+          "yml"
+        ]
       },
-      "minify": {
-        "_merge": "none"
+      "font/otf": {
+        "delimiter": ".",
+        "suffixes": [
+          "otf"
+        ]
       },
-      "module": {
-        "_merge": "none"
+      "font/ttf": {
+        "delimiter": ".",
+        "suffixes": [
+          "ttf"
+        ]
       },
-      "outputformats": {
-        "_merge": "shallow"
+      "image/bmp": {
+        "delimiter": ".",
+        "suffixes": [
+          "bmp"
+        ]
       },
-      "params": {
-        "_merge": "deep"
+      "image/gif": {
+        "delimiter": ".",
+        "suffixes": [
+          "gif"
+        ]
       },
-      "permalinks": {
-        "_merge": "none"
+      "image/jpeg": {
+        "delimiter": ".",
+        "suffixes": [
+          "jpg",
+          "jpeg",
+          "jpe",
+          "jif",
+          "jfif"
+        ]
       },
-      "privacy": {
-        "_merge": "none"
+      "image/png": {
+        "delimiter": ".",
+        "suffixes": [
+          "png"
+        ]
       },
-      "related": {
-        "_merge": "none"
+      "image/svg+xml": {
+        "delimiter": ".",
+        "suffixes": [
+          "svg"
+        ]
       },
-      "security": {
-        "_merge": "none"
+      "image/tiff": {
+        "delimiter": ".",
+        "suffixes": [
+          "tif",
+          "tiff"
+        ]
+      },
+      "image/webp": {
+        "delimiter": ".",
+        "suffixes": [
+          "webp"
+        ]
+      },
+      "text/calendar": {
+        "delimiter": ".",
+        "suffixes": [
+          "ics"
+        ]
+      },
+      "text/css": {
+        "delimiter": ".",
+        "suffixes": [
+          "css"
+        ]
+      },
+      "text/csv": {
+        "delimiter": ".",
+        "suffixes": [
+          "csv"
+        ]
+      },
+      "text/html": {
+        "delimiter": ".",
+        "suffixes": [
+          "html"
+        ]
+      },
+      "text/javascript": {
+        "delimiter": ".",
+        "suffixes": [
+          "js",
+          "jsm",
+          "mjs"
+        ]
+      },
+      "text/jsx": {
+        "delimiter": ".",
+        "suffixes": [
+          "jsx"
+        ]
+      },
+      "text/markdown": {
+        "delimiter": ".",
+        "suffixes": [
+          "md",
+          "markdown"
+        ]
+      },
+      "text/plain": {
+        "delimiter": ".",
+        "suffixes": [
+          "txt"
+        ]
+      },
+      "text/tsx": {
+        "delimiter": ".",
+        "suffixes": [
+          "tsx"
+        ]
+      },
+      "text/typescript": {
+        "delimiter": ".",
+        "suffixes": [
+          "ts"
+        ]
+      },
+      "text/x-sass": {
+        "delimiter": ".",
+        "suffixes": [
+          "sass"
+        ]
+      },
+      "text/x-scss": {
+        "delimiter": ".",
+        "suffixes": [
+          "scss"
+        ]
+      },
+      "video/3gpp": {
+        "delimiter": ".",
+        "suffixes": [
+          "3gpp",
+          "3gp"
+        ]
+      },
+      "video/mp4": {
+        "delimiter": ".",
+        "suffixes": [
+          "mp4"
+        ]
+      },
+      "video/mpeg": {
+        "delimiter": ".",
+        "suffixes": [
+          "mpg",
+          "mpeg"
+        ]
+      },
+      "video/ogg": {
+        "delimiter": ".",
+        "suffixes": [
+          "ogv"
+        ]
+      },
+      "video/webm": {
+        "delimiter": ".",
+        "suffixes": [
+          "webm"
+        ]
+      },
+      "video/x-msvideo": {
+        "delimiter": ".",
+        "suffixes": [
+          "avi"
+        ]
+      }
+    },
+    "imaging": {
+      "bgColor": "#ffffff",
+      "hint": "photo",
+      "quality": 75,
+      "resampleFilter": "box"
+    },
+    "outputFormats": {
+      "amp": {
+        "mediaType": "text/html",
+        "name": "amp",
+        "path": "amp",
+        "baseName": "index",
+        "rel": "amphtml",
+        "protocol": "",
+        "isPlainText": false,
+        "isHTML": true,
+        "noUgly": false,
+        "notAlternative": false,
+        "permalinkable": true,
+        "weight": 0
+      },
+      "calendar": {
+        "mediaType": "text/calendar",
+        "name": "calendar",
+        "path": "",
+        "baseName": "index",
+        "rel": "alternate",
+        "protocol": "webcal://",
+        "isPlainText": true,
+        "isHTML": false,
+        "noUgly": false,
+        "notAlternative": false,
+        "permalinkable": false,
+        "weight": 0
+      },
+      "css": {
+        "mediaType": "text/css",
+        "name": "css",
+        "path": "",
+        "baseName": "styles",
+        "rel": "stylesheet",
+        "protocol": "",
+        "isPlainText": true,
+        "isHTML": false,
+        "noUgly": false,
+        "notAlternative": true,
+        "permalinkable": false,
+        "weight": 0
+      },
+      "csv": {
+        "mediaType": "text/csv",
+        "name": "csv",
+        "path": "",
+        "baseName": "index",
+        "rel": "alternate",
+        "protocol": "",
+        "isPlainText": true,
+        "isHTML": false,
+        "noUgly": false,
+        "notAlternative": false,
+        "permalinkable": false,
+        "weight": 0
+      },
+      "html": {
+        "mediaType": "text/html",
+        "name": "html",
+        "path": "",
+        "baseName": "index",
+        "rel": "canonical",
+        "protocol": "",
+        "isPlainText": false,
+        "isHTML": true,
+        "noUgly": false,
+        "notAlternative": false,
+        "permalinkable": true,
+        "weight": 10
+      },
+      "json": {
+        "mediaType": "application/json",
+        "name": "json",
+        "path": "",
+        "baseName": "index",
+        "rel": "alternate",
+        "protocol": "",
+        "isPlainText": true,
+        "isHTML": false,
+        "noUgly": false,
+        "notAlternative": false,
+        "permalinkable": false,
+        "weight": 0
+      },
+      "markdown": {
+        "mediaType": "text/markdown",
+        "name": "markdown",
+        "path": "",
+        "baseName": "index",
+        "rel": "alternate",
+        "protocol": "",
+        "isPlainText": true,
+        "isHTML": false,
+        "noUgly": false,
+        "notAlternative": false,
+        "permalinkable": false,
+        "weight": 0
+      },
+      "robots": {
+        "mediaType": "text/plain",
+        "name": "robots",
+        "path": "",
+        "baseName": "robots",
+        "rel": "alternate",
+        "protocol": "",
+        "isPlainText": true,
+        "isHTML": false,
+        "noUgly": false,
+        "notAlternative": false,
+        "permalinkable": false,
+        "weight": 0
+      },
+      "rss": {
+        "mediaType": "application/rss+xml",
+        "name": "rss",
+        "path": "",
+        "baseName": "index",
+        "rel": "alternate",
+        "protocol": "",
+        "isPlainText": false,
+        "isHTML": false,
+        "noUgly": true,
+        "notAlternative": false,
+        "permalinkable": false,
+        "weight": 0
       },
       "sitemap": {
-        "_merge": "none"
+        "mediaType": "application/xml",
+        "name": "sitemap",
+        "path": "",
+        "baseName": "sitemap",
+        "rel": "sitemap",
+        "protocol": "",
+        "isPlainText": false,
+        "isHTML": false,
+        "noUgly": true,
+        "notAlternative": false,
+        "permalinkable": false,
+        "weight": 0
       },
-      "taxonomies": {
-        "_merge": "none"
+      "webappmanifest": {
+        "mediaType": "application/manifest+json",
+        "name": "webappmanifest",
+        "path": "",
+        "baseName": "manifest",
+        "rel": "manifest",
+        "protocol": "",
+        "isPlainText": true,
+        "isHTML": false,
+        "noUgly": false,
+        "notAlternative": true,
+        "permalinkable": false,
+        "weight": 0
       }
+    },
+    "outputs": {
+      "home": [
+        "html",
+        "rss"
+      ],
+      "page": [
+        "html"
+      ],
+      "rss": [
+        "rss"
+      ],
+      "section": [
+        "html",
+        "rss"
+      ],
+      "taxonomy": [
+        "html",
+        "rss"
+      ],
+      "term": [
+        "html",
+        "rss"
+      ]
+    },
+    "cascade": [],
+    "menus": {},
+    "deployment": {
+      "targets": null,
+      "matchers": null,
+      "order": null,
+      "target": "",
+      "confirm": false,
+      "dryRun": false,
+      "force": false,
+      "invalidateCDN": true,
+      "maxDeletes": 256,
+      "workers": 10
+    },
+    "module": {
+      "mounts": [
+        {
+          "source": "content",
+          "target": "content",
+          "lang": "",
+          "includeFiles": null,
+          "excludeFiles": null
+        },
+        {
+          "source": "data",
+          "target": "data",
+          "lang": "",
+          "includeFiles": null,
+          "excludeFiles": null
+        },
+        {
+          "source": "layouts",
+          "target": "layouts",
+          "lang": "",
+          "includeFiles": null,
+          "excludeFiles": null
+        },
+        {
+          "source": "i18n",
+          "target": "i18n",
+          "lang": "",
+          "includeFiles": null,
+          "excludeFiles": null
+        },
+        {
+          "source": "archetypes",
+          "target": "archetypes",
+          "lang": "",
+          "includeFiles": null,
+          "excludeFiles": null
+        },
+        {
+          "source": "assets",
+          "target": "assets",
+          "lang": "",
+          "includeFiles": null,
+          "excludeFiles": null
+        },
+        {
+          "source": "static",
+          "target": "static",
+          "lang": "",
+          "includeFiles": null,
+          "excludeFiles": null
+        }
+      ],
+      "imports": null,
+      "params": null,
+      "hugoVersion": {
+        "min": "",
+        "max": "",
+        "extended": false
+      },
+      "noVendor": "",
+      "vendorClosest": false,
+      "replacements": null,
+      "proxy": "direct",
+      "noProxy": "none",
+      "private": "*.*",
+      "workspace": "off"
+    },
+    "frontmatter": {
+      "date": [
+        "date",
+        "publishdate",
+        "pubdate",
+        "published",
+        "lastmod",
+        "modified"
+      ],
+      "lastmod": [
+        ":git",
+        "lastmod",
+        "modified",
+        "date",
+        "publishdate",
+        "pubdate",
+        "published"
+      ],
+      "publishDate": [
+        "publishdate",
+        "pubdate",
+        "published",
+        "date"
+      ],
+      "expiryDate": [
+        "expirydate",
+        "unpublishdate"
+      ]
     },
     "minify": {
       "minifyOutput": false,
@@ -1782,572 +2375,237 @@
         }
       }
     },
+    "permalinks": {
+      "page": {},
+      "section": {},
+      "taxonomy": {},
+      "term": {}
+    },
+    "taxonomies": {
+      "category": "categories",
+      "tag": "tags"
+    },
+    "sitemap": {
+      "changeFreq": "",
+      "priority": -1,
+      "filename": "sitemap.xml"
+    },
+    "related": {
+      "threshold": 80,
+      "includeNewer": false,
+      "toLower": false,
+      "indices": [
+        {
+          "name": "keywords",
+          "type": "basic",
+          "applyFilter": false,
+          "pattern": "",
+          "weight": 100,
+          "cardinalityThreshold": 0,
+          "toLower": false
+        },
+        {
+          "name": "date",
+          "type": "basic",
+          "applyFilter": false,
+          "pattern": "",
+          "weight": 10,
+          "cardinalityThreshold": 0,
+          "toLower": false
+        },
+        {
+          "name": "tags",
+          "type": "",
+          "applyFilter": false,
+          "pattern": "",
+          "weight": 80,
+          "cardinalityThreshold": 0,
+          "toLower": false
+        }
+      ]
+    },
+    "server": {
+      "headers": null,
+      "redirects": [
+        {
+          "from": "**",
+          "to": "/404.html",
+          "status": 404,
+          "force": false
+        }
+      ]
+    },
+    "privacy": {
+      "disqus": {
+        "disable": false
+      },
+      "googleAnalytics": {
+        "disable": false,
+        "useSessionStorage": false,
+        "respectDoNotTrack": false,
+        "anonymizeIP": false
+      },
+      "instagram": {
+        "disable": false,
+        "simple": false
+      },
+      "twitter": {
+        "disable": false,
+        "enableDNT": false,
+        "simple": false
+      },
+      "vimeo": {
+        "disable": false,
+        "enableDNT": false,
+        "simple": false
+      },
+      "youTube": {
+        "disable": false,
+        "privacyEnhanced": false
+      }
+    },
     "security": {
-      "enableInlineShortcodes": false,
       "exec": {
         "allow": [
-          "^(dart-)?sass(-embedded)?$",
-          "^go$",
-          "^npx$",
-          "^postcss$"
+          "^((dart-)?sass(-embedded)?|go|npx|postcss)$"
         ],
         "osEnv": [
-          "(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG)$"
+          "(?i)^(PATH|PATHEXT|APPDATA|HOME|TMP|TEMP|TERM)$"
         ]
       },
       "funcs": {
         "getenv": [
-          "^HUGO_",
-          "^CI$"
+          "^(HUGO_|REPOSITORY_URL|^BRANCH$)"
         ]
       },
-      "goTemplates": {
-        "AllowActionJSTmpl": false
-      },
       "http": {
-        "mediaTypes": null,
+        "urls": [
+          ".*"
+        ],
         "methods": [
           "(?i)GET|POST"
         ],
-        "urls": [
-          ".*"
-        ]
+        "mediaTypes": null
+      },
+      "enableInlineShortcodes": false,
+      "goTemplates": {
+        "allowActionJSTmpl": false
+      }
+    },
+    "services": {
+      "disqus": {
+        "shortname": ""
+      },
+      "googleAnalytics": {
+        "id": ""
+      },
+      "instagram": {
+        "disableInlineCSS": false,
+        "accessToken": ""
+      },
+      "twitter": {
+        "disableInlineCSS": false
+      },
+      "rss": {
+        "limit": -1
+      }
+    },
+    "params": {},
+    "languages": {
+      "en": {
+        "languageName": "",
+        "languageCode": "",
+        "title": "",
+        "languageDirection": "",
+        "weight": 0,
+        "disabled": false
+      }
+    },
+    "uglyURLs": false
+  },
+  "config_helpers": {
+    "mergeStrategy": {
+      "build": {
+        "_merge": "none"
+      },
+      "caches": {
+        "_merge": "none"
+      },
+      "cascade": {
+        "_merge": "none"
+      },
+      "deployment": {
+        "_merge": "none"
+      },
+      "frontmatter": {
+        "_merge": "none"
+      },
+      "imaging": {
+        "_merge": "none"
+      },
+      "languages": {
+        "_merge": "none",
+        "en": {
+          "_merge": "none",
+          "menus": {
+            "_merge": "shallow"
+          },
+          "params": {
+            "_merge": "deep"
+          }
+        }
+      },
+      "markup": {
+        "_merge": "none"
+      },
+      "mediatypes": {
+        "_merge": "shallow"
+      },
+      "menus": {
+        "_merge": "shallow"
+      },
+      "minify": {
+        "_merge": "none"
+      },
+      "module": {
+        "_merge": "none"
+      },
+      "outputformats": {
+        "_merge": "shallow"
+      },
+      "outputs": {
+        "_merge": "none"
+      },
+      "params": {
+        "_merge": "deep"
+      },
+      "permalinks": {
+        "_merge": "none"
+      },
+      "privacy": {
+        "_merge": "none"
+      },
+      "related": {
+        "_merge": "none"
+      },
+      "security": {
+        "_merge": "none"
+      },
+      "server": {
+        "_merge": "none"
+      },
+      "services": {
+        "_merge": "none"
+      },
+      "sitemap": {
+        "_merge": "none"
+      },
+      "taxonomies": {
+        "_merge": "none"
       }
     }
   },
-  "media": {
-    "types": [
-      {
-        "mainType": "application",
-        "subType": "json",
-        "delimiter": ".",
-        "type": "application/json",
-        "string": "application/json",
-        "suffixes": [
-          "json"
-        ]
-      },
-      {
-        "mainType": "application",
-        "subType": "manifest",
-        "delimiter": ".",
-        "type": "application/manifest+json",
-        "string": "application/manifest+json",
-        "suffixes": [
-          "webmanifest"
-        ]
-      },
-      {
-        "mainType": "application",
-        "subType": "octet-stream",
-        "delimiter": ".",
-        "type": "application/octet-stream",
-        "string": "application/octet-stream",
-        "suffixes": [
-          ""
-        ]
-      },
-      {
-        "mainType": "application",
-        "subType": "pdf",
-        "delimiter": ".",
-        "type": "application/pdf",
-        "string": "application/pdf",
-        "suffixes": [
-          "pdf"
-        ]
-      },
-      {
-        "mainType": "application",
-        "subType": "rss",
-        "delimiter": ".",
-        "type": "application/rss+xml",
-        "string": "application/rss+xml",
-        "suffixes": [
-          "xml",
-          "rss"
-        ]
-      },
-      {
-        "mainType": "application",
-        "subType": "toml",
-        "delimiter": ".",
-        "type": "application/toml",
-        "string": "application/toml",
-        "suffixes": [
-          "toml"
-        ]
-      },
-      {
-        "mainType": "application",
-        "subType": "wasm",
-        "delimiter": ".",
-        "type": "application/wasm",
-        "string": "application/wasm",
-        "suffixes": [
-          "wasm"
-        ]
-      },
-      {
-        "mainType": "application",
-        "subType": "xml",
-        "delimiter": ".",
-        "type": "application/xml",
-        "string": "application/xml",
-        "suffixes": [
-          "xml"
-        ]
-      },
-      {
-        "mainType": "application",
-        "subType": "yaml",
-        "delimiter": ".",
-        "type": "application/yaml",
-        "string": "application/yaml",
-        "suffixes": [
-          "yaml",
-          "yml"
-        ]
-      },
-      {
-        "mainType": "font",
-        "subType": "otf",
-        "delimiter": ".",
-        "type": "font/otf",
-        "string": "font/otf",
-        "suffixes": [
-          "otf"
-        ]
-      },
-      {
-        "mainType": "font",
-        "subType": "ttf",
-        "delimiter": ".",
-        "type": "font/ttf",
-        "string": "font/ttf",
-        "suffixes": [
-          "ttf"
-        ]
-      },
-      {
-        "mainType": "image",
-        "subType": "bmp",
-        "delimiter": ".",
-        "type": "image/bmp",
-        "string": "image/bmp",
-        "suffixes": [
-          "bmp"
-        ]
-      },
-      {
-        "mainType": "image",
-        "subType": "gif",
-        "delimiter": ".",
-        "type": "image/gif",
-        "string": "image/gif",
-        "suffixes": [
-          "gif"
-        ]
-      },
-      {
-        "mainType": "image",
-        "subType": "jpeg",
-        "delimiter": ".",
-        "type": "image/jpeg",
-        "string": "image/jpeg",
-        "suffixes": [
-          "jpg",
-          "jpeg",
-          "jpe",
-          "jif",
-          "jfif"
-        ]
-      },
-      {
-        "mainType": "image",
-        "subType": "png",
-        "delimiter": ".",
-        "type": "image/png",
-        "string": "image/png",
-        "suffixes": [
-          "png"
-        ]
-      },
-      {
-        "mainType": "image",
-        "subType": "svg",
-        "delimiter": ".",
-        "type": "image/svg+xml",
-        "string": "image/svg+xml",
-        "suffixes": [
-          "svg"
-        ]
-      },
-      {
-        "mainType": "image",
-        "subType": "tiff",
-        "delimiter": ".",
-        "type": "image/tiff",
-        "string": "image/tiff",
-        "suffixes": [
-          "tif",
-          "tiff"
-        ]
-      },
-      {
-        "mainType": "image",
-        "subType": "webp",
-        "delimiter": ".",
-        "type": "image/webp",
-        "string": "image/webp",
-        "suffixes": [
-          "webp"
-        ]
-      },
-      {
-        "mainType": "text",
-        "subType": "calendar",
-        "delimiter": ".",
-        "type": "text/calendar",
-        "string": "text/calendar",
-        "suffixes": [
-          "ics"
-        ]
-      },
-      {
-        "mainType": "text",
-        "subType": "css",
-        "delimiter": ".",
-        "type": "text/css",
-        "string": "text/css",
-        "suffixes": [
-          "css"
-        ]
-      },
-      {
-        "mainType": "text",
-        "subType": "csv",
-        "delimiter": ".",
-        "type": "text/csv",
-        "string": "text/csv",
-        "suffixes": [
-          "csv"
-        ]
-      },
-      {
-        "mainType": "text",
-        "subType": "html",
-        "delimiter": ".",
-        "type": "text/html",
-        "string": "text/html",
-        "suffixes": [
-          "html"
-        ]
-      },
-      {
-        "mainType": "text",
-        "subType": "javascript",
-        "delimiter": ".",
-        "type": "text/javascript",
-        "string": "text/javascript",
-        "suffixes": [
-          "js",
-          "jsm",
-          "mjs"
-        ]
-      },
-      {
-        "mainType": "text",
-        "subType": "jsx",
-        "delimiter": ".",
-        "type": "text/jsx",
-        "string": "text/jsx",
-        "suffixes": [
-          "jsx"
-        ]
-      },
-      {
-        "mainType": "text",
-        "subType": "markdown",
-        "delimiter": ".",
-        "type": "text/markdown",
-        "string": "text/markdown",
-        "suffixes": [
-          "md",
-          "markdown"
-        ]
-      },
-      {
-        "mainType": "text",
-        "subType": "plain",
-        "delimiter": ".",
-        "type": "text/plain",
-        "string": "text/plain",
-        "suffixes": [
-          "txt"
-        ]
-      },
-      {
-        "mainType": "text",
-        "subType": "tsx",
-        "delimiter": ".",
-        "type": "text/tsx",
-        "string": "text/tsx",
-        "suffixes": [
-          "tsx"
-        ]
-      },
-      {
-        "mainType": "text",
-        "subType": "typescript",
-        "delimiter": ".",
-        "type": "text/typescript",
-        "string": "text/typescript",
-        "suffixes": [
-          "ts"
-        ]
-      },
-      {
-        "mainType": "text",
-        "subType": "x-sass",
-        "delimiter": ".",
-        "type": "text/x-sass",
-        "string": "text/x-sass",
-        "suffixes": [
-          "sass"
-        ]
-      },
-      {
-        "mainType": "text",
-        "subType": "x-scss",
-        "delimiter": ".",
-        "type": "text/x-scss",
-        "string": "text/x-scss",
-        "suffixes": [
-          "scss"
-        ]
-      },
-      {
-        "mainType": "video",
-        "subType": "3gpp",
-        "delimiter": ".",
-        "type": "video/3gpp",
-        "string": "video/3gpp",
-        "suffixes": [
-          "3gpp",
-          "3gp"
-        ]
-      },
-      {
-        "mainType": "video",
-        "subType": "mp4",
-        "delimiter": ".",
-        "type": "video/mp4",
-        "string": "video/mp4",
-        "suffixes": [
-          "mp4"
-        ]
-      },
-      {
-        "mainType": "video",
-        "subType": "mpeg",
-        "delimiter": ".",
-        "type": "video/mpeg",
-        "string": "video/mpeg",
-        "suffixes": [
-          "mpg",
-          "mpeg"
-        ]
-      },
-      {
-        "mainType": "video",
-        "subType": "ogg",
-        "delimiter": ".",
-        "type": "video/ogg",
-        "string": "video/ogg",
-        "suffixes": [
-          "ogv"
-        ]
-      },
-      {
-        "mainType": "video",
-        "subType": "webm",
-        "delimiter": ".",
-        "type": "video/webm",
-        "string": "video/webm",
-        "suffixes": [
-          "webm"
-        ]
-      },
-      {
-        "mainType": "video",
-        "subType": "x-msvideo",
-        "delimiter": ".",
-        "type": "video/x-msvideo",
-        "string": "video/x-msvideo",
-        "suffixes": [
-          "avi"
-        ]
-      }
-    ]
-  },
   "output": {
-    "formats": [
-      {
-        "mediaType": "text/html",
-        "name": "html",
-        "path": "",
-        "baseName": "index",
-        "rel": "canonical",
-        "protocol": "",
-        "isPlainText": false,
-        "isHTML": true,
-        "noUgly": false,
-        "notAlternative": false,
-        "permalinkable": true,
-        "weight": 10
-      },
-      {
-        "mediaType": "text/html",
-        "name": "amp",
-        "path": "amp",
-        "baseName": "index",
-        "rel": "amphtml",
-        "protocol": "",
-        "isPlainText": false,
-        "isHTML": true,
-        "noUgly": false,
-        "notAlternative": false,
-        "permalinkable": true,
-        "weight": 0
-      },
-      {
-        "mediaType": "text/calendar",
-        "name": "calendar",
-        "path": "",
-        "baseName": "index",
-        "rel": "alternate",
-        "protocol": "webcal://",
-        "isPlainText": true,
-        "isHTML": false,
-        "noUgly": false,
-        "notAlternative": false,
-        "permalinkable": false,
-        "weight": 0
-      },
-      {
-        "mediaType": "text/css",
-        "name": "css",
-        "path": "",
-        "baseName": "styles",
-        "rel": "stylesheet",
-        "protocol": "",
-        "isPlainText": true,
-        "isHTML": false,
-        "noUgly": false,
-        "notAlternative": true,
-        "permalinkable": false,
-        "weight": 0
-      },
-      {
-        "mediaType": "text/csv",
-        "name": "csv",
-        "path": "",
-        "baseName": "index",
-        "rel": "alternate",
-        "protocol": "",
-        "isPlainText": true,
-        "isHTML": false,
-        "noUgly": false,
-        "notAlternative": false,
-        "permalinkable": false,
-        "weight": 0
-      },
-      {
-        "mediaType": "application/json",
-        "name": "json",
-        "path": "",
-        "baseName": "index",
-        "rel": "alternate",
-        "protocol": "",
-        "isPlainText": true,
-        "isHTML": false,
-        "noUgly": false,
-        "notAlternative": false,
-        "permalinkable": false,
-        "weight": 0
-      },
-      {
-        "mediaType": "text/markdown",
-        "name": "markdown",
-        "path": "",
-        "baseName": "index",
-        "rel": "alternate",
-        "protocol": "",
-        "isPlainText": true,
-        "isHTML": false,
-        "noUgly": false,
-        "notAlternative": false,
-        "permalinkable": false,
-        "weight": 0
-      },
-      {
-        "mediaType": "text/plain",
-        "name": "robots",
-        "path": "",
-        "baseName": "robots",
-        "rel": "alternate",
-        "protocol": "",
-        "isPlainText": true,
-        "isHTML": false,
-        "noUgly": false,
-        "notAlternative": false,
-        "permalinkable": false,
-        "weight": 0
-      },
-      {
-        "mediaType": "application/rss+xml",
-        "name": "rss",
-        "path": "",
-        "baseName": "index",
-        "rel": "alternate",
-        "protocol": "",
-        "isPlainText": false,
-        "isHTML": false,
-        "noUgly": true,
-        "notAlternative": false,
-        "permalinkable": false,
-        "weight": 0
-      },
-      {
-        "mediaType": "application/xml",
-        "name": "sitemap",
-        "path": "",
-        "baseName": "sitemap",
-        "rel": "sitemap",
-        "protocol": "",
-        "isPlainText": false,
-        "isHTML": false,
-        "noUgly": true,
-        "notAlternative": false,
-        "permalinkable": false,
-        "weight": 0
-      },
-      {
-        "mediaType": "application/manifest+json",
-        "name": "webappmanifest",
-        "path": "",
-        "baseName": "manifest",
-        "rel": "manifest",
-        "protocol": "",
-        "isPlainText": true,
-        "isHTML": false,
-        "noUgly": false,
-        "notAlternative": true,
-        "permalinkable": false,
-        "weight": 0
-      }
-    ],
     "layouts": [
       {
         "Example": "Single page in \"posts\" section",
@@ -3138,7 +3396,7 @@
           "Examples": []
         },
         "Apply": {
-          "Description": "Apply takes a map, array, or slice c and returns a new slice with the function fname applied over it.",
+          "Description": "Apply takes an array or slice c and returns a new slice with the function fname applied over it.",
           "Args": [
             "ctx",
             "c",
@@ -3168,6 +3426,7 @@
         "Delimit": {
           "Description": "Delimit takes a given list l and returns a string delimited by sep.\nIf last is passed to the function, it will be used as the final delimiter.",
           "Args": [
+            "ctx",
             "l",
             "sep",
             "last"
@@ -3415,6 +3674,7 @@
         "Sort": {
           "Description": "Sort returns a sorted copy of the list l.",
           "Args": [
+            "ctx",
             "l",
             "args"
           ],
@@ -3473,6 +3733,7 @@
         "Where": {
           "Description": "Where returns a filtered subset of collection c.",
           "Args": [
+            "ctx",
             "c",
             "key",
             "args"
