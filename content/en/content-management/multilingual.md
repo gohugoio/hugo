@@ -390,7 +390,7 @@ This article has 101 words.
 
 ### Query a singular/plural translation
 
-In other to meet singular/plural requirement, you must pass a dictionary (map) with a numeric `.Count` property to the `i18n` function. The below example uses `.ReadingTime` variable which has a built-in `.Count` property.
+To enable pluralization when translating, pass a map with a numeric `.Count` property to the `i18n` function. The example below uses `.ReadingTime` variable which has a built-in `.Count` property.
 
 ```go-html-template
 {{ i18n "readingTime" .ReadingTime }}
