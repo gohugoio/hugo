@@ -93,7 +93,7 @@ type FileCacheConfig struct {
 
 	// Will resources/_gen will get its own composite filesystem that
 	// also checks any theme.
-	IsResourceDir bool
+	IsResourceDir bool `json:"-"`
 }
 
 // GetJSONCache gets the file cache for getJSON.
