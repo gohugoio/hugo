@@ -910,27 +910,21 @@ config:
   caches:
     assets:
       dir: :resourceDir/_gen
-      isResourceDir: true
       maxAge: -1
     getcsv:
       dir: :cacheDir/:project
-      isResourceDir: false
       maxAge: -1
     getjson:
       dir: :cacheDir/:project
-      isResourceDir: false
       maxAge: -1
     getresource:
       dir: :cacheDir/:project
-      isResourceDir: false
       maxAge: -1
     images:
       dir: :cacheDir/images
-      isResourceDir: false
       maxAge: 1.8e+15
     modules:
       dir: :cacheDir/modules
-      isResourceDir: false
       maxAge: -1
   canonifyURLs: false
   cascade: []
