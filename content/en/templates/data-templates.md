@@ -261,7 +261,7 @@ If you change any local file and the LiveReload is triggered, Hugo will read the
 [markdownify]: /functions/markdownify/
 [OAuth]: https://en.wikipedia.org/wiki/OAuth
 [partials]: /templates/partials/
-[toml]: https://github.com/toml-lang/toml
+[toml]: https://toml.io/en/latest
 [variadic]: https://en.wikipedia.org/wiki/Variadic_function
 [vars]: /variables/
 [yaml]: https://yaml.org/spec/
