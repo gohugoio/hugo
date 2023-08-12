@@ -12,7 +12,7 @@ toc: true
 ---
 The `highlight` function uses the [Chroma] syntax highlighter, supporting over 200 languages with more than 40 available styles.
 
-## Parameters
+## Arguments
 
 INPUT
 : The code to highlight.
@@ -67,7 +67,7 @@ Substitute this number of spaces for each tab character in your highlighted code
 
 guessSyntax
 : Boolean. Default is `false`.\
-If the `LANG` parameter is blank or an unrecognized language, auto-detect the language if possible, otherwise use a fallback language.
+If the `LANG` argument is blank or an unrecognized language, auto-detect the language if possible, otherwise use a fallback language.
 
 {{% note %}}
 Instead of specifying both `lineNos` and `lineNumbersInTable`, you can use the following shorthand notation:
