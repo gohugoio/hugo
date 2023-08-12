@@ -66,7 +66,7 @@ All the methods below, e.g. `.Site.RegularPages` can also be reached via the glo
 : a string representing the language tag as defined in the site configuration.
 
 .Site.LanguagePrefix
-: this can be used to prefix URLs to point to the correct language. It will even work when only one defined language. See also the functions [absLangURL](/functions/abslangurl/) and [relLangURL](/functions/rellangurl).
+: this can be used to prefix URLs to point to the correct language. It will even work when there is only one defined language. See also the functions [absLangURL](/functions/abslangurl/) and [relLangURL](/functions/rellangurl).
 
 .Site.Languages
 : an ordered list (ordered by defined weight) of languages.
