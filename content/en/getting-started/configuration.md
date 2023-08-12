@@ -803,7 +803,7 @@ dir
 [lookup order]: /templates/lookup-order/
 [Output Formats]: /templates/output-formats/
 [templates]: /templates/
-[toml]: https://github.com/toml-lang/toml
+[toml]: https://toml.io/en/latest
 [yaml]: https://yaml.org/spec/
 [static-files]: /content-management/static-files/
 
