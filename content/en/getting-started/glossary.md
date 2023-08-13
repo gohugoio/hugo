@@ -224,7 +224,7 @@ See [content type](#content-type).
 
 ### variable
 
-A user-defined variable within a [template action](#template-action).
+A variable initialized within a [template action](#template-action).
 
 ### walk
 
