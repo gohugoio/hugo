@@ -136,6 +136,10 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 		extensions = append(extensions, extension.Footnote)
 	}
 
+	if cfg.Extensions.CJK {
+		extensions = append(extensions, extension.CJK)
+	}
+
 	if cfg.Parser.AutoHeadingID {
 		parserOptions = append(parserOptions, parser.WithAutoHeadingID())
 	}

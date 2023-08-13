@@ -1037,6 +1037,7 @@ config:
           rightAngleQuote: '&raquo;'
           rightDoubleQuote: '&rdquo;'
           rightSingleQuote: '&rsquo;'
+        CJK: false
       parser:
         attribute:
           block: false

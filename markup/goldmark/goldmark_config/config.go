@@ -43,6 +43,7 @@ var Default = Config{
 		Linkify:         true,
 		LinkifyProtocol: "https",
 		TaskList:        true,
+		CJK:             false,
 	},
 	Renderer: Renderer{
 		Unsafe: false,
@@ -76,6 +77,7 @@ type Extensions struct {
 	Linkify         bool
 	LinkifyProtocol string
 	TaskList        bool
+	CJK             bool
 }
 
 // Typographer holds typographer configuration.

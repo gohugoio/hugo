@@ -626,3 +626,49 @@ unsafe = false
 	return testconfig.GetTestConfig(nil, cfg)
 
 }
+
+func TestConvertCJK(t *testing.T) {
+	c := qt.New(t)
+
+	content := `
+あいうえお
+かきくけこ
+`
+
+	confStr := `
+[markup]
+[markup.goldmark]
+`
+
+	cfg := config.FromTOMLConfigString(confStr)
+	conf := testconfig.GetTestConfig(nil, cfg)
+
+	b := convert(c, conf, content)
+	got := string(b.Bytes())
+
+	c.Assert(got, qt.Contains, "<p>あいうえお\nかきくけこ</p>\n")
+}
+
+func TestConvertCJKWithExtension(t *testing.T) {
+	c := qt.New(t)
+
+	content := `
+あいうえお
+かきくけこ
+`
+
+	confStr := `
+[markup]
+[markup.goldmark]
+[markup.goldmark.extensions]
+CJK=true
+`
+
+	cfg := config.FromTOMLConfigString(confStr)
+	conf := testconfig.GetTestConfig(nil, cfg)
+
+	b := convert(c, conf, content)
+	got := string(b.Bytes())
+
+	c.Assert(got, qt.Contains, "<p>あいうえおかきくけこ</p>\n")
+}
