@@ -49,12 +49,18 @@ Templates can live in either the project's or the themes' layout folders, and th
 
 ## Section pages
 
+A section page is a list of pages within a given section.
+
 {{< datatable-filtered "output" "layouts" "Kind == section" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}
 
 ## Taxonomy pages
 
+A taxonomy page is a list of terms within a given taxonomy.
+
 {{< datatable-filtered "output" "layouts" "Kind == taxonomy" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}
 
 ## Term pages
+
+A term page is a list of pages associated with a given term.
 
 {{< datatable-filtered "output" "layouts" "Kind == term" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}
