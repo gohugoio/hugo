@@ -179,7 +179,7 @@ A single value, one of [string](#string), [integer](#integer), [floating point](
 
 ### section
 
-A directory of content pages with an _index.md file. A section may contain subdirectories without _index.md files. An _index.md file is optional in top-level directories. Section templates receive one or more page [collections](#collection) in [context](#context). See [details](#/templates/lists/).
+A directory of content pages with an _index.md file. A section may contain subdirectories without _index.md files. An _index.md file is optional in top-level directories. Section templates receive one or more page [collections](#collection) in [context](#context). See [details](/templates/lists/).
 
 ### shortcode
 
