@@ -83,7 +83,8 @@ These are the environment variables Hugo passes down to PostCSS (and Babel), whi
 
 PWD
 : The absolute path to the project working directory.
-HUGO_ENVIRONMENT (and the alias HUGO_ENV)
+
+HUGO_ENVIRONMENT
 : The value e.g. set with `hugo -e production` (defaults to `production` for `hugo` and `development` for `hugo server`).
 
 HUGO_PUBLISHDIR
