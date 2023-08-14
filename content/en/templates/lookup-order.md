@@ -55,12 +55,22 @@ A section page is a list of pages within a given section.
 
 ## Taxonomy pages
 
-A taxonomy page is a list of terms within a given taxonomy.
+A taxonomy page is a list of terms within a given taxonomy. The examples below assume the following site configuration:
+
+{{< code-toggle file=hugo copy=false >}}
+[taxonomies]
+category = 'categories'
+{{< /code-toggle >}}
 
 {{< datatable-filtered "output" "layouts" "Kind == taxonomy" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}
 
 ## Term pages
 
-A term page is a list of pages associated with a given term.
+A term page is a list of pages associated with a given term. The examples below assume the following site configuration:
+
+{{< code-toggle file=hugo copy=false >}}
+[taxonomies]
+category = 'categories'
+{{< /code-toggle >}}
 
 {{< datatable-filtered "output" "layouts" "Kind == term" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}
