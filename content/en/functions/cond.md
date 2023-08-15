@@ -1,26 +1,40 @@
 ---
 title: cond
-description: "Return one of two arguments, depending on the value of a third argument."
+description: Returns one of two arguments depending on the value of the control argument.
 categories: [functions]
+keywords: [conditional, ternary]
 menu:
   docs:
     parent: functions
-signature: ["cond CONTROL VAR1 VAR2"]
+signature: [cond CONTROL ARG1 ARG2]
 relatedfuncs: [default]
 ---
 
-`cond` returns *VAR1* if *CONTROL* is true, or *VAR2* if it is not.
-
-Example:
+The CONTROL argument is a boolean value that indicates whether the function should return ARG1 or ARG2. If CONTROL is `true`, the function returns ARG1. Otherwise, the function returns ARG2.
 
 ```go-html-template
-{{ cond (eq (len $geese) 1) "goose" "geese" }}
+{{ $qty := 42 }}
+{{ cond (le $qty 3) "few" "many" }} → "many"
 ```
 
-Would emit "goose" if the `$geese` array has exactly 1 item, or "geese" otherwise.
+The CONTROL argument must be either `true` or `false`. To cast a non-boolean value to boolean, pass it through the `not` operator twice.
+
+```go-html-template
+{{ cond (42 | not | not) "truthy" "falsy" }} → "truthy"
+{{ cond ("" | not | not) "truthy" "falsy" }} → "falsy"
+```
 
 {{% note %}}
-Whenever you use a `cond` function, *both* variable expressions are *always* evaluated. This means that a usage like `cond false (div 1 0) 27` will throw an error because `div 1 0` will be evaluated *even though the condition is false*.
+Unlike [ternary operators] in other languages, the `cond` function does not perform [short-circuit evaluation]. The function evaluates both ARG1 and ARG2, regardless of the CONTROL value.
 
-In other words, the `cond` function does *not* provide [short-circuit evaluation](https://en.wikipedia.org/wiki/Short-circuit_evaluation) and does *not* work like a normal [ternary operator](https://en.wikipedia.org/wiki/%3F:) that will pass over the first expression if the condition returns `false`.
+[short-circuit evaluation]: https://en.wikipedia.org/wiki/Short-circuit_evaluation
+[ternary operators]: https://en.wikipedia.org/wiki/Ternary_conditional_operator
 {{% /note %}}
+
+
+Due to the absence of short-circuit evaluation, these examples throw an error:
+
+```go-html-template
+{{ cond true "true" (div 1 0) }}
+{{ cond false (div 1 0) "false" }}
+```
