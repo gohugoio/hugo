@@ -102,9 +102,10 @@ subtitle = 'Reference, Tutorials, and Explanations'
 In Hugo `v0.112.0` we consolidated all configuration options, and improved how the languages and their parameters are merged with the main configuration. But while testing this on Hugo sites out there, we received some error reports and reverted some of the changes in favor of deprecation warnings:
 
 1. `site.Language.Params` is deprecated. Use `site.Params` directly.
-1. Adding custom parameters to the top level language configuration is deprecated, add all of these below `[params]`, see `color` in the example below.
+1. Adding custom parameters to the top level language configuration is deprecated. Define custom parameters within `languages.xx.params`. See `color` in the example below.
 
-```toml
+{{< code-toggle file=hugo copy=false >}}
+
 title = "My blog"
 languageCode = "en-us"
 
@@ -114,7 +115,7 @@ title = "Min blogg"
 languageCode = "sv"
 [languages.en.params]
 color = "blue"
-```
+{{< /code-toggle >}}
 
 In the example above, all settings except `color` below `params` map to predefined configuration options in Hugo for the site and its language, and should be accessed via the documented accessors:
 
@@ -510,7 +511,7 @@ See [lang.FormatNumber] and [lang.FormatNumberCustom] for details.
 With this template code:
 
 ```go-html-template
-{{ 512.5032 | lang.FormatPercent 2 }} → 512.50%
+{{ 512.5032 | lang.FormatPercent 2 }}
 ```
 
 The rendered page displays:
