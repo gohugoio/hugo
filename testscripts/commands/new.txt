@@ -5,20 +5,52 @@ stdout 'Create a new site in the provided directory'
 hugo new site my-yaml-site --format yml
 checkfile my-yaml-site/hugo.yml
 hugo new site mysite -f
-stdout 'Congratulations! Your new Hugo site is created in'
+stdout 'Congratulations! Your new Hugo site was created in'
 cd mysite
+checkfile archetypes/default.md
 checkfile hugo.toml
+exists assets
+exists content
+exists data
+exists i18n
+exists layouts
+exists static
+exists themes
 
 hugo new theme -h
 stdout 'Create a new theme \(skeleton\) called \[name\] in ./themes'
 hugo new theme mytheme
-stdout 'Creating theme'
+stdout 'Creating new theme'
 cd themes
 cd mytheme
+checkfile archetypes/default.md
+checkfile assets/css/main.css
+checkfile assets/js/main.js
+checkfile config/_default/hugo.toml
+checkfile config/_default/menus.toml
+checkfile content/_index.md
+checkfile content/posts/_index.md
+checkfile content/posts/post-1.md
+checkfile content/posts/post-2.md
+checkfile content/posts/post-3/bryce-canyon.jpg
+checkfile content/posts/post-3/index.md
+checkfile layouts/_default/baseof.html
+checkfile layouts/_default/home.html
+checkfile layouts/_default/list.html
+checkfile layouts/_default/single.html
+checkfile layouts/partials/footer.html
+checkfile layouts/partials/head.html
+checkfile layouts/partials/head/css.html
+checkfile layouts/partials/head/js.html
+checkfile layouts/partials/header.html
+checkfile layouts/partials/menu.html
+checkfile layouts/partials/terms.html
+checkfile static/favicon.ico
+checkfile LICENSE
+checkfile README.md
 checkfile theme.toml
-checkfile hugo.toml
-exists layouts/_default/list.html
-exists layouts/_default/single.html
+exists data
+exists i18n
 
 cd $WORK/mysite
 

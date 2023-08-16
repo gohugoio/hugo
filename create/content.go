@@ -42,7 +42,7 @@ const (
 	// DefaultArchetypeTemplateTemplate is the template used in 'hugo new site'
 	// and the template we use as a fall back.
 	DefaultArchetypeTemplateTemplate = `---
-title: "{{ replace .Name "-" " " | title }}"
+title: "{{ replace .File.ContentBaseName "-" " " | title }}"
 date: {{ .Date }}
 draft: true
 ---
