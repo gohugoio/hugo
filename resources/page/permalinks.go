@@ -399,7 +399,7 @@ func (l PermalinkExpander) toSliceFunc(cut string) func(s []string) []string {
 
 }
 
-var permalinksKindsSuppurt = []string{kinds.KindPage, kinds.KindSection, kinds.KindTaxonomy, kinds.KindTerm}
+var permalinksKindsSupport = []string{kinds.KindPage, kinds.KindSection, kinds.KindTaxonomy, kinds.KindTerm}
 
 // DecodePermalinksConfig decodes the permalinks configuration in the given map
 func DecodePermalinksConfig(m map[string]any) (map[string]map[string]string, error) {
@@ -425,7 +425,7 @@ func DecodePermalinksConfig(m map[string]any) (map[string]map[string]string, err
 			// [permalinks.key]
 			//   xyz = ???
 
-			if helpers.InStringArray(permalinksKindsSuppurt, k) {
+			if helpers.InStringArray(permalinksKindsSupport, k) {
 				// TODO: warn if we overwrite an already set value
 				for k2, v2 := range v {
 					switch v2 := v2.(type) {
@@ -437,7 +437,7 @@ func DecodePermalinksConfig(m map[string]any) (map[string]map[string]string, err
 					}
 				}
 			} else {
-				return nil, fmt.Errorf("permalinks configuration not supported for kind %q, supported kinds are %v", k, permalinksKindsSuppurt)
+				return nil, fmt.Errorf("permalinks configuration not supported for kind %q, supported kinds are %v", k, permalinksKindsSupport)
 			}
 
 		default:
