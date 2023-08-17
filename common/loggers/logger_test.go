@@ -110,7 +110,7 @@ func TestSuppressStatements(t *testing.T) {
 
 	opts := loggers.Options{
 		StoreErrors: true,
-		SuppresssStatements: map[string]bool{
+		SuppressStatements: map[string]bool{
 			"error-1": true,
 		},
 	}

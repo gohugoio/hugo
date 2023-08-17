@@ -119,13 +119,13 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 		}
 
 		logOpts := loggers.Options{
-			Level:               cfg.LogLevel,
-			Distinct:            true, // This will drop duplicate log warning and errors.
-			HandlerPost:         logHookLast,
-			Stdout:              cfg.LogOut,
-			Stderr:              cfg.LogOut,
-			StoreErrors:         conf.Running(),
-			SuppresssStatements: conf.IgnoredErrors(),
+			Level:              cfg.LogLevel,
+			Distinct:           true, // This will drop duplicate log warning and errors.
+			HandlerPost:        logHookLast,
+			Stdout:             cfg.LogOut,
+			Stderr:             cfg.LogOut,
+			StoreErrors:        conf.Running(),
+			SuppressStatements: conf.IgnoredErrors(),
 		}
 		logger = loggers.New(logOpts)
 	}
