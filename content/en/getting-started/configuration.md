@@ -411,7 +411,7 @@ Maximum number of items in the RSS feed.
 
 ### sectionPagesMenu
 
-See [Menus](/content-management/menus/#define-in-site-configuration).
+See [Menus](/content-management/menus/#define-automatically).
 
 ### security
 
