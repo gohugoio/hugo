@@ -63,7 +63,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/tdewolff/minify/v2 v2.12.7
 	github.com/tdewolff/parse/v2 v2.6.6
-	github.com/yuin/goldmark v1.5.5
+	github.com/yuin/goldmark v1.5.6
 	go.uber.org/atomic v1.11.0
 	go.uber.org/automaxprocs v1.5.3
 	gocloud.dev v0.33.0
