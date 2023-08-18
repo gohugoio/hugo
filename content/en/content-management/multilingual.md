@@ -641,20 +641,20 @@ To support Multilingual mode in your themes, some considerations must be taken f
 If there is more than one language defined, the `LanguagePrefix` variable will equal `/en` (or whatever your `CurrentLanguage` is). If not enabled, it will be an empty string (and is therefore harmless for single-language Hugo websites).
 
 
-## Generate multilingual content with `hugo new`
+## Generate multilingual content with `hugo new content`
 
 If you organize content with translations in the same directory:
 
 ```text
-hugo new post/test.en.md
-hugo new post/test.de.md
+hugo new content post/test.en.md
+hugo new content post/test.de.md
 ```
 
 If you organize content with translations in different directories:
 
 ```text
-hugo new content/en/post/test.md
-hugo new content/de/post/test.md
+hugo new content content/en/post/test.md
+hugo new content content/de/post/test.md
 ```
 
 [abslangurl]: /functions/abslangurl

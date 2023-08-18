@@ -15,14 +15,14 @@ aliases: [/content/archetypes/]
 
 ## What are archetypes?
 
-**Archetypes** are content template files in the [archetypes directory] of your project that contain preconfigured [front matter] and possibly also a content disposition for your website's [content types]. These will be used when you run `hugo new`.
+**Archetypes** are content template files in the [archetypes directory] of your project that contain preconfigured [front matter] and possibly also a content disposition for your website's [content types]. These will be used when you run `hugo new content`.
 
 
-The `hugo new` uses the `content-section` to find the most suitable archetype template in your project. If your project does not contain any archetype files, it will also look in the theme.
+The `hugo new content` command uses the `content-section` to find the most suitable archetype template in your project. If your project does not contain any archetypes, it will also look in the theme.
 
-{{< code file="archetype-example.sh" >}}
-hugo new posts/my-first-post.md
-{{< /code >}}
+```text
+hugo new content posts/my-first-post.md
+```
 
 The above will create a new content file in `content/posts/my-first-post.md` using the first archetype file found of these:
 
@@ -56,7 +56,7 @@ draft: true
 When you create a new newsletter with:
 
 ```bash
-hugo new newsletter/the-latest-cool.stuff.md
+hugo new content newsletter/the-latest-cool.stuff.md
 ```
 
 It will create a new newsletter type of content file based on the archetype template.
@@ -80,7 +80,7 @@ archetypes
 ```
 
 ```bash
-hugo new --kind post-bundle posts/my-post
+hugo new content --kind post-bundle posts/my-post
 ```
 
 Will create a new folder in `/content/posts/my-post` with the same set of files as in the `post-bundle` archetypes folder. All content files (`index.md` etc.) can contain template logic, and will receive the correct `.Site` for the content's language.
