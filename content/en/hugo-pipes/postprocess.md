@@ -36,8 +36,6 @@ There are several ways to set up CSS purging with PostCSS in Hugo. If you have a
 
 The below configuration will write a `hugo_stats.json` file to the project root as part of the build. If you're only using this for the production build, you should consider placing it below [config/production](/getting-started/configuration/#configuration-directory).
 
-<!-- TODO (jmm) writeStats => build.buildStats -->
-
 {{< code-toggle file="hugo" >}}
 [build.buildStats]
   enable = true
