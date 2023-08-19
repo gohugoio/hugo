@@ -1,0 +1,32 @@
+{{- $pc := site.Config.Privacy.Mastodon -}}
+{{- if not $pc.Disable -}}
+  {{- $msg1 := "The %q shortcode requires three named parameters: instance, user and id. See %s" -}}
+  {{- $msg2 := "The %q shortcode requires three parameters: instance, user and id. See %s" -}}
+  {{- if .IsNamedParams -}}
+    {{- $id := .Get "id" -}}
+    {{- $user := .Get "user" -}}      
+    {{- $instance := .Get "instance" -}}
+    {{- if and $id $user $instance -}}
+      {{- template "render-toot" (dict "id" $id "user" $user "instance" $instance) -}}
+    {{- else -}}
+      {{- errorf $msg1 .Name .Position -}}
+    {{- end -}}
+  {{- else -}}
+    {{- $id := .Get 2 -}}
+    {{- $user := .Get 1 -}}
+    {{- $instance := .Get 0 -}}
+    {{- if eq 3 (len .Params) -}}
+      {{- template "render-toot" (dict "id" $id "user" $user "instance" $instance) -}}
+    {{- else -}}      
+      {{- errorf $msg2 .Name .Position -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- define "render-toot" -}}
+  {{- $url := printf "https://%v/@%v/%v" .instance .user .id -}}
+  {{- $query := querify "url" $url -}}
+  {{- $request := printf "https://%v/api/oembed?%s" .instance $query -}}
+  {{- $json := getJSON $request -}}
+  {{- $json.html | safeHTML -}}
+{{- end -}}

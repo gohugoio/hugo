@@ -30,6 +30,7 @@ type Config struct {
 	Disqus          Disqus
 	GoogleAnalytics GoogleAnalytics
 	Instagram       Instagram
+	Mastodon        Mastodon
 	Twitter         Twitter
 	Vimeo           Vimeo
 	YouTube         YouTube
@@ -62,6 +63,11 @@ type Instagram struct {
 	// If simple mode is enabled, a static and no-JS version of the Instagram
 	// image card will be built.
 	Simple bool
+}
+
+// Mastodon holds the privacy configuration settings related to the Mastodon template.
+type Mastodon struct {
+	Service `mapstructure:",squash"`
 }
 
 // Twitter holds the privacy configuration settingsrelated to the Twitter shortcode.
