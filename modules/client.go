@@ -456,7 +456,7 @@ func (c *Client) listGoMods() (goModules, error) {
 	}
 
 	downloadModules := func(modules ...string) error {
-		args := []string{"mod", "download"}
+		args := []string{"mod", "download", "-modcacherw"}
 		args = append(args, modules...)
 		out := io.Discard
 		err := c.runGo(context.Background(), out, args...)
