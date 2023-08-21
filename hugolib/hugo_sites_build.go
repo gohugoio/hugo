@@ -492,10 +492,15 @@ func (h *HugoSites) writeBuildStats() error {
 		HTMLElements: *htmlElements,
 	}
 
-	js, err := json.MarshalIndent(stats, "", "  ")
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	enc.SetEscapeHTML(false)
+	enc.SetIndent("", "  ")
+	err := enc.Encode(stats)
 	if err != nil {
 		return err
 	}
+	js := buf.Bytes()
 
 	filename := filepath.Join(h.Configs.LoadingInfo.BaseConfig.WorkingDir, files.FilenameHugoStatsJSON)
 

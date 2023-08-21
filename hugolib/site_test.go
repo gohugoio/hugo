@@ -1116,7 +1116,7 @@ minify = %t
 
 Some text.
 
-<div class="c d e" id="el2">Foo</div>
+<div class="c d e [&>p]:text-red-600" id="el2">Foo</div>
 
 <span class=z>FOO</span>
 
@@ -1144,6 +1144,7 @@ Some text.
               "d",
               "e",
               "hover:text-gradient",
+			  "[&>p]:text-red-600",
               "inline-block",
               "lowercase",
               "pb-1",
