@@ -20,6 +20,7 @@ import (
 	"strings"
 
 	"github.com/bep/simplecobra"
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/create"
 	"github.com/gohugoio/hugo/create/skeletons"
@@ -120,14 +121,15 @@ according to your needs.`,
 					if len(args) < 1 {
 						return newUserError("theme name needs to be provided")
 					}
-					h, err := r.Hugo(flagsToCfg(cd, nil))
+					cfg := config.New()
+					cfg.Set("publishDir", "public")
+
+					conf, err := r.ConfigFromProvider(r.configVersionID.Load(), flagsToCfg(cd, cfg))
 					if err != nil {
 						return err
 					}
-					ps := h.PathSpec
-					sourceFs := ps.Fs.Source
-					themesDir := h.Configs.LoadingInfo.BaseConfig.ThemesDir
-					createpath := ps.AbsPathify(filepath.Join(themesDir, args[0]))
+					sourceFs := conf.fs.Source
+					createpath := paths.AbsPathify(conf.configs.Base.WorkingDir, filepath.Join(conf.configs.Base.ThemesDir, args[0]))
 					r.Println("Creating new theme in", createpath)
 
 					err = skeletons.CreateTheme(createpath, sourceFs)
