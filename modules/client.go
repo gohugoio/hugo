@@ -153,10 +153,6 @@ func (c *Client) Graph(w io.Writer) error {
 			continue
 		}
 
-		prefix := ""
-		if module.Disabled() {
-			prefix = "DISABLED "
-		}
 		dep := pathVersion(module.Owner()) + " " + pathVersion(module)
 		if replace := module.Replace(); replace != nil {
 			if replace.Version() != "" {
@@ -166,7 +162,7 @@ func (c *Client) Graph(w io.Writer) error {
 				dep += " => " + replace.Dir()
 			}
 		}
-		fmt.Fprintln(w, prefix+dep)
+		fmt.Fprintln(w, dep)
 	}
 
 	return nil
