@@ -16,11 +16,13 @@ exists i18n
 exists layouts
 exists static
 exists themes
+! exists resources
 
 hugo new theme -h
 stdout 'Create a new theme \(skeleton\) called \[name\] in ./themes'
 hugo new theme mytheme
 stdout 'Creating new theme'
+! exists resources
 cd themes
 cd mytheme
 checkfile archetypes/default.md
