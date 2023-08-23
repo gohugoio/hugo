@@ -171,7 +171,7 @@ parts:
       snapcraftctl build
       sed -i '1s|#!/usr/bin/ruby|#!/usr/bin/env ruby|' $SNAPCRAFT_PART_INSTALL/usr/bin/asciidoctor
 
-  dart-sass-embedded:
+  dart-sass:
     plugin: nil
     build-packages:
       - curl
