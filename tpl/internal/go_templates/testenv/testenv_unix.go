@@ -6,8 +6,15 @@
 
 package testenv
 
-import "syscall"
+import (
+	"syscall"
+)
 
 // Sigquit is the signal to send to kill a hanging subprocess.
 // Send SIGQUIT to get a stack trace.
 var Sigquit = syscall.SIGQUIT
+
+func syscallIsNotSupported(err error) bool {
+	// Removed by Hugo (not supported in Go 1.20)
+	return false
+}

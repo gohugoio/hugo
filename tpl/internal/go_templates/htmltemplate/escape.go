@@ -8,6 +8,8 @@ import (
 	"bytes"
 	"fmt"
 	"html"
+
+	//"internal/godebug"
 	"io"
 
 	template "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
@@ -161,6 +163,7 @@ func (e *escaper) escape(c context, n parse.Node) context {
 	panic("escaping " + n.String() + " is unimplemented")
 }
 
+// Modified by Hugo.
 // var debugAllowActionJSTmpl = godebug.New("jstmpllitinterp")
 
 // escapeAction escapes an action template node.
@@ -227,12 +230,13 @@ func (e *escaper) escapeAction(c context, n *parse.ActionNode) context {
 	case stateJSDqStr, stateJSSqStr:
 		s = append(s, "_html_template_jsstrescaper")
 	case stateJSBqStr:
-		if SecurityAllowActionJSTmpl.Load() { // .Value() == "1" {
+		if SecurityAllowActionJSTmpl.Load() {
+			//debugAllowActionJSTmpl.IncNonDefault()
 			s = append(s, "_html_template_jsstrescaper")
 		} else {
 			return context{
 				state: stateError,
-				err:   errorf(errJSTmplLit, n, n.Line, "%s appears in a JS template literal", n),
+				err:   errorf(ErrJSTemplate, n, n.Line, "%s appears in a JS template literal", n),
 			}
 		}
 	case stateJSRegexp:
@@ -756,7 +760,7 @@ func (e *escaper) escapeText(c context, n *parse.TextNode) context {
 		} else if isComment(c.state) && c.delim == delimNone {
 			switch c.state {
 			case stateJSBlockCmt:
-				// https://es5.github.com/#x7.4:
+				// https://es5.github.io/#x7.4:
 				// "Comments behave like white space and are
 				// discarded except that, if a MultiLineComment
 				// contains a line terminator character, then
