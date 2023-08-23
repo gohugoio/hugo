@@ -26,8 +26,6 @@ cd mytheme
 checkfile archetypes/default.md
 checkfile assets/css/main.css
 checkfile assets/js/main.js
-checkfile config/_default/hugo.toml
-checkfile config/_default/menus.toml
 checkfile content/_index.md
 checkfile content/posts/_index.md
 checkfile content/posts/post-1.md
@@ -48,6 +46,7 @@ checkfile layouts/partials/terms.html
 checkfile static/favicon.ico
 checkfile LICENSE
 checkfile README.md
+checkfile hugo.toml
 checkfile theme.toml
 exists data
 exists i18n
