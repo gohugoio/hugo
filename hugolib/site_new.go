@@ -195,7 +195,9 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 
 		s.PageCollections = newPageCollections(pm)
 		s.siteRefLinker, err = newSiteRefLinker(s)
-
+		if err != nil {
+			return nil, err
+		}
 		// Set up the main publishing chain.
 		pub, err := publisher.NewDestinationPublisher(
 			firstSiteDeps.ResourceSpec,
