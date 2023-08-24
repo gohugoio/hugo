@@ -18,7 +18,7 @@ See [template action](#template-action).
 
 ### archetype
 
-A template to create new content. See [details](/content-management/archetypes/).
+A template for new content. See [details](/content-management/archetypes/).
 
 ### argument
 
@@ -35,6 +35,14 @@ See [boolean](#boolean).
 ### boolean
 
 A data type with two possible values, either `true` or `false`.
+
+### branch bundle
+
+A [page bundle](#page-bundle) with an _index.md file and zero or more [resources](#resource). Analogous to a physical branch, a branch bundle may have descendants including regular pages, [leaf bundles](/getting-started/glossary/#leaf-bundle), and other branch bundles. See [details](/content-management/page-bundles/).
+
+### build
+
+To generate a static site that includes HTML files and assets such as images, CSS, and JavaScript. The build process includes rendering and resource transformations.
 
 ### bundle
 
@@ -100,10 +108,13 @@ See [page kind](#page-kind).
 
 See [template](#template).
 
+### leaf bundle
+
+A [page bundle](#page-bundle) with an index.md file and zero or more [resources](#resource). Analogous to a physical leaf, a leaf bundle is at the end of a branch. Hugo ignores content (but not resources) beneath the leaf bundle. See [details](/content-management/page-bundles/).
+
 ### localization
 
 Adaptation of a site to meet language and regional requirements. This includes translations, language-specific media, date and currency formats, etc. See [details](/content-management/multilingual/) and the [W3C definition](https://www.w3.org/International/questions/qa-i18n). Abbreviated l10n.
-
 
 ### map
 
@@ -123,7 +134,7 @@ A data structure with or without associated [methods](#method).
 
 ### page bundle
 
-A directory that encapsulates both content and associated [resources](#resource). There are two types of page bundles, leaf and branch. See [details](/content-management/page-bundles/).
+A directory that encapsulates both content and associated [resources](#resource). There are two types of page bundles: [leaf bundles](/getting-started/glossary/#leaf-bundle) and [branch bundles](/getting-started/glossary/#branch-bundle). See [details](/content-management/page-bundles/).
 
 ### page kind
 
@@ -162,6 +173,10 @@ See [pipeline](#pipeline).
 Within a [template action](#template-action), a pipeline is a possibly chained sequence of values, [function](#function) calls, or [method](#method) calls. Functions and methods in the pipeline may take multiple [arguments](#argument).
 
 A pipeline may be *chained* by separating a sequence of commands with pipeline characters "|". In a chained pipeline, the result of each command is passed as the last argument to the following command. The output of the final command in the pipeline is the value of the pipeline. See the [Go&nbsp;documentation](https://pkg.go.dev/text/template#hdr-Pipelines) for details.
+
+### publish
+
+See [build](#build).
 
 ### render hook
 
