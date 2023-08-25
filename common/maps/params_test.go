@@ -75,13 +75,13 @@ func TestParamsSetAndMerge(t *testing.T) {
 
 	createParamsPair := func() (Params, Params) {
 		p1 := Params{"a": "av", "c": "cv", "nested": Params{"al2": "al2v", "cl2": "cl2v"}}
-		p2 := Params{"b": "bv", "a": "abv", "nested": Params{"bl2": "bl2v", "al2": "al2bv"}, mergeStrategyKey: ParamsMergeStrategyDeep}
+		p2 := Params{"b": "bv", "a": "abv", "nested": Params{"bl2": "bl2v", "al2": "al2bv"}, MergeStrategyKey: ParamsMergeStrategyDeep}
 		return p1, p2
 	}
 
 	p1, p2 := createParamsPair()
 
-	p1.Set(p2)
+	SetParams(p1, p2)
 
 	c.Assert(p1, qt.DeepEquals, Params{
 		"a": "abv",
@@ -92,12 +92,12 @@ func TestParamsSetAndMerge(t *testing.T) {
 			"bl2": "bl2v",
 		},
 		"b":              "bv",
-		mergeStrategyKey: ParamsMergeStrategyDeep,
+		MergeStrategyKey: ParamsMergeStrategyDeep,
 	})
 
 	p1, p2 = createParamsPair()
 
-	p1.Merge(p2)
+	MergeParamsWithStrategy("", p1, p2)
 
 	// Default is to do a shallow merge.
 	c.Assert(p1, qt.DeepEquals, Params{
@@ -111,8 +111,8 @@ func TestParamsSetAndMerge(t *testing.T) {
 	})
 
 	p1, p2 = createParamsPair()
-	p1.SetDefaultMergeStrategy(ParamsMergeStrategyNone)
-	p1.Merge(p2)
+	p1.SetMergeStrategy(ParamsMergeStrategyNone)
+	MergeParamsWithStrategy("", p1, p2)
 	p1.DeleteMergeStrategy()
 
 	c.Assert(p1, qt.DeepEquals, Params{
@@ -125,8 +125,8 @@ func TestParamsSetAndMerge(t *testing.T) {
 	})
 
 	p1, p2 = createParamsPair()
-	p1.SetDefaultMergeStrategy(ParamsMergeStrategyShallow)
-	p1.Merge(p2)
+	p1.SetMergeStrategy(ParamsMergeStrategyShallow)
+	MergeParamsWithStrategy("", p1, p2)
 	p1.DeleteMergeStrategy()
 
 	c.Assert(p1, qt.DeepEquals, Params{
@@ -140,8 +140,8 @@ func TestParamsSetAndMerge(t *testing.T) {
 	})
 
 	p1, p2 = createParamsPair()
-	p1.SetDefaultMergeStrategy(ParamsMergeStrategyDeep)
-	p1.Merge(p2)
+	p1.SetMergeStrategy(ParamsMergeStrategyDeep)
+	MergeParamsWithStrategy("", p1, p2)
 	p1.DeleteMergeStrategy()
 
 	c.Assert(p1, qt.DeepEquals, Params{

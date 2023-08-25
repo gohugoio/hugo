@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/gohugoio/hugo/output"
@@ -37,9 +38,9 @@ type pageContent struct {
 }
 
 // returns the content to be processed by Goldmark or similar.
-func (p pageContent) contentToRender(parsed pageparser.Result, pm *pageContentMap, renderedShortcodes map[string]string) []byte {
+func (p pageContent) contentToRender(ctx context.Context, parsed pageparser.Result, pm *pageContentMap, renderedShortcodes map[string]shortcodeRenderer) ([]byte, bool, error) {
 	source := parsed.Input()
-
+	var hasVariants bool
 	c := make([]byte, 0, len(source)+(len(source)/10))
 
 	for _, it := range pm.items {
@@ -57,7 +58,12 @@ func (p pageContent) contentToRender(parsed pageparser.Result, pm *pageContentMa
 					panic(fmt.Sprintf("rendered shortcode %q not found", v.placeholder))
 				}
 
-				c = append(c, []byte(renderedShortcode)...)
+				b, more, err := renderedShortcode.renderShortcode(ctx)
+				if err != nil {
+					return nil, false, fmt.Errorf("failed to render shortcode: %w", err)
+				}
+				hasVariants = hasVariants || more
+				c = append(c, []byte(b)...)
 
 			} else {
 				// Insert the placeholder so we can insert the content after
@@ -69,7 +75,7 @@ func (p pageContent) contentToRender(parsed pageparser.Result, pm *pageContentMa
 		}
 	}
 
-	return c
+	return c, hasVariants, nil
 }
 
 func (p pageContent) selfLayoutForOutput(f output.Format) string {

@@ -22,7 +22,7 @@ import (
 func TestMinifyPublisher(t *testing.T) {
 	t.Parallel()
 
-	v := config.NewWithTestDefaults()
+	v := config.New()
 	v.Set("minify", true)
 	v.Set("baseURL", "https://example.org/")
 

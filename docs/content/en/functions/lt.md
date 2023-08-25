@@ -1,24 +1,26 @@
 ---
 title: lt
-linktitle: lt
-description: Returns the boolean truth of arg1 < arg2.
-date: 2017-07-26
-publishdate: 2017-07-26
-lastmod: 2017-07-26
+description: Returns the boolean truth of arg1 < arg2 && arg1 < arg3.
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
-keywords: [operators,logic]
-signature: ["lt ARG1 ARG2"]
-workson: []
-hugoversion:
+    parent: functions
+keywords: [comparison,operators,logic]
+signature: ["lt ARG1 ARG2 [ARG...]"]
 relatedfuncs: []
-deprecated: false
-aliases: []
 ---
 
+```go-html-template
+{{ lt 1 1 }} → false
+{{ lt 1 2 }} → true
+{{ lt 2 1 }} → false
 
-```
-{{ if lt 5 10 }}true{{ end }}
+{{ lt 1 1 1 }} → false
+{{ lt 1 1 2 }} → false
+{{ lt 1 2 1 }} → false
+{{ lt 1 2 2 }} → true
+
+{{ lt 2 1 1 }} → false
+{{ lt 2 1 2 }} → false
+{{ lt 2 2 1 }} → false
 ```

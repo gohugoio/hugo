@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2023 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,10 @@
 package site
 
 import (
+	"context"
+
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/gohugoio/hugo/tpl/internal"
 )
@@ -24,14 +27,10 @@ const name = "site"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		s := d.Site
+		s := page.WrapSite(d.Site)
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
-			Context: func(args ...any) (any, error) { return s, nil },
-		}
-
-		if s == nil {
-			panic("no Site")
+			Context: func(cctx context.Context, args ...any) (any, error) { return s, nil },
 		}
 
 		// We just add the Site as the namespace here. No method mappings.

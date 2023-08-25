@@ -221,7 +221,7 @@ func generateFileIsZeroWrappers(c *codegen.Inspector) error {
 	methods := c.MethodsFromTypes([]reflect.Type{reflect.TypeOf((*source.File)(nil)).Elem()}, nil)
 
 	for _, m := range methods {
-		if m.Name == "IsZero" {
+		if m.Name == "IsZero" || m.Name == "Classifier" {
 			continue
 		}
 		fmt.Fprint(&buff, m.DeclarationNamed("zeroFile"))
@@ -254,6 +254,7 @@ func NewZeroFile(log loggers.Logger) source.File {
 func (zeroFile) IsZero() bool {
 	return true
 }
+
 
 %s
 

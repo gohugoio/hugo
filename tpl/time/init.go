@@ -14,6 +14,7 @@
 package time
 
 import (
+	"context"
 	"errors"
 
 	"github.com/gohugoio/hugo/deps"
@@ -25,14 +26,14 @@ const name = "time"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		if d.Language == nil {
+		if d.Conf.Language() == nil {
 			panic("Language must be set")
 		}
-		ctx := New(langs.GetTimeFormatter(d.Language), langs.GetLocation(d.Language))
+		ctx := New(langs.GetTimeFormatter(d.Conf.Language()), langs.GetLocation(d.Conf.Language()))
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name: name,
-			Context: func(args ...any) (any, error) {
+			Context: func(cctx context.Context, args ...any) (any, error) {
 				// Handle overlapping "time" namespace and func.
 				//
 				// If no args are passed to `time`, assume namespace usage and

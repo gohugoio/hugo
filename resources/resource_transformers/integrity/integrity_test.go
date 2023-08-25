@@ -14,6 +14,7 @@
 package integrity
 
 import (
+	"context"
 	"html/template"
 	"testing"
 
@@ -63,7 +64,7 @@ func TestTransform(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	c.Assert(transformed.RelPermalink(), qt.Equals, "/hugo.a5ad1c6961214a55de53c1ce6e60d27b6b761f54851fa65e33066460dfa6a0db.txt")
 	c.Assert(transformed.Data(), qt.DeepEquals, map[string]any{"Integrity": template.HTMLAttr("sha256-pa0caWEhSlXeU8HObmDSe2t2H1SFH6ZeMwZkYN+moNs=")})
-	content, err := transformed.(resource.ContentProvider).Content()
+	content, err := transformed.(resource.ContentProvider).Content(context.Background())
 	c.Assert(err, qt.IsNil)
 	c.Assert(content, qt.Equals, "Hugo Rocks!")
 }

@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2023 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,23 +24,27 @@ import (
 
 // The most basic build test.
 func TestHello(t *testing.T) {
-	t.Parallel()
-	b := newTestSitesBuilder(t)
-	b.WithConfigFile("toml", `
+	files := `
+-- hugo.toml --
+title = "Hello"
 baseURL="https://example.org"
 disableKinds = ["term", "taxonomy", "section", "page"]
-`)
-	b.WithContent("p1", `
+-- content/p1.md --
 ---
 title: Page
 ---
+-- layouts/index.html --
+{{ .Title }}
+`
 
-`)
-	b.WithTemplates("index.html", `Site: {{ .Site.Language.Lang | upper }}`)
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
 
-	b.Build(BuildCfg{})
-
-	b.AssertFileContent("public/index.html", `Site: EN`)
+	b.AssertFileContent("public/index.html", `Hello`)
 }
 
 func TestSmoke(t *testing.T) {
@@ -339,20 +343,42 @@ func TestBenchmarkBaseline(t *testing.T) {
 }
 
 func BenchmarkBaseline(b *testing.B) {
-	cfg := IntegrationTestConfig{
-		T:           b,
-		TxtarString: benchmarkBaselineFiles(),
-	}
-	builders := make([]*IntegrationTestBuilder, b.N)
+	b.Run("withrender", func(b *testing.B) {
+		cfg := IntegrationTestConfig{
+			T:           b,
+			TxtarString: benchmarkBaselineFiles(),
+		}
+		builders := make([]*IntegrationTestBuilder, b.N)
 
-	for i := range builders {
-		builders[i] = NewIntegrationTestBuilder(cfg)
-	}
+		for i := range builders {
+			builders[i] = NewIntegrationTestBuilder(cfg)
+		}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		builders[i].Build()
-	}
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			builders[i].Build()
+		}
+	})
+
+	b.Run("skiprender", func(b *testing.B) {
+		cfg := IntegrationTestConfig{
+			T:           b,
+			TxtarString: benchmarkBaselineFiles(),
+			BuildCfg: BuildCfg{
+				SkipRender: true,
+			},
+		}
+		builders := make([]*IntegrationTestBuilder, b.N)
+
+		for i := range builders {
+			builders[i] = NewIntegrationTestBuilder(cfg)
+		}
+
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			builders[i].Build()
+		}
+	})
 }
 
 func benchmarkBaselineFiles() string {

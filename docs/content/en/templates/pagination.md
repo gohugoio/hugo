@@ -1,24 +1,20 @@
 ---
 title: Pagination
-linktitle: Pagination
 description: Hugo supports pagination for your homepage, section pages, and taxonomies.
-date: 2017-02-01
-publishdate: 2017-02-01
 categories: [templates]
 keywords: [lists,sections,pagination]
 menu:
   docs:
-    parent: "templates"
-    weight: 140
-weight: 140
-sections_weight: 140
+    parent: templates
+    weight: 100
+weight: 100
 aliases: [/extras/pagination,/doc/pagination/]
 toc: true
 ---
 
 The real power of Hugo pagination shines when combined with the [`where` function][where] and its SQL-like operators: [`first`], [`last`], and [`after`]. You can even [order the content][lists] the way you've become used to with Hugo.
 
-## Configure Pagination
+## Configure pagination
 
 Pagination can be configured in your [site configuration][configuration]:
 
@@ -32,11 +28,11 @@ Setting `paginate` to a positive value will split the list pages for the homepag
 
 `paginatePath` is used to adapt the `URL` to the pages in the paginator (the default setting will produce URLs on the form `/page/1/`.
 
-## List Paginator Pages
+## List paginator pages
 
-{{% warning %}}
+{{% note %}}
 `.Paginator` is provided to help you build a pager menu. This feature is currently only supported on homepage and list pages (i.e., taxonomies and section lists).
-{{% /warning %}}
+{{% /note %}}
 
 There are two ways to configure and use a `.Paginator`:
 
@@ -59,7 +55,7 @@ The global page size setting (`Paginate`) can be overridden by providing a posit
 It is also possible to use the `GroupBy` functions in combination with pagination:
 
 ```go-html-template
-{{ range (.Paginate (.Pages.GroupByDate "2006")).PageGroups  }}
+{{ range (.Paginate (.Pages.GroupByDate "2006")).PageGroups }}
 ```
 
 ## Build the navigation
@@ -72,7 +68,7 @@ The easiest way to add this to your pages is to include the built-in template (w
 {{ template "_internal/pagination.html" . }}
 ```
 
-{{% note "When to Create `.Paginator`" %}}
+{{% note %}}
 If you use any filters or ordering functions to create your `.Paginator` *and* you want the navigation buttons to be shown before the page listing, you must create the `.Paginator` before it's used.
 {{% /note %}}
 

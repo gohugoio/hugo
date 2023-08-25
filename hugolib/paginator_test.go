@@ -136,3 +136,29 @@ weight: %d
 	b.Assert(b.CheckExists("public/page/1/index.json"), qt.Equals, false)
 	b.AssertFileContent("public/page/2/index.json", `JSON: 22: |/p11/index.json|/p12/index.json`)
 }
+
+// Issue 10802
+func TestPaginatorEmptyPageGroups(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+baseURL = "https://example.com/"
+-- content/p1.md --
+-- content/p2.md --
+-- layouts/index.html --
+{{ $empty := site.RegularPages | complement site.RegularPages }}
+Len: {{ len $empty }}: Type: {{ printf "%T" $empty }}
+{{ $pgs := $empty.GroupByPublishDate "January 2006" }}
+{{ $pag := .Paginate $pgs }}
+Len Pag: {{ len $pag.Pages }}
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", "Len: 0", "Len Pag: 0")
+}

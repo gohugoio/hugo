@@ -14,6 +14,7 @@
 package page
 
 import (
+	"context"
 	"sort"
 
 	"github.com/gohugoio/hugo/common/collections"
@@ -160,7 +161,7 @@ var collatorStringSort = func(getString func(Page) string) func(p Pages) {
 		// Pages may be a mix of multiple languages, so we need to use the language
 		// for the currently rendered Site.
 		currentSite := p[0].Site().Current()
-		coll := langs.GetCollator(currentSite.Language())
+		coll := langs.GetCollator1(currentSite.Language())
 		coll.Lock()
 		defer coll.Unlock()
 
@@ -172,7 +173,7 @@ var collatorStringSort = func(getString func(Page) string) func(p Pages) {
 
 var collatorStringCompare = func(getString func(Page) string, p1, p2 Page) int {
 	currentSite := p1.Site().Current()
-	coll := langs.GetCollator(currentSite.Language())
+	coll := langs.GetCollator1(currentSite.Language())
 	coll.Lock()
 	c := coll.CompareStrings(getString(p1), getString(p2))
 	coll.Unlock()
@@ -181,7 +182,9 @@ var collatorStringCompare = func(getString func(Page) string, p1, p2 Page) int {
 
 var collatorStringLess = func(p Page) (less func(s1, s2 string) bool, close func()) {
 	currentSite := p.Site().Current()
-	coll := langs.GetCollator(currentSite.Language())
+	// Make sure to use the second collator to prevent deadlocks.
+	// See issue 11039.
+	coll := langs.GetCollator2(currentSite.Language())
 	coll.Lock()
 	return func(s1, s2 string) bool {
 			return coll.CompareStrings(s1, s2) < 1
@@ -299,7 +302,7 @@ func (p Pages) ByLastmod() Pages {
 // Adjacent invocations on the same receiver will return a cached result.
 //
 // This may safely be executed  in parallel.
-func (p Pages) ByLength() Pages {
+func (p Pages) ByLength(ctx context.Context) Pages {
 	const key = "pageSort.ByLength"
 
 	length := func(p1, p2 Page) bool {
@@ -314,7 +317,7 @@ func (p Pages) ByLength() Pages {
 			return false
 		}
 
-		return p1l.Len() < p2l.Len()
+		return p1l.Len(ctx) < p2l.Len(ctx)
 	}
 
 	pages, _ := spc.get(key, pageBy(length).Sort, p)

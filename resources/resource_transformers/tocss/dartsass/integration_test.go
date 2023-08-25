@@ -17,10 +17,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bep/logg"
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/dartsass"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 func TestTransformIncludePaths(t *testing.T) {
@@ -101,12 +101,105 @@ T1: {{ $r.Content | safeHTML }}
 		moo {
 		  color: #fff;
 		}
-		
+
 		moo {
 		  color: #fff;
 		}
-		
+
 		/* foo */`)
+}
+
+func TestTransformImportIndentedSASS(t *testing.T) {
+	t.Parallel()
+	if !dartsass.Supports() {
+		t.Skip()
+	}
+
+	files := `
+-- assets/scss/_moo.sass --
+#main
+	color: blue
+-- assets/scss/main.scss --
+@import "moo";
+
+/* foo */
+-- config.toml --
+-- layouts/index.html --
+{{ $r := resources.Get "scss/main.scss" |  toCSS (dict "transpiler" "dartsass")  }}
+T1: {{ $r.Content | safeHTML }}
+
+	`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   true,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", "T1: #main {\n  color: blue;\n}\n\n/* foo */")
+}
+
+// Issue 10592
+func TestTransformImportMountedCSS(t *testing.T) {
+	t.Parallel()
+	if !dartsass.Supports() {
+		t.Skip()
+	}
+
+	files := `
+-- assets/main.scss --
+@import "import-this-file.css";
+@import "foo/import-this-mounted-file.css";
+@import "compile-this-file";
+@import "foo/compile-this-mounted-file";
+a {color: main-scss;}
+-- assets/_compile-this-file.css --
+a {color: compile-this-file-css;}
+-- assets/_import-this-file.css --
+a {color: import-this-file-css;}
+-- foo/_compile-this-mounted-file.css --
+a {color: compile-this-mounted-file-css;}
+-- foo/_import-this-mounted-file.css --
+a {color: import-this-mounted-file-css;}
+-- layouts/index.html --
+{{- $opts := dict "transpiler" "dartsass" }}
+{{- with resources.Get "main.scss" | toCSS $opts }}{{ .Content | safeHTML }}{{ end }}
+-- config.toml --
+disableKinds = ['RSS','sitemap','taxonomy','term','page','section']
+
+[[module.mounts]]
+source = 'assets'
+target = 'assets'
+
+[[module.mounts]]
+source = 'foo'
+target = 'assets/foo'
+	`
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   true,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `
+		@import "import-this-file.css";
+		@import "foo/import-this-mounted-file.css";
+		a {
+			color: compile-this-file-css;
+		}
+
+		a {
+			color: compile-this-mounted-file-css;
+		}
+
+		a {
+			color: main-scss;
+		}
+	`)
 }
 
 func TestTransformThemeOverrides(t *testing.T) {
@@ -195,11 +288,11 @@ T1: {{ $r.Content }}
 			T:           t,
 			TxtarString: files,
 			NeedsOsFS:   true,
-			LogLevel:    jww.LevelInfo,
+			LogLevel:    logg.LevelInfo,
 		}).Build()
 
-	b.AssertLogMatches(`WARN.*Dart Sass: foo`)
-	b.AssertLogMatches(`INFO.*Dart Sass: .*assets.*main.scss:1:0: bar`)
+	b.AssertLogMatches(`Dart Sass: foo`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:1:0: bar`)
 
 }
 
@@ -291,7 +384,7 @@ body {
 	body {
 		background: url(vars.$image) no-repeat center/cover;
 		font-family: vars.$font;
-	  }	  
+	  }
 }
 
 p {
@@ -341,7 +434,7 @@ image = "images/hero.jpg"
 body {
 	body {
 		background: url(vars.$image) no-repeat center/cover;
-	  }	  
+	  }
 }
 
 p {
@@ -367,4 +460,73 @@ T1: {{ $r.Content }}
 		}).Build()
 
 	b.AssertFileContent("public/index.html", `T1: body body{background:url(images/hero.jpg) no-repeat center/cover}p{color:blue;font-size:24px}b{color:green}`)
+}
+
+func TestVarsCasting(t *testing.T) {
+	t.Parallel()
+	if !dartsass.Supports() {
+		t.Skip()
+	}
+
+	files := `
+-- config.toml --
+disableKinds = ["term", "taxonomy", "section", "page"]
+
+[params]
+[params.sassvars]
+color_hex = "#fff"
+color_rgb = "rgb(255, 255, 255)"
+color_hsl = "hsl(0, 0%, 100%)"
+dimension = "24px"
+percentage = "10%"
+flex = "5fr"
+name = "Hugo"
+url = "https://gohugo.io"
+integer = 32
+float = 3.14
+-- assets/scss/main.scss --
+@use "hugo:vars";
+@use "sass:meta";
+
+@debug meta.type-of(vars.$color_hex);
+@debug meta.type-of(vars.$color_rgb);
+@debug meta.type-of(vars.$color_hsl);
+@debug meta.type-of(vars.$dimension);
+@debug meta.type-of(vars.$percentage);
+@debug meta.type-of(vars.$flex);
+@debug meta.type-of(vars.$name);
+@debug meta.type-of(vars.$url);
+@debug meta.type-of(vars.$not_a_number);
+@debug meta.type-of(vars.$integer);
+@debug meta.type-of(vars.$float);
+@debug meta.type-of(vars.$a_number);
+-- layouts/index.html --
+{{ $vars := site.Params.sassvars}}
+{{ $vars = merge $vars (dict "not_a_number" ("32xxx" | css.Quoted) "a_number" ("234" | css.Unquoted) )}}
+{{ $cssOpts := (dict "transpiler" "dartsass" "vars" $vars ) }}
+{{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts }}
+T1: {{ $r.Content }}
+		`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   true,
+			LogLevel:    logg.LevelInfo,
+		}).Build()
+
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:3:0: color`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:4:0: color`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:5:0: color`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:6:0: number`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:7:0: number`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:8:0: number`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:9:0: string`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:10:0: string`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:11:0: string`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:12:0: number`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:13:0: number`)
+	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:14:0: number`)
+
 }

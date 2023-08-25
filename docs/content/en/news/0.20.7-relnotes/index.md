@@ -4,8 +4,6 @@ categories: ["Releases"]
 description: "This just fixes an issue with the release scripts, no change in the binaries"
 link: ""
 title: "Hugo 0.20.7"
-draft: false
-author: bep
 aliases: [/0-20-7/]
 ---
 

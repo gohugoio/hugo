@@ -1,23 +1,22 @@
 [[banners]]
     name         = "Linode"
     link         = "https://www.linode.com/"
-    logo         = "/images/sponsors/linode-logo_standard_light_medium.png"
+    logo         = "images/sponsors/linode-logo.svg"
     utm_campaign = "hugosponsor"
+    bgcolor      = "#ffffff"
 
 [[banners]]
-    name         = "ButterCMS"
-    link         = "https://buttercms.com/hugo-cms/"
-    logo         = "/images/sponsors/butter-light.svg"
-    utm_campaign = "sponsorship"
-    bgcolor      = "#131A3E"
+    name         = "CloudCannon"
+    link         = "https://cloudcannon.com/hugo-cms/"
+    logo         = "/images/sponsors/cloudcannon-white.svg"
+    utm_campaign = "HugoSponsorship"
+    utm_source   = "sponsor"
+    utm_content  = "gohugo"
+    bgcolor      = "#034AD8"
 
 [[banners]]
-    name         = "Your Company?"
-    link         = "https://bep.is/en/hugo-sponsor-2023-01/"
-    logo         = "/images/sponsors/your-company.svg"
-    utm_campaign = "hugosponsor"
-    bgcolor      = "#004887"
-
-    #hugohome
-    #hugofooter
-    #hugogithub
+    name          = "Your Company?"
+    link          = "https://bep.is/en/hugo-sponsor-2023-01/"
+    utm_campaign  = "hugosponsor"
+    show_on_hover = true
+    bgcolor       = "#4e4f4f"

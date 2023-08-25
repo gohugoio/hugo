@@ -14,14 +14,14 @@
 package hugolib
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/spf13/cast"
-
-	"github.com/gohugoio/hugo/resources/page"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -245,7 +245,7 @@ Content.
 	c.Assert(svP2.Language().Lang, qt.Equals, "sv")
 	c.Assert(nnP2.Language().Lang, qt.Equals, "nn")
 
-	content, _ := nnP2.Content()
+	content, _ := nnP2.Content(context.Background())
 	contentStr := cast.ToString(content)
 	c.Assert(contentStr, qt.Contains, "SVP3-REF: https://example.org/sv/sect/p-sv-3/")
 	c.Assert(contentStr, qt.Contains, "SVP3-RELREF: /sv/sect/p-sv-3/")
@@ -311,10 +311,10 @@ Content.
 	b.AssertFileContent("public/sv/sect/mybundle/logo.png", "PNG Data")
 	b.AssertFileContent("public/nn/sect/mybundle/logo.png", "PNG Data")
 
-	nnSect := nnSite.getPage(page.KindSection, "sect")
+	nnSect := nnSite.getPage(kinds.KindSection, "sect")
 	c.Assert(nnSect, qt.Not(qt.IsNil))
 	c.Assert(len(nnSect.Pages()), qt.Equals, 12)
-	nnHome := nnSite.Info.Home()
+	nnHome := nnSite.Home()
 	c.Assert(nnHome.RelPermalink(), qt.Equals, "/nn/")
 }
 

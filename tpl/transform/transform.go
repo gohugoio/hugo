@@ -15,6 +15,7 @@
 package transform
 
 import (
+	"context"
 	"html"
 	"html/template"
 
@@ -80,7 +81,7 @@ func (ns *Namespace) Highlight(s any, lang string, opts ...any) (template.HTML, 
 }
 
 // HighlightCodeBlock highlights a code block on the form received in the codeblock render hooks.
-func (ns *Namespace) HighlightCodeBlock(ctx hooks.CodeblockContext, opts ...any) (highlight.HightlightResult, error) {
+func (ns *Namespace) HighlightCodeBlock(ctx hooks.CodeblockContext, opts ...any) (highlight.HighlightResult, error) {
 	var optsv any
 	if len(opts) > 0 {
 		optsv = opts[0]
@@ -118,13 +119,13 @@ func (ns *Namespace) HTMLUnescape(s any) (string, error) {
 }
 
 // Markdownify renders s from Markdown to HTML.
-func (ns *Namespace) Markdownify(s any) (template.HTML, error) {
+func (ns *Namespace) Markdownify(ctx context.Context, s any) (template.HTML, error) {
 
 	home := ns.deps.Site.Home()
 	if home == nil {
 		panic("home must not be nil")
 	}
-	ss, err := home.RenderString(s)
+	ss, err := home.RenderString(ctx, s)
 	if err != nil {
 		return "", err
 	}

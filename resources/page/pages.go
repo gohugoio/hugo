@@ -132,21 +132,6 @@ func (pages Pages) ProbablyEq(other any) bool {
 	return true
 }
 
-func (ps Pages) removeFirstIfFound(p Page) Pages {
-	ii := -1
-	for i, pp := range ps {
-		if p.Eq(pp) {
-			ii = i
-			break
-		}
-	}
-
-	if ii != -1 {
-		ps = append(ps[:ii], ps[ii+1:]...)
-	}
-	return ps
-}
-
 // PagesFactory somehow creates some Pages.
 // We do a lot of lazy Pages initialization in Hugo, so we need a type.
 type PagesFactory func() Pages

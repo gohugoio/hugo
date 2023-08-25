@@ -17,18 +17,33 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/collections"
 )
+
+var newTestTocBuilder = func() Builder {
+	var b Builder
+	b.AddAt(&Heading{Title: "Heading 1", ID: "h1-1"}, 0, 0)
+	b.AddAt(&Heading{Title: "1-H2-1", ID: "1-h2-1"}, 0, 1)
+	b.AddAt(&Heading{Title: "1-H2-2", ID: "1-h2-2"}, 0, 1)
+	b.AddAt(&Heading{Title: "1-H3-1", ID: "1-h2-2"}, 0, 2)
+	b.AddAt(&Heading{Title: "Heading 2", ID: "h1-2"}, 1, 0)
+	return b
+}
+
+var newTestToc = func() *Fragments {
+	return newTestTocBuilder().Build()
+}
 
 func TestToc(t *testing.T) {
 	c := qt.New(t)
 
-	toc := &Root{}
+	toc := &Fragments{}
 
-	toc.AddAt(Heading{Text: "Heading 1", ID: "h1-1"}, 0, 0)
-	toc.AddAt(Heading{Text: "1-H2-1", ID: "1-h2-1"}, 0, 1)
-	toc.AddAt(Heading{Text: "1-H2-2", ID: "1-h2-2"}, 0, 1)
-	toc.AddAt(Heading{Text: "1-H3-1", ID: "1-h2-2"}, 0, 2)
-	toc.AddAt(Heading{Text: "Heading 2", ID: "h1-2"}, 1, 0)
+	toc.addAt(&Heading{Title: "Heading 1", ID: "h1-1"}, 0, 0)
+	toc.addAt(&Heading{Title: "1-H2-1", ID: "1-h2-1"}, 0, 1)
+	toc.addAt(&Heading{Title: "1-H2-2", ID: "1-h2-2"}, 0, 1)
+	toc.addAt(&Heading{Title: "1-H3-1", ID: "1-h2-2"}, 0, 2)
+	toc.addAt(&Heading{Title: "Heading 2", ID: "h1-2"}, 1, 0)
 
 	got := toc.ToHTML(1, -1, false)
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
@@ -97,11 +112,11 @@ func TestToc(t *testing.T) {
 func TestTocMissingParent(t *testing.T) {
 	c := qt.New(t)
 
-	toc := &Root{}
+	toc := &Fragments{}
 
-	toc.AddAt(Heading{Text: "H2", ID: "h2"}, 0, 1)
-	toc.AddAt(Heading{Text: "H3", ID: "h3"}, 1, 2)
-	toc.AddAt(Heading{Text: "H3", ID: "h3"}, 1, 2)
+	toc.addAt(&Heading{Title: "H2", ID: "h2"}, 0, 1)
+	toc.addAt(&Heading{Title: "H3", ID: "h3"}, 1, 2)
+	toc.addAt(&Heading{Title: "H3", ID: "h3"}, 1, 2)
 
 	got := toc.ToHTML(1, -1, false)
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
@@ -152,4 +167,54 @@ func TestTocMissingParent(t *testing.T) {
     </li>
   </ol>
 </nav>`, qt.Commentf(got))
+}
+
+func TestTocMisc(t *testing.T) {
+	c := qt.New(t)
+
+	c.Run("Identifiers", func(c *qt.C) {
+		toc := newTestToc()
+		c.Assert(toc.Identifiers, qt.DeepEquals, collections.SortedStringSlice{"1-h2-1", "1-h2-2", "1-h2-2", "h1-1", "h1-2"})
+	})
+
+	c.Run("HeadingsMap", func(c *qt.C) {
+		toc := newTestToc()
+		m := toc.HeadingsMap
+		c.Assert(m["h1-1"].Title, qt.Equals, "Heading 1")
+		c.Assert(m["doesnot exist"], qt.IsNil)
+	})
+}
+
+func BenchmarkToc(b *testing.B) {
+
+	newTocs := func(n int) []*Fragments {
+		var tocs []*Fragments
+		for i := 0; i < n; i++ {
+			tocs = append(tocs, newTestToc())
+		}
+		return tocs
+	}
+
+	b.Run("Build", func(b *testing.B) {
+		var builders []Builder
+		for i := 0; i < b.N; i++ {
+			builders = append(builders, newTestTocBuilder())
+		}
+		b.ResetTimer()
+
+		for i := 0; i < b.N; i++ {
+			b := builders[i]
+			b.Build()
+		}
+	})
+
+	b.Run("ToHTML", func(b *testing.B) {
+		tocs := newTocs(b.N)
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			toc := tocs[i]
+			toc.ToHTML(1, -1, false)
+		}
+	})
+
 }

@@ -6,8 +6,7 @@ categories: [functions]
 keywords: ['front matter', 'params']
 menu:
   docs:
-    parent: 'functions'
-aliases: []
+    parent: functions
 ---
 
 The `.Param` method on `.Page` looks for the given `KEY` in page parameters, and returns the corresponding value. If it cannot find the `KEY` in page parameters, it looks for the `KEY` in site parameters. If it cannot find the `KEY` in either location, the `.Param` method returns `nil`. 
@@ -18,15 +17,15 @@ For example, to show a table of contents on every page, but allow authors to hid
 
 **Configuration**
 
-{{< code-toggle file="config" copy=false >}}
+{{< code-toggle file="hugo" copy=false >}}
 [params]
 display_toc = true
 {{< /code-toggle >}}
 
 **Content**
 
-{{< code-toggle file="content/about.md" fm=true copy=false >}}
-title = 'About'
+{{< code-toggle file="content/example.md" fm=true copy=false >}}
+title = 'Example'
 date = 2023-01-01
 draft = false
 display_toc = false
@@ -34,7 +33,7 @@ display_toc = false
 
 **Template**
 
-{{< code file="layouts/_default/single.html" copy="false" >}}
+{{< code file="layouts/_default/single.html" copy=false >}}
 {{ if .Param "display_toc" }}
   {{ .TableOfContents }}
 {{ end }}
@@ -42,6 +41,6 @@ display_toc = false
 
 The `.Param` method returns the value associated with the given `KEY`, regardless of whether the value is truthy or falsy. If you need to ignore falsy values, use this construct instead:
 
-{{< code file="layouts/_default/single.html" copy="false" >}}
+{{< code file="layouts/_default/single.html" copy=false >}}
 {{ or .Params.foo site.Params.foo }}
 {{< /code >}}

@@ -16,6 +16,8 @@ package debug
 
 import (
 	"github.com/sanity-io/litter"
+	"github.com/spf13/cast"
+	"github.com/yuin/goldmark/util"
 
 	"github.com/gohugoio/hugo/deps"
 )
@@ -40,4 +42,10 @@ type Namespace struct {
 // so don't depend on a specific output.
 func (ns *Namespace) Dump(val any) string {
 	return litter.Sdump(val)
+}
+
+// VisualizeSpaces returns a string with spaces replaced by a visible string.
+func (ns *Namespace) VisualizeSpaces(val any) string {
+	s := cast.ToString(val)
+	return string(util.VisualizeSpaces([]byte(s)))
 }

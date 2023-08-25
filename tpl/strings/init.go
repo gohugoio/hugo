@@ -14,6 +14,8 @@
 package strings
 
 import (
+	"context"
+
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/tpl/internal"
 )
@@ -26,7 +28,7 @@ func init() {
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
-			Context: func(args ...any) (any, error) { return ctx, nil },
+			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
 		}
 
 		ns.AddMethodMapping(ctx.Chomp,
@@ -99,6 +101,14 @@ func init() {
 			[][2]string{
 				{`{{ hasPrefix "Hugo" "Hu" }}`, `true`},
 				{`{{ hasPrefix "Hugo" "Fu" }}`, `false`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.HasSuffix,
+			[]string{"hasSuffix"},
+			[][2]string{
+				{`{{ hasSuffix "Hugo" "go" }}`, `true`},
+				{`{{ hasSuffix "Hugo" "du" }}`, `false`},
 			},
 		)
 

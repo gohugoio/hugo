@@ -1,12 +1,11 @@
 ---
 title: .Unix
 description: Converts a time.Time value to the number of seconds elapsed since the Unix epoch, excluding leap seconds. The Unix epoch is 00:00:00&nbsp;UTC on 1 January 1970.
-date: 2017-02-01
 keywords: [dates,time]
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 signature: [".Unix",".UnixMilli",".UnixMicro",".UnixNano"]
 relatedfuncs: [Format,dateFormat,now,time]
 ---

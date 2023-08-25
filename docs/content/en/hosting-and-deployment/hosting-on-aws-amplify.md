@@ -1,19 +1,11 @@
 ---
 title: Host on AWS Amplify
-linktitle: Host on AWS Amplify
 description: Develop and deploy a cloud-powered web app with AWS Amplify.
-date: 2018-01-31
-publishdate: 2018-01-31
 categories: [hosting and deployment]
 keywords: [amplify,hosting,deployment]
-authors: [Nikhil Swaminathan]
 menu:
   docs:
-    parent: "hosting-and-deployment"
-    weight: 10
-weight: 10
-sections_weight: 10
-aliases: []
+    parent: hosting-and-deployment
 toc: true
 ---
 

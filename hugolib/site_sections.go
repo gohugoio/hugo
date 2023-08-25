@@ -18,11 +18,11 @@ import (
 )
 
 // Sections returns the top level sections.
-func (s *SiteInfo) Sections() page.Pages {
+func (s *Site) Sections() page.Pages {
 	return s.Home().Sections()
 }
 
 // Home is a shortcut to the home page, equivalent to .Site.GetPage "home".
-func (s *SiteInfo) Home() page.Page {
+func (s *Site) Home() page.Page {
 	return s.s.home
 }

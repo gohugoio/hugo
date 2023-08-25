@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package source
+package source_test
 
 import (@@ -247,11 +247,38 @@ i18n: {{ T "hugo" }}
 	"path/filepath"
@@ -19,6 +19,7 @@ import (@@ -247,11 +247,38 @@ i18n: {{ T "hugo" }}
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/source"
 )
 
 func TestFileInfo(t *testing.T) {func TestNewContentForce(t *testing.T) {
@@ -69,9 +70,9 @@ func TestFileInfo(t *testing.T) {func TestNewContentForce(t *testing.T) {
 	for _, this := range []struct {
 		base     string
 		filename string
-		assert   func(f *FileInfo)
+		assert   func(f *source.FileInfo)
 	}{
-		{filepath.FromSlash("/a/"), filepath.FromSlash("/a/b/page.md"), func(f *FileInfo) {
+		{filepath.FromSlash("/a/"), filepath.FromSlash("/a/b/page.md"), func(f *source.FileInfo) {
 			c.Assert(f.Filename(), qt.Equals, filepath.FromSlash("/a/b/page.md"))
 			c.Assert(f.Dir(), qt.Equals, filepath.FromSlash("b/"))
 			c.Assert(f.Path(), qt.Equals, filepath.FromSlash("b/page.md"))
@@ -79,10 +80,10 @@ func TestFileInfo(t *testing.T) {func TestNewContentForce(t *testing.T) {
 			c.Assert(f.TranslationBaseName(), qt.Equals, filepath.FromSlash("page"))
 			c.Assert(f.BaseFileName(), qt.Equals, filepath.FromSlash("page"))
 		}},
-		{filepath.FromSlash("/a/"), filepath.FromSlash("/a/b/c/d/page.md"), func(f *FileInfo) {
+		{filepath.FromSlash("/a/"), filepath.FromSlash("/a/b/c/d/page.md"), func(f *source.FileInfo) {
 			c.Assert(f.Section(), qt.Equals, "b")
 		}},
-		{filepath.FromSlash("/a/"), filepath.FromSlash("/a/b/page.en.MD"), func(f *FileInfo) {
+		{filepath.FromSlash("/a/"), filepath.FromSlash("/a/b/page.en.MD"), func(f *source.FileInfo) {
 			c.Assert(f.Section(), qt.Equals, "b")
 			c.Assert(f.Path(), qt.Equals, filepath.FromSlash("b/page.en.MD"))
 			c.Assert(f.TranslationBaseName(), qt.Equals, filepath.FromSlash("page"))

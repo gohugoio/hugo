@@ -19,7 +19,6 @@ import (
 	"path/filepath"
 
 	"github.com/gohugoio/hugo/common/loggers"
-
 	"github.com/spf13/afero"
 )
 

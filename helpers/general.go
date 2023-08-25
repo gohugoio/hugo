@@ -24,13 +24,11 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"sync"
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/gohugoio/hugo/common/loggers"
-
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/spf13/afero"
 
@@ -42,20 +40,6 @@ import (
 
 // FilePathSeparator as defined by os.Separator.
 const FilePathSeparator = string(filepath.Separator)
-
-// FindAvailablePort returns an available and valid TCP port.
-func FindAvailablePort() (*net.TCPAddr, error) {
-	l, err := net.Listen("tcp", ":0")
-	if err == nil {
-		defer l.Close()
-		addr := l.Addr()
-		if a, ok := addr.(*net.TCPAddr); ok {
-			return a, nil
-		}
-		return nil, fmt.Errorf("unable to obtain a valid tcp port: %v", addr)
-	}
-	return nil, err
-}
 
 // TCPListen starts listening on a valid TCP port.
 func TCPListen() (net.Listener, *net.TCPAddr, error) {
@@ -131,7 +115,7 @@ func UniqueStringsReuse(s []string) []string {
 	return result
 }
 
-// UniqueStringsReuse returns a sorted slice with any duplicates removed.
+// UniqueStringsSorted returns a sorted slice with any duplicates removed.
 // It will modify the input slice.
 func UniqueStringsSorted(s []string) []string {
 	if len(s) == 0 {
@@ -221,6 +205,8 @@ func ReaderContains(r io.Reader, subslice []byte) bool {
 // - "Go" (strings.Title)
 // - "AP" (see https://www.apstylebook.com/)
 // - "Chicago" (see http://www.chicagomanualofstyle.org/home.html)
+// - "FirstUpper" (only the first character is upper case)
+// - "None" (no transformation)
 //
 // If an unknown or empty style is provided, AP style is what you get.
 func GetTitleFunc(style string) func(s string) string {
@@ -230,6 +216,10 @@ func GetTitleFunc(style string) func(s string) string {
 	case "chicago":
 		tc := transform.NewTitleConverter(transform.ChicagoStyle)
 		return tc.Title
+	case "none":
+		return func(s string) string { return s }
+	case "firstupper":
+		return FirstUpper
 	default:
 		tc := transform.NewTitleConverter(transform.APStyle)
 		return tc.Title
@@ -268,143 +258,6 @@ func compareStringSlices(a, b []string) bool {
 	return true
 }
 
-// DistinctLogger ignores duplicate log statements.
-type DistinctLogger struct {
-	loggers.Logger
-	sync.RWMutex
-	m map[string]bool
-}
-
-func (l *DistinctLogger) Reset() {
-	l.Lock()
-	defer l.Unlock()
-
-	l.m = make(map[string]bool)
-}
-
-// Println will log the string returned from fmt.Sprintln given the arguments,
-// but not if it has been logged before.
-func (l *DistinctLogger) Println(v ...any) {
-	// fmt.Sprint doesn't add space between string arguments
-	logStatement := strings.TrimSpace(fmt.Sprintln(v...))
-	l.printIfNotPrinted("println", logStatement, func() {
-		l.Logger.Println(logStatement)
-	})
-}
-
-// Printf will log the string returned from fmt.Sprintf given the arguments,
-// but not if it has been logged before.
-func (l *DistinctLogger) Printf(format string, v ...any) {
-	logStatement := fmt.Sprintf(format, v...)
-	l.printIfNotPrinted("printf", logStatement, func() {
-		l.Logger.Printf(format, v...)
-	})
-}
-
-func (l *DistinctLogger) Debugf(format string, v ...any) {
-	logStatement := fmt.Sprintf(format, v...)
-	l.printIfNotPrinted("debugf", logStatement, func() {
-		l.Logger.Debugf(format, v...)
-	})
-}
-
-func (l *DistinctLogger) Debugln(v ...any) {
-	logStatement := fmt.Sprint(v...)
-	l.printIfNotPrinted("debugln", logStatement, func() {
-		l.Logger.Debugln(v...)
-	})
-}
-
-func (l *DistinctLogger) Infof(format string, v ...any) {
-	logStatement := fmt.Sprintf(format, v...)
-	l.printIfNotPrinted("info", logStatement, func() {
-		l.Logger.Infof(format, v...)
-	})
-}
-
-func (l *DistinctLogger) Infoln(v ...any) {
-	logStatement := fmt.Sprint(v...)
-	l.printIfNotPrinted("infoln", logStatement, func() {
-		l.Logger.Infoln(v...)
-	})
-}
-
-func (l *DistinctLogger) Warnf(format string, v ...any) {
-	logStatement := fmt.Sprintf(format, v...)
-	l.printIfNotPrinted("warnf", logStatement, func() {
-		l.Logger.Warnf(format, v...)
-	})
-}
-
-func (l *DistinctLogger) Warnln(v ...any) {
-	logStatement := fmt.Sprint(v...)
-	l.printIfNotPrinted("warnln", logStatement, func() {
-		l.Logger.Warnln(v...)
-	})
-}
-
-func (l *DistinctLogger) Errorf(format string, v ...any) {
-	logStatement := fmt.Sprint(v...)
-	l.printIfNotPrinted("errorf", logStatement, func() {
-		l.Logger.Errorf(format, v...)
-	})
-}
-
-func (l *DistinctLogger) Errorln(v ...any) {
-	logStatement := fmt.Sprint(v...)
-	l.printIfNotPrinted("errorln", logStatement, func() {
-		l.Logger.Errorln(v...)
-	})
-}
-
-func (l *DistinctLogger) hasPrinted(key string) bool {
-	l.RLock()
-	defer l.RUnlock()
-	_, found := l.m[key]
-	return found
-}
-
-func (l *DistinctLogger) printIfNotPrinted(level, logStatement string, print func()) {
-	key := level + logStatement
-	if l.hasPrinted(key) {
-		return
-	}
-	l.Lock()
-	defer l.Unlock()
-	l.m[key] = true // Placing this after print() can cause duplicate warning entries to be logged when --panicOnWarning is true.
-	print()
-
-}
-
-// NewDistinctErrorLogger creates a new DistinctLogger that logs ERRORs
-func NewDistinctErrorLogger() loggers.Logger {
-	return &DistinctLogger{m: make(map[string]bool), Logger: loggers.NewErrorLogger()}
-}
-
-// NewDistinctLogger creates a new DistinctLogger that logs to the provided logger.
-func NewDistinctLogger(logger loggers.Logger) loggers.Logger {
-	return &DistinctLogger{m: make(map[string]bool), Logger: logger}
-}
-
-// NewDistinctWarnLogger creates a new DistinctLogger that logs WARNs
-func NewDistinctWarnLogger() loggers.Logger {
-	return &DistinctLogger{m: make(map[string]bool), Logger: loggers.NewWarningLogger()}
-}
-
-var (
-	// DistinctErrorLog can be used to avoid spamming the logs with errors.
-	DistinctErrorLog = NewDistinctErrorLogger()
-
-	// DistinctWarnLog can be used to avoid spamming the logs with warnings.
-	DistinctWarnLog = NewDistinctWarnLogger()
-)
-
-// InitLoggers resets the global distinct loggers.
-func InitLoggers() {
-	DistinctErrorLog.Reset()
-	DistinctWarnLog.Reset()
-}
-
 // Deprecated informs about a deprecation, but only once for a given set of arguments' values.
 // If the err flag is enabled, it logs as an ERROR (will exit with -1) and the text will
 // point at the next Hugo release.
@@ -412,13 +265,9 @@ func InitLoggers() {
 // plenty of time to fix their templates.
 func Deprecated(item, alternative string, err bool) {
 	if err {
-		DistinctErrorLog.Errorf("%s is deprecated and will be removed in Hugo %s. %s", item, hugo.CurrentVersion.Next().ReleaseVersion(), alternative)
+		loggers.Log().Errorf("%s is deprecated and will be removed in Hugo %s. %s", item, hugo.CurrentVersion.Next().ReleaseVersion(), alternative)
 	} else {
-		var warnPanicMessage string
-		if !loggers.PanicOnWarning {
-			warnPanicMessage = "\n\nRe-run Hugo with the flag --panicOnWarning to get a better error message."
-		}
-		DistinctWarnLog.Warnf("%s is deprecated and will be removed in a future release. %s%s", item, alternative, warnPanicMessage)
+		loggers.Log().Warnf("%s is deprecated and will be removed in a future release. %s", item, alternative)
 	}
 }
 

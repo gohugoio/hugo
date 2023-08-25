@@ -181,6 +181,7 @@ func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.N
 	attrs := r.filterInternalAttributes(n.Attributes())
 
 	err := lr.RenderLink(
+		ctx.RenderContext().Ctx,
 		w,
 		imageLinkContext{
 			linkContext: linkContext{
@@ -224,7 +225,7 @@ func (r *hookedRenderer) renderImageDefault(w util.BufWriter, source []byte, nod
 		_, _ = w.Write(util.EscapeHTML(util.URLEscape(n.Destination, true)))
 	}
 	_, _ = w.WriteString(`" alt="`)
-	_, _ = w.Write(util.EscapeHTML(n.Text(source)))
+	_, _ = w.Write(nodeToHTMLText(n, source))
 	_ = w.WriteByte('"')
 	if n.Title != nil {
 		_, _ = w.WriteString(` title="`)
@@ -271,6 +272,7 @@ func (r *hookedRenderer) renderLink(w util.BufWriter, source []byte, node ast.No
 	ctx.Buffer.Truncate(pos)
 
 	err := lr.RenderLink(
+		ctx.RenderContext().Ctx,
 		w,
 		linkContext{
 			page:             ctx.DocumentContext().Document,
@@ -340,6 +342,7 @@ func (r *hookedRenderer) renderAutoLink(w util.BufWriter, source []byte, node as
 	}
 
 	err := lr.RenderLink(
+		ctx.RenderContext().Ctx,
 		w,
 		linkContext{
 			page:             ctx.DocumentContext().Document,
@@ -428,6 +431,7 @@ func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast
 	anchor := anchori.([]byte)
 
 	err := hr.RenderHeading(
+		ctx.RenderContext().Ctx,
 		w,
 		headingContext{
 			page:             ctx.DocumentContext().Document,
@@ -470,4 +474,19 @@ func (e *links) Extend(m goldmark.Markdown) {
 	m.Renderer().AddOptions(renderer.WithNodeRenderers(
 		util.Prioritized(newLinkRenderer(e.cfg), 100),
 	))
+}
+
+// Borrowed from Goldmark.
+func nodeToHTMLText(n ast.Node, source []byte) []byte {
+	var buf bytes.Buffer
+	for c := n.FirstChild(); c != nil; c = c.NextSibling() {
+		if s, ok := c.(*ast.String); ok && s.IsCode() {
+			buf.Write(s.Text(source))
+		} else if !c.HasChildren() {
+			buf.Write(util.EscapeHTML(c.Text(source)))
+		} else {
+			buf.Write(nodeToHTMLText(c, source))
+		}
+	}
+	return buf.Bytes()
 }

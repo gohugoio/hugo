@@ -118,7 +118,7 @@ func SafeCommand(name string, arg ...string) (*exec.Cmd, error) {
 	return exec.Command(bin, arg...), nil
 }
 
-// Exec encorces a security policy for commands run via os/exec.
+// Exec enforces a security policy for commands run via os/exec.
 type Exec struct {
 	sc security.Config
 

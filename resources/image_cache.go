@@ -26,16 +26,27 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 )
 
-type imageCache struct {
+// ImageCache is a cache for image resources. The backing caches are shared between all sites.
+type ImageCache struct {
 	pathSpec *helpers.PathSpec
 
 	fileCache *filecache.Cache
 
+	*imageCacheStore
+}
+
+type imageCacheStore struct {
 	mu    sync.RWMutex
 	store map[string]*resourceAdapter
 }
 
-func (c *imageCache) deleteIfContains(s string) {
+// WithPathSpec returns a copy of the ImageCache with the given PathSpec set.
+func (c ImageCache) WithPathSpec(ps *helpers.PathSpec) *ImageCache {
+	c.pathSpec = ps
+	return &c
+}
+
+func (c *ImageCache) deleteIfContains(s string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	s = c.normalizeKeyBase(s)
@@ -48,21 +59,21 @@ func (c *imageCache) deleteIfContains(s string) {
 
 // The cache key is a lowercase path with Unix style slashes and it always starts with
 // a leading slash.
-func (c *imageCache) normalizeKey(key string) string {
+func (c *ImageCache) normalizeKey(key string) string {
 	return "/" + c.normalizeKeyBase(key)
 }
 
-func (c *imageCache) normalizeKeyBase(key string) string {
+func (c *ImageCache) normalizeKeyBase(key string) string {
 	return strings.Trim(strings.ToLower(filepath.ToSlash(key)), "/")
 }
 
-func (c *imageCache) clear() {
+func (c *ImageCache) clear() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.store = make(map[string]*resourceAdapter)
 }
 
-func (c *imageCache) getOrCreate(
+func (c *ImageCache) getOrCreate(
 	parent *imageResource, conf images.ImageConfig,
 	createImage func() (*imageResource, image.Image, error)) (*resourceAdapter, error) {
 	relTarget := parent.relTargetPathFromConfig(conf)
@@ -95,28 +106,10 @@ func (c *imageCache) getOrCreate(
 		rp := img.getResourcePaths()
 		rp.relTargetDirFile.file = relTarget.file
 		img.setSourceFilename(info.Name)
+		img.setSourceFilenameIsHash(true)
 		img.setMediaType(conf.TargetFormat.MediaType())
 
-		if err := img.InitConfig(r); err != nil {
-			return err
-		}
-
-		r.Seek(0, 0)
-
-		w, err := img.openDestinationsForWriting()
-		if err != nil {
-			return err
-		}
-
-		if w == nil {
-			// Nothing to write.
-			return nil
-		}
-
-		defer w.Close()
-		_, err = io.Copy(w, r)
-
-		return err
+		return img.InitConfig(r)
 	}
 
 	// create creates the image and encodes it to the cache (w).
@@ -163,6 +156,6 @@ func (c *imageCache) getOrCreate(
 	return imgAdapter, nil
 }
 
-func newImageCache(fileCache *filecache.Cache, ps *helpers.PathSpec) *imageCache {
-	return &imageCache{fileCache: fileCache, pathSpec: ps, store: make(map[string]*resourceAdapter)}
+func newImageCache(fileCache *filecache.Cache, ps *helpers.PathSpec) *ImageCache {
+	return &ImageCache{fileCache: fileCache, pathSpec: ps, imageCacheStore: &imageCacheStore{store: make(map[string]*resourceAdapter)}}
 }

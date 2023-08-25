@@ -53,4 +53,21 @@ func TestConfig(t *testing.T) {
 		c.Assert(cfg.LineNoStart, qt.Equals, 32)
 		c.Assert(cfg.Hl_Lines, qt.Equals, "3-8 10-20")
 	})
+
+	c.Run("applyOptionsFromMap", func(c *qt.C) {
+		cfg := DefaultConfig
+		err := applyOptionsFromMap(map[string]any{
+			"noclasses":   true,
+			"lineNos":     "inline", // mixed case key, should work after normalization
+			"linenostart": 32,
+			"hl_lines":    "3-8 10-20",
+		}, &cfg)
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(cfg.NoClasses, qt.Equals, true)
+		c.Assert(cfg.LineNos, qt.Equals, true)
+		c.Assert(cfg.LineNumbersInTable, qt.Equals, false)
+		c.Assert(cfg.LineNoStart, qt.Equals, 32)
+		c.Assert(cfg.Hl_Lines, qt.Equals, "3-8 10-20")
+	})
 }

@@ -1,18 +1,13 @@
 ---
 title: highlight
-linktitle: highlight
 description: Renders code with a syntax highlighter.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2021-12-06
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [highlighting,code blocks,syntax]
 signature: ["transform.Highlight INPUT LANG [OPTIONS]","highlight INPUT LANG [OPTIONS]"]
 relatedfuncs: []
-deprecated: false
 toc: true
 ---
 The `highlight` function uses the [Chroma] syntax highlighter, supporting over 200 languages with more than 40 available styles.
@@ -36,19 +31,19 @@ Display a number at the beginning of each line.
 
 lineNumbersInTable
 : Boolean. Default is `true`.\
-Render the highlighted code in an HTML table with two cells. The left table cell contains the line numbers. The right table cell contains the code, allowing a user to select and copy the code without line numbers. Irrelevant if `lineNos` is false.
+Render the highlighted code in an HTML table with two cells. The left table cell contains the line numbers. The right table cell contains the code, allowing a user to select and copy the code without line numbers. Irrelevant if `lineNos` is `false`.
 
 anchorLineNos
 : Boolean. Default is `false`.\
-Render each line number as an HTML anchor element, and set the `id` attribute of the surrounding `<span>` to the line number. Irrelevant if `lineNos` is false.
+Render each line number as an HTML anchor element, and set the `id` attribute of the surrounding `<span>` to the line number. Irrelevant if `lineNos` is `false`.
 
 lineAnchors
 : String. Default is `""`.\
-When rendering a line number as an HTML anchor element, prepend this value to the `id` attribute of the surrounding `<span>`. This provides unique `id` attributes when a page contains two or more code blocks. Irrelevant if `lineNos` or `anchorLineNos` is false.
+When rendering a line number as an HTML anchor element, prepend this value to the `id` attribute of the surrounding `<span>`. This provides unique `id` attributes when a page contains two or more code blocks. Irrelevant if `lineNos` or `anchorLineNos` is `false`.
 
 lineNoStart
 : Integer. Default is `1`.\
-The number to display at the beginning of the first line. Irrelevant if `lineNos` is false.
+The number to display at the beginning of the first line. Irrelevant if `lineNos` is `false`.
 
 hl_Lines
 : String. Default is `""`.\
@@ -68,7 +63,7 @@ Use inline CSS styles instead of an external CSS file. To use an external CSS fi
 
 tabWidth
 : Integer. Default is `4`.\
-Substitute this number of spaces for each tab character in your highlighted code.
+Substitute this number of spaces for each tab character in your highlighted code. Irrelevant if `noClasses` is `false`.
 
 guessSyntax
 : Boolean. Default is `false`.\
@@ -96,13 +91,13 @@ Instead of specifying both `lineNos` and `lineNumbersInTable`, you can use the f
 
 {{ $input := `echo "Hello World!"` }}
 {{ $lang := "bash" }}
-{{ $options := slice "lineNos=table" "style=dracula" }}
-{{ transform.Highlight $input $lang (delimit $options ",") }}
+{{ $options := dict "lineNos" "table" "style" "dracula" }}
+{{ transform.Highlight $input $lang $options }}
 ```
 
 [Chroma]: https://github.com/alecthomas/chroma
-[hugo client]: {{< relref "commands/hugo_gen_chromastyles" >}}
-[options]: {{< relref "#options" >}}
-[site configuration]: {{< relref "getting-started/configuration-markup#highlight">}}
+[hugo client]: /commands/hugo_gen_chromastyles
+[options]: #options
+[site configuration]: /getting-started/configuration-markup#highlight
 [style gallery]: https://xyproto.github.io/splash/docs/
-[supported languages]: {{< relref "content-management/syntax-highlighting#list-of-chroma-highlighting-languages" >}}
+[supported languages]: /content-management/syntax-highlighting#list-of-chroma-highlighting-languages
