@@ -22,7 +22,7 @@ The following is a list of page-level variables. Many of these will be defined i
 : Aliases of this page
 
 .Ancestors
-: Get the ancestors of each page, simplify [breadcrumb navigation](/content-management/sections#example-breadcrumb-navigation) implementation complexity  
+: Ancestors of this page.
 
 .BundleType
 : The [bundle] type: `leaf`, `branch`, or an empty string if the page is not a bundle.
@@ -85,16 +85,13 @@ The following is a list of page-level variables. Many of these will be defined i
 : Access when creating links to the content. If set, Hugo will use the `linktitle` from the front matter before `title`.
 
 .Next
-: Points up to the next [regular page](/variables/site/#site-pages) (sorted by Hugo's [default sort](/templates/lists#default-weight--date--linktitle--filepath)). Example: `{{ with .Next }}{{ .Permalink }}{{ end }}`. Calling `.Next` from the first page returns `nil`.
+: Points up to the next regular page (sorted by Hugo's [default sort](/templates/lists#default-weight--date--linktitle--filepath)). Example: `{{ with .Next }}{{ .Permalink }}{{ end }}`. Calling `.Next` from the first page returns `nil`.
 
 .NextInSection
-: Points up to the next [regular page](/variables/site/#site-pages) below the same top level section (e.g. in `/blog`)). Pages are sorted by Hugo's [default sort](/templates/lists#default-weight--date--linktitle--filepath). Example: `{{ with .NextInSection }}{{ .Permalink }}{{ end }}`. Calling `.NextInSection` from the first page returns `nil`.
+: Points up to the next regular page below the same top level section (e.g. in `/blog`)). Pages are sorted by Hugo's [default sort](/templates/lists#default-weight--date--linktitle--filepath). Example: `{{ with .NextInSection }}{{ .Permalink }}{{ end }}`. Calling `.NextInSection` from the first page returns `nil`.
 
 .OutputFormats
 : Contains all formats, including the current format, for a given page. Can be combined the with [`.Get` function](/functions/get/) to grab a specific format. (See [Output Formats](/templates/output-formats/).)
-
-.Pages
-: A collection of associated pages. This value will be `nil` within the context of regular content pages. See [`.Pages`](#pages).
 
 .Permalink
 : The Permanent link for this page; see [Permalinks](/content-management/urls/)
@@ -106,10 +103,10 @@ The following is a list of page-level variables. Many of these will be defined i
 : The slice of strings that results from splitting .Plain into words, as defined in Go's [strings.Fields](https://pkg.go.dev/strings#Fields).
 
 .Prev
-: Points down to the previous [regular page](/variables/site/#site-pages) (sorted by Hugo's [default sort](/templates/lists#default-weight--date--linktitle--filepath)). Example: `{{ if .Prev }}{{ .Prev.Permalink }}{{ end }}`.  Calling `.Prev` from the last page returns `nil`.
+: Points down to the previous regular page(sorted by Hugo's [default sort](/templates/lists#default-weight--date--linktitle--filepath)). Example: `{{ if .Prev }}{{ .Prev.Permalink }}{{ end }}`.  Calling `.Prev` from the last page returns `nil`.
 
 .PrevInSection
-: Points down to the previous [regular page](/variables/site/#site-pages) below the same top level section (e.g. `/blog`). Pages are sorted by Hugo's [default sort](/templates/lists#default-weight--date--linktitle--filepath). Example: `{{ if .PrevInSection }}{{ .PrevInSection.Permalink }}{{ end }}`.  Calling `.PrevInSection` from the last page returns `nil`.
+: Points down to the previous regular page below the same top level section (e.g. `/blog`). Pages are sorted by Hugo's [default sort](/templates/lists#default-weight--date--linktitle--filepath). Example: `{{ if .PrevInSection }}{{ .PrevInSection.Permalink }}{{ end }}`.  Calling `.PrevInSection` from the last page returns `nil`.
 
 .PublishDate
 : The date on which the content was or will be published. By default, this is the front matter `publishDate` value. See [configuring dates] for a description of fallback values and precedence. See also `.Date`, `.ExpiryDate`, and `.Lastmod`.
@@ -173,6 +170,19 @@ https://remarkjs.com)
 .WordCount
 : The number of words in the content.
 
+## Page collections
+
+List pages receive the following page collections in [context](/getting-started/glossary/#context):
+
+.Pages
+: Regular pages within the current section (not recursive), and section pages for immediate descendant sections (not recursive).
+
+.RegularPages
+: Regular pages within the current section (not recursive).
+
+.RegularPagesRecursive
+: Regular pages within the current section, and regular pages within all descendant sections.
+
 ## Writable page-scoped variables
 
 [.Scratch][scratch]
@@ -186,15 +196,6 @@ https://remarkjs.com)
 Also see [Sections](/content-management/sections/).
 
 {{< readfile file="/content/en/readfiles/sectionvars.md" markdown="true" >}}
-
-## The `.Pages` variable {#pages}
-
-`.Pages` is an alias to `.Data.Pages`. It is conventional to use the
-aliased form `.Pages`.
-
-### `.Pages` compared to `.Site.Pages`
-
-{{< getcontent path="readfiles/pages-vs-site-pages.md" >}}
 
 ## Page fragments
 

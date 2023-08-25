@@ -18,7 +18,7 @@ The following is a list of site-level (aka "global") variables. Many of these va
 
 All the methods below, e.g. `.Site.RegularPages` can also be reached via the global [`site`](/functions/site/) function, e.g. `site.RegularPages`, which can be handy in partials where the `Page` object isn't easily available.
 
-## Site variables list
+## Site variables
 
 .Site.AllPages
 : array of all pages, regardless of their translation.
@@ -78,10 +78,10 @@ All the methods below, e.g. `.Site.RegularPages` can also be reached via the glo
 : all the menus in the site.
 
 .Site.Pages
-: array of all content ordered by Date with the newest first. This array contains only the pages in the current language. See [`.Site.Pages`](#site-pages).
+: array of all content ordered by Date with the newest first. This array contains only the pages in the current language. 
 
 .Site.RegularPages
-: a shortcut to the *regular* page collection. `.Site.RegularPages` is equivalent to `where .Site.Pages "Kind" "page"`. See [`.Site.Pages`](#site-pages).
+: a shortcut to the *regular* page collection. `.Site.RegularPages` is equivalent to `where .Site.Pages "Kind" "page"`.
 
 .Site.Sections
 : top-level directories of the site.
@@ -92,7 +92,7 @@ All the methods below, e.g. `.Site.RegularPages` can also be reached via the glo
 .Site.Title
 : a string representing the title of the site.
 
-## The `.Site.Params` variable
+## Site parameters
 
 `.Site.Params` is a container holding the values from the `params` section of your site configuration.
 
@@ -113,11 +113,5 @@ You can use `.Site.Params` in a [partial template](/templates/partials/) to call
 {{< code file="layouts/partials/head.html" >}}
 <meta name="description" content="{{ if .IsHome }}{{ $.Site.Params.description }}{{ else }}{{ .Description }}{{ end }}" />
 {{< /code >}}
-
-## The `.Site.Pages` variable {#site-pages}
-
-### `.Site.Pages` compared to `.Pages`
-
-{{< getcontent path="readfiles/pages-vs-site-pages.md" >}}
 
 [config]: /getting-started/configuration/

@@ -38,7 +38,7 @@ A data type with two possible values, either `true` or `false`.
 
 ### branch bundle
 
-A [page bundle](#page-bundle) with an _index.md file and zero or more [resources](#resource). Analogous to a physical branch, a branch bundle may have descendants including regular pages, [leaf bundles](/getting-started/glossary/#leaf-bundle), and other branch bundles. See [details](/content-management/page-bundles/).
+A [page bundle](#page-bundle) with an&nbsp;_index.md file and zero or more [resources](#resource). Analogous to a physical branch, a branch bundle may have descendants including regular pages, [leaf bundles](/getting-started/glossary/#leaf-bundle), and other branch bundles. See [details](/content-management/page-bundles/).
 
 ### build
 
@@ -112,6 +112,10 @@ See [template](#template).
 
 A [page bundle](#page-bundle) with an index.md file and zero or more [resources](#resource). Analogous to a physical leaf, a leaf bundle is at the end of a branch. Hugo ignores content (but not resources) beneath the leaf bundle. See [details](/content-management/page-bundles/).
 
+### list page
+
+Any [page kind](#page-kind) that receives a page [collection](#collection) in [context](#context). This includes the home page, [section pages](#section-page), [taxonomy pages](#taxonomy-page), and [term pages](#term-page).
+
 ### localization
 
 Adaptation of a site to meet language and regional requirements. This includes translations, language-specific media, date and currency formats, etc. See [details](/content-management/multilingual/) and the [W3C definition](https://www.w3.org/International/questions/qa-i18n). Abbreviated l10n.
@@ -178,6 +182,10 @@ A pipeline may be *chained* by separating a sequence of commands with pipeline c
 
 See [build](#build).
 
+### regular page
+
+Content with the "page" [page kind](#page-kind). See also [section page](#section-page).
+
 ### render hook
 
 A [template](#template) that overrides standard markdown rendering. See [details](/templates/render-hooks/).
@@ -194,7 +202,11 @@ A single value, one of [string](#string), [integer](#integer), [floating point](
 
 ### section
 
-A directory of content pages with an _index.md file. A section may contain subdirectories without _index.md files. An _index.md file is optional in top-level directories. Section templates receive one or more page [collections](#collection) in [context](#context). See [details](/templates/lists/).
+A top-level content directory, or any content directory with an&nbsp;_index.md file. A content directory with an&nbsp;_index.md file is also known as a [branch bundle](/getting-started/glossary/#branch-bundle). Section templates receive one or more page [collections](#collection) in [context](#context). See [details](/content-management/sections/).
+
+### section page
+
+Content with the "section" [page kind](#page-kind). Typically a listing of [regular pages](#regular-page) and/or [section pages](#section-page) within the current [section](#section). See also [regular page](#regular-page).
 
 ### shortcode
 
@@ -212,6 +224,10 @@ A sequence of bytes. For example, `"What is 6 times 7?"`&nbsp;.
 
 A group of related [terms](#term) used to classify content. For example, a "colors" taxonomy might include the terms "red", "green", and "blue". See&nbsp;[details](/content-management/taxonomies/).
 
+### taxonomy page
+
+Content with the "taxonomy" [page kind](#page-kind). Typically a listing of [terms](#term) within a given [taxonomy](#taxonomy).
+
 ### template
 
 An HTML file with [template actions](#template-action), located within the layouts directory of a project, theme, or module. See&nbsp;[details](/templates/).
@@ -223,6 +239,10 @@ A data evaluation or control structure within a [template](#template), delimited
 ### term
 
 A member of a [taxonomy](#taxonomy), used to classify content. See&nbsp;[details](/content-management/taxonomies/).
+
+### term page
+
+Content with the "term" [page kind](#page-kind). Typically a listing of [regular pages](#regular-page) and [section pages](#section-page) with a given [term](#term).
 
 ### theme
 
