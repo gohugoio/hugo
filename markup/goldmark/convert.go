@@ -136,8 +136,17 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 		extensions = append(extensions, extension.Footnote)
 	}
 
-	if cfg.Extensions.CJK {
-		extensions = append(extensions, extension.CJK)
+	if cfg.Extensions.CJK.Enable {
+		opts := []extension.CJKOption{}
+		if cfg.Extensions.CJK.EastAsianLineBreaks {
+			opts = append(opts, extension.WithEastAsianLineBreaks())
+		}
+
+		if cfg.Extensions.CJK.EscapedSpace {
+			opts = append(opts, extension.WithEscapedSpace())
+		}
+		c := extension.NewCJK(opts...)
+		extensions = append(extensions, c)
 	}
 
 	if cfg.Parser.AutoHeadingID {

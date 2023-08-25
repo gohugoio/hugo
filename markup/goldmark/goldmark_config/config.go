@@ -43,7 +43,11 @@ var Default = Config{
 		Linkify:         true,
 		LinkifyProtocol: "https",
 		TaskList:        true,
-		CJK:             false,
+		CJK: CJK{
+			Enable:              false,
+			EastAsianLineBreaks: false,
+			EscapedSpace:        false,
+		},
 	},
 	Renderer: Renderer{
 		Unsafe: false,
@@ -77,7 +81,7 @@ type Extensions struct {
 	Linkify         bool
 	LinkifyProtocol string
 	TaskList        bool
-	CJK             bool
+	CJK             CJK
 }
 
 // Typographer holds typographer configuration.
@@ -105,6 +109,17 @@ type Typographer struct {
 	RightAngleQuote string
 	// Value used for apostrophe.
 	Apostrophe string
+}
+
+type CJK struct {
+	// Whether to enable CJK support.
+	Enable bool
+
+	// Whether softline breaks between east asian wide characters should be ignored.
+	EastAsianLineBreaks bool
+
+	// Whether a '\' escaped half-space(0x20) should not be rendered.
+	EscapedSpace bool
 }
 
 type Renderer struct {
