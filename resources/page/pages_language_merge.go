@@ -50,6 +50,7 @@ func (p1 Pages) MergeByLanguage(p2 Pages) Pages {
 
 // MergeByLanguageInterface is the generic version of MergeByLanguage. It
 // is here just so it can be called from the tpl package.
+// This is for internal use.
 func (p1 Pages) MergeByLanguageInterface(in any) (any, error) {
 	if in == nil {
 		return p1, nil

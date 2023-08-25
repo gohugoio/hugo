@@ -41,7 +41,7 @@ func TestEmojiCustom(t *testing.T) {
 		{" :beer: :", []byte(" 🍺 :")},
 		{":beer: and :smile: and another :beer:!", []byte("🍺 and 😄 and another 🍺!")},
 		{" :beer: : ", []byte(" 🍺 : ")},
-		{"No smilies for you!", []byte("No smilies for you!")},
+		{"No smiles for you!", []byte("No smiles for you!")},
 		{" The motto: no smiles! ", []byte(" The motto: no smiles! ")},
 		{":hugo_is_the_best_static_gen:", []byte(":hugo_is_the_best_static_gen:")},
 		{"은행 :smile: 은행", []byte("은행 😄 은행")},

@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2023 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -26,8 +27,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/text"
-
-	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/htesting"
 
 	"github.com/gohugoio/hugo/hugofs"
 
@@ -53,7 +53,7 @@ func (p *PathSpec) MakePathsSanitized(paths []string) {
 
 // MakePathSanitized creates a Unicode-sanitized string, with the spaces replaced
 func (p *PathSpec) MakePathSanitized(s string) string {
-	if p.DisablePathToLower {
+	if p.Cfg.DisablePathToLower() {
 		return p.MakePath(s)
 	}
 	return strings.ToLower(p.MakePath(s))
@@ -90,7 +90,7 @@ func ishex(c rune) bool {
 // Hyphens in the original input are maintained.
 // Spaces will be replaced with a single hyphen, and sequential replacement hyphens will be reduced to one.
 func (p *PathSpec) UnicodeSanitize(s string) string {
-	if p.RemovePathAccents {
+	if p.Cfg.RemovePathAccents() {
 		s = text.RemoveAccentsString(s)
 	}
 
@@ -127,7 +127,7 @@ func (p *PathSpec) UnicodeSanitize(s string) string {
 	return string(target)
 }
 
-func makePathRelative(inPath string, possibleDirectories ...string) (string, error) {
+func MakePathRelative(inPath string, possibleDirectories ...string) (string, error) {
 	for _, currentPath := range possibleDirectories {
 		if strings.HasPrefix(inPath, currentPath) {
 			return strings.TrimPrefix(inPath, currentPath), nil
@@ -142,25 +142,25 @@ var isFileRe = regexp.MustCompile(`.*\..{1,6}$`)
 // GetDottedRelativePath expects a relative path starting after the content directory.
 // It returns a relative path with dots ("..") navigating up the path structure.
 func GetDottedRelativePath(inPath string) string {
-	inPath = filepath.Clean(filepath.FromSlash(inPath))
+	inPath = path.Clean(filepath.ToSlash(inPath))
 
 	if inPath == "." {
 		return "./"
 	}
 
-	if !isFileRe.MatchString(inPath) && !strings.HasSuffix(inPath, FilePathSeparator) {
-		inPath += FilePathSeparator
+	if !isFileRe.MatchString(inPath) && !strings.HasSuffix(inPath, "/") {
+		inPath += "/"
 	}
 
-	if !strings.HasPrefix(inPath, FilePathSeparator) {
-		inPath = FilePathSeparator + inPath
+	if !strings.HasPrefix(inPath, "/") {
+		inPath = "/" + inPath
 	}
 
-	dir, _ := filepath.Split(inPath)
+	dir, _ := path.Split(inPath)
 
-	sectionCount := strings.Count(dir, FilePathSeparator)
+	sectionCount := strings.Count(dir, "/")
 
-	if sectionCount == 0 || dir == FilePathSeparator {
+	if sectionCount == 0 || dir == "/" {
 		return "./"
 	}
 
@@ -393,8 +393,9 @@ func OpenFileForWriting(fs afero.Fs, filename string) (afero.File, error) {
 
 // GetCacheDir returns a cache dir from the given filesystem and config.
 // The dir will be created if it does not exist.
-func GetCacheDir(fs afero.Fs, cfg config.Provider) (string, error) {
-	cacheDir := getCacheDir(cfg)
+func GetCacheDir(fs afero.Fs, cacheDir string) (string, error) {
+	cacheDir = cacheDirDefault(cacheDir)
+
 	if cacheDir != "" {
 		exists, err := DirExists(cacheDir, fs)
 		if err != nil {
@@ -409,13 +410,30 @@ func GetCacheDir(fs afero.Fs, cfg config.Provider) (string, error) {
 		return cacheDir, nil
 	}
 
+	const hugoCacheBase = "hugo_cache"
+
+	// Avoid filling up the home dir with Hugo cache dirs from development.
+	if !htesting.IsTest {
+		userCacheDir, err := os.UserCacheDir()
+		if err == nil {
+			cacheDir := filepath.Join(userCacheDir, hugoCacheBase)
+			if err := fs.Mkdir(cacheDir, 0777); err == nil || os.IsExist(err) {
+				return cacheDir, nil
+			}
+		}
+	}
+
 	// Fall back to a cache in /tmp.
-	return GetTempDir("hugo_cache", fs), nil
+	userName := os.Getenv("USER")
+	if userName != "" {
+		return GetTempDir(hugoCacheBase+"_"+userName, fs), nil
+	} else {
+		return GetTempDir(hugoCacheBase, fs), nil
+	}
 }
 
-func getCacheDir(cfg config.Provider) string {
+func cacheDirDefault(cacheDir string) string {
 	// Always use the cacheDir config if set.
-	cacheDir := cfg.GetString("cacheDir")
 	if len(cacheDir) > 1 {
 		return addTrailingFileSeparator(cacheDir)
 	}
@@ -430,7 +448,7 @@ func getCacheDir(cfg config.Provider) string {
 		return "/opt/build/cache/hugo_cache/"
 	}
 
-	// This will fall back to an hugo_cache folder in the tmp dir, which should work fine for most CI
+	// This will fall back to an hugo_cache folder in either os.UserCacheDir or the tmp dir, which should work fine for most CI
 	// providers. See this for a working CircleCI setup:
 	// https://github.com/bep/hugo-sass-test/blob/6c3960a8f4b90e8938228688bc49bdcdd6b2d99e/.circleci/config.yml
 	// If not, they can set the HUGO_CACHEDIR environment variable or cacheDir config key.

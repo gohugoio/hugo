@@ -14,19 +14,22 @@
 package hugolib
 
 import (
+	"context"
 	"fmt"
 	"path"
 	"strings"
 	"sync"
 
-	"github.com/gohugoio/hugo/tpl"
+	"github.com/gohugoio/hugo/output/layouts"
 
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/tpl"
 
 	"errors"
 
 	"github.com/gohugoio/hugo/output"
 
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
 )
@@ -77,6 +80,7 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 	cfg := ctx.cfg
 
 	s.pageMap.pageTrees.Walk(func(ss string, n *contentNode) bool {
+
 		if cfg.shouldRender(n.p) {
 			select {
 			case <-s.h.Done():
@@ -178,12 +182,12 @@ func (s *Site) logMissingLayout(name, layout, kind, outputFormat string) {
 
 	msg += ": " + errMsg
 
-	log.Printf(msg, args...)
+	log.Logf(msg, args...)
 }
 
 // renderPaginator must be run after the owning Page has been rendered.
 func (s *Site) renderPaginator(p *pageState, templ tpl.Template) error {
-	paginatePath := s.Cfg.GetString("paginatePath")
+	paginatePath := s.conf.PaginatePath
 
 	d := p.targetPathDescriptor
 	f := p.s.rc.Format
@@ -198,7 +202,7 @@ func (s *Site) renderPaginator(p *pageState, templ tpl.Template) error {
 		d.Addends = fmt.Sprintf("/%s/%d", paginatePath, 1)
 		targetPaths := page.CreateTargetPaths(d)
 
-		if err := s.writeDestAlias(targetPaths.TargetFilename, p.Permalink(), f, nil); err != nil {
+		if err := s.writeDestAlias(targetPaths.TargetFilename, p.Permalink(), f, p); err != nil {
 			return err
 		}
 	}
@@ -225,7 +229,7 @@ func (s *Site) renderPaginator(p *pageState, templ tpl.Template) error {
 func (s *Site) render404() error {
 	p, err := newPageStandalone(&pageMeta{
 		s:    s,
-		kind: kind404,
+		kind: kinds.Kind404,
 		urlPaths: pagemeta.URLPath{
 			URL: "404.html",
 		},
@@ -240,8 +244,8 @@ func (s *Site) render404() error {
 		return nil
 	}
 
-	var d output.LayoutDescriptor
-	d.Kind = kind404
+	var d layouts.LayoutDescriptor
+	d.Kind = kinds.Kind404
 
 	templ, found, err := s.Tmpl().LookupLayout(d, output.HTMLFormat)
 	if err != nil {
@@ -263,9 +267,9 @@ func (s *Site) render404() error {
 func (s *Site) renderSitemap() error {
 	p, err := newPageStandalone(&pageMeta{
 		s:    s,
-		kind: kindSitemap,
+		kind: kinds.KindSitemap,
 		urlPaths: pagemeta.URLPath{
-			URL: s.siteCfg.sitemap.Filename,
+			URL: s.conf.Sitemap.Filename,
 		},
 	},
 		output.HTMLFormat,
@@ -279,6 +283,7 @@ func (s *Site) renderSitemap() error {
 	}
 
 	targetPath := p.targetPaths().TargetFilename
+	ctx := tpl.SetPageInContext(context.Background(), p)
 
 	if targetPath == "" {
 		return errors.New("failed to create targetPath for sitemap")
@@ -286,17 +291,17 @@ func (s *Site) renderSitemap() error {
 
 	templ := s.lookupLayouts("sitemap.xml", "_default/sitemap.xml", "_internal/_default/sitemap.xml")
 
-	return s.renderAndWriteXML(&s.PathSpec.ProcessingStats.Sitemaps, "sitemap", targetPath, p, templ)
+	return s.renderAndWriteXML(ctx, &s.PathSpec.ProcessingStats.Sitemaps, "sitemap", targetPath, p, templ)
 }
 
 func (s *Site) renderRobotsTXT() error {
-	if !s.Cfg.GetBool("enableRobotsTXT") {
+	if !s.conf.EnableRobotsTXT && s.isEnabled(kinds.KindRobotsTXT) {
 		return nil
 	}
 
 	p, err := newPageStandalone(&pageMeta{
 		s:    s,
-		kind: kindRobotsTXT,
+		kind: kinds.KindRobotsTXT,
 		urlPaths: pagemeta.URLPath{
 			URL: "robots.txt",
 		},
@@ -354,13 +359,13 @@ func (s *Site) renderAliases() error {
 					a = path.Join(f.Path, a)
 				}
 
-				if s.UglyURLs && !strings.HasSuffix(a, ".html") {
+				if s.conf.C.IsUglyURLSection(p.Section()) && !strings.HasSuffix(a, ".html") {
 					a += ".html"
 				}
 
 				lang := p.Language().Lang
 
-				if s.h.multihost && !strings.HasPrefix(a, "/"+lang) {
+				if s.h.Configs.IsMultihost && !strings.HasPrefix(a, "/"+lang) {
 					// These need to be in its language root.
 					a = path.Join(lang, a)
 				}
@@ -380,16 +385,16 @@ func (s *Site) renderAliases() error {
 // renderMainLanguageRedirect creates a redirect to the main language home,
 // depending on if it lives in sub folder (e.g. /en) or not.
 func (s *Site) renderMainLanguageRedirect() error {
-	if !s.h.multilingual.enabled() || s.h.IsMultihost() {
+	if s.h.Conf.IsMultihost() || !(s.h.Conf.DefaultContentLanguageInSubdir() || s.h.Conf.IsMultiLingual()) {
 		// No need for a redirect
 		return nil
 	}
 
-	html, found := s.outputFormatsConfig.GetByName("HTML")
+	html, found := s.conf.OutputFormats.Config.GetByName("html")
 	if found {
-		mainLang := s.h.multilingual.DefaultLang
-		if s.Info.defaultContentLanguageInSubdir {
-			mainLangURL := s.PathSpec.AbsURL(mainLang.Lang+"/", false)
+		mainLang := s.conf.DefaultContentLanguage
+		if s.conf.DefaultContentLanguageInSubdir {
+			mainLangURL := s.PathSpec.AbsURL(mainLang+"/", false)
 			s.Log.Debugf("Write redirect to main language %s: %s", mainLang, mainLangURL)
 			if err := s.publishDestAlias(true, "/", mainLangURL, html, nil); err != nil {
 				return err
@@ -397,7 +402,7 @@ func (s *Site) renderMainLanguageRedirect() error {
 		} else {
 			mainLangURL := s.PathSpec.AbsURL("", false)
 			s.Log.Debugf("Write redirect to main language %s: %s", mainLang, mainLangURL)
-			if err := s.publishDestAlias(true, mainLang.Lang, mainLangURL, html, nil); err != nil {
+			if err := s.publishDestAlias(true, mainLang, mainLangURL, html, nil); err != nil {
 				return err
 			}
 		}

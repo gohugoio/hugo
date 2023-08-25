@@ -1,0 +1,73 @@
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+name: TestDartSassV1
+env:
+    GOPROXY: https://proxy.golang.org
+    GO111MODULE: on
+    DART_SASS_VERSION: 1.62.1
+    DART_SASS_SHA_LINUX: 3574da75a7322a539034648b8ff84ff2cca162eb924d72b663d718cd3936f075
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      matrix:
+        go-version: [1.21.x]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+    - name: Install Go
+      uses: actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753
+      with:
+        go-version: ${{ matrix.go-version }}
+        check-latest: true
+        cache: true
+        cache-dependency-path: |
+          **/go.sum
+          **/go.mod
+    - name: Install Ruby
+      uses: ruby/setup-ruby@ee2113536afb7f793eed4ce60e8d3b26db912da4
+      with:
+        ruby-version: '2.7' 
+        bundler-cache: true #
+    - name: Install Python
+      uses: actions/setup-python@3105fb18c05ddd93efea5f9e0bef7a03a6e9e7df
+      with:
+        python-version: '3.x'
+    - name: Install Mage
+      run: go install github.com/magefile/mage@v1.15.0
+    - name: Install asciidoctor
+      uses: reitzig/actions-asciidoctor@7570212ae20b63653481675fb1ff62d1073632b0
+    - name: Install docutils
+      run: |
+        pip install docutils
+        rst2html.py --version
+    - if: matrix.os == 'ubuntu-latest'
+      name: Install pandoc on Linux
+      run: |
+          sudo apt-get update -y
+          sudo apt-get install -y pandoc
+    - if: matrix.os == 'macos-latest'
+      run: |
+        brew install pandoc
+    - if: matrix.os == 'windows-latest'
+      run: |
+        Choco-Install -PackageName pandoc
+    - run: pandoc -v
+    - name: Install dart-sass-embedded Linux
+      run: |
+        echo "Install Dart Sass version ${DART_SASS_VERSION} ..."
+        curl -LJO "https://github.com/sass/dart-sass-embedded/releases/download/${DART_SASS_VERSION}/sass_embedded-${DART_SASS_VERSION}-linux-x64.tar.gz";
+        echo "${DART_SASS_SHA_LINUX}  sass_embedded-${DART_SASS_VERSION}-linux-x64.tar.gz" | sha256sum -c;
+        tar -xvf "sass_embedded-${DART_SASS_VERSION}-linux-x64.tar.gz";
+        echo "$GITHUB_WORKSPACE/sass_embedded/" >> $GITHUB_PATH
+    - name: Check
+      run: |
+        dart-sass-embedded --version
+        mage -v check;
+      env:
+        HUGO_BUILD_TAGS: extended

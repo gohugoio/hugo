@@ -14,6 +14,7 @@
 package minifier
 
 import (
+	"context"
 	"testing"
 
 	"github.com/gohugoio/hugo/resources/resource"
@@ -36,7 +37,7 @@ func TestTransform(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 
 	c.Assert(transformed.RelPermalink(), qt.Equals, "/hugo.min.html")
-	content, err := transformed.(resource.ContentProvider).Content()
+	content, err := transformed.(resource.ContentProvider).Content(context.Background())
 	c.Assert(err, qt.IsNil)
 	c.Assert(content, qt.Equals, "<h1>Hugo Rocks!</h1>")
 }

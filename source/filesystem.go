@@ -34,7 +34,7 @@ type Filesystem struct {
 	SourceSpec
 }
 
-// NewFilesystem returns a new filesytem for a given source spec.
+// NewFilesystem returns a new filesystem for a given source spec.
 func (sp SourceSpec) NewFilesystem(base string) *Filesystem {
 	return &Filesystem{SourceSpec: sp, Base: base}
 }

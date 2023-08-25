@@ -427,3 +427,52 @@ Image:
 <p>html-image: image.jpg|Text: Hello<br> Goodbye|Plain: Hello GoodbyeEND</p>
 `)
 }
+
+func TestRenderHookContentFragmentsOnSelf(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT"]
+-- content/p1.md --
+---
+title: "p1"
+---
+
+## A {#z}
+## B
+## C
+
+-- content/p2.md --
+---
+title: "p2"
+---
+
+## D
+## E
+## F
+
+-- layouts/_default/_markup/render-heading.html --
+Heading: {{ .Text }}|
+Self Fragments: {{ .Page.Fragments.Identifiers }}|
+P1 Fragments: {{ (site.GetPage "p1.md").Fragments.Identifiers }}|
+-- layouts/_default/single.html --
+{{ .Content}}
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", `
+Self Fragments: [b c z]
+P1 Fragments: [b c z]
+	`)
+	b.AssertFileContent("public/p2/index.html", `
+Self Fragments: [d e f]
+P1 Fragments: [b c z]
+	`)
+
+}

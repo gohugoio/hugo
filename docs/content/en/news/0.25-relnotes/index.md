@@ -4,14 +4,10 @@ categories: ["Releases"]
 description: "Hugo 0.25 automatically opens the page you&#39;re working on in the browser"
 link: ""
 title: "Hugo 0.25"
-draft: false
-author: bep
 aliases: [/0-25/]
 ---
 
 Hugo `0.25` is the **Kinder Surprise**: It automatically opens the page you&#39;re working on in the browser, it adds full `AND` and `OR` support in page queries, and you can now have templates per language.
-
-![Hugo Open on Save](https://cdn-standard5.discourse.org/uploads/gohugo/optimized/2X/6/622088d4a8eacaf62bbbaa27dab19d789e10fe09_1_690x345.gif "Hugo Open on Save")
 
 If you start with `hugo server --navigateToChanged`, Hugo will navigate to the relevant page on save (see animated GIF). This is extremely useful for site-wide edits. Another very useful feature in this version is the added support for `AND` (`intersect`)  and `OR` (`union`)  filters when combined with `where`.
 

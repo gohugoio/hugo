@@ -14,6 +14,7 @@
 package page
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"reflect"
@@ -110,7 +111,7 @@ var (
 
 // GroupBy groups by the value in the given field or method name and with the given order.
 // Valid values for order is asc, desc, rev and reverse.
-func (p Pages) GroupBy(key string, order ...string) (PagesGroup, error) {
+func (p Pages) GroupBy(ctx context.Context, key string, order ...string) (PagesGroup, error) {
 	if len(p) < 1 {
 		return nil, nil
 	}
@@ -158,7 +159,7 @@ func (p Pages) GroupBy(key string, order ...string) (PagesGroup, error) {
 		case reflect.StructField:
 			fv = ppv.Elem().FieldByName(key)
 		case reflect.Method:
-			fv = hreflect.GetMethodByName(ppv, key).Call([]reflect.Value{})[0]
+			fv = hreflect.CallMethodByName(ctx, key, ppv)[0]
 		}
 		if !fv.IsValid() {
 			continue
@@ -429,14 +430,14 @@ func (psg PagesGroup) ProbablyEq(other any) bool {
 }
 
 // ToPagesGroup tries to convert seq into a PagesGroup.
-func ToPagesGroup(seq any) (PagesGroup, error) {
+func ToPagesGroup(seq any) (PagesGroup, bool, error) {
 	switch v := seq.(type) {
 	case nil:
-		return nil, nil
+		return nil, true, nil
 	case PagesGroup:
-		return v, nil
+		return v, true, nil
 	case []PageGroup:
-		return PagesGroup(v), nil
+		return PagesGroup(v), true, nil
 	case []any:
 		l := len(v)
 		if l == 0 {
@@ -449,12 +450,12 @@ func ToPagesGroup(seq any) (PagesGroup, error) {
 				if pg, ok := ipg.(PageGroup); ok {
 					pagesGroup[i] = pg
 				} else {
-					return nil, fmt.Errorf("unsupported type in paginate from slice, got %T instead of PageGroup", ipg)
+					return nil, false, fmt.Errorf("unsupported type in paginate from slice, got %T instead of PageGroup", ipg)
 				}
 			}
-			return pagesGroup, nil
+			return pagesGroup, true, nil
 		}
 	}
 
-	return nil, nil
+	return nil, false, nil
 }

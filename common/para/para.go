@@ -27,7 +27,7 @@ type Workers struct {
 
 // Runner wraps the lifecycle methods of a new task set.
 //
-// Run wil block until a worker is available or the context is cancelled,
+// Run will block until a worker is available or the context is cancelled,
 // and then run the given func in a new goroutine.
 // Wait will wait for all the running goroutines to finish.
 type Runner interface {

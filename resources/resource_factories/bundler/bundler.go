@@ -88,8 +88,8 @@ func (c *Client) Concat(targetPath string, r resource.Resources) (resource.Resou
 		// The given set of resources must be of the same Media Type.
 		// We may improve on that in the future, but then we need to know more.
 		for i, r := range r {
-			if i > 0 && r.MediaType().Type() != resolvedm.Type() {
-				return nil, fmt.Errorf("resources in Concat must be of the same Media Type, got %q and %q", r.MediaType().Type(), resolvedm.Type())
+			if i > 0 && r.MediaType().Type != resolvedm.Type {
+				return nil, fmt.Errorf("resources in Concat must be of the same Media Type, got %q and %q", r.MediaType().Type, resolvedm.Type)
 			}
 			resolvedm = r.MediaType()
 		}
@@ -115,7 +115,7 @@ func (c *Client) Concat(targetPath string, r resource.Resources) (resource.Resou
 
 			// Arbitrary JavaScript files require a barrier between them to be safely concatenated together.
 			// Without this, the last line of one file can affect the first line of the next file and change how both files are interpreted.
-			if resolvedm.MainType == media.JavascriptType.MainType && resolvedm.SubType == media.JavascriptType.SubType {
+			if resolvedm.MainType == media.Builtin.JavascriptType.MainType && resolvedm.SubType == media.Builtin.JavascriptType.SubType {
 				readers := make([]hugio.ReadSeekCloser, 2*len(rcsources)-1)
 				j := 0
 				for i := 0; i < len(rcsources); i++ {

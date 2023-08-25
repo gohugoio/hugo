@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2023 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,16 +11,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package commands defines and implements command-line commands and flags
-// used by Hugo. Commands and flags are implemented using Cobra.
 package commands
 
 import (
+	"errors"
 	"fmt"
-	"regexp"
+	"log"
+	"os"
+	"path/filepath"
+	"strings"
 
+	"github.com/bep/simplecobra"
 	"github.com/gohugoio/hugo/config"
-	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 const (
@@ -30,50 +33,90 @@ const (
 	showCursor = ansiEsc + "[?25h"
 )
 
-type flagsToConfigHandler interface {
-	flagsToConfig(cfg config.Provider)
+func newUserError(a ...any) *simplecobra.CommandError {
+	return &simplecobra.CommandError{Err: errors.New(fmt.Sprint(a...))}
 }
 
-type cmder interface {
-	flagsToConfigHandler
-	getCommand() *cobra.Command
+func setValueFromFlag(flags *pflag.FlagSet, key string, cfg config.Provider, targetKey string, force bool) {
+	key = strings.TrimSpace(key)
+	if (force && flags.Lookup(key) != nil) || flags.Changed(key) {
+		f := flags.Lookup(key)
+		configKey := key
+		if targetKey != "" {
+			configKey = targetKey
+		}
+		// Gotta love this API.
+		switch f.Value.Type() {
+		case "bool":
+			bv, _ := flags.GetBool(key)
+			cfg.Set(configKey, bv)
+		case "string":
+			cfg.Set(configKey, f.Value.String())
+		case "stringSlice":
+			bv, _ := flags.GetStringSlice(key)
+			cfg.Set(configKey, bv)
+		case "int":
+			iv, _ := flags.GetInt(key)
+			cfg.Set(configKey, iv)
+		default:
+			panic(fmt.Sprintf("update switch with %s", f.Value.Type()))
+		}
+
+	}
 }
 
-// commandError is an error used to signal different error situations in command handling.
-type commandError struct {
-	s         string
-	userError bool
+func flagsToCfg(cd *simplecobra.Commandeer, cfg config.Provider) config.Provider {
+	return flagsToCfgWithAdditionalConfigBase(cd, cfg, "")
 }
 
-func (c commandError) Error() string {
-	return c.s
-}
-
-func (c commandError) isUserError() bool {
-	return c.userError
-}
-
-func newUserError(a ...any) commandError {
-	return commandError{s: fmt.Sprintln(a...), userError: true}
-}
-
-func newSystemError(a ...any) commandError {
-	return commandError{s: fmt.Sprintln(a...), userError: false}
-}
-
-func newSystemErrorF(format string, a ...any) commandError {
-	return commandError{s: fmt.Sprintf(format, a...), userError: false}
-}
-
-// Catch some of the obvious user errors from Cobra.
-// We don't want to show the usage message for every error.
-// The below may be to generic. Time will show.
-var userErrorRegexp = regexp.MustCompile("unknown flag")
-
-func isUserError(err error) bool {
-	if cErr, ok := err.(commandError); ok && cErr.isUserError() {
-		return true
+func flagsToCfgWithAdditionalConfigBase(cd *simplecobra.Commandeer, cfg config.Provider, additionalConfigBase string) config.Provider {
+	if cfg == nil {
+		cfg = config.New()
 	}
 
-	return userErrorRegexp.MatchString(err.Error())
+	// Flags with a different name in the config.
+	keyMap := map[string]string{
+		"minify":      "minifyOutput",
+		"destination": "publishDir",
+		"editor":      "newContentEditor",
+	}
+
+	// Flags that we for some reason don't want to expose in the site config.
+	internalKeySet := map[string]bool{
+		"quiet":          true,
+		"verbose":        true,
+		"watch":          true,
+		"liveReloadPort": true,
+		"renderToMemory": true,
+		"clock":          true,
+	}
+
+	cmd := cd.CobraCommand
+	flags := cmd.Flags()
+
+	flags.VisitAll(func(f *pflag.Flag) {
+		if f.Changed {
+			targetKey := f.Name
+			if internalKeySet[targetKey] {
+				targetKey = "internal." + targetKey
+			} else if mapped, ok := keyMap[targetKey]; ok {
+				targetKey = mapped
+			}
+			setValueFromFlag(flags, f.Name, cfg, targetKey, false)
+			if additionalConfigBase != "" {
+				setValueFromFlag(flags, f.Name, cfg, additionalConfigBase+"."+targetKey, true)
+			}
+		}
+	})
+
+	return cfg
+
+}
+
+func mkdir(x ...string) {
+	p := filepath.Join(x...)
+	err := os.MkdirAll(p, 0777) // before umask
+	if err != nil {
+		log.Fatal(err)
+	}
 }

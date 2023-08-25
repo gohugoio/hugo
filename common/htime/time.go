@@ -14,10 +14,11 @@
 package htime
 
 import (
+	"log"
 	"strings"
 	"time"
 
-	"github.com/bep/clock"
+	"github.com/bep/clocks"
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/locales"
@@ -74,7 +75,7 @@ var (
 		"December",
 	}
 
-	Clock = clock.System()
+	Clock = clocks.System()
 )
 
 func NewTimeFormatter(ltr locales.Translator) TimeFormatter {
@@ -123,12 +124,15 @@ func (f TimeFormatter) Format(t time.Time, layout string) string {
 	monthIdx := t.Month() - 1 // Month() starts at 1.
 	dayIdx := t.Weekday()
 
-	s = strings.ReplaceAll(s, longMonthNames[monthIdx], f.ltr.MonthWide(t.Month()))
-	if !strings.Contains(s, f.ltr.MonthWide(t.Month())) {
+	if strings.Contains(layout, "January") {
+		s = strings.ReplaceAll(s, longMonthNames[monthIdx], f.ltr.MonthWide(t.Month()))
+	} else if strings.Contains(layout, "Jan") {
 		s = strings.ReplaceAll(s, shortMonthNames[monthIdx], f.ltr.MonthAbbreviated(t.Month()))
 	}
-	s = strings.ReplaceAll(s, longDayNames[dayIdx], f.ltr.WeekdayWide(t.Weekday()))
-	if !strings.Contains(s, f.ltr.WeekdayWide(t.Weekday())) {
+
+	if strings.Contains(layout, "Monday") {
+		s = strings.ReplaceAll(s, longDayNames[dayIdx], f.ltr.WeekdayWide(t.Weekday()))
+	} else if strings.Contains(layout, "Mon") {
 		s = strings.ReplaceAll(s, shortDayNames[dayIdx], f.ltr.WeekdayAbbreviated(t.Weekday()))
 	}
 
@@ -162,4 +166,12 @@ func Since(t time.Time) time.Duration {
 // AsTimeProvider is implemented by go-toml's LocalDate and LocalDateTime.
 type AsTimeProvider interface {
 	AsTime(zone *time.Location) time.Time
+}
+
+// StopWatch is a simple helper to measure time during development.
+func StopWatch(name string) func() {
+	start := time.Now()
+	return func() {
+		log.Printf("StopWatch %q took %s", name, time.Since(start))
+	}
 }

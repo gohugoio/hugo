@@ -8,7 +8,7 @@ categories: ["Releases"]
 
 This release is a dependency refresh (the new Goldmark version comes with a lot of bug fixes, as one example), many bug fixes, but also some nice new features:
 
-We have added the [configuration settings](https://gohugo.io/hugo-modules/configuration/#module-config-mounts) **includeFiles** and **excludeFiles** to the mount configuration. This allows fine grained control over what files to include, and it works for all of Hugo's file systems (including `/static`).
+We have added the [configuration settings](https://gohugo.io/hugo-modules/configuration/#module-configuration-mounts) **includeFiles** and **excludeFiles** to the mount configuration. This allows fine grained control over what files to include, and it works for all of Hugo's file systems (including `/static`).
 
 We have also [reimplemented archetypes](https://github.com/gohugoio/hugo/pull/9045). The old implementation had some issues, mostly related to the context (e.g. name, file paths) passed to the template. This new implementation is using the exact same code path for evaluating the pages as in a regular build. This also makes it more robust and easier to reason about in a multilingual setup. Now, if you are explicit about the target path, Hugo will now always pick the correct mount and language:
 

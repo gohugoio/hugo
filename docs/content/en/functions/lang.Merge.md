@@ -1,20 +1,13 @@
 ---
 title: lang.Merge
 description: "Merge missing translations from other languages."
-date: 2018-03-16
 categories: [functions]
 keywords: [multilingual]
 menu:
   docs:
-    parent: "functions"
-toc: false
+    parent: functions
 signature: ["lang.Merge FROM TO"]
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
-draft: false
-aliases: []
 comments:
 ---
 

@@ -1,21 +1,16 @@
 ---
-title: Variables and Params
-linktitle: Variables Overview
+title: Variables and parameters
+linkTitle: Overview
 description: Page-, file-, taxonomy-, and site-level variables and parameters available in templates.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
-categories: [variables and params]
+categories: [variables and parameters]
 keywords: [variables,params,values,globals]
-draft: false
 menu:
   docs:
-    parent: "variables"
+    identifier: variables-overview
+    parent: variables
     weight: 1
-weight: 01	#rem
-sections_weight: 01
+weight: 1
 aliases: [/templates/variables/]
-toc: false
 ---
 
 Hugo's templates are context aware and make a large number of values available to you as you're creating views for your website.

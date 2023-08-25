@@ -19,7 +19,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -28,12 +27,11 @@ import (
 
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/common/hugo"
-
-	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/resources/internal"
 	"github.com/spf13/afero"
@@ -152,10 +150,12 @@ func (t *postcssTransformation) Key() internal.ResourceTransformationKey {
 func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
 	const binaryName = "postcss"
 
+	infol := t.rs.Logger.InfoCommand(binaryName)
+	infoW := loggers.LevelLoggerToWriter(infol)
+
 	ex := t.rs.ExecHelper
 
 	var configFile string
-	logger := t.rs.Logger
 
 	var options Options
 	if t.optionsm != nil {
@@ -186,7 +186,7 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	var cmdArgs []any
 
 	if configFile != "" {
-		logger.Infoln("postcss: use config file", configFile)
+		infol.Logf("use config file %q", configFile)
 		cmdArgs = []any{"--config", configFile}
 	}
 
@@ -195,18 +195,17 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	}
 
 	var errBuf bytes.Buffer
-	infoW := loggers.LoggerToWriterWithPrefix(logger.Info(), "postcss")
 
 	stderr := io.MultiWriter(infoW, &errBuf)
 	cmdArgs = append(cmdArgs, hexec.WithStderr(stderr))
 	cmdArgs = append(cmdArgs, hexec.WithStdout(ctx.To))
-	cmdArgs = append(cmdArgs, hexec.WithEnviron(hugo.GetExecEnviron(t.rs.WorkingDir, t.rs.Cfg, t.rs.BaseFs.Assets.Fs)))
+	cmdArgs = append(cmdArgs, hexec.WithEnviron(hugo.GetExecEnviron(t.rs.Cfg.BaseConfig().WorkingDir, t.rs.Cfg, t.rs.BaseFs.Assets.Fs)))
 
 	cmd, err := ex.Npx(binaryName, cmdArgs...)
 	if err != nil {
 		if hexec.IsNotFound(err) {
 			// This may be on a CI server etc. Will fall back to pre-built assets.
-			return herrors.ErrFeatureNotAvailable
+			return &herrors.FeatureNotAvailableError{Cause: err}
 		}
 		return err
 	}
@@ -241,7 +240,9 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	err = cmd.Run()
 	if err != nil {
 		if hexec.IsNotFound(err) {
-			return herrors.ErrFeatureNotAvailable
+			return &herrors.FeatureNotAvailableError{
+				Cause: err,
+			}
 		}
 		return imp.toFileError(errBuf.String())
 	}
@@ -365,7 +366,7 @@ func (imp *importResolver) importRecursive(
 func (imp *importResolver) resolve() (io.Reader, error) {
 	const importIdentifier = "@import"
 
-	content, err := ioutil.ReadAll(imp.r)
+	content, err := io.ReadAll(imp.r)
 	if err != nil {
 		return nil, err
 	}
@@ -383,10 +384,13 @@ func (imp *importResolver) resolve() (io.Reader, error) {
 // See https://www.w3schools.com/cssref/pr_import_rule.asp
 // We currently only support simple file imports, no urls, no media queries.
 // So this is OK:
-//     @import "navigation.css";
+//
+//	@import "navigation.css";
+//
 // This is not:
-//     @import url("navigation.css");
-//     @import "mobstyle.css" screen and (max-width: 768px);
+//
+//	@import url("navigation.css");
+//	@import "mobstyle.css" screen and (max-width: 768px);
 func (imp *importResolver) shouldImport(s string) bool {
 	if !strings.HasPrefix(s, importIdentifier) {
 		return false
@@ -399,7 +403,6 @@ func (imp *importResolver) shouldImport(s string) bool {
 }
 
 func (imp *importResolver) toFileError(output string) error {
-	output = strings.TrimSpace(loggers.RemoveANSIColours(output))
 	inErr := errors.New(output)
 
 	match := cssSyntaxErrorRe.FindStringSubmatch(output)

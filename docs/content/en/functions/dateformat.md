@@ -1,21 +1,15 @@
 ---
 title: time.Format
 description: Converts a date/time to a localized string.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [dates,time,strings]
 signature:
   - "time.Format LAYOUT INPUT"
   - "dateFormat LAYOUT INPUT"
-workson: []
-hugoversion:
 relatedfuncs: [Format,now,Unix,time]
-deprecated: false
 ---
 
 `time.Format` (alias `dateFormat`) converts either a `time.Time` object (e.g. `.Date`) or a timestamp string `INPUT` into the format specified by the `LAYOUT` string.

@@ -6,7 +6,7 @@ description: "This release brings Dart Sass support, a new image overlay functio
 categories: ["Releases"]
 ---
 
-The last Hugo release of the year brings a new [images.Overlay](https://gohugo.io/functions/images/#overlay) filter to overlay an image on top of another, e.g. for watermarking, and [Dart Sass](https://gohugo.io/hugo-pipes/scss-sass/#options) support.
+The last Hugo release of the year brings a new [images.Overlay](https://gohugo.io/functions/images/#overlay) filter to overlay an image on top of another, e.g. for watermarking, and [Dart Sass](https://gohugo.io/hugo-pipes/toCSS/#options) support.
 
 This release represents **29 contributions by 12 contributors** to the main Hugo code base. [@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@moorereason](https://github.com/moorereason), and [@davidsneighbour](https://github.com/davidsneighbour) for their ongoing contributions.
 And a big thanks to [@digitalcraftsman](https://github.com/digitalcraftsman) for his relentless work on keeping the themes site in pristine condition and to [@davidsneighbour](https://github.com/davidsneighbour), [@coliff](https://github.com/coliff) and [@kaushalmodi](https://github.com/kaushalmodi) for all the great work on the documentation site.

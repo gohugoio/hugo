@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -83,7 +84,7 @@ func (f ContentFactory) ApplyArchetypeTemplate(w io.Writer, p page.Page, archety
 		return fmt.Errorf("failed to parse archetype template: %s: %w", err, err)
 	}
 
-	result, err := executeToString(ps.s.Tmpl(), templ, d)
+	result, err := executeToString(context.TODO(), ps.s.Tmpl(), templ, d)
 	if err != nil {
 		return fmt.Errorf("failed to execute archetype template: %s: %w", err, err)
 	}

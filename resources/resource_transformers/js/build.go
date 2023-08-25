@@ -15,7 +15,7 @@ package js
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path"
 	"path/filepath"
@@ -27,12 +27,12 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/media"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/text"
 
 	"github.com/gohugoio/hugo/hugolib/filesystems"
-	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/internal"
 
 	"github.com/evanw/esbuild/pkg/api"
@@ -64,7 +64,7 @@ func (t *buildTransformation) Key() internal.ResourceTransformationKey {
 }
 
 func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
-	ctx.OutMediaType = media.JavascriptType
+	ctx.OutMediaType = media.Builtin.JavascriptType
 
 	opts, err := decodeOptions(t.optsm)
 	if err != nil {
@@ -77,15 +77,16 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		ctx.ReplaceOutPathExtension(".js")
 	}
 
-	src, err := ioutil.ReadAll(ctx.From)
+	src, err := io.ReadAll(ctx.From)
 	if err != nil {
 		return err
 	}
 
 	opts.sourceDir = filepath.FromSlash(path.Dir(ctx.SourcePath))
-	opts.resolveDir = t.c.rs.WorkingDir // where node_modules gets resolved
+	opts.resolveDir = t.c.rs.Cfg.BaseConfig().WorkingDir // where node_modules gets resolved
 	opts.contents = string(src)
 	opts.mediaType = ctx.InMediaType
+	opts.tsConfig = t.c.rs.ResolveJSConfigFile("tsconfig.json")
 
 	buildOptions, err := toBuildOptions(opts)
 	if err != nil {
@@ -98,7 +99,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	}
 
 	if buildOptions.Sourcemap == api.SourceMapExternal && buildOptions.Outdir == "" {
-		buildOptions.Outdir, err = ioutil.TempDir(os.TempDir(), "compileOutput")
+		buildOptions.Outdir, err = os.MkdirTemp(os.TempDir(), "compileOutput")
 		if err != nil {
 			return err
 		}

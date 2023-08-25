@@ -14,7 +14,7 @@ Hugo `0.77.0` is a small, but useful release. Some notable updates are:
 
 There are also several useful **[Hugo Modules](https://gohugo.io/hugo-modules/)** enhancements:
 
-* We have added `Replacements` to the [Module Configuration](https://gohugo.io/hugo-modules/configuration/#module-config-top-level). This should enable a much simpler developer workflow, simpler to set up preview sites for your remote theme etc, as you now can do `env HUGO_MODULE_REPLACEMENTS="github.com/bep/myprettytheme -> ../.." hugo` and similar.
+* We have added `Replacements` to the [Module Configuration](https://gohugo.io/hugo-modules/configuration/#module-configuration-top-level). This should enable a much simpler developer workflow, simpler to set up preview sites for your remote theme etc, as you now can do `env HUGO_MODULE_REPLACEMENTS="github.com/bep/myprettytheme -> ../.." hugo` and similar.
 * The module `Path` for local modules can now be absolute for imports defined in the project.
 
 This release represents **38 contributions by 11 contributors** to the main Hugo code base. [@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@moorereason](https://github.com/moorereason), and [@anthonyfok](https://github.com/anthonyfok) for their ongoing contributions.
@@ -83,8 +83,3 @@ Hugo now has:
 * Fix for bare TOML keys [fc6abc39](https://github.com/gohugoio/hugo/commit/fc6abc39c75c152780151c35bc95b12bee01b09c) [@bep](https://github.com/bep) 
 * Fix i18n .Count regression [f9e798e8](https://github.com/gohugoio/hugo/commit/f9e798e8c4234bd60277e3cb10663ba254d4ecb7) [@bep](https://github.com/bep) [#7787](https://github.com/gohugoio/hugo/issues/7787)
 * Fix typo in 0.76.0 release note [ee56efff](https://github.com/gohugoio/hugo/commit/ee56efffcb3f81120b0d3e0297b4fb5966124354) [@digitalcraftsman](https://github.com/digitalcraftsman) 
-
-
-
-
-

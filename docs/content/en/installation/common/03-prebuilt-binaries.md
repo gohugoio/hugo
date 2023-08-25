@@ -13,7 +13,7 @@ Please consult your operating system documentation if you need help setting file
 
 If you do not see a prebuilt binary for the desired edition, operating system, and architecture, install Hugo using one of the methods described below.
 
-[commit information]: https://gohugo.io/variables/git
+[commit information]: /variables/git
 [edition]: #editions
 [Git]: https://git-scm.com/
 [Go]: https://go.dev/

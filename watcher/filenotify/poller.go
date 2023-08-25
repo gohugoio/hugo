@@ -268,7 +268,7 @@ func (item *itemToWatch) checkForChanges() ([]fsnotify.Event, error) {
 	dirOp := checkChange(item.left.FileInfo, item.right.FileInfo)
 
 	if dirOp != 0 {
-		evs := []fsnotify.Event{fsnotify.Event{Op: dirOp, Name: item.filename}}
+		evs := []fsnotify.Event{{Op: dirOp, Name: item.filename}}
 		return evs, nil
 	}
 

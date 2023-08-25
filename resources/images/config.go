@@ -19,16 +19,16 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/media"
+	"github.com/mitchellh/mapstructure"
 
 	"errors"
 
 	"github.com/bep/gowebp/libwebp/webpoptions"
 
 	"github.com/disintegration/gift"
-
-	"github.com/mitchellh/mapstructure"
 )
 
 var (
@@ -47,12 +47,12 @@ var (
 	}
 
 	imageFormatsBySubType = map[string]Format{
-		media.JPEGType.SubType: JPEG,
-		media.PNGType.SubType:  PNG,
-		media.TIFFType.SubType: TIFF,
-		media.BMPType.SubType:  BMP,
-		media.GIFType.SubType:  GIF,
-		media.WEBPType.SubType: WEBP,
+		media.Builtin.JPEGType.SubType: JPEG,
+		media.Builtin.PNGType.SubType:  PNG,
+		media.Builtin.TIFFType.SubType: TIFF,
+		media.Builtin.BMPType.SubType:  BMP,
+		media.Builtin.GIFType.SubType:  GIF,
+		media.Builtin.WEBPType.SubType: WEBP,
 	}
 
 	// Add or increment if changes to an image format's processing requires
@@ -121,66 +121,83 @@ func ImageFormatFromMediaSubType(sub string) (Format, bool) {
 const (
 	defaultJPEGQuality    = 75
 	defaultResampleFilter = "box"
-	defaultBgColor        = "ffffff"
+	defaultBgColor        = "#ffffff"
 	defaultHint           = "photo"
 )
 
-var defaultImaging = Imaging{
-	ResampleFilter: defaultResampleFilter,
-	BgColor:        defaultBgColor,
-	Hint:           defaultHint,
-	Quality:        defaultJPEGQuality,
-}
-
-func DecodeConfig(m map[string]any) (ImagingConfig, error) {
-	if m == nil {
-		m = make(map[string]any)
+var (
+	defaultImaging = map[string]any{
+		"resampleFilter": defaultResampleFilter,
+		"bgColor":        defaultBgColor,
+		"hint":           defaultHint,
+		"quality":        defaultJPEGQuality,
 	}
 
-	i := ImagingConfig{
-		Cfg:     defaultImaging,
-		CfgHash: helpers.HashString(m),
-	}
+	defaultImageConfig *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]
+)
 
-	if err := mapstructure.WeakDecode(m, &i.Cfg); err != nil {
-		return i, err
-	}
-
-	if err := i.Cfg.init(); err != nil {
-		return i, err
-	}
-
+func init() {
 	var err error
-	i.BgColor, err = hexStringToColor(i.Cfg.BgColor)
+	defaultImageConfig, err = DecodeConfig(defaultImaging)
 	if err != nil {
-		return i, err
+		panic(err)
 	}
-
-	if i.Cfg.Anchor != "" && i.Cfg.Anchor != smartCropIdentifier {
-		anchor, found := anchorPositions[i.Cfg.Anchor]
-		if !found {
-			return i, fmt.Errorf("invalid anchor value %q in imaging config", i.Anchor)
-		}
-		i.Anchor = anchor
-	} else {
-		i.Cfg.Anchor = smartCropIdentifier
-	}
-
-	filter, found := imageFilters[i.Cfg.ResampleFilter]
-	if !found {
-		return i, fmt.Errorf("%q is not a valid resample filter", filter)
-	}
-	i.ResampleFilter = filter
-
-	if strings.TrimSpace(i.Cfg.Exif.IncludeFields) == "" && strings.TrimSpace(i.Cfg.Exif.ExcludeFields) == "" {
-		// Don't change this for no good reason. Please don't.
-		i.Cfg.Exif.ExcludeFields = "GPS|Exif|Exposure[M|P|B]|Contrast|Resolution|Sharp|JPEG|Metering|Sensing|Saturation|ColorSpace|Flash|WhiteBalance"
-	}
-
-	return i, nil
 }
 
-func DecodeImageConfig(action, config string, defaults ImagingConfig, sourceFormat Format) (ImageConfig, error) {
+func DecodeConfig(in map[string]any) (*config.ConfigNamespace[ImagingConfig, ImagingConfigInternal], error) {
+	if in == nil {
+		in = make(map[string]any)
+	}
+
+	buildConfig := func(in any) (ImagingConfigInternal, any, error) {
+		m, err := maps.ToStringMapE(in)
+		if err != nil {
+			return ImagingConfigInternal{}, nil, err
+		}
+		// Merge in the defaults.
+		maps.MergeShallow(m, defaultImaging)
+
+		var i ImagingConfigInternal
+		if err := mapstructure.Decode(m, &i.Imaging); err != nil {
+			return i, nil, err
+		}
+
+		if err := i.Imaging.init(); err != nil {
+			return i, nil, err
+		}
+
+		i.BgColor, err = hexStringToColor(i.Imaging.BgColor)
+		if err != nil {
+			return i, nil, err
+		}
+
+		if i.Imaging.Anchor != "" && i.Imaging.Anchor != smartCropIdentifier {
+			anchor, found := anchorPositions[i.Imaging.Anchor]
+			if !found {
+				return i, nil, fmt.Errorf("invalid anchor value %q in imaging config", i.Anchor)
+			}
+			i.Anchor = anchor
+		}
+
+		filter, found := imageFilters[i.Imaging.ResampleFilter]
+		if !found {
+			return i, nil, fmt.Errorf("%q is not a valid resample filter", filter)
+		}
+
+		i.ResampleFilter = filter
+
+		return i, nil, nil
+	}
+
+	ns, err := config.DecodeNamespace[ImagingConfig](in, buildConfig)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode media types: %w", err)
+	}
+	return ns, nil
+
+}
+
+func DecodeImageConfig(action, config string, defaults *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal], sourceFormat Format) (ImageConfig, error) {
 	var (
 		c   ImageConfig = GetDefaultImageConfig(action, defaults)
 		err error
@@ -268,8 +285,8 @@ func DecodeImageConfig(action, config string, defaults ImagingConfig, sourceForm
 	}
 
 	if c.FilterStr == "" {
-		c.FilterStr = defaults.Cfg.ResampleFilter
-		c.Filter = defaults.ResampleFilter
+		c.FilterStr = defaults.Config.Imaging.ResampleFilter
+		c.Filter = defaults.Config.ResampleFilter
 	}
 
 	if c.Hint == 0 {
@@ -277,8 +294,8 @@ func DecodeImageConfig(action, config string, defaults ImagingConfig, sourceForm
 	}
 
 	if c.AnchorStr == "" {
-		c.AnchorStr = defaults.Cfg.Anchor
-		c.Anchor = defaults.Anchor
+		c.AnchorStr = defaults.Config.Imaging.Anchor
+		c.Anchor = defaults.Config.Anchor
 	}
 
 	// default to the source format
@@ -288,13 +305,13 @@ func DecodeImageConfig(action, config string, defaults ImagingConfig, sourceForm
 
 	if c.Quality <= 0 && c.TargetFormat.RequiresDefaultQuality() {
 		// We need a quality setting for all JPEGs and WEBPs.
-		c.Quality = defaults.Cfg.Quality
+		c.Quality = defaults.Config.Imaging.Quality
 	}
 
 	if c.BgColor == nil && c.TargetFormat != sourceFormat {
 		if sourceFormat.SupportsTransparency() && !c.TargetFormat.SupportsTransparency() {
-			c.BgColor = defaults.BgColor
-			c.BgColorStr = defaults.Cfg.BgColor
+			c.BgColor = defaults.Config.BgColor
+			c.BgColorStr = defaults.Config.Imaging.BgColor
 		}
 	}
 
@@ -389,22 +406,43 @@ func (i ImageConfig) GetKey(format Format) string {
 	return k
 }
 
-type ImagingConfig struct {
+type ImagingConfigInternal struct {
 	BgColor        color.Color
 	Hint           webpoptions.EncodingPreset
 	ResampleFilter gift.Resampling
 	Anchor         gift.Anchor
 
-	// Config as provided by the user.
-	Cfg Imaging
-
-	// Hash of the config map provided by the user.
-	CfgHash string
+	Imaging ImagingConfig
 }
 
-// Imaging contains default image processing configuration. This will be fetched
+func (i *ImagingConfigInternal) Compile(externalCfg *ImagingConfig) error {
+	var err error
+	i.BgColor, err = hexStringToColor(externalCfg.BgColor)
+	if err != nil {
+		return err
+	}
+
+	if externalCfg.Anchor != "" && externalCfg.Anchor != smartCropIdentifier {
+		anchor, found := anchorPositions[externalCfg.Anchor]
+		if !found {
+			return fmt.Errorf("invalid anchor value %q in imaging config", i.Anchor)
+		}
+		i.Anchor = anchor
+	}
+
+	filter, found := imageFilters[externalCfg.ResampleFilter]
+	if !found {
+		return fmt.Errorf("%q is not a valid resample filter", filter)
+	}
+	i.ResampleFilter = filter
+
+	return nil
+
+}
+
+// ImagingConfig contains default image processing configuration. This will be fetched
 // from site (or language) config.
-type Imaging struct {
+type ImagingConfig struct {
 	// Default image quality setting (1-100). Only used for JPEG images.
 	Quality int
 
@@ -426,7 +464,7 @@ type Imaging struct {
 	Exif ExifConfig
 }
 
-func (cfg *Imaging) init() error {
+func (cfg *ImagingConfig) init() error {
 	if cfg.Quality < 0 || cfg.Quality > 100 {
 		return errors.New("image quality must be a number between 1 and 100")
 	}
@@ -435,6 +473,15 @@ func (cfg *Imaging) init() error {
 	cfg.Anchor = strings.ToLower(cfg.Anchor)
 	cfg.ResampleFilter = strings.ToLower(cfg.ResampleFilter)
 	cfg.Hint = strings.ToLower(cfg.Hint)
+
+	if cfg.Anchor == "" {
+		cfg.Anchor = smartCropIdentifier
+	}
+
+	if strings.TrimSpace(cfg.Exif.IncludeFields) == "" && strings.TrimSpace(cfg.Exif.ExcludeFields) == "" {
+		// Don't change this for no good reason. Please don't.
+		cfg.Exif.ExcludeFields = "GPS|Exif|Exposure[M|P|B]|Contrast|Resolution|Sharp|JPEG|Metering|Sensing|Saturation|ColorSpace|Flash|WhiteBalance"
+	}
 
 	return nil
 }

@@ -16,10 +16,12 @@
 package page
 
 import (
+	"context"
 	"html/template"
 
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/converter"
+	"github.com/gohugoio/hugo/markup/tableofcontents"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/tpl"
@@ -76,40 +78,44 @@ type ChildCareProvider interface {
 
 // ContentProvider provides the content related values for a Page.
 type ContentProvider interface {
-	Content() (any, error)
+	Content(context.Context) (any, error)
 
 	// Plain returns the Page Content stripped of HTML markup.
-	Plain() string
+	Plain(context.Context) string
 
 	// PlainWords returns a string slice from splitting Plain using https://pkg.go.dev/strings#Fields.
-	PlainWords() []string
+	PlainWords(context.Context) []string
 
 	// Summary returns a generated summary of the content.
 	// The breakpoint can be set manually by inserting a summary separator in the source file.
-	Summary() template.HTML
+	Summary(context.Context) template.HTML
 
 	// Truncated returns whether the Summary  is truncated or not.
-	Truncated() bool
+	Truncated(context.Context) bool
 
 	// FuzzyWordCount returns the approximate number of words in the content.
-	FuzzyWordCount() int
+	FuzzyWordCount(context.Context) int
 
 	// WordCount returns the number of words in the content.
-	WordCount() int
+	WordCount(context.Context) int
 
 	// ReadingTime returns the reading time based on the length of plain text.
-	ReadingTime() int
+	ReadingTime(context.Context) int
 
 	// Len returns the length of the content.
 	// This is for internal use only.
-	Len() int
+	Len(context.Context) int
 }
 
 // ContentRenderer provides the content rendering methods for some content.
 type ContentRenderer interface {
-	// RenderContent renders the given content.
+	// ParseAndRenderContent renders the given content.
 	// For internal use only.
-	RenderContent(content []byte, renderTOC bool) (converter.Result, error)
+	ParseAndRenderContent(ctx context.Context, content []byte, enableTOC bool) (converter.ResultRender, error)
+	// For internal use only.
+	ParseContent(ctx context.Context, content []byte) (converter.ResultParse, bool, error)
+	// For internal use only.
+	RenderContent(ctx context.Context, content []byte, doc any) (converter.ResultRender, bool, error)
 }
 
 // FileProvider provides the source file.
@@ -160,11 +166,16 @@ type OutputFormatsProvider interface {
 	OutputFormats() OutputFormats
 }
 
-// Page is the core interface in Hugo.
+// Page is the core interface in Hugo and what you get as the top level data context in your templates.
 type Page interface {
 	ContentProvider
 	TableOfContentsProvider
 	PageWithoutContent
+}
+
+type PageFragment interface {
+	resource.ResourceLinksProvider
+	resource.ResourceMetaProvider
 }
 
 // PageMetaProvider provides page metadata, typically provided via front matter.
@@ -238,7 +249,7 @@ type PageMetaProvider interface {
 
 	// Sitemap returns the sitemap configuration for this page.
 	// This is for internal use only.
-	Sitemap() config.Sitemap
+	Sitemap() config.SitemapConfig
 
 	// Type is a discriminator used to select layouts etc. It is typically set
 	// in front matter, but will fall back to the root section.
@@ -252,7 +263,7 @@ type PageMetaProvider interface {
 // PageRenderProvider provides a way for a Page to render content.
 type PageRenderProvider interface {
 	// Render renders the given layout with this Page as context.
-	Render(layout ...string) (template.HTML, error)
+	Render(ctx context.Context, layout ...string) (template.HTML, error)
 	// RenderString renders the first value in args with tPaginatorhe content renderer defined
 	// for this Page.
 	// It takes an optional map as a second argument:
@@ -260,12 +271,13 @@ type PageRenderProvider interface {
 	// display (“inline”):
 	// - inline or block. If inline (default), surrounding <p></p> on short snippets will be trimmed.
 	// markup (defaults to the Page’s markup)
-	RenderString(args ...any) (template.HTML, error)
+	RenderString(ctx context.Context, args ...any) (template.HTML, error)
 }
 
 // PageWithoutContent is the Page without any of the content methods.
 type PageWithoutContent interface {
 	RawContentProvider
+	RenderShortcodesProvider
 	resource.Resource
 	PageMetaProvider
 	resource.LanguageProvider
@@ -323,6 +335,11 @@ type PageWithoutContent interface {
 	// Used in change/dependency tracking.
 	identity.Provider
 
+	// HeadingsFiltered returns the headings for this page when a filter is set.
+	// This is currently only triggered with the Related content feature
+	// and the "fragments" type of index.
+	HeadingsFiltered(context.Context) tableofcontents.Headings
+
 	DeprecatedWarningPageMethods
 }
 
@@ -346,6 +363,11 @@ type RawContentProvider interface {
 	RawContent() string
 }
 
+type RenderShortcodesProvider interface {
+	// RenderShortcodes returns RawContent with any shortcodes rendered.
+	RenderShortcodes(context.Context) (template.HTML, error)
+}
+
 // RefProvider provides the methods needed to create reflinks to pages.
 type RefProvider interface {
 	// Ref returns an absolute URl to a page.
@@ -357,7 +379,7 @@ type RefProvider interface {
 	// RelRef returns a relative URL to a page.
 	RelRef(argsm map[string]any) (string, error)
 
-	// RefFrom is for internal use only.
+	// RelRefFrom is for internal use only.
 	RelRefFrom(argsm map[string]any, source any) (string, error)
 }
 
@@ -387,7 +409,10 @@ type SitesProvider interface {
 // TableOfContentsProvider provides the table of contents for a Page.
 type TableOfContentsProvider interface {
 	// TableOfContents returns the table of contents for the page rendered as HTML.
-	TableOfContents() template.HTML
+	TableOfContents(context.Context) template.HTML
+
+	// Fragments returns the fragments for this page.
+	Fragments(context.Context) *tableofcontents.Fragments
 }
 
 // TranslationsProvider provides access to any translations.
@@ -452,3 +477,45 @@ type DeprecatedWarningPageMethods any // This was emptied in Hugo 0.93.0.
 // Move here to trigger ERROR instead of WARNING.
 // TODO(bep) create wrappers and put into the Page once it has some methods.
 type DeprecatedErrorPageMethods any
+
+// PageWithContext is a Page with a context.Context.
+type PageWithContext struct {
+	Page
+	Ctx context.Context
+}
+
+func (p PageWithContext) Content() (any, error) {
+	return p.Page.Content(p.Ctx)
+}
+
+func (p PageWithContext) Plain() string {
+	return p.Page.Plain(p.Ctx)
+}
+
+func (p PageWithContext) PlainWords() []string {
+	return p.Page.PlainWords(p.Ctx)
+}
+
+func (p PageWithContext) Summary() template.HTML {
+	return p.Page.Summary(p.Ctx)
+}
+
+func (p PageWithContext) Truncated() bool {
+	return p.Page.Truncated(p.Ctx)
+}
+
+func (p PageWithContext) FuzzyWordCount() int {
+	return p.Page.FuzzyWordCount(p.Ctx)
+}
+
+func (p PageWithContext) WordCount() int {
+	return p.Page.WordCount(p.Ctx)
+}
+
+func (p PageWithContext) ReadingTime() int {
+	return p.Page.ReadingTime(p.Ctx)
+}
+
+func (p PageWithContext) Len() int {
+	return p.Page.Len(p.Ctx)
+}

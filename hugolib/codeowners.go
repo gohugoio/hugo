@@ -18,7 +18,6 @@ import (
 	"path"
 
 	"github.com/gohugoio/hugo/common/herrors"
-	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/hairyhenderson/go-codeowners"
 	"github.com/spf13/afero"
@@ -52,9 +51,7 @@ func (c *codeownerInfo) forPage(p page.Page) []string {
 	return c.owners.Owners(p.File().Filename())
 }
 
-func newCodeOwners(cfg config.Provider) (*codeownerInfo, error) {
-	workingDir := cfg.GetString("workingDir")
-
+func newCodeOwners(workingDir string) (*codeownerInfo, error) {
 	r, err := findCodeOwnersFile(workingDir)
 	if err != nil || r == nil {
 		return nil, err

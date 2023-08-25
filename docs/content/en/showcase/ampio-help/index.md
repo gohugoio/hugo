@@ -39,7 +39,7 @@ Hugo was our first choice of SSG. The multilingualism support was the primary fe
 
 The rich functionalities of WordPress WYSIWYG editors soon turned out to be a curse. It became burdensome to maintain formatting consistency across documents prepared by multiple contributors. When we considered Markdown, we knew that it would give us a lot less flexibility. In our case, it proved to be a blessing in disguise---the constraints imposed by the notation ensured that each document was prepared in the same way. And in the cases where Markdown was not enough, Hugo shortcodes gave us all that we needed to get the results we anticipated.
 
-In terms of PDF generation, we utilized [custom output formats](https://gohugo.io/templates/output-formats/) to produce intermediary document representations, which are consumed by our custom tool transforming them to TeX documents, which are finally used to produce PDF files.
+In terms of PDF generation, we utilized [custom output formats](/templates/output-formats/) to produce intermediary document representations, which are consumed by our custom tool transforming them to TeX documents, which are finally used to produce PDF files.
 
 Custom output formats were also used to create search indexes. The search functionality is built on the brilliant [TNTSearch](https://github.com/teamtnt/tntsearch) library. The search queries and results are handled by PHP snippets embedded into static documents handled by Hugo.
 

@@ -1,6 +1,5 @@
 ---
-title: Content Formats
-linkTitle: Content Formats
+title: Content formats
 description: Both HTML and Markdown are supported content formats.
 categories: [content management]
 keywords: [markdown,asciidoc,pandoc,content format]
@@ -34,7 +33,7 @@ The current list of content formats in Hugo:
 
 The `markup identifier` is fetched from either the `markup` variable in front matter or from the file extension. For markup-related configuration, see [Configure Markup](/getting-started/configuration-markup/).
 
-## External Helpers
+## External helpers
 
 Some of the formats in the table above need external helpers installed on your PC. For example, for AsciiDoc files,
 Hugo will try to call the `asciidoctor` command. This means that you will have to install the associated
@@ -46,17 +45,11 @@ Hugo passes reasonable default arguments to these external helpers by default:
 - `rst2html`: `--leave-comments --initial-header-level=2`
 - `pandoc`: `--mathjax`
 
-{{% warning "Performance of External Helpers" %}}
+{{% note %}}
 Because additional formats are external commands, generation performance will rely heavily on the performance of the external tool you are using. As this feature is still in its infancy, feedback is welcome.
-{{% /warning %}}
+{{% /note %}}
 
-### External Helper AsciiDoc
-
-[AsciiDoc](https://github.com/asciidoc/asciidoc) implementation EOLs in Jan 2020 and is no longer supported.
-AsciiDoc development is being continued under [Asciidoctor](https://github.com/asciidoctor). The format AsciiDoc
-remains of course. Please continue with the implementation Asciidoctor.
-
-### External Helper Asciidoctor
+### External helper Asciidoctor
 
 The Asciidoctor community offers a wide set of tools for the AsciiDoc format that can be installed additionally to Hugo.
 [See the Asciidoctor docs for installation instructions](https://asciidoctor.org/docs/install-toolchain/). Make sure that also all
@@ -113,7 +106,7 @@ parameters. Run Hugo with `-v`. You will get an output like
 INFO 2019/12/22 09:08:48 Rendering book-as-pdf.adoc with C:\Ruby26-x64\bin\asciidoctor.bat using asciidoc args [--no-header-footer -r asciidoctor-html5s -b html5s -r asciidoctor-diagram --base-dir D:\prototypes\hugo_asciidoc_ddd\docs -a outdir=D:\prototypes\hugo_asciidoc_ddd\build -] ...
 ```
 
-## Learn Markdown
+## Learn markdown
 
 Markdown syntax is simple enough to learn in a single sitting. The following are excellent resources to get you up and running:
 

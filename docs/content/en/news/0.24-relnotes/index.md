@@ -4,8 +4,6 @@ categories: ["Releases"]
 description: "The Revival of the Archetypes!"
 link: ""
 title: "Hugo 0.24"
-draft: false
-author: bep
 aliases: [/0-24/]
 ---
 

@@ -60,26 +60,31 @@ func NewExecuter(helper ExecHelper) Executer {
 }
 
 type (
-	dataContextKeyType    string
-	hasLockContextKeyType string
+	pageContextKeyType     string
+	hasLockContextKeyType  string
+	stackContextKeyType    string
+	callbackContextKeyType string
 )
 
 const (
-	// The data object passed to Execute or ExecuteWithContext gets stored with this key if not already set.
-	DataContextKey = dataContextKeyType("data")
+	// The data page passed to ExecuteWithContext gets stored with this key.
+	PageContextKey = pageContextKeyType("page")
 	// Used in partialCached to signal to nested templates that a lock is already taken.
 	HasLockContextKey = hasLockContextKeyType("hasLock")
+
+	// Used to pass down a callback function to nested templates.
+	CallbackContextKey = callbackContextKeyType("callback")
 )
 
-// Note: The context is currently not fully implemeted in Hugo. This is a work in progress.
+// Note: The context is currently not fully implemented in Hugo. This is a work in progress.
 func (t *executer) ExecuteWithContext(ctx context.Context, p Preparer, wr io.Writer, data any) error {
+	if ctx == nil {
+		panic("nil context")
+	}
+
 	tmpl, err := p.Prepare()
 	if err != nil {
 		return err
-	}
-
-	if v := ctx.Value(DataContextKey); v == nil {
-		ctx = context.WithValue(ctx, DataContextKey, data)
 	}
 
 	value, ok := data.(reflect.Value)
@@ -97,28 +102,6 @@ func (t *executer) ExecuteWithContext(ctx context.Context, p Preparer, wr io.Wri
 	}
 
 	t.helper.Init(ctx, p)
-
-	return tmpl.executeWithState(state, value)
-}
-
-func (t *executer) Execute(p Preparer, wr io.Writer, data any) error {
-	tmpl, err := p.Prepare()
-	if err != nil {
-		return err
-	}
-
-	value, ok := data.(reflect.Value)
-	if !ok {
-		value = reflect.ValueOf(data)
-	}
-
-	state := &state{
-		helper: t.helper,
-		prep:   p,
-		tmpl:   tmpl,
-		wr:     wr,
-		vars:   []variable{{"$", value}},
-	}
 
 	return tmpl.executeWithState(state, value)
 }
@@ -144,7 +127,7 @@ func (t *Template) executeWithState(state *state, value reflect.Value) (err erro
 // can execute in parallel.
 type state struct {
 	tmpl   *Template
-	ctx    context.Context // Added for Hugo. The orignal data context.
+	ctx    context.Context // Added for Hugo. The original data context.
 	prep   Preparer        // Added for Hugo.
 	helper ExecHelper      // Added for Hugo.
 	wr     io.Writer

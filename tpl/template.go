@@ -23,6 +23,7 @@ import (
 	"unicode"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
+	"github.com/gohugoio/hugo/output/layouts"
 
 	"github.com/gohugoio/hugo/output"
 
@@ -56,12 +57,17 @@ type UnusedTemplatesProvider interface {
 	UnusedTemplates() []FileInfo
 }
 
+// TemplateHandlers holds the templates needed by Hugo.
+type TemplateHandlers struct {
+	Tmpl    TemplateHandler
+	TxtTmpl TemplateParseFinder
+}
+
 // TemplateHandler finds and executes templates.
 type TemplateHandler interface {
 	TemplateFinder
-	Execute(t Template, wr io.Writer, data any) error
 	ExecuteWithContext(ctx context.Context, t Template, wr io.Writer, data any) error
-	LookupLayout(d output.LayoutDescriptor, f output.Format) (Template, bool, error)
+	LookupLayout(d layouts.LayoutDescriptor, f output.Format) (Template, bool, error)
 	HasTemplate(name string) bool
 }
 
@@ -153,10 +159,25 @@ type TemplateFuncGetter interface {
 	GetFunc(name string) (reflect.Value, bool)
 }
 
-// GetDataFromContext returns the template data context (usually .Page) from ctx if set.
-// NOte: This is not fully implemented yet.
-func GetDataFromContext(ctx context.Context) any {
-	return ctx.Value(texttemplate.DataContextKey)
+// GetPageFromContext returns the top level Page.
+func GetPageFromContext(ctx context.Context) any {
+	return ctx.Value(texttemplate.PageContextKey)
+}
+
+// SetPageInContext sets the top level Page.
+func SetPageInContext(ctx context.Context, p page) context.Context {
+	return context.WithValue(ctx, texttemplate.PageContextKey, p)
+}
+
+// SetSecurityAllowActionJSTmpl sets the global setting for allowing tempalte actions in JS template literals.
+// This was added in Hugo 0.114.0.
+// See https://github.com/golang/go/issues/59234
+func SetSecurityAllowActionJSTmpl(b bool) {
+	htmltemplate.SecurityAllowActionJSTmpl.Store(b)
+}
+
+type page interface {
+	IsNode() bool
 }
 
 func GetHasLockFromContext(ctx context.Context) bool {
@@ -168,6 +189,14 @@ func GetHasLockFromContext(ctx context.Context) bool {
 
 func SetHasLockInContext(ctx context.Context, hasLock bool) context.Context {
 	return context.WithValue(ctx, texttemplate.HasLockContextKey, hasLock)
+}
+
+func GetCallbackFunctionFromContext(ctx context.Context) any {
+	return ctx.Value(texttemplate.CallbackContextKey)
+}
+
+func SetCallbackFunctionInContext(ctx context.Context, fn any) context.Context {
+	return context.WithValue(ctx, texttemplate.CallbackContextKey, fn)
 }
 
 const hugoNewLinePlaceholder = "___hugonl_"

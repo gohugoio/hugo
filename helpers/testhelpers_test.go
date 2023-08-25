@@ -1,47 +1,47 @@
-package helpers
+package helpers_test
 
 import (
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
-	"github.com/spf13/afero"
-
+	"github.com/gohugoio/hugo/config/testconfig"
+	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/langs"
-	"github.com/gohugoio/hugo/modules"
+	"github.com/spf13/afero"
 )
 
-func newTestPathSpec(fs *hugofs.Fs, v config.Provider) *PathSpec {
-	l := langs.NewDefaultLanguage(v)
-	ps, _ := NewPathSpec(fs, l, nil)
-	return ps
-}
+func newTestPathSpecFromCfgAndLang(cfg config.Provider, lang string) *helpers.PathSpec {
+	mfs := afero.NewMemMapFs()
 
-func newTestDefaultPathSpec(configKeyValues ...any) *PathSpec {
-	cfg := newTestCfg()
-	fs := hugofs.NewMem(cfg)
-
-	for i := 0; i < len(configKeyValues); i += 2 {
-		cfg.Set(configKeyValues[i].(string), configKeyValues[i+1])
+	configs := testconfig.GetTestConfigs(mfs, cfg)
+	var conf config.AllProvider
+	if lang == "" {
+		conf = configs.GetFirstLanguageConfig()
+	} else {
+		conf = configs.GetByLang(lang)
+		if conf == nil {
+			panic("no config for lang " + lang)
+		}
 	}
-	return newTestPathSpec(fs, cfg)
-}
-
-func newTestCfg() config.Provider {
-	v := config.NewWithTestDefaults()
-	langs.LoadLanguageSettings(v, nil)
-	langs.LoadLanguageSettings(v, nil)
-	mod, err := modules.CreateProjectModule(v)
+	fs := hugofs.NewFrom(mfs, conf.BaseConfig())
+	ps, err := helpers.NewPathSpec(fs, conf, loggers.NewDefault())
 	if err != nil {
 		panic(err)
 	}
-	v.Set("allModules", modules.Modules{mod})
-
-	return v
+	return ps
 }
 
-func newTestContentSpec() *ContentSpec {
-	v := config.NewWithTestDefaults()
-	spec, err := NewContentSpec(v, loggers.NewErrorLogger(), afero.NewMemMapFs(), nil)
+func newTestPathSpec(configKeyValues ...any) *helpers.PathSpec {
+	cfg := config.New()
+	for i := 0; i < len(configKeyValues); i += 2 {
+		cfg.Set(configKeyValues[i].(string), configKeyValues[i+1])
+	}
+	return newTestPathSpecFromCfgAndLang(cfg, "")
+}
+
+func newTestContentSpec(cfg config.Provider) *helpers.ContentSpec {
+	fs := afero.NewMemMapFs()
+	conf := testconfig.GetTestConfig(fs, cfg)
+	spec, err := helpers.NewContentSpec(conf, loggers.NewDefault(), fs, nil)
 	if err != nil {
 		panic(err)
 	}

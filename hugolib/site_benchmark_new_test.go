@@ -130,7 +130,7 @@ This is [Relative](/all-is-relative).
 See my [About](/about/) page for details. 
 `
 
-func getBenchmarkSiteNewTestCases() []siteBenchmarkTestcase {
+func getBenchmarkSiteTestCases() []siteBenchmarkTestcase {
 	pageContentWithCategory := func(size int, category string) string {
 		return getBenchmarkTestDataPageContentForMarkdown(size, false, category, benchmarkMarkdownSnippets)
 	}
@@ -452,8 +452,8 @@ baseURL = "https://example.com"
 
 // Run the benchmarks below as tests. Mostly useful when adding new benchmark
 // variants.
-func TestBenchmarkSiteNew(b *testing.T) {
-	benchmarks := getBenchmarkSiteNewTestCases()
+func TestBenchmarkSite(b *testing.T) {
+	benchmarks := getBenchmarkSiteTestCases()
 	for _, bm := range benchmarks {
 		b.Run(bm.name, func(b *testing.T) {
 			s := bm.create(b)
@@ -491,7 +491,7 @@ Edited!!`, p.Title()))
 
 func BenchmarkSiteNew(b *testing.B) {
 	rnd := rand.New(rand.NewSource(32))
-	benchmarks := getBenchmarkSiteNewTestCases()
+	benchmarks := getBenchmarkSiteTestCases()
 	for _, edit := range []bool{true, false} {
 		for _, bm := range benchmarks {
 			name := bm.name

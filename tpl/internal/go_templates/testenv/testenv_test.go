@@ -5,15 +5,16 @@
 package testenv_test
 
 import (
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/testenv"
+	//"internal/platform"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
-
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/testenv"
 )
 
-func _TestGoToolLocation(t *testing.T) {
+func TestGoToolLocation(t *testing.T) {
 	testenv.MustHaveGoBuild(t)
 
 	var exeSuffix string
@@ -50,5 +51,35 @@ func _TestGoToolLocation(t *testing.T) {
 	}
 	if !os.SameFile(wantInfo, gotInfo) {
 		t.Fatalf("%q is not the same file as %q", absWant, goTool)
+	}
+}
+
+func TestHasGoBuild(t *testing.T) {
+	// Removed by Hugo.
+}
+
+func TestMustHaveExec(t *testing.T) {
+	hasExec := false
+	t.Run("MustHaveExec", func(t *testing.T) {
+		testenv.MustHaveExec(t)
+		t.Logf("MustHaveExec did not skip")
+		hasExec = true
+	})
+
+	switch runtime.GOOS {
+	case "js", "wasip1":
+		if hasExec {
+			// js and wasip1 lack an “exec” syscall.
+			t.Errorf("expected MustHaveExec to skip on %v", runtime.GOOS)
+		}
+	case "ios":
+		if b := testenv.Builder(); strings.HasSuffix(b, "-corellium") && !hasExec {
+			// Most ios environments can't exec, but the corellium builder can.
+			t.Errorf("expected MustHaveExec not to skip on %v", b)
+		}
+	default:
+		if b := testenv.Builder(); b != "" && !hasExec {
+			t.Errorf("expected MustHaveExec not to skip on %v", b)
+		}
 	}
 }

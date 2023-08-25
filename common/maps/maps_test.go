@@ -116,11 +116,11 @@ func TestToSliceStringMap(t *testing.T) {
 
 func TestToParamsAndPrepare(t *testing.T) {
 	c := qt.New(t)
-	_, ok := ToParamsAndPrepare(map[string]any{"A": "av"})
-	c.Assert(ok, qt.IsTrue)
+	_, err := ToParamsAndPrepare(map[string]any{"A": "av"})
+	c.Assert(err, qt.IsNil)
 
-	params, ok := ToParamsAndPrepare(nil)
-	c.Assert(ok, qt.IsTrue)
+	params, err := ToParamsAndPrepare(nil)
+	c.Assert(err, qt.IsNil)
 	c.Assert(params, qt.DeepEquals, Params{})
 }
 

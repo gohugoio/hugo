@@ -1,14 +1,11 @@
 ---
-title: Page Bundles
-linkTitle: Page Bundles
+title: Page bundles
 description: Content organization using Page Bundles
-linkTitle: Page Bundles
 keywords: [page, bundle, leaf, branch]
 categories: [content management]
 menu :
   docs:
-    identifier: "page-bundles"
-    parent: "content-management"
+    parent: content-management
     weight: 30
 toc: true
 weight: 30
@@ -22,23 +19,22 @@ A Page Bundle can be one of:
 - Branch Bundle (home page, section, taxonomy terms, taxonomy list)
 
 |                                     | Leaf Bundle                                              | Branch Bundle                                                                                                                                                                                                      |
-|-------------------------------------|----------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  |
+|-------------------------------------|----------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Usage                               | Collection of content and attachments for single pages   | Collection of attachments for section pages (home page, section, taxonomy terms, taxonomy list)                                                                                                                    |
-| Index filename                     | `index.md` [^fn:1]                                       | `_index.md` [^fn:1]                                                                                                                                                                                                |
+| Index file name                      | `index.md` [^fn:1]                                       | `_index.md` [^fn:1]                                                                                                                                                                                                |
 | Allowed Resources                   | Page and non-page (like images, PDF, etc.) types         | Only non-page (like images, PDF, etc.) types                                                                                                                                                                       |
 | Where can the Resources live?       | At any directory level within the leaf bundle directory. | Only in the directory level **of** the branch bundle directory i.e. the directory containing the `_index.md` ([ref](https://discourse.gohugo.io/t/question-about-content-folder-structure/11822/4?u=kaushalmodi)). |
-| Layout type                         | `single`                                                 | `list`                                                                                                                                                                                                             |
+| Layout type                         | [`single`](/templates/single-page-templates/)            | [`list`](/templates/lists)                                                                                                                                                                                         |
 | Nesting                             | Does not allow nesting of more bundles under it          | Allows nesting of leaf or branch bundles under it                                                                                                                                                                  |
 | Example                             | `content/posts/my-post/index.md`                         | `content/posts/_index.md`                                                                                                                                                                                          |
-| Content from non-index page files... | Accessed only as page resources                          | Accessed only as regular pages                                                                                                                                                                                     |
+| Content from non-index page files...| Accessed only as page resources                          | Accessed only as regular pages                                                                                                                                                                                     |
 
-
-## Leaf Bundles {#leaf-bundles}
+## Leaf bundles
 
 A _Leaf Bundle_ is a directory at any hierarchy within the `content/`
 directory, that contains an **`index.md`** file.
 
-### Examples of Leaf Bundle organization {#examples-of-leaf-bundle-organization}
+### Examples of leaf bundle organization {#examples-of-leaf-bundle-organization}
 
 ```text
 content/
@@ -95,7 +91,7 @@ as long as it is not inside another **leaf** bundle.
 {{% /note %}}
 
 
-### Headless Bundle {#headless-bundle}
+### Headless bundle
 
 A headless bundle is a bundle that is configured to not get published
 anywhere:
@@ -129,19 +125,19 @@ Explanation of the above example:
 
 ---
 
-A leaf bundle can be made headless by adding below in the Front Matter
+A leaf bundle can be made headless by adding below in the front matter
 (in the `index.md`):
 
-```toml
+{{< code-toggle file="content/headless/index.md" fm=true copy=false >}}
 headless = true
-```
+{{< /code-toggle >}}
 
 There are many use cases of such headless page bundles:
 
 - Shared media galleries
 - Reusable page content "snippets"
 
-## Branch Bundles {#branch-bundles}
+## Branch bundles
 
 A _Branch Bundle_ is any directory at any hierarchy within the
 `content/` directory, that contains at least an **`_index.md`** file.
@@ -154,7 +150,7 @@ type as a content resource as long as it is a content type recognized by Hugo.
 {{% /note %}}
 
 
-### Examples of Branch Bundle organization {#examples-of-branch-bundle-organization}
+### Examples of branch bundle organization
 
 ```text
 content/

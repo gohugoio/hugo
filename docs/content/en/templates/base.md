@@ -1,18 +1,13 @@
 ---
-title: Base Templates and Blocks
-linktitle:
+title: Base templates and blocks
 description: The base and block constructs allow you to define the outer shell of your master templates (i.e., the chrome of the page).
-date: 2017-02-01
-publishdate: 2017-02-01
-categories: [templates,fundamentals]
+categories: [fundamentals,templates]
 keywords: [blocks,base]
 menu:
   docs:
-    parent: "templates"
-    weight: 20
-weight: 20
-sections_weight: 20
-draft: false
+    parent: templates
+    weight: 40
+weight: 40
 aliases: [/templates/blocks/,/templates/base-templates-and-blocks/]
 toc: true
 ---
@@ -21,17 +16,17 @@ The `block` keyword allows you to define the outer shell of your pages' one or m
 
 {{< youtube QVOMCYitLEc >}}
 
-## Base Template Lookup Order
+## Base template lookup order
 
 The base template lookup order closely follows that of the template it applies to (e.g. `_default/list.html`).
 
 See [Template Lookup Order](/templates/lookup-order/) for details and examples.
 
-## Define the Base Template
+## Define the base template
 
 The following defines a simple base template at `_default/baseof.html`. As a default template, it is the shell from which all your pages will be rendered unless you specify another `*baseof.html` closer to the beginning of the lookup order.
 
-{{< code file="layouts/_default/baseof.html" download="baseof.html" >}}
+{{< code file="layouts/_default/baseof.html" >}}
 <!DOCTYPE html>
 <html>
   <head>
@@ -53,11 +48,11 @@ The following defines a simple base template at `_default/baseof.html`. As a def
 </html>
 {{< /code >}}
 
-## Override the Base Template
+## Override the base template
 
 From the above base template, you can define a [default list template][hugolists]. The default list template will inherit all of the code defined above and can then implement its own `"main"` block from:
 
-{{< code file="layouts/_default/list.html" download="list.html" >}}
+{{< code file="layouts/_default/list.html" >}}
 {{ define "main" }}
   <h1>Posts</h1>
   {{ range .Pages }}
@@ -71,7 +66,7 @@ From the above base template, you can define a [default list template][hugolists
 
 This replaces the contents of our (basically empty) "main" block with something useful for the list template. In this case, we didn't define a `"title"` block, so the contents from our base template remain unchanged in lists.
 
-{{% warning %}}
+{{% note %}}
 Code that you put outside the block definitions *can* break your layout. This even includes HTML comments. For example:
 
 ```go-html-template
@@ -81,13 +76,13 @@ Code that you put outside the block definitions *can* break your layout. This ev
 {{ end }}
 ```
 [See this thread from the Hugo discussion forums.](https://discourse.gohugo.io/t/baseof-html-block-templates-and-list-types-results-in-empty-pages/5612/6)
-{{% /warning %}}
+{{% /note %}}
 
 The following shows how you can override both the `"main"` and `"title"` block areas from the base template with code unique to your [default single page template][singletemplate]:
 
-{{< code file="layouts/_default/single.html" download="single.html" >}}
+{{< code file="layouts/_default/single.html" >}}
 {{ define "title" }}
-  <!-- This will override the default value set in baseof.html; i.e., "{{.Site.Title}}" in the original example-->
+  <!-- This will override the default value set in baseof.html; i.e., "{{ .Site.Title }}" in the original example-->
   {{ .Title }} &ndash; {{ .Site.Title }}
 {{ end }}
 {{ define "main" }}

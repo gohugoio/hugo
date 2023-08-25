@@ -1,30 +1,23 @@
 ---
 title: .AddDate
 description: Returns the time corresponding to adding the given number of years, months, and days to the given time.Time value.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [dates,time]
 signature: [".AddDate YEARS MONTHS DAYS"]
-workson: [times]
-hugoversion:
 relatedfuncs: [now]
-deprecated: false
-aliases: []
 ---
 
 ```go-html-template
 {{ $d := "2022-01-01" | time.AsTime }}
 
-{{ $d.AddDate 0 0 1 | time.Format "2006-01-02" }} --> 2022-01-02
-{{ $d.AddDate 0 1 1 | time.Format "2006-01-02" }} --> 2022-02-02
-{{ $d.AddDate 1 1 1 | time.Format "2006-01-02" }} --> 2023-02-02
+{{ $d.AddDate 0 0 1 | time.Format "2006-01-02" }} → 2022-01-02
+{{ $d.AddDate 0 1 1 | time.Format "2006-01-02" }} → 2022-02-02
+{{ $d.AddDate 1 1 1 | time.Format "2006-01-02" }} → 2023-02-02
 
-{{ $d.AddDate -1 -1 -1 | time.Format "2006-01-02" }} --> 2020-11-30
+{{ $d.AddDate -1 -1 -1 | time.Format "2006-01-02" }} → 2020-11-30
 ```
 
 {{% note %}}
@@ -35,11 +28,11 @@ See [this explanation](https://github.com/golang/go/issues/31145#issuecomment-47
 
 ```go-html-template
 {{ $d := "2023-01-31" | time.AsTime }}
-{{ $d.AddDate 0 1 0 | time.Format "2006-01-02" }} --> 2023-03-03
+{{ $d.AddDate 0 1 0 | time.Format "2006-01-02" }} → 2023-03-03
 
 {{ $d := "2024-01-31" | time.AsTime }}
-{{ $d.AddDate 0 1 0 | time.Format "2006-01-02" }} --> 2024-03-02
+{{ $d.AddDate 0 1 0 | time.Format "2006-01-02" }} → 2024-03-02
 
 {{ $d := "2024-02-29" | time.AsTime }}
-{{ $d.AddDate 1 0 0 | time.Format "2006-01-02" }} --> 2025-03-01
+{{ $d.AddDate 1 0 0 | time.Format "2006-01-02" }} → 2025-03-01
 ```
