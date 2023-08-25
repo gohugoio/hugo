@@ -1,0 +1,12 @@
+# Testing various error situations.
+
+! hugo mods
+stderr 'unknown command "mods" for "hugo"'
+stderr 'Did you mean this\?'
+
+! hugo mod clea
+stderr 'Did you mean this\?'
+stderr 'clean'
+
+! hugo mod foo
+stderr 'unknown command "foo" for "hugo mod"'

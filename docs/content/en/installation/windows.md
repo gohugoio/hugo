@@ -1,6 +1,5 @@
 ---
 title: Windows
-linkTitle: Windows
 description: Install Hugo on Windows.
 categories: [installation]
 menu:
@@ -38,15 +37,22 @@ scoop install hugo-extended
 
 [Scoop]: https://scoop.sh/
 
+### Winget
+
+[Winget] is Microsoft's official free and open source package manager for Windows. This will install the extended edition of Hugo:
+
+```sh
+winget install Hugo.Hugo.Extended
+```
+
+[Winget]: https://learn.microsoft.com/en-us/windows/package-manager/
+
 {{% readfile file="/installation/common/04-docker.md" %}}
 
 {{% readfile file="/installation/common/05-build-from-source.md" %}}
 
 {{% note %}}
-When building the extended edition of Hugo from source on Windows, you will also need to install the [GCC compiler]. See these [detailed instructions].
-
-[detailed instructions]: https://discourse.gohugo.io/t/41370
-[GCC compiler]: https://gcc.gnu.org/
+See these [detailed instructions](https://discourse.gohugo.io/t/41370) to install GCC on Windows.
 {{% /note %}}
 
 ## Comparison

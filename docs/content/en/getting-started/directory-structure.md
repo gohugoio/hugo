@@ -1,22 +1,18 @@
 ---
-title: Directory Structure
-linktitle: Directory Structure
+title: Directory structure
 description: Hugo's CLI scaffolds a project directory structure and then takes that single directory and uses it as the input to create a complete website.
-date: 2017-01-02
-publishdate: 2017-02-01
-categories: [getting started,fundamentals]
+categories: [fundamentals,getting started]
 keywords: [source, organization, directories]
 menu:
   docs:
-    parent: "getting-started"
-    weight: 50
-weight: 50
-sections_weight: 50
+    parent: getting-started
+    weight: 30
+weight: 30
 aliases: [/overview/source-directory/]
 toc: true
 ---
 
-## New Site Scaffolding
+## New site scaffolding
 
 {{< youtube sB0HLHjgQ7E >}}
 
@@ -33,26 +29,26 @@ example/
 ├── public/
 ├── static/
 ├── themes/
-└── config.toml
+└── hugo.toml
 ```
 
-## Directory Structure Explained
+## Directory structure explained
 
 The following is a high-level overview of each of the directories with links to each of their respective sections within the Hugo docs.
 
 [`archetypes`](/content-management/archetypes/)
 : You can create new content files in Hugo using the `hugo new` command.
-By default, Hugo will create new content files with at least `date`, `title` (inferred from the filename), and `draft = true`. This saves time and promotes consistency for sites using multiple content types. You can create your own [archetypes] with custom preconfigured front matter fields as well.
+By default, Hugo will create new content files with at least `date`, `title` (inferred from the file name), and `draft = true`. This saves time and promotes consistency for sites using multiple content types. You can create your own [archetypes] with custom preconfigured front matter fields as well.
 
 [`assets`]
 : Stores all the files which need be processed by [Hugo Pipes](/hugo-pipes/). Only the files whose `.Permalink` or `.RelPermalink` are used will be published to the `public` directory.
 
 [`config`](/getting-started/configuration/)
 : Hugo ships with a large number of [configuration directives].
-The [config directory](/getting-started/configuration/#configuration-directory) is where those directives are stored as JSON, YAML, or TOML files. Every root setting object can stand as its own file and structured by environments.
-Projects with minimal settings and no need for environment awareness can use a single `config.toml` file at its root.
+The [configuration directory](/getting-started/configuration/#configuration-directory) is where those directives are stored as JSON, YAML, or TOML files. Every root setting object can stand as its own file and structured by environments.
+Projects with minimal settings and no need for environment awareness can use a single `hugo.toml` file at its root.
 
-Many sites may need little to no configuration, but Hugo ships with a large number of [configuration directives] for more granular directions on how you want Hugo to build your website. Note: config directory is not created by default.
+Many sites may need little to no configuration, but Hugo ships with a large number of [configuration directives] for more granular directions on how you want Hugo to build your website. Note: the `config` directory is not created by default.
 
 [`content`]
 : All content for your website will live inside this directory. Each top-level folder in Hugo is considered a [content section]. For example, if your site has three main sections---`blog`, `articles`, and `tutorials`---you will have three directories at `content/blog`, `content/articles`, and `content/tutorials`. Hugo uses sections to assign default [content types].
@@ -75,7 +71,7 @@ From **Hugo 0.31** you can have multiple static directories.
 : Caches some files to speed up generation. Can be also used by template authors to distribute built Sass files, so you don't have to have the preprocessor installed. Note: resources directory is not created by default.
 
 [archetypes]: /content-management/archetypes/
-[`assets`]: /hugo-pipes/introduction#asset-directory/
+[`assets`]: /hugo-pipes/introduction#asset-directory
 [configuration directives]: /getting-started/configuration/#all-configuration-settings
 [`content`]: /content-management/organization/
 [content section]: /content-management/sections/
@@ -85,12 +81,11 @@ From **Hugo 0.31** you can have multiple static directories.
 [`layouts`]: /templates/
 [`static`]: /content-management/static-files/
 [`resources`]: /getting-started/configuration/#configure-file-caches
-[lists]: /templates/list/
+[lists]: /templates/lists/
 [pagevars]: /variables/page/
 [partials]: /templates/partials/
 [searchconsole]: https://support.google.com/webmasters/answer/9008080#zippy=%2Chtml-file-upload
 [singles]: /templates/single-page-templates/
-[starters]: /tools/starter-kits/
 [taxonomies]: /content-management/taxonomies/
 [taxonomy templates]: /templates/taxonomy-templates/
 [types]: /content-management/types/

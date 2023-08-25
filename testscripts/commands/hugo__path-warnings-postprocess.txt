@@ -1,0 +1,20 @@
+hugo --printPathWarnings
+
+! stdout 'Duplicate'
+
+-- hugo.toml --
+-- assets/css/styles.css --
+body {
+  background-color: #000;
+}
+-- content/p1.md --
+-- content/p2.md --
+-- content/p3.md --
+-- layouts/index.html --
+Home.
+-- layouts/_default/single.html --
+{{ $css := resources.Get "css/styles.css" }}
+{{ $css := $css | minify | fingerprint | resources.PostProcess  }}
+CSS: {{ $css.RelPermalink }}
+{{ .Title }}
+

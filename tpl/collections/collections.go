@@ -16,6 +16,7 @@
 package collections
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"math/rand"
@@ -30,7 +31,6 @@ import (
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/tpl/compare"
 	"github.com/spf13/cast"
@@ -43,11 +43,11 @@ func init() {
 
 // New returns a new instance of the collections-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
-	if deps.Language == nil {
+	language := deps.Conf.Language()
+	if language == nil {
 		panic("language must be set")
 	}
-
-	loc := langs.GetLocation(deps.Language)
+	loc := langs.GetLocation(language)
 
 	return &Namespace{
 		loc:      loc,
@@ -100,7 +100,7 @@ func (ns *Namespace) After(n any, l any) (any, error) {
 
 // Delimit takes a given list l and returns a string delimited by sep.
 // If last is passed to the function, it will be used as the final delimiter.
-func (ns *Namespace) Delimit(l, sep any, last ...any) (template.HTML, error) {
+func (ns *Namespace) Delimit(ctx context.Context, l, sep any, last ...any) (template.HTML, error) {
 	d, err := cast.ToStringE(sep)
 	if err != nil {
 		return "", err
@@ -126,7 +126,7 @@ func (ns *Namespace) Delimit(l, sep any, last ...any) (template.HTML, error) {
 	var str string
 	switch lv.Kind() {
 	case reflect.Map:
-		sortSeq, err := ns.Sort(l)
+		sortSeq, err := ns.Sort(ctx, l)
 		if err != nil {
 			return "", err
 		}
@@ -393,7 +393,7 @@ func (ns *Namespace) IsSet(c any, key any) (bool, error) {
 			return av.MapIndex(kv).IsValid(), nil
 		}
 	default:
-		helpers.DistinctErrorLog.Printf("WARNING: calling IsSet with unsupported type %q (%T) will always return false.\n", av.Kind(), c)
+		ns.deps.Log.Warnf("calling IsSet with unsupported type %q (%T) will always return false.\n", av.Kind(), c)
 	}
 
 	return false, nil
@@ -733,8 +733,7 @@ func (ns *Namespace) Union(l1, l2 any) (any, error) {
 	}
 }
 
-// Uniq takes returns a new list with all duplicate elements in the list l removed.
-// duplicate elements removed.
+// Uniq returns a new list with duplicate elements in the list l removed.
 func (ns *Namespace) Uniq(l any) (any, error) {
 	if l == nil {
 		return make([]any, 0), nil

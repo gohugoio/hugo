@@ -1,6 +1,5 @@
 ---
 title: Diagrams
-LinkTitle: Diagrams
 description: Use fenced code blocks and markdown render hooks to display diagrams.
 categories: [content management]
 keywords: [diagrams,drawing]
@@ -13,7 +12,7 @@ weight: 50
 ---
 {{< new-in "0.93.0" >}}
 
-## GoAT Diagrams (Ascii)
+## GoAT diagrams (Ascii)
 
 Hugo supports [GoAT](https://github.com/bep/goat) natively. This means that this code block:
 
@@ -43,14 +42,14 @@ Will be rendered as:
      1   2 3   4    1   2   3   4    1   2   3   4         '--- 4          '-- 4     \ 4
 ```
 
-## Mermaid Diagrams
+## Mermaid diagrams
 
 Hugo currently does not provide default templates for Mermaid diagrams. But you can easily add your own. One way to do it would be to create `layouts/_default/_markup/render-codeblock-mermaid.html`:
 
 ```go-html-template
-<div class="mermaid">
+<pre class="mermaid">
   {{- .Inner | safeHTML }}
-</div>
+</pre>
 {{ .Page.Store.Set "hasMermaid" true }}
 ```
 
@@ -58,8 +57,8 @@ And then include this snippet at the bottom of the content template (**Note**: b
 
 ```go-html-template
 {{ if .Page.Store.Get "hasMermaid" }}
-  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-  <script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad: true });
   </script>
 {{ end }}
@@ -67,6 +66,7 @@ And then include this snippet at the bottom of the content template (**Note**: b
 
 With that you can use the `mermaid` language in Markdown code blocks:
 
+````text
 ```mermaid
 sequenceDiagram
     participant Alice
@@ -80,8 +80,9 @@ sequenceDiagram
     John->>Bob: How about you?
     Bob-->>John: Jolly good!
 ```
+````
 
-## Goat Ascii Diagram Examples
+## Goat ASCII diagram examples
 
 ### Graphics
 
@@ -165,7 +166,7 @@ Created from <https://arthursonzogni.com/Diagon/#Tree>
 ```
 
 
-### Sequence Diagram
+### Sequence diagram
 
 <https://arthursonzogni.com/Diagon/#Sequence>
 

@@ -1,0 +1,82 @@
+# Test the new command.
+
+hugo new site -h
+stdout 'Create a new site in the provided directory'
+hugo new site my-yaml-site --format yml
+checkfile my-yaml-site/hugo.yml
+hugo new site mysite -f
+stdout 'Congratulations! Your new Hugo site was created in'
+cd mysite
+checkfile archetypes/default.md
+checkfile hugo.toml
+exists assets
+exists content
+exists data
+exists i18n
+exists layouts
+exists static
+exists themes
+! exists resources
+
+hugo new theme -h
+stdout 'Create a new theme \(skeleton\) called \[name\] in ./themes'
+hugo new theme mytheme
+stdout 'Creating new theme'
+! exists resources
+cd themes
+cd mytheme
+checkfile archetypes/default.md
+checkfile assets/css/main.css
+checkfile assets/js/main.js
+checkfile content/_index.md
+checkfile content/posts/_index.md
+checkfile content/posts/post-1.md
+checkfile content/posts/post-2.md
+checkfile content/posts/post-3/bryce-canyon.jpg
+checkfile content/posts/post-3/index.md
+checkfile layouts/_default/baseof.html
+checkfile layouts/_default/home.html
+checkfile layouts/_default/list.html
+checkfile layouts/_default/single.html
+checkfile layouts/partials/footer.html
+checkfile layouts/partials/head.html
+checkfile layouts/partials/head/css.html
+checkfile layouts/partials/head/js.html
+checkfile layouts/partials/header.html
+checkfile layouts/partials/menu.html
+checkfile layouts/partials/terms.html
+checkfile static/favicon.ico
+checkfile LICENSE
+checkfile README.md
+checkfile hugo.toml
+checkfile theme.toml
+exists data
+exists i18n
+
+cd $WORK/mysite
+
+hugo new -h
+stdout 'Create a new content file.'
+hugo new posts/my-first-post.md
+checkfile content/posts/my-first-post.md
+
+cd ..
+cd myexistingsite
+hugo new post/foo.md -t mytheme
+grep 'Dummy content' content/post/foo.md
+
+-- myexistingsite/hugo.toml --
+theme = "mytheme"
+-- myexistingsite/content/p1.md --
+---
+title: "P1"
+---
+-- myexistingsite/themes/mytheme/hugo.toml --
+-- myexistingsite/themes/mytheme/archetypes/post.md --
+---
+title: "{{ replace .Name "-" " " | title }}"
+date: {{ .Date }}
+draft: true
+---
+
+Dummy content.

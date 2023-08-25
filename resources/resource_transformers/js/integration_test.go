@@ -48,7 +48,7 @@ export function hello3() {
 -- layouts/index.html --
 {{ $js := resources.Get "js/main.js" | js.Build }}
 JS Content:{{ $js.Content }}:End:
-	
+
 			`
 
 	c.Run("Basic", func(c *qt.C) {
@@ -90,9 +90,9 @@ disableKinds=["page", "section", "taxonomy", "term", "sitemap", "robotsTXT"]
 path="github.com/gohugoio/hugoTestProjectJSModImports"
 -- go.mod --
 module github.com/gohugoio/tests/testHugoModules
-		
+
 go 1.16
-		
+
 require github.com/gohugoio/hugoTestProjectJSModImports v0.10.0 // indirect
 -- package.json --
 {
@@ -100,7 +100,7 @@ require github.com/gohugoio/hugoTestProjectJSModImports v0.10.0 // indirect
 	"date-fns": "^2.16.1"
 	}
 }
-	
+
 `
 	b := hugolib.NewIntegrationTestBuilder(
 		hugolib.IntegrationTestConfig{
@@ -142,7 +142,7 @@ console.log("included");
 -- assets/js/main.js --
 import "./included";
 	import { toCamelCase } from "to-camel-case";
-	
+
 	console.log("main");
 	console.log("To camel:", toCamelCase("space case"));
 -- assets/js/myjsx.jsx --
@@ -222,7 +222,7 @@ import { hello1, hello2 } from './util1';
 hello1();
 hello2();
 -- assets/js/util1.js --
-/* Some 
+/* Some
 comments.
 */
 import { hello3 } from './util2';
@@ -239,7 +239,7 @@ export function hello3() {
 -- layouts/index.html --
 {{ $js := resources.Get "js/main.js" | js.Build }}
 JS Content:{{ $js.Content }}:End:
-	
+
 			`
 
 	c.Run("Import from main not found", func(c *qt.C) {
@@ -292,9 +292,9 @@ import 'imp3/foo.js';
 				}).Build()
 
 			expected := `
-IMPORT_SRC_DIR:imp1/index.js	
+IMPORT_SRC_DIR:imp1/index.js
 IMPORT_SRC_DIR:imp2/index.ts
-IMPORT_SRC_DIR:imp3/foo.ts		
+IMPORT_SRC_DIR:imp3/foo.ts
 `
 			expected = strings.ReplaceAll(expected, "IMPORT_SRC_DIR", importSrcDir)
 
@@ -340,7 +340,36 @@ console.log("Hello 2");
 License util1
 License util2
 Main license
-	
+
 	`)
 
+}
+
+// Issue #11232
+func TestTypeScriptExperimentalDecorators(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+disableKinds = ['RSS','sitemap','taxonomy','term']
+-- tsconfig.json --
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+  }
+}
+-- assets/ts/main.ts --
+function addFoo(target: any) {target.prototype.foo = 'bar'}
+@addFoo
+class A {}
+-- layouts/index.html --
+{{ $opts := dict "target" "es2020" "targetPath" "js/main.js" }}
+{{ (resources.Get "ts/main.ts" | js.Build $opts).Publish }}
+`
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			NeedsOsFS:   true,
+			TxtarString: files,
+		}).Build()
+	b.AssertFileContent("public/js/main.js", "__decorateClass")
 }

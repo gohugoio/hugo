@@ -1,21 +1,13 @@
 ---
 title: querify
-linktitle: querify
 description: Takes a set or slice of key-value pairs and returns a query string to be appended to URLs.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [urls]
 signature: ["querify KEY VALUE [KEY VALUE]...", "querify COLLECTION"]
-hugoversion:
-deprecated: false
-workson: []
 relatedfuncs: []
-aliases: []
 ---
 
 `querify` takes a set or slice of key-value pairs and returns a [query string](https://en.wikipedia.org/wiki/Query_string) that can be appended to a URL.

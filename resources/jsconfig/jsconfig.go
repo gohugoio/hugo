@@ -20,7 +20,7 @@ import (
 )
 
 // Builder builds a jsconfig.json file that, currently, is used only to assist
-// intellinsense in editors.
+// IntelliSense in editors.
 type Builder struct {
 	sourceRootsMu sync.RWMutex
 	sourceRoots   map[string]bool

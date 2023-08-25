@@ -4,10 +4,9 @@ description: Returns a `time.Duration` structure, using the given time unit and 
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [time duration]
 signature: ["duration TIME_UNIT DURATION_NUMBER"]
-aliases: []
 ---
 
 `time.Duration` converts a given number into a [`time.Duration`](https://pkg.go.dev/time#Duration) structure so you can access its fields. E.g. you can perform [time operations](https://pkg.go.dev/time#Duration) on the returned `time.Duration` value:

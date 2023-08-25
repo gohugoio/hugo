@@ -63,7 +63,7 @@ type Options struct {
 
 	// Vars will be available in 'hugo:vars', e.g:
 	//     @import "hugo:vars";
-	Vars map[string]string
+	Vars map[string]any
 }
 
 func DecodeOptions(m map[string]any) (opts Options, err error) {

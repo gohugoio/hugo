@@ -23,7 +23,6 @@ import (
 	_ "image/gif"
 	_ "image/png"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -33,6 +32,7 @@ import (
 	color_extractor "github.com/marekm4/color-extractor"
 
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/identity"
 
 	"github.com/disintegration/gift"
 
@@ -91,7 +91,7 @@ func (i *imageResource) getExif() *exif.ExifInfo {
 
 		read := func(info filecache.ItemInfo, r io.ReadSeeker) error {
 			meta := &imageMeta{}
-			data, err := ioutil.ReadAll(r)
+			data, err := io.ReadAll(r)
 			if err != nil {
 				return err
 			}
@@ -126,7 +126,7 @@ func (i *imageResource) getExif() *exif.ExifInfo {
 			return enc.Encode(i.meta)
 		}
 
-		_, i.metaInitErr = i.getSpec().imageCache.fileCache.ReadOrCreate(key, read, create)
+		_, i.metaInitErr = i.getSpec().ImageCache.fileCache.ReadOrCreate(key, read, create)
 	})
 
 	if i.metaInitErr != nil {
@@ -278,7 +278,7 @@ func (i *imageResource) Filter(filters ...any) (images.ImageResource, error) {
 		gfilters = append(gfilters, images.ToFilters(f)...)
 	}
 
-	conf.Key = helpers.HashString(gfilters)
+	conf.Key = identity.HashString(gfilters)
 	conf.TargetFormat = i.Format
 
 	return i.doWithImageConfig(conf, func(src image.Image) (image.Image, error) {
@@ -296,7 +296,7 @@ const imageProcWorkers = 1
 var imageProcSem = make(chan bool, imageProcWorkers)
 
 func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src image.Image) (image.Image, error)) (images.ImageResource, error) {
-	img, err := i.getSpec().imageCache.getOrCreate(i, conf, func() (*imageResource, image.Image, error) {
+	img, err := i.getSpec().ImageCache.getOrCreate(i, conf, func() (*imageResource, image.Image, error) {
 		imageProcSem <- true
 		defer func() {
 			<-imageProcSem
@@ -323,7 +323,7 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 		if shouldFill {
 			bgColor = conf.BgColor
 			if bgColor == nil {
-				bgColor = i.Proc.Cfg.BgColor
+				bgColor = i.Proc.Cfg.Config.BgColor
 			}
 			tmp := image.NewRGBA(converted.Bounds())
 			draw.Draw(tmp, tmp.Bounds(), image.NewUniform(bgColor), image.Point{}, draw.Src)
@@ -380,7 +380,7 @@ func (g *giphy) GIF() *gif.GIF {
 }
 
 // DecodeImage decodes the image source into an Image.
-// This an internal method and may change.
+// This for internal use only.
 func (i *imageResource) DecodeImage() (image.Image, error) {
 	f, err := i.ReadSeekCloser()
 	if err != nil {
@@ -423,14 +423,14 @@ func (i *imageResource) setBasePath(conf images.ImageConfig) {
 func (i *imageResource) getImageMetaCacheTargetPath() string {
 	const imageMetaVersionNumber = 1 // Increment to invalidate the meta cache
 
-	cfgHash := i.getSpec().imaging.Cfg.CfgHash
+	cfgHash := i.getSpec().imaging.Cfg.SourceHash
 	df := i.getResourcePaths().relTargetDirFile
 	if fi := i.getFileInfo(); fi != nil {
 		df.dir = filepath.Dir(fi.Meta().Path)
 	}
 	p1, _ := paths.FileAndExt(df.file)
 	h, _ := i.hash()
-	idStr := helpers.HashString(h, i.size(), imageMetaVersionNumber, cfgHash)
+	idStr := identity.HashString(h, i.size(), imageMetaVersionNumber, cfgHash)
 	p := path.Join(df.dir, fmt.Sprintf("%s_%s.json", p1, idStr))
 	return p
 }

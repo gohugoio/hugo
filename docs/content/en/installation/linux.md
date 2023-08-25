@@ -1,6 +1,5 @@
 ---
 title: Linux
-linkTitle: Linux
 description: Install Hugo on Linux.
 categories: [installation]
 menu:
@@ -20,13 +19,32 @@ weight: 30
 
 ### Snap
 
-[Snap] is a free and open source package manager for Linux. Available for [most distributions], Snap packages are simple to install and are automatically updated. This will install the extended edition of Hugo:
+[Snap] is a free and open source package manager for Linux. Available for [most distributions], snap packages are simple to install and are automatically updated.
+
+The Hugo snap package is [strictly confined]. Strictly confined snaps run in complete isolation, up to a minimal access level that’s deemed always safe. The sites you create and build must be located within your home directory, or on removable media.
+
+This will install the extended edition of Hugo:
 
 ```sh
 sudo snap install hugo
 ```
 
+To enable or revoke access to removable media:
+
+```sh
+sudo snap connect hugo:removable-media
+sudo snap disconnect hugo:removable-media
+```
+
+To enable or revoke access to SSH keys:
+
+```sh
+sudo snap connect hugo:ssh-keys
+sudo snap disconnect hugo:ssh-keys
+```
+
 [most distributions]: https://snapcraft.io/docs/installing-snapd
+[strictly confined]: https://snapcraft.io/docs/snap-confinement
 [Snap]: https://snapcraft.io/
 
 {{% readfile file="/installation/common/homebrew.md" %}}
@@ -104,7 +122,7 @@ The [Solus] distribution of Linux includes Hugo in its package repository. This 
 sudo eopkg install hugo
 ```
 
-[Solus]: https://getsol.us/home/
+[Solus]: https://getsol.us/
 
 {{% readfile file="/installation/common/04-docker.md" %}}
 

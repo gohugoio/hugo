@@ -1,22 +1,13 @@
 ---
-title: Deployment with Rsync
-linktitle: Deployment with Rsync
+title: Deploy with Rsync
 description: If you have access to your web host with SSH, you can use a simple rsync one-liner to incrementally deploy your entire Hugo website.
-date: 2017-02-01
-publishdate: 2017-02-01
 categories: [hosting and deployment]
 keywords: [rsync,deployment]
-authors: [Adrien Poupin]
 menu:
   docs:
-    parent: "hosting-and-deployment"
-    weight: 70
-weight: 70
-sections_weight: 70
-draft: false
+    parent: hosting-and-deployment
 aliases: [/tutorials/deployment-with-rsync/]
 toc: true
-notesforauthors:
 ---
 
 ## Assumptions
@@ -33,11 +24,11 @@ hugo && rsync -avz --delete public/ www-data@ftp.topologix.fr:~/www/
 
 As you will see, we'll put this command in a shell script file, which makes building and deployment as easy as executing `./deploy`.
 
-## Copy Your SSH Key to your Host
+## Copy Your SSH Key to your host
 
 To make logging in to your server more secure and less interactive, you can upload your SSH key. If you have already installed your SSH key to your server, you can move on to the next section.
 
-First, install the ssh client. On Debian/Ubuntu/derivates, use the following command:
+First, install the ssh client. On Debian distributions, use the following command:
 
 {{< code file="install-openssh.sh" >}}
 sudo apt-get install openssh-client
@@ -84,7 +75,7 @@ Enter passphrase for key '/home/mylogin/.ssh/rsa_id':
 
 Now that you can log in with your SSH key, let's create a script to automate deployment of your Hugo site.
 
-## Shell Script
+## Shell script
 
 Create a new script called `deploy` the root of your Hugo tree:
 

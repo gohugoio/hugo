@@ -18,8 +18,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/loggers"
-
 	"github.com/gohugoio/hugo/htesting"
 
 	"github.com/spf13/afero"
@@ -64,11 +64,11 @@ func TestNoSymlinkFs(t *testing.T) {
 	blogDir := filepath.Join(workDir, "blog")
 	blogFile1 := filepath.Join(blogDir, "a.txt")
 
-	logger := loggers.NewWarningLogger()
+	logger := loggers.NewDefault()
 
 	for _, bfs := range []afero.Fs{NewBaseFileDecorator(Os), Os} {
 		for _, allowFiles := range []bool{false, true} {
-			logger.LogCounters().WarnCounter.Reset()
+			logger.Reset()
 			fs := NewNoSymlinkFs(bfs, logger, allowFiles)
 			ls := fs.(afero.Lstater)
 			symlinkedDir := filepath.Join(workDir, "symlinkdedir")
@@ -139,7 +139,7 @@ func TestNoSymlinkFs(t *testing.T) {
 			_, err = f.Readdir(-1)
 			c.Assert(err, qt.IsNil)
 			f.Close()
-			c.Assert(logger.LogCounters().WarnCounter.Count(), qt.Equals, uint64(1))
+			c.Assert(logger.LoggCount(logg.LevelWarn), qt.Equals, 1)
 
 		}
 	}

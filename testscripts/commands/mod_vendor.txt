@@ -1,0 +1,31 @@
+dostounix golden/vendor.txt
+
+hugo mod vendor
+cmp _vendor/modules.txt golden/vendor.txt
+ls _vendor/github.com/gohugoio/hugo-mod-integrationtests/withconfigtoml
+stdout 'config.toml'
+ls _vendor/github.com/gohugoio/hugo-mod-integrationtests/withhugotoml
+stdout 'hugo.toml'
+
+
+
+-- hugo.toml --
+title = "Hugo Modules Test"
+[module]
+[[module.imports]]
+path="github.com/gohugoio/hugo-mod-integrationtests/withconfigtoml"
+[[module.imports]]
+path="github.com/gohugoio/hugo-mod-integrationtests/withhugotoml"
+-- go.mod --
+go 1.19
+
+module github.com/gohugoio/testmod
+
+require (
+    github.com/gohugoio/hugo-mod-integrationtests/withconfigtoml v1.0.0 
+    github.com/gohugoio/hugo-mod-integrationtests/withhugotoml v1.0.0
+)
+
+-- golden/vendor.txt --
+# github.com/gohugoio/hugo-mod-integrationtests/withconfigtoml v1.0.0
+# github.com/gohugoio/hugo-mod-integrationtests/withhugotoml v1.0.0

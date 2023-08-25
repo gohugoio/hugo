@@ -122,3 +122,18 @@ func TestSlice(t *testing.T) {
 		c.Assert(test.expected, qt.DeepEquals, result, errMsg)
 	}
 }
+
+func TestSortedStringSlice(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	var s SortedStringSlice = []string{"a", "b", "b", "b", "c", "d"}
+
+	c.Assert(s.Contains("a"), qt.IsTrue)
+	c.Assert(s.Contains("b"), qt.IsTrue)
+	c.Assert(s.Contains("z"), qt.IsFalse)
+	c.Assert(s.Count("b"), qt.Equals, 3)
+	c.Assert(s.Count("z"), qt.Equals, 0)
+	c.Assert(s.Count("a"), qt.Equals, 1)
+
+}

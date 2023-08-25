@@ -73,3 +73,161 @@ Desc: [map[a:3 b:3] map[a:3 b:1] map[a:3 b:1] map[a:3 b:1] map[a:3 b:0] map[a:3 
 
 	}
 }
+
+// Issue #11004.
+func TestAppendSliceToASliceOfSlices(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/index.html --
+{{ $obj := slice (slice "a") }}
+{{ $obj = $obj | append (slice "b") }}
+{{ $obj = $obj | append (slice "c") }}
+
+{{ $obj }}
+
+  `
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", "[[a] [b] [c]]")
+
+}
+
+func TestAppendNilToSlice(t *testing.T) {
+
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/index.html --
+{{ $obj := (slice "a") }}
+{{ $obj = $obj | append nil }}
+
+{{ $obj }}
+
+
+  `
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", "[a &lt;nil&gt;]")
+
+}
+
+func TestAppendNilsToSliceWithNils(t *testing.T) {
+
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/index.html --
+{{ $obj := (slice "a" nil "c") }}
+{{ $obj = $obj | append nil }}
+
+{{ $obj }}
+
+
+  `
+
+	for i := 0; i < 4; i++ {
+
+		b := hugolib.NewIntegrationTestBuilder(
+			hugolib.IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		).Build()
+
+		b.AssertFileContent("public/index.html", "[a &lt;nil&gt; c &lt;nil&gt;]")
+
+	}
+
+}
+
+// Issue 11234.
+func TestWhereWithWordCount(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+baseURL = 'http://example.com/'
+-- layouts/index.html --
+Home: {{ range where site.RegularPages "WordCount" "gt" 50 }}{{ .Title }}|{{ end }}
+-- layouts/shortcodes/lorem.html --
+{{ "ipsum " | strings.Repeat (.Get 0 | int) }}
+
+-- content/p1.md --
+---
+title: "p1"
+---
+{{< lorem 100 >}}
+-- content/p2.md --
+---
+title: "p2"
+---
+{{< lorem 20 >}}
+-- content/p3.md --
+---
+title: "p3"
+---
+{{< lorem 60 >}}
+  `
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `
+Home: p1|p3|
+`)
+}
+
+// Issue #11279
+func TestWhereLikeOperator(t *testing.T) {
+	t.Parallel()
+	files := `
+-- content/p1.md --
+---
+title: P1
+foo: ab
+---
+-- content/p2.md --
+---
+title: P2
+foo: abc
+---
+-- content/p3.md --
+---
+title: P3
+foo: bc
+---
+-- layouts/index.html --
+<ul>
+  {{- range where site.RegularPages "Params.foo" "like" "^ab" -}}
+    <li>{{ .Title }}</li>
+  {{- end -}}
+</ul>
+  `
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+	b.AssertFileContent("public/index.html", "<ul><li>P1</li><li>P2</li></ul>")
+}

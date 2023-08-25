@@ -1,24 +1,15 @@
 ---
 title: templates.Exists
-linktitle: ""
 description: "Checks whether a template file exists under the given path relative to the `layouts` directory."
-date: 2018-11-01
-publishdate: 2018-11-01
-lastmod: 2018-11-01
 categories: [functions]
 tags: []
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 ns: ""
 keywords: ["templates", "template", "layouts"]
 signature: ["templates.Exists PATH"]
-workson: []
-hugoversion: "0.46"
-aliases: []
 relatedfuncs: []
-toc: false
-deprecated: false
 ---
 
 A template file is any file living below the `layouts` directories of either the project or any of its theme components including partials and shortcodes.
@@ -32,5 +23,4 @@ The function is particularly handy with dynamic path. The following example ensu
 {{ else }}
   {{ partial "headers/default.html" . }}
 {{ end }}
-
 ```

@@ -1,0 +1,19 @@
+# Test the gen commands.
+# Note that adding new commands will require updating the NUM_COMMANDS value.
+env NUM_COMMANDS=42
+
+hugo gen -h
+stdout 'A collection of several useful generators\.'
+
+hugo gen doc --dir clidocs
+checkfilecount $NUM_COMMANDS clidocs
+
+hugo gen man -h
+stdout 'up-to-date man pages'
+hugo gen man --dir manpages
+checkfilecount $NUM_COMMANDS manpages
+
+hugo gen chromastyles -h
+stdout 'Generate CSS stylesheet for the Chroma code highlighter'
+hugo gen chromastyles --style monokai
+stdout 'color: #f8f8f2'

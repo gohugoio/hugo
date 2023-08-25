@@ -29,7 +29,7 @@ import (
 func New(deps *deps.Deps) *Namespace {
 	return &Namespace{
 		deps:      deps,
-		multihost: deps.Cfg.GetBool("multihost"),
+		multihost: deps.Conf.IsMultihost(),
 	}
 }
 
@@ -184,4 +184,42 @@ func (ns *Namespace) AbsLangURL(s any) (template.HTML, error) {
 	}
 
 	return template.HTML(ns.deps.PathSpec.AbsURL(ss, !ns.multihost)), nil
+}
+
+// JoinPath joins the provided elements into a URL string and cleans the result
+// of any ./ or ../ elements. If the argument list is empty, JoinPath returns
+// an empty string.
+func (ns *Namespace) JoinPath(elements ...any) (string, error) {
+
+	if len(elements) == 0 {
+		return "", nil
+	}
+
+	var selements []string
+	for _, e := range elements {
+		switch v := e.(type) {
+		case []string:
+			selements = append(selements, v...)
+		case []any:
+			for _, e := range v {
+				se, err := cast.ToStringE(e)
+				if err != nil {
+					return "", err
+				}
+				selements = append(selements, se)
+			}
+		default:
+			se, err := cast.ToStringE(e)
+			if err != nil {
+				return "", err
+			}
+			selements = append(selements, se)
+		}
+	}
+
+	result, err := url.JoinPath(selements[0], selements[1:]...)
+	if err != nil {
+		return "", err
+	}
+	return result, nil
 }

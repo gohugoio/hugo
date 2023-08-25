@@ -1,6 +1,0 @@
-{{- warnf "The google_news internal template will be removed in a future release. Please remove calls to this template. See https://github.com/gohugoio/hugo/issues/9172 for additional information." -}}
-{{- if .IsPage -}}
-  {{- with .Params.news_keywords -}}
-  <meta name="news_keywords" content="{{ range $i, $kw := first 10 . }}{{ if $i }},{{ end }}{{ $kw }}{{ end }}">
-  {{- end -}}
-{{- end -}}

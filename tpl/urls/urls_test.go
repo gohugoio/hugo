@@ -17,21 +17,22 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/gohugoio/hugo/config"
-
+	"github.com/gohugoio/hugo/config/testconfig"
 	"github.com/gohugoio/hugo/htesting/hqt"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/deps"
 )
 
-var ns = New(&deps.Deps{Cfg: config.New()})
+func newNs() *Namespace {
+	return New(testconfig.GetTestDeps(nil, nil))
+}
 
 type tstNoStringer struct{}
 
 func TestParse(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
+	ns := newNs()
 
 	for _, test := range []struct {
 		rawurl any
@@ -66,5 +67,41 @@ func TestParse(t *testing.T) {
 		c.Assert(err, qt.IsNil)
 		c.Assert(result,
 			qt.CmpEquals(hqt.DeepAllowUnexported(&url.URL{}, url.Userinfo{})), test.expect)
+	}
+}
+
+func TestJoinPath(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	ns := newNs()
+
+	for _, test := range []struct {
+		elements any
+		expect   any
+	}{
+		{"", `/`},
+		{"a", `a`},
+		{"/a/b", `/a/b`},
+		{"./../a/b", `a/b`},
+		{[]any{""}, `/`},
+		{[]any{"a"}, `a`},
+		{[]any{"/a", "b"}, `/a/b`},
+		{[]any{".", "..", "/a", "b"}, `a/b`},
+		{[]any{"https://example.org", "a"}, `https://example.org/a`},
+		{[]any{nil}, `/`},
+		// errors
+		{tstNoStringer{}, false},
+		{[]any{tstNoStringer{}}, false},
+	} {
+
+		result, err := ns.JoinPath(test.elements)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
 	}
 }

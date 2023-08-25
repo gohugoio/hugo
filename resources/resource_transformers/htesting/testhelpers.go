@@ -16,18 +16,16 @@ package htesting
 import (
 	"path/filepath"
 
-	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/config/testconfig"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/media"
-	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/spf13/afero"
 )
 
 func NewTestResourceSpec() (*resources.Spec, error) {
-	cfg := config.NewWithTestDefaults()
+	cfg := config.New()
 
 	imagingCfg := map[string]any{
 		"resampleFilter": "linear",
@@ -36,20 +34,16 @@ func NewTestResourceSpec() (*resources.Spec, error) {
 	}
 
 	cfg.Set("imaging", imagingCfg)
+	afs := afero.NewMemMapFs()
 
-	fs := hugofs.NewFrom(hugofs.NewBaseFileDecorator(afero.NewMemMapFs()), cfg)
-
-	s, err := helpers.NewPathSpec(fs, cfg, nil)
+	conf := testconfig.GetTestConfig(afs, cfg)
+	fs := hugofs.NewFrom(hugofs.NewBaseFileDecorator(afs), conf.BaseConfig())
+	s, err := helpers.NewPathSpec(fs, conf, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	filecaches, err := filecache.NewCaches(s)
-	if err != nil {
-		return nil, err
-	}
-
-	spec, err := resources.NewSpec(s, filecaches, nil, nil, nil, nil, output.DefaultFormats, media.DefaultTypes)
+	spec, err := resources.NewSpec(s, nil, nil, nil, nil, nil, nil)
 	return spec, err
 }
 

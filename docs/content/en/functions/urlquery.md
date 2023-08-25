@@ -1,21 +1,13 @@
 ---
 title: urlquery
-linktitle: urlquery
 description: Returns the escaped value of the textual representation of its arguments in a form suitable for embedding in a URL query.
-date: 2022-01-18
-publishdate: 2022-01-18
-lastmod: 2022-01-18
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [urls]
 signature: ["urlquery INPUT [INPUT]..."]
-hugoversion:
-deprecated: false
-workson: []
 relatedfuncs: []
-aliases: []
 ---
 
 

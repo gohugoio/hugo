@@ -1,11 +1,8 @@
 ---
-date: 2017-07-10T17:53:58-04:00
 categories: ["Releases"]
 description: "This is a bug-fix release with a couple of important fixes"
 link: ""
 title: "Hugo 0.25.1"
-draft: false
-author: bep
 aliases: [/0-25-1/]
 ---
 

@@ -4,8 +4,6 @@ categories: ["Releases"]
 description: "This release fixes some important archetype-related regressions from Hugo 0.24"
 link: ""
 title: "Hugo 0.24.1"
-draft: false
-author: bep
 aliases: [/0-24-1/]
 ---
 

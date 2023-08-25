@@ -1,127 +1,92 @@
 ---
-title: Menu Entry Properties
-linktitle: Menu Entry Properties
-description: A menu entry in a menu-template has specific variables and functions to make menu management easier.
-date: 2017-03-12
-publishdate: 2017-03-12
-lastmod: 2017-03-12
-categories: [variables and params]
+title: Menu variables
+description: Use these variables and methods in your menu templates.
+categories: [variables and parameters]
 keywords: [menus]
-draft: false
 menu:
   docs:
-    title: "variables defined by a menu entry"
-    parent: "variables"
+    parent: variables
     weight: 50
 weight: 50
-sections_weight: 50
 aliases: [/variables/menu/]
-toc: false
 ---
 
-A **menu entry** has the following properties available that can be used in a
-[menu template][menu-template].
+## Variables
 
-## Menu Entry Variables
-
-.Menu
-: _string_ <br />
-Name of the **menu** that contains this **menu entry**.
-
-.URL
-: _string_ <br />
-URL that the menu entry points to. The `url` key, if set for the menu entry,
-sets this value. If that key is not set, and if the menu entry is set in a page
-front-matter, this value defaults to the page's `.RelPermalink`.
-
-.Page
-: _\*Page_ <br />
-Reference to the [page object][page-object] associated with the menu entry. This
-will be non-nil if the menu entry is set via a page's front-matter and not via
-the site config.
-
-.PageRef
-: _string_ <br /> Can be set if defined in site config and the menu entry refers to a Page. [site.GetPage](/functions/getpage/) will be used to do the page lookup. If this is set, you don't need to set the `URL`.
-
-.Name
-: _string_ <br />
-Name of the menu entry. The `name` key, if set for the menu entry, sets
-this value. If that key is not set, and if the menu entry is set in a page
-front-matter, this value defaults to the page's `.LinkTitle`.
-
-.Identifier
-: _string_ <br />
-Value of the `identifier` key if set for the menu entry. This value must be
-unique for each menu entry. **It is necessary to set a unique identifier
-manually if two or more menu entries have the same `.Name`.**
-
-.Pre
-: _template.HTML_ <br />
-Value of the `pre` key if set for the menu entry. This value typically contains
-a string representing HTML.
-
-.Post
-: _template.HTML_ <br />
-Value of the `post` key if set for the menu entry. This value typically contains
-a string representing HTML.
-
-.Weight
-: _int_ <br />
-Value of the `weight` key if set for the menu entry. By default the entries in
-a menu are sorted ascending by their `weight`. If that key is not set, and if
-the menu entry is set in a page front-matter, this value defaults to the page's
-`.Weight`.
-
-.Parent
-: _string_ <br />
-Name (or Identifier if present) of this menu entry's parent **menu entry**. The
-`parent` key, if set for the menu entry, sets this value. If this key is set,
-this menu entry nests under that parent entry, else it nests directly under the
-`.Menu`.
+After [defining menu entries], access their properties in [menu templates] with these variables.
 
 .Children
-: _Menu_ <br />
-This value is auto-populated by Hugo. It is a collection of children menu
-entries, if any, under the current menu entry.
+: (`menu`) A collection of child menu entries, if any, under the current menu entry.
 
-## Menu Entry Functions
-
-Menus also have the following functions available:
-
-.HasChildren
-: _boolean_ <br />
-Returns `true` if `.Children` is non-nil.
+.Identifier
+: (`string`) The `identifier` property of the menu entry. If you define the menu entry [automatically], the page's `.Section`.
 
 .KeyName
-: _string_ <br />
-Returns the `.Identifier` if present, else returns the `.Name`.
+: (`string`) The `identifier` property of the menu entry, else the `name` property.
 
-.IsEqual
-: _boolean_ <br />
-Returns `true` if the two compared menu entries represent the same menu entry.
+.Menu
+: (`string`) The identifier of the menu that contains the menu entry.
 
-.IsSameResource
-: _boolean_ <br />
-Returns `true` if the two compared menu entries have the same `.URL`.
+.Name
+: (`string`) The `name` property of the menu entry.
+
+- If you define the menu entry [automatically], the page's `.LinkTitle`, else the page's `.Title`.
+- If you define the menu [in front matter] or [in site configuration], falls back to the page's `.LinkTitle`, then to the page's `.Title`.
+
+.Page
+: (`page`) A reference to the page associated with the menu entry.
+
+<!-- This provides no value when rendering menu. Omitting to avoid confusion.
+.PageRef
+: (`string`) The `pageRef` property of the menu entry.
+-->
+
+.Params
+: (`map`) The `params` property of the menu entry.
+
+.Parent
+: (`string`)  The `parent` property of the menu entry.
+
+.Post
+: (`template.HTML`) The `post` property of the menu entry.
+
+.Pre
+: (`template.HTML`) The `pre` property of the menu entry.
 
 .Title
-: _string_ <br />
-Link title, meant to be used in the `title` attribute of a menu entry's
-`<a>`-tags.  Returns the menu entry's `title` key if set. Else, if the menu
-entry was created through a page's front-matter, it returns the page's
-`.LinkTitle`. Else, it just returns an empty string.
+: (`string`) The `title` property of the menu entry.
 
-## Other Menu-related Functions
+- If you define the menu entry [automatically], the page's `.LinkTitle`, else the page's `.Title`.
+- If you define the menu [in front matter] or [in site configuration], falls back to the page's `.LinkTitle`, then to the page's `.Title`.
 
-Additionally, here are some relevant methods available to menus on a page:
+.URL
+: (`string`) The `.RelPermalink` of the page associated with the menu entry. For menu entries pointing to external resources, the `url` property of the menu entry.
 
-.IsMenuCurrent
-: _(menu string, menuEntry *MenuEntry ) boolean_ <br />
-See [`.IsMenuCurrent` method](/functions/ismenucurrent/).
+.Weight
+: (`int`) The `weight` property of the menu entry.
 
-.HasMenuCurrent
-: _(menu string, menuEntry *MenuEntry) boolean_ <br />
-See [`.HasMenuCurrent` method](/functions/hasmenucurrent/).
+- If you define the menu entry [automatically], the page's `.Weight`.
+- If you define the menu [in front matter] or [in site configuration], falls back to the page's `.Weight`.
 
-[menu-template]: /templates/menu-templates/
-[page-object]: /variables/page/
+## Methods
+
+.HasChildren
+: (`bool`) Returns `true` if `.Children` is non-nil.
+
+.IsEqual
+: (`bool`) Returns `true` if the compared menu entries represent the same menu entry.
+
+.IsSameResource
+: (`bool`) Returns `true` if the compared menu entries point to the same resource.
+
+.Page.HasMenuCurrent
+: (`bool`) Use this method to determine ancestors of the active menu entry. See [details](/functions/hasmenucurrent/).
+
+.Page.IsMenuCurrent
+: (`bool`) Use this method to determine the active menu entry. See [details](/functions/ismenucurrent/).
+
+[automatically]: /content-management/menus/#define-automatically
+[defining menu entries]: /content-management/menus/#overview
+[in front matter]: /content-management/menus/#define-in-front-matter
+[in site configuration]: /content-management/menus/#define-in-site-configuration
+[menu templates]: /templates/menu-templates/
