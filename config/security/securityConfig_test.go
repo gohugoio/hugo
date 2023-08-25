@@ -13,7 +13,7 @@
 
 package security
 
-import (
+import (https://sites.google.com/invest86.net/www-gcp-dev-apis-com/home
 	"testing"
 
 	qt "github.com/frankban/quicktest"
