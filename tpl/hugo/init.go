@@ -15,6 +15,8 @@
 package hugo
 
 import (
+	"context"
+
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/tpl/internal"
 )
@@ -23,11 +25,14 @@ const name = "hugo"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
+		if d.Site == nil {
+			panic("no site in deps")
+		}
 		h := d.Site.Hugo()
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
-			Context: func(args ...any) (any, error) { return h, nil },
+			Context: func(cctx context.Context, args ...any) (any, error) { return h, nil },
 		}
 
 		// We just add the Hugo struct as the namespace here. No method mappings.

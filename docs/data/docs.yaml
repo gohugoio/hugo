@@ -1,0 +1,4413 @@
+chroma:
+  lexers:
+  - Aliases:
+    - abap
+    Name: ABAP
+  - Aliases:
+    - abnf
+    Name: ABNF
+  - Aliases:
+    - as
+    - actionscript
+    Name: ActionScript
+  - Aliases:
+    - as3
+    - actionscript3
+    Name: ActionScript 3
+  - Aliases:
+    - ada
+    - ada95
+    - ada2005
+    Name: Ada
+  - Aliases:
+    - al
+    Name: AL
+  - Aliases:
+    - ng2
+    Name: Angular2
+  - Aliases:
+    - antlr
+    Name: ANTLR
+  - Aliases:
+    - apacheconf
+    - aconf
+    - apache
+    Name: ApacheConf
+  - Aliases:
+    - apl
+    Name: APL
+  - Aliases:
+    - applescript
+    Name: AppleScript
+  - Aliases:
+    - aql
+    Name: ArangoDB AQL
+  - Aliases:
+    - arduino
+    Name: Arduino
+  - Aliases:
+    - armasm
+    Name: ArmAsm
+  - Aliases:
+    - autohotkey
+    - ahk
+    Name: AutoHotkey
+  - Aliases:
+    - autoit
+    Name: AutoIt
+  - Aliases:
+    - awk
+    - gawk
+    - mawk
+    - nawk
+    Name: Awk
+  - Aliases:
+    - ballerina
+    Name: Ballerina
+  - Aliases:
+    - bash
+    - sh
+    - ksh
+    - zsh
+    - shell
+    Name: Bash
+  - Aliases:
+    - bash-session
+    - console
+    - shell-session
+    Name: BashSession
+  - Aliases:
+    - bat
+    - batch
+    - dosbatch
+    - winbatch
+    Name: Batchfile
+  - Aliases:
+    - bib
+    - bibtex
+    Name: BibTeX
+  - Aliases:
+    - bicep
+    Name: Bicep
+  - Aliases:
+    - blitzbasic
+    - b3d
+    - bplus
+    Name: BlitzBasic
+  - Aliases:
+    - bnf
+    Name: BNF
+  - Aliases:
+    - bqn
+    Name: BQN
+  - Aliases:
+    - brainfuck
+    - bf
+    Name: Brainfuck
+  - Aliases:
+    - c
+    Name: C
+  - Aliases:
+    - csharp
+    - c#
+    Name: C#
+  - Aliases:
+    - cpp
+    - c++
+    Name: C++
+  - Aliases:
+    - caddyfile
+    - caddy
+    Name: Caddyfile
+  - Aliases:
+    - caddyfile-directives
+    - caddyfile-d
+    - caddy-d
+    Name: Caddyfile Directives
+  - Aliases:
+    - capnp
+    Name: Cap'n Proto
+  - Aliases:
+    - cassandra
+    - cql
+    Name: Cassandra CQL
+  - Aliases:
+    - ceylon
+    Name: Ceylon
+  - Aliases:
+    - cfengine3
+    - cf3
+    Name: CFEngine3
+  - Aliases:
+    - cfs
+    Name: cfstatement
+  - Aliases:
+    - chai
+    - chaiscript
+    Name: ChaiScript
+  - Aliases:
+    - chapel
+    - chpl
+    Name: Chapel
+  - Aliases:
+    - cheetah
+    - spitfire
+    Name: Cheetah
+  - Aliases:
+    - clojure
+    - clj
+    Name: Clojure
+  - Aliases:
+    - cmake
+    Name: CMake
+  - Aliases:
+    - cobol
+    Name: COBOL
+  - Aliases:
+    - coffee-script
+    - coffeescript
+    - coffee
+    Name: CoffeeScript
+  - Aliases:
+    - common-lisp
+    - cl
+    - lisp
+    Name: Common Lisp
+  - Aliases:
+    - common-lisp
+    - cl
+    - lisp
+    Name: Common Lisp
+  - Aliases:
+    - coq
+    Name: Coq
+  - Aliases:
+    - cr
+    - crystal
+    Name: Crystal
+  - Aliases:
+    - css
+    Name: CSS
+  - Aliases:
+    - cython
+    - pyx
+    - pyrex
+    Name: Cython
+  - Aliases:
+    - d
+    Name: D
+  - Aliases:
+    - dart
+    Name: Dart
+  - Aliases:
+    - diff
+    - udiff
+    Name: Diff
+  - Aliases:
+    - django
+    - jinja
+    Name: Django/Jinja
+  - Aliases:
+    - zone
+    - bind
+    Name: dns
+  - Aliases:
+    - docker
+    - dockerfile
+    Name: Docker
+  - Aliases:
+    - dtd
+    Name: DTD
+  - Aliases:
+    - dylan
+    Name: Dylan
+  - Aliases:
+    - ebnf
+    Name: EBNF
+  - Aliases:
+    - elixir
+    - ex
+    - exs
+    Name: Elixir
+  - Aliases:
+    - elm
+    Name: Elm
+  - Aliases:
+    - emacs
+    - elisp
+    - emacs-lisp
+    Name: EmacsLisp
+  - Aliases:
+    - emacs
+    - elisp
+    - emacs-lisp
+    Name: EmacsLisp
+  - Aliases:
+    - erlang
+    Name: Erlang
+  - Aliases:
+    - factor
+    Name: Factor
+  - Aliases:
+    - fennel
+    - fnl
+    Name: Fennel
+  - Aliases:
+    - fish
+    - fishshell
+    Name: Fish
+  - Aliases:
+    - forth
+    Name: Forth
+  - Aliases:
+    - fortran
+    - f90
+    Name: Fortran
+  - Aliases:
+    - fortranfixed
+    Name: FortranFixed
+  - Aliases:
+    - fsharp
+    Name: FSharp
+  - Aliases:
+    - gas
+    - asm
+    Name: GAS
+  - Aliases:
+    - gdscript
+    - gd
+    Name: GDScript
+  - Aliases:
+    - genshi
+    - kid
+    - xml+genshi
+    - xml+kid
+    Name: Genshi
+  - Aliases:
+    - html+genshi
+    - html+kid
+    Name: Genshi HTML
+  - Aliases:
+    - genshitext
+    Name: Genshi Text
+  - Aliases:
+    - cucumber
+    - Cucumber
+    - gherkin
+    - Gherkin
+    Name: Gherkin
+  - Aliases:
+    - glsl
+    Name: GLSL
+  - Aliases:
+    - gnuplot
+    Name: Gnuplot
+  - Aliases:
+    - go
+    - golang
+    Name: Go
+  - Aliases:
+    - go-html-template
+    Name: Go HTML Template
+  - Aliases:
+    - go-html-template
+    Name: Go HTML Template
+  - Aliases:
+    - go-text-template
+    Name: Go Text Template
+  - Aliases:
+    - graphql
+    - graphqls
+    - gql
+    Name: GraphQL
+  - Aliases:
+    - groff
+    - nroff
+    - man
+    Name: Groff
+  - Aliases:
+    - groovy
+    Name: Groovy
+  - Aliases:
+    - handlebars
+    - hbs
+    Name: Handlebars
+  - Aliases:
+    - haskell
+    - hs
+    Name: Haskell
+  - Aliases:
+    - hx
+    - haxe
+    - hxsl
+    Name: Haxe
+  - Aliases:
+    - hcl
+    Name: HCL
+  - Aliases:
+    - hexdump
+    Name: Hexdump
+  - Aliases:
+    - hlb
+    Name: HLB
+  - Aliases:
+    - hlsl
+    Name: HLSL
+  - Aliases:
+    - holyc
+    Name: HolyC
+  - Aliases:
+    - html
+    Name: HTML
+  - Aliases:
+    - http
+    Name: HTTP
+  - Aliases:
+    - hylang
+    Name: Hy
+  - Aliases:
+    - idris
+    - idr
+    Name: Idris
+  - Aliases:
+    - igor
+    - igorpro
+    Name: Igor
+  - Aliases:
+    - ini
+    - cfg
+    - dosini
+    Name: INI
+  - Aliases:
+    - io
+    Name: Io
+  - Aliases:
+    - iscdhcpd
+    Name: ISCdhcpd
+  - Aliases:
+    - j
+    Name: J
+  - Aliases:
+    - java
+    Name: Java
+  - Aliases:
+    - js
+    - javascript
+    Name: JavaScript
+  - Aliases:
+    - json
+    Name: JSON
+  - Aliases:
+    - julia
+    - jl
+    Name: Julia
+  - Aliases:
+    - jungle
+    Name: Jungle
+  - Aliases:
+    - kotlin
+    Name: Kotlin
+  - Aliases:
+    - lighty
+    - lighttpd
+    Name: Lighttpd configuration file
+  - Aliases:
+    - llvm
+    Name: LLVM
+  - Aliases:
+    - lua
+    Name: Lua
+  - Aliases:
+    - make
+    - makefile
+    - mf
+    - bsdmake
+    Name: Makefile
+  - Aliases:
+    - mako
+    Name: Mako
+  - Aliases:
+    - md
+    - mkd
+    Name: markdown
+  - Aliases:
+    - mason
+    Name: Mason
+  - Aliases:
+    - mathematica
+    - mma
+    - nb
+    Name: Mathematica
+  - Aliases:
+    - matlab
+    Name: Matlab
+  - Aliases:
+    - mcfunction
+    Name: mcfunction
+  - Aliases:
+    - meson
+    - meson.build
+    Name: Meson
+  - Aliases:
+    - metal
+    Name: Metal
+  - Aliases:
+    - minizinc
+    - MZN
+    - mzn
+    Name: MiniZinc
+  - Aliases:
+    - mlir
+    Name: MLIR
+  - Aliases:
+    - modula2
+    - m2
+    Name: Modula-2
+  - Aliases:
+    - monkeyc
+    Name: MonkeyC
+  - Aliases:
+    - morrowind
+    - mwscript
+    Name: MorrowindScript
+  - Aliases:
+    - myghty
+    Name: Myghty
+  - Aliases:
+    - mysql
+    - mariadb
+    Name: MySQL
+  - Aliases:
+    - nasm
+    Name: NASM
+  - Aliases:
+    - natural
+    Name: Natural
+  - Aliases:
+    - newspeak
+    Name: Newspeak
+  - Aliases:
+    - nginx
+    Name: Nginx configuration file
+  - Aliases:
+    - nim
+    - nimrod
+    Name: Nim
+  - Aliases:
+    - nixos
+    - nix
+    Name: Nix
+  - Aliases:
+    - objective-c
+    - objectivec
+    - obj-c
+    - objc
+    Name: Objective-C
+  - Aliases:
+    - ocaml
+    Name: OCaml
+  - Aliases:
+    - octave
+    Name: Octave
+  - Aliases:
+    - ones
+    - onesenterprise
+    - 1S
+    - 1S:Enterprise
+    Name: OnesEnterprise
+  - Aliases:
+    - openedge
+    - abl
+    - progress
+    - openedgeabl
+    Name: OpenEdge ABL
+  - Aliases:
+    - openscad
+    Name: OpenSCAD
+  - Aliases:
+    - org
+    - orgmode
+    Name: Org Mode
+  - Aliases:
+    - pacmanconf
+    Name: PacmanConf
+  - Aliases:
+    - perl
+    - pl
+    Name: Perl
+  - Aliases:
+    - php
+    - php3
+    - php4
+    - php5
+    Name: PHP
+  - Aliases:
+    - phtml
+    Name: PHTML
+  - Aliases:
+    - pig
+    Name: Pig
+  - Aliases:
+    - pkgconfig
+    Name: PkgConfig
+  - Aliases:
+    - plpgsql
+    Name: PL/pgSQL
+  - Aliases:
+    - text
+    - plain
+    - no-highlight
+    Name: plaintext
+  - Aliases:
+    - plutus-core
+    - plc
+    Name: Plutus Core
+  - Aliases:
+    - pony
+    Name: Pony
+  - Aliases:
+    - postgresql
+    - postgres
+    Name: PostgreSQL SQL dialect
+  - Aliases:
+    - postscript
+    - postscr
+    Name: PostScript
+  - Aliases:
+    - pov
+    Name: POVRay
+  - Aliases:
+    - powerquery
+    - pq
+    Name: PowerQuery
+  - Aliases:
+    - powershell
+    - posh
+    - ps1
+    - psm1
+    - psd1
+    - pwsh
+    Name: PowerShell
+  - Aliases:
+    - prolog
+    Name: Prolog
+  - Aliases:
+    - promql
+    Name: PromQL
+  - Aliases:
+    - java-properties
+    Name: properties
+  - Aliases:
+    - protobuf
+    - proto
+    Name: Protocol Buffer
+  - Aliases:
+    - psl
+    Name: PSL
+  - Aliases:
+    - puppet
+    Name: Puppet
+  - Aliases:
+    - python
+    - py
+    - sage
+    - python3
+    - py3
+    Name: Python
+  - Aliases:
+    - python2
+    - py2
+    Name: Python 2
+  - Aliases:
+    - qbasic
+    - basic
+    Name: QBasic
+  - Aliases:
+    - qml
+    - qbs
+    Name: QML
+  - Aliases:
+    - splus
+    - s
+    - r
+    Name: R
+  - Aliases:
+    - racket
+    - rkt
+    Name: Racket
+  - Aliases:
+    - ragel
+    Name: Ragel
+  - Aliases:
+    - perl6
+    - pl6
+    - raku
+    Name: Raku
+  - Aliases:
+    - jsx
+    - react
+    Name: react
+  - Aliases:
+    - reason
+    - reasonml
+    Name: ReasonML
+  - Aliases:
+    - registry
+    Name: reg
+  - Aliases:
+    - rst
+    - rest
+    - restructuredtext
+    Name: reStructuredText
+  - Aliases:
+    - rexx
+    - arexx
+    Name: Rexx
+  - Aliases:
+    - rb
+    - ruby
+    - duby
+    Name: Ruby
+  - Aliases:
+    - rust
+    - rs
+    Name: Rust
+  - Aliases:
+    - sas
+    Name: SAS
+  - Aliases:
+    - sass
+    Name: Sass
+  - Aliases:
+    - scala
+    Name: Scala
+  - Aliases:
+    - scheme
+    - scm
+    Name: Scheme
+  - Aliases:
+    - scilab
+    Name: Scilab
+  - Aliases:
+    - scss
+    Name: SCSS
+  - Aliases:
+    - sed
+    - gsed
+    - ssed
+    Name: Sed
+  - Aliases:
+    - sieve
+    Name: Sieve
+  - Aliases:
+    - smali
+    Name: Smali
+  - Aliases:
+    - smalltalk
+    - squeak
+    - st
+    Name: Smalltalk
+  - Aliases:
+    - smarty
+    Name: Smarty
+  - Aliases:
+    - snobol
+    Name: Snobol
+  - Aliases:
+    - sol
+    - solidity
+    Name: Solidity
+  - Aliases:
+    - sparql
+    Name: SPARQL
+  - Aliases:
+    - sql
+    Name: SQL
+  - Aliases:
+    - squidconf
+    - squid.conf
+    - squid
+    Name: SquidConf
+  - Aliases:
+    - sml
+    Name: Standard ML
+  - Aliases: null
+    Name: stas
+  - Aliases:
+    - stylus
+    Name: Stylus
+  - Aliases:
+    - svelte
+    Name: Svelte
+  - Aliases:
+    - swift
+    Name: Swift
+  - Aliases:
+    - systemd
+    Name: SYSTEMD
+  - Aliases:
+    - systemverilog
+    - sv
+    Name: systemverilog
+  - Aliases:
+    - tablegen
+    Name: TableGen
+  - Aliases:
+    - tal
+    - uxntal
+    Name: Tal
+  - Aliases:
+    - tasm
+    Name: TASM
+  - Aliases:
+    - tcl
+    Name: Tcl
+  - Aliases:
+    - tcsh
+    - csh
+    Name: Tcsh
+  - Aliases:
+    - termcap
+    Name: Termcap
+  - Aliases:
+    - terminfo
+    Name: Terminfo
+  - Aliases:
+    - terraform
+    - tf
+    Name: Terraform
+  - Aliases:
+    - tex
+    - latex
+    Name: TeX
+  - Aliases:
+    - thrift
+    Name: Thrift
+  - Aliases:
+    - toml
+    Name: TOML
+  - Aliases:
+    - tradingview
+    - tv
+    Name: TradingView
+  - Aliases:
+    - tsql
+    - t-sql
+    Name: Transact-SQL
+  - Aliases:
+    - turing
+    Name: Turing
+  - Aliases:
+    - turtle
+    Name: Turtle
+  - Aliases:
+    - twig
+    Name: Twig
+  - Aliases:
+    - ts
+    - tsx
+    - typescript
+    Name: TypeScript
+  - Aliases:
+    - typoscript
+    Name: TypoScript
+  - Aliases:
+    - typoscriptcssdata
+    Name: TypoScriptCssData
+  - Aliases:
+    - typoscripthtmldata
+    Name: TypoScriptHtmlData
+  - Aliases:
+    - v
+    - vlang
+    Name: V
+  - Aliases:
+    - vsh
+    - vshell
+    Name: V shell
+  - Aliases:
+    - vala
+    - vapi
+    Name: Vala
+  - Aliases:
+    - vb.net
+    - vbnet
+    Name: VB.net
+  - Aliases:
+    - verilog
+    - v
+    Name: verilog
+  - Aliases:
+    - vhdl
+    Name: VHDL
+  - Aliases:
+    - vhs
+    - tape
+    - cassette
+    Name: VHS
+  - Aliases:
+    - vim
+    Name: VimL
+  - Aliases:
+    - vue
+    - vuejs
+    Name: vue
+  - Aliases: null
+    Name: WDTE
+  - Aliases:
+    - wgsl
+    Name: WebGPU Shading Language
+  - Aliases:
+    - whiley
+    Name: Whiley
+  - Aliases:
+    - xml
+    Name: XML
+  - Aliases:
+    - xorg.conf
+    Name: Xorg
+  - Aliases:
+    - yaml
+    Name: YAML
+  - Aliases:
+    - yang
+    Name: YANG
+  - Aliases:
+    - z80
+    Name: Z80 Assembly
+  - Aliases:
+    - zed
+    Name: Zed
+  - Aliases:
+    - zig
+    Name: Zig
+config:
+  archeTypeDir: archetypes
+  assetDir: assets
+  author: {}
+  baseURL: ""
+  build:
+    buildStats:
+      disableClasses: false
+      disableIDs: false
+      disableTags: false
+      enable: false
+    cacheBusters:
+    - source: assets/.*\.(js|ts|jsx|tsx)
+      target: (js|scripts|javascript)
+    - source: assets/.*\.(css|sass|scss)$
+      target: (css|styles|scss|sass)
+    - source: (postcss|tailwind)\.config\.js
+      target: (css|styles|scss|sass)
+    - source: assets/.*\.(.*)$
+      target: $1
+    noJSConfigInAssets: false
+    useResourceCacheWhen: fallback
+  buildDrafts: false
+  buildExpired: false
+  buildFuture: false
+  cacheDir: ""
+  caches:
+    assets:
+      dir: :resourceDir/_gen
+      maxAge: -1
+    getcsv:
+      dir: :cacheDir/:project
+      maxAge: -1
+    getjson:
+      dir: :cacheDir/:project
+      maxAge: -1
+    getresource:
+      dir: :cacheDir/:project
+      maxAge: -1
+    images:
+      dir: :resourceDir/_gen
+      maxAge: -1
+    modules:
+      dir: :cacheDir/modules
+      maxAge: -1
+  canonifyURLs: false
+  cascade: []
+  cleanDestinationDir: false
+  contentDir: content
+  copyright: ""
+  dataDir: data
+  defaultContentLanguage: en
+  defaultContentLanguageInSubdir: false
+  deployment:
+    confirm: false
+    dryRun: false
+    force: false
+    invalidateCDN: true
+    matchers: null
+    maxDeletes: 256
+    order: null
+    target: ""
+    targets: null
+    workers: 10
+  disableAliases: false
+  disableHugoGeneratorInject: false
+  disableKinds: null
+  disableLanguages: null
+  disableLiveReload: false
+  disablePathToLower: false
+  enableEmoji: false
+  enableGitInfo: false
+  enableMissingTranslationPlaceholders: false
+  enableRobotsTXT: false
+  environment: production
+  frontmatter:
+    date:
+    - date
+    - publishdate
+    - pubdate
+    - published
+    - lastmod
+    - modified
+    expiryDate:
+    - expirydate
+    - unpublishdate
+    lastmod:
+    - :git
+    - lastmod
+    - modified
+    - date
+    - publishdate
+    - pubdate
+    - published
+    publishDate:
+    - publishdate
+    - pubdate
+    - published
+    - date
+  hasCJKLanguage: false
+  i18nDir: i18n
+  ignoreCache: false
+  ignoreErrors: null
+  ignoreFiles: []
+  ignoreVendorPaths: ""
+  imaging:
+    bgColor: '#ffffff'
+    hint: photo
+    quality: 75
+    resampleFilter: box
+  languageCode: ""
+  languages:
+    en:
+      disabled: false
+      languageCode: ""
+      languageDirection: ""
+      languageName: ""
+      title: ""
+      weight: 0
+  layoutDir: layouts
+  mainSections: null
+  markup:
+    asciidocExt:
+      attributes: {}
+      backend: html5
+      extensions: []
+      failureLevel: fatal
+      noHeaderOrFooter: true
+      preserveTOC: false
+      safeMode: unsafe
+      sectionNumbers: false
+      trace: false
+      verbose: false
+      workingFolderCurrent: false
+    defaultMarkdownHandler: goldmark
+    goldmark:
+      extensions:
+        definitionList: true
+        footnote: true
+        linkify: true
+        linkifyProtocol: https
+        strikethrough: true
+        table: true
+        taskList: true
+        typographer:
+          apostrophe: '&rsquo;'
+          disable: false
+          ellipsis: '&hellip;'
+          emDash: '&mdash;'
+          enDash: '&ndash;'
+          leftAngleQuote: '&laquo;'
+          leftDoubleQuote: '&ldquo;'
+          leftSingleQuote: '&lsquo;'
+          rightAngleQuote: '&raquo;'
+          rightDoubleQuote: '&rdquo;'
+          rightSingleQuote: '&rsquo;'
+      parser:
+        attribute:
+          block: false
+          title: true
+        autoHeadingID: true
+        autoHeadingIDType: github
+        wrapStandAloneImageWithinParagraph: true
+      renderer:
+        hardWraps: false
+        unsafe: false
+        xhtml: false
+    highlight:
+      anchorLineNos: false
+      codeFences: true
+      guessSyntax: false
+      hl_Lines: ""
+      hl_inline: false
+      lineAnchors: ""
+      lineNoStart: 1
+      lineNos: false
+      lineNumbersInTable: true
+      noClasses: true
+      noHl: false
+      style: monokai
+      tabWidth: 4
+    tableOfContents:
+      endLevel: 3
+      ordered: false
+      startLevel: 2
+  mediaTypes:
+    application/json:
+      delimiter: .
+      suffixes:
+      - json
+    application/manifest+json:
+      delimiter: .
+      suffixes:
+      - webmanifest
+    application/octet-stream:
+      delimiter: .
+    application/pdf:
+      delimiter: .
+      suffixes:
+      - pdf
+    application/rss+xml:
+      delimiter: .
+      suffixes:
+      - xml
+      - rss
+    application/toml:
+      delimiter: .
+      suffixes:
+      - toml
+    application/wasm:
+      delimiter: .
+      suffixes:
+      - wasm
+    application/xml:
+      delimiter: .
+      suffixes:
+      - xml
+    application/yaml:
+      delimiter: .
+      suffixes:
+      - yaml
+      - yml
+    font/otf:
+      delimiter: .
+      suffixes:
+      - otf
+    font/ttf:
+      delimiter: .
+      suffixes:
+      - ttf
+    image/bmp:
+      delimiter: .
+      suffixes:
+      - bmp
+    image/gif:
+      delimiter: .
+      suffixes:
+      - gif
+    image/jpeg:
+      delimiter: .
+      suffixes:
+      - jpg
+      - jpeg
+      - jpe
+      - jif
+      - jfif
+    image/png:
+      delimiter: .
+      suffixes:
+      - png
+    image/svg+xml:
+      delimiter: .
+      suffixes:
+      - svg
+    image/tiff:
+      delimiter: .
+      suffixes:
+      - tif
+      - tiff
+    image/webp:
+      delimiter: .
+      suffixes:
+      - webp
+    text/calendar:
+      delimiter: .
+      suffixes:
+      - ics
+    text/css:
+      delimiter: .
+      suffixes:
+      - css
+    text/csv:
+      delimiter: .
+      suffixes:
+      - csv
+    text/html:
+      delimiter: .
+      suffixes:
+      - html
+    text/javascript:
+      delimiter: .
+      suffixes:
+      - js
+      - jsm
+      - mjs
+    text/jsx:
+      delimiter: .
+      suffixes:
+      - jsx
+    text/markdown:
+      delimiter: .
+      suffixes:
+      - md
+      - markdown
+    text/plain:
+      delimiter: .
+      suffixes:
+      - txt
+    text/tsx:
+      delimiter: .
+      suffixes:
+      - tsx
+    text/typescript:
+      delimiter: .
+      suffixes:
+      - ts
+    text/x-sass:
+      delimiter: .
+      suffixes:
+      - sass
+    text/x-scss:
+      delimiter: .
+      suffixes:
+      - scss
+    video/3gpp:
+      delimiter: .
+      suffixes:
+      - 3gpp
+      - 3gp
+    video/mp4:
+      delimiter: .
+      suffixes:
+      - mp4
+    video/mpeg:
+      delimiter: .
+      suffixes:
+      - mpg
+      - mpeg
+    video/ogg:
+      delimiter: .
+      suffixes:
+      - ogv
+    video/webm:
+      delimiter: .
+      suffixes:
+      - webm
+    video/x-msvideo:
+      delimiter: .
+      suffixes:
+      - avi
+  menus: {}
+  minify:
+    disableCSS: false
+    disableHTML: false
+    disableJS: false
+    disableJSON: false
+    disableSVG: false
+    disableXML: false
+    minifyOutput: false
+    tdewolff:
+      css:
+        keepCSS2: true
+        precision: 0
+      html:
+        keepComments: false
+        keepConditionalComments: true
+        keepDefaultAttrVals: true
+        keepDocumentTags: true
+        keepEndTags: true
+        keepQuotes: false
+        keepWhitespace: false
+      js:
+        keepVarNames: false
+        precision: 0
+        version: 2022
+      json:
+        keepNumbers: false
+        precision: 0
+      svg:
+        keepComments: false
+        precision: 0
+      xml:
+        keepWhitespace: false
+  module:
+    hugoVersion:
+      extended: false
+      max: ""
+      min: ""
+    imports: null
+    mounts:
+    - excludeFiles: null
+      includeFiles: null
+      lang: ""
+      source: content
+      target: content
+    - excludeFiles: null
+      includeFiles: null
+      lang: ""
+      source: data
+      target: data
+    - excludeFiles: null
+      includeFiles: null
+      lang: ""
+      source: layouts
+      target: layouts
+    - excludeFiles: null
+      includeFiles: null
+      lang: ""
+      source: i18n
+      target: i18n
+    - excludeFiles: null
+      includeFiles: null
+      lang: ""
+      source: archetypes
+      target: archetypes
+    - excludeFiles: null
+      includeFiles: null
+      lang: ""
+      source: assets
+      target: assets
+    - excludeFiles: null
+      includeFiles: null
+      lang: ""
+      source: static
+      target: static
+    noProxy: none
+    noVendor: ""
+    params: null
+    private: '*.*'
+    proxy: direct
+    replacements: null
+    vendorClosest: false
+    workspace: "off"
+  newContentEditor: ""
+  noBuildLock: false
+  noChmod: false
+  noTimes: false
+  outputFormats:
+    amp:
+      baseName: index
+      isHTML: true
+      isPlainText: false
+      mediaType: text/html
+      name: amp
+      noUgly: false
+      notAlternative: false
+      path: amp
+      permalinkable: true
+      protocol: ""
+      rel: amphtml
+      weight: 0
+    calendar:
+      baseName: index
+      isHTML: false
+      isPlainText: true
+      mediaType: text/calendar
+      name: calendar
+      noUgly: false
+      notAlternative: false
+      path: ""
+      permalinkable: false
+      protocol: webcal://
+      rel: alternate
+      weight: 0
+    css:
+      baseName: styles
+      isHTML: false
+      isPlainText: true
+      mediaType: text/css
+      name: css
+      noUgly: false
+      notAlternative: true
+      path: ""
+      permalinkable: false
+      protocol: ""
+      rel: stylesheet
+      weight: 0
+    csv:
+      baseName: index
+      isHTML: false
+      isPlainText: true
+      mediaType: text/csv
+      name: csv
+      noUgly: false
+      notAlternative: false
+      path: ""
+      permalinkable: false
+      protocol: ""
+      rel: alternate
+      weight: 0
+    html:
+      baseName: index
+      isHTML: true
+      isPlainText: false
+      mediaType: text/html
+      name: html
+      noUgly: false
+      notAlternative: false
+      path: ""
+      permalinkable: true
+      protocol: ""
+      rel: canonical
+      weight: 10
+    json:
+      baseName: index
+      isHTML: false
+      isPlainText: true
+      mediaType: application/json
+      name: json
+      noUgly: false
+      notAlternative: false
+      path: ""
+      permalinkable: false
+      protocol: ""
+      rel: alternate
+      weight: 0
+    markdown:
+      baseName: index
+      isHTML: false
+      isPlainText: true
+      mediaType: text/markdown
+      name: markdown
+      noUgly: false
+      notAlternative: false
+      path: ""
+      permalinkable: false
+      protocol: ""
+      rel: alternate
+      weight: 0
+    robots:
+      baseName: robots
+      isHTML: false
+      isPlainText: true
+      mediaType: text/plain
+      name: robots
+      noUgly: false
+      notAlternative: false
+      path: ""
+      permalinkable: false
+      protocol: ""
+      rel: alternate
+      weight: 0
+    rss:
+      baseName: index
+      isHTML: false
+      isPlainText: false
+      mediaType: application/rss+xml
+      name: rss
+      noUgly: true
+      notAlternative: false
+      path: ""
+      permalinkable: false
+      protocol: ""
+      rel: alternate
+      weight: 0
+    sitemap:
+      baseName: sitemap
+      isHTML: false
+      isPlainText: false
+      mediaType: application/xml
+      name: sitemap
+      noUgly: true
+      notAlternative: false
+      path: ""
+      permalinkable: false
+      protocol: ""
+      rel: sitemap
+      weight: 0
+    webappmanifest:
+      baseName: manifest
+      isHTML: false
+      isPlainText: true
+      mediaType: application/manifest+json
+      name: webappmanifest
+      noUgly: false
+      notAlternative: true
+      path: ""
+      permalinkable: false
+      protocol: ""
+      rel: manifest
+      weight: 0
+  outputs:
+    home:
+    - html
+    - rss
+    page:
+    - html
+    rss:
+    - rss
+    section:
+    - html
+    - rss
+    taxonomy:
+    - html
+    - rss
+    term:
+    - html
+    - rss
+  paginate: 10
+  paginatePath: page
+  panicOnWarning: false
+  params: {}
+  permalinks:
+    page: {}
+    section: {}
+    taxonomy: {}
+    term: {}
+  pluralizeListTitles: true
+  printI18nWarnings: false
+  printPathWarnings: false
+  printUnusedTemplates: false
+  privacy:
+    disqus:
+      disable: false
+    googleAnalytics:
+      anonymizeIP: false
+      disable: false
+      respectDoNotTrack: false
+      useSessionStorage: false
+    instagram:
+      disable: false
+      simple: false
+    twitter:
+      disable: false
+      enableDNT: false
+      simple: false
+    vimeo:
+      disable: false
+      enableDNT: false
+      simple: false
+    youTube:
+      disable: false
+      privacyEnhanced: false
+  publishDir: public
+  refLinksErrorLevel: ""
+  refLinksNotFoundURL: ""
+  related:
+    includeNewer: false
+    indices:
+    - applyFilter: false
+      cardinalityThreshold: 0
+      name: keywords
+      pattern: ""
+      toLower: false
+      type: basic
+      weight: 100
+    - applyFilter: false
+      cardinalityThreshold: 0
+      name: date
+      pattern: ""
+      toLower: false
+      type: basic
+      weight: 10
+    - applyFilter: false
+      cardinalityThreshold: 0
+      name: tags
+      pattern: ""
+      toLower: false
+      type: basic
+      weight: 80
+    threshold: 80
+    toLower: false
+  relativeURLs: false
+  removePathAccents: false
+  resourceDir: resources
+  sectionPagesMenu: ""
+  security:
+    enableInlineShortcodes: false
+    exec:
+      allow:
+      - ^(dart-)?sass(-embedded)?$
+      - ^go$
+      - ^npx$
+      - ^postcss$
+      osEnv:
+      - (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG)$
+    funcs:
+      getenv:
+      - ^HUGO_
+      - ^CI$
+    goTemplates:
+      allowActionJSTmpl: false
+    http:
+      mediaTypes: null
+      methods:
+      - (?i)GET|POST
+      urls:
+      - .*
+  server:
+    headers: null
+    redirects:
+    - force: false
+      from: '**'
+      status: 404
+      to: /404.html
+  services:
+    disqus:
+      shortname: ""
+    googleAnalytics:
+      id: ""
+    instagram:
+      accessToken: ""
+      disableInlineCSS: false
+    rss:
+      limit: -1
+    twitter:
+      disableInlineCSS: false
+  sitemap:
+    changeFreq: ""
+    filename: sitemap.xml
+    priority: -1
+  social: null
+  staticDir:
+  - static
+  staticDir0: null
+  staticDir1: null
+  staticDir2: null
+  staticDir3: null
+  staticDir4: null
+  staticDir5: null
+  staticDir6: null
+  staticDir7: null
+  staticDir8: null
+  staticDir9: null
+  staticDir10: null
+  summaryLength: 70
+  taxonomies:
+    category: categories
+    tag: tags
+  templateMetrics: false
+  templateMetricsHints: false
+  theme: null
+  themesDir: themes
+  timeZone: ""
+  timeout: 30s
+  title: ""
+  titleCaseStyle: AP
+  uglyURLs: false
+  workingDir: ""
+config_helpers:
+  mergeStrategy:
+    build:
+      _merge: none
+    caches:
+      _merge: none
+    cascade:
+      _merge: none
+    deployment:
+      _merge: none
+    frontmatter:
+      _merge: none
+    imaging:
+      _merge: none
+    languages:
+      _merge: none
+      en:
+        _merge: none
+        menus:
+          _merge: shallow
+        params:
+          _merge: deep
+    markup:
+      _merge: none
+    mediatypes:
+      _merge: shallow
+    menus:
+      _merge: shallow
+    minify:
+      _merge: none
+    module:
+      _merge: none
+    outputformats:
+      _merge: shallow
+    outputs:
+      _merge: none
+    params:
+      _merge: deep
+    permalinks:
+      _merge: none
+    privacy:
+      _merge: none
+    related:
+      _merge: none
+    security:
+      _merge: none
+    server:
+      _merge: none
+    services:
+      _merge: none
+    sitemap:
+      _merge: none
+    taxonomies:
+      _merge: none
+output:
+  layouts:
+  - Example: Single page in "posts" section
+    Kind: page
+    OutputFormat: html
+    Suffix: html
+    Template Lookup Order:
+    - layouts/posts/single.html.html
+    - layouts/posts/single.html
+    - layouts/_default/single.html.html
+    - layouts/_default/single.html
+  - Example: Base template for single page in "posts" section
+    Kind: page
+    OutputFormat: html
+    Suffix: html
+    Template Lookup Order:
+    - layouts/posts/single-baseof.html.html
+    - layouts/posts/baseof.html.html
+    - layouts/posts/single-baseof.html
+    - layouts/posts/baseof.html
+    - layouts/_default/single-baseof.html.html
+    - layouts/_default/baseof.html.html
+    - layouts/_default/single-baseof.html
+    - layouts/_default/baseof.html
+  - Example: Single page in "posts" section with layout set to "demolayout"
+    Kind: page
+    OutputFormat: html
+    Suffix: html
+    Template Lookup Order:
+    - layouts/posts/demolayout.html.html
+    - layouts/posts/single.html.html
+    - layouts/posts/demolayout.html
+    - layouts/posts/single.html
+    - layouts/_default/demolayout.html.html
+    - layouts/_default/single.html.html
+    - layouts/_default/demolayout.html
+    - layouts/_default/single.html
+  - Example: Base template for single page in "posts" section with layout set to "demolayout"
+    Kind: page
+    OutputFormat: html
+    Suffix: html
+    Template Lookup Order:
+    - layouts/posts/demolayout-baseof.html.html
+    - layouts/posts/single-baseof.html.html
+    - layouts/posts/baseof.html.html
+    - layouts/posts/demolayout-baseof.html
+    - layouts/posts/single-baseof.html
+    - layouts/posts/baseof.html
+    - layouts/_default/demolayout-baseof.html.html
+    - layouts/_default/single-baseof.html.html
+    - layouts/_default/baseof.html.html
+    - layouts/_default/demolayout-baseof.html
+    - layouts/_default/single-baseof.html
+    - layouts/_default/baseof.html
+  - Example: AMP single page
+    Kind: page
+    OutputFormat: amp
+    Suffix: html
+    Template Lookup Order:
+    - layouts/posts/single.amp.html
+    - layouts/posts/single.html
+    - layouts/_default/single.amp.html
+    - layouts/_default/single.html
+  - Example: AMP single page, French language
+    Kind: page
+    OutputFormat: html
+    Suffix: html
+    Template Lookup Order:
+    - layouts/posts/single.fr.html.html
+    - layouts/posts/single.html.html
+    - layouts/posts/single.fr.html
+    - layouts/posts/single.html
+    - layouts/_default/single.fr.html.html
+    - layouts/_default/single.html.html
+    - layouts/_default/single.fr.html
+    - layouts/_default/single.html
+  - Example: Home page
+    Kind: home
+    OutputFormat: html
+    Suffix: html
+    Template Lookup Order:
+    - layouts/index.html.html
+    - layouts/home.html.html
+    - layouts/list.html.html
+    - layouts/index.html
+    - layouts/home.html
+    - layouts/list.html
+    - layouts/_default/index.html.html
+    - layouts/_default/home.html.html
+    - layouts/_default/list.html.html
+    - layouts/_default/index.html
+    - layouts/_default/home.html
+    - layouts/_default/list.html
+  - Example: Base template for home page
+    Kind: home
+    OutputFormat: html
+    Suffix: html
+    Template Lookup Order:
+    - layouts/index-baseof.html.html
+    - layouts/home-baseof.html.html
+    - layouts/list-baseof.html.html
+    - layouts/baseof.html.html
+    - layouts/index-baseof.html
+    - layouts/home-baseof.html
+    - layouts/list-baseof.html
+    - layouts/baseof.html
+    - layouts/_default/index-baseof.html.html
+    - layouts/_default/home-baseof.html.html
+    - layouts/_default/list-baseof.html.html
+    - layouts/_default/baseof.html.html
+    - layouts/_default/index-baseof.html
+    - layouts/_default/home-baseof.html
+    - layouts/_default/list-baseof.html
+    - layouts/_default/baseof.html
+  - Example: Home page with type set to "demotype"
+    Kind: home
+    OutputFormat: html
+    Suffix: html
+    Template Lookup Order:
+    - layouts/demotype/index.html.html
+    - layouts/demotype/home.html.html
+    - layouts/demotype/list.html.html
+    - layouts/demotype/index.html
+    - layouts/demotype/home.html
+    - layouts/demotype/list.html
+    - layouts/index.html.html
+    - layouts/home.html.html
+    - layouts/list.html.html
+    - layouts/index.html
+    - layouts/home.html
+    - layouts/list.html
+    - layouts/_default/index.html.html
+    - layouts/_default/home.html.html
+    - layouts/_default/list.html.html
+    - layouts/_default/index.html
+    - layouts/_default/home.html
+    - layouts/_default/list.html
+  - Example: Base template for home page with type set to "demotype"
+    Kind: home
+    OutputFormat: html
+    Suffix: html
+    Template Lookup Order:
+    - layouts/demotype/index-baseof.html.html
+    - layouts/demotype/home-baseof.html.html
+    - layouts/demotype/list-baseof.html.html
+    - layouts/demotype/baseof.html.html
+    - layouts/demotype/index-baseof.html
+    - layouts/demotype/home-baseof.html
+    - layouts/demotype/list-baseof.html
+    - layouts/demotype/baseof.html
+    - layouts/index-baseof.html.html
+    - layouts/home-baseof.html.html
+    - layouts/list-baseof.html.html
+    - layouts/baseof.html.html
+    - layouts/index-baseof.html
+    - layouts/home-baseof.html
+    - layouts/list-baseof.html
+    - layouts/baseof.html
+    - layouts/_default/index-baseof.html.html
+    - layouts/_default/home-baseof.html.html
+    - layouts/_default/list-baseof.html.html
+    - layouts/_default/baseof.html.html
+    - layouts/_default/index-baseof.html
+    - layouts/_default/home-baseof.html
+    - layouts/_default/list-baseof.html
+    - layouts/_default/baseof.html
+  - Example: Home page with layout set to "demolayout"
+    Kind: home
+    OutputFormat: html
+    Suffix: html
+    Template Lookup Order:
+    - layouts/demolayout.html.html
+    - layouts/index.html.html
+    - layouts/home.html.html
+    - layouts/list.html.html
+    - layouts/demolayout.html
+    - layouts/index.html
+    - layouts/home.html
+    - layouts/list.html
+    - layouts/_default/demolayout.html.html
+    - layouts/_default/index.html.html
+    - layouts/_default/home.html.html
+    - layouts/_default/list.html.html
+    - layouts/_default/demolayout.html
+    - layouts/_default/index.html
+    - layouts/_default/home.html
+    - layouts/_default/list.html
+  - Example: AMP home, French language
+    Kind: home
+    OutputFormat: amp
+    Suffix: html
+    Template Lookup Order:
+    - layouts/index.fr.amp.html
+    - layouts/home.fr.amp.html
+    - layouts/list.fr.amp.html
+    - layouts/index.amp.html
+    - layouts/home.amp.html
+    - layouts/list.amp.html
+    - layouts/index.fr.html
+    - layouts/home.fr.html
+    - layouts/list.fr.html
+    - layouts/index.html
+    - layouts/home.html
+    - layouts/list.html
+    - layouts/_default/index.fr.amp.html
+    - layouts/_default/home.fr.amp.html
+    - layouts/_default/list.fr.amp.html
+    - layouts/_default/index.amp.html
+    - layouts/_default/home.amp.html
+    - layouts/_default/list.amp.html
+    - layouts/_default/index.fr.html
+    - layouts/_default/home.fr.html
+    - layouts/_default/list.fr.html
+    - layouts/_default/index.html
+    - layouts/_default/home.html
+    - layouts/_default/list.html
+  - Example: JSON home
+    Kind: home
+    OutputFormat: json
+    Suffix: json
+    Template Lookup Order:
+    - layouts/index.json.json
+    - layouts/home.json.json
+    - layouts/list.json.json
+    - layouts/index.json
+    - layouts/home.json
+    - layouts/list.json
+    - layouts/_default/index.json.json
+    - layouts/_default/home.json.json
+    - layouts/_default/list.json.json
+    - layouts/_default/index.json
+    - layouts/_default/home.json
+    - layouts/_default/list.json
+  - Example: RSS home
+    Kind: home
+    OutputFormat: rss
+    Suffix: xml
+    Template Lookup Order:
+    - layouts/index.rss.xml
+    - layouts/home.rss.xml
+    - layouts/rss.xml
+    - layouts/list.rss.xml
+    - layouts/index.xml
+    - layouts/home.xml
+    - layouts/list.xml
+    - layouts/_default/index.rss.xml
+    - layouts/_default/home.rss.xml
+    - layouts/_default/rss.xml
+    - layouts/_default/list.rss.xml
+    - layouts/_default/index.xml
+    - layouts/_default/home.xml
+    - layouts/_default/list.xml
+    - layouts/_internal/_default/rss.xml
+  - Example: Section list for "posts"
+    Kind: section
+    OutputFormat: html
+    Suffix: html
+    Template Lookup Order:
+    - layouts/posts/posts.html.html
+    - layouts/posts/section.html.html
+    - layouts/posts/list.html.html
+    - layouts/posts/posts.html
+    - layouts/posts/section.html
+    - layouts/posts/list.html
+    - layouts/section/posts.html.html
+    - layouts/section/section.html.html
+    - layouts/section/list.html.html
+    - layouts/section/posts.html
+    - layouts/section/section.html
+    - layouts/section/list.html
+    - layouts/_default/posts.html.html
+    - layouts/_default/section.html.html
+    - layouts/_default/list.html.html
+    - layouts/_default/posts.html
+    - layouts/_default/section.html
+    - layouts/_default/list.html
+  - Example: Section list for "posts" with type set to "blog"
+    Kind: section
+    OutputFormat: html
+    Suffix: html
+    Template Lookup Order:
+    - layouts/blog/posts.html.html
+    - layouts/blog/section.html.html
+    - layouts/blog/list.html.html
+    - layouts/blog/posts.html
+    - layouts/blog/section.html
+    - layouts/blog/list.html
+    - layouts/posts/posts.html.html
+    - layouts/posts/section.html.html
+    - layouts/posts/list.html.html
+    - layouts/posts/posts.html
+    - layouts/posts/section.html
+    - layouts/posts/list.html
+    - layouts/section/posts.html.html
+    - layouts/section/section.html.html
+    - layouts/section/list.html.html
+    - layouts/section/posts.html
+    - layouts/section/section.html
+    - layouts/section/list.html
+    - layouts/_default/posts.html.html
+    - layouts/_default/section.html.html
+    - layouts/_default/list.html.html
+    - layouts/_default/posts.html
+    - layouts/_default/section.html
+    - layouts/_default/list.html
+  - Example: Section list for "posts" with layout set to "demolayout"
+    Kind: section
+    OutputFormat: html
+    Suffix: html
+    Template Lookup Order:
+    - layouts/posts/demolayout.html.html
+    - layouts/posts/posts.html.html
+    - layouts/posts/section.html.html
+    - layouts/posts/list.html.html
+    - layouts/posts/demolayout.html
+    - layouts/posts/posts.html
+    - layouts/posts/section.html
+    - layouts/posts/list.html
+    - layouts/section/demolayout.html.html
+    - layouts/section/posts.html.html
+    - layouts/section/section.html.html
+    - layouts/section/list.html.html
+    - layouts/section/demolayout.html
+    - layouts/section/posts.html
+    - layouts/section/section.html
+    - layouts/section/list.html
+    - layouts/_default/demolayout.html.html
+    - layouts/_default/posts.html.html
+    - layouts/_default/section.html.html
+    - layouts/_default/list.html.html
+    - layouts/_default/demolayout.html
+    - layouts/_default/posts.html
+    - layouts/_default/section.html
+    - layouts/_default/list.html
+  - Example: Section list for "posts"
+    Kind: section
+    OutputFormat: rss
+    Suffix: xml
+    Template Lookup Order:
+    - layouts/posts/section.rss.xml
+    - layouts/posts/rss.xml
+    - layouts/posts/list.rss.xml
+    - layouts/posts/section.xml
+    - layouts/posts/list.xml
+    - layouts/section/section.rss.xml
+    - layouts/section/rss.xml
+    - layouts/section/list.rss.xml
+    - layouts/section/section.xml
+    - layouts/section/list.xml
+    - layouts/_default/section.rss.xml
+    - layouts/_default/rss.xml
+    - layouts/_default/list.rss.xml
+    - layouts/_default/section.xml
+    - layouts/_default/list.xml
+    - layouts/_internal/_default/rss.xml
+  - Example: Taxonomy list for "categories"
+    Kind: taxonomy
+    OutputFormat: html
+    Suffix: html
+    Template Lookup Order:
+    - layouts/categories/category.terms.html.html
+    - layouts/categories/terms.html.html
+    - layouts/categories/taxonomy.html.html
+    - layouts/categories/list.html.html
+    - layouts/categories/category.terms.html
+    - layouts/categories/terms.html
+    - layouts/categories/taxonomy.html
+    - layouts/categories/list.html
+    - layouts/category/category.terms.html.html
+    - layouts/category/terms.html.html
+    - layouts/category/taxonomy.html.html
+    - layouts/category/list.html.html
+    - layouts/category/category.terms.html
+    - layouts/category/terms.html
+    - layouts/category/taxonomy.html
+    - layouts/category/list.html
+    - layouts/taxonomy/category.terms.html.html
+    - layouts/taxonomy/terms.html.html
+    - layouts/taxonomy/taxonomy.html.html
+    - layouts/taxonomy/list.html.html
+    - layouts/taxonomy/category.terms.html
+    - layouts/taxonomy/terms.html
+    - layouts/taxonomy/taxonomy.html
+    - layouts/taxonomy/list.html
+    - layouts/_default/category.terms.html.html
+    - layouts/_default/terms.html.html
+    - layouts/_default/taxonomy.html.html
+    - layouts/_default/list.html.html
+    - layouts/_default/category.terms.html
+    - layouts/_default/terms.html
+    - layouts/_default/taxonomy.html
+    - layouts/_default/list.html
+  - Example: Taxonomy list for "categories"
+    Kind: taxonomy
+    OutputFormat: rss
+    Suffix: xml
+    Template Lookup Order:
+    - layouts/categories/category.terms.rss.xml
+    - layouts/categories/terms.rss.xml
+    - layouts/categories/taxonomy.rss.xml
+    - layouts/categories/rss.xml
+    - layouts/categories/list.rss.xml
+    - layouts/categories/category.terms.xml
+    - layouts/categories/terms.xml
+    - layouts/categories/taxonomy.xml
+    - layouts/categories/list.xml
+    - layouts/category/category.terms.rss.xml
+    - layouts/category/terms.rss.xml
+    - layouts/category/taxonomy.rss.xml
+    - layouts/category/rss.xml
+    - layouts/category/list.rss.xml
+    - layouts/category/category.terms.xml
+    - layouts/category/terms.xml
+    - layouts/category/taxonomy.xml
+    - layouts/category/list.xml
+    - layouts/taxonomy/category.terms.rss.xml
+    - layouts/taxonomy/terms.rss.xml
+    - layouts/taxonomy/taxonomy.rss.xml
+    - layouts/taxonomy/rss.xml
+    - layouts/taxonomy/list.rss.xml
+    - layouts/taxonomy/category.terms.xml
+    - layouts/taxonomy/terms.xml
+    - layouts/taxonomy/taxonomy.xml
+    - layouts/taxonomy/list.xml
+    - layouts/_default/category.terms.rss.xml
+    - layouts/_default/terms.rss.xml
+    - layouts/_default/taxonomy.rss.xml
+    - layouts/_default/rss.xml
+    - layouts/_default/list.rss.xml
+    - layouts/_default/category.terms.xml
+    - layouts/_default/terms.xml
+    - layouts/_default/taxonomy.xml
+    - layouts/_default/list.xml
+    - layouts/_internal/_default/rss.xml
+  - Example: Term list for "categories"
+    Kind: term
+    OutputFormat: html
+    Suffix: html
+    Template Lookup Order:
+    - layouts/categories/term.html.html
+    - layouts/categories/category.html.html
+    - layouts/categories/taxonomy.html.html
+    - layouts/categories/list.html.html
+    - layouts/categories/term.html
+    - layouts/categories/category.html
+    - layouts/categories/taxonomy.html
+    - layouts/categories/list.html
+    - layouts/term/term.html.html
+    - layouts/term/category.html.html
+    - layouts/term/taxonomy.html.html
+    - layouts/term/list.html.html
+    - layouts/term/term.html
+    - layouts/term/category.html
+    - layouts/term/taxonomy.html
+    - layouts/term/list.html
+    - layouts/taxonomy/term.html.html
+    - layouts/taxonomy/category.html.html
+    - layouts/taxonomy/taxonomy.html.html
+    - layouts/taxonomy/list.html.html
+    - layouts/taxonomy/term.html
+    - layouts/taxonomy/category.html
+    - layouts/taxonomy/taxonomy.html
+    - layouts/taxonomy/list.html
+    - layouts/category/term.html.html
+    - layouts/category/category.html.html
+    - layouts/category/taxonomy.html.html
+    - layouts/category/list.html.html
+    - layouts/category/term.html
+    - layouts/category/category.html
+    - layouts/category/taxonomy.html
+    - layouts/category/list.html
+    - layouts/_default/term.html.html
+    - layouts/_default/category.html.html
+    - layouts/_default/taxonomy.html.html
+    - layouts/_default/list.html.html
+    - layouts/_default/term.html
+    - layouts/_default/category.html
+    - layouts/_default/taxonomy.html
+    - layouts/_default/list.html
+  - Example: Term list for "categories"
+    Kind: term
+    OutputFormat: rss
+    Suffix: xml
+    Template Lookup Order:
+    - layouts/categories/term.rss.xml
+    - layouts/categories/category.rss.xml
+    - layouts/categories/taxonomy.rss.xml
+    - layouts/categories/rss.xml
+    - layouts/categories/list.rss.xml
+    - layouts/categories/term.xml
+    - layouts/categories/category.xml
+    - layouts/categories/taxonomy.xml
+    - layouts/categories/list.xml
+    - layouts/term/term.rss.xml
+    - layouts/term/category.rss.xml
+    - layouts/term/taxonomy.rss.xml
+    - layouts/term/rss.xml
+    - layouts/term/list.rss.xml
+    - layouts/term/term.xml
+    - layouts/term/category.xml
+    - layouts/term/taxonomy.xml
+    - layouts/term/list.xml
+    - layouts/taxonomy/term.rss.xml
+    - layouts/taxonomy/category.rss.xml
+    - layouts/taxonomy/taxonomy.rss.xml
+    - layouts/taxonomy/rss.xml
+    - layouts/taxonomy/list.rss.xml
+    - layouts/taxonomy/term.xml
+    - layouts/taxonomy/category.xml
+    - layouts/taxonomy/taxonomy.xml
+    - layouts/taxonomy/list.xml
+    - layouts/category/term.rss.xml
+    - layouts/category/category.rss.xml
+    - layouts/category/taxonomy.rss.xml
+    - layouts/category/rss.xml
+    - layouts/category/list.rss.xml
+    - layouts/category/term.xml
+    - layouts/category/category.xml
+    - layouts/category/taxonomy.xml
+    - layouts/category/list.xml
+    - layouts/_default/term.rss.xml
+    - layouts/_default/category.rss.xml
+    - layouts/_default/taxonomy.rss.xml
+    - layouts/_default/rss.xml
+    - layouts/_default/list.rss.xml
+    - layouts/_default/term.xml
+    - layouts/_default/category.xml
+    - layouts/_default/taxonomy.xml
+    - layouts/_default/list.xml
+    - layouts/_internal/_default/rss.xml
+tpl:
+  funcs:
+    cast:
+      ToFloat:
+        Aliases:
+        - float
+        Args:
+        - v
+        Description: ToFloat converts v to a float.
+        Examples:
+        - - '{{ "1234" | float | printf "%T" }}'
+          - float64
+      ToInt:
+        Aliases:
+        - int
+        Args:
+        - v
+        Description: ToInt converts v to an int.
+        Examples:
+        - - '{{ "1234" | int | printf "%T" }}'
+          - int
+      ToString:
+        Aliases:
+        - string
+        Args:
+        - v
+        Description: ToString converts v to a string.
+        Examples:
+        - - '{{ 1234 | string | printf "%T" }}'
+          - string
+    collections:
+      After:
+        Aliases:
+        - after
+        Args:
+        - "n"
+        - l
+        Description: After returns all the items after the first n items in list l.
+        Examples: []
+      Append:
+        Aliases:
+        - append
+        Args:
+        - args
+        Description: "Append appends args up to the last one to the slice in the last
+          argument.\nThis construct allows template constructs like this:\n\n\t{{
+          $pages = $pages | append $p2 $p1 }}\n\nNote that with 2 arguments where
+          both are slices of the same type,\nthe first slice will be appended to the
+          second:\n\n\t{{ $pages = $pages | append .Site.RegularPages }}"
+        Examples: []
+      Apply:
+        Aliases:
+        - apply
+        Args:
+        - ctx
+        - c
+        - fname
+        - args
+        Description: Apply takes an array or slice c and returns a new slice with
+          the function fname applied over it.
+        Examples: []
+      Complement:
+        Aliases:
+        - complement
+        Args:
+        - ls
+        Description: "Complement gives the elements in the last element of ls that
+          are not in\nany of the others.\n\nAll elements of ls must be slices or arrays
+          of comparable types.\n\nThe reasoning behind this rather clumsy API is so
+          we can do this in the templates:\n\n\t{{ $c := .Pages | complement $last4
+          }}"
+        Examples:
+        - - '{{ slice "a" "b" "c" "d" "e" "f" | complement (slice "b" "c") (slice
+            "d" "e") }}'
+          - '[a f]'
+      Delimit:
+        Aliases:
+        - delimit
+        Args:
+        - ctx
+        - l
+        - sep
+        - last
+        Description: |-
+          Delimit takes a given list l and returns a string delimited by sep.
+          If last is passed to the function, it will be used as the final delimiter.
+        Examples:
+        - - '{{ delimit (slice "A" "B" "C") ", " " and " }}'
+          - A, B and C
+      Dictionary:
+        Aliases:
+        - dict
+        Args:
+        - values
+        Description: |-
+          Dictionary creates a new map from the given parameters by
+          treating values as key-value pairs.  The number of values must be even.
+          The keys can be string slices, which will create the needed nested structure.
+        Examples: []
+      EchoParam:
+        Aliases:
+        - echoParam
+        Args:
+        - c
+        - k
+        Description: |-
+          EchoParam returns a the value in the collection c with key k if is set; otherwise, it returns an
+          empty string.
+        Examples:
+        - - '{{ echoParam .Params "langCode" }}'
+          - en
+      First:
+        Aliases:
+        - first
+        Args:
+        - limit
+        - l
+        Description: First returns the first limit items in list l.
+        Examples: []
+      Group:
+        Aliases:
+        - group
+        Args:
+        - key
+        - items
+        Description: |-
+          Group groups a set of items by the given key.
+          This is currently only supported for Pages.
+        Examples: []
+      In:
+        Aliases:
+        - in
+        Args:
+        - l
+        - v
+        Description: In returns whether v is in the list l.  l may be an array or
+          slice.
+        Examples:
+        - - '{{ if in "this string contains a substring" "substring" }}Substring found!{{
+            end }}'
+          - Substring found!
+      Index:
+        Aliases:
+        - index
+        Args:
+        - item
+        - args
+        Description: |-
+          Index returns the result of indexing its first argument by the following
+          arguments. Thus "index x 1 2 3" is, in Go syntax, x[1][2][3]. Each
+          indexed item must be a map, slice, or array.
+
+          Adapted from Go stdlib src/text/template/funcs.go.
+
+          We deviate from the stdlib mostly because of https://github.com/golang/go/issues/14751.
+        Examples: []
+      Intersect:
+        Aliases:
+        - intersect
+        Args:
+        - l1
+        - l2
+        Description: |-
+          Intersect returns the common elements in the given sets, l1 and l2.  l1 and
+          l2 must be of the same type and may be either arrays or slices.
+        Examples: []
+      IsSet:
+        Aliases:
+        - isSet
+        - isset
+        Args:
+        - c
+        - key
+        Description: |-
+          IsSet returns whether a given array, channel, slice, or map in c has the given key
+          defined.
+        Examples: []
+      KeyVals:
+        Aliases:
+        - keyVals
+        Args:
+        - key
+        - values
+        Description: KeyVals creates a key and values wrapper.
+        Examples:
+        - - '{{ keyVals "key" "a" "b" }}'
+          - 'key: [a b]'
+      Last:
+        Aliases:
+        - last
+        Args:
+        - limit
+        - l
+        Description: Last returns the last limit items in the list l.
+        Examples: []
+      Merge:
+        Aliases:
+        - merge
+        Args:
+        - params
+        Description: |-
+          Merge creates a copy of the final parameter in params and merges the preceding
+          parameters into it in reverse order.
+
+          Currently only maps are supported. Key handling is case insensitive.
+        Examples:
+        - - '{{ dict "title" "Hugo Rocks!" | collections.Merge (dict "title" "Default
+            Title" "description" "Yes, Hugo Rocks!") | sort }}'
+          - '[Yes, Hugo Rocks! Hugo Rocks!]'
+        - - '{{ merge (dict "title" "Default Title" "description" "Yes, Hugo Rocks!")
+            (dict "title" "Hugo Rocks!") | sort }}'
+          - '[Yes, Hugo Rocks! Hugo Rocks!]'
+        - - '{{ merge (dict "title" "Default Title" "description" "Yes, Hugo Rocks!")
+            (dict "title" "Hugo Rocks!") (dict "extra" "For reals!") | sort }}'
+          - '[Yes, Hugo Rocks! For reals! Hugo Rocks!]'
+      NewScratch:
+        Aliases:
+        - newScratch
+        Args: null
+        Description: |-
+          NewScratch creates a new Scratch which can be used to store values in a
+          thread safe way.
+        Examples:
+        - - '{{ $scratch := newScratch }}{{ $scratch.Add "b" 2 }}{{ $scratch.Add "b"
+            2 }}{{ $scratch.Get "b" }}'
+          - "4"
+      Querify:
+        Aliases:
+        - querify
+        Args:
+        - params
+        Description: Querify encodes the given params in URL-encoded form ("bar=baz&foo=quux")
+          sorted by key.
+        Examples:
+        - - '{{ (querify "foo" 1 "bar" 2 "baz" "with spaces" "qux" "this&that=those")
+            | safeHTML }}'
+          - bar=2&baz=with+spaces&foo=1&qux=this%26that%3Dthose
+        - - <a href="https://www.google.com?{{ (querify "q" "test" "page" 3) | safeURL
+            }}">Search</a>
+          - <a href="https://www.google.com?page=3&amp;q=test">Search</a>
+        - - '{{ slice "foo" 1 "bar" 2 | querify | safeHTML }}'
+          - bar=2&foo=1
+      Reverse:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Seq:
+        Aliases:
+        - seq
+        Args:
+        - args
+        Description: "Seq creates a sequence of integers from args. It's named and
+          used as GNU's seq.\n\nExamples:\n\n\t3 => 1, 2, 3\n\t1 2 4 => 1, 3\n\t-3
+          => -1, -2, -3\n\t1 4 => 1, 2, 3, 4\n\t1 -2 => 1, 0, -1, -2"
+        Examples:
+        - - '{{ seq 3 }}'
+          - '[1 2 3]'
+      Shuffle:
+        Aliases:
+        - shuffle
+        Args:
+        - l
+        Description: Shuffle returns list l in a randomised order.
+        Examples: []
+      Slice:
+        Aliases:
+        - slice
+        Args:
+        - args
+        Description: Slice returns a slice of all passed arguments.
+        Examples:
+        - - '{{ slice "B" "C" "A" | sort }}'
+          - '[A B C]'
+      Sort:
+        Aliases:
+        - sort
+        Args:
+        - ctx
+        - l
+        - args
+        Description: Sort returns a sorted copy of the list l.
+        Examples: []
+      SymDiff:
+        Aliases:
+        - symdiff
+        Args:
+        - s2
+        - s1
+        Description: |-
+          SymDiff returns the symmetric difference of s1 and s2.
+          Arguments must be either a slice or an array of comparable types.
+        Examples:
+        - - '{{ slice 1 2 3 | symdiff (slice 3 4) }}'
+          - '[1 2 4]'
+      Union:
+        Aliases:
+        - union
+        Args:
+        - l1
+        - l2
+        Description: |-
+          Union returns the union of the given sets, l1 and l2. l1 and
+          l2 must be of the same type and may be either arrays or slices.
+          If l1 and l2 aren't of the same type then l1 will be returned.
+          If either l1 or l2 is nil then the non-nil list will be returned.
+        Examples:
+        - - '{{ union (slice 1 2 3) (slice 3 4 5) }}'
+          - '[1 2 3 4 5]'
+      Uniq:
+        Aliases:
+        - uniq
+        Args:
+        - l
+        Description: Uniq returns a new list with duplicate elements in the list l
+          removed.
+        Examples:
+        - - '{{ slice 1 2 3 2 | uniq }}'
+          - '[1 2 3]'
+      Where:
+        Aliases:
+        - where
+        Args:
+        - ctx
+        - c
+        - key
+        - args
+        Description: Where returns a filtered subset of collection c.
+        Examples: []
+    compare:
+      Conditional:
+        Aliases:
+        - cond
+        Args:
+        - cond
+        - v1
+        - v2
+        Description: |-
+          Conditional can be used as a ternary operator.
+
+          It returns v1 if cond is true, else v2.
+        Examples:
+        - - '{{ cond (eq (add 2 2) 4) "2+2 is 4" "what?" | safeHTML }}'
+          - 2+2 is 4
+      Default:
+        Aliases:
+        - default
+        Args:
+        - defaultv
+        - givenv
+        Description: |-
+          Default checks whether a givenv is set and returns the default value defaultv if it
+          is not.  "Set" in this context means non-zero for numeric types and times;
+          non-zero length for strings, arrays, slices, and maps;
+          any boolean or struct value; or non-nil for any other types.
+        Examples:
+        - - '{{ "Hugo Rocks!" | default "Hugo Rules!" }}'
+          - Hugo Rocks!
+        - - '{{ "" | default "Hugo Rules!" }}'
+          - Hugo Rules!
+      Eq:
+        Aliases:
+        - eq
+        Args:
+        - first
+        - others
+        Description: Eq returns the boolean truth of arg1 == arg2 || arg1 == arg3
+          || arg1 == arg4.
+        Examples:
+        - - '{{ if eq .Section "blog" }}current-section{{ end }}'
+          - current-section
+      Ge:
+        Aliases:
+        - ge
+        Args:
+        - first
+        - others
+        Description: Ge returns the boolean truth of arg1 >= arg2 && arg1 >= arg3
+          && arg1 >= arg4.
+        Examples:
+        - - '{{ if ge hugo.Version "0.80" }}Reasonable new Hugo version!{{ end }}'
+          - Reasonable new Hugo version!
+      Gt:
+        Aliases:
+        - gt
+        Args:
+        - first
+        - others
+        Description: Gt returns the boolean truth of arg1 > arg2 && arg1 > arg3 &&
+          arg1 > arg4.
+        Examples: []
+      Le:
+        Aliases:
+        - le
+        Args:
+        - first
+        - others
+        Description: Le returns the boolean truth of arg1 <= arg2 && arg1 <= arg3
+          && arg1 <= arg4.
+        Examples: []
+      Lt:
+        Aliases:
+        - lt
+        Args:
+        - first
+        - others
+        Description: Lt returns the boolean truth of arg1 < arg2 && arg1 < arg3 &&
+          arg1 < arg4.
+        Examples: []
+      LtCollate:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Ne:
+        Aliases:
+        - ne
+        Args:
+        - first
+        - others
+        Description: Ne returns the boolean truth of arg1 != arg2 && arg1 != arg3
+          && arg1 != arg4.
+        Examples: []
+    crypto:
+      FNV32a:
+        Aliases: null
+        Args:
+        - v
+        Description: |-
+          FNV32a hashes v using fnv32a algorithm.
+          <docsmeta>{"newIn": "0.98.0" }</docsmeta>
+        Examples:
+        - - '{{ crypto.FNV32a "Hugo Rocks!!" }}'
+          - "1515779328"
+      HMAC:
+        Aliases:
+        - hmac
+        Args:
+        - h
+        - k
+        - m
+        - e
+        Description: HMAC returns a cryptographic hash that uses a key to sign a message.
+        Examples:
+        - - '{{ hmac "sha256" "Secret key" "Hello world, gophers!" }}'
+          - b6d11b6c53830b9d87036272ca9fe9d19306b8f9d8aa07b15da27d89e6e34f40
+      MD5:
+        Aliases:
+        - md5
+        Args:
+        - v
+        Description: MD5 hashes the v and returns its MD5 checksum.
+        Examples:
+        - - '{{ md5 "Hello world, gophers!" }}'
+          - b3029f756f98f79e7f1b7f1d1f0dd53b
+        - - '{{ crypto.MD5 "Hello world, gophers!" }}'
+          - b3029f756f98f79e7f1b7f1d1f0dd53b
+      SHA1:
+        Aliases:
+        - sha1
+        Args:
+        - v
+        Description: SHA1 hashes v and returns its SHA1 checksum.
+        Examples:
+        - - '{{ sha1 "Hello world, gophers!" }}'
+          - c8b5b0e33d408246e30f53e32b8f7627a7a649d4
+      SHA256:
+        Aliases:
+        - sha256
+        Args:
+        - v
+        Description: SHA256 hashes v and returns its SHA256 checksum.
+        Examples:
+        - - '{{ sha256 "Hello world, gophers!" }}'
+          - 6ec43b78da9669f50e4e422575c54bf87536954ccd58280219c393f2ce352b46
+    css:
+      Quoted:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Unquoted:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+    data:
+      GetCSV:
+        Aliases:
+        - getCSV
+        Args:
+        - sep
+        - args
+        Description: |-
+          GetCSV expects the separator sep and one or n-parts of a URL to a resource which
+          can either be a local or a remote one.
+          The data separator can be a comma, semi-colon, pipe, etc, but only one character.
+          If you provide multiple parts for the URL they will be joined together to the final URL.
+          GetCSV returns nil or a slice slice to use in a short code.
+        Examples: []
+      GetJSON:
+        Aliases:
+        - getJSON
+        Args:
+        - args
+        Description: |-
+          GetJSON expects one or n-parts of a URL in args to a resource which can either be a local or a remote one.
+          If you provide multiple parts they will be joined together to the final URL.
+          GetJSON returns nil or parsed JSON to use in a short code.
+        Examples: []
+    debug:
+      Dump:
+        Aliases: null
+        Args:
+        - val
+        Description: |-
+          Dump returns a object dump of val as a string.
+          Note that not every value passed to Dump will print so nicely, but
+          we'll improve on that.
+
+          We recommend using the "go" Chroma lexer to format the output
+          nicely.
+
+          Also note that the output from Dump may change from Hugo version to the next,
+          so don't depend on a specific output.
+        Examples:
+        - - |-
+            {{ $m := newScratch }}
+            {{ $m.Set "Hugo" "Rocks!" }}
+            {{ $m.Values | debug.Dump | safeHTML }}
+          - |-
+            map[string]interface {}{
+              "Hugo": "Rocks!",
+            }
+      VisualizeSpaces:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+    diagrams:
+      Goat:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+    encoding:
+      Base64Decode:
+        Aliases:
+        - base64Decode
+        Args:
+        - content
+        Description: Base64Decode returns the base64 decoding of the given content.
+        Examples:
+        - - '{{ "SGVsbG8gd29ybGQ=" | base64Decode }}'
+          - Hello world
+        - - '{{ 42 | base64Encode | base64Decode }}'
+          - "42"
+      Base64Encode:
+        Aliases:
+        - base64Encode
+        Args:
+        - content
+        Description: Base64Encode returns the base64 encoding of the given content.
+        Examples:
+        - - '{{ "Hello world" | base64Encode }}'
+          - SGVsbG8gd29ybGQ=
+      Jsonify:
+        Aliases:
+        - jsonify
+        Args:
+        - args
+        Description: |-
+          Jsonify encodes a given object to JSON.  To pretty print the JSON, pass a map
+          or dictionary of options as the first value in args.  Supported options are
+          "prefix" and "indent".  Each JSON element in the output will begin on a new
+          line beginning with prefix followed by one or more copies of indent according
+          to the indentation nesting.
+        Examples:
+        - - '{{ (slice "A" "B" "C") | jsonify }}'
+          - '["A","B","C"]'
+        - - '{{ (slice "A" "B" "C") | jsonify (dict "indent" "  ") }}'
+          - |-
+            [
+              "A",
+              "B",
+              "C"
+            ]
+    fmt:
+      Errorf:
+        Aliases:
+        - errorf
+        Args:
+        - format
+        - args
+        Description: |-
+          Errorf formats args according to a format specifier and logs an ERROR.
+          It returns an empty string.
+        Examples:
+        - - '{{ errorf "%s." "failed" }}'
+          - ""
+      Erroridf:
+        Aliases:
+        - erroridf
+        Args:
+        - id
+        - format
+        - args
+        Description: |-
+          Erroridf formats args according to a format specifier and logs an ERROR and
+          an information text that the error with the given id can be suppressed in config.
+          It returns an empty string.
+        Examples:
+        - - '{{ erroridf "my-err-id" "%s." "failed" }}'
+          - ""
+      Errormf:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Print:
+        Aliases:
+        - print
+        Args:
+        - args
+        Description: Print returns a string representation of args.
+        Examples:
+        - - '{{ print "works!" }}'
+          - works!
+      Printf:
+        Aliases:
+        - printf
+        Args:
+        - format
+        - args
+        Description: Printf returns string representation of args formatted with the
+          layouut in format.
+        Examples:
+        - - '{{ printf "%s!" "works" }}'
+          - works!
+      Println:
+        Aliases:
+        - println
+        Args:
+        - args
+        Description: Println returns string representation of args  ending with a
+          newline.
+        Examples:
+        - - '{{ println "works!" }}'
+          - |
+            works!
+      Warnf:
+        Aliases:
+        - warnf
+        Args:
+        - format
+        - args
+        Description: |-
+          Warnf formats args according to a format specifier and logs a WARNING.
+          It returns an empty string.
+        Examples:
+        - - '{{ warnf "%s." "warning" }}'
+          - ""
+      Warnmf:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+    hugo:
+      Deps:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Generator:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      IsExtended:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      IsProduction:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Version:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      WorkingDir:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+    images:
+      Brightness:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      ColorBalance:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Colorize:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Config:
+        Aliases:
+        - imageConfig
+        Args:
+        - path
+        Description: |-
+          Config returns the image.Config for the specified path relative to the
+          working directory.
+        Examples: []
+      Contrast:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Filter:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Gamma:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      GaussianBlur:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Grayscale:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Hue:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Invert:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Overlay:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Pixelate:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Saturation:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Sepia:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Sigmoid:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Text:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      UnsharpMask:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+    inflect:
+      Humanize:
+        Aliases:
+        - humanize
+        Args:
+        - v
+        Description: |-
+          Humanize returns the humanized form of v.
+
+          If v is either an integer or a string containing an integer
+          value, the behavior is to add the appropriate ordinal.
+        Examples:
+        - - '{{ humanize "my-first-post" }}'
+          - My first post
+        - - '{{ humanize "myCamelPost" }}'
+          - My camel post
+        - - '{{ humanize "52" }}'
+          - 52nd
+        - - '{{ humanize 103 }}'
+          - 103rd
+      Pluralize:
+        Aliases:
+        - pluralize
+        Args:
+        - v
+        Description: Pluralize returns the plural form of the single word in v.
+        Examples:
+        - - '{{ "cat" | pluralize }}'
+          - cats
+      Singularize:
+        Aliases:
+        - singularize
+        Args:
+        - v
+        Description: Singularize returns the singular form of a single word in v.
+        Examples:
+        - - '{{ "cats" | singularize }}'
+          - cat
+    js:
+      Build:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+    lang:
+      FormatAccounting:
+        Aliases: null
+        Args:
+        - precision
+        - currency
+        - number
+        Description: |-
+          FormatAccounting returns the currency representation of number for the given currency and precision
+          for the current language in accounting notation.
+
+          The return value is formatted with at least two decimal places.
+        Examples:
+        - - '{{ 512.5032 | lang.FormatAccounting 2 "NOK" }}'
+          - NOK512.50
+      FormatCurrency:
+        Aliases: null
+        Args:
+        - precision
+        - currency
+        - number
+        Description: |-
+          FormatCurrency returns the currency representation of number for the given currency and precision
+          for the current language.
+
+          The return value is formatted with at least two decimal places.
+        Examples:
+        - - '{{ 512.5032 | lang.FormatCurrency 2 "USD" }}'
+          - $512.50
+      FormatNumber:
+        Aliases: null
+        Args:
+        - precision
+        - number
+        Description: FormatNumber formats number with the given precision for the
+          current language.
+        Examples:
+        - - '{{ 512.5032 | lang.FormatNumber 2 }}'
+          - "512.50"
+      FormatNumberCustom:
+        Aliases: null
+        Args:
+        - precision
+        - number
+        - options
+        Description: |-
+          FormatNumberCustom formats a number with the given precision. The first
+          options parameter is a space-delimited string of characters to represent
+          negativity, the decimal point, and grouping. The default value is `- . ,`.
+          The second options parameter defines an alternate delimiting character.
+
+          Note that numbers are rounded up at 5 or greater.
+          So, with precision set to 0, 1.5 becomes `2`, and 1.4 becomes `1`.
+
+          For a simpler function that adapts to the current language, see FormatNumber.
+        Examples:
+        - - '{{ lang.FormatNumberCustom 2 12345.6789 }}'
+          - 12,345.68
+        - - '{{ lang.FormatNumberCustom 2 12345.6789 "- , ." }}'
+          - 12.345,68
+        - - '{{ lang.FormatNumberCustom 6 -12345.6789 "- ." }}'
+          - "-12345.678900"
+        - - '{{ lang.FormatNumberCustom 0 -12345.6789 "- . ," }}'
+          - -12,346
+        - - '{{ lang.FormatNumberCustom 0 -12345.6789 "-|.| " "|" }}'
+          - -12 346
+        - - '{{ -98765.4321 | lang.FormatNumberCustom 2 }}'
+          - -98,765.43
+      FormatPercent:
+        Aliases: null
+        Args:
+        - precision
+        - number
+        Description: |-
+          FormatPercent formats number with the given precision for the current language.
+          Note that the number is assumed to be a percentage.
+        Examples:
+        - - '{{ 512.5032 | lang.FormatPercent 2 }}'
+          - 512.50%
+      Merge:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      NumFmt:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Translate:
+        Aliases:
+        - i18n
+        - T
+        Args:
+        - ctx
+        - id
+        - args
+        Description: Translate returns a translated string for id.
+        Examples: []
+    math:
+      Abs:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Abs returns the absolute value of n.
+        Examples:
+        - - '{{ math.Abs -2.1 }}'
+          - "2.1"
+      Add:
+        Aliases:
+        - add
+        Args:
+        - inputs
+        Description: Add adds the multivalued addends n1 and n2 or more values.
+        Examples:
+        - - '{{ add 1 2 }}'
+          - "3"
+      Ceil:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Ceil returns the least integer value greater than or equal to
+          n.
+        Examples:
+        - - '{{ math.Ceil 2.1 }}'
+          - "3"
+      Counter:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Div:
+        Aliases:
+        - div
+        Args:
+        - inputs
+        Description: Div divides n1 by n2.
+        Examples:
+        - - '{{ div 6 3 }}'
+          - "2"
+      Floor:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Floor returns the greatest integer value less than or equal to
+          n.
+        Examples:
+        - - '{{ math.Floor 1.9 }}'
+          - "1"
+      Log:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Log returns the natural logarithm of the number n.
+        Examples:
+        - - '{{ math.Log 1 }}'
+          - "0"
+      Max:
+        Aliases: null
+        Args:
+        - inputs
+        Description: Max returns the greater of all numbers in inputs. Any slices
+          in inputs are flattened.
+        Examples:
+        - - '{{ math.Max 1 2 }}'
+          - "2"
+      Min:
+        Aliases: null
+        Args:
+        - inputs
+        Description: Min returns the smaller of all numbers in inputs. Any slices
+          in inputs are flattened.
+        Examples:
+        - - '{{ math.Min 1 2 }}'
+          - "1"
+      Mod:
+        Aliases:
+        - mod
+        Args:
+        - n1
+        - n2
+        Description: Mod returns n1 % n2.
+        Examples:
+        - - '{{ mod 15 3 }}'
+          - "0"
+      ModBool:
+        Aliases:
+        - modBool
+        Args:
+        - n1
+        - n2
+        Description: ModBool returns the boolean of n1 % n2.  If n1 % n2 == 0, return
+          true.
+        Examples:
+        - - '{{ modBool 15 3 }}'
+          - "true"
+      Mul:
+        Aliases:
+        - mul
+        Args:
+        - inputs
+        Description: Mul multiplies the multivalued numbers n1 and n2 or more values.
+        Examples:
+        - - '{{ mul 2 3 }}'
+          - "6"
+      Pow:
+        Aliases:
+        - pow
+        Args:
+        - n1
+        - n2
+        Description: Pow returns n1 raised to the power of n2.
+        Examples:
+        - - '{{ math.Pow 2 3 }}'
+          - "8"
+      Product:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Round:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Round returns the integer nearest to n, rounding half away from
+          zero.
+        Examples:
+        - - '{{ math.Round 1.5 }}'
+          - "2"
+      Sqrt:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Sqrt returns the square root of the number n.
+        Examples:
+        - - '{{ math.Sqrt 81 }}'
+          - "9"
+      Sub:
+        Aliases:
+        - sub
+        Args:
+        - inputs
+        Description: Sub subtracts multivalued.
+        Examples:
+        - - '{{ sub 3 2 }}'
+          - "1"
+      Sum:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+    openapi3:
+      Unmarshal:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: []
+    os:
+      FileExists:
+        Aliases:
+        - fileExists
+        Args:
+        - i
+        Description: FileExists checks whether a file exists under the given path.
+        Examples:
+        - - '{{ fileExists "foo.txt" }}'
+          - "false"
+      Getenv:
+        Aliases:
+        - getenv
+        Args:
+        - key
+        Description: |-
+          Getenv retrieves the value of the environment variable named by the key.
+          It returns the value, which will be empty if the variable is not present.
+        Examples: []
+      ReadDir:
+        Aliases:
+        - readDir
+        Args:
+        - i
+        Description: ReadDir lists the directory contents relative to the configured
+          WorkingDir.
+        Examples:
+        - - '{{ range (readDir "files") }}{{ .Name }}{{ end }}'
+          - README.txt
+      ReadFile:
+        Aliases:
+        - readFile
+        Args:
+        - i
+        Description: |-
+          ReadFile reads the file named by filename relative to the configured WorkingDir.
+          It returns the contents as a string.
+          There is an upper size limit set at 1 megabytes.
+        Examples:
+        - - '{{ readFile "files/README.txt" }}'
+          - Hugo Rocks!
+      Stat:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+    partials:
+      Include:
+        Aliases:
+        - partial
+        Args:
+        - ctx
+        - name
+        - contextList
+        Description: |-
+          Include executes the named partial.
+          If the partial contains a return statement, that value will be returned.
+          Else, the rendered output will be returned:
+          A string if the partial is a text/template, or template.HTML when html/template.
+          Note that ctx is provided by Hugo, not the end user.
+        Examples:
+        - - '{{ partial "header.html" . }}'
+          - <title>Hugo Rocks!</title>
+      IncludeCached:
+        Aliases:
+        - partialCached
+        Args:
+        - ctx
+        - name
+        - context
+        - variants
+        Description: |-
+          IncludeCached executes and caches partial templates.  The cache is created with name+variants as the key.
+          Note that ctx is provided by Hugo, not the end user.
+        Examples: []
+    path:
+      Base:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      BaseName:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Clean:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Dir:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Ext:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Join:
+        Aliases: null
+        Args:
+        - elements
+        Description: |-
+          Join joins any number of path elements into a single path, adding a
+          separating slash if necessary. All the input
+          path elements are passed into filepath.ToSlash converting any Windows slashes
+          to forward slashes.
+          The result is Cleaned; in particular,
+          all empty strings are ignored.
+        Examples:
+        - - '{{ slice "my/path" "filename.txt" | path.Join }}'
+          - my/path/filename.txt
+        - - '{{ path.Join "my" "path" "filename.txt" }}'
+          - my/path/filename.txt
+        - - '{{ "my/path/filename.txt" | path.Ext }}'
+          - .txt
+        - - '{{ "my/path/filename.txt" | path.Base }}'
+          - filename.txt
+        - - '{{ "my/path/filename.txt" | path.Dir }}'
+          - my/path
+      Split:
+        Aliases: null
+        Args:
+        - path
+        Description: |-
+          Split splits path immediately following the final slash,
+          separating it into a directory and file name component.
+          If there is no slash in path, Split returns an empty dir and
+          file set to path.
+          The input path is passed into filepath.ToSlash converting any Windows slashes
+          to forward slashes.
+          The returned values have the property that path = dir+file.
+        Examples:
+        - - '{{ "/my/path/filename.txt" | path.Split }}'
+          - /my/path/|filename.txt
+        - - '{{ "/my/path/filename.txt" | path.Split }}'
+          - /my/path/|filename.txt
+    reflect:
+      IsMap:
+        Aliases: null
+        Args:
+        - v
+        Description: IsMap reports whether v is a map.
+        Examples:
+        - - '{{ if reflect.IsMap (dict "a" 1) }}Map{{ end }}'
+          - Map
+      IsSlice:
+        Aliases: null
+        Args:
+        - v
+        Description: IsSlice reports whether v is a slice.
+        Examples:
+        - - '{{ if reflect.IsSlice (slice 1 2 3) }}Slice{{ end }}'
+          - Slice
+    resources:
+      Babel:
+        Aliases:
+        - babel
+        Args:
+        - args
+        Description: Babel processes the given Resource with Babel.
+        Examples: []
+      ByType:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Concat:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Copy:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      ExecuteAsTemplate:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Fingerprint:
+        Aliases:
+        - fingerprint
+        Args:
+        - args
+        Description: |-
+          Fingerprint transforms the given Resource with a MD5 hash of the content in
+          the RelPermalink and Permalink.
+        Examples: []
+      FromString:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Get:
+        Aliases: null
+        Args:
+        - filename
+        Description: |-
+          Get locates the filename given in Hugo's assets filesystem
+          and creates a Resource object that can be used for further transformations.
+        Examples: []
+      GetMatch:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      GetRemote:
+        Aliases: null
+        Args:
+        - args
+        Description: |-
+          GetRemote gets the URL (via HTTP(s)) in the first argument in args and creates Resource object that can be used for
+          further transformations.
+
+          A second argument may be provided with an option map.
+
+          Note: This method does not return any error as a second return value,
+          for any error situations the error can be checked in .Err.
+        Examples: []
+      Match:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Minify:
+        Aliases:
+        - minify
+        Args:
+        - r
+        Description: |-
+          Minify minifies the given Resource using the MediaType to pick the correct
+          minifier.
+        Examples: []
+      PostCSS:
+        Aliases:
+        - postCSS
+        Args:
+        - args
+        Description: PostCSS processes the given Resource with PostCSS
+        Examples: []
+      PostProcess:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      ToCSS:
+        Aliases:
+        - toCSS
+        Args:
+        - args
+        Description: |-
+          ToCSS converts the given Resource to CSS. You can optional provide an Options object
+          as second argument. As an option, you can e.g. specify e.g. the target path (string)
+          for the converted CSS resource.
+        Examples: []
+    safe:
+      CSS:
+        Aliases:
+        - safeCSS
+        Args:
+        - s
+        Description: CSS returns the string s as html/template CSS content.
+        Examples:
+        - - '{{ "Bat&Man" | safeCSS | safeCSS }}'
+          - Bat&amp;Man
+      HTML:
+        Aliases:
+        - safeHTML
+        Args:
+        - s
+        Description: HTML returns the string s as html/template HTML content.
+        Examples:
+        - - '{{ "Bat&Man" | safeHTML | safeHTML }}'
+          - Bat&Man
+        - - '{{ "Bat&Man" | safeHTML }}'
+          - Bat&Man
+      HTMLAttr:
+        Aliases:
+        - safeHTMLAttr
+        Args:
+        - s
+        Description: HTMLAttr returns the string s as html/template HTMLAttr content.
+        Examples: []
+      JS:
+        Aliases:
+        - safeJS
+        Args:
+        - s
+        Description: JS returns the given string as a html/template JS content.
+        Examples:
+        - - '{{ "(1*2)" | safeJS | safeJS }}'
+          - (1*2)
+      JSStr:
+        Aliases:
+        - safeJSStr
+        Args:
+        - s
+        Description: JSStr returns the given string as a html/template JSStr content.
+        Examples: []
+      SanitizeURL:
+        Aliases:
+        - sanitizeURL
+        - sanitizeurl
+        Args:
+        - s
+        Description: SanitizeURL returns the string s as html/template URL content.
+        Examples: []
+      URL:
+        Aliases:
+        - safeURL
+        Args:
+        - s
+        Description: URL returns the string s as html/template URL content.
+        Examples:
+        - - '{{ "http://gohugo.io" | safeURL | safeURL }}'
+          - http://gohugo.io
+    site:
+      AllPages:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Author:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Authors:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      BaseURL:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      BuildDrafts:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Config:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Copyright:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Current:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Data:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      DisqusShortname:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      GetIdentity:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      GetPage:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      GetPageWithTemplateInfo:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      GoogleAnalytics:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Home:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Hugo:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      IsMultiLingual:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      IsServer:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Language:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      LanguageCode:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      LanguagePrefix:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Languages:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      LastChange:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      MainSections:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Menus:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Pages:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Param:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Params:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      RSSLink:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      RegularPages:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Sections:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      ServerPort:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Sites:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Social:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Taxonomies:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Title:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+    strings:
+      Chomp:
+        Aliases:
+        - chomp
+        Args:
+        - s
+        Description: Chomp returns a copy of s with all trailing newline characters
+          removed.
+        Examples:
+        - - '{{ chomp "<p>Blockhead</p>\n" | safeHTML }}'
+          - <p>Blockhead</p>
+      Contains:
+        Aliases: null
+        Args:
+        - s
+        - substr
+        Description: Contains reports whether substr is in s.
+        Examples:
+        - - '{{ strings.Contains "abc" "b" }}'
+          - "true"
+        - - '{{ strings.Contains "abc" "d" }}'
+          - "false"
+      ContainsAny:
+        Aliases: null
+        Args:
+        - s
+        - chars
+        Description: ContainsAny reports whether any Unicode code points in chars
+          are within s.
+        Examples:
+        - - '{{ strings.ContainsAny "abc" "bcd" }}'
+          - "true"
+        - - '{{ strings.ContainsAny "abc" "def" }}'
+          - "false"
+      ContainsNonSpace:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Count:
+        Aliases: null
+        Args:
+        - substr
+        - s
+        Description: |-
+          Count counts the number of non-overlapping instances of substr in s.
+          If substr is an empty string, Count returns 1 + the number of Unicode code points in s.
+        Examples:
+        - - '{{ "aabab" | strings.Count "a" }}'
+          - "3"
+      CountRunes:
+        Aliases:
+        - countrunes
+        Args:
+        - s
+        Description: CountRunes returns the number of runes in s, excluding whitespace.
+        Examples: []
+      CountWords:
+        Aliases:
+        - countwords
+        Args:
+        - s
+        Description: CountWords returns the approximate word count in s.
+        Examples: []
+      FindRE:
+        Aliases:
+        - findRE
+        Args:
+        - expr
+        - content
+        - limit
+        Description: |-
+          FindRE returns a list of strings that match the regular expression. By default all matches
+          will be included. The number of matches can be limited with an optional third parameter.
+        Examples:
+        - - '{{ findRE "[G|g]o" "Hugo is a static side generator written in Go." 1
+            }}'
+          - '[go]'
+      FindRESubmatch:
+        Aliases:
+        - findRESubmatch
+        Args:
+        - expr
+        - content
+        - limit
+        Description: |-
+          FindRESubmatch returns a slice of all successive matches of the regular
+          expression in content. Each element is a slice of strings holding the text
+          of the leftmost match of the regular expression and the matches, if any, of
+          its subexpressions.
+
+          By default all matches will be included. The number of matches can be
+          limited with the optional limit parameter. A return value of nil indicates
+          no match.
+        Examples:
+        - - '{{ findRESubmatch `<a\s*href="(.+?)">(.+?)</a>` `<li><a href="#foo">Foo</a></li>
+            <li><a href="#bar">Bar</a></li>` | print | safeHTML }}'
+          - '[[<a href="#foo">Foo</a> #foo Foo] [<a href="#bar">Bar</a> #bar Bar]]'
+      FirstUpper:
+        Aliases: null
+        Args:
+        - s
+        Description: FirstUpper converts s making  the first character upper case.
+        Examples:
+        - - '{{ "hugo rocks!" | strings.FirstUpper }}'
+          - Hugo rocks!
+      HasPrefix:
+        Aliases:
+        - hasPrefix
+        Args:
+        - s
+        - prefix
+        Description: HasPrefix tests whether the input s begins with prefix.
+        Examples:
+        - - '{{ hasPrefix "Hugo" "Hu" }}'
+          - "true"
+        - - '{{ hasPrefix "Hugo" "Fu" }}'
+          - "false"
+      HasSuffix:
+        Aliases:
+        - hasSuffix
+        Args:
+        - s
+        - suffix
+        Description: HasSuffix tests whether the input s begins with suffix.
+        Examples:
+        - - '{{ hasSuffix "Hugo" "go" }}'
+          - "true"
+        - - '{{ hasSuffix "Hugo" "du" }}'
+          - "false"
+      Repeat:
+        Aliases: null
+        Args:
+        - "n"
+        - s
+        Description: Repeat returns a new string consisting of n copies of the string
+          s.
+        Examples:
+        - - '{{ "yo" | strings.Repeat 4 }}'
+          - yoyoyoyo
+      Replace:
+        Aliases:
+        - replace
+        Args:
+        - s
+        - old
+        - new
+        - limit
+        Description: |-
+          Replace returns a copy of the string s with all occurrences of old replaced
+          with new.  The number of replacements can be limited with an optional fourth
+          parameter.
+        Examples:
+        - - '{{ replace "Batman and Robin" "Robin" "Catwoman" }}'
+          - Batman and Catwoman
+        - - '{{ replace "aabbaabb" "a" "z" 2 }}'
+          - zzbbaabb
+      ReplaceRE:
+        Aliases:
+        - replaceRE
+        Args:
+        - pattern
+        - repl
+        - s
+        - "n"
+        Description: |-
+          ReplaceRE returns a copy of s, replacing all matches of the regular
+          expression pattern with the replacement text repl. The number of replacements
+          can be limited with an optional fourth parameter.
+        Examples:
+        - - '{{ replaceRE "a+b" "X" "aabbaabbab" }}'
+          - XbXbX
+        - - '{{ replaceRE "a+b" "X" "aabbaabbab" 1 }}'
+          - Xbaabbab
+      RuneCount:
+        Aliases: null
+        Args:
+        - s
+        Description: RuneCount returns the number of runes in s.
+        Examples: []
+      SliceString:
+        Aliases:
+        - slicestr
+        Args:
+        - a
+        - startEnd
+        Description: |-
+          SliceString slices a string by specifying a half-open range with
+          two indices, start and end. 1 and 4 creates a slice including elements 1 through 3.
+          The end index can be omitted, it defaults to the string's length.
+        Examples:
+        - - '{{ slicestr "BatMan" 0 3 }}'
+          - Bat
+        - - '{{ slicestr "BatMan" 3 }}'
+          - Man
+      Split:
+        Aliases:
+        - split
+        Args:
+        - a
+        - delimiter
+        Description: Split slices an input string into all substrings separated by
+          delimiter.
+        Examples: []
+      Substr:
+        Aliases:
+        - substr
+        Args:
+        - a
+        - nums
+        Description: |-
+          Substr extracts parts of a string, beginning at the character at the specified
+          position, and returns the specified number of characters.
+
+          It normally takes two parameters: start and length.
+          It can also take one parameter: start, i.e. length is omitted, in which case
+          the substring starting from start until the end of the string will be returned.
+
+          To extract characters from the end of the string, use a negative start number.
+
+          In addition, borrowing from the extended behavior described at http://php.net/substr,
+          if length is given and is negative, then that many characters will be omitted from
+          the end of string.
+        Examples:
+        - - '{{ substr "BatMan" 0 -3 }}'
+          - Bat
+        - - '{{ substr "BatMan" 3 3 }}'
+          - Man
+      Title:
+        Aliases:
+        - title
+        Args:
+        - s
+        Description: |-
+          Title returns a copy of the input s with all Unicode letters that begin words
+          mapped to their title case.
+        Examples:
+        - - '{{ title "Bat man" }}'
+          - Bat Man
+        - - '{{ title "somewhere over the rainbow" }}'
+          - Somewhere Over the Rainbow
+      ToLower:
+        Aliases:
+        - lower
+        Args:
+        - s
+        Description: |-
+          ToLower returns a copy of the input s with all Unicode letters mapped to their
+          lower case.
+        Examples:
+        - - '{{ lower "BatMan" }}'
+          - batman
+      ToUpper:
+        Aliases:
+        - upper
+        Args:
+        - s
+        Description: |-
+          ToUpper returns a copy of the input s with all Unicode letters mapped to their
+          upper case.
+        Examples:
+        - - '{{ upper "BatMan" }}'
+          - BATMAN
+      Trim:
+        Aliases:
+        - trim
+        Args:
+        - s
+        - cutset
+        Description: |-
+          Trim returns converts the strings s removing all leading and trailing characters defined
+          contained.
+        Examples:
+        - - '{{ trim "++Batman--" "+-" }}'
+          - Batman
+      TrimLeft:
+        Aliases: null
+        Args:
+        - cutset
+        - s
+        Description: |-
+          TrimLeft returns a slice of the string s with all leading characters
+          contained in cutset removed.
+        Examples:
+        - - '{{ "aabbaa" | strings.TrimLeft "a" }}'
+          - bbaa
+      TrimPrefix:
+        Aliases: null
+        Args:
+        - prefix
+        - s
+        Description: |-
+          TrimPrefix returns s without the provided leading prefix string. If s doesn't
+          start with prefix, s is returned unchanged.
+        Examples:
+        - - '{{ "aabbaa" | strings.TrimPrefix "a" }}'
+          - abbaa
+        - - '{{ "aabbaa" | strings.TrimPrefix "aa" }}'
+          - bbaa
+      TrimRight:
+        Aliases: null
+        Args:
+        - cutset
+        - s
+        Description: |-
+          TrimRight returns a slice of the string s with all trailing characters
+          contained in cutset removed.
+        Examples:
+        - - '{{ "aabbaa" | strings.TrimRight "a" }}'
+          - aabb
+      TrimSuffix:
+        Aliases: null
+        Args:
+        - suffix
+        - s
+        Description: |-
+          TrimSuffix returns s without the provided trailing suffix string. If s
+          doesn't end with suffix, s is returned unchanged.
+        Examples:
+        - - '{{ "aabbaa" | strings.TrimSuffix "a" }}'
+          - aabba
+        - - '{{ "aabbaa" | strings.TrimSuffix "aa" }}'
+          - aabb
+      Truncate:
+        Aliases:
+        - truncate
+        Args:
+        - s
+        - options
+        Description: Truncate truncates the string in s to the specified length.
+        Examples:
+        - - '{{ "this is a very long text" | truncate 10 " ..." }}'
+          - this is a ...
+        - - '{{ "With [Markdown](/markdown) inside." | markdownify | truncate 14 }}'
+          - With <a href="/markdown">Markdown …</a>
+    templates:
+      Exists:
+        Aliases: null
+        Args:
+        - name
+        Description: |-
+          Exists returns whether the template with the given name exists.
+          Note that this is the Unix-styled relative path including filename suffix,
+          e.g. partials/header.html
+        Examples:
+        - - '{{ if (templates.Exists "partials/header.html") }}Yes!{{ end }}'
+          - Yes!
+        - - '{{ if not (templates.Exists "partials/doesnotexist.html") }}No!{{ end
+            }}'
+          - No!
+    time:
+      AsTime:
+        Aliases: null
+        Args:
+        - v
+        - args
+        Description: |-
+          AsTime converts the textual representation of the datetime string into
+          a time.Time interface.
+        Examples:
+        - - '{{ (time "2015-01-21").Year }}'
+          - "2015"
+      Duration:
+        Aliases:
+        - duration
+        Args:
+        - unit
+        - number
+        Description: |-
+          Duration converts the given number to a time.Duration.
+          Unit is one of nanosecond/ns, microsecond/us/µs, millisecond/ms, second/s, minute/m or hour/h.
+        Examples:
+        - - '{{ mul 60 60 | duration "second" }}'
+          - 1h0m0s
+      Format:
+        Aliases:
+        - dateFormat
+        Args:
+        - layout
+        - v
+        Description: |-
+          Format converts the textual representation of the datetime string in v into
+          time.Time if needed and formats it with the given layout.
+        Examples:
+        - - 'dateFormat: {{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}'
+          - 'dateFormat: Wednesday, Jan 21, 2015'
+      Now:
+        Aliases:
+        - now
+        Args: null
+        Description: Now returns the current local time or `clock` time
+        Examples: []
+      ParseDuration:
+        Aliases: null
+        Args:
+        - s
+        Description: |-
+          ParseDuration parses the duration string s.
+          A duration string is a possibly signed sequence of
+          decimal numbers, each with optional fraction and a unit suffix,
+          such as "300ms", "-1.5h" or "2h45m".
+          Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
+          See https://golang.org/pkg/time/#ParseDuration
+        Examples:
+        - - '{{ "1h12m10s" | time.ParseDuration }}'
+          - 1h12m10s
+    transform:
+      CanHighlight:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Emojify:
+        Aliases:
+        - emojify
+        Args:
+        - s
+        Description: |-
+          Emojify returns a copy of s with all emoji codes replaced with actual emojis.
+
+          See http://www.emoji-cheat-sheet.com/
+        Examples:
+        - - '{{ "I :heart: Hugo" | emojify }}'
+          - I ❤️ Hugo
+      HTMLEscape:
+        Aliases:
+        - htmlEscape
+        Args:
+        - s
+        Description: HTMLEscape returns a copy of s with reserved HTML characters
+          escaped.
+        Examples:
+        - - '{{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>" |
+            safeHTML }}'
+          - Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;
+        - - '{{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>" }}'
+          - Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;
+        - - '{{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>" |
+            htmlUnescape | safeHTML }}'
+          - Cathal Garvey & The Sunshine Band <cathal@foo.bar>
+      HTMLUnescape:
+        Aliases:
+        - htmlUnescape
+        Args:
+        - s
+        Description: |-
+          HTMLUnescape returns a copy of s with HTML escape requences converted to plain
+          text.
+        Examples:
+        - - '{{ htmlUnescape "Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;"
+            | safeHTML }}'
+          - Cathal Garvey & The Sunshine Band <cathal@foo.bar>
+        - - '{{ "Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;"
+            | htmlUnescape | htmlUnescape | safeHTML }}'
+          - Cathal Garvey & The Sunshine Band <cathal@foo.bar>
+        - - '{{ "Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;"
+            | htmlUnescape | htmlUnescape }}'
+          - Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;
+        - - '{{ htmlUnescape "Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;"
+            | htmlEscape | safeHTML }}'
+          - Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;
+      Highlight:
+        Aliases:
+        - highlight
+        Args:
+        - s
+        - lang
+        - opts
+        Description: |-
+          Highlight returns a copy of s as an HTML string with syntax
+          highlighting applied.
+        Examples: []
+      HighlightCodeBlock:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Markdownify:
+        Aliases:
+        - markdownify
+        Args:
+        - ctx
+        - s
+        Description: Markdownify renders s from Markdown to HTML.
+        Examples:
+        - - '{{ .Title | markdownify }}'
+          - <strong>BatMan</strong>
+      Plainify:
+        Aliases:
+        - plainify
+        Args:
+        - s
+        Description: Plainify returns a copy of s with all HTML tags removed.
+        Examples:
+        - - '{{ plainify  "Hello <strong>world</strong>, gophers!" }}'
+          - Hello world, gophers!
+      Remarshal:
+        Aliases: null
+        Args:
+        - format
+        - data
+        Description: |-
+          Remarshal is used in the Hugo documentation to convert configuration
+          examples from YAML to JSON, TOML (and possibly the other way around).
+          The is primarily a helper for the Hugo docs site.
+          It is not a general purpose YAML to TOML converter etc., and may
+          change without notice if it serves a purpose in the docs.
+          Format is one of json, yaml or toml.
+        Examples:
+        - - '{{ "title = \"Hello World\"" | transform.Remarshal "json" | safeHTML
+            }}'
+          - |
+            {
+               "title": "Hello World"
+            }
+      Unmarshal:
+        Aliases:
+        - unmarshal
+        Args:
+        - args
+        Description: |-
+          Unmarshal unmarshals the data given, which can be either a string, json.RawMessage
+          or a Resource. Supported formats are JSON, TOML, YAML, and CSV.
+          You can optionally provide an options map as the first argument.
+        Examples:
+        - - '{{ "hello = \"Hello World\"" | transform.Unmarshal }}'
+          - map[hello:Hello World]
+        - - '{{ "hello = \"Hello World\"" | resources.FromString "data/greetings.toml"
+            | transform.Unmarshal }}'
+          - map[hello:Hello World]
+    urls:
+      AbsLangURL:
+        Aliases:
+        - absLangURL
+        Args:
+        - s
+        Description: |-
+          AbsLangURL the string s and converts it to an absolute URL according
+          to a page's position in the project directory structure and the current
+          language.
+        Examples: []
+      AbsURL:
+        Aliases:
+        - absURL
+        Args:
+        - s
+        Description: AbsURL takes the string s and converts it to an absolute URL.
+        Examples: []
+      Anchorize:
+        Aliases:
+        - anchorize
+        Args:
+        - s
+        Description: |-
+          Anchorize creates sanitized anchor name version of the string s that is compatible
+          with how your configured markdown renderer does it.
+        Examples:
+        - - '{{ "This is a title" | anchorize }}'
+          - this-is-a-title
+      JoinPath:
+        Aliases: null
+        Args:
+        - elements
+        Description: |-
+          JoinPath joins the provided elements into a URL string and cleans the result
+          of any ./ or ../ elements. If the argument list is empty, JoinPath returns
+          an empty string.
+        Examples:
+        - - '{{ urls.JoinPath "https://example.org" "foo" }}'
+          - https://example.org/foo
+        - - '{{ urls.JoinPath (slice "a" "b") }}'
+          - a/b
+      Parse:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Ref:
+        Aliases:
+        - ref
+        Args:
+        - p
+        - args
+        Description: Ref returns the absolute URL path to a given content item from
+          Page p.
+        Examples: []
+      RelLangURL:
+        Aliases:
+        - relLangURL
+        Args:
+        - s
+        Description: |-
+          RelLangURL takes the string s and prepends the relative path according to a
+          page's position in the project directory structure and the current language.
+        Examples: []
+      RelRef:
+        Aliases:
+        - relref
+        Args:
+        - p
+        - args
+        Description: RelRef returns the relative URL path to a given content item
+          from Page p.
+        Examples: []
+      RelURL:
+        Aliases:
+        - relURL
+        Args:
+        - s
+        Description: |-
+          RelURL takes the string s and prepends the relative path according to a
+          page's position in the project directory structure.
+        Examples: []
+      URLize:
+        Aliases:
+        - urlize
+        Args:
+        - s
+        Description: URLize returns the the strings s formatted as an URL.
+        Examples: []

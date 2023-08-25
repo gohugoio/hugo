@@ -50,30 +50,18 @@ type ContentSpec struct {
 	anchorNameSanitizer converter.AnchorNameSanitizer
 	getRenderer         func(t hooks.RendererType, id any) any
 
-	// SummaryLength is the length of the summary that Hugo extracts from a content.
-	summaryLength int
-
-	BuildFuture  bool
-	BuildExpired bool
-	BuildDrafts  bool
-
-	Cfg config.Provider
+	Cfg config.AllProvider
 }
 
 // NewContentSpec returns a ContentSpec initialized
 // with the appropriate fields from the given config.Provider.
-func NewContentSpec(cfg config.Provider, logger loggers.Logger, contentFs afero.Fs, ex *hexec.Exec) (*ContentSpec, error) {
+func NewContentSpec(cfg config.AllProvider, logger loggers.Logger, contentFs afero.Fs, ex *hexec.Exec) (*ContentSpec, error) {
 	spec := &ContentSpec{
-		summaryLength: cfg.GetInt("summaryLength"),
-		BuildFuture:   cfg.GetBool("buildFuture"),
-		BuildExpired:  cfg.GetBool("buildExpired"),
-		BuildDrafts:   cfg.GetBool("buildDrafts"),
-
 		Cfg: cfg,
 	}
 
 	converterProvider, err := markup.NewConverterProvider(converter.ProviderConfig{
-		Cfg:       cfg,
+		Conf:      cfg,
 		ContentFs: contentFs,
 		Logger:    logger,
 		Exec:      ex,
@@ -157,6 +145,9 @@ func (c *ContentSpec) SanitizeAnchorName(s string) string {
 }
 
 func (c *ContentSpec) ResolveMarkup(in string) string {
+	if c == nil {
+		panic("nil ContentSpec")
+	}
 	in = strings.ToLower(in)
 	switch in {
 	case "md", "markdown", "mdown":
@@ -194,17 +185,17 @@ func (c *ContentSpec) TruncateWordsByRune(in []string) (string, bool) {
 
 	count := 0
 	for index, word := range words {
-		if count >= c.summaryLength {
+		if count >= c.Cfg.SummaryLength() {
 			return strings.Join(words[:index], " "), true
 		}
 		runeCount := utf8.RuneCountInString(word)
 		if len(word) == runeCount {
 			count++
-		} else if count+runeCount < c.summaryLength {
+		} else if count+runeCount < c.Cfg.SummaryLength() {
 			count += runeCount
 		} else {
 			for ri := range word {
-				if count >= c.summaryLength {
+				if count >= c.Cfg.SummaryLength() {
 					truncatedWords := append(words[:index], word[:ri])
 					return strings.Join(truncatedWords, " "), true
 				}
@@ -229,7 +220,7 @@ func (c *ContentSpec) TruncateWordsToWholeSentence(s string) (string, bool) {
 			wordCount++
 			lastWordIndex = i
 
-			if wordCount >= c.summaryLength {
+			if wordCount >= c.Cfg.SummaryLength() {
 				break
 			}
 
@@ -283,19 +274,19 @@ func isEndOfSentence(r rune) bool {
 func (c *ContentSpec) truncateWordsToWholeSentenceOld(content string) (string, bool) {
 	words := strings.Fields(content)
 
-	if c.summaryLength >= len(words) {
+	if c.Cfg.SummaryLength() >= len(words) {
 		return strings.Join(words, " "), false
 	}
 
-	for counter, word := range words[c.summaryLength:] {
+	for counter, word := range words[c.Cfg.SummaryLength():] {
 		if strings.HasSuffix(word, ".") ||
 			strings.HasSuffix(word, "?") ||
 			strings.HasSuffix(word, ".\"") ||
 			strings.HasSuffix(word, "!") {
-			upper := c.summaryLength + counter + 1
+			upper := c.Cfg.SummaryLength() + counter + 1
 			return strings.Join(words[:upper], " "), (upper < len(words))
 		}
 	}
 
-	return strings.Join(words[:c.summaryLength], " "), true
+	return strings.Join(words[:c.Cfg.SummaryLength()], " "), true
 }

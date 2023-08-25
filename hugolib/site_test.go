@@ -14,9 +14,9 @@
 package hugolib
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -28,6 +28,7 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 )
 
@@ -36,19 +37,10 @@ const (
 	templateWithURLAbs  = "<a href=\"/foobar.jpg\">Going</a>"
 )
 
-func TestRenderWithInvalidTemplate(t *testing.T) {
-	t.Parallel()
-	cfg, fs := newTestCfg()
-
-	writeSource(t, fs, filepath.Join("content", "foo.md"), "foo")
-
-	withTemplate := createWithTemplateFromNameValues("missing", templateMissingFunc)
-
-	buildSingleSiteExpected(t, true, false, deps.DepsCfg{Fs: fs, Cfg: cfg, WithTemplate: withTemplate}, BuildCfg{})
-}
-
 func TestDraftAndFutureRender(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
+
 	sources := [][2]string{
 		{filepath.FromSlash("sect/doc1.md"), "---\ntitle: doc1\ndraft: true\npublishdate: \"2414-05-29\"\n---\n# doc1\n*some content*"},
 		{filepath.FromSlash("sect/doc2.md"), "---\ntitle: doc2\ndraft: true\npublishdate: \"2012-05-29\"\n---\n# doc2\n*some content*"},
@@ -64,12 +56,14 @@ func TestDraftAndFutureRender(t *testing.T) {
 		for i := 0; i < len(configKeyValues); i += 2 {
 			cfg.Set(configKeyValues[i].(string), configKeyValues[i+1])
 		}
+		configs, err := loadTestConfigFromProvider(cfg)
+		c.Assert(err, qt.IsNil)
 
 		for _, src := range sources {
 			writeSource(t, fs, filepath.Join("content", src[0]), src[1])
 		}
 
-		return buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+		return buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
 	}
 
 	// Testing Defaults.. Only draft:true and publishDate in the past should be rendered
@@ -105,6 +99,7 @@ func TestDraftAndFutureRender(t *testing.T) {
 
 func TestFutureExpirationRender(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 	sources := [][2]string{
 		{filepath.FromSlash("sect/doc3.md"), "---\ntitle: doc1\nexpirydate: \"2400-05-29\"\n---\n# doc1\n*some content*"},
 		{filepath.FromSlash("sect/doc4.md"), "---\ntitle: doc2\nexpirydate: \"2000-05-29\"\n---\n# doc2\n*some content*"},
@@ -114,11 +109,14 @@ func TestFutureExpirationRender(t *testing.T) {
 		cfg, fs := newTestCfg()
 		cfg.Set("baseURL", "http://auth/bub")
 
+		configs, err := loadTestConfigFromProvider(cfg)
+		c.Assert(err, qt.IsNil)
+
 		for _, src := range sources {
 			writeSource(t, fs, filepath.Join("content", src[0]), src[1])
 		}
 
-		return buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+		return buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
 	}
 
 	s := siteSetup(t)
@@ -143,6 +141,8 @@ func TestLastChange(t *testing.T) {
 
 	cfg, fs := newTestCfg()
 	c := qt.New(t)
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
 	writeSource(t, fs, filepath.Join("content", "sect/doc1.md"), "---\ntitle: doc1\nweight: 1\ndate: 2014-05-29\n---\n# doc1\n*some content*")
 	writeSource(t, fs, filepath.Join("content", "sect/doc2.md"), "---\ntitle: doc2\nweight: 2\ndate: 2015-05-29\n---\n# doc2\n*some content*")
@@ -150,22 +150,24 @@ func TestLastChange(t *testing.T) {
 	writeSource(t, fs, filepath.Join("content", "sect/doc4.md"), "---\ntitle: doc4\nweight: 4\ndate: 2016-05-29\n---\n# doc4\n*some content*")
 	writeSource(t, fs, filepath.Join("content", "sect/doc5.md"), "---\ntitle: doc5\nweight: 3\n---\n# doc5\n*some content*")
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
 
-	c.Assert(s.Info.LastChange().IsZero(), qt.Equals, false)
-	c.Assert(s.Info.LastChange().Year(), qt.Equals, 2017)
+	c.Assert(s.LastChange().IsZero(), qt.Equals, false)
+	c.Assert(s.LastChange().Year(), qt.Equals, 2017)
 }
 
 // Issue #_index
 func TestPageWithUnderScoreIndexInFilename(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 
 	cfg, fs := newTestCfg()
-	c := qt.New(t)
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
 	writeSource(t, fs, filepath.Join("content", "sect/my_index_file.md"), "---\ntitle: doc1\nweight: 1\ndate: 2014-05-29\n---\n# doc1\n*some content*")
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 1)
 }
@@ -239,23 +241,25 @@ THE END.`, refShortcode),
 	cfg.Set("baseURL", baseURL)
 	cfg.Set("uglyURLs", uglyURLs)
 	cfg.Set("verbose", true)
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
 	for _, src := range sources {
 		writeSource(t, fs, filepath.Join("content", src[0]), src[1])
 	}
+	writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), "{{.Content}}")
 
 	s := buildSingleSite(
 		t,
 		deps.DepsCfg{
-			Fs:           fs,
-			Cfg:          cfg,
-			WithTemplate: createWithTemplateFromNameValues("_default/single.html", "{{.Content}}"),
+			Fs:      fs,
+			Configs: configs,
 		},
 		BuildCfg{})
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 4)
 
-	th := newTestHelper(s.Cfg, s.Fs, t)
+	th := newTestHelper(s.conf, s.Fs, t)
 
 	tests := []struct {
 		doc      string
@@ -289,6 +293,9 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 	cfg.Set("baseURL", "http://auth/bub")
 	cfg.Set("uglyURLs", uglyURLs)
 
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
+
 	sources := [][2]string{
 		{filepath.FromSlash("sect/doc1.md"), "---\nmarkup: markdown\n---\n# title\nsome *content*"},
 		{filepath.FromSlash("sect/doc2.md"), "---\nurl: /ugly.html\nmarkup: markdown\n---\n# title\ndoc2 *content*"},
@@ -304,7 +311,7 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 	writeSource(t, fs, filepath.Join("layouts", "rss.xml"), "<root>RSS</root>")
 	writeSource(t, fs, filepath.Join("layouts", "sitemap.xml"), "<root>SITEMAP</root>")
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
 
 	var expectedPagePath string
 	if uglyURLs {
@@ -341,14 +348,18 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 
 // Issue #3355
 func TestShouldNotWriteZeroLengthFilesToDestination(t *testing.T) {
+	c := qt.New(t)
+
 	cfg, fs := newTestCfg()
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
 	writeSource(t, fs, filepath.Join("content", "simple.html"), "simple")
 	writeSource(t, fs, filepath.Join("layouts", "_default/single.html"), "{{.Content}}")
 	writeSource(t, fs, filepath.Join("layouts", "_default/list.html"), "")
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
-	th := newTestHelper(s.Cfg, s.Fs, t)
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
+	th := newTestHelper(s.conf, s.Fs, t)
 
 	th.assertFileNotExist(filepath.Join("public", "index.html"))
 }
@@ -357,7 +368,7 @@ func TestMainSections(t *testing.T) {
 	c := qt.New(t)
 	for _, paramSet := range []bool{false, true} {
 		c.Run(fmt.Sprintf("param-%t", paramSet), func(c *qt.C) {
-			v := config.NewWithTestDefaults()
+			v := config.New()
 			if paramSet {
 				v.Set("params", map[string]any{
 					"mainSections": []string{"a1", "a2"},
@@ -407,6 +418,101 @@ Main section page: {{ .RelPermalink }}
 	}
 }
 
+func TestMainSectionsMoveToSite(t *testing.T) {
+
+	t.Run("defined in params", func(t *testing.T) {
+		t.Parallel()
+
+		files := `
+-- config.toml --
+disableKinds = ['RSS','sitemap','taxonomy','term']
+[params]
+mainSections=["a", "b"]
+-- content/mysect/page1.md --
+-- layouts/index.html --
+{{/* Behaviour before Hugo 0.112.0. */}}
+MainSections Params: {{ site.Params.mainSections }}|
+MainSections Site method: {{ site.MainSections }}|
+	
+	
+	`
+
+		b := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		).Build()
+
+		b.AssertFileContent("public/index.html", `
+MainSections Params: [a b]|
+MainSections Site method: [a b]|
+	`)
+	})
+
+	t.Run("defined in top level config", func(t *testing.T) {
+		t.Parallel()
+
+		files := `
+-- config.toml --
+disableKinds = ['RSS','sitemap','taxonomy','term']
+mainSections=["a", "b"]
+[params]
+[params.sub]
+mainSections=["c", "d"]
+-- content/mysect/page1.md --
+-- layouts/index.html --
+{{/* Behaviour before Hugo 0.112.0. */}}
+MainSections Params: {{ site.Params.mainSections }}|
+MainSections Param sub: {{ site.Params.sub.mainSections }}|
+MainSections Site method: {{ site.MainSections }}|
+
+
+`
+
+		b := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		).Build()
+
+		b.AssertFileContent("public/index.html", `
+MainSections Params: [a b]|
+MainSections Param sub: [c d]|
+MainSections Site method: [a b]|
+`)
+	})
+
+	t.Run("guessed from pages", func(t *testing.T) {
+		t.Parallel()
+
+		files := `
+-- config.toml --
+disableKinds = ['RSS','sitemap','taxonomy','term']
+-- content/mysect/page1.md --
+-- layouts/index.html --
+MainSections Params: {{ site.Params.mainSections }}|
+MainSections Site method: {{ site.MainSections }}|
+	
+	
+	`
+
+		b := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		).Build()
+
+		b.AssertFileContent("public/index.html", `
+MainSections Params: [mysect]|
+MainSections Site method: [mysect]|
+	`)
+	})
+
+}
+
 // Issue #1176
 func TestSectionNaming(t *testing.T) {
 	for _, canonify := range []bool{true, false} {
@@ -450,6 +556,9 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 	cfg.Set("pluralizeListTitles", pluralize)
 	cfg.Set("canonifyURLs", canonify)
 
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
+
 	for _, src := range sources {
 		writeSource(t, fs, filepath.Join("content", src[0]), src[1])
 	}
@@ -457,13 +566,11 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 	writeSource(t, fs, filepath.Join("layouts", "_default/single.html"), "{{.Content}}")
 	writeSource(t, fs, filepath.Join("layouts", "_default/list.html"), "{{ .Kind }}|{{.Title}}")
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
 
-	mainSections, err := s.Info.Param("mainSections")
-	c.Assert(err, qt.IsNil)
-	c.Assert(mainSections, qt.DeepEquals, []string{"sect"})
+	c.Assert(s.MainSections(), qt.DeepEquals, []string{"sect"})
 
-	th := newTestHelper(s.Cfg, s.Fs, t)
+	th := newTestHelper(s.conf, s.Fs, t)
 	tests := []struct {
 		doc         string
 		pluralAware bool
@@ -489,6 +596,7 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 
 func TestAbsURLify(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 	sources := [][2]string{
 		{filepath.FromSlash("sect/doc1.html"), "<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>"},
 		{filepath.FromSlash("blue/doc2.html"), "---\nf: t\n---\n<!doctype html><html><body>more content</body></html>"},
@@ -502,14 +610,17 @@ func TestAbsURLify(t *testing.T) {
 			cfg.Set("canonifyURLs", canonify)
 			cfg.Set("baseURL", baseURL)
 
+			configs, err := loadTestConfigFromProvider(cfg)
+			c.Assert(err, qt.IsNil)
+
 			for _, src := range sources {
 				writeSource(t, fs, filepath.Join("content", src[0]), src[1])
 			}
 
 			writeSource(t, fs, filepath.Join("layouts", "blue/single.html"), templateWithURLAbs)
 
-			s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
-			th := newTestHelper(s.Cfg, s.Fs, t)
+			s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
+			th := newTestHelper(s.conf, s.Fs, t)
 
 			tests := []struct {
 				file, expected string
@@ -595,16 +706,19 @@ var weightedSources = [][2]string{
 
 func TestOrderedPages(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
 	cfg, fs := newTestCfg()
 	cfg.Set("baseURL", "http://auth/bub")
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
 	for _, src := range weightedSources {
 		writeSource(t, fs, filepath.Join("content", src[0]), src[1])
 	}
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
 
-	if s.getPage(page.KindSection, "sect").Pages()[1].Title() != "Three" || s.getPage(page.KindSection, "sect").Pages()[2].Title() != "Four" {
+	if s.getPage(kinds.KindSection, "sect").Pages()[1].Title() != "Three" || s.getPage(kinds.KindSection, "sect").Pages()[2].Title() != "Four" {
 		t.Error("Pages in unexpected order.")
 	}
 
@@ -630,7 +744,7 @@ func TestOrderedPages(t *testing.T) {
 		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "Three", rbypubdate[0].Title())
 	}
 
-	bylength := s.RegularPages().ByLength()
+	bylength := s.RegularPages().ByLength(context.Background())
 	if bylength[0].Title() != "One" {
 		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "One", bylength[0].Title())
 	}
@@ -650,19 +764,17 @@ var groupedSources = [][2]string{
 
 func TestGroupedPages(t *testing.T) {
 	t.Parallel()
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("Recovered in f", r)
-		}
-	}()
+	c := qt.New(t)
 
 	cfg, fs := newTestCfg()
 	cfg.Set("baseURL", "http://auth/bub")
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
 	writeSourcesToSource(t, "content", fs, groupedSources...)
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
 
-	rbysection, err := s.RegularPages().GroupBy("Section", "desc")
+	rbysection, err := s.RegularPages().GroupBy(context.Background(), "Section", "desc")
 	if err != nil {
 		t.Fatalf("Unable to make PageGroup array: %s", err)
 	}
@@ -683,7 +795,7 @@ func TestGroupedPages(t *testing.T) {
 		t.Errorf("PageGroup has unexpected number of pages. Third group should have '%d' pages, got '%d' pages", 2, len(rbysection[2].Pages))
 	}
 
-	bytype, err := s.RegularPages().GroupBy("Type", "asc")
+	bytype, err := s.RegularPages().GroupBy(context.Background(), "Type", "asc")
 	if err != nil {
 		t.Fatalf("Unable to make PageGroup array: %s", err)
 	}
@@ -816,6 +928,8 @@ Front Matter with weighted tags and categories`
 
 func TestWeightedTaxonomies(t *testing.T) {
 	t.Parallel()
+	c := qt.New(t)
+
 	sources := [][2]string{
 		{filepath.FromSlash("sect/doc1.md"), pageWithWeightedTaxonomies2},
 		{filepath.FromSlash("sect/doc2.md"), pageWithWeightedTaxonomies1},
@@ -830,9 +944,11 @@ func TestWeightedTaxonomies(t *testing.T) {
 
 	cfg.Set("baseURL", "http://auth/bub")
 	cfg.Set("taxonomies", taxonomies)
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
 	writeSourcesToSource(t, "content", fs, sources...)
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
 
 	if s.Taxonomies()["tags"]["a"][0].Page.Title() != "foo" {
 		t.Errorf("Pages in unexpected order, 'foo' expected first, got '%v'", s.Taxonomies()["tags"]["a"][0].Page.Title())
@@ -882,15 +998,20 @@ func setupLinkingMockSite(t *testing.T) *Site {
 	})
 	cfg.Set("pluralizeListTitles", false)
 	cfg.Set("canonifyURLs", false)
+	configs, err := loadTestConfigFromProvider(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	writeSourcesToSource(t, "content", fs, sources...)
-	return buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	return buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
 }
 
 func TestRefLinking(t *testing.T) {
 	t.Parallel()
 	site := setupLinkingMockSite(t)
 
-	currentPage := site.getPage(page.KindPage, "level2/level3/start.md")
+	currentPage := site.getPage(kinds.KindPage, "level2/level3/start.md")
 	if currentPage == nil {
 		t.Fatalf("failed to find current page in site")
 	}
@@ -995,7 +1116,7 @@ minify = %t
 
 Some text.
 
-<div class="c d e" id="el2">Foo</div>
+<div class="c d e [&>p]:text-red-600" id="el2">Foo</div>
 
 <span class=z>FOO</span>
 
@@ -1023,6 +1144,7 @@ Some text.
               "d",
               "e",
               "hover:text-gradient",
+			  "[&>p]:text-red-600",
               "inline-block",
               "lowercase",
               "pb-1",
@@ -1040,6 +1162,91 @@ Some text.
 `)
 		})
 	}
+}
+
+func TestClassCollectorConfigWriteStats(t *testing.T) {
+	r := func(writeStatsConfig string) *IntegrationTestBuilder {
+		files := `
+-- hugo.toml --
+WRITE_STATS_CONFIG
+-- layouts/_default/list.html --
+<div id="myid" class="myclass">Foo</div>
+
+`
+		files = strings.Replace(files, "WRITE_STATS_CONFIG", writeStatsConfig, 1)
+
+		b := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+				NeedsOsFS:   true,
+			},
+		).Build()
+
+		return b
+	}
+
+	// Legacy config.
+	b := r(`
+[build]
+writeStats = true
+`)
+
+	b.AssertFileContent("hugo_stats.json", "myclass", "div", "myid")
+
+	b = r(`
+[build]
+writeStats = false
+	`)
+
+	b.AssertDestinationExists("hugo_stats.json", false)
+
+	b = r(`
+[build.buildStats]
+enable = true
+`)
+
+	b.AssertFileContent("hugo_stats.json", "myclass", "div", "myid")
+
+	b = r(`
+[build.buildStats]
+enable = true
+disableids = true
+`)
+
+	b.AssertFileContent("hugo_stats.json", "myclass", "div", "! myid")
+
+	b = r(`
+[build.buildStats]
+enable = true
+disableclasses = true
+`)
+
+	b.AssertFileContent("hugo_stats.json", "! myclass", "div", "myid")
+
+	b = r(`
+[build.buildStats]
+enable = true
+disabletags = true
+	`)
+
+	b.AssertFileContent("hugo_stats.json", "myclass", "! div", "myid")
+
+	b = r(`
+[build.buildStats]
+enable = true
+disabletags = true
+disableclasses = true
+	`)
+
+	b.AssertFileContent("hugo_stats.json", "! myclass", "! div", "myid")
+
+	b = r(`
+[build.buildStats]
+enable = false
+	`)
+	b.AssertDestinationExists("hugo_stats.json", false)
+
 }
 
 func TestClassCollectorStress(t *testing.T) {
@@ -1093,7 +1300,7 @@ ABC.
 	b.Build(BuildCfg{})
 
 	contentMem := b.FileContent(statsFilename)
-	cb, err := ioutil.ReadFile(statsFilename)
+	cb, err := os.ReadFile(statsFilename)
 	b.Assert(err, qt.IsNil)
 	contentFile := string(cb)
 

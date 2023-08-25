@@ -1,0 +1,19 @@
+# Test the import jekyll command.
+
+hugo import -h 
+stdout 'Import your site from other web site generators like Jekyll\.'
+
+hugo import jekyll -h
+stdout 'hugo import from Jekyll\.'
+
+hugo import jekyll myjekyllsite myhugosite
+checkfilecount 1 myhugosite/content/post
+grep 'example\.org' myhugosite/hugo.yaml
+
+# A simple Jekyll site.
+-- myjekyllsite/_posts/2012-01-18-hello-world.markdown --
+---
+layout: post
+title: "Hello World"
+---
+Hello world!

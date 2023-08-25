@@ -11,7 +11,7 @@ Jan 2 15:04:05 2006 MST
   1 2  3  4  5    6  -7
 ```
 
-### Hugo Date Templating Reference
+### Hugo date templating reference
 
 Each of the following examples show the reference formatting string followed by the string Hugo will output in your HTML.
 
@@ -54,20 +54,20 @@ date: 2017-03-03T14:15:59-06:00
 `"Mon, 02 Jan 2006 15:04:05 -0700"` (RFC339)
 : **Returns**: `Fri, 03 Mar 2017 14:15:59 -0600`
 
-### Cardinal Numbers and Ordinal Abbreviations
+### Cardinal numbers and ordinal abbreviations
 
 Spelled-out cardinal numbers (e.g. "one", "two", and "three") and ordinal abbreviations (e.g. "1st", "2nd", and "3rd") are not currently supported.
 
 To continue with the example above:
 
 ```go-html-template
-{{.Date.Format "Jan 2nd 2006"}}
+{{ .Date.Format "Jan 2nd 2006" }}
 ```
 
 Hugo assumes you want to append `nd` as a string to the day of the month and outputs the following:
 
 ```txt
-Mar 3nd 2017
+Mar 2nd 2017
 ```
 
 ### Use `.Local` and `.UTC`

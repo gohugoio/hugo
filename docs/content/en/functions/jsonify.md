@@ -1,21 +1,13 @@
 ---
 title: jsonify
-linktitle: jsonify
 description: Encodes a given object to JSON.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2020-04-13
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [strings,json]
 signature: ["jsonify INPUT", "jsonify OPTIONS INPUT"]
-workson: []
-hugoversion:
 relatedfuncs: [plainify]
-deprecated: false
-aliases: []
 ---
 
 Jsonify encodes a given object to JSON.
@@ -26,7 +18,7 @@ the output will begin on a new line beginning with *prefix* followed by one or
 more copies of *indent* according to the indentation nesting.
 
 
-```
+```go-html-template
 {{ dict "title" .Title "content" .Plain | jsonify }}
 {{ dict "title" .Title "content" .Plain | jsonify (dict "indent" "  ") }}
 {{ dict "title" .Title "content" .Plain | jsonify (dict "prefix" " " "indent" "  ") }}

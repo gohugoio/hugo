@@ -24,21 +24,21 @@ func TestWhitelist(t *testing.T) {
 	c := qt.New(t)
 
 	c.Run("none", func(c *qt.C) {
-		c.Assert(NewWhitelist("none", "foo").Accept("foo"), qt.IsFalse)
-		c.Assert(NewWhitelist().Accept("foo"), qt.IsFalse)
-		c.Assert(NewWhitelist("").Accept("foo"), qt.IsFalse)
-		c.Assert(NewWhitelist("  ", " ").Accept("foo"), qt.IsFalse)
+		c.Assert(MustNewWhitelist("none", "foo").Accept("foo"), qt.IsFalse)
+		c.Assert(MustNewWhitelist().Accept("foo"), qt.IsFalse)
+		c.Assert(MustNewWhitelist("").Accept("foo"), qt.IsFalse)
+		c.Assert(MustNewWhitelist("  ", " ").Accept("foo"), qt.IsFalse)
 		c.Assert(Whitelist{}.Accept("foo"), qt.IsFalse)
 	})
 
 	c.Run("One", func(c *qt.C) {
-		w := NewWhitelist("^foo.*")
+		w := MustNewWhitelist("^foo.*")
 		c.Assert(w.Accept("foo"), qt.IsTrue)
 		c.Assert(w.Accept("mfoo"), qt.IsFalse)
 	})
 
 	c.Run("Multiple", func(c *qt.C) {
-		w := NewWhitelist("^foo.*", "^bar.*")
+		w := MustNewWhitelist("^foo.*", "^bar.*")
 		c.Assert(w.Accept("foo"), qt.IsTrue)
 		c.Assert(w.Accept("bar"), qt.IsTrue)
 		c.Assert(w.Accept("mbar"), qt.IsFalse)

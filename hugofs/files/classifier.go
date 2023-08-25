@@ -31,6 +31,8 @@ const (
 	FilenamePackageHugoJSON = "package.hugo.json"
 	// The NPM package file.
 	FilenamePackageJSON = "package.json"
+
+	FilenameHugoStatsJSON = "hugo_stats.json"
 )
 
 var (

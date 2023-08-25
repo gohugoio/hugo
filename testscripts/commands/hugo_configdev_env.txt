@@ -1,0 +1,19 @@
+# Test the hugo command.
+env HUGO_ENV=development
+
+hugo
+grep 'myparam: dev§'  public/index.html
+
+-- hugo.toml --
+baseURL = "http://example.org/"
+disableKinds = ["RSS", "sitemap", "robotsTXT", "404", "taxonomy", "term"]
+-- layouts/index.html --
+myparam: {{ site.Params.myparam }}§
+-- layouts/_default/single.html --
+Title: {{ .Title }}
+-- config/development/params.toml --
+myparam = "dev"
+-- content/p1.md --
+---
+title: "P1"
+---

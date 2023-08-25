@@ -11,7 +11,7 @@
   url = "/installation/"
 
 [[docs]]
-  name = "Getting Started"
+  name = "Getting started"
   weight = 30
   identifier = "getting-started"
   url = "/getting-started/"
@@ -26,7 +26,7 @@
 # Core menus
 
 [[docs]]
-  name = "Content Management"
+  name = "Content management"
   weight = 50
   identifier = "content-management"
   post = "expanded"
@@ -53,7 +53,7 @@
 [[docs]]
   name = "Hugo Pipes"
   weight = 90
-  identifier = "pipes"
+  identifier = "hugo-pipes"
   url = "/hugo-pipes/"
 
 [[docs]]
@@ -72,13 +72,13 @@
   url = "/troubleshooting/"
 
 [[docs]]
-  name = "Tools"
+  name = "Developer tools"
   weight = 120
-  identifier = "tools"
+  identifier = "developer-tools"
   url = "/tools/"
 
 [[docs]]
-  name = "Hosting & Deployment"
+  name = "Hosting and deployment"
   weight = 130
   identifier = "hosting-and-deployment"
   url = "/hosting-and-deployment/"

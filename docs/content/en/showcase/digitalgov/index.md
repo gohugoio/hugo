@@ -20,7 +20,7 @@ Digital.gov is built using the [U.S. Web Design System](https://designsystem.dig
 
 _More on the [USWDS maturity model »](https://designsystem.digital.gov/maturity-model/)_
 
-## Open Tools
+## Open tools
 
 We didn’t start from scratch. We built and designed the Digital.gov using many of the open-source tools and services that we develop for government here in the  [Technology Transformation Services](https://www.gsa.gov/tts/) (TTS).
 

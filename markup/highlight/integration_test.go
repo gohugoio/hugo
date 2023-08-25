@@ -83,3 +83,35 @@ HighlightCodeBlock: Wrapped:{{ $result.Wrapped  }}|Inner:{{ $result.Inner }}
 		"<code class=\"code-inline language-foo\">(message &#34;highlight me 3&#34;)\n</code>",
 	)
 }
+
+// Issue #11311
+func TestIssue11311(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+[markup.highlight]
+noClasses = false
+-- content/_index.md --
+---
+title: home
+---
+§§§go
+xəx := 0
+§§§
+-- layouts/index.html --
+{{ .Content }}
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   false,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `
+		<span class="nx">xəx</span>
+	`)
+}

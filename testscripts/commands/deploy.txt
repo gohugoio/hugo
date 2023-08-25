@@ -1,0 +1,24 @@
+# Test the deploy command.
+
+hugo deploy -h
+stdout 'Deploy your site to a Cloud provider\.'
+mkdir mybucket
+hugo deploy --target mydeployment --invalidateCDN=false
+grep 'hello' mybucket/index.html
+replace  public/index.html 'hello' 'changed'
+hugo deploy --target mydeployment --dryRun
+stdout 'Would upload: index.html'
+stdout 'Would invalidate CloudFront CDN with ID foobar'
+-- hugo.toml --
+disableKinds = ["RSS", "sitemap", "robotsTXT", "404", "taxonomy", "term"]
+baseURL = "https://example.org/"
+[deployment]
+[[deployment.targets]]
+name = "myfirst"
+url="gs://asdfasdf"
+[[deployment.targets]]
+name = "mydeployment"
+url="file://./mybucket"
+cloudFrontDistributionID = "foobar"
+-- public/index.html --
+<html><body>hello</body></html>

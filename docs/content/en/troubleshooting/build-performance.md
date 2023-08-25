@@ -1,21 +1,15 @@
 ---
-title: Build Performance
-linktitle: Build Performance
+title: Build performance
 description: An overview of features used for diagnosing and improving performance issues in site builds.
-date: 2017-03-12
-publishdate: 2017-03-12
-keywords: [performance, build]
-categories: [troubleshooting]
 menu:
   docs:
-    parent: "troubleshooting"
-weight: 3
-slug:
-aliases: []
+    parent: troubleshooting
+    weight: 30
+weight: 30
 toc: true
 ---
 
-## Template Metrics
+## Template metrics
 
 Hugo is a very fast static site generator, but it is possible to write
 inefficient templates. Hugo's _template metrics_ feature is extremely helpful
@@ -70,14 +64,14 @@ Template Metrics:
 ```
 
 {{% note %}}
-**A Note About Parallelism**
+**A note about parallelism**
 
 Hugo builds pages in parallel where multiple pages are generated
 simultaneously. Because of this parallelism, the sum of "cumulative duration"
 values is usually greater than the actual time it takes to build a site.
 {{% /note %}}
 
-## Cached Partials
+## Cached partials
 
 Some `partial` templates such as sidebars or menus are executed many times
 during a site build. Depending on the content within the `partial` template and
@@ -85,10 +79,10 @@ the desired output, the template may benefit from caching to reduce the number
 of executions. The [`partialCached`][partialcached] template function provides
 caching capabilities for `partial` templates.
 
-{{% tip %}}
+{{% note %}}
 Note that you can create cached variants of each `partial` by passing additional
 parameters to `partialCached` beyond the initial context. See the
 `partialCached` documentation for more details.
-{{% /tip %}}
+{{% /note %}}
 
-[partialCached]:{{< ref "/functions/partialCached.md" >}}
+[partialCached]: /functions/partialcached

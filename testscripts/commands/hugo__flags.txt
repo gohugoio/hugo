@@ -1,0 +1,33 @@
+# Test the hugo command.
+
+hugo --baseURL http://example.com/ --minify --destination ${WORK}/newpublic --clock 2021-11-06T22:30:00.00+09:00 -e staging --config ${WORK}/myconfig --configDir ${WORK}/myconfigdir -s mysource
+stdout 'Pages.*|1'
+stdout 'Total in'
+grep 'Home: http://example.com/, Time: 2021-11-06' newpublic/index.html
+grep 'Environment: staging, foo: bar, bar: baz' newpublic/index.html
+# Verify that it's minified.
+grep '<body>Home' newpublic/index.html
+
+hugo --quiet
+! stdout .
+
+-- hugo.toml --
+title = "Hugo Test"
+-- myconfig.toml --
+baseURL = "http://example.org/"
+disableKinds = ["RSS", "sitemap", "robotsTXT", "404", "taxonomy", "term"]
+[params]
+foo = "bar"
+-- myconfigdir/_default/params.toml --
+bar = "baz"
+-- mysource/layouts/index.html --
+<body>
+Home: {{ .Permalink }}, Time: {{ now }}
+</body>
+Environment: {{ hugo.Environment }}, foo: {{ .Site.Params.foo }}, bar: {{ .Site.Params.bar }}
+-- mysource/layouts/_default/single.html --
+Title: {{ .Title }}
+-- mysource/content/p1.md --
+---
+title: "P1"
+---

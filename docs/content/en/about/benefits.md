@@ -1,20 +1,13 @@
 ---
-title: The Benefits of Static Site Generators
-linktitle: The Benefits of Static
+title: Benefits of static site generators
+linkTitle: Static site generators
 description: Improved performance, security and ease of use are just a few of the reasons static site generators are so appealing.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 keywords: [ssg,static,performance,security]
 menu:
   docs:
-    parent: "about"
-    weight: 30
-weight: 30
-sections_weight: 30
-draft: false
-aliases: []
-toc: false
+    parent: about
+    weight: 40
+weight: 40
 ---
 
 The purpose of website generators is to render content into HTML files. Most are "dynamic site generators." That means the HTTP server---i.e., the program that sends files to the browser to be viewed---runs the generator to create a new HTML file every time an end user requests a page.
@@ -25,7 +18,7 @@ Hugo takes caching a step further and all HTML files are rendered on your comput
 
 This has many benefits. The most noticeable is performance. HTTP servers are *very* good at sending files---so good, in fact, that you can effectively serve the same number of pages with a fraction of the memory and CPU needed for a dynamic site.
 
-## More on Static Site Generators
+## More on static site generators
 
 * ["An Introduction to Static Site Generators", David Walsh]
 * ["Hugo vs. WordPress page load speed comparison: Hugo leaves WordPress in its dust", GettingThingsTech][hugovwordpress]

@@ -9,15 +9,15 @@ categories: ["Releases"]
 - [Live Reload](/getting-started/usage/#livereload). Hugo will automatically reload the browser when the build is complete
 - Theme engine w/[Theme Repository](http://github.com/spf13/hugoThemes)
 - [Menu system](/content-management/menus/) with support for active page
-- [Builders](/extras/builders) to quickly create a new site, content or theme
-- [XML sitemap](/templates/sitemap) generation
-- [Integrated Disqus](/extras/comments) support
-- Streamlined [template organization](/templates/overview)
+- [Builders](/commands/hugo_new) to quickly create a new site, content or theme
+- [XML sitemap](/templates/sitemap-template) generation
+- [Integrated Disqus](/content-management/comments) support
+- Streamlined [template organization](/templates/introduction)
 - Brand new docs site
 - Support for publishDate which allows for posts to be dated in the future
-- More [sort](/functions/sort/#readout) options
+- More [sort](/functions/sort) options
 - Logging support
 - Much better error handling
 - More informative verbose output
-- Renamed Indexes > [Taxonomies](/taxonomies/overview)
+- Renamed Indexes > [Taxonomies](/content-management/taxonomies/)
 - Renamed Chrome > [Partials](/templates/partials)

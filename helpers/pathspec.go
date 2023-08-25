@@ -34,17 +34,17 @@ type PathSpec struct {
 	Fs *hugofs.Fs
 
 	// The config provider to use
-	Cfg config.Provider
+	Cfg config.AllProvider
 }
 
 // NewPathSpec creates a new PathSpec from the given filesystems and language.
-func NewPathSpec(fs *hugofs.Fs, cfg config.Provider, logger loggers.Logger) (*PathSpec, error) {
+func NewPathSpec(fs *hugofs.Fs, cfg config.AllProvider, logger loggers.Logger) (*PathSpec, error) {
 	return NewPathSpecWithBaseBaseFsProvided(fs, cfg, logger, nil)
 }
 
-// NewPathSpecWithBaseBaseFsProvided creats a new PathSpec from the given filesystems and language.
+// NewPathSpecWithBaseBaseFsProvided creates a new PathSpec from the given filesystems and language.
 // If an existing BaseFs is provided, parts of that is reused.
-func NewPathSpecWithBaseBaseFsProvided(fs *hugofs.Fs, cfg config.Provider, logger loggers.Logger, baseBaseFs *filesystems.BaseFs) (*PathSpec, error) {
+func NewPathSpecWithBaseBaseFsProvided(fs *hugofs.Fs, cfg config.AllProvider, logger loggers.Logger, baseBaseFs *filesystems.BaseFs) (*PathSpec, error) {
 	p, err := paths.New(fs, cfg)
 	if err != nil {
 		return nil, err
@@ -67,11 +67,6 @@ func NewPathSpecWithBaseBaseFsProvided(fs *hugofs.Fs, cfg config.Provider, logge
 		Fs:              fs,
 		Cfg:             cfg,
 		ProcessingStats: NewProcessingStats(p.Lang()),
-	}
-
-	basePath := ps.BaseURL.Path()
-	if basePath != "" && basePath != "/" {
-		ps.BasePath = basePath
 	}
 
 	return ps, nil

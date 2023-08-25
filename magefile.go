@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -175,13 +174,13 @@ func Test386() error {
 // Run tests
 func Test() error {
 	env := map[string]string{"GOFLAGS": testGoFlags()}
-	return runCmd(env, goexe, "test", "./...", buildFlags(), "-tags", buildTags())
+	return runCmd(env, goexe, "test", "./...", "-tags", buildTags())
 }
 
 // Run tests with race detector
 func TestRace() error {
 	env := map[string]string{"GOFLAGS": testGoFlags()}
-	return runCmd(env, goexe, "test", "-race", "./...", buildFlags(), "-tags", buildTags())
+	return runCmd(env, goexe, "test", "-race", "./...", "-tags", buildTags())
 }
 
 // Run gofmt linter
@@ -298,7 +297,7 @@ func TestCoverHTML() error {
 		if err := sh.Run(goexe, "test", "-coverprofile="+cover, "-covermode=count", pkg); err != nil {
 			return err
 		}
-		b, err := ioutil.ReadFile(cover)
+		b, err := os.ReadFile(cover)
 		if err != nil {
 			if os.IsNotExist(err) {
 				continue

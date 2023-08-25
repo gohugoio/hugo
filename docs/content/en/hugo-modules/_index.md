@@ -1,18 +1,15 @@
 ---
 title: Hugo Modules
-linktitle: Hugo Modules Overview
+linkTitle: Overview
 description: How to use Hugo Modules.
-date: 2017-02-01
-publishdate: 2017-02-01
 menu:
   docs:
-    parent: "modules"
-    weight: 01
-weight: 01
-sections_weight: 01
+    identifier: hugo-modules-overview
+    parent: modules
+    weight: 10
+weight: 10
 categories: [hugo modules]
 keywords: [themes,modules]
-draft: false
 aliases: [/themes/overview/,/themes/]
 toc: true
 ---
@@ -26,7 +23,7 @@ Hugo Modules are powered by Go Modules. For more information about Go Modules, s
 - [https://github.com/golang/go/wiki/Modules](https://github.com/golang/go/wiki/Modules)
 - [https://go.dev/blog/using-go-modules](https://go.dev/blog/using-go-modules)
 
-This is all very much brand new and there are only a few example projects around:
+Some example projects:
 
 - [https://github.com/bep/docuapi](https://github.com/bep/docuapi) is a theme that has been ported to Hugo Modules while testing this feature. It is a good example of a non-Hugo-project mounted into Hugo’s folder structure. It even shows a JS Bundler implementation in regular Go templates.
 - [https://github.com/bep/my-modular-site](https://github.com/bep/my-modular-site) is a very simple site used for testing.

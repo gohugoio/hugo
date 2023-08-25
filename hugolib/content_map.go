@@ -22,6 +22,7 @@ import (
 
 	"github.com/gohugoio/hugo/helpers"
 
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -43,7 +44,7 @@ import (
 //
 // For bundled pages (/mybundle/index.md), we use the folder name.
 //
-// An exmple of a full page key would be "/blog/__hb_page1__hl_"
+// An example of a full page key would be "/blog/__hb_page1__hl_"
 //
 // Bundled resources are stored in the `resources` having their path prefixed
 // with the bundle they belong to, e.g.
@@ -129,7 +130,7 @@ type cmInsertKeyBuilder struct {
 }
 
 func (b cmInsertKeyBuilder) ForPage(s string) *cmInsertKeyBuilder {
-	// fmt.Println("ForPage:", s, "baseKey:", b.baseKey, "key:", b.key)
+	//fmt.Println("ForPage:", s, "baseKey:", b.baseKey, "key:", b.key, "tree:", b.tree.Name)
 	baseKey := b.baseKey
 	b.baseKey = s
 
@@ -275,13 +276,13 @@ type contentBundleViewInfo struct {
 
 func (c *contentBundleViewInfo) kind() string {
 	if c.termKey != "" {
-		return page.KindTerm
+		return kinds.KindTerm
 	}
-	return page.KindTaxonomy
+	return kinds.KindTaxonomy
 }
 
 func (c *contentBundleViewInfo) sections() []string {
-	if c.kind() == page.KindTaxonomy {
+	if c.kind() == kinds.KindTaxonomy {
 		return []string{c.name.plural}
 	}
 
@@ -317,7 +318,7 @@ type contentMap struct {
 	// There are currently two cases where this is used:
 	// 1. Short name lookups in ref/relRef, e.g. using only "mypage.md" without a path.
 	// 2. Links resolved from a remounted content directory. These are restricted to the same module.
-	// Both of the above cases can  result in ambigous lookup errors.
+	// Both of the above cases can  result in ambiguous lookup errors.
 	pageReverseIndex *contentTreeReverseIndex
 
 	// Section nodes.
@@ -680,7 +681,14 @@ func (m *contentMap) splitKey(k string) []string {
 		return nil
 	}
 
-	return strings.Split(k, "/")[1:]
+	parts := strings.Split(k, "/")[1:]
+	if len(parts) == 0 {
+		return nil
+	}
+	if parts[len(parts)-1] == "" {
+		parts = parts[:len(parts)-1]
+	}
+	return parts
 }
 
 func (m *contentMap) testDump() string {

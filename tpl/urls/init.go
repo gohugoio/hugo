@@ -14,6 +14,8 @@
 package urls
 
 import (
+	"context"
+
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/tpl/internal"
 )
@@ -26,7 +28,7 @@ func init() {
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
-			Context: func(args ...any) (any, error) { return ctx, nil },
+			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
 		}
 
 		ns.AddMethodMapping(ctx.AbsURL,
@@ -63,6 +65,14 @@ func init() {
 			[]string{"anchorize"},
 			[][2]string{
 				{`{{ "This is a title" | anchorize }}`, `this-is-a-title`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.JoinPath,
+			nil,
+			[][2]string{
+				{`{{ urls.JoinPath "https://example.org" "foo" }}`, `https://example.org/foo`},
+				{`{{ urls.JoinPath (slice "a" "b") }}`, `a/b`},
 			},
 		)
 

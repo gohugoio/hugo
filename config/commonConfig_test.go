@@ -18,6 +18,7 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/types"
 
 	qt "github.com/frankban/quicktest"
@@ -31,7 +32,7 @@ func TestBuild(t *testing.T) {
 		"useResourceCacheWhen": "always",
 	})
 
-	b := DecodeBuild(v)
+	b := DecodeBuildConfig(v)
 
 	c.Assert(b.UseResourceCacheWhen, qt.Equals, "always")
 
@@ -39,7 +40,7 @@ func TestBuild(t *testing.T) {
 		"useResourceCacheWhen": "foo",
 	})
 
-	b = DecodeBuild(v)
+	b = DecodeBuildConfig(v)
 
 	c.Assert(b.UseResourceCacheWhen, qt.Equals, "fallback")
 
@@ -91,6 +92,7 @@ status = 301
 
 	s, err := DecodeServer(cfg)
 	c.Assert(err, qt.IsNil)
+	c.Assert(s.CompileConfig(loggers.NewDefault()), qt.IsNil)
 
 	c.Assert(s.MatchHeaders("/foo.jpg"), qt.DeepEquals, []types.KeyValueStr{
 		{Key: "X-Content-Type-Options", Value: "nosniff"},
@@ -137,4 +139,61 @@ status = 301`,
 		c.Assert(err, qt.Not(qt.IsNil))
 
 	}
+}
+
+func TestBuildConfigCacheBusters(t *testing.T) {
+	c := qt.New(t)
+	cfg := New()
+	conf := DecodeBuildConfig(cfg)
+	l := loggers.NewDefault()
+	c.Assert(conf.CompileConfig(l), qt.IsNil)
+
+	m, err := conf.MatchCacheBuster(l, "assets/foo/main.js")
+	c.Assert(err, qt.IsNil)
+	c.Assert(m, qt.IsNotNil)
+	c.Assert(m("scripts"), qt.IsTrue)
+	c.Assert(m("asdf"), qt.IsFalse)
+
+	m, _ = conf.MatchCacheBuster(l, "tailwind.config.js")
+	c.Assert(m("css"), qt.IsTrue)
+	c.Assert(m("js"), qt.IsFalse)
+
+	m, err = conf.MatchCacheBuster(l, "assets/foo.json")
+	c.Assert(err, qt.IsNil)
+	c.Assert(m, qt.IsNotNil)
+	c.Assert(m("json"), qt.IsTrue)
+
+}
+
+func TestBuildConfigCacheBusterstTailwindSetup(t *testing.T) {
+	c := qt.New(t)
+	cfg := New()
+	cfg.Set("build", map[string]interface{}{
+		"cacheBusters": []map[string]string{
+			{
+				"source": "assets/watching/hugo_stats\\.json",
+				"target": "css",
+			},
+			{
+				"source": "(postcss|tailwind)\\.config\\.js",
+				"target": "css",
+			},
+			{
+				"source": "assets/.*\\.(js|ts|jsx|tsx)",
+				"target": "js",
+			},
+			{
+				"source": "assets/.*\\.(.*)$",
+				"target": "$1",
+			},
+		},
+	})
+
+	conf := DecodeBuildConfig(cfg)
+	l := loggers.NewDefault()
+	c.Assert(conf.CompileConfig(l), qt.IsNil)
+
+	m, err := conf.MatchCacheBuster(l, "assets/watching/hugo_stats.json")
+	c.Assert(err, qt.IsNil)
+	c.Assert(m("css"), qt.IsTrue)
 }

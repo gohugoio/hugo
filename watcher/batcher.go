@@ -23,8 +23,8 @@ import (
 // Batcher batches file watch events in a given interval.
 type Batcher struct {
 	filenotify.FileWatcher
-	interval time.Duration
-	done     chan struct{}
+	ticker *time.Ticker
+	done   chan struct{}
 
 	Events chan []fsnotify.Event // Events are returned on this channel
 }
@@ -48,26 +48,23 @@ func New(intervalBatcher, intervalPoll time.Duration, poll bool) (*Batcher, erro
 
 	batcher := &Batcher{}
 	batcher.FileWatcher = watcher
-	batcher.interval = intervalBatcher
+	batcher.ticker = time.NewTicker(intervalBatcher)
 	batcher.done = make(chan struct{}, 1)
 	batcher.Events = make(chan []fsnotify.Event, 1)
 
-	if err == nil {
-		go batcher.run()
-	}
+	go batcher.run()
 
 	return batcher, nil
 }
 
 func (b *Batcher) run() {
-	tick := time.Tick(b.interval)
 	evs := make([]fsnotify.Event, 0)
 OuterLoop:
 	for {
 		select {
 		case ev := <-b.FileWatcher.Events():
 			evs = append(evs, ev)
-		case <-tick:
+		case <-b.ticker.C:
 			if len(evs) == 0 {
 				continue
 			}
@@ -84,4 +81,5 @@ OuterLoop:
 func (b *Batcher) Close() {
 	b.done <- struct{}{}
 	b.FileWatcher.Close()
+	b.ticker.Stop()
 }

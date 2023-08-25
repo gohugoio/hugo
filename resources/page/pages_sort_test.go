@@ -14,6 +14,7 @@
 package page
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -104,6 +105,12 @@ func TestSortByN(t *testing.T) {
 	d4 := d1.Add(-20 * time.Hour)
 
 	p := createSortTestPages(4)
+	ctx := context.Background()
+
+	byLen := func(p Pages) Pages {
+		return p.ByLength(ctx)
+
+	}
 
 	for i, this := range []struct {
 		sortFunc   func(p Pages) Pages
@@ -116,7 +123,7 @@ func TestSortByN(t *testing.T) {
 		{(Pages).ByPublishDate, func(p Pages) bool { return p[0].PublishDate() == d4 }},
 		{(Pages).ByExpiryDate, func(p Pages) bool { return p[0].ExpiryDate() == d4 }},
 		{(Pages).ByLastmod, func(p Pages) bool { return p[1].Lastmod() == d3 }},
-		{(Pages).ByLength, func(p Pages) bool { return p[0].(resource.LengthProvider).Len() == len(p[0].(*testPage).content) }},
+		{byLen, func(p Pages) bool { return p[0].(resource.LengthProvider).Len(ctx) == len(p[0].(*testPage).content) }},
 	} {
 		setSortVals([4]time.Time{d1, d2, d3, d4}, [4]string{"b", "ab", "cde", "fg"}, [4]int{0, 3, 2, 1}, p)
 

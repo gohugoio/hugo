@@ -14,15 +14,12 @@
 package collections
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/gohugoio/hugo/common/maps"
-	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/langs"
-
-	"github.com/gohugoio/hugo/deps"
 )
 
 type stringsSlice []string
@@ -30,9 +27,7 @@ type stringsSlice []string
 func TestSort(t *testing.T) {
 	t.Parallel()
 
-	ns := New(&deps.Deps{
-		Language: langs.NewDefaultLanguage(config.New()),
-	})
+	ns := newNs()
 
 	type ts struct {
 		MyInt    int
@@ -246,9 +241,9 @@ func TestSort(t *testing.T) {
 			var result any
 			var err error
 			if test.sortByField == nil {
-				result, err = ns.Sort(test.seq)
+				result, err = ns.Sort(context.Background(), test.seq)
 			} else {
-				result, err = ns.Sort(test.seq, test.sortByField, test.sortAsc)
+				result, err = ns.Sort(context.Background(), test.seq, test.sortByField, test.sortAsc)
 			}
 
 			if b, ok := test.expect.(bool); ok && !b {

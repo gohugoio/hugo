@@ -1,6 +1,5 @@
 ---
-title: Related Content
-linkTitle: Related Content
+title: Related content
 description: List related content in "See Also" sections.
 categories: [content management]
 keywords: [content]
@@ -13,9 +12,9 @@ weight: 110
 aliases: [/content/related/,/related/]
 ---
 
-Hugo uses a set of factors to identify a page's related content based on Front Matter parameters. This can be tuned to the desired set of indices and parameters or left to Hugo's default [Related Content configuration](#configure-related-content).
+Hugo uses a set of factors to identify a page's related content based on front matter parameters. This can be tuned to the desired set of indices and parameters or left to Hugo's default [Related Content configuration](#configure-related-content).
 
-## List Related Content
+## List related content
 
 To list up to 5 related pages (which share the same _date_ or _keyword_ parameters) is as simple as including something similar to this partial in your single page template:
 
@@ -31,41 +30,82 @@ To list up to 5 related pages (which share the same _date_ or _keyword_ paramete
 {{ end }}
 {{< /code >}}
 
-### Methods
+The `Related` method takes one argument which may be a `Page` or a options map. The options map have these options:
 
-Here is the list of "Related" methods available on a page collection such `.RegularPages`.
+indices
+: The indices to search in.
 
-#### .Related PAGE
+document
+: The document to search for related content for.
 
-Returns a collection of pages related the given one.
+namedSlices
+: The keywords to search for.
 
-```go-html-template
-{{ $related := site.RegularPages.Related . }}
-```
+fragments
+: Fragments holds a a list of special keywords that is used for indices configured as type "fragments". This will match the fragment identifiers of the documents.
 
-#### .RelatedIndices PAGE INDICE1 [INDICE2 ...]
-
-Returns a collection of pages related to a given one restricted to a list of indices.
-
-```go-html-template
-{{ $related := site.RegularPages.RelatedIndices . "tags" "date" }}
-```
-
-#### .RelatedTo KEYVALS [KEYVALS2 ...]
-
-Returns a collection of pages related together by a set of indices and their match.
-
-In order to build those set and pass them as argument, one must use the `keyVals` function where the first argument would be the `indice` and the consecutive ones its potential `matches`.
+A fictional example using all of the above options:
 
 ```go-html-template
-{{ $related := site.RegularPages.RelatedTo ( keyVals "tags" "hugo" "rocks")  ( keyVals "date" .Date ) }}
+{{ $page := . }}
+{{ $opts := 
+  "indices" (slice "tags" "keywords")
+  "document" $page
+  "namedSlices" (slice (keyVals "tags" "hugo" "rocks") (keyVals "date" $page.Date))
+  "fragments" (slice "heading-1" "heading-2")
+}}
 ```
 
 {{% note %}}
-Read [this blog article](https://regisphilibert.com/blog/2018/04/hugo-optmized-relashionships-with-related-content/) for a great explanation of more advanced usage of this feature.
+We improved and simplified this feature in Hugo 0.111.0. Before this we had 3 different methods: `Related`, `RelatedTo` and `RelatedIndicies`. Now we have only one method: `Related`. The old methods are still available but deprecated. Also see [this blog article](https://regisphilibert.com/blog/2018/04/hugo-optmized-relashionships-with-related-content/) for a great explanation of more advanced usage of this feature.
 {{% /note %}}
 
-## Configure Related Content
+## Index content headings in related content
+
+{{< new-in "0.111.0" >}}
+
+Hugo can index the headings in your content and use this to find related content. You can enable this by adding a index of type `fragments` to your `related` configuration:
+
+{{< code-toggle file="hugo" copy=false >}}
+[related]
+threshold    = 20
+includeNewer = true
+toLower      = false
+[[related.indices]]
+name        = "fragmentrefs"
+type        = "fragments"
+applyFilter = false
+weight      = 80
+{{< /code-toggle >}}
+
+* The `name` maps to a optional front matter slice attribute that can be used to link from the page level down to the fragment/heading level.
+* If `applyFilter`is enabled, the `.HeadingsFiltered` on each page in the result will reflect the filtered headings. This is useful if you want to show the headings in the related content listing:
+
+```go-html-template
+{{ $related := .Site.RegularPages.Related . | first 5 }}
+{{ with $related }}
+  <h2>See Also</h2>
+  <ul>
+    {{ range $i, $p := . }}
+      <li>
+        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        {{ with .HeadingsFiltered }}
+          <ul>
+            {{ range . }}
+              {{ $link := printf "%s#%s" $p.RelPermalink .ID | safeURL }}
+              <li>
+                <a href="{{ $link }}">{{ .Title }}</a>
+              </li>
+            {{ end }}
+          </ul>
+        {{ end }}
+      </li>
+    {{ end }}
+  </ul>
+{{ end }}
+```
+
+## Configure related content
 
 Hugo provides a sensible default configuration of Related Content, but you can fine-tune this in your configuration, on the global or language level if needed.
 
@@ -73,7 +113,7 @@ Hugo provides a sensible default configuration of Related Content, but you can f
 
 Without any `related` configuration set on the project, Hugo's Related Content methods will use the following.
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 related:
   threshold: 80
   includeNewer: false
@@ -90,10 +130,10 @@ Note that if you have configured `tags` as a taxonomy, `tags` will also be added
 Custom configuration should be set using the same syntax.
 
 {{% note %}}
-If you add a `related` config section, you need to add a complete configuration. It is not possible to just set, say, `includeNewer` and use the rest  from the Hugo defaults.
+If you add a `related` configuration section, you need to add a complete configuration. It is not possible to just set, say, `includeNewer` and use the rest  from the Hugo defaults.
 {{% /note %}}
 
-### Top Level Config Options
+### Top level configuration options
 
 threshold
 :  A value between 0-100. Lower value will give more, but maybe not so relevant, matches.
@@ -104,13 +144,23 @@ includeNewer
 toLower
 : Set to true to lower case keywords in both the indexes and the queries. This may give more accurate results at a slight performance penalty. Note that this can also be set per index.
 
-### Config Options per Index
+### Configuration options per index
 
 name
-:  The index name. This value maps directly to a page param. Hugo supports string values (`author` in the example) and lists (`tags`, `keywords` etc.) and time and date objects.
+:  The index name. This value maps directly to a page parameter. Hugo supports string values (`author` in the example) and lists (`tags`, `keywords` etc.) and time and date objects.
+
+type
+: {{< new-in "0.111.0" >}}. One of `basic`(default) or `fragments`.
+
+applyFilter
+: {{< new-in "0.111.0" >}}. Apply a `type` specific filter to the result of a search. This is currently only used for the `fragments` type.
 
 weight
 : An integer weight that indicates _how important_ this parameter is relative to the other parameters.  It can be 0, which has the effect of turning this index off, or even negative. Test with different values to see what fits your content best.
+
+
+cardinalityThreshold (default 0)
+: {{< new-in "0.111.0" >}}. A percentage (0-100) used to remove common keywords from the index. As an example, setting this to 50 will remove all keywords that are used in more than 50% of the documents in the index.
 
 pattern
 : This is currently only relevant for dates. When listing related content, we may want to list content that is also close in time. Setting "2006" (default value for date indexes) as the pattern for a date index will add weight to pages published in the same year. For busier blogs, "200601" (year and month) may be a better default.
@@ -118,7 +168,7 @@ pattern
 toLower
 : See above.
 
-## Performance Considerations
+## Performance considerations
 
 **Fast is Hugo's middle name** and we would not have released this feature had it not been blistering fast.
 

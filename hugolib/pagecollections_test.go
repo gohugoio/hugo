@@ -22,6 +22,7 @@ import (
 	"time"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/gohugoio/hugo/deps"
@@ -41,13 +42,18 @@ func BenchmarkGetPage(b *testing.B) {
 		r       = rand.New(rand.NewSource(time.Now().UnixNano()))
 	)
 
+	configs, err := loadTestConfigFromProvider(cfg)
+	if err != nil {
+		b.Fatal(err)
+	}
+
 	for i := 0; i < 10; i++ {
 		for j := 0; j < 100; j++ {
 			writeSource(b, fs, filepath.Join("content", fmt.Sprintf("sect%d", i), fmt.Sprintf("page%d.md", j)), "CONTENT")
 		}
 	}
 
-	s := buildSingleSite(b, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+	s := buildSingleSite(b, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
 
 	pagePaths := make([]string, b.N)
 
@@ -76,6 +82,11 @@ func createGetPageRegularBenchmarkSite(t testing.TB) *Site {
 		cfg, fs = newTestCfg()
 	)
 
+	configs, err := loadTestConfigFromProvider(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	pc := func(title string) string {
 		return fmt.Sprintf(pageCollectionsPageTemplate, title)
 	}
@@ -87,7 +98,7 @@ func createGetPageRegularBenchmarkSite(t testing.TB) *Site {
 		}
 	}
 
-	return buildSingleSite(c, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+	return buildSingleSite(c, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
 }
 
 func TestBenchmarkGetPageRegular(t *testing.T) {
@@ -174,6 +185,9 @@ func TestGetPage(t *testing.T) {
 		c       = qt.New(t)
 	)
 
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
+
 	pc := func(title string) string {
 		return fmt.Sprintf(pageCollectionsPageTemplate, title)
 	}
@@ -210,7 +224,7 @@ func TestGetPage(t *testing.T) {
 	writeSource(t, fs, filepath.Join("content", "section_bundle_overlap", "_index.md"), pc("index overlap section"))
 	writeSource(t, fs, filepath.Join("content", "section_bundle_overlap_bundle", "index.md"), pc("index overlap bundle"))
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
 
 	sec3, err := s.getPageNew(nil, "/sect3")
 	c.Assert(err, qt.IsNil)
@@ -218,72 +232,72 @@ func TestGetPage(t *testing.T) {
 
 	tests := []getPageTest{
 		// legacy content root relative paths
-		{"Root relative, no slash, home", page.KindHome, nil, []string{""}, "home page"},
-		{"Root relative, no slash, root page", page.KindPage, nil, []string{"about.md", "ABOUT.md"}, "about page"},
-		{"Root relative, no slash, section", page.KindSection, nil, []string{"sect3"}, "section 3"},
-		{"Root relative, no slash, section page", page.KindPage, nil, []string{"sect3/page1.md"}, "Title3_1"},
-		{"Root relative, no slash, sub setion", page.KindSection, nil, []string{"sect3/sect7"}, "another sect7"},
-		{"Root relative, no slash, nested page", page.KindPage, nil, []string{"sect3/subsect/deep.md"}, "deep page"},
-		{"Root relative, no slash, OS slashes", page.KindPage, nil, []string{filepath.FromSlash("sect5/page3.md")}, "Title5_3"},
+		{"Root relative, no slash, home", kinds.KindHome, nil, []string{""}, "home page"},
+		{"Root relative, no slash, root page", kinds.KindPage, nil, []string{"about.md", "ABOUT.md"}, "about page"},
+		{"Root relative, no slash, section", kinds.KindSection, nil, []string{"sect3"}, "section 3"},
+		{"Root relative, no slash, section page", kinds.KindPage, nil, []string{"sect3/page1.md"}, "Title3_1"},
+		{"Root relative, no slash, sub section", kinds.KindSection, nil, []string{"sect3/sect7"}, "another sect7"},
+		{"Root relative, no slash, nested page", kinds.KindPage, nil, []string{"sect3/subsect/deep.md"}, "deep page"},
+		{"Root relative, no slash, OS slashes", kinds.KindPage, nil, []string{filepath.FromSlash("sect5/page3.md")}, "Title5_3"},
 
-		{"Short ref, unique", page.KindPage, nil, []string{"unique.md", "unique"}, "UniqueBase"},
-		{"Short ref, unique, upper case", page.KindPage, nil, []string{"Unique2.md", "unique2.md", "unique2"}, "UniqueBase2"},
+		{"Short ref, unique", kinds.KindPage, nil, []string{"unique.md", "unique"}, "UniqueBase"},
+		{"Short ref, unique, upper case", kinds.KindPage, nil, []string{"Unique2.md", "unique2.md", "unique2"}, "UniqueBase2"},
 		{"Short ref, ambiguous", "Ambiguous", nil, []string{"page1.md"}, ""},
 
 		// ISSUE: This is an ambiguous ref, but because we have to support the legacy
 		// content root relative paths without a leading slash, the lookup
 		// returns /sect7. This undermines ambiguity detection, but we have no choice.
 		//{"Ambiguous", nil, []string{"sect7"}, ""},
-		{"Section, ambigous", page.KindSection, nil, []string{"sect7"}, "Sect7s"},
+		{"Section, ambiguous", kinds.KindSection, nil, []string{"sect7"}, "Sect7s"},
 
-		{"Absolute, home", page.KindHome, nil, []string{"/", ""}, "home page"},
-		{"Absolute, page", page.KindPage, nil, []string{"/about.md", "/about"}, "about page"},
-		{"Absolute, sect", page.KindSection, nil, []string{"/sect3"}, "section 3"},
-		{"Absolute, page in subsection", page.KindPage, nil, []string{"/sect3/page1.md", "/Sect3/Page1.md"}, "Title3_1"},
-		{"Absolute, section, subsection with same name", page.KindSection, nil, []string{"/sect3/sect7"}, "another sect7"},
-		{"Absolute, page, deep", page.KindPage, nil, []string{"/sect3/subsect/deep.md"}, "deep page"},
-		{"Absolute, page, OS slashes", page.KindPage, nil, []string{filepath.FromSlash("/sect5/page3.md")}, "Title5_3"}, // test OS-specific path
-		{"Absolute, unique", page.KindPage, nil, []string{"/sect3/unique.md"}, "UniqueBase"},
-		{"Absolute, unique, case", page.KindPage, nil, []string{"/sect3/Unique2.md", "/sect3/unique2.md", "/sect3/unique2", "/sect3/Unique2"}, "UniqueBase2"},
+		{"Absolute, home", kinds.KindHome, nil, []string{"/", ""}, "home page"},
+		{"Absolute, page", kinds.KindPage, nil, []string{"/about.md", "/about"}, "about page"},
+		{"Absolute, sect", kinds.KindSection, nil, []string{"/sect3"}, "section 3"},
+		{"Absolute, page in subsection", kinds.KindPage, nil, []string{"/sect3/page1.md", "/Sect3/Page1.md"}, "Title3_1"},
+		{"Absolute, section, subsection with same name", kinds.KindSection, nil, []string{"/sect3/sect7"}, "another sect7"},
+		{"Absolute, page, deep", kinds.KindPage, nil, []string{"/sect3/subsect/deep.md"}, "deep page"},
+		{"Absolute, page, OS slashes", kinds.KindPage, nil, []string{filepath.FromSlash("/sect5/page3.md")}, "Title5_3"}, // test OS-specific path
+		{"Absolute, unique", kinds.KindPage, nil, []string{"/sect3/unique.md"}, "UniqueBase"},
+		{"Absolute, unique, case", kinds.KindPage, nil, []string{"/sect3/Unique2.md", "/sect3/unique2.md", "/sect3/unique2", "/sect3/Unique2"}, "UniqueBase2"},
 		// next test depends on this page existing
 		// {"NoPage", nil, []string{"/unique.md"}, ""},  // ISSUE #4969: this is resolving to /sect3/unique.md
 		{"Absolute, missing page", "NoPage", nil, []string{"/missing-page.md"}, ""},
 		{"Absolute, missing section", "NoPage", nil, []string{"/missing-section"}, ""},
 
 		// relative paths
-		{"Dot relative, home", page.KindHome, sec3, []string{".."}, "home page"},
-		{"Dot relative, home, slash", page.KindHome, sec3, []string{"../"}, "home page"},
-		{"Dot relative about", page.KindPage, sec3, []string{"../about.md"}, "about page"},
-		{"Dot", page.KindSection, sec3, []string{"."}, "section 3"},
-		{"Dot slash", page.KindSection, sec3, []string{"./"}, "section 3"},
-		{"Page relative, no dot", page.KindPage, sec3, []string{"page1.md"}, "Title3_1"},
-		{"Page relative, dot", page.KindPage, sec3, []string{"./page1.md"}, "Title3_1"},
-		{"Up and down another section", page.KindPage, sec3, []string{"../sect4/page2.md"}, "Title4_2"},
-		{"Rel sect7", page.KindSection, sec3, []string{"sect7"}, "another sect7"},
-		{"Rel sect7 dot", page.KindSection, sec3, []string{"./sect7"}, "another sect7"},
-		{"Dot deep", page.KindPage, sec3, []string{"./subsect/deep.md"}, "deep page"},
-		{"Dot dot inner", page.KindPage, sec3, []string{"./subsect/../../sect7/page9.md"}, "Title7_9"},
-		{"Dot OS slash", page.KindPage, sec3, []string{filepath.FromSlash("../sect5/page3.md")}, "Title5_3"}, // test OS-specific path
-		{"Dot unique", page.KindPage, sec3, []string{"./unique.md"}, "UniqueBase"},
+		{"Dot relative, home", kinds.KindHome, sec3, []string{".."}, "home page"},
+		{"Dot relative, home, slash", kinds.KindHome, sec3, []string{"../"}, "home page"},
+		{"Dot relative about", kinds.KindPage, sec3, []string{"../about.md"}, "about page"},
+		{"Dot", kinds.KindSection, sec3, []string{"."}, "section 3"},
+		{"Dot slash", kinds.KindSection, sec3, []string{"./"}, "section 3"},
+		{"Page relative, no dot", kinds.KindPage, sec3, []string{"page1.md"}, "Title3_1"},
+		{"Page relative, dot", kinds.KindPage, sec3, []string{"./page1.md"}, "Title3_1"},
+		{"Up and down another section", kinds.KindPage, sec3, []string{"../sect4/page2.md"}, "Title4_2"},
+		{"Rel sect7", kinds.KindSection, sec3, []string{"sect7"}, "another sect7"},
+		{"Rel sect7 dot", kinds.KindSection, sec3, []string{"./sect7"}, "another sect7"},
+		{"Dot deep", kinds.KindPage, sec3, []string{"./subsect/deep.md"}, "deep page"},
+		{"Dot dot inner", kinds.KindPage, sec3, []string{"./subsect/../../sect7/page9.md"}, "Title7_9"},
+		{"Dot OS slash", kinds.KindPage, sec3, []string{filepath.FromSlash("../sect5/page3.md")}, "Title5_3"}, // test OS-specific path
+		{"Dot unique", kinds.KindPage, sec3, []string{"./unique.md"}, "UniqueBase"},
 		{"Dot sect", "NoPage", sec3, []string{"./sect2"}, ""},
 		//{"NoPage", sec3, []string{"sect2"}, ""}, // ISSUE: /sect3 page relative query is resolving to /sect2
 
-		{"Abs, ignore context, home", page.KindHome, sec3, []string{"/"}, "home page"},
-		{"Abs, ignore context, about", page.KindPage, sec3, []string{"/about.md"}, "about page"},
-		{"Abs, ignore context, page in section", page.KindPage, sec3, []string{"/sect4/page2.md"}, "Title4_2"},
-		{"Abs, ignore context, page subsect deep", page.KindPage, sec3, []string{"/sect3/subsect/deep.md"}, "deep page"}, // next test depends on this page existing
+		{"Abs, ignore context, home", kinds.KindHome, sec3, []string{"/"}, "home page"},
+		{"Abs, ignore context, about", kinds.KindPage, sec3, []string{"/about.md"}, "about page"},
+		{"Abs, ignore context, page in section", kinds.KindPage, sec3, []string{"/sect4/page2.md"}, "Title4_2"},
+		{"Abs, ignore context, page subsect deep", kinds.KindPage, sec3, []string{"/sect3/subsect/deep.md"}, "deep page"}, // next test depends on this page existing
 		{"Abs, ignore context, page deep", "NoPage", sec3, []string{"/subsect/deep.md"}, ""},
 
 		// Taxonomies
-		{"Taxonomy term", page.KindTaxonomy, nil, []string{"categories"}, "Categories"},
-		{"Taxonomy", page.KindTerm, nil, []string{"categories/hugo", "categories/Hugo"}, "Hugo"},
+		{"Taxonomy term", kinds.KindTaxonomy, nil, []string{"categories"}, "Categories"},
+		{"Taxonomy", kinds.KindTerm, nil, []string{"categories/hugo", "categories/Hugo"}, "Hugo"},
 
 		// Bundle variants
-		{"Bundle regular", page.KindPage, nil, []string{"sect3/b1", "sect3/b1/index.md", "sect3/b1/index.en.md"}, "b1 bundle"},
-		{"Bundle index name", page.KindPage, nil, []string{"sect3/index/index.md", "sect3/index"}, "index bundle"},
+		{"Bundle regular", kinds.KindPage, nil, []string{"sect3/b1", "sect3/b1/index.md", "sect3/b1/index.en.md"}, "b1 bundle"},
+		{"Bundle index name", kinds.KindPage, nil, []string{"sect3/index/index.md", "sect3/index"}, "index bundle"},
 
 		// https://github.com/gohugoio/hugo/issues/7301
-		{"Section and bundle overlap", page.KindPage, nil, []string{"section_bundle_overlap_bundle"}, "index overlap bundle"},
+		{"Section and bundle overlap", kinds.KindPage, nil, []string{"section_bundle_overlap_bundle"}, "index overlap bundle"},
 	}
 
 	for _, test := range tests {
@@ -294,7 +308,7 @@ func TestGetPage(t *testing.T) {
 			if test.context == nil {
 				for _, ref := range test.pathVariants {
 					args := append([]string{test.kind}, ref)
-					page, err := s.Info.GetPage(args...)
+					page, err := s.GetPage(args...)
 					test.check(page, err, errorMsg, c)
 				}
 			}

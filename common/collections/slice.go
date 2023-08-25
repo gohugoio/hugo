@@ -15,6 +15,7 @@ package collections
 
 import (
 	"reflect"
+	"sort"
 )
 
 // Slicer defines a very generic way to create a typed slice. This is used
@@ -73,4 +74,23 @@ func StringSliceToInterfaceSlice(ss []string) []any {
 	}
 	return result
 
+}
+
+type SortedStringSlice []string
+
+// Contains returns true if s is in ss.
+func (ss SortedStringSlice) Contains(s string) bool {
+	i := sort.SearchStrings(ss, s)
+	return i < len(ss) && ss[i] == s
+}
+
+// Count returns the number of times s is in ss.
+func (ss SortedStringSlice) Count(s string) int {
+	var count int
+	i := sort.SearchStrings(ss, s)
+	for i < len(ss) && ss[i] == s {
+		count++
+		i++
+	}
+	return count
 }

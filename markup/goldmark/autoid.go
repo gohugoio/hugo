@@ -112,7 +112,7 @@ func (ids *idFactory) Generate(value []byte, kind ast.NodeKind) []byte {
 		}
 
 		if _, found := ids.vals[util.BytesToReadOnlyString(buf.Bytes())]; found {
-			// Append a hypen and a number, starting with 1.
+			// Append a hyphen and a number, starting with 1.
 			buf.WriteRune('-')
 			pos := buf.Len()
 			for i := 1; ; i++ {

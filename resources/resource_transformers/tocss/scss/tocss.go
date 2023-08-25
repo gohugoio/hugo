@@ -40,7 +40,7 @@ func Supports() bool {
 }
 
 func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
-	ctx.OutMediaType = media.CSSType
+	ctx.OutMediaType = media.Builtin.CSSType
 
 	var outName string
 	if t.options.from.TargetPath != "" {
@@ -124,14 +124,14 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		return "", "", false
 	}
 
-	if ctx.InMediaType.SubType == media.SASSType.SubType {
+	if ctx.InMediaType.SubType == media.Builtin.SASSType.SubType {
 		options.to.SassSyntax = true
 	}
 
 	if options.from.EnableSourceMap {
 
 		options.to.SourceMapOptions.Filename = outName + ".map"
-		options.to.SourceMapOptions.Root = t.c.rs.WorkingDir
+		options.to.SourceMapOptions.Root = t.c.rs.Cfg.BaseConfig().WorkingDir
 
 		// Setting this to the relative input filename will get the source map
 		// more correct for the main entry path (main.scss typically), but
@@ -159,8 +159,8 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	if options.from.EnableSourceMap && res.SourceMapContent != "" {
 		sourcePath := t.c.sfs.RealFilename(ctx.SourcePath)
 
-		if strings.HasPrefix(sourcePath, t.c.rs.WorkingDir) {
-			sourcePath = strings.TrimPrefix(sourcePath, t.c.rs.WorkingDir+helpers.FilePathSeparator)
+		if strings.HasPrefix(sourcePath, t.c.rs.Cfg.BaseConfig().WorkingDir) {
+			sourcePath = strings.TrimPrefix(sourcePath, t.c.rs.Cfg.BaseConfig().WorkingDir+helpers.FilePathSeparator)
 		}
 
 		// This needs to be Unix-style slashes, even on Windows.

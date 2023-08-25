@@ -4,8 +4,6 @@ categories: ["Releases"]
 description: "This is the second bug-fix release of the day, fixing a couple of issues related to the new release scripts"
 link: ""
 title: "Hugo 0.20.4"
-draft: false
-author: bep
 aliases: [/0-20-4/]
 ---
 

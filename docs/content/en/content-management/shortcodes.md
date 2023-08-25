@@ -1,6 +1,5 @@
 ---
 title: Shortcodes
-linkTitle: Shortcodes
 description: Shortcodes are simple snippets inside your content files calling built-in or custom templates.
 categories: [content management]
 keywords: [markdown,content,shortcodes]
@@ -14,7 +13,7 @@ aliases: [/extras/shortcodes/]
 testparam: "Hugo Rocks!"
 ---
 
-## What a Shortcode is
+## What a shortcode is
 
 Hugo loves Markdown because of its simple content format, but there are times when Markdown falls short. Often, content authors are forced to add raw HTML (e.g., video `<iframe>`'s) to Markdown content. We think this contradicts the beautiful simplicity of Markdown's syntax.
 
@@ -24,7 +23,7 @@ A shortcode is a simple snippet inside a content file that Hugo will render usin
 
 In addition to cleaner Markdown, shortcodes can be updated any time to reflect new classes, techniques, or standards. At the point of site generation, Hugo shortcodes will easily merge in your changes. You avoid a possibly complicated search and replace operation.
 
-## Use Shortcodes
+## Use shortcodes
 
 {{< youtube 2xkNJL4gJ9E >}}
 
@@ -55,7 +54,7 @@ You can pass multiple lines as parameters to a shortcode by using raw string lit
 and a new line with a "quoted string".` */>}}
 ```
 
-### Shortcodes with Markdown
+### Shortcodes with markdown
 
 In Hugo `0.55` we changed how the `%` delimiter works. Shortcodes using the `%` as the outer-most delimiter will now be fully rendered when sent to the content renderer. They can be part of the generated table of contents, footnotes, etc.
 
@@ -65,7 +64,7 @@ If you want the old behavior, you can put the following line in the start of you
 {{ $_hugo_config := `{ "version": 1 }` }}
 ```
 
-### Shortcodes Without Markdown
+### Shortcodes without markdown
 
 The `<` character indicates that the shortcode's inner content does *not* need further rendering. Often shortcodes without Markdown include internal HTML:
 
@@ -73,11 +72,11 @@ The `<` character indicates that the shortcode's inner content does *not* need f
 {{</* myshortcode */>}}<p>Hello <strong>World!</strong></p>{{</* /myshortcode */>}}
 ```
 
-### Nested Shortcodes
+### Nested shortcodes
 
 You can call shortcodes within other shortcodes by creating your own templates that leverage the `.Parent` variable. `.Parent` allows you to check the context in which the shortcode is being called. See [Shortcode templates][sctemps].
 
-## Use Hugo's Built-in Shortcodes
+## Use Hugo's built-in shortcodes
 
 Hugo ships with a set of predefined shortcodes that represent very common usage. These shortcodes are provided for author convenience and to keep your Markdown content clean.
 
@@ -117,153 +116,155 @@ height
 width
 : `width` attribute of the image.
 
+loading
+: `loading` attribute of the image.
+
 attr
 : Image attribution text. Markdown within the value of `attr` will be rendered.
 
 attrlink
 : If the attribution text needs to be hyperlinked, URL of the destination.
 
-#### Example `figure` Input
+#### Example `figure` input
 
 {{< code file="figure-input-example.md" >}}
-{{</* figure src="/media/spf13.jpg" title="Steve Francia" */>}}
+{{</* figure src="elephant.jpg" title="An elephant at sunset" */>}}
 {{< /code >}}
 
-#### Example `figure` Output
+#### Example `figure` output
 
-{{< output file="figure-output-example.html" >}}
+```html
 <figure>
-  <img src="/media/spf13.jpg"  />
-  <figcaption>
-      <h4>Steve Francia</h4>
-  </figcaption>
+  <img src="elephant.jpg">
+  <figcaption>An elephant at sunset</figcaption>
 </figure>
-{{< /output >}}
+```
 
 ### `gist`
 
-Bloggers often want to include GitHub gists when writing posts. Let's suppose we want to use the [gist at the following url][examplegist]:
+To display a GitHub [gist] with this URL:
 
-```txt
-https://gist.github.com/spf13/7896402
+[gist]: https://docs.github.com/en/get-started/writing-on-github/editing-and-sharing-content-with-gists
+
+```text
+https://gist.github.com/user/50a7482715eac222e230d1e64dd9a89b
 ```
 
-We can embed the gist in our content via username and gist ID pulled from the URL:
+Include this in your markdown:
 
-```go-html-template
-{{</* gist spf13 7896402 */>}}
+```text
+{{</* gist user 50a7482715eac222e230d1e64dd9a89b */>}}
 ```
 
-#### Example `gist` Input
+This will display all files in the gist alphabetically by file name.
 
-If the gist contains several files and you want to quote just one of them, you can pass the filename (quoted) as an optional third argument:
+{{< gist jmooring 50a7482715eac222e230d1e64dd9a89b >}}
 
-{{< code file="gist-input.md" >}}
-{{</* gist spf13 7896402 "img.html" */>}}
-{{< /code >}}
+To display a specific file within the gist:
 
-#### Example `gist` Output
+```text
+{{</* gist user 50a7482715eac222e230d1e64dd9a89b 1-template.html */>}}
+```
 
-{{< output file="gist-output.html" >}}
-{{< gist spf13 7896402 >}}
-{{< /output >}}
+Rendered:
 
-#### Example `gist` Display
-
-To demonstrate the remarkable efficiency of Hugo's shortcode feature, we have embedded the `spf13` `gist` example in this page. The following simulates the experience for visitors to your website. Naturally, the final display will depend on your stylesheets and surrounding markup.
-
-{{< gist spf13 7896402 >}}
+{{< gist jmooring 50a7482715eac222e230d1e64dd9a89b 1-template.html >}}
 
 ### `highlight`
 
-This shortcode will convert the source code provided into syntax-highlighted HTML. Read more on [highlighting](/content-management/syntax-highlighting/). `highlight` takes exactly one required `language` parameter and requires a closing shortcode.
+To display a highlighted code sample:
 
-#### Example `highlight` Input
-
-{{< code file="content/tutorials/learn-html.md" >}}
-{{</* highlight html */>}}
-<section id="main">
-  <div>
-   <h1 id="title">{{ .Title }}</h1>
-    {{ range .Pages }}
-        {{ .Render "summary"}}
-    {{ end }}
-  </div>
-</section>
+```text
+{{</* highlight go-html-template */>}}
+{{ range .Pages }}
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+{{ end }}
 {{</* /highlight */>}}
-{{< /code >}}
+```
 
-#### Example `highlight` Output
+Rendered:
 
-The `highlight` shortcode example above would produce the following HTML when the site is rendered:
+{{< highlight go-html-template >}}
+{{ range .Pages }}
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+{{ end }}
+{{< /highlight >}}
 
-{{< output file="tutorials/learn-html/index.html" >}}
-<span style="color: #f92672">&lt;section</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;main&quot;</span><span style="color: #f92672">&gt;</span>
-  <span style="color: #f92672">&lt;div&gt;</span>
-   <span style="color: #f92672">&lt;h1</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;title&quot;</span><span style="color: #f92672">&gt;</span>{{ .Title }}<span style="color: #f92672">&lt;/h1&gt;</span>
-    {{ range .Pages }}
-        {{ .Render &quot;summary&quot;}}
-    {{ end }}
-  <span style="color: #f92672">&lt;/div&gt;</span>
-<span style="color: #f92672">&lt;/section&gt;</span>
-{{< /output >}}
+To specify one or more [highlighting options], include a quotation-encapsulated, comma-separated list:
 
-{{% note "More on Syntax Highlighting" %}}
-To see even more options for adding syntax-highlighted code blocks to your website, see [Syntax Highlighting in Developer Tools](/tools/syntax-highlighting/).
-{{% /note %}}
+[highlighting options]: /functions/highlight/
+
+```text
+{{</* highlight go-html-template "lineNos=inline, lineNoStart=42" */>}}
+{{ range .Pages }}
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+{{ end }}
+{{</* /highlight */>}}
+```
+
+Rendered:
+
+{{< highlight go-html-template "lineNos=inline, lineNoStart=42" >}}
+{{ range .Pages }}
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+{{ end }}
+{{< /highlight >}}
 
 ### `instagram`
 
-If you'd like to embed a photo from [Instagram], you only need the photo's ID. You can discern an Instagram photo ID from the URL:
+The `instagram` shortcode uses Facebook's **oEmbed Read** feature. The  Facebook [developer documentation] states:
 
-```txt
+- This permission or feature requires successful completion of the App Review process before your app can access live data. [Learn More]
+- This permission or feature is only available with business verification. You may also need to sign additional contracts before your app can access data. [Learn More Here]
+
+[developer documentation]: https://developers.facebook.com/docs/features-reference/oembed-read
+[Learn More]: https://developers.facebook.com/docs/app-review
+[Learn More Here]: https://developers.facebook.com/docs/development/release/business-verification
+
+You must obtain an Access Token to use the `instagram` shortcode.
+
+If your site configuration is private:
+
+{{< code-toggle file="hugo" copy=false >}}
+[services.instagram]
+accessToken = 'xxx'
+{{< /code-toggle >}}
+
+If your site configuration is _not_ private, set the Access Token with an environment variable:
+
+```text
+HUGO_SERVICES_INSTAGRAM_ACCESSTOKEN=xxx hugo --gc --minify
+```
+
+{{% note %}}
+If you are using a Client Access Token, you must combine the Access Token with your App ID using a pipe symbol (`APPID|ACCESSTOKEN`).
+{{% /note %}}
+
+To display an Instagram post with this URL:
+
+```text
 https://www.instagram.com/p/BWNjjyYFxVx/
 ```
 
-#### Example `instagram` Input
+Include this in your markdown:
 
-{{< code file="instagram-input.md" >}}
+```text
 {{</* instagram BWNjjyYFxVx */>}}
-{{< /code >}}
-
-You also have the option to hide the caption:
-
-{{< code file="instagram-input-hide-caption.md" >}}
-{{</* instagram BWNjjyYFxVx hidecaption */>}}
-{{< /code >}}
-
-#### Example `instagram` Output
-
-By adding the preceding `hidecaption` example, the following HTML will be added to your rendered website's markup:
-
-{{< output file="instagram-hide-caption-output.html" >}}
-{{< instagram BWNjjyYFxVx hidecaption >}}
-{{< /output >}}
-
-#### Example `instagram` Display
-
-Using the preceding `instagram` with `hidecaption` example above, the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your style sheets and surrounding markup.
-
-{{< instagram BWNjjyYFxVx hidecaption >}}
-
-
-{{% note %}}
-The `instagram`-shortcode refers an endpoint of Instagram's API, that's deprecated since October 24th, 2020. Thus, no images can be fetched from this API endpoint, resulting in an error when the `instagram`-shortcode is used. For more information please have a look at GitHub issue [#7879](https://github.com/gohugoio/hugo/issues/7879).
-{{% /note %}}
+```
 
 ### `param`
 
-Gets a value from the current `Page's` params set in front matter, with a fallback to the site param value. It will log an `ERROR` if the param with the given key could not be found in either.
+Gets a value from the current `Page's` parameters set in front matter, with a fallback to the site parameter value. It will log an `ERROR` if the parameter with the given key could not be found in either.
 
 ```bash
 {{</* param testparam */>}}
 ```
 
-Since `testparam` is a param defined in front matter of this page with the value `Hugo Rocks!`, the above will print:
+Since `testparam` is a parameter defined in front matter of this page with the value `Hugo Rocks!`, the above will print:
 
 {{< param testparam >}}
 
-To access deeply nested params, use "dot syntax", e.g:
+To access deeply nested parameters, use "dot syntax", e.g:
 
 ```bash
 {{</* param "my.nested.param" */>}}
@@ -275,20 +276,20 @@ These shortcodes will look up the pages by their relative path (e.g., `blog/post
 
 `ref` and `relref` also make it possible to make fragmentary links that work for the header links generated by Hugo.
 
-{{% note "More on Cross References" %}}
+{{% note %}}
 Read a more extensive description of `ref` and `relref` in the [cross references](/content-management/cross-references/) documentation.
 {{% /note %}}
 
 `ref` and `relref` take exactly one required parameter of _reference_, quoted and in position `0`.
 
-#### Example `ref` and `relref` Input
+#### Example `ref` and `relref` input
 
 ```go-html-template
 [Neat]({{</* ref "blog/neat.md" */>}})
 [Who]({{</* relref "about.md#who" */>}})
 ```
 
-#### Example `ref` and `relref` Output
+#### Example `ref` and `relref` output
 
 Assuming that standard Hugo pretty URLs are turned on.
 
@@ -299,71 +300,47 @@ Assuming that standard Hugo pretty URLs are turned on.
 
 ### `tweet`
 
-You want to include a single tweet into your blog post? Everything you need is the URL of the tweet:
+To display a Twitter post with this URL:
 
 ```txt
 https://twitter.com/SanDiegoZoo/status/1453110110599868418
 ```
 
-#### Example `tweet` Input
+Include this in your markdown:
 
-Pass the tweet's user (case-insensitive) and ID from the URL as parameters to the `tweet` shortcode.
-
-{{< code file="example-tweet-input.md" >}}
+```text
 {{</* tweet user="SanDiegoZoo" id="1453110110599868418" */>}}
-{{< /code >}}
+```
 
-#### Example `tweet` Output
-
-Using the preceding `tweet` example, the following HTML will be added to your rendered website's markup:
-
-{{< output file="example-tweet-output.html" >}}
-{{< tweet user="SanDiegoZoo" id="1453110110599868418" >}}
-{{< /output >}}
-
-#### Example `tweet` Display
-
-Using the preceding `tweet` example, the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
+Rendered:
 
 {{< tweet user="SanDiegoZoo" id="1453110110599868418" >}}
 
 ### `vimeo`
 
-Adding a video from [Vimeo] is equivalent to the [YouTube Input shortcode].
+To display a Vimeo video with this URL:
 
-```txt
-https://vimeo.com/channels/staffpicks/146022717
+```text
+https://vimeo.com/channels/staffpicks/55073825
 ```
 
-#### Example `vimeo` Input
+Include this in your markdown:
 
-Extract the ID from the video's URL and pass it to the `vimeo` shortcode:
+```text
+{{</* vimeo 55073825 */>}}
+```
 
-{{< code file="example-vimeo-input.md" >}}
-{{</* vimeo 146022717 */>}}
-{{< /code >}}
+Rendered:
 
-#### Example `vimeo` Output
+{{< vimeo 55073825 >}}
 
-Using the preceding `vimeo` example, the following HTML will be added to your rendered website's markup:
-
-{{< output file="example-vimeo-output.html" >}}
-{{< vimeo 146022717 >}}
-{{< /output >}}
-
-{{% tip %}}
+{{% note %}}
 If you want to further customize the visual styling of the YouTube or Vimeo output, add a `class` named parameter when calling the shortcode. The new `class` will be added to the `<div>` that wraps the `<iframe>` *and* will remove the inline styles. Note that you will need to call the `id` as a named parameter as well. You can also give the vimeo video a descriptive title with `title`.
 
 ```go
 {{</* vimeo id="146022717" class="my-vimeo-wrapper-class" title="My vimeo video" */>}}
 ```
-{{% /tip %}}
-
-#### Example `vimeo` Display
-
-Using the preceding `vimeo` example, the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
-
-{{< vimeo 146022717 >}}
+{{% /note %}}
 
 ### `youtube`
 
@@ -373,7 +350,7 @@ The `youtube` shortcode embeds a responsive video player for [YouTube videos]. O
 https://www.youtube.com/watch?v=w7Ft2ymGmfc
 ```
 
-#### Example `youtube` Input
+#### Example `youtube` input
 
 Copy the YouTube video ID that follows `v=` in the video's URL and pass it to the `youtube` shortcode:
 
@@ -394,7 +371,7 @@ For [accessibility reasons](https://dequeuniversity.com/tips/provide-iframe-titl
 {{</* youtube id="w7Ft2ymGmfc" title="A New Hugo Site in Under Two Minutes" */>}}
 {{< /code >}}
 
-#### Example `youtube` Output
+#### Example `youtube` output
 
 Using the preceding `youtube` example, the following HTML will be added to your rendered website's markup:
 
@@ -402,17 +379,17 @@ Using the preceding `youtube` example, the following HTML will be added to your 
 {{< youtube id="w7Ft2ymGmfc" autoplay="true" >}}
 {{< /code >}}
 
-#### Example `youtube` Display
+#### Example `youtube` display
 
 Using the preceding `youtube` example (without `autoplay="true"`), the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your style sheets and surrounding markup. The video is also include in the [Quick Start of the Hugo documentation][quickstart].
 
 {{< youtube w7Ft2ymGmfc >}}
 
-## Privacy Config
+## Privacy configuration
 
 To learn how to configure your Hugo site to meet the new EU privacy regulation, see [Hugo and the GDPR].
 
-## Create Custom Shortcodes
+## Create custom shortcodes
 
 To learn more about creating custom shortcodes, see the [shortcode template documentation].
 

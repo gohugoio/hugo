@@ -3,6 +3,7 @@ package hugolib
 import (
 	"bytes"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -12,14 +13,16 @@ import (
 	"sync"
 	"testing"
 
-	jww "github.com/spf13/jwalterweatherman"
+	"github.com/bep/logg"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/config/security"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -32,6 +35,8 @@ import (
 func NewIntegrationTestBuilder(conf IntegrationTestConfig) *IntegrationTestBuilder {
 	// Code fences.
 	conf.TxtarString = strings.ReplaceAll(conf.TxtarString, "§§§", "```")
+	// Multiline strings.
+	conf.TxtarString = strings.ReplaceAll(conf.TxtarString, "§§", "`")
 
 	data := txtar.Parse([]byte(conf.TxtarString))
 
@@ -82,6 +87,7 @@ type IntegrationTestBuilder struct {
 	renamedFiles []string
 
 	buildCount int
+	GCCount    int
 	counters   *testCounters
 	logBuff    lockingBuffer
 
@@ -131,6 +137,24 @@ func (s *IntegrationTestBuilder) AssertBuildCountTranslations(count int) {
 	s.Assert(s.H.init.translations.InitCount(), qt.Equals, count)
 }
 
+func (s *IntegrationTestBuilder) AssertFileCount(dirname string, expected int) {
+	s.Helper()
+	fs := s.fs.WorkingDirReadOnly
+	count := 0
+	afero.Walk(fs, dirname, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		count++
+		return nil
+	})
+	s.Assert(count, qt.Equals, expected)
+
+}
+
 func (s *IntegrationTestBuilder) AssertFileContent(filename string, matches ...string) {
 	s.Helper()
 	content := strings.TrimSpace(s.FileContent(filename))
@@ -139,6 +163,15 @@ func (s *IntegrationTestBuilder) AssertFileContent(filename string, matches ...s
 		for _, match := range lines {
 			match = strings.TrimSpace(match)
 			if match == "" || strings.HasPrefix(match, "#") {
+				continue
+			}
+			var negate bool
+			if strings.HasPrefix(match, "! ") {
+				negate = true
+				match = strings.TrimPrefix(match, "! ")
+			}
+			if negate {
+				s.Assert(content, qt.Not(qt.Contains), match, qt.Commentf(m))
 				continue
 			}
 			s.Assert(content, qt.Contains, match, qt.Commentf(m))
@@ -192,7 +225,15 @@ func (s *IntegrationTestBuilder) Build() *IntegrationTestBuilder {
 		fmt.Println(s.logBuff.String())
 	}
 	s.Assert(err, qt.IsNil)
+	if s.Cfg.RunGC {
+		s.GCCount, err = s.H.GC()
+	}
+
 	return s
+}
+
+func (s *IntegrationTestBuilder) LogString() string {
+	return s.logBuff.String()
 }
 
 func (s *IntegrationTestBuilder) BuildE() (*IntegrationTestBuilder, error) {
@@ -201,8 +242,16 @@ func (s *IntegrationTestBuilder) BuildE() (*IntegrationTestBuilder, error) {
 		return s, err
 	}
 
-	err := s.build(BuildCfg{})
+	err := s.build(s.Cfg.BuildCfg)
 	return s, err
+}
+
+func (s *IntegrationTestBuilder) Init() *IntegrationTestBuilder {
+	if err := s.initBuilder(); err != nil {
+		s.Fatalf("Failed to init builder: %s", err)
+	}
+	return s
+
 }
 
 type IntegrationTestDebugConfig struct {
@@ -261,6 +310,7 @@ func (s *IntegrationTestBuilder) RenameFile(old, new string) *IntegrationTestBui
 	absNewFilename := s.absFilename(new)
 	s.renamedFiles = append(s.renamedFiles, absOldFilename)
 	s.createdFiles = append(s.createdFiles, absNewFilename)
+	s.Assert(s.fs.Source.MkdirAll(filepath.Dir(absNewFilename), 0777), qt.IsNil)
 	s.Assert(s.fs.Source.Rename(absOldFilename, absNewFilename), qt.IsNil)
 	return s
 }
@@ -281,17 +331,25 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 		}
 
 		if s.Cfg.LogLevel == 0 {
-			s.Cfg.LogLevel = jww.LevelWarn
+			s.Cfg.LogLevel = logg.LevelWarn
 		}
 
-		logger := loggers.NewBasicLoggerForWriter(s.Cfg.LogLevel, &s.logBuff)
-
 		isBinaryRe := regexp.MustCompile(`^(.*)(\.png|\.jpg)$`)
+
+		const dataSourceFilenamePrefix = "sourcefilename:"
 
 		for _, f := range s.data.Files {
 			filename := filepath.Join(s.Cfg.WorkingDir, f.Name)
 			data := bytes.TrimSuffix(f.Data, []byte("\n"))
-			if isBinaryRe.MatchString(filename) {
+			datastr := strings.TrimSpace(string(data))
+			if strings.HasPrefix(datastr, dataSourceFilenamePrefix) {
+				// Read from file relative to tue current dir.
+				var err error
+				wd, _ := os.Getwd()
+				filename := filepath.Join(wd, strings.TrimSpace(strings.TrimPrefix(datastr, dataSourceFilenamePrefix)))
+				data, err = os.ReadFile(filename)
+				s.Assert(err, qt.IsNil)
+			} else if isBinaryRe.MatchString(filename) {
 				var err error
 				data, err = base64.StdEncoding.DecodeString(string(data))
 				s.Assert(err, qt.IsNil)
@@ -301,36 +359,67 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 			s.Assert(afero.WriteFile(afs, filename, data, 0666), qt.IsNil)
 		}
 
-		configDirFilename := filepath.Join(s.Cfg.WorkingDir, "config")
-		if _, err := afs.Stat(configDirFilename); err != nil {
-			configDirFilename = ""
+		configDir := "config"
+		if _, err := afs.Stat(filepath.Join(s.Cfg.WorkingDir, "config")); err != nil {
+			configDir = ""
 		}
 
-		cfg, _, err := LoadConfig(
-			ConfigSourceDescriptor{
-				WorkingDir:   s.Cfg.WorkingDir,
-				AbsConfigDir: configDirFilename,
-				Fs:           afs,
-				Logger:       logger,
-				Environ:      []string{},
-			},
-			func(cfg config.Provider) error {
-				return nil
+		var flags config.Provider
+		if s.Cfg.BaseCfg != nil {
+			flags = s.Cfg.BaseCfg
+		} else {
+			flags = config.New()
+		}
+
+		if s.Cfg.Running {
+			flags.Set("internal", maps.Params{
+				"running": s.Cfg.Running,
+				"watch":   s.Cfg.Running,
+			})
+		}
+
+		if s.Cfg.WorkingDir != "" {
+			flags.Set("workingDir", s.Cfg.WorkingDir)
+		}
+
+		w := &s.logBuff
+
+		logger := loggers.New(
+			loggers.Options{
+				Stdout:   w,
+				Stderr:   w,
+				Level:    s.Cfg.LogLevel,
+				Distinct: true,
 			},
 		)
 
+		res, err := allconfig.LoadConfig(
+			allconfig.ConfigSourceDescriptor{
+				Flags:     flags,
+				ConfigDir: configDir,
+				Fs:        afs,
+				Logger:    logger,
+				Environ:   s.Cfg.Environ,
+			},
+		)
+
+		if err != nil {
+			initErr = err
+			return
+		}
+
+		fs := hugofs.NewFrom(afs, res.LoadingInfo.BaseConfig)
+
 		s.Assert(err, qt.IsNil)
 
-		cfg.Set("workingDir", s.Cfg.WorkingDir)
-
-		fs := hugofs.NewFrom(afs, cfg)
-
-		s.Assert(err, qt.IsNil)
-
-		depsCfg := deps.DepsCfg{Cfg: cfg, Fs: fs, Running: s.Cfg.Running, Logger: logger}
+		depsCfg := deps.DepsCfg{Configs: res, Fs: fs, LogLevel: logger.Level(), LogOut: logger.Out()}
 		sites, err := NewHugoSites(depsCfg)
 		if err != nil {
 			initErr = err
+			return
+		}
+		if sites == nil {
+			initErr = errors.New("no sites")
 			return
 		}
 
@@ -342,7 +431,8 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 			s.Assert(os.Chdir(s.Cfg.WorkingDir), qt.IsNil)
 			s.C.Cleanup(func() { os.Chdir(wd) })
 			sc := security.DefaultConfig
-			sc.Exec.Allow = security.NewWhitelist("npm")
+			sc.Exec.Allow, err = security.NewWhitelist("npm")
+			s.Assert(err, qt.IsNil)
 			ex := hexec.New(sc)
 			command, err := ex.New("npm", "install")
 			s.Assert(err, qt.IsNil)
@@ -475,16 +565,25 @@ type IntegrationTestConfig struct {
 	// https://pkg.go.dev/golang.org/x/exp/cmd/txtar
 	TxtarString string
 
+	// COnfig to use as the base. We will also read the config from the txtar.
+	BaseCfg config.Provider
+
+	// Environment variables passed to the config loader.
+	Environ []string
+
 	// Whether to simulate server mode.
 	Running bool
 
 	// Will print the log buffer after the build
 	Verbose bool
 
-	LogLevel jww.Threshold
+	LogLevel logg.Level
 
 	// Whether it needs the real file system (e.g. for js.Build tests).
 	NeedsOsFS bool
+
+	// Whether to run GC after each build.
+	RunGC bool
 
 	// Do not remove the temp dir after the test.
 	PrintAndKeepTempDir bool
@@ -493,4 +592,6 @@ type IntegrationTestConfig struct {
 	NeedsNpmInstall bool
 
 	WorkingDir string
+
+	BuildCfg BuildCfg
 }

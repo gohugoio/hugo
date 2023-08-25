@@ -4,8 +4,6 @@ categories: ["Releases"]
 description: "This is a bug-fix release with one important fix. But it also adds some harness around GoReleaser"
 link: ""
 title: "Hugo 0.20.3"
-draft: false
-author: bep
 aliases: [/0-20-3/]
 ---
 

@@ -16,6 +16,7 @@ package hugolib
 import (
 	"sync"
 
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 )
 
@@ -30,12 +31,12 @@ func (p *pageData) Data() any {
 	p.dataInit.Do(func() {
 		p.data = make(page.Data)
 
-		if p.Kind() == page.KindPage {
+		if p.Kind() == kinds.KindPage {
 			return
 		}
 
 		switch p.Kind() {
-		case page.KindTerm:
+		case kinds.KindTerm:
 			b := p.treeRef.n
 			name := b.viewInfo.name
 			termKey := b.viewInfo.termKey
@@ -46,7 +47,7 @@ func (p *pageData) Data() any {
 			p.data["Singular"] = name.singular
 			p.data["Plural"] = name.plural
 			p.data["Term"] = b.viewInfo.term()
-		case page.KindTaxonomy:
+		case kinds.KindTaxonomy:
 			b := p.treeRef.n
 			name := b.viewInfo.name
 

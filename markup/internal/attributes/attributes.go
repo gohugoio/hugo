@@ -26,7 +26,7 @@ import (
 )
 
 // Markdown attributes used as options by the Chroma highlighter.
-var chromaHightlightProcessingAttributes = map[string]bool{
+var chromaHighlightProcessingAttributes = map[string]bool{
 	"anchorLineNos":      true,
 	"guessSyntax":        true,
 	"hl_Lines":           true,
@@ -42,8 +42,8 @@ var chromaHightlightProcessingAttributes = map[string]bool{
 }
 
 func init() {
-	for k, v := range chromaHightlightProcessingAttributes {
-		chromaHightlightProcessingAttributes[strings.ToLower(k)] = v
+	for k, v := range chromaHighlightProcessingAttributes {
+		chromaHighlightProcessingAttributes[strings.ToLower(k)] = v
 	}
 }
 
@@ -101,7 +101,7 @@ func New(astAttributes []ast.Attribute, ownerType AttributesOwnerType) *Attribut
 			panic(fmt.Sprintf("not implemented: %T", vvv))
 		}
 
-		if ownerType == AttributesOwnerCodeBlockChroma && chromaHightlightProcessingAttributes[nameLower] {
+		if ownerType == AttributesOwnerCodeBlockChroma && chromaHighlightProcessingAttributes[nameLower] {
 			attr := Attribute{Name: string(v.Name), Value: vv}
 			opts = append(opts, attr)
 		} else {
@@ -199,9 +199,9 @@ func RenderASTAttributes(w hugio.FlexiWriter, attributes ...ast.Attribute) {
 	}
 }
 
-// Render writes the attributes to the given as attributes to an HTML element.
-// This is used for the default codeblock renderering.
-// This performs HTML esacaping of string attributes.
+// RenderAttributes Render writes the attributes to the given as attributes to an HTML element.
+// This is used for the default codeblock rendering.
+// This performs HTML escaping of string attributes.
 func RenderAttributes(w hugio.FlexiWriter, skipClass bool, attributes ...Attribute) {
 	for _, attr := range attributes {
 		a := strings.ToLower(string(attr.Name))

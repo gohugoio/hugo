@@ -17,16 +17,13 @@ package source
 import (
 	"os"
 	"path/filepath"
-	"regexp"
 	"runtime"
 
 	"github.com/gohugoio/hugo/hugofs/glob"
 
-	"github.com/gohugoio/hugo/langs"
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/spf13/cast"
 )
 
 // SourceSpec abstracts language-specific file creation.
@@ -37,56 +34,23 @@ type SourceSpec struct {
 	SourceFs afero.Fs
 
 	shouldInclude func(filename string) bool
-
-	Languages              map[string]any
-	DefaultContentLanguage string
-	DisabledLanguages      map[string]bool
 }
 
 // NewSourceSpec initializes SourceSpec using languages the given filesystem and PathSpec.
 func NewSourceSpec(ps *helpers.PathSpec, inclusionFilter *glob.FilenameFilter, fs afero.Fs) *SourceSpec {
-	cfg := ps.Cfg
-	defaultLang := cfg.GetString("defaultContentLanguage")
-	languages := cfg.GetStringMap("languages")
 
-	disabledLangsSet := make(map[string]bool)
-
-	for _, disabledLang := range cfg.GetStringSlice("disableLanguages") {
-		disabledLangsSet[disabledLang] = true
-	}
-
-	if len(languages) == 0 {
-		l := langs.NewDefaultLanguage(cfg)
-		languages[l.Lang] = l
-		defaultLang = l.Lang
-	}
-
-	ignoreFiles := cast.ToStringSlice(cfg.Get("ignoreFiles"))
-	var regexps []*regexp.Regexp
-	if len(ignoreFiles) > 0 {
-		for _, ignorePattern := range ignoreFiles {
-			re, err := regexp.Compile(ignorePattern)
-			if err != nil {
-				helpers.DistinctErrorLog.Printf("Invalid regexp %q in ignoreFiles: %s", ignorePattern, err)
-			} else {
-				regexps = append(regexps, re)
-			}
-
-		}
-	}
 	shouldInclude := func(filename string) bool {
 		if !inclusionFilter.Match(filename, false) {
 			return false
 		}
-		for _, r := range regexps {
-			if r.MatchString(filename) {
-				return false
-			}
+		if ps.Cfg.IgnoreFile(filename) {
+			return false
 		}
+
 		return true
 	}
 
-	return &SourceSpec{shouldInclude: shouldInclude, PathSpec: ps, SourceFs: fs, Languages: languages, DefaultContentLanguage: defaultLang, DisabledLanguages: disabledLangsSet}
+	return &SourceSpec{shouldInclude: shouldInclude, PathSpec: ps, SourceFs: fs}
 }
 
 // IgnoreFile returns whether a given file should be ignored.
