@@ -631,8 +631,8 @@ func TestConvertCJK(t *testing.T) {
 	c := qt.New(t)
 
 	content := `
-あいうえお
-かきくけこ\ さしすせそ
+私は太郎です。
+プログラミングが好きです。\ 運動が苦手です。
 `
 
 	confStr := `
@@ -646,15 +646,16 @@ func TestConvertCJK(t *testing.T) {
 	b := convert(c, conf, content)
 	got := string(b.Bytes())
 
-	c.Assert(got, qt.Contains, "<p>あいうえお\nかきくけこ\\ さしすせそ</p>\n")
+	c.Assert(got, qt.Contains, "<p>私は太郎です。\nプログラミングが好きです。\\ 運動が苦手です。</p>\n")
 }
 
 func TestConvertCJKWithExtensionWithEastAsianLineBreaksOption(t *testing.T) {
 	c := qt.New(t)
 
 	content := `
-あいうえお
-かきくけこ
+私は太郎です。
+プログラミングが好きで、
+運動が苦手です。
 `
 
 	confStr := `
@@ -671,15 +672,15 @@ eastAsianLineBreaks=true
 	b := convert(c, conf, content)
 	got := string(b.Bytes())
 
-	c.Assert(got, qt.Contains, "<p>あいうえおかきくけこ\\ さしすせそ</p>\n")
+	c.Assert(got, qt.Contains, "<p>私は太郎です。プログラミングが好きで、運動が苦手です。</p>\n")
 }
 
 func TestConvertCJKWithExtensionWithEscapedSpaceOption(t *testing.T) {
 	c := qt.New(t)
 
 	content := `
-あいうえお
-かきくけこ\ さしすせそ
+私は太郎です。
+プログラミングが好きです。\ 運動が苦手です。
 `
 
 	confStr := `
@@ -696,5 +697,5 @@ escapedSpace=true
 	b := convert(c, conf, content)
 	got := string(b.Bytes())
 
-	c.Assert(got, qt.Contains, "<p>あいうえお\nかきくけこさしすせそ</p>\n")
+	c.Assert(got, qt.Contains, "<p>私は太郎です。\nプログラミングが好きです。運動が苦手です。</p>\n")
 }
