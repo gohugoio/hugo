@@ -171,6 +171,19 @@ Under the deploy step, you will see a link to your live site.
 
 In the future, whenever you push a change from your local repository, GitHub will rebuild your site and deploy the changes.
 
+## Customize the workflow
+
+The example workflow above includes this step, which typically takes 10&#8209;15 seconds:
+
+```yaml
+- name: Install Dart Sass
+  run: sudo snap install dart-sass
+```
+
+You may remove this step if your site, themes, and modules do not transpile Sass to CSS using the [Dart Sass] transpiler.
+
+[Dart Sass]: /hugo-pipes/transpile-sass-to-css/#dart-sass
+
 ## Additional resources
 
 - [Learn more about GitHub Actions](https://docs.github.com/en/actions)
