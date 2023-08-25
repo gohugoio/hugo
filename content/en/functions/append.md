@@ -1,37 +1,99 @@
 ---
 title: append
-description: "`append` appends one or more values to a slice and returns the resulting slice."
+description: Appends one or more elements to a slice and returns the resulting slice.
 categories: [functions]
 menu:
   docs:
     parent: functions
 keywords: [collections]
-signature: ["COLLECTION | append VALUE [VALUE]...", "COLLECTION | append COLLECTION"]
+signature: ["COLLECTION | append ELEMENT [ELEMENT]...", "COLLECTION | append COLLECTION"]
 relatedfuncs: [last,first,where,slice]
 ---
 
-An example appending single values:
+This function appends all elements, excluding the last, to the last element. This allows [pipe](/getting-started/glossary/#pipeline) constructs as shown below.
+
+Append a single element to a slice:
 
 ```go-html-template
-{{ $s := slice "a" "b" "c" }}
-{{ $s = $s | append "d" "e" }}
-{{/* $s now contains a []string with elements "a", "b", "c", "d", and "e" */}}
+{{ $s := slice "a" "b" }}
+{{ $s }} → [a b]
 
+{{ $s = $s | append "c" }}
+{{ $s }} → [a b c]
 ```
 
-The same example appending a slice to a slice:
+Append two elements to a slice:
 
 ```go-html-template
-{{ $s := slice "a" "b" "c" }}
+{{ $s := slice "a" "b" }}
+{{ $s }} → [a b]
+
+{{ $s = $s | append "c" "d" }}
+{{ $s }} → [a b c d]
+```
+
+Append two elements, as a slice, to a slice. This produces the same result as the previous example:
+
+```go-html-template
+{{ $s := slice "a" "b" }}
+{{ $s }} → [a b]
+
+{{ $s = $s | append (slice "c" "d") }}
+{{ $s }} → [a b c d]
+```
+
+Start with an empty slice:
+
+```go-html-template
+{{ $s := slice }}
+{{ $s }} → []
+
+{{ $s = $s | append "a" }}
+{{ $s }} → [a]
+
+{{ $s = $s | append "b" "c" }}
+{{ $s }} → [a b c]
+
 {{ $s = $s | append (slice "d" "e") }}
+{{ $s }} → [a b c d e]
 ```
 
-If a slice contains other slices, further slices will be appended as values:
+If you start with a slice of a slice:
 
 ```go-html-template
-{{ $s := slice (slice "a" "b") (slice "c" "d") }}
-{{ $s = $s | append (slice "e" "f") (slice "g" "h") }}
-{{/* $s now contains a [][]string containing four slices:  ["a" "b"],  ["c" "d"], ["e" "f"], and ["g" "h"] */}}
+{{ $s := slice (slice "a" "b") }}
+{{ $s }} → [[a b]]
+
+{{ $s = $s | append (slice "c" "d") }}
+{{ $s }} → [[a b] [c d]]
 ```
 
-The `append` function works for all types, including `Pages`.
+To create a slice of slices, starting with an empty slice:
+
+```go-html-template
+{{ $s := slice }}
+{{ $s }} → []
+
+{{ $s = $s | append (slice (slice "a" "b")) }}
+{{ $s }} → [[a b]]
+
+{{ $s = $s | append  (slice "c" "d") }}
+{{ $s }} → [[a b] [c d]]
+```
+
+
+
+Although the elements in the examples above are strings, you can use the `append` function with any data type, include Pages. For example, on the home page of a corporate site, to display links to the two most recent press releases followed by links to the four most recent articles:
+
+```go-html-template
+{{ $p := where site.RegularPages "Type" "press-releases" | first 2 }}
+{{ $p = $p | append (where site.RegularPages "Type" "articles" | first 4) }}
+
+{{ with $p }}
+  <ul>
+    {{ range $p }}
+      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+    {{ end }}
+  </ul>
+{{ end }}
+```
