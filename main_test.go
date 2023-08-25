@@ -396,8 +396,13 @@ func testSetupFunc() func(env *testscript.Env) error {
 		keyVals = append(keyVals, "SOURCE", sourceDir)
 
 		goVersion := runtime.Version()
-		// Strip all but the major and minor version.
-		goVersion = regexp.MustCompile(`^go(\d+\.\d+)`).FindStringSubmatch(goVersion)[1]
+
+		goVersion = strings.TrimPrefix(goVersion, "go")
+		if !strings.HasSuffix(goVersion, ".0") {
+			// Strip patch version.
+			goVersion = goVersion[:strings.LastIndex(goVersion, ".")]
+		}
+
 		keyVals = append(keyVals, "GOVERSION", goVersion)
 		envhelpers.SetEnvVars(&env.Vars, keyVals...)
 

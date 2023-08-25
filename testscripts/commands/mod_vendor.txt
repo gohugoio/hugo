@@ -8,6 +8,7 @@ ls _vendor/github.com/gohugoio/hugo-mod-integrationtests/withhugotoml
 stdout 'hugo.toml'
 
 
+
 -- hugo.toml --
 title = "Hugo Modules Test"
 [module]
@@ -19,6 +20,12 @@ path="github.com/gohugoio/hugo-mod-integrationtests/withhugotoml"
 go 1.19
 
 module github.com/gohugoio/testmod
+
+require (
+    github.com/gohugoio/hugo-mod-integrationtests/withconfigtoml v1.0.0 
+    github.com/gohugoio/hugo-mod-integrationtests/withhugotoml v1.0.0
+)
+
 -- golden/vendor.txt --
 # github.com/gohugoio/hugo-mod-integrationtests/withconfigtoml v1.0.0
 # github.com/gohugoio/hugo-mod-integrationtests/withhugotoml v1.0.0

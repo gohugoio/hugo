@@ -16,7 +16,7 @@ jobs:
   test:
     strategy:
       matrix:
-        go-version: [1.19.x,1.20.x]
+        go-version: [1.20.x,1.21.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -34,7 +34,7 @@ jobs:
     - name: Install Ruby
       uses: ruby/setup-ruby@ee2113536afb7f793eed4ce60e8d3b26db912da4
       with:
-        ruby-version: '2.7' 
+        ruby-version: '2.7'
         bundler-cache: true #
     - name: Install Python
       uses: actions/setup-python@3105fb18c05ddd93efea5f9e0bef7a03a6e9e7df
@@ -64,7 +64,7 @@ jobs:
       run: |
         Choco-Install -PackageName mingw -ArgumentList "--version","12.2.0","--allow-downgrade"
     - if: matrix.os == 'ubuntu-latest'
-      name: Install dart-sass-embedded Linux
+      name: Install dart-sass Linux
       run: |
         echo "Install Dart Sass version ${SASS_VERSION} ..."
         curl -LJO "https://github.com/sass/dart-sass/releases/download/${SASS_VERSION}/dart-sass-${SASS_VERSION}-linux-x64.tar.gz";
@@ -73,7 +73,7 @@ jobs:
         echo "$GOBIN"
         echo "$GITHUB_WORKSPACE/dart-sass/" >> $GITHUB_PATH
     - if: matrix.os == 'macos-latest'
-      name: Install dart-sass-embedded MacOS
+      name: Install dart-sass MacOS
       run: |
         echo "Install Dart Sass version ${SASS_VERSION} ..."
         curl -LJO "https://github.com/sass/dart-sass/releases/download/${SASS_VERSION}/dart-sass-${SASS_VERSION}-macos-x64.tar.gz";
@@ -81,7 +81,7 @@ jobs:
         tar -xvf "dart-sass-${SASS_VERSION}-macos-x64.tar.gz";
         echo "$GITHUB_WORKSPACE/dart-sass/" >> $GITHUB_PATH
     - if: matrix.os == 'windows-latest'
-      name: Install dart-sass-embedded Windows
+      name: Install dart-sass Windows
       run: |
         echo "Install Dart Sass version ${env:SASS_VERSION} ..."
         curl -LJO "https://github.com/sass/dart-sass/releases/download/${env:SASS_VERSION}/dart-sass-${env:SASS_VERSION}-windows-x64.zip";

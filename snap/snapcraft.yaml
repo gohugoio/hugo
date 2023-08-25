@@ -116,7 +116,7 @@ parts:
   go:
     plugin: nil
     stage-snaps:
-      - go/1.19/stable
+      - go/1.21/stable
     prime:
       - bin/go
       - pkg/tool
@@ -171,7 +171,7 @@ parts:
       snapcraftctl build
       sed -i '1s|#!/usr/bin/ruby|#!/usr/bin/env ruby|' $SNAPCRAFT_PART_INSTALL/usr/bin/asciidoctor
 
-  dart-sass-embedded:
+  dart-sass:
     plugin: nil
     build-packages:
       - curl

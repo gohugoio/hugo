@@ -83,7 +83,7 @@ func New(fs *hugofs.Fs, cfg config.AllProvider) (*Paths, error) {
 }
 
 func (p *Paths) AllModules() modules.Modules {
-	return p.Cfg.GetConfigSection("activeModules").(modules.Modules)
+	return p.Cfg.GetConfigSection("allModules").(modules.Modules)
 }
 
 // GetBasePath returns any path element in baseURL if needed.

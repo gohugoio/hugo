@@ -921,8 +921,8 @@ config:
       dir: :cacheDir/:project
       maxAge: -1
     images:
-      dir: :cacheDir/images
-      maxAge: 1.8e+15
+      dir: :resourceDir/_gen
+      maxAge: -1
     modules:
       dir: :cacheDir/modules
       maxAge: -1
@@ -1542,12 +1542,16 @@ config:
     enableInlineShortcodes: false
     exec:
       allow:
-      - ^((dart-)?sass(-embedded)?|go|npx|postcss)$
+      - ^(dart-)?sass(-embedded)?$
+      - ^go$
+      - ^npx$
+      - ^postcss$
       osEnv:
-      - (?i)^(PATH|PATHEXT|APPDATA|HOME|TMP|TEMP|TERM)$
+      - (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG)$
     funcs:
       getenv:
-      - ^(HUGO_|REPOSITORY_URL|^BRANCH$)
+      - ^HUGO_
+      - ^CI$
     goTemplates:
       allowActionJSTmpl: false
     http:
@@ -1685,7 +1689,7 @@ output:
     - layouts/_default/baseof.html.html
     - layouts/_default/single-baseof.html
     - layouts/_default/baseof.html
-  - Example: Single page in "posts" section with layout set
+  - Example: Single page in "posts" section with layout set to "demolayout"
     Kind: page
     OutputFormat: html
     Suffix: html
@@ -1698,7 +1702,7 @@ output:
     - layouts/_default/single.html.html
     - layouts/_default/demolayout.html
     - layouts/_default/single.html
-  - Example: Base template for single page in "posts" section with layout set
+  - Example: Base template for single page in "posts" section with layout set to "demolayout"
     Kind: page
     OutputFormat: html
     Suffix: html
@@ -1775,7 +1779,7 @@ output:
     - layouts/_default/home-baseof.html
     - layouts/_default/list-baseof.html
     - layouts/_default/baseof.html
-  - Example: Home page with type set
+  - Example: Home page with type set to "demotype"
     Kind: home
     OutputFormat: html
     Suffix: html
@@ -1798,7 +1802,7 @@ output:
     - layouts/_default/index.html
     - layouts/_default/home.html
     - layouts/_default/list.html
-  - Example: Base template for home page with type set
+  - Example: Base template for home page with type set to "demotype"
     Kind: home
     OutputFormat: html
     Suffix: html
@@ -1827,7 +1831,7 @@ output:
     - layouts/_default/home-baseof.html
     - layouts/_default/list-baseof.html
     - layouts/_default/baseof.html
-  - Example: Home page with layout set
+  - Example: Home page with layout set to "demolayout"
     Kind: home
     OutputFormat: html
     Suffix: html
@@ -1914,7 +1918,88 @@ output:
     - layouts/_default/home.xml
     - layouts/_default/list.xml
     - layouts/_internal/_default/rss.xml
-  - Example: RSS section posts
+  - Example: Section list for "posts"
+    Kind: section
+    OutputFormat: html
+    Suffix: html
+    Template Lookup Order:
+    - layouts/posts/posts.html.html
+    - layouts/posts/section.html.html
+    - layouts/posts/list.html.html
+    - layouts/posts/posts.html
+    - layouts/posts/section.html
+    - layouts/posts/list.html
+    - layouts/section/posts.html.html
+    - layouts/section/section.html.html
+    - layouts/section/list.html.html
+    - layouts/section/posts.html
+    - layouts/section/section.html
+    - layouts/section/list.html
+    - layouts/_default/posts.html.html
+    - layouts/_default/section.html.html
+    - layouts/_default/list.html.html
+    - layouts/_default/posts.html
+    - layouts/_default/section.html
+    - layouts/_default/list.html
+  - Example: Section list for "posts" with type set to "blog"
+    Kind: section
+    OutputFormat: html
+    Suffix: html
+    Template Lookup Order:
+    - layouts/blog/posts.html.html
+    - layouts/blog/section.html.html
+    - layouts/blog/list.html.html
+    - layouts/blog/posts.html
+    - layouts/blog/section.html
+    - layouts/blog/list.html
+    - layouts/posts/posts.html.html
+    - layouts/posts/section.html.html
+    - layouts/posts/list.html.html
+    - layouts/posts/posts.html
+    - layouts/posts/section.html
+    - layouts/posts/list.html
+    - layouts/section/posts.html.html
+    - layouts/section/section.html.html
+    - layouts/section/list.html.html
+    - layouts/section/posts.html
+    - layouts/section/section.html
+    - layouts/section/list.html
+    - layouts/_default/posts.html.html
+    - layouts/_default/section.html.html
+    - layouts/_default/list.html.html
+    - layouts/_default/posts.html
+    - layouts/_default/section.html
+    - layouts/_default/list.html
+  - Example: Section list for "posts" with layout set to "demolayout"
+    Kind: section
+    OutputFormat: html
+    Suffix: html
+    Template Lookup Order:
+    - layouts/posts/demolayout.html.html
+    - layouts/posts/posts.html.html
+    - layouts/posts/section.html.html
+    - layouts/posts/list.html.html
+    - layouts/posts/demolayout.html
+    - layouts/posts/posts.html
+    - layouts/posts/section.html
+    - layouts/posts/list.html
+    - layouts/section/demolayout.html.html
+    - layouts/section/posts.html.html
+    - layouts/section/section.html.html
+    - layouts/section/list.html.html
+    - layouts/section/demolayout.html
+    - layouts/section/posts.html
+    - layouts/section/section.html
+    - layouts/section/list.html
+    - layouts/_default/demolayout.html.html
+    - layouts/_default/posts.html.html
+    - layouts/_default/section.html.html
+    - layouts/_default/list.html.html
+    - layouts/_default/demolayout.html
+    - layouts/_default/posts.html
+    - layouts/_default/section.html
+    - layouts/_default/list.html
+  - Example: Section list for "posts"
     Kind: section
     OutputFormat: rss
     Suffix: xml
@@ -1935,7 +2020,44 @@ output:
     - layouts/_default/section.xml
     - layouts/_default/list.xml
     - layouts/_internal/_default/rss.xml
-  - Example: Taxonomy in categories
+  - Example: Taxonomy list for "categories"
+    Kind: taxonomy
+    OutputFormat: html
+    Suffix: html
+    Template Lookup Order:
+    - layouts/categories/category.terms.html.html
+    - layouts/categories/terms.html.html
+    - layouts/categories/taxonomy.html.html
+    - layouts/categories/list.html.html
+    - layouts/categories/category.terms.html
+    - layouts/categories/terms.html
+    - layouts/categories/taxonomy.html
+    - layouts/categories/list.html
+    - layouts/category/category.terms.html.html
+    - layouts/category/terms.html.html
+    - layouts/category/taxonomy.html.html
+    - layouts/category/list.html.html
+    - layouts/category/category.terms.html
+    - layouts/category/terms.html
+    - layouts/category/taxonomy.html
+    - layouts/category/list.html
+    - layouts/taxonomy/category.terms.html.html
+    - layouts/taxonomy/terms.html.html
+    - layouts/taxonomy/taxonomy.html.html
+    - layouts/taxonomy/list.html.html
+    - layouts/taxonomy/category.terms.html
+    - layouts/taxonomy/terms.html
+    - layouts/taxonomy/taxonomy.html
+    - layouts/taxonomy/list.html
+    - layouts/_default/category.terms.html.html
+    - layouts/_default/terms.html.html
+    - layouts/_default/taxonomy.html.html
+    - layouts/_default/list.html.html
+    - layouts/_default/category.terms.html
+    - layouts/_default/terms.html
+    - layouts/_default/taxonomy.html
+    - layouts/_default/list.html
+  - Example: Taxonomy list for "categories"
     Kind: taxonomy
     OutputFormat: rss
     Suffix: xml
@@ -1977,7 +2099,52 @@ output:
     - layouts/_default/taxonomy.xml
     - layouts/_default/list.xml
     - layouts/_internal/_default/rss.xml
-  - Example: Term in categories
+  - Example: Term list for "categories"
+    Kind: term
+    OutputFormat: html
+    Suffix: html
+    Template Lookup Order:
+    - layouts/categories/term.html.html
+    - layouts/categories/category.html.html
+    - layouts/categories/taxonomy.html.html
+    - layouts/categories/list.html.html
+    - layouts/categories/term.html
+    - layouts/categories/category.html
+    - layouts/categories/taxonomy.html
+    - layouts/categories/list.html
+    - layouts/term/term.html.html
+    - layouts/term/category.html.html
+    - layouts/term/taxonomy.html.html
+    - layouts/term/list.html.html
+    - layouts/term/term.html
+    - layouts/term/category.html
+    - layouts/term/taxonomy.html
+    - layouts/term/list.html
+    - layouts/taxonomy/term.html.html
+    - layouts/taxonomy/category.html.html
+    - layouts/taxonomy/taxonomy.html.html
+    - layouts/taxonomy/list.html.html
+    - layouts/taxonomy/term.html
+    - layouts/taxonomy/category.html
+    - layouts/taxonomy/taxonomy.html
+    - layouts/taxonomy/list.html
+    - layouts/category/term.html.html
+    - layouts/category/category.html.html
+    - layouts/category/taxonomy.html.html
+    - layouts/category/list.html.html
+    - layouts/category/term.html
+    - layouts/category/category.html
+    - layouts/category/taxonomy.html
+    - layouts/category/list.html
+    - layouts/_default/term.html.html
+    - layouts/_default/category.html.html
+    - layouts/_default/taxonomy.html.html
+    - layouts/_default/list.html.html
+    - layouts/_default/term.html
+    - layouts/_default/category.html
+    - layouts/_default/taxonomy.html
+    - layouts/_default/list.html
+  - Example: Term list for "categories"
     Kind: term
     OutputFormat: rss
     Suffix: xml
@@ -2028,169 +2195,6 @@ output:
     - layouts/_default/taxonomy.xml
     - layouts/_default/list.xml
     - layouts/_internal/_default/rss.xml
-  - Example: Section list for "posts" section
-    Kind: section
-    OutputFormat: html
-    Suffix: html
-    Template Lookup Order:
-    - layouts/posts/posts.html.html
-    - layouts/posts/section.html.html
-    - layouts/posts/list.html.html
-    - layouts/posts/posts.html
-    - layouts/posts/section.html
-    - layouts/posts/list.html
-    - layouts/section/posts.html.html
-    - layouts/section/section.html.html
-    - layouts/section/list.html.html
-    - layouts/section/posts.html
-    - layouts/section/section.html
-    - layouts/section/list.html
-    - layouts/_default/posts.html.html
-    - layouts/_default/section.html.html
-    - layouts/_default/list.html.html
-    - layouts/_default/posts.html
-    - layouts/_default/section.html
-    - layouts/_default/list.html
-  - Example: Section list for "posts" section with type set to "blog"
-    Kind: section
-    OutputFormat: html
-    Suffix: html
-    Template Lookup Order:
-    - layouts/blog/posts.html.html
-    - layouts/blog/section.html.html
-    - layouts/blog/list.html.html
-    - layouts/blog/posts.html
-    - layouts/blog/section.html
-    - layouts/blog/list.html
-    - layouts/posts/posts.html.html
-    - layouts/posts/section.html.html
-    - layouts/posts/list.html.html
-    - layouts/posts/posts.html
-    - layouts/posts/section.html
-    - layouts/posts/list.html
-    - layouts/section/posts.html.html
-    - layouts/section/section.html.html
-    - layouts/section/list.html.html
-    - layouts/section/posts.html
-    - layouts/section/section.html
-    - layouts/section/list.html
-    - layouts/_default/posts.html.html
-    - layouts/_default/section.html.html
-    - layouts/_default/list.html.html
-    - layouts/_default/posts.html
-    - layouts/_default/section.html
-    - layouts/_default/list.html
-  - Example: Section list for "posts" section with layout set to "demoLayout"
-    Kind: section
-    OutputFormat: html
-    Suffix: html
-    Template Lookup Order:
-    - layouts/posts/demolayout.html.html
-    - layouts/posts/posts.html.html
-    - layouts/posts/section.html.html
-    - layouts/posts/list.html.html
-    - layouts/posts/demolayout.html
-    - layouts/posts/posts.html
-    - layouts/posts/section.html
-    - layouts/posts/list.html
-    - layouts/section/demolayout.html.html
-    - layouts/section/posts.html.html
-    - layouts/section/section.html.html
-    - layouts/section/list.html.html
-    - layouts/section/demolayout.html
-    - layouts/section/posts.html
-    - layouts/section/section.html
-    - layouts/section/list.html
-    - layouts/_default/demolayout.html.html
-    - layouts/_default/posts.html.html
-    - layouts/_default/section.html.html
-    - layouts/_default/list.html.html
-    - layouts/_default/demolayout.html
-    - layouts/_default/posts.html
-    - layouts/_default/section.html
-    - layouts/_default/list.html
-  - Example: Taxonomy list in categories
-    Kind: taxonomy
-    OutputFormat: html
-    Suffix: html
-    Template Lookup Order:
-    - layouts/categories/category.terms.html.html
-    - layouts/categories/terms.html.html
-    - layouts/categories/taxonomy.html.html
-    - layouts/categories/list.html.html
-    - layouts/categories/category.terms.html
-    - layouts/categories/terms.html
-    - layouts/categories/taxonomy.html
-    - layouts/categories/list.html
-    - layouts/category/category.terms.html.html
-    - layouts/category/terms.html.html
-    - layouts/category/taxonomy.html.html
-    - layouts/category/list.html.html
-    - layouts/category/category.terms.html
-    - layouts/category/terms.html
-    - layouts/category/taxonomy.html
-    - layouts/category/list.html
-    - layouts/taxonomy/category.terms.html.html
-    - layouts/taxonomy/terms.html.html
-    - layouts/taxonomy/taxonomy.html.html
-    - layouts/taxonomy/list.html.html
-    - layouts/taxonomy/category.terms.html
-    - layouts/taxonomy/terms.html
-    - layouts/taxonomy/taxonomy.html
-    - layouts/taxonomy/list.html
-    - layouts/_default/category.terms.html.html
-    - layouts/_default/terms.html.html
-    - layouts/_default/taxonomy.html.html
-    - layouts/_default/list.html.html
-    - layouts/_default/category.terms.html
-    - layouts/_default/terms.html
-    - layouts/_default/taxonomy.html
-    - layouts/_default/list.html
-  - Example: Taxonomy term in categories
-    Kind: term
-    OutputFormat: html
-    Suffix: html
-    Template Lookup Order:
-    - layouts/categories/term.html.html
-    - layouts/categories/category.html.html
-    - layouts/categories/taxonomy.html.html
-    - layouts/categories/list.html.html
-    - layouts/categories/term.html
-    - layouts/categories/category.html
-    - layouts/categories/taxonomy.html
-    - layouts/categories/list.html
-    - layouts/term/term.html.html
-    - layouts/term/category.html.html
-    - layouts/term/taxonomy.html.html
-    - layouts/term/list.html.html
-    - layouts/term/term.html
-    - layouts/term/category.html
-    - layouts/term/taxonomy.html
-    - layouts/term/list.html
-    - layouts/taxonomy/term.html.html
-    - layouts/taxonomy/category.html.html
-    - layouts/taxonomy/taxonomy.html.html
-    - layouts/taxonomy/list.html.html
-    - layouts/taxonomy/term.html
-    - layouts/taxonomy/category.html
-    - layouts/taxonomy/taxonomy.html
-    - layouts/taxonomy/list.html
-    - layouts/category/term.html.html
-    - layouts/category/category.html.html
-    - layouts/category/taxonomy.html.html
-    - layouts/category/list.html.html
-    - layouts/category/term.html
-    - layouts/category/category.html
-    - layouts/category/taxonomy.html
-    - layouts/category/list.html
-    - layouts/_default/term.html.html
-    - layouts/_default/category.html.html
-    - layouts/_default/taxonomy.html.html
-    - layouts/_default/list.html.html
-    - layouts/_default/term.html
-    - layouts/_default/category.html
-    - layouts/_default/taxonomy.html
-    - layouts/_default/list.html
 tpl:
   funcs:
     cast:

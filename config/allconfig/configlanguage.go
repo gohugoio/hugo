@@ -140,7 +140,7 @@ func (c ConfigLanguage) GetConfigSection(s string) any {
 		return c.config.Permalinks
 	case "minify":
 		return c.config.Minify
-	case "activeModules":
+	case "allModules":
 		return c.m.Modules
 	case "deployment":
 		return c.config.Deployment

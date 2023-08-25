@@ -109,11 +109,8 @@ func (h *Client) collect(tidy bool) (ModulesConfig, *collector) {
 }
 
 type ModulesConfig struct {
-	// All modules, including any disabled.
-	AllModules Modules
-
 	// All active modules.
-	ActiveModules Modules
+	AllModules Modules
 
 	// Set if this is a Go modules enabled project.
 	GoModulesFilename string
@@ -123,7 +120,7 @@ type ModulesConfig struct {
 }
 
 func (m ModulesConfig) HasConfigFile() bool {
-	for _, mod := range m.ActiveModules {
+	for _, mod := range m.AllModules {
 		if len(mod.ConfigFilenames()) > 0 {
 			return true
 		}
@@ -133,17 +130,11 @@ func (m ModulesConfig) HasConfigFile() bool {
 }
 
 func (m *ModulesConfig) setActiveMods(logger loggers.Logger) error {
-	var activeMods Modules
 	for _, mod := range m.AllModules {
 		if !mod.Config().HugoVersion.IsValid() {
 			logger.Warnf(`Module %q is not compatible with this Hugo version; run "hugo mod graph" for more information.`, mod.Path())
 		}
-		if !mod.Disabled() {
-			activeMods = append(activeMods, mod)
-		}
 	}
-
-	m.ActiveModules = activeMods
 
 	return nil
 }
@@ -228,7 +219,7 @@ func (c *collector) getVendoredDir(path string) (vendoredModule, bool) {
 	return v, found
 }
 
-func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool) (*moduleAdapter, error) {
+func (c *collector) add(owner *moduleAdapter, moduleImport Import) (*moduleAdapter, error) {
 
 	var (
 		mod       *goModule
@@ -316,11 +307,10 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool
 	}
 
 	ma := &moduleAdapter{
-		dir:      moduleDir,
-		vendor:   vendored,
-		disabled: disabled,
-		gomod:    mod,
-		version:  version,
+		dir:     moduleDir,
+		vendor:  vendored,
+		gomod:   mod,
+		version: version,
 		// This may be the owner of the _vendor dir
 		owner: realOwner,
 	}
@@ -343,7 +333,7 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool
 	return ma, nil
 }
 
-func (c *collector) addAndRecurse(owner *moduleAdapter, disabled bool) error {
+func (c *collector) addAndRecurse(owner *moduleAdapter) error {
 	moduleConfig := owner.Config()
 	if owner.projectMod {
 		if err := c.applyMounts(Import{}, owner); err != nil {
@@ -352,17 +342,18 @@ func (c *collector) addAndRecurse(owner *moduleAdapter, disabled bool) error {
 	}
 
 	for _, moduleImport := range moduleConfig.Imports {
-		disabled := disabled || moduleImport.Disable
-
+		if moduleImport.Disable {
+			continue
+		}
 		if !c.isSeen(moduleImport.Path) {
-			tc, err := c.add(owner, moduleImport, disabled)
+			tc, err := c.add(owner, moduleImport)
 			if err != nil {
 				return err
 			}
 			if tc == nil || moduleImport.IgnoreImports {
 				continue
 			}
-			if err := c.addAndRecurse(tc, disabled); err != nil {
+			if err := c.addAndRecurse(tc); err != nil {
 				return err
 			}
 		}
@@ -531,7 +522,7 @@ func (c *collector) collect() {
 
 	projectMod := createProjectModule(c.gomods.GetMain(), c.ccfg.WorkingDir, c.moduleConfig)
 
-	if err := c.addAndRecurse(projectMod, false); err != nil {
+	if err := c.addAndRecurse(projectMod); err != nil {
 		c.err = err
 		return
 	}

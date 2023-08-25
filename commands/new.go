@@ -16,19 +16,14 @@ package commands
 import (
 	"bytes"
 	"context"
-	"errors"
-	"fmt"
 	"path/filepath"
 	"strings"
 
 	"github.com/bep/simplecobra"
-	"github.com/gohugoio/hugo/common/htime"
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/create"
-	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/parser"
-	"github.com/gohugoio/hugo/parser/metadecoders"
-	"github.com/spf13/afero"
+	"github.com/gohugoio/hugo/create/skeletons"
 	"github.com/spf13/cobra"
 )
 
@@ -99,52 +94,13 @@ Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
 					}
 					sourceFs := conf.fs.Source
 
-					archeTypePath := filepath.Join(createpath, "archetypes")
-					dirs := []string{
-						archeTypePath,
-						filepath.Join(createpath, "assets"),
-						filepath.Join(createpath, "content"),
-						filepath.Join(createpath, "data"),
-						filepath.Join(createpath, "layouts"),
-						filepath.Join(createpath, "static"),
-						filepath.Join(createpath, "themes"),
+					err = skeletons.CreateSite(createpath, sourceFs, force, format)
+					if err != nil {
+						return err
 					}
 
-					if exists, _ := helpers.Exists(createpath, sourceFs); exists {
-						if isDir, _ := helpers.IsDir(createpath, sourceFs); !isDir {
-							return errors.New(createpath + " already exists but not a directory")
-						}
-
-						isEmpty, _ := helpers.IsEmpty(createpath, sourceFs)
-
-						switch {
-						case !isEmpty && !force:
-							return errors.New(createpath + " already exists and is not empty. See --force.")
-
-						case !isEmpty && force:
-							all := append(dirs, filepath.Join(createpath, "hugo."+format))
-							for _, path := range all {
-								if exists, _ := helpers.Exists(path, sourceFs); exists {
-									return errors.New(path + " already exists")
-								}
-							}
-						}
-					}
-
-					for _, dir := range dirs {
-						if err := sourceFs.MkdirAll(dir, 0777); err != nil {
-							return fmt.Errorf("failed to create dir: %w", err)
-						}
-					}
-
-					c.newSiteCreateConfig(sourceFs, createpath, format)
-
-					// Create a default archetype file.
-					helpers.SafeWriteToDisk(filepath.Join(archeTypePath, "default.md"),
-						strings.NewReader(create.DefaultArchetypeTemplateTemplate), sourceFs)
-
-					r.Printf("Congratulations! Your new Hugo site is created in %s.\n\n", createpath)
-					r.Println(c.newSiteNextStepsText())
+					r.Printf("Congratulations! Your new Hugo site was created in %s.\n\n", createpath)
+					r.Println(c.newSiteNextStepsText(createpath, format))
 
 					return nil
 				},
@@ -165,90 +121,21 @@ according to your needs.`,
 					if len(args) < 1 {
 						return newUserError("theme name needs to be provided")
 					}
-					h, err := r.Hugo(flagsToCfg(cd, nil))
+					cfg := config.New()
+					cfg.Set("publishDir", "public")
+
+					conf, err := r.ConfigFromProvider(r.configVersionID.Load(), flagsToCfg(cd, cfg))
 					if err != nil {
 						return err
 					}
-					ps := h.PathSpec
-					sourceFs := ps.Fs.Source
-					themesDir := h.Configs.LoadingInfo.BaseConfig.ThemesDir
-					createpath := ps.AbsPathify(filepath.Join(themesDir, args[0]))
-					r.Println("Creating theme at", createpath)
+					sourceFs := conf.fs.Source
+					createpath := paths.AbsPathify(conf.configs.Base.WorkingDir, filepath.Join(conf.configs.Base.ThemesDir, args[0]))
+					r.Println("Creating new theme in", createpath)
 
-					if x, _ := helpers.Exists(createpath, sourceFs); x {
-						return errors.New(createpath + " already exists")
-					}
-
-					for _, filename := range []string{
-						"index.html",
-						"404.html",
-						"_default/list.html",
-						"_default/single.html",
-						"partials/head.html",
-						"partials/header.html",
-						"partials/footer.html",
-					} {
-						touchFile(sourceFs, filepath.Join(createpath, "layouts", filename))
-					}
-
-					baseofDefault := []byte(`<!DOCTYPE html>
-<html>
-    {{- partial "head.html" . -}}
-    <body>
-        {{- partial "header.html" . -}}
-        <div id="content">
-        {{- block "main" . }}{{- end }}
-        </div>
-        {{- partial "footer.html" . -}}
-    </body>
-</html>
-`)
-
-					err = helpers.WriteToDisk(filepath.Join(createpath, "layouts", "_default", "baseof.html"), bytes.NewReader(baseofDefault), sourceFs)
+					err = skeletons.CreateTheme(createpath, sourceFs)
 					if err != nil {
 						return err
 					}
-
-					mkdir(createpath, "archetypes")
-
-					archDefault := []byte("+++\n+++\n")
-
-					err = helpers.WriteToDisk(filepath.Join(createpath, "archetypes", "default.md"), bytes.NewReader(archDefault), sourceFs)
-					if err != nil {
-						return err
-					}
-
-					mkdir(createpath, "static", "js")
-					mkdir(createpath, "static", "css")
-
-					by := []byte(`The MIT License (MIT)
-
-Copyright (c) ` + htime.Now().Format("2006") + ` YOUR_NAME_HERE
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-`)
-
-					err = helpers.WriteToDisk(filepath.Join(createpath, "LICENSE"), bytes.NewReader(by), sourceFs)
-					if err != nil {
-						return err
-					}
-
-					c.createThemeMD(ps.Fs.Source, createpath)
 
 					return nil
 				},
@@ -299,77 +186,25 @@ func (c *newCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 	return nil
 }
 
-func (c *newCommand) newSiteCreateConfig(fs afero.Fs, inpath string, kind string) (err error) {
-	in := map[string]string{
-		"baseURL":      "http://example.org/",
-		"title":        "My New Hugo Site",
-		"languageCode": "en-us",
-	}
-
-	var buf bytes.Buffer
-	err = parser.InterfaceToConfig(in, metadecoders.FormatFromString(kind), &buf)
-	if err != nil {
-		return err
-	}
-
-	return helpers.WriteToDisk(filepath.Join(inpath, "hugo."+kind), &buf, fs)
-}
-
-func (c *newCommand) newSiteNextStepsText() string {
+func (c *newCommand) newSiteNextStepsText(path string, format string) string {
+	format = strings.ToLower(format)
 	var nextStepsText bytes.Buffer
 
-	nextStepsText.WriteString(`Just a few more steps and you're ready to go:
+	nextStepsText.WriteString(`Just a few more steps...
 
-1. Download a theme into the same-named folder.
-   Choose a theme from https://themes.gohugo.io/ or
-   create your own with the "hugo new theme <THEMENAME>" command.
-2. Perhaps you want to add some content. You can add single files
-   with "hugo new `)
+1. Change the current directory to ` + path + `.
+2. Create or install a theme:
+   - Create a new theme with the command "hugo new theme <THEMENAME>"
+   - Install a theme from https://themes.gohugo.io/
+3. Edit hugo.` + format + `, setting the "theme" property to the theme name.
+4. Create new content with the command "hugo new content `)
 
 	nextStepsText.WriteString(filepath.Join("<SECTIONNAME>", "<FILENAME>.<FORMAT>"))
 
 	nextStepsText.WriteString(`".
-3. Start the built-in live server via "hugo server".
+5. Start the embedded web server with the command "hugo server --buildDrafts".
 
-Visit https://gohugo.io/ for quickstart guide and full documentation.`)
+See documentation at https://gohugo.io/.`)
 
 	return nextStepsText.String()
-}
-
-func (c *newCommand) createThemeMD(fs afero.Fs, inpath string) (err error) {
-
-	by := []byte(`# theme.toml template for a Hugo theme
-# See https://github.com/gohugoio/hugoThemes#themetoml for an example
-
-name = "` + strings.Title(helpers.MakeTitle(filepath.Base(inpath))) + `"
-license = "MIT"
-licenselink = "https://github.com/yourname/yourtheme/blob/master/LICENSE"
-description = ""
-homepage = "http://example.com/"
-tags = []
-features = []
-min_version = "0.116.0"
-
-[author]
-  name = ""
-  homepage = ""
-
-# If porting an existing theme
-[original]
-  name = ""
-  homepage = ""
-  repo = ""
-`)
-
-	err = helpers.WriteToDisk(filepath.Join(inpath, "theme.toml"), bytes.NewReader(by), fs)
-	if err != nil {
-		return
-	}
-
-	err = helpers.WriteToDisk(filepath.Join(inpath, "hugo.toml"), strings.NewReader("# Theme config.\n"), fs)
-	if err != nil {
-		return
-	}
-
-	return nil
 }
