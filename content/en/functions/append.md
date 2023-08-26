@@ -83,7 +83,7 @@ To create a slice of slices, starting with an empty slice:
 
 
 
-Although the elements in the examples above are strings, you can use the `append` function with any data type, include Pages. For example, on the home page of a corporate site, to display links to the two most recent press releases followed by links to the four most recent articles:
+Although the elements in the examples above are strings, you can use the `append` function with any data type, including Pages. For example, on the home page of a corporate site, to display links to the two most recent press releases followed by links to the four most recent articles:
 
 ```go-html-template
 {{ $p := where site.RegularPages "Type" "press-releases" | first 2 }}
