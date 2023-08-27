@@ -148,7 +148,7 @@ With this CSS:
 }
 ```
 
-The result is something like:
+Hugo renders this, where each breadcrumb is a link to the corresponding page:
 
 ```text
 Home » Products » Product 1 » Benefits » Benefit 1
