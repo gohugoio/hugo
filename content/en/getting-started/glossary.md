@@ -126,7 +126,7 @@ An unordered group of elements, each indexed by a unique key. See the [Go&nbsp;d
 
 ### method
 
-Used within a [template action](#template-action) and associated with an [object](#object), a method takes zero or more [arguments](#argument) and returns a value. For example, `.IsHome` is a method on the `.Page` object which returns `true` if the current page is the home page. See also [function](#function).
+Used within a [template action](#template-action) and associated with an [object](#object), a method takes zero or more [arguments](#argument) and either returns a value or performs an action. For example, `.IsHome` is a method on the `.Page` object which returns `true` if the current page is the home page. See also [function](#function).
 
 ### module
 
