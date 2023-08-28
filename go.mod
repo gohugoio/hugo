@@ -66,7 +66,7 @@ require (
 	github.com/yuin/goldmark v1.5.6
 	go.uber.org/atomic v1.11.0
 	go.uber.org/automaxprocs v1.5.3
-	gocloud.dev v0.33.0
+	gocloud.dev v0.34.0
 	golang.org/x/exp v0.0.0-20221031165847-c99f073a8326
 	golang.org/x/image v0.11.0
 	golang.org/x/net v0.14.0
