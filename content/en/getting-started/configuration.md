@@ -808,7 +808,7 @@ dir
 [static-files]: /content-management/static-files/
 
 
-# Configure cacheDir
+## Configure cacheDir
 
 This is the directory where Hugo by default will store its file caches. See [Configure File Caches](#configure-file-caches).
 
