@@ -254,7 +254,7 @@ func (p *pageState) RegularPagesRecursive() page.Pages {
 	p.regularPagesRecursiveInit.Do(func() {
 		var pages page.Pages
 		switch p.Kind() {
-		case kinds.KindSection:
+		case kinds.KindSection, kinds.KindHome:
 			pages = p.getPagesRecursive()
 		default:
 			pages = p.RegularPages()

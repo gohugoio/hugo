@@ -432,3 +432,22 @@ Sect1 RegularPagesRecursive: page:/docs/sect1/ps1/|page:/docs/sect1/ps2/|page:/d
 
 `)
 }
+
+func TestRegularPagesRecursiveHome(t *testing.T) {
+	files := `
+-- hugo.toml --
+-- content/p1.md --
+-- content/post/p2.md --
+-- layouts/index.html --
+RegularPagesRecursive: {{ range .RegularPagesRecursive }}{{ .Kind }}:{{ .RelPermalink}}|{{ end }}|End.
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		}).Build()
+
+	b.AssertFileContent("public/index.html", `RegularPagesRecursive: page:/p1/|page:/post/p2/||End.`)
+
+}
