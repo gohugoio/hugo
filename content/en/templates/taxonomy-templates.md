@@ -41,14 +41,16 @@ See [Template Lookup](/templates/lookup-order/).
 
 A Taxonomy is a `map[string]WeightedPages`.
 
-.Get(term)
-: Returns the WeightedPages for a term.
+.Get TERM
+: Returns the WeightedPages for a given term. For example: ;
+`site.Taxonomies.tags.Get "tag-a"`.
 
-.Count(term)
-: The number of pieces of content assigned to this term.
+.Count TERM
+: The number of pieces of content assigned to the given term. For example: \
+`site.Taxonomies.tags.Count "tag-a"`.
 
 .Alphabetical
-: Returns an OrderedTaxonomy (slice) ordered by Term.
+: Returns an OrderedTaxonomy (slice) ordered by term.
 
 .ByCount
 : Returns an OrderedTaxonomy (slice) ordered by number of entries.
@@ -78,6 +80,9 @@ Each element of the slice has:
 .Count
 : The number of pieces of content assigned to this term.
 
+.Page
+: Returns a page reference for this term.
+
 .Pages
 : All Pages assigned to this term. All [list methods][renderlists] are available to this.
 
@@ -89,8 +94,11 @@ WeightedPages is simply a slice of WeightedPage.
 type WeightedPages []WeightedPage
 ```
 
-.Count(term)
+.Count
 : The number of pieces of content assigned to this term.
+
+.Page
+: Returns a page reference for this term.
 
 .Pages
 : Returns a slice of pages, which then can be ordered using any of the [list methods][renderlists].

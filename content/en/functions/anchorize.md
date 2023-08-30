@@ -1,6 +1,6 @@
 ---
 title: anchorize
-description: Takes a string and sanitizes it the same way as the [`defaultMarkdownHandler`](/getting-started/configuration-markup#configure-markup) does for markdown headers.
+description: Takes a string and sanitizes it the same way as the [`defaultMarkdownHandler`](/getting-started/configuration-markup#default-configuration) does for markdown headers.
 categories: [functions]
 menu:
   docs:

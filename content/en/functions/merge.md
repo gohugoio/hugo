@@ -5,7 +5,7 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [dictionary]
+keywords: [collections]
 signature: ["collections.Merge MAP MAP...", "merge MAP MAP..."]
 relatedfuncs: [dict, append, reflect.IsMap, reflect.IsSlice]
 ---

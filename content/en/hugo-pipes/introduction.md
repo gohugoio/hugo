@@ -26,7 +26,7 @@ Note that you can mount any directory into Hugo's virtual `assets` folder using 
 | `resources.GetMatch`  | `GetMatch` finds the first Resource matching the given pattern, or nil if none found. See Match for a more complete explanation about the rules used. |
 | `resources.Match`  | `Match` gets all resources matching the given base path prefix, e.g "*.png" will match all png files. The "*" does not match path delimiters (/), so if you organize your resources in sub-folders, you need to be explicit about it, e.g.: "images/*.png". To match any PNG image anywhere in the bundle you can do "\*\*.png", and to match all PNG images below the images folder, use "images/\*\*.jpg". The matching is case insensitive. Match matches by using the files name with path relative to the file system root with Unix style slashes (/) and no leading slash, e.g. "images/logo.png". See https://github.com/gobwas/glob for the full rules set.|
 
-See the [GoDoc Page](https://pkg.go.dev/github.com/gohugoio/hugo@v0.93.1/tpl/resources) for the `resources` package for an up to date overview of all template functions in this namespace.
+See the [GoDoc Page](https://pkg.go.dev/github.com/gohugoio/hugo/tpl/resources) for the `resources` package for an up to date overview of all template functions in this namespace.
 
 ## Get a resource
 
@@ -50,12 +50,16 @@ With `resources.GetRemote`, the first argument is a remote URL:
 
 StatusCode
 : The HTTP status code, e.g. 200
+
 Status
 : The HTTP status text, e.g. "200 OK"
+
 TransferEncoding
 : The transfer encoding, e.g. "chunked"
+
 ContentLength
 : The content length, e.g. 1234
+
 ContentType
 : The content type, e.g. "text/html"
 

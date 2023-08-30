@@ -13,7 +13,7 @@ relatedfuncs: [replaceRE]
 ---
 
 Replace returns a copy of `INPUT` with all occurrences of `OLD` replaced with `NEW`.
-The number of replacements can be limited with an optional `LIMIT` parameter.
+The number of replacements can be limited with an optional `LIMIT` argument.
 
 ```
 `{{ replace "Batman and Robin" "Robin" "Catwoman" }}`

@@ -65,7 +65,7 @@ Parameter | Comment
 --- | ---
 backend | Don't change this unless you know what you are doing.
 doctype | Currently, the only document type supported in Hugo is `article`.
-extensions | Possible extensions are `asciidoctor-html5s`, `asciidoctor-bibtex`, `asciidoctor-diagram`, `asciidoctor-interdoc-reftext`, `asciidoctor-katex`, `asciidoctor-latex`, `asciidoctor-mathematical`, `asciidoctor-question`, `asciidoctor-rouge`.
+extensions | Possible extensions are `asciidoctor-html5s`, `asciidoctor-bibtex`, `asciidoctor-diagram`, `asciidoctor-interdoc-reftext`, `asciidoctor-katex`, `asciidoctor-latex`, `asciidoctor-mathematical`, `asciidoctor-question`.
 attributes | Variables to be referenced in your AsciiDoc file. This is a list of variable name/value maps. See [Asciidoctor's attributes](https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#attributes-and-substitutions).
 noHeaderOrFooter | Output an embeddable document, which excludes the header, the footer, and everything outside the body of the document. Don't change this unless you know what you are doing.
 safeMode | Safe mode level `unsafe`, `safe`, `server` or `secure`. Don't change this unless you know what you are doing.

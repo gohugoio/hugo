@@ -103,7 +103,7 @@ Press `Ctrl + C` to stop Hugo's development server.
 Add a new page to your site.
 
 ```text
-hugo new posts/my-first-post.md
+hugo new content posts/my-first-post.md
 ```
 
 Hugo created the file in the `content/posts` directory. Open the file with your editor.

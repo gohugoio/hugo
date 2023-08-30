@@ -5,8 +5,8 @@ keywords: [books, tutorials, learning, usage]
 menu:
   docs:
     parent: getting-started
-    weight: 60
-weight: 60
+    weight: 70
+weight: 70
 ---
 
 ## Books
