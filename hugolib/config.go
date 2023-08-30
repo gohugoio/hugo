@@ -25,7 +25,7 @@ import (
 // DefaultConfig returns the default configuration.
 func DefaultConfig() *allconfig.Config {
 	fs := afero.NewMemMapFs()
-	all, err := allconfig.LoadConfig(allconfig.ConfigSourceDescriptor{Fs: fs})
+	all, err := allconfig.LoadConfig(allconfig.ConfigSourceDescriptor{Fs: fs, Environ: []string{"none"}})
 	if err != nil {
 		panic(err)
 	}
@@ -176,7 +176,7 @@ module github.com/bep/mymod
 		return nil, err
 	}
 
-	conf, err := allconfig.LoadConfig(allconfig.ConfigSourceDescriptor{Fs: fs, Flags: cfg})
+	conf, err := allconfig.LoadConfig(allconfig.ConfigSourceDescriptor{Fs: fs, Flags: cfg, Environ: []string{"none"}})
 	if err != nil {
 		return nil, err
 	}
