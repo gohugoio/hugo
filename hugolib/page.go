@@ -328,6 +328,7 @@ func (p *pageState) RawContent() string {
 	if start == -1 {
 		start = 0
 	}
+
 	return string(p.source.parsed.Input()[start:])
 }
 
@@ -727,9 +728,7 @@ Loop:
 			frontMatterSet = true
 
 			next := iter.Peek()
-			if !next.IsDone() {
-				p.source.posMainContent = next.Pos()
-			}
+			p.source.posMainContent = next.Pos()
 
 			if !p.s.shouldBuild(p) {
 				// Nothing more to do.

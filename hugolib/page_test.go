@@ -642,27 +642,33 @@ Simple Page With Some Date`
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, pageContents...)
 }
 
-// Issue #2601
 func TestPageRawContent(t *testing.T) {
-	t.Parallel()
-	c := qt.New(t)
-	cfg, fs := newTestCfg()
-	configs, err := loadTestConfigFromProvider(cfg)
-	c.Assert(err, qt.IsNil)
 
-	writeSource(t, fs, filepath.Join("content", "raw.md"), `---
-title: Raw
+	files := `
+-- hugo.toml --
+-- content/basic.md --
 ---
-**Raw**`)
+title: "basic"
+---
+**basic**
+-- content/empty.md --
+---
+title: "empty"
+---
+-- layouts/_default/single.html --
+|{{ .RawContent }}|
+`
 
-	writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), `{{ .RawContent }}`)
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
+	b.AssertFileContent("public/basic/index.html", "|**basic**|")
+	b.AssertFileContent("public/empty/index.html", "! title")
 
-	c.Assert(len(s.RegularPages()), qt.Equals, 1)
-	p := s.RegularPages()[0]
-
-	c.Assert("**Raw**", qt.Equals, p.RawContent())
 }
 
 func TestPageWithShortCodeInSummary(t *testing.T) {
