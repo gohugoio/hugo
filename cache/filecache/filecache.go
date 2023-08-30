@@ -51,6 +51,9 @@ type Cache struct {
 	pruneAllRootDir string
 
 	nlocker *lockTracker
+
+	initOnce sync.Once
+	initErr  error
 }
 
 type lockTracker struct {
@@ -103,9 +106,23 @@ func (l *lockedFile) Close() error {
 	return l.File.Close()
 }
 
+func (c *Cache) init() error {
+	c.initOnce.Do(func() {
+		// Create the base dir if it does not exist.
+		if err := c.Fs.MkdirAll("", 0777); err != nil && !os.IsExist(err) {
+			c.initErr = err
+		}
+	})
+	return c.initErr
+}
+
 // WriteCloser returns a transactional writer into the cache.
 // It's important that it's closed when done.
 func (c *Cache) WriteCloser(id string) (ItemInfo, io.WriteCloser, error) {
+	if err := c.init(); err != nil {
+		return ItemInfo{}, nil, err
+	}
+
 	id = cleanID(id)
 	c.nlocker.Lock(id)
 
@@ -130,6 +147,10 @@ func (c *Cache) WriteCloser(id string) (ItemInfo, io.WriteCloser, error) {
 func (c *Cache) ReadOrCreate(id string,
 	read func(info ItemInfo, r io.ReadSeeker) error,
 	create func(info ItemInfo, w io.WriteCloser) error) (info ItemInfo, err error) {
+	if err := c.init(); err != nil {
+		return ItemInfo{}, err
+	}
+
 	id = cleanID(id)
 
 	c.nlocker.Lock(id)
@@ -163,6 +184,9 @@ func (c *Cache) ReadOrCreate(id string,
 // be invoked and the result cached.
 // This method is protected by a named lock using the given id as identifier.
 func (c *Cache) GetOrCreate(id string, create func() (io.ReadCloser, error)) (ItemInfo, io.ReadCloser, error) {
+	if err := c.init(); err != nil {
+		return ItemInfo{}, nil, err
+	}
 	id = cleanID(id)
 
 	c.nlocker.Lock(id)
@@ -197,6 +221,9 @@ func (c *Cache) GetOrCreate(id string, create func() (io.ReadCloser, error)) (It
 
 // GetOrCreateBytes is the same as GetOrCreate, but produces a byte slice.
 func (c *Cache) GetOrCreateBytes(id string, create func() ([]byte, error)) (ItemInfo, []byte, error) {
+	if err := c.init(); err != nil {
+		return ItemInfo{}, nil, err
+	}
 	id = cleanID(id)
 
 	c.nlocker.Lock(id)
@@ -232,6 +259,9 @@ func (c *Cache) GetOrCreateBytes(id string, create func() ([]byte, error)) (Item
 
 // GetBytes gets the file content with the given id from the cache, nil if none found.
 func (c *Cache) GetBytes(id string) (ItemInfo, []byte, error) {
+	if err := c.init(); err != nil {
+		return ItemInfo{}, nil, err
+	}
 	id = cleanID(id)
 
 	c.nlocker.Lock(id)
@@ -250,6 +280,9 @@ func (c *Cache) GetBytes(id string) (ItemInfo, []byte, error) {
 
 // Get gets the file with the given id from the cache, nil if none found.
 func (c *Cache) Get(id string) (ItemInfo, io.ReadCloser, error) {
+	if err := c.init(); err != nil {
+		return ItemInfo{}, nil, err
+	}
 	id = cleanID(id)
 
 	c.nlocker.Lock(id)
@@ -346,10 +379,6 @@ func NewCaches(p *helpers.PathSpec) (Caches, error) {
 		}
 
 		baseDir := v.DirCompiled
-
-		if err := cfs.MkdirAll(baseDir, 0777); err != nil && !os.IsExist(err) {
-			return nil, err
-		}
 
 		bfs := afero.NewBasePathFs(cfs, baseDir)
 
