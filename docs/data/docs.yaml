@@ -1018,6 +1018,10 @@ config:
     defaultMarkdownHandler: goldmark
     goldmark:
       extensions:
+        cjk:
+          eastAsianLineBreaks: false
+          enable: false
+          escapedSpace: false
         definitionList: true
         footnote: true
         linkify: true
@@ -1037,9 +1041,6 @@ config:
           rightAngleQuote: '&raquo;'
           rightDoubleQuote: '&rdquo;'
           rightSingleQuote: '&rsquo;'
-        CJK:
-          eastAsianLineBreaks: false
-          escapedSpace: false
       parser:
         attribute:
           block: false
