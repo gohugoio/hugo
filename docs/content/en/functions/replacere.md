@@ -11,7 +11,7 @@ signature:
   - "strings.ReplaceRE PATTERN REPLACEMENT INPUT [LIMIT]"
 relatedfuncs: [findRE, FindRESubmatch, replace]
 ---
-By default, `replaceRE` replaces all matches. You can limit the number of matches with an optional LIMIT parameter.
+By default, `replaceRE` replaces all matches. You can limit the number of matches with an optional LIMIT argument.
 
 {{% readfile file="/functions/common/regular-expressions.md" %}}
 

@@ -6,7 +6,7 @@ menu:
   docs:
     parent: functions
 keywords: []
-signature: ["echoParam DICTIONARY KEY"]
+signature: ["echoParam MAP KEY"]
 relatedfuncs: []
 ---
 

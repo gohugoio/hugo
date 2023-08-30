@@ -39,7 +39,7 @@ The above will overlay `$logo` in the upper left corner of `$img` (at position `
 Using the `Text` filter, you can add text to an image.
 
 {{% funcsig %}}
-images.Text TEXT DICT)
+images.Text TEXT MAP)
 {{% /funcsig %}}
 
 The following example will add the text `Hugo rocks!` to the image with the specified color, size and position.

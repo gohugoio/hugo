@@ -1,11 +1,11 @@
 ---
 title: dict
-description: Creates a dictionary from a list of key and value pairs.
+description: Creates a map from a list of key and value pairs.
 categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [dictionary]
+keywords: [collections]
 signature: ["dict KEY VALUE [KEY VALUE]..."]
 relatedfuncs: []
 ---

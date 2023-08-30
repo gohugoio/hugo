@@ -11,7 +11,7 @@ signature:
   - "strings.FindRE PATTERN INPUT [LIMIT]"
 relatedfuncs: [findRESubmatch, replaceRE]
 ---
-By default, `findRE` finds all matches. You can limit the number of matches with an optional LIMIT parameter.
+By default, `findRE` finds all matches. You can limit the number of matches with an optional LIMIT argument.
 
 {{% readfile file="/functions/common/regular-expressions.md" %}}
 

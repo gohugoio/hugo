@@ -27,12 +27,7 @@ With a multilingual project, Hugo generates:
 
 Set the default values for [change frequency] and [priority], and the name of the generated file, in your site configuration.
 
-{{< code-toggle file="hugo" >}}
-[sitemap]
-  changefreq = 'monthly'
-  filename = 'sitemap.xml'
-  priority = 0.5
-{{</ code-toggle >}}
+{{< code-toggle config="sitemap" />}}
 
 changefreq
 : How frequently a page is likely to change. Valid values are `always`, `hourly`, `daily`, `weekly`, `monthly`, `yearly`, and `never`. Default is `""` (change frequency omitted from rendered sitemap).

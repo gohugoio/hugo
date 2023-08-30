@@ -58,6 +58,9 @@ disableAliases = true
   [caches.assets]
     dir    = ":resourceDir/_gen"
     maxAge = -1
+  [caches.getresource]
+    dir = ":cacheDir/:project"
+    maxage = '1h'
 
 [related]
   threshold    = 80

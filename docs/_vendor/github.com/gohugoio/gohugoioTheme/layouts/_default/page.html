@@ -31,7 +31,7 @@
   <img src="{{ . }}" alt="Featured Image for {{ $.Title }}" class="mw-100">
 {{ end }}
 
-<div class="prose" id="prose">
+<div class="prose prose-{{ .Type }}" id="prose">
   {{- partial "docs/functions-signature.html" . -}}
   {{ .Content }}
 </div>

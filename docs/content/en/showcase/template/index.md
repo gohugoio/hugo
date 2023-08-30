@@ -11,7 +11,7 @@ Have a **notable Hugo site[^1]**? We would love to feature it in this **Showcase
 Please:
 
 1. Fork https://github.com/gohugoio/hugoDocs.
-2. Run `hugo new showcase/your-site`. This will use the archetype bundle in the [docs repo](https://github.com/gohugoio/hugoDocs/tree/master/archetypes).
+2. Run `hugo new content showcase/your-site`. This will use the archetype bundle in the [docs repo](https://github.com/gohugoio/hugoDocs/tree/master/archetypes).
 3. Follow the instructions in the newly created page bundle.
 4. Create a new pull request in https://github.com/gohugoio/hugoDocs/pulls.
 

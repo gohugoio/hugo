@@ -36,8 +36,6 @@ There are several ways to set up CSS purging with PostCSS in Hugo. If you have a
 
 The below configuration will write a `hugo_stats.json` file to the project root as part of the build. If you're only using this for the production build, you should consider placing it below [config/production](/getting-started/configuration/#configuration-directory).
 
-<!-- TODO (jmm) writeStats => build.buildStats -->
-
 {{< code-toggle file="hugo" >}}
 [build.buildStats]
   enable = true
@@ -83,7 +81,8 @@ These are the environment variables Hugo passes down to PostCSS (and Babel), whi
 
 PWD
 : The absolute path to the project working directory.
-HUGO_ENVIRONMENT (and the alias HUGO_ENV)
+
+HUGO_ENVIRONMENT
 : The value e.g. set with `hugo -e production` (defaults to `production` for `hugo` and `development` for `hugo server`).
 
 HUGO_PUBLISHDIR

@@ -56,13 +56,8 @@ and a new line with a "quoted string".` */>}}
 
 ### Shortcodes with markdown
 
-In Hugo `0.55` we changed how the `%` delimiter works. Shortcodes using the `%` as the outer-most delimiter will now be fully rendered when sent to the content renderer. They can be part of the generated table of contents, footnotes, etc.
+Shortcodes using the `%` as the outer-most delimiter will be fully rendered when sent to the content renderer. This means that the rendered output from a shortcode can be part of the page's table of contents, footnotes, etc.
 
-If you want the old behavior, you can put the following line in the start of your shortcode template:
-
-```go-html-template
-{{ $_hugo_config := `{ "version": 1 }` }}
-```
 
 ### Shortcodes without markdown
 

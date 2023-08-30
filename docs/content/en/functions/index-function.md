@@ -68,7 +68,7 @@ location = "oslo"
 
 The content of `oslo.toml` can be accessed from your template using the following node path: `.Site.Data.locations.oslo`. However, the specific file you need is going to change according to the front matter.
 
-This is where the `index` function is needed. `index` takes 2 parameters in this use case:
+This is where the `index` function is needed. `index` takes 2 arguments in this use case:
 
 1. The node path
 2. A string corresponding to the desired data; e.g.&mdash;
