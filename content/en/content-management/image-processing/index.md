@@ -12,9 +12,9 @@ weight: 90
 ---
 ## Image resources
 
-To process an image, you must access the image as either a page resource or a global resource.
+To process an image you must access the file as a page resource, global resource, or remote resource.
 
-### Page resources
+### Page resource
 
 A page resource is a file within a [page bundle]. A page bundle is a directory with an `index.md` or `_index.md` file at its root.
 
@@ -26,13 +26,15 @@ content/
         └── sunset.jpg    <-- page resource
 ```
 
-### Global resources
+To access an image as a page resource:
 
-A global resource is a file:
+```go-html-template
+{{ $image := .Resources.Get "sunset.jpg" }}
+```
 
-- Within the `assets` directory, or
-- Within any directory [mounted] to the `assets` directory, or
-- Located on a remote server accessible via `http` or `https`
+### Global resource
+
+A global resource is a file within the `assets` directory, or within any directory [mounted] to the `assets` directory.
 
 ```text
 assets/
@@ -40,13 +42,15 @@ assets/
     └── sunset.jpg    <-- global resource
 ```
 
-To access a local image as a global resource:
+To access an image as a global resource:
 
 ```go-html-template
 {{ $image := resources.Get "images/sunset.jpg" }}
 ```
 
-To access a remote image as a global resource:
+### Remote resource
+
+A remote resource is a file on a remote server, accessible via http or https. To access an image as a remote resource:
 
 ```go-html-template
 {{ $image := resources.GetRemote "https://gohugo.io/img/hugo-logo.png" }}
@@ -77,6 +81,21 @@ Example 3: A more concise way to skip image rendering if the resource is not fou
 ```go-html-template
 {{ with .Resources.GetMatch "sunset.jpg" }}
   <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}">
+{{ end }}
+```
+
+Example 4: Skips rendering if there's problem accessing a remote resource.
+
+```go-html-template
+{{ $u := "https://gohugo.io/img/hugo-logo.png" }}
+{{ with resources.GetRemote $u }}
+  {{ with .Err }}
+    {{ errorf "%s" . }}
+  {{ else }}
+    <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}">
+  {{ end }}
+{{ else }}
+  {{ errorf "Unable to get remote resource %q" $u }}
 {{ end }}
 ```
 
@@ -384,14 +403,7 @@ Note the self-closing shortcode syntax above. You may call the `imgproc` shortco
 
 Define an `imaging` section in your site configuration to set the default [image processing options](#image-processing-options).
 
-{{< code-toggle file="hugo" copy=true >}}
-[imaging]
-resampleFilter = "Box"
-quality = 75
-hint = "photo"
-anchor = "Smart"
-bgColor = "#ffffff"
-{{< /code-toggle >}}
+{{< code-toggle config="imaging" />}}
 
 anchor
 : See image processing options: [anchor](#anchor).

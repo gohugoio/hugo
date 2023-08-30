@@ -411,7 +411,7 @@ Maximum number of items in the RSS feed.
 
 ### sectionPagesMenu
 
-See [Menus](/content-management/menus/#define-in-site-configuration).
+See [Menus](/content-management/menus/#define-automatically).
 
 ### security
 
@@ -491,28 +491,7 @@ enableemoji: true
 
 The `build` configuration section contains global build-related configuration options.
 
-{{< code-toggle file="hugo" >}}
-[build]
-  noJSConfigInAssets = false
-  useResourceCacheWhen = 'fallback'
-  [build.buildStats]
-    disableClasses = false
-    disableIDs = false
-    disableTags = false
-    enable = false
-[[build.cachebusters]]
-  source = 'assets/.*\.(js|ts|jsx|tsx)'
-  target = '(js|scripts|javascript)'
-[[build.cachebusters]]
-  source = 'assets/.*\.(css|sass|scss)$'
-  target = '(css|styles|scss|sass)'
-[[build.cachebusters]]
-  source = '(postcss|tailwind)\.config\.js'
-  target = '(css|styles|scss|sass)'
-[[build.cachebusters]]
-  source = 'assets/.*\.(.*)$'
-  target = '$1'
-{{< /code-toggle >}}
+{{< code-toggle config="build" />}}
 
 buildStats {{< new-in "0.115.1" >}}
 : When enabled, creates a `hugo_stats.json` file in the root of your project. This file contains arrays of the `class` attributes, `id` attributes, and tags of every HTML element within your published site. Use this file as data source when [removing unused CSS] from your site. This process is also known as pruning, purging, or tree shaking.
@@ -735,13 +714,7 @@ Dates are important in Hugo, and you can configure how Hugo assigns dates to you
 
 The default configuration is:
 
-{{< code-toggle file="hugo" >}}
-[frontmatter]
-date = ["date", "publishDate", "lastmod"]
-lastmod = [":git", "lastmod", "date", "publishDate"]
-publishDate = ["publishDate", "date"]
-expiryDate = ["expiryDate"]
-{{< /code-toggle >}}
+{{< code-toggle config="frontmatter" />}}
 
 If you, as an example, have a non-standard date parameter in some of your content, you can override the setting for `date`:
 
@@ -797,27 +770,7 @@ Default configuration:
 
 Since Hugo 0.52 you can configure more than just the `cacheDir`. This is the default configuration:
 
-{{< code-toggle file="hugo" >}}
-[caches]
-[caches.getjson]
-dir = ":cacheDir/:project"
-maxAge = -1
-[caches.getcsv]
-dir = ":cacheDir/:project"
-maxAge = -1
-[caches.getresource]
-dir = ":cacheDir/:project"
-maxAge = -1
-[caches.images]
-dir = ":resourceDir/_gen"
-maxAge = -1
-[caches.assets]
-dir = ":resourceDir/_gen"
-maxAge = -1
-[caches.modules]
-dir = ":cacheDir/modules"
-maxAge = -1
-{{< /code-toggle >}}
+{{< code-toggle config="caches" />}}
 
 You can override any of these cache settings in your own `hugo.toml`.
 
@@ -850,12 +803,12 @@ dir
 [lookup order]: /templates/lookup-order/
 [Output Formats]: /templates/output-formats/
 [templates]: /templates/
-[toml]: https://github.com/toml-lang/toml
+[toml]: https://toml.io/en/latest
 [yaml]: https://yaml.org/spec/
 [static-files]: /content-management/static-files/
 
 
-# Configure cacheDir
+## Configure cacheDir
 
 This is the directory where Hugo by default will store its file caches. See [Configure File Caches](#configure-file-caches).
 

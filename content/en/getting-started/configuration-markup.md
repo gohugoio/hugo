@@ -1,6 +1,6 @@
 ---
 title: Configure markup
-description: How to handle Markdown and other markup related configuration.
+description: Configure rendering of markup to HTML.
 categories: [fundamentals, getting started]
 keywords: [configuration,highlighting]
 menu:
@@ -12,9 +12,9 @@ slug: configuration-markup
 toc: true
 ---
 
-## Configure markup
+## Default configuration
 
-See [Goldmark](#goldmark) for settings related to the default Markdown handler in Hugo.
+See [Goldmark](#goldmark) for settings related to the default markdown handler in Hugo.
 
 Below are all markup related configuration in Hugo with their default settings:
 
@@ -22,7 +22,7 @@ Below are all markup related configuration in Hugo with their default settings:
 
 **See each section below for details.**
 
-### Goldmark
+## Goldmark
 
 [Goldmark](https://github.com/yuin/goldmark/) is from Hugo 0.60 the default library used for Markdown. It's fast, it's [CommonMark](https://spec.commonmark.org/0.29/) compliant and it's very flexible.
 
@@ -38,7 +38,7 @@ hardWraps
 : By default, Goldmark ignores newlines within a paragraph. Set to `true` to render newlines as `<br>` elements.
 
 unsafe
-: By default, Goldmark does not render raw HTMLs and potentially dangerous links. If you have lots of inline HTML and/or JavaScript, you may need to turn this on.
+: By default, Goldmark does not render raw HTML and potentially dangerous links. If you have lots of inline HTML and/or JavaScript, you may need to turn this on.
 
 typographer
 : This extension substitutes punctuations with typographic entities like [smartypants](https://daringfireball.net/projects/smartypants/).
@@ -82,7 +82,7 @@ Note that attributes in [code fences](/content-management/syntax-highlighting/#h
 autoHeadingIDType ("github")
 : The strategy used for creating auto IDs (anchor names). Available types are `github`, `github-ascii` and `blackfriday`. `github` produces GitHub-compatible IDs, `github-ascii` will drop any non-Ascii characters after accent normalization, and `blackfriday` will make the IDs compatible with Blackfriday, the default Markdown engine before Hugo 0.60. Note that if Goldmark is your default Markdown engine, this is also the strategy used in the [anchorize](/functions/anchorize/) template func.
 
-### Highlight
+## Highlight
 
 This is the default `highlight` configuration. Note that some of these settings can be set per code block, see [Syntax Highlighting](/content-management/syntax-highlighting/).
 
@@ -95,7 +95,7 @@ For `style`, see these galleries:
 
 For CSS, see [Generate Syntax Highlighter CSS](/content-management/syntax-highlighting/#generate-syntax-highlighter-css).
 
-### Table of contents
+## Table of contents
 
 {{< code-toggle config="markup.tableOfContents" />}}
 
@@ -108,7 +108,7 @@ endLevel
 : The heading level, inclusive, to stop render the table of contents.
 
 ordered
-: Whether or not to generate an ordered list instead of an unordered list.
+: If `true`, generates an ordered list instead of an unordered list.
 
 ## Markdown render hooks
 

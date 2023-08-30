@@ -12,7 +12,7 @@ signature:
 relatedfuncs: [findRE, replaceRE]
 ---
 
-By default, `findRESubmatch` finds all matches. You can limit the number of matches with an optional LIMIT parameter. A return value of nil indicates no match.
+By default, `findRESubmatch` finds all matches. You can limit the number of matches with an optional LIMIT argument. A return value of nil indicates no match.
 
 {{% readfile file="/functions/common/regular-expressions.md" %}}
 

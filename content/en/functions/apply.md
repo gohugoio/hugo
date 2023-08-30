@@ -10,11 +10,11 @@ signature: ["apply COLLECTION FUNCTION [PARAM...]"]
 relatedfuncs: []
 ---
 
-`apply` expects at least three parameters, depending on the function being applied.
+`apply` expects at least three arguments, depending on the function being applied.
 
-1. The first parameter is the sequence to operate on.
-2. The second parameter is the name of the function as a string, which must be the name of a valid [Hugo function][functions].
-3. After that, the parameters to the applied function are provided, with the string `"."` standing in for each element of the sequence the function is to be applied against.
+1. The first argument is the sequence to operate on.
+2. The second argument is the name of the function as a string, which must be the name of a valid [Hugo function][functions].
+3. After that, the arguments to the applied function are provided, with the string `"."` standing in for each element of the sequence the function is to be applied against.
 
 Here is an example of a content file with `names:` as a front matter field:
 

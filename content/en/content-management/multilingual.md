@@ -19,6 +19,10 @@ Also See [Hugo Multilingual Part 1: Content translation].
 
 ## Configure languages
 
+This is the default language configuration:
+
+{{< code-toggle config="languages" />}}
+
 This is an example of a site configuration for a multilingual project. Any key not defined in a `languages` object will fall back to the global value in the root of your site configuration.
 
 {{< code-toggle file="hugo" >}}
@@ -98,9 +102,10 @@ subtitle = 'Reference, Tutorials, and Explanations'
 In Hugo `v0.112.0` we consolidated all configuration options, and improved how the languages and their parameters are merged with the main configuration. But while testing this on Hugo sites out there, we received some error reports and reverted some of the changes in favor of deprecation warnings:
 
 1. `site.Language.Params` is deprecated. Use `site.Params` directly.
-1. Adding custom parameters to the top level language configuration is deprecated, add all of these below `[params]`, see `color` in the example below.
+1. Adding custom parameters to the top level language configuration is deprecated. Define custom parameters within `languages.xx.params`. See `color` in the example below.
 
-```toml
+{{< code-toggle file=hugo copy=false >}}
+
 title = "My blog"
 languageCode = "en-us"
 
@@ -110,7 +115,7 @@ title = "Min blogg"
 languageCode = "sv"
 [languages.en.params]
 color = "blue"
-```
+{{< /code-toggle >}}
 
 In the example above, all settings except `color` below `params` map to predefined configuration options in Hugo for the site and its language, and should be accessed via the documented accessors:
 
@@ -386,7 +391,7 @@ This article has 101 words.
 
 ### Query a singular/plural translation
 
-In other to meet singular/plural requirement, you must pass a dictionary (map) with a numeric `.Count` property to the `i18n` function. The below example uses `.ReadingTime` variable which has a built-in `.Count` property.
+To enable pluralization when translating, pass a map with a numeric `.Count` property to the `i18n` function. The example below uses `.ReadingTime` variable which has a built-in `.Count` property.
 
 ```go-html-template
 {{ i18n "readingTime" .ReadingTime }}
@@ -506,7 +511,7 @@ See [lang.FormatNumber] and [lang.FormatNumberCustom] for details.
 With this template code:
 
 ```go-html-template
-{{ 512.5032 | lang.FormatPercent 2 }} → 512.50%
+{{ 512.5032 | lang.FormatPercent 2 }}
 ```
 
 The rendered page displays:
@@ -636,20 +641,20 @@ To support Multilingual mode in your themes, some considerations must be taken f
 If there is more than one language defined, the `LanguagePrefix` variable will equal `/en` (or whatever your `CurrentLanguage` is). If not enabled, it will be an empty string (and is therefore harmless for single-language Hugo websites).
 
 
-## Generate multilingual content with `hugo new`
+## Generate multilingual content with `hugo new content`
 
 If you organize content with translations in the same directory:
 
 ```text
-hugo new post/test.en.md
-hugo new post/test.de.md
+hugo new content post/test.en.md
+hugo new content post/test.de.md
 ```
 
 If you organize content with translations in different directories:
 
 ```text
-hugo new content/en/post/test.md
-hugo new content/de/post/test.md
+hugo new content content/en/post/test.md
+hugo new content content/de/post/test.md
 ```
 
 [abslangurl]: /functions/abslangurl

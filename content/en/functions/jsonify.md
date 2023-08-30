@@ -10,9 +10,7 @@ signature: ["jsonify INPUT", "jsonify OPTIONS INPUT"]
 relatedfuncs: [plainify]
 ---
 
-Jsonify encodes a given object to JSON.
-
-To customize the printing of the JSON, pass a dictionary of options as the first
+To customize the printing of the JSON, pass a map of options as the first
 argument.  Supported options are "prefix" and "indent".  Each JSON element in
 the output will begin on a new line beginning with *prefix* followed by one or
 more copies of *indent* according to the indentation nesting.
