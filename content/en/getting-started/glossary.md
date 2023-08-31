@@ -130,7 +130,7 @@ Used within a [template action](#template-action) and associated with an [object
 
 ### module
 
-Like a [theme](#theme), a module is a packaged combination of [archetypes](#archetype), assets, content, data, [templates](#template), translations, or configuration settings. A module may serve as the basis for a new site, or to augment an existing site. See [details](/hugo-modules/).
+Like a [theme](#theme), a module is a packaged combination oof [archetypes](#archetype), assets, content, data, [templates](#template), translation tables, static files, or configuration settings. A module may serve as the basis for a new site, or to augment an existing site. See [details](/hugo-modules/).
 
 ### object
 
@@ -230,7 +230,7 @@ Content with the "taxonomy" [page kind](#page-kind). Typically a listing of [ter
 
 ### template
 
-An HTML file with [template actions](#template-action), located within the layouts directory of a project, theme, or module. See&nbsp;[details](/templates/).
+An file with [template actions](#template-action), located within the layouts directory of a project, theme, or module. See&nbsp;[details](/templates/).
 
 ### template action
 
@@ -246,7 +246,7 @@ Content with the "term" [page kind](#page-kind). Typically a listing of [regular
 
 ### theme
 
-A packaged combination of [archetypes](#archetype), assets, content, data, [templates](#template), translations, or configuration settings. A theme may serve as the basis for a new site, or to augment an existing site. See also [module](#module).
+A packaged combination of [archetypes](#archetype), assets, content, data, [templates](#template), translation tables, static files, or configuration settings. A theme may serve as the basis for a new site, or to augment an existing site. See also [module](#module).
 
 ### token
 
