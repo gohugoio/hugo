@@ -38,7 +38,7 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
-var cfgStrHighlichgtNoClasses = `
+var cfgStrHighlightNoClasses = `
 [markup]
 [markup.highlight]
 noclasses=false
@@ -484,15 +484,15 @@ noclasses=false
 
 	c.Run("Highlight lines, default config", func(c *qt.C) {
 
-		result := convertForConfig(c, cfgStrHighlichgtNoClasses, lines, `bash {linenos=table,hl_lines=[2 "4-5"],linenostart=3}`)
+		result := convertForConfig(c, cfgStrHighlightNoClasses, lines, `bash {linenos=table,hl_lines=[2 "4-5"],linenostart=3}`)
 		c.Assert(result, qt.Contains, "<div class=\"highlight\"><div class=\"chroma\">\n<table class=\"lntable\"><tr><td class=\"lntd\">\n<pre tabindex=\"0\" class=\"chroma\"><code><span class")
 		c.Assert(result, qt.Contains, "<span class=\"hl\"><span class=\"lnt\">4")
 
-		result = convertForConfig(c, cfgStrHighlichgtNoClasses, lines, "bash {linenos=inline,hl_lines=[2]}")
+		result = convertForConfig(c, cfgStrHighlightNoClasses, lines, "bash {linenos=inline,hl_lines=[2]}")
 		c.Assert(result, qt.Contains, "<span class=\"ln\">2</span><span class=\"cl\">LINE2\n</span></span>")
 		c.Assert(result, qt.Not(qt.Contains), "<table")
 
-		result = convertForConfig(c, cfgStrHighlichgtNoClasses, lines, "bash {linenos=true,hl_lines=[2]}")
+		result = convertForConfig(c, cfgStrHighlightNoClasses, lines, "bash {linenos=true,hl_lines=[2]}")
 		c.Assert(result, qt.Contains, "<table")
 		c.Assert(result, qt.Contains, "<span class=\"hl\"><span class=\"lnt\">2\n</span>")
 	})

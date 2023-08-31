@@ -143,7 +143,7 @@ func TestSiteBuildErrors(t *testing.T) {
 			},
 		},
 		{
-			name:     "Shortode does not exist",
+			name:     "Shortcode does not exist",
 			fileType: yamlcontent,
 			fileFixer: func(content string) string {
 				return strings.Replace(content, "{{< sc >}}", "{{< nono >}}", 1)
@@ -277,7 +277,7 @@ title = "The TOML"
 p1 = "v"
 p2 = "v"
 p3 = "v"
-description = "Descriptioon"
+description = "Description"
 +++
 
 Some content.

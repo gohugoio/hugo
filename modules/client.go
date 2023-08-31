@@ -142,7 +142,7 @@ type Client struct {
 	goBinaryStatus goBinaryStatus
 }
 
-// Graph writes a module dependenchy graph to the given writer.
+// Graph writes a module dependency graph to the given writer.
 func (c *Client) Graph(w io.Writer) error {
 	mc, coll := c.collect(true)
 	if coll.err != nil {

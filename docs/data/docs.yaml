@@ -2834,7 +2834,7 @@ tpl:
         - format
         - args
         Description: Printf returns string representation of args formatted with the
-          layouut in format.
+          layout in format.
         Examples:
         - - '{{ printf "%s!" "works" }}'
           - works!
@@ -4252,7 +4252,7 @@ tpl:
         Args:
         - s
         Description: |-
-          HTMLUnescape returns a copy of s with HTML escape requences converted to plain
+          HTMLUnescape returns a copy of s with HTML escape sequences converted to plain
           text.
         Examples:
         - - '{{ htmlUnescape "Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;"

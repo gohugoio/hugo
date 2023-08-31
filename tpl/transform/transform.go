@@ -107,7 +107,7 @@ func (ns *Namespace) HTMLEscape(s any) (string, error) {
 	return html.EscapeString(ss), nil
 }
 
-// HTMLUnescape returns a copy of s with HTML escape requences converted to plain
+// HTMLUnescape returns a copy of s with HTML escape sequences converted to plain
 // text.
 func (ns *Namespace) HTMLUnescape(s any) (string, error) {
 	ss, err := cast.ToStringE(s)

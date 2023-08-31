@@ -226,7 +226,7 @@ func TestIsDir(t *testing.T) {
 	data := []test{
 		{"./", true},
 		{"/", true},
-		{"./this-directory-does-not-existi", false},
+		{"./this-directory-does-not-exist", false},
 		{"/this-absolute-directory/does-not-exist", false},
 	}
 

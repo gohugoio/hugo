@@ -796,7 +796,7 @@ title: "Hugo Rocks!"
 types positional: {{< hello true false 33 3.14 >}}
 types named: {{< hello b1=true b2=false i1=33 f1=3.14 >}}
 types string: {{< hello "true" trues "33" "3.14" >}}
-escaped quoute: {{< hello "hello \"world\"." >}}
+escaped quote: {{< hello "hello \"world\"." >}}
 
 
 `).WithTemplatesAdded(

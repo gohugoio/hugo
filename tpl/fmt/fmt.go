@@ -47,7 +47,7 @@ func (ns *Namespace) Print(args ...any) string {
 	return _fmt.Sprint(args...)
 }
 
-// Printf returns string representation of args formatted with the layouut in format.
+// Printf returns string representation of args formatted with the layout in format.
 func (ns *Namespace) Printf(format string, args ...any) string {
 	return _fmt.Sprintf(format, args...)
 }
@@ -79,12 +79,12 @@ func (ns *Namespace) Warnf(format string, args ...any) string {
 	return ""
 }
 
-// Warnmf is epxermimental and subject to change at any time.
+// Warnmf is experimental and subject to change at any time.
 func (ns *Namespace) Warnmf(m any, format string, args ...any) string {
 	return ns.logmf(ns.logger.Warn(), m, format, args...)
 }
 
-// Errormf is epxermimental and subject to change at any time.
+// Errormf is experimental and subject to change at any time.
 func (ns *Namespace) Errormf(m any, format string, args ...any) string {
 	return ns.logmf(ns.logger.Error(), m, format, args...)
 }

@@ -122,17 +122,17 @@ expiryDate=%s
 
 	b.WithContent(
 		// YAML
-		"short-date-yaml-unqouted.en.md", createPageContent(pageTemplYaml, shortDateTempl, false),
-		"short-date-yaml-unqouted.nn.md", createPageContent(pageTemplYaml, shortDateTempl, false),
-		"short-date-yaml-qouted.en.md", createPageContent(pageTemplYaml, shortDateTempl, true),
-		"short-date-yaml-qouted.nn.md", createPageContent(pageTemplYaml, shortDateTempl, true),
-		"long-date-yaml-unqouted.en.md", createPageContent(pageTemplYaml, longDateTempl, false),
-		"long-date-yaml-unqouted.nn.md", createPageContent(pageTemplYaml, longDateTempl, false),
+		"short-date-yaml-unquoted.en.md", createPageContent(pageTemplYaml, shortDateTempl, false),
+		"short-date-yaml-unquoted.nn.md", createPageContent(pageTemplYaml, shortDateTempl, false),
+		"short-date-yaml-quoted.en.md", createPageContent(pageTemplYaml, shortDateTempl, true),
+		"short-date-yaml-quoted.nn.md", createPageContent(pageTemplYaml, shortDateTempl, true),
+		"long-date-yaml-unquoted.en.md", createPageContent(pageTemplYaml, longDateTempl, false),
+		"long-date-yaml-unquoted.nn.md", createPageContent(pageTemplYaml, longDateTempl, false),
 		// TOML
-		"short-date-toml-unqouted.en.md", createPageContent(pageTemplTOML, shortDateTempl, false),
-		"short-date-toml-unqouted.nn.md", createPageContent(pageTemplTOML, shortDateTempl, false),
-		"short-date-toml-qouted.en.md", createPageContent(pageTemplTOML, shortDateTempl, true),
-		"short-date-toml-qouted.nn.md", createPageContent(pageTemplTOML, shortDateTempl, true),
+		"short-date-toml-unquoted.en.md", createPageContent(pageTemplTOML, shortDateTempl, false),
+		"short-date-toml-unquoted.nn.md", createPageContent(pageTemplTOML, shortDateTempl, false),
+		"short-date-toml-quoted.en.md", createPageContent(pageTemplTOML, shortDateTempl, true),
+		"short-date-toml-quoted.nn.md", createPageContent(pageTemplTOML, shortDateTempl, true),
 	)
 
 	const datesTempl = `
@@ -171,22 +171,22 @@ ExpiryDate: 2099-07-13 15:28:01 +0000 UTC`
 	// have date literals.
 
 	// YAML
-	// Note: This is with go-yaml v2, I suspect v3 will fail with the unquouted values.
-	b.AssertFileContent("public/en/short-date-yaml-unqouted/index.html", expectShortDateEn)
-	b.AssertFileContent("public/nn/short-date-yaml-unqouted/index.html", expectShortDateNn)
-	b.AssertFileContent("public/en/short-date-yaml-qouted/index.html", expectShortDateEn)
-	b.AssertFileContent("public/nn/short-date-yaml-qouted/index.html", expectShortDateNn)
+	// Note: This is with go-yaml v2, I suspect v3 will fail with the unquoted values.
+	b.AssertFileContent("public/en/short-date-yaml-unquoted/index.html", expectShortDateEn)
+	b.AssertFileContent("public/nn/short-date-yaml-unquoted/index.html", expectShortDateNn)
+	b.AssertFileContent("public/en/short-date-yaml-quoted/index.html", expectShortDateEn)
+	b.AssertFileContent("public/nn/short-date-yaml-quoted/index.html", expectShortDateNn)
 
-	b.AssertFileContent("public/en/long-date-yaml-unqouted/index.html", expectLongDateEn)
-	b.AssertFileContent("public/nn/long-date-yaml-unqouted/index.html", expectLongDateNn)
+	b.AssertFileContent("public/en/long-date-yaml-unquoted/index.html", expectLongDateEn)
+	b.AssertFileContent("public/nn/long-date-yaml-unquoted/index.html", expectLongDateNn)
 
 	// TOML
 	// These fails: TOML (Burnt Sushi) defaults to local timezone.
 	// TODO(bep) check go-toml
-	b.AssertFileContent("public/en/short-date-toml-unqouted/index.html", expectShortDateEn)
-	b.AssertFileContent("public/nn/short-date-toml-unqouted/index.html", expectShortDateNn)
-	b.AssertFileContent("public/en/short-date-toml-qouted/index.html", expectShortDateEn)
-	b.AssertFileContent("public/nn/short-date-toml-qouted/index.html", expectShortDateNn)
+	b.AssertFileContent("public/en/short-date-toml-unquoted/index.html", expectShortDateEn)
+	b.AssertFileContent("public/nn/short-date-toml-unquoted/index.html", expectShortDateNn)
+	b.AssertFileContent("public/en/short-date-toml-quoted/index.html", expectShortDateEn)
+	b.AssertFileContent("public/nn/short-date-toml-quoted/index.html", expectShortDateNn)
 
 }
 

@@ -1154,7 +1154,7 @@ func TestPagePaths(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	siteParmalinksSetting := map[string]string{
+	sitePermalinksSetting := map[string]string{
 		"post": ":year/:month/:day/:title/",
 	}
 
@@ -1180,7 +1180,7 @@ func TestPagePaths(t *testing.T) {
 		c.Assert(err, qt.IsNil)
 
 		if test.hasPermalink {
-			cfg.Set("permalinks", siteParmalinksSetting)
+			cfg.Set("permalinks", sitePermalinksSetting)
 		}
 
 		writeSource(t, fs, filepath.Join("content", filepath.FromSlash(test.path)), test.content)
