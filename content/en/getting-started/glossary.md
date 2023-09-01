@@ -130,7 +130,7 @@ Used within a [template action](#template-action) and associated with an [object
 
 ### module
 
-Like a [theme](#theme), a module is a packaged combination oof [archetypes](#archetype), assets, content, data, [templates](#template), translation tables, static files, or configuration settings. A module may serve as the basis for a new site, or to augment an existing site. See [details](/hugo-modules/).
+Like a [theme](#theme), a module is a packaged combination of [archetypes](#archetype), assets, content, data, [templates](#template), translation tables, static files, or configuration settings. A module may serve as the basis for a new site, or to augment an existing site. See [details](/hugo-modules/).
 
 ### object
 
