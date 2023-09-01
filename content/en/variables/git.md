@@ -50,7 +50,7 @@ If the `.GitInfo` feature is enabled, `.Lastmod` (on `Page`) is fetched from Git
 
 [configuration]: /getting-started/configuration/
 
-## Hosting Considerations
+## Hosting considerations
 
 On the site host, your repository must be "deep-cloned," so the returned `.GitInfo` data will be accurate. Otherwise, your site may display only data from your latest commit. Where it's not possible to configure a host's cloning depth, you must handle this through CI/CD (*e.g.*, a 
 GitHub Action or GitLab CI/CD). See the following table:
