@@ -624,7 +624,7 @@ func TestSiteBuildTimeout(t *testing.T) {
 
 	b := newTestSitesBuilder(t)
 	b.WithConfigFile("toml", `
-timeout = 5
+timeout = '2s'
 `)
 
 	b.WithTemplatesAdded("_default/single.html", `
@@ -636,7 +636,7 @@ timeout = 5
 
 `)
 
-	for i := 1; i < 100; i++ {
+	for i := 1; i < 10; i++ {
 		b.WithContent(fmt.Sprintf("page%d.md", i), `---
 title: "A page"
 ---

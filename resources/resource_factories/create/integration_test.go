@@ -25,6 +25,7 @@ import (
 )
 
 func TestGetRemoteHead(t *testing.T) {
+	t.Parallel()
 
 	files := `
 -- config.toml --
@@ -64,7 +65,6 @@ func TestGetRemoteHead(t *testing.T) {
 }
 
 func TestGetRemoteRetry(t *testing.T) {
-	t.Parallel()
 
 	temporaryHTTPCodes := []int{408, 429, 500, 502, 503, 504}
 	numPages := 20
@@ -110,6 +110,7 @@ mediaTypes = ['text/plain']
 	filesTemplate = strings.ReplaceAll(filesTemplate, "URL", srv.URL)
 
 	t.Run("OK", func(t *testing.T) {
+		t.Parallel()
 		files := strings.ReplaceAll(filesTemplate, "TIMEOUT", "60s")
 		b := hugolib.NewIntegrationTestBuilder(
 			hugolib.IntegrationTestConfig{
@@ -126,6 +127,7 @@ mediaTypes = ['text/plain']
 	})
 
 	t.Run("Timeout", func(t *testing.T) {
+		t.Parallel()
 		files := strings.ReplaceAll(filesTemplate, "TIMEOUT", "100ms")
 		b, err := hugolib.NewIntegrationTestBuilder(
 			hugolib.IntegrationTestConfig{

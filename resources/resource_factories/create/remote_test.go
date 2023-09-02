@@ -20,8 +20,6 @@ import (
 )
 
 func TestDecodeRemoteOptions(t *testing.T) {
-	t.Parallel()
-
 	c := qt.New(t)
 
 	for _, test := range []struct {
@@ -71,7 +69,9 @@ func TestDecodeRemoteOptions(t *testing.T) {
 			false,
 		},
 	} {
+		test := test
 		c.Run(test.name, func(c *qt.C) {
+			c.Parallel()
 			got, err := decodeRemoteOptions(test.args)
 			isErr := qt.IsNil
 			if test.wantErr {

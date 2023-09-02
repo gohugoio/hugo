@@ -98,6 +98,7 @@ github.com/gohugoio/hugoTestModule2 v0.0.0-20200131160637-9657d7697877/go.mod h1
 	}
 
 	t.Run("Target in subfolder", func(t *testing.T) {
+		t.Parallel()
 		b := newTestBuilder(t, "ignoreImports=true")
 		b.Build(BuildCfg{})
 
@@ -105,6 +106,7 @@ github.com/gohugoio/hugoTestModule2 v0.0.0-20200131160637-9657d7697877/go.mod h1
 	})
 
 	t.Run("Ignore config", func(t *testing.T) {
+		t.Parallel()
 		b := newTestBuilder(t, "ignoreConfig=true")
 		b.Build(BuildCfg{})
 
@@ -115,6 +117,7 @@ JS imported in module: |
 	})
 
 	t.Run("Ignore imports", func(t *testing.T) {
+		t.Parallel()
 		b := newTestBuilder(t, "ignoreImports=true")
 		b.Build(BuildCfg{})
 
@@ -125,6 +128,7 @@ JS imported in module: |
 	})
 
 	t.Run("Create package.json", func(t *testing.T) {
+		t.Parallel()
 		b := newTestBuilder(t, "")
 
 		b.WithSourceFile("package.json", `{
@@ -200,6 +204,7 @@ JS imported in module: |
 	})
 
 	t.Run("Create package.json, no default", func(t *testing.T) {
+		t.Parallel()
 		b := newTestBuilder(t, "")
 
 		const origPackageJSON = `{
@@ -262,6 +267,7 @@ JS imported in module: |
 	})
 
 	t.Run("Create package.json, no default, no package.json", func(t *testing.T) {
+		t.Parallel()
 		b := newTestBuilder(t, "")
 
 		b.Build(BuildCfg{})

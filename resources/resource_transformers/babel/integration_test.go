@@ -22,6 +22,7 @@ import (
 )
 
 func TestTransformBabel(t *testing.T) {
+	t.Parallel()
 	if !htesting.IsCI() {
 		t.Skip("Skip long running test when running locally")
 	}

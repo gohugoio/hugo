@@ -52,12 +52,14 @@ JS Content:{{ $js.Content }}:End:
 			`
 
 	c.Run("Basic", func(c *qt.C) {
+		c.Parallel()
 		b := hugolib.NewIntegrationTestBuilder(hugolib.IntegrationTestConfig{T: c, NeedsOsFS: true, TxtarString: mainWithImport}).Build()
 
 		b.AssertFileContent("public/index.html", `abcd`)
 	})
 
 	c.Run("Edit Import", func(c *qt.C) {
+		c.Parallel()
 		b := hugolib.NewIntegrationTestBuilder(hugolib.IntegrationTestConfig{T: c, Running: true, NeedsOsFS: true, TxtarString: mainWithImport}).Build()
 
 		b.AssertFileContent("public/index.html", `abcd`)
@@ -66,6 +68,7 @@ JS Content:{{ $js.Content }}:End:
 	})
 
 	c.Run("Edit Import Nested", func(c *qt.C) {
+		c.Parallel()
 		b := hugolib.NewIntegrationTestBuilder(hugolib.IntegrationTestConfig{T: c, Running: true, NeedsOsFS: true, TxtarString: mainWithImport}).Build()
 
 		b.AssertFileContent("public/index.html", `efgh`)
@@ -75,6 +78,7 @@ JS Content:{{ $js.Content }}:End:
 }
 
 func TestBuildWithModAndNpm(t *testing.T) {
+	t.Parallel()
 	if !htesting.IsCI() {
 		t.Skip("skip (relative) long running modules test when running locally")
 	}
@@ -130,6 +134,7 @@ module.exports = window.ReactDOM;
 }
 
 func TestBuildWithNpm(t *testing.T) {
+	t.Parallel()
 	if !htesting.IsCI() {
 		t.Skip("skip (relative) long running modules test when running locally")
 	}
@@ -211,6 +216,7 @@ TS2: {{ template "print" $ts2 }}
 }
 
 func TestBuildError(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	filesTemplate := `
@@ -262,6 +268,7 @@ JS Content:{{ $js.Content }}:End:
 
 // See issue 10527.
 func TestImportHugoVsESBuild(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	for _, importSrcDir := range []string{"node_modules", "assets"} {
