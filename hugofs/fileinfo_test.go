@@ -23,6 +23,7 @@ func TestFileMeta(t *testing.T) {
 	c := qt.New(t)
 
 	c.Run("Merge", func(c *qt.C) {
+		c.Parallel()
 		src := &FileMeta{
 			Filename: "fs1",
 			Path:     "ps1",
@@ -38,6 +39,7 @@ func TestFileMeta(t *testing.T) {
 	})
 
 	c.Run("Copy", func(c *qt.C) {
+		c.Parallel()
 		src := &FileMeta{
 			Filename: "fs1",
 			Path:     "ps1",

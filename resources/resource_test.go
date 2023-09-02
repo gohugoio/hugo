@@ -24,6 +24,7 @@ import (
 )
 
 func TestNewResourceFromFilename(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	spec := newTestResourceSpec(specDescriptor{c: c})
 

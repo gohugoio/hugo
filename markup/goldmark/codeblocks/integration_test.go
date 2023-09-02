@@ -91,7 +91,6 @@ echo "l8";
 		hugolib.IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			NeedsOsFS:   false,
 		},
 	).Build()
 
@@ -156,7 +155,6 @@ fmt.Println("Hello, World!");
 		hugolib.IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			NeedsOsFS:   false,
 		},
 	).Build()
 
@@ -192,7 +190,6 @@ title: "p1"
 		hugolib.IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			NeedsOsFS:   false,
 		},
 	).Build()
 
@@ -227,7 +224,6 @@ echo "p1";
 		hugolib.IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			NeedsOsFS:   false,
 		},
 	).Build()
 

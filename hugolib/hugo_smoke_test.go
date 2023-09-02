@@ -328,6 +328,7 @@ The content.
 
 // This is just a test to verify that BenchmarkBaseline is working as intended.
 func TestBenchmarkBaseline(t *testing.T) {
+	t.Parallel()
 	cfg := IntegrationTestConfig{
 		T:           t,
 		TxtarString: benchmarkBaselineFiles(),

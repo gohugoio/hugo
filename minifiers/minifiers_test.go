@@ -73,6 +73,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestConfigureMinify(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	v := config.New()
 	v.Set("minify", map[string]any{
@@ -107,6 +108,7 @@ func TestConfigureMinify(t *testing.T) {
 }
 
 func TestJSONRoundTrip(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	m, _ := minifiers.New(media.DefaultTypes, output.DefaultFormats, testconfig.GetTestConfig(nil, nil))
 
@@ -167,6 +169,7 @@ func TestBugs(t *testing.T) {
 
 // Renamed to Precision in v2.7.0. Check that we support both.
 func TestDecodeConfigDecimalIsNowPrecision(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	v := config.New()
 	v.Set("minify", map[string]any{

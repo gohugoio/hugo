@@ -38,6 +38,7 @@ User-Agent: foo
 }`
 
 	c.Run("Basic", func(c *qt.C) {
+		c.Parallel()
 		cfg := DefaultConfig
 		cfg.NoClasses = false
 		h := New(cfg)
@@ -49,6 +50,7 @@ User-Agent: foo
 	})
 
 	c.Run("Highlight lines, default config", func(c *qt.C) {
+		c.Parallel()
 		cfg := DefaultConfig
 		cfg.NoClasses = false
 		h := New(cfg)
@@ -67,6 +69,7 @@ User-Agent: foo
 	})
 
 	c.Run("Highlight lines, linenumbers default on", func(c *qt.C) {
+		c.Parallel()
 		cfg := DefaultConfig
 		cfg.NoClasses = false
 		cfg.LineNos = true
@@ -79,6 +82,7 @@ User-Agent: foo
 	})
 
 	c.Run("Highlight lines, linenumbers default on, anchorlinenumbers default on", func(c *qt.C) {
+		c.Parallel()
 		cfg := DefaultConfig
 		cfg.NoClasses = false
 		cfg.LineNos = true
@@ -93,6 +97,7 @@ User-Agent: foo
 	})
 
 	c.Run("Highlight lines, linenumbers default on, linenumbers in table default off", func(c *qt.C) {
+		c.Parallel()
 		cfg := DefaultConfig
 		cfg.NoClasses = false
 		cfg.LineNos = true
@@ -106,6 +111,7 @@ User-Agent: foo
 	})
 
 	c.Run("No language", func(c *qt.C) {
+		c.Parallel()
 		cfg := DefaultConfig
 		cfg.NoClasses = false
 		cfg.LineNos = true
@@ -116,6 +122,7 @@ User-Agent: foo
 	})
 
 	c.Run("No language, guess syntax", func(c *qt.C) {
+		c.Parallel()
 		cfg := DefaultConfig
 		cfg.NoClasses = false
 		cfg.GuessSyntax = true
@@ -128,6 +135,7 @@ User-Agent: foo
 	})
 
 	c.Run("No language, Escape HTML string", func(c *qt.C) {
+		c.Parallel()
 		cfg := DefaultConfig
 		cfg.NoClasses = false
 		h := New(cfg)
@@ -137,6 +145,7 @@ User-Agent: foo
 	})
 
 	c.Run("Highlight lines, default config", func(c *qt.C) {
+		c.Parallel()
 		cfg := DefaultConfig
 		cfg.NoClasses = false
 		h := New(cfg)

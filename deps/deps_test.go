@@ -21,6 +21,7 @@ import (
 )
 
 func TestBuildFlags(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	var bf deps.BuildState
 	bf.Incr()

@@ -20,6 +20,7 @@ import (
 )
 
 func TestMinIndex(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	c.Assert(minIndex(4, 1, 2, 3), qt.Equals, 1)
 	c.Assert(minIndex(4, 0, -2, 2, 5), qt.Equals, 0)

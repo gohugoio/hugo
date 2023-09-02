@@ -24,6 +24,7 @@ import (
 )
 
 func TestTransform(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	spec, err := htesting.NewTestResourceSpec()

@@ -577,11 +577,11 @@ func goldenEqual(img1, img2 *image.NRGBA) bool {
 
 // Issue #8729
 func TestImageOperationsGoldenWebp(t *testing.T) {
+	t.Parallel()
 	if !webp.Supports() {
 		t.Skip("skip webp test")
 	}
 	c := qt.New(t)
-	c.Parallel()
 
 	devMode := false
 

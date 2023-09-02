@@ -33,6 +33,7 @@ import (
 )
 
 func TestNewBaseFs(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	v := config.New()
 
@@ -141,6 +142,7 @@ theme = ["atheme"]
 }
 
 func TestNewBaseFsEmpty(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	afs := afero.NewMemMapFs()
 	conf := testconfig.GetTestConfig(afs, nil)
@@ -160,6 +162,7 @@ func TestNewBaseFsEmpty(t *testing.T) {
 }
 
 func TestRealDirs(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	v := config.New()
 	root, themesDir := t.TempDir(), t.TempDir()
@@ -215,6 +218,7 @@ func TestRealDirs(t *testing.T) {
 }
 
 func TestStaticFs(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	v := config.New()
 	workDir := "mywork"
@@ -248,6 +252,7 @@ func TestStaticFs(t *testing.T) {
 }
 
 func TestStaticFsMultiHost(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	v := config.New()
 	workDir := "mywork"

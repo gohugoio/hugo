@@ -1017,6 +1017,8 @@ slug: %s
 }
 
 func TestBundleMisc(t *testing.T) {
+	t.Parallel()
+
 	config := `
 baseURL = "https://example.com"
 defaultContentLanguage = "en"
@@ -1128,6 +1130,7 @@ slug: leaf
 
 // Issue 6136
 func TestPageBundlerPartialTranslations(t *testing.T) {
+	t.Parallel()
 	config := `
 baseURL = "https://example.org"
 defaultContentLanguage = "en"
@@ -1205,6 +1208,7 @@ Num Pages: {{ len .Site.Pages }}
 
 // #6208
 func TestBundleIndexInSubFolder(t *testing.T) {
+	t.Parallel()
 	config := `
 baseURL = "https://example.com"
 
@@ -1245,6 +1249,7 @@ title: %q
 }
 
 func TestBundleTransformMany(t *testing.T) {
+	t.Parallel()
 	b := newTestSitesBuilder(t).WithSimpleConfigFile().Running()
 
 	for i := 1; i <= 50; i++ {

@@ -20,6 +20,7 @@ import (
 )
 
 func TestReplaceRegularCSSImports(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	scssWithImport := `

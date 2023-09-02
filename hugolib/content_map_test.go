@@ -88,6 +88,7 @@ func BenchmarkContentMap(b *testing.B) {
 }
 
 func TestContentMap(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	writeFile := func(c *qt.C, fs afero.Fs, filename, content string) hugofs.FileMetaInfo {

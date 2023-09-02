@@ -28,6 +28,7 @@ func TestI18n(t *testing.T) {
 
 	//https://github.com/gohugoio/hugo/issues/7804
 	c.Run("pt-br should be case insensitive", func(c *qt.C) {
+		c.Parallel()
 		b := newTestSitesBuilder(c)
 		langCode := func() string {
 			c := "pt-br"

@@ -22,6 +22,7 @@ import (
 )
 
 func TestConfig(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	v := config.New()
 
@@ -50,6 +51,7 @@ func TestConfig(t *testing.T) {
 }
 
 func TestConfigLegacy(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	v := config.New()
 

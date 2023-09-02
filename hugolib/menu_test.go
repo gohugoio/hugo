@@ -194,6 +194,8 @@ menu:
 }
 
 func TestMenusFrontMatter(t *testing.T) {
+	t.Parallel()
+
 	b := newTestSitesBuilder(t).WithSimpleConfigFile()
 
 	b.WithTemplatesAdded("index.html", `
@@ -244,6 +246,8 @@ menu:
 
 // https://github.com/gohugoio/hugo/issues/5849
 func TestMenusPageMultipleOutputFormats(t *testing.T) {
+	t.Parallel()
+
 	config := `
 baseURL = "https://example.com"
 
@@ -352,6 +356,8 @@ menu:
 
 // Issue #8825
 func TestMenuParamsEmptyYaml(t *testing.T) {
+	t.Parallel()
+
 	b := newTestSitesBuilder(t).WithConfigFile("yaml", `
 
 `)
@@ -420,6 +426,8 @@ camelCase: camelCase_config
 }
 
 func TestMenusShadowMembers(t *testing.T) {
+	t.Parallel()
+
 	b := newTestSitesBuilder(t).WithConfigFile("toml", `
 [[menus.main]]
 identifier = "contact"

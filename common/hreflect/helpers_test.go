@@ -22,6 +22,8 @@ import (
 )
 
 func TestIsTruthful(t *testing.T) {
+	t.Parallel()
+
 	c := qt.New(t)
 
 	c.Assert(IsTruthful(true), qt.Equals, true)
@@ -31,6 +33,8 @@ func TestIsTruthful(t *testing.T) {
 }
 
 func TestGetMethodByName(t *testing.T) {
+	t.Parallel()
+
 	c := qt.New(t)
 	v := reflect.ValueOf(&testStruct{})
 	tp := v.Type()

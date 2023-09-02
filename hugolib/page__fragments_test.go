@@ -17,6 +17,8 @@ import "testing"
 
 // #10794
 func TestFragmentsAndToCCrossSiteAccess(t *testing.T) {
+	t.Parallel()
+
 	files := `
 -- hugo.toml --
 baseURL = "https://example.com"
@@ -70,6 +72,8 @@ Fragments : {{ $p1.Fragments.Identifiers }}
 
 // Issue #10866
 func TestTableOfContentsWithIncludedMarkdownFile(t *testing.T) {
+	t.Parallel()
+
 	files := `
 -- hugo.toml --
 baseURL = "https://example.com"

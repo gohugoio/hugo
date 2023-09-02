@@ -23,6 +23,7 @@ import (
 )
 
 func TestEmojiCustom(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		input  string
 		expect []byte

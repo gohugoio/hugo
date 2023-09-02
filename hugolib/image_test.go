@@ -18,6 +18,7 @@ import (
 )
 
 func TestImageResizeMultilingual(t *testing.T) {
+	t.Parallel()
 	b := newTestSitesBuilder(t).WithConfigFile("toml", `
 baseURL="https://example.org"
 defaultContentLanguage = "en"

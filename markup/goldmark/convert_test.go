@@ -469,6 +469,7 @@ LINE5
 	}
 
 	c.Run("Basic", func(c *qt.C) {
+		c.Parallel()
 		confStr := `
 [markup]
 [markup.highlight]
@@ -498,6 +499,7 @@ noclasses=false
 	})
 
 	c.Run("Highlight lines, linenumbers default on", func(c *qt.C) {
+		c.Parallel()
 		confStr := `
 [markup]
 [markup.highlight]
@@ -513,6 +515,7 @@ linenos=true
 	})
 
 	c.Run("Highlight lines, linenumbers default on, linenumbers in table default off", func(c *qt.C) {
+		c.Parallel()
 		confStr := `
 [markup]
 [markup.highlight]
@@ -528,6 +531,7 @@ lineNumbersInTable = false
 	})
 
 	c.Run("No language", func(c *qt.C) {
+		c.Parallel()
 		confStr := `
 [markup]
 [markup.highlight]
@@ -545,6 +549,7 @@ lineNumbersInTable = false
 	})
 
 	c.Run("No language, guess syntax", func(c *qt.C) {
+		c.Parallel()
 		confStr := `
 [markup]
 [markup.highlight]
@@ -560,6 +565,7 @@ guessSyntax = true
 }
 
 func TestTypographerConfig(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	content := `
@@ -628,6 +634,7 @@ unsafe = false
 }
 
 func TestConvertCJK(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	content := `
@@ -650,6 +657,7 @@ func TestConvertCJK(t *testing.T) {
 }
 
 func TestConvertCJKWithExtensionWithEastAsianLineBreaksOption(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	content := `

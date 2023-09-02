@@ -35,6 +35,8 @@ func TestMethods(t *testing.T) {
 	insp := NewInspector(dir)
 
 	t.Run("MethodsFromTypes", func(t *testing.T) {
+		t.Parallel()
+
 		c := qt.New(t)
 
 		methods := insp.MethodsFromTypes([]reflect.Type{zeroI}, nil)
@@ -50,6 +52,8 @@ func TestMethods(t *testing.T) {
 	})
 
 	t.Run("EmbedOnly", func(t *testing.T) {
+		t.Parallel()
+
 		c := qt.New(t)
 
 		methods := insp.MethodsFromTypes([]reflect.Type{zeroIEOnly}, nil)
@@ -60,6 +64,8 @@ func TestMethods(t *testing.T) {
 	})
 
 	t.Run("ToMarshalJSON", func(t *testing.T) {
+		t.Parallel()
+
 		c := qt.New(t)
 
 		m, pkg := insp.MethodsFromTypes(

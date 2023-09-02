@@ -26,7 +26,7 @@ import (
 func TestLayout(t *testing.T) {
 	c := qt.New(t)
 
-	for _, this := range []struct {
+	for _, test := range []struct {
 		name             string
 		layoutDescriptor LayoutDescriptor
 		layoutOverride   string
@@ -931,24 +931,28 @@ func TestLayout(t *testing.T) {
 			},
 		},
 	} {
-		c.Run(this.name, func(c *qt.C) {
+
+		test := test
+		c.Run(test.name, func(c *qt.C) {
+			c.Parallel()
+
 			l := NewLayoutHandler()
 
-			layouts, err := l.For(this.layoutDescriptor)
+			layouts, err := l.For(test.layoutDescriptor)
 
 			c.Assert(err, qt.IsNil)
-			c.Assert(layouts, qt.Not(qt.IsNil), qt.Commentf(this.layoutDescriptor.Kind))
+			c.Assert(layouts, qt.Not(qt.IsNil), qt.Commentf(test.layoutDescriptor.Kind))
 
-			if !reflect.DeepEqual(layouts, this.expect) {
+			if !reflect.DeepEqual(layouts, test.expect) {
 				r := strings.NewReplacer(
 					"[", "\t\"",
 					"]", "\",",
 					" ", "\",\n\t\"",
 				)
 				fmtGot := r.Replace(fmt.Sprintf("%v", layouts))
-				fmtExp := r.Replace(fmt.Sprintf("%v", this.expect))
+				fmtExp := r.Replace(fmt.Sprintf("%v", test.expect))
 
-				c.Fatalf("got %d items, expected %d:\nGot:\n\t%v\nExpected:\n\t%v\nDiff:\n%s", len(layouts), len(this.expect), layouts, this.expect, diff.Diff(fmtExp, fmtGot))
+				c.Fatalf("got %d items, expected %d:\nGot:\n\t%v\nExpected:\n\t%v\nDiff:\n%s", len(layouts), len(test.expect), layouts, test.expect, diff.Diff(fmtExp, fmtGot))
 
 			}
 		})

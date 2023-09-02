@@ -19,6 +19,8 @@ import (
 )
 
 func TestNeedsBaseTemplate(t *testing.T) {
+	t.Parallel()
+
 	c := qt.New(t)
 
 	c.Assert(needsBaseTemplate(`{{ define "main" }}`), qt.Equals, true)

@@ -22,7 +22,6 @@ import (
 )
 
 func TestThatPageIsAvailableEverywhere(t *testing.T) {
-	t.Parallel()
 
 	filesTemplate := `
 -- config.toml --
@@ -121,7 +120,9 @@ HRE?{{ if eq page . }}Sitemap OK.{{ else }}Failed.{{ end }}
   `
 
 	for _, multilingual := range []bool{false, true} {
+		multilingual := multilingual
 		t.Run(fmt.Sprintf("multilingual-%t", multilingual), func(t *testing.T) {
+			t.Parallel()
 			// Fenced code blocks.
 			files := strings.ReplaceAll(filesTemplate, "$$$", "```")
 

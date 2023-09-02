@@ -190,6 +190,7 @@ func TestSliceToLower(t *testing.T) {
 }
 
 func TestReaderContains(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	for i, this := range append(containsBenchTestData, containsAdditionalTestData...) {
 		result := helpers.ReaderContains(strings.NewReader(this.v1), this.v2)

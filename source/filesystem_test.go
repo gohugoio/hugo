@@ -30,6 +30,7 @@ import (
 )
 
 func TestEmptySourceFilesystem(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	ss := newTestSourceSpec()
 	src := ss.NewFilesystem("")
@@ -41,6 +42,7 @@ func TestEmptySourceFilesystem(t *testing.T) {
 }
 
 func TestUnicodeNorm(t *testing.T) {
+	t.Parallel()
 	if runtime.GOOS != "darwin" {
 		// Normalization code is only for Mac OS, since it is not necessary for other OSes.
 		return

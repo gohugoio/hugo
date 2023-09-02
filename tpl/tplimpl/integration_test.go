@@ -191,6 +191,7 @@ func TestGoTemplateBugs(t *testing.T) {
 
 }
 
+// This can not be run in parallel as it modifies global state.
 func TestSecurityAllowActionJSTmpl(t *testing.T) {
 
 	filesTemplate := `

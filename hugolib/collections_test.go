@@ -21,6 +21,7 @@ import (
 )
 
 func TestGroupFunc(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	pageContent := `
@@ -46,6 +47,7 @@ title: "Page"
 }
 
 func TestSliceFunc(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	pageContent := `
@@ -88,6 +90,7 @@ tags_weight: %d
 }
 
 func TestUnionFunc(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	pageContent := `
@@ -119,6 +122,7 @@ tags_weight: %d
 }
 
 func TestCollectionsFuncs(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	pageContent := `
@@ -164,6 +168,7 @@ Symdiff: {{ range $symdiff }}{{ .RelPermalink }}|{{ end }}
 }
 
 func TestAppendFunc(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	pageContent := `

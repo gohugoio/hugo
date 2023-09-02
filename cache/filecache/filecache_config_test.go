@@ -114,6 +114,8 @@ dir = "/path/to/c4"
 }
 
 func TestDecodeConfigDefault(t *testing.T) {
+	t.Parallel()
+
 	c := qt.New(t)
 	cfg := config.New()
 

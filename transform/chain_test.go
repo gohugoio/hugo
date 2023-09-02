@@ -22,6 +22,7 @@ import (
 )
 
 func TestChainZeroTransformers(t *testing.T) {
+	t.Parallel()
 	tr := New()
 	in := new(bytes.Buffer)
 	out := new(bytes.Buffer)
@@ -31,6 +32,8 @@ func TestChainZeroTransformers(t *testing.T) {
 }
 
 func TestChainingMultipleTransformers(t *testing.T) {
+	t.Parallel()
+
 	f1 := func(ct FromTo) error {
 		_, err := ct.To().Write(bytes.Replace(ct.From().Bytes(), []byte("f1"), []byte("f1r"), -1))
 		return err
@@ -64,6 +67,7 @@ func TestChainingMultipleTransformers(t *testing.T) {
 }
 
 func TestNewEmptyTransforms(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	transforms := NewEmpty()
 	c.Assert(cap(transforms), qt.Equals, 20)

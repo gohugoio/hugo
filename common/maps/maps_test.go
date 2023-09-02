@@ -71,7 +71,10 @@ func TestPrepareParams(t *testing.T) {
 	}
 
 	for i, test := range tests {
+		test := test
+		i := i
 		t.Run(fmt.Sprint(i), func(t *testing.T) {
+			t.Parallel()
 			// PrepareParams modifies input.
 			PrepareParams(test.input)
 			if !reflect.DeepEqual(test.expected, test.input) {

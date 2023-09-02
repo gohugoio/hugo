@@ -396,6 +396,7 @@ func TestLessThanExtend(t *testing.T) {
 }
 
 func TestCase(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	n := New(time.UTC, false)
 
@@ -404,6 +405,7 @@ func TestCase(t *testing.T) {
 }
 
 func TestStringType(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	n := New(time.UTC, true)
 
@@ -436,6 +438,7 @@ func TestTimeUnix(t *testing.T) {
 }
 
 func TestConditional(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	n := New(time.UTC, false)
 	a, b := "a", "b"

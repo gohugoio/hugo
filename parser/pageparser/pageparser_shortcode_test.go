@@ -255,7 +255,9 @@ func TestShortcodeLexer(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 	for i, test := range shortCodeLexerTests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
 			items := collect([]byte(test.input), true, lexMainSection)
 			if !equal(test.input, items, test.items) {
 				got := itemsToString(items, []byte(test.input))

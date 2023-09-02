@@ -34,6 +34,7 @@ func TestTimeFormatter(t *testing.T) {
 	mondayNovemberFirst = mondayNovemberFirst.Add(33 * time.Second)
 
 	c.Run("Norsk nynorsk", func(c *qt.C) {
+		c.Parallel()
 		f := NewTimeFormatter(translators.GetTranslator("nn"))
 
 		c.Assert(f.Format(june06, "Monday Jan 2 2006"), qt.Equals, "onsdag juni 6 2018")
@@ -42,6 +43,7 @@ func TestTimeFormatter(t *testing.T) {
 	})
 
 	c.Run("Custom layouts Norsk nynorsk", func(c *qt.C) {
+		c.Parallel()
 		f := NewTimeFormatter(translators.GetTranslator("nn"))
 
 		c.Assert(f.Format(june06, ":date_full"), qt.Equals, "onsdag 6. juni 2018")
@@ -57,6 +59,7 @@ func TestTimeFormatter(t *testing.T) {
 	})
 
 	c.Run("Custom layouts English", func(c *qt.C) {
+		c.Parallel()
 		f := NewTimeFormatter(translators.GetTranslator("en"))
 
 		c.Assert(f.Format(june06, ":date_full"), qt.Equals, "Wednesday, June 6, 2018")
@@ -72,6 +75,7 @@ func TestTimeFormatter(t *testing.T) {
 	})
 
 	c.Run("English", func(c *qt.C) {
+		c.Parallel()
 		f := NewTimeFormatter(translators.GetTranslator("en"))
 
 		c.Assert(f.Format(june06, "Monday Jan 2 2006"), qt.Equals, "Wednesday Jun 6 2018")
@@ -80,6 +84,7 @@ func TestTimeFormatter(t *testing.T) {
 	})
 
 	c.Run("Weekdays German", func(c *qt.C) {
+		c.Parallel()
 		tr := translators.GetTranslator("de")
 		f := NewTimeFormatter(tr)
 
@@ -98,6 +103,7 @@ func TestTimeFormatter(t *testing.T) {
 	})
 
 	c.Run("Months German", func(c *qt.C) {
+		c.Parallel()
 		tr := translators.GetTranslator("de")
 		f := NewTimeFormatter(tr)
 

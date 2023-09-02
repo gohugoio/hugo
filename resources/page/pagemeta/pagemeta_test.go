@@ -129,6 +129,7 @@ func TestDateAndSlugFromBaseFilename(t *testing.T) {
 }
 
 func TestExpandDefaultValues(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	c.Assert(expandDefaultValues([]string{"a", ":default", "d"}, []string{"b", "c"}), qt.DeepEquals, []string{"a", "b", "c", "d"})
 	c.Assert(expandDefaultValues([]string{"a", "b", "c"}, []string{"a", "b", "c"}), qt.DeepEquals, []string{"a", "b", "c"})

@@ -20,6 +20,7 @@ import (
 )
 
 func TestBufferPool(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	buff := GetBuffer()

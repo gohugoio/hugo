@@ -25,7 +25,6 @@ import (
 )
 
 func TestTimeLocation(t *testing.T) {
-	t.Parallel()
 
 	loc, _ := time.LoadLocation("America/Antigua")
 	ns := New(htime.NewTimeFormatter(translators.GetTranslator("en")), loc)
@@ -53,7 +52,10 @@ func TestTimeLocation(t *testing.T) {
 		{"Invalid time zone", "2020-01-20", "invalid-timezone", false},
 		{"Invalid time value", "invalid-value", "", false},
 	} {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
 			var args []any
 			if test.location != nil {
 				args = append(args, test.location)

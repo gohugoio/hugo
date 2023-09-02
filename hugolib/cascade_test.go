@@ -90,6 +90,7 @@ kind = '{section,term}'
 }
 
 func TestCascadeConfig(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	// Make sure the cascade from config gets applied even if we're not

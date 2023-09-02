@@ -26,6 +26,7 @@ import (
 )
 
 func TestGetByType(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	types := DefaultTypes
@@ -47,6 +48,7 @@ func TestGetByType(t *testing.T) {
 }
 
 func TestGetByMainSubType(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	f, found := DefaultTypes.GetByMainSubType("text", "plain")
 	c.Assert(found, qt.Equals, true)
@@ -56,6 +58,7 @@ func TestGetByMainSubType(t *testing.T) {
 }
 
 func TestBySuffix(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	formats := DefaultTypes.BySuffix("xml")
 	c.Assert(len(formats), qt.Equals, 2)
@@ -64,6 +67,7 @@ func TestBySuffix(t *testing.T) {
 }
 
 func TestGetFirstBySuffix(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	types := make(Types, len(DefaultTypes))
@@ -91,6 +95,7 @@ func TestGetFirstBySuffix(t *testing.T) {
 }
 
 func TestFromTypeString(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	f, err := FromString("text/html")
 	c.Assert(err, qt.IsNil)
@@ -114,6 +119,7 @@ func TestFromTypeString(t *testing.T) {
 }
 
 func TestFromStringAndExt(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	f, err := FromStringAndExt("text/html", "html")
 	c.Assert(err, qt.IsNil)
@@ -126,6 +132,7 @@ func TestFromStringAndExt(t *testing.T) {
 // Add a test for the SVG case
 // https://github.com/gohugoio/hugo/issues/4920
 func TestFromExtensionMultipleSuffixes(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	tp, si, found := DefaultTypes.GetBySuffix("svg")
 	c.Assert(found, qt.Equals, true)
@@ -149,6 +156,7 @@ func TestFromContent(t *testing.T) {
 	for _, filename := range files {
 		name := filepath.Base(filename)
 		c.Run(name, func(c *qt.C) {
+			c.Parallel()
 			content, err := os.ReadFile(filename)
 			c.Assert(err, qt.IsNil)
 			ext := strings.TrimPrefix(paths.Ext(filename), ".")
@@ -175,6 +183,7 @@ func TestFromContentFakes(t *testing.T) {
 	for _, filename := range files {
 		name := filepath.Base(filename)
 		c.Run(name, func(c *qt.C) {
+			c.Parallel()
 			content, err := os.ReadFile(filename)
 			c.Assert(err, qt.IsNil)
 			ext := strings.TrimPrefix(paths.Ext(filename), ".")
@@ -185,6 +194,7 @@ func TestFromContentFakes(t *testing.T) {
 }
 
 func TestToJSON(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	b, err := json.Marshal(Builtin.MPEGType)
 	c.Assert(err, qt.IsNil)

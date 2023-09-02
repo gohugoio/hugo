@@ -49,7 +49,6 @@ This is an inline image: ![Inline Image](/inline.jpg). Some more text.
 			hugolib.IntegrationTestConfig{
 				T:           t,
 				TxtarString: files,
-				NeedsOsFS:   false,
 			},
 		).Build()
 
@@ -74,7 +73,6 @@ This is an inline image: ![Inline Image](/inline.jpg). Some more text.
 			hugolib.IntegrationTestConfig{
 				T:           t,
 				TxtarString: files,
-				NeedsOsFS:   false,
 			},
 		).Build()
 
@@ -90,7 +88,6 @@ This is an inline image: ![Inline Image](/inline.jpg). Some more text.
 			hugolib.IntegrationTestConfig{
 				T:           t,
 				TxtarString: files,
-				NeedsOsFS:   false,
 			},
 		).Build()
 
@@ -103,7 +100,6 @@ This is an inline image: ![Inline Image](/inline.jpg). Some more text.
 			hugolib.IntegrationTestConfig{
 				T:           t,
 				TxtarString: files,
-				NeedsOsFS:   false,
 			},
 		).Build()
 

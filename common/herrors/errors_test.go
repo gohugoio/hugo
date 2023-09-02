@@ -23,6 +23,8 @@ import (
 )
 
 func TestIsNotExist(t *testing.T) {
+	t.Parallel()
+
 	c := qt.New(t)
 
 	c.Assert(IsNotExist(afero.ErrFileNotFound), qt.Equals, true)
@@ -37,6 +39,8 @@ func TestIsNotExist(t *testing.T) {
 }
 
 func TestIsFeatureNotAvailableError(t *testing.T) {
+	t.Parallel()
+
 	c := qt.New(t)
 
 	c.Assert(IsFeatureNotAvailableError(ErrFeatureNotAvailable), qt.Equals, true)

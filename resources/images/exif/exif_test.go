@@ -76,6 +76,7 @@ func TestExifPNG(t *testing.T) {
 }
 
 func TestIssue8079(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	f, err := os.Open(filepath.FromSlash("../../testdata/iss8079.jpg"))
@@ -90,6 +91,7 @@ func TestIssue8079(t *testing.T) {
 }
 
 func TestNullString(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	for _, test := range []struct {

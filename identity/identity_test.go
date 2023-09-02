@@ -23,6 +23,7 @@ import (
 )
 
 func TestIdentityManager(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	id1 := testIdentity{name: "id1"}

@@ -30,6 +30,8 @@ import (
 // It's still an upstream Go issue that we also need to handle, but
 // this is a test for the first part.
 func TestPruneShouldPreserveEmptyCacheRoots(t *testing.T) {
+	t.Parallel()
+
 	files := `
 -- hugo.toml --
 baseURL = "https://example.com"
@@ -51,6 +53,8 @@ title: "Home"
 }
 
 func TestPruneImages(t *testing.T) {
+	t.Parallel()
+
 	if htesting.IsCI() {
 		// TODO(bep)
 		t.Skip("skip flaky test on CI server")

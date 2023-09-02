@@ -21,6 +21,8 @@ import (
 )
 
 func TestUnwrapPage(t *testing.T) {
+	t.Parallel()
+
 	c := qt.New(t)
 
 	p := &pageState{}

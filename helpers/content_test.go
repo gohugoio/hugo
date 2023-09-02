@@ -27,6 +27,7 @@ import (
 const tstHTMLContent = "<!DOCTYPE html><html><head><script src=\"http://two/foobar.js\"></script></head><body><nav><ul><li hugo-nav=\"section_0\"></li><li hugo-nav=\"section_1\"></li></ul></nav><article>content <a href=\"http://two/foobar\">foobar</a>. Follow up</article><p>This is some text.<br>And some more.</p></body></html>"
 
 func TestTrimShortHTML(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		input, output []byte
 	}{
@@ -65,6 +66,7 @@ func BenchmarkTestTruncateWordsToWholeSentence(b *testing.B) {
 }
 
 func TestTruncateWordsToWholeSentence(t *testing.T) {
+	t.Parallel()
 
 	type test struct {
 		input, expected string

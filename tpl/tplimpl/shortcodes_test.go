@@ -21,6 +21,7 @@ import (
 
 func TestShortcodesTemplate(t *testing.T) {
 	t.Run("isShortcode", func(t *testing.T) {
+		t.Parallel()
 		c := qt.New(t)
 		c.Assert(isShortcode("shortcodes/figures.html"), qt.Equals, true)
 		c.Assert(isShortcode("_internal/shortcodes/figures.html"), qt.Equals, true)
@@ -29,6 +30,7 @@ func TestShortcodesTemplate(t *testing.T) {
 	})
 
 	t.Run("variantsFromName", func(t *testing.T) {
+		t.Parallel()
 		c := qt.New(t)
 		c.Assert(templateVariants("figure.html"), qt.DeepEquals, []string{"", "html", "html"})
 		c.Assert(templateVariants("figure.no.html"), qt.DeepEquals, []string{"no", "no", "html"})
@@ -41,6 +43,7 @@ func TestShortcodesTemplate(t *testing.T) {
 	})
 
 	t.Run("compareVariants", func(t *testing.T) {
+		t.Parallel()
 		c := qt.New(t)
 		var s *shortcodeTemplates
 
@@ -65,6 +68,8 @@ func TestShortcodesTemplate(t *testing.T) {
 	})
 
 	t.Run("indexOf", func(t *testing.T) {
+		t.Parallel()
+
 		c := qt.New(t)
 
 		s := &shortcodeTemplates{
@@ -80,6 +85,8 @@ func TestShortcodesTemplate(t *testing.T) {
 	})
 
 	t.Run("Name", func(t *testing.T) {
+		t.Parallel()
+
 		c := qt.New(t)
 
 		c.Assert(templateBaseName(templateShortcode, "shortcodes/foo.html"), qt.Equals, "foo.html")

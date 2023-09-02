@@ -54,7 +54,6 @@ foo
 		hugolib.IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			NeedsOsFS:   false,
 		},
 	).Build()
 
@@ -89,7 +88,6 @@ title: "p1"
 		hugolib.IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			NeedsOsFS:   false,
 		},
 	).Build()
 
@@ -115,7 +113,6 @@ title: "p1"
 		hugolib.IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			NeedsOsFS:   false,
 		},
 	).Build()
 
@@ -145,7 +142,6 @@ safeHTML: |{{- range $k, $v := .Attributes -}}{{ $k }}: {{ $v | safeHTML }}|{{ e
 		hugolib.IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			NeedsOsFS:   false,
 		},
 	).Build()
 
@@ -182,7 +178,6 @@ title: "p1"
 		hugolib.IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			NeedsOsFS:   false,
 		},
 	).Build()
 
@@ -405,7 +400,9 @@ func TestHookInfiniteRecursion(t *testing.T) {
 	t.Parallel()
 
 	for _, renderFunc := range []string{"markdownify", ".Page.RenderString"} {
+		renderFunc := renderFunc
 		t.Run(renderFunc, func(t *testing.T) {
+			t.Parallel()
 
 			files := `
 -- config.toml --

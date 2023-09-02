@@ -150,12 +150,16 @@ func BenchmarkXMLAbsURLSrcset(b *testing.B) {
 }
 
 func TestAbsURL(t *testing.T) {
+	t.Parallel()
+
 	tr := transform.New(NewAbsURLTransformer(testBaseURL))
 
 	apply(t.Errorf, tr, absURLTests)
 }
 
 func TestAbsURLUnquoted(t *testing.T) {
+	t.Parallel()
+
 	tr := transform.New(NewAbsURLTransformer(testBaseURL))
 
 	apply(t.Errorf, tr, []test{
@@ -171,18 +175,24 @@ func TestAbsURLUnquoted(t *testing.T) {
 }
 
 func TestRelativeURL(t *testing.T) {
+	t.Parallel()
+
 	tr := transform.New(NewAbsURLTransformer(helpers.GetDottedRelativePath(filepath.FromSlash("/post/sub/"))))
 
 	applyWithPath(t.Errorf, tr, relurlTests)
 }
 
 func TestAbsURLSrcSet(t *testing.T) {
+	t.Parallel()
+
 	tr := transform.New(NewAbsURLTransformer(testBaseURL))
 
 	apply(t.Errorf, tr, srcsetTests)
 }
 
 func TestAbsXMLURLSrcSet(t *testing.T) {
+	t.Parallel()
+
 	tr := transform.New(NewAbsURLInXMLTransformer(testBaseURL))
 
 	apply(t.Errorf, tr, srcsetXMLTests)
@@ -198,6 +208,8 @@ func BenchmarkXMLAbsURL(b *testing.B) {
 }
 
 func TestXMLAbsURL(t *testing.T) {
+	t.Parallel()
+
 	tr := transform.New(NewAbsURLInXMLTransformer(testBaseURL))
 	apply(t.Errorf, tr, xmlAbsURLTests)
 }

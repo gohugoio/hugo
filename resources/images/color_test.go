@@ -61,6 +61,7 @@ func TestHexStringToColor(t *testing.T) {
 }
 
 func TestColorToHexString(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	for _, test := range []struct {
@@ -85,6 +86,7 @@ func TestColorToHexString(t *testing.T) {
 }
 
 func TestAddColorToPalette(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	palette := color.Palette{color.White, color.Black}
@@ -101,6 +103,7 @@ func TestAddColorToPalette(t *testing.T) {
 }
 
 func TestReplaceColorInPalette(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	palette := color.Palette{color.White, color.Black}

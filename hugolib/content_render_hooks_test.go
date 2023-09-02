@@ -384,6 +384,7 @@ xml-heading: Heading in p2|
 
 // https://github.com/gohugoio/hugo/issues/6629
 func TestRenderLinkWithMarkupInText(t *testing.T) {
+	t.Parallel()
 	b := newTestSitesBuilder(t)
 	b.WithConfigFile("toml", `
 

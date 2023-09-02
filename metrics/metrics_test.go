@@ -24,6 +24,7 @@ import (
 )
 
 func TestSimilarPercentage(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	sentence := "this is some words about nothing, Hugo!"
@@ -51,6 +52,7 @@ type testStruct struct {
 }
 
 func TestSimilarPercentageNonString(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	c.Assert(howSimilar(page.NopPage, page.NopPage), qt.Equals, 100)
 	c.Assert(howSimilar(page.Pages{}, page.Pages{}), qt.Equals, 90)

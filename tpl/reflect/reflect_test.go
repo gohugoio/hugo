@@ -24,7 +24,10 @@ var ns = New()
 type tstNoStringer struct{}
 
 func TestIsMap(t *testing.T) {
+	t.Parallel()
+
 	c := qt.New(t)
+
 	for _, test := range []struct {
 		v      any
 		expect any
@@ -39,6 +42,7 @@ func TestIsMap(t *testing.T) {
 }
 
 func TestIsSlice(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	for _, test := range []struct {
 		v      any

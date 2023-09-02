@@ -30,6 +30,7 @@ import (
 
 // Issue 6166
 func TestDecodeOptions(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	opts1, err := decodeOptions(map[string]any{
 		"no-map": true,
@@ -47,6 +48,7 @@ func TestDecodeOptions(t *testing.T) {
 }
 
 func TestShouldImport(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	var imp *importResolver
 

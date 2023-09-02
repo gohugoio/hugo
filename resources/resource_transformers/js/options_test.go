@@ -43,6 +43,7 @@ func TestOptionKey(t *testing.T) {
 }
 
 func TestToBuildOptions(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	opts, err := toBuildOptions(Options{mediaType: media.Builtin.JavascriptType})
@@ -159,7 +160,9 @@ func TestResolveComponentInAssets(t *testing.T) {
 		// Issue #8949
 		{"Check file before directory", []string{"foo.js", "foo/index.js"}, "foo", "foo.js"},
 	} {
+		test := test
 		c.Run(test.name, func(c *qt.C) {
+			c.Parallel()
 			baseDir := "assets"
 			mfs := afero.NewMemMapFs()
 

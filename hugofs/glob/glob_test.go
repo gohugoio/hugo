@@ -21,6 +21,7 @@ import (
 )
 
 func TestResolveRootDir(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	for _, test := range []struct {

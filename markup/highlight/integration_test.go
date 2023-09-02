@@ -71,7 +71,6 @@ HighlightCodeBlock: Wrapped:{{ $result.Wrapped  }}|Inner:{{ $result.Inner }}
 		hugolib.IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			NeedsOsFS:   false,
 		},
 	).Build()
 
@@ -107,7 +106,6 @@ xəx := 0
 		hugolib.IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			NeedsOsFS:   false,
 		},
 	).Build()
 

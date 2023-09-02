@@ -20,6 +20,7 @@ import (
 )
 
 func TestGroupByLocalizedDate(t *testing.T) {
+	t.Parallel()
 
 	files := `
 -- config.toml --
@@ -72,6 +73,7 @@ date: "2020-02-01"
 }
 
 func TestPagesSortCollation(t *testing.T) {
+	t.Parallel()
 
 	files := `
 -- config.toml --

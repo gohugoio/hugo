@@ -20,6 +20,7 @@ import (
 )
 
 func TestItemValTyped(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	source := []byte("3.14")

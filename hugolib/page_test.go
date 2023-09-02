@@ -643,6 +643,7 @@ Simple Page With Some Date`
 }
 
 func TestPageRawContent(t *testing.T) {
+	t.Parallel()
 
 	files := `
 -- hugo.toml --
@@ -803,6 +804,7 @@ home = ["HTML", "JSON"]`)
 
 // Issue 8919
 func TestContentProviderWithCustomOutputFormat(t *testing.T) {
+	t.Parallel()
 	b := newTestSitesBuilder(t)
 	b.WithLogger(loggers.NewDefault())
 	b.WithConfigFile("toml", `baseURL = 'http://example.org/'
@@ -999,6 +1001,8 @@ func TestPageWithDate(t *testing.T) {
 }
 
 func TestPageWithFrontMatterConfig(t *testing.T) {
+	t.Parallel()
+
 	for _, dateHandler := range []string{":filename", ":fileModTime"} {
 		dateHandler := dateHandler
 		t.Run(fmt.Sprintf("dateHandler=%q", dateHandler), func(t *testing.T) {
@@ -1235,6 +1239,8 @@ func TestChompBOM(t *testing.T) {
 }
 
 func TestPageWithEmoji(t *testing.T) {
+	t.Parallel()
+
 	for _, enableEmoji := range []bool{true, false} {
 		v := config.New()
 		v.Set("enableEmoji", enableEmoji)
@@ -1289,6 +1295,7 @@ but if you like it, hit :+1: and get subscribed!
 }
 
 func TestPageHTMLContent(t *testing.T) {
+	t.Parallel()
 	b := newTestSitesBuilder(t)
 	b.WithSimpleConfigFile()
 
@@ -1446,6 +1453,8 @@ func TestPageWithZeroFile(t *testing.T) {
 }
 
 func TestHomePageWithNoTitle(t *testing.T) {
+	t.Parallel()
+
 	b := newTestSitesBuilder(t).WithConfigFile("toml", `
 title = "Site Title"
 `)
@@ -1462,6 +1471,8 @@ Content.
 }
 
 func TestShouldBuild(t *testing.T) {
+	t.Parallel()
+
 	past := time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC)
 	future := time.Date(2037, 11, 17, 20, 34, 58, 651387237, time.UTC)
 	zero := time.Time{}
@@ -1957,6 +1968,8 @@ Page1: {{ $p1.Path }}
 }
 
 func TestPageHashString(t *testing.T) {
+	t.Parallel()
+
 	files := `
 -- config.toml --
 baseURL = "https://example.org"

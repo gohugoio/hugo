@@ -102,6 +102,7 @@ func createGetPageRegularBenchmarkSite(t testing.TB) *Site {
 }
 
 func TestBenchmarkGetPageRegular(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	s := createGetPageRegularBenchmarkSite(t)
 
@@ -180,6 +181,7 @@ func (t *getPageTest) check(p page.Page, err error, errorMsg string, c *qt.C) {
 }
 
 func TestGetPage(t *testing.T) {
+	t.Parallel()
 	var (
 		cfg, fs = newTestCfg()
 		c       = qt.New(t)
@@ -350,6 +352,7 @@ NOT FOUND
 
 // https://github.com/gohugoio/hugo/issues/7016
 func TestGetPageMultilingual(t *testing.T) {
+	t.Parallel()
 	b := newTestSitesBuilder(t)
 
 	b.WithConfigFile("yaml", `
@@ -387,6 +390,7 @@ NOT FOUND
 }
 
 func TestShouldDoSimpleLookup(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	c.Assert(shouldDoSimpleLookup("foo.md"), qt.Equals, true)
@@ -434,6 +438,7 @@ Sect1 RegularPagesRecursive: page:/docs/sect1/ps1/|page:/docs/sect1/ps2/|page:/d
 }
 
 func TestRegularPagesRecursiveHome(t *testing.T) {
+	t.Parallel()
 	files := `
 -- hugo.toml --
 -- content/p1.md --

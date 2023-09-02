@@ -24,6 +24,7 @@ import (
 )
 
 func TestURLize(t *testing.T) {
+	t.Parallel()
 	p := newTestPathSpec()
 
 	tests := []struct {
@@ -165,27 +166,6 @@ func TestRelURL(t *testing.T) {
 func doTestRelURL(t testing.TB, defaultInSubDir, addLanguage, multilingual bool, lang string) {
 	t.Helper()
 	c := qt.New(t)
-	v := config.New()
-	if multilingual {
-		v.Set("languages", map[string]any{
-			"fr": map[string]interface{}{
-				"weight": 20,
-			},
-			"en": map[string]interface{}{
-				"weight": 10,
-			},
-		})
-		v.Set("defaultContentLanguage", "en")
-	} else {
-		v.Set("defaultContentLanguage", lang)
-		v.Set("languages", map[string]any{
-			lang: map[string]interface{}{
-				"weight": 10,
-			},
-		})
-	}
-
-	v.Set("defaultContentLanguageInSubdir", defaultInSubDir)
 
 	tests := []struct {
 		input    string
@@ -230,7 +210,31 @@ func doTestRelURL(t testing.TB, defaultInSubDir, addLanguage, multilingual bool,
 	}
 
 	for i, test := range tests {
+		test := test
 		c.Run(fmt.Sprintf("%v/defaultInSubDir=%t;addLanguage=%t;multilingual=%t/%s", test, defaultInSubDir, addLanguage, multilingual, lang), func(c *qt.C) {
+			c.Parallel()
+
+			v := config.New()
+			if multilingual {
+				v.Set("languages", map[string]any{
+					"fr": map[string]interface{}{
+						"weight": 20,
+					},
+					"en": map[string]interface{}{
+						"weight": 10,
+					},
+				})
+				v.Set("defaultContentLanguage", "en")
+			} else {
+				v.Set("defaultContentLanguage", lang)
+				v.Set("languages", map[string]any{
+					lang: map[string]interface{}{
+						"weight": 10,
+					},
+				})
+			}
+
+			v.Set("defaultContentLanguageInSubdir", defaultInSubDir)
 
 			v.Set("baseURL", test.baseURL)
 			v.Set("canonifyURLs", test.canonify)
@@ -260,6 +264,7 @@ func doTestRelURL(t testing.TB, defaultInSubDir, addLanguage, multilingual bool,
 }
 
 func TestSanitizeURL(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		input    string
 		expected string

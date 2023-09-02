@@ -116,6 +116,7 @@ func TestAliasTemplate(t *testing.T) {
 }
 
 func TestTargetPathHTMLRedirectAlias(t *testing.T) {
+	t.Parallel()
 	h := newAliasHandler(nil, loggers.NewDefault(), false)
 
 	errIsNilForThisOS := runtime.GOOS != "windows"

@@ -84,6 +84,7 @@ func TestGetFormatByName(t *testing.T) {
 }
 
 func TestGetFormatByExt(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	formats1 := Formats{AMPFormat, CalendarFormat}
 	formats2 := Formats{AMPFormat, HTMLFormat, CalendarFormat}
@@ -100,6 +101,7 @@ func TestGetFormatByExt(t *testing.T) {
 }
 
 func TestGetFormatByFilename(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	noExtNoDelimMediaType := media.Builtin.TextType
 	noExtNoDelimMediaType.Delimiter = ""
@@ -139,6 +141,7 @@ func TestGetFormatByFilename(t *testing.T) {
 }
 
 func TestSort(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	c.Assert(DefaultFormats[0].Name, qt.Equals, "html")
 	c.Assert(DefaultFormats[1].Name, qt.Equals, "amp")

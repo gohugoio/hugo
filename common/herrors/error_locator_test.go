@@ -22,6 +22,8 @@ import (
 )
 
 func TestErrorLocator(t *testing.T) {
+	t.Parallel()
+
 	c := qt.New(t)
 
 	lineMatcher := func(m LineMatcher) int {

@@ -22,6 +22,7 @@ import (
 )
 
 func TestRenderString(t *testing.T) {
+	t.Parallel()
 	b := newTestSitesBuilder(t)
 
 	b.WithTemplates("index.html", `
@@ -54,6 +55,7 @@ RSTART:Hook Heading: 2:REND
 
 // https://github.com/gohugoio/hugo/issues/6882
 func TestRenderStringOnListPage(t *testing.T) {
+	t.Parallel()
 	renderStringTempl := `
 {{ .RenderString "**Hello**" }}
 `

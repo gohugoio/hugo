@@ -166,6 +166,8 @@ Data Inline: Rules!`)
 	})
 
 	t.Run("Page.Render, edit baseof", func(t *testing.T) {
+		t.Parallel()
+
 		b := createSiteBuilder(t)
 
 		b.WithTemplatesAdded("index.html", `
@@ -190,6 +192,8 @@ Render /prender/: Baseof Edited:Single Main: Page 1|Mypartial1: Mypartial1:END
 	})
 
 	t.Run("Page.Render, edit partial in baseof", func(t *testing.T) {
+		t.Parallel()
+
 		b := createSiteBuilder(t)
 
 		b.WithTemplatesAdded("index.html", `
@@ -214,6 +218,8 @@ Render /prender/: Baseof:Single Main: Page 1|Mypartial1: Mypartial1|Mypartial3: 
 	})
 
 	t.Run("Edit RSS shortcode", func(t *testing.T) {
+		t.Parallel()
+
 		b := createSiteBuilder(t)
 
 		b.WithContent("output.md", `---

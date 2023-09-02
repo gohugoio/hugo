@@ -32,6 +32,7 @@ categories: %s
 }
 
 func TestPagesPrevNext(t *testing.T) {
+	t.Parallel()
 	b := newPagesPrevNextTestSite(t, 100)
 	b.Build(BuildCfg{SkipRender: true})
 

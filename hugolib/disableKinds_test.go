@@ -356,6 +356,7 @@ home = [ "HTML", "RSS" ]
 }
 
 func TestBundleNoPublishResources(t *testing.T) {
+	t.Parallel()
 	b := newTestSitesBuilder(t)
 	b.WithTemplates("index.html", `
 {{ $bundle := site.GetPage "section/bundle-false" }}

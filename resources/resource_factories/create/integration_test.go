@@ -25,6 +25,7 @@ import (
 )
 
 func TestGetRemoteHead(t *testing.T) {
+	t.Parallel()
 
 	files := `
 -- config.toml --

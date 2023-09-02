@@ -134,6 +134,7 @@ func TestMakePathRelative(t *testing.T) {
 }
 
 func TestGetDottedRelativePath(t *testing.T) {
+	t.Parallel()
 	// on Windows this will receive both kinds, both country and western ...
 	for _, f := range []func(string) string{filepath.FromSlash, func(s string) string { return s }} {
 		doTestGetDottedRelativePath(f, t)
@@ -297,6 +298,7 @@ func TestExists(t *testing.T) {
 }
 
 func TestAbsPathify(t *testing.T) {
+	t.Parallel()
 	type test struct {
 		inPath, workingDir, expected string
 	}
@@ -347,6 +349,7 @@ func TestAbsPathify(t *testing.T) {
 }
 
 func TestExtractAndGroupRootPaths(t *testing.T) {
+	t.Parallel()
 	in := []string{
 		filepath.FromSlash("/a/b/c/d"),
 		filepath.FromSlash("/a/b/c/e"),
@@ -369,6 +372,7 @@ func TestExtractAndGroupRootPaths(t *testing.T) {
 }
 
 func TestExtractRootPaths(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		input    []string
 		expected []string
@@ -389,6 +393,7 @@ func TestExtractRootPaths(t *testing.T) {
 }
 
 func TestFindCWD(t *testing.T) {
+	t.Parallel()
 	type test struct {
 		expectedDir string
 		expectedErr error
@@ -453,6 +458,7 @@ func TestSafeWriteToDisk(t *testing.T) {
 }
 
 func TestWriteToDisk(t *testing.T) {
+	t.Parallel()
 	emptyFile := createZeroSizedFileInTempDir(t)
 	tmpDir := t.TempDir()
 
@@ -488,6 +494,7 @@ func TestWriteToDisk(t *testing.T) {
 }
 
 func TestGetTempDir(t *testing.T) {
+	t.Parallel()
 	dir := os.TempDir()
 	if helpers.FilePathSeparator != dir[len(dir)-1:] {
 		dir = dir + helpers.FilePathSeparator

@@ -23,6 +23,8 @@ import (
 
 // Issue #2927
 func TestTransformRecursiveTemplate(t *testing.T) {
+	t.Parallel()
+
 	c := qt.New(t)
 
 	recursive := `
@@ -77,6 +79,7 @@ func newTestTemplateLookup(in *templateState) func(name string) *templateState {
 }
 
 func TestCollectInfo(t *testing.T) {
+	t.Parallel()
 	configStr := `{ "version": 42 }`
 
 	tests := []struct {
@@ -97,7 +100,10 @@ func TestCollectInfo(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
 			c := qt.New(t)
 
 			templ, err := template.New("foo").Funcs(funcs).Parse(test.tplString)
@@ -140,6 +146,8 @@ func TestPartialReturn(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
 			c := qt.New(t)
 
 			templ, err := template.New("foo").Funcs(funcs).Parse(test.tplString)

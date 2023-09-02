@@ -48,6 +48,7 @@ func TestWalk(t *testing.T) {
 }
 
 func TestWalkRootMappingFs(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	prepare := func(c *qt.C) afero.Fs {

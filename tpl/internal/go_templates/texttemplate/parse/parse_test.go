@@ -425,6 +425,7 @@ func TestKeywordsAndFuncs(t *testing.T) {
 }
 
 func TestSkipFuncCheck(t *testing.T) {
+	t.Parallel()
 	oldTextFormat := textFormat
 	textFormat = "%q"
 	defer func() { textFormat = oldTextFormat }()

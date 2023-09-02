@@ -108,6 +108,7 @@ func TestFormatNumbers(t *testing.T) {
 
 // Issue 9446
 func TestLanguageKeyFormat(t *testing.T) {
+	t.Parallel()
 
 	c := qt.New(t)
 

@@ -290,6 +290,7 @@ func TestRootMappingFsMount(t *testing.T) {
 }
 
 func TestRootMappingFsMountOverlap(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	fs := NewBaseFileDecorator(afero.NewMemMapFs())
 
@@ -341,6 +342,7 @@ func TestRootMappingFsMountOverlap(t *testing.T) {
 }
 
 func TestRootMappingFsOs(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	fs := NewBaseFileDecorator(afero.NewOsFs())
 

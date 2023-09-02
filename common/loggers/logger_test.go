@@ -26,6 +26,7 @@ import (
 )
 
 func TestLogDistinct(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	opts := loggers.Options{
@@ -48,6 +49,7 @@ func TestLogDistinct(t *testing.T) {
 }
 
 func TestHookLast(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	opts := loggers.Options{
@@ -106,6 +108,7 @@ func TestLogCount(t *testing.T) {
 }
 
 func TestSuppressStatements(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	opts := loggers.Options{
@@ -128,6 +131,7 @@ func TestSuppressStatements(t *testing.T) {
 }
 
 func TestReset(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	opts := loggers.Options{

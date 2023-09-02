@@ -75,6 +75,7 @@ This is some summary. This is some summary. This is some summary. This is some s
 }
 
 func TestFormatFromFrontMatterType(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 	for _, test := range []struct {
 		typ    ItemType
@@ -91,6 +92,7 @@ func TestFormatFromFrontMatterType(t *testing.T) {
 }
 
 func TestIsProbablyItemsSource(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	input := ` {{< foo >}} `
@@ -103,6 +105,7 @@ func TestIsProbablyItemsSource(t *testing.T) {
 }
 
 func TestHasShortcode(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	c.Assert(HasShortcode("{{< foo >}}"), qt.IsTrue)

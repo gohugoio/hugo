@@ -79,6 +79,7 @@ func TestDecodeConfig(t *testing.T) {
 }
 
 func TestDecodeImageConfig(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		action string
 		in     string

@@ -21,6 +21,7 @@ import (
 )
 
 func TestStringEqualFold(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	s1 := "A"
@@ -37,6 +38,7 @@ func TestStringEqualFold(t *testing.T) {
 }
 
 func TestGetOrCompileRegexp(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
 
 	re, err := GetOrCompileRegexp(`\d+`)

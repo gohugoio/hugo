@@ -100,6 +100,7 @@ URL: {{ $pag.URL }}
 
 // Issue 6023
 func TestPaginateWithSort(t *testing.T) {
+	t.Parallel()
 	b := newTestSitesBuilder(t).WithSimpleConfigFile()
 	b.WithTemplatesAdded("index.html", `{{ range (.Paginate (sort .Site.RegularPages ".File.Filename" "desc")).Pages }}|{{ .File.Filename }}{{ end }}`)
 	b.Build(BuildCfg{}).AssertFileContent("public/index.html",
@@ -108,6 +109,7 @@ func TestPaginateWithSort(t *testing.T) {
 
 // https://github.com/gohugoio/hugo/issues/6797
 func TestPaginateOutputFormat(t *testing.T) {
+	t.Parallel()
 	b := newTestSitesBuilder(t).WithSimpleConfigFile()
 	b.WithContent("_index.md", `---
 title: "Home"

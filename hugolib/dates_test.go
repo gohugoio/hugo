@@ -61,6 +61,7 @@ Date: {{ .Date | time.Format ":date_long" }}
 }
 
 func TestTimeZones(t *testing.T) {
+	t.Parallel()
 	b := newTestSitesBuilder(t)
 	b.WithConfigFile("toml", `
 baseURL = "https://example.org"
@@ -206,6 +207,7 @@ timeZone = "America/LosAngeles"   # Should be America/Los_Angeles
 
 // Issue 8835
 func TestTimeOnError(t *testing.T) {
+	t.Parallel()
 	b := newTestSitesBuilder(t)
 
 	b.WithTemplates("index.html", `time: {{ time "2020-10-20" "invalid-timezone" }}`)
