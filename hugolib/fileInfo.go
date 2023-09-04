@@ -94,7 +94,7 @@ func classifyBundledFile(name string) (bundleDirType, bool) {
 		return bundleBranch, true
 	}
 
-	if strings.HasPrefix(name, "index.") {
+	if strings.HasPrefix(name, "index.") || strings.HasPrefix(name, "text.") {
 		return bundleLeaf, true
 	}
 

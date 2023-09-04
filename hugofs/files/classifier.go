@@ -77,7 +77,7 @@ func IsIndexContentFile(filename string) bool {
 
 	base := filepath.Base(filename)
 
-	return strings.HasPrefix(base, "index.") || strings.HasPrefix(base, "_index.")
+	return strings.HasPrefix(base, "index.") || strings.HasPrefix(base, "_index.") || strings.HasPrefix(base, "text.")
 }
 
 func IsHTMLFile(filename string) bool {
@@ -132,7 +132,7 @@ func ClassifyContentFile(filename string, open func() (afero.File, error)) Conte
 		return ContentClassBranch
 	}
 
-	if strings.HasPrefix(filename, "index.") {
+	if strings.HasPrefix(filename, "index.") || strings.HasPrefix(filename, "text.") {
 		return ContentClassLeaf
 	}
 
