@@ -69,14 +69,14 @@ func TestFilenameFilterFs(t *testing.T) {
 	assertExists("/b/my1.txt", false)
 
 	dirB, err := fs.Open("/b")
-	defer dirB.Close()
 	c.Assert(err, qt.IsNil)
+	defer dirB.Close()
 	dirBEntries, err := dirB.Readdirnames(-1)
 	c.Assert(dirBEntries, qt.DeepEquals, []string{"my1.json", "my2.json", "my3.json"})
 
 	dirC, err := fs.Open("/c")
-	defer dirC.Close()
 	c.Assert(err, qt.IsNil)
+	defer dirC.Close()
 	dirCEntries, err := dirC.Readdirnames(-1)
 	c.Assert(dirCEntries, qt.DeepEquals, []string{"my1.json", "my1.txt", "my2.json", "my2.txt", "my3.json", "my3.txt"})
 
