@@ -56,7 +56,7 @@ On the site host, your repository must be "deep-cloned," so the returned `.GitIn
 GitHub Action or GitLab CI/CD). See the following table:
 
 | Hosting service | Clone depth | Configurable? |
-| :-------------- | :---------: | :-----------: |
+| :-------------- | :---------- | :-----------: |
 | Cloudflare Pages | Shallow | ✔️ [^CFP] |
 | DigitalOcean App Platform | Deep | ❌ |
 | GitHub Pages | Shallow | ✔️ [^GHP] |
