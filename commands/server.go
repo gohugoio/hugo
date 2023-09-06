@@ -1103,7 +1103,7 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 			// This assumes that Hugo has not generated content on top of a static file and then removed
 			// the source of that static file. In this case Hugo will incorrectly remove that file
 			// from the published directory.
-			if ev.Op&fsnotify.Rename == fsnotify.Rename || ev.Op&fsnotify.Remove == fsnotify.Remove {
+			if ev.Has(fsnotify.Rename) || ev.Has(fsnotify.Remove) {
 				if _, err := sourceFs.Fs.Stat(relPath); herrors.IsNotExist(err) {
 					// If file doesn't exist in any static dir, remove it
 					logger.Println("File no longer exists in static dir, removing", relPath)
@@ -1190,7 +1190,7 @@ func pickOneWriteOrCreatePath(events []fsnotify.Event) string {
 	name := ""
 
 	for _, ev := range events {
-		if ev.Op&fsnotify.Write == fsnotify.Write || ev.Op&fsnotify.Create == fsnotify.Create {
+		if ev.Has(fsnotify.Write) || ev.Has(fsnotify.Create) {
 			if files.IsIndexContentFile(ev.Name) {
 				return ev.Name
 			}

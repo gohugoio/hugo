@@ -681,11 +681,11 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 		if isConfig {
 			isHandled = true
 
-			if ev.Op&fsnotify.Chmod == fsnotify.Chmod {
+			if ev.Has(fsnotify.Chmod) {
 				continue
 			}
 
-			if ev.Op&fsnotify.Remove == fsnotify.Remove || ev.Op&fsnotify.Rename == fsnotify.Rename {
+			if ev.Has(fsnotify.Remove) || ev.Has(fsnotify.Rename) {
 				c.withConf(func(conf *commonConfig) {
 					for _, configFile := range conf.configs.LoadingInfo.ConfigFiles {
 						counter := 0
@@ -807,7 +807,7 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 		// We do have to check for WRITE though. On slower laptops a Chmod
 		// could be aggregated with other important events, and we still want
 		// to rebuild on those
-		if ev.Op&(fsnotify.Chmod|fsnotify.Write|fsnotify.Create) == fsnotify.Chmod {
+		if ev.Has(fsnotify.Chmod) && !ev.Has(fsnotify.Write) && !ev.Has(fsnotify.Create) {
 			continue
 		}
 
@@ -828,7 +828,7 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 
 		// recursively add new directories to watch list
 		// When mkdir -p is used, only the top directory triggers an event (at least on OSX)
-		if ev.Op&fsnotify.Create == fsnotify.Create {
+		if ev.Has(fsnotify.Create) {
 			c.withConf(func(conf *commonConfig) {
 				if s, err := conf.fs.Source.Stat(ev.Name); err == nil && s.Mode().IsDir() {
 					_ = helpers.SymbolicWalk(conf.fs.Source, ev.Name, walkAdder)

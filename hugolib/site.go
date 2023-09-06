@@ -423,7 +423,7 @@ func (s *Site) filterFileEvents(events []fsnotify.Event) []fsnotify.Event {
 
 		// Throw away any directories
 		isRegular, err := s.SourceSpec.IsRegularSourceFile(ev.Name)
-		if err != nil && herrors.IsNotExist(err) && (ev.Op&fsnotify.Remove == fsnotify.Remove || ev.Op&fsnotify.Rename == fsnotify.Rename) {
+		if err != nil && herrors.IsNotExist(err) && (ev.Has(fsnotify.Remove) || ev.Has(fsnotify.Rename)) {
 			// Force keep of event
 			isRegular = true
 		}
@@ -463,12 +463,12 @@ func (s *Site) translateFileEvents(events []fsnotify.Event) []fsnotify.Event {
 				kept = ev2
 			}
 
-			if ev2.Op&fsnotify.Write == fsnotify.Write {
+			if ev2.Has(fsnotify.Write) {
 				kept = ev2
 				found = true
 			}
 
-			if !found && ev2.Op&fsnotify.Create == fsnotify.Create {
+			if !found && ev2.Has(fsnotify.Create) {
 				kept = ev2
 			}
 		}
@@ -598,14 +598,14 @@ func (s *Site) processPartial(config *BuildCfg, init func(config *BuildCfg) erro
 	for _, ev := range sourceChanged {
 		removed := false
 
-		if ev.Op&fsnotify.Remove == fsnotify.Remove {
+		if ev.Has(fsnotify.Remove) {
 			removed = true
 		}
 
 		// Some editors (Vim) sometimes issue only a Rename operation when writing an existing file
 		// Sometimes a rename operation means that file has been renamed other times it means
 		// it's been updated
-		if ev.Op&fsnotify.Rename == fsnotify.Rename {
+		if ev.Has(fsnotify.Rename) {
 			// If the file is still on disk, it's only been updated, if it's not, it's been moved
 			if ex, err := afero.Exists(s.Fs.Source, ev.Name); !ex || err != nil {
 				removed = true
