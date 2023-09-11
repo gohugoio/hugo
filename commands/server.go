@@ -927,7 +927,7 @@ func (c *serverCommand) serve() error {
 
 	for i := range baseURLs {
 		mu, listener, serverURL, endpoint, err := srv.createEndpoint(i)
-		var srv *http.Server
+		var srv *http.Server	
 		if c.tlsCertFile != "" && c.tlsKeyFile != "" {
 			srv = &http.Server{
 				Addr:    endpoint,
@@ -954,7 +954,7 @@ func (c *serverCommand) serve() error {
 			mu.HandleFunc(u.Path+"/livereload.js", livereload.ServeJS)
 			mu.HandleFunc(u.Path+"/livereload", livereload.Handler)
 		}
-		c.r.Printf("Web Server is available at %s (bind address %s)\n", serverURL, c.serverInterface)
+		c.r.Printf("Web Server is available at %s (bind address %s) %s\n", serverURL, c.serverInterface, roots[i])
 		wg1.Go(func() error {
 			if c.tlsCertFile != "" && c.tlsKeyFile != "" {
 				err = srv.ServeTLS(listener, c.tlsCertFile, c.tlsKeyFile)
