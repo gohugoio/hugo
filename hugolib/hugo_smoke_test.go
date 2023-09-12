@@ -330,7 +330,7 @@ The content.
 func TestBenchmarkBaseline(t *testing.T) {
 	cfg := IntegrationTestConfig{
 		T:           t,
-		TxtarString: benchmarkBaselineFiles(false),
+		TxtarString: benchmarkBaselineFiles(true),
 	}
 	b := NewIntegrationTestBuilder(cfg).Build()
 
@@ -488,10 +488,10 @@ Aliqua labore enim et sint anim amet excepteur ea dolore.
 					n := n + k
 					ns := fmt.Sprintf("%d", n)
 					if leafBundles {
-						ns = fmt.Sprintf("p%d/index", n)
+						ns = fmt.Sprintf("%d/index", n)
 					}
-
-					files += fmt.Sprintf("\n-- content/%s/%s/%s/p%d.md --\n"+contentTemplate, lang, root, section, ns, n, n)
+					file := fmt.Sprintf("\n-- content/%s/%s/%s/p%s.md --\n"+contentTemplate, lang, root, section, ns, n, n)
+					files += file
 				}
 			}
 		}
