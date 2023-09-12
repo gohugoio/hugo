@@ -330,7 +330,7 @@ The content.
 func TestBenchmarkBaseline(t *testing.T) {
 	cfg := IntegrationTestConfig{
 		T:           t,
-		TxtarString: benchmarkBaselineFiles(),
+		TxtarString: benchmarkBaselineFiles(false),
 	}
 	b := NewIntegrationTestBuilder(cfg).Build()
 
@@ -346,7 +346,7 @@ func BenchmarkBaseline(b *testing.B) {
 	b.Run("withrender", func(b *testing.B) {
 		cfg := IntegrationTestConfig{
 			T:           b,
-			TxtarString: benchmarkBaselineFiles(),
+			TxtarString: benchmarkBaselineFiles(false),
 		}
 		builders := make([]*IntegrationTestBuilder, b.N)
 
@@ -363,7 +363,27 @@ func BenchmarkBaseline(b *testing.B) {
 	b.Run("skiprender", func(b *testing.B) {
 		cfg := IntegrationTestConfig{
 			T:           b,
-			TxtarString: benchmarkBaselineFiles(),
+			TxtarString: benchmarkBaselineFiles(false),
+			BuildCfg: BuildCfg{
+				SkipRender: true,
+			},
+		}
+		builders := make([]*IntegrationTestBuilder, b.N)
+
+		for i := range builders {
+			builders[i] = NewIntegrationTestBuilder(cfg)
+		}
+
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			builders[i].Build()
+		}
+	})
+
+	b.Run("skiprender leaf", func(b *testing.B) {
+		cfg := IntegrationTestConfig{
+			T:           b,
+			TxtarString: benchmarkBaselineFiles(false),
 			BuildCfg: BuildCfg{
 				SkipRender: true,
 			},
@@ -381,7 +401,7 @@ func BenchmarkBaseline(b *testing.B) {
 	})
 }
 
-func benchmarkBaselineFiles() string {
+func benchmarkBaselineFiles(leafBundles bool) string {
 
 	rnd := rand.New(rand.NewSource(32))
 
@@ -466,7 +486,12 @@ Aliqua labore enim et sint anim amet excepteur ea dolore.
 				files += fmt.Sprintf("\n-- content/%s/%s/%s/_index.md --\n"+contentTemplate, lang, root, section, n, n, n)
 				for k := 1; k < rnd.Intn(30)+1; k++ {
 					n := n + k
-					files += fmt.Sprintf("\n-- content/%s/%s/%s/p%d.md --\n"+contentTemplate, lang, root, section, n, n, n)
+					ns := fmt.Sprintf("%d", n)
+					if leafBundles {
+						ns = fmt.Sprintf("p%d/index", n)
+					}
+
+					files += fmt.Sprintf("\n-- content/%s/%s/%s/p%d.md --\n"+contentTemplate, lang, root, section, ns, n, n)
 				}
 			}
 		}
