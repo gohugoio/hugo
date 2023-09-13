@@ -76,7 +76,7 @@ See https://xyproto.github.io/splash/docs/all.html for a preview of the availabl
 			},
 			withc: func(cmd *cobra.Command, r *rootCommand) {
 				cmd.PersistentFlags().StringVar(&style, "style", "friendly", "highlighter style (see https://xyproto.github.io/splash/docs/)")
-				cmd.PersistentFlags().StringVar(&highlightStyle, "highlightStyle", "bg:#ffffcc", "style used for highlighting lines (see https://github.com/alecthomas/chroma)")
+				cmd.PersistentFlags().StringVar(&highlightStyle, "highlightStyle", "", "style used for highlighting lines (see https://github.com/alecthomas/chroma)")
 				cmd.PersistentFlags().StringVar(&linesStyle, "linesStyle", "", "style used for line numbers (see https://github.com/alecthomas/chroma)")
 			},
 		}
@@ -136,7 +136,7 @@ url: %s
 			long: `Generate Markdown documentation for the Hugo CLI.
 			This command is, mostly, used to create up-to-date documentation
 	of Hugo's command-line interface for https://gohugo.io/.
-	
+
 	It creates one Markdown file per command with front matter suitable
 	for rendering in Hugo.`,
 			run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
