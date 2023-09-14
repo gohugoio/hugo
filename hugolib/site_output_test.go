@@ -144,7 +144,7 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 
 	home := s.getPage(kinds.KindHome)
 
-	b.Assert(home, qt.Not(qt.IsNil))
+	b.Assert(home, qt.IsNotNil)
 
 	lenOut := len(outputs)
 
@@ -178,7 +178,7 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 			"Len Pages: home 10",
 		)
 		b.AssertFileContent("public/page/2/index.html", "Page Number: 2")
-		b.Assert(b.CheckExists("public/page/2/index.json"), qt.Equals, false)
+		b.Assert(b.CheckExists("public/page/2/index.json"), qt.IsFalse)
 
 		b.AssertFileContent("public/nn/index.html",
 			"List HTML|JSON Nynorsk Heim|",
@@ -201,19 +201,19 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 	of := home.OutputFormats()
 
 	json := of.Get("JSON")
-	b.Assert(json, qt.Not(qt.IsNil))
+	b.Assert(json, qt.IsNotNil)
 	b.Assert(json.RelPermalink(), qt.Equals, "/blog/index.json")
 	b.Assert(json.Permalink(), qt.Equals, "http://example.com/blog/index.json")
 
 	if helpers.InStringArray(outputs, "cal") {
 		cal := of.Get("calendar")
-		b.Assert(cal, qt.Not(qt.IsNil))
+		b.Assert(cal, qt.IsNotNil)
 		b.Assert(cal.RelPermalink(), qt.Equals, "/blog/index.ics")
 		b.Assert(cal.Permalink(), qt.Equals, "webcal://example.com/blog/index.ics")
 	}
 
-	b.Assert(home.HasShortcode("myShort"), qt.Equals, true)
-	b.Assert(home.HasShortcode("doesNotExist"), qt.Equals, false)
+	b.Assert(home.HasShortcode("myShort"), qt.IsTrue)
+	b.Assert(home.HasShortcode("doesNotExist"), qt.IsFalse)
 }
 
 // Issue #3447
@@ -315,7 +315,7 @@ baseName = "customdelimbase"
 	th.assertFileContent("public/customdelimbase_del", "custom delim")
 
 	home := s.getPage(kinds.KindHome)
-	c.Assert(home, qt.Not(qt.IsNil))
+	c.Assert(home, qt.IsNotNil)
 
 	outputs := home.OutputFormats()
 
@@ -415,7 +415,7 @@ func TestCreateSiteOutputFormatsInvalidConfig(t *testing.T) {
 	cfg.Set("outputs", outputsConfig)
 
 	_, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 }
 
 func TestCreateSiteOutputFormatsEmptyConfig(t *testing.T) {

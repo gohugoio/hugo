@@ -60,7 +60,7 @@ func TestParse(t *testing.T) {
 		result, err := ns.Parse(test.rawurl)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -97,7 +97,7 @@ func TestJoinPath(t *testing.T) {
 		result, err := ns.JoinPath(test.elements)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 

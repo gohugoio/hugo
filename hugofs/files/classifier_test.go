@@ -24,36 +24,36 @@ import (
 func TestIsContentFile(t *testing.T) {
 	c := qt.New(t)
 
-	c.Assert(IsContentFile(filepath.FromSlash("my/file.md")), qt.Equals, true)
-	c.Assert(IsContentFile(filepath.FromSlash("my/file.ad")), qt.Equals, true)
-	c.Assert(IsContentFile(filepath.FromSlash("textfile.txt")), qt.Equals, false)
-	c.Assert(IsContentExt("md"), qt.Equals, true)
-	c.Assert(IsContentExt("json"), qt.Equals, false)
+	c.Assert(IsContentFile(filepath.FromSlash("my/file.md")), qt.IsTrue)
+	c.Assert(IsContentFile(filepath.FromSlash("my/file.ad")), qt.IsTrue)
+	c.Assert(IsContentFile(filepath.FromSlash("textfile.txt")), qt.IsFalse)
+	c.Assert(IsContentExt("md"), qt.IsTrue)
+	c.Assert(IsContentExt("json"), qt.IsFalse)
 }
 
 func TestIsHTMLContent(t *testing.T) {
 	c := qt.New(t)
 
-	c.Assert(isHTMLContent(strings.NewReader("   <html>")), qt.Equals, true)
-	c.Assert(isHTMLContent(strings.NewReader("   <!--\n---")), qt.Equals, false)
-	c.Assert(isHTMLContent(strings.NewReader("   <!--")), qt.Equals, true)
-	c.Assert(isHTMLContent(strings.NewReader("   ---<")), qt.Equals, false)
-	c.Assert(isHTMLContent(strings.NewReader(" foo  <")), qt.Equals, false)
+	c.Assert(isHTMLContent(strings.NewReader("   <html>")), qt.IsTrue)
+	c.Assert(isHTMLContent(strings.NewReader("   <!--\n---")), qt.IsFalse)
+	c.Assert(isHTMLContent(strings.NewReader("   <!--")), qt.IsTrue)
+	c.Assert(isHTMLContent(strings.NewReader("   ---<")), qt.IsFalse)
+	c.Assert(isHTMLContent(strings.NewReader(" foo  <")), qt.IsFalse)
 }
 
 func TestComponentFolders(t *testing.T) {
 	c := qt.New(t)
 
 	// It's important that these are absolutely right and not changed.
-	c.Assert(len(componentFoldersSet), qt.Equals, len(ComponentFolders))
-	c.Assert(IsComponentFolder("archetypes"), qt.Equals, true)
-	c.Assert(IsComponentFolder("layouts"), qt.Equals, true)
-	c.Assert(IsComponentFolder("data"), qt.Equals, true)
-	c.Assert(IsComponentFolder("i18n"), qt.Equals, true)
-	c.Assert(IsComponentFolder("assets"), qt.Equals, true)
-	c.Assert(IsComponentFolder("resources"), qt.Equals, false)
-	c.Assert(IsComponentFolder("static"), qt.Equals, true)
-	c.Assert(IsComponentFolder("content"), qt.Equals, true)
-	c.Assert(IsComponentFolder("foo"), qt.Equals, false)
-	c.Assert(IsComponentFolder(""), qt.Equals, false)
+	c.Assert(componentFoldersSet, qt.HasLen, len(ComponentFolders))
+	c.Assert(IsComponentFolder("archetypes"), qt.IsTrue)
+	c.Assert(IsComponentFolder("layouts"), qt.IsTrue)
+	c.Assert(IsComponentFolder("data"), qt.IsTrue)
+	c.Assert(IsComponentFolder("i18n"), qt.IsTrue)
+	c.Assert(IsComponentFolder("assets"), qt.IsTrue)
+	c.Assert(IsComponentFolder("resources"), qt.IsFalse)
+	c.Assert(IsComponentFolder("static"), qt.IsTrue)
+	c.Assert(IsComponentFolder("content"), qt.IsTrue)
+	c.Assert(IsComponentFolder("foo"), qt.IsFalse)
+	c.Assert(IsComponentFolder(""), qt.IsFalse)
 }

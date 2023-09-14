@@ -49,7 +49,7 @@ func TestHexStringToColor(t *testing.T) {
 			result, err := hexStringToColor(test.arg)
 
 			if b, ok := test.expect.(bool); ok && !b {
-				c.Assert(err, qt.Not(qt.IsNil))
+				c.Assert(err, qt.IsNotNil)
 				return
 			}
 

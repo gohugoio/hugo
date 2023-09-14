@@ -59,7 +59,7 @@ func TestFilenameFilterFs(t *testing.T) {
 
 		} else {
 			for _, err := range []error{err1, err2} {
-				c.Assert(err, qt.Not(qt.IsNil))
+				c.Assert(err, qt.IsNotNil)
 				c.Assert(errors.Is(err, os.ErrNotExist), qt.IsTrue)
 			}
 		}

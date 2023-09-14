@@ -334,7 +334,7 @@ func TestBenchmarkBaseline(t *testing.T) {
 	}
 	b := NewIntegrationTestBuilder(cfg).Build()
 
-	b.Assert(len(b.H.Sites), qt.Equals, 4)
+	b.Assert(b.H.Sites, qt.HasLen, 4)
 	b.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 161)
 	b.Assert(len(b.H.Sites[0].Pages()), qt.Equals, 197)
 	b.Assert(len(b.H.Sites[2].RegularPages()), qt.Equals, 158)

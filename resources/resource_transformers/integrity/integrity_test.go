@@ -42,7 +42,7 @@ func TestHashFromAlgo(t *testing.T) {
 				c.Assert(err, qt.IsNil)
 				c.Assert(h.Size(), qt.Equals, algo.bits/8)
 			} else {
-				c.Assert(err, qt.Not(qt.IsNil))
+				c.Assert(err, qt.IsNotNil)
 				c.Assert(err.Error(), qt.Contains, "use either md5, sha256, sha384 or sha512")
 			}
 		})

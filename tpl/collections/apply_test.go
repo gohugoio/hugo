@@ -83,14 +83,14 @@ func TestApply(t *testing.T) {
 	c.Assert(result, qt.DeepEquals, []any{"abc", "abc"})
 
 	_, err = ns.Apply(ctx, strings, "apply", ".")
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 
 	var nilErr *error
 	_, err = ns.Apply(ctx, nilErr, "chomp", ".")
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 
 	_, err = ns.Apply(ctx, strings, "dobedobedo", ".")
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 
 	_, err = ns.Apply(ctx, strings, "foo.Chomp", "c\n")
 	if err == nil {

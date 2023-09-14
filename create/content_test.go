@@ -89,7 +89,7 @@ func TestNewContentFromFile(t *testing.T) {
 
 			if b, ok := cas.expected.(bool); ok && !b {
 				if !b {
-					c.Assert(err, qt.Not(qt.IsNil))
+					c.Assert(err, qt.IsNotNil)
 				}
 				return
 			}
@@ -147,7 +147,7 @@ i18n: {{ T "hugo" }}
 	conf := testconfig.GetTestConfigs(fs.Source, cfg)
 	h, err := hugolib.NewHugoSites(deps.DepsCfg{Configs: conf, Fs: fs})
 	c.Assert(err, qt.IsNil)
-	c.Assert(len(h.Sites), qt.Equals, 2)
+	c.Assert(h.Sites, qt.HasLen, 2)
 
 	c.Assert(create.NewContent(h, "my-bundle", "post/my-post", false), qt.IsNil)
 
@@ -190,7 +190,7 @@ site RegularPages: {{ len site.RegularPages  }}
 	conf := testconfig.GetTestConfigs(fs.Source, cfg)
 	h, err := hugolib.NewHugoSites(deps.DepsCfg{Configs: conf, Fs: fs})
 	c.Assert(err, qt.IsNil)
-	c.Assert(len(h.Sites), qt.Equals, 2)
+	c.Assert(h.Sites, qt.HasLen, 2)
 
 	c.Assert(create.NewContent(h, "my-bundle", "post/my-post", false), qt.IsNil)
 	cContains(c, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/index.md")), `site RegularPages: 10`)
@@ -240,7 +240,7 @@ i18n: {{ T "hugo" }}
 	conf := testconfig.GetTestConfigs(fs.Source, cfg)
 	h, err := hugolib.NewHugoSites(deps.DepsCfg{Configs: conf, Fs: fs})
 	c.Assert(err, qt.IsNil)
-	c.Assert(len(h.Sites), qt.Equals, 2)
+	c.Assert(h.Sites, qt.HasLen, 2)
 
 	c.Assert(create.NewContent(h, "my-bundle", "post/my-post", false), qt.IsNil)
 
@@ -272,7 +272,7 @@ func TestNewContentForce(t *testing.T) {
 	conf := testconfig.GetTestConfigs(fs.Source, cfg)
 	h, err := hugolib.NewHugoSites(deps.DepsCfg{Configs: conf, Fs: fs})
 	c.Assert(err, qt.IsNil)
-	c.Assert(len(h.Sites), qt.Equals, 2)
+	c.Assert(h.Sites, qt.HasLen, 2)
 
 	// from file
 	c.Assert(create.NewContent(h, "post", "post/my-post.md", false), qt.IsNil)

@@ -36,44 +36,44 @@ func TestPageMatcher(t *testing.T) {
 	c.Run("Matches", func(c *qt.C) {
 		m := PageMatcher{Kind: "section"}
 
-		c.Assert(m.Matches(p1), qt.Equals, true)
-		c.Assert(m.Matches(p2), qt.Equals, false)
+		c.Assert(m.Matches(p1), qt.IsTrue)
+		c.Assert(m.Matches(p2), qt.IsFalse)
 
 		m = PageMatcher{Kind: "page"}
-		c.Assert(m.Matches(p1), qt.Equals, false)
-		c.Assert(m.Matches(p2), qt.Equals, true)
-		c.Assert(m.Matches(p3), qt.Equals, true)
+		c.Assert(m.Matches(p1), qt.IsFalse)
+		c.Assert(m.Matches(p2), qt.IsTrue)
+		c.Assert(m.Matches(p3), qt.IsTrue)
 
 		m = PageMatcher{Kind: "page", Path: "/p2"}
-		c.Assert(m.Matches(p1), qt.Equals, false)
-		c.Assert(m.Matches(p2), qt.Equals, true)
-		c.Assert(m.Matches(p3), qt.Equals, false)
+		c.Assert(m.Matches(p1), qt.IsFalse)
+		c.Assert(m.Matches(p2), qt.IsTrue)
+		c.Assert(m.Matches(p3), qt.IsFalse)
 
 		m = PageMatcher{Path: "/p*"}
-		c.Assert(m.Matches(p1), qt.Equals, true)
-		c.Assert(m.Matches(p2), qt.Equals, true)
-		c.Assert(m.Matches(p3), qt.Equals, true)
+		c.Assert(m.Matches(p1), qt.IsTrue)
+		c.Assert(m.Matches(p2), qt.IsTrue)
+		c.Assert(m.Matches(p3), qt.IsTrue)
 
 		m = PageMatcher{Lang: "en"}
-		c.Assert(m.Matches(p1), qt.Equals, true)
-		c.Assert(m.Matches(p2), qt.Equals, false)
-		c.Assert(m.Matches(p3), qt.Equals, true)
+		c.Assert(m.Matches(p1), qt.IsTrue)
+		c.Assert(m.Matches(p2), qt.IsFalse)
+		c.Assert(m.Matches(p3), qt.IsTrue)
 
 		m = PageMatcher{Environment: "development"}
-		c.Assert(m.Matches(p1), qt.Equals, true)
-		c.Assert(m.Matches(p2), qt.Equals, false)
-		c.Assert(m.Matches(p3), qt.Equals, false)
+		c.Assert(m.Matches(p1), qt.IsTrue)
+		c.Assert(m.Matches(p2), qt.IsFalse)
+		c.Assert(m.Matches(p3), qt.IsFalse)
 
 		m = PageMatcher{Environment: "production"}
-		c.Assert(m.Matches(p1), qt.Equals, false)
-		c.Assert(m.Matches(p2), qt.Equals, true)
-		c.Assert(m.Matches(p3), qt.Equals, false)
+		c.Assert(m.Matches(p1), qt.IsFalse)
+		c.Assert(m.Matches(p2), qt.IsTrue)
+		c.Assert(m.Matches(p3), qt.IsFalse)
 	})
 
 	c.Run("Decode", func(c *qt.C) {
 		var v PageMatcher
-		c.Assert(decodePageMatcher(map[string]any{"kind": "foo"}, &v), qt.Not(qt.IsNil))
-		c.Assert(decodePageMatcher(map[string]any{"kind": "{foo,bar}"}, &v), qt.Not(qt.IsNil))
+		c.Assert(decodePageMatcher(map[string]any{"kind": "foo"}, &v), qt.IsNotNil)
+		c.Assert(decodePageMatcher(map[string]any{"kind": "{foo,bar}"}, &v), qt.IsNotNil)
 		c.Assert(decodePageMatcher(map[string]any{"kind": "taxonomy"}, &v), qt.IsNil)
 		c.Assert(decodePageMatcher(map[string]any{"kind": "{taxonomy,foo}"}, &v), qt.IsNil)
 		c.Assert(decodePageMatcher(map[string]any{"kind": "{taxonomy,term}"}, &v), qt.IsNil)

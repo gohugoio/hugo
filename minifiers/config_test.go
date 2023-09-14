@@ -36,17 +36,17 @@ func TestConfig(t *testing.T) {
 
 	conf := testconfig.GetTestConfigs(nil, v).Base.Minify
 
-	c.Assert(conf.MinifyOutput, qt.Equals, false)
+	c.Assert(conf.MinifyOutput, qt.IsFalse)
 
 	// explicitly set value
-	c.Assert(conf.Tdewolff.HTML.KeepWhitespace, qt.Equals, false)
+	c.Assert(conf.Tdewolff.HTML.KeepWhitespace, qt.IsFalse)
 	// default value
-	c.Assert(conf.Tdewolff.HTML.KeepEndTags, qt.Equals, true)
-	c.Assert(conf.Tdewolff.CSS.KeepCSS2, qt.Equals, true)
+	c.Assert(conf.Tdewolff.HTML.KeepEndTags, qt.IsTrue)
+	c.Assert(conf.Tdewolff.CSS.KeepCSS2, qt.IsTrue)
 
 	// `enable` flags
-	c.Assert(conf.DisableHTML, qt.Equals, false)
-	c.Assert(conf.DisableXML, qt.Equals, true)
+	c.Assert(conf.DisableHTML, qt.IsFalse)
+	c.Assert(conf.DisableXML, qt.IsTrue)
 }
 
 func TestConfigLegacy(t *testing.T) {
@@ -57,5 +57,5 @@ func TestConfigLegacy(t *testing.T) {
 	v.Set("minify", true)
 
 	conf := testconfig.GetTestConfigs(nil, v).Base.Minify
-	c.Assert(conf.MinifyOutput, qt.Equals, true)
+	c.Assert(conf.MinifyOutput, qt.IsTrue)
 }

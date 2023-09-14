@@ -39,7 +39,7 @@ title: "Page"
 `)
 	b.CreateSites().Build(BuildCfg{})
 
-	c.Assert(len(b.H.Sites), qt.Equals, 1)
+	c.Assert(b.H.Sites, qt.HasLen, 1)
 	c.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 2)
 
 	b.AssertFileContent("public/index.html", "cool: 2")
@@ -78,7 +78,7 @@ tags_weight: %d
 `)
 	b.CreateSites().Build(BuildCfg{})
 
-	c.Assert(len(b.H.Sites), qt.Equals, 1)
+	c.Assert(b.H.Sites, qt.HasLen, 1)
 	c.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 2)
 
 	b.AssertFileContent("public/index.html",
@@ -110,7 +110,7 @@ tags_weight: %d
 `)
 	b.CreateSites().Build(BuildCfg{})
 
-	c.Assert(len(b.H.Sites), qt.Equals, 1)
+	c.Assert(b.H.Sites, qt.HasLen, 1)
 	c.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 3)
 
 	b.AssertFileContent("public/index.html",
@@ -151,7 +151,7 @@ Symdiff: {{ range $symdiff }}{{ .RelPermalink }}|{{ end }}
 `)
 	b.CreateSites().Build(BuildCfg{})
 
-	c.Assert(len(b.H.Sites), qt.Equals, 1)
+	c.Assert(b.H.Sites, qt.HasLen, 1)
 	c.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 3)
 
 	b.AssertFileContent("public/index.html",
@@ -203,7 +203,7 @@ tags_weight: %d
 `)
 	b.CreateSites().Build(BuildCfg{})
 
-	c.Assert(len(b.H.Sites), qt.Equals, 1)
+	c.Assert(b.H.Sites, qt.HasLen, 1)
 	c.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 2)
 
 	b.AssertFileContent("public/index.html",

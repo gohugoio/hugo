@@ -773,7 +773,7 @@ weight = 2
 				}
 
 				if shouldFail {
-					c.Assert(err, qt.Not(qt.IsNil))
+					c.Assert(err, qt.IsNotNil)
 					c.Assert(err, qt.Equals, hugofs.ErrPermissionSymlink)
 				} else {
 					c.Assert(err, qt.IsNil)
@@ -1051,7 +1051,7 @@ title: P1
 
 		p1_1 := b.GetPage("/blog/sub/p1.md")
 		p1_2 := b.GetPage("/mycontent/sub/p1.md")
-		b.Assert(p1_1, qt.Not(qt.IsNil))
+		b.Assert(p1_1, qt.IsNotNil)
 		b.Assert(p1_2, qt.Equals, p1_1)
 
 		f := p1_1.File().FileInfo().Meta()

@@ -169,7 +169,7 @@ permalinkeds:
 	for taxonomy, count := range taxonomyTermPageCounts {
 		msg := qt.Commentf(taxonomy)
 		term := s.getPage(kinds.KindTaxonomy, taxonomy)
-		b.Assert(term, qt.Not(qt.IsNil), msg)
+		b.Assert(term, qt.IsNotNil, msg)
 		b.Assert(len(term.Pages()), qt.Equals, count, msg)
 
 		for _, p := range term.Pages() {
@@ -178,7 +178,7 @@ permalinkeds:
 	}
 
 	cat1 := s.getPage(kinds.KindTerm, "categories", "cat1")
-	b.Assert(cat1, qt.Not(qt.IsNil))
+	b.Assert(cat1, qt.IsNotNil)
 	if uglyURLs {
 		b.Assert(cat1.RelPermalink(), qt.Equals, "/blog/categories/cat1.html")
 	} else {
@@ -187,8 +187,8 @@ permalinkeds:
 
 	pl1 := s.getPage(kinds.KindTerm, "permalinkeds", "pl1")
 	permalinkeds := s.getPage(kinds.KindTaxonomy, "permalinkeds")
-	b.Assert(pl1, qt.Not(qt.IsNil))
-	b.Assert(permalinkeds, qt.Not(qt.IsNil))
+	b.Assert(pl1, qt.IsNotNil)
+	b.Assert(permalinkeds, qt.IsNotNil)
 	if uglyURLs {
 		b.Assert(pl1.RelPermalink(), qt.Equals, "/blog/perma/pl1.html")
 		b.Assert(permalinkeds.RelPermalink(), qt.Equals, "/blog/permalinkeds.html")
@@ -198,7 +198,7 @@ permalinkeds:
 	}
 
 	helloWorld := s.getPage(kinds.KindTerm, "others", "hello-hugo-world")
-	b.Assert(helloWorld, qt.Not(qt.IsNil))
+	b.Assert(helloWorld, qt.IsNotNil)
 	b.Assert(helloWorld.Title(), qt.Equals, "Hello Hugo world")
 
 	// Issue #2977
@@ -272,8 +272,8 @@ title: "This is S3s"
 	ta := filterbyKind(kinds.KindTerm)
 	te := filterbyKind(kinds.KindTaxonomy)
 
-	b.Assert(len(te), qt.Equals, 4)
-	b.Assert(len(ta), qt.Equals, 7)
+	b.Assert(te, qt.HasLen, 4)
+	b.Assert(ta, qt.HasLen, 7)
 
 	b.AssertFileContent("public/news/categories/a/index.html", "Taxonomy List Page 1|a|Hello|https://example.com/news/categories/a/|")
 	b.AssertFileContent("public/news/categories/b/index.html", "Taxonomy List Page 1|This is B|Hello|https://example.com/news/categories/b/|")
@@ -352,12 +352,12 @@ categories: ["regular"]
 	b.Build(BuildCfg{})
 	s := b.H.Sites[0]
 
-	b.Assert(b.CheckExists("public/categories/regular/index.html"), qt.Equals, true)
-	b.Assert(b.CheckExists("public/categories/drafts/index.html"), qt.Equals, false)
+	b.Assert(b.CheckExists("public/categories/regular/index.html"), qt.IsTrue)
+	b.Assert(b.CheckExists("public/categories/drafts/index.html"), qt.IsFalse)
 
 	reg, _ := s.getPageNew(nil, "categories/regular")
 	dra, _ := s.getPageNew(nil, "categories/draft")
-	b.Assert(reg, qt.Not(qt.IsNil))
+	b.Assert(reg, qt.IsNotNil)
 	b.Assert(dra, qt.IsNil)
 }
 
@@ -435,9 +435,9 @@ NO HOME FOR YOU
 
 	b.Build(BuildCfg{})
 
-	b.Assert(b.CheckExists("public/index.html"), qt.Equals, false)
-	b.Assert(b.CheckExists("public/categories/index.html"), qt.Equals, false)
-	b.Assert(b.CheckExists("public/posts/index.html"), qt.Equals, false)
+	b.Assert(b.CheckExists("public/index.html"), qt.IsFalse)
+	b.Assert(b.CheckExists("public/categories/index.html"), qt.IsFalse)
+	b.Assert(b.CheckExists("public/posts/index.html"), qt.IsFalse)
 }
 
 // https://github.com/gohugoio/hugo/issues/6173
@@ -625,10 +625,10 @@ Cats Paginator {{ range $cats.Paginator.Pages }}{{ .RelPermalink }}|{{ end }}:EN
 	cat := b.GetPage("categories")
 	funny := b.GetPage("categories/funny")
 
-	b.Assert(cat, qt.Not(qt.IsNil))
-	b.Assert(funny, qt.Not(qt.IsNil))
+	b.Assert(cat, qt.IsNotNil)
+	b.Assert(funny, qt.IsNotNil)
 
-	b.Assert(cat.Parent().IsHome(), qt.Equals, true)
+	b.Assert(cat.Parent().IsHome(), qt.IsTrue)
 	b.Assert(funny.Kind(), qt.Equals, "term")
 	b.Assert(funny.Parent(), qt.Equals, cat)
 

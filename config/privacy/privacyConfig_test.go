@@ -56,7 +56,7 @@ simple = true
 
 	pc, err := DecodeConfig(cfg)
 	c.Assert(err, qt.IsNil)
-	c.Assert(pc, qt.Not(qt.IsNil))
+	c.Assert(pc, qt.IsNotNil)
 
 	got := []bool{
 		pc.Disqus.Disable, pc.GoogleAnalytics.Disable,
@@ -86,8 +86,8 @@ PrivacyENhanced = true
 
 	pc, err := DecodeConfig(cfg)
 	c.Assert(err, qt.IsNil)
-	c.Assert(pc, qt.Not(qt.IsNil))
-	c.Assert(pc.YouTube.PrivacyEnhanced, qt.Equals, true)
+	c.Assert(pc, qt.IsNotNil)
+	c.Assert(pc.YouTube.PrivacyEnhanced, qt.IsTrue)
 }
 
 func TestDecodeConfigDefault(t *testing.T) {
@@ -95,6 +95,6 @@ func TestDecodeConfigDefault(t *testing.T) {
 
 	pc, err := DecodeConfig(config.New())
 	c.Assert(err, qt.IsNil)
-	c.Assert(pc, qt.Not(qt.IsNil))
-	c.Assert(pc.YouTube.PrivacyEnhanced, qt.Equals, false)
+	c.Assert(pc, qt.IsNotNil)
+	c.Assert(pc.YouTube.PrivacyEnhanced, qt.IsFalse)
 }

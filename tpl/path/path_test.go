@@ -50,7 +50,7 @@ func TestBase(t *testing.T) {
 		result, err := ns.Base(test.path)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -81,7 +81,7 @@ func TestBaseName(t *testing.T) {
 		result, err := ns.BaseName(test.path)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -112,7 +112,7 @@ func TestDir(t *testing.T) {
 		result, err := ns.Dir(test.path)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -141,7 +141,7 @@ func TestExt(t *testing.T) {
 		result, err := ns.Ext(test.path)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -176,7 +176,7 @@ func TestJoin(t *testing.T) {
 		result, err := ns.Join(test.elements)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -205,7 +205,7 @@ func TestSplit(t *testing.T) {
 		result, err := ns.Split(test.path)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -235,7 +235,7 @@ func TestClean(t *testing.T) {
 		result, err := ns.Clean(test.path)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 

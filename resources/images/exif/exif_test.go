@@ -44,13 +44,13 @@ func TestExif(t *testing.T) {
 	c.Assert(x.Long, qt.Equals, float64(-4.50846))
 
 	v, found := x.Tags["LensModel"]
-	c.Assert(found, qt.Equals, true)
+	c.Assert(found, qt.IsTrue)
 	lensModel, ok := v.(string)
-	c.Assert(ok, qt.Equals, true)
+	c.Assert(ok, qt.IsTrue)
 	c.Assert(lensModel, qt.Equals, "smc PENTAX-DA* 16-50mm F2.8 ED AL [IF] SDM")
 
 	v, found = x.Tags["DateTime"]
-	c.Assert(found, qt.Equals, true)
+	c.Assert(found, qt.IsTrue)
 	c.Assert(v, hqt.IsSameType, time.Time{})
 
 	// Verify that it survives a round-trip to JSON and back.
@@ -72,7 +72,7 @@ func TestExifPNG(t *testing.T) {
 	d, err := NewDecoder()
 	c.Assert(err, qt.IsNil)
 	_, err = d.Decode(f)
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 }
 
 func TestIssue8079(t *testing.T) {
@@ -157,7 +157,7 @@ func TestIssue10738(t *testing.T) {
 		c.Assert(x2, eq, x)
 
 		v, found := x.Tags["ExposureTime"]
-		c.Assert(found, qt.Equals, true)
+		c.Assert(found, qt.IsTrue)
 		return v
 	}
 
@@ -303,11 +303,11 @@ func TestIssue10738(t *testing.T) {
 			switch got.(type) {
 			case float64:
 				eTime, ok := got.(float64)
-				c.Assert(ok, qt.Equals, true)
+				c.Assert(ok, qt.IsTrue)
 				c.Assert(eTime, qt.Equals, float64(tt.want.vN))
 			case *big.Rat:
 				eTime, ok := got.(*big.Rat)
-				c.Assert(ok, qt.Equals, true)
+				c.Assert(ok, qt.IsTrue)
 				c.Assert(eTime, eq, big.NewRat(tt.want.vN, tt.want.vD))
 			}
 		})

@@ -132,8 +132,8 @@ weight: %d
 `)
 
 	// This looks odd, so are most bugs.
-	b.Assert(b.CheckExists("public/page/1/index.json/index.html"), qt.Equals, false)
-	b.Assert(b.CheckExists("public/page/1/index.json"), qt.Equals, false)
+	b.Assert(b.CheckExists("public/page/1/index.json/index.html"), qt.IsFalse)
+	b.Assert(b.CheckExists("public/page/1/index.json"), qt.IsFalse)
 	b.AssertFileContent("public/page/2/index.json", `JSON: 22: |/p11/index.json|/p12/index.json`)
 }
 

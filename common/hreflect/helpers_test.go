@@ -24,10 +24,10 @@ import (
 func TestIsTruthful(t *testing.T) {
 	c := qt.New(t)
 
-	c.Assert(IsTruthful(true), qt.Equals, true)
-	c.Assert(IsTruthful(false), qt.Equals, false)
-	c.Assert(IsTruthful(time.Now()), qt.Equals, true)
-	c.Assert(IsTruthful(time.Time{}), qt.Equals, false)
+	c.Assert(IsTruthful(true), qt.IsTrue)
+	c.Assert(IsTruthful(false), qt.IsFalse)
+	c.Assert(IsTruthful(time.Now()), qt.IsTrue)
+	c.Assert(IsTruthful(time.Time{}), qt.IsFalse)
 }
 
 func TestGetMethodByName(t *testing.T) {

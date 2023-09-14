@@ -100,7 +100,7 @@ func TestUnmarshalToMap(t *testing.T) {
 		msg := qt.Commentf("%d: %s", i, test.format)
 		m, err := d.UnmarshalToMap([]byte(test.data), test.format)
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), msg)
+			c.Assert(err, qt.IsNotNil, msg)
 		} else {
 			c.Assert(err, qt.IsNil, msg)
 			c.Assert(m, qt.DeepEquals, test.expect, msg)
@@ -140,7 +140,7 @@ func TestUnmarshalToInterface(t *testing.T) {
 		msg := qt.Commentf("%d: %s", i, test.format)
 		m, err := d.Unmarshal(test.data, test.format)
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), msg)
+			c.Assert(err, qt.IsNotNil, msg)
 		} else {
 			c.Assert(err, qt.IsNil, msg)
 			c.Assert(m, qt.DeepEquals, test.expect, msg)
@@ -172,7 +172,7 @@ func TestUnmarshalStringTo(t *testing.T) {
 		msg := qt.Commentf("%d: %T", i, test.to)
 		m, err := d.UnmarshalStringTo(test.data, test.to)
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), msg)
+			c.Assert(err, qt.IsNotNil, msg)
 		} else {
 			c.Assert(err, qt.IsNil, msg)
 			c.Assert(m, qt.DeepEquals, test.expect, msg)

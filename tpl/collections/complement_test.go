@@ -77,7 +77,7 @@ func TestComplement(t *testing.T) {
 		result, err := ns.Complement(args...)
 
 		if b, ok := test.expected.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			c.Assert(err, qt.IsNotNil, errMsg)
 			continue
 		}
 
@@ -89,7 +89,7 @@ func TestComplement(t *testing.T) {
 	}
 
 	_, err := ns.Complement()
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 	_, err = ns.Complement([]string{"a", "b"})
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 }

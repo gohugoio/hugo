@@ -36,14 +36,14 @@ func TestDecodeOptions(t *testing.T) {
 	})
 
 	c.Assert(err, qt.IsNil)
-	c.Assert(opts1.NoMap, qt.Equals, true)
+	c.Assert(opts1.NoMap, qt.IsTrue)
 
 	opts2, err := decodeOptions(map[string]any{
 		"noMap": true,
 	})
 
 	c.Assert(err, qt.IsNil)
-	c.Assert(opts2.NoMap, qt.Equals, true)
+	c.Assert(opts2.NoMap, qt.IsTrue)
 }
 
 func TestShouldImport(t *testing.T) {

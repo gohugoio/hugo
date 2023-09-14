@@ -77,6 +77,6 @@ func TestNewFileErrorExtractFromMessage(t *testing.T) {
 		pos := got.Position()
 		c.Assert(pos.LineNumber, qt.Equals, test.lineNumber, errMsg)
 		c.Assert(pos.ColumnNumber, qt.Equals, test.columnNumber, errMsg)
-		c.Assert(errors.Unwrap(got), qt.Not(qt.IsNil))
+		c.Assert(errors.Unwrap(got), qt.IsNotNil)
 	}
 }

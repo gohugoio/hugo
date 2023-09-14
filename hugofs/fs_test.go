@@ -26,10 +26,10 @@ import (
 func TestIsOsFs(t *testing.T) {
 	c := qt.New(t)
 
-	c.Assert(IsOsFs(Os), qt.Equals, true)
-	c.Assert(IsOsFs(&afero.MemMapFs{}), qt.Equals, false)
-	c.Assert(IsOsFs(afero.NewBasePathFs(&afero.MemMapFs{}, "/public")), qt.Equals, false)
-	c.Assert(IsOsFs(afero.NewBasePathFs(Os, t.TempDir())), qt.Equals, true)
+	c.Assert(IsOsFs(Os), qt.IsTrue)
+	c.Assert(IsOsFs(&afero.MemMapFs{}), qt.IsFalse)
+	c.Assert(IsOsFs(afero.NewBasePathFs(&afero.MemMapFs{}, "/public")), qt.IsFalse)
+	c.Assert(IsOsFs(afero.NewBasePathFs(Os, t.TempDir())), qt.IsTrue)
 
 }
 

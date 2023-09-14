@@ -152,7 +152,7 @@ func TestLastChange(t *testing.T) {
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
 
-	c.Assert(s.LastChange().IsZero(), qt.Equals, false)
+	c.Assert(s.LastChange().IsZero(), qt.IsFalse)
 	c.Assert(s.LastChange().Year(), qt.Equals, 2017)
 }
 
@@ -334,7 +334,7 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 	}
 
 	for _, p := range s.RegularPages() {
-		c.Assert(p.IsHome(), qt.Equals, false)
+		c.Assert(p.IsHome(), qt.IsFalse)
 	}
 
 	for _, test := range tests {

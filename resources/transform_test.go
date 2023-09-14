@@ -54,7 +54,7 @@ func TestTransform(t *testing.T) {
 		c.Assert(err, qt.IsNil)
 		r, err := spec.New(resources.ResourceSourceDescriptor{Fs: spec.BaseFs.Assets.Fs, SourceFilename: filename})
 		c.Assert(err, qt.IsNil)
-		c.Assert(r, qt.Not(qt.IsNil), qt.Commentf(filename))
+		c.Assert(r, qt.IsNotNil, qt.Commentf(filename))
 		return r.(resources.Transformer)
 	}
 
@@ -372,7 +372,7 @@ func TestTransform(t *testing.T) {
 		c.Assert(tr.MediaType(), eq, media.Builtin.PNGType)
 
 		img, ok := tr.(images.ImageResource)
-		c.Assert(ok, qt.Equals, true)
+		c.Assert(ok, qt.IsTrue)
 
 		c.Assert(img.Width(), qt.Equals, 75)
 		c.Assert(img.Height(), qt.Equals, 60)

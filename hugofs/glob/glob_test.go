@@ -70,7 +70,7 @@ func TestGetGlob(t *testing.T) {
 		c := qt.New(t)
 		g, err := cache.GetGlob("**.JSON")
 		c.Assert(err, qt.IsNil)
-		c.Assert(g.Match("data/my.jSon"), qt.Equals, true)
+		c.Assert(g.Match("data/my.jSon"), qt.IsTrue)
 	}
 }
 

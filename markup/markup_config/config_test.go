@@ -44,11 +44,11 @@ func TestConfig(t *testing.T) {
 		conf, err := Decode(v)
 
 		c.Assert(err, qt.IsNil)
-		c.Assert(conf.Goldmark.Renderer.Unsafe, qt.Equals, true)
-		c.Assert(conf.Goldmark.Parser.Attribute.Title, qt.Equals, true)
-		c.Assert(conf.Goldmark.Parser.Attribute.Block, qt.Equals, false)
+		c.Assert(conf.Goldmark.Renderer.Unsafe, qt.IsTrue)
+		c.Assert(conf.Goldmark.Parser.Attribute.Title, qt.IsTrue)
+		c.Assert(conf.Goldmark.Parser.Attribute.Block, qt.IsFalse)
 
-		c.Assert(conf.AsciidocExt.WorkingFolderCurrent, qt.Equals, true)
+		c.Assert(conf.AsciidocExt.WorkingFolderCurrent, qt.IsTrue)
 		c.Assert(conf.AsciidocExt.Extensions[0], qt.Equals, "asciidoctor-html5s")
 	})
 
@@ -68,7 +68,7 @@ func TestConfig(t *testing.T) {
 		conf, err := Decode(v)
 
 		c.Assert(err, qt.IsNil)
-		c.Assert(conf.Goldmark.Extensions.Typographer.Disable, qt.Equals, true)
+		c.Assert(conf.Goldmark.Extensions.Typographer.Disable, qt.IsTrue)
 
 		v.Set("markup", map[string]any{
 			"goldmark": map[string]any{
@@ -81,7 +81,7 @@ func TestConfig(t *testing.T) {
 		conf, err = Decode(v)
 
 		c.Assert(err, qt.IsNil)
-		c.Assert(conf.Goldmark.Extensions.Typographer.Disable, qt.Equals, false)
+		c.Assert(conf.Goldmark.Extensions.Typographer.Disable, qt.IsFalse)
 		c.Assert(conf.Goldmark.Extensions.Typographer.Ellipsis, qt.Equals, "&hellip;")
 
 	})

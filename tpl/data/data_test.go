@@ -116,7 +116,7 @@ func TestGetCSV(t *testing.T) {
 
 			c.Assert(err, qt.IsNil, msg)
 			c.Assert(int(ns.deps.Log.LoggCount(logg.LevelError)), qt.Equals, 0)
-			c.Assert(got, qt.Not(qt.IsNil), msg)
+			c.Assert(got, qt.IsNotNil, msg)
 			c.Assert(got, qt.DeepEquals, test.expect, msg)
 		})
 
@@ -206,7 +206,7 @@ func TestGetJSON(t *testing.T) {
 			}
 
 			c.Assert(int(ns.deps.Log.LoggCount(logg.LevelError)), qt.Equals, 0, msg)
-			c.Assert(got, qt.Not(qt.IsNil), msg)
+			c.Assert(got, qt.IsNotNil, msg)
 			c.Assert(got, qt.DeepEquals, test.expect)
 
 		})
@@ -335,7 +335,7 @@ func TestParseCSV(t *testing.T) {
 
 		csv, err := parseCSV(test.csv, test.sep)
 		if test.err {
-			c.Assert(err, qt.Not(qt.IsNil), msg)
+			c.Assert(err, qt.IsNotNil, msg)
 			continue
 		}
 		c.Assert(err, qt.IsNil, msg)

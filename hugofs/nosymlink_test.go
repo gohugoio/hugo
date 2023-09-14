@@ -87,7 +87,7 @@ func TestNoSymlinkFs(t *testing.T) {
 				t.Helper()
 				assertFileErr(err)
 				if err == nil {
-					c.Assert(fi, qt.Not(qt.IsNil))
+					c.Assert(fi, qt.IsNotNil)
 					c.Assert(fi.Name(), qt.Equals, name)
 				}
 			}
@@ -109,11 +109,11 @@ func TestNoSymlinkFs(t *testing.T) {
 
 				fi, err = stat(filepath.Join(workDir, "blog"))
 				c.Assert(err, qt.IsNil)
-				c.Assert(fi, qt.Not(qt.IsNil))
+				c.Assert(fi, qt.IsNotNil)
 
 				fi, err = stat(blogFile1)
 				c.Assert(err, qt.IsNil)
-				c.Assert(fi, qt.Not(qt.IsNil))
+				c.Assert(fi, qt.IsNotNil)
 			}
 
 			// Check Open

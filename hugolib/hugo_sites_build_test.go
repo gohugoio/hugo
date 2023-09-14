@@ -50,7 +50,7 @@ func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 	b.Build(BuildCfg{})
 
 	sites := b.H.Sites
-	c.Assert(len(sites), qt.Equals, 4)
+	c.Assert(sites, qt.HasLen, 4)
 
 	enSite := sites[0]
 	frSite := sites[1]
@@ -179,13 +179,13 @@ p1 = "p1en"
 	b.Build(BuildCfg{SkipRender: true})
 	sites := b.H.Sites
 
-	c.Assert(len(sites), qt.Equals, 2)
+	c.Assert(sites, qt.HasLen, 2)
 
 	nnSite := sites[0]
 	nnHome := nnSite.getPage(kinds.KindHome)
 	c.Assert(len(nnHome.AllTranslations()), qt.Equals, 2)
 	c.Assert(len(nnHome.Translations()), qt.Equals, 1)
-	c.Assert(nnHome.IsTranslated(), qt.Equals, true)
+	c.Assert(nnHome.IsTranslated(), qt.IsTrue)
 
 	enHome := sites[1].getPage(kinds.KindHome)
 
@@ -222,25 +222,25 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	b.CreateSites()
 
 	sites := b.H.Sites
-	c.Assert(len(sites), qt.Equals, 4)
+	c.Assert(sites, qt.HasLen, 4)
 
 	b.Build(BuildCfg{})
 
 	// Check site config
 	for _, s := range sites {
-		c.Assert(s.conf.DefaultContentLanguageInSubdir, qt.Equals, true)
-		c.Assert(s.conf.C.DisabledKinds, qt.Not(qt.IsNil))
+		c.Assert(s.conf.DefaultContentLanguageInSubdir, qt.IsTrue)
+		c.Assert(s.conf.C.DisabledKinds, qt.IsNotNil)
 	}
 
 	gp1 := b.H.GetContentPage(filepath.FromSlash("content/sect/doc1.en.md"))
-	c.Assert(gp1, qt.Not(qt.IsNil))
+	c.Assert(gp1, qt.IsNotNil)
 	c.Assert(gp1.Title(), qt.Equals, "doc1")
 	gp2 := b.H.GetContentPage(filepath.FromSlash("content/dummysect/notfound.md"))
 	c.Assert(gp2, qt.IsNil)
 
 	enSite := sites[0]
 	enSiteHome := enSite.getPage(kinds.KindHome)
-	c.Assert(enSiteHome.IsTranslated(), qt.Equals, true)
+	c.Assert(enSiteHome.IsTranslated(), qt.IsTrue)
 
 	c.Assert(enSite.language.Lang, qt.Equals, "en")
 
@@ -281,7 +281,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	// Taxonomies and their URLs
 	c.Assert(len(enSite.Taxonomies()), qt.Equals, 1)
 	tags := enSite.Taxonomies()["tags"]
-	c.Assert(len(tags), qt.Equals, 2)
+	c.Assert(tags, qt.HasLen, 2)
 	c.Assert(doc1en, qt.Equals, tags["tag1"][0].Page)
 
 	frSite := sites[1]
@@ -322,7 +322,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 
 	// Check node translations
 	homeEn := enSite.getPage(kinds.KindHome)
-	c.Assert(homeEn, qt.Not(qt.IsNil))
+	c.Assert(homeEn, qt.IsNotNil)
 	c.Assert(len(homeEn.Translations()), qt.Equals, 3)
 	c.Assert(homeEn.Translations()[0].Language().Lang, qt.Equals, "fr")
 	c.Assert(homeEn.Translations()[1].Language().Lang, qt.Equals, "nn")
@@ -332,7 +332,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	c.Assert(homeEn.Translations()[2].Language().LanguageName, qt.Equals, "Bokmål")
 
 	sectFr := frSite.getPage(kinds.KindSection, "sect")
-	c.Assert(sectFr, qt.Not(qt.IsNil))
+	c.Assert(sectFr, qt.IsNotNil)
 
 	c.Assert(sectFr.Language().Lang, qt.Equals, "fr")
 	c.Assert(len(sectFr.Translations()), qt.Equals, 1)
@@ -342,12 +342,12 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	nnSite := sites[2]
 	c.Assert(nnSite.language.Lang, qt.Equals, "nn")
 	taxNn := nnSite.getPage(kinds.KindTaxonomy, "lag")
-	c.Assert(taxNn, qt.Not(qt.IsNil))
+	c.Assert(taxNn, qt.IsNotNil)
 	c.Assert(len(taxNn.Translations()), qt.Equals, 1)
 	c.Assert(taxNn.Translations()[0].Language().Lang, qt.Equals, "nb")
 
 	taxTermNn := nnSite.getPage(kinds.KindTerm, "lag", "sogndal")
-	c.Assert(taxTermNn, qt.Not(qt.IsNil))
+	c.Assert(taxTermNn, qt.IsNotNil)
 	c.Assert(nnSite.getPage(kinds.KindTerm, "LAG", "SOGNDAL"), qt.Equals, taxTermNn)
 	c.Assert(len(taxTermNn.Translations()), qt.Equals, 1)
 	c.Assert(taxTermNn.Translations()[0].Language().Lang, qt.Equals, "nb")
@@ -362,10 +362,10 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	// Check taxonomies
 	enTags := enSite.Taxonomies()["tags"]
 	frTags := frSite.Taxonomies()["plaques"]
-	c.Assert(len(enTags), qt.Equals, 2, qt.Commentf("Tags in en: %v", enTags))
-	c.Assert(len(frTags), qt.Equals, 2, qt.Commentf("Tags in fr: %v", frTags))
-	c.Assert(enTags["tag1"], qt.Not(qt.IsNil))
-	c.Assert(frTags["FRtag1"], qt.Not(qt.IsNil))
+	c.Assert(enTags, qt.HasLen, 2, qt.Commentf("Tags in en: %v", enTags))
+	c.Assert(frTags, qt.HasLen, 2, qt.Commentf("Tags in fr: %v", frTags))
+	c.Assert(enTags["tag1"], qt.IsNotNil)
+	c.Assert(frTags["FRtag1"], qt.IsNotNil)
 	b.AssertFileContent("public/fr/plaques/FRtag1/index.html", "FRtag1|Bonjour|http://example.com/blog/fr/plaques/FRtag1/")
 
 	// en and nn have custom site menus
@@ -378,7 +378,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 
 	// Issue #3108
 	prevPage := enSite.RegularPages()[0].Prev()
-	c.Assert(prevPage, qt.Not(qt.IsNil))
+	c.Assert(prevPage, qt.IsNotNil)
 	c.Assert(prevPage.Kind(), qt.Equals, kinds.KindPage)
 
 	for {
@@ -392,21 +392,21 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	// Check bundles
 	b.AssertFileContent("public/fr/bundles/b1/index.html", "RelPermalink: /blog/fr/bundles/b1/|")
 	bundleFr := frSite.getPage(kinds.KindPage, "bundles/b1/index.md")
-	c.Assert(bundleFr, qt.Not(qt.IsNil))
+	c.Assert(bundleFr, qt.IsNotNil)
 	c.Assert(len(bundleFr.Resources()), qt.Equals, 1)
 	logoFr := bundleFr.Resources().GetMatch("logo*")
 	logoFrGet := bundleFr.Resources().Get("logo.png")
 	c.Assert(logoFrGet, qt.Equals, logoFr)
-	c.Assert(logoFr, qt.Not(qt.IsNil))
+	c.Assert(logoFr, qt.IsNotNil)
 	b.AssertFileContent("public/fr/bundles/b1/index.html", "Resources: image/png: /blog/fr/bundles/b1/logo.png")
 	b.AssertFileContent("public/fr/bundles/b1/logo.png", "PNG Data")
 
 	bundleEn := enSite.getPage(kinds.KindPage, "bundles/b1/index.en.md")
-	c.Assert(bundleEn, qt.Not(qt.IsNil))
+	c.Assert(bundleEn, qt.IsNotNil)
 	b.AssertFileContent("public/en/bundles/b1/index.html", "RelPermalink: /blog/en/bundles/b1/|")
 	c.Assert(len(bundleEn.Resources()), qt.Equals, 1)
 	logoEn := bundleEn.Resources().GetMatch("logo*")
-	c.Assert(logoEn, qt.Not(qt.IsNil))
+	c.Assert(logoEn, qt.IsNotNil)
 	b.AssertFileContent("public/en/bundles/b1/index.html", "Resources: image/png: /blog/en/bundles/b1/logo.png")
 	b.AssertFileContent("public/en/bundles/b1/logo.png", "PNG Data")
 }
@@ -442,7 +442,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 	b.AssertFileContent("public/en/sect/doc1-slug/index.html", "Single", "Shortcode: Hello")
 
 	homeEn := enSite.getPage(kinds.KindHome)
-	c.Assert(homeEn, qt.Not(qt.IsNil))
+	c.Assert(homeEn, qt.IsNotNil)
 	c.Assert(len(homeEn.Translations()), qt.Equals, 3)
 
 	contentFs := b.H.Fs.Source
@@ -488,7 +488,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 				c.Assert(enSite.RegularPages()[1].Title(), qt.Equals, "new_en_1")
 
 				rendered := readWorkingDir(t, fs, "public/en/new1/index.html")
-				c.Assert(strings.Contains(rendered, "new_en_1"), qt.Equals, true)
+				c.Assert(strings.Contains(rendered, "new_en_1"), qt.IsTrue)
 			},
 		},
 		{
@@ -502,7 +502,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 			func(t *testing.T) {
 				c.Assert(len(enSite.RegularPages()), qt.Equals, 6)
 				doc1 := readWorkingDir(t, fs, "public/en/sect/doc1-slug/index.html")
-				c.Assert(strings.Contains(doc1, "CHANGED"), qt.Equals, true)
+				c.Assert(strings.Contains(doc1, "CHANGED"), qt.IsTrue)
 			},
 		},
 		// Rename a file
@@ -537,7 +537,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 				c.Assert(len(enSite.AllPages()), qt.Equals, 34)
 				c.Assert(len(frSite.RegularPages()), qt.Equals, 5)
 				doc1 := readWorkingDir(t, fs, "public/en/sect/doc1-slug/index.html")
-				c.Assert(strings.Contains(doc1, "Template Changed"), qt.Equals, true)
+				c.Assert(strings.Contains(doc1, "Template Changed"), qt.IsTrue)
 			},
 		},
 		{
@@ -554,12 +554,12 @@ func TestMultiSitesRebuild(t *testing.T) {
 				c.Assert(len(enSite.AllPages()), qt.Equals, 34)
 				c.Assert(len(frSite.RegularPages()), qt.Equals, 5)
 				docEn := readWorkingDir(t, fs, "public/en/sect/doc1-slug/index.html")
-				c.Assert(strings.Contains(docEn, "Hello"), qt.Equals, true)
+				c.Assert(strings.Contains(docEn, "Hello"), qt.IsTrue)
 				docFr := readWorkingDir(t, fs, "public/fr/sect/doc1/index.html")
-				c.Assert(strings.Contains(docFr, "Salut"), qt.Equals, true)
+				c.Assert(strings.Contains(docFr, "Salut"), qt.IsTrue)
 
 				homeEn := enSite.getPage(kinds.KindHome)
-				c.Assert(homeEn, qt.Not(qt.IsNil))
+				c.Assert(homeEn, qt.IsNotNil)
 				c.Assert(len(homeEn.Translations()), qt.Equals, 3)
 				c.Assert(homeEn.Translations()[0].Language().Lang, qt.Equals, "fr")
 			},
@@ -777,8 +777,8 @@ categories: ["mycat"]
 			s1, _ := b.H.Sites[0].getPageNew(nil, path)
 			s2, _ := b.H.Sites[1].getPageNew(nil, path)
 
-			c.Assert(s1, qt.Not(qt.IsNil))
-			c.Assert(s2, qt.Not(qt.IsNil))
+			c.Assert(s1, qt.IsNotNil)
+			c.Assert(s2, qt.IsNotNil)
 
 			c.Assert(len(s1.Translations()), qt.Equals, 1)
 			c.Assert(len(s2.Translations()), qt.Equals, 1)
@@ -788,8 +788,8 @@ categories: ["mycat"]
 			m1 := s1.Translations().MergeByLanguage(s2.Translations())
 			m2 := s2.Translations().MergeByLanguage(s1.Translations())
 
-			c.Assert(len(m1), qt.Equals, 1)
-			c.Assert(len(m2), qt.Equals, 1)
+			c.Assert(m1, qt.HasLen, 1)
+			c.Assert(m2, qt.HasLen, 1)
 		})
 	}
 }

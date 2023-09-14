@@ -111,7 +111,7 @@ func fetchImage(c *qt.C, name string) (*resources.Spec, images.ImageResource) {
 func fetchImageForSpec(spec *resources.Spec, c *qt.C, name string) images.ImageResource {
 	r := fetchResourceForSpec(spec, c, name)
 	img := r.(images.ImageResource)
-	c.Assert(img, qt.Not(qt.IsNil))
+	c.Assert(img, qt.IsNotNil)
 	return img
 }
 
@@ -133,7 +133,7 @@ func fetchResourceForSpec(spec *resources.Spec, c *qt.C, name string, targetPath
 
 	r, err := spec.New(resources.ResourceSourceDescriptor{Fs: spec.BaseFs.Assets.Fs, TargetPaths: factory, LazyPublish: true, RelTargetFilename: name, SourceFilename: name})
 	c.Assert(err, qt.IsNil)
-	c.Assert(r, qt.Not(qt.IsNil))
+	c.Assert(r, qt.IsNotNil)
 
 	return r.(resource.ContentResource)
 }

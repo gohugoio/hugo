@@ -32,7 +32,7 @@ func TestSearchPage(t *testing.T) {
 
 	for _, pages := range []Pages{pages.ByTitle(), pages.ByTitle().Reverse()} {
 		less := isPagesProbablySorted(pages, lessPageTitle)
-		c.Assert(less, qt.Not(qt.IsNil))
+		c.Assert(less, qt.IsNotNil)
 		for i, p := range pages {
 			idx := searchPageBinary(p, pages, less)
 			c.Assert(idx, qt.Equals, i)
@@ -115,8 +115,8 @@ func TestIsPagesProbablySorted(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	c.Assert(isPagesProbablySorted(createSortTestPages(6).ByWeight(), DefaultPageSort), qt.Not(qt.IsNil))
-	c.Assert(isPagesProbablySorted(createSortTestPages(300).ByWeight(), DefaultPageSort), qt.Not(qt.IsNil))
+	c.Assert(isPagesProbablySorted(createSortTestPages(6).ByWeight(), DefaultPageSort), qt.IsNotNil)
+	c.Assert(isPagesProbablySorted(createSortTestPages(300).ByWeight(), DefaultPageSort), qt.IsNotNil)
 	c.Assert(isPagesProbablySorted(createSortTestPages(6), DefaultPageSort), qt.IsNil)
-	c.Assert(isPagesProbablySorted(createSortTestPages(300).ByTitle(), pageLessFunctions...), qt.Not(qt.IsNil))
+	c.Assert(isPagesProbablySorted(createSortTestPages(300).ByTitle(), pageLessFunctions...), qt.IsNotNil)
 }

@@ -88,13 +88,13 @@ force = true
 	c.Assert(err, qt.IsNil)
 
 	// Order.
-	c.Assert(len(dcfg.Order), qt.Equals, 2)
+	c.Assert(dcfg.Order, qt.HasLen, 2)
 	c.Assert(dcfg.Order[0], qt.Equals, "o1")
 	c.Assert(dcfg.Order[1], qt.Equals, "o2")
-	c.Assert(len(dcfg.ordering), qt.Equals, 2)
+	c.Assert(dcfg.ordering, qt.HasLen, 2)
 
 	// Targets.
-	c.Assert(len(dcfg.Targets), qt.Equals, 3)
+	c.Assert(dcfg.Targets, qt.HasLen, 3)
 	wantInclude := []string{"*.html", "*.jpg", ""}
 	wantExclude := []string{"", "", "*.png"}
 	for i := 0; i < 3; i++ {
@@ -104,20 +104,20 @@ force = true
 		c.Assert(tgt.CloudFrontDistributionID, qt.Equals, fmt.Sprintf("cdn%d", i))
 		c.Assert(tgt.Include, qt.Equals, wantInclude[i])
 		if wantInclude[i] != "" {
-			c.Assert(tgt.includeGlob, qt.Not(qt.IsNil))
+			c.Assert(tgt.includeGlob, qt.IsNotNil)
 		}
 		c.Assert(tgt.Exclude, qt.Equals, wantExclude[i])
 		if wantExclude[i] != "" {
-			c.Assert(tgt.excludeGlob, qt.Not(qt.IsNil))
+			c.Assert(tgt.excludeGlob, qt.IsNotNil)
 		}
 	}
 
 	// Matchers.
-	c.Assert(len(dcfg.Matchers), qt.Equals, 3)
+	c.Assert(dcfg.Matchers, qt.HasLen, 3)
 	for i := 0; i < 3; i++ {
 		m := dcfg.Matchers[i]
 		c.Assert(m.Pattern, qt.Equals, fmt.Sprintf("^pattern%d$", i))
-		c.Assert(m.re, qt.Not(qt.IsNil))
+		c.Assert(m.re, qt.IsNotNil)
 		c.Assert(m.CacheControl, qt.Equals, fmt.Sprintf("cachecontrol%d", i))
 		c.Assert(m.ContentEncoding, qt.Equals, fmt.Sprintf("contentencoding%d", i))
 		c.Assert(m.ContentType, qt.Equals, fmt.Sprintf("contenttype%d", i))
@@ -140,7 +140,7 @@ order = ["["]  # invalid regular expression
 	c.Assert(err, qt.IsNil)
 
 	_, err = DecodeConfig(cfg)
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 }
 
 func TestInvalidMatcherPattern(t *testing.T) {
@@ -158,7 +158,7 @@ Pattern = "["  # invalid regular expression
 	c.Assert(err, qt.IsNil)
 
 	_, err = DecodeConfig(cfg)
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 }
 
 func TestDecodeConfigDefault(t *testing.T) {
@@ -166,8 +166,8 @@ func TestDecodeConfigDefault(t *testing.T) {
 
 	dcfg, err := DecodeConfig(config.New())
 	c.Assert(err, qt.IsNil)
-	c.Assert(len(dcfg.Targets), qt.Equals, 0)
-	c.Assert(len(dcfg.Matchers), qt.Equals, 0)
+	c.Assert(dcfg.Targets, qt.HasLen, 0)
+	c.Assert(dcfg.Matchers, qt.HasLen, 0)
 }
 
 func TestEmptyTarget(t *testing.T) {
@@ -181,7 +181,7 @@ func TestEmptyTarget(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 
 	_, err = DecodeConfig(cfg)
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 }
 
 func TestEmptyMatcher(t *testing.T) {
@@ -195,5 +195,5 @@ func TestEmptyMatcher(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 
 	_, err = DecodeConfig(cfg)
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 }

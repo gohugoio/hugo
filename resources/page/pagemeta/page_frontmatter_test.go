@@ -162,10 +162,10 @@ func TestFrontMatterDatesCustomConfig(t *testing.T) {
 	c.Assert(d.Params["publishdate"], qt.Equals, d.Dates.FPublishDate)
 	c.Assert(d.Params["expirydate"], qt.Equals, d.Dates.FExpiryDate)
 
-	c.Assert(handler.IsDateKey("date"), qt.Equals, false) // This looks odd, but is configured like this.
-	c.Assert(handler.IsDateKey("mydate"), qt.Equals, true)
-	c.Assert(handler.IsDateKey("publishdate"), qt.Equals, true)
-	c.Assert(handler.IsDateKey("pubdate"), qt.Equals, true)
+	c.Assert(handler.IsDateKey("date"), qt.IsFalse) // This looks odd, but is configured like this.
+	c.Assert(handler.IsDateKey("mydate"), qt.IsTrue)
+	c.Assert(handler.IsDateKey("publishdate"), qt.IsTrue)
+	c.Assert(handler.IsDateKey("pubdate"), qt.IsTrue)
 }
 
 func TestFrontMatterDatesDefaultKeyword(t *testing.T) {
@@ -196,5 +196,5 @@ func TestFrontMatterDatesDefaultKeyword(t *testing.T) {
 	c.Assert(d.Dates.FDate.Day(), qt.Equals, 1)
 	c.Assert(d.Dates.FLastmod.Day(), qt.Equals, 2)
 	c.Assert(d.Dates.FPublishDate.Day(), qt.Equals, 4)
-	c.Assert(d.Dates.FExpiryDate.IsZero(), qt.Equals, true)
+	c.Assert(d.Dates.FExpiryDate.IsZero(), qt.IsTrue)
 }

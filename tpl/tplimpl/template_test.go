@@ -21,20 +21,20 @@ import (
 func TestNeedsBaseTemplate(t *testing.T) {
 	c := qt.New(t)
 
-	c.Assert(needsBaseTemplate(`{{ define "main" }}`), qt.Equals, true)
-	c.Assert(needsBaseTemplate(`{{define "main" }}`), qt.Equals, true)
-	c.Assert(needsBaseTemplate(`{{-  define "main" }}`), qt.Equals, true)
-	c.Assert(needsBaseTemplate(`{{-define "main" }}`), qt.Equals, true)
+	c.Assert(needsBaseTemplate(`{{ define "main" }}`), qt.IsTrue)
+	c.Assert(needsBaseTemplate(`{{define "main" }}`), qt.IsTrue)
+	c.Assert(needsBaseTemplate(`{{-  define "main" }}`), qt.IsTrue)
+	c.Assert(needsBaseTemplate(`{{-define "main" }}`), qt.IsTrue)
 	c.Assert(needsBaseTemplate(`
 	
 	{{-define "main" }}
 	
 	`), qt.Equals, true)
-	c.Assert(needsBaseTemplate(`    {{ define "main" }}`), qt.Equals, true)
+	c.Assert(needsBaseTemplate(`    {{ define "main" }}`), qt.IsTrue)
 	c.Assert(needsBaseTemplate(`
 	{{ define "main" }}`), qt.Equals, true)
-	c.Assert(needsBaseTemplate(`  A  {{ define "main" }}`), qt.Equals, false)
-	c.Assert(needsBaseTemplate(`  {{ printf "foo" }}`), qt.Equals, false)
-	c.Assert(needsBaseTemplate(`{{/* comment */}}    {{ define "main" }}`), qt.Equals, true)
-	c.Assert(needsBaseTemplate(`     {{/* comment */}}  A  {{ define "main" }}`), qt.Equals, false)
+	c.Assert(needsBaseTemplate(`  A  {{ define "main" }}`), qt.IsFalse)
+	c.Assert(needsBaseTemplate(`  {{ printf "foo" }}`), qt.IsFalse)
+	c.Assert(needsBaseTemplate(`{{/* comment */}}    {{ define "main" }}`), qt.IsTrue)
+	c.Assert(needsBaseTemplate(`     {{/* comment */}}  A  {{ define "main" }}`), qt.IsFalse)
 }

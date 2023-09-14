@@ -168,7 +168,7 @@ running = true
 			},
 		).Build()
 
-		b.Assert(b.H.Conf.Running(), qt.Equals, false)
+		b.Assert(b.H.Conf.Running(), qt.IsFalse)
 
 	})
 
@@ -608,7 +608,7 @@ privacyEnhanced = true
 	b.WithConfigFile("toml", tomlConfig)
 	b.Build(BuildCfg{SkipRender: true})
 
-	c.Assert(b.H.Sites[0].Config().Privacy.YouTube.PrivacyEnhanced, qt.Equals, true)
+	c.Assert(b.H.Sites[0].Config().Privacy.YouTube.PrivacyEnhanced, qt.IsTrue)
 }
 
 func TestLoadConfigModules(t *testing.T) {
@@ -1122,7 +1122,7 @@ Home
 `)
 
 	conf := b.H.Configs.Base
-	b.Assert(conf.IsKindEnabled("taxonomy"), qt.Equals, false)
+	b.Assert(conf.IsKindEnabled("taxonomy"), qt.IsFalse)
 }
 
 // Issue #11000
@@ -1457,7 +1457,7 @@ Home.
 		},
 	).Build()
 
-	b.Assert(len(b.H.Sites), qt.Equals, 1)
+	b.Assert(b.H.Sites, qt.HasLen, 1)
 
 }
 
@@ -1482,7 +1482,7 @@ func TestLoadConfigYamlEnvVar(t *testing.T) {
 		outputs := b.H.Configs.Base.Outputs
 		if env == nil {
 			home := outputs["home"]
-			b.Assert(home, qt.Not(qt.IsNil))
+			b.Assert(home, qt.IsNotNil)
 			b.Assert(home, qt.DeepEquals, []string{"json"})
 		}
 

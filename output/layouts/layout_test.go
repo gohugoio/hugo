@@ -937,7 +937,7 @@ func TestLayout(t *testing.T) {
 			layouts, err := l.For(this.layoutDescriptor)
 
 			c.Assert(err, qt.IsNil)
-			c.Assert(layouts, qt.Not(qt.IsNil), qt.Commentf(this.layoutDescriptor.Kind))
+			c.Assert(layouts, qt.IsNotNil, qt.Commentf(this.layoutDescriptor.Kind))
 
 			if !reflect.DeepEqual(layouts, this.expect) {
 				r := strings.NewReplacer(

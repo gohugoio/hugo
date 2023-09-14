@@ -83,7 +83,7 @@ func TestLanguageRootMapping(t *testing.T) {
 
 	dirs, err := rfs.Dirs(filepath.FromSlash("content/blog"))
 	c.Assert(err, qt.IsNil)
-	c.Assert(len(dirs), qt.Equals, 4)
+	c.Assert(dirs, qt.HasLen, 4)
 	for _, dir := range dirs {
 		f, err := dir.Meta().Open()
 		c.Assert(err, qt.IsNil)
@@ -242,7 +242,7 @@ func TestRootMappingFsMount(t *testing.T) {
 
 	blog, err := rfs.Stat(filepath.FromSlash("content/blog"))
 	c.Assert(err, qt.IsNil)
-	c.Assert(blog.IsDir(), qt.Equals, true)
+	c.Assert(blog.IsDir(), qt.IsTrue)
 	blogm := blog.(FileMetaInfo).Meta()
 	c.Assert(blogm.Lang, qt.Equals, "no") // First match
 
@@ -256,7 +256,7 @@ func TestRootMappingFsMount(t *testing.T) {
 
 	files, err := afero.ReadDir(rfs, filepath.FromSlash("content/blog"))
 	c.Assert(err, qt.IsNil)
-	c.Assert(len(files), qt.Equals, 4)
+	c.Assert(files, qt.HasLen, 4)
 
 	testfilefi := files[1]
 	c.Assert(testfilefi.Name(), qt.Equals, testfile)
@@ -273,7 +273,7 @@ func TestRootMappingFsMount(t *testing.T) {
 
 	// Ambiguous
 	_, err = rfs.Stat(filepath.FromSlash("content/singles/p1.md"))
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 
 	singlesDir, err := rfs.Open(filepath.FromSlash("content/singles"))
 	c.Assert(err, qt.IsNil)
@@ -532,8 +532,8 @@ func TestRootMappingFileFilter(t *testing.T) {
 			c.Assert(err2, qt.IsNil)
 			c.Assert(f.Close(), qt.IsNil)
 		} else {
-			c.Assert(err1, qt.Not(qt.IsNil))
-			c.Assert(err2, qt.Not(qt.IsNil))
+			c.Assert(err1, qt.IsNotNil)
+			c.Assert(err2, qt.IsNotNil)
 		}
 	}
 
@@ -543,11 +543,11 @@ func TestRootMappingFileFilter(t *testing.T) {
 
 	dirEntriesSub, err := afero.ReadDir(rfs, filepath.Join("content", "sub"))
 	c.Assert(err, qt.IsNil)
-	c.Assert(len(dirEntriesSub), qt.Equals, 3)
+	c.Assert(dirEntriesSub, qt.HasLen, 3)
 
 	dirEntries, err := afero.ReadDir(rfs, "content")
 
 	c.Assert(err, qt.IsNil)
-	c.Assert(len(dirEntries), qt.Equals, 4)
+	c.Assert(dirEntries, qt.HasLen, 4)
 
 }

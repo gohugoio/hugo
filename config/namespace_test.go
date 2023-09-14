@@ -24,7 +24,7 @@ import (
 
 func TestNamespace(t *testing.T) {
 	c := qt.New(t)
-	c.Assert(true, qt.Equals, true)
+	c.Assert(true, qt.IsTrue)
 
 	//ns, err := config.DecodeNamespace[map[string]DocsMediaTypeConfig](in, defaultMediaTypesConfig, buildConfig)
 
@@ -41,7 +41,7 @@ func TestNamespace(t *testing.T) {
 	)
 
 	c.Assert(err, qt.IsNil)
-	c.Assert(ns, qt.Not(qt.IsNil))
+	c.Assert(ns, qt.IsNotNil)
 	c.Assert(ns.SourceStructure, qt.DeepEquals, map[string]interface{}{"foo": "bar"})
 	c.Assert(ns.SourceHash, qt.Equals, "14368731254619220105")
 	c.Assert(ns.Config, qt.DeepEquals, &tstNsExt{Foo: "bar"})

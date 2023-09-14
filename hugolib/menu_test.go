@@ -81,7 +81,7 @@ Menu Main:  {{ partial "menu.html" (dict "page" . "menu" "main") }}`,
 	p1 := s.RegularPages()[0].Menus()
 
 	// There is only one menu in the page, but it is "member of" 2
-	b.Assert(len(p1), qt.Equals, 1)
+	b.Assert(p1, qt.HasLen, 1)
 
 	b.AssertFileContent("public/sect1/p1/index.html", "Single",
 		"Menu Sect:  "+

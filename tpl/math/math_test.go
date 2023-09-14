@@ -54,7 +54,7 @@ func TestBasicNSArithmetic(t *testing.T) {
 		result, err := test.fn(test.values...)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -81,7 +81,7 @@ func TestAbs(t *testing.T) {
 		result, err := ns.Abs(test.x)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -113,7 +113,7 @@ func TestCeil(t *testing.T) {
 		result, err := ns.Ceil(test.x)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -146,7 +146,7 @@ func TestFloor(t *testing.T) {
 		result, err := ns.Floor(test.x)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -176,7 +176,7 @@ func TestLog(t *testing.T) {
 		result, err := ns.Log(test.a)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -215,7 +215,7 @@ func TestSqrt(t *testing.T) {
 		result, err := ns.Sqrt(test.a)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -266,7 +266,7 @@ func TestMod(t *testing.T) {
 		result, err := ns.Mod(test.a, test.b)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -312,7 +312,7 @@ func TestModBool(t *testing.T) {
 		result, err := ns.ModBool(test.a, test.b)
 
 		if test.expect == nil {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -345,7 +345,7 @@ func TestRound(t *testing.T) {
 		result, err := ns.Round(test.x)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -381,7 +381,7 @@ func TestPow(t *testing.T) {
 		result, err := ns.Pow(test.a, test.b)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -438,7 +438,7 @@ func TestMax(t *testing.T) {
 		result, err := ns.Max(test.values...)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -494,7 +494,7 @@ func TestMin(t *testing.T) {
 		result, err := ns.Min(test.values...)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -523,7 +523,7 @@ func TestSum(t *testing.T) {
 	c.Assert(mustSum([]any{}), qt.Equals, 0.0)
 
 	_, err := ns.Sum()
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 
 }
 
@@ -546,6 +546,6 @@ func TestProduct(t *testing.T) {
 	c.Assert(mustProduct([]string{}), qt.Equals, 0.0)
 
 	_, err := ns.Product()
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 
 }

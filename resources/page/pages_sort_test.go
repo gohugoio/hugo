@@ -139,7 +139,7 @@ func TestLimit(t *testing.T) {
 	c := qt.New(t)
 	p := createSortTestPages(10)
 	firstFive := p.Limit(5)
-	c.Assert(len(firstFive), qt.Equals, 5)
+	c.Assert(firstFive, qt.HasLen, 5)
 	for i := 0; i < 5; i++ {
 		c.Assert(firstFive[i], qt.Equals, p[i])
 	}
@@ -157,7 +157,7 @@ func TestPageSortReverse(t *testing.T) {
 	c.Assert(p2[0].(*testPage).fuzzyWordCount, qt.Equals, 9)
 	c.Assert(p2[9].(*testPage).fuzzyWordCount, qt.Equals, 0)
 	// cached
-	c.Assert(pagesEqual(p2, p1.Reverse()), qt.Equals, true)
+	c.Assert(pagesEqual(p2, p1.Reverse()), qt.IsTrue)
 }
 
 func TestPageSortByParam(t *testing.T) {

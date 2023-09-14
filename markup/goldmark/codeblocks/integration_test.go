@@ -419,7 +419,7 @@ Attributes: {{ .Attributes }}|Type: {{ .Type }}|
 		},
 	).BuildE()
 
-	b.Assert(err, qt.Not(qt.IsNil))
+	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, "p1.md:7:9\": failed to parse Markdown attributes; you may need to quote the values")
 
 }

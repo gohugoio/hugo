@@ -98,7 +98,7 @@ func TestEmbeddedTemplates(t *testing.T) {
 	t.Parallel()
 
 	c := qt.New(t)
-	c.Assert(true, qt.Equals, true)
+	c.Assert(true, qt.IsTrue)
 
 	home := []string{"index.html", `
 GA:

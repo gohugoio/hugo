@@ -119,9 +119,9 @@ func TestUnmarshal(t *testing.T) {
 		}},
 		{testContentResource{key: "r1", content: `1997,Ford,E350,"ac, abs, moon",3000.00
 1999,Chevy,"Venture ""Extended Edition""","",4900.00`, mime: media.Builtin.CSVType}, nil, func(r [][]string) {
-			b.Assert(len(r), qt.Equals, 2)
+			b.Assert(r, qt.HasLen, 2)
 			first := r[0]
-			b.Assert(len(first), qt.Equals, 5)
+			b.Assert(first, qt.HasLen, 5)
 			b.Assert(first[1], qt.Equals, "Ford")
 		}},
 		{testContentResource{key: "r1", content: `a;b;c`, mime: media.Builtin.CSVType}, map[string]any{"delimiter": ";"}, func(r [][]string) {
@@ -160,16 +160,16 @@ a;b;c`, mime: media.Builtin.CSVType}, map[string]any{"DElimiter": ";", "Comment"
 		result, err := ns.Unmarshal(args...)
 
 		if bb, ok := test.expect.(bool); ok && !bb {
-			b.Assert(err, qt.Not(qt.IsNil))
+			b.Assert(err, qt.IsNotNil)
 		} else if fn, ok := test.expect.(func(m map[string]any)); ok {
 			b.Assert(err, qt.IsNil)
 			m, ok := result.(map[string]any)
-			b.Assert(ok, qt.Equals, true)
+			b.Assert(ok, qt.IsTrue)
 			fn(m)
 		} else if fn, ok := test.expect.(func(r [][]string)); ok {
 			b.Assert(err, qt.IsNil)
 			r, ok := result.([][]string)
-			b.Assert(ok, qt.Equals, true)
+			b.Assert(ok, qt.IsTrue)
 			fn(r)
 		} else {
 			b.Assert(err, qt.IsNil)

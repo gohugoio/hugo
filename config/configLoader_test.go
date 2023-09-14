@@ -25,10 +25,10 @@ func TestIsValidConfigFileName(t *testing.T) {
 
 	for _, ext := range ValidConfigFileExtensions {
 		filename := "config." + ext
-		c.Assert(IsValidConfigFilename(filename), qt.Equals, true)
-		c.Assert(IsValidConfigFilename(strings.ToUpper(filename)), qt.Equals, true)
+		c.Assert(IsValidConfigFilename(filename), qt.IsTrue)
+		c.Assert(IsValidConfigFilename(strings.ToUpper(filename)), qt.IsTrue)
 	}
 
-	c.Assert(IsValidConfigFilename(""), qt.Equals, false)
-	c.Assert(IsValidConfigFilename("config.toml.swp"), qt.Equals, false)
+	c.Assert(IsValidConfigFilename(""), qt.IsFalse)
+	c.Assert(IsValidConfigFilename("config.toml.swp"), qt.IsFalse)
 }

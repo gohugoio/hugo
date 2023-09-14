@@ -203,7 +203,7 @@ unsafe = true
 	c.Assert(got, qt.Contains, `<dt>date</dt>`)
 
 	toc, ok := b.(converter.TableOfContentsProvider)
-	c.Assert(ok, qt.Equals, true)
+	c.Assert(ok, qt.IsTrue)
 	tocHTML := toc.TableOfContents().ToHTML(1, 2, false)
 	c.Assert(tocHTML, qt.Contains, "TableOfContents")
 }

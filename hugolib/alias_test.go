@@ -64,7 +64,7 @@ func TestAlias(t *testing.T) {
 		b.WithSimpleConfigFileAndSettings(test.settings).WithContent("blog/page.md", pageWithAlias)
 		b.CreateSites().Build(BuildCfg{})
 
-		c.Assert(len(b.H.Sites), qt.Equals, 1)
+		c.Assert(b.H.Sites, qt.HasLen, 1)
 		c.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 1)
 
 		// the real page
@@ -98,7 +98,7 @@ func TestAliasMultipleOutputFormats(t *testing.T) {
 	// the alias redirectors
 	b.AssertFileContent("public/foo/bar/index.html", "<meta http-equiv=\"refresh\" content=\"0; ")
 	b.AssertFileContent("public/amp/foo/bar/index.html", "<meta http-equiv=\"refresh\" content=\"0; ")
-	c.Assert(b.CheckExists("public/foo/bar/index.json"), qt.Equals, false)
+	c.Assert(b.CheckExists("public/foo/bar/index.json"), qt.IsFalse)
 }
 
 func TestAliasTemplate(t *testing.T) {

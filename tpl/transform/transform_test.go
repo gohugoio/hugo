@@ -48,7 +48,7 @@ func TestEmojify(t *testing.T) {
 		result, err := ns.Emojify(test.s)
 
 		if bb, ok := test.expect.(bool); ok && !bb {
-			b.Assert(err, qt.Not(qt.IsNil))
+			b.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -83,7 +83,7 @@ func TestHighlight(t *testing.T) {
 		result, err := ns.Highlight(test.s, test.lang, test.opts)
 
 		if bb, ok := test.expect.(bool); ok && !bb {
-			b.Assert(err, qt.Not(qt.IsNil))
+			b.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -98,8 +98,8 @@ func TestCanHighlight(t *testing.T) {
 	c := qt.New(t)
 	ns := &transform.Namespace{}
 
-	c.Assert(ns.CanHighlight("go"), qt.Equals, true)
-	c.Assert(ns.CanHighlight("foo"), qt.Equals, false)
+	c.Assert(ns.CanHighlight("go"), qt.IsTrue)
+	c.Assert(ns.CanHighlight("foo"), qt.IsFalse)
 }
 
 func TestHTMLEscape(t *testing.T) {
@@ -123,7 +123,7 @@ func TestHTMLEscape(t *testing.T) {
 		result, err := ns.HTMLEscape(test.s)
 
 		if bb, ok := test.expect.(bool); ok && !bb {
-			b.Assert(err, qt.Not(qt.IsNil))
+			b.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -153,7 +153,7 @@ func TestHTMLUnescape(t *testing.T) {
 		result, err := ns.HTMLUnescape(test.s)
 
 		if bb, ok := test.expect.(bool); ok && !bb {
-			b.Assert(err, qt.Not(qt.IsNil))
+			b.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -182,7 +182,7 @@ func TestMarkdownify(t *testing.T) {
 		result, err := ns.Markdownify(context.Background(), test.s)
 
 		if bb, ok := test.expect.(bool); ok && !bb {
-			b.Assert(err, qt.Not(qt.IsNil))
+			b.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -239,7 +239,7 @@ func TestPlainify(t *testing.T) {
 		result, err := ns.Plainify(test.s)
 
 		if bb, ok := test.expect.(bool); ok && !bb {
-			b.Assert(err, qt.Not(qt.IsNil))
+			b.Assert(err, qt.IsNotNil)
 			continue
 		}
 

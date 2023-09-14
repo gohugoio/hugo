@@ -56,7 +56,7 @@ func TestPagesCapture(t *testing.T) {
 		coll := newPagesCollector(sourceSpec, nil, loggers.NewDefault(), nil, proc)
 		c.Assert(coll.Collect(), qt.IsNil)
 		// 2 bundles, 3 pages.
-		c.Assert(len(proc.items), qt.Equals, 5)
+		c.Assert(proc.items, qt.HasLen, 5)
 	})
 
 }

@@ -46,6 +46,6 @@ func TestFilterUnwantedMounts(t *testing.T) {
 	filtered := filterUnwantedMounts(mounts)
 
 	c := qt.New(t)
-	c.Assert(len(filtered), qt.Equals, 2)
+	c.Assert(filtered, qt.HasLen, 2)
 	c.Assert(filtered, qt.DeepEquals, []Mount{{Source: "a", Target: "b", Lang: "en"}, {Source: "b", Target: "c", Lang: "en"}})
 }

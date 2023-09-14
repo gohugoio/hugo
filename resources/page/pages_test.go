@@ -28,16 +28,16 @@ func TestProbablyEq(t *testing.T) {
 	t.Run("Pages", func(t *testing.T) {
 		c := qt.New(t)
 
-		c.Assert(pages12.ProbablyEq(pages12), qt.Equals, true)
-		c.Assert(pages123.ProbablyEq(pages12), qt.Equals, false)
-		c.Assert(pages12.ProbablyEq(pages21), qt.Equals, false)
+		c.Assert(pages12.ProbablyEq(pages12), qt.IsTrue)
+		c.Assert(pages123.ProbablyEq(pages12), qt.IsFalse)
+		c.Assert(pages12.ProbablyEq(pages21), qt.IsFalse)
 	})
 
 	t.Run("PageGroup", func(t *testing.T) {
 		c := qt.New(t)
 
-		c.Assert(PageGroup{Key: "a", Pages: pages12}.ProbablyEq(PageGroup{Key: "a", Pages: pages12}), qt.Equals, true)
-		c.Assert(PageGroup{Key: "a", Pages: pages12}.ProbablyEq(PageGroup{Key: "b", Pages: pages12}), qt.Equals, false)
+		c.Assert(PageGroup{Key: "a", Pages: pages12}.ProbablyEq(PageGroup{Key: "a", Pages: pages12}), qt.IsTrue)
+		c.Assert(PageGroup{Key: "a", Pages: pages12}.ProbablyEq(PageGroup{Key: "b", Pages: pages12}), qt.IsFalse)
 	})
 
 	t.Run("PagesGroup", func(t *testing.T) {
@@ -45,8 +45,8 @@ func TestProbablyEq(t *testing.T) {
 
 		pg1, pg2 := PageGroup{Key: "a", Pages: pages12}, PageGroup{Key: "b", Pages: pages123}
 
-		c.Assert(PagesGroup{pg1, pg2}.ProbablyEq(PagesGroup{pg1, pg2}), qt.Equals, true)
-		c.Assert(PagesGroup{pg1, pg2}.ProbablyEq(PagesGroup{pg2, pg1}), qt.Equals, false)
+		c.Assert(PagesGroup{pg1, pg2}.ProbablyEq(PagesGroup{pg1, pg2}), qt.IsTrue)
+		c.Assert(PagesGroup{pg1, pg2}.ProbablyEq(PagesGroup{pg2, pg1}), qt.IsFalse)
 	})
 }
 
@@ -68,5 +68,5 @@ func TestToPages(t *testing.T) {
 	c.Assert(mustToPages([]any{p1, p2}), eq, pages12)
 
 	_, err := ToPages("not a page")
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 }

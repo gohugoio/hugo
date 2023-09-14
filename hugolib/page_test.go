@@ -411,7 +411,7 @@ allow = ['^python$', '^rst2html.*', '^asciidoctor$']
 			assertFunc(t, e.ext, s.RegularPages())
 
 			home := s.Home()
-			b.Assert(home, qt.Not(qt.IsNil))
+			b.Assert(home, qt.IsNotNil)
 			b.Assert(home.File().Path(), qt.Equals, homePath)
 			b.Assert(content(home), qt.Contains, "Home Page Content")
 		})
@@ -465,7 +465,7 @@ categories: ["cool stuff"]
 
 	b.CreateSites().Build(BuildCfg{})
 
-	b.Assert(len(b.H.Sites), qt.Equals, 1)
+	b.Assert(b.H.Sites, qt.HasLen, 1)
 	s := b.H.Sites[0]
 
 	checkDate := func(t time.Time, msg string) {
@@ -525,7 +525,7 @@ date: 2012-01-12
 
 	b.CreateSites().Build(BuildCfg{})
 
-	b.Assert(len(b.H.Sites), qt.Equals, 1)
+	b.Assert(b.H.Sites, qt.HasLen, 1)
 	s := b.H.Sites[0]
 
 	checkDate := func(p page.Page, year int) {
@@ -535,7 +535,7 @@ date: 2012-01-12
 
 	checkDate(s.getPage("/"), 2018)
 	checkDate(s.getPage("/no-index"), 2017)
-	b.Assert(s.getPage("/with-index-no-date").Date().IsZero(), qt.Equals, true)
+	b.Assert(s.getPage("/with-index-no-date").Date().IsZero(), qt.IsTrue)
 	checkDate(s.getPage("/with-index-date"), 2018)
 
 	b.Assert(s.Site().LastChange().Year(), qt.Equals, 2018)
@@ -549,7 +549,7 @@ func TestCreateNewPage(t *testing.T) {
 
 		// issue #2290: Path is relative to the content dir and will continue to be so.
 		c.Assert(p.File().Path(), qt.Equals, fmt.Sprintf("p0.%s", ext))
-		c.Assert(p.IsHome(), qt.Equals, false)
+		c.Assert(p.IsHome(), qt.IsFalse)
 		checkPageTitle(t, p, "Simple")
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Simple Page</p>\n"))
 		checkPageSummary(t, p, "Simple Page")
@@ -627,9 +627,9 @@ Simple Page With Some Date`
 
 	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
-		c.Assert(len(pages) > 0, qt.Equals, true)
+		c.Assert(len(pages) > 0, qt.IsTrue)
 		for _, p := range pages {
-			c.Assert(hasDate(p), qt.Equals, true)
+			c.Assert(hasDate(p), qt.IsTrue)
 		}
 	}
 
@@ -1046,8 +1046,8 @@ Content
 
 			switch strings.ToLower(dateHandler) {
 			case ":filename":
-				c.Assert(noSlug.Date().IsZero(), qt.Equals, false)
-				c.Assert(slug.Date().IsZero(), qt.Equals, false)
+				c.Assert(noSlug.Date().IsZero(), qt.IsFalse)
+				c.Assert(slug.Date().IsZero(), qt.IsFalse)
 				c.Assert(noSlug.Date().Year(), qt.Equals, 2012)
 				c.Assert(slug.Date().Year(), qt.Equals, 2012)
 				c.Assert(noSlug.Slug(), qt.Equals, "noslug")
@@ -1206,7 +1206,7 @@ func TestTranslationKey(t *testing.T) {
 	c.Assert(len(s.RegularPages()), qt.Equals, 2)
 
 	home := s.Home()
-	c.Assert(home, qt.Not(qt.IsNil))
+	c.Assert(home, qt.IsNotNil)
 	c.Assert(home.TranslationKey(), qt.Equals, "home")
 	c.Assert(s.RegularPages()[0].TranslationKey(), qt.Equals, "page/k1")
 	p2 := s.RegularPages()[1]
@@ -1727,7 +1727,7 @@ Summary: In Chinese, 好 means good.
 
 	b.CreateSites().Build(BuildCfg{})
 
-	c.Assert(len(b.H.Sites), qt.Equals, 1)
+	c.Assert(b.H.Sites, qt.HasLen, 1)
 	c.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 6)
 
 	b.AssertFileContent("public/p1/index.html", "WordCount: 510\nFuzzyWordCount: 600\nReadingTime: 3\nLen Plain: 2550\nLen PlainWords: 510\nTruncated: false\nLen Summary: 2549\nLen Content: 2557")

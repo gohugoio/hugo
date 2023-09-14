@@ -580,7 +580,7 @@ title: P1
 	s := b.H.Sites[0]
 
 	templ, found := s.lookupTemplate("index.html")
-	b.Assert(found, qt.Equals, true)
+	b.Assert(found, qt.IsTrue)
 
 	idset := make(map[identity.Identity]bool)
 	collectIdentities(idset, templ.(tpl.Info))

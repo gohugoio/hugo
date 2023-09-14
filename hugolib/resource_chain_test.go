@@ -354,7 +354,7 @@ T6: {{ $bundle1.Permalink }}
 			b.AssertFileContent("public/index.html", `T5 RelPermalink: /sass/styles3.css|`)
 			b.AssertFileContent("public/index.html", `T6: http://example.com/styles/bundle1.css`)
 
-			c.Assert(b.CheckExists("public/styles/templ.min.css"), qt.Equals, false)
+			c.Assert(b.CheckExists("public/styles/templ.min.css"), qt.IsFalse)
 			b.AssertFileContent("public/styles/bundle1.css", `.home{color:blue}body{color:#333}`)
 		}},
 
@@ -543,11 +543,11 @@ Publish 2: {{ $cssPublish2.Permalink }}
 				"Publish 1: body{color:blue} /external1.min.css",
 				"Publish 2: http://example.com/external2.min.css",
 			)
-			b.Assert(b.CheckExists("public/external2.css"), qt.Equals, false)
-			b.Assert(b.CheckExists("public/external1.css"), qt.Equals, false)
-			b.Assert(b.CheckExists("public/external2.min.css"), qt.Equals, true)
-			b.Assert(b.CheckExists("public/external1.min.css"), qt.Equals, true)
-			b.Assert(b.CheckExists("public/inline.min.css"), qt.Equals, false)
+			b.Assert(b.CheckExists("public/external2.css"), qt.IsFalse)
+			b.Assert(b.CheckExists("public/external1.css"), qt.IsFalse)
+			b.Assert(b.CheckExists("public/external2.min.css"), qt.IsTrue)
+			b.Assert(b.CheckExists("public/external1.min.css"), qt.IsTrue)
+			b.Assert(b.CheckExists("public/inline.min.css"), qt.IsFalse)
 		}},
 
 		{"unmarshal", func() bool { return true }, func(b *sitesBuilder) {
@@ -690,8 +690,8 @@ func TestMultiSiteResource(t *testing.T) {
 
 	// This build is multilingual, but not multihost. There should be only one pipes.txt
 	b.AssertFileContent("public/fr/index.html", "French Home Page", "String Resource: /blog/text/pipes.txt")
-	c.Assert(b.CheckExists("public/fr/text/pipes.txt"), qt.Equals, false)
-	c.Assert(b.CheckExists("public/en/text/pipes.txt"), qt.Equals, false)
+	c.Assert(b.CheckExists("public/fr/text/pipes.txt"), qt.IsFalse)
+	c.Assert(b.CheckExists("public/en/text/pipes.txt"), qt.IsFalse)
 	b.AssertFileContent("public/en/index.html", "Default Home Page", "String Resource: /blog/text/pipes.txt")
 	b.AssertFileContent("public/text/pipes.txt", "Hugo Pipes")
 }

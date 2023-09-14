@@ -399,16 +399,16 @@ func TestCase(t *testing.T) {
 	c := qt.New(t)
 	n := New(time.UTC, false)
 
-	c.Assert(n.Eq("az", "az"), qt.Equals, true)
-	c.Assert(n.Eq("az", stringType("az")), qt.Equals, true)
+	c.Assert(n.Eq("az", "az"), qt.IsTrue)
+	c.Assert(n.Eq("az", stringType("az")), qt.IsTrue)
 }
 
 func TestStringType(t *testing.T) {
 	c := qt.New(t)
 	n := New(time.UTC, true)
 
-	c.Assert(n.Lt("az", "Za"), qt.Equals, true)
-	c.Assert(n.Gt("ab", "Ab"), qt.Equals, true)
+	c.Assert(n.Lt("az", "Za"), qt.IsTrue)
+	c.Assert(n.Gt("ab", "Ab"), qt.IsTrue)
 }
 
 func TestTimeUnix(t *testing.T) {

@@ -141,12 +141,12 @@ title: Headless Local Lists Sub
 		b.Build(BuildCfg{})
 		s := b.H.Sites[0]
 		b.Assert(getPage(b, "/sect/page.md"), qt.IsNil)
-		b.Assert(b.CheckExists("public/sect/page/index.html"), qt.Equals, false)
+		b.Assert(b.CheckExists("public/sect/page/index.html"), qt.IsFalse)
 		b.Assert(getPageInSitePages(b, "/sect/page.md"), qt.IsNil)
 		b.Assert(getPageInPagePages(getPage(b, "/"), "/sect/page.md"), qt.IsNil)
 
 		// Also check the side effects
-		b.Assert(b.CheckExists("public/categories/mycat/index.html"), qt.Equals, false)
+		b.Assert(b.CheckExists("public/categories/mycat/index.html"), qt.IsFalse)
 		b.Assert(len(s.Taxonomies()["categories"]), qt.Equals, 0)
 	})
 
@@ -155,10 +155,10 @@ title: Headless Local Lists Sub
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
 		s := b.H.Sites[0]
-		b.Assert(b.CheckExists("public/categories/index.html"), qt.Equals, true)
-		b.Assert(b.CheckExists("public/categories/mycat/index.html"), qt.Equals, false)
+		b.Assert(b.CheckExists("public/categories/index.html"), qt.IsTrue)
+		b.Assert(b.CheckExists("public/categories/mycat/index.html"), qt.IsFalse)
 		b.Assert(len(s.Taxonomies()["categories"]), qt.Equals, 0)
-		b.Assert(getPage(b, "/categories"), qt.Not(qt.IsNil))
+		b.Assert(getPage(b, "/categories"), qt.IsNotNil)
 		b.Assert(getPage(b, "/categories/mycat"), qt.IsNil)
 	})
 
@@ -167,12 +167,12 @@ title: Headless Local Lists Sub
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
 		s := b.H.Sites[0]
-		b.Assert(b.CheckExists("public/categories/mycat/index.html"), qt.Equals, true)
-		b.Assert(b.CheckExists("public/categories/index.html"), qt.Equals, false)
+		b.Assert(b.CheckExists("public/categories/mycat/index.html"), qt.IsTrue)
+		b.Assert(b.CheckExists("public/categories/index.html"), qt.IsFalse)
 		b.Assert(len(s.Taxonomies()["categories"]), qt.Equals, 1)
-		b.Assert(getPage(b, "/categories/mycat"), qt.Not(qt.IsNil))
+		b.Assert(getPage(b, "/categories/mycat"), qt.IsNotNil)
 		categories := getPage(b, "/categories")
-		b.Assert(categories, qt.Not(qt.IsNil))
+		b.Assert(categories, qt.IsNotNil)
 		b.Assert(categories.RelPermalink(), qt.Equals, "")
 		b.Assert(getPageInSitePages(b, "/categories"), qt.IsNil)
 		b.Assert(getPageInPagePages(getPage(b, "/"), "/categories"), qt.IsNil)
@@ -182,31 +182,31 @@ title: Headless Local Lists Sub
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
-		b.Assert(b.CheckExists("public/index.html"), qt.Equals, false)
+		b.Assert(b.CheckExists("public/index.html"), qt.IsFalse)
 		home := getPage(b, "/")
-		b.Assert(home, qt.Not(qt.IsNil))
+		b.Assert(home, qt.IsNotNil)
 		b.Assert(home.RelPermalink(), qt.Equals, "")
 		b.Assert(getPageInSitePages(b, "/"), qt.IsNil)
 		b.Assert(getPageInPagePages(home, "/"), qt.IsNil)
-		b.Assert(getPage(b, "/sect/page.md"), qt.Not(qt.IsNil))
+		b.Assert(getPage(b, "/sect/page.md"), qt.IsNotNil)
 	})
 
 	disableKind = kinds.KindSection
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
-		b.Assert(b.CheckExists("public/sect/index.html"), qt.Equals, false)
+		b.Assert(b.CheckExists("public/sect/index.html"), qt.IsFalse)
 		sect := getPage(b, "/sect")
-		b.Assert(sect, qt.Not(qt.IsNil))
+		b.Assert(sect, qt.IsNotNil)
 		b.Assert(sect.RelPermalink(), qt.Equals, "")
 		b.Assert(getPageInSitePages(b, "/sect"), qt.IsNil)
 		home := getPage(b, "/")
 		b.Assert(getPageInPagePages(home, "/sect"), qt.IsNil)
 		b.Assert(home.OutputFormats(), qt.HasLen, 2)
 		page := getPage(b, "/sect/page.md")
-		b.Assert(page, qt.Not(qt.IsNil))
+		b.Assert(page, qt.IsNotNil)
 		b.Assert(page.CurrentSection(), qt.Equals, sect)
-		b.Assert(getPageInPagePages(sect, "/sect/page.md"), qt.Not(qt.IsNil))
+		b.Assert(getPageInPagePages(sect, "/sect/page.md"), qt.IsNotNil)
 		b.AssertFileContent("public/sitemap.xml", "sitemap")
 		b.AssertFileContent("public/index.xml", "rss")
 	})
@@ -215,7 +215,7 @@ title: Headless Local Lists Sub
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
-		b.Assert(b.CheckExists("public/index.xml"), qt.Equals, false)
+		b.Assert(b.CheckExists("public/index.xml"), qt.IsFalse)
 		home := getPage(b, "/")
 		b.Assert(home.OutputFormats(), qt.HasLen, 1)
 	})
@@ -224,14 +224,14 @@ title: Headless Local Lists Sub
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
-		b.Assert(b.CheckExists("public/sitemap.xml"), qt.Equals, false)
+		b.Assert(b.CheckExists("public/sitemap.xml"), qt.IsFalse)
 	})
 
 	disableKind = kinds.Kind404
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
-		b.Assert(b.CheckExists("public/404.html"), qt.Equals, false)
+		b.Assert(b.CheckExists("public/404.html"), qt.IsFalse)
 	})
 
 	disableKind = kinds.KindRobotsTXT
@@ -239,16 +239,16 @@ title: Headless Local Lists Sub
 		b := newSitesBuilder(c, disableKind)
 		b.WithTemplatesAdded("robots.txt", "myrobots")
 		b.Build(BuildCfg{})
-		b.Assert(b.CheckExists("public/robots.txt"), qt.Equals, false)
+		b.Assert(b.CheckExists("public/robots.txt"), qt.IsFalse)
 	})
 
 	c.Run("Headless bundle", func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
-		b.Assert(b.CheckExists("public/sect/headlessbundle/index.html"), qt.Equals, false)
-		b.Assert(b.CheckExists("public/sect/headlessbundle/data.json"), qt.Equals, true)
+		b.Assert(b.CheckExists("public/sect/headlessbundle/index.html"), qt.IsFalse)
+		b.Assert(b.CheckExists("public/sect/headlessbundle/data.json"), qt.IsTrue)
 		bundle := getPage(b, "/sect/headlessbundle/index.md")
-		b.Assert(bundle, qt.Not(qt.IsNil))
+		b.Assert(bundle, qt.IsNotNil)
 		b.Assert(bundle.RelPermalink(), qt.Equals, "")
 		resource := bundle.Resources()[0]
 		b.Assert(resource.RelPermalink(), qt.Equals, "/blog/sect/headlessbundle/data.json")
@@ -260,9 +260,9 @@ title: Headless Local Lists Sub
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
 		ref := "/sect/no-list.md"
-		b.Assert(b.CheckExists("public/sect/no-list/index.html"), qt.Equals, true)
+		b.Assert(b.CheckExists("public/sect/no-list/index.html"), qt.IsTrue)
 		p := getPage(b, ref)
-		b.Assert(p, qt.Not(qt.IsNil))
+		b.Assert(p, qt.IsNotNil)
 		b.Assert(p.RelPermalink(), qt.Equals, "/blog/sect/no-list/")
 		b.Assert(getPageInSitePages(b, ref), qt.IsNil)
 		sect := getPage(b, "/sect")
@@ -274,7 +274,7 @@ title: Headless Local Lists Sub
 		b.Build(BuildCfg{})
 		ref := "/headless-local"
 		sect := getPage(b, ref)
-		b.Assert(sect, qt.Not(qt.IsNil))
+		b.Assert(sect, qt.IsNotNil)
 		b.Assert(getPageInSitePages(b, ref), qt.IsNil)
 
 		b.Assert(getPageInSitePages(b, "/headless-local/_index.md"), qt.IsNil)
@@ -282,45 +282,45 @@ title: Headless Local Lists Sub
 
 		localPageRef := ref + "/headless-local-page.md"
 
-		b.Assert(getPageInPagePages(sect, localPageRef, sect.RegularPages()), qt.Not(qt.IsNil))
-		b.Assert(getPageInPagePages(sect, localPageRef, sect.RegularPagesRecursive()), qt.Not(qt.IsNil))
-		b.Assert(getPageInPagePages(sect, localPageRef, sect.Pages()), qt.Not(qt.IsNil))
+		b.Assert(getPageInPagePages(sect, localPageRef, sect.RegularPages()), qt.IsNotNil)
+		b.Assert(getPageInPagePages(sect, localPageRef, sect.RegularPagesRecursive()), qt.IsNotNil)
+		b.Assert(getPageInPagePages(sect, localPageRef, sect.Pages()), qt.IsNotNil)
 
 		ref = "/headless-local/sub"
 
 		sect = getPage(b, ref)
-		b.Assert(sect, qt.Not(qt.IsNil))
+		b.Assert(sect, qt.IsNotNil)
 
 		localPageRef = ref + "/headless-local-sub-page.md"
-		b.Assert(getPageInPagePages(sect, localPageRef), qt.Not(qt.IsNil))
+		b.Assert(getPageInPagePages(sect, localPageRef), qt.IsNotNil)
 	})
 
 	c.Run("Build config, no render", func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
 		ref := "/sect/no-render.md"
-		b.Assert(b.CheckExists("public/sect/no-render/index.html"), qt.Equals, false)
+		b.Assert(b.CheckExists("public/sect/no-render/index.html"), qt.IsFalse)
 		p := getPage(b, ref)
-		b.Assert(p, qt.Not(qt.IsNil))
+		b.Assert(p, qt.IsNotNil)
 		b.Assert(p.RelPermalink(), qt.Equals, "")
 		b.Assert(p.OutputFormats(), qt.HasLen, 0)
-		b.Assert(getPageInSitePages(b, ref), qt.Not(qt.IsNil))
+		b.Assert(getPageInSitePages(b, ref), qt.IsNotNil)
 		sect := getPage(b, "/sect")
-		b.Assert(getPageInPagePages(sect, ref), qt.Not(qt.IsNil))
+		b.Assert(getPageInPagePages(sect, ref), qt.IsNotNil)
 	})
 
 	c.Run("Build config, no render link", func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
 		ref := "/sect/no-render-link.md"
-		b.Assert(b.CheckExists("public/sect/no-render/index.html"), qt.Equals, false)
+		b.Assert(b.CheckExists("public/sect/no-render/index.html"), qt.IsFalse)
 		p := getPage(b, ref)
-		b.Assert(p, qt.Not(qt.IsNil))
+		b.Assert(p, qt.IsNotNil)
 		b.Assert(p.RelPermalink(), qt.Equals, "/blog/sect/no-render-link/")
 		b.Assert(p.OutputFormats(), qt.HasLen, 1)
-		b.Assert(getPageInSitePages(b, ref), qt.Not(qt.IsNil))
+		b.Assert(getPageInSitePages(b, ref), qt.IsNotNil)
 		sect := getPage(b, "/sect")
-		b.Assert(getPageInPagePages(sect, ref), qt.Not(qt.IsNil))
+		b.Assert(getPageInPagePages(sect, ref), qt.IsNotNil)
 
 		// https://github.com/gohugoio/hugo/issues/7832
 		// It should still render any aliases.
@@ -330,10 +330,10 @@ title: Headless Local Lists Sub
 	c.Run("Build config, no publish resources", func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
-		b.Assert(b.CheckExists("public/sect/no-publishresources/index.html"), qt.Equals, true)
-		b.Assert(b.CheckExists("public/sect/no-publishresources/data.json"), qt.Equals, false)
+		b.Assert(b.CheckExists("public/sect/no-publishresources/index.html"), qt.IsTrue)
+		b.Assert(b.CheckExists("public/sect/no-publishresources/data.json"), qt.IsFalse)
 		bundle := getPage(b, "/sect/no-publishresources/index.md")
-		b.Assert(bundle, qt.Not(qt.IsNil))
+		b.Assert(bundle, qt.IsNotNil)
 		b.Assert(bundle.RelPermalink(), qt.Equals, "/blog/sect/no-publishresources/")
 		b.Assert(bundle.Resources(), qt.HasLen, 1)
 		resource := bundle.Resources()[0]
@@ -352,7 +352,7 @@ home = [ "HTML", "RSS" ]
 	// The config above is a little conflicting, but it exists in the real world.
 	// In Hugo 0.65 we consolidated the code paths and made RSS a pure output format,
 	// but we should make sure to not break existing sites.
-	b.Assert(b.CheckExists("public/index.xml"), qt.Equals, false)
+	b.Assert(b.CheckExists("public/index.xml"), qt.IsFalse)
 }
 
 func TestBundleNoPublishResources(t *testing.T) {
@@ -380,7 +380,7 @@ _build:
 	b.Build(BuildCfg{})
 	b.AssertFileContent("public/index.html", `Data1: /section/bundle-false/data1.json`)
 	b.AssertFileContent("public/section/bundle-false/data1.json", `Some data1`)
-	b.Assert(b.CheckExists("public/section/bundle-false/data2.json"), qt.Equals, false)
+	b.Assert(b.CheckExists("public/section/bundle-false/data2.json"), qt.IsFalse)
 	b.AssertFileContent("public/section/bundle-true/data3.json", `Some data 3`)
 }
 
@@ -413,6 +413,6 @@ Page: MyPage|RelPermalink: |Outputs: 0
 Section: MySection|RelPermalink: |Outputs: 0
 `)
 
-	b.Assert(b.CheckExists("public/sect/no-render/index.html"), qt.Equals, false)
-	b.Assert(b.CheckExists("public/sect-no-render/index.html"), qt.Equals, false)
+	b.Assert(b.CheckExists("public/sect/no-render/index.html"), qt.IsFalse)
+	b.Assert(b.CheckExists("public/sect-no-render/index.html"), qt.IsFalse)
 }

@@ -84,17 +84,17 @@ dir = ":cacheDir/c"
 		c.Assert(err, qt.IsNil)
 
 		cache := caches.Get("GetJSON")
-		c.Assert(cache, qt.Not(qt.IsNil))
+		c.Assert(cache, qt.IsNotNil)
 
 		bfs, ok := cache.Fs.(*afero.BasePathFs)
-		c.Assert(ok, qt.Equals, true)
+		c.Assert(ok, qt.IsTrue)
 		filename, err := bfs.RealPath("key")
 		c.Assert(err, qt.IsNil)
 
 		cache = caches.Get("Images")
-		c.Assert(cache, qt.Not(qt.IsNil))
+		c.Assert(cache, qt.IsNotNil)
 		bfs, ok = cache.Fs.(*afero.BasePathFs)
-		c.Assert(ok, qt.Equals, true)
+		c.Assert(ok, qt.IsTrue)
 		filename, _ = bfs.RealPath("key")
 		c.Assert(filename, qt.Equals, filepath.FromSlash("_gen/images/key"))
 
@@ -118,7 +118,7 @@ dir = ":cacheDir/c"
 			for i := 0; i < 2; i++ {
 				info, r, err := ca.GetOrCreate("a", rf("abc"))
 				c.Assert(err, qt.IsNil)
-				c.Assert(r, qt.Not(qt.IsNil))
+				c.Assert(r, qt.IsNotNil)
 				c.Assert(info.Name, qt.Equals, "a")
 				b, _ := io.ReadAll(r)
 				r.Close()
@@ -126,7 +126,7 @@ dir = ":cacheDir/c"
 
 				info, b, err = ca.GetOrCreateBytes("b", bf)
 				c.Assert(err, qt.IsNil)
-				c.Assert(r, qt.Not(qt.IsNil))
+				c.Assert(r, qt.IsNotNil)
 				c.Assert(info.Name, qt.Equals, "b")
 				c.Assert(string(b), qt.Equals, "bcd")
 
@@ -142,7 +142,7 @@ dir = ":cacheDir/c"
 			}
 		}
 
-		c.Assert(caches.Get("getJSON"), qt.Not(qt.IsNil))
+		c.Assert(caches.Get("getJSON"), qt.IsNotNil)
 
 		info, w, err := caches.ImageCache().WriteCloser("mykey")
 		c.Assert(err, qt.IsNil)
@@ -153,7 +153,7 @@ dir = ":cacheDir/c"
 
 		info, r, err := caches.ImageCache().Get("mykey")
 		c.Assert(err, qt.IsNil)
-		c.Assert(r, qt.Not(qt.IsNil))
+		c.Assert(r, qt.IsNotNil)
 		c.Assert(info.Name, qt.Equals, "mykey")
 		b, _ := io.ReadAll(r)
 		r.Close()
@@ -209,7 +209,7 @@ dir = "/cache/c"
 			defer wg.Done()
 			for j := 0; j < 20; j++ {
 				ca := caches.Get(cacheName)
-				c.Assert(ca, qt.Not(qt.IsNil))
+				c.Assert(ca, qt.IsNotNil)
 				filename, data := filenameData(i)
 				_, r, err := ca.GetOrCreate(filename, func() (io.ReadCloser, error) {
 					return hugio.ToReadCloser(strings.NewReader(data)), nil

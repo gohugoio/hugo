@@ -40,7 +40,7 @@ func TestCSS(t *testing.T) {
 		result, err := ns.CSS(test.a)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -67,7 +67,7 @@ func TestHTML(t *testing.T) {
 		result, err := ns.HTML(test.a)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -93,7 +93,7 @@ func TestHTMLAttr(t *testing.T) {
 		result, err := ns.HTMLAttr(test.a)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -120,7 +120,7 @@ func TestJS(t *testing.T) {
 		result, err := ns.JS(test.a)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -147,7 +147,7 @@ func TestJSStr(t *testing.T) {
 		result, err := ns.JSStr(test.a)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -174,7 +174,7 @@ func TestURL(t *testing.T) {
 		result, err := ns.URL(test.a)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -201,7 +201,7 @@ func TestSanitizeURL(t *testing.T) {
 		result, err := ns.SanitizeURL(test.a)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 

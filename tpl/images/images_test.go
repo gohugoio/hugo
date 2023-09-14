@@ -94,7 +94,7 @@ func TestNSConfig(t *testing.T) {
 		// check for expected errors early to avoid writing files
 		if b, ok := test.expect.(bool); ok && !b {
 			_, err := ns.Config(test.path)
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 

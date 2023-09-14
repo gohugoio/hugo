@@ -62,7 +62,7 @@ func TestAfter(t *testing.T) {
 		result, err := ns.After(test.index, test.seq)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			c.Assert(err, qt.IsNotNil, errMsg)
 			continue
 		}
 
@@ -115,7 +115,7 @@ func TestGroup(t *testing.T) {
 		result, err := ns.Group(test.key, test.items)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			c.Assert(err, qt.IsNotNil, errMsg)
 			continue
 		}
 
@@ -206,7 +206,7 @@ func TestDictionary(t *testing.T) {
 			result, err := ns.Dictionary(test.values...)
 
 			if b, ok := test.expect.(bool); ok && !b {
-				c.Assert(err, qt.Not(qt.IsNil), errMsg)
+				c.Assert(err, qt.IsNotNil, errMsg)
 				return
 			}
 
@@ -231,7 +231,7 @@ func TestReverse(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	c.Assert(reversed, qt.IsNil)
 	_, err = ns.Reverse(43)
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 }
 
 func TestEchoParam(t *testing.T) {
@@ -295,7 +295,7 @@ func TestFirst(t *testing.T) {
 		result, err := ns.First(test.limit, test.seq)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			c.Assert(err, qt.IsNotNil, errMsg)
 			continue
 		}
 
@@ -459,7 +459,7 @@ func TestIntersect(t *testing.T) {
 		result, err := ns.Intersect(test.l1, test.l2)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			c.Assert(err, qt.IsNotNil, errMsg)
 			continue
 		}
 
@@ -537,7 +537,7 @@ func TestLast(t *testing.T) {
 		result, err := ns.Last(test.limit, test.seq)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			c.Assert(err, qt.IsNotNil, errMsg)
 			continue
 		}
 
@@ -573,7 +573,7 @@ func TestQuerify(t *testing.T) {
 		result, err := ns.Querify(test.params...)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			c.Assert(err, qt.IsNotNil, errMsg)
 			continue
 		}
 
@@ -643,7 +643,7 @@ func TestSeq(t *testing.T) {
 		result, err := ns.Seq(test.args...)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			c.Assert(err, qt.IsNotNil, errMsg)
 			continue
 		}
 
@@ -679,7 +679,7 @@ func TestShuffle(t *testing.T) {
 		result, err := ns.Shuffle(test.seq)
 
 		if !test.success {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			c.Assert(err, qt.IsNotNil, errMsg)
 			continue
 		}
 
@@ -718,7 +718,7 @@ func TestShuffleRandomising(t *testing.T) {
 			allSame = allSame && (resultv.Index(i).Interface() == v)
 		}
 
-		c.Assert(allSame, qt.Equals, false)
+		c.Assert(allSame, qt.IsFalse)
 	}
 }
 
@@ -825,7 +825,7 @@ func TestUnion(t *testing.T) {
 
 		result, err := ns.Union(test.l1, test.l2)
 		if test.isErr {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			c.Assert(err, qt.IsNotNil, errMsg)
 			continue
 		}
 
@@ -876,7 +876,7 @@ func TestUniq(t *testing.T) {
 
 		result, err := ns.Uniq(test.l)
 		if test.isErr {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			c.Assert(err, qt.IsNotNil, errMsg)
 			continue
 		}
 

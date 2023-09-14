@@ -85,7 +85,7 @@ func TestImageTransformBasic(t *testing.T) {
 
 	assertWidthHeight := func(img images.ImageResource, w, h int) {
 		c.Helper()
-		c.Assert(img, qt.Not(qt.IsNil))
+		c.Assert(img, qt.IsNotNil)
 		c.Assert(img.Width(), qt.Equals, w)
 		c.Assert(img.Height(), qt.Equals, h)
 	}
@@ -100,7 +100,7 @@ func TestImageTransformBasic(t *testing.T) {
 
 	resized, err := image.Resize("300x200")
 	c.Assert(err, qt.IsNil)
-	c.Assert(image != resized, qt.Equals, true)
+	c.Assert(image != resized, qt.IsTrue)
 	assertWidthHeight(resized, 300, 200)
 	assertWidthHeight(image, 900, 562)
 
@@ -173,7 +173,7 @@ func TestImageTransformFormat(t *testing.T) {
 
 	assertExtWidthHeight := func(img images.ImageResource, ext string, w, h int) {
 		c.Helper()
-		c.Assert(img, qt.Not(qt.IsNil))
+		c.Assert(img, qt.IsNotNil)
 		c.Assert(paths.Ext(img.RelPermalink()), qt.Equals, ext)
 		c.Assert(img.Width(), qt.Equals, w)
 		c.Assert(img.Height(), qt.Equals, h)
@@ -231,7 +231,7 @@ func TestImagePermalinkPublishOrder(t *testing.T) {
 			}
 
 			original := fetchImageForSpec(spec, c, "sunset.jpg")
-			c.Assert(original, qt.Not(qt.IsNil))
+			c.Assert(original, qt.IsNotNil)
 
 			if checkOriginalFirst {
 				check2(original)
@@ -255,16 +255,16 @@ func TestImageBugs(t *testing.T) {
 	// Issue #4261
 	c.Run("Transform long filename", func(c *qt.C) {
 		_, image := fetchImage(c, "1234567890qwertyuiopasdfghjklzxcvbnm5to6eeeeee7via8eleph.jpg")
-		c.Assert(image, qt.Not(qt.IsNil))
+		c.Assert(image, qt.IsNotNil)
 
 		resized, err := image.Resize("200x")
 		c.Assert(err, qt.IsNil)
-		c.Assert(resized, qt.Not(qt.IsNil))
+		c.Assert(resized, qt.IsNotNil)
 		c.Assert(resized.Width(), qt.Equals, 200)
 		c.Assert(resized.RelPermalink(), qt.Equals, "/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_65b757a6e14debeae720fe8831f0a9bc.jpg")
 		resized, err = resized.Resize("100x")
 		c.Assert(err, qt.IsNil)
-		c.Assert(resized, qt.Not(qt.IsNil))
+		c.Assert(resized, qt.IsNotNil)
 		c.Assert(resized.Width(), qt.Equals, 100)
 		c.Assert(resized.RelPermalink(), qt.Equals, "/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_c876768085288f41211f768147ba2647.jpg")
 
@@ -276,7 +276,7 @@ func TestImageBugs(t *testing.T) {
 
 		resized, err := image.Resize("200x")
 		c.Assert(err, qt.IsNil)
-		c.Assert(resized, qt.Not(qt.IsNil))
+		c.Assert(resized, qt.IsNotNil)
 		c.Assert(resized.Width(), qt.Equals, 200)
 
 	})
@@ -303,7 +303,7 @@ func TestImageBugs(t *testing.T) {
 				c.Assert(err, qt.IsNil)
 				resized, err := image.Fill(fmt.Sprintf("%dx%d smart", test.targetWH, test.targetWH))
 				c.Assert(err, qt.IsNil)
-				c.Assert(resized, qt.Not(qt.IsNil))
+				c.Assert(resized, qt.IsNotNil)
 				c.Assert(resized.Width(), qt.Equals, test.targetWH)
 				c.Assert(resized.Height(), qt.Equals, test.targetWH)
 			})
@@ -429,14 +429,14 @@ func TestSVGImage(t *testing.T) {
 	c := qt.New(t)
 	spec := newTestResourceSpec(specDescriptor{c: c})
 	svg := fetchResourceForSpec(spec, c, "circle.svg")
-	c.Assert(svg, qt.Not(qt.IsNil))
+	c.Assert(svg, qt.IsNotNil)
 }
 
 func TestSVGImageContent(t *testing.T) {
 	c := qt.New(t)
 	spec := newTestResourceSpec(specDescriptor{c: c})
 	svg := fetchResourceForSpec(spec, c, "circle.svg")
-	c.Assert(svg, qt.Not(qt.IsNil))
+	c.Assert(svg, qt.IsNotNil)
 
 	content, err := svg.Content(context.Background())
 	c.Assert(err, qt.IsNil)
@@ -452,7 +452,7 @@ func TestImageExif(t *testing.T) {
 
 	getAndCheckExif := func(c *qt.C, image images.ImageResource) {
 		x := image.Exif()
-		c.Assert(x, qt.Not(qt.IsNil))
+		c.Assert(x, qt.IsNotNil)
 
 		c.Assert(x.Date.Format("2006-01-02"), qt.Equals, "2017-10-27")
 
@@ -461,9 +461,9 @@ func TestImageExif(t *testing.T) {
 		c.Assert(x.Long, qt.Equals, float64(-4.50846))
 
 		v, found := x.Tags["LensModel"]
-		c.Assert(found, qt.Equals, true)
+		c.Assert(found, qt.IsTrue)
 		lensModel, ok := v.(string)
-		c.Assert(ok, qt.Equals, true)
+		c.Assert(ok, qt.IsTrue)
 		c.Assert(lensModel, qt.Equals, "smc PENTAX-DA* 16-50mm F2.8 ED AL [IF] SDM")
 		resized, _ := image.Resize("300x200")
 		x2 := resized.Exif()
@@ -488,7 +488,7 @@ func BenchmarkImageExif(b *testing.B) {
 
 	getAndCheckExif := func(c *qt.C, image images.ImageResource) {
 		x := image.Exif()
-		c.Assert(x, qt.Not(qt.IsNil))
+		c.Assert(x, qt.IsNotNil)
 		c.Assert(x.Long, qt.Equals, float64(-4.50846))
 	}
 
@@ -756,7 +756,7 @@ func assetGoldenDirs(c *qt.C, dir1, dir2 string) {
 	c.Assert(err, qt.IsNil)
 	dirinfos2, err := os.ReadDir(dir2)
 	c.Assert(err, qt.IsNil)
-	c.Assert(len(dirinfos1), qt.Equals, len(dirinfos2))
+	c.Assert(dirinfos1, qt.HasLen, len(dirinfos2))
 
 	for i, fi1 := range dirinfos1 {
 		fi2 := dirinfos2[i]
@@ -787,7 +787,7 @@ func assetGoldenDirs(c *qt.C, dir1, dir2 string) {
 
 		imgs1 := decodeAll(f1)
 		imgs2 := decodeAll(f2)
-		c.Assert(len(imgs1), qt.Equals, len(imgs2))
+		c.Assert(imgs1, qt.HasLen, len(imgs2))
 
 	LOOP:
 		for i, img1 := range imgs1 {

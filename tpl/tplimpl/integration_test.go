@@ -211,7 +211,7 @@ var a = §§{{.Title }}§§;
 		},
 	).BuildE()
 
-	b.Assert(err, qt.Not(qt.IsNil))
+	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, "{{.Title}} appears in a JS template literal")
 
 	files = strings.ReplaceAll(filesTemplate, "SECURITYCONFIG", `

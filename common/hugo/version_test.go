@@ -32,9 +32,9 @@ func TestHugoVersion(t *testing.T) {
 	c.Assert(v.Next().String(), qt.Equals, "0.22")
 	nextVersionString := v.Next().Version()
 	c.Assert(nextVersionString.String(), qt.Equals, "0.22")
-	c.Assert(nextVersionString.Eq("0.22"), qt.Equals, true)
-	c.Assert(nextVersionString.Eq("0.21"), qt.Equals, false)
-	c.Assert(nextVersionString.Eq(nextVersionString), qt.Equals, true)
+	c.Assert(nextVersionString.Eq("0.22"), qt.IsTrue)
+	c.Assert(nextVersionString.Eq("0.21"), qt.IsFalse)
+	c.Assert(nextVersionString.Eq(nextVersionString), qt.IsTrue)
 	c.Assert(v.NextPatchLevel(3).String(), qt.Equals, "0.20.3")
 
 	// We started to use full semver versions even for main
@@ -84,5 +84,5 @@ func TestGoMinorVersion(t *testing.T) {
 	c := qt.New(t)
 	c.Assert(goMinorVersion("go1.12.5"), qt.Equals, 12)
 	c.Assert(goMinorVersion("go1.14rc1"), qt.Equals, 14)
-	c.Assert(GoMinorVersion() >= 11, qt.Equals, true)
+	c.Assert(GoMinorVersion() >= 11, qt.IsTrue)
 }

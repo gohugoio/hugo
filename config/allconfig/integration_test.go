@@ -47,11 +47,11 @@ Title: {{ .Title }}
 	//b.AssertFileContent("public/p1/index.html", "Title: p1")
 
 	sites := b.H.Sites
-	b.Assert(len(sites), qt.Equals, 2)
+	b.Assert(sites, qt.HasLen, 2)
 
 	configs := b.H.Configs
 	mods := configs.Modules
-	b.Assert(len(mods), qt.Equals, 1)
+	b.Assert(mods, qt.HasLen, 1)
 	mod := mods[0]
 	b.Assert(mod.Mounts(), qt.HasLen, 8)
 
@@ -84,6 +84,6 @@ logPathWarnings = true
 
 	conf := b.H.Configs.Base
 
-	b.Assert(conf.PrintI18nWarnings, qt.Equals, true)
-	b.Assert(conf.PrintPathWarnings, qt.Equals, true)
+	b.Assert(conf.PrintI18nWarnings, qt.IsTrue)
+	b.Assert(conf.PrintPathWarnings, qt.IsTrue)
 }

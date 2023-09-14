@@ -49,7 +49,7 @@ Hello World.
 		b.Build(BuildCfg{SkipRender: true})
 
 		p := b.H.GetContentPage(abs)
-		b.Assert(p, qt.Not(qt.IsNil))
+		b.Assert(p, qt.IsNotNil)
 
 		var buf bytes.Buffer
 		b.Assert(cf.ApplyArchetypeFilename(&buf, p, "", "post.md"), qt.IsNil)

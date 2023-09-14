@@ -22,10 +22,10 @@ import (
 func TestShortcodesTemplate(t *testing.T) {
 	t.Run("isShortcode", func(t *testing.T) {
 		c := qt.New(t)
-		c.Assert(isShortcode("shortcodes/figures.html"), qt.Equals, true)
-		c.Assert(isShortcode("_internal/shortcodes/figures.html"), qt.Equals, true)
-		c.Assert(isShortcode("shortcodes\\figures.html"), qt.Equals, false)
-		c.Assert(isShortcode("myshortcodes"), qt.Equals, false)
+		c.Assert(isShortcode("shortcodes/figures.html"), qt.IsTrue)
+		c.Assert(isShortcode("_internal/shortcodes/figures.html"), qt.IsTrue)
+		c.Assert(isShortcode("shortcodes\\figures.html"), qt.IsFalse)
+		c.Assert(isShortcode("myshortcodes"), qt.IsFalse)
 	})
 
 	t.Run("variantsFromName", func(t *testing.T) {
@@ -86,6 +86,6 @@ func TestShortcodesTemplate(t *testing.T) {
 		c.Assert(templateBaseName(templateShortcode, "_internal/shortcodes/foo.html"), qt.Equals, "foo.html")
 		c.Assert(templateBaseName(templateShortcode, "shortcodes/test/foo.html"), qt.Equals, "test/foo.html")
 
-		c.Assert(true, qt.Equals, true)
+		c.Assert(true, qt.IsTrue)
 	})
 }

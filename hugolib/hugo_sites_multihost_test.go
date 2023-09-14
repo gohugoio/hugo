@@ -59,7 +59,7 @@ languageName = "Nynorsk"
 	s1 := b.H.Sites[0]
 
 	s1h := s1.getPage(kinds.KindHome)
-	c.Assert(s1h.IsTranslated(), qt.Equals, true)
+	c.Assert(s1h.IsTranslated(), qt.IsTrue)
 	c.Assert(len(s1h.Translations()), qt.Equals, 2)
 	c.Assert(s1h.Permalink(), qt.Equals, "https://example.com/docs/")
 
@@ -70,7 +70,7 @@ languageName = "Nynorsk"
 	//
 	// check url in front matter:
 	pageWithURLInFrontMatter := s1.getPage(kinds.KindPage, "sect/doc3.en.md")
-	c.Assert(pageWithURLInFrontMatter, qt.Not(qt.IsNil))
+	c.Assert(pageWithURLInFrontMatter, qt.IsNotNil)
 	c.Assert(pageWithURLInFrontMatter.RelPermalink(), qt.Equals, "/docs/superbob/")
 	b.AssertFileContent("public/en/superbob/index.html", "doc3|Hello|en")
 
@@ -105,7 +105,7 @@ languageName = "Nynorsk"
 	// Check bundles
 
 	bundleEn := s1.getPage(kinds.KindPage, "bundles/b1/index.en.md")
-	c.Assert(bundleEn, qt.Not(qt.IsNil))
+	c.Assert(bundleEn, qt.IsNotNil)
 	c.Assert(bundleEn.RelPermalink(), qt.Equals, "/docs/bundles/b1/")
 	c.Assert(len(bundleEn.Resources()), qt.Equals, 1)
 
@@ -113,7 +113,7 @@ languageName = "Nynorsk"
 	b.AssertFileContent("public/en/bundles/b1/index.html", " image/png: /docs/bundles/b1/logo.png")
 
 	bundleFr := s2.getPage(kinds.KindPage, "bundles/b1/index.md")
-	c.Assert(bundleFr, qt.Not(qt.IsNil))
+	c.Assert(bundleFr, qt.IsNotNil)
 	c.Assert(bundleFr.RelPermalink(), qt.Equals, "/bundles/b1/")
 	c.Assert(len(bundleFr.Resources()), qt.Equals, 1)
 	b.AssertFileContent("public/fr/bundles/b1/logo.png", "PNG Data")

@@ -38,11 +38,11 @@ func TestHugoInfo(t *testing.T) {
 	}
 	c.Assert(hugoInfo.Environment, qt.Equals, "production")
 	c.Assert(string(hugoInfo.Generator()), qt.Contains, fmt.Sprintf("Hugo %s", hugoInfo.Version()))
-	c.Assert(hugoInfo.IsProduction(), qt.Equals, true)
+	c.Assert(hugoInfo.IsProduction(), qt.IsTrue)
 	c.Assert(hugoInfo.IsExtended(), qt.Equals, IsExtended)
 
 	devHugoInfo := NewInfo(testConfig{environment: "development"}, nil)
-	c.Assert(devHugoInfo.IsProduction(), qt.Equals, false)
+	c.Assert(devHugoInfo.IsProduction(), qt.IsFalse)
 }
 
 type testConfig struct {

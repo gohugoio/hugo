@@ -46,7 +46,7 @@ func TestReadFile(t *testing.T) {
 		result, err := ns.ReadFile(test.filename)
 
 		if bb, ok := test.expect.(bool); ok && !bb {
-			b.Assert(err, qt.Not(qt.IsNil), qt.Commentf("filename: %q", test.filename))
+			b.Assert(err, qt.IsNotNil, qt.Commentf("filename: %q", test.filename))
 			continue
 		}
 
@@ -75,7 +75,7 @@ func TestFileExists(t *testing.T) {
 		result, err := ns.FileExists(test.filename)
 
 		if test.expect == nil {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -101,7 +101,7 @@ func TestStat(t *testing.T) {
 		result, err := ns.Stat(test.filename)
 
 		if test.expect == nil {
-			b.Assert(err, qt.Not(qt.IsNil))
+			b.Assert(err, qt.IsNotNil)
 			continue
 		}
 

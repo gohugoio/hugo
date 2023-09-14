@@ -888,14 +888,14 @@ func (th testHelper) assertFileContentRegexp(filename string, matches ...string)
 		if !matches {
 			fmt.Println("Expected to match regexp:\n"+match+"\nGot:\n", content)
 		}
-		th.Assert(matches, qt.Equals, true)
+		th.Assert(matches, qt.IsTrue)
 	}
 }
 
 func (th testHelper) assertFileNotExist(filename string) {
 	exists, err := helpers.Exists(filename, th.Fs.PublishDir)
 	th.Assert(err, qt.IsNil)
-	th.Assert(exists, qt.Equals, false)
+	th.Assert(exists, qt.IsFalse)
 }
 
 func (th testHelper) replaceDefaultContentLanguageValue(value string) string {
@@ -997,7 +997,7 @@ func buildSingleSiteExpected(t testing.TB, expectSiteInitError, expectBuildError
 	err := b.CreateSitesE()
 
 	if expectSiteInitError {
-		b.Assert(err, qt.Not(qt.IsNil))
+		b.Assert(err, qt.IsNotNil)
 		return nil
 	} else {
 		b.Assert(err, qt.IsNil)
@@ -1005,10 +1005,10 @@ func buildSingleSiteExpected(t testing.TB, expectSiteInitError, expectBuildError
 
 	h := b.H
 
-	b.Assert(len(h.Sites), qt.Equals, 1)
+	b.Assert(h.Sites, qt.HasLen, 1)
 
 	if expectBuildError {
-		b.Assert(h.Build(buildCfg), qt.Not(qt.IsNil))
+		b.Assert(h.Build(buildCfg), qt.IsNotNil)
 		return nil
 
 	}

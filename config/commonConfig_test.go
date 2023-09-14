@@ -44,18 +44,18 @@ func TestBuild(t *testing.T) {
 
 	c.Assert(b.UseResourceCacheWhen, qt.Equals, "fallback")
 
-	c.Assert(b.UseResourceCache(herrors.ErrFeatureNotAvailable), qt.Equals, true)
-	c.Assert(b.UseResourceCache(errors.New("err")), qt.Equals, false)
+	c.Assert(b.UseResourceCache(herrors.ErrFeatureNotAvailable), qt.IsTrue)
+	c.Assert(b.UseResourceCache(errors.New("err")), qt.IsFalse)
 
 	b.UseResourceCacheWhen = "always"
-	c.Assert(b.UseResourceCache(herrors.ErrFeatureNotAvailable), qt.Equals, true)
-	c.Assert(b.UseResourceCache(errors.New("err")), qt.Equals, true)
-	c.Assert(b.UseResourceCache(nil), qt.Equals, true)
+	c.Assert(b.UseResourceCache(herrors.ErrFeatureNotAvailable), qt.IsTrue)
+	c.Assert(b.UseResourceCache(errors.New("err")), qt.IsTrue)
+	c.Assert(b.UseResourceCache(nil), qt.IsTrue)
 
 	b.UseResourceCacheWhen = "never"
-	c.Assert(b.UseResourceCache(herrors.ErrFeatureNotAvailable), qt.Equals, false)
-	c.Assert(b.UseResourceCache(errors.New("err")), qt.Equals, false)
-	c.Assert(b.UseResourceCache(nil), qt.Equals, false)
+	c.Assert(b.UseResourceCache(herrors.ErrFeatureNotAvailable), qt.IsFalse)
+	c.Assert(b.UseResourceCache(errors.New("err")), qt.IsFalse)
+	c.Assert(b.UseResourceCache(nil), qt.IsFalse)
 }
 
 func TestServer(t *testing.T) {
@@ -136,7 +136,7 @@ status = 301`,
 		cfg, err := FromConfigString(errorCase, "toml")
 		c.Assert(err, qt.IsNil)
 		_, err = DecodeServer(cfg)
-		c.Assert(err, qt.Not(qt.IsNil))
+		c.Assert(err, qt.IsNotNil)
 
 	}
 }

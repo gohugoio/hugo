@@ -218,7 +218,7 @@ Content.
 
 	c.Assert(err, qt.IsNil)
 
-	c.Assert(len(b.H.Sites), qt.Equals, 3)
+	c.Assert(b.H.Sites, qt.HasLen, 3)
 
 	enSite := b.H.Sites[0]
 	nnSite := b.H.Sites[1]
@@ -312,7 +312,7 @@ Content.
 	b.AssertFileContent("public/nn/sect/mybundle/logo.png", "PNG Data")
 
 	nnSect := nnSite.getPage(kinds.KindSection, "sect")
-	c.Assert(nnSect, qt.Not(qt.IsNil))
+	c.Assert(nnSect, qt.IsNotNil)
 	c.Assert(len(nnSect.Pages()), qt.Equals, 12)
 	nnHome := nnSite.Home()
 	c.Assert(nnHome.RelPermalink(), qt.Equals, "/nn/")

@@ -198,8 +198,8 @@ func TestReaderContains(t *testing.T) {
 		}
 	}
 
-	c.Assert(helpers.ReaderContains(nil, []byte("a")), qt.Equals, false)
-	c.Assert(helpers.ReaderContains(nil, nil), qt.Equals, false)
+	c.Assert(helpers.ReaderContains(nil, []byte("a")), qt.IsFalse)
+	c.Assert(helpers.ReaderContains(nil, nil), qt.IsFalse)
 }
 
 func TestGetTitleFunc(t *testing.T) {

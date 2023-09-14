@@ -101,7 +101,7 @@ iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAA
 	b.Build()
 
 	_, err = b.H.BaseFs.ResourcesCache.Stat(filepath.Join(imagesCacheDir, "a"))
-	b.Assert(err, qt.Not(qt.IsNil))
+	b.Assert(err, qt.IsNotNil)
 	_, err = b.H.BaseFs.ResourcesCache.Stat(imagesCacheDir)
 	b.Assert(err, qt.IsNil)
 

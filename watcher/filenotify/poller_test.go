@@ -31,8 +31,8 @@ func TestPollerAddRemove(t *testing.T) {
 	c := qt.New(t)
 	w := NewPollingWatcher(watchWaitTime)
 
-	c.Assert(w.Add("foo"), qt.Not(qt.IsNil))
-	c.Assert(w.Remove("foo"), qt.Not(qt.IsNil))
+	c.Assert(w.Add("foo"), qt.IsNotNil)
+	c.Assert(w.Remove("foo"), qt.IsNotNil)
 
 	f, err := os.CreateTemp("", "asdf")
 	if err != nil {
@@ -153,7 +153,7 @@ func TestPollerClose(t *testing.T) {
 
 	defer os.Remove(f2.Name())
 
-	c.Assert(w.Add(f2.Name()), qt.Not(qt.IsNil))
+	c.Assert(w.Add(f2.Name()), qt.IsNotNil)
 
 }
 

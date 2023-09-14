@@ -85,16 +85,16 @@ lang="en"
 
 		c.Assert(v056.Compare(hv.Min), qt.Equals, -1)
 		c.Assert(v056.Compare(hv.Max), qt.Equals, 1)
-		c.Assert(hv.Extended, qt.Equals, true)
+		c.Assert(hv.Extended, qt.IsTrue)
 
 		if hugo.IsExtended {
-			c.Assert(hv.IsValid(), qt.Equals, true)
+			c.Assert(hv.IsValid(), qt.IsTrue)
 		}
 
 		c.Assert(mcfg.Workspace, qt.Equals, hugoWorkFilename)
 
-		c.Assert(len(mcfg.Mounts), qt.Equals, 1)
-		c.Assert(len(mcfg.Imports), qt.Equals, 1)
+		c.Assert(mcfg.Mounts, qt.HasLen, 1)
+		c.Assert(mcfg.Imports, qt.HasLen, 1)
 		imp := mcfg.Imports[0]
 		imp.Path = "github.com/bep/mycomponent"
 		c.Assert(imp.Mounts[1].Source, qt.Equals, "src/markdown/blog")
@@ -149,7 +149,7 @@ path="a"
 
 	modCfg, err := DecodeConfig(cfg)
 	c.Assert(err, qt.IsNil)
-	c.Assert(len(modCfg.Imports), qt.Equals, 3)
+	c.Assert(modCfg.Imports, qt.HasLen, 3)
 	c.Assert(modCfg.Imports[0].Path, qt.Equals, "a")
 }
 
@@ -166,7 +166,7 @@ theme = ["a", "b"]
 	mcfg, err := DecodeConfig(cfg)
 	c.Assert(err, qt.IsNil)
 
-	c.Assert(len(mcfg.Imports), qt.Equals, 2)
+	c.Assert(mcfg.Imports, qt.HasLen, 2)
 	c.Assert(mcfg.Imports[0].Path, qt.Equals, "a")
 	c.Assert(mcfg.Imports[1].Path, qt.Equals, "b")
 }

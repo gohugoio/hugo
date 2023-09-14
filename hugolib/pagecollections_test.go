@@ -108,7 +108,7 @@ func TestBenchmarkGetPageRegular(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		pp := path.Join("/", fmt.Sprintf("sect%d", i), fmt.Sprintf("page%d.md", i))
 		page, _ := s.getPageNew(nil, pp)
-		c.Assert(page, qt.Not(qt.IsNil), qt.Commentf(pp))
+		c.Assert(page, qt.IsNotNil, qt.Commentf(pp))
 	}
 }
 
@@ -128,7 +128,7 @@ func BenchmarkGetPageRegular(b *testing.B) {
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			page, _ := s.getPageNew(nil, pagePaths[i])
-			c.Assert(page, qt.Not(qt.IsNil))
+			c.Assert(page, qt.IsNotNil)
 		}
 	})
 
@@ -148,7 +148,7 @@ func BenchmarkGetPageRegular(b *testing.B) {
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			page, _ := s.getPageNew(pages[i], pagePaths[i])
-			c.Assert(page, qt.Not(qt.IsNil))
+			c.Assert(page, qt.IsNotNil)
 		}
 	})
 }
@@ -166,14 +166,14 @@ func (t *getPageTest) check(p page.Page, err error, errorMsg string, c *qt.C) {
 	errorComment := qt.Commentf(errorMsg)
 	switch t.kind {
 	case "Ambiguous":
-		c.Assert(err, qt.Not(qt.IsNil))
+		c.Assert(err, qt.IsNotNil)
 		c.Assert(p, qt.IsNil, errorComment)
 	case "NoPage":
 		c.Assert(err, qt.IsNil)
 		c.Assert(p, qt.IsNil, errorComment)
 	default:
 		c.Assert(err, qt.IsNil, errorComment)
-		c.Assert(p, qt.Not(qt.IsNil), errorComment)
+		c.Assert(p, qt.IsNotNil, errorComment)
 		c.Assert(p.Kind(), qt.Equals, t.kind, errorComment)
 		c.Assert(p.Title(), qt.Equals, t.expectedTitle, errorComment)
 	}
@@ -228,7 +228,7 @@ func TestGetPage(t *testing.T) {
 
 	sec3, err := s.getPageNew(nil, "/sect3")
 	c.Assert(err, qt.IsNil)
-	c.Assert(sec3, qt.Not(qt.IsNil))
+	c.Assert(sec3, qt.IsNotNil)
 
 	tests := []getPageTest{
 		// legacy content root relative paths
@@ -389,10 +389,10 @@ NOT FOUND
 func TestShouldDoSimpleLookup(t *testing.T) {
 	c := qt.New(t)
 
-	c.Assert(shouldDoSimpleLookup("foo.md"), qt.Equals, true)
-	c.Assert(shouldDoSimpleLookup("/foo.md"), qt.Equals, true)
-	c.Assert(shouldDoSimpleLookup("./foo.md"), qt.Equals, false)
-	c.Assert(shouldDoSimpleLookup("docs/foo.md"), qt.Equals, false)
+	c.Assert(shouldDoSimpleLookup("foo.md"), qt.IsTrue)
+	c.Assert(shouldDoSimpleLookup("/foo.md"), qt.IsTrue)
+	c.Assert(shouldDoSimpleLookup("./foo.md"), qt.IsFalse)
+	c.Assert(shouldDoSimpleLookup("docs/foo.md"), qt.IsFalse)
 }
 
 func TestRegularPagesRecursive(t *testing.T) {

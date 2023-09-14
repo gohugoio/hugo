@@ -131,7 +131,7 @@ func TestInitAddWithTimeoutTimeout(t *testing.T) {
 
 	_, err := init.Do(context.Background())
 
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 
 	c.Assert(err.Error(), qt.Contains, "timed out")
 
@@ -147,7 +147,7 @@ func TestInitAddWithTimeoutError(t *testing.T) {
 
 	_, err := init.Do(context.Background())
 
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 }
 
 type T struct {

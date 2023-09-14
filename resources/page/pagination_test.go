@@ -27,7 +27,7 @@ func TestSplitPages(t *testing.T) {
 	c := qt.New(t)
 	pages := createTestPages(21)
 	chunks := splitPages(pages, 5)
-	c.Assert(len(chunks), qt.Equals, 5)
+	c.Assert(chunks, qt.HasLen, 5)
 
 	for i := 0; i < 4; i++ {
 		c.Assert(chunks[i].Len(), qt.Equals, 5)
@@ -43,7 +43,7 @@ func TestSplitPageGroups(t *testing.T) {
 	pages := createTestPages(21)
 	groups, _ := pages.GroupBy(context.Background(), "Weight", "desc")
 	chunks := splitPageGroups(groups, 5)
-	c.Assert(len(chunks), qt.Equals, 5)
+	c.Assert(chunks, qt.HasLen, 5)
 
 	firstChunk := chunks[0]
 
@@ -54,7 +54,7 @@ func TestSplitPageGroups(t *testing.T) {
 			// first group 10 in weight
 			c.Assert(pg.Key, qt.Equals, 10)
 			for _, p := range pg.Pages {
-				c.Assert(p.FuzzyWordCount(context.Background())%2 == 0, qt.Equals, true) // magic test
+				c.Assert(p.FuzzyWordCount(context.Background())%2 == 0, qt.IsTrue) // magic test
 			}
 		}
 	} else {
@@ -69,7 +69,7 @@ func TestSplitPageGroups(t *testing.T) {
 			// last should have 5 in weight
 			c.Assert(pg.Key, qt.Equals, 5)
 			for _, p := range pg.Pages {
-				c.Assert(p.FuzzyWordCount(context.Background())%2 != 0, qt.Equals, true) // magic test
+				c.Assert(p.FuzzyWordCount(context.Background())%2 != 0, qt.IsTrue) // magic test
 			}
 		}
 	} else {
@@ -88,10 +88,10 @@ func TestPager(t *testing.T) {
 	}
 
 	_, err := newPaginatorFromPages(pages, -1, urlFactory)
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 
 	_, err = newPaginatorFromPageGroups(groups, -1, urlFactory)
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 
 	pag, err := newPaginatorFromPages(pages, 5, urlFactory)
 	c.Assert(err, qt.IsNil)
@@ -113,7 +113,7 @@ func doTestPages(t *testing.T, paginator *Paginator) {
 	c := qt.New(t)
 	paginatorPages := paginator.Pagers()
 
-	c.Assert(len(paginatorPages), qt.Equals, 5)
+	c.Assert(paginatorPages, qt.HasLen, 5)
 	c.Assert(paginator.TotalNumberOfElements(), qt.Equals, 21)
 	c.Assert(paginator.PageSize(), qt.Equals, 5)
 	c.Assert(paginator.TotalPages(), qt.Equals, 5)
@@ -121,24 +121,24 @@ func doTestPages(t *testing.T, paginator *Paginator) {
 	first := paginatorPages[0]
 	c.Assert(first.URL(), qt.Equals, template.HTML("page/1/"))
 	c.Assert(first.First(), qt.Equals, first)
-	c.Assert(first.HasNext(), qt.Equals, true)
+	c.Assert(first.HasNext(), qt.IsTrue)
 	c.Assert(first.Next(), qt.Equals, paginatorPages[1])
-	c.Assert(first.HasPrev(), qt.Equals, false)
+	c.Assert(first.HasPrev(), qt.IsFalse)
 	c.Assert(first.Prev(), qt.IsNil)
 	c.Assert(first.NumberOfElements(), qt.Equals, 5)
 	c.Assert(first.PageNumber(), qt.Equals, 1)
 
 	third := paginatorPages[2]
-	c.Assert(third.HasNext(), qt.Equals, true)
-	c.Assert(third.HasPrev(), qt.Equals, true)
+	c.Assert(third.HasNext(), qt.IsTrue)
+	c.Assert(third.HasPrev(), qt.IsTrue)
 	c.Assert(third.Prev(), qt.Equals, paginatorPages[1])
 
 	last := paginatorPages[4]
 	c.Assert(last.URL(), qt.Equals, template.HTML("page/5/"))
 	c.Assert(last.Last(), qt.Equals, last)
-	c.Assert(last.HasNext(), qt.Equals, false)
+	c.Assert(last.HasNext(), qt.IsFalse)
 	c.Assert(last.Next(), qt.IsNil)
-	c.Assert(last.HasPrev(), qt.Equals, true)
+	c.Assert(last.HasPrev(), qt.IsTrue)
 	c.Assert(last.NumberOfElements(), qt.Equals, 1)
 	c.Assert(last.PageNumber(), qt.Equals, 5)
 }
@@ -171,16 +171,16 @@ func TestPagerNoPages(t *testing.T) {
 func doTestPagerNoPages(t *testing.T, paginator *Paginator) {
 	paginatorPages := paginator.Pagers()
 	c := qt.New(t)
-	c.Assert(len(paginatorPages), qt.Equals, 1)
+	c.Assert(paginatorPages, qt.HasLen, 1)
 	c.Assert(paginator.TotalNumberOfElements(), qt.Equals, 0)
 	c.Assert(paginator.PageSize(), qt.Equals, 5)
 	c.Assert(paginator.TotalPages(), qt.Equals, 0)
 
 	// pageOne should be nothing but the first
 	pageOne := paginatorPages[0]
-	c.Assert(pageOne.First(), qt.Not(qt.IsNil))
-	c.Assert(pageOne.HasNext(), qt.Equals, false)
-	c.Assert(pageOne.HasPrev(), qt.Equals, false)
+	c.Assert(pageOne.First(), qt.IsNotNil)
+	c.Assert(pageOne.HasNext(), qt.IsFalse)
+	c.Assert(pageOne.HasPrev(), qt.IsFalse)
 	c.Assert(pageOne.Next(), qt.IsNil)
 	c.Assert(len(pageOne.Pagers()), qt.Equals, 1)
 	c.Assert(pageOne.Pages().Len(), qt.Equals, 0)
@@ -250,7 +250,7 @@ func TestPaginationPage(t *testing.T) {
 	c.Assert(page11.FuzzyWordCount(context.Background()), qt.Equals, 3)
 	c.Assert(page1Nil, qt.IsNil)
 
-	c.Assert(page21, qt.Not(qt.IsNil))
+	c.Assert(page21, qt.IsNotNil)
 	c.Assert(page21.FuzzyWordCount(context.Background()), qt.Equals, 3)
 	c.Assert(page2Nil, qt.IsNil)
 }

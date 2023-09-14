@@ -83,7 +83,7 @@ func TestAppend(t *testing.T) {
 
 		if b, ok := test.expected.(bool); ok && !b {
 
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -124,7 +124,7 @@ func TestAppendToMultiDimensionalSlice(t *testing.T) {
 	} {
 		result, err := Append(test.to, test.from...)
 		if b, ok := test.expected.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 		} else {
 			c.Assert(err, qt.IsNil)
 			c.Assert(result, qt.DeepEquals, test.expected)

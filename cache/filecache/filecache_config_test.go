@@ -59,7 +59,7 @@ dir = "/path/to/c4"
 	c.Assert(err, qt.IsNil)
 	fs := afero.NewMemMapFs()
 	decoded := testconfig.GetTestConfigs(fs, cfg).Base.Caches
-	c.Assert(len(decoded), qt.Equals, 6)
+	c.Assert(decoded, qt.HasLen, 6)
 
 	c2 := decoded["getcsv"]
 	c.Assert(c2.MaxAge.String(), qt.Equals, "11h0m0s")
@@ -106,7 +106,7 @@ dir = "/path/to/c4"
 	c.Assert(err, qt.IsNil)
 	fs := afero.NewMemMapFs()
 	decoded := testconfig.GetTestConfigs(fs, cfg).Base.Caches
-	c.Assert(len(decoded), qt.Equals, 6)
+	c.Assert(decoded, qt.HasLen, 6)
 
 	for _, v := range decoded {
 		c.Assert(v.MaxAge, qt.Equals, time.Duration(0))
@@ -129,7 +129,7 @@ func TestDecodeConfigDefault(t *testing.T) {
 
 	fs := afero.NewMemMapFs()
 	decoded := testconfig.GetTestConfigs(fs, cfg).Base.Caches
-	c.Assert(len(decoded), qt.Equals, 6)
+	c.Assert(decoded, qt.HasLen, 6)
 
 	imgConfig := decoded[filecache.CacheKeyImages]
 	jsonConfig := decoded[filecache.CacheKeyGetJSON]
@@ -141,6 +141,6 @@ func TestDecodeConfigDefault(t *testing.T) {
 		c.Assert(jsonConfig.DirCompiled, qt.Equals, "/cache/thecache/hugoproject/filecache/getjson")
 	}
 
-	c.Assert(imgConfig.IsResourceDir, qt.Equals, true)
-	c.Assert(jsonConfig.IsResourceDir, qt.Equals, false)
+	c.Assert(imgConfig.IsResourceDir, qt.IsTrue)
+	c.Assert(jsonConfig.IsResourceDir, qt.IsFalse)
 }

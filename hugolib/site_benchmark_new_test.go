@@ -225,7 +225,7 @@ canonifyURLs = true
 			},
 			func(s *sitesBuilder) {
 				s.CheckExists("public/blog/mybundle/index.html")
-				s.Assert(len(s.H.Sites), qt.Equals, 4)
+				s.Assert(s.H.Sites, qt.HasLen, 4)
 				s.Assert(len(s.H.Sites[0].RegularPages()), qt.Equals, len(s.H.Sites[1].RegularPages()))
 				s.Assert(len(s.H.Sites[0].RegularPages()), qt.Equals, 30)
 			},
@@ -312,7 +312,7 @@ contentDir="content/sv"
 			},
 			func(s *sitesBuilder) {
 				s.CheckExists("public/blog/mybundle/index.html")
-				s.Assert(len(s.H.Sites), qt.Equals, 4)
+				s.Assert(s.H.Sites, qt.HasLen, 4)
 				s.Assert(len(s.H.Sites[0].RegularPages()), qt.Equals, len(s.H.Sites[1].RegularPages()))
 				s.Assert(len(s.H.Sites[0].RegularPages()), qt.Equals, 15)
 			},
@@ -396,7 +396,7 @@ contentDir="content/sv"
 			},
 			func(s *sitesBuilder) {
 				s.CheckExists("public/blog/mybundle/index.html")
-				s.Assert(len(s.H.Sites), qt.Equals, 4)
+				s.Assert(s.H.Sites, qt.HasLen, 4)
 				s.Assert(len(s.H.Sites[0].RegularPages()), qt.Equals, 26)
 			},
 		},
@@ -441,7 +441,7 @@ baseURL = "https://example.com"
 			},
 			func(s *sitesBuilder) {
 				s.AssertFileContent("public/section/bundle8/index.html", ` <li><a href="https://example.com/categories/category1/">category1</a></li>`)
-				s.Assert(len(s.H.Sites), qt.Equals, 1)
+				s.Assert(s.H.Sites, qt.HasLen, 1)
 				s.Assert(len(s.H.Sites[0].RegularPages()), qt.Equals, 35)
 			},
 		},

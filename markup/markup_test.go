@@ -32,7 +32,7 @@ func TestConverterRegistry(t *testing.T) {
 
 	checkName := func(name string) {
 		p := r.Get(name)
-		c.Assert(p, qt.Not(qt.IsNil))
+		c.Assert(p, qt.IsNotNil)
 		c.Assert(p.Name(), qt.Equals, name)
 	}
 

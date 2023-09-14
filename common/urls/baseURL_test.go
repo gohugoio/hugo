@@ -34,7 +34,7 @@ func TestBaseURL(t *testing.T) {
 	c.Assert(p.String(), qt.Equals, "webcal://example.com")
 
 	_, err = b.WithProtocol("mailto:")
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 
 	b, err = NewBaseURLFromString("mailto:hugo@rules.com")
 	c.Assert(err, qt.IsNil)

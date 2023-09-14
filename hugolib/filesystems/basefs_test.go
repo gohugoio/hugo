@@ -88,7 +88,7 @@ theme = ["atheme"]
 
 	bfs, err := filesystems.NewBase(p, nil)
 	c.Assert(err, qt.IsNil)
-	c.Assert(bfs, qt.Not(qt.IsNil))
+	c.Assert(bfs, qt.IsNotNil)
 
 	root, err := bfs.I18n.Fs.Open("")
 	c.Assert(err, qt.IsNil)
@@ -113,14 +113,14 @@ theme = ["atheme"]
 	checkFileCount(bfs.Assets.Fs, "", c, 9)
 	checkFileCount(bfs.Work, "", c, 90)
 
-	c.Assert(bfs.IsData(filepath.Join(workingDir, "mydata", "file1.txt")), qt.Equals, true)
-	c.Assert(bfs.IsI18n(filepath.Join(workingDir, "myi18n", "file1.txt")), qt.Equals, true)
-	c.Assert(bfs.IsLayout(filepath.Join(workingDir, "mylayouts", "file1.txt")), qt.Equals, true)
-	c.Assert(bfs.IsStatic(filepath.Join(workingDir, "mystatic", "file1.txt")), qt.Equals, true)
-	c.Assert(bfs.IsAsset(filepath.Join(workingDir, "myassets", "file1.txt")), qt.Equals, true)
+	c.Assert(bfs.IsData(filepath.Join(workingDir, "mydata", "file1.txt")), qt.IsTrue)
+	c.Assert(bfs.IsI18n(filepath.Join(workingDir, "myi18n", "file1.txt")), qt.IsTrue)
+	c.Assert(bfs.IsLayout(filepath.Join(workingDir, "mylayouts", "file1.txt")), qt.IsTrue)
+	c.Assert(bfs.IsStatic(filepath.Join(workingDir, "mystatic", "file1.txt")), qt.IsTrue)
+	c.Assert(bfs.IsAsset(filepath.Join(workingDir, "myassets", "file1.txt")), qt.IsTrue)
 
 	contentFilename := filepath.Join(workingDir, "mycontent", "file1.txt")
-	c.Assert(bfs.IsContent(contentFilename), qt.Equals, true)
+	c.Assert(bfs.IsContent(contentFilename), qt.IsTrue)
 	rel := bfs.RelContentDir(contentFilename)
 	c.Assert(rel, qt.Equals, "file1.txt")
 
@@ -149,14 +149,14 @@ func TestNewBaseFsEmpty(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	bfs, err := filesystems.NewBase(p, nil)
 	c.Assert(err, qt.IsNil)
-	c.Assert(bfs, qt.Not(qt.IsNil))
-	c.Assert(bfs.Archetypes.Fs, qt.Not(qt.IsNil))
-	c.Assert(bfs.Layouts.Fs, qt.Not(qt.IsNil))
-	c.Assert(bfs.Data.Fs, qt.Not(qt.IsNil))
-	c.Assert(bfs.I18n.Fs, qt.Not(qt.IsNil))
-	c.Assert(bfs.Work, qt.Not(qt.IsNil))
-	c.Assert(bfs.Content.Fs, qt.Not(qt.IsNil))
-	c.Assert(bfs.Static, qt.Not(qt.IsNil))
+	c.Assert(bfs, qt.IsNotNil)
+	c.Assert(bfs.Archetypes.Fs, qt.IsNotNil)
+	c.Assert(bfs.Layouts.Fs, qt.IsNotNil)
+	c.Assert(bfs.Data.Fs, qt.IsNotNil)
+	c.Assert(bfs.I18n.Fs, qt.IsNotNil)
+	c.Assert(bfs.Work, qt.IsNotNil)
+	c.Assert(bfs.Content.Fs, qt.IsNotNil)
+	c.Assert(bfs.Static, qt.IsNotNil)
 }
 
 func TestRealDirs(t *testing.T) {
@@ -203,12 +203,12 @@ func TestRealDirs(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	bfs, err := filesystems.NewBase(p, nil)
 	c.Assert(err, qt.IsNil)
-	c.Assert(bfs, qt.Not(qt.IsNil))
+	c.Assert(bfs, qt.IsNotNil)
 
 	checkFileCount(bfs.Assets.Fs, "", c, 6)
 
 	realDirs := bfs.Assets.RealDirs("scss")
-	c.Assert(len(realDirs), qt.Equals, 2)
+	c.Assert(realDirs, qt.HasLen, 2)
 	c.Assert(realDirs[0], qt.Equals, filepath.Join(root, "myassets/scss"))
 	c.Assert(realDirs[len(realDirs)-1], qt.Equals, filepath.Join(themesDir, "mytheme/assets/scss"))
 
@@ -336,7 +336,7 @@ func TestMakePathRelative(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 
 	sfs := bfs.Static[""]
-	c.Assert(sfs, qt.Not(qt.IsNil))
+	c.Assert(sfs, qt.IsNotNil)
 
 	makeRel := func(s string) string {
 		r, _ := sfs.MakePathRelative(s)

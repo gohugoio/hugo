@@ -33,7 +33,7 @@ func TestNewResourceFromFilename(t *testing.T) {
 	r, err := spec.New(resources.ResourceSourceDescriptor{Fs: spec.BaseFs.Assets.Fs, SourceFilename: "a/b/logo.png"})
 
 	c.Assert(err, qt.IsNil)
-	c.Assert(r, qt.Not(qt.IsNil))
+	c.Assert(r, qt.IsNotNil)
 	c.Assert(r.ResourceType(), qt.Equals, "image")
 	c.Assert(r.RelPermalink(), qt.Equals, "/a/b/logo.png")
 	c.Assert(r.Permalink(), qt.Equals, "https://example.com/a/b/logo.png")
@@ -41,7 +41,7 @@ func TestNewResourceFromFilename(t *testing.T) {
 	r, err = spec.New(resources.ResourceSourceDescriptor{Fs: spec.BaseFs.Assets.Fs, SourceFilename: "a/b/data.json"})
 
 	c.Assert(err, qt.IsNil)
-	c.Assert(r, qt.Not(qt.IsNil))
+	c.Assert(r, qt.IsNotNil)
 	c.Assert(r.ResourceType(), qt.Equals, "application")
 }
 

@@ -26,13 +26,13 @@ func TestStringEqualFold(t *testing.T) {
 	s1 := "A"
 	s2 := "a"
 
-	c.Assert(StringEqualFold(s1).EqualFold(s2), qt.Equals, true)
-	c.Assert(StringEqualFold(s1).EqualFold(s1), qt.Equals, true)
-	c.Assert(StringEqualFold(s2).EqualFold(s1), qt.Equals, true)
-	c.Assert(StringEqualFold(s2).EqualFold(s2), qt.Equals, true)
-	c.Assert(StringEqualFold(s1).EqualFold("b"), qt.Equals, false)
-	c.Assert(StringEqualFold(s1).Eq(s2), qt.Equals, true)
-	c.Assert(StringEqualFold(s1).Eq("b"), qt.Equals, false)
+	c.Assert(StringEqualFold(s1).EqualFold(s2), qt.IsTrue)
+	c.Assert(StringEqualFold(s1).EqualFold(s1), qt.IsTrue)
+	c.Assert(StringEqualFold(s2).EqualFold(s1), qt.IsTrue)
+	c.Assert(StringEqualFold(s2).EqualFold(s2), qt.IsTrue)
+	c.Assert(StringEqualFold(s1).EqualFold("b"), qt.IsFalse)
+	c.Assert(StringEqualFold(s1).Eq(s2), qt.IsTrue)
+	c.Assert(StringEqualFold(s1).Eq("b"), qt.IsFalse)
 
 }
 
@@ -41,7 +41,7 @@ func TestGetOrCompileRegexp(t *testing.T) {
 
 	re, err := GetOrCompileRegexp(`\d+`)
 	c.Assert(err, qt.IsNil)
-	c.Assert(re.MatchString("123"), qt.Equals, true)
+	c.Assert(re.MatchString("123"), qt.IsTrue)
 
 }
 

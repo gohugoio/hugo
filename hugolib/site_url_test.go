@@ -68,12 +68,12 @@ Do not go gentle into that good night.
 	c.Assert(len(s.RegularPages()), qt.Equals, 2)
 
 	notUgly := s.getPage(kinds.KindPage, "sect1/p1.md")
-	c.Assert(notUgly, qt.Not(qt.IsNil))
+	c.Assert(notUgly, qt.IsNotNil)
 	c.Assert(notUgly.Section(), qt.Equals, "sect1")
 	c.Assert(notUgly.RelPermalink(), qt.Equals, "/sect1/p1/")
 
 	ugly := s.getPage(kinds.KindPage, "sect2/p2.md")
-	c.Assert(ugly, qt.Not(qt.IsNil))
+	c.Assert(ugly, qt.IsNotNil)
 	c.Assert(ugly.Section(), qt.Equals, "sect2")
 	c.Assert(ugly.RelPermalink(), qt.Equals, "/sect2/p2.html")
 }
@@ -125,7 +125,7 @@ Do not go gentle into that good night.
 	c.Assert(len(s.RegularPages()), qt.Equals, 10)
 
 	sect1 := s.getPage(kinds.KindSection, "sect1")
-	c.Assert(sect1, qt.Not(qt.IsNil))
+	c.Assert(sect1, qt.IsNotNil)
 	c.Assert(sect1.RelPermalink(), qt.Equals, "/ss1/")
 	th.assertFileContent(filepath.Join("public", "ss1", "index.html"), "P1|URL: /ss1/|Next: /ss1/page/2/")
 	th.assertFileContent(filepath.Join("public", "ss1", "page", "2", "index.html"), "P2|URL: /ss1/page/2/|Next: /ss1/page/3/")

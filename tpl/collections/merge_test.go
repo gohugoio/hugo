@@ -149,7 +149,7 @@ func TestMerge(t *testing.T) {
 			result, err := ns.Merge(test.params...)
 
 			if test.isErr {
-				c.Assert(err, qt.Not(qt.IsNil), errMsg)
+				c.Assert(err, qt.IsNotNil, errMsg)
 				return
 			}
 
@@ -228,14 +228,14 @@ func TestCaseInsensitiveMapLookup(t *testing.T) {
 	var found bool
 
 	a, found := caseInsensitiveLookup(m1, reflect.ValueOf("A"))
-	c.Assert(found, qt.Equals, true)
+	c.Assert(found, qt.IsTrue)
 	c.Assert(a.Interface(), qt.Equals, 1)
 
 	b, found := caseInsensitiveLookup(m1, reflect.ValueOf("b"))
-	c.Assert(found, qt.Equals, true)
+	c.Assert(found, qt.IsTrue)
 	c.Assert(b.Interface(), qt.Equals, 2)
 
 	two, found := caseInsensitiveLookup(m2, reflect.ValueOf(2))
-	c.Assert(found, qt.Equals, true)
+	c.Assert(found, qt.IsTrue)
 	c.Assert(two.Interface(), qt.Equals, 2)
 }

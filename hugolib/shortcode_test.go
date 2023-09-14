@@ -183,11 +183,11 @@ CSV: {{< myShort >}}
 
 	b.Build(BuildCfg{})
 	h := b.H
-	b.Assert(len(h.Sites), qt.Equals, 1)
+	b.Assert(h.Sites, qt.HasLen, 1)
 
 	s := h.Sites[0]
 	home := s.getPage(kinds.KindHome)
-	b.Assert(home, qt.Not(qt.IsNil))
+	b.Assert(home, qt.IsNotNil)
 	b.Assert(len(home.OutputFormats()), qt.Equals, 3)
 
 	b.AssertFileContent("public/index.html",
@@ -1270,7 +1270,7 @@ Inner: {{ .Get 0 }}: {{ len .Inner }}
 		},
 	).BuildE()
 
-	b.Assert(err, qt.Not(qt.IsNil))
+	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, `p1.md:5:1": failed to extract shortcode: shortcode "sc" must be closed or self-closed`)
 }
 

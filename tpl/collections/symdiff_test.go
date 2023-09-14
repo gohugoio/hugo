@@ -58,7 +58,7 @@ func TestSymDiff(t *testing.T) {
 		result, err := ns.SymDiff(test.s2, test.s1)
 
 		if b, ok := test.expected.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			c.Assert(err, qt.IsNotNil, errMsg)
 			continue
 		}
 
@@ -70,7 +70,7 @@ func TestSymDiff(t *testing.T) {
 	}
 
 	_, err := ns.Complement()
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 	_, err = ns.Complement([]string{"a", "b"})
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 }

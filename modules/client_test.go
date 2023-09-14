@@ -79,9 +79,9 @@ github.com/gohugoio/hugoTestModules1_darwin/modh2_2@v1.4.0 github.com/gohugoio/h
 		// Test Collect
 		mc, err := client.Collect()
 		c.Assert(err, qt.IsNil)
-		c.Assert(len(mc.AllModules), qt.Equals, 4)
+		c.Assert(mc.AllModules, qt.HasLen, 4)
 		for _, m := range mc.AllModules {
-			c.Assert(m, qt.Not(qt.IsNil))
+			c.Assert(m, qt.IsNotNil)
 		}
 
 		// Test Graph
@@ -185,7 +185,7 @@ project github.com/gohugoio/hugoTestModules1_darwin/modh2_2_2@v1.3.0+vendor
 		c.Assert(dirname, qt.Equals, filepath.Join(client.ccfg.ThemesDir, "../../foo"))
 
 		dirname, err = client.createThemeDirname("../../foo", false)
-		c.Assert(err, qt.Not(qt.IsNil))
+		c.Assert(err, qt.IsNotNil)
 
 		absDir := filepath.Join(client.ccfg.WorkingDir, "..", "..")
 		dirname, err = client.createThemeDirname(absDir, true)
@@ -193,7 +193,7 @@ project github.com/gohugoio/hugoTestModules1_darwin/modh2_2_2@v1.3.0+vendor
 		c.Assert(dirname, qt.Equals, absDir)
 		dirname, err = client.createThemeDirname(absDir, false)
 		fmt.Println(dirname)
-		c.Assert(err, qt.Not(qt.IsNil))
+		c.Assert(err, qt.IsNotNil)
 	})
 }
 

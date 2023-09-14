@@ -31,34 +31,34 @@ func TestGetByType(t *testing.T) {
 	types := DefaultTypes
 
 	mt, found := types.GetByType("text/HTML")
-	c.Assert(found, qt.Equals, true)
+	c.Assert(found, qt.IsTrue)
 	c.Assert(mt.SubType, qt.Equals, "html")
 
 	_, found = types.GetByType("text/nono")
-	c.Assert(found, qt.Equals, false)
+	c.Assert(found, qt.IsFalse)
 
 	mt, found = types.GetByType("application/rss+xml")
-	c.Assert(found, qt.Equals, true)
+	c.Assert(found, qt.IsTrue)
 	c.Assert(mt.SubType, qt.Equals, "rss")
 
 	mt, found = types.GetByType("application/rss")
-	c.Assert(found, qt.Equals, true)
+	c.Assert(found, qt.IsTrue)
 	c.Assert(mt.SubType, qt.Equals, "rss")
 }
 
 func TestGetByMainSubType(t *testing.T) {
 	c := qt.New(t)
 	f, found := DefaultTypes.GetByMainSubType("text", "plain")
-	c.Assert(found, qt.Equals, true)
+	c.Assert(found, qt.IsTrue)
 	c.Assert(f.SubType, qt.Equals, "plain")
 	_, found = DefaultTypes.GetByMainSubType("foo", "plain")
-	c.Assert(found, qt.Equals, false)
+	c.Assert(found, qt.IsFalse)
 }
 
 func TestBySuffix(t *testing.T) {
 	c := qt.New(t)
 	formats := DefaultTypes.BySuffix("xml")
-	c.Assert(len(formats), qt.Equals, 2)
+	c.Assert(formats, qt.HasLen, 2)
 	c.Assert(formats[0].SubType, qt.Equals, "rss")
 	c.Assert(formats[1].SubType, qt.Equals, "xml")
 }
@@ -76,7 +76,7 @@ func TestGetFirstBySuffix(t *testing.T) {
 
 	check := func(suffix string, expectedType Type) {
 		t, f, found := types.GetFirstBySuffix(suffix)
-		c.Assert(found, qt.Equals, true)
+		c.Assert(found, qt.IsTrue)
 		c.Assert(f, qt.Equals, SuffixInfo{
 			Suffix:     suffix,
 			FullSuffix: "." + suffix,
@@ -105,7 +105,7 @@ func TestFromTypeString(t *testing.T) {
 	c.Assert(f, qt.Equals, Type{Type: "application/custom+sfx", MainType: "application", SubType: "custom", mimeSuffix: "sfx"})
 
 	_, err = FromString("noslash")
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 
 	f, err = FromString("text/xml; charset=utf-8")
 	c.Assert(err, qt.IsNil)
@@ -128,16 +128,16 @@ func TestFromStringAndExt(t *testing.T) {
 func TestFromExtensionMultipleSuffixes(t *testing.T) {
 	c := qt.New(t)
 	tp, si, found := DefaultTypes.GetBySuffix("svg")
-	c.Assert(found, qt.Equals, true)
+	c.Assert(found, qt.IsTrue)
 	c.Assert(tp.String(), qt.Equals, "image/svg+xml")
 	c.Assert(si.Suffix, qt.Equals, "svg")
 	c.Assert(si.FullSuffix, qt.Equals, ".svg")
 	c.Assert(tp.FirstSuffix.Suffix, qt.Equals, si.Suffix)
 	c.Assert(tp.FirstSuffix.FullSuffix, qt.Equals, si.FullSuffix)
 	ftp, found := DefaultTypes.GetByType("image/svg+xml")
-	c.Assert(found, qt.Equals, true)
+	c.Assert(found, qt.IsTrue)
 	c.Assert(ftp.String(), qt.Equals, "image/svg+xml")
-	c.Assert(found, qt.Equals, true)
+	c.Assert(found, qt.IsTrue)
 }
 
 func TestFromContent(t *testing.T) {

@@ -114,10 +114,10 @@ func TestCardinalityThreshold(t *testing.T) {
 	idx.Add(context.Background(), docs...)
 	c.Assert(idx.Finalize(context.Background()), qt.IsNil)
 	// Only tags=b should be removed.
-	c.Assert(hasKeyword("tags", "a"), qt.Equals, true)
-	c.Assert(hasKeyword("tags", "b"), qt.Equals, false)
-	c.Assert(hasKeyword("tags", "d"), qt.Equals, true)
-	c.Assert(hasKeyword("keywords", "b"), qt.Equals, true)
+	c.Assert(hasKeyword("tags", "a"), qt.IsTrue)
+	c.Assert(hasKeyword("tags", "b"), qt.IsFalse)
+	c.Assert(hasKeyword("tags", "d"), qt.IsTrue)
+	c.Assert(hasKeyword("keywords", "b"), qt.IsTrue)
 
 }
 
@@ -145,15 +145,15 @@ func TestSearch(t *testing.T) {
 
 	t.Run("count", func(t *testing.T) {
 		c := qt.New(t)
-		c.Assert(len(idx.index), qt.Equals, 2)
+		c.Assert(idx.index, qt.HasLen, 2)
 		set1, found := idx.index["tags"]
-		c.Assert(found, qt.Equals, true)
+		c.Assert(found, qt.IsTrue)
 		// 6 tags
-		c.Assert(len(set1), qt.Equals, 6)
+		c.Assert(set1, qt.HasLen, 6)
 
 		set2, found := idx.index["keywords"]
-		c.Assert(found, qt.Equals, true)
-		c.Assert(len(set2), qt.Equals, 2)
+		c.Assert(found, qt.IsTrue)
+		c.Assert(set2, qt.HasLen, 2)
 	})
 
 	t.Run("search-tags", func(t *testing.T) {
@@ -161,7 +161,7 @@ func TestSearch(t *testing.T) {
 		var cfg IndexConfig
 		m, err := idx.search(context.Background(), newQueryElement("tags", cfg.StringsToKeywords("a", "b", "d", "z")...))
 		c.Assert(err, qt.IsNil)
-		c.Assert(len(m), qt.Equals, 2)
+		c.Assert(m, qt.HasLen, 2)
 		c.Assert(m[0], qt.Equals, docs[0])
 		c.Assert(m[1], qt.Equals, docs[1])
 	})
@@ -173,7 +173,7 @@ func TestSearch(t *testing.T) {
 			newQueryElement("tags", cfg.StringsToKeywords("a", "b", "z")...),
 			newQueryElement("keywords", cfg.StringsToKeywords("a", "b")...))
 		c.Assert(err, qt.IsNil)
-		c.Assert(len(m), qt.Equals, 3)
+		c.Assert(m, qt.HasLen, 3)
 		c.Assert(m[0], qt.Equals, docs[3])
 		c.Assert(m[1], qt.Equals, docs[2])
 		c.Assert(m[2], qt.Equals, docs[0])
@@ -184,7 +184,7 @@ func TestSearch(t *testing.T) {
 		doc := newTestDoc("tags", "a").addKeywords("keywords", "a")
 		m, err := idx.Search(context.Background(), SearchOpts{Document: doc})
 		c.Assert(err, qt.IsNil)
-		c.Assert(len(m), qt.Equals, 2)
+		c.Assert(m, qt.HasLen, 2)
 		c.Assert(m[0], qt.Equals, docs[3])
 		c.Assert(m[1], qt.Equals, docs[2])
 	})
@@ -194,7 +194,7 @@ func TestSearch(t *testing.T) {
 		doc := newTestDoc("tags", "a", "b", "d", "z").addKeywords("keywords", "a", "b")
 		m, err := idx.Search(context.Background(), SearchOpts{Document: doc, Indices: []string{"tags"}})
 		c.Assert(err, qt.IsNil)
-		c.Assert(len(m), qt.Equals, 2)
+		c.Assert(m, qt.HasLen, 2)
 		c.Assert(m[0], qt.Equals, docs[0])
 		c.Assert(m[1], qt.Equals, docs[1])
 	})
@@ -208,7 +208,7 @@ func TestSearch(t *testing.T) {
 
 		m, err := idx.Search(context.Background(), SearchOpts{Document: doc, Indices: []string{"keywords"}})
 		c.Assert(err, qt.IsNil)
-		c.Assert(len(m), qt.Equals, 2)
+		c.Assert(m, qt.HasLen, 2)
 		c.Assert(m[0], qt.Equals, docs[3])
 	})
 
@@ -229,7 +229,7 @@ func TestSearch(t *testing.T) {
 
 		m, err := idx.Search(context.Background(), SearchOpts{Document: doc, Indices: []string{"keywords"}})
 		c.Assert(err, qt.IsNil)
-		c.Assert(len(m), qt.Equals, 10)
+		c.Assert(m, qt.HasLen, 10)
 		for i := 0; i < 10; i++ {
 			c.Assert(m[i].Name(), qt.Equals, fmt.Sprintf("doc%d", i))
 		}

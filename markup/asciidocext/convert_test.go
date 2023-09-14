@@ -53,7 +53,7 @@ func TestAsciidoctorDefaultArgs(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 
 	ac := conv.(*internal.AsciidocConverter)
-	c.Assert(ac, qt.Not(qt.IsNil))
+	c.Assert(ac, qt.IsNotNil)
 
 	args := ac.ParseArgs(converter.DocumentContext{})
 	expected := []string{"--no-header-footer"}
@@ -85,7 +85,7 @@ func TestAsciidoctorNonDefaultArgs(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 
 	ac := conv.(*internal.AsciidocConverter)
-	c.Assert(ac, qt.Not(qt.IsNil))
+	c.Assert(ac, qt.IsNotNil)
 
 	args := ac.ParseArgs(converter.DocumentContext{})
 	expected := []string{"-b", "manpage", "--section-numbers", "--verbose", "--failure-level", "warn", "--safe-mode", "safe"}
@@ -115,7 +115,7 @@ func TestAsciidoctorDisallowedArgs(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 
 	ac := conv.(*internal.AsciidocConverter)
-	c.Assert(ac, qt.Not(qt.IsNil))
+	c.Assert(ac, qt.IsNotNil)
 
 	args := ac.ParseArgs(converter.DocumentContext{})
 	expected := []string{"--no-header-footer"}
@@ -139,7 +139,7 @@ func TestAsciidoctorArbitraryExtension(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 
 	ac := conv.(*internal.AsciidocConverter)
-	c.Assert(ac, qt.Not(qt.IsNil))
+	c.Assert(ac, qt.IsNotNil)
 
 	args := ac.ParseArgs(converter.DocumentContext{})
 	expected := []string{"-r", "arbitrary-extension", "--no-header-footer"}
@@ -173,7 +173,7 @@ func TestAsciidoctorDisallowedExtension(t *testing.T) {
 		c.Assert(err, qt.IsNil)
 
 		ac := conv.(*internal.AsciidocConverter)
-		c.Assert(ac, qt.Not(qt.IsNil))
+		c.Assert(ac, qt.IsNotNil)
 
 		args := ac.ParseArgs(converter.DocumentContext{})
 		expected := []string{"--no-header-footer"}
@@ -205,10 +205,10 @@ trace = false
 	c.Assert(err, qt.IsNil)
 
 	ac := conv.(*internal.AsciidocConverter)
-	c.Assert(ac, qt.Not(qt.IsNil))
+	c.Assert(ac, qt.IsNotNil)
 
 	args := ac.ParseArgs(ctx)
-	c.Assert(len(args), qt.Equals, 5)
+	c.Assert(args, qt.HasLen, 5)
 	c.Assert(args[0], qt.Equals, "--base-dir")
 	c.Assert(filepath.ToSlash(args[1]), qt.Matches, "/tmp/hugo_asciidoc_ddd/docs/chapter2")
 	c.Assert(args[2], qt.Equals, "-a")
@@ -241,10 +241,10 @@ extensions = ["asciidoctor-html5s", "asciidoctor-diagram"]
 	c.Assert(err, qt.IsNil)
 
 	ac := conv.(*internal.AsciidocConverter)
-	c.Assert(ac, qt.Not(qt.IsNil))
+	c.Assert(ac, qt.IsNotNil)
 
 	args := ac.ParseArgs(converter.DocumentContext{})
-	c.Assert(len(args), qt.Equals, 11)
+	c.Assert(args, qt.HasLen, 11)
 	c.Assert(args[0], qt.Equals, "-b")
 	c.Assert(args[1], qt.Equals, "html5s")
 	c.Assert(args[2], qt.Equals, "-r")
@@ -281,7 +281,7 @@ my-attribute-name = "my value"
 	c.Assert(err, qt.IsNil)
 
 	ac := conv.(*internal.AsciidocConverter)
-	c.Assert(ac, qt.Not(qt.IsNil))
+	c.Assert(ac, qt.IsNotNil)
 
 	expectedValues := map[string]bool{
 		"my-base-url=https://gohugo.io/": true,
@@ -289,11 +289,11 @@ my-attribute-name = "my value"
 	}
 
 	args := ac.ParseArgs(converter.DocumentContext{})
-	c.Assert(len(args), qt.Equals, 5)
+	c.Assert(args, qt.HasLen, 5)
 	c.Assert(args[0], qt.Equals, "-a")
-	c.Assert(expectedValues[args[1]], qt.Equals, true)
+	c.Assert(expectedValues[args[1]], qt.IsTrue)
 	c.Assert(args[2], qt.Equals, "-a")
-	c.Assert(expectedValues[args[3]], qt.Equals, true)
+	c.Assert(expectedValues[args[3]], qt.IsTrue)
 	c.Assert(args[4], qt.Equals, "--no-header-footer")
 }
 
@@ -365,7 +365,7 @@ testContent
 `)})
 	c.Assert(err, qt.IsNil)
 	toc, ok := r.(converter.TableOfContentsProvider)
-	c.Assert(ok, qt.Equals, true)
+	c.Assert(ok, qt.IsTrue)
 
 	c.Assert(toc.TableOfContents().Identifiers, qt.DeepEquals, collections.SortedStringSlice{"_introduction", "_section_1", "_section_1_1", "_section_1_1_1", "_section_1_2", "_section_2"})
 	c.Assert(string(r.Bytes()), qt.Not(qt.Contains), "<div id=\"toc\" class=\"toc\">")
@@ -385,7 +385,7 @@ func TestTableOfContentsWithCode(t *testing.T) {
 `)})
 	c.Assert(err, qt.IsNil)
 	toc, ok := r.(converter.TableOfContentsProvider)
-	c.Assert(ok, qt.Equals, true)
+	c.Assert(ok, qt.IsTrue)
 	c.Assert(toc.TableOfContents().HeadingsMap["_some_code_in_the_title"].Title, qt.Equals, "Some <code>code</code> in the title")
 	c.Assert(string(r.Bytes()), qt.Not(qt.Contains), "<div id=\"toc\" class=\"toc\">")
 }
@@ -412,7 +412,7 @@ preserveTOC = true
 `)})
 	c.Assert(err, qt.IsNil)
 	toc, ok := r.(converter.TableOfContentsProvider)
-	c.Assert(ok, qt.Equals, true)
+	c.Assert(ok, qt.IsTrue)
 
 	c.Assert(toc.TableOfContents().Identifiers, qt.DeepEquals, collections.SortedStringSlice{"some-title"})
 	c.Assert(string(r.Bytes()), qt.Contains, "<div id=\"toc\" class=\"toc\">")

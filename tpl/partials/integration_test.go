@@ -295,7 +295,7 @@ timeout = '200ms'
 		},
 	).BuildE()
 
-	b.Assert(err, qt.Not(qt.IsNil))
+	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, "timed out")
 
 }
@@ -320,7 +320,7 @@ timeout = '200ms'
 		},
 	).BuildE()
 
-	b.Assert(err, qt.Not(qt.IsNil))
+	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, "timed out")
 
 }
