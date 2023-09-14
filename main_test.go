@@ -398,7 +398,7 @@ func testSetupFunc() func(env *testscript.Env) error {
 		goVersion := runtime.Version()
 
 		goVersion = strings.TrimPrefix(goVersion, "go")
-		if !strings.HasSuffix(goVersion, ".0") {
+		if strings.HasPrefix(goVersion, "1.20") {
 			// Strip patch version.
 			goVersion = goVersion[:strings.LastIndex(goVersion, ".")]
 		}
