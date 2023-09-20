@@ -102,11 +102,11 @@ With this content structure:
 ```text
 content/
 ├── posts/
-│   ├── bash-in-slow-motion.md
-│   └── tls-in-a-nutshell.md
+│   ├── bash-in-slow-motion.md
+│   └── tls-in-a-nutshell.md
 ├── tutorials/
-│   ├── git-for-beginners.md
-│   └── javascript-bundling-with-hugo.md
+│   ├── git-for-beginners.md
+│   └── javascript-bundling-with-hugo.md
 └── _index.md
 ```
 
@@ -165,15 +165,15 @@ With this content structure:
 
 ```text
 content/
-├── de/
-│   ├── books/
-│   │   ├── les-miserables.md
-│   │   └── the-hunchback-of-notre-dame.md
-│   └── _index.md
-└── en/
+├── en/
+│   ├── books/
+│   │   ├── les-miserables.md
+│   │   └── the-hunchback-of-notre-dame.md
+│   └── _index.md
+└── es/
     ├── books/
-    │   ├── les-miserables.md
-    │   └── the-hunchback-of-notre-dame.md
+    │   ├── les-miserables.md
+    │   └── the-hunchback-of-notre-dame.md
     └── _index.md
 ```
 
@@ -197,7 +197,7 @@ books = "/books/:slug/"
 books = "/books/"
 
 [languages.es]
-contentDir = 'content/de'
+contentDir = 'content/es'
 languageCode = 'es-ES'
 languageDirection = 'ltr'
 languageName = 'Español'
@@ -215,21 +215,21 @@ The structure of the published site will be:
 ```text
 public/
 ├── en/
-│   ├── books/
-│   │   ├── les-miserables/
-│   │   │   └── index.html
-│   │   ├── the-hunchback-of-notre-dame/
-│   │   │   └── index.html
-│   │   └── index.html
-│   └── index.html
+│   ├── books/
+│   │   ├── les-miserables/
+│   │   │   └── index.html
+│   │   ├── the-hunchback-of-notre-dame/
+│   │   │   └── index.html
+│   │   └── index.html
+│   └── index.html
 ├── es/
-│   ├── libros/
-│   │   ├── les-miserables/
-│   │   │   └── index.html
-│   │   ├── the-hunchback-of-notre-dame/
-│   │   │   └── index.html
-│   │   └── index.html
-│   └── index.html
+│   ├── libros/
+│   │   ├── les-miserables/
+│   │   │   └── index.html
+│   │   ├── the-hunchback-of-notre-dame/
+│   │   │   └── index.html
+│   │   └── index.html
+│   └── index.html
 └── index.html
 ````
 
