@@ -211,7 +211,12 @@ Install a specific version:
 
     hugo mod get github.com/gohugoio/testshortcodes@v0.3.0
 
-Install the latest versions of all module dependencies:
+Install the latest versions of all direct module dependencies:
+
+    hugo mod get
+    hugo mod get ./... (recursive)
+
+Install the latest versions of all module dependencies (direct and indirect):
 
     hugo mod get -u
     hugo mod get -u ./... (recursive)
@@ -281,7 +286,6 @@ Run "go help get" for more information. All flags available for "go get" is also
 			npmCommand,
 		},
 	}
-
 }
 
 type modCommands struct {
@@ -303,7 +307,7 @@ func (c *modCommands) Run(ctx context.Context, cd *simplecobra.Commandeer, args 
 	if err != nil {
 		return err
 	}
-	//config := conf.configs.Base
+	// config := conf.configs.Base
 
 	return nil
 }
