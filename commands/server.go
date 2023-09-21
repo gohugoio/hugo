@@ -954,7 +954,7 @@ func (c *serverCommand) serve() error {
 			mu.HandleFunc(u.Path+"/livereload.js", livereload.ServeJS)
 			mu.HandleFunc(u.Path+"/livereload", livereload.Handler)
 		}
-		c.r.Printf("Web Server is available at %s (bind address %s) %s\n", serverURL, c.serverInterface, roots[i])
+		c.r.Printf("Web Server is available at http:%s (bind address %s) %s\n", serverURL, c.serverInterface, roots[i])
 		wg1.Go(func() error {
 			if c.tlsCertFile != "" && c.tlsKeyFile != "" {
 				err = srv.ServeTLS(listener, c.tlsCertFile, c.tlsKeyFile)
