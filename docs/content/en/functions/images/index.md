@@ -34,6 +34,19 @@ A shorter version of the above, if you only need to apply the filter once:
 
 The above will overlay `$logo` in the upper left corner of `$img` (at position `x=50, y=50`).
 
+## Opacity
+
+{{% funcsig %}}
+images.Opacity SRC OPACITY
+{{% /funcsig %}}
+
+Opacity creates a filter that changes the opacity of an image.
+The OPACITY parameter must be in range (0, 1).
+
+```go-html-template
+{{ $img := $img.Filter (images.Opacity 0.5 )}}
+```
+
 ## Text
 
 Using the `Text` filter, you can add text to an image.
