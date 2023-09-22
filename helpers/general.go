@@ -53,18 +53,6 @@ func TCPListen() (net.Listener, *net.TCPAddr, error) {
 	}
 	l.Close()
 	return nil, nil, fmt.Errorf("unable to obtain a valid tcp port: %v", addr)
-
-}
-
-// InStringArray checks if a string is an element of a slice of strings
-// and returns a boolean value.
-func InStringArray(arr []string, el string) bool {
-	for _, v := range arr {
-		if v == el {
-			return true
-		}
-	}
-	return false
 }
 
 // FirstUpper returns a string with the first character as upper case.

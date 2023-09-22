@@ -195,6 +195,10 @@ func (r resourceAdapter) cloneTo(targetPath string) resource.Resource {
 	return &r
 }
 
+func (r *resourceAdapter) Process(spec string) (images.ImageResource, error) {
+	return r.getImageOps().Process(spec)
+}
+
 func (r *resourceAdapter) Crop(spec string) (images.ImageResource, error) {
 	return r.getImageOps().Crop(spec)
 }
@@ -287,7 +291,6 @@ func (r resourceAdapter) Transform(t ...ResourceTransformation) (ResourceTransfo
 }
 
 func (r resourceAdapter) TransformWithContext(ctx context.Context, t ...ResourceTransformation) (ResourceTransformer, error) {
-
 	r.resourceTransformations = &resourceTransformations{
 		transformations: append(r.transformations, t...),
 	}
@@ -459,7 +462,6 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 					errMsg = ". Check your Hugo installation; you need the extended version to build SCSS/SASS with transpiler set to 'libsass'."
 				} else if tr.Key().Name == "tocss-dart" {
 					errMsg = ". You need dart-sass-embedded in your system $PATH."
-
 				} else if tr.Key().Name == "babel" {
 					errMsg = ". You need to install Babel, see https://gohugo.io/hugo-pipes/babel/"
 				}

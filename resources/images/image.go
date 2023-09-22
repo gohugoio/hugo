@@ -14,6 +14,7 @@
 package images
 
 import (
+	"errors"
 	"fmt"
 	"image"
 	"image/color"
@@ -34,8 +35,6 @@ import (
 	"github.com/disintegration/gift"
 	"golang.org/x/image/bmp"
 	"golang.org/x/image/tiff"
-
-	"errors"
 
 	"github.com/gohugoio/hugo/common/hugio"
 )
@@ -245,7 +244,11 @@ func (p *ImageProcessor) ApplyFiltersFromConfig(src image.Image, conf ImageConfi
 	case "fit":
 		filters = append(filters, gift.ResizeToFit(conf.Width, conf.Height, conf.Filter))
 	default:
-		return nil, fmt.Errorf("unsupported action: %q", conf.Action)
+
+	}
+
+	if len(filters) == 0 {
+		return p.resolveSrc(src, conf.TargetFormat), nil
 	}
 
 	img, err := p.doFilter(src, conf.TargetFormat, filters...)
@@ -260,8 +263,17 @@ func (p *ImageProcessor) Filter(src image.Image, filters ...gift.Filter) (image.
 	return p.doFilter(src, 0, filters...)
 }
 
-func (p *ImageProcessor) doFilter(src image.Image, targetFormat Format, filters ...gift.Filter) (image.Image, error) {
+func (p *ImageProcessor) resolveSrc(src image.Image, targetFormat Format) image.Image {
+	if giph, ok := src.(Giphy); ok {
+		g := giph.GIF()
+		if len(g.Image) < 2 || (targetFormat == 0 || targetFormat != GIF) {
+			src = g.Image[0]
+		}
+	}
+	return src
+}
 
+func (p *ImageProcessor) doFilter(src image.Image, targetFormat Format, filters ...gift.Filter) (image.Image, error) {
 	filter := gift.New(filters...)
 
 	if giph, ok := src.(Giphy); ok {
