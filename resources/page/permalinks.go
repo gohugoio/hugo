@@ -14,6 +14,7 @@
 package page
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -23,8 +24,7 @@ import (
 	"strings"
 	"time"
 
-	"errors"
-
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources/kinds"
@@ -396,7 +396,6 @@ func (l PermalinkExpander) toSliceFunc(cut string) func(s []string) []string {
 		}
 		return s[n1:n2]
 	}
-
 }
 
 var permalinksKindsSupport = []string{kinds.KindPage, kinds.KindSection, kinds.KindTaxonomy, kinds.KindTerm}
@@ -425,7 +424,7 @@ func DecodePermalinksConfig(m map[string]any) (map[string]map[string]string, err
 			// [permalinks.key]
 			//   xyz = ???
 
-			if helpers.InStringArray(permalinksKindsSupport, k) {
+			if hstrings.InSlice(permalinksKindsSupport, k) {
 				// TODO: warn if we overwrite an already set value
 				for k2, v2 := range v {
 					switch v2 := v2.(type) {
