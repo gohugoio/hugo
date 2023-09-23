@@ -201,7 +201,7 @@ func (p *ImageProcessor) DecodeExif(r io.Reader) (*exif.ExifInfo, error) {
 	return p.exifDecoder.Decode(r)
 }
 
-func (p *ImageProcessor) ApplyFiltersFromConfig(src image.Image, conf ImageConfig) (image.Image, error) {
+func (p *ImageProcessor) FiltersFromConfig(src image.Image, conf ImageConfig) ([]gift.Filter, error) {
 	var filters []gift.Filter
 
 	if conf.Rotate != 0 {
@@ -245,6 +245,14 @@ func (p *ImageProcessor) ApplyFiltersFromConfig(src image.Image, conf ImageConfi
 		filters = append(filters, gift.ResizeToFit(conf.Width, conf.Height, conf.Filter))
 	default:
 
+	}
+	return filters, nil
+}
+
+func (p *ImageProcessor) ApplyFiltersFromConfig(src image.Image, conf ImageConfig) (image.Image, error) {
+	filters, err := p.FiltersFromConfig(src, conf)
+	if err != nil {
+		return nil, err
 	}
 
 	if len(filters) == 0 {
@@ -396,6 +404,15 @@ func imageConfigFromImage(img image.Image) image.Config {
 	return image.Config{Width: b.Max.X, Height: b.Max.Y}
 }
 
+// UnwrapFilter unwraps the given filter if it is a filter wrapper.
+func UnwrapFilter(in gift.Filter) gift.Filter {
+	if f, ok := in.(filter); ok {
+		return f.Filter
+	}
+	return in
+}
+
+// ToFilters converts the given input to a slice of gift.Filter.
 func ToFilters(in any) []gift.Filter {
 	switch v := in.(type) {
 	case []gift.Filter:

@@ -206,15 +206,7 @@ var imageActions = []string{images.ActionResize, images.ActionCrop, images.Actio
 // This makes this method a more flexible version that covers all of Resize, Crop, Fit and Fill,
 // but it also supports e.g. format conversions without any resize action.
 func (i *imageResource) Process(spec string) (images.ImageResource, error) {
-	var action string
-	options := strings.Fields(spec)
-	for i, p := range options {
-		if hstrings.InSlicEqualFold(imageActions, p) {
-			action = p
-			options = append(options[:i], options[i+1:]...)
-			break
-		}
-	}
+	action, options := i.resolveActionOptions(spec)
 	return i.processActionOptions(action, options)
 }
 
@@ -245,7 +237,7 @@ func (i *imageResource) Fill(spec string) (images.ImageResource, error) {
 }
 
 func (i *imageResource) Filter(filters ...any) (images.ImageResource, error) {
-	conf := images.GetDefaultImageConfig("filter", i.Proc.Cfg)
+	var conf images.ImageConfig
 
 	var gfilters []gift.Filter
 
@@ -253,12 +245,75 @@ func (i *imageResource) Filter(filters ...any) (images.ImageResource, error) {
 		gfilters = append(gfilters, images.ToFilters(f)...)
 	}
 
+	var (
+		targetFormat images.Format
+		configSet    bool
+	)
+	for _, f := range gfilters {
+		f = images.UnwrapFilter(f)
+		if specProvider, ok := f.(images.ImageProcessSpecProvider); ok {
+			action, options := i.resolveActionOptions(specProvider.ImageProcessSpec())
+			var err error
+			conf, err = images.DecodeImageConfig(action, options, i.Proc.Cfg, i.Format)
+			if err != nil {
+				return nil, err
+			}
+			configSet = true
+			if conf.TargetFormat != 0 {
+				targetFormat = conf.TargetFormat
+				// We only support one target format, but prefer the last one,
+				// so we keep going.
+			}
+		}
+	}
+
+	if !configSet {
+		conf = images.GetDefaultImageConfig("filter", i.Proc.Cfg)
+	}
+
+	conf.Action = "filter"
 	conf.Key = identity.HashString(gfilters)
-	conf.TargetFormat = i.Format
+	conf.TargetFormat = targetFormat
+	if conf.TargetFormat == 0 {
+		conf.TargetFormat = i.Format
+	}
 
 	return i.doWithImageConfig(conf, func(src image.Image) (image.Image, error) {
-		return i.Proc.Filter(src, gfilters...)
+		filters := gfilters
+		for j, f := range gfilters {
+			f = images.UnwrapFilter(f)
+			if specProvider, ok := f.(images.ImageProcessSpecProvider); ok {
+				processSpec := specProvider.ImageProcessSpec()
+				action, options := i.resolveActionOptions(processSpec)
+				conf, err := images.DecodeImageConfig(action, options, i.Proc.Cfg, i.Format)
+				if err != nil {
+					return nil, err
+				}
+				pFilters, err := i.Proc.FiltersFromConfig(src, conf)
+				if err != nil {
+					return nil, err
+				}
+				// Replace the filter with the new filters.
+				// This slice will be empty if this is just a format conversion.
+				filters = append(filters[:j], append(pFilters, filters[j+1:]...)...)
+
+			}
+		}
+		return i.Proc.Filter(src, filters...)
 	})
+}
+
+func (i *imageResource) resolveActionOptions(spec string) (string, []string) {
+	var action string
+	options := strings.Fields(spec)
+	for i, p := range options {
+		if hstrings.InSlicEqualFold(imageActions, p) {
+			action = p
+			options = append(options[:i], options[i+1:]...)
+			break
+		}
+	}
+	return action, options
 }
 
 func (i *imageResource) processActionSpec(action, spec string) (images.ImageResource, error) {

@@ -30,6 +30,15 @@ const filterAPIVersion = 0
 
 type Filters struct{}
 
+func (*Filters) Process(spec any) gift.Filter {
+	return filter{
+		Options: newFilterOpts(spec),
+		Filter: processFilter{
+			spec: cast.ToString(spec),
+		},
+	}
+}
+
 // Overlay creates a filter that overlays src at position x y.
 func (*Filters) Overlay(src ImageSource, x, y any) gift.Filter {
 	return filter{
