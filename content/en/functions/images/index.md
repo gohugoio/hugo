@@ -17,7 +17,7 @@ See [images.Filter](#filter) for how to apply these filters to an image.
 {{< new-in "0.119.0" >}}
 
 {{% funcsig %}}
-images.Overlay SRC SPEC
+images.Process SRC SPEC
 {{% /funcsig %}}
 
 A general purpose image processing function.
@@ -70,7 +70,7 @@ The OPACITY parameter must be in range (0, 1).
 {{ $img := $img.Filter (images.Opacity 0.5 )}}
 ```
 
-Note that target format must support transparency, e.g. PNG. If the source image is e.g. JPG, the most effective way would be to combine it with the [`Process`] filter:
+This filter is most useful for target formats that support transparency, e.g. PNG. If the source image is e.g. JPG, the most effective way would be to combine it with the [`Process`] filter:
 
 ```go-html-template
 {{ $png := $jpg.Filter 
