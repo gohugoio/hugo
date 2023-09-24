@@ -1018,6 +1018,10 @@ config:
     defaultMarkdownHandler: goldmark
     goldmark:
       extensions:
+        cjk:
+          eastAsianLineBreaks: false
+          enable: false
+          escapedSpace: false
         definitionList: true
         footnote: true
         linkify: true

@@ -54,7 +54,7 @@ Here you will be redirected to login in your GitHub account to get permissions. 
 7. For which GitHub repository would you like to set up a GitHub workflow? (format: user/repository) 
 
 Include the repository you will use in the format above (Account/Repo)
-Firebase script with retrive credentials, create a service account you can later manage in your GitHub settings.
+Firebase script with retrieve credentials, create a service account you can later manage in your GitHub settings.
 
 8. Set up the workflow to run a build script before every deploy? 
 

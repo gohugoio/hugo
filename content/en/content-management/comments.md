@@ -48,6 +48,7 @@ These are some alternatives to Disqus:
 
 * [Cactus Comments](https://cactus.chat/docs/integrations/hugo/) (Open Source, Matrix appservice, Docker install)
 * [Commento](https://commento.io/) (Open Source, available as a service, local install, or docker image)
+* [Giscus](https://giscus.app/) (Open source, comments system powered by GitHub Discussions)
 * [Graph Comment](https://graphcomment.com/)
 * [Hyvor Talk](https://talk.hyvor.com/) (Available as a service)
 * [IntenseDebate](https://intensedebate.com/)

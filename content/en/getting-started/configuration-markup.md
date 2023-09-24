@@ -24,7 +24,7 @@ Below are all markup related configuration in Hugo with their default settings:
 
 ## Goldmark
 
-[Goldmark](https://github.com/yuin/goldmark/) is from Hugo 0.60 the default library used for Markdown. It's fast, it's [CommonMark](https://spec.commonmark.org/0.29/) compliant and it's very flexible.
+[Goldmark](https://github.com/yuin/goldmark/) is from Hugo 0.60 the default library used for Markdown. It's fast, it's [CommonMark](https://spec.commonmark.org/current/) compliant and it's very flexible.
 
 This is the default configuration:
 
