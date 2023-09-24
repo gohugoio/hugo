@@ -30,7 +30,7 @@ import (
 	"github.com/gohugoio/hugo/navigation"
 )
 
-// Site represents a site. There can be multople sites in a multilingual setup.
+// Site represents a site. There can be multiple sites in a multilingual setup.
 type Site interface {
 	// Returns the Language configured for this Site.
 	Language() *langs.Language
