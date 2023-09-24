@@ -131,4 +131,4 @@ enableDNT
 : Enabling this for the vimeo shortcode, the Vimeo player will be blocked from tracking any session data, including all cookies and stats.
 
 simple
-: If simple mode is enabled, the video thumbnail is fetched from Vimeo's servers and it is overlayed with a play button. If the user clicks to play the video, it will open in a new tab directly on Vimeo's website.
+: If simple mode is enabled, the video thumbnail is fetched from Vimeo's servers and it is overlaid with a play button. If the user clicks to play the video, it will open in a new tab directly on Vimeo's website.

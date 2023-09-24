@@ -21,7 +21,7 @@ hugo gen chromastyles [flags] [args]
 
 ```
   -h, --help                    help for chromastyles
-      --highlightStyle string   style used for highlighting lines (see https://github.com/alecthomas/chroma) (default "bg:#ffffcc")
+      --highlightStyle string   style used for highlighting lines (see https://github.com/alecthomas/chroma)
       --linesStyle string       style used for line numbers (see https://github.com/alecthomas/chroma)
       --style string            highlighter style (see https://xyproto.github.io/splash/docs/) (default "friendly")
 ```

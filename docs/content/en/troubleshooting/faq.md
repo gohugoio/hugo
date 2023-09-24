@@ -36,7 +36,7 @@ How to automate the "publish at intervals" part depends on your situation:
 
 * If you deploy from your own PC/server, you can automate with [Cron](https://en.wikipedia.org/wiki/Cron) or similar.
 * If your site is hosted on a service similar to [Netlify](https://www.netlify.com/) you can:
-  * Use a service such as [ifttt](https://ifttt.com/date_and_time) to schedule the updates
+  * Use a service such as [ifttt](https://ifttt.com/date_and_time) to schedule the updates; or
   * Set up a deploy hook which you can run with a cron service to deploy your site at intervals, such as [cron-job.org](https://cron-job.org/) (both Netlify and Cloudflare Pages support deploy hooks)
 
 Also see this Twitter thread:
@@ -47,7 +47,7 @@ Also see this Twitter thread:
 
 ## Can I use the latest Hugo version on Netlify?
 
-Yes you can! Read [this](/hosting-and-deployment/hosting-on-netlify/#configure-hugo-version-in-netlify).
+[Yes you can](/hosting-and-deployment/hosting-on-netlify/#configure-hugo-version-in-netlify)!.
 
 ## I get "... this feature is not available in your current Hugo version"
 
