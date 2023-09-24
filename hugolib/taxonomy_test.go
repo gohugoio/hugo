@@ -435,7 +435,7 @@ NO HOME FOR YOU
 
 	b.Build(BuildCfg{})
 
-	b.Assert(b.CheckExists("public/index.html"), qt.Equals, false)
+	b.Assert(b.CheckExists("public/index.html"), qt.Equals, true)
 	b.Assert(b.CheckExists("public/categories/index.html"), qt.Equals, false)
 	b.Assert(b.CheckExists("public/posts/index.html"), qt.Equals, false)
 }

@@ -487,7 +487,11 @@ func (m *pageMap) assembleSections() error {
 
 		shouldBuild = m.s.shouldBuild(n.p)
 		if !shouldBuild {
-			sectionsToDelete = append(sectionsToDelete, s)
+			if kind == kinds.KindHome {
+				n.p = m.s.newPage(n, parentBucket, kind, "", sections...)
+			} else {
+				sectionsToDelete = append(sectionsToDelete, s)
+			}
 			return false
 		}
 
