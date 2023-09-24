@@ -33,7 +33,6 @@ This filter has all the same options as the [Process](/content-management/image-
 {{ $img = $img | images.Filter $filters }}
 ```
 
-
 ## Overlay
 
 {{% funcsig %}}

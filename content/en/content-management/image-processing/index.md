@@ -111,6 +111,10 @@ Metadata (EXIF, IPTC, XMP, etc.) is not preserved during image transformation. U
 
 {{< new-in "0.119.0" >}}
 
+{{% note %}}
+The `Process` method is also available as a filter, which is more effective if need to apply multiple filters to an image. See [Process filter](/functions/images/#process).
+{{% /note %}}
+
 Process processes the image with the given specification. The specification can contain an optional action, one of `resize`, `crop`, `fit` or `fill`. This means that you can use this method instead of [`Resize`], [`Fit`], [`Fill`], or [`Crop`]. 
 
 See [Options](#image-processing-options) for available options.
