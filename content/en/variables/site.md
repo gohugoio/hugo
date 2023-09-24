@@ -72,7 +72,7 @@ All the methods below, e.g. `.Site.RegularPages` can also be reached via the glo
 : an ordered list (ordered by defined weight) of languages.
 
 .Site.LastChange
-: a string representing the date/time of the most recent change to your site. This string is based on the [`date` variable in the front matter](/content-management/front-matter) of your content pages.
+: a [time.Time](https://godoc.org/time#Time) value representing the date/time of the most recent change to your site. 
 
 .Site.Menus
 : all the menus in the site.
