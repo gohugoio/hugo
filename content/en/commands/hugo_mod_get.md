@@ -22,7 +22,12 @@ Install a specific version:
 
     hugo mod get github.com/gohugoio/testshortcodes@v0.3.0
 
-Install the latest versions of all module dependencies:
+Install the latest versions of all direct module dependencies:
+
+    hugo mod get
+    hugo mod get ./... (recursive)
+
+Install the latest versions of all module dependencies (direct and indirect):
 
     hugo mod get -u
     hugo mod get -u ./... (recursive)
