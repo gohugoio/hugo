@@ -5,9 +5,15 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings,casing]
-signature: ["humanize INPUT"]
-relatedfuncs: [anchorize]
+keywords: []
+namespace: inflect
+relatedFuncs:
+  - inflect.Humanize
+  - inflect.Pluralize
+  - inflect.Singularize
+signature:
+ - inflect.Humanize INPUT
+ - humanize INPUT
 ---
 
 If the input is either an int64 value or the string representation of an integer, humanize returns the number with the proper ordinal appended.

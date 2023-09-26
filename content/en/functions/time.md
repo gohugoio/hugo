@@ -5,9 +5,17 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [dates,time,location]
-signature: ["time INPUT [TIMEZONE]"]
-relatedfuncs: []
+keywords: []
+namespace: time
+relatedFuncs:
+  - time.AsTime
+  - time.Duration
+  - time.Format
+  - time.Now
+  - time.ParseDuration
+signature: 
+  - time.AsTime INPUT [TIMEZONE]
+  - time INPUT [TIMEZONE]
 ---
 
 

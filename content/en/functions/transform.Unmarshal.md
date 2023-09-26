@@ -1,12 +1,19 @@
 ---
 title: transform.Unmarshal
-description: "`transform.Unmarshal` (alias `unmarshal`) parses the input and converts it into a map or an array. Supported formats are JSON, TOML, YAML, XML and CSV."
+description: Parses the input and converts it into a map or an array. Supported formats are JSON, TOML, YAML, XML and CSV.
 categories: [functions]
 menu:
   docs:
     parent: functions
 keywords: []
-signature: ["RESOURCE or STRING | transform.Unmarshal [OPTIONS]"]
+namespace: transform
+relatedFuncs:
+  - encoding.Jsonify
+  - transform.Remarshal
+  - transform.Unmarshal
+signature:
+  - RESOURCE or STRING | transform.Unmarshal [OPTIONS]
+  - RESOURCE or STRING | unmarshal [OPTIONS]
 ---
 
 The function accepts either a `Resource` created in [Hugo Pipes](/hugo-pipes/) or via [Page Bundles](/content-management/page-bundles/), or simply a string. The two examples below will produce the same map:

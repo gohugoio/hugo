@@ -5,9 +5,14 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings, html]
-signature: ["htmlEscape INPUT"]
-relatedfuncs: [htmlUnescape]
+keywords: []
+namespace: transform
+relatedFuncs:
+  - transform.HTMLEscape
+  - transform.HTMLUnescape
+signature:
+  - transform.HTMLEscape INPUT
+  - htmlEscape INPUT
 ---
 
 In the result `&` becomes `&amp;` and so on. It escapes only: `<`, `>`, `&`, `'` and `"`.

@@ -5,8 +5,17 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [time duration]
-signature: ["duration TIME_UNIT DURATION_NUMBER"]
+keywords: []
+namespace: time
+relatedFuncs:
+  - time.AsTime
+  - time.Duration
+  - time.Format
+  - time.Now
+  - time.ParseDuration
+signature:
+  - time.Duration TIME_UNIT DURATION_NUMBER
+  - duration TIME_UNIT DURATION_NUMBER
 ---
 
 `time.Duration` converts a given number into a [`time.Duration`](https://pkg.go.dev/time#Duration) structure so you can access its fields. E.g. you can perform [time operations](https://pkg.go.dev/time#Duration) on the returned `time.Duration` value:

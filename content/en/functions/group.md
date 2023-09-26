@@ -5,8 +5,17 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [collections]
-signature: ["PAGES | group KEY"]
+keywords: []
+namespace: collections
+relatedFuncs:
+  - collections.Dictionary
+  - collections.Group
+  - collections.Index
+  - collections.IsSet
+  - collections.Where
+signature:
+  - PAGES | collections.Group KEY
+  - PAGES | group KEY
 ---
 
 {{< code file="layouts/partials/groups.html" >}}
@@ -14,16 +23,16 @@ signature: ["PAGES | group KEY"]
 {{ $old := .Site.RegularPages | last 10 | group "Old" }}
 {{ $groups := slice $new $old }}
 {{ range $groups }}
-<h3>{{ .Key }}{{/* Prints "New", "Old" */}}</h3>
-<ul>
+  <h3>{{ .Key }}{{/* Prints "New", "Old" */}}</h3>
+  <ul>
     {{ range .Pages }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
+      <li>
+        <a href="{{ .Permalink }}">{{ .Title }}</a>
+        <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
+      </li>
     {{ end }}
-</ul>
+  </ul>
 {{ end }}
 {{< /code >}}
 
-The page group you get from `group` is of the same type you get from the built-in [group methods](/templates/lists#group-content) in Hugo. The above example can even be [paginated](/templates/pagination/#list-paginator-pages).
+The page group you get from `group` is of the same type you get from the built-in [group methods](/templates/lists#group-content) in Hugo. The above example can be [paginated](/templates/pagination/#list-paginator-pages).

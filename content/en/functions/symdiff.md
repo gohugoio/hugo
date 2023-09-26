@@ -5,8 +5,16 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [collections,intersect,union,complement]
-signature: ["COLLECTION | symdiff COLLECTION" ]
+keywords: []
+namespace: collections
+relatedFuncs:
+  - collections.Complement
+  - collections.Intersect
+  - collections.SymDiff
+  - collections.Union
+signature: 
+  - COLLECTION | collections.SymDiff COLLECTION
+  - COLLECTION | symdiff COLLECTION
 ---
 
 Example:

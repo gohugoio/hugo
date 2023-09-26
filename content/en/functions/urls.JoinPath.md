@@ -5,8 +5,13 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [urls,path,join]
-signature: ["urls.JoinPath ELEMENT..."]
+keywords: []
+namespace: urls
+relatedFuncs:
+  - path.Join
+  - urls.JoinPath
+signature: 
+  - urls.JoinPath ELEMENT...
 ---
 
 ```go-html-template

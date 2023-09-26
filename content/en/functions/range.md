@@ -5,9 +5,13 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [iteration]
-signature: ["range COLLECTION"]
-relatedfuncs: []
+keywords: []
+namespace: text/template
+relatedFuncs:
+  - with
+  - range
+signature:
+  - range COLLECTION
 ---
 
 Just like in the Go programming language, Go and Hugo templates make heavy use of `range` to iterate over a map, array or slice. Other templating languages use a foreach for the equivalent functionality.

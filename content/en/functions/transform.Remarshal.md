@@ -6,7 +6,13 @@ menu:
   docs:
     parent: functions
 keywords: []
-signature: [ transform.Remarshal FORMAT INPUT ]
+namespace: transform
+relatedFuncs:
+  - encoding.Jsonify
+  - transform.Remarshal
+  - transform.Unmarshal
+signature:
+  - transform.Remarshal FORMAT INPUT
 ---
 
 The FORMAT must be one of `json`, `toml`, `yaml`, or `xml`. If the INPUT is a string of serialized data, it must be valid JSON, TOML, YAML, or XML.

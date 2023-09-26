@@ -5,10 +5,19 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [files]
-signature: ["os.ReadFile PATH", "readFile PATH"]
-relatedfuncs: ['os.FileExists','os.ReadDir','os.Stat']
+keywords: []
+namespace: os
+relatedFuncs:
+  - os.FileExists
+  - os.Getenv
+  - os.ReadDir
+  - os.ReadFile
+  - os.Stat
+signature:
+  - os.ReadFile PATH
+  - readFile PATH
 ---
+
 The `os.ReadFile` function attempts to resolve the path relative to the root of your project directory. If a matching file is not found, it will attempt to resolve the path relative to the [`contentDir`](/getting-started/configuration#contentdir). A leading path separator (`/`) is optional.
 
 With a file named README.md in the root of your project directory:

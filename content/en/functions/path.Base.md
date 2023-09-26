@@ -5,9 +5,18 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [path, base]
-signature: ["path.Base PATH"]
-relatedfuncs: [path.BaseName, path.Clean, path.Dir, path.Ext, path.Join, path.Split]
+keywords: []
+namespace: path
+relatedFuncs:
+  - path.Base
+  - path.BaseName
+  - path.Clean
+  - path.Dir
+  - path.Ext
+  - path.Join
+  - path.Split
+signature:
+  - path.Base PATH
 ---
 
 `path.Base` returns the last element of `PATH`.

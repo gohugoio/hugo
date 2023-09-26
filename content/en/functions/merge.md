@@ -5,9 +5,14 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [collections]
-signature: ["collections.Merge MAP MAP...", "merge MAP MAP..."]
-relatedfuncs: [dict, append, reflect.IsMap, reflect.IsSlice]
+keywords: []
+namespace: collections
+relatedFuncs:
+  - collections.Append
+  - collections.Merge
+signature:
+  - collections.Merge MAP MAP...
+  - merge MAP MAP...
 ---
 
 Returns the result of merging two or more maps from left to right. If a key already exists, `merge` updates its value. If a key is absent, `merge` inserts the value under the new key.

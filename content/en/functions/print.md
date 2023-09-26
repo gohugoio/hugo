@@ -5,12 +5,16 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings]
-signature: ["print INPUT"]
-relatedfuncs: []
+keywords: []
+namespace: fmt
+relatedFuncs:
+  - fmt.Print
+  - fmt.Printf
+  - fmt.Println
+signature:
+  - fmt.Print INPUT
+  - print INPUT
 ---
-
-See [the go doc](https://golang.org/pkg/fmt/) for additional information.
 
 ```go-html-template
 {{ print "foo" }} → "foo"

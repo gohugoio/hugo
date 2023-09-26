@@ -1,15 +1,18 @@
 ---
 title: default
 description: Allows setting a default value that can be returned if a first value is not set.
-qref: "Returns a default value if a value is not set when checked."
-keywords: [defaults]
 categories: [functions]
 menu:
   docs:
     parent: functions
-toc:
-signature: ["default DEFAULT INPUT"]
-relatedfuncs: []
+keywords: []
+namespace: compare
+relatedFuncs:
+  - compare.Conditional
+  - compare.Default
+signature:
+  - compare.Default DEFAULT INPUT
+  - default DEFAULT INPUT
 ---
 
 `default` checks whether a given value is set and returns a default value if it is not. *Set* in this context means different things depending on the data type:

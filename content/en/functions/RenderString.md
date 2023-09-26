@@ -1,12 +1,15 @@
 ---
 title: .RenderString
-description: "Renders markup to HTML."
+description: sRenders markup to HTML.
 categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [markdown,goldmark,render]
-signature: [".RenderString MARKUP"]
+keywords: []
+namespace:
+relatedFuncs: []
+signature:
+  - .RenderString MARKUP [OPTIONS]
 ---
 
 `.RenderString` is a method on `Page` that renders some markup to HTML using the content renderer defined for that page (if not set in the options).

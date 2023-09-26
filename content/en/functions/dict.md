@@ -5,9 +5,17 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [collections]
-signature: ["dict KEY VALUE [KEY VALUE]..."]
-relatedfuncs: []
+keywords: []
+namespace: collections
+relatedFuncs:
+  - collections.Dictionary
+  - collections.Group
+  - collections.Index
+  - collections.IsSet
+  - collections.Where
+signature:
+  - collections.Dictionary KEY VALUE [KEY VALUE]...
+  - dict KEY VALUE [KEY VALUE]...
 ---
 
 `dict` is especially useful for passing more than one value to a partial template.

@@ -64,6 +64,10 @@ A markup language for creating content. Typically markdown, but may also be HTML
 
 A classification of content inferred from the top-level directory name or the `type` set in [front matter](#front-matter). Pages in the root of the content directory, including the home page, are of type "page". Accessed via `.Page.Type` in [templates](#template). See&nbsp;[details](/content-management/types/).
 
+### content view
+
+A template called with the `.Page.Render` method. See&nbsp;[details](/templates/views/).
+
 ### context
 
 Represented by a period "." within a [template action](#template-action), context is the current location in a data structure. For example, while iterating over a [collection](#collection) of pages, the context within each iteration is the page's data structure. The context received by each template depends on template type and/or how it was called. See [details](/templates/introduction/#the-dot).

@@ -5,9 +5,12 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings]
-signature: ["plainify INPUT"]
-relatedfuncs: [jsonify]
+keywords: []
+namespace: transform
+relatedFuncs: []
+signature:
+  - transform.Plainify
+  - plainify INPUT
 ---
 
 ```go-html-template

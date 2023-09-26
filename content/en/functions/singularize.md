@@ -5,9 +5,15 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings,singular]
-signature: ["singularize INPUT"]
-relatedfuncs: []
+keywords: []
+namespace: inflect
+relatedFuncs:
+  - inflect.Humanize
+  - inflect.Pluralize
+  - inflect.Singularize
+signature:
+  - inflect.Singularize INPUT
+  - singularize INPUT
 ---
 
 `{{ "cats" | singularize }}` → "cat"

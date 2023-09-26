@@ -1,13 +1,17 @@
 ---
 title: .Unix
 description: Converts a time.Time value to the number of seconds elapsed since the Unix epoch, excluding leap seconds. The Unix epoch is 00:00:00&nbsp;UTC on 1 January 1970.
-keywords: [dates,time]
 categories: [functions]
 menu:
   docs:
     parent: functions
-signature: [".Unix",".UnixMilli",".UnixMicro",".UnixNano"]
-relatedfuncs: [Format,dateFormat,now,time]
+namespace:
+relatedFuncs: []
+signature: 
+  - .Unix
+  - .UnixMilli
+  - .UnixMicro
+  - .UnixNano
 ---
 
 The `Milli`, `Micro`, and `Nano` variants return the number of milliseconds, microseconds, and nanoseconds (respectively) elapsed since the Unix epoch.

@@ -5,9 +5,14 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [reflect, reflection, kind]
-signature: ["reflect.IsSlice INPUT"]
-relatedfuncs: [reflect.IsMap]
+keywords: []
+namespace: reflect
+relatedFuncs:
+  - reflect.IsMap
+  - reflect.IsSlice
+signature: 
+  - reflect.IsSlice INPUT
+
 ---
 
 `reflect.IsSlice` reports if `VALUE` is a slice.  Returns a boolean.

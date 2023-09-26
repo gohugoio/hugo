@@ -6,9 +6,18 @@ menu:
   docs:
     parent: functions
 keywords: []
-signature: ["os.Getenv VARIABLE", "getenv VARIABLE"]
-relatedfuncs: []
+namespace: os
+relatedFuncs:
+  - os.FileExists
+  - os.Getenv
+  - os.ReadDir
+  - os.ReadFile
+  - os.Stat
+signature: 
+  - os.Getenv VARIABLE
+  - getenv VARIABLE
 ---
+
 Examples:
 
 ```go-html-template

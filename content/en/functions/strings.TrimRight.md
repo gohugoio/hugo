@@ -5,9 +5,17 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings]
-signature: ["strings.TrimRight CUTSET STRING"]
-relatedfuncs: [strings.TrimRight]
+keywords: []
+namespace: strings
+relatedFuncs:
+  - strings.Chomp
+  - strings.Trim
+  - strings.TrimLeft
+  - strings.TrimPrefix
+  - strings.TrimRight
+  - strings.TrimSuffix
+signature:
+  - strings.TrimRight CUTSET STRING
 ---
 
 Given the string `"abba"`, trailing `"a"`'s can be removed a follows:

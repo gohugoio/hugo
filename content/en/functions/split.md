@@ -5,9 +5,14 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings]
-signature: ["split STRING DELIM"]
-relatedfuncs: []
+keywords: []
+namespace: strings
+relatedFuncs:
+  - collections.Delimit
+  - strings.Split
+signature:
+  - strings.Split STRING DELIM
+  - split STRING DELIM
 ---
 
 Examples:

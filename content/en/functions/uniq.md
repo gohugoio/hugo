@@ -5,8 +5,16 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [multilingual,i18n,urls]
-signature: [uniq SET]
+keywords: []
+namespace: collections
+relatedFuncs:
+  - collections.Reverse
+  - collections.Shuffle
+  - collections.Sort
+  - collections.Uniq
+signature:
+  - collections.Uniq COLLECTION
+  - uniq COLLECTION
 ---
 
 

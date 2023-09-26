@@ -5,9 +5,17 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [counting, word count]
-signature: ["countwords INPUT"]
-relatedfuncs: [countrunes]
+keywords: []
+namespace: strings
+relatedFuncs:
+  - len
+  - strings.Count
+  - strings.CountRunes
+  - strings.CountWords
+  - strings.RuneCount
+signature:
+  - strings.CountWords INPUT
+  - countwords INPUT
 ---
 
 The template function works similar to the [.WordCount page variable][pagevars].

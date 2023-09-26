@@ -5,8 +5,12 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [scratch]
-signature: []
+keywords: []
+namespace:
+relatedFuncs:
+  - .Store
+  - .Scratch
+signature:
 ---
 
 The `.Store` method on `.Page` returns a [Scratch] to store and manipulate data. In contrast to the `.Scratch` method, this Scratch is not reset on server rebuilds.

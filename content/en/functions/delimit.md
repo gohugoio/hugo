@@ -5,9 +5,19 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [iteration]
-signature: ["delimit COLLECTION DELIMITER [LAST]"]
-relatedfuncs: []
+keywords: []
+namespace: collections
+relatedFuncs:
+  - collections.Apply
+  - collections.Delimit
+  - collections.In
+  - collections.Reverse
+  - collections.Seq
+  - collections.Slice
+  - strings.Split
+signature:
+  - collections.Delimit COLLECTION DELIMITER [LAST]
+  - delimit COLLECTION DELIMITER [LAST]
 ---
 
 Delimit a slice:

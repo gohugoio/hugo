@@ -5,11 +5,17 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [dates,time,strings]
+keywords: []
+namespace: time
+relatedFuncs:
+  - time.AsTime
+  - time.Duration
+  - time.Format
+  - time.Now
+  - time.ParseDuration
 signature:
-  - "time.Format LAYOUT INPUT"
-  - "dateFormat LAYOUT INPUT"
-relatedfuncs: [Format,now,Unix,time]
+  - time.Format LAYOUT INPUT
+  - dateFormat LAYOUT INPUT
 ---
 
 `time.Format` (alias `dateFormat`) converts either a `time.Time` object (e.g. `.Date`) or a timestamp string `INPUT` into the format specified by the `LAYOUT` string.

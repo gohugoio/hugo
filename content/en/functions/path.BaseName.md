@@ -5,9 +5,18 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [path, base]
-signature: ["path.BaseName PATH"]
-relatedfuncs: [path.Base, path.Clean, path.Dir, path.Ext, path.Join, path.Split]
+keywords: []
+namespace: path
+relatedFuncs:
+  - path.Base
+  - path.BaseName
+  - path.Clean
+  - path.Dir
+  - path.Ext
+  - path.Join
+  - path.Split
+signature:
+  - path.BaseName PATH
 ---
 
 If `PATH` is empty, `.` is returned.

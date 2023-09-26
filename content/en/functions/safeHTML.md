@@ -5,9 +5,18 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings]
-signature: ["safeHTML INPUT"]
-relatedfuncs: []
+keywords: []
+namespace: safe
+relatedFuncs:
+  - safe.CSS
+  - safe.HTML
+  - safe.HTMLAttr
+  - safe.JS
+  - safe.URL
+signature:
+  - safe.HTML INPUT
+  - safeHTML INPUT
+
 ---
 
 It should not be used for HTML from a third-party, or HTML with unclosed tags or comments.

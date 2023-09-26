@@ -5,9 +5,13 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [conditionals]
-signature: ["with INPUT"]
-relatedfuncs: []
+keywords: []
+namespace: text/template
+relatedFuncs:
+  - with
+  - range
+signature:
+  - with INPUT
 ---
 
 An alternative way of writing an `if` statement and then referencing the same value is to use `with` instead. `with` rebinds the context (`.`) within its scope and skips the block if the variable is absent, unset or empty.

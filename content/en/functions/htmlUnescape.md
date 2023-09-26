@@ -6,8 +6,13 @@ menu:
   docs:
     parent: functions
 keywords: []
-signature: ["htmlUnescape INPUT"]
-relatedfuncs: [htmlEscape]
+namespace: transform
+relatedFuncs:
+  - transform.HTMLEscape
+  - transform.HTMLUnescape
+signature:
+  - transform.HTMLUnescape INPUT
+  - htmlUnescape INPUT
 ---
 
 `htmlUnescape` returns the given string with HTML escape codes un-escaped.

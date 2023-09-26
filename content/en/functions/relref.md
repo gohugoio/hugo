@@ -5,9 +5,14 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [cross references, anchors]
-signature: ["relref . PAGE"]
-relatedfuncs: [ref]
+keywords: []
+namespace: urls
+relatedFuncs:
+  - urls.Ref
+  - urls.RelRef
+signature:
+  - urls.RelRef . PAGE
+  - relref . PAGE
 ---
 
 This function takes two arguments:

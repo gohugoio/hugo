@@ -5,9 +5,18 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [path, split]
-signature: ["path.Split PATH"]
-relatedfuncs: [path.Base, path.BaseName, path.Clean, path.Dir, path.Ext, path.Join]
+keywords: []
+namespace: path
+relatedFuncs:
+  - path.Base
+  - path.BaseName
+  - path.Clean
+  - path.Dir
+  - path.Ext
+  - path.Join
+  - path.Split
+signature:
+  - path.Split PATH
 ---
 
 `path.Split` splits `PATH` immediately following the final slash, separating it into a directory and a base component.

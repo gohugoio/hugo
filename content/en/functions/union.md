@@ -5,9 +5,15 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [collections,intersect,union,complement]
-signature: ["union SET1 SET2"]
-relatedfuncs: [intersect,where]
+namespace: collections
+relatedFuncs:
+  - collections.Complement
+  - collections.Intersect
+  - collections.SymDiff
+  - collections.Union
+signature:
+  - collections.Union SET1 SET2
+  - union SET1 SET2
 ---
 
 Given two arrays (or slices) A and B, this function will return a new array that contains the elements or objects that belong to either A or to B or to both. The elements supported are strings, integers, and floats (only float64).

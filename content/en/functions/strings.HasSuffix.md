@@ -5,9 +5,18 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings]
-signature: ["hasSuffix STRING SUFFIX","strings.HasSuffix STRING SUFFIX"]
-relatedfuncs: [hasPrefix]
+keywords: []
+namespace: strings
+relatedFuncs:
+  - strings.Contains
+  - strings.ContainsAny
+  - strings.ContainsNonSpace
+  - strings.HasPrefix
+  - strings.HasSuffix
+  - collections.In
+signature: 
+  - strings.HasSuffix STRING SUFFIX
+  - hasSuffix STRING SUFFIX
 aliases: [/functions/hassuffix/]
 ---
 

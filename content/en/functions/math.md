@@ -1,14 +1,13 @@
 ---
-title: Math
+title: math
 description: Hugo provides mathematical operators in templates.
-keywords: [math, operators]
 categories: [functions]
 menu:
   docs:
     parent: functions
-toc:
+keywords: []
+relatedFuncs: []
 signature: []
-relatedfuncs: []
 ---
 
 | Function        | Description                                                                 | Example                                           |

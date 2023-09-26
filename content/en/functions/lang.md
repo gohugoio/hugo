@@ -1,13 +1,14 @@
 ---
 title: lang
 package: lang
-description: "TODO.."
+description: "Functions in the language namespace."
 categories: [functions]
-keywords: [numbers]
 menu:
   docs:
     parent: functions
-signature: ["lang.NumFmt PRECISION NUMBER [OPTIONS [DELIMITER]]"]
+keywords: []
+relatedFuncs: []
+signature: []
 aliases: ['/functions/numfmt/']
 type: 'template-func'
 ---

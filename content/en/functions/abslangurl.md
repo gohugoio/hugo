@@ -5,8 +5,14 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [urls, multilingual,i18n]
-signature: ["absLangURL INPUT"]
+keywords: []
+namespace: urls
+relatedFuncs:
+  - urls.AbsLangURL
+  - urls.AbsURL 
+  - urls.RelLangURL
+  - urls.RelURL
+signature: [absLangURL INPUT]
 ---
 
 Use this function with both monolingual and multilingual configurations. The URL returned by this function depends on:

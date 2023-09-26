@@ -5,9 +5,11 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [views]
-signature: [".Render LAYOUT"]
-relatedfuncs: []
+keywords: []
+namespace:
+relatedFuncs: []
+signature: 
+  - .Render LAYOUT
 ---
 
 The view is an alternative layout and should be a file name that points to a template in one of the locations specified in the documentation for [Content Views](/templates/views).

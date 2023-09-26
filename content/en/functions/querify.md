@@ -5,9 +5,16 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [urls]
-signature: ["querify KEY VALUE [KEY VALUE]...", "querify COLLECTION"]
-relatedfuncs: []
+keywords: []
+namespace: collections
+relatedFuncs:
+  - collections.Querify
+  - urlquery
+signature:
+  - collections.Querify KEY VALUE [KEY VALUE]...
+  - collections.Querify COLLECTION
+  - querify KEY VALUE [KEY VALUE]...
+  - querify COLLECTION
 ---
 
 `querify` takes a set or slice of key-value pairs and returns a [query string](https://en.wikipedia.org/wiki/Query_string) that can be appended to a URL.

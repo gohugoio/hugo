@@ -5,11 +5,14 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [urls]
-signature: ["urlquery INPUT [INPUT]..."]
-relatedfuncs: []
+keywords: []
+namespace: text/template
+relatedFuncs:
+  - collections.Querify
+  - urlquery
+signature:
+  - urlquery INPUT [INPUT]...
 ---
-
 
 This template code:
 

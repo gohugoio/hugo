@@ -2,12 +2,19 @@
 title: sort
 description: Sorts slices, maps, and page collections.
 categories: [functions]
-signature: ["sort COLLECTION [KEY] [ORDER]"]
 menu:
   docs:
     parent: functions
-keywords: [ordering,sorting,lists]
-toc: true
+keywords: []
+namespace: collections
+relatedFuncs:
+  - collections.Reverse
+  - collections.Shuffle
+  - collections.Sort
+  - collections.Uniq
+signature:
+  - collections.Sort COLLECTION [KEY] [ORDER]
+  - sort COLLECTION [KEY] [ORDER]
 ---
 
 The `KEY` is optional when sorting slices in ascending order, otherwise it is required. When sorting slices, use the literal `value` in place of the `KEY`. See examples below.

@@ -5,11 +5,17 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [counting, word count]
+keywords: []
+namespace: strings
+relatedFuncs:
+  - len
+  - strings.Count
+  - strings.CountRunes
+  - strings.CountWords
+  - strings.RuneCount
 signature:
-  - "countrunes INPUT"
-  - "strings.CountRunes INPUT"
-relatedfuncs: []
+  - strings.CountRunes INPUT
+  - countrunes INPUT
 ---
 
 In contrast with `countwords` function, which counts every word in a string, the `countrunes` function determines the number of runes in the content and excludes any whitespace. This has specific utility if you are dealing with CJK-like languages.

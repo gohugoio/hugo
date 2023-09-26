@@ -5,9 +5,18 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [path, ext, extension]
-signature: ["path.Ext PATH"]
-relatedfuncs: [path.Base, path.BaseName, path.Clean, path.Dir, path.Join, path.Split]
+keywords: []
+namespace: path
+relatedFuncs:
+  - path.Base
+  - path.BaseName
+  - path.Clean
+  - path.Dir
+  - path.Ext
+  - path.Join
+  - path.Split
+signature:
+  - path.Ext PATH
 ---
 
 `path.Ext` returns the file name extension `PATH`.

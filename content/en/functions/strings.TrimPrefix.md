@@ -5,9 +5,17 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings]
-signature: ["strings.TrimPrefix PREFIX STRING"]
-relatedfuncs: [strings.TrimSuffix]
+keywords: []
+namespace: strings
+relatedFuncs:
+  - strings.Chomp
+  - strings.Trim
+  - strings.TrimLeft
+  - strings.TrimPrefix
+  - strings.TrimRight
+  - strings.TrimSuffix
+signature:
+  - strings.TrimPrefix PREFIX STRING
 ---
 
 Given the string `"aabbaa"`, the specified prefix is only removed if `"aabbaa"` starts with it:

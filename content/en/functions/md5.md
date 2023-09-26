@@ -6,13 +6,22 @@ menu:
   docs:
     parent: functions
 keywords: []
-signature: ["md5 INPUT"]
-relatedfuncs: [sha]
+namespace: crypto
+relatedFuncs:
+  - crypto.FNV32a
+  - crypto.HMAC
+  - crypto.MD5
+  - crypto.SHA1
+  - crypto.SHA256
+signature:
+  - crypto.MD5 INPUT
+  - md5 INPUT
+
 ---
 
 ```go-html-template
-{{ md5 "Hello world, gophers!" }}
-<!-- returns the string "b3029f756f98f79e7f1b7f1d1f0dd53b" -->
+{{ md5 "Hello world" }} → 3e25960a79dbc69b674cd4ec67a72c62
+
 ```
 
 This can be useful if you want to use [Gravatar](https://en.gravatar.com/) for generating a unique avatar:

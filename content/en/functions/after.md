@@ -1,13 +1,17 @@
 ---
 title: after
-description: "`after` slices an array to only the items after the <em>N</em>th item."
+description: Slices an array to the items after the Nth item.
 categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [iteration]
-signature: ["after INDEX COLLECTION"]
-relatedfuncs: [last,first,seq]
+keywords: []
+namespace: collections
+relatedFuncs:
+  - collections.After
+  - collections.First
+  - collections.Last
+signature: [after INDEX COLLECTION]
 ---
 
 The following shows `after` being used in conjunction with the [`slice` function][slice]:

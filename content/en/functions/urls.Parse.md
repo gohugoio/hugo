@@ -5,8 +5,11 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [urls]
-signature: ["urls.Parse URL"]
+keywords: []
+namespace: urls
+relatedFuncs: []
+signature: 
+  - urls.Parse URL
 ---
 
 The `urls.Parse` function parses a URL into a [URL structure](https://godoc.org/net/url#URL). The URL may be relative (a path, without a host) or absolute (starting with a [scheme]). Hugo throws an error when parsing an invalid URL.

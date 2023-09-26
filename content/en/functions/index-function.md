@@ -6,8 +6,19 @@ menu:
   docs:
     parent: functions
 keywords: []
-signature: ["index COLLECTION INDEXES", "index COLLECTION KEYS"]
-relatedfuncs: []
+namespace: collections
+relatedFuncs:
+  - collections.Dictionary
+  - collections.EchoParam
+  - collections.Group
+  - collections.Index
+  - collections.IsSet
+  - collections.Where
+signature:
+  - collections.Index COLLECTION INDEXES
+  - collections.Index COLLECTION KEYS
+  - index COLLECTION INDEXES
+  - index COLLECTION KEYS
 aliases: [/functions/index/]
 ---
 

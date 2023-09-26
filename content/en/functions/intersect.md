@@ -5,9 +5,15 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [collections,intersect,union,complement,symdiff]
-signature: ["intersect SET1 SET2"]
-relatedfuncs: []
+namespace: collections
+relatedFuncs:
+  - collections.Complement
+  - collections.Intersect
+  - collections.SymDiff
+  - collections.Union
+signature:
+  - collections.Intersect SET1 SET2
+  - intersect SET1 SET2
 ---
 A useful example is to use it as `AND` filters when combined with where:
 

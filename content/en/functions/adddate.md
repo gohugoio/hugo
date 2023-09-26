@@ -5,9 +5,10 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [dates,time]
-signature: [".AddDate YEARS MONTHS DAYS"]
-relatedfuncs: [now]
+keywords: []
+namespace:
+relatedFuncs: []
+signature: [.AddDate YEARS MONTHS DAYS]
 ---
 
 ```go-html-template

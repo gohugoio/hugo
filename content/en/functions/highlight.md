@@ -5,11 +5,15 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [highlighting,code blocks,syntax]
-signature: ["transform.Highlight INPUT LANG [OPTIONS]","highlight INPUT LANG [OPTIONS]"]
-relatedfuncs: []
+keywords: []
+namespace: transform
+relatedFuncs: []
+signature:
+  - transform.Highlight INPUT LANG [OPTIONS]
+  - highlight INPUT LANG [OPTIONS]
 toc: true
 ---
+
 The `highlight` function uses the [Chroma] syntax highlighter, supporting over 200 languages with more than 40 available styles.
 
 ## Arguments

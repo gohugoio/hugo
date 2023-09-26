@@ -5,11 +5,15 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [collections]
+namespace: collections
+relatedFuncs:
+  - collections.Complement
+  - collections.Intersect
+  - collections.SymDiff
+  - collections.Union
 signature:
-- "complement COLLECTION [COLLECTION]..."
-- "collections.Complement COLLECTION [COLLECTION]..."
-relatedfuncs: [intersect,symdiff,union]
+  - collections.Complement COLLECTION [COLLECTION]...
+  - complement COLLECTION [COLLECTION]...
 ---
 
 To find the elements within `$c3` that do not exist in `$c1` or `$c2`:

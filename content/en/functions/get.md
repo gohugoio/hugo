@@ -5,9 +5,12 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [shortcodes]
-signature: [".Get INDEX", ".Get KEY"]
-relatedfuncs: []
+keywords: []
+namespace:
+relatedFuncs: []
+signature:
+  - .Get INDEX
+  - .Get KEY
 ---
 
 `.Get` is specifically used when creating your own [shortcode template][sc], to access the [positional and named](/templates/shortcode-templates/#positional-vs-named-parameters) parameters passed to it. When used with a numeric INDEX, it queries positional parameters (starting with 0). With a string KEY, it queries named parameters.

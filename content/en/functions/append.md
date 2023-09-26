@@ -5,9 +5,16 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [collections]
-signature: ["COLLECTION | append ELEMENT [ELEMENT]...", "COLLECTION | append COLLECTION"]
-relatedfuncs: [last,first,where,slice]
+keywords: []
+namespace: collections
+relatedFuncs:
+  - collections.Append
+  - collections.Merge
+signature: 
+  - COLLECTION | collections.Append ELEMENT [ELEMENT]...
+  - COLLECTION | collections.Append COLLECTION
+  - COLLECTION | append ELEMENT [ELEMENT]...
+  - COLLECTION | append COLLECTION
 ---
 
 This function appends all elements, excluding the last, to the last element. This allows [pipe](/getting-started/glossary/#pipeline) constructs as shown below.

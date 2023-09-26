@@ -5,9 +5,18 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [path, dir]
-signature: ["path.Dir PATH"]
-relatedfuncs: [path.Base, path.BaseName, path.Clean, path.Ext, path.Join, path.Split]
+keywords: []
+namespace: path
+relatedFuncs:
+  - path.Base
+  - path.BaseName
+  - path.Clean
+  - path.Dir
+  - path.Ext
+  - path.Join
+  - path.Split
+signature:
+  - path.Dir PATH
 ---
 
 `path.Dir` returns all but the last element of `PATH`, typically `PATH`'s directory.

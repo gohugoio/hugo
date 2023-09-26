@@ -5,9 +5,16 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [count, counting, character count]
-signature: ["strings.Count SUBSTR STRING"]
-relatedfuncs: []
+keywords: []
+namespace: strings
+relatedFuncs:
+  - len
+  - strings.Count
+  - strings.CountRunes
+  - strings.CountWords
+  - strings.RuneCount
+signature:
+  - strings.Count SUBSTR STRING
 ---
 
 If `SUBSTR` is an empty string, this function returns 1 plus the number of Unicode code points in `STRING`.

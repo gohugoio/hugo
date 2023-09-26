@@ -5,9 +5,11 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [dates,time]
-signature: [".Format FORMAT"]
-relatedfuncs: [dateFormat,now,Unix,time]
+keywords: []
+namespace:
+relatedFuncs: []
+signature:
+  - .Format FORMAT
 toc: true
 ---
 

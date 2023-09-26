@@ -5,11 +5,16 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings]
+keywords: []
+namespace: strings
+relatedFuncs:
+  - strings.FirstUpper
+  - strings.Title
+  - strings.ToLower
+  - strings.ToUpper
 signature:
-  - "title STRING"
-  - "strings.Title STRING"
-relatedfuncs: []
+  - strings.Title STRING
+  - title STRING
 ---
 
 ```go-html-template

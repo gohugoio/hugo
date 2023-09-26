@@ -1,14 +1,32 @@
 ---
 title: site
-description: The `site` function provides global access to the same data as the `.Site` page method.
-keywords: []
+description: Provides global access to the .Site object.
 categories: [functions]
 menu:
   docs:
     parent: functions
-toc:
-signature: ["site"]
-relatedfuncs: ["hugo"]
+keywords: []
+namespace: global
+relatedFuncs:
+  - page
+  - site
+signature: [site]
 ---
 
-`site` is a global function which returns the same data as the `.Site` page method. See: [Site Variables](/variables/site).
+At the top level of a template that receives the `Site` object in context, these are equivalent:
+
+```go-html-template
+{{ .Site.Params.foo }}
+{{ site.Params.foo }}
+```
+
+When the `Site` object is not in context, use the global `site` function:
+
+```go-html-template
+{{ site.Params.foo }}
+```
+
+{{% note %}}
+To simplify your templates, use the global `site` function regardless of whether the `Site` object is in context.
+
+{{% /note %}}

@@ -1,14 +1,16 @@
 ---
 title: .Scratch
 description: Acts as a "scratchpad" to store and manipulate data.
-keywords: [iteration]
 categories: [functions]
 menu:
   docs:
     parent: functions
-toc:
-signature: []
-relatedfuncs: []
+keywords: []
+namespace:
+relatedFuncs:
+  - .Store
+  - .Scratch
+signature:
 aliases: [/extras/scratch/,/doc/scratch/]
 ---
 

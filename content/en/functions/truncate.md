@@ -5,11 +5,12 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings]
+keywords: []
+namespace: strings
+relatedFuncs: []
 signature:
-  - "truncate SIZE [ELLIPSIS] INPUT"
-  - "strings.Truncate SIZE [ELLIPSIS] INPUT"
-relatedfuncs: []
+  - strings.Truncate SIZE [ELLIPSIS] INPUT
+  - truncate SIZE [ELLIPSIS] INPUT
 ---
 
 Since Go templates are HTML-aware, `truncate` will intelligently handle normal strings vs HTML strings:

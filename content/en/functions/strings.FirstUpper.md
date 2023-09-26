@@ -5,8 +5,15 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings capitalize uppercase first]
-signature: ["strings.FirstUpper STRING"]
+keywords: []
+namespace: strings
+relatedFuncs:
+  - strings.FirstUpper
+  - strings.Title
+  - strings.ToLower
+  - strings.ToUpper
+signature:
+  - strings.FirstUpper STRING
 ---
 
-    {{ strings.FirstUpper "foo" }} → "Foo"
+{{ strings.FirstUpper "foo" }} → "Foo"

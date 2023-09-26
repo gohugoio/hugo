@@ -5,8 +5,14 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [urls, multilingual,i18n]
-signature: ["relLangURL INPUT"]
+keywords: []
+namespace: urls
+relatedFuncs:
+  - urls.AbsLangURL
+  - urls.AbsURL 
+  - urls.RelLangURL
+  - urls.RelURL
+signature: [relLangURL INPUT]
 ---
 
 Use this function with both monolingual and multilingual configurations. The URL returned by this function depends on:
@@ -37,7 +43,7 @@ With `baseURL = https://example.org/docs/`
 {{ relLangURL "style.css" }}  →   /docs/en/style.css
 ```
 
-### Input begins with a slash
+#### Input begins with a slash
 
 If the input begins with a slash, the resulting URL will be incorrect when the `baseURL` includes a subdirectory. With a leading slash, the function returns a URL relative to the protocol+host section of the `baseURL`.
 

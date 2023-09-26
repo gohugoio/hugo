@@ -5,9 +5,15 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [length]
+keywords: []
+namespace: text/template
+relatedFuncs:
+  - len
+  - strings.Count
+  - strings.CountRunes
+  - strings.CountWords
+  - strings.RuneCount
 signature: ["len INPUT"]
-relatedfuncs: []
 ---
 
 With a string:

@@ -5,9 +5,17 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings]
-signature: ["safeJS INPUT"]
-relatedfuncs: []
+keywords: []
+namespace: safe
+relatedFuncs:
+  - safe.CSS
+  - safe.HTML
+  - safe.HTMLAttr
+  - safe.JS
+  - safe.URL
+signature:
+  - safe.JS INPUT
+  - safeJS INPUT
 ---
 
 In this context, *safe* means the string encapsulates a known safe EcmaScript5 Expression (e.g., `(x + y * z())`).

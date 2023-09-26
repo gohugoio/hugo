@@ -2,14 +2,15 @@
 title: templates.Exists
 description: "Checks whether a template file exists under the given path relative to the `layouts` directory."
 categories: [functions]
-tags: []
 menu:
   docs:
     parent: functions
-ns: ""
-keywords: ["templates", "template", "layouts"]
-signature: ["templates.Exists PATH"]
-relatedfuncs: []
+keywords: []
+namespace: templates
+relatedFuncs: []
+signature:
+  - templates.Exists PATH
+
 ---
 
 A template file is any file living below the `layouts` directories of either the project or any of its theme components including partials and shortcodes.

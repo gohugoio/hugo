@@ -5,12 +5,16 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings]
-signature: ["println INPUT"]
-relatedfuncs: []
+keywords: []
+namespace: fmt
+relatedFuncs:
+  - fmt.Print
+  - fmt.Printf
+  - fmt.Println
+signature:
+  - fmt.Println INPUT
+  - println INPUT
 ---
-
-See [the go doc](https://golang.org/pkg/fmt/) for additional information. `\n` denotes the linebreak but isn't printed in the templates as seen below:
 
 ```go-html-template
 {{ println "foo" }} → "foo\n"

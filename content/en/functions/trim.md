@@ -5,11 +5,18 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings]
+keywords: []
+namespace: strings
+relatedFuncs:
+  - strings.Chomp
+  - strings.Trim
+  - strings.TrimLeft
+  - strings.TrimPrefix
+  - strings.TrimRight
+  - strings.TrimSuffix
 signature:
-  - "trim INPUT CUTSET"
-  - "strings.Trim INPUT CUTSET"
-relatedfuncs: []
+  - strings.Trim INPUT CUTSET
+  - trim INPUT CUTSET
 ---
 
 ```go-html-template

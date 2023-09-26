@@ -5,11 +5,16 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [replace]
+keywords: []
+namespace: strings
+relatedFuncs:
+  - strings.FindRE
+  - strings.FindRESubmatch
+  - strings.Replace
+  - strings.ReplaceRE
 signature: 
-  - "replace INPUT OLD NEW [LIMIT]"
-  - "strings.Replace INPUT OLD NEW [LIMIT]"
-relatedfuncs: [replaceRE]
+  - strings.Replace INPUT OLD NEW [LIMIT]
+  - replace INPUT OLD NEW [LIMIT]
 ---
 
 Replace returns a copy of `INPUT` with all occurrences of `OLD` replaced with `NEW`.

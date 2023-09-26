@@ -6,9 +6,10 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-toc:
-signature: ["hugo"]
-relatedfuncs: []
+keywords: []
+namespace: global
+relatedFuncs: []
+signature: [hugo]
 ---
 
 `hugo` returns an instance that contains the following functions:

@@ -6,8 +6,16 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-signature: ["shuffle COLLECTION"]
-relatedfuncs: [seq]
+keywords: []
+namespace: collections
+relatedFuncs:
+  - collections.Reverse
+  - collections.Shuffle
+  - collections.Sort
+  - collections.Uniq
+signature:
+  - collections.Shuffle COLLECTION
+  - shuffle COLLECTION
 ---
 
 

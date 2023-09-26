@@ -5,9 +5,14 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [markdown,strings]
-signature: ["anchorize INPUT"]
-relatedfuncs: [humanize]
+keywords: []
+namespace: urls
+relatedFuncs:
+  - urls.Anchorize
+  - urls.URLize
+signature:
+  - urls.Anchorize INPUT
+  - anchorize INPUT
 ---
 
 If [Goldmark](/getting-started/configuration-markup#goldmark) is set as `defaultMarkdownHandler`, the sanitizing logic adheres to the setting [`markup.goldmark.parser.autoHeadingIDType`](/getting-started/configuration-markup#goldmark).

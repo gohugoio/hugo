@@ -5,9 +5,17 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings,json]
-signature: ["jsonify INPUT", "jsonify OPTIONS INPUT"]
-relatedfuncs: [plainify]
+keywords: []
+namespace: encoding
+relatedFuncs:
+  - encoding.Jsonify
+  - transform.Remarshal
+  - transform.Unmarshal
+signature:
+  - encoding.Jsonify INPUT
+  - encoding.Jsonify OPTIONS INPUT
+  - jsonify INPUT
+  - jsonify OPTIONS INPUT
 ---
 
 To customize the printing of the JSON, pass a map of options as the first

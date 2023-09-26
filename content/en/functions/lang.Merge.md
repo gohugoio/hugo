@@ -1,14 +1,15 @@
 ---
 title: lang.Merge
-description: "Merge missing translations from other languages."
+description: Merge missing translations from other languages.
 categories: [functions]
-keywords: [multilingual]
 menu:
   docs:
     parent: functions
-signature: ["lang.Merge FROM TO"]
-relatedfuncs: []
-comments:
+keywords: []
+namespace: lang
+relatedFuncs: []
+signature:
+  - lang.Merge FROM TO
 ---
 
 As an example:

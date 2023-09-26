@@ -5,9 +5,15 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [cast,strings,integers]
-signature: ["int INPUT"]
-relatedfuncs: []
+keywords: []
+namespace: cast
+relatedFuncs:
+  - cast.ToFloat
+  - cast.ToInt
+  - cast.ToString
+signature:
+  - cast.ToInt INPUT
+  - int INPUT
 ---
 
 With a decimal (base 10) input:

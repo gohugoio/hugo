@@ -5,9 +5,11 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings]
-signature: ["strings.Repeat COUNT INPUT"]
-relatedfuncs: []
+keywords: []
+namespace: strings
+relatedFuncs: []
+signature:
+  - strings.Repeat COUNT INPUT
 ---
 
 ```go-html-template

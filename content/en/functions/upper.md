@@ -1,16 +1,21 @@
 ---
 title: upper
 description: Converts all characters in a string to uppercase
-keywords: []
+
 categories: [functions]
 menu:
   docs:
     parent: functions
-toc:
+keywords: []
+namespace: strings
+relatedFuncs:
+  - strings.FirstUpper
+  - strings.Title
+  - strings.ToLower
+  - strings.ToUpper
 signature:
-  - "upper INPUT"
-  - "strings.ToUpper INPUT"
-relatedfuncs: []
+  - strings.ToUpper INPUT
+  - upper INPUT
 ---
 
 Note that `upper` can be applied in your templates in more than one way:

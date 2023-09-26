@@ -5,9 +5,18 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings]
-signature: ["strings.TrimLeft CUTSET STRING"]
-relatedfuncs: [strings.TrimRight]
+keywords: []
+namespace: strings
+relatedFuncs:
+  - strings.Chomp
+  - strings.Trim
+  - strings.TrimLeft
+  - strings.TrimPrefix
+  - strings.TrimRight
+  - strings.TrimSuffix
+signature:
+  - strings.TrimLeft CUTSET STRING
+
 ---
 
 Given the string `"abba"`, leading `"a"`'s can be removed a follows:

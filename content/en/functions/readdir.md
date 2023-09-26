@@ -5,10 +5,19 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [files]
-signature: ["os.ReadDir PATH", "readDir PATH"]
-relatedfuncs: ['os.FileExists','os.ReadFile','os.Stat']
+keywords: []
+namespace: os
+relatedFuncs:
+  - os.FileExists
+  - os.Getenv
+  - os.ReadDir
+  - os.ReadFile
+  - os.Stat
+signature:
+  - os.ReadDir PATH
+  - readDir PATH
 ---
+
 The `os.ReadDir` function resolves the path relative to the root of your project directory. A leading path separator (`/`) is optional.
 
 With this directory structure:

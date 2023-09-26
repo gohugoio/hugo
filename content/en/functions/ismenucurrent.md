@@ -5,9 +5,13 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [menus]
-signature: ["PAGE.IsMenuCurrent MENU MENUENTRY"]
-relatedfuncs: ["HasMenuCurrent"]
+keywords: []
+namespace:
+relatedFuncs:
+  - .HasMenuCurrent
+  - .IsMenuCurrent
+signature:
+  - PAGE.IsMenuCurrent MENU MENUENTRY
 ---
 
 `.IsMenuCurrent` is a method in `Page` object returning a _boolean_ value. It

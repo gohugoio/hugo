@@ -5,11 +5,12 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings]
+keywords: []
+namespace: strings
+relatedFuncs: []
 signature:
-  - "substr STRING START [LENGTH]"
-  - "strings.Substr STRING START [LENGTH]"
-relatedfuncs: []
+  - substr STRING START [LENGTH]
+  - strings.Substr STRING START [LENGTH]
 ---
 
 It normally takes two argument: `start` and `length`. It can also take one argument: `start`, i.e. `length` is omitted, in which case the substring starting from start until the end of the string will be returned.

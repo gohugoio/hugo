@@ -5,17 +5,40 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings]
-signature: ["printf FORMAT INPUT"]
-relatedfuncs: []
+keywords: []
+namespace: fmt
+relatedFuncs:
+  - fmt.Print
+  - fmt.Printf
+  - fmt.Println
+signature:
+  - fmt.Printf FORMAT [INPUT]
+  - printf FORMAT [INPUT]
 ---
 
-See [the go doc](https://golang.org/pkg/fmt/) for additional information.
+The documentation for [Go's fmt package] describes the structure and content of the format string.
+
+[Go's fmt package]: https://pkg.go.dev/fmt
 
 ```go-html-template
-{{ i18n ( printf "combined_%s" $var ) }}
+{{ $var := "world" }}
+{{ printf "Hello %s." $var }} → Hello world.
 ```
 
 ```go-html-template
-{{ printf "formatted %.2f" 3.1416 }}
+{{ $pi := 3.14159265 }}
+{{ printf "Pi is approximately %.2f." $pi }} → 3.14
+```
+
+Use the `printf` function with the `safeHTMLAttr` function:
+
+```go-html-template
+{{ $desc := "Eat at Joe's" }}
+<meta name="description" {{ printf "content=%q" $desc | safeHTMLAttr }}>
+```
+
+Hugo renders this to:
+
+```html
+<meta name="description" content="Eat at Joe's">
 ```

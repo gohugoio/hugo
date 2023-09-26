@@ -5,9 +5,17 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [style,css,strings]
-signature: ["safeCSS INPUT"]
-relatedfuncs: [safeHTML,safeHTMLAttr,]
+keywords: []
+namespace: safe
+relatedFuncs:
+  - safe.CSS
+  - safe.HTML
+  - safe.HTMLAttr
+  - safe.JS
+  - safe.URL
+signature:
+  - safe.CSS INPUT
+  - safeCSS INPUT
 ---
 
 In this context, *safe* means CSS content that matches any of the following:

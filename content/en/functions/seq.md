@@ -6,8 +6,21 @@ menu:
   docs:
     parent: functions
 keywords: []
-signature: ["seq LAST", "seq FIRST LAST", "seq FIRST INCREMENT LAST"]
-relatedfuncs: []
+namespace: collections
+relatedFuncs:
+  - collections.Apply
+  - collections.Delimit
+  - collections.In
+  - collections.Reverse
+  - collections.Seq
+  - collections.Slice
+signature:
+  - collections.Seq LAST
+  - collections.Seq FIRST LAST
+  - collections.Seq FIRST INCREMENT LAST
+  - seq LAST
+  - seq FIRST LAST
+  - seq FIRST INCREMENT LAST
 ---
 
 ```go-html-template

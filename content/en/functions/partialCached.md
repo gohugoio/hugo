@@ -5,9 +5,14 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [performance]
-signature: ["partialCached LAYOUT INPUT [VARIANT...]"]
-relatedfuncs: []
+keywords: []
+namespace: partials
+relatedFuncs:
+  - partials.Include
+  - partials.IncludeCached
+signature: 
+  - partials.IncludeCached LAYOUT CONTEXT [VARIANT...]
+  - partialCached LAYOUT CONTEXT [VARIANT...]
 ---
 
 The `partialCached` template function can offer significant performance gains for complex templates that don't need to be re-rendered on every invocation.

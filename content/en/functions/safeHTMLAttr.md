@@ -5,9 +5,17 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings]
-signature: ["safeHTMLAttr INPUT"]
-relatedfuncs: []
+keywords: []
+namespace: safe
+relatedFuncs:
+  - safe.CSS
+  - safe.HTML
+  - safe.HTMLAttr
+  - safe.JS
+  - safe.URL
+signature:
+  - safe.HTMLAttr INPUT
+  - safeHTMLAttr INPUT
 ---
 
 Given a site configuration that contains this menu entry:

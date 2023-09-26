@@ -5,9 +5,17 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [filtering]
-signature: ["where COLLECTION KEY [OPERATOR] MATCH"]
-relatedfuncs: [intersect,first,after,last]
+keywords: []
+namespace: collections
+relatedFuncs:
+  - collections.Dictionary
+  - collections.Group
+  - collections.Index
+  - collections.IsSet
+  - collections.Where 
+signature:
+  - collections.Where COLLECTION KEY [OPERATOR] MATCH
+  - where COLLECTION KEY [OPERATOR] MATCH
 toc: true
 ---
 

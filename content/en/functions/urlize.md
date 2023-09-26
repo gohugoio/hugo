@@ -5,9 +5,14 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [urls,strings]
-signature: ["urlize INPUT"]
-relatedfuncs: []
+keywords: []
+namespace: urls
+relatedFuncs:
+  - urls.Anchorize
+  - urls.URLize
+signature:
+  - urls.URLize INPUT
+  - urlize INPUT
 ---
 
 The following examples pull from a content file with the following front matter:

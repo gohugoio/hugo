@@ -5,9 +5,17 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings]
-signature: ["strings.TrimSuffix SUFFIX STRING"]
-relatedfuncs: [strings.TrimPrefix]
+keywords: []
+namespace: strings
+relatedFuncs:
+  - strings.Chomp
+  - strings.Trim
+  - strings.TrimLeft
+  - strings.TrimPrefix
+  - strings.TrimRight
+  - strings.TrimSuffix
+signature:
+  - strings.TrimSuffix SUFFIX STRING
 ---
 
 Given the string `"aabbaa"`, the specified suffix is only removed if `"aabbaa"` ends with it:

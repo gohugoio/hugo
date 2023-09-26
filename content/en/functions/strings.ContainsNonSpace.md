@@ -5,9 +5,17 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [whitespace space]
-signature: ["strings.ContainsNonSpace STRING"]
-relatedfuncs: ["strings.Contains","strings.ContainsAny"]
+keywords: []
+namespace: strings
+relatedFuncs:
+  - strings.Contains
+  - strings.ContainsAny
+  - strings.ContainsNonSpace
+  - strings.HasPrefix
+  - strings.HasSuffix
+  - collections.In
+signature: 
+  - strings.ContainsNonSpace STRING
 ---
 
 ```go-html-template

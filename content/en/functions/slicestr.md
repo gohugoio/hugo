@@ -5,11 +5,12 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings]
+keywords: []
+namespace: strings
+relatedFuncs: []
 signature:
-  - "slicestr STRING START [END]"
-  - "strings.SliceString STRING START [END]"
-relatedfuncs: []
+  - strings.SliceString STRING START [END]
+  - slicestr STRING START [END]
 ---
 
 For example, 1 and 4 creates a slice including elements 1 through 3.

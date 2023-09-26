@@ -5,11 +5,16 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [regex]
+keywords: []
+namespace: strings
+relatedFuncs:
+  - strings.FindRE
+  - strings.FindRESubmatch
+  - strings.Replace
+  - strings.ReplaceRE
 signature:
-  - "findRESubmatch PATTERN INPUT [LIMIT]"
-  - "strings.FindRESubmatch PATTERN INPUT [LIMIT]"
-relatedfuncs: [findRE, replaceRE]
+  - strings.FindRESubmatch PATTERN INPUT [LIMIT
+  - findRESubmatch PATTERN INPUT [LIMIT]
 ---
 
 By default, `findRESubmatch` finds all matches. You can limit the number of matches with an optional LIMIT argument. A return value of nil indicates no match.

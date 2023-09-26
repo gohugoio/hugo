@@ -5,9 +5,18 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [dates,time]
-signature: ["now"]
-relatedfuncs: [Unix,dateFormat]
+keywords: []
+namespace: time
+relatedFuncs:
+  - time.AsTime
+  - time.Duration
+  - time.Format
+  - time.Now
+  - time.ParseDuration
+signature: 
+  - time.Now
+  - now
+
 ---
 
 See [`time.Time`](https://godoc.org/time#Time).

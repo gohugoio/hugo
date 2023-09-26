@@ -5,9 +5,19 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [path, join]
-signature: ["path.Join ELEMENT..."]
-relatedfuncs: [path.Base, path.BaseName, path.Clean, path.Dir, path.Ext, path.Split]
+keywords: []
+namespace: path
+relatedFuncs:
+  - path.Base
+  - path.BaseName
+  - path.Clean
+  - path.Dir
+  - path.Ext
+  - path.Join
+  - path.Split
+  - urls.JoinPath
+signature:
+  - path.Join ELEMENT...
 ---
 
 `path.Join` joins path elements into a single path, adding a separating slash if necessary.

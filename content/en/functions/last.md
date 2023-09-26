@@ -1,14 +1,17 @@
 ---
 title: last
-description: "slices an array to only the last <em>N</em>th elements."
-keywords: []
+description: Slices an array to the last N elements.
 categories: [functions]
 menu:
   docs:
     parent: functions
-toc:
-signature: ["last INDEX COLLECTION"]
-relatedfuncs: []
+keywords: []
+namespace: collections
+relatedFuncs:
+  - collections.After
+  - collections.First
+  - collections.Last
+signature: [last INDEX COLLECTION]
 ---
 
 ```go-html-template

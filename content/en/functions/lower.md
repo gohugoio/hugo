@@ -5,11 +5,16 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings,casing]
+keywords: []
+namespace: strings
+relatedFuncs:
+  - strings.FirstUpper
+  - strings.Title
+  - strings.ToLower
+  - strings.ToUpper
 signature:
-  - "lower INPUT"
-  - "strings.ToLower INPUT"
-relatedfuncs: []
+  - strings.ToLower INPUT
+  - lower INPUT
 ---
 
 

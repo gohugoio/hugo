@@ -5,9 +5,18 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [advanced]
-signature: ["apply COLLECTION FUNCTION [PARAM...]"]
-relatedfuncs: []
+keywords: []
+namespace: collections
+relatedFuncs:
+  - collections.Apply
+  - collections.Delimit
+  - collections.In
+  - collections.Reverse
+  - collections.Seq
+  - collections.Slice
+signature:
+  - collections.Apply COLLECTION FUNCTION [PARAM...]
+  - apply COLLECTION FUNCTION [PARAM...]
 ---
 
 `apply` expects at least three arguments, depending on the function being applied.

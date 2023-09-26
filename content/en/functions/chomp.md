@@ -6,11 +6,18 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [trim]
+keywords: []
+namespace: strings
+relatedFuncs:
+  - strings.Chomp
+  - strings.Trim
+  - strings.TrimLeft
+  - strings.TrimPrefix
+  - strings.TrimRight
+  - strings.TrimSuffix
 signature:
-  - "chomp INPUT"
-  - "strings.Chomp INPUT"
-relatedfuncs: [truncate]
+  - chomp STRING
+  - strings.Chomp STRING
 ---
 
 Useful in a pipeline to remove newlines added by other processing (e.g., [`markdownify`](/functions/markdownify/)).

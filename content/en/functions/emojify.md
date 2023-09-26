@@ -5,9 +5,12 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings,emojis]
-signature: ["emojify INPUT"]
-relatedfuncs: []
+keywords: []
+namespace: transform
+relatedFuncs: []
+signature:
+  - transform.Emojify INPUT
+  - emojify INPUT
 ---
 
 `emojify` runs a passed string through the Emoji emoticons processor.

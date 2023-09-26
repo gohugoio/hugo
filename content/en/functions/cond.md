@@ -2,12 +2,17 @@
 title: cond
 description: Returns one of two arguments depending on the value of the control argument.
 categories: [functions]
-keywords: [conditional, ternary]
 menu:
   docs:
     parent: functions
-signature: [cond CONTROL ARG1 ARG2]
-relatedfuncs: [default]
+keywords: []
+namespace: compare
+relatedFuncs:
+  - compare.Conditional
+  - compare.Default
+signature:
+  - compare.Conditional CONTROL ARG1 ARG2
+  - cond CONTROL ARG1 ARG2
 ---
 
 The CONTROL argument is a boolean value that indicates whether the function should return ARG1 or ARG2. If CONTROL is `true`, the function returns ARG1. Otherwise, the function returns ARG2.

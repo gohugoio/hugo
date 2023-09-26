@@ -5,9 +5,15 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [strings]
-signature: ["pluralize INPUT"]
-relatedfuncs: []
+keywords: []
+namespace: inflect
+relatedFuncs:
+  - inflect.Humanize
+  - inflect.Pluralize
+  - inflect.Singularize
+signature:
+  - inflect.Pluralize INPUT
+  - pluralize INPUT
 ---
 
 ```go-html-template

@@ -5,9 +5,18 @@ categories: [functions]
 menu:
   docs:
     parent: functions
-keywords: [comparison,operators,logic]
-signature: ["le ARG1 ARG2 [ARG...]"]
-relatedfuncs: []
+keywords: []
+namespace: compare
+relatedFuncs:
+  - compare.Eq
+  - compare.Ge
+  - compare.Gt
+  - compare.Le
+  - compare.Lt
+  - compare.Ne
+signature:
+  - compare.Le ARG1 ARG2 [ARG...]
+  - le ARG1 ARG2 [ARG...]
 ---
 
 ```go-html-template
