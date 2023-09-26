@@ -20,5 +20,5 @@ signature:
 
 
 ```go-html-template
-{{ slice 1 3 2 1 | uniq }} → [1 3 2]
+{{ slice 2 1 3 | collections.Reverse }} → [3 1 2]
 ```
