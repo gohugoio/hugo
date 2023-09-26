@@ -10,6 +10,7 @@ namespace: collections
 relatedFuncs:
   - collections.Append
   - collections.Merge
+  - collections.Slice
 signature: 
   - COLLECTION | collections.Append ELEMENT [ELEMENT]...
   - COLLECTION | collections.Append COLLECTION
@@ -87,8 +88,6 @@ To create a slice of slices, starting with an empty slice:
 {{ $s = $s | append  (slice "c" "d") }}
 {{ $s }} → [[a b] [c d]]
 ```
-
-
 
 Although the elements in the examples above are strings, you can use the `append` function with any data type, including Pages. For example, on the home page of a corporate site, to display links to the two most recent press releases followed by links to the four most recent articles:
 

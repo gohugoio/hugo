@@ -8,6 +8,7 @@ menu:
 keywords: []
 namespace: collections
 relatedFuncs:
+  - collections.Append
   - collections.Apply
   - collections.Delimit
   - collections.In
