@@ -16,4 +16,6 @@ signature:
   - strings.FirstUpper STRING
 ---
 
+```go-html-template
 {{ strings.FirstUpper "foo" }} → "Foo"
+```
