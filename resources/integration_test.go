@@ -73,7 +73,6 @@ anigif: {{ $anigif.RelPermalink }}|{{ $anigif.Width }}|{{ $anigif.Height }}|{{ $
 	b.Build()
 
 	assertImages()
-
 }
 
 func TestSVGError(t *testing.T) {
@@ -98,7 +97,6 @@ Width: {{ $svg.Width }}
 
 	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, `error calling Width: this method is only available for raster images. To determine if an image is SVG, you can do {{ if eq .MediaType.SubType "svg" }}{{ end }}`)
-
 }
 
 // Issue 10255.
@@ -137,5 +135,36 @@ iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAA
 		b.AssertFileCount("public/images", 1)
 		b.Build()
 	}
+}
 
+func TestProcessFilter(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- assets/images/pixel.png --
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+-- layouts/index.html --
+{{ $pixel := resources.Get "images/pixel.png" }}
+{{ $filters := slice (images.GaussianBlur 6) (images.Pixelate 8) (images.Process "jpg") }}
+{{ $image := $pixel.Filter $filters }}
+jpg|RelPermalink: {{ $image.RelPermalink }}|MediaType: {{ $image.MediaType }}|Width: {{ $image.Width }}|Height: {{ $image.Height }}|
+{{ $filters := slice (images.GaussianBlur 6) (images.Pixelate 8) (images.Process "jpg resize 20x30") }}
+{{ $image := $pixel.Filter $filters }}
+resize 1|RelPermalink: {{ $image.RelPermalink }}|MediaType: {{ $image.MediaType }}|Width: {{ $image.Width }}|Height: {{ $image.Height }}|
+{{ $image := $pixel.Filter $filters }}
+resize 2|RelPermalink: {{ $image.RelPermalink }}|MediaType: {{ $image.MediaType }}|Width: {{ $image.Width }}|Height: {{ $image.Height }}|
+
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		}).Build()
+
+	b.AssertFileContent("public/index.html",
+		"jpg|RelPermalink: /images/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_filter_17010532266664966692.jpg|MediaType: image/jpeg|Width: 1|Height: 1|",
+		"resize 1|RelPermalink: /images/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_filter_6707036659822075562.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
+		"resize 2|RelPermalink: /images/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_filter_6707036659822075562.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
+	)
 }

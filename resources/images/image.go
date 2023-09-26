@@ -14,6 +14,7 @@
 package images
 
 import (
+	"errors"
 	"fmt"
 	"image"
 	"image/color"
@@ -34,8 +35,6 @@ import (
 	"github.com/disintegration/gift"
 	"golang.org/x/image/bmp"
 	"golang.org/x/image/tiff"
-
-	"errors"
 
 	"github.com/gohugoio/hugo/common/hugio"
 )
@@ -202,7 +201,7 @@ func (p *ImageProcessor) DecodeExif(r io.Reader) (*exif.ExifInfo, error) {
 	return p.exifDecoder.Decode(r)
 }
 
-func (p *ImageProcessor) ApplyFiltersFromConfig(src image.Image, conf ImageConfig) (image.Image, error) {
+func (p *ImageProcessor) FiltersFromConfig(src image.Image, conf ImageConfig) ([]gift.Filter, error) {
 	var filters []gift.Filter
 
 	if conf.Rotate != 0 {
@@ -245,7 +244,19 @@ func (p *ImageProcessor) ApplyFiltersFromConfig(src image.Image, conf ImageConfi
 	case "fit":
 		filters = append(filters, gift.ResizeToFit(conf.Width, conf.Height, conf.Filter))
 	default:
-		return nil, fmt.Errorf("unsupported action: %q", conf.Action)
+
+	}
+	return filters, nil
+}
+
+func (p *ImageProcessor) ApplyFiltersFromConfig(src image.Image, conf ImageConfig) (image.Image, error) {
+	filters, err := p.FiltersFromConfig(src, conf)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(filters) == 0 {
+		return p.resolveSrc(src, conf.TargetFormat), nil
 	}
 
 	img, err := p.doFilter(src, conf.TargetFormat, filters...)
@@ -260,8 +271,17 @@ func (p *ImageProcessor) Filter(src image.Image, filters ...gift.Filter) (image.
 	return p.doFilter(src, 0, filters...)
 }
 
-func (p *ImageProcessor) doFilter(src image.Image, targetFormat Format, filters ...gift.Filter) (image.Image, error) {
+func (p *ImageProcessor) resolveSrc(src image.Image, targetFormat Format) image.Image {
+	if giph, ok := src.(Giphy); ok {
+		g := giph.GIF()
+		if len(g.Image) < 2 || (targetFormat == 0 || targetFormat != GIF) {
+			src = g.Image[0]
+		}
+	}
+	return src
+}
 
+func (p *ImageProcessor) doFilter(src image.Image, targetFormat Format, filters ...gift.Filter) (image.Image, error) {
 	filter := gift.New(filters...)
 
 	if giph, ok := src.(Giphy); ok {
@@ -384,6 +404,15 @@ func imageConfigFromImage(img image.Image) image.Config {
 	return image.Config{Width: b.Max.X, Height: b.Max.Y}
 }
 
+// UnwrapFilter unwraps the given filter if it is a filter wrapper.
+func UnwrapFilter(in gift.Filter) gift.Filter {
+	if f, ok := in.(filter); ok {
+		return f.Filter
+	}
+	return in
+}
+
+// ToFilters converts the given input to a slice of gift.Filter.
 func ToFilters(in any) []gift.Filter {
 	switch v := in.(type) {
 	case []gift.Filter:

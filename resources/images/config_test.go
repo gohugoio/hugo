@@ -106,7 +106,7 @@ func TestDecodeImageConfig(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		result, err := DecodeImageConfig(this.action, this.in, cfg, PNG)
+		result, err := DecodeImageConfig(this.action, strings.Fields(this.in), cfg, PNG)
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
 				t.Errorf("[%d] parseImageConfig didn't return an expected error", i)

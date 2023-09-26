@@ -14,6 +14,7 @@
 package images
 
 import (
+	"errors"
 	"fmt"
 	"image/color"
 	"strconv"
@@ -24,11 +25,16 @@ import (
 	"github.com/gohugoio/hugo/media"
 	"github.com/mitchellh/mapstructure"
 
-	"errors"
-
 	"github.com/bep/gowebp/libwebp/webpoptions"
 
 	"github.com/disintegration/gift"
+)
+
+const (
+	ActionResize = "resize"
+	ActionCrop   = "crop"
+	ActionFit    = "fit"
+	ActionFill   = "fill"
 )
 
 var (
@@ -90,7 +96,6 @@ var hints = map[string]webpoptions.EncodingPreset{
 }
 
 var imageFilters = map[string]gift.Resampling{
-
 	strings.ToLower("NearestNeighbor"):   gift.NearestNeighborResampling,
 	strings.ToLower("Box"):               gift.BoxResampling,
 	strings.ToLower("Linear"):            gift.LinearResampling,
@@ -194,23 +199,23 @@ func DecodeConfig(in map[string]any) (*config.ConfigNamespace[ImagingConfig, Ima
 		return nil, fmt.Errorf("failed to decode media types: %w", err)
 	}
 	return ns, nil
-
 }
 
-func DecodeImageConfig(action, config string, defaults *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal], sourceFormat Format) (ImageConfig, error) {
+func DecodeImageConfig(action string, options []string, defaults *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal], sourceFormat Format) (ImageConfig, error) {
 	var (
 		c   ImageConfig = GetDefaultImageConfig(action, defaults)
 		err error
 	)
 
+	action = strings.ToLower(action)
+
 	c.Action = action
 
-	if config == "" {
-		return c, errors.New("image config cannot be empty")
+	if options == nil {
+		return c, errors.New("image options cannot be empty")
 	}
 
-	parts := strings.Fields(config)
-	for _, part := range parts {
+	for _, part := range options {
 		part = strings.ToLower(part)
 
 		if part == smartCropIdentifier {
@@ -272,19 +277,21 @@ func DecodeImageConfig(action, config string, defaults *config.ConfigNamespace[I
 	}
 
 	switch c.Action {
-	case "crop", "fill", "fit":
+	case ActionCrop, ActionFill, ActionFit:
 		if c.Width == 0 || c.Height == 0 {
 			return c, errors.New("must provide Width and Height")
 		}
-	case "resize":
+	case ActionResize:
 		if c.Width == 0 && c.Height == 0 {
 			return c, errors.New("must provide Width or Height")
 		}
 	default:
-		return c, fmt.Errorf("BUG: unknown action %q encountered while decoding image configuration", c.Action)
+		if c.Width != 0 || c.Height != 0 {
+			return c, errors.New("width or height are not supported for this action")
+		}
 	}
 
-	if c.FilterStr == "" {
+	if action != "" && c.FilterStr == "" {
 		c.FilterStr = defaults.Config.Imaging.ResampleFilter
 		c.Filter = defaults.Config.ResampleFilter
 	}
@@ -293,7 +300,7 @@ func DecodeImageConfig(action, config string, defaults *config.ConfigNamespace[I
 		c.Hint = webpoptions.EncodingPresetPhoto
 	}
 
-	if c.AnchorStr == "" {
+	if action != "" && c.AnchorStr == "" {
 		c.AnchorStr = defaults.Config.Imaging.Anchor
 		c.Anchor = defaults.Config.Anchor
 	}
@@ -391,7 +398,7 @@ func (i ImageConfig) GetKey(format Format) string {
 
 	k += "_" + i.FilterStr
 
-	if strings.EqualFold(i.Action, "fill") || strings.EqualFold(i.Action, "crop") {
+	if i.Action == ActionFill || i.Action == ActionCrop {
 		k += "_" + anchor
 	}
 
@@ -437,7 +444,6 @@ func (i *ImagingConfigInternal) Compile(externalCfg *ImagingConfig) error {
 	i.ResampleFilter = filter
 
 	return nil
-
 }
 
 // ImagingConfig contains default image processing configuration. This will be fetched
@@ -487,7 +493,6 @@ func (cfg *ImagingConfig) init() error {
 }
 
 type ExifConfig struct {
-
 	// Regexp matching the Exif fields you want from the (massive) set of Exif info
 	// available. As we cache this info to disk, this is for performance and
 	// disk space reasons more than anything.

@@ -63,7 +63,7 @@ var eq = qt.CmpEquals(
 		}
 		return p1.Name() == p2.Name() && p1.Size() == p2.Size() && p1.IsDir() == p2.IsDir()
 	}),
-	//cmp.Comparer(func(p1, p2 *genericResource) bool { return p1 == p2 }),
+	// cmp.Comparer(func(p1, p2 *genericResource) bool { return p1 == p2 }),
 	cmp.Comparer(func(m1, m2 media.Type) bool {
 		return m1.Type == m2.Type
 	}),
@@ -84,10 +84,7 @@ func TestImageTransformBasic(t *testing.T) {
 	fileCache := spec.FileCaches.ImageCache().Fs
 
 	assertWidthHeight := func(img images.ImageResource, w, h int) {
-		c.Helper()
-		c.Assert(img, qt.Not(qt.IsNil))
-		c.Assert(img.Width(), qt.Equals, w)
-		c.Assert(img.Height(), qt.Equals, h)
+		assertWidthHeight(c, img, w, h)
 	}
 
 	colors, err := image.Colors()
@@ -162,7 +159,45 @@ func TestImageTransformBasic(t *testing.T) {
 	croppedAgain, err := image.Crop("300x300 topRight")
 	c.Assert(err, qt.IsNil)
 	c.Assert(cropped, qt.Equals, croppedAgain)
+}
 
+func TestImageProcess(t *testing.T) {
+	c := qt.New(t)
+	_, img := fetchSunset(c)
+	resized, err := img.Process("resiZe 300x200")
+	c.Assert(err, qt.IsNil)
+	assertWidthHeight(c, resized, 300, 200)
+	rotated, err := resized.Process("R90")
+	c.Assert(err, qt.IsNil)
+	assertWidthHeight(c, rotated, 200, 300)
+	converted, err := img.Process("png")
+	c.Assert(err, qt.IsNil)
+	c.Assert(converted.MediaType().Type, qt.Equals, "image/png")
+
+	checkProcessVsMethod := func(action, spec string) {
+		var expect images.ImageResource
+		var err error
+		switch action {
+		case images.ActionCrop:
+			expect, err = img.Crop(spec)
+		case images.ActionFill:
+			expect, err = img.Fill(spec)
+		case images.ActionFit:
+			expect, err = img.Fit(spec)
+		case images.ActionResize:
+			expect, err = img.Resize(spec)
+		}
+		c.Assert(err, qt.IsNil)
+		got, err := img.Process(spec + " " + action)
+		c.Assert(err, qt.IsNil)
+		assertWidthHeight(c, got, expect.Width(), expect.Height())
+		c.Assert(got.MediaType(), qt.Equals, expect.MediaType())
+	}
+
+	checkProcessVsMethod(images.ActionCrop, "300x200 topleFt")
+	checkProcessVsMethod(images.ActionFill, "300x200 topleft")
+	checkProcessVsMethod(images.ActionFit, "300x200 png")
+	checkProcessVsMethod(images.ActionResize, "300x R90")
 }
 
 func TestImageTransformFormat(t *testing.T) {
@@ -267,7 +302,6 @@ func TestImageBugs(t *testing.T) {
 		c.Assert(resized, qt.Not(qt.IsNil))
 		c.Assert(resized.Width(), qt.Equals, 100)
 		c.Assert(resized.RelPermalink(), qt.Equals, "/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_c876768085288f41211f768147ba2647.jpg")
-
 	})
 
 	// Issue #6137
@@ -278,7 +312,6 @@ func TestImageBugs(t *testing.T) {
 		c.Assert(err, qt.IsNil)
 		c.Assert(resized, qt.Not(qt.IsNil))
 		c.Assert(resized.Width(), qt.Equals, 200)
-
 	})
 
 	// Issue #7955
@@ -307,9 +340,7 @@ func TestImageBugs(t *testing.T) {
 				c.Assert(resized.Width(), qt.Equals, test.targetWH)
 				c.Assert(resized.Height(), qt.Equals, test.targetWH)
 			})
-
 		}
-
 	})
 }
 
@@ -613,7 +644,6 @@ func TestImageOperationsGoldenWebp(t *testing.T) {
 	dir2 := filepath.FromSlash("testdata/golden_webp")
 
 	assetGoldenDirs(c, dir1, dir2)
-
 }
 
 func TestImageOperationsGolden(t *testing.T) {
@@ -621,7 +651,7 @@ func TestImageOperationsGolden(t *testing.T) {
 	c.Parallel()
 
 	// Note, if you're enabling this on a MacOS M1 (ARM) you need to run the test with GOARCH=amd64.
-	// GOARCH=amd64 go test -timeout 30s -run "^TestImageOperationsGolden$" ./resources -v
+	// GOARCH=amd64 go test -count 1 -timeout 30s -run "^TestImageOperationsGolden$" ./resources -v
 	// The above will print out a folder.
 	// Replace testdata/golden with resources/_gen/images in that folder.
 	devMode := false
@@ -644,6 +674,10 @@ func TestImageOperationsGolden(t *testing.T) {
 	gopher, err = gopher.Resize("30x")
 	c.Assert(err, qt.IsNil)
 
+	f := &images.Filters{}
+
+	sunset := fetchImageForSpec(spec, c, "sunset.jpg")
+
 	// Test PNGs with alpha channel.
 	for _, img := range []string{"gopher-hero8.png", "gradient-circle.png"} {
 		orig := fetchImageForSpec(spec, c, img)
@@ -653,7 +687,15 @@ func TestImageOperationsGolden(t *testing.T) {
 			rel := resized.RelPermalink()
 
 			c.Assert(rel, qt.Not(qt.Equals), "")
+
 		}
+
+		// Check the Opacity filter.
+		opacity30, err := orig.Filter(f.Opacity(30))
+		c.Assert(err, qt.IsNil)
+		overlay, err := sunset.Filter(f.Overlay(opacity30.(images.ImageSource), 20, 20))
+		rel := overlay.RelPermalink()
+		c.Assert(rel, qt.Not(qt.Equals), "")
 	}
 
 	// A simple Gif file (no animation).
@@ -698,8 +740,6 @@ func TestImageOperationsGolden(t *testing.T) {
 			rel := resized.RelPermalink()
 			c.Assert(rel, qt.Not(qt.Equals), "")
 		}
-
-		f := &images.Filters{}
 
 		filters := []gift.Filter{
 			f.Grayscale(),
@@ -746,11 +786,9 @@ func TestImageOperationsGolden(t *testing.T) {
 	dir2 := filepath.FromSlash("testdata/golden")
 
 	assetGoldenDirs(c, dir1, dir2)
-
 }
 
 func assetGoldenDirs(c *qt.C, dir1, dir2 string) {
-
 	// The two dirs above should now be the same.
 	dirinfos1, err := os.ReadDir(dir1)
 	c.Assert(err, qt.IsNil)
@@ -849,4 +887,11 @@ func BenchmarkResizeParallel(b *testing.B) {
 			}
 		}
 	})
+}
+
+func assertWidthHeight(c *qt.C, img images.ImageResource, w, h int) {
+	c.Helper()
+	c.Assert(img, qt.Not(qt.IsNil))
+	c.Assert(img.Width(), qt.Equals, w)
+	c.Assert(img.Height(), qt.Equals, h)
 }

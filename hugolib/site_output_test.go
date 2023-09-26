@@ -20,12 +20,12 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/resources/kinds"
 
 	"github.com/spf13/afero"
 
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/output"
 )
 
@@ -152,7 +152,7 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 
 	// There is currently always a JSON output to make it simpler ...
 	altFormats := lenOut - 1
-	hasHTML := helpers.InStringArray(outputs, "html")
+	hasHTML := hstrings.InSlice(outputs, "html")
 	b.AssertFileContent("public/index.json",
 		"List JSON",
 		fmt.Sprintf("Alt formats: %d", altFormats),
@@ -205,7 +205,7 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 	b.Assert(json.RelPermalink(), qt.Equals, "/blog/index.json")
 	b.Assert(json.Permalink(), qt.Equals, "http://example.com/blog/index.json")
 
-	if helpers.InStringArray(outputs, "cal") {
+	if hstrings.InSlice(outputs, "cal") {
 		cal := of.Get("calendar")
 		b.Assert(cal, qt.Not(qt.IsNil))
 		b.Assert(cal.RelPermalink(), qt.Equals, "/blog/index.ics")
