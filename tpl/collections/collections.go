@@ -31,6 +31,7 @@ import (
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/tpl/compare"
 	"github.com/spf13/cast"
@@ -195,9 +196,11 @@ func (ns *Namespace) Dictionary(values ...any) (map[string]any, error) {
 	return root, nil
 }
 
-// EchoParam returns a the value in the collection c with key k if is set; otherwise, it returns an
+// EchoParam returns the value in the collection c with key k if is set; otherwise, it returns an
 // empty string.
+// Deprecated: Use the index function instead.
 func (ns *Namespace) EchoParam(c, k any) any {
+	helpers.Deprecated("collections.EchoParam", "Use the index function instead.", false)
 	av, isNil := indirect(reflect.ValueOf(c))
 	if isNil {
 		return ""
@@ -233,6 +236,8 @@ func (ns *Namespace) EchoParam(c, k any) any {
 			return avv.Float()
 		case reflect.String:
 			return avv.String()
+		case reflect.Bool:
+			return avv.Bool()
 		}
 	}
 
