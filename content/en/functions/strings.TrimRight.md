@@ -20,8 +20,12 @@ signature:
 
 Given the string `"abba"`, trailing `"a"`'s can be removed a follows:
 
-    {{ strings.TrimRight "a" "abba" }} → "abb"
+```go-html-template
+{{ strings.TrimRight "a" "abba" }} → "abb"
+```
 
 Numbers can be handled as well:
 
-    {{ strings.TrimRight 12 1221341221 }} → "122134"
+```go-html-template
+{{ strings.TrimRight 12 1221341221 }} → "122134"
+```

@@ -16,7 +16,6 @@ relatedFuncs:
 signature:
   - crypto.MD5 INPUT
   - md5 INPUT
-
 ---
 
 ```go-html-template

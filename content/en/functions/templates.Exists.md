@@ -10,7 +10,6 @@ namespace: templates
 relatedFuncs: []
 signature:
   - templates.Exists PATH
-
 ---
 
 A template file is any file living below the `layouts` directories of either the project or any of its theme components including partials and shortcodes.

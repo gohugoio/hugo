@@ -20,6 +20,8 @@ signature:
 
 Given the string `"aabbaa"`, the specified suffix is only removed if `"aabbaa"` ends with it:
 
-    {{ strings.TrimSuffix "a" "aabbaa" }} → "aabba"
-    {{ strings.TrimSuffix "aa" "aabbaa" }} → "aabb"
-    {{ strings.TrimSuffix "aaa" "aabbaa" }} → "aabbaa"
+```go-html-template
+{{ strings.TrimSuffix "a" "aabbaa" }} → "aabba"
+{{ strings.TrimSuffix "aa" "aabbaa" }} → "aabb"
+{{ strings.TrimSuffix "aaa" "aabbaa" }} → "aabbaa"
+```

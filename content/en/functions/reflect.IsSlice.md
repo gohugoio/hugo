@@ -12,7 +12,6 @@ relatedFuncs:
   - reflect.IsSlice
 signature: 
   - reflect.IsSlice INPUT
-
 ---
 
 `reflect.IsSlice` reports if `VALUE` is a slice.  Returns a boolean.

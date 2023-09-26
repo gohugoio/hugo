@@ -10,7 +10,6 @@ namespace:
 relatedFuncs: []
 signature:
   - .Param KEY
-
 ---
 
 The `.Param` method on `.Page` looks for the given `KEY` in page parameters, and returns the corresponding value. If it cannot find the `KEY` in page parameters, it looks for the `KEY` in site parameters. If it cannot find the `KEY` in either location, the `.Param` method returns `nil`. 

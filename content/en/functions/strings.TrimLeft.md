@@ -16,13 +16,16 @@ relatedFuncs:
   - strings.TrimSuffix
 signature:
   - strings.TrimLeft CUTSET STRING
-
 ---
 
 Given the string `"abba"`, leading `"a"`'s can be removed a follows:
 
-    {{ strings.TrimLeft "a" "abba" }} → "bba"
+```go-html-template
+{{ strings.TrimLeft "a" "abba" }} → "bba"
+```
 
 Numbers can be handled as well:
 
-    {{ strings.TrimLeft 12 1221341221 }} → "341221"
+```go-html-template
+{{ strings.TrimLeft 12 1221341221 }} → "341221"
+```

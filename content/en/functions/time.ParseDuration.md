@@ -22,5 +22,7 @@ A duration string is a possibly signed sequence of decimal numbers, each with op
 
 You can perform [time operations](https://pkg.go.dev/time#Duration) on the returned `time.Duration` value:
 
-    {{ printf "There are %.0f seconds in one day." (time.ParseDuration "24h").Seconds }}
-    <!-- Output: There are 86400 seconds in one day. -->
+```go-html-template
+{{ printf "There are %.0f seconds in one day." (time.ParseDuration "24h").Seconds }}
+<!-- Output: There are 86400 seconds in one day. -->
+```

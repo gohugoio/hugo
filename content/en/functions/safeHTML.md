@@ -16,7 +16,6 @@ relatedFuncs:
 signature:
   - safe.HTML INPUT
   - safeHTML INPUT
-
 ---
 
 It should not be used for HTML from a third-party, or HTML with unclosed tags or comments.

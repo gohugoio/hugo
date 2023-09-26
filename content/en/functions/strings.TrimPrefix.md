@@ -20,6 +20,8 @@ signature:
 
 Given the string `"aabbaa"`, the specified prefix is only removed if `"aabbaa"` starts with it:
 
-    {{ strings.TrimPrefix "a" "aabbaa" }} → "abbaa"
-    {{ strings.TrimPrefix "aa" "aabbaa" }} → "bbaa"
-    {{ strings.TrimPrefix "aaa" "aabbaa" }} → "aabbaa"
+```go-html-template
+{{ strings.TrimPrefix "a" "aabbaa" }} → "abbaa"
+{{ strings.TrimPrefix "aa" "aabbaa" }} → "bbaa"
+{{ strings.TrimPrefix "aaa" "aabbaa" }} → "aabbaa"
+```

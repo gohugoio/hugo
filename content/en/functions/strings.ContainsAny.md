@@ -16,11 +16,14 @@ relatedFuncs:
   - collections.In
 signature: 
   - strings.ContainsAny STRING CHARACTERS
-
 ---
 
-    {{ strings.ContainsAny "Hugo" "gm" }} → true
+```go-html-template
+{{ strings.ContainsAny "Hugo" "gm" }} → true
+---
 
 The check is case sensitive: 
 
-    {{ strings.ContainsAny "Hugo" "Gm" }} → false
+```go-html-template
+{{ strings.ContainsAny "Hugo" "Gm" }} → false
+```

@@ -16,7 +16,6 @@ relatedFuncs:
 signature: 
   - time.Now
   - now
-
 ---
 
 See [`time.Time`](https://godoc.org/time#Time).

@@ -18,8 +18,11 @@ signature:
   - strings.Contains STRING SUBSTRING
 ---
 
-    {{ strings.Contains "Hugo" "go" }} → true
-
+```go-html-template
+{{ strings.Contains "Hugo" "go" }} → true
+```
 The check is case sensitive: 
 
-    {{ strings.Contains "Hugo" "Go" }} → false
+```go-html-template
+{{ strings.Contains "Hugo" "Go" }} → false
+```
