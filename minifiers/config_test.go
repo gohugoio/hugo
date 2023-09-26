@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2023 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,18 +11,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package minifiers
+package minifiers_test
 
 import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/config/testconfig"
 )
 
 func TestConfig(t *testing.T) {
 	c := qt.New(t)
-	v := config.NewWithTestDefaults()
+	v := config.New()
 
 	v.Set("minify", map[string]any{
 		"disablexml": true,
@@ -33,9 +34,7 @@ func TestConfig(t *testing.T) {
 		},
 	})
 
-	conf, err := decodeConfig(v)
-
-	c.Assert(err, qt.IsNil)
+	conf := testconfig.GetTestConfigs(nil, v).Base.Minify
 
 	c.Assert(conf.MinifyOutput, qt.Equals, false)
 
@@ -52,12 +51,11 @@ func TestConfig(t *testing.T) {
 
 func TestConfigLegacy(t *testing.T) {
 	c := qt.New(t)
-	v := config.NewWithTestDefaults()
+	v := config.New()
 
 	// This was a bool < Hugo v0.58.
 	v.Set("minify", true)
 
-	conf, err := decodeConfig(v)
-	c.Assert(err, qt.IsNil)
+	conf := testconfig.GetTestConfigs(nil, v).Base.Minify
 	c.Assert(conf.MinifyOutput, qt.Equals, true)
 }

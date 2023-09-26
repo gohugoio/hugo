@@ -1,22 +1,14 @@
 ---
 title: index
-linktitle: index
 description: Looks up the index(es) or key(s) of the data structure passed into it.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: []
 signature: ["index COLLECTION INDEXES", "index COLLECTION KEYS"]
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
 aliases: [/functions/index/]
-needsexample: true
 ---
 
 The `index` functions returns the result of indexing its first argument by the following arguments. Each indexed item must be a map or a slice, e.g.:
@@ -45,7 +37,7 @@ You may write multiple indices as a slice:
 {{ index $map $slice }} => 20
 ```
 
-## Example: Load Data from a Path Based on Front Matter Params
+## Example: load data from a path based on front matter parameters
 
 Assume you want to add a `location = ""` field to your front matter for every article written in `content/vacations/`. You want to use this field to populate information about the location at the bottom of the article in your `single.html` template. You also have a directory in `data/locations/` that looks like the following:
 
@@ -61,7 +53,7 @@ Assume you want to add a `location = ""` field to your front matter for every ar
 
 Here is an example:
 
-{{< code-toggle file="data/locations/oslo" >}}
+{{< code-toggle file="data/locations/oslo" copy=false >}}
 website = "https://www.oslo.kommune.no"
 pop_city = 658390
 pop_metro = 1717900
@@ -69,32 +61,32 @@ pop_metro = 1717900
 
 The example we will use will be an article on Oslo, whose front matter should be set to exactly the same name as the corresponding file name in `data/locations/`:
 
-```
+{{< code-toggle file="content/articles/oslo.md" fm=true copy=false >}}
 title = "My Norwegian Vacation"
 location = "oslo"
-```
+{{< /code-toggle >}}
 
 The content of `oslo.toml` can be accessed from your template using the following node path: `.Site.Data.locations.oslo`. However, the specific file you need is going to change according to the front matter.
 
-This is where the `index` function is needed. `index` takes 2 parameters in this use case:
+This is where the `index` function is needed. `index` takes 2 arguments in this use case:
 
 1. The node path
 2. A string corresponding to the desired data; e.g.&mdash;
 
-```
-{{ index .Site.Data.locations “oslo” }}
+```go-html-template
+{{ index .Site.Data.locations "oslo" }}
 ```
 
 The variable for `.Params.location` is a string and can therefore replace `oslo` in the example above:
 
-```
+```go-html-template
 {{ index .Site.Data.locations .Params.location }}
 => map[website:https://www.oslo.kommune.no pop_city:658390 pop_metro:1717900]
 ```
 
 Now the call will return the specific file according to the location specified in the content's front matter, but you will likely want to write specific properties to the template. You can do this by continuing down the node path via dot notation (`.`):
 
-```
+```go-html-template
 {{ (index .Site.Data.locations .Params.location).pop_city }}
 => 658390
 ```

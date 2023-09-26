@@ -1,16 +1,14 @@
 ---
-title: Taxonomy Variables
-linktitle:
+title: Taxonomy variables
 description: Hugo's taxonomy system exposes variables to taxonomy and term templates.
-categories: [variables and params]
+categories: [variables and parameters]
 keywords: [taxonomy,term]
 menu:
   docs:
-    parent: "variables"
+    parent: variables
     weight: 30
 toc: true
 weight: 30
-aliases: []
 ---
 
 ## Taxonomy templates
@@ -124,7 +122,7 @@ For example, to render the entire taxonomy data structure as a nested unordered 
           <ul>
             {{ range $weightedPages }}
               <li>
-                <a href="{{ .RelPermalink}}"> {{ .LinkTitle }}</a>
+                <a href="{{ .RelPermalink }}"> {{ .LinkTitle }}</a>
               </li>
             {{ end }}
           </ul>

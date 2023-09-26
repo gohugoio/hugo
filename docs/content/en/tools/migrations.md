@@ -1,18 +1,13 @@
 ---
 title: Migrate to Hugo
-linktitle: Migrations
+linkTitle: Migrations
 description: A list of community-developed tools for migrating from your existing static site generator or content management system to Hugo.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2022-03-26
 keywords: [migrations, jekyll, wordpress, drupal, ghost, contentful]
 menu:
   docs:
-    parent: "tools"
-    weight: 10
-weight: 10
-sections_weight: 10
-draft: false
+    parent: developer-tools
+    weight: 50
+weight: 50
 aliases: [/developer-tools/migrations/, /developer-tools/migrated/]
 toc: true
 ---
@@ -32,10 +27,6 @@ Alternatively, you can use the new [Jekyll import command](/commands/hugo_import
 - [JekyllToHugo](https://github.com/fredrikloch/JekyllToHugo) - A Small script for converting Jekyll blog posts to a Hugo site.
 - [ConvertToHugo](https://github.com/coderzh/ConvertToHugo) - Convert your blog from Jekyll to Hugo.
 
-## Ghost
-
-- [ghostToHugo](https://github.com/jbarone/ghostToHugo) - Convert Ghost blog posts and export them to Hugo.
-
 ## Octopress
 
 - [octohug](https://github.com/codebrane/octohug) - Octopress to Hugo migrator.
@@ -52,7 +43,7 @@ Alternatively, you can use the new [Jekyll import command](/commands/hugo_import
 
 ## Medium
 
-- [medium2md](https://github.com/gautamdhameja/medium-2-md) - A simple Medium to Hugo exporter able to import stories in one command, including Front Matter.
+- [medium2md](https://github.com/gautamdhameja/medium-2-md) - A simple Medium to Hugo exporter able to import stories in one command, including front matter.
 - [medium-to-hugo](https://github.com/bgadrian/medium-to-hugo) - CLI tool written in Go to export medium posts into a Hugo compatible Markdown format. Tags and images are included. All images will be downloaded locally and linked appropriately.
 
 ## Tumblr
@@ -78,7 +69,7 @@ Alternatively, you can use the new [Jekyll import command](/commands/hugo_import
 
 ## Contentful
 
-- [contentful2hugo](https://github.com/ArnoNuyts/contentful2hugo) - A tool to create content-files for Hugo from content on [Contentful](https://www.contentful.com/).
+- [contentful-hugo](https://github.com/ModiiMedia/contentful-hugo) - A tool to create content-files for Hugo from content on [Contentful](https://www.contentful.com/).
 
 ## BlogML
 

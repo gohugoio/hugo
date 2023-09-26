@@ -26,6 +26,7 @@ import (
 
 	"github.com/gohugoio/hugo/helpers"
 
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 )
 
@@ -57,7 +58,7 @@ func (c *PageCollections) AllPages() page.Pages {
 	return c.allPages.get()
 }
 
-// AllPages returns all regular pages for all languages.
+// AllRegularPages returns all regular pages for all languages.
 func (c *PageCollections) AllRegularPages() page.Pages {
 	return c.allRegularPages.get()
 }
@@ -92,7 +93,7 @@ func newPageCollections(m *pageMap) *PageCollections {
 	})
 
 	c.regularPages = newLazyPagesFactory(func() page.Pages {
-		return c.findPagesByKindIn(page.KindPage, c.pages.get())
+		return c.findPagesByKindIn(kinds.KindPage, c.pages.get())
 	})
 
 	return c
@@ -120,10 +121,10 @@ func (c *PageCollections) getPageOldVersion(ref ...string) (page.Page, error) {
 		return nil, fmt.Errorf(`too many arguments to .Site.GetPage: %v. Use lookups on the form {{ .Site.GetPage "/posts/mypage-md" }}`, ref)
 	}
 
-	if len(refs) == 0 || refs[0] == page.KindHome {
+	if len(refs) == 0 || refs[0] == kinds.KindHome {
 		key = "/"
 	} else if len(refs) == 1 {
-		if len(ref) == 2 && refs[0] == page.KindSection {
+		if len(ref) == 2 && refs[0] == kinds.KindSection {
 			// This is an old style reference to the "Home Page section".
 			// Typically fetched via {{ .Site.GetPage "section" .Section }}
 			// See https://github.com/gohugoio/hugo/issues/4989
@@ -143,7 +144,7 @@ func (c *PageCollections) getPageOldVersion(ref ...string) (page.Page, error) {
 	return c.getPageNew(nil, key)
 }
 
-// 	Only used in tests.
+// Only used in tests.
 func (c *PageCollections) getPage(typ string, sections ...string) page.Page {
 	refs := append([]string{typ}, path.Join(sections...))
 	p, _ := c.getPageOldVersion(refs...)

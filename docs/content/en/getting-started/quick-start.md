@@ -1,14 +1,13 @@
 ---
-title: Quick Start
-linktitle: Quick Start
+title: Quick start
 description: Learn to create a Hugo site in minutes.
 categories: [getting started]
 keywords: [quick start,usage]
 menu:
   docs:
     parent: getting-started
-    weight: 10
-weight: 10
+    weight: 20
+weight: 20
 toc: true
 aliases: [/quickstart/,/overview/quickstart/]
 ---
@@ -24,7 +23,7 @@ In this tutorial you will:
 
 Before you begin this tutorial you must:
 
-1. [Install Hugo] (the extended edition)
+1. [Install Hugo] (extended edition, v0.112.0 or later)
 1. [Install Git]
 
 You must also be comfortable working from the command line.
@@ -40,9 +39,10 @@ You must also be comfortable working from the command line.
 - Do not use Windows PowerShell
 - Run these commands from [PowerShell] or a Linux terminal such as WSL or Git Bash
 
-PowerShell and Windows PowerShell are different applications.
+PowerShell and Windows PowerShell [are different applications].
 
 [PowerShell]: https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows
+[are different applications]: https://learn.microsoft.com/en-us/powershell/scripting/whats-new/differences-from-windows-powershell?view=powershell-7.3
 {{% /note %}}
 
 Run these commands to create a Hugo site with the [Ananke] theme. The next section provides an explanation of each command.
@@ -51,8 +51,8 @@ Run these commands to create a Hugo site with the [Ananke] theme. The next secti
 hugo new site quickstart
 cd quickstart
 git init
-git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke themes/ananke
-echo "theme = 'ananke'" >> config.toml
+git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke.git themes/ananke
+echo "theme = 'ananke'" >> hugo.toml
 hugo server
 ```
 
@@ -81,13 +81,13 @@ git init
 Clone the [Ananke] theme into the `themes` directory, adding it to your project as a [Git submodule].
 
 ```text
-git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke themes/ananke
+git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke.git themes/ananke
 ```
 
 Append a line to the site configuration file, indicating the current theme.
 
 ```text
-echo "theme = 'ananke'" >> config.toml
+echo "theme = 'ananke'" >> hugo.toml
 ```
 
 Start Hugo's development server to view the site.
@@ -103,7 +103,7 @@ Press `Ctrl + C` to stop Hugo's development server.
 Add a new page to your site.
 
 ```text
-hugo new posts/my-first-post.md
+hugo new content posts/my-first-post.md
 ```
 
 Hugo created the file in the `content/posts` directory. Open the file with your editor.
@@ -153,7 +153,7 @@ Hugo's rendering engine conforms to the CommonMark [specification] for markdown.
 
 ## Configure the site
 
-With your editor, open the [site configuration] file (`config.toml`) in the root of your project.
+With your editor, open the [site configuration] file (`hugo.toml`) in the root of your project.
 
 ```text
 baseURL = 'http://example.org/'

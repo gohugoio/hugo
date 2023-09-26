@@ -199,6 +199,5 @@ func (p *sitePagesProcessor) doProcess(item any) error {
 }
 
 func (p *sitePagesProcessor) shouldSkip(fim hugofs.FileMetaInfo) bool {
-	// TODO(ep) unify
-	return p.m.s.SourceSpec.DisabledLanguages[fim.Meta().Lang]
+	return p.m.s.conf.IsLangDisabled(fim.Meta().Lang)
 }

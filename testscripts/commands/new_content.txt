@@ -1,0 +1,7 @@
+hugo new site myblog
+cd myblog
+hugo new content --kind post post/first-post.md
+! exists resources
+grep 'draft = true' content/post/first-post.md
+
+

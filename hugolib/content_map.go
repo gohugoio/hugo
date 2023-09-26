@@ -22,6 +22,7 @@ import (
 
 	"github.com/gohugoio/hugo/helpers"
 
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -129,7 +130,7 @@ type cmInsertKeyBuilder struct {
 }
 
 func (b cmInsertKeyBuilder) ForPage(s string) *cmInsertKeyBuilder {
-	// fmt.Println("ForPage:", s, "baseKey:", b.baseKey, "key:", b.key)
+	//fmt.Println("ForPage:", s, "baseKey:", b.baseKey, "key:", b.key, "tree:", b.tree.Name)
 	baseKey := b.baseKey
 	b.baseKey = s
 
@@ -275,13 +276,13 @@ type contentBundleViewInfo struct {
 
 func (c *contentBundleViewInfo) kind() string {
 	if c.termKey != "" {
-		return page.KindTerm
+		return kinds.KindTerm
 	}
-	return page.KindTaxonomy
+	return kinds.KindTaxonomy
 }
 
 func (c *contentBundleViewInfo) sections() []string {
-	if c.kind() == page.KindTaxonomy {
+	if c.kind() == kinds.KindTaxonomy {
 		return []string{c.name.plural}
 	}
 
@@ -680,7 +681,14 @@ func (m *contentMap) splitKey(k string) []string {
 		return nil
 	}
 
-	return strings.Split(k, "/")[1:]
+	parts := strings.Split(k, "/")[1:]
+	if len(parts) == 0 {
+		return nil
+	}
+	if parts[len(parts)-1] == "" {
+		parts = parts[:len(parts)-1]
+	}
+	return parts
 }
 
 func (m *contentMap) testDump() string {

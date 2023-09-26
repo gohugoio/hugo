@@ -195,6 +195,10 @@ func (r resourceAdapter) cloneTo(targetPath string) resource.Resource {
 	return &r
 }
 
+func (r *resourceAdapter) Process(spec string) (images.ImageResource, error) {
+	return r.getImageOps().Process(spec)
+}
+
 func (r *resourceAdapter) Crop(spec string) (images.ImageResource, error) {
 	return r.getImageOps().Crop(spec)
 }
@@ -287,7 +291,6 @@ func (r resourceAdapter) Transform(t ...ResourceTransformation) (ResourceTransfo
 }
 
 func (r resourceAdapter) TransformWithContext(ctx context.Context, t ...ResourceTransformation) (ResourceTransformer, error) {
-
 	r.resourceTransformations = &resourceTransformations{
 		transformations: append(r.transformations, t...),
 	}
@@ -447,9 +450,9 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 		}
 
 		newErr := func(err error) error {
-			msg := fmt.Sprintf("%s: failed to transform %q (%s)", strings.ToUpper(tr.Key().Name), tctx.InPath, tctx.InMediaType.Type())
+			msg := fmt.Sprintf("%s: failed to transform %q (%s)", strings.ToUpper(tr.Key().Name), tctx.InPath, tctx.InMediaType.Type)
 
-			if err == herrors.ErrFeatureNotAvailable {
+			if herrors.IsFeatureNotAvailableError(err) {
 				var errMsg string
 				if tr.Key().Name == "postcss" {
 					// This transformation is not available in this
@@ -459,7 +462,6 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 					errMsg = ". Check your Hugo installation; you need the extended version to build SCSS/SASS with transpiler set to 'libsass'."
 				} else if tr.Key().Name == "tocss-dart" {
 					errMsg = ". You need dart-sass-embedded in your system $PATH."
-
 				} else if tr.Key().Name == "babel" {
 					errMsg = ". You need to install Babel, see https://gohugo.io/hugo-pipes/babel/"
 				}
@@ -470,9 +472,9 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 			return fmt.Errorf(msg+": %w", err)
 		}
 
+		bcfg := r.spec.BuildConfig()
 		var tryFileCache bool
-
-		if mayBeCachedOnDisk && r.spec.BuildConfig.UseResourceCache(nil) {
+		if mayBeCachedOnDisk && bcfg.UseResourceCache(nil) {
 			tryFileCache = true
 		} else {
 			err = tr.Transform(tctx)
@@ -481,7 +483,7 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 			}
 
 			if mayBeCachedOnDisk {
-				tryFileCache = r.spec.BuildConfig.UseResourceCache(err)
+				tryFileCache = bcfg.UseResourceCache(err)
 			}
 			if err != nil && !tryFileCache {
 				return newErr(err)
@@ -654,7 +656,7 @@ func (u *transformationUpdate) isContentChanged() bool {
 
 func (u *transformationUpdate) toTransformedResourceMetadata() transformedResourceMetadata {
 	return transformedResourceMetadata{
-		MediaTypeV: u.mediaType.Type(),
+		MediaTypeV: u.mediaType.Type,
 		Target:     u.targetPath,
 		MetaData:   u.data,
 	}

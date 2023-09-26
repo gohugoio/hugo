@@ -1,8 +1,8 @@
 ---
-title: Content Organization
+title: Content organization
 linkTitle: Organization
 description: Hugo assumes that the same structure that works to organize your source content is used to organize the rendered site.
-categories: [content management,fundamentals]
+categories: [fundamentals,content management]
 keywords: [sections,content,organization,bundle,resources]
 menu:
   docs:
@@ -13,11 +13,11 @@ weight: 20
 aliases: [/content/sections/]
 ---
 
-## Page Bundles
+## Page bundles
 
 Hugo `0.32` announced page-relative images and other resources packaged into `Page Bundles`.
 
-These terms are connected, and you also need to read about [Page Resources]({{< relref "/content-management/page-resources" >}}) and [Image Processing]({{< relref "/content-management/image-processing" >}}) to get the full picture.
+These terms are connected, and you also need to read about [Page Resources](/content-management/page-resources) and [Image Processing](/content-management/image-processing) to get the full picture.
 
 {{< imgproc 1-featured Resize "300x" >}}
 The illustration shows three bundles. Note that the home page bundle cannot contain other content pages, although other files (images etc.) are allowed.
@@ -29,7 +29,7 @@ The bundle documentation is a **work in progress**. We will publish more compreh
 {{% /note %}}
 
 
-## Organization of Content Source
+## Organization of content source
 
 In Hugo, your content should be organized in a manner that reflects the rendered website.
 
@@ -52,12 +52,12 @@ Without any additional configuration, the following will automatically work:
         └── second.md      // <- https://example.com/quote/second/
 ```
 
-## Path Breakdown in Hugo
+## Path breakdown in Hugo
 
 
 The following demonstrates the relationships between your content organization and the output URL structure for your Hugo website when it renders. These examples assume you are [using pretty URLs][pretty], which is the default behavior for Hugo. The examples also assume a key-value of `baseURL = "https://example.com"` in your [site's configuration file][config].
 
-### Index Pages: `_index.md`
+### Index pages: `_index.md`
 
 `_index.md` has a special role in Hugo. It allows you to add front matter and content to your [list templates][lists]. These templates include those for [section templates], [taxonomy templates], [taxonomy terms templates], and your [homepage template].
 
@@ -94,7 +94,7 @@ https://example.com/posts/index.html
 The [sections] can be nested as deeply as you want. The important thing to understand is that to make the section tree fully navigational, at least the lower-most section must include a content file. (i.e. `_index.md`).
 
 
-### Single Pages in Sections
+### Single pages in sections
 
 Single content files in each of your sections will be rendered as [single page templates][singles]. Here is an example of a single `post` within `posts`:
 
@@ -121,7 +121,7 @@ https://example.com/posts/my-first-hugo-post/index.html
 ```
 
 
-## Paths Explained
+## Paths explained
 
 The following concepts provide more insight into the relationship between your project's organization and the default Hugo behavior when building output for the website.
 
@@ -131,10 +131,7 @@ A default content type is determined by the section in which a content item is s
 
 ### `slug`
 
-A content's `slug` is either `name.extension` or `name/`. The value for `slug` is determined by
-
-* the name of the content file (e.g., `lollapalooza.md`) OR
-* front matter overrides
+The `slug` is the last segment of the URL path, defined by the file name and optionally overridden by a `slug` value in front matter. See [URL Management](/content-management/urls/#slug) for details.
 
 ### `path`
 
@@ -145,78 +142,7 @@ A content's `path` is determined by the section's path to the file. The file `pa
 
 ### `url`
 
-The `url` is the relative URL for the piece of content. The `url`
-
-* is based on the content item's location within the directory structure OR
-* is defined in front matter, in which case it *overrides all the above*
-
-## Override Destination Paths via Front Matter
-
-Hugo assumes that your content is organized with a purpose. The same structure that you use to organize your source content is used to organize the rendered site. As displayed above, the organization of the source content will be mirrored at the destination.
-
-There are times when you may need more fine-grained control over the content organization. In such cases, the front matter field can be used to determine the destination of a specific piece of content.
-
-The following items are defined in a specific order for a reason: items explained lower down in the list override higher items. Note that not all items can be defined in front matter.
-
-### `filename`
-
-`filename` is not a front matter field. It is the actual file name, minus the extension. This will be the name of the file in the destination (e.g., `content/posts/my-post.md` becomes `example.com/posts/my-post/`).
-
-### `slug`
-
-When defined in the front matter, the `slug` can take the place of the filename in the destination.
-
-{{< code file="content/posts/old-post.md" >}}
----
-title: A new post with the filename old-post.md
-slug: "new-post"
----
-{{< /code >}}
-
-This will render to the following destination according to Hugo's default behavior:
-
-```txt
-example.com/posts/new-post/
-```
-
-### `section`
-
-`section` is determined by a content item's location on disk and *cannot* be specified in the front matter. See [sections] for more information.
-
-### `type`
-
-A content item's `type` is also determined by its location on disk but, unlike `section`, it *can* be specified in the front matter. See [types]. This can come in especially handy when you want a piece of content to render using a different layout. In the following example, you can create a layout at `layouts/new/mylayout.html` that Hugo will use to render this piece of content, even in the midst of many other posts.
-
-{{< code file="content/posts/my-post.md" >}}
----
-title: My Post
-type: new
-layout: mylayout
----
-{{< /code >}}
-<!-- See https://discourse.gohugo.io/t/path-not-works/6387 -->
-<!-- ### `path`-->
-
-<!--`path` can be provided in the front matter. This will replace the actual path to the file on disk. Destination will create the destination with the same path, including the section. -->
-
-### `url`
-
-A complete URL can be provided. This will override all the above as it pertains to the end destination. This must be the path from the baseURL (starting with a `/`). `url` will be used exactly as it is defined in the front matter, and will ignore the `--uglyURLs` setting in your site configuration:
-
-{{< code file="content/posts/old-url.md" >}}
----
-title: Old URL
-url: /blog/new-url/
----
-{{< /code >}}
-
-Assuming your `baseURL` is [configured][config] to `https://example.com`, the addition of `url` to the front matter will make `old-url.md` render to the following destination:
-
-```txt
-https://example.com/blog/new-url/
-```
-
-You can see more information on how to control output paths in [URL Management][urls].
+The `url` is the entire URL path, defined by the file path and optionally overridden by a `url` value in front matter. See [URL Management](/content-management/urls/#slug) for details.
 
 [config]: /getting-started/configuration/
 [formats]: /content-management/formats/
@@ -225,7 +151,7 @@ You can see more information on how to control output paths in [URL Management][
 [homepage template]: /templates/homepage/
 [homepage]: /templates/homepage/
 [lists]: /templates/lists/
-[pretty]: /content-management/urls/#pretty-urls
+[pretty]: /content-management/urls/#appearance
 [section templates]: /templates/section-templates/
 [sections]: /content-management/sections/
 [singles]: /templates/single-page-templates/

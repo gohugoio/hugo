@@ -1,23 +1,15 @@
 ---
-title: Editor Plug-ins for Hugo
-linktitle: Editor Plug-ins
+title: Editor plugins for Hugo
+linkTitle: Editor plugins
 description: The Hugo community uses a wide range of preferred tools and has developed plug-ins for some of the most popular text editors to help automate parts of your workflow.
-date: 2017-02-01
-publishdate: 2017-02-01
 categories: [developer tools]
 keywords: [editor, plug-ins]
 menu:
   docs:
-    parent: "tools"
-    weight: 50
-weight: 50
-sections_weight: 50
-draft: false
-aliases: []
-toc: false
+    parent: developer-tools
+    weight: 20
+weight: 20
 ---
-
-The Hugo community uses a wide range of preferred tools and has developed plug-ins for some of the most popular text editors to help automate parts of your workflow.
 
 ## Sublime Text
 
@@ -26,12 +18,20 @@ The Hugo community uses a wide range of preferred tools and has developed plug-i
 
 ## Visual Studio Code
 
-* [Hugofy](https://marketplace.visualstudio.com/items?itemName=akmittal.hugofy). Hugofy is a plugin for Visual Studio Code to "make life easier" when developing with Hugo. The source code can be found [here](https://github.com/akmittal/hugofy-vscode).
+* [Front Matter](https://marketplace.visualstudio.com/items?itemName=eliostruyf.vscode-front-matter). Once you go for a static site, you need to think about how you are going to manage your articles. Front matter is a tool that helps you maintain the metadata/front matter of your articles like: creation date, modified date, slug, tile, SEO check, and many more...
 * [Hugo Helper](https://marketplace.visualstudio.com/items?itemName=rusnasonov.vscode-hugo). Hugo Helper is a plugin for Visual Studio Code that has some useful commands for Hugo. The source code can be found [here](https://github.com/rusnasonov/vscode-hugo).
 * [Hugo Language and Syntax Support](https://marketplace.visualstudio.com/items?itemName=budparr.language-hugo-vscode). Hugo Language and Syntax Support is a Visual Studio Code plugin for Hugo syntax highlighting and snippets. The source code can be found [here](https://github.com/budparr/language-hugo-vscode).
 * [Hugo Themer](https://marketplace.visualstudio.com/items?itemName=eliostruyf.vscode-hugo-themer). Hugo Themer is an extension to help you while developing themes. It allows you to easily navigate through your theme files.
-* [Front Matter](https://marketplace.visualstudio.com/items?itemName=eliostruyf.vscode-front-matter). Once you go for a static site, you need to think about how you are going to manage your articles. Front matter is a tool that helps you maintain the metadata/front matter of your articles like: creation date, modified date, slug, tile, SEO check, and many more...
-* [Syntax Highlighting for Hugo Shortcodes](https://marketplace.visualstudio.com/items?itemName=kaellarkin.hugo-shortcode-syntax). This extension add some syntax highlighting for Shortcodes, making visual identification of individual pieces easier.
+* [Hugofy](https://marketplace.visualstudio.com/items?itemName=akmittal.hugofy). Hugofy is a plugin for Visual Studio Code to "make life easier" when developing with Hugo. The source code can be found [here](https://github.com/akmittal/hugofy-vscode).
+* [Prettier Plugin for Go Templates](https://github.com/NiklasPor/prettier-plugin-go-template). Format Hugo templates using this [Prettier](https://prettier.io/) plugin. See [installation instructions](https://discourse.gohugo.io/t/38403).
+* [Syntax Highlighting for Hugo Shortcodes](https://marketplace.visualstudio.com/items?itemName=kaellarkin.hugo-shortcode-syntax). This extension adds some syntax highlighting for Shortcodes, making visual identification of individual pieces easier.
+
+Front Matter
+Hugo Helper
+Hugo Language and Syntax Support
+Hugo Themer
+Hugofy
+Syntax Highlighting for Hugo Shortcodes
 
 ## Emacs
 
@@ -40,11 +40,7 @@ The Hugo community uses a wide range of preferred tools and has developed plug-i
 
 ## Vim
 
-* [Vim Hugo Helper](https://github.com/robertbasic/vim-hugo-helper). A small Vim plugin to help me with writing posts with Hugo.
-
-## Atom
-
-* [Hugofy](https://atom.io/packages/hugofy). A Hugo Static Website Generator package for Atom.
-* [language-hugo](https://atom.io/packages/language-hugo). Adds syntax highlighting to Hugo files.
+* [Vim Hugo Helper](https://github.com/robertbasic/vim-hugo-helper). A small Vim plugin that facilitates authoring pages and blog posts with Hugo.
+* [vim-hugo](https://github.com/phelipetls/vim-hugo). A Vim plugin with syntax highlighting for templates and a few other features.
 
 [formats]: /content-management/formats/

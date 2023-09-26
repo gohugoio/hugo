@@ -20,9 +20,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/spf13/cast"
-
-	"github.com/gohugoio/hugo/resources/page"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -312,10 +311,10 @@ Content.
 	b.AssertFileContent("public/sv/sect/mybundle/logo.png", "PNG Data")
 	b.AssertFileContent("public/nn/sect/mybundle/logo.png", "PNG Data")
 
-	nnSect := nnSite.getPage(page.KindSection, "sect")
+	nnSect := nnSite.getPage(kinds.KindSection, "sect")
 	c.Assert(nnSect, qt.Not(qt.IsNil))
 	c.Assert(len(nnSect.Pages()), qt.Equals, 12)
-	nnHome := nnSite.Info.Home()
+	nnHome := nnSite.Home()
 	c.Assert(nnHome.RelPermalink(), qt.Equals, "/nn/")
 }
 

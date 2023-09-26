@@ -19,10 +19,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
-	"runtime/trace"
 	"strings"
+	"time"
 
+	"github.com/bep/logg"
+	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/publisher"
+	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/hugofs"
 
@@ -40,11 +44,21 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 )
 
+func init() {
+	// To avoid circular dependencies, we set this here.
+	langs.DeprecationFunc = helpers.Deprecated
+}
+
 // Build builds all sites. If filesystem events are provided,
 // this is considered to be a potential partial rebuild.
 func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
-	ctx, task := trace.NewTask(context.Background(), "Build")
-	defer task.End()
+	if h == nil {
+		return errors.New("cannot build nil *HugoSites")
+	}
+
+	if h.Deps == nil {
+		return errors.New("cannot build nil *Deps")
+	}
 
 	if !config.NoBuildLock {
 		unlock, err := h.BaseFs.LockBuild()
@@ -53,6 +67,8 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		}
 		defer unlock()
 	}
+
+	infol := h.Log.InfoCommand("build")
 
 	errCollector := h.StartErrorCollector()
 	errs := make(chan error)
@@ -109,49 +125,33 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 				return nil
 			}
 
-			var err error
-
-			f := func() {
-				err = h.process(conf, init, events...)
-			}
-			trace.WithRegion(ctx, "process", f)
-			if err != nil {
+			if err := h.process(infol, conf, init, events...); err != nil {
 				return fmt.Errorf("process: %w", err)
 			}
 
-			f = func() {
-				err = h.assemble(conf)
-			}
-			trace.WithRegion(ctx, "assemble", f)
-			if err != nil {
-				return err
+			if err := h.assemble(infol, conf); err != nil {
+				return fmt.Errorf("assemble: %w", err)
 			}
 
 			return nil
 		}
 
-		f := func() {
-			prepareErr = prepare()
-		}
-		trace.WithRegion(ctx, "prepare", f)
-		if prepareErr != nil {
+		if prepareErr = prepare(); prepareErr != nil {
 			h.SendError(prepareErr)
 		}
-
 	}
 
 	if prepareErr == nil {
-		var err error
-		f := func() {
-			err = h.render(conf)
-		}
-		trace.WithRegion(ctx, "render", f)
-		if err != nil {
-			h.SendError(err)
+		if err := h.render(infol, conf); err != nil {
+			h.SendError(fmt.Errorf("render: %w", err))
 		}
 
-		if err = h.postProcess(); err != nil {
-			h.SendError(err)
+		if err := h.postRenderOnce(); err != nil {
+			h.SendError(fmt.Errorf("postRenderOnce: %w", err))
+		}
+
+		if err := h.postProcess(infol); err != nil {
+			h.SendError(fmt.Errorf("postProcess: %w", err))
 		}
 	}
 
@@ -163,12 +163,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		h.Log.Println(b.String())
 	}
 
-	select {
-	// Make sure the channel always gets something.
-	case errCollector <- nil:
-	default:
-	}
-	close(errCollector)
+	h.StopErrorCollector()
 
 	err := <-errs
 	if err != nil {
@@ -179,7 +174,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		return err
 	}
 
-	errorCount := h.Log.LogCounters().ErrorCounter.Count()
+	errorCount := h.Log.LoggCount(logg.LevelError)
 	if errorCount > 0 {
 		return fmt.Errorf("logged %d error(s)", errorCount)
 	}
@@ -192,26 +187,15 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 
 func (h *HugoSites) initSites(config *BuildCfg) error {
 	h.reset(config)
-
-	if config.NewConfig != nil {
-		if err := h.createSitesFromConfig(config.NewConfig); err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
 
 func (h *HugoSites) initRebuild(config *BuildCfg) error {
-	if config.NewConfig != nil {
-		return errors.New("rebuild does not support 'NewConfig'")
-	}
-
 	if config.ResetState {
 		return errors.New("rebuild does not support 'ResetState'")
 	}
 
-	if !h.running {
+	if !h.Configs.Base.Internal.Watch {
 		return errors.New("rebuild called when not in watch mode")
 	}
 
@@ -221,12 +205,13 @@ func (h *HugoSites) initRebuild(config *BuildCfg) error {
 
 	h.reset(config)
 	h.resetLogs()
-	helpers.InitLoggers()
 
 	return nil
 }
 
-func (h *HugoSites) process(config *BuildCfg, init func(config *BuildCfg) error, events ...fsnotify.Event) error {
+func (h *HugoSites) process(l logg.LevelLogger, config *BuildCfg, init func(config *BuildCfg) error, events ...fsnotify.Event) error {
+	defer h.timeTrack(l, time.Now(), "process")
+
 	// We should probably refactor the Site and pull up most of the logic from there to here,
 	// but that seems like a daunting task.
 	// So for now, if there are more than one site (language),
@@ -242,15 +227,8 @@ func (h *HugoSites) process(config *BuildCfg, init func(config *BuildCfg) error,
 	return firstSite.process(*config)
 }
 
-func (h *HugoSites) assemble(bcfg *BuildCfg) error {
-	if len(h.Sites) > 1 {
-		// The first is initialized during process; initialize the rest
-		for _, site := range h.Sites[1:] {
-			if err := site.initializeSiteInfo(); err != nil {
-				return err
-			}
-		}
-	}
+func (h *HugoSites) assemble(l logg.LevelLogger, bcfg *BuildCfg) error {
+	defer h.timeTrack(l, time.Now(), "assemble")
 
 	if !bcfg.whatChanged.source {
 		return nil
@@ -267,12 +245,18 @@ func (h *HugoSites) assemble(bcfg *BuildCfg) error {
 	return nil
 }
 
-func (h *HugoSites) render(config *BuildCfg) error {
+func (h *HugoSites) timeTrack(l logg.LevelLogger, start time.Time, name string) {
+	elapsed := time.Since(start)
+	l.WithField("step", name).WithField("duration", elapsed).Logf("running")
+}
+
+func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
+	defer h.timeTrack(l, time.Now(), "render")
 	if _, err := h.init.layouts.Do(context.Background()); err != nil {
 		return err
 	}
 
-	siteRenderContext := &siteRenderContext{cfg: config, multihost: h.multihost}
+	siteRenderContext := &siteRenderContext{cfg: config, multihost: h.Configs.IsMultihost}
 
 	if !config.PartialReRender {
 		h.renderFormats = output.Formats{}
@@ -287,6 +271,7 @@ func (h *HugoSites) render(config *BuildCfg) error {
 	}
 
 	i := 0
+
 	for _, s := range h.Sites {
 		h.currentSite = s
 		for siteOutIdx, renderFormat := range s.renderFormats {
@@ -308,7 +293,6 @@ func (h *HugoSites) render(config *BuildCfg) error {
 						return err
 					}
 				}
-
 				if !config.SkipRender {
 					if config.PartialReRender {
 						if err := s.renderPages(siteRenderContext); err != nil {
@@ -337,7 +321,37 @@ func (h *HugoSites) render(config *BuildCfg) error {
 	return nil
 }
 
-func (h *HugoSites) postProcess() error {
+func (h *HugoSites) postRenderOnce() error {
+	h.postRenderInit.Do(func() {
+		conf := h.Configs.Base
+		if conf.PrintPathWarnings {
+			// We need to do this before any post processing, as that may write to the same files twice
+			// and create false positives.
+			hugofs.WalkFilesystems(h.Fs.PublishDir, func(fs afero.Fs) bool {
+				if dfs, ok := fs.(hugofs.DuplicatesReporter); ok {
+					dupes := dfs.ReportDuplicates()
+					if dupes != "" {
+						h.Log.Warnln("Duplicate target paths:", dupes)
+					}
+				}
+				return false
+			})
+		}
+
+		if conf.PrintUnusedTemplates {
+			unusedTemplates := h.Tmpl().(tpl.UnusedTemplatesProvider).UnusedTemplates()
+			for _, unusedTemplate := range unusedTemplates {
+				h.Log.Warnf("Template %s is unused, source file %s", unusedTemplate.Name(), unusedTemplate.Filename())
+			}
+		}
+
+	})
+	return nil
+}
+
+func (h *HugoSites) postProcess(l logg.LevelLogger) error {
+	defer h.timeTrack(l, time.Now(), "postProcess")
+
 	// Make sure to write any build stats to disk first so it's available
 	// to the post processors.
 	if err := h.writeBuildStats(); err != nil {
@@ -347,15 +361,15 @@ func (h *HugoSites) postProcess() error {
 	// This will only be set when js.Build have been triggered with
 	// imports that resolves to the project or a module.
 	// Write a jsconfig.json file to the project's /asset directory
-	// to help JS intellisense in VS Code etc.
-	if !h.ResourceSpec.BuildConfig.NoJSConfigInAssets && h.BaseFs.Assets.Dirs != nil {
+	// to help JS IntelliSense in VS Code etc.
+	if !h.ResourceSpec.BuildConfig().NoJSConfigInAssets && h.BaseFs.Assets.Dirs != nil {
 		fi, err := h.BaseFs.Assets.Fs.Stat("")
 		if err != nil {
 			h.Log.Warnf("Failed to resolve jsconfig.json dir: %s", err)
 		} else {
 			m := fi.(hugofs.FileMetaInfo).Meta()
 			assetsDir := m.SourceRoot
-			if strings.HasPrefix(assetsDir, h.ResourceSpec.WorkingDir) {
+			if strings.HasPrefix(assetsDir, h.Configs.LoadingInfo.BaseConfig.WorkingDir) {
 				if jsConfig := h.ResourceSpec.JSConfigBuilder.Build(assetsDir); jsConfig != nil {
 
 					b, err := json.MarshalIndent(jsConfig, "", " ")
@@ -363,7 +377,7 @@ func (h *HugoSites) postProcess() error {
 						h.Log.Warnf("Failed to create jsconfig.json: %s", err)
 					} else {
 						filename := filepath.Join(assetsDir, "jsconfig.json")
-						if h.running {
+						if h.Configs.Base.Internal.Running {
 							h.skipRebuildForFilenamesMu.Lock()
 							h.skipRebuildForFilenames[filename] = true
 							h.skipRebuildForFilenamesMu.Unlock()
@@ -438,7 +452,7 @@ func (h *HugoSites) postProcess() error {
 		return nil
 	}
 
-	filenames := helpers.UniqueStrings(h.Deps.FilenameHasPostProcessPrefix)
+	filenames := h.Deps.BuildState.GetFilenamesWithPostPrefix()
 	for _, filename := range filenames {
 		filename := filename
 		g.Run(func() error {
@@ -447,7 +461,6 @@ func (h *HugoSites) postProcess() error {
 	}
 
 	// Prepare for a new build.
-	h.Deps.FilenameHasPostProcessPrefix = nil
 	for _, s := range h.Sites {
 		s.ResourceSpec.PostProcessResources = make(map[string]postpub.PostPublishedResource)
 	}
@@ -460,7 +473,10 @@ type publishStats struct {
 }
 
 func (h *HugoSites) writeBuildStats() error {
-	if !h.ResourceSpec.BuildConfig.WriteStats {
+	if h.ResourceSpec == nil {
+		panic("h.ResourceSpec is nil")
+	}
+	if !h.ResourceSpec.BuildConfig().BuildStats.Enabled() {
 		return nil
 	}
 
@@ -476,12 +492,24 @@ func (h *HugoSites) writeBuildStats() error {
 		HTMLElements: *htmlElements,
 	}
 
-	js, err := json.MarshalIndent(stats, "", "  ")
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	enc.SetEscapeHTML(false)
+	enc.SetIndent("", "  ")
+	err := enc.Encode(stats)
 	if err != nil {
 		return err
 	}
+	js := buf.Bytes()
 
-	filename := filepath.Join(h.WorkingDir, "hugo_stats.json")
+	filename := filepath.Join(h.Configs.LoadingInfo.BaseConfig.WorkingDir, files.FilenameHugoStatsJSON)
+
+	if existingContent, err := afero.ReadFile(hugofs.Os, filename); err == nil {
+		// Check if the content has changed.
+		if bytes.Equal(existingContent, js) {
+			return nil
+		}
+	}
 
 	// Make sure it's always written to the OS fs.
 	if err := afero.WriteFile(hugofs.Os, filename, js, 0666); err != nil {

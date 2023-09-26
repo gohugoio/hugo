@@ -81,7 +81,7 @@ func (ns *Namespace) Highlight(s any, lang string, opts ...any) (template.HTML, 
 }
 
 // HighlightCodeBlock highlights a code block on the form received in the codeblock render hooks.
-func (ns *Namespace) HighlightCodeBlock(ctx hooks.CodeblockContext, opts ...any) (highlight.HightlightResult, error) {
+func (ns *Namespace) HighlightCodeBlock(ctx hooks.CodeblockContext, opts ...any) (highlight.HighlightResult, error) {
 	var optsv any
 	if len(opts) > 0 {
 		optsv = opts[0]

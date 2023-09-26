@@ -38,8 +38,8 @@ func (g *gitInfo) forPage(p page.Page) source.GitInfo {
 	return source.NewGitInfo(*gi)
 }
 
-func newGitInfo(cfg config.Provider) (*gitInfo, error) {
-	workingDir := cfg.GetString("workingDir")
+func newGitInfo(conf config.AllProvider) (*gitInfo, error) {
+	workingDir := conf.BaseConfig().WorkingDir
 
 	gitRepo, err := gitmap.Map(workingDir, "")
 	if err != nil {

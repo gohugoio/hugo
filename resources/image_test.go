@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package resources
+package resources_test
 
 import (
 	"context"
@@ -31,6 +31,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/images/webp"
 
 	"github.com/gohugoio/hugo/common/paths"
@@ -51,9 +52,6 @@ import (
 )
 
 var eq = qt.CmpEquals(
-	cmp.Comparer(func(p1, p2 *resourceAdapter) bool {
-		return p1.resourceAdapterInner == p2.resourceAdapterInner
-	}),
 	cmp.Comparer(func(p1, p2 os.FileInfo) bool {
 		return p1.Name() == p2.Name() && p1.Size() == p2.Size() && p1.IsDir() == p2.IsDir()
 	}),
@@ -65,9 +63,9 @@ var eq = qt.CmpEquals(
 		}
 		return p1.Name() == p2.Name() && p1.Size() == p2.Size() && p1.IsDir() == p2.IsDir()
 	}),
-	cmp.Comparer(func(p1, p2 *genericResource) bool { return p1 == p2 }),
+	// cmp.Comparer(func(p1, p2 *genericResource) bool { return p1 == p2 }),
 	cmp.Comparer(func(m1, m2 media.Type) bool {
-		return m1.Type() == m2.Type()
+		return m1.Type == m2.Type
 	}),
 	cmp.Comparer(
 		func(v1, v2 *big.Rat) bool {
@@ -82,15 +80,11 @@ var eq = qt.CmpEquals(
 func TestImageTransformBasic(t *testing.T) {
 	c := qt.New(t)
 
-	image := fetchSunset(c)
-
-	fileCache := image.(specProvider).getSpec().FileCaches.ImageCache().Fs
+	spec, image := fetchSunset(c)
+	fileCache := spec.FileCaches.ImageCache().Fs
 
 	assertWidthHeight := func(img images.ImageResource, w, h int) {
-		c.Helper()
-		c.Assert(img, qt.Not(qt.IsNil))
-		c.Assert(img.Width(), qt.Equals, w)
-		c.Assert(img.Height(), qt.Equals, h)
+		assertWidthHeight(c, img, w, h)
 	}
 
 	colors, err := image.Colors()
@@ -104,7 +98,6 @@ func TestImageTransformBasic(t *testing.T) {
 	resized, err := image.Resize("300x200")
 	c.Assert(err, qt.IsNil)
 	c.Assert(image != resized, qt.Equals, true)
-	c.Assert(image, qt.Not(eq), resized)
 	assertWidthHeight(resized, 300, 200)
 	assertWidthHeight(image, 900, 562)
 
@@ -150,7 +143,7 @@ func TestImageTransformBasic(t *testing.T) {
 	// Check cache
 	filledAgain, err := image.Fill("200x100 bottomLeft")
 	c.Assert(err, qt.IsNil)
-	c.Assert(filled, eq, filledAgain)
+	c.Assert(filled, qt.Equals, filledAgain)
 
 	cropped, err := image.Crop("300x300 topRight")
 	c.Assert(err, qt.IsNil)
@@ -165,16 +158,53 @@ func TestImageTransformBasic(t *testing.T) {
 	// Check cache
 	croppedAgain, err := image.Crop("300x300 topRight")
 	c.Assert(err, qt.IsNil)
-	c.Assert(cropped, eq, croppedAgain)
+	c.Assert(cropped, qt.Equals, croppedAgain)
+}
 
+func TestImageProcess(t *testing.T) {
+	c := qt.New(t)
+	_, img := fetchSunset(c)
+	resized, err := img.Process("resiZe 300x200")
+	c.Assert(err, qt.IsNil)
+	assertWidthHeight(c, resized, 300, 200)
+	rotated, err := resized.Process("R90")
+	c.Assert(err, qt.IsNil)
+	assertWidthHeight(c, rotated, 200, 300)
+	converted, err := img.Process("png")
+	c.Assert(err, qt.IsNil)
+	c.Assert(converted.MediaType().Type, qt.Equals, "image/png")
+
+	checkProcessVsMethod := func(action, spec string) {
+		var expect images.ImageResource
+		var err error
+		switch action {
+		case images.ActionCrop:
+			expect, err = img.Crop(spec)
+		case images.ActionFill:
+			expect, err = img.Fill(spec)
+		case images.ActionFit:
+			expect, err = img.Fit(spec)
+		case images.ActionResize:
+			expect, err = img.Resize(spec)
+		}
+		c.Assert(err, qt.IsNil)
+		got, err := img.Process(spec + " " + action)
+		c.Assert(err, qt.IsNil)
+		assertWidthHeight(c, got, expect.Width(), expect.Height())
+		c.Assert(got.MediaType(), qt.Equals, expect.MediaType())
+	}
+
+	checkProcessVsMethod(images.ActionCrop, "300x200 topleFt")
+	checkProcessVsMethod(images.ActionFill, "300x200 topleft")
+	checkProcessVsMethod(images.ActionFit, "300x200 png")
+	checkProcessVsMethod(images.ActionResize, "300x R90")
 }
 
 func TestImageTransformFormat(t *testing.T) {
 	c := qt.New(t)
 
-	image := fetchSunset(c)
-
-	fileCache := image.(specProvider).getSpec().FileCaches.ImageCache().Fs
+	spec, image := fetchSunset(c)
+	fileCache := spec.FileCaches.ImageCache().Fs
 
 	assertExtWidthHeight := func(img images.ImageResource, ext string, w, h int) {
 		c.Helper()
@@ -235,20 +265,20 @@ func TestImagePermalinkPublishOrder(t *testing.T) {
 				assertImageFile(c, spec.PublishFs, "a/sunset.jpg", 900, 562)
 			}
 
-			orignal := fetchImageForSpec(spec, c, "sunset.jpg")
-			c.Assert(orignal, qt.Not(qt.IsNil))
+			original := fetchImageForSpec(spec, c, "sunset.jpg")
+			c.Assert(original, qt.Not(qt.IsNil))
 
 			if checkOriginalFirst {
-				check2(orignal)
+				check2(original)
 			}
 
-			resized, err := orignal.Resize("100x50")
+			resized, err := original.Resize("100x50")
 			c.Assert(err, qt.IsNil)
 
 			check1(resized.(images.ImageResource))
 
 			if !checkOriginalFirst {
-				check2(orignal)
+				check2(original)
 			}
 		})
 	}
@@ -259,7 +289,7 @@ func TestImageBugs(t *testing.T) {
 
 	// Issue #4261
 	c.Run("Transform long filename", func(c *qt.C) {
-		image := fetchImage(c, "1234567890qwertyuiopasdfghjklzxcvbnm5to6eeeeee7via8eleph.jpg")
+		_, image := fetchImage(c, "1234567890qwertyuiopasdfghjklzxcvbnm5to6eeeeee7via8eleph.jpg")
 		c.Assert(image, qt.Not(qt.IsNil))
 
 		resized, err := image.Resize("200x")
@@ -272,23 +302,21 @@ func TestImageBugs(t *testing.T) {
 		c.Assert(resized, qt.Not(qt.IsNil))
 		c.Assert(resized.Width(), qt.Equals, 100)
 		c.Assert(resized.RelPermalink(), qt.Equals, "/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_c876768085288f41211f768147ba2647.jpg")
-
 	})
 
 	// Issue #6137
 	c.Run("Transform upper case extension", func(c *qt.C) {
-		image := fetchImage(c, "sunrise.JPG")
+		_, image := fetchImage(c, "sunrise.JPG")
 
 		resized, err := image.Resize("200x")
 		c.Assert(err, qt.IsNil)
 		c.Assert(resized, qt.Not(qt.IsNil))
 		c.Assert(resized.Width(), qt.Equals, 200)
-
 	})
 
 	// Issue #7955
 	c.Run("Fill with smartcrop", func(c *qt.C) {
-		sunset := fetchImage(c, "sunset.jpg")
+		_, sunset := fetchImage(c, "sunset.jpg")
 
 		for _, test := range []struct {
 			originalDimensions string
@@ -312,9 +340,7 @@ func TestImageBugs(t *testing.T) {
 				c.Assert(resized.Width(), qt.Equals, test.targetWH)
 				c.Assert(resized.Height(), qt.Equals, test.targetWH)
 			})
-
 		}
-
 	})
 }
 
@@ -363,7 +389,7 @@ func TestImageTransformConcurrent(t *testing.T) {
 func TestImageWithMetadata(t *testing.T) {
 	c := qt.New(t)
 
-	image := fetchSunset(c)
+	_, image := fetchSunset(c)
 
 	meta := []map[string]any{
 		{
@@ -373,7 +399,7 @@ func TestImageWithMetadata(t *testing.T) {
 		},
 	}
 
-	c.Assert(AssignMetadata(meta, image), qt.IsNil)
+	c.Assert(resources.AssignMetadata(meta, image), qt.IsNil)
 	c.Assert(image.Name(), qt.Equals, "Sunset #1")
 
 	resized, err := image.Resize("200x")
@@ -384,16 +410,16 @@ func TestImageWithMetadata(t *testing.T) {
 func TestImageResize8BitPNG(t *testing.T) {
 	c := qt.New(t)
 
-	image := fetchImage(c, "gohugoio.png")
+	_, image := fetchImage(c, "gohugoio.png")
 
-	c.Assert(image.MediaType().Type(), qt.Equals, "image/png")
+	c.Assert(image.MediaType().Type, qt.Equals, "image/png")
 	c.Assert(image.RelPermalink(), qt.Equals, "/a/gohugoio.png")
 	c.Assert(image.ResourceType(), qt.Equals, "image")
 	c.Assert(image.Exif(), qt.IsNil)
 
 	resized, err := image.Resize("800x")
 	c.Assert(err, qt.IsNil)
-	c.Assert(resized.MediaType().Type(), qt.Equals, "image/png")
+	c.Assert(resized.MediaType().Type, qt.Equals, "image/png")
 	c.Assert(resized.RelPermalink(), qt.Equals, "/a/gohugoio_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_800x0_resize_linear_3.png")
 	c.Assert(resized.Width(), qt.Equals, 800)
 }
@@ -401,35 +427,33 @@ func TestImageResize8BitPNG(t *testing.T) {
 func TestImageResizeInSubPath(t *testing.T) {
 	c := qt.New(t)
 
-	image := fetchImage(c, "sub/gohugoio2.png")
+	spec, image := fetchImage(c, "sub/gohugoio2.png")
 
-	c.Assert(image.MediaType(), eq, media.PNGType)
+	c.Assert(image.MediaType(), eq, media.Builtin.PNGType)
 	c.Assert(image.RelPermalink(), qt.Equals, "/a/sub/gohugoio2.png")
 	c.Assert(image.ResourceType(), qt.Equals, "image")
 	c.Assert(image.Exif(), qt.IsNil)
 
 	resized, err := image.Resize("101x101")
 	c.Assert(err, qt.IsNil)
-	c.Assert(resized.MediaType().Type(), qt.Equals, "image/png")
+	c.Assert(resized.MediaType().Type, qt.Equals, "image/png")
 	c.Assert(resized.RelPermalink(), qt.Equals, "/a/sub/gohugoio2_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_101x101_resize_linear_3.png")
 	c.Assert(resized.Width(), qt.Equals, 101)
 	c.Assert(resized.Exif(), qt.IsNil)
 
 	publishedImageFilename := filepath.Clean(resized.RelPermalink())
 
-	spec := image.(specProvider).getSpec()
-
 	assertImageFile(c, spec.BaseFs.PublishFs, publishedImageFilename, 101, 101)
 	c.Assert(spec.BaseFs.PublishFs.Remove(publishedImageFilename), qt.IsNil)
 
 	// Clear mem cache to simulate reading from the file cache.
-	spec.imageCache.clear()
+	spec.ClearCaches()
 
 	resizedAgain, err := image.Resize("101x101")
 	c.Assert(err, qt.IsNil)
 	c.Assert(resizedAgain.RelPermalink(), qt.Equals, "/a/sub/gohugoio2_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_101x101_resize_linear_3.png")
 	c.Assert(resizedAgain.Width(), qt.Equals, 101)
-	assertImageFile(c, image.(specProvider).getSpec().BaseFs.PublishFs, publishedImageFilename, 101, 101)
+	assertImageFile(c, spec.BaseFs.PublishFs, publishedImageFilename, 101, 101)
 }
 
 func TestSVGImage(t *testing.T) {
@@ -620,7 +644,6 @@ func TestImageOperationsGoldenWebp(t *testing.T) {
 	dir2 := filepath.FromSlash("testdata/golden_webp")
 
 	assetGoldenDirs(c, dir1, dir2)
-
 }
 
 func TestImageOperationsGolden(t *testing.T) {
@@ -628,7 +651,7 @@ func TestImageOperationsGolden(t *testing.T) {
 	c.Parallel()
 
 	// Note, if you're enabling this on a MacOS M1 (ARM) you need to run the test with GOARCH=amd64.
-	// GOARCH=amd64 go test -timeout 30s -run "^TestImageOperationsGolden$" ./resources -v
+	// GOARCH=amd64 go test -count 1 -timeout 30s -run "^TestImageOperationsGolden$" ./resources -v
 	// The above will print out a folder.
 	// Replace testdata/golden with resources/_gen/images in that folder.
 	devMode := false
@@ -651,6 +674,10 @@ func TestImageOperationsGolden(t *testing.T) {
 	gopher, err = gopher.Resize("30x")
 	c.Assert(err, qt.IsNil)
 
+	f := &images.Filters{}
+
+	sunset := fetchImageForSpec(spec, c, "sunset.jpg")
+
 	// Test PNGs with alpha channel.
 	for _, img := range []string{"gopher-hero8.png", "gradient-circle.png"} {
 		orig := fetchImageForSpec(spec, c, img)
@@ -660,16 +687,25 @@ func TestImageOperationsGolden(t *testing.T) {
 			rel := resized.RelPermalink()
 
 			c.Assert(rel, qt.Not(qt.Equals), "")
+
 		}
+
+		// Check the Opacity filter.
+		opacity30, err := orig.Filter(f.Opacity(30))
+		c.Assert(err, qt.IsNil)
+		overlay, err := sunset.Filter(f.Overlay(opacity30.(images.ImageSource), 20, 20))
+		rel := overlay.RelPermalink()
+		c.Assert(rel, qt.Not(qt.Equals), "")
 	}
 
 	// A simple Gif file (no animation).
 	orig := fetchImageForSpec(spec, c, "gohugoio-card.gif")
-	for _, resizeSpec := range []string{"100x", "220x"} {
-		resized, err := orig.Resize(resizeSpec)
+	for _, width := range []int{100, 220} {
+		resized, err := orig.Resize(fmt.Sprintf("%dx", width))
 		c.Assert(err, qt.IsNil)
 		rel := resized.RelPermalink()
 		c.Assert(rel, qt.Not(qt.Equals), "")
+		c.Assert(resized.Width(), qt.Equals, width)
 	}
 
 	// Animated GIF
@@ -704,8 +740,6 @@ func TestImageOperationsGolden(t *testing.T) {
 			rel := resized.RelPermalink()
 			c.Assert(rel, qt.Not(qt.Equals), "")
 		}
-
-		f := &images.Filters{}
 
 		filters := []gift.Filter{
 			f.Grayscale(),
@@ -752,11 +786,9 @@ func TestImageOperationsGolden(t *testing.T) {
 	dir2 := filepath.FromSlash("testdata/golden")
 
 	assetGoldenDirs(c, dir1, dir2)
-
 }
 
 func assetGoldenDirs(c *qt.C, dir1, dir2 string) {
-
 	// The two dirs above should now be the same.
 	dirinfos1, err := os.ReadDir(dir1)
 	c.Assert(err, qt.IsNil)
@@ -840,7 +872,7 @@ func assetGoldenDirs(c *qt.C, dir1, dir2 string) {
 
 func BenchmarkResizeParallel(b *testing.B) {
 	c := qt.New(b)
-	img := fetchSunset(c)
+	_, img := fetchSunset(c)
 
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
@@ -855,4 +887,11 @@ func BenchmarkResizeParallel(b *testing.B) {
 			}
 		}
 	})
+}
+
+func assertWidthHeight(c *qt.C, img images.ImageResource, w, h int) {
+	c.Helper()
+	c.Assert(img, qt.Not(qt.IsNil))
+	c.Assert(img.Width(), qt.Equals, w)
+	c.Assert(img.Height(), qt.Equals, h)
 }

@@ -31,14 +31,19 @@ import (
 	"github.com/gohugoio/hugo/resources/page"
 )
 
+var pageIdCounter atomic.Int64
+
 func newPageBase(metaProvider *pageMeta) (*pageState, error) {
 	if metaProvider.s == nil {
 		panic("must provide a Site")
 	}
 
+	id := int(pageIdCounter.Add(1))
+
 	s := metaProvider.s
 
 	ps := &pageState{
+		id:                                id,
 		pageOutput:                        nopPageOutput,
 		pageOutputTemplateVariationsState: atomic.NewUint32(0),
 		pageCommon: &pageCommon{
@@ -64,6 +69,7 @@ func newPageBase(metaProvider *pageMeta) (*pageState, error) {
 			init:                 lazy.New(),
 			m:                    metaProvider,
 			s:                    s,
+			sWrapped:             page.WrapSite(s),
 		},
 	}
 
@@ -98,7 +104,7 @@ func newPageFromMeta(
 	meta map[string]any,
 	metaProvider *pageMeta) (*pageState, error) {
 	if metaProvider.f == nil {
-		metaProvider.f = page.NewZeroFile(metaProvider.s.LogDistinct)
+		metaProvider.f = page.NewZeroFile(metaProvider.s.Log)
 	}
 
 	ps, err := newPageBase(metaProvider)
@@ -190,8 +196,8 @@ type pageDeprecatedWarning struct {
 }
 
 func (p *pageDeprecatedWarning) IsDraft() bool          { return p.p.m.draft }
-func (p *pageDeprecatedWarning) Hugo() hugo.Info        { return p.p.s.Info.Hugo() }
-func (p *pageDeprecatedWarning) LanguagePrefix() string { return p.p.s.Info.LanguagePrefix }
+func (p *pageDeprecatedWarning) Hugo() hugo.HugoInfo    { return p.p.s.Hugo() }
+func (p *pageDeprecatedWarning) LanguagePrefix() string { return p.p.s.GetLanguagePrefix() }
 func (p *pageDeprecatedWarning) GetParam(key string) any {
 	return p.p.m.params[strings.ToLower(key)]
 }

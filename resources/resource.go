@@ -154,14 +154,13 @@ type baseResourceInternal interface {
 
 	ReadSeekCloser() (hugio.ReadSeekCloser, error)
 
-	// Internal
+	// For internal use.
 	cloneWithUpdates(*transformationUpdate) (baseResource, error)
 	tryTransformedFileCache(key string, u *transformationUpdate) io.ReadCloser
 
 	specProvider
 	getResourcePaths() *resourcePathDescriptor
 	getTargetFilenames() []string
-	openDestinationsForWriting() (io.WriteCloser, error)
 	openPublishFileForWriting(relTargetPath string) (io.WriteCloser, error)
 
 	relTargetPathForRel(rel string, addBaseTargetPath, isAbs, isURL bool) string
@@ -216,6 +215,7 @@ func (d dirFile) path() string {
 type fileInfo interface {
 	getSourceFilename() string
 	setSourceFilename(string)
+	setSourceFilenameIsHash(bool)
 	setSourceFs(afero.Fs)
 	getFileInfo() hugofs.FileMetaInfo
 	hash() (string, error)
@@ -274,10 +274,11 @@ func (l *genericResource) Data() any {
 }
 
 func (l *genericResource) Key() string {
-	if l.spec.BasePath == "" {
+	basePath := l.spec.Cfg.BaseURL().BasePath
+	if basePath == "" {
 		return l.RelPermalink()
 	}
-	return strings.TrimPrefix(l.RelPermalink(), l.spec.BasePath)
+	return strings.TrimPrefix(l.RelPermalink(), basePath)
 }
 
 func (l *genericResource) MediaType() media.Type {
@@ -297,12 +298,27 @@ func (l *genericResource) Params() maps.Params {
 }
 
 func (l *genericResource) Permalink() string {
-	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(l.relTargetDirFile.path(), true), l.spec.BaseURL.HostURL())
+	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(l.relTargetDirFile.path(), true), l.spec.Cfg.BaseURL().HostURL())
 }
 
 func (l *genericResource) Publish() error {
 	var err error
 	l.publishInit.Do(func() {
+		targetFilenames := l.getTargetFilenames()
+		if l.sourceFilenameIsHash {
+			// This is a processed image. We want to avoid copying it if it hasn't changed.
+			var changedFilenames []string
+			for _, targetFilename := range targetFilenames {
+				if _, err := l.getSpec().BaseFs.PublishFs.Stat(targetFilename); err == nil {
+					continue
+				}
+				changedFilenames = append(changedFilenames, targetFilename)
+			}
+			if len(changedFilenames) == 0 {
+				return
+			}
+			targetFilenames = changedFilenames
+		}
 		var fr hugio.ReadSeekCloser
 		fr, err = l.ReadSeekCloser()
 		if err != nil {
@@ -311,7 +327,7 @@ func (l *genericResource) Publish() error {
 		defer fr.Close()
 
 		var fw io.WriteCloser
-		fw, err = helpers.OpenFilesForWriting(l.spec.BaseFs.PublishFs, l.getTargetFilenames()...)
+		fw, err = helpers.OpenFilesForWriting(l.spec.BaseFs.PublishFs, targetFilenames...)
 		if err != nil {
 			return
 		}
@@ -410,7 +426,7 @@ func (r *genericResource) tryTransformedFileCache(key string, u *transformationU
 		return nil
 	}
 	u.sourceFilename = &fi.Name
-	mt, _ := r.spec.MediaTypes.GetByType(meta.MediaTypeV)
+	mt, _ := r.spec.MediaTypes().GetByType(meta.MediaTypeV)
 	u.mediaType = mt
 	u.data = meta.MetaData
 	u.targetPath = meta.Target
@@ -474,39 +490,12 @@ func (l genericResource) clone() *genericResource {
 	return &l
 }
 
-// returns an opened file or nil if nothing to write (it may already be published).
-func (l *genericResource) openDestinationsForWriting() (w io.WriteCloser, err error) {
-	l.publishInit.Do(func() {
-		targetFilenames := l.getTargetFilenames()
-		var changedFilenames []string
-
-		// Fast path:
-		// This is a processed version of the original;
-		// check if it already exists at the destination.
-		for _, targetFilename := range targetFilenames {
-			if _, err := l.getSpec().BaseFs.PublishFs.Stat(targetFilename); err == nil {
-				continue
-			}
-
-			changedFilenames = append(changedFilenames, targetFilename)
-		}
-
-		if len(changedFilenames) == 0 {
-			return
-		}
-
-		w, err = helpers.OpenFilesForWriting(l.getSpec().BaseFs.PublishFs, changedFilenames...)
-	})
-
-	return
-}
-
 func (r *genericResource) openPublishFileForWriting(relTargetPath string) (io.WriteCloser, error) {
 	return helpers.OpenFilesForWriting(r.spec.BaseFs.PublishFs, r.relTargetPathsFor(relTargetPath)...)
 }
 
 func (l *genericResource) permalinkFor(target string) string {
-	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(target, true), l.spec.BaseURL.HostURL())
+	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(target, true), l.spec.Cfg.BaseURL().HostURL())
 }
 
 func (l *genericResource) relPermalinkFor(target string) string {
@@ -621,6 +610,9 @@ type resourceFileInfo struct {
 	// the path to the file on the real filesystem.
 	sourceFilename string
 
+	// For performance. This means that whenever the content changes, the filename changes.
+	sourceFilenameIsHash bool
+
 	fi hugofs.FileMetaInfo
 
 	// A hash of the source content. Is only calculated in caching situations.
@@ -651,6 +643,10 @@ func (fi *resourceFileInfo) setSourceFilename(s string) {
 	// Make sure it's always loaded by sourceFilename.
 	fi.openReadSeekerCloser = nil
 	fi.sourceFilename = s
+}
+
+func (fi *resourceFileInfo) setSourceFilenameIsHash(b bool) {
+	fi.sourceFilenameIsHash = b
 }
 
 func (fi *resourceFileInfo) getSourceFs() afero.Fs {

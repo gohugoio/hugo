@@ -111,7 +111,7 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 		Section                  string
 		SectionsEntries          []string
 		SectionsPath             string
-		Sitemap                  config.Sitemap
+		Sitemap                  config.SitemapConfig
 		Type                     string
 		Weight                   int
 		Language                 *langs.Language

@@ -24,7 +24,6 @@ import (
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/gohugoio/go-i18n/v2/i18n"
@@ -32,17 +31,15 @@ import (
 
 type translateFunc func(ctx context.Context, translationID string, templateData any) string
 
-var i18nWarningLogger = helpers.NewDistinctErrorLogger()
-
 // Translator handles i18n translations.
 type Translator struct {
 	translateFuncs map[string]translateFunc
-	cfg            config.Provider
+	cfg            config.AllProvider
 	logger         loggers.Logger
 }
 
 // NewTranslator creates a new Translator for the given language bundle and configuration.
-func NewTranslator(b *i18n.Bundle, cfg config.Provider, logger loggers.Logger) Translator {
+func NewTranslator(b *i18n.Bundle, cfg config.AllProvider, logger loggers.Logger) Translator {
 	t := Translator{cfg: cfg, logger: logger, translateFuncs: make(map[string]translateFunc)}
 	t.initFuncs(b)
 	return t
@@ -55,7 +52,7 @@ func (t Translator) Func(lang string) translateFunc {
 		return f
 	}
 	t.logger.Infof("Translation func for language %v not found, use default.", lang)
-	if f, ok := t.translateFuncs[t.cfg.GetString("defaultContentLanguage")]; ok {
+	if f, ok := t.translateFuncs[t.cfg.DefaultContentLanguage()]; ok {
 		return f
 	}
 
@@ -66,7 +63,7 @@ func (t Translator) Func(lang string) translateFunc {
 }
 
 func (t Translator) initFuncs(bndl *i18n.Bundle) {
-	enableMissingTranslationPlaceholders := t.cfg.GetBool("enableMissingTranslationPlaceholders")
+	enableMissingTranslationPlaceholders := t.cfg.EnableMissingTranslationPlaceholders()
 	for _, lang := range bndl.LanguageTags() {
 		currentLang := lang
 		currentLangStr := currentLang.String()
@@ -122,8 +119,8 @@ func (t Translator) initFuncs(bndl *i18n.Bundle) {
 				t.logger.Warnf("Failed to get translated string for language %q and ID %q: %s", currentLangStr, translationID, err)
 			}
 
-			if t.cfg.GetBool("logI18nWarnings") {
-				i18nWarningLogger.Printf("i18n|MISSING_TRANSLATION|%s|%s", currentLangStr, translationID)
+			if t.cfg.PrintI18nWarnings() {
+				t.logger.Warnf("i18n|MISSING_TRANSLATION|%s|%s", currentLangStr, translationID)
 			}
 
 			if enableMissingTranslationPlaceholders {

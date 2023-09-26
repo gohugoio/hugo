@@ -15,6 +15,7 @@ package tplimpl
 
 import (
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/tpl"
 )
 
 // TemplateProvider manages templates.
@@ -25,17 +26,26 @@ var DefaultTemplateProvider *TemplateProvider
 
 // Update updates the Hugo Template System in the provided Deps
 // with all the additional features, templates & functions.
-func (*TemplateProvider) Update(d *deps.Deps) error {
-	tmpl, err := newTemplateExec(d)
+func (*TemplateProvider) NewResource(dst *deps.Deps) error {
+	handlers, err := newTemplateHandlers(dst)
 	if err != nil {
 		return err
 	}
-	return tmpl.postTransform()
+	dst.SetTempl(handlers)
+	return nil
 }
 
 // Clone clones.
-func (*TemplateProvider) Clone(d *deps.Deps) error {
-	t := d.Tmpl().(*templateExec)
-	d.SetTmpl(t.Clone(d))
+func (*TemplateProvider) CloneResource(dst, src *deps.Deps) error {
+	t := src.Tmpl().(*templateExec)
+	c := t.Clone(dst)
+	funcMap := make(map[string]any)
+	for k, v := range c.funcs {
+		funcMap[k] = v.Interface()
+	}
+	dst.SetTempl(&tpl.TemplateHandlers{
+		Tmpl:    c,
+		TxtTmpl: newStandaloneTextTemplate(funcMap),
+	})
 	return nil
 }

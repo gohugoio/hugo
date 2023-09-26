@@ -15,16 +15,17 @@ package hugolib
 
 import (
 	"fmt"
+	"html/template"
 	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/resources/kinds"
 
 	"github.com/spf13/afero"
 
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/output"
 )
 
@@ -141,7 +142,7 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 	s := b.H.Sites[0]
 	b.Assert(s.language.Lang, qt.Equals, "en")
 
-	home := s.getPage(page.KindHome)
+	home := s.getPage(kinds.KindHome)
 
 	b.Assert(home, qt.Not(qt.IsNil))
 
@@ -151,7 +152,7 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 
 	// There is currently always a JSON output to make it simpler ...
 	altFormats := lenOut - 1
-	hasHTML := helpers.InStringArray(outputs, "html")
+	hasHTML := hstrings.InSlice(outputs, "html")
 	b.AssertFileContent("public/index.json",
 		"List JSON",
 		fmt.Sprintf("Alt formats: %d", altFormats),
@@ -159,9 +160,9 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 
 	if hasHTML {
 		b.AssertFileContent("public/index.json",
-			"Alt Output: HTML",
-			"Output/Rel: JSON/alternate|",
-			"Output/Rel: HTML/canonical|",
+			"Alt Output: html",
+			"Output/Rel: json/alternate|",
+			"Output/Rel: html/canonical|",
 			"en: Elbow",
 			"ShortJSON",
 			"OtherShort: <h1>Hi!</h1>",
@@ -184,7 +185,7 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 			"nn: Olboge")
 	} else {
 		b.AssertFileContent("public/index.json",
-			"Output/Rel: JSON/canonical|",
+			"Output/Rel: json/canonical|",
 			// JSON is plain text, so no need to safeHTML this and that
 			`<atom:link href=http://example.com/blog/index.json rel="self" type="application/json" />`,
 			"ShortJSON",
@@ -204,7 +205,7 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 	b.Assert(json.RelPermalink(), qt.Equals, "/blog/index.json")
 	b.Assert(json.Permalink(), qt.Equals, "http://example.com/blog/index.json")
 
-	if helpers.InStringArray(outputs, "cal") {
+	if hstrings.InSlice(outputs, "cal") {
 		cal := of.Get("calendar")
 		b.Assert(cal, qt.Not(qt.IsNil))
 		b.Assert(cal.RelPermalink(), qt.Equals, "/blog/index.ics")
@@ -248,7 +249,7 @@ baseName = "feed"
 	s := h.Sites[0]
 
 	// Issue #3450
-	c.Assert(s.Info.RSSLink, qt.Equals, "http://example.com/blog/feed.xml")
+	c.Assert(s.RSSLink(), qt.Equals, template.URL("http://example.com/blog/feed.xml"))
 }
 
 // Issue #3614
@@ -313,7 +314,7 @@ baseName = "customdelimbase"
 	th.assertFileContent("public/nosuffixbase", "no suffix")
 	th.assertFileContent("public/customdelimbase_del", "custom delim")
 
-	home := s.getPage(page.KindHome)
+	home := s.getPage(kinds.KindHome)
 	c.Assert(home, qt.Not(qt.IsNil))
 
 	outputs := home.OutputFormats()
@@ -359,36 +360,36 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 		c := qt.New(t)
 
 		outputsConfig := map[string]any{
-			page.KindHome:    []string{"HTML", "JSON"},
-			page.KindSection: []string{"JSON"},
+			kinds.KindHome:    []string{"HTML", "JSON"},
+			kinds.KindSection: []string{"JSON"},
 		}
 
-		cfg := config.NewWithTestDefaults()
+		cfg := config.New()
 		cfg.Set("outputs", outputsConfig)
 
 		outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
 		c.Assert(err, qt.IsNil)
-		c.Assert(outputs[page.KindSection], deepEqualsOutputFormats, output.Formats{output.JSONFormat})
-		c.Assert(outputs[page.KindHome], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.JSONFormat})
+		c.Assert(outputs[kinds.KindSection], deepEqualsOutputFormats, output.Formats{output.JSONFormat})
+		c.Assert(outputs[kinds.KindHome], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.JSONFormat})
 
 		// Defaults
-		c.Assert(outputs[page.KindTerm], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
-		c.Assert(outputs[page.KindTaxonomy], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
-		c.Assert(outputs[page.KindPage], deepEqualsOutputFormats, output.Formats{output.HTMLFormat})
+		c.Assert(outputs[kinds.KindTerm], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
+		c.Assert(outputs[kinds.KindTaxonomy], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
+		c.Assert(outputs[kinds.KindPage], deepEqualsOutputFormats, output.Formats{output.HTMLFormat})
 
 		// These aren't (currently) in use when rendering in Hugo,
 		// but the pages needs to be assigned an output format,
 		// so these should also be correct/sensible.
-		c.Assert(outputs[kindRSS], deepEqualsOutputFormats, output.Formats{output.RSSFormat})
-		c.Assert(outputs[kindSitemap], deepEqualsOutputFormats, output.Formats{output.SitemapFormat})
-		c.Assert(outputs[kindRobotsTXT], deepEqualsOutputFormats, output.Formats{output.RobotsTxtFormat})
-		c.Assert(outputs[kind404], deepEqualsOutputFormats, output.Formats{output.HTMLFormat})
+		c.Assert(outputs[kinds.KindRSS], deepEqualsOutputFormats, output.Formats{output.RSSFormat})
+		c.Assert(outputs[kinds.KindSitemap], deepEqualsOutputFormats, output.Formats{output.SitemapFormat})
+		c.Assert(outputs[kinds.KindRobotsTXT], deepEqualsOutputFormats, output.Formats{output.RobotsTxtFormat})
+		c.Assert(outputs[kinds.Kind404], deepEqualsOutputFormats, output.Formats{output.HTMLFormat})
 	})
 
 	// Issue #4528
 	t.Run("Mixed case", func(t *testing.T) {
 		c := qt.New(t)
-		cfg := config.NewWithTestDefaults()
+		cfg := config.New()
 
 		outputsConfig := map[string]any{
 			// Note that we in Hugo 0.53.0 renamed this Kind to "taxonomy",
@@ -399,7 +400,7 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 
 		outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
 		c.Assert(err, qt.IsNil)
-		c.Assert(outputs[page.KindTaxonomy], deepEqualsOutputFormats, output.Formats{output.JSONFormat})
+		c.Assert(outputs[kinds.KindTaxonomy], deepEqualsOutputFormats, output.Formats{output.JSONFormat})
 	})
 }
 
@@ -407,10 +408,10 @@ func TestCreateSiteOutputFormatsInvalidConfig(t *testing.T) {
 	c := qt.New(t)
 
 	outputsConfig := map[string]any{
-		page.KindHome: []string{"FOO", "JSON"},
+		kinds.KindHome: []string{"FOO", "JSON"},
 	}
 
-	cfg := config.NewWithTestDefaults()
+	cfg := config.New()
 	cfg.Set("outputs", outputsConfig)
 
 	_, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
@@ -421,25 +422,25 @@ func TestCreateSiteOutputFormatsEmptyConfig(t *testing.T) {
 	c := qt.New(t)
 
 	outputsConfig := map[string]any{
-		page.KindHome: []string{},
+		kinds.KindHome: []string{},
 	}
 
-	cfg := config.NewWithTestDefaults()
+	cfg := config.New()
 	cfg.Set("outputs", outputsConfig)
 
 	outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg.GetStringMap("outputs"), false)
 	c.Assert(err, qt.IsNil)
-	c.Assert(outputs[page.KindHome], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
+	c.Assert(outputs[kinds.KindHome], deepEqualsOutputFormats, output.Formats{output.HTMLFormat, output.RSSFormat})
 }
 
 func TestCreateSiteOutputFormatsCustomFormats(t *testing.T) {
 	c := qt.New(t)
 
 	outputsConfig := map[string]any{
-		page.KindHome: []string{},
+		kinds.KindHome: []string{},
 	}
 
-	cfg := config.NewWithTestDefaults()
+	cfg := config.New()
 	cfg.Set("outputs", outputsConfig)
 
 	var (
@@ -449,7 +450,7 @@ func TestCreateSiteOutputFormatsCustomFormats(t *testing.T) {
 
 	outputs, err := createSiteOutputFormats(output.Formats{customRSS, customHTML}, cfg.GetStringMap("outputs"), false)
 	c.Assert(err, qt.IsNil)
-	c.Assert(outputs[page.KindHome], deepEqualsOutputFormats, output.Formats{customHTML, customRSS})
+	c.Assert(outputs[kinds.KindHome], deepEqualsOutputFormats, output.Formats{customHTML, customRSS})
 }
 
 // https://github.com/gohugoio/hugo/issues/5849
@@ -550,37 +551,37 @@ Output Formats: {{ len .OutputFormats }};{{ range .OutputFormats }}{{ .Name }};{
 
 	b.AssertFileContent("public/index.html",
 		"This RelPermalink: /",
-		"Output Formats: 4;HTML;/|AMP;/amp/|damp;/damp/|base;/that.html|",
+		"Output Formats: 4;html;/|amp;/amp/|damp;/damp/|base;/that.html|",
 	)
 
 	b.AssertFileContent("public/amp/index.html",
 		"This RelPermalink: /amp/",
-		"Output Formats: 4;HTML;/|AMP;/amp/|damp;/damp/|base;/that.html|",
+		"Output Formats: 4;html;/|amp;/amp/|damp;/damp/|base;/that.html|",
 	)
 
 	b.AssertFileContent("public/blog/html-amp/index.html",
-		"Output Formats: 2;HTML;/blog/html-amp/|AMP;/amp/blog/html-amp/|",
+		"Output Formats: 2;html;/blog/html-amp/|amp;/amp/blog/html-amp/|",
 		"This RelPermalink: /blog/html-amp/")
 
 	b.AssertFileContent("public/amp/blog/html-amp/index.html",
-		"Output Formats: 2;HTML;/blog/html-amp/|AMP;/amp/blog/html-amp/|",
+		"Output Formats: 2;html;/blog/html-amp/|amp;/amp/blog/html-amp/|",
 		"This RelPermalink: /amp/blog/html-amp/")
 
 	// Damp is not permalinkable
 	b.AssertFileContent("public/damp/blog/html-damp/index.html",
 		"This RelPermalink: /blog/html-damp/",
-		"Output Formats: 2;HTML;/blog/html-damp/|damp;/damp/blog/html-damp/|")
+		"Output Formats: 2;html;/blog/html-damp/|damp;/damp/blog/html-damp/|")
 
 	b.AssertFileContent("public/blog/html-ramp/index.html",
 		"This RelPermalink: /blog/html-ramp/",
-		"Output Formats: 2;HTML;/blog/html-ramp/|ramp;/ramp/blog/html-ramp/|")
+		"Output Formats: 2;html;/blog/html-ramp/|ramp;/ramp/blog/html-ramp/|")
 
 	b.AssertFileContent("public/ramp/blog/html-ramp/index.html",
 		"This RelPermalink: /ramp/blog/html-ramp/",
-		"Output Formats: 2;HTML;/blog/html-ramp/|ramp;/ramp/blog/html-ramp/|")
+		"Output Formats: 2;html;/blog/html-ramp/|ramp;/ramp/blog/html-ramp/|")
 
 	// https://github.com/gohugoio/hugo/issues/5877
-	outputFormats := "Output Formats: 3;HTML;/blog/html-base-nobase/|base;/blog/html-base-nobase/that.html|nobase;/blog/html-base-nobase/index.json|"
+	outputFormats := "Output Formats: 3;html;/blog/html-base-nobase/|base;/blog/html-base-nobase/that.html|nobase;/blog/html-base-nobase/index.json|"
 
 	b.AssertFileContent("public/blog/html-base-nobase/index.json",
 		"This RelPermalink: /blog/html-base-nobase/index.json",

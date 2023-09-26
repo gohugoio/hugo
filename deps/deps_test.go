@@ -11,17 +11,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package deps
+package deps_test
 
 import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/deps"
 )
 
 func TestBuildFlags(t *testing.T) {
 	c := qt.New(t)
-	var bf BuildState
+	var bf deps.BuildState
 	bf.Incr()
 	bf.Incr()
 	bf.Incr()

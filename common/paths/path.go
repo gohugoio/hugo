@@ -209,7 +209,7 @@ func extractFilename(in, ext, base, pathSeparator string) (name string) {
 		// return the filename minus the extension (and the ".")
 		name = base[:strings.LastIndex(base, ".")]
 	} else {
-		// no extension case so just return base, which willi
+		// no extension case so just return base, which will
 		// be the filename
 		name = base
 	}

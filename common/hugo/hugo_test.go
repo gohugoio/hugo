@@ -23,10 +23,12 @@ import (
 func TestHugoInfo(t *testing.T) {
 	c := qt.New(t)
 
-	hugoInfo := NewInfo("", nil)
+	conf := testConfig{environment: "production", workingDir: "/mywork"}
+	hugoInfo := NewInfo(conf, nil)
 
 	c.Assert(hugoInfo.Version(), qt.Equals, CurrentVersion.Version())
 	c.Assert(fmt.Sprintf("%T", VersionString("")), qt.Equals, fmt.Sprintf("%T", hugoInfo.Version()))
+	c.Assert(hugoInfo.WorkingDir(), qt.Equals, "/mywork")
 
 	bi := getBuildInfo()
 	if bi != nil {
@@ -39,6 +41,19 @@ func TestHugoInfo(t *testing.T) {
 	c.Assert(hugoInfo.IsProduction(), qt.Equals, true)
 	c.Assert(hugoInfo.IsExtended(), qt.Equals, IsExtended)
 
-	devHugoInfo := NewInfo("development", nil)
+	devHugoInfo := NewInfo(testConfig{environment: "development"}, nil)
 	c.Assert(devHugoInfo.IsProduction(), qt.Equals, false)
+}
+
+type testConfig struct {
+	environment string
+	workingDir  string
+}
+
+func (c testConfig) Environment() string {
+	return c.environment
+}
+
+func (c testConfig) WorkingDir() string {
+	return c.workingDir
 }

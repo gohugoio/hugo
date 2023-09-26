@@ -4,10 +4,9 @@ description: Reports whether a string contains a substring.
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [string strings substring contains]
 signature: ["strings.Contains STRING SUBSTRING"]
-aliases: []
 relatedfuncs: [strings.ContainsAny]
 ---
 

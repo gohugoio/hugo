@@ -1,10 +1,7 @@
 ---
-title: Content Sections
-linkTitle: Sections
-description: Hugo generates a **section tree** that matches your content.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
+title: Sections
+description: Organize content into sections.
+
 categories: [content management]
 keywords: [lists,sections,content types,organization]
 menu:
@@ -16,78 +13,147 @@ weight: 120
 aliases: [/content/sections/]
 ---
 
-A **Section** is a collection of pages that gets defined based on the
-organization structure under the `content/` directory.
+## Overview
 
-By default, all the **first-level** directories under `content/` form their own
-sections (**root sections**) provided they constitute [Branch Bundles][branch bundles].
-Directories which are just [Leaf Bundles][leaf bundles] do *not* form
-their own sections, despite being first-level directories.
-
-If a user needs to define a section `foo` at a deeper level, they need to create
-a directory named `foo` with an `_index.md` file (see [Branch Bundles][branch bundles]
-for more information).
-
+A section is a top-level content directory, or any content directory with an&nbsp;_index.md file. A content directory with an _index.md file is also known as a [branch bundle](/getting-started/glossary/#branch-bundle). Section templates receive one or more page [collections](/getting-started/glossary/#collection) in [context](/getting-started/glossary/#context).
 
 {{% note %}}
-A **section** cannot be defined or overridden by a front matter parameter -- it
-is strictly derived from the content organization structure.
+Although top-level directories without _index.md files are sections, we recommend creating _index.md files in _all_ sections.
 {{% /note %}}
 
-## Nested Sections
+A typical site consists of one or more sections. For example:
 
-The sections can be nested as deeply as you need.
-
-```bash
-content
-└── blog        <-- Section, because first-level dir under content/
-    ├── funny-cats
-    │   ├── mypost.md
-    │   └── kittens         <-- Section, because contains _index.md
-    │       └── _index.md
-    └── tech                <-- Section, because contains _index.md
-        └── _index.md
+```text
+content/
+├── articles/             <-- section (top-level directory)
+│   ├── 2022/
+│   │   ├── article-1/
+│   │   │   ├── cover.jpg
+│   │   │   └── index.md
+│   │   └── article-2.md
+│   └── 2023/
+│       ├── article-3.md
+│       └── article-4.md
+├── products/             <-- section (top-level directory)
+│   ├── product-1/        <-- section (has _index.md file)
+│   │   ├── benefits/     <-- section (has _index.md file)
+│   │   │   ├── _index.md
+│   │   │   ├── benefit-1.md
+│   │   │   └── benefit-2.md
+│   │   ├── features/     <-- section (has _index.md file)
+│   │   │   ├── _index.md
+│   │   │   ├── feature-1.md
+│   │   │   └── feature-2.md
+│   │   └── _index.md
+│   └── product-2/        <-- section (has _index.md file)
+│       ├── benefits/     <-- section (has _index.md file)
+│       │   ├── _index.md
+│       │   ├── benefit-1.md
+│       │   └── benefit-2.md
+│       ├── features/     <-- section (has _index.md file)
+│       │   ├── _index.md
+│       │   ├── feature-1.md
+│       │   └── feature-2.md
+│       └── _index.md
+├── _index.md
+└── about.md
 ```
 
-**The important part to understand is, that to make the section tree fully navigational, at least the lower-most section needs a content file. (e.g. `_index.md`).**
+The example above has two top-level sections: articles and products. None of the directories under articles are sections, while all of the directories under products are sections. A section within a section is a known as a nested section or subsection.
 
-{{% note %}}
-When we talk about a **section** in correlation with template selection, it is
-currently always the *root section* only (`/blog/funny-cats/mypost/ => blog`).
+## Explanation
 
-If you need a specific template for a sub-section, you need to adjust either the `type` or `layout` in front matter.
-{{% /note %}}
+Sections and non-sections behave differently.
 
-## Example: Breadcrumb Navigation
+||Sections|Non-sections
+:--|:-:|:-:
+Directory names become URL segments|:heavy_check_mark:|:heavy_check_mark:
+Have logical ancestors and descendants|:heavy_check_mark:|:x:
+Have list pages|:heavy_check_mark:|:x:
 
-With the available [section variables and methods](#section-page-variables-and-methods) you can build powerful navigation. One common example would be a partial to show Breadcrumb navigation:
+With the file structure from the [example above](#overview):
 
-{{< code file="layouts/partials/breadcrumb.html" download="breadcrumb.html" >}}
-<ol class="nav navbar-nav">
-<ul>
-{{- range .Ancestors.Reverse }}
-<li><a href="{{ .Permalink }}">{{ .Title }}</a></li>
-{{- end }}
-<li class="active" aria-current="page">
-<a href="{{ .Permalink }}">{{ .Title }}</a>
-</li>
-</ul>
-</ol>
+1. The list page for the articles section includes all articles, regardless of directory structure; none of the subdirectories are sections.
+
+1. The articles/2022 and articles/2023 directories do not have list pages; they are not sections.
+
+1. The list page for the products section, by default, includes product-1 and product-2, but not their descendant pages. To include descendant pages, use the `.RegularPagesRecursive` collection instead of the `.Pages` collection in the list template. See [details](/variables/page/#page-collections).
+
+1. All directories in the products section have list pages; each directory is a section.
+
+## Template selection
+
+Hugo has a defined [lookup order] to determine which template to use when rendering a page. The [lookup rules] consider the top-level section name; subsection names are not considered when selecting a template.
+
+With the file structure from the [example above](#overview):
+
+Content directory|List page template
+:--|:--
+content/products|layouts/products/list.html
+content/products/product-1|layouts/products/list.html
+content/products/product-1/benefits|layouts/products/list.html
+
+Content directory|Single page template
+:--|:--
+content/products|layouts/products/single.html
+content/products/product-1|layouts/products/single.html
+content/products/product-1/benefits|layouts/products/single.html
+
+If you need to use a different template for a subsection, specify `type` and/or `layout` in front matter.
+
+[lookup rules]: /templates/lookup-order/#lookup-rules
+[lookup order]: /templates/lookup-order/
+
+## Ancestors and descendants
+
+A section has one or more ancestors (including the home page), and zero or more descendants.  With the file structure from the [example above](#overview):
+
+
+```text
+content/products/product-1/benefits/benefit-1.md
+```
+
+The content file (benefit-1.md) has four ancestors: benefits, product-1, products, and the home page. This logical relationship allows us to use the `.Parent` and `.Ancestors` methods to traverse the site structure.
+
+For example, use the `.Ancestors` method to render breadcrumb navigation.
+
+{{< code file="layouts/partials/breadcrumb.html" >}}
+<nav aria-label="breadcrumb" class="breadcrumb">
+  <ol>
+    {{ range .Ancestors.Reverse }}
+      <li>
+        <a href="{{ .Permalink }}">{{ .LinkTitle }}</a>
+      </li>
+    {{ end }}
+    <li class="active">
+      <a aria-current="page" href="{{ .Permalink }}">{{ .LinkTitle }}</a>
+    </li>
+  </ol>
+</nav>
 {{< /code >}}
 
-## Section Page Variables and Methods
+With this CSS:
 
-Also see [Page Variables](/variables/page/).
+```css
+.breadcrumb ol {
+  padding-left: 0;
+}
 
-{{< readfile file="/content/en/readfiles/sectionvars.md" markdown="true" >}}
+.breadcrumb li {
+  display: inline;
+}
 
-## Content Section Lists
+.breadcrumb li:not(:last-child)::after {
+  content: "»";
+}
+```
 
-Hugo will automatically create a page for each *root section* that lists all the content in that section. See the documentation on [section templates] for details on customizing the way these pages are rendered.
+Hugo renders this, where each breadcrumb is a link to the corresponding page:
 
-## Content *Section* vs Content *Type*
+```text
+Home » Products » Product 1 » Benefits » Benefit 1
+```
 
-By default, everything created within a section will use the [content `type`][content type] that matches the *root section* name. For example, Hugo will assume that `posts/post-1.md` has a `posts` content `type`. If you are using an [archetype] for your `posts` section, Hugo will generate front matter according to what it finds in `archetypes/posts.md`.
 
 [archetype]: /content-management/archetypes/
 [content type]: /content-management/types/

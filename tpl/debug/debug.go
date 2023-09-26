@@ -19,6 +19,8 @@ import (
 	"sort"
 
 	"github.com/sanity-io/litter"
+	"github.com/spf13/cast"
+	"github.com/yuin/goldmark/util"
 
 	"github.com/gohugoio/hugo/deps"
 )
@@ -87,4 +89,10 @@ func (ns *Namespace) List(val any) []string {
 	}
 
 	return fields
+}
+
+// VisualizeSpaces returns a string with spaces replaced by a visible string.
+func (ns *Namespace) VisualizeSpaces(val any) string {
+	s := cast.ToString(val)
+	return string(util.VisualizeSpaces([]byte(s)))
 }

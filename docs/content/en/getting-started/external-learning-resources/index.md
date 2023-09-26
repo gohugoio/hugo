@@ -1,19 +1,12 @@
 ---
-title: External Learning Resources
-linktitle: External Learning Resources
+title: External learning resources
 description: A list of tutorials and books on Hugo.
-date: 2019-10-20
-publishdate: 2019-10-20
-lastmod: 2019-10-20
 keywords: [books, tutorials, learning, usage]
 menu:
   docs:
-    parent: "getting-started"
+    parent: getting-started
     weight: 70
 weight: 70
-sections_weight: 70
-draft: false
-toc: false
 ---
 
 ## Books

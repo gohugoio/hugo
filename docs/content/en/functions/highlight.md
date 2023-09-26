@@ -1,23 +1,18 @@
 ---
 title: highlight
-linktitle: highlight
 description: Renders code with a syntax highlighter.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2021-12-06
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [highlighting,code blocks,syntax]
 signature: ["transform.Highlight INPUT LANG [OPTIONS]","highlight INPUT LANG [OPTIONS]"]
 relatedfuncs: []
-deprecated: false
 toc: true
 ---
 The `highlight` function uses the [Chroma] syntax highlighter, supporting over 200 languages with more than 40 available styles.
 
-## Parameters
+## Arguments
 
 INPUT
 : The code to highlight.
@@ -72,7 +67,7 @@ Substitute this number of spaces for each tab character in your highlighted code
 
 guessSyntax
 : Boolean. Default is `false`.\
-If the `LANG` parameter is blank or an unrecognized language, auto-detect the language if possible, otherwise use a fallback language.
+If the `LANG` argument is blank or an unrecognized language, auto-detect the language if possible, otherwise use a fallback language.
 
 {{% note %}}
 Instead of specifying both `lineNos` and `lineNumbersInTable`, you can use the following shorthand notation:
@@ -96,13 +91,13 @@ Instead of specifying both `lineNos` and `lineNumbersInTable`, you can use the f
 
 {{ $input := `echo "Hello World!"` }}
 {{ $lang := "bash" }}
-{{ $options := slice "lineNos=table" "style=dracula" }}
-{{ transform.Highlight $input $lang (delimit $options ",") }}
+{{ $options := dict "lineNos" "table" "style" "dracula" }}
+{{ transform.Highlight $input $lang $options }}
 ```
 
 [Chroma]: https://github.com/alecthomas/chroma
-[hugo client]: {{< relref "commands/hugo_gen_chromastyles" >}}
-[options]: {{< relref "#options" >}}
-[site configuration]: {{< relref "getting-started/configuration-markup#highlight">}}
+[hugo client]: /commands/hugo_gen_chromastyles
+[options]: #options
+[site configuration]: /getting-started/configuration-markup#highlight
 [style gallery]: https://xyproto.github.io/splash/docs/
-[supported languages]: {{< relref "content-management/syntax-highlighting#list-of-chroma-highlighting-languages" >}}
+[supported languages]: /content-management/syntax-highlighting#list-of-chroma-highlighting-languages

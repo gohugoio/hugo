@@ -1,14 +1,12 @@
 ---
 title: group
 description: "`group` groups a list of pages."
-date: 2018-09-14
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [collections]
 signature: ["PAGES | group KEY"]
-hugoversion: "0.49"
 ---
 
 {{< code file="layouts/partials/groups.html" >}}

@@ -197,7 +197,7 @@ func (n *Namespace) Le(first any, others ...any) bool {
 	return true
 }
 
-// Lt returns the boolean truth of arg1 < arg2 && arg1 < arg3 && arg1 < arg4.
+// LtCollate returns the boolean truth of arg1 < arg2 && arg1 < arg3 && arg1 < arg4.
 // The provided collator will be used for string comparisons.
 // This is for internal use.
 func (n *Namespace) LtCollate(collator *langs.Collator, first any, others ...any) bool {

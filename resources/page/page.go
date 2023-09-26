@@ -166,7 +166,7 @@ type OutputFormatsProvider interface {
 	OutputFormats() OutputFormats
 }
 
-// Page is the core interface in Hugo.
+// Page is the core interface in Hugo and what you get as the top level data context in your templates.
 type Page interface {
 	ContentProvider
 	TableOfContentsProvider
@@ -249,7 +249,7 @@ type PageMetaProvider interface {
 
 	// Sitemap returns the sitemap configuration for this page.
 	// This is for internal use only.
-	Sitemap() config.Sitemap
+	Sitemap() config.SitemapConfig
 
 	// Type is a discriminator used to select layouts etc. It is typically set
 	// in front matter, but will fall back to the root section.
@@ -277,6 +277,7 @@ type PageRenderProvider interface {
 // PageWithoutContent is the Page without any of the content methods.
 type PageWithoutContent interface {
 	RawContentProvider
+	RenderShortcodesProvider
 	resource.Resource
 	PageMetaProvider
 	resource.LanguageProvider
@@ -334,7 +335,7 @@ type PageWithoutContent interface {
 	// Used in change/dependency tracking.
 	identity.Provider
 
-	// Headings returns the headings for this page when a filter is set.
+	// HeadingsFiltered returns the headings for this page when a filter is set.
 	// This is currently only triggered with the Related content feature
 	// and the "fragments" type of index.
 	HeadingsFiltered(context.Context) tableofcontents.Headings
@@ -362,6 +363,11 @@ type RawContentProvider interface {
 	RawContent() string
 }
 
+type RenderShortcodesProvider interface {
+	// RenderShortcodes returns RawContent with any shortcodes rendered.
+	RenderShortcodes(context.Context) (template.HTML, error)
+}
+
 // RefProvider provides the methods needed to create reflinks to pages.
 type RefProvider interface {
 	// Ref returns an absolute URl to a page.
@@ -373,7 +379,7 @@ type RefProvider interface {
 	// RelRef returns a relative URL to a page.
 	RelRef(argsm map[string]any) (string, error)
 
-	// RefFrom is for internal use only.
+	// RelRefFrom is for internal use only.
 	RelRefFrom(argsm map[string]any, source any) (string, error)
 }
 

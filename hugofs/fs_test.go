@@ -35,9 +35,10 @@ func TestIsOsFs(t *testing.T) {
 
 func TestNewDefault(t *testing.T) {
 	c := qt.New(t)
-	v := config.NewWithTestDefaults()
+	v := config.New()
 	v.Set("workingDir", t.TempDir())
-	f := NewDefault(v)
+	v.Set("publishDir", "public")
+	f := NewDefaultOld(v)
 
 	c.Assert(f.Source, qt.IsNotNil)
 	c.Assert(f.Source, hqt.IsSameType, new(afero.OsFs))
@@ -47,22 +48,5 @@ func TestNewDefault(t *testing.T) {
 	c.Assert(IsOsFs(f.Source), qt.IsTrue)
 	c.Assert(IsOsFs(f.WorkingDirReadOnly), qt.IsTrue)
 	c.Assert(IsOsFs(f.PublishDir), qt.IsTrue)
-	c.Assert(IsOsFs(f.Os), qt.IsTrue)
-}
-
-func TestNewMem(t *testing.T) {
-	c := qt.New(t)
-	v := config.NewWithTestDefaults()
-	f := NewMem(v)
-
-	c.Assert(f.Source, qt.Not(qt.IsNil))
-	c.Assert(f.Source, hqt.IsSameType, new(afero.MemMapFs))
-	c.Assert(f.PublishDir, qt.Not(qt.IsNil))
-	c.Assert(f.PublishDir, hqt.IsSameType, new(afero.BasePathFs))
-	c.Assert(f.Os, hqt.IsSameType, new(afero.OsFs))
-	c.Assert(f.WorkingDirReadOnly, qt.IsNotNil)
-	c.Assert(IsOsFs(f.Source), qt.IsFalse)
-	c.Assert(IsOsFs(f.WorkingDirReadOnly), qt.IsFalse)
-	c.Assert(IsOsFs(f.PublishDir), qt.IsFalse)
 	c.Assert(IsOsFs(f.Os), qt.IsTrue)
 }

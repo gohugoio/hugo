@@ -24,7 +24,7 @@ import (
 
 	"github.com/gohugoio/hugo/helpers"
 
-	"github.com/gohugoio/hugo/hugofs/glob"
+	hglob "github.com/gohugoio/hugo/hugofs/glob"
 
 	"github.com/gohugoio/hugo/resources/resource"
 
@@ -39,8 +39,6 @@ const (
 )
 
 type ResourceCache struct {
-	rs *Spec
-
 	sync.RWMutex
 
 	// Either resource.Resource or resource.Resources.
@@ -77,15 +75,15 @@ var extAliasKeywords = map[string][]string{
 // used to do resource cache invalidations.
 //
 // We use the first directory path element and the extension, so:
-//     a/b.json => "a", "json"
-//     b.json => "json"
+//
+//	a/b.json => "a", "json"
+//	b.json => "json"
 //
 // For some of the extensions we will also map to closely related types,
 // e.g. "scss" will also return "sass".
-//
 func ResourceKeyPartitions(filename string) []string {
 	var partitions []string
-	filename = glob.NormalizePath(filename)
+	filename = hglob.NormalizePath(filename)
 	dir, name := path.Split(filename)
 	ext := strings.TrimPrefix(path.Ext(filepath.ToSlash(name)), ".")
 
@@ -122,15 +120,6 @@ func ResourceKeyContainsAny(key string, partitions []string) bool {
 		}
 	}
 	return false
-}
-
-func newResourceCache(rs *Spec) *ResourceCache {
-	return &ResourceCache{
-		rs:        rs,
-		fileCache: rs.FileCaches.AssetsCache(),
-		cache:     make(map[string]any),
-		nlocker:   locker.NewLocker(),
-	}
 }
 
 func (c *ResourceCache) clear() {
@@ -293,12 +282,23 @@ func (c *ResourceCache) DeletePartitions(partitions ...string) {
 	}
 }
 
-func (c *ResourceCache) DeleteMatches(re *regexp.Regexp) {
+func (c *ResourceCache) DeleteMatchesRe(re *regexp.Regexp) {
 	c.Lock()
 	defer c.Unlock()
 
 	for k := range c.cache {
 		if re.MatchString(k) {
+			delete(c.cache, k)
+		}
+	}
+}
+
+func (c *ResourceCache) DeleteMatches(match func(string) bool) {
+	c.Lock()
+	defer c.Unlock()
+
+	for k := range c.cache {
+		if match(k) {
 			delete(c.cache, k)
 		}
 	}

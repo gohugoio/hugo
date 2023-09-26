@@ -1,17 +1,14 @@
 ---
-title: Hugo and the  General Data Protection Regulation (GDPR)
-linktitle: Hugo and GDPR
+title: Hugo and the General Data Protection Regulation
+linkTitle: Hugo and the GDPR
 description: About how to configure your Hugo site to meet the new regulations.
-date: 2018-05-25
 layout: single
 keywords: ["GDPR", "Privacy", "Data Protection"]
 menu:
   docs:
-    parent: "about"
-    weight: 5
-weight: 5
-sections_weight: 5
-draft: false
+    parent: about
+    weight: 60
+weight: 60
 aliases: [/privacy/,/gdpr/]
 toc: true
 ---
@@ -20,7 +17,7 @@ toc: true
 
  **Hugo is a static site generator. By using Hugo you are already standing on very solid ground. Static HTML files on disk are much easier to reason about compared to server and database driven web sites.**
 
- But even static websites can integrate with external services, so from version `0.41`, Hugo provides a **Privacy Config** that covers the relevant built-in templates.
+ But even static websites can integrate with external services, so from version `0.41`, Hugo provides a **privacy configuration** that covers the relevant built-in templates.
 
  Note that:
 
@@ -28,11 +25,11 @@ toc: true
  * These settings work with the [internal templates](/templates/internal/). Some theme may contain custom templates for embedding services like Google Analytics. In that case these options have no effect.
  * We will continue this work and improve this further in future Hugo versions.
 
-## All Privacy Settings
+## All privacy settings
 
-Below are all privacy settings and their default value. These settings need to be put in your site config (e.g. `config.toml`).
+Below are all privacy settings and their default value. These settings need to be put in your site configuration (e.g. `hugo.toml`).
 
- {{< code-toggle file="config">}}
+{{< code-toggle file="hugo" >}}
 [privacy]
 [privacy.disqus]
 disable = false
@@ -57,12 +54,11 @@ disable = false
 privacyEnhanced = false
 {{< /code-toggle >}}
 
+## Disable all services
 
-## Disable All Services
+An example privacy configuration that disables all the relevant services in Hugo. With this configuration, the other settings will not matter.
 
-An example Privacy Config that disables all the relevant services in Hugo. With this configuration, the other settings will not matter.
-
- {{< code-toggle file="config">}}
+{{< code-toggle file="hugo" >}}
 [privacy]
 [privacy.disqus]
 disable = true
@@ -78,7 +74,7 @@ disable = true
 disable = true
 {{< /code-toggle >}}
 
-## The Privacy Settings Explained
+## The privacy settings explained
 
 ### GoogleAnalytics
 
@@ -91,9 +87,9 @@ respectDoNotTrack
 useSessionStorage
 : Enabling this will disable the use of Cookies and use Session Storage to Store the GA Client ID.
 
-{{% warning %}}
+{{% note %}}
 `useSessionStorage` is not supported when using Google Analytics v4 (gtag.js).
-{{% /warning %}}
+{{% /note %}}
 
 ### Instagram
 
@@ -102,7 +98,7 @@ simple
 
 **Note:** If you use the _simple mode_ for Instagram and a site styled with Bootstrap 4, you may want to disable the inline styles provided by Hugo:
 
- {{< code-toggle file="config">}}
+ {{< code-toggle file="hugo" >}}
 [services]
 [services.instagram]
 disableInlineCSS = true
@@ -118,7 +114,7 @@ simple
 
 **Note:** If you use the _simple mode_ for Twitter, you may want to disable the inline styles provided by Hugo:
 
- {{< code-toggle file="config">}}
+ {{< code-toggle file="hugo" >}}
 [services]
 [services.twitter]
 disableInlineCSS = true
@@ -135,4 +131,4 @@ enableDNT
 : Enabling this for the vimeo shortcode, the Vimeo player will be blocked from tracking any session data, including all cookies and stats.
 
 simple
-: If simple mode is enabled, the video thumbnail is fetched from Vimeo's servers and it is overlayed with a play button. If the user clicks to play the video, it will open in a new tab directly on Vimeo's website.
+: If simple mode is enabled, the video thumbnail is fetched from Vimeo's servers and it is overlaid with a play button. If the user clicks to play the video, it will open in a new tab directly on Vimeo's website.

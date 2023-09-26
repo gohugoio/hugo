@@ -20,6 +20,9 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+
+	"github.com/gohugoio/hugo/common/loggers"
+
 	"strings"
 	"testing"
 
@@ -31,7 +34,7 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs"
 
-	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/gohugoio/hugo/htesting"
@@ -65,6 +68,7 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 						fs, cfg := newTestBundleSources(c)
 						cfg.Set("baseURL", baseURL)
 						cfg.Set("canonifyURLs", canonify)
+						cfg.Set("defaultContentLanguageInSubdir", false)
 
 						cfg.Set("permalinks", map[string]string{
 							"a": ":sections/:filename",
@@ -89,8 +93,11 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 						})
 
 						cfg.Set("uglyURLs", ugly)
+						configs, err := loadTestConfigFromProvider(cfg)
 
-						b := newTestSitesBuilderFromDepsCfg(c, deps.DepsCfg{Logger: loggers.NewErrorLogger(), Fs: fs, Cfg: cfg}).WithNothingAdded()
+						c.Assert(err, qt.IsNil)
+
+						b := newTestSitesBuilderFromDepsCfg(c, deps.DepsCfg{Fs: fs, Configs: configs}).WithNothingAdded()
 
 						b.Build(BuildCfg{})
 
@@ -98,7 +105,7 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 
 						c.Assert(len(s.RegularPages()), qt.Equals, 8)
 
-						singlePage := s.getPage(page.KindPage, "a/1.md")
+						singlePage := s.getPage(kinds.KindPage, "a/1.md")
 						c.Assert(singlePage.BundleType(), qt.Equals, files.ContentClass(""))
 
 						c.Assert(singlePage, qt.Not(qt.IsNil))
@@ -144,18 +151,18 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 						// This should be just copied to destination.
 						b.AssertFileContent(filepath.FromSlash("public/assets/pic1.png"), "content")
 
-						leafBundle1 := s.getPage(page.KindPage, "b/my-bundle/index.md")
+						leafBundle1 := s.getPage(kinds.KindPage, "b/my-bundle/index.md")
 						c.Assert(leafBundle1, qt.Not(qt.IsNil))
 						c.Assert(leafBundle1.BundleType(), qt.Equals, files.ContentClassLeaf)
 						c.Assert(leafBundle1.Section(), qt.Equals, "b")
-						sectionB := s.getPage(page.KindSection, "b")
+						sectionB := s.getPage(kinds.KindSection, "b")
 						c.Assert(sectionB, qt.Not(qt.IsNil))
-						home := s.Info.Home()
+						home := s.Home()
 						c.Assert(home.BundleType(), qt.Equals, files.ContentClassBranch)
 
 						// This is a root bundle and should live in the "home section"
 						// See https://github.com/gohugoio/hugo/issues/4332
-						rootBundle := s.getPage(page.KindPage, "root")
+						rootBundle := s.getPage(kinds.KindPage, "root")
 						c.Assert(rootBundle, qt.Not(qt.IsNil))
 						c.Assert(rootBundle.Parent().IsHome(), qt.Equals, true)
 						if !ugly {
@@ -163,9 +170,9 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 							b.AssertFileContent(filepath.FromSlash("public/cpath/root/cindex.html"), "Single RelPermalink: "+relURLBase+"/cpath/root/")
 						}
 
-						leafBundle2 := s.getPage(page.KindPage, "a/b/index.md")
+						leafBundle2 := s.getPage(kinds.KindPage, "a/b/index.md")
 						c.Assert(leafBundle2, qt.Not(qt.IsNil))
-						unicodeBundle := s.getPage(page.KindPage, "c/bundle/index.md")
+						unicodeBundle := s.getPage(kinds.KindPage, "c/bundle/index.md")
 						c.Assert(unicodeBundle, qt.Not(qt.IsNil))
 
 						pageResources := leafBundle1.Resources().ByType(pageResourceType)
@@ -278,8 +285,10 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 				c := qt.New(t)
 				fs, cfg := newTestBundleSourcesMultilingual(t)
 				cfg.Set("uglyURLs", ugly)
+				configs, err := loadTestConfigFromProvider(cfg)
+				c.Assert(err, qt.IsNil)
 
-				b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{Fs: fs, Cfg: cfg}).WithNothingAdded()
+				b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{Fs: fs, Configs: configs}).WithNothingAdded()
 				b.Build(BuildCfg{})
 
 				sites := b.H
@@ -294,7 +303,7 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 
 				c.Assert(len(s.AllPages()), qt.Equals, 31)
 
-				bundleWithSubPath := s.getPage(page.KindPage, "lb/index")
+				bundleWithSubPath := s.getPage(kinds.KindPage, "lb/index")
 				c.Assert(bundleWithSubPath, qt.Not(qt.IsNil))
 
 				// See https://github.com/gohugoio/hugo/issues/4312
@@ -308,22 +317,22 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 				// and probably also just b (aka "my-bundle")
 				// These may also be translated, so we also need to test that.
 				//  "bf", "my-bf-bundle", "index.md + nn
-				bfBundle := s.getPage(page.KindPage, "bf/my-bf-bundle/index")
+				bfBundle := s.getPage(kinds.KindPage, "bf/my-bf-bundle/index")
 				c.Assert(bfBundle, qt.Not(qt.IsNil))
 				c.Assert(bfBundle.Language().Lang, qt.Equals, "en")
-				c.Assert(s.getPage(page.KindPage, "bf/my-bf-bundle/index.md"), qt.Equals, bfBundle)
-				c.Assert(s.getPage(page.KindPage, "bf/my-bf-bundle"), qt.Equals, bfBundle)
-				c.Assert(s.getPage(page.KindPage, "my-bf-bundle"), qt.Equals, bfBundle)
+				c.Assert(s.getPage(kinds.KindPage, "bf/my-bf-bundle/index.md"), qt.Equals, bfBundle)
+				c.Assert(s.getPage(kinds.KindPage, "bf/my-bf-bundle"), qt.Equals, bfBundle)
+				c.Assert(s.getPage(kinds.KindPage, "my-bf-bundle"), qt.Equals, bfBundle)
 
 				nnSite := sites.Sites[1]
 				c.Assert(len(nnSite.RegularPages()), qt.Equals, 7)
 
-				bfBundleNN := nnSite.getPage(page.KindPage, "bf/my-bf-bundle/index")
+				bfBundleNN := nnSite.getPage(kinds.KindPage, "bf/my-bf-bundle/index")
 				c.Assert(bfBundleNN, qt.Not(qt.IsNil))
 				c.Assert(bfBundleNN.Language().Lang, qt.Equals, "nn")
-				c.Assert(nnSite.getPage(page.KindPage, "bf/my-bf-bundle/index.nn.md"), qt.Equals, bfBundleNN)
-				c.Assert(nnSite.getPage(page.KindPage, "bf/my-bf-bundle"), qt.Equals, bfBundleNN)
-				c.Assert(nnSite.getPage(page.KindPage, "my-bf-bundle"), qt.Equals, bfBundleNN)
+				c.Assert(nnSite.getPage(kinds.KindPage, "bf/my-bf-bundle/index.nn.md"), qt.Equals, bfBundleNN)
+				c.Assert(nnSite.getPage(kinds.KindPage, "bf/my-bf-bundle"), qt.Equals, bfBundleNN)
+				c.Assert(nnSite.getPage(kinds.KindPage, "my-bf-bundle"), qt.Equals, bfBundleNN)
 
 				// See https://github.com/gohugoio/hugo/issues/4295
 				// Every resource should have its Name prefixed with its base folder.
@@ -349,28 +358,16 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 	}
 }
 
-func TestMultilingualDisableDefaultLanguage(t *testing.T) {
-	t.Parallel()
-
-	c := qt.New(t)
-	_, cfg := newTestBundleSourcesMultilingual(t)
-	cfg.Set("disableLanguages", []string{"en"})
-	l := configLoader{cfg: cfg}
-	err := l.applyConfigDefaults()
-	c.Assert(err, qt.IsNil)
-	err = l.loadLanguageSettings(nil)
-	c.Assert(err, qt.Not(qt.IsNil))
-	c.Assert(err.Error(), qt.Contains, "cannot disable default language")
-}
-
 func TestMultilingualDisableLanguage(t *testing.T) {
 	t.Parallel()
 
 	c := qt.New(t)
 	fs, cfg := newTestBundleSourcesMultilingual(t)
 	cfg.Set("disableLanguages", []string{"nn"})
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
-	b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{Fs: fs, Cfg: cfg}).WithNothingAdded()
+	b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{Fs: fs, Configs: configs}).WithNothingAdded()
 	b.Build(BuildCfg{})
 	sites := b.H
 
@@ -401,9 +398,10 @@ func TestPageBundlerSiteWitSymbolicLinksInContent(t *testing.T) {
 	// We need to use the OS fs for this.
 	workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugosym")
 	c.Assert(err, qt.IsNil)
-	cfg := config.NewWithTestDefaults()
+	cfg := config.New()
 	cfg.Set("workingDir", workingDir)
-	fs := hugofs.NewFrom(hugofs.Os, cfg)
+	cfg.Set("publishDir", "public")
+	fs := hugofs.NewFromOld(hugofs.Os, cfg)
 
 	contentDirName := "content"
 
@@ -439,6 +437,8 @@ func TestPageBundlerSiteWitSymbolicLinksInContent(t *testing.T) {
 	cfg.Set("workingDir", workingDir)
 	cfg.Set("contentDir", contentDirName)
 	cfg.Set("baseURL", "https://example.com")
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
 	layout := `{{ .Title }}|{{ .Content }}`
 	pageContent := `---
@@ -450,8 +450,8 @@ TheContent.
 `
 
 	b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{
-		Fs:  fs,
-		Cfg: cfg,
+		Fs:      fs,
+		Configs: configs,
 	})
 
 	b.WithTemplates(
@@ -484,7 +484,7 @@ TheContent.
 	s := b.H.Sites[0]
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 7)
-	a1Bundle := s.getPage(page.KindPage, "symbolic2/a1/index.md")
+	a1Bundle := s.getPage(kinds.KindPage, "symbolic2/a1/index.md")
 	c.Assert(a1Bundle, qt.Not(qt.IsNil))
 	c.Assert(len(a1Bundle.Resources()), qt.Equals, 2)
 	c.Assert(len(a1Bundle.Resources().ByType(pageResourceType)), qt.Equals, 1)
@@ -504,6 +504,8 @@ func TestPageBundlerHeadless(t *testing.T) {
 	cfg.Set("workingDir", workDir)
 	cfg.Set("contentDir", "base")
 	cfg.Set("baseURL", "https://example.com")
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
 	pageContent := `---
 title: "Bundle Galore"
@@ -538,14 +540,14 @@ HEADLESS {{< myShort >}}
 	writeSource(t, fs, filepath.Join(workDir, "base", "b", "l2.png"), "PNG image")
 	writeSource(t, fs, filepath.Join(workDir, "base", "b", "p1.md"), pageContent)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 1)
 
-	regular := s.getPage(page.KindPage, "a/index")
+	regular := s.getPage(kinds.KindPage, "a/index")
 	c.Assert(regular.RelPermalink(), qt.Equals, "/s1/")
 
-	headless := s.getPage(page.KindPage, "b/index")
+	headless := s.getPage(kinds.KindPage, "b/index")
 	c.Assert(headless, qt.Not(qt.IsNil))
 	c.Assert(headless.Title(), qt.Equals, "Headless Bundle in Topless Bar")
 	c.Assert(headless.RelPermalink(), qt.Equals, "")
@@ -562,7 +564,7 @@ HEADLESS {{< myShort >}}
 	c.Assert(content(p), qt.Contains, "SHORTCODE")
 	c.Assert(p.Name(), qt.Equals, "p1.md")
 
-	th := newTestHelper(s.Cfg, s.Fs, t)
+	th := newTestHelper(s.conf, s.Fs, t)
 
 	th.assertFileContent(filepath.FromSlash("public/s1/index.html"), "TheContent")
 	th.assertFileContent(filepath.FromSlash("public/s1/l1.png"), "PNG")
@@ -1046,7 +1048,7 @@ title: %q
 	}
 
 	b := newTestSitesBuilder(t).WithConfigFile("toml", config)
-	b.WithLogger(loggers.NewWarningLogger())
+	b.WithLogger(loggers.NewDefault())
 
 	b.WithTemplates("_default/list.html", `{{ range .Site.Pages }}
 {{ .Kind }}|{{ .Path }}|{{ with .CurrentSection }}CurrentSection: {{ .Path }}{{ end }}|{{ .RelPermalink }}{{ end }}
@@ -1217,7 +1219,7 @@ title: %q
 	}
 
 	b := newTestSitesBuilder(t).WithConfigFile("toml", config)
-	b.WithLogger(loggers.NewWarningLogger())
+	b.WithLogger(loggers.NewDefault())
 
 	b.WithTemplates("_default/single.html", `{{ range .Resources }}
 {{ .ResourceType }}|{{ .Title }}|
@@ -1322,9 +1324,10 @@ func TestPageBundlerHome(t *testing.T) {
 	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-bundler-home")
 	c.Assert(err, qt.IsNil)
 
-	cfg := config.NewWithTestDefaults()
+	cfg := config.New()
 	cfg.Set("workingDir", workDir)
-	fs := hugofs.NewFrom(hugofs.Os, cfg)
+	cfg.Set("publishDir", "public")
+	fs := hugofs.NewFromOld(hugofs.Os, cfg)
 
 	os.MkdirAll(filepath.Join(workDir, "content"), 0777)
 

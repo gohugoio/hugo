@@ -42,7 +42,7 @@ const (
 	// DefaultArchetypeTemplateTemplate is the template used in 'hugo new site'
 	// and the template we use as a fall back.
 	DefaultArchetypeTemplateTemplate = `---
-title: "{{ replace .Name "-" " " | title }}"
+title: "{{ replace .File.ContentBaseName "-" " " | title }}"
 date: {{ .Date }}
 draft: true
 ---
@@ -340,7 +340,7 @@ func (b *contentBuilder) mapArcheTypeDir() error {
 }
 
 func (b *contentBuilder) openInEditorIfConfigured(filename string) error {
-	editor := b.h.Cfg.GetString("newContentEditor")
+	editor := b.h.Conf.NewContentEditor()
 	if editor == "" {
 		return nil
 	}

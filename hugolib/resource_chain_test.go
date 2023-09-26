@@ -36,7 +36,7 @@ func TestResourceChainBasic(t *testing.T) {
 	failIfHandler := func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path == "/fail.jpg" {
-				http.Error(w, "{ msg: failed }", 500)
+				http.Error(w, "{ msg: failed }", 501)
 				return
 			}
 			h.ServeHTTP(w, r)
@@ -116,8 +116,8 @@ FIT REMOTE: sunset_%[1]s.jpg|/sunset_%[1]s_hu59e56ffff1bc1d8d122b1403d34e039f_0_
 REMOTE NOT FOUND: OK
 LOCAL NOT FOUND: OK
 PRINT PROTOCOL ERROR DETAILS: Err: error calling resources.GetRemote: Get "gopher://example.org": unsupported protocol scheme "gopher"||
-FAILED REMOTE ERROR DETAILS CONTENT: |failed to fetch remote resource: Internal Server Error|Body: { msg: failed }
-|StatusCode: 500|ContentLength: 16|ContentType: text/plain; charset=utf-8|
+FAILED REMOTE ERROR DETAILS CONTENT: |failed to fetch remote resource: Not Implemented|Body: { msg: failed }
+|StatusCode: 501|ContentLength: 16|ContentType: text/plain; charset=utf-8|
 
 
 `, identity.HashString(ts.URL+"/sunset.jpg", map[string]any{})))
@@ -588,7 +588,7 @@ XML: {{ $xml.body }}
 			}
 			t.Parallel()
 
-			b := newTestSitesBuilder(t).WithLogger(loggers.NewErrorLogger())
+			b := newTestSitesBuilder(t).WithLogger(loggers.NewDefault())
 			b.WithContent("_index.md", `
 ---
 title: Home

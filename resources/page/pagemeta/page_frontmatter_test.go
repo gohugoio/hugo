@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package pagemeta
+package pagemeta_test
 
 import (
 	"strings"
@@ -19,54 +19,20 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/config/testconfig"
 
+	"github.com/gohugoio/hugo/resources/page/pagemeta"
 	"github.com/gohugoio/hugo/resources/resource"
 
 	qt "github.com/frankban/quicktest"
 )
 
-func TestDateAndSlugFromBaseFilename(t *testing.T) {
-	t.Parallel()
-
-	c := qt.New(t)
-
-	tests := []struct {
-		name string
-		date string
-		slug string
-	}{
-		{"page.md", "0001-01-01", ""},
-		{"2012-09-12-page.md", "2012-09-12", "page"},
-		{"2018-02-28-page.md", "2018-02-28", "page"},
-		{"2018-02-28_page.md", "2018-02-28", "page"},
-		{"2018-02-28 page.md", "2018-02-28", "page"},
-		{"2018-02-28page.md", "2018-02-28", "page"},
-		{"2018-02-28-.md", "2018-02-28", ""},
-		{"2018-02-28-.md", "2018-02-28", ""},
-		{"2018-02-28.md", "2018-02-28", ""},
-		{"2018-02-28-page", "2018-02-28", "page"},
-		{"2012-9-12-page.md", "0001-01-01", ""},
-		{"asdfasdf.md", "0001-01-01", ""},
-	}
-
-	for _, test := range tests {
-		expecteFDate, err := time.Parse("2006-01-02", test.date)
-		c.Assert(err, qt.IsNil)
-
-		gotDate, gotSlug := dateAndSlugFromBaseFilename(time.UTC, test.name)
-
-		c.Assert(gotDate, qt.Equals, expecteFDate)
-		c.Assert(gotSlug, qt.Equals, test.slug)
-
-	}
-}
-
-func newTestFd() *FrontMatterDescriptor {
-	return &FrontMatterDescriptor{
+func newTestFd() *pagemeta.FrontMatterDescriptor {
+	return &pagemeta.FrontMatterDescriptor{
 		Frontmatter: make(map[string]any),
 		Params:      make(map[string]any),
 		Dates:       &resource.Dates{},
-		PageURLs:    &URLPath{},
+		PageURLs:    &pagemeta.URLPath{},
 		Location:    time.UTC,
 	}
 }
@@ -83,21 +49,21 @@ func TestFrontMatterNewConfig(t *testing.T) {
 		"publishDate": []string{"date"},
 	})
 
-	fc, err := newFrontmatterConfig(cfg)
+	fc, err := pagemeta.DecodeFrontMatterConfig(cfg)
 	c.Assert(err, qt.IsNil)
-	c.Assert(fc.date, qt.DeepEquals, []string{"publishdate", "pubdate", "published", "lastmod", "modified"})
-	c.Assert(fc.lastmod, qt.DeepEquals, []string{"publishdate", "pubdate", "published"})
-	c.Assert(fc.expiryDate, qt.DeepEquals, []string{"lastmod", "modified"})
-	c.Assert(fc.publishDate, qt.DeepEquals, []string{"date"})
+	c.Assert(fc.Date, qt.DeepEquals, []string{"publishdate", "pubdate", "published", "lastmod", "modified"})
+	c.Assert(fc.Lastmod, qt.DeepEquals, []string{"publishdate", "pubdate", "published"})
+	c.Assert(fc.ExpiryDate, qt.DeepEquals, []string{"lastmod", "modified"})
+	c.Assert(fc.PublishDate, qt.DeepEquals, []string{"date"})
 
 	// Default
 	cfg = config.New()
-	fc, err = newFrontmatterConfig(cfg)
+	fc, err = pagemeta.DecodeFrontMatterConfig(cfg)
 	c.Assert(err, qt.IsNil)
-	c.Assert(fc.date, qt.DeepEquals, []string{"date", "publishdate", "pubdate", "published", "lastmod", "modified"})
-	c.Assert(fc.lastmod, qt.DeepEquals, []string{":git", "lastmod", "modified", "date", "publishdate", "pubdate", "published"})
-	c.Assert(fc.expiryDate, qt.DeepEquals, []string{"expirydate", "unpublishdate"})
-	c.Assert(fc.publishDate, qt.DeepEquals, []string{"publishdate", "pubdate", "published", "date"})
+	c.Assert(fc.Date, qt.DeepEquals, []string{"date", "publishdate", "pubdate", "published", "lastmod", "modified"})
+	c.Assert(fc.Lastmod, qt.DeepEquals, []string{":git", "lastmod", "modified", "date", "publishdate", "pubdate", "published"})
+	c.Assert(fc.ExpiryDate, qt.DeepEquals, []string{"expirydate", "unpublishdate"})
+	c.Assert(fc.PublishDate, qt.DeepEquals, []string{"publishdate", "pubdate", "published", "date"})
 
 	// :default keyword
 	cfg.Set("frontmatter", map[string]any{
@@ -106,12 +72,12 @@ func TestFrontMatterNewConfig(t *testing.T) {
 		"expiryDate":  []string{"d3", ":default"},
 		"publishDate": []string{"d4", ":default"},
 	})
-	fc, err = newFrontmatterConfig(cfg)
+	fc, err = pagemeta.DecodeFrontMatterConfig(cfg)
 	c.Assert(err, qt.IsNil)
-	c.Assert(fc.date, qt.DeepEquals, []string{"d1", "date", "publishdate", "pubdate", "published", "lastmod", "modified"})
-	c.Assert(fc.lastmod, qt.DeepEquals, []string{"d2", ":git", "lastmod", "modified", "date", "publishdate", "pubdate", "published"})
-	c.Assert(fc.expiryDate, qt.DeepEquals, []string{"d3", "expirydate", "unpublishdate"})
-	c.Assert(fc.publishDate, qt.DeepEquals, []string{"d4", "publishdate", "pubdate", "published", "date"})
+	c.Assert(fc.Date, qt.DeepEquals, []string{"d1", "date", "publishdate", "pubdate", "published", "lastmod", "modified"})
+	c.Assert(fc.Lastmod, qt.DeepEquals, []string{"d2", ":git", "lastmod", "modified", "date", "publishdate", "pubdate", "published"})
+	c.Assert(fc.ExpiryDate, qt.DeepEquals, []string{"d3", "expirydate", "unpublishdate"})
+	c.Assert(fc.PublishDate, qt.DeepEquals, []string{"d4", "publishdate", "pubdate", "published", "date"})
 }
 
 func TestFrontMatterDatesHandlers(t *testing.T) {
@@ -124,8 +90,8 @@ func TestFrontMatterDatesHandlers(t *testing.T) {
 		cfg.Set("frontmatter", map[string]any{
 			"date": []string{handlerID, "date"},
 		})
-
-		handler, err := NewFrontmatterHandler(nil, cfg)
+		conf := testconfig.GetTestConfig(nil, cfg)
+		handler, err := pagemeta.NewFrontmatterHandler(nil, conf.GetConfigSection("frontmatter").(pagemeta.FrontmatterConfig))
 		c.Assert(err, qt.IsNil)
 
 		d1, _ := time.Parse("2006-01-02", "2018-02-01")
@@ -166,7 +132,8 @@ func TestFrontMatterDatesCustomConfig(t *testing.T) {
 		"publishdate": []string{"publishdate"},
 	})
 
-	handler, err := NewFrontmatterHandler(nil, cfg)
+	conf := testconfig.GetTestConfig(nil, cfg)
+	handler, err := pagemeta.NewFrontmatterHandler(nil, conf.GetConfigSection("frontmatter").(pagemeta.FrontmatterConfig))
 	c.Assert(err, qt.IsNil)
 
 	testDate, err := time.Parse("2006-01-02", "2018-02-01")
@@ -213,7 +180,8 @@ func TestFrontMatterDatesDefaultKeyword(t *testing.T) {
 		"publishdate": []string{":default", "mypubdate"},
 	})
 
-	handler, err := NewFrontmatterHandler(nil, cfg)
+	conf := testconfig.GetTestConfig(nil, cfg)
+	handler, err := pagemeta.NewFrontmatterHandler(nil, conf.GetConfigSection("frontmatter").(pagemeta.FrontmatterConfig))
 	c.Assert(err, qt.IsNil)
 
 	testDate, _ := time.Parse("2006-01-02", "2018-02-01")
@@ -229,29 +197,4 @@ func TestFrontMatterDatesDefaultKeyword(t *testing.T) {
 	c.Assert(d.Dates.FLastmod.Day(), qt.Equals, 2)
 	c.Assert(d.Dates.FPublishDate.Day(), qt.Equals, 4)
 	c.Assert(d.Dates.FExpiryDate.IsZero(), qt.Equals, true)
-}
-
-func TestExpandDefaultValues(t *testing.T) {
-	c := qt.New(t)
-	c.Assert(expandDefaultValues([]string{"a", ":default", "d"}, []string{"b", "c"}), qt.DeepEquals, []string{"a", "b", "c", "d"})
-	c.Assert(expandDefaultValues([]string{"a", "b", "c"}, []string{"a", "b", "c"}), qt.DeepEquals, []string{"a", "b", "c"})
-	c.Assert(expandDefaultValues([]string{":default", "a", ":default", "d"}, []string{"b", "c"}), qt.DeepEquals, []string{"b", "c", "a", "b", "c", "d"})
-}
-
-func TestFrontMatterDateFieldHandler(t *testing.T) {
-	t.Parallel()
-
-	c := qt.New(t)
-
-	handlers := new(frontmatterFieldHandlers)
-
-	fd := newTestFd()
-	d, _ := time.Parse("2006-01-02", "2018-02-01")
-	fd.Frontmatter["date"] = d
-	h := handlers.newDateFieldHandler("date", func(d *FrontMatterDescriptor, t time.Time) { d.Dates.FDate = t })
-
-	handled, err := h(fd)
-	c.Assert(handled, qt.Equals, true)
-	c.Assert(err, qt.IsNil)
-	c.Assert(fd.Dates.FDate, qt.Equals, d)
 }

@@ -57,6 +57,14 @@ func IsValidConfigFilename(filename string) bool {
 	return validConfigFileExtensionsMap[ext]
 }
 
+func FromTOMLConfigString(config string) Provider {
+	cfg, err := FromConfigString(config, "toml")
+	if err != nil {
+		panic(err)
+	}
+	return cfg
+}
+
 // FromConfigString creates a config from the given YAML, JSON or TOML config. This is useful in tests.
 func FromConfigString(config, configType string) (Provider, error) {
 	m, err := readConfig(metadecoders.FormatFromString(configType), []byte(config))
@@ -149,7 +157,7 @@ func LoadConfigFromDir(sourceFs afero.Fs, configDir, environment string) (Provid
 			if err != nil {
 				// This will be used in error reporting, use the most specific value.
 				dirnames = []string{path}
-				return fmt.Errorf("failed to unmarshl config for path %q: %w", path, err)
+				return fmt.Errorf("failed to unmarshal config for path %q: %w", path, err)
 			}
 
 			var keyPath []string
