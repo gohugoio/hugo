@@ -29,7 +29,7 @@ To print the value of `poweredBy`:
 {{% note %}}
 When using the `echoParam` function you must reference the key using lower case. See the previous example.
 
-The `echoParam` function may be deprecated in a future release. Instead, use either of the constructs below.
+The `echoParam` function will be deprecated in a future release. Instead, use either of the constructs below.
 {{% /note %}}
 
 ```go-html-template
