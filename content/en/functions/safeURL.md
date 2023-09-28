@@ -13,6 +13,7 @@ relatedFuncs:
   - safe.HTML
   - safe.HTMLAttr
   - safe.JS
+  - safe.JSStr
   - safe.URL
 signature:
   - safe.URL INPUT
