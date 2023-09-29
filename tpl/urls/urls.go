@@ -17,7 +17,6 @@ package urls
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"net/url"
 
 	"github.com/gohugoio/hugo/common/urls"
@@ -40,13 +39,13 @@ type Namespace struct {
 }
 
 // AbsURL takes the string s and converts it to an absolute URL.
-func (ns *Namespace) AbsURL(s any) (template.HTML, error) {
+func (ns *Namespace) AbsURL(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", nil
 	}
 
-	return template.HTML(ns.deps.PathSpec.AbsURL(ss, false)), nil
+	return ns.deps.PathSpec.AbsURL(ss, false), nil
 }
 
 // Parse parses rawurl into a URL structure. The rawurl may be relative or
@@ -54,7 +53,7 @@ func (ns *Namespace) AbsURL(s any) (template.HTML, error) {
 func (ns *Namespace) Parse(rawurl any) (*url.URL, error) {
 	s, err := cast.ToStringE(rawurl)
 	if err != nil {
-		return nil, fmt.Errorf("Error in Parse: %w", err)
+		return nil, fmt.Errorf("error in Parse: %w", err)
 	}
 
 	return url.Parse(s)
@@ -62,13 +61,13 @@ func (ns *Namespace) Parse(rawurl any) (*url.URL, error) {
 
 // RelURL takes the string s and prepends the relative path according to a
 // page's position in the project directory structure.
-func (ns *Namespace) RelURL(s any) (template.HTML, error) {
+func (ns *Namespace) RelURL(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", nil
 	}
 
-	return template.HTML(ns.deps.PathSpec.RelURL(ss, false)), nil
+	return ns.deps.PathSpec.RelURL(ss, false), nil
 }
 
 // URLize returns the the strings s formatted as an URL.
@@ -91,7 +90,7 @@ func (ns *Namespace) Anchorize(s any) (string, error) {
 }
 
 // Ref returns the absolute URL path to a given content item from Page p.
-func (ns *Namespace) Ref(p any, args any) (template.HTML, error) {
+func (ns *Namespace) Ref(p any, args any) (string, error) {
 	pp, ok := p.(urls.RefLinker)
 	if !ok {
 		return "", errors.New("invalid Page received in Ref")
@@ -101,11 +100,11 @@ func (ns *Namespace) Ref(p any, args any) (template.HTML, error) {
 		return "", err
 	}
 	s, err := pp.Ref(argsm)
-	return template.HTML(s), err
+	return s, err
 }
 
 // RelRef returns the relative URL path to a given content item from Page p.
-func (ns *Namespace) RelRef(p any, args any) (template.HTML, error) {
+func (ns *Namespace) RelRef(p any, args any) (string, error) {
 	pp, ok := p.(urls.RefLinker)
 	if !ok {
 		return "", errors.New("invalid Page received in RelRef")
@@ -116,7 +115,7 @@ func (ns *Namespace) RelRef(p any, args any) (template.HTML, error) {
 	}
 
 	s, err := pp.RelRef(argsm)
-	return template.HTML(s), err
+	return s, err
 }
 
 func (ns *Namespace) refArgsToMap(args any) (map[string]any, error) {
@@ -143,7 +142,7 @@ func (ns *Namespace) refArgsToMap(args any) (map[string]any, error) {
 		if len(v) == 0 || len(v) > 2 {
 			return nil, fmt.Errorf("invalid number of arguments to ref")
 		}
-		// These where the options before we introduced the map type:
+		// These were the options before we introduced the map type:
 		s = v[0]
 		if len(v) == 2 {
 			of = v[1]
@@ -165,25 +164,25 @@ func (ns *Namespace) refArgsToMap(args any) (map[string]any, error) {
 
 // RelLangURL takes the string s and prepends the relative path according to a
 // page's position in the project directory structure and the current language.
-func (ns *Namespace) RelLangURL(s any) (template.HTML, error) {
+func (ns *Namespace) RelLangURL(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", err
 	}
 
-	return template.HTML(ns.deps.PathSpec.RelURL(ss, !ns.multihost)), nil
+	return ns.deps.PathSpec.RelURL(ss, !ns.multihost), nil
 }
 
 // AbsLangURL the string s and converts it to an absolute URL according
 // to a page's position in the project directory structure and the current
 // language.
-func (ns *Namespace) AbsLangURL(s any) (template.HTML, error) {
+func (ns *Namespace) AbsLangURL(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", err
 	}
 
-	return template.HTML(ns.deps.PathSpec.AbsURL(ss, !ns.multihost)), nil
+	return ns.deps.PathSpec.AbsURL(ss, !ns.multihost), nil
 }
 
 // JoinPath joins the provided elements into a URL string and cleans the result
