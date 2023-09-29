@@ -56,6 +56,7 @@ type Site interface {
 	Home() Page
 
 	// Returns true if we're running in a server.
+	// Deprecated: use hugo.IsServer instead
 	IsServer() bool
 
 	// Returns the server port.
@@ -211,6 +212,7 @@ func (s *siteWrapper) Home() Page {
 	return s.s.Home()
 }
 
+// Deprecated: use hugo.IsServer instead
 func (s *siteWrapper) IsServer() bool {
 	return s.s.IsServer()
 }
@@ -383,6 +385,7 @@ func (t testSite) GetIdentity() identity.Identity {
 	return identity.KeyValueIdentity{Key: "site", Value: t.l.Lang}
 }
 
+// Deprecated: use hugo.IsServer instead
 func (t testSite) IsServer() bool {
 	return false
 }

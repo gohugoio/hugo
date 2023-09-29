@@ -78,10 +78,22 @@ func (i HugoInfo) Generator() template.HTML {
 	return template.HTML(fmt.Sprintf(`<meta name="generator" content="Hugo %s">`, CurrentVersion.String()))
 }
 
+// IsDevelopment reports whether the current running environment is "development".
+func (i HugoInfo) IsDevelopment() bool {
+	return i.Environment == EnvironmentDevelopment
+}
+
+// IsProduction reports whether the current running environment is "production".
 func (i HugoInfo) IsProduction() bool {
 	return i.Environment == EnvironmentProduction
 }
 
+// IsServer reports whether the built-in server is running.
+func (i HugoInfo) IsServer() bool {
+	return i.conf.Running()
+}
+
+// IsExtended reports whether the Hugo binary is the extended version.
 func (i HugoInfo) IsExtended() bool {
 	return IsExtended
 }
@@ -99,6 +111,7 @@ func (i HugoInfo) Deps() []*Dependency {
 // ConfigProvider represents the config options that are relevant for HugoInfo.
 type ConfigProvider interface {
 	Environment() string
+	Running() bool
 	WorkingDir() string
 }
 

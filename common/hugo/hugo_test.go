@@ -23,7 +23,7 @@ import (
 func TestHugoInfo(t *testing.T) {
 	c := qt.New(t)
 
-	conf := testConfig{environment: "production", workingDir: "/mywork"}
+	conf := testConfig{environment: "production", workingDir: "/mywork", running: false}
 	hugoInfo := NewInfo(conf, nil)
 
 	c.Assert(hugoInfo.Version(), qt.Equals, CurrentVersion.Version())
@@ -38,20 +38,29 @@ func TestHugoInfo(t *testing.T) {
 	}
 	c.Assert(hugoInfo.Environment, qt.Equals, "production")
 	c.Assert(string(hugoInfo.Generator()), qt.Contains, fmt.Sprintf("Hugo %s", hugoInfo.Version()))
+	c.Assert(hugoInfo.IsDevelopment(), qt.Equals, false)
 	c.Assert(hugoInfo.IsProduction(), qt.Equals, true)
 	c.Assert(hugoInfo.IsExtended(), qt.Equals, IsExtended)
+	c.Assert(hugoInfo.IsServer(), qt.Equals, false)
 
-	devHugoInfo := NewInfo(testConfig{environment: "development"}, nil)
+	devHugoInfo := NewInfo(testConfig{environment: "development", running: true}, nil)
+	c.Assert(devHugoInfo.IsDevelopment(), qt.Equals, true)
 	c.Assert(devHugoInfo.IsProduction(), qt.Equals, false)
+	c.Assert(devHugoInfo.IsServer(), qt.Equals, true)
 }
 
 type testConfig struct {
 	environment string
+	running     bool
 	workingDir  string
 }
 
 func (c testConfig) Environment() string {
 	return c.environment
+}
+
+func (c testConfig) Running() bool {
+	return c.running
 }
 
 func (c testConfig) WorkingDir() string {
