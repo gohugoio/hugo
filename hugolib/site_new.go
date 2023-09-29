@@ -356,7 +356,9 @@ func newHugoSitesNew(cfg deps.DepsCfg, d *deps.Deps, sites []*Site) (*HugoSites,
 }
 
 // Returns true if we're running in a server.
+// Deprecated: use hugo.IsServer instead
 func (s *Site) IsServer() bool {
+	helpers.Deprecated(".Site.IsServer", "Use hugo.IsServer instead.", false)
 	return s.conf.Internal.Running
 }
 
