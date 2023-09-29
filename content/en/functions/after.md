@@ -11,7 +11,9 @@ relatedFuncs:
   - collections.After
   - collections.First
   - collections.Last
-signature: [after INDEX COLLECTION]
+signature:
+  - collections.After INDEX COLLECTION
+  - after INDEX COLLECTION
 ---
 
 The following shows `after` being used in conjunction with the [`slice` function][slice]:

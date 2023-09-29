@@ -11,7 +11,9 @@ relatedFuncs:
   - collections.After
   - collections.First
   - collections.Last
-signature: [first LIMIT COLLECTION]
+signature:
+  - collections.First LIMIT COLLECTION
+  - first LIMIT COLLECTION
 ---
 
 `first` works in a similar manner to the [`limit` keyword in

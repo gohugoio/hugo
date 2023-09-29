@@ -11,7 +11,9 @@ relatedFuncs:
   - collections.After
   - collections.First
   - collections.Last
-signature: [last INDEX COLLECTION]
+signature:
+  - collections.Last INDEX COLLECTION
+  - last INDEX COLLECTION
 ---
 
 ```go-html-template

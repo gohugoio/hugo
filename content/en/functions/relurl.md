@@ -12,7 +12,9 @@ relatedFuncs:
   - urls.AbsURL 
   - urls.RelLangURL
   - urls.RelURL
-signature: [relURL INPUT]
+signature:
+  - urls.RelURL INPUT
+  - relURL INPUT
 ---
 
 With multilingual configurations, use the [`relLangURL`] function instead. The URL returned by this function depends on:
