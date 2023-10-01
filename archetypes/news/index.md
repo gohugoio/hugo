@@ -1,6 +1,5 @@
 ---
-title: "{{ replace .Name "-" " " | title }}"
-description: ""
+title: {{ replace .File.ContentBaseName "-" " " | title }}
+description:
 date: {{ .Date }}
 ---
-

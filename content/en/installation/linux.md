@@ -9,11 +9,11 @@ menu:
 toc: true
 weight: 30
 ---
-{{% readfile file="/installation/common/01-editions.md" %}}
+{{% readfile file="/installation/_common/01-editions.md" %}}
 
-{{% readfile file="/installation/common/02-prerequisites.md" %}}
+{{% readfile file="/installation/_common/02-prerequisites.md" %}}
 
-{{% readfile file="/installation/common/03-prebuilt-binaries.md" %}}
+{{% readfile file="/installation/_common/03-prebuilt-binaries.md" %}}
 
 ## Package managers
 
@@ -47,7 +47,7 @@ sudo snap disconnect hugo:ssh-keys
 [strictly confined]: https://snapcraft.io/docs/snap-confinement
 [Snap]: https://snapcraft.io/
 
-{{% readfile file="/installation/common/homebrew.md" %}}
+{{% readfile file="/installation/_common/homebrew.md" %}}
 
 ## Repository packages
 
@@ -124,9 +124,9 @@ sudo eopkg install hugo
 
 [Solus]: https://getsol.us/
 
-{{% readfile file="/installation/common/04-docker.md" %}}
+{{% readfile file="/installation/_common/04-docker.md" %}}
 
-{{% readfile file="/installation/common/05-build-from-source.md" %}}
+{{% readfile file="/installation/_common/05-build-from-source.md" %}}
 
 ## Comparison
 

@@ -9,15 +9,15 @@ menu:
 toc: true
 weight: 20
 ---
-{{% readfile file="/installation/common/01-editions.md" %}}
+{{% readfile file="/installation/_common/01-editions.md" %}}
 
-{{% readfile file="/installation/common/02-prerequisites.md" %}}
+{{% readfile file="/installation/_common/02-prerequisites.md" %}}
 
-{{% readfile file="/installation/common/03-prebuilt-binaries.md" %}}
+{{% readfile file="/installation/_common/03-prebuilt-binaries.md" %}}
 
 ## Package managers
 
-{{% readfile file="/installation/common/homebrew.md" %}}
+{{% readfile file="/installation/_common/homebrew.md" %}}
 
 ### MacPorts
 
@@ -29,9 +29,9 @@ sudo port install hugo
 
 [MacPorts]: https://www.macports.org/
 
-{{% readfile file="/installation/common/04-docker.md" %}}
+{{% readfile file="/installation/_common/04-docker.md" %}}
 
-{{% readfile file="/installation/common/05-build-from-source.md" %}}
+{{% readfile file="/installation/_common/05-build-from-source.md" %}}
 
 ## Comparison
 

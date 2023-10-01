@@ -82,4 +82,4 @@ To easily generate new instances of a content type (e.g., new `.md` files in a s
 [section]: /content-management/sections/
 [site variables]: /variables/site/
 [spf13]: https://spf13.com/
-[`with`]: /functions/with/
+[`with`]: /functions/go-template/with/

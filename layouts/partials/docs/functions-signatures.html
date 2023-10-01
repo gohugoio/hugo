@@ -1,0 +1,12 @@
+{{- with .Params.function.signatures }}
+  <h2 class="minor mb1 pt4 primary-color-dark">Syntax</h2>
+  {{- range . }}
+    {{- $signature := . }}
+    {{- if $.Params.function.returnType }}
+      {{- $signature = printf "%s ⟼ %s" . $.Params.function.returnType }}
+    {{- end }}
+    <pre class="f5 mb4 ph3 pv2 bg-light-gray" style="border-left:4px solid #0594CB;">
+      {{- $signature -}}
+    </pre>
+  {{- end }}
+{{- end -}}

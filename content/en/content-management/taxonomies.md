@@ -191,12 +191,11 @@ title: "Bruce Willis"
 wikipedia: "https://en.wikipedia.org/wiki/Bruce_Willis"
 {{< /code-toggle >}}
 
-[`urlize` template function]: /functions/urlize/
 [content section]: /content-management/sections/
 [content type]: /content-management/types/
 [documentation on archetypes]: /content-management/archetypes/
 [front matter]: /content-management/front-matter/
 [taxonomy list templates]: /templates/taxonomy-templates/#taxonomy-list-templates
 [taxonomy templates]: /templates/taxonomy-templates/
-[terms within the taxonomy]: /templates/taxonomy-templates/#taxonomy-terms-templates "See how to order terms associated with a taxonomy"
+[terms within the taxonomy]: /templates/taxonomy-templates/#taxonomy-terms-templates
 [configuration]: /getting-started/configuration/

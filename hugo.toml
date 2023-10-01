@@ -68,7 +68,7 @@ disableAliases = true
   toLower      = false
   [[related.indices]]
     toLower = true
-    name   = "relatedFuncs"
+    name   = "relatedFunctions"
     weight = 60
   [[related.indices]]
     name   = "keywords"

@@ -115,7 +115,6 @@ Markdown syntax is simple enough to learn in a single sitting. The following are
 * [Markdown Tutorial (Interactive), Garen Torikian][mdtutorial]
 * [The Markdown Guide, Matt Cone][mdguide]
 
-[`emojify` function]: /functions/emojify/
 [ascii]: https://asciidoctor.org/
 [config]: /getting-started/configuration/
 [developer tools]: /tools/

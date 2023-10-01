@@ -3,7 +3,7 @@
 
 {{- if eq .Type "functions" }}
   {{- $heading = "Related functions" }}
-  {{- $opts := dict "document" . "indices" (slice "relatedFuncs") }}
+  {{- $opts := dict "document" . "indices" (slice "relatedFunctions") }}
   {{- $related = site.RegularPages.Related $opts | first 7 }}
 {{- end }}
 

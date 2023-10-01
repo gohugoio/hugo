@@ -468,7 +468,7 @@ English|Wednesday, November 3, 2021
 Français|mercredi 3 novembre 2021
 Deutsch|Mittwoch, 3. November 2021
 
-See [time.Format] for details.
+See [`time.Format`] for details.
 
 ### Currency
 
@@ -636,7 +636,7 @@ i18n|MISSING_TRANSLATION|en|wordCount
 To support Multilingual mode in your themes, some considerations must be taken for the URLs in the templates. If there is more than one language, URLs must meet the following criteria:
 
 * Come from the built-in `.Permalink` or `.RelPermalink`
-* Be constructed with the [`relLangURL` template function][rellangurl] or the [`absLangURL` template function][abslangurl] **OR** be prefixed with `{{ .LanguagePrefix }}`
+* Be constructed with the [`relLangURL`] or [`absLangURL`] template function, or be prefixed with `{{ .LanguagePrefix }}`
 
 If there is more than one language defined, the `LanguagePrefix` variable will equal `/en` (or whatever your `CurrentLanguage` is). If not enabled, it will be an empty string (and is therefore harmless for single-language Hugo websites).
 
@@ -657,23 +657,23 @@ hugo new content content/en/post/test.md
 hugo new content content/de/post/test.md
 ```
 
-[abslangurl]: /functions/abslangurl
+[`abslangurl`]: /functions/urls/abslangurl
 [config]: /getting-started/configuration/
 [contenttemplate]: /templates/single-page-templates/
 [go-i18n-source]: https://github.com/nicksnyder/go-i18n
 [go-i18n]: https://github.com/nicksnyder/go-i18n
 [homepage]: /templates/homepage/
 [Hugo Multilingual Part 1: Content translation]: https://regisphilibert.com/blog/2018/08/hugo-multilingual-part-1-managing-content-translation/
-[i18func]: /functions/i18n/
-[lang.FormatAccounting]: /functions/lang
-[lang.FormatCurrency]: /functions/lang
-[lang.FormatNumber]: /functions/lang
-[lang.FormatNumberCustom]: /functions/lang
-[lang.FormatPercent]: /functions/lang
-[lang.Merge]: /functions/lang.merge/
+[i18func]: /functions/lang/translate
+[lang.FormatAccounting]: /functions/lang/formataccounting
+[lang.FormatCurrency]: /functions/lang/formatcurrency
+[lang.FormatNumber]: /functions/lang/formatnumber
+[lang.FormatNumberCustom]: /functions/lang/formatnumbercustom
+[lang.FormatPercent]: /functions/lang/formatpercent
+[lang.Merge]: /functions/lang/merge/
 [menus]: /content-management/menus/
 [OS environment]: /getting-started/configuration/#configure-with-environment-variables
-[rellangurl]: /functions/rellangurl
+[`rellangurl`]: /functions/urls/rellangurl
 [RFC 5646]: https://tools.ietf.org/html/rfc5646
 [single page templates]: /templates/single-page-templates/
-[time.Format]: /functions/dateformat
+[`time.Format`]: /functions/time/format

@@ -14,11 +14,11 @@ toc: true
 
 ## Traverse local files
 
-With Hugo's [`readDir`][readDir] and [`readFile`][readFile] template functions, you can traverse your website's files on your server.
+With Hugo's [`readDir`] and [`readFile`] template functions, you can traverse your website's files on your server.
 
 ## Use `readDir`
 
-The [`readDir` function][readDir] returns an array of [`os.FileInfo`][osfileinfo]. It takes the file's `path` as a single string argument. This path can be to any directory of your website (i.e., as found on your server's file system).
+The [`readDir`] function returns an array of [`os.FileInfo`] structures. It takes the file's `path` as a single string argument. This path can be to any directory of your website (i.e., as found on your server's file system).
 
 Whether the path is absolute or relative does not matter because---at least for `readDir`---the root of your website (typically `./public/`) in effect becomes both:
 
@@ -27,7 +27,7 @@ Whether the path is absolute or relative does not matter because---at least for 
 
 ## Use `readFile`
 
-The [`readfile` function][readFile] reads a file from disk and converts it into a string to be manipulated by other Hugo functions or added as-is. `readFile` takes the file, including path, as an argument passed to the function.
+The [`readfile`] function reads a file from disk and converts it into a string to be manipulated by other Hugo functions or added as-is. `readFile` takes the file, including path, as an argument passed to the function.
 
 To use the `readFile` function in your templates, make sure the path is relative to your *Hugo project's root directory*:
 
@@ -48,10 +48,9 @@ If you are going to create [custom shortcodes](/templates/shortcode-templates/) 
 {{% /note %}}
 
 [called directly in the Hugo docs]: https://github.com/gohugoio/hugoDocs/blob/master/content/en/templates/files.md
-[osfileinfo]: https://golang.org/pkg/os/#FileInfo
-[readDir]: /functions/readdir/
-[readFile]: /functions/readfile/
+[`os.FileInfo`]: https://pkg.go.dev/io/fs#FileInfo
+[`readDir`]: /functions/os/readdir
+[`readFile`]: /functions/os/readfile
 [sc]: /content-management/shortcodes/
 [sct]: /templates/shortcode-templates/
 [readfilesource]: https://github.com/gohugoio/hugoDocs/blob/master/layouts/shortcodes/readfile.html
-[testfile]: https://github.com/gohugoio/hugoDocs/blob/master/content/en/readfiles/testing.txt

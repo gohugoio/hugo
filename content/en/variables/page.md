@@ -97,7 +97,7 @@ The following is a list of page-level variables. Many of these will be defined i
 : The Permanent link for this page; see [Permalinks](/content-management/urls/)
 
 .Plain
-: The Page content stripped of HTML tags and presented as a string. You may need to pipe the result through the [`htmlUnescape`](/functions/htmlunescape/) function when rendering this value with the HTML [output format](/templates/output-formats#output-format-definitions).
+: The Page content stripped of HTML tags and presented as a string. You may need to pipe the result through the [`htmlUnescape`](/functions/transform/htmlunescape) function when rendering this value with the HTML [output format](/templates/output-formats#output-format-definitions).
 
 .PlainWords
 : The slice of strings that results from splitting .Plain into words, as defined in Go's [strings.Fields](https://pkg.go.dev/strings#Fields).
@@ -195,7 +195,29 @@ List pages receive the following page collections in [context](/getting-started/
 
 Also see [Sections](/content-management/sections/).
 
-{{< readfile file="/content/en/readfiles/sectionvars.md" markdown="true" >}}
+.CurrentSection
+: The page's current section. The value can be the page itself if it is a section or the homepage.
+
+.FirstSection
+: The page's first section below root, e.g. `/docs`, `/blog` etc.
+
+.InSection $anotherPage
+: Whether the given page is in the current section.
+
+.IsAncestor $anotherPage
+: Whether the current page is an ancestor of the given page.
+
+.IsDescendant $anotherPage
+: Whether the current page is a descendant of the given page.
+
+.Parent
+: A section's parent section or a page's section.
+
+.Section
+: The [section](/content-management/sections/) this content belongs to. **Note:** For nested sections, this is the first path element in the directory, for example, `/blog/funny/mypost/ => blog`.
+
+.Sections
+: The [sections](/content-management/sections/) below this content.
 
 ## Page fragments
 

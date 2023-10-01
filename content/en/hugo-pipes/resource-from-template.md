@@ -9,7 +9,7 @@ menu:
     parent: hugo-pipes
     weight: 120
 weight: 120
-signature: ["resources.ExecuteAsTemplate TARGET_PATH CONTEXT RESOURCE"]
+signatures: ["resources.ExecuteAsTemplate TARGET_PATH CONTEXT RESOURCE"]
 ---
 
 ## Usage

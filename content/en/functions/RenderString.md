@@ -1,15 +1,15 @@
 ---
 title: .RenderString
-description: sRenders markup to HTML.
+description: Renders markup to HTML.
 categories: [functions]
+keywords: []
 menu:
   docs:
     parent: functions
-keywords: []
-namespace:
-relatedFuncs: []
-signature:
-  - .RenderString MARKUP [OPTIONS]
+function:
+  aliases: []
+  returnType: template.HTML
+  signatures: ['.RenderString MARKUP [OPTIONS]']
 ---
 
 `.RenderString` is a method on `Page` that renders some markup to HTML using the content renderer defined for that page (if not set in the options).
@@ -32,4 +32,4 @@ Some examples:
 {{ "/italic org mode/" | $p.RenderString  $optOrg }}
 ```
 
-{{< new-in "0.93.0" >}} **Note**: [markdownify](/functions/markdownify/) uses this function in order to support [Render Hooks](/getting-started/configuration-markup/#markdown-render-hooks).
+{{< new-in "0.93.0" >}} **Note**: [markdownify](/functions/transform/markdownify) uses this function in order to support [Render Hooks](/getting-started/configuration-markup/#markdown-render-hooks).
