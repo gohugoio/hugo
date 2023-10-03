@@ -26,7 +26,7 @@ Like the  [`printf`] function, the `errorf` function evaluates the format string
 {{ errorf "The %q shortcode requires a src parameter. See %s" .Name .Position }}
 ```
 
-Use the [`erroridf`] function to allow optional supression of specific errors.
+Use the [`erroridf`] function to allow optional suppression of specific errors.
 
 [`erroridf`]: /functions/fmt/erroridf
 [`printf`]: /functions/fmt/printf

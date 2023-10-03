@@ -22,7 +22,7 @@ The documentation for [Go's fmt package] describes the structure and content of 
 
 Like the  [`errorf`] function, the `erroridf` function evaluates the format string, prints the result to the ERROR log, then fails the build. Hugo prints each unique message once to avoid flooding the log with duplicate errors.
 
-Unlike the `errorf` function, you may surpress errors logged by the `erroridf` function by adding the messsage ID to the `ignoreErrors` array in your site configuration.
+Unlike the `errorf` function, you may suppress errors logged by the `erroridf` function by adding the message ID to the `ignoreErrors` array in your site configuration.
 
 This template code:
 
