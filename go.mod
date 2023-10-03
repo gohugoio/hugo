@@ -14,7 +14,6 @@ require (
 	github.com/bep/godartsass/v2 v2.0.0
 	github.com/bep/golibsass v1.1.1
 	github.com/bep/gowebp v0.2.0
-	github.com/bep/helpers v0.4.0
 	github.com/bep/lazycache v0.2.0
 	github.com/bep/logg v0.2.0
 	github.com/bep/mclib v1.20400.20402

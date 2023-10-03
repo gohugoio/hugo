@@ -30,7 +30,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bep/helpers/envhelpers"
 	"github.com/gohugoio/hugo/commands"
 	"github.com/rogpeppe/go-internal/testscript"
 )
@@ -373,38 +372,39 @@ var commonTestScriptsParam = testscript.Params{
 func testSetupFunc() func(env *testscript.Env) error {
 	sourceDir, _ := os.Getwd()
 	return func(env *testscript.Env) error {
-		var keyVals []string
-		keyVals = append(keyVals, "HUGO_TESTRUN", "true")
-		keyVals = append(keyVals, "HUGO_CACHEDIR", filepath.Join(env.WorkDir, "hugocache"))
 		xdghome := filepath.Join(env.WorkDir, "xdgcachehome")
-		keyVals = append(keyVals, "XDG_CACHE_HOME", xdghome)
-		home := filepath.Join(env.WorkDir, "home")
-		keyVals = append(keyVals, "HOME", home)
-
-		if runtime.GOOS == "darwin" {
-			if err := os.MkdirAll(filepath.Join(home, "Library", "Caches"), 0777); err != nil {
-				return err
-			}
-		}
-
 		if runtime.GOOS == "linux" {
 			if err := os.MkdirAll(xdghome, 0777); err != nil {
 				return err
 			}
 		}
 
-		keyVals = append(keyVals, "SOURCE", sourceDir)
+		home := filepath.Join(env.WorkDir, "home")
+		if runtime.GOOS == "darwin" {
+			if err := os.MkdirAll(filepath.Join(home, "Library", "Caches"), 0777); err != nil {
+				return err
+			}
+		}
 
 		goVersion := runtime.Version()
-
 		goVersion = strings.TrimPrefix(goVersion, "go")
 		if strings.HasPrefix(goVersion, "1.20") {
 			// Strip patch version.
 			goVersion = goVersion[:strings.LastIndex(goVersion, ".")]
 		}
 
-		keyVals = append(keyVals, "GOVERSION", goVersion)
-		envhelpers.SetEnvVars(&env.Vars, keyVals...)
+		keyVals := map[string]string{
+			"HUGO_TESTRUN":   "true",
+			"HUGO_CACHEDIR":  filepath.Join(env.WorkDir, "hugocache"),
+			"XDG_CACHE_HOME": xdghome,
+			"HOME":           home,
+			"SOURCE":         sourceDir,
+			"GOVERSION":      goVersion,
+		}
+
+		for key, value := range keyVals {
+			env.Setenv(key, value)
+		}
 
 		return nil
 	}
