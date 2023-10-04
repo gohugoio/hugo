@@ -213,7 +213,8 @@ func (c *templateContext) hasIdent(idents []string, ident string) bool {
 // collectConfig collects and parses any leading template config variable declaration.
 // This will be the first PipeNode in the template, and will be a variable declaration
 // on the form:
-//    {{ $_hugo_config:= `{ "version": 1 }` }}
+//
+//	{{ $_hugo_config:= `{ "version": 1 }` }}
 func (c *templateContext) collectConfig(n *parse.PipeNode) {
 	if c.t.typ != templateShortcode {
 		return
