@@ -61,8 +61,8 @@ require (
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/fsync v0.9.0
 	github.com/spf13/pflag v1.0.5
-	github.com/tdewolff/minify/v2 v2.12.7
-	github.com/tdewolff/parse/v2 v2.6.6
+	github.com/tdewolff/minify/v2 v2.12.9
+	github.com/tdewolff/parse/v2 v2.6.8
 	github.com/yuin/goldmark v1.5.6
 	go.uber.org/atomic v1.11.0
 	go.uber.org/automaxprocs v1.5.3
