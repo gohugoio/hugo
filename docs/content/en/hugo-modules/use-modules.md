@@ -142,7 +142,7 @@ A common use case for a workspace is to simplify local development of a site wit
 
 A workspace can be configured in a `*.work` file and activated with the [module.workspace](/hugo-modules/configuration/) setting, which for this use is commonly controlled via the `HUGO_MODULE_WORKSPACE` OS environment variable.
 
-See the [hugo.work](https://github.com/gohugoio/hugo/blob/master/hugo.work) file in the Hugo Docs repo for an example:
+See the [hugo.work](https://github.com/gohugoio/hugo/blob/master/docs/hugo.work) file in the Hugo Docs repo for an example:
 
 ```text
 go 1.19
