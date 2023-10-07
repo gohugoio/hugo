@@ -731,7 +731,7 @@ func (p *pageMeta) newContentConverter(ps *pageState, markup string) (converter.
 	}
 	cp := p.s.ContentSpec.Converters.Get(markup)
 	if cp == nil {
-		return converter.NopConverter, fmt.Errorf("no content renderer found for markup %q", p.markup)
+		return converter.NopConverter, fmt.Errorf("no content renderer found for markup %q", markup)
 	}
 
 	var id string
