@@ -84,7 +84,7 @@ force = true
 	cfg, err := config.FromConfigString(tomlConfig, "toml")
 	c.Assert(err, qt.IsNil)
 
-	dcfg, err := decodeConfig(cfg)
+	dcfg, err := DecodeConfig(cfg)
 	c.Assert(err, qt.IsNil)
 
 	// Order.
@@ -139,7 +139,7 @@ order = ["["]  # invalid regular expression
 	cfg, err := config.FromConfigString(tomlConfig, "toml")
 	c.Assert(err, qt.IsNil)
 
-	_, err = decodeConfig(cfg)
+	_, err = DecodeConfig(cfg)
 	c.Assert(err, qt.Not(qt.IsNil))
 }
 
@@ -157,14 +157,14 @@ Pattern = "["  # invalid regular expression
 	cfg, err := config.FromConfigString(tomlConfig, "toml")
 	c.Assert(err, qt.IsNil)
 
-	_, err = decodeConfig(cfg)
+	_, err = DecodeConfig(cfg)
 	c.Assert(err, qt.Not(qt.IsNil))
 }
 
 func TestDecodeConfigDefault(t *testing.T) {
 	c := qt.New(t)
 
-	dcfg, err := decodeConfig(config.New())
+	dcfg, err := DecodeConfig(config.New())
 	c.Assert(err, qt.IsNil)
 	c.Assert(len(dcfg.Targets), qt.Equals, 0)
 	c.Assert(len(dcfg.Matchers), qt.Equals, 0)
@@ -180,7 +180,7 @@ func TestEmptyTarget(t *testing.T) {
 	cfg, err := config.FromConfigString(tomlConfig, "toml")
 	c.Assert(err, qt.IsNil)
 
-	_, err = decodeConfig(cfg)
+	_, err = DecodeConfig(cfg)
 	c.Assert(err, qt.Not(qt.IsNil))
 }
 
@@ -194,6 +194,6 @@ func TestEmptyMatcher(t *testing.T) {
 	cfg, err := config.FromConfigString(tomlConfig, "toml")
 	c.Assert(err, qt.IsNil)
 
-	_, err = decodeConfig(cfg)
+	_, err = DecodeConfig(cfg)
 	c.Assert(err, qt.Not(qt.IsNil))
 }

@@ -63,7 +63,7 @@ func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*OpenAPIDocument
 	}
 
 	v, err := ns.cache.GetOrCreate(key, func() (any, error) {
-		f := metadecoders.FormatFromMediaType(r.MediaType())
+		f := metadecoders.FormatFromStrings(r.MediaType().Suffixes()...)
 		if f == "" {
 			return nil, fmt.Errorf("MIME %q not supported", r.MediaType())
 		}

@@ -1,3 +1,4 @@
+{{ warnf "_internal/google_analytics_async.html is no longer supported by Google and will be removed in a future version of Hugo" }}
 {{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
 {{- if not $pc.Disable -}}
 {{ with .Site.GoogleAnalytics }}

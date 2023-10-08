@@ -30,7 +30,7 @@ import (
 
 func TestLanguageRootMapping(t *testing.T) {
 	c := qt.New(t)
-	v := config.NewWithTestDefaults()
+	v := config.New()
 	v.Set("contentDir", "content")
 
 	fs := NewBaseFileDecorator(afero.NewMemMapFs())

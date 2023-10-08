@@ -174,13 +174,13 @@ func Test386() error {
 // Run tests
 func Test() error {
 	env := map[string]string{"GOFLAGS": testGoFlags()}
-	return runCmd(env, goexe, "test", "./...", buildFlags(), "-tags", buildTags())
+	return runCmd(env, goexe, "test", "./...", "-tags", buildTags())
 }
 
 // Run tests with race detector
 func TestRace() error {
 	env := map[string]string{"GOFLAGS": testGoFlags()}
-	return runCmd(env, goexe, "test", "-race", "./...", buildFlags(), "-tags", buildTags())
+	return runCmd(env, goexe, "test", "-race", "./...", "-tags", buildTags())
 }
 
 // Run gofmt linter
@@ -329,7 +329,7 @@ func runCmd(env map[string]string, cmd string, args ...any) error {
 }
 
 func isGoLatest() bool {
-	return strings.Contains(runtime.Version(), "1.14")
+	return strings.Contains(runtime.Version(), "1.21")
 }
 
 func isCI() bool {

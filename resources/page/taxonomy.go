@@ -83,7 +83,7 @@ func (i Taxonomy) Alphabetical() OrderedTaxonomy {
 		return ia
 	}
 	currentSite := p.Site().Current()
-	coll := langs.GetCollator(currentSite.Language())
+	coll := langs.GetCollator1(currentSite.Language())
 	coll.Lock()
 	defer coll.Unlock()
 	name := func(i1, i2 *OrderedTaxonomyEntry) bool {

@@ -18,6 +18,7 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/types"
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 )
 
@@ -166,7 +167,7 @@ func (pt pageTree) Parent() page.Page {
 
 	tree := p.getTreeRef()
 
-	if tree == nil || pt.p.Kind() == page.KindTaxonomy {
+	if tree == nil || pt.p.Kind() == kinds.KindTaxonomy {
 		return pt.p.s.home
 	}
 

@@ -1,17 +1,37 @@
 ---
-title: Image Filters
+title: Image filters
 description: The images namespace provides a list of filters and other image related functions.
-date: 2017-02-01
 categories: [functions]
 aliases: [/functions/imageconfig/]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [images]
 toc: true
 ---
 
 See [images.Filter](#filter) for how to apply these filters to an image.
+
+## Process
+
+{{< new-in "0.119.0" >}}
+
+{{% funcsig %}}
+images.Process SRC SPEC
+{{% /funcsig %}}
+
+A general purpose image processing function.
+
+This filter has all the same options as the [Process](/content-management/image-processing/#process) method, but using it as a filter may be more effective if you need to apply multiple filters to an image:
+
+```go-html-template
+{{ $filters := slice 
+  images.Grayscale
+  (images.GaussianBlur 8)
+  (images.Process "resize 200x jpg q30") 
+}}
+{{ $img = $img | images.Filter $filters }}
+```
 
 ## Overlay
 
@@ -35,18 +55,42 @@ A shorter version of the above, if you only need to apply the filter once:
 
 The above will overlay `$logo` in the upper left corner of `$img` (at position `x=50, y=50`).
 
+## Opacity
+
+{{< new-in "0.119.0" >}}
+
+{{% funcsig %}}
+images.Opacity SRC OPACITY
+{{% /funcsig %}}
+
+Opacity creates a filter that changes the opacity of an image.
+The OPACITY parameter must be in range (0, 1).
+
+```go-html-template
+{{ $img := $img.Filter (images.Opacity 0.5 )}}
+```
+
+This filter is most useful for target formats that support transparency, e.g. PNG. If the source image is e.g. JPG, the most effective way would be to combine it with the [`Process`] filter:
+
+```go-html-template
+{{ $png := $jpg.Filter 
+  (images.Opacity 0.5)
+  (images.Process "png") 
+}}
+```
+
 ## Text
 
 Using the `Text` filter, you can add text to an image.
 
 {{% funcsig %}}
-images.Text TEXT DICT)
+images.Text TEXT MAP)
 {{% /funcsig %}}
 
 The following example will add the text `Hugo rocks!` to the image with the specified color, size and position.
 
 ```go-html-template
-{{ $img := resources.Get "/images/background.png"}}
+{{ $img := resources.Get "/images/background.png" }}
 {{ $img = $img.Filter (images.Text "Hugo rocks!" (dict
     "color" "#ffffff"
     "size" 60
@@ -61,7 +105,7 @@ You can load a custom font if needed. Load the font as a Hugo `Resource` and set
 ```go-html-template
 
 {{ $font := resources.GetRemote "https://github.com/google/fonts/raw/main/apache/roboto/static/Roboto-Black.ttf" }}
-{{ $img := resources.Get "/images/background.png"}}
+{{ $img := resources.Get "/images/background.png" }}
 {{ $img = $img.Filter (images.Text "Hugo rocks!" (dict
     "font" $font
 ))}}
@@ -222,6 +266,8 @@ images.ImageConfig PATH
 
 ```go-html-template
 {{ with (imageConfig "favicon.ico") }}
-favicon.ico: {{.Width}} x {{.Height}}
+favicon.ico: {{ .Width }} x {{ .Height }}
 {{ end }}
 ```
+
+[`Process`]: #process

@@ -33,6 +33,9 @@ type ImageResourceOps interface {
 	// Width returns the width of the Image.
 	Width() int
 
+	// Process applies the given image processing options to the image.
+	Process(spec string) (ImageResource, error)
+
 	// Crop an image to match the given dimensions without resizing.
 	// You must provide both width and height.
 	// Use the anchor option to change the crop box anchor point.
@@ -62,6 +65,6 @@ type ImageResourceOps interface {
 	// using a simple histogram method.
 	Colors() ([]string, error)
 
-	// Internal
+	// For internal use.
 	DecodeImage() (image.Image, error)
 }

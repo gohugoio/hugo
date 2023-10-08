@@ -22,9 +22,9 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/resources/kinds"
 
 	"github.com/gohugoio/hugo/parser/pageparser"
-	"github.com/gohugoio/hugo/resources/page"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -186,7 +186,7 @@ CSV: {{< myShort >}}
 	b.Assert(len(h.Sites), qt.Equals, 1)
 
 	s := h.Sites[0]
-	home := s.getPage(page.KindHome)
+	home := s.getPage(kinds.KindHome)
 	b.Assert(home, qt.Not(qt.IsNil))
 	b.Assert(len(home.OutputFormats()), qt.Equals, 3)
 
@@ -758,7 +758,7 @@ title: "Hugo Rocks!"
 func TestShortcodeEmoji(t *testing.T) {
 	t.Parallel()
 
-	v := config.NewWithTestDefaults()
+	v := config.New()
 	v.Set("enableEmoji", true)
 
 	builder := newTestSitesBuilder(t).WithViper(v)
@@ -822,7 +822,7 @@ Get: {{ printf "%v (%T)" $b1 $b1 | safeHTML }}
 func TestShortcodeRef(t *testing.T) {
 	t.Parallel()
 
-	v := config.NewWithTestDefaults()
+	v := config.New()
 	v.Set("baseURL", "https://example.org")
 
 	builder := newTestSitesBuilder(t).WithViper(v)
@@ -935,6 +935,7 @@ func TestShortcodeMarkdownOutputFormat(t *testing.T) {
 title: "p1"
 ---
 {{< foo >}}
+# The below would have failed using the HTML template parser.
 -- layouts/shortcodes/foo.md --
 §§§
 <x
@@ -947,7 +948,6 @@ title: "p1"
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			Running:     true,
 		},
 	).Build()
 
@@ -990,7 +990,6 @@ title: "p1"
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			Running:     true,
 		},
 	).Build()
 
@@ -1022,7 +1021,6 @@ echo "foo";
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			Running:     true,
 		},
 	).Build()
 
@@ -1060,7 +1058,6 @@ title: "p1"
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			Running:     true,
 		},
 	).Build()
 
@@ -1097,8 +1094,8 @@ Title: {{ .Get "title" | safeHTML }}
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			Running:     true,
-			Verbose:     true,
+
+			Verbose: true,
 		},
 	).Build()
 
@@ -1190,8 +1187,8 @@ C'est un test
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			Running:     true,
-			Verbose:     true,
+
+			Verbose: true,
 		},
 	).Build()
 
@@ -1228,8 +1225,8 @@ InnerDeindent: {{ .Get 0 }}: {{ len .InnerDeindent }}
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			Running:     true,
-			Verbose:     true,
+
+			Verbose: true,
 		},
 	).Build()
 
@@ -1268,8 +1265,8 @@ Inner: {{ .Get 0 }}: {{ len .Inner }}
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			Running:     true,
-			Verbose:     true,
+
+			Verbose: true,
 		},
 	).BuildE()
 
@@ -1305,8 +1302,8 @@ Hello.
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			Running:     true,
-			Verbose:     true,
+
+			Verbose: true,
 		},
 	).Build()
 

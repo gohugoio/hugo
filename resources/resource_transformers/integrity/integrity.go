@@ -21,7 +21,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"hash"
-	"html/template"
 	"io"
 
 	"github.com/gohugoio/hugo/resources/internal"
@@ -109,9 +108,9 @@ func (c *Client) Fingerprint(res resources.ResourceTransformer, algo string) (re
 	return res.Transform(&fingerprintTransformation{algo: algo})
 }
 
-func integrity(algo string, sum []byte) template.HTMLAttr {
+func integrity(algo string, sum []byte) string {
 	encoded := base64.StdEncoding.EncodeToString(sum)
-	return template.HTMLAttr(algo + "-" + encoded)
+	return algo + "-" + encoded
 }
 
 func digest(h hash.Hash) ([]byte, error) {

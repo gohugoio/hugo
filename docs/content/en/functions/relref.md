@@ -1,24 +1,16 @@
 ---
 title: relref
-linktitle: relref
 description: Returns the relative permalink to a page.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2020-09-05
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [cross references, anchors]
 signature: ["relref . PAGE"]
-workson: []
-hugoversion:
 relatedfuncs: [ref]
-deprecated: false
-aliases: []
 ---
 
-This function takes two parameters:
+This function takes two arguments:
 
 - The context of the page from which to resolve relative paths, typically the current page (`.`)
 - The path to a page, with or without a file extension, with or without an anchor. A path without a leading `/` is first resolved relative to the given context, then to the remainder of the site.

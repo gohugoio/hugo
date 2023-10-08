@@ -17,14 +17,12 @@ import (
 	"context"
 	"fmt"
 	"html/template"
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/bep/clock"
-	"github.com/gohugoio/hugo/htesting"
+	"github.com/bep/clocks"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/asciidocext"
 	"github.com/gohugoio/hugo/markup/rst"
@@ -35,11 +33,8 @@ import (
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/loggers"
 
-	"github.com/gohugoio/hugo/hugofs"
-
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
-	"github.com/spf13/jwalterweatherman"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
@@ -378,41 +373,36 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 		}
 
 		t.Run(e.ext, func(t *testing.T) {
-			cfg, fs := newTestCfg(func(cfg config.Provider) error {
-				for k, v := range settings {
-					cfg.Set(k, v)
-				}
-				return nil
-			})
-
-			contentDir := "content"
-
-			if s := cfg.GetString("contentDir"); s != "" {
-				contentDir = s
+			cfg := config.New()
+			for k, v := range settings {
+				cfg.Set(k, v)
 			}
 
-			cfg.Set("security", map[string]any{
-				"exec": map[string]any{
-					"allow": []string{"^python$", "^rst2html.*", "^asciidoctor$"},
-				},
-			})
+			if s := cfg.GetString("contentDir"); s != "" && s != "content" {
+				panic("contentDir must be set to 'content' for this test")
+			}
 
-			var fileSourcePairs []string
+			files := `
+-- hugo.toml --
+[security]
+[security.exec]
+allow = ['^python$', '^rst2html.*', '^asciidoctor$']
+`
 
 			for i, source := range pageSources {
-				fileSourcePairs = append(fileSourcePairs, fmt.Sprintf("p%d.%s", i, e.ext), source)
+				files += fmt.Sprintf("-- content/p%d.%s --\n%s\n", i, e.ext, source)
 			}
-
-			for i := 0; i < len(fileSourcePairs); i += 2 {
-				writeSource(t, fs, filepath.Join(contentDir, fileSourcePairs[i]), fileSourcePairs[i+1])
-			}
-
-			// Add a content page for the home page
 			homePath := fmt.Sprintf("_index.%s", e.ext)
-			writeSource(t, fs, filepath.Join(contentDir, homePath), homePage)
+			files += fmt.Sprintf("-- content/%s --\n%s\n", homePath, homePage)
 
-			b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{Fs: fs, Cfg: cfg}).WithNothingAdded()
-			b.Build(BuildCfg{})
+			b := NewIntegrationTestBuilder(
+				IntegrationTestConfig{
+					T:           t,
+					TxtarString: files,
+					NeedsOsFS:   true,
+					BaseCfg:     cfg,
+				},
+			).Build()
 
 			s := b.H.Sites[0]
 
@@ -420,7 +410,7 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 
 			assertFunc(t, e.ext, s.RegularPages())
 
-			home := s.Info.Home()
+			home := s.Home()
 			b.Assert(home, qt.Not(qt.IsNil))
 			b.Assert(home.File().Path(), qt.Equals, homePath)
 			b.Assert(content(home), qt.Contains, "Home Page Content")
@@ -435,10 +425,12 @@ func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 	cfg, fs := newTestCfg()
 
 	c := qt.New(t)
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
 	writeSource(t, fs, filepath.Join("content", "simple.md"), simplePageWithSummaryDelimiterAndMarkdownThatCrossesBorder)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 1)
 
@@ -487,7 +479,7 @@ categories: ["cool stuff"]
 	for _, p := range s.Pages() {
 		checkDated(p, p.Kind())
 	}
-	checkDate(s.Info.LastChange(), "site")
+	checkDate(s.LastChange(), "site")
 }
 
 func TestPageDatesSections(t *testing.T) {
@@ -546,7 +538,7 @@ date: 2012-01-12
 	b.Assert(s.getPage("/with-index-no-date").Date().IsZero(), qt.Equals, true)
 	checkDate(s.getPage("/with-index-date"), 2018)
 
-	b.Assert(s.Site.LastChange().Year(), qt.Equals, 2018)
+	b.Assert(s.Site().LastChange().Year(), qt.Equals, 2018)
 }
 
 func TestCreateNewPage(t *testing.T) {
@@ -564,9 +556,7 @@ func TestCreateNewPage(t *testing.T) {
 		checkPageType(t, p, "page")
 	}
 
-	settings := map[string]any{
-		"contentDir": "mycontent",
-	}
+	settings := map[string]any{}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, settings, simplePage)
 }
@@ -652,25 +642,33 @@ Simple Page With Some Date`
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, pageContents...)
 }
 
-// Issue #2601
 func TestPageRawContent(t *testing.T) {
-	t.Parallel()
-	cfg, fs := newTestCfg()
-	c := qt.New(t)
 
-	writeSource(t, fs, filepath.Join("content", "raw.md"), `---
-title: Raw
+	files := `
+-- hugo.toml --
+-- content/basic.md --
 ---
-**Raw**`)
+title: "basic"
+---
+**basic**
+-- content/empty.md --
+---
+title: "empty"
+---
+-- layouts/_default/single.html --
+|{{ .RawContent }}|
+`
 
-	writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), `{{ .RawContent }}`)
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+	b.AssertFileContent("public/basic/index.html", "|**basic**|")
+	b.AssertFileContent("public/empty/index.html", "! title")
 
-	c.Assert(len(s.RegularPages()), qt.Equals, 1)
-	p := s.RegularPages()[0]
-
-	c.Assert("**Raw**", qt.Equals, p.RawContent())
 }
 
 func TestPageWithShortCodeInSummary(t *testing.T) {
@@ -687,12 +685,14 @@ func TestPageWithShortCodeInSummary(t *testing.T) {
 }
 
 func TestTableOfContents(t *testing.T) {
-	cfg, fs := newTestCfg()
 	c := qt.New(t)
+	cfg, fs := newTestCfg()
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
 	writeSource(t, fs, filepath.Join("content", "tocpage.md"), pageWithToC)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 1)
 
@@ -743,7 +743,7 @@ Here is the last report for commits in the year 2016. It covers hrev50718-hrev50
 func TestRenderStringForRegularPageTranslations(t *testing.T) {
 	c := qt.New(t)
 	b := newTestSitesBuilder(t)
-	b.WithLogger(loggers.NewBasicLoggerForWriter(jwalterweatherman.LevelError, os.Stderr))
+	b.WithLogger(loggers.NewDefault())
 
 	b.WithConfigFile("toml",
 		`baseurl = "https://example.org/"
@@ -804,7 +804,7 @@ home = ["HTML", "JSON"]`)
 // Issue 8919
 func TestContentProviderWithCustomOutputFormat(t *testing.T) {
 	b := newTestSitesBuilder(t)
-	b.WithLogger(loggers.NewBasicLoggerForWriter(jwalterweatherman.LevelDebug, os.Stderr))
+	b.WithLogger(loggers.NewDefault())
 	b.WithConfigFile("toml", `baseURL = 'http://example.org/'
 title = 'My New Hugo Site'
 
@@ -981,12 +981,14 @@ summary: Summary (zh)
 
 func TestPageWithDate(t *testing.T) {
 	t.Parallel()
-	cfg, fs := newTestCfg()
 	c := qt.New(t)
+	cfg, fs := newTestCfg()
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
 	writeSource(t, fs, filepath.Join("content", "simple.md"), simplePageRFC3339Date)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 1)
 
@@ -994,64 +996,6 @@ func TestPageWithDate(t *testing.T) {
 	d, _ := time.Parse(time.RFC3339, "2013-05-17T16:59:30Z")
 
 	checkPageDate(t, p, d)
-}
-
-func TestPageWithLastmodFromGitInfo(t *testing.T) {
-	if htesting.IsCI() {
-		// TODO(bep) figure out why this fails on GitHub actions.
-		t.Skip("Skip GitInfo test on CI")
-	}
-	c := qt.New(t)
-
-	wd, err := os.Getwd()
-	c.Assert(err, qt.IsNil)
-
-	// We need to use the OS fs for this.
-	cfg := config.NewWithTestDefaults()
-	cfg.Set("workingDir", filepath.Join(wd, "testsite"))
-	fs := hugofs.NewFrom(hugofs.Os, cfg)
-
-	cfg.Set("frontmatter", map[string]any{
-		"lastmod": []string{":git", "lastmod"},
-	})
-	cfg.Set("defaultContentLanguage", "en")
-
-	langConfig := map[string]any{
-		"en": map[string]any{
-			"weight":       1,
-			"languageName": "English",
-			"contentDir":   "content",
-		},
-		"nn": map[string]any{
-			"weight":       2,
-			"languageName": "Nynorsk",
-			"contentDir":   "content_nn",
-		},
-	}
-
-	cfg.Set("languages", langConfig)
-	cfg.Set("enableGitInfo", true)
-
-	b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{Fs: fs, Cfg: cfg}).WithNothingAdded()
-
-	b.Build(BuildCfg{SkipRender: true})
-	h := b.H
-
-	c.Assert(len(h.Sites), qt.Equals, 2)
-
-	enSite := h.Sites[0]
-	c.Assert(len(enSite.RegularPages()), qt.Equals, 1)
-
-	// 2018-03-11 is the Git author date for testsite/content/first-post.md
-	c.Assert(enSite.RegularPages()[0].Lastmod().Format("2006-01-02"), qt.Equals, "2018-03-11")
-	c.Assert(enSite.RegularPages()[0].CodeOwners()[0], qt.Equals, "@bep")
-
-	nnSite := h.Sites[1]
-	c.Assert(len(nnSite.RegularPages()), qt.Equals, 1)
-
-	// 2018-08-11 is the Git author date for testsite/content_nn/first-post.md
-	c.Assert(nnSite.RegularPages()[0].Lastmod().Format("2006-01-02"), qt.Equals, "2018-08-11")
-	c.Assert(enSite.RegularPages()[0].CodeOwners()[0], qt.Equals, "@bep")
 }
 
 func TestPageWithFrontMatterConfig(t *testing.T) {
@@ -1075,6 +1019,8 @@ Content
 			cfg.Set("frontmatter", map[string]any{
 				"date": []string{dateHandler, "date"},
 			})
+			configs, err := loadTestConfigFromProvider(cfg)
+			c.Assert(err, qt.IsNil)
 
 			c1 := filepath.Join("content", "section", "2012-02-21-noslug.md")
 			c2 := filepath.Join("content", "section", "2012-02-22-slug.md")
@@ -1087,7 +1033,7 @@ Content
 			c2fi, err := fs.Source.Stat(c2)
 			c.Assert(err, qt.IsNil)
 
-			b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{Fs: fs, Cfg: cfg}).WithNothingAdded()
+			b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{Fs: fs, Configs: configs}).WithNothingAdded()
 			b.Build(BuildCfg{SkipRender: true})
 
 			s := b.H.Sites[0]
@@ -1155,7 +1101,7 @@ func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
 		}
 
 		if p.Summary(context.Background()) != simplePageWithMainEnglishWithCJKRunesSummary {
-			t.Fatalf("[%s] incorrect Summary for content '%s'. expected %v, got %v", ext, p.Plain(context.Background()),
+			t.Fatalf("[%s] incorrect Summary for content '%s'. expected\n%v, got\n%v", ext, p.Plain(context.Background()),
 				simplePageWithMainEnglishWithCJKRunesSummary, p.Summary(context.Background()))
 		}
 	}
@@ -1230,6 +1176,8 @@ func TestPagePaths(t *testing.T) {
 
 	for _, test := range tests {
 		cfg, fs := newTestCfg()
+		configs, err := loadTestConfigFromProvider(cfg)
+		c.Assert(err, qt.IsNil)
 
 		if test.hasPermalink {
 			cfg.Set("permalinks", siteParmalinksSetting)
@@ -1237,7 +1185,7 @@ func TestPagePaths(t *testing.T) {
 
 		writeSource(t, fs, filepath.Join("content", filepath.FromSlash(test.path)), test.content)
 
-		s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+		s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
 		c.Assert(len(s.RegularPages()), qt.Equals, 1)
 
 	}
@@ -1247,15 +1195,17 @@ func TestTranslationKey(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 	cfg, fs := newTestCfg()
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
 	writeSource(t, fs, filepath.Join("content", filepath.FromSlash("sect/simple.no.md")), "---\ntitle: \"A1\"\ntranslationKey: \"k1\"\n---\nContent\n")
 	writeSource(t, fs, filepath.Join("content", filepath.FromSlash("sect/simple.en.md")), "---\ntitle: \"A2\"\n---\nContent\n")
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 2)
 
-	home := s.Info.Home()
+	home := s.Home()
 	c.Assert(home, qt.Not(qt.IsNil))
 	c.Assert(home.TranslationKey(), qt.Equals, "home")
 	c.Assert(s.RegularPages()[0].TranslationKey(), qt.Equals, "page/k1")
@@ -1270,10 +1220,12 @@ func TestChompBOM(t *testing.T) {
 	const utf8BOM = "\xef\xbb\xbf"
 
 	cfg, fs := newTestCfg()
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
 	writeSource(t, fs, filepath.Join("content", "simple.md"), utf8BOM+simplePage)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 1)
 
@@ -1284,7 +1236,7 @@ func TestChompBOM(t *testing.T) {
 
 func TestPageWithEmoji(t *testing.T) {
 	for _, enableEmoji := range []bool{true, false} {
-		v := config.NewWithTestDefaults()
+		v := config.New()
 		v.Set("enableEmoji", enableEmoji)
 
 		b := newTestSitesBuilder(t).WithViper(v)
@@ -1489,7 +1441,7 @@ Content:{{ .Content }}
 
 // https://github.com/gohugoio/hugo/issues/5781
 func TestPageWithZeroFile(t *testing.T) {
-	newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger()).WithSimpleConfigFile().
+	newTestSitesBuilder(t).WithLogger(loggers.NewDefault()).WithSimpleConfigFile().
 		WithTemplatesAdded("index.html", "{{ .File.Filename }}{{ with .File }}{{ .Dir }}{{ end }}").Build(BuildCfg{})
 }
 
@@ -1556,8 +1508,8 @@ func TestShouldBuild(t *testing.T) {
 }
 
 func TestShouldBuildWithClock(t *testing.T) {
-	htime.Clock = clock.Start(time.Date(2021, 11, 17, 20, 34, 58, 651387237, time.UTC))
-	t.Cleanup(func() { htime.Clock = clock.System() })
+	htime.Clock = clocks.Start(time.Date(2021, 11, 17, 20, 34, 58, 651387237, time.UTC))
+	t.Cleanup(func() { htime.Clock = clocks.System() })
 	past := time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC)
 	future := time.Date(2037, 11, 17, 20, 34, 58, 651387237, time.UTC)
 	zero := time.Time{}
@@ -1613,7 +1565,6 @@ func TestPathIssues(t *testing.T) {
 			t.Run(fmt.Sprintf("disablePathToLower=%t,uglyURLs=%t", disablePathToLower, uglyURLs), func(t *testing.T) {
 				t.Parallel()
 				cfg, fs := newTestCfg()
-				th := newTestHelper(cfg, fs, t)
 				c := qt.New(t)
 
 				cfg.Set("permalinks", map[string]string{
@@ -1623,6 +1574,7 @@ func TestPathIssues(t *testing.T) {
 				cfg.Set("uglyURLs", uglyURLs)
 				cfg.Set("disablePathToLower", disablePathToLower)
 				cfg.Set("paginate", 1)
+				th, configs := newTestHelperFromProvider(cfg, fs, t)
 
 				writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), "<html><body>{{.Content}}</body></html>")
 				writeSource(t, fs, filepath.Join("layouts", "_default", "list.html"),
@@ -1648,7 +1600,7 @@ tags:
 # doc1
 *some blog content*`))
 
-				s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+				s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
 
 				c.Assert(len(s.RegularPages()), qt.Equals, 4)
 
@@ -2036,4 +1988,25 @@ title: "p2"
 
 	b.Assert(identity.HashString(p1), qt.Not(qt.Equals), identity.HashString(p2))
 	b.Assert(identity.HashString(sites[0]), qt.Not(qt.Equals), identity.HashString(sites[1]))
+}
+
+// Issue #11243
+func TestRenderWithoutArgument(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/index.html --
+{{ .Render }}
+`
+
+	b, err := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).BuildE()
+
+	b.Assert(err, qt.IsNotNil)
+
 }

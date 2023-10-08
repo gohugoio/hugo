@@ -13,40 +13,6 @@
 
 package hugolib
 
-import (
-	"strings"
-
-	"github.com/gohugoio/hugo/resources/page"
-)
-
-// This is all the kinds we can expect to find in .Site.Pages.
-var allKindsInPages = []string{page.KindPage, page.KindHome, page.KindSection, page.KindTerm, page.KindTaxonomy}
-
 const (
-
-	// Temporary state.
-	kindUnknown = "unknown"
-
-	// The following are (currently) temporary nodes,
-	// i.e. nodes we create just to render in isolation.
-	kindRSS       = "RSS"
-	kindSitemap   = "sitemap"
-	kindRobotsTXT = "robotsTXT"
-	kind404       = "404"
-
 	pageResourceType = "page"
 )
-
-var kindMap = map[string]string{
-	strings.ToLower(kindRSS):       kindRSS,
-	strings.ToLower(kindSitemap):   kindSitemap,
-	strings.ToLower(kindRobotsTXT): kindRobotsTXT,
-	strings.ToLower(kind404):       kind404,
-}
-
-func getKind(s string) string {
-	if pkind := page.GetKind(s); pkind != "" {
-		return pkind
-	}
-	return kindMap[strings.ToLower(s)]
-}

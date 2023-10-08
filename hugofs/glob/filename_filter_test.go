@@ -59,11 +59,11 @@ func TestFilenameFilter(t *testing.T) {
 	c.Assert(includeOnlyFilter.Match("ab.jpg", false), qt.Equals, true)
 	c.Assert(includeOnlyFilter.Match("ab.gif", false), qt.Equals, false)
 
-	exlcudeOnlyFilter, err := NewFilenameFilter(nil, []string{"**.json", "**.jpg"})
+	excludeOnlyFilter, err := NewFilenameFilter(nil, []string{"**.json", "**.jpg"})
 	c.Assert(err, qt.IsNil)
-	c.Assert(exlcudeOnlyFilter.Match("ab.json", false), qt.Equals, false)
-	c.Assert(exlcudeOnlyFilter.Match("ab.jpg", false), qt.Equals, false)
-	c.Assert(exlcudeOnlyFilter.Match("ab.gif", false), qt.Equals, true)
+	c.Assert(excludeOnlyFilter.Match("ab.json", false), qt.Equals, false)
+	c.Assert(excludeOnlyFilter.Match("ab.jpg", false), qt.Equals, false)
+	c.Assert(excludeOnlyFilter.Match("ab.gif", false), qt.Equals, true)
 
 	var nilFilter *FilenameFilter
 	c.Assert(nilFilter.Match("ab.gif", false), qt.Equals, true)

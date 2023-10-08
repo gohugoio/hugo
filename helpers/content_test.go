@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2023 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package helpers
+package helpers_test
 
 import (
 	"bytes"
@@ -19,12 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/spf13/afero"
-
-	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/config"
-
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/helpers"
 )
 
 const tstHTMLContent = "<!DOCTYPE html><html><head><script src=\"http://two/foobar.js\"></script></head><body><nav><ul><li hugo-nav=\"section_0\"></li><li hugo-nav=\"section_1\"></li></ul></nav><article>content <a href=\"http://two/foobar\">foobar</a>. Follow up</article><p>This is some text.<br>And some more.</p></body></html>"
@@ -43,7 +40,7 @@ func TestTrimShortHTML(t *testing.T) {
 		{[]byte("<p>Hello</p>\n<ul>\n<li>list1</li>\n<li>list2</li>\n</ul>"), []byte("<p>Hello</p>\n<ul>\n<li>list1</li>\n<li>list2</li>\n</ul>")},
 	}
 
-	c := newTestContentSpec()
+	c := newTestContentSpec(nil)
 	for i, test := range tests {
 		output := c.TrimShortHTML(test.input)
 		if !bytes.Equal(test.output, output) {
@@ -52,55 +49,23 @@ func TestTrimShortHTML(t *testing.T) {
 	}
 }
 
-func TestStripEmptyNav(t *testing.T) {
-	c := qt.New(t)
-	cleaned := stripEmptyNav([]byte("do<nav>\n</nav>\n\nbedobedo"))
-	c.Assert(cleaned, qt.DeepEquals, []byte("dobedobedo"))
-}
-
 func TestBytesToHTML(t *testing.T) {
 	c := qt.New(t)
-	c.Assert(BytesToHTML([]byte("dobedobedo")), qt.Equals, template.HTML("dobedobedo"))
-}
-
-func TestNewContentSpec(t *testing.T) {
-	cfg := config.NewWithTestDefaults()
-	c := qt.New(t)
-
-	cfg.Set("summaryLength", 32)
-	cfg.Set("buildFuture", true)
-	cfg.Set("buildExpired", true)
-	cfg.Set("buildDrafts", true)
-
-	spec, err := NewContentSpec(cfg, loggers.NewErrorLogger(), afero.NewMemMapFs(), nil)
-
-	c.Assert(err, qt.IsNil)
-	c.Assert(spec.summaryLength, qt.Equals, 32)
-	c.Assert(spec.BuildFuture, qt.Equals, true)
-	c.Assert(spec.BuildExpired, qt.Equals, true)
-	c.Assert(spec.BuildDrafts, qt.Equals, true)
+	c.Assert(helpers.BytesToHTML([]byte("dobedobedo")), qt.Equals, template.HTML("dobedobedo"))
 }
 
 var benchmarkTruncateString = strings.Repeat("This is a sentence about nothing.", 20)
 
 func BenchmarkTestTruncateWordsToWholeSentence(b *testing.B) {
-	c := newTestContentSpec()
+	c := newTestContentSpec(nil)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		c.TruncateWordsToWholeSentence(benchmarkTruncateString)
 	}
 }
 
-func BenchmarkTestTruncateWordsToWholeSentenceOld(b *testing.B) {
-	c := newTestContentSpec()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		c.truncateWordsToWholeSentenceOld(benchmarkTruncateString)
-	}
-}
-
 func TestTruncateWordsToWholeSentence(t *testing.T) {
-	c := newTestContentSpec()
+
 	type test struct {
 		input, expected string
 		max             int
@@ -118,7 +83,9 @@ func TestTruncateWordsToWholeSentence(t *testing.T) {
 		{"This... is a more difficult test?", "This... is a more difficult test?", 1, false},
 	}
 	for i, d := range data {
-		c.summaryLength = d.max
+		cfg := config.New()
+		cfg.Set("summaryLength", d.max)
+		c := newTestContentSpec(cfg)
 		output, truncated := c.TruncateWordsToWholeSentence(d.input)
 		if d.expected != output {
 			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
@@ -131,7 +98,7 @@ func TestTruncateWordsToWholeSentence(t *testing.T) {
 }
 
 func TestTruncateWordsByRune(t *testing.T) {
-	c := newTestContentSpec()
+
 	type test struct {
 		input, expected string
 		max             int
@@ -153,7 +120,9 @@ func TestTruncateWordsByRune(t *testing.T) {
 		{" \nThis is    not a sentence\n ", "This is not", 3, true},
 	}
 	for i, d := range data {
-		c.summaryLength = d.max
+		cfg := config.New()
+		cfg.Set("summaryLength", d.max)
+		c := newTestContentSpec(cfg)
 		output, truncated := c.TruncateWordsByRune(strings.Fields(d.input))
 		if d.expected != output {
 			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
@@ -168,7 +137,7 @@ func TestTruncateWordsByRune(t *testing.T) {
 func TestExtractTOCNormalContent(t *testing.T) {
 	content := []byte("<nav>\n<ul>\nTOC<li><a href=\"#")
 
-	actualTocLessContent, actualToc := ExtractTOC(content)
+	actualTocLessContent, actualToc := helpers.ExtractTOC(content)
 	expectedTocLess := []byte("TOC<li><a href=\"#")
 	expectedToc := []byte("<nav id=\"TableOfContents\">\n<ul>\n")
 
@@ -184,7 +153,7 @@ func TestExtractTOCNormalContent(t *testing.T) {
 func TestExtractTOCGreaterThanSeventy(t *testing.T) {
 	content := []byte("<nav>\n<ul>\nTOC This is a very long content which will definitely be greater than seventy, I promise you that.<li><a href=\"#")
 
-	actualTocLessContent, actualToc := ExtractTOC(content)
+	actualTocLessContent, actualToc := helpers.ExtractTOC(content)
 	// Because the start of Toc is greater than 70+startpoint of <li> content and empty TOC will be returned
 	expectedToc := []byte("")
 
@@ -200,7 +169,7 @@ func TestExtractTOCGreaterThanSeventy(t *testing.T) {
 func TestExtractNoTOC(t *testing.T) {
 	content := []byte("TOC")
 
-	actualTocLessContent, actualToc := ExtractTOC(content)
+	actualTocLessContent, actualToc := helpers.ExtractTOC(content)
 	expectedToc := []byte("")
 
 	if !bytes.Equal(actualTocLessContent, content) {
@@ -225,7 +194,7 @@ func TestTotalWords(t *testing.T) {
 		{"One, Two,      Three", 3},
 		{totalWordsBenchmarkString, 400},
 	} {
-		actualWordCount := TotalWords(this.s)
+		actualWordCount := helpers.TotalWords(this.s)
 
 		if actualWordCount != this.words {
 			t.Errorf("[%d] Actual word count (%d) for test string (%s) did not match %d", i, actualWordCount, this.s, this.words)
@@ -236,7 +205,7 @@ func TestTotalWords(t *testing.T) {
 func BenchmarkTotalWords(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		wordCount := TotalWords(totalWordsBenchmarkString)
+		wordCount := helpers.TotalWords(totalWordsBenchmarkString)
 		if wordCount != 400 {
 			b.Fatal("Wordcount error")
 		}

@@ -23,30 +23,37 @@ import (
 // Params is a map where all keys are lower case.
 type Params map[string]any
 
-// Get does a lower case and nested search in this map.
+// KeyParams is an utility struct for the WalkParams method.
+type KeyParams struct {
+	Key    string
+	Params Params
+}
+
+// GetNested does a lower case and nested search in this map.
 // It will return nil if none found.
-func (p Params) Get(indices ...string) any {
+// Make all of these methods internal somehow.
+func (p Params) GetNested(indices ...string) any {
 	v, _, _ := getNested(p, indices)
 	return v
 }
 
-// Set overwrites values in p with values in pp for common or new keys.
+// SetParams overwrites values in dst with values in src for common or new keys.
 // This is done recursively.
-func (p Params) Set(pp Params) {
-	for k, v := range pp {
-		vv, found := p[k]
+func SetParams(dst, src Params) {
+	for k, v := range src {
+		vv, found := dst[k]
 		if !found {
-			p[k] = v
+			dst[k] = v
 		} else {
 			switch vvv := vv.(type) {
 			case Params:
 				if pv, ok := v.(Params); ok {
-					vvv.Set(pv)
+					SetParams(vvv, pv)
 				} else {
-					p[k] = v
+					dst[k] = v
 				}
 			default:
-				p[k] = v
+				dst[k] = v
 			}
 		}
 	}
@@ -63,25 +70,24 @@ func (p Params) IsZero() bool {
 	}
 
 	for k := range p {
-		return k == mergeStrategyKey
+		return k == MergeStrategyKey
 	}
 
 	return false
 
 }
 
-// Merge transfers values from pp to p for new keys.
+// MergeParamsWithStrategy transfers values from src to dst for new keys using the merge strategy given.
 // This is done recursively.
-func (p Params) Merge(pp Params) {
-	p.merge("", pp)
+func MergeParamsWithStrategy(strategy string, dst, src Params) {
+	dst.merge(ParamsMergeStrategy(strategy), src)
 }
 
-// MergeRoot transfers values from pp to p for new keys where p is the
-// root of the tree.
+// MergeParams transfers values from src to dst for new keys using the merge encoded in dst.
 // This is done recursively.
-func (p Params) MergeRoot(pp Params) {
-	ms, _ := p.GetMergeStrategy()
-	p.merge(ms, pp)
+func MergeParams(dst, src Params) {
+	ms, _ := dst.GetMergeStrategy()
+	dst.merge(ms, src)
 }
 
 func (p Params) merge(ps ParamsMergeStrategy, pp Params) {
@@ -97,7 +103,7 @@ func (p Params) merge(ps ParamsMergeStrategy, pp Params) {
 
 	for k, v := range pp {
 
-		if k == mergeStrategyKey {
+		if k == MergeStrategyKey {
 			continue
 		}
 		vv, found := p[k]
@@ -116,8 +122,9 @@ func (p Params) merge(ps ParamsMergeStrategy, pp Params) {
 	}
 }
 
+// For internal use.
 func (p Params) GetMergeStrategy() (ParamsMergeStrategy, bool) {
-	if v, found := p[mergeStrategyKey]; found {
+	if v, found := p[MergeStrategyKey]; found {
 		if s, ok := v.(ParamsMergeStrategy); ok {
 			return s, true
 		}
@@ -125,21 +132,23 @@ func (p Params) GetMergeStrategy() (ParamsMergeStrategy, bool) {
 	return ParamsMergeStrategyShallow, false
 }
 
+// For internal use.
 func (p Params) DeleteMergeStrategy() bool {
-	if _, found := p[mergeStrategyKey]; found {
-		delete(p, mergeStrategyKey)
+	if _, found := p[MergeStrategyKey]; found {
+		delete(p, MergeStrategyKey)
 		return true
 	}
 	return false
 }
 
-func (p Params) SetDefaultMergeStrategy(s ParamsMergeStrategy) {
+// For internal use.
+func (p Params) SetMergeStrategy(s ParamsMergeStrategy) {
 	switch s {
 	case ParamsMergeStrategyDeep, ParamsMergeStrategyNone, ParamsMergeStrategyShallow:
 	default:
 		panic(fmt.Sprintf("invalid merge strategy %q", s))
 	}
-	p[mergeStrategyKey] = s
+	p[MergeStrategyKey] = s
 }
 
 func getNested(m map[string]any, indices []string) (any, string, map[string]any) {
@@ -187,7 +196,7 @@ func GetNestedParam(keyStr, separator string, candidates ...Params) (any, error)
 
 	keySegments := strings.Split(keyStr, separator)
 	for _, m := range candidates {
-		if v := m.Get(keySegments...); v != nil {
+		if v := m.GetNested(keySegments...); v != nil {
 			return v, nil
 		}
 	}
@@ -233,8 +242,57 @@ const (
 	// Add new keys, merge existing.
 	ParamsMergeStrategyDeep ParamsMergeStrategy = "deep"
 
-	mergeStrategyKey = "_merge"
+	MergeStrategyKey = "_merge"
 )
+
+// CleanConfigStringMapString removes any processing instructions from m,
+// m will never be modified.
+func CleanConfigStringMapString(m map[string]string) map[string]string {
+	if m == nil || len(m) == 0 {
+		return m
+	}
+	if _, found := m[MergeStrategyKey]; !found {
+		return m
+	}
+	// Create a new map and copy all the keys except the merge strategy key.
+	m2 := make(map[string]string, len(m)-1)
+	for k, v := range m {
+		if k != MergeStrategyKey {
+			m2[k] = v
+		}
+	}
+	return m2
+}
+
+// CleanConfigStringMap is the same as CleanConfigStringMapString but for
+// map[string]any.
+func CleanConfigStringMap(m map[string]any) map[string]any {
+	if m == nil || len(m) == 0 {
+		return m
+	}
+	if _, found := m[MergeStrategyKey]; !found {
+		return m
+	}
+	// Create a new map and copy all the keys except the merge strategy key.
+	m2 := make(map[string]any, len(m)-1)
+	for k, v := range m {
+		if k != MergeStrategyKey {
+			m2[k] = v
+		}
+		switch v2 := v.(type) {
+		case map[string]any:
+			m2[k] = CleanConfigStringMap(v2)
+		case Params:
+			var p Params = CleanConfigStringMap(v2)
+			m2[k] = p
+		case map[string]string:
+			m2[k] = CleanConfigStringMapString(v2)
+		}
+
+	}
+	return m2
+
+}
 
 func toMergeStrategy(v any) ParamsMergeStrategy {
 	s := ParamsMergeStrategy(cast.ToString(v))
@@ -255,7 +313,7 @@ func PrepareParams(m Params) {
 	for k, v := range m {
 		var retyped bool
 		lKey := strings.ToLower(k)
-		if lKey == mergeStrategyKey {
+		if lKey == MergeStrategyKey {
 			v = toMergeStrategy(v)
 			retyped = true
 		} else {

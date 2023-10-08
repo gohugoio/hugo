@@ -33,7 +33,7 @@ type LineMatcher struct {
 }
 
 // LineMatcherFn is used to match a line with an error.
-// It returns the column number or 0 if the line was found, but column could not be determinde. Returns -1 if no line match.
+// It returns the column number or 0 if the line was found, but column could not be determined. Returns -1 if no line match.
 type LineMatcherFn func(m LineMatcher) int
 
 // SimpleLineMatcher simply matches by line number.

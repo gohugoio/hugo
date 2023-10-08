@@ -16,6 +16,7 @@ package org
 
 import (
 	"bytes"
+	"log"
 
 	"github.com/gohugoio/hugo/identity"
 
@@ -46,7 +47,7 @@ type orgConverter struct {
 func (c *orgConverter) Convert(ctx converter.RenderContext) (converter.ResultRender, error) {
 	logger := c.cfg.Logger
 	config := org.New()
-	config.Log = logger.Warn()
+	config.Log = log.Default() // TODO(bep)
 	config.ReadFile = func(filename string) ([]byte, error) {
 		return afero.ReadFile(c.cfg.ContentFs, filename)
 	}

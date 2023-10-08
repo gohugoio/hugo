@@ -1,20 +1,13 @@
 ---
 title: .Format
 description: Formats built-in Hugo dates---`.Date`, `.PublishDate`, and `.Lastmod`---according to Go's layout string.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [dates,time]
 signature: [".Format FORMAT"]
-workson: [times]
-hugoversion:
 relatedfuncs: [dateFormat,now,Unix,time]
-deprecated: false
-aliases: []
 toc: true
 ---
 
@@ -26,13 +19,13 @@ toc: true
 
 Assuming a key-value of `date: 2017-03-03` in a content file's front matter, your can run the date through `.Format` followed by a layout string for your desired output at build time:
 
-```
+```go-html-template
 {{ .PublishDate.Format "January 2, 2006" }} => March 3, 2017
 ```
 
 For formatting *any* string representations of dates defined in your front matter, see the [`dateFormat` function][dateFormat], which will still leverage the Go layout string explained below but uses a slightly different syntax.
 
-## Go's Layout String
+## Go's layout string
 
 Hugo templates [format your dates][time] via layout strings that point to a specific reference time:
 
@@ -49,7 +42,7 @@ Here is a visual explanation [taken directly from the Go docs][gdex]:
 => 1 2  3  4  5    6  -7
 ```
 
-### Hugo Date and Time Templating Reference
+### Hugo date and time templating reference
 
 The following examples show the layout string followed by the rendered output.
 
@@ -91,13 +84,13 @@ date: 2017-03-03T14:15:59-06:00
 
 More examples can be found in Go's [documentation for the time package][timeconst].
 
-### Cardinal Numbers and Ordinal Abbreviations
+### Cardinal s
 
 Spelled-out cardinal numbers (e.g. "one", "two", and "three") are not currently supported.
 
 Use the [`humanize`](/functions/humanize) function to render the day of the month as an ordinal number:
 
-```
+```go-html-template
 {{ humanize .Date.Day }} of {{ .Date.Format "January 2006" }}
 ```
 

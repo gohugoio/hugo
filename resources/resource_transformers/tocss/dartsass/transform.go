@@ -20,7 +20,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/media"
@@ -34,11 +34,8 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs"
 
-	"github.com/bep/godartsass"
-)
-
-const (
-	dartSassEmbeddedBinaryName = "dart-sass-embedded"
+	godartsassv1 "github.com/bep/godartsass"
+	"github.com/bep/godartsass/v2"
 )
 
 // Supports returns whether dart-sass-embedded is found in $PATH.
@@ -46,7 +43,7 @@ func Supports() bool {
 	if htesting.SupportsAll() {
 		return true
 	}
-	return hexec.InPath(dartSassEmbeddedBinaryName)
+	return hugo.DartSassBinaryName != ""
 }
 
 type transform struct {
@@ -59,7 +56,7 @@ func (t *transform) Key() internal.ResourceTransformationKey {
 }
 
 func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
-	ctx.OutMediaType = media.CSSType
+	ctx.OutMediaType = media.Builtin.CSSType
 
 	opts, err := decodeOptions(t.optsm)
 	if err != nil {
@@ -86,7 +83,7 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 			baseDir: baseDir,
 			c:       t.c,
 
-			varsStylesheet: sass.CreateVarsStyleSheet(opts.Vars),
+			varsStylesheet: godartsass.Import{Content: sass.CreateVarsStyleSheet(opts.Vars)},
 		},
 		OutputStyle:             godartsass.ParseOutputStyle(opts.OutputStyle),
 		EnableSourceMap:         opts.EnableSourceMap,
@@ -102,7 +99,7 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 		}
 	}
 
-	if ctx.InMediaType.SubType == media.SASSType.SubType {
+	if ctx.InMediaType.SubType == media.Builtin.SASSType.SubType {
 		args.SourceSyntax = godartsass.SourceSyntaxSASS
 	}
 
@@ -132,7 +129,7 @@ type importResolver struct {
 	baseDir string
 	c       *Client
 
-	varsStylesheet string
+	varsStylesheet godartsass.Import
 }
 
 func (t importResolver) CanonicalizeURL(url string) (string, error) {
@@ -184,11 +181,29 @@ func (t importResolver) CanonicalizeURL(url string) (string, error) {
 	return "", nil
 }
 
-func (t importResolver) Load(url string) (string, error) {
+func (t importResolver) Load(url string) (godartsass.Import, error) {
 	if url == sass.HugoVarsNamespace {
 		return t.varsStylesheet, nil
 	}
 	filename, _ := paths.UrlToFilename(url)
 	b, err := afero.ReadFile(hugofs.Os, filename)
-	return string(b), err
+
+	sourceSyntax := godartsass.SourceSyntaxSCSS
+	if strings.HasSuffix(filename, ".sass") {
+		sourceSyntax = godartsass.SourceSyntaxSASS
+	} else if strings.HasSuffix(filename, ".css") {
+		sourceSyntax = godartsass.SourceSyntaxCSS
+	}
+
+	return godartsass.Import{Content: string(b), SourceSyntax: sourceSyntax}, err
+
+}
+
+type importResolverV1 struct {
+	godartsass.ImportResolver
+}
+
+func (t importResolverV1) Load(url string) (godartsassv1.Import, error) {
+	res, err := t.ImportResolver.Load(url)
+	return godartsassv1.Import{Content: res.Content, SourceSyntax: godartsassv1.SourceSyntax(res.SourceSyntax)}, err
 }

@@ -60,9 +60,10 @@ func NewExecuter(helper ExecHelper) Executer {
 }
 
 type (
-	pageContextKeyType    string
-	hasLockContextKeyType string
-	stackContextKeyType   string
+	pageContextKeyType     string
+	hasLockContextKeyType  string
+	stackContextKeyType    string
+	callbackContextKeyType string
 )
 
 const (
@@ -70,6 +71,9 @@ const (
 	PageContextKey = pageContextKeyType("page")
 	// Used in partialCached to signal to nested templates that a lock is already taken.
 	HasLockContextKey = hasLockContextKeyType("hasLock")
+
+	// Used to pass down a callback function to nested templates.
+	CallbackContextKey = callbackContextKeyType("callback")
 )
 
 // Note: The context is currently not fully implemented in Hugo. This is a work in progress.

@@ -1,92 +1,91 @@
 ---
-title: RSS Templates
-linktitle: RSS Templates
-description: Hugo ships with its own RSS 2.0 template that requires almost no configuration, or you can create your own RSS templates.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
+title: RSS templates
+description: Use the built-in RSS template, or create your own.
 keywords: [rss, xml, templates]
 categories: [templates]
 menu:
   docs:
-    parent: "templates"
-    weight: 150
-weight: 150
-sections_weight: 150
-draft: false
+    parent: templates
+    weight: 160
+weight: 160
 toc: true
 ---
 
-## RSS Template Lookup Order
+## Configuration
 
-See [Template Lookup Order](/templates/lookup-order/) for the complete reference.
+By default, when you build your site, Hugo generates RSS feeds for home, section, taxonomy, and term pages. Control feed generation in your site configuration. For example, to generate feeds for home and section pages, but not for taxonomy and term pages:
 
-{{% note "Hugo Ships with an RSS Template" %}}
-Hugo ships with its own [RSS 2.0 template](#the-embedded-rssxml). The embedded template will be sufficient for most use cases.
-{{% /note %}}
-
-RSS pages are of the type `Page` and have all the [page variables](/variables/page/) available to use in the templates.
-
-### Section RSS
-
-A [section’s][section] RSS will be rendered at `/<SECTION>/index.xml` (e.g., [https://spf13.com/project/index.xml](https://spf13.com/project/index.xml)).
-
-Hugo provides the ability for you to define any RSS type you wish and can have different RSS files for each section and taxonomy.
-
-## Lookup Order for RSS Templates
-
-The table below shows the RSS template lookup order for the different page kinds. The first listing shows the lookup order when running with a theme (`demoTheme`).
-
-{{< datatable-filtered "output" "layouts" "OutputFormat == RSS" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}
-
-## Configure RSS
-
-By default, Hugo will create an unlimited number of RSS entries. You can limit the number of articles included in the built-in RSS templates by assigning a numeric value to `rssLimit:` field in your project's [`config` file][config].
-
-The following values will also be included in the RSS output if specified:
-
-{{< code-toggle file="config" >}}
-languageCode = "en-us"
-copyright = "This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License."
-
-[author]
-    name = "My Name Here"
+{{< code-toggle file=hugo copy=false >}}
+[outputs]
+home = ['html', 'rss']
+section = ['html', 'rss']
+taxonomy = ['html']
+term = ['html']
 {{< /code-toggle >}}
 
-## The Embedded rss.xml
+To disable feed generation for all [page kinds]:
 
-This is the default RSS template that ships with Hugo:
+{{< code-toggle file=hugo copy=false >}}
+disableKinds = ['rss']
+{{< /code-toggle >}}
 
-<https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/rss.xml>
+By default, the number of items in each feed is unlimited. Change this as needed in your site configuration:
 
-## Reference your RSS Feed in `<head>`
+{{< code-toggle file=hugo copy=false >}}
+[services.rss]
+limit = 42
+{{< /code-toggle >}}
 
-In your `header.html` template, you can specify your RSS feed in your `<head></head>` tag using Hugo's [Output Formats][Output Formats] like this:
+Set `limit` to `-1` to generate an unlimited number of items per feed.
 
-```go-html-template
-{{ range .AlternativeOutputFormats -}}
-    {{ printf `<link rel="%s" type="%s" href="%s" title="%s" />` .Rel .MediaType.Type .Permalink $.Site.Title | safeHTML }}
-{{ end -}}
-```
+The built-in RSS template will render the following values, if present, from your site configuration:
 
-If you only want the RSS link, you can query the formats:
+{{< code-toggle file=hugo copy=false >}}
+copyright = '© 2023 ABC Widgets, Inc.'
+[author]
+name = 'John Doe'
+email = 'jdoe@example.org'
+{{< /code-toggle >}}
+
+## Include feed reference
+
+To include a feed reference in the `head` element of your rendered pages, place this within the `head` element of your templates:
 
 ```go-html-template
 {{ with .OutputFormats.Get "rss" -}}
-    {{ printf `<link rel="%s" type="%s" href="%s" title="%s" />` .Rel .MediaType.Type .Permalink $.Site.Title | safeHTML }}
-{{ end -}}
+  {{ printf `<link rel=%q type=%q href=%q title=%q>` .Rel .MediaType.Type .Permalink site.Title | safeHTML }}
+{{ end }}
 ```
 
-Either of the two snippets above will generate the below `link` tag on the site homepage for RSS output:
+Hugo will render this to:
 
 ```html
-<link rel="alternate" type="application/rss+xml" href="https://example.com/index.xml" title="Site Title">
+<link rel="alternate" type="application/rss+xml" href="https://example.org/index.xml" title="ABC Widgets">
 ```
 
-_We are assuming `BaseURL` to be `https://example.com/` and `$.Site.Title` to be `"Site Title"` in this example._
+## Custom templates
 
-[config]: /getting-started/configuration/
-[embedded]: #the-embedded-rss-xml
-[RSS 2.0]: https://cyber.harvard.edu/rss/rss.html "RSS 2.0 Specification"
-[section]: /content-management/sections/
-[Output Formats]: /templates/output-formats/#link-to-output-formats
+Override Hugo's [built-in RSS template] by creating one or more of your own, following the naming conventions as shown in the [template lookup order table].
+
+For example, to use different templates for home, section, taxonomy, and term pages:
+
+```text
+layouts/
+└── _default/
+    ├── home.rss.xml
+    ├── section.rss.xml
+    ├── taxonomy.rss.xml
+    └── term.rss.xml
+```
+
+RSS templates receive the `.Page` and `.Site` objects in context.
+
+[built-in RSS template]: https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/rss.xml
+[page kinds]: /getting-started/glossary/#page-kind
+[template lookup order table]: #template-lookup-order
+
+## Template lookup order
+
+The table below shows the RSS template lookup order for the different page kinds. The first listing shows the lookup order when running with a theme (`demoTheme`).
+
+{{< datatable-filtered "output" "layouts" "OutputFormat == rss" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}

@@ -100,6 +100,10 @@ func (e *errorResource) Width() int {
 	panic(e.ResourceError)
 }
 
+func (e *errorResource) Process(spec string) (images.ImageResource, error) {
+	panic(e.ResourceError)
+}
+
 func (e *errorResource) Crop(spec string) (images.ImageResource, error) {
 	panic(e.ResourceError)
 }

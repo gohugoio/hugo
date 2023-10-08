@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2023 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,9 +25,9 @@ func init() {
 	// This message to show to Windows users if Hugo is opened from explorer.exe
 	cobra.MousetrapHelpText = `
 
-  Hugo is a command-line tool for generating static website.
+  Hugo is a command-line tool for generating static websites.
 
-  You need to open cmd.exe and run Hugo from there.
-  
+  You need to open PowerShell and run Hugo from there.
+
   Visit https://gohugo.io/ for more information.`
 }

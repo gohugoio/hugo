@@ -67,8 +67,8 @@ func (p *nopPage) Aliases() []string {
 	return nil
 }
 
-func (p *nopPage) Sitemap() config.Sitemap {
-	return config.Sitemap{}
+func (p *nopPage) Sitemap() config.SitemapConfig {
+	return config.SitemapConfig{}
 }
 
 func (p *nopPage) Layout() string {
@@ -217,7 +217,7 @@ func (p *nopPage) HasShortcode(name string) bool {
 	return false
 }
 
-func (p *nopPage) Hugo() (h hugo.Info) {
+func (p *nopPage) Hugo() (h hugo.HugoInfo) {
 	return
 }
 
@@ -399,6 +399,10 @@ func (p *nopPage) NextPage() Page {
 
 func (p *nopPage) RawContent() string {
 	return ""
+}
+
+func (p *nopPage) RenderShortcodes(ctx context.Context) (template.HTML, error) {
+	return "", nil
 }
 
 func (p *nopPage) ReadingTime(context.Context) int {

@@ -16,6 +16,7 @@
 package collections
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"math/rand"
@@ -43,11 +44,11 @@ func init() {
 
 // New returns a new instance of the collections-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
-	if deps.Language == nil {
+	language := deps.Conf.Language()
+	if language == nil {
 		panic("language must be set")
 	}
-
-	loc := langs.GetLocation(deps.Language)
+	loc := langs.GetLocation(language)
 
 	return &Namespace{
 		loc:      loc,
@@ -100,7 +101,7 @@ func (ns *Namespace) After(n any, l any) (any, error) {
 
 // Delimit takes a given list l and returns a string delimited by sep.
 // If last is passed to the function, it will be used as the final delimiter.
-func (ns *Namespace) Delimit(l, sep any, last ...any) (template.HTML, error) {
+func (ns *Namespace) Delimit(ctx context.Context, l, sep any, last ...any) (template.HTML, error) {
 	d, err := cast.ToStringE(sep)
 	if err != nil {
 		return "", err
@@ -126,7 +127,7 @@ func (ns *Namespace) Delimit(l, sep any, last ...any) (template.HTML, error) {
 	var str string
 	switch lv.Kind() {
 	case reflect.Map:
-		sortSeq, err := ns.Sort(l)
+		sortSeq, err := ns.Sort(ctx, l)
 		if err != nil {
 			return "", err
 		}
@@ -195,9 +196,11 @@ func (ns *Namespace) Dictionary(values ...any) (map[string]any, error) {
 	return root, nil
 }
 
-// EchoParam returns a the value in the collection c with key k if is set; otherwise, it returns an
+// EchoParam returns the value in the collection c with key k if is set; otherwise, it returns an
 // empty string.
+// Deprecated: Use the index function instead.
 func (ns *Namespace) EchoParam(c, k any) any {
+	helpers.Deprecated("collections.EchoParam", "Use the index function instead.", false)
 	av, isNil := indirect(reflect.ValueOf(c))
 	if isNil {
 		return ""
@@ -233,6 +236,8 @@ func (ns *Namespace) EchoParam(c, k any) any {
 			return avv.Float()
 		case reflect.String:
 			return avv.String()
+		case reflect.Bool:
+			return avv.Bool()
 		}
 	}
 
@@ -393,7 +398,7 @@ func (ns *Namespace) IsSet(c any, key any) (bool, error) {
 			return av.MapIndex(kv).IsValid(), nil
 		}
 	default:
-		helpers.DistinctErrorLog.Printf("WARNING: calling IsSet with unsupported type %q (%T) will always return false.\n", av.Kind(), c)
+		ns.deps.Log.Warnf("calling IsSet with unsupported type %q (%T) will always return false.\n", av.Kind(), c)
 	}
 
 	return false, nil

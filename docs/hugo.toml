@@ -58,6 +58,9 @@ disableAliases = true
   [caches.assets]
     dir    = ":resourceDir/_gen"
     maxAge = -1
+  [caches.getresource]
+    dir = ":cacheDir/:project"
+    maxage = '1h'
 
 [related]
   threshold    = 80
@@ -65,7 +68,17 @@ disableAliases = true
   toLower      = false
   [[related.indices]]
     name   = "keywords"
-    weight = 100
+    weight = 60
+  [[related.indices]]
+    # Can be used as a front matter slice to link to other page fragments (headings) using their ID.
+    # This isn't particular useful in the current docs, but we're planning on getting a auto generated
+    # reference section with a better ID setup.
+    # For now, we just use it to give pages with same headings some similarity score.
+    name                 = "fragmentrefs"
+    type                 = "fragments"
+    applyFilter          = false
+    weight               = 60
+    cardinalityThreshold = 50
   [[related.indices]]
     name    = "date"
     weight  = 10

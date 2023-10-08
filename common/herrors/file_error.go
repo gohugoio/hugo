@@ -15,11 +15,14 @@ package herrors
 
 import (
 	"encoding/json"
+
+	godartsassv1 "github.com/bep/godartsass"
+
 	"fmt"
 	"io"
 	"path/filepath"
 
-	"github.com/bep/godartsass"
+	"github.com/bep/godartsass/v2"
 	"github.com/bep/golibsass/libsass/libsasserrors"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/text"
@@ -35,7 +38,7 @@ import (
 type FileError interface {
 	error
 
-	// ErroContext holds some context information about the error.
+	// ErrorContext holds some context information about the error.
 	ErrorContext() *ErrorContext
 
 	text.Positioner
@@ -144,6 +147,8 @@ func (e *fileError) causeString() string {
 	switch v := e.cause.(type) {
 	// Avoid repeating the file info in the error message.
 	case godartsass.SassError:
+		return v.Message
+	case godartsassv1.SassError:
 		return v.Message
 	case libsasserrors.Error:
 		return v.Message
@@ -292,7 +297,7 @@ func extractFileTypePos(err error) (string, text.Position) {
 	}
 
 	// The error type from the minifier contains line number and column number.
-	if line, col := exctractLineNumberAndColumnNumber(err); line >= 0 {
+	if line, col := extractLineNumberAndColumnNumber(err); line >= 0 {
 		pos.LineNumber = line
 		pos.ColumnNumber = col
 		return fileType, pos
@@ -364,7 +369,7 @@ func extractOffsetAndType(e error) (int, string) {
 	}
 }
 
-func exctractLineNumberAndColumnNumber(e error) (int, int) {
+func extractLineNumberAndColumnNumber(e error) (int, int) {
 	switch v := e.(type) {
 	case *parse.Error:
 		return v.Line, v.Column
@@ -379,6 +384,13 @@ func exctractLineNumberAndColumnNumber(e error) (int, int) {
 func extractPosition(e error) (pos text.Position) {
 	switch v := e.(type) {
 	case godartsass.SassError:
+		span := v.Span
+		start := span.Start
+		filename, _ := paths.UrlToFilename(span.Url)
+		pos.Filename = filename
+		pos.Offset = start.Offset
+		pos.ColumnNumber = start.Column
+	case godartsassv1.SassError:
 		span := v.Span
 		start := span.Start
 		filename, _ := paths.UrlToFilename(span.Url)

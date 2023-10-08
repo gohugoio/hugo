@@ -15,5 +15,5 @@ package hugolib
 
 // GC requires a build first and must run on it's own. It is not thread safe.
 func (h *HugoSites) GC() (int, error) {
-	return h.Deps.FileCaches.Prune()
+	return h.Deps.ResourceSpec.FileCaches.Prune()
 }

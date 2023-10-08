@@ -17,6 +17,7 @@ package types
 import (
 	"fmt"
 	"reflect"
+	"sync/atomic"
 
 	"github.com/spf13/cast"
 )
@@ -90,3 +91,6 @@ func IsNil(v any) bool {
 type DevMarker interface {
 	DevOnly()
 }
+
+// This is only used for debugging purposes.
+var InvocationCounter atomic.Int64

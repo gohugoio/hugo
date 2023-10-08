@@ -161,7 +161,7 @@ var collatorStringSort = func(getString func(Page) string) func(p Pages) {
 		// Pages may be a mix of multiple languages, so we need to use the language
 		// for the currently rendered Site.
 		currentSite := p[0].Site().Current()
-		coll := langs.GetCollator(currentSite.Language())
+		coll := langs.GetCollator1(currentSite.Language())
 		coll.Lock()
 		defer coll.Unlock()
 
@@ -173,7 +173,7 @@ var collatorStringSort = func(getString func(Page) string) func(p Pages) {
 
 var collatorStringCompare = func(getString func(Page) string, p1, p2 Page) int {
 	currentSite := p1.Site().Current()
-	coll := langs.GetCollator(currentSite.Language())
+	coll := langs.GetCollator1(currentSite.Language())
 	coll.Lock()
 	c := coll.CompareStrings(getString(p1), getString(p2))
 	coll.Unlock()
@@ -182,7 +182,9 @@ var collatorStringCompare = func(getString func(Page) string, p1, p2 Page) int {
 
 var collatorStringLess = func(p Page) (less func(s1, s2 string) bool, close func()) {
 	currentSite := p.Site().Current()
-	coll := langs.GetCollator(currentSite.Language())
+	// Make sure to use the second collator to prevent deadlocks.
+	// See issue 11039.
+	coll := langs.GetCollator2(currentSite.Language())
 	coll.Lock()
 	return func(s1, s2 string) bool {
 			return coll.CompareStrings(s1, s2) < 1

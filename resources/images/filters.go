@@ -28,7 +28,15 @@ import (
 // Increment for re-generation of images using these filters.
 const filterAPIVersion = 0
 
-type Filters struct {
+type Filters struct{}
+
+func (*Filters) Process(spec any) gift.Filter {
+	return filter{
+		Options: newFilterOpts(spec),
+		Filter: processFilter{
+			spec: cast.ToString(spec),
+		},
+	}
 }
 
 // Overlay creates a filter that overlays src at position x y.
@@ -36,6 +44,15 @@ func (*Filters) Overlay(src ImageSource, x, y any) gift.Filter {
 	return filter{
 		Options: newFilterOpts(src.Key(), x, y),
 		Filter:  overlayFilter{src: src, x: cast.ToInt(x), y: cast.ToInt(y)},
+	}
+}
+
+// Opacity creates a filter that changes the opacity of an image.
+// The opacity parameter must be in range (0, 1).
+func (*Filters) Opacity(opacity any) gift.Filter {
+	return filter{
+		Options: newFilterOpts(opacity),
+		Filter:  opacityFilter{opacity: cast.ToFloat32(opacity)},
 	}
 }
 

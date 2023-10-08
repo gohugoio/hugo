@@ -1,27 +1,20 @@
 ---
 title: safeHTML
-# linktitle:
 description: Declares a provided string as a "safe" HTML document to avoid escaping by Go templates.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [strings]
 signature: ["safeHTML INPUT"]
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
 ---
 
 It should not be used for HTML from a third-party, or HTML with unclosed tags or comments.
 
-Given a site-wide [`config.toml`][config] with the following `copyright` value:
+Given a site-wide [`hugo.toml`][config] with the following `copyright` value:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 copyright = "© 2015 Jane Doe.  <a href=\"https://creativecommons.org/licenses/by/4.0/\">Some rights reserved</a>."
 {{< /code-toggle >}}
 
@@ -33,7 +26,7 @@ copyright = "© 2015 Jane Doe.  <a href=\"https://creativecommons.org/licenses/b
 
 However, without the `safeHTML` function, html/template assumes `.Site.Copyright` to be unsafe and therefore escapes all HTML tags and renders the whole string as plain text:
 
-```
+```html
 <p>© 2015 Jane Doe.  &lt;a href=&#34;https://creativecommons.org/licenses by/4.0/&#34;&gt;Some rights reserved&lt;/a&gt;.</p>
 ```
 

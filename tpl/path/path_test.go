@@ -19,17 +19,19 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/paths"
-	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/config/testconfig"
 )
 
-var ns = New(&deps.Deps{Cfg: config.New()})
+func newNs() *Namespace {
+	return New(testconfig.GetTestDeps(nil, nil))
+}
 
 type tstNoStringer struct{}
 
 func TestBase(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
+	ns := newNs()
 
 	for _, test := range []struct {
 		path   any
@@ -60,6 +62,7 @@ func TestBase(t *testing.T) {
 func TestBaseName(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
+	ns := newNs()
 
 	for _, test := range []struct {
 		path   any
@@ -90,6 +93,7 @@ func TestBaseName(t *testing.T) {
 func TestDir(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
+	ns := newNs()
 
 	for _, test := range []struct {
 		path   any
@@ -120,6 +124,7 @@ func TestDir(t *testing.T) {
 func TestExt(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
+	ns := newNs()
 
 	for _, test := range []struct {
 		path   any
@@ -148,6 +153,7 @@ func TestExt(t *testing.T) {
 func TestJoin(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
+	ns := newNs()
 
 	for _, test := range []struct {
 		elements any
@@ -182,6 +188,7 @@ func TestJoin(t *testing.T) {
 func TestSplit(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
+	ns := newNs()
 
 	for _, test := range []struct {
 		path   any
@@ -210,6 +217,7 @@ func TestSplit(t *testing.T) {
 func TestClean(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
+	ns := newNs()
 
 	for _, test := range []struct {
 		path   any

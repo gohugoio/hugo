@@ -1,15 +1,12 @@
 ---
-title: "transform.Unmarshal"
+title: transform.Unmarshal
 description: "`transform.Unmarshal` (alias `unmarshal`) parses the input and converts it into a map or an array. Supported formats are JSON, TOML, YAML, XML and CSV."
-date: 2018-12-23
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: []
 signature: ["RESOURCE or STRING | transform.Unmarshal [OPTIONS]"]
-hugoversion: "0.53"
-aliases: []
 ---
 
 The function accepts either a `Resource` created in [Hugo Pipes](/hugo-pipes/) or via [Page Bundles](/content-management/page-bundles/), or simply a string. The two examples below will produce the same map:
@@ -30,7 +27,7 @@ In both the above examples, you get a map you can work with:
 
 The above prints `Hello Hugo`.
 
-## CSV Options
+## CSV options
 
 Unmarshal with CSV as input has some options you can set:
 
@@ -52,7 +49,7 @@ As a convenience, Hugo allows you to access XML data in the same way that you ac
 
 To get the contents of `<title>` in the document below, you use `{{ .message.title }}`:
 
-```
+```xml
 <root>
     <message>
         <title>Hugo rocks!</title>
@@ -63,14 +60,14 @@ To get the contents of `<title>` in the document below, you use `{{ .message.tit
 
 The following example lists the items of an RSS feed:
 
-```
-{{ with resources.Get "https://example.com/rss.xml" | transform.Unmarshal }}
-    {{ range .channel.item }}
-        <strong>{{ .title | plainify | htmlUnescape }}</strong><br />
-        <p>{{ .description | plainify | htmlUnescape }}</p>
-        {{ $link := .link | plainify | htmlUnescape }}
-        <a href="{{ $link }}">{{ $link }}</a><br />
-        <hr>
-    {{ end }}
+```go-html-template
+{{ with resources.GetRemote "https://example.com/rss.xml" | transform.Unmarshal }}
+  {{ range .channel.item }}
+    <strong>{{ .title | plainify | htmlUnescape }}</strong><br>
+    <p>{{ .description | plainify | htmlUnescape }}</p>
+    {{ $link := .link | plainify | htmlUnescape }}
+    <a href="{{ $link }}">{{ $link }}</a><br>
+    <hr>
+  {{ end }}
 {{ end }}
 ```

@@ -18,9 +18,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/htesting/hqt"
 
-	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/spf13/afero"
@@ -95,7 +95,7 @@ LOCAL_STYLE
 		mainStyles,
 		"styles.css",
 		Options{},
-		fs, loggers.NewErrorLogger(),
+		fs, loggers.NewDefault(),
 	)
 
 	r, err := imp.resolve()
@@ -144,7 +144,7 @@ LOCAL_STYLE
 @import "e.css";
 @import "missing.css";`
 
-	logger := loggers.NewErrorLogger()
+	logger := loggers.NewDefault()
 
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()

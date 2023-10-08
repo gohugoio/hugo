@@ -36,7 +36,7 @@ func TestMenuCache(t *testing.T) {
 	c1 := newMenuCache()
 
 	changeFirst := func(m Menu) {
-		m[0].title = "changed"
+		m[0].MenuConfig.Title = "changed"
 	}
 
 	var o1 uint64
@@ -73,7 +73,7 @@ func TestMenuCache(t *testing.T) {
 				c.Assert(c3, qt.Equals, !atomic.CompareAndSwapUint64(&o2, uint64(k), uint64(k+1)))
 				l2.Unlock()
 				c.Assert(m3, qt.Not(qt.IsNil))
-				c.Assert("changed", qt.Equals, m3[0].title)
+				c.Assert("changed", qt.Equals, m3[0].Title)
 			}
 		}()
 	}
