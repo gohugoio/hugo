@@ -109,7 +109,7 @@ LINE1
 
 * Autolink: https://gohugo.io/
 * Strikethrough:~~Hi~~ Hello, world!
- 
+
 ## Table
 
 | foo | bar |
@@ -137,7 +137,7 @@ That's some text with a footnote.[^1]
 ## Definition Lists
 
 date
-: the datetime assigned to this page. 
+: the datetime assigned to this page.
 
 description
 : the description for the content.
@@ -204,8 +204,8 @@ unsafe = true
 
 	toc, ok := b.(converter.TableOfContentsProvider)
 	c.Assert(ok, qt.Equals, true)
-	tocHTML := toc.TableOfContents().ToHTML(1, 2, false)
-	c.Assert(tocHTML, qt.Contains, "TableOfContents")
+	tocString := string(toc.TableOfContents().ToHTML(1, 2, false))
+	c.Assert(tocString, qt.Contains, "TableOfContents")
 }
 
 func TestConvertAutoIDAsciiOnly(t *testing.T) {
