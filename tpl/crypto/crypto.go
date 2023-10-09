@@ -36,9 +36,9 @@ func New() *Namespace {
 // Namespace provides template functions for the "crypto" namespace.
 type Namespace struct{}
 
-// MD5 hashes the given input and returns its MD5 checksum.
-func (ns *Namespace) MD5(in any) (string, error) {
-	conv, err := cast.ToStringE(in)
+// MD5 hashes the v and returns its MD5 checksum.
+func (ns *Namespace) MD5(v any) (string, error) {
+	conv, err := cast.ToStringE(v)
 	if err != nil {
 		return "", err
 	}
@@ -47,9 +47,9 @@ func (ns *Namespace) MD5(in any) (string, error) {
 	return hex.EncodeToString(hash[:]), nil
 }
 
-// SHA1 hashes the given input and returns its SHA1 checksum.
-func (ns *Namespace) SHA1(in any) (string, error) {
-	conv, err := cast.ToStringE(in)
+// SHA1 hashes v and returns its SHA1 checksum.
+func (ns *Namespace) SHA1(v any) (string, error) {
+	conv, err := cast.ToStringE(v)
 	if err != nil {
 		return "", err
 	}
@@ -58,9 +58,9 @@ func (ns *Namespace) SHA1(in any) (string, error) {
 	return hex.EncodeToString(hash[:]), nil
 }
 
-// SHA256 hashes the given input and returns its SHA256 checksum.
-func (ns *Namespace) SHA256(in any) (string, error) {
-	conv, err := cast.ToStringE(in)
+// SHA256 hashes v and returns its SHA256 checksum.
+func (ns *Namespace) SHA256(v any) (string, error) {
+	conv, err := cast.ToStringE(v)
 	if err != nil {
 		return "", err
 	}
@@ -69,9 +69,10 @@ func (ns *Namespace) SHA256(in any) (string, error) {
 	return hex.EncodeToString(hash[:]), nil
 }
 
-// FNV32a hashes using fnv32a algorithm
-func (ns *Namespace) FNV32a(in any) (int, error) {
-	conv, err := cast.ToStringE(in)
+// FNV32a hashes v using fnv32a algorithm.
+// <docsmeta>{"newIn": "0.98.0" }</docsmeta>
+func (ns *Namespace) FNV32a(v any) (int, error) {
+	conv, err := cast.ToStringE(v)
 	if err != nil {
 		return 0, err
 	}

@@ -31,6 +31,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources"
+	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/internal/sass"
 )
 
 // Used in tests. This feature requires Hugo to be built with the extended tag.
@@ -39,7 +40,7 @@ func Supports() bool {
 }
 
 func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
-	ctx.OutMediaType = media.CSSType
+	ctx.OutMediaType = media.Builtin.CSSType
 
 	var outName string
 	if t.options.from.TargetPath != "" {
@@ -63,11 +64,17 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		}
 	}
 
+	varsStylesheet := sass.CreateVarsStyleSheet(options.from.Vars)
+
 	// To allow for overrides of SCSS files anywhere in the project/theme hierarchy, we need
 	// to help libsass revolve the filename by looking in the composite filesystem first.
 	// We add the entry directories for both project and themes to the include paths list, but
 	// that only work for overrides on the top level.
 	options.to.ImportResolver = func(url string, prev string) (newUrl string, body string, resolved bool) {
+		if url == sass.HugoVarsNamespace {
+			return url, varsStylesheet, true
+		}
+
 		// We get URL paths from LibSASS, but we need file paths.
 		url = filepath.FromSlash(url)
 		prev = filepath.FromSlash(prev)
@@ -117,14 +124,14 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		return "", "", false
 	}
 
-	if ctx.InMediaType.SubType == media.SASSType.SubType {
+	if ctx.InMediaType.SubType == media.Builtin.SASSType.SubType {
 		options.to.SassSyntax = true
 	}
 
 	if options.from.EnableSourceMap {
 
 		options.to.SourceMapOptions.Filename = outName + ".map"
-		options.to.SourceMapOptions.Root = t.c.rs.WorkingDir
+		options.to.SourceMapOptions.Root = t.c.rs.Cfg.BaseConfig().WorkingDir
 
 		// Setting this to the relative input filename will get the source map
 		// more correct for the main entry path (main.scss typically), but
@@ -152,8 +159,8 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	if options.from.EnableSourceMap && res.SourceMapContent != "" {
 		sourcePath := t.c.sfs.RealFilename(ctx.SourcePath)
 
-		if strings.HasPrefix(sourcePath, t.c.rs.WorkingDir) {
-			sourcePath = strings.TrimPrefix(sourcePath, t.c.rs.WorkingDir+helpers.FilePathSeparator)
+		if strings.HasPrefix(sourcePath, t.c.rs.Cfg.BaseConfig().WorkingDir) {
+			sourcePath = strings.TrimPrefix(sourcePath, t.c.rs.Cfg.BaseConfig().WorkingDir+helpers.FilePathSeparator)
 		}
 
 		// This needs to be Unix-style slashes, even on Windows.

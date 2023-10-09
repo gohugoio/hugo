@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -175,13 +174,13 @@ func Test386() error {
 // Run tests
 func Test() error {
 	env := map[string]string{"GOFLAGS": testGoFlags()}
-	return runCmd(env, goexe, "test", "./...", buildFlags(), "-tags", buildTags())
+	return runCmd(env, goexe, "test", "./...", "-tags", buildTags())
 }
 
 // Run tests with race detector
 func TestRace() error {
 	env := map[string]string{"GOFLAGS": testGoFlags()}
-	return runCmd(env, goexe, "test", "-race", "./...", buildFlags(), "-tags", buildTags())
+	return runCmd(env, goexe, "test", "-race", "./...", "-tags", buildTags())
 }
 
 // Run gofmt linter
@@ -268,7 +267,7 @@ func Lint() error {
 	return nil
 }
 
-//  Run go vet linter
+// Run go vet linter
 func Vet() error {
 	if err := sh.Run(goexe, "vet", "./..."); err != nil {
 		return fmt.Errorf("error running go vet: %v", err)
@@ -298,7 +297,7 @@ func TestCoverHTML() error {
 		if err := sh.Run(goexe, "test", "-coverprofile="+cover, "-covermode=count", pkg); err != nil {
 			return err
 		}
-		b, err := ioutil.ReadFile(cover)
+		b, err := os.ReadFile(cover)
 		if err != nil {
 			if os.IsNotExist(err) {
 				continue
@@ -330,7 +329,7 @@ func runCmd(env map[string]string, cmd string, args ...any) error {
 }
 
 func isGoLatest() bool {
-	return strings.Contains(runtime.Version(), "1.14")
+	return strings.Contains(runtime.Version(), "1.21")
 }
 
 func isCI() bool {

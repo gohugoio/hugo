@@ -1,0 +1,42 @@
+# Test the convert commands.
+
+hugo convert -h
+stdout 'Convert your content'
+hugo convert toJSON -h
+stdout 'to use JSON for the front matter'
+hugo convert toTOML -h
+stdout 'to use TOML for the front matter'
+hugo convert toYAML -h
+stdout 'to use YAML for the front matter'
+
+hugo convert toJSON -o myjsoncontent
+stdout 'processing 3 content files'
+grep '^{' myjsoncontent/content/mytoml.md
+grep '^{' myjsoncontent/content/myjson.md
+grep '^{' myjsoncontent/content/myyaml.md
+hugo convert toYAML -o myyamlcontent
+stdout 'processing 3 content files'
+hugo convert toTOML -o mytomlcontent
+stdout 'processing 3 content files'
+
+
+
+
+
+-- hugo.toml --
+baseURL = "http://example.org/"
+-- content/mytoml.md --
++++
+title = "TOML"
++++
+TOML content
+-- content/myjson.md --
+{
+  "title": "JSON"
+}
+JSON content
+-- content/myyaml.md --
+---
+title: YAML
+---
+YAML content

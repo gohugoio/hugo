@@ -1,18 +1,22 @@
 [[banners]]
-    name = "Linode"
-    link = "https://www.linode.com/"
-    logo = "/images/sponsors/linode-logo_standard_light_medium.png"
-    copy = ""
+    name         = "Linode"
+    link         = "https://www.linode.com/"
+    logo         = "images/sponsors/linode-logo.svg"
+    utm_campaign = "hugosponsor"
+    bgcolor      = "#ffffff"
 
 [[banners]]
-    name = "eSolia"
-    link = "https://esolia.com/post/why-did-esolia-choose-hugo/"
-    logo = "/images/sponsors/esolia-logo.svg"
-    copy = ""
+    name         = "CloudCannon"
+    link         = "https://cloudcannon.com/hugo-cms/"
+    logo         = "/images/sponsors/cloudcannon-white.svg"
+    utm_campaign = "HugoSponsorship"
+    utm_source   = "sponsor"
+    utm_content  = "gohugo"
+    bgcolor      = "#034AD8"
 
 [[banners]]
-    name    = "BEP Consulting"
-    link    = "https://bep.consulting"
-    logo    = "/images/sponsors/bep-consulting.svg"
-    bgcolor = "#004887"
-    copy    = ""
+    name          = "Your Company?"
+    link          = "https://bep.is/en/hugo-sponsor-2023-01/"
+    utm_campaign  = "hugosponsor"
+    show_on_hover = true
+    bgcolor       = "#4e4f4f"

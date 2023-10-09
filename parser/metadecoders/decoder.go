@@ -18,17 +18,18 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/niklasfasching/go-org/org"
 
 	xml "github.com/clbanning/mxj/v2"
 	toml "github.com/pelletier/go-toml/v2"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
-	jww "github.com/spf13/jwalterweatherman"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -37,7 +38,7 @@ type Decoder struct {
 	// Delimiter is the field delimiter used in the CSV decoder. It defaults to ','.
 	Delimiter rune
 
-	// Comment, if not 0, is the comment character ued in the CSV decoder. Lines beginning with the
+	// Comment, if not 0, is the comment character used in the CSV decoder. Lines beginning with the
 	// Comment character without preceding whitespace are ignored.
 	Comment rune
 }
@@ -90,7 +91,7 @@ func (d Decoder) UnmarshalStringTo(data string, typ any) (any, error) {
 	switch typ.(type) {
 	case string:
 		return data, nil
-	case map[string]any:
+	case map[string]any, maps.Params:
 		format := d.FormatFromContentString(data)
 		return d.UnmarshalToMap([]byte(data), format)
 	case []any:
@@ -112,7 +113,7 @@ func (d Decoder) UnmarshalStringTo(data string, typ any) (any, error) {
 // Unmarshal will unmarshall data in format f into an interface{}.
 // This is what's needed for Hugo's /data handling.
 func (d Decoder) Unmarshal(data []byte, f Format) (any, error) {
-	if data == nil {
+	if len(data) == 0 {
 		switch f {
 		case CSV:
 			return make([][]string, 0), nil
@@ -231,7 +232,7 @@ func parseORGDate(s string) string {
 
 func (d Decoder) unmarshalORG(data []byte, v any) error {
 	config := org.New()
-	config.Log = jww.WARN
+	config.Log = log.Default() // TODO(bep)
 	document := config.Parse(bytes.NewReader(data), "")
 	if document.Error != nil {
 		return document.Error
@@ -242,9 +243,9 @@ func (d Decoder) unmarshalORG(data []byte, v any) error {
 		if strings.HasSuffix(k, "[]") {
 			frontMatter[k[:len(k)-2]] = strings.Fields(v)
 		} else if k == "tags" || k == "categories" || k == "aliases" {
-			jww.WARN.Printf("Please use '#+%s[]:' notation, automatic conversion is deprecated.", k)
+			log.Printf("warn: Please use '#+%s[]:' notation, automatic conversion is deprecated.", k)
 			frontMatter[k] = strings.Fields(v)
-		} else if k == "date" {
+		} else if k == "date" || k == "lastmod" || k == "publishdate" || k == "expirydate" {
 			frontMatter[k] = parseORGDate(v)
 		} else {
 			frontMatter[k] = v

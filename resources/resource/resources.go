@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2023 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package resource contains Resource related types.
 package resource
 
 import (
@@ -143,6 +144,7 @@ func (r Resources) MergeByLanguage(r2 Resources) Resources {
 
 // MergeByLanguageInterface is the generic version of MergeByLanguage. It
 // is here just so it can be called from the tpl package.
+// This is for internal use.
 func (r Resources) MergeByLanguageInterface(in any) (any, error) {
 	r2, ok := in.(Resources)
 	if !ok {

@@ -16,11 +16,11 @@ package postcss_test
 import (
 	"fmt"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 
-	jww "github.com/spf13/jwalterweatherman"
-
+	"github.com/bep/logg"
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugofs"
@@ -85,6 +85,7 @@ Styles Content: Len: {{ len $styles.Content }}|
 }
 -- postcss.config.js --
 console.error("Hugo Environment:", process.env.HUGO_ENVIRONMENT );
+console.error("Hugo PublishDir:", process.env.HUGO_PUBLISHDIR );
 // https://github.com/gohugoio/hugo/issues/7656
 console.error("package.json:", process.env.HUGO_FILE_PACKAGE_JSON );
 console.error("PostCSS Config File:", process.env.HUGO_FILE_POSTCSS_CONFIG_JS );
@@ -118,14 +119,12 @@ func TestTransformPostCSS(t *testing.T) {
 
 		files := repl.Replace(postCSSIntegrationTestFiles)
 
-		fmt.Println("===>", s, files)
-
 		b := hugolib.NewIntegrationTestBuilder(
 			hugolib.IntegrationTestConfig{
 				T:               c,
 				NeedsOsFS:       true,
 				NeedsNpmInstall: true,
-				LogLevel:        jww.LevelInfo,
+				LogLevel:        logg.LevelInfo,
 				WorkingDir:      tempDir,
 				TxtarString:     files,
 			}).Build()
@@ -135,6 +134,10 @@ Styles RelPermalink: /foo/css/styles.css
 Styles Content: Len: 770917|
 `)
 
+		if s == "never" {
+			b.AssertLogContains("Hugo Environment: production")
+			b.AssertLogContains("Hugo PublishDir: " + filepath.Join(tempDir, "public"))
+		}
 	}
 
 }
@@ -143,6 +146,11 @@ Styles Content: Len: 770917|
 func TestTransformPostCSSError(t *testing.T) {
 	if !htesting.IsCI() {
 		t.Skip("Skip long running test when running locally")
+	}
+
+	if runtime.GOOS == "windows" {
+		//TODO(bep) This has started to fail on Windows with Go 1.19 on GitHub Actions for some mysterious reason.
+		t.Skip("Skip on Windows")
 	}
 
 	c := qt.New(t)
@@ -160,6 +168,25 @@ func TestTransformPostCSSError(t *testing.T) {
 
 }
 
+func TestTransformPostCSSNotInstalledError(t *testing.T) {
+	if !htesting.IsCI() {
+		t.Skip("Skip long running test when running locally")
+	}
+
+	c := qt.New(t)
+
+	s, err := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           c,
+			NeedsOsFS:   true,
+			TxtarString: postCSSIntegrationTestFiles,
+		}).BuildE()
+
+	s.AssertIsFileError(err)
+	c.Assert(err.Error(), qt.Contains, `binary with name "npx" not found`)
+
+}
+
 // #9895
 func TestTransformPostCSSImportError(t *testing.T) {
 	if !htesting.IsCI() {
@@ -173,7 +200,7 @@ func TestTransformPostCSSImportError(t *testing.T) {
 			T:               c,
 			NeedsOsFS:       true,
 			NeedsNpmInstall: true,
-			LogLevel:        jww.LevelInfo,
+			LogLevel:        logg.LevelInfo,
 			TxtarString:     strings.ReplaceAll(postCSSIntegrationTestFiles, `@import "components/all.css";`, `@import "components/doesnotexist.css";`),
 		}).BuildE()
 
@@ -198,7 +225,7 @@ func TestTransformPostCSSImporSkipInlineImportsNotFound(t *testing.T) {
 			T:               c,
 			NeedsOsFS:       true,
 			NeedsNpmInstall: true,
-			LogLevel:        jww.LevelInfo,
+			LogLevel:        logg.LevelInfo,
 			TxtarString:     files,
 		}).Build()
 
@@ -230,7 +257,7 @@ func TestTransformPostCSSResourceCacheWithPathInBaseURL(t *testing.T) {
 				T:               c,
 				NeedsOsFS:       true,
 				NeedsNpmInstall: true,
-				LogLevel:        jww.LevelInfo,
+				LogLevel:        logg.LevelInfo,
 				TxtarString:     files,
 				WorkingDir:      tempDir,
 			}).Build()

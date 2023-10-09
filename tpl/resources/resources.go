@@ -15,10 +15,9 @@
 package resources
 
 import (
+	"context"
 	"fmt"
 	"sync"
-
-	"github.com/gohugoio/hugo/common/herrors"
 
 	"errors"
 
@@ -123,10 +122,16 @@ func (ns *Namespace) Copy(s any, r resource.Resource) (resource.Resource, error)
 // Get locates the filename given in Hugo's assets filesystem
 // and creates a Resource object that can be used for further transformations.
 func (ns *Namespace) Get(filename any) resource.Resource {
+
 	filenamestr, err := cast.ToStringE(filename)
 	if err != nil {
 		panic(err)
 	}
+
+	if filenamestr == "" {
+		return nil
+	}
+
 	r, err := ns.createClient.Get(filenamestr)
 	if err != nil {
 		panic(err)
@@ -140,12 +145,16 @@ func (ns *Namespace) Get(filename any) resource.Resource {
 //
 // A second argument may be provided with an option map.
 //
-// Note: This method does not return any error as a second argument,
+// Note: This method does not return any error as a second return value,
 // for any error situations the error can be checked in .Err.
 func (ns *Namespace) GetRemote(args ...any) resource.Resource {
 	get := func(args ...any) (resource.Resource, error) {
 		if len(args) < 1 {
 			return nil, errors.New("must provide an URL")
+		}
+
+		if len(args) > 2 {
+			return nil, errors.New("must not provide more arguments than URL and options")
 		}
 
 		urlstr, err := cast.ToStringE(args[0])
@@ -221,7 +230,6 @@ func (ns *Namespace) ByType(typ any) resource.Resources {
 //
 // See Match for a more complete explanation about the rules used.
 func (ns *Namespace) Match(pattern any) resource.Resources {
-	defer herrors.Recover()
 	patternStr, err := cast.ToStringE(pattern)
 	if err != nil {
 		panic(err)
@@ -277,7 +285,7 @@ func (ns *Namespace) FromString(targetPathIn, contentIn any) (resource.Resource,
 
 // ExecuteAsTemplate creates a Resource from a Go template, parsed and executed with
 // the given data, and published to the relative target path.
-func (ns *Namespace) ExecuteAsTemplate(args ...any) (resource.Resource, error) {
+func (ns *Namespace) ExecuteAsTemplate(ctx context.Context, args ...any) (resource.Resource, error) {
 	if len(args) != 3 {
 		return nil, fmt.Errorf("must provide targetPath, the template data context and a Resource object")
 	}
@@ -292,14 +300,18 @@ func (ns *Namespace) ExecuteAsTemplate(args ...any) (resource.Resource, error) {
 		return nil, fmt.Errorf("type %T not supported in Resource transformations", args[2])
 	}
 
-	return ns.templatesClient.ExecuteAsTemplate(r, targetPath, data)
+	return ns.templatesClient.ExecuteAsTemplate(ctx, r, targetPath, data)
 }
 
 // Fingerprint transforms the given Resource with a MD5 hash of the content in
 // the RelPermalink and Permalink.
 func (ns *Namespace) Fingerprint(args ...any) (resource.Resource, error) {
-	if len(args) < 1 || len(args) > 2 {
-		return nil, errors.New("must provide a Resource and (optional) crypto algo")
+	if len(args) < 1 {
+		return nil, errors.New("must provide a Resource object")
+	}
+
+	if len(args) > 2 {
+		return nil, errors.New("must not provide more arguments than Resource and hash algorithm")
 	}
 
 	var algo string
@@ -328,9 +340,15 @@ func (ns *Namespace) Minify(r resources.ResourceTransformer) (resource.Resource,
 	return ns.minifyClient.Minify(r)
 }
 
-// ToCSS converts the given Resource to CSS. You can optional provide an Options
-// object or a target path (string) as first argument.
+// ToCSS converts the given Resource to CSS. You can optional provide an Options object
+// as second argument. As an option, you can e.g. specify e.g. the target path (string)
+// for the converted CSS resource.
 func (ns *Namespace) ToCSS(args ...any) (resource.Resource, error) {
+
+	if len(args) > 2 {
+		return nil, errors.New("must not provide more arguments than resource object and options")
+	}
+
 	const (
 		// Transpiler implementation can be controlled from the client by
 		// setting the 'transpiler' option.
@@ -358,8 +376,7 @@ func (ns *Namespace) ToCSS(args ...any) (resource.Resource, error) {
 	}
 
 	if m != nil {
-		maps.PrepareParams(m)
-		if t, found := m["transpiler"]; found {
+		if t, found := maps.LookupEqualFold(m, "transpiler"); found {
 			switch t {
 			case transpilerDart, transpilerLibSass:
 				transpiler = cast.ToString(t)
@@ -401,6 +418,11 @@ func (ns *Namespace) ToCSS(args ...any) (resource.Resource, error) {
 
 // PostCSS processes the given Resource with PostCSS
 func (ns *Namespace) PostCSS(args ...any) (resource.Resource, error) {
+
+	if len(args) > 2 {
+		return nil, errors.New("must not provide more arguments than resource object and options")
+	}
+
 	r, m, err := resourcehelpers.ResolveArgs(args)
 	if err != nil {
 		return nil, err
@@ -409,12 +431,18 @@ func (ns *Namespace) PostCSS(args ...any) (resource.Resource, error) {
 	return ns.postcssClient.Process(r, m)
 }
 
+// PostProcess processes r after the build.
 func (ns *Namespace) PostProcess(r resource.Resource) (postpub.PostPublishedResource, error) {
 	return ns.deps.ResourceSpec.PostProcess(r)
 }
 
 // Babel processes the given Resource with Babel.
 func (ns *Namespace) Babel(args ...any) (resource.Resource, error) {
+
+	if len(args) > 2 {
+		return nil, errors.New("must not provide more arguments than resource object and options")
+	}
+
 	r, m, err := resourcehelpers.ResolveArgs(args)
 	if err != nil {
 		return nil, err

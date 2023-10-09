@@ -11,9 +11,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package diagrams provides template functions for generating diagrams.
 package diagrams
 
 import (
+	"context"
+
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/tpl/internal"
 )
@@ -22,13 +25,13 @@ const name = "diagrams"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		ctx := &Diagrams{
+		ctx := &Namespace{
 			d: d,
 		}
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
-			Context: func(args ...any) (any, error) { return ctx, nil },
+			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
 		}
 
 		return ns

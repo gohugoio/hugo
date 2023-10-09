@@ -40,9 +40,6 @@ type Module interface {
 	// Directory holding files for this module.
 	Dir() string
 
-	// This module is disabled.
-	Disabled() bool
-
 	// Returns whether this is a Go Module.
 	IsGoMod() bool
 
@@ -81,7 +78,6 @@ type moduleAdapter struct {
 	dir        string
 	version    string
 	vendor     bool
-	disabled   bool
 	projectMod bool
 	owner      Module
 
@@ -113,10 +109,6 @@ func (m *moduleAdapter) Dir() string {
 		return m.dir
 	}
 	return m.gomod.Dir
-}
-
-func (m *moduleAdapter) Disabled() bool {
-	return m.disabled
 }
 
 func (m *moduleAdapter) IsGoMod() bool {
@@ -184,5 +176,7 @@ func (m *moduleAdapter) Watch() bool {
 		return m.Replace().Version() == ""
 	}
 
-	return false
+	// Any module set up in a workspace file will have Indirect set to false.
+	// That leaves modules inside the read-only module cache.
+	return !m.gomod.Indirect
 }

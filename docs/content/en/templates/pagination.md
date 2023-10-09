@@ -1,26 +1,20 @@
 ---
 title: Pagination
-linktitle: Pagination
 description: Hugo supports pagination for your homepage, section pages, and taxonomies.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [templates]
 keywords: [lists,sections,pagination]
 menu:
   docs:
-    parent: "templates"
-    weight: 140
-weight: 140
-sections_weight: 140
-draft: false
+    parent: templates
+    weight: 100
+weight: 100
 aliases: [/extras/pagination,/doc/pagination/]
 toc: true
 ---
 
-The real power of Hugo pagination shines when combined with the [`where` function][where] and its SQL-like operators: [`first`][], [`last`][], and [`after`][]. You can even [order the content][lists] the way you've become used to with Hugo.
+The real power of Hugo pagination shines when combined with the [`where` function][where] and its SQL-like operators: [`first`], [`last`], and [`after`]. You can even [order the content][lists] the way you've become used to with Hugo.
 
-## Configure Pagination
+## Configure pagination
 
 Pagination can be configured in your [site configuration][configuration]:
 
@@ -34,11 +28,11 @@ Setting `paginate` to a positive value will split the list pages for the homepag
 
 `paginatePath` is used to adapt the `URL` to the pages in the paginator (the default setting will produce URLs on the form `/page/1/`.
 
-## List Paginator Pages
+## List paginator pages
 
-{{% warning %}}
+{{% note %}}
 `.Paginator` is provided to help you build a pager menu. This feature is currently only supported on homepage and list pages (i.e., taxonomies and section lists).
-{{% /warning %}}
+{{% /note %}}
 
 There are two ways to configure and use a `.Paginator`:
 
@@ -60,8 +54,8 @@ The global page size setting (`Paginate`) can be overridden by providing a posit
 
 It is also possible to use the `GroupBy` functions in combination with pagination:
 
-```
-{{ range (.Paginate (.Pages.GroupByDate "2006")).PageGroups  }}
+```go-html-template
+{{ range (.Paginate (.Pages.GroupByDate "2006")).PageGroups }}
 ```
 
 ## Build the navigation
@@ -70,17 +64,17 @@ The `.Paginator` contains enough information to build a paginator interface.
 
 The easiest way to add this to your pages is to include the built-in template (with `Bootstrap`-compatible styles):
 
-```
+```go-html-template
 {{ template "_internal/pagination.html" . }}
 ```
 
-{{% note "When to Create `.Paginator`" %}}
+{{% note %}}
 If you use any filters or ordering functions to create your `.Paginator` *and* you want the navigation buttons to be shown before the page listing, you must create the `.Paginator` before it's used.
 {{% /note %}}
 
 The following example shows how to create `.Paginator` before its used:
 
-```
+```go-html-template
 {{ $paginator := .Paginate (where .Pages "Type" "posts") }}
 {{ template "_internal/pagination.html" . }}
 {{ range $paginator.Pages }}
@@ -90,7 +84,7 @@ The following example shows how to create `.Paginator` before its used:
 
 Without the `where` filter, the above example is even simpler:
 
-```
+```go-html-template
 {{ template "_internal/pagination.html" . }}
 {{ range .Paginator.Pages }}
    {{ .Title }}
@@ -145,13 +139,12 @@ If you want to build custom navigation, you can do so using the `.Paginator` obj
 
 The pages are built on the following form (`BLANK` means no value):
 
-```
+```txt
 [SECTION/TAXONOMY/BLANK]/index.html
 [SECTION/TAXONOMY/BLANK]/page/1/index.html => redirect to  [SECTION/TAXONOMY/BLANK]/index.html
 [SECTION/TAXONOMY/BLANK]/page/2/index.html
 ....
 ```
-
 
 [`first`]: /functions/first/
 [`last`]: /functions/last/

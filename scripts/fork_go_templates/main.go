@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -17,7 +16,7 @@ import (
 )
 
 func main() {
-	// The current is built with 41a82aa9c3 text/template/parse: allow space after continue or break
+	// The current is built with 2c1e5b05fe39fc5e6c730dd60e82946b8e67c6ba, tag: go1.21.1.
 	fmt.Println("Forking ...")
 	defer fmt.Println("Done ...")
 
@@ -163,7 +162,8 @@ func copyGoPackage(dst, src string) {
 
 func doWithGoFiles(dir string,
 	rewrite func(name string),
-	transform func(name, in string) string) {
+	transform func(name, in string) string,
+) {
 	if rewrite == nil && transform == nil {
 		return
 	}
@@ -186,7 +186,7 @@ func doWithGoFiles(dir string,
 			return nil
 		}
 
-		data, err := ioutil.ReadFile(path)
+		data, err := os.ReadFile(path)
 		must(err)
 		f, err := os.Create(path)
 		must(err)

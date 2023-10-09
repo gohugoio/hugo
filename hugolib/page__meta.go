@@ -40,6 +40,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/output"
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -116,7 +117,7 @@ type pageMeta struct {
 	sections []string
 
 	// Sitemap overrides from front matter.
-	sitemap config.Sitemap
+	sitemap config.SitemapConfig
 
 	s *Site
 
@@ -139,24 +140,8 @@ func (p *pageMeta) Author() page.Author {
 }
 
 func (p *pageMeta) Authors() page.AuthorList {
-	helpers.Deprecated(".Authors", "Use taxonomies.", false)
-	authorKeys, ok := p.params["authors"]
-	if !ok {
-		return page.AuthorList{}
-	}
-	authors := authorKeys.([]string)
-	if len(authors) < 1 || len(p.s.Info.Authors) < 1 {
-		return page.AuthorList{}
-	}
-
-	al := make(page.AuthorList)
-	for _, author := range authors {
-		a, ok := p.s.Info.Authors[author]
-		if ok {
-			al[author] = a
-		}
-	}
-	return al
+	helpers.Deprecated(".Authors", "Use taxonomies.", true)
+	return nil
 }
 
 func (p *pageMeta) BundleType() files.ContentClass {
@@ -180,7 +165,7 @@ func (p *pageMeta) File() source.File {
 }
 
 func (p *pageMeta) IsHome() bool {
-	return p.Kind() == page.KindHome
+	return p.Kind() == kinds.KindHome
 }
 
 func (p *pageMeta) Keywords() []string {
@@ -215,7 +200,7 @@ func (p *pageMeta) IsNode() bool {
 }
 
 func (p *pageMeta) IsPage() bool {
-	return p.Kind() == page.KindPage
+	return p.Kind() == kinds.KindPage
 }
 
 // Param is a convenience method to do lookups in Page's and Site's Params map,
@@ -224,7 +209,7 @@ func (p *pageMeta) IsPage() bool {
 // This method is also implemented on SiteInfo.
 // TODO(bep) interface
 func (p *pageMeta) Param(key any) (any, error) {
-	return resource.Param(p, p.s.Info.Params(), key)
+	return resource.Param(p, p.s.Params(), key)
 }
 
 func (p *pageMeta) Params() maps.Params {
@@ -267,7 +252,7 @@ func (p *pageMeta) RelatedKeywords(cfg related.IndexConfig) ([]related.Keyword, 
 }
 
 func (p *pageMeta) IsSection() bool {
-	return p.Kind() == page.KindSection
+	return p.Kind() == kinds.KindSection
 }
 
 func (p *pageMeta) Section() string {
@@ -298,7 +283,7 @@ func (p *pageMeta) SectionsPath() string {
 	return path.Join(p.SectionsEntries()...)
 }
 
-func (p *pageMeta) Sitemap() config.Sitemap {
+func (p *pageMeta) Sitemap() config.SitemapConfig {
 	return p.sitemap
 }
 
@@ -404,7 +389,7 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 	}
 
 	var gitAuthorDate time.Time
-	if p.gitInfo != nil {
+	if !p.gitInfo.IsZero() {
 		gitAuthorDate = p.gitInfo.AuthorDate
 	}
 
@@ -502,17 +487,19 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 			}
 		case "outputs":
 			o := cast.ToStringSlice(v)
+			// lower case names:
+			for i, s := range o {
+				o[i] = strings.ToLower(s)
+			}
 			if len(o) > 0 {
 				// Output formats are explicitly set in front matter, use those.
-				outFormats, err := p.s.outputFormatsConfig.GetByNames(o...)
-
+				outFormats, err := p.s.conf.OutputFormats.Config.GetByNames(o...)
 				if err != nil {
 					p.s.Log.Errorf("Failed to resolve output formats: %s", err)
 				} else {
 					pm.configuredOutputFormats = outFormats
 					pm.params[loki] = outFormats
 				}
-
 			}
 		case "draft":
 			draft = new(bool)
@@ -536,7 +523,10 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 			}
 			pm.params[loki] = pm.aliases
 		case "sitemap":
-			p.m.sitemap = config.DecodeSitemap(p.s.siteCfg.sitemap, maps.ToStringMap(v))
+			p.m.sitemap, err = config.DecodeSitemap(p.s.conf.Sitemap, maps.ToStringMap(v))
+			if err != nil {
+				return fmt.Errorf("failed to decode sitemap config in front matter: %s", err)
+			}
 			pm.params[loki] = p.m.sitemap
 			sitemapSet = true
 		case "iscjklanguage":
@@ -575,51 +565,40 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 				break
 			}
 			fallthrough
-
 		default:
 			// If not one of the explicit values, store in Params
 			switch vv := v.(type) {
-			case bool:
-				pm.params[loki] = vv
-			case string:
-				pm.params[loki] = vv
-			case int64, int32, int16, int8, int:
-				pm.params[loki] = vv
-			case float64, float32:
-				pm.params[loki] = vv
-			case time.Time:
-				pm.params[loki] = vv
-			default: // handle array of strings as well
-				switch vvv := vv.(type) {
-				case []any:
-					if len(vvv) > 0 {
-						switch vvv[0].(type) {
-						case map[any]any:
-							pm.params[loki] = vvv
-						case map[string]any:
-							pm.params[loki] = vvv
-						case []any:
-							pm.params[loki] = vvv
-						default:
-							a := make([]string, len(vvv))
-							for i, u := range vvv {
-								a[i] = cast.ToString(u)
-							}
-
-							pm.params[loki] = a
+			case []any:
+				if len(vv) > 0 {
+					allStrings := true
+					for _, vvv := range vv {
+						if _, ok := vvv.(string); !ok {
+							allStrings = false
+							break
 						}
-					} else {
-						pm.params[loki] = []string{}
 					}
-				default:
-					pm.params[loki] = vv
+					if allStrings {
+						// We need tags, keywords etc. to be []string, not []interface{}.
+						a := make([]string, len(vv))
+						for i, u := range vv {
+							a[i] = cast.ToString(u)
+						}
+						pm.params[loki] = a
+					} else {
+						pm.params[loki] = vv
+					}
+				} else {
+					pm.params[loki] = []string{}
 				}
+
+			default:
+				pm.params[loki] = vv
 			}
 		}
 	}
 
 	if !sitemapSet {
-		pm.sitemap = p.s.siteCfg.sitemap
+		pm.sitemap = p.s.conf.Sitemap
 	}
 
 	pm.markup = p.s.ContentSpec.ResolveMarkup(pm.markup)
@@ -636,7 +615,7 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 
 	if isCJKLanguage != nil {
 		pm.isCJKLanguage = *isCJKLanguage
-	} else if p.s.siteCfg.hasCJKLanguage && p.source.parsed != nil {
+	} else if p.s.conf.HasCJKLanguage && p.source.parsed != nil {
 		if cjkRe.Match(p.source.parsed.Input()) {
 			pm.isCJKLanguage = true
 		} else {
@@ -702,9 +681,9 @@ func (p *pageMeta) applyDefaultValues(n *contentNode) error {
 
 	if p.title == "" && p.f.IsZero() {
 		switch p.Kind() {
-		case page.KindHome:
-			p.title = p.s.Info.title
-		case page.KindSection:
+		case kinds.KindHome:
+			p.title = p.s.Title()
+		case kinds.KindSection:
 			var sectionName string
 			if n != nil {
 				sectionName = n.rootSection()
@@ -713,18 +692,18 @@ func (p *pageMeta) applyDefaultValues(n *contentNode) error {
 			}
 
 			sectionName = helpers.FirstUpper(sectionName)
-			if p.s.Cfg.GetBool("pluralizeListTitles") {
+			if p.s.conf.PluralizeListTitles {
 				p.title = flect.Pluralize(sectionName)
 			} else {
 				p.title = sectionName
 			}
-		case page.KindTerm:
+		case kinds.KindTerm:
 			// TODO(bep) improve
 			key := p.sections[len(p.sections)-1]
-			p.title = strings.Replace(p.s.titleFunc(key), "-", " ", -1)
-		case page.KindTaxonomy:
-			p.title = p.s.titleFunc(p.sections[0])
-		case kind404:
+			p.title = strings.Replace(p.s.conf.C.CreateTitle(key), "-", " ", -1)
+		case kinds.KindTaxonomy:
+			p.title = p.s.conf.C.CreateTitle(p.sections[0])
+		case kinds.Kind404:
 			p.title = "404 Page not found"
 
 		}
@@ -786,8 +765,7 @@ func (m *pageMeta) outputFormats() output.Formats {
 	if len(m.configuredOutputFormats) > 0 {
 		return m.configuredOutputFormats
 	}
-
-	return m.s.outputFormats[m.Kind()]
+	return m.s.conf.C.KindOutputFormats[m.Kind()]
 }
 
 func (p *pageMeta) Slug() string {

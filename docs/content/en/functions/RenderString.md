@@ -1,16 +1,13 @@
 ---
 title: .RenderString
 description: "Renders markup to HTML."
-date: 2019-12-18
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [markdown,goldmark,render]
 signature: [".RenderString MARKUP"]
 ---
-
-{{< new-in "0.62.0" >}} 
 
 `.RenderString` is a method on `Page` that renders some markup to HTML using the content renderer defined for that page (if not set in the options).
 
@@ -28,9 +25,8 @@ Some examples:
 {{ $optBlock := dict "display" "block" }}
 {{ $optOrg := dict "markup" "org" }}
 {{ "**Bold Markdown**" | $p.RenderString }}
-{{  "**Bold Block Markdown**" | $p.RenderString  $optBlock }}
-{{  "/italic org mode/" | $p.RenderString  $optOrg }}
+{{ "**Bold Block Markdown**" | $p.RenderString  $optBlock }}
+{{ "/italic org mode/" | $p.RenderString  $optOrg }}
 ```
 
-
-**Note** that this method is more powerful than the similar [markdownify](/functions/markdownify/) function as it also supports [Render Hooks](/getting-started/configuration-markup/#markdown-render-hooks) and it has options to render other markup formats.
+{{< new-in "0.93.0" >}} **Note**: [markdownify](/functions/markdownify/) uses this function in order to support [Render Hooks](/getting-started/configuration-markup/#markdown-render-hooks).

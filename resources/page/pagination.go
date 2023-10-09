@@ -27,8 +27,10 @@ import (
 
 // PaginatorProvider provides two ways to create a page paginator.
 type PaginatorProvider interface {
+	// Paginator creates a paginator with the default page set.
 	Paginator(options ...any) (*Pager, error)
-	Paginate(seq any, options ...any) (*Pager, error)
+	// Paginate creates a paginator with the given page set in pages.
+	Paginate(pages any, options ...any) (*Pager, error)
 }
 
 // Pager represents one of the elements in a paginator.
@@ -248,9 +250,9 @@ func splitPageGroups(pageGroups PagesGroup, size int) []paginatedElement {
 	return split
 }
 
-func ResolvePagerSize(cfg config.Provider, options ...any) (int, error) {
+func ResolvePagerSize(conf config.AllProvider, options ...any) (int, error) {
 	if len(options) == 0 {
-		return cfg.GetInt("paginate"), nil
+		return conf.Paginate(), nil
 	}
 
 	if len(options) > 1 {
@@ -275,11 +277,11 @@ func Paginate(td TargetPathDescriptor, seq any, pagerSize int) (*Paginator, erro
 
 	var paginator *Paginator
 
-	groups, err := ToPagesGroup(seq)
+	groups, ok, err := ToPagesGroup(seq)
 	if err != nil {
 		return nil, err
 	}
-	if groups != nil {
+	if ok {
 		paginator, _ = newPaginatorFromPageGroups(groups, pagerSize, urlFactory)
 	} else {
 		pages, err := ToPages(seq)
@@ -387,7 +389,7 @@ func newPaginationURLFactory(d TargetPathDescriptor) paginationURLFactory {
 		pathDescriptor := d
 		var rel string
 		if pageNumber > 1 {
-			rel = fmt.Sprintf("/%s/%d/", d.PathSpec.PaginatePath, pageNumber)
+			rel = fmt.Sprintf("/%s/%d/", d.PathSpec.Cfg.PaginatePath(), pageNumber)
 			pathDescriptor.Addends = rel
 		}
 

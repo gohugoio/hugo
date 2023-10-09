@@ -1,24 +1,16 @@
 ---
 title: plainify
-linktitle: plainify
-description: Strips any HTML and returns the plain text version of the provided string.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-04-30
+description: Returns a string with all HTML tags removed.
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [strings]
 signature: ["plainify INPUT"]
-workson: []
-hugoversion:
 relatedfuncs: [jsonify]
-deprecated: false
-aliases: []
 ---
 
-```
+```go-html-template
 {{ "<b>BatMan</b>" | plainify }} → "BatMan"
 ```
 

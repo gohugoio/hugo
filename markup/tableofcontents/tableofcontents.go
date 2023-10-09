@@ -14,35 +14,104 @@
 package tableofcontents
 
 import (
+	"sort"
 	"strings"
+
+	"github.com/gohugoio/hugo/common/collections"
 )
 
+// Empty is an empty ToC.
+var Empty = &Fragments{
+	Headings:    Headings{},
+	HeadingsMap: map[string]*Heading{},
+}
+
+// Builder is used to build the ToC data structure.
+type Builder struct {
+	toc *Fragments
+}
+
+// AddAt adds the heading to the ToC.
+func (b *Builder) AddAt(h *Heading, row, level int) {
+	if b.toc == nil {
+		b.toc = &Fragments{}
+	}
+	b.toc.addAt(h, row, level)
+}
+
+// Build returns the ToC.
+func (b Builder) Build() *Fragments {
+	if b.toc == nil {
+		return Empty
+	}
+	b.toc.HeadingsMap = make(map[string]*Heading)
+	b.toc.walk(func(h *Heading) {
+		if h.ID != "" {
+			b.toc.HeadingsMap[h.ID] = h
+			b.toc.Identifiers = append(b.toc.Identifiers, h.ID)
+		}
+	})
+	sort.Strings(b.toc.Identifiers)
+	return b.toc
+}
+
 // Headings holds the top level headings.
-type Headings []Heading
+type Headings []*Heading
+
+// FilterBy returns a new Headings slice with all headings that matches the given predicate.
+// For internal use only.
+func (h Headings) FilterBy(fn func(*Heading) bool) Headings {
+	var out Headings
+
+	for _, h := range h {
+		h.walk(func(h *Heading) {
+			if fn(h) {
+				out = append(out, h)
+			}
+		})
+	}
+	return out
+}
 
 // Heading holds the data about a heading and its children.
 type Heading struct {
-	ID   string
-	Text string
+	ID    string
+	Title string
 
 	Headings Headings
 }
 
 // IsZero is true when no ID or Text is set.
 func (h Heading) IsZero() bool {
-	return h.ID == "" && h.Text == ""
+	return h.ID == "" && h.Title == ""
 }
 
-// Root implements AddAt, which can be used to build the
-// data structure for the ToC.
-type Root struct {
+func (h *Heading) walk(fn func(*Heading)) {
+	fn(h)
+	for _, h := range h.Headings {
+		h.walk(fn)
+	}
+}
+
+// Fragments holds the table of contents for a page.
+type Fragments struct {
+	// Headings holds the top level headings.
 	Headings Headings
+
+	// Identifiers holds all the identifiers in the ToC as a sorted slice.
+	// Note that collections.SortedStringSlice has both a Contains and Count method
+	// that can be used to identify missing and duplicate IDs.
+	Identifiers collections.SortedStringSlice
+
+	// HeadingsMap holds all the headings in the ToC as a map.
+	// Note that with duplicate IDs, the last one will win.
+	HeadingsMap map[string]*Heading
 }
 
-// AddAt adds the heading into the given location.
-func (toc *Root) AddAt(h Heading, row, level int) {
+// addAt adds the heading into the given location.
+func (toc *Fragments) addAt(h *Heading, row, level int) {
 	for i := len(toc.Headings); i <= row; i++ {
-		toc.Headings = append(toc.Headings, Heading{})
+		toc.Headings = append(toc.Headings, &Heading{})
 	}
 
 	if level == 0 {
@@ -50,19 +119,22 @@ func (toc *Root) AddAt(h Heading, row, level int) {
 		return
 	}
 
-	heading := &toc.Headings[row]
+	heading := toc.Headings[row]
 
 	for i := 1; i < level; i++ {
 		if len(heading.Headings) == 0 {
-			heading.Headings = append(heading.Headings, Heading{})
+			heading.Headings = append(heading.Headings, &Heading{})
 		}
-		heading = &heading.Headings[len(heading.Headings)-1]
+		heading = heading.Headings[len(heading.Headings)-1]
 	}
 	heading.Headings = append(heading.Headings, h)
 }
 
 // ToHTML renders the ToC as HTML.
-func (toc Root) ToHTML(startLevel, stopLevel int, ordered bool) string {
+func (toc *Fragments) ToHTML(startLevel, stopLevel int, ordered bool) string {
+	if toc == nil {
+		return ""
+	}
 	b := &tocBuilder{
 		s:          strings.Builder{},
 		h:          toc.Headings,
@@ -72,6 +144,12 @@ func (toc Root) ToHTML(startLevel, stopLevel int, ordered bool) string {
 	}
 	b.Build()
 	return b.s.String()
+}
+
+func (toc Fragments) walk(fn func(*Heading)) {
+	for _, h := range toc.Headings {
+		h.walk(fn)
+	}
 }
 
 type tocBuilder struct {
@@ -133,11 +211,11 @@ func (b *tocBuilder) writeHeadings(level, indent int, h Headings) {
 	}
 }
 
-func (b *tocBuilder) writeHeading(level, indent int, h Heading) {
+func (b *tocBuilder) writeHeading(level, indent int, h *Heading) {
 	b.indent(indent)
 	b.s.WriteString("<li>")
 	if !h.IsZero() {
-		b.s.WriteString("<a href=\"#" + h.ID + "\">" + h.Text + "</a>")
+		b.s.WriteString("<a href=\"#" + h.ID + "\">" + h.Title + "</a>")
 	}
 	b.writeHeadings(level, indent, h.Headings)
 	b.s.WriteString("</li>\n")
@@ -159,6 +237,7 @@ var DefaultConfig = Config{
 type Config struct {
 	// Heading start level to include in the table of contents, starting
 	// at h1 (inclusive).
+	// <docsmeta>{ "identifiers": ["h1"] }</docsmeta>
 	StartLevel int
 
 	// Heading end level, inclusive, to include in the table of contents.

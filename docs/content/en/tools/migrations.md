@@ -1,19 +1,14 @@
 ---
 title: Migrate to Hugo
-linktitle: Migrations
+linkTitle: Migrations
 description: A list of community-developed tools for migrating from your existing static site generator or content management system to Hugo.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2022-03-26
-keywords: [migrations,jekyll,wordpress,drupal,ghost,contentful]
+keywords: [migrations, jekyll, wordpress, drupal, ghost, contentful]
 menu:
   docs:
-    parent: "tools"
-    weight: 10
-weight: 10
-sections_weight: 10
-draft: false
-aliases: [/developer-tools/migrations/,/developer-tools/migrated/]
+    parent: developer-tools
+    weight: 50
+weight: 50
+aliases: [/developer-tools/migrations/, /developer-tools/migrated/]
 toc: true
 ---
 
@@ -29,12 +24,8 @@ Take a look at this list of migration tools if you currently use other blogging 
 
 Alternatively, you can use the new [Jekyll import command](/commands/hugo_import_jekyll/).
 
-- [JekyllToHugo](https://github.com/SenjinDarashiva/JekyllToHugo) - A Small script for converting Jekyll blog posts to a Hugo site.
+- [JekyllToHugo](https://github.com/fredrikloch/JekyllToHugo) - A Small script for converting Jekyll blog posts to a Hugo site.
 - [ConvertToHugo](https://github.com/coderzh/ConvertToHugo) - Convert your blog from Jekyll to Hugo.
-
-## Ghost
-
-- [ghostToHugo](https://github.com/jbarone/ghostToHugo) - Convert Ghost blog posts and export them to Hugo.
 
 ## Octopress
 
@@ -49,11 +40,10 @@ Alternatively, you can use the new [Jekyll import command](/commands/hugo_import
 - [wordpress-to-hugo-exporter](https://github.com/SchumacherFM/wordpress-to-hugo-exporter) - A one-click WordPress plugin that converts all posts, pages, taxonomies, metadata, and settings to Markdown and YAML which can be dropped into Hugo. (Note: If you have trouble using this plugin, you can [export your site for Jekyll](https://wordpress.org/plugins/jekyll-exporter/) and use Hugo's built in Jekyll converter listed above.)
 - [blog2md](https://github.com/palaniraja/blog2md) - Works with [exported xml](https://en.support.wordpress.com/export/) file of your free YOUR-TLD.wordpress.com website. It also saves approved comments to `YOUR-POST-NAME-comments.md` file along with posts.
 - [wordhugopress](https://github.com/nantipov/wordhugopress) - A small utility written in Java, exports the entire WordPress site from the database and resource (e.g. images) files stored locally or remotely. Therefore, migration from the backup files is possible. Supports merging of the multiple WordPress sites into a single Hugo one.
-- [wpxr-to-static](https://github.com/danielfdickinson/wpxr-to-static) - WordPress eXtended RSS to Static Generator Conversion, Python3 program to convert WordPress XML Export (WPXR) format files to Hugo Markdown files (with YAML metadata) and a `config.toml` for the site. Inspired by [exitwp-for-hugo](https://github.com/wooni005/exitwp-for-hugo) (a Python 2 \[EOL] script which works with the xml export from WordPress and converts WordPress pages and posts to Markdown and YAML for hugo).
 
 ## Medium
 
-- [medium2md](https://github.com/gautamdhameja/medium-2-md) - A simple Medium to Hugo exporter able to import stories in one command, including Front Matter.
+- [medium2md](https://github.com/gautamdhameja/medium-2-md) - A simple Medium to Hugo exporter able to import stories in one command, including front matter.
 - [medium-to-hugo](https://github.com/bgadrian/medium-to-hugo) - CLI tool written in Go to export medium posts into a Hugo compatible Markdown format. Tags and images are included. All images will be downloaded locally and linked appropriately.
 
 ## Tumblr
@@ -79,9 +69,8 @@ Alternatively, you can use the new [Jekyll import command](/commands/hugo_import
 
 ## Contentful
 
-- [contentful2hugo](https://github.com/ArnoNuyts/contentful2hugo) - A tool to create content-files for Hugo from content on [Contentful](https://www.contentful.com/).
-
+- [contentful-hugo](https://github.com/ModiiMedia/contentful-hugo) - A tool to create content-files for Hugo from content on [Contentful](https://www.contentful.com/).
 
 ## BlogML
 
-- [BlogML2Hugo](https://github.com/jijiechen/BlogML2Hugo) - A tool that helps you convert BlogML xml file to Hugo markdown files. Users need to take care of links to attachments and images by themselves. This helps the blogs that export BlogML files (e.g. BlogEngine.NET) transform to hugo sites easily.
+- [BlogML2Hugo](https://github.com/jijiechen/BlogML2Hugo) - A tool that helps you convert BlogML xml file to Hugo Markdown files. Users need to take care of links to attachments and images by themselves. This helps the blogs that export BlogML files (e.g. BlogEngine.NET) transform to hugo sites easily.

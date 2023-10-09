@@ -14,6 +14,7 @@
 package resources
 
 import (
+	"context"
 	"image"
 
 	"github.com/gohugoio/hugo/common/hugio"
@@ -55,7 +56,7 @@ func (e *errorResource) ReadSeekCloser() (hugio.ReadSeekCloser, error) {
 	panic(e.ResourceError)
 }
 
-func (e *errorResource) Content() (any, error) {
+func (e *errorResource) Content(context.Context) (any, error) {
 	panic(e.ResourceError)
 }
 
@@ -99,6 +100,10 @@ func (e *errorResource) Width() int {
 	panic(e.ResourceError)
 }
 
+func (e *errorResource) Process(spec string) (images.ImageResource, error) {
+	panic(e.ResourceError)
+}
+
 func (e *errorResource) Crop(spec string) (images.ImageResource, error) {
 	panic(e.ResourceError)
 }
@@ -132,5 +137,9 @@ func (e *errorResource) DecodeImage() (image.Image, error) {
 }
 
 func (e *errorResource) Transform(...ResourceTransformation) (ResourceTransformer, error) {
+	panic(e.ResourceError)
+}
+
+func (e *errorResource) TransformWithContext(context.Context, ...ResourceTransformation) (ResourceTransformer, error) {
 	panic(e.ResourceError)
 }

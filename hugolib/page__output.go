@@ -57,8 +57,8 @@ func newPageOutput(
 		f:                       f,
 		pagePerOutputProviders:  providers,
 		ContentProvider:         page.NopPage,
-		TableOfContentsProvider: page.NopPage,
 		PageRenderProvider:      page.NopPage,
+		TableOfContentsProvider: page.NopPage,
 		render:                  render,
 		paginator:               pag,
 	}
@@ -81,10 +81,12 @@ type pageOutput struct {
 
 	// These interface provides the functionality that is specific for this
 	// output format.
+	contentRenderer page.ContentRenderer
 	pagePerOutputProviders
 	page.ContentProvider
-	page.TableOfContentsProvider
 	page.PageRenderProvider
+	page.TableOfContentsProvider
+	page.RenderShortcodesProvider
 
 	// May be nil.
 	cp *pageContentOutput
@@ -94,10 +96,13 @@ func (p *pageOutput) initContentProvider(cp *pageContentOutput) {
 	if cp == nil {
 		return
 	}
+	p.contentRenderer = cp
 	p.ContentProvider = cp
-	p.TableOfContentsProvider = cp
 	p.PageRenderProvider = cp
+	p.TableOfContentsProvider = cp
+	p.RenderShortcodesProvider = cp
 	p.cp = cp
+
 }
 
 func (p *pageOutput) enablePlaceholders() {

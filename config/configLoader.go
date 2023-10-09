@@ -29,11 +29,22 @@ import (
 )
 
 var (
+	// See issue #8979 for context.
+	// Hugo has always used config.toml etc. as the default config file name.
+	// But hugo.toml is a more descriptive name, but we need to check for both.
+	DefaultConfigNames = []string{"hugo", "config"}
+
+	DefaultConfigNamesSet = make(map[string]bool)
+
 	ValidConfigFileExtensions                    = []string{"toml", "yaml", "yml", "json"}
 	validConfigFileExtensionsMap map[string]bool = make(map[string]bool)
 )
 
 func init() {
+	for _, name := range DefaultConfigNames {
+		DefaultConfigNamesSet[name] = true
+	}
+
 	for _, ext := range ValidConfigFileExtensions {
 		validConfigFileExtensionsMap[ext] = true
 	}
@@ -44,6 +55,14 @@ func init() {
 func IsValidConfigFilename(filename string) bool {
 	ext := strings.ToLower(strings.TrimPrefix(filepath.Ext(filename), "."))
 	return validConfigFileExtensionsMap[ext]
+}
+
+func FromTOMLConfigString(config string) Provider {
+	cfg, err := FromConfigString(config, "toml")
+	if err != nil {
+		panic(err)
+	}
+	return cfg
 }
 
 // FromConfigString creates a config from the given YAML, JSON or TOML config. This is useful in tests.
@@ -138,12 +157,11 @@ func LoadConfigFromDir(sourceFs afero.Fs, configDir, environment string) (Provid
 			if err != nil {
 				// This will be used in error reporting, use the most specific value.
 				dirnames = []string{path}
-				return fmt.Errorf("failed to unmarshl config for path %q: %w", path, err)
+				return fmt.Errorf("failed to unmarshal config for path %q: %w", path, err)
 			}
 
 			var keyPath []string
-
-			if name != "config" {
+			if !DefaultConfigNamesSet[name] {
 				// Can be params.jp, menus.en etc.
 				name, lang := paths.FileAndExtNoDelimiter(name)
 

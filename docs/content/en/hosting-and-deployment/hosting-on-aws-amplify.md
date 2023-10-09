@@ -1,21 +1,11 @@
 ---
 title: Host on AWS Amplify
-linktitle: Host on AWS Amplify
 description: Develop and deploy a cloud-powered web app with AWS Amplify.
-date: 2018-01-31
-publishdate: 2018-01-31
-lastmod: 2018-01-31
 categories: [hosting and deployment]
 keywords: [amplify,hosting,deployment]
-authors: [Nikhil Swaminathan]
 menu:
   docs:
-    parent: "hosting-and-deployment"
-    weight: 10
-weight: 10
-sections_weight: 10
-draft: false
-aliases: []
+    parent: hosting-and-deployment
 toc: true
 ---
 
@@ -27,7 +17,7 @@ AWS Amplify is a combination of client library, CLI toolchain, and a Console for
 
 * [Sign up for an AWS Account](https://portal.aws.amazon.com/billing/signup?redirect_url=https%3A%2F%2Faws.amazon.com%2Fregistration-confirmation). There are no upfront charges or any term commitments to create an AWS account and signing up gives you immediate access to the AWS Free Tier.
 * You have an account with GitHub, GitLab, or Bitbucket.
-* You have completed the [Quick Start][] or have a Hugo website you are ready to deploy and share with the world.
+* You have completed the [Quick Start] or have a Hugo website you are ready to deploy and share with the world.
 
 ## Hosting
 
@@ -37,12 +27,12 @@ AWS Amplify is a combination of client library, CLI toolchain, and a Console for
 1. Connect a branch from your GitHub, Bitbucket, GitLab, or AWS CodeCommit repository. Connecting your repository allows Amplify to deploy updates on every code commit to a branch.
    ![Hugo Amplify](/images/hosting-and-deployment/hosting-on-aws-amplify/amplify-connect-repo.gif)
 
-1.  Accept the default build settings. The Amplify Console automatically detects your Hugo build settings and output directory.
+1. Accept the default build settings. The Amplify Console automatically detects your Hugo build settings and output directory.
    ![Hugo Amplify](/images/hosting-and-deployment/hosting-on-aws-amplify/amplify-build-settings.png)
 
 1. Review your changes and then choose **Save and deploy**. The Amplify Console will pull code from your repository, build changes to the backend and frontend, and deploy your build artifacts at `https://master.unique-id.amplifyapp.com`. Bonus: Screenshots of your app on different devices to find layout issues.
 
-## Using a Newer Version of Hugo
+## Using a newer version of Hugo
 
 If you need to use a different, perhaps newer, version of Hugo than the version currently supported by AWS Amplify:
 
@@ -52,6 +42,5 @@ If you need to use a different, perhaps newer, version of Hugo than the version 
 1. Under **Live package updates**, click **Add package version override**
 1. From the selection, click **Hugo** and ensure the version field says `latest`
 1. Click **Save** to save the changes.
-
 
 [Quick Start]: /getting-started/quick-start/

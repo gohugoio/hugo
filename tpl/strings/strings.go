@@ -20,6 +20,7 @@ import (
 	"html/template"
 	"regexp"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/gohugoio/hugo/common/text"
@@ -32,17 +33,14 @@ import (
 
 // New returns a new instance of the strings-namespaced template functions.
 func New(d *deps.Deps) *Namespace {
-	titleCaseStyle := d.Cfg.GetString("titleCaseStyle")
-	titleFunc := helpers.GetTitleFunc(titleCaseStyle)
-	return &Namespace{deps: d, titleFunc: titleFunc}
+	return &Namespace{deps: d}
 }
 
 // Namespace provides template functions for the "strings" namespace.
 // Most functions mimic the Go stdlib, but the order of the parameters may be
 // different to ease their use in the Go template system.
 type Namespace struct {
-	titleFunc func(s string) string
-	deps      *deps.Deps
+	deps *deps.Deps
 }
 
 // CountRunes returns the number of runes in s, excluding whitespace.
@@ -158,6 +156,20 @@ func (ns *Namespace) ContainsAny(s, chars any) (bool, error) {
 	}
 
 	return strings.ContainsAny(ss, sc), nil
+}
+
+// ContainsNonSpace reports whether s contains any non-space characters as defined
+// by Unicode's White Space property,
+// <docsmeta>{"newIn": "0.111.0" }</docsmeta>
+func (ns *Namespace) ContainsNonSpace(s any) bool {
+	ss := cast.ToString(s)
+
+	for _, r := range ss {
+		if !unicode.IsSpace(r) {
+			return true
+		}
+	}
+	return false
 }
 
 // HasPrefix tests whether the input s begins with prefix.
@@ -369,8 +381,7 @@ func (ns *Namespace) Title(s any) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	return ns.titleFunc(ss), nil
+	return ns.deps.Conf.CreateTitle(ss), nil
 }
 
 // FirstUpper converts s making  the first character upper case.

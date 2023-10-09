@@ -20,7 +20,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/common/loggers"
+
 	"github.com/gohugoio/hugo/transform"
 )
 
@@ -90,7 +91,7 @@ func New(baseURL url.URL) transform.Transformer {
 		c = append(c[:i], append(script, c[i:]...)...)
 
 		if _, err := ft.To().Write(c); err != nil {
-			helpers.DistinctWarnLog.Println("Failed to inject LiveReload script:", err)
+			loggers.Log().Warnf("Failed to inject LiveReload script:", err)
 		}
 		return nil
 	}

@@ -1,0 +1,21 @@
+# Test the config command.
+
+hugo config -h
+stdout 'Print the site configuration'
+
+
+hugo config
+stdout 'baseurl = .https://example.com/'
+hugo config --format json
+stdout '\"baseurl\": \"https://example.com/\",'
+
+hugo config mounts -h
+stdout 'Print the configured file mounts'
+
+hugo config mounts
+stdout '\"source\": \"content\",'
+
+# Test files
+-- hugo.toml --
+baseURL="https://example.com/"
+title="My New Hugo Site"

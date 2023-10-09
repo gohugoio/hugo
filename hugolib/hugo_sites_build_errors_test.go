@@ -337,6 +337,7 @@ minify = true
 		},
 	).BuildE()
 
+	b.Assert(err, qt.IsNotNil)
 	fe := herrors.UnwrapFileError(err)
 	b.Assert(fe, qt.IsNotNil)
 	b.Assert(fe.Position().LineNumber, qt.Equals, 2)
@@ -396,7 +397,7 @@ line 4
 
 }
 
-func TestErrorNestedShortocde(t *testing.T) {
+func TestErrorNestedShortcode(t *testing.T) {
 	t.Parallel()
 
 	files := `

@@ -21,6 +21,7 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 )
 
@@ -28,7 +29,6 @@ func TestNestedSections(t *testing.T) {
 	var (
 		c       = qt.New(t)
 		cfg, fs = newTestCfg()
-		th      = newTestHelper(cfg, fs, t)
 	)
 
 	cfg.Set("permalinks", map[string]string{
@@ -114,7 +114,9 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 
 	cfg.Set("paginate", 2)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	th, configs := newTestHelperFromProvider(cfg, fs, t)
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 21)
 
@@ -181,12 +183,14 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			c.Assert(err, qt.IsNil)
 			c.Assert(active, qt.Equals, true)
 			c.Assert(p.FirstSection(), qt.Equals, p)
+			c.Assert(len(p.Ancestors()), qt.Equals, 1)
 		}},
 		{"l1", func(c *qt.C, p page.Page) {
 			c.Assert(p.Title(), qt.Equals, "L1s")
 			c.Assert(len(p.Pages()), qt.Equals, 4) // 2 pages + 2 sections
 			c.Assert(p.Parent().IsHome(), qt.Equals, true)
 			c.Assert(len(p.Sections()), qt.Equals, 2)
+			c.Assert(len(p.Ancestors()), qt.Equals, 1)
 		}},
 		{"l1,l2", func(c *qt.C, p page.Page) {
 			c.Assert(p.Title(), qt.Equals, "T2_-1")
@@ -195,6 +199,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			c.Assert(p.Parent().Title(), qt.Equals, "L1s")
 			c.Assert(p.RelPermalink(), qt.Equals, "/l1/l2/")
 			c.Assert(len(p.Sections()), qt.Equals, 1)
+			c.Assert(len(p.Ancestors()), qt.Equals, 2)
 
 			for _, child := range p.Pages() {
 				if child.IsSection() {
@@ -237,6 +242,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			c.Assert(p.Pages()[0].File().Path(), qt.Equals, filepath.FromSlash("l1/l2_2/page_2_2_1.md"))
 			c.Assert(p.Parent().Title(), qt.Equals, "L1s")
 			c.Assert(len(p.Sections()), qt.Equals, 0)
+			c.Assert(len(p.Ancestors()), qt.Equals, 2)
 		}},
 		{"l1,l2,l3", func(c *qt.C, p page.Page) {
 			nilp, _ := p.GetPage("this/does/not/exist")
@@ -245,6 +251,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			c.Assert(len(p.Pages()), qt.Equals, 2)
 			c.Assert(p.Parent().Title(), qt.Equals, "T2_-1")
 			c.Assert(len(p.Sections()), qt.Equals, 0)
+			c.Assert(len(p.Ancestors()), qt.Equals, 3)
 
 			l1 := getPage(p, "/l1")
 			isDescendant, err := l1.IsDescendant(p)
@@ -287,7 +294,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 		}},
 	}
 
-	home := s.getPage(page.KindHome)
+	home := s.getPage(kinds.KindHome)
 
 	for _, test := range tests {
 		test := test
@@ -295,7 +302,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			t.Parallel()
 			c := qt.New(t)
 			sections := strings.Split(test.sections, ",")
-			p := s.getPage(page.KindSection, sections...)
+			p := s.getPage(kinds.KindSection, sections...)
 			c.Assert(p, qt.Not(qt.IsNil), qt.Commentf(fmt.Sprint(sections)))
 
 			if p.Pages() != nil {
@@ -307,11 +314,12 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 	}
 
 	c.Assert(home, qt.Not(qt.IsNil))
+	c.Assert(len(home.Ancestors()), qt.Equals, 0)
 
 	c.Assert(len(home.Sections()), qt.Equals, 9)
-	c.Assert(s.Info.Sections(), deepEqualsPages, home.Sections())
+	c.Assert(s.Sections(), deepEqualsPages, home.Sections())
 
-	rootPage := s.getPage(page.KindPage, "mypage.md")
+	rootPage := s.getPage(kinds.KindPage, "mypage.md")
 	c.Assert(rootPage, qt.Not(qt.IsNil))
 	c.Assert(rootPage.Parent().IsHome(), qt.Equals, true)
 	// https://github.com/gohugoio/hugo/issues/6365
@@ -323,7 +331,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 	// If we later decide to do something about this, we will have to do some normalization in
 	// getPage.
 	// TODO(bep)
-	sectionWithSpace := s.getPage(page.KindSection, "Spaces in Section")
+	sectionWithSpace := s.getPage(kinds.KindSection, "Spaces in Section")
 	c.Assert(sectionWithSpace, qt.Not(qt.IsNil))
 	c.Assert(sectionWithSpace.RelPermalink(), qt.Equals, "/spaces-in-section/")
 

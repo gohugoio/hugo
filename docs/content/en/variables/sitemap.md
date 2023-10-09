@@ -1,21 +1,13 @@
 ---
-title: Sitemap Variables
-linktitle: Sitemap Variables
+title: Sitemap variables
 description:
-date: 2017-03-12
-publishdate: 2017-03-12
-lastmod: 2017-03-12
-categories: [variables and params]
+categories: [variables and parameters]
 keywords: [sitemap]
-draft: false
 menu:
   docs:
-    parent: "variables"
+    parent: variables
     weight: 80
 weight: 80
-sections_weight: 80
-aliases: []
-toc: false
 ---
 
 A sitemap is a `Page` and therefore has all the [page variables][pagevars] available to use sitemap templates. They also have the following sitemap-specific variables available to them:
@@ -27,6 +19,6 @@ A sitemap is a `Page` and therefore has all the [page variables][pagevars] avail
 : the priority of the page
 
 .Sitemap.Filename
-: the sitemap filename
+: the sitemap file name
 
 [pagevars]: /variables/page/

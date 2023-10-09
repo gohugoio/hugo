@@ -14,6 +14,7 @@
 package highlight
 
 import (
+	"context"
 	"fmt"
 	gohtml "html"
 	"html/template"
@@ -28,11 +29,12 @@ import (
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
+	"github.com/gohugoio/hugo/markup/highlight/chromalexers"
 	"github.com/gohugoio/hugo/markup/internal/attributes"
 )
 
-// Markdown attributes used by the Chroma hightlighter.
-var chromaHightlightProcessingAttributes = map[string]bool{
+// Markdown attributes used by the Chroma highlighter.
+var chromaHighlightProcessingAttributes = map[string]bool{
 	"anchorLineNos":      true,
 	"guessSyntax":        true,
 	"hl_Lines":           true,
@@ -46,8 +48,8 @@ var chromaHightlightProcessingAttributes = map[string]bool{
 }
 
 func init() {
-	for k, v := range chromaHightlightProcessingAttributes {
-		chromaHightlightProcessingAttributes[strings.ToLower(k)] = v
+	for k, v := range chromaHighlightProcessingAttributes {
+		chromaHighlightProcessingAttributes[strings.ToLower(k)] = v
 	}
 }
 
@@ -59,7 +61,7 @@ func New(cfg Config) Highlighter {
 
 type Highlighter interface {
 	Highlight(code, lang string, opts any) (string, error)
-	HighlightCodeBlock(ctx hooks.CodeblockContext, opts any) (HightlightResult, error)
+	HighlightCodeBlock(ctx hooks.CodeblockContext, opts any) (HighlightResult, error)
 	hooks.CodeBlockRenderer
 	hooks.IsDefaultCodeBlockRendererProvider
 }
@@ -82,7 +84,7 @@ func (h chromaHighlighter) Highlight(code, lang string, opts any) (string, error
 	return b.String(), nil
 }
 
-func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts any) (HightlightResult, error) {
+func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts any) (HighlightResult, error) {
 	cfg := h.cfg
 
 	var b strings.Builder
@@ -92,21 +94,21 @@ func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts a
 	options := ctx.Options()
 
 	if err := applyOptionsFromMap(options, &cfg); err != nil {
-		return HightlightResult{}, err
+		return HighlightResult{}, err
 	}
 
 	// Apply these last so the user can override them.
 	if err := applyOptions(opts, &cfg); err != nil {
-		return HightlightResult{}, err
+		return HighlightResult{}, err
 	}
 
 	if err := applyOptionsFromCodeBlockContext(ctx, &cfg); err != nil {
-		return HightlightResult{}, err
+		return HighlightResult{}, err
 	}
 
 	low, high, err := highlight(&b, ctx.Inner(), ctx.Type(), attributes, cfg)
 	if err != nil {
-		return HightlightResult{}, err
+		return HighlightResult{}, err
 	}
 
 	highlighted := b.String()
@@ -114,14 +116,14 @@ func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts a
 		high = len(highlighted)
 	}
 
-	return HightlightResult{
+	return HighlightResult{
 		highlighted: template.HTML(highlighted),
 		innerLow:    low,
 		innerHigh:   high,
 	}, nil
 }
 
-func (h chromaHighlighter) RenderCodeblock(w hugio.FlexiWriter, ctx hooks.CodeblockContext) error {
+func (h chromaHighlighter) RenderCodeblock(cctx context.Context, w hugio.FlexiWriter, ctx hooks.CodeblockContext) error {
 	cfg := h.cfg
 
 	attributes := ctx.(hooks.AttributesOptionsSliceProvider).AttributesSlice()
@@ -146,28 +148,32 @@ func (h chromaHighlighter) IsDefaultCodeBlockRenderer() bool {
 
 var id = identity.NewPathIdentity("chroma", "highlight")
 
+// GetIdentity is for internal use.
 func (h chromaHighlighter) GetIdentity() identity.Identity {
 	return id
 }
 
-type HightlightResult struct {
+// HighlightResult holds the result of an highlighting operation.
+type HighlightResult struct {
 	innerLow    int
 	innerHigh   int
 	highlighted template.HTML
 }
 
-func (h HightlightResult) Wrapped() template.HTML {
+// Wrapped returns the highlighted code wrapped in a <div>, <pre> and <code> tag.
+func (h HighlightResult) Wrapped() template.HTML {
 	return h.highlighted
 }
 
-func (h HightlightResult) Inner() template.HTML {
+// Inner returns the highlighted code without the wrapping <div>, <pre> and <code> tag, suitable for inline use.
+func (h HighlightResult) Inner() template.HTML {
 	return h.highlighted[h.innerLow:h.innerHigh]
 }
 
 func highlight(fw hugio.FlexiWriter, code, lang string, attributes []attributes.Attribute, cfg Config) (int, int, error) {
 	var lexer chroma.Lexer
 	if lang != "" {
-		lexer = lexers.Get(lang)
+		lexer = chromalexers.Get(lang)
 	}
 
 	if lexer == nil && (cfg.GuessSyntax && !cfg.NoHl) {
@@ -207,7 +213,7 @@ func highlight(fw hugio.FlexiWriter, code, lang string, attributes []attributes.
 		writeDivStart(w, attributes)
 	}
 
-	options := cfg.ToHTMLOptions()
+	options := cfg.toHTMLOptions()
 	var wrapper html.PreWrapper
 
 	if cfg.Hl_inline {

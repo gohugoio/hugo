@@ -14,6 +14,7 @@
 package hooks
 
 import (
+	"context"
 	"io"
 
 	"github.com/gohugoio/hugo/common/hugio"
@@ -26,24 +27,58 @@ import (
 var _ AttributesOptionsSliceProvider = (*attributes.AttributesHolder)(nil)
 
 type AttributesProvider interface {
+	// Attributes passed in from Markdown (e.g. { attrName1=attrValue1 attrName2="attr Value 2" }).
 	Attributes() map[string]any
 }
 
+// LinkContext is the context passed to a link render hook.
 type LinkContext interface {
+	// The Page being rendered.
 	Page() any
+
+	// The link URL.
 	Destination() string
+
+	// The link title attribute.
 	Title() string
+
+	// The rendered (HTML) text.
 	Text() hstring.RenderedString
+
+	// The plain variant of Text.
 	PlainText() string
 }
 
+// ImageLinkContext is the context passed to a image link render hook.
+type ImageLinkContext interface {
+	LinkContext
+
+	// Returns true if this is a standalone image and the config option
+	// markup.goldmark.parser.wrapStandAloneImageWithinParagraph is disabled.
+	IsBlock() bool
+
+	// Zero-based ordinal for all the images in the current document.
+	Ordinal() int
+}
+
+// CodeblockContext is the context passed to a code block render hook.
 type CodeblockContext interface {
 	AttributesProvider
 	text.Positioner
+
+	// Chroma highlighting processing options. This will only be filled if Type is a known Chroma Lexer.
 	Options() map[string]any
+
+	// The type of code block. This will be the programming language, e.g. bash, when doing code highlighting.
 	Type() string
+
+	// The text between the code fences.
 	Inner() string
+
+	// Zero-based ordinal for all code blocks in the current document.
 	Ordinal() int
+
+	// The owning Page.
 	Page() any
 }
 
@@ -53,12 +88,12 @@ type AttributesOptionsSliceProvider interface {
 }
 
 type LinkRenderer interface {
-	RenderLink(w io.Writer, ctx LinkContext) error
+	RenderLink(cctx context.Context, w io.Writer, ctx LinkContext) error
 	identity.Provider
 }
 
 type CodeBlockRenderer interface {
-	RenderCodeblock(w hugio.FlexiWriter, ctx CodeblockContext) error
+	RenderCodeblock(cctx context.Context, w hugio.FlexiWriter, ctx CodeblockContext) error
 	identity.Provider
 }
 
@@ -86,8 +121,8 @@ type HeadingContext interface {
 
 // HeadingRenderer describes a uniquely identifiable rendering hook.
 type HeadingRenderer interface {
-	// Render writes the rendered content to w using the data in w.
-	RenderHeading(w io.Writer, ctx HeadingContext) error
+	// RenderHeading writes the rendered content to w using the data in w.
+	RenderHeading(cctx context.Context, w io.Writer, ctx HeadingContext) error
 	identity.Provider
 }
 

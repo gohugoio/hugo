@@ -3,7 +3,7 @@ package hugolib
 import (
 	"testing"
 
-	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/resources/kinds"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -58,7 +58,7 @@ languageName = "Nynorsk"
 
 	s1 := b.H.Sites[0]
 
-	s1h := s1.getPage(page.KindHome)
+	s1h := s1.getPage(kinds.KindHome)
 	c.Assert(s1h.IsTranslated(), qt.Equals, true)
 	c.Assert(len(s1h.Translations()), qt.Equals, 2)
 	c.Assert(s1h.Permalink(), qt.Equals, "https://example.com/docs/")
@@ -69,7 +69,7 @@ languageName = "Nynorsk"
 	// For multihost, we never want any content in the root.
 	//
 	// check url in front matter:
-	pageWithURLInFrontMatter := s1.getPage(page.KindPage, "sect/doc3.en.md")
+	pageWithURLInFrontMatter := s1.getPage(kinds.KindPage, "sect/doc3.en.md")
 	c.Assert(pageWithURLInFrontMatter, qt.Not(qt.IsNil))
 	c.Assert(pageWithURLInFrontMatter.RelPermalink(), qt.Equals, "/docs/superbob/")
 	b.AssertFileContent("public/en/superbob/index.html", "doc3|Hello|en")
@@ -86,13 +86,15 @@ languageName = "Nynorsk"
 
 	s2 := b.H.Sites[1]
 
-	s2h := s2.getPage(page.KindHome)
+	s2h := s2.getPage(kinds.KindHome)
 	c.Assert(s2h.Permalink(), qt.Equals, "https://example.fr/")
 
+	// See https://github.com/gohugoio/hugo/issues/10912
 	b.AssertFileContent("public/fr/index.html", "French Home Page", "String Resource: /docs/text/pipes.txt")
 	b.AssertFileContent("public/fr/text/pipes.txt", "Hugo Pipes")
 	b.AssertFileContent("public/en/index.html", "Default Home Page", "String Resource: /docs/text/pipes.txt")
 	b.AssertFileContent("public/en/text/pipes.txt", "Hugo Pipes")
+	b.AssertFileContent("public/nn/index.html", "Default Home Page", "String Resource: /docs/text/pipes.txt")
 
 	// Check paginators
 	b.AssertFileContent("public/en/page/1/index.html", `refresh" content="0; url=https://example.com/docs/"`)
@@ -102,7 +104,7 @@ languageName = "Nynorsk"
 
 	// Check bundles
 
-	bundleEn := s1.getPage(page.KindPage, "bundles/b1/index.en.md")
+	bundleEn := s1.getPage(kinds.KindPage, "bundles/b1/index.en.md")
 	c.Assert(bundleEn, qt.Not(qt.IsNil))
 	c.Assert(bundleEn.RelPermalink(), qt.Equals, "/docs/bundles/b1/")
 	c.Assert(len(bundleEn.Resources()), qt.Equals, 1)
@@ -110,7 +112,7 @@ languageName = "Nynorsk"
 	b.AssertFileContent("public/en/bundles/b1/logo.png", "PNG Data")
 	b.AssertFileContent("public/en/bundles/b1/index.html", " image/png: /docs/bundles/b1/logo.png")
 
-	bundleFr := s2.getPage(page.KindPage, "bundles/b1/index.md")
+	bundleFr := s2.getPage(kinds.KindPage, "bundles/b1/index.md")
 	c.Assert(bundleFr, qt.Not(qt.IsNil))
 	c.Assert(bundleFr.RelPermalink(), qt.Equals, "/bundles/b1/")
 	c.Assert(len(bundleFr.Resources()), qt.Equals, 1)

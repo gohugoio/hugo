@@ -17,20 +17,27 @@ package goldmark
 import (
 	"bytes"
 
+	"github.com/gohugoio/hugo/identity"
+
 	"github.com/gohugoio/hugo/markup/goldmark/codeblocks"
+	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
+	"github.com/gohugoio/hugo/markup/goldmark/images"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/extensions/attributes"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
-
-	"github.com/gohugoio/hugo/identity"
 
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer"
 	"github.com/yuin/goldmark/renderer/html"
 	"github.com/yuin/goldmark/text"
+)
+
+const (
+	internalAttrPrefix = "_h__"
 )
 
 // Provider is the package entry point.
@@ -47,7 +54,7 @@ func (p provide) New(cfg converter.ProviderConfig) (converter.Provider, error) {
 			cfg: cfg,
 			md:  md,
 			sanitizeAnchorName: func(s string) string {
-				return sanitizeAnchorNameString(s, cfg.MarkupConfig.Goldmark.Parser.AutoHeadingIDType)
+				return sanitizeAnchorNameString(s, cfg.MarkupConfig().Goldmark.Parser.AutoHeadingIDType)
 			},
 		}, nil
 	}), nil
@@ -68,8 +75,8 @@ func (c *goldmarkConverter) SanitizeAnchorName(s string) string {
 }
 
 func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
-	mcfg := pcfg.MarkupConfig
-	cfg := pcfg.MarkupConfig.Goldmark
+	mcfg := pcfg.MarkupConfig()
+	cfg := mcfg.Goldmark
 	var rendererOptions []renderer.Option
 
 	if cfg.Renderer.HardWraps {
@@ -92,6 +99,8 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 		parserOptions []parser.Option
 	)
 
+	extensions = append(extensions, images.New(cfg.Parser.WrapStandAloneImageWithinParagraph))
+
 	if mcfg.Highlight.CodeFences {
 		extensions = append(extensions, codeblocks.New())
 	}
@@ -112,8 +121,11 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 		extensions = append(extensions, extension.TaskList)
 	}
 
-	if cfg.Extensions.Typographer {
-		extensions = append(extensions, extension.Typographer)
+	if !cfg.Extensions.Typographer.Disable {
+		t := extension.NewTypographer(
+			extension.WithTypographicSubstitutions(toTypographicPunctuationMap(cfg.Extensions.Typographer)),
+		)
+		extensions = append(extensions, t)
 	}
 
 	if cfg.Extensions.DefinitionList {
@@ -124,6 +136,19 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 		extensions = append(extensions, extension.Footnote)
 	}
 
+	if cfg.Extensions.CJK.Enable {
+		opts := []extension.CJKOption{}
+		if cfg.Extensions.CJK.EastAsianLineBreaks {
+			opts = append(opts, extension.WithEastAsianLineBreaks())
+		}
+
+		if cfg.Extensions.CJK.EscapedSpace {
+			opts = append(opts, extension.WithEscapedSpace())
+		}
+		c := extension.NewCJK(opts...)
+		extensions = append(extensions, c)
+	}
+
 	if cfg.Parser.AutoHeadingID {
 		parserOptions = append(parserOptions, parser.WithAutoHeadingID())
 	}
@@ -131,7 +156,6 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 	if cfg.Parser.Attribute.Title {
 		parserOptions = append(parserOptions, parser.WithAttribute())
 	}
-
 	if cfg.Parser.Attribute.Block {
 		extensions = append(extensions, attributes.New())
 	}
@@ -153,26 +177,41 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 
 var _ identity.IdentitiesProvider = (*converterResult)(nil)
 
-type converterResult struct {
-	converter.Result
-	toc tableofcontents.Root
+type parserResult struct {
+	doc any
+	toc *tableofcontents.Fragments
+}
+
+func (p parserResult) Doc() any {
+	return p.doc
+}
+
+func (p parserResult) TableOfContents() *tableofcontents.Fragments {
+	return p.toc
+}
+
+type renderResult struct {
+	converter.ResultRender
 	ids identity.Identities
 }
 
-func (c converterResult) TableOfContents() tableofcontents.Root {
-	return c.toc
+func (r renderResult) GetIdentities() identity.Identities {
+	return r.ids
 }
 
-func (c converterResult) GetIdentities() identity.Identities {
-	return c.ids
+type converterResult struct {
+	converter.ResultRender
+	tableOfContentsProvider
+	identity.IdentitiesProvider
+}
+
+type tableOfContentsProvider interface {
+	TableOfContents() *tableofcontents.Fragments
 }
 
 var converterIdentity = identity.KeyValueIdentity{Key: "goldmark", Value: "converter"}
 
-func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result converter.Result, err error) {
-
-	buf := &render.BufWriter{Buffer: &bytes.Buffer{}}
-	result = buf
+func (c *goldmarkConverter) Parse(ctx converter.RenderContext) (converter.ResultParse, error) {
 	pctx := c.newParserContext(ctx)
 	reader := text.NewReader(ctx.Src)
 
@@ -180,6 +219,16 @@ func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result convert
 		reader,
 		parser.WithContext(pctx),
 	)
+
+	return parserResult{
+		doc: doc,
+		toc: pctx.TableOfContents(),
+	}, nil
+
+}
+func (c *goldmarkConverter) Render(ctx converter.RenderContext, doc any) (converter.ResultRender, error) {
+	n := doc.(ast.Node)
+	buf := &render.BufWriter{Buffer: &bytes.Buffer{}}
 
 	rcx := &render.RenderContextDataHolder{
 		Rctx: ctx,
@@ -192,15 +241,32 @@ func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (result convert
 		ContextData: rcx,
 	}
 
-	if err := c.md.Renderer().Render(w, ctx.Src, doc); err != nil {
+	if err := c.md.Renderer().Render(w, ctx.Src, n); err != nil {
 		return nil, err
 	}
 
-	return converterResult{
-		Result: buf,
-		ids:    rcx.IDs.GetIdentities(),
-		toc:    pctx.TableOfContents(),
+	return renderResult{
+		ResultRender: buf,
+		ids:          rcx.IDs.GetIdentities(),
 	}, nil
+
+}
+
+func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (converter.ResultRender, error) {
+	parseResult, err := c.Parse(ctx)
+	if err != nil {
+		return nil, err
+	}
+	renderResult, err := c.Render(ctx, parseResult.Doc())
+	if err != nil {
+		return nil, err
+	}
+	return converterResult{
+		ResultRender:            renderResult,
+		tableOfContentsProvider: parseResult,
+		IdentitiesProvider:      renderResult.(identity.IdentitiesProvider),
+	}, nil
+
 }
 
 var featureSet = map[identity.Identity]bool{
@@ -212,7 +278,7 @@ func (c *goldmarkConverter) Supports(feature identity.Identity) bool {
 }
 
 func (c *goldmarkConverter) newParserContext(rctx converter.RenderContext) *parserContext {
-	ctx := parser.NewContext(parser.WithIDs(newIDFactory(c.cfg.MarkupConfig.Goldmark.Parser.AutoHeadingIDType)))
+	ctx := parser.NewContext(parser.WithIDs(newIDFactory(c.cfg.MarkupConfig().Goldmark.Parser.AutoHeadingIDType)))
 	ctx.Set(tocEnableKey, rctx.RenderTOC)
 	return &parserContext{
 		Context: ctx,
@@ -223,9 +289,27 @@ type parserContext struct {
 	parser.Context
 }
 
-func (p *parserContext) TableOfContents() tableofcontents.Root {
+func (p *parserContext) TableOfContents() *tableofcontents.Fragments {
 	if v := p.Get(tocResultKey); v != nil {
-		return v.(tableofcontents.Root)
+		return v.(*tableofcontents.Fragments)
 	}
-	return tableofcontents.Root{}
+	return nil
+}
+
+// Note: It's tempting to put this in the config package, but that doesn't work.
+// TODO(bep) create upstream issue.
+func toTypographicPunctuationMap(t goldmark_config.Typographer) map[extension.TypographicPunctuation][]byte {
+	return map[extension.TypographicPunctuation][]byte{
+		extension.LeftSingleQuote:  []byte(t.LeftSingleQuote),
+		extension.RightSingleQuote: []byte(t.RightSingleQuote),
+		extension.LeftDoubleQuote:  []byte(t.LeftDoubleQuote),
+		extension.RightDoubleQuote: []byte(t.RightDoubleQuote),
+		extension.EnDash:           []byte(t.EnDash),
+		extension.EmDash:           []byte(t.EmDash),
+		extension.Ellipsis:         []byte(t.Ellipsis),
+		extension.LeftAngleQuote:   []byte(t.LeftAngleQuote),
+		extension.RightAngleQuote:  []byte(t.RightAngleQuote),
+		extension.Apostrophe:       []byte(t.Apostrophe),
+	}
+
 }

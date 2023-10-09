@@ -16,14 +16,14 @@ package hugolib
 import (
 	"sync"
 
-	"github.com/bep/gitmap"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/compare"
 	"github.com/gohugoio/hugo/lazy"
 	"github.com/gohugoio/hugo/navigation"
-	"github.com/gohugoio/hugo/output"
+	"github.com/gohugoio/hugo/output/layouts"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
+	"github.com/gohugoio/hugo/source"
 )
 
 type treeRefProvider interface {
@@ -53,6 +53,8 @@ func (p *pageCommon) getNextPrevInSection() *nextPrev {
 type pageCommon struct {
 	s *Site
 	m *pageMeta
+
+	sWrapped page.Site
 
 	bucket  *pagesMapBucket
 	treeRef *contentTreeRef
@@ -96,7 +98,7 @@ type pageCommon struct {
 	// should look like.
 	targetPathDescriptor page.TargetPathDescriptor
 
-	layoutDescriptor     output.LayoutDescriptor
+	layoutDescriptor     layouts.LayoutDescriptor
 	layoutDescriptorInit sync.Once
 
 	// The parsed page content.
@@ -106,7 +108,7 @@ type pageCommon struct {
 	shortcodeState *shortcodeHandler
 
 	// Set if feature enabled and this is in a Git repo.
-	gitInfo    *gitmap.GitInfo
+	gitInfo    source.GitInfo
 	codeowners []string
 
 	// Positional navigation

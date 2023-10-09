@@ -1,63 +1,44 @@
 ---
 title: len
-linktitle: len
-description: Returns the length of a variable according to its type.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-04-18
+description: Returns the length of a string, slice, map, or collection.
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
-keywords: []
+    parent: functions
+keywords: [length]
 signature: ["len INPUT"]
-workson: [lists,taxonomies,terms]
-hugoversion:
 relatedfuncs: []
-deprecated: false
-toc: false
-aliases: []
 ---
 
-`len` is a built-in function in Go that returns the length of a variable according to its type. From the Go documentation:
+With a string:
 
-> Array: the number of elements in v.
->
-> Pointer to array: the number of elements in *v (even if v is nil).
->
-> Slice, or map: the number of elements in v; if v is nil, len(v) is zero.
->
-> String: the number of bytes in v.
->
-> Channel: the number of elements queued (unread) in the channel buffer; if v is nil, len(v) is zero.
+```go-html-template
+{{ "ab" | len }} → 2
+{{ "" | len }} → 0
+```
 
-`len` is also considered a [fundamental function for Hugo templating][].
+With a slice:
 
-## `len` Example 1: Longer Headings
+```go-html-template
+{{ slice "a" "b" | len }} → 2
+{{ slice | len }} → 0
+```
 
-You may want to append a class to a heading according to the length of the string therein. The following templating checks to see if the title's length is greater than 80 characters and, if so, adds a `long-title` class to the `<h1>`:
+With a map:
 
-{{< code file="check-title-length.html" >}}
-<header>
-    <h1{{if gt (len .Title) 80}} class="long-title"{{end}}>{{.Title}}</h1>
-</header>
-{{< /code >}}
+```go-html-template
+{{ dict "a" 1 "b" 2  | len }} → 2
+{{ dict | len }} → 0
+```
 
-## `len` Example 2: Counting Pages with `where`
+With a collection:
 
-The following templating uses [`where`][] in conjunction with `len` to
-figure out the total number of content pages in a `posts` [section][]:
+```go-html-template
+{{ site.RegularPages | len }} → 42
+```
 
-{{< code file="how-many-posts.html" >}}
-{{ $posts := (where .Site.RegularPages "Section" "==" "posts") }}
-{{ $postCount := len $posts }}
-{{< /code >}}
+You may also determine the number of pages in a collection with:
 
-Note the use of `.RegularPages`, a [site variable][] that counts all regular content pages but not the `_index.md` pages used to add front matter and content to [list templates][].
-
-
-[fundamental function for Hugo templating]: /templates/introduction/
-[list templates]: /templates/lists/
-[section]: /content-management/sections/
-[site variable]: /variables/site/
-[`where`]: /functions/where/
+```go-html-template
+{{ site.RegularPages.Len }} → 42
+```

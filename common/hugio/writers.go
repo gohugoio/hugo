@@ -15,7 +15,6 @@ package hugio
 
 import (
 	"io"
-	"io/ioutil"
 )
 
 // As implemented by strings.Builder.
@@ -34,7 +33,7 @@ type multiWriteCloser struct {
 func (m multiWriteCloser) Close() error {
 	var err error
 	for _, c := range m.closers {
-		if closeErr := c.Close(); err != nil {
+		if closeErr := c.Close(); closeErr != nil {
 			err = closeErr
 		}
 	}
@@ -63,7 +62,7 @@ func ToWriteCloser(w io.Writer) io.WriteCloser {
 		io.Closer
 	}{
 		w,
-		ioutil.NopCloser(nil),
+		io.NopCloser(nil),
 	}
 }
 
@@ -79,6 +78,6 @@ func ToReadCloser(r io.Reader) io.ReadCloser {
 		io.Closer
 	}{
 		r,
-		ioutil.NopCloser(nil),
+		io.NopCloser(nil),
 	}
 }

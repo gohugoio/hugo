@@ -20,6 +20,7 @@ import (
 	"github.com/gohugoio/hugo/common/types/hstring"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
+	"github.com/gohugoio/hugo/markup/goldmark/images"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
 	"github.com/gohugoio/hugo/markup/internal/attributes"
 
@@ -52,14 +53,11 @@ type linkContext struct {
 	title       string
 	text        hstring.RenderedString
 	plainText   string
+	*attributes.AttributesHolder
 }
 
 func (ctx linkContext) Destination() string {
 	return ctx.destination
-}
-
-func (ctx linkContext) Resolved() bool {
-	return false
 }
 
 func (ctx linkContext) Page() any {
@@ -76,6 +74,20 @@ func (ctx linkContext) PlainText() string {
 
 func (ctx linkContext) Title() string {
 	return ctx.title
+}
+
+type imageLinkContext struct {
+	linkContext
+	ordinal int
+	isBlock bool
+}
+
+func (ctx imageLinkContext) IsBlock() bool {
+	return ctx.isBlock
+}
+
+func (ctx imageLinkContext) Ordinal() int {
+	return ctx.ordinal
 }
 
 type headingContext struct {
@@ -151,20 +163,54 @@ func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.N
 	text := ctx.Buffer.Bytes()[pos:]
 	ctx.Buffer.Truncate(pos)
 
+	var (
+		isBlock bool
+		ordinal int
+	)
+	if b, ok := n.AttributeString(images.AttrIsBlock); ok && b.(bool) {
+		isBlock = true
+	}
+	if n, ok := n.AttributeString(images.AttrOrdinal); ok {
+		ordinal = n.(int)
+	}
+
+	// We use the attributes to signal from the parser whether the image is in
+	// a block context or not.
+	// We may find a better way to do that, but for now, we'll need to remove any
+	// internal attributes before rendering.
+	attrs := r.filterInternalAttributes(n.Attributes())
+
 	err := lr.RenderLink(
+		ctx.RenderContext().Ctx,
 		w,
-		linkContext{
-			page:        ctx.DocumentContext().Document,
-			destination: string(n.Destination),
-			title:       string(n.Title),
-			text:        hstring.RenderedString(text),
-			plainText:   string(n.Text(source)),
+		imageLinkContext{
+			linkContext: linkContext{
+				page:             ctx.DocumentContext().Document,
+				destination:      string(n.Destination),
+				title:            string(n.Title),
+				text:             hstring.RenderedString(text),
+				plainText:        string(n.Text(source)),
+				AttributesHolder: attributes.New(attrs, attributes.AttributesOwnerGeneral),
+			},
+			ordinal: ordinal,
+			isBlock: isBlock,
 		},
 	)
 
 	ctx.AddIdentity(lr)
 
 	return ast.WalkContinue, err
+}
+
+func (r *hookedRenderer) filterInternalAttributes(attrs []ast.Attribute) []ast.Attribute {
+	n := 0
+	for _, x := range attrs {
+		if !bytes.HasPrefix(x.Name, []byte(internalAttrPrefix)) {
+			attrs[n] = x
+			n++
+		}
+	}
+	return attrs[:n]
 }
 
 // Fall back to the default Goldmark render funcs. Method below borrowed from:
@@ -179,12 +225,16 @@ func (r *hookedRenderer) renderImageDefault(w util.BufWriter, source []byte, nod
 		_, _ = w.Write(util.EscapeHTML(util.URLEscape(n.Destination, true)))
 	}
 	_, _ = w.WriteString(`" alt="`)
-	_, _ = w.Write(util.EscapeHTML(n.Text(source)))
+	_, _ = w.Write(nodeToHTMLText(n, source))
 	_ = w.WriteByte('"')
 	if n.Title != nil {
 		_, _ = w.WriteString(` title="`)
 		r.Writer.Write(w, n.Title)
 		_ = w.WriteByte('"')
+	}
+	if n.Attributes() != nil {
+		attrs := r.filterInternalAttributes(n.Attributes())
+		attributes.RenderASTAttributes(w, attrs...)
 	}
 	if r.XHTML {
 		_, _ = w.WriteString(" />")
@@ -222,13 +272,15 @@ func (r *hookedRenderer) renderLink(w util.BufWriter, source []byte, node ast.No
 	ctx.Buffer.Truncate(pos)
 
 	err := lr.RenderLink(
+		ctx.RenderContext().Ctx,
 		w,
 		linkContext{
-			page:        ctx.DocumentContext().Document,
-			destination: string(n.Destination),
-			title:       string(n.Title),
-			text:        hstring.RenderedString(text),
-			plainText:   string(n.Text(source)),
+			page:             ctx.DocumentContext().Document,
+			destination:      string(n.Destination),
+			title:            string(n.Title),
+			text:             hstring.RenderedString(text),
+			plainText:        string(n.Text(source)),
+			AttributesHolder: attributes.Empty,
 		},
 	)
 
@@ -290,12 +342,14 @@ func (r *hookedRenderer) renderAutoLink(w util.BufWriter, source []byte, node as
 	}
 
 	err := lr.RenderLink(
+		ctx.RenderContext().Ctx,
 		w,
 		linkContext{
-			page:        ctx.DocumentContext().Document,
-			destination: url,
-			text:        hstring.RenderedString(label),
-			plainText:   label,
+			page:             ctx.DocumentContext().Document,
+			destination:      url,
+			text:             hstring.RenderedString(label),
+			plainText:        label,
+			AttributesHolder: attributes.Empty,
 		},
 	)
 
@@ -377,6 +431,7 @@ func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast
 	anchor := anchori.([]byte)
 
 	err := hr.RenderHeading(
+		ctx.RenderContext().Ctx,
 		w,
 		headingContext{
 			page:             ctx.DocumentContext().Document,
@@ -419,4 +474,19 @@ func (e *links) Extend(m goldmark.Markdown) {
 	m.Renderer().AddOptions(renderer.WithNodeRenderers(
 		util.Prioritized(newLinkRenderer(e.cfg), 100),
 	))
+}
+
+// Borrowed from Goldmark.
+func nodeToHTMLText(n ast.Node, source []byte) []byte {
+	var buf bytes.Buffer
+	for c := n.FirstChild(); c != nil; c = c.NextSibling() {
+		if s, ok := c.(*ast.String); ok && s.IsCode() {
+			buf.Write(s.Text(source))
+		} else if !c.HasChildren() {
+			buf.Write(util.EscapeHTML(c.Text(source)))
+		} else {
+			buf.Write(nodeToHTMLText(c, source))
+		}
+	}
+	return buf.Bytes()
 }

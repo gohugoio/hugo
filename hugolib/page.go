@@ -15,8 +15,8 @@ package hugolib
 
 import (
 	"bytes"
+	"context"
 	"fmt"
-	"os"
 	"path"
 	"path/filepath"
 	"sort"
@@ -25,14 +25,17 @@ import (
 	"go.uber.org/atomic"
 
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/output"
+	"github.com/gohugoio/hugo/output/layouts"
+	"github.com/gohugoio/hugo/related"
 
 	"github.com/gohugoio/hugo/markup/converter"
+	"github.com/gohugoio/hugo/markup/tableofcontents"
 
 	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/hugofs/files"
-
-	"github.com/bep/gitmap"
 
 	"github.com/gohugoio/hugo/helpers"
 
@@ -41,14 +44,12 @@ import (
 
 	"github.com/gohugoio/hugo/parser/pageparser"
 
-	"github.com/gohugoio/hugo/output"
-
-	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/source"
 
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/resources"
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 )
@@ -60,11 +61,10 @@ var (
 )
 
 var (
-	pageTypesProvider = resource.NewResourceTypesProvider(media.OctetType, pageResourceType)
+	pageTypesProvider = resource.NewResourceTypesProvider(media.Builtin.OctetType, pageResourceType)
 	nopPageOutput     = &pageOutput{
-		pagePerOutputProviders:  nopPagePerOutput,
-		ContentProvider:         page.NopPage,
-		TableOfContentsProvider: page.NopPage,
+		pagePerOutputProviders: nopPagePerOutput,
+		ContentProvider:        page.NopPage,
 	}
 )
 
@@ -114,6 +114,10 @@ func (pa pageSiteAdapter) GetPage(ref string) (page.Page, error) {
 }
 
 type pageState struct {
+	// Incremented for each new page created.
+	// Note that this will change between builds for a given Page.
+	id int
+
 	// This slice will be of same length as the number of global slice of output
 	// formats (for all sites).
 	pageOutputs []*pageOutput
@@ -147,11 +151,41 @@ func (p *pageState) Eq(other any) bool {
 	return p == pp
 }
 
+// GetIdentity is for internal use.
 func (p *pageState) GetIdentity() identity.Identity {
 	return identity.NewPathIdentity(files.ComponentFolderContent, filepath.FromSlash(p.Pathc()))
 }
 
-func (p *pageState) GitInfo() *gitmap.GitInfo {
+func (p *pageState) HeadingsFiltered(context.Context) tableofcontents.Headings {
+	return nil
+}
+
+type pageHeadingsFiltered struct {
+	*pageState
+	headings tableofcontents.Headings
+}
+
+func (p *pageHeadingsFiltered) HeadingsFiltered(context.Context) tableofcontents.Headings {
+	return p.headings
+}
+
+func (p *pageHeadingsFiltered) page() page.Page {
+	return p.pageState
+}
+
+// For internal use by the related content feature.
+func (p *pageState) ApplyFilterToHeadings(ctx context.Context, fn func(*tableofcontents.Heading) bool) related.Document {
+	if p.pageOutput.cp.tableOfContents == nil {
+		return p
+	}
+	headings := p.pageOutput.cp.tableOfContents.Headings.FilterBy(fn)
+	return &pageHeadingsFiltered{
+		pageState: p,
+		headings:  headings,
+	}
+}
+
+func (p *pageState) GitInfo() source.GitInfo {
 	return p.gitInfo
 }
 
@@ -220,7 +254,7 @@ func (p *pageState) RegularPagesRecursive() page.Pages {
 	p.regularPagesRecursiveInit.Do(func() {
 		var pages page.Pages
 		switch p.Kind() {
-		case page.KindSection:
+		case kinds.KindSection, kinds.KindHome:
 			pages = p.getPagesRecursive()
 		default:
 			pages = p.RegularPages()
@@ -239,10 +273,10 @@ func (p *pageState) RegularPages() page.Pages {
 		var pages page.Pages
 
 		switch p.Kind() {
-		case page.KindPage:
-		case page.KindSection, page.KindHome, page.KindTaxonomy:
+		case kinds.KindPage:
+		case kinds.KindSection, kinds.KindHome, kinds.KindTaxonomy:
 			pages = p.getPages()
-		case page.KindTerm:
+		case kinds.KindTerm:
 			all := p.Pages()
 			for _, p := range all {
 				if p.IsPage() {
@@ -264,12 +298,15 @@ func (p *pageState) Pages() page.Pages {
 		var pages page.Pages
 
 		switch p.Kind() {
-		case page.KindPage:
-		case page.KindSection, page.KindHome:
+		case kinds.KindPage:
+		case kinds.KindSection, kinds.KindHome:
 			pages = p.getPagesAndSections()
-		case page.KindTerm:
-			pages = p.bucket.getTaxonomyEntries()
-		case page.KindTaxonomy:
+		case kinds.KindTerm:
+			b := p.treeRef.n
+			viewInfo := b.viewInfo
+			taxonomy := p.s.Taxonomies()[viewInfo.name.plural].Get(viewInfo.termKey)
+			pages = taxonomy.Pages()
+		case kinds.KindTaxonomy:
 			pages = p.bucket.getTaxonomies()
 		default:
 			pages = p.s.Pages()
@@ -291,6 +328,7 @@ func (p *pageState) RawContent() string {
 	if start == -1 {
 		start = 0
 	}
+
 	return string(p.source.parsed.Input()[start:])
 }
 
@@ -338,7 +376,7 @@ func (p *pageState) HasShortcode(name string) bool {
 }
 
 func (p *pageState) Site() page.Site {
-	return p.s.Info
+	return p.sWrapped
 }
 
 func (p *pageState) String() string {
@@ -351,7 +389,7 @@ func (p *pageState) String() string {
 // IsTranslated returns whether this content file is translated to
 // other language(s).
 func (p *pageState) IsTranslated() bool {
-	p.s.h.init.translations.Do()
+	p.s.h.init.translations.Do(context.Background())
 	return len(p.translations) > 0
 }
 
@@ -375,13 +413,13 @@ func (p *pageState) TranslationKey() string {
 
 // AllTranslations returns all translations, including the current Page.
 func (p *pageState) AllTranslations() page.Pages {
-	p.s.h.init.translations.Do()
+	p.s.h.init.translations.Do(context.Background())
 	return p.allTranslations
 }
 
 // Translations returns the translations excluding the current Page.
 func (p *pageState) Translations() page.Pages {
-	p.s.h.init.translations.Do()
+	p.s.h.init.translations.Do(context.Background())
 	return p.translations
 }
 
@@ -396,28 +434,28 @@ func (ps *pageState) initCommonProviders(pp pagePaths) error {
 	ps.OutputFormatsProvider = pp
 	ps.targetPathDescriptor = pp.targetPathDescriptor
 	ps.RefProvider = newPageRef(ps)
-	ps.SitesProvider = ps.s.Info
+	ps.SitesProvider = ps.s
 
 	return nil
 }
 
-func (p *pageState) getLayoutDescriptor() output.LayoutDescriptor {
+func (p *pageState) getLayoutDescriptor() layouts.LayoutDescriptor {
 	p.layoutDescriptorInit.Do(func() {
 		var section string
 		sections := p.SectionsEntries()
 
 		switch p.Kind() {
-		case page.KindSection:
+		case kinds.KindSection:
 			if len(sections) > 0 {
 				section = sections[0]
 			}
-		case page.KindTaxonomy, page.KindTerm:
+		case kinds.KindTaxonomy, kinds.KindTerm:
 			b := p.getTreeRef().n
 			section = b.viewInfo.name.singular
 		default:
 		}
 
-		p.layoutDescriptor = output.LayoutDescriptor{
+		p.layoutDescriptor = layouts.LayoutDescriptor{
 			Kind:    p.Kind(),
 			Type:    p.Type(),
 			Lang:    p.Language().Lang,
@@ -461,7 +499,7 @@ func (p *pageState) initOutputFormat(isRenderingSite bool, idx int) error {
 
 // Must be run after the site section tree etc. is built and ready.
 func (p *pageState) initPage() error {
-	if _, err := p.init.Do(); err != nil {
+	if _, err := p.init.Do(context.Background()); err != nil {
 		return err
 	}
 	return nil
@@ -486,7 +524,7 @@ func (p *pageState) renderResources() (err error) {
 			}
 
 			if err := src.Publish(); err != nil {
-				if os.IsNotExist(err) {
+				if herrors.IsNotExist(err) {
 					// The resource has been deleted from the file system.
 					// This should be extremely rare, but can happen on live reload in server
 					// mode when the same resource is member of different page bundles.
@@ -551,7 +589,7 @@ var defaultRenderStringOpts = renderStringOpts{
 }
 
 func (p *pageState) addDependency(dep identity.Provider) {
-	if !p.s.running() || p.pageOutput.cp == nil {
+	if !p.s.watching() || p.pageOutput.cp == nil {
 		return
 	}
 	p.pageOutput.cp.dependencyTracker.Add(dep)
@@ -586,7 +624,13 @@ func (p *pageState) wrapError(err error) error {
 		}
 	}
 
-	return herrors.NewFileErrorFromFile(err, filename, p.s.SourceSpec.Fs.Source, herrors.NopLineMatcher)
+	lineMatcher := herrors.NopLineMatcher
+
+	if textSegmentErr, ok := err.(*herrors.TextSegmentError); ok {
+		lineMatcher = herrors.ContainsMatcher(textSegmentErr.Segment)
+	}
+
+	return herrors.NewFileErrorFromFile(err, filename, p.s.SourceSpec.Fs.Source, lineMatcher)
 
 }
 
@@ -684,9 +728,7 @@ Loop:
 			frontMatterSet = true
 
 			next := iter.Peek()
-			if !next.IsDone() {
-				p.source.posMainContent = next.Pos()
-			}
+			p.source.posMainContent = next.Pos()
 
 			if !p.s.shouldBuild(p) {
 				// Nothing more to do.
@@ -733,7 +775,7 @@ Loop:
 			currShortcode.pos = it.Pos()
 			currShortcode.length = iter.Current().Pos() - it.Pos()
 			if currShortcode.placeholder == "" {
-				currShortcode.placeholder = createShortcodePlaceholder("s", currShortcode.ordinal)
+				currShortcode.placeholder = createShortcodePlaceholder("s", p.id, currShortcode.ordinal)
 			}
 
 			if currShortcode.name != "" {
@@ -745,7 +787,7 @@ Loop:
 				currShortcode.params = s
 			}
 
-			currShortcode.placeholder = createShortcodePlaceholder("s", ordinal)
+			currShortcode.placeholder = createShortcodePlaceholder("s", p.id, ordinal)
 			ordinal++
 			s.shortcodes = append(s.shortcodes, currShortcode)
 
@@ -909,9 +951,10 @@ func (p *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 				}
 				return cp, nil
 			})
+			p.pageOutput.contentRenderer = lcp
 			p.pageOutput.ContentProvider = lcp
-			p.pageOutput.TableOfContentsProvider = lcp
 			p.pageOutput.PageRenderProvider = lcp
+			p.pageOutput.TableOfContentsProvider = lcp
 		}
 	}
 

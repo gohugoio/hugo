@@ -16,11 +16,12 @@ package hugolib
 import (
 	"context"
 	"fmt"
-	"os"
 	pth "path"
 	"path/filepath"
 	"reflect"
 
+	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gohugoio/hugo/parser/pageparser"
@@ -29,7 +30,6 @@ import (
 
 	"github.com/gohugoio/hugo/source"
 
-	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
 )
@@ -222,8 +222,7 @@ func (c *pagesCollector) getLang(fi hugofs.FileMetaInfo) string {
 	if lang != "" {
 		return lang
 	}
-
-	return c.sp.DefaultContentLanguage
+	return c.sp.Cfg.DefaultContentLanguage()
 }
 
 func (c *pagesCollector) addToBundle(info hugofs.FileMetaInfo, btyp bundleDirType, bundles pageBundles) error {
@@ -240,7 +239,7 @@ func (c *pagesCollector) addToBundle(info hugofs.FileMetaInfo, btyp bundleDirTyp
 			found  bool
 		)
 
-		source, found = bundles[c.sp.DefaultContentLanguage]
+		source, found = bundles[c.sp.Cfg.DefaultContentLanguage()]
 		if !found {
 			for _, b := range bundles {
 				source = b
@@ -318,7 +317,7 @@ func (c *pagesCollector) cloneFileInfo(fi hugofs.FileMetaInfo) hugofs.FileMetaIn
 func (c *pagesCollector) collectDir(dirname string, partial bool, inFilter func(fim hugofs.FileMetaInfo) bool) error {
 	fi, err := c.fs.Stat(dirname)
 	if err != nil {
-		if os.IsNotExist(err) {
+		if herrors.IsNotExist(err) {
 			// May have been deleted.
 			return nil
 		}

@@ -1,0 +1,34 @@
+cp $SOURCE/resources/testdata/pix.gif content/en/bundle1/pix.gif
+cp $SOURCE/resources/testdata/pix.gif content/en/bundle2/pix.gif
+cp $SOURCE/resources/testdata/pix.gif content/fr/bundle1/pix.gif
+
+hugo
+
+stdout 'Pages.*3.*2'
+stdout 'Processed images.*2.*1'
+
+-- content/en/bundle1/index.md --
+-- content/en/bundle2/index.md --
+-- content/fr/bundle1/index.md --
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "404"]
+baseURL = "https://example.com/"
+[languages]
+    [languages.en]
+        languageName = "English"
+        weight = 1
+        title = "English Title"
+        contentDir = "content/en"
+    [languages.fr]
+        languageName = "French"
+        weight = 2
+        title = "French Title"
+        contentDir = "content/fr"
+-- layouts/index.html --
+Home.
+-- layouts/_default/single.html --
+Single.
+{{ range .Resources }}
+{{ $img := .Resize "3x" }}
+Resized: {{ $img.RelPermalink }}
+{{ end }}

@@ -18,29 +18,27 @@ package deploy
 
 import (
 	"context"
+	"net/url"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudfront"
+	gcaws "gocloud.dev/aws"
 )
 
 // InvalidateCloudFront invalidates the CloudFront cache for distributionID.
-// It uses the default AWS credentials from the environment.
-func InvalidateCloudFront(ctx context.Context, distributionID string) error {
-	// SharedConfigEnable enables loading "shared config (~/.aws/config) and
-	// shared credentials (~/.aws/credentials) files".
-	// See https://docs.aws.amazon.com/sdk-for-go/api/aws/session/ for more
-	// details.
-	// This is the same codepath used by Go CDK when creating an s3 URL.
-	// TODO: Update this to a Go CDK helper once available
-	// (https://github.com/google/go-cloud/issues/2003).
-	sess, err := session.NewSessionWithOptions(session.Options{SharedConfigState: session.SharedConfigEnable})
+// Uses AWS credentials config from the bucket URL.
+func InvalidateCloudFront(ctx context.Context, target *Target) error {
+	u, err := url.Parse(target.URL)
+	if err != nil {
+		return err
+	}
+	sess, _, err := gcaws.NewSessionFromURLParams(u.Query())
 	if err != nil {
 		return err
 	}
 	req := &cloudfront.CreateInvalidationInput{
-		DistributionId: aws.String(distributionID),
+		DistributionId: aws.String(target.CloudFrontDistributionID),
 		InvalidationBatch: &cloudfront.InvalidationBatch{
 			CallerReference: aws.String(time.Now().Format("20060102150405")),
 			Paths: &cloudfront.Paths{

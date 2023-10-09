@@ -15,9 +15,6 @@ package minifiers
 
 import (
 	"github.com/gohugoio/hugo/common/maps"
-	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/docshelper"
-	"github.com/gohugoio/hugo/parser"
 	"github.com/spf13/cast"
 
 	"github.com/mitchellh/mapstructure"
@@ -29,7 +26,7 @@ import (
 	"github.com/tdewolff/minify/v2/xml"
 )
 
-var defaultTdewolffConfig = tdewolffConfig{
+var defaultTdewolffConfig = TdewolffConfig{
 	HTML: html.Minifier{
 		KeepDocumentTags:        true,
 		KeepConditionalComments: true,
@@ -41,7 +38,9 @@ var defaultTdewolffConfig = tdewolffConfig{
 		Precision: 0,
 		KeepCSS2:  true,
 	},
-	JS:   js.Minifier{},
+	JS: js.Minifier{
+		Version: 2022,
+	},
 	JSON: json.Minifier{},
 	SVG: svg.Minifier{
 		KeepComments: false,
@@ -52,7 +51,7 @@ var defaultTdewolffConfig = tdewolffConfig{
 	},
 }
 
-type tdewolffConfig struct {
+type TdewolffConfig struct {
 	HTML html.Minifier
 	CSS  css.Minifier
 	JS   js.Minifier
@@ -61,7 +60,7 @@ type tdewolffConfig struct {
 	XML  xml.Minifier
 }
 
-type minifyConfig struct {
+type MinifyConfig struct {
 	// Whether to minify the published output (the HTML written to /public).
 	MinifyOutput bool
 
@@ -72,27 +71,17 @@ type minifyConfig struct {
 	DisableSVG  bool
 	DisableXML  bool
 
-	Tdewolff tdewolffConfig
+	Tdewolff TdewolffConfig
 }
 
-var defaultConfig = minifyConfig{
+var defaultConfig = MinifyConfig{
 	Tdewolff: defaultTdewolffConfig,
 }
 
-func decodeConfig(cfg config.Provider) (conf minifyConfig, err error) {
+func DecodeConfig(v any) (conf MinifyConfig, err error) {
 	conf = defaultConfig
 
-	// May be set by CLI.
-	conf.MinifyOutput = cfg.GetBool("minifyOutput")
-
-	v := cfg.Get("minify")
 	if v == nil {
-		return
-	}
-
-	// Legacy.
-	if b, ok := v.(bool); ok {
-		conf.MinifyOutput = b
 		return
 	}
 
@@ -121,11 +110,4 @@ func decodeConfig(cfg config.Provider) (conf minifyConfig, err error) {
 	}
 
 	return
-}
-
-func init() {
-	docsProvider := func() docshelper.DocProvider {
-		return docshelper.DocProvider{"config": map[string]any{"minify": parser.LowerCaseCamelJSONMarshaller{Value: defaultConfig}}}
-	}
-	docshelper.AddDocProviderFunc(docsProvider)
 }

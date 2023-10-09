@@ -14,8 +14,14 @@
 package template
 
 import (
+	"sync/atomic"
+
 	template "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 )
+
+// See https://github.com/golang/go/issues/59234
+// Moved here to avoid dependency on Go's internal/debug package.
+var SecurityAllowActionJSTmpl atomic.Bool
 
 /*
 

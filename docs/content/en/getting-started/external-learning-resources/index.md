@@ -1,19 +1,12 @@
 ---
-title: External Learning Resources
-linktitle: External Learning Resources
+title: External learning resources
 description: A list of tutorials and books on Hugo.
-date: 2019-10-20
-publishdate: 2019-10-20
-lastmod: 2019-10-20
 keywords: [books, tutorials, learning, usage]
 menu:
   docs:
-    parent: "getting-started"
+    parent: getting-started
     weight: 70
 weight: 70
-sections_weight: 70
-draft: false
-toc: false
 ---
 
 ## Books
@@ -34,10 +27,10 @@ Hugo in Action is a step-by-step guide to using Hugo to create static websites. 
 
 ### Hugo tutorial by CloudCannon
 
-[Step-by-step written tutorial](https://cloudcannon.com/community/learn/hugo-101/) to teach you the basics of creating a Hugo site. 
+[Step-by-step written tutorial](https://cloudcannon.com/community/learn/hugo-beginner-tutorial/) to teach you the basics of creating a Hugo site.
 
 ## Video tutorials
 
-### Video Playlist by Mike Dane
+* Mike Dane explains the various features of Hugo via dedicated tutorials on [YouTube](https://www.youtube.com/watch?list=PLLAZ4kZ9dFpOnyRlyS-liKL5ReHDcj4G3&v=qtIqKaDlqXo).
 
-Mike Dane explains the various features of Hugo via dedicated tutorials on [YouTube](https://www.youtube.com/watch?list=PLLAZ4kZ9dFpOnyRlyS-liKL5ReHDcj4G3&v=qtIqKaDlqXo).
+* [Introduction to building your first Hugo site](https://cloudcannon.com/community/learn/hugo-beginner-tutorial/) by Mike Neumegen.

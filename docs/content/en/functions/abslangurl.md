@@ -1,27 +1,62 @@
 ---
 title: absLangURL
-description: Adds the absolute URL with correct language prefix according to site configuration for multilingual.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
+description: Returns an absolute URL with a language prefix, if any.
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
-keywords: [multilingual,i18n,urls]
+    parent: functions
+keywords: [urls, multilingual,i18n]
 signature: ["absLangURL INPUT"]
-workson: []
-hugoversion:
-relatedfuncs: [relLangURL]
-deprecated: false
-aliases: []
 ---
 
-Both `absLangURL` and [`relLangURL`](/functions/rellangurl/) are similar to their [`absURL`](/functions/absurl/) and [`relURL`](/functions/relurl) relatives but will add the correct language prefix when the site is configured with more than one language.
+Use this function with both monolingual and multilingual configurations. The URL returned by this function depends on:
 
-So for a site  `baseURL` set to `https://example.com/hugo/` and the current language is `en`:
+- Whether the input begins with a slash
+- The `baseURL` in site configuration
+- The language prefix, if any
 
+In examples that follow, the project is multilingual with content in both Español (`es`) and English (`en`). The default language is Español. The returned values are from the English site.
+
+### Input does not begin with a slash
+
+If the input does not begin with a slash, the resulting URL will be correct regardless of the `baseURL`.
+
+With `baseURL = https://example.org/`
+
+```go-html-template
+{{ absLangURL "" }}           →   https://example.org/en/
+{{ absLangURL "articles" }}   →   https://example.org/en/articles
+{{ absLangURL "style.css" }}  →   https://example.org/en/style.css
 ```
-{{ "blog/" | absLangURL }} → "https://example.com/hugo/en/blog/"
-{{ "blog/" | relLangURL }} → "/hugo/en/blog/"
+
+With `baseURL = https://example.org/docs/`
+
+```go-html-template
+{{ absLangURL "" }}           →   https://example.org/docs/en/
+{{ absLangURL "articles" }}   →   https://example.org/docs/en/articles
+{{ absLangURL "style.css" }}  →   https://example.org/docs/en/style.css
 ```
+
+### Input begins with a slash
+
+If the input begins with a slash, the resulting URL will be incorrect when the `baseURL` includes a subdirectory. With a leading slash, the function returns a URL relative to the protocol+host section of the `baseURL`.
+
+With `baseURL = https://example.org/`
+
+```go-html-template
+{{ absLangURL "/" }}          →   https://example.org/en/
+{{ absLangURL "/articles" }}  →   https://example.org/en/articles
+{{ absLangURL "/style.css" }} →   https://example.org/en/style.css
+```
+
+With `baseURL = https://example.org/docs/`
+
+```go-html-template
+{{ absLangURL "/" }}          →   https://example.org/en/
+{{ absLangURL "/articles" }}  →   https://example.org/en/articles
+{{ absLangURL "/style.css" }} →   https://example.org/en/style.css
+```
+
+{{% note %}}
+The last three examples are not desirable in most situations. As a best practice, never include a leading slash when using this function.
+{{% /note %}}

@@ -15,6 +15,7 @@ package resources
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"image"
 	"io"
@@ -68,6 +69,7 @@ func newResourceAdapter(spec *Spec, lazyPublish bool, target transformableResour
 	return &resourceAdapter{
 		resourceTransformations: &resourceTransformations{},
 		resourceAdapterInner: &resourceAdapterInner{
+			ctx:         context.TODO(),
 			spec:        spec,
 			publishOnce: po,
 			target:      target,
@@ -83,6 +85,9 @@ type ResourceTransformation interface {
 }
 
 type ResourceTransformationCtx struct {
+	// The context that started the transformation.
+	Ctx context.Context
+
 	// The content to transform.
 	From io.Reader
 
@@ -159,12 +164,12 @@ type resourceAdapter struct {
 	*resourceAdapterInner
 }
 
-func (r *resourceAdapter) Content() (any, error) {
+func (r *resourceAdapter) Content(ctx context.Context) (any, error) {
 	r.init(false, true)
 	if r.transformationsErr != nil {
 		return nil, r.transformationsErr
 	}
-	return r.target.Content()
+	return r.target.Content(ctx)
 }
 
 func (r *resourceAdapter) Err() resource.ResourceError {
@@ -179,6 +184,7 @@ func (r *resourceAdapter) Data() any {
 func (r resourceAdapter) cloneTo(targetPath string) resource.Resource {
 	newtTarget := r.target.cloneTo(targetPath)
 	newInner := &resourceAdapterInner{
+		ctx:    r.ctx,
 		spec:   r.spec,
 		target: newtTarget.(transformableResource),
 	}
@@ -187,6 +193,10 @@ func (r resourceAdapter) cloneTo(targetPath string) resource.Resource {
 	}
 	r.resourceAdapterInner = newInner
 	return &r
+}
+
+func (r *resourceAdapter) Process(spec string) (images.ImageResource, error) {
+	return r.getImageOps().Process(spec)
 }
 
 func (r *resourceAdapter) Crop(spec string) (images.ImageResource, error) {
@@ -277,11 +287,16 @@ func (r *resourceAdapter) Title() string {
 }
 
 func (r resourceAdapter) Transform(t ...ResourceTransformation) (ResourceTransformer, error) {
+	return r.TransformWithContext(context.Background(), t...)
+}
+
+func (r resourceAdapter) TransformWithContext(ctx context.Context, t ...ResourceTransformation) (ResourceTransformer, error) {
 	r.resourceTransformations = &resourceTransformations{
 		transformations: append(r.transformations, t...),
 	}
 
 	r.resourceAdapterInner = &resourceAdapterInner{
+		ctx:         ctx,
 		spec:        r.spec,
 		publishOnce: &publishOnce{},
 		target:      r.target,
@@ -376,6 +391,7 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 	defer bp.PutBuffer(b2)
 
 	tctx := &ResourceTransformationCtx{
+		Ctx:                   r.ctx,
 		Data:                  make(map[string]any),
 		OpenResourcePublisher: r.target.openPublishFileForWriting,
 	}
@@ -434,19 +450,18 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 		}
 
 		newErr := func(err error) error {
-			msg := fmt.Sprintf("%s: failed to transform %q (%s)", strings.ToUpper(tr.Key().Name), tctx.InPath, tctx.InMediaType.Type())
+			msg := fmt.Sprintf("%s: failed to transform %q (%s)", strings.ToUpper(tr.Key().Name), tctx.InPath, tctx.InMediaType.Type)
 
-			if err == herrors.ErrFeatureNotAvailable {
+			if herrors.IsFeatureNotAvailableError(err) {
 				var errMsg string
 				if tr.Key().Name == "postcss" {
 					// This transformation is not available in this
 					// Most likely because PostCSS is not installed.
 					errMsg = ". Check your PostCSS installation; install with \"npm install postcss-cli\". See https://gohugo.io/hugo-pipes/postcss/"
 				} else if tr.Key().Name == "tocss" {
-					errMsg = ". Check your Hugo installation; you need the extended version to build SCSS/SASS."
+					errMsg = ". Check your Hugo installation; you need the extended version to build SCSS/SASS with transpiler set to 'libsass'."
 				} else if tr.Key().Name == "tocss-dart" {
 					errMsg = ". You need dart-sass-embedded in your system $PATH."
-
 				} else if tr.Key().Name == "babel" {
 					errMsg = ". You need to install Babel, see https://gohugo.io/hugo-pipes/babel/"
 				}
@@ -457,9 +472,9 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 			return fmt.Errorf(msg+": %w", err)
 		}
 
+		bcfg := r.spec.BuildConfig()
 		var tryFileCache bool
-
-		if mayBeCachedOnDisk && r.spec.BuildConfig.UseResourceCache(nil) {
+		if mayBeCachedOnDisk && bcfg.UseResourceCache(nil) {
 			tryFileCache = true
 		} else {
 			err = tr.Transform(tctx)
@@ -468,7 +483,7 @@ func (r *resourceAdapter) transform(publish, setContent bool) error {
 			}
 
 			if mayBeCachedOnDisk {
-				tryFileCache = r.spec.BuildConfig.UseResourceCache(err)
+				tryFileCache = bcfg.UseResourceCache(err)
 			}
 			if err != nil && !tryFileCache {
 				return newErr(err)
@@ -598,6 +613,9 @@ func (r *resourceAdapter) initTransform(publish, setContent bool) {
 }
 
 type resourceAdapterInner struct {
+	// The context that started this transformation.
+	ctx context.Context
+
 	target transformableResource
 
 	spec *Spec
@@ -638,7 +656,7 @@ func (u *transformationUpdate) isContentChanged() bool {
 
 func (u *transformationUpdate) toTransformedResourceMetadata() transformedResourceMetadata {
 	return transformedResourceMetadata{
-		MediaTypeV: u.mediaType.Type(),
+		MediaTypeV: u.mediaType.Type,
 		Target:     u.targetPath,
 		MetaData:   u.data,
 	}

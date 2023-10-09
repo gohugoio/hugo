@@ -2,6 +2,7 @@ package tplimpl_test
 
 import (
 	"path/filepath"
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -113,5 +114,117 @@ and2: true
 or2: true
 counter2: 3
 `)
+
+}
+
+// Issue 10495
+func TestCommentsBeforeBlockDefinition(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+baseURL = 'http://example.com/'
+-- content/s1/p1.md --
+---
+title: "S1P1"
+---
+-- content/s2/p1.md --
+---
+title: "S2P1"
+---
+-- content/s3/p1.md --
+---
+title: "S3P1"
+---
+-- layouts/_default/baseof.html --
+{{ block "main" . }}{{ end }}
+-- layouts/s1/single.html --
+{{/* foo */}}
+{{ define "main" }}{{ .Title }}{{ end }}
+-- layouts/s2/single.html --
+{{- /* foo */}}
+{{ define "main" }}{{ .Title }}{{ end }}
+-- layouts/s3/single.html --
+{{- /* foo */ -}}
+{{ define "main" }}{{ .Title }}{{ end }}
+	`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	)
+	b.Build()
+
+	b.AssertFileContent("public/s1/p1/index.html", `S1P1`)
+	b.AssertFileContent("public/s2/p1/index.html", `S2P1`)
+	b.AssertFileContent("public/s3/p1/index.html", `S3P1`)
+}
+
+func TestGoTemplateBugs(t *testing.T) {
+
+	t.Run("Issue 11112", func(t *testing.T) {
+		t.Parallel()
+
+		files := `
+-- config.toml --
+-- layouts/index.html --
+{{ $m := dict "key" "value" }}
+{{ $k := "" }}
+{{ $v := "" }}
+{{ range $k, $v = $m }}
+{{ $k }} = {{ $v }}
+{{ end }}
+	`
+
+		b := hugolib.NewIntegrationTestBuilder(
+			hugolib.IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		)
+		b.Build()
+
+		b.AssertFileContent("public/index.html", `key = value`)
+	})
+
+}
+
+func TestSecurityAllowActionJSTmpl(t *testing.T) {
+
+	filesTemplate := `
+-- config.toml --
+SECURITYCONFIG
+-- layouts/index.html --
+<script>
+var a = §§{{.Title }}§§;
+</script>
+	`
+
+	files := strings.ReplaceAll(filesTemplate, "SECURITYCONFIG", "")
+
+	b, err := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).BuildE()
+
+	b.Assert(err, qt.Not(qt.IsNil))
+	b.Assert(err.Error(), qt.Contains, "{{.Title}} appears in a JS template literal")
+
+	files = strings.ReplaceAll(filesTemplate, "SECURITYCONFIG", `
+[security]
+[security.gotemplates]
+allowActionJSTmpl = true		
+`)
+
+	b = hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
 
 }

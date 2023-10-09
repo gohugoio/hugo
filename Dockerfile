@@ -2,7 +2,7 @@
 # Twitter:      https://twitter.com/gohugoio
 # Website:      https://gohugo.io/
 
-FROM golang:1.18-alpine AS build
+FROM golang:1.21-alpine AS build
 
 # Optionally set HUGO_BUILD_TAGS to "extended" or "nodeploy" when building like so:
 #   docker build --build-arg HUGO_BUILD_TAGS=extended .
@@ -26,7 +26,7 @@ RUN mage hugo && mage install
 
 # ---
 
-FROM alpine:3.12
+FROM alpine:3.18
 
 COPY --from=build /go/bin/hugo /usr/bin/hugo
 

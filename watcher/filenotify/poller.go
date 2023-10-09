@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/gohugoio/hugo/common/herrors"
 )
 
 var (
@@ -191,7 +192,7 @@ func (r *recording) record(filename string) error {
 	r.clear()
 
 	fi, err := os.Stat(filename)
-	if err != nil && !os.IsNotExist(err) {
+	if err != nil && !herrors.IsNotExist(err) {
 		return err
 	}
 
@@ -206,7 +207,7 @@ func (r *recording) record(filename string) error {
 	if fi.IsDir() {
 		f, err := os.Open(filename)
 		if err != nil {
-			if os.IsNotExist(err) {
+			if herrors.IsNotExist(err) {
 				return nil
 			}
 			return err
@@ -215,7 +216,7 @@ func (r *recording) record(filename string) error {
 
 		fis, err := f.Readdir(-1)
 		if err != nil {
-			if os.IsNotExist(err) {
+			if herrors.IsNotExist(err) {
 				return nil
 			}
 			return err
@@ -260,14 +261,14 @@ func (item *itemToWatch) checkForChanges() ([]fsnotify.Event, error) {
 	}
 
 	err := item.right.record(item.filename)
-	if err != nil && !os.IsNotExist(err) {
+	if err != nil && !herrors.IsNotExist(err) {
 		return nil, err
 	}
 
 	dirOp := checkChange(item.left.FileInfo, item.right.FileInfo)
 
 	if dirOp != 0 {
-		evs := []fsnotify.Event{fsnotify.Event{Op: dirOp, Name: item.filename}}
+		evs := []fsnotify.Event{{Op: dirOp, Name: item.filename}}
 		return evs, nil
 	}
 

@@ -15,16 +15,18 @@ package modules
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/hugofs/files"
-	"github.com/gohugoio/hugo/langs"
 	"github.com/mitchellh/mapstructure"
 )
+
+const WorkspaceDisabled = "off"
 
 var DefaultModuleConfig = Config{
 
@@ -41,6 +43,9 @@ var DefaultModuleConfig = Config{
 	// treated as private.
 	Private: "*.*",
 
+	// Default is no workspace resolution.
+	Workspace: WorkspaceDisabled,
+
 	// A list of replacement directives mapping a module path to a directory
 	// or a theme component in the themes folder.
 	// Note that this will turn the component into a traditional theme component
@@ -52,12 +57,9 @@ var DefaultModuleConfig = Config{
 
 // ApplyProjectConfigDefaults applies default/missing module configuration for
 // the main project.
-func ApplyProjectConfigDefaults(cfg config.Provider, mod Module) error {
-	moda := mod.(*moduleAdapter)
+func ApplyProjectConfigDefaults(mod Module, cfgs ...config.AllProvider) error {
 
-	// Map legacy directory config into the new module.
-	languages := cfg.Get("languagesSortedDefaultFirst").(langs.Languages)
-	isMultiHost := languages.IsMultihost()
+	moda := mod.(*moduleAdapter)
 
 	// To bridge between old and new configuration format we need
 	// a way to make sure all of the core components are configured on
@@ -69,121 +71,92 @@ func ApplyProjectConfigDefaults(cfg config.Provider, mod Module) error {
 		}
 	}
 
-	type dirKeyComponent struct {
-		key          string
-		component    string
-		multilingual bool
-	}
-
-	dirKeys := []dirKeyComponent{
-		{"contentDir", files.ComponentFolderContent, true},
-		{"dataDir", files.ComponentFolderData, false},
-		{"layoutDir", files.ComponentFolderLayouts, false},
-		{"i18nDir", files.ComponentFolderI18n, false},
-		{"archetypeDir", files.ComponentFolderArchetypes, false},
-		{"assetDir", files.ComponentFolderAssets, false},
-		{"", files.ComponentFolderStatic, isMultiHost},
-	}
-
-	createMountsFor := func(d dirKeyComponent, cfg config.Provider) []Mount {
-		var lang string
-		if language, ok := cfg.(*langs.Language); ok {
-			lang = language.Lang
-		}
-
-		// Static mounts are a little special.
-		if d.component == files.ComponentFolderStatic {
-			var mounts []Mount
-			staticDirs := getStaticDirs(cfg)
-			if len(staticDirs) > 0 {
-				componentsConfigured[d.component] = true
-			}
-
-			for _, dir := range staticDirs {
-				mounts = append(mounts, Mount{Lang: lang, Source: dir, Target: d.component})
-			}
-
-			return mounts
-
-		}
-
-		if cfg.IsSet(d.key) {
-			source := cfg.GetString(d.key)
-			componentsConfigured[d.component] = true
-
-			return []Mount{{
-				// No lang set for layouts etc.
-				Source: source,
-				Target: d.component,
-			}}
-		}
-
-		return nil
-	}
-
-	createMounts := func(d dirKeyComponent) []Mount {
-		var mounts []Mount
-		if d.multilingual {
-			if d.component == files.ComponentFolderContent {
-				seen := make(map[string]bool)
-				hasContentDir := false
-				for _, language := range languages {
-					if language.ContentDir != "" {
-						hasContentDir = true
-						break
-					}
-				}
-
-				if hasContentDir {
-					for _, language := range languages {
-						contentDir := language.ContentDir
-						if contentDir == "" {
-							contentDir = files.ComponentFolderContent
-						}
-						if contentDir == "" || seen[contentDir] {
-							continue
-						}
-						seen[contentDir] = true
-						mounts = append(mounts, Mount{Lang: language.Lang, Source: contentDir, Target: d.component})
-					}
-				}
-
-				componentsConfigured[d.component] = len(seen) > 0
-
-			} else {
-				for _, language := range languages {
-					mounts = append(mounts, createMountsFor(d, language)...)
-				}
-			}
-		} else {
-			mounts = append(mounts, createMountsFor(d, cfg)...)
-		}
-
-		return mounts
-	}
-
 	var mounts []Mount
-	for _, dirKey := range dirKeys {
-		if componentsConfigured[dirKey.component] {
+
+	for _, component := range []string{
+		files.ComponentFolderContent,
+		files.ComponentFolderData,
+		files.ComponentFolderLayouts,
+		files.ComponentFolderI18n,
+		files.ComponentFolderArchetypes,
+		files.ComponentFolderAssets,
+		files.ComponentFolderStatic,
+	} {
+		if componentsConfigured[component] {
 			continue
 		}
 
-		mounts = append(mounts, createMounts(dirKey)...)
+		first := cfgs[0]
+		dirsBase := first.DirsBase()
+		isMultiHost := first.IsMultihost()
 
+		for i, cfg := range cfgs {
+			dirs := cfg.Dirs()
+			var dir string
+			var dropLang bool
+			switch component {
+			case files.ComponentFolderContent:
+				dir = dirs.ContentDir
+				dropLang = dir == dirsBase.ContentDir
+			case files.ComponentFolderData:
+				dir = dirs.DataDir
+			case files.ComponentFolderLayouts:
+				dir = dirs.LayoutDir
+			case files.ComponentFolderI18n:
+				dir = dirs.I18nDir
+			case files.ComponentFolderArchetypes:
+				dir = dirs.ArcheTypeDir
+			case files.ComponentFolderAssets:
+				dir = dirs.AssetDir
+			case files.ComponentFolderStatic:
+				// For static dirs, we only care about the language in multihost setups.
+				dropLang = !isMultiHost
+			}
+
+			var perLang bool
+			switch component {
+			case files.ComponentFolderContent, files.ComponentFolderStatic:
+				perLang = true
+			default:
+			}
+			if i > 0 && !perLang {
+				continue
+			}
+
+			var lang string
+			if perLang && !dropLang {
+				lang = cfg.Language().Lang
+			}
+
+			// Static mounts are a little special.
+			if component == files.ComponentFolderStatic {
+				staticDirs := cfg.StaticDirs()
+				for _, dir := range staticDirs {
+					mounts = append(mounts, Mount{Lang: lang, Source: dir, Target: component})
+				}
+				continue
+			}
+
+			if dir != "" {
+				mounts = append(mounts, Mount{Lang: lang, Source: dir, Target: component})
+			}
+		}
 	}
 
-	// Add default configuration
-	for _, dirKey := range dirKeys {
-		if componentsConfigured[dirKey.component] {
+	moda.mounts = append(moda.mounts, mounts...)
+
+	// Temporary: Remove duplicates.
+	seen := make(map[string]bool)
+	var newMounts []Mount
+	for _, m := range moda.mounts {
+		key := m.Source + m.Target + m.Lang
+		if seen[key] {
 			continue
 		}
-		mounts = append(mounts, Mount{Source: dirKey.component, Target: dirKey.component})
+		seen[key] = true
+		newMounts = append(newMounts, m)
 	}
-
-	// Prepend the mounts from configuration.
-	mounts = append(moda.mounts, mounts...)
-
-	moda.mounts = mounts
+	moda.mounts = newMounts
 
 	return nil
 }
@@ -247,6 +220,19 @@ func decodeConfig(cfg config.Provider, pathReplacements map[string]string) (Conf
 			c.Mounts[i] = mnt
 		}
 
+		if c.Workspace == "" {
+			c.Workspace = WorkspaceDisabled
+		}
+		if c.Workspace != WorkspaceDisabled {
+			c.Workspace = filepath.Clean(c.Workspace)
+			if !filepath.IsAbs(c.Workspace) {
+				workingDir := cfg.GetString("workingDir")
+				c.Workspace = filepath.Join(workingDir, c.Workspace)
+			}
+			if _, err := os.Stat(c.Workspace); err != nil {
+				return c, fmt.Errorf("module workspace %q does not exist. Check your module.workspace setting (or HUGO_MODULE_WORKSPACE env var).", c.Workspace)
+			}
+		}
 	}
 
 	if themeSet {
@@ -256,7 +242,6 @@ func decodeConfig(cfg config.Provider, pathReplacements map[string]string) (Conf
 				Path: imp,
 			})
 		}
-
 	}
 
 	return c, nil
@@ -264,7 +249,10 @@ func decodeConfig(cfg config.Provider, pathReplacements map[string]string) (Conf
 
 // Config holds a module config.
 type Config struct {
-	Mounts  []Mount
+	// File system mounts.
+	Mounts []Mount
+
+	// Module imports.
 	Imports []Import
 
 	// Meta info about this module (license information etc.).
@@ -273,8 +261,7 @@ type Config struct {
 	// Will be validated against the running Hugo version.
 	HugoVersion HugoVersion
 
-	// A optional Glob pattern matching module paths to skip when vendoring, e.g.
-	// "github.com/**".
+	// Optional Glob pattern matching module paths to skip when vendoring, e.g. “github.com/**”
 	NoVendor string
 
 	// When enabled, we will pick the vendored module closest to the module
@@ -284,20 +271,31 @@ type Config struct {
 	// so once it is in use it cannot be redefined.
 	VendorClosest bool
 
+	// A comma separated (or a slice) list of module path to directory replacement mapping,
+	// e.g. github.com/bep/my-theme -> ../..,github.com/bep/shortcodes -> /some/path.
+	// This is mostly useful for temporary locally development of a module, and then it makes sense to set it as an
+	// OS environment variable, e.g: env HUGO_MODULE_REPLACEMENTS="github.com/bep/my-theme -> ../..".
+	// Any relative path is relate to themesDir, and absolute paths are allowed.
 	Replacements    []string
 	replacementsMap map[string]string
 
-	// Configures GOPROXY.
+	// Defines the proxy server to use to download remote modules. Default is direct, which means “git clone” and similar.
+	// Configures GOPROXY when running the Go command for module operations.
 	Proxy string
-	// Configures GONOPROXY.
+
+	// Comma separated glob list matching paths that should not use the proxy configured above.
+	// Configures GONOPROXY when running the Go command for module operations.
 	NoProxy string
-	// Configures GOPRIVATE.
+
+	// Comma separated glob list matching paths that should be treated as private.
+	// Configures GOPRIVATE when running the Go command for module operations.
 	Private string
 
-	// Set the workspace file to use, e.g. hugo.work.
-	// Enables Go "Workspace" mode.
-	// Requires Go 1.18+
-	// See https://tip.golang.org/doc/go1.18
+	// Defaults to "off".
+	// Set to a work file, e.g. hugo.work, to enable Go "Workspace" mode.
+	// Can be relative to the working directory or absolute.
+	// Requires Go 1.18+.
+	// Note that this can also be set via OS env, e.g. export HUGO_MODULE_WORKSPACE=/my/hugo.work.
 	Workspace string
 }
 
@@ -367,21 +365,33 @@ func (v HugoVersion) IsValid() bool {
 }
 
 type Import struct {
-	Path                string // Module path
-	pathProjectReplaced bool   // Set when Path is replaced in project config.
-	IgnoreConfig        bool   // Ignore any config in config.toml (will still follow imports).
-	IgnoreImports       bool   // Do not follow any configured imports.
-	NoMounts            bool   // Do not mount any folder in this import.
-	NoVendor            bool   // Never vendor this import (only allowed in main project).
-	Disable             bool   // Turn off this module.
-	Mounts              []Mount
+	// Module path
+	Path string
+	// Set when Path is replaced in project config.
+	pathProjectReplaced bool
+	// Ignore any config in config.toml (will still follow imports).
+	IgnoreConfig bool
+	// Do not follow any configured imports.
+	IgnoreImports bool
+	// Do not mount any folder in this import.
+	NoMounts bool
+	// Never vendor this import (only allowed in main project).
+	NoVendor bool
+	// Turn off this module.
+	Disable bool
+	// File mounts.
+	Mounts []Mount
 }
 
 type Mount struct {
-	Source string // relative path in source repo, e.g. "scss"
-	Target string // relative target path, e.g. "assets/bootstrap/scss"
+	// Relative path in source repo, e.g. "scss".
+	Source string
 
-	Lang string // any language code associated with this mount.
+	// Relative target path, e.g. "assets/bootstrap/scss".
+	Target string
+
+	// Any file in this mount will be associated with this language.
+	Lang string
 
 	// Include only files matching the given Glob patterns (string or slice).
 	IncludeFiles any
@@ -402,20 +412,4 @@ func (m Mount) Component() string {
 func (m Mount) ComponentAndName() (string, string) {
 	c, n, _ := strings.Cut(m.Target, fileSeparator)
 	return c, n
-}
-
-func getStaticDirs(cfg config.Provider) []string {
-	var staticDirs []string
-	for i := -1; i <= 10; i++ {
-		staticDirs = append(staticDirs, getStringOrStringSlice(cfg, "staticDir", i)...)
-	}
-	return staticDirs
-}
-
-func getStringOrStringSlice(cfg config.Provider, key string, id int) []string {
-	if id >= 0 {
-		key = fmt.Sprintf("%s%d", key, id)
-	}
-
-	return config.GetStringSlicePreserveString(cfg, key)
 }

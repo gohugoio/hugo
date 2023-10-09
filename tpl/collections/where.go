@@ -14,26 +14,30 @@
 package collections
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"reflect"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/hreflect"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/maps"
 )
 
-// Where returns a filtered subset of a given data type.
-func (ns *Namespace) Where(seq, key any, args ...any) (any, error) {
-	seqv, isNil := indirect(reflect.ValueOf(seq))
+// Where returns a filtered subset of collection c.
+func (ns *Namespace) Where(ctx context.Context, c, key any, args ...any) (any, error) {
+	seqv, isNil := indirect(reflect.ValueOf(c))
 	if isNil {
-		return nil, errors.New("can't iterate over a nil value of type " + reflect.ValueOf(seq).Type().String())
+		return nil, errors.New("can't iterate over a nil value of type " + reflect.ValueOf(c).Type().String())
 	}
 
 	mv, op, err := parseWhereArgs(args...)
 	if err != nil {
 		return nil, err
 	}
+
+	ctxv := reflect.ValueOf(ctx)
 
 	var path []string
 	kv := reflect.ValueOf(key)
@@ -43,11 +47,11 @@ func (ns *Namespace) Where(seq, key any, args ...any) (any, error) {
 
 	switch seqv.Kind() {
 	case reflect.Array, reflect.Slice:
-		return ns.checkWhereArray(seqv, kv, mv, path, op)
+		return ns.checkWhereArray(ctxv, seqv, kv, mv, path, op)
 	case reflect.Map:
-		return ns.checkWhereMap(seqv, kv, mv, path, op)
+		return ns.checkWhereMap(ctxv, seqv, kv, mv, path, op)
 	default:
-		return nil, fmt.Errorf("can't iterate over %v", seq)
+		return nil, fmt.Errorf("can't iterate over %v", c)
 	}
 }
 
@@ -269,13 +273,24 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			return false, nil
 		}
 		return false, errors.New("invalid intersect values")
+	case "like":
+		if svp != nil && smvp != nil {
+			re, err := hstrings.GetOrCompileRegexp(*smvp)
+			if err != nil {
+				return false, err
+			}
+			if re.MatchString(*svp) {
+				return true, nil
+			}
+			return false, nil
+		}
 	default:
 		return false, errors.New("no such operator")
 	}
 	return false, nil
 }
 
-func evaluateSubElem(obj reflect.Value, elemName string) (reflect.Value, error) {
+func evaluateSubElem(ctx, obj reflect.Value, elemName string) (reflect.Value, error) {
 	if !obj.IsValid() {
 		return zero, errors.New("can't evaluate an invalid value")
 	}
@@ -301,12 +316,20 @@ func evaluateSubElem(obj reflect.Value, elemName string) (reflect.Value, error) 
 
 	index := hreflect.GetMethodIndexByName(objPtr.Type(), elemName)
 	if index != -1 {
+		var args []reflect.Value
 		mt := objPtr.Type().Method(index)
+		num := mt.Type.NumIn()
+		maxNumIn := 1
+		if num > 1 && mt.Type.In(1).Implements(hreflect.ContextInterface) {
+			args = []reflect.Value{ctx}
+			maxNumIn = 2
+		}
+
 		switch {
 		case mt.PkgPath != "":
 			return zero, fmt.Errorf("%s is an unexported method of type %s", elemName, typ)
-		case mt.Type.NumIn() > 1:
-			return zero, fmt.Errorf("%s is a method of type %s but requires more than 1 parameter", elemName, typ)
+		case mt.Type.NumIn() > maxNumIn:
+			return zero, fmt.Errorf("%s is a method of type %s but requires more than %d parameter", elemName, typ, maxNumIn)
 		case mt.Type.NumOut() == 0:
 			return zero, fmt.Errorf("%s is a method of type %s but returns no output", elemName, typ)
 		case mt.Type.NumOut() > 2:
@@ -316,7 +339,7 @@ func evaluateSubElem(obj reflect.Value, elemName string) (reflect.Value, error) 
 		case mt.Type.NumOut() == 2 && !mt.Type.Out(1).Implements(errorType):
 			return zero, fmt.Errorf("%s is a method of type %s returning two values but the second value is not an error type", elemName, typ)
 		}
-		res := objPtr.Method(mt.Index).Call([]reflect.Value{})
+		res := objPtr.Method(mt.Index).Call(args)
 		if len(res) == 2 && !res[1].IsNil() {
 			return zero, fmt.Errorf("error at calling a method %s of type %s: %s", elemName, typ, res[1].Interface().(error))
 		}
@@ -371,7 +394,7 @@ func parseWhereArgs(args ...any) (mv reflect.Value, op string, err error) {
 
 // checkWhereArray handles the where-matching logic when the seqv value is an
 // Array or Slice.
-func (ns *Namespace) checkWhereArray(seqv, kv, mv reflect.Value, path []string, op string) (any, error) {
+func (ns *Namespace) checkWhereArray(ctxv, seqv, kv, mv reflect.Value, path []string, op string) (any, error) {
 	rv := reflect.MakeSlice(seqv.Type(), 0, 0)
 
 	for i := 0; i < seqv.Len(); i++ {
@@ -380,12 +403,12 @@ func (ns *Namespace) checkWhereArray(seqv, kv, mv reflect.Value, path []string, 
 
 		if kv.Kind() == reflect.String {
 			if params, ok := rvv.Interface().(maps.Params); ok {
-				vvv = reflect.ValueOf(params.Get(path...))
+				vvv = reflect.ValueOf(params.GetNested(path...))
 			} else {
 				vvv = rvv
 				for i, elemName := range path {
 					var err error
-					vvv, err = evaluateSubElem(vvv, elemName)
+					vvv, err = evaluateSubElem(ctxv, vvv, elemName)
 
 					if err != nil {
 						continue
@@ -394,7 +417,7 @@ func (ns *Namespace) checkWhereArray(seqv, kv, mv reflect.Value, path []string, 
 					if i < len(path)-1 && vvv.IsValid() {
 						if params, ok := vvv.Interface().(maps.Params); ok {
 							// The current path element is the map itself, .Params.
-							vvv = reflect.ValueOf(params.Get(path[i+1:]...))
+							vvv = reflect.ValueOf(params.GetNested(path[i+1:]...))
 							break
 						}
 					}
@@ -417,14 +440,14 @@ func (ns *Namespace) checkWhereArray(seqv, kv, mv reflect.Value, path []string, 
 }
 
 // checkWhereMap handles the where-matching logic when the seqv value is a Map.
-func (ns *Namespace) checkWhereMap(seqv, kv, mv reflect.Value, path []string, op string) (any, error) {
+func (ns *Namespace) checkWhereMap(ctxv, seqv, kv, mv reflect.Value, path []string, op string) (any, error) {
 	rv := reflect.MakeMap(seqv.Type())
 	keys := seqv.MapKeys()
 	for _, k := range keys {
 		elemv := seqv.MapIndex(k)
 		switch elemv.Kind() {
 		case reflect.Array, reflect.Slice:
-			r, err := ns.checkWhereArray(elemv, kv, mv, path, op)
+			r, err := ns.checkWhereArray(ctxv, elemv, kv, mv, path, op)
 			if err != nil {
 				return nil, err
 			}
@@ -443,7 +466,7 @@ func (ns *Namespace) checkWhereMap(seqv, kv, mv reflect.Value, path []string, op
 
 			switch elemvv.Kind() {
 			case reflect.Array, reflect.Slice:
-				r, err := ns.checkWhereArray(elemvv, kv, mv, path, op)
+				r, err := ns.checkWhereArray(ctxv, elemvv, kv, mv, path, op)
 				if err != nil {
 					return nil, err
 				}

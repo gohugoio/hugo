@@ -130,6 +130,7 @@ func (f *FileMeta) JoinStat(name string) (FileMetaInfo, error) {
 
 type FileMetaInfo interface {
 	os.FileInfo
+	// Meta is for internal use.
 	Meta() *FileMeta
 }
 

@@ -54,7 +54,7 @@ pre {
 }
 
 @media (--breakpoint-large) {
-  .full-width, pre.expand:hover
+  .full-width
   {
   /*width: 100vw;
   position: relative;

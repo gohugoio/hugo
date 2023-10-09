@@ -1,35 +1,30 @@
 ---
 title: trim
-# linktitle:
 description: Returns a slice of a passed string with all leading and trailing characters from cutset removed.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [strings]
-signature: ["trim INPUT CUTSET"]
-workson: []
-hugoversion:
+signature:
+  - "trim INPUT CUTSET"
+  - "strings.Trim INPUT CUTSET"
 relatedfuncs: []
-deprecated: false
 ---
 
-```
+```go-html-template
 {{ trim "++Batman--" "+-" }} → "Batman"
 ```
 
 `trim` *requires* the second argument, which tells the function specifically what to remove from the first argument. There is no default value for the second argument, so **the following usage will not work**:
 
-```
-{{ trim .Inner}}
+```go-html-template
+{{ trim .Inner }}
 ```
 
 Instead, the following example tells `trim` to remove extra new lines from the content contained in the [shortcode `.Inner` variable][shortcodevars]:
 
-```
+```go-html-template
 {{ trim .Inner "\n" }}
 ```
 

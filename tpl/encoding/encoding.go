@@ -20,7 +20,10 @@ import (
 	"errors"
 	"html/template"
 
+	bp "github.com/gohugoio/hugo/bufferpool"
+
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cast"
 )
 
@@ -54,30 +57,33 @@ func (ns *Namespace) Base64Encode(content any) (string, error) {
 }
 
 // Jsonify encodes a given object to JSON.  To pretty print the JSON, pass a map
-// or dictionary of options as the first argument.  Supported options are
+// or dictionary of options as the first value in args.  Supported options are
 // "prefix" and "indent".  Each JSON element in the output will begin on a new
 // line beginning with prefix followed by one or more copies of indent according
 // to the indentation nesting.
 func (ns *Namespace) Jsonify(args ...any) (template.HTML, error) {
 	var (
-		b   []byte
-		err error
+		b    []byte
+		err  error
+		obj  any
+		opts jsonifyOpts
 	)
 
 	switch len(args) {
 	case 0:
 		return "", nil
 	case 1:
-		b, err = json.Marshal(args[0])
+		obj = args[0]
 	case 2:
-		var opts map[string]string
-
-		opts, err = maps.ToStringMapStringE(args[0])
+		var m map[string]any
+		m, err = maps.ToStringMapE(args[0])
 		if err != nil {
 			break
 		}
-
-		b, err = json.MarshalIndent(args[1], opts["prefix"], opts["indent"])
+		if err = mapstructure.WeakDecode(m, &opts); err != nil {
+			break
+		}
+		obj = args[1]
 	default:
 		err = errors.New("too many arguments to jsonify")
 	}
@@ -86,5 +92,25 @@ func (ns *Namespace) Jsonify(args ...any) (template.HTML, error) {
 		return "", err
 	}
 
+	buff := bp.GetBuffer()
+	defer bp.PutBuffer(buff)
+	e := json.NewEncoder(buff)
+	e.SetEscapeHTML(!opts.NoHTMLEscape)
+	e.SetIndent(opts.Prefix, opts.Indent)
+	if err = e.Encode(obj); err != nil {
+		return "", err
+	}
+	b = buff.Bytes()
+	// See https://github.com/golang/go/issues/37083
+	// Hugo changed from MarshalIndent/Marshal. To make the output
+	// the same, we need to trim the trailing newline.
+	b = b[:len(b)-1]
+
 	return template.HTML(b), nil
+}
+
+type jsonifyOpts struct {
+	Prefix       string
+	Indent       string
+	NoHTMLEscape bool
 }

@@ -14,14 +14,12 @@
 package page
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"testing"
 
-	"github.com/gohugoio/hugo/config"
-
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/output"
 )
 
 func TestSplitPages(t *testing.T) {
@@ -43,7 +41,7 @@ func TestSplitPageGroups(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 	pages := createTestPages(21)
-	groups, _ := pages.GroupBy("Weight", "desc")
+	groups, _ := pages.GroupBy(context.Background(), "Weight", "desc")
 	chunks := splitPageGroups(groups, 5)
 	c.Assert(len(chunks), qt.Equals, 5)
 
@@ -56,7 +54,7 @@ func TestSplitPageGroups(t *testing.T) {
 			// first group 10 in weight
 			c.Assert(pg.Key, qt.Equals, 10)
 			for _, p := range pg.Pages {
-				c.Assert(p.FuzzyWordCount()%2 == 0, qt.Equals, true) // magic test
+				c.Assert(p.FuzzyWordCount(context.Background())%2 == 0, qt.Equals, true) // magic test
 			}
 		}
 	} else {
@@ -71,7 +69,7 @@ func TestSplitPageGroups(t *testing.T) {
 			// last should have 5 in weight
 			c.Assert(pg.Key, qt.Equals, 5)
 			for _, p := range pg.Pages {
-				c.Assert(p.FuzzyWordCount()%2 != 0, qt.Equals, true) // magic test
+				c.Assert(p.FuzzyWordCount(context.Background())%2 != 0, qt.Equals, true) // magic test
 			}
 		}
 	} else {
@@ -83,7 +81,7 @@ func TestPager(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 	pages := createTestPages(21)
-	groups, _ := pages.GroupBy("Weight", "desc")
+	groups, _ := pages.GroupBy(context.Background(), "Weight", "desc")
 
 	urlFactory := func(page int) string {
 		return fmt.Sprintf("page/%d/", page)
@@ -149,7 +147,7 @@ func TestPagerNoPages(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 	pages := createTestPages(0)
-	groups, _ := pages.GroupBy("Weight", "desc")
+	groups, _ := pages.GroupBy(context.Background(), "Weight", "desc")
 
 	urlFactory := func(page int) string {
 		return fmt.Sprintf("page/%d/", page)
@@ -193,65 +191,13 @@ func doTestPagerNoPages(t *testing.T, paginator *Paginator) {
 	c.Assert(pageOne.PageSize(), qt.Equals, 5)
 }
 
-func TestPaginationURLFactory(t *testing.T) {
-	t.Parallel()
-	c := qt.New(t)
-	cfg := config.New()
-	cfg.Set("paginatePath", "zoo")
-
-	for _, uglyURLs := range []bool{false, true} {
-		c.Run(fmt.Sprintf("uglyURLs=%t", uglyURLs), func(c *qt.C) {
-			tests := []struct {
-				name         string
-				d            TargetPathDescriptor
-				baseURL      string
-				page         int
-				expected     string
-				expectedUgly string
-			}{
-				{
-					"HTML home page 32",
-					TargetPathDescriptor{Kind: KindHome, Type: output.HTMLFormat},
-					"http://example.com/", 32, "/zoo/32/", "/zoo/32.html",
-				},
-				{
-					"JSON home page 42",
-					TargetPathDescriptor{Kind: KindHome, Type: output.JSONFormat},
-					"http://example.com/", 42, "/zoo/42/index.json", "/zoo/42.json",
-				},
-			}
-
-			for _, test := range tests {
-				d := test.d
-				cfg.Set("baseURL", test.baseURL)
-				cfg.Set("uglyURLs", uglyURLs)
-				d.UglyURLs = uglyURLs
-
-				pathSpec := newTestPathSpecFor(cfg)
-				d.PathSpec = pathSpec
-
-				factory := newPaginationURLFactory(d)
-
-				got := factory(test.page)
-
-				if uglyURLs {
-					c.Assert(got, qt.Equals, test.expectedUgly)
-				} else {
-					c.Assert(got, qt.Equals, test.expected)
-				}
-
-			}
-		})
-	}
-}
-
 func TestProbablyEqualPageLists(t *testing.T) {
 	t.Parallel()
 	fivePages := createTestPages(5)
 	zeroPages := createTestPages(0)
-	zeroPagesByWeight, _ := createTestPages(0).GroupBy("Weight", "asc")
-	fivePagesByWeight, _ := createTestPages(5).GroupBy("Weight", "asc")
-	ninePagesByWeight, _ := createTestPages(9).GroupBy("Weight", "asc")
+	zeroPagesByWeight, _ := createTestPages(0).GroupBy(context.Background(), "Weight", "asc")
+	fivePagesByWeight, _ := createTestPages(5).GroupBy(context.Background(), "Weight", "asc")
+	ninePagesByWeight, _ := createTestPages(9).GroupBy(context.Background(), "Weight", "asc")
 
 	for i, this := range []struct {
 		v1     any
@@ -287,7 +233,7 @@ func TestPaginationPage(t *testing.T) {
 	}
 
 	fivePages := createTestPages(7)
-	fivePagesFuzzyWordCount, _ := createTestPages(7).GroupBy("FuzzyWordCount", "asc")
+	fivePagesFuzzyWordCount, _ := createTestPages(7).GroupBy(context.Background(), "FuzzyWordCount", "asc")
 
 	p1, _ := newPaginatorFromPages(fivePages, 2, urlFactory)
 	p2, _ := newPaginatorFromPageGroups(fivePagesFuzzyWordCount, 2, urlFactory)
@@ -301,10 +247,10 @@ func TestPaginationPage(t *testing.T) {
 	page21, _ := f2.page(1)
 	page2Nil, _ := f2.page(3)
 
-	c.Assert(page11.FuzzyWordCount(), qt.Equals, 3)
+	c.Assert(page11.FuzzyWordCount(context.Background()), qt.Equals, 3)
 	c.Assert(page1Nil, qt.IsNil)
 
 	c.Assert(page21, qt.Not(qt.IsNil))
-	c.Assert(page21.FuzzyWordCount(), qt.Equals, 3)
+	c.Assert(page21.FuzzyWordCount(context.Background()), qt.Equals, 3)
 	c.Assert(page2Nil, qt.IsNil)
 }

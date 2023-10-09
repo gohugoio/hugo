@@ -16,6 +16,7 @@ package hugolib
 import (
 	"testing"
 
+	"github.com/bep/logg"
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/loggers"
 )
@@ -80,13 +81,13 @@ func TestRenderStringOnListPage(t *testing.T) {
 // Issue 9433
 func TestRenderStringOnPageNotBackedByAFile(t *testing.T) {
 	t.Parallel()
-	logger := loggers.NewWarningLogger()
+	logger := loggers.NewDefault()
 	b := newTestSitesBuilder(t).WithLogger(logger).WithConfigFile("toml", `
 disableKinds = ["page", "section", "taxonomy", "term"]	
 `)
 	b.WithTemplates("index.html", `{{ .RenderString "**Hello**" }}`).WithContent("p1.md", "")
 	b.BuildE(BuildCfg{})
-	b.Assert(int(logger.LogCounters().WarnCounter.Count()), qt.Equals, 0)
+	b.Assert(logger.LoggCount(logg.LevelWarn), qt.Equals, 0)
 }
 
 func TestRenderStringWithShortcode(t *testing.T) {
@@ -189,4 +190,40 @@ Has myshort: true
 Has other: false
 `)
 
+}
+
+func TestRenderStringWithShortcodeIssue10654(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+timeout = '300ms'
+-- content/p1.md --
+---
+title: "P1"
+---
+{{< toc >}}
+
+## Heading 1
+
+{{< noop >}}
+     {{ not a shortcode
+{{< /noop >}}
+}
+-- layouts/shortcodes/noop.html --
+{{ .Inner | $.Page.RenderString }}
+-- layouts/shortcodes/toc.html --
+{{ .Page.TableOfContents }}
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", `TableOfContents`)
 }

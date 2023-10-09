@@ -101,3 +101,30 @@ func TestIsProbablyItemsSource(t *testing.T) {
 	c.Assert(IsProbablySourceOfItems([]byte(`{{< foo >}}  `), items), qt.IsFalse)
 	c.Assert(IsProbablySourceOfItems([]byte(``), items), qt.IsFalse)
 }
+
+func TestHasShortcode(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(HasShortcode("{{< foo >}}"), qt.IsTrue)
+	c.Assert(HasShortcode("aSDasd  SDasd aSD\n\nasdfadf{{% foo %}}\nasdf"), qt.IsTrue)
+	c.Assert(HasShortcode("{{</* foo */>}}"), qt.IsFalse)
+	c.Assert(HasShortcode("{{%/* foo */%}}"), qt.IsFalse)
+
+}
+
+func BenchmarkHasShortcode(b *testing.B) {
+	withShortcode := strings.Repeat("this is text", 30) + "{{< myshortcode >}}This is some inner content.{{< /myshortcode >}}" + strings.Repeat("this is text", 30)
+	withoutShortcode := strings.Repeat("this is text", 30) + "This is some inner content." + strings.Repeat("this is text", 30)
+	b.Run("Match", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			HasShortcode(withShortcode)
+		}
+	})
+
+	b.Run("NoMatch", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			HasShortcode(withoutShortcode)
+		}
+	})
+
+}

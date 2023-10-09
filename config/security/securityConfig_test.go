@@ -140,7 +140,7 @@ func TestToTOML(t *testing.T) {
 	got := DefaultConfig.ToTOML()
 
 	c.Assert(got, qt.Equals,
-		"[security]\n  enableInlineShortcodes = false\n\n  [security.exec]\n    allow = ['^dart-sass-embedded$', '^go$', '^npx$', '^postcss$']\n    osEnv = ['(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM)$']\n\n  [security.funcs]\n    getenv = ['^HUGO_']\n\n  [security.http]\n    methods = ['(?i)GET|POST']\n    urls = ['.*']",
+		"[security]\n  enableInlineShortcodes = false\n\n  [security.exec]\n    allow = ['^(dart-)?sass(-embedded)?$', '^go$', '^npx$', '^postcss$']\n    osEnv = ['(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG)$']\n\n  [security.funcs]\n    getenv = ['^HUGO_', '^CI$']\n\n  [security.goTemplates]\n    AllowActionJSTmpl = false\n\n  [security.http]\n    methods = ['(?i)GET|POST']\n    urls = ['.*']",
 	)
 }
 
@@ -154,13 +154,20 @@ func TestDecodeConfigDefault(t *testing.T) {
 	c.Assert(pc.Exec.Allow.Accept("a"), qt.IsFalse)
 	c.Assert(pc.Exec.Allow.Accept("npx"), qt.IsTrue)
 	c.Assert(pc.Exec.Allow.Accept("Npx"), qt.IsFalse)
-	c.Assert(pc.Exec.OsEnv.Accept("a"), qt.IsFalse)
-	c.Assert(pc.Exec.OsEnv.Accept("PATH"), qt.IsTrue)
-	c.Assert(pc.Exec.OsEnv.Accept("e"), qt.IsFalse)
 
 	c.Assert(pc.HTTP.URLs.Accept("https://example.org"), qt.IsTrue)
 	c.Assert(pc.HTTP.Methods.Accept("POST"), qt.IsTrue)
 	c.Assert(pc.HTTP.Methods.Accept("GET"), qt.IsTrue)
 	c.Assert(pc.HTTP.Methods.Accept("get"), qt.IsTrue)
 	c.Assert(pc.HTTP.Methods.Accept("DELETE"), qt.IsFalse)
+	c.Assert(pc.HTTP.MediaTypes.Accept("application/msword"), qt.IsFalse)
+
+	c.Assert(pc.Exec.OsEnv.Accept("PATH"), qt.IsTrue)
+	c.Assert(pc.Exec.OsEnv.Accept("GOROOT"), qt.IsTrue)
+	c.Assert(pc.Exec.OsEnv.Accept("HOME"), qt.IsTrue)
+	c.Assert(pc.Exec.OsEnv.Accept("SSH_AUTH_SOCK"), qt.IsTrue)
+	c.Assert(pc.Exec.OsEnv.Accept("a"), qt.IsFalse)
+	c.Assert(pc.Exec.OsEnv.Accept("e"), qt.IsFalse)
+	c.Assert(pc.Exec.OsEnv.Accept("MYSECRET"), qt.IsFalse)
+
 }

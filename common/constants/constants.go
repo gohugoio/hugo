@@ -16,9 +16,6 @@ package constants
 // Error IDs.
 // Do not change these values.
 const (
-	ErrIDAmbigousDisableKindTaxonomy = "error-disable-taxonomy"
-	ErrIDAmbigousOutputKindTaxonomy  = "error-output-taxonomy"
-
 	// IDs for remote errors in tpl/data.
 	ErrRemoteGetJSON = "error-remote-getjson"
 	ErrRemoteGetCSV  = "error-remote-getcsv"

@@ -17,14 +17,16 @@ import (
 	"html/template"
 	"testing"
 
-	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/config/testconfig"
 	"github.com/gohugoio/hugo/deps"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/spf13/cast"
 )
 
-var ns = New(&deps.Deps{Cfg: config.New()})
+var ns = New(&deps.Deps{
+	Conf: testconfig.GetTestConfig(nil, nil),
+})
 
 type tstNoStringer struct{}
 
@@ -142,6 +144,27 @@ func TestContainsAny(t *testing.T) {
 
 		c.Assert(err, qt.IsNil)
 		c.Assert(result, qt.Equals, test.expect)
+	}
+}
+
+func TestContainsNonSpace(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		s      any
+		expect bool
+	}{
+		{"", false},
+		{" ", false},
+		{"        ", false},
+		{"\t", false},
+		{"\r", false},
+		{"a", true},
+		{"    a", true},
+		{"a\n", true},
+	} {
+		c.Assert(ns.ContainsNonSpace(test.s), qt.Equals, test.expect)
 	}
 }
 

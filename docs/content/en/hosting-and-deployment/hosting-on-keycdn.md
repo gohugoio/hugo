@@ -1,17 +1,11 @@
 ---
-title: "Hosting on KeyCDN"
-date: 2017-09-12
-description: "Accelerate your Hugo site globally with a KeyCDN integration. This tutorial shows you how to setup your static site as a GitLab page behind a KeyCDN pull zone."
+title: Host on KeyCDN
+description: "Accelerate your Hugo site globally with a KeyCDN integration. This tutorial shows you how to set up your static site as a GitLab page behind a KeyCDN pull zone."
 categories: [hosting and deployment]
 keywords: [keycdn,hosting,deployment,cdn]
 menu:
   docs:
-    parent: "hosting-and-deployment"
-    weight: 40
-slug: ""
-aliases: []
-toc: false
-draft: false
+    parent: hosting-and-deployment
 ---
 
 [KeyCDN](https://www.keycdn.com/) provides a multitude of features to help accelerate and secure your Hugo site globally including Brotli compression, Let's Encrypt support, Origin Shield, and more.
@@ -24,7 +18,7 @@ draft: false
 
 ## Create a KeyCDN Pull Zone
 
-The first step will be to login to your KeyCDN account and create a new zone. Name this whatever you like and select the [Pull Zone](https://www.keycdn.com/support/create-a-pull-zone/) option. As for the origin URL, your site will be running on [GitLab Pages](https://docs.gitlab.com/ee/user/project/pages/getting_started_part_one.html) with a URL of `https://youruser.gitlab.io/reponame/`. Use this as the Origin URL.
+The first step will be to log in to your KeyCDN account and create a new zone. Name this whatever you like and select the [Pull Zone](https://www.keycdn.com/support/create-a-pull-zone/) option. As for the origin URL, your site will be running on [GitLab Pages](https://docs.gitlab.com/ee/user/project/pages/getting_started_part_one.html) with a URL of `https://youruser.gitlab.io/reponame/`. Use this as the Origin URL.
 
 ![Screenshot of KeyCDN's pull zone creation page](/images/hosting-and-deployment/hosting-on-keycdn/keycdn-pull-zone.png)
 
@@ -36,7 +30,7 @@ Ensure that you use your Zone URL or Zone alias as the `BASEURL` variable in the
 
 Your `.gitlab-ci.yml` file should look similar to the example below. Be sure to modify any variables that are specific to your setup.
 
-```
+```yml
 image: alpine:latest
 
 variables:
@@ -78,16 +72,16 @@ While the Secret Variable for your API Key will look similar to:
 
 The Zone ID and API key are used to purge your zone – it’s not strictly needed but otherwise, the CDN might deliver older versions of your assets for quite a while.
 
-## Push Your Changes to GitLab
+## Push your changes to GitLab
 
 Now it’s time to push the newly created repository to GitLab:
 
-```
+```bash
 git remote add origin git@gitlab.com:youruser/ci-example.git
 git push -u origin master
 ```
 
-You can watch the progress and CI job output in your Gitlab project under “Pipelines”.
+You can watch the progress and CI job output in your GitLab project under “Pipelines”.
 
 After verifying your CI job ran without issues, first check that your GitLab page shows up under `https://youruser.gitlab.io/reponame/` (it might look broken depending on your browser settings as all links point to your KeyCDN zone – don’t worry about that) and then by heading to whatever Zone alias / Zone URL you defined.
 

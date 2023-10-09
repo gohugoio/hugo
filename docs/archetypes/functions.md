@@ -1,16 +1,11 @@
 ---
-linktitle: ""
+title: {{ replace .Name "-" " " | title }}
 description: ""
-publishdate: ""
-lastmod: ""
-categories: [functions]
-tags: []
-ns: ""
 signature: []
-workson: []
-hugoversion: ""
-aliases: []
+categories: [functions]
+keywords: []
+menu:
+  docs:
+    parent: functions
 relatedfuncs: []
-toc: false
-deprecated: false
 ---

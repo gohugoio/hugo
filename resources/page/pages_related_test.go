@@ -14,6 +14,7 @@
 package page
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -51,26 +52,42 @@ func TestRelated(t *testing.T) {
 		},
 	}
 
-	result, err := pages.RelatedTo(types.NewKeyValuesStrings("keywords", "hugo", "rocks"))
+	ctx := context.Background()
+	opts := map[string]any{
+		"namedSlices": types.NewKeyValuesStrings("keywords", "hugo", "rocks"),
+	}
+	result, err := pages.Related(ctx, opts)
 
 	c.Assert(err, qt.IsNil)
 	c.Assert(len(result), qt.Equals, 2)
 	c.Assert(result[0].Title(), qt.Equals, "Page 2")
 	c.Assert(result[1].Title(), qt.Equals, "Page 1")
 
-	result, err = pages.Related(pages[0])
+	result, err = pages.Related(ctx, pages[0])
 	c.Assert(err, qt.IsNil)
 	c.Assert(len(result), qt.Equals, 2)
 	c.Assert(result[0].Title(), qt.Equals, "Page 2")
 	c.Assert(result[1].Title(), qt.Equals, "Page 3")
 
-	result, err = pages.RelatedIndices(pages[0], "keywords")
+	opts = map[string]any{
+		"document": pages[0],
+		"indices":  []string{"keywords"},
+	}
+	result, err = pages.Related(ctx, opts)
 	c.Assert(err, qt.IsNil)
 	c.Assert(len(result), qt.Equals, 2)
 	c.Assert(result[0].Title(), qt.Equals, "Page 2")
 	c.Assert(result[1].Title(), qt.Equals, "Page 3")
 
-	result, err = pages.RelatedTo(types.NewKeyValuesStrings("keywords", "bep", "rocks"))
+	opts = map[string]any{
+		"namedSlices": []types.KeyValues{
+			{
+				Key:    "keywords",
+				Values: []any{"bep", "rocks"},
+			},
+		},
+	}
+	result, err = pages.Related(context.Background(), opts)
 	c.Assert(err, qt.IsNil)
 	c.Assert(len(result), qt.Equals, 2)
 	c.Assert(result[0].Title(), qt.Equals, "Page 2")

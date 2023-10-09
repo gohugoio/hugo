@@ -34,38 +34,43 @@ const securityConfigKey = "security"
 // DefaultConfig holds the default security policy.
 var DefaultConfig = Config{
 	Exec: Exec{
-		Allow: NewWhitelist(
-			"^dart-sass-embedded$",
-			"^go$",  // for Go Modules
-			"^npx$", // used by all Node tools (Babel, PostCSS).
+		Allow: MustNewWhitelist(
+			"^(dart-)?sass(-embedded)?$", // sass, dart-sass, dart-sass-embedded.
+			"^go$",                       // for Go Modules
+			"^npx$",                      // used by all Node tools (Babel, PostCSS).
 			"^postcss$",
 		),
 		// These have been tested to work with Hugo's external programs
 		// on Windows, Linux and MacOS.
-		OsEnv: NewWhitelist("(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM)$"),
+		OsEnv: MustNewWhitelist(`(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG)$`),
 	},
 	Funcs: Funcs{
-		Getenv: NewWhitelist("^HUGO_"),
+		Getenv: MustNewWhitelist("^HUGO_", "^CI$"),
 	},
 	HTTP: HTTP{
-		URLs:    NewWhitelist(".*"),
-		Methods: NewWhitelist("(?i)GET|POST"),
+		URLs:    MustNewWhitelist(".*"),
+		Methods: MustNewWhitelist("(?i)GET|POST"),
 	},
 }
 
 // Config is the top level security config.
+// <docsmeta>{"name": "security", "description": "This section holds the top level security config.", "newIn": "0.91.0" }</docsmeta>
 type Config struct {
-	// Restricts access to os.Exec.
+	// Restricts access to os.Exec....
+	// <docsmeta>{ "newIn": "0.91.0" }</docsmeta>
 	Exec Exec `json:"exec"`
 
 	// Restricts access to certain template funcs.
 	Funcs Funcs `json:"funcs"`
 
-	// Restricts access to resources.Get, getJSON, getCSV.
+	// Restricts access to resources.GetRemote, getJSON, getCSV.
 	HTTP HTTP `json:"http"`
 
 	// Allow inline shortcodes
 	EnableInlineShortcodes bool `json:"enableInlineShortcodes"`
+
+	// Go templates related security config.
+	GoTemplates GoTemplates `json:"goTemplates"`
 }
 
 // Exec holds os/exec policies.
@@ -86,6 +91,18 @@ type HTTP struct {
 
 	// HTTP methods to allow.
 	Methods Whitelist `json:"methods"`
+
+	// Media types where the Content-Type in the response is used instead of resolving from the file content.
+	MediaTypes Whitelist `json:"mediaTypes"`
+}
+
+type GoTemplates struct {
+
+	// Enable to allow template actions inside bakcticks in ES6 template literals.
+	// This was blocked in Hugo 0.114.0 for security reasons and you now get errors on the form
+	// "... appears in a JS template literal" if you have this in your templates.
+	// See https://github.com/golang/go/issues/59234
+	AllowActionJSTmpl bool
 }
 
 // ToTOML converts c to TOML with [security] as the root.
@@ -204,7 +221,7 @@ func stringSliceToWhitelistHook() mapstructure.DecodeHookFuncType {
 
 		wl := types.ToStringSlicePreserveString(data)
 
-		return NewWhitelist(wl...), nil
+		return NewWhitelist(wl...)
 
 	}
 }

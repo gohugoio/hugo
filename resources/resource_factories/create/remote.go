@@ -18,7 +18,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"math/rand"
 	"mime"
 	"net/http"
 	"net/http/httputil"
@@ -26,11 +26,12 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
-	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -45,7 +46,29 @@ type HTTPError struct {
 	Body       string
 }
 
-func toHTTPError(err error, res *http.Response) *HTTPError {
+func responseToData(res *http.Response, readBody bool) map[string]any {
+	var body []byte
+	if readBody {
+		body, _ = io.ReadAll(res.Body)
+	}
+
+	m := map[string]any{
+		"StatusCode":       res.StatusCode,
+		"Status":           res.Status,
+		"TransferEncoding": res.TransferEncoding,
+		"ContentLength":    res.ContentLength,
+		"ContentType":      res.Header.Get("Content-Type"),
+	}
+
+	if readBody {
+		m["Body"] = string(body)
+	}
+
+	return m
+
+}
+
+func toHTTPError(err error, res *http.Response, readBody bool) *HTTPError {
 	if err == nil {
 		panic("err is nil")
 	}
@@ -56,20 +79,19 @@ func toHTTPError(err error, res *http.Response) *HTTPError {
 		}
 	}
 
-	var body []byte
-	body, _ = ioutil.ReadAll(res.Body)
-
 	return &HTTPError{
 		error: err,
-		Data: map[string]any{
-			"StatusCode":       res.StatusCode,
-			"Status":           res.Status,
-			"Body":             string(body),
-			"TransferEncoding": res.TransferEncoding,
-			"ContentLength":    res.ContentLength,
-			"ContentType":      res.Header.Get("Content-Type"),
-		},
+		Data:  responseToData(res, readBody),
 	}
+}
+
+var temporaryHTTPStatusCodes = map[int]bool{
+	408: true,
+	429: true,
+	500: true,
+	502: true,
+	503: true,
+	504: true,
 }
 
 // FromRemote expects one or n-parts of a URL to a resource
@@ -79,6 +101,12 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse URL for resource %s: %w", uri, err)
 	}
+
+	method := "GET"
+	if s, ok := maps.LookupEqualFold(optionsm, "method"); ok {
+		method = strings.ToUpper(s.(string))
+	}
+	isHeadMethod := method == "HEAD"
 
 	resourceID := calculateResourceID(uri, optionsm)
 
@@ -91,34 +119,62 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 			return nil, err
 		}
 
-		req, err := http.NewRequest(options.Method, uri, options.BodyReader())
-		if err != nil {
-			return nil, fmt.Errorf("failed to create request for resource %s: %w", uri, err)
-		}
-		addDefaultHeaders(req)
+		var (
+			start          time.Time
+			nextSleep      = time.Duration((rand.Intn(1000) + 100)) * time.Millisecond
+			nextSleepLimit = time.Duration(5) * time.Second
+		)
 
-		if options.Headers != nil {
-			addUserProvidedHeaders(options.Headers, req)
-		}
+		for {
+			b, retry, err := func() ([]byte, bool, error) {
+				req, err := options.NewRequest(uri)
+				if err != nil {
+					return nil, false, fmt.Errorf("failed to create request for resource %s: %w", uri, err)
+				}
 
-		res, err := c.httpClient.Do(req)
-		if err != nil {
-			return nil, err
-		}
+				res, err := c.httpClient.Do(req)
+				if err != nil {
+					return nil, false, err
+				}
+				defer res.Body.Close()
 
-		httpResponse, err := httputil.DumpResponse(res, true)
-		if err != nil {
-			return nil, toHTTPError(err, res)
-		}
+				if res.StatusCode != http.StatusNotFound {
+					if res.StatusCode < 200 || res.StatusCode > 299 {
+						return nil, temporaryHTTPStatusCodes[res.StatusCode], toHTTPError(fmt.Errorf("failed to fetch remote resource: %s", http.StatusText(res.StatusCode)), res, !isHeadMethod)
 
-		if res.StatusCode != http.StatusNotFound {
-			if res.StatusCode < 200 || res.StatusCode > 299 {
-				return nil, toHTTPError(fmt.Errorf("failed to fetch remote resource: %s", http.StatusText(res.StatusCode)), res)
+					}
+				}
 
+				b, err := httputil.DumpResponse(res, true)
+				if err != nil {
+					return nil, false, toHTTPError(err, res, !isHeadMethod)
+				}
+
+				return b, false, nil
+
+			}()
+
+			if err != nil {
+				if retry {
+					if start.IsZero() {
+						start = time.Now()
+					} else if d := time.Since(start) + nextSleep; d >= c.rs.Cfg.Timeout() {
+						c.rs.Logger.Errorf("Retry timeout (configured to %s) fetching remote resource.", c.rs.Cfg.Timeout())
+						return nil, err
+					}
+					time.Sleep(nextSleep)
+					if nextSleep < nextSleepLimit {
+						nextSleep *= 2
+					}
+					continue
+				}
+				return nil, err
 			}
+
+			return hugio.ToReadCloser(bytes.NewReader(b)), nil
+
 		}
 
-		return hugio.ToReadCloser(bytes.NewReader(httpResponse)), nil
 	})
 	if err != nil {
 		return nil, err
@@ -129,15 +185,24 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 	if err != nil {
 		return nil, err
 	}
+	defer res.Body.Close()
 
 	if res.StatusCode == http.StatusNotFound {
 		// Not found. This matches how looksup for local resources work.
 		return nil, nil
 	}
 
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read remote resource %q: %w", uri, err)
+	var (
+		body      []byte
+		mediaType media.Type
+	)
+	// A response to a HEAD method should not have a body. If it has one anyway, that body must be ignored.
+	// See https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/HEAD
+	if !isHeadMethod && res.Body != nil {
+		body, err = io.ReadAll(res.Body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read remote resource %q: %w", uri, err)
+		}
 	}
 
 	filename := path.Base(rURL.Path)
@@ -147,39 +212,56 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 		}
 	}
 
-	var extensionHints []string
-
 	contentType := res.Header.Get("Content-Type")
 
-	// mime.ExtensionsByType gives a long list of extensions for text/plain,
-	// just use ".txt".
-	if strings.HasPrefix(contentType, "text/plain") {
-		extensionHints = []string{".txt"}
-	} else {
-		exts, _ := mime.ExtensionsByType(contentType)
-		if exts != nil {
-			extensionHints = exts
+	// For HEAD requests we have no body to work with, so we need to use the Content-Type header.
+	if isHeadMethod || c.rs.ExecHelper.Sec().HTTP.MediaTypes.Accept(contentType) {
+		var found bool
+		mediaType, found = c.rs.MediaTypes().GetByType(contentType)
+		if !found {
+			// A media type not configured in Hugo, just create one from the content type string.
+			mediaType, _ = media.FromString(contentType)
 		}
 	}
 
-	// Look for a file extension. If it's .txt, look for a more specific.
-	if extensionHints == nil || extensionHints[0] == ".txt" {
-		if ext := path.Ext(filename); ext != "" {
-			extensionHints = []string{ext}
+	if mediaType.IsZero() {
+
+		var extensionHints []string
+
+		// mime.ExtensionsByType gives a long list of extensions for text/plain,
+		// just use ".txt".
+		if strings.HasPrefix(contentType, "text/plain") {
+			extensionHints = []string{".txt"}
+		} else {
+			exts, _ := mime.ExtensionsByType(contentType)
+			if exts != nil {
+				extensionHints = exts
+			}
 		}
+
+		// Look for a file extension. If it's .txt, look for a more specific.
+		if extensionHints == nil || extensionHints[0] == ".txt" {
+			if ext := path.Ext(filename); ext != "" {
+				extensionHints = []string{ext}
+			}
+		}
+
+		// Now resolve the media type primarily using the content.
+		mediaType = media.FromContent(c.rs.MediaTypes(), extensionHints, body)
+
 	}
 
-	// Now resolve the media type primarily using the content.
-	mediaType := media.FromContent(c.rs.MediaTypes, extensionHints, body)
 	if mediaType.IsZero() {
 		return nil, fmt.Errorf("failed to resolve media type for remote resource %q", uri)
 	}
 
 	resourceID = filename[:len(filename)-len(path.Ext(filename))] + "_" + resourceID + mediaType.FirstSuffix.FullSuffix
+	data := responseToData(res, false)
 
 	return c.rs.New(
 		resources.ResourceSourceDescriptor{
 			MediaType:   mediaType,
+			Data:        data,
 			LazyPublish: true,
 			OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
 				return hugio.NewReadSeekerNoOpCloser(bytes.NewReader(body)), nil
@@ -202,17 +284,12 @@ func (c *Client) validateFromRemoteArgs(uri string, options fromRemoteOptions) e
 
 func calculateResourceID(uri string, optionsm map[string]any) string {
 	if key, found := maps.LookupEqualFold(optionsm, "key"); found {
-		return helpers.HashString(key)
+		return identity.HashString(key)
 	}
-	return helpers.HashString(uri, optionsm)
+	return identity.HashString(uri, optionsm)
 }
 
-func addDefaultHeaders(req *http.Request, accepts ...string) {
-	for _, accept := range accepts {
-		if !hasHeaderValue(req.Header, "Accept", accept) {
-			req.Header.Add("Accept", accept)
-		}
-	}
+func addDefaultHeaders(req *http.Request) {
 	if !hasHeaderKey(req.Header, "User-Agent") {
 		req.Header.Add("User-Agent", "Hugo Static Site Generator")
 	}
@@ -262,6 +339,23 @@ func (o fromRemoteOptions) BodyReader() io.Reader {
 		return nil
 	}
 	return bytes.NewBuffer(o.Body)
+}
+
+func (o fromRemoteOptions) NewRequest(url string) (*http.Request, error) {
+	req, err := http.NewRequest(o.Method, url, o.BodyReader())
+	if err != nil {
+		return nil, err
+	}
+
+	// First add any user provided headers.
+	if o.Headers != nil {
+		addUserProvidedHeaders(o.Headers, req)
+	}
+
+	// Then add default headers not provided by the user.
+	addDefaultHeaders(req)
+
+	return req, nil
 }
 
 func decodeRemoteOptions(optionsm map[string]any) (fromRemoteOptions, error) {

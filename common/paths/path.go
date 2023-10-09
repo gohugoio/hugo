@@ -100,25 +100,25 @@ var isFileRe = regexp.MustCompile(`.*\..{1,6}$`)
 // GetDottedRelativePath expects a relative path starting after the content directory.
 // It returns a relative path with dots ("..") navigating up the path structure.
 func GetDottedRelativePath(inPath string) string {
-	inPath = filepath.Clean(filepath.FromSlash(inPath))
+	inPath = path.Clean(filepath.ToSlash(inPath))
 
 	if inPath == "." {
 		return "./"
 	}
 
-	if !isFileRe.MatchString(inPath) && !strings.HasSuffix(inPath, FilePathSeparator) {
-		inPath += FilePathSeparator
+	if !isFileRe.MatchString(inPath) && !strings.HasSuffix(inPath, "/") {
+		inPath += "/"
 	}
 
-	if !strings.HasPrefix(inPath, FilePathSeparator) {
-		inPath = FilePathSeparator + inPath
+	if !strings.HasPrefix(inPath, "/") {
+		inPath = "/" + inPath
 	}
 
 	dir, _ := filepath.Split(inPath)
 
-	sectionCount := strings.Count(dir, FilePathSeparator)
+	sectionCount := strings.Count(dir, "/")
 
-	if sectionCount == 0 || dir == FilePathSeparator {
+	if sectionCount == 0 || dir == "/" {
 		return "./"
 	}
 
@@ -209,7 +209,7 @@ func extractFilename(in, ext, base, pathSeparator string) (name string) {
 		// return the filename minus the extension (and the ".")
 		name = base[:strings.LastIndex(base, ".")]
 	} else {
-		// no extension case so just return base, which willi
+		// no extension case so just return base, which will
 		// be the filename
 		name = base
 	}
@@ -262,4 +262,15 @@ func (n NamedSlice) String() string {
 		return n.Name
 	}
 	return fmt.Sprintf("%s%s{%s}", n.Name, FilePathSeparator, strings.Join(n.Slice, ","))
+}
+
+// DirFile holds the result from path.Split.
+type DirFile struct {
+	Dir  string
+	File string
+}
+
+// Used in test.
+func (df DirFile) String() string {
+	return fmt.Sprintf("%s|%s", df.Dir, df.File)
 }

@@ -1,6 +1,6 @@
-# Contributing to Hugo
+>**Note:** We would apprecitate if you hold on with any big refactorings (like renaming deprecated Go packages), mainly because of potential for extra merge work for future coming in in the near future.
 
-**Note  March 16th 2022:** We are currently very constrained on human resources to do code reviews, so we currently require any new Pull Requests to be limited to bug fixes closing an existing issue. Also, we have updated to Go 1.18, but we will currently not accept any generic rewrites, "interface{} to any" replacements and similar.
+# Contributing to Hugo
 
 We welcome contributions to Hugo of any kind including documentation, themes,
 organization, tutorials, blog posts, bug reports, issues, feature requests,
@@ -51,8 +51,6 @@ Hugo has become a fully featured static site generator, so any new functionality
 * close or update an open [Hugo issue](https://github.com/gohugoio/hugo/issues)
 
 If it is of some complexity, the contributor is expected to maintain and support the new feature in the future (answer questions on the forum, fix any bugs etc.).
-
-It is recommended to open up a discussion on the [Hugo Forum](https://discourse.gohugo.io/) to get feedback on your idea before you begin. 
 
 Any non-trivial code change needs to update an open [issue](https://github.com/gohugoio/hugo/issues). A non-trivial code change without an issue reference with one of the labels `bug` or `enhancement` will not be merged.
 

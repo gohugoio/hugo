@@ -26,6 +26,7 @@ import (
 
 	"github.com/gohugoio/hugo/helpers"
 
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 )
 
@@ -57,7 +58,7 @@ func (c *PageCollections) AllPages() page.Pages {
 	return c.allPages.get()
 }
 
-// AllPages returns all regular pages for all languages.
+// AllRegularPages returns all regular pages for all languages.
 func (c *PageCollections) AllRegularPages() page.Pages {
 	return c.allRegularPages.get()
 }
@@ -92,7 +93,7 @@ func newPageCollections(m *pageMap) *PageCollections {
 	})
 
 	c.regularPages = newLazyPagesFactory(func() page.Pages {
-		return c.findPagesByKindIn(page.KindPage, c.pages.get())
+		return c.findPagesByKindIn(kinds.KindPage, c.pages.get())
 	})
 
 	return c
@@ -120,10 +121,10 @@ func (c *PageCollections) getPageOldVersion(ref ...string) (page.Page, error) {
 		return nil, fmt.Errorf(`too many arguments to .Site.GetPage: %v. Use lookups on the form {{ .Site.GetPage "/posts/mypage-md" }}`, ref)
 	}
 
-	if len(refs) == 0 || refs[0] == page.KindHome {
+	if len(refs) == 0 || refs[0] == kinds.KindHome {
 		key = "/"
 	} else if len(refs) == 1 {
-		if len(ref) == 2 && refs[0] == page.KindSection {
+		if len(ref) == 2 && refs[0] == kinds.KindSection {
 			// This is an old style reference to the "Home Page section".
 			// Typically fetched via {{ .Site.GetPage "section" .Section }}
 			// See https://github.com/gohugoio/hugo/issues/4989
@@ -143,7 +144,7 @@ func (c *PageCollections) getPageOldVersion(ref ...string) (page.Page, error) {
 	return c.getPageNew(nil, key)
 }
 
-// 	Only used in tests.
+// Only used in tests.
 func (c *PageCollections) getPage(typ string, sections ...string) page.Page {
 	refs := append([]string{typ}, path.Join(sections...))
 	p, _ := c.getPageOldVersion(refs...)
@@ -209,7 +210,7 @@ func (c *PageCollections) getSectionOrPage(ref string) (*contentNode, string) {
 	return m.getPage(s, name), name
 }
 
-// For Ref/Reflink and .Site.GetPage do simple name lookups for the potentially ambigous myarticle.md and /myarticle.md,
+// For Ref/Reflink and .Site.GetPage do simple name lookups for the potentially ambiguous myarticle.md and /myarticle.md,
 // but not when we get ./myarticle*, section/myarticle.
 func shouldDoSimpleLookup(ref string) bool {
 	if ref[0] == '.' {
@@ -325,7 +326,7 @@ func (c *PageCollections) getContentNode(context page.Page, isReflink bool, ref 
 		return nil, nil
 	}
 
-	// Ref/relref supports this potentially ambigous lookup.
+	// Ref/relref supports this potentially ambiguous lookup.
 	return getByName(path.Base(name))
 }
 

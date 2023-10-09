@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package markup contains the markup handling (e.g. Markdown).
 package markup
 
 import (
@@ -34,17 +35,13 @@ import (
 func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, error) {
 	converters := make(map[string]converter.Provider)
 
-	markupConfig, err := markup_config.Decode(cfg.Cfg)
-	if err != nil {
-		return nil, err
-	}
+	mcfg := cfg.MarkupConfig()
 
 	if cfg.Highlighter == nil {
-		cfg.Highlighter = highlight.New(markupConfig.Highlight)
+		cfg.Highlighter = highlight.New(mcfg.Highlight)
 	}
 
-	cfg.MarkupConfig = markupConfig
-	defaultHandler := cfg.MarkupConfig.DefaultMarkdownHandler
+	defaultHandler := mcfg.DefaultMarkdownHandler
 	var defaultFound bool
 
 	add := func(p converter.ProviderProvider, aliases ...string) error {
@@ -122,7 +119,7 @@ func (r *converterRegistry) GetHighlighter() highlight.Highlighter {
 }
 
 func (r *converterRegistry) GetMarkupConfig() markup_config.Config {
-	return r.config.MarkupConfig
+	return r.config.MarkupConfig()
 }
 
 func addConverter(m map[string]converter.Provider, c converter.Provider, aliases ...string) {

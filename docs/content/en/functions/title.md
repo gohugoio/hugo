@@ -1,36 +1,23 @@
 ---
 title: title
-# linktitle:
-description: Converts all characters in the provided string to title case.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
+description: Converts the provided string to title case.
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [strings]
-signature: ["title INPUT"]
-workson: []
-hugoversion:
+signature:
+  - "title STRING"
+  - "strings.Title STRING"
 relatedfuncs: []
-deprecated: false
-aliases: []
 ---
 
-
-```
-{{title "BatMan"}}` → "Batman"
-```
-
-Can be combined in pipes. In the following snippet, the link text is cleaned up using `humanize` to remove dashes and `title` to convert the value of `$name` to Initial Caps.
-
-```
-{{ range $name, $items := .Site.Taxonomies.categories }}
-    <li><a href="{{ printf "%s/%s" "categories" ($name | urlize | lower) | absURL }}">{{ $name | humanize | title }} ({{ len $items }})</a></li>
-{{ end }}
+```go-html-template
+{{ title "table of contents (TOC)" }} → "Table of Contents (TOC)"
 ```
 
-## Configure Title Case
+By default, Hugo adheres to the capitalization rules in the [Associated Press (AP) Stylebook]. Change your [site configuration] if you would prefer to follow the [Chicago Manual of Style], or to use Go's convention of capitalizing every word.
 
-The default is AP Stylebook, but you can [configure it](/getting-started/configuration/#configure-title-case).
+[Associated Press (AP) Stylebook]: https://www.apstylebook.com/
+[Chicago Manual of Style]: https://www.chicagomanualofstyle.org/home.html
+[site configuration]: /getting-started/configuration/#configure-title-case

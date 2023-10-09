@@ -20,6 +20,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 
 	qt "github.com/frankban/quicktest"
@@ -29,14 +30,17 @@ import (
 
 func TestTaxonomiesCountOrder(t *testing.T) {
 	t.Parallel()
-	taxonomies := make(map[string]string)
+	c := qt.New(t)
 
+	taxonomies := make(map[string]string)
 	taxonomies["tag"] = "tags"
 	taxonomies["category"] = "categories"
 
 	cfg, fs := newTestCfg()
 
 	cfg.Set("taxonomies", taxonomies)
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
 	const pageContent = `---
 tags: ['a', 'B', 'c']
@@ -46,7 +50,7 @@ YAML frontmatter with tags and categories taxonomy.`
 
 	writeSource(t, fs, filepath.Join("content", "page.md"), pageContent)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
 
 	st := make([]string, 0)
 	for _, t := range s.Taxonomies()["tags"].ByCount() {
@@ -60,7 +64,6 @@ YAML frontmatter with tags and categories taxonomy.`
 	}
 }
 
-//
 func TestTaxonomiesWithAndWithoutContentFile(t *testing.T) {
 	for _, uglyURLs := range []bool{false, true} {
 		uglyURLs := uglyURLs
@@ -153,8 +156,8 @@ permalinkeds:
 
 	s := b.H.Sites[0]
 
-	// Make sure that each page.KindTaxonomyTerm page has an appropriate number
-	// of page.KindTaxonomy pages in its Pages slice.
+	// Make sure that each kinds.KindTaxonomyTerm page has an appropriate number
+	// of kinds.KindTaxonomy pages in its Pages slice.
 	taxonomyTermPageCounts := map[string]int{
 		"tags":         3,
 		"categories":   2,
@@ -165,16 +168,16 @@ permalinkeds:
 
 	for taxonomy, count := range taxonomyTermPageCounts {
 		msg := qt.Commentf(taxonomy)
-		term := s.getPage(page.KindTaxonomy, taxonomy)
+		term := s.getPage(kinds.KindTaxonomy, taxonomy)
 		b.Assert(term, qt.Not(qt.IsNil), msg)
 		b.Assert(len(term.Pages()), qt.Equals, count, msg)
 
 		for _, p := range term.Pages() {
-			b.Assert(p.Kind(), qt.Equals, page.KindTerm)
+			b.Assert(p.Kind(), qt.Equals, kinds.KindTerm)
 		}
 	}
 
-	cat1 := s.getPage(page.KindTerm, "categories", "cat1")
+	cat1 := s.getPage(kinds.KindTerm, "categories", "cat1")
 	b.Assert(cat1, qt.Not(qt.IsNil))
 	if uglyURLs {
 		b.Assert(cat1.RelPermalink(), qt.Equals, "/blog/categories/cat1.html")
@@ -182,8 +185,8 @@ permalinkeds:
 		b.Assert(cat1.RelPermalink(), qt.Equals, "/blog/categories/cat1/")
 	}
 
-	pl1 := s.getPage(page.KindTerm, "permalinkeds", "pl1")
-	permalinkeds := s.getPage(page.KindTaxonomy, "permalinkeds")
+	pl1 := s.getPage(kinds.KindTerm, "permalinkeds", "pl1")
+	permalinkeds := s.getPage(kinds.KindTaxonomy, "permalinkeds")
 	b.Assert(pl1, qt.Not(qt.IsNil))
 	b.Assert(permalinkeds, qt.Not(qt.IsNil))
 	if uglyURLs {
@@ -194,7 +197,7 @@ permalinkeds:
 		b.Assert(permalinkeds.RelPermalink(), qt.Equals, "/blog/permalinkeds/")
 	}
 
-	helloWorld := s.getPage(page.KindTerm, "others", "hello-hugo-world")
+	helloWorld := s.getPage(kinds.KindTerm, "others", "hello-hugo-world")
 	b.Assert(helloWorld, qt.Not(qt.IsNil))
 	b.Assert(helloWorld.Title(), qt.Equals, "Hello Hugo world")
 
@@ -266,8 +269,8 @@ title: "This is S3s"
 		return pages
 	}
 
-	ta := filterbyKind(page.KindTerm)
-	te := filterbyKind(page.KindTaxonomy)
+	ta := filterbyKind(kinds.KindTerm)
+	te := filterbyKind(kinds.KindTaxonomy)
 
 	b.Assert(len(te), qt.Equals, 4)
 	b.Assert(len(ta), qt.Equals, 7)
@@ -521,7 +524,7 @@ Funny:|/p1/|
 Funny:|/p2/|`)
 }
 
-//https://github.com/gohugoio/hugo/issues/6590
+// https://github.com/gohugoio/hugo/issues/6590
 func TestTaxonomiesListPages(t *testing.T) {
 	b := newTestSitesBuilder(t)
 	b.WithTemplates("_default/list.html", `
@@ -693,4 +696,43 @@ abcdefgs: {{ template "print-page" $abcdefgs }}|IsAncestor: {{ $abcdefgs.IsAnces
     abc: /abcdefgs/abc/|abc|term|Parent: /abcdefgs/|CurrentSection: /abcdefgs/|FirstSection: /|IsAncestor: false|IsDescendant: true
     abcdefgs: /abcdefgs/|Abcdefgs|taxonomy|Parent: /|CurrentSection: /|FirstSection: /|IsAncestor: true|IsDescendant: false
 `)
+}
+
+func TestTaxonomiesWeightSort(t *testing.T) {
+
+	files := `
+-- layouts/index.html --
+{{ $a := site.GetPage "tags/a"}}
+:{{ range $a.Pages }}{{ .RelPermalink }}|{{ end }}:
+-- content/p1.md --
+---
+title: P1
+weight: 100
+tags: ['a']
+tags_weight: 20
+---
+-- content/p3.md --
+---
+title: P2
+weight: 200
+tags: ['a']
+tags_weight: 30
+---
+-- content/p2.md --
+---
+title: P3
+weight: 50
+tags: ['a']
+tags_weight: 40
+---
+	`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `:/p1/|/p3/|/p2/|:`)
 }

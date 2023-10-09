@@ -452,12 +452,16 @@ func collectMethodsRecursive(pkg string, f []*ast.Field) []string {
 		}
 
 		if ident, ok := m.Type.(*ast.Ident); ok && ident.Obj != nil {
-			// Embedded interface
-			methodNames = append(
-				methodNames,
-				collectMethodsRecursive(
-					pkg,
-					ident.Obj.Decl.(*ast.TypeSpec).Type.(*ast.InterfaceType).Methods.List)...)
+			switch tt := ident.Obj.Decl.(*ast.TypeSpec).Type.(type) {
+			case *ast.InterfaceType:
+				// Embedded interface
+				methodNames = append(
+					methodNames,
+					collectMethodsRecursive(
+						pkg,
+						tt.Methods.List)...)
+			}
+
 		} else {
 			// Embedded, but in a different file/package. Return the
 			// package.Name and deal with that later.

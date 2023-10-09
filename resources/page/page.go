@@ -16,11 +16,13 @@
 package page
 
 import (
+	"context"
 	"html/template"
 
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/markup/converter"
+	"github.com/gohugoio/hugo/markup/tableofcontents"
 
-	"github.com/bep/gitmap"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/tpl"
 
@@ -60,53 +62,66 @@ type AuthorProvider interface {
 
 // ChildCareProvider provides accessors to child resources.
 type ChildCareProvider interface {
+	// Pages returns a list of pages of all kinds.
 	Pages() Pages
 
 	// RegularPages returns a list of pages of kind 'Page'.
-	// In Hugo 0.57 we changed the Pages method so it returns all page
-	// kinds, even sections. If you want the old behaviour, you can
-	// use RegularPages.
 	RegularPages() Pages
 
 	// RegularPagesRecursive returns all regular pages below the current
 	// section.
 	RegularPagesRecursive() Pages
 
+	// Resources returns a list of all resources.
 	Resources() resource.Resources
 }
 
 // ContentProvider provides the content related values for a Page.
 type ContentProvider interface {
-	Content() (any, error)
+	Content(context.Context) (any, error)
 
 	// Plain returns the Page Content stripped of HTML markup.
-	Plain() string
+	Plain(context.Context) string
 
 	// PlainWords returns a string slice from splitting Plain using https://pkg.go.dev/strings#Fields.
-	PlainWords() []string
+	PlainWords(context.Context) []string
 
 	// Summary returns a generated summary of the content.
 	// The breakpoint can be set manually by inserting a summary separator in the source file.
-	Summary() template.HTML
+	Summary(context.Context) template.HTML
 
 	// Truncated returns whether the Summary  is truncated or not.
-	Truncated() bool
+	Truncated(context.Context) bool
 
 	// FuzzyWordCount returns the approximate number of words in the content.
-	FuzzyWordCount() int
+	FuzzyWordCount(context.Context) int
 
 	// WordCount returns the number of words in the content.
-	WordCount() int
+	WordCount(context.Context) int
 
 	// ReadingTime returns the reading time based on the length of plain text.
-	ReadingTime() int
+	ReadingTime(context.Context) int
 
 	// Len returns the length of the content.
-	Len() int
+	// This is for internal use only.
+	Len(context.Context) int
+}
+
+// ContentRenderer provides the content rendering methods for some content.
+type ContentRenderer interface {
+	// ParseAndRenderContent renders the given content.
+	// For internal use only.
+	ParseAndRenderContent(ctx context.Context, content []byte, enableTOC bool) (converter.ResultRender, error)
+	// For internal use only.
+	ParseContent(ctx context.Context, content []byte) (converter.ResultParse, bool, error)
+	// For internal use only.
+	RenderContent(ctx context.Context, content []byte, doc any) (converter.ResultRender, bool, error)
 }
 
 // FileProvider provides the source file.
 type FileProvider interface {
+	// File returns the source file for this Page,
+	// or a zero File if this Page is not backed by a file.
 	File() source.File
 }
 
@@ -125,13 +140,17 @@ type GetPageProvider interface {
 
 // GitInfoProvider provides Git info.
 type GitInfoProvider interface {
-	GitInfo() *gitmap.GitInfo
+	// GitInfo returns the Git info for this object.
+	GitInfo() source.GitInfo
+	// CodeOwners returns the code owners for this object.
 	CodeOwners() []string
 }
 
 // InSectionPositioner provides section navigation.
 type InSectionPositioner interface {
+	// NextInSection returns the next page in the same section.
 	NextInSection() Page
+	// PrevInSection returns the previous page in the same section.
 	PrevInSection() Page
 }
 
@@ -143,14 +162,20 @@ type InternalDependencies interface {
 
 // OutputFormatsProvider provides the OutputFormats of a Page.
 type OutputFormatsProvider interface {
+	// OutputFormats returns the OutputFormats for this Page.
 	OutputFormats() OutputFormats
 }
 
-// Page is the core interface in Hugo.
+// Page is the core interface in Hugo and what you get as the top level data context in your templates.
 type Page interface {
 	ContentProvider
 	TableOfContentsProvider
 	PageWithoutContent
+}
+
+type PageFragment interface {
+	resource.ResourceLinksProvider
+	resource.ResourceMetaProvider
 }
 
 // PageMetaProvider provides page metadata, typically provided via front matter.
@@ -223,7 +248,8 @@ type PageMetaProvider interface {
 	SectionsPath() string
 
 	// Sitemap returns the sitemap configuration for this page.
-	Sitemap() config.Sitemap
+	// This is for internal use only.
+	Sitemap() config.SitemapConfig
 
 	// Type is a discriminator used to select layouts etc. It is typically set
 	// in front matter, but will fall back to the root section.
@@ -236,13 +262,22 @@ type PageMetaProvider interface {
 
 // PageRenderProvider provides a way for a Page to render content.
 type PageRenderProvider interface {
-	Render(layout ...string) (template.HTML, error)
-	RenderString(args ...any) (template.HTML, error)
+	// Render renders the given layout with this Page as context.
+	Render(ctx context.Context, layout ...string) (template.HTML, error)
+	// RenderString renders the first value in args with tPaginatorhe content renderer defined
+	// for this Page.
+	// It takes an optional map as a second argument:
+	//
+	// display (“inline”):
+	// - inline or block. If inline (default), surrounding <p></p> on short snippets will be trimmed.
+	// markup (defaults to the Page’s markup)
+	RenderString(ctx context.Context, args ...any) (template.HTML, error)
 }
 
 // PageWithoutContent is the Page without any of the content methods.
 type PageWithoutContent interface {
 	RawContentProvider
+	RenderShortcodesProvider
 	resource.Resource
 	PageMetaProvider
 	resource.LanguageProvider
@@ -300,12 +335,19 @@ type PageWithoutContent interface {
 	// Used in change/dependency tracking.
 	identity.Provider
 
+	// HeadingsFiltered returns the headings for this page when a filter is set.
+	// This is currently only triggered with the Related content feature
+	// and the "fragments" type of index.
+	HeadingsFiltered(context.Context) tableofcontents.Headings
+
 	DeprecatedWarningPageMethods
 }
 
 // Positioner provides next/prev navigation.
 type Positioner interface {
+	// Next points up to the next regular page (sorted by Hugo’s default sort).
 	Next() Page
+	// Prev points down to the previous regular page (sorted by Hugo’s default sort).
 	Prev() Page
 
 	// Deprecated: Use Prev. Will be removed in Hugo 0.57
@@ -317,19 +359,27 @@ type Positioner interface {
 
 // RawContentProvider provides the raw, unprocessed content of the page.
 type RawContentProvider interface {
+	// RawContent returns the raw, unprocessed content of the page excluding any front matter.
 	RawContent() string
+}
+
+type RenderShortcodesProvider interface {
+	// RenderShortcodes returns RawContent with any shortcodes rendered.
+	RenderShortcodes(context.Context) (template.HTML, error)
 }
 
 // RefProvider provides the methods needed to create reflinks to pages.
 type RefProvider interface {
+	// Ref returns an absolute URl to a page.
 	Ref(argsm map[string]any) (string, error)
 
 	// RefFrom is for internal use only.
 	RefFrom(argsm map[string]any, source any) (string, error)
 
+	// RelRef returns a relative URL to a page.
 	RelRef(argsm map[string]any) (string, error)
 
-	// RefFrom is for internal use only.
+	// RelRefFrom is for internal use only.
 	RelRefFrom(argsm map[string]any, source any) (string, error)
 }
 
@@ -350,13 +400,19 @@ type ShortcodeInfoProvider interface {
 
 // SitesProvider provide accessors to get sites.
 type SitesProvider interface {
+	// Site returns the current site.
 	Site() Site
+	// Sites returns all sites.
 	Sites() Sites
 }
 
 // TableOfContentsProvider provides the table of contents for a Page.
 type TableOfContentsProvider interface {
-	TableOfContents() template.HTML
+	// TableOfContents returns the table of contents for the page rendered as HTML.
+	TableOfContents(context.Context) template.HTML
+
+	// Fragments returns the fragments for this page.
+	Fragments(context.Context) *tableofcontents.Fragments
 }
 
 // TranslationsProvider provides access to any translations.
@@ -376,7 +432,7 @@ type TranslationsProvider interface {
 // TreeProvider provides section tree navigation.
 type TreeProvider interface {
 
-	// IsAncestor returns whether the current page is an ancestor of the given
+	// IsAncestor returns whether the current page is an ancestor of other.
 	// Note that this method is not relevant for taxonomy lists and taxonomy terms pages.
 	IsAncestor(other any) (bool, error)
 
@@ -384,7 +440,7 @@ type TreeProvider interface {
 	// Note that this will return nil for pages that is not regular, home or section pages.
 	CurrentSection() Page
 
-	// IsDescendant returns whether the current page is a descendant of the given
+	// IsDescendant returns whether the current page is a descendant of other.
 	// Note that this method is not relevant for taxonomy lists and taxonomy terms pages.
 	IsDescendant(other any) (bool, error)
 
@@ -392,7 +448,7 @@ type TreeProvider interface {
 	// For the home page, this will return itself.
 	FirstSection() Page
 
-	// InSection returns whether the given page is in the current section.
+	// InSection returns whether other is in the current section.
 	// Note that this will always return false for pages that are
 	// not either regular, home or section pages.
 	InSection(other any) (bool, error)
@@ -400,6 +456,9 @@ type TreeProvider interface {
 	// Parent returns a section's parent section or a page's section.
 	// To get a section's subsections, see Page's Sections method.
 	Parent() Page
+
+	// Ancestors returns the ancestors of each page
+	Ancestors() Pages
 
 	// Sections returns this section's subsections, if any.
 	// Note that for non-sections, this method will always return an empty list.
@@ -418,3 +477,45 @@ type DeprecatedWarningPageMethods any // This was emptied in Hugo 0.93.0.
 // Move here to trigger ERROR instead of WARNING.
 // TODO(bep) create wrappers and put into the Page once it has some methods.
 type DeprecatedErrorPageMethods any
+
+// PageWithContext is a Page with a context.Context.
+type PageWithContext struct {
+	Page
+	Ctx context.Context
+}
+
+func (p PageWithContext) Content() (any, error) {
+	return p.Page.Content(p.Ctx)
+}
+
+func (p PageWithContext) Plain() string {
+	return p.Page.Plain(p.Ctx)
+}
+
+func (p PageWithContext) PlainWords() []string {
+	return p.Page.PlainWords(p.Ctx)
+}
+
+func (p PageWithContext) Summary() template.HTML {
+	return p.Page.Summary(p.Ctx)
+}
+
+func (p PageWithContext) Truncated() bool {
+	return p.Page.Truncated(p.Ctx)
+}
+
+func (p PageWithContext) FuzzyWordCount() int {
+	return p.Page.FuzzyWordCount(p.Ctx)
+}
+
+func (p PageWithContext) WordCount() int {
+	return p.Page.WordCount(p.Ctx)
+}
+
+func (p PageWithContext) ReadingTime() int {
+	return p.Page.ReadingTime(p.Ctx)
+}
+
+func (p PageWithContext) Len() int {
+	return p.Page.Len(p.Ctx)
+}

@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2023 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,33 +15,33 @@ package commands
 
 import (
 	"bytes"
-	"os"
+	"context"
 	"path/filepath"
 	"strings"
 
+	"github.com/bep/simplecobra"
+	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/create"
-	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/hugolib"
-	"github.com/spf13/afero"
+	"github.com/gohugoio/hugo/create/skeletons"
 	"github.com/spf13/cobra"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
-var _ cmder = (*newCmd)(nil)
+func newNewCommand() *newCommand {
+	var (
+		force       bool
+		contentType string
+		format      string
+	)
 
-type newCmd struct {
-	contentEditor string
-	contentType   string
-	force         bool
-
-	*baseBuilderCmd
-}
-
-func (b *commandsBuilder) newNewCmd() *newCmd {
-	cmd := &cobra.Command{
-		Use:   "new [path]",
-		Short: "Create new content for your site",
-		Long: `Create a new content file and automatically set the date and title.
+	var c *newCommand
+	c = &newCommand{
+		commands: []simplecobra.Commander{
+			&simpleCommand{
+				name:  "content",
+				use:   "content [path]",
+				short: "Create new content for your site",
+				long: `Create a new content file and automatically set the date and title.
 It will guess which kind of file to create based on the path provided.
 
 You can also specify the kind with ` + "`-k KIND`" + `.
@@ -49,80 +49,162 @@ You can also specify the kind with ` + "`-k KIND`" + `.
 If archetypes are provided in your theme or site, they will be used.
 
 Ensure you run this within the root directory of your site.`,
+				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
+					if len(args) < 1 {
+						return newUserError("path needs to be provided")
+					}
+					h, err := r.Hugo(flagsToCfg(cd, nil))
+					if err != nil {
+						return err
+					}
+					return create.NewContent(h, contentType, args[0], force)
+				},
+				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.Flags().StringVarP(&contentType, "kind", "k", "", "content type to create")
+					cmd.Flags().String("editor", "", "edit new content with this editor, if provided")
+					cmd.Flags().BoolVarP(&force, "force", "f", false, "overwrite file if it already exists")
+					cmd.Flags().StringVar(&format, "format", "toml", "preferred file format (toml, yaml or json)")
+					applyLocalFlagsBuildConfig(cmd, r)
+
+				},
+			},
+			&simpleCommand{
+				name:  "site",
+				use:   "site [path]",
+				short: "Create a new site (skeleton)",
+				long: `Create a new site in the provided directory.
+The new site will have the correct structure, but no content or theme yet.
+Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
+				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
+					if len(args) < 1 {
+						return newUserError("path needs to be provided")
+					}
+					createpath, err := filepath.Abs(filepath.Clean(args[0]))
+					if err != nil {
+						return err
+					}
+
+					cfg := config.New()
+					cfg.Set("workingDir", createpath)
+					cfg.Set("publishDir", "public")
+
+					conf, err := r.ConfigFromProvider(r.configVersionID.Load(), flagsToCfg(cd, cfg))
+					if err != nil {
+						return err
+					}
+					sourceFs := conf.fs.Source
+
+					err = skeletons.CreateSite(createpath, sourceFs, force, format)
+					if err != nil {
+						return err
+					}
+
+					r.Printf("Congratulations! Your new Hugo site was created in %s.\n\n", createpath)
+					r.Println(c.newSiteNextStepsText(createpath, format))
+
+					return nil
+				},
+				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.Flags().BoolVarP(&force, "force", "f", false, "init inside non-empty directory")
+					cmd.Flags().StringVar(&format, "format", "toml", "preferred file format (toml, yaml or json)")
+				},
+			},
+			&simpleCommand{
+				name:  "theme",
+				use:   "theme [name]",
+				short: "Create a new theme (skeleton)",
+				long: `Create a new theme (skeleton) called [name] in ./themes.
+New theme is a skeleton. Please add content to the touched files. Add your
+name to the copyright line in the license and adjust the theme.toml file
+according to your needs.`,
+				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
+					if len(args) < 1 {
+						return newUserError("theme name needs to be provided")
+					}
+					cfg := config.New()
+					cfg.Set("publishDir", "public")
+
+					conf, err := r.ConfigFromProvider(r.configVersionID.Load(), flagsToCfg(cd, cfg))
+					if err != nil {
+						return err
+					}
+					sourceFs := conf.fs.Source
+					createpath := paths.AbsPathify(conf.configs.Base.WorkingDir, filepath.Join(conf.configs.Base.ThemesDir, args[0]))
+					r.Println("Creating new theme in", createpath)
+
+					err = skeletons.CreateTheme(createpath, sourceFs)
+					if err != nil {
+						return err
+					}
+
+					return nil
+				},
+			},
+		},
 	}
 
-	cc := &newCmd{baseBuilderCmd: b.newBuilderCmd(cmd)}
+	return c
 
-	cmd.Flags().StringVarP(&cc.contentType, "kind", "k", "", "content type to create")
-	cmd.Flags().StringVar(&cc.contentEditor, "editor", "", "edit new content with this editor, if provided")
-	cmd.Flags().BoolVarP(&cc.force, "force", "f", false, "overwrite file if it already exists")
-
-	cmd.AddCommand(b.newNewSiteCmd().getCommand())
-	cmd.AddCommand(b.newNewThemeCmd().getCommand())
-
-	cmd.RunE = cc.newContent
-
-	return cc
 }
 
-func (n *newCmd) newContent(cmd *cobra.Command, args []string) error {
-	cfgInit := func(c *commandeer) error {
-		if cmd.Flags().Changed("editor") {
-			c.Set("newContentEditor", n.contentEditor)
-		}
-		return nil
-	}
+type newCommand struct {
+	rootCmd *rootCommand
 
-	c, err := initializeConfig(true, true, false, &n.hugoBuilderCommon, n, cfgInit)
-	if err != nil {
-		return err
-	}
-
-	if len(args) < 1 {
-		return newUserError("path needs to be provided")
-	}
-
-	return create.NewContent(c.hugo(), n.contentType, args[0], n.force)
+	commands []simplecobra.Commander
 }
 
-func mkdir(x ...string) {
-	p := filepath.Join(x...)
-
-	err := os.MkdirAll(p, 0777) // before umask
-	if err != nil {
-		jww.FATAL.Fatalln(err)
-	}
+func (c *newCommand) Commands() []simplecobra.Commander {
+	return c.commands
 }
 
-func touchFile(fs afero.Fs, x ...string) {
-	inpath := filepath.Join(x...)
-	mkdir(filepath.Dir(inpath))
-	err := helpers.WriteToDisk(inpath, bytes.NewReader([]byte{}), fs)
-	if err != nil {
-		jww.FATAL.Fatalln(err)
-	}
+func (c *newCommand) Name() string {
+	return "new"
 }
 
-func newContentPathSection(h *hugolib.HugoSites, path string) (string, string) {
-	// Forward slashes is used in all examples. Convert if needed.
-	// Issue #1133
-	createpath := filepath.FromSlash(path)
+func (c *newCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args []string) error {
+	return nil
+}
 
-	if h != nil {
-		for _, dir := range h.BaseFs.Content.Dirs {
-			createpath = strings.TrimPrefix(createpath, dir.Meta().Filename)
-		}
-	}
+func (c *newCommand) Init(cd *simplecobra.Commandeer) error {
+	cmd := cd.CobraCommand
+	cmd.Short = "Create new content for your site"
+	cmd.Long = `Create a new content file and automatically set the date and title.
+It will guess which kind of file to create based on the path provided.
 
-	var section string
-	// assume the first directory is the section (kind)
-	if strings.Contains(createpath[1:], helpers.FilePathSeparator) {
-		parts := strings.Split(strings.TrimPrefix(createpath, helpers.FilePathSeparator), helpers.FilePathSeparator)
-		if len(parts) > 0 {
-			section = parts[0]
-		}
+You can also specify the kind with ` + "`-k KIND`" + `.
 
-	}
+If archetypes are provided in your theme or site, they will be used.
 
-	return createpath, section
+Ensure you run this within the root directory of your site.`
+
+	cmd.RunE = nil
+	return nil
+}
+
+func (c *newCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
+	c.rootCmd = cd.Root.Command.(*rootCommand)
+	return nil
+}
+
+func (c *newCommand) newSiteNextStepsText(path string, format string) string {
+	format = strings.ToLower(format)
+	var nextStepsText bytes.Buffer
+
+	nextStepsText.WriteString(`Just a few more steps...
+
+1. Change the current directory to ` + path + `.
+2. Create or install a theme:
+   - Create a new theme with the command "hugo new theme <THEMENAME>"
+   - Install a theme from https://themes.gohugo.io/
+3. Edit hugo.` + format + `, setting the "theme" property to the theme name.
+4. Create new content with the command "hugo new content `)
+
+	nextStepsText.WriteString(filepath.Join("<SECTIONNAME>", "<FILENAME>.<FORMAT>"))
+
+	nextStepsText.WriteString(`".
+5. Start the embedded web server with the command "hugo server --buildDrafts".
+
+See documentation at https://gohugo.io/.`)
+
+	return nextStepsText.String()
 }

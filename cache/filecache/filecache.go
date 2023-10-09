@@ -17,7 +17,6 @@ import (
 	"bytes"
 	"errors"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -36,7 +35,7 @@ import (
 var ErrFatal = errors.New("fatal filecache error")
 
 const (
-	filecacheRootDirname = "filecache"
+	FilecacheRootDirname = "filecache"
 )
 
 // Cache caches a set of files in a directory. This is usually a file on
@@ -52,6 +51,9 @@ type Cache struct {
 	pruneAllRootDir string
 
 	nlocker *lockTracker
+
+	initOnce sync.Once
+	initErr  error
 }
 
 type lockTracker struct {
@@ -104,9 +106,23 @@ func (l *lockedFile) Close() error {
 	return l.File.Close()
 }
 
+func (c *Cache) init() error {
+	c.initOnce.Do(func() {
+		// Create the base dir if it does not exist.
+		if err := c.Fs.MkdirAll("", 0777); err != nil && !os.IsExist(err) {
+			c.initErr = err
+		}
+	})
+	return c.initErr
+}
+
 // WriteCloser returns a transactional writer into the cache.
 // It's important that it's closed when done.
 func (c *Cache) WriteCloser(id string) (ItemInfo, io.WriteCloser, error) {
+	if err := c.init(); err != nil {
+		return ItemInfo{}, nil, err
+	}
+
 	id = cleanID(id)
 	c.nlocker.Lock(id)
 
@@ -131,6 +147,10 @@ func (c *Cache) WriteCloser(id string) (ItemInfo, io.WriteCloser, error) {
 func (c *Cache) ReadOrCreate(id string,
 	read func(info ItemInfo, r io.ReadSeeker) error,
 	create func(info ItemInfo, w io.WriteCloser) error) (info ItemInfo, err error) {
+	if err := c.init(); err != nil {
+		return ItemInfo{}, err
+	}
+
 	id = cleanID(id)
 
 	c.nlocker.Lock(id)
@@ -164,6 +184,9 @@ func (c *Cache) ReadOrCreate(id string,
 // be invoked and the result cached.
 // This method is protected by a named lock using the given id as identifier.
 func (c *Cache) GetOrCreate(id string, create func() (io.ReadCloser, error)) (ItemInfo, io.ReadCloser, error) {
+	if err := c.init(); err != nil {
+		return ItemInfo{}, nil, err
+	}
 	id = cleanID(id)
 
 	c.nlocker.Lock(id)
@@ -198,6 +221,9 @@ func (c *Cache) GetOrCreate(id string, create func() (io.ReadCloser, error)) (It
 
 // GetOrCreateBytes is the same as GetOrCreate, but produces a byte slice.
 func (c *Cache) GetOrCreateBytes(id string, create func() ([]byte, error)) (ItemInfo, []byte, error) {
+	if err := c.init(); err != nil {
+		return ItemInfo{}, nil, err
+	}
 	id = cleanID(id)
 
 	c.nlocker.Lock(id)
@@ -207,7 +233,7 @@ func (c *Cache) GetOrCreateBytes(id string, create func() ([]byte, error)) (Item
 
 	if r := c.getOrRemove(id); r != nil {
 		defer r.Close()
-		b, err := ioutil.ReadAll(r)
+		b, err := io.ReadAll(r)
 		return info, b, err
 	}
 
@@ -233,6 +259,9 @@ func (c *Cache) GetOrCreateBytes(id string, create func() ([]byte, error)) (Item
 
 // GetBytes gets the file content with the given id from the cache, nil if none found.
 func (c *Cache) GetBytes(id string) (ItemInfo, []byte, error) {
+	if err := c.init(); err != nil {
+		return ItemInfo{}, nil, err
+	}
 	id = cleanID(id)
 
 	c.nlocker.Lock(id)
@@ -242,15 +271,18 @@ func (c *Cache) GetBytes(id string) (ItemInfo, []byte, error) {
 
 	if r := c.getOrRemove(id); r != nil {
 		defer r.Close()
-		b, err := ioutil.ReadAll(r)
+		b, err := io.ReadAll(r)
 		return info, b, err
 	}
 
 	return info, nil, nil
 }
 
-// Get gets the file with the given id from the cahce, nil if none found.
+// Get gets the file with the given id from the cache, nil if none found.
 func (c *Cache) Get(id string) (ItemInfo, io.ReadCloser, error) {
+	if err := c.init(); err != nil {
+		return ItemInfo{}, nil, err
+	}
 	id = cleanID(id)
 
 	c.nlocker.Lock(id)
@@ -302,7 +334,7 @@ func (c *Cache) isExpired(modTime time.Time) bool {
 }
 
 // For testing
-func (c *Cache) getString(id string) string {
+func (c *Cache) GetString(id string) string {
 	id = cleanID(id)
 
 	c.nlocker.Lock(id)
@@ -314,7 +346,7 @@ func (c *Cache) getString(id string) string {
 	}
 	defer f.Close()
 
-	b, _ := ioutil.ReadAll(f)
+	b, _ := io.ReadAll(f)
 	return string(b)
 }
 
@@ -329,47 +361,29 @@ func (f Caches) Get(name string) *Cache {
 // NewCaches creates a new set of file caches from the given
 // configuration.
 func NewCaches(p *helpers.PathSpec) (Caches, error) {
-	var dcfg Configs
-	if c, ok := p.Cfg.Get("filecacheConfigs").(Configs); ok {
-		dcfg = c
-	} else {
-		var err error
-		dcfg, err = DecodeConfig(p.Fs.Source, p.Cfg)
-		if err != nil {
-			return nil, err
-		}
-	}
-
+	dcfg := p.Cfg.GetConfigSection("caches").(Configs)
 	fs := p.Fs.Source
 
 	m := make(Caches)
 	for k, v := range dcfg {
 		var cfs afero.Fs
 
-		if v.isResourceDir {
+		if v.IsResourceDir {
 			cfs = p.BaseFs.ResourcesCache
 		} else {
 			cfs = fs
 		}
 
 		if cfs == nil {
-			// TODO(bep) we still have some places that do not initialize the
-			// full dependencies of a site, e.g. the import Jekyll command.
-			// That command does not need these caches, so let us just continue
-			// for now.
-			continue
+			panic("nil fs")
 		}
 
-		baseDir := v.Dir
-
-		if err := cfs.MkdirAll(baseDir, 0777); err != nil && !os.IsExist(err) {
-			return nil, err
-		}
+		baseDir := v.DirCompiled
 
 		bfs := afero.NewBasePathFs(cfs, baseDir)
 
 		var pruneAllRootDir string
-		if k == cacheKeyModules {
+		if k == CacheKeyModules {
 			pruneAllRootDir = "pkg"
 		}
 

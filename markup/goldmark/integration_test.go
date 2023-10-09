@@ -327,7 +327,7 @@ D.
 }
 
 func BenchmarkCodeblocks(b *testing.B) {
-	files := `
+	filesTemplate := `
 -- config.toml --
 [markup]
   [markup.highlight]
@@ -356,45 +356,48 @@ func main() {
 }
 FENCE
 
-FENCEbash
-#!/bin/bash
-# Usage: Hello World Bash Shell Script Using Variables
-# Author: Vivek Gite
-# -------------------------------------------------
- 
-# Define bash shell variable called var 
-# Avoid spaces around the assignment operator (=)
-var="Hello World"
- 
-# print it 
-echo "$var"
- 
-# Another way of printing it
-printf "%s\n" "$var"
+FENCEunknownlexer
+hello
 FENCE
 `
 
 	content = strings.ReplaceAll(content, "FENCE", "```")
 
 	for i := 1; i < 100; i++ {
-		files += fmt.Sprintf("\n-- content/posts/p%d.md --\n"+content, i+1)
+		filesTemplate += fmt.Sprintf("\n-- content/posts/p%d.md --\n"+content, i+1)
 	}
 
-	cfg := hugolib.IntegrationTestConfig{
-		T:           b,
-		TxtarString: files,
-	}
-	builders := make([]*hugolib.IntegrationTestBuilder, b.N)
+	runBenchmark := func(files string, b *testing.B) {
+		cfg := hugolib.IntegrationTestConfig{
+			T:           b,
+			TxtarString: files,
+		}
+		builders := make([]*hugolib.IntegrationTestBuilder, b.N)
 
-	for i := range builders {
-		builders[i] = hugolib.NewIntegrationTestBuilder(cfg)
+		for i := range builders {
+			builders[i] = hugolib.NewIntegrationTestBuilder(cfg)
+		}
+
+		b.ResetTimer()
+
+		for i := 0; i < b.N; i++ {
+			builders[i].Build()
+		}
 	}
 
-	b.ResetTimer()
+	b.Run("Default", func(b *testing.B) {
+		runBenchmark(filesTemplate, b)
+	})
 
-	for i := 0; i < b.N; i++ {
-		builders[i].Build()
-	}
+	b.Run("Hook no higlight", func(b *testing.B) {
+		files := filesTemplate + `
+-- layouts/_default/_markup/render-codeblock.html --
+{{ .Inner }}
+`
+
+		runBenchmark(files, b)
+	})
+
 }
 
 // Iisse #8959

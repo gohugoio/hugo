@@ -45,7 +45,7 @@ func New(rs *resources.Spec) *Client {
 	return &Client{
 		rs: rs,
 		httpClient: &http.Client{
-			Timeout: 10 * time.Second,
+			Timeout: time.Minute,
 		},
 		cacheGetResource: rs.FileCaches.GetResourceCache(),
 	}
@@ -136,6 +136,7 @@ func (c *Client) match(name, pattern string, matchFunc func(r resource.Resource)
 }
 
 // FromString creates a new Resource from a string with the given relative target path.
+// TODO(bep) see #10912; we currently emit a warning for this config scenario.
 func (c *Client) FromString(targetPath, content string) (resource.Resource, error) {
 	return c.rs.ResourceCache.GetOrCreate(path.Join(resources.CACHE_OTHER, targetPath), func() (resource.Resource, error) {
 		return c.rs.New(

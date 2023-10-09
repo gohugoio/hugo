@@ -1,31 +1,32 @@
 ---
 title: urls.Parse
-description: Parse parses a given url, which may be relative or absolute, into a URL structure.
-date: 2017-09-25
-publishdate: 2017-09-25
-lastmod: 2017-09-25
+description: Parses a URL into a URL structure.
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [urls]
 signature: ["urls.Parse URL"]
-workson: []
-hugoversion:
-deprecated: false
-aliases: []
 ---
 
-`urls.Parse` takes a url as input
+The `urls.Parse` function parses a URL into a [URL structure](https://godoc.org/net/url#URL). The URL may be relative (a path, without a host) or absolute (starting with a [scheme]). Hugo throws an error when parsing an invalid URL.
+
+[scheme]: https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml#uri-schemes-1
 
 
-```
-{{ $url := urls.Parse "http://www.gohugo.io" }}
-```
+```go-html-template
+{{ $url := "https://example.org:123/foo?a=6&b=7#bar" }}
+{{ $u := urls.Parse $url }}
 
-and returns a [URL](https://godoc.org/net/url#URL) structure. The struct fields are accessed via the `.` notation:
-
-```
-{{ $url.Scheme }} → "http"
-{{ $url.Host }} → "www.gohugo.io"
+{{ $u.IsAbs }} → true
+{{ $u.Scheme }} → https
+{{ $u.Host }} → example.org:123
+{{ $u.Hostname }} → example.org
+{{ $u.RequestURI }} → /foo?a=6&b=7
+{{ $u.Path }} → /foo
+{{ $u.Query }} → map[a:[6] b:[7]]
+{{ $u.Query.a }} → [6]
+{{ $u.Query.Get "a" }} → 6
+{{ $u.Query.Has "b" }} → true
+{{ $u.Fragment }} → bar
 ```

@@ -11,8 +11,6 @@ A high performance webserver
 
 Hugo provides its own webserver which builds and serves the site.
 While hugo server is high performance, it is a webserver with limited options.
-Many run it in production, but the standard behavior is for people to use it
-in development and use a more full featured server such as Nginx or Caddy.
 
 'hugo server' will avoid writing the rendered and served content to disk,
 preferring to store it in memory.
@@ -23,7 +21,7 @@ and push the latest content to them. As most Hugo sites are built in a fraction
 of a second, you will be able to save and see your changes nearly instantly.
 
 ```
-hugo server [flags]
+hugo server [command] [flags]
 ```
 
 ### Options
@@ -35,10 +33,9 @@ hugo server [flags]
   -D, --buildDrafts            include content marked as draft
   -E, --buildExpired           include expired content
   -F, --buildFuture            include content with publishdate in the future
-      --cacheDir string        filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
+      --cacheDir string        filesystem path to cache directory
       --cleanDestinationDir    remove files from destination not found in static directories
   -c, --contentDir string      filesystem path to content directory
-  -d, --destination string     filesystem path to write files to
       --disableBrowserError    do not show build errors in the browser
       --disableFastRender      enables full re-renders on changes
       --disableKinds strings   disable different kind of pages (home, RSS etc.)
@@ -70,6 +67,9 @@ hugo server [flags]
       --templateMetrics        display metrics about template executions
       --templateMetricsHints   calculate some improvement hints when combined with --templateMetrics
   -t, --theme strings          themes to use (located in /themes/THEMENAME/)
+      --tlsAuto                generate and use locally-trusted certificates.
+      --tlsCertFile string     path to TLS certificate file
+      --tlsKeyFile string      path to TLS key file
       --trace file             write trace to file (not useful in general)
   -w, --watch                  watch filesystem for changes and recreate as needed (default true)
 ```
@@ -78,21 +78,21 @@ hugo server [flags]
 
 ```
       --clock string               set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00
-      --config string              config file (default is path/config.yaml|json|toml)
+      --config string              config file (default is hugo.yaml|json|toml)
       --configDir string           config dir (default "config")
       --debug                      debug output
+  -d, --destination string         filesystem path to write files to
   -e, --environment string         build environment
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
-      --log                        enable Logging
-      --logFile string             log File path (if set, logging enabled automatically)
+      --logLevel string            log level (debug|info|warn|error)
       --quiet                      build in quiet mode
   -s, --source string              filesystem path to read files relative from
       --themesDir string           filesystem path to themes directory
   -v, --verbose                    verbose output
-      --verboseLog                 verbose logging
 ```
 
 ### SEE ALSO
 
 * [hugo](/commands/hugo/)	 - hugo builds your site
+* [hugo server trust](/commands/hugo_server_trust/)	 - Install the local CA in the system trust store.
 

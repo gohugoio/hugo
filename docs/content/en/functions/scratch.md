@@ -1,21 +1,14 @@
 ---
 title: .Scratch
 description: Acts as a "scratchpad" to store and manipulate data.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 keywords: [iteration]
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 toc:
 signature: []
-workson: []
-hugoversion:
 relatedfuncs: []
-deprecated: false
-draft: false
 aliases: [/extras/scratch/,/doc/scratch/]
 ---
 
@@ -42,7 +35,7 @@ Since Hugo 0.43, there are two different ways of using Scratch:
 
 #### The local `newScratch`
 
-{{< new-in "0.43" >}} A Scratch instance can also be assigned to any variable using the `newScratch` function. In this case, no Page or Shortcode context is required and the scope of the scratch is only local. The methods detailed below are available from the variable the Scratch instance was assigned to.
+A Scratch instance can also be assigned to any variable using the `newScratch` function. In this case, no Page or Shortcode context is required and the scope of the scratch is only local. The methods detailed below are available from the variable the Scratch instance was assigned to.
 
 ```go-html-template
 {{ $data := newScratch }}
@@ -77,9 +70,9 @@ Get the value of a given key.
 
 #### .Add
 
-Add a given value to existing value(s) of the given key. 
+Add a given value to existing value(s) of the given key.
 
-For single values, `Add` accepts values that support Go's `+` operator. If the first `Add` for a key is an array or slice, the following adds will be appended to that list.
+For single values, `Add` accepts values that support Go's `+` operator. If the first `Add` for a key is an array or slice, the following adds will be [appended](/functions/append/) to that list.
 
 ```go-html-template
 {{ $scratch.Add "greetings" "Hello" }}
@@ -138,7 +131,7 @@ Return an array of values from `key` sorted by `mapKey`.
 
 #### .Delete
 
-{{< new-in "0.38" >}} Remove the given key.
+Remove the given key.
 
 ```go-html-template
 {{ $scratch.Set "greeting" "Hello" }}

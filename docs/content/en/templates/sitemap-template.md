@@ -1,16 +1,13 @@
 ---
-title: Sitemap Templates
+title: Sitemap templates
 description: Hugo provides built-in sitemap templates.
-date: 2017-02-01
 categories: [templates]
 keywords: [sitemap, xml, templates]
 menu:
   docs:
-    parent: "templates"
-    weight: 160
-weight: 160
-sections_weight: 160
-draft: false
+    parent: templates
+    weight: 170
+weight: 170
 aliases: [/layout/sitemap/,/templates/sitemap/]
 toc: true
 ---
@@ -30,12 +27,7 @@ With a multilingual project, Hugo generates:
 
 Set the default values for [change frequency] and [priority], and the name of the generated file, in your site configuration.
 
-{{< code-toggle file="config" >}}
-[sitemap]
-  changefreq = 'monthly'
-  filename = 'sitemap.xml'
-  priority = 0.5
-{{</ code-toggle >}}
+{{< code-toggle config="sitemap" />}}
 
 changefreq
 : How frequently a page is likely to change. Valid values are `always`, `hourly`, `daily`, `weekly`, `monthly`, `yearly`, and `never`. Default is `""` (change frequency omitted from rendered sitemap).
@@ -46,7 +38,7 @@ filename
 priority
 : The priority of a page relative to any other page on the site. Valid values range from 0.0 to 1.0. Default is `-1` (priority omitted from rendered sitemap).
 
-## Override Default Values
+## Override default values
 
 Override the default values for a given page in front matter.
 
@@ -57,7 +49,7 @@ title = 'News'
   priority = 0.8
 {{</ code-toggle >}}
 
-## Override Built-in Templates
+## Override built-in templates
 
 To override the built-in sitemap.xml template, create a new file in either of these locations:
 
@@ -71,15 +63,15 @@ To override the built-in sitemapindex.xml template, create a new file in either 
 - layouts/sitemapindex.xml
 - layouts/_default/sitemapindex.xml
 
-## Disable Sitemap Generation
+## Disable sitemap generation
 
 You may disable sitemap generation in your site configuration:
 
-{{< code-toggle file="config" >}}
+{{< code-toggle file="hugo" >}}
 disableKinds = ['sitemap']
 {{</ code-toggle >}}
 
-[`publishDir`]: {{< relref "getting-started/configuration#publishdir" >}}
+[`publishDir`]: /getting-started/configuration#publishdir
 [change frequency]: <https://www.sitemaps.org/protocol.html#changefreqdef>
 [priority]: <https://www.sitemaps.org/protocol.html#priority>
 [sitemap protocol]: <https://www.sitemaps.org/protocol.html>

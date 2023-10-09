@@ -173,11 +173,12 @@ func decodeTag(x *_exif.Exif, f _exif.FieldName, t *tiff.Tag) (any, error) {
 		case tiff.RatVal:
 			n, d, _ := t.Rat2(i)
 			rat := big.NewRat(n, d)
-			if n == 1 {
-				rv = append(rv, rat)
-			} else {
+			// if t is int or t > 1, use float64
+			if rat.IsInt() || rat.Cmp(big.NewRat(1, 1)) == 1 {
 				f, _ := rat.Float64()
 				rv = append(rv, f)
+			} else {
+				rv = append(rv, rat)
 			}
 
 		case tiff.FloatVal:
@@ -254,8 +255,10 @@ func init() {
 	}
 }
 
+// Tags is a map of EXIF tags.
 type Tags map[string]any
 
+// UnmarshalJSON is for internal use only.
 func (v *Tags) UnmarshalJSON(b []byte) error {
 	vv := make(map[string]any)
 	if err := tcodec.Unmarshal(b, &vv); err != nil {
@@ -267,6 +270,7 @@ func (v *Tags) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// MarshalJSON is for internal use only.
 func (v Tags) MarshalJSON() ([]byte, error) {
 	return tcodec.Marshal(v)
 }

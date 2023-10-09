@@ -14,16 +14,14 @@
 package strings
 
 import (
-	"regexp"
-	"sync"
-
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/spf13/cast"
 )
 
 // FindRE returns a list of strings that match the regular expression. By default all matches
 // will be included. The number of matches can be limited with an optional third parameter.
 func (ns *Namespace) FindRE(expr string, content any, limit ...any) ([]string, error) {
-	re, err := reCache.Get(expr)
+	re, err := hstrings.GetOrCompileRegexp(expr)
 	if err != nil {
 		return nil, err
 	}
@@ -43,6 +41,36 @@ func (ns *Namespace) FindRE(expr string, content any, limit ...any) ([]string, e
 	}
 
 	return re.FindAllString(conv, lim), nil
+}
+
+// FindRESubmatch returns a slice of all successive matches of the regular
+// expression in content. Each element is a slice of strings holding the text
+// of the leftmost match of the regular expression and the matches, if any, of
+// its subexpressions.
+//
+// By default all matches will be included. The number of matches can be
+// limited with the optional limit parameter. A return value of nil indicates
+// no match.
+func (ns *Namespace) FindRESubmatch(expr string, content any, limit ...any) ([][]string, error) {
+	re, err := hstrings.GetOrCompileRegexp(expr)
+	if err != nil {
+		return nil, err
+	}
+
+	conv, err := cast.ToStringE(content)
+	if err != nil {
+		return nil, err
+	}
+	n := -1
+	if len(limit) > 0 {
+		n, err = cast.ToIntE(limit[0])
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return re.FindAllStringSubmatch(conv, n), nil
+
 }
 
 // ReplaceRE returns a copy of s, replacing all matches of the regular
@@ -72,7 +100,7 @@ func (ns *Namespace) ReplaceRE(pattern, repl, s any, n ...any) (_ string, err er
 		}
 	}
 
-	re, err := reCache.Get(sp)
+	re, err := hstrings.GetOrCompileRegexp(sp)
 	if err != nil {
 		return "", err
 	}
@@ -86,40 +114,3 @@ func (ns *Namespace) ReplaceRE(pattern, repl, s any, n ...any) (_ string, err er
 		return re.ReplaceAllString(str, sr)
 	}), nil
 }
-
-// regexpCache represents a cache of regexp objects protected by a mutex.
-type regexpCache struct {
-	mu sync.RWMutex
-	re map[string]*regexp.Regexp
-}
-
-// Get retrieves a regexp object from the cache based upon the pattern.
-// If the pattern is not found in the cache, create one
-func (rc *regexpCache) Get(pattern string) (re *regexp.Regexp, err error) {
-	var ok bool
-
-	if re, ok = rc.get(pattern); !ok {
-		re, err = regexp.Compile(pattern)
-		if err != nil {
-			return nil, err
-		}
-		rc.set(pattern, re)
-	}
-
-	return re, nil
-}
-
-func (rc *regexpCache) get(key string) (re *regexp.Regexp, ok bool) {
-	rc.mu.RLock()
-	re, ok = rc.re[key]
-	rc.mu.RUnlock()
-	return
-}
-
-func (rc *regexpCache) set(key string, re *regexp.Regexp) {
-	rc.mu.Lock()
-	rc.re[key] = re
-	rc.mu.Unlock()
-}
-
-var reCache = regexpCache{re: make(map[string]*regexp.Regexp)}

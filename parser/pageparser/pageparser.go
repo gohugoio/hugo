@@ -18,7 +18,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"regexp"
+	"strings"
 
 	"github.com/gohugoio/hugo/parser/metadecoders"
 )
@@ -98,7 +99,7 @@ func ParseMain(r io.Reader, cfg Config) (Result, error) {
 }
 
 func parseSection(r io.Reader, cfg Config, start stateFunc) (Result, error) {
-	b, err := ioutil.ReadAll(r)
+	b, err := io.ReadAll(r)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read page content: %w", err)
 	}
@@ -233,4 +234,15 @@ func IsProbablySourceOfItems(source []byte, items Items) bool {
 	}
 
 	return true
+}
+
+var hasShortcodeRe = regexp.MustCompile(`{{[%,<][^\/]`)
+
+// HasShortcode returns true if the given string contains a shortcode.
+func HasShortcode(s string) bool {
+	// Fast path for the common case.
+	if !strings.Contains(s, "{{") {
+		return false
+	}
+	return hasShortcodeRe.MatchString(s)
 }

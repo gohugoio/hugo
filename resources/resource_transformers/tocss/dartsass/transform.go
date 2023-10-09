@@ -1,4 +1,4 @@
-// Copyright 2020 The Hugo Authors. All rights reserved.
+// Copyright 2022 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/media"
@@ -28,16 +28,14 @@ import (
 	"github.com/gohugoio/hugo/resources"
 
 	"github.com/gohugoio/hugo/resources/internal"
+	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/internal/sass"
 
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/hugofs"
 
-	"github.com/bep/godartsass"
-)
-
-const (
-	dartSassEmbeddedBinaryName = "dart-sass-embedded"
+	godartsassv1 "github.com/bep/godartsass"
+	"github.com/bep/godartsass/v2"
 )
 
 // Supports returns whether dart-sass-embedded is found in $PATH.
@@ -45,7 +43,7 @@ func Supports() bool {
 	if htesting.SupportsAll() {
 		return true
 	}
-	return hexec.InPath(dartSassEmbeddedBinaryName)
+	return hugo.DartSassBinaryName != ""
 }
 
 type transform struct {
@@ -58,7 +56,7 @@ func (t *transform) Key() internal.ResourceTransformationKey {
 }
 
 func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
-	ctx.OutMediaType = media.CSSType
+	ctx.OutMediaType = media.Builtin.CSSType
 
 	opts, err := decodeOptions(t.optsm)
 	if err != nil {
@@ -84,9 +82,12 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 		ImportResolver: importResolver{
 			baseDir: baseDir,
 			c:       t.c,
+
+			varsStylesheet: godartsass.Import{Content: sass.CreateVarsStyleSheet(opts.Vars)},
 		},
-		OutputStyle:     godartsass.ParseOutputStyle(opts.OutputStyle),
-		EnableSourceMap: opts.EnableSourceMap,
+		OutputStyle:             godartsass.ParseOutputStyle(opts.OutputStyle),
+		EnableSourceMap:         opts.EnableSourceMap,
+		SourceMapIncludeSources: opts.SourceMapIncludeSources,
 	}
 
 	// Append any workDir relative include paths
@@ -98,7 +99,7 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 		}
 	}
 
-	if ctx.InMediaType.SubType == media.SASSType.SubType {
+	if ctx.InMediaType.SubType == media.Builtin.SASSType.SubType {
 		args.SourceSyntax = godartsass.SourceSyntaxSASS
 	}
 
@@ -127,9 +128,14 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 type importResolver struct {
 	baseDir string
 	c       *Client
+
+	varsStylesheet godartsass.Import
 }
 
 func (t importResolver) CanonicalizeURL(url string) (string, error) {
+	if url == sass.HugoVarsNamespace {
+		return url, nil
+	}
 	filePath, isURL := paths.UrlToFilename(url)
 	var prevDir string
 	var pathDir string
@@ -154,9 +160,9 @@ func (t importResolver) CanonicalizeURL(url string) (string, error) {
 	if strings.Contains(name, ".") {
 		namePatterns = []string{"_%s", "%s"}
 	} else if strings.HasPrefix(name, "_") {
-		namePatterns = []string{"_%s.scss", "_%s.sass"}
+		namePatterns = []string{"_%s.scss", "_%s.sass", "_%s.css"}
 	} else {
-		namePatterns = []string{"_%s.scss", "%s.scss", "_%s.sass", "%s.sass"}
+		namePatterns = []string{"_%s.scss", "%s.scss", "_%s.sass", "%s.sass", "_%s.css", "%s.css"}
 	}
 
 	name = strings.TrimPrefix(name, "_")
@@ -175,8 +181,29 @@ func (t importResolver) CanonicalizeURL(url string) (string, error) {
 	return "", nil
 }
 
-func (t importResolver) Load(url string) (string, error) {
+func (t importResolver) Load(url string) (godartsass.Import, error) {
+	if url == sass.HugoVarsNamespace {
+		return t.varsStylesheet, nil
+	}
 	filename, _ := paths.UrlToFilename(url)
 	b, err := afero.ReadFile(hugofs.Os, filename)
-	return string(b), err
+
+	sourceSyntax := godartsass.SourceSyntaxSCSS
+	if strings.HasSuffix(filename, ".sass") {
+		sourceSyntax = godartsass.SourceSyntaxSASS
+	} else if strings.HasSuffix(filename, ".css") {
+		sourceSyntax = godartsass.SourceSyntaxCSS
+	}
+
+	return godartsass.Import{Content: string(b), SourceSyntax: sourceSyntax}, err
+
+}
+
+type importResolverV1 struct {
+	godartsass.ImportResolver
+}
+
+func (t importResolverV1) Load(url string) (godartsassv1.Import, error) {
+	res, err := t.ImportResolver.Load(url)
+	return godartsassv1.Import{Content: res.Content, SourceSyntax: godartsassv1.SourceSyntax(res.SourceSyntax)}, err
 }

@@ -17,7 +17,6 @@ package page
 
 import (
 	"encoding/json"
-	"github.com/bep/gitmap"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -26,24 +25,10 @@ import (
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/navigation"
 	"github.com/gohugoio/hugo/source"
-	"html/template"
 	"time"
 )
 
 func MarshalPageToJSON(p Page) ([]byte, error) {
-	content, err := p.Content()
-	if err != nil {
-		return nil, err
-	}
-	plain := p.Plain()
-	plainWords := p.PlainWords()
-	summary := p.Summary()
-	truncated := p.Truncated()
-	fuzzyWordCount := p.FuzzyWordCount()
-	wordCount := p.WordCount()
-	readingTime := p.ReadingTime()
-	length := p.Len()
-	tableOfContents := p.TableOfContents()
 	rawContent := p.RawContent()
 	resourceType := p.ResourceType()
 	mediaType := p.MediaType()
@@ -82,6 +67,7 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 	language := p.Language()
 	file := p.File()
 	gitInfo := p.GitInfo()
+	codeOwners := p.CodeOwners()
 	outputFormats := p.OutputFormats()
 	alternativeOutputFormats := p.AlternativeOutputFormats()
 	menus := p.Menus()
@@ -89,19 +75,10 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 	isTranslated := p.IsTranslated()
 	allTranslations := p.AllTranslations()
 	translations := p.Translations()
+	store := p.Store()
 	getIdentity := p.GetIdentity()
 
 	s := struct {
-		Content                  any
-		Plain                    string
-		PlainWords               []string
-		Summary                  template.HTML
-		Truncated                bool
-		FuzzyWordCount           int
-		WordCount                int
-		ReadingTime              int
-		Len                      int
-		TableOfContents          template.HTML
 		RawContent               string
 		ResourceType             string
 		MediaType                media.Type
@@ -110,7 +87,7 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 		Name                     string
 		Title                    string
 		Params                   maps.Params
-		Data                     any
+		Data                     interface{}
 		Date                     time.Time
 		Lastmod                  time.Time
 		PublishDate              time.Time
@@ -134,12 +111,13 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 		Section                  string
 		SectionsEntries          []string
 		SectionsPath             string
-		Sitemap                  config.Sitemap
+		Sitemap                  config.SitemapConfig
 		Type                     string
 		Weight                   int
 		Language                 *langs.Language
 		File                     source.File
-		GitInfo                  *gitmap.GitInfo
+		GitInfo                  source.GitInfo
+		CodeOwners               []string
 		OutputFormats            OutputFormats
 		AlternativeOutputFormats OutputFormats
 		Menus                    navigation.PageMenus
@@ -147,18 +125,9 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 		IsTranslated             bool
 		AllTranslations          Pages
 		Translations             Pages
+		Store                    *maps.Scratch
 		GetIdentity              identity.Identity
 	}{
-		Content:                  content,
-		Plain:                    plain,
-		PlainWords:               plainWords,
-		Summary:                  summary,
-		Truncated:                truncated,
-		FuzzyWordCount:           fuzzyWordCount,
-		WordCount:                wordCount,
-		ReadingTime:              readingTime,
-		Len:                      length,
-		TableOfContents:          tableOfContents,
 		RawContent:               rawContent,
 		ResourceType:             resourceType,
 		MediaType:                mediaType,
@@ -197,6 +166,7 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 		Language:                 language,
 		File:                     file,
 		GitInfo:                  gitInfo,
+		CodeOwners:               codeOwners,
 		OutputFormats:            outputFormats,
 		AlternativeOutputFormats: alternativeOutputFormats,
 		Menus:                    menus,
@@ -204,6 +174,7 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 		IsTranslated:             isTranslated,
 		AllTranslations:          allTranslations,
 		Translations:             translations,
+		Store:                    store,
 		GetIdentity:              getIdentity,
 	}
 

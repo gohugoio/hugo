@@ -1,19 +1,15 @@
 ---
 title: time.Format
 description: Converts a date/time to a localized string.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
 categories: [functions]
 menu:
   docs:
-    parent: "functions"
+    parent: functions
 keywords: [dates,time,strings]
-signature: ["time.Format LAYOUT INPUT"]
-workson: []
-hugoversion:
+signature:
+  - "time.Format LAYOUT INPUT"
+  - "dateFormat LAYOUT INPUT"
 relatedfuncs: [Format,now,Unix,time]
-deprecated: false
 ---
 
 `time.Format` (alias `dateFormat`) converts either a `time.Time` object (e.g. `.Date`) or a timestamp string `INPUT` into the format specified by the `LAYOUT` string.
@@ -22,7 +18,7 @@ deprecated: false
 {{ time.Format "Monday, Jan 2, 2006" "2015-01-21" }} → "Wednesday, Jan 21, 2015"
 ```
 
-Note that since Hugo 0.87.0, `time.Format` will return a localized string for the current language. {{< new-in "0.87.0" >}}
+`time.Format` returns a localized string for the current language.
 
 The `LAYOUT` string can be either:
 
@@ -34,9 +30,7 @@ See the [`time` function](/functions/time/) to convert a timestamp string to a G
 
 ## Date/time formatting layouts
 
-{{< new-in "0.87.0" >}}
-
-Go's date layout strings can be hard to reason about, especially with multiple languages. Since Hugo 0.87.0 you can alternatively use some predefined layout identifiers that will output localized dates or times:
+Go's date layout strings can be hard to reason about, especially with multiple languages. You can alternatively use some predefined layout identifiers that will output localized dates or times:
 
 ```go-html-template
 {{ .Date | time.Format ":date_long" }}

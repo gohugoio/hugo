@@ -23,7 +23,6 @@ import (
 	"crypto/md5"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -31,6 +30,7 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/media"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -109,7 +109,7 @@ func TestFindDiffs(t *testing.T) {
 		{
 			Description: "local == remote with route.Force true -> diffs",
 			Local: []*localFile{
-				{NativePath: "aaa", SlashPath: "aaa", UploadSize: 1, matcher: &matcher{Force: true}, md5: hash1},
+				{NativePath: "aaa", SlashPath: "aaa", UploadSize: 1, matcher: &Matcher{Force: true}, md5: hash1},
 				makeLocal("bbb", 2, hash1),
 			},
 			Remote: []*blob.ListObject{
@@ -198,7 +198,8 @@ func TestFindDiffs(t *testing.T) {
 			for _, r := range tc.Remote {
 				remote[r.Key] = r
 			}
-			gotUpdates, gotDeletes := findDiffs(local, remote, tc.Force)
+			d := newDeployer()
+			gotUpdates, gotDeletes := d.findDiffs(local, remote, tc.Force)
 			gotUpdates = applyOrdering(nil, gotUpdates)[0]
 			sort.Slice(gotDeletes, func(i, j int) bool { return gotDeletes[i] < gotDeletes[j] })
 			if diff := cmp.Diff(gotUpdates, tc.WantUpdates, cmpopts.IgnoreUnexported(localFile{})); diff != "" {
@@ -250,7 +251,8 @@ func TestWalkLocal(t *testing.T) {
 					fd.Close()
 				}
 			}
-			if got, err := walkLocal(fs, nil, nil, nil, media.DefaultTypes); err != nil {
+			d := newDeployer()
+			if got, err := d.walkLocal(fs, nil, nil, nil, media.DefaultTypes); err != nil {
 				t.Fatal(err)
 			} else {
 				expect := map[string]any{}
@@ -290,8 +292,8 @@ func TestLocalFile(t *testing.T) {
 	tests := []struct {
 		Description         string
 		Path                string
-		Matcher             *matcher
-		MediaTypesConfig    []map[string]any
+		Matcher             *Matcher
+		MediaTypesConfig    map[string]any
 		WantContent         []byte
 		WantSize            int64
 		WantMD5             []byte
@@ -316,7 +318,7 @@ func TestLocalFile(t *testing.T) {
 		{
 			Description:      "CacheControl from matcher",
 			Path:             "foo.txt",
-			Matcher:          &matcher{CacheControl: "max-age=630720000"},
+			Matcher:          &Matcher{CacheControl: "max-age=630720000"},
 			WantContent:      contentBytes,
 			WantSize:         contentLen,
 			WantMD5:          contentMD5[:],
@@ -325,7 +327,7 @@ func TestLocalFile(t *testing.T) {
 		{
 			Description:         "ContentEncoding from matcher",
 			Path:                "foo.txt",
-			Matcher:             &matcher{ContentEncoding: "foobar"},
+			Matcher:             &Matcher{ContentEncoding: "foobar"},
 			WantContent:         contentBytes,
 			WantSize:            contentLen,
 			WantMD5:             contentMD5[:],
@@ -334,7 +336,7 @@ func TestLocalFile(t *testing.T) {
 		{
 			Description:     "ContentType from matcher",
 			Path:            "foo.txt",
-			Matcher:         &matcher{ContentType: "foo/bar"},
+			Matcher:         &Matcher{ContentType: "foo/bar"},
 			WantContent:     contentBytes,
 			WantSize:        contentLen,
 			WantMD5:         contentMD5[:],
@@ -343,7 +345,7 @@ func TestLocalFile(t *testing.T) {
 		{
 			Description:         "gzipped content",
 			Path:                "foo.txt",
-			Matcher:             &matcher{Gzip: true},
+			Matcher:             &Matcher{Gzip: true},
 			WantContent:         gzBytes,
 			WantSize:            gzLen,
 			WantMD5:             gzMD5[:],
@@ -352,11 +354,9 @@ func TestLocalFile(t *testing.T) {
 		{
 			Description: "Custom MediaType",
 			Path:        "foo.hugo",
-			MediaTypesConfig: []map[string]any{
-				{
-					"hugo/custom": map[string]any{
-						"suffixes": []string{"hugo"},
-					},
+			MediaTypesConfig: map[string]any{
+				"hugo/custom": map[string]any{
+					"suffixes": []string{"hugo"},
 				},
 			},
 			WantContent:     contentBytes,
@@ -374,11 +374,11 @@ func TestLocalFile(t *testing.T) {
 			}
 			mediaTypes := media.DefaultTypes
 			if len(tc.MediaTypesConfig) > 0 {
-				mt, err := media.DecodeTypes(tc.MediaTypesConfig...)
+				mt, err := media.DecodeTypes(tc.MediaTypesConfig)
 				if err != nil {
 					t.Fatal(err)
 				}
-				mediaTypes = mt
+				mediaTypes = mt.Config
 			}
 			lf, err := newLocalFile(fs, tc.Path, filepath.ToSlash(tc.Path), tc.Matcher, mediaTypes)
 			if err != nil {
@@ -407,7 +407,7 @@ func TestLocalFile(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			gotContent, err := ioutil.ReadAll(r)
+			gotContent, err := io.ReadAll(r)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -420,7 +420,7 @@ func TestLocalFile(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			gotContent, err = ioutil.ReadAll(r)
+			gotContent, err = io.ReadAll(r)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -520,47 +520,35 @@ type fsTest struct {
 // 1. An in-memory afero.Fs paired with an in-memory Go CDK bucket.
 // 2. A filesystem-based afero.Fs paired with an filesystem-based Go CDK bucket.
 // It returns the pair of tests and a cleanup function.
-func initFsTests() ([]*fsTest, func(), error) {
-	tmpfsdir, err := ioutil.TempDir("", "fs")
-	if err != nil {
-		return nil, nil, err
-	}
-	tmpbucketdir, err := ioutil.TempDir("", "bucket")
-	if err != nil {
-		return nil, nil, err
-	}
+func initFsTests(t *testing.T) []*fsTest {
+	t.Helper()
+
+	tmpfsdir := t.TempDir()
+	tmpbucketdir := t.TempDir()
 
 	memfs := afero.NewMemMapFs()
 	membucket := memblob.OpenBucket(nil)
+	t.Cleanup(func() { membucket.Close() })
 
 	filefs := afero.NewBasePathFs(afero.NewOsFs(), tmpfsdir)
 	filebucket, err := fileblob.OpenBucket(tmpbucketdir, nil)
 	if err != nil {
-		return nil, nil, err
+		t.Fatal(err)
 	}
+	t.Cleanup(func() { filebucket.Close() })
 
 	tests := []*fsTest{
 		{"mem", memfs, membucket},
 		{"file", filefs, filebucket},
 	}
-	cleanup := func() {
-		membucket.Close()
-		filebucket.Close()
-		os.RemoveAll(tmpfsdir)
-		os.RemoveAll(tmpbucketdir)
-	}
-	return tests, cleanup, nil
+	return tests
 }
 
 // TestEndToEndSync verifies that basic adds, updates, and deletes are working
 // correctly.
 func TestEndToEndSync(t *testing.T) {
 	ctx := context.Background()
-	tests, cleanup, err := initFsTests()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer cleanup()
+	tests := initFsTests(t)
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			local, err := initLocalFs(ctx, test.fs)
@@ -569,9 +557,9 @@ func TestEndToEndSync(t *testing.T) {
 			}
 			deployer := &Deployer{
 				localFs:    test.fs,
-				maxDeletes: -1,
 				bucket:     test.bucket,
 				mediaTypes: media.DefaultTypes,
+				cfg:        DeployConfig{MaxDeletes: -1},
 			}
 
 			// Initial deployment should sync remote with local.
@@ -643,11 +631,7 @@ func TestEndToEndSync(t *testing.T) {
 // TestMaxDeletes verifies that the "maxDeletes" flag is working correctly.
 func TestMaxDeletes(t *testing.T) {
 	ctx := context.Background()
-	tests, cleanup, err := initFsTests()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer cleanup()
+	tests := initFsTests(t)
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			local, err := initLocalFs(ctx, test.fs)
@@ -656,9 +640,9 @@ func TestMaxDeletes(t *testing.T) {
 			}
 			deployer := &Deployer{
 				localFs:    test.fs,
-				maxDeletes: -1,
 				bucket:     test.bucket,
 				mediaTypes: media.DefaultTypes,
+				cfg:        DeployConfig{MaxDeletes: -1},
 			}
 
 			// Sync remote with local.
@@ -679,7 +663,7 @@ func TestMaxDeletes(t *testing.T) {
 			}
 
 			// A deployment with maxDeletes=0 shouldn't change anything.
-			deployer.maxDeletes = 0
+			deployer.cfg.MaxDeletes = 0
 			if err := deployer.Deploy(ctx); err != nil {
 				t.Errorf("deploy failed: %v", err)
 			}
@@ -689,7 +673,7 @@ func TestMaxDeletes(t *testing.T) {
 			}
 
 			// A deployment with maxDeletes=1 shouldn't change anything either.
-			deployer.maxDeletes = 1
+			deployer.cfg.MaxDeletes = 1
 			if err := deployer.Deploy(ctx); err != nil {
 				t.Errorf("deploy failed: %v", err)
 			}
@@ -699,7 +683,7 @@ func TestMaxDeletes(t *testing.T) {
 			}
 
 			// A deployment with maxDeletes=2 should make the changes.
-			deployer.maxDeletes = 2
+			deployer.cfg.MaxDeletes = 2
 			if err := deployer.Deploy(ctx); err != nil {
 				t.Errorf("deploy failed: %v", err)
 			}
@@ -717,7 +701,7 @@ func TestMaxDeletes(t *testing.T) {
 			}
 
 			// A deployment with maxDeletes=-1 should make the changes.
-			deployer.maxDeletes = -1
+			deployer.cfg.MaxDeletes = -1
 			if err := deployer.Deploy(ctx); err != nil {
 				t.Errorf("deploy failed: %v", err)
 			}
@@ -772,18 +756,14 @@ func TestIncludeExclude(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("include %q exclude %q", test.Include, test.Exclude), func(t *testing.T) {
-			fsTests, cleanup, err := initFsTests()
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer cleanup()
+			fsTests := initFsTests(t)
 			fsTest := fsTests[1] // just do file-based test
 
-			_, err = initLocalFs(ctx, fsTest.fs)
+			_, err := initLocalFs(ctx, fsTest.fs)
 			if err != nil {
 				t.Fatal(err)
 			}
-			tgt := &target{
+			tgt := &Target{
 				Include: test.Include,
 				Exclude: test.Exclude,
 			}
@@ -791,9 +771,8 @@ func TestIncludeExclude(t *testing.T) {
 				t.Error(err)
 			}
 			deployer := &Deployer{
-				localFs:    fsTest.fs,
-				maxDeletes: -1,
-				bucket:     fsTest.bucket,
+				localFs: fsTest.fs,
+				cfg:     DeployConfig{MaxDeletes: -1}, bucket: fsTest.bucket,
 				target:     tgt,
 				mediaTypes: media.DefaultTypes,
 			}
@@ -841,11 +820,7 @@ func TestIncludeExcludeRemoteDelete(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("include %q exclude %q", test.Include, test.Exclude), func(t *testing.T) {
-			fsTests, cleanup, err := initFsTests()
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer cleanup()
+			fsTests := initFsTests(t)
 			fsTest := fsTests[1] // just do file-based test
 
 			local, err := initLocalFs(ctx, fsTest.fs)
@@ -853,9 +828,8 @@ func TestIncludeExcludeRemoteDelete(t *testing.T) {
 				t.Fatal(err)
 			}
 			deployer := &Deployer{
-				localFs:    fsTest.fs,
-				maxDeletes: -1,
-				bucket:     fsTest.bucket,
+				localFs: fsTest.fs,
+				cfg:     DeployConfig{MaxDeletes: -1}, bucket: fsTest.bucket,
 				mediaTypes: media.DefaultTypes,
 			}
 
@@ -873,7 +847,7 @@ func TestIncludeExcludeRemoteDelete(t *testing.T) {
 			}
 
 			// Second sync
-			tgt := &target{
+			tgt := &Target{
 				Include: test.Include,
 				Exclude: test.Exclude,
 			}
@@ -897,11 +871,7 @@ func TestIncludeExcludeRemoteDelete(t *testing.T) {
 func TestCompression(t *testing.T) {
 	ctx := context.Background()
 
-	tests, cleanup, err := initFsTests()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer cleanup()
+	tests := initFsTests(t)
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			local, err := initLocalFs(ctx, test.fs)
@@ -911,7 +881,7 @@ func TestCompression(t *testing.T) {
 			deployer := &Deployer{
 				localFs:    test.fs,
 				bucket:     test.bucket,
-				matchers:   []*matcher{{Pattern: ".*", Gzip: true, re: regexp.MustCompile(".*")}},
+				cfg:        DeployConfig{MaxDeletes: -1, Matchers: []*Matcher{{Pattern: ".*", Gzip: true, re: regexp.MustCompile(".*")}}},
 				mediaTypes: media.DefaultTypes,
 			}
 
@@ -956,11 +926,7 @@ func TestCompression(t *testing.T) {
 // attribute for matcher works.
 func TestMatching(t *testing.T) {
 	ctx := context.Background()
-	tests, cleanup, err := initFsTests()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer cleanup()
+	tests := initFsTests(t)
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			_, err := initLocalFs(ctx, test.fs)
@@ -970,7 +936,7 @@ func TestMatching(t *testing.T) {
 			deployer := &Deployer{
 				localFs:    test.fs,
 				bucket:     test.bucket,
-				matchers:   []*matcher{{Pattern: "^subdir/aaa$", Force: true, re: regexp.MustCompile("^subdir/aaa$")}},
+				cfg:        DeployConfig{MaxDeletes: -1, Matchers: []*Matcher{{Pattern: "^subdir/aaa$", Force: true, re: regexp.MustCompile("^subdir/aaa$")}}},
 				mediaTypes: media.DefaultTypes,
 			}
 
@@ -995,7 +961,7 @@ func TestMatching(t *testing.T) {
 			}
 
 			// Repeat with a matcher that should now match 3 files.
-			deployer.matchers = []*matcher{{Pattern: "aaa", Force: true, re: regexp.MustCompile("aaa")}}
+			deployer.cfg.Matchers = []*Matcher{{Pattern: "aaa", Force: true, re: regexp.MustCompile("aaa")}}
 			if err := deployer.Deploy(ctx); err != nil {
 				t.Errorf("no-op deploy with triple force matcher: %v", err)
 			}
@@ -1062,4 +1028,10 @@ func verifyRemote(ctx context.Context, bucket *blob.Bucket, local []*fileData) (
 		diff += fmt.Sprintf("  %s: %s\n", f.Name, f.Contents)
 	}
 	return diff, nil
+}
+
+func newDeployer() *Deployer {
+	return &Deployer{
+		logger: loggers.NewDefault(),
+	}
 }

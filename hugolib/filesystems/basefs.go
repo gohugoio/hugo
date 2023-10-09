@@ -28,9 +28,10 @@ import (
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugofs/glob"
 
+	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/types"
 
-	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/rogpeppe/go-internal/lockedfile"
 
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -74,6 +75,8 @@ type BaseFs struct {
 	WorkDir afero.Fs
 
 	theBigFs *filesystemsCollector
+
+	workingDir string
 
 	// Locks.
 	buildMu Lockable // <project>/.hugo_build.lock
@@ -200,6 +203,27 @@ func (fs *BaseFs) ResolveJSConfigFile(name string) string {
 	return ""
 }
 
+// MakePathRelative creates a relative path from the given filename.
+// It returns both the component name (e.g. layouts) and the path relative to that.
+func (fs *BaseFs) MakePathRelative(filename string) (string, string) {
+	for _, sfs := range fs.FileSystems() {
+		if sfs.Contains(filename) {
+			if s, found := sfs.MakePathRelative(filename); found {
+				return sfs.Name, s
+			}
+		}
+	}
+	// May be a static file.
+	if s := fs.MakeStaticPathRelative(filename); s != "" {
+		return files.ComponentFolderStatic, s
+	}
+	// Fall back to relative to the working dir.
+	if strings.HasPrefix(filename, fs.workingDir) {
+		return "", strings.TrimPrefix(filename, fs.workingDir)
+	}
+	return "", ""
+}
+
 // SourceFilesystems contains the different source file systems. These can be
 // composite file systems (theme and project etc.), and they have all root
 // set to the source type the provides: data, i18n, static, layouts.
@@ -234,6 +258,7 @@ type SourceFilesystems struct {
 func (s *SourceFilesystems) FileSystems() []*SourceFilesystem {
 	return []*SourceFilesystem{
 		s.Content,
+		s.Assets,
 		s.Data,
 		s.I18n,
 		s.Layouts,
@@ -295,15 +320,15 @@ func (s SourceFilesystems) StaticFs(lang string) afero.Fs {
 
 // StatResource looks for a resource in these filesystems in order: static, assets and finally content.
 // If found in any of them, it returns FileInfo and the relevant filesystem.
-// Any non os.IsNotExist error will be returned.
-// An os.IsNotExist error wil be returned only if all filesystems return such an error.
+// Any non herrors.IsNotExist error will be returned.
+// An herrors.IsNotExist error will be returned only if all filesystems return such an error.
 // Note that if we only wanted to find the file, we could create a composite Afero fs,
 // but we also need to know which filesystem root it lives in.
 func (s SourceFilesystems) StatResource(lang, filename string) (fi os.FileInfo, fs afero.Fs, err error) {
 	for _, fsToCheck := range []afero.Fs{s.StaticFs(lang), s.Assets.Fs, s.Content.Fs} {
 		fs = fsToCheck
 		fi, err = fs.Stat(filename)
-		if err == nil || !os.IsNotExist(err) {
+		if err == nil || !herrors.IsNotExist(err) {
 			return
 		}
 	}
@@ -440,22 +465,24 @@ func WithBaseFs(b *BaseFs) func(*BaseFs) error {
 	}
 }
 
+var counter int
+
 // NewBase builds the filesystems used by Hugo given the paths and options provided.NewBase
 func NewBase(p *paths.Paths, logger loggers.Logger, options ...func(*BaseFs) error) (*BaseFs, error) {
 	fs := p.Fs
 	if logger == nil {
-		logger = loggers.NewWarningLogger()
+		logger = loggers.NewDefault()
 	}
 
 	publishFs := hugofs.NewBaseFileDecorator(fs.PublishDir)
-	sourceFs := hugofs.NewBaseFileDecorator(afero.NewBasePathFs(fs.Source, p.WorkingDir))
+	sourceFs := hugofs.NewBaseFileDecorator(afero.NewBasePathFs(fs.Source, p.Cfg.BaseConfig().WorkingDir))
 	publishFsStatic := fs.PublishDirStatic
 
 	var buildMu Lockable
-	if p.Cfg.GetBool("noBuildLock") || htesting.IsTest {
+	if p.Cfg.NoBuildLock() || htesting.IsTest {
 		buildMu = &fakeLockfileMutex{}
 	} else {
-		buildMu = lockedfile.MutexAt(filepath.Join(p.WorkingDir, lockFileBuild))
+		buildMu = lockedfile.MutexAt(filepath.Join(p.Cfg.BaseConfig().WorkingDir, lockFileBuild))
 	}
 
 	b := &BaseFs{
@@ -463,6 +490,7 @@ func NewBase(p *paths.Paths, logger loggers.Logger, options ...func(*BaseFs) err
 		WorkDir:         fs.WorkingDirReadOnly,
 		PublishFs:       publishFs,
 		PublishFsStatic: publishFsStatic,
+		workingDir:      p.Cfg.BaseConfig().WorkingDir,
 		buildMu:         buildMu,
 	}
 
@@ -553,7 +581,7 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 	contentDirs := b.theBigFs.overlayDirs[files.ComponentFolderContent]
 	contentBfs := afero.NewBasePathFs(b.theBigFs.overlayMountsContent, files.ComponentFolderContent)
 
-	contentFs, err := hugofs.NewLanguageFs(b.p.LanguagesDefaultFirst.AsOrdinalSet(), contentBfs)
+	contentFs, err := hugofs.NewLanguageFs(b.p.Cfg.LanguagesDefaultFirst().AsOrdinalSet(), contentBfs)
 	if err != nil {
 		return nil, fmt.Errorf("create content filesystem: %w", err)
 	}
@@ -584,9 +612,10 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 
 func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesystemsCollector, error) {
 	var staticFsMap map[string]*overlayfs.OverlayFs
-	if b.p.Cfg.GetBool("multihost") {
+	if b.p.Cfg.IsMultihost() {
+		languages := b.p.Cfg.Languages()
 		staticFsMap = make(map[string]*overlayfs.OverlayFs)
-		for _, l := range b.p.Languages {
+		for _, l := range languages {
 			staticFsMap[l.Lang] = overlayfs.New(overlayfs.Options{})
 		}
 	}
@@ -604,7 +633,7 @@ func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesys
 		overlayResources:     overlayfs.New(overlayfs.Options{FirstWritable: true}),
 	}
 
-	mods := p.AllModules
+	mods := p.AllModules()
 
 	mounts := make([]mountsDescriptor, len(mods))
 
@@ -670,7 +699,6 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 		}
 
 		for i, mount := range md.Mounts() {
-
 			// Add more weight to early mounts.
 			// When two mounts contain the same filename,
 			// the first entry wins.
@@ -704,7 +732,7 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 
 			lang := mount.Lang
 			if lang == "" && isContentMount {
-				lang = b.p.DefaultContentLanguage
+				lang = b.p.Cfg.DefaultContentLanguage()
 			}
 
 			rm.Meta.Lang = lang
@@ -744,17 +772,15 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 		collector.addDirs(rmfsStatic)
 
 		if collector.staticPerLanguage != nil {
-			for _, l := range b.p.Languages {
+			for _, l := range b.p.Cfg.Languages() {
 				lang := l.Lang
 
 				lfs := rmfsStatic.Filter(func(rm hugofs.RootMapping) bool {
 					rlang := rm.Meta.Lang
 					return rlang == "" || rlang == lang
 				})
-
 				bfs := afero.NewBasePathFs(lfs, files.ComponentFolderStatic)
 				collector.staticPerLanguage[lang] = collector.staticPerLanguage[lang].Append(bfs)
-
 			}
 		}
 

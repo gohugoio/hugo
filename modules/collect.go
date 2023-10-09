@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/bep/debounce"
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/spf13/cast"
@@ -51,20 +52,6 @@ func IsNotExist(err error) bool {
 	return errors.Is(err, os.ErrNotExist)
 }
 
-// CreateProjectModule creates modules from the given config.
-// This is used in tests only.
-func CreateProjectModule(cfg config.Provider) (Module, error) {
-	workingDir := cfg.GetString("workingDir")
-	var modConfig Config
-
-	mod := createProjectModule(nil, workingDir, modConfig)
-	if err := ApplyProjectConfigDefaults(cfg, mod); err != nil {
-		return nil, err
-	}
-
-	return mod, nil
-}
-
 func (h *Client) Collect() (ModulesConfig, error) {
 	mc, coll := h.collect(true)
 	if coll.err != nil {
@@ -89,6 +76,9 @@ func (h *Client) Collect() (ModulesConfig, error) {
 }
 
 func (h *Client) collect(tidy bool) (ModulesConfig, *collector) {
+	if h == nil {
+		panic("nil client")
+	}
 	c := &collector{
 		Client: h,
 	}
@@ -106,35 +96,45 @@ func (h *Client) collect(tidy bool) (ModulesConfig, *collector) {
 		}
 	}*/
 
+	var workspaceFilename string
+	if h.ccfg.ModuleConfig.Workspace != WorkspaceDisabled {
+		workspaceFilename = h.ccfg.ModuleConfig.Workspace
+	}
+
 	return ModulesConfig{
-		AllModules:        c.modules,
-		GoModulesFilename: c.GoModulesFilename,
+		AllModules:          c.modules,
+		GoModulesFilename:   c.GoModulesFilename,
+		GoWorkspaceFilename: workspaceFilename,
 	}, c
 }
 
 type ModulesConfig struct {
-	// All modules, including any disabled.
-	AllModules Modules
-
 	// All active modules.
-	ActiveModules Modules
+	AllModules Modules
 
 	// Set if this is a Go modules enabled project.
 	GoModulesFilename string
+
+	// Set if a Go workspace file is configured.
+	GoWorkspaceFilename string
+}
+
+func (m ModulesConfig) HasConfigFile() bool {
+	for _, mod := range m.AllModules {
+		if len(mod.ConfigFilenames()) > 0 {
+			return true
+		}
+
+	}
+	return false
 }
 
 func (m *ModulesConfig) setActiveMods(logger loggers.Logger) error {
-	var activeMods Modules
 	for _, mod := range m.AllModules {
 		if !mod.Config().HugoVersion.IsValid() {
 			logger.Warnf(`Module %q is not compatible with this Hugo version; run "hugo mod graph" for more information.`, mod.Path())
 		}
-		if !mod.Disabled() {
-			activeMods = append(activeMods, mod)
-		}
 	}
-
-	m.ActiveModules = activeMods
 
 	return nil
 }
@@ -219,7 +219,8 @@ func (c *collector) getVendoredDir(path string) (vendoredModule, bool) {
 	return v, found
 }
 
-func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool) (*moduleAdapter, error) {
+func (c *collector) add(owner *moduleAdapter, moduleImport Import) (*moduleAdapter, error) {
+
 	var (
 		mod       *goModule
 		moduleDir string
@@ -289,7 +290,7 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool
 					return nil, nil
 				}
 				if found, _ := afero.Exists(c.fs, moduleDir); !found {
-					c.err = c.wrapModuleNotFound(fmt.Errorf(`module %q not found; either add it as a Hugo Module or store it in %q.`, modulePath, c.ccfg.ThemesDir))
+					c.err = c.wrapModuleNotFound(fmt.Errorf(`module %q not found in %q; either add it as a Hugo Module or store it in %q.`, modulePath, moduleDir, c.ccfg.ThemesDir))
 					return nil, nil
 				}
 			}
@@ -306,11 +307,10 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool
 	}
 
 	ma := &moduleAdapter{
-		dir:      moduleDir,
-		vendor:   vendored,
-		disabled: disabled,
-		gomod:    mod,
-		version:  version,
+		dir:     moduleDir,
+		vendor:  vendored,
+		gomod:   mod,
+		version: version,
 		// This may be the owner of the _vendor dir
 		owner: realOwner,
 	}
@@ -333,26 +333,27 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import, disabled bool
 	return ma, nil
 }
 
-func (c *collector) addAndRecurse(owner *moduleAdapter, disabled bool) error {
+func (c *collector) addAndRecurse(owner *moduleAdapter) error {
 	moduleConfig := owner.Config()
 	if owner.projectMod {
 		if err := c.applyMounts(Import{}, owner); err != nil {
-			return err
+			return fmt.Errorf("failed to apply mounts for project: %w", err)
 		}
 	}
 
 	for _, moduleImport := range moduleConfig.Imports {
-		disabled := disabled || moduleImport.Disable
-
+		if moduleImport.Disable {
+			continue
+		}
 		if !c.isSeen(moduleImport.Path) {
-			tc, err := c.add(owner, moduleImport, disabled)
+			tc, err := c.add(owner, moduleImport)
 			if err != nil {
 				return err
 			}
 			if tc == nil || moduleImport.IgnoreImports {
 				continue
 			}
-			if err := c.addAndRecurse(tc, disabled); err != nil {
+			if err := c.addAndRecurse(tc); err != nil {
 				return err
 			}
 		}
@@ -413,12 +414,14 @@ func (c *collector) applyThemeConfig(tc *moduleAdapter) error {
 		err            error
 	)
 
-	// Viper supports more, but this is the sub-set supported by Hugo.
-	for _, configFormats := range config.ValidConfigFileExtensions {
-		configFilename = filepath.Join(tc.Dir(), "config."+configFormats)
-		hasConfigFile, _ = afero.Exists(c.fs, configFilename)
-		if hasConfigFile {
-			break
+LOOP:
+	for _, configBaseName := range config.DefaultConfigNames {
+		for _, configFormats := range config.ValidConfigFileExtensions {
+			configFilename = filepath.Join(tc.Dir(), configBaseName+"."+configFormats)
+			hasConfigFile, _ = afero.Exists(c.fs, configFilename)
+			if hasConfigFile {
+				break LOOP
+			}
 		}
 	}
 
@@ -519,7 +522,7 @@ func (c *collector) collect() {
 
 	projectMod := createProjectModule(c.gomods.GetMain(), c.ccfg.WorkingDir, c.moduleConfig)
 
-	if err := c.addAndRecurse(projectMod, false); err != nil {
+	if err := c.addAndRecurse(projectMod); err != nil {
 		c.err = err
 		return
 	}
@@ -539,7 +542,7 @@ func (c *collector) collectModulesTXT(owner Module) error {
 
 	f, err := c.fs.Open(filename)
 	if err != nil {
-		if os.IsNotExist(err) {
+		if herrors.IsNotExist(err) {
 			return nil
 		}
 
@@ -606,7 +609,7 @@ func (c *collector) mountCommonJSConfig(owner *moduleAdapter, mounts []Mount) ([
 	// Mount the common JS config files.
 	fis, err := afero.ReadDir(c.fs, owner.Dir())
 	if err != nil {
-		return mounts, err
+		return mounts, fmt.Errorf("failed to read dir %q: %q", owner.Dir(), err)
 	}
 
 	for _, fi := range fis {
@@ -652,7 +655,21 @@ func (c *collector) normalizeMounts(owner *moduleAdapter, mounts []Mount) ([]Mou
 		// Verify that Source exists
 		_, err := c.fs.Stat(sourceDir)
 		if err != nil {
-			continue
+			if strings.HasSuffix(sourceDir, files.FilenameHugoStatsJSON) {
+				// A common pattern for Tailwind 3 is to mount that file to get it on the server watch list.
+
+				// A common pattern is also to add hugo_stats.json to .gitignore.
+
+				// Create an empty file.
+				f, err := c.fs.Create(sourceDir)
+				if err != nil {
+					return nil, fmt.Errorf("%s: %q", errMsg, err)
+				}
+				f.Close()
+			} else {
+				continue
+			}
+
 		}
 
 		// Verify that target points to one of the predefined component dirs

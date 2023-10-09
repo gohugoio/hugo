@@ -1,0 +1,17 @@
+hugo  --printPathWarnings
+
+stdout 'Duplicate target paths: .index.html \(2\)'
+
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "404", "section"]
+baseURL = "https://example.org/"
+-- layouts/_default/single.html --
+Single.
+-- layouts/index.html --
+Home.
+-- content/p1.md --
+---
+title: "P1"
+url: "/"
+---
+

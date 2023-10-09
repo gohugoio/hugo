@@ -38,15 +38,15 @@ func TestReadFile(t *testing.T) {
 	}{
 		{filepath.FromSlash("/f/f1.txt"), "f1-content"},
 		{filepath.FromSlash("f/f1.txt"), "f1-content"},
-		{filepath.FromSlash("../f2.txt"), false},
+		{filepath.FromSlash("../f2.txt"), ""},
 		{"", false},
-		{"b", false},
+		{"b", ""},
 	} {
 
 		result, err := ns.ReadFile(test.filename)
 
 		if bb, ok := test.expect.(bool); ok && !bb {
-			b.Assert(err, qt.Not(qt.IsNil))
+			b.Assert(err, qt.Not(qt.IsNil), qt.Commentf("filename: %q", test.filename))
 			continue
 		}
 

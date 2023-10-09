@@ -14,6 +14,8 @@
 package strings
 
 import (
+	"context"
+
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/tpl/internal"
 )
@@ -26,13 +28,13 @@ func init() {
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
-			Context: func(args ...any) (any, error) { return ctx, nil },
+			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
 		}
 
 		ns.AddMethodMapping(ctx.Chomp,
 			[]string{"chomp"},
 			[][2]string{
-				{`{{chomp "<p>Blockhead</p>\n" | safeHTML }}`, `<p>Blockhead</p>`},
+				{`{{ chomp "<p>Blockhead</p>\n" | safeHTML }}`, `<p>Blockhead</p>`},
 			},
 		)
 
@@ -54,7 +56,7 @@ func init() {
 		ns.AddMethodMapping(ctx.Count,
 			nil,
 			[][2]string{
-				{`{{"aabab" | strings.Count "a" }}`, `3`},
+				{`{{ "aabab" | strings.Count "a" }}`, `3`},
 			},
 		)
 
@@ -78,8 +80,18 @@ func init() {
 			[]string{"findRE"},
 			[][2]string{
 				{
-					`{{ findRE "[G|g]o" "Hugo is a static side generator written in Go." "1" }}`,
+					`{{ findRE "[G|g]o" "Hugo is a static side generator written in Go." 1 }}`,
 					`[go]`,
+				},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.FindRESubmatch,
+			[]string{"findRESubmatch"},
+			[][2]string{
+				{
+					`{{ findRESubmatch §§<a\s*href="(.+?)">(.+?)</a>§§ §§<li><a href="#foo">Foo</a></li> <li><a href="#bar">Bar</a></li>§§ | print | safeHTML }}`,
+					"[[<a href=\"#foo\">Foo</a> #foo Foo] [<a href=\"#bar\">Bar</a> #bar Bar]]",
 				},
 			},
 		)
@@ -92,10 +104,18 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.HasSuffix,
+			[]string{"hasSuffix"},
+			[][2]string{
+				{`{{ hasSuffix "Hugo" "go" }}`, `true`},
+				{`{{ hasSuffix "Hugo" "du" }}`, `false`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.ToLower,
 			[]string{"lower"},
 			[][2]string{
-				{`{{lower "BatMan"}}`, `batman`},
+				{`{{ lower "BatMan" }}`, `batman`},
 			},
 		)
 
@@ -130,8 +150,8 @@ func init() {
 		ns.AddMethodMapping(ctx.SliceString,
 			[]string{"slicestr"},
 			[][2]string{
-				{`{{slicestr "BatMan" 0 3}}`, `Bat`},
-				{`{{slicestr "BatMan" 3}}`, `Man`},
+				{`{{ slicestr "BatMan" 0 3 }}`, `Bat`},
+				{`{{ slicestr "BatMan" 3 }}`, `Man`},
 			},
 		)
 
@@ -143,8 +163,8 @@ func init() {
 		ns.AddMethodMapping(ctx.Substr,
 			[]string{"substr"},
 			[][2]string{
-				{`{{substr "BatMan" 0 -3}}`, `Bat`},
-				{`{{substr "BatMan" 3 3}}`, `Man`},
+				{`{{ substr "BatMan" 0 -3 }}`, `Bat`},
+				{`{{ substr "BatMan" 3 3 }}`, `Man`},
 			},
 		)
 
@@ -188,8 +208,8 @@ func init() {
 		ns.AddMethodMapping(ctx.Title,
 			[]string{"title"},
 			[][2]string{
-				{`{{title "Bat man"}}`, `Bat Man`},
-				{`{{title "somewhere over the rainbow"}}`, `Somewhere Over the Rainbow`},
+				{`{{ title "Bat man" }}`, `Bat Man`},
+				{`{{ title "somewhere over the rainbow" }}`, `Somewhere Over the Rainbow`},
 			},
 		)
 
@@ -218,7 +238,7 @@ func init() {
 		ns.AddMethodMapping(ctx.ToUpper,
 			[]string{"upper"},
 			[][2]string{
-				{`{{upper "BatMan"}}`, `BATMAN`},
+				{`{{ upper "BatMan" }}`, `BATMAN`},
 			},
 		)
 

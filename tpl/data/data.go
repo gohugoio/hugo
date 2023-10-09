@@ -30,7 +30,6 @@ import (
 	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/gohugoio/hugo/common/constants"
-	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/spf13/cast"
 
@@ -42,8 +41,8 @@ import (
 func New(deps *deps.Deps) *Namespace {
 	return &Namespace{
 		deps:         deps,
-		cacheGetCSV:  deps.FileCaches.GetCSVCache(),
-		cacheGetJSON: deps.FileCaches.GetJSONCache(),
+		cacheGetCSV:  deps.ResourceSpec.FileCaches.GetCSVCache(),
+		cacheGetJSON: deps.ResourceSpec.FileCaches.GetJSONCache(),
 		client:       http.DefaultClient,
 	}
 }
@@ -58,7 +57,7 @@ type Namespace struct {
 	client *http.Client
 }
 
-// GetCSV expects a data separator and one or n-parts of a URL to a resource which
+// GetCSV expects the separator sep and one or n-parts of a URL to a resource which
 // can either be a local or a remote one.
 // The data separator can be a comma, semi-colon, pipe, etc, but only one character.
 // If you provide multiple parts for the URL they will be joined together to the final URL.
@@ -92,14 +91,14 @@ func (ns *Namespace) GetCSV(sep string, args ...any) (d [][]string, err error) {
 		if security.IsAccessDenied(err) {
 			return nil, err
 		}
-		ns.deps.Log.(loggers.IgnorableLogger).Errorsf(constants.ErrRemoteGetCSV, "Failed to get CSV resource %q: %s", url, err)
+		ns.deps.Log.Errorsf(constants.ErrRemoteGetCSV, "Failed to get CSV resource %q: %s", url, err)
 		return nil, nil
 	}
 
 	return
 }
 
-// GetJSON expects one or n-parts of a URL to a resource which can either be a local or a remote one.
+// GetJSON expects one or n-parts of a URL in args to a resource which can either be a local or a remote one.
 // If you provide multiple parts they will be joined together to the final URL.
 // GetJSON returns nil or parsed JSON to use in a short code.
 func (ns *Namespace) GetJSON(args ...any) (any, error) {
@@ -128,7 +127,7 @@ func (ns *Namespace) GetJSON(args ...any) (any, error) {
 		if security.IsAccessDenied(err) {
 			return nil, err
 		}
-		ns.deps.Log.(loggers.IgnorableLogger).Errorsf(constants.ErrRemoteGetJSON, "Failed to get JSON resource %q: %s", url, err)
+		ns.deps.Log.Errorsf(constants.ErrRemoteGetJSON, "Failed to get JSON resource %q: %s", url, err)
 		return nil, nil
 	}
 

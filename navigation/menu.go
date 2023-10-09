@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2023 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,17 +11,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package navigation provides the menu functionality.
 package navigation
 
 import (
-	"fmt"
 	"html/template"
 	"sort"
-	"strings"
 
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/compare"
+	"github.com/gohugoio/hugo/config"
+	"github.com/mitchellh/mapstructure"
 
 	"github.com/spf13/cast"
 )
@@ -31,44 +32,20 @@ var smc = newMenuCache()
 // MenuEntry represents a menu item defined in either Page front matter
 // or in the site config.
 type MenuEntry struct {
+	// The menu entry configuration.
+	MenuConfig
+
+	// The menu containing this menu entry.
+	Menu string
+
 	// The URL value from front matter / config.
 	ConfiguredURL string
 
 	// The Page connected to this menu entry.
 	Page Page
 
-	// The path to the page, only relevant for menus defined in site config.
-	PageRef string
-
-	// The name of the menu entry.
-	Name string
-
-	// The menu containing this menu entry.
-	Menu string
-
-	// Used to identify this menu entry.
-	Identifier string
-
-	title string
-
-	// If set, will be rendered before this menu entry.
-	Pre template.HTML
-
-	// If set, will be rendered after this menu entry.
-	Post template.HTML
-
-	// The weight of this menu entry, used for sorting.
-	// Set to a non-zero value, negative or positive.
-	Weight int
-
-	// Identifier of the parent menu entry.
-	Parent string
-
 	// Child entries.
 	Children Menu
-
-	// User defined params.
-	Params maps.Params
 }
 
 func (m *MenuEntry) URL() string {
@@ -87,9 +64,24 @@ func (m *MenuEntry) URL() string {
 	return m.ConfiguredURL
 }
 
+// SetPageValues sets the Page and URL values for this menu entry.
+func SetPageValues(m *MenuEntry, p Page) {
+	m.Page = p
+	if m.MenuConfig.Name == "" {
+		m.MenuConfig.Name = p.LinkTitle()
+	}
+	if m.MenuConfig.Title == "" {
+		m.MenuConfig.Title = p.Title()
+	}
+	if m.MenuConfig.Weight == 0 {
+		m.MenuConfig.Weight = p.Weight()
+	}
+}
+
 // A narrow version of page.Page.
 type Page interface {
 	LinkTitle() string
+	Title() string
 	RelPermalink() string
 	Path() string
 	Section() string
@@ -154,45 +146,22 @@ func (m *MenuEntry) isSamePage(p Page) bool {
 	return false
 }
 
-// For internal use.
-func (m *MenuEntry) MarshallMap(ime map[string]any) error {
-	var err error
-	for k, v := range ime {
-		loki := strings.ToLower(k)
-		switch loki {
-		case "url":
-			m.ConfiguredURL = cast.ToString(v)
-		case "pageref":
-			m.PageRef = cast.ToString(v)
-		case "weight":
-			m.Weight = cast.ToInt(v)
-		case "name":
-			m.Name = cast.ToString(v)
-		case "title":
-			m.title = cast.ToString(v)
-		case "pre":
-			m.Pre = template.HTML(cast.ToString(v))
-		case "post":
-			m.Post = template.HTML(cast.ToString(v))
-		case "identifier":
-			m.Identifier = cast.ToString(v)
-		case "parent":
-			m.Parent = cast.ToString(v)
-		case "params":
-			var ok bool
-			m.Params, ok = maps.ToParamsAndPrepare(v)
-			if !ok {
-				err = fmt.Errorf("cannot convert %T to Params", v)
-			}
-		}
-	}
-
-	if err != nil {
-		return fmt.Errorf("failed to marshal menu entry %q: %w", m.KeyName(), err)
-	}
-
-	return nil
+// MenuConfig holds the configuration for a menu.
+type MenuConfig struct {
+	Identifier string
+	Parent     string
+	Name       string
+	Pre        template.HTML
+	Post       template.HTML
+	URL        string
+	PageRef    string
+	Weight     int
+	Title      string
+	// User defined params.
+	Params maps.Params
 }
+
+// For internal use.
 
 // This is for internal use only.
 func (m Menu) Add(me *MenuEntry) Menu {
@@ -302,14 +271,49 @@ func (m Menu) Clone() Menu {
 	return append(Menu(nil), m...)
 }
 
-func (m *MenuEntry) Title() string {
-	if m.title != "" {
-		return m.title
+func DecodeConfig(in any) (*config.ConfigNamespace[map[string]MenuConfig, Menus], error) {
+	buildConfig := func(in any) (Menus, any, error) {
+		ret := Menus{}
+
+		if in == nil {
+			return ret, map[string]any{}, nil
+		}
+
+		menus, err := maps.ToStringMapE(in)
+		if err != nil {
+			return ret, nil, err
+		}
+		menus = maps.CleanConfigStringMap(menus)
+
+		for name, menu := range menus {
+			m, err := cast.ToSliceE(menu)
+			if err != nil {
+				return ret, nil, err
+			} else {
+
+				for _, entry := range m {
+					var menuConfig MenuConfig
+					if err := mapstructure.WeakDecode(entry, &menuConfig); err != nil {
+						return ret, nil, err
+					}
+					maps.PrepareParams(menuConfig.Params)
+					menuEntry := MenuEntry{
+						Menu:       name,
+						MenuConfig: menuConfig,
+					}
+					menuEntry.ConfiguredURL = menuEntry.MenuConfig.URL
+
+					if ret[name] == nil {
+						ret[name] = Menu{}
+					}
+					ret[name] = ret[name].Add(&menuEntry)
+				}
+			}
+		}
+
+		return ret, menus, nil
+
 	}
 
-	if m.Page != nil {
-		return m.Page.LinkTitle()
-	}
-
-	return ""
+	return config.DecodeNamespace[map[string]MenuConfig](in, buildConfig)
 }

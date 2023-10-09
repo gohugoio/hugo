@@ -14,6 +14,7 @@
 package collections
 
 import (
+	"context"
 	"errors"
 	"reflect"
 	"sort"
@@ -25,16 +26,18 @@ import (
 	"github.com/spf13/cast"
 )
 
-// Sort returns a sorted sequence.
-func (ns *Namespace) Sort(seq any, args ...any) (any, error) {
-	if seq == nil {
+// Sort returns a sorted copy of the list l.
+func (ns *Namespace) Sort(ctx context.Context, l any, args ...any) (any, error) {
+	if l == nil {
 		return nil, errors.New("sequence must be provided")
 	}
 
-	seqv, isNil := indirect(reflect.ValueOf(seq))
+	seqv, isNil := indirect(reflect.ValueOf(l))
 	if isNil {
 		return nil, errors.New("can't iterate over a nil value")
 	}
+
+	ctxv := reflect.ValueOf(ctx)
 
 	var sliceType reflect.Type
 	switch seqv.Kind() {
@@ -43,10 +46,10 @@ func (ns *Namespace) Sort(seq any, args ...any) (any, error) {
 	case reflect.Map:
 		sliceType = reflect.SliceOf(seqv.Type().Elem())
 	default:
-		return nil, errors.New("can't sort " + reflect.ValueOf(seq).Type().String())
+		return nil, errors.New("can't sort " + reflect.ValueOf(l).Type().String())
 	}
 
-	collator := langs.GetCollator(ns.deps.Language)
+	collator := langs.GetCollator1(ns.deps.Conf.Language())
 
 	// Create a list of pairs that will be used to do the sort
 	p := pairList{Collator: collator, sortComp: ns.sortComp, SortAsc: true, SliceType: sliceType}
@@ -78,7 +81,7 @@ func (ns *Namespace) Sort(seq any, args ...any) (any, error) {
 				v := p.Pairs[i].Value
 				var err error
 				for i, elemName := range path {
-					v, err = evaluateSubElem(v, elemName)
+					v, err = evaluateSubElem(ctxv, v, elemName)
 					if err != nil {
 						return nil, err
 					}
@@ -87,7 +90,7 @@ func (ns *Namespace) Sort(seq any, args ...any) (any, error) {
 					}
 					// Special handling of lower cased maps.
 					if params, ok := v.Interface().(maps.Params); ok {
-						v = reflect.ValueOf(params.Get(path[i+1:]...))
+						v = reflect.ValueOf(params.GetNested(path[i+1:]...))
 						break
 					}
 				}
@@ -108,7 +111,7 @@ func (ns *Namespace) Sort(seq any, args ...any) (any, error) {
 				v := p.Pairs[i].Value
 				var err error
 				for i, elemName := range path {
-					v, err = evaluateSubElem(v, elemName)
+					v, err = evaluateSubElem(ctxv, v, elemName)
 					if err != nil {
 						return nil, err
 					}
@@ -117,7 +120,7 @@ func (ns *Namespace) Sort(seq any, args ...any) (any, error) {
 					}
 					// Special handling of lower cased maps.
 					if params, ok := v.Interface().(maps.Params); ok {
-						v = reflect.ValueOf(params.Get(path[i+1:]...))
+						v = reflect.ValueOf(params.GetNested(path[i+1:]...))
 						break
 					}
 				}

@@ -16,6 +16,8 @@ package debug
 
 import (
 	"github.com/sanity-io/litter"
+	"github.com/spf13/cast"
+	"github.com/yuin/goldmark/util"
 
 	"github.com/gohugoio/hugo/deps"
 )
@@ -31,10 +33,19 @@ type Namespace struct {
 
 // Dump returns a object dump of val as a string.
 // Note that not every value passed to Dump will print so nicely, but
-// we'll improve on that. We recommend using the "go" Chroma lexer to format the output
+// we'll improve on that.
+//
+// We recommend using the "go" Chroma lexer to format the output
 // nicely.
+//
 // Also note that the output from Dump may change from Hugo version to the next,
 // so don't depend on a specific output.
 func (ns *Namespace) Dump(val any) string {
 	return litter.Sdump(val)
+}
+
+// VisualizeSpaces returns a string with spaces replaced by a visible string.
+func (ns *Namespace) VisualizeSpaces(val any) string {
+	s := cast.ToString(val)
+	return string(util.VisualizeSpaces([]byte(s)))
 }
