@@ -43,11 +43,11 @@ func (p provider) New(cfg converter.ProviderConfig) (converter.Provider, error) 
 }
 
 type pandocResult struct {
-	converter.Result
-	toc tableofcontents.Root
+	converter.ResultRender
+	toc *tableofcontents.Fragments
 }
 
-func (r pandocResult) TableOfContents() tableofcontents.Root {
+func (r pandocResult) TableOfContents() *tableofcontents.Fragments {
 	return r.toc
 }
 
@@ -66,8 +66,8 @@ func (c *pandocConverter) Convert(ctx converter.RenderContext) (converter.Result
 		return nil, err
 	}
 	return pandocResult{
-		Result: converter.Bytes(content),
-		toc:    toc,
+		ResultRender: converter.Bytes(content),
+		toc:          toc,
 	}, nil
 }
 
@@ -99,18 +99,18 @@ func getPandocBinaryName() string {
 
 // extractTOC extracts the toc from the given src html.
 // It returns the html without the TOC, and the TOC data
-func (a *pandocConverter) extractTOC(src []byte) ([]byte, tableofcontents.Root, error) {
+func (a *pandocConverter) extractTOC(src []byte) ([]byte, *tableofcontents.Fragments, error) {
 	var buf bytes.Buffer
 	buf.Write(src)
 	node, err := html.Parse(&buf)
 	if err != nil {
-		return nil, tableofcontents.Root{}, err
+		return nil, nil, err
 	}
 
 	var (
 		f       func(*html.Node) bool
 		body    *html.Node
-		toc     tableofcontents.Root
+		toc     *tableofcontents.Fragments
 		toVisit []*html.Node
 	)
 
@@ -136,7 +136,7 @@ func (a *pandocConverter) extractTOC(src []byte) ([]byte, tableofcontents.Root, 
 		return false
 	}
 	if !f(node) {
-		return nil, tableofcontents.Root{}, err
+		return nil, nil, err
 	}
 
 	// remove by pandoc generated title
@@ -166,7 +166,7 @@ func (a *pandocConverter) extractTOC(src []byte) ([]byte, tableofcontents.Root, 
 	f = func(n *html.Node) bool {
 		if n.Type == html.ElementNode && n.Data == "nav" && attr(n, "id") == "TOC" {
 			toc = parseTOC(n)
-			if !a.cfg.MarkupConfig.Pandoc.PreserveTOC {
+			if !a.cfg.MarkupConfig().Pandoc.PreserveTOC {
 				n.Parent.RemoveChild(n)
 			}
 			return true
@@ -188,12 +188,12 @@ func (a *pandocConverter) extractTOC(src []byte) ([]byte, tableofcontents.Root, 
 	}
 	f(body)
 	if err != nil {
-		return nil, tableofcontents.Root{}, err
+		return nil, nil, err
 	}
 	buf.Reset()
 	err = html.Render(&buf, body)
 	if err != nil {
-		return nil, tableofcontents.Root{}, err
+		return nil, nil, err
 	}
 	// ltrim <html><head></head><body>\n\n and rtrim \n\n</body></html> which are added by html.Render
 	res := buf.Bytes()[8:]
@@ -202,9 +202,9 @@ func (a *pandocConverter) extractTOC(src []byte) ([]byte, tableofcontents.Root, 
 }
 
 // parseTOC returns a TOC root from the given toc Node
-func parseTOC(doc *html.Node) tableofcontents.Root {
+func parseTOC(doc *html.Node) *tableofcontents.Fragments {
 	var (
-		toc tableofcontents.Root
+		toc tableofcontents.Builder
 		f   func(*html.Node, int, int)
 	)
 	f = func(n *html.Node, row, level int) {
@@ -222,9 +222,9 @@ func parseTOC(doc *html.Node) tableofcontents.Root {
 						continue
 					}
 					href := attr(c, "href")[1:]
-					toc.AddAt(tableofcontents.Heading{
-						Text: nodeContent(c),
-						ID:   href,
+					toc.AddAt(&tableofcontents.Heading{
+						Title: nodeContent(c),
+						ID:    href,
 					}, row, level)
 				}
 				f(n.FirstChild, row, level)
@@ -235,7 +235,7 @@ func parseTOC(doc *html.Node) tableofcontents.Root {
 		}
 	}
 	f(doc.FirstChild, -1, 0)
-	return toc
+	return toc.Build()
 }
 
 func attr(node *html.Node, key string) string {
