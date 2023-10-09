@@ -60,3 +60,26 @@ func TestConversionWithHeader(t *testing.T) {
 
 	b.AssertFileContent("public/p1/index.html", `<h1 id="testcontent">testContent</h1>`)
 }
+
+func TestConversionWithExtractedToc(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+-- content/p1.md --
+# title 1
+## title 2
+-- layouts/_default/single.html --
+{{ .TableOfContents }}
+{{ .Content }}
+`
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   true,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", "<nav id=\"TableOfContents\">\n  <ul>\n    <li><a href=\"#title-2\">title 2</a></li>\n  </ul>\n</nav>\n<h1 id=\"title-1\">title 1</h1>\n<h2 id=\"title-2\">title 2</h2>")
+}
