@@ -690,13 +690,10 @@ func (p *pageMeta) applyDefaultValues(n *contentNode) error {
 			} else {
 				sectionName = p.sections[0]
 			}
-
-			sectionName = helpers.FirstUpper(sectionName)
 			if p.s.conf.PluralizeListTitles {
-				p.title = flect.Pluralize(sectionName)
-			} else {
-				p.title = sectionName
+				sectionName = flect.Pluralize(sectionName)
 			}
+			p.title = p.s.conf.C.CreateTitle(sectionName)
 		case kinds.KindTerm:
 			// TODO(bep) improve
 			key := p.sections[len(p.sections)-1]
