@@ -114,3 +114,36 @@ func TestRenderStringBadMarkupOpt(t *testing.T) {
 	}
 
 }
+
+// Issue #11547
+func TestTitleCaseStyleWithAutomaticSectionPages(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+titleCaseStyle = 'none'
+-- content/books/book-1.md --
+---
+title: Book 1
+tags: [fiction]
+---
+-- content/films/_index.md --
+---
+title: Films
+---
+-- layouts/index.html --
+{{ (site.GetPage "/tags").Title }}
+{{ (site.GetPage "/tags/fiction").Title }}
+{{ (site.GetPage "/books").Title }}
+{{ (site.GetPage "/films").Title }}
+	`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	)
+	b.Build()
+	b.AssertFileContent("public/index.html", "tags\nfiction\nbooks\nFilms")
+}
