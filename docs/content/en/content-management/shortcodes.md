@@ -360,6 +360,15 @@ Furthermore, you can automatically start playback of the embedded video by setti
 {{</* youtube id="w7Ft2ymGmfc" autoplay="true" */>}}
 {{< /code >}}
 
+Additionaly, you can set a timecode at which the video will start to play.
+Just use the `start` parameter.
+The number means the offset from the beginning of the video, in seconds.
+
+{{< code file="example-youtube-input-with-timecode.md" >}}
+{{</* youtube id="CdiDYZ51a2o" start="95" */>}}
+{{< /code >}}
+
+
 For [accessibility reasons](https://dequeuniversity.com/tips/provide-iframe-titles), it's best to provide a title for your YouTube video.  You  can do this using the shortcode by providing a `title` parameter. If no title is provided, a default of "YouTube Video" will be used.
 
 {{< code file="example-youtube-input-with-title.md" >}}
