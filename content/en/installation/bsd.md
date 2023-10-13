@@ -61,7 +61,7 @@ doas pkg_add hugo
 
 [OpenBSD]: https://www.openbsd.org/
 
-{{% readfile file="/installation/_common/05-build-from-source.md" %}}
+{{% readfile file="/installation/_common/04-build-from-source.md" %}}
 
 ## Comparison
 
