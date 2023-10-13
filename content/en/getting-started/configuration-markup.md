@@ -73,8 +73,8 @@ Markdown|Replaced by|Description
 :--|:--|:--
 `...`|`&hellip;`|horizontal ellipsis
 `'`|`&rsquo;`|apostrophe
-`--`|`&ndash;`|endash
-`---`|`&emdash;`|emdash
+`--`|`&ndash;`|en dash
+`---`|`&mdash;`|em dash
 `«`|`&laquo;`|left angle quote
 `“`|`&ldquo;`|left double quote
 `‘`|`&lsquo;`|left single quote
