@@ -530,7 +530,82 @@ Localization of menu entries depends on the how you define them:
 
 - When you define menu entries [automatically] using the section pages menu, you must use translation tables to localize each entry.
 - When you define menu entries [in front matter], they are already localized based on the front matter itself. If the front matter values are insufficient, use translation tables to localize each entry.
-- When you define menu entries [in site configuration], you can (a) use translation tables, or (b) create language-specific menu entries under each language key.
+- When you define menu entries [in site configuration], you must create language-specific menu entries under each language key. If the names of the menu entries are insufficent, use translation tables to localize each entry.
+
+### Create language-specific menu entries
+
+#### Method 1 -- Use a single configuration file
+
+For a simple menu with a small number of entries, use a single configuration file. For example:
+
+{{< code-toggle file="hugo" copy=false >}}
+[languages.de]
+languageCode = 'de-DE'
+languageName = 'Deutsch'
+weight = 1
+
+[[languages.de.menu.main]]
+name = 'Produkte'
+pageRef = '/products'
+weight = 10
+
+[[languages.de.menu.main]]
+name = 'Leistungen'
+pageRef = '/services'
+weight = 20
+
+[languages.en]
+languageCode = 'en-US'
+languageName = 'English'
+weight = 2
+
+[[languages.en.menu.main]]
+name = 'Products'
+pageRef = '/products'
+weight = 10
+
+[[languages.en.menu.main]]
+name = 'Services'
+pageRef = '/services'
+weight = 20
+{{< /code-toggle >}}
+
+#### Method 2 -- Use a configuration directory
+
+With a more complex menu structure, create a [configuration directory] and split the menu entries into multiple files, one file per language. For example:
+
+```text
+config/
+└── _default/
+    ├── menus/
+    │  ├── menu.de.toml
+    │  └── menu.en.toml
+    └── hugo.toml
+```
+
+{{< code-toggle file="config/_default/menus/menu.de" copy=false >}}
+[[main]]
+name = 'Produkte'
+pageRef = '/products'
+weight = 10
+[[main]]
+name = 'Leistungen'
+pageRef = '/services'
+weight = 20
+{{< /code-toggle >}}
+
+{{< code-toggle file="config/_default/menus/menu.en" copy=false >}}
+[[main]]
+name = 'Products'
+pageRef = '/products'
+weight = 10
+[[main]]
+name = 'Services'
+pageRef = '/services'
+weight = 20
+{{< /code-toggle >}}
+
+[configuration directory]: /getting-started/configuration/#configuration-directory
 
 ### Use translation tables
 
@@ -573,44 +648,6 @@ services = 'Leistungen'
 [automatically]: /content-management/menus/#define-automatically
 [in front matter]: /content-management/menus/#define-in-front-matter
 [in site configuration]: /content-management/menus/#define-in-site-configuration
-
-### Create language-specific menu entries
-
-For example:
-
-{{< code-toggle file="hugo" copy=false >}}
-[languages.de]
-languageCode = 'de-DE'
-languageName = 'Deutsch'
-weight = 1
-
-[[languages.de.menu.main]]
-name = 'Produkte'
-pageRef = '/products'
-weight = 10
-
-[[languages.de.menu.main]]
-name = 'Leistungen'
-pageRef = '/services'
-weight = 20
-
-[languages.en]
-languageCode = 'en-US'
-languageName = 'English'
-weight = 2
-
-[[languages.en.menu.main]]
-name = 'Products'
-pageRef = '/products'
-weight = 10
-
-[[languages.en.menu.main]]
-name = 'Services'
-pageRef = '/services'
-weight = 20
-{{< /code-toggle >}}
-
-For a simple menu with two languages, these menu entries are easy to create and maintain. For a larger menu, or with more than two languages, using translation tables as described above is preferable.
 
 ## Missing translations
 
