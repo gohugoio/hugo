@@ -526,7 +526,7 @@ See [lang.FormatPercent] for details.
 
 ## Menus
 
-Localization of menu entries depends on the how you define them:
+Localization of menu entries depends on how you define them:
 
 - When you define menu entries [automatically] using the section pages menu, you must use translation tables to localize each entry.
 - When you define menu entries [in front matter], they are already localized based on the front matter itself. If the front matter values are insufficient, use translation tables to localize each entry.
