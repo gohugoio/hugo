@@ -35,9 +35,6 @@ All the methods below, e.g. `.Site.RegularPages` can also be reached via the glo
 .Site.Data
 : custom data, see [Data Templates](/templates/data-templates/).
 
-.Site.DisqusShortname
-: a string representing the shortname of the Disqus shortcode as defined in the site configuration.
-
 .Site.Home
 : reference to the homepage's [page object](/variables/page/)
 

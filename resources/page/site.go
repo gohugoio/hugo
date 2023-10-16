@@ -298,6 +298,7 @@ func (s *siteWrapper) IsMultiLingual() bool {
 	return s.s.IsMultiLingual()
 }
 
+// Deprecated: Use .Site.Config.Services.Disqus.Shortname instead
 func (s *siteWrapper) DisqusShortname() string {
 	return s.s.DisqusShortname()
 }
@@ -440,6 +441,7 @@ func (testSite) GetPageWithTemplateInfo(info tpl.Info, ref ...string) (Page, err
 	return nil, nil
 }
 
+// Deprecated: Use .Site.Config.Services.Disqus.Shortname instead
 func (testSite) DisqusShortname() string {
 	return ""
 }

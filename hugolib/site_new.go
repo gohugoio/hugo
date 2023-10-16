@@ -447,8 +447,9 @@ func (s *Site) Social() map[string]string {
 	return s.conf.Social
 }
 
-// TODO(bep): deprecate.
+// Deprecated: Use .Site.Config.Services.Disqus.Shortname instead
 func (s *Site) DisqusShortname() string {
+	helpers.Deprecated(".Site.DisqusShortname", "Use .Site.Config.Services.Disqus.Shortname instead.", false)
 	return s.Config().Services.Disqus.Shortname
 }
 
