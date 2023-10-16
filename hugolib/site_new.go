@@ -452,8 +452,9 @@ func (s *Site) DisqusShortname() string {
 	return s.Config().Services.Disqus.Shortname
 }
 
-// TODO(bep): deprecate.
+// Deprecated: Use .Site.Config.Services.GoogleAnalytics.ID instead
 func (s *Site) GoogleAnalytics() string {
+	helpers.Deprecated(".Site.GoogleAnalytics", "Use .Site.Config.Services.GoogleAnalytics.ID instead.", false)
 	return s.Config().Services.GoogleAnalytics.ID
 }
 

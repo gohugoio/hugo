@@ -44,12 +44,12 @@ In addition to using a single site configuration file, one can use the `configDi
 - Each file represents a configuration root object, such as `params.toml` for `[Params]`, `menu(s).toml` for `[Menu]`, `languages.toml` for `[Languages]` etc...
 - Each file's content must be top-level, for example:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file="hugo" copy=false >}}
 [Params]
   foo = "bar"
 {{< /code-toggle >}}
 
-{{< code-toggle file="params" >}}
+{{< code-toggle file="params" copy=false >}}
 foo = "bar"
 {{< /code-toggle >}}
 
@@ -74,28 +74,56 @@ foo = "bar"
 
 Considering the structure above, when running `hugo --environment staging`, Hugo will use every setting from `config/_default` and merge `staging`'s on top of those.
 
-Let's take an example to understand this better. Let's say you are using Google Analytics for your website. This requires you to specify `googleAnalytics = "G-XXXXXXXX"` in `hugo.toml`. Now consider the following scenario:
-- You don't want the Analytics code to be loaded in development i.e. in your `localhost`
-- You want to use separate googleAnalytics IDs for your production & staging environments (say):
-  - `G-PPPPPPPP` for production
-  - `G-SSSSSSSS` for staging
+Let's take an example to understand this better. Let's say you are using Google Analytics for your website. This requires you to specify a [Google tag ID] in your site configuration:
 
-This is how you need to configure your `hugo.toml` files considering the above scenario:
-1. In `_default/hugo.toml` you don't need to mention `googleAnalytics` parameter at all. This ensures that no Google Analytics code is loaded in your development server i.e. when you run `hugo server`. This works since, by default Hugo sets `Environment=development` when you run `hugo server` which uses the configuration files from `_default` folder
-2. In `production/hugo.toml` you just need to have one line:
+[Google tag ID]: https://support.google.com/tagmanager/answer/12326985?hl=en
 
-   ```googleAnalytics = "G-PPPPPPPP"```
+{{< code-toggle file=hugo copy=false >}}
+[services.googleAnalytics]
+ID = 'G-XXXXXXXXX'
+{{< /code-toggle >}}
 
-   You don't need to mention all other parameters like `title`, `baseURL`, `theme` etc. again in this configuration file. You need to mention only those parameters which are different or new for the production environment. This is due to the fact that Hugo is going to __merge__ this on top of `_default/hugo.toml`. Now when you run `hugo` (build command), by default hugo sets `Environment=production`, so the `G-PPPPPPPP` analytics code will be there in your production website
-3. Similarly in `staging/hugo.toml` you just need to have one line:
+Now consider the following scenario:
 
-   ```googleAnalytics = "G-SSSSSSSS"```
+1. You don't want to load the analytics code when running `hugo server`.
+2. You want to use different Google tag IDs for your production and staging environments. For example:
 
-   Now you need to tell Hugo that you are using the staging environment. So your build command should be `hugo --environment staging` which will load the `G-SSSSSSSS` analytics code in your staging website
+    - `G-PPPPPPPPP` for production
+    - `G-SSSSSSSSS` for staging
 
-{{% note %}}
-Default environments are __development__ with `hugo server` and __production__ with `hugo`.
-{{%/ note %}}
+To satisfy these requirements, configure your site as follows:
+
+1. `config/_default/hugo.toml`
+
+    Exclude the `services.googleAnalytics` section. This will prevent loading of the analytics code when you run `hugo server`.
+
+    By default, Hugo sets its `environment` to `development` when running `hugo server`. In the absence of a `config/development` directory, Hugo uses the `config/_default` directory.
+
+2. `config/production/hugo.toml`
+
+    Include this section only:
+
+    {{< code-toggle file=hugo copy=false >}}
+    [services.googleAnalytics]
+    ID = 'G-PPPPPPPPP'
+    {{< /code-toggle >}}
+
+    You do not need to include other parameters in this file. Include only those parameters that are specific to your production environment. Hugo will merge these parameters with the default configuration.
+
+    By default, Hugo sets its `environment` to `production` when running `hugo`. The analytics code will use the `G-PPPPPPPPP` tag ID.
+
+3. `config/staging/hugo.toml`
+
+    Include this section only:
+
+    {{< code-toggle file=hugo copy=false >}}
+    [services.googleAnalytics]
+    ID = 'G-SSSSSSSSS'
+    {{< /code-toggle >}}
+
+    You do not need to include other parameters in this file. Include only those parameters that are specific to your staging environment. Hugo will merge these parameters with the default configuration.
+
+    To build your staging site, run `hugo --environment staging`. The analytics code will use the `G-SSSSSSSSS` tag ID.
 
 ## Merge configuration from themes
 

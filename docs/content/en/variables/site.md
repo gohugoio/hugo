@@ -38,9 +38,6 @@ All the methods below, e.g. `.Site.RegularPages` can also be reached via the glo
 .Site.DisqusShortname
 : a string representing the shortname of the Disqus shortcode as defined in the site configuration.
 
-.Site.GoogleAnalytics
-: a string representing your tracking code for Google Analytics as defined in the site configuration.
-
 .Site.Home
 : reference to the homepage's [page object](/variables/page/)
 
