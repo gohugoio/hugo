@@ -32,7 +32,8 @@ Provide your tracking ID in your configuration file:
 
 **Google Analytics 4 (gtag.js)**
 {{< code-toggle file="hugo" >}}
-googleAnalytics = "G-MEASUREMENT_ID"
+[services.googleAnalytics]
+ID = "G-MEASUREMENT_ID"
 {{</ code-toggle >}}
 
 ### Use the Google Analytics template

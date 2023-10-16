@@ -176,6 +176,7 @@ func (s *siteWrapper) Authors() AuthorList {
 	return AuthorList{}
 }
 
+// Deprecated: Use .Site.Config.Services.GoogleAnalytics.ID instead
 func (s *siteWrapper) GoogleAnalytics() string {
 	return s.s.GoogleAnalytics()
 }
@@ -373,6 +374,7 @@ func (t testSite) Languages() langs.Languages {
 	return nil
 }
 
+// Deprecated: Use .Site.Config.Services.GoogleAnalytics.ID instead
 func (t testSite) GoogleAnalytics() string {
 	return ""
 }
