@@ -55,8 +55,15 @@ Hugo also ships with an internal template for [Disqus comments][disqus], a popul
 To use Hugo's Disqus template, first set up a single configuration value:
 
 {{< code-toggle file="hugo" >}}
-disqusShortname = "your-disqus-shortname"
+[services.disqus]
+shortname = 'your-disqus-shortname'
 {{</ code-toggle >}}
+
+Hugo's Disqus template accesses this value with:
+
+```go-html-template
+{{ .Site.Config.Services.Disqus.Shortname }}
+```
 
 You can also set the following in the front matter for a given piece of content:
 
@@ -71,8 +78,6 @@ To add Disqus, include the following line in the templates where you want your c
 ```go-html-template
 {{ template "_internal/disqus.html" . }}
 ```
-
-A `.Site.DisqusShortname` variable is also exposed from the configuration.
 
 ### Conditional loading of Disqus comments
 
@@ -91,7 +96,7 @@ You can create the following `layouts/partials/disqus.html`:
         return;
 
     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-    var disqus_shortname = '{{ .Site.DisqusShortname }}';
+    var disqus_shortname = '{{ .Site.Config.Services.Disqus.Shortname }}';
     dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
 })();
