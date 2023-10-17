@@ -14,10 +14,10 @@
 package livereloadinject
 
 import (
-	"bytes"
 	"fmt"
 	"html"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -25,24 +25,16 @@ import (
 	"github.com/gohugoio/hugo/transform"
 )
 
-const warnMessage = `"head" or "body" tag is required in html to append livereload script. ` +
-	"As a fallback, Hugo injects it somewhere but it might not work properly."
-
-var warnScript = fmt.Sprintf(`<script data-no-instant defer>console.warn('%s');</script>`, warnMessage)
-
-type tag struct {
-	markup       []byte
-	appendScript bool
-	warnRequired bool
+type insertPoint struct {
+	regexp  *regexp.Regexp
+	prepend bool
 }
 
-var tags = []tag{
-	{markup: []byte("<head"), appendScript: true},
-	{markup: []byte("<HEAD"), appendScript: true},
-	{markup: []byte("</body>")},
-	{markup: []byte("</BODY>")},
-	{markup: []byte("<html"), appendScript: true, warnRequired: true},
-	{markup: []byte("<HTML"), appendScript: true, warnRequired: true},
+var insertPoints = []insertPoint{
+	{regexp: regexp.MustCompile(`(?is)<head(?:\s[^>]*)?>`)},
+	{regexp: regexp.MustCompile(`(?is)<html(?:\s[^>]*)?>`)},
+	{regexp: regexp.MustCompile(`(?is)<!doctype(?:\s[^>]*)?>`)},
+	{regexp: regexp.MustCompile(`(?is)<[a-z]`), prepend: true},
 }
 
 // New creates a function that can be used
@@ -51,16 +43,21 @@ func New(baseURL url.URL) transform.Transformer {
 	return func(ft transform.FromTo) error {
 		b := ft.From().Bytes()
 		idx := -1
-		var match tag
-		// We used to insert the livereload script right before the closing body.
-		// This does not work when combined with tools such as Turbolinks.
-		// So we try to inject the script as early as possible.
-		for _, t := range tags {
-			idx = bytes.Index(b, t.markup)
-			if idx != -1 {
-				match = t
+
+		for _, p := range insertPoints {
+			if match := p.regexp.FindIndex(b); match != nil {
+				if p.prepend {
+					idx = match[0]
+				} else {
+					idx = match[1]
+				}
 				break
 			}
+		}
+
+		if idx == -1 {
+			loggers.Log().Warnf("Failed to find location to inject LiveReload script.")
+			return nil
 		}
 
 		path := strings.TrimSuffix(baseURL.Path, "/")
@@ -72,23 +69,9 @@ func New(baseURL url.URL) transform.Transformer {
 		c := make([]byte, len(b))
 		copy(c, b)
 
-		if idx == -1 {
-			idx = len(b)
-			match = tag{warnRequired: true}
-		}
-
 		script := []byte(fmt.Sprintf(`<script src="%s" data-no-instant defer></script>`, html.EscapeString(src)))
 
-		i := idx
-		if match.appendScript {
-			i += bytes.Index(b[i:], []byte(">")) + 1
-		}
-
-		if match.warnRequired {
-			script = append(script, []byte(warnScript)...)
-		}
-
-		c = append(c[:i], append(script, c[i:]...)...)
+		c = append(c[:idx], append(script, c[idx:]...)...)
 
 		if _, err := ft.To().Write(c); err != nil {
 			loggers.Log().Warnf("Failed to inject LiveReload script:", err)

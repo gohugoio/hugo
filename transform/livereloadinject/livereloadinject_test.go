@@ -43,30 +43,66 @@ func TestLiveReloadInject(t *testing.T) {
 	}
 
 	c.Run("Head lower", func(c *qt.C) {
-		c.Assert(apply("<html><head>foo"), qt.Equals, "<html><head>"+expectBase+"foo")
+		c.Assert(apply("<html><head>after"), qt.Equals, "<html><head>"+expectBase+"after")
 	})
 
 	c.Run("Head upper", func(c *qt.C) {
-		c.Assert(apply("<html><HEAD>foo"), qt.Equals, "<html><HEAD>"+expectBase+"foo")
+		c.Assert(apply("<HTML><HEAD>after"), qt.Equals, "<HTML><HEAD>"+expectBase+"after")
 	})
 
-	c.Run("Body lower", func(c *qt.C) {
-		c.Assert(apply("foo</body>"), qt.Equals, "foo"+expectBase+"</body>")
+	c.Run("Head mixed", func(c *qt.C) {
+		c.Assert(apply("<Html><Head>after"), qt.Equals, "<Html><Head>"+expectBase+"after")
 	})
 
-	c.Run("Body upper", func(c *qt.C) {
-		c.Assert(apply("foo</BODY>"), qt.Equals, "foo"+expectBase+"</BODY>")
+	c.Run("Html if head missing", func(c *qt.C) {
+		c.Assert(apply("<!doctype><html>after"), qt.Equals, "<!doctype><html>"+expectBase+"after")
 	})
 
-	c.Run("Html upper", func(c *qt.C) {
-		c.Assert(apply("<html>foo"), qt.Equals, "<html>"+expectBase+warnScript+"foo")
+	c.Run("Html with attr", func(c *qt.C) {
+		c.Assert(apply(`<html lang="en">after`), qt.Equals, `<html lang="en">`+expectBase+"after")
 	})
 
-	c.Run("Html upper with attr", func(c *qt.C) {
-		c.Assert(apply(`<html lang="en">foo`), qt.Equals, `<html lang="en">`+expectBase+warnScript+"foo")
+	c.Run("Html with newline", func(c *qt.C) {
+		c.Assert(apply("<html\n>after"), qt.Equals, "<html\n>"+expectBase+"after")
 	})
 
-	c.Run("No match", func(c *qt.C) {
-		c.Assert(apply("<h1>No match</h1>"), qt.Equals, "<h1>No match</h1>"+expectBase+warnScript)
+	c.Run("Do not mistake header for head", func(c *qt.C) {
+		c.Assert(apply("<!doctype><html><header>"), qt.Equals, "<!doctype><html>"+expectBase+"<header>")
+	})
+
+	c.Run("Do not mistake custom elements for head", func(c *qt.C) {
+		c.Assert(apply("<!doctype><html><head-custom>"), qt.Equals, "<!doctype><html>"+expectBase+"<head-custom>")
+	})
+
+	c.Run("Doctype lower", func(c *qt.C) {
+		c.Assert(apply("<!doctype html>after"), qt.Equals, "<!doctype html>"+expectBase+"after")
+	})
+
+	c.Run("Doctype mixed", func(c *qt.C) {
+		c.Assert(apply("<!Doctype Html>after"), qt.Equals, "<!Doctype Html>"+expectBase+"after")
+	})
+
+	c.Run("Fallback to before first element", func(c *qt.C) {
+		c.Assert(apply("<h1>No match</h1>"), qt.Equals, expectBase+"<h1>No match</h1>")
+	})
+
+	c.Run("Do not fallback before BOM", func(c *qt.C) {
+		c.Assert(apply("\uFEFF<h1>No match</h1>"), qt.Equals, "\uFEFF"+expectBase+"<h1>No match</h1>")
+	})
+
+	c.Run("Search from the start of the input", func(c *qt.C) {
+		c.Assert(apply("<head>after<!--<head>-->"), qt.Equals, "<head>"+expectBase+"after<!--<head>-->")
+	})
+
+	c.Run("Do not search in title", func(c *qt.C) {
+		c.Assert(apply("<html><title>The <head> element</title>"), qt.Equals, "<html>"+expectBase+"<title>The <head> element</title>")
+	})
+
+	c.Run("Do not search in comment", func(c *qt.C) {
+		c.Assert(apply("<html><!--<head>-->"), qt.Equals, "<html>"+expectBase+"<html><!--<head>-->")
+	})
+
+	c.Run("Do not search in subelements", func(c *qt.C) {
+		c.Assert(apply("<html><template><head></template>"), qt.Equals, "<html>"+expectBase+"<template><head></template>")
 	})
 }
