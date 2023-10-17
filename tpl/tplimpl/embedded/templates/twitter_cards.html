@@ -19,6 +19,18 @@
 {{- end }}
 <meta name="twitter:title" content="{{ .Title }}"/>
 <meta name="twitter:description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end -}}"/>
-{{ with .Site.Social.twitter -}}
+
+{{- /* Deprecate site.Social.twitter in favor of site.Params.social.twitter */}}
+{{- $twitterSite := "" }}
+{{- with site.Params.social.twitter }}
+  {{- $twitterSite = . }}
+{{- else }}
+  {{- with site.Social.twitter }}
+    {{- $twitterSite = . }}
+    {{- warnf "The social key in site configuration is deprecated. Use params.social.twitter instead." }}
+  {{- end }}
+{{- end }}
+
+{{- with $twitterSite }}
 <meta name="twitter:site" content="@{{ . }}"/>
-{{ end -}}
+{{- end }}
