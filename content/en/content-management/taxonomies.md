@@ -198,4 +198,4 @@ wikipedia: "https://en.wikipedia.org/wiki/Bruce_Willis"
 [taxonomy list templates]: /templates/taxonomy-templates/#taxonomy-list-templates
 [taxonomy templates]: /templates/taxonomy-templates/
 [terms within the taxonomy]: /templates/taxonomy-templates/#taxonomy-terms-templates
-[configuration]: /getting-started/configuration/
+[site configuration]: /getting-started/configuration/
