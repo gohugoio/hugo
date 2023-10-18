@@ -144,10 +144,8 @@ func TestToBool(t *testing.T) {
 		{false, false, nil},
 		{nil, false, nil},
 
-		// error cases
-		{"cheese", nil, false},
-		{"", nil, false},
-		{1.67, nil, false},
+		{"cheese", false, nil},
+		{"", false, nil},
 	} {
 		errMsg := qt.Commentf("[%d] %v", i, test.v)
 
@@ -173,15 +171,15 @@ func TestToTruth(t *testing.T) {
 		expect any
 	}{
 		{"true", true},
-		{"false", false},
+		{"false", true},
 		{"TRUE", true},
-		{"FALSE", false},
+		{"FALSE", true},
 		{"t", true},
-		{"f", false},
+		{"f", true},
 		{"T", true},
-		{"F", false},
+		{"F", true},
 		{"1", true},
-		{"0", false},
+		{"0", true},
 		{1, true},
 		{0, false},
 		{"cheese", true},
@@ -194,9 +192,9 @@ func TestToTruth(t *testing.T) {
 		{template.JSStr("6"), true},
 		{t, true},
 		{nil, false},
-		{"null", false},
-		{"undefined", false},
-		{"NaN", false},
+		{"null", true},
+		{"undefined", true},
+		{"NaN", true},
 	} {
 		errMsg := qt.Commentf("[%d] %v", i, test.v)
 

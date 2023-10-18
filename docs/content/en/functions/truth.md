@@ -20,23 +20,21 @@ aliases: []
 
 Useful for turning different types into booleans based on their [truthy-ness](https://developer.mozilla.org/en-US/docs/Glossary/Truthy).
 
-It follows the same rules as [`bool`](/functions/bool), but with increased flexibility.
-
 ```
 {{ truth "true" }} → true
-{{ truth "false" }} → false
+{{ truth "false" }} → true
 
 {{ truth "TRUE" }} → true
-{{ truth "FALSE" }} → false
+{{ truth "FALSE" }} → true
 
 {{ truth "t" }} → true
-{{ truth "f" }} → false
+{{ truth "f" }} → true
 
 {{ truth "T" }} → true
-{{ truth "F" }} → false
+{{ truth "F" }} → true
 
 {{ truth "1" }} → true
-{{ truth "0" }} → false
+{{ truth "0" }} → true
 
 {{ truth 1 }} → true
 {{ truth 0 }} → false
