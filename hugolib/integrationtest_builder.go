@@ -32,6 +32,16 @@ import (
 	"golang.org/x/tools/txtar"
 )
 
+// Test is a convenience method to create a new IntegrationTestBuilder from some files and run a build.
+func Test(t testing.TB, files string) *IntegrationTestBuilder {
+	return NewIntegrationTestBuilder(IntegrationTestConfig{T: t, TxtarString: files}).Build()
+}
+
+// TestRunning is a convenience method to create a new IntegrationTestBuilder from some files with Running set to true and run a build.
+func TestRunning(t testing.TB, files string) *IntegrationTestBuilder {
+	return NewIntegrationTestBuilder(IntegrationTestConfig{T: t, TxtarString: files, Running: true}).Build()
+}
+
 func NewIntegrationTestBuilder(conf IntegrationTestConfig) *IntegrationTestBuilder {
 	// Code fences.
 	conf.TxtarString = strings.ReplaceAll(conf.TxtarString, "§§§", "```")
@@ -152,7 +162,6 @@ func (s *IntegrationTestBuilder) AssertFileCount(dirname string, expected int) {
 		return nil
 	})
 	s.Assert(count, qt.Equals, expected)
-
 }
 
 func (s *IntegrationTestBuilder) AssertFileContent(filename string, matches ...string) {
@@ -251,7 +260,6 @@ func (s *IntegrationTestBuilder) Init() *IntegrationTestBuilder {
 		s.Fatalf("Failed to init builder: %s", err)
 	}
 	return s
-
 }
 
 type IntegrationTestDebugConfig struct {
@@ -310,7 +318,7 @@ func (s *IntegrationTestBuilder) RenameFile(old, new string) *IntegrationTestBui
 	absNewFilename := s.absFilename(new)
 	s.renamedFiles = append(s.renamedFiles, absOldFilename)
 	s.createdFiles = append(s.createdFiles, absNewFilename)
-	s.Assert(s.fs.Source.MkdirAll(filepath.Dir(absNewFilename), 0777), qt.IsNil)
+	s.Assert(s.fs.Source.MkdirAll(filepath.Dir(absNewFilename), 0o777), qt.IsNil)
 	s.Assert(s.fs.Source.Rename(absOldFilename, absNewFilename), qt.IsNil)
 	return s
 }
@@ -355,8 +363,8 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 				s.Assert(err, qt.IsNil)
 
 			}
-			s.Assert(afs.MkdirAll(filepath.Dir(filename), 0777), qt.IsNil)
-			s.Assert(afero.WriteFile(afs, filename, data, 0666), qt.IsNil)
+			s.Assert(afs.MkdirAll(filepath.Dir(filename), 0o777), qt.IsNil)
+			s.Assert(afero.WriteFile(afs, filename, data, 0o666), qt.IsNil)
 		}
 
 		configDir := "config"
@@ -402,7 +410,6 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 				Environ:   s.Cfg.Environ,
 			},
 		)
-
 		if err != nil {
 			initErr = err
 			return
@@ -553,7 +560,7 @@ func (s *IntegrationTestBuilder) writeSource(filename, content string) {
 
 func (s *IntegrationTestBuilder) writeToFs(fs afero.Fs, filename, content string) {
 	s.Helper()
-	if err := afero.WriteFile(fs, filepath.FromSlash(filename), []byte(content), 0755); err != nil {
+	if err := afero.WriteFile(fs, filepath.FromSlash(filename), []byte(content), 0o755); err != nil {
 		s.Fatalf("Failed to write file: %s", err)
 	}
 }
