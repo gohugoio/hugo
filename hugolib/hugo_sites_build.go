@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -37,8 +38,6 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/output"
-
-	"errors"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/helpers"
@@ -67,6 +66,12 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		}
 		defer unlock()
 	}
+
+	defer func() {
+		for _, s := range h.Sites {
+			s.Deps.BuildEndListeners.Notify()
+		}
+	}()
 
 	infol := h.Log.InfoCommand("build")
 
@@ -344,7 +349,6 @@ func (h *HugoSites) postRenderOnce() error {
 				h.Log.Warnf("Template %s is unused, source file %s", unusedTemplate.Name(), unusedTemplate.Filename())
 			}
 		}
-
 	})
 	return nil
 }
@@ -384,7 +388,7 @@ func (h *HugoSites) postProcess(l logg.LevelLogger) error {
 						}
 						// Make sure it's  written to the OS fs as this is used by
 						// editors.
-						if err := afero.WriteFile(hugofs.Os, filename, b, 0666); err != nil {
+						if err := afero.WriteFile(hugofs.Os, filename, b, 0o666); err != nil {
 							h.Log.Warnf("Failed to write jsconfig.json: %s", err)
 						}
 					}
@@ -446,7 +450,7 @@ func (h *HugoSites) postProcess(l logg.LevelLogger) error {
 		}
 
 		if changed {
-			return afero.WriteFile(h.BaseFs.PublishFs, filename, content, 0666)
+			return afero.WriteFile(h.BaseFs.PublishFs, filename, content, 0o666)
 		}
 
 		return nil
@@ -512,13 +516,13 @@ func (h *HugoSites) writeBuildStats() error {
 	}
 
 	// Make sure it's always written to the OS fs.
-	if err := afero.WriteFile(hugofs.Os, filename, js, 0666); err != nil {
+	if err := afero.WriteFile(hugofs.Os, filename, js, 0o666); err != nil {
 		return err
 	}
 
 	// Write to the destination as well if it's a in-memory fs.
 	if !hugofs.IsOsFs(h.Fs.Source) {
-		if err := afero.WriteFile(h.Fs.WorkingDirWritable, filename, js, 0666); err != nil {
+		if err := afero.WriteFile(h.Fs.WorkingDirWritable, filename, js, 0o666); err != nil {
 			return err
 		}
 	}
