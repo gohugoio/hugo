@@ -9,7 +9,7 @@ menu:
     parent: hugo-pipes
     weight: 30
 weight: 30
-signature: ["resources.ToCSS RESOURCE [OPTIONS]", "toCSS RESOURCE [OPTIONS]"]
+signatures: ["resources.ToCSS RESOURCE [OPTIONS]", "toCSS RESOURCE [OPTIONS]"]
 toc: true
 aliases: [/hugo-pipes/transform-to-css/]
 ---

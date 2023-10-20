@@ -9,7 +9,7 @@ menu:
     weight: 40
 toc: true
 weight: 40
-signature: ["resources.PostCSS RESOURCE [OPTIONS]", "postCSS RESOURCE [OPTIONS]"]
+signatures: ["resources.PostCSS RESOURCE [OPTIONS]", "postCSS RESOURCE [OPTIONS]"]
 ---
 
 ## Setup
