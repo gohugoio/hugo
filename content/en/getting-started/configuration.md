@@ -428,7 +428,7 @@ URL to be used as a placeholder when a page reference cannot be found in `ref` o
 Removes [non-spacing marks](https://www.compart.com/en/unicode/category/Mn) from [composite characters](https://en.wikipedia.org/wiki/Precomposed_character) in content paths.
 
 ```text
-content/post/hügó.md --> https://example.org/post/hugo/
+content/post/hügó.md → https://example.org/post/hugo/
 ```
 
 ### rssLimit
@@ -477,7 +477,7 @@ Timeout for generating page contents, specified as a [duration](https://pkg.go.d
 
 ### timeZone
 
-The time zone (or location), e.g. `Europe/Oslo`, used to parse front matter dates without such information and in the [`time` function](/functions/time/). The list of valid values may be system dependent, but should include `UTC`, `Local`, and any location in the [IANA Time Zone database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+The time zone (or location), e.g. `Europe/Oslo`, used to parse front matter dates without such information and in the [`time`] function. The list of valid values may be system dependent, but should include `UTC`, `Local`, and any location in the [IANA Time Zone database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
 ### title
 
@@ -554,8 +554,6 @@ useResourceCacheWhen
 {{< new-in "0.112.0" >}}
 
 The `build.cachebusters` configuration option was added to support development using Tailwind 3.x's JIT compiler where a `build` configuration may look like this:
-
-<!-- TODO (jmm) writeStats => build.buildStats -->
 
 {{< code-toggle file="hugo" >}}
 [build]
@@ -644,7 +642,7 @@ status = 404
 
 ## Configure title case
 
-Set `titleCaseStyle` to specify the title style used by the [title](/functions/title/) template function and the automatic section titles in Hugo.
+Set `titleCaseStyle` to specify the title style used by the [title](/functions/strings/title) template function and the automatic section titles in Hugo.
 
 Can be one of:
 
@@ -711,10 +709,6 @@ To set configuration parameters, prefix the name with `HUGO_PARAMS_`
 {{% /note %}}
 
 If you are using snake_cased variable names, the above will not work. Hugo determines the delimiter to use by the first character after `HUGO`. This allows you to define environment variables on the form `HUGOxPARAMSxAPI_KEY=abcdefgh`, using any [allowed](https://stackoverflow.com/questions/2821043/allowed-characters-in-linux-environment-variable-names#:~:text=So%20names%20may%20contain%20any,not%20begin%20with%20a%20digit.) delimiter.
-
-{{< todo >}}
-Test and document setting parameters via JSON env var.
-{{< /todo >}}
 
 ## Ignore content and data files when rendering
 
@@ -827,7 +821,7 @@ dir
 
 [`.Site.Params`]: /variables/site/
 [directory structure]: /getting-started/directory-structure
-[json]: https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf "Specification for JSON, JavaScript Object Notation"
+[json]: https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf
 [lookup order]: /templates/lookup-order/
 [Output Formats]: /templates/output-formats/
 [templates]: /templates/
@@ -849,3 +843,6 @@ If this is not set, Hugo will use, in order of preference:
 1. In a  `hugo_cache_$USER` directory below the OS temp dir.
 
 If you want to know the current value of `cacheDir`, you can run `hugo config`, e.g: `hugo config | grep cachedir`.
+
+
+[`time`]: /functions/time/astime

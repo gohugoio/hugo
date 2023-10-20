@@ -12,7 +12,7 @@ weight: 130
 toc: true
 ---
 
-Shortcodes are a means to consolidate templating into small, reusable snippets that you can embed directly inside your content. In this sense, you can think of shortcodes as the intermediary between [page and list templates][templates] and [basic content files].
+Shortcodes are a means to consolidate templating into small, reusable snippets that you can embed directly inside your content.
 
 {{% note %}}
 Hugo also ships with built-in shortcodes for common use cases. (See [Content Management: Shortcodes](/content-management/shortcodes/).)
@@ -349,7 +349,7 @@ This will output the following HTML. Note how the first two `img` shortcodes inh
 
 ## Error handling in shortcodes
 
-Use the [errorf](/functions/errorf) template func and [.Position](/variables/shortcodes/) variable to get useful error messages in shortcodes:
+Use the [errorf](/functions/fmt/errorf) template func and [.Position](/variables/shortcodes/) variable to get useful error messages in shortcodes:
 
 ```bash
 {{ with .Get "name" }}
@@ -402,7 +402,7 @@ The same inline shortcode can be reused later in the same content file, with dif
 [built-in shortcode]: /content-management/shortcodes/
 [config]: /getting-started/configuration/
 [Content Management: Shortcodes]: /content-management/shortcodes/#using-hugo-s-built-in-shortcodes
-[source organization]: /getting-started/directory-structure/#directory-structure-explained
+[source organization]: /getting-started/directory-structure/
 [docsshortcodes]: https://github.com/gohugoio/hugo/tree/master/docs/layouts/shortcodes
 [figure]: /content-management/shortcodes/#figure
 [hugosc]: /content-management/shortcodes/#using-hugo-s-built-in-shortcodes
@@ -410,6 +410,6 @@ The same inline shortcode can be reused later in the same content file, with dif
 [pagevars]: /variables/page/
 [parent]: /variables/shortcodes/
 [shortcodesvars]: /variables/shortcodes/
-[spfscs]: https://github.com/spf13/spf13.com/tree/master/layouts/shortcodes 
+[spfscs]: https://github.com/spf13/spf13.com/tree/master/layouts/shortcodes
 [vimeoexample]: #single-flexible-example-vimeo
 [youtubeshortcode]: /content-management/shortcodes/#youtube

@@ -9,7 +9,7 @@ menu:
     parent: hugo-pipes
     weight: 100
 weight: 100
-signature: ["resources.Fingerprint RESOURCE [ALGORITHM]", "fingerprint RESOURCE [ALGORITHM]"]
+signatures: ["resources.Fingerprint RESOURCE [ALGORITHM]", "fingerprint RESOURCE [ALGORITHM]"]
 ---
 
 ## Usage

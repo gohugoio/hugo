@@ -20,7 +20,7 @@ Hugo's Git integrations should be fairly performant but *can* increase your buil
 
 1. The Hugo site must be in a Git-enabled directory.
 2. The Git executable must be installed and in your system `PATH`.
-3. The `.GitInfo` feature must be enabled in your Hugo project by passing `--enableGitInfo` flag on the command line or by setting `enableGitInfo` to `true` in your [site's configuration file][configuration]. 
+3. The `.GitInfo` feature must be enabled in your Hugo project by passing `--enableGitInfo` flag on the command line or by setting `enableGitInfo` to `true` in your [site's configuration file][configuration].
 
 ## The `.GitInfo` object
 
@@ -52,8 +52,7 @@ If the `.GitInfo` feature is enabled, `.Lastmod` (on `Page`) is fetched from Git
 
 ## Hosting considerations
 
-On the site host, your repository must be "deep-cloned," so the returned `.GitInfo` data will be accurate. Otherwise, your site may display only data from your latest commit. Where it's not possible to configure a host's cloning depth, you must handle this through CI/CD (*e.g.*, a 
-GitHub Action or GitLab CI/CD). See the following table:
+On the site host, your repository must be "deep-cloned," so the returned `.GitInfo` data will be accurate. Otherwise, your site may display only data from your latest commit. Where it's not possible to configure a host's cloning depth, you must handle this through CI/CD (*e.g.*, a GitHub Action or GitLab CI/CD). See the following table:
 
 | Hosting service | Clone depth | Configurable? |
 | :-------------- | :---------- | :-----------: |

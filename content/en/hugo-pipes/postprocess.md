@@ -8,7 +8,7 @@ menu:
     parent: hugo-pipes
     weight: 50
 weight: 50
-signature: ["resources.PostProcess RESOURCE"]
+signatures: ["resources.PostProcess RESOURCE"]
 ---
 
 ## Usage
