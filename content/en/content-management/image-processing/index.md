@@ -101,11 +101,44 @@ Example 4: Skips rendering if there's problem accessing a remote resource.
 
 ## Image processing methods
 
-The `image` resource implements the  [`Resize`], [`Fit`], [`Fill`], [`Crop`], [`Filter`], [`Colors`] and [`Exif`] methods.
+The `image` resource implements the  [`Process`],  [`Resize`], [`Fit`], [`Fill`], [`Crop`], [`Filter`], [`Colors`] and [`Exif`] methods.
 
 {{% note %}}
 Metadata (EXIF, IPTC, XMP, etc.) is not preserved during image transformation. Use the [`Exif`] method with the _original_ image to extract EXIF metadata from JPEG or TIFF images.
 {{% /note %}}
+
+### Process
+
+{{< new-in "0.119.0" >}}
+
+{{% note %}}
+The `Process` method is also available as a filter, which is more effective if need to apply multiple filters to an image. See [Process filter](/functions/images/#process).
+{{% /note %}}
+
+Process processes the image with the given specification. The specification can contain an optional action, one of `resize`, `crop`, `fit` or `fill`. This means that you can use this method instead of [`Resize`], [`Fit`], [`Fill`], or [`Crop`].
+
+See [Options](#image-processing-options) for available options.
+
+You can also use this method apply image processing that does not need any scaling, e.g. format conversions:
+
+```go-html-template
+{{/* Convert the image from JPG to PNG. */}}
+{{ $png := $jpg.Process "png" }}
+```
+
+Some more examples:
+
+```go-html-template
+{{/* Rotate the image 90 degrees counter-clockwise. */}}
+{{ $image := $image.Process "r90" }}
+
+{{/* Scaling actions. */}}
+{{ $image := $image.Process "resize 600x" }}
+{{ $image := $image.Process "crop 600x400" }}
+{{ $image := $image.Process "fit 600x400" }}
+{{ $image := $image.Process "fill 600x400" }}
+```
+
 
 ### Resize
 
@@ -468,15 +501,16 @@ If you change image processing methods or options, or if you rename or remove im
 hugo --gc
 ```
 
-[time.Format]: /functions/dateformat
+[time.Format]: /functions/time/format
 [`anchor`]: /content-management/image-processing#anchor
 [mounted]: /hugo-modules/configuration#module-configuration-mounts
 [page bundle]: /content-management/page-bundles
-[`lang.FormatNumber`]: /functions/lang
+[`lang.FormatNumber`]: /functions/lang/formatnumber
 [filters]: /functions/images
 [github.com/disintegration/imaging]: <https://github.com/disintegration/imaging#image-resizing>
 [Smartcrop]: <https://github.com/muesli/smartcrop#smartcrop>
 [Exif]: <https://en.wikipedia.org/wiki/Exif>
+[`Process`]: #process
 [`Colors`]: #colors
 [`Crop`]: #crop
 [`Exif`]: #exif
@@ -485,4 +519,4 @@ hugo --gc
 [`Fit`]: #fit
 [`Resize`]: #resize
 [site configuration]: #processing-options
-[`with`]: /functions/with/
+[`with`]: /functions/go-template/with/

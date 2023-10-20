@@ -269,7 +269,7 @@ This may take the form of a tag cloud, a menu, or simply a list.
 
 The following example displays all terms in a site's tags taxonomy:
 
-### Example: list all site tags 
+### Example: list all site tags
 
 ```go-html-template
 <ul>
@@ -322,12 +322,7 @@ Because taxonomies are lists, the [`.GetPage` function][getpage] can be used to 
 </ul>
 {{< /code >}}
 
-<!-- TODO: ### `.Site.GetPage` Taxonomy List Example -->
-
-<!-- TODO: ### `.Site.GetPage` Taxonomy Terms Example -->
-
-
-[delimit]: /functions/delimit/
+[delimit]: /functions/collections/delimit/
 [getpage]: /functions/getpage/
 [lists]: /templates/lists/
 [renderlists]: /templates/lists/

@@ -75,7 +75,7 @@ chroma:
     - bash-session
     - console
     - shell-session
-    Name: BashSession
+    Name: Bash Session
   - Aliases:
     - bat
     - batch
@@ -156,6 +156,7 @@ chroma:
   - Aliases:
     - clojure
     - clj
+    - edn
     Name: Clojure
   - Aliases:
     - cmake
@@ -168,11 +169,6 @@ chroma:
     - coffeescript
     - coffee
     Name: CoffeeScript
-  - Aliases:
-    - common-lisp
-    - cl
-    - lisp
-    Name: Common Lisp
   - Aliases:
     - common-lisp
     - cl
@@ -238,11 +234,6 @@ chroma:
     - emacs-lisp
     Name: EmacsLisp
   - Aliases:
-    - emacs
-    - elisp
-    - emacs-lisp
-    Name: EmacsLisp
-  - Aliases:
     - erlang
     Name: Erlang
   - Aliases:
@@ -278,6 +269,10 @@ chroma:
     - gd
     Name: GDScript
   - Aliases:
+    - gdscript3
+    - gd3
+    Name: GDScript3
+  - Aliases:
     - genshi
     - kid
     - xml+genshi
@@ -310,8 +305,8 @@ chroma:
     - go-html-template
     Name: Go HTML Template
   - Aliases:
-    - go-html-template
-    Name: Go HTML Template
+    - go-template
+    Name: Go Template
   - Aliases:
     - go-text-template
     Name: Go Text Template
@@ -509,6 +504,9 @@ chroma:
   - Aliases:
     - octave
     Name: Octave
+  - Aliases:
+    - odin
+    Name: Odin
   - Aliases:
     - ones
     - onesenterprise
@@ -717,6 +715,9 @@ chroma:
     - sol
     - solidity
     Name: Solidity
+  - Aliases:
+    - sp
+    Name: SourcePawn
   - Aliases:
     - sparql
     Name: SPARQL
@@ -2956,12 +2957,22 @@ tpl:
         Args: null
         Description: ""
         Examples: null
+      Opacity:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       Overlay:
         Aliases: null
         Args: null
         Description: ""
         Examples: null
       Pixelate:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Process:
         Aliases: null
         Args: null
         Description: ""

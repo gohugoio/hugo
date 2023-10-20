@@ -8,7 +8,7 @@ menu:
     parent: hugo-pipes
     weight: 70
 weight: 70
-signature: ["resources.Babel RESOURCE [OPTIONS]", "babel RESOURCE [OPTIONS]"]
+signatures: ["resources.Babel RESOURCE [OPTIONS]", "babel RESOURCE [OPTIONS]"]
 ---
 
 ## Usage

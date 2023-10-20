@@ -96,7 +96,7 @@ Access the entire taxonomy data structure from any template with `site.Taxonomie
 
 Access a subset of the taxonomy data structure by chaining one or more identifiers, or by using the [`index`] function with one or more keys. For example, to access the collection of weighted content pages related to the news category, use either of the following:
 
-[`index`]: /functions/index-function/
+[`index`]: /functions/collections/indexfunction/
 
 ```go-html-template
 {{ $pages := site.Taxonomies.categories.news }}

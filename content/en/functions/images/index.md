@@ -2,6 +2,7 @@
 title: Image filters
 description: The images namespace provides a list of filters and other image related functions.
 categories: [functions]
+keywords: []
 aliases: [/functions/imageconfig/]
 menu:
   docs:
@@ -11,6 +12,27 @@ toc: true
 ---
 
 See [images.Filter](#filter) for how to apply these filters to an image.
+
+## Process
+
+{{< new-in "0.119.0" >}}
+
+{{% funcsig %}}
+images.Process SRC SPEC
+{{% /funcsig %}}
+
+A general purpose image processing function.
+
+This filter has all the same options as the [Process](/content-management/image-processing/#process) method, but using it as a filter may be more effective if you need to apply multiple filters to an image:
+
+```go-html-template
+{{ $filters := slice 
+  images.Grayscale
+  (images.GaussianBlur 8)
+  (images.Process "resize 200x jpg q30") 
+}}
+{{ $img = $img | images.Filter $filters }}
+```
 
 ## Overlay
 
@@ -33,6 +55,30 @@ A shorter version of the above, if you only need to apply the filter once:
 ```
 
 The above will overlay `$logo` in the upper left corner of `$img` (at position `x=50, y=50`).
+
+## Opacity
+
+{{< new-in "0.119.0" >}}
+
+{{% funcsig %}}
+images.Opacity SRC OPACITY
+{{% /funcsig %}}
+
+Opacity creates a filter that changes the opacity of an image.
+The OPACITY parameter must be in range (0, 1).
+
+```go-html-template
+{{ $img := $img.Filter (images.Opacity 0.5 )}}
+```
+
+This filter is most useful for target formats that support transparency, e.g. PNG. If the source image is e.g. JPG, the most effective way would be to combine it with the [`Process`] filter:
+
+```go-html-template
+{{ $png := $jpg.Filter 
+  (images.Opacity 0.5)
+  (images.Process "png") 
+}}
+```
 
 ## Text
 
@@ -224,3 +270,5 @@ images.ImageConfig PATH
 favicon.ico: {{ .Width }} x {{ .Height }}
 {{ end }}
 ```
+
+[`Process`]: #process

@@ -92,7 +92,7 @@ Gives this:
 
 ## Highlight template function
 
-See [Highlight](/functions/highlight/).
+See [Highlight](/functions/transform/highlight/).
 
 ## Highlighting in code fences
 

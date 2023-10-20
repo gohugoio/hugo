@@ -97,7 +97,7 @@ The following is a list of page-level variables. Many of these will be defined i
 : The Permanent link for this page; see [Permalinks](/content-management/urls/)
 
 .Plain
-: The Page content stripped of HTML tags and presented as a string. You may need to pipe the result through the [`htmlUnescape`](/functions/htmlunescape/) function when rendering this value with the HTML [output format](/templates/output-formats#output-format-definitions).
+: The Page content stripped of HTML tags and presented as a string. You may need to pipe the result through the [`htmlUnescape`](/functions/transform/htmlunescape) function when rendering this value with the HTML [output format](/templates/output-formats#output-format-definitions).
 
 .PlainWords
 : The slice of strings that results from splitting .Plain into words, as defined in Go's [strings.Fields](https://pkg.go.dev/strings#Fields).
@@ -195,7 +195,29 @@ List pages receive the following page collections in [context](/getting-started/
 
 Also see [Sections](/content-management/sections/).
 
-{{< readfile file="/content/en/readfiles/sectionvars.md" markdown="true" >}}
+.CurrentSection
+: The page's current section. The value can be the page itself if it is a section or the homepage.
+
+.FirstSection
+: The page's first section below root, e.g. `/docs`, `/blog` etc.
+
+.InSection $anotherPage
+: Whether the given page is in the current section.
+
+.IsAncestor $anotherPage
+: Whether the current page is an ancestor of the given page.
+
+.IsDescendant $anotherPage
+: Whether the current page is a descendant of the given page.
+
+.Parent
+: A section's parent section or a page's section.
+
+.Section
+: The [section](/content-management/sections/) this content belongs to. **Note:** For nested sections, this is the first path element in the directory, for example, `/blog/funny/mypost/ => blog`.
+
+.Sections
+: The [sections](/content-management/sections/) below this content.
 
 ## Page fragments
 
@@ -229,23 +251,6 @@ Also see the [Go Doc](https://pkg.go.dev/github.com/gohugoio/hugo@v0.111.0/marku
 ### Fragments in hooks and shortcodes
 
 `.Fragments` are safe to call from render hooks, even on the page you're on (`.Page.Fragments`). For shortcodes we recommend that all `.Fragments` usage is nested inside the `{{</**/>}}` shortcode delimiter (`{{%/**/%}}` takes part in the ToC creation so it's easy to end up in a situation where you bite yourself in the tail).
-
-
-## The global page function
-
-{{< new-in "0.111.1" >}}
-
-Hugo almost always passes a `Page` as the data context into the top level template (e.g. `single.html`) (the one exception is the multihost sitemap template). This means that you can access the current page with the `.` variable in the template.
-
-But when you're deeply nested inside `.Render`, partial etc., accessing that `Page` object isn't always practical or possible.
-
-For this reason, Hugo provides a global `page` function that you can use to access the current page from anywhere in any template.
-
-```go-html-template
-{{ page.Title }}
-```
-
-There are one caveat with this, and this isn't new, but it's worth mentioning here: There are situations in Hugo where you may see a cached value, e.g. when using `partialCached` or in a shortcode.
 
 ## The `.RenderShortcodes` method {#rendershortcodes}
 
