@@ -26,7 +26,7 @@ func TestTimer(t *testing.T) {
 baseURL = "https://example.org/"
 disableKinds = ["taxonomy", "term"]
 -- layouts/index.html --
-{{ range seq 2 }}
+{{ range seq 5 }}
 {{ $t := debug.Timer "foo" }}
 {{ seq 1 1000 }}
 {{ $t.Stop }}
@@ -41,5 +41,5 @@ disableKinds = ["taxonomy", "term"]
 		},
 	).Build()
 
-	b.AssertLogContains("imer:  name \"foo\" count '\\x02' duration")
+	b.AssertLogContains("imer:  name \"foo\" count '\\x05' duration")
 }

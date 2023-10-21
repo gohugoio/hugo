@@ -44,22 +44,33 @@ func New(d *deps.Deps) *Namespace {
 	l := d.Log.InfoCommand("timer")
 
 	d.BuildEndListeners.Add(func() {
-		type nameCountDuration struct {
+		type data struct {
 			Name     string
 			Count    int
+			Average  time.Duration
+			Median   time.Duration
 			Duration time.Duration
 		}
 
-		var timersSorted []nameCountDuration
+		var timersSorted []data
 
 		for k, v := range timers {
 			var total time.Duration
+			var median time.Duration
+			sort.Slice(v, func(i, j int) bool {
+				return v[i].elapsed < v[j].elapsed
+			})
+			if len(v) > 0 {
+				median = v[len(v)/2].elapsed
+			}
 			for _, t := range v {
 				// Stop any running timers.
 				t.Stop()
 				total += t.elapsed
+
 			}
-			timersSorted = append(timersSorted, nameCountDuration{k, len(v), total})
+			average := total / time.Duration(len(v))
+			timersSorted = append(timersSorted, data{k, len(v), average, median, total})
 		}
 
 		sort.Slice(timersSorted, func(i, j int) bool {
@@ -68,7 +79,10 @@ func New(d *deps.Deps) *Namespace {
 		})
 
 		for _, t := range timersSorted {
-			l.WithField("name", t.Name).WithField("count", t.Count).WithField("duration", t.Duration).Logf("")
+			l.WithField("name", t.Name).WithField("count", t.Count).
+				WithField("duration", t.Duration).
+				WithField("average", t.Average).
+				WithField("median", t.Median).Logf("")
 		}
 
 		ns.timers = make(map[string][]*timer)
