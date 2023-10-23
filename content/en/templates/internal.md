@@ -159,7 +159,7 @@ To add Open Graph metadata, include the following line between the `<head>` tags
 
 ## Twitter Cards
 
-An internal template for [Twitter Cards](https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/abouts-cards),
+An internal template for [Twitter Cards](https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/abouts-cards),
 metadata used to attach rich media to Tweets linking to your site.
 
 ### Configure Twitter Cards
