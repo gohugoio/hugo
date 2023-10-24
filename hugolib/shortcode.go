@@ -26,8 +26,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gohugoio/hugo/helpers"
-
 	"errors"
 
 	"github.com/gohugoio/hugo/common/herrors"
@@ -632,14 +630,7 @@ Loop:
 		case currItem.IsText():
 			sc.inner = append(sc.inner, currItem.ValStr(source))
 		case currItem.Type == pageparser.TypeEmoji:
-			// TODO(bep) avoid the duplication of these "text cases", to prevent
-			// more of #6504 in the future.
-			val := currItem.ValStr(source)
-			if emoji := helpers.Emoji(val); emoji != nil {
-				sc.inner = append(sc.inner, string(emoji))
-			} else {
-				sc.inner = append(sc.inner, val)
-			}
+			sc.inner = append(sc.inner, currItem.ValStr(source))
 		case currItem.IsShortcodeName():
 
 			sc.name = currItem.ValStr(source)
