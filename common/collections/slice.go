@@ -20,7 +20,7 @@ import (
 
 // Slicer defines a very generic way to create a typed slice. This is used
 // in collections.Slice template func to get types such as Pages, PageGroups etc.
-// instead of the less useful []interface{}.
+// instead of the less useful []any.
 type Slicer interface {
 	Slice(items any) (any, error)
 }
@@ -45,7 +45,7 @@ func Slice(args ...any) any {
 		}
 
 		// If Slice fails, the items are not of the same type and
-		// []interface{} is the best we can do.
+		// []any is the best we can do.
 		return args
 	}
 
@@ -53,7 +53,7 @@ func Slice(args ...any) any {
 		// This can be a mix of types.
 		for i := 1; i < len(args); i++ {
 			if firstType != reflect.TypeOf(args[i]) {
-				// []interface{} is the best we can do
+				// []any is the best we can do
 				return args
 			}
 		}
@@ -66,7 +66,7 @@ func Slice(args ...any) any {
 	return slice.Interface()
 }
 
-// StringSliceToInterfaceSlice converts ss to []interface{}.
+// StringSliceToInterfaceSlice converts ss to []any.
 func StringSliceToInterfaceSlice(ss []string) []any {
 	result := make([]any, len(ss))
 	for i, s := range ss {

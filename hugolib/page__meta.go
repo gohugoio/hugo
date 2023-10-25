@@ -578,7 +578,7 @@ func (pm *pageMeta) setMetadata(parentBucket *pagesMapBucket, p *pageState, fron
 						}
 					}
 					if allStrings {
-						// We need tags, keywords etc. to be []string, not []interface{}.
+						// We need tags, keywords etc. to be []string, not []any.
 						a := make([]string, len(vv))
 						for i, u := range vv {
 							a[i] = cast.ToString(u)

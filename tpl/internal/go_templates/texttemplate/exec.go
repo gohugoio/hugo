@@ -7,12 +7,13 @@ package template
 import (
 	"errors"
 	"fmt"
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/fmtsort"
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 	"io"
 	"reflect"
 	"runtime"
 	"strings"
+
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/fmtsort"
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 )
 
 // maxExecDepth specifies the maximum stack depth of templates within
@@ -323,7 +324,7 @@ func IsTrue(val any) (truth, ok bool) {
 
 func isTrueOld(val reflect.Value) (truth, ok bool) {
 	if !val.IsValid() {
-		// Something like var x interface{}, never set. It's a form of nil.
+		// Something like var x any, never set. It's a form of nil.
 		return false, true
 	}
 	switch val.Kind() {
@@ -477,7 +478,7 @@ func (s *state) evalPipeline(dot reflect.Value, pipe *parse.PipeNode) (value ref
 	value = missingVal
 	for _, cmd := range pipe.Cmds {
 		value = s.evalCommand(dot, cmd, value) // previous value is this one's final arg.
-		// If the object has type interface{}, dig down one level to the thing inside.
+		// If the object has type any, dig down one level to the thing inside.
 		if value.Kind() == reflect.Interface && value.Type().NumMethod() == 0 {
 			value = reflect.ValueOf(value.Interface()) // lovely!
 		}
@@ -825,7 +826,7 @@ func canBeNil(typ reflect.Type) bool {
 func (s *state) validateType(value reflect.Value, typ reflect.Type) reflect.Value {
 	if !value.IsValid() {
 		if typ == nil {
-			// An untyped nil interface{}. Accept as a proper nil value.
+			// An untyped nil any. Accept as a proper nil value.
 			return reflect.ValueOf(nil)
 		}
 		if canBeNil(typ) {

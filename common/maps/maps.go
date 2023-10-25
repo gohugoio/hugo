@@ -23,7 +23,7 @@ import (
 	"github.com/spf13/cast"
 )
 
-// ToStringMapE converts in to map[string]interface{}.
+// ToStringMapE converts in to map[string]any.
 func ToStringMapE(in any) (map[string]any, error) {
 	switch vv := in.(type) {
 	case Params:
@@ -64,7 +64,7 @@ func MustToParamsAndPrepare(in any) Params {
 	return p
 }
 
-// ToStringMap converts in to map[string]interface{}.
+// ToStringMap converts in to map[string]any.
 func ToStringMap(in any) map[string]any {
 	m, _ := ToStringMapE(in)
 	return m
@@ -91,7 +91,7 @@ func ToStringMapBool(in any) map[string]bool {
 	return cast.ToStringMapBool(m)
 }
 
-// ToSliceStringMap converts in to []map[string]interface{}.
+// ToSliceStringMap converts in to []map[string]any.
 func ToSliceStringMap(in any) ([]map[string]any, error) {
 	switch v := in.(type) {
 	case []map[string]any:
@@ -107,7 +107,7 @@ func ToSliceStringMap(in any) ([]map[string]any, error) {
 		}
 		return s, nil
 	default:
-		return nil, fmt.Errorf("unable to cast %#v of type %T to []map[string]interface{}", in, in)
+		return nil, fmt.Errorf("unable to cast %#v of type %T to []map[string]any", in, in)
 	}
 }
 

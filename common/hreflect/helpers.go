@@ -86,7 +86,7 @@ func IsTruthfulValue(val reflect.Value) (truth bool) {
 	val = indirectInterface(val)
 
 	if !val.IsValid() {
-		// Something like var x interface{}, never set. It's a form of nil.
+		// Something like var x any, never set. It's a form of nil.
 		return
 	}
 

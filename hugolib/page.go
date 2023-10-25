@@ -661,7 +661,7 @@ func (p *pageState) mapContent(bucket *pagesMapBucket, meta *pageMeta) error {
 		p.shortcodeState,
 		p.cmap,
 		meta.markup,
-		func(m map[string]interface{}) error {
+		func(m map[string]any) error {
 			return meta.setMetadata(bucket, p, m)
 		},
 	)

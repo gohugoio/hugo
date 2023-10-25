@@ -31,7 +31,7 @@ func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
 		ns := &internal.TemplateFuncsNamespace{
 			Name: name,
-			Context: func(ctx context.Context, args ...interface{}) (interface{}, error) {
+			Context: func(ctx context.Context, args ...any) (any, error) {
 				v := tpl.GetPageFromContext(ctx)
 				if v == nil {
 					// The multilingual sitemap does not have a page as its context.

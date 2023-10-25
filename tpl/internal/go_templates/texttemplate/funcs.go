@@ -27,9 +27,9 @@ import (
 //
 // When template execution invokes a function with an argument list, that list
 // must be assignable to the function's parameter types. Functions meant to
-// apply to arguments of arbitrary type can use parameters of type interface{} or
+// apply to arguments of arbitrary type can use parameters of type any or
 // of type reflect.Value. Similarly, functions meant to return a result of arbitrary
-// type can return interface{} or reflect.Value.
+// type can return any or reflect.Value.
 type FuncMap map[string]any
 
 // builtins returns the FuncMap.

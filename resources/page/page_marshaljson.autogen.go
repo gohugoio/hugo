@@ -87,7 +87,7 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 		Name                     string
 		Title                    string
 		Params                   maps.Params
-		Data                     interface{}
+		Data                     any
 		Date                     time.Time
 		Lastmod                  time.Time
 		PublishDate              time.Time

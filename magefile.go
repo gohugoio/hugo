@@ -203,7 +203,7 @@ func Fmt() error {
 			// gofmt doesn't exit with non-zero when it finds unformatted code
 			// so we have to explicitly look for output, and if we find any, we
 			// should fail this target.
-			s, err := sh.Output("gofmt", "-l", f)
+			s, err := sh.Output("gofmt", "-w", "-r", "interface{} -> any", "-l", f)
 			if err != nil {
 				fmt.Printf("ERROR: running gofmt on %q: %v\n", f, err)
 				failed = true

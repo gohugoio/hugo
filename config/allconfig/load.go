@@ -303,7 +303,7 @@ func (l configLoader) applyOsEnvOverrides(environ []string) error {
 				_, ok := allDecoderSetups[key]
 				if ok {
 					// A map.
-					if v, err := metadecoders.Default.UnmarshalStringTo(env.Value, map[string]interface{}{}); err == nil {
+					if v, err := metadecoders.Default.UnmarshalStringTo(env.Value, map[string]any{}); err == nil {
 						val = v
 					}
 				}

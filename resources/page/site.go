@@ -113,7 +113,7 @@ type Site interface {
 	GetIdentity() identity.Identity
 
 	// Author is deprecated and will be removed in a future release.
-	Author() map[string]interface{}
+	Author() map[string]any
 
 	// Authors is deprecated and will be removed in a future release.
 	Authors() AuthorList
@@ -169,7 +169,7 @@ func (s *siteWrapper) Social() map[string]string {
 	return s.s.Social()
 }
 
-func (s *siteWrapper) Author() map[string]interface{} {
+func (s *siteWrapper) Author() map[string]any {
 	return s.s.Author()
 }
 func (s *siteWrapper) Authors() AuthorList {
@@ -316,7 +316,7 @@ type testSite struct {
 	l *langs.Language
 }
 
-func (s testSite) Author() map[string]interface{} {
+func (s testSite) Author() map[string]any {
 	return nil
 }
 func (s testSite) Authors() AuthorList {

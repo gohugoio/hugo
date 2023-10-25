@@ -168,7 +168,7 @@ func TestBuildConfigCacheBusters(t *testing.T) {
 func TestBuildConfigCacheBusterstTailwindSetup(t *testing.T) {
 	c := qt.New(t)
 	cfg := New()
-	cfg.Set("build", map[string]interface{}{
+	cfg.Set("build", map[string]any{
 		"cacheBusters": []map[string]string{
 			{
 				"source": "assets/watching/hugo_stats\\.json",

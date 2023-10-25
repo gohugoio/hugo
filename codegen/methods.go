@@ -88,7 +88,7 @@ func (c *Inspector) MethodsFromTypes(include []reflect.Type, exclude []reflect.T
 
 		name = t.Name()
 		if name == "" {
-			// interface{}
+			// any
 			name = t.String()
 		}
 
@@ -266,8 +266,7 @@ type Method struct {
 	// Imports needed to satisfy the method signature.
 	Imports []string
 
-	// Argument types, including any package prefix, e.g. string, int, interface{},
-	// net.Url
+	// Argument types, including any package prefix, e.g. string, int, any, net.Url
 	In []string
 
 	// Return types.

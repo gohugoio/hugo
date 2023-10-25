@@ -307,7 +307,7 @@ func toMergeStrategy(v any) ParamsMergeStrategy {
 // PrepareParams
 // * makes all the keys in the given map lower cased and will do so
 // * This will modify the map given.
-// * Any nested map[interface{}]interface{}, map[string]interface{},map[string]string  will be converted to Params.
+// * Any nested map[any]any, map[string]any, map[string]string  will be converted to Params.
 // * Any _merge value will be converted to proper type and value.
 func PrepareParams(m Params) {
 	for k, v := range m {

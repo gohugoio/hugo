@@ -81,7 +81,7 @@ func (c ReplacingJSONMarshaller) MarshalJSON() ([]byte, error) {
 
 	if c.OmitEmpty {
 		// It's tricky to do this with a regexp, so convert it to a map, remove zero values and convert back.
-		var m map[string]interface{}
+		var m map[string]any
 		err = json.Unmarshal(converted, &m)
 		if err != nil {
 			return nil, err
@@ -93,10 +93,10 @@ func (c ReplacingJSONMarshaller) MarshalJSON() ([]byte, error) {
 					delete(m, k)
 				} else {
 					switch v.(type) {
-					case map[string]interface{}:
+					case map[string]any:
 						removeZeroVAlues(v.(map[string]any))
-					case []interface{}:
-						for _, vv := range v.([]interface{}) {
+					case []any:
+						for _, vv := range v.([]any) {
 							if m, ok := vv.(map[string]any); ok {
 								removeZeroVAlues(m)
 							}

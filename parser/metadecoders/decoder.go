@@ -110,7 +110,7 @@ func (d Decoder) UnmarshalStringTo(data string, typ any) (any, error) {
 	}
 }
 
-// Unmarshal will unmarshall data in format f into an interface{}.
+// Unmarshal will unmarshall data in format f into an any.
 // This is what's needed for Hugo's /data handling.
 func (d Decoder) Unmarshal(data []byte, f Format) (any, error) {
 	if len(data) == 0 {
@@ -164,8 +164,8 @@ func (d Decoder) UnmarshalTo(data []byte, f Format, v any) error {
 		}
 
 		// To support boolean keys, the YAML package unmarshals maps to
-		// map[interface{}]interface{}. Here we recurse through the result
-		// and change all maps to map[string]interface{} like we would've
+		// map[any]any. Here we recurse through the result
+		// and change all maps to map[string]any like we would've
 		// gotten from `json`.
 		var ptr any
 		switch v.(type) {
@@ -265,7 +265,7 @@ func toFileError(f Format, data []byte, err error) error {
 }
 
 // stringifyMapKeys recurses into in and changes all instances of
-// map[interface{}]interface{} to map[string]interface{}. This is useful to
+// map[any]any to map[string]any. This is useful to
 // work around the impedance mismatch between JSON and YAML unmarshaling that's
 // described here: https://github.com/go-yaml/yaml/issues/139
 //

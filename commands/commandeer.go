@@ -88,8 +88,8 @@ type commonConfig struct {
 
 // This is the root command.
 type rootCommand struct {
-	Printf  func(format string, v ...interface{})
-	Println func(a ...interface{})
+	Printf  func(format string, v ...any)
+	Println func(a ...any)
 	Out     io.Writer
 
 	logger loggers.Logger
@@ -393,12 +393,12 @@ func (r *rootCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 	// Used by mkcert (server).
 	log.SetOutput(r.Out)
 
-	r.Printf = func(format string, v ...interface{}) {
+	r.Printf = func(format string, v ...any) {
 		if !r.quiet {
 			fmt.Fprintf(r.Out, format, v...)
 		}
 	}
-	r.Println = func(a ...interface{}) {
+	r.Println = func(a ...any) {
 		if !r.quiet {
 			fmt.Fprintln(r.Out, a...)
 		}

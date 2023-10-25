@@ -84,7 +84,7 @@ func Append(to any, from ...any) (any, error) {
 				if tot == fromt {
 					return reflect.AppendSlice(tov, fromv).Interface(), nil
 				} else if !fromt.AssignableTo(tot) {
-					// Fall back to a []interface{} slice.
+					// Fall back to a []any slice.
 					return appendToInterfaceSliceFromValues(tov, fromv)
 				}
 
@@ -99,7 +99,7 @@ func Append(to any, from ...any) (any, error) {
 	for _, f := range from {
 		fv := reflect.ValueOf(f)
 		if !fv.IsValid() || !fv.Type().AssignableTo(tot) {
-			// Fall back to a []interface{} slice.
+			// Fall back to a []any slice.
 			tov, _ := indirect(reflect.ValueOf(to))
 			return appendToInterfaceSlice(tov, from...)
 		}

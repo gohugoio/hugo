@@ -205,8 +205,8 @@ url: %s
 					return err
 				}
 
-				// Decode the JSON to a map[string]interface{} and then unmarshal it again to the correct format.
-				var m map[string]interface{}
+				// Decode the JSON to a map[string]any and then unmarshal it again to the correct format.
+				var m map[string]any
 				if err := json.Unmarshal(buf.Bytes(), &m); err != nil {
 					return err
 				}

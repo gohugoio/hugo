@@ -403,7 +403,7 @@ func TestIntersect(t *testing.T) {
 		{[]int{1, 2, 4}, []int{3, 6}, []int{}},
 		{[]float64{2.2, 4.4}, []float64{1.1, 2.2, 4.4}, []float64{2.2, 4.4}},
 
-		// []interface{} ∩ []interface{}
+		// []any ∩ []any
 		{[]any{"a", "b", "c"}, []any{"a", "b", "b"}, []any{"a", "b"}},
 		{[]any{1, 2, 3}, []any{1, 2, 2}, []any{1, 2}},
 		{[]any{int8(1), int8(2), int8(3)}, []any{int8(1), int8(2), int8(2)}, []any{int8(1), int8(2)}},
@@ -413,7 +413,7 @@ func TestIntersect(t *testing.T) {
 		{[]any{float32(1), float32(2), float32(3)}, []any{float32(1), float32(2), float32(2)}, []any{float32(1), float32(2)}},
 		{[]any{float64(1), float64(2), float64(3)}, []any{float64(1), float64(2), float64(2)}, []any{float64(1), float64(2)}},
 
-		// []interface{} ∩ []T
+		// []any ∩ []T
 		{[]any{"a", "b", "c"}, []string{"a", "b", "b"}, []any{"a", "b"}},
 		{[]any{1, 2, 3}, []int{1, 2, 2}, []any{1, 2}},
 		{[]any{int8(1), int8(2), int8(3)}, []int8{1, 2, 2}, []any{int8(1), int8(2)}},
@@ -424,7 +424,7 @@ func TestIntersect(t *testing.T) {
 		{[]any{float32(1), float32(2), float32(3)}, []float32{1, 2, 2}, []any{float32(1), float32(2)}},
 		{[]any{float64(1), float64(2), float64(3)}, []float64{1, 2, 2}, []any{float64(1), float64(2)}},
 
-		// []T ∩ []interface{}
+		// []T ∩ []any
 		{[]string{"a", "b", "c"}, []any{"a", "b", "b"}, []string{"a", "b"}},
 		{[]int{1, 2, 3}, []any{1, 2, 2}, []int{1, 2}},
 		{[]int8{1, 2, 3}, []any{int8(1), int8(2), int8(2)}, []int8{1, 2}},
@@ -779,7 +779,7 @@ func TestUnion(t *testing.T) {
 		{[]float64{2.2, 4.4}, []float64{1.1, 2.2, 4.4}, []float64{2.2, 4.4, 1.1}, false},
 		{[]any{"a", "b", "c", "c"}, []any{"a", "b", "b"}, []any{"a", "b", "c"}, false},
 
-		// []T ∪ []interface{}
+		// []T ∪ []any
 		{[]string{"1", "2"}, []any{"9"}, []string{"1", "2", "9"}, false},
 		{[]int{2, 4}, []any{1, 2, 4}, []int{2, 4, 1}, false},
 		{[]int8{2, 4}, []any{int8(1), int8(2), int8(4)}, []int8{2, 4, 1}, false},
@@ -791,7 +791,7 @@ func TestUnion(t *testing.T) {
 		{[]float64{2.2, 4.4}, []any{1.1, 2.2, 4.4}, []float64{2.2, 4.4, 1.1}, false},
 		{[]float32{2.2, 4.4}, []any{1.1, 2.2, 4.4}, []float32{2.2, 4.4, 1.1}, false},
 
-		// []interface{} ∪ []T
+		// []any ∪ []T
 		{[]any{"a", "b", "c", "c"}, []string{"a", "b", "d"}, []any{"a", "b", "c", "d"}, false},
 		{[]any{}, []string{}, []any{}, false},
 		{[]any{1, 2}, []int{2, 3}, []any{1, 2, 3}, false},

@@ -222,10 +222,10 @@ func git(args ...string) (string, error) {
 	return string(out), nil
 }
 
-func logf(format string, args ...interface{}) {
+func logf(format string, args ...any) {
 	fmt.Fprintf(os.Stderr, format, args...)
 }
 
-func logln(args ...interface{}) {
+func logln(args ...any) {
 	fmt.Fprintln(os.Stderr, args...)
 }

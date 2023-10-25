@@ -1582,7 +1582,7 @@ func TestInterfaceValues(t *testing.T) {
 	// Before index worked on reflect.Values, interface values
 	// were always implicitly promoted to the underlying value,
 	// except that nil interfaces were promoted to the zero reflect.Value.
-	// Eliminating a round trip to interface{} and back to reflect.Value
+	// Eliminating a round trip to any and back to reflect.Value
 	// eliminated this promotion, breaking these cases.
 	tests := []struct {
 		text string
