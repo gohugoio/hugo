@@ -16,6 +16,7 @@ package hugolib
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"html/template"
 	"path"
@@ -25,8 +26,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-
-	"errors"
 
 	"github.com/gohugoio/hugo/common/herrors"
 
@@ -312,8 +311,8 @@ func prepareShortcode(
 	tplVariants tpl.TemplateVariants,
 	sc *shortcode,
 	parent *ShortcodeWithPage,
-	p *pageState) (shortcodeRenderer, error) {
-
+	p *pageState,
+) (shortcodeRenderer, error) {
 	toParseErr := func(err error) error {
 		return p.parseError(fmt.Errorf("failed to render shortcode %q: %w", sc.name, err), p.source.parsed.Input(), sc.pos)
 	}
@@ -332,7 +331,6 @@ func prepareShortcode(
 	}
 
 	return fn, nil
-
 }
 
 func doRenderShortcode(
@@ -342,7 +340,8 @@ func doRenderShortcode(
 	tplVariants tpl.TemplateVariants,
 	sc *shortcode,
 	parent *ShortcodeWithPage,
-	p *pageState) (shortcodeRenderer, error) {
+	p *pageState,
+) (shortcodeRenderer, error) {
 	var tmpl tpl.Template
 
 	// Tracks whether this shortcode or any of its children has template variations
@@ -501,7 +500,6 @@ func (s *shortcodeHandler) transferNames(in *shortcodeHandler) {
 	for k := range in.nameSet {
 		s.nameSet[k] = true
 	}
-
 }
 
 func (s *shortcodeHandler) hasName(name string) bool {
@@ -628,8 +626,6 @@ Loop:
 
 			return sc, nil
 		case currItem.IsText():
-			sc.inner = append(sc.inner, currItem.ValStr(source))
-		case currItem.Type == pageparser.TypeEmoji:
 			sc.inner = append(sc.inner, currItem.ValStr(source))
 		case currItem.IsShortcodeName():
 
