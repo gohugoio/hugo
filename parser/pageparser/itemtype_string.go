@@ -15,25 +15,24 @@ func _() {
 	_ = x[TypeFrontMatterTOML-4]
 	_ = x[TypeFrontMatterJSON-5]
 	_ = x[TypeFrontMatterORG-6]
-	_ = x[TypeEmoji-7]
-	_ = x[TypeIgnore-8]
-	_ = x[tLeftDelimScNoMarkup-9]
-	_ = x[tRightDelimScNoMarkup-10]
-	_ = x[tLeftDelimScWithMarkup-11]
-	_ = x[tRightDelimScWithMarkup-12]
-	_ = x[tScClose-13]
-	_ = x[tScName-14]
-	_ = x[tScNameInline-15]
-	_ = x[tScParam-16]
-	_ = x[tScParamVal-17]
-	_ = x[tIndentation-18]
-	_ = x[tText-19]
-	_ = x[tKeywordMarker-20]
+	_ = x[TypeIgnore-7]
+	_ = x[tLeftDelimScNoMarkup-8]
+	_ = x[tRightDelimScNoMarkup-9]
+	_ = x[tLeftDelimScWithMarkup-10]
+	_ = x[tRightDelimScWithMarkup-11]
+	_ = x[tScClose-12]
+	_ = x[tScName-13]
+	_ = x[tScNameInline-14]
+	_ = x[tScParam-15]
+	_ = x[tScParamVal-16]
+	_ = x[tIndentation-17]
+	_ = x[tText-18]
+	_ = x[tKeywordMarker-19]
 }
 
-const _ItemType_name = "tErrortEOFTypeLeadSummaryDividerTypeFrontMatterYAMLTypeFrontMatterTOMLTypeFrontMatterJSONTypeFrontMatterORGTypeEmojiTypeIgnoretLeftDelimScNoMarkuptRightDelimScNoMarkuptLeftDelimScWithMarkuptRightDelimScWithMarkuptScClosetScNametScNameInlinetScParamtScParamValtIndentationtTexttKeywordMarker"
+const _ItemType_name = "tErrortEOFTypeLeadSummaryDividerTypeFrontMatterYAMLTypeFrontMatterTOMLTypeFrontMatterJSONTypeFrontMatterORGTypeIgnoretLeftDelimScNoMarkuptRightDelimScNoMarkuptLeftDelimScWithMarkuptRightDelimScWithMarkuptScClosetScNametScNameInlinetScParamtScParamValtIndentationtTexttKeywordMarker"
 
-var _ItemType_index = [...]uint16{0, 6, 10, 32, 51, 70, 89, 107, 116, 126, 146, 167, 189, 212, 220, 227, 240, 248, 259, 271, 276, 290}
+var _ItemType_index = [...]uint16{0, 6, 10, 32, 51, 70, 89, 107, 117, 137, 158, 180, 203, 211, 218, 231, 239, 250, 262, 267, 281}
 
 func (i ItemType) String() string {
 	if i < 0 || i >= ItemType(len(_ItemType_index)-1) {
