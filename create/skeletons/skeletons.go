@@ -95,10 +95,11 @@ func copyFiles(createpath string, sourceFs afero.Fs, skeleton embed.FS) error {
 }
 
 func newSiteCreateConfig(fs afero.Fs, createpath string, format string) (err error) {
-	in := map[string]string{
+	in := map[string]any{
 		"baseURL":      "https://example.org/",
 		"title":        "My New Hugo Site",
 		"languageCode": "en-us",
+		"disableKinds": []string{"taxonomy"},
 	}
 
 	var buf bytes.Buffer
