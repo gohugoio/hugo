@@ -22,14 +22,15 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	godartsassv1 "github.com/bep/godartsass"
+	"github.com/bep/logg"
 	"github.com/mitchellh/mapstructure"
-
-	"time"
 
 	"github.com/bep/godartsass/v2"
 	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/spf13/afero"
@@ -183,8 +184,10 @@ type buildInfo struct {
 	*debug.BuildInfo
 }
 
-var bInfo *buildInfo
-var bInfoInit sync.Once
+var (
+	bInfo     *buildInfo
+	bInfoInit sync.Once
+)
 
 func getBuildInfo() *buildInfo {
 	bInfoInit.Do(func() {
@@ -211,7 +214,6 @@ func getBuildInfo() *buildInfo {
 				bInfo.GoArch = s.Value
 			}
 		}
-
 	})
 
 	return bInfo
@@ -255,7 +257,7 @@ func GetDependencyListNonGo() []string {
 	}
 
 	if dartSass := dartSassVersion(); dartSass.ProtocolVersion != "" {
-		var dartSassPath = "github.com/sass/dart-sass-embedded"
+		dartSassPath := "github.com/sass/dart-sass-embedded"
 		if IsDartSassV2() {
 			dartSassPath = "github.com/sass/dart-sass"
 		}
@@ -345,4 +347,46 @@ var (
 
 func IsDartSassV2() bool {
 	return !strings.Contains(DartSassBinaryName, "embedded")
+}
+
+// Deprecate informs about a deprecation starting at the given version.
+//
+// A deprecation typically needs a simple change in the template, but doing so will make the template incompatible with older versions.
+// Theme maintainers generally want
+// 1. No warnings or errors in the console when building a Hugo site.
+// 2. Their theme to work for at least the last few Hugo versions.
+func Deprecate(item, alternative string, version string) {
+	level := deprecationLogLevelFromVersion(version)
+	DeprecateLevel(item, alternative, version, level)
+}
+
+// DeprecateLevel informs about a deprecation logging at the given level.
+func DeprecateLevel(item, alternative, version string, level logg.Level) {
+	var msg string
+	if level == logg.LevelError {
+		msg = fmt.Sprintf("%s was deprecated in Hugo %s and will be removed in Hugo %s. %s", item, version, CurrentVersion.Next().ReleaseVersion(), alternative)
+	} else {
+		msg = fmt.Sprintf("%s was deprecated in Hugo %s and will be removed in a future release. %s", item, version, alternative)
+	}
+
+	loggers.Log().Logger().WithLevel(level).Logf(msg)
+}
+
+// We ususally do about one minor version a month.
+// We want people to run at least the current and previous version without any warnings.
+// We want people who don't update Hugo that often to see the warnings and errors before we remove the feature.
+func deprecationLogLevelFromVersion(ver string) logg.Level {
+	from := MustParseVersion(ver)
+	to := CurrentVersion
+	minorDiff := to.Minor - from.Minor
+	switch {
+	case minorDiff >= 12:
+		// Start failing the build after about a year.
+		return logg.LevelError
+	case minorDiff >= 6:
+		// Start printing warnings after about six months.
+		return logg.LevelWarn
+	default:
+		return logg.LevelInfo
+	}
 }

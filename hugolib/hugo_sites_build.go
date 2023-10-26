@@ -25,7 +25,6 @@ import (
 
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/hugofs/files"
-	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/publisher"
 	"github.com/gohugoio/hugo/tpl"
 
@@ -40,13 +39,7 @@ import (
 	"github.com/gohugoio/hugo/output"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/gohugoio/hugo/helpers"
 )
-
-func init() {
-	// To avoid circular dependencies, we set this here.
-	langs.DeprecationFunc = helpers.Deprecated
-}
 
 // Build builds all sites. If filesystem events are provided,
 // this is considered to be a potential partial rebuild.
