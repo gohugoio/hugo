@@ -28,10 +28,10 @@ import (
 	"errors"
 
 	"github.com/gohugoio/hugo/common/collections"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/tpl/compare"
 	"github.com/spf13/cast"
@@ -200,7 +200,7 @@ func (ns *Namespace) Dictionary(values ...any) (map[string]any, error) {
 // empty string.
 // Deprecated: Use the index function instead.
 func (ns *Namespace) EchoParam(c, k any) any {
-	helpers.Deprecated("collections.EchoParam", "Use the index function instead.", false)
+	hugo.Deprecate("collections.EchoParam", "Use the index function instead.", "v0.120.0")
 	av, isNil := indirect(reflect.ValueOf(c))
 	if isNil {
 		return ""
