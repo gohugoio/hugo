@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/bep/logg"
 	qt "github.com/frankban/quicktest"
 )
 
@@ -47,6 +48,20 @@ func TestHugoInfo(t *testing.T) {
 	c.Assert(devHugoInfo.IsDevelopment(), qt.Equals, true)
 	c.Assert(devHugoInfo.IsProduction(), qt.Equals, false)
 	c.Assert(devHugoInfo.IsServer(), qt.Equals, true)
+}
+
+func TestDeprecationLogLevelFromVersion(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(deprecationLogLevelFromVersion("0.55.0"), qt.Equals, logg.LevelError)
+	ver := CurrentVersion
+	c.Assert(deprecationLogLevelFromVersion(ver.String()), qt.Equals, logg.LevelInfo)
+	ver.Minor -= 1
+	c.Assert(deprecationLogLevelFromVersion(ver.String()), qt.Equals, logg.LevelInfo)
+	ver.Minor -= 6
+	c.Assert(deprecationLogLevelFromVersion(ver.String()), qt.Equals, logg.LevelWarn)
+	ver.Minor -= 6
+	c.Assert(deprecationLogLevelFromVersion(ver.String()), qt.Equals, logg.LevelError)
 }
 
 type testConfig struct {
