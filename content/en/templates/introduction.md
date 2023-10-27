@@ -114,6 +114,8 @@ all other pages:
 Var is {{ $var }}
 ```
 
+Variable names must conform to Go's naming rules for [identifiers][identifier].
+
 ## Functions
 
 Go Templates only ship with a few basic functions but also provide a mechanism for applications to extend the original set.
@@ -660,6 +662,7 @@ If you restrict front matter to the TOML format, and omit quotation marks surrou
 [dotdoc]: https://golang.org/pkg/text/template/#hdr-Variables
 [front matter]: /content-management/front-matter
 [functions]: /functions
+[identifier]: /getting-started/glossary/#identifier
 [internal templates]: /templates/internal
 [math]: /functions/math
 [pagevars]: /variables/page
