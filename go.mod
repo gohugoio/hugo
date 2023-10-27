@@ -46,7 +46,7 @@ require (
 	github.com/kyokomi/emoji/v2 v2.2.12
 	github.com/magefile/mage v1.15.0
 	github.com/marekm4/color-extractor v1.2.1
-	github.com/mattn/go-isatty v0.0.19
+	github.com/mattn/go-isatty v0.0.20
 	github.com/mitchellh/hashstructure v1.1.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/muesli/smartcrop v0.3.0
