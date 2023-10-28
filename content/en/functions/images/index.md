@@ -104,7 +104,6 @@ The following example will add the text `Hugo rocks!` to the image with the spec
 You can load a custom font if needed. Load the font as a Hugo `Resource` and set it as an option:
 
 ```go-html-template
-
 {{ $font := resources.GetRemote "https://github.com/google/fonts/raw/main/apache/roboto/static/Roboto-Black.ttf" }}
 {{ $img := resources.Get "/images/background.png" }}
 {{ $img = $img.Filter (images.Text "Hugo rocks!" (dict
@@ -112,6 +111,33 @@ You can load a custom font if needed. Load the font as a Hugo `Resource` and set
 ))}}
 ```
 
+## Padding
+
+Padding creates a filter that resizes the image canvas without resizing the image. The last argument is the canvas color, expressed as an RGB or RGBA [hexadecimal color]. The default value is `ffffffff` (opaque white). The preceding arguments are the padding values, in pixels, using the CSS [shorthand property] syntax. Negative padding values will crop the image.
+
+[hexadecimal color]: https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color
+[shorthand property]: https://developer.mozilla.org/en-US/docs/Web/CSS/Shorthand_properties#edges_of_a_box
+
+{{% funcsig %}}
+images.Padding V1 [V2] [V3] [V4] [COLOR]
+{{% /funcsig %}}
+
+This example resizes the image to 300px wide, converts it to the WebP format, adds 20px vertical padding and 50px horizontal padding, then sets the canvas color to dark green with 33% opacity.
+
+```go-html-template
+{{ $img := resources.Get "images/a.jpg" }}
+{{ $filters := slice
+  (images.Process "resize 300x webp")
+  (images.Padding 20 50 "#0705")
+}}
+{{ $img = $img.Filter $filters }}
+```
+
+To add a 2px gray border to an image:
+
+```go-html-template
+{{ $img = $img.Filter (images.Padding 2 "#777") }}
+```
 
 ## Brightness
 
