@@ -142,26 +142,39 @@ func TestGetDottedRelativePath(t *testing.T) {
 
 func doTestGetDottedRelativePath(urlFixer func(string) string, t *testing.T) {
 	type test struct {
-		input, expected string
+		input string, isMultiLingual bool, expected string
 	}
 	data := []test{
 		{"", "./"},
-		{urlFixer("/"), "./"},
-		{urlFixer("post"), "../"},
-		{urlFixer("/post"), "../"},
-		{urlFixer("post/"), "../"},
-		{urlFixer("tags/foo.html"), "../"},
-		{urlFixer("/tags/foo.html"), "../"},
-		{urlFixer("/post/"), "../"},
-		{urlFixer("////post/////"), "../"},
-		{urlFixer("/foo/bar/index.html"), "../../"},
-		{urlFixer("/foo/bar/foo/"), "../../../"},
-		{urlFixer("/foo/bar/foo"), "../../../"},
-		{urlFixer("foo/bar/foo/"), "../../../"},
-		{urlFixer("foo/bar/foo/bar"), "../../../../"},
-		{"404.html", "./"},
-		{"404.xml", "./"},
-		{"/404.html", "./"},
+		{urlFixer("/"), false, "./"},
+		{urlFixer("post"), false, "../"},
+		{urlFixer("/post"), false, "../"},
+		{urlFixer("post/"), false, "../"},
+		{urlFixer("tags/foo.html"), false, "../"},
+		{urlFixer("/tags/foo.html"), false, "../"},
+		{urlFixer("/post/"), false, "../"},
+		{urlFixer("////post/////"), false, "../"},
+		{urlFixer("/foo/bar/index.html"), false, "../../"},
+		{urlFixer("/foo/bar/foo/"), false, "../../../"},
+		{urlFixer("/foo/bar/foo"), false, "../../../"},
+		{urlFixer("foo/bar/foo/"), false, "../../../"},
+		{urlFixer("foo/bar/foo/bar"), false, "../../../../"},
+		{"404.html", false, "./"},
+		{"404.xml", false, "./"},
+		{"/404.html", false, "./"},
+		{urlFixer("/en/"), true, "./"},
+		{urlFixer("en/post"), true, "../"},
+		{urlFixer("/en/post"), true, "../"},
+		{urlFixer("en/post/"), true, "../"},
+		{urlFixer("en/tags/foo.html"), true, "../"},
+		{urlFixer("/en/tags/foo.html"), true, "../"},
+		{urlFixer("/en/post/"), true, "../"},
+		{urlFixer("////en/post/////"), true, "../"},
+		{urlFixer("/en/foo/bar/index.html"), true, "../../"},
+		{urlFixer("/en/foo/bar/foo/"), true, "../../../"},
+		{urlFixer("/en/foo/bar/foo"), true, "../../../"},
+		{urlFixer("en/foo/bar/foo/"), true, "../../../"},
+		{urlFixer("en/foo/bar/foo/bar"), true, "../../../../"},
 	}
 	for i, d := range data {
 		output := helpers.GetDottedRelativePath(d.input)

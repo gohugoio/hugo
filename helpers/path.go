@@ -141,7 +141,13 @@ var isFileRe = regexp.MustCompile(`.*\..{1,6}$`)
 
 // GetDottedRelativePath expects a relative path starting after the content directory.
 // It returns a relative path with dots ("..") navigating up the path structure.
-func GetDottedRelativePath(inPath string) string {
+// Optionally handling MultiLingual sites with an extra prefix
+func GetDottedRelativePath(inPath string, possiblyMultiLingual ...bool) string {
+	isMultiLingual := false
+	if len(possiblyMultiLingual) > 0 {
+		isMultiLingual = possiblyMultiLingual[0]
+	}
+
 	inPath = path.Clean(filepath.ToSlash(inPath))
 
 	if inPath == "." {
@@ -159,6 +165,10 @@ func GetDottedRelativePath(inPath string) string {
 	dir, _ := path.Split(inPath)
 
 	sectionCount := strings.Count(dir, "/")
+
+	if isMultiLingual {
+		sectionCount++
+	}
 
 	if sectionCount == 0 || dir == "/" {
 		return "./"

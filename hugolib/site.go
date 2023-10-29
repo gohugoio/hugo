@@ -979,7 +979,7 @@ func (s *Site) permalink(link string) string {
 func (s *Site) absURLPath(targetPath string) string {
 	var path string
 	if s.conf.RelativeURLs {
-		path = helpers.GetDottedRelativePath(targetPath)
+		path = helpers.GetDottedRelativePath(targetPath, s.h.Conf.IsMultiLingual())
 	} else {
 		url := s.PathSpec.Cfg.BaseURL().String()
 		if !strings.HasSuffix(url, "/") {
