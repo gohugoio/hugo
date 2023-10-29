@@ -15,6 +15,7 @@ package livereloadinject
 
 import (
 	"bytes"
+	"io"
 	"net/url"
 	"strings"
 	"testing"
@@ -69,4 +70,27 @@ func TestLiveReloadInject(t *testing.T) {
 	c.Run("No match", func(c *qt.C) {
 		c.Assert(apply("<h1>No match</h1>"), qt.Equals, "<h1>No match</h1>"+expectBase+warnScript)
 	})
+}
+
+func BenchmarkLiveReloadInject(b *testing.B) {
+	s := `
+<html>
+<head>
+</head>
+<body>
+</body>
+</html>	
+`
+	in := strings.NewReader(s)
+	lrurl, err := url.Parse("http://localhost:1234/subpath")
+	if err != nil {
+		b.Fatalf("Parsing test URL failed")
+	}
+	tr := transform.New(New(*lrurl))
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		in.Seek(0, 0)
+		tr.Apply(io.Discard, in)
+	}
 }
