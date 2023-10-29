@@ -140,7 +140,11 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 	if cfg.Extensions.CJK.Enable {
 		opts := []extension.CJKOption{}
 		if cfg.Extensions.CJK.EastAsianLineBreaks {
-			opts = append(opts, extension.WithEastAsianLineBreaks())
+			if cfg.Extensions.CJK.EastAsianLineBreaksStyle == "css3draft" {
+				opts = append(opts, extension.WithEastAsianLineBreaks(extension.EastAsianLineBreaksCSS3Draft))
+			} else {
+				opts = append(opts, extension.WithEastAsianLineBreaks())
+			}
 		}
 
 		if cfg.Extensions.CJK.EscapedSpace {
