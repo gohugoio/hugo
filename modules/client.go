@@ -106,18 +106,16 @@ func NewClient(cfg ClientConfig) *Client {
 
 	var throttleSince time.Time
 	throttle := func(f func()) {
-		// Skip the first call.
-		// This is used for "download" etc. and we want to avoid
-		// logging anything if it is fast.
 		if throttleSince.IsZero() {
 			throttleSince = time.Now()
+			f()
 			return
 		}
 		if time.Since(throttleSince) < 6*time.Second {
 			return
 		}
-		f()
 		throttleSince = time.Now()
+		f()
 	}
 
 	return &Client{
