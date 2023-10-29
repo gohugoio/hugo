@@ -15,7 +15,6 @@ package modules
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -23,6 +22,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bep/debounce"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/loggers"
 
@@ -36,6 +36,8 @@ import (
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/rogpeppe/go-internal/module"
+
+	"errors"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/spf13/afero"
@@ -122,6 +124,7 @@ func (m ModulesConfig) HasConfigFile() bool {
 		if len(mod.ConfigFilenames()) > 0 {
 			return true
 		}
+
 	}
 	return false
 }
@@ -217,6 +220,7 @@ func (c *collector) getVendoredDir(path string) (vendoredModule, bool) {
 }
 
 func (c *collector) add(owner *moduleAdapter, moduleImport Import) (*moduleAdapter, error) {
+
 	var (
 		mod       *goModule
 		moduleDir string
@@ -505,10 +509,11 @@ LOOP:
 
 func (c *collector) collect() {
 	defer c.logger.PrintTimerIfDelayed(time.Now(), "hugo: collected modules")
-
-	c.throttle(func() {
+	d := debounce.New(2 * time.Second)
+	d(func() {
 		c.logger.Println("hugo: downloading modules …")
 	})
+	defer d(func() {})
 
 	if err := c.initModules(); err != nil {
 		c.err = err
@@ -664,6 +669,7 @@ func (c *collector) normalizeMounts(owner *moduleAdapter, mounts []Mount) ([]Mou
 			} else {
 				continue
 			}
+
 		}
 
 		// Verify that target points to one of the predefined component dirs
