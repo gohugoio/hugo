@@ -25,12 +25,14 @@ import (
 	"github.com/gohugoio/hugo/transform"
 )
 
-var ignoredSyntax = regexp.MustCompile(`(?s)^(?:\s+|<!--.*?-->|<\?.*?\?>)*`)
-var tagsBeforeHead = []*regexp.Regexp{
-	regexp.MustCompile(`(?is)^<!doctype\s[^>]*>`),
-	regexp.MustCompile(`(?is)^<html(?:\s[^>]*)?>`),
-	regexp.MustCompile(`(?is)^<head(?:\s[^>]*)?>`),
-}
+var (
+	ignoredSyntax  = regexp.MustCompile(`(?s)^(?:\s+|<!--.*?-->|<\?.*?\?>)*`)
+	tagsBeforeHead = []*regexp.Regexp{
+		regexp.MustCompile(`(?is)^<!doctype\s[^>]*>`),
+		regexp.MustCompile(`(?is)^<html(?:\s[^>]*)?>`),
+		regexp.MustCompile(`(?is)^<head(?:\s[^>]*)?>`),
+	}
+)
 
 // New creates a function that can be used to inject a script tag for
 // the livereload JavaScript at the start of an HTML document's head.
@@ -54,12 +56,12 @@ func New(baseURL url.URL) transform.Transformer {
 		src += "&port=" + baseURL.Port()
 		src += "&path=" + strings.TrimPrefix(path+"/livereload", "/")
 
-		c := make([]byte, len(b))
-		copy(c, b)
-
 		script := []byte(fmt.Sprintf(`<script src="%s" data-no-instant defer></script>`, html.EscapeString(src)))
 
-		c = append(c[:idx], append(script, c[idx:]...)...)
+		c := make([]byte, len(b)+len(script))
+		copy(c, b[:idx])
+		copy(c[idx:], script)
+		copy(c[idx+len(script):], b[idx:])
 
 		if _, err := ft.To().Write(c); err != nil {
 			loggers.Log().Warnf("Failed to inject LiveReload script:", err)
