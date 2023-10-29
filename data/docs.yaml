@@ -1021,6 +1021,7 @@ config:
       extensions:
         cjk:
           eastAsianLineBreaks: false
+          eastAsianLineBreaksStyle: simple
           enable: false
           escapedSpace: false
         definitionList: true
@@ -2305,8 +2306,9 @@ tpl:
         - c
         - k
         Description: |-
-          EchoParam returns a the value in the collection c with key k if is set; otherwise, it returns an
+          EchoParam returns the value in the collection c with key k if is set; otherwise, it returns an
           empty string.
+          Deprecated: Use the index function instead.
         Examples:
         - - '{{ echoParam .Params "langCode" }}'
           - en
@@ -2733,6 +2735,11 @@ tpl:
             map[string]interface {}{
               "Hugo": "Rocks!",
             }
+      Timer:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       VisualizeSpaces:
         Aliases: null
         Args: null
@@ -2877,12 +2884,22 @@ tpl:
         Args: null
         Description: ""
         Examples: null
+      IsDevelopment:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       IsExtended:
         Aliases: null
         Args: null
         Description: ""
         Examples: null
       IsProduction:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      IsServer:
         Aliases: null
         Args: null
         Description: ""
@@ -2963,6 +2980,11 @@ tpl:
         Description: ""
         Examples: null
       Overlay:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Padding:
         Aliases: null
         Args: null
         Description: ""
