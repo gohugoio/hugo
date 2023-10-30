@@ -185,6 +185,9 @@ chroma:
     - css
     Name: CSS
   - Aliases:
+    - cue
+    Name: CUE
+  - Aliases:
     - cython
     - pyx
     - pyrex
@@ -599,6 +602,9 @@ chroma:
     - protobuf
     - proto
     Name: Protocol Buffer
+  - Aliases:
+    - prql
+    Name: PRQL
   - Aliases:
     - psl
     Name: PSL
