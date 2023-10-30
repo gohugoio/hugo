@@ -37,7 +37,7 @@ aliases: [/functions/hugo]
 `hugo.GoVersion`
 : (`string`) The Go version used to compile the Hugo binary (e.g., `go1.20.4`). {{< new-in "0.101.0" >}}
 
-`hugo.IsDevelopment`
+`hugo.IsDevelopment` {{< new-in "0.120.0" >}}
 : (`bool`) Returns `true` if `hugo.Environment` is "development".
 
 `hugo.IsExtended`
@@ -46,7 +46,7 @@ aliases: [/functions/hugo]
 `hugo.IsProduction`
 : (`bool`) Returns `true` if `hugo.Environment` is "production".
 
-`hugo.IsServer`
+`hugo.IsServer` {{< new-in "0.120.0" >}}
 : (`bool`) Returns `true` if the site is being served with Hugo's built-in server.
 
 `hugo.Version`
