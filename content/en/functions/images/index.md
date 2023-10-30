@@ -113,7 +113,7 @@ You can load a custom font if needed. Load the font as a Hugo `Resource` and set
 
 ## Padding
 
- {{< new-in "0.120.0" >}}
+{{< new-in "0.120.0" >}}
 
 Padding creates a filter that resizes the image canvas without resizing the image. The last argument is the canvas color, expressed as an RGB or RGBA [hexadecimal color]. The default value is `ffffffff` (opaque white). The preceding arguments are the padding values, in pixels, using the CSS [shorthand property] syntax. Negative padding values will crop the image.
 
