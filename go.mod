@@ -2,7 +2,7 @@ module github.com/gohugoio/hugo
 
 require (
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
-	github.com/PuerkitoBio/purell v1.1.1
+	github.com/PuerkitoBio/purell v1.2.1
 	github.com/alecthomas/chroma/v2 v2.10.0
 	github.com/armon/go-radix v1.0.0
 	github.com/aws/aws-sdk-go v1.45.14
@@ -91,7 +91,6 @@ require (
 	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
 	github.com/Azure/go-autorest/autorest/to v0.4.0 // indirect
 	github.com/AzureAD/microsoft-authentication-library-for-go v1.0.0 // indirect
-	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.20.0 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.11 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.18.32 // indirect
