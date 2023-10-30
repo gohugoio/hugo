@@ -417,8 +417,8 @@ func (s *Site) Hugo() hugo.HugoInfo {
 }
 
 // Returns the BaseURL for this Site.
-func (s *Site) BaseURL() template.URL {
-	return template.URL(s.conf.C.BaseURL.WithPath)
+func (s *Site) BaseURL() string {
+	return s.conf.C.BaseURL.WithPath
 }
 
 // Returns the last modification date of the content.
