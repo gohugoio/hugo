@@ -42,7 +42,7 @@ The built-in RSS template will render the following values, if present, from you
 
 {{< code-toggle file=hugo copy=false >}}
 copyright = '© 2023 ABC Widgets, Inc.'
-[author]
+[params.author]
 name = 'John Doe'
 email = 'jdoe@example.org'
 {{< /code-toggle >}}
