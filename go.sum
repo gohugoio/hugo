@@ -433,10 +433,10 @@ github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcUk=
 github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=
-github.com/tdewolff/minify/v2 v2.20.1 h1:ARmlyj4gJYXNrPtdatTR9gMusp3AciwZA5o/qYtFbow=
-github.com/tdewolff/minify/v2 v2.20.1/go.mod h1:spLa6hfzR2CXXPV92kcHpziPsOobxB7IFov+8k5l5NY=
-github.com/tdewolff/parse/v2 v2.7.1 h1:gdImkv0sIupYr/cXAu5s+CxfVpxMdYZX2Qr+5Q+RdF8=
-github.com/tdewolff/parse/v2 v2.7.1/go.mod h1:9p2qMIHpjRSTr1qnFxQr+igogyTUTlwvf9awHSm84h8=
+github.com/tdewolff/minify/v2 v2.20.4 h1:rN2rooMxvJKDXdwpNsdHrCduSyBG+vMBs7wbAVpF/SM=
+github.com/tdewolff/minify/v2 v2.20.4/go.mod h1:AMF0J/eNujZLDbfMZvWweg5TSG/KuK+/UGKc+k1N8/w=
+github.com/tdewolff/parse/v2 v2.7.2 h1:9NdxF0nk/+lPI0YADDonSlpiY15hGcVUhXRj9hnK8sM=
+github.com/tdewolff/parse/v2 v2.7.2/go.mod h1:9p2qMIHpjRSTr1qnFxQr+igogyTUTlwvf9awHSm84h8=
 github.com/tdewolff/test v1.0.10 h1:uWiheaLgLcNFqHcdWveum7PQfMnIUTf9Kl3bFxrIoew=
 github.com/tdewolff/test v1.0.10/go.mod h1:6DAvZliBAAnD7rhVgwaM7DE5/d9NMOAJ09SqYqeK4QE=
 github.com/ugorji/go/codec v1.2.7 h1:YPXUKf7fYbp/y8xloBqZOw2qaVggbfwMlI8WM3wZUJ0=
