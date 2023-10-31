@@ -21,7 +21,7 @@ import (
 	"github.com/bep/logg"
 )
 
-func InitGlobalLogger(panicOnWarnings bool) {
+func InitGlobalLogger(level logg.Level, panicOnWarnings bool) {
 	logMu.Lock()
 	defer logMu.Unlock()
 	var logHookLast func(e *logg.Entry) error
@@ -31,6 +31,7 @@ func InitGlobalLogger(panicOnWarnings bool) {
 
 	log = New(
 		Options{
+			Level:       level,
 			Distinct:    true,
 			HandlerPost: logHookLast,
 		},
@@ -49,5 +50,5 @@ func Log() Logger {
 var log Logger
 
 func init() {
-	InitGlobalLogger(false)
+	InitGlobalLogger(logg.LevelWarn, false)
 }
