@@ -298,12 +298,6 @@ Enable generation of `robots.txt` file.
 
 See [Front matter Configuration](#configure-front-matter).
 
-### googleAnalytics
-
-**Default value:** ""
-
-Google Analytics tracking ID.
-
 ### hasCJKLanguage
 
 **Default value:** false
