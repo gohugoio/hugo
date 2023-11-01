@@ -44,8 +44,10 @@
 
 {{- /* Deprecate site.Social.facebook_admin in favor of site.Params.social.facebook_admin */}}
 {{- $facebookAdmin := "" }}
-{{- with site.Params.social.facebook_admin }}
-  {{- $facebookAdmin = . }}
+{{- with site.Params.social }}
+  {{- if reflect.IsMap . }}
+    {{- $facebookAdmin = .facebook_admin }}
+  {{- end }}
 {{- else }}
   {{- with site.Social.facebook_admin }}
     {{- $facebookAdmin = . }}
