@@ -15,12 +15,11 @@ package page_generate
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"reflect"
-
-	"errors"
 
 	"github.com/gohugoio/hugo/common/maps"
 
@@ -47,8 +46,7 @@ const header = `// Copyright 2019 The Hugo Authors. All rights reserved.
 `
 
 var (
-	pageInterfaceDeprecated = reflect.TypeOf((*page.DeprecatedWarningPageMethods)(nil)).Elem()
-	pageInterface           = reflect.TypeOf((*page.Page)(nil)).Elem()
+	pageInterface = reflect.TypeOf((*page.Page)(nil)).Elem()
 
 	packageDir = filepath.FromSlash("resources/page")
 )
@@ -56,10 +54,6 @@ var (
 func Generate(c *codegen.Inspector) error {
 	if err := generateMarshalJSON(c); err != nil {
 		return fmt.Errorf("failed to generate JSON marshaler: %w", err)
-	}
-
-	if err := generateDeprecatedWrappers(c); err != nil {
-		return fmt.Errorf("failed to generate deprecate wrappers: %w", err)
 	}
 
 	if err := generateFileIsZeroWrappers(c); err != nil {
@@ -81,10 +75,6 @@ func generateMarshalJSON(c *codegen.Inspector) error {
 
 	// Exclude these methods
 	excludes := []reflect.Type{
-		// We need to evaluate the deprecated vs JSON in the future,
-		// but leave them out for now.
-		pageInterfaceDeprecated,
-
 		// Leave this out for now. We need to revisit the author issue.
 		reflect.TypeOf((*page.AuthorProvider)(nil)).Elem(),
 
@@ -129,71 +119,6 @@ package page
 
 
 `, header, importsString(pkgImports), marshalJSON)
-
-	return nil
-}
-
-func generateDeprecatedWrappers(c *codegen.Inspector) error {
-	filename := filepath.Join(c.ProjectRootDir, packageDir, "page_wrappers.autogen.go")
-	f, err := os.Create(filename)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	// Generate a wrapper for deprecated page methods
-
-	reasons := map[string]string{
-		"IsDraft":        "Use .Draft.",
-		"Hugo":           "Use the global hugo function.",
-		"LanguagePrefix": "Use .Site.LanguagePrefix.",
-		"GetParam":       "Use .Param or .Params.myParam.",
-		"RSSLink": `Use the Output Format's link, e.g. something like:
-    {{ with .OutputFormats.Get "RSS" }}{{ .RelPermalink }}{{ end }}`,
-		"URL": "Use .Permalink or .RelPermalink. If what you want is the front matter URL value, use .Params.url",
-	}
-
-	deprecated := func(name string, tp reflect.Type) string {
-		alternative, found := reasons[name]
-		if !found {
-			panic(fmt.Sprintf("no deprecated reason found for %q", name))
-		}
-
-		return fmt.Sprintf("helpers.Deprecated(%q, %q, true)", "Page."+name, alternative)
-	}
-
-	var buff bytes.Buffer
-
-	methods := c.MethodsFromTypes([]reflect.Type{pageInterfaceDeprecated}, nil)
-
-	for _, m := range methods {
-		fmt.Fprint(&buff, m.Declaration("*pageDeprecated"))
-		fmt.Fprintln(&buff, " {")
-		fmt.Fprintf(&buff, "\t%s\n", deprecated(m.Name, m.Owner))
-		fmt.Fprintf(&buff, "\t%s\n}\n", m.Delegate("p", "p"))
-
-	}
-
-	pkgImports := methods.Imports()
-	// pkgImports := append(methods.Imports(), "github.com/gohugoio/hugo/helpers")
-
-	fmt.Fprintf(f, `%s
-
-package page
-
-%s
-// NewDeprecatedWarningPage adds deprecation warnings to the given implementation.
-func NewDeprecatedWarningPage(p DeprecatedWarningPageMethods) DeprecatedWarningPageMethods {
-	return &pageDeprecated{p: p}
-}
-
-type pageDeprecated struct {
-	p DeprecatedWarningPageMethods
-}
-
-%s
-
-`, header, importsString(pkgImports), buff.String())
 
 	return nil
 }
