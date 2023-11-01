@@ -48,7 +48,7 @@ A fictional example using all of the above options:
 
 ```go-html-template
 {{ $page := . }}
-{{ $opts := 
+{{ $opts := dict
   "indices" (slice "tags" "keywords")
   "document" $page
   "namedSlices" (slice (keyVals "tags" "hugo" "rocks") (keyVals "date" $page.Date))
