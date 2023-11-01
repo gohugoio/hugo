@@ -31,9 +31,9 @@ func InitGlobalLogger(level logg.Level, panicOnWarnings bool) {
 
 	log = New(
 		Options{
-			Level:       level,
-			Distinct:    true,
-			HandlerPost: logHookLast,
+			Level:         level,
+			DistinctLevel: logg.LevelInfo,
+			HandlerPost:   logHookLast,
 		},
 	)
 }

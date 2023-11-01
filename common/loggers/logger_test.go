@@ -29,10 +29,10 @@ func TestLogDistinct(t *testing.T) {
 	c := qt.New(t)
 
 	opts := loggers.Options{
-		Distinct:    true,
-		StoreErrors: true,
-		Stdout:      io.Discard,
-		Stderr:      io.Discard,
+		DistinctLevel: logg.LevelWarn,
+		StoreErrors:   true,
+		Stdout:        io.Discard,
+		Stderr:        io.Discard,
 	}
 
 	l := loggers.New(opts)
@@ -85,7 +85,6 @@ func TestOptionStoreErrors(t *testing.T) {
 
 	c.Assert(sb.String(), qt.Contains, "error 1")
 	c.Assert(sb.String(), qt.Contains, "ERROR")
-
 }
 
 func TestLogCount(t *testing.T) {
@@ -124,17 +123,16 @@ func TestSuppressStatements(t *testing.T) {
 	c.Assert(errorsStr, qt.Not(qt.Contains), "error 1")
 	c.Assert(errorsStr, qt.Contains, "error 2")
 	c.Assert(l.LoggCount(logg.LevelError), qt.Equals, 1)
-
 }
 
 func TestReset(t *testing.T) {
 	c := qt.New(t)
 
 	opts := loggers.Options{
-		StoreErrors: true,
-		Distinct:    true,
-		Stdout:      io.Discard,
-		Stderr:      io.Discard,
+		StoreErrors:   true,
+		DistinctLevel: logg.LevelWarn,
+		Stdout:        io.Discard,
+		Stderr:        io.Discard,
 	}
 
 	l := loggers.New(opts)
