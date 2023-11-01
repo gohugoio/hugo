@@ -14,6 +14,7 @@
 package hugolib_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/hugolib"
@@ -85,5 +86,31 @@ tags: ['T1']
 	b.AssertFileContent("public/en/tags/t1/index.html",
 		"<ul><li>T1-en</li></ul>",
 	)
+
+}
+
+// Issue #11538
+func TestRenderStringBadMarkupOpt(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- layouts/index.html --
+{{ $opts := dict "markup" "foo" }}
+{{ "something" | .RenderString $opts }}
+	`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	)
+
+	_, err := b.BuildE()
+
+	want := `no content renderer found for markup "foo"`
+	if !strings.Contains(err.Error(), want) {
+		t.Errorf("error msg must contain %q, error msg actually contains %q", want, err.Error())
+	}
 
 }

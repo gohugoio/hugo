@@ -592,6 +592,6 @@ See the documentation on [`where`] and
 [taxvars]: /variables/taxonomy/
 [views]: /templates/views/
 [`where`]: /functions/collections/where
-[`first]: /functions/first/
+[`first`]: /functions/first/
 [main sections]: /functions/collections/where#mainsections
 [`time.Format`]: /functions/time/format

@@ -93,10 +93,10 @@ func LoadConfig(d ConfigSourceDescriptor) (*Configs, error) {
 
 	// This is unfortunate, but these are global settings.
 	tpl.SetSecurityAllowActionJSTmpl(configs.Base.Security.GoTemplates.AllowActionJSTmpl)
-	loggers.InitGlobalLogger(configs.Base.PanicOnWarning)
+
+	loggers.InitGlobalLogger(d.Logger.Level(), configs.Base.PanicOnWarning)
 
 	return configs, nil
-
 }
 
 // ConfigSourceDescriptor describes where to find the config (e.g. config.toml etc.).
@@ -330,7 +330,6 @@ func (l *configLoader) envStringToVal(k, v string) any {
 	default:
 		return v
 	}
-
 }
 
 func (l *configLoader) loadConfigMain(d ConfigSourceDescriptor) (config.LoadConfigResult, modules.ModulesConfig, error) {

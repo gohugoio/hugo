@@ -96,6 +96,10 @@ archive_alias_replacements = { "linux-amd64.tar.gz" = "Linux-64bit.tar.gz" }
         goos = "openbsd"
         [[builds.os.archs]]
             goarch = "amd64"
+    [[builds.os]]
+        goos = "solaris"
+        [[builds.os.archs]]
+            goarch = "amd64"
 
 [[builds]]
     path = "container1/unix/extended"

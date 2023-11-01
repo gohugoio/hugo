@@ -394,10 +394,10 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 
 		logger := loggers.New(
 			loggers.Options{
-				Stdout:   w,
-				Stderr:   w,
-				Level:    s.Cfg.LogLevel,
-				Distinct: true,
+				Stdout:        w,
+				Stderr:        w,
+				Level:         s.Cfg.LogLevel,
+				DistinctLevel: logg.LevelWarn,
 			},
 		)
 

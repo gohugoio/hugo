@@ -63,7 +63,6 @@ Ensure you run this within the root directory of your site.`,
 					cmd.Flags().StringVarP(&contentType, "kind", "k", "", "content type to create")
 					cmd.Flags().String("editor", "", "edit new content with this editor, if provided")
 					cmd.Flags().BoolVarP(&force, "force", "f", false, "overwrite file if it already exists")
-					cmd.Flags().StringVar(&format, "format", "toml", "preferred file format (toml, yaml or json)")
 					applyLocalFlagsBuildConfig(cmd, r)
 
 				},

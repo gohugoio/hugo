@@ -30,6 +30,7 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs"
 
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/para"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/resources/postpub"
@@ -172,7 +173,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		return err
 	}
 
-	errorCount := h.Log.LoggCount(logg.LevelError)
+	errorCount := h.Log.LoggCount(logg.LevelError) + loggers.Log().LoggCount(logg.LevelError)
 	if errorCount > 0 {
 		return fmt.Errorf("logged %d error(s)", errorCount)
 	}

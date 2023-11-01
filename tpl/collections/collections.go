@@ -17,15 +17,13 @@ package collections
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"html/template"
 	"math/rand"
 	"net/url"
 	"reflect"
 	"strings"
 	"time"
-
-	"errors"
 
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/hugo"
@@ -101,7 +99,7 @@ func (ns *Namespace) After(n any, l any) (any, error) {
 
 // Delimit takes a given list l and returns a string delimited by sep.
 // If last is passed to the function, it will be used as the final delimiter.
-func (ns *Namespace) Delimit(ctx context.Context, l, sep any, last ...any) (template.HTML, error) {
+func (ns *Namespace) Delimit(ctx context.Context, l, sep any, last ...any) (string, error) {
 	d, err := cast.ToStringE(sep)
 	if err != nil {
 		return "", err
@@ -154,7 +152,7 @@ func (ns *Namespace) Delimit(ctx context.Context, l, sep any, last ...any) (temp
 		return "", fmt.Errorf("can't iterate over %v", l)
 	}
 
-	return template.HTML(str), nil
+	return str, nil
 }
 
 // Dictionary creates a new map from the given parameters by

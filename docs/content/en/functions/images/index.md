@@ -17,9 +17,9 @@ See [images.Filter](#filter) for how to apply these filters to an image.
 
 {{< new-in "0.119.0" >}}
 
-{{% funcsig %}}
+{{< funcsig >}}
 images.Process SRC SPEC
-{{% /funcsig %}}
+{{< /funcsig >}}
 
 A general purpose image processing function.
 
@@ -36,9 +36,9 @@ This filter has all the same options as the [Process](/content-management/image-
 
 ## Overlay
 
-{{% funcsig %}}
+{{< funcsig >}}
 images.Overlay SRC X Y
-{{% /funcsig %}}
+{{< /funcsig >}}
 
 Overlay creates a filter that overlays the source image at position x y, e.g:
 
@@ -60,9 +60,9 @@ The above will overlay `$logo` in the upper left corner of `$img` (at position `
 
 {{< new-in "0.119.0" >}}
 
-{{% funcsig %}}
+{{< funcsig >}}
 images.Opacity SRC OPACITY
-{{% /funcsig %}}
+{{< /funcsig >}}
 
 Opacity creates a filter that changes the opacity of an image.
 The OPACITY parameter must be in range (0, 1).
@@ -84,9 +84,9 @@ This filter is most useful for target formats that support transparency, e.g. PN
 
 Using the `Text` filter, you can add text to an image.
 
-{{% funcsig %}}
+{{< funcsig >}}
 images.Text TEXT MAP)
-{{% /funcsig %}}
+{{< /funcsig >}}
 
 The following example will add the text `Hugo rocks!` to the image with the specified color, size and position.
 
@@ -104,7 +104,6 @@ The following example will add the text `Hugo rocks!` to the image with the spec
 You can load a custom font if needed. Load the font as a Hugo `Resource` and set it as an option:
 
 ```go-html-template
-
 {{ $font := resources.GetRemote "https://github.com/google/fonts/raw/main/apache/roboto/static/Roboto-Black.ttf" }}
 {{ $img := resources.Get "/images/background.png" }}
 {{ $img = $img.Filter (images.Text "Hugo rocks!" (dict
@@ -112,30 +111,57 @@ You can load a custom font if needed. Load the font as a Hugo `Resource` and set
 ))}}
 ```
 
+## Padding
+
+Padding creates a filter that resizes the image canvas without resizing the image. The last argument is the canvas color, expressed as an RGB or RGBA [hexadecimal color]. The default value is `ffffffff` (opaque white). The preceding arguments are the padding values, in pixels, using the CSS [shorthand property] syntax. Negative padding values will crop the image.
+
+[hexadecimal color]: https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color
+[shorthand property]: https://developer.mozilla.org/en-US/docs/Web/CSS/Shorthand_properties#edges_of_a_box
+
+{{% funcsig %}}
+images.Padding V1 [V2] [V3] [V4] [COLOR]
+{{% /funcsig %}}
+
+This example resizes the image to 300px wide, converts it to the WebP format, adds 20px vertical padding and 50px horizontal padding, then sets the canvas color to dark green with 33% opacity.
+
+```go-html-template
+{{ $img := resources.Get "images/a.jpg" }}
+{{ $filters := slice
+  (images.Process "resize 300x webp")
+  (images.Padding 20 50 "#0705")
+}}
+{{ $img = $img.Filter $filters }}
+```
+
+To add a 2px gray border to an image:
+
+```go-html-template
+{{ $img = $img.Filter (images.Padding 2 "#777") }}
+```
 
 ## Brightness
 
-{{% funcsig %}}
+{{< funcsig >}}
 images.Brightness PERCENTAGE
-{{% /funcsig %}}
+{{< /funcsig >}}
 
 Brightness creates a filter that changes the brightness of an image.
 The percentage parameter must be in range (-100, 100).
 
 ### ColorBalance
 
-{{% funcsig %}}
+{{< funcsig >}}
 images.ColorBalance PERCENTAGERED PERCENTAGEGREEN PERCENTAGEBLUE
-{{% /funcsig %}}
+{{< /funcsig >}}
 
 ColorBalance creates a filter that changes the color balance of an image.
 The percentage parameters for each color channel (red, green, blue) must be in range (-100, 500).
 
 ## Colorize
 
-{{% funcsig %}}
+{{< funcsig >}}
 images.Colorize HUE SATURATION PERCENTAGE
-{{% /funcsig %}}
+{{< /funcsig >}}
 
 Colorize creates a filter that produces a colorized version of an image.
 The hue parameter is the angle on the color wheel, typically in range (0, 360).
@@ -144,18 +170,18 @@ The percentage parameter specifies the strength of the effect, it must be in ran
 
 ## Contrast
 
-{{% funcsig %}}
+{{< funcsig >}}
 images.Contrast PERCENTAGE
-{{% /funcsig %}}
+{{< /funcsig >}}
 
 Contrast creates a filter that changes the contrast of an image.
 The percentage parameter must be in range (-100, 100).
 
 ## Gamma
 
-{{% funcsig %}}
+{{< funcsig >}}
 images.Gamma GAMMA
-{{% /funcsig %}}
+{{< /funcsig >}}
 
 Gamma creates a filter that performs a gamma correction on an image.
 The gamma parameter must be positive. Gamma = 1 gives the original image.
@@ -163,75 +189,75 @@ Gamma less than 1 darkens the image and gamma greater than 1 lightens it.
 
 ## GaussianBlur
 
-{{% funcsig %}}
+{{< funcsig >}}
 images.GaussianBlur SIGMA
-{{% /funcsig %}}
+{{< /funcsig >}}
 
 GaussianBlur creates a filter that applies a gaussian blur to an image.
 
 ## Grayscale
 
-{{% funcsig %}}
+{{< funcsig >}}
 images.Grayscale
-{{% /funcsig %}}
+{{< /funcsig >}}
 
 Grayscale creates a filter that produces a grayscale version of an image.
 
 ## Hue
 
-{{% funcsig %}}
+{{< funcsig >}}
 images.Hue SHIFT
-{{% /funcsig %}}
+{{< /funcsig >}}
 
 Hue creates a filter that rotates the hue of an image.
 The hue angle shift is typically in range -180 to 180.
 
 ## Invert
 
-{{% funcsig %}}
+{{< funcsig >}}
 images.Invert
-{{% /funcsig %}}
+{{< /funcsig >}}
 
 Invert creates a filter that negates the colors of an image.
 
 ## Pixelate
 
-{{% funcsig %}}
+{{< funcsig >}}
 images.Pixelate SIZE
-{{% /funcsig %}}
+{{< /funcsig >}}
 
 Pixelate creates a filter that applies a pixelation effect to an image.
 
 ## Saturation
 
-{{% funcsig %}}
+{{< funcsig >}}
 images.Saturation PERCENTAGE
-{{% /funcsig %}}
+{{< /funcsig >}}
 
 Saturation creates a filter that changes the saturation of an image.
 
 ## Sepia
 
-{{% funcsig %}}
+{{< funcsig >}}
 images.Sepia PERCENTAGE
-{{% /funcsig %}}
+{{< /funcsig >}}
 
 Sepia creates a filter that produces a sepia-toned version of an image.
 
 ## Sigmoid
 
-{{% funcsig %}}
+{{< funcsig >}}
 images.Sigmoid MIDPOINT FACTOR
-{{% /funcsig %}}
+{{< /funcsig >}}
 
 Sigmoid creates a filter that changes the contrast of an image using a sigmoidal function and returns the adjusted image.
 It's a non-linear contrast change useful for photo adjustments as it preserves highlight and shadow detail.
 
 ## UnsharpMask
 
-{{% funcsig %}}
+{{< funcsig >}}
 images.UnsharpMask SIGMA AMOUNT THRESHOLD
-{{% /funcsig %}}
+{{< /funcsig >}}
 
 UnsharpMask creates a filter that sharpens an image.
 The sigma parameter is used in a gaussian function and affects the radius of effect.
@@ -243,9 +269,9 @@ The threshold parameter controls the minimum brightness change that will be shar
 
 ### Filter
 
-{{% funcsig %}}
+{{< funcsig >}}
 IMAGE | images.Filter FILTERS...
-{{% /funcsig %}}
+{{< /funcsig >}}
 
 Can be used to apply a set of filters to an image:
 
@@ -261,9 +287,9 @@ Parses the image and returns the height, width, and color model.
 
 The `imageConfig` function takes a single parameter, a file path (_string_) relative to the _project's root directory_, with or without a leading slash.
 
-{{% funcsig %}}
+{{< funcsig >}}
 images.ImageConfig PATH
-{{% /funcsig %}}
+{{< /funcsig >}}
 
 ```go-html-template
 {{ with (imageConfig "favicon.ico") }}

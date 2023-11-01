@@ -82,7 +82,7 @@ type Site interface {
 	Hugo() hugo.HugoInfo
 
 	// Returns the BaseURL for this Site.
-	BaseURL() template.URL
+	BaseURL() string
 
 	// Returns a taxonomy map.
 	Taxonomies() TaxonomyList
@@ -172,6 +172,7 @@ func (s *siteWrapper) Social() map[string]string {
 func (s *siteWrapper) Author() map[string]any {
 	return s.s.Author()
 }
+
 func (s *siteWrapper) Authors() AuthorList {
 	return AuthorList{}
 }
@@ -250,7 +251,7 @@ func (s *siteWrapper) Hugo() hugo.HugoInfo {
 	return s.s.Hugo()
 }
 
-func (s *siteWrapper) BaseURL() template.URL {
+func (s *siteWrapper) BaseURL() string {
 	return s.s.BaseURL()
 }
 
@@ -319,6 +320,7 @@ type testSite struct {
 func (s testSite) Author() map[string]any {
 	return nil
 }
+
 func (s testSite) Authors() AuthorList {
 	return AuthorList{}
 }
@@ -421,7 +423,7 @@ func (t testSite) Taxonomies() TaxonomyList {
 	return nil
 }
 
-func (t testSite) BaseURL() template.URL {
+func (t testSite) BaseURL() string {
 	return ""
 }
 
