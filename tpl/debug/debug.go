@@ -24,6 +24,7 @@ import (
 	"github.com/spf13/cast"
 	"github.com/yuin/goldmark/util"
 
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/deps"
 )
 
@@ -154,5 +155,28 @@ func (t *timer) Stop() string {
 		t.elapsed = time.Since(t.start)
 	})
 	// This is used in templates, we need to return something.
+	return ""
+}
+
+// Internal template func, used in tests only.
+func (ns *Namespace) TestDeprecationInfo(item, alternative string) string {
+	v := hugo.CurrentVersion
+	hugo.Deprecate(item, alternative, v.String())
+	return ""
+}
+
+// Internal template func, used in tests only.
+func (ns *Namespace) TestDeprecationWarn(item, alternative string) string {
+	v := hugo.CurrentVersion
+	v.Minor -= 6
+	hugo.Deprecate(item, alternative, v.String())
+	return ""
+}
+
+// Internal template func, used in tests only.
+func (ns *Namespace) TestDeprecationErr(item, alternative string) string {
+	v := hugo.CurrentVersion
+	v.Minor -= 12
+	hugo.Deprecate(item, alternative, v.String())
 	return ""
 }

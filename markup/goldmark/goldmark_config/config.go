@@ -44,9 +44,10 @@ var Default = Config{
 		LinkifyProtocol: "https",
 		TaskList:        true,
 		CJK: CJK{
-			Enable:              false,
-			EastAsianLineBreaks: false,
-			EscapedSpace:        false,
+			Enable:                   false,
+			EastAsianLineBreaks:      false,
+			EastAsianLineBreaksStyle: "simple",
+			EscapedSpace:             false,
 		},
 	},
 	Renderer: Renderer{
@@ -117,6 +118,9 @@ type CJK struct {
 
 	// Whether softline breaks between east asian wide characters should be ignored.
 	EastAsianLineBreaks bool
+
+	// Styles of Line Breaking of EastAsianLineBreaks: "simple" or "css3draft"
+	EastAsianLineBreaksStyle string
 
 	// Whether a '\' escaped half-space(0x20) should not be rendered.
 	EscapedSpace bool

@@ -441,11 +441,11 @@ func (r *rootCommand) createLogger(running bool) (loggers.Logger, error) {
 	}
 
 	optsLogger := loggers.Options{
-		Distinct:    true,
-		Level:       level,
-		Stdout:      r.Out,
-		Stderr:      r.Out,
-		StoreErrors: running,
+		DistinctLevel: logg.LevelWarn,
+		Level:         level,
+		Stdout:        r.Out,
+		Stderr:        r.Out,
+		StoreErrors:   running,
 	}
 
 	return loggers.New(optsLogger), nil

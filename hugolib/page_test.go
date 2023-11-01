@@ -356,8 +356,8 @@ func normalizeExpected(ext, str string) string {
 }
 
 func testAllMarkdownEnginesForPages(t *testing.T,
-	assertFunc func(t *testing.T, ext string, pages page.Pages), settings map[string]any, pageSources ...string) {
-
+	assertFunc func(t *testing.T, ext string, pages page.Pages), settings map[string]any, pageSources ...string,
+) {
 	engines := []struct {
 		ext           string
 		shouldExecute func() bool
@@ -643,7 +643,6 @@ Simple Page With Some Date`
 }
 
 func TestPageRawContent(t *testing.T) {
-
 	files := `
 -- hugo.toml --
 -- content/basic.md --
@@ -668,7 +667,6 @@ title: "empty"
 
 	b.AssertFileContent("public/basic/index.html", "|**basic**|")
 	b.AssertFileContent("public/empty/index.html", "! title")
-
 }
 
 func TestPageWithShortCodeInSummary(t *testing.T) {
@@ -1954,5 +1952,4 @@ func TestRenderWithoutArgument(t *testing.T) {
 	).BuildE()
 
 	b.Assert(err, qt.IsNotNil)
-
 }

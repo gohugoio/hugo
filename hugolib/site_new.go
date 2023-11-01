@@ -117,7 +117,7 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 
 		logOpts := loggers.Options{
 			Level:              cfg.LogLevel,
-			Distinct:           true, // This will drop duplicate log warning and errors.
+			DistinctLevel:      logg.LevelWarn, // This will drop duplicate log warning and errors.
 			HandlerPost:        logHookLast,
 			Stdout:             cfg.LogOut,
 			Stderr:             cfg.LogOut,
@@ -417,8 +417,8 @@ func (s *Site) Hugo() hugo.HugoInfo {
 }
 
 // Returns the BaseURL for this Site.
-func (s *Site) BaseURL() template.URL {
-	return template.URL(s.conf.C.BaseURL.WithPath)
+func (s *Site) BaseURL() string {
+	return s.conf.C.BaseURL.WithPath
 }
 
 // Returns the last modification date of the content.

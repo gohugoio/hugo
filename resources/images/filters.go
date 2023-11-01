@@ -16,6 +16,7 @@ package images
 
 import (
 	"fmt"
+	"image/color"
 
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
@@ -30,6 +31,7 @@ const filterAPIVersion = 0
 
 type Filters struct{}
 
+// Process creates a filter that processes an image using the given specification.
 func (*Filters) Process(spec any) gift.Filter {
 	return filter{
 		Options: newFilterOpts(spec),
@@ -107,6 +109,68 @@ func (*Filters) Text(text string, options ...any) gift.Filter {
 	return filter{
 		Options: newFilterOpts(text, opt),
 		Filter:  tf,
+	}
+}
+
+// Padding creates a filter that resizes the image canvas without resizing the
+// image. The last argument is the canvas color, expressed as an RGB or RGBA
+// hexadecimal color. The default value is `ffffffff` (opaque white). The
+// preceding arguments are the padding values, in pixels, using the CSS
+// shorthand property syntax. Negative padding values will crop the image. The
+// signature is images.Padding V1 [V2] [V3] [V4] [COLOR].
+func (*Filters) Padding(args ...any) gift.Filter {
+	if len(args) < 1 || len(args) > 5 {
+		panic("the padding filter requires between 1 and 5 arguments")
+	}
+
+	var top, right, bottom, left int
+	var ccolor color.Color = color.White // canvas color
+	var err error
+
+	_args := args // preserve original args for most stable hash
+
+	if vcs, ok := (args[len(args)-1]).(string); ok {
+		ccolor, err = hexStringToColor(vcs)
+		if err != nil {
+			panic("invalid canvas color: specify RGB or RGBA using hex notation")
+		}
+		args = args[:len(args)-1]
+		if len(args) == 0 {
+			panic("not enough arguments: provide one or more padding values using the CSS shorthand property syntax")
+		}
+	}
+
+	var vals []int
+	for _, v := range args {
+		vi := cast.ToInt(v)
+		if vi > 5000 {
+			panic("padding values must not exceed 5000 pixels")
+		}
+		vals = append(vals, vi)
+	}
+
+	switch len(args) {
+	case 1:
+		top, right, bottom, left = vals[0], vals[0], vals[0], vals[0]
+	case 2:
+		top, right, bottom, left = vals[0], vals[1], vals[0], vals[1]
+	case 3:
+		top, right, bottom, left = vals[0], vals[1], vals[2], vals[1]
+	case 4:
+		top, right, bottom, left = vals[0], vals[1], vals[2], vals[3]
+	default:
+		panic(fmt.Sprintf("too many padding values: received %d, expected maximum of 4", len(args)))
+	}
+
+	return filter{
+		Options: newFilterOpts(_args...),
+		Filter: paddingFilter{
+			top:    top,
+			right:  right,
+			bottom: bottom,
+			left:   left,
+			ccolor: ccolor,
+		},
 	}
 }
 

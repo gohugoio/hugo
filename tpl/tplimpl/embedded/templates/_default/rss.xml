@@ -1,7 +1,11 @@
 {{- /* Deprecate site.Author.email in favor of site.Params.author.email */}}
 {{- $authorEmail := "" }}
-{{- with site.Params.author.email }}
-  {{- $authorEmail = . }}
+{{- with site.Params.author }}
+  {{- if reflect.IsMap . }}
+    {{- with .email }}
+      {{- $authorEmail = . }}
+    {{- end }}
+  {{- end }}
 {{- else }}
   {{- with site.Author.email }}
     {{- $authorEmail = . }}
@@ -11,8 +15,14 @@
 
 {{- /* Deprecate site.Author.name in favor of site.Params.author.name */}}
 {{- $authorName := "" }}
-{{- with site.Params.author.name }}
-  {{- $authorName = . }}
+{{- with site.Params.author }}
+  {{- if reflect.IsMap . }}
+    {{- with .name }}
+      {{- $authorName = . }}
+    {{- end }}
+  {{- else }}
+    {{- $authorName  = . }}
+  {{- end }}
 {{- else }}
   {{- with site.Author.name }}
     {{- $authorName = . }}
