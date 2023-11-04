@@ -68,7 +68,7 @@ If none of these exists, Hugo uses a built-in default archetype.
 
 ## Functions and context
 
-You can use any [template function] within an archetype. As shown above, the default archetype uses the [`replace`](/functions/replace/) function to replace hyphens with spaces when populating the title in front matter.
+You can use any [template function] within an archetype. As shown above, the default archetype uses the [`replace`](/functions/strings/replace) function to replace hyphens with spaces when populating the title in front matter.
 
 Archetypes receive the following objects and values in [context]:
 

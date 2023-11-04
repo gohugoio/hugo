@@ -187,7 +187,7 @@ Rendered:
 
 To specify one or more [highlighting options], include a quotation-encapsulated, comma-separated list:
 
-[highlighting options]: /functions/highlight/
+[highlighting options]: /functions/transform/highlight/
 
 ```text
 {{</* highlight go-html-template "lineNos=inline, lineNoStart=42" */>}}
@@ -391,7 +391,7 @@ To learn more about creating custom shortcodes, see the [shortcode template docu
 [`figure` shortcode]: #figure
 [contentmanagementsection]: /content-management/formats/
 [examplegist]: https://gist.github.com/spf13/7896402
-[figureelement]: https://html5doctor.com/the-figure-figcaption-elements/ "An article from HTML5 doctor discussing the fig and figcaption elements."
+[figureelement]: https://html5doctor.com/the-figure-figcaption-elements/
 [Hugo and the GDPR]: /about/hugo-and-gdpr/
 [Instagram]: https://www.instagram.com/
 [pagevariables]: /variables/page/

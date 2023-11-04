@@ -9,7 +9,7 @@ menu:
     parent: hugo-pipes
     weight: 60
 weight: 60
-signature: ["js.Build RESOURCE [OPTIONS]"]
+signatures: ["js.Build RESOURCE [OPTIONS]"]
 ---
 
 ## Usage

@@ -14,6 +14,7 @@
 package tableofcontents
 
 import (
+	"html/template"
 	"sort"
 	"strings"
 
@@ -131,7 +132,7 @@ func (toc *Fragments) addAt(h *Heading, row, level int) {
 }
 
 // ToHTML renders the ToC as HTML.
-func (toc *Fragments) ToHTML(startLevel, stopLevel int, ordered bool) string {
+func (toc *Fragments) ToHTML(startLevel, stopLevel int, ordered bool) template.HTML {
 	if toc == nil {
 		return ""
 	}
@@ -143,7 +144,7 @@ func (toc *Fragments) ToHTML(startLevel, stopLevel int, ordered bool) string {
 		ordered:    ordered,
 	}
 	b.Build()
-	return b.s.String()
+	return template.HTML(b.s.String())
 }
 
 func (toc Fragments) walk(fn func(*Heading)) {

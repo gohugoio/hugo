@@ -418,7 +418,7 @@ In the above example, you may want `{{ .Title }}` to point the `title` field you
 {{ end }}
 {{< /code >}}
 
-{{< new-in "0.97.0" >}} `GroupByDate` accepts the same time layouts as in [time.Format](/functions/dateformat/) and The `.Key` in the result will be localized for the current language.
+{{< new-in "0.97.0" >}} `GroupByDate` accepts the same time layouts as in [`time.Format`] and the `.Key` in the result will be localized for the current language.
 
 ### By publish date
 
@@ -437,8 +437,7 @@ In the above example, you may want `{{ .Title }}` to point the `title` field you
 {{ end }}
 {{< /code >}}
 
-{{< new-in "0.97.0" >}} `GroupByDate` accepts the same time layouts as in [time.Format](/functions/dateformat/) and The `.Key` in the result will be localized for the current language.
-
+{{< new-in "0.97.0" >}} `GroupByDate` accepts the same time layouts as in [`time.Format`] and the `.Key` in the result will be localized for the current language.
 
 ### By expiration date
 
@@ -457,7 +456,7 @@ In the above example, you may want `{{ .Title }}` to point the `title` field you
 {{ end }}
 {{< /code >}}
 
-{{< new-in "0.97.0" >}} `GroupByDate` accepts the same time layouts as in [time.Format](/functions/dateformat/) and The `.Key` in the result will be localized for the current language.
+{{< new-in "0.97.0" >}} `GroupByDate` accepts the same time layouts as in [`time.Format`] and the `.Key` in the result will be localized for the current language.
 
 ### By last modified date
 
@@ -476,7 +475,7 @@ In the above example, you may want `{{ .Title }}` to point the `title` field you
 {{ end }}
 {{< /code >}}
 
-{{< new-in "0.97.0" >}} `GroupByDate` accepts the same time layouts as in [time.Format](/functions/dateformat/) and The `.Key` in the result will be localized for the current language.
+{{< new-in "0.97.0" >}} `GroupByDate` accepts the same time layouts as in [`time.Format`] and the `.Key` in the result will be localized for the current language.
 
 ### By page parameter
 
@@ -567,11 +566,11 @@ Here is the ordering for the example that follows:
 ## Filtering and limiting lists
 
 Sometimes you only want to list a subset of the available content. A
-common is to only display posts from [**main sections**][mainsections]
+common is to only display posts from [main sections]
 on the blog's homepage.
 
-See the documentation on [`where` function][wherefunction] and
-[`first` function][firstfunction] for further details.
+See the documentation on [`where`] and
+[`first`] for further details.
 
 [base]: /templates/base/
 [bepsays]: https://bepsays.com/en/2016/12/19/hugo-018/
@@ -580,11 +579,10 @@ See the documentation on [`where` function][wherefunction] and
 [front matter]: /content-management/front-matter/
 [getpage]: /functions/getpage/
 [homepage]: /templates/homepage/
-[homepage]: /templates/homepage/
 [mentalmodel]: https://webstyleguide.com/wsg3/3-information-architecture/3-site-structure.html
 [pagevars]: /variables/page/
 [partials]: /templates/partials/
-[RSS 2.0]: https://cyber.harvard.edu/rss/rss.html "RSS 2.0 Specification"
+[RSS 2.0]: https://cyber.harvard.edu/rss/rss.html
 [rss]: /templates/rss/
 [sections]: /content-management/sections/
 [sectiontemps]: /templates/section-templates/
@@ -593,6 +591,7 @@ See the documentation on [`where` function][wherefunction] and
 [taxterms]: /templates/taxonomy-templates/#taxonomy-terms-templates
 [taxvars]: /variables/taxonomy/
 [views]: /templates/views/
-[wherefunction]: /functions/where/
-[firstfunction]: /functions/first/
-[mainsections]: /functions/where/#mainsections
+[`where`]: /functions/collections/where
+[`first`]: /functions/first/
+[main sections]: /functions/collections/where#mainsections
+[`time.Format`]: /functions/time/format

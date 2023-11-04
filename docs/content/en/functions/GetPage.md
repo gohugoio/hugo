@@ -1,13 +1,16 @@
 ---
 title: .GetPage
-description: "Gets a `Page` of a given `path`."
+description: Gets a `Page` of a given `path`.
 categories: [functions]
+keywords: []
 menu:
   docs:
     parent: functions
-keywords: [sections,lists,indexes]
-signature: [".GetPage PATH"]
-relatedfuncs: []
+function:
+  aliases: []
+  returnType:
+  signatures: [.GetPage PATH]
+relatedFunctions: []
 ---
 
 `.GetPage` returns a page of a given `path`. Both `Site` and `Page` implements this method. The `Page` variant will, if given a relative path -- i.e. a path without a leading `/` -- try look for the page relative to the current page.

@@ -339,8 +339,6 @@ type PageWithoutContent interface {
 	// This is currently only triggered with the Related content feature
 	// and the "fragments" type of index.
 	HeadingsFiltered(context.Context) tableofcontents.Headings
-
-	DeprecatedWarningPageMethods
 }
 
 // Positioner provides next/prev navigation.
@@ -417,7 +415,6 @@ type TableOfContentsProvider interface {
 
 // TranslationsProvider provides access to any translations.
 type TranslationsProvider interface {
-
 	// IsTranslated returns whether this content file is translated to
 	// other language(s).
 	IsTranslated() bool
@@ -431,7 +428,6 @@ type TranslationsProvider interface {
 
 // TreeProvider provides section tree navigation.
 type TreeProvider interface {
-
 	// IsAncestor returns whether the current page is an ancestor of other.
 	// Note that this method is not relevant for taxonomy lists and taxonomy terms pages.
 	IsAncestor(other any) (bool, error)
@@ -468,15 +464,6 @@ type TreeProvider interface {
 	// for legacy reasons.
 	Page() Page
 }
-
-// DeprecatedWarningPageMethods lists deprecated Page methods that will trigger
-// a WARNING if invoked.
-// This was added in Hugo 0.55.
-type DeprecatedWarningPageMethods any // This was emptied in Hugo 0.93.0.
-
-// Move here to trigger ERROR instead of WARNING.
-// TODO(bep) create wrappers and put into the Page once it has some methods.
-type DeprecatedErrorPageMethods any
 
 // PageWithContext is a Page with a context.Context.
 type PageWithContext struct {

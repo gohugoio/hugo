@@ -1,7 +1,7 @@
 {{ warnf "_internal/google_analytics_async.html is no longer supported by Google and will be removed in a future version of Hugo" }}
 {{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
 {{- if not $pc.Disable -}}
-{{ with .Site.GoogleAnalytics }}
+{{ with .Site.Config.Services.GoogleAnalytics.ID }}
 <script type="application/javascript">
 {{ template "__ga_js_set_doNotTrack" $ }}
 if (!doNotTrack) {

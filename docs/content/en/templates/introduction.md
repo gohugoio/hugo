@@ -114,6 +114,8 @@ all other pages:
 Var is {{ $var }}
 ```
 
+Variable names must conform to Go's naming rules for [identifiers][identifier].
+
 ## Functions
 
 Go Templates only ship with a few basic functions but also provide a mechanism for applications to extend the original set.
@@ -301,7 +303,7 @@ Below example is "Example 1" rewritten using `if`:
 #### Example 4: `if` .. `else`
 
 Below example is "Example 2" rewritten using `if` .. `else`, and using
-[`isset` function][isset] + `.Params` variable (different from the
+[`isset`] + `.Params` variable (different from the
 [`.Param` **function**][param]) instead:
 
 ```go-html-template
@@ -355,7 +357,7 @@ The following two examples are functionally the same:
 
 ### Example 2: `index`
 
-The following accesses the page parameter called "disqus_url" and escapes the HTML. This example also uses the [`index` function](/functions/index-function/), which is built into Go Templates:
+The following accesses the page parameter called "disqus_url" and escapes the HTML. This example also uses the [`index`] function, which is built into Go Templates:
 
 ```go-html-template
 {{ index .Params "disqus_url" | html }}
@@ -569,7 +571,7 @@ params:
   sidebarrecentlimit: 5
 {{< /code >}}
 
-Within a footer layout, you might then declare a `<footer>` that is only rendered if the `copyrighthtml` parameter is provided. If it *is* provided, you will then need to declare the string is safe to use via the [`safeHTML` function][safehtml] so that the HTML entity is not escaped again. This would let you easily update just your top-level configuration file each January 1st, instead of hunting through your templates.
+Within a footer layout, you might then declare a `<footer>` that is only rendered if the `copyrighthtml` parameter is provided. If it *is* provided, you will then need to declare the string is safe to use via the [`safeHTML`] function so that the HTML entity is not escaped again. This would let you easily update just your top-level configuration file each January 1st, instead of hunting through your templates.
 
 ```go-html-template
 {{ if .Site.Params.copyrighthtml }}
@@ -579,7 +581,7 @@ Within a footer layout, you might then declare a `<footer>` that is only rendere
 {{ end }}
 ```
 
-An alternative way of writing the "`if`" and then referencing the same value is to use [`with`][with] instead. `with` rebinds the context (`.`) within its scope and skips the block if the variable is absent:
+An alternative way of writing the "`if`" and then referencing the same value is to use [`with`] instead. `with` rebinds the context (`.`) within its scope and skips the block if the variable is absent:
 
 {{< code file="layouts/partials/twitter.html" >}}
 {{ with .Site.Params.twitteruser }}
@@ -590,7 +592,7 @@ An alternative way of writing the "`if`" and then referencing the same value is 
 {{ end }}
 {{< /code >}}
 
-Finally, you can pull "magic constants" out of your layouts as well. The following uses the [`first`][first] function, as well as the [`.RelPermalink`][relpermalink] page variable and the [`.Site.Pages`][sitevars] site variable.
+Finally, you can pull "magic constants" out of your layouts as well. The following uses the [`first`] function, as well as the [`.RelPermalink`][relpermalink] page variable and the [`.Site.Pages`][sitevars] site variable.
 
 ```go-html-template
 <nav>
@@ -653,19 +655,21 @@ If you restrict front matter to the TOML format, and omit quotation marks surrou
 </ul>
 {{< /code >}}
 
-[dotdoc]: https://golang.org/pkg/text/template/#hdr-Variables
+[`first`]: /functions/collections/first
+[`index`]: /functions/collections/indexfunction
+[`isset`]: /functions/collections/isset
 [config]: /getting-started/configuration
-[first]: /functions/first
+[dotdoc]: https://golang.org/pkg/text/template/#hdr-Variables
 [front matter]: /content-management/front-matter
 [functions]: /functions
+[identifier]: /getting-started/glossary/#identifier
 [internal templates]: /templates/internal
-[isset]: /functions/isset
 [math]: /functions/math
 [pagevars]: /variables/page
 [param]: /functions/param
 [partials]: /templates/partials
 [relpermalink]: /variables/page#page-variables
-[safehtml]: /functions/safehtml
+[`safehtml`]: /functions/safe/html
 [sitevars]: /variables/site
 [variables]: /variables
-[with]: /functions/with
+[`with`]: /functions/go-template/with

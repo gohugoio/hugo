@@ -51,9 +51,10 @@ var pb pathBridge
 
 // MakePermalink combines base URL with content path to create full URL paths.
 // Example
-//    base:   http://spf13.com/
-//    path:   post/how-i-blog
-//    result: http://spf13.com/post/how-i-blog
+//
+//	base:   http://spf13.com/
+//	path:   post/how-i-blog
+//	result: http://spf13.com/post/how-i-blog
 func MakePermalink(host, plink string) *url.URL {
 	base, err := url.Parse(host)
 	if err != nil {
@@ -117,17 +118,19 @@ func PrettifyURL(in string) string {
 
 // PrettifyURLPath takes a URL path to a content and converts it
 // to enable pretty URLs.
-//     /section/name.html       becomes /section/name/index.html
-//     /section/name/           becomes /section/name/index.html
-//     /section/name/index.html becomes /section/name/index.html
+//
+//	/section/name.html       becomes /section/name/index.html
+//	/section/name/           becomes /section/name/index.html
+//	/section/name/index.html becomes /section/name/index.html
 func PrettifyURLPath(in string) string {
 	return prettifyPath(in, pb)
 }
 
 // Uglify does the opposite of PrettifyURLPath().
-//     /section/name/index.html becomes /section/name.html
-//     /section/name/           becomes /section/name.html
-//     /section/name.html       becomes /section/name.html
+//
+//	/section/name/index.html becomes /section/name.html
+//	/section/name/           becomes /section/name.html
+//	/section/name.html       becomes /section/name.html
 func Uglify(in string) string {
 	if path.Ext(in) == "" {
 		if len(in) < 2 {

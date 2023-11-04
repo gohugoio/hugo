@@ -631,7 +631,6 @@ func (p *pageState) wrapError(err error) error {
 	}
 
 	return herrors.NewFileErrorFromFile(err, filename, p.s.SourceSpec.Fs.Source, lineMatcher)
-
 }
 
 func (p *pageState) getContentConverter() converter.Converter {
@@ -674,7 +673,6 @@ func (p *pageState) mapContentForResult(
 	markup string,
 	withFrontMatter func(map[string]any) error,
 ) error {
-
 	iter := result.Iterator()
 
 	fail := func(err error, i pageparser.Item) error {
@@ -792,13 +790,6 @@ Loop:
 			s.shortcodes = append(s.shortcodes, currShortcode)
 
 			rn.AddShortcode(currShortcode)
-
-		case it.Type == pageparser.TypeEmoji:
-			if emoji := helpers.Emoji(it.ValStr(result.Input())); emoji != nil {
-				rn.AddReplacement(emoji, it)
-			} else {
-				rn.AddBytes(it)
-			}
 		case it.IsEOF():
 			break Loop
 		case it.IsError():
