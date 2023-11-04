@@ -927,7 +927,7 @@ func (c *serverCommand) serve() error {
 
 	for i := range baseURLs {
 		mu, listener, serverURL, endpoint, err := srv.createEndpoint(i)
-		var srv *http.Server	
+		var srv *http.Server
 		if c.tlsCertFile != "" && c.tlsKeyFile != "" {
 			srv = &http.Server{
 				Addr:    endpoint,

@@ -38,6 +38,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/htime"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/config"
@@ -50,9 +51,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	errHelp = errors.New("help requested")
-)
+var errHelp = errors.New("help requested")
 
 // Execute executes a command.
 func Execute(args []string) error {
@@ -182,11 +181,9 @@ func (r *rootCommand) ConfigFromConfig(key int32, oldConf *commonConfig) (*commo
 			cfg:     oldConf.cfg,
 			fs:      fs,
 		}, nil
-
 	})
 
 	return cc, err
-
 }
 
 func (r *rootCommand) ConfigFromProvider(key int32, cfg config.Provider) (*commonConfig, error) {
@@ -211,7 +208,7 @@ func (r *rootCommand) ConfigFromProvider(key int32, cfg config.Provider) (*commo
 		if !cfg.IsSet("workingDir") {
 			cfg.Set("workingDir", dir)
 		} else {
-			if err := os.MkdirAll(cfg.GetString("workingDir"), 0777); err != nil {
+			if err := os.MkdirAll(cfg.GetString("workingDir"), 0o777); err != nil {
 				return nil, fmt.Errorf("failed to create workingDir: %w", err)
 			}
 		}
@@ -303,7 +300,6 @@ func (r *rootCommand) ConfigFromProvider(key int32, cfg config.Provider) (*commo
 	})
 
 	return cc, err
-
 }
 
 func (r *rootCommand) HugFromConfig(conf *commonConfig) (*hugolib.HugoSites, error) {
@@ -348,7 +344,6 @@ func (r *rootCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args 
 		err := b.build()
 		return err
 	}()
-
 	if err != nil {
 		return err
 	}
@@ -434,26 +429,26 @@ func (r *rootCommand) createLogger(running bool) (loggers.Logger, error) {
 		}
 	} else {
 		if r.verbose {
-			helpers.Deprecated("--verbose", "use --logLevel info", false)
+			hugo.Deprecate("--verbose", "use --logLevel info", "v0.114.0")
+			hugo.Deprecate("--verbose", "use --logLevel info", "v0.114.0")
 			level = logg.LevelInfo
 		}
 
 		if r.debug {
-			helpers.Deprecated("--debug", "use --logLevel debug", false)
+			hugo.Deprecate("--debug", "use --logLevel debug", "v0.114.0")
 			level = logg.LevelDebug
 		}
 	}
 
 	optsLogger := loggers.Options{
-		Distinct:    true,
-		Level:       level,
-		Stdout:      r.Out,
-		Stderr:      r.Out,
-		StoreErrors: running,
+		DistinctLevel: logg.LevelWarn,
+		Level:         level,
+		Stdout:        r.Out,
+		Stderr:        r.Out,
+		StoreErrors:   running,
 	}
 
 	return loggers.New(optsLogger), nil
-
 }
 
 func (r *rootCommand) Reset() {
@@ -519,7 +514,6 @@ func applyLocalFlagsBuildConfig(cmd *cobra.Command, r *rootCommand) {
 	_ = cmd.Flags().SetAnnotation("cacheDir", cobra.BashCompSubdirsInDir, []string{})
 	cmd.Flags().StringP("contentDir", "c", "", "filesystem path to content directory")
 	_ = cmd.Flags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
-
 }
 
 // Flags needed to do a build (used by hugo and hugo server commands)
@@ -558,7 +552,6 @@ func applyLocalFlagsBuild(cmd *cobra.Command, r *rootCommand) {
 	cmd.Flags().StringSlice("disableKinds", []string{}, "disable different kind of pages (home, RSS etc.)")
 	cmd.Flags().Bool("minify", false, "minify any supported output format (HTML, XML etc.)")
 	_ = cmd.Flags().SetAnnotation("destination", cobra.BashCompSubdirsInDir, []string{})
-
 }
 
 func (r *rootCommand) timeTrack(start time.Time, name string) {

@@ -25,9 +25,9 @@ func init() {
 	// This message to show to Windows users if Hugo is opened from explorer.exe
 	cobra.MousetrapHelpText = `
 
-  Hugo is a command-line tool for generating static website.
+  Hugo is a command-line tool for generating static websites.
 
-  You need to open cmd.exe and run Hugo from there.
-  
+  You need to open PowerShell and run Hugo from there.
+
   Visit https://gohugo.io/ for more information.`
 }

@@ -31,7 +31,6 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/langs/i18n"
@@ -48,9 +47,7 @@ import (
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 )
 
-var (
-	_ page.Site = (*Site)(nil)
-)
+var _ page.Site = (*Site)(nil)
 
 type Site struct {
 	conf     *allconfig.Config
@@ -120,7 +117,7 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 
 		logOpts := loggers.Options{
 			Level:              cfg.LogLevel,
-			Distinct:           true, // This will drop duplicate log warning and errors.
+			DistinctLevel:      logg.LevelWarn, // This will drop duplicate log warning and errors.
 			HandlerPost:        logHookLast,
 			Stdout:             cfg.LogOut,
 			Stderr:             cfg.LogOut,
@@ -236,7 +233,6 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 	}
 
 	return h, err
-
 }
 
 func newHugoSitesNew(cfg deps.DepsCfg, d *deps.Deps, sites []*Site) (*HugoSites, error) {
@@ -356,7 +352,9 @@ func newHugoSitesNew(cfg deps.DepsCfg, d *deps.Deps, sites []*Site) (*HugoSites,
 }
 
 // Returns true if we're running in a server.
+// Deprecated: use hugo.IsServer instead
 func (s *Site) IsServer() bool {
+	hugo.Deprecate(".Site.IsServer", "Use hugo.IsServer instead.", "v0.120.0")
 	return s.conf.Internal.Running
 }
 
@@ -375,7 +373,7 @@ func (s *Site) Copyright() string {
 }
 
 func (s *Site) RSSLink() template.URL {
-	helpers.Deprecated("Site.RSSLink", "Use the Output Format's Permalink method instead, e.g. .OutputFormats.Get \"RSS\".Permalink", false)
+	hugo.Deprecate("Site.RSSLink", "Use the Output Format's Permalink method instead, e.g. .OutputFormats.Get \"RSS\".Permalink", "v0.114.0")
 	rssOutputFormat := s.home.OutputFormats().Get("rss")
 	return template.URL(rssOutputFormat.Permalink())
 }
@@ -419,8 +417,8 @@ func (s *Site) Hugo() hugo.HugoInfo {
 }
 
 // Returns the BaseURL for this Site.
-func (s *Site) BaseURL() template.URL {
-	return template.URL(s.conf.C.BaseURL.WithPath)
+func (s *Site) BaseURL() string {
+	return s.conf.C.BaseURL.WithPath
 }
 
 // Returns the last modification date of the content.
@@ -445,13 +443,15 @@ func (s *Site) Social() map[string]string {
 	return s.conf.Social
 }
 
-// TODO(bep): deprecate.
+// Deprecated: Use .Site.Config.Services.Disqus.Shortname instead
 func (s *Site) DisqusShortname() string {
+	hugo.Deprecate(".Site.DisqusShortname", "Use .Site.Config.Services.Disqus.Shortname instead.", "v0.120.0")
 	return s.Config().Services.Disqus.Shortname
 }
 
-// TODO(bep): deprecate.
+// Deprecated: Use .Site.Config.Services.GoogleAnalytics.ID instead
 func (s *Site) GoogleAnalytics() string {
+	hugo.Deprecate(".Site.GoogleAnalytics", "Use .Site.Config.Services.GoogleAnalytics.ID instead.", "v0.120.0")
 	return s.Config().Services.GoogleAnalytics.ID
 }
 

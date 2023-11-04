@@ -1,0 +1,40 @@
+---
+title: collections.Group
+linkTitle: group
+description: Groups a list of pages.
+categories: [functions]
+keywords: []
+menu:
+  docs:
+    parent: functions
+function:
+  aliases: [group]
+  returnType: any
+  signatures: [PAGES | collections.Group KEY]
+relatedFunctions:
+  - collections.Dictionary
+  - collections.Group
+  - collections.Index
+  - collections.IsSet
+  - collections.Where
+aliases: [/functions/group]
+---
+
+{{< code file="layouts/partials/groups.html" >}}
+{{ $new := .Site.RegularPages | first 10 | group "New" }}
+{{ $old := .Site.RegularPages | last 10 | group "Old" }}
+{{ $groups := slice $new $old }}
+{{ range $groups }}
+  <h3>{{ .Key }}{{/* Prints "New", "Old" */}}</h3>
+  <ul>
+    {{ range .Pages }}
+      <li>
+        <a href="{{ .Permalink }}">{{ .Title }}</a>
+        <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
+      </li>
+    {{ end }}
+  </ul>
+{{ end }}
+{{< /code >}}
+
+The page group you get from `group` is of the same type you get from the built-in [group methods](/templates/lists#group-content) in Hugo. The above example can be [paginated](/templates/pagination/#list-paginator-pages).

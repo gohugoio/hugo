@@ -35,20 +35,11 @@ All the methods below, e.g. `.Site.RegularPages` can also be reached via the glo
 .Site.Data
 : custom data, see [Data Templates](/templates/data-templates/).
 
-.Site.DisqusShortname
-: a string representing the shortname of the Disqus shortcode as defined in the site configuration.
-
-.Site.GoogleAnalytics
-: a string representing your tracking code for Google Analytics as defined in the site configuration.
-
 .Site.Home
 : reference to the homepage's [page object](/variables/page/)
 
 .Site.IsMultiLingual
 : whether there are more than one language in this site. See [Multilingual](/content-management/multilingual/) for more information.
-
-.Site.IsServer
-: a boolean to indicate if the site is being served with Hugo's built-in server. See [`hugo server`](/commands/hugo_server/) for more information.
 
 .Site.Language.Lang
 : the language code of the current locale (e.g., `en`).
@@ -66,19 +57,19 @@ All the methods below, e.g. `.Site.RegularPages` can also be reached via the glo
 : a string representing the language tag as defined in the site configuration.
 
 .Site.LanguagePrefix
-: this can be used to prefix URLs to point to the correct language. It will even work when there is only one defined language. See also the functions [absLangURL](/functions/abslangurl/) and [relLangURL](/functions/rellangurl).
+: this can be used to prefix URLs to point to the correct language. It will even work when there is only one defined language. See also the functions [absLangURL](/functions/urls/abslangurl) and [relLangURL](/functions/urls/rellangurl).
 
 .Site.Languages
 : an ordered list (ordered by defined weight) of languages.
 
 .Site.LastChange
-: a string representing the date/time of the most recent change to your site. This string is based on the [`date` variable in the front matter](/content-management/front-matter) of your content pages.
+: a [time.Time](https://godoc.org/time#Time) value representing the date/time of the most recent change to your site.
 
 .Site.Menus
 : all the menus in the site.
 
 .Site.Pages
-: array of all content ordered by Date with the newest first. This array contains only the pages in the current language. 
+: array of all content ordered by Date with the newest first. This array contains only the pages in the current language.
 
 .Site.RegularPages
 : a shortcut to the *regular* page collection. `.Site.RegularPages` is equivalent to `where .Site.Pages "Kind" "page"`.

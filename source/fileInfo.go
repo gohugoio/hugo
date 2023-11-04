@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/bep/gitmap"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -63,7 +64,6 @@ type fileOverlap interface {
 }
 
 type FileWithoutOverlap interface {
-
 	// Filename gets the full path and filename to the file.
 	Filename() string
 
@@ -102,7 +102,6 @@ type FileWithoutOverlap interface {
 
 // FileInfo describes a source file.
 type FileInfo struct {
-
 	// Absolute filename to the file on disk.
 	filename string
 
@@ -143,7 +142,7 @@ func (fi *FileInfo) Dir() string { return fi.relDir }
 
 // Extension is an alias to Ext().
 func (fi *FileInfo) Extension() string {
-	helpers.Deprecated(".File.Extension", "Use .File.Ext instead. ", false)
+	hugo.Deprecate(".File.Extension", "Use .File.Ext instead.", "v0.96.0")
 	return fi.Ext()
 }
 

@@ -16,7 +16,6 @@ package page
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"math"
 	"reflect"
 
@@ -71,8 +70,8 @@ func (p *Pager) PageNumber() int {
 }
 
 // URL returns the URL to the current page.
-func (p *Pager) URL() template.HTML {
-	return template.HTML(p.paginationURLFactory(p.PageNumber()))
+func (p *Pager) URL() string {
+	return p.paginationURLFactory(p.PageNumber())
 }
 
 // Pages returns the Pages on this page.

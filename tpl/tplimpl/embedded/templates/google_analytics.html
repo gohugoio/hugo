@@ -1,5 +1,5 @@
 {{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
-{{- if not $pc.Disable }}{{ with .Site.GoogleAnalytics -}}
+{{- if not $pc.Disable }}{{ with .Site.Config.Services.GoogleAnalytics.ID -}}
 {{ if hasPrefix . "G-"}}
 <script async src="https://www.googletagmanager.com/gtag/js?id={{ . }}"></script>
 <script>

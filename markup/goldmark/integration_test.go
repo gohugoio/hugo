@@ -410,7 +410,7 @@ func TestHookInfiniteRecursion(t *testing.T) {
 			files := `
 -- config.toml --
 -- layouts/_default/_markup/render-link.html --
-<a href="{{ .Destination | safeURL }}">{{ .Text | RENDERFUNC }}</a>	
+<a href="{{ .Destination | safeURL }}">{{ .Text | RENDERFUNC }}</a>
 -- layouts/_default/single.html --
 {{ .Content }}
 -- content/p1.md --
@@ -421,8 +421,8 @@ title: "p1"
 https://example.org
 
 a@b.com
-		
-			
+
+
 			`
 
 			files = strings.ReplaceAll(files, "RENDERFUNC", renderFunc)
@@ -577,4 +577,115 @@ a <!-- b --> c
 		// Issue 9658 (crash)
 		"<li>This is a list item <!-- Comment: an innocent-looking comment --></li>",
 	)
+}
+
+// Issue #7332
+// Issue #11587
+func TestGoldmarkEmojiExtension(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+enableEmoji = true
+-- content/p1.md --
+---
+title: "p1"
+---
+~~~text
+:x:
+~~~
+
+{{% include "/p2" %}}
+
+{{< sc1 >}}:smiley:{{< /sc1 >}}
+
+{{< sc2 >}}:+1:{{< /sc2 >}}
+
+{{% sc3 %}}:-1:{{% /sc3 %}}
+
+-- content/p2.md --
+---
+title: "p2"
+---
+:heavy_check_mark:
+-- layouts/shortcodes/include.html --
+{{ $p := site.GetPage (.Get 0) }}
+{{ $p.RenderShortcodes }}
+-- layouts/shortcodes/sc1.html --
+sc1_begin|{{ .Inner }}|sc1_end
+-- layouts/shortcodes/sc2.html --
+sc2_begin|{{ .Inner | .Page.RenderString }}|sc2_end
+-- layouts/shortcodes/sc3.html --
+sc3_begin|{{ .Inner }}|sc3_end
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContentExact("public/p1/index.html",
+		// Issue #7332
+		"<span>:x:\n</span>",
+		// Issue #11587
+		"<p>&#x2714;&#xfe0f;</p>",
+		// Should not be converted to emoji
+		"sc1_begin|:smiley:|sc1_end",
+		// Should be converted to emoji
+		"sc2_begin|&#x1f44d;|sc2_end",
+		// Should be converted to emoji
+		"sc3_begin|&#x1f44e;|sc3_end",
+	)
+}
+
+func TestEmojiDisabled(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+enableEmoji = false
+-- content/p1.md --
+---
+title: "p1"
+---
+:x:
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContentExact("public/p1/index.html", "<p>:x:</p>")
+}
+
+func TestEmojiDefaultConfig(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- content/p1.md --
+---
+title: "p1"
+---
+:x:
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContentExact("public/p1/index.html", "<p>:x:</p>")
 }

@@ -94,7 +94,6 @@ type siteConfigHolder struct {
 	taxonomiesConfig taxonomiesConfig
 	timeout          time.Duration
 	hasCJKLanguage   bool
-	enableEmoji      bool
 }
 
 // Lazily loaded site dependencies.

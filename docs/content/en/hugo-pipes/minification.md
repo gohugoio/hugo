@@ -9,7 +9,7 @@ menu:
     parent: hugo-pipes
     weight: 80
 weight: 80
-signature: ["resources.Minify RESOURCE", "minify RESOURCE"]
+signatures: ["resources.Minify RESOURCE", "minify RESOURCE"]
 ---
 
 ## Usage
