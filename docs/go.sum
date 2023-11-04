@@ -75,3 +75,5 @@ github.com/gohugoio/gohugoioTheme v0.0.0-20230630055807-9874cd863bc5 h1:5QDXCq7G
 github.com/gohugoio/gohugoioTheme v0.0.0-20230630055807-9874cd863bc5/go.mod h1:GOYeAPQJ/ok8z7oz1cjfcSlsFpXrmx6VkzQ5RpnyhZM=
 github.com/gohugoio/gohugoioTheme v0.0.0-20230812102551-06f8256e7ee5 h1:QoImGtz9EWmovn3d0vfREKf1ybroA+oO/yFCW/BmWSE=
 github.com/gohugoio/gohugoioTheme v0.0.0-20230812102551-06f8256e7ee5/go.mod h1:GOYeAPQJ/ok8z7oz1cjfcSlsFpXrmx6VkzQ5RpnyhZM=
+github.com/gohugoio/gohugoioTheme v0.0.0-20230927165800-342e2c850f18 h1:fwC86MGMw2yX2tIR+hc+58jlU4pjvc3HUDJ/mTB07Ig=
+github.com/gohugoio/gohugoioTheme v0.0.0-20230927165800-342e2c850f18/go.mod h1:GOYeAPQJ/ok8z7oz1cjfcSlsFpXrmx6VkzQ5RpnyhZM=

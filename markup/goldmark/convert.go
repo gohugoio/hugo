@@ -28,6 +28,7 @@ import (
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/yuin/goldmark"
+	emoji "github.com/yuin/goldmark-emoji"
 	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
@@ -139,7 +140,11 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 	if cfg.Extensions.CJK.Enable {
 		opts := []extension.CJKOption{}
 		if cfg.Extensions.CJK.EastAsianLineBreaks {
-			opts = append(opts, extension.WithEastAsianLineBreaks())
+			if cfg.Extensions.CJK.EastAsianLineBreaksStyle == "css3draft" {
+				opts = append(opts, extension.WithEastAsianLineBreaks(extension.EastAsianLineBreaksCSS3Draft))
+			} else {
+				opts = append(opts, extension.WithEastAsianLineBreaks())
+			}
 		}
 
 		if cfg.Extensions.CJK.EscapedSpace {
@@ -149,6 +154,10 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 		extensions = append(extensions, c)
 	}
 
+	if pcfg.Conf.EnableEmoji() {
+		extensions = append(extensions, emoji.Emoji)
+	}
+
 	if cfg.Parser.AutoHeadingID {
 		parserOptions = append(parserOptions, parser.WithAutoHeadingID())
 	}
@@ -156,6 +165,7 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 	if cfg.Parser.Attribute.Title {
 		parserOptions = append(parserOptions, parser.WithAttribute())
 	}
+
 	if cfg.Parser.Attribute.Block {
 		extensions = append(extensions, attributes.New())
 	}

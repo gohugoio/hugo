@@ -16,7 +16,6 @@ package page
 import (
 	"context"
 	"fmt"
-	"html/template"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -119,7 +118,7 @@ func doTestPages(t *testing.T, paginator *Paginator) {
 	c.Assert(paginator.TotalPages(), qt.Equals, 5)
 
 	first := paginatorPages[0]
-	c.Assert(first.URL(), qt.Equals, template.HTML("page/1/"))
+	c.Assert(first.URL(), qt.Equals, "page/1/")
 	c.Assert(first.First(), qt.Equals, first)
 	c.Assert(first.HasNext(), qt.Equals, true)
 	c.Assert(first.Next(), qt.Equals, paginatorPages[1])
@@ -134,7 +133,7 @@ func doTestPages(t *testing.T, paginator *Paginator) {
 	c.Assert(third.Prev(), qt.Equals, paginatorPages[1])
 
 	last := paginatorPages[4]
-	c.Assert(last.URL(), qt.Equals, template.HTML("page/5/"))
+	c.Assert(last.URL(), qt.Equals, "page/5/")
 	c.Assert(last.Last(), qt.Equals, last)
 	c.Assert(last.HasNext(), qt.Equals, false)
 	c.Assert(last.Next(), qt.IsNil)

@@ -3,7 +3,7 @@ module github.com/gohugoio/hugo
 require (
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
 	github.com/PuerkitoBio/purell v1.1.1
-	github.com/alecthomas/chroma/v2 v2.9.1
+	github.com/alecthomas/chroma/v2 v2.10.0
 	github.com/armon/go-radix v1.0.0
 	github.com/aws/aws-sdk-go v1.45.14
 	github.com/bep/clocks v0.5.0
@@ -15,7 +15,7 @@ require (
 	github.com/bep/golibsass v1.1.1
 	github.com/bep/gowebp v0.2.0
 	github.com/bep/lazycache v0.2.0
-	github.com/bep/logg v0.2.0
+	github.com/bep/logg v0.3.0
 	github.com/bep/mclib v1.20400.20402
 	github.com/bep/overlayfs v0.6.0
 	github.com/bep/simplecobra v0.3.2
@@ -24,11 +24,11 @@ require (
 	github.com/cli/safeexec v1.0.1
 	github.com/disintegration/gift v1.2.1
 	github.com/dustin/go-humanize v1.0.1
-	github.com/evanw/esbuild v0.19.3
+	github.com/evanw/esbuild v0.19.5
 	github.com/fatih/color v1.15.0
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/frankban/quicktest v1.14.6
-	github.com/fsnotify/fsnotify v1.6.0
+	github.com/fsnotify/fsnotify v1.7.0
 	github.com/getkin/kin-openapi v0.120.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/gobuffalo/flect v1.0.2
@@ -37,7 +37,7 @@ require (
 	github.com/gohugoio/locales v0.14.0
 	github.com/gohugoio/localescompressed v1.0.1
 	github.com/gohugoio/testmodBuilder/mods v0.0.0-20190520184928-c56af20f2e95
-	github.com/google/go-cmp v0.5.9
+	github.com/google/go-cmp v0.6.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/hairyhenderson/go-codeowners v0.4.0
 	github.com/jdkato/prose v1.2.1
@@ -45,7 +45,7 @@ require (
 	github.com/kyokomi/emoji/v2 v2.2.12
 	github.com/magefile/mage v1.15.0
 	github.com/marekm4/color-extractor v1.2.1
-	github.com/mattn/go-isatty v0.0.19
+	github.com/mattn/go-isatty v0.0.20
 	github.com/mitchellh/hashstructure v1.1.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/muesli/smartcrop v0.3.0
@@ -55,23 +55,24 @@ require (
 	github.com/rogpeppe/go-internal v1.11.0
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 	github.com/sanity-io/litter v1.5.5
-	github.com/spf13/afero v1.9.5
+	github.com/spf13/afero v1.10.0
 	github.com/spf13/cast v1.5.1
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/fsync v0.9.0
 	github.com/spf13/pflag v1.0.5
-	github.com/tdewolff/minify/v2 v2.12.7
-	github.com/tdewolff/parse/v2 v2.6.6
-	github.com/yuin/goldmark v1.5.6
+	github.com/tdewolff/minify/v2 v2.20.5
+	github.com/tdewolff/parse/v2 v2.7.3
+	github.com/yuin/goldmark v1.6.0
+	github.com/yuin/goldmark-emoji v1.0.2
 	go.uber.org/atomic v1.11.0
 	go.uber.org/automaxprocs v1.5.3
 	gocloud.dev v0.34.0
 	golang.org/x/exp v0.0.0-20221031165847-c99f073a8326
-	golang.org/x/image v0.12.0
-	golang.org/x/net v0.15.0
-	golang.org/x/sync v0.3.0
+	golang.org/x/image v0.13.0
+	golang.org/x/net v0.17.0
+	golang.org/x/sync v0.4.0
 	golang.org/x/text v0.13.0
-	golang.org/x/tools v0.13.0
+	golang.org/x/tools v0.14.0
 	google.golang.org/api v0.138.0
 	gopkg.in/yaml.v2 v2.4.0
 )
@@ -138,10 +139,10 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
-	golang.org/x/crypto v0.13.0 // indirect
-	golang.org/x/mod v0.12.0 // indirect
+	golang.org/x/crypto v0.14.0 // indirect
+	golang.org/x/mod v0.13.0 // indirect
 	golang.org/x/oauth2 v0.11.0 // indirect
-	golang.org/x/sys v0.12.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20230803162519-f966b187b2e5 // indirect

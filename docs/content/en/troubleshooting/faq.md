@@ -17,7 +17,7 @@ aliases: [/faq/]
 **Note:** The answers/solutions presented below are short, and may not be enough to solve your problem. Visit [Hugo Discourse](https://discourse.gohugo.io/) and use the search. It that does not help, start a new topic and ask your questions.
 {{% /note %}}
 
-## I can't see my content!
+## I can't see my content
 
 Is your Markdown file [in draft mode](/content-management/front-matter/#front-matter-variables)? When testing, run `hugo server` with the `-D` or `--buildDrafts` [switch](/getting-started/usage/#draft-future-and-expired-content).
 

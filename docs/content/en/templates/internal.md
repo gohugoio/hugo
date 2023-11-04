@@ -32,7 +32,8 @@ Provide your tracking ID in your configuration file:
 
 **Google Analytics 4 (gtag.js)**
 {{< code-toggle file="hugo" >}}
-googleAnalytics = "G-MEASUREMENT_ID"
+[services.googleAnalytics]
+ID = "G-MEASUREMENT_ID"
 {{</ code-toggle >}}
 
 ### Use the Google Analytics template
@@ -54,8 +55,15 @@ Hugo also ships with an internal template for [Disqus comments][disqus], a popul
 To use Hugo's Disqus template, first set up a single configuration value:
 
 {{< code-toggle file="hugo" >}}
-disqusShortname = "your-disqus-shortname"
+[services.disqus]
+shortname = 'your-disqus-shortname'
 {{</ code-toggle >}}
+
+Hugo's Disqus template accesses this value with:
+
+```go-html-template
+{{ .Site.Config.Services.Disqus.Shortname }}
+```
 
 You can also set the following in the front matter for a given piece of content:
 
@@ -70,8 +78,6 @@ To add Disqus, include the following line in the templates where you want your c
 ```go-html-template
 {{ template "_internal/disqus.html" . }}
 ```
-
-A `.Site.DisqusShortname` variable is also exposed from the configuration.
 
 ### Conditional loading of Disqus comments
 
@@ -90,7 +96,7 @@ You can create the following `layouts/partials/disqus.html`:
         return;
 
     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-    var disqus_shortname = '{{ .Site.DisqusShortname }}';
+    var disqus_shortname = '{{ .Site.Config.Services.Disqus.Shortname }}';
     dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
 })();
@@ -159,7 +165,7 @@ To add Open Graph metadata, include the following line between the `<head>` tags
 
 ## Twitter Cards
 
-An internal template for [Twitter Cards](https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/abouts-cards),
+An internal template for [Twitter Cards](https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/abouts-cards),
 metadata used to attach rich media to Tweets linking to your site.
 
 ### Configure Twitter Cards
@@ -184,11 +190,11 @@ If no images are found at all, then an image-less Twitter `summary` card is used
 
 Hugo uses the page title and description for the card's title and description fields. The page summary is used if no description is given.
 
-The `.Site.Social.twitter` variable is exposed from the configuration as the value for `twitter:site`.
+Set the value of `twitter:site` in your site configuration:
 
-{{< code-toggle file="hugo" >}}
-[social]
-  twitter = "GoHugoIO"
+{{< code-toggle file="hugo" copy=false >}}
+[params.social]
+twitter = "GoHugoIO"
 {{</ code-toggle >}}
 
 NOTE: The `@` will be added for you

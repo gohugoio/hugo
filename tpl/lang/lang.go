@@ -16,19 +16,18 @@ package lang
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math"
 	"strconv"
 	"strings"
 
-	"errors"
-
 	"github.com/gohugoio/locales"
 	translators "github.com/gohugoio/localescompressed"
 
 	"github.com/gohugoio/hugo/common/hreflect"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/cast"
 )
 
@@ -243,7 +242,7 @@ func (ns *Namespace) FormatNumberCustom(precision, number any, options ...any) (
 
 // Deprecated: Use lang.FormatNumberCustom instead.
 func (ns *Namespace) NumFmt(precision, number any, options ...any) (string, error) {
-	helpers.Deprecated("lang.NumFmt", "Use lang.FormatNumberCustom instead.", false)
+	hugo.Deprecate("lang.NumFmt", "Use lang.FormatNumberCustom instead.", "v0.120.0")
 	return ns.FormatNumberCustom(precision, number, options...)
 }
 

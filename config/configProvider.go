@@ -66,6 +66,7 @@ type AllProvider interface {
 	StaticDirs() []string
 	IgnoredErrors() map[string]bool
 	WorkingDir() string
+	EnableEmoji() bool
 }
 
 // Provider provides the configuration settings for Hugo.

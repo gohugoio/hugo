@@ -228,3 +228,7 @@ func (c ConfigLanguage) PaginatePath() string {
 func (c ConfigLanguage) StaticDirs() []string {
 	return c.config.staticDirs()
 }
+
+func (c ConfigLanguage) EnableEmoji() bool {
+	return c.config.EnableEmoji
+}

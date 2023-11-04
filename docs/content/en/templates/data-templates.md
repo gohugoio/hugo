@@ -20,7 +20,7 @@ Hugo supports loading data from YAML, JSON, XML, and TOML files located in the `
 
 ## The data folder
 
-The `data` folder should store additional data for Hugo to use when generating your site. 
+The `data` folder should store additional data for Hugo to use when generating your site.
 
 Data files are not for generating standalone pages. They should supplement content files by:
 
@@ -37,7 +37,7 @@ To access the data using the `site.Data.filename` notation, the file name must b
 - `x123.json` - Valid
 - `_123.json` - Valid
 
-To access the data using the [`index`](/functions/index-function/) function, the file name is irrelevant. For example:
+To access the data using the [`index`](/functions/collections/indexfunction) function, the file name is irrelevant. For example:
 
 Data file|Template code
 :--|:--
@@ -130,8 +130,7 @@ You can use the following code to render the `Short Description` in your layout:
 <div>Short Description of {{ .Site.Data.User0123.Name }}: <p>{{ index .Site.Data.User0123 "Short Description" | markdownify }}</p></div>
 ```
 
-Note the use of the [`markdownify` template function][markdownify]. This will send the description through the Markdown rendering engine.
-
+Note the use of the [`markdownify`] function. This will send the description through the Markdown rendering engine.
 
 ## Get remote data
 
@@ -255,10 +254,10 @@ If you change any local file and the LiveReload is triggered, Hugo will read the
 [config]: /getting-started/configuration/
 [csv]: https://tools.ietf.org/html/rfc4180
 [customize]: /hugo-modules/theme-components/
-[json]: https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf "Specification for JSON, JavaScript Object Notation"
+[json]: https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf
 [LiveReload]: /getting-started/usage/#livereload
 [lookup]: /templates/lookup-order/
-[markdownify]: /functions/markdownify/
+[`markdownify`]: /functions/transform/markdownify
 [OAuth]: https://en.wikipedia.org/wiki/OAuth
 [partials]: /templates/partials/
 [toml]: https://toml.io/en/latest

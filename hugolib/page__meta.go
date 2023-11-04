@@ -130,7 +130,7 @@ func (p *pageMeta) Aliases() []string {
 }
 
 func (p *pageMeta) Author() page.Author {
-	helpers.Deprecated(".Author", "Use taxonomies.", false)
+	hugo.Deprecate(".Author", "Use taxonomies.", "v0.98.0")
 	authors := p.Authors()
 
 	for _, author := range authors {
@@ -140,7 +140,7 @@ func (p *pageMeta) Author() page.Author {
 }
 
 func (p *pageMeta) Authors() page.AuthorList {
-	helpers.Deprecated(".Authors", "Use taxonomies.", true)
+	hugo.Deprecate(".Author", "Use taxonomies.", "v0.112.0")
 	return nil
 }
 
@@ -226,7 +226,7 @@ func (p *pageMeta) Path() string {
 	{{ $path = .Path }}
   {{ end }}
 `
-		helpers.Deprecated(".Path when the page is backed by a file", "We plan to use Path for a canonical source path and you probably want to check the source is a file. To get the current behaviour, you can use a construct similar to the one below:\n"+example, false)
+		p.s.Log.Warnln(".Path when the page is backed by a file is deprecated. We plan to use Path for a canonical source path and you probably want to check the source is a file. To get the current behaviour, you can use a construct similar to the one below:\n" + example)
 
 	}
 
@@ -731,7 +731,7 @@ func (p *pageMeta) newContentConverter(ps *pageState, markup string) (converter.
 	}
 	cp := p.s.ContentSpec.Converters.Get(markup)
 	if cp == nil {
-		return converter.NopConverter, fmt.Errorf("no content renderer found for markup %q", p.markup)
+		return converter.NopConverter, fmt.Errorf("no content renderer found for markup %q", markup)
 	}
 
 	var id string

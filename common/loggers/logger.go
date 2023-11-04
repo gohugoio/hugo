@@ -40,7 +40,7 @@ type Options struct {
 	Level              logg.Level
 	Stdout             io.Writer
 	Stderr             io.Writer
-	Distinct           bool
+	DistinctLevel      logg.Level
 	StoreErrors        bool
 	HandlerPost        func(e *logg.Entry) error
 	SuppressStatements map[string]bool
@@ -92,8 +92,8 @@ func New(opts Options) Logger {
 	logHandler = multi.New(handlers...)
 
 	var logOnce *logOnceHandler
-	if opts.Distinct {
-		logOnce = newLogOnceHandler(logg.LevelWarn)
+	if opts.DistinctLevel != 0 {
+		logOnce = newLogOnceHandler(opts.DistinctLevel)
 		logHandler = newStopHandler(logOnce, logHandler)
 	}
 
@@ -137,10 +137,10 @@ func New(opts Options) Logger {
 // NewDefault creates a new logger with the default options.
 func NewDefault() Logger {
 	opts := Options{
-		Distinct: true,
-		Level:    logg.LevelWarn,
-		Stdout:   os.Stdout,
-		Stderr:   os.Stdout,
+		DistinctLevel: logg.LevelWarn,
+		Level:         logg.LevelWarn,
+		Stdout:        os.Stdout,
+		Stderr:        os.Stdout,
 	}
 	return New(opts)
 }

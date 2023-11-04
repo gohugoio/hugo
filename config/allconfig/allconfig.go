@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/cache/filecache"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/urls"
@@ -784,7 +785,7 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 					// We accidentally allowed it in the past, so we need to support it a little longer,
 					// But log a warning.
 					if _, found := params[kk]; !found {
-						helpers.Deprecated(fmt.Sprintf("config: languages.%s.%s: custom params on the language top level", k, kk), fmt.Sprintf("Put the value below [languages.%s.params]. See https://gohugo.io/content-management/multilingual/#changes-in-hugo-01120", k), false)
+						hugo.Deprecate(fmt.Sprintf("config: languages.%s.%s: custom params on the language top level", k, kk), fmt.Sprintf("Put the value below [languages.%s.params]. See https://gohugo.io/content-management/multilingual/#changes-in-hugo-01120", k), "v0.112.0")
 						params[kk] = vv
 					}
 				}

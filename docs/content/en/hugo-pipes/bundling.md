@@ -9,7 +9,7 @@ menu:
     parent: hugo-pipes
     weight: 90
 weight: 90
-signature: ["resources.Concat TARGET_PATH SLICE_RESOURCES"]
+signatures: ["resources.Concat TARGET_PATH SLICE_RESOURCES"]
 ---
 
 ## Usage

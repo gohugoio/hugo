@@ -13,13 +13,8 @@
 package helpers
 
 import (
-	"math"
 	"reflect"
-	"strings"
 	"testing"
-
-	"github.com/gohugoio/hugo/bufferpool"
-	"github.com/kyokomi/emoji/v2"
 )
 
 func TestEmojiCustom(t *testing.T) {
@@ -66,78 +61,5 @@ func TestEmojiCustom(t *testing.T) {
 			t.Errorf("[%d] got %q but expected %q", i, result, this.expect)
 		}
 
-	}
-}
-
-// The Emoji benchmarks below are heavily skewed in Hugo's direction:
-//
-// Hugo have a byte slice, wants a byte slice and doesn't mind if the original is modified.
-
-func BenchmarkEmojiKyokomiFprint(b *testing.B) {
-	f := func(in []byte) []byte {
-		buff := bufferpool.GetBuffer()
-		defer bufferpool.PutBuffer(buff)
-		emoji.Fprint(buff, string(in))
-
-		bc := make([]byte, buff.Len())
-		copy(bc, buff.Bytes())
-		return bc
-	}
-
-	doBenchmarkEmoji(b, f)
-}
-
-func BenchmarkEmojiKyokomiSprint(b *testing.B) {
-	f := func(in []byte) []byte {
-		return []byte(emoji.Sprint(string(in)))
-	}
-
-	doBenchmarkEmoji(b, f)
-}
-
-func BenchmarkHugoEmoji(b *testing.B) {
-	doBenchmarkEmoji(b, Emojify)
-}
-
-func doBenchmarkEmoji(b *testing.B, f func(in []byte) []byte) {
-	type input struct {
-		in     []byte
-		expect []byte
-	}
-
-	data := []struct {
-		input  string
-		expect string
-	}{
-		{"A :smile: a day", emoji.Sprint("A :smile: a day")},
-		{"A :smile: and a :beer: day keeps the doctor away", emoji.Sprint("A :smile: and a :beer: day keeps the doctor away")},
-		{"A :smile: a day and 10 " + strings.Repeat(":beer: ", 10), emoji.Sprint("A :smile: a day and 10 " + strings.Repeat(":beer: ", 10))},
-		{"No smiles today.", "No smiles today."},
-		{"No smiles for you or " + strings.Repeat("you ", 1000), "No smiles for you or " + strings.Repeat("you ", 1000)},
-	}
-
-	in := make([]input, b.N*len(data))
-	cnt := 0
-	for i := 0; i < b.N; i++ {
-		for _, this := range data {
-			in[cnt] = input{[]byte(this.input), []byte(this.expect)}
-			cnt++
-		}
-	}
-
-	b.ResetTimer()
-	cnt = 0
-	for i := 0; i < b.N; i++ {
-		for j := range data {
-			currIn := in[cnt]
-			cnt++
-			result := f(currIn.in)
-			// The Emoji implementations gives slightly different output.
-			diffLen := len(result) - len(currIn.expect)
-			diffLen = int(math.Abs(float64(diffLen)))
-			if diffLen > 30 {
-				b.Fatalf("[%d] emoji std, got \n%q but expected \n%q", j, result, currIn.expect)
-			}
-		}
 	}
 }

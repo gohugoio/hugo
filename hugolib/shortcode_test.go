@@ -599,7 +599,7 @@ weight: %d
 	c.Assert(len(s.RegularPages()), qt.Equals, 3)
 
 	builder.AssertFileContent("public/en/p1/index.html", `v1: 0 sgo: |v2: 1 sgo: 0|v3: 2 sgo: 1|v4: 3 sgo: 2|v5: 4 sgo: 3`)
-	builder.AssertFileContent("public/en/p1/index.html", `outer ordinal: 5 inner: 
+	builder.AssertFileContent("public/en/p1/index.html", `outer ordinal: 5 inner:
 ordinal: 0 scratch ordinal: 1 scratch get ordinal: 0
 ordinal: 2 scratch ordinal: 3 scratch get ordinal: 2
 ordinal: 4 scratch ordinal: 5 scratch get ordinal: 4`)
@@ -751,33 +751,6 @@ title: "Hugo Rocks!"
 	builder.AssertFileContent("public/page/index.html",
 		"hello: hello",
 		"test/hello: test/hello",
-	)
-}
-
-// https://github.com/gohugoio/hugo/issues/6504
-func TestShortcodeEmoji(t *testing.T) {
-	t.Parallel()
-
-	v := config.New()
-	v.Set("enableEmoji", true)
-
-	builder := newTestSitesBuilder(t).WithViper(v)
-
-	builder.WithContent("page.md", `---
-title: "Hugo Rocks!"
----
-
-# doc
-
-{{< event >}}10:30-11:00 My :smile: Event {{< /event >}}
-
-
-`).WithTemplatesAdded(
-		"layouts/shortcodes/event.html", `<div>{{ "\u29BE" }} {{ .Inner }} </div>`)
-
-	builder.Build(BuildCfg{})
-	builder.AssertFileContent("public/page/index.html",
-		"⦾ 10:30-11:00 My 😄 Event",
 	)
 }
 
