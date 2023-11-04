@@ -62,7 +62,8 @@ And then some.
 	c.Assert(err, qt.IsNil)
 	b, err := conv.Convert(converter.RenderContext{Src: []byte(content), RenderTOC: true, GetRenderer: nopGetRenderer})
 	c.Assert(err, qt.IsNil)
-	got := b.(converter.TableOfContentsProvider).TableOfContents().ToHTML(2, 3, false)
+	tocHTML := b.(converter.TableOfContentsProvider).TableOfContents().ToHTML(2, 3, false)
+	got := string(tocHTML)
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
   <ul>
     <li><a href="#first-h2---now-with-typography">First h2&mdash;now with typography!</a>
@@ -104,7 +105,8 @@ func TestEscapeToc(t *testing.T) {
 	// content := ""
 	b, err := safeConv.Convert(converter.RenderContext{Src: []byte(content), RenderTOC: true, GetRenderer: nopGetRenderer})
 	c.Assert(err, qt.IsNil)
-	got := b.(converter.TableOfContentsProvider).TableOfContents().ToHTML(1, 2, false)
+	tocHTML := b.(converter.TableOfContentsProvider).TableOfContents().ToHTML(1, 2, false)
+	got := string(tocHTML)
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
   <ul>
     <li><a href="#a--b--c--d">A &lt; B &amp; C &gt; D</a></li>
@@ -116,7 +118,8 @@ func TestEscapeToc(t *testing.T) {
 
 	b, err = unsafeConv.Convert(converter.RenderContext{Src: []byte(content), RenderTOC: true, GetRenderer: nopGetRenderer})
 	c.Assert(err, qt.IsNil)
-	got = b.(converter.TableOfContentsProvider).TableOfContents().ToHTML(1, 2, false)
+	tocHTML = b.(converter.TableOfContentsProvider).TableOfContents().ToHTML(1, 2, false)
+	got = string(tocHTML)
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
   <ul>
     <li><a href="#a--b--c--d">A &lt; B &amp; C &gt; D</a></li>

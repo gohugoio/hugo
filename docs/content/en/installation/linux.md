@@ -9,11 +9,11 @@ menu:
 toc: true
 weight: 30
 ---
-{{% readfile file="/installation/common/01-editions.md" %}}
+{{% readfile file="/installation/_common/01-editions.md" %}}
 
-{{% readfile file="/installation/common/02-prerequisites.md" %}}
+{{% readfile file="/installation/_common/02-prerequisites.md" %}}
 
-{{% readfile file="/installation/common/03-prebuilt-binaries.md" %}}
+{{% readfile file="/installation/_common/03-prebuilt-binaries.md" %}}
 
 ## Package managers
 
@@ -47,7 +47,7 @@ sudo snap disconnect hugo:ssh-keys
 [strictly confined]: https://snapcraft.io/docs/snap-confinement
 [Snap]: https://snapcraft.io/
 
-{{% readfile file="/installation/common/homebrew.md" %}}
+{{% readfile file="/installation/_common/homebrew.md" %}}
 
 ## Repository packages
 
@@ -124,20 +124,17 @@ sudo eopkg install hugo
 
 [Solus]: https://getsol.us/
 
-{{% readfile file="/installation/common/04-docker.md" %}}
-
-{{% readfile file="/installation/common/05-build-from-source.md" %}}
+{{% readfile file="/installation/_common/04-build-from-source.md" %}}
 
 ## Comparison
 
-||Prebuilt binaries|Package managers|Repository packages|Docker|Build from source
-:--|:--:|:--:|:--:|:--:|:--:
-Easy to install?|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:
-Easy to upgrade?|:heavy_check_mark:|:heavy_check_mark:|varies|:heavy_check_mark:|:heavy_check_mark:
-Easy to downgrade?|:heavy_check_mark:|:heavy_check_mark: [^1]|varies|:heavy_check_mark:|:heavy_check_mark:
-Automatic updates?|:x:|varies [^2]|:x:|:x: [^3]|:x:
-Latest version available?|:heavy_check_mark:|:heavy_check_mark:|varies|:heavy_check_mark:|:heavy_check_mark:
+||Prebuilt binaries|Package managers|Repository packages|Build from source
+:--|:--:|:--:|:--:|:--:
+Easy to install?|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:
+Easy to upgrade?|:heavy_check_mark:|:heavy_check_mark:|varies|:heavy_check_mark:
+Easy to downgrade?|:heavy_check_mark:|:heavy_check_mark: [^1]|varies|:heavy_check_mark:
+Automatic updates?|:x:|varies [^2]|:x:|:x:
+Latest version available?|:heavy_check_mark:|:heavy_check_mark:|varies|:heavy_check_mark:
 
 [^1]: Easy if a previous version is still installed.
 [^2]: Snap packages are automatically updated. Homebrew requires advanced configuration.
-[^3]: Possible but requires advanced configuration.

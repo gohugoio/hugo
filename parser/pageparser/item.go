@@ -192,7 +192,6 @@ const (
 	TypeFrontMatterTOML
 	TypeFrontMatterJSON
 	TypeFrontMatterORG
-	TypeEmoji
 	TypeIgnore // // The BOM Unicode byte order marker and possibly others
 
 	// shortcode items

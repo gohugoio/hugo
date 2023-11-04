@@ -177,6 +177,6 @@ The following `footer.html` partial template is used for [spf13.com](https://spf
 [customize]: /hugo-modules/theme-components/
 [listtemps]: /templates/lists/
 [lookup order]: /templates/lookup-order/
-[partialcached]: /functions/partialcached/
+[partialcached]: /functions/partials/includecached
 [singletemps]: /templates/single-page-templates/
 [themes]: /themes/

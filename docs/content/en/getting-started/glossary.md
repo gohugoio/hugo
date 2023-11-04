@@ -64,6 +64,10 @@ A markup language for creating content. Typically markdown, but may also be HTML
 
 A classification of content inferred from the top-level directory name or the `type` set in [front matter](#front-matter). Pages in the root of the content directory, including the home page, are of type "page". Accessed via `.Page.Type` in [templates](#template). See&nbsp;[details](/content-management/types/).
 
+### content view
+
+A template called with the `.Page.Render` method. See&nbsp;[details](/templates/views/).
+
 ### context
 
 Represented by a period "." within a [template action](#template-action), context is the current location in a data structure. For example, while iterating over a [collection](#collection) of pages, the context within each iteration is the page's data structure. The context received by each template depends on template type and/or how it was called. See [details](/templates/introduction/#the-dot).
@@ -87,6 +91,10 @@ Used within a [template action](#template-action), a function takes one or more 
 ### front matter
 
 Metadata at the beginning of each content page, separated from the content by format-specific delimiters. See&nbsp;[details](/content-management/front-matter/).
+
+### identifier
+
+A string that represents a variable, method, object, or field. It must conform to Go's [language specification](https://go.dev/ref/spec#Identifiers), beginning with a letter or underscore, followed by zero or more letters, digits, or underscores.
 
 ### int
 
@@ -250,7 +258,7 @@ A packaged combination of [archetypes](#archetype), assets, content, data, [temp
 
 ### token
 
-An identifier within a format string, beginning with a colon and replaced with a value when rendered. For example, use tokens in format strings for both [permalinks](/content-management/urls/#permalinks) and [dates](/functions/dateformat/#datetime-formatting-layouts).
+An identifier within a format string, beginning with a colon and replaced with a value when rendered. For example, use tokens in format strings for both [permalinks](/content-management/urls/#permalinks) and [dates](/functions/time/format/#localization).
 
 
 ### type

@@ -29,7 +29,7 @@ Every `Page` in Hugo has a `.Kind` attribute.
 
 ## `.Site.GetPage` with sections
 
-`Kind` can easily be combined with the [`where` function][where] in your templates to create kind-specific lists of content. This method is ideal for creating lists, but there are times where you may want to fetch just the index page of a single section via the section's path.
+`Kind` can easily be combined with the [`where`] function in your templates to create kind-specific lists of content. This method is ideal for creating lists, but there are times where you may want to fetch just the index page of a single section via the section's path.
 
 The [`.GetPage` function][getpage] looks up an index page of a given `Kind` and `path`.
 
@@ -106,5 +106,5 @@ Which then returns the following:
 [getpage]: /functions/getpage/
 [lists]: /templates/lists/
 [lookup]: /templates/lookup-order/
-[where]: /functions/where/
+[`where`]: /functions/collections/where
 [sections]: /content-management/sections/

@@ -44,12 +44,12 @@ In addition to using a single site configuration file, one can use the `configDi
 - Each file represents a configuration root object, such as `params.toml` for `[Params]`, `menu(s).toml` for `[Menu]`, `languages.toml` for `[Languages]` etc...
 - Each file's content must be top-level, for example:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file="hugo" copy=false >}}
 [Params]
   foo = "bar"
 {{< /code-toggle >}}
 
-{{< code-toggle file="params" >}}
+{{< code-toggle file="params" copy=false >}}
 foo = "bar"
 {{< /code-toggle >}}
 
@@ -74,28 +74,56 @@ foo = "bar"
 
 Considering the structure above, when running `hugo --environment staging`, Hugo will use every setting from `config/_default` and merge `staging`'s on top of those.
 
-Let's take an example to understand this better. Let's say you are using Google Analytics for your website. This requires you to specify `googleAnalytics = "G-XXXXXXXX"` in `hugo.toml`. Now consider the following scenario:
-- You don't want the Analytics code to be loaded in development i.e. in your `localhost`
-- You want to use separate googleAnalytics IDs for your production & staging environments (say):
-  - `G-PPPPPPPP` for production
-  - `G-SSSSSSSS` for staging
+Let's take an example to understand this better. Let's say you are using Google Analytics for your website. This requires you to specify a [Google tag ID] in your site configuration:
 
-This is how you need to configure your `hugo.toml` files considering the above scenario:
-1. In `_default/hugo.toml` you don't need to mention `googleAnalytics` parameter at all. This ensures that no Google Analytics code is loaded in your development server i.e. when you run `hugo server`. This works since, by default Hugo sets `Environment=development` when you run `hugo server` which uses the configuration files from `_default` folder
-2. In `production/hugo.toml` you just need to have one line:
+[Google tag ID]: https://support.google.com/tagmanager/answer/12326985?hl=en
 
-   ```googleAnalytics = "G-PPPPPPPP"```
+{{< code-toggle file=hugo copy=false >}}
+[services.googleAnalytics]
+ID = 'G-XXXXXXXXX'
+{{< /code-toggle >}}
 
-   You don't need to mention all other parameters like `title`, `baseURL`, `theme` etc. again in this configuration file. You need to mention only those parameters which are different or new for the production environment. This is due to the fact that Hugo is going to __merge__ this on top of `_default/hugo.toml`. Now when you run `hugo` (build command), by default hugo sets `Environment=production`, so the `G-PPPPPPPP` analytics code will be there in your production website
-3. Similarly in `staging/hugo.toml` you just need to have one line:
+Now consider the following scenario:
 
-   ```googleAnalytics = "G-SSSSSSSS"```
+1. You don't want to load the analytics code when running `hugo server`.
+2. You want to use different Google tag IDs for your production and staging environments. For example:
 
-   Now you need to tell Hugo that you are using the staging environment. So your build command should be `hugo --environment staging` which will load the `G-SSSSSSSS` analytics code in your staging website
+    - `G-PPPPPPPPP` for production
+    - `G-SSSSSSSSS` for staging
 
-{{% note %}}
-Default environments are __development__ with `hugo server` and __production__ with `hugo`.
-{{%/ note %}}
+To satisfy these requirements, configure your site as follows:
+
+1. `config/_default/hugo.toml`
+
+    Exclude the `services.googleAnalytics` section. This will prevent loading of the analytics code when you run `hugo server`.
+
+    By default, Hugo sets its `environment` to `development` when running `hugo server`. In the absence of a `config/development` directory, Hugo uses the `config/_default` directory.
+
+2. `config/production/hugo.toml`
+
+    Include this section only:
+
+    {{< code-toggle file=hugo copy=false >}}
+    [services.googleAnalytics]
+    ID = 'G-PPPPPPPPP'
+    {{< /code-toggle >}}
+
+    You do not need to include other parameters in this file. Include only those parameters that are specific to your production environment. Hugo will merge these parameters with the default configuration.
+
+    By default, Hugo sets its `environment` to `production` when running `hugo`. The analytics code will use the `G-PPPPPPPPP` tag ID.
+
+3. `config/staging/hugo.toml`
+
+    Include this section only:
+
+    {{< code-toggle file=hugo copy=false >}}
+    [services.googleAnalytics]
+    ID = 'G-SSSSSSSSS'
+    {{< /code-toggle >}}
+
+    You do not need to include other parameters in this file. Include only those parameters that are specific to your staging environment. Hugo will merge these parameters with the default configuration.
+
+    To build your staging site, run `hugo --environment staging`. The analytics code will use the `G-SSSSSSSSS` tag ID.
 
 ## Merge configuration from themes
 
@@ -400,7 +428,7 @@ URL to be used as a placeholder when a page reference cannot be found in `ref` o
 Removes [non-spacing marks](https://www.compart.com/en/unicode/category/Mn) from [composite characters](https://en.wikipedia.org/wiki/Precomposed_character) in content paths.
 
 ```text
-content/post/hügó.md --> https://example.org/post/hugo/
+content/post/hügó.md → https://example.org/post/hugo/
 ```
 
 ### rssLimit
@@ -449,7 +477,7 @@ Timeout for generating page contents, specified as a [duration](https://pkg.go.d
 
 ### timeZone
 
-The time zone (or location), e.g. `Europe/Oslo`, used to parse front matter dates without such information and in the [`time` function](/functions/time/). The list of valid values may be system dependent, but should include `UTC`, `Local`, and any location in the [IANA Time Zone database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+The time zone (or location), e.g. `Europe/Oslo`, used to parse front matter dates without such information and in the [`time`] function. The list of valid values may be system dependent, but should include `UTC`, `Local`, and any location in the [IANA Time Zone database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
 ### title
 
@@ -526,8 +554,6 @@ useResourceCacheWhen
 {{< new-in "0.112.0" >}}
 
 The `build.cachebusters` configuration option was added to support development using Tailwind 3.x's JIT compiler where a `build` configuration may look like this:
-
-<!-- TODO (jmm) writeStats => build.buildStats -->
 
 {{< code-toggle file="hugo" >}}
 [build]
@@ -616,7 +642,7 @@ status = 404
 
 ## Configure title case
 
-Set `titleCaseStyle` to specify the title style used by the [title](/functions/title/) template function and the automatic section titles in Hugo.
+Set `titleCaseStyle` to specify the title style used by the [title](/functions/strings/title) template function and the automatic section titles in Hugo.
 
 Can be one of:
 
@@ -683,10 +709,6 @@ To set configuration parameters, prefix the name with `HUGO_PARAMS_`
 {{% /note %}}
 
 If you are using snake_cased variable names, the above will not work. Hugo determines the delimiter to use by the first character after `HUGO`. This allows you to define environment variables on the form `HUGOxPARAMSxAPI_KEY=abcdefgh`, using any [allowed](https://stackoverflow.com/questions/2821043/allowed-characters-in-linux-environment-variable-names#:~:text=So%20names%20may%20contain%20any,not%20begin%20with%20a%20digit.) delimiter.
-
-{{< todo >}}
-Test and document setting parameters via JSON env var.
-{{< /todo >}}
 
 ## Ignore content and data files when rendering
 
@@ -799,7 +821,7 @@ dir
 
 [`.Site.Params`]: /variables/site/
 [directory structure]: /getting-started/directory-structure
-[json]: https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf "Specification for JSON, JavaScript Object Notation"
+[json]: https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf
 [lookup order]: /templates/lookup-order/
 [Output Formats]: /templates/output-formats/
 [templates]: /templates/
@@ -821,3 +843,6 @@ If this is not set, Hugo will use, in order of preference:
 1. In a  `hugo_cache_$USER` directory below the OS temp dir.
 
 If you want to know the current value of `cacheDir`, you can run `hugo config`, e.g: `hugo config | grep cachedir`.
+
+
+[`time`]: /functions/time/astime
