@@ -196,6 +196,20 @@ func (s *IntegrationTestBuilder) AssertFileContentExact(filename string, matches
 	}
 }
 
+func (s *IntegrationTestBuilder) AssertFileExists(filename string, b bool) {
+	checker := qt.IsNil
+	if !b {
+		checker = qt.IsNotNil
+	}
+	_, err := s.fs.WorkingDirReadOnly.Stat(filename)
+	if !herrors.IsNotExist(err) {
+		s.Assert(err, qt.IsNil)
+	}
+	s.Assert(err, checker)
+}
+
+// Deprecated: Use AssertFileExists instead but remember to prefix with "public/".
+// I have had some surprises with this one, hence the deprecation.
 func (s *IntegrationTestBuilder) AssertDestinationExists(filename string, b bool) {
 	checker := qt.IsTrue
 	if !b {
