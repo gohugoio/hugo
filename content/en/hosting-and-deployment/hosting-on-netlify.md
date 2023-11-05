@@ -19,7 +19,7 @@ toc: true
 
 ## Create a Netlify account
 
-Go to [app.netlify.com] and select your preferred signup method. This will likely be a hosted Git provider, although you also have the option to sign up with an email address.
+Go to [app.netlify.com] and select your preferred sign up method. This will likely be a hosted Git provider, although you also have the option to sign up with an email address.
 
 The following examples use GitHub, but other git providers will follow a similar process.
 

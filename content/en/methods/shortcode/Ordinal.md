@@ -27,7 +27,7 @@ This shortcode performs error checking, then renders an HTML `img` element with 
   {{ $src = . }}
   {{ with resources.Get $src }}
     {{ $id := printf "img-%03d" $.Ordinal }}
-    <img id="{{  $id }}" src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
+    <img id="{{ $id }}" src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
   {{ else }}
     {{ errorf "The %q shortcode was unable to find %s. See %s" $.Name $src $.Position }}
   {{ end }}

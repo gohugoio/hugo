@@ -39,7 +39,7 @@ If the entry is not associated with a page, we use its `url` and `name` properti
       <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
     {{ else }}
       <li><a href="{{ .URL }}">{{ .Name }}</a></li>
-    {{ end  }}
+    {{ end }}
   {{ end }}
 </ul>
 ```

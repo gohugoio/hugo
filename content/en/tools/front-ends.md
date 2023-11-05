@@ -1,7 +1,7 @@
 ---
-title: Frontend interfaces
-linkTitle: Frontends
-description: Do you prefer a graphical user interface over a text editor? Give these frontends a try.
+title: Front-end interfaces
+linkTitle: Front-ends
+description: Do you prefer a graphical user interface over a text editor? Give these front-ends a try.
 categories: [developer tools]
 keywords: [frontend, gui]
 menu:
@@ -10,6 +10,7 @@ menu:
     weight: 30
 weight: 30
 toc: true
+aliases: [/tools/frontends/]
 ---
 
 ## Commercial

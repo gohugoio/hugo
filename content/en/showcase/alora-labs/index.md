@@ -13,6 +13,6 @@ The previous iteration of our site was built with Jekyll, which served us well a
 
 Hugo was a breath of fresh air in this regard, a single binary that works equally well on Windows as it did on macOS or Linux. We no longer need additional tools for image optimization, Sass compilation or JavaScript bundling. Everything just works, and with a substantial performance boost too.
 
-Hugo has become a favorite tool in the toolbelt and the foundation for many client projects. We couldn't be happier with the switch and we are optimistic about recommending Hugo for many years to come.
+Hugo has become a favorite tool in the tool belt and the foundation for many client projects. We couldn't be happier with the switch and we are optimistic about recommending Hugo for many years to come.
 
 Thank you to the vibrant community and talented development team for all the hard work in making Hugo a success. As excellent as Hugo is now, we cannot wait to see what the release notes have in store for us next.

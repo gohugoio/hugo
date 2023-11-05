@@ -29,7 +29,7 @@ Use these methods to access content dates.
 
 Use these methods with your multilingual projects.
 
-{{< list-pages-in-section path=/methods/page filter=methods_page_multilinugual filterType=include titlePrefix=. omitElementIDs=true >}}
+{{< list-pages-in-section path=/methods/page filter=methods_page_multilingual filterType=include titlePrefix=. omitElementIDs=true >}}
 
 ## Navigation
 

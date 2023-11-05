@@ -8,7 +8,7 @@ menu:
     parent: hugo-pipes
     weight: 70
 weight: 70
-action:
+function:
   aliases: [babel]
   returnType: resource.Resource
   signatures: ['resources.Babel [OPTIONS] RESOURCE']
@@ -44,23 +44,23 @@ module.exports = {
 
 ### Options
 
-config [string]
-: Path to the Babel configuration file. Hugo will, by default, look for a `babel.config.js` in your project. More information on these configuration files can be found here: [babel configuration](https://babeljs.io/docs/en/configuration).
+config
+: (`string`) Path to the Babel configuration file. Hugo will, by default, look for a `babel.config.js` in your project. More information on these configuration files can be found here: [babel configuration](https://babeljs.io/docs/en/configuration).
 
-minified [bool]
-: Save as many bytes as possible when printing
+minified
+: (`bool`) Save as many bytes as possible when printing
 
-noComments [bool]
-: Write comments to generated output (true by default)
+noComments
+: (`bool`) Write comments to generated output (true by default)
 
-compact [bool]
-: Do not include superfluous whitespace characters and line terminators. Defaults to `auto` if not set.
+compact
+: (`bool`) Do not include superfluous whitespace characters and line terminators. Defaults to `auto` if not set.
 
-verbose [bool]
-: Log everything
+verbose
+: (`bool`) Log everything
 
-sourceMap [string]
-: Output `inline` or `external` sourcemap from the babel compile. External sourcemaps will be written to the target with the output file name + ".map". Input sourcemaps can be read from js.Build and node modules and combined into the output sourcemaps.
+sourceMap
+: (`string`) Output `inline` or `external` sourcemap from the babel compile. External sourcemaps will be written to the target with the output file name + ".map". Input sourcemaps can be read from js.Build and node modules and combined into the output sourcemaps.
 
 ### Examples
 

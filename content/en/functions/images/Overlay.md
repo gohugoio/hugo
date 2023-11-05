@@ -1,6 +1,6 @@
 ---
 title: images.Overlay
-description: Returns an image filter that overlays the source image at the given coordinates.
+description: Returns an image filter that overlays the source image at the given coordinates, relative to the upper left corner.
 categories: []
 keywords: []
 action:
@@ -12,8 +12,6 @@ action:
   signatures: [images.Overlay RESOURCE X Y]
 toc: true
 ---
-
-The coordinates are relative to the upper left corner.
 
 ## Usage
 

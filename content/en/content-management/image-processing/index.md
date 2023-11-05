@@ -105,7 +105,7 @@ Example 4: Skips rendering if there's problem accessing a remote resource.
 The `image` resource implements the  [`Process`],  [`Resize`], [`Fit`], [`Fill`], [`Crop`], [`Filter`], [`Colors`] and [`Exif`] methods.
 
 {{% note %}}
-Metadata (EXIF, IPTC, XMP, etc.) is not preserved during image transformation. Use the [`Exif`] method with the _original_ image to extract EXIF metadata from JPEG or TIFF images.
+Metadata (EXIF, IPTC, XMP, etc.) is not preserved during image transformation. Use the `Exif` method with the _original_ image to extract EXIF metadata from JPEG or TIFF images.
 {{% /note %}}
 
 ### Process

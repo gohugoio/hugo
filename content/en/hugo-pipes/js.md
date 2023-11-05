@@ -1,7 +1,7 @@
 ---
 title: js.Build
 linkTitle: JavaScript building
-description: Process a JavaScript file with [ESBuild](https://github.com/evanw/esbuild).
+description: Bundle, transpile, tree shake, and minify JavaScript resources.
 categories: [asset management]
 keywords: []
 menu:
@@ -21,12 +21,12 @@ Any JavaScript resource file can be transpiled and "tree shaken" using `js.Build
 
 ### Options
 
-targetPath [string]
-: If not set, the source path will be used as the base target path.
+targetPath
+: (`string`) If not set, the source path will be used as the base target path.
 Note that the target path's extension may change if the target MIME type is different, e.g. when the source is TypeScript.
 
-params [map or slice]
-: Params that can be imported as JSON in your JS files, e.g.:
+params
+: (`map` or `slice`) Params that can be imported as JSON in your JS files, e.g.:
 
 ```go-html-template
 {{ $js := resources.Get "js/main.js" | js.Build (dict "params" (dict "api" "https://example.org/api")) }}
@@ -39,14 +39,14 @@ import * as params from '@params';
 
 Note that this is meant for small data sets, e.g. configuration settings. For larger data, please put/mount the files into `/assets` and import them directly.
 
-minify [bool]
-: Let `js.Build` handle the minification.
+minify
+: (`bool`) Let `js.Build` handle the minification.
 
-inject [slice]
-: This option allows you to automatically replace a global variable with an import from another file. The path names must be relative to `assets`.  See https://esbuild.github.io/api/#inject
+inject
+: (`slice`) This option allows you to automatically replace a global variable with an import from another file. The path names must be relative to `assets`.  See https://esbuild.github.io/api/#inject
 
-shims [map]
-: This option allows swapping out a component with another. A common use case is to load dependencies like React from a CDN  (with _shims_) when in production, but running with the full bundled `node_modules` dependency during development:
+shims
+: (`map`) This option allows swapping out a component with another. A common use case is to load dependencies like React from a CDN  (with _shims_) when in production, but running with the full bundled `node_modules` dependency during development:
 
 ```go-html-template
 {{ $shims := dict "react" "js/shims/react.js"  "react-dom" "js/shims/react-dom.js" }}
@@ -72,28 +72,28 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom';
 ```
 
-target [string]
-: The language target.
+target
+: (`string`) The language target.
   One of: `es5`, `es2015`, `es2016`, `es2017`, `es2018`, `es2019`, `es2020` or `esnext`.
   Default is `esnext`.
 
-externals [slice]
-: External dependencies. Use this to trim dependencies you know will never be executed. See https://esbuild.github.io/api/#external
+externals
+: (`slice`) External dependencies. Use this to trim dependencies you know will never be executed. See https://esbuild.github.io/api/#external
 
-defines [map]
-: Allow to define a set of string replacement to be performed when building. Should be a map where each key is to be replaced by its value.
+defines
+: (`map`) Allow to define a set of string replacement to be performed when building. Should be a map where each key is to be replaced by its value.
 
 ```go-html-template
 {{ $defines := dict "process.env.NODE_ENV" `"development"` }}
 ```
 
-format [string]
-: The output format.
+format
+: (`string`) The output format.
   One of: `iife`, `cjs`, `esm`.
   Default is `iife`, a self-executing function, suitable for inclusion as a <script> tag.
 
-sourceMap [string]
-: Whether to generate `inline` or `external` source maps from esbuild. External source maps will be written to the target with the output file name + ".map". Input source maps can be read from js.Build and node modules and combined into the output source maps. By default, source maps are not created.
+sourceMap
+: (`string`) Whether to generate `inline` or `external` source maps from esbuild. External source maps will be written to the target with the output file name + ".map". Input source maps can be read from js.Build and node modules and combined into the output source maps. By default, source maps are not created.
 
 ### Import JS code from /assets
 

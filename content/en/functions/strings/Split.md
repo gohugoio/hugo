@@ -1,6 +1,6 @@
 ---
 title: strings.Split
-description: Returns a slice of strings by splitting STRING by DELIM.
+description: Returns a slice of strings by splitting the given string by a delimiter.
 categories: []
 keywords: []
 action:

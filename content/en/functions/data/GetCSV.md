@@ -95,8 +95,6 @@ my-project/
 
 Consider using the [`Resources.Get`] method with [`transform.Unmarshal`] when accessing a page resource.
 
-
-
 ```text
 my-project/
 └── content/

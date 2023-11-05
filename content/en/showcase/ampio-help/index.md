@@ -33,7 +33,7 @@ The turning point was the introduction of a new key requirement---each document 
 
 On top of that new development, we had to remember another one of our key requirements, namely, that mostly non-programmers were to be responsible for the service maintenance and content creation. Initially, we were leaning towards headless CMS-based solutions, but finally we made a bold move and decided to create a Git-managed Jamstack service and see what happens.
 
-## Hugo to the rescue!
+## Hugo to the rescue
 
 Hugo was our first choice of SSG. The multilingualism support was the primary feature that convinced us. Later on, going through the documentation, we continued to discover new exciting features that we didn't even know we needed when we started.
 

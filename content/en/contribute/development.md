@@ -326,7 +326,7 @@ git rebase --interactive @~6
 The `6` at the end of the command represents the number of commits that should be modified. An editor should open and present a list of last six commit messages:
 
 ```txt
-pick 80d02a1 tpl: Add hasPrefix to the template funcs' "smoke test"
+pick 80d02a1 tpl: Add hasPrefix to template function smoke test"
 pick aaee038 tpl: Sort the smoke tests
 pick f0dbf2c tpl: Add the other test case for hasPrefix
 pick 911c35b Add "How to contribute to Hugo" tutorial
@@ -339,7 +339,7 @@ In the case above we should merge the last two commits in the commit of this tut
 All operations are written before the commit message. Replace "pick" with an operation. In this case `squash` or `s` for short:
 
 ```txt
-pick 80d02a1 tpl: Add hasPrefix to the template funcs' "smoke test"
+pick 80d02a1 tpl: Add hasPrefix to template function smoke test"
 pick aaee038 tpl: Sort the smoke tests
 pick f0dbf2c tpl: Add the other test case for hasPrefix
 pick 911c35b Add "How to contribute to Hugo" tutorial
@@ -352,7 +352,7 @@ We also want to rewrite the commits message of the third last commit. We forgot 
 You should end up with a similar setup:
 
 ```txt
-pick 80d02a1 tpl: Add hasPrefix to the template funcs' "smoke test"
+pick 80d02a1 tpl: Add hasPrefix to template function smoke test"
 pick aaee038 tpl: Sort the smoke tests
 pick f0dbf2c tpl: Add the other test case for hasPrefix
 reword 911c35b Add "How to contribute to Hugo" tutorial

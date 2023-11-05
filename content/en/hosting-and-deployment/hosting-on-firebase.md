@@ -1,6 +1,6 @@
 ---
 title: Host on Firebase
-description: You can use Firebase's free tier to host your static website; this also gives you access to Firebase's NOSQL API.
+description: You can use Firebase's free tier to host your static website; this also gives you access to Firebase's NoSQL API.
 categories: [hosting and deployment]
 keywords: [hosting,firebase]
 menu:

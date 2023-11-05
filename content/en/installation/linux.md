@@ -57,7 +57,7 @@ Most Linux distributions maintain a repository for commonly installed applicatio
 {{% note %}}
 Due to Long Term Release (LTR) guidelines, most Linux package repositories will not contain the [latest release].
 
-[latest release]: https://github.com/gohugoio/hugo/releases/latest 
+[latest release]: https://github.com/gohugoio/hugo/releases/latest
 {{% /note %}}
 
 ### Arch Linux

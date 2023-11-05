@@ -38,7 +38,6 @@ The resulting data structure is:
 To extract the key and values:
 
 ```go-html-template
-
 {{ $kv.Key }} → foo
 {{ $kv.Values }} → [a b c]
 ```

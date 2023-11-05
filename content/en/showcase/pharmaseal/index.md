@@ -22,7 +22,7 @@ We had two goals:
 
 **Make it fast**
 
-We wanted to optimise the site as much as possible, so we opted for using Cloudinary, enabling us to take advantage of on-the-fly image manipulation, and thanks to the sheer speed of static sites, we achieved a perfect optimisation score with Google audits.
+We wanted to optimize the site as much as possible, so we opted for using Cloudinary, enabling us to take advantage of on-the-fly image manipulation, and thanks to the sheer speed of static sites, we achieved a perfect optimization score with Google audits.
 
 Because we're hosting the site through Netlify and our target audience is in America, we are taking advantage of Netlify edge (Their alternative to a CDN). We're talking blazing fast.
 

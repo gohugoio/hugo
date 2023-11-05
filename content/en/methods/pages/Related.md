@@ -29,7 +29,7 @@ The argument passed to the `Related` method may be a `Page` or an options map. F
 To pass an options map:
 
 {{< code file="layouts/_default/single.html" lang=go-html-template copy=false >}}
-{{ $opts := dict 
+{{ $opts := dict
   "document" .
   "indices" (slice "tags" "keywords")
 }}

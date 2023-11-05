@@ -25,7 +25,7 @@ And this template:
     {{ with resources.Copy "foo/bar/b.jpg" . }}
       {{ .Key }} → foo/bar/b.jpg
 
-      {{ .Name  }} → images/a.jpg
+      {{ .Name }} → images/a.jpg
       {{ .Title }} → images/a.jpg
 
       {{ .RelPermalink }} → /docs/foo/bar/b.jpg

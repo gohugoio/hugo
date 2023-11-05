@@ -23,8 +23,8 @@ With this content structure:
 ```text
 content/
 ├── auctions/
-│   ├── 2023-11/          <-- front matter: weight = 202311
-│   │   ├── _index.md
+│   ├── 2023-11/
+│   │   ├── _index.md     <-- front matter: weight = 202311
 │   │   ├── auction-1.md
 │   │   └── auction-2.md
 │   ├── 2023-12/

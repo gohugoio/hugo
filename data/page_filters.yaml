@@ -28,7 +28,7 @@ methods_page_dates:
 methods_page_menu:
   - /methods/page/hasmenucurrent
   - /methods/page/ismenucurrent
-methods_page_multilinugual:
+methods_page_multilingual:
   - /methods/page/alltranslations
   - /methods/page/istranslated
   - /methods/page/language

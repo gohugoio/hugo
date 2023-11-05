@@ -9,4 +9,4 @@ menu:
     parent: functions
 ---
 
-Use these functions to access information about the Hugo application and the current environment. 
+Use these functions to access information about the Hugo application and the current environment.
