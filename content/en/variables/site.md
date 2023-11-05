@@ -2,14 +2,14 @@
 title: Site variables
 description: Use these methods with Site objects. A multilingual project will have two or more sites, one for each language.
 categories: [variables]
-keywords: [site]
+keywords: []
 menu:
   docs:
     parent: variables
     weight: 80
 weight: 80
-aliases: [/variables/site-variables/]
 toc: true
+aliases: [/variables/site-variables/]
 ---
 
 {{% include "variables/_common/consistent-terminology.md" %}}

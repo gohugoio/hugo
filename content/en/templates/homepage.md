@@ -8,8 +8,8 @@ menu:
     parent: templates
     weight: 70
 weight: 70
-aliases: [/layout/homepage/,/templates/homepage-template/]
 toc: true
+aliases: [/layout/homepage/,/templates/homepage-template/]
 ---
 
 Homepage is a `Page` and therefore has all the [page variables][pagevars] and [site variables][sitevars] available for use.

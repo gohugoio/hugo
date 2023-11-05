@@ -1,6 +1,6 @@
 ---
 title: collections.Group
-description: Groups a list of pages.
+description: Groups the given page collection by the given key.
 categories: []
 keywords: []
 action:

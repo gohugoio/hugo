@@ -2,7 +2,7 @@
 title: Contribute to the Hugo project
 linkTitle: Overview
 description: Contribute to Hugo development and documentation.
-categories: [contribute]
+categories: []
 keywords: []
 menu:
   docs:

@@ -1,6 +1,6 @@
 ---
 title: safe.JS
-description: Declares the provided string as a safe JavaScript string.
+description: Declares the given string as a safe JavaScript expression.
 categories: []
 keywords: []
 action:

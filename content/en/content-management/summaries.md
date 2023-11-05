@@ -8,8 +8,8 @@ menu:
   docs:
     parent: content-management
     weight: 160
-toc: true
 weight: 160
+toc: true
 aliases: [/content/summaries/,/content-management/content-summaries/]
 ---
 

@@ -7,8 +7,8 @@ menu:
   docs:
     parent: content-management
     weight: 50
-toc: true
 weight: 50
+toc: true
 ---
 {{< new-in "0.93.0" >}}
 

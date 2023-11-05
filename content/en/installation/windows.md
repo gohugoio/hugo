@@ -2,12 +2,13 @@
 title: Windows
 description: Install Hugo on Windows.
 categories: [installation]
+keywords: []
 menu:
   docs:
     parent: installation
     weight: 40
-toc: true
 weight: 40
+toc: true
 ---
 {{% include "installation/_common/01-editions.md" %}}
 

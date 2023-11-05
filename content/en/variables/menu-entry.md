@@ -2,7 +2,7 @@
 title: Menu entry variables
 description: Use these methods in your menu templates.
 categories: [variables]
-keywords: [menus]
+keywords: []
 menu:
   docs:
     parent: variables

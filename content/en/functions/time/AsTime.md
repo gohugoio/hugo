@@ -1,6 +1,6 @@
 ---
 title: time.AsTime
-description: Converts a string representation of a date/time to a time.Time value.
+description: Returns the given string representation of a date/time value as a time.Time value.
 categories: []
 keywords: []
 action:

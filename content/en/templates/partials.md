@@ -8,8 +8,8 @@ menu:
     parent: templates
     weight: 120
 weight: 120
-aliases: [/templates/partial/,/layout/chrome/,/extras/analytics/]
 toc: true
+aliases: [/templates/partial/,/layout/chrome/,/extras/analytics/]
 ---
 
 {{< youtube pjS4pOLyB7c >}}

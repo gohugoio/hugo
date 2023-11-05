@@ -2,15 +2,15 @@
 title: Templating
 linkTitle: Templating
 description: Hugo uses Go's `html/template` and `text/template` libraries as the basis for the templating.
-categories: [fundamentals,templates]
+categories: [templates,fundamentals]
 keywords: [go]
 menu:
   docs:
     parent: templates
     weight: 20
 weight: 20
-aliases: [/layouts/introduction/,/layout/introduction/, /templates/go-templates/]
 toc: true
+aliases: [/layouts/introduction/,/layout/introduction/, /templates/go-templates/]
 ---
 
 {{% note %}}

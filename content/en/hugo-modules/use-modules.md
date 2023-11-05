@@ -2,7 +2,7 @@
 title: Use Hugo Modules
 description: How to use Hugo Modules to build and manage your site.
 categories: [hugo modules]
-keywords: [install, themes, source, organization, directories,usage,modules]
+keywords: [modules,themes]
 menu:
   docs:
     parent: modules

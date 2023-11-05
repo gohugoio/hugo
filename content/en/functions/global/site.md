@@ -1,6 +1,6 @@
 ---
 title: site
-description: Provides global access to the Site object.
+description: Provides global access to the current Site object.
 categories: []
 keywords: []
 action:

@@ -7,8 +7,8 @@ menu:
   docs:
     parent: content-management
     weight: 100
-toc: true
 weight: 100
+toc: true
 aliases: [/extras/shortcodes/]
 testparam: "Hugo Rocks!"
 ---

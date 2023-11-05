@@ -2,12 +2,13 @@
 title: macOS
 description: Install Hugo on macOS.
 categories: [installation]
+keywords: []
 menu:
   docs:
     parent: installation
     weight: 20
-toc: true
 weight: 20
+toc: true
 ---
 {{% include "installation/_common/01-editions.md" %}}
 

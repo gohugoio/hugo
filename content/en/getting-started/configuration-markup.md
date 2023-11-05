@@ -1,7 +1,7 @@
 ---
 title: Configure markup
 description: Configure rendering of markup to HTML.
-categories: [fundamentals, getting started]
+categories: [getting started,fundamentals]
 keywords: [configuration,highlighting]
 menu:
   docs:

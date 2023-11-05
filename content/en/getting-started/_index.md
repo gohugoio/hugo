@@ -2,8 +2,8 @@
 title: Getting started
 linkTitle: Overview
 description: Quick start and guides for installing Hugo on your preferred operating system.
-categories: [getting started]
-keywords: [usage,docs]
+categories: []
+keywords: []
 menu:
   docs:
     identifier: getting-started-overview

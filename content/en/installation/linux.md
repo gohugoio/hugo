@@ -2,12 +2,13 @@
 title: Linux
 description: Install Hugo on Linux.
 categories: [installation]
+keywords: []
 menu:
   docs:
     parent: installation
     weight: 30
-toc: true
 weight: 30
+toc: true
 ---
 {{% include "installation/_common/01-editions.md" %}}
 

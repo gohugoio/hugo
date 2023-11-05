@@ -1,6 +1,6 @@
 ---
 title: encoding.Jsonify
-description: Encodes a given object to JSON.
+description: Encodes the given object to JSON.
 categories: []
 keywords: []
 action:

@@ -1,14 +1,14 @@
 ---
 title: Build options
 description: Build options help define how Hugo must treat a given page when building the site.
+categories: [content management,fundamentals]
 keywords: [build,content,front matter, page resources]
-categories: [fundamentals,content management]
 menu:
   docs:
     parent: content-management
     weight: 70
-toc: true
 weight: 70
+toc: true
 aliases: [/content/build-options/]
 ---
 

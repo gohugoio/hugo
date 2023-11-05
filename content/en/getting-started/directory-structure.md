@@ -1,15 +1,15 @@
 ---
 title: Directory structure
 description: Each Hugo project is a directory, with subdirectories that contribute to the content, structure, behavior, and presentation of your site.
-categories: [fundamentals,getting started]
+categories: [getting started,fundamentals]
 keywords: [source, organization, directories]
 menu:
   docs:
     parent: getting-started
     weight: 30
 weight: 30
-aliases: [/overview/source-directory/]
 toc: true
+aliases: [/overview/source-directory/]
 ---
 
 ## Site skeleton

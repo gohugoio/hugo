@@ -2,6 +2,8 @@
 title: Search tools
 linkTitle: Search
 description: See some of the open-source and commercial search options for your newly created Hugo website.
+categories: [developer tools]
+keywords: [search]
 menu:
   docs:
     parent: developer-tools

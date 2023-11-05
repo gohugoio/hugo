@@ -2,7 +2,7 @@
 title: Configure Hugo modules
 description: This page describes the configuration options for a module.
 categories: [hugo modules]
-keywords: [themes, source, organization, directories]
+keywords: [modules,themes]
 menu:
   docs:
     parent: modules

@@ -2,12 +2,13 @@
 title: BSD
 description: Install Hugo on BSD derivatives.
 categories: [installation]
+keywords: []
 menu:
   docs:
     parent: installation
     weight: 50
-toc: true
 weight: 50
+toc: true
 ---
 {{% include "installation/_common/01-editions.md" %}}
 

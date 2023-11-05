@@ -8,8 +8,8 @@ menu:
     parent: templates
     weight: 100
 weight: 100
-aliases: [/extras/pagination,/doc/pagination/]
 toc: true
+aliases: [/extras/pagination,/doc/pagination/]
 ---
 
 The real power of Hugo pagination shines when combined with the [`where`] function and its SQL-like operators: [`first`], [`last`], and [`after`]. You can even [order the content][lists] the way you've become used to with Hugo.

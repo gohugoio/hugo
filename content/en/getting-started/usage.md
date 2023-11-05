@@ -8,8 +8,8 @@ menu:
     parent: getting-started
     weight: 30
 weight: 30
-aliases: [/overview/usage/,/extras/livereload/,/doc/usage/,/usage/]
 toc: true
+aliases: [/overview/usage/,/extras/livereload/,/doc/usage/,/usage/]
 ---
 
 ## Test your installation

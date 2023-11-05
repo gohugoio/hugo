@@ -9,8 +9,8 @@ menu:
     parent: templates
     weight: 60
 weight: 60
-aliases: [/templates/list/,/layout/indexes/]
 toc: true
+aliases: [/templates/list/,/layout/indexes/]
 ---
 
 ## What is a list page template?

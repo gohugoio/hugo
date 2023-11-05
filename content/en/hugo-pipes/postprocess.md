@@ -8,7 +8,7 @@ menu:
     parent: hugo-pipes
     weight: 50
 weight: 50
-function:
+action:
   aliases: []
   returnType: postpub.PostPublishedResource
   signatures: [resources.PostProcess RESOURCE]

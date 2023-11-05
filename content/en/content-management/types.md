@@ -2,13 +2,13 @@
 title: Content types
 description: Hugo is built around content organized in sections.
 categories: [content management]
-keywords: [lists, sections, content types, types, organization]
+keywords: [lists,sections,content types,types,organization]
 menu:
   docs:
     parent: content-management
     weight: 130
-toc: true
 weight: 130
+toc: true
 aliases: [/content/types]
 ---
 

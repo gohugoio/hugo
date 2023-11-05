@@ -1,14 +1,14 @@
 ---
 title: Syntax highlighting
 description: Hugo comes with really fast syntax highlighting from Chroma.
-keywords: [highlighting,chroma,code blocks,syntax]
 categories: [content management]
+keywords: [highlighting,chroma,code blocks,syntax]
 menu:
   docs:
     parent: content-management
     weight: 240
-toc: true
 weight: 240
+toc: true
 aliases: [/extras/highlighting/,/extras/highlight/,/tools/syntax-highlighting/]
 ---
 

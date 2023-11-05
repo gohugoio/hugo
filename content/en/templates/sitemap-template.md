@@ -2,14 +2,14 @@
 title: Sitemap templates
 description: Hugo provides built-in sitemap templates.
 categories: [templates]
-keywords: [sitemap, xml, templates]
+keywords: [sitemap,xml,templates]
 menu:
   docs:
     parent: templates
     weight: 170
 weight: 170
-aliases: [/layout/sitemap/,/templates/sitemap/]
 toc: true
+aliases: [/layout/sitemap/,/templates/sitemap/]
 ---
 
 ## Overview

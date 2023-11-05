@@ -9,7 +9,7 @@ menu:
     parent: hugo-pipes
     weight: 60
 weight: 60
-function:
+action:
   aliases: []
   returnType: resource.Resource
   signatures: ['js.Build [OPTIONS] RESOURCE']

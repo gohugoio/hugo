@@ -1,8 +1,8 @@
 ---
 title: Image processing
 description: Resize, crop, rotate, filter, and convert images.
-categories: [fundamentals,content management]
-keywords: [resources, images]
+categories: [content management,fundamentals]
+keywords: [resources,images]
 menu:
   docs:
     parent: content-management

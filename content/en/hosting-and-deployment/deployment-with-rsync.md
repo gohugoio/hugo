@@ -2,12 +2,12 @@
 title: Deploy with Rsync
 description: If you have access to your web host with SSH, you can use a simple rsync one-liner to incrementally deploy your entire Hugo website.
 categories: [hosting and deployment]
-keywords: [rsync,deployment]
+keywords: [deployment,rsync]
 menu:
   docs:
     parent: hosting-and-deployment
-aliases: [/tutorials/deployment-with-rsync/]
 toc: true
+aliases: [/tutorials/deployment-with-rsync/]
 ---
 
 ## Assumptions

@@ -9,7 +9,7 @@ menu:
     parent: hugo-pipes
     weight: 80
 weight: 80
-function:
+action:
   aliases: [minify]
   returnType: resource.Resource
   signatures: [resources.Minify RESOURCE]

@@ -9,7 +9,7 @@ menu:
     parent: hugo-pipes
     weight: 110
 weight: 110
-function:
+action:
   aliases: []
   returnType: resource.Resource
   signatures: [resources.FromString TARGETPATH STRING]

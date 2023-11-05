@@ -9,8 +9,8 @@ menu:
     parent: contribute
     weight: 40
 weight: 40
-aliases: [/contribute/theme/]
 toc: true
+aliases: [/contribute/theme/]
 ---
 
 A collection of all themes created by the Hugo community, including screenshots and demos, can be found at [themes.gohugo.io]. Every theme in this list will automatically be added to the theme site.

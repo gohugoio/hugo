@@ -9,10 +9,10 @@ menu:
     parent: hugo-pipes
     weight: 120
 weight: 120
-function:
+action:
   aliases: []
   returnType: resource.Resource
-  signatures: [resources.ExecuteAsTemplate TARGETPATH CONTEXT RESOURCE']
+  signatures: [resources.ExecuteAsTemplate TARGETPATH CONTEXT RESOURCE]
 ---
 
 ## Usage

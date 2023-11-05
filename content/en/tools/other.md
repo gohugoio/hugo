@@ -3,7 +3,7 @@ title: Other community projects
 linkTitle: Other projects
 description: Some interesting projects developed by the Hugo community that don't quite fit into our other developer tool categories.
 categories: [developer tools]
-keywords: [frontend, gui]
+keywords: [frontend,gui]
 menu:
   docs:
     parent: developer-tools

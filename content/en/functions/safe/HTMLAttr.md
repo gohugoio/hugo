@@ -1,6 +1,6 @@
 ---
 title: safe.HTMLAttr
-description: Declares the provided string as a safe HTML attribute.
+description: Declares the given key/value pair as a safe HTML attribute.
 categories: []
 keywords: []
 action:

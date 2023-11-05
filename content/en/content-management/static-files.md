@@ -7,8 +7,8 @@ menu:
   docs:
     parent: content-management
     weight: 200
-toc: true
 weight: 200
+toc: true
 aliases: [/static-files]
 ---
 

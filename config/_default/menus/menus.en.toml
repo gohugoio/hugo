@@ -15,50 +15,50 @@ name = 'Getting started'
 weight = 30
 identifier = 'getting-started'
 pageRef = '/getting-started/'
-
-[[docs]]
-name = 'Hugo Modules'
-weight = 40
-identifier = 'modules'
 post = 'break'
-pageRef = '/hugo-modules/'
 
 [[docs]]
 name = 'Content management'
-weight = 50
+weight = 40
 identifier = 'content-management'
 post = 'expanded'
 pageRef = '/content-management/'
 
 [[docs]]
 name = 'Templates'
-weight = 60
+weight = 50
 identifier = 'templates'
 pageRef = '/templates/'
 
 [[docs]]
 name = 'Functions'
-weight = 70
+weight = 60
 identifier = 'functions'
 pageRef = '/functions/'
 
 [[docs]]
 name = 'Methods'
-weight = 80
+weight = 70
 identifier = 'methods'
 pageRef = '/methods/'
 
 [[docs]]
 name = 'Quick reference'
-weight = 90
+weight = 80
 identifier = 'quick-reference'
 pageRef = '/quick-reference/'
 
 [[docs]]
 name = 'Variables'
-weight = 95
+weight = 85
 identifier = 'variables'
 pageRef = '/variables/'
+
+[[docs]]
+name = 'Hugo Modules'
+weight = 90
+identifier = 'modules'
+pageRef = '/hugo-modules/'
 
 [[docs]]
 name = 'Hugo Pipes'

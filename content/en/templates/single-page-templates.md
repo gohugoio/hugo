@@ -8,8 +8,8 @@ menu:
     parent: templates
     weight: 50
 weight: 50
-aliases: [/layout/content/]
 toc: true
+aliases: [/layout/content/]
 ---
 
 ## Single page template lookup order

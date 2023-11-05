@@ -1,15 +1,15 @@
 ---
 title: Base templates and blocks
 description: The base and block constructs allow you to define the outer shell of your master templates (i.e., the chrome of the page).
-categories: [fundamentals,templates]
+categories: [templates,fundamentals]
 keywords: [blocks,base]
 menu:
   docs:
     parent: templates
     weight: 40
 weight: 40
-aliases: [/templates/blocks/,/templates/base-templates-and-blocks/]
 toc: true
+aliases: [/templates/blocks/,/templates/base-templates-and-blocks/]
 ---
 
 The `block` keyword allows you to define the outer shell of your pages' one or more master template(s) and then fill in or override portions as necessary.

@@ -3,12 +3,12 @@ title: Frequently asked questions
 linkTitle: Frequently asked questions
 description: Solutions to some common Hugo problems.
 categories: [troubleshooting]
+keywords: [faqs]
 menu:
   docs:
     parent: troubleshooting
     weight: 20
 weight: 20
-keywords: [faqs]
 toc: true
 aliases: [/faq/]
 ---

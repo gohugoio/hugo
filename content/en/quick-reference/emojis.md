@@ -1,7 +1,7 @@
 ---
 title: Emojis
 description: Include emoji shortcodes in your markdown, or use the emojify function in your templates.
-categories: []
+categories: [quick reference]
 keywords: [emoji]
 menu:
   docs:

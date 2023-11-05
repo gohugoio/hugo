@@ -9,8 +9,8 @@ menu:
     parent: templates
     weight: 130
 weight: 130
-toc: true
 aliases: [/functions/get]
+toc: true
 ---
 
 Shortcodes are a means to consolidate templating into small, reusable snippets that you can embed directly inside your content.

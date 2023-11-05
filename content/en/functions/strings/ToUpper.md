@@ -1,6 +1,6 @@
 ---
 title: strings.ToUpper
-description: Converts all characters in the given string to uppercase.
+description: Returns the given string, converting all characters to uppercase.
 categories: []
 keywords: []
 action:

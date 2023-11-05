@@ -8,8 +8,8 @@ menu:
     parent: templates
     weight: 150
 weight: 150
-aliases: [/extras/datafiles/,/extras/datadrivencontent/,/doc/datafiles/]
 toc: true
+aliases: [/extras/datafiles/,/extras/datadrivencontent/,/doc/datafiles/]
 ---
 
 Hugo supports loading data from YAML, JSON, XML, and TOML files located in the `data` directory at the root of your Hugo project.

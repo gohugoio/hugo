@@ -2,14 +2,14 @@
 title: Pages variables
 description: Use these methods with a collection of Page objects.
 categories: [variables]
-keywords: [pages]
+keywords: []
 menu:
   docs:
     parent: variables
     weight: 60
 weight: 60
-aliases: [/variables/site-variables/]
 toc: true
+aliases: [/variables/site-variables/]
 ---
 
 {{% include "variables/_common/consistent-terminology.md" %}}

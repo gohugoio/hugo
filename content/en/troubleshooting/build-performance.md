@@ -1,6 +1,8 @@
 ---
 title: Build performance
 description: An overview of features used for diagnosing and improving performance issues in site builds.
+categories: [troubleshooting]
+keywords: []
 menu:
   docs:
     parent: troubleshooting

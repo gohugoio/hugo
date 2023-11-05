@@ -10,8 +10,9 @@ menu:
     returnType: resource.Resource
     weight: 30
 weight: 30
-function:
+action:
   aliases: [toCSS]
+  returnType: resource.Resource
   signatures: ['resources.ToCSS [OPTIONS] RESOURCE']
 toc: true
 aliases: [/hugo-pipes/transform-to-css/]

@@ -1,6 +1,6 @@
 ---
 title: strings.FirstUpper
-description: Capitalizes the first character of a given string.
+description: Returns the given string, capitalizing the first character.
 categories: []
 keywords: []
 action:

@@ -7,8 +7,8 @@ menu:
   docs:
     parent: content-management
     weight: 80
-toc: true
 weight: 80
+toc: true
 ---
 Page resources are only accessible from [page bundles](/content-management/page-bundles), those directories with `index.md` or
 `_index.md` files at their root. Page resources are only available to the

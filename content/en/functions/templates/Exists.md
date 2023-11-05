@@ -1,6 +1,6 @@
 ---
 title: templates.Exists
-description: Reports whether a template file exists under the given path relative to the `layouts` directory.
+description: Reports whether a template file exists under the given path relative to the layouts directory.
 categories: []
 keywords: []
 action:

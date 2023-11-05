@@ -2,7 +2,7 @@
 title: Host on GitHub Pages
 description: Deploy Hugo as a GitHub Pages project or personal/organizational site and automate the whole process with GitHub Actions
 categories: [hosting and deployment]
-keywords: [github,git,deployment,hosting]
+keywords: [hosting,github]
 menu:
   docs:
     parent: hosting-and-deployment

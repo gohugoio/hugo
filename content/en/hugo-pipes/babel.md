@@ -8,7 +8,7 @@ menu:
     parent: hugo-pipes
     weight: 70
 weight: 70
-function:
+action:
   aliases: [babel]
   returnType: resource.Resource
   signatures: ['resources.Babel [OPTIONS] RESOURCE']

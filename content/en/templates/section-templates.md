@@ -9,8 +9,8 @@ menu:
     parent: templates
     weight: 80
 weight: 80
-aliases: [/templates/sections/]
 toc: true
+aliases: [/templates/sections/]
 ---
 
 ## Add content and front matter to section templates

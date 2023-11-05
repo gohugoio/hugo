@@ -1,6 +1,7 @@
 ---
 title: Glossary of terms
 description: Terms commonly used throughout the documentation.
+categories: [getting started]
 keywords: [glossary]
 menu:
   docs:

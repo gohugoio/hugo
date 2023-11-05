@@ -7,8 +7,8 @@ menu:
   docs:
     parent: templates
     weight: 140
-toc: true
 weight: 140
+toc: true
 aliases: [/templates/menus/]
 ---
 

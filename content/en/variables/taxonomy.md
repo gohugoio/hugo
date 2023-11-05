@@ -2,7 +2,7 @@
 title: Taxonomy variables
 description: Use these methods with Taxonomy objects.
 categories: [variables]
-keywords: [taxonomy,term]
+keywords: []
 menu:
   docs:
     parent: variables

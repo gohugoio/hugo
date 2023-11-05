@@ -1,6 +1,6 @@
 ---
 title: reflect.IsMap
-description: Reports whether the value is a map.
+description: Reports whether the given value is a map.
 categories: []
 keywords: []
 action:

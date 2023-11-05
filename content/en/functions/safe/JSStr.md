@@ -1,6 +1,6 @@
 ---
 title: safe.JSStr
-description: Declares the provided string as a known safe JavaScript string.
+description: Declares the given string as a safe JavaScript string.
 categories: []
 keywords: []
 action:

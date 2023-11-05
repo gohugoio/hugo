@@ -2,14 +2,14 @@
 title: Content organization
 linkTitle: Organization
 description: Hugo assumes that the same structure that works to organize your source content is used to organize the rendered site.
-categories: [fundamentals,content management]
+categories: [content management,fundamentals]
 keywords: [sections,content,organization,bundle,resources]
 menu:
   docs:
     parent: content-management
     weight: 20
-toc: true
 weight: 20
+toc: true
 aliases: [/content/sections/]
 ---
 

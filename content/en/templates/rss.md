@@ -1,8 +1,8 @@
 ---
 title: RSS templates
 description: Use the built-in RSS template, or create your own.
-keywords: [rss, xml, templates]
 categories: [templates]
+keywords: [rss,xml,templates]
 menu:
   docs:
     parent: templates

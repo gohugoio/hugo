@@ -1,15 +1,15 @@
 ---
 title: Hugo's security model
 description: A summary of Hugo's security model.
-layout: single
-keywords: ["Security", "Privacy"]
+categories: [about]
+keywords: [security,privacy]
 menu:
   docs:
     parent: about
     weight: 50
 weight: 50
-aliases: [/security/]
 toc: true
+aliases: [/security/]
 ---
 
 ## Runtime security

@@ -2,6 +2,8 @@
 title: Troubleshoot
 linkTitle: Overview
 description: Frequently asked questions and known issues pulled from the Hugo Discuss forum.
+categories: []
+keywords: []
 menu:
   docs:
     identifier: troubleshooting-overview

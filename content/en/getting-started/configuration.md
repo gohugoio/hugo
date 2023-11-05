@@ -2,15 +2,15 @@
 title: Configure Hugo
 linkTitle: Configuration
 description: How to configure your Hugo site.
-categories: [fundamentals,getting started]
+categories: [getting started,fundamentals]
 keywords: [configuration,toml,yaml,json]
 menu:
   docs:
     parent: getting-started
     weight: 40
 weight: 40
-aliases: [/overview/source-directory/,/overview/configuration/]
 toc: true
+aliases: [/overview/source-directory/,/overview/configuration/]
 ---
 
 ## Configuration file

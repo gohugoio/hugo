@@ -2,13 +2,13 @@
 title: Links and cross references
 description: Shortcodes for creating links to documents.
 categories: [content management]
-keywords: ["cross references","references", "anchors", "urls"]
+keywords: [cross references,references,anchors,urls]
 menu:
   docs:
     parent: content-management
     weight: 170
-toc: true
 weight: 170
+toc: true
 aliases: [/extras/crossreferences/]
 ---
 

@@ -1,8 +1,8 @@
 ---
 title: License
 description: Hugo is released under the Apache 2.0 license.
-categories: ["about hugo"]
-keywords: ["license","apache"]
+categories: [about]
+keywords: [license,apache]
 menu:
   docs:
     parent: about

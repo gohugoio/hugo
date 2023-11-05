@@ -1,6 +1,6 @@
 ---
 title: collections.Slice
-description: Creates a slice (array) of all passed arguments.
+description: Creates a slice of all passed arguments.
 categories: []
 keywords: []
 action:

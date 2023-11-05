@@ -7,8 +7,8 @@ menu:
   docs:
     parent: content-management
     weight: 110
-toc: true
 weight: 110
+toc: true
 aliases: [/content/related/,/related/]
 ---
 

@@ -7,9 +7,9 @@ menu:
   docs:
     parent: hugo-pipes
     weight: 40
-toc: true
 weight: 40
-function:
+toc: true
+action:
   aliases: [postCSS]
   returnType: resource.Resource
   signatures: ['resources.PostCSS [OPTIONS] RESOURCE']

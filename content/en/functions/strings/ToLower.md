@@ -1,6 +1,6 @@
 ---
 title: strings.ToLower
-description: Converts all characters in the given string to lowercase.
+description: Returns the given string, converting all characters to lowercase.
 categories: []
 keywords: []
 action:

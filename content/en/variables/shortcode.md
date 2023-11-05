@@ -2,7 +2,7 @@
 title: Shortcode variables
 description: Use these methods in your shortcode templates.
 categories: [variables]
-keywords: [shortcodes]
+keywords: []
 menu:
   docs:
     parent: variables

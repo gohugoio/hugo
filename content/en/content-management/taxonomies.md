@@ -1,14 +1,14 @@
 ---
 title: Taxonomies
 description: Hugo includes support for user-defined taxonomies.
-keywords: [taxonomies,metadata,front matter,terms]
 categories: [content management]
+keywords: [taxonomies,metadata,front matter,terms]
 menu:
   docs:
     parent: content-management
     weight: 150
-toc: true
 weight: 150
+toc: true
 aliases: [/taxonomies/overview/,/taxonomies/usage/,/indexes/overview/,/doc/indexes/,/extras/indexes]
 ---
 

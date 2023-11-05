@@ -2,7 +2,7 @@
 title: Variables
 linkTitle: Overview
 description: Use these variables in your templates.
-categories: [variables]
+categories: []
 keywords: []
 menu:
   docs:

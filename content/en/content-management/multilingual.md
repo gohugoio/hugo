@@ -3,13 +3,13 @@ title: Multilingual mode
 linkTitle: Multilingual
 description: Hugo supports the creation of websites with multiple languages side by side.
 categories: [content management]
-keywords: [multilingual,i18n, internationalization]
+keywords: [multilingual,i18n,internationalization]
 menu:
   docs:
     parent: content-management
     weight: 230
-toc: true
 weight: 230
+toc: true
 aliases: [/content/multilingual/,/tutorials/create-a-multilingual-site/]
 ---
 

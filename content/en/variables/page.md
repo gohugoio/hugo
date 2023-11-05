@@ -2,7 +2,7 @@
 title: Page variables
 description: Use these methods with a Page object.
 categories: [variables]
-keywords: [page]
+keywords: []
 menu:
   docs:
     parent: variables

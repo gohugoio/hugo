@@ -1,6 +1,6 @@
 ---
 title: safe.URL
-description: Declares the provided string as a safe URL or URL substring.
+description: Declares the given string as a safe URL or URL substring.
 categories: []
 keywords: []
 action:

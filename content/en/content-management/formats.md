@@ -7,8 +7,8 @@ menu:
   docs:
     parent: content-management
     weight: 40
-toc: true
 weight: 40
+toc: true
 aliases: [/content/markdown-extras/,/content/supported-formats/,/doc/supported-formats/]
 ---
 

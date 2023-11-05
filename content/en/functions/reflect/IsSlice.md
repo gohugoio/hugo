@@ -1,6 +1,6 @@
 ---
 title: reflect.IsSlice
-description: Reports whether the value is a slice.
+description: Reports whether the given value is a slice.
 categories: []
 keywords: []
 action:

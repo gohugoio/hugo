@@ -1,7 +1,7 @@
 ---
 title: Template lookup order
 description: Hugo uses the rules below to select a template for a given page, starting from the most specific.
-categories: [fundamentals,templates]
+categories: [templates,fundamentals]
 keywords: [templates]
 menu:
   docs:
