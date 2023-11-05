@@ -9,11 +9,11 @@ menu:
 toc: true
 weight: 30
 ---
-{{% readfile file="/installation/_common/01-editions.md" %}}
+{{% include "installation/_common/01-editions.md" %}}
 
-{{% readfile file="/installation/_common/02-prerequisites.md" %}}
+{{% include "installation/_common/02-prerequisites.md" %}}
 
-{{% readfile file="/installation/_common/03-prebuilt-binaries.md" %}}
+{{% include "installation/_common/03-prebuilt-binaries.md" %}}
 
 ## Package managers
 
@@ -47,13 +47,17 @@ sudo snap disconnect hugo:ssh-keys
 [strictly confined]: https://snapcraft.io/docs/snap-confinement
 [Snap]: https://snapcraft.io/
 
-{{% readfile file="/installation/_common/homebrew.md" %}}
+{{% include "installation/_common/homebrew.md" %}}
 
 ## Repository packages
 
-Most Linux distributions maintain a repository for commonly installed applications. Please note that these repositories may not contain the [latest release].
+Most Linux distributions maintain a repository for commonly installed applications.
 
-[latest release]: https://github.com/gohugoio/hugo/releases/latest
+{{% note %}}
+Due to Long Term Release (LTR) guidelines, most Linux package repositories will not contain the [latest release].
+
+[latest release]: https://github.com/gohugoio/hugo/releases/latest 
+{{% /note %}}
 
 ### Arch Linux
 
@@ -92,7 +96,6 @@ You can also download Debian packages from the [latest release] page.
 
 Derivatives of the [Fedora] distribution of Linux include [CentOS], [Red Hat Enterprise Linux], and others. This will install the extended edition of Hugo:
 
-
 ```sh
 sudo dnf install hugo
 ```
@@ -104,7 +107,6 @@ sudo dnf install hugo
 ### openSUSE
 
 Derivatives of the [openSUSE] distribution of Linux include [GeckoLinux], [Linux Karmada], and others. This will install the extended edition of Hugo:
-
 
 ```sh
 sudo zypper install hugo
@@ -124,7 +126,7 @@ sudo eopkg install hugo
 
 [Solus]: https://getsol.us/
 
-{{% readfile file="/installation/_common/04-build-from-source.md" %}}
+{{% include "installation/_common/04-build-from-source.md" %}}
 
 ## Comparison
 

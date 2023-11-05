@@ -1,17 +1,13 @@
 ---
 title: collections.Where 
-linkTitle: where
 description: Filters an array to only the elements containing a matching value for a given field.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [where]
   returnType: any
   signatures: ['collections.Where COLLECTION KEY [OPERATOR] MATCH']
-relatedFunctions:
+related:
   - collections.Dictionary
   - collections.Group
   - collections.Index
@@ -35,7 +31,7 @@ SQL][wherekeyword].
 
 It can be used by dot-chaining the second argument to refer to a nested element of a value.
 
-{{< code-toggle file="content/example.md" fm=true copy=false >}}
+{{< code-toggle file="content/example.md" fm=true >}}
 title: Example
 series: golang
 {{< /code-toggle >}}
@@ -106,13 +102,13 @@ When using booleans you should not put quotation marks.
 
 You can also put the returned value of the `where` clauses into a variable:
 
-{{< code file="where-intersect-variables.html" >}}
+```go-html-template
 {{ $v1 := where .Site.Pages "Params.a" "v1" }}
 {{ $v2 := where .Site.Pages "Params.b" "v2" }}
 {{ $filtered := $v1 | intersect $v2 }}
 {{ range $filtered }}
 {{ end }}
-{{< /code >}}
+```
 
 ## Use `where` with `like`
 
@@ -120,11 +116,11 @@ This example matches pages where the "foo" parameter begins with "ab":
 
 ```go-html-template
 {{ range where site.RegularPages "Params.foo" "like" `^ab` }}
-  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
 {{ end }}
 ```
 
-{{% readfile file="/functions/_common/regular-expressions.md" %}}
+{{% include "functions/_common/regular-expressions.md" %}}
 
 ## Use `where` with `first`
 
@@ -134,11 +130,11 @@ sections**](#mainsections), sorts it using the [default
 ordering](/templates/lists/) for lists (i.e., `weight => date`), and
 then ranges through only the first 5 posts in that list:
 
-{{< code file="first-and-where-together.html" >}}
+```go-html-template
 {{ range first 5 (where site.RegularPages "Type" "in" site.Params.mainSections) }}
    {{ .Content }}
 {{ end }}
-{{< /code >}}
+```
 
 ## Nest `where` clauses
 
@@ -181,7 +177,7 @@ If the user has not set this configuration parameter in their site configuration
 
 The user can override the default:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [params]
   mainSections = ["blog", "docs"]
 {{< /code-toggle >}}

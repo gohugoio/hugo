@@ -1,20 +1,15 @@
 ---
 title: fmt.Erroridf
-linkTitle: erroridf
 description: Log a suppressable ERROR from a template.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [erroridf]
+  related:
+    - functions/fmt/Errorf
+    - functions/fmt/Warnf
   returnType: string
   signatures: ['fmt.Erroridf ID FORMAT [INPUT]']
-relatedFunctions:
-  - fmt.Errorf
-  - fmt.Erroridf
-  - fmt.Warnf
 aliases: [/functions/erroridf]
 ---
 
@@ -40,7 +35,7 @@ ignoreErrors = ["error-42"]
 
 To suppress this message:
 
-{{< code-toggle file=hugo copy=false >}}
+{{< code-toggle file=hugo >}}
 ignoreErrors = ["error-42"]
 {{< /code-toggle >}}
 

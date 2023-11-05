@@ -1,22 +1,19 @@
 ---
 title: partials.IncludeCached
-linkTitle: partialCached
-description: Allows for caching of partials that do not need to be re-rendered on every invocation.
-categories: [functions]
+description: Executes the given template and caches the result, optionally passing context. If the partial contains a return statement, returns that value, else returns the rendered output.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [partialCached]
+  related:
+    - functions/go-template/template
+    - functions/partials/Include
+    - methods/page/Render
   returnType: any
   signatures: ['partials.IncludeCached LAYOUT CONTEXT [VARIANT...]']
-relatedFunctions:
-  - partials.Include
-  - partials.IncludeCached
 signatures: 
-  - partials.IncludeCached LAYOUT CONTEXT [VARIANT...]
-  - partialCached LAYOUT CONTEXT [VARIANT...]
+  - partials.IncludeCached NAME CONTEXT [VARIANT...]
+  - partialCached NAME CONTEXT [VARIANT...]
 aliases: [/functions/partialcached]
 ---
 

@@ -1,19 +1,14 @@
 ---
 title: reflect.IsSlice
 description: Reports whether the value is a slice.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
+  related:
+    - functions/reflect/IsMap
   returnType: bool
   signatures: [reflect.IsSlice INPUT]
-namespace: reflect
-relatedFunctions:
-  - reflect.IsMap
-  - reflect.IsSlice
 aliases: [/functions/reflect.isslice]
 ---
 

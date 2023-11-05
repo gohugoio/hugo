@@ -1,20 +1,15 @@
 ---
 title: fmt.Printf
-linkTitle: printf
 description: Formats a string using the standard `fmt.Sprintf` function.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [printf]
+  related:
+    - functions/fmt/Print
+    - functions/fmt/Println
   returnType: string
   signatures: ['fmt.Printf FORMAT [INPUT]']
-relatedFunctions:
-  - fmt.Print
-  - fmt.Printf
-  - fmt.Println
 aliases: [/functions/printf]
 ---
 

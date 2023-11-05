@@ -63,7 +63,7 @@ layouts/
 
 But the contact page probably has a form and requires a different template. In the front matter specify `layout`:
 
-{{< code-toggle file=content/contact.md copy=false >}}
+{{< code-toggle file=content/contact.md >}}
 title = 'Contact'
 layout = 'contact'
 {{< /code-toggle >}}
@@ -79,12 +79,12 @@ layouts/
 
 As a content type, the word `page` is vague. Perhaps `miscellaneous` would be better. Add `type` to the front matter of each page:
 
-{{< code-toggle file=content/about.md copy=false >}}
+{{< code-toggle file=content/about.md >}}
 title = 'About'
 type = 'miscellaneous'
 {{< /code-toggle >}}
 
-{{< code-toggle file=content/contact.md copy=false >}}
+{{< code-toggle file=content/contact.md >}}
 title = 'Contact'
 type = 'miscellaneous'
 layout = 'contact'
@@ -117,7 +117,7 @@ A section page is a list of pages within a given section.
 
 A taxonomy page is a list of terms within a given taxonomy. The examples below assume the following site configuration:
 
-{{< code-toggle file=hugo copy=false >}}
+{{< code-toggle file=hugo >}}
 [taxonomies]
 category = 'categories'
 {{< /code-toggle >}}
@@ -128,7 +128,7 @@ category = 'categories'
 
 A term page is a list of pages associated with a given term. The examples below assume the following site configuration:
 
-{{< code-toggle file=hugo copy=false >}}
+{{< code-toggle file=hugo >}}
 [taxonomies]
 category = 'categories'
 {{< /code-toggle >}}

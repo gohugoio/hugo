@@ -1,23 +1,19 @@
 ---
 title: lang.Translate
-linkTitle: i18n
 description: Translates a string using the translation tables in the i18n directory.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
-  aliases: [i18n,T]
+action:
+  aliases: [T, i18n]
+  related: []
   returnType: string
   signatures: ['lang.Translate KEY [CONTEXT]']
-relatedFunctions: []
 aliases: [/functions/i18n]
 ---
 
 Let's say your multilingual site supports two languages, English and Polish. Create a translation table for each language in the `i18n` directory.
 
-```
+```text
 i18n/
 ├── en.toml
 └── pl.toml
@@ -34,12 +30,10 @@ The Unicode [CLDR Plural Rules chart] describes the pluralization categories for
 
 The English translation table:
 
-{{< code-toggle file=i18n/en copy=false >}}
-# simple translations
+{{< code-toggle file=i18n/en >}}
 privacy = 'privacy'
 security = 'security'
 
-# translations with pluralization
 [day]
 one = 'day'
 other = 'days'
@@ -51,12 +45,10 @@ other = '{{ . }} days'
 
 The Polish translation table:
 
-{{< code-toggle file=i18n/pl copy=false >}}
-# simple translations
+{{< code-toggle file=i18n/pl >}}
 privacy = 'prywatność'
 security = 'bezpieczeństwo'
 
-# translations with pluralization
 [day]
 one = 'miesiąc'
 few = 'miesiące'
@@ -108,17 +100,17 @@ When viewing the Polish language site:
 {{ T "day_with_count" 5 }} → 5 miesięcy
 ```
 
-In the pluralization examples above, we passed an integer in context (the second argument). You can also pass a map in context, creating a `count` key to control pluralization.
+In the pluralization examples above, we passed an integer in context (the second argument). You can also pass a map in context, providing a `count` key to control pluralization.
 
 Translation table:
 
-{{< code-toggle file=i18n/en copy=false >}}
+{{< code-toggle file=i18n/en >}}
 [age]
 one = '{{ .name }} is {{ .count }} year old.'
 other = '{{ .name }} is {{ .count }} years old.'
 {{< /code-toggle >}}
 
-Template:
+Template code:
 
 ```go-html-template
 {{ T "age" (dict "name" "Will" "count" 1) }} → Will is 1 year old.

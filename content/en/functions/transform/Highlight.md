@@ -1,21 +1,15 @@
 ---
 title: transform.Highlight
-linkTitle: highlight
 description: Renders code with a syntax highlighter.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [highlight]
+  related:
+    - functions/transform/CanHighlight
+    - functions/transform/HighlightCodeBlock
   returnType: template.HTML
   signatures: ['transform.Highlight INPUT LANG [OPTIONS]']
-namespace: transform
-relatedFunctions:
-  - transform.CanHighlight
-  - transform.Highlight
-  - transform.HighlightCodeBlock
 aliases: [/functions/highlight]
 toc: true
 ---
@@ -57,7 +51,7 @@ The number to display at the beginning of the first line. Irrelevant if `lineNos
 
 hl_Lines
 : String. Default is `""`.\
-A space-separated list of lines to emphasize within the highlighted code. To emphasize lines 2, 3, 4, and 7, set this value to `2-4 7`. This option is independent of the `lineNoStart` option.
+A space-delimited list of lines to emphasize within the highlighted code. To emphasize lines 2, 3, 4, and 7, set this value to `2-4 7`. This option is independent of the `lineNoStart` option.
 
 hl_inline
 : Boolean. Default is `false`.\
@@ -101,8 +95,8 @@ Instead of specifying both `lineNos` and `lineNumbersInTable`, you can use the f
 
 {{ $input := `echo "Hello World!"` }}
 {{ $lang := "bash" }}
-{{ $options := dict "lineNos" "table" "style" "dracula" }}
-{{ transform.Highlight $input $lang $options }}
+{{ $opts := dict "lineNos" "table" "style" "dracula" }}
+{{ transform.Highlight $input $lang $opts }}
 ```
 
 [Chroma]: https://github.com/alecthomas/chroma

@@ -1,25 +1,20 @@
 ---
 title: inflect.Singularize
-linkTitle: singularize
-description: Converts a word according to a set of common English singularization rules.
-categories: [functions]
+description: Singularizes the given word according to a set of common English singularization rules.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [singularize]
+  related:
+    - functions/inflect/Humanize
+    - functions/inflect/Pluralize
   returnType: string
   signatures: [inflect.Singularize INPUT]
-relatedFunctions:
-  - inflect.Humanize
-  - inflect.Pluralize
-  - inflect.Singularize
 aliases: [/functions/singularize]
 ---
 
 ```go-html-template
-{{ "cats" | singularize }} → "cat"
+{{ "cats" | singularize }} → cat
 ```
 
 See also the `.Data.Singular` [taxonomy variable](/variables/taxonomy/) for singularizing taxonomy names.

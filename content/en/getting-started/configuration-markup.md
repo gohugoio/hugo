@@ -16,7 +16,7 @@ toc: true
 
 By default, Hugo uses [Goldmark] to render markdown to HTML.
 
-{{< code-toggle file=hugo copy=false >}}
+{{< code-toggle file=hugo >}}
 [markup]
 defaultMarkdownHandler = 'goldmark'
 {{< /code-toggle >}}
@@ -81,7 +81,6 @@ Markdown|Replaced by|Description
 `»`|`&raquo;`|right angle quote
 `”`|`&rdquo;`|right double quote
 `’`|`&rsquo;`|right single quote
-
 
 attribute
 : Enable custom attribute support for titles and blocks by adding attribute lists inside single curly brackets (`{.myclass class="class1 class2" }`) and placing it _after the Markdown element it decorates_, on the same line for titles and on a new line directly below for blocks.

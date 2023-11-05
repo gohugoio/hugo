@@ -1,21 +1,18 @@
 ---
 title: debug.Timer
 description: Creates a named timer that reports elapsed time to the console.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
+  related: []
   returnType: debug.Timer
   signatures: [debug.Timer NAME] 
-relatedFunctions: []
 ---
 
 {{< new-in "0.120.0" >}}
 
-Use the `debug.Timer` function to determine execution time for a block of code, useful for finding performance bottlenecks in templates.
+Use the `debug.Timer` function to determine execution time for a block of code, useful for finding performance bottle necks in templates.
 
 The timer starts when you instantiate it, and stops when you call its `Stop` method.
 

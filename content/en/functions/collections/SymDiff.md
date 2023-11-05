@@ -1,17 +1,13 @@
 ---
 title: collections.SymDiff
-linkTitle: symdiff
 description: Returns the symmetric difference of two collections.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [symdiff]
   returnType: any
   signatures: [COLLECTION | collections.SymDiff COLLECTION]
-relatedFunctions:
+related:
   - collections.Complement
   - collections.Intersect
   - collections.SymDiff
@@ -25,4 +21,4 @@ Example:
 {{ slice 1 2 3 | symdiff (slice 3 4) }} → [1 2 4]
 ```
 
-Also see https://en.wikipedia.org/wiki/Symmetric_difference
+Also see <https://en.wikipedia.org/wiki/Symmetric_difference>.

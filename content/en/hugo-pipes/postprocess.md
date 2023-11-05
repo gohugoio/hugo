@@ -8,7 +8,10 @@ menu:
     parent: hugo-pipes
     weight: 50
 weight: 50
-signatures: ["resources.PostProcess RESOURCE"]
+function:
+  aliases: []
+  returnType: postpub.PostPublishedResource
+  signatures: [resources.PostProcess RESOURCE]
 ---
 
 ## Usage
@@ -36,7 +39,7 @@ There are several ways to set up CSS purging with PostCSS in Hugo. If you have a
 
 The below configuration will write a `hugo_stats.json` file to the project root as part of the build. If you're only using this for the production build, you should consider placing it below [config/production](/getting-started/configuration/#configuration-directory).
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [build.buildStats]
   enable = true
 {{< /code-toggle >}}
@@ -74,7 +77,6 @@ Note that in the example above, the "CSS purge step" will only be applied to the
 <link href="{{ $css.RelPermalink }}" rel="stylesheet" />
 ```
 
-
 ## Hugo environment variables available in PostCSS
 
 These are the environment variables Hugo passes down to PostCSS (and Babel), which allows you do do `process.env.HUGO_ENVIRONMENT === 'production' ? [autoprefixer] : []` and similar:
@@ -88,7 +90,7 @@ HUGO_ENVIRONMENT
 HUGO_PUBLISHDIR
 : {{< new-in "0.109.0" >}} The absolute path to the publish directory (the `public` directory). Note that the value will always point to a directory on disk even when running `hugo server` in memory mode. If you write to this folder from PostCSS when running the server, you could run the server with one of these flags:
 
-```text
+```sh
 hugo server --renderToDisk
 hugo server --renderStaticToDisk
 ```

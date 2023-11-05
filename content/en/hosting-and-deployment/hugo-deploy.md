@@ -53,7 +53,6 @@ a detailed example:
 # will be uploaded first, in the listed order.
 order = [".jpg$", ".gif$"]
 
-
 [[deployment.targets]]
 # An arbitrary name for this target.
 name = "mydeployment"
@@ -84,7 +83,6 @@ cloudFrontDistributionID = <ID>
 # and remote files that don't pass the include/exclude filters are not deleted.
 # include = "**.html" # would only include files with ".html" suffix
 # exclude = "**.{jpg, png}" # would exclude files with ".jpg" or ".png" suffix
-
 
 # [[deployment.matchers]] configure behavior for files that match the Pattern.
 # See https://golang.org/pkg/regexp/syntax/ for pattern syntax.
@@ -118,7 +116,7 @@ gzip = true
 
 To deploy to a target:
 
-```bash
+```sh
 hugo deploy [--target=<target name>, defaults to first target]
 ```
 

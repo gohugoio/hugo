@@ -31,7 +31,7 @@ This is the full set of built-in media types in Hugo:
 
 To add or modify a media type, define it in a `mediaTypes` section in your [site configuration], either for all sites or for a given language.
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [mediaTypes]
   [mediaTypes."text/enriched"]
   suffixes = ["enr"]
@@ -43,7 +43,7 @@ The above example adds one new media type, `text/enriched`, and changes the suff
 
 **Note:** these media types are configured for **your output formats**. If you want to redefine one of Hugo's default output formats (e.g. `HTML`), you also need to redefine the media type. So, if you want to change the suffix of the `HTML` output format from `html` (default) to `htm`:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [mediaTypes]
   [mediaTypes."text/html"]
     suffixes = ["htm"]
@@ -69,7 +69,7 @@ This is the full set of Hugo's built-in output formats:
 
 To add or modify an output format, define it in an `outputFormats` section in your site's [configuration file](/getting-started/configuration/), either for all sites or for a given language.
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [outputFormats.MyEnrichedFormat]
 mediaType = "text/enriched"
 baseName = "myindex"
@@ -139,7 +139,7 @@ per language).
 
 Example from site configuration file:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [outputs]
   home = ["html", "amp", "rss"]
   page = ["html"]
@@ -153,7 +153,7 @@ Note that in the above examples, the _output formats_ for `section`,
 
 The following is an example of front matter in a content file that defines output formats for the rendered `Page`:
 
-{{< code-toggle file="content/example.md" fm=true copy=false >}}
+{{< code-toggle file="content/example.md" fm=true >}}
 title: Example
 outputs:
 - html

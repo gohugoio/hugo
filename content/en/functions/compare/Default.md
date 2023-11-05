@@ -1,88 +1,48 @@
 ---
 title: compare.Default
-linkTitle: default
-description: Allows setting a default value that can be returned if a first value is not set.
-categories: [functions]
+description: Returns the second argument if set, else the first argument.
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [default]
+  related:
+    - functions/compare/Conditional
+    - functions/go-template/Or
   returnType: any
   signatures: [compare.Default DEFAULT INPUT]
-relatedFunctions:
-  - compare.Conditional
-  - compare.Default
 aliases: [/functions/default]
 ---
 
-`default` checks whether a given value is set and returns a default value if it is not. *Set* in this context means different things depending on the data type:
+The `default` function returns the second argument if set, else the first argument.
 
-* non-zero for numeric types and times
-* non-zero length for strings, arrays, slices, and maps
-* any boolean or struct value
-* non-nil for any other types
+{{% note %}}
+When the second argument is the boolean `false` value, the `default` function returns `false`. All _other_ falsy values are considered unset.
 
-`default` function examples reference the following content page:
+{{% include "functions/go-template/_common/truthy-falsy.md" %}}
 
-{{< code file="content/posts/default-function-example.md" >}}
----
-title: Sane Defaults
-seo_title:
-date: 2017-02-18
-font:
-oldparam: The default function helps make your templating DRYer.
-newparam:
----
-{{< /code >}}
+To set a default value based on truthiness, use the [`or`] operator instead.
 
-`default` can be written in more than one way:
+[`or`]: /functions/go-template/or
+{{% /note %}}
+
+The `default` function returns the second argument if set:
 
 ```go-html-template
-{{ .Params.font | default "Roboto" }}
-{{ default "Roboto" .Params.font }}
+{{ default 42 1 }} → 1
+{{ default 42 "foo" }} → foo
+{{ default 42 (dict "k" "v") }} → map[k:v]
+{{ default 42 (slice "a" "b") }} → [a b]
+{{ default 42 true }} → true
+
+<!-- As noted above, the boolean "false" is considered set -->
+{{ default 42 false }} → false
 ```
 
-Both of the above `default` function calls return `Roboto`.
-
-A `default` value, however, does not need to be hard coded like the previous example. The `default` value can be a variable or pulled directly from the front matter using dot notation:
+The `default` function returns the first argument if the second argument is not set:
 
 ```go-html-template
-{{ $old := .Params.oldparam }}
-<p>{{ .Params.newparam | default $old }}</p>
-```
-
-Which would return:
-
-```html
-<p>The default function helps make your templating DRYer.</p>
-```
-
-And then using dot notation
-
-```go-html-template
-<title>{{ .Params.seo_title | default .Title }}</title>
-```
-
-Which would return
-
-```html
-<title>Sane Defaults</title>
-```
-
-The following have equivalent return values but are far less terse. This demonstrates the utility of `default`:
-
-Using `if`:
-
-```go-html-template
-<title>{{ if .Params.seo_title }}{{ .Params.seo_title }}{{ else }}{{ .Title }}{{ end }}</title>
-=> Sane Defaults
-```
-
-Using `with`:
-
-```go-html-template
-<title>{{ with .Params.seo_title }}{{ . }}{{ else }}{{ .Title }}{{ end }}</title>
-=> Sane Defaults
+{{ default 42 0 }} → 42
+{{ default 42 "" }} → 42
+{{ default 42 dict }} → 42
+{{ default 42 slice }} → 42
+{{ default 42 <nil> }} → 42
 ```

@@ -335,7 +335,7 @@
     "مدونتي"
   ],
   "language": "en,en-US,de,fr",
-  "allowCompoundWords": true,
+  "allowCompoundWords": false,
   "files": [
     "**/*.md"
   ],
@@ -354,7 +354,8 @@
     "**/node_modules/**",
     "*.min.*",
     "**/news/*",
-    "**/showcase/*"
+    "**/showcase/*",
+    "**/content-management/emoji-shortcodes.md"
   ],
   "useGitignore": true,
   "enabled": true

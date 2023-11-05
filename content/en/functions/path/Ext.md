@@ -1,33 +1,24 @@
 ---
 title: path.Ext
-description: Ext returns the file name extension of a path.
-categories: [functions]
+description: Replaces path separators with slashes (`/`) and returns the file name extension of the given path.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
+  related:
+    - functions/path/Base
+    - functions/path/BaseName
+    - functions/path/Clean
+    - functions/path/Dir
+    - functions/path/Join
+    - functions/path/Split
   returnType: string
   signatures: [path.Ext PATH]
-relatedFunctions:
-  - path.Base
-  - path.BaseName
-  - path.Clean
-  - path.Dir
-  - path.Ext
-  - path.Join
-  - path.Split
 aliases: [/functions/path.ext]
 ---
 
-`path.Ext` returns the file name extension `PATH`.
-
-The extension is the suffix beginning at the final dot in the final slash-separated element `PATH`;
-it is empty if there is no dot.
-
-**Note:** On Windows, `PATH` is converted to slash (`/`) separators.
+The extension is the suffix beginning at the final dot in the final slash-separated element of path; it is empty if there is no dot.
 
 ```go-html-template
-{{ path.Ext "a/b/c/news.html" }} → ".html"
+{{ path.Ext "a/b/c/news.html" }} → .html
 ```

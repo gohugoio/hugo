@@ -24,7 +24,7 @@ If you run with `markup.highlight.noClasses=false` in your site configuration, y
 
 You can generate one with Hugo:
 
-```bash
+```sh
 hugo gen chromastyles --style=monokai > syntax.css
 ```
 
@@ -103,7 +103,6 @@ Highlighting in code fences is enabled by default.
 // ... code
 ```
 ````
-
 
 Gives this:
 

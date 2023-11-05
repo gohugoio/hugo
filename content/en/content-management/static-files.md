@@ -27,13 +27,13 @@ This union filesystem will be served from your site root. So a file
 Here's an example of setting `staticDir` and `staticDir2` for a
 multi-language site:
 
-{{< code-toggle copy=false file="hugo" >}}
+{{< code-toggle file=hugo >}}
 staticDir = ["static1", "static2"]
 
 [languages]
 [languages.en]
 staticDir2 = "static_en"
-baseURL = "https://example.com"
+baseURL = "https://example.org/"
 languageName = "English"
 weight = 2
 title = "In English"

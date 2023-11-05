@@ -1,21 +1,18 @@
 ---
 title: strings.HasSuffix
-description: Reports whether a string ends with suffix.
-categories: [functions]
+description: Reports whether the given string begins with the given suffix.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [hasSuffix]
+  related:
+    - functions/strings/Contains
+    - functions/strings/ContainsAny
+    - functions/strings/ContainsNonSpace
+    - functions/strings/HasPrefix
+    - functions/collections/In
   returnType: bool
   signatures: [strings.HasSuffix STRING SUFFIX]
-relatedFunctions:
-  - strings.Contains
-  - strings.ContainsAny
-  - strings.ContainsNonSpace
-  - strings.HasPrefix
-  - strings.HasSuffix
 aliases: [/functions/hassuffix,/functions/strings/hassuffix]
 ---
 

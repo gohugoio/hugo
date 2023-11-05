@@ -93,7 +93,7 @@ lastmod
 : The datetime at which the content was last modified.
 
 linkTitle
-: Used for creating links to content; if set, Hugo defaults to using the `linkTitle` before the `title`. Hugo can also [order lists of content by `linkTitle`][bylinktitle].
+: Used for creating links to content; if set, Hugo defaults to using the `linkTitle` before the `title`.
 
 markup
 : **experimental**; specify `"rst"` for reStructuredText (requires`rst2html`) or `"md"` (default) for Markdown.
@@ -144,7 +144,7 @@ You can add fields to your front matter arbitrarily to meet your needs. These us
 
 The following fields can be accessed via `.Params.include_toc` and `.Params.show_comments`, respectively. The [Variables] section provides more information on using Hugo's page- and site-level variables in your templates.
 
-{{< code-toggle copy=false >}}
+{{< code-toggle >}}
 include_toc: true
 show_comments: false
 {{</ code-toggle >}}
@@ -157,7 +157,7 @@ Any node or section can pass down to descendants a set of front matter values as
 
 The `cascade` block can be a slice with a optional `_target` keyword, allowing for multiple `cascade` values targeting different page sets.
 
-{{< code-toggle copy=false >}}
+{{< code-toggle >}}
 title ="Blog"
 [[cascade]]
 background = "yosemite.jpg"
@@ -191,7 +191,7 @@ Any of the above can be omitted.
 
 In `content/blog/_index.md`
 
-{{< code-toggle copy=false >}}
+{{< code-toggle >}}
 title: Blog
 cascade:
   banner: images/typewriter.jpg
@@ -219,13 +219,12 @@ It's possible to set some options for Markdown rendering in a content's front ma
 [variables]: /variables/
 [aliases]: /content-management/urls/#aliases
 [archetype]: /content-management/archetypes/
-[bylinktitle]: /templates/lists/#by-link-title
 [config]: /getting-started/configuration/
 [content type]: /content-management/types/
 [contentorg]: /content-management/organization/
 [headless-bundle]: /content-management/page-bundles/#headless-bundle
 [json]: https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf
-[lists]: /templates/lists/#order-content
+[lists]: /templates/lists/#sort-content
 [lookup]: /templates/lookup-order/
 [ordering]: /templates/lists/
 [outputs]: /templates/output-formats/

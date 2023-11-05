@@ -128,7 +128,7 @@ Value: {{ partial "my-inline-partial.html" . }}
 
 ## Cached partials
 
-The `partialCached` template function provides significant performance gains for complex templates that don't need to be re-rendered on every invocation. See [details][partialcached].
+The `partialCached` template function provides significant performance gains for complex templates that don't need to be re-rendered on every invocation. See&nbsp;[details][partialcached].
 
 ## Examples
 

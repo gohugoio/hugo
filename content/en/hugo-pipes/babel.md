@@ -8,13 +8,15 @@ menu:
     parent: hugo-pipes
     weight: 70
 weight: 70
-signatures: ["resources.Babel RESOURCE [OPTIONS]", "babel RESOURCE [OPTIONS]"]
+function:
+  aliases: [babel]
+  returnType: resource.Resource
+  signatures: ['resources.Babel [OPTIONS] RESOURCE']
 ---
 
 ## Usage
 
 Any JavaScript resource file can be transpiled to another JavaScript version using `resources.Babel` which takes for argument the resource object and an optional dict of options listed below. Babel uses the [babel cli](https://babeljs.io/docs/en/babel-cli).
-
 
 {{% note %}}
 Hugo Pipe's Babel requires the `@babel/cli` and `@babel/core` JavaScript packages to be installed in the project or globally (`npm install -g @babel/cli @babel/core`) along with any Babel plugin(s) or preset(s) used (e.g., `npm install @babel/preset-env --save-dev`).
@@ -25,7 +27,6 @@ If you are using the Hugo Snap package, Babel and plugin(s) need to be installed
 ### configuration
 
 We add the main project's `node_modules` to `NODE_PATH` when running Babel and similar tools. There are some known [issues](https://github.com/babel/babel/issues/5618) with Babel in this area, so if you have a `babel.config.js` living in a Hugo Module (and not in the project itself), we recommend using `require` to load the presets/plugins, e.g.:
-
 
 ```js
 module.exports = {
@@ -60,7 +61,6 @@ verbose [bool]
 
 sourceMap [string]
 : Output `inline` or `external` sourcemap from the babel compile. External sourcemaps will be written to the target with the output file name + ".map". Input sourcemaps can be read from js.Build and node modules and combined into the output sourcemaps.
-
 
 ### Examples
 

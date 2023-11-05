@@ -85,7 +85,7 @@ Create a new script called `deploy` the root of your Hugo tree:
 
 Add the following content. Replace the `USER`, `HOST`, and `DIR` values with your own values:
 
-```bash
+```sh
 #!/bin/sh
 USER=my-user
 HOST=my-server.com
@@ -136,4 +136,4 @@ sent 9,550 bytes  received 1,708 bytes  7,505.33 bytes/sec
 total size is 966,557  speedup is 85.86
 ```
 
-You can incorporate other proprocessing tasks into this deployment script as well.
+You can incorporate other processing tasks into this deployment script as well.

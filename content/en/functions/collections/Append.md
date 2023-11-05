@@ -1,22 +1,17 @@
 ---
 title: collections.Append
-linkTitle: append
 description: Appends one or more elements to a slice and returns the resulting slice.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [append]
+  related:
+    - functions/collections/Merge
+    - functions/collections/Slice
   returnType: any
   signatures:
-    - COLLECTION | collections.Append ELEMENT [ELEMENT]...
+    - COLLECTION | collections.Append ELEMENT [ELEMENT...]
     - COLLECTION | collections.Append COLLECTION
-relatedFunctions:
-  - collections.Append
-  - collections.Merge
-  - collections.Slice
 aliases: [/functions/append]
 ---
 
@@ -100,7 +95,7 @@ Although the elements in the examples above are strings, you can use the `append
 {{ with $p }}
   <ul>
     {{ range . }}
-      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
     {{ end }}
   </ul>
 {{ end }}

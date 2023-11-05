@@ -1,64 +1,61 @@
 ---
 title: time.AsTime
-linkTitle: time
-description: Converts a timestamp string into a `time.Time` structure.
-categories: [functions]
+description: Converts a string representation of a date/time to a time.Time value.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [time]
+  related:
+    - functions/time/Duration
+    - functions/time/Format
+    - functions/time/Now
+    - functions/time/ParseDuration
   returnType: time.Time
   signatures: ['time.AsTime INPUT [TIMEZONE]']
-relatedFunctions:
-  - time.AsTime
-  - time.Duration
-  - time.Format
-  - time.Now
-  - time.ParseDuration
 aliases: [/functions/time]
+toc: true
 ---
 
+## Overview
 
-`time` converts a timestamp string with an optional default location into a [`time.Time`](https://godoc.org/time#Time) structure so you can access its fields:
-
-```go-html-template
-{{ time "2016-05-28" }} → "2016-05-28T00:00:00Z"
-{{ (time "2016-05-28").YearDay }} → 149
-{{ mul 1000 (time "2016-05-28T10:30:00.00+10:00").Unix }} → 1464395400000, or Unix time in milliseconds
-```
-
-## Using locations
-
-The optional `TIMEZONE` argument is a string that sets a default time zone (or more specific, the location, which represents the collection of time offsets in a geographical area) that is associated with the specified time value. If the time value has an explicit timezone or offset specified, it will take precedence over the `TIMEZONE` argument.
-
-The list of valid locations may be system dependent, but should include `UTC`, `Local`, or any location in the [IANA Time Zone database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
-
-If no `TIMEZONE` is set, the `timeZone` from site configuration will be used.
+Hugo provides [functions] and [methods] to format, localize, parse, compare, and manipulate date/time values. Before you can do any of these with string representations of date/time values, you must first convert them to [`time.Time`] values using the `time.AsTime` function.
 
 ```go-html-template
-{{ time "2020-10-20" }} → 2020-10-20 00:00:00 +0000 UTC
-{{ time "2020-10-20" "America/Los_Angeles" }} → 2020-10-20 00:00:00 -0700 PDT
-{{ time "2020-01-20" "America/Los_Angeles" }} → 2020-01-20 00:00:00 -0800 PST
+{{ $t := "2023-10-15T14:20:28-07:00" }}
+{{ time.AsTime $t }} → 2023-10-15 14:20:28 -0700 PDT (time.Time)
 ```
 
-## Example: Using `time` to get month index
+## Parsable strings
 
-The following example takes a UNIX timestamp---set as `utimestamp: "1489276800"` in a content's front matter---converts the timestamp (string) to an integer using the [`int` function][int], and then uses [`printf`] to convert the `Month` property of `time` into an index.
+As shown above, the first argument must be a *parsable* string representation of a date/time value. For example:
 
-The following example may be useful when setting up [multilingual sites][multilingual]:
+{{% include "functions/time/_common/parsable-date-time-strings.md" %}}
 
-{{< code file="unix-to-month-integer.html" >}}
-{{ $time := time (int .Params.addDate)}}
-=> $time = 1489276800
-{{ $time.Month }}
-=> "March"
-{{ $monthindex := printf "%d" $time.Month }}
-=> $monthindex = 3
-{{< /code >}}
+## Time zones
 
+When the parsable string does not contain a time zone offset, you can do either of the following to assign a time zone other than Etc/UTC:
 
-[int]: /functions/cast/toint
-[multilingual]: /content-management/multilingual/
-[`printf`]: /functions/fmt/printf
+- Provide a second argument to the `time.AsTime` function
+
+  ```go-html-template
+  {{ time.AsTime "15 Oct 2023" "America/Chicago" }}
+  ```
+
+- Set the default time zone in your site configuration
+
+  {{< code-toggle file=hugo >}}
+  timeZone = 'America/New_York'
+  {{< /code-toggle >}}
+
+The order of precedence for determining the time zone is:
+
+1. The time zone offset in the date/time string
+2. The time zone provide as the second argument to the `time.AsTime` function
+3. The time zone specified in your site configuration
+
+The list of valid time zones may be system dependent, but should include `UTC`, `Local`, or any location in the [IANA Time Zone database].
+
+[`time.Time`]: https://pkg.go.dev/time#Time
+[functions]: /functions/time/
+[iana time zone database]: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+[methods]: /methods/time/

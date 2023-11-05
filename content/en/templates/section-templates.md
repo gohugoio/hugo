@@ -25,7 +25,7 @@ See [Template Lookup](/templates/lookup-order/).
 
 Every `Page` in Hugo has a `.Kind` attribute.
 
-{{% page-kinds %}}
+{{% include "content-management/_common/page-kinds.md" %}}
 
 ## `.Site.GetPage` with sections
 
@@ -69,10 +69,10 @@ The `.Site.GetPage` example that follows assumes the following project directory
 .
 └── content
     ├── blog
-    │   ├── _index.md # "title: My Hugo Blog" in the front matter
-    │   ├── post-1.md
-    │   ├── post-2.md
-    │   └── post-3.md
+    │   ├── _index.md # "title: My Hugo Blog" in the front matter
+    │   ├── post-1.md
+    │   ├── post-2.md
+    │   └── post-3.md
     └── events #Note there is no _index.md file in "events"
         ├── event-1.md
         └── event-2.md
@@ -103,7 +103,7 @@ Which then returns the following:
 ```
 
 [contentorg]: /content-management/organization/
-[getpage]: /functions/getpage/
+[getpage]: /methods/page/getpage
 [lists]: /templates/lists/
 [lookup]: /templates/lookup-order/
 [`where`]: /functions/collections/where

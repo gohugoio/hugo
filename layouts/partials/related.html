@@ -1,10 +1,15 @@
 {{- $heading := "See also" }}
 {{- $related := site.RegularPages.Related . | first 5 }}
 
-{{- if eq .Type "functions" }}
-  {{- $heading = "Related functions" }}
-  {{- $opts := dict "document" . "indices" (slice "relatedFunctions") }}
-  {{- $related = site.RegularPages.Related $opts | first 7 }}
+{{- if in (slice "functions" "methods") .Type }}
+  {{- $related = slice }}
+  {{- range .Params.action.related }}
+    {{- with site.GetPage (lower .) }}
+      {{- $related = $related | append . }}
+    {{- else }}
+      {{- errorf "The 'related' partial was unable to get page %s" . }}
+    {{- end }}
+  {{- end }}
 {{- end }}
 
 {{- with $related }}

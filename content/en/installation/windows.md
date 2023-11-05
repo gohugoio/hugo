@@ -9,11 +9,11 @@ menu:
 toc: true
 weight: 40
 ---
-{{% readfile file="/installation/_common/01-editions.md" %}}
+{{% include "installation/_common/01-editions.md" %}}
 
-{{% readfile file="/installation/_common/02-prerequisites.md" %}}
+{{% include "installation/_common/02-prerequisites.md" %}}
 
-{{% readfile file="/installation/_common/03-prebuilt-binaries.md" %}}
+{{% include "installation/_common/03-prebuilt-binaries.md" %}}
 
 ## Package managers
 
@@ -47,7 +47,7 @@ winget install Hugo.Hugo.Extended
 
 [Winget]: https://learn.microsoft.com/en-us/windows/package-manager/
 
-{{% readfile file="/installation/_common/04-build-from-source.md" %}}
+{{% include "installation/_common/04-build-from-source.md" %}}
 
 {{% note %}}
 See these [detailed instructions](https://discourse.gohugo.io/t/41370) to install GCC on Windows.

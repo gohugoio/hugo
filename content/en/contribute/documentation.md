@@ -24,7 +24,7 @@ Step 2
 Step 3
 : Create a new branch with a descriptive name.
 
-```bash
+```sh
 git checkout -b fix/typos-site-variables
 ```
 
@@ -34,7 +34,7 @@ Step 4
 Step 5
 : Commit your changes with a descriptive commit message, typically 50 characters or less. Included the "Closes" keyword if your change addresses one or more open [issues].
 
-```bash
+```sh
 git commit -m "Fix typos on site variables page
 
 Closes #1234
@@ -128,7 +128,7 @@ fm
 #### Site configuration example
 
 ```text
-{{</* code-toggle file="hugo" */>}}
+{{</* code-toggle file=hugo */>}}
 baseURL = 'https://example.org'
 languageCode = 'en-US'
 title = "Example Site"
@@ -137,7 +137,7 @@ title = "Example Site"
 
 Rendered:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 baseURL = 'https://example.org'
 languageCode = 'en-US'
 title = "Example Site"

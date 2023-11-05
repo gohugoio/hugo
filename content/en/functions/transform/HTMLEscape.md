@@ -1,24 +1,30 @@
 ---
 title: transform.HTMLEscape
-linkTitle: htmlEscape
-description: Returns the given string with the reserved HTML codes escaped.
-categories: [functions]
+description: Returns the given string, escaping special characters by replacing them with HTML entities.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [htmlEscape]
+  related:
+    - functions/transform/HTMLUnescape
   returnType: string
   signatures: [transform.HTMLEscape INPUT]
-relatedFunctions:
-  - transform.HTMLEscape
-  - transform.HTMLUnescape
 aliases: [/functions/htmlescape]
 ---
 
-In the result `&` becomes `&amp;` and so on. It escapes only: `<`, `>`, `&`, `'` and `"`.
+The `transform.HTMLEscape` function escapes five special characters by replacing them with [HTML entities]:
+
+- `&` → `&amp;`
+- `<` → `&lt;`
+- `>` → `&gt;`
+- `'` → `&#39;`
+- `"` → `&#34;`
+
+For example:
 
 ```go-html-template
-{{ htmlEscape "Hugo & Caddy > WordPress & Apache" }} → "Hugo &amp; Caddy &gt; WordPress &amp; Apache"
+{{ htmlEscape "Lilo & Stitch" }} → Lilo &amp; Stitch
+{{ htmlEscape "7 > 6" }} → 7 &gt; 6
 ```
+
+[html entities]: https://developer.mozilla.org/en-US/docs/Glossary/Entity

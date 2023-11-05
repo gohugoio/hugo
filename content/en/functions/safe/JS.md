@@ -1,23 +1,18 @@
 ---
 title: safe.JS
-linkTitle: safeJS
-description: Declares the provided string as a known safe JavaScript string.
-categories: [functions]
+description: Declares the provided string as a safe JavaScript string.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [safeJS]
+  related:
+    - functions/safe/CSS
+    - functions/safe/HTML
+    - functions/safe/HTMLAttr
+    - functions/safe/JSStr
+    - functions/safe/URL
   returnType: template.JS
   signatures: [safe.JS INPUT]
-relatedFunctions:
-  - safe.CSS
-  - safe.HTML
-  - safe.HTMLAttr
-  - safe.JS
-  - safe.JSStr
-  - safe.URL
 aliases: [/functions/safejs]
 ---
 

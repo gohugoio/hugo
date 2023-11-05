@@ -1,25 +1,20 @@
 ---
 title: fmt.Print
-linkTitle: print
 description: Prints the default representation of the given arguments using the standard `fmt.Print` function.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [print]
+  related:
+    - functions/fmt/Printf
+    - functions/fmt/Println
   returnType: string
   signatures: [fmt.Print INPUT]
-relatedFunctions:
-  - fmt.Print
-  - fmt.Printf
-  - fmt.Println
 aliases: [/functions/print]
 ---
 
 ```go-html-template
-{{ print "foo" }} → "foo"
-{{ print "foo" "bar" }} → "foobar"
+{{ print "foo" }} → foo
+{{ print "foo" "bar" }} → foobar
 {{ print (slice 1 2 3) }} → [1 2 3]
 ```

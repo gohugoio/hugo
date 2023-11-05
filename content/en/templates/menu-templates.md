@@ -28,7 +28,7 @@ The example below handles every combination.
 
 This partial template recursively "walks" a menu structure, rendering a localized, accessible nested list.
 
-{{< code file="layouts/partials/menu.html" >}}
+{{< code file="layouts/partials/menu.html" copy=true >}}
 {{- $page := .page }}
 {{- $menuID := .menuID }}
 
@@ -128,5 +128,5 @@ Hugo provides two methods to localize your menu entries. See [multilingual].
 [localize the menu entries]: /content-management/multilingual/#menus
 [menu entry defined in front matter]: /content-management/menus/#example-front-matter
 [menu entry defined in site configuration]: /content-management/menus/#example-site-configuration
-[menu variables and methods]: /variables/menus/
+[menu variables and methods]: /variables/menu-entry/
 [multilingual]: /content-management/multilingual/#menus

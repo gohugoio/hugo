@@ -1,17 +1,13 @@
 ---
 title: collections.Sort
-linkTitle: sort
 description: Sorts slices, maps, and page collections.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [sort]
   returnType: any
   signatures: ['collections.Sort COLLECTION [KEY] [ORDER]']
-relatedFunctions:
+related:
   - collections.Reverse
   - collections.Shuffle
   - collections.Sort
@@ -27,7 +23,7 @@ The `ORDER` may be either `asc` (ascending) or `desc` (descending). The default 
 
 The examples below assume this site configuration:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 [params]
 grades = ['b','a','c']
 {{< /code-toggle >}}
@@ -36,10 +32,10 @@ grades = ['b','a','c']
 
 Sort slice elements in ascending order using either of these constructs:
 
-{{< code file="layouts/_default/single.html" copy=false >}}
+```go-html-template
 {{ sort site.Params.grades }} → [a b c]
 {{ sort site.Params.grades "value" "asc" }} → [a b c]
-{{< /code >}}
+```
 
 In the examples above, `value` is the `KEY` representing the value of the slice element.
 
@@ -47,9 +43,9 @@ In the examples above, `value` is the `KEY` representing the value of the slice 
 
 Sort slice elements in descending order:
 
-{{< code file="layouts/_default/single.html" copy=false >}}
+```go-html-template
 {{ sort site.Params.grades "value" "desc" }} → [c b a]
-{{< /code >}}
+```
 
 In the example above, `value` is the `KEY` representing the value of the slice element.
 
@@ -57,7 +53,7 @@ In the example above, `value` is the `KEY` representing the value of the slice e
 
 The examples below assume this site configuration:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 [params.authors.a]
 firstName = "Marius"
 lastName  = "Pontmercy"
@@ -77,7 +73,7 @@ When sorting maps, the `KEY` argument must be lowercase.
 
 Sort map objects in ascending order using either of these constructs:
 
-{{< code file="layouts/_default/single.html" copy=false >}}
+```go-html-template
 {{ range sort site.Params.authors "firstname" }}
   {{ .firstName }}
 {{ end }}
@@ -85,7 +81,7 @@ Sort map objects in ascending order using either of these constructs:
 {{ range sort site.Params.authors "firstname" "asc" }}
   {{ .firstName }}
 {{ end }}
-{{< /code >}}
+```
 
 These produce:
 
@@ -97,11 +93,11 @@ Jean Marius Victor
 
 Sort map objects in descending order:
 
-{{< code file="layouts/_default/single.html" copy=false >}}
+```go-html-template
 {{ range sort site.Params.authors "firstname" "desc" }}
   {{ .firstName }}
 {{ end }}
-{{< /code >}}
+```
 
 This produces:
 
@@ -125,11 +121,10 @@ Although you can use the `sort` function to sort a page collection, Hugo provide
 
 In this contrived example, sort the site's regular pages by `.Type` in descending order:
 
-{{< code file="layouts/_default/home.html" copy=false >}}
+```go-html-template
 {{ range sort site.RegularPages "Type" "desc" }}
   <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
 {{ end }}
-{{< /code >}}
+```
 
-
-[built-in methods for sorting page collections]: /templates/lists/#order-content
+[built-in methods for sorting page collections]: /templates/lists/#sort-content

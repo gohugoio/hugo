@@ -44,7 +44,7 @@ In addition to using a single site configuration file, one can use the `configDi
 - Each file represents a configuration root object, such as `params.toml` for `[Params]`, `menu(s).toml` for `[Menu]`, `languages.toml` for `[Languages]` etc...
 - Each file's content must be top-level, for example:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 [Params]
   foo = "bar"
 {{< /code-toggle >}}
@@ -140,7 +140,7 @@ deep
 
 Note that you don't need to be so verbose as in the default setup below; a `_merge` value higher up will be inherited if not set.
 
-{{< code-toggle file="hugo" dataKey="config_helpers.mergeStrategy" skipHeader=true />}}
+{{< code-toggle file=hugo dataKey="config_helpers.mergeStrategy" skipHeader=true />}}
 
 ## All configuration settings
 
@@ -196,7 +196,7 @@ Pass down default configuration values (front matter) to pages in the content tr
 
 **Default value:** false
 
-Enable to turn relative URLs into absolute. See [details](/content-management/urls/#canonical-urls).
+Enable to turn relative URLs into absolute. See&nbsp;[details](/content-management/urls/#canonical-urls).
 
 ### cleanDestinationDir
 
@@ -268,7 +268,7 @@ Do not convert the url/path to lowercase.
 
 **Default value:** false
 
-Enable Emoji emoticons support for page content; see the [Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet/).
+Enable Emoji emoticons support for page content; see the [emoji shortcode quick reference guide](/quick-reference/emojis/).
 
 ### enableGitInfo
 
@@ -377,7 +377,7 @@ Default number of elements per page in [pagination](/templates/pagination/).
 
 **Default value:** "page"
 
-The path element used during pagination (`https://example.com/page/2`).
+The path element used during pagination (`https://example.org/page/2`).
 
 ### permalinks
 
@@ -403,7 +403,7 @@ See [Related Content](/content-management/related/#configure-related-content).
 
 **Default value:** false
 
-Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs. See [details](/content-management/urls/#relative-urls).
+Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs. See&nbsp;[details](/content-management/urls/#relative-urls).
 
 ### refLinksErrorLevel
 
@@ -549,7 +549,7 @@ useResourceCacheWhen
 
 The `build.cachebusters` configuration option was added to support development using Tailwind 3.x's JIT compiler where a `build` configuration may look like this:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [build]
   [build.buildStats]
     enable = true
@@ -579,8 +579,7 @@ target
 
 This is only relevant when running `hugo server`, and it allows to set HTTP headers during development, which allows you to test out your Content Security Policy and similar. The configuration format matches [Netlify's](https://docs.netlify.com/routing/headers/#syntax-for-the-netlify-configuration-file) with slightly more powerful [Glob matching](https://github.com/gobwas/glob):
 
-
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [server]
 [[server.headers]]
 for = "/**"
@@ -627,7 +626,7 @@ Setting `force=true` will make a redirect even if there is existing content in t
 
 Hugo will, by default, render all 404 errors when running `hugo server` with the `404.html` template. Note that if you have already added one or more redirects to your [server configuration](#configure-server), you need to add the 404 redirect explicitly, e.g:
 
-{{< code-toggle file="config/development/server" copy=false >}}
+{{< code-toggle file="config/development/server" >}}
 [[redirects]]
 from   = "/**"
 to     = "/404.html"
@@ -636,17 +635,27 @@ status = 404
 
 ## Configure title case
 
-Set `titleCaseStyle` to specify the title style used by the [title](/functions/strings/title) template function and the automatic section titles in Hugo.
+By default, Hugo follows the capitalization rules published in the [Associated Press Stylebook] when creating automatic section titles, and when transforming strings with the [`strings.Title`] function.
 
-Can be one of:
+Change this behavior by setting `titleCaseStyle` in your site configuration to any of the values below:
 
-* `ap` (default), the capitalization rules in the [Associated Press (AP) Stylebook]
-* `chicago`, the [Chicago Manual of Style]
-* `go`, Go's convention of capitalizing every word.
-* `firstupper`, capitalize the first letter of the first word.
-* `none`, no capitalization.
+ap
+: Use the capitalization rules published in the [Associated Press Stylebook].
 
-[Associated Press (AP) Stylebook]: https://www.apstylebook.com/
+chicago
+: Use the capitalization rules published in the [Chicago Manual of Style].
+
+go
+: Capitalize the first letter of every word.
+
+firstupper
+: Capitalize the first letter of the first word.
+
+none
+: Disable transformation of automatic section titles, and disable the transformation performed by the `strings.Title` function. This is useful if you would prefer to manually capitalize section titles as needed, and to bypass opinionated theme usage of the `strings.Title` function.
+
+[`strings.Title`]: /functions/strings/title
+[Associated Press Stylebook]: https://www.apstylebook.com/
 [Chicago Manual of Style]: https://www.chicagomanualofstyle.org/home.html
 [site configuration]: /getting-started/configuration/#configure-title-case
 
@@ -669,7 +678,7 @@ In your configuration file, you can direct Hugo as to how you want your website 
 
 The following is a typical example of a configuration file. The values nested under `params:` will populate the [`.Site.Params`] variable for use in [templates]:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 baseURL: "https://yoursite.example.com/"
 title: "My Hugo Site"
 permalinks:
@@ -712,13 +721,13 @@ To exclude specific files from the `content`, `data`, and `i18n` directories whe
 
 To ignore files ending with `.foo` or `.boo`:
 
-{{< code-toggle copy=false file="hugo" >}}
+{{< code-toggle file=hugo >}}
 ignoreFiles = ['\.foo$', '\.boo$']
 {{< /code-toggle >}}
 
 To ignore a file using the absolute file path:
 
-{{< code-toggle copy=false file="hugo" >}}
+{{< code-toggle file=hugo >}}
 ignoreFiles = ['^/home/user/project/content/test\.md$']
 {{< /code-toggle >}}
 
@@ -734,7 +743,7 @@ The default configuration is:
 
 If you, as an example, have a non-standard date parameter in some of your content, you can override the setting for `date`:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [frontmatter]
 date = ["myDate", ":default"]
 {{< /code-toggle >}}
@@ -750,7 +759,7 @@ The special date handlers are:
 
 An example:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [frontmatter]
 lastmod = ["lastmod", ":fileModTime", ":default"]
 {{< /code-toggle >}}
@@ -762,7 +771,7 @@ The above will try first to extract the value for `.Lastmod` starting with the `
 
 An example:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [frontmatter]
 date  = [":filename", ":default"]
 {{< /code-toggle >}}
@@ -823,7 +832,6 @@ dir
 [yaml]: https://yaml.org/spec/
 [static-files]: /content-management/static-files/
 
-
 ## Configure cacheDir
 
 This is the directory where Hugo by default will store its file caches. See [Configure File Caches](#configure-file-caches).
@@ -837,6 +845,5 @@ If this is not set, Hugo will use, in order of preference:
 1. In a  `hugo_cache_$USER` directory below the OS temp dir.
 
 If you want to know the current value of `cacheDir`, you can run `hugo config`, e.g: `hugo config | grep cachedir`.
-
 
 [`time`]: /functions/time/astime

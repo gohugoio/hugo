@@ -13,7 +13,6 @@ byline: "[Godot Tutorials](https://godottutorials.com), Web Developer & Game Pro
 
 ---
 
-
 [Godot Tutorials](https://godottutorials.com) started as a way to teach beginners game programming and game development.
 As I created videos, I ran into a problem; if I made a mistake with a YouTube video, it was difficult to correct errors.
 

@@ -16,7 +16,7 @@ toc: true
 
 After [installing] Hugo, test your installation by running:
 
-```bash
+```sh
 hugo version
 ```
 
@@ -30,13 +30,13 @@ hugo v0.105.0-0e3b42b4a9bdeb4d866210819fc6ddcf51582ffa+extended linux/amd64 Buil
 
 To see a list of the available commands and flags:
 
-```bash
+```sh
 hugo help
 ```
 
 To get help with a subcommand, use the `--help` flag. For example:
 
-```bash
+```sh
 hugo server --help
 ```
 
@@ -44,7 +44,7 @@ hugo server --help
 
 To build your site, `cd` into your project directory and run:
 
-```bash
+```sh
 hugo
 ```
 
@@ -60,7 +60,6 @@ Depending on your needs, you may wish to manually clear the contents of the publ
 
 Hugo allows you to set `draft`, `date`, `publishDate`, and `expiryDate` in the [front matter] of your content. By default, Hugo will not publish content when:
 
-
 - The `draft` value is `true`
 - The `date` is in the future
 - The `publishDate` is in the future
@@ -68,7 +67,7 @@ Hugo allows you to set `draft`, `date`, `publishDate`, and `expiryDate` in the [
 
 You can override the default behavior when running `hugo` or `hugo server` with command line flags:
 
-```bash
+```sh
 hugo --buildDrafts    # or -D
 hugo --buildExpired   # or -E
 hugo --buildFuture    # or -F
@@ -86,7 +85,7 @@ A common practice is to manually clear the contents of the `public` directory be
 
 To view your site while developing layouts or creating content, `cd` into your project directory and run:
 
-```bash
+```sh
 hugo server
 ```
 
@@ -108,7 +107,7 @@ While the server is running, Hugo injects JavaScript into the generated HTML pag
 
 When editing content, if you want your browser to automatically redirect to the page you last modified, run:
 
-```bash
+```sh
 hugo server --navigateToChanged
 ```
 
@@ -120,7 +119,7 @@ As noted above, Hugo does not clear the public directory before building your si
 
 When you are ready to deploy your site, run:
 
-```bash
+```sh
 hugo
 ```
 
@@ -129,16 +128,16 @@ This builds your site, publishing the files to the public directory. The directo
 ```text
 public/
 ├── categories/
-│   ├── index.html
-│   └── index.xml  <-- RSS feed for this section
+│   ├── index.html
+│   └── index.xml  <-- RSS feed for this section
 ├── post/
-│   ├── my-first-post/
-│   │   └── index.html
-│   ├── index.html
-│   └── index.xml  <-- RSS feed for this section
+│   ├── my-first-post/
+│   │   └── index.html
+│   ├── index.html
+│   └── index.xml  <-- RSS feed for this section
 ├── tags/
-│   ├── index.html
-│   └── index.xml  <-- RSS feed for this section
+│   ├── index.html
+│   └── index.xml  <-- RSS feed for this section
 ├── index.html
 ├── index.xml      <-- RSS feed for the site
 └── sitemap.xml

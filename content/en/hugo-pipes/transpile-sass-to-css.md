@@ -7,9 +7,12 @@ keywords: []
 menu:
   docs:
     parent: hugo-pipes
+    returnType: resource.Resource
     weight: 30
 weight: 30
-signatures: ["resources.ToCSS RESOURCE [OPTIONS]", "toCSS RESOURCE [OPTIONS]"]
+function:
+  aliases: [toCSS]
+  signatures: ['resources.ToCSS [OPTIONS] RESOURCE']
 toc: true
 aliases: [/hugo-pipes/transform-to-css/]
 ---
@@ -19,8 +22,8 @@ aliases: [/hugo-pipes/transform-to-css/]
 Transpile Sass to CSS using the LibSass transpiler included in Hugo's extended edition, or [install Dart Sass](#dart-sass) to use the latest features of the Sass language.
 
 ```go-html-template
-{{ $options := dict "transpiler" "libsass" "targetPath" "css/style.css" }}
-{{ with resources.Get "sass/main.scss" | toCSS $options | minify | fingerprint }}
+{{ $opts := dict "transpiler" "libsass" "targetPath" "css/style.css" }}
+{{ with resources.Get "sass/main.scss" | toCSS $opts | minify | fingerprint }}
   <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
 {{ end }}
 ```
@@ -29,7 +32,6 @@ Sass has two forms of syntax: [SCSS] and [indented]. Hugo supports both.
 
 [scss]: https://sass-lang.com/documentation/syntax#scss
 [indented]: https://sass-lang.com/documentation/syntax#the-indented-syntax
-
 
 ## Options
 
@@ -66,14 +68,14 @@ includePaths
 : (`slice`) A slice of paths, relative to the project root, that the transpiler will use when resolving `@use` and `@import` statements.
 
 ```go-html-template
-{{ $options := dict
+{{ $opts := dict
   "transpiler" "dartsass"
   "targetPath" "css/style.css"
   "vars" site.Params.styles
   "enableSourceMap" (not hugo.IsProduction) 
   "includePaths" (slice "node_modules/bootstrap/scss")
 }}
-{{ with resources.Get "sass/main.scss" | toCSS $options | minify | fingerprint }}
+{{ with resources.Get "sass/main.scss" | toCSS $opts | minify | fingerprint }}
   <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
 {{ end }}
 ```
@@ -187,8 +189,8 @@ command = """\
 To transpile with Dart Sass, set `transpiler` to `dartsass` in the options map passed to `resources.ToCSS`. For example:
 
 ```go-html-template
-{{ $options := dict "transpiler" "dartsass" "targetPath" "css/style.css" }}
-{{ with resources.Get "sass/main.scss" | toCSS $options | minify | fingerprint }}
+{{ $opts := dict "transpiler" "dartsass" "targetPath" "css/style.css" }}
+{{ with resources.Get "sass/main.scss" | toCSS $opts | minify | fingerprint }}
   <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
 {{ end }}
 ```

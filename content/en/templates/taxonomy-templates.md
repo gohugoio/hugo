@@ -152,7 +152,7 @@ Weights of zero are thus treated specially: if two pages have unequal weights, a
 
 Content can be assigned weight for each taxonomy that it's assigned to.
 
-{{< code-toggle file="content/example.md" fm=true copy=false >}}
+{{< code-toggle file="content/example.md" fm=true >}}
 tags = [ "a", "b", "c" ]
 tags_weight = 22
 categories = ["d"]
@@ -205,7 +205,7 @@ To render an unordered list:
   <p>{{ (site.GetPage $taxonomy).LinkTitle }}:</p>
   <ul>
     {{ range . }}
-      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
     {{ end }}
   </ul>
 {{ end }}
@@ -220,7 +220,7 @@ To render a comma-delimited list:
     {{ (site.GetPage $taxonomy).LinkTitle }}:
     {{ range $k, $_ := . -}}
       {{ if $k }}, {{ end }}
-      <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
+      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
     {{- end }}
   </p>
 {{ end }}
@@ -253,7 +253,7 @@ This would be very useful in a sidebar as “featured content”. You could even
       <li>{{ $key }}</li>
       <ul>
         {{ range $taxonomy.Pages }}
-          <li hugo-nav="{{ .RelPermalink }}"><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
+          <li hugo-nav="{{ .RelPermalink }}"><a href="{{ .Permalink }}">{{ .Title }}</a></li>
         {{ end }}
       </ul>
     {{ end }}
@@ -288,7 +288,7 @@ This example will list all taxonomies and their terms, as well as all the conten
   {{ range $taxonomy, $terms := site.Taxonomies }}
     <li>
       {{ with site.GetPage $taxonomy }}
-        <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
+        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
       {{ end }}
       <ul>
         {{ range $term, $weightedPages := $terms }}
@@ -296,7 +296,7 @@ This example will list all taxonomies and their terms, as well as all the conten
             <a href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }}</a>
             <ul>
               {{ range $weightedPages }}
-                <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+                <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
               {{ end }}
             </ul>
           </li>
@@ -322,8 +322,7 @@ Because taxonomies are lists, the [`.GetPage` function][getpage] can be used to 
 </ul>
 {{< /code >}}
 
-[delimit]: /functions/collections/delimit/
-[getpage]: /functions/getpage/
+[getpage]: /methods/page/getpage
 [lists]: /templates/lists/
 [renderlists]: /templates/lists/
 [single page template]: /templates/single-page-templates/

@@ -51,7 +51,7 @@ If set to `true` (default) the [Bundle's Resources](/content-management/page-bun
 Setting this to `false` will still publish Resources on demand (when a resource's `.Permalink` or `.RelPermalink` is invoked from the templates) but will skip the others.
 
 {{% note %}}
-Any page, regardless of their build options, will always be available using the [`.GetPage`](/functions/getpage) methods.
+Any page, regardless of their build options, will always be available using the [`.GetPage`](/methods/page/getpage) methods.
 {{% /note %}}
 
 ### Illustrative use cases
@@ -60,14 +60,14 @@ Any page, regardless of their build options, will always be available using the 
 
 Project needs a "Who We Are" content file for front matter and body to be used by the homepage but nowhere else.
 
-{{< code-toggle file="content/who-we-are.md" fm=true copy=false >}}
+{{< code-toggle file="content/who-we-are.md" fm=true >}}
 title: Who we are
 _build:
  list: false
  render: false
 {{< /code-toggle >}}
 
-{{< code file="layouts/index.html" copy=false >}}
+{{< code file="layouts/index.html" >}}
 <section id="who-we-are">
   {{ with site.GetPage "who-we-are" }}
     {{ .Content }}
@@ -91,7 +91,7 @@ cascade:
     list: true # default
 {{< /code-toggle >}}
 
-{{< code file="layouts/_defaults/testimonials.html" copy=false >}}
+{{< code file="layouts/_defaults/testimonials.html" >}}
 <section id="testimonials">
   {{ range first 5 .Pages }}
     <blockquote cite="{{ .Params.cite }}">

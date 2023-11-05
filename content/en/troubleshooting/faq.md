@@ -53,7 +53,7 @@ Also see this Twitter thread:
 
 If you process `SCSS` or `Sass` to `CSS` in your Hugo project with `libsass` as the transpiler or if you convert images to the `webp` format, you need the Hugo `extended` version, or else you may see an error message similar to the below:
 
-```bash
+```sh
 error: failed to transform resource: TOCSS: failed to transform "scss/main.scss" (text/x-scss): this feature is not available in your current Hugo version
 ```
 

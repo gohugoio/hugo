@@ -9,7 +9,10 @@ menu:
     parent: hugo-pipes
     weight: 60
 weight: 60
-signatures: ["js.Build RESOURCE [OPTIONS]"]
+function:
+  aliases: []
+  returnType: resource.Resource
+  signatures: ['js.Build [OPTIONS] RESOURCE']
 ---
 
 ## Usage
@@ -77,7 +80,6 @@ target [string]
 externals [slice]
 : External dependencies. Use this to trim dependencies you know will never be executed. See https://esbuild.github.io/api/#external
 
-
 defines [map]
 : Allow to define a set of string replacement to be performed when building. Should be a map where each key is to be replaced by its value.
 
@@ -136,7 +138,6 @@ import * as params from '@params';
 
 Hugo will, by default, generate a `assets/jsconfig.json` file that maps the imports. This is useful for navigation/intellisense help inside code editors, but if you don't need/want it, you can [turn it off](/getting-started/configuration/#configure-build).
 
-
 ### Include dependencies In package.json / node_modules
 
 Any imports in a file outside `/assets` or that does not resolve to a component inside `/assets` will be resolved by [ESBuild](https://esbuild.github.io/) with the **project directory** as the resolve directory (used as the starting point when looking for `node_modules` etc.). Also see [hugo mod npm pack](/commands/hugo_mod_npm_pack/).  If you have any imported npm dependencies in your project, you need to make sure to run `npm install` before you run `hugo`.
@@ -144,7 +145,6 @@ Any imports in a file outside `/assets` or that does not resolve to a component 
 The start directory for resolving npm packages (aka. packages that live inside a `node_modules` folder) is always the main project folder.
 
 **Note:** If you're developing a theme/component that is supposed to be imported and depends on dependencies inside `package.json`, we recommend reading about [hugo mod npm pack](/commands/hugo_mod_npm_pack/), a tool to consolidate all the npm dependencies in a project.
-
 
 ### Examples
 

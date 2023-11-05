@@ -29,7 +29,6 @@ A _predefined variable_ could be a variable already existing in the
 current scope (like the `.Title` example in the [Variables](#variables) section below) or a custom variable (like the
 `$address` example in that same section).
 
-
 ```go-html-template
 {{ .Title }}
 {{ $address }}
@@ -276,7 +275,6 @@ It skips the block if the variable is absent, or if it evaluates to
 Below snippet uses the "description" front-matter parameter's value if
 set, else uses the default `.Summary` [Page variable][pagevars]:
 
-
 ```go-html-template
 {{ with .Param "description" }}
     {{ . }}
@@ -349,7 +347,6 @@ The following two examples are functionally the same:
 ```go-html-template
 {{ shuffle (seq 1 5) }}
 ```
-
 
 ```go-html-template
 {{ (seq 1 5) | shuffle }}
@@ -429,7 +426,7 @@ Notice how once we have entered the loop (i.e. `range`), the value of `{{ . }}` 
 </ul>
 {{< /code >}}
 
-{{% warning "Don't Redefine the Dot" %}}
+{{% note %}}
 The built-in magic of `$` would cease to work if someone were to mischievously redefine the special character; e.g. `{{ $ := .Site }}`. *Don't do it.* You may, of course, recover from this mischief by using `{{ $ := . }}` in a global context to reset `$` to its default value.
 {{% /note %}}
 
@@ -535,7 +532,7 @@ An example of this is used in the Hugo docs. Most of the pages benefit from havi
 
 Here is the example front matter:
 
-{{< code-toggle file="content/example.md" fm=true copy=false >}}
+{{< code-toggle file="content/example.md" fm=true >}}
 title: Example
 notoc: true
 {{< /code-toggle >}}
@@ -564,7 +561,7 @@ You can arbitrarily define as many site-level parameters as you want in your [si
 
 For instance, you might declare the following:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 params:
   copyrighthtml: "Copyright &#xA9; 2017 John Doe. All Rights Reserved."
   twitteruser: "spf13"
@@ -617,7 +614,7 @@ content/
     └── event-3.md
 ```
 
-{{< code-toggle file="content/events/event-1.md" copy=false >}}
+{{< code-toggle file="content/events/event-1.md" >}}
 title = 'Event 1'
 date = 2021-12-06T10:37:16-08:00
 draft = false
@@ -634,7 +631,7 @@ This [partial template][partials] renders future events:
     {{ if gt (.Params.start_date | time.AsTime) now }}
       {{ $startDate := .Params.start_date | time.Format ":date_medium" }}
       <li>
-        <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a> - {{ $startDate }}
+        <a href="{{ .RelPermalink }}">{{ .Title }}</a> - {{ $startDate }}
       </li>
     {{ end }}
   {{ end }}
@@ -649,7 +646,7 @@ If you restrict front matter to the TOML format, and omit quotation marks surrou
   {{ range where (where site.RegularPages "Type" "events") "Params.start_date" "gt" now }}
     {{ $startDate := .Params.start_date | time.Format ":date_medium" }}
     <li>
-      <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a> - {{ $startDate }}
+      <a href="{{ .RelPermalink }}">{{ .Title }}</a> - {{ $startDate }}
     </li>
   {{ end }}
 </ul>
@@ -666,9 +663,9 @@ If you restrict front matter to the TOML format, and omit quotation marks surrou
 [internal templates]: /templates/internal
 [math]: /functions/math
 [pagevars]: /variables/page
-[param]: /functions/param
+[param]: /methods/page/param
 [partials]: /templates/partials
-[relpermalink]: /variables/page#page-variables
+[relpermalink]: /variables/page
 [`safehtml`]: /functions/safe/html
 [sitevars]: /variables/site
 [variables]: /variables

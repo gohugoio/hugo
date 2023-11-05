@@ -1,17 +1,13 @@
 ---
 title: collections.Union
-linkTitle: union
 description: Given two arrays or slices, returns a new array that contains the elements or objects that belong to either or both arrays/slices.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [union]
   returnType: any
   signatures: [collections.Union SET1 SET2]
-relatedFunctions:
+related:
   - collections.Complement
   - collections.Intersect
   - collections.SymDiff

@@ -14,7 +14,7 @@ aliases: [/extras/robots-txt/]
 
 To generate a robots.txt file from a template, change the [site configuration]:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 enableRobotsTXT = true
 {{< /code-toggle >}}
 

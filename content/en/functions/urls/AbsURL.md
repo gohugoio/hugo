@@ -1,21 +1,16 @@
 ---
 title: urls.AbsURL 
-linkTitle: absURL
 description: Returns an absolute URL.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [absURL]
-  returnType: template.html
+  related:
+    - functions/urls/AbsLangURL
+    - functions/urls/RelLangURL
+    - functions/urls/RelURL
+  returnType: string
   signatures: [urls.AbsURL INPUT]
-relatedFunctions:
-  - urls.AbsLangURL
-  - urls.AbsURL 
-  - urls.RelLangURL
-  - urls.RelURL
 aliases: [/functions/absurl]
 ---
 

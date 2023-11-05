@@ -1,27 +1,21 @@
 ---
 title: lang.FormatCurrency
-description: Returns a currency representation of a number for the given currency and precision for the current language.
-categories: [functions]
+description: Returns a currency representation of a number for the given currency and precision for the current language and region.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
+  related:
+    - functions/lang/FormatAccounting
+    - functions/lang/FormatNumber
+    - functions/lang/FormatNumberCustom
+    - functions/lang/FormatPercent
   returnType: string
   signatures: [lang.FormatAccounting PRECISION CURRENCY NUMBER]
-relatedFunctions:
-  - lang.FormatAccounting
-  - lang.FormatCurrency
-  - lang.FormatNumber
-  - lang.FormatNumberCustom
-  - lang.FormatPercent
 ---
 
 ```go-html-template
 {{ 512.5032 | lang.FormatCurrency 2 "USD" }} → $512.50
 ```
 
-{{% note %}}
-{{% readfile file="/functions/_common/locales.md" %}}
-{{% /note %}}
+{{% include "functions/_common/locales.md" %}}

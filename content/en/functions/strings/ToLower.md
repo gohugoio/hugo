@@ -1,28 +1,19 @@
 ---
 title: strings.ToLower
-linkTitle: lower
-description: Converts all characters in the provided string to lowercase.
-categories: [functions]
+description: Converts all characters in the given string to lowercase.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [lower]
+  related:
+    - functions/strings/FirstUpper
+    - functions/strings/Title
+    - functions/strings/ToUpper
   returnType: string
   signatures: [strings.ToLower INPUT]
-relatedFunctions:
-  - strings.FirstUpper
-  - strings.Title
-  - strings.ToLower
-  - strings.ToUpper
 aliases: [/functions/lower]
 ---
 
-
-Note that `lower` can be applied in your templates in more than one way:
-
 ```go-html-template
-{{ lower "BatMan" }} → "batman"
-{{ "BatMan" | lower }} → "batman"
+{{ lower "BatMan" }} → batman
 ```

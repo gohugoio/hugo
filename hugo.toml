@@ -69,10 +69,6 @@ ID = 'G-MBZGKNMDWC'
   includeNewer = true
   toLower      = false
   [[related.indices]]
-    toLower = true
-    name   = "relatedFunctions"
-    weight = 60
-  [[related.indices]]
     name   = "keywords"
     weight = 60
   [[related.indices]]
@@ -87,7 +83,7 @@ ID = 'G-MBZGKNMDWC'
     cardinalityThreshold = 50
 
 # TODO delete when (a) Netlify is building the site with v0.120.0 or later,
-# and (b) the changes fom gohugoioTheme/commit/af97b8e61638ddf043b87590cd567d76045bf9be
+# and (b) the changes from gohugoioTheme/commit/af97b8e61638ddf043b87590cd567d76045bf9be
 # have been pulled into this repo.
 [social]
   twitter = "GoHugoIO"

@@ -33,16 +33,19 @@ To list up to 5 related pages (which share the same _date_ or _keyword_ paramete
 The `Related` method takes one argument which may be a `Page` or a options map. The options map have these options:
 
 indices
-: The indices to search in.
+: (`slice`) The indices to search within.
 
 document
-: The document to search for related content for.
+: (`page`) The page for which to find related content. Required when specifying an options map.
 
 namedSlices
-: The keywords to search for.
+: (`slice`) The keywords to search for, expressed as a slice of `KeyValues` using the [`keyVals`] function.
 
 fragments
-: Fragments holds a a list of special keywords that is used for indices configured as type "fragments". This will match the fragment identifiers of the documents.
+: (`slice`) A list of special keywords that is used for indices configured as type "fragments". This will match the [fragment] identifiers of the documents.
+
+[fragment]: /getting-started/glossary/#fragment
+[`keyVals`]: /functions/collections/keyvals/
 
 A fictional example using all of the above options:
 
@@ -57,7 +60,7 @@ A fictional example using all of the above options:
 ```
 
 {{% note %}}
-We improved and simplified this feature in Hugo 0.111.0. Before this we had 3 different methods: `Related`, `RelatedTo` and `RelatedIndicies`. Now we have only one method: `Related`. The old methods are still available but deprecated. Also see [this blog article](https://regisphilibert.com/blog/2018/04/hugo-optmized-relashionships-with-related-content/) for a great explanation of more advanced usage of this feature.
+We improved and simplified this feature in Hugo 0.111.0. Before this we had 3 different methods: `Related`, `RelatedTo` and `RelatedIndices`. Now we have only one method: `Related`. The old methods are still available but deprecated. Also see [this blog article](https://regisphilibert.com/blog/2018/04/hugo-optmized-relashionships-with-related-content/) for a great explanation of more advanced usage of this feature.
 {{% /note %}}
 
 ## Index content headings in related content
@@ -66,7 +69,7 @@ We improved and simplified this feature in Hugo 0.111.0. Before this we had 3 di
 
 Hugo can index the headings in your content and use this to find related content. You can enable this by adding a index of type `fragments` to your `related` configuration:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 [related]
 threshold    = 20
 includeNewer = true
@@ -74,7 +77,7 @@ toLower      = false
 [[related.indices]]
 name        = "fragmentrefs"
 type        = "fragments"
-applyFilter = false
+applyFilter = true
 weight      = 80
 {{< /code-toggle >}}
 
@@ -145,7 +148,6 @@ applyFilter
 
 weight
 : An integer weight that indicates _how important_ this parameter is relative to the other parameters.  It can be 0, which has the effect of turning this index off, or even negative. Test with different values to see what fits your content best.
-
 
 cardinalityThreshold (default 0)
 : {{< new-in "0.111.0" >}}. A percentage (0-100) used to remove common keywords from the index. As an example, setting this to 50 will remove all keywords that are used in more than 50% of the documents in the index.

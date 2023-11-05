@@ -97,7 +97,6 @@ IsBlock {{< new-in "0.108.0" >}}
 Ordinal  {{< new-in "0.108.0" >}}
 : Zero-based ordinal for all the images in the current document.
 
-
 ### Link with title markdown example
 
 ```md

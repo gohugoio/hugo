@@ -67,7 +67,7 @@ To override the built-in sitemapindex.xml template, create a new file in either 
 
 You may disable sitemap generation in your site configuration:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 disableKinds = ['sitemap']
 {{</ code-toggle >}}
 

@@ -313,7 +313,7 @@ git commit --amend
 
 #### Modify multiple commits
 
-{{% warning "Be Careful Modifying Multiple Commits"%}}
+{{% note %}}
 Modifications such as those described in this section can have serious unintended consequences. Skip this section if you're not sure!
 {{% /note %}}
 

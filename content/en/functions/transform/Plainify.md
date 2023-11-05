@@ -1,22 +1,18 @@
 ---
 title: transform.Plainify
-linkTitle: plainify
 description: Returns a string with all HTML tags removed.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [plainify]
+  related: []
   returnType: string
   signatures: [transform.Plainify INPUT]
-relatedFunctions: []
 aliases: [/functions/plainify]
 ---
 
 ```go-html-template
-{{ "<b>BatMan</b>" | plainify }} → "BatMan"
+{{ "<b>BatMan</b>" | plainify }} → BatMan
 ```
 
 See also the `.PlainWords`, `.Plain`, and `.RawContent` [page variables][pagevars].

@@ -1,22 +1,17 @@
 ---
 title: collections.Dictionary
-linkTitle: dict
 description: Creates a map from a list of key and value pairs.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [dict]
+  related:
+    - functions/collections/Group
+    - functions/collections/IndexFunction
+    - functions/collections/IsSet
+    - functions/collections/Where
   returnType: mapany
-  signatures: ['collections.Dictionary KEY VALUE [KEY VALUE]...']
-relatedFunctions:
-  - collections.Dictionary
-  - collections.Group
-  - collections.Index
-  - collections.IsSet
-  - collections.Where
+  signatures: ['collections.Dictionary KEY VALUE [VALUE...]']
 aliases: [/functions/dict]
 ---
 
@@ -24,8 +19,21 @@ aliases: [/functions/dict]
 
 Note that the `key` can be either a `string` or a `string slice`. The latter is useful to create a deeply nested structure, e.g.:
 
-```go-text-template
+```go-html-template
 {{ $m := dict (slice "a" "b" "c") "value" }}
+```
+
+The above produces this data structure:
+
+
+```json
+{
+  "a": {
+    "b": {
+      "c": "value"
+    }
+  }
+}
 ```
 
 ## Example: using `dict` to pass multiple values to a `partial`

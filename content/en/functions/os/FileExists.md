@@ -1,22 +1,17 @@
 ---
 title: os.FileExists
-linkTitle: fileExists
 description: Reports whether the file or directory exists.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [fileExists]
+  related:
+    - functions/os/Getenv
+    - functions/os/ReadDir
+    - functions/os/ReadFile
+    - functions/os/Stat
   returnType: bool
   signatures: [os.FileExists PATH]
-relatedFunctions:
-  - os.FileExists
-  - os.Getenv
-  - os.ReadDir
-  - os.ReadFile
-  - os.Stat
 aliases: [/functions/fileexists]
 ---
 
@@ -36,11 +31,11 @@ content/
 The function returns these values:
 
 ```go-html-template
-{{ os.FileExists "content" }} → true
-{{ os.FileExists "content/news" }} → true
-{{ os.FileExists "content/news/article-1" }} → false
-{{ os.FileExists "content/news/article-1.md" }} → true
-{{ os.FileExists "news" }} → true
-{{ os.FileExists "news/article-1" }} → false
-{{ os.FileExists "news/article-1.md" }} → true
+{{ fileExists "content" }} → true
+{{ fileExists "content/news" }} → true
+{{ fileExists "content/news/article-1" }} → false
+{{ fileExists "content/news/article-1.md" }} → true
+{{ fileExists "news" }} → true
+{{ fileExists "news/article-1" }} → false
+{{ fileExists "news/article-1.md" }} → true
 ```

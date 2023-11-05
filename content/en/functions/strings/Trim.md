@@ -1,45 +1,59 @@
 ---
 title: strings.Trim
-linkTitle: trim
-description: Returns a slice of a passed string with all leading and trailing characters from cutset removed.
-categories: [functions]
+description: Returns the given string, removing leading and trailing characters that appear in the cutset.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
-  aliases: [title]
+action:
+  aliases: [trim]
+  related:
+    - functions/strings/Chomp
+    - functions/strings/TrimLeft
+    - functions/strings/TrimPrefix
+    - functions/strings/TrimRight
+    - functions/strings/TrimSuffix
   returnType: string
   signatures: [strings.Trim INPUT CUTSET]
-relatedFunctions:
-  - strings.Chomp
-  - strings.Trim
-  - strings.TrimLeft
-  - strings.TrimPrefix
-  - strings.TrimRight
-  - strings.TrimSuffix
 aliases: [/functions/trim]
 ---
 
 ```go-html-template
-{{ trim "++Batman--" "+-" }} → "Batman"
+{{ trim "++foo--" "+-" }} → foo
 ```
 
-`trim` *requires* the second argument, which tells the function specifically what to remove from the first argument. There is no default value for the second argument, so **the following usage will not work**:
+To remove leading and trailing newline characters and carriage returns:
 
 ```go-html-template
-{{ trim .Inner }}
+{{ trim "\nfoo\n" "\n\r" }} → foo
+{{ trim "\n\nfoo\n\n" "\n\r" }} → foo
+
+{{ trim "\r\nfoo\r\n" "\n\r" }} → foo
+{{ trim "\r\n\r\nfoo\r\n\r\n" "\n\r" }} → foo
 ```
 
-Instead, the following example tells `trim` to remove extra new lines from the content contained in the [shortcode `.Inner` variable][shortcodevars]:
+The `strings.Trim` function is commonly used in shortcodes to remove leading and trailing newlines characters and carriage returns from the content within the opening and closing shortcode tags.
+
+For example, with this markdown:
+
+```text
+{{</* my-shortcode */>}}
+Able was I ere I saw Elba.
+{{</* /my-shortcode */>}}
+```
+
+The value of `.Inner` in the shortcode template is:
+
+```text
+\nAble was I ere I saw Elba.\n
+```
+
+If authored on a Windows system the value of `.Inner` might, depending on the editor configuration, be:
+
+```text
+\r\nAble was I ere I saw Elba.\r\n
+```
+
+This construct is common in shortcode templates:
 
 ```go-html-template
-{{ trim .Inner "\n" }}
+{{ trim .Inner "\n\r" }}
 ```
-
-{{% note %}}
-Go templates also provide a simple [method for trimming whitespace](/templates/introduction/#whitespace) from either side of a Go tag by including a hyphen (`-`).
-{{% /note %}}
-
-
-[shortcodevars]: /variables/shortcodes/

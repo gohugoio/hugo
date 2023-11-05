@@ -10,6 +10,7 @@ menu:
 toc: true
 weight: 90
 ---
+
 ## Image resources
 
 To process an image you must access the file as a page resource, global resource, or remote resource.
@@ -50,7 +51,7 @@ To access an image as a global resource:
 
 ### Remote resource
 
-A remote resource is a file on a remote server, accessible via http or https. To access an image as a remote resource:
+A remote resource is a file on a remote server, accessible via HTTP or HTTPS. To access an image as a remote resource:
 
 ```go-html-template
 {{ $image := resources.GetRemote "https://gohugo.io/img/hugo-logo.png" }}
@@ -112,7 +113,7 @@ Metadata (EXIF, IPTC, XMP, etc.) is not preserved during image transformation. U
 {{< new-in "0.119.0" >}}
 
 {{% note %}}
-The `Process` method is also available as a filter, which is more effective if need to apply multiple filters to an image. See [Process filter](/functions/images/#process).
+The `Process` method is also available as a filter, which is more effective if you need to apply multiple filters to an image. See [Process filter](/functions/images/process).
 {{% /note %}}
 
 Process processes the image with the given specification. The specification can contain an optional action, one of `resize`, `crop`, `fit` or `fill`. This means that you can use this method instead of [`Resize`], [`Fit`], [`Fill`], or [`Crop`].
@@ -139,10 +140,9 @@ Some more examples:
 {{ $image := $image.Process "fill 600x400" }}
 ```
 
-
 ### Resize
 
-Resize an image to the specified width and/or height.
+Resize an image to the given width and/or height.
 
 If you specify both width and height, the resulting image will be disproportionally scaled unless the original image has the same aspect ratio.
 
@@ -215,7 +215,6 @@ Sometimes it can be useful to create the filter chain once and then reuse it.
 
 This method is fast, but if you also scale down your images, it would be good for performance to extract the colors from the scaled down image.
 
-
 ### EXIF
 
 Provides an [EXIF] object containing image metadata.
@@ -266,7 +265,7 @@ You may also access EXIF fields individually, using the [`lang.FormatNumber`] fu
 
 ## Image processing options
 
-The [`Resize`], [`Fit`], [`Fill`], and [`Crop`] methods accept a space-separated, case-insensitive list of options. The order of the options within the list is irrelevant.
+The [`Resize`], [`Fit`], [`Fill`], and [`Crop`] methods accept a space-delimited, case-insensitive list of options. The order of the options within the list is irrelevant.
 
 ### Dimensions
 
@@ -369,7 +368,7 @@ The default value is `photo`. You may override the default value in the [site co
 
 When converting an image from a format that supports transparency (e.g., PNG) to a format that does _not_ support transparency (e.g., JPEG), you may specify the background color of the resulting image.
 
-Use either a 3-digit or a 6-digit hexadecimal color code (e.g., `#00f` or `#0000ff`).
+Use either a 3-digit or 6-digit hexadecimal color code (e.g., `#00f` or `#0000ff`).
 
 The default value is `#ffffff` (white). You may override the default value in the [site configuration].
 
@@ -402,28 +401,26 @@ See [github.com/disintegration/imaging] for the complete list of resampling filt
 
 _The photo of the sunset used in the examples below is Copyright [Bjørn Erik Pedersen](https://commons.wikimedia.org/wiki/User:Bep) (Creative Commons Attribution-Share Alike 4.0 International license)_
 
-{{< imgproc sunset Resize "300x" />}}
+{{< imgproc "sunset.jpg" "resize 300x" />}}
 
-{{< imgproc sunset Fill "90x120 left" />}}
+{{< imgproc "sunset.jpg" "fill 90x120 left" />}}
 
-{{< imgproc sunset Fill "90x120 right" />}}
+{{< imgproc "sunset.jpg" "fill 90x120 right" />}}
 
-{{< imgproc sunset Fit "90x90" />}}
+{{< imgproc "sunset.jpg" "fit 90x90" />}}
 
-{{< imgproc sunset Crop "250x250 center" />}}
+{{< imgproc "sunset.jpg" "crop 250x250 center" />}}
 
-{{< imgproc sunset Resize "300x q10" />}}
+{{< imgproc "sunset.jpg" "resize 300x q10" />}}
 
 This is the shortcode used to generate the examples above:
 
-{{< code file="layouts/shortcodes/imgproc.html" >}}
-{{< readfile file="layouts/shortcodes/imgproc.html" >}}
-{{< /code >}}
+{{< readfile file="layouts/shortcodes/imgproc.html" highlight="go-html-template" >}}
 
 Call the shortcode from your Markdown like this:
 
 ```go-html-template
-{{</* imgproc sunset Resize "300x" /*/>}}
+{{</* imgproc "sunset.jpg" "resize 300x" /*/>}}
 ```
 
 {{% note %}}
@@ -457,7 +454,7 @@ resampleFilter
 
 Define an `imaging.exif` section in your site configuration to control the availability of EXIF data.
 
-{{< code-toggle file="hugo" copy=true >}}
+{{< code-toggle file=hugo >}}
 [imaging.exif]
 includeFields = ""
 excludeFields = ""
@@ -487,9 +484,9 @@ By default, Hugo uses the [Smartcrop] library when cropping images with the `Cro
 
 Examples using the sunset image from above:
 
-{{< imgproc sunset Fill "200x200 smart" />}}
+{{< imgproc "sunset.jpg" "fill 200x200 smart" />}}
 
-{{< imgproc sunset Crop "200x200 smart" />}}
+{{< imgproc "sunset.jpg" "crop 200x200 smart" />}}
 
 ## Image processing performance consideration
 
@@ -497,7 +494,7 @@ Hugo caches processed images in the `resources` directory. If you include this d
 
 If you change image processing methods or options, or if you rename or remove images, the `resources` directory will contain unused images. To remove the unused images, perform garbage collection with:
 
-```bash
+```sh
 hugo --gc
 ```
 

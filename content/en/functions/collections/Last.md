@@ -1,20 +1,15 @@
 ---
 title: collections.Last
-linkTitle: last
 description: Slices an array to the last N elements.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [last]
+  related:
+    - functions/collections/After
+    - functions/collections/First
   returnType: any
   signatures: [collections.Last INDEX COLLECTION]
-relatedFunctions:
-  - collections.After
-  - collections.First
-  - collections.Last
 aliases: [/functions/last]
 ---
 

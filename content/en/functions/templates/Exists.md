@@ -1,17 +1,13 @@
 ---
 title: templates.Exists
 description: Reports whether a template file exists under the given path relative to the `layouts` directory.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
+  related: []
   returnType: bool
   signatures: [templates.Exists PATH]
-namespace: templates
-relatedFunctions: []
 aliases: [/functions/templates.exists]
 ---
 

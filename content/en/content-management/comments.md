@@ -24,9 +24,8 @@ Hugo comes with all the code you need to load Disqus into your templates. Before
 
 Disqus comments require you set a single value in your [site's configuration file][configuration] like so:
 
-{{< code-toggle file="hugo" >}}
-[services.disqus]
-shortname = 'your-disqus-shortname'
+{{< code-toggle file=hugo >}}
+disqusShortname = "yourDisqusShortname"
 {{</ code-toggle >}}
 
 For many websites, this is enough configuration. However, you also have the option to set the following in the [front matter] of a single content file:

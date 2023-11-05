@@ -1,31 +1,24 @@
 ---
 title: strings.CountWords
-linkTitle: countwords
-description: Counts the number of words in a string.
-categories: [functions]
+description: Returns the number of words in a string.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [countwords]
+  related:
+    - functions/go-template/len
+    - functions/strings/Count
+    - functions/strings/CountRunes
+    - functions/strings/RuneCount
   returnType: int
   signatures: [strings.CountWords INPUT]
-relatedFunctions:
-  - len
-  - strings.Count
-  - strings.CountRunes
-  - strings.CountWords
-  - strings.RuneCount
 aliases: [/functions/countwords]
 ---
 
 The template function works similar to the [.WordCount page variable][pagevars].
 
 ```go-html-template
-{{ "Hugo is a static site generator." | countwords }}
-<!-- outputs a content length of 6 words.  -->
+{{ "Hugo is a static site generator." | countwords }} → 6
 ```
-
 
 [pagevars]: /variables/page/

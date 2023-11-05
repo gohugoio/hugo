@@ -9,11 +9,11 @@ menu:
 toc: true
 weight: 50
 ---
-{{% readfile file="/installation/_common/01-editions.md" %}}
+{{% include "installation/_common/01-editions.md" %}}
 
-{{% readfile file="/installation/_common/02-prerequisites.md" %}}
+{{% include "installation/_common/02-prerequisites.md" %}}
 
-{{% readfile file="/installation/_common/03-prebuilt-binaries.md" %}}
+{{% include "installation/_common/03-prebuilt-binaries.md" %}}
 
 ## Repository packages
 
@@ -61,7 +61,7 @@ doas pkg_add hugo
 
 [OpenBSD]: https://www.openbsd.org/
 
-{{% readfile file="/installation/_common/04-build-from-source.md" %}}
+{{% include "installation/_common/04-build-from-source.md" %}}
 
 ## Comparison
 

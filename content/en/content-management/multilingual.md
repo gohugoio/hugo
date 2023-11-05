@@ -25,7 +25,7 @@ This is the default language configuration:
 
 This is an example of a site configuration for a multilingual project. Any key not defined in a `languages` object will fall back to the global value in the root of your site configuration.
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 defaultContentLanguage = 'de'
 defaultContentLanguageInSubdir = true
 
@@ -104,7 +104,7 @@ In Hugo `v0.112.0` we consolidated all configuration options, and improved how t
 1. `site.Language.Params` is deprecated. Use `site.Params` directly.
 1. Adding custom parameters to the top level language configuration is deprecated. Define custom parameters within `languages.xx.params`. See `color` in the example below.
 
-{{< code-toggle file=hugo copy=false >}}
+{{< code-toggle file=hugo >}}
 
 title = "My blog"
 languageCode = "en-us"
@@ -129,20 +129,20 @@ In the example above, all settings except `color` below `params` map to predefin
 
 To disable a language within a `languages` object in your site configuration:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 [languages.es]
 disabled = true
 {{< /code-toggle >}}
 
 To disable one or more languages in the root of your site configuration:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 disableLanguages = ["es", "fr"]
 {{< /code-toggle >}}
 
 To disable one or more languages using an environment variable:
 
-```bash
+```sh
 HUGO_DISABLELANGUAGES="es fr" hugo
 ```
 
@@ -160,7 +160,7 @@ If a `baseURL` is set on the `language` level, then all languages must have one 
 
 Example:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [languages]
 [languages.fr]
 baseURL = "https://example.fr"
@@ -169,7 +169,7 @@ weight = 1
 title = "En Français"
 
 [languages.en]
-baseURL = "https://example.com"
+baseURL = "https://example.org/"
 languageName = "English"
 weight = 2
 title = "In English"
@@ -183,7 +183,7 @@ public
 └── fr
 ```
 
-**All URLs (i.e `.Permalink` etc.) will be generated from that root. So the English home page above will have its `.Permalink` set to `https://example.com/`.**
+**All URLs (i.e `.Permalink` etc.) will be generated from that root. So the English home page above will have its `.Permalink` set to `https://example.org/`.**
 
 When you run `hugo server` we will start multiple HTTP servers. You will typically see something like this in the console:
 
@@ -221,7 +221,7 @@ If a file has no language code, it will be assigned the default language.
 
 This system uses different content directories for each of the languages. Each language's content directory is set using the `contentDir` parameter.
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 languages:
   en:
     weight: 10
@@ -277,7 +277,7 @@ To localize URLs:
 
 For example, a French translation can have its own localized slug.
 
-{{< code-toggle file="content/about.fr.md" fm=true copy=false >}}
+{{< code-toggle file="content/about.fr.md" fm=true >}}
 title: A Propos
 slug: "a-propos"
 {{< /code-toggle >}}
@@ -427,7 +427,7 @@ In case you need to pass a custom data: (`(dict "Count" numeric_value_only)` is 
 
 The following localization examples assume your site's primary language is English, with translations to French and German.
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 defaultContentLanguage = 'en'
 
 [languages]
@@ -530,7 +530,7 @@ Localization of menu entries depends on how you define them:
 
 - When you define menu entries [automatically] using the section pages menu, you must use translation tables to localize each entry.
 - When you define menu entries [in front matter], they are already localized based on the front matter itself. If the front matter values are insufficient, use translation tables to localize each entry.
-- When you define menu entries [in site configuration], you must create language-specific menu entries under each language key. If the names of the menu entries are insufficent, use translation tables to localize each entry.
+- When you define menu entries [in site configuration], you must create language-specific menu entries under each language key. If the names of the menu entries are insufficient, use translation tables to localize each entry.
 
 ### Create language-specific menu entries
 
@@ -538,7 +538,7 @@ Localization of menu entries depends on how you define them:
 
 For a simple menu with a small number of entries, use a single configuration file. For example:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 [languages.de]
 languageCode = 'de-DE'
 languageName = 'Deutsch'
@@ -583,7 +583,7 @@ config/
     └── hugo.toml
 ```
 
-{{< code-toggle file="config/_default/menus/menu.de" copy=false >}}
+{{< code-toggle file="config/_default/menus/menu.de" >}}
 [[main]]
 name = 'Produkte'
 pageRef = '/products'
@@ -594,7 +594,7 @@ pageRef = '/services'
 weight = 20
 {{< /code-toggle >}}
 
-{{< code-toggle file="config/_default/menus/menu.en" copy=false >}}
+{{< code-toggle file="config/_default/menus/menu.en" >}}
 [[main]]
 name = 'Products'
 pageRef = '/products'
@@ -624,7 +624,7 @@ The `identifier` depends on how you define menu entries:
 
 For example, if you define menu entries in site configuration:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 [[menu.main]]
   identifier = 'products'
   name = 'Products'
@@ -639,7 +639,7 @@ For example, if you define menu entries in site configuration:
 
 Create corresponding entries in the translation tables:
 
-{{< code-toggle file="i18n/de" copy=false >}}
+{{< code-toggle file="i18n/de" >}}
 products = 'Produkte'
 services = 'Leistungen'
 {{< / code-toggle >}}
@@ -663,7 +663,7 @@ For merging of content from other languages (i.e. missing content translations),
 
 To track down missing translation strings, run Hugo with the `--printI18nWarnings` flag:
 
-```bash
+```sh
 hugo --printI18nWarnings | grep i18n
 i18n|MISSING_TRANSLATION|en|wordCount
 ```
@@ -677,19 +677,18 @@ To support Multilingual mode in your themes, some considerations must be taken f
 
 If there is more than one language defined, the `LanguagePrefix` variable will equal `/en` (or whatever your `CurrentLanguage` is). If not enabled, it will be an empty string (and is therefore harmless for single-language Hugo websites).
 
-
 ## Generate multilingual content with `hugo new content`
 
 If you organize content with translations in the same directory:
 
-```text
+```sh
 hugo new content post/test.en.md
 hugo new content post/test.de.md
 ```
 
 If you organize content with translations in different directories:
 
-```text
+```sh
 hugo new content content/en/post/test.md
 hugo new content content/de/post/test.md
 ```

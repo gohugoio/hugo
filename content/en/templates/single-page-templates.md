@@ -43,14 +43,14 @@ This single page template makes use of Hugo [base templates], the [`.Format` fun
       {{ with .GetTerms "topics" }}
         <ul id="topics">
           {{ range . }}
-            <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+            <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
           {{ end }}
         </ul>
       {{ end }}
       {{ with .GetTerms "tags" }}
         <ul id="tags">
           {{ range . }}
-            <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+            <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
           {{ end }}
         </ul>
       {{ end }}
@@ -74,7 +74,7 @@ To easily generate new instances of a content type (e.g., new `.md` files in a s
 [content type]: /content-management/types/
 [directory structure]: /getting-started/directory-structure/
 [dry]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
-[`.format` function]: /functions/format/
+[`.format` function]: /methods/time/format/
 [front matter]: /content-management/front-matter/
 [pagetaxonomy]: /templates/taxonomy-templates/#list-terms-assigned-to-a-page
 [pagevars]: /variables/page/

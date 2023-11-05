@@ -1,51 +1,48 @@
 ---
 title: time.Now
-linkTitle: now
-description: Returns the current local time 
-categories: [functions]
+description: Returns the current local time.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [now]
+  related:
+    - functions/time/AsTime
+    - functions/time/Duration
+    - functions/time/Format
+    - functions/time/ParseDuration
   returnType: time.Time
   signatures: [time.Now]
-relatedFunctions:
-  - time.AsTime
-  - time.Duration
-  - time.Format
-  - time.Now
-  - time.ParseDuration
 aliases: [/functions/now]
 ---
 
-See [`time.Time`](https://godoc.org/time#Time).
-
-For example, building your site on June 24, 2017, with the following templating:
+For example, when building a site on October 15, 2023 in the America/Los_Angeles time zone:
 
 ```go-html-template
-<div>
-    <small>&copy; {{ now.Format "2006" }}</small>
-</div>
+{{ time.Now }}
 ```
 
-would produce the following:
+This produces a `time.Time` value, with a string representation such as:
 
-```html
-<div>
-    <small>&copy; 2017</small>
-</div>
+```text
+2023-10-15 12:59:28.337140706 -0700 PDT m=+0.041752605
 ```
 
-The above example uses the [`.Format` function](/functions/format), which page includes a full listing of date formatting using Go's layout string.
+To format and [localize] the value, pass it through the [`time.Format`] function:
 
-{{% note %}}
-Older Hugo themes may still be using the obsolete Page’s `.Now` (uppercase with leading dot), which causes build error that looks like the following:
+```go-html-template
+{{ time.Now | time.Format "Jan 2006" }} → Oct 2023
+```
 
-    ERROR ... Error while rendering "..." in "...": ...
-    executing "..." at <.Now.Format>:
-    can't evaluate field Now in type *hugolib.PageOutput
+The `time.Now` function returns a `time.Time` value, so you can chain any of the [time methods] to the resulting value. For example:
 
-Be sure to use `now` (lowercase with _**no**_ leading dot) in your templating.
-{{% /note %}}
+
+```go-html-template
+{{ time.Now.Year }} → 2023 (int)
+{{ time.Now.Weekday.String }} → Sunday
+{{ time.Now.Month.String }} → October
+{{ time.Now.Unix }} → 1697400955 (int64)
+```
+
+[`time.Format`]: /functions/time/format
+[localize]: /getting-started/glossary/#localization
+[time methods]: /methods/time/

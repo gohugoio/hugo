@@ -17,5 +17,4 @@ That site is bookmarked in many browsers, so preserving the URLs was a must. Hug
 
 The lessons learned from this also lead to [disableLanguages](/content-management/multilingual/#disable-a-language) in Hugo `0.34` (a way to turn off languages during translation). And I also registered [this issue](https://github.com/gohugoio/hugo/issues/4463). Once fixed it will make it easier to handle partially translated sites.
 
-
 [^1]: The work on getting the content translated is in progress.

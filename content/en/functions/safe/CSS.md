@@ -1,23 +1,18 @@
 ---
 title: safe.CSS
-linkTitle: safeCSS
-description: Declares the provided string as a known "safe" CSS string.
-categories: [functions]
+description: Declares the provided string as safe CSS string.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [safeCSS]
+  related:
+    - functions/safe/HTML
+    - functions/safe/HTMLAttr
+    - functions/safe/JS
+    - functions/safe/JSStr
+    - functions/safe/URL
   returnType: template.CSS
   signatures: [safe.CSS INPUT]
-relatedFunctions:
-  - safe.CSS
-  - safe.HTML
-  - safe.HTMLAttr
-  - safe.JS
-  - safe.JSStr
-  - safe.URL
 aliases: [/functions/safecss]
 ---
 

@@ -1,20 +1,16 @@
 ---
 title: collections.Seq
-linkTitle: seq
 description: Returns a slice of integers.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [seq]
   returnType: '[]int'
   signatures:
     - collections.Seq LAST
     - collections.Seq FIRST LAST
     - collections.Seq FIRST INCREMENT LAST
-relatedFunctions:
+related:
   - collections.Apply
   - collections.Delimit
   - collections.In

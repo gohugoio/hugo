@@ -1,25 +1,20 @@
 ---
 title: urls.URLize
-linkTitle: urlize
 description: Takes a string, sanitizes it for usage in URLs, and converts spaces to hyphens.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [urlize]
+  related:
+    - functions/urls/Anchorize
   returnType: string
   signatures: [urls.URLize INPUT]
-relatedFunctions:
-  - urls.Anchorize
-  - urls.URLize
 aliases: [/functions/urlize]
 ---
 
 The following examples pull from a content file with the following front matter:
 
-{{< code-toggle file="content/blog/greatest-city.md" fm=true copy=false >}}
+{{< code-toggle file="content/blog/greatest-city.md" fm=true >}}
 title = "The World's Greatest City"
 location = "Chicago IL"
 tags = ["pizza","beer","hot dogs"]

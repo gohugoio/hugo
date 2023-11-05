@@ -1,21 +1,16 @@
 ---
 title: collections.Complement
-linkTitle: complement
 description: Returns the elements of the last collection that are not in any of the others.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [complement]
+  related:
+    - functions/collections/Intersect
+    - functions/collections/SymDiff
+    - functions/collections/Union
   returnType: any
-  signatures: ['collections.Complement COLLECTION [COLLECTION]...']
-relatedFunctions:
-  - collections.Complement
-  - collections.Intersect
-  - collections.SymDiff
-  - collections.Union
+  signatures: ['collections.Complement COLLECTION [COLLECTION...]']
 aliases: [/functions/complement]
 ---
 
@@ -34,7 +29,6 @@ Make your code simpler to understand by using a [chained pipeline]:
 
 [chained pipeline]: https://pkg.go.dev/text/template#hdr-Pipelines
 {{% /note %}}
-
 
 ```go-html-template
 {{ $c3 | complement $c1 $c2 }} → [1 2]
@@ -57,7 +51,7 @@ To list everything except blog articles (`blog`) and frequently asked questions 
 {{ $blog := where site.RegularPages "Type" "blog" }}
 {{ $faqs := where site.RegularPages "Type" "faqs" }}
 {{ range site.RegularPages | complement $blog $faqs }}
-  <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
+  <a href="{{ .RelPermalink }}">{{ .Title }}</a>
 {{ end }}
 ```
 
@@ -65,11 +59,11 @@ To list everything except blog articles (`blog`) and frequently asked questions 
 Although the example above demonstrates the `complement` function, you could use the [`where`] function as well:
 
 [`where`]: /functions/collections/where
-{{% /note %}} 
+{{% /note %}}
 
 ```go-html-template
 {{ range where site.RegularPages "Type" "not in" (slice "blog" "faqs") }}
-  <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
+  <a href="{{ .RelPermalink }}">{{ .Title }}</a>
 {{ end }}
 ```
 

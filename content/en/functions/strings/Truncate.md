@@ -1,17 +1,13 @@
 ---
 title: strings.Truncate
-linkTitle: truncate
 description: Truncates a text to a max length without cutting words or leaving unclosed HTML tags.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [truncate]
+  related: []
   returnType: template.HTML
   signatures: ['strings.Truncate SIZE [ELLIPSIS] INPUT']
-relatedFunctions: []
 aliases: [/functions/truncate]
 ---
 

@@ -1,23 +1,18 @@
 ---
 title: safe.HTML
-linkTitle: safeHTML
-description: Declares a provided string as a "safe" HTML document to avoid escaping by Go templates.
-categories: [functions]
+description: Declares a provided string as a safeHTML string.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [safeHTML]
+  related:
+    - functions/safe/CSS
+    - functions/safe/HTMLAttr
+    - functions/safe/JS
+    - functions/safe/JSStr
+    - functions/safe/URL
   returnType: template.HTML
   signatures: [safe.HTML INPUT]
-relatedFunctions:
-  - safe.CSS
-  - safe.HTML
-  - safe.HTMLAttr
-  - safe.JS
-  - safe.JSStr
-  - safe.URL
 aliases: [/functions/safehtml]
 ---
 
@@ -25,7 +20,7 @@ It should not be used for HTML from a third-party, or HTML with unclosed tags or
 
 Given a site-wide [`hugo.toml`][config] with the following `copyright` value:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 copyright = "© 2015 Jane Doe.  <a href=\"https://creativecommons.org/licenses/by/4.0/\">Some rights reserved</a>."
 {{< /code-toggle >}}
 

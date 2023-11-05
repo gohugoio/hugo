@@ -58,7 +58,6 @@ and a new line with a "quoted string".` */>}}
 
 Shortcodes using the `%` as the outer-most delimiter will be fully rendered when sent to the content renderer. This means that the rendered output from a shortcode can be part of the page's table of contents, footnotes, etc.
 
-
 ### Shortcodes without markdown
 
 The `<` character indicates that the shortcode's inner content does *not* need further rendering. Often shortcodes without Markdown include internal HTML:
@@ -172,7 +171,7 @@ To display a highlighted code sample:
 ```text
 {{</* highlight go-html-template */>}}
 {{ range .Pages }}
-  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
 {{ end }}
 {{</* /highlight */>}}
 ```
@@ -181,7 +180,7 @@ Rendered:
 
 {{< highlight go-html-template >}}
 {{ range .Pages }}
-  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
 {{ end }}
 {{< /highlight >}}
 
@@ -192,7 +191,7 @@ To specify one or more [highlighting options], include a quotation-encapsulated,
 ```text
 {{</* highlight go-html-template "lineNos=inline, lineNoStart=42" */>}}
 {{ range .Pages }}
-  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
 {{ end }}
 {{</* /highlight */>}}
 ```
@@ -201,7 +200,7 @@ Rendered:
 
 {{< highlight go-html-template "lineNos=inline, lineNoStart=42" >}}
 {{ range .Pages }}
-  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
 {{ end }}
 {{< /highlight >}}
 
@@ -220,14 +219,14 @@ You must obtain an Access Token to use the `instagram` shortcode.
 
 If your site configuration is private:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 [services.instagram]
 accessToken = 'xxx'
 {{< /code-toggle >}}
 
 If your site configuration is _not_ private, set the Access Token with an environment variable:
 
-```text
+```sh
 HUGO_SERVICES_INSTAGRAM_ACCESSTOKEN=xxx hugo --gc --minify
 ```
 
@@ -251,7 +250,7 @@ Include this in your markdown:
 
 Gets a value from the current `Page's` parameters set in front matter, with a fallback to the site parameter value. It will log an `ERROR` if the parameter with the given key could not be found in either.
 
-```bash
+```sh
 {{</* param testparam */>}}
 ```
 
@@ -261,7 +260,7 @@ Since `testparam` is a parameter defined in front matter of this page with the v
 
 To access deeply nested parameters, use "dot syntax", e.g:
 
-```bash
+```sh
 {{</* param "my.nested.param" */>}}
 ```
 
@@ -289,7 +288,7 @@ Read a more extensive description of `ref` and `relref` in the [cross references
 Assuming that standard Hugo pretty URLs are turned on.
 
 ```html
-<a href="https://example.com/blog/neat">Neat</a>
+<a href="https://example.org/blog/neat">Neat</a>
 <a href="/about/#who">Who</a>
 ```
 
@@ -355,7 +354,6 @@ Copy the YouTube video ID that follows `v=` in the video's URL and pass it to th
 
 Furthermore, you can automatically start playback of the embedded video by setting the `autoplay` parameter to `true`. Remember that you can't mix named and unnamed parameters, so you'll need to assign the yet unnamed video ID to the parameter `id`:
 
-
 {{< code file="example-youtube-input-with-autoplay.md" >}}
 {{</* youtube id="w7Ft2ymGmfc" autoplay="true" */>}}
 {{< /code >}}
@@ -398,7 +396,7 @@ To learn more about creating custom shortcodes, see the [shortcode template docu
 [partials]: /templates/partials/
 [quickstart]: /getting-started/quick-start/
 [sctemps]: /templates/shortcode-templates/
-[scvars]: /variables/shortcodes/
+[scvars]: /variables/shortcode/
 [shortcode template documentation]: /templates/shortcode-templates/
 [templatessection]: /templates/
 [Vimeo]: https://vimeo.com/

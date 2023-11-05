@@ -1,19 +1,15 @@
 ---
 title: collections.Querify
-linkTitle: querify
 description: Takes a set or slice of key-value pairs and returns a query string to be appended to URLs.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [querify]
   returnType: string
   signatures:
-    - collections.Querify KEY VALUE [KEY VALUE]...
+    - collections.Querify VALUE [VALUE...]
     - collections.Querify COLLECTION
-relatedFunctions:
+related:
   - collections.Querify
   - urlquery
 aliases: [/functions/querify]

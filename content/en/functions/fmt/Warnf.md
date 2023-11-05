@@ -1,20 +1,15 @@
 ---
 title: fmt.Warnf
-linkTitle: warnf
 description: Log a WARNING from a template.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [warnf]
+  related:
+    - functions/fmt/Errorf
+    - functions/fmt/Erroridf
   returnType: string
   signatures: ['fmt.Warnf FORMAT [INPUT]']
-relatedFunctions:
-  - fmt.Errorf
-  - fmt.Erroridf
-  - fmt.Warnf
 aliases: [/functions/warnf]
 ---
 

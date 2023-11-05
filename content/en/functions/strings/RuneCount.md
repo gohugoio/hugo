@@ -1,21 +1,17 @@
 ---
 title: strings.RuneCount
 description: Returns the number of runes in a string.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
+  related:
+    - functions/go-template/len
+    - functions/strings/Count
+    - functions/strings/CountRunes
+    - functions/strings/CountWords
   returnType: int
   signatures: [strings.RuneCount INPUT]
-relatedFunctions:
-  - len
-  - strings.Count
-  - strings.CountRunes
-  - strings.CountWords
-  - strings.RuneCount
 aliases: [/functions/strings.runecount]
 ---
 

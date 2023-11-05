@@ -1,20 +1,15 @@
 ---
 title: fmt.Errorf
-linkTitle: errorf
 description: Log an ERROR from a template.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [errorf]
+  related:
+    - functions/fmt/Erroridf
+    - functions/fmt/Warnf
   returnType: string
   signatures: ['fmt.Errorf FORMAT [INPUT]']
-relatedFunctions:
-  - fmt.Errorf
-  - fmt.Erroridf
-  - fmt.Warnf
 aliases: [/functions/errorf]
 ---
 

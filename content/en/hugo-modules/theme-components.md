@@ -12,15 +12,12 @@ aliases: [/themes/customize/,/themes/customizing/]
 toc: true
 ---
 
-
-
-
 {{% note %}}
 This section contain information that may be outdated and is in the process of being rewritten.
 {{% /note %}}
 Since Hugo `0.42` a project can configure a theme as a composite of as many theme components you need:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 theme = ["my-shortcodes", "base-theme", "hyde"]
 {{< /code-toggle >}}
 
@@ -30,7 +27,7 @@ The theme definition example above in `hugo.toml` creates a theme with 3 theme c
 
 For any given file, data entry, etc., Hugo will look first in the project and then in `my-shortcodes`, `base-theme`, and lastly `hyde`.
 
-Hugo uses two different algorithms to merge the filesystems, depending on the file type:
+Hugo uses two different algorithms to merge the file systems, depending on the file type:
 
 * For `i18n` and `data` files, Hugo merges deeply using the translation ID and data key inside the files.
 * For `static`, `layouts` (templates), and `archetypes` files, these are merged on file level. So the left-most file will be chosen.

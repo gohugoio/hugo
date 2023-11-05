@@ -28,7 +28,7 @@ You can change the structure and appearance of URLs with front matter values and
 
 Set the `slug` in front matter to override the last segment of the path. The `slug` value does not affect section pages.
 
-{{< code-toggle file="content/posts/post-1.md" copy=false fm=true >}}
+{{< code-toggle file="content/posts/post-1.md" fm=true >}}
 title = 'My First Post'
 slug = 'my-first-post'
 {{< /code-toggle >}}
@@ -45,7 +45,7 @@ Set the `url` in front matter to override the entire path. Use this with either 
 
 With this front matter:
 
-{{< code-toggle file="content/posts/post-1.md" copy=false fm=true >}}
+{{< code-toggle file="content/posts/post-1.md" fm=true >}}
 title = 'My First Article'
 url = '/articles/my-first-article'
 {{< /code-toggle >}}
@@ -58,7 +58,7 @@ https://example.org/articles/my-first-article/
 
 If you include a file extension:
 
-{{< code-toggle file="content/posts/post-1.md" copy=false fm=true >}}
+{{< code-toggle file="content/posts/post-1.md" fm=true >}}
 title = 'My First Article'
 url = '/articles/my-first-article.html'
 {{< /code-toggle >}}
@@ -112,7 +112,7 @@ content/
 
 Render tutorials under "training", and render the posts under "articles" with a date-base hierarchy:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 [permalinks.page]
 posts = '/articles/:year/:month/:slug/'
 tutorials = '/training/:slug/'
@@ -145,14 +145,14 @@ public/
 
 To create a date-based hierarchy for regular pages in the content root:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 [permalinks.page]
 "/" = "/:year/:month/:slug/"
 {{< /code-toggle >}}
 
 Use the same approach with taxonomy terms. For example, to omit the taxonomy segment of the URL:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 [permalinks.term]
 'tags' = '/:slug/'
 {{< /code-toggle >}}
@@ -179,7 +179,7 @@ content/
 
 And this site configuration:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 defaultContentLanguage = 'en'
 defaultContentLanguageInSubdir = true
 
@@ -280,7 +280,7 @@ For time-related values, you can also use the layout string components defined i
 
 [time package]: https://pkg.go.dev/time#pkg-constants
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 permalinks:
   posts: /:06/:1/:2/:title/
 {{< /code-toggle >}}
@@ -296,7 +296,7 @@ pretty|content/about.md|`https://example.org/about/`
 
 By default, Hugo produces pretty URLs. To generate ugly URLs, change your site configuration:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 uglyURLs = true
 {{< /code-toggle >}}
 
@@ -314,7 +314,7 @@ This is a legacy configuration option, superseded by template functions and mark
 
 If enabled, Hugo performs a search and replace _after_ it renders the page. It searches for site-relative URLs (those with a leading slash) associated with `action`, `href`, `src`, `srcset`, and `url` attributes. It then prepends the `baseURL` to create absolute URLs.
 
-```text
+```html
 <a href="/about"> → <a href="https://example.org/about/">
 <img src="/a.gif"> → <img src="https://example.org/a.gif">
 ```
@@ -323,7 +323,7 @@ This is an imperfect, brute force approach that can affect content as well as HT
 
 To enable:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 canonifyURLs = true
 {{< /code-toggle >}}
 
@@ -337,7 +337,7 @@ If enabled, Hugo performs a search and replace _after_ it renders the page. It s
 
 For example, when rendering `content/posts/post-1`:
 
-```text
+```html
 <a href="/about"> → <a href="../../about">
 <img src="/a.gif"> → <img src="../../a.gif">
 ```
@@ -346,7 +346,7 @@ This is an imperfect, brute force approach that can affect content as well as HT
 
 To enable:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 relativeURLs = true
 {{< /code-toggle >}}
 
@@ -361,7 +361,7 @@ Create redirects from old URLs to new URLs with aliases:
 
 Change the file name of an existing page, and create an alias from the previous URL to the new URL:
 
-{{< code-toggle file="content/posts/new-file-name.md" copy=false >}}
+{{< code-toggle file="content/posts/new-file-name.md" >}}
 aliases = ['/posts/previous-file-name']
 {{< /code-toggle >}}
 
@@ -373,13 +373,13 @@ Each of these directory-relative aliases is equivalent to the site-relative alia
 
 You can create more than one alias to the current page:
 
-{{< code-toggle file="content/posts/new-file-name.md" copy=false >}}
+{{< code-toggle file="content/posts/new-file-name.md" >}}
 aliases = ['previous-file-name','original-file-name']
 {{< /code-toggle >}}
 
 In a multilingual site, use a directory-relative alias, or include the language prefix with a site-relative alias:
 
-{{< code-toggle file="content/posts/new-file-name.de.md" copy=false >}}
+{{< code-toggle file="content/posts/new-file-name.de.md" >}}
 aliases = ['/de/posts/previous-file-name']
 {{< /code-toggle >}}
 
@@ -400,7 +400,7 @@ public/
 
 The alias from the previous URL to the new URL is a client-side redirect:
 
-{{< code file="posts/previous-file-name/index.html" copy=false >}}
+{{< code file="posts/previous-file-name/index.html" >}}
 <!DOCTYPE html>
 <html lang="en-us">
   <head>

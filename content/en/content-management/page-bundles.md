@@ -48,14 +48,14 @@ content/
 │   │   ├── image2.png
 │   │   └── index.md
 │   └── my-other-post
-│       └── index.md
+│       └── index.md
 │
 └── another-section
     ├── ..
-    └── not-a-leaf-bundle
+    └── not-a-leaf-bundle
         ├── ..
-        └── another-leaf-bundle
-            └── index.md
+        └── another-leaf-bundle
+            └── index.md
 ```
 
 In the above example `content/` directory, there are four leaf
@@ -89,7 +89,6 @@ These content files are page resources of `my-post`
 The hierarchy depth at which a leaf bundle is created does not matter,
 as long as it is not inside another **leaf** bundle.
 {{% /note %}}
-
 
 ### Headless bundle
 
@@ -128,7 +127,7 @@ Explanation of the above example:
 A leaf bundle can be made headless by adding below in the front matter
 (in the `index.md`):
 
-{{< code-toggle file="content/headless/index.md" fm=true copy=false >}}
+{{< code-toggle file="content/headless/index.md" fm=true >}}
 headless = true
 {{< /code-toggle >}}
 
@@ -149,17 +148,16 @@ Here `md` (markdown) is used just as an example. You can use any file
 type as a content resource as long as it is a content type recognized by Hugo.
 {{% /note %}}
 
-
 ### Examples of branch bundle organization
 
 ```text
 content/
 ├── branch-bundle-1
-│   ├── branch-content1.md
-│   ├── branch-content2.md
-│   ├── image1.jpg
-│   ├── image2.png
-│   └── _index.md
+│   ├── branch-content1.md
+│   ├── branch-content2.md
+│   ├── image1.jpg
+│   ├── image2.png
+│   └── _index.md
 └── branch-bundle-2
     ├── _index.md
     └── a-leaf-bundle
