@@ -1,5 +1,6 @@
 ---
-title: Emojis
+title: Emoji quick reference guide
+linkTitle: Emojis
 description: Include emoji shortcodes in your markdown, or use the emojify function in your templates.
 categories: [quick reference]
 keywords: [emoji]

@@ -1,5 +1,6 @@
 ---
-title: Methods
+title: Method quick reference guide
+linkTitle: Methods
 description: A quick reference guide to Hugo's methods, grouped by object.
 categories: [quick reference]
 keywords: []
