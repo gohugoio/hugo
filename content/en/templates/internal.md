@@ -19,18 +19,13 @@ While the following internal templates are called similar to partials, they do *
 
 ## Google Analytics
 
-Hugo ships with an internal template supporting [Google Analytics 4][GA4] (GA4).
+Hugo ships with an internal template supporting [Google Analytics 4].
 
-**Note:** Universal Analytics are [deprecated].
-
-[GA4]: https://support.google.com/analytics/answer/10089681
-[deprecated]: https://support.google.com/analytics/answer/11583528
+[Google Analytics 4]: https://support.google.com/analytics/answer/10089681
 
 ### Configure Google Analytics
 
 Provide your tracking ID in your configuration file:
-
-**Google Analytics 4 (gtag.js)**
 
 {{< code-toggle file=hugo >}}
 [services.googleAnalytics]

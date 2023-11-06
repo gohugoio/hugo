@@ -53,7 +53,9 @@ The above example adds one new media type, `text/enriched`, and changes the suff
     mediaType = "text/html"
 {{</ code-toggle >}}
 
-**Note** that for the above to work, you also need to add an `outputs` definition in your site configuration.
+{{% note %}}
+For the above to work, you also need to add an `outputs` definition in your site configuration.
+{{% /note %}}
 
 ## Output format definitions
 

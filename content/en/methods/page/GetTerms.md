@@ -20,11 +20,12 @@ This template code:
 
 ```go-html-template
 {{ with .GetTerms "tags" }}
-  <p>Tags:
+  <p>Tags</p>
+  <ul>
     {{ range . }}
-      <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
+      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
     {{ end }}
-  </p>
+  </ul>
 {{ end }}
 ```
 

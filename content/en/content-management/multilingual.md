@@ -54,39 +54,39 @@ weight = 2
 subtitle = 'Reference, Tutorials, and Explanations'
 {{< /code-toggle >}}
 
-`defaultContentLanguage`
+defaultContentLanguage
 : (`string`) The project's default language tag as defined by [RFC 5646]. Must be lower case, and must match one of the defined language keys. Default is `en`. Examples:
 
 - `en`
 - `en-gb`
 - `pt-br`
 
-`defaultContentLanguageInSubdir`
+defaultContentLanguageInSubdir
 : (`bool`)  If `true`, Hugo renders the default language site in a subdirectory matching the `defaultContentLanguage`. Default is `false`.
 
-`contentDir`
+contentDir
 : (`string`) The content directory for this language. Omit if [translating by file name].
 
-`disabled`
+disabled
 : (`bool`) If `true`, Hugo will not render content for this language. Default is `false`.
 
-`languageCode`
+languageCode
 : (`string`) The language tag as defined by [RFC 5646]. This value may include upper and lower case characters, hyphens or underscores, and does not affect localization or URLs. Hugo uses this value to populate the `language` element in the [built-in RSS template], and the `lang` attribute of the `html` element in the [built-in alias template]. Examples:
 
 - `en`
 - `en-GB`
 - `pt-BR`
 
-`languageDirection`
+languageDirection
 : (`string`) The language direction, either left-to-right (`ltr`) or right-to-left (`rtl`). Use this value in your templates with the global [`dir`] HTML attribute.
 
-`languageName`
+languageName
 : (`string`) The language name, typically used when rendering a language switcher.
 
-`title`
+title
 : (`string`) The language title. When set, this overrides the site title for this language.
 
-`weight`
+weight
 : (`int`) The language weight. When set to a non-zero value, this is the primary sort criteria for this language.
 
 [`dir`]: https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/dir
@@ -349,7 +349,9 @@ Private use subtags must not exceed 8 alphanumeric characters.
 
 ### Query basic translation
 
-From within your templates, use the `i18n` function like this:
+From within your templates, use the [`i18n`] function like this:
+
+[`i18n`]: /functions/lang/translate
 
 ```go-html-template
 {{ i18n "home" }}

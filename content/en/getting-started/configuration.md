@@ -715,7 +715,9 @@ If you are using snake_cased variable names, the above will not work. Hugo deter
 
 ## Ignore content and data files when rendering
 
-**Note:** This works, but we recommend you use the newer and more powerful [includeFiles and excludeFiles](/hugo-modules/configuration/#module-configuration-mounts) mount options.
+{{% note %}}
+This works, but we recommend you use the newer and more powerful [includeFiles and excludeFiles](/hugo-modules/configuration/#module-configuration-mounts) mount options.
+{{% /note %}}
 
 To exclude specific files from the `content`, `data`, and `i18n` directories when rendering your site, set `ignoreFiles` to one or more regular expressions to match against the absolute file path.
 
