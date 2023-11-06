@@ -100,3 +100,24 @@ cascade:
   {{ end }}
 </section>
 {{< /code >}}
+
+#### Not rendering an index file for a hidden section
+
+Website wants to hide a section from sitemap, menu and other navigation, but still wants to have all children rendered.
+
+See the forum question: [Disable generating empty index.html pages created for sections](https://discourse.gohugo.io/t/disable-generating-empty-index-html-pages-created-for-sections/11036/1)
+
+This use case leverages [`cascade`](/content-management/front-matter#front-matter-cascade) as well.
+
+{{< code-toggle >}}
+title: Section without index file
+url: /hidden-section/
+_build:
+  render: never
+  list: never
+  publishResources: false
+cascade:
+  _build:
+    list: false
+    render: true
+{{< /code-toggle >}}
