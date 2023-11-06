@@ -11,7 +11,7 @@ action:
 
 In this menu definition, the second entry does not contain an `identifier`, so the `Identifier` method returns its `name` property instead:
 
-{{< code-toggle file=hugo copy=false >}}
+{{< code-toggle file=hugo >}}
 [[menu.main]]
 identifier = 'about'
 name = 'About'

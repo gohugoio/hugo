@@ -13,7 +13,7 @@ The `Limit` method returns the given menu, limited to the first N entries.
 
 Consider this menu definition:
 
-{{< code-toggle file=hugo copy=false >}}
+{{< code-toggle file=hugo >}}
 [[menu.main]]
 name = 'Services'
 pageRef = '/services'

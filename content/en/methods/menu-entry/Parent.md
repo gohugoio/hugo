@@ -11,7 +11,7 @@ action:
 
 With this menu definition:
 
-{{< code-toggle file=hugo copy=false >}}
+{{< code-toggle file=hugo >}}
 [menu]
 [[menu.main]]
 name = 'Products'

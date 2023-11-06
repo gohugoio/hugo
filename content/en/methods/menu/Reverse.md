@@ -13,7 +13,7 @@ The `Reverse` method returns the given menu, reversing the sort order of its ent
 
 Consider this menu definition:
 
-{{< code-toggle file=hugo copy=false >}}
+{{< code-toggle file=hugo >}}
 [[menu.main]]
 name = 'Services'
 pageRef = '/services'

@@ -30,7 +30,7 @@ content/
 
 And this front matter:
 
-{{< code-toggle file=content/posts/cats.md fm=true copy=false >}}
+{{< code-toggle file=content/posts/cats.md fm=true >}}
 title = 'Cats'
 [[resources]]
   src = 'images/a.jpg'

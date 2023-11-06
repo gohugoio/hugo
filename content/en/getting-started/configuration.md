@@ -49,7 +49,7 @@ In addition to using a single site configuration file, one can use the `configDi
   foo = "bar"
 {{< /code-toggle >}}
 
-{{< code-toggle file="params" copy=false >}}
+{{< code-toggle file="params" >}}
 foo = "bar"
 {{< /code-toggle >}}
 
@@ -78,7 +78,7 @@ Let's take an example to understand this better. Let's say you are using Google 
 
 [Google tag ID]: https://support.google.com/tagmanager/answer/12326985?hl=en
 
-{{< code-toggle file=hugo copy=false >}}
+{{< code-toggle file=hugo >}}
 [services.googleAnalytics]
 ID = 'G-XXXXXXXXX'
 {{< /code-toggle >}}
@@ -103,7 +103,7 @@ To satisfy these requirements, configure your site as follows:
 
     Include this section only:
 
-    {{< code-toggle file=hugo copy=false >}}
+    {{< code-toggle file=hugo >}}
     [services.googleAnalytics]
     ID = 'G-PPPPPPPPP'
     {{< /code-toggle >}}
@@ -116,7 +116,7 @@ To satisfy these requirements, configure your site as follows:
 
     Include this section only:
 
-    {{< code-toggle file=hugo copy=false >}}
+    {{< code-toggle file=hugo >}}
     [services.googleAnalytics]
     ID = 'G-SSSSSSSSS'
     {{< /code-toggle >}}

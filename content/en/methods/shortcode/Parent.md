@@ -13,19 +13,19 @@ This is useful for inheritance of common shortcode parameters from the root.
 
 In this contrived example, the "greeting" shortcode is the parent, and the "now" shortcode is child.
 
-{{< code file="content/welcome.md" lang=md copy=false >}}
+{{< code file="content/welcome.md" lang=md >}}
 {{</* greeting dateFormat="Jan 2, 2006" */>}}
 Welcome. Today is {{</* now */>}}.
 {{</* /greeting */>}}
 {{< /code >}}
 
-{{< code file="layouts/shortcodes/greeting.html" lang=go-html-template copy=false >}}
+{{< code file="layouts/shortcodes/greeting.html" lang=go-html-template >}}
 <div class="greeting">
   {{ trim .Inner "\r\n" | .Page.RenderString }}
 </div>
 {{< /code >}}
 
-{{< code file="layouts/shortcodes/now.html" lang=go-html-template copy=false >}}
+{{< code file="layouts/shortcodes/now.html" lang=go-html-template >}}
 {{- $dateFormat := "January 2, 2006 15:04:05" }}
 
 {{- with .Params }}

@@ -13,7 +13,7 @@ Regardless of how you [define menu entries], an entry associated with a page has
 
 In this menu definition, the first two entries are associated with a page, the last entry is not:
 
-{{< code-toggle file=hugo copy=false >}}
+{{< code-toggle file=hugo >}}
 [[menu.main]]
 pageRef = '/about'
 weight = 10

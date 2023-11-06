@@ -14,7 +14,7 @@ action:
 
 By way of example, consider this site configuration:
 
-{{< code-toggle file=hugo copy=false >}}
+{{< code-toggle file=hugo >}}
 baseURL = 'https://example.org/docs/'
 {{< /code-toggle >}}
 

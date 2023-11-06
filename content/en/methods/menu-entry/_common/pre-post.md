@@ -4,7 +4,7 @@
 
 In this site configuration we enable rendering of [emoji shortcodes], and add emoji shortcodes before (pre) and after (post) each menu entry:
 
-{{< code-toggle file=hugo copy=false >}}
+{{< code-toggle file=hugo >}}
 enableEmoji = true
 
 [[menu.main]]

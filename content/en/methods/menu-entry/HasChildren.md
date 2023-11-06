@@ -14,7 +14,7 @@ Use the `HasChildren` method when rendering a nested menu.
 
 With this site configuration:
 
-{{< code-toggle file=hugo copy=false >}}
+{{< code-toggle file=hugo >}}
 [[menu.main]]
 name = 'Products'
 pageRef = '/product'

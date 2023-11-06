@@ -13,7 +13,7 @@ The `Sort` method returns the given menu with its entries sorted by `name`.
 
 Consider this menu definition:
 
-{{< code-toggle file=hugo copy=false >}}
+{{< code-toggle file=hugo >}}
 [[menu.main]]
 name = 'Services'
 pageRef = '/services'

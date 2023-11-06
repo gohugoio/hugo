@@ -11,7 +11,7 @@ action:
 
 When you define menu entries [in site configuration] or [in front matter], you can include a `params` key to attach additional information to the entry. For example:
 
-{{< code-toggle file=hugo copy=false >}}
+{{< code-toggle file=hugo >}}
 [[menu.main]]
 name = 'About'
 pageRef = '/about'

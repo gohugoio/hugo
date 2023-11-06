@@ -13,7 +13,7 @@ The `Ordinal` method returns the zero-based ordinal of the shortcode in relation
 
 This method is useful for, among other things, assigning unique element IDs when a shortcode is called two or more times from the same page. For example:
 
-{{< code file="content/about.md" lang=md copy=false >}}
+{{< code file="content/about.md" lang=md >}}
 {{</* img src="images/a.jpg" */>}}
 
 {{</* img src="images/b.jpg" */>}}
@@ -21,7 +21,7 @@ This method is useful for, among other things, assigning unique element IDs when
 
 This shortcode performs error checking, then renders an HTML `img` element with a unique `id` attribute:
 
-{{< code file="layouts/shortcodes/img.html" lang=go-html-template copy=false >}}
+{{< code file="layouts/shortcodes/img.html" lang=go-html-template >}}
 {{ $src := "" }}
 {{ with .Get "src" }}
   {{ $src = . }}

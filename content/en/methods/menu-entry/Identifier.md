@@ -13,7 +13,7 @@ The `Identifier` method returns the `identifier` property of the menu entry. If 
 
 [automatically]: /content-management/menus/#define-automatically
 
-{{< code-toggle file=hugo copy=false >}}
+{{< code-toggle file=hugo >}}
 [[menu.main]]
 identifier = 'about'
 name = 'About'

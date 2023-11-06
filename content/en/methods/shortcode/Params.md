@@ -12,22 +12,22 @@ action:
 
 When you call a shortcode using positional parameters, the `Params` method returns a slice.
 
-{{< code file="content/about.md" lang=md copy=false >}}
+{{< code file="content/about.md" lang=md >}}
 {{</* myshortcode "Hello" "world" */>}}
 {{< /code >}}
 
-{{< code file="layouts/shortcodes/myshortcode.html" lang=go-html-template copy=false >}}
+{{< code file="layouts/shortcodes/myshortcode.html" lang=go-html-template >}}
 {{ index .Params 0 }} → Hello
 {{ index .Params 1 }} → world
 {{< /code >}}
 
 When you call a shortcode using named parameters, the `Params` method returns a map.
 
-{{< code file="content/about.md" lang=md copy=false >}}
+{{< code file="content/about.md" lang=md >}}
 {{</* myshortcode greeting="Hello" name="world" */>}}
 {{< /code >}}
 
-{{< code file="layouts/shortcodes/myshortcode.html" lang=go-html-template copy=false >}}
+{{< code file="layouts/shortcodes/myshortcode.html" lang=go-html-template >}}
 {{ .Params.greeting }} → Hello
 {{ .Params.name }} → world
 {{< /code >}}
