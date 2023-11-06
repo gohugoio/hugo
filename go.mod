@@ -71,7 +71,7 @@ require (
 	golang.org/x/exp v0.0.0-20221031165847-c99f073a8326
 	golang.org/x/image v0.13.0
 	golang.org/x/net v0.17.0
-	golang.org/x/sync v0.4.0
+	golang.org/x/sync v0.5.0
 	golang.org/x/text v0.13.0
 	golang.org/x/tools v0.14.0
 	google.golang.org/api v0.138.0
