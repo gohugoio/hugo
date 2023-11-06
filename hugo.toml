@@ -82,12 +82,6 @@ ID = 'G-MBZGKNMDWC'
     weight               = 60
     cardinalityThreshold = 50
 
-# TODO delete when (a) Netlify is building the site with v0.120.0 or later,
-# and (b) the changes from gohugoioTheme/commit/af97b8e61638ddf043b87590cd567d76045bf9be
-# have been pulled into this repo.
-[social]
-  twitter = "GoHugoIO"
-
 [imaging]
   # See https://github.com/disintegration/imaging
   # CatmullRom is a sharp bicubic filter which should fit the docs site well with its many screenshots.

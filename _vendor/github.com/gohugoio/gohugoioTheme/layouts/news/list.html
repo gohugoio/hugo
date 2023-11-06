@@ -10,32 +10,61 @@
     </div>
   </article>
 
-  <!-- TODO: May be a good idea in this case to add monthly archives -->
-
   <div class="flex flex-wrap">
-      {{/* [wip] add archive lists
-      <div class="w-100 w-20-ns dn">
-        <ul>
-          <li>
-            <a href="#">
-              archive section
-            </a>
-          </li>
-        </ul>
-      </div> */}}
-
     {{ $interior_classes := $.Site.Params.flex_box_interior_classes }}
     <section class="flex-ns flex-wrap justify-between w-100 w-80-nsTK v-top">
-      {{ $paginator := .Paginate (.Pages | lang.Merge (where .Sites.First.RegularPages "Section" .Section)) -}}
-      {{ range $paginator.Pages }}
+
+      {{ $news_items := slice }}
+
+      {{/* Get releases from GitHub. */}}
+      {{ $u := "https://api.github.com/repos/gohugoio/hugo/releases" }}
+      {{ $releases := partial "inline/get-remote-data.html" $u }}
+      {{ $releases = where $releases "draft" false }}
+      {{ $releases = where $releases "prerelease" false }}
+      {{ range $releases | first 20 }}
+        {{ $ctx := dict
+          "Date" (.published_at | time.AsTime)
+          "Title" (printf "Release %s" .name)
+          "Permalink" .html_url
+          "Section" "news"
+          "Summary" ""
+        }}
+        {{ $news_items = $news_items | append $ctx }}
+      {{ end }}
+
+      {{/* Get content pages from news section. */}}
+      {{ range .Pages }}
+        {{ $ctx := dict
+          "Date" .Date
+          "Title" .Title
+          "RelPermalink" .RelPermalink
+          "Section" "news"
+          "Summary" .Summary
+          "Params" (dict "description" .Description)
+        }}
+        {{ $news_items = $news_items | append $ctx }}
+      {{ end }}
+
+      {{/* Sort by date (descending) and render. */}}
+      {{ range sort $news_items "Date" "desc" }}
         {{ partial "boxes-section-summaries" (dict "context" . "classes" $interior_classes "fullcontent" false) }}
       {{ end }}
+
     </section>
-  </div>
-  <div class="nested-list-reset nested-links">
-    {{/* pagination.html: https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/template_embedded.go#L117 */}}
-    {{ template "_internal/pagination.html" . }}
   </div>
 
 </div>
+{{ end }}
+
+{{ define "partials/inline/get-remote-data.html" }}
+  {{ $u := . }}
+  {{ $r := "" }}
+  {{ with $r = resources.GetRemote $u }}
+    {{ with .Err }}
+      {{ errorf "%s" . }}
+    {{ end }}
+  {{ else }}
+    {{ errorf "Unable to get remote resource %q" $u }}
+  {{ end }}
+  {{ return ($r | transform.Unmarshal) }}
 {{ end }}

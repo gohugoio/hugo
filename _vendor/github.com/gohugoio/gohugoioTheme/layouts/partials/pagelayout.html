@@ -16,12 +16,14 @@
         </div>
       </article>
 
-      <!-- TODO: May be a good idea in this case to add monthly archives -->
-
       <div class="flex flex-wrap">
         {{ $interior_classes := .context.Site.Params.flex_box_interior_classes }}
         <section class="flex-ns flex-wrap justify-between w-100">
-          {{ range $section_to_display }}
+          {{ $pages := $section_to_display }}
+          {{ if in (slice "functions" "methods") $.context.Type }}
+            {{ $pages = $.context.Pages }}
+          {{ end }}
+          {{ range $pages }}
             {{ partial "boxes-section-summaries" (dict "context" . "classes" $interior_classes "fullcontent" true) }}
           {{ end }}
         </section>
