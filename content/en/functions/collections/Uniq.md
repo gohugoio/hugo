@@ -1,6 +1,6 @@
 ---
 title: collections.Uniq
-description: Takes in a slice or array and returns a slice with duplicate elements removed.
+description: Returns the given collection, removing duplicate elements.
 categories: []
 keywords: []
 action:

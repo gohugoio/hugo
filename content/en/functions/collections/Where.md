@@ -1,6 +1,6 @@
 ---
 title: collections.Where 
-description: Filters an array to only the elements containing a matching value for a given field.
+description: Returns the given collection, removing elements that do not match the given field.
 categories: []
 keywords: []
 action:
@@ -17,11 +17,7 @@ aliases: [/functions/where]
 toc: true
 ---
 
-`where` filters an array to only the elements containing a matching
-value for a given field.
-
-It works in a similar manner to the [`where` keyword in
-SQL][wherekeyword].
+The `where` function is similar to the SQL [`where`] keyword.
 
 ```go-html-template
 {{ range where .Pages "Section" "foo" }}
@@ -38,7 +34,7 @@ series: golang
 
 ```go-html-template
 {{ range where .Site.Pages "Params.series" "golang" }}
-   {{ .Content }}
+  {{ .Content }}
 {{ end }}
 ```
 
@@ -46,7 +42,7 @@ It can also be used with the logical operators `!=`, `>=`, `in`, etc. Without an
 
 ```go-html-template
 {{ range where .Pages "Section" "!=" "foo" }}
-   {{ .Content }}
+  {{ .Content }}
 {{ end }}
 ```
 
@@ -132,7 +128,7 @@ then ranges through only the first 5 posts in that list:
 
 ```go-html-template
 {{ range first 5 (where site.RegularPages "Type" "in" site.Params.mainSections) }}
-   {{ .Content }}
+  {{ .Content }}
 {{ end }}
 ```
 
@@ -157,7 +153,7 @@ Only the following operators are available for `nil`
 
 ```go-html-template
 {{ range where .Pages "Params.specialpost" "!=" nil }}
-   {{ .Content }}
+  {{ .Content }}
 {{ end }}
 ```
 
@@ -183,4 +179,4 @@ The user can override the default:
 {{< /code-toggle >}}
 
 [intersect]: /functions/collections/intersect
-[wherekeyword]: https://www.techonthenet.com/sql/where.php
+[`where`]: https://www.techonthenet.com/sql/where.php

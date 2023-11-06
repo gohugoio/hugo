@@ -15,7 +15,19 @@ action:
 aliases: [/functions/dict]
 ---
 
-`dict` is especially useful for passing more than one value to a partial template.
+```go-html-template
+{{ $m := dict "a" 1 "b" 2 }}
+```
+
+The above produces this data structure:
+
+```json
+{
+  "a": 1,
+  "b": 2
+}
+```
+
 
 Note that the `key` can be either a `string` or a `string slice`. The latter is useful to create a deeply nested structure, e.g.:
 
@@ -24,7 +36,6 @@ Note that the `key` can be either a `string` or a `string slice`. The latter is 
 ```
 
 The above produces this data structure:
-
 
 ```json
 {
@@ -36,7 +47,7 @@ The above produces this data structure:
 }
 ```
 
-## Example: using `dict` to pass multiple values to a `partial`
+## Pass values to a partial template
 
 The partial below creates an SVG and expects `fill`, `height` and `width` from the caller:
 

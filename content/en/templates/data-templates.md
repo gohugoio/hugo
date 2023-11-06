@@ -95,7 +95,7 @@ You can now render the list of recordings for all the bass players in a template
 
 ```go-html-template
 {{ range $.Site.Data.jazz.bass }}
-   {{ partial "artist.html" . }}
+  {{ partial "artist.html" . }}
 {{ end }}
 ```
 

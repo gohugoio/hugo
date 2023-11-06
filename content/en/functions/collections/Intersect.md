@@ -13,9 +13,8 @@ action:
   signatures: [collections.Intersect SET1 SET2]
 aliases: [/functions/intersect]
 ---
-A useful example is to use it as `AND` filters when combined with where:
 
-## AND filter in where query
+A useful example is to use it as `AND` filters when combined with where:
 
 ```go-html-template
 {{ $pages := where .Site.RegularPages "Type" "not in" (slice "page" "about") }}

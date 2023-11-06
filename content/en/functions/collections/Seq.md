@@ -36,3 +36,11 @@ Iterate over a sequence of integers:
 {{ end }}
 {{ $product }} → 24
 ```
+
+The example above is contrived. To calculate the product of 2 or more numbers, use the [`math.Product`] function:
+
+```go-html-template
+{{ math.Product (seq 4) }} → 24
+```
+
+[`math.Product`]: /functions/math/product

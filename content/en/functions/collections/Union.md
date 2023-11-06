@@ -1,6 +1,6 @@
 ---
 title: collections.Union
-description: Given two arrays or slices, returns a new array that contains the elements or objects that belong to either or both arrays/slices.
+description: Given two arrays or slices, returns a new array that contains the elements that belong to either or both arrays/slices.
 categories: []
 keywords: []
 action:
@@ -15,7 +15,7 @@ related:
 aliases: [/functions/union] 
 ---
 
-Given two arrays (or slices) A and B, this function will return a new array that contains the elements or objects that belong to either A or to B or to both. The elements supported are strings, integers, and floats (only float64).
+Given two arrays (or slices) A and B, this function will return a new array that contains the elements or objects that belong to either A or to B or to both.
 
 ```go-html-template
 {{ union (slice 1 2 3) (slice 3 4 5) }}

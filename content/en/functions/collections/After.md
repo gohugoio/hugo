@@ -17,10 +17,20 @@ The following shows `after` being used in conjunction with the [`slice`]function
 
 ```go-html-template
 {{ $data := slice "one" "two" "three" "four" }}
-{{ range after 2 $data }}
-    {{ . }}
-{{ end }}
-→ ["three", "four"]
+<ul>
+  {{ range after 2 $data }}
+    <li>{{ . }}</li>
+  {{ end }}
+</ul>
+```
+
+The template above is rendered to:
+
+```html
+<ul>
+  <li>three</li>
+  <li>four</li>
+</ul>
 ```
 
 ## Example of `after` with `first`: 2nd&ndash;4th most recent articles

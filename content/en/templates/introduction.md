@@ -215,7 +215,7 @@ element's index.
 
 ```go-html-template
 {{ range $elem_index, $elem_val := $array }}
-   {{ $elem_index }} -- {{ $elem_val }}
+  {{ $elem_index }} -- {{ $elem_val }}
 {{ end }}
 ```
 
@@ -226,7 +226,7 @@ key.
 
 ```go-html-template
 {{ range $elem_key, $elem_val := $map }}
-   {{ $elem_key }} -- {{ $elem_val }}
+  {{ $elem_key }} -- {{ $elem_val }}
 {{ end }}
 ```
 

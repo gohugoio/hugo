@@ -78,7 +78,7 @@ The following example shows how to create `.Paginator` before its used:
 {{ $paginator := .Paginate (where .Pages "Type" "posts") }}
 {{ template "_internal/pagination.html" . }}
 {{ range $paginator.Pages }}
-   {{ .Title }}
+  {{ .Title }}
 {{ end }}
 ```
 
@@ -87,7 +87,7 @@ Without the `where` filter, the above example is even simpler:
 ```go-html-template
 {{ template "_internal/pagination.html" . }}
 {{ range .Paginator.Pages }}
-   {{ .Title }}
+  {{ .Title }}
 {{ end }}
 ```
 

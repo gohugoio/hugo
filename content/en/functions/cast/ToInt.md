@@ -18,8 +18,8 @@ With a decimal (base 10) input:
 {{ int 11 }} → 11 (int)
 {{ int "11" }} → 11 (int)
 
-{{ int 11/1 }} → 11 (int)
-{{ int 11/9 }} → 11 (int)
+{{ int 11.1 }} → 11 (int)
+{{ int 11.9 }} → 11 (int)
 ```
 
 With a binary (base 2) input:

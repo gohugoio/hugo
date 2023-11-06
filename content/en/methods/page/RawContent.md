@@ -19,7 +19,7 @@ The `RawContent` method on a `Page` object returns the raw content. The raw cont
 {{ .RawContent }}
 ```
 
-This is useful when rendering a page in a plain text [content format].
+This is useful when rendering a page in a plain text [output format].
 
 {{% note %}}
 [Shortcodes] within the content are not rendered. To get the raw content with shortcodes rendered, use the [`RenderShortcodes`] method on a `Page` object.
@@ -28,4 +28,4 @@ This is useful when rendering a page in a plain text [content format].
 [`RenderShortcodes`]: /methods/page/rendershortcodes
 {{% /note %}}
 
-[content format]: /templates/output-formats
+[output format]: /templates/output-formats

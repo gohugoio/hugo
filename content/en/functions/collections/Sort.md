@@ -107,17 +107,11 @@ Victor Marius Jean
 
 ## Sort a page collection
 
-Although you can use the `sort` function to sort a page collection, Hugo provides [built-in methods for sorting page collections] by:
+{{% note %}}
+Although you can use the `sort` function to sort a page collection, Hugo provides [sorting and grouping methods] as well.
 
-- weight
-- linktitle
-- title
-- front matter parameter
-- date
-- expiration date
-- last modified date
-- publish date
-- length
+[sorting and grouping methods]: /methods/pages
+{{% /note %}}
 
 In this contrived example, sort the site's regular pages by `.Type` in descending order:
 
@@ -126,5 +120,3 @@ In this contrived example, sort the site's regular pages by `.Type` in descendin
   <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
 {{ end }}
 ```
-
-[built-in methods for sorting page collections]: /templates/lists/#sort-content
