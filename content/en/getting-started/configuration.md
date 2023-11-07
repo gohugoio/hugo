@@ -190,7 +190,15 @@ See [Configure File Caches](#configure-file-caches)
 
 ### cascade
 
-Pass down default configuration values (front matter) to pages in the content tree. The options in site configuration is the same as in page front matter, see [Front Matter Cascade](/content-management/front-matter#front-matter-cascade).
+Pass down down default configuration values (front matter) to pages in the content tree. 
+The options in site config is the same as in page front matter, see [Front Matter Cascade](/content-management/front-matter#front-matter-cascade). 
+
+{{% note %}}
+For a website in a single language, define the `[[cascade]]` in [Front Matter](/content-management/front-matter#front-matter-cascade).   
+For a multilingual website, define the `[[cascade]]` in [Site Config](../../getting-started/configuration/#cascade).
+
+To remain consistent and prevent unexpected behaviour, do not mix these strategies.
+{{% /note %}}
 
 ### canonifyURLs
 
