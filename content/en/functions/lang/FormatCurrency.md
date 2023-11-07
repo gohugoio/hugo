@@ -11,7 +11,7 @@ action:
     - functions/lang/FormatNumberCustom
     - functions/lang/FormatPercent
   returnType: string
-  signatures: [lang.FormatAccounting PRECISION CURRENCY NUMBER]
+  signatures: [lang.FormatCurrency PRECISION CURRENCY NUMBER]
 ---
 
 ```go-html-template
