@@ -25,3 +25,6 @@ aliases: [/tools/frontends/]
 
 [Decap CMS](https://decapcms.org/)
 : Decap CMS is an open source, serverless solution for managing Git based content in static sites, and it works on any platform that can host static sites. A [Hugo/Decap CMS starter](https://github.com/decaporg/one-click-hugo-cms) is available to get new projects running quickly.
+
+[Sveltia CMS](https://github.com/sveltia/sveltia-cms/)
+:  Sveltia CMS is a drop-in replacement for Decap CMS which is built from the ground up with powerful and performant modern UI library Svelte. Sveltia CMS incorporates i18n into every corner of the product, while striving to radically improve UX, performance and productivity.
