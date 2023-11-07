@@ -18,7 +18,7 @@ aliases: [/tools/frontends/]
 [CloudCannon](https://cloudcannon.com/hugo-cms/)
 : The intuitive Git-based CMS for your Hugo website. CloudCannon syncs changes from your Git repository and pushes content changes back, so your development and content teams are always in sync. Edit all of your content on the page with visual editing, build entire pages with reusable custom components and then publish confidently.
 
-[DATOCMS](https://www.datocms.com)
+[DatoCMS](https://www.datocms.com)
 : DatoCMS is a fully customizable administrative area for your static websites. Use your favorite website generator, let your clients publish new content independently, and the host the site anywhere you like.
 
 ## Open source
