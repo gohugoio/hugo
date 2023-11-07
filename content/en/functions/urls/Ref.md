@@ -10,7 +10,9 @@ action:
     - methods/page/Ref
     - methods/page/RelRef
   returnType: string
-  signatures: [urls.Ref PAGE PATH/OPTIONS]
+  signatures:
+    - urls.Ref PAGE PATH
+    - urls.Ref PAGE OPTIONS
 aliases: [/functions/ref]
 ---
 

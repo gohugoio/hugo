@@ -8,7 +8,9 @@ action:
     - methods/page/HeadingsFiltered
     - functions/collections/KeyVals
   returnType: page.Pages
-  signatures: [PAGES.Related PAGE/OPTIONS]
+  signatures:
+    - PAGES.Related PAGE
+    - PAGES.Related OPTIONS
 ---
 
 Based on front matter, Hugo uses several factors to identify content related to the given page. Use the default [related content configuration], or tune the results to the desired indices and parameters. See&nbsp;[details].

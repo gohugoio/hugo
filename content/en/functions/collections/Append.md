@@ -10,8 +10,8 @@ action:
     - functions/collections/Slice
   returnType: any
   signatures:
-    - COLLECTION | collections.Append ELEMENT [ELEMENT...]
-    - COLLECTION | collections.Append COLLECTION
+    - collections.Append ELEMENT [ELEMENT...] COLLECTION
+    - collections.Append COLLECTION1 COLLECTION2
 aliases: [/functions/append]
 ---
 

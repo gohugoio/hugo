@@ -11,7 +11,7 @@ action:
     - functions/collections/IsSet
     - functions/collections/Where
   returnType: any
-  signatures: [PAGES | collections.Group KEY]
+  signatures: [collections.Group KEY PAGES]
 aliases: [/functions/group]
 ---
 
