@@ -484,6 +484,9 @@ func nodeToHTMLText(n ast.Node, source []byte) []byte {
 			buf.Write(s.Text(source))
 		} else if !c.HasChildren() {
 			buf.Write(util.EscapeHTML(c.Text(source)))
+			if t, ok := c.(*ast.Text); ok && t.SoftLineBreak() {
+				buf.WriteByte('\n')
+			}
 		} else {
 			buf.Write(nodeToHTMLText(c, source))
 		}
