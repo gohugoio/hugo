@@ -124,14 +124,14 @@ func (m *MenuEntry) hopefullyUniqueID() string {
 	}
 }
 
-// IsEqual returns whether the two menu entries represents the same menu entry.
-func (m *MenuEntry) IsEqual(inme *MenuEntry) bool {
+// isEqual returns whether the two menu entries represents the same menu entry.
+func (m *MenuEntry) isEqual(inme *MenuEntry) bool {
 	return m.hopefullyUniqueID() == inme.hopefullyUniqueID() && m.Parent == inme.Parent
 }
 
-// IsSameResource returns whether the two menu entries points to the same
+// isSameResource returns whether the two menu entries points to the same
 // resource (URL).
-func (m *MenuEntry) IsSameResource(inme *MenuEntry) bool {
+func (m *MenuEntry) isSameResource(inme *MenuEntry) bool {
 	if m.isSamePage(inme.Page) {
 		return m.Page == inme.Page
 	}
