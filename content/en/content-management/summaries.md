@@ -83,7 +83,7 @@ Hugo uses the _first_ of the above steps that returns text.  So if, for example,
 
 You can show content summaries with the following code. You could use the following snippet, for example, in a [section template].
 
-{{< code file="page-list-with-summaries.html" >}}
+{{< code file=page-list-with-summaries.html >}}
 {{ range first 10 .Pages }}
   <article>
     <!-- this <div> includes the title summary -->

@@ -49,7 +49,7 @@ In addition to using a single site configuration file, one can use the `configDi
   foo = "bar"
 {{< /code-toggle >}}
 
-{{< code-toggle file="params" >}}
+{{< code-toggle file=params >}}
 foo = "bar"
 {{< /code-toggle >}}
 
@@ -521,7 +521,7 @@ enableemoji: true
 
 The `build` configuration section contains global build-related configuration options.
 
-{{< code-toggle config="build" />}}
+{{< code-toggle config=build />}}
 
 buildStats {{< new-in "0.115.1" >}}
 : When enabled, creates a `hugo_stats.json` file in the root of your project. This file contains arrays of the `class` attributes, `id` attributes, and tags of every HTML element within your published site. Use this file as data source when [removing unused CSS] from your site. This process is also known as pruning, purging, or tree shaking.
@@ -602,7 +602,7 @@ Content-Security-Policy = "script-src localhost:1313"
 
 Since this is "development only", it may make sense to put it below the `development` environment:
 
-{{< code-toggle file="config/development/server">}}
+{{< code-toggle file=config/development/server >}}
 [[headers]]
 for = "/**"
 
@@ -618,7 +618,7 @@ You can also specify simple redirects rules for the server. The syntax is again 
 
 Note that a `status` code of 200 will trigger a [URL rewrite](https://docs.netlify.com/routing/redirects/rewrites-proxies/), which is what you want in SPA situations, e.g:
 
-{{< code-toggle file="config/development/server">}}
+{{< code-toggle file=config/development/server >}}
 [[redirects]]
 from = "/myspa/**"
 to = "/myspa/"
@@ -634,7 +634,7 @@ Setting `force=true` will make a redirect even if there is existing content in t
 
 Hugo will, by default, render all 404 errors when running `hugo server` with the `404.html` template. Note that if you have already added one or more redirects to your [server configuration](#configure-server), you need to add the 404 redirect explicitly, e.g:
 
-{{< code-toggle file="config/development/server" >}}
+{{< code-toggle file=config/development/server >}}
 [[redirects]]
 from   = "/**"
 to     = "/404.html"
@@ -749,7 +749,7 @@ Dates are important in Hugo, and you can configure how Hugo assigns dates to you
 
 The default configuration is:
 
-{{< code-toggle config="frontmatter" />}}
+{{< code-toggle config=frontmatter />}}
 
 If you, as an example, have a non-standard date parameter in some of your content, you can override the setting for `date`:
 
@@ -799,13 +799,13 @@ Hugo v0.20 introduced the ability to render your content to multiple output form
 
 Default configuration:
 
-{{< code-toggle config="minify" />}}
+{{< code-toggle config=minify />}}
 
 ## Configure file caches
 
 Since Hugo 0.52 you can configure more than just the `cacheDir`. This is the default configuration:
 
-{{< code-toggle config="caches" />}}
+{{< code-toggle config=caches />}}
 
 You can override any of these cache settings in your own `hugo.toml`.
 

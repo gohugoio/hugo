@@ -152,7 +152,7 @@ Weights of zero are thus treated specially: if two pages have unequal weights, a
 
 Content can be assigned weight for each taxonomy that it's assigned to.
 
-{{< code-toggle file="content/example.md" fm=true >}}
+{{< code-toggle file=content/example.md fm=true >}}
 tags = [ "a", "b", "c" ]
 tags_weight = 22
 categories = ["d"]
@@ -283,7 +283,7 @@ The following example displays all terms in a site's tags taxonomy:
 
 This example will list all taxonomies and their terms, as well as all the content assigned to each of the terms.
 
-{{< code file="layouts/partials/all-taxonomies.html" >}}
+{{< code file=layouts/partials/all-taxonomies.html >}}
 <ul>
   {{ range $taxonomy, $terms := site.Taxonomies }}
     <li>
@@ -311,7 +311,7 @@ This example will list all taxonomies and their terms, as well as all the conten
 
 Because taxonomies are lists, the [`.GetPage` function][getpage] can be used to get all the pages associated with a particular taxonomy term using a terse syntax. The following ranges over the full list of tags on your site and links to each of the individual taxonomy pages for each term without having to use the more fragile URL construction of the ["List All Site Tags" example above](#example-list-all-site-tags):
 
-{{< code file="links-to-all-tags.html" >}}
+{{< code file=links-to-all-tags.html >}}
 {{ $taxo := "tags" }}
 <ul class="{{ $taxo }}">
   {{ with ($.Site.GetPage (printf "/%s" $taxo)) }}

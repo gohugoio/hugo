@@ -61,7 +61,7 @@ You can print the `GOPATH` with `echo $GOPATH`. You should see a non-empty strin
 
 If you are a macOS user and have [Homebrew](https://brew.sh/) installed on your machine, installing Go is as simple as the following command:
 
-{{< code file="install-go.sh" >}}
+{{< code file=install-go.sh >}}
 brew install go
 {{< /code >}}
 

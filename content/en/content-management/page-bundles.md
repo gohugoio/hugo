@@ -127,7 +127,7 @@ Explanation of the above example:
 A leaf bundle can be made headless by adding below in the front matter
 (in the `index.md`):
 
-{{< code-toggle file="content/headless/index.md" fm=true >}}
+{{< code-toggle file=content/headless/index.md fm=true >}}
 headless = true
 {{< /code-toggle >}}
 

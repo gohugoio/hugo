@@ -173,7 +173,7 @@ Let's assume you would like to keep mentions of your copyright year current in y
 {{</* year */>}}
 ```
 
-{{< code file="/layouts/shortcodes/year.html" >}}
+{{< code file=layouts/shortcodes/year.html >}}
 {{ now.Format "2006" }}
 {{< /code >}}
 
@@ -187,14 +187,14 @@ Embedded videos are a common addition to Markdown content that can quickly becom
 
 Would load the template at `/layouts/shortcodes/youtube.html`:
 
-{{< code file="/layouts/shortcodes/youtube.html" >}}
+{{< code file=layouts/shortcodes/youtube.html >}}
 <div class="embed video-player">
 <iframe class="youtube-player" type="text/html" width="640" height="385" src="https://www.youtube.com/embed/{{ index .Params 0 }}" allowfullscreen frameborder="0">
 </iframe>
 </div>
 {{< /code >}}
 
-{{< code file="youtube-embed.html" >}}
+{{< code file=youtube-embed.html >}}
 <div class="embed video-player">
     <iframe class="youtube-player" type="text/html"
         width="640" height="385"
@@ -208,13 +208,13 @@ Would load the template at `/layouts/shortcodes/youtube.html`:
 
 Let's say you want to create your own `img` shortcode rather than use Hugo's built-in [`figure` shortcode][figure]. Your goal is to be able to call the shortcode as follows in your content files:
 
-{{< code file="content-image.md" >}}
+{{< code file=content-image.md >}}
 {{</* img src="/media/spf13.jpg" title="Steve Francia" */>}}
 {{< /code >}}
 
 You have created the shortcode at `/layouts/shortcodes/img.html`, which loads the following shortcode template:
 
-{{< code file="/layouts/shortcodes/img.html" >}}
+{{< code file=layouts/shortcodes/img.html >}}
 <!-- image -->
 <figure {{ with .Get "class" }}class="{{ . }}"{{ end }}>
   {{ with .Get "link" }}<a href="{{ . }}">{{ end }}
@@ -237,7 +237,7 @@ You have created the shortcode at `/layouts/shortcodes/img.html`, which loads th
 
 Would be rendered as:
 
-{{< code file="img-output.html" >}}
+{{< code file=img-output.html >}}
 <figure>
   <img src="/media/spf13.jpg"  />
   <figcaption>
@@ -255,7 +255,7 @@ Would be rendered as:
 
 Would load the template found at `/layouts/shortcodes/vimeo.html`:
 
-{{< code file="/layouts/shortcodes/vimeo.html" >}}
+{{< code file=layouts/shortcodes/vimeo.html >}}
 {{ if .IsNamedParams }}
   <div class="{{ if .Get "class" }}{{ .Get "class" }}{{ else }}vimeo-container{{ end }}">
     <iframe src="https://player.vimeo.com/video/{{ .Get "id" }}" allowfullscreen></iframe>
@@ -269,7 +269,7 @@ Would load the template found at `/layouts/shortcodes/vimeo.html`:
 
 Would be rendered as:
 
-{{< code file="vimeo-iframes.html" >}}
+{{< code file=vimeo-iframes.html >}}
 <div class="vimeo-container">
   <iframe src="https://player.vimeo.com/video/49718712" allowfullscreen></iframe>
 </div>
@@ -282,7 +282,7 @@ Would be rendered as:
 
 The following is taken from `highlight`, which is a [built-in shortcode] that ships with Hugo.
 
-{{< code file="highlight-example.md" >}}
+{{< code file=highlight-example.md >}}
 {{</* highlight html */>}}
   <html>
     <body> This HTML </body>
@@ -298,7 +298,7 @@ The template for the `highlight` shortcode uses the following code, which is alr
 
 The rendered output of the HTML example code block will be as follows:
 
-{{< code file="syntax-highlighted.html" >}}
+{{< code file=syntax-highlighted.html >}}
 <div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span style="color: #f92672">&lt;html&gt;</span>
     <span style="color: #f92672">&lt;body&gt;</span> This HTML <span style="color: #f92672">&lt;/body&gt;</span>
 <span style="color: #f92672">&lt;/html&gt;</span>
@@ -311,7 +311,7 @@ Hugo's [`.Parent` shortcode variable][parent] provides access to the parent shor
 
 The following example is contrived but demonstrates the concept. Assume you have a `gallery` shortcode that expects one named `class` parameter:
 
-{{< code file="layouts/shortcodes/gallery.html" >}}
+{{< code file=layouts/shortcodes/gallery.html >}}
 <div class="{{ .Get "class" }}">
   {{ .Inner }}
 </div>
@@ -319,7 +319,7 @@ The following example is contrived but demonstrates the concept. Assume you have
 
 You also have an `img` shortcode with a single named `src` parameter that you want to call inside of `gallery` and other shortcodes, so that the parent defines the context of each `img`:
 
-{{< code file="layouts/shortcodes/img.html" >}}
+{{< code file=layouts/shortcodes/img.html >}}
 {{- $src := .Get "src" -}}
 {{- with .Parent -}}
   <img src="{{ $src }}" class="{{ .Get "class" }}-image">

@@ -25,7 +25,7 @@ The `baseURL` in your [site configuration](/getting-started/configuration/) must
 
 Define your [CI/CD](https://docs.gitlab.com/ee/ci/quick_start/) jobs by creating a `.gitlab-ci.yml` file in the root of your project.
 
-{{< code file=".gitlab-ci.yml" copy=true >}}
+{{< code file=.gitlab-ci.yml copy=true >}}
 variables:
   DART_SASS_VERSION: 1.64.1
   HUGO_VERSION: 0.115.4

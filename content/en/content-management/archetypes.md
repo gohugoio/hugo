@@ -19,7 +19,7 @@ A content file consists of [front matter] and markup. The markup is typically ma
 
 The `hugo new content` command creates a new file in the `content` directory, using an archetype as a template. This is the default archetype:
 
-{{< code-toggle file="archetypes/default.md" fm=true >}}
+{{< code-toggle file=archetypes/default.md fm=true >}}
 title = '{{ replace .File.ContentBaseName `-` ` ` | title }}'
 date = '{{ .Date }}'
 draft = true
@@ -33,7 +33,7 @@ hugo new content posts/my-first-post.md
 
 With the default archetype shown above, Hugo creates this content file:
 
-{{< code-toggle file="content/posts/my-first-post.md" fm=true >}}
+{{< code-toggle file=content/posts/my-first-post.md fm=true >}}
 title = 'My First Post'
 date = '2023-08-24T11:49:46-07:00'
 draft = true
@@ -85,7 +85,7 @@ Although typically used as a front matter template, you can also use an archetyp
 
 For example, in a documentation site you might have a section (content type) for functions. Every page within this section should follow the same format: a brief description, the function signature, examples, and notes. We can pre-populate the page to remind content authors of the standard format.
 
-{{< code file="archetypes/functions.md" >}}
+{{< code file=archetypes/functions.md >}}
 ---
 date: '{{ .Date }}'
 draft: true

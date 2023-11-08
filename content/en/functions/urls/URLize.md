@@ -14,7 +14,7 @@ aliases: [/functions/urlize]
 
 The following examples pull from a content file with the following front matter:
 
-{{< code-toggle file="content/blog/greatest-city.md" fm=true >}}
+{{< code-toggle file=content/blog/greatest-city.md fm=true >}}
 title = "The World's Greatest City"
 location = "Chicago IL"
 tags = ["pizza","beer","hot dogs"]
@@ -22,7 +22,7 @@ tags = ["pizza","beer","hot dogs"]
 
 The following might be used as a partial within a [single page template][singletemplate]:
 
-{{< code file="layouts/partials/content-header.html" >}}
+{{< code file=layouts/partials/content-header.html >}}
 <header>
   <h1>{{ .Title }}</h1>
   {{ with .Params.location }}

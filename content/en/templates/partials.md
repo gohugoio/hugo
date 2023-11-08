@@ -136,7 +136,7 @@ The `partialCached` template function provides significant performance gains for
 
 The following `header.html` partial template is used for [spf13.com](https://spf13.com/):
 
-{{< code file="layouts/partials/header.html" >}}
+{{< code file=layouts/partials/header.html >}}
 <!DOCTYPE html>
 <html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
 <head>
@@ -161,7 +161,7 @@ The `header.html` example partial was built before the introduction of block tem
 
 The following `footer.html` partial template is used for [spf13.com](https://spf13.com/):
 
-{{< code file="layouts/partials/footer.html" >}}
+{{< code file=layouts/partials/footer.html >}}
 <footer>
   <div>
     <p>

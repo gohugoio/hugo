@@ -131,7 +131,7 @@ system.
 Every `Page` has a [`Kind`][page_kinds] attribute, and the default Output
 Formats are set based on that.
 
-{{< code-toggle config="outputs" />}}
+{{< code-toggle config=outputs />}}
 
 ### Customizing output formats
 
@@ -155,7 +155,7 @@ Note that in the above examples, the _output formats_ for `section`,
 
 The following is an example of front matter in a content file that defines output formats for the rendered `Page`:
 
-{{< code-toggle file="content/example.md" fm=true >}}
+{{< code-toggle file=content/example.md fm=true >}}
 title: Example
 outputs:
 - html

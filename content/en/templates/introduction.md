@@ -395,7 +395,7 @@ following:
 
 The following shows how to define a variable independent of the context.
 
-{{< code file="tags-range-with-page-variable.html" >}}
+{{< code file=tags-range-with-page-variable.html >}}
 {{ $title := .Site.Title }}
 <ul>
 {{ range .Params.tags }}
@@ -415,7 +415,7 @@ Notice how once we have entered the loop (i.e. `range`), the value of `{{ . }}` 
 
 `$` has special significance in your templates. `$` is set to the starting value of `.` ("the dot") by default. This is a [documented feature of Go text/template][dotdoc]. This means you have access to the global context from anywhere. Here is an equivalent example of the preceding code block but now using `$` to grab `.Site.Title` from the global context:
 
-{{< code file="range-through-tags-w-global.html" >}}
+{{< code file=range-through-tags-w-global.html >}}
 <ul>
 {{ range .Params.tags }}
   <li>
@@ -532,14 +532,14 @@ An example of this is used in the Hugo docs. Most of the pages benefit from havi
 
 Here is the example front matter:
 
-{{< code-toggle file="content/example.md" fm=true >}}
+{{< code-toggle file=content/example.md fm=true >}}
 title: Example
 notoc: true
 {{< /code-toggle >}}
 
 Here is an example of corresponding code that could be used inside a `toc.html` [partial template][partials]:
 
-{{< code file="layouts/partials/toc.html" >}}
+{{< code file=layouts/partials/toc.html >}}
 {{ if not .Params.notoc }}
 <aside>
   <header>
@@ -580,7 +580,7 @@ Within a footer layout, you might then declare a `<footer>` that is only rendere
 
 An alternative way of writing the "`if`" and then referencing the same value is to use [`with`] instead. `with` rebinds the context (`.`) within its scope and skips the block if the variable is absent:
 
-{{< code file="layouts/partials/twitter.html" >}}
+{{< code file=layouts/partials/twitter.html >}}
 {{ with .Site.Params.twitteruser }}
     <div>
         <a href="https://twitter.com/{{ . }}" rel="author">
@@ -614,7 +614,7 @@ content/
     └── event-3.md
 ```
 
-{{< code-toggle file="content/events/event-1.md" >}}
+{{< code-toggle file=content/events/event-1.md >}}
 title = 'Event 1'
 date = 2021-12-06T10:37:16-08:00
 draft = false
@@ -624,7 +624,7 @@ end_date = 2021-12-05T11:00:00-08:00
 
 This [partial template][partials] renders future events:
 
-{{< code file="layouts/partials/future-events.html" >}}
+{{< code file=layouts/partials/future-events.html >}}
 <h2>Future Events</h2>
 <ul>
   {{ range where site.RegularPages "Type" "events" }}
@@ -640,7 +640,7 @@ This [partial template][partials] renders future events:
 
 If you restrict front matter to the TOML format, and omit quotation marks surrounding date fields, you can perform date comparisons without casting.
 
-{{< code file="layouts/partials/future-events.html" >}}
+{{< code file=layouts/partials/future-events.html >}}
 <h2>Future Events</h2>
 <ul>
   {{ range where (where site.RegularPages "Type" "events") "Params.start_date" "gt" now }}

@@ -81,7 +81,7 @@ Users have noticed that enabling Disqus comments when running the Hugo web serve
 
 You can create the following `layouts/partials/disqus.html`:
 
-{{< code file="layouts/partials/disqus.html" >}}
+{{< code file=layouts/partials/disqus.html >}}
 <div id="disqus_thread"></div>
 <script type="text/javascript">
 
@@ -127,7 +127,7 @@ Hugo's Open Graph template is configured using a mix of configuration variables 
   series = "series"
 {{</ code-toggle >}}
 
-{{< code-toggle file="content/blog/my-post" >}}
+{{< code-toggle file=content/blog/my-post.md >}}
 title = "Post title"
 description = "Text about this post"
 date = "2006-01-02"
@@ -174,7 +174,7 @@ Hugo's Twitter Card template is configured using a mix of configuration variable
   description = "Text about my cool site"
 {{</ code-toggle >}}
 
-{{< code-toggle file="content/blog/my-post" >}}
+{{< code-toggle file=content/blog/my-post.md >}}
 title = "Post title"
 description = "Text about this post"
 images = ["post-cover.png"]

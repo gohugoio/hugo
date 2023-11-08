@@ -21,7 +21,7 @@ Also See [Hugo Multilingual Part 1: Content translation].
 
 This is the default language configuration:
 
-{{< code-toggle config="languages" />}}
+{{< code-toggle config=languages />}}
 
 This is an example of a site configuration for a multilingual project. Any key not defined in a `languages` object will fall back to the global value in the root of your site configuration.
 
@@ -277,7 +277,7 @@ To localize URLs:
 
 For example, a French translation can have its own localized slug.
 
-{{< code-toggle file="content/about.fr.md" fm=true >}}
+{{< code-toggle file=content/about.fr.md fm=true >}}
 title: A Propos
 slug: "a-propos"
 {{< /code-toggle >}}
@@ -303,7 +303,7 @@ Page Bundle resources follow the same language assignment logic as content files
 
 To create a list of links to translated content, use a template similar to the following:
 
-{{< code file="layouts/partials/i18nlist.html" >}}
+{{< code file=layouts/partials/i18nlist.html >}}
 {{ if .IsTranslated }}
 <h4>{{ i18n "translations" }}</h4>
 <ul>
@@ -324,7 +324,7 @@ The above also uses the [`i18n` function][i18func] described in the next section
 
 `.AllTranslations` on a `Page` can be used to list all translations, including the page itself. On the home page it can be used to build a language navigator:
 
-{{< code file="layouts/partials/allLanguages.html" >}}
+{{< code file=layouts/partials/allLanguages.html >}}
 <ul>
 {{ range $.Site.Home.AllTranslations }}
 <li><a href="{{ .Permalink }}">{{ .Language.LanguageName }}</a></li>
@@ -359,7 +359,7 @@ From within your templates, use the [`i18n`] function like this:
 
 The function will search for the `"home"` id:
 
-{{< code-toggle file="i18n/en-US" >}}
+{{< code-toggle file=i18n/en-US >}}
 [home]
 other = "Home"
 {{< /code-toggle >}}
@@ -380,7 +380,7 @@ Often you will want to use the page variables in the translation strings. To do 
 
 The function will pass the `.` context to the `"wordCount"` id:
 
-{{< code-toggle file="i18n/en-US" >}}
+{{< code-toggle file=i18n/en-US >}}
 [wordCount]
 other = "This article has {{ .WordCount }} words."
 {{< /code-toggle >}}
@@ -401,7 +401,7 @@ To enable pluralization when translating, pass a map with a numeric `.Count` pro
 
 The function will read `.Count` from `.ReadingTime` and evaluate whether the number is singular (`one`) or plural (`other`). After that, it will pass to `readingTime` id in `i18n/en-US.toml` file:
 
-{{< code-toggle file="i18n/en-US" >}}
+{{< code-toggle file=i18n/en-US >}}
 [readingTime]
 one = "One minute to read"
 other = "{{ .Count }} minutes to read"
@@ -585,7 +585,7 @@ config/
     └── hugo.toml
 ```
 
-{{< code-toggle file="config/_default/menus/menu.de" >}}
+{{< code-toggle file=config/_default/menus/menu.de >}}
 [[main]]
 name = 'Produkte'
 pageRef = '/products'
@@ -596,7 +596,7 @@ pageRef = '/services'
 weight = 20
 {{< /code-toggle >}}
 
-{{< code-toggle file="config/_default/menus/menu.en" >}}
+{{< code-toggle file=config/_default/menus/menu.en >}}
 [[main]]
 name = 'Products'
 pageRef = '/products'
@@ -641,7 +641,7 @@ For example, if you define menu entries in site configuration:
 
 Create corresponding entries in the translation tables:
 
-{{< code-toggle file="i18n/de" >}}
+{{< code-toggle file=i18n/de >}}
 products = 'Produkte'
 services = 'Leistungen'
 {{< / code-toggle >}}

@@ -26,7 +26,7 @@ Calling this shortcode:
 
 We can access the front matter values using the `Page` method:
 
-{{< code file="layouts/shortcodes/book-details.html" lang=go-html-template >}}
+{{< code file=layouts/shortcodes/book-details.html lang=go-html-template >}}
 <ul>
   <li>Title: {{ .Page.Title }}</li>
   <li>Author: {{ .Page.Params.author }}</li>

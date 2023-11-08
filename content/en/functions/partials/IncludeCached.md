@@ -33,7 +33,7 @@ Here is the simplest usage:
 
 You can also pass additional arguments to `partialCached` to create *variants* of the cached partial. For example, if you have a complex partial that should be identical when rendered for pages within the same section, you could use a variant based upon section so that the partial is only rendered once per section:
 
-{{< code file="partial-cached-example.html" >}}
+{{< code file=partial-cached-example.html >}}
 {{ partialCached "footer.html" . .Section }}
 {{< /code >}}
 

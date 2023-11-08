@@ -415,7 +415,7 @@ _The photo of the sunset used in the examples below is Copyright [Bjørn Erik Pe
 
 This is the shortcode used to generate the examples above:
 
-{{< readfile file="layouts/shortcodes/imgproc.html" highlight="go-html-template" >}}
+{{< readfile file=layouts/shortcodes/imgproc.html highlight=go-html-template >}}
 
 Call the shortcode from your Markdown like this:
 
@@ -433,7 +433,7 @@ Note the self-closing shortcode syntax above. You may call the `imgproc` shortco
 
 Define an `imaging` section in your site configuration to set the default [image processing options](#image-processing-options).
 
-{{< code-toggle config="imaging" />}}
+{{< code-toggle config=imaging />}}
 
 anchor
 : See image processing options: [anchor](#anchor).

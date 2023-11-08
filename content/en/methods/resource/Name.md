@@ -52,7 +52,7 @@ content/
 
 If you create an element in the `resources` array in front matter, the `Name` method returns the value of the `name` parameter:
 
-{{< code-toggle file="content/posts/post-1.md" fm=true >}}
+{{< code-toggle file=content/posts/post-1.md fm=true >}}
 title = 'Post 1'
 [[resources]]
 src = 'images/a.jpg'

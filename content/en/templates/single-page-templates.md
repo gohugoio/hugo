@@ -24,7 +24,7 @@ Content pages are of the type `page` and will therefore have all the [page varia
 
 This single page template makes use of Hugo [base templates], the [`.Format` function] for dates, the [`.WordCount` page variable][pagevars], and ranges through the single content's specific [taxonomies][pagetaxonomy]. [`with`] is also used to check whether the taxonomies are set in the front matter.
 
-{{< code file="layouts/posts/single.html" >}}
+{{< code file=layouts/posts/single.html >}}
 {{ define "main" }}
   <section id="main">
     <h1 id="title">{{ .Title }}</h1>

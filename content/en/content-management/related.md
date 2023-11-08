@@ -18,7 +18,7 @@ Hugo uses a set of factors to identify a page's related content based on front m
 
 To list up to 5 related pages (which share the same _date_ or _keyword_ parameters) is as simple as including something similar to this partial in your single page template:
 
-{{< code file="layouts/partials/related.html" >}}
+{{< code file=layouts/partials/related.html >}}
 {{ $related := .Site.RegularPages.Related . | first 5 }}
 {{ with $related }}
 <h3>See Also</h3>
@@ -116,7 +116,7 @@ Hugo provides a sensible default configuration of Related Content, but you can f
 
 Without any `related` configuration set on the project, Hugo's Related Content methods will use the following.
 
-{{< code-toggle config="related" />}}
+{{< code-toggle config=related />}}
 
 Custom configuration should be set using the same syntax.
 

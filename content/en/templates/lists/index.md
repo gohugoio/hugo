@@ -72,7 +72,7 @@ The following is an example of a typical Hugo project directory's content:
 
 Using the above example, let's assume you have the following in `content/posts/_index.md`:
 
-{{< code file="content/posts/_index.md" >}}
+{{< code file=content/posts/_index.md >}}
 ---
 title: My Go Journey
 date: 2017-03-23
@@ -86,7 +86,7 @@ Follow my journey through this new blog.
 
 You can now access this `_index.md`'s' content in your list template:
 
-{{< code file="layouts/_default/list.html" >}}
+{{< code file=layouts/_default/list.html >}}
 {{ define "main" }}
   <main>
     <article>
@@ -110,7 +110,7 @@ You can now access this `_index.md`'s' content in your list template:
 
 This above will output the following HTML:
 
-{{< code file="example.com/posts/index.html" >}}
+{{< code file=example.com/posts/index.html >}}
 <!--top of your baseof code-->
 <main>
   <article>
@@ -134,7 +134,7 @@ You do *not* have to create an `_index.md` file for every list page (i.e. sectio
 
 Using this same `layouts/_default/list.html` template and applying it to the `quotes` section above will render the following output. Note that `quotes` does not have an `_index.md` file to pull from:
 
-{{< code file="example.com/quote/index.html" >}}
+{{< code file=example.com/quote/index.html >}}
 <!--baseof-->
 <main>
   <article>
@@ -161,7 +161,7 @@ The default behavior of Hugo is to pluralize list titles; hence the inflection o
 
 This list template has been modified slightly from a template originally used in [spf13.com](https://spf13.com/). It makes use of [partial templates][partials] for the chrome of the rendered page rather than using a [base template][base]. The examples that follow also use the [content view templates][views] `li.html` or `summary.html`.
 
-{{< code file="layouts/section/posts.html" >}}
+{{< code file=layouts/section/posts.html >}}
 {{ partial "header.html" . }}
 {{ partial "subheader.html" . }}
 <main>
@@ -180,7 +180,7 @@ This list template has been modified slightly from a template originally used in
 
 ### Taxonomy template
 
-{{< code file="layouts/_default/taxonomy.html" >}}
+{{< code file=layouts/_default/taxonomy.html >}}
 {{ define "main" }}
 <main>
   <div>

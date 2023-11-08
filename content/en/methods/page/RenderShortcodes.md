@@ -19,14 +19,14 @@ Use this method in shortcode templates to compose a page from multiple content f
 
 For example:
 
-{{< code file="layouts/shortcodes/include.html" >}}
+{{< code file=layouts/shortcodes/include.html >}}
 {{ $p := site.GetPage (.Get 0) }}
 {{ $p.RenderShortcodes }}
 {{< /code >}}
 
 Then in your markdown:
 
-{{< code file="content/about.md" lang=md >}}
+{{< code file=content/about.md lang=md >}}
 {{%/* include "/snippets/services.md" */%}}
 {{%/* include "/snippets/values.md" */%}}
 {{%/* include "/snippets/leadership.md" */%}}
@@ -47,7 +47,7 @@ Use the latter for the "include" shortcode described above.
 
 To understand what is returned by the `RenderShortcodes` method, consider this content file
 
-{{< code file="content/about.md" lang=text >}}
+{{< code file=content/about.md lang=text >}}
 +++
 title = 'About'
 date = 2023-10-07T12:28:33-07:00

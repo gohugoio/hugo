@@ -48,7 +48,7 @@ The example above:
 
 The result is:
 
-{{< code file="public/css/main.css" >}}
+{{< code file=public/css/main.css >}}
 body {
   background-color: #fefefe;
   color: #222;

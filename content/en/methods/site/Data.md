@@ -37,7 +37,7 @@ data/
 
 And these data files:
 
-{{< code file="data/books/fiction.yaml" lang=yaml >}}
+{{< code file=data/books/fiction.yaml lang=yaml >}}
 - title: The Hunchback of Notre Dame
   author: Victor Hugo
   isbn: 978-0140443530
@@ -46,7 +46,7 @@ And these data files:
   isbn: 978-0451419439
 {{< /code >}}
 
-{{< code file="data/books/nonfiction.yaml" lang=yaml >}}
+{{< code file=data/books/nonfiction.yaml lang=yaml >}}
 - title: The Ancien Régime and the Revolution
   author: Alexis de Tocqueville
   isbn: 978-0141441641

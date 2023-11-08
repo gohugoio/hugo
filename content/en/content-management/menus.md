@@ -46,7 +46,7 @@ This creates a menu structure that you can access with `site.Menus.main` in your
 
 To add a page to the "main" menu:
 
-{{< code-toggle file="content/about.md" fm=true >}}
+{{< code-toggle file=content/about.md fm=true >}}
 title = 'About'
 menu = 'main'
 {{< /code-toggle >}}
@@ -55,7 +55,7 @@ Access the entry with `site.Menus.main` in your templates. See [menu templates] 
 
 To add a page to the "main" and "footer" menus:
 
-{{< code-toggle file="content/contact.md" fm=true >}}
+{{< code-toggle file=content/contact.md fm=true >}}
 title = 'Contact'
 menu = ['main','footer']
 {{< /code-toggle >}}
@@ -94,7 +94,7 @@ weight
 
 This front matter menu entry demonstrates some of the available properties:
 
-{{< code-toggle file="content/products/software.md" fm=true >}}
+{{< code-toggle file=content/products/software.md fm=true >}}
 title = 'Software'
 [menu.main]
 parent = 'Products'

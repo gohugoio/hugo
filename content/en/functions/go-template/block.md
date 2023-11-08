@@ -25,7 +25,7 @@ and then executing it in place:
 ```
 The typical use is to define a set of root templates that are then customized by redefining the block templates within.
 
-{{< code file="layouts/_default/baseof.html" >}}
+{{< code file=layouts/_default/baseof.html >}}
 <body>
   <main>
     {{ block "main" . }}
@@ -35,14 +35,14 @@ The typical use is to define a set of root templates that are then customized by
 </body>
 {{< /code >}}
 
-{{< code file="layouts/_default/single.html" >}}
+{{< code file=layouts/_default/single.html >}}
 {{ define "main" }}
   <h1>{{ .Title }}</h1>
   {{ .Content }}
 {{ end }}
 {{< /code >}}
 
-{{< code file="layouts/_default/list.html" >}}
+{{< code file=layouts/_default/list.html >}}
 {{ define "main" }}
   <h1>{{ .Title }}</h1>
   {{ .Content }}

@@ -27,7 +27,7 @@ The `where` function is similar to the SQL [`where`] keyword.
 
 It can be used by dot-chaining the second argument to refer to a nested element of a value.
 
-{{< code-toggle file="content/example.md" fm=true >}}
+{{< code-toggle file=content/example.md fm=true >}}
 title: Example
 series: golang
 {{< /code-toggle >}}

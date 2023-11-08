@@ -69,7 +69,7 @@ The example below is a bit contrived, but it illustrates the flexibility of data
 
 `jacopastorius.toml` contains the content below. `johnpatitucci.toml` contains a similar list:
 
-{{< code-toggle file="jacopastorius" >}}
+{{< code-toggle file=data/jazz/bass/jacopastorius >}}
 discography = [
 "1974 - Modern American Music … Period! The Criteria Sessions",
 "1974 - Jaco",
@@ -113,9 +113,9 @@ Discover a new favorite bass player? Just add another `.toml` file in the same d
 
 ### Accessing named values in a data file
 
-Assume you have the following data structure in your `User0123.[yml|toml|xml|json]` data file located directly in `data/`:
+Assume you have the following data structure in your `user0123` data file located directly in `data/`:
 
-{{< code-toggle file="User0123" >}}
+{{< code-toggle file=data/user0123 >}}
 Name: User0123
 "Short Description": "He is a **jolly good** fellow."
 Achievements:

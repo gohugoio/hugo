@@ -30,7 +30,7 @@ url = "irc://irc.freenode.net/#golang"
 
 The following is an example of a sidebar partial that may be used in conjunction with the preceding front matter example:
 
-{{< code file="layouts/partials/bad-url-sidebar-menu.html" >}}
+{{< code file=layouts/partials/bad-url-sidebar-menu.html >}}
 <!-- This unordered list may be part of a sidebar menu -->
 <ul>
   {{ range .Site.Menus.main }}
@@ -50,7 +50,7 @@ This partial would produce the following HTML output:
 
 The odd output can be remedied by adding ` | safeURL` to our `.URL` page variable:
 
-{{< code file="layouts/partials/correct-url-sidebar-menu.html" >}}
+{{< code file=layouts/partials/correct-url-sidebar-menu.html >}}
 <!-- This unordered list may be part of a sidebar menu -->
 <ul>
     <li><a href="{{ .URL | safeURL }}">{{ .Name }}</a></li>

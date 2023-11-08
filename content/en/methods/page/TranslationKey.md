@@ -51,12 +51,12 @@ content/
 
 And this front matter:
 
-{{< code-toggle file="content/en/books/book-1.md" fm=true >}}
+{{< code-toggle file=content/en/books/book-1.md fm=true >}}
 title = 'Book 1'
 translationKey = 'foo'
 {{< /code-toggle >}}
 
-{{< code-toggle file="content/de/books/buch-1.md" fm=true >}}
+{{< code-toggle file=content/de/books/buch-1.md fm=true >}}
 title = 'Buch 1'
 translationKey = 'foo'
 {{< /code-toggle >}}

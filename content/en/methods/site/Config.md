@@ -16,7 +16,7 @@ The `Config` method on a `Site` object provides access to a subset of the site c
 
 These are the default service settings, typically used by Hugo's built-in templates and shortcodes.
 
-{{< code-toggle config="services" />}}
+{{< code-toggle config=services />}}
 
 For example, to use Hugo's built-in Google Analytics template you must add a [Google tag ID]:
 
@@ -39,7 +39,7 @@ You must capitalize each identifier as shown above.
 
 These are the default privacy settings, typically used by Hugo's built-in templates and shortcodes:
 
-{{< code-toggle config="privacy" />}}
+{{< code-toggle config=privacy />}}
 
 For example, to disable usage of the built-in YouTube shortcode:
 

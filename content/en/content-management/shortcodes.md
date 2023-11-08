@@ -121,7 +121,7 @@ attrlink
 
 #### Example `figure` input
 
-{{< code file="figure-input-example.md" >}}
+{{< code file=figure-input-example.md >}}
 {{</* figure src="elephant.jpg" title="An elephant at sunset" */>}}
 {{< /code >}}
 
@@ -348,19 +348,19 @@ https://www.youtube.com/watch?v=w7Ft2ymGmfc
 
 Copy the YouTube video ID that follows `v=` in the video's URL and pass it to the `youtube` shortcode:
 
-{{< code file="example-youtube-input.md" >}}
+{{< code file=example-youtube-input.md >}}
 {{</* youtube w7Ft2ymGmfc */>}}
 {{< /code >}}
 
 Furthermore, you can automatically start playback of the embedded video by setting the `autoplay` parameter to `true`. Remember that you can't mix named and unnamed parameters, so you'll need to assign the yet unnamed video ID to the parameter `id`:
 
-{{< code file="example-youtube-input-with-autoplay.md" >}}
+{{< code file=example-youtube-input-with-autoplay.md >}}
 {{</* youtube id="w7Ft2ymGmfc" autoplay="true" */>}}
 {{< /code >}}
 
 For [accessibility reasons](https://dequeuniversity.com/tips/provide-iframe-titles), it's best to provide a title for your YouTube video.  You  can do this using the shortcode by providing a `title` parameter. If no title is provided, a default of "YouTube Video" will be used.
 
-{{< code file="example-youtube-input-with-title.md" >}}
+{{< code file=example-youtube-input-with-title.md >}}
 {{</* youtube id="w7Ft2ymGmfc" title="A New Hugo Site in Under Two Minutes" */>}}
 {{< /code >}}
 
@@ -368,7 +368,7 @@ For [accessibility reasons](https://dequeuniversity.com/tips/provide-iframe-titl
 
 Using the preceding `youtube` example, the following HTML will be added to your rendered website's markup:
 
-{{< code file="example-youtube-output.html" >}}
+{{< code file=example-youtube-output.html >}}
 {{< youtube id="w7Ft2ymGmfc" autoplay="true" >}}
 {{< /code >}}
 

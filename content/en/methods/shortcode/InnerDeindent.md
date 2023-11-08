@@ -16,7 +16,7 @@ This allows us to effectively bypass the rules governing [indentation] as provid
 
 Consider this markdown, an unordered list with a small gallery of thumbnail images within each list item:
 
-{{< code file="content/about.md" lang=md >}}
+{{< code file=content/about.md lang=md >}}
 - Gallery one
 
     {{</* gallery */>}}
@@ -36,7 +36,7 @@ In the example above, notice that the content between the opening and closing sh
 
 With this shortcode, calling `Inner` instead of `InnerDeindent`:
 
-{{< code file="layouts/shortcodes/gallery.html" lang=go-html-template >}}
+{{< code file=layouts/shortcodes/gallery.html lang=go-html-template >}}
 <div class="gallery">
   {{ trim .Inner "\r\n" | .Page.RenderString }}
 </div>
@@ -67,7 +67,7 @@ Hugo renders the markdown to:
 
 Although technically correct per the CommonMark specification, this is not what we want. If we remove the indentation using the `InnerDeindent` method:
 
-{{< code file="layouts/shortcodes/gallery.html" lang=go-html-template >}}
+{{< code file=layouts/shortcodes/gallery.html lang=go-html-template >}}
 <div class="gallery">
   {{ trim .InnerDeindent "\r\n" | .Page.RenderString }}
 </div>

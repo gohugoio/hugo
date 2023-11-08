@@ -14,7 +14,7 @@ action:
 
 With this front matter:
 
-{{< code-toggle file="content/news/annual-conference.md" >}}
+{{< code-toggle file=content/news/annual-conference.md >}}
 title = 'Annual conference'
 date = 2023-10-17T15:11:37-07:00
 display_related = true

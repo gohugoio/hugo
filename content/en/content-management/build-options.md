@@ -14,7 +14,7 @@ aliases: [/content/build-options/]
 
 Build options are stored in a reserved front matter object named `_build` with these defaults:
 
-{{< code-toggle file="content/example/index.md" fm=true >}}
+{{< code-toggle file=content/example/index.md fm=true >}}
 [_build]
 list = 'always'
 publishResources = true
@@ -93,7 +93,7 @@ title = 'Headless page'
 
 To include the content and images on the home page:
 
-{{< code file="layouts/_default/home.html" lang=go-html-template >}}
+{{< code file=layouts/_default/home.html lang=go-html-template >}}
 {{ with .Site.GetPage "/headless" }}
   {{ .Content }}
   {{ range .Resources.ByType "image" }}
@@ -153,7 +153,7 @@ In the front matter above, note that we have set `list` to `local` to include th
 
 To include the content and images on the home page:
 
-{{< code file="layouts/_default/home.html" lang=go-html-template >}}
+{{< code file=layouts/_default/home.html lang=go-html-template >}}
 {{ with .Site.GetPage "/headless" }}
   {{ range .Pages }}
     {{ .Content }}
@@ -199,7 +199,7 @@ content/
 
 Set the build options in front matter, using the `cascade` keyword to "cascade" the values down to descendant pages.
 
-{{< code-toggle file="content/glossary/_index.md" fm=true >}}
+{{< code-toggle file=content/glossary/_index.md fm=true >}}
 title = 'Glossary'
 [_build]
 render = 'always'

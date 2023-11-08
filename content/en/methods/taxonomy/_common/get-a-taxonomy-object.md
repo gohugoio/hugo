@@ -34,7 +34,7 @@ To capture the "genres" taxonomy object from within any template, use the [`Taxo
 
 To capture the "genres" taxonomy object when rendering its page with a taxonomy template, use the [`Terms`] method on the page's [`Data`] object:
 
-{{< code file="layouts/_default/taxonomy.html" lang=go-html-template >}}
+{{< code file=layouts/_default/taxonomy.html lang=go-html-template >}}
 {{ $taxonomyObject := .Data.Terms }}
 {{< /code >}}
 

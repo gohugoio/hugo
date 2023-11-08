@@ -60,7 +60,7 @@ data/
 
 Here is an example:
 
-{{< code-toggle file="data/locations/oslo" >}}
+{{< code-toggle file=data/locations/oslo >}}
 website = "https://www.oslo.kommune.no"
 pop_city = 658390
 pop_metro = 1717900
@@ -68,7 +68,7 @@ pop_metro = 1717900
 
 The example we will use will be an article on Oslo, whose front matter should be set to exactly the same name as the corresponding file name in `data/locations/`:
 
-{{< code-toggle file="content/articles/oslo.md" fm=true >}}
+{{< code-toggle file=content/articles/oslo.md fm=true >}}
 title = "My Norwegian Vacation"
 location = "oslo"
 {{< /code-toggle >}}

@@ -40,7 +40,7 @@ You can use `after` in combination with the [`first`] function and Hugo's [power
 1. The top row is titled "Featured" and shows only the most recently published article (i.e. by `publishdate` in the content files' front matter).
 2. The second row is titled "Recent Articles" and shows only the 2nd- to 4th-most recently published articles.
 
-{{< code file="layouts/section/articles.html" >}}
+{{< code file=layouts/section/articles.html >}}
 {{ define "main" }}
   <section class="row featured-article">
     <h2>Featured Article</h2>

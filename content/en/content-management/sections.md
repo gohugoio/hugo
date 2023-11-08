@@ -116,7 +116,7 @@ The content file (benefit-1.md) has four ancestors: benefits, product-1, product
 
 For example, use the `.Ancestors` method to render breadcrumb navigation.
 
-{{< code file="layouts/partials/breadcrumb.html" >}}
+{{< code file=layouts/partials/breadcrumb.html >}}
 <nav aria-label="breadcrumb" class="breadcrumb">
   <ol>
     {{ range .Ancestors.Reverse }}

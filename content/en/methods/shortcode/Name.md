@@ -13,7 +13,7 @@ action:
 
 The `Name` method is useful for error reporting. For example, if your shortcode requires a "greeting" parameter:
 
-{{< code file="layouts/shortcodes/myshortcode.html" lang=go-html-template >}}
+{{< code file=layouts/shortcodes/myshortcode.html lang=go-html-template >}}
 {{ $greeting := "" }}
 {{ with .Get "greeting" }}
   {{ $greeting = . }}

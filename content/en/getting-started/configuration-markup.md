@@ -54,7 +54,7 @@ Unless you need a unique capability provided by one of the alternate markdown ha
 
 This is the default configuration for the Goldmark markdown renderer:
 
-{{< code-toggle config="markup.goldmark" />}}
+{{< code-toggle config=markup.goldmark />}}
 
 For details on the extensions, refer to [this section](https://github.com/yuin/goldmark/#built-in-extensions) of the Goldmark documentation
 
@@ -125,7 +125,7 @@ autoHeadingIDType ("github")
 
 This is the default configuration for the AsciiDoc markdown renderer:
 
-{{< code-toggle config="markup.asciidocExt" />}}
+{{< code-toggle config=markup.asciidocExt />}}
 
 attributes
 : (`map`) Variables to be referenced in your AsciiDoc file. This is a list of variable name/value maps. See Asciidoctor’s [attributes].
@@ -189,7 +189,7 @@ INFO 2019/12/22 09:08:48 Rendering book-as-pdf.adoc with C:\Ruby26-x64\bin\ascii
 
 This is the default `highlight` configuration. Note that some of these settings can be set per code block, see [Syntax Highlighting](/content-management/syntax-highlighting/).
 
-{{< code-toggle config="markup.highlight" />}}
+{{< code-toggle config=markup.highlight />}}
 
 For `style`, see these galleries:
 
@@ -200,7 +200,7 @@ For CSS, see [Generate Syntax Highlighter CSS](/content-management/syntax-highli
 
 ## Table of contents
 
-{{< code-toggle config="markup.tableOfContents" />}}
+{{< code-toggle config=markup.tableOfContents />}}
 
 These settings only works for the Goldmark renderer:
 

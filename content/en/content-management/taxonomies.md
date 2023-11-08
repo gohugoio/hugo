@@ -81,7 +81,7 @@ Hugo natively supports taxonomies.
 
 Without adding a single line to your [site configuration] file, Hugo will automatically create taxonomies for `tags` and `categories`. That would be the same as manually [configuring your taxonomies](#configure-taxonomies) as below:
 
-{{< code-toggle config="taxonomies" />}}
+{{< code-toggle config=taxonomies />}}
 
 If you do not want Hugo to create any taxonomies, set `disableKinds` in your [site configuration] to the following:
 
@@ -142,7 +142,7 @@ If you would like the ability to quickly generate content files with preconfigur
 
 ### Example: front matter with taxonomies
 
-{{< code-toggle file="content/example.md" fm=true >}}
+{{< code-toggle file=content/example.md fm=true >}}
 title = "Hugo: A fast and flexible static site generator"
 tags = [ "Development", "Go", "fast", "Blogging" ]
 categories = [ "Development" ]
@@ -173,7 +173,7 @@ By using taxonomic weight, the same piece of content can appear in different pos
 
 If you need to add custom metadata to your taxonomy terms, you will need to create a page for that term at `/content/<TAXONOMY>/<TERM>/_index.md` and add your metadata in its front matter. Continuing with our 'Actors' example, let's say you want to add a Wikipedia page link to each actor. Your terms pages would be something like this:
 
-{{< code-toggle file="content/actors/bruce-willis/_index.md" fm=true >}}
+{{< code-toggle file=content/actors/bruce-willis/_index.md fm=true >}}
 title: "Bruce Willis"
 wikipedia: "https://en.wikipedia.org/wiki/Bruce_Willis"
 {{< /code-toggle >}}

@@ -30,7 +30,7 @@ To make logging in to your server more secure and less interactive, you can uplo
 
 First, install the ssh client. On Debian distributions, use the following command:
 
-{{< code file="install-openssh.sh" >}}
+{{< code file=install-openssh.sh >}}
 sudo apt-get install openssh-client
 {{< /code >}}
 
