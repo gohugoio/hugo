@@ -13,7 +13,7 @@ toc: true
 aliases: [/functions/page]
 ---
 
-At the top level of a template that receives the `Page` object in context, these are equivalent:
+At the top level of a template that receives a `Page` object in context, these are equivalent:
 
 ```go-html-template
 {{ .Params.foo }}
@@ -21,7 +21,7 @@ At the top level of a template that receives the `Page` object in context, these
 {{ page.Params.foo }}
 ```
 
-When the `Page` object is not in context, you can use the global `page` function:
+When a `Page` object is not in context, you can use the global `page` function:
 
 ```go-html-template
 {{ page.Params.foo }}
@@ -35,7 +35,7 @@ Do not use the global `page` function in shortcodes, partials called by shortcod
 
 Hugo almost always passes a `Page` as the data context into the top level template (e.g., `single.html`). The one exception is the multihost sitemap template. This means that you can access the current page with the `.` variable in the template.
 
-But when you are deeply nested inside of a [content view], [partial], or [render hook], it isn't always practical or possible to access the `Page` object.
+But when you are deeply nested inside of a [content view], [partial], or [render hook], it is not always practical or possible to access the `Page` object.
 
 Use the global `page` function to access the `Page` object from anywhere in any template.
 
@@ -82,9 +82,9 @@ Do not use the global `page` function in:
 
 - Shortcodes
 - Partials called by shortcodes
-- Partials cached by the `partialCached` function
+- Partials cached by the [`partialCached`] function
 
-Hugo caches rendered shortcodes. If you use the `global` page function within a shortcode, and the page content is rendered in two or more templates, the cached shortcodes may be incorrect.
+Hugo caches rendered shortcodes. If you use the global `page` function within a shortcode, and the page content is rendered in two or more templates, the cached shortcodes may be incorrect.
 
 Consider this section template:
 
@@ -95,10 +95,12 @@ Consider this section template:
 {{ end }}
 ```
 
-When you call the `.Summary` method, Hugo renders the page `.Content` including shortcodes. In this case, within a shortcode, the global `page` function accesses the `Page` object of the section page, not the content page.
+When you call the [`Summary`] method, Hugo renders the page content including shortcodes. In this case, within a shortcode, the global `page` function accesses the `Page` object of the section page, not the content page.
 
 If Hugo renders the section page before a content page, the cached rendered shortcode will be incorrect. You cannot control the rendering sequence due to concurrency.
 
+[`Summary`]: /methods/page/summary
+[`partialCached`]: /functions/partials/includecached
 [content view]: /getting-started/glossary/#content-view
 [partial]: /getting-started/glossary/#partial
 [render hook]: /getting-started/glossary/#render-hook
