@@ -32,7 +32,7 @@ Step 4
 : Make changes.
 
 Step 5
-: Commit your changes with a descriptive commit message, typically 50 characters or less. Included the "Closes" keyword if your change addresses one or more open [issues].
+: Commit your changes with a descriptive commit message, typically 50 characters or less. Add the "Closes" keyword if your change addresses one or more open [issues].
 
 ```sh
 git commit -m "Fix typos on site variables page
@@ -87,7 +87,7 @@ Rendered:
 Use the `code` shortcode to include the file name and a copy-to-clipboard button. This shortcode accepts these optional parameters:
 
 copy
-: (`bool`) If `true`, displays a copy-to-clipboard button. Default is `true`.
+: (`bool`) If `true`, displays a copy-to-clipboard button. Default is `false`.
 
 file
 : (`string`) The file name to display. If you do not provide a `lang` parameter, the file extension determines the code language.
@@ -96,7 +96,7 @@ lang
 : (`string`) The code language. Default is `text`.
 
 ````text
-{{</* code file="layouts/_default_/single.html" */>}}
+{{</* code file=layouts/_default_/single.html */>}}
 {{ if eq $foo "bar" }}
   {{ print "foo is bar" }}
 {{ end }}
@@ -106,7 +106,7 @@ lang
 
 Rendered:
 
-{{< code file="layouts/_default_/single.html" >}}
+{{< code file=layouts/_default_/single.html >}}
 {{ if eq $foo "bar" }}
   {{ print "foo is bar" }}
 {{ end }}
@@ -117,7 +117,7 @@ Rendered:
 Use the `code-toggle` shortcode to display examples of site configuration, front matter, or data files. This shortcode accepts these optional parameters:
 
 copy
-: (`bool`) If `true`, displays a copy-to-clipboard button. Default is `true`.
+: (`bool`) If `true`, displays a copy-to-clipboard button. Default is `false`.
 
 file
 : (`string`) The file name to display. Omit the file extension for site configuration and data file examples.
@@ -146,7 +146,7 @@ title = "Example Site"
 #### Front matter example
 
 ```text
-{{</* code-toggle file="content/about.md" fm=true */>}}
+{{</* code-toggle file=content/about.md fm=true */>}}
 title = "About"
 date = 2023-04-02T12:47:24-07:00
 draft = false
@@ -155,7 +155,7 @@ draft = false
 
 Rendered:
 
-{{< code-toggle file="content/about.md" fm=true >}}
+{{< code-toggle file=content/about.md fm=true >}}
 title = "About"
 date = 2023-04-02T12:47:24-07:00
 draft = false
