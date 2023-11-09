@@ -12,14 +12,14 @@
           {{ partial "related.html" . }}
         </div>
       </div>
-      <div class="order-2 w-20 dn db-l">
+      <div id="right-sidebar" class="order-2 w-20 dn db-l sticky pt2">
         {{ partial "right-sidebar" . }}
       </div>
 
     </div>
   </article>
 
-  <div class="w-100 bg-light-gray">
+  <div id="page-footer" class="w-100 bg-light-gray">
     <div class="mw7 pa4 center nested-lh-copy lh-copy">
       {{ partial "docs/page-meta-data.html" . }}
       {{ partial "page-edit.html" . }}
