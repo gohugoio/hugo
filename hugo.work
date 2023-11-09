@@ -1,4 +1,4 @@
 go 1.19
 
 use .
-use ../hugo-gohugoio-theme
+use ../gohugoioTheme
