@@ -248,5 +248,5 @@ See the documentation on [`where`] and
 [views]: /templates/views/
 [`where`]: /functions/collections/where
 [`first`]: /functions/collections/first/
-[main sections]: /functions/collections/where#mainsections
+[main sections]: /methods/site/mainsections
 [`time.Format`]: /functions/time/format
