@@ -1,0 +1,27 @@
+{{- $imgs := slice }}
+{{- $page := . }}
+{{/* Parse page's images parameter. */}}
+{{- with .Params.images }}
+  {{- range . }}
+    {{- $img := partial "_funcs/parse-page-image" (dict "Resources" $page.Resources "Image" .) }}
+    {{- $imgs = $imgs | append $img }}
+  {{- end }}
+{{- end }}
+{{/* Find featured image resources. */}}
+{{- $images := $.Resources.ByType "image" -}}
+{{- $featured := $images.GetMatch "*feature*" -}}
+{{- if not $featured }}{{ $featured = $images.GetMatch "{*cover*,*thumbnail*}" }}{{ end -}}
+{{- with $featured }}
+  {{- $imgs = $imgs | append (dict
+    "Image" .Name
+    "RelPermalink" .RelPermalink
+    "Permalink" .Permalink) }}
+{{- end }}
+{{/* Use the first site images as the fallback. */}}
+{{- if not $imgs }}
+  {{- with site.Params.images }}
+    {{- $img := partial "_funcs/parse-page-image" (dict "Resources" resources "Image" (index . 0)) }}
+    {{- $imgs = $imgs | append $img }}
+  {{- end }}
+{{- end }}
+{{- return $imgs }}

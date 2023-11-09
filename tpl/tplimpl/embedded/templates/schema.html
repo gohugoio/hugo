@@ -7,17 +7,9 @@
 {{ with .Lastmod }}<meta itemprop="dateModified" {{ .Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />{{ end}}
 <meta itemprop="wordCount" content="{{ .WordCount }}">
 
-{{- with $.Params.images -}}
-{{- range first 6 . -}}<meta itemprop="image" content="{{ . | absURL }}">{{ end -}}
-{{- else -}}
-{{- $images := $.Resources.ByType "image" -}}
-{{- $featured := $images.GetMatch "*feature*" -}}
-{{- if not $featured }}{{ $featured = $images.GetMatch "{*cover*,*thumbnail*}" }}{{ end -}}
-{{- with $featured -}}
-<meta itemprop="image" content="{{ $featured.Permalink }}">
-{{- else -}}
-{{- with $.Site.Params.images -}}<meta itemprop="image" content="{{ index . 0 | absURL }}"/>{{ end -}}
-{{- end -}}
+{{- $images := partialCached "_funcs/get-page-images" . . -}}
+{{- range first 6 $images -}}
+  <meta itemprop="image" content="{{ .Permalink }}" />
 {{- end -}}
 
 <!-- Output all taxonomies as schema.org keywords -->
