@@ -10,8 +10,6 @@ menu:
 weight: 190
 toc: true
 ---
-<!-- reference: https://discourse.gohugo.io/t/lookup-order-for-partials/5705/6
-code: https://github.com/gohugoio/hugo/blob/e445c35d6a0c7f5fc2f90f31226cd1d46e048bbc/tpl/template_embedded.go#L147 -->
 
 {{% note %}}
 While the following internal templates are called similar to partials, they do *not* observe the partial template lookup order.

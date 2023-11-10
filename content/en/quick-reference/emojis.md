@@ -73,7 +73,7 @@ GitHub [custom emoji] are not supported.
 | - | :-: | - | :-: | - | - |
 | [top](#introduction) | :grinning: | `:grinning:` | :smiley: | `:smiley:` | [top](#introduction) |
 | [top](#introduction) | :smile: | `:smile:` | :grin: | `:grin:` | [top](#introduction) |
-| [top](#introduction) | :laughing: | `:laughing:` <br /> `:satisfied:` | :sweat_smile: | `:sweat_smile:` | [top](#introduction) |
+| [top](#introduction) | :laughing: | `:laughing:` `:satisfied:` | :sweat_smile: | `:sweat_smile:` | [top](#introduction) |
 | [top](#introduction) | :rofl: | `:rofl:` | :joy: | `:joy:` | [top](#introduction) |
 | [top](#introduction) | :slightly_smiling_face: | `:slightly_smiling_face:` | :upside_down_face: | `:upside_down_face:` | [top](#introduction) |
 | [top](#introduction) | :wink: | `:wink:` | :blush: | `:blush:` | [top](#introduction) |
@@ -169,7 +169,7 @@ GitHub [custom emoji] are not supported.
 
 | | ico | shortcode | ico | shortcode | |
 | - | :-: | - | :-: | - | - |
-| [top](#introduction) | :triumph: | `:triumph:` | :pout: | `:pout:` <br /> `:rage:` | [top](#introduction) |
+| [top](#introduction) | :triumph: | `:triumph:` | :pout: | `:pout:` `:rage:` | [top](#introduction) |
 | [top](#introduction) | :angry: | `:angry:` | :cursing_face: | `:cursing_face:` | [top](#introduction) |
 | [top](#introduction) | :smiling_imp: | `:smiling_imp:` | :imp: | `:imp:` | [top](#introduction) |
 | [top](#introduction) | :skull: | `:skull:` | :skull_and_crossbones: | `:skull_and_crossbones:` | [top](#introduction) |
@@ -178,7 +178,7 @@ GitHub [custom emoji] are not supported.
 
 | | ico | shortcode | ico | shortcode | |
 | - | :-: | - | :-: | - | - |
-| [top](#introduction) | :hankey: | `:hankey:` <br /> `:poop:` <br /> `:shit:` | :clown_face: | `:clown_face:` | [top](#introduction) |
+| [top](#introduction) | :hankey: | `:hankey:` `:poop:` `:shit:` | :clown_face: | `:clown_face:` | [top](#introduction) |
 | [top](#introduction) | :japanese_ogre: | `:japanese_ogre:` | :japanese_goblin: | `:japanese_goblin:` | [top](#introduction) |
 | [top](#introduction) | :ghost: | `:ghost:` | :alien: | `:alien:` | [top](#introduction) |
 | [top](#introduction) | :space_invader: | `:space_invader:` | :robot: | `:robot:` | [top](#introduction) |
@@ -221,7 +221,7 @@ GitHub [custom emoji] are not supported.
 | | ico | shortcode | ico | shortcode | |
 | - | :-: | - | :-: | - | - |
 | [top](#introduction) | :kiss: | `:kiss:` | :100: | `:100:` | [top](#introduction) |
-| [top](#introduction) | :anger: | `:anger:` | :boom: | `:boom:` <br /> `:collision:` | [top](#introduction) |
+| [top](#introduction) | :anger: | `:anger:` | :boom: | `:boom:` `:collision:` | [top](#introduction) |
 | [top](#introduction) | :dizzy: | `:dizzy:` | :sweat_drops: | `:sweat_drops:` | [top](#introduction) |
 | [top](#introduction) | :dash: | `:dash:` | :hole: | `:hole:` | [top](#introduction) |
 | [top](#introduction) | :speech_balloon: | `:speech_balloon:` | :eye_speech_bubble: | `:eye_speech_bubble:` | [top](#introduction) |
@@ -252,7 +252,7 @@ GitHub [custom emoji] are not supported.
 | | ico | shortcode | ico | shortcode | |
 | - | :-: | - | :-: | - | - |
 | [top](#people--body) | :wave: | `:wave:` | :raised_back_of_hand: | `:raised_back_of_hand:` | [top](#introduction) |
-| [top](#people--body) | :raised_hand_with_fingers_splayed: | `:raised_hand_with_fingers_splayed:` | :hand: | `:hand:` <br /> `:raised_hand:` | [top](#introduction) |
+| [top](#people--body) | :raised_hand_with_fingers_splayed: | `:raised_hand_with_fingers_splayed:` | :hand: | `:hand:` `:raised_hand:` | [top](#introduction) |
 | [top](#people--body) | :vulcan_salute: | `:vulcan_salute:` | | | [top](#introduction) |
 
 ### Hand Fingers Partial
@@ -269,15 +269,15 @@ GitHub [custom emoji] are not supported.
 | | ico | shortcode | ico | shortcode | |
 | - | :-: | - | :-: | - | - |
 | [top](#people--body) | :point_left: | `:point_left:` | :point_right: | `:point_right:` | [top](#introduction) |
-| [top](#people--body) | :point_up_2: | `:point_up_2:` | :fu: | `:fu:` <br /> `:middle_finger:` | [top](#introduction) |
+| [top](#people--body) | :point_up_2: | `:point_up_2:` | :fu: | `:fu:` `:middle_finger:` | [top](#introduction) |
 | [top](#people--body) | :point_down: | `:point_down:` | :point_up: | `:point_up:` | [top](#introduction) |
 
 ### Hand Fingers Closed
 
 | | ico | shortcode | ico | shortcode | |
 | - | :-: | - | :-: | - | - |
-| [top](#people--body) | :+1: | `:+1:` <br /> `:thumbsup:` | :-1: | `:-1:` <br /> `:thumbsdown:` | [top](#introduction) |
-| [top](#people--body) | :fist: | `:fist:` <br /> `:fist_raised:` | :facepunch: | `:facepunch:` <br /> `:fist_oncoming:` <br /> `:punch:` | [top](#introduction) |
+| [top](#people--body) | :+1: | `:+1:` `:thumbsup:` | :-1: | `:-1:` `:thumbsdown:` | [top](#introduction) |
+| [top](#people--body) | :fist: | `:fist:` `:fist_raised:` | :facepunch: | `:facepunch:` `:fist_oncoming:` `:punch:` | [top](#introduction) |
 | [top](#people--body) | :fist_left: | `:fist_left:` | :fist_right: | `:fist_right:` | [top](#introduction) |
 
 ### Hands
@@ -324,7 +324,7 @@ GitHub [custom emoji] are not supported.
 | [top](#people--body) | :person_red_hair: | `:person_red_hair:` | :curly_haired_woman: | `:curly_haired_woman:` | [top](#introduction) |
 | [top](#people--body) | :person_curly_hair: | `:person_curly_hair:` | :white_haired_woman: | `:white_haired_woman:` | [top](#introduction) |
 | [top](#people--body) | :person_white_hair: | `:person_white_hair:` | :bald_woman: | `:bald_woman:` | [top](#introduction) |
-| [top](#people--body) | :person_bald: | `:person_bald:` | :blond_haired_woman: | `:blond_haired_woman:` <br /> `:blonde_woman:` | [top](#introduction) |
+| [top](#people--body) | :person_bald: | `:person_bald:` | :blond_haired_woman: | `:blond_haired_woman:` `:blonde_woman:` | [top](#introduction) |
 | [top](#people--body) | :blond_haired_man: | `:blond_haired_man:` | :older_adult: | `:older_adult:` | [top](#introduction) |
 | [top](#people--body) | :older_man: | `:older_man:` | :older_woman: | `:older_woman:` | [top](#introduction) |
 
@@ -335,11 +335,11 @@ GitHub [custom emoji] are not supported.
 | [top](#people--body) | :frowning_person: | `:frowning_person:` | :frowning_man: | `:frowning_man:` | [top](#introduction) |
 | [top](#people--body) | :frowning_woman: | `:frowning_woman:` | :pouting_face: | `:pouting_face:` | [top](#introduction) |
 | [top](#people--body) | :pouting_man: | `:pouting_man:` | :pouting_woman: | `:pouting_woman:` | [top](#introduction) |
-| [top](#people--body) | :no_good: | `:no_good:` | :ng_man: | `:ng_man:` <br /> `:no_good_man:` | [top](#introduction) |
-| [top](#people--body) | :ng_woman: | `:ng_woman:` <br /> `:no_good_woman:` | :ok_person: | `:ok_person:` | [top](#introduction) |
+| [top](#people--body) | :no_good: | `:no_good:` | :ng_man: | `:ng_man:` `:no_good_man:` | [top](#introduction) |
+| [top](#people--body) | :ng_woman: | `:ng_woman:` `:no_good_woman:` | :ok_person: | `:ok_person:` | [top](#introduction) |
 | [top](#people--body) | :ok_man: | `:ok_man:` | :ok_woman: | `:ok_woman:` | [top](#introduction) |
-| [top](#people--body) | :information_desk_person: | `:information_desk_person:` <br /> `:tipping_hand_person:` | :sassy_man: | `:sassy_man:` <br /> `:tipping_hand_man:` | [top](#introduction) |
-| [top](#people--body) | :sassy_woman: | `:sassy_woman:` <br /> `:tipping_hand_woman:` | :raising_hand: | `:raising_hand:` | [top](#introduction) |
+| [top](#people--body) | :information_desk_person: | `:information_desk_person:` `:tipping_hand_person:` | :sassy_man: | `:sassy_man:` `:tipping_hand_man:` | [top](#introduction) |
+| [top](#people--body) | :sassy_woman: | `:sassy_woman:` `:tipping_hand_woman:` | :raising_hand: | `:raising_hand:` | [top](#introduction) |
 | [top](#people--body) | :raising_hand_man: | `:raising_hand_man:` | :raising_hand_woman: | `:raising_hand_woman:` | [top](#introduction) |
 | [top](#people--body) | :deaf_person: | `:deaf_person:` | :deaf_man: | `:deaf_man:` | [top](#introduction) |
 | [top](#people--body) | :deaf_woman: | `:deaf_woman:` | :bow: | `:bow:` | [top](#introduction) |
@@ -376,7 +376,7 @@ GitHub [custom emoji] are not supported.
 | [top](#people--body) | :astronaut: | `:astronaut:` | :man_astronaut: | `:man_astronaut:` | [top](#introduction) |
 | [top](#people--body) | :woman_astronaut: | `:woman_astronaut:` | :firefighter: | `:firefighter:` | [top](#introduction) |
 | [top](#people--body) | :man_firefighter: | `:man_firefighter:` | :woman_firefighter: | `:woman_firefighter:` | [top](#introduction) |
-| [top](#people--body) | :cop: | `:cop:` <br /> `:police_officer:` | :policeman: | `:policeman:` | [top](#introduction) |
+| [top](#people--body) | :cop: | `:cop:` `:police_officer:` | :policeman: | `:policeman:` | [top](#introduction) |
 | [top](#people--body) | :policewoman: | `:policewoman:` | :detective: | `:detective:` | [top](#introduction) |
 | [top](#people--body) | :male_detective: | `:male_detective:` | :female_detective: | `:female_detective:` | [top](#introduction) |
 | [top](#people--body) | :guard: | `:guard:` | :guardsman: | `:guardsman:` | [top](#introduction) |
@@ -388,7 +388,7 @@ GitHub [custom emoji] are not supported.
 | [top](#people--body) | :man_with_gua_pi_mao: | `:man_with_gua_pi_mao:` | :woman_with_headscarf: | `:woman_with_headscarf:` | [top](#introduction) |
 | [top](#people--body) | :person_in_tuxedo: | `:person_in_tuxedo:` | :man_in_tuxedo: | `:man_in_tuxedo:` | [top](#introduction) |
 | [top](#people--body) | :woman_in_tuxedo: | `:woman_in_tuxedo:` | :person_with_veil: | `:person_with_veil:` | [top](#introduction) |
-| [top](#people--body) | :man_with_veil: | `:man_with_veil:` | :bride_with_veil: | `:bride_with_veil:` <br /> `:woman_with_veil:` | [top](#introduction) |
+| [top](#people--body) | :man_with_veil: | `:man_with_veil:` | :bride_with_veil: | `:bride_with_veil:` `:woman_with_veil:` | [top](#introduction) |
 | [top](#people--body) | :pregnant_woman: | `:pregnant_woman:` | :breast_feeding: | `:breast_feeding:` | [top](#introduction) |
 | [top](#people--body) | :woman_feeding_baby: | `:woman_feeding_baby:` | :man_feeding_baby: | `:man_feeding_baby:` | [top](#introduction) |
 | [top](#people--body) | :person_feeding_baby: | `:person_feeding_baby:` | | | [top](#introduction) |
@@ -430,8 +430,8 @@ GitHub [custom emoji] are not supported.
 | [top](#people--body) | :person_in_motorized_wheelchair: | `:person_in_motorized_wheelchair:` | :man_in_motorized_wheelchair: | `:man_in_motorized_wheelchair:` | [top](#introduction) |
 | [top](#people--body) | :woman_in_motorized_wheelchair: | `:woman_in_motorized_wheelchair:` | :person_in_manual_wheelchair: | `:person_in_manual_wheelchair:` | [top](#introduction) |
 | [top](#people--body) | :man_in_manual_wheelchair: | `:man_in_manual_wheelchair:` | :woman_in_manual_wheelchair: | `:woman_in_manual_wheelchair:` | [top](#introduction) |
-| [top](#people--body) | :runner: | `:runner:` <br /> `:running:` | :running_man: | `:running_man:` | [top](#introduction) |
-| [top](#people--body) | :running_woman: | `:running_woman:` | :dancer: | `:dancer:` <br /> `:woman_dancing:` | [top](#introduction) |
+| [top](#people--body) | :runner: | `:runner:` `:running:` | :running_man: | `:running_man:` | [top](#introduction) |
+| [top](#people--body) | :running_woman: | `:running_woman:` | :dancer: | `:dancer:` `:woman_dancing:` | [top](#introduction) |
 | [top](#people--body) | :man_dancing: | `:man_dancing:` | :business_suit_levitating: | `:business_suit_levitating:` | [top](#introduction) |
 | [top](#people--body) | :dancers: | `:dancers:` | :dancing_men: | `:dancing_men:` | [top](#introduction) |
 | [top](#people--body) | :dancing_women: | `:dancing_women:` | :sauna_person: | `:sauna_person:` | [top](#introduction) |
@@ -451,8 +451,8 @@ GitHub [custom emoji] are not supported.
 | [top](#people--body) | :rowboat: | `:rowboat:` | :rowing_man: | `:rowing_man:` | [top](#introduction) |
 | [top](#people--body) | :rowing_woman: | `:rowing_woman:` | :swimmer: | `:swimmer:` | [top](#introduction) |
 | [top](#people--body) | :swimming_man: | `:swimming_man:` | :swimming_woman: | `:swimming_woman:` | [top](#introduction) |
-| [top](#people--body) | :bouncing_ball_person: | `:bouncing_ball_person:` | :basketball_man: | `:basketball_man:` <br /> `:bouncing_ball_man:` | [top](#introduction) |
-| [top](#people--body) | :basketball_woman: | `:basketball_woman:` <br /> `:bouncing_ball_woman:` | :weight_lifting: | `:weight_lifting:` | [top](#introduction) |
+| [top](#people--body) | :bouncing_ball_person: | `:bouncing_ball_person:` | :basketball_man: | `:basketball_man:` `:bouncing_ball_man:` | [top](#introduction) |
+| [top](#people--body) | :basketball_woman: | `:basketball_woman:` `:bouncing_ball_woman:` | :weight_lifting: | `:weight_lifting:` | [top](#introduction) |
 | [top](#people--body) | :weight_lifting_man: | `:weight_lifting_man:` | :weight_lifting_woman: | `:weight_lifting_woman:` | [top](#introduction) |
 | [top](#people--body) | :bicyclist: | `:bicyclist:` | :biking_man: | `:biking_man:` | [top](#introduction) |
 | [top](#people--body) | :biking_woman: | `:biking_woman:` | :mountain_bicyclist: | `:mountain_bicyclist:` | [top](#introduction) |
@@ -552,7 +552,7 @@ GitHub [custom emoji] are not supported.
 | [top](#animals--nature) | :koala: | `:koala:` | :panda_face: | `:panda_face:` | [top](#introduction) |
 | [top](#animals--nature) | :sloth: | `:sloth:` | :otter: | `:otter:` | [top](#introduction) |
 | [top](#animals--nature) | :skunk: | `:skunk:` | :kangaroo: | `:kangaroo:` | [top](#introduction) |
-| [top](#animals--nature) | :badger: | `:badger:` | :feet: | `:feet:` <br /> `:paw_prints:` | [top](#introduction) |
+| [top](#animals--nature) | :badger: | `:badger:` | :feet: | `:feet:` `:paw_prints:` | [top](#introduction) |
 
 ### Animal Bird
 
@@ -588,7 +588,7 @@ GitHub [custom emoji] are not supported.
 | | ico | shortcode | ico | shortcode | |
 | - | :-: | - | :-: | - | - |
 | [top](#animals--nature) | :whale: | `:whale:` | :whale2: | `:whale2:` | [top](#introduction) |
-| [top](#animals--nature) | :dolphin: | `:dolphin:` <br /> `:flipper:` | :seal: | `:seal:` | [top](#introduction) |
+| [top](#animals--nature) | :dolphin: | `:dolphin:` `:flipper:` | :seal: | `:seal:` | [top](#introduction) |
 | [top](#animals--nature) | :fish: | `:fish:` | :tropical_fish: | `:tropical_fish:` | [top](#introduction) |
 | [top](#animals--nature) | :blowfish: | `:blowfish:` | :shark: | `:shark:` | [top](#introduction) |
 | [top](#animals--nature) | :octopus: | `:octopus:` | :shell: | `:shell:` | [top](#introduction) |
@@ -599,7 +599,7 @@ GitHub [custom emoji] are not supported.
 | - | :-: | - | :-: | - | - |
 | [top](#animals--nature) | :snail: | `:snail:` | :butterfly: | `:butterfly:` | [top](#introduction) |
 | [top](#animals--nature) | :bug: | `:bug:` | :ant: | `:ant:` | [top](#introduction) |
-| [top](#animals--nature) | :bee: | `:bee:` <br /> `:honeybee:` | :beetle: | `:beetle:` | [top](#introduction) |
+| [top](#animals--nature) | :bee: | `:bee:` `:honeybee:` | :beetle: | `:beetle:` | [top](#introduction) |
 | [top](#animals--nature) | :lady_beetle: | `:lady_beetle:` | :cricket: | `:cricket:` | [top](#introduction) |
 | [top](#animals--nature) | :cockroach: | `:cockroach:` | :spider: | `:spider:` | [top](#introduction) |
 | [top](#animals--nature) | :spider_web: | `:spider_web:` | :scorpion: | `:scorpion:` | [top](#introduction) |
@@ -644,7 +644,7 @@ GitHub [custom emoji] are not supported.
 | | ico | shortcode | ico | shortcode | |
 | - | :-: | - | :-: | - | - |
 | [top](#food--drink) | :grapes: | `:grapes:` | :melon: | `:melon:` | [top](#introduction) |
-| [top](#food--drink) | :watermelon: | `:watermelon:` | :mandarin: | `:mandarin:` <br /> `:orange:` <br /> `:tangerine:` | [top](#introduction) |
+| [top](#food--drink) | :watermelon: | `:watermelon:` | :mandarin: | `:mandarin:` `:orange:` `:tangerine:` | [top](#introduction) |
 | [top](#food--drink) | :lemon: | `:lemon:` | :banana: | `:banana:` | [top](#introduction) |
 | [top](#food--drink) | :pineapple: | `:pineapple:` | :mango: | `:mango:` | [top](#introduction) |
 | [top](#food--drink) | :apple: | `:apple:` | :green_apple: | `:green_apple:` | [top](#introduction) |
@@ -743,7 +743,7 @@ GitHub [custom emoji] are not supported.
 | - | :-: | - | :-: | - | - |
 | [top](#food--drink) | :chopsticks: | `:chopsticks:` | :plate_with_cutlery: | `:plate_with_cutlery:` | [top](#introduction) |
 | [top](#food--drink) | :fork_and_knife: | `:fork_and_knife:` | :spoon: | `:spoon:` | [top](#introduction) |
-| [top](#food--drink) | :hocho: | `:hocho:` <br /> `:knife:` | :amphora: | `:amphora:` | [top](#introduction) |
+| [top](#food--drink) | :hocho: | `:hocho:` `:knife:` | :amphora: | `:amphora:` | [top](#introduction) |
 
 ## Travel & Places
 
@@ -833,7 +833,7 @@ GitHub [custom emoji] are not supported.
 | [top](#travel--places) | :ambulance: | `:ambulance:` | :fire_engine: | `:fire_engine:` | [top](#introduction) |
 | [top](#travel--places) | :police_car: | `:police_car:` | :oncoming_police_car: | `:oncoming_police_car:` | [top](#introduction) |
 | [top](#travel--places) | :taxi: | `:taxi:` | :oncoming_taxi: | `:oncoming_taxi:` | [top](#introduction) |
-| [top](#travel--places) | :car: | `:car:` <br /> `:red_car:` | :oncoming_automobile: | `:oncoming_automobile:` | [top](#introduction) |
+| [top](#travel--places) | :car: | `:car:` `:red_car:` | :oncoming_automobile: | `:oncoming_automobile:` | [top](#introduction) |
 | [top](#travel--places) | :blue_car: | `:blue_car:` | :pickup_truck: | `:pickup_truck:` | [top](#introduction) |
 | [top](#travel--places) | :truck: | `:truck:` | :articulated_lorry: | `:articulated_lorry:` | [top](#introduction) |
 | [top](#travel--places) | :tractor: | `:tractor:` | :racing_car: | `:racing_car:` | [top](#introduction) |
@@ -852,7 +852,7 @@ GitHub [custom emoji] are not supported.
 
 | | ico | shortcode | ico | shortcode | |
 | - | :-: | - | :-: | - | - |
-| [top](#travel--places) | :anchor: | `:anchor:` | :boat: | `:boat:` <br /> `:sailboat:` | [top](#introduction) |
+| [top](#travel--places) | :anchor: | `:anchor:` | :boat: | `:boat:` `:sailboat:` | [top](#introduction) |
 | [top](#travel--places) | :canoe: | `:canoe:` | :speedboat: | `:speedboat:` | [top](#introduction) |
 | [top](#travel--places) | :passenger_ship: | `:passenger_ship:` | :ferry: | `:ferry:` | [top](#introduction) |
 | [top](#travel--places) | :motor_boat: | `:motor_boat:` | :ship: | `:ship:` | [top](#introduction) |
@@ -901,7 +901,7 @@ GitHub [custom emoji] are not supported.
 | | ico | shortcode | ico | shortcode | |
 | - | :-: | - | :-: | - | - |
 | [top](#travel--places) | :new_moon: | `:new_moon:` | :waxing_crescent_moon: | `:waxing_crescent_moon:` | [top](#introduction) |
-| [top](#travel--places) | :first_quarter_moon: | `:first_quarter_moon:` | :moon: | `:moon:` <br /> `:waxing_gibbous_moon:` | [top](#introduction) |
+| [top](#travel--places) | :first_quarter_moon: | `:first_quarter_moon:` | :moon: | `:moon:` `:waxing_gibbous_moon:` | [top](#introduction) |
 | [top](#travel--places) | :full_moon: | `:full_moon:` | :waning_gibbous_moon: | `:waning_gibbous_moon:` | [top](#introduction) |
 | [top](#travel--places) | :last_quarter_moon: | `:last_quarter_moon:` | :waning_crescent_moon: | `:waning_crescent_moon:` | [top](#introduction) |
 | [top](#travel--places) | :crescent_moon: | `:crescent_moon:` | :new_moon_with_face: | `:new_moon_with_face:` | [top](#introduction) |
@@ -1030,7 +1030,7 @@ GitHub [custom emoji] are not supported.
 | [top](#objects) | :eyeglasses: | `:eyeglasses:` | :dark_sunglasses: | `:dark_sunglasses:` | [top](#introduction) |
 | [top](#objects) | :goggles: | `:goggles:` | :lab_coat: | `:lab_coat:` | [top](#introduction) |
 | [top](#objects) | :safety_vest: | `:safety_vest:` | :necktie: | `:necktie:` | [top](#introduction) |
-| [top](#objects) | :shirt: | `:shirt:` <br /> `:tshirt:` | :jeans: | `:jeans:` | [top](#introduction) |
+| [top](#objects) | :shirt: | `:shirt:` `:tshirt:` | :jeans: | `:jeans:` | [top](#introduction) |
 | [top](#objects) | :scarf: | `:scarf:` | :gloves: | `:gloves:` | [top](#introduction) |
 | [top](#objects) | :coat: | `:coat:` | :socks: | `:socks:` | [top](#introduction) |
 | [top](#objects) | :dress: | `:dress:` | :kimono: | `:kimono:` | [top](#introduction) |
@@ -1040,7 +1040,7 @@ GitHub [custom emoji] are not supported.
 | [top](#objects) | :purse: | `:purse:` | :handbag: | `:handbag:` | [top](#introduction) |
 | [top](#objects) | :pouch: | `:pouch:` | :shopping: | `:shopping:` | [top](#introduction) |
 | [top](#objects) | :school_satchel: | `:school_satchel:` | :thong_sandal: | `:thong_sandal:` | [top](#introduction) |
-| [top](#objects) | :mans_shoe: | `:mans_shoe:` <br /> `:shoe:` | :athletic_shoe: | `:athletic_shoe:` | [top](#introduction) |
+| [top](#objects) | :mans_shoe: | `:mans_shoe:` `:shoe:` | :athletic_shoe: | `:athletic_shoe:` | [top](#introduction) |
 | [top](#objects) | :hiking_boot: | `:hiking_boot:` | :flat_shoe: | `:flat_shoe:` | [top](#introduction) |
 | [top](#objects) | :high_heel: | `:high_heel:` | :sandal: | `:sandal:` | [top](#introduction) |
 | [top](#objects) | :ballet_shoes: | `:ballet_shoes:` | :boot: | `:boot:` | [top](#introduction) |
@@ -1086,7 +1086,7 @@ GitHub [custom emoji] are not supported.
 | | ico | shortcode | ico | shortcode | |
 | - | :-: | - | :-: | - | - |
 | [top](#objects) | :iphone: | `:iphone:` | :calling: | `:calling:` | [top](#introduction) |
-| [top](#objects) | :phone: | `:phone:` <br /> `:telephone:` | :telephone_receiver: | `:telephone_receiver:` | [top](#introduction) |
+| [top](#objects) | :phone: | `:phone:` `:telephone:` | :telephone_receiver: | `:telephone_receiver:` | [top](#introduction) |
 | [top](#objects) | :pager: | `:pager:` | :fax: | `:fax:` | [top](#introduction) |
 
 ### Computer
@@ -1112,14 +1112,14 @@ GitHub [custom emoji] are not supported.
 | [top](#objects) | :vhs: | `:vhs:` | :mag: | `:mag:` | [top](#introduction) |
 | [top](#objects) | :mag_right: | `:mag_right:` | :candle: | `:candle:` | [top](#introduction) |
 | [top](#objects) | :bulb: | `:bulb:` | :flashlight: | `:flashlight:` | [top](#introduction) |
-| [top](#objects) | :izakaya_lantern: | `:izakaya_lantern:` <br /> `:lantern:` | :diya_lamp: | `:diya_lamp:` | [top](#introduction) |
+| [top](#objects) | :izakaya_lantern: | `:izakaya_lantern:` `:lantern:` | :diya_lamp: | `:diya_lamp:` | [top](#introduction) |
 
 ### Book Paper
 
 | | ico | shortcode | ico | shortcode | |
 | - | :-: | - | :-: | - | - |
 | [top](#objects) | :notebook_with_decorative_cover: | `:notebook_with_decorative_cover:` | :closed_book: | `:closed_book:` | [top](#introduction) |
-| [top](#objects) | :book: | `:book:` <br /> `:open_book:` | :green_book: | `:green_book:` | [top](#introduction) |
+| [top](#objects) | :book: | `:book:` `:open_book:` | :green_book: | `:green_book:` | [top](#introduction) |
 | [top](#objects) | :blue_book: | `:blue_book:` | :orange_book: | `:orange_book:` | [top](#introduction) |
 | [top](#objects) | :books: | `:books:` | :notebook: | `:notebook:` | [top](#introduction) |
 | [top](#objects) | :ledger: | `:ledger:` | :page_with_curl: | `:page_with_curl:` | [top](#introduction) |
@@ -1142,7 +1142,7 @@ GitHub [custom emoji] are not supported.
 
 | | ico | shortcode | ico | shortcode | |
 | - | :-: | - | :-: | - | - |
-| [top](#objects) | :envelope: | `:envelope:` | :e-mail: | `:e-mail:` <br /> `:email:` | [top](#introduction) |
+| [top](#objects) | :envelope: | `:envelope:` | :e-mail: | `:e-mail:` `:email:` | [top](#introduction) |
 | [top](#objects) | :incoming_envelope: | `:incoming_envelope:` | :envelope_with_arrow: | `:envelope_with_arrow:` | [top](#introduction) |
 | [top](#objects) | :outbox_tray: | `:outbox_tray:` | :inbox_tray: | `:inbox_tray:` | [top](#introduction) |
 | [top](#objects) | :package: | `:package:` | :mailbox: | `:mailbox:` | [top](#introduction) |
@@ -1157,7 +1157,7 @@ GitHub [custom emoji] are not supported.
 | [top](#objects) | :pencil2: | `:pencil2:` | :black_nib: | `:black_nib:` | [top](#introduction) |
 | [top](#objects) | :fountain_pen: | `:fountain_pen:` | :pen: | `:pen:` | [top](#introduction) |
 | [top](#objects) | :paintbrush: | `:paintbrush:` | :crayon: | `:crayon:` | [top](#introduction) |
-| [top](#objects) | :memo: | `:memo:` <br /> `:pencil:` | | | [top](#introduction) |
+| [top](#objects) | :memo: | `:memo:` `:pencil:` | | | [top](#introduction) |
 
 ### Office
 
@@ -1363,7 +1363,7 @@ GitHub [custom emoji] are not supported.
 | - | :-: | - | :-: | - | - |
 | [top](#symbols) | :bangbang: | `:bangbang:` | :interrobang: | `:interrobang:` | [top](#introduction) |
 | [top](#symbols) | :question: | `:question:` | :grey_question: | `:grey_question:` | [top](#introduction) |
-| [top](#symbols) | :grey_exclamation: | `:grey_exclamation:` | :exclamation: | `:exclamation:` <br /> `:heavy_exclamation_mark:` | [top](#introduction) |
+| [top](#symbols) | :grey_exclamation: | `:grey_exclamation:` | :exclamation: | `:exclamation:` `:heavy_exclamation_mark:` | [top](#introduction) |
 | [top](#symbols) | :wavy_dash: | `:wavy_dash:` | | | [top](#introduction) |
 
 ### Currency
@@ -1502,11 +1502,11 @@ GitHub [custom emoji] are not supported.
 | [top](#flags) | :ecuador: | `:ecuador:` | :estonia: | `:estonia:` | [top](#introduction) |
 | [top](#flags) | :egypt: | `:egypt:` | :western_sahara: | `:western_sahara:` | [top](#introduction) |
 | [top](#flags) | :eritrea: | `:eritrea:` | :es: | `:es:` | [top](#introduction) |
-| [top](#flags) | :ethiopia: | `:ethiopia:` | :eu: | `:eu:` <br /> `:european_union:` | [top](#introduction) |
+| [top](#flags) | :ethiopia: | `:ethiopia:` | :eu: | `:eu:` `:european_union:` | [top](#introduction) |
 | [top](#flags) | :finland: | `:finland:` | :fiji: | `:fiji:` | [top](#introduction) |
 | [top](#flags) | :falkland_islands: | `:falkland_islands:` | :micronesia: | `:micronesia:` | [top](#introduction) |
 | [top](#flags) | :faroe_islands: | `:faroe_islands:` | :fr: | `:fr:` | [top](#introduction) |
-| [top](#flags) | :gabon: | `:gabon:` | :gb: | `:gb:` <br /> `:uk:` | [top](#introduction) |
+| [top](#flags) | :gabon: | `:gabon:` | :gb: | `:gb:` `:uk:` | [top](#introduction) |
 | [top](#flags) | :grenada: | `:grenada:` | :georgia: | `:georgia:` | [top](#introduction) |
 | [top](#flags) | :french_guiana: | `:french_guiana:` | :guernsey: | `:guernsey:` | [top](#introduction) |
 | [top](#flags) | :ghana: | `:ghana:` | :gibraltar: | `:gibraltar:` | [top](#introduction) |

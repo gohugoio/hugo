@@ -13,6 +13,8 @@ toc: true
 aliases: [/content/summaries/,/content-management/content-summaries/]
 ---
 
+<!--more-->
+
 With the use of the `.Summary` [page variable][pagevariables], Hugo generates summaries of content to use as a short version in summary views.
 
 ## Summary splitting options
@@ -37,7 +39,7 @@ The Hugo-defined summaries are set to use word count calculated by splitting the
 
 ### Manual summary splitting
 
-Alternatively, you may add the <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> summary divider where you want to split the article.
+Alternatively, you may add the `<!--more-->` summary divider where you want to split the article.
 
 For [Org mode content][org], use `# more` where you want to split the article.
 
@@ -51,10 +53,10 @@ Pros
 : Freedom, precision, and improved rendering.  All HTML tags and formatting are preserved.
 
 Cons
-: Extra work for content authors, since they need to remember to type <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> (or `# more` for [org content][org]) in each content file. This can be automated by adding the summary divider below the front matter of an [archetype](/content-management/archetypes/).
+: Extra work for content authors, since they need to remember to type `<!--more-->` (or `# more` for [org content][org]) in each content file. This can be automated by adding the summary divider below the front matter of an [archetype](/content-management/archetypes/).
 
 {{% note %}}
-Be careful to enter <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> exactly; i.e., all lowercase and with no whitespace.
+Be careful to enter `<!--more-->` exactly; i.e., all lowercase and with no whitespace.
 {{% /note %}}
 
 ### Front matter summary
@@ -71,12 +73,12 @@ Cons
 
 Because there are multiple ways in which a summary can be specified it is useful to understand the order of selection Hugo follows when deciding on the text to be returned by `.Summary`.  It is as follows:
 
-1. If there is a <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> summary divider present in the article the text up to the divider will be provided as per the manual summary split method
+1. If there is a `<!--more-->`> summary divider present in the article the text up to the divider will be provided as per the manual summary split method
 2. If there is a `summary` variable in the article front matter the value of the variable will be provided as per the front matter summary method
 3. The text at the start of the article will be provided as per the automatic summary split method
 
 {{% note %}}
-Hugo uses the _first_ of the above steps that returns text.  So if, for example, your article has both `summary` variable in its front matter and a <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> summary divider Hugo will use the manual summary split method.
+Hugo uses the _first_ of the above steps that returns text.  So if, for example, your article has both `summary` variable in its front matter and a `<!--more-->` summary divider Hugo will use the manual summary split method.
 {{% /note %}}
 
 ## Example: first 10 articles with summaries

@@ -12,9 +12,6 @@ toc: true
 aliases: [/taxonomies/displaying/,/templates/terms/,/indexes/displaying/,/taxonomies/templates/,/indexes/ordering/, /templates/taxonomies/, /templates/taxonomy/]
 ---
 
-<!-- NOTE! Check on https://github.com/gohugoio/hugo/issues/2826 for shifting of terms' pages to .Data.Pages AND
-https://discourse.gohugo.io/t/how-to-specify-category-slug/4856/15 for original discussion.-->
-
 Hugo includes support for user-defined groupings of content called **taxonomies**. Taxonomies are classifications that demonstrate logical relationships between content. See [Taxonomies under Content Management](/content-management/taxonomies) if you are unfamiliar with how Hugo leverages this powerful feature.
 
 Hugo provides multiple ways to use taxonomies throughout your project templates:
@@ -118,8 +115,6 @@ If you need to display custom metadata for each taxonomy term, you will need to 
 </ul>
 ```
 
-<!-- Begin /taxonomies/ordering/ -->
-
 ## Order taxonomies
 
 Taxonomies can be ordered by either alphabetical key or by the number of content pieces assigned to that key.
@@ -133,8 +128,6 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
   {{ end }}
 </ul>
 ```
-
-<!-- [See Also Taxonomy Lists](/templates/list/) -->
 
 ## Order content within taxonomies
 
@@ -170,8 +163,6 @@ With this the same piece of content can appear in different positions in differe
 
 Currently taxonomies only support the default ordering of content which is weight -> date.
 
-<!-- Begin /taxonomies/templates/ -->
-
 There are two different templates that the use of taxonomies will require you to provide.
 
 Both templates are covered in detail in the templates section.
@@ -180,8 +171,6 @@ A [list template](/templates/lists/) is any template that will be used to render
 
 A [taxonomy template](/templates/taxonomy-templates/) is a template used to
 generate the list of terms for a given template.
-
-<!-- Begin /taxonomies/displaying/ -->
 
 There are four common ways you can display the data in your
 taxonomies in addition to the automatic taxonomy pages created by hugo

@@ -9,9 +9,8 @@ menu:
     weight: 60
 weight: 60
 type: glossary
+# Use level 3 headings for each term in the glossary.
 ---
-
-<!-- Use level 3 headings for each term in the glossary. -->
 
 ### action
 

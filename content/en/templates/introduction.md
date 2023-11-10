@@ -466,9 +466,9 @@ Which then outputs:
 
 Go considers the following characters _whitespace_:
 
-* <kbd>space</kbd>
-* horizontal <kbd>tab</kbd>
-* carriage <kbd>return</kbd>
+* space
+* horizontal tab
+* carriage return
 * newline
 
 ## Comments
