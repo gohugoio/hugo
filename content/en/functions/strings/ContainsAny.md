@@ -1,6 +1,6 @@
 ---
 title: strings.ContainsAny
-description: Reports whether a string contains any character from a given string.
+description: Reports whether the given string contains any character within the given set.
 categories: []
 keywords: []
 action:
@@ -12,7 +12,7 @@ action:
     - functions/strings/HasSuffix
     - functions/collections/In
   returnType: bool
-  signatures: [strings.ContainsAny STRING CHARACTERS]
+  signatures: [strings.ContainsAny STRING SET]
 aliases: [/functions/strings.containsany]
 ---
 

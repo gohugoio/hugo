@@ -14,7 +14,3 @@ aliases: [/functions/plainify]
 ```go-html-template
 {{ "<b>BatMan</b>" | plainify }} → BatMan
 ```
-
-See also the `.PlainWords`, `.Plain`, and `.RawContent` [page variables][pagevars].
-
-[pagevars]: /variables/page/

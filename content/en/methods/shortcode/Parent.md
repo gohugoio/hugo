@@ -19,13 +19,13 @@ Welcome. Today is {{</* now */>}}.
 {{</* /greeting */>}}
 {{< /code >}}
 
-{{< code file=layouts/shortcodes/greeting.html lang=go-html-template >}}
+{{< code file=layouts/shortcodes/greeting.html  >}}
 <div class="greeting">
   {{ trim .Inner "\r\n" | .Page.RenderString }}
 </div>
 {{< /code >}}
 
-{{< code file=layouts/shortcodes/now.html lang=go-html-template >}}
+{{< code file=layouts/shortcodes/now.html  >}}
 {{- $dateFormat := "January 2, 2006 15:04:05" }}
 
 {{- with .Params }}

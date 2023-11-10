@@ -15,8 +15,10 @@ action:
   signatures: [math.Div VALUE VALUE...]
 ---
 
-If one of the numbers is a float, the result is a float.
+If one of the numbers is a [`float`], the result is a `float`.
 
 ```go-html-template
 {{ div 12 3 2 }} → 2
 ```
+
+[`float`]: /getting-started/glossary/#float

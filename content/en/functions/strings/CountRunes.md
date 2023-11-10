@@ -1,6 +1,6 @@
 ---
 title: strings.CountRunes
-description: Returns the number of runes in a string excluding whitespace.
+description: Returns the number of runes in the given string excluding whitespace.
 categories: []
 keywords: []
 action:

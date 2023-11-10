@@ -27,13 +27,13 @@ The examples below show the rendered output when visiting a page on the English 
 
 ```go-html-template
 {{ $opts := dict "path" "/books/book-1" }}
-{{ .Ref $opts }} → http://localhost:1314/en/books/book-1/
+{{ .Ref $opts }} → https://example.org/en/books/book-1/
 
 {{ $opts := dict "path" "/books/book-1" "lang" "de" }}
-{{ .Ref $opts }} → http://localhost:1314/de/books/book-1/
+{{ .Ref $opts }} → https://example.org/de/books/book-1/
 
 {{ $opts := dict "path" "/books/book-1" "lang" "de" "outputFormat" "json" }}
-{{ .Ref $opts }} → http://localhost:1314/de/books/book-1/index.json
+{{ .Ref $opts }} → https://example.org/de/books/book-1/index.json
 ```
 
 By default, Hugo will throw an error and fail the build if it cannot resolve the path. You can change this to a warning in your site configuration, and specify a URL to return when the path cannot be resolved.

@@ -38,7 +38,7 @@ To process an emoji shortcode from within a template, use the [`emojify`] functi
 
 ## Introduction
 
-This quick reference guide was automatically generated from [GitHub Emoji API] and [Unicode Full Emoji List]. Specials thanks to [@ikatyang] for making [this list] available to the open source community.
+This quick reference guide was automatically generated from [GitHub Emoji API] and [Unicode Full Emoji List]. Specials thanks to [@ikatyang] for making [this list] available to the open-source community.
 
 GitHub [custom emoji] are not supported.
 

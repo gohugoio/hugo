@@ -425,8 +425,8 @@ Hugo renders alias files before rendering pages. A new page with the previous fi
 
 Create a new template (`layouts/alias.html`) to customize the content of the alias files. The template receives the following context:
 
-`Permalink`
+Permalink
 : the link to the page being aliased
 
-`Page`
+Page
 : the Page data for the page being aliased

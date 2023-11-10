@@ -118,13 +118,13 @@ Any shortcode that refers to `.Inner` must be closed or self-closed.
 
 The `.Params` variable in shortcodes contains the list parameters passed to shortcode for more complicated use cases. You can also access higher-scoped parameters with the following logic:
 
-`$.Params`
+$.Params
 : these are the parameters passed directly into the shortcode declaration (e.g., a YouTube video ID)
 
-`$.Page.Params`
+$.Page.Params
 : refers to the page's parameters; the "page" in this case refers to the content file in which the shortcode is declared (e.g., a `shortcode_color` field in a content's front matter could be accessed via `$.Page.Params.shortcode_color`).
 
-`$.Page.Site.Params`
+$.Page.Site.Params
 : refers to global variables as defined in your [site's configuration file][config].
 
 #### `.IsNamedParams`

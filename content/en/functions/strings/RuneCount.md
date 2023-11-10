@@ -1,6 +1,6 @@
 ---
 title: strings.RuneCount
-description: Returns the number of runes in a string.
+description: Returns the number of runes in the given string.
 categories: []
 keywords: []
 action:

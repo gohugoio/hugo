@@ -1,6 +1,6 @@
 ---
 title: strings.CountWords
-description: Returns the number of words in a string.
+description: Returns the number of words in the given string.
 categories: []
 keywords: []
 action:
@@ -15,10 +15,6 @@ action:
 aliases: [/functions/countwords]
 ---
 
-The template function works similar to the [.WordCount page variable][pagevars].
-
 ```go-html-template
 {{ "Hugo is a static site generator." | countwords }} → 6
 ```
-
-[pagevars]: /variables/page/

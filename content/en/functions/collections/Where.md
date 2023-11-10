@@ -227,11 +227,11 @@ With custom front matter dates, the comparison depends on the front matter data 
 Using TOML for pages with custom front matter dates enables precise date comparisons.
 {{% /note %}}
 
-With TOML, date values are first-class citizens. TOML has a date data type while JSON and YAML do not. If you quote a TOML date, it is a string. If you do not quote a TOML data value, it is [`time.Time`] value, enabling precise comparisons.
+With TOML, date values are first-class citizens. TOML has a date data type while JSON and YAML do not. If you quote a TOML date, it is a string. If you do not quote a TOML date value, it is [`time.Time`] value, enabling precise comparisons.
 
 In the TOML example below, note that the event date is not quoted.
 
-{{< code file="content/events/2024-user-conference.md" lang=go-html-template >}}
+{{< code file="content/events/2024-user-conference.md" >}}
 +++
 title = '2024 User Conference"
 eventDate = 2024-04-01

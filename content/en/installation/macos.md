@@ -22,7 +22,7 @@ toc: true
 
 ### MacPorts
 
-[MacPorts] is a free and open source package manager for macOS. This will install the extended edition of Hugo:
+[MacPorts] is a free and open-source package manager for macOS. This will install the extended edition of Hugo:
 
 ```sh
 sudo port install hugo

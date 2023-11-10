@@ -811,20 +811,20 @@ You can override any of these cache settings in your own `hugo.toml`.
 
 ### The keywords explained
 
-`:cacheDir`
-: See [Configure cacheDir](#configure-cachedir).
+cacheDir
+: (`string`) See [Configure cacheDir](#configure-cachedir).
 
-`:project`
-: The base directory name of the current Hugo project. This means that, in its default setting, every project will have separated file caches, which means that when you do `hugo --gc` you will not touch files related to other Hugo projects running on the same PC.
+project
+: (`string`) The base directory name of the current Hugo project. This means that, in its default setting, every project will have separated file caches, which means that when you do `hugo --gc` you will not touch files related to other Hugo projects running on the same PC.
 
-`:resourceDir`
-: This is the value of the `resourceDir` configuration option.
+resourceDir
+: (`string`) This is the value of the `resourceDir` configuration option.
 
 maxAge
-: This is the duration before a cache entry will be evicted, -1 means forever and 0 effectively turns that particular cache off. Uses Go's `time.Duration`, so valid values are `"10s"` (10 seconds), `"10m"` (10 minutes) and `"10h"` (10 hours).
+: (`string`) This is the duration before a cache entry will be evicted, -1 means forever and 0 effectively turns that particular cache off. Uses Go's `time.Duration`, so valid values are `"10s"` (10 seconds), `"10m"` (10 minutes) and `"10h"` (10 hours).
 
 dir
-: The absolute path to where the files for this cache will be stored. Allowed starting placeholders are `:cacheDir` and `:resourceDir` (see above).
+: (`string`) The absolute path to where the files for this cache will be stored. Allowed starting placeholders are `:cacheDir` and `:resourceDir` (see above).
 
 ## Configuration format specs
 

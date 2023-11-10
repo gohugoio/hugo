@@ -20,7 +20,7 @@ toc: true
 
 ### Snap
 
-[Snap] is a free and open source package manager for Linux. Available for [most distributions], snap packages are simple to install and are automatically updated.
+[Snap] is a free and open-source package manager for Linux. Available for [most distributions], snap packages are simple to install and are automatically updated.
 
 The Hugo snap package is [strictly confined]. Strictly confined snaps run in complete isolation, up to a minimal access level that’s deemed always safe. The sites you create and build must be located within your home directory, or on removable media.
 

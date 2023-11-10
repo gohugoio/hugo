@@ -23,7 +23,7 @@ We design the **best** widgets in the world.
 
 With this shortcode:
 
-{{< code file=layouts/shortcodes/card.html lang=go-html-template >}}
+{{< code file=layouts/shortcodes/card.html  >}}
 <div class="card">
   {{ with .Get "title" }}
     <div class="card-title">{{ . }}</div>
@@ -62,7 +62,7 @@ Let's modify the example above to pass the value returned by `Inner` through the
 
 [`RenderString`]: /methods/page/renderstring
 
-{{< code file=layouts/shortcodes/card.html lang=go-html-template >}}
+{{< code file=layouts/shortcodes/card.html  >}}
 <div class="card">
   {{ with .Get "title" }}
     <div class="card-title">{{ . }}</div>
@@ -112,7 +112,7 @@ This configuration is not unsafe if _you_ control the content. Read more about H
 
 Second, because we are rendering the entire shortcode as markdown, we must adhere to the rules governing [indentation] and inclusion of [raw HTML blocks] as provided in the [CommonMark] specification.
 
-{{< code file=layouts/shortcodes/card.html lang=go-html-template >}}
+{{< code file=layouts/shortcodes/card.html  >}}
 <div class="card">
   {{ with .Get "title" }}
   <div class="card-title">{{ . }}</div>

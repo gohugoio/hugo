@@ -15,7 +15,7 @@ Hugo publishes the resource to the target path when you call its`.Publish`, `.Pe
 
 Let's say you have a CSS file that you wish to populate with values from your site configuration:
 
-{{< code lang=go-html-template file=assets/css/template.css >}}
+{{< code file=assets/css/template.css lang=go-html-template >}}
 body {
   background-color: {{ site.Params.style.bg_color }};
   color: {{ site.Params.style.text_color }};

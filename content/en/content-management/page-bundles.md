@@ -61,11 +61,11 @@ content/
 In the above example `content/` directory, there are four leaf
 bundles:
 
-`about`
+about
 : This leaf bundle is at the root level (directly under
     `content` directory) and has only the `index.md`.
 
-`my-post`
+my-post
 : This leaf bundle has the `index.md`, two other content
     Markdown files and two image files.
 
@@ -78,10 +78,10 @@ These content files are page resources of `my-post`
     and only available in `my-post/index.md` resources.
     They will **not** be rendered as individual pages.
 
-`my-other-post`
+my-other-post
 : This leaf bundle has only the `index.md`.
 
-`another-leaf-bundle`
+another-leaf-bundle
 : This leaf bundle is nested under couple of
     directories. This bundle also has only the `index.md`.
 
@@ -167,11 +167,11 @@ content/
 In the above example `content/` directory, there are two branch
 bundles (and a leaf bundle):
 
-`branch-bundle-1`
+branch-bundle-1
 : This branch bundle has the `_index.md`, two
     other content Markdown files and two image files.
 
-`branch-bundle-2`
+branch-bundle-2
 : This branch bundle has the `_index.md` and a
     nested leaf bundle.
 

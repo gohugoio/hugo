@@ -11,9 +11,9 @@ action:
 aliases: [/functions/templates.exists]
 ---
 
-A template file is any file living below the `layouts` directories of either the project or any of its theme components including partials and shortcodes.
+A template file is any file within the `layouts` directory of either the project or any of its theme components.
 
-The function is particularly handy with dynamic path. The following example ensures the build will not break on a `.Type` missing its dedicated `header` partial.
+Use the `templates.Exists` function with dynamic template paths:
 
 ```go-html-template
 {{ $partialPath := printf "headers/%s.html" .Type }}
@@ -23,3 +23,5 @@ The function is particularly handy with dynamic path. The following example ensu
   {{ partial "headers/default.html" . }}
 {{ end }}
 ```
+
+In the example above, if a "headers" partial does not exist for the given content type, Hugo falls back to a default template.

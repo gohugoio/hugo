@@ -1,6 +1,6 @@
 ---
 title: strings.Contains
-description: Reports whether the string contains a substring.
+description: Reports whether the given string contains the given substring.
 categories: []
 keywords: []
 action:

@@ -1,6 +1,6 @@
 ---
 title: strings.TrimLeft
-description: Returns the given string, removing leading characters that appear in the cutset.
+description: Returns the given string, removing leading characters specified in the cutset.
 categories: []
 keywords: []
 action:

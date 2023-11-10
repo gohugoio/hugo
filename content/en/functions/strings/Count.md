@@ -1,6 +1,6 @@
 ---
 title: strings.Count
-description: Returns the number of non-overlapping instances of a substring within a string.
+description: Returns the number of non-overlapping instances of the given substring within the given string.
 categories: []
 keywords: []
 action:

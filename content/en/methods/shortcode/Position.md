@@ -13,7 +13,7 @@ action:
 
 The `Position` method is useful for error reporting. For example, if your shortcode requires a "greeting" parameter:
 
-{{< code file=layouts/shortcodes/myshortcode.html lang=go-html-template >}}
+{{< code file=layouts/shortcodes/myshortcode.html  >}}
 {{ $greeting := "" }}
 {{ with .Get "greeting" }}
   {{ $greeting = . }}
@@ -29,5 +29,5 @@ ERROR The "myshortcode" shortcode requires a 'greeting' parameter. See "/home/us
 ```
 
 {{% note %}}
-The position can relatively expensive to calculate. Limit its use to error reporting.
+The position can be expensive to calculate. Limit its use to error reporting.
 {{% /note %}}

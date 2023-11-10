@@ -12,7 +12,7 @@ action:
 Given this front matter:
 
 {{< code-toggle file=content/books/les-miserables.md fm=true >}}
-title = 'Les Miserables'
+title = 'Les Misérables'
 tags = ['historical','classic','fiction']
 {{< /code-toggle >}}
 

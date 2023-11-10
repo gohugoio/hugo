@@ -85,40 +85,40 @@ The above example is fictional, but if used for the homepage on a site with `bas
 
 The following is the full list of configuration options for output formats and their default values:
 
-`name`
+name
 : the output format identifier. This is used to define what output format(s) you want for your pages.
 
-`mediaType`
+mediaType
 : this must match the `Type` of a defined media type.
 
-`path`
+path
 : sub path to save the output files.
 
-`baseName`
+baseName
 : the base file name for the list file names (homepage, etc.). **Default:** `index`.
 
-`rel`
+rel
 : can be used to create `rel` values in `link` tags. **Default:** `alternate`.
 
-`protocol`
+protocol
 : will replace the "http://" or "https://" in your `baseURL` for this output format.
 
-`isPlainText`
+isPlainText
 : use Go's plain text templates parser for the templates. **Default:** `false`.
 
-`isHTML`
+isHTML
 : used in situations only relevant for `HTML`-type formats; e.g., page aliases. **Default:** `false`.
 
-`noUgly`
+noUgly
 : used to turn off ugly URLs If `uglyURLs` is set to `true` in your site. **Default:** `false`.
 
-`notAlternative`
+notAlternative
 : enable if it doesn't make sense to include this format in an `AlternativeOutputFormats` format listing on `Page` (e.g., with `CSS`). Note that we use the term _alternative_ and not _alternate_ here, as it does not necessarily replace the other format. **Default:** `false`.
 
-`permalinkable`
+permalinkable
 : make `.Permalink` and `.RelPermalink` return the rendering Output Format rather than main ([see below](#link-to-output-formats)). This is enabled by default for `HTML` and `AMP`. **Default:** `false`.
 
-`weight`
+weight
 : Setting this to a non-zero value will be used as the first sort criteria.
 
 ## Output formats for pages

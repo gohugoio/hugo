@@ -1,6 +1,6 @@
 ---
 title: strings.Title
-description: Converts the given string to title case.
+description: Returns the given string, converting it to title case.
 categories: []
 keywords: []
 action:

@@ -93,7 +93,7 @@ title = 'Headless page'
 
 To include the content and images on the home page:
 
-{{< code file=layouts/_default/home.html lang=go-html-template >}}
+{{< code file=layouts/_default/home.html  >}}
 {{ with .Site.GetPage "/headless" }}
   {{ .Content }}
   {{ range .Resources.ByType "image" }}
@@ -153,7 +153,7 @@ In the front matter above, note that we have set `list` to `local` to include th
 
 To include the content and images on the home page:
 
-{{< code file=layouts/_default/home.html lang=go-html-template >}}
+{{< code file=layouts/_default/home.html  >}}
 {{ with .Site.GetPage "/headless" }}
   {{ range .Pages }}
     {{ .Content }}
@@ -212,7 +212,7 @@ render = 'always'
 
 To render the glossary:
 
-{{< code file=layouts/glossary/list.html lang=go-html-template >}}
+{{< code file=layouts/glossary/list.html  >}}
 <dl>
   {{ range .Pages }}
     <dt>{{ .Title }}</dt>

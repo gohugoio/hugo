@@ -1,6 +1,6 @@
 ---
 title: strings.Trim
-description: Returns the given string, removing leading and trailing characters that appear in the cutset.
+description: Returns the given string, removing leading and trailing characters specified in the cutset.
 categories: []
 keywords: []
 action:

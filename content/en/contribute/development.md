@@ -1,9 +1,8 @@
 ---
-title: Contribute to development
-linkTitle: Development
-description: Hugo relies heavily on contributions from the open source community.
+title: Development
+description: Contribute to the development of Hugo.
 categories: [contribute]
-keywords: [dev,open source]
+keywords: [development]
 menu:
   docs:
     parent: contribute

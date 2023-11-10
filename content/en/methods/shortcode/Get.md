@@ -28,7 +28,7 @@ This shortcode call uses positional parameters:
 
 To retrieve parameters by position:
 
-{{< code file=layouts/shortcodes/myshortcode.html lang=go-html-template >}}
+{{< code file=layouts/shortcodes/myshortcode.html  >}}
 {{ printf "%s %s." (.Get 0) (.Get 1) }} → Hello world.
 {{< /code >}}
 
@@ -42,7 +42,7 @@ This shortcode call uses named parameters:
 
 To retrieve parameters by name:
 
-{{< code file=layouts/shortcodes/myshortcode.html lang=go-html-template >}}
+{{< code file=layouts/shortcodes/myshortcode.html  >}}
 {{ printf "%s %s." (.Get "greeting") (.Get "firstName") }} → Hello world.
 {{< /code >}}
 

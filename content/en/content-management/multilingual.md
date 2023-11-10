@@ -188,8 +188,8 @@ public
 When you run `hugo server` we will start multiple HTTP servers. You will typically see something like this in the console:
 
 ```text
-Web Server is available at 127.0.0.1:1313 (bind address 127.0.0.1)
-Web Server is available at 127.0.0.1:1314 (bind address 127.0.0.1)
+Web Server is available at 127.0.0.1:1313 (bind address 127.0.0.1) fr
+Web Server is available at 127.0.0.1:1314 (bind address 127.0.0.1) en
 Press Ctrl+C to stop
 ```
 

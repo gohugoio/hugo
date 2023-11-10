@@ -36,7 +36,7 @@ In the example above, notice that the content between the opening and closing sh
 
 With this shortcode, calling `Inner` instead of `InnerDeindent`:
 
-{{< code file=layouts/shortcodes/gallery.html lang=go-html-template >}}
+{{< code file=layouts/shortcodes/gallery.html  >}}
 <div class="gallery">
   {{ trim .Inner "\r\n" | .Page.RenderString }}
 </div>
@@ -67,7 +67,7 @@ Hugo renders the markdown to:
 
 Although technically correct per the CommonMark specification, this is not what we want. If we remove the indentation using the `InnerDeindent` method:
 
-{{< code file=layouts/shortcodes/gallery.html lang=go-html-template >}}
+{{< code file=layouts/shortcodes/gallery.html  >}}
 <div class="gallery">
   {{ trim .InnerDeindent "\r\n" | .Page.RenderString }}
 </div>

@@ -31,14 +31,14 @@ the kinetic energy (E) of that body.
 
 The shortcode is simple:
 
-{{< code file=layouts/shortcodes/math.html lang=go-html-template >}}
+{{< code file=layouts/shortcodes/math.html  >}}
 {{ trim .Inner "\r\n" }}
 {{< /code >}}
 
 Now we can selectively load the required CSS and JavaScript on pages that call the "math" shortcode:
 
 
-{{< code file=layouts/baseof.html lang=go-html-template >}}
+{{< code file=layouts/baseof.html  >}}
 <head>
   ...
   {{ if .HasShortcode "math" }}

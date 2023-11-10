@@ -14,7 +14,7 @@ To support both positional and named parameters when calling a shortcode, use th
 
 With this shortcode template:
 
-{{< code file=layouts/shortcodes/myshortcode.html lang=go-html-template >}}
+{{< code file=layouts/shortcodes/myshortcode.html  >}}
 {{ if .IsNamedParams }}
   {{ printf "%s %s." (.Get "greeting") (.Get "firstName") }}
 {{ else }}
