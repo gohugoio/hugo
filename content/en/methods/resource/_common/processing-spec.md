@@ -25,7 +25,9 @@ quality
 : Applicable to JPEG and WebP images. Optionally specify `qN` where `N` is an integer in the range [0, 100]. Default is `75`. See&nbsp;[details](/content-management/image-processing/#quality).
 
 hint
-: Applicable to WebP images. Specify zero or one of `drawing`, `icon`, `photo`, `picture`, or `text`. Default is `photo`. See&nbsp;[details](/content-management/image-processing/#hint).
+: Applicable to WebP images and equivalent to the `-preset` flag for the [`cwebp`] encoder. Specify zero or one of `drawing`, `icon`, `photo`, `picture`, or `text`. Default is `photo`. See&nbsp;[details](/content-management/image-processing/#hint).
+
+[`cwebp`]: https://developers.google.com/speed/webp/docs/cwebp
 
 background color
 : When converting a PNG or WebP with transparency to a format that does not support transparency, optionally specify a background color using a 3-digit or a 6-digit hexadecimal color code. Default is `#ffffff` (white). See&nbsp;[details](/content-management/image-processing/#background-color).

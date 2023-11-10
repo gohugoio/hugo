@@ -66,7 +66,10 @@ quality
 ```
 
 hint
-: Applicable to WebP images. Specify zero or one of `drawing`, `icon`, `photo`, `picture`, or `text`. Default is `photo`. See&nbsp;[details](/content-management/image-processing/#hint).
+: Applicable to WebP images and equivalent to the `-preset` flag for the [`cwebp`] encoder. Specify zero or one of `drawing`, `icon`, `photo`, `picture`, or `text`. Default is `photo`. See&nbsp;[details](/content-management/image-processing/#hint).
+
+[`cwebp`]: https://developers.google.com/speed/webp/docs/cwebp
+
 
 ```go-html-template
 {{ $filter := images.Process "webp" "icon" }}

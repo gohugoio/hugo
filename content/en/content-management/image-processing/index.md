@@ -346,9 +346,9 @@ The default value is 75. You may override the default value in the [site configu
 
 ### Hint
 
-<!-- Specifies a libwebp preset, not a libwebp image hint. -->
+Applicable to WebP images, this option corresponds to a set of predefined encoding parameters, and is equivalent to the `-preset` flag for the [`cwebp`] encoder.
 
-Applicable to WebP images, this option corresponds to a set of predefined encoding parameters.
+[`cwebp`]: https://developers.google.com/speed/webp/docs/cwebp
 
 Value|Example
 :--|:--
