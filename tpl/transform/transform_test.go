@@ -247,3 +247,24 @@ func TestPlainify(t *testing.T) {
 		b.Assert(result, qt.Equals, test.expect)
 	}
 }
+
+// Issue #xxx
+func TestMarkdownifyTitleAndBlock(t *testing.T) {
+	t.Parallel()
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{T: t},
+	).Build()
+
+	ns := transform.New(b.H.Deps)
+
+	text := `
+# My Title
+
+This is some text.
+`
+
+	result, err := ns.Markdownify(context.Background(), text)
+	b.Assert(err, qt.IsNil)
+	b.Assert(result, qt.Equals, template.HTML(
+		"<h1 id=\"my-title\">My Title</h1>\n<p>This is some text.</p>\n"))
+}
