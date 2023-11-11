@@ -8,6 +8,10 @@
 #
 # {{< list-pages-in-section path=/functions/images filter=functions_images_no_filters filterType=exclude >}}
 
+functions_fmt_logging:
+  - /functions/fmt/errorf
+  - /functions/fmt/erroridf
+  - /functions/fmt/warnf
 functions_images_no_filters:
   - /functions/images/filter
   - /functions/images/config
