@@ -27,7 +27,7 @@ Provide your tracking ID in your configuration file:
 
 {{< code-toggle file=hugo >}}
 [services.googleAnalytics]
-googleAnalytics = "G-MEASUREMENT_ID"
+ID = "G-MEASUREMENT_ID"
 {{</ code-toggle >}}
 
 ### Use the Google Analytics template
