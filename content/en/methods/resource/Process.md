@@ -15,7 +15,7 @@ action:
 toc: true
 ---
 
-Process an image with the given specification. The specification can contain an optional action, one of `resize`, `crop`, `fit` or `fill`. This means that you can use this method instead of [`Crop`], [`Fill`], [`Fit`], or [`Resize`].
+Process an image with the given specification. The specification can contain an optional action, one of `crop`, `fill`, `fit`, or `resize`. This means that you can use this method instead of [`Crop`], [`Fill`], [`Fit`], or [`Resize`].
 
 ```go-html-template
 {{ with resources.Get "images/original.jpg" }}

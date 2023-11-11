@@ -56,7 +56,7 @@ _Tested with GNU Bash 5.1 and GNU grep 3.7._
 : By default, Hugo strips raw HTML from your markdown prior to rendering, and leaves this HTML comment in its place.
 
 `ZgotmplZ`
-: ZgotmplZ is a special value that indicates that unsafe content reached a CSS or URL context at runtime. For more information see. See&nbsp;[details].
+: ZgotmplZ is a special value that indicates that unsafe content reached a CSS or URL context at runtime. See&nbsp;[details].
 
 [details]: https://pkg.go.dev/html/template
 
@@ -70,4 +70,4 @@ _Tested with GNU Bash 5.1 and GNU grep 3.7._
 : Same as above when the value returned from the `printf` function has not been passed through `safeHTML`.
 
 `HAHAHUGO`
-: Under certain conditions a rendered shortcode may include all or a portion of the string H&#xfeff;AHAHUGOSHORTCODE in either uppercase or lowercase. This is difficult to detect in all circumstances because, but a case-insensitive search of the output for `HAHAHUGO` is likely to catch the majority of cases without producing false positives.
+: Under certain conditions a rendered shortcode may include all or a portion of the string H&#xfeff;AHAHUGOSHORTCODE in either uppercase or lowercase. This is difficult to detect in all circumstances, but a case-insensitive search of the output for `HAHAHUGO` is likely to catch the majority of cases without producing false positives.

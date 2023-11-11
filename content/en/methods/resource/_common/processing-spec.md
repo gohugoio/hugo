@@ -7,7 +7,7 @@
 The process specification is a space-delimited, case-insensitive list of one or more of the following in any sequence:
 
 action
-: Applicable to the [`Process`](/methods/resource/process) method only. Specify zero or one of `resize`, `fit`, `fill`, or `crop`. If you specify an action you must also provide dimensions.
+: Applicable to the [`Process`](/methods/resource/process) method only. Specify zero or one of `crop`, `fill`, `fit`, or `resize`. If you specify an action you must also provide dimensions.
 
 dimensions
 : Provide width _or_ height when using the [`Resize`](/methods/resource/resize) method, else provide both width _and_ height. See&nbsp;[details](/content-management/image-processing/#dimensions).

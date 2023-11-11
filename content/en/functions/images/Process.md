@@ -21,7 +21,7 @@ This filter has the same options as the [`Process`] method on a `Resource` objec
 The process specification is a space-delimited, case-insensitive list of one or more of the following in any sequence:
 
 action
-: Specify zero or one of `resize`, `fit`, `fill`, or `crop`. If you specify an action you must also provide dimensions. See&nbsp;[details](content-management/image-processing/#image-processing-methods).
+: Specify zero or one of `crop`, `fill`, `fit`, or `resize`. If you specify an action you must also provide dimensions. See&nbsp;[details](content-management/image-processing/#image-processing-methods).
 
 ```go-html-template
 {{ $filter := images.Process "resize 300x" }}

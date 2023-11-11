@@ -196,6 +196,18 @@ Rendered:
 
 These shortcodes are commonly used throughout the documentation. Other shortcodes are available for specialized use.
 
+### new-in
+
+Use the "new-in" shortcode to indicate a new feature.
+
+```text
+{{</* new-in 0.120.0 */>}}
+```
+
+Rendered:
+
+{{< new-in 0.120.0 >}}
+
 ### note
 
 Use the "note" shortcode with `{{%/* */%}}` delimiters to call attention to important content:
