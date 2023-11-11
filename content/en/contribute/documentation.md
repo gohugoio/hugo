@@ -196,9 +196,55 @@ Rendered:
 
 These shortcodes are commonly used throughout the documentation. Other shortcodes are available for specialized use.
 
+### deprecated-in
+
+Use the “deprecated-in” shortcode to indicate that a feature is deprecated:
+
+```text
+{{%/* deprecated-in 0.120.0 */%}}
+Use [`hugo.IsServer`] instead.
+
+[`hugo.IsServer`]: /functions/hugo/isserver
+{{%/* /deprecated-in */%}}
+```
+
+Rendered:
+
+{{% deprecated-in 0.120.0 %}}
+Use [`hugo.IsServer`] instead.
+
+[`hugo.IsServer`]: /functions/hugo/isserver
+{{% /deprecated-in %}}
+
+### code
+
+Use the "code" shortcode for other code examples that require a file name. See the [code examples] above. This shortcode takes these arguments:
+
+copy
+: (`bool`) Whether to display a copy-to-clipboard button. Default is `false`.
+
+file
+: (`string`) The file name to display.
+
+lang
+: (`string`) The code language. If you do not provide a `lang` argument, the code language is determined by the file extension. If the file extension is "html", sets the code language to `go-html-template`. Default is `text`.
+
+### code-toggle
+
+Use the "code-toggle" shortcode to display examples of site configuration, front matter, or data files. See the [code examples] above. This shortcode takes these arguments:
+
+copy
+: (`bool`) Whether to display a copy-to-clipboard button. Default is `false`.
+
+file
+: (`string`) The file name to display. Omit the file extension for site configuration examples.
+
+fm
+: (`bool`) Whether the example is front matter. Default is `false`.
+
 ### new-in
 
-Use the "new-in" shortcode to indicate a new feature.
+Use the "new-in" shortcode to indicate a new feature:
 
 ```text
 {{</* new-in 0.120.0 */>}}
@@ -228,31 +274,37 @@ Use the [`math.Mod`] function to control...
 [`math.Mod`]: /functions/math/mod/
 {{% /code %}}
 
-### code-toggle
+## New features
 
-Use the "code-toggle" shortcode to display examples of site configuration, front matter, or data files. See the [code examples] above. This shortcode takes these arguments:
+Use the "new-in" shortcode to indicate a new feature:
 
-copy
-: (`bool`) Whether to display a copy-to-clipboard button. Default is `false`.
+{{< code file=content/something/foo.md lang=text >}}
+{{</* new-in 0.120.0 */>}}
+{{< /code >}}
 
-file
-: (`string`) The file name to display. Omit the file extension for site configuration examples.
+## Deprecated features
 
-fm
-: (`bool`) Whether the example is front matter. Default is `false`.
+Use the "deprecated-in" shortcode to indicate that a feature is deprecated:
 
-### code
+{{< code file=content/something/foo.md >}}
+{{%/* deprecated-in 0.120.0 */%}}
+Use [`hugo.IsServer`] instead.
 
-Use the "code" shortcode for other code examples that require a file name. See the [code examples] above. This shortcode takes these arguments:
+[`hugo.IsServer`]: /functions/hugo/isserver
+{{%/* /deprecated-in */%}}
+{{< /code >}}
 
-copy
-: (`bool`) Whether to display a copy-to-clipboard button. Default is `false`.
+When deprecating a function or method, add this to front matter:
 
-file
-: (`string`) The file name to display.
+{{< code-toggle file=content/something/foo.md fm=true >}}
+expiryDate: 2024-10-30 
+_build:
+  list: never
+{{< /code-toggle >}}
 
-lang
-: (`string`) The code language. If you do not provide a `lang` argument, the code language is determined by the file extension. If the file extension is "html", sets the code language to `go-html-template`. Default is `text`.
+Set the `exipiryDate` to one year from the date of deprecation, and add a brief front matter comment to explain the settings.
+
+Users will be able to search for the page, but the page will not appear in any list views, including section menus.
 
 ## GitHub workflow
 

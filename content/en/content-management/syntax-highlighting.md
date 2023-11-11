@@ -41,7 +41,7 @@ Options:
 * `linenostart=199`: starts the line number count from 199.
 * `anchorlinenos`: Configure anchors on line numbers. Valid values are `true` or `false`;
 * `lineanchors`: Configure a prefix for the anchors on line numbers. Will be suffixed with `-`, so linking to the line number 1 with the option `lineanchors=prefix` adds the anchor `prefix-1` to the page.  
-* `hl_inline`  Highlight inside a `<code>` (inline HTML element) tag. Valid values are `true` or `false`. The `code` tag will get a class with name `code-inline`. {{< new-in "0.101.0" >}}
+* `hl_inline`  Highlight inside a `<code>` (inline HTML element) tag. Valid values are `true` or `false`. The `code` tag will get a class with name `code-inline`. {{< new-in 0.101.0 >}}
 
 ### Example: highlight shortcode
 

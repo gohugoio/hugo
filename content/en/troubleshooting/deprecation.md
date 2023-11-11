@@ -25,8 +25,7 @@ Think of deprecation as a statement of intent. This Wikipedia [article] describe
 - The feature is considered extraneous, and will be removed in the future in order to simplify the system as a whole.
 - A future version of the software will make major structural changes, making it impossible or impractical to support older features.
 - Standardization or increased consistency in naming.
-- A feature that once was available only independently is now combined with its co-feature. 
-
+- A feature that once was available only independently is now combined with its co-feature.
 
 After the project team deprecates something in code, Hugo will:
 

@@ -35,7 +35,7 @@ Multiple site configuration files can be specified as a comma-separated string t
 
 In Hugo 0.110.0 we changed the default configuration base file name to `hugo`, e.g. `hugo.toml`. We will still look for `config.toml` etc., but we recommend you eventually rename it (but you need to wait if you want to support older Hugo versions). The main reason we're doing this is to make it easier for code editors and build tools to identify this as a Hugo configuration file and project.
 
-{{< new-in "0.110.0" >}}
+{{< new-in 0.110.0 >}}
 
 ## Configuration directory
 
@@ -190,12 +190,10 @@ See [Configure File Caches](#configure-file-caches)
 
 ### cascade
 
-Pass down down default configuration values (front matter) to pages in the content tree. 
-The options in site config is the same as in page front matter, see [Front Matter Cascade](/content-management/front-matter#front-matter-cascade). 
+Pass down down default configuration values (front matter) to pages in the content tree. The options in site config is the same as in page front matter, see [Front Matter Cascade](/content-management/front-matter#front-matter-cascade).
 
 {{% note %}}
-For a website in a single language, define the `[[cascade]]` in [Front Matter](/content-management/front-matter#front-matter-cascade).   
-For a multilingual website, define the `[[cascade]]` in [Site Config](../../getting-started/configuration/#cascade).
+For a website in a single language, define the `[[cascade]]` in [Front Matter](/content-management/front-matter#front-matter-cascade). For a multilingual website, define the `[[cascade]]` in [Site Config](../../getting-started/configuration/#cascade).
 
 To remain consistent and prevent unexpected behaviour, do not mix these strategies.
 {{% /note %}}
@@ -523,7 +521,7 @@ The `build` configuration section contains global build-related configuration op
 
 {{< code-toggle config=build />}}
 
-buildStats {{< new-in "0.115.1" >}}
+buildStats {{< new-in 0.115.1 >}}
 : When enabled, creates a `hugo_stats.json` file in the root of your project. This file contains arrays of the `class` attributes, `id` attributes, and tags of every HTML element within your published site. Use this file as data source when [removing unused CSS] from your site. This process is also known as pruning, purging, or tree shaking.
 
 [removing unused CSS]: /hugo-pipes/postprocess/#css-purging-with-postcss
@@ -553,7 +551,7 @@ useResourceCacheWhen
 
 ## Configure cache busters
 
-{{< new-in "0.112.0" >}}
+{{< new-in 0.112.0 >}}
 
 The `build.cachebusters` configuration option was added to support development using Tailwind 3.x's JIT compiler where a `build` configuration may look like this:
 
@@ -630,7 +628,7 @@ Setting `force=true` will make a redirect even if there is existing content in t
 
 ## 404 server error page {#_404-server-error-page}
 
-{{< new-in "0.103.0" >}}
+{{< new-in 0.103.0 >}}
 
 Hugo will, by default, render all 404 errors when running `hugo server` with the `404.html` template. Note that if you have already added one or more redirects to your [server configuration](#configure-server), you need to add the 404 redirect explicitly, e.g:
 
@@ -851,7 +849,7 @@ This can be set using the `cacheDir` config option or via the OS env variable `H
 If this is not set, Hugo will use, in order of preference:
 
 1. If running on Netlify: `/opt/build/cache/hugo_cache/`. This means that if you run your builds on Netlify, all caches configured with `:cacheDir` will be saved and restored on the next build. For other CI vendors, please read their documentation. For an CircleCI example, see [this configuration](https://github.com/bep/hugo-sass-test/blob/6c3960a8f4b90e8938228688bc49bdcdd6b2d99e/.circleci/config.yml).
-1. In a `hugo_cache` directory below the OS user cache directory as defined by Go's [os.UserCacheDir](https://pkg.go.dev/os#UserCacheDir). On Unix systems, this is `$XDG_CACHE_HOME` as specified by [basedir-spec-latest](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html) if non-empty, else `$HOME/.cache`. On MacOS, this is `$HOME/Library/Caches`. On Windows, this is`%LocalAppData%`. On Plan 9, this is `$home/lib/cache`. {{< new-in "0.116.0" >}}
+1. In a `hugo_cache` directory below the OS user cache directory as defined by Go's [os.UserCacheDir](https://pkg.go.dev/os#UserCacheDir). On Unix systems, this is `$XDG_CACHE_HOME` as specified by [basedir-spec-latest](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html) if non-empty, else `$HOME/.cache`. On MacOS, this is `$HOME/Library/Caches`. On Windows, this is`%LocalAppData%`. On Plan 9, this is `$home/lib/cache`. {{< new-in 0.116.0 >}}
 1. In a  `hugo_cache_$USER` directory below the OS temp dir.
 
 If you want to know the current value of `cacheDir`, you can run `hugo config`, e.g: `hugo config | grep cachedir`.

@@ -10,7 +10,7 @@ menu:
 weight: 50
 toc: true
 ---
-{{< new-in "0.93.0" >}}
+{{< new-in 0.93.0 >}}
 
 ## GoAT diagrams (Ascii)
 

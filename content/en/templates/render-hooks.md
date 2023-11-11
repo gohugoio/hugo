@@ -23,7 +23,7 @@ The hook kinds currently supported are:
 * `image`
 * `link`
 * `heading`
-* `codeblock`{{< new-in "0.93.0" >}}
+* `codeblock`{{< new-in 0.93.0 >}}
 
 You can define [Output-Format-](/templates/output-formats) and [language-](/content-management/multilingual/)specific templates if needed. Your `layouts` folder may look like this:
 
@@ -91,10 +91,10 @@ Attributes (map)
 
 The `render-image` templates will also receive:
 
-IsBlock {{< new-in "0.108.0" >}}
+IsBlock {{< new-in 0.108.0 >}}
 : Returns true if this is a standalone image and the configuration option [markup.goldmark.parser.wrapStandAloneImageWithinParagraph](/getting-started/configuration-markup/#goldmark) is disabled.
 
-Ordinal  {{< new-in "0.108.0" >}}
+Ordinal  {{< new-in 0.108.0 >}}
 : Zero-based ordinal for all the images in the current document.
 
 ### Link with title markdown example
@@ -145,7 +145,7 @@ The rendered html will be
 
 ## Render hooks for code blocks
 
-{{< new-in "0.93.0" >}}
+{{< new-in 0.93.0 >}}
 
 You can add a hook template for either all code blocks or for a specific type/language (`bash` in the example below):
 

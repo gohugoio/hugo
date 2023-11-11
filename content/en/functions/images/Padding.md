@@ -13,6 +13,8 @@ action:
 toc: true
 ---
 
+{{< new-in 0.120.0 >}}
+
 The last argument is the canvas color, expressed as an RGB or RGBA [hexadecimal color]. The default value is `ffffffff` (opaque white). The preceding arguments are the padding values, in pixels, using the CSS [shorthand property] syntax. Negative padding values will crop the image.
 
 [hexadecimal color]: https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color

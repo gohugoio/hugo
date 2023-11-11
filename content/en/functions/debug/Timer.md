@@ -10,7 +10,7 @@ action:
   signatures: [debug.Timer NAME] 
 ---
 
-{{< new-in "0.120.0" >}}
+{{< new-in 0.120.0 >}}
 
 Use the `debug.Timer` function to determine execution time for a block of code, useful for finding performance bottle necks in templates.
 

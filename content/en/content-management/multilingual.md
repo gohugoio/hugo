@@ -97,7 +97,7 @@ weight
 
 ### Changes in Hugo 0.112.0
 
-{{< new-in "0.112.0" >}}
+{{< new-in 0.112.0 >}}
 
 In Hugo `v0.112.0` we consolidated all configuration options, and improved how the languages and their parameters are merged with the main configuration. But while testing this on Hugo sites out there, we received some error reports and reverted some of the changes in favor of deprecation warnings:
 
