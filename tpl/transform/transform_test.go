@@ -248,7 +248,7 @@ func TestPlainify(t *testing.T) {
 	}
 }
 
-// Issue #xxx
+// Issue #11698
 func TestMarkdownifyTitleAndBlock(t *testing.T) {
 	t.Parallel()
 	b := hugolib.NewIntegrationTestBuilder(
