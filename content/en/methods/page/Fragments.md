@@ -46,14 +46,14 @@ Identifiers
 <pre>{{ .Fragments.Identifiers | jsonify (dict "indent" "  ") }}</pre>
 ```
 
-Identifiers.Contains
-: (`bool`) Reports whether one or more headings on the page has the given `id`, useful for validating fragments within a link [render hook].
+Identifiers.Contains ID
+: (`bool`) Reports whether one or more headings on the page has the given `id` attribute, useful for validating fragments within a link [render hook].
 
 ```go-html-template
 {{ .Fragments.Identifiers.Contains "section-2" }} → true
 ```
 
-Identifiers.Count
+Identifiers.Count ID
 : (`int`) The number of headings on a page with the given `id` attribute, useful for detecting duplicates.
 
 ```go-html-template

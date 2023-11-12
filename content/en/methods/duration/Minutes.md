@@ -13,5 +13,5 @@ action:
 
 ```go-html-template
 {{ $d = time.ParseDuration "3.5h2.5m1.5s" }}
-{{ $d.Nanoseconds }} → 212.525
+{{ $d.Minutes }} → 212.525
 ```

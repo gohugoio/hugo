@@ -10,7 +10,7 @@ action:
   signatures: [PAGE.Title]
 ---
 
-For pages backed by a file, the `Title` method returns the `title` field in front matter. For section pages that are automatically generated, the `Title` method returns the section name.
+With pages backed by a file, the `Title` method returns the `title` field as defined in front matter:
 
 {{< code-toggle file=content/about.md fm=true >}}
 title = 'About us'
@@ -20,4 +20,19 @@ title = 'About us'
 {{ .Title }} → About us
 ```
 
-With automatic section pages, the title is capitalized by default, using the `titleCaseStyle` defined in your site configuration. To disable this behavior, set `pluralizeListTitles` to `false` in your site configuration.
+With section pages not backed by a file, the `Title` method returns the section name, pluralized and converted to title case.
+
+To disable [pluralization]:
+
+{{< code-toggle file=hugo >}}
+pluralizeListTitles = false
+{{< /code-toggle >}}
+
+To change the [title case style], specify one of `ap`, `chicago`, `go`, `firstupper`, or `none`:
+
+{{< code-toggle file=hugo >}}
+titleCaseStyle = "ap"
+{{< /code-toggle >}}
+
+[pluralization]: /functions/inflect/pluralize
+[title case style]: /getting-started/configuration/#configure-title-case

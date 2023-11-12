@@ -1,6 +1,6 @@
 ---
 title: IsNamedParams
-description: Reports whether the shortcode call specifies named or positional parameters.
+description: Reports whether the shortcode call uses named parameters.
 categories: []
 keywords: []
 action:

@@ -5,7 +5,9 @@ categories: []
 keywords: []
 action:
   aliases: []
-  related: []
+  related:
+    - functions/hugo/IsProduction
+    - functions/hugo/Environment
   returnType: bool
   signatures: [hugo.IsDevelopment]
 ---

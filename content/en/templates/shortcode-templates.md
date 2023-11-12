@@ -365,10 +365,6 @@ When the above fails, you will see an `ERROR` log similar to the below:
 ERROR 2018/11/07 10:05:55 missing value for parameter name: "/Users/bep/dev/go/gohugoio/hugo/docs/content/en/variables/shortcodes.md:32:1"
 ```
 
-## More shortcode examples
-
-More shortcode examples can be found in the [shortcodes directory for spf13.com][spfscs] and the [shortcodes directory for the Hugo docs][docsshortcodes].
-
 ## Inline shortcodes
 
 You can also implement your shortcodes inline -- e.g. where you use them in the content file. This can be useful for scripting that you only need in one place.

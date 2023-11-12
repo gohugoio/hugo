@@ -152,17 +152,17 @@ Include this in your markdown:
 
 This will display all files in the gist alphabetically by file name.
 
-{{< gist jmooring 50a7482715eac222e230d1e64dd9a89b >}}
+{{< gist jmooring 23932424365401ffa5e9d9810102a477 >}}
 
 To display a specific file within the gist:
 
 ```text
-{{</* gist user 50a7482715eac222e230d1e64dd9a89b 1-template.html */>}}
+{{</* gist user 23932424365401ffa5e9d9810102a477 list.html */>}}
 ```
 
 Rendered:
 
-{{< gist jmooring 50a7482715eac222e230d1e64dd9a89b 1-template.html >}}
+{{< gist jmooring 23932424365401ffa5e9d9810102a477 list.html >}}
 
 ### `highlight`
 
