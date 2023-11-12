@@ -251,18 +251,15 @@ func (c *ContentSpec) TruncateWordsToWholeSentence(s string) (string, bool) {
 // where said tags are the only <p> tags in the input and enclose the content
 // of the input (whitespace excluded).
 func (c *ContentSpec) TrimShortHTML(input []byte) []byte {
-	firstOpeningP := bytes.Index(input, paragraphIndicator)
-	lastOpeningP := bytes.LastIndex(input, paragraphIndicator)
-
-	lastClosingP := bytes.LastIndex(input, closingPTag)
-	lastClosing := bytes.LastIndex(input, closingIndicator)
-
-	if firstOpeningP == lastOpeningP && lastClosingP == lastClosing {
+	if bytes.Count(input, openingPTag) == 1 {
 		input = bytes.TrimSpace(input)
-		input = bytes.TrimPrefix(input, openingPTag)
-		input = bytes.TrimSuffix(input, closingPTag)
-		input = bytes.TrimSpace(input)
+		if bytes.HasPrefix(input, openingPTag) && bytes.HasSuffix(input, closingPTag) {
+			input = bytes.TrimPrefix(input, openingPTag)
+			input = bytes.TrimSuffix(input, closingPTag)
+			input = bytes.TrimSpace(input)
+		}
 	}
+
 	return input
 }
 
