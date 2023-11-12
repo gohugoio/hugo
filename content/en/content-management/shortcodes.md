@@ -130,7 +130,7 @@ attrlink
 ```html
 <figure>
   <img src="elephant.jpg">
-  <figcaption>An elephant at sunset</figcaption>
+  <figcaption><h4>An elephant at sunset</h4></figcaption>
 </figure>
 ```
 
