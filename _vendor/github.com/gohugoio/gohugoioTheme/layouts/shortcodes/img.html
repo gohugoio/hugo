@@ -316,9 +316,9 @@ Renders the given image using the given filter, if any.
 
 {{- /* Render. */}}
 {{- if $example }}
-  <p>{{ or (T "original") "original" | strings.FirstUpper }}</p>
+  <p>Original</p>
   <img class='di ba b--black-20' style="width: initial;" src="{{ $i.RelPermalink }}" alt="{{ $alt }}">
-  <p>{{ or (T "processed") "processed" | strings.FirstUpper }}</p>
+  <p>Processed</p>
   <img class='di ba b--black-20' style="width: initial;" src="{{ $fi.RelPermalink }}" alt="{{ $alt }}">
 {{- else -}}
   <img class='di' style="width: initial;" src="{{ $fi.RelPermalink }}" alt="{{ $alt }}">

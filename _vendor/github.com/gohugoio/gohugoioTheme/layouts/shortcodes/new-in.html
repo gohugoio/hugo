@@ -4,7 +4,7 @@
 {{ end }}
 {{ $version = $version | strings.TrimPrefix "v" }}
 <button
-  class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 mr2 ml2 px-4 border border-gray-400 rounded shadow">
+  class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 mr2 px-4 border border-gray-400 rounded shadow">
   <a
     href="{{ printf "https://github.com/gohugoio/hugo/releases/tag/v%s" $version }}"
     target="_blank"

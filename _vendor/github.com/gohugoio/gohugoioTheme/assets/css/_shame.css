@@ -1,0 +1,20 @@
+/*
+Make h6 elements behave like dt elements. Initially implemented to support
+linkable glossary entries.
+
+Yes, it's a hack. That's why it's in the shame file.
+*/
+
+h6 {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 1.125rem;
+}
+
+h6:first-of-type {
+  margin-top: 3em;
+}
+
+h6 ~ p {
+  margin: 0.5em 0 2em 0;
+}

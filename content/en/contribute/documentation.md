@@ -26,7 +26,7 @@ For documentation related to a new feature, please include the documentation cha
 
 Please follow these markdown guidelines:
 
-- Use [ATX] headings, not [setext] headings
+- Use [ATX] headings, not [setext] headings, levels 2 through 4
 - Use [fenced code blocks], not [indented code blocks]
 - Use hyphens, not asterisks, with unordered [list items]
 - Use the [note shortcode] instead of blockquotes
@@ -91,6 +91,12 @@ Other guidelines to consider:
 - Shorter is better. If there is more than one way to do something, describe the current best practice. For example, avoid phrases such as "you can also do..." and "in older versions you had to..."
 - When including code samples, use short snippets that demonstrate the concept.
 - The Hugo user community is global; use  [basic english](https://simple.wikipedia.org/wiki/Basic_English) when possible.
+
+#### Level 6 markdown headings
+
+Level 6 markdown headings are styled as `dt` elements. This was implemented to support a [glossary] with linkable terms.
+
+[glossary]: /getting-started/glossary
 
 ## Code examples
 
@@ -297,7 +303,7 @@ Use [`hugo.IsServer`] instead.
 When deprecating a function or method, add this to front matter:
 
 {{< code-toggle file=content/something/foo.md fm=true >}}
-expiryDate: 2024-10-30 
+expiryDate: 2024-10-30
 _build:
   list: never
 {{< /code-toggle >}}

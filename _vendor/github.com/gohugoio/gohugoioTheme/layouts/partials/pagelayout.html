@@ -24,7 +24,7 @@
             {{ $pages = $.context.Pages }}
           {{ end }}
           {{ range $pages }}
-            {{ partial "boxes-section-summaries" (dict "context" . "classes" $interior_classes "fullcontent" true) }}
+            {{ partial "boxes-section-summaries.html" (dict "context" . "classes" $interior_classes "fullcontent" true) }}
           {{ end }}
         </section>
       </div>

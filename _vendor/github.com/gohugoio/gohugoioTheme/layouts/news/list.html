@@ -47,7 +47,7 @@
 
       {{/* Sort by date (descending) and render. */}}
       {{ range sort $news_items "Date" "desc" }}
-        {{ partial "boxes-section-summaries" (dict "context" . "classes" $interior_classes "fullcontent" false) }}
+        {{ partial "boxes-section-summaries.html" (dict "context" . "classes" $interior_classes "fullcontent" false) }}
       {{ end }}
 
     </section>
