@@ -14,14 +14,12 @@ aliases: [/functions/markdownify]
 ---
 
 ```go-html-template
-{{ .Title | markdownify }}
+<h2>{{ .Title | markdownify }}</h2>
 ```
 
 If the resulting HTML is a single paragraph, Hugo removes the wrapping `p` tags to produce inline HTML as required per the example above.
 
 To keep the wrapping `p` tags for a single paragraph, use the [`RenderString`] method on the `Page` object, setting the `display` option to `block`.
-
-If the resulting HTML is two or more paragraphs, Hugo leaves the wrapping `p` tags in place.
 
 [`RenderString`]: /methods/page/renderstring/
 
