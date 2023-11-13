@@ -81,10 +81,10 @@ func TestSVGError(t *testing.T) {
 	files := `
 -- config.toml --
 -- assets/circle.svg --
-<svg height="100" width="100"><circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red" /></svg> 
+<svg height="100" width="100"><circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red" /></svg>
 -- layouts/index.html --
 {{ $svg := resources.Get "circle.svg" }}
-Width: {{ $svg.Width }}	
+Width: {{ $svg.Width }}
 `
 
 	b, err := hugolib.NewIntegrationTestBuilder(
@@ -167,4 +167,67 @@ resize 2|RelPermalink: {{ $image.RelPermalink }}|MediaType: {{ $image.MediaType 
 		"resize 1|RelPermalink: /images/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_filter_6707036659822075562.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
 		"resize 2|RelPermalink: /images/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_filter_6707036659822075562.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
 	)
+}
+
+// Issue #11563
+func TestGroupByParamDate(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+disableKinds = ['section','rss','sitemap','taxonomy','term']
+-- layouts/index.html --
+{{- range site.RegularPages.GroupByParamDate "eventDate" "2006-01" }}
+	{{- .Key }}|{{ range .Pages }}{{ .Title }}|{{ end }}
+{{- end }}
+-- content/p1.md --
++++
+title = 'p1'
+eventDate = 2023-09-01
++++
+-- content/p2.md --
++++
+title = 'p2'
+eventDate = '2023-09-01'
++++
+-- content/p3.md --
+---
+title: p3
+eventDate: 2023-09-01
+---
+-- content/p4.md --
++++
+title = 'p4'
+eventDate = 2023-10-01T08:00:00
++++
+-- content/p5.md --
++++
+title = 'p5'
+eventDate = '2023-10-01T08:00:00'
++++
+-- content/p6.md --
+---
+title: p6
+eventDate: 2023-10-01T08:00:00
+---
+-- content/p7.md --
++++
+title = 'p7'
+eventDate = 2023-11-01T07:00:00-08:00
++++
+-- content/p8.md --
++++
+title = 'p8'
+eventDate = '2023-11-01T07:00:00-08:00'
++++
+-- content/p9.md --
+---
+title: p9
+eventDate: 2023-11-01T07:00:00-08:00
+---
+  `
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "2023-11|p9|p8|p7|2023-10|p6|p5|p4|2023-09|p3|p2|p1|")
 }
