@@ -1,7 +1,7 @@
 ---
-title: Go template functions
+title: Go template functions, operators, and statements
 linkTitle: go template
-description: Template functions and statements provided by Go's text/template package.
+description: Template functions, operators, and statements provided by Go's text/template package.
 categories: []
 keywords: []
 menu:
@@ -9,6 +9,6 @@ menu:
     parent: functions
 ---
 
-These are the statements, operators, and functions provided by Go's [text/template] package.
+These are the functions, operators, and statements provided by Go's [text/template] package.
 
 [text/template]: https://pkg.go.dev/text/template
