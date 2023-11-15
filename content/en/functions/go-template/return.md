@@ -29,7 +29,7 @@ A `return` statement without a value returns an empty string of type `template.H
 [text/template]: https://pkg.go.dev/text/template
 
 {{% note %}}
-Unlike `return` statements in other languages, Hugo executes the first occurence of the `return` statement regardless of its position within logical blocks. See [usage](#usage) notes below.
+Unlike `return` statements in other languages, Hugo executes the first occurrence of the `return` statement regardless of its position within logical blocks. See [usage](#usage) notes below.
 {{% /note %}}
 
 ## Example
@@ -80,7 +80,7 @@ See additional examples in the [partial templates] section.
 ## Usage
 
 {{% note %}}
-Unlike `return` statements in other languages, Hugo executes the first occurence of the `return` statement regardless of its position within logical blocks
+Unlike `return` statements in other languages, Hugo executes the first occurrence of the `return` statement regardless of its position within logical blocks
 {{% /note %}}
 
 A partial that returns a value must contain only one `return` statement, placed at the end of the template.
