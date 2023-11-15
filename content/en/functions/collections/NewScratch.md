@@ -105,3 +105,11 @@ Delete
 
 Values
 : Returns the raw backing map. Do not use with `Scratch` or `Store` methods on a `Page` object due to concurrency issues.
+
+```go-html-template
+{{ $s := newScratch }}
+{{ $s.SetInMap "greetings" "english" "Hello" }}
+{{ $s.SetInMap "greetings" "french" "Bonjour" }}
+
+{{ $map := $s.Values }}
+```
