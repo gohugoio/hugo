@@ -1,7 +1,7 @@
 ---
 title: Emoji quick reference guide
 linkTitle: Emojis
-description: Include emoji shortcodes in your markdown, or use the emojify function in your templates.
+description: Include emoji shortcodes in your markdown or templates.
 categories: [quick reference]
 keywords: [emoji]
 menu:
@@ -11,6 +11,12 @@ menu:
 weight: 40
 toc: true
 ---
+
+Configure Hugo to enable emoji processing in markdown:
+
+{{< code-toggle file=hugo >}}
+enableEmoji = true
+{{< /code-toggle >}}
 
 With emoji processing enabled, this markdown:
 
@@ -26,15 +32,14 @@ Hello! &#x1f44b;
 
 And in your browser... Hello! :wave:
 
-To enable this capability in your site configuration:
+To process an emoji shortcode from within a template, use the [`emojify`] function or pass the string through the [`RenderString`] method on a `Page` object:
 
-{{< code-toggle file=hugo >}}
-enableEmoji = true
-{{< /code-toggle >}}
-
-To process an emoji shortcode from within a template, use the [`emojify`] function.
+```go-html-template
+{{ "Hello! :wave:" | .RenderString }}
+```
 
 [`emojify`]: /functions/transform/emojify
+[`RenderString`]: /methods/page/renderstring
 
 ## Introduction
 
