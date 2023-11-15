@@ -1,6 +1,6 @@
 ---
 title: partials.IncludeCached
-description: Executes the given template and caches the result, optionally passing context. If the partial template contains a return statement, returns teh given value, else returns the rendered output.
+description: Executes the given template and caches the result, optionally passing context. If the partial template contains a return statement, returns the given value, else returns the rendered output.
 categories: []
 keywords: []
 action:
@@ -19,8 +19,6 @@ aliases: [/functions/partialcached]
 ---
 
 Without a [`return`] statement, the `partialCached` function returns a string of type `template.HTML`. With a `return` statement, the `partialCached` function can return any data type.
-
-
 
 The `partialCached` function can offer significant performance gains for complex templates that don't need to be re-rendered on every invocation.
 
