@@ -308,7 +308,7 @@ _build:
   list: never
 {{< /code-toggle >}}
 
-Set the `exipiryDate` to one year from the date of deprecation, and add a brief front matter comment to explain the settings.
+Set the `expiryDate` to one year from the date of deprecation, and add a brief front matter comment to explain the settings.
 
 Users will be able to search for the page, but the page will not appear in any list views, including section menus.
 
