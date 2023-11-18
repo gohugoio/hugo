@@ -142,8 +142,11 @@ func TestGetDottedRelativePath(t *testing.T) {
 
 func doTestGetDottedRelativePath(urlFixer func(string) string, t *testing.T) {
 	type test struct {
-		input string, isMultiLingual bool, expected string
+		input string
+		isMultiLingual bool
+		expected string
 	}
+
 	data := []test{
 		{"", "./"},
 		{urlFixer("/"), false, "./"},
@@ -174,7 +177,7 @@ func doTestGetDottedRelativePath(urlFixer func(string) string, t *testing.T) {
 		{urlFixer("/en/foo/bar/foo/"), true, "../../../"},
 		{urlFixer("/en/foo/bar/foo"), true, "../../../"},
 		{urlFixer("en/foo/bar/foo/"), true, "../../../"},
-		{urlFixer("en/foo/bar/foo/bar"), true, "../../../../"},
+		{urlFixer("en/foo/bar/foo/bar"), true, "../../../../"}
 	}
 	for i, d := range data {
 		output := helpers.GetDottedRelativePath(d.input)
