@@ -1,5 +1,5 @@
 ---
-title: Quick reference
+title: Quick reference guides
 linkTitle: Overview
 description: Quick reference guides to Hugo's features, functions, and methods.
 categories: []

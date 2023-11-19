@@ -1,14 +1,13 @@
 ---
-title: Emoji quick reference guide
-linkTitle: Emojis
+title: Emojis
 description: Include emoji shortcodes in your markdown or templates.
 categories: [quick reference]
 keywords: [emoji]
 menu:
   docs:
     parent: quick-reference
-    weight: 40
-weight: 40
+    weight: 50
+weight: 50
 toc: true
 ---
 
