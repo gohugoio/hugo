@@ -6,8 +6,8 @@ keywords: [emoji]
 menu:
   docs:
     parent: quick-reference
-    weight: 50
-weight: 50
+    weight: 20
+weight: 20
 toc: true
 ---
 
