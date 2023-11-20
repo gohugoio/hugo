@@ -26,7 +26,7 @@ You can invoke pagination on the home page template, [`section`] templates, [`ta
 {{ $pages := where .Site.RegularPages "Section" "articles" }}
 {{ $pages = $pages.ByTitle }}
 {{ range (.Paginate $pages 7).Pages }}
-  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
 {{ end }}
 {{ template "_internal/pagination.html" . }}
 {{< /code >}}

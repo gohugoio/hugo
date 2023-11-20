@@ -18,7 +18,7 @@ When sorting by publish date, the value is determined by your [site configuratio
 
 ```go-html-template
 {{ range .Pages.ByPublishDate }}
-  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 ```
 
@@ -26,6 +26,6 @@ To sort in descending order:
 
 ```go-html-template
 {{ range .Pages.ByPublishDate.Reverse }}
-  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 ```

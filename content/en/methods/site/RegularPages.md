@@ -31,7 +31,7 @@ To change the sort order, use any of the `Pages` [sorting methods]. For example:
 
 ```go-html-template
 {{ range .Site.RegularPages.ByTitle }}
-  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
 {{ end }}
 ```
 

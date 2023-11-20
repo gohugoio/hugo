@@ -15,7 +15,7 @@ If the given parameter is not present in front matter, Hugo will use the matchin
 
 ```go-html-template
 {{ range .Pages.ByParam "author" }}
-  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 ```
 
@@ -23,7 +23,7 @@ To sort in descending order:
 
 ```go-html-template
 {{ range (.Pages.ByParam "author").Reverse }}
-  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 ```
 
@@ -31,6 +31,6 @@ If the targeted parameter is nested, access the field using dot notation:
 
 ```go-html-template
 {{ range .Pages.ByParam "author.last_name" }}
-  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 ```

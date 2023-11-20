@@ -68,11 +68,11 @@ In the example above, notice that Hugo orders the ancestors from closest to furt
   <ol>
     {{ range .Ancestors.Reverse }}
       <li>
-        <a href="{{ .Permalink }}">{{ .LinkTitle }}</a>
+        <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
       </li>
     {{ end }}
     <li class="active">
-      <a aria-current="page" href="{{ .Permalink }}">{{ .LinkTitle }}</a>
+      <a aria-current="page" href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
     </li>
   </ol>
 </nav>

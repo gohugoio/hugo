@@ -90,7 +90,7 @@ Consider this section template:
 
 ```go-html-template
 {{ range .Pages }}
-  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
   {{ .Summary }}
 {{ end }}
 ```

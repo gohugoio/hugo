@@ -160,7 +160,7 @@ This template code:
 
 ```go-html-template
 {{ range where site.RegularPages "Type" "articles" }}
-  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 ```
 

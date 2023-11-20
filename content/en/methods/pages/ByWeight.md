@@ -15,7 +15,7 @@ Assign a [weight] to a page using the `weight` field in front matter. The weight
 
 ```go-html-template
 {{ range .Pages.ByWeight }}
-  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 ```
 
@@ -23,6 +23,6 @@ To sort in descending order:
 
 ```go-html-template
 {{ range .Pages.ByWeight.Reverse }}
-  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 ```

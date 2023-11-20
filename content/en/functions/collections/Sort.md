@@ -117,6 +117,6 @@ In this contrived example, sort the site's regular pages by `.Type` in descendin
 
 ```go-html-template
 {{ range sort site.RegularPages "Type" "desc" }}
-  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 ```

@@ -38,29 +38,29 @@ This single page template makes use of Hugo [base templates], the [`.Format` fun
     <div>
       <section>
         <h4 id="date"> {{ .Date.Format "Mon Jan 2, 2006" }} </h4>
-        <h5 id="wordcount"> {{ .WordCount }} Words </h5>
+        <h5 id="wordcount"> {{ .WordCount }} Words</h5>
       </section>
       {{ with .GetTerms "topics" }}
         <ul id="topics">
           {{ range . }}
-            <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+            <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
           {{ end }}
         </ul>
       {{ end }}
       {{ with .GetTerms "tags" }}
         <ul id="tags">
           {{ range . }}
-            <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+            <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
           {{ end }}
         </ul>
       {{ end }}
     </div>
     <div>
       {{ with .PrevInSection }}
-        <a class="previous" href="{{ .Permalink }}"> {{ .Title }}</a>
+        <a class="previous" href="{{ .RelPermalink }}"> {{ .LinkTitle }}</a>
       {{ end }}
       {{ with .NextInSection }}
-        <a class="next" href="{{ .Permalink }}"> {{ .Title }}</a>
+        <a class="next" href="{{ .RelPermalink }}"> {{ .LinkTitle }}</a>
       {{ end }}
     </div>
   </aside>

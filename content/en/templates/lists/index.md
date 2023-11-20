@@ -100,7 +100,7 @@ You can now access this `_index.md`'s' content in your list template:
       <!-- Ranges through content/posts/*.md -->
       {{ range .Pages }}
         <li>
-          <a href="{{ .Permalink }}">{{ .Date.Format "2006-01-02" }} | {{ .Title }}</a>
+          <a href="{{ .RelPermalink }}">{{ .Date.Format "2006-01-02" }} | {{ .LinkTitle }}</a>
         </li>
       {{ end }}
     </ul>

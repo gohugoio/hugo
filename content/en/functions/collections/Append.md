@@ -95,7 +95,7 @@ Although the elements in the examples above are strings, you can use the `append
 {{ with $p }}
   <ul>
     {{ range . }}
-      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
     {{ end }}
   </ul>
 {{ end }}

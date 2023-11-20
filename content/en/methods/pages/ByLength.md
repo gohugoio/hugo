@@ -11,7 +11,7 @@ action:
 
 ```go-html-template
 {{ range .Pages.ByLength }}
-  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 ```
 
@@ -19,6 +19,6 @@ To sort in descending order:
 
 ```go-html-template
 {{ range .Pages.ByLength.Reverse }}
-  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 ```

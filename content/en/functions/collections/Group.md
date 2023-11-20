@@ -24,7 +24,7 @@ aliases: [/functions/group]
   <ul>
     {{ range .Pages }}
       <li>
-        <a href="{{ .Permalink }}">{{ .Title }}</a>
+        <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
         <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
       </li>
     {{ end }}

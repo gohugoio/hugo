@@ -16,7 +16,7 @@ action:
   <p>{{ .Key | title }}</p>
   <ul>
     {{ range .Pages }}
-      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
     {{ end }}
   </ul>
 {{ end }}
@@ -29,7 +29,7 @@ To sort the groups in descending order:
   <p>{{ .Key | title }}</p>
   <ul>
     {{ range .Pages }}
-      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
     {{ end }}
   </ul>
 {{ end }}

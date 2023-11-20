@@ -31,7 +31,7 @@ To group content by year and month:
   <p>{{ .Key }}</p>
   <ul>
     {{ range .Pages }}
-      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
     {{ end }}
   </ul>
 {{ end }}
@@ -44,7 +44,7 @@ To sort the groups in ascending order:
   <p>{{ .Key }}</p>
   <ul>
     {{ range .Pages }}
-      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
     {{ end }}
   </ul>
 {{ end }}

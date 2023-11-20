@@ -17,7 +17,7 @@ Range through the page collection in your template:
 
 ```go-html-template
 {{ range .RegularPages.ByTitle }}
-  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
 {{ end }}
 ```
 
@@ -77,7 +77,7 @@ When used with the `Site` object, the `RegularPages` method recursively returns 
 
 ```go-html-template
 {{ range .Site.RegularPages.ByTitle }}
-  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
 {{ end }}
 ```
 

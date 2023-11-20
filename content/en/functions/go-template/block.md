@@ -47,7 +47,7 @@ The typical use is to define a set of root templates that are then customized by
   <h1>{{ .Title }}</h1>
   {{ .Content }}
   {{ range .Pages }}
-    <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+    <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
   {{ end }}
 {{ end }}
 {{< /code >}}

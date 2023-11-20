@@ -121,11 +121,11 @@ For example, use the `.Ancestors` method to render breadcrumb navigation.
   <ol>
     {{ range .Ancestors.Reverse }}
       <li>
-        <a href="{{ .Permalink }}">{{ .Title }}</a>
+        <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
       </li>
     {{ end }}
     <li class="active">
-      <a aria-current="page" href="{{ .Permalink }}">{{ .Title }}</a>
+      <a aria-current="page" href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
     </li>
   </ol>
 </nav>

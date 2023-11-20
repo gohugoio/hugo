@@ -79,12 +79,12 @@ Hugo will pass the entire page object to the following `summary.html` view templ
 {{< code file=layouts/_default/summary.html >}}
 <article class="post">
   <header>
-    <h2><a href='{{ .Permalink }}'> {{ .Title }}</a> </h2>
+    <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
     <div class="post-meta">{{ .Date.Format "Mon, Jan 2, 2006" }} - {{ .FuzzyWordCount }} Words </div>
   </header>
   {{ .Summary }}
   <footer>
-  <a href='{{ .Permalink }}'><nobr>Read more →</nobr></a>
+  <a href='{{ .RelPermalink }}'>Read&nbsp;more&nbsp;&raquo;</a>
   </footer>
 </article>
 {{< /code >}}
@@ -95,7 +95,7 @@ Continuing on the previous example, we can change our render function to use a s
 
 {{< code file=layouts/_default/li.html >}}
 <li>
-  <a href="{{ .Permalink }}">{{ .Title }}</a>
+  <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
   <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
 </li>
 {{< /code >}}

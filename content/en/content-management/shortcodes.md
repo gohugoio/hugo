@@ -171,7 +171,7 @@ To display a highlighted code sample:
 ```text
 {{</* highlight go-html-template */>}}
 {{ range .Pages }}
-  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 {{</* /highlight */>}}
 ```
@@ -180,7 +180,7 @@ Rendered:
 
 {{< highlight go-html-template >}}
 {{ range .Pages }}
-  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 {{< /highlight >}}
 
@@ -191,7 +191,7 @@ To specify one or more [highlighting options], include a quotation-encapsulated,
 ```text
 {{</* highlight go-html-template "lineNos=inline, lineNoStart=42" */>}}
 {{ range .Pages }}
-  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 {{</* /highlight */>}}
 ```
@@ -200,7 +200,7 @@ Rendered:
 
 {{< highlight go-html-template "lineNos=inline, lineNoStart=42" >}}
 {{ range .Pages }}
-  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 {{< /highlight >}}
 

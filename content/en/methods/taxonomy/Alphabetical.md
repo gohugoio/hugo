@@ -48,7 +48,7 @@ With this template:
   <h2><a href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }}</a> ({{ .Count }})</h2>
   <ul>
     {{ range .Pages.ByTitle }}
-      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
     {{ end }}
   </ul>
 {{ end }}

@@ -22,7 +22,7 @@ The argument passed to the `Related` method may be a `Page` or an options map. F
   <p>Related pages:</p>
   <ul>
     {{ range . }}
-      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
     {{ end }}
   </ul>
 {{ end }}
@@ -39,7 +39,7 @@ To pass an options map:
   <p>Related pages:</p>
   <ul>
     {{ range . }}
-      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
     {{ end }}
   </ul>
 {{ end }}

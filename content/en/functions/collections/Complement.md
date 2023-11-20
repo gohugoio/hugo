@@ -51,7 +51,7 @@ To list everything except blog articles (`blog`) and frequently asked questions 
 {{ $blog := where site.RegularPages "Type" "blog" }}
 {{ $faqs := where site.RegularPages "Type" "faqs" }}
 {{ range site.RegularPages | complement $blog $faqs }}
-  <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+  <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
 {{ end }}
 ```
 
@@ -63,7 +63,7 @@ Although the example above demonstrates the `complement` function, you could use
 
 ```go-html-template
 {{ range where site.RegularPages "Type" "not in" (slice "blog" "faqs") }}
-  <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+  <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
 {{ end }}
 ```
 

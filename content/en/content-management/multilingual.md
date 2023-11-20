@@ -309,7 +309,7 @@ To create a list of links to translated content, use a template similar to the f
 <ul>
   {{ range .Translations }}
   <li>
-    <a href="{{ .Permalink }}">{{ .Lang }}: {{ .Title }}{{ if .IsPage }} ({{ i18n "wordCount" . }}){{ end }}</a>
+    <a href="{{ .RelPermalink }}">{{ .Lang }}: {{ .LinkTitle }}{{ if .IsPage }} ({{ i18n "wordCount" . }}){{ end }}</a>
   </li>
   {{ end }}
 </ul>
@@ -327,7 +327,7 @@ The above also uses the [`i18n` function][i18func] described in the next section
 {{< code file=layouts/partials/allLanguages.html >}}
 <ul>
 {{ range $.Site.Home.AllTranslations }}
-<li><a href="{{ .Permalink }}">{{ .Language.LanguageName }}</a></li>
+<li><a href="{{ .RelPermalink }}">{{ .Language.LanguageName }}</a></li>
 {{ end }}
 </ul>
 {{< /code >}}

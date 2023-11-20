@@ -596,7 +596,7 @@ Finally, you can pull "magic constants" out of your layouts as well. The followi
   <h1>Recent Posts</h1>
   <ul>
   {{- range first .Site.Params.SidebarRecentLimit .Site.Pages -}}
-      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
   {{- end -}}
   </ul>
 </nav>
@@ -631,7 +631,7 @@ This [partial template][partials] renders future events:
     {{ if gt (.Params.start_date | time.AsTime) now }}
       {{ $startDate := .Params.start_date | time.Format ":date_medium" }}
       <li>
-        <a href="{{ .RelPermalink }}">{{ .Title }}</a> - {{ $startDate }}
+        <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a> - {{ $startDate }}
       </li>
     {{ end }}
   {{ end }}
@@ -646,7 +646,7 @@ If you restrict front matter to the TOML format, and omit quotation marks surrou
   {{ range where (where site.RegularPages "Type" "events") "Params.start_date" "gt" now }}
     {{ $startDate := .Params.start_date | time.Format ":date_medium" }}
     <li>
-      <a href="{{ .RelPermalink }}">{{ .Title }}</a> - {{ $startDate }}
+      <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a> - {{ $startDate }}
     </li>
   {{ end }}
 </ul>

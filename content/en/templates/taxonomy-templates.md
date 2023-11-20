@@ -108,7 +108,7 @@ If you need to display custom metadata for each taxonomy term, you will need to 
 <ul>
   {{ range .Pages }}
     <li>
-      <a href="{{ .Permalink }}">{{ .Title }}</a>
+      <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
       {{ .Params.wikipedia }}
     </li>
   {{ end }}
@@ -194,7 +194,7 @@ To render an unordered list:
   <p>{{ (site.GetPage $taxonomy).LinkTitle }}:</p>
   <ul>
     {{ range . }}
-      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
     {{ end }}
   </ul>
 {{ end }}
@@ -209,7 +209,7 @@ To render a comma-delimited list:
     {{ (site.GetPage $taxonomy).LinkTitle }}:
     {{ range $k, $_ := . -}}
       {{ if $k }}, {{ end }}
-      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
     {{- end }}
   </p>
 {{ end }}
@@ -242,7 +242,7 @@ This would be very useful in a sidebar as “featured content”. You could even
       <li>{{ $key }}</li>
       <ul>
         {{ range $taxonomy.Pages }}
-          <li hugo-nav="{{ .RelPermalink }}"><a href="{{ .Permalink }}">{{ .Title }}</a></li>
+          <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
         {{ end }}
       </ul>
     {{ end }}
@@ -277,7 +277,7 @@ This example will list all taxonomies and their terms, as well as all the conten
   {{ range $taxonomy, $terms := site.Taxonomies }}
     <li>
       {{ with site.GetPage $taxonomy }}
-        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
       {{ end }}
       <ul>
         {{ range $term, $weightedPages := $terms }}
@@ -285,7 +285,7 @@ This example will list all taxonomies and their terms, as well as all the conten
             <a href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }}</a>
             <ul>
               {{ range $weightedPages }}
-                <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+                <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
               {{ end }}
             </ul>
           </li>
@@ -305,7 +305,7 @@ Because taxonomies are lists, the [`.GetPage` function][getpage] can be used to 
 <ul class="{{ $taxo }}">
   {{ with ($.Site.GetPage (printf "/%s" $taxo)) }}
     {{ range .Pages }}
-      <li><a href="{{ .Permalink }}">{{ .Title }}</a></li>
+      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
     {{ end }}
   {{ end }}
 </ul>

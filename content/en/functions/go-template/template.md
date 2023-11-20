@@ -17,7 +17,7 @@ Use the `template` function to execute [internal templates]. For example:
 
 ```go-html-template
 {{ range (.Paginate .Pages).Pages }}
-  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 {{ template "_internal/pagination.html" . }}
 ```
