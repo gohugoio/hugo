@@ -12,7 +12,7 @@ toc: true
 ---
 {{< new-in 0.93.0 >}}
 
-## GoAT diagrams (Ascii)
+## GoAT diagrams (ASCII)
 
 Hugo supports [GoAT](https://github.com/bep/goat) natively. This means that this code block:
 
