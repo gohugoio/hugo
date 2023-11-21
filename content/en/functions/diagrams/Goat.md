@@ -6,7 +6,7 @@ keywords: []
 action:
   aliases: []
   related: []
-  returnType: 'diagrams.goatDiagram'
+  returnType: diagrams.goatDiagram
   signatures: ['diagrams.Goat INPUT']
 toc: true
 ---
@@ -60,9 +60,9 @@ Which appears in your browser as:
 '---'     '-'       '+'       '+'     '---'
 ```
 
-In the rendered HTML above, note that the diagram has a predefined font family, and the `svg` element is wrapped within a `div` element with predefined classes.
+To customize rendering, override Hugo's [built-in code block render hook] for GoAT diagrams.
 
-To customize rendering, use the `diagrams.Goat` function in a code block [render hook].
+[built-in code block render hook]: https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/_markup/render-codeblock-goat.html
 
 ## Code block render hook
 
