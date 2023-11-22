@@ -16,6 +16,8 @@ action:
 aliases: [/functions/strings.containsnonspace]
 ---
 
+{{< new-in 0.111.0 >}}
+
 ```go-html-template
 {{ strings.ContainsNonSpace "\n" }} → false
 {{ strings.ContainsNonSpace " " }} → false

@@ -13,6 +13,8 @@ toc: true
 aliases: [/functions/page]
 ---
 
+{{< new-in 0.111.0 >}}
+
 At the top level of a template that receives a `Page` object in context, these are equivalent:
 
 ```go-html-template

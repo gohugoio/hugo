@@ -12,6 +12,8 @@ action:
 aliases: [/functions/urls.joinpath]
 ---
 
+{{< new-in 0.112.0 >}}
+
 ```go-html-template
 {{ urls.JoinPath }} → "" (empty string)
 {{ urls.JoinPath "" }} → /

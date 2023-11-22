@@ -15,6 +15,8 @@ action:
 toc: true
 ---
 
+{{< new-in 0.117.0 >}}
+
 Use this method in shortcode templates to compose a page from multiple content files, while preserving a global context for footnotes and the table of contents.
 
 For example:

@@ -9,6 +9,8 @@ action:
   signatures: [RESOURCE.Colors]
 ---
 
+{{< new-in 0.104.0 >}}
+
 ```go-html-template
 {{ with resources.Get "images/a.jpg" }}
   {{ .Colors }} → [#bebebd #514947 #768a9a #647789 #90725e #a48974]

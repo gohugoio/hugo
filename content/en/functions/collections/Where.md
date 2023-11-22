@@ -97,7 +97,7 @@ Use any of the following logical operators:
 `intersect`
 : (`bool`) Reports whether the given field value (a slice) contains one or more elements in common with `VALUE`. See&nbsp;[details](/functions/collections/intersect).
 
-`like`
+`like` {{< new-in 0.116.0 >}}
 : (`bool`) Reports whether the given field value matches the regular expression specified in `VALUE`. Use the `like` operator to compare `string` values. The `like` operator returns `false` when comparing other data types to the regular expression.
 
 {{% note %}}
@@ -187,6 +187,8 @@ For example, to return a collection of pages where any of the terms in the "genr
 ```
 
 ## Regular expression comparison
+
+{{< new-in 0.116.0 >}}
 
 To return a collection of pages where the "author" page parameter begins with either "victor" or "Victor":
 

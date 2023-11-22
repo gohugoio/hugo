@@ -10,6 +10,8 @@ action:
   signatures: [math.Abs VALUE]
 ---
 
+{{< new-in 0.112.0 >}}
+
 ```go-html-template
 {{ math.Abs -2.1 }} → 2.1
 ```
