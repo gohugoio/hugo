@@ -1,6 +1,6 @@
 ---
 title: Format
-description: Returns a formatted time.Time value.
+description: Returns a textual representation of the time.Time value formatted according to the layout string.
 categories: []
 keywords: []
 action:
@@ -24,8 +24,9 @@ aliases: [/methods/time/format]
 ```
 
 {{% note %}}
-To return a formatted and localized `time.Time` value, use the [`time.Format`] function instead.
+To [localize] the return value, use the [`time.Format`] function instead.
 
+[localize]: /getting-started/glossary/#localization
 [`time.Format`]: /functions/time/format
 {{% /note %}}
 
@@ -39,6 +40,12 @@ Use the `Format` method with any `time.Time` value, including the four predefine
 {{ .ExpiryDate.Format $format }}
 {{ .Lastmod.Format $format }}
 ```
+
+{{% note %}}
+Use the [`time.Format`] function to format string representations of dates, and to format raw TOML dates that exclude time and time zone offset.
+
+[`time.Format`]: /functions/time/format
+{{% /note %}}
 
 ## Layout string
 
