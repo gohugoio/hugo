@@ -3,7 +3,7 @@ module github.com/gohugoio/hugo
 require (
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
 	github.com/PuerkitoBio/purell v1.1.1
-	github.com/alecthomas/chroma/v2 v2.10.0
+	github.com/alecthomas/chroma/v2 v2.11.1
 	github.com/armon/go-radix v1.0.0
 	github.com/aws/aws-sdk-go v1.48.2
 	github.com/bep/clocks v0.5.0
