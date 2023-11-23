@@ -36,6 +36,16 @@ Use with the [`else`] statement:
 {{ end }}
 ```
 
+Intialize a variable, scoped to the current block:
+
+```go-html-template
+{{ with $var := 42 }}
+  {{ . }} → 42
+  {{ $var }} → 42
+{{ end }}
+{{ $var }} → undefined
+```
+
 ## Understanding context
 
 At the top of a page template, the [context] (the dot) is a `Page` object. Inside of the `with` block, the context is bound to the value passed to the `with` statement.

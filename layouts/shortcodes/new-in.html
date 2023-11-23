@@ -10,13 +10,13 @@ button will be hidden if:
 @param {string} version The semantic version string, with or without a leading v.
 @returns {template.HTML}
 
-@example {{< new-in 0.100.0 }}
+@example {{< new-in 0.100.0 >}}
 */}}
 
 {{- /* Set defaults. */}}
 {{- $majorVersionDiffThreshold := 0 }}
 {{- $minorVersionDiffThreshold := 30 }}
-{{- $displayExpirationWarning := true}}
+{{- $displayExpirationWarning := true }}
 
 {{- /* Render. */}}
 {{- with $version := .Get 0 | strings.TrimPrefix "v" }}

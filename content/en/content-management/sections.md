@@ -106,7 +106,7 @@ If you need to use a different template for a subsection, specify `type` and/or 
 
 ## Ancestors and descendants
 
-A section has one or more ancestors (including the home page), and zero or more descendants.  With the file structure from the [example above](#overview):
+A section has one or more ancestors (including the home page), and zero or more descendants. With the file structure from the [example above](#overview):
 
 ```text
 content/products/product-1/benefits/benefit-1.md

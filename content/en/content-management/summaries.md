@@ -50,7 +50,7 @@ The concept of a *summary divider* is not unique to Hugo. It is also called the 
 {{% /note %}}
 
 Pros
-: Freedom, precision, and improved rendering.  All HTML tags and formatting are preserved.
+: Freedom, precision, and improved rendering. All HTML tags and formatting are preserved.
 
 Cons
 : Extra work for content authors, since they need to remember to type `<!--more-->` (or `# more` for [org content][org]) in each content file. This can be automated by adding the summary divider below the front matter of an [archetype](/content-management/archetypes/).
@@ -61,24 +61,24 @@ Be careful to enter `<!--more-->` exactly; i.e., all lowercase and with no white
 
 ### Front matter summary
 
-You might want your summary to be something other than the text that starts the article.  In this case you can provide a separate summary in the `summary` variable of the article front matter.
+You might want your summary to be something other than the text that starts the article. In this case you can provide a separate summary in the `summary` variable of the article front matter.
 
 Pros
-: Complete freedom of text independent of the content of the article.  Markup can be used within the summary.
+: Complete freedom of text independent of the content of the article. Markup can be used within the summary.
 
 Cons
 : Extra work for content authors as they need to write an entirely separate piece of text as the summary of the article.
 
 ## Summary selection order
 
-Because there are multiple ways in which a summary can be specified it is useful to understand the order of selection Hugo follows when deciding on the text to be returned by `.Summary`.  It is as follows:
+Because there are multiple ways in which a summary can be specified it is useful to understand the order of selection Hugo follows when deciding on the text to be returned by `.Summary`. It is as follows:
 
 1. If there is a `<!--more-->`> summary divider present in the article the text up to the divider will be provided as per the manual summary split method
 2. If there is a `summary` variable in the article front matter the value of the variable will be provided as per the front matter summary method
 3. The text at the start of the article will be provided as per the automatic summary split method
 
 {{% note %}}
-Hugo uses the _first_ of the above steps that returns text.  So if, for example, your article has both `summary` variable in its front matter and a `<!--more-->` summary divider Hugo will use the manual summary split method.
+Hugo uses the _first_ of the above steps that returns text. So if, for example, your article has both `summary` variable in its front matter and a `<!--more-->` summary divider Hugo will use the manual summary split method.
 {{% /note %}}
 
 ## Example: first 10 articles with summaries

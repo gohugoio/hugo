@@ -147,7 +147,7 @@ applyFilter {{< new-in 0.111.0 >}}
 : (`string`) Apply a `type` specific filter to the result of a search. This is currently only used for the `fragments` type.
 
 weight
-: (`int`) An integer weight that indicates _how important_ this parameter is relative to the other parameters.  It can be `0`, which has the effect of turning this index off, or even negative. Test with different values to see what fits your content best.
+: (`int`) An integer weight that indicates _how important_ this parameter is relative to the other parameters. It can be `0`, which has the effect of turning this index off, or even negative. Test with different values to see what fits your content best.
 
 cardinalityThreshold {{< new-in 0.111.0 >}}
 : (`int`) A percentage (0-100) used to remove common keywords from the index. As an example, setting this to `50` will remove all keywords that are used in more than 50% of the documents in the index. Default is `0`.

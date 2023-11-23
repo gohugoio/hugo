@@ -79,7 +79,7 @@ Line two.` }}
 ## Variables
 
 Each Go Template gets a data object. In Hugo, each template is passed
-a `Page`.  In the below example, `.Title` is one of the elements
+a `Page`. In the below example, `.Title` is one of the elements
 accessible in that [`Page` variable][pagevars].
 
 With the `Page` being the default scope of a template, the `Title`

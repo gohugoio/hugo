@@ -288,6 +288,8 @@ Use the "new-in" shortcode to indicate a new feature:
 {{</* new-in 0.120.0 */>}}
 {{< /code >}}
 
+The "new in" label will be hidden if the specified version is older than a predefined threshold, based on differences in major and minor versions. See&nbsp;[details](https://github.com/gohugoio/hugoDocs/blob/master/layouts/shortcodes/new-in.html).
+
 ## Deprecated features
 
 Use the "deprecated-in" shortcode to indicate that a feature is deprecated:

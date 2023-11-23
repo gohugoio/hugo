@@ -63,7 +63,7 @@ minify
 : (`bool`)Let `js.Build` handle the minification.
 
 inject
-: (`slice`) This option allows you to automatically replace a global variable with an import from another file. The path names must be relative to `assets`.  See https://esbuild.github.io/api/#inject
+: (`slice`) This option allows you to automatically replace a global variable with an import from another file. The path names must be relative to `assets`. See https://esbuild.github.io/api/#inject
 
 shims
 : (`map`) This option allows swapping out a component with another. A common use case is to load dependencies like React from a CDN  (with _shims_) when in production, but running with the full bundled `node_modules` dependency during development:
@@ -139,7 +139,7 @@ For other files (e.g. `JSON`, `CSS`) you need to use the relative path including
 import * as data from 'my/module/data.json';
 ```
 
-Any imports in a file outside `/assets` or that does not resolve to a component inside `/assets` will be resolved by [ESBuild](https://esbuild.github.io/) with the **project directory** as the resolve directory (used as the starting point when looking for `node_modules` etc.). Also see [hugo mod npm pack](/commands/hugo_mod_npm_pack/).  If you have any imported npm dependencies in your project, you need to make sure to run `npm install` before you run `hugo`.
+Any imports in a file outside `/assets` or that does not resolve to a component inside `/assets` will be resolved by [ESBuild](https://esbuild.github.io/) with the **project directory** as the resolve directory (used as the starting point when looking for `node_modules` etc.). Also see [hugo mod npm pack](/commands/hugo_mod_npm_pack/). If you have any imported npm dependencies in your project, you need to make sure to run `npm install` before you run `hugo`.
 
 Also note the new `params` option that can be passed from template to your JS files, e.g.:
 
@@ -158,7 +158,7 @@ Hugo will, by default, generate a `assets/jsconfig.json` file that maps the impo
 
 Use the `js.Build` function to include Node.js dependencies.
 
-Any imports in a file outside `/assets` or that does not resolve to a component inside `/assets` will be resolved by [esbuild](https://esbuild.github.io/) with the **project directory** as the resolve directory (used as the starting point when looking for `node_modules` etc.). Also see [hugo mod npm pack](/commands/hugo_mod_npm_pack/).  If you have any imported npm dependencies in your project, you need to make sure to run `npm install` before you run `hugo`.
+Any imports in a file outside `/assets` or that does not resolve to a component inside `/assets` will be resolved by [esbuild](https://esbuild.github.io/) with the **project directory** as the resolve directory (used as the starting point when looking for `node_modules` etc.). Also see [hugo mod npm pack](/commands/hugo_mod_npm_pack/). If you have any imported npm dependencies in your project, you need to make sure to run `npm install` before you run `hugo`.
 
 The start directory for resolving npm packages (aka. packages that live inside a `node_modules` folder) is always the main project folder.
 

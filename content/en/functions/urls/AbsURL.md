@@ -14,7 +14,7 @@ action:
 aliases: [/functions/absurl]
 ---
 
-With multilingual configurations, use the [`absLangURL`] function instead.  The URL returned by this function depends on:
+With multilingual configurations, use the [`absLangURL`] function instead. The URL returned by this function depends on:
 
 - Whether the input begins with a slash
 - The `baseURL` in site configuration

@@ -35,7 +35,7 @@ list
     : Do not include the page in _any_ page collection.
 
 publishResources
-: Applicable to [page bundles], determines whether to publish the associated [page resources].  Specify one of:
+: Applicable to [page bundles], determines whether to publish the associated [page resources]. Specify one of:
 
   - `true`
     : Always publish resources. This is the default value.
