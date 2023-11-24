@@ -15,9 +15,12 @@
 package transform
 
 import (
+	"bytes"
 	"context"
+	"encoding/xml"
 	"html"
 	"html/template"
+	"strings"
 
 	"github.com/gohugoio/hugo/cache/namedmemcache"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
@@ -116,6 +119,34 @@ func (ns *Namespace) HTMLUnescape(s any) (string, error) {
 	}
 
 	return html.UnescapeString(ss), nil
+}
+
+// XMLEscape returns the given string, removing disallowed characters then
+// escaping the result to its XML equivalent.
+func (ns *Namespace) XMLEscape(s any) (string, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+
+	// https://www.w3.org/TR/xml/#NT-Char
+	cleaned := strings.Map(func(r rune) rune {
+		if r == 0x9 || r == 0xA || r == 0xD ||
+			(r >= 0x20 && r <= 0xD7FF) ||
+			(r >= 0xE000 && r <= 0xFFFD) ||
+			(r >= 0x10000 && r <= 0x10FFFF) {
+			return r
+		}
+		return -1
+	}, ss)
+
+	var buf bytes.Buffer
+	err = xml.EscapeText(&buf, []byte(cleaned))
+	if err != nil {
+		return "", err
+	}
+
+	return buf.String(), nil
 }
 
 // Markdownify renders s from Markdown to HTML.
