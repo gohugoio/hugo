@@ -65,3 +65,23 @@ foo
 	b.AssertFileContent("public/p3/index.html", "_<h2 id=\"foo\">foo</h2>\n<p>bar</p>\n_")
 	b.AssertFileContent("public/p4/index.html", "_<p id=\"bar\">foo</p>\n_")
 }
+
+func TestXMLEscape(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+disableKinds = ['section','sitemap','taxonomy','term']
+-- content/p1.md --
+---
+title: p1
+---
+a **b**  c
+<!--more-->
+  `
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.xml", `
+	<description>&lt;p&gt;a &lt;strong&gt;b&lt;/strong&gt;  c&lt;/p&gt;</description>
+	`)
+}
