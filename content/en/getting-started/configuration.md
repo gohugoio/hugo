@@ -431,12 +431,6 @@ Removes [non-spacing marks](https://www.compart.com/en/unicode/category/Mn) from
 content/post/hügó.md → https://example.org/post/hugo/
 ```
 
-### rssLimit
-
-**Default value:** -1 (unlimited)
-
-Maximum number of items in the RSS feed.
-
 ### sectionPagesMenu
 
 See [Menus](/content-management/menus/#define-automatically).
