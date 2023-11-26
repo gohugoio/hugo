@@ -249,9 +249,8 @@ func (d Decoder) unmarshalORG(data []byte, v any) error {
 		k = strings.ToLower(k)
 		if strings.HasSuffix(k, "[]") {
 			frontMatter[k[:len(k)-2]] = strings.Fields(v)
-		} else if k == "tags" || k == "categories" || k == "aliases" {
-			log.Printf("warn: Please use '#+%s[]:' notation, automatic conversion is deprecated.", k)
-			frontMatter[k] = strings.Fields(v)
+		} else if strings.Contains(v, "\n") {
+			frontMatter[k] = strings.Split(v, "\n")
 		} else if k == "date" || k == "lastmod" || k == "publishdate" || k == "expirydate" {
 			frontMatter[k] = parseORGDate(v)
 		} else {
