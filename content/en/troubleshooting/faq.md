@@ -105,6 +105,10 @@ Yes. See&nbsp;[details](/getting-started/configuration/#configure-with-environme
 
 The most common causes are page collisions (publishing two pages to the same path) and the effects of concurrency. Use the `--printPathWarnings` command line flag to check for page collisions, and create a topic on the [forum] if you suspect concurrency problems.
 
+###### Which page methods trigger content rendering?
+
+The following methods on a `Page` object triggering content rendering: `Content`, `FuzzyWordCount`, `Len`, `Plain`, `PlainWords`, `ReadingTime`, `Summary`, `Truncated`, and `WordCount`.
+
 {{% note %}}
 For other questions please visit the [forum]. A quick search of over 20,000 topics will often answer your question. Please be sure to read about [requesting help] before asking your first question.
 
