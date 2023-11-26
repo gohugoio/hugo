@@ -13,9 +13,7 @@ action:
 aliases: [/functions/printf]
 ---
 
-The documentation for [Go's fmt package] describes the structure and content of the format string.
-
-[Go's fmt package]: https://pkg.go.dev/fmt
+{{% include "functions/fmt/_common/fmt-layout.md" %}}
 
 ```go-html-template
 {{ $var := "world" }}
