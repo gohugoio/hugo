@@ -1,6 +1,6 @@
 ---
 title: Ref
-description: Returns the absolute URL of the given page with the given path, language, and output format.
+description: Returns the absolute URL of the page with the given path, language, and output format.
 categories: []
 keywords: []
 action:

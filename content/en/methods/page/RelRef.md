@@ -1,6 +1,6 @@
 ---
 title: RelRef
-description: Returns the relative URL of the given page with the given path, language, and output format.
+description: Returns the relative URL of the page with the given path, language, and output format.
 categories: []
 keywords: []
 action:
