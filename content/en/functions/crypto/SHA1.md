@@ -1,6 +1,6 @@
 ---
 title: crypto.SHA1
-description: Hashes the given input and returns its SHA1 checksum.
+description: Hashes the given input and returns its SHA1 checksum encoded to a hexadecimal string.
 categories: []
 keywords: []
 action:

@@ -1,6 +1,6 @@
 ---
 title: crypto.MD5
-description: Hashes the given input and returns its MD5 checksum.
+description: Hashes the given input and returns its MD5 checksum encoded to a hexadecimal string.
 categories: []
 keywords: []
 action:
