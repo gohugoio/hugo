@@ -689,3 +689,25 @@ title: "p1"
 
 	b.AssertFileContentExact("public/p1/index.html", "<p>:x:</p>")
 }
+
+// Issue #5748
+func TestGoldmarkTemplateDelims(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+[minify]
+  minifyOutput = true
+[minify.tdewolff.html]
+  templateDelims = ["<?php","?>"]
+-- layouts/index.html --
+<div class="foo">
+{{ safeHTML "<?php" }}
+echo "hello";
+{{ safeHTML "?>" }}
+</div>
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html", "<div class=foo><?php\necho \"hello\";\n?>\n</div>")
+}
