@@ -76,8 +76,8 @@ github.com/alecthomas/chroma/v2 v2.11.1/go.mod h1:4TQu7gdfuPjSh76j78ietmqh9LiurG
 github.com/alecthomas/repr v0.2.0 h1:HAzS41CIzNW5syS8Mf9UwXhNH1J9aix/BvDRf1Ml2Yk=
 github.com/armon/go-radix v1.0.0 h1:F4z6KzEeeQIMeLFa97iZU6vupzoecKdU5TX24SNppXI=
 github.com/armon/go-radix v1.0.0/go.mod h1:ufUuZ+zHj4x4TnLV4JWEpy2hxWSpsRywHrMgIH9cCH8=
-github.com/aws/aws-sdk-go v1.48.6 h1:hnL/TE3eRigirDLrdRE9AWE1ALZSVLAsC4wK8TGsMqk=
-github.com/aws/aws-sdk-go v1.48.6/go.mod h1:LF8svs817+Nz+DmiMQKTO3ubZ/6IaTpq3TjupRn3Eqk=
+github.com/aws/aws-sdk-go v1.48.7 h1:gDcOhmkohlNk20j0uWpko5cLBbwSkB+xpkshQO45F7Y=
+github.com/aws/aws-sdk-go v1.48.7/go.mod h1:LF8svs817+Nz+DmiMQKTO3ubZ/6IaTpq3TjupRn3Eqk=
 github.com/aws/aws-sdk-go-v2 v1.20.0 h1:INUDpYLt4oiPOJl0XwZDK2OVAVf0Rzo+MGVTv9f+gy8=
 github.com/aws/aws-sdk-go-v2 v1.20.0/go.mod h1:uWOr0m0jDsiWw8nnXiqZ+YG6LdvAlGYDLLf2NmHZoy4=
 github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.11 h1:/MS8AzqYNAhhRNalOmxUvYs8VEbNGifTnzhPFdcRQkQ=
@@ -130,8 +130,6 @@ github.com/bep/godartsass/v2 v2.0.0 h1:Ruht+BpBWkpmW+yAM2dkp7RSSeN0VLaTobyW0CiSP
 github.com/bep/godartsass/v2 v2.0.0/go.mod h1:AcP8QgC+OwOXEq6im0WgDRYK7scDsmZCEW62o1prQLo=
 github.com/bep/golibsass v1.1.1 h1:xkaet75ygImMYjM+FnHIT3xJn7H0xBA9UxSOJjk8Khw=
 github.com/bep/golibsass v1.1.1/go.mod h1:DL87K8Un/+pWUS75ggYv41bliGiolxzDKWJAq3eJ1MA=
-github.com/bep/gowebp v0.2.0 h1:ZVfK8i9PpZqKHEmthQSt3qCnnHycbLzBPEsVtk2ch2Q=
-github.com/bep/gowebp v0.2.0/go.mod h1:ZhFodwdiFp8ehGJpF4LdPl6unxZm9lLFjxD3z2h2AgI=
 github.com/bep/gowebp v0.3.0 h1:MhmMrcf88pUY7/PsEhMgEP0T6fDUnRTMpN8OclDrbrY=
 github.com/bep/gowebp v0.3.0/go.mod h1:ZhFodwdiFp8ehGJpF4LdPl6unxZm9lLFjxD3z2h2AgI=
 github.com/bep/helpers v0.4.0 h1:ab9veaAiWY4ST48Oxp5usaqivDmYdB744fz+tcZ3Ifs=
