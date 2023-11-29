@@ -335,12 +335,14 @@ var commonTestScriptsParam = testscript.Params{
 				var info testInfo
 				// Read the .ready file's JSON into info.
 				f, err := os.Open(readyFilename)
-				if err == nil {
-					err = json.NewDecoder(f).Decode(&info)
-					f.Close()
-				} else {
+				if err != nil {
 					ts.Fatalf("failed to open .ready file: %v", err)
 				}
+				err = json.NewDecoder(f).Decode(&info)
+				if err != nil {
+					ts.Fatalf("error decoding json: %v", err)
+				}
+				f.Close()
 
 				for i, s := range info.BaseURLs {
 					ts.Setenv(fmt.Sprintf("HUGOTEST_BASEURL_%d", i), s)
