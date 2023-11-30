@@ -58,11 +58,11 @@ jobs:
         brew install pandoc
     - if: matrix.os == 'windows-latest'
       run: |
-        Choco-Install -PackageName pandoc
+        choco install pandoc
     - run: pandoc -v
     - if: matrix.os == 'windows-latest'
       run: |
-        Choco-Install -PackageName mingw -ArgumentList "--version","12.2.0","--allow-downgrade"
+        choco install mingw
     - if: matrix.os == 'ubuntu-latest'
       name: Install dart-sass Linux
       run: |
