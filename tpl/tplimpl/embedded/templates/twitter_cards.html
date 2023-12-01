@@ -1,4 +1,4 @@
-{{- $images := partialCached "_funcs/get-page-images" . . -}}
+{{- $images := partial "_funcs/get-page-images" . -}}
 {{- with index $images 0 -}}
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="{{ .Permalink }}" />

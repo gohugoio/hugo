@@ -3,7 +3,7 @@
 <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}" />
 <meta property="og:url" content="{{ .Permalink }}" />
 
-{{- $images := partialCached "_funcs/get-page-images" . . -}}
+{{- $images := partial "_funcs/get-page-images" . -}}
 {{- range first 6 $images -}}
   <meta property="og:image" content="{{ .Permalink }}" />
 {{- end -}}

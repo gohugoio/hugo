@@ -7,7 +7,7 @@
 {{ with .Lastmod }}<meta itemprop="dateModified" {{ .Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />{{ end}}
 <meta itemprop="wordCount" content="{{ .WordCount }}">
 
-{{- $images := partialCached "_funcs/get-page-images" . . -}}
+{{- $images := partial "_funcs/get-page-images" . -}}
 {{- range first 6 $images -}}
   <meta itemprop="image" content="{{ .Permalink }}" />
 {{- end -}}
