@@ -71,6 +71,8 @@ func MakePermalink(host, plink string) *url.URL {
 	}
 
 	base.Path = path.Join(base.Path, p.Path)
+	base.Fragment = p.Fragment
+	base.RawQuery = p.RawQuery
 
 	// path.Join will strip off the last /, so put it back if it was there.
 	hadTrailingSlash := (plink == "" && strings.HasSuffix(host, "/")) || strings.HasSuffix(p.Path, "/")
