@@ -1,11 +1,9 @@
 {{- $imgs := slice }}
 {{- $page := . }}
 {{/* Parse page's images parameter. */}}
-{{- with .Params.images }}
-  {{- range . }}
-    {{- $img := partial "_funcs/parse-page-image" (dict "Resources" $page.Resources "Image" .) }}
-    {{- $imgs = $imgs | append $img }}
-  {{- end }}
+{{- range .Params.images }}
+  {{- $img := partial "_funcs/parse-page-image" (dict "Resources" $page.Resources "Image" .) }}
+  {{- $imgs = $imgs | append $img }}
 {{- end }}
 {{/* Find featured image resources if the images parameter is empty. */}}
 {{- if not $imgs }}
