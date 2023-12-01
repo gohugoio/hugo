@@ -22,10 +22,15 @@ type context struct {
 	delim   delim
 	urlPart urlPart
 	jsCtx   jsCtx
-	attr    attr
-	element element
-	n       parse.Node // for range break/continue
-	err     *Error
+	// jsBraceDepth contains the current depth, for each JS template literal
+	// string interpolation expression, of braces we've seen. This is used to
+	// determine if the next } will close a JS template literal string
+	// interpolation expression or not.
+	jsBraceDepth []int
+	attr         attr
+	element      element
+	n            parse.Node // for range break/continue
+	err          *Error
 }
 
 func (c context) String() string {
@@ -121,8 +126,8 @@ const (
 	stateJSDqStr
 	// stateJSSqStr occurs inside a JavaScript single quoted string.
 	stateJSSqStr
-	// stateJSBqStr occurs inside a JavaScript back quoted string.
-	stateJSBqStr
+	// stateJSTmplLit occurs inside a JavaScript back quoted string.
+	stateJSTmplLit
 	// stateJSRegexp occurs inside a JavaScript regexp literal.
 	stateJSRegexp
 	// stateJSBlockCmt occurs inside a JavaScript /* block comment */.
@@ -176,14 +181,14 @@ func isInTag(s state) bool {
 }
 
 // isInScriptLiteral returns true if s is one of the literal states within a
-// <script> tag, and as such occurances of "<!--", "<script", and "</script"
+// <script> tag, and as such occurrences of "<!--", "<script", and "</script"
 // need to be treated specially.
 func isInScriptLiteral(s state) bool {
 	// Ignore the comment states (stateJSBlockCmt, stateJSLineCmt,
 	// stateJSHTMLOpenCmt, stateJSHTMLCloseCmt) because their content is already
 	// omitted from the output.
 	switch s {
-	case stateJSDqStr, stateJSSqStr, stateJSBqStr, stateJSRegexp:
+	case stateJSDqStr, stateJSSqStr, stateJSTmplLit, stateJSRegexp:
 		return true
 	}
 	return false

@@ -68,9 +68,6 @@ type Config struct {
 
 	// Allow inline shortcodes
 	EnableInlineShortcodes bool `json:"enableInlineShortcodes"`
-
-	// Go templates related security config.
-	GoTemplates GoTemplates `json:"goTemplates"`
 }
 
 // Exec holds os/exec policies.
@@ -96,15 +93,6 @@ type HTTP struct {
 	MediaTypes Whitelist `json:"mediaTypes"`
 }
 
-type GoTemplates struct {
-
-	// Enable to allow template actions inside bakcticks in ES6 template literals.
-	// This was blocked in Hugo 0.114.0 for security reasons and you now get errors on the form
-	// "... appears in a JS template literal" if you have this in your templates.
-	// See https://github.com/golang/go/issues/59234
-	AllowActionJSTmpl bool
-}
-
 // ToTOML converts c to TOML with [security] as the root.
 func (c Config) ToTOML() string {
 	sec := c.ToSecurityMap()
@@ -127,7 +115,6 @@ func (c Config) CheckAllowedExec(name string) error {
 		}
 	}
 	return nil
-
 }
 
 func (c Config) CheckAllowedGetEnv(name string) error {
@@ -176,7 +163,6 @@ func (c Config) ToSecurityMap() map[string]any {
 		"security": m,
 	}
 	return sec
-
 }
 
 // DecodeConfig creates a privacy Config from a given Hugo configuration.
@@ -206,15 +192,14 @@ func DecodeConfig(cfg config.Provider) (Config, error) {
 	}
 
 	return sc, nil
-
 }
 
 func stringSliceToWhitelistHook() mapstructure.DecodeHookFuncType {
 	return func(
 		f reflect.Type,
 		t reflect.Type,
-		data any) (any, error) {
-
+		data any,
+	) (any, error) {
 		if t != reflect.TypeOf(Whitelist{}) {
 			return data, nil
 		}
@@ -222,7 +207,6 @@ func stringSliceToWhitelistHook() mapstructure.DecodeHookFuncType {
 		wl := types.ToStringSlicePreserveString(data)
 
 		return NewWhitelist(wl...)
-
 	}
 }
 
