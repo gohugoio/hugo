@@ -31,6 +31,7 @@ func TestMakePermalink(t *testing.T) {
 		{"http://abc.com", "bar", "http://abc.com/bar"},
 		{"http://abc.com/foo/bar", "post/bar", "http://abc.com/foo/bar/post/bar"},
 		{"http://abc.com/foo/bar", "post/bar/", "http://abc.com/foo/bar/post/bar/"},
+		{"http://abc.com/foo", "post/bar?a=b#c", "http://abc.com/foo/post/bar?a=b#c"},
 	}
 
 	for i, d := range data {
