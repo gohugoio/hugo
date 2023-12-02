@@ -77,6 +77,7 @@ func (h Headings) FilterBy(fn func(*Heading) bool) Headings {
 // Heading holds the data about a heading and its children.
 type Heading struct {
 	ID    string
+	Level int
 	Title string
 
 	Headings Headings
