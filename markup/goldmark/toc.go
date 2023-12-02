@@ -80,6 +80,7 @@ func (t *tocTransformer) Transform(n *ast.Document, reader text.Reader, pc parse
 			id, found := heading.AttributeString("id")
 			if found {
 				tocHeading.ID = string(id.([]byte))
+				tocHeading.Level = level
 			}
 		case
 			ast.KindCodeSpan,
