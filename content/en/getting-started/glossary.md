@@ -93,6 +93,11 @@ To determine the current environment within a template, use the [`hugo.Environme
 
 [`hugo.Environment`]: /functions/hugo/environment
 
+###### field
+
+A predefined key/value pair in front matter such as `date` or `title`. See&nbsp;also&nbsp;[parameter](#parameter).
+
+
 ###### flag
 
 An option passed to a command-line program, beginning with one or two hyphens. See&nbsp;[details](/commands/hugo/).
@@ -227,7 +232,7 @@ The process of [paginating](#paginate) a [section](#section) list.
 
 ###### parameter
 
-Typically, a user-defined key/value pair at the site or page level, but may also refer to a configuration setting or an [argument](#argument).
+Typically, a user-defined key/value pair at the site or page level, but may also refer to a configuration setting or an [argument](#argument). See&nbsp;also&nbsp;[field](#field).
 
 ###### partial
 
