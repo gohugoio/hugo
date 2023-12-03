@@ -25,5 +25,5 @@ The above is equivalent to either of these:
 
 ```go-html-template
 {{ .Site.Params.display_toc }}
-{{ index .Site.Params "display_toc: }}
+{{ index .Site.Params "display_toc" }}
 ```
