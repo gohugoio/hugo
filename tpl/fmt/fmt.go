@@ -68,6 +68,8 @@ func (ns *Namespace) Errorf(format string, args ...any) string {
 // an information text that the error with the given id can be suppressed in config.
 // It returns an empty string.
 func (ns *Namespace) Erroridf(id, format string, args ...any) string {
+	format += "\nYou can suppress this error by adding the following to your site configuration:\nignoreErrors = ['%s']"
+	args = append(args, id)
 	ns.logger.Errorsf(id, format, args...)
 	return ""
 }
