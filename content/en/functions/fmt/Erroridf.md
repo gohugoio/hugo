@@ -20,15 +20,15 @@ The `erroridf` function evaluates the format string, then prints the result to t
 This template code:
 
 ```go-html-template
-{{ erroridf "The %q shortcode was unable to find %s. See %s" .Name $file .Position }}
+{{ erroridf "error-42" "You should consider fixing this." }}
 ```
 
 Produces this console log:
 
 ```text
 ERROR You should consider fixing this.
-If you feel that this should not be logged as an ERROR, you can ignore it by adding this to your site config:
-ignoreErrors = ["error-42"]
+You can suppress this error by adding the following to your site configuration:
+ignoreErrors = ['error-42']
 ```
 
 To suppress this message:
