@@ -79,7 +79,10 @@ func (ns *Namespace) Highlight(s any, lang string, opts ...any) (template.HTML, 
 	}
 
 	hl := ns.deps.ContentSpec.Converters.GetHighlighter()
-	highlighted, _ := hl.Highlight(ss, lang, optsv)
+	highlighted, err := hl.Highlight(ss, lang, optsv)
+	if err != nil {
+		return "", err
+	}
 	return template.HTML(highlighted), nil
 }
 

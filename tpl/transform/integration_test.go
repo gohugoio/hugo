@@ -16,6 +16,7 @@ package transform_test
 import (
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugolib"
 )
 
@@ -84,4 +85,25 @@ a **b**  c
 	b.AssertFileContent("public/index.xml", `
 	<description>&lt;p&gt;a &lt;strong&gt;b&lt;/strong&gt;  c&lt;/p&gt;</description>
 	`)
+}
+
+// Issue #9642
+func TestHighlightError(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/index.html --
+{{ highlight "a" "b" 0 }}
+  `
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	)
+
+	_, err := b.BuildE()
+	b.Assert(err.Error(), qt.Contains, "error calling highlight: invalid Highlight option: 0")
 }
