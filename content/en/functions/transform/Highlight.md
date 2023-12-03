@@ -25,7 +25,7 @@ LANG
 : The language of the code to highlight. Choose from one of the [supported languages]. Case-insensitive.
 
 OPTIONS
-: An optional, comma-separated list of zero or more [options]. Set default values in [site configuration].
+: A map, or comma-separated list, of zero or more [options]. Set default values in [site configuration].
 
 ## Options
 
