@@ -1,21 +1,20 @@
 ---
 title: collections.KeyVals
-linkTitle: keyVals
 description: Returns a KeyVals struct.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [keyVals]
-  returnType: KeyValues
+  related:
+    - methods/pages/Related
+  returnType: types.KeyValues
   signatures: [collections.KeyVals KEY VALUES...]
-relatedFunctions: []
 aliases: [/functions/keyvals]
 ---
 
-The primary application for this function is the definition of the `namedSlices` parameter in the options map passed to the `.Related` method on the `Page` object.
+The primary application for this function is the definition of the `namedSlices` parameter in the options map passed to the [`Related`] method on the `Pages` object.
+
+[`Related`]: /methods/pages/related
 
 See [related content](/content-management/related).
 
@@ -39,7 +38,6 @@ The resulting data structure is:
 To extract the key and values:
 
 ```go-html-template
-
 {{ $kv.Key }} → foo
 {{ $kv.Values }} → [a b c]
 ```

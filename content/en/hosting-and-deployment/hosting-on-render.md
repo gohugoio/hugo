@@ -2,7 +2,7 @@
 title: Host on Render
 description: Host your Hugo site for free with Render's global CDN, fully-managed SSL and auto deploys from GitHub.
 categories: [hosting and deployment]
-keywords: [hosting,deployment]
+keywords: [hosting]
 menu:
   docs:
     parent: hosting-and-deployment

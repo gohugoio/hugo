@@ -1,6 +1,8 @@
 ---
 title: Hugo features
 description: Hugo boasts blistering speed, robust content management, and a powerful templating language making it a great fit for all kinds of static websites.
+categories: [about]
+keywords: []
 menu:
   docs:
     parent: about

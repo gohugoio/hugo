@@ -1,25 +1,39 @@
 ---
-title: Pages methods
-description: Pages is the core page collection in Hugo and has many useful methods.
-categories: [variables and parameters]
-keywords: [pages]
+title: Pages variables
+description: Use these methods with a collection of Page objects.
+categories: [variables]
+keywords: []
 menu:
   docs:
     parent: variables
-    weight: 21
-weight: 21
-aliases: [/pages]
+    weight: 60
+weight: 60
 toc: true
+aliases: [/variables/site-variables/]
 ---
 
-Also see [List templates](/templates/lists) for an overview of sort methods.
+{{% include "variables/_common/consistent-terminology.md" %}}
 
-## .Next PAGE
+## All methods
 
-`.Next` and `.Prev` on `Pages` work similar to the methods with the same names on `.Page`, but are more flexible (and slightly slower) as they can be used on any page collection.
+Use any of these methods with page collections in your templates.
 
-`.Next` points **up** to the next page relative to the page sent in as the argument. Example: `{{ with .Site.RegularPages.Next . }}{{ .RelPermalink }}{{ end }}`. Calling `.Next` with the first page in the collection returns `nil`.
+{{< list-pages-in-section path=/methods/pages titlePrefix=. >}}
 
-## .Prev PAGE
+## Sort by
 
-`.Prev` points **down** to the previous page relative to the page sent in as the argument. Example: `{{ with .Site.RegularPages.Prev . }}{{ .RelPermalink }}{{ end }}`. Calling `.Prev` with the last page in the collection returns `nil`.
+Use these methods to sort page collections.
+
+{{< list-pages-in-section path=/methods/pages filter=methods_pages_sort filterType=include titlePrefix=. omitElementIDs=true >}}
+
+## Group by
+
+Use these methods to group page collections.
+
+{{< list-pages-in-section path=/methods/pages filter=methods_pages_group filterType=include titlePrefix=. omitElementIDs=true >}}
+
+## Navigation
+
+Use these methods to create navigation links between pages.
+
+{{< list-pages-in-section path=/methods/pages filter=methods_pages_navigation filterType=include titlePrefix=. omitElementIDs=true >}}

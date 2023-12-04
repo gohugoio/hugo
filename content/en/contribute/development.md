@@ -1,9 +1,8 @@
 ---
-title: Contribute to development
-linkTitle: Development
-description: Hugo relies heavily on contributions from the open source community.
+title: Development
+description: Contribute to the development of Hugo.
 categories: [contribute]
-keywords: [dev,open source]
+keywords: [development]
 menu:
   docs:
     parent: contribute
@@ -61,7 +60,7 @@ You can print the `GOPATH` with `echo $GOPATH`. You should see a non-empty strin
 
 If you are a macOS user and have [Homebrew](https://brew.sh/) installed on your machine, installing Go is as simple as the following command:
 
-{{< code file="install-go.sh" >}}
+{{< code file=install-go.sh >}}
 brew install go
 {{< /code >}}
 
@@ -313,7 +312,7 @@ git commit --amend
 
 #### Modify multiple commits
 
-{{% warning "Be Careful Modifying Multiple Commits"%}}
+{{% note %}}
 Modifications such as those described in this section can have serious unintended consequences. Skip this section if you're not sure!
 {{% /note %}}
 
@@ -326,7 +325,7 @@ git rebase --interactive @~6
 The `6` at the end of the command represents the number of commits that should be modified. An editor should open and present a list of last six commit messages:
 
 ```txt
-pick 80d02a1 tpl: Add hasPrefix to the template funcs' "smoke test"
+pick 80d02a1 tpl: Add hasPrefix to template function smoke test"
 pick aaee038 tpl: Sort the smoke tests
 pick f0dbf2c tpl: Add the other test case for hasPrefix
 pick 911c35b Add "How to contribute to Hugo" tutorial
@@ -339,7 +338,7 @@ In the case above we should merge the last two commits in the commit of this tut
 All operations are written before the commit message. Replace "pick" with an operation. In this case `squash` or `s` for short:
 
 ```txt
-pick 80d02a1 tpl: Add hasPrefix to the template funcs' "smoke test"
+pick 80d02a1 tpl: Add hasPrefix to template function smoke test"
 pick aaee038 tpl: Sort the smoke tests
 pick f0dbf2c tpl: Add the other test case for hasPrefix
 pick 911c35b Add "How to contribute to Hugo" tutorial
@@ -352,7 +351,7 @@ We also want to rewrite the commits message of the third last commit. We forgot 
 You should end up with a similar setup:
 
 ```txt
-pick 80d02a1 tpl: Add hasPrefix to the template funcs' "smoke test"
+pick 80d02a1 tpl: Add hasPrefix to template function smoke test"
 pick aaee038 tpl: Sort the smoke tests
 pick f0dbf2c tpl: Add the other test case for hasPrefix
 reword 911c35b Add "How to contribute to Hugo" tutorial

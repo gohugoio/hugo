@@ -1,33 +1,28 @@
 ---
 title: strings.TrimRight
-description: Returns a slice of a given string with all trailing characters contained in the cutset removed.
-categories: [functions]
+description: Returns the given string, removing trailing characters specified in the cutset.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
+  related:
+    - functions/strings/Chomp
+    - functions/strings/Trim
+    - functions/strings/TrimLeft
+    - functions/strings/TrimPrefix
+    - functions/strings/TrimSuffix
   returnType: string
   signatures: [strings.TrimRight CUTSET STRING]
-relatedFunctions:
-  - strings.Chomp
-  - strings.Trim
-  - strings.TrimLeft
-  - strings.TrimPrefix
-  - strings.TrimRight
-  - strings.TrimSuffix
 aliases: [/functions/strings.trimright]
 ---
 
-Given the string `"abba"`, trailing `"a"`'s can be removed a follows:
-
 ```go-html-template
-{{ strings.TrimRight "a" "abba" }} → "abb"
+{{ strings.TrimRight "a" "abba" }} → abb
 ```
 
-Numbers can be handled as well:
+The `strings.TrimRight` function converts the arguments to strings if possible:
 
 ```go-html-template
-{{ strings.TrimRight 12 1221341221 }} → "122134"
+{{ strings.TrimRight 54 12345 }} → 123 (string)
+{{ strings.TrimRight "eu" true }} → tr
 ```

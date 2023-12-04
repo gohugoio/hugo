@@ -1,14 +1,14 @@
 ---
 title: Syntax highlighting
 description: Hugo comes with really fast syntax highlighting from Chroma.
-keywords: [highlighting,chroma,code blocks,syntax]
 categories: [content management]
+keywords: [highlighting,chroma,code blocks,syntax]
 menu:
   docs:
     parent: content-management
     weight: 240
-toc: true
 weight: 240
+toc: true
 aliases: [/extras/highlighting/,/extras/highlight/,/tools/syntax-highlighting/]
 ---
 
@@ -24,7 +24,7 @@ If you run with `markup.highlight.noClasses=false` in your site configuration, y
 
 You can generate one with Hugo:
 
-```bash
+```sh
 hugo gen chromastyles --style=monokai > syntax.css
 ```
 
@@ -41,7 +41,7 @@ Options:
 * `linenostart=199`: starts the line number count from 199.
 * `anchorlinenos`: Configure anchors on line numbers. Valid values are `true` or `false`;
 * `lineanchors`: Configure a prefix for the anchors on line numbers. Will be suffixed with `-`, so linking to the line number 1 with the option `lineanchors=prefix` adds the anchor `prefix-1` to the page.  
-* `hl_inline`  Highlight inside a `<code>` (inline HTML element) tag. Valid values are `true` or `false`. The `code` tag will get a class with name `code-inline`. {{< new-in "0.101.0" >}}
+* `hl_inline`  Highlight inside a `<code>` (inline HTML element) tag. Valid values are `true` or `false`. The `code` tag will get a class with name `code-inline`. {{< new-in 0.101.0 >}}
 
 ### Example: highlight shortcode
 
@@ -103,7 +103,6 @@ Highlighting in code fences is enabled by default.
 // ... code
 ```
 ````
-
 
 Gives this:
 

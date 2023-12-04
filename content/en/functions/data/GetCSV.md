@@ -1,19 +1,17 @@
 ---
 title: data.GetCSV
-linkTitle: getCSV
 description: Returns an array of arrays from a local or remote CSV file, or an error if the file does not exist.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [getCSV]
-  returnType: '[]string'
-  signatures: [data.GetCSV SEPARATOR PATHPART...]
-relatedFunctions:
-  - data.GetCSV
-  - data.GetJSON
+  related:
+    - functions/data/GetJSON
+    - functions/resources/Get
+    - functions/resources/GetRemote
+    - methods/page/Resources
+  returnType: '[][]string'
+  signatures: ['data.GetCSV SEPARATOR INPUT... [OPTIONS]']
 toc: true
 ---
 
@@ -32,6 +30,12 @@ Access the data with either of the following:
 {{ $data := getCSV "," "other-files/" "pets.csv" }}
 ```
 
+{{% note %}}
+When working with local data, the filepath is relative to the working directory.
+
+You must not place CSV files in the project's data directory.
+{{% /note %}}
+
 Access remote data with either of the following:
 
 ```go-html-template
@@ -49,9 +53,25 @@ The resulting data structure is an array of arrays:
 ]
 ```
 
+## Options
+
+Add headers to the request by providing an options map:
+
+```go-html-template
+{{ $opts := dict "Authorization" "Bearer abcd" }}
+{{ $data := getCSV "," "https://example.org/pets.csv" $opts }}
+```
+
+Add multiple headers using a slice:
+
+```go-html-template
+{{ $opts := dict "X-List" (slice "a" "b" "c") }}
+{{ $data := getCSV "," "https://example.org/pets.csv" $opts }}
+```
+
 ## Global resource alternative
 
-Consider using `resources.Get` with [`transform.Unmarshal`] when accessing a global resource.
+Consider using the [`resources.Get`] function with [`transform.Unmarshal`] when accessing a global resource.
 
 ```text
 my-project/
@@ -73,7 +93,7 @@ my-project/
 
 ## Page resource alternative
 
-Consider using `.Resources.Get` with [`transform.Unmarshal`] when accessing a page resource.
+Consider using the [`Resources.Get`] method with [`transform.Unmarshal`] when accessing a page resource.
 
 ```text
 my-project/
@@ -97,7 +117,7 @@ my-project/
 
 ## Remote resource alternative
 
-Consider using `resources.GetRemote` with [`transform.Unmarshal`] for improved error handling when accessing a remote resource.
+Consider using the [`resources.GetRemote`] function with [`transform.Unmarshal`] when accessing a remote resource to improve error handling and cache control.
 
 ```go-html-template
 {{ $data := "" }}
@@ -114,4 +134,7 @@ Consider using `resources.GetRemote` with [`transform.Unmarshal`] for improved e
 {{ end }}
 ```
 
+[`Resources.Get`]: methods/page/Resources
+[`resources.GetRemote`]: /functions/resources/getremote
+[`resources.Get`]: /functions/resources/get
 [`transform.Unmarshal`]: /functions/transform/unmarshal

@@ -1,21 +1,27 @@
 ---
 title: collections.In
-linkTitle: in
-description: Reports whether an element is in an array or slice, or if a substring is in a string.
+description: Reports whether the given value is a member of the given set.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [in]
+  related:
+    - functions/collections/Slice
+    - functions/strings/Contains
+    - functions/strings/ContainsAny
+    - functions/strings/ContainsNonSpace
+    - functions/strings/HasPrefix
+    - functions/strings/HasSuffix
   returnType: bool
-  signatures: [collections.In SET ITEM]
-relatedFunctions:
-  - collections.Slice
+  signatures: [collections.In SET VALUE]
 aliases: [/functions/in]
 ---
 
+The `SET` can be an [array], [slice], or [string].
 
+[array]: /getting-started/glossary/#array
+[slice]: /getting-started/glossary/#slice
+[string]: /getting-started/glossary/#string
 
 ```go-html-template
 {{ $s := slice "a" "b" "c" }}

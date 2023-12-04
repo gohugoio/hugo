@@ -2,7 +2,7 @@
 title: Host on Netlify
 description: Netlify can host your Hugo site with CDN, continuous deployment, 1-click HTTPS, an admin GUI, and its own CLI.
 categories: [hosting and deployment]
-keywords: [netlify,hosting,deployment]
+keywords: [hosting,netlify]
 menu:
   docs:
     parent: hosting-and-deployment
@@ -19,7 +19,7 @@ toc: true
 
 ## Create a Netlify account
 
-Go to [app.netlify.com] and select your preferred signup method. This will likely be a hosted Git provider, although you also have the option to sign up with an email address.
+Go to [app.netlify.com] and select your preferred sign up method. This will likely be a hosted Git provider, although you also have the option to sign up with an email address.
 
 The following examples use GitHub, but other git providers will follow a similar process.
 
@@ -55,21 +55,21 @@ You can [set Hugo version](https://www.netlify.com/blog/2017/04/11/netlify-plus-
 
 For production:
 
-{{< code file="netlify.toml" >}}
+{{< code file=netlify.toml >}}
 [context.production.environment]
   HUGO_VERSION = "0.115.4"
 {{< /code >}}
 
 For testing:
 
-{{< code file="netlify.toml" >}}
+{{< code file=netlify.toml >}}
 [context.deploy-preview.environment]
   HUGO_VERSION = "0.115.4"
 {{< /code >}}
 
 The Netlify configuration file can be a little hard to understand and get right for the different environment, and you may get some inspiration and tips from this site's `netlify.toml`:
 
-{{< readfile file="netlify.toml" highlight="toml" >}}
+{{< readfile file=netlify.toml highlight=toml >}}
 
 ## Build and deploy site
 

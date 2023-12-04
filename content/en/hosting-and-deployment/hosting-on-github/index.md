@@ -2,7 +2,7 @@
 title: Host on GitHub Pages
 description: Deploy Hugo as a GitHub Pages project or personal/organizational site and automate the whole process with GitHub Actions
 categories: [hosting and deployment]
-keywords: [github,git,deployment,hosting]
+keywords: [hosting,github]
 menu:
   docs:
     parent: hosting-and-deployment
@@ -32,7 +32,6 @@ See the [GitHub Pages documentation] to understand the requirements for reposito
 [GitHub Pages documentation]: https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages#types-of-github-pages-sites
 {{% /note %}}
 
-
 [GitHub Pages documentation]: https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages#types-of-github-pages-sites
 
 ## Procedure
@@ -44,7 +43,7 @@ Step 2
 : Push your local repository to GitHub.
 
 Step 3
-: Visit your GitHub repository. From the main menu choose **Settings**&nbsp;>&nbsp;**Pages**. In then center of your screen you will see this:
+: Visit your GitHub repository. From the main menu choose **Settings**&nbsp;>&nbsp;**Pages**. In the center of your screen you will see this:
 
 ![screen capture](gh-pages-1.png)
 {style="max-width: 280px"}
@@ -65,7 +64,7 @@ Step 5
 Step 6
 : Copy and paste the YAML below into the file you created. Change the branch name and Hugo version as needed.
 
-{{< code file=".github/workflows/hugo.yaml" >}}
+{{< code file=.github/workflows/hugo.yaml copy=true >}}
 # Sample workflow for building and deploying a Hugo site to GitHub Pages
 name: Deploy Hugo site to Pages
 
@@ -100,7 +99,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      HUGO_VERSION: 0.115.4
+      HUGO_VERSION: 0.120.2
     steps:
       - name: Install Hugo CLI
         run: |
@@ -109,7 +108,7 @@ jobs:
       - name: Install Dart Sass
         run: sudo snap install dart-sass
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
@@ -129,7 +128,7 @@ jobs:
             --minify \
             --baseURL "${{ steps.pages.outputs.base_url }}/"
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v2
         with:
           path: ./public
 

@@ -1,17 +1,13 @@
 ---
 title: strings.Substr
-linkTitle: substr
 description: Extracts parts of a string from a specified character's position and returns the specified number of characters.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [substr]
+  related: []
   returnType: string
   signatures: ['strings.Substr STRING START [LENGTH]']
-relatedFunctions: []
 aliases: [/functions/substr]
 ---
 
@@ -22,21 +18,21 @@ To extract characters from the end of the string, use a negative start number.
 If `length` is given and is negative, that number of characters will be omitted from the end of string.
 
 ```go-html-template
-{{ substr "abcdef" 0 }} → "abcdef"
-{{ substr "abcdef" 1 }} → "bcdef"
+{{ substr "abcdef" 0 }} → abcdef
+{{ substr "abcdef" 1 }} → bcdef
 
-{{ substr "abcdef" 0 1 }} → "a"
-{{ substr "abcdef" 1 1 }} → "b"
+{{ substr "abcdef" 0 1 }} → a
+{{ substr "abcdef" 1 1 }} → b
 
-{{ substr "abcdef" 0 -1 }} → "abcde"
-{{ substr "abcdef" 1 -1 }} → "bcde"
+{{ substr "abcdef" 0 -1 }} → abcde
+{{ substr "abcdef" 1 -1 }} → bcde
 
-{{ substr "abcdef" -1 }} → "f"
-{{ substr "abcdef" -2 }} → "ef"
+{{ substr "abcdef" -1 }} → f
+{{ substr "abcdef" -2 }} → ef
 
-{{ substr "abcdef" -1 1 }} → "f"
-{{ substr "abcdef" -2 1 }} → "e"
+{{ substr "abcdef" -1 1 }} → f
+{{ substr "abcdef" -2 1 }} → e
 
-{{ substr "abcdef" -3 -1 }} → "de"
-{{ substr "abcdef" -3 -2 }} → "d"
+{{ substr "abcdef" -3 -1 }} → de
+{{ substr "abcdef" -3 -2 }} → d
 ```

@@ -1,18 +1,33 @@
-<table class="utils-table">
-<thead>
-	<tr>
-		<td class="col-title">Title</td>
-		<td class="col-author">Author</td>
-		<td class="col-date">Date</td>
-	</tr>
-</thead>
-<tbody>
-	{{ range $ind, $art := $.Site.Data.articles.article }}
-	<tr>
-		<td><a href="{{$art.url}}" target="_blank">{{$art.title | markdownify }}</a></td>
-		<td>{{ $art.author | markdownify }}</td>
-		<td>{{ $art.date }}</td>
-	</tr>
-	{{ end }}
-</tbody>
+{{ $package := (index .Params 0) }}
+{{ $listname := (index .Params 1) }}
+{{ $list := (index (index .Site.Data.docs $package) $listname) }}
+{{ $fields := after 2 .Params }}
+
+
+<table class="table table-bordered">
+  <tr>
+    {{ range $fields }}
+      {{ $s := . }}
+      {{ if eq $s "_key" }}
+        {{ $s = "Type" }}
+      {{ end }}
+      <th>{{ $s }}</th>
+    {{ end }}
+  </tr>
+  {{ range $k1, $v1 := $list }}
+    <tr>
+      {{ range $k2, $v2 := . }}
+        {{ $.Scratch.Set $k2 $v2 }}
+      {{ end }}
+      {{ range $fields }}
+        {{ $s := "" }}
+        {{ if eq . "_key" }}
+          {{ $s = $k1 }}
+        {{ else }}
+          {{ $s = $.Scratch.Get . }}
+        {{ end }}
+        <td>{{ $s }}</td>
+      {{ end }}
+    </tr>
+  {{ end }}
 </table>

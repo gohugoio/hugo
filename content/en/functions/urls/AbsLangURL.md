@@ -1,21 +1,16 @@
 ---
 title: urls.AbsLangURL
-linkTitle: absLangURL
 description: Returns an absolute URL with a language prefix, if any.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [absLangURL]
-  returnType: template.HTML
+  related:
+    - functions/urls/AbsURL 
+    - functions/urls/RelLangURL
+    - functions/urls/RelURL
+  returnType: string
   signatures: [urls.AbsLangURL INPUT]
-relatedFunctions:
-  - urls.AbsLangURL
-  - urls.AbsURL 
-  - urls.RelLangURL
-  - urls.RelURL
 aliases: [/functions/abslangurl]
 ---
 

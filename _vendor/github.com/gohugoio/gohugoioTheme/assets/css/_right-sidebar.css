@@ -1,0 +1,11 @@
+#right-sidebar {
+  scrollbar-width: none; /* hide scrollbar: Firefox */
+  -ms-overflow-style: none;  /* hide scrollbar: Internet Explorer 10+ */
+  height: calc(100vh - 9rem);
+  overflow-y: auto;
+}
+
+#right-sidebar::-webkit-scrollbar { /* hide scrollbar: WebKit */
+  width: 0;
+  height: 0;
+}

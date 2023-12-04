@@ -1,35 +1,87 @@
 ---
 title: with
-description: Rebinds the context (`.`) within its scope and skips the block if the variable is absent or empty.
-categories: [functions]
+description: Binds context (the dot) to the expression and executes the block if expression is truthy.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
-  returnType: any
-  signatures: [with PIPELINE]
-relatedFunctions:
-  - with
-  - range
+  related:
+    - functions/go-template/if
+    - functions/go-template/else
+    - functions/go-template/end
+    - functions/collections/IsSet
+  returnType:
+  signatures: [with EXPR]
 aliases: [/functions/with]
+toc: true
 ---
 
-{{% readfile file="/functions/_common/go-template-functions.md" %}}
+{{% include "functions/go-template/_common/truthy-falsy.md" %}}
 
-An alternative way of writing an `if` statement and then referencing the same value is to use `with` instead. `with` rebinds the context (`.`) within its scope and skips the block if the variable is absent, unset or empty.
+```go-html-template
+{{ $var := "foo" }}
+{{ with $var }}
+  {{ . }} → foo
+{{ end }}
+```
 
-The set of *empty* values is defined by [the Go templates package](https://golang.org/pkg/text/template/). Empty values include `false`, the number zero, and the empty string.
+Use with the [`else`] statement:
 
-If you want to render a block if an index or key is present in a slice, array, channel or map, regardless of whether the value is empty, you should use [`isset`](/functions/collections/isset) instead.
+```go-html-template
+{{ $var := "foo" }}
+{{ with $var }}
+  {{ . }} → foo
+{{ else }}
+  {{ print "var is falsy" }}
+{{ end }}
+```
 
-The following example checks for a [user-defined site variable](/variables/site/) called `twitteruser`. If the key-value is not set, the following will render nothing:
+Intialize a variable, scoped to the current block:
 
-{{< code file="layouts/partials/twitter.html" >}}
-{{ with .Site.Params.twitteruser }}<span class="twitter">
-<a href="https://twitter.com/{{ . }}" rel="author">
-<img src="/images/twitter.png" width="48" height="48" title="Twitter: {{ . }}"
- alt="Twitter"></a>
-</span>{{ end }}
-{{< /code >}}
+```go-html-template
+{{ with $var := 42 }}
+  {{ . }} → 42
+  {{ $var }} → 42
+{{ end }}
+{{ $var }} → undefined
+```
+
+## Understanding context
+
+At the top of a page template, the [context] (the dot) is a `Page` object. Inside of the `with` block, the context is bound to the value passed to the `with` statement.
+
+With this contrived example:
+
+```go-html-template
+{{ with 42 }}
+  {{ .Title }}
+{{ end }}
+```
+
+Hugo will throw an error:
+
+    can't evaluate field Title in type int
+
+The error occurs because we are trying to use the `.Title` method on an integer instead of a `Page` object. Inside of the `with` block, if we want to render the page title, we need to get the context passed into the template.
+
+{{% note %}}
+Use the `$` to get the context passed into the template.
+{{% /note %}}
+
+This template will render the page title as desired:
+
+```go-html-template
+{{ with 42 }}
+  {{ $.Title }}
+{{ end }}
+```
+
+{{% note %}}
+Gaining a thorough understanding of context is critical for anyone writing template code.
+{{% /note %}}
+
+[context]: /getting-started/glossary/#context
+
+{{% include "functions/go-template/_common/text-template.md" %}}
+
+[`else`]: /functions/go-template/else

@@ -2,7 +2,7 @@
 title: Host on Azure Static Web Apps
 description: Publish a Hugo site to Azure Static Web Apps.
 categories: [hosting and deployment]
-keywords: [hosting,Azure Static Web Apps]
+keywords: [hosting,azure]
 menu:
   docs:
     parent: hosting-and-deployment

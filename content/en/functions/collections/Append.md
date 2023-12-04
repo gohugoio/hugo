@@ -1,22 +1,17 @@
 ---
 title: collections.Append
-linkTitle: append
 description: Appends one or more elements to a slice and returns the resulting slice.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [append]
+  related:
+    - functions/collections/Merge
+    - functions/collections/Slice
   returnType: any
   signatures:
-    - COLLECTION | collections.Append ELEMENT [ELEMENT]...
-    - COLLECTION | collections.Append COLLECTION
-relatedFunctions:
-  - collections.Append
-  - collections.Merge
-  - collections.Slice
+    - collections.Append ELEMENT [ELEMENT...] COLLECTION
+    - collections.Append COLLECTION1 COLLECTION2
 aliases: [/functions/append]
 ---
 

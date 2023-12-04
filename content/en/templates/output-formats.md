@@ -1,15 +1,15 @@
 ---
 title: Custom output formats
 description: Hugo can output content in multiple formats, including calendar events, e-book formats, Google AMP, and JSON search indexes, or any custom text format.
-categories: [fundamentals,templates]
+categories: [templates,fundamentals]
 keywords: ["amp", "outputs", "rss"]
 menu:
   docs:
     parent: templates
     weight: 210
 weight: 210
-aliases: [/templates/outputs/,/extras/output-formats/,/content-management/custom-outputs/]
 toc: true
+aliases: [/templates/outputs/,/extras/output-formats/,/content-management/custom-outputs/]
 ---
 
 This page describes how to properly configure your site with the media types and output formats, as well as where to create your templates for your custom outputs.
@@ -31,7 +31,7 @@ This is the full set of built-in media types in Hugo:
 
 To add or modify a media type, define it in a `mediaTypes` section in your [site configuration], either for all sites or for a given language.
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [mediaTypes]
   [mediaTypes."text/enriched"]
   suffixes = ["enr"]
@@ -43,7 +43,7 @@ The above example adds one new media type, `text/enriched`, and changes the suff
 
 **Note:** these media types are configured for **your output formats**. If you want to redefine one of Hugo's default output formats (e.g. `HTML`), you also need to redefine the media type. So, if you want to change the suffix of the `HTML` output format from `html` (default) to `htm`:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [mediaTypes]
   [mediaTypes."text/html"]
     suffixes = ["htm"]
@@ -53,7 +53,9 @@ The above example adds one new media type, `text/enriched`, and changes the suff
     mediaType = "text/html"
 {{</ code-toggle >}}
 
-**Note** that for the above to work, you also need to add an `outputs` definition in your site configuration.
+{{% note %}}
+For the above to work, you also need to add an `outputs` definition in your site configuration.
+{{% /note %}}
 
 ## Output format definitions
 
@@ -69,7 +71,7 @@ This is the full set of Hugo's built-in output formats:
 
 To add or modify an output format, define it in an `outputFormats` section in your site's [configuration file](/getting-started/configuration/), either for all sites or for a given language.
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [outputFormats.MyEnrichedFormat]
 mediaType = "text/enriched"
 baseName = "myindex"
@@ -83,40 +85,40 @@ The above example is fictional, but if used for the homepage on a site with `bas
 
 The following is the full list of configuration options for output formats and their default values:
 
-`name`
+name
 : the output format identifier. This is used to define what output format(s) you want for your pages.
 
-`mediaType`
+mediaType
 : this must match the `Type` of a defined media type.
 
-`path`
+path
 : sub path to save the output files.
 
-`baseName`
+baseName
 : the base file name for the list file names (homepage, etc.). **Default:** `index`.
 
-`rel`
+rel
 : can be used to create `rel` values in `link` tags. **Default:** `alternate`.
 
-`protocol`
+protocol
 : will replace the "http://" or "https://" in your `baseURL` for this output format.
 
-`isPlainText`
+isPlainText
 : use Go's plain text templates parser for the templates. **Default:** `false`.
 
-`isHTML`
+isHTML
 : used in situations only relevant for `HTML`-type formats; e.g., page aliases. **Default:** `false`.
 
-`noUgly`
+noUgly
 : used to turn off ugly URLs If `uglyURLs` is set to `true` in your site. **Default:** `false`.
 
-`notAlternative`
+notAlternative
 : enable if it doesn't make sense to include this format in an `AlternativeOutputFormats` format listing on `Page` (e.g., with `CSS`). Note that we use the term _alternative_ and not _alternate_ here, as it does not necessarily replace the other format. **Default:** `false`.
 
-`permalinkable`
+permalinkable
 : make `.Permalink` and `.RelPermalink` return the rendering Output Format rather than main ([see below](#link-to-output-formats)). This is enabled by default for `HTML` and `AMP`. **Default:** `false`.
 
-`weight`
+weight
 : Setting this to a non-zero value will be used as the first sort criteria.
 
 ## Output formats for pages
@@ -129,7 +131,7 @@ system.
 Every `Page` has a [`Kind`][page_kinds] attribute, and the default Output
 Formats are set based on that.
 
-{{< code-toggle config="outputs" />}}
+{{< code-toggle config=outputs />}}
 
 ### Customizing output formats
 
@@ -139,7 +141,7 @@ per language).
 
 Example from site configuration file:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [outputs]
   home = ["html", "amp", "rss"]
   page = ["html"]
@@ -153,7 +155,7 @@ Note that in the above examples, the _output formats_ for `section`,
 
 The following is an example of front matter in a content file that defines output formats for the rendered `Page`:
 
-{{< code-toggle file="content/example.md" fm=true copy=false >}}
+{{< code-toggle file=content/example.md fm=true >}}
 title: Example
 outputs:
 - html

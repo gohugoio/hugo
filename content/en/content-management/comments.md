@@ -1,14 +1,14 @@
 ---
 title: Comments
 description: Hugo ships with an internal Disqus template, but this isn't the only commenting system that will work with your new Hugo website.
+categories: [content management]
 keywords: [sections,content,organization]
-categories: [project organization]
 menu:
   docs:
     parent: content-management
     weight: 220
-toc: true
 weight: 220
+toc: true
 aliases: [/extras/comments/]
 ---
 
@@ -24,7 +24,7 @@ Hugo comes with all the code you need to load Disqus into your templates. Before
 
 Disqus comments require you set a single value in your [site's configuration file][configuration] like so:
 
-{{< code-toggle copy=false >}}
+{{< code-toggle file=hugo >}}
 disqusShortname = "yourDisqusShortname"
 {{</ code-toggle >}}
 

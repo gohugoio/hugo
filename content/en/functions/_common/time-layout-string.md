@@ -1,12 +1,16 @@
+---
+# Do not remove front matter.
+---
+
 Format a `time.Time` value based on [Go's reference time]:
 
 [Go's reference time]: https://pkg.go.dev/time#pkg-constants
 
-```text {copy=false}
+```text
 Mon Jan 2 15:04:05 MST 2006
 ```
 
-Create a format string using these components:
+Create a layout string using these components:
 
 Description|Valid components
 :--|:--
@@ -21,7 +25,7 @@ Second|`"5" "05"`
 AM/PM mark|`"PM"`
 Time zone offsets|`"-0700" "-07:00" "-07" "-070000" "-07:00:00"`
 
-Replace the sign in the format string with a Z to print Z instead of an offset for the UTC zone.
+Replace the sign in the layout string with a Z to print Z instead of an offset for the UTC zone.
 
 Description|Valid components
 :--|:--

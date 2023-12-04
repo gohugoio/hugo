@@ -1,18 +1,16 @@
 ---
-title: Variables and parameters
+title: Variables
 linkTitle: Overview
-description: Page-, file-, taxonomy-, and site-level variables and parameters available in templates.
-categories: [variables and parameters]
-keywords: [variables,params,values,globals]
+description: Use these variables in your templates.
+categories: []
+keywords: []
 menu:
   docs:
     identifier: variables-overview
     parent: variables
-    weight: 1
-weight: 1
+    weight: 10
+weight: 10
 aliases: [/templates/variables/]
 ---
 
-Hugo's templates are context aware and make a large number of values available to you as you're creating views for your website.
-
-[Go templates]: /templates/introduction/
+{{% include "variables/_common/consistent-terminology.md" %}}

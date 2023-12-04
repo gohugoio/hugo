@@ -1,21 +1,17 @@
 ---
 title: crypto.FNV32a
 description: Returns the FNV (Fowler–Noll–Vo) 32 bit hash of a given string.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
+  related:
+    - functions/crypto/HMAC
+    - functions/crypto/MD5
+    - functions/crypto/SHA1
+    - functions/crypto/SHA256
   returnType: int
   signatures: [crypto.FNV32a STRING]
-relatedFunctions:
-  - crypto.FNV32a
-  - crypto.HMAC
-  - crypto.MD5
-  - crypto.SHA1
-  - crypto.SHA256
 aliases: [/functions/crypto.fnv32a]
 ---
 

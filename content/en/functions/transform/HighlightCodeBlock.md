@@ -1,19 +1,15 @@
 ---
 title: transform.HighlightCodeBlock
 description: Highlights code received in context within a code block render hook.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
+  related:
+    - functions/transform/CanHighlight
+    - functions/transform/Highlight
   returnType: highlight.HighlightResult 
   signatures: ['transform.HighlightCodeBlock CONTEXT [OPTIONS]']
-relatedFunctions:
-  - transform.CanHighlight
-  - transform.Highlight
-  - transform.HighlightCodeBlock
 ---
 
 This function is only useful within a code block render hook.
@@ -26,7 +22,6 @@ Given the context passed into a code block render hook, `transform.HighlightCode
 .Inner
 : (`template.HTML`) Returns highlighted code without any wrapping elements, allowing you to create your own wrapper.
 
-
 ```go-html-template
 {{ $result := transform.HighlightCodeBlock . }}
 {{ $result.Wrapped }}
@@ -35,8 +30,8 @@ Given the context passed into a code block render hook, `transform.HighlightCode
 To override the default [highlighting options]:
 
 ```go-html-template
-{{ $options := merge .Options (dict "linenos" true) }}
-{{ $result := transform.HighlightCodeBlock . $options }}
+{{ $opts := merge .Options (dict "linenos" true) }}
+{{ $result := transform.HighlightCodeBlock . $opts }}
 {{ $result.Wrapped }}
 ```
 

@@ -1,40 +1,37 @@
 ---
 title: time.Duration
-linkTitle: duration
-description: Returns a `time.Duration` structure, using the given time unit and duration number.
-categories: [functions]
+description: Returns a time.Duration value using the given time unit and  number.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [duration]
+  related:
+    - functions/time/AsTime
+    - functions/time/Format
+    - functions/time/Now
+    - functions/time/ParseDuration
   returnType: time.Duration
-  signatures: [time.Duration TIME_UNIT DURATION_NUMBER]
-relatedFunctions:
-  - time.AsTime
-  - time.Duration
-  - time.Format
-  - time.Now
-  - time.ParseDuration
+  signatures: [time.Duration TIME_UNIT NUMBER]
 aliases: [/functions/duration]
 ---
 
-`time.Duration` converts a given number into a [`time.Duration`](https://pkg.go.dev/time#Duration) structure so you can access its fields. E.g. you can perform [time operations](https://pkg.go.dev/time#Duration) on the returned `time.Duration` value:
+The `time.Duration` function returns a [`time.Duration`] value that you can use with any of the `Duration` [methods].
+
+This template:
 
 ```go-html-template
-{{ printf "There are %.0f seconds in one day." (duration "hour" 24).Seconds }}
-<!-- Output: There are 86400 seconds in one day. -->
+{{ $duration := time.Duration "hour" 24 }}
+{{ printf "There are %.0f seconds in one day." $duration.Seconds }}
 ```
 
-Make your code simpler to understand by using a [chained pipeline](https://pkg.go.dev/text/template#hdr-Pipelines):
+Is rendered to:
 
-```go-html-template
-{{ mul 7.75 60 | duration "minute" }} → 7h45m0s
-{{ mul 120 60 | mul 1000 | duration "millisecond" }} → 2h0m0s
+```text
+There are 86400 seconds in one day.
 ```
 
-You have to specify a time unit for the number given to the function. Valid time units are:
+The time unit must be one of the following:
+
 
 Duration|Valid time units
 :--|:--
@@ -44,3 +41,6 @@ seconds|`second`, `s`
 milliseconds|`millisecond`, `ms`
 microseconds|`microsecond`, `us`, `µs`
 nanoseconds|`nanosecond`, `ns`
+
+[`time.Duration`]: https://pkg.go.dev/time#Duration
+[methods]: /methods/duration

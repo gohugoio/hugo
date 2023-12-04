@@ -1,27 +1,19 @@
 ---
 title: strings.ToUpper
-linkTitle: upper
-description: Converts all characters in a string to uppercase
-categories: [functions]
+description: Returns the given string, converting all characters to uppercase.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [upper]
+  related:
+    - functions/strings/FirstUpper
+    - functions/strings/Title
+    - functions/strings/ToLower
   returnType: string
   signatures: [strings.ToUpper INPUT]
-relatedFunctions:
-  - strings.FirstUpper
-  - strings.Title
-  - strings.ToLower
-  - strings.ToUpper
 aliases: [/functions/upper]
 ---
 
-Note that `upper` can be applied in your templates in more than one way:
-
 ```go-html-template
-{{ upper "BatMan" }} → "BATMAN"
-{{ "BatMan" | upper }} → "BATMAN"
+{{ upper "BatMan" }} → BATMAN
 ```

@@ -2,12 +2,12 @@
 title: Deploy with Rclone
 description: If you have access to your web host with SFTP/FTP/SSH/HTTP(DAV), you can use rclone to incrementally deploy your entire Hugo website.
 categories: [hosting and deployment]
-keywords: [rclone,sftp,deployment]
+keywords: [deployment,rclone,sftp]
 menu:
   docs:
     parent: hosting-and-deployment
-aliases: [/tutorials/deployment-with-rclone/]
 toc: true
+aliases: [/tutorials/deployment-with-rclone/]
 ---
 
 ## Assumptions

@@ -1,22 +1,17 @@
 ---
 title: crypto.HMAC
-linkTitle: hmac
 description: Returns a cryptographic hash that uses a key to sign a message.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [hmac]
+  related:
+    - functions/crypto/FNV32a
+    - functions/crypto/MD5
+    - functions/crypto/SHA1
+    - functions/crypto/SHA256
   returnType: string
   signatures: ['crypto.HMAC HASH_TYPE KEY MESSAGE [ENCODING]']
-relatedFunctions:
-  - crypto.FNV32a
-  - crypto.HMAC
-  - crypto.MD5
-  - crypto.SHA1
-  - crypto.SHA256
 aliases: [/functions/hmac]
 ---
 

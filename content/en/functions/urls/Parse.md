@@ -1,23 +1,19 @@
 ---
 title: urls.Parse
 description: Parses a URL into a URL structure.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
-  returnType: URL
+  related: []
+  returnType: url.URL
   signatures: [urls.Parse URL]
-relatedFunctions: []
 aliases: [/functions/urls.parse]
 ---
 
 The `urls.Parse` function parses a URL into a [URL structure](https://godoc.org/net/url#URL). The URL may be relative (a path, without a host) or absolute (starting with a [scheme]). Hugo throws an error when parsing an invalid URL.
 
 [scheme]: https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml#uri-schemes-1
-
 
 ```go-html-template
 {{ $url := "https://example.org:123/foo?a=6&b=7#bar" }}

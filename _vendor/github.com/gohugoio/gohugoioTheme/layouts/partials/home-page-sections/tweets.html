@@ -6,6 +6,7 @@
 
   <div class="flex-ns flex-wrap justify-between">
 
+    {{ if $.Site.Data.homepagetweets }}
     {{ range first 4 (sort $.Site.Data.homepagetweets.tweet "date" "desc" )  }}
       <div class="homepage-tweet relative {{ $interior_classes }} br1 mid-gray  pv3 nested-links shadow-5">
           <div class="absolute top-0 left-0 ma2  o-10">
@@ -20,6 +21,7 @@
           </cite>
         </blockquote>
       </div>
+    {{ end }}
     {{ end }}
   </div>
 </div>

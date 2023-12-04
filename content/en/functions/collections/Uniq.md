@@ -1,24 +1,19 @@
 ---
 title: collections.Uniq
-linkTitle: uniq
-description: Takes in a slice or array and returns a slice with duplicate elements removed.
-categories: [functions]
+description: Returns the given collection, removing duplicate elements.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [uniq]
   returnType: any
   signatures: [collections.Uniq COLLECTION]
-relatedFunctions:
+related:
   - collections.Reverse
   - collections.Shuffle
   - collections.Sort
   - collections.Uniq
 aliases: [/functions/uniq]
 ---
-
 
 ```go-html-template
 {{ slice 1 3 2 1 | uniq }} → [1 3 2]

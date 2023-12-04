@@ -1,23 +1,18 @@
 ---
 title: compare.Le
-linkTitle: le
 description: Returns the boolean truth of arg1 <= arg2 && arg1 <= arg3.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [le]
+  related:
+    - functions/compare/Eq
+    - functions/compare/Ge
+    - functions/compare/Gt
+    - functions/compare/Lt
+    - functions/compare/Ne
   returnType: bool
   signatures: ['compare.Le ARG1 ARG2 [ARG...]']
-relatedFunctions:
-  - compare.Eq
-  - compare.Ge
-  - compare.Gt
-  - compare.Le
-  - compare.Lt
-  - compare.Ne
 aliases: [/functions/le]
 ---
 

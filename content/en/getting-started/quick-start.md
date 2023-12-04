@@ -156,7 +156,7 @@ Hugo's rendering engine conforms to the CommonMark [specification] for markdown.
 With your editor, open the [site configuration] file (`hugo.toml`) in the root of your project.
 
 ```text
-baseURL = 'http://example.org/'
+baseURL = 'https://example.org/'
 languageCode = 'en-us'
 title = 'My New Hugo Site'
 theme = 'ananke'

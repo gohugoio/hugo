@@ -2,24 +2,25 @@
 title: Windows
 description: Install Hugo on Windows.
 categories: [installation]
+keywords: []
 menu:
   docs:
     parent: installation
     weight: 40
-toc: true
 weight: 40
+toc: true
 ---
-{{% readfile file="/installation/_common/01-editions.md" %}}
+{{% include "installation/_common/01-editions.md" %}}
 
-{{% readfile file="/installation/_common/02-prerequisites.md" %}}
+{{% include "installation/_common/02-prerequisites.md" %}}
 
-{{% readfile file="/installation/_common/03-prebuilt-binaries.md" %}}
+{{% include "installation/_common/03-prebuilt-binaries.md" %}}
 
 ## Package managers
 
 ### Chocolatey
 
-[Chocolatey] is a free and open source package manager for Windows. This will install the extended edition of Hugo:
+[Chocolatey] is a free and open-source package manager for Windows. This will install the extended edition of Hugo:
 
 ```sh
 choco install hugo-extended
@@ -29,7 +30,7 @@ choco install hugo-extended
 
 ### Scoop
 
-[Scoop] is a free and open source package manager for Windows. This will install the extended edition of Hugo:
+[Scoop] is a free and open-source package manager for Windows. This will install the extended edition of Hugo:
 
 ```sh
 scoop install hugo-extended
@@ -39,7 +40,7 @@ scoop install hugo-extended
 
 ### Winget
 
-[Winget] is Microsoft's official free and open source package manager for Windows. This will install the extended edition of Hugo:
+[Winget] is Microsoft's official free and open-source package manager for Windows. This will install the extended edition of Hugo:
 
 ```sh
 winget install Hugo.Hugo.Extended
@@ -47,7 +48,7 @@ winget install Hugo.Hugo.Extended
 
 [Winget]: https://learn.microsoft.com/en-us/windows/package-manager/
 
-{{% readfile file="/installation/_common/04-build-from-source.md" %}}
+{{% include "installation/_common/04-build-from-source.md" %}}
 
 {{% note %}}
 See these [detailed instructions](https://discourse.gohugo.io/t/41370) to install GCC on Windows.

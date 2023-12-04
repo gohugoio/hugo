@@ -2,13 +2,13 @@
 title: Front matter
 description: Hugo allows you to add front matter in yaml, toml, or json to your content files.
 categories: [content management]
-keywords: ["front matter", "yaml", "toml", "json", "metadata", "archetypes"]
+keywords: [front matter,yaml,toml,json,metadata,archetypes]
 menu:
   docs:
     parent: content-management
     weight: 60
-toc: true
 weight: 60
+toc: true
 aliases: [/content/front-matter/]
 ---
 
@@ -93,7 +93,7 @@ lastmod
 : The datetime at which the content was last modified.
 
 linkTitle
-: Used for creating links to content; if set, Hugo defaults to using the `linkTitle` before the `title`. Hugo can also [order lists of content by `linkTitle`][bylinktitle].
+: Used for creating links to content; if set, Hugo defaults to using the `linkTitle` before the `title`.
 
 markup
 : **experimental**; specify `"rst"` for reStructuredText (requires`rst2html`) or `"md"` (default) for Markdown.
@@ -131,7 +131,7 @@ videos
 weight
 : used for [ordering your content in lists][ordering]. Lower weight gets higher precedence. So content with lower weight will come first. If set, weights should be non-zero, as 0 is interpreted as an *unset* weight.
 
-\<taxonomies\>
+taxonomies
 : Field name of the *plural* form of the index. See `tags` and `categories` in the above front matter examples. *Note that the plural form of user-defined taxonomies cannot be the same as any of the predefined front matter variables.*
 
 {{% note %}}
@@ -144,7 +144,7 @@ You can add fields to your front matter arbitrarily to meet your needs. These us
 
 The following fields can be accessed via `.Params.include_toc` and `.Params.show_comments`, respectively. The [Variables] section provides more information on using Hugo's page- and site-level variables in your templates.
 
-{{< code-toggle copy=false >}}
+{{< code-toggle >}}
 include_toc: true
 show_comments: false
 {{</ code-toggle >}}
@@ -157,7 +157,7 @@ Any node or section can pass down to descendants a set of front matter values as
 
 The `cascade` block can be a slice with a optional `_target` keyword, allowing for multiple `cascade` values targeting different page sets.
 
-{{< code-toggle copy=false >}}
+{{< code-toggle >}}
 title ="Blog"
 [[cascade]]
 background = "yosemite.jpg"
@@ -187,11 +187,17 @@ environment
 
 Any of the above can be omitted.
 
+{{% note %}}
+When making a site that supports multiple languages, defining a `[[cascade]]` is recommended to be done in [Site Config](../../getting-started/configuration/#cascade) to prevent duplication.
+
+If you instea define a `[[cascade]]` in front matter for multiple languages, an `content/XX/foo/_index.md` file needs to be made on a per-language basis, with `XX` the glob pattern matching the Page's language. In this case, the **lang** keyword is ignored. 
+{{% /note %}}
+
 ### Example
 
 In `content/blog/_index.md`
 
-{{< code-toggle copy=false >}}
+{{< code-toggle >}}
 title: Blog
 cascade:
   banner: images/typewriter.jpg
@@ -219,13 +225,12 @@ It's possible to set some options for Markdown rendering in a content's front ma
 [variables]: /variables/
 [aliases]: /content-management/urls/#aliases
 [archetype]: /content-management/archetypes/
-[bylinktitle]: /templates/lists/#by-link-title
 [config]: /getting-started/configuration/
 [content type]: /content-management/types/
 [contentorg]: /content-management/organization/
 [headless-bundle]: /content-management/page-bundles/#headless-bundle
 [json]: https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf
-[lists]: /templates/lists/#order-content
+[lists]: /templates/lists/#sort-content
 [lookup]: /templates/lookup-order/
 [ordering]: /templates/lists/
 [outputs]: /templates/output-formats/

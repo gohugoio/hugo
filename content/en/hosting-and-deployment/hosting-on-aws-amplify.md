@@ -2,7 +2,7 @@
 title: Host on AWS Amplify
 description: Develop and deploy a cloud-powered web app with AWS Amplify.
 categories: [hosting and deployment]
-keywords: [amplify,hosting,deployment]
+keywords: [hosting,amplify]
 menu:
   docs:
     parent: hosting-and-deployment

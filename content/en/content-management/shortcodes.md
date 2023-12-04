@@ -7,8 +7,8 @@ menu:
   docs:
     parent: content-management
     weight: 100
-toc: true
 weight: 100
+toc: true
 aliases: [/extras/shortcodes/]
 testparam: "Hugo Rocks!"
 ---
@@ -58,7 +58,6 @@ and a new line with a "quoted string".` */>}}
 
 Shortcodes using the `%` as the outer-most delimiter will be fully rendered when sent to the content renderer. This means that the rendered output from a shortcode can be part of the page's table of contents, footnotes, etc.
 
-
 ### Shortcodes without markdown
 
 The `<` character indicates that the shortcode's inner content does *not* need further rendering. Often shortcodes without Markdown include internal HTML:
@@ -100,7 +99,7 @@ title
 : Image title.
 
 caption
-: Image caption.  Markdown within the value of `caption` will be rendered.
+: Image caption. Markdown within the value of `caption` will be rendered.
 
 class
 : `class` attribute of the HTML `figure` tag.
@@ -122,7 +121,7 @@ attrlink
 
 #### Example `figure` input
 
-{{< code file="figure-input-example.md" >}}
+{{< code file=figure-input-example.md >}}
 {{</* figure src="elephant.jpg" title="An elephant at sunset" */>}}
 {{< /code >}}
 
@@ -131,7 +130,7 @@ attrlink
 ```html
 <figure>
   <img src="elephant.jpg">
-  <figcaption>An elephant at sunset</figcaption>
+  <figcaption><h4>An elephant at sunset</h4></figcaption>
 </figure>
 ```
 
@@ -153,17 +152,17 @@ Include this in your markdown:
 
 This will display all files in the gist alphabetically by file name.
 
-{{< gist jmooring 50a7482715eac222e230d1e64dd9a89b >}}
+{{< gist jmooring 23932424365401ffa5e9d9810102a477 >}}
 
 To display a specific file within the gist:
 
 ```text
-{{</* gist user 50a7482715eac222e230d1e64dd9a89b 1-template.html */>}}
+{{</* gist user 23932424365401ffa5e9d9810102a477 list.html */>}}
 ```
 
 Rendered:
 
-{{< gist jmooring 50a7482715eac222e230d1e64dd9a89b 1-template.html >}}
+{{< gist jmooring 23932424365401ffa5e9d9810102a477 list.html >}}
 
 ### `highlight`
 
@@ -220,14 +219,14 @@ You must obtain an Access Token to use the `instagram` shortcode.
 
 If your site configuration is private:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 [services.instagram]
 accessToken = 'xxx'
 {{< /code-toggle >}}
 
 If your site configuration is _not_ private, set the Access Token with an environment variable:
 
-```text
+```sh
 HUGO_SERVICES_INSTAGRAM_ACCESSTOKEN=xxx hugo --gc --minify
 ```
 
@@ -251,7 +250,7 @@ Include this in your markdown:
 
 Gets a value from the current `Page's` parameters set in front matter, with a fallback to the site parameter value. It will log an `ERROR` if the parameter with the given key could not be found in either.
 
-```bash
+```sh
 {{</* param testparam */>}}
 ```
 
@@ -261,7 +260,7 @@ Since `testparam` is a parameter defined in front matter of this page with the v
 
 To access deeply nested parameters, use "dot syntax", e.g:
 
-```bash
+```sh
 {{</* param "my.nested.param" */>}}
 ```
 
@@ -289,7 +288,7 @@ Read a more extensive description of `ref` and `relref` in the [cross references
 Assuming that standard Hugo pretty URLs are turned on.
 
 ```html
-<a href="https://example.com/blog/neat">Neat</a>
+<a href="https://example.org/blog/neat">Neat</a>
 <a href="/about/#who">Who</a>
 ```
 
@@ -349,20 +348,19 @@ https://www.youtube.com/watch?v=w7Ft2ymGmfc
 
 Copy the YouTube video ID that follows `v=` in the video's URL and pass it to the `youtube` shortcode:
 
-{{< code file="example-youtube-input.md" >}}
+{{< code file=example-youtube-input.md >}}
 {{</* youtube w7Ft2ymGmfc */>}}
 {{< /code >}}
 
 Furthermore, you can automatically start playback of the embedded video by setting the `autoplay` parameter to `true`. Remember that you can't mix named and unnamed parameters, so you'll need to assign the yet unnamed video ID to the parameter `id`:
 
-
-{{< code file="example-youtube-input-with-autoplay.md" >}}
+{{< code file=example-youtube-input-with-autoplay.md >}}
 {{</* youtube id="w7Ft2ymGmfc" autoplay="true" */>}}
 {{< /code >}}
 
-For [accessibility reasons](https://dequeuniversity.com/tips/provide-iframe-titles), it's best to provide a title for your YouTube video.  You  can do this using the shortcode by providing a `title` parameter. If no title is provided, a default of "YouTube Video" will be used.
+For [accessibility reasons](https://dequeuniversity.com/tips/provide-iframe-titles), it's best to provide a title for your YouTube video. You  can do this using the shortcode by providing a `title` parameter. If no title is provided, a default of "YouTube Video" will be used.
 
-{{< code file="example-youtube-input-with-title.md" >}}
+{{< code file=example-youtube-input-with-title.md >}}
 {{</* youtube id="w7Ft2ymGmfc" title="A New Hugo Site in Under Two Minutes" */>}}
 {{< /code >}}
 
@@ -370,7 +368,7 @@ For [accessibility reasons](https://dequeuniversity.com/tips/provide-iframe-titl
 
 Using the preceding `youtube` example, the following HTML will be added to your rendered website's markup:
 
-{{< code file="example-youtube-output.html" >}}
+{{< code file=example-youtube-output.html >}}
 {{< youtube id="w7Ft2ymGmfc" autoplay="true" >}}
 {{< /code >}}
 
@@ -398,7 +396,7 @@ To learn more about creating custom shortcodes, see the [shortcode template docu
 [partials]: /templates/partials/
 [quickstart]: /getting-started/quick-start/
 [sctemps]: /templates/shortcode-templates/
-[scvars]: /variables/shortcodes/
+[scvars]: /variables/shortcode/
 [shortcode template documentation]: /templates/shortcode-templates/
 [templatessection]: /templates/
 [Vimeo]: https://vimeo.com/

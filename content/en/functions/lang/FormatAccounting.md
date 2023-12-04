@@ -1,27 +1,21 @@
 ---
 title: lang.FormatAccounting
-description: Returns a currency representation of a number for the given currency and precision for the current language in accounting notation.
-categories: [functions]
+description: Returns a currency representation of a number for the given currency and precision for the current language and region in accounting notation.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
+  related:
+    - functions/lang/FormatCurrency
+    - functions/lang/FormatNumber
+    - functions/lang/FormatNumberCustom
+    - functions/lang/FormatPercent
   returnType: string
   signatures: [lang.FormatAccounting PRECISION CURRENCY NUMBER]
-relatedFunctions:
-  - lang.FormatAccounting
-  - lang.FormatCurrency
-  - lang.FormatNumber
-  - lang.FormatNumberCustom
-  - lang.FormatPercent
 ---
 
 ```go-html-template
 {{ 512.5032 | lang.FormatAccounting 2 "NOK" }} → NOK512.50
 ```
 
-{{% note %}}
-{{% readfile file="/functions/_common/locales.md" %}}
-{{% /note %}}
+{{% include "functions/_common/locales.md" %}}

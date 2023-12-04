@@ -1,31 +1,27 @@
 ---
-title: chomp
-linkTitle: chomp
-description: Removes any trailing newline characters.
-categories: [functions]
+title: strings.Chomp
+description: Returns the given string, removing all trailing newline characters and carriage returns.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [chomp]
+  related:
+    - functions/strings/Trim
+    - functions/strings/TrimLeft
+    - functions/strings/TrimPrefix
+    - functions/strings/TrimRight
+    - functions/strings/TrimSuffix
   returnType: any
   signatures: [strings.Chomp STRING]
-relatedFunctions:
-  - strings.Chomp
-  - strings.Trim
-  - strings.TrimLeft
-  - strings.TrimPrefix
-  - strings.TrimRight
-  - strings.TrimSuffix
 aliases: [/functions/chomp]
 ---
 
-If the argument is of type template.HTML, returns template.HTML, else returns a string.
-
-
-Useful in a pipeline to remove newlines added by other processing (e.g., [`markdownify`](/functions/transform/markdownify)).
+If the argument is of type `template.HTML`, returns `template.HTML`, else returns a `string`.
 
 ```go-html-template
-{{ chomp "<p>Blockhead</p>\n" }} → "<p>Blockhead</p>"
+{{ chomp | "foo\n" }} → foo
+{{ chomp | "foo\n\n" }} → foo
+
+{{ chomp | "foo\r\n" }} → foo
+{{ chomp | "foo\r\n\r\n" }} → foo
 ```
