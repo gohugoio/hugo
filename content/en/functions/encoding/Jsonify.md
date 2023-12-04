@@ -1,30 +1,23 @@
 ---
 title: encoding.Jsonify
-linkTitle: jsonify
-description: Encodes a given object to JSON.
-categories: [functions]
+description: Encodes the given object to JSON.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [jsonify]
   returnType: template.HTML
+  related:
+    - functions/transform/Remarshal
+    - functions/transform/Unmarshal
   signatures:
-    - encoding.Jsonify INPUT
-    - encoding.Jsonify OPTIONS INPUT
-relatedFunctions:
-  - encoding.Jsonify
-  - transform.Remarshal
-  - transform.Unmarshal
+    - encoding.Jsonify [OPTIONS] INPUT
 aliases: [/functions/jsonify]
 ---
 
-To customize the printing of the JSON, pass a map of options as the first
-argument.  Supported options are "prefix" and "indent".  Each JSON element in
+To customize the printing of the JSON, pass an options map as the first
+argument. Supported options are "prefix" and "indent". Each JSON element in
 the output will begin on a new line beginning with *prefix* followed by one or
 more copies of *indent* according to the indentation nesting.
-
 
 ```go-html-template
 {{ dict "title" .Title "content" .Plain | jsonify }}
@@ -34,15 +27,11 @@ more copies of *indent* according to the indentation nesting.
 
 ## Options
 
-indent ("")
-: Indentation to use.
+indent
+: (`string`) Indentation to use. Default is "".
 
-prefix ("")
-: Indentation prefix.
+prefix
+: (`string`) Indentation prefix. Default is "".
 
-noHTMLEscape (false)
-: Disable escaping of problematic HTML characters inside JSON quoted strings. The default behavior is to escape &, <, and > to \u0026, \u003c, and \u003e to avoid certain safety problems that can arise when embedding JSON in HTML.
-
-See also the `.PlainWords`, `.Plain`, and `.RawContent` [page variables][pagevars].
-
-[pagevars]: /variables/page/
+noHTMLEscape
+: (`bool`) Disable escaping of problematic HTML characters inside JSON quoted strings. The default behavior is to escape `&`, `<`, and `>` to `\u0026`, `\u003c`, and `\u003e` to avoid certain safety problems that can arise when embedding JSON in HTML. Default is `false`.

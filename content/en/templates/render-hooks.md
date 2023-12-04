@@ -23,7 +23,7 @@ The hook kinds currently supported are:
 * `image`
 * `link`
 * `heading`
-* `codeblock`{{< new-in "0.93.0" >}}
+* `codeblock`{{< new-in 0.93.0 >}}
 
 You can define [Output-Format-](/templates/output-formats) and [language-](/content-management/multilingual/)specific templates if needed. Your `layouts` folder may look like this:
 
@@ -91,12 +91,11 @@ Attributes (map)
 
 The `render-image` templates will also receive:
 
-IsBlock {{< new-in "0.108.0" >}}
+IsBlock {{< new-in 0.108.0 >}}
 : Returns true if this is a standalone image and the configuration option [markup.goldmark.parser.wrapStandAloneImageWithinParagraph](/getting-started/configuration-markup/#goldmark) is disabled.
 
-Ordinal  {{< new-in "0.108.0" >}}
+Ordinal  {{< new-in 0.108.0 >}}
 : Zero-based ordinal for all the images in the current document.
-
 
 ### Link with title markdown example
 
@@ -106,7 +105,7 @@ Ordinal  {{< new-in "0.108.0" >}}
 
 Here is a code example for how the render-link.html template could look:
 
-{{< code file="layouts/_default/_markup/render-link.html" >}}
+{{< code file=layouts/_default/_markup/render-link.html >}}
 <a href="{{ .Destination | safeURL }}"{{ with .Title }} title="{{ . }}"{{ end }}{{ if strings.HasPrefix .Destination "http" }} target="_blank" rel="noopener"{{ end }}>{{ .Text | safeHTML }}</a>
 {{< /code >}}
 
@@ -118,7 +117,7 @@ Here is a code example for how the render-link.html template could look:
 
 Here is a code example for how the render-image.html template could look:
 
-{{< code file="layouts/_default/_markup/render-image.html" >}}
+{{< code file=layouts/_default/_markup/render-image.html >}}
 <p class="md__image">
   <img src="{{ .Destination | safeURL }}" alt="{{ .Text }}" {{ with .Title }} title="{{ . }}"{{ end }} />
 </p>
@@ -128,7 +127,7 @@ Here is a code example for how the render-image.html template could look:
 
 Given this template file
 
-{{< code file="layouts/_default/_markup/render-heading.html" >}}
+{{< code file=layouts/_default/_markup/render-heading.html >}}
 <h{{ .Level }} id="{{ .Anchor | safeURL }}">{{ .Text | safeHTML }} <a href="#{{ .Anchor | safeURL }}">¶</a></h{{ .Level }}>
 {{< /code >}}
 
@@ -146,7 +145,7 @@ The rendered html will be
 
 ## Render hooks for code blocks
 
-{{< new-in "0.93.0" >}}
+{{< new-in 0.93.0 >}}
 
 You can add a hook template for either all code blocks or for a specific type/language (`bash` in the example below):
 

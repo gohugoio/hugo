@@ -1,19 +1,14 @@
 ---
 title: collections.Merge
-linkTitle: merge
 description: Returns the result of merging two or more maps.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [merge]
+  related:
+    - functions/collections/Append
   returnType: any
   signatures: [collections.Merge MAP MAP...]
-relatedFunctions:
-  - collections.Append
-  - collections.Merge
 aliases: [/functions/merge]
 ---
 

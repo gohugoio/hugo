@@ -1,35 +1,49 @@
 ---
 title: os.Getenv
-linkTitle: getenv
 description: Returns the value of an environment variable, or an empty string if the environment variable is not set.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [getenv]
+  related:
+    - functions/os/FileExists
+    - functions/os/ReadDir
+    - functions/os/ReadFile
+    - functions/os/Stat
   returnType: string
   signatures: [os.Getenv VARIABLE]
-relatedFunctions:
-  - os.FileExists
-  - os.Getenv
-  - os.ReadDir
-  - os.ReadFile
-  - os.Stat
 aliases: [/functions/getenv]
+toc: true
 ---
 
-Examples:
+## Security
+
+By default, when using the `os.Getenv` function Hugo allows access to:
+
+- The `CI` environment variable
+- Any environment variable beginning with `HUGO_`
+
+To access other environment variables, adjust your site configuration. For example, to allow access to the `HOME` and `USER` environment variables:
+
+{{< code-toggle file=hugo >}}
+[security.funcs]
+getenv = ['^HUGO_', '^CI$', '^USER$', '^HOME$']
+{{< /code-toggle >}}
+
+Read more about Hugo's [security policy].
+
+[security policy]: /about/security-model/#security-policy
+
+## Examples
 
 ```go-html-template
-{{ os.Getenv "HOME" }} → /home/victor
-{{ os.Getenv "USER" }} → victor
+{{ getenv "HOME" }} → /home/victor
+{{ getenv "USER" }} → victor
 ```
 
 You can pass values when building your site:
 
-```bash
+```sh
 MY_VAR1=foo MY_VAR2=bar hugo
 
 OR
@@ -42,8 +56,6 @@ hugo
 And then retrieve the values within a template:
 
 ```go-html-template
-{{ os.Getenv "MY_VAR1" }} → foo
-{{ os.Getenv "MY_VAR2" }} → bar
+{{ getenv "MY_VAR1" }} → foo
+{{ getenv "MY_VAR2" }} → bar
 ```
-
-With Hugo v0.91.0 and later, you must explicitly allow access to environment variables. For details, review [Hugo's Security Policy](/about/security-model/#security-policy). By default, environment variables beginning with `HUGO_` are allowed when using the `os.Getenv` function.

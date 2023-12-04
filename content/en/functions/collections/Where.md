@@ -1,17 +1,13 @@
 ---
 title: collections.Where 
-linkTitle: where
-description: Filters an array to only the elements containing a matching value for a given field.
-categories: [functions]
+description: Returns the given collection, removing elements that do not satisfy the comparison condition.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [where]
   returnType: any
-  signatures: ['collections.Where COLLECTION KEY [OPERATOR] MATCH']
-relatedFunctions:
+  signatures: ['collections.Where COLLECTION KEY [OPERATOR] VALUE']
+related:
   - collections.Dictionary
   - collections.Group
   - collections.Index
@@ -21,170 +17,434 @@ aliases: [/functions/where]
 toc: true
 ---
 
-`where` filters an array to only the elements containing a matching
-value for a given field.
+The `where` function returns the given collection, removing elements that do not satisfy the comparison condition. The comparison condition is comprised of the `KEY`, `OPERATOR`, and `VALUE` arguments:
 
-It works in a similar manner to the [`where` keyword in
-SQL][wherekeyword].
-
-```go-html-template
-{{ range where .Pages "Section" "foo" }}
-  {{ .Content }}
-{{ end }}
+```text
+collections.Where COLLECTION KEY [OPERATOR] VALUE
+                             --------------------
+                             comparison condition
 ```
 
-It can be used by dot-chaining the second argument to refer to a nested element of a value.
-
-{{< code-toggle file="content/example.md" fm=true copy=false >}}
-title: Example
-series: golang
-{{< /code-toggle >}}
+Hugo will test for equality if you do not provide an `OPERATOR` argument. For example:
 
 ```go-html-template
-{{ range where .Site.Pages "Params.series" "golang" }}
-   {{ .Content }}
-{{ end }}
+{{ $pages := where .Site.RegularPages "Section" "books" }}
+{{ $books := where .Site.Data.books "genres" "suspense" }}
 ```
 
-It can also be used with the logical operators `!=`, `>=`, `in`, etc. Without an operator, `where` compares a given field with a matching value equivalent to `=`.
+## Arguments
+
+The where function takes three or four arguments. The `OPERATOR` argument is optional.
+
+COLLECTION
+: (`any`) Typically a page collection or a [slice] of [maps].
+
+[maps]: /getting-started/glossary/#map
+[slice]: /getting-started/glossary/#slice
+
+KEY
+: (`string`) The key of the page or map value to compare with `VALUE`. With page collections, commonly used comparison keys are `Section`, `Type`, and `Params`. To compare with a member of the page `Params` map, [chain] the subkey as shown below:
 
 ```go-html-template
-{{ range where .Pages "Section" "!=" "foo" }}
-   {{ .Content }}
-{{ end }}
+{{ $result := where .Site.RegularPages "Params.foo" "bar" }}
 ```
 
-The following logical operators are available with `where`:
+[chain]: /getting-started/glossary/#chain
+
+OPERATOR
+: (`string`) The logical comparison [operator](#operators).
+
+VALUE
+: (`any`) The value with which to compare. The values to compare must have comparable data types. For example:
+
+Comparison|Result
+:--|:--
+`"123" "eq" "123"`|`true`
+`"123" "eq" 123`|`false`
+`false "eq" "false"`|`false`
+`false "eq" false`|`true`
+
+When one or both of the values to compare is a slice, use the `in`, `not in` or `intersect` operators as described below.
+
+## Operators
+
+Use any of the following logical operators:
 
 `=`, `==`, `eq`
-: `true` if a given field value equals a matching value
+: (`bool`) Reports whether the given field value is equal to `VALUE`.
 
 `!=`, `<>`, `ne`
-: `true` if a given field value doesn't equal a matching value
+: (`bool`) Reports whether the given field value is not equal to `VALUE`.
 
 `>=`, `ge`
-: `true` if a given field value is greater than or equal to a matching value
+: (`bool`) Reports whether the given field value is greater than or equal to `VALUE`.
 
 `>`, `gt`
-: `true` if a given field value is greater than a matching value
+: `true` Reports whether the given field value is greater than `VALUE`.
 
 `<=`, `le`
-: `true` if a given field value is lesser than or equal to a matching value
+: (`bool`) Reports whether the given field value is less than or equal to `VALUE`.
 
 `<`, `lt`
-: `true` if a given field value is lesser than a matching value
+: (`bool`) Reports whether the given field value is less than `VALUE`.
 
 `in`
-: `true` if a given field value is included in a matching value; a matching value must be an array or a slice
+: (`bool`) Reports whether the given field value is a member of `VALUE`. Compare string to slice, or string to string. See&nbsp;[details](/functions/collections/in).
 
 `not in`
-: `true` if a given field value isn't included in a matching value; a matching value must be an array or a slice
+: (`bool`) Reports whether the given field value is not a member of `VALUE`. Compare string to slice, or string to string. See&nbsp;[details](/functions/collections/in).
 
 `intersect`
-: `true` if a given field value that is a slice/array of strings or integers contains elements in common with the matching value; it follows the same rules as the [`intersect` function][intersect].
+: (`bool`) Reports whether the given field value (a slice) contains one or more elements in common with `VALUE`. See&nbsp;[details](/functions/collections/intersect).
 
-`like`
-: `true` if a given field value matches a regular expression. Use the `like` operator to compare `string` values. Returns `false` when comparing other data types to the regular expression.
+`like` {{< new-in 0.116.0 >}}
+: (`bool`) Reports whether the given field value matches the regular expression specified in `VALUE`. Use the `like` operator to compare `string` values. The `like` operator returns `false` when comparing other data types to the regular expression.
 
-## Use `where` with boolean values
-When using booleans you should not put quotation marks.
+{{% note %}}
+The examples below perform comparisons within a page collection, but the same comparisons are applicable to a slice of maps.
+{{% /note %}}
+
+## String comparison
+
+Compare the value of the given field to a [`string`]:
+
+[`string`]: /getting-started/glossary/#string
+
 ```go-html-template
-{{ range where .Pages "Draft" true }}
-        <p>{{ .Title }}</p>
-{{ end }}
+{{ $pages := where .Site.RegularPages "Section" "eq" "books" }}
+{{ $pages := where .Site.RegularPages "Section" "ne" "books" }}
 ```
 
-## Use `where` with `intersect`
+## Numeric comparison
+
+Compare the value of the given field to an [`int`] or [`float`]:
+
+[`int`]: /getting-started/glossary/#int
+[`float`]: /getting-started/glossary/#float
 
 ```go-html-template
-{{ range where .Site.Pages "Params.tags" "intersect" .Params.tags }}
-  {{ if ne .Permalink $.Permalink }}
-    {{ .Render "summary" }}
+{{ $sectionPages := where site.RegularPages "Section" "eq" "books" }}
+
+{{ $pages := where $sectionPages "Params.price" "eq" 42 }}
+{{ $pages := where $sectionPages "Params.price" "ne" 42.67 }}
+{{ $pages := where $sectionPages "Params.price" "ge" 42 }}
+{{ $pages := where $sectionPages "Params.price" "gt" 42.67 }}
+{{ $pages := where $sectionPages "Params.price" "le" 42 }}
+{{ $pages := where $sectionPages "Params.price" "lt" 42.67 }}
+```
+
+## Boolean comparison
+
+Compare the value of the given field to a [`bool`]:
+
+[`bool`]: /getting-started/glossary/#bool
+
+```go-html-template
+{{ $sectionPages := where site.RegularPages "Section" "eq" "books" }}
+
+{{ $pages := where $sectionPages "Params.fiction" "eq" true }}
+{{ $pages := where $sectionPages "Params.fiction" "eq" false }}
+{{ $pages := where $sectionPages "Params.fiction" "ne" true }}
+{{ $pages := where $sectionPages "Params.fiction" "ne" false }}
+```
+
+## Member comparison
+
+Compare a [`scalar`] to a [`slice`].
+
+[`scalar`]: /getting-started/glossary/#scalar
+[`slice`]: /getting-started/glossary/#slice
+
+For example, to return a collection of pages where the `color` page parameter is either "red" or "yellow":
+
+```go-html-template
+{{ $sectionPages := where site.RegularPages "Section" "eq" "fruit" }}
+
+{{ $colors := slice "red" "yellow" }}
+{{ $pages := where $sectionPages "Params.color" "in" $colors }}
+```
+
+To return a collection of pages where the "color" page parameter is neither "red" nor "yellow":
+
+```go-html-template
+{{ $sectionPages := where site.RegularPages "Section" "eq" "fruit" }}
+
+{{ $colors := slice "red" "yellow" }}
+{{ $pages := where $sectionPages "Params.color" "not in" $colors }}
+```
+
+## Intersection comparison
+
+Compare a [`slice`] to a [`slice`], returning collection elements with common values. This is frequently used when comparing taxonomy terms.
+
+For example, to return a collection of pages where any of the terms in the "genres" taxonomy are "suspense" or "romance":
+
+```go-html-template
+{{ $sectionPages := where site.RegularPages "Section" "eq" "books" }}
+
+{{ $genres := slice "suspense" "romance" }}
+{{ $pages := where $sectionPages "Params.genres" "intersect" $genres }}
+```
+
+## Regular expression comparison
+
+{{< new-in 0.116.0 >}}
+
+To return a collection of pages where the "author" page parameter begins with either "victor" or "Victor":
+
+```go-html-template
+{{ $pages := where .Site.RegularPages "Params.author" "like" `(?i)^victor` }}
+```
+
+{{% include "functions/_common/regular-expressions.md" %}}
+
+{{% note %}}
+Use the `like` operator to compare string values. Comparing other data types will result in an empty collection.
+{{% /note %}}
+
+## Date comparison
+
+### Predefined dates
+
+There are four predefined front matter dates: [`date`], [`publishDate`], [`lastmod`], and [`expiryDate`]. Regardless of the front matter data format (TOML, YAML, or JSON) these are [`time.Time`] values, allowing precise comparisons.
+
+[`date`]: /methods/page/date
+[`publishdate`]: /methods/page/publishdate
+[`lastmod`]: /methods/page/lastmod
+[`expirydate`]: /methods/page/expirydate
+[`time.Time`]: https://pkg.go.dev/time#Time
+
+For example, to return a collection of pages that were created before the current year:
+
+```go-html-template
+{{ $startOfYear := time.AsTime (printf "%d-01-01" now.Year) }}
+{{ $pages := where .Site.RegularPages "Date" "lt" $startOfYear }}
+```
+
+### Custom dates
+
+With custom front matter dates, the comparison depends on the front matter data format (TOML, YAML, or JSON). 
+
+{{% note %}}
+Using TOML for pages with custom front matter dates enables precise date comparisons.
+{{% /note %}}
+
+With TOML, date values are first-class citizens. TOML has a date data type while JSON and YAML do not. If you quote a TOML date, it is a string. If you do not quote a TOML date value, it is [`time.Time`] value, enabling precise comparisons.
+
+In the TOML example below, note that the event date is not quoted.
+
+{{< code file="content/events/2024-user-conference.md" >}}
++++
+title = '2024 User Conference"
+eventDate = 2024-04-01
++++
+{{< /code >}}
+
+To return a collection of future events:
+
+```go-html-template
+{{ $events := where .Site.RegularPages "Type" "events" }}
+{{ $futureEvents := where $events "Params.eventDate" "gt" now }}
+```
+
+When working with YAML or JSON, or quoted TOML values, custom dates are strings; you cannot compare them with `time.Time` values. String comparisons may be possible if the custom date layout is consistent from one page to the next. However, to be safe, filter the pages by ranging through the collection:
+
+```go-html-template
+{{ $events := where .Site.RegularPages "Type" "events" }}
+{{ $futureEvents := slice }}
+{{ range $events }}
+  {{ if gt (time.AsTime .Params.eventDate) now }}
+    {{ $futureEvents = $futureEvents | append . }}
   {{ end }}
 {{ end }}
 ```
 
-You can also put the returned value of the `where` clauses into a variable:
+## Nil comparison
 
-{{< code file="where-intersect-variables.html" >}}
-{{ $v1 := where .Site.Pages "Params.a" "v1" }}
-{{ $v2 := where .Site.Pages "Params.b" "v2" }}
-{{ $filtered := $v1 | intersect $v2 }}
-{{ range $filtered }}
-{{ end }}
-{{< /code >}}
-
-## Use `where` with `like`
-
-This example matches pages where the "foo" parameter begins with "ab":
+To return a collection of pages where the "color" parameter is present in front matter, compare to `nil`:
 
 ```go-html-template
-{{ range where site.RegularPages "Params.foo" "like" `^ab` }}
-  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
-{{ end }}
+{{ $pages := where .Site.RegularPages "Params.color" "ne" nil }}
 ```
 
-{{% readfile file="/functions/_common/regular-expressions.md" %}}
-
-## Use `where` with `first`
-
-Using `first` and `where` together can be very
-powerful. Below snippet gets a list of posts only from [**main
-sections**](#mainsections), sorts it using the [default
-ordering](/templates/lists/) for lists (i.e., `weight => date`), and
-then ranges through only the first 5 posts in that list:
-
-{{< code file="first-and-where-together.html" >}}
-{{ range first 5 (where site.RegularPages "Type" "in" site.Params.mainSections) }}
-   {{ .Content }}
-{{ end }}
-{{< /code >}}
-
-## Nest `where` clauses
-
-You can also nest `where` clauses to drill down on lists of content by more than one parameter. The following first grabs all pages in the "blog" section and then ranges through the result of the first `where` clause and finds all pages that are *not* featured:
+To return a collection of pages where the "color" parameter is not present in front matter, compare to `nil`:
 
 ```go-html-template
-{{ range where (where .Pages "Section" "blog" ) "Params.featured" "!=" true }}
+{{ $pages := where .Site.RegularPages "Params.color" "eq" nil }}
 ```
 
-## Unset fields
+In both examples above, note that `nil` is not quoted.
 
-Filtering only works for set fields. To check whether a field is set or exists, you can use the operand `nil`.
+## Nested comparison
 
-This can be useful to filter a small amount of pages from a large pool. Instead of setting a field on all pages, you can set that field on required pages only.
-
-Only the following operators are available for `nil`
-
-* `=`, `==`, `eq`: True if the given field is not set.
-* `!=`, `<>`, `ne`: True if the given field is set.
+These are equivalent:
 
 ```go-html-template
-{{ range where .Pages "Params.specialpost" "!=" nil }}
-   {{ .Content }}
-{{ end }}
+{{ $pages := where .Site.RegularPages "Type" "tutorials" }}
+{{ $pages = where $pages "Params.level" "eq" "beginner" }}
 ```
-
-## Portable `where` filters -- `site.Params.mainSections` {#mainsections}
-
-**This is especially important for themes.**
-
-To list the most relevant pages on the front page or similar, you
-should use the `site.Params.mainSections` list instead of comparing
-section names to hard-coded values like `"posts"` or `"post"`.
 
 ```go-html-template
-{{ $pages := where site.RegularPages "Type" "in" site.Params.mainSections }}
+{{ $pages := where (where .Site.RegularPages "Type" "tutorials") "Params.level" "eq" "beginner" }}
 ```
 
-If the user has not set this configuration parameter in their site configuration, it will default to the *section with the most pages*.
+## Portable section comparison
 
-The user can override the default:
+Useful for theme authors, avoid hardcoding section names by using the `where` function with the [`MainSections`] method on a `Site` object.
 
-{{< code-toggle file="hugo" >}}
+[`MainSections`]: /methods/site/mainsections
+
+```go-html-template
+{{ $pages := where .Site.RegularPages "Section" "in" .Site.MainSections }}
+```
+
+With this construct, a theme author can instruct users to specify their main sections in the site configuration:
+
+{{< code-toggle file=hugo >}}
 [params]
-  mainSections = ["blog", "docs"]
+mainSections = ['blog','galleries']
 {{< /code-toggle >}}
 
-[intersect]: /functions/collections/intersect
-[wherekeyword]: https://www.techonthenet.com/sql/where.php
+If `params.mainSections` is not defined in the site configuration, the `MainSections` method returns a slice with one element---the top level section with the most pages.
+
+## Boolean/undefined comparison
+
+Consider this site content:
+
+```text
+content/
+├── posts/
+│   ├── _index.md
+│   ├── post-1.md  <-- front matter: exclude = false
+│   ├── post-2.md  <-- front matter: exclude = true
+│   └── post-3.md  <-- front matter: exclude not defined
+└── _index.md
+```
+
+The first two pages have an "exclude" field in front matter, but the last page does not. When testing for _equality_, the third page is _excluded_ from the result. When testing for _inequality_, the third page is _included_ in the result.
+
+### Equality test
+
+This template:
+
+```go-html-template
+<ul>
+  {{ range where .Site.RegularPages "Params.exclude" "eq" false }}
+    <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+  {{ end }}
+</ul>
+```
+
+Is rendered to:
+
+```html
+<ul>
+  <li><a href="/posts/post-1/">Post 1</a></li>
+</ul>
+```
+
+This template:
+
+```go-html-template
+<ul>
+  {{ range where .Site.RegularPages "Params.exclude" "eq" true }}
+    <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+  {{ end }}
+</ul>
+```
+
+Is rendered to:
+
+```html
+<ul>  
+  <li><a href="/posts/post-2/">Post 2</a></li>
+</ul>
+```
+
+### Inequality test
+
+This template:
+
+```go-html-template
+<ul>
+  {{ range where .Site.RegularPages "Params.exclude" "ne" false }}
+    <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+  {{ end }}
+</ul>
+```
+
+Is rendered to:
+
+```html
+<ul>
+  <li><a href="/posts/post-2/">Post 2</a></li>
+  <li><a href="/posts/post-3/">Post 3</a></li>
+</ul>
+```
+
+This template:
+
+```go-html-template
+<ul>
+  {{ range where .Site.RegularPages "Params.exclude" "ne" true }}
+    <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+  {{ end }}
+</ul>
+```
+
+Is rendered to:
+
+```html
+<ul>
+  <li><a href="/posts/post-1/">Post 1</a></li>
+  <li><a href="/posts/post-3/">Post 3</a></li>
+</ul>
+```
+
+To exclude a page with an undefined field from a boolean _inequality_ test:
+
+1. Create a collection using a boolean comparison
+2. Create a collection using a nil comparison
+3. Subtract the second collection from the first collection using the [`collections.Complement`] function.
+
+[`collections.Complement`]: /functions/collections/complement
+
+This template:
+
+```go-html-template
+{{ $p1 := where .Site.RegularPages "Params.exclude" "ne" true }}
+{{ $p2 := where .Site.RegularPages "Params.exclude" "eq" nil  }}
+<ul>
+  {{ range $p1 | complement $p2 }}
+    <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+  {{ end }}
+</ul>
+```
+
+Is rendered to:
+
+```html
+<ul>
+  <li><a href="/posts/post-1/">Post 1</a></li>
+</ul>
+```
+
+This template:
+
+```go-html-template
+{{ $p1 := where .Site.RegularPages "Params.exclude" "ne" false }}
+{{ $p2 := where .Site.RegularPages "Params.exclude" "eq" nil  }}
+<ul>
+  {{ range $p1 | complement $p2 }}
+    <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+  {{ end }}
+</ul>
+```
+
+Is rendered to:
+
+```html
+<ul>
+  <li><a href="/posts/post-1/">Post 2</a></li>
+</ul>
+```

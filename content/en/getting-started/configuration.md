@@ -2,15 +2,15 @@
 title: Configure Hugo
 linkTitle: Configuration
 description: How to configure your Hugo site.
-categories: [fundamentals,getting started]
+categories: [getting started,fundamentals]
 keywords: [configuration,toml,yaml,json]
 menu:
   docs:
     parent: getting-started
     weight: 40
 weight: 40
-aliases: [/overview/source-directory/,/overview/configuration/]
 toc: true
+aliases: [/overview/source-directory/,/overview/configuration/]
 ---
 
 ## Configuration file
@@ -35,7 +35,7 @@ Multiple site configuration files can be specified as a comma-separated string t
 
 In Hugo 0.110.0 we changed the default configuration base file name to `hugo`, e.g. `hugo.toml`. We will still look for `config.toml` etc., but we recommend you eventually rename it (but you need to wait if you want to support older Hugo versions). The main reason we're doing this is to make it easier for code editors and build tools to identify this as a Hugo configuration file and project.
 
-{{< new-in "0.110.0" >}}
+{{< new-in 0.110.0 >}}
 
 ## Configuration directory
 
@@ -140,7 +140,7 @@ deep
 
 Note that you don't need to be so verbose as in the default setup below; a `_merge` value higher up will be inherited if not set.
 
-{{< code-toggle file="hugo" dataKey="config_helpers.mergeStrategy" skipHeader=true />}}
+{{< code-toggle file=hugo dataKey="config_helpers.mergeStrategy" skipHeader=true />}}
 
 ## All configuration settings
 
@@ -190,13 +190,19 @@ See [Configure File Caches](#configure-file-caches)
 
 ### cascade
 
-Pass down default configuration values (front matter) to pages in the content tree. The options in site configuration is the same as in page front matter, see [Front Matter Cascade](/content-management/front-matter#front-matter-cascade).
+Pass down down default configuration values (front matter) to pages in the content tree. The options in site config is the same as in page front matter, see [Front Matter Cascade](/content-management/front-matter#front-matter-cascade).
+
+{{% note %}}
+For a website in a single language, define the `[[cascade]]` in [Front Matter](/content-management/front-matter#front-matter-cascade). For a multilingual website, define the `[[cascade]]` in [Site Config](../../getting-started/configuration/#cascade).
+
+To remain consistent and prevent unexpected behaviour, do not mix these strategies.
+{{% /note %}}
 
 ### canonifyURLs
 
 **Default value:** false
 
-Enable to turn relative URLs into absolute. See [details](/content-management/urls/#canonical-urls).
+Enable to turn relative URLs into absolute. See&nbsp;[details](/content-management/urls/#canonical-urls).
 
 ### cleanDestinationDir
 
@@ -268,7 +274,7 @@ Do not convert the url/path to lowercase.
 
 **Default value:** false
 
-Enable Emoji emoticons support for page content; see the [Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet/).
+Enable Emoji emoticons support for page content; see the [emoji shortcode quick reference guide](/quick-reference/emojis/).
 
 ### enableGitInfo
 
@@ -297,12 +303,6 @@ Enable generation of `robots.txt` file.
 ### frontmatter
 
 See [Front matter Configuration](#configure-front-matter).
-
-### googleAnalytics
-
-**Default value:** ""
-
-Google Analytics tracking ID.
 
 ### hasCJKLanguage
 
@@ -383,7 +383,7 @@ Default number of elements per page in [pagination](/templates/pagination/).
 
 **Default value:** "page"
 
-The path element used during pagination (`https://example.com/page/2`).
+The path element used during pagination (`https://example.org/page/2`).
 
 ### permalinks
 
@@ -409,7 +409,7 @@ See [Related Content](/content-management/related/#configure-related-content).
 
 **Default value:** false
 
-Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs. See [details](/content-management/urls/#relative-urls).
+Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs. See&nbsp;[details](/content-management/urls/#relative-urls).
 
 ### refLinksErrorLevel
 
@@ -430,12 +430,6 @@ Removes [non-spacing marks](https://www.compart.com/en/unicode/category/Mn) from
 ```text
 content/post/hügó.md → https://example.org/post/hugo/
 ```
-
-### rssLimit
-
-**Default value:** -1 (unlimited)
-
-Maximum number of items in the RSS feed.
 
 ### sectionPagesMenu
 
@@ -519,9 +513,9 @@ enableemoji: true
 
 The `build` configuration section contains global build-related configuration options.
 
-{{< code-toggle config="build" />}}
+{{< code-toggle config=build />}}
 
-buildStats {{< new-in "0.115.1" >}}
+buildStats {{< new-in 0.115.1 >}}
 : When enabled, creates a `hugo_stats.json` file in the root of your project. This file contains arrays of the `class` attributes, `id` attributes, and tags of every HTML element within your published site. Use this file as data source when [removing unused CSS] from your site. This process is also known as pruning, purging, or tree shaking.
 
 [removing unused CSS]: /hugo-pipes/postprocess/#css-purging-with-postcss
@@ -551,11 +545,11 @@ useResourceCacheWhen
 
 ## Configure cache busters
 
-{{< new-in "0.112.0" >}}
+{{< new-in 0.112.0 >}}
 
 The `build.cachebusters` configuration option was added to support development using Tailwind 3.x's JIT compiler where a `build` configuration may look like this:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [build]
   [build.buildStats]
     enable = true
@@ -585,8 +579,7 @@ target
 
 This is only relevant when running `hugo server`, and it allows to set HTTP headers during development, which allows you to test out your Content Security Policy and similar. The configuration format matches [Netlify's](https://docs.netlify.com/routing/headers/#syntax-for-the-netlify-configuration-file) with slightly more powerful [Glob matching](https://github.com/gobwas/glob):
 
-
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [server]
 [[server.headers]]
 for = "/**"
@@ -601,7 +594,7 @@ Content-Security-Policy = "script-src localhost:1313"
 
 Since this is "development only", it may make sense to put it below the `development` environment:
 
-{{< code-toggle file="config/development/server">}}
+{{< code-toggle file=config/development/server >}}
 [[headers]]
 for = "/**"
 
@@ -617,7 +610,7 @@ You can also specify simple redirects rules for the server. The syntax is again 
 
 Note that a `status` code of 200 will trigger a [URL rewrite](https://docs.netlify.com/routing/redirects/rewrites-proxies/), which is what you want in SPA situations, e.g:
 
-{{< code-toggle file="config/development/server">}}
+{{< code-toggle file=config/development/server >}}
 [[redirects]]
 from = "/myspa/**"
 to = "/myspa/"
@@ -629,11 +622,11 @@ Setting `force=true` will make a redirect even if there is existing content in t
 
 ## 404 server error page {#_404-server-error-page}
 
-{{< new-in "0.103.0" >}}
+{{< new-in 0.103.0 >}}
 
 Hugo will, by default, render all 404 errors when running `hugo server` with the `404.html` template. Note that if you have already added one or more redirects to your [server configuration](#configure-server), you need to add the 404 redirect explicitly, e.g:
 
-{{< code-toggle file="config/development/server" copy=false >}}
+{{< code-toggle file=config/development/server >}}
 [[redirects]]
 from   = "/**"
 to     = "/404.html"
@@ -642,17 +635,27 @@ status = 404
 
 ## Configure title case
 
-Set `titleCaseStyle` to specify the title style used by the [title](/functions/strings/title) template function and the automatic section titles in Hugo.
+By default, Hugo follows the capitalization rules published in the [Associated Press Stylebook] when creating automatic section titles, and when transforming strings with the [`strings.Title`] function.
 
-Can be one of:
+Change this behavior by setting `titleCaseStyle` in your site configuration to any of the values below:
 
-* `ap` (default), the capitalization rules in the [Associated Press (AP) Stylebook]
-* `chicago`, the [Chicago Manual of Style]
-* `go`, Go's convention of capitalizing every word.
-* `firstupper`, capitalize the first letter of the first word.
-* `none`, no capitalization.
+ap
+: Use the capitalization rules published in the [Associated Press Stylebook].
 
-[Associated Press (AP) Stylebook]: https://www.apstylebook.com/
+chicago
+: Use the capitalization rules published in the [Chicago Manual of Style].
+
+go
+: Capitalize the first letter of every word.
+
+firstupper
+: Capitalize the first letter of the first word.
+
+none
+: Disable transformation of automatic section titles, and disable the transformation performed by the `strings.Title` function. This is useful if you would prefer to manually capitalize section titles as needed, and to bypass opinionated theme usage of the `strings.Title` function.
+
+[`strings.Title`]: /functions/strings/title
+[Associated Press Stylebook]: https://www.apstylebook.com/
 [Chicago Manual of Style]: https://www.chicagomanualofstyle.org/home.html
 [site configuration]: /getting-started/configuration/#configure-title-case
 
@@ -675,7 +678,7 @@ In your configuration file, you can direct Hugo as to how you want your website 
 
 The following is a typical example of a configuration file. The values nested under `params:` will populate the [`.Site.Params`] variable for use in [templates]:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 baseURL: "https://yoursite.example.com/"
 title: "My Hugo Site"
 permalinks:
@@ -712,19 +715,21 @@ If you are using snake_cased variable names, the above will not work. Hugo deter
 
 ## Ignore content and data files when rendering
 
-**Note:** This works, but we recommend you use the newer and more powerful [includeFiles and excludeFiles](/hugo-modules/configuration/#module-configuration-mounts) mount options.
+{{% note %}}
+This works, but we recommend you use the newer and more powerful [includeFiles and excludeFiles](/hugo-modules/configuration/#module-configuration-mounts) mount options.
+{{% /note %}}
 
 To exclude specific files from the `content`, `data`, and `i18n` directories when rendering your site, set `ignoreFiles` to one or more regular expressions to match against the absolute file path.
 
 To ignore files ending with `.foo` or `.boo`:
 
-{{< code-toggle copy=false file="hugo" >}}
+{{< code-toggle file=hugo >}}
 ignoreFiles = ['\.foo$', '\.boo$']
 {{< /code-toggle >}}
 
 To ignore a file using the absolute file path:
 
-{{< code-toggle copy=false file="hugo" >}}
+{{< code-toggle file=hugo >}}
 ignoreFiles = ['^/home/user/project/content/test\.md$']
 {{< /code-toggle >}}
 
@@ -736,11 +741,11 @@ Dates are important in Hugo, and you can configure how Hugo assigns dates to you
 
 The default configuration is:
 
-{{< code-toggle config="frontmatter" />}}
+{{< code-toggle config=frontmatter />}}
 
 If you, as an example, have a non-standard date parameter in some of your content, you can override the setting for `date`:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [frontmatter]
 date = ["myDate", ":default"]
 {{< /code-toggle >}}
@@ -756,7 +761,7 @@ The special date handlers are:
 
 An example:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [frontmatter]
 lastmod = ["lastmod", ":fileModTime", ":default"]
 {{< /code-toggle >}}
@@ -768,7 +773,7 @@ The above will try first to extract the value for `.Lastmod` starting with the `
 
 An example:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [frontmatter]
 date  = [":filename", ":default"]
 {{< /code-toggle >}}
@@ -786,32 +791,32 @@ Hugo v0.20 introduced the ability to render your content to multiple output form
 
 Default configuration:
 
-{{< code-toggle config="minify" />}}
+{{< code-toggle config=minify />}}
 
 ## Configure file caches
 
 Since Hugo 0.52 you can configure more than just the `cacheDir`. This is the default configuration:
 
-{{< code-toggle config="caches" />}}
+{{< code-toggle config=caches />}}
 
 You can override any of these cache settings in your own `hugo.toml`.
 
 ### The keywords explained
 
-`:cacheDir`
-: See [Configure cacheDir](#configure-cachedir).
+cacheDir
+: (`string`) See [Configure cacheDir](#configure-cachedir).
 
-`:project`
-: The base directory name of the current Hugo project. This means that, in its default setting, every project will have separated file caches, which means that when you do `hugo --gc` you will not touch files related to other Hugo projects running on the same PC.
+project
+: (`string`) The base directory name of the current Hugo project. This means that, in its default setting, every project will have separated file caches, which means that when you do `hugo --gc` you will not touch files related to other Hugo projects running on the same PC.
 
-`:resourceDir`
-: This is the value of the `resourceDir` configuration option.
+resourceDir
+: (`string`) This is the value of the `resourceDir` configuration option.
 
 maxAge
-: This is the duration before a cache entry will be evicted, -1 means forever and 0 effectively turns that particular cache off. Uses Go's `time.Duration`, so valid values are `"10s"` (10 seconds), `"10m"` (10 minutes) and `"10h"` (10 hours).
+: (`string`) This is the duration before a cache entry will be evicted, -1 means forever and 0 effectively turns that particular cache off. Uses Go's `time.Duration`, so valid values are `"10s"` (10 seconds), `"10m"` (10 minutes) and `"10h"` (10 hours).
 
 dir
-: The absolute path to where the files for this cache will be stored. Allowed starting placeholders are `:cacheDir` and `:resourceDir` (see above).
+: (`string`) The absolute path to where the files for this cache will be stored. Allowed starting placeholders are `:cacheDir` and `:resourceDir` (see above).
 
 ## Configuration format specs
 
@@ -829,7 +834,6 @@ dir
 [yaml]: https://yaml.org/spec/
 [static-files]: /content-management/static-files/
 
-
 ## Configure cacheDir
 
 This is the directory where Hugo by default will store its file caches. See [Configure File Caches](#configure-file-caches).
@@ -839,10 +843,9 @@ This can be set using the `cacheDir` config option or via the OS env variable `H
 If this is not set, Hugo will use, in order of preference:
 
 1. If running on Netlify: `/opt/build/cache/hugo_cache/`. This means that if you run your builds on Netlify, all caches configured with `:cacheDir` will be saved and restored on the next build. For other CI vendors, please read their documentation. For an CircleCI example, see [this configuration](https://github.com/bep/hugo-sass-test/blob/6c3960a8f4b90e8938228688bc49bdcdd6b2d99e/.circleci/config.yml).
-1. In a `hugo_cache` directory below the OS user cache directory as defined by Go's [os.UserCacheDir](https://pkg.go.dev/os#UserCacheDir). On Unix systems, this is `$XDG_CACHE_HOME` as specified by [basedir-spec-latest](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html) if non-empty, else `$HOME/.cache`. On MacOS, this is `$HOME/Library/Caches`. On Windows, this is`%LocalAppData%`. On Plan 9, this is `$home/lib/cache`. {{< new-in "0.116.0" >}}
+1. In a `hugo_cache` directory below the OS user cache directory as defined by Go's [os.UserCacheDir](https://pkg.go.dev/os#UserCacheDir). On Unix systems, this is `$XDG_CACHE_HOME` as specified by [basedir-spec-latest](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html) if non-empty, else `$HOME/.cache`. On MacOS, this is `$HOME/Library/Caches`. On Windows, this is`%LocalAppData%`. On Plan 9, this is `$home/lib/cache`. {{< new-in 0.116.0 >}}
 1. In a  `hugo_cache_$USER` directory below the OS temp dir.
 
 If you want to know the current value of `cacheDir`, you can run `hugo config`, e.g: `hugo config | grep cachedir`.
-
 
 [`time`]: /functions/time/astime

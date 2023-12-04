@@ -1,142 +1,152 @@
 [[docs]]
-  name = "About Hugo"
-  weight = 10
-  identifier = "about"
-  url = "/about/"
+identifier = 'about'
+name = 'About Hugo'
+pageRef = '/about/'
+weight = 10
 
 [[docs]]
-  name = "Installation"
-  weight = 20
-  identifier = "installation"
-  url = "/installation/"
+name = 'Installation'
+weight = 20
+identifier = 'installation'
+pageRef = '/installation/'
 
 [[docs]]
-  name = "Getting started"
-  weight = 30
-  identifier = "getting-started"
-  url = "/getting-started/"
+name = 'Getting started'
+weight = 30
+identifier = 'getting-started'
+pageRef = '/getting-started/'
+post = 'break'
 
 [[docs]]
-  name = "Hugo Modules"
-  weight = 40
-  identifier = "modules"
-  post = "break"
-  url = "/hugo-modules/"
-
-# Core menus
+name = 'Content management'
+weight = 40
+identifier = 'content-management'
+post = 'expanded'
+pageRef = '/content-management/'
 
 [[docs]]
-  name = "Content management"
-  weight = 50
-  identifier = "content-management"
-  post = "expanded"
-  url = "/content-management/"
+name = 'Templates'
+weight = 50
+identifier = 'templates'
+pageRef = '/templates/'
 
 [[docs]]
-  name = "Templates"
-  weight = 60
-  identifier = "templates"
-  url = "/templates/"
+name = 'Functions'
+weight = 60
+identifier = 'functions'
+pageRef = '/functions/'
 
 [[docs]]
-  name = "Functions"
-  weight = 70
-  identifier = "functions"
-  url = "/functions/"
+name = 'Methods'
+weight = 70
+identifier = 'methods'
+pageRef = '/methods/'
 
 [[docs]]
-  name = "Variables"
-  weight = 80
-  identifier = "variables"
-  url = "/variables/"
+name = 'Quick reference'
+weight = 80
+identifier = 'quick-reference'
+pageRef = '/quick-reference/'
 
 [[docs]]
-  name = "Hugo Pipes"
-  weight = 90
-  identifier = "hugo-pipes"
-  url = "/hugo-pipes/"
+name = 'Variables'
+weight = 85
+identifier = 'variables'
+pageRef = '/variables/'
 
 [[docs]]
-  name = "CLI"
-  weight = 100
-  post = "break"
-  identifier = "commands"
-  url = "/commands/"
+name = 'Hugo Modules'
+weight = 90
+identifier = 'modules'
+pageRef = '/hugo-modules/'
+
+[[docs]]
+name = 'Hugo Pipes'
+weight = 100
+identifier = 'hugo-pipes'
+pageRef = '/hugo-pipes/'
+
+[[docs]]
+name = 'CLI'
+weight = 110
+post = 'break'
+identifier = 'commands'
+pageRef = '/commands/'
 
 # Low level items
 
 [[docs]]
-  name = "Troubleshooting"
-  weight = 110
-  identifier = "troubleshooting"
-  url = "/troubleshooting/"
+name = 'Troubleshooting'
+weight = 120
+identifier = 'troubleshooting'
+pageRef = '/troubleshooting/'
 
 [[docs]]
-  name = "Developer tools"
-  weight = 120
-  identifier = "developer-tools"
-  url = "/tools/"
+name = 'Developer tools'
+weight = 130
+identifier = 'developer-tools'
+pageRef = '/tools/'
 
 [[docs]]
-  name = "Hosting and deployment"
-  weight = 130
-  identifier = "hosting-and-deployment"
-  url = "/hosting-and-deployment/"
+name = 'Hosting and deployment'
+weight = 140
+identifier = 'hosting-and-deployment'
+pageRef = '/hosting-and-deployment/'
 
 [[docs]]
-  name = "Contribute"
-  weight = 140
-  post = "break"
-  identifier = "contribute"
-  url = "/contribute/"
+name = 'Contribute'
+weight = 150
+post = 'break'
+identifier = 'contribute'
+pageRef = '/contribute/'
 
 ######## QUICKLINKS
 
 [[quicklinks]]
-  name = "Fundamentals"
-  weight = 1
-  identifier = "fundamentals"
-  url = "/tags/fundamentals/"
+identifier = 'fundamentals'
+name = 'Fundamentals'
+pageRef = '/tags/fundamentals/'
+weight = 1
 
 ######## GLOBAL ITEMS TO BE SHARED WITH THE HUGO SITES
 
 [[global]]
-    name = "News"
-    weight = 1
-    identifier = "news"
-    url = "/news/"
+name = 'News'
+weight = 1
+identifier = 'news'
+pageRef = '/news/'
 
 [[global]]
-  name = "Docs"
-  weight = 5
-  identifier = "docs"
-  url = "/documentation/"
+name = 'Docs'
+weight = 5
+identifier = 'docs'
+url = '/documentation/'
 
 [[global]]
-  name = "Themes"
-  weight = 10
-  identifier = "themes"
-  url = "https://themes.gohugo.io/"
+name = 'Themes'
+weight = 10
+identifier = 'themes'
+url = 'https://themes.gohugo.io/'
 
 [[global]]
-  name = "Showcase"
-  weight = 20
-  identifier = "showcase"
-  url = "/showcase/"
+name = 'Showcase'
+weight = 20
+identifier = 'showcase'
+pageRef = '/showcase/'
 
 # Anything with a weight > 100 gets an external icon
 
 [[global]]
-  name = "Community"
-  weight = 150
-  icon = true
-  identifier = "community"
-  post = "external"
-  url = "https://discourse.gohugo.io/"
+name = 'Community'
+weight = 150
+icon = true
+identifier = 'community'
+post = 'external'
+url = 'https://discourse.gohugo.io/'
 
 [[global]]
-  name = "GitHub"
-  weight = 200
-  identifier = "github"
-  post = "external"
-  url = "https://github.com/gohugoio/hugo"
+name = 'GitHub'
+weight = 200
+identifier = 'github'
+post = 'external'
+url = 'https://github.com/gohugoio/hugo'

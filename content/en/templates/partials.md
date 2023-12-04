@@ -8,8 +8,8 @@ menu:
     parent: templates
     weight: 120
 weight: 120
-aliases: [/templates/partial/,/layout/chrome/,/extras/analytics/]
 toc: true
+aliases: [/templates/partial/,/layout/chrome/,/extras/analytics/]
 ---
 
 {{< youtube pjS4pOLyB7c >}}
@@ -128,7 +128,7 @@ Value: {{ partial "my-inline-partial.html" . }}
 
 ## Cached partials
 
-The `partialCached` template function provides significant performance gains for complex templates that don't need to be re-rendered on every invocation. See [details][partialcached].
+The `partialCached` template function provides significant performance gains for complex templates that don't need to be re-rendered on every invocation. See&nbsp;[details][partialcached].
 
 ## Examples
 
@@ -136,7 +136,7 @@ The `partialCached` template function provides significant performance gains for
 
 The following `header.html` partial template is used for [spf13.com](https://spf13.com/):
 
-{{< code file="layouts/partials/header.html" >}}
+{{< code file=layouts/partials/header.html >}}
 <!DOCTYPE html>
 <html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
 <head>
@@ -161,7 +161,7 @@ The `header.html` example partial was built before the introduction of block tem
 
 The following `footer.html` partial template is used for [spf13.com](https://spf13.com/):
 
-{{< code file="layouts/partials/footer.html" >}}
+{{< code file=layouts/partials/footer.html >}}
 <footer>
   <div>
     <p>

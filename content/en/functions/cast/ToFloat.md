@@ -1,20 +1,15 @@
 ---
 title: cast.ToFloat
-linkTitle: float
-description: Casts a value to a decimal (base 10) floating point value.
-categories: [functions]
+description: Converts a value to a decimal floating-point number (base 10).
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [float]
+  related:
+    - functions/cast/ToInt
+    - functions/cast/ToString
   returnType: float64
   signatures: [cast.ToFloat INPUT]
-relatedFunctions:
-  - cast.ToFloat
-  - cast.ToInt
-  - cast.ToString
 aliases: [/functions/float]
 ---
 

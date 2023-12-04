@@ -1,28 +1,21 @@
 ---
 title: fmt.Erroridf
-linkTitle: erroridf
 description: Log a suppressable ERROR from a template.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [erroridf]
+  related:
+    - functions/fmt/Errorf
+    - functions/fmt/Warnf
   returnType: string
   signatures: ['fmt.Erroridf ID FORMAT [INPUT]']
-relatedFunctions:
-  - fmt.Errorf
-  - fmt.Erroridf
-  - fmt.Warnf
 aliases: [/functions/erroridf]
 ---
 
-The documentation for [Go's fmt package] describes the structure and content of the format string.
+{{% include "functions/fmt/_common/fmt-layout.md" %}}
 
-Like the  [`errorf`] function, the `erroridf` function evaluates the format string, prints the result to the ERROR log, then fails the build. Hugo prints each unique message once to avoid flooding the log with duplicate errors.
-
-Unlike the `errorf` function, you may suppress errors logged by the `erroridf` function by adding the message ID to the `ignoreErrors` array in your site configuration.
+The `erroridf` function evaluates the format string, then prints the result to the ERROR log and fails the build. Unlike the [`errorf`] function, you may suppress errors logged by the `erroridf` function by adding the message ID to the `ignoreErrors` array in your site configuration.
 
 This template code:
 
@@ -34,15 +27,14 @@ Produces this console log:
 
 ```text
 ERROR You should consider fixing this.
-If you feel that this should not be logged as an ERROR, you can ignore it by adding this to your site config:
-ignoreErrors = ["error-42"]
+You can suppress this error by adding the following to your site configuration:
+ignoreErrors = ['error-42']
 ```
 
 To suppress this message:
 
-{{< code-toggle file=hugo copy=false >}}
+{{< code-toggle file=hugo >}}
 ignoreErrors = ["error-42"]
 {{< /code-toggle >}}
 
 [`errorf`]: /functions/fmt/errorf
-[Go's fmt package]: https://pkg.go.dev/fmt

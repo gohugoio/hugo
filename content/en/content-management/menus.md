@@ -7,8 +7,8 @@ menu:
   docs:
     parent: content-management
     weight: 190
-toc: true
 weight: 190
+toc: true
 aliases: [/extras/menus/]
 ---
 
@@ -36,7 +36,7 @@ Although you can use these methods in combination when defining a menu, the menu
 
 To automatically define menu entries for each top-level section of your site, enable the section pages menu in your site configuration.
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 sectionPagesMenu = "main"
 {{< /code-toggle >}}
 
@@ -46,7 +46,7 @@ This creates a menu structure that you can access with `site.Menus.main` in your
 
 To add a page to the "main" menu:
 
-{{< code-toggle file="content/about.md" copy=false fm=true >}}
+{{< code-toggle file=content/about.md fm=true >}}
 title = 'About'
 menu = 'main'
 {{< /code-toggle >}}
@@ -55,7 +55,7 @@ Access the entry with `site.Menus.main` in your templates. See [menu templates] 
 
 To add a page to the "main" and "footer" menus:
 
-{{< code-toggle file="content/contact.md" copy=false fm=true >}}
+{{< code-toggle file=content/contact.md fm=true >}}
 title = 'Contact'
 menu = ['main','footer']
 {{< /code-toggle >}}
@@ -94,7 +94,7 @@ weight
 
 This front matter menu entry demonstrates some of the available properties:
 
-{{< code-toggle file="content/products/software.md" copy=false fm=true >}}
+{{< code-toggle file=content/products/software.md fm=true >}}
 title = 'Software'
 [menu.main]
 parent = 'Products'
@@ -106,12 +106,11 @@ class = 'center'
 
 Access the entry with `site.Menus.main` in your templates. See [menu templates] for details.
 
-
 ## Define in site configuration
 
 To define entries for the "main" menu:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 [[menu.main]]
 name = 'Home'
 pageRef = '/'
@@ -132,7 +131,7 @@ This creates a menu structure that you can access with `site.Menus.main` in your
 
 To define entries for the "footer" menu:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 [[menu.footer]]
 name = 'Terms'
 pageRef = '/terms'
@@ -177,7 +176,7 @@ url
 
 This nested menu demonstrates some of the available properties:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 [[menu.main]]
 name = 'Products'
 pageRef = '/products'

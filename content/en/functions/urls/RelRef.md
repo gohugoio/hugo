@@ -1,27 +1,25 @@
 ---
 title: urls.RelRef
-linkTitle: relref
-description: Returns the relative permalink to a page.
-categories: [functions]
+description: Returns the relative permalink to a page at the given path.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [relref]
-  returnType: template.HTML
-  signatures: [urls.RelRef . PAGE]
-relatedFunctions:
-  - urls.Ref
-  - urls.RelRef
+  related:
+    - functions/urls/Ref
+    - methods/page/Ref
+    - methods/page/RelRef
+  returnType: string
+  signatures:
+    - urls.RelRef PAGE PATH
+    - urls.RelRef PAGE OPTIONS
 aliases: [/functions/relref]
 ---
 
-This function takes two arguments:
+The first argument is the context of the page from which to resolve relative paths, typically the current page.
 
-- The context of the page from which to resolve relative paths, typically the current page (`.`)
-- The path to a page, with or without a file extension, with or without an anchor. A path without a leading `/` is first resolved relative to the given context, then to the remainder of the site.
-
+The second argument is a path to a page, with or without a file extension, with or without an anchor. A path without a leading `/` is first resolved relative to the given context, then to the remainder of the site. Alternatively, provide an [options map](#options) instead of a path.
+.
 ```go-html-template
 {{ relref . "about" }}
 {{ relref . "about#anchor" }}
@@ -36,8 +34,21 @@ The permalink returned is relative to the protocol+host portion of the baseURL s
 
 Code|baseURL|Permalink
 :--|:--|:--
-`{{ relref . "/about" }}`|`http://example.org/`|`/about/`
-`{{ relref . "/about" }}`|`http://example.org/x/`|`/x/about/`
+`{{ relref . "/about" }}`|`https://example.org/`|`/about/`
+`{{ relref . "/about" }}`|`https://example.org/x/`|`/x/about/`
+
+## Options
+
+Instead of specifying a path, you can also provide an options map:
+
+path
+: (`string`) The path to the page, relative to the content directory. Required.
+
+lang
+: (`string`) The language (site) to search for the page. Default is the current language. Optional.
+
+outputFormat
+: (`string`) The output format to search for the page. Default is the current output format. Optional.
 
 To return the relative permalink to another language version of a page:
 
@@ -51,6 +62,9 @@ To return the relative permalink to another Output Format of a page:
 {{ relref . (dict "path" "about.md" "outputFormat" "rss") }}
 ```
 
-Hugo emits an error or warning if the page cannot be uniquely resolved. The error behavior is configurable; see [Ref and RelRef Configuration](/content-management/cross-references/#ref-and-relref-configuration).
+By default, Hugo will throw an error and fail the build if it cannot resolve the path. You can change this to a warning in your site configuration, and specify a URL to return when the path cannot be resolved.
 
-This function is used by Hugo's built-in [`relref`](/content-management/shortcodes/#ref-and-relref) shortcode. For a detailed explanation of how to leverage this shortcode for content management, see [Links and Cross References](/content-management/cross-references/).
+{{< code-toggle file=hugo >}}
+refLinksErrorLevel = 'warning'
+refLinksNotFoundURL = '/some/other/url'
+{{< /code-toggle >}}

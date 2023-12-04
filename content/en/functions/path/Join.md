@@ -1,34 +1,36 @@
 ---
 title: path.Join
-description: Join path elements into a single path.
-categories: [functions]
+description: Replaces path separators with slashes (`/`), joins the given path elements into a single path, and returns the shortest path name equivalent to the result.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
+  related:
+    - functions/path/Base
+    - functions/path/BaseName
+    - functions/path/Clean
+    - functions/path/Dir
+    - functions/path/Ext
+    - functions/path/Split
+    - functions/urls/JoinPath
   returnType: string
   signatures: [path.Join ELEMENT...]
-relatedFunctions:
-  - path.Base
-  - path.BaseName
-  - path.Clean
-  - path.Dir
-  - path.Ext
-  - path.Join
-  - path.Split
-  - urls.JoinPath
 aliases: [/functions/path.join]
 ---
 
-`path.Join` joins path elements into a single path, adding a separating slash if necessary.
-All empty strings are ignored.
+See Go's [`path.Join`] and [`path.Clean`] documentation for details.
 
-**Note:** All path elements on Windows are converted to slash ('/') separators.
+[`path.Clean`]: https://pkg.go.dev/path#Clean
+[`path.Join`]: https://pkg.go.dev/path#Join
+
 
 ```go-html-template
-{{ path.Join "partial" "news.html" }} → "partial/news.html"
-{{ path.Join "partial/" "news.html" }} → "partial/news.html"
-{{ path.Join "foo/baz" "bar" }} → "foo/baz/bar"
+{{ path.Join "partial" "news.html" }} → partial/news.html
+{{ path.Join "partial/" "news.html" }} → partial/news.html
+{{ path.Join "foo/bar" "baz" }} → foo/bar/baz
+{{ path.Join "foo" "bar" "baz" }} → foo/bar/baz
+{{ path.Join "foo" "" "baz" }} → foo/baz
+{{ path.Join "foo" "." "baz" }} → foo/baz
+{{ path.Join "foo" ".." "baz" }} → baz
+{{ path.Join "/.." "foo" ".." "baz" }} → baz
 ```

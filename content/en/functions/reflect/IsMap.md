@@ -1,19 +1,14 @@
 ---
 title: reflect.IsMap
-description: Reports whether the value is a map.
-categories: [functions]
+description: Reports whether the given value is a map.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
+  related:
+    - functions/reflect/IsSlice
   returnType: bool
   signatures: [reflect.IsMap INPUT]
-namespace: reflect
-relatedFunctions:
-  - reflect.IsMap
-  - reflect.IsSlice
 aliases: [/functions/reflect.ismap]
 ---
 

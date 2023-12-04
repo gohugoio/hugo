@@ -1,28 +1,26 @@
 ---
 title: strings.Contains
-description: Reports whether the string contains a substring.
-categories: [functions]
+description: Reports whether the given string contains the given substring.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
+  related:
+    - functions/strings/ContainsAny
+    - functions/strings/ContainsNonSpace
+    - functions/strings/HasPrefix
+    - functions/strings/HasSuffix
+    - functions/collections/In
   returnType: bool
   signatures: [strings.Contains STRING SUBSTRING]
-relatedFunctions:
-  - strings.Contains
-  - strings.ContainsAny
-  - strings.ContainsNonSpace
-  - strings.HasPrefix
-  - strings.HasSuffix
 aliases: [/functions/strings.contains]
 ---
 
 ```go-html-template
 {{ strings.Contains "Hugo" "go" }} → true
 ```
-The check is case sensitive: 
+
+The check is case sensitive:
 
 ```go-html-template
 {{ strings.Contains "Hugo" "Go" }} → false

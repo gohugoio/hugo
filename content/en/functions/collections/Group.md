@@ -1,26 +1,21 @@
 ---
 title: collections.Group
-linkTitle: group
-description: Groups a list of pages.
-categories: [functions]
+description: Groups the given page collection by the given key.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [group]
+  related:
+    - functions/collections/Dictionary
+    - functions/collections/IndexFunction
+    - functions/collections/IsSet
+    - functions/collections/Where
   returnType: any
-  signatures: [PAGES | collections.Group KEY]
-relatedFunctions:
-  - collections.Dictionary
-  - collections.Group
-  - collections.Index
-  - collections.IsSet
-  - collections.Where
+  signatures: [collections.Group KEY PAGES]
 aliases: [/functions/group]
 ---
 
-{{< code file="layouts/partials/groups.html" >}}
+```go-html-template
 {{ $new := .Site.RegularPages | first 10 | group "New" }}
 {{ $old := .Site.RegularPages | last 10 | group "Old" }}
 {{ $groups := slice $new $old }}
@@ -29,12 +24,12 @@ aliases: [/functions/group]
   <ul>
     {{ range .Pages }}
       <li>
-        <a href="{{ .Permalink }}">{{ .Title }}</a>
+        <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
         <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
       </li>
     {{ end }}
   </ul>
 {{ end }}
-{{< /code >}}
+```
 
 The page group you get from `group` is of the same type you get from the built-in [group methods](/templates/lists#group-content) in Hugo. The above example can be [paginated](/templates/pagination/#list-paginator-pages).

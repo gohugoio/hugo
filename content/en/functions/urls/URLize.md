@@ -1,69 +1,63 @@
 ---
 title: urls.URLize
-linkTitle: urlize
-description: Takes a string, sanitizes it for usage in URLs, and converts spaces to hyphens.
-categories: [functions]
+description: Returns the given string, sanitized for usage in a URL.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [urlize]
+  related:
+    - functions/urls/Anchorize
   returnType: string
   signatures: [urls.URLize INPUT]
-relatedFunctions:
-  - urls.Anchorize
-  - urls.URLize
 aliases: [/functions/urlize]
 ---
 
-The following examples pull from a content file with the following front matter:
+{{% include "/functions/urls/_common/anchorize-vs-urlize.md" %}}
 
-{{< code-toggle file="content/blog/greatest-city.md" fm=true copy=false >}}
-title = "The World's Greatest City"
-location = "Chicago IL"
-tags = ["pizza","beer","hot dogs"]
+## Example
+
+Use the `urlize` function to create a link to a [term] page.
+
+Consider this site configuration:
+
+{{< code-toggle file=hugo >}}
+[taxonomies]
+author = 'authors'
 {{< /code-toggle >}}
 
-The following might be used as a partial within a [single page template][singletemplate]:
+And this front matter:
 
-{{< code file="layouts/partials/content-header.html" >}}
-<header>
-  <h1>{{ .Title }}</h1>
-  {{ with .Params.location }}
-    <div><a href="/locations/{{ . | urlize }}">{{ . }}</a></div>
-  {{ end }}
-  <!-- Creates a list of tags for the content and links to each of their pages -->
-  {{ with .Params.tags }}
-    <ul>
-      {{ range .}}
-        <li>
-          <a href="/tags/{{ . | urlize }}">{{ . }}</a>
-        </li>
-      {{ end }}
-    </ul>
-  {{ end }}
-</header>
-{{< /code >}}
+{{< code-toggle file=content/books/les-miserables.md fm=true >}}
+title = 'Les Misérables'
+authors = ['Victor Hugo']
+{{< /code-toggle >}}
 
-The preceding partial would then output to the rendered page as follows:
+The published site will have this structure:
 
-```html
-<header>
-  <h1>The World&#39;s Greatest City</h1>
-  <div><a href="/locations/chicago-il">Chicago IL</a></div>
-  <ul>
-    <li>
-      <a href="/tags/pizza">pizza</a>
-    </li>
-    <li>
-      <a href="/tags/beer">beer</a>
-    </li>
-    <li>
-      <a href="/tags/hot-dogs">hot dogs</a>
-    </li>
-  </ul>
-</header>
+```text
+public/
+├── authors/
+│   ├── victor-hugo/
+│   │   └── index.html
+│   └── index.html
+├── books/
+│   ├── les-miserables/
+│   │   └── index.html
+│   └── index.html
+└── index.html
 ```
 
-[singletemplate]: /templates/single-page-templates/
+To create a link to the term page:
+
+```go-html-template
+{{ $taxonomy := "authors" }}
+{{ $term := "Victor Hugo" }}
+{{ with index .Site.Taxonomies $taxonomy (urlize $term) }}
+  <a href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }}</a>
+{{ end }}
+```
+
+To generate a list of term pages associated with a given content page, use the [`GetTerms`] method on a `Page` object.
+
+[`GetTerms`]: /methods/page/getterms/
+[term]: /getting-started/glossary/#term

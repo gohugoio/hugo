@@ -2,7 +2,7 @@
 title: Host on KeyCDN
 description: "Accelerate your Hugo site globally with a KeyCDN integration. This tutorial shows you how to set up your static site as a GitLab page behind a KeyCDN pull zone."
 categories: [hosting and deployment]
-keywords: [keycdn,hosting,deployment,cdn]
+keywords: [hosting,keycdn]
 menu:
   docs:
     parent: hosting-and-deployment
@@ -58,8 +58,8 @@ pages:
     - public
     only:
     - master
-
 ```
+
 Using this integration method,  you will have to specify the Zone ID and your [KeyCDN API](https://www.keycdn.com/api) key as secret variables. To do this, navigate to the top-left menu bar in GitLab and select Projects. Then, select your project and click on the Settings page. Finally, select Pipelines from the sub-menu and scroll down to the Secret Variable section.
 
 The Secret Variable for your Zone ID should look similar to:
@@ -76,7 +76,7 @@ The Zone ID and API key are used to purge your zone – it’s not strictly need
 
 Now it’s time to push the newly created repository to GitLab:
 
-```bash
+```sh
 git remote add origin git@gitlab.com:youruser/ci-example.git
 git push -u origin master
 ```

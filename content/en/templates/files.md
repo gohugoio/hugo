@@ -8,8 +8,8 @@ menu:
     parent: templates
     weight: 180
 weight: 180
-aliases: [/extras/localfiles/,/templates/local-files/]
 toc: true
+aliases: [/extras/localfiles/,/templates/local-files/]
 ---
 
 ## Traverse local files

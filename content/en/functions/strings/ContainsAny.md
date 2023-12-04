@@ -1,21 +1,18 @@
 ---
 title: strings.ContainsAny
-description: Reports whether a string contains any character from a given string.
-categories: [functions]
+description: Reports whether the given string contains any character within the given set.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
+  related:
+    - functions/strings/Contains
+    - functions/strings/ContainsNonSpace
+    - functions/strings/HasPrefix
+    - functions/strings/HasSuffix
+    - functions/collections/In
   returnType: bool
-  signatures: [strings.ContainsAny STRING CHARACTERS]
-relatedFunctions:
-  - strings.Contains
-  - strings.ContainsAny
-  - strings.ContainsNonSpace
-  - strings.HasPrefix
-  - strings.HasSuffix
+  signatures: [strings.ContainsAny STRING SET]
 aliases: [/functions/strings.containsany]
 ---
 
@@ -23,7 +20,7 @@ aliases: [/functions/strings.containsany]
 {{ strings.ContainsAny "Hugo" "gm" }} → true
 ```
 
-The check is case sensitive: 
+The check is case sensitive:
 
 ```go-html-template
 {{ strings.ContainsAny "Hugo" "Gm" }} → false

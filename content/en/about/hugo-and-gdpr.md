@@ -2,15 +2,15 @@
 title: Hugo and the General Data Protection Regulation
 linkTitle: Hugo and the GDPR
 description: About how to configure your Hugo site to meet the new regulations.
-layout: single
+categories: [about]
 keywords: ["GDPR", "Privacy", "Data Protection"]
 menu:
   docs:
     parent: about
     weight: 60
 weight: 60
-aliases: [/privacy/,/gdpr/]
 toc: true
+aliases: [/privacy/,/gdpr/]
 ---
 
  General Data Protection Regulation ([GDPR](https://en.wikipedia.org/wiki/General_Data_Protection_Regulation)) is a regulation in EU law on data protection and privacy for all individuals within the European Union and the European Economic Area. It became enforceable on 25 May 2018.
@@ -29,7 +29,7 @@ toc: true
 
 Below are all privacy settings and their default value. These settings need to be put in your site configuration (e.g. `hugo.toml`).
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [privacy]
 [privacy.disqus]
 disable = false
@@ -58,7 +58,7 @@ privacyEnhanced = false
 
 An example privacy configuration that disables all the relevant services in Hugo. With this configuration, the other settings will not matter.
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [privacy]
 [privacy.disqus]
 disable = true
@@ -98,7 +98,7 @@ simple
 
 **Note:** If you use the _simple mode_ for Instagram and a site styled with Bootstrap 4, you may want to disable the inline styles provided by Hugo:
 
- {{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [services]
 [services.instagram]
 disableInlineCSS = true
@@ -114,7 +114,7 @@ simple
 
 **Note:** If you use the _simple mode_ for Twitter, you may want to disable the inline styles provided by Hugo:
 
- {{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [services]
 [services.twitter]
 disableInlineCSS = true

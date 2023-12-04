@@ -1,7 +1,7 @@
 ---
 title: Configure markup
 description: Configure rendering of markup to HTML.
-categories: [fundamentals, getting started]
+categories: [getting started,fundamentals]
 keywords: [configuration,highlighting]
 menu:
   docs:
@@ -16,7 +16,7 @@ toc: true
 
 By default, Hugo uses [Goldmark] to render markdown to HTML.
 
-{{< code-toggle file=hugo copy=false >}}
+{{< code-toggle file=hugo >}}
 [markup]
 defaultMarkdownHandler = 'goldmark'
 {{< /code-toggle >}}
@@ -54,9 +54,9 @@ Unless you need a unique capability provided by one of the alternate markdown ha
 
 This is the default configuration for the Goldmark markdown renderer:
 
-{{< code-toggle config="markup.goldmark" />}}
+{{< code-toggle config=markup.goldmark />}}
 
-For details on the extensions, refer to [this section](https://github.com/yuin/goldmark/#built-in-extensions) of the Goldmark documentation
+For details on the extensions, refer to the [Goldmark documentation](https://github.com/yuin/goldmark/#built-in-extensions).
 
 Some settings explained:
 
@@ -81,7 +81,6 @@ Markdown|Replaced by|Description
 `»`|`&raquo;`|right angle quote
 `”`|`&rdquo;`|right double quote
 `’`|`&rsquo;`|right single quote
-
 
 attribute
 : Enable custom attribute support for titles and blocks by adding attribute lists inside single curly brackets (`{.myclass class="class1 class2" }`) and placing it _after the Markdown element it decorates_, on the same line for titles and on a new line directly below for blocks.
@@ -120,13 +119,13 @@ Note that attributes in [code fences](/content-management/syntax-highlighting/#h
 ````
 
 autoHeadingIDType ("github")
-: The strategy used for creating auto IDs (anchor names). Available types are `github`, `github-ascii` and `blackfriday`. `github` produces GitHub-compatible IDs, `github-ascii` will drop any non-Ascii characters after accent normalization, and `blackfriday` will make the IDs compatible with Blackfriday, the default Markdown engine before Hugo 0.60. Note that if Goldmark is your default Markdown engine, this is also the strategy used in the [anchorize](/functions/urls/anchorize) template func.
+: The strategy used for creating auto IDs (anchor names). Available types are `github`, `github-ascii` and `blackfriday`. `github` produces GitHub-compatible IDs, `github-ascii` will drop any non-ASCII characters after accent normalization, and `blackfriday` will make the IDs compatible with Blackfriday, the default Markdown engine before Hugo 0.60. Note that if Goldmark is your default Markdown engine, this is also the strategy used in the [anchorize](/functions/urls/anchorize) template func.
 
 ## Asciidoc
 
 This is the default configuration for the AsciiDoc markdown renderer:
 
-{{< code-toggle config="markup.asciidocExt" />}}
+{{< code-toggle config=markup.asciidocExt />}}
 
 attributes
 : (`map`) Variables to be referenced in your AsciiDoc file. This is a list of variable name/value maps. See Asciidoctor’s [attributes].
@@ -190,7 +189,7 @@ INFO 2019/12/22 09:08:48 Rendering book-as-pdf.adoc with C:\Ruby26-x64\bin\ascii
 
 This is the default `highlight` configuration. Note that some of these settings can be set per code block, see [Syntax Highlighting](/content-management/syntax-highlighting/).
 
-{{< code-toggle config="markup.highlight" />}}
+{{< code-toggle config=markup.highlight />}}
 
 For `style`, see these galleries:
 
@@ -201,7 +200,7 @@ For CSS, see [Generate Syntax Highlighter CSS](/content-management/syntax-highli
 
 ## Table of contents
 
-{{< code-toggle config="markup.tableOfContents" />}}
+{{< code-toggle config=markup.tableOfContents />}}
 
 These settings only works for the Goldmark renderer:
 

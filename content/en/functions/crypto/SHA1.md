@@ -1,22 +1,17 @@
 ---
 title: crypto.SHA1
-linkTitle: sha1
-description: Hashes the given input and returns its SHA1 checksum.
-categories: [functions]
+description: Hashes the given input and returns its SHA1 checksum encoded to a hexadecimal string.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [sha1]
+  related:
+    - functions/crypto/FNV32a
+    - functions/crypto/HMAC
+    - functions/crypto/MD5
+    - functions/crypto/SHA256
   returnType: string
   signatures: [crypto.SHA1 INPUT]
-relatedFunctions:
-  - crypto.FNV32a
-  - crypto.HMAC
-  - crypto.MD5
-  - crypto.SHA1
-  - crypto.SHA256
 aliases: [/functions/sha,/functions/sha1]
 ---
 

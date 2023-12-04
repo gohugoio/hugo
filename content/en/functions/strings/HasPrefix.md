@@ -1,21 +1,18 @@
 ---
 title: strings.HasPrefix
-description: Reports whether a string begins with prefix.
-categories: [functions]
+description: Reports whether the given string begins with the given prefix.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [hasPrefix]
+  related:
+    - functions/strings/Contains
+    - functions/strings/ContainsAny
+    - functions/strings/ContainsNonSpace
+    - functions/strings/HasSuffix
+    - functions/collections/In
   returnType: bool
   signatures: [strings.HasPrefix STRING PREFIX]
-relatedFunctions:
-  - strings.Contains
-  - strings.ContainsAny
-  - strings.ContainsNonSpace
-  - strings.HasPrefix
-  - strings.HasSuffix
 aliases: [/functions/hasprefix,/functions/strings.hasprefix]
 ---
 

@@ -1,21 +1,17 @@
 ---
 title: os.Stat
 description: Returns a FileInfo structure describing a file or directory.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
-  returnType: FileInfo
+  related:
+    - functions/os/FileExists
+    - functions/os/Getenv
+    - functions/os/ReadDir
+    - functions/os/ReadFile
+  returnType: os.FileInfo
   signatures: [os.Stat PATH]
-relatedFunctions:
-  - os.FileExists
-  - os.Getenv
-  - os.ReadDir
-  - os.ReadFile
-  - os.Stat
 aliases: [/functions/os.stat]
 ---
 

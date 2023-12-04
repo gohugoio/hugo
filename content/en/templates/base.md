@@ -1,15 +1,15 @@
 ---
 title: Base templates and blocks
 description: The base and block constructs allow you to define the outer shell of your master templates (i.e., the chrome of the page).
-categories: [fundamentals,templates]
+categories: [templates,fundamentals]
 keywords: [blocks,base]
 menu:
   docs:
     parent: templates
     weight: 40
 weight: 40
-aliases: [/templates/blocks/,/templates/base-templates-and-blocks/]
 toc: true
+aliases: [/templates/blocks/,/templates/base-templates-and-blocks/]
 ---
 
 The `block` keyword allows you to define the outer shell of your pages' one or more master template(s) and then fill in or override portions as necessary.
@@ -26,7 +26,7 @@ See [Template Lookup Order](/templates/lookup-order/) for details and examples.
 
 The following defines a simple base template at `_default/baseof.html`. As a default template, it is the shell from which all your pages will be rendered unless you specify another `*baseof.html` closer to the beginning of the lookup order.
 
-{{< code file="layouts/_default/baseof.html" >}}
+{{< code file=layouts/_default/baseof.html >}}
 <!DOCTYPE html>
 <html>
   <head>
@@ -52,7 +52,7 @@ The following defines a simple base template at `_default/baseof.html`. As a def
 
 From the above base template, you can define a [default list template][hugolists]. The default list template will inherit all of the code defined above and can then implement its own `"main"` block from:
 
-{{< code file="layouts/_default/list.html" >}}
+{{< code file=layouts/_default/list.html >}}
 {{ define "main" }}
   <h1>Posts</h1>
   {{ range .Pages }}
@@ -80,7 +80,7 @@ Code that you put outside the block definitions *can* break your layout. This ev
 
 The following shows how you can override both the `"main"` and `"title"` block areas from the base template with code unique to your [default single page template][singletemplate]:
 
-{{< code file="layouts/_default/single.html" >}}
+{{< code file=layouts/_default/single.html >}}
 {{ define "title" }}
   <!-- This will override the default value set in baseof.html; i.e., "{{ .Site.Title }}" in the original example-->
   {{ .Title }} &ndash; {{ .Site.Title }}

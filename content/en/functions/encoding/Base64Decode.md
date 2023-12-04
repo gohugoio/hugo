@@ -1,24 +1,19 @@
 ---
 title: encoding.Base64Decode
-linkTitle: base64Decode
 description: Returns the base64 decoding of the given content.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [base64Decode]
+  related:
+    - functions/encoding/Base64Encode
   returnType: string
   signatures: [encoding.Base64Decode INPUT]
-signatures:
-  - 
-  - base64Decode INPUT
 aliases: [/functions/base64Decode]
 ---
 
 ```go-html-template
-{{ "SHVnbw==" | base64Decode }} → "Hugo"
+{{ "SHVnbw==" | base64Decode }} → Hugo
 ```
 
 Use the `base64Decode` function to decode responses from APIs. For example, the result of this call to GitHub's API contains the base64-encoded representation of the repository's README file:

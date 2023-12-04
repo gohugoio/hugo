@@ -21,17 +21,17 @@
 @import '_no-js';
 @import '_social-icons';
 @import '_stickyheader';
-
+@import '_right-sidebar';
 @import '_svg';
 @import '_chroma';
 @import '_variables';
+@import '_print';
+@import '_shame';
 
 .nested-blockquote blockquote {
   border-left: 4px solid var(--primary-color);
   padding-left: 1em;
-  /*margin: 0;*/
 }
-
 
 .mw-90 {
   max-width:90%;

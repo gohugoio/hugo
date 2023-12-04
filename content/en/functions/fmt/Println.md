@@ -1,23 +1,18 @@
 ---
 title: fmt.Println
-linkTitle: println
-description: Prints the default representation of the given argument using the standard `fmt.Print` function and enforces a linebreak.
-categories: [functions]
+description: Prints the default representation of the given argument using the standard `fmt.Print` function and enforces a line break.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [println]
+  related:
+    - functions/fmt/Print
+    - functions/fmt/Printf
   returnType: string
   signatures: [fmt.Println INPUT]
-relatedFunctions:
-  - fmt.Print
-  - fmt.Printf
-  - fmt.Println
 aliases: [/functions/println]
 ---
 
 ```go-html-template
-{{ println "foo" }} → "foo\n"
+{{ println "foo" }} → foo\n
 ```

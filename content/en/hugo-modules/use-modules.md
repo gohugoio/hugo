@@ -2,7 +2,7 @@
 title: Use Hugo Modules
 description: How to use Hugo Modules to build and manage your site.
 categories: [hugo modules]
-keywords: [install, themes, source, organization, directories,usage,modules]
+keywords: [modules,themes]
 menu:
   docs:
     parent: modules
@@ -20,7 +20,7 @@ toc: true
 
 Use `hugo mod init` to initialize a new Hugo Module. If it fails to guess the module path, you must provide it as an argument, e.g.:
 
-```bash
+```sh
 hugo mod init github.com/gohugoio/myShortcodes
 ```
 
@@ -33,7 +33,7 @@ The easiest way to use a Module for a theme is to import it in the configuration
 1. Initialize the hugo module system: `hugo mod init github.com/<your_user>/<your_project>`
 2. Import the theme:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [module]
   [[module.imports]]
     path = "github.com/spf13/hyde"
@@ -49,25 +49,25 @@ Some examples:
 
 ### Update all modules
 
-```bash
+```sh
 hugo mod get -u
 ```
 
 ### Update all modules recursively
 
-```bash
+```sh
 hugo mod get -u ./...
 ```
 
 ### Update one module
 
-```bash
+```sh
 hugo mod get -u github.com/gohugoio/myShortcodes
 ```
 
 ### Get a specific version
 
-```bash
+```sh
 hugo mod get github.com/gohugoio/myShortcodes@v1.0.7
 ```
 
@@ -77,7 +77,7 @@ Also see the [CLI Doc](/commands/hugo_mod_get/).
 
 One way to do local development of a module imported in a project is to add a replace directive to a local directory with the source in `go.mod`:
 
-```bash
+```sh
 replace github.com/bep/hugotestmods/mypartials => /Users/bep/hugotestmods/mypartials
 ```
 
@@ -101,7 +101,6 @@ github.com/bep/hugotestmods/mypartials@v1.0.7 github.com/bep/hugotestmods/myv2@v
 DISABLED github.com/bep/my-modular-site github.com/spf13/hyde@v0.0.0-20190427180251-e36f5799b396
 github.com/bep/my-modular-site github.com/bep/hugo-fresh@v1.0.1
 github.com/bep/my-modular-site in-themesdir
-
 ```
 
 Also see the [CLI Doc](/commands/hugo_mod_graph/).
@@ -134,7 +133,7 @@ Also see the [CLI Doc](/commands/hugo_mod_clean/).
 
 ## Module workspaces
 
-{{< new-in "0.109.0" >}}
+{{< new-in 0.109.0 >}}
 
 Workspace support was added in [Go 1.18](https://go.dev/blog/get-familiar-with-workspaces) and Hugo got solid support for it in the `v0.109.0` version.
 
@@ -155,7 +154,7 @@ Using the `use` directive, list all the modules you want to work on, pointing to
 
 With that you can start the Hugo server with that workspace enabled:
 
-```bash
+```sh
 HUGO_MODULE_WORKSPACE=hugo.work hugo server --ignoreVendorPaths "**"
 ```
 

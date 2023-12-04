@@ -1,19 +1,15 @@
 ---
 title: transform.CanHighlight
 description: Reports whether the given code language is supported by the Chroma highlighter.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
+  related:
+    - functions/transform/Highlight
+    - functions/transform/HighlightCodeBlock
   returnType: bool
   signatures: [transform.CanHighlight LANGUAGE]
-relatedFunctions:
-  - transform.CanHighlight
-  - transform.Highlight
-  - transform.HighlightCodeBlock
 ---
 
 ```go-html-template

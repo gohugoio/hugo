@@ -1,20 +1,16 @@
 ---
 title: collections.Seq
-linkTitle: seq
 description: Returns a slice of integers.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [seq]
   returnType: '[]int'
   signatures:
     - collections.Seq LAST
     - collections.Seq FIRST LAST
     - collections.Seq FIRST INCREMENT LAST
-relatedFunctions:
+related:
   - collections.Apply
   - collections.Delimit
   - collections.In
@@ -40,3 +36,11 @@ Iterate over a sequence of integers:
 {{ end }}
 {{ $product }} → 24
 ```
+
+The example above is contrived. To calculate the product of 2 or more numbers, use the [`math.Product`] function:
+
+```go-html-template
+{{ math.Product (seq 4) }} → 24
+```
+
+[`math.Product`]: /functions/math/product

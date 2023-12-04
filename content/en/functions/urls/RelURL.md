@@ -1,21 +1,16 @@
 ---
 title: urls.RelURL
-linkTitle: relURL
 description: Returns a relative URL.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [relURL]
-  returnType: template.HTML
+  related:
+    - functions/urls/AbsLangURL
+    - functions/urls/AbsURL 
+    - functions/urls/RelLangURL
+  returnType: string
   signatures: [urls.RelURL INPUT]
-relatedFunctions:
-  - urls.AbsLangURL
-  - urls.AbsURL 
-  - urls.RelLangURL
-  - urls.RelURL
 aliases: [/functions/relurl]
 ---
 

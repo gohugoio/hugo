@@ -1,20 +1,15 @@
 ---
 title: cast.ToString
-linkTitle: string
-description: Cast a value to a string.
-categories: [functions]
+description: Converts a value to a string.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [string]
+  related:
+    - functions/cast/ToFloat
+    - functions/cast/ToInt
   returnType: string
   signatures: [cast.ToString INPUT]
-relatedFunctions:
-  - cast.ToFloat
-  - cast.ToInt
-  - cast.ToString
 aliases: [/functions/string]
 ---
 

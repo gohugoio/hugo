@@ -2,7 +2,7 @@
 title: Configure Hugo modules
 description: This page describes the configuration options for a module.
 categories: [hugo modules]
-keywords: [themes, source, organization, directories]
+keywords: [modules,themes]
 menu:
   docs:
     parent: modules
@@ -13,7 +13,7 @@ toc: true
 
 ## Module configuration: top level
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [module]
 noVendor = ""
 proxy = "direct"
@@ -56,7 +56,7 @@ env HUGO_MODULE_PROXY=https://proxy.example.org hugo
 
 If your module requires a particular version of Hugo to work, you can indicate that in the `module` section and the user will be warned if using a too old/new version.
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [module]
 [module.hugoVersion]
   min = ""
@@ -78,7 +78,7 @@ extended
 
 ## Module configuration: imports
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [module]
 [[module.imports]]
   path = "github.com/gohugoio/hugoTestModules1_linux/modh1_2_1v"
@@ -120,7 +120,7 @@ When you add a mount, the default mount for the concerned target root is ignored
 {{% /note %}}
 
 **Default mounts**
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [module]
 [[module.mounts]]
     source="content"
@@ -165,7 +165,7 @@ excludeFiles (string or slice)
 : One or more glob patterns matching files to exclude.
 
 **Example**
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [module]
 [[module.mounts]]
     source="content"

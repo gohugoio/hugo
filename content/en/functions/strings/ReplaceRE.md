@@ -1,42 +1,34 @@
 ---
 title: strings.ReplaceRE
-linkTitle: replaceRE
-description: Returns a string, replacing all occurrences of a regular expression with a replacement pattern.
-categories: [functions]
+description: Returns a copy of INPUT, replacing all occurrences of a regular expression with a replacement pattern.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [replaceRE]
+  related:
+    - functions/strings/FindRE
+    - functions/strings/FindRESubmatch
+    - functions/strings/Replace
   returnType: string
   signatures: ['strings.ReplaceRE PATTERN REPLACEMENT INPUT [LIMIT]']
-relatedFunctions:
-  - strings.FindRE
-  - strings.FindRESubmatch
-  - strings.Replace
-  - strings.ReplaceRE
 aliases: [/functions/replacere]
 ---
-By default, `replaceRE` replaces all matches. You can limit the number of matches with an optional LIMIT argument.
 
-{{% readfile file="/functions/_common/regular-expressions.md" %}}
-
-This example replaces two or more consecutive hyphens with a single hyphen:
+{{% include "functions/_common/regular-expressions.md" %}}
 
 ```go-html-template
 {{ $s := "a-b--c---d" }}
 {{ replaceRE `(-{2,})` "-" $s }} → a-b-c-d
 ```
 
-To limit the number of replacements to one:
+Limit the number of replacements using the LIMIT argument:
 
 ```go-html-template
 {{ $s := "a-b--c---d" }}
 {{ replaceRE `(-{2,})` "-" $s 1 }} → a-b-c---d
 ```
 
-You can use `$1`, `$2`, etc. within the replacement string to insert the groups captured within the regular expression:
+Use `$1`, `$2`, etc. within the replacement string to insert the content of each capturing group within the regular expression:
 
 ```go-html-template
 {{ $s := "http://gohugo.io/docs" }}

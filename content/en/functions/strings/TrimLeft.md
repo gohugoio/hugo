@@ -1,33 +1,28 @@
 ---
 title: strings.TrimLeft
-description: Returns a slice of a given string with all leading characters contained in the cutset removed.
-categories: [functions]
+description: Returns the given string, removing leading characters specified in the cutset.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
+  related:
+    - functions/strings/Chomp
+    - functions/strings/Trim
+    - functions/strings/TrimPrefix
+    - functions/strings/TrimRight
+    - functions/strings/TrimSuffix
   returnType: string
   signatures: [strings.TrimLeft CUTSET STRING]
-relatedFunctions:
-  - strings.Chomp
-  - strings.Trim
-  - strings.TrimLeft
-  - strings.TrimPrefix
-  - strings.TrimRight
-  - strings.TrimSuffix
 aliases: [/functions/strings.trimleft]
 ---
 
-Given the string `"abba"`, leading `"a"`'s can be removed a follows:
-
 ```go-html-template
-{{ strings.TrimLeft "a" "abba" }} → "bba"
+{{ strings.TrimLeft "a" "abba" }} → bba
 ```
 
-Numbers can be handled as well:
+The `strings.TrimLeft` function converts the arguments to strings if possible:
 
 ```go-html-template
-{{ strings.TrimLeft 12 1221341221 }} → "341221"
+{{ strings.TrimLeft 21 12345 }} → 345 (string)
+{{ strings.TrimLeft "rt" true }} → ue
 ```
