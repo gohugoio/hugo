@@ -53,7 +53,6 @@ getEnv=["a", "b"]
 		c.Assert(pc.Exec.OsEnv.Accept("e"), qt.IsFalse)
 		c.Assert(pc.Funcs.Getenv.Accept("a"), qt.IsTrue)
 		c.Assert(pc.Funcs.Getenv.Accept("c"), qt.IsFalse)
-
 	})
 
 	c.Run("String whitelist", func(c *qt.C) {
@@ -80,7 +79,6 @@ osEnv="b"
 		c.Assert(pc.Exec.Allow.Accept("d"), qt.IsFalse)
 		c.Assert(pc.Exec.OsEnv.Accept("b"), qt.IsTrue)
 		c.Assert(pc.Exec.OsEnv.Accept("e"), qt.IsFalse)
-
 	})
 
 	c.Run("Default exec.osEnv", func(c *qt.C) {
@@ -105,7 +103,6 @@ allow="a"
 		c.Assert(pc.Exec.Allow.Accept("a"), qt.IsTrue)
 		c.Assert(pc.Exec.OsEnv.Accept("PATH"), qt.IsTrue)
 		c.Assert(pc.Exec.OsEnv.Accept("e"), qt.IsFalse)
-
 	})
 
 	c.Run("Enable inline shortcodes, legacy", func(c *qt.C) {
@@ -129,9 +126,7 @@ osEnv="b"
 		pc, err := DecodeConfig(cfg)
 		c.Assert(err, qt.IsNil)
 		c.Assert(pc.EnableInlineShortcodes, qt.IsTrue)
-
 	})
-
 }
 
 func TestToTOML(t *testing.T) {
@@ -140,7 +135,7 @@ func TestToTOML(t *testing.T) {
 	got := DefaultConfig.ToTOML()
 
 	c.Assert(got, qt.Equals,
-		"[security]\n  enableInlineShortcodes = false\n\n  [security.exec]\n    allow = ['^(dart-)?sass(-embedded)?$', '^go$', '^npx$', '^postcss$']\n    osEnv = ['(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG)$']\n\n  [security.funcs]\n    getenv = ['^HUGO_', '^CI$']\n\n  [security.goTemplates]\n    AllowActionJSTmpl = false\n\n  [security.http]\n    methods = ['(?i)GET|POST']\n    urls = ['.*']",
+		"[security]\n  enableInlineShortcodes = false\n\n  [security.exec]\n    allow = ['^(dart-)?sass(-embedded)?$', '^go$', '^npx$', '^postcss$']\n    osEnv = ['(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG)$']\n\n  [security.funcs]\n    getenv = ['^HUGO_', '^CI$']\n\n  [security.http]\n    methods = ['(?i)GET|POST']\n    urls = ['.*']",
 	)
 }
 
@@ -169,5 +164,4 @@ func TestDecodeConfigDefault(t *testing.T) {
 	c.Assert(pc.Exec.OsEnv.Accept("a"), qt.IsFalse)
 	c.Assert(pc.Exec.OsEnv.Accept("e"), qt.IsFalse)
 	c.Assert(pc.Exec.OsEnv.Accept("MYSECRET"), qt.IsFalse)
-
 }

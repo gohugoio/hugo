@@ -7,6 +7,8 @@
 package testenv
 
 import (
+	"errors"
+	"io/fs"
 	"os"
 )
 
@@ -15,6 +17,5 @@ import (
 var Sigquit = os.Kill
 
 func syscallIsNotSupported(err error) bool {
-	// Removed by Hugo (not supported in Go 1.20).
-	return false
+	return errors.Is(err, fs.ErrPermission)
 }

@@ -114,7 +114,6 @@ and2: true
 or2: true
 counter2: 3
 `)
-
 }
 
 // Issue 10495
@@ -163,7 +162,6 @@ title: "S3P1"
 }
 
 func TestGoTemplateBugs(t *testing.T) {
-
 	t.Run("Issue 11112", func(t *testing.T) {
 		t.Parallel()
 
@@ -188,11 +186,9 @@ func TestGoTemplateBugs(t *testing.T) {
 
 		b.AssertFileContent("public/index.html", `key = value`)
 	})
-
 }
 
 func TestSecurityAllowActionJSTmpl(t *testing.T) {
-
 	filesTemplate := `
 -- config.toml --
 SECURITYCONFIG
@@ -211,20 +207,6 @@ var a = §§{{.Title }}§§;
 		},
 	).BuildE()
 
-	b.Assert(err, qt.Not(qt.IsNil))
-	b.Assert(err.Error(), qt.Contains, "{{.Title}} appears in a JS template literal")
-
-	files = strings.ReplaceAll(filesTemplate, "SECURITYCONFIG", `
-[security]
-[security.gotemplates]
-allowActionJSTmpl = true		
-`)
-
-	b = hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
-
+	// This used to fail, but not in >= Hugo 0.121.0.
+	b.Assert(err, qt.IsNil)
 }
