@@ -105,6 +105,16 @@ sudo dnf install hugo
 [Fedora]: https://getfedora.org/
 [Red Hat Enterprise Linux]: https://www.redhat.com/
 
+### Gentoo
+
+Builds from source using Portage package manager. Customize how it builds (stardard or extended edition) easily with [USE flags] :
+
+```sh
+sudo emerge www-apps/hugo
+```
+
+[USE flags]: https://wiki.gentoo.org/wiki/USE_flag
+
 ### openSUSE
 
 Derivatives of the [openSUSE] distribution of Linux include [GeckoLinux], [Linux Karmada], and others. This will install the extended edition of Hugo:
