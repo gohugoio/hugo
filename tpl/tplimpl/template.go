@@ -751,7 +751,7 @@ func (t *templateHandler) applyTemplateTransformers(ns *templateNamespace, ts *t
 	return c, err
 }
 
-//go:embed embedded/templates/*
+//go:embed all:embedded/templates/*
 //go:embed embedded/templates/_default/*
 //go:embed embedded/templates/_server/*
 var embeddedTemplatesFs embed.FS
@@ -779,7 +779,7 @@ func (t *templateHandler) loadEmbedded() error {
 		// For the render hooks and the server templates it does not make sense to preserve the
 		// double _internal double book-keeping,
 		// just add it if its now provided by the user.
-		if !strings.Contains(path, "_default/_markup") && !strings.HasPrefix(name, "_server/") {
+		if !strings.Contains(path, "_default/_markup") && !strings.HasPrefix(name, "_server/") && !strings.HasPrefix(name, "partials/_funcs/") {
 			templateName = internalPathPrefix + name
 		}
 

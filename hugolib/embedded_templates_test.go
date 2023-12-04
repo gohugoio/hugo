@@ -36,9 +36,9 @@ lastmod: 2021-05-22T19:25:00-01:00
 ---
 `)
 
-	b.WithContent("mypage.md", `---
+	b.WithContent("mypage/index.md", `---
 title: My Page
-images: ["pageimg1.jpg", "pageimg2.jpg"]
+images: ["pageimg1.jpg", "pageimg2.jpg", "https://example.local/logo.png", "sample.jpg"]
 date: 2021-02-26T18:02:00+01:00
 lastmod: 2021-05-22T19:25:00+01:00
 ---
@@ -58,37 +58,42 @@ title: My Site
 `)
 
 	b.WithSunset("content/mybundle/featured-sunset.jpg")
+	b.WithSunset("content/mypage/sample.jpg")
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent("public/mybundle/index.html", `
-<meta name="twitter:image" content="https://example.org/mybundle/featured-sunset.jpg"/>
+<meta name="twitter:image" content="https://example.org/mybundle/featured-sunset.jpg" />
 <meta name="twitter:title" content="My Bundle"/>
 <meta property="og:title" content="My Bundle" />
 <meta property="og:url" content="https://example.org/mybundle/" />
-<meta property="og:image" content="https://example.org/mybundle/featured-sunset.jpg"/>
+<meta property="og:image" content="https://example.org/mybundle/featured-sunset.jpg" />
 <meta property="article:published_time" content="2021-02-26T18:02:00-01:00" />
 <meta property="article:modified_time" content="2021-05-22T19:25:00-01:00" />
 <meta itemprop="name" content="My Bundle">
-<meta itemprop="image" content="https://example.org/mybundle/featured-sunset.jpg">
+<meta itemprop="image" content="https://example.org/mybundle/featured-sunset.jpg" />
 <meta itemprop="datePublished" content="2021-02-26T18:02:00-01:00" />
 <meta itemprop="dateModified" content="2021-05-22T19:25:00-01:00" />
 
 `)
 	b.AssertFileContent("public/mypage/index.html", `
-<meta name="twitter:image" content="https://example.org/pageimg1.jpg"/>
+<meta name="twitter:image" content="https://example.org/pageimg1.jpg" />
 <meta property="og:image" content="https://example.org/pageimg1.jpg" />
 <meta property="og:image" content="https://example.org/pageimg2.jpg" />
+<meta property="og:image" content="https://example.local/logo.png" />
+<meta property="og:image" content="https://example.org/mypage/sample.jpg" />
 <meta property="article:published_time" content="2021-02-26T18:02:00+01:00" />
 <meta property="article:modified_time" content="2021-05-22T19:25:00+01:00" />
-<meta itemprop="image" content="https://example.org/pageimg1.jpg">
-<meta itemprop="image" content="https://example.org/pageimg2.jpg">
+<meta itemprop="image" content="https://example.org/pageimg1.jpg" />
+<meta itemprop="image" content="https://example.org/pageimg2.jpg" />
+<meta itemprop="image" content="https://example.local/logo.png" />
+<meta itemprop="image" content="https://example.org/mypage/sample.jpg" />
 <meta itemprop="datePublished" content="2021-02-26T18:02:00+01:00" />
 <meta itemprop="dateModified" content="2021-05-22T19:25:00+01:00" />
 `)
 	b.AssertFileContent("public/mysite/index.html", `
-<meta name="twitter:image" content="https://example.org/siteimg1.jpg"/>
-<meta property="og:image" content="https://example.org/siteimg1.jpg"/>
-<meta itemprop="image" content="https://example.org/siteimg1.jpg"/>
+<meta name="twitter:image" content="https://example.org/siteimg1.jpg" />
+<meta property="og:image" content="https://example.org/siteimg1.jpg" />
+<meta itemprop="image" content="https://example.org/siteimg1.jpg" />
 `)
 }
 
