@@ -824,6 +824,8 @@ chroma:
   - Aliases:
     - typoscripthtmldata
     Name: TypoScriptHtmlData
+  - Aliases: null
+    Name: ucode
   - Aliases:
     - v
     - vlang
@@ -1254,6 +1256,9 @@ config:
         keepEndTags: true
         keepQuotes: false
         keepWhitespace: false
+        templateDelims:
+        - ""
+        - ""
       js:
         keepVarNames: false
         precision: 0
@@ -1563,8 +1568,6 @@ config:
       getenv:
       - ^HUGO_
       - ^CI$
-    goTemplates:
-      allowActionJSTmpl: false
     http:
       mediaTypes: null
       methods:
@@ -2741,6 +2744,21 @@ tpl:
             map[string]interface {}{
               "Hugo": "Rocks!",
             }
+      TestDeprecationErr:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      TestDeprecationInfo:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      TestDeprecationWarn:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       Timer:
         Aliases: null
         Args: null
@@ -4364,6 +4382,16 @@ tpl:
         - - '{{ "hello = \"Hello World\"" | resources.FromString "data/greetings.toml"
             | transform.Unmarshal }}'
           - map[hello:Hello World]
+      XMLEscape:
+        Aliases: null
+        Args:
+        - s
+        Description: |-
+          XMLEscape returns the given string, removing disallowed characters then
+          escaping the result to its XML equivalent.
+        Examples:
+        - - '{{ transform.XMLEscape "<p>abc</p>" }}'
+          - '&lt;p&gt;abc&lt;/p&gt;'
     urls:
       AbsLangURL:
         Aliases:
