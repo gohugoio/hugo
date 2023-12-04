@@ -9,6 +9,7 @@ menu:
     parent: templates
     weight: 130
 weight: 130
+aliases: [/functions/get]
 toc: true
 ---
 
@@ -28,7 +29,7 @@ Hugo's built-in shortcodes cover many common, but not all, use cases. Luckily, H
 
 To create a shortcode, place an HTML template in the `layouts/shortcodes` directory of your [source organization]. Consider the file name carefully since the shortcode name will mirror that of the file but without the `.html` extension. For example, `layouts/shortcodes/myshortcode.html` will be called with either `{{</* myshortcode /*/>}}` or `{{%/* myshortcode /*/%}}`.
 
-You can organize your shortcodes in subfolders, e.g. in `layouts/shortcodes/boxes`. These shortcodes would then be accessible with their relative path, e.g:
+You can organize your shortcodes in subdirectories, e.g. in `layouts/shortcodes/boxes`. These shortcodes would then be accessible with their relative path, e.g:
 
 ```go-html-template
 {{</* boxes/square */>}}
@@ -117,13 +118,13 @@ Any shortcode that refers to `.Inner` must be closed or self-closed.
 
 The `.Params` variable in shortcodes contains the list parameters passed to shortcode for more complicated use cases. You can also access higher-scoped parameters with the following logic:
 
-`$.Params`
+$.Params
 : these are the parameters passed directly into the shortcode declaration (e.g., a YouTube video ID)
 
-`$.Page.Params`
+$.Page.Params
 : refers to the page's parameters; the "page" in this case refers to the content file in which the shortcode is declared (e.g., a `shortcode_color` field in a content's front matter could be accessed via `$.Page.Params.shortcode_color`).
 
-`$.Page.Site.Params`
+$.Page.Site.Params
 : refers to global variables as defined in your [site's configuration file][config].
 
 #### `.IsNamedParams`
@@ -172,7 +173,7 @@ Let's assume you would like to keep mentions of your copyright year current in y
 {{</* year */>}}
 ```
 
-{{< code file="/layouts/shortcodes/year.html" >}}
+{{< code file=layouts/shortcodes/year.html >}}
 {{ now.Format "2006" }}
 {{< /code >}}
 
@@ -186,14 +187,14 @@ Embedded videos are a common addition to Markdown content that can quickly becom
 
 Would load the template at `/layouts/shortcodes/youtube.html`:
 
-{{< code file="/layouts/shortcodes/youtube.html" >}}
+{{< code file=layouts/shortcodes/youtube.html >}}
 <div class="embed video-player">
 <iframe class="youtube-player" type="text/html" width="640" height="385" src="https://www.youtube.com/embed/{{ index .Params 0 }}" allowfullscreen frameborder="0">
 </iframe>
 </div>
 {{< /code >}}
 
-{{< code file="youtube-embed.html" copy=false >}}
+{{< code file=youtube-embed.html >}}
 <div class="embed video-player">
     <iframe class="youtube-player" type="text/html"
         width="640" height="385"
@@ -207,13 +208,13 @@ Would load the template at `/layouts/shortcodes/youtube.html`:
 
 Let's say you want to create your own `img` shortcode rather than use Hugo's built-in [`figure` shortcode][figure]. Your goal is to be able to call the shortcode as follows in your content files:
 
-{{< code file="content-image.md" >}}
+{{< code file=content-image.md >}}
 {{</* img src="/media/spf13.jpg" title="Steve Francia" */>}}
 {{< /code >}}
 
 You have created the shortcode at `/layouts/shortcodes/img.html`, which loads the following shortcode template:
 
-{{< code file="/layouts/shortcodes/img.html" >}}
+{{< code file=layouts/shortcodes/img.html >}}
 <!-- image -->
 <figure {{ with .Get "class" }}class="{{ . }}"{{ end }}>
   {{ with .Get "link" }}<a href="{{ . }}">{{ end }}
@@ -236,7 +237,7 @@ You have created the shortcode at `/layouts/shortcodes/img.html`, which loads th
 
 Would be rendered as:
 
-{{< code file="img-output.html" copy=false >}}
+{{< code file=img-output.html >}}
 <figure>
   <img src="/media/spf13.jpg"  />
   <figcaption>
@@ -254,7 +255,7 @@ Would be rendered as:
 
 Would load the template found at `/layouts/shortcodes/vimeo.html`:
 
-{{< code file="/layouts/shortcodes/vimeo.html" >}}
+{{< code file=layouts/shortcodes/vimeo.html >}}
 {{ if .IsNamedParams }}
   <div class="{{ if .Get "class" }}{{ .Get "class" }}{{ else }}vimeo-container{{ end }}">
     <iframe src="https://player.vimeo.com/video/{{ .Get "id" }}" allowfullscreen></iframe>
@@ -268,7 +269,7 @@ Would load the template found at `/layouts/shortcodes/vimeo.html`:
 
 Would be rendered as:
 
-{{< code file="vimeo-iframes.html" copy=false >}}
+{{< code file=vimeo-iframes.html >}}
 <div class="vimeo-container">
   <iframe src="https://player.vimeo.com/video/49718712" allowfullscreen></iframe>
 </div>
@@ -281,7 +282,7 @@ Would be rendered as:
 
 The following is taken from `highlight`, which is a [built-in shortcode] that ships with Hugo.
 
-{{< code file="highlight-example.md" >}}
+{{< code file=highlight-example.md >}}
 {{</* highlight html */>}}
   <html>
     <body> This HTML </body>
@@ -297,7 +298,7 @@ The template for the `highlight` shortcode uses the following code, which is alr
 
 The rendered output of the HTML example code block will be as follows:
 
-{{< code file="syntax-highlighted.html" copy=false >}}
+{{< code file=syntax-highlighted.html >}}
 <div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span style="color: #f92672">&lt;html&gt;</span>
     <span style="color: #f92672">&lt;body&gt;</span> This HTML <span style="color: #f92672">&lt;/body&gt;</span>
 <span style="color: #f92672">&lt;/html&gt;</span>
@@ -310,7 +311,7 @@ Hugo's [`.Parent` shortcode variable][parent] provides access to the parent shor
 
 The following example is contrived but demonstrates the concept. Assume you have a `gallery` shortcode that expects one named `class` parameter:
 
-{{< code file="layouts/shortcodes/gallery.html" >}}
+{{< code file=layouts/shortcodes/gallery.html >}}
 <div class="{{ .Get "class" }}">
   {{ .Inner }}
 </div>
@@ -318,7 +319,7 @@ The following example is contrived but demonstrates the concept. Assume you have
 
 You also have an `img` shortcode with a single named `src` parameter that you want to call inside of `gallery` and other shortcodes, so that the parent defines the context of each `img`:
 
-{{< code file="layouts/shortcodes/img.html" >}}
+{{< code file=layouts/shortcodes/img.html >}}
 {{- $src := .Get "src" -}}
 {{- with .Parent -}}
   <img src="{{ $src }}" class="{{ .Get "class" }}-image">
@@ -349,9 +350,9 @@ This will output the following HTML. Note how the first two `img` shortcodes inh
 
 ## Error handling in shortcodes
 
-Use the [errorf](/functions/fmt/errorf) template func and [.Position](/variables/shortcodes/) variable to get useful error messages in shortcodes:
+Use the [errorf](/functions/fmt/errorf) template func and [.Position](/variables/shortcode/) variable to get useful error messages in shortcodes:
 
-```bash
+```sh
 {{ with .Get "name" }}
 {{ else }}
 {{ errorf "missing value for parameter 'name': %s" .Position }}
@@ -360,13 +361,9 @@ Use the [errorf](/functions/fmt/errorf) template func and [.Position](/variables
 
 When the above fails, you will see an `ERROR` log similar to the below:
 
-```bash
+```sh
 ERROR 2018/11/07 10:05:55 missing value for parameter name: "/Users/bep/dev/go/gohugoio/hugo/docs/content/en/variables/shortcodes.md:32:1"
 ```
-
-## More shortcode examples
-
-More shortcode examples can be found in the [shortcodes directory for spf13.com][spfscs] and the [shortcodes directory for the Hugo docs][docsshortcodes].
 
 ## Inline shortcodes
 
@@ -374,7 +371,7 @@ You can also implement your shortcodes inline -- e.g. where you use them in the 
 
 This feature is disabled by default, but can be enabled in your site configuration:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 enableInlineShortcodes = true
 {{< /code-toggle >}}
 
@@ -382,7 +379,7 @@ It is disabled by default for security reasons. The security model used by Hugo'
 
 And once enabled, you can do this in your content files:
 
- ```go-text-template
+ ```go-html-template
  {{</* time.inline */>}}{{ now }}{{</* /time.inline */>}}
  ```
 
@@ -394,7 +391,7 @@ This means that the current page can be accessed via `.Page.Title` etc. This als
 
 The same inline shortcode can be reused later in the same content file, with different parameters if needed, using the self-closing syntax:
 
- ```go-text-template
+ ```go-html-template
 {{</* time.inline /*/>}}
 ```
 
@@ -408,8 +405,8 @@ The same inline shortcode can be reused later in the same content file, with dif
 [hugosc]: /content-management/shortcodes/#using-hugo-s-built-in-shortcodes
 [lookup order]: /templates/lookup-order/
 [pagevars]: /variables/page/
-[parent]: /variables/shortcodes/
-[shortcodesvars]: /variables/shortcodes/
+[parent]: /variables/shortcode/
+[shortcodesvars]: /variables/shortcode/
 [spfscs]: https://github.com/spf13/spf13.com/tree/master/layouts/shortcodes
 [vimeoexample]: #single-flexible-example-vimeo
 [youtubeshortcode]: /content-management/shortcodes/#youtube

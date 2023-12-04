@@ -1,26 +1,21 @@
 ---
 title: strings.FindRE
-linkTitle: findRE
 description: Returns a slice of strings that match the regular expression.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [findRE]
+  related:
+    - functions/strings/FindRESubmatch
+    - functions/strings/Replace
+    - functions/strings/ReplaceRE
   returnType: string
   signatures: ['strings.FindRE PATTERN INPUT [LIMIT]']
-relatedFunctions:
-  - strings.FindRE
-  - strings.FindRESubmatch
-  - strings.Replace
-  - strings.ReplaceRE
 aliases: [/functions/findre]
 ---
 By default, `findRE` finds all matches. You can limit the number of matches with an optional LIMIT argument.
 
-{{% readfile file="/functions/_common/regular-expressions.md" %}}
+{{% include "functions/_common/regular-expressions.md" %}}
 
 This example returns a slice of all second level headings (`h2` elements) within the rendered `.Content`:
 

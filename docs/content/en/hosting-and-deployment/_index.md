@@ -2,7 +2,7 @@
 title: Hosting and deployment
 linkTitle: Overview
 description: Site builds, automated deployments, and popular hosting solutions.
-categories: [hosting and deployment]
+categories: []
 keywords: []
 menu:
   docs:

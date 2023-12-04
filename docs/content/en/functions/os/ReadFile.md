@@ -1,22 +1,17 @@
 ---
 title: os.ReadFile
-linkTitle: readFile
 description: Returns the contents of a file.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [readFile]
+  related:
+    - functions/os/FileExists
+    - functions/os/Getenv
+    - functions/os/ReadDir
+    - functions/os/Stat
   returnType: string
   signatures: [os.ReadFile PATH]
-relatedFunctions:
-  - os.FileExists
-  - os.Getenv
-  - os.ReadDir
-  - os.ReadFile
-  - os.Stat
 aliases: [/functions/readfile]
 ---
 
@@ -31,7 +26,7 @@ This is **bold** text.
 This template code:
 
 ```go-html-template
-{{ os.ReadFile "README.md" }}
+{{ readFile "README.md" }}
 ```
 
 Produces:

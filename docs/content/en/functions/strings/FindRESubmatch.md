@@ -1,27 +1,22 @@
 ---
 title: strings.FindRESubmatch
-linkTitle: findRESubmatch
 description: Returns a slice of all successive matches of the regular expression. Each element is a slice of strings holding the text of the leftmost match of the regular expression and the matches, if any, of its subexpressions.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [findRESubmatch]
+  related:
+    - functions/strings/FindRE
+    - functions/strings/Replace
+    - functions/strings/ReplaceRE
   returnType: '[]string'
   signatures: ['strings.FindRESubmatch PATTERN INPUT [LIMIT]']
-relatedFunctions:
-  - strings.FindRE
-  - strings.FindRESubmatch
-  - strings.Replace
-  - strings.ReplaceRE
 aliases: [/functions/findresubmatch]
 ---
 
 By default, `findRESubmatch` finds all matches. You can limit the number of matches with an optional LIMIT argument. A return value of nil indicates no match.
 
-{{% readfile file="/functions/_common/regular-expressions.md" %}}
+{{% include "functions/_common/regular-expressions.md" %}}
 
 ## Demonstrative examples
 

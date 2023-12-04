@@ -2,12 +2,12 @@
 title: Deploy with Rsync
 description: If you have access to your web host with SSH, you can use a simple rsync one-liner to incrementally deploy your entire Hugo website.
 categories: [hosting and deployment]
-keywords: [rsync,deployment]
+keywords: [deployment,rsync]
 menu:
   docs:
     parent: hosting-and-deployment
-aliases: [/tutorials/deployment-with-rsync/]
 toc: true
+aliases: [/tutorials/deployment-with-rsync/]
 ---
 
 ## Assumptions
@@ -30,7 +30,7 @@ To make logging in to your server more secure and less interactive, you can uplo
 
 First, install the ssh client. On Debian distributions, use the following command:
 
-{{< code file="install-openssh.sh" >}}
+{{< code file=install-openssh.sh >}}
 sudo apt-get install openssh-client
 {{< /code >}}
 
@@ -85,7 +85,7 @@ Create a new script called `deploy` the root of your Hugo tree:
 
 Add the following content. Replace the `USER`, `HOST`, and `DIR` values with your own values:
 
-```bash
+```sh
 #!/bin/sh
 USER=my-user
 HOST=my-server.com
@@ -136,4 +136,4 @@ sent 9,550 bytes  received 1,708 bytes  7,505.33 bytes/sec
 total size is 966,557  speedup is 85.86
 ```
 
-You can incorporate other proprocessing tasks into this deployment script as well.
+You can incorporate other processing tasks into this deployment script as well.

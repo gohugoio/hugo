@@ -1,23 +1,18 @@
 ---
 title: inflect.Pluralize
-linkTitle: pluralize
-description: Pluralizes the given word according to a set of common English pluralization rules
-categories: [functions]
+description: Pluralizes the given word according to a set of common English pluralization rules.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [pluralize]
+  related:
+    - functions/inflect/Humanize
+    - functions/inflect/Singularize
   returnType: string
   signatures: [inflect.Pluralize INPUT]
-relatedFunctions:
-  - inflect.Humanize
-  - inflect.Pluralize
-  - inflect.Singularize
 aliases: [/functions/pluralize]
 ---
 
 ```go-html-template
-{{ "cat" | pluralize }} → "cats"
+{{ "cat" | pluralize }} → cats
 ```

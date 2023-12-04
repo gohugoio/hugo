@@ -1,27 +1,26 @@
 ---
 title: strings.ContainsNonSpace
-description: Reports whether a string contains any non-space characters as defined by Unicode’s White Space property.
-categories: [functions]
+description: Reports whether the given string contains any non-space characters as defined by Unicode’s White Space property.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
+  related:
+    - functions/strings/Contains
+    - functions/strings/ContainsAny
+    - functions/strings/HasPrefix
+    - functions/strings/HasSuffix
+    - functions/collections/In
   returnType: bool
   signatures: [strings.ContainsNonSpace STRING]
-relatedFunctions:
-  - strings.Contains
-  - strings.ContainsAny
-  - strings.ContainsNonSpace
-  - strings.HasPrefix
-  - strings.HasSuffix
 aliases: [/functions/strings.containsnonspace]
 ---
 
+{{< new-in 0.111.0 >}}
+
 ```go-html-template
-{{ strings.ContainsNonSpace "\n" }}     → false
-{{ strings.ContainsNonSpace " " }}      → false
+{{ strings.ContainsNonSpace "\n" }} → false
+{{ strings.ContainsNonSpace " " }} → false
 {{ strings.ContainsNonSpace "\n abc" }} → true
 ```
 

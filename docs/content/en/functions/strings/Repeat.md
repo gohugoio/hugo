@@ -1,20 +1,16 @@
 ---
 title: strings.Repeat
 description: Returns a new string consisting of zero or more copies of another string.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
+  related: []
   returnType: string
   signatures: [strings.Repeat COUNT INPUT]
-relatedFunctions: []
 aliases: [/functions/strings.repeat]
 ---
 
 ```go-html-template
-{{ strings.Repeat 3 "yo" }} → "yoyoyo"
-{{ "yo" | strings.Repeat 3 }} → "yoyoyo"
+{{ strings.Repeat 3 "yo" }} → yoyoyo
 ```

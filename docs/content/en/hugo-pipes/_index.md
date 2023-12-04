@@ -1,7 +1,7 @@
 ---
 title: Hugo Pipes
 linkTitle: Overview
-categories: [asset management]
+categories: []
 keywords: []
 menu:
   docs:

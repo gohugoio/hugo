@@ -2,16 +2,16 @@
 title: Hugo Modules
 linkTitle: Overview
 description: How to use Hugo Modules.
+categories: []
+keywords: []
 menu:
   docs:
     identifier: hugo-modules-overview
     parent: modules
     weight: 10
 weight: 10
-categories: [hugo modules]
-keywords: [themes,modules]
-aliases: [/themes/overview/,/themes/]
 toc: true
+aliases: [/themes/overview/,/themes/]
 ---
 
 **Hugo Modules** are the core building blocks in Hugo. A _module_ can be your main project or a smaller module providing one or more of the 7 component types defined in Hugo: **static**, **content**, **layouts**, **data**, **assets**, **i18n**, and **archetypes**.

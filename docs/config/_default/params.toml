@@ -22,3 +22,6 @@ flex_box_interior_classes = "flex-auto w-100 w-40-l mr3 mb3 bg-white ba b--moon-
 
 [social]
 twitter = "GoHugoIO"
+
+[render_hooks.link]
+errorLevel = 'warning' # ignore (default), warning, or error (fails the build)

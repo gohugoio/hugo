@@ -1,15 +1,15 @@
 ---
 title: Archetypes
 description: An archetype is a template for new content.
-keywords: [archetypes,generators,metadata,front matter]
 categories: [content management]
+keywords: [archetypes,generators,metadata,front matter]
 menu:
   docs:
     parent: content-management
     weight: 140
   quicklinks:
-toc: true
 weight: 140
+toc: true
 aliases: [/content/archetypes/]
 ---
 
@@ -19,7 +19,7 @@ A content file consists of [front matter] and markup. The markup is typically ma
 
 The `hugo new content` command creates a new file in the `content` directory, using an archetype as a template. This is the default archetype:
 
-{{< code-toggle file="archetypes/default.md" copy=false fm=true >}}
+{{< code-toggle file=archetypes/default.md fm=true >}}
 title = '{{ replace .File.ContentBaseName `-` ` ` | title }}'
 date = '{{ .Date }}'
 draft = true
@@ -27,13 +27,13 @@ draft = true
 
 When you create new content, Hugo evaluates the [template actions] within the archetype. For example:
 
-```text
+```sh
 hugo new content posts/my-first-post.md
 ```
 
 With the default archetype shown above, Hugo creates this content file:
 
-{{< code-toggle file="content/posts/my-first-post.md" copy=false fm=true >}}
+{{< code-toggle file=content/posts/my-first-post.md fm=true >}}
 title = 'My First Post'
 date = '2023-08-24T11:49:46-07:00'
 draft = true
@@ -53,7 +53,7 @@ Hugo looks for archetypes in the `archetypes` directory in the root of your proj
 
 For example, with this command:
 
-```text
+```sh
 hugo new content posts/my-first-post.md
 ```
 
@@ -75,7 +75,7 @@ Archetypes receive the following objects and values in [context]:
 - `.Date`
 - `.Type`
 - `.Site` (see [details](/variables/site/))
-- `.File` (see [details](/variables/files/))
+- `.File` (see [details](/variables/file/))
 
 As shown above, the default archetype passes `.File.ContentBaseName` as the argument to the `replace` function when populating the title in front matter.
 
@@ -85,8 +85,7 @@ Although typically used as a front matter template, you can also use an archetyp
 
 For example, in a documentation site you might have a section (content type) for functions. Every page within this section should follow the same format: a brief description, the function signature, examples, and notes. We can pre-populate the page to remind content authors of the standard format.
 
-
-{{< code file="archetypes/functions.md" copy=false >}}
+{{< code file=archetypes/functions.md >}}
 ---
 date: '{{ .Date }}'
 draft: true
@@ -125,17 +124,17 @@ Create an archetype for galleries:
 ```text
 archetypes/
 ├── galleries/
-│   ├── images/
-│   │   └── .gitkeep
-│   └── index.md      <-- same format as default.md
+│   ├── images/
+│   │   └── .gitkeep
+│   └── index.md      <-- same format as default.md
 └── default.md
 ```
 
 Subdirectories within an archetype must contain at least one file. Without a file, Hugo will not create the subdirectory when you create new content. The name and size of the file are irrelevant. The example above includes a&nbsp;`.gitkeep` file, an empty file commonly used to preserve otherwise empty directories in a Git repository.
 
-
 To create a new gallery:
-```text
+
+```sh
 hugo new galleries/bryce-canyon
 ```
 
@@ -166,13 +165,13 @@ archetypes/
 
 To create an article using the articles archetype:
 
-```text
+```sh
 hugo new content articles/something.md
 ```
 
 To create an article using the tutorials archetype:
 
-```text
+```sh
 hugo new content --kind tutorials articles/something.md
 ```
 

@@ -1,3 +1,7 @@
+---
+# Do not remove front matter.
+---
+
 ## Build from source
 
 To build the extended edition of Hugo from source you must:

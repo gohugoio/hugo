@@ -2,26 +2,27 @@
 title: macOS
 description: Install Hugo on macOS.
 categories: [installation]
+keywords: []
 menu:
   docs:
     parent: installation
     weight: 20
-toc: true
 weight: 20
+toc: true
 ---
-{{% readfile file="/installation/_common/01-editions.md" %}}
+{{% include "installation/_common/01-editions.md" %}}
 
-{{% readfile file="/installation/_common/02-prerequisites.md" %}}
+{{% include "installation/_common/02-prerequisites.md" %}}
 
-{{% readfile file="/installation/_common/03-prebuilt-binaries.md" %}}
+{{% include "installation/_common/03-prebuilt-binaries.md" %}}
 
 ## Package managers
 
-{{% readfile file="/installation/_common/homebrew.md" %}}
+{{% include "installation/_common/homebrew.md" %}}
 
 ### MacPorts
 
-[MacPorts] is a free and open source package manager for macOS. This will install the extended edition of Hugo:
+[MacPorts] is a free and open-source package manager for macOS. This will install the extended edition of Hugo:
 
 ```sh
 sudo port install hugo
@@ -29,7 +30,7 @@ sudo port install hugo
 
 [MacPorts]: https://www.macports.org/
 
-{{% readfile file="/installation/_common/04-build-from-source.md" %}}
+{{% include "installation/_common/04-build-from-source.md" %}}
 
 ## Comparison
 

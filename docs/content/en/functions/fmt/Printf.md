@@ -1,26 +1,19 @@
 ---
 title: fmt.Printf
-linkTitle: printf
 description: Formats a string using the standard `fmt.Sprintf` function.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [printf]
+  related:
+    - functions/fmt/Print
+    - functions/fmt/Println
   returnType: string
   signatures: ['fmt.Printf FORMAT [INPUT]']
-relatedFunctions:
-  - fmt.Print
-  - fmt.Printf
-  - fmt.Println
 aliases: [/functions/printf]
 ---
 
-The documentation for [Go's fmt package] describes the structure and content of the format string.
-
-[Go's fmt package]: https://pkg.go.dev/fmt
+{{% include "functions/fmt/_common/fmt-layout.md" %}}
 
 ```go-html-template
 {{ $var := "world" }}

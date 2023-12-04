@@ -1,30 +1,37 @@
 ---
 title: time.ParseDuration
-description: Parses a given duration string into a `time.Duration` structure.
-categories: [functions]
+description: Returns a time.Duration value by parsing the given duration string.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
+  related:
+    - functions/time/AsTime
+    - functions/time/Duration
+    - functions/time/Format
+    - functions/time/Now
   returnType: time.Duration
   signatures: [time.ParseDuration DURATION]
-relatedFunctions:
-  - time.AsTime
-  - time.Duration
-  - time.Format
-  - time.Now
-  - time.ParseDuration
 aliases: [/functions/time.parseduration]
 ---
 
-`time.ParseDuration` parses a duration string into a [`time.Duration`](https://pkg.go.dev/time#Duration) structure so you can access its fields.
+The `time.ParseDuration` function returns a time.Duration value that you can use with any of the `Duration` [methods].
+
+
 A duration string is a possibly signed sequence of decimal numbers, each with optional fraction and a unit suffix, such as `300ms`, `-1.5h` or `2h45m`. Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`.
 
-You can perform [time operations](https://pkg.go.dev/time#Duration) on the returned `time.Duration` value:
+This template:
 
 ```go-html-template
-{{ printf "There are %.0f seconds in one day." (time.ParseDuration "24h").Seconds }}
-<!-- Output: There are 86400 seconds in one day. -->
+{{ $duration := time.ParseDuration "24h" }}
+{{ printf "There are %.0f seconds in one day." $duration.Seconds }}
 ```
+
+Is rendered to:
+
+```text
+There are 86400 seconds in one day.
+```
+
+[`time.Duration`]: https://pkg.go.dev/time#Duration
+[methods]: /methods/duration

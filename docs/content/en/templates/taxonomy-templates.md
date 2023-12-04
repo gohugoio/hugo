@@ -8,12 +8,9 @@ menu:
     parent: templates
     weight: 90
 weight: 90
-aliases: [/taxonomies/displaying/,/templates/terms/,/indexes/displaying/,/taxonomies/templates/,/indexes/ordering/, /templates/taxonomies/, /templates/taxonomy/]
 toc: true
+aliases: [/taxonomies/displaying/,/templates/terms/,/indexes/displaying/,/taxonomies/templates/,/indexes/ordering/, /templates/taxonomies/, /templates/taxonomy/]
 ---
-
-<!-- NOTE! Check on https://github.com/gohugoio/hugo/issues/2826 for shifting of terms' pages to .Data.Pages AND
-https://discourse.gohugo.io/t/how-to-specify-category-slug/4856/15 for original discussion.-->
 
 Hugo includes support for user-defined groupings of content called **taxonomies**. Taxonomies are classifications that demonstrate logical relationships between content. See [Taxonomies under Content Management](/content-management/taxonomies) if you are unfamiliar with how Hugo leverages this powerful feature.
 
@@ -111,14 +108,12 @@ If you need to display custom metadata for each taxonomy term, you will need to 
 <ul>
   {{ range .Pages }}
     <li>
-      <a href="{{ .Permalink }}">{{ .Title }}</a>
+      <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
       {{ .Params.wikipedia }}
     </li>
   {{ end }}
 </ul>
 ```
-
-<!-- Begin /taxonomies/ordering/ -->
 
 ## Order taxonomies
 
@@ -133,8 +128,6 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
   {{ end }}
 </ul>
 ```
-
-<!-- [See Also Taxonomy Lists](/templates/list/) -->
 
 ## Order content within taxonomies
 
@@ -152,7 +145,7 @@ Weights of zero are thus treated specially: if two pages have unequal weights, a
 
 Content can be assigned weight for each taxonomy that it's assigned to.
 
-{{< code-toggle file="content/example.md" fm=true copy=false >}}
+{{< code-toggle file=content/example.md fm=true >}}
 tags = [ "a", "b", "c" ]
 tags_weight = 22
 categories = ["d"]
@@ -170,8 +163,6 @@ With this the same piece of content can appear in different positions in differe
 
 Currently taxonomies only support the default ordering of content which is weight -> date.
 
-<!-- Begin /taxonomies/templates/ -->
-
 There are two different templates that the use of taxonomies will require you to provide.
 
 Both templates are covered in detail in the templates section.
@@ -180,8 +171,6 @@ A [list template](/templates/lists/) is any template that will be used to render
 
 A [taxonomy template](/templates/taxonomy-templates/) is a template used to
 generate the list of terms for a given template.
-
-<!-- Begin /taxonomies/displaying/ -->
 
 There are four common ways you can display the data in your
 taxonomies in addition to the automatic taxonomy pages created by hugo
@@ -253,7 +242,7 @@ This would be very useful in a sidebar as “featured content”. You could even
       <li>{{ $key }}</li>
       <ul>
         {{ range $taxonomy.Pages }}
-          <li hugo-nav="{{ .RelPermalink }}"><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
+          <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
         {{ end }}
       </ul>
     {{ end }}
@@ -283,7 +272,7 @@ The following example displays all terms in a site's tags taxonomy:
 
 This example will list all taxonomies and their terms, as well as all the content assigned to each of the terms.
 
-{{< code file="layouts/partials/all-taxonomies.html" >}}
+{{< code file=layouts/partials/all-taxonomies.html >}}
 <ul>
   {{ range $taxonomy, $terms := site.Taxonomies }}
     <li>
@@ -311,19 +300,18 @@ This example will list all taxonomies and their terms, as well as all the conten
 
 Because taxonomies are lists, the [`.GetPage` function][getpage] can be used to get all the pages associated with a particular taxonomy term using a terse syntax. The following ranges over the full list of tags on your site and links to each of the individual taxonomy pages for each term without having to use the more fragile URL construction of the ["List All Site Tags" example above](#example-list-all-site-tags):
 
-{{< code file="links-to-all-tags.html" >}}
+{{< code file=links-to-all-tags.html >}}
 {{ $taxo := "tags" }}
 <ul class="{{ $taxo }}">
   {{ with ($.Site.GetPage (printf "/%s" $taxo)) }}
     {{ range .Pages }}
-      <li><a href="{{ .Permalink }}">{{ .Title }}</a></li>
+      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
     {{ end }}
   {{ end }}
 </ul>
 {{< /code >}}
 
-[delimit]: /functions/collections/delimit/
-[getpage]: /functions/getpage/
+[getpage]: /methods/page/getpage
 [lists]: /templates/lists/
 [renderlists]: /templates/lists/
 [single page template]: /templates/single-page-templates/

@@ -1,31 +1,37 @@
 ---
 title: urls.Anchorize
-linkTitle: anchorize
-description: Takes a string and sanitizes it the same way as the [`defaultMarkdownHandler`](/getting-started/configuration-markup#default-configuration) does for markdown headers.
-categories: [functions]
+description: Returns the given string, sanitized for usage in an HTML id attribute.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [anchorize]
+  related:
+    - functions/urls/URLize
   returnType: string
   signatures: [urls.Anchorize INPUT]
-relatedFunctions:
-  - urls.Anchorize
-  - urls.URLize
 aliases: [/functions/anchorize]
 ---
 
-If [Goldmark](/getting-started/configuration-markup#goldmark) is set as `defaultMarkdownHandler`, the sanitizing logic adheres to the setting [`markup.goldmark.parser.autoHeadingIDType`](/getting-started/configuration-markup#goldmark).
+{{% include "/functions/urls/_common/anchorize-vs-urlize.md" %}}
 
-Since the `defaultMarkdownHandler` and this template function use the same sanitizing logic, you can use the latter to determine the ID of a header for linking with anchor tags.
+## Sanitizing logic
 
-```go-html-template
-{{ anchorize "This is a header" }} → "this-is-a-header"
-{{ anchorize "This is also    a header" }} → "this-is-also----a-header"
-{{ anchorize "main.go" }} → "maingo"
-{{ anchorize "Article 123" }} → "article-123"
-{{ anchorize "<- Let's try this, shall we?" }} → "--lets-try-this-shall-we"
-{{ anchorize "Hello, 世界" }} → "hello-世界"
-```
+With the default markdown renderer, Goldmark, the sanitizing logic is controlled by your site configuration:
+
+{{< code-toggle file=hugo >}}
+[markup.goldmark.parser]
+autoHeadingIDType = 'github'
+{{< /code-toggle >}}
+
+This controls the behavior of the `anchorize` function and the generation of heading IDs when rendering markdown to HTML.
+
+Set `autoHeadingIDType` to one of:
+
+github
+: Compatible with GitHub. This is the default, and strongly recommended.
+
+github-ascii
+: Similar to the "github" setting, but removes non-ASCII characters. 
+
+blackfriday
+: Provided for backwards compatibility with Hugo v0.59.1 and earlier. This option will be removed in a future release.

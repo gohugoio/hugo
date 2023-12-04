@@ -1,43 +1,34 @@
 ---
 title: path.Split
-description: Split path immediately following the final slash.
-categories: [functions]
+description: Replaces path separators with slashes (`/`) and splits the resulting path immediately following the final slash, separating it into a directory and file name component. 
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
-  returnType: DirFile
+  related:
+    - functions/path/Base
+    - functions/path/BaseName
+    - functions/path/Clean
+    - functions/path/Dir
+    - functions/path/Ext
+    - functions/path/Join
+  returnType: paths.DirFile
   signatures: [path.Split PATH]
-relatedFunctions:
-  - path.Base
-  - path.BaseName
-  - path.Clean
-  - path.Dir
-  - path.Ext
-  - path.Join
-  - path.Split
 aliases: [/functions/path.split]
 ---
 
-`path.Split` splits `PATH` immediately following the final slash, separating it into a directory and a base component.
-
-The returned values have the property that `PATH` = `DIR`+`BASE`.
-If there is no slash in `PATH`, it returns an empty directory and the base is set to `PATH`.
-
-**Note:** On Windows, `PATH` is converted to slash (`/`) separators.
+If there is no slash in the given path, `path.Split` returns an empty directory, and file set to path. The returned values have the property that path = dir+file.
 
 ```go-html-template
 {{ $dirFile := path.Split "a/news.html" }}
-{{ $dirFile.Dir }} → "a/" 
-{{ $dirFile.File }} → "news.html"
+{{ $dirFile.Dir }} → a/
+{{ $dirFile.File }} → news.html
 
 {{ $dirFile := path.Split "news.html" }}
-{{ $dirFile.Dir }} → ""
-{{ $dirFile.File }} → "news.html"
+{{ $dirFile.Dir }} → "" (empty string)
+{{ $dirFile.File }} → news.html
 
 {{ $dirFile := path.Split "a/b/c" }}
-{{ $dirFile.Dir }} → "a/b/"
-{{ $dirFile.File }} → "c"
+{{ $dirFile.Dir }} → a/b/
+{{ $dirFile.File }} → c
 ```

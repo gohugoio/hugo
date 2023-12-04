@@ -8,24 +8,22 @@ menu:
     parent: templates
     weight: 150
 weight: 150
-aliases: [/extras/datafiles/,/extras/datadrivencontent/,/doc/datafiles/]
 toc: true
+aliases: [/extras/datafiles/,/extras/datadrivencontent/,/doc/datafiles/]
 ---
-
-<!-- begin data files -->
 
 Hugo supports loading data from YAML, JSON, XML, and TOML files located in the `data` directory at the root of your Hugo project.
 
 {{< youtube FyPgSuwIMWQ >}}
 
-## The data folder
+## The data directory
 
-The `data` folder should store additional data for Hugo to use when generating your site.
+The `data` directory should store additional data for Hugo to use when generating your site.
 
 Data files are not for generating standalone pages. They should supplement content files by:
 
-- extending the content when the front matter fields grow out of control, or
-- showing a larger dataset in a template (see the example below).
+- Extending the content when the front matter fields grow out of control, or
+- Showing a larger dataset in a template (see the example below).
 
 In both cases, it's a good idea to outsource the data in their (own) files.
 
@@ -58,7 +56,9 @@ The keys in the map created with data templates from data files will be a dot-ch
 
 This is best explained with an example:
 
-## Example: Jaco Pastorius' Solo Discography
+## Examples
+
+### Jaco Pastorius' Solo Discography
 
 [Jaco Pastorius](https://en.wikipedia.org/wiki/Jaco_Pastorius_discography) was a great bass player, but his solo discography is short enough to use as an example. [John Patitucci](https://en.wikipedia.org/wiki/John_Patitucci) is another bass giant.
 
@@ -69,7 +69,7 @@ The example below is a bit contrived, but it illustrates the flexibility of data
 
 `jacopastorius.toml` contains the content below. `johnpatitucci.toml` contains a similar list:
 
-{{< code-toggle file="jacopastorius" >}}
+{{< code-toggle file=data/jazz/bass/jacopastorius >}}
 discography = [
 "1974 - Modern American Music … Period! The Criteria Sessions",
 "1974 - Jaco",
@@ -95,7 +95,7 @@ You can now render the list of recordings for all the bass players in a template
 
 ```go-html-template
 {{ range $.Site.Data.jazz.bass }}
-   {{ partial "artist.html" . }}
+  {{ partial "artist.html" . }}
 {{ end }}
 ```
 
@@ -111,11 +111,11 @@ And then in the `partials/artist.html`:
 
 Discover a new favorite bass player? Just add another `.toml` file in the same directory.
 
-## Example: accessing named values in a data file
+### Accessing named values in a data file
 
-Assume you have the following data structure in your `User0123.[yml|toml|xml|json]` data file located directly in `data/`:
+Assume you have the following data structure in your `user0123` data file located directly in `data/`:
 
-{{< code-toggle file="User0123" >}}
+{{< code-toggle file=data/user0123 >}}
 Name: User0123
 "Short Description": "He is a **jolly good** fellow."
 Achievements:
@@ -132,109 +132,19 @@ You can use the following code to render the `Short Description` in your layout:
 
 Note the use of the [`markdownify`] function. This will send the description through the Markdown rendering engine.
 
-## Get remote data
+## Remote data
 
-Use `getJSON` or `getCSV` to get remote data:
+Retrieve remote data using these template functions:
 
-```go-html-template
-{{ $dataJ := getJSON "url" }}
-{{ $dataC := getCSV "separator" "url" }}
-```
-
-If you use a prefix or postfix for the URL, the functions accept [variadic arguments][variadic]:
-
-```go-html-template
-{{ $dataJ := getJSON "url prefix" "arg1" "arg2" "arg n" }}
-{{ $dataC := getCSV  "separator" "url prefix" "arg1" "arg2" "arg n" }}
-```
-
-The separator for `getCSV` must be put in the first position and can only be one character long.
-
-All passed arguments will be joined to the final URL:
-
-```go-html-template
-{{ $urlPre := "https://api.github.com" }}
-{{ $gistJ := getJSON $urlPre "/users/GITHUB_USERNAME/gists" }}
-```
-
-This will resolve internally to the following:
-
-```go-html-template
-{{ $gistJ := getJSON "https://api.github.com/users/GITHUB_USERNAME/gists" }}
-```
-
-### Add HTTP headers
-
-Both `getJSON` and `getCSV` takes an optional map as the last argument, e.g.:
-
-```go-html-template
-{{ $data := getJSON "https://example.org/api" (dict "Authorization" "Bearer abcd") }}
-```
-
-If you need multiple values for the same header key, use a slice:
-
-```go-html-template
-{{ $data := getJSON "https://example.org/api" (dict "X-List" (slice "a" "b" "c")) }}
-```
-
-### Example for CSV files
-
-For `getCSV`, the one-character-long separator must be placed in the first position followed by the URL. The following is an example of creating an HTML table in a [partial template][partials] from a published CSV:
-
-{{< code file="layouts/partials/get-csv.html" >}}
-  <table>
-    <thead>
-      <tr>
-      <th>Name</th>
-      <th>Position</th>
-      <th>Salary</th>
-      </tr>
-    </thead>
-    <tbody>
-    {{ $url := "https://example.com/finance/employee-salaries.csv" }}
-    {{ $sep := "," }}
-    {{ range $i, $r := getCSV $sep $url }}
-      <tr>
-        <td>{{ index $r 0 }}</td>
-        <td>{{ index $r 1 }}</td>
-        <td>{{ index $r 2 }}</td>
-      </tr>
-    {{ end }}
-    </tbody>
-  </table>
-{{< /code >}}
-
-The expression `{{ index $r number }}` must be used to output the nth-column from the current row.
-
-### Cache URLs
-
-Each downloaded URL will be cached in the default folder `$TMPDIR/hugo_cache_$USER/`. The variable `$TMPDIR` will be resolved to your system-dependent temporary directory.
-
-With the command-line flag `--cacheDir`, you can specify any folder on your system as a caching directory.
-
-You can also set `cacheDir` in the [main configuration file][config].
-
-If you don't like caching at all, you can fully disable caching with the command-line flag `--ignoreCache`.
-
-### Authentication when using REST URLs
-
-Currently, you can only use those authentication methods that can be put into an URL. [OAuth] and other authentication methods are not implemented.
-
-## Load local files
-
-To load local files with `getJSON` and `getCSV`, the source files must reside within Hugo's working directory. The file extension does not matter, but the content does.
-
-It applies the same output logic as above in [Get Remote Data](#get-remote-data).
-
-{{% note %}}
-The local CSV files to be loaded using `getCSV` must be located **outside** the `data` directory.
-{{% /note %}}
+- [`resources.GetRemote`](/functions/resources/getremote) (recommended)
+- [`data.GetCSV`](/functions/data/getcsv)
+- [`data.GetJSON`](/functions/data/getjson)
 
 ## LiveReload with data files
 
 There is no chance to trigger a [LiveReload] when the content of a URL changes. However, when a *local* file changes (i.e., `data/*` and `themes/<THEME>/data/*`), a LiveReload will be triggered. Symlinks are not supported. Note too that because downloading data takes a while, Hugo stops processing your Markdown files until the data download has been completed.
 
-{{% warning "URL Data and LiveReload" %}}
+{{% note %}}
 If you change any local file and the LiveReload is triggered, Hugo will read the data-driven (URL) content from the cache. If you have disabled the cache (i.e., by running the server with `hugo server --ignoreCache`), Hugo will re-download the content every time LiveReload triggers. This can create *huge* traffic. You may reach API limits quickly.
 {{% /note %}}
 

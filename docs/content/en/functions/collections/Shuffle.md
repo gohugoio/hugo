@@ -1,18 +1,13 @@
 ---
 title: collections.Shuffle
-linkTitle: shuffle
 description: Returns a random permutation of a given array or slice.
-keywords: [ordering]
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [shuffle]
   returnType: any
   signatures: [collections.Shuffle COLLECTION]
-relatedFunctions:
+related:
   - collections.Reverse
   - collections.Shuffle
   - collections.Sort

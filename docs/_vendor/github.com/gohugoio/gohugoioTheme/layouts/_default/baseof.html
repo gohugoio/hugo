@@ -95,7 +95,7 @@
     {{- partial "opengraph/twitter_cards.html" . -}}
 
     {{ if hugo.IsProduction }}
-      {{ partial "gtag" . }}
+      {{ partial "gtag.html" . }}
     {{ end }}
 
   </head>
@@ -104,7 +104,7 @@
     class="ma0 sans-serif bg-primary-color-light{{ with getenv "HUGO_ENV" }}
       {{ . }}
     {{ end }}">
-    {{ partial "hooks/after-body-start" . }}
+    {{ partial "hooks/after-body-start.html" . }}
     {{ block "nav" . }}{{ partial "site-nav.html" . }}{{ end }}
     {{ block "header" . }}{{ end }}
     <main role="main" class="content-with-sidebar min-vh-100 pb7 pb0-ns">
@@ -113,7 +113,7 @@
 
     {{ block "footer" . }}{{ partialCached "site-footer.html" . }}{{ end }}
 
-    {{ partial "hooks/before-body-end" . }}
+    {{ partial "hooks/before-body-end.html" . }}
 
   </body>
 </html>

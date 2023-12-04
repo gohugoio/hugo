@@ -7,8 +7,8 @@ menu:
   docs:
     parent: content-management
     weight: 80
-toc: true
 weight: 80
+toc: true
 ---
 Page resources are only accessible from [page bundles](/content-management/page-bundles), those directories with `index.md` or
 `_index.md` files at their root. Page resources are only available to the
@@ -112,7 +112,6 @@ GetMatch
 .Resources.Match "*" 🚫
 .Resources.Match "sunset.jpg" 🚫
 .Resources.Match "*sunset.jpg" 🚫
-
 ```
 
 ## Page resources metadata
@@ -138,7 +137,7 @@ params
 
 ### Resources metadata example
 
-{{< code-toggle copy=false >}}
+{{< code-toggle >}}
 title: Application
 date : 2018-01-25
 resources :
@@ -184,7 +183,8 @@ The counter starts at 1 the first time they are used in either `name` or `title`
 
 For example, if a bundle has the resources `photo_specs.pdf`, `other_specs.pdf`, `guide.pdf` and `checklist.pdf`, and the front matter has specified the `resources` as:
 
-{{< code-toggle copy=false >}}
+{{< code-toggle file=content/inspections/engine/index.md fm=true >}}
+title = 'Engine inspections'
 [[resources]]
   src = "*specs.pdf"
   title = "Specification #:counter"

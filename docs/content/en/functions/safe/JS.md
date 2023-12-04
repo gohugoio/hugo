@@ -1,23 +1,18 @@
 ---
 title: safe.JS
-linkTitle: safeJS
-description: Declares the provided string as a known safe JavaScript string.
-categories: [functions]
+description: Declares the given string as a safe JavaScript expression.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [safeJS]
+  related:
+    - functions/safe/CSS
+    - functions/safe/HTML
+    - functions/safe/HTMLAttr
+    - functions/safe/JSStr
+    - functions/safe/URL
   returnType: template.JS
   signatures: [safe.JS INPUT]
-relatedFunctions:
-  - safe.CSS
-  - safe.HTML
-  - safe.HTMLAttr
-  - safe.JS
-  - safe.JSStr
-  - safe.URL
 aliases: [/functions/safejs]
 ---
 
@@ -27,5 +22,5 @@ Template authors are responsible for ensuring that typed expressions do not brea
 
 Example: Given `hash = "619c16f"` defined in the front matter of your `.md` file:
 
-* <span class="good">`<script>var form_{{ .Params.hash | safeJS }};…</script>` &rarr; `<script>var form_619c16f;…</script>`</span>
-* <span class="bad">`<script>var form_{{ .Params.hash }};…</script>` &rarr; `<script>var form_"619c16f";…</script>`</span>
+* `<script>var form_{{ .Params.hash | safeJS }};…</script>` &rarr; `<script>var form_619c16f;…</script>`
+* `<script>var form_{{ .Params.hash }};…</script>` &rarr; `<script>var form_"619c16f";…</script>`

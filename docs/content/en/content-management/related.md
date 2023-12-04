@@ -7,8 +7,8 @@ menu:
   docs:
     parent: content-management
     weight: 110
-toc: true
 weight: 110
+toc: true
 aliases: [/content/related/,/related/]
 ---
 
@@ -18,13 +18,13 @@ Hugo uses a set of factors to identify a page's related content based on front m
 
 To list up to 5 related pages (which share the same _date_ or _keyword_ parameters) is as simple as including something similar to this partial in your single page template:
 
-{{< code file="layouts/partials/related.html" >}}
+{{< code file=layouts/partials/related.html >}}
 {{ $related := .Site.RegularPages.Related . | first 5 }}
 {{ with $related }}
 <h3>See Also</h3>
 <ul>
  {{ range . }}
- <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+ <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
  {{ end }}
 </ul>
 {{ end }}
@@ -33,22 +33,25 @@ To list up to 5 related pages (which share the same _date_ or _keyword_ paramete
 The `Related` method takes one argument which may be a `Page` or a options map. The options map have these options:
 
 indices
-: The indices to search in.
+: (`slice`) The indices to search within.
 
 document
-: The document to search for related content for.
+: (`page`) The page for which to find related content. Required when specifying an options map.
 
 namedSlices
-: The keywords to search for.
+: (`slice`) The keywords to search for, expressed as a slice of `KeyValues` using the [`keyVals`] function.
 
 fragments
-: Fragments holds a a list of special keywords that is used for indices configured as type "fragments". This will match the fragment identifiers of the documents.
+: (`slice`) A list of special keywords that is used for indices configured as type "fragments". This will match the [fragment] identifiers of the documents.
+
+[fragment]: /getting-started/glossary/#fragment
+[`keyVals`]: /functions/collections/keyvals/
 
 A fictional example using all of the above options:
 
 ```go-html-template
 {{ $page := . }}
-{{ $opts := 
+{{ $opts := dict
   "indices" (slice "tags" "keywords")
   "document" $page
   "namedSlices" (slice (keyVals "tags" "hugo" "rocks") (keyVals "date" $page.Date))
@@ -57,16 +60,16 @@ A fictional example using all of the above options:
 ```
 
 {{% note %}}
-We improved and simplified this feature in Hugo 0.111.0. Before this we had 3 different methods: `Related`, `RelatedTo` and `RelatedIndicies`. Now we have only one method: `Related`. The old methods are still available but deprecated. Also see [this blog article](https://regisphilibert.com/blog/2018/04/hugo-optmized-relashionships-with-related-content/) for a great explanation of more advanced usage of this feature.
+We improved and simplified this feature in Hugo 0.111.0. Before this we had 3 different methods: `Related`, `RelatedTo` and `RelatedIndices`. Now we have only one method: `Related`. The old methods are still available but deprecated. Also see [this blog article](https://regisphilibert.com/blog/2018/04/hugo-optmized-relashionships-with-related-content/) for a great explanation of more advanced usage of this feature.
 {{% /note %}}
 
 ## Index content headings in related content
 
-{{< new-in "0.111.0" >}}
+{{< new-in 0.111.0 >}}
 
 Hugo can index the headings in your content and use this to find related content. You can enable this by adding a index of type `fragments` to your `related` configuration:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 [related]
 threshold    = 20
 includeNewer = true
@@ -74,7 +77,7 @@ toLower      = false
 [[related.indices]]
 name        = "fragmentrefs"
 type        = "fragments"
-applyFilter = false
+applyFilter = true
 weight      = 80
 {{< /code-toggle >}}
 
@@ -88,7 +91,7 @@ weight      = 80
   <ul>
     {{ range $i, $p := . }}
       <li>
-        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
         {{ with .HeadingsFiltered }}
           <ul>
             {{ range . }}
@@ -113,7 +116,7 @@ Hugo provides a sensible default configuration of Related Content, but you can f
 
 Without any `related` configuration set on the project, Hugo's Related Content methods will use the following.
 
-{{< code-toggle config="related" />}}
+{{< code-toggle config=related />}}
 
 Custom configuration should be set using the same syntax.
 
@@ -124,37 +127,36 @@ If you add a `related` configuration section, you need to add a complete configu
 ### Top level configuration options
 
 threshold
-:  A value between 0-100. Lower value will give more, but maybe not so relevant, matches.
+: (`int`) A value between 0-100. Lower value will give more, but maybe not so relevant, matches.
 
 includeNewer
-:  Set to true to include **pages newer than the current page** in the related content listing. This will mean that the output for older posts may change as new related content gets added.
+: (`bool`) Set to `true` to include **pages newer than the current page** in the related content listing. This will mean that the output for older posts may change as new related content gets added.
 
 toLower
-: Set to true to lower case keywords in both the indexes and the queries. This may give more accurate results at a slight performance penalty. Note that this can also be set per index.
+: (`bool`) Set to `true` to lower case keywords in both the indexes and the queries. This may give more accurate results at a slight performance penalty. Note that this can also be set per index.
 
 ### Configuration options per index
 
 name
-:  The index name. This value maps directly to a page parameter. Hugo supports string values (`author` in the example) and lists (`tags`, `keywords` etc.) and time and date objects.
+: (`string`) The index name. This value maps directly to a page parameter. Hugo supports string values (`author` in the example) and lists (`tags`, `keywords` etc.) and time and date objects.
 
-type
-: {{< new-in "0.111.0" >}}. One of `basic`(default) or `fragments`.
+type {{< new-in 0.111.0 >}} 
+: (`string`) One of `basic`(default) or `fragments`.
 
-applyFilter
-: {{< new-in "0.111.0" >}}. Apply a `type` specific filter to the result of a search. This is currently only used for the `fragments` type.
+applyFilter {{< new-in 0.111.0 >}}
+: (`string`) Apply a `type` specific filter to the result of a search. This is currently only used for the `fragments` type.
 
 weight
-: An integer weight that indicates _how important_ this parameter is relative to the other parameters.  It can be 0, which has the effect of turning this index off, or even negative. Test with different values to see what fits your content best.
+: (`int`) An integer weight that indicates _how important_ this parameter is relative to the other parameters. It can be `0`, which has the effect of turning this index off, or even negative. Test with different values to see what fits your content best.
 
-
-cardinalityThreshold (default 0)
-: {{< new-in "0.111.0" >}}. A percentage (0-100) used to remove common keywords from the index. As an example, setting this to 50 will remove all keywords that are used in more than 50% of the documents in the index.
+cardinalityThreshold {{< new-in 0.111.0 >}}
+: (`int`) A percentage (0-100) used to remove common keywords from the index. As an example, setting this to `50` will remove all keywords that are used in more than 50% of the documents in the index. Default is `0`.
 
 pattern
-: This is currently only relevant for dates. When listing related content, we may want to list content that is also close in time. Setting "2006" (default value for date indexes) as the pattern for a date index will add weight to pages published in the same year. For busier blogs, "200601" (year and month) may be a better default.
+: (`string`) This is currently only relevant for dates. When listing related content, we may want to list content that is also close in time. Setting "2006" (default value for date indexes) as the pattern for a date index will add weight to pages published in the same year. For busier blogs, "200601" (year and month) may be a better default.
 
 toLower
-: See above.
+: (`bool`) See above.
 
 ## Performance considerations
 

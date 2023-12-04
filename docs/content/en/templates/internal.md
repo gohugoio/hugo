@@ -10,8 +10,6 @@ menu:
 weight: 190
 toc: true
 ---
-<!-- reference: https://discourse.gohugo.io/t/lookup-order-for-partials/5705/6
-code: https://github.com/gohugoio/hugo/blob/e445c35d6a0c7f5fc2f90f31226cd1d46e048bbc/tpl/template_embedded.go#L147 -->
 
 {{% note %}}
 While the following internal templates are called similar to partials, they do *not* observe the partial template lookup order.
@@ -19,12 +17,9 @@ While the following internal templates are called similar to partials, they do *
 
 ## Google Analytics
 
-Hugo ships with an internal template supporting [Google Analytics 4][GA4] (GA4).
+Hugo ships with an internal template supporting [Google Analytics 4].
 
-**Note:** Universal Analytics are [deprecated].
-
-[GA4]: https://support.google.com/analytics/answer/10089681
-[deprecated]: https://support.google.com/analytics/answer/11583528
+[Google Analytics 4]: https://support.google.com/analytics/answer/10089681
 
 ### Configure Google Analytics
 
@@ -85,7 +80,7 @@ Users have noticed that enabling Disqus comments when running the Hugo web serve
 
 You can create the following `layouts/partials/disqus.html`:
 
-{{< code file="layouts/partials/disqus.html" >}}
+{{< code file=layouts/partials/disqus.html >}}
 <div id="disqus_thread"></div>
 <script type="text/javascript">
 
@@ -122,7 +117,7 @@ This format is used for Facebook and some other sites.
 
 Hugo's Open Graph template is configured using a mix of configuration variables and [front-matter](/content-management/front-matter/) on individual pages.
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [params]
   title = "My cool site"
   images = ["site-feature-image.jpg"]
@@ -131,7 +126,7 @@ Hugo's Open Graph template is configured using a mix of configuration variables 
   series = "series"
 {{</ code-toggle >}}
 
-{{< code-toggle file="content/blog/my-post" >}}
+{{< code-toggle file=content/blog/my-post.md >}}
 title = "Post title"
 description = "Text about this post"
 date = "2006-01-02"
@@ -172,13 +167,13 @@ metadata used to attach rich media to Tweets linking to your site.
 
 Hugo's Twitter Card template is configured using a mix of configuration variables and [front-matter](/content-management/front-matter/) on individual pages.
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [params]
   images = ["site-feature-image.jpg"]
   description = "Text about my cool site"
 {{</ code-toggle >}}
 
-{{< code-toggle file="content/blog/my-post" >}}
+{{< code-toggle file=content/blog/my-post.md >}}
 title = "Post title"
 description = "Text about this post"
 images = ["post-cover.png"]

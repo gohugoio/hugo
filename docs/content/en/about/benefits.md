@@ -2,6 +2,7 @@
 title: Benefits of static site generators
 linkTitle: Static site generators
 description: Improved performance, security and ease of use are just a few of the reasons static site generators are so appealing.
+categories: [about]
 keywords: [ssg,static,performance,security]
 menu:
   docs:

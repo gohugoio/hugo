@@ -8,8 +8,8 @@ menu:
     parent: templates
     weight: 70
 weight: 70
-aliases: [/layout/homepage/,/templates/homepage-template/]
 toc: true
+aliases: [/layout/homepage/,/templates/homepage-template/]
 ---
 
 Homepage is a `Page` and therefore has all the [page variables][pagevars] and [site variables][sitevars] available for use.
@@ -34,7 +34,7 @@ See the homepage template below or [Content Organization][contentorg] for more i
 
 The following is an example of a homepage template that uses [partial][partials], [base] templates, and a content file at `content/_index.md` to populate the `{{ .Title }}` and `{{ .Content }}` [page variables][pagevars].
 
-{{< code file="layouts/index.html" >}}
+{{< code file=layouts/index.html >}}
 {{ define "main" }}
   <main aria-role="main">
     <header class="homepage-header">

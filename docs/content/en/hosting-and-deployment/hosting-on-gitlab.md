@@ -2,7 +2,7 @@
 title: Host on GitLab Pages
 description: GitLab makes it easy to build, deploy, and host your Hugo website via their free GitLab Pages service, which provides native support for Hugo.
 categories: [hosting and deployment]
-keywords: [hosting,deployment,git,gitlab]
+keywords: [hosting,gitlab]
 menu:
   docs:
     parent: hosting-and-deployment
@@ -25,7 +25,7 @@ The `baseURL` in your [site configuration](/getting-started/configuration/) must
 
 Define your [CI/CD](https://docs.gitlab.com/ee/ci/quick_start/) jobs by creating a `.gitlab-ci.yml` file in the root of your project.
 
-{{< code file=".gitlab-ci.yml" >}}
+{{< code file=.gitlab-ci.yml copy=true >}}
 variables:
   DART_SASS_VERSION: 1.64.1
   HUGO_VERSION: 0.115.4
@@ -74,7 +74,7 @@ pages:
 
 Next, create a new repository on GitLab. It is *not* necessary to make the repository public. In addition, you might want to add `/public` to your .gitignore file, as there is no need to push compiled assets to GitLab or keep your output website in version control.
 
-```bash
+```sh
 # initialize new git repository
 git init
 

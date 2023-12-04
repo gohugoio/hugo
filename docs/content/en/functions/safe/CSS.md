@@ -1,23 +1,18 @@
 ---
 title: safe.CSS
-linkTitle: safeCSS
-description: Declares the provided string as a known "safe" CSS string.
-categories: [functions]
+description: Declares the given string as safe CSS string.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [safeCSS]
+  related:
+    - functions/safe/HTML
+    - functions/safe/HTMLAttr
+    - functions/safe/JS
+    - functions/safe/JSStr
+    - functions/safe/URL
   returnType: template.CSS
   signatures: [safe.CSS INPUT]
-relatedFunctions:
-  - safe.CSS
-  - safe.HTML
-  - safe.HTMLAttr
-  - safe.JS
-  - safe.JSStr
-  - safe.URL
 aliases: [/functions/safecss]
 ---
 
@@ -30,9 +25,9 @@ In this context, *safe* means CSS content that matches any of the following:
 
 Example: Given `style = "color: red;"` defined in the front matter of your `.md` file:
 
-* <span class="good">`<p style="{{ .Params.style | safeCSS }}">…</p>` &rarr; `<p style="color: red;">…</p>`</span>
-* <span class="bad">`<p style="{{ .Params.style }}">…</p>` &rarr; `<p style="ZgotmplZ">…</p>`</span>
+* `<p style="{{ .Params.style | safeCSS }}">…</p>` &rarr; `<p style="color: red;">…</p>`
+* `<p style="{{ .Params.style }}">…</p>` &rarr; `<p style="ZgotmplZ">…</p>`
 
 {{% note %}}
-"ZgotmplZ" is a special value that indicates that unsafe content reached a CSS or URL context.
+`ZgotmplZ` is a special value that indicates that unsafe content reached a CSS or URL context.
 {{% /note %}}

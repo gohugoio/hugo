@@ -1,21 +1,16 @@
 ---
 title: urls.RelLangURL
-linkTitle: relLangURL
 description: Returns a relative URL with a language prefix, if any.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [relLangURL]
-  returnType: template.HTML
+  related:
+    - functions/urls/AbsLangURL
+    - functions/urls/AbsURL 
+    - functions/urls/RelURL
+  returnType: string
   signatures: [urls.RelLangURL INPUT]
-relatedFunctions:
-  - urls.AbsLangURL
-  - urls.AbsURL 
-  - urls.RelLangURL
-  - urls.RelURL
 aliases: [/functions/rellangurl]
 ---
 
@@ -37,7 +32,7 @@ With `baseURL = https://example.org/`
 {{ relLangURL "" }}           →   /en/
 {{ relLangURL "articles" }}   →   /en/articles
 {{ relLangURL "style.css" }}  →   /en/style.css
-``` 
+```
 
 With `baseURL = https://example.org/docs/`
 
@@ -57,7 +52,7 @@ With `baseURL = https://example.org/`
 {{ relLangURL "/" }}          →   /en/
 {{ relLangURL "/articles" }}  →   /en/articles
 {{ relLangURL "/style.css" }} →   /en/style.css
-``` 
+```
 
 With `baseURL = https://example.org/docs/`
 

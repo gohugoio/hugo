@@ -1,22 +1,22 @@
 ---
 title: Directory structure
 description: Each Hugo project is a directory, with subdirectories that contribute to the content, structure, behavior, and presentation of your site.
-categories: [fundamentals,getting started]
+categories: [getting started,fundamentals]
 keywords: [source, organization, directories]
 menu:
   docs:
     parent: getting-started
     weight: 30
 weight: 30
-aliases: [/overview/source-directory/]
 toc: true
+aliases: [/overview/source-directory/]
 ---
 
 ## Site skeleton
 
 Hugo generates a project skeleton when you create a new site. For example, this command:
 
-```text
+```sh
 hugo new site my-site
 ```
 
@@ -25,7 +25,7 @@ Creates this directory structure:
 ```txt
 my-site/
 ├── archetypes/
-│   └── default.md
+│   └── default.md
 ├── assets/
 ├── content/
 ├── data/
@@ -41,11 +41,11 @@ Depending on requirements, you may wish to organize your site configuration into
 ```txt
 my-site/
 ├── archetypes/
-│   └── default.md
+│   └── default.md
 ├── assets/
 ├── config/           <-- site configuration
-│   └── _default/
-│       └── hugo.toml
+│   └── _default/
+│       └── hugo.toml
 ├── content/
 ├── data/
 ├── i18n/
@@ -59,11 +59,11 @@ When you build your site, Hugo creates a `public` directory, and typically a `re
 ```txt
 my-site/
 ├── archetypes/
-│   └── default.md
+│   └── default.md
 ├── assets/
 ├── config/       
-│   └── _default/
-│       └── hugo.toml
+│   └── _default/
+│       └── hugo.toml
 ├── content/
 ├── data/
 ├── i18n/
@@ -119,15 +119,15 @@ Hugo creates a union file system, allowing you to mount two or more directories 
 home/
 └── user/
     ├── my-site/            
-    │   ├── content/
-    │   │   ├── books/
-    │   │   │   ├── _index.md
-    │   │   │   ├── book-1.md
-    │   │   │   └── book-2.md
-    │   │   └── _index.md
-    │   ├── themes/
-    │   │   └── my-theme/
-    │   └── hugo.toml
+    │   ├── content/
+    │   │   ├── books/
+    │   │   │   ├── _index.md
+    │   │   │   ├── book-1.md
+    │   │   │   └── book-2.md
+    │   │   └── _index.md
+    │   ├── themes/
+    │   │   └── my-theme/
+    │   └── hugo.toml
     └── shared-content/     
         └── films/
             ├── _index.md
@@ -137,7 +137,7 @@ home/
 
 You can include the shared content when you build your site using mounts. In your site configuration:
 
-{{< code-toggle file=hugo copy=false >}}
+{{< code-toggle file=hugo >}}
 [[module.mounts]]
 source = 'content'
 target = 'content'
@@ -160,17 +160,17 @@ home/
 └── user/
     └── my-site/
         ├── content/
-        │   ├── books/
-        │   │   ├── _index.md
-        │   │   ├── book-1.md
-        │   │   └── book-2.md
-        │   ├── films/
-        │   │   ├── _index.md
-        │   │   ├── film-1.md
-        │   │   └── film-2.md
-        │   └── _index.md
+        │   ├── books/
+        │   │   ├── _index.md
+        │   │   ├── book-1.md
+        │   │   └── book-2.md
+        │   ├── films/
+        │   │   ├── _index.md
+        │   │   ├── film-1.md
+        │   │   └── film-2.md
+        │   └── _index.md
         ├── themes/
-        │   └── my-theme/
+        │   └── my-theme/
         └── hugo.toml
 ```
 
@@ -181,7 +181,6 @@ When two or more files have the same path, the order of precedence follows the o
 You can mount directories to `archetypes`, `assets`, `content`, `data`, `i18n`, `layouts`, and `static`. See&nbsp;[details](/hugo-modules/configuration/#module-configuration-mounts).
 
 You can also mount directories from Git repositories using Hugo Modules. See&nbsp;[details](/hugo-modules/).
-
 
 ## Theme skeleton
 

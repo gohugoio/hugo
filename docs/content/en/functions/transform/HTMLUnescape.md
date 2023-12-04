@@ -1,24 +1,30 @@
 ---
 title: transform.HTMLUnescape
-linkTitle: htmlUnescape
-description: Returns the given string with HTML escape codes un-escaped.
-categories: [functions]
+description: Returns the given string, replacing each HTML entity with its corresponding character.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [htmlUnescape]
+  related:
+    - functions/transform/HTMLEscape
   returnType: string
   signatures: [transform.HTMLUnescape INPUT]
-relatedFunctions:
-  - transform.HTMLEscape
-  - transform.HTMLUnescape
 aliases: [/functions/htmlunescape]
 ---
 
-Remember to pass the output of this to `safeHTML` if fully un-escaped characters are desired. Otherwise, the output will be escaped again as normal.
+The `transform.HTMLUnescape` function replaces [HTML entities] with their corresponding characters.
 
 ```go-html-template
-{{ htmlUnescape "Hugo &amp; Caddy &gt; WordPress &amp; Apache" }} → "Hugo & Caddy > WordPress & Apache"
+{{ htmlUnescape "Lilo &amp; Stitch" }} → Lilo & Stitch
+{{ htmlUnescape "7 &gt; 6" }} → 7 > 6
 ```
+
+In most contexts Go's [html/template] package will escape special characters. To bypass this behavior, pass the unescaped string through the [`safeHTML`] function.
+
+```go-html-template
+{{ htmlUnescape "Lilo &amp; Stitch" | safeHTML }}
+```
+
+[`safehtml`]: /functions/safe/html
+[html entities]: https://developer.mozilla.org/en-us/docs/glossary/entity
+[html/template]: https://pkg.go.dev/html/template

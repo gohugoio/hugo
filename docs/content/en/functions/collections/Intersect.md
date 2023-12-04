@@ -1,26 +1,20 @@
 ---
 title: collections.Intersect
-linkTitle: intersect
 description: Returns the common elements of two arrays or slices, in the same order as the first array.
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [intersect]
+  related:
+    - functions/collections/Complement
+    - functions/collections/SymDiff
+    - functions/collections/Union
   returnType: any
   signatures: [collections.Intersect SET1 SET2]
-relatedFunctions:
-  - collections.Complement
-  - collections.Intersect
-  - collections.SymDiff
-  - collections.Union
 aliases: [/functions/intersect]
 ---
-A useful example is to use it as `AND` filters when combined with where:
 
-## AND filter in where query
+A useful example is to use it as `AND` filters when combined with where:
 
 ```go-html-template
 {{ $pages := where .Site.RegularPages "Type" "not in" (slice "page" "about") }}
@@ -31,7 +25,6 @@ A useful example is to use it as `AND` filters when combined with where:
 The above fetches regular pages not of `page` or `about` type unless they are pinned. And finally, we exclude all pages with no `images` set in Page parameters.
 
 See [union](/functions/collections/union) for `OR`.
-
 
 [partials]: /templates/partials/
 [single]: /templates/single-page-templates/

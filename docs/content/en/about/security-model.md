@@ -1,15 +1,15 @@
 ---
 title: Hugo's security model
 description: A summary of Hugo's security model.
-layout: single
-keywords: ["Security", "Privacy"]
+categories: [about]
+keywords: [security,privacy]
 menu:
   docs:
     parent: about
     weight: 50
 weight: 50
-aliases: [/security/]
 toc: true
+aliases: [/security/]
 ---
 
 ## Runtime security
@@ -31,7 +31,7 @@ Hugo has a built-in security policy that restricts access to [os/exec](https://p
 
 The default configuration is listed below. Any build using features not in the allow list of the security policy will fail with a detailed message about what needs to be done. Most of these settings are allow lists (string or slice, [Regular Expressions](https://pkg.go.dev/regexp) or `none` which matches nothing).
 
-{{< code-toggle config="security" />}}
+{{< code-toggle config=security />}}
 
 Note that these and other configuration settings in Hugo can be overridden by the OS environment. If you want to block all remote HTTP fetching of data:
 

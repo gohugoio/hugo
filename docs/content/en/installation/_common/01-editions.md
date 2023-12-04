@@ -1,3 +1,7 @@
+---
+# Do not remove front matter.
+---
+
 ## Editions
 
 Hugo is available in two editions: standard and extended. With the extended edition you can:

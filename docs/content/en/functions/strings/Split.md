@@ -1,19 +1,14 @@
 ---
 title: strings.Split
-linkTitle: split
-description: Returns a slice of strings by splitting STRING by DELIM.
-categories: [functions]
+description: Returns a slice of strings by splitting the given string by a delimiter.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [split]
+  related:
+    - functions/collections/Delimit
   returnType: string
   signatures: [strings.Split STRING DELIM]
-relatedFunctions:
-  - collections.Delimit
-  - strings.Split
 aliases: [/functions/split]
 ---
 
@@ -24,7 +19,8 @@ Examples:
 {{ split "abc" "" }} → ["a", "b", "c"]
 ```
 
-
 {{% note %}}
-`split` essentially does the opposite of [delimit](/functions/collections/delimit). While `split` creates a slice from a string, `delimit` creates a string from a slice.
+The `strings.Split` function essentially does the opposite of the [`collections.Delimit`] function. While `split` creates a slice from a string, `delimit` creates a string from a slice.
+
+[`collections.Delimit`]: /functions/collections/delimit
 {{% /note %}}

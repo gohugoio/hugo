@@ -1,21 +1,23 @@
 ---
 title: partials.Include
-linkTitle: partial
-description: Executes the named partial template. If the partial contains a return statement, returns that value, else returns the rendered output.
-categories: [functions]
+description: Executes the given partial template, optionally passing context. If the partial template contains a return statement, returns the given value, else returns the rendered output.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: [partial]
+  related:
+    - functions/go-template/return
+    - functions/partials/IncludeCached
+    - functions/go-template/template
+    - methods/page/Render
   returnType: any
-  signatures: ['partials.Include LAYOUT [CONTEXT]']
-relatedFunctions:
-  - partials.Include
-  - partials.IncludeCached
+  signatures: ['partials.Include NAME [CONTEXT]']
 aliases: [/functions/partial]
 ---
+
+Without a [`return`] statement, the `partial` function returns a string of type `template.HTML`. With a `return` statement, the `partial` function can return any data type.
+
+[`return`]: /functions/go-template/return
 
 In this example we have three partial templates:
 
@@ -63,5 +65,21 @@ Then, within the partial template:
 <p>{{ .name }} is majoring in {{ .major }}. Their grade point average is {{ .gpa }}.</p>
 ```
 
+To return a value from a partial template, it must contain only one `return` statement, placed at the end of the template:
+
+```go-html-template
+{{ $result := false }}
+{{ if math.ModBool . 2 }}
+  {{ $result = "even" }}
+{{ else }}
+  {{ $result = "odd" }}
+{{ end }}
+{{ return $result }}
+```
+
+See&nbsp;[details][`return`].
+
+[`return`]: /functions/go-template/return
 
 [breadcrumb navigation]: /content-management/sections/#ancestors-and-descendants
+[details]: /functions/go-template/return

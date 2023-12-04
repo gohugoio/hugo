@@ -1,35 +1,33 @@
 ---
 title: path.Clean
-description: Replaces path separators with slashes (`/`) and removes extraneous separators.
-categories: [functions]
+description: Replaces path separators with slashes (`/`) and returns the shortest path name equivalent to the given path.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
+  related:
+    - functions/path/Base
+    - functions/path/BaseName
+    - functions/path/Dir
+    - functions/path/Ext
+    - functions/path/Join
+    - functions/path/Split
   returnType: string
   signatures: [path.Clean PATH]
-relatedFunctions:
-  - path.Base
-  - path.BaseName
-  - path.Clean
-  - path.Dir
-  - path.Ext
-  - path.Join
-  - path.Split
 aliases: [/functions/path.clean]
 ---
 
-`path.Clean` replaces path separators with slashes (`/`) and removes extraneous separators, including trailing separators.
+See Go's [`path.Clean`] documentation for details.
+
+[`path.Clean`]: https://pkg.go.dev/path#Clean
 
 ```go-html-template
-{{ path.Clean "foo//bar" }} → "foo/bar"
-{{ path.Clean "/foo/bar/" }} → "/foo/bar"
-```
-
-On a Windows system, if `.File.Path` is `foo\bar.md`, then:
-
-```go-html-template
-{{ path.Clean .File.Path }} → "foo/bar.md"
+{{ path.Clean "foo/bar" }} → foo/bar
+{{ path.Clean "/foo/bar" }} → /foo/bar
+{{ path.Clean "/foo/bar/" }} → /foo/bar
+{{ path.Clean "/foo//bar/" }} → /foo/bar
+{{ path.Clean "/foo/./bar/" }} → /foo/bar
+{{ path.Clean "/foo/../bar/" }} → /bar
+{{ path.Clean "/../foo/../bar/" }} → /bar
+{{ path.Clean "" }} → .
 ```

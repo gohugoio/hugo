@@ -8,8 +8,8 @@ menu:
     parent: templates
     weight: 50
 weight: 50
-aliases: [/layout/content/]
 toc: true
+aliases: [/layout/content/]
 ---
 
 ## Single page template lookup order
@@ -24,7 +24,7 @@ Content pages are of the type `page` and will therefore have all the [page varia
 
 This single page template makes use of Hugo [base templates], the [`.Format` function] for dates, the [`.WordCount` page variable][pagevars], and ranges through the single content's specific [taxonomies][pagetaxonomy]. [`with`] is also used to check whether the taxonomies are set in the front matter.
 
-{{< code file="layouts/posts/single.html" >}}
+{{< code file=layouts/posts/single.html >}}
 {{ define "main" }}
   <section id="main">
     <h1 id="title">{{ .Title }}</h1>
@@ -38,7 +38,7 @@ This single page template makes use of Hugo [base templates], the [`.Format` fun
     <div>
       <section>
         <h4 id="date"> {{ .Date.Format "Mon Jan 2, 2006" }} </h4>
-        <h5 id="wordcount"> {{ .WordCount }} Words </h5>
+        <h5 id="wordcount"> {{ .WordCount }} Words</h5>
       </section>
       {{ with .GetTerms "topics" }}
         <ul id="topics">
@@ -57,10 +57,10 @@ This single page template makes use of Hugo [base templates], the [`.Format` fun
     </div>
     <div>
       {{ with .PrevInSection }}
-        <a class="previous" href="{{ .Permalink }}"> {{ .Title }}</a>
+        <a class="previous" href="{{ .RelPermalink }}"> {{ .LinkTitle }}</a>
       {{ end }}
       {{ with .NextInSection }}
-        <a class="next" href="{{ .Permalink }}"> {{ .Title }}</a>
+        <a class="next" href="{{ .RelPermalink }}"> {{ .LinkTitle }}</a>
       {{ end }}
     </div>
   </aside>
@@ -74,7 +74,7 @@ To easily generate new instances of a content type (e.g., new `.md` files in a s
 [content type]: /content-management/types/
 [directory structure]: /getting-started/directory-structure/
 [dry]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
-[`.format` function]: /functions/format/
+[`.format` function]: /methods/time/format/
 [front matter]: /content-management/front-matter/
 [pagetaxonomy]: /templates/taxonomy-templates/#list-terms-assigned-to-a-page
 [pagevars]: /variables/page/

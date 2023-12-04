@@ -1,14 +1,11 @@
 ---
 title: {{ replace .File.ContentBaseName "-" " " | title }}
 description:
-categories: [functions]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: functions
-function:
+action:
   aliases: []
+  related: []
   returnType:
   signatures: []
-relatedFunctions: []
 ---

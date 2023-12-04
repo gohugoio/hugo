@@ -7,9 +7,12 @@ menu:
   docs:
     parent: hugo-pipes
     weight: 40
-toc: true
 weight: 40
-signatures: ["resources.PostCSS RESOURCE [OPTIONS]", "postCSS RESOURCE [OPTIONS]"]
+toc: true
+action:
+  aliases: [postCSS]
+  returnType: resource.Resource
+  signatures: ['resources.PostCSS [OPTIONS] RESOURCE']
 ---
 
 ## Setup
@@ -22,8 +25,8 @@ Step 1
 Step 2
 : Install the required Node.js packages in the root of your project. For example, to add vendor prefixes to CSS rules:
 
-```bash
-npm install postcss postcss-cli autoprefixer
+```sh
+npm i -D postcss postcss-cli autoprefixer
 ```
 
 Step 3
@@ -31,7 +34,7 @@ Step 3
 
 [supported file names]: https://github.com/postcss/postcss-load-config#usage
 
-{{< code file="postcss.config.js" >}}
+{{< code file=postcss.config.js >}}
 module.exports = {
   plugins: [
     require('autoprefixer')
@@ -49,7 +52,7 @@ Step 4
 Step 5
 : Capture the CSS file as a resource and pipe it through `resources.PostCSS` (alias `postCSS`):
 
-{{< code file="layouts/partials/css.html" >}}
+{{< code file=layouts/partials/css.html >}}
 {{ with resources.Get "css/main.css" | postCSS }}
   <link rel="stylesheet" href="{{ .RelPermalink }}">
 {{ end }}
@@ -57,7 +60,7 @@ Step 5
 
 If starting with a Sass file within the `assets` directory:
 
-{{< code file="layouts/partials/css.html" >}}
+{{< code file=layouts/partials/css.html >}}
 {{ with resources.Get "sass/main.scss" | toCSS | postCSS }}
   <link rel="stylesheet" href="{{ .RelPermalink }}">
 {{ end }}
@@ -79,10 +82,10 @@ URL imports (e.g. `@import url('https://fonts.googleapis.com/css?family=Open+San
 Note that this import routine does not care about the CSS spec, so you can have @import anywhere in the file.
 Hugo will look for imports relative to the module mount and will respect theme overrides.
 
-skipInlineImportsNotFound {{< new-in "0.99.0" >}}
+skipInlineImportsNotFound {{< new-in 0.99.0 >}}
 : (`bool`) Default is `false`. Before Hugo 0.99.0 when `inlineImports` was enabled and we failed to resolve an import, we logged it as a warning. We now fail the build. If you have regular CSS imports in your CSS that you want to preserve, you can either use imports with URL or media queries (Hugo does not try to resolve those) or set `skipInlineImportsNotFound` to true.
 
-{{< code file="layouts/partials/css.html" >}}
+{{< code file=layouts/partials/css.html >}}
 {{ $opts := dict "config" "config-directory" "noMap" true }}
 {{ with resources.Get "css/main.css" | postCSS $opts }}
   <link rel="stylesheet" href="{{ .RelPermalink }}">
@@ -105,7 +108,7 @@ stringifier
 syntax
 : (`string`) Custom postcss syntax.
 
-{{< code file="layouts/partials/css.html" >}}
+{{< code file=layouts/partials/css.html >}}
 {{ $opts := dict "use" "autoprefixer postcss-color-alpha" }}
 {{ with resources.Get "css/main.css" | postCSS $opts }}
   <link rel="stylesheet" href="{{ .RelPermalink }}">
@@ -116,7 +119,7 @@ syntax
 
 The current Hugo environment name (set by `--environment` or in configuration or OS environment) is available in the Node context, which allows constructs like this:
 
-{{< code file="postcss.config.js" >}}
+{{< code file=postcss.config.js >}}
 module.exports = {
   plugins: [
     require('autoprefixer'),
