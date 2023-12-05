@@ -107,13 +107,24 @@ sudo dnf install hugo
 
 ### Gentoo
 
-Builds from source using Portage package manager. Customize how it builds (stardard or extended edition) easily with [USE flags] :
+Derivatives of the [Gentoo] distribution of Linux include [Calculate Linux], [Funtoo], and others. Follow the instructions below to install the extended edition of Hugo:
 
-```sh
-sudo emerge www-apps/hugo
-```
+1. Specify the `sass` [USE] flag in /etc/portage/package.use/mysql:
 
-[USE flags]: https://wiki.gentoo.org/wiki/USE_flag
+    ```text
+    www-apps/hugo sass
+    ```
+
+2. Build using the Portage package manager:
+
+    ```sh
+    sudo emerge www-apps/hugo
+    ```
+
+[Calculate Linux]: https://www.calculate-linux.org/
+[Funtoo]: https://www.funtoo.org/
+[Gentoo]: https://www.gentoo.org/
+[USE]: https://wiki.gentoo.org/wiki/Hugo#USE_flags
 
 ### openSUSE
 
