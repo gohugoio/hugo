@@ -455,7 +455,7 @@ See [Configure Taxonomies](/content-management/taxonomies#configure-taxonomies).
 
 ### theme
 
-: See [module configuration](/hugo-modules/configuration/#module-configuration-imports) for how to import a theme.
+See [module configuration](/hugo-modules/configuration/#module-configuration-imports) for how to import a theme.
 
 ### themesDir
 
