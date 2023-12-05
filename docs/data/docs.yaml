@@ -20,8 +20,14 @@ chroma:
     - ada2005
     Name: Ada
   - Aliases:
+    - agda
+    Name: Agda
+  - Aliases:
     - al
     Name: AL
+  - Aliases:
+    - alloy
+    Name: Alloy
   - Aliases:
     - ng2
     Name: Angular2
@@ -199,6 +205,9 @@ chroma:
     - dart
     Name: Dart
   - Aliases:
+    - dax
+    Name: Dax
+  - Aliases:
     - diff
     - udiff
     Name: Diff
@@ -330,6 +339,9 @@ chroma:
     - handlebars
     - hbs
     Name: Handlebars
+  - Aliases:
+    - hare
+    Name: Hare
   - Aliases:
     - haskell
     - hs
@@ -501,6 +513,9 @@ chroma:
     - obj-c
     - objc
     Name: Objective-C
+  - Aliases:
+    - objectpascal
+    Name: ObjectPascal
   - Aliases:
     - ocaml
     Name: OCaml
