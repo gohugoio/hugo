@@ -123,14 +123,14 @@ Compare the value of the given field to an [`int`] or [`float`]:
 [`float`]: /getting-started/glossary/#float
 
 ```go-html-template
-{{ $sectionPages := where site.RegularPages "Section" "eq" "books" }}
+{{ $books := where site.RegularPages "Section" "eq" "books" }}
 
-{{ $pages := where $sectionPages "Params.price" "eq" 42 }}
-{{ $pages := where $sectionPages "Params.price" "ne" 42.67 }}
-{{ $pages := where $sectionPages "Params.price" "ge" 42 }}
-{{ $pages := where $sectionPages "Params.price" "gt" 42.67 }}
-{{ $pages := where $sectionPages "Params.price" "le" 42 }}
-{{ $pages := where $sectionPages "Params.price" "lt" 42.67 }}
+{{ $pages := where $books "Params.price" "eq" 42 }}
+{{ $pages := where $books "Params.price" "ne" 42.67 }}
+{{ $pages := where $books "Params.price" "ge" 42 }}
+{{ $pages := where $books "Params.price" "gt" 42.67 }}
+{{ $pages := where $books "Params.price" "le" 42 }}
+{{ $pages := where $books "Params.price" "lt" 42.67 }}
 ```
 
 ## Boolean comparison
@@ -140,12 +140,12 @@ Compare the value of the given field to a [`bool`]:
 [`bool`]: /getting-started/glossary/#bool
 
 ```go-html-template
-{{ $sectionPages := where site.RegularPages "Section" "eq" "books" }}
+{{ $books := where site.RegularPages "Section" "eq" "books" }}
 
-{{ $pages := where $sectionPages "Params.fiction" "eq" true }}
-{{ $pages := where $sectionPages "Params.fiction" "eq" false }}
-{{ $pages := where $sectionPages "Params.fiction" "ne" true }}
-{{ $pages := where $sectionPages "Params.fiction" "ne" false }}
+{{ $pages := where $books "Params.fiction" "eq" true }}
+{{ $pages := where $books "Params.fiction" "eq" false }}
+{{ $pages := where $books "Params.fiction" "ne" true }}
+{{ $pages := where $books "Params.fiction" "ne" false }}
 ```
 
 ## Member comparison
@@ -158,19 +158,19 @@ Compare a [`scalar`] to a [`slice`].
 For example, to return a collection of pages where the `color` page parameter is either "red" or "yellow":
 
 ```go-html-template
-{{ $sectionPages := where site.RegularPages "Section" "eq" "fruit" }}
+{{ $fruit := where site.RegularPages "Section" "eq" "fruit" }}
 
 {{ $colors := slice "red" "yellow" }}
-{{ $pages := where $sectionPages "Params.color" "in" $colors }}
+{{ $pages := where $fruit "Params.color" "in" $colors }}
 ```
 
 To return a collection of pages where the "color" page parameter is neither "red" nor "yellow":
 
 ```go-html-template
-{{ $sectionPages := where site.RegularPages "Section" "eq" "fruit" }}
+{{ $fruit := where site.RegularPages "Section" "eq" "fruit" }}
 
 {{ $colors := slice "red" "yellow" }}
-{{ $pages := where $sectionPages "Params.color" "not in" $colors }}
+{{ $pages := where $fruit "Params.color" "not in" $colors }}
 ```
 
 ## Intersection comparison
@@ -180,10 +180,10 @@ Compare a [`slice`] to a [`slice`], returning collection elements with common va
 For example, to return a collection of pages where any of the terms in the "genres" taxonomy are "suspense" or "romance":
 
 ```go-html-template
-{{ $sectionPages := where site.RegularPages "Section" "eq" "books" }}
+{{ $books := where site.RegularPages "Section" "eq" "books" }}
 
 {{ $genres := slice "suspense" "romance" }}
-{{ $pages := where $sectionPages "Params.genres" "intersect" $genres }}
+{{ $pages := where $books "Params.genres" "intersect" $genres }}
 ```
 
 ## Regular expression comparison
