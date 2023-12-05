@@ -253,14 +253,12 @@ title: p7 (emoji)
 `)
 
 	// strikethrough
-	// TODO failing test: Issue #8087
-	// 	b.AssertFileContent("public/p6/index.html", `
-	// <li><a href="#ome-deleted-text">Some <del>deleted</del> text</a></li>
-	// 	`)
+	b.AssertFileContent("public/p6/index.html", `
+<li><a href="#some-deleted-text">Some <del>deleted</del> text</a></li>
+`)
 
 	// emoji
-	// TODO failing test: Issue #12022
-	// 	b.AssertFileContent("public/p7/index.html", `
-	// <li><a href="#a-snake-emoji">A &#x1f40d; emoji</a></li>
-	// 		`)
+	b.AssertFileContent("public/p7/index.html", `
+<li><a href="#a-snake-emoji">A &#x1f40d; emoji</a></li>
+`)
 }

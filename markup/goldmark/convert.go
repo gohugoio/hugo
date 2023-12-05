@@ -18,14 +18,14 @@ import (
 	"bytes"
 
 	"github.com/gohugoio/hugo-goldmark-extensions/passthrough"
+	"github.com/yuin/goldmark/util"
+
 	"github.com/gohugoio/hugo/markup/goldmark/codeblocks"
 	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
 	"github.com/gohugoio/hugo/markup/goldmark/images"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/extensions/attributes"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
 
-	"github.com/gohugoio/hugo/markup/converter"
-	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/yuin/goldmark"
 	emoji "github.com/yuin/goldmark-emoji"
 	"github.com/yuin/goldmark/ast"
@@ -34,6 +34,9 @@ import (
 	"github.com/yuin/goldmark/renderer"
 	"github.com/yuin/goldmark/renderer/html"
 	"github.com/yuin/goldmark/text"
+
+	"github.com/gohugoio/hugo/markup/converter"
+	"github.com/gohugoio/hugo/markup/tableofcontents"
 )
 
 const (
@@ -91,10 +94,17 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 		rendererOptions = append(rendererOptions, html.WithUnsafe())
 	}
 
+	tocRendererOptions := make([]renderer.Option, len(rendererOptions))
+	if rendererOptions != nil {
+		copy(tocRendererOptions, rendererOptions)
+	}
+	tocRendererOptions = append(tocRendererOptions,
+		renderer.WithNodeRenderers(util.Prioritized(extension.NewStrikethroughHTMLRenderer(), 500)),
+		renderer.WithNodeRenderers(util.Prioritized(emoji.NewHTMLRenderer(), 200)))
 	var (
 		extensions = []goldmark.Extender{
 			newLinks(cfg),
-			newTocExtension(rendererOptions),
+			newTocExtension(tocRendererOptions),
 		}
 		parserOptions []parser.Option
 	)
