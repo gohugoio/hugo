@@ -124,7 +124,7 @@ Derivatives of the [Gentoo] distribution of Linux include [Calculate Linux], [Fu
 [Calculate Linux]: https://www.calculate-linux.org/
 [Funtoo]: https://www.funtoo.org/
 [Gentoo]: https://www.gentoo.org/
-[USE]: https://wiki.gentoo.org/wiki/Hugo#USE_flags
+[USE]: https://packages.gentoo.org/packages/www-apps/hugo
 
 ### openSUSE
 
