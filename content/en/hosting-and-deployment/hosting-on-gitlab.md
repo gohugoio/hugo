@@ -27,8 +27,8 @@ Define your [CI/CD](https://docs.gitlab.com/ee/ci/quick_start/) jobs by creating
 
 {{< code file=.gitlab-ci.yml copy=true >}}
 variables:
-  DART_SASS_VERSION: 1.64.1
-  HUGO_VERSION: 0.115.4
+  DART_SASS_VERSION: 1.69.5
+  HUGO_VERSION: 0.121.0
   NODE_VERSION: 20.x
   GIT_DEPTH: 0
   GIT_STRATEGY: clone

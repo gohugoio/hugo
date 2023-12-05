@@ -44,13 +44,13 @@ In addition to using a single site configuration file, one can use the `configDi
 - Each file represents a configuration root object, such as `params.toml` for `[Params]`, `menu(s).toml` for `[Menu]`, `languages.toml` for `[Languages]` etc...
 - Each file's content must be top-level, for example:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 [Params]
-  foo = "bar"
+foo = 'bar'
 {{< /code-toggle >}}
 
-{{< code-toggle file="params" copy=false >}}
-foo = "bar"
+{{< code-toggle file=params >}}
+foo = 'bar'
 {{< /code-toggle >}}
 
 - Each directory holds a group of files containing settings unique to an environment.
@@ -78,7 +78,7 @@ Let's take an example to understand this better. Let's say you are using Google 
 
 [Google tag ID]: https://support.google.com/tagmanager/answer/12326985?hl=en
 
-{{< code-toggle file=hugo copy=false >}}
+{{< code-toggle file=hugo >}}
 [services.googleAnalytics]
 ID = 'G-XXXXXXXXX'
 {{< /code-toggle >}}
@@ -103,7 +103,7 @@ To satisfy these requirements, configure your site as follows:
 
     Include this section only:
 
-    {{< code-toggle file=hugo copy=false >}}
+    {{< code-toggle file=hugo >}}
     [services.googleAnalytics]
     ID = 'G-PPPPPPPPP'
     {{< /code-toggle >}}
@@ -116,7 +116,7 @@ To satisfy these requirements, configure your site as follows:
 
     Include this section only:
 
-    {{< code-toggle file=hugo copy=false >}}
+    {{< code-toggle file=hugo >}}
     [services.googleAnalytics]
     ID = 'G-SSSSSSSSS'
     {{< /code-toggle >}}
@@ -788,6 +788,10 @@ The above will try first to extract the value for `.Date` from the file name, th
 Hugo v0.20 introduced the ability to render your content to multiple output formats (e.g., to JSON, AMP html, or CSV). See [Output Formats] for information on how to add these values to your Hugo project's configuration file.
 
 ## Configure minify
+
+See the [tdewolff/minify] project page for details.
+
+[tdewolff/minify]: https://github.com/tdewolff/minify
 
 Default configuration:
 

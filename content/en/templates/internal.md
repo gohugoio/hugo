@@ -26,7 +26,7 @@ Hugo ships with an internal template supporting [Google Analytics 4].
 Provide your tracking ID in your configuration file:
 
 **Google Analytics 4 (gtag.js)**
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [services.googleAnalytics]
 ID = "G-MEASUREMENT_ID"
 {{</ code-toggle >}}
@@ -49,7 +49,7 @@ Hugo also ships with an internal template for [Disqus comments][disqus], a popul
 
 To use Hugo's Disqus template, first set up a single configuration value:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [services.disqus]
 shortname = 'your-disqus-shortname'
 {{</ code-toggle >}}
@@ -187,7 +187,7 @@ Hugo uses the page title and description for the card's title and description fi
 
 Set the value of `twitter:site` in your site configuration:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file=hugo >}}
 [params.social]
 twitter = "GoHugoIO"
 {{</ code-toggle >}}
