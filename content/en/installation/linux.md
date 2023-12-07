@@ -109,10 +109,10 @@ sudo dnf install hugo
 
 Derivatives of the [Gentoo] distribution of Linux include [Calculate Linux], [Funtoo], and others. Follow the instructions below to install the extended edition of Hugo:
 
-1. Specify the `sass` [USE] flag in /etc/portage/package.use/mysql:
+1. Specify the `extended` [USE] flag in /etc/portage/package.use/hugo:
 
     ```text
-    www-apps/hugo sass
+    www-apps/hugo extended
     ```
 
 2. Build using the Portage package manager:
