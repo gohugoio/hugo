@@ -20,3 +20,14 @@ The `warnf` function evaluates the format string, then prints the result to the 
 ```go-html-template
 {{ warnf "The %q shortcode was unable to find %s. See %s" .Name $file .Position }}
 ```
+
+To prevent supression of duplicate messages when using `warnf` for debugging, make each message unique with the [`math.Counter`] function. For example:
+
+
+```go-html-template
+{{ range site.RegularPages }}
+  {{ .Section | warnf "%#[2]v [%[1]d]" math.Counter }}
+{{ end }}
+```
+
+[`math.Counter`]: /functions/math/counter
