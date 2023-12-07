@@ -64,7 +64,7 @@ Comparison|Result
 `false "eq" "false"`|`false`
 `false "eq" false`|`true`
 
-When one or both of the values to compare is a slice, use the `in`, `not in` or `intersect` operators as described below.
+When one or both of the values to compare is a slice, use the `in`, `not in`, or `intersect` operators as described below.
 
 ## Operators
 

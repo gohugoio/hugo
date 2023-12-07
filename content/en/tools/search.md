@@ -29,7 +29,7 @@ A static website with a dynamic search function? Yes, Hugo provides an alternati
 : A bit like Hugo-lunr, but Hugo-lunr-zh can help you separate the Chinese keywords.
 
 [GitHub Gist for Fuse.js integration](https://gist.github.com/eddiewebb/735feb48f50f0ddd65ae5606a1cb41ae)
-: This gist demonstrates how to leverage Hugo's existing build time processing to generate a searchable JSON index used by [Fuse.js](https://fusejs.io/) on the client-side. Although this gist uses Fuse.js for fuzzy matching, any client-side search tool capable of reading JSON indexes will work. Does not require npm, grunt or other build-time tools except Hugo!
+: This gist demonstrates how to leverage Hugo's existing build time processing to generate a searchable JSON index used by [Fuse.js](https://fusejs.io/) on the client-side. Although this gist uses Fuse.js for fuzzy matching, any client-side search tool capable of reading JSON indexes will work. Does not require npm, grunt, or other build-time tools except Hugo!
 
 [hugo-search-index](https://www.npmjs.com/package/hugo-search-index)
 : A library containing Gulp tasks and a prebuilt browser script that implements search. Gulp generates a search index from project markdown files.
