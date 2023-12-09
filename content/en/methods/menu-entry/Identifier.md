@@ -14,13 +14,13 @@ The `Identifier` method returns the `identifier` property of the menu entry. If 
 [automatically]: /content-management/menus/#define-automatically
 
 {{< code-toggle file=hugo >}}
-[[menu.main]]
+[[menus.main]]
 identifier = 'about'
 name = 'About'
 pageRef = '/about'
 weight = 10
 
-[[menu.main]]
+[[menus.main]]
 identifier = 'contact'
 name = 'Contact'
 pageRef = '/contact'

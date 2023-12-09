@@ -14,15 +14,15 @@ Regardless of how you [define menu entries], an entry associated with a page has
 In this menu definition, the first two entries are associated with a page, the last entry is not:
 
 {{< code-toggle file=hugo >}}
-[[menu.main]]
+[[menus.main]]
 pageRef = '/about'
 weight = 10
 
-[[menu.main]]
+[[menus.main]]
 pageRef = '/contact'
 weight = 20
 
-[[menu.main]]
+[[menus.main]]
 name = 'Hugo'
 url = 'https://gohugo.io'
 weight = 30

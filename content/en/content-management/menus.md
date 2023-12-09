@@ -48,7 +48,7 @@ To add a page to the "main" menu:
 
 {{< code-toggle file=content/about.md fm=true >}}
 title = 'About'
-menu = 'main'
+menus = 'main'
 {{< /code-toggle >}}
 
 Access the entry with `site.Menus.main` in your templates. See [menu templates] for details.
@@ -57,10 +57,14 @@ To add a page to the "main" and "footer" menus:
 
 {{< code-toggle file=content/contact.md fm=true >}}
 title = 'Contact'
-menu = ['main','footer']
+menus = ['main','footer']
 {{< /code-toggle >}}
 
 Access the entry with `site.Menus.main` and `site.Menus.footer` in your templates. See [menu templates] for details.
+
+{{% note %}}
+The configuration key in the examples above is `menus`. The `menu` (singular) configuration key is an alias for `menus`.
+{{% /note %}}
 
 ### Properties {#properties-front-matter}
 
@@ -96,11 +100,11 @@ This front matter menu entry demonstrates some of the available properties:
 
 {{< code-toggle file=content/products/software.md fm=true >}}
 title = 'Software'
-[menu.main]
+[[menus.main]]
 parent = 'Products'
 weight = 20
 pre = '<i class="fa-solid fa-code"></i>'
-[menu.main.params]
+[menus.main.params]
 class = 'center'
 {{< /code-toggle >}}
 
@@ -111,17 +115,17 @@ Access the entry with `site.Menus.main` in your templates. See [menu templates] 
 To define entries for the "main" menu:
 
 {{< code-toggle file=hugo >}}
-[[menu.main]]
+[[menus.main]]
 name = 'Home'
 pageRef = '/'
 weight = 10
 
-[[menu.main]]
+[[menus.main]]
 name = 'Products'
 pageRef = '/products'
 weight = 20
 
-[[menu.main]]
+[[menus.main]]
 name = 'Services'
 pageRef = '/services'
 weight = 30
@@ -132,18 +136,22 @@ This creates a menu structure that you can access with `site.Menus.main` in your
 To define entries for the "footer" menu:
 
 {{< code-toggle file=hugo >}}
-[[menu.footer]]
+[[menus.footer]]
 name = 'Terms'
 pageRef = '/terms'
 weight = 10
 
-[[menu.footer]]
+[[menus.footer]]
 name = 'Privacy'
 pageRef = '/privacy'
 weight = 20
 {{< /code-toggle >}}
 
 This creates a menu structure that you can access with `site.Menus.footer` in your templates. See [menu templates] for details.
+
+{{% note %}}
+The configuration key in the examples above is `menus`. The `menu` (singular) configuration key is an alias for `menus`.
+{{% /note %}}
 
 ### Properties {#properties-site-configuration}
 
@@ -177,34 +185,34 @@ url
 This nested menu demonstrates some of the available properties:
 
 {{< code-toggle file=hugo >}}
-[[menu.main]]
+[[menus.main]]
 name = 'Products'
 pageRef = '/products'
 weight = 10
 
-[[menu.main]]
+[[menus.main]]
 name = 'Hardware'
 pageRef = '/products/hardware'
 parent = 'Products'
 weight = 1
 
-[[menu.main]]
+[[menus.main]]
 name = 'Software'
 pageRef = '/products/software'
 parent = 'Products'
 weight = 2
 
-[[menu.main]]
+[[menus.main]]
 name = 'Services'
 pageRef = '/services'
 weight = 20
 
-[[menu.main]]
+[[menus.main]]
 name = 'Hugo'
 pre = '<i class="fa fa-heart"></i>'
 url = 'https://gohugo.io/'
 weight = 30
-[menu.main.params]
+[menus.main.params]
 rel = 'external'
 {{< /code-toggle >}}
 
