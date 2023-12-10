@@ -15,37 +15,67 @@ aliases: [/overview/source-directory/,/overview/configuration/]
 
 ## Configuration file
 
-Hugo uses the `hugo.toml`, `hugo.yaml`, or `hugo.json` (if found in the
-site root) as the default site configuration file.
+Create a site configuration file in the root of your project directory, naming it `hugo.toml`, `hugo.yaml`, or `hugo.json`, with that order of precedence.
 
-The user can choose to override that default with one or more site configuration files using the command-line `--config` switch.
-
-Examples:
-
-```txt
-hugo --config debugconfig.toml
-hugo --config a.toml,b.toml,c.toml
+```text
+my-project/
+└── hugo.toml
 ```
 
 {{% note %}}
-Multiple site configuration files can be specified as a comma-separated string to the `--config` switch.
+With v0.109.0 and earlier the basename of the site configuration file was `config` instead of `hugo`. You can use either, but should transition to the new naming convention when practical.
 {{% /note %}}
 
-## hugo.toml vs config.toml
+To use a different configuration file when building your site, use the `--config` flag:
 
-In Hugo 0.110.0 we changed the default configuration base file name to `hugo`, e.g. `hugo.toml`. We will still look for `config.toml` etc., but we recommend you eventually rename it (but you need to wait if you want to support older Hugo versions). The main reason we're doing this is to make it easier for code editors and build tools to identify this as a Hugo configuration file and project.
+```sh
+hugo --config other.toml
+```
 
-{{< new-in 0.110.0 >}}
+Combine two or more configuration files, with left-to-right precedence:
+
+```sh
+hugo --config a.toml,b.yaml,c.json
+```
+
+{{% note %}}
+See the specifications for each file format: [TOML], [YAML], and [JSON].
+
+[TOML]: https://toml.io/en/latest
+[YAML]: https://yaml.org/spec/
+[JSON]: https://datatracker.ietf.org/doc/html/rfc7159
+{{% /note %}}
 
 ## Configuration directory
 
-In addition to using a single site configuration file, one can use the `configDir` directory (default to `config/`) to maintain easier organization and environment specific settings.
+Instead of a single site configuration file, split your configuration by [environment], root configuration key, and language. For example:
 
-- Each file represents a configuration root object, such as `params.toml` for `[Params]`, `menu(s).toml` for `[Menu]`, `languages.toml` for `[Languages]` etc...
-- Each file's content must be top-level, for example:
+[environment]: /getting-started/glossary/#environment
+
+```text
+my-project/
+└── config/
+    ├── _default/
+    │   ├── hugo.toml
+    │   ├── menus.en.toml
+    │   ├── menus.de.toml
+    │   └── params.toml
+    ├── production/
+    │   ├── hugo.toml
+    │   └── params.toml
+    └── staging/
+        ├── hugo.toml
+        └── params.toml
+```
+
+The root configuration keys are `build`, `caches`, `cascade`, `deployment`, `frontmatter`, `imaging`, `languages`, `markup`, `mediatypes`, `menus`, `minify`, `module`, `outputformats`, `outputs`, `params`, `permalinks`, `privacy`, `related`, `security`, `server`, `services`, `sitemap`, and `taxonomies`.
+
+### Omit the root key
+
+When splitting the configuration by root key, omit the root key in the given file. For example, these are equivalent:
 
 {{< code-toggle file=hugo >}}
-[Params]
+[params]
 foo = 'bar'
 {{< /code-toggle >}}
 
@@ -53,23 +83,36 @@ foo = 'bar'
 foo = 'bar'
 {{< /code-toggle >}}
 
-- Each directory holds a group of files containing settings unique to an environment.
-- Files can be localized to become language specific.
+### Recursive parsing
 
-```txt
-├── config
-│   ├── _default
-│   │   ├── hugo.toml
-│   │   ├── languages.toml
-│   │   ├── menus.en.toml
-│   │   ├── menus.zh.toml
-│   │   └── params.toml
-│   ├── production
-│   │   ├── hugo.toml
-│   │   └── params.toml
-│   └── staging
-│       ├── hugo.toml
-│       └── params.toml
+Hugo parses the `config` directory recursively, allowing you to organize the files into subdirectories. For example:
+
+```text
+my-project/
+└── config/
+    └── _default/
+        ├── navigation/
+        │   ├── menus.de.toml
+        │   └── menus.en.toml
+        └── hugo.toml
+```
+
+### Example
+
+```text
+my-project/
+└── config/
+    ├── _default/
+    │   ├── hugo.toml
+    │   ├── menus.en.toml
+    │   ├── menus.de.toml
+    │   └── params.toml
+    ├── production/
+    │   ├── hugo.toml
+    │   └── params.toml
+    └── staging/
+        ├── hugo.toml
+        └── params.toml
 ```
 
 Considering the structure above, when running `hugo --environment staging`, Hugo will use every setting from `config/_default` and merge `staging`'s on top of those.
@@ -664,16 +707,6 @@ none
 HUGO_NUMWORKERMULTIPLIER
 : Can be set to increase or reduce the number of workers used in parallel processing in Hugo. If not set, the number of logical CPUs will be used.
 
-## Configuration lookup order
-
-Similar to the template [lookup order], Hugo has a default set of rules for searching for a configuration file in the root of your website's source directory as a default behavior:
-
-1. `./hugo.toml`
-2. `./hugo.yaml`
-3. `./hugo.json`
-
-In your configuration file, you can direct Hugo as to how you want your website rendered, control your website's menus, and arbitrarily define site-wide parameters specific to your project.
-
 ## Example configuration
 
 The following is a typical example of a configuration file. The values nested under `params:` will populate the [`.Site.Params`] variable for use in [templates]:
@@ -822,22 +855,6 @@ maxAge
 dir
 : (`string`) The absolute path to where the files for this cache will be stored. Allowed starting placeholders are `:cacheDir` and `:resourceDir` (see above).
 
-## Configuration format specs
-
-- [TOML Spec][toml]
-- [YAML Spec][yaml]
-- [JSON Spec][json]
-
-[`.Site.Params`]: /variables/site/
-[directory structure]: /getting-started/directory-structure
-[json]: https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf
-[lookup order]: /templates/lookup-order/
-[Output Formats]: /templates/output-formats/
-[templates]: /templates/
-[toml]: https://toml.io/en/latest
-[yaml]: https://yaml.org/spec/
-[static-files]: /content-management/static-files/
-
 ## Configure cacheDir
 
 This is the directory where Hugo by default will store its file caches. See [Configure File Caches](#configure-file-caches).
@@ -853,3 +870,9 @@ If this is not set, Hugo will use, in order of preference:
 If you want to know the current value of `cacheDir`, you can run `hugo config`, e.g: `hugo config | grep cachedir`.
 
 [`time`]: /functions/time/astime
+[`.Site.Params`]: /variables/site/
+[directory structure]: /getting-started/directory-structure
+[lookup order]: /templates/lookup-order/
+[Output Formats]: /templates/output-formats/
+[templates]: /templates/
+[static-files]: /content-management/static-files/
