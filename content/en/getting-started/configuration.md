@@ -26,6 +26,19 @@ my-project/
 With v0.109.0 and earlier the basename of the site configuration file was `config` instead of `hugo`. You can use either, but should transition to the new naming convention when practical.
 {{% /note %}}
 
+A simple example:
+
+{{< code-toggle file=hugo >}}
+baseURL = 'https://example.org/'
+languageCode = 'en-us'
+title = 'ABC Widgets, Inc.'
+[params]
+subtitle = 'The Best Widgets on Earth'
+[params.contact]
+email = 'info@example.org'
+phone = '+1 202-555-1212'
+{{< /code-toggle >}}
+
 To use a different configuration file when building your site, use the `--config` flag:
 
 ```sh
@@ -187,51 +200,39 @@ Note that you don't need to be so verbose as in the default setup below; a `_mer
 
 ## All configuration settings
 
-The following is the full list of Hugo-defined variables. Users may choose to override those values in their site configuration file(s).
+###### archetypeDir
 
-### archetypeDir
+(`string`) The directory where Hugo finds archetype files (content templates). Default is `archetypes`. {{% module-mounts-note %}}
 
-**Default value:** "archetypes"
+###### assetDir
 
-The directory where Hugo finds archetype files (content templates). {{% module-mounts-note %}}
+(`string`) The directory where Hugo finds asset files used in [Hugo Pipes](/hugo-pipes/). Default is `assets`. {{% module-mounts-note %}}
 
-### assetDir
+###### baseURL
 
-**Default value:** "assets"
+(`string`) The absolute URL (protocol, host, path, and trailing slash) of your published site (e.g., `https://www.example.org/docs/`).
 
-The directory where Hugo finds asset files used in [Hugo Pipes](/hugo-pipes/). {{% module-mounts-note %}}
+###### build
 
-### baseURL
+See [Configure Build](#configure-build).
 
-The absolute URL (protocol, host, path, and trailing slash) of your published site (e.g., `https://www.example.org/docs/`).
+###### buildDrafts
 
-### build
+(`bool`) Include drafts when building. Default is `false`.
 
-See [Configure Build](#configure-build)
+###### buildExpired
 
-### buildDrafts (false)
+(`bool`) Include content already expired. Default is `false`.
 
-**Default value:** false
+###### buildFuture
 
-Include drafts when building.
+(`bool`) Include content with publishdate in the future. Default is `false`.
 
-### buildExpired
+###### caches
 
-**Default value:** false
+See [Configure File Caches](#configure-file-caches).
 
-Include content already expired.
-
-### buildFuture
-
-**Default value:** false
-
-Include content with publishdate in the future.
-
-### caches
-
-See [Configure File Caches](#configure-file-caches)
-
-### cascade
+###### cascade
 
 Pass down down default configuration values (front matter) to pages in the content tree. The options in site config is the same as in page front matter, see [Front Matter Cascade](/content-management/front-matter#front-matter-cascade).
 
@@ -241,302 +242,230 @@ For a website in a single language, define the `[[cascade]]` in [Front Matter](/
 To remain consistent and prevent unexpected behaviour, do not mix these strategies.
 {{% /note %}}
 
-### canonifyURLs
+###### canonifyURLs
 
-**Default value:** false
+(`bool`) Enable to turn relative URLs into absolute.  Default is `false`. See&nbsp;[details](/content-management/urls/#canonical-urls).
 
-Enable to turn relative URLs into absolute. See&nbsp;[details](/content-management/urls/#canonical-urls).
+###### cleanDestinationDir
 
-### cleanDestinationDir
+(`bool`) When building, removes files from destination not found in static directories. Default is `false`.
 
-**Default value:** false
+###### contentDir
 
-When building, removes files from destination not found in static directories.
+(`string`) The directory from where Hugo reads content files.  Default is `content`. {{% module-mounts-note %}}
 
-### contentDir
+###### copyright
 
-**Default value:** "content"
+(`string`) Copyright notice for your site, typically displayed in the footer.
 
-The directory from where Hugo reads content files. {{% module-mounts-note %}}
+###### dataDir
 
-### copyright
+(`string`) The directory from where Hugo reads data files. Default is `data`. {{% module-mounts-note %}}
 
-**Default value:** ""
+###### defaultContentLanguage
 
-Copyright notice for your site, typically displayed in the footer.
+(`string`) Content without language indicator will default to this language. Default is `en`.
 
-### dataDir
+###### defaultContentLanguageInSubdir
 
-**Default value:** "data"
+(`bool`) Render the default content language in subdir, e.g. `content/en/`. The site root `/` will then redirect to `/en/`. Default is `false`.
 
-The directory from where Hugo reads data files. {{% module-mounts-note %}}
+###### disableAliases
 
-### defaultContentLanguage
+(`bool`) Will disable generation of alias redirects. Note that even if `disableAliases` is set, the aliases themselves are preserved on the page. The motivation with this is to be able to generate 301 redirects in an `.htaccess`, a Netlify `_redirects` file or similar using a custom output format. Default is `false`.
 
-**Default value:** "en"
+###### disableHugoGeneratorInject
 
-Content without language indicator will default to this language.
+(`bool`) Hugo will, by default, inject a generator meta tag in the HTML head on the _home page only_. You can turn it off, but we would really appreciate if you don't, as this is a good way to watch Hugo's popularity on the rise. Default is `false`.
 
-### defaultContentLanguageInSubdir
+###### disableKinds
 
-**Default value:** false
+(`string slice`) Disable rendering of the specified page [kinds], any of `404`, `home`, `page`, `robotstxt`, `rss`, `section`, `sitemap`, `taxonomy`, or `term`.
 
-Render the default content language in subdir, e.g. `content/en/`. The site root `/` will then redirect to `/en/`.
+[kinds]: /getting-started/glossary/#page-kind
 
-### disableAliases
+###### disableLiveReload
 
-**Default value:** false
+(`bool`) Disable automatic live reloading of browser window. Default is `false`.
 
-Will disable generation of alias redirects. Note that even if `disableAliases` is set, the aliases themselves are preserved on the page. The motivation with this is to be able to generate 301 redirects in an `.htaccess`, a Netlify `_redirects` file or similar using a custom output format.
+###### disablePathToLower
 
-### disableHugoGeneratorInject
+(`bool`) Do not convert the url/path to lowercase. Default is `false`.
 
-**Default value:** false
+###### enableEmoji
 
-Hugo will, by default, inject a generator meta tag in the HTML head on the _home page only_. You can turn it off, but we would really appreciate if you don't, as this is a good way to watch Hugo's popularity on the rise.
+(`bool`) Enable Emoji emoticons support for page content; see the [emoji shortcode quick reference guide](/quick-reference/emojis/). Default is `false`.
 
-### disableKinds
+###### enableGitInfo
 
-**Default value:** []
+(`bool`) Enable `.GitInfo` object for each page (if the Hugo site is versioned by Git). This will then update the `Lastmod` parameter for each page using the last git commit date for that content file. Default is `false`.
 
-Enable disabling of all pages of the specified *Kinds*. Allowed values in this list: `"page"`, `"home"`, `"section"`, `"taxonomy"`, `"term"`, `"RSS"`, `"sitemap"`, `"robotsTXT"`, `"404"`.
+###### enableMissingTranslationPlaceholders
 
-### disableLiveReload
+(`bool`) Show a placeholder instead of the default value or an empty string if a translation is missing. Default is `false`.
 
-**Default value:**  false
+###### enableRobotsTXT
 
-Disable automatic live reloading of browser window.
+(`bool`) Enable generation of `robots.txt` file. Default is `false`.
 
-### disablePathToLower
-
-**Default value:** false
-
-Do not convert the url/path to lowercase.
-
-### enableEmoji
-
-**Default value:** false
-
-Enable Emoji emoticons support for page content; see the [emoji shortcode quick reference guide](/quick-reference/emojis/).
-
-### enableGitInfo
-
-**Default value:** false
-
-Enable `.GitInfo` object for each page (if the Hugo site is versioned by Git). This will then update the `Lastmod` parameter for each page using the last git commit date for that content file.
-
-### enableInlineShortcodes
-
-**Default value:** false
-
-Enable inline shortcode support. See [Inline Shortcodes](/templates/shortcode-templates/#inline-shortcodes).
-
-### enableMissingTranslationPlaceholders
-
-**Default value:** false
-
-Show a placeholder instead of the default value or an empty string if a translation is missing.
-
-### enableRobotsTXT
-
-**Default value:** false
-
-Enable generation of `robots.txt` file.
-
-### frontmatter
+###### frontmatter
 
 See [Front matter Configuration](#configure-front-matter).
 
-### hasCJKLanguage
+###### hasCJKLanguage
 
-**Default value:** false
+(`bool`) If true, auto-detect Chinese/Japanese/Korean Languages in the content. This will make `.Summary` and `.WordCount` behave correctly for CJK languages. Default is `false`.
 
-If true, auto-detect Chinese/Japanese/Korean Languages in the content. This will make `.Summary` and `.WordCount` behave correctly for CJK languages.
-
-### imaging
+###### imaging
 
 See [image processing configuration](/content-management/image-processing/#imaging-configuration).
 
-### languageCode
+###### languageCode
 
-**Default value:** ""
-
-A language tag as defined by [RFC 5646](https://datatracker.ietf.org/doc/html/rfc5646). This value is used to populate:
+(`string`) A language tag as defined by [RFC 5646](https://datatracker.ietf.org/doc/html/rfc5646). This value is used to populate:
 
 - The `<language>` element in the internal [RSS template](https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/rss.xml)
 - The `lang` attribute of the `<html>` element in the internal [alias template](https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/alias.html)
 
-### languages
+###### languages
 
 See [Configure Languages](/content-management/multilingual/#configure-languages).
 
-### disableLanguages
+###### disableLanguages
 
 See [Disable a Language](/content-management/multilingual/#disable-a-language)
 
-### markup
+###### markup
 
 See [Configure Markup](/getting-started/configuration-markup).
 
-### mediaTypes
+###### mediaTypes
 
 See [Configure Media Types](/templates/output-formats/#media-types).
 
-### menus
+###### menus
 
 See [Menus](/content-management/menus/#define-in-site-configuration).
 
-### minify
+###### minify
 
-See [Configure Minify](#configure-minify)
+See [Configure Minify](#configure-minify).
 
-### module
+###### module
 
 Module configuration see [module configuration](/hugo-modules/configuration/).
 
-### newContentEditor
+###### newContentEditor
 
-**Default value:** ""
+(`string`) The editor to use when creating new content.
 
-The editor to use when creating new content.
+###### noChmod
 
-### noChmod
+(`bool`) Don't sync permission mode of files. Default is `false`.
 
-**Default value:** false
+###### noTimes
 
-Don't sync permission mode of files.
+(`bool`) Don't sync modification time of files. Default is `false`.
 
-### noTimes
-
-**Default value:** false
-
-Don't sync modification time of files.
-
-### outputFormats
+###### outputFormats
 
 See [Configure Output Formats](#configure-additional-output-formats).
 
-### paginate
+###### paginate
 
-**Default value:** 10
+(`int`) Default number of elements per page in [pagination](/templates/pagination/). Default is `10`.
 
-Default number of elements per page in [pagination](/templates/pagination/).
+###### paginatePath
 
-### paginatePath
+(`string`) The path element used during pagination (`https://example.org/page/2`). Default is `page`.
 
-**Default value:** "page"
-
-The path element used during pagination (`https://example.org/page/2`).
-
-### permalinks
+###### permalinks
 
 See [Content Management](/content-management/urls/#permalinks).
 
-### pluralizeListTitles
+###### pluralizeListTitles
 
-**Default value:** true
+(`bool`) Pluralize titles in lists. Default is `false`.
 
-Pluralize titles in lists.
+###### publishDir
 
-### publishDir
+(`string`) The directory to where Hugo will write the final static site (the HTML files etc.). Default is `public`.
 
-**Default value:** "public"
-
-The directory to where Hugo will write the final static site (the HTML files etc.).
-
-### related
+###### related
 
 See [Related Content](/content-management/related/#configure-related-content).
 
-### relativeURLs
+###### relativeURLs
 
-**Default value:** false
+(`bool`) Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.  Default is `false`. See&nbsp;[details](/content-management/urls/#relative-urls).
 
-Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs. See&nbsp;[details](/content-management/urls/#relative-urls).
+###### refLinksErrorLevel
 
-### refLinksErrorLevel
+(`string`) When using `ref` or `relref` to resolve page links and a link cannot be resolved, it will be logged with this log level. Valid values are `ERROR` (default) or `WARNING`. Any `ERROR` will fail the build (`exit -1`).  Default is `ERROR`.
 
-**Default value:** "ERROR"
+###### refLinksNotFoundURL
 
-When using `ref` or `relref` to resolve page links and a link cannot be resolved, it will be logged with this log level. Valid values are `ERROR` (default) or `WARNING`. Any `ERROR` will fail the build (`exit -1`).
+(`string`) URL to be used as a placeholder when a page reference cannot be found in `ref` or `relref`. Is used as-is.
 
-### refLinksNotFoundURL
+###### removePathAccents
 
-URL to be used as a placeholder when a page reference cannot be found in `ref` or `relref`. Is used as-is.
-
-### removePathAccents
-
-**Default value:** false
-
-Removes [non-spacing marks](https://www.compart.com/en/unicode/category/Mn) from [composite characters](https://en.wikipedia.org/wiki/Precomposed_character) in content paths.
+(`bool`) Removes [non-spacing marks](https://www.compart.com/en/unicode/category/Mn) from [composite characters](https://en.wikipedia.org/wiki/Precomposed_character) in content paths. Default is `false`.
 
 ```text
 content/post/hügó.md → https://example.org/post/hugo/
 ```
 
-### sectionPagesMenu
+###### sectionPagesMenu
 
 See [Menus](/content-management/menus/#define-automatically).
 
-### security
+###### security
 
-See [Security Policy](/about/security-model/#security-policy)
+See [Security Policy](/about/security-model/#security-policy).
 
-### sitemap
+###### sitemap
 
 Default [sitemap configuration](/templates/sitemap-template/#configuration).
 
-### summaryLength
+###### summaryLength
 
-**Default value:** 70
+(`int`) The length of text in words to show in a [`.Summary`](/content-management/summaries/#automatic-summary-splitting). Default is `70`.
 
-The length of text in words to show in a [`.Summary`](/content-management/summaries/#automatic-summary-splitting).
-
-### taxonomies
+###### taxonomies
 
 See [Configure Taxonomies](/content-management/taxonomies#configure-taxonomies).
 
-### theme
+###### theme
 
 See [module configuration](/hugo-modules/configuration/#module-configuration-imports) for how to import a theme.
 
-### themesDir
+###### themesDir
 
-**Default value:** "themes"
+(`string`) The directory where Hugo reads the themes from. Default is `themes`.
 
-The directory where Hugo reads the themes from.
+###### timeout
 
-### timeout
+(`string`) Timeout for generating page contents, specified as a [duration](https://pkg.go.dev/time#Duration) or in seconds. *Note:*&nbsp;this is used to bail out of recursive content generation. You might need to raise this limit if your pages are slow to generate (e.g., because they require large image processing or depend on remote contents). Default is `30s`.
 
-**Default value:** "30s"
+###### timeZone
 
-Timeout for generating page contents, specified as a [duration](https://pkg.go.dev/time#Duration) or in seconds. *Note:*&nbsp;this is used to bail out of recursive content generation. You might need to raise this limit if your pages are slow to generate (e.g., because they require large image processing or depend on remote contents).
+(`string`) The time zone (or location), e.g. `Europe/Oslo`, used to parse front matter dates without such information and in the [`time`] function. The list of valid values may be system dependent, but should include `UTC`, `Local`, and any location in the [IANA Time Zone database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
-### timeZone
+###### title
 
-The time zone (or location), e.g. `Europe/Oslo`, used to parse front matter dates without such information and in the [`time`] function. The list of valid values may be system dependent, but should include `UTC`, `Local`, and any location in the [IANA Time Zone database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+(`string`) Site title.
 
-### title
+###### titleCaseStyle
 
-Site title.
+(`string`) Default is `ap`. See [Configure Title Case](#configure-title-case).
 
-### titleCaseStyle
+###### uglyURLs
 
-**Default value:** "ap"
+(`bool`) When enabled, creates URL of the form `/filename.html` instead of `/filename/`. Default is `false`.
 
-See [Configure Title Case](#configure-title-case)
+###### watch
 
-### uglyURLs
-
-**Default value:** false
-
-When enabled, creates URL of the form `/filename.html` instead of `/filename/`.
-
-### watch
-
-**Default value:** false
-
-Watch filesystem for changes and recreate as needed.
+(`bool`) Watch filesystem for changes and recreate as needed. Default is `false`.
 
 {{% note %}}
 If you are developing your site on a \*nix machine, here is a handy shortcut for finding a configuration option from the command line:
@@ -706,25 +635,6 @@ none
 
 HUGO_NUMWORKERMULTIPLIER
 : Can be set to increase or reduce the number of workers used in parallel processing in Hugo. If not set, the number of logical CPUs will be used.
-
-## Example configuration
-
-The following is a typical example of a configuration file. The values nested under `params:` will populate the [`.Site.Params`] variable for use in [templates]:
-
-{{< code-toggle file=hugo >}}
-baseURL: "https://yoursite.example.com/"
-title: "My Hugo Site"
-permalinks:
-  posts: /:year/:month/:title/
-params:
-  Subtitle: "Hugo is Absurdly Fast!"
-  AuthorName: "Jon Doe"
-  GitHubUser: "spf13"
-  ListOfFoo:
-    - "foo1"
-    - "foo2"
-  SidebarRecentLimit: 5
-{{< /code-toggle >}}
 
 ## Configure with environment variables
 
