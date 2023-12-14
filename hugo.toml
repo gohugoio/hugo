@@ -93,3 +93,8 @@ ID = 'G-MBZGKNMDWC'
 
 [taxonomies]
   category = "categories"
+
+[[cascade]]
+categories = ['commands']
+[cascade._target]
+path = '/commands/**'
