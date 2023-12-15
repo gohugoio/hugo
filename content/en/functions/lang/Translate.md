@@ -8,7 +8,6 @@ action:
   related: []
   returnType: string
   signatures: ['lang.Translate KEY [CONTEXT]']
-toc: true
 aliases: [/functions/i18n]
 ---
 
