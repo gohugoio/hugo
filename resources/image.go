@@ -279,8 +279,8 @@ func (i *imageResource) Filter(filters ...any) (images.ImageResource, error) {
 	}
 
 	return i.doWithImageConfig(conf, func(src image.Image) (image.Image, error) {
-		filters := gfilters
-		for j, f := range gfilters {
+		var filters []gift.Filter
+		for _, f := range gfilters {
 			f = images.UnwrapFilter(f)
 			if specProvider, ok := f.(images.ImageProcessSpecProvider); ok {
 				processSpec := specProvider.ImageProcessSpec()
@@ -293,10 +293,14 @@ func (i *imageResource) Filter(filters ...any) (images.ImageResource, error) {
 				if err != nil {
 					return nil, err
 				}
-				// Replace the filter with the new filters.
-				// This slice will be empty if this is just a format conversion.
-				filters = append(filters[:j], append(pFilters, filters[j+1:]...)...)
-
+				filters = append(filters, pFilters...)
+			} else if orientationProvider, ok := f.(images.ImageFilterFromOrientationProvider); ok {
+				tf := orientationProvider.AutoOrient(i.Exif())
+				if tf != nil {
+					filters = append(filters, tf)
+				}
+			} else {
+				filters = append(filters, f)
 			}
 		}
 		return i.Proc.Filter(src, filters...)
