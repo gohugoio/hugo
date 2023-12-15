@@ -174,6 +174,14 @@ func (*Filters) Padding(args ...any) gift.Filter {
 	}
 }
 
+// AutoOrient creates a filter that rotates and flips an image as needed per
+// its EXIF orientation tag.
+func (*Filters) AutoOrient() gift.Filter {
+	return filter{
+		Filter: autoOrientFilter{},
+	}
+}
+
 // Brightness creates a filter that changes the brightness of an image.
 // The percentage parameter must be in range (-100, 100).
 func (*Filters) Brightness(percentage any) gift.Filter {
