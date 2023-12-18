@@ -385,7 +385,7 @@ See [Content Management](/content-management/urls/#permalinks).
 
 ###### pluralizeListTitles
 
-(`bool`) Pluralize titles in lists. Default is `false`.
+(`bool`) Pluralize titles in lists. Default is `true`.
 
 ###### publishDir
 
