@@ -32,7 +32,7 @@ jobs:
           **/go.sum
           **/go.mod
     - name: Install Ruby
-      uses: ruby/setup-ruby@ee2113536afb7f793eed4ce60e8d3b26db912da4
+      uses: ruby/setup-ruby@036ef458ddccddb148a2b9fb67e95a22fdbf728b
       with:
         ruby-version: '2.7'
         bundler-cache: true #

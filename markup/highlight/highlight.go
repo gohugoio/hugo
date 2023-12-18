@@ -232,7 +232,6 @@ func highlight(fw hugio.FlexiWriter, code, lang string, attributes []attributes.
 				return ``
 			},
 		}
-
 	} else {
 		wrapper = getPreWrapper(lang, w)
 	}
@@ -312,10 +311,6 @@ func (s startEnd) Start(code bool, styleAttr string) string {
 
 func (s startEnd) End(code bool) string {
 	return s.end(code)
-}
-
-func WritePreEnd(w io.Writer) {
-	fmt.Fprint(w, preEnd)
 }
 
 func writeDivStart(w hugio.FlexiWriter, attrs []attributes.Attribute) {

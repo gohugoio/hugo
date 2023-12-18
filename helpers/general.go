@@ -32,7 +32,6 @@ import (
 	"github.com/jdkato/prose/transform"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
-	"github.com/spf13/pflag"
 )
 
 // FilePathSeparator as defined by os.Separator.
@@ -315,18 +314,6 @@ func MD5FromReader(r io.Reader) (string, error) {
 // IsWhitespace determines if the given rune is whitespace.
 func IsWhitespace(r rune) bool {
 	return r == ' ' || r == '\t' || r == '\n' || r == '\r'
-}
-
-// NormalizeHugoFlags facilitates transitions of Hugo command-line flags,
-// e.g. --baseUrl to --baseURL, --uglyUrls to --uglyURLs
-func NormalizeHugoFlags(f *pflag.FlagSet, name string) pflag.NormalizedName {
-	switch name {
-	case "baseUrl":
-		name = "baseURL"
-	case "uglyUrls":
-		name = "uglyURLs"
-	}
-	return pflag.NormalizedName(name)
 }
 
 // PrintFs prints the given filesystem to the given writer starting from the given path.

@@ -484,10 +484,6 @@ func doRenderShortcode(
 	return prerenderedShortcode{s: result, hasVariants: hasVariants}, err
 }
 
-func (s *shortcodeHandler) hasShortcodes() bool {
-	return s != nil && len(s.shortcodes) > 0
-}
-
 func (s *shortcodeHandler) addName(name string) {
 	s.nameSetMu.Lock()
 	defer s.nameSetMu.Unlock()
@@ -527,13 +523,6 @@ func (s *shortcodeHandler) prepareShortcodesForPage(ctx context.Context, p *page
 	}
 
 	return rendered, nil
-}
-
-func (s *shortcodeHandler) parseError(err error, input []byte, pos int) error {
-	if s.p != nil {
-		return s.p.parseError(err, input, pos)
-	}
-	return err
 }
 
 // pageTokens state:

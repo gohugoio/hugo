@@ -1,11 +1,9 @@
 package images
 
 import (
-	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/text"
-	"github.com/yuin/goldmark/util"
 )
 
 type (
@@ -19,18 +17,6 @@ const (
 	// Dont's change this; the prefix must match the internalAttrPrefix in the root goldmark package.
 	AttrIsBlock = "_h__isBlock"
 )
-
-func New(wrapStandAloneImageWithinParagraph bool) goldmark.Extender {
-	return &linksExtension{wrapStandAloneImageWithinParagraph: wrapStandAloneImageWithinParagraph}
-}
-
-func (e *linksExtension) Extend(m goldmark.Markdown) {
-	m.Parser().AddOptions(
-		parser.WithASTTransformers(
-			util.Prioritized(&Transformer{wrapStandAloneImageWithinParagraph: e.wrapStandAloneImageWithinParagraph}, 300),
-		),
-	)
-}
 
 type Transformer struct {
 	wrapStandAloneImageWithinParagraph bool
@@ -67,7 +53,5 @@ func (t *Transformer) Transform(doc *ast.Document, reader text.Reader, pctx pars
 		}
 
 		return ast.WalkContinue, nil
-
 	})
-
 }

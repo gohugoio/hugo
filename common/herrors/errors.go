@@ -15,14 +15,12 @@
 package herrors
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io"
 	"os"
 	"runtime"
 	"runtime/debug"
-	"strconv"
 )
 
 // PrintStackTrace prints the current stacktrace to w.
@@ -47,16 +45,6 @@ func Recover(args ...any) {
 		args = append(args, "stacktrace from panic: \n"+string(debug.Stack()), "\n")
 		fmt.Println(args...)
 	}
-}
-
-// GetGID the current goroutine id. Used only for debugging.
-func GetGID() uint64 {
-	b := make([]byte, 64)
-	b = b[:runtime.Stack(b, false)]
-	b = bytes.TrimPrefix(b, []byte("goroutine "))
-	b = b[:bytes.IndexByte(b, ' ')]
-	n, _ := strconv.ParseUint(string(b), 10, 64)
-	return n
 }
 
 // IsFeatureNotAvailableError returns true if the given error is or contains a FeatureNotAvailableError.

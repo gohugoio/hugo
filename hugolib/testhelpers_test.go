@@ -43,7 +43,6 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/resources/resource"
 
@@ -522,7 +521,7 @@ func (s *sitesBuilder) CreateSitesE() error {
 				"data",
 				"i18n",
 			} {
-				if err := os.MkdirAll(filepath.Join(s.workingDir, dir), 0777); err != nil {
+				if err := os.MkdirAll(filepath.Join(s.workingDir, dir), 0o777); err != nil {
 					return fmt.Errorf("failed to create %q: %w", dir, err)
 				}
 			}
@@ -555,7 +554,6 @@ func (s *sitesBuilder) CreateSitesE() error {
 	depsCfg.TestLogger = s.logger
 
 	sites, err := NewHugoSites(depsCfg)
-
 	if err != nil {
 		return fmt.Errorf("failed to create sites: %w", err)
 	}
@@ -878,20 +876,6 @@ func (th testHelper) assertFileContent(filename string, matches ...string) {
 	}
 }
 
-func (th testHelper) assertFileContentRegexp(filename string, matches ...string) {
-	filename = th.replaceDefaultContentLanguageValue(filename)
-	content := readWorkingDir(th, th.Fs, filename)
-	for _, match := range matches {
-		match = th.replaceDefaultContentLanguageValue(match)
-		r := regexp.MustCompile(match)
-		matches := r.MatchString(content)
-		if !matches {
-			fmt.Println("Expected to match regexp:\n"+match+"\nGot:\n", content)
-		}
-		th.Assert(matches, qt.Equals, true)
-	}
-}
-
 func (th testHelper) assertFileNotExist(filename string) {
 	exists, err := helpers.Exists(filename, th.Fs.PublishDir)
 	th.Assert(err, qt.IsNil)
@@ -908,16 +892,11 @@ func (th testHelper) replaceDefaultContentLanguageValue(value string) string {
 	return value
 }
 
-func loadTestConfig(fs afero.Fs) (*allconfig.Configs, error) {
-	res, err := allconfig.LoadConfig(allconfig.ConfigSourceDescriptor{Fs: fs})
-	return res, err
-}
-
 func loadTestConfigFromProvider(cfg config.Provider) (*allconfig.Configs, error) {
 	workingDir := cfg.GetString("workingDir")
 	fs := afero.NewMemMapFs()
 	if workingDir != "" {
-		fs.MkdirAll(workingDir, 0755)
+		fs.MkdirAll(workingDir, 0o755)
 	}
 	res, err := allconfig.LoadConfig(allconfig.ConfigSourceDescriptor{Flags: cfg, Fs: fs})
 	return res, err
@@ -970,18 +949,6 @@ func newTestSitesFromConfig(t testing.TB, afs afero.Fs, tomlConfig string, layou
 	c.Assert(err, qt.IsNil)
 
 	return th, h
-}
-
-func createWithTemplateFromNameValues(additionalTemplates ...string) func(templ tpl.TemplateManager) error {
-	return func(templ tpl.TemplateManager) error {
-		for i := 0; i < len(additionalTemplates); i += 2 {
-			err := templ.AddTemplate(additionalTemplates[i], additionalTemplates[i+1])
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	}
 }
 
 // TODO(bep) replace these with the builder

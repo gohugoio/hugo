@@ -16,7 +16,6 @@ package hugolib
 import (
 	"fmt"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/config"
@@ -634,10 +633,6 @@ func collectIdentities(set map[identity.Identity]bool, provider identity.Provide
 	} else {
 		set[provider.GetIdentity()] = true
 	}
-}
-
-func ident(level int) string {
-	return strings.Repeat(" ", level)
 }
 
 func TestPartialInline(t *testing.T) {

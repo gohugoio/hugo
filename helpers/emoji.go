@@ -30,12 +30,6 @@ var (
 	emojiMaxSize   int
 )
 
-// Emoji returns the emoji given a key, e.g. ":smile:", nil if not found.
-func Emoji(key string) []byte {
-	emojiInit.Do(initEmoji)
-	return emojis[key]
-}
-
 // Emojify "emojifies" the input source.
 // Note that the input byte slice will be modified if needed.
 // See http://www.emoji-cheat-sheet.com/

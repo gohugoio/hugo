@@ -60,14 +60,7 @@ type Fs struct {
 	WorkingDirWritable afero.Fs
 }
 
-// NewDefault creates a new Fs with the OS file system
-// as source and destination file systems.
-func NewDefault(conf config.BaseConfig) *Fs {
-	fs := Os
-	return NewFrom(fs, conf)
-}
-
-func NewDefaultOld(cfg config.Provider) *Fs {
+func NewDefault(cfg config.Provider) *Fs {
 	workingDir, publishDir := getWorkingPublishDir(cfg)
 	fs := Os
 	return newFs(fs, fs, workingDir, publishDir)
@@ -99,7 +92,6 @@ func getWorkingPublishDir(cfg config.Provider) (string, string) {
 		publishDir = cfg.GetString("publishDir")
 	}
 	return workingDir, publishDir
-
 }
 
 func newFs(source, destination afero.Fs, workingDir, publishDir string) *Fs {
@@ -166,7 +158,7 @@ func MakeReadableAndRemoveAllModulePkgDir(fs afero.Fs, dir string) (int, error) 
 		}
 		if info.IsDir() {
 			counter++
-			fs.Chmod(path, 0777)
+			fs.Chmod(path, 0o777)
 		}
 		return nil
 	})
@@ -217,7 +209,6 @@ func WalkFilesystems(fs afero.Fs, fn WalkFn) bool {
 		if WalkFilesystems(afs.UnwrapFilesystem(), fn) {
 			return true
 		}
-
 	} else if bfs, ok := fs.(FilesystemsUnwrapper); ok {
 		for _, sf := range bfs.UnwrapFilesystems() {
 			if WalkFilesystems(sf, fn) {

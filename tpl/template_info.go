@@ -39,22 +39,6 @@ type InfoManager interface {
 	identity.Manager
 }
 
-type defaultInfo struct {
-	identity.Manager
-	parseInfo ParseInfo
-}
-
-func NewInfo(id identity.Manager, parseInfo ParseInfo) Info {
-	return &defaultInfo{
-		Manager:   id,
-		parseInfo: parseInfo,
-	}
-}
-
-func (info *defaultInfo) ParseInfo() ParseInfo {
-	return info.parseInfo
-}
-
 type ParseInfo struct {
 	// Set for shortcode templates with any {{ .Inner }}
 	IsInner bool

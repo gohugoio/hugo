@@ -31,7 +31,6 @@ import (
 var DefaultTypes Types
 
 func init() {
-
 	ns, err := DecodeTypes(nil)
 	if err != nil {
 		panic(err)
@@ -61,7 +60,6 @@ type MediaTypeConfig struct {
 
 // DecodeTypes decodes the given map of media types.
 func DecodeTypes(in map[string]any) (*config.ConfigNamespace[map[string]MediaTypeConfig, Types], error) {
-
 	buildConfig := func(v any) (Types, any, error) {
 		m, err := maps.ToStringMapE(v)
 		if err != nil {
@@ -106,34 +104,4 @@ func DecodeTypes(in map[string]any) (*config.ConfigNamespace[map[string]MediaTyp
 		return nil, fmt.Errorf("failed to decode media types: %w", err)
 	}
 	return ns, nil
-
-}
-
-func suffixIsRemoved() error {
-	return errors.New(`MediaType.Suffix is removed. Before Hugo 0.44 this was used both to set a custom file suffix and as way
-to augment the mediatype definition (what you see after the "+", e.g. "image/svg+xml").
-
-This had its limitations. For one, it was only possible with one file extension per MIME type.
-
-Now you can specify multiple file suffixes using "suffixes", but you need to specify the full MIME type
-identifier:
-
-[mediaTypes]
-[mediaTypes."image/svg+xml"]
-suffixes = ["svg", "abc" ]
-
-In most cases, it will be enough to just change:
-
-[mediaTypes]
-[mediaTypes."my/custom-mediatype"]
-suffix = "txt"
-
-To:
-
-[mediaTypes]
-[mediaTypes."my/custom-mediatype"]
-suffixes = ["txt"]
-
-Note that you can still get the Media Type's suffix from a template: {{ $mediaType.Suffix }}. But this will now map to the MIME type filename.
-`)
 }

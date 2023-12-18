@@ -129,21 +129,6 @@ type TemplatesProvider interface {
 	TextTmpl() TemplateParseFinder
 }
 
-// WithInfo wraps the info in a template.
-func WithInfo(templ Template, info Info) Template {
-	if manager, ok := info.(InfoManager); ok {
-		return &templateInfoManager{
-			Template:    templ,
-			InfoManager: manager,
-		}
-	}
-
-	return &templateInfo{
-		Template: templ,
-		Info:     info,
-	}
-}
-
 var baseOfRe = regexp.MustCompile("template: (.*?):")
 
 func extractBaseOf(err string) string {
@@ -171,17 +156,6 @@ func SetPageInContext(ctx context.Context, p page) context.Context {
 
 type page interface {
 	IsNode() bool
-}
-
-func GetHasLockFromContext(ctx context.Context) bool {
-	if v := ctx.Value(texttemplate.HasLockContextKey); v != nil {
-		return v.(bool)
-	}
-	return false
-}
-
-func SetHasLockInContext(ctx context.Context, hasLock bool) context.Context {
-	return context.WithValue(ctx, texttemplate.HasLockContextKey, hasLock)
 }
 
 func GetCallbackFunctionFromContext(ctx context.Context) any {

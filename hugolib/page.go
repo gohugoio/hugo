@@ -851,10 +851,6 @@ func (p *pageState) pathOrTitle() string {
 	return p.Title()
 }
 
-func (p *pageState) posFromPage(offset int) text.Position {
-	return p.posFromInput(p.source.parsed.Input(), offset)
-}
-
 func (p *pageState) posFromInput(input []byte, offset int) text.Position {
 	if offset < 0 {
 		return text.Position{
