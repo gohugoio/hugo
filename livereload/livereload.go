@@ -113,12 +113,6 @@ func ForceRefresh() {
 	RefreshPath("/x.js")
 }
 
-// NavigateToPath tells livereload to navigate to the given path.
-// This translates to `window.location.href = path` in the client.
-func NavigateToPath(path string) {
-	RefreshPath(hugoNavigatePrefix + path)
-}
-
 // NavigateToPathForPort is similar to NavigateToPath but will also
 // set window.location.port to the given port value.
 func NavigateToPathForPort(path string, port int) {

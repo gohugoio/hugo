@@ -1,0 +1,1 @@
+deadcode -test ./... | grep -v go_templ

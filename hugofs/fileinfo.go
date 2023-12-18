@@ -15,6 +15,7 @@
 package hugofs
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -27,8 +28,6 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs/files"
 	"golang.org/x/text/unicode/norm"
-
-	"errors"
 
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/htime"
@@ -224,7 +223,8 @@ func newDirNameOnlyFileInfo(name string, meta *FileMeta, fileOpener func() (afer
 func decorateFileInfo(
 	fi os.FileInfo,
 	fs afero.Fs, opener func() (afero.File, error),
-	filename, filepath string, inMeta *FileMeta) FileMetaInfo {
+	filename, filepath string, inMeta *FileMeta,
+) FileMetaInfo {
 	var meta *FileMeta
 	var fim FileMetaInfo
 
@@ -287,13 +287,6 @@ func fileInfosToNames(fis []os.FileInfo) []string {
 		names[i] = d.Name()
 	}
 	return names
-}
-
-func fromSlash(filenames []string) []string {
-	for i, name := range filenames {
-		filenames[i] = filepath.FromSlash(name)
-	}
-	return filenames
 }
 
 func sortFileInfos(fis []os.FileInfo) {

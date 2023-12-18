@@ -266,24 +266,3 @@ func (c *ContentSpec) TrimShortHTML(input []byte) []byte {
 func isEndOfSentence(r rune) bool {
 	return r == '.' || r == '?' || r == '!' || r == '"' || r == '\n'
 }
-
-// Kept only for benchmark.
-func (c *ContentSpec) truncateWordsToWholeSentenceOld(content string) (string, bool) {
-	words := strings.Fields(content)
-
-	if c.Cfg.SummaryLength() >= len(words) {
-		return strings.Join(words, " "), false
-	}
-
-	for counter, word := range words[c.Cfg.SummaryLength():] {
-		if strings.HasSuffix(word, ".") ||
-			strings.HasSuffix(word, "?") ||
-			strings.HasSuffix(word, ".\"") ||
-			strings.HasSuffix(word, "!") {
-			upper := c.Cfg.SummaryLength() + counter + 1
-			return strings.Join(words[:upper], " "), (upper < len(words))
-		}
-	}
-
-	return strings.Join(words[:c.Cfg.SummaryLength()], " "), true
-}

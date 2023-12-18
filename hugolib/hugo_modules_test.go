@@ -63,11 +63,11 @@ path="github.com/gohugoio/hugoTestModule2"
 		b := newTestSitesBuilder(t)
 		tempDir := t.TempDir()
 		workingDir := filepath.Join(tempDir, "myhugosite")
-		b.Assert(os.MkdirAll(workingDir, 0777), qt.IsNil)
+		b.Assert(os.MkdirAll(workingDir, 0o777), qt.IsNil)
 		cfg := config.New()
 		cfg.Set("workingDir", workingDir)
 		cfg.Set("publishDir", "public")
-		b.Fs = hugofs.NewDefaultOld(cfg)
+		b.Fs = hugofs.NewDefault(cfg)
 		b.WithWorkingDir(workingDir).WithConfigFile("toml", createConfig(workingDir, moduleOpts))
 		b.WithTemplates(
 			"index.html", `
@@ -352,7 +352,7 @@ ignoreVendorPaths = %q
 		b := newTestSitesBuilder(t)
 
 		// Need to use OS fs for this.
-		b.Fs = hugofs.NewDefaultOld(v)
+		b.Fs = hugofs.NewDefault(v)
 
 		b.WithWorkingDir(workingDir).WithConfigFile("toml", config)
 		b.WithContent("page.md", `
@@ -683,11 +683,11 @@ Data: {{ .Site.Data }}
 	createDirsAndFiles := func(baseDir string) {
 		for _, dir := range files.ComponentFolders {
 			realDir := filepath.Join(baseDir, dir, "real")
-			c.Assert(os.MkdirAll(realDir, 0777), qt.IsNil)
-			c.Assert(afero.WriteFile(fs.Source, filepath.Join(realDir, "data.toml"), []byte("[hello]\nother = \"hello\""), 0777), qt.IsNil)
+			c.Assert(os.MkdirAll(realDir, 0o777), qt.IsNil)
+			c.Assert(afero.WriteFile(fs.Source, filepath.Join(realDir, "data.toml"), []byte("[hello]\nother = \"hello\""), 0o777), qt.IsNil)
 		}
 
-		c.Assert(afero.WriteFile(fs.Source, filepath.Join(baseDir, "layouts", "index.html"), []byte(homeTemplate), 0777), qt.IsNil)
+		c.Assert(afero.WriteFile(fs.Source, filepath.Join(baseDir, "layouts", "index.html"), []byte(homeTemplate), 0o777), qt.IsNil)
 	}
 
 	// Create project dirs and files.
@@ -849,7 +849,7 @@ workingDir = %q
 	cfg.Set("workingDir", workingDir)
 	cfg.Set("publishDir", "public")
 
-	b.Fs = hugofs.NewDefaultOld(cfg)
+	b.Fs = hugofs.NewDefault(cfg)
 
 	b.WithWorkingDir(workingDir).WithConfigFile("toml", tomlConfig)
 	b.WithTemplatesAdded("index.html", `
@@ -877,8 +877,8 @@ workingDir = %q
 <a href="{{ $link | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}{{ if $isRemote }} target="_blank"{{ end }}>{{ .Text | safeHTML }}</a>
 `)
 
-	os.Mkdir(filepath.Join(workingDir, "mycontent"), 0777)
-	os.Mkdir(filepath.Join(workingDir, "mycontent", "mybundle"), 0777)
+	os.Mkdir(filepath.Join(workingDir, "mycontent"), 0o777)
+	os.Mkdir(filepath.Join(workingDir, "mycontent", "mybundle"), 0o777)
 
 	b.WithSourceFile("README.md", `---
 title: "Readme Title"
@@ -974,9 +974,9 @@ workingDir = %q
 		cfg := config.New()
 		cfg.Set("workingDir", workingDir)
 		cfg.Set("publishDir", "public")
-		b.Fs = hugofs.NewDefaultOld(cfg)
+		b.Fs = hugofs.NewDefault(cfg)
 
-		os.MkdirAll(filepath.Join(workingDir, "content", "blog"), 0777)
+		os.MkdirAll(filepath.Join(workingDir, "content", "blog"), 0o777)
 
 		b.WithWorkingDir(workingDir).WithConfigFile("toml", tomlConfig)
 
@@ -1034,12 +1034,12 @@ title: P1
 		defer test.clean()
 
 		subContentDir := filepath.Join(test.workingDir, "mycontent", "sub")
-		os.MkdirAll(subContentDir, 0777)
+		os.MkdirAll(subContentDir, 0o777)
 		myPartialsDir := filepath.Join(test.workingDir, "subdir", "mypartials")
-		os.MkdirAll(myPartialsDir, 0777)
+		os.MkdirAll(myPartialsDir, 0o777)
 
 		absShortcodesDir := filepath.Join(absDir, "abs", "myshortcodes")
-		os.MkdirAll(absShortcodesDir, 0777)
+		os.MkdirAll(absShortcodesDir, 0o777)
 
 		b.WithSourceFile("README.md", "---\ntitle: Readme\n---")
 		b.WithSourceFile("mycontent/sub/p1.md", "---\ntitle: P1\n---")
@@ -1128,7 +1128,7 @@ title: Abs
 ---
 
 Content.
-`), 0777)
+`), 0o777)
 
 	b.WithWorkingDir(workDir).WithConfigFile("toml", config)
 	b.WithContent("dummy.md", "")

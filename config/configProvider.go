@@ -95,9 +95,3 @@ func GetStringSlicePreserveString(cfg Provider, key string) []string {
 	sd := cfg.Get(key)
 	return types.ToStringSlicePreserveString(sd)
 }
-
-func setIfNotSet(cfg Provider, key string, value any) {
-	if !cfg.IsSet(key) {
-		cfg.Set(key, value)
-	}
-}

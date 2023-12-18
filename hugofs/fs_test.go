@@ -30,7 +30,6 @@ func TestIsOsFs(t *testing.T) {
 	c.Assert(IsOsFs(&afero.MemMapFs{}), qt.Equals, false)
 	c.Assert(IsOsFs(afero.NewBasePathFs(&afero.MemMapFs{}, "/public")), qt.Equals, false)
 	c.Assert(IsOsFs(afero.NewBasePathFs(Os, t.TempDir())), qt.Equals, true)
-
 }
 
 func TestNewDefault(t *testing.T) {
@@ -38,7 +37,7 @@ func TestNewDefault(t *testing.T) {
 	v := config.New()
 	v.Set("workingDir", t.TempDir())
 	v.Set("publishDir", "public")
-	f := NewDefaultOld(v)
+	f := NewDefault(v)
 
 	c.Assert(f.Source, qt.IsNotNil)
 	c.Assert(f.Source, hqt.IsSameType, new(afero.OsFs))

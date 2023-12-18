@@ -424,16 +424,6 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 	return img, nil
 }
 
-func (i *imageResource) decodeImageConfig(action, spec string) (images.ImageConfig, error) {
-	options := strings.Fields(spec)
-	conf, err := images.DecodeImageConfig(action, options, i.Proc.Cfg, i.Format)
-	if err != nil {
-		return conf, err
-	}
-
-	return conf, nil
-}
-
 type giphy struct {
 	image.Image
 	gif *gif.GIF

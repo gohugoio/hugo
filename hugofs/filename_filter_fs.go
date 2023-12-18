@@ -23,9 +23,7 @@ import (
 	"github.com/spf13/afero"
 )
 
-var (
-	_ FilesystemUnwrapper = (*filenameFilterFs)(nil)
-)
+var _ FilesystemUnwrapper = (*filenameFilterFs)(nil)
 
 func newFilenameFilterFs(fs afero.Fs, base string, filter *glob.FilenameFilter) afero.Fs {
 	return &filenameFilterFs{
@@ -93,12 +91,6 @@ func (fs *filenameFilterFs) Stat(name string) (os.FileInfo, error) {
 	return fi, err
 }
 
-func (fs *filenameFilterFs) getOpener(name string) func() (afero.File, error) {
-	return func() (afero.File, error) {
-		return fs.Open(name)
-	}
-}
-
 type filenameFilterDir struct {
 	afero.File
 	base   string
@@ -162,9 +154,11 @@ func (fs *filenameFilterFs) RemoveAll(p string) error {
 func (fs *filenameFilterFs) Rename(o, n string) error {
 	return syscall.EPERM
 }
+
 func (fs *filenameFilterFs) Create(n string) (afero.File, error) {
 	return nil, syscall.EPERM
 }
+
 func (fs *filenameFilterFs) Name() string {
 	return "FinameFilterFS"
 }

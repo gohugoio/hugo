@@ -57,7 +57,6 @@ var filePathSeparator = string(filepath.Separator)
 // to underline that even if they can be composites, they all have a base path set to a specific
 // resource folder, e.g "/my-project/content". So, no absolute filenames needed.
 type BaseFs struct {
-
 	// SourceFilesystems contains the different source file systems.
 	*SourceFilesystems
 
@@ -180,7 +179,6 @@ func (b *BaseFs) AbsProjectContentDir(filename string) (string, string, error) {
 				return filename, filepath.Join(meta.Filename, filename), nil
 			}
 		}
-
 	}
 
 	return "", "", fmt.Errorf("could not determine content directory for %q", filename)
@@ -301,7 +299,6 @@ func (s SourceFilesystems) ContentStaticAssetFs(lang string) afero.Fs {
 			},
 		},
 	)
-
 }
 
 // StaticFs returns the static filesystem for the given language.
@@ -666,8 +663,8 @@ func (b *sourceFilesystemsBuilder) isStaticMount(mnt modules.Mount) bool {
 
 func (b *sourceFilesystemsBuilder) createOverlayFs(
 	collector *filesystemsCollector,
-	mounts []mountsDescriptor) error {
-
+	mounts []mountsDescriptor,
+) error {
 	if len(mounts) == 0 {
 		appendNopIfEmpty := func(ofs *overlayfs.OverlayFs) *overlayfs.OverlayFs {
 			if ofs.NumFilesystems() > 0 {
@@ -854,13 +851,6 @@ func (c *filesystemsCollector) addDir(rfs *hugofs.RootMappingFs, componentFolder
 
 	if err == nil {
 		c.overlayDirs[componentFolder] = append(c.overlayDirs[componentFolder], dirs...)
-	}
-}
-
-func (c *filesystemsCollector) reverseFis(fis []hugofs.FileMetaInfo) {
-	for i := len(fis)/2 - 1; i >= 0; i-- {
-		opp := len(fis) - 1 - i
-		fis[i], fis[opp] = fis[opp], fis[i]
 	}
 }
 

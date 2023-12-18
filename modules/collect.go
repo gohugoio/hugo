@@ -15,6 +15,7 @@ package modules
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -37,8 +38,6 @@ import (
 
 	"github.com/rogpeppe/go-internal/module"
 
-	"errors"
-
 	"github.com/gohugoio/hugo/config"
 	"github.com/spf13/afero"
 )
@@ -46,11 +45,6 @@ import (
 var ErrNotExist = errors.New("module does not exist")
 
 const vendorModulesFilename = "modules.txt"
-
-// IsNotExist returns whether an error means that a module could not be found.
-func IsNotExist(err error) bool {
-	return errors.Is(err, os.ErrNotExist)
-}
 
 func (h *Client) Collect() (ModulesConfig, error) {
 	mc, coll := h.collect(true)
@@ -124,7 +118,6 @@ func (m ModulesConfig) HasConfigFile() bool {
 		if len(mod.ConfigFilenames()) > 0 {
 			return true
 		}
-
 	}
 	return false
 }
@@ -220,7 +213,6 @@ func (c *collector) getVendoredDir(path string) (vendoredModule, bool) {
 }
 
 func (c *collector) add(owner *moduleAdapter, moduleImport Import) (*moduleAdapter, error) {
-
 	var (
 		mod       *goModule
 		moduleDir string
@@ -669,7 +661,6 @@ func (c *collector) normalizeMounts(owner *moduleAdapter, mounts []Mount) ([]Mou
 			} else {
 				continue
 			}
-
 		}
 
 		// Verify that target points to one of the predefined component dirs

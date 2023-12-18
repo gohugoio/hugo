@@ -66,7 +66,6 @@ type ResourceError interface {
 
 // ErrProvider provides an Err.
 type ErrProvider interface {
-
 	// Err returns an error if this resource is in an error state.
 	// This will currently only be set for resources obtained from resources.GetRemote.
 	Err() ResourceError
@@ -214,16 +213,4 @@ func (r resourceTypesHolder) ResourceType() string {
 
 func NewResourceTypesProvider(mediaType media.Type, resourceType string) ResourceTypesProvider {
 	return resourceTypesHolder{mediaType: mediaType, resourceType: resourceType}
-}
-
-type languageHolder struct {
-	lang *langs.Language
-}
-
-func (l languageHolder) Language() *langs.Language {
-	return l.lang
-}
-
-func NewLanguageProvider(lang *langs.Language) LanguageProvider {
-	return languageHolder{lang: lang}
 }

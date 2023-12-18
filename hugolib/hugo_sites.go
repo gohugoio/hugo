@@ -50,7 +50,6 @@ import (
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
-	"github.com/gohugoio/hugo/tpl"
 )
 
 // HugoSites represents the sites to build. Each site represents a language.
@@ -317,21 +316,6 @@ func (h *HugoSites) loadGitInfo() error {
 		}
 	}
 	return nil
-}
-
-func (s *Site) withSiteTemplates(withTemplates ...func(templ tpl.TemplateManager) error) func(templ tpl.TemplateManager) error {
-	return func(templ tpl.TemplateManager) error {
-		for _, wt := range withTemplates {
-			if wt == nil {
-				continue
-			}
-			if err := wt(templ); err != nil {
-				return err
-			}
-		}
-
-		return nil
-	}
 }
 
 // Reset resets the sites and template caches etc., making it ready for a full rebuild.
@@ -659,7 +643,6 @@ func (h *HugoSites) errWithFileContext(err error, f source.File) error {
 	realFilename := fim.Meta().Filename
 
 	return herrors.NewFileErrorFromFile(err, realFilename, h.SourceSpec.Fs.Source, nil)
-
 }
 
 func (h *HugoSites) readData(f source.File) (any, error) {
