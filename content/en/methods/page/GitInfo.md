@@ -61,6 +61,15 @@ AuthorDate
 {{ end }}
 ```
 
+CommitDate
+: (`time.Time`) The commit date.
+
+```go-html-template
+{{ with .GitInfo }}
+  {{ .CommitDate.Format "2006-01-02" }} → 2023-10-09
+{{ end }}
+```
+
 AuthorEmail
 : (`string`) The author's email address, respecting [gitmailmap].
 
