@@ -119,9 +119,10 @@ Renders the given image using the given filter, if any.
 {{- end }}
 
 {{- $validFilters := slice
-  "brightness" "colorbalance" "colorize" "contrast" "gamma" "gaussianblur"
-  "grayscale" "hue" "invert" "none" "opacity" "overlay" "padding" "pixelate"
-  "process" "saturation" "sepia" "sigmoid" "text" "unsharpmask"
+  "autoorient" "brightness" "colorbalance" "colorize" "contrast" "gamma"
+  "gaussianblur" "grayscale" "hue" "invert" "none" "opacity" "overlay"
+  "padding" "pixelate" "process" "saturation" "sepia" "sigmoid" "text"
+  "unsharpmask"
 }}
 
 {{- with $filter }}
@@ -157,7 +158,11 @@ Renders the given image using the given filter, if any.
 {{- /* Create filter. */}}
 {{- $f := "" }}
 {{- $ctx := dict "filter" $filter "args" $filterArgs "name" .Name "position" .Position }}
-{{- if eq $filter "brightness" }}
+{{- if eq $filter "autoorient" }}
+  {{- $ctx = merge $ctx (dict "argsRequired" 0) }}
+  {{- template "validate-arg-count" $ctx }}
+  {{- $f = images.AutoOrient }}
+{{- else if eq $filter "brightness" }}
   {{- $ctx = merge $ctx (dict "argsRequired" 1) }}
   {{- template "validate-arg-count" $ctx }}
   {{- $filterArgs = apply $filterArgs "float" "." }}
