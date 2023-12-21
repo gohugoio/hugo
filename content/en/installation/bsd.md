@@ -24,7 +24,7 @@ Most BSD derivatives maintain a repository for commonly installed applications. 
 
 ### DragonFly BSD
 
-[DragonFly BSD] includes Hugo in its package repository. This will install the extended edition of Hugo:
+[DragonFly BSD] includes Hugo in its package repository. To install the extended edition of Hugo:
 
 ```sh
 sudo pkg install gohugo
@@ -34,7 +34,7 @@ sudo pkg install gohugo
 
 ### FreeBSD
 
-[FreeBSD] includes Hugo in its package repository. This will install the extended edition of Hugo:
+[FreeBSD] includes Hugo in its package repository. To install the extended edition of Hugo:
 
 ```sh
 sudo pkg install gohugo
@@ -44,7 +44,7 @@ sudo pkg install gohugo
 
 ### NetBSD
 
-[NetBSD] includes Hugo in its package repository. This will install the extended edition of Hugo:
+[NetBSD] includes Hugo in its package repository. To install the extended edition of Hugo:
 
 ```sh
 sudo pkgin install go-hugo
