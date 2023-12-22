@@ -43,8 +43,9 @@ This is configurable. See&nbsp;[details].
 
 ## Methods
 
-AbbreviatedHash
-: (`string`) The abbreviated commit hash.
+###### AbbreviatedHash
+
+(`string`) The abbreviated commit hash.
 
 ```go-html-template
 {{ with .GitInfo }}
@@ -52,8 +53,9 @@ AbbreviatedHash
 {{ end }}
 ```
 
-AuthorDate
-: (`time.Time`) The author date.
+###### AuthorDate
+
+(`time.Time`) The author date.
 
 ```go-html-template
 {{ with .GitInfo }}
@@ -61,17 +63,9 @@ AuthorDate
 {{ end }}
 ```
 
-CommitDate
-: (`time.Time`) The commit date.
+###### AuthorEmail
 
-```go-html-template
-{{ with .GitInfo }}
-  {{ .CommitDate.Format "2006-01-02" }} → 2023-10-09
-{{ end }}
-```
-
-AuthorEmail
-: (`string`) The author's email address, respecting [gitmailmap].
+(`string`) The author's email address, respecting [gitmailmap].
 
 ```go-html-template
 {{ with .GitInfo }}
@@ -79,8 +73,9 @@ AuthorEmail
 {{ end }}
 ```
 
-AuthorName
-: (`string`) The author's name, respecting [gitmailmap].
+###### AuthorName
+
+(`string`) The author's name, respecting [gitmailmap].
 
 ```go-html-template
 {{ with .GitInfo }}
@@ -88,8 +83,19 @@ AuthorName
 {{ end }}
 ```
 
-Hash
-: (`string`) The commit hash.
+###### CommitDate
+
+(`time.Time`) The commit date.
+
+```go-html-template
+{{ with .GitInfo }}
+  {{ .CommitDate.Format "2006-01-02" }} → 2023-10-09
+{{ end }}
+```
+
+###### Hash
+
+(`string`) The commit hash.
 
 ```go-html-template
 {{ with .GitInfo }}
@@ -97,8 +103,9 @@ Hash
 {{ end }}
 ```
 
-Subject
-: (`string`) The commit message subject.
+###### Subject
+
+(`string`) The commit message subject.
 
 ```go-html-template
 {{ with .GitInfo }}

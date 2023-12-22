@@ -30,8 +30,9 @@ Code defensively by verifying file existence as shown in each of the examples be
 The path separators (slash or backslash) in `Path`, `Dir`, and `Filename` depend on the operating system.
 {{% /note %}}
 
-BaseFileName
-: (`string`) The file name, excluding the extension.
+###### BaseFileName
+
+(`string`) The file name, excluding the extension.
 
 ```go-html-template
 {{ with .File }}
@@ -39,8 +40,9 @@ BaseFileName
 {{ end }}
 ```
 
-ContentBaseName
-: (`string`) If the page is a branch or leaf bundle, the name of the containing directory, else the `TranslationBaseName`.
+###### ContentBaseName
+
+(`string`) If the page is a branch or leaf bundle, the name of the containing directory, else the `TranslationBaseName`.
 
 ```go-html-template
 {{ with .File }}
@@ -48,8 +50,9 @@ ContentBaseName
 {{ end }}
 ```
 
-Dir
-: (`string`) The file path, excluding the file name, relative to the `content` directory.
+###### Dir
+
+(`string`) The file path, excluding the file name, relative to the `content` directory.
 
 ```go-html-template
 {{ with .File }}
@@ -57,8 +60,9 @@ Dir
 {{ end }}
 ```
 
-Ext
-: (`string`) The file extension.
+###### Ext
+
+(`string`) The file extension.
 
 ```go-html-template
 {{ with .File }}
@@ -66,8 +70,9 @@ Ext
 {{ end }}
 ```
 
-Filename
-: (`string`) The absolute file path.
+###### Filename
+
+(`string`) The absolute file path.
 
 ```go-html-template
 {{ with .File }}
@@ -75,8 +80,9 @@ Filename
 {{ end }}
 ```
 
-Lang
-: (`string`) The language associated with the given file.
+###### Lang
+
+(`string`) The language associated with the given file.
 
 ```go-html-template
 {{ with .File }}
@@ -84,8 +90,9 @@ Lang
 {{ end }}
 ```
 
-LogicalName
-: (`string`) The file name.
+###### LogicalName
+
+(`string`) The file name.
 
 ```go-html-template
 {{ with .File }}
@@ -93,8 +100,9 @@ LogicalName
 {{ end }}
 ```
 
-Path
-: (`string`) The file path, relative to the `content` directory.
+###### Path
+
+(`string`) The file path, relative to the `content` directory.
 
 ```go-html-template
 {{ with .File }}
@@ -102,8 +110,9 @@ Path
 {{ end }}
 ```
 
-TranslationBaseName
-: (`string`) The file name, excluding the extension and language identifier.
+###### TranslationBaseName
+
+(`string`) The file name, excluding the extension and language identifier.
 
 ```go-html-template
 {{ with .File }}
@@ -111,8 +120,9 @@ TranslationBaseName
 {{ end }}
 ```
 
-UniqueID
-: (`string`) The MD5 hash of `.File.Path`.
+###### UniqueID
+
+(`string`) The MD5 hash of `.File.Path`.
 
 ```go-html-template
 {{ with .File }}
