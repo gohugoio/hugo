@@ -12,6 +12,7 @@ related:
   - collections.Shuffle
   - collections.Sort
   - collections.Uniq
+toc: true
 aliases: [/functions/sort]
 ---
 
