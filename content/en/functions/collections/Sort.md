@@ -105,6 +105,40 @@ This produces:
 Victor Marius Jean
 ```
 
+### First level key removal
+
+Hugo removes the first level keys when sorting a map.
+
+Original map:
+
+```json
+{
+  "felix": {
+    "breed": "malicious",
+    "type": "cat"
+  },
+  "spot": {
+    "breed": "boxer",
+    "type": "dog"
+  }
+}
+```
+
+After sorting:
+
+```json
+[
+  {
+    "breed": "malicious",
+    "type": "cat"
+  },
+  {
+    "breed": "boxer",
+    "type": "dog"
+  }
+]
+```
+
 ## Sort a page collection
 
 {{% note %}}
