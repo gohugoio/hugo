@@ -150,7 +150,7 @@ sudo zypper install hugo
 
 ### Solus
 
-The [Solus] distribution of Linux includes Hugo in its package repository. To install the _standard_ edition of Hugo:
+The [Solus] distribution of Linux includes Hugo in its package repository. To install the extended edition of Hugo:
 
 ```sh
 sudo eopkg install hugo
