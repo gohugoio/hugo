@@ -20,9 +20,8 @@ const (
 )
 
 var (
-	isMacOs   = runtime.GOOS == "darwin"
-	isWindows = runtime.GOOS == "windows"
-	isCI      = htesting.IsCI()
+	isMacOs = runtime.GOOS == "darwin"
+	isCI    = htesting.IsCI()
 )
 
 func TestPollerAddRemove(t *testing.T) {

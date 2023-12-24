@@ -174,22 +174,22 @@ func (d Decoder) UnmarshalTo(data []byte, f Format, v any) error {
 		// and change all maps to map[string]interface{} like we would've
 		// gotten from `json`.
 		var ptr any
-		switch v.(type) {
+		switch vv := v.(type) {
 		case *map[string]any:
-			ptr = *v.(*map[string]any)
+			ptr = *vv
 		case *any:
-			ptr = *v.(*any)
+			ptr = *vv
 		default:
 			// Not a map.
 		}
 
 		if ptr != nil {
 			if mm, changed := stringifyMapKeys(ptr); changed {
-				switch v.(type) {
+				switch vv := v.(type) {
 				case *map[string]any:
-					*v.(*map[string]any) = mm.(map[string]any)
+					*vv = mm.(map[string]any)
 				case *any:
-					*v.(*any) = mm
+					*vv = mm
 				}
 			}
 		}
@@ -218,9 +218,9 @@ func (d Decoder) unmarshalCSV(data []byte, v any) error {
 		return err
 	}
 
-	switch v.(type) {
+	switch vv := v.(type) {
 	case *any:
-		*v.(*any) = records
+		*vv = records
 	default:
 		return fmt.Errorf("CSV cannot be unmarshaled into %T", v)
 
@@ -258,11 +258,11 @@ func (d Decoder) unmarshalORG(data []byte, v any) error {
 			frontMatter[k] = v
 		}
 	}
-	switch v.(type) {
+	switch vv := v.(type) {
 	case *map[string]any:
-		*v.(*map[string]any) = frontMatter
-	default:
-		*v.(*any) = frontMatter
+		*vv = frontMatter
+	case *any:
+		*vv = frontMatter
 	}
 	return nil
 }

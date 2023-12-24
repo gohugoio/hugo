@@ -56,11 +56,18 @@ type Format struct {
 	// Enable to ignore the global uglyURLs setting.
 	NoUgly bool `json:"noUgly"`
 
+	// Enable to override the global uglyURLs setting.
+	Ugly bool `json:"ugly"`
+
 	// Enable if it doesn't make sense to include this format in an alternative
 	// format listing, CSS being one good example.
 	// Note that we use the term "alternative" and not "alternate" here, as it
 	// does not necessarily replace the other format, it is an alternative representation.
 	NotAlternative bool `json:"notAlternative"`
+
+	// Eneable if this is a resource which path always starts at the root,
+	// e.g. /robots.txt.
+	Root bool `json:"root"`
 
 	// Setting this will make this output format control the value of
 	// .Permalink and .RelPermalink for a rendered Page.
@@ -75,7 +82,7 @@ type Format struct {
 	Weight int `json:"weight"`
 }
 
-// An ordered list of built-in output formats.
+// Built-in output formats.
 var (
 	AMPFormat = Format{
 		Name:          "amp",
@@ -156,6 +163,7 @@ var (
 		MediaType:   media.Builtin.TextType,
 		BaseName:    "robots",
 		IsPlainText: true,
+		Root:        true,
 		Rel:         "alternate",
 	}
 
@@ -171,8 +179,26 @@ var (
 		Name:      "sitemap",
 		MediaType: media.Builtin.XMLType,
 		BaseName:  "sitemap",
-		NoUgly:    true,
+		Ugly:      true,
 		Rel:       "sitemap",
+	}
+
+	SitemapIndexFormat = Format{
+		Name:      "sitemapindex",
+		MediaType: media.Builtin.XMLType,
+		BaseName:  "sitemap",
+		Ugly:      true,
+		Root:      true,
+		Rel:       "sitemap",
+	}
+
+	HTTPStatusHTMLFormat = Format{
+		Name:           "httpstatus",
+		MediaType:      media.Builtin.HTMLType,
+		NotAlternative: true,
+		Ugly:           true,
+		IsHTML:         true,
+		Permalinkable:  true,
 	}
 )
 
@@ -295,6 +321,11 @@ func (formats Formats) FromFilename(filename string) (f Format, found bool) {
 // "index.xml").
 func (f Format) BaseFilename() string {
 	return f.BaseName + f.MediaType.FirstSuffix.FullSuffix
+}
+
+// IsZero returns true if f represents a zero value.
+func (f Format) IsZero() bool {
+	return f.Name == ""
 }
 
 // MarshalJSON returns the JSON encoding of f.

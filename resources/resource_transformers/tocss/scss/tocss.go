@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"io"
 	"path"
-
 	"path/filepath"
 	"strings"
 
@@ -29,6 +28,7 @@ import (
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/internal/sass"
@@ -115,6 +115,7 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 			fi, err := t.c.sfs.Fs.Stat(filenameToCheck)
 			if err == nil {
 				if fim, ok := fi.(hugofs.FileMetaInfo); ok {
+					ctx.DependencyManager.AddIdentity(identity.CleanStringIdentity(filenameToCheck))
 					return fim.Meta().Filename, "", true
 				}
 			}

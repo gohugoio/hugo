@@ -29,6 +29,7 @@ func TestBuildVariants(t *testing.T) {
 	mainWithImport := `
 -- config.toml --
 disableKinds=["page", "section", "taxonomy", "term", "sitemap", "robotsTXT"]
+disableLiveReload = true
 -- assets/js/main.js --
 import { hello1, hello2 } from './util1';
 hello1();
@@ -61,7 +62,7 @@ JS Content:{{ $js.Content }}:End:
 		b := hugolib.NewIntegrationTestBuilder(hugolib.IntegrationTestConfig{T: c, Running: true, NeedsOsFS: true, TxtarString: mainWithImport}).Build()
 
 		b.AssertFileContent("public/index.html", `abcd`)
-		b.EditFileReplace("assets/js/util1.js", func(s string) string { return strings.ReplaceAll(s, "abcd", "1234") }).Build()
+		b.EditFileReplaceFunc("assets/js/util1.js", func(s string) string { return strings.ReplaceAll(s, "abcd", "1234") }).Build()
 		b.AssertFileContent("public/index.html", `1234`)
 	})
 
@@ -69,7 +70,7 @@ JS Content:{{ $js.Content }}:End:
 		b := hugolib.NewIntegrationTestBuilder(hugolib.IntegrationTestConfig{T: c, Running: true, NeedsOsFS: true, TxtarString: mainWithImport}).Build()
 
 		b.AssertFileContent("public/index.html", `efgh`)
-		b.EditFileReplace("assets/js/util2.js", func(s string) string { return strings.ReplaceAll(s, "efgh", "1234") }).Build()
+		b.EditFileReplaceFunc("assets/js/util2.js", func(s string) string { return strings.ReplaceAll(s, "efgh", "1234") }).Build()
 		b.AssertFileContent("public/index.html", `1234`)
 	})
 }
@@ -257,7 +258,6 @@ JS Content:{{ $js.Content }}:End:
 		b.Assert(err, qt.IsNotNil)
 		b.Assert(err.Error(), qt.Contains, `util1.js:4:17": No matching export in`)
 	})
-
 }
 
 // See issue 10527.
@@ -301,7 +301,6 @@ IMPORT_SRC_DIR:imp3/foo.ts
 			b.AssertFileContent("public/js/main.js", expected)
 		})
 	}
-
 }
 
 // See https://github.com/evanw/esbuild/issues/2745
@@ -342,7 +341,6 @@ License util2
 Main license
 
 	`)
-
 }
 
 // Issue #11232

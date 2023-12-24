@@ -1,4 +1,4 @@
-// Copyright 2022 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import (
 	"os"
 	"runtime"
 	"runtime/debug"
+	"time"
 )
 
 // PrintStackTrace prints the current stacktrace to w.
@@ -45,6 +46,24 @@ func Recover(args ...any) {
 		args = append(args, "stacktrace from panic: \n"+string(debug.Stack()), "\n")
 		fmt.Println(args...)
 	}
+}
+
+// IsTimeoutError returns true if the given error is or contains a TimeoutError.
+func IsTimeoutError(err error) bool {
+	return errors.Is(err, &TimeoutError{})
+}
+
+type TimeoutError struct {
+	Duration time.Duration
+}
+
+func (e *TimeoutError) Error() string {
+	return fmt.Sprintf("timeout after %s", e.Duration)
+}
+
+func (e *TimeoutError) Is(target error) bool {
+	_, ok := target.(*TimeoutError)
+	return ok
 }
 
 // IsFeatureNotAvailableError returns true if the given error is or contains a FeatureNotAvailableError.

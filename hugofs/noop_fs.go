@@ -22,7 +22,7 @@ import (
 )
 
 var (
-	errNoOp          = errors.New("this is a filesystem that does nothing and this operation is not supported")
+	errNoOp          = errors.New("this operation is not supported")
 	_       afero.Fs = (*noOpFs)(nil)
 
 	// NoOpFs provides a no-op filesystem that implements the afero.Fs
@@ -30,8 +30,7 @@ var (
 	NoOpFs = &noOpFs{}
 )
 
-type noOpFs struct {
-}
+type noOpFs struct{}
 
 func (fs noOpFs) Create(name string) (afero.File, error) {
 	panic(errNoOp)
@@ -82,5 +81,49 @@ func (fs noOpFs) Chtimes(name string, atime time.Time, mtime time.Time) error {
 }
 
 func (fs *noOpFs) Chown(name string, uid int, gid int) error {
+	panic(errNoOp)
+}
+
+// noOpRegularFileOps implements the non-directory operations of a afero.File
+// panicking for all operations.
+type noOpRegularFileOps struct{}
+
+func (f *noOpRegularFileOps) Read(p []byte) (n int, err error) {
+	panic(errNoOp)
+}
+
+func (f *noOpRegularFileOps) ReadAt(p []byte, off int64) (n int, err error) {
+	panic(errNoOp)
+}
+
+func (f *noOpRegularFileOps) Seek(offset int64, whence int) (int64, error) {
+	panic(errNoOp)
+}
+
+func (f *noOpRegularFileOps) Write(p []byte) (n int, err error) {
+	panic(errNoOp)
+}
+
+func (f *noOpRegularFileOps) WriteAt(p []byte, off int64) (n int, err error) {
+	panic(errNoOp)
+}
+
+func (f *noOpRegularFileOps) Readdir(count int) ([]os.FileInfo, error) {
+	panic(errNoOp)
+}
+
+func (f *noOpRegularFileOps) Readdirnames(n int) ([]string, error) {
+	panic(errNoOp)
+}
+
+func (f *noOpRegularFileOps) Sync() error {
+	panic(errNoOp)
+}
+
+func (f *noOpRegularFileOps) Truncate(size int64) error {
+	panic(errNoOp)
+}
+
+func (f *noOpRegularFileOps) WriteString(s string) (ret int, err error) {
 	panic(errNoOp)
 }

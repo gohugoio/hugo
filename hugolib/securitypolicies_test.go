@@ -101,9 +101,7 @@ func TestSecurityPolicies(t *testing.T) {
 			testVariant(c, cb, `(?s).*python(\.exe)?" is not whitelisted in policy "security\.exec\.allow".*`)
 		} else {
 			testVariant(c, cb, `(?s).*"rst2html(\.py)?" is not whitelisted in policy "security\.exec\.allow".*`)
-
 		}
-
 	})
 
 	c.Run("Pandoc, denied", func(c *qt.C) {
@@ -116,7 +114,7 @@ func TestSecurityPolicies(t *testing.T) {
 			b.WithContent("page.pdc", "foo")
 		}
 
-		testVariant(c, cb, `"(?s).*pandoc" is not whitelisted in policy "security\.exec\.allow".*`)
+		testVariant(c, cb, `(?s).*pandoc" is not whitelisted in policy "security\.exec\.allow".*`)
 	})
 
 	c.Run("Dart SASS, OK", func(c *qt.C) {
@@ -219,5 +217,4 @@ urls="none"
 `)
 			})
 	})
-
 }

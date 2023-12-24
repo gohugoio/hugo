@@ -16,14 +16,18 @@ package paths
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"path"
 	"path/filepath"
-	"regexp"
 	"strings"
+	"unicode"
 )
 
 // FilePathSeparator as defined by os.Separator.
-const FilePathSeparator = string(filepath.Separator)
+const (
+	FilePathSeparator = string(filepath.Separator)
+	slash             = "/"
+)
 
 // filepathPathBridge is a bridge for common functionality in filepath vs path
 type filepathPathBridge interface {
@@ -72,6 +76,30 @@ func AbsPathify(workingDir, inPath string) string {
 	return filepath.Join(workingDir, inPath)
 }
 
+// AddTrailingSlash adds a trailing Unix styled slash (/) if not already
+// there.
+func AddTrailingSlash(path string) string {
+	if !strings.HasSuffix(path, "/") {
+		path += "/"
+	}
+	return path
+}
+
+// AddLeadingSlash adds a leading Unix styled slash (/) if not already
+// there.
+func AddLeadingSlash(path string) string {
+	if !strings.HasPrefix(path, "/") {
+		path = "/" + path
+	}
+	return path
+}
+
+// AddTrailingAndLeadingSlash adds a leading and trailing Unix styled slash (/) if not already
+// there.
+func AddLeadingAndTrailingSlash(path string) string {
+	return AddTrailingSlash(AddLeadingSlash(path))
+}
+
 // MakeTitle converts the path given to a suitable title, trimming whitespace
 // and replacing hyphens with whitespace.
 func MakeTitle(inpath string) string {
@@ -92,43 +120,6 @@ func makePathRelative(inPath string, possibleDirectories ...string) (string, err
 		}
 	}
 	return inPath, errors.New("can't extract relative path, unknown prefix")
-}
-
-// Should be good enough for Hugo.
-var isFileRe = regexp.MustCompile(`.*\..{1,6}$`)
-
-// GetDottedRelativePath expects a relative path starting after the content directory.
-// It returns a relative path with dots ("..") navigating up the path structure.
-func GetDottedRelativePath(inPath string) string {
-	inPath = path.Clean(filepath.ToSlash(inPath))
-
-	if inPath == "." {
-		return "./"
-	}
-
-	if !isFileRe.MatchString(inPath) && !strings.HasSuffix(inPath, "/") {
-		inPath += "/"
-	}
-
-	if !strings.HasPrefix(inPath, "/") {
-		inPath = "/" + inPath
-	}
-
-	dir, _ := filepath.Split(inPath)
-
-	sectionCount := strings.Count(dir, "/")
-
-	if sectionCount == 0 || dir == "/" {
-		return "./"
-	}
-
-	var dottedPath string
-
-	for i := 1; i < sectionCount; i++ {
-		dottedPath += "../"
-	}
-
-	return dottedPath
 }
 
 // ExtNoDelimiter takes a path and returns the extension, excluding the delimiter, i.e. "md".
@@ -165,12 +156,6 @@ func FileAndExtNoDelimiter(in string) (string, string) {
 func Filename(in string) (name string) {
 	name, _ = fileAndExt(in, fpb)
 	return
-}
-
-// PathNoExt takes a path, strips out the extension,
-// and returns the name of the file.
-func PathNoExt(in string) string {
-	return strings.TrimSuffix(in, path.Ext(in))
 }
 
 // FileAndExt returns the filename and any extension of a file path as
@@ -252,16 +237,125 @@ func prettifyPath(in string, b filepathPathBridge) string {
 	return b.Join(b.Dir(in), name, "index"+ext)
 }
 
-type NamedSlice struct {
-	Name  string
-	Slice []string
+// CommonDir returns the common directory of the given paths.
+func CommonDir(path1, path2 string) string {
+	if path1 == "" || path2 == "" {
+		return ""
+	}
+
+	p1 := strings.Split(path1, "/")
+	p2 := strings.Split(path2, "/")
+
+	var common []string
+
+	for i := 0; i < len(p1) && i < len(p2); i++ {
+		if p1[i] == p2[i] {
+			common = append(common, p1[i])
+		} else {
+			break
+		}
+	}
+
+	return strings.Join(common, "/")
 }
 
-func (n NamedSlice) String() string {
-	if len(n.Slice) == 0 {
-		return n.Name
+// Sanitize sanitizes string to be used in Hugo's file paths and URLs, allowing only
+// a predefined set of special Unicode characters.
+//
+// Spaces will be replaced with a single hyphen.
+//
+// This function is the core function used to normalize paths in Hugo.
+//
+// Note that this is the first common step for URL/path sanitation,
+// the final URL/path may end up looking differently  if the user has stricter rules defined (e.g. removePathAccents=true).
+func Sanitize(s string) string {
+	var willChange bool
+	for i, r := range s {
+		willChange = !isAllowedPathCharacter(s, i, r)
+		if willChange {
+			break
+		}
 	}
-	return fmt.Sprintf("%s%s{%s}", n.Name, FilePathSeparator, strings.Join(n.Slice, ","))
+
+	if !willChange {
+		// Prevent allocation when nothing changes.
+		return s
+	}
+
+	target := make([]rune, 0, len(s))
+	var (
+		prependHyphen bool
+		wasHyphen     bool
+	)
+
+	for i, r := range s {
+		isAllowed := isAllowedPathCharacter(s, i, r)
+
+		if isAllowed {
+			// track explicit hyphen in input; no need to add a new hyphen if
+			// we just saw one.
+			wasHyphen = r == '-'
+
+			if prependHyphen {
+				// if currently have a hyphen, don't prepend an extra one
+				if !wasHyphen {
+					target = append(target, '-')
+				}
+				prependHyphen = false
+			}
+			target = append(target, r)
+		} else if len(target) > 0 && !wasHyphen && unicode.IsSpace(r) {
+			prependHyphen = true
+		}
+	}
+
+	return string(target)
+}
+
+func isAllowedPathCharacter(s string, i int, r rune) bool {
+	if r == ' ' {
+		return false
+	}
+	// Check for the most likely first (faster).
+	isAllowed := unicode.IsLetter(r) || unicode.IsDigit(r)
+	isAllowed = isAllowed || r == '.' || r == '/' || r == '\\' || r == '_' || r == '#' || r == '+' || r == '~' || r == '-' || r == '@'
+	isAllowed = isAllowed || unicode.IsMark(r)
+	isAllowed = isAllowed || (r == '%' && i+2 < len(s) && ishex(s[i+1]) && ishex(s[i+2]))
+	return isAllowed
+}
+
+// From https://golang.org/src/net/url/url.go
+func ishex(c byte) bool {
+	switch {
+	case '0' <= c && c <= '9':
+		return true
+	case 'a' <= c && c <= 'f':
+		return true
+	case 'A' <= c && c <= 'F':
+		return true
+	}
+	return false
+}
+
+var slashFunc = func(r rune) bool {
+	return r == '/'
+}
+
+// Dir behaves like path.Dir without the path.Clean step.
+//
+//	The returned path ends in a slash only if it is the root "/".
+func Dir(s string) string {
+	dir, _ := path.Split(s)
+	if len(dir) > 1 && dir[len(dir)-1] == '/' {
+		return dir[:len(dir)-1]
+	}
+	return dir
+}
+
+// FieldsSlash cuts s into fields separated with '/'.
+func FieldsSlash(s string) []string {
+	f := strings.FieldsFunc(s, slashFunc)
+	return f
 }
 
 // DirFile holds the result from path.Split.
@@ -273,4 +367,28 @@ type DirFile struct {
 // Used in test.
 func (df DirFile) String() string {
 	return fmt.Sprintf("%s|%s", df.Dir, df.File)
+}
+
+// PathEscape escapes unicode letters in pth.
+// Use URLEscape to escape full URLs including scheme, query etc.
+// This is slightly faster for the common case.
+// Note, there is a url.PathEscape function, but that also
+// escapes /.
+func PathEscape(pth string) string {
+	u, err := url.Parse(pth)
+	if err != nil {
+		panic(err)
+	}
+	return u.EscapedPath()
+}
+
+// ToSlashTrimLeading is just a filepath.ToSlash with an added / prefix trimmer.
+func ToSlashTrimLeading(s string) string {
+	return strings.TrimPrefix(filepath.ToSlash(s), "/")
+}
+
+// ToSlashPreserveLeading converts the path given to a forward slash separated path
+// and preserves the leading slash if present trimming any trailing slash.
+func ToSlashPreserveLeading(s string) string {
+	return "/" + strings.Trim(filepath.ToSlash(s), "/")
 }

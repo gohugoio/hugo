@@ -45,6 +45,10 @@ type Dates struct {
 	FExpiryDate  time.Time
 }
 
+func (d *Dates) IsDateOrLastModAfter(in Dated) bool {
+	return d.Date().After(in.Date()) || d.Lastmod().After(in.Lastmod())
+}
+
 func (d *Dates) UpdateDateAndLastmodIfAfter(in Dated) {
 	if in.Date().After(d.Date()) {
 		d.FDate = in.Date()

@@ -1,4 +1,4 @@
-// Copyright 2022 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,5 +43,4 @@ Strings: {{ printf "%T" .Params.strings }} {{ range .Params.strings }}Strings: {
 	b.AssertFileContent("public/post/one/index.html", "Ints: []interface {} Int: 1 (int)|Int: 2 (int)|Int: 3 (int)|")
 	b.AssertFileContent("public/post/one/index.html", "Mixed: []interface {} Mixed: 1 (string)|Mixed: 2 (int)|Mixed: 3 (int)|")
 	b.AssertFileContent("public/post/one/index.html", "Strings: []string Strings: 1 (string)|Strings: 2 (string)|Strings: 3 (string)|")
-
 }

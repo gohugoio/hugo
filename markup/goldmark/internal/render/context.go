@@ -1,4 +1,4 @@
-// Copyright 2022 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ import (
 	"bytes"
 	"math/bits"
 
-	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/converter"
 )
 
@@ -59,13 +58,11 @@ func (ctx *Context) PopPos() int {
 type ContextData interface {
 	RenderContext() converter.RenderContext
 	DocumentContext() converter.DocumentContext
-	AddIdentity(id identity.Provider)
 }
 
 type RenderContextDataHolder struct {
 	Rctx converter.RenderContext
 	Dctx converter.DocumentContext
-	IDs  identity.Manager
 }
 
 func (ctx *RenderContextDataHolder) RenderContext() converter.RenderContext {
@@ -74,8 +71,4 @@ func (ctx *RenderContextDataHolder) RenderContext() converter.RenderContext {
 
 func (ctx *RenderContextDataHolder) DocumentContext() converter.DocumentContext {
 	return ctx.Dctx
-}
-
-func (ctx *RenderContextDataHolder) AddIdentity(id identity.Provider) {
-	ctx.IDs.Add(id)
 }

@@ -86,21 +86,8 @@ var defaultBuild = BuildConfig{
 
 	CacheBusters: []CacheBuster{
 		{
-			Source: `assets/.*\.(js|ts|jsx|tsx)`,
-			Target: `(js|scripts|javascript)`,
-		},
-		{
-			Source: `assets/.*\.(css|sass|scss)$`,
-			Target: cssTargetCachebusterRe,
-		},
-		{
 			Source: `(postcss|tailwind)\.config\.js`,
 			Target: cssTargetCachebusterRe,
-		},
-		// This is deliberately coarse grained; it will cache bust resources with "json" in the cache key when js files changes, which is good.
-		{
-			Source: `assets/.*\.(.*)$`,
-			Target: `$1`,
 		},
 	},
 }
@@ -373,7 +360,6 @@ func (c *CacheBuster) CompileConfig(logger loggers.Logger) error {
 
 			return match
 		}
-
 	}
 	return compileErr
 }
@@ -416,7 +402,6 @@ func DecodeServer(cfg Provider) (Server, error) {
 				Status: 404,
 			},
 		}
-
 	}
 
 	return *s, nil

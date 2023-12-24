@@ -3,19 +3,15 @@ package hugolib
 import (
 	"testing"
 
-	"github.com/gohugoio/hugo/resources/kinds"
-
 	qt "github.com/frankban/quicktest"
 )
 
-func TestMultihosts(t *testing.T) {
+func TestMultihost(t *testing.T) {
 	t.Parallel()
 
-	c := qt.New(t)
-
-	configTemplate := `
+	files := `
+-- hugo.toml --
 paginate = 1
-disablePathToLower = true
 defaultContentLanguage = "fr"
 defaultContentLanguageInSubdir = false
 staticDir = ["s1", "s2"]
@@ -24,98 +20,93 @@ enableRobotsTXT = true
 [permalinks]
 other = "/somewhere/else/:filename"
 
-[Taxonomies]
+[taxonomies]
 tag = "tags"
 
-[Languages]
-[Languages.en]
-staticDir2 = ["ens1", "ens2"]
+[languages]
+[languages.en]
+staticDir2 = ["staticen"]
 baseURL = "https://example.com/docs"
 weight = 10
 title = "In English"
 languageName = "English"
-
-[Languages.fr]
-staticDir2 = ["frs1", "frs2"]
+[languages.fr]
+staticDir2 = ["staticfr"]
 baseURL = "https://example.fr"
 weight = 20
 title = "Le Français"
 languageName = "Français"
+-- assets/css/main.css --
+body { color: red; }
+-- content/mysect/mybundle/index.md --
+---
+tags: [a, b]
+title: "My Bundle fr"
+---
+My Bundle
+-- content/mysect/mybundle/index.en.md --
+---
+tags: [c, d]
+title: "My Bundle en"
+---
+My Bundle
+-- content/mysect/mybundle/foo.txt --
+Foo
+-- layouts/_default/list.html --
+List|{{ .Title }}|{{ .Lang }}|{{ .Permalink}}|{{ .RelPermalink }}|
+-- layouts/_default/single.html --
+Single|{{ .Title }}|{{ .Lang }}|{{ .Permalink}}|{{ .RelPermalink }}|
+{{ $foo := .Resources.Get "foo.txt" | fingerprint }}
+Foo: {{ $foo.Permalink }}|
+{{ $css := resources.Get "css/main.css" | fingerprint }}
+CSS: {{ $css.Permalink }}|{{ $css.RelPermalink }}|
+-- layouts/robots.txt --
+robots|{{ site.Language.Lang }}
+-- layouts/404.html --
+404|{{ site.Language.Lang }}
 
-[Languages.nn]
-staticDir2 = ["nns1", "nns2"]
-baseURL = "https://example.no"
-weight = 30
-title = "På nynorsk"
-languageName = "Nynorsk"
 
+	
 `
 
-	b := newMultiSiteTestDefaultBuilder(t).WithConfigFile("toml", configTemplate)
-	b.CreateSites().Build(BuildCfg{})
+	b := Test(t, files)
 
-	b.AssertFileContent("public/en/sect/doc1-slug/index.html", "Hello")
+	b.Assert(b.H.Conf.IsMultiLingual(), qt.Equals, true)
+	b.Assert(b.H.Conf.IsMultihost(), qt.Equals, true)
 
-	s1 := b.H.Sites[0]
+	// helpers.PrintFs(b.H.Fs.PublishDir, "", os.Stdout)
 
-	s1h := s1.getPage(kinds.KindHome)
-	c.Assert(s1h.IsTranslated(), qt.Equals, true)
-	c.Assert(len(s1h.Translations()), qt.Equals, 2)
-	c.Assert(s1h.Permalink(), qt.Equals, "https://example.com/docs/")
+	// Check regular pages.
+	b.AssertFileContent("public/en/mysect/mybundle/index.html", "Single|My Bundle en|en|https://example.com/docs/mysect/mybundle/|")
+	b.AssertFileContent("public/fr/mysect/mybundle/index.html", "Single|My Bundle fr|fr|https://example.fr/mysect/mybundle/|")
 
-	// For “regular multilingual” we kept the aliases pages with url in front matter
-	// as a literal value that we use as is.
-	// There is an ambiguity in the guessing.
-	// For multihost, we never want any content in the root.
-	//
-	// check url in front matter:
-	pageWithURLInFrontMatter := s1.getPage(kinds.KindPage, "sect/doc3.en.md")
-	c.Assert(pageWithURLInFrontMatter, qt.Not(qt.IsNil))
-	c.Assert(pageWithURLInFrontMatter.RelPermalink(), qt.Equals, "/docs/superbob/")
-	b.AssertFileContent("public/en/superbob/index.html", "doc3|Hello|en")
-
-	// the domain root is the language directory for each language, so the robots.txt is created in the language directories
+	// Check robots.txt
 	b.AssertFileContent("public/en/robots.txt", "robots|en")
 	b.AssertFileContent("public/fr/robots.txt", "robots|fr")
-	b.AssertFileContent("public/nn/robots.txt", "robots|nn")
-	b.AssertFileDoesNotExist("public/robots.txt")
 
-	// check alias:
-	b.AssertFileContent("public/en/al/alias1/index.html", `content="0; url=https://example.com/docs/superbob/"`)
-	b.AssertFileContent("public/en/al/alias2/index.html", `content="0; url=https://example.com/docs/superbob/"`)
+	// Check sitemap.xml
+	b.AssertFileContent("public/en/sitemap.xml", "https://example.com/docs/mysect/mybundle/")
+	b.AssertFileContent("public/fr/sitemap.xml", "https://example.fr/mysect/mybundle/")
 
-	s2 := b.H.Sites[1]
+	// Check 404
+	b.AssertFileContent("public/en/404.html", "404|en")
+	b.AssertFileContent("public/fr/404.html", "404|fr")
 
-	s2h := s2.getPage(kinds.KindHome)
-	c.Assert(s2h.Permalink(), qt.Equals, "https://example.fr/")
+	// Check tags.
+	b.AssertFileContent("public/en/tags/d/index.html", "List|D|en|https://example.com/docs/tags/d/")
+	b.AssertFileContent("public/fr/tags/b/index.html", "List|B|fr|https://example.fr/tags/b/")
+	b.AssertFileExists("public/en/tags/b/index.html", false)
+	b.AssertFileExists("public/fr/tags/d/index.html", false)
 
-	// See https://github.com/gohugoio/hugo/issues/10912
-	b.AssertFileContent("public/fr/index.html", "French Home Page", "String Resource: /docs/text/pipes.txt")
-	b.AssertFileContent("public/fr/text/pipes.txt", "Hugo Pipes")
-	b.AssertFileContent("public/en/index.html", "Default Home Page", "String Resource: /docs/text/pipes.txt")
-	b.AssertFileContent("public/en/text/pipes.txt", "Hugo Pipes")
-	b.AssertFileContent("public/nn/index.html", "Default Home Page", "String Resource: /docs/text/pipes.txt")
+	// en/mysect/mybundle/foo.txt fingerprinted
+	b.AssertFileContent("public/en/mysect/mybundle/foo.1cbec737f863e4922cee63cc2ebbfaafcd1cff8b790d8cfd2e6a5d550b648afa.txt", "Foo")
+	b.AssertFileContent("public/en/mysect/mybundle/index.html", "Foo: https://example.fr/mysect/mybundle/foo.1cbec737f863e4922cee63cc2ebbfaafcd1cff8b790d8cfd2e6a5d550b648afa.txt|")
+	b.AssertFileContent("public/fr/mysect/mybundle/foo.1cbec737f863e4922cee63cc2ebbfaafcd1cff8b790d8cfd2e6a5d550b648afa.txt", "Foo")
+	b.AssertFileContent("public/fr/mysect/mybundle/index.html", "Foo: https://example.fr/mysect/mybundle/foo.1cbec737f863e4922cee63cc2ebbfaafcd1cff8b790d8cfd2e6a5d550b648afa.txt|")
 
-	// Check paginators
-	b.AssertFileContent("public/en/page/1/index.html", `refresh" content="0; url=https://example.com/docs/"`)
-	b.AssertFileContent("public/nn/page/1/index.html", `refresh" content="0; url=https://example.no/"`)
-	b.AssertFileContent("public/en/sect/page/2/index.html", "List Page 2", "Hello", "https://example.com/docs/sect/", "\"/docs/sect/page/3/")
-	b.AssertFileContent("public/fr/sect/page/2/index.html", "List Page 2", "Bonjour", "https://example.fr/sect/")
-
-	// Check bundles
-
-	bundleEn := s1.getPage(kinds.KindPage, "bundles/b1/index.en.md")
-	c.Assert(bundleEn, qt.Not(qt.IsNil))
-	c.Assert(bundleEn.RelPermalink(), qt.Equals, "/docs/bundles/b1/")
-	c.Assert(len(bundleEn.Resources()), qt.Equals, 1)
-
-	b.AssertFileContent("public/en/bundles/b1/logo.png", "PNG Data")
-	b.AssertFileContent("public/en/bundles/b1/index.html", " image/png: /docs/bundles/b1/logo.png")
-
-	bundleFr := s2.getPage(kinds.KindPage, "bundles/b1/index.md")
-	c.Assert(bundleFr, qt.Not(qt.IsNil))
-	c.Assert(bundleFr.RelPermalink(), qt.Equals, "/bundles/b1/")
-	c.Assert(len(bundleFr.Resources()), qt.Equals, 1)
-	b.AssertFileContent("public/fr/bundles/b1/logo.png", "PNG Data")
-	b.AssertFileContent("public/fr/bundles/b1/index.html", " image/png: /bundles/b1/logo.png")
+	// Assets CSS fingerprinted
+	b.AssertFileContent("public/en/mysect/mybundle/index.html", "CSS: https://example.fr/css/main.5de625c36355cce7c1d5408826a0b21abfb49fb6c0e1f16c945a6f2aef38200c.css|")
+	b.AssertFileContent("public/en/css/main.5de625c36355cce7c1d5408826a0b21abfb49fb6c0e1f16c945a6f2aef38200c.css", "body { color: red; }")
+	b.AssertFileContent("public/fr/mysect/mybundle/index.html", "CSS: https://example.fr/css/main.5de625c36355cce7c1d5408826a0b21abfb49fb6c0e1f16c945a6f2aef38200c.css|")
+	b.AssertFileContent("public/fr/css/main.5de625c36355cce7c1d5408826a0b21abfb49fb6c0e1f16c945a6f2aef38200c.css", "body { color: red; }")
 }

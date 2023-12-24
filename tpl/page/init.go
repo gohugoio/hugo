@@ -1,4 +1,4 @@
-// Copyright 2022 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ func init() {
 		ns := &internal.TemplateFuncsNamespace{
 			Name: name,
 			Context: func(ctx context.Context, args ...interface{}) (interface{}, error) {
-				v := tpl.GetPageFromContext(ctx)
+				v := tpl.Context.Page.Get(ctx)
 				if v == nil {
 					// The multilingual sitemap does not have a page as its context.
 					return nil, nil

@@ -51,7 +51,7 @@ func init() {
 
 				// 3 or more arguments. Currently not supported.
 				default:
-					return nil, errors.New("Invalid arguments supplied to `time`. Refer to time documentation: https://gohugo.io/functions/time/")
+					return nil, errors.New("invalid arguments supplied to `time`")
 				}
 			},
 		}

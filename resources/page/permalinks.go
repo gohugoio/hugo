@@ -120,11 +120,17 @@ func (l PermalinkExpander) Expand(key string, p Page) (string, error) {
 	return expand(p)
 }
 
+// Allow " " and / to represent the root section.
+var sectionCutSet = " /"
+
+func init() {
+	if string(os.PathSeparator) != "/" {
+		sectionCutSet += string(os.PathSeparator)
+	}
+}
+
 func (l PermalinkExpander) parse(patterns map[string]string) (map[string]func(Page) (string, error), error) {
 	expanders := make(map[string]func(Page) (string, error))
-
-	// Allow " " and / to represent the root section.
-	const sectionCutSet = " /" + string(os.PathSeparator)
 
 	for k, pattern := range patterns {
 		k = strings.Trim(k, sectionCutSet)
@@ -295,7 +301,7 @@ func (l PermalinkExpander) pageToPermalinkSections(p Page, _ string) (string, er
 }
 
 func (l PermalinkExpander) translationBaseName(p Page) string {
-	if p.File().IsZero() {
+	if p.File() == nil {
 		return ""
 	}
 	return p.File().TranslationBaseName()

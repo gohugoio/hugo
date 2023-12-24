@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"os"
 	"path/filepath"
 	"runtime"
 	"testing"
@@ -89,6 +90,8 @@ func TestAliasMultipleOutputFormats(t *testing.T) {
 		"_default/single.json", basicTemplate)
 
 	b.CreateSites().Build(BuildCfg{})
+
+	b.H.Sites[0].pageMap.debugPrint("", 999, os.Stdout)
 
 	// the real pages
 	b.AssertFileContent("public/blog/page/index.html", "For some moments the old man")

@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,19 +27,18 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"sync"
-	"sync/atomic"
-
-	"github.com/bep/mclib"
-
 	"os/signal"
 	"path"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"syscall"
 	"time"
+
+	"github.com/bep/mclib"
 
 	"github.com/bep/debounce"
 	"github.com/bep/simplecobra"
@@ -83,10 +82,14 @@ const (
 )
 
 func newHugoBuilder(r *rootCommand, s *serverCommand, onConfigLoaded ...func(reloaded bool) error) *hugoBuilder {
+	var visitedURLs *types.EvictingStringQueue
+	if s != nil && !s.disableFastRender {
+		visitedURLs = types.NewEvictingStringQueue(20)
+	}
 	return &hugoBuilder{
 		r:              r,
 		s:              s,
-		visitedURLs:    types.NewEvictingStringQueue(100),
+		visitedURLs:    visitedURLs,
 		fullRebuildSem: semaphore.NewWeighted(1),
 		debounce:       debounce.New(4 * time.Second),
 		onConfigLoaded: func(reloaded bool) error {
@@ -120,7 +123,6 @@ func newServerCommand() *serverCommand {
 				},
 				withc: func(cmd *cobra.Command, r *rootCommand) {
 					cmd.Flags().BoolVar(&uninstall, "uninstall", false, "Uninstall the local CA (but do not delete it).")
-
 				},
 			},
 		},
@@ -219,7 +221,7 @@ func (f *fileChangeDetector) filterIrrelevant(in []string) []string {
 }
 
 type fileServer struct {
-	baseURLs      []string
+	baseURLs      []urls.BaseURL
 	roots         []string
 	errorTemplate func(err any) (io.Reader, error)
 	c             *serverCommand
@@ -255,12 +257,6 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 		r.Println("Running in Fast Render Mode. For full rebuilds on change: hugo server --disableFastRender")
 	}
 
-	// We're only interested in the path
-	u, err := url.Parse(baseURL)
-	if err != nil {
-		return nil, nil, "", "", fmt.Errorf("invalid baseURL: %w", err)
-	}
-
 	decorate := func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if f.c.showErrorInBrowser {
@@ -280,7 +276,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 							port = lrport
 						}
 					})
-					lr := *u
+					lr := baseURL.URL()
 					lr.Host = fmt.Sprintf("%s:%d", lr.Hostname(), port)
 					fmt.Fprint(w, injectLiveReloadScript(r, lr))
 
@@ -311,7 +307,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 				// This matches Netlify's behaviour and is needed for SPA behaviour.
 				// See https://docs.netlify.com/routing/redirects/rewrites-proxies/
 				if !redirect.Force {
-					path := filepath.Clean(strings.TrimPrefix(requestURI, u.Path))
+					path := filepath.Clean(strings.TrimPrefix(requestURI, baseURL.Path()))
 					if root != "" {
 						path = filepath.Join(root, path)
 					}
@@ -338,7 +334,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 					switch redirect.Status {
 					case 404:
 						w.WriteHeader(404)
-						file, err := fs.Open(strings.TrimPrefix(redirect.To, u.Path))
+						file, err := fs.Open(strings.TrimPrefix(redirect.To, baseURL.Path()))
 						if err == nil {
 							defer file.Close()
 							io.Copy(w, file)
@@ -347,7 +343,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 						}
 						return
 					case 200:
-						if r2 := f.rewriteRequest(r, strings.TrimPrefix(redirect.To, u.Path)); r2 != nil {
+						if r2 := f.rewriteRequest(r, strings.TrimPrefix(redirect.To, baseURL.Path())); r2 != nil {
 							requestURI = redirect.To
 							r = r2
 						}
@@ -385,10 +381,10 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 
 	fileserver := decorate(http.FileServer(fs))
 	mu := http.NewServeMux()
-	if u.Path == "" || u.Path == "/" {
+	if baseURL.Path() == "" || baseURL.Path() == "/" {
 		mu.Handle("/", fileserver)
 	} else {
-		mu.Handle(u.Path, http.StripPrefix(u.Path, fileserver))
+		mu.Handle(baseURL.Path(), http.StripPrefix(baseURL.Path(), fileserver))
 	}
 	if r.IsTestRun() {
 		var shutDownOnce sync.Once
@@ -401,7 +397,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 
 	endpoint := net.JoinHostPort(f.c.serverInterface, strconv.Itoa(port))
 
-	return mu, listener, u.String(), endpoint, nil
+	return mu, listener, baseURL.String(), endpoint, nil
 }
 
 func (f *fileServer) rewriteRequest(r *http.Request, toPath string) *http.Request {
@@ -469,7 +465,6 @@ func (c *serverCommand) Name() string {
 }
 
 func (c *serverCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args []string) error {
-
 	// Watch runs its own server as part of the routine
 	if c.serverWatch {
 
@@ -676,7 +671,7 @@ func (c *serverCommand) createCertificates(conf *commonConfig) error {
 
 	// Create the directory if it doesn't exist.
 	if _, err := os.Stat(keyDir); os.IsNotExist(err) {
-		if err := os.MkdirAll(keyDir, 0777); err != nil {
+		if err := os.MkdirAll(keyDir, 0o777); err != nil {
 			return err
 		}
 	}
@@ -701,7 +696,6 @@ func (c *serverCommand) createCertificates(conf *commonConfig) error {
 	// Yes, this is unfortunate, but it's currently the only way to use Mkcert as a library.
 	os.Args = []string{"-cert-file", c.tlsCertFile, "-key-file", c.tlsKeyFile, hostname}
 	return mclib.RunMain()
-
 }
 
 func (c *serverCommand) verifyCert(rootPEM, certPEM []byte, name string) error {
@@ -831,9 +825,9 @@ func (c *serverCommand) partialReRender(urls ...string) error {
 		c.errState.setWasErr(false)
 	}()
 	c.errState.setBuildErr(nil)
-	visited := make(map[string]bool)
+	visited := types.NewEvictingStringQueue(len(urls))
 	for _, url := range urls {
-		visited[url] = true
+		visited.Add(url)
 	}
 
 	h, err := c.hugo()
@@ -846,7 +840,7 @@ func (c *serverCommand) partialReRender(urls ...string) error {
 
 func (c *serverCommand) serve() error {
 	var (
-		baseURLs []string
+		baseURLs []urls.BaseURL
 		roots    []string
 		h        *hugolib.HugoSites
 	)
@@ -863,18 +857,17 @@ func (c *serverCommand) serve() error {
 
 		if isMultiHost {
 			for _, l := range conf.configs.ConfigLangs() {
-				baseURLs = append(baseURLs, l.BaseURL().String())
+				baseURLs = append(baseURLs, l.BaseURL())
 				roots = append(roots, l.Language().Lang)
 			}
 		} else {
 			l := conf.configs.GetFirstLanguageConfig()
-			baseURLs = []string{l.BaseURL().String()}
+			baseURLs = []urls.BaseURL{l.BaseURL()}
 			roots = []string{""}
 		}
 
 		return nil
 	})
-
 	if err != nil {
 		return err
 	}
@@ -946,13 +939,9 @@ func (c *serverCommand) serve() error {
 		servers = append(servers, srv)
 
 		if doLiveReload {
-			u, err := url.Parse(helpers.SanitizeURL(baseURLs[i]))
-			if err != nil {
-				return err
-			}
-
-			mu.HandleFunc(u.Path+"/livereload.js", livereload.ServeJS)
-			mu.HandleFunc(u.Path+"/livereload", livereload.Handler)
+			baseURL := baseURLs[i]
+			mu.HandleFunc(baseURL.Path()+"livereload.js", livereload.ServeJS)
+			mu.HandleFunc(baseURL.Path()+"livereload", livereload.Handler)
 		}
 		c.r.Printf("Web Server is available at %s (bind address %s) %s\n", serverURL, c.serverInterface, roots[i])
 		wg1.Go(func() error {
@@ -971,8 +960,12 @@ func (c *serverCommand) serve() error {
 	if c.r.IsTestRun() {
 		// Write a .ready file to disk to signal ready status.
 		// This is where the test is run from.
+		var baseURLs []string
+		for _, baseURL := range srv.baseURLs {
+			baseURLs = append(baseURLs, baseURL.String())
+		}
 		testInfo := map[string]any{
-			"baseURLs": srv.baseURLs,
+			"baseURLs": baseURLs,
 		}
 
 		dir := os.Getenv("WORK")
@@ -983,7 +976,7 @@ func (c *serverCommand) serve() error {
 			if err != nil {
 				return err
 			}
-			err = os.WriteFile(readyFile, b, 0777)
+			err = os.WriteFile(readyFile, b, 0o777)
 			if err != nil {
 				return err
 			}
@@ -1167,7 +1160,7 @@ func cleanErrorLog(content string) string {
 	return strings.Join(keep, ": ")
 }
 
-func injectLiveReloadScript(src io.Reader, baseURL url.URL) string {
+func injectLiveReloadScript(src io.Reader, baseURL *url.URL) string {
 	var b bytes.Buffer
 	chain := transform.Chain{livereloadinject.New(baseURL)}
 	chain.Apply(&b, src)

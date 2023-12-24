@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/helpers"
 
@@ -109,7 +110,7 @@ func (l *lockedFile) Close() error {
 func (c *Cache) init() error {
 	c.initOnce.Do(func() {
 		// Create the base dir if it does not exist.
-		if err := c.Fs.MkdirAll("", 0777); err != nil && !os.IsExist(err) {
+		if err := c.Fs.MkdirAll("", 0o777); err != nil && !os.IsExist(err) {
 			c.initErr = err
 		}
 	})
@@ -146,7 +147,8 @@ func (c *Cache) WriteCloser(id string) (ItemInfo, io.WriteCloser, error) {
 // it when done.
 func (c *Cache) ReadOrCreate(id string,
 	read func(info ItemInfo, r io.ReadSeeker) error,
-	create func(info ItemInfo, w io.WriteCloser) error) (info ItemInfo, err error) {
+	create func(info ItemInfo, w io.WriteCloser) error,
+) (info ItemInfo, err error) {
 	if err := c.init(); err != nil {
 		return ItemInfo{}, err
 	}
@@ -380,7 +382,7 @@ func NewCaches(p *helpers.PathSpec) (Caches, error) {
 
 		baseDir := v.DirCompiled
 
-		bfs := afero.NewBasePathFs(cfs, baseDir)
+		bfs := hugofs.NewBasePathFs(cfs, baseDir)
 
 		var pruneAllRootDir string
 		if k == CacheKeyModules {

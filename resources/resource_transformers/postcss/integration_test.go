@@ -139,7 +139,6 @@ Styles Content: Len: 770917|
 			b.AssertLogContains("Hugo PublishDir: " + filepath.Join(tempDir, "public"))
 		}
 	}
-
 }
 
 // 9880
@@ -149,7 +148,7 @@ func TestTransformPostCSSError(t *testing.T) {
 	}
 
 	if runtime.GOOS == "windows" {
-		//TODO(bep) This has started to fail on Windows with Go 1.19 on GitHub Actions for some mysterious reason.
+		// TODO(bep) This has started to fail on Windows with Go 1.19 on GitHub Actions for some mysterious reason.
 		t.Skip("Skip on Windows")
 	}
 
@@ -165,7 +164,6 @@ func TestTransformPostCSSError(t *testing.T) {
 
 	s.AssertIsFileError(err)
 	c.Assert(err.Error(), qt.Contains, "a.css:4:2")
-
 }
 
 func TestTransformPostCSSNotInstalledError(t *testing.T) {
@@ -184,7 +182,6 @@ func TestTransformPostCSSNotInstalledError(t *testing.T) {
 
 	s.AssertIsFileError(err)
 	c.Assert(err.Error(), qt.Contains, `binary with name "npx" not found`)
-
 }
 
 // #9895
@@ -206,8 +203,7 @@ func TestTransformPostCSSImportError(t *testing.T) {
 
 	s.AssertIsFileError(err)
 	c.Assert(err.Error(), qt.Contains, "styles.css:4:3")
-	c.Assert(err.Error(), qt.Contains, filepath.FromSlash(`failed to resolve CSS @import "css/components/doesnotexist.css"`))
-
+	c.Assert(err.Error(), qt.Contains, filepath.FromSlash(`failed to resolve CSS @import "/css/components/doesnotexist.css"`))
 }
 
 func TestTransformPostCSSImporSkipInlineImportsNotFound(t *testing.T) {
@@ -230,7 +226,6 @@ func TestTransformPostCSSImporSkipInlineImportsNotFound(t *testing.T) {
 		}).Build()
 
 	s.AssertFileContent("public/css/styles.css", `@import "components/doesnotexist.css";`)
-
 }
 
 // Issue 9787
@@ -267,5 +262,4 @@ Styles Content: Len: 770917
 `)
 
 	}
-
 }

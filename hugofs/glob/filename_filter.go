@@ -27,6 +27,8 @@ type FilenameFilter struct {
 	dirInclusions []glob.Glob
 	exclusions    []glob.Glob
 	isWindows     bool
+
+	nested []*FilenameFilter
 }
 
 func normalizeFilenameGlobPattern(s string) string {
@@ -101,11 +103,32 @@ func (f *FilenameFilter) Match(filename string, isDir bool) bool {
 	if f == nil {
 		return true
 	}
-	return f.doMatch(filename, isDir)
-	/*if f.shouldInclude == nil {
-		fmt.Printf("Match: %q (%t) => %t\n", filename, isDir, isMatch)
+	if !f.doMatch(filename, isDir) {
+		return false
 	}
-	return isMatch*/
+
+	for _, nested := range f.nested {
+		if !nested.Match(filename, isDir) {
+			return false
+		}
+	}
+
+	return true
+}
+
+// Append appends a filter to the chain. The receiver will be copied if needed.
+func (f *FilenameFilter) Append(other *FilenameFilter) *FilenameFilter {
+	if f == nil {
+		return other
+	}
+
+	clone := *f
+	nested := make([]*FilenameFilter, len(clone.nested)+1)
+	copy(nested, clone.nested)
+	nested[len(nested)-1] = other
+	clone.nested = nested
+
+	return &clone
 }
 
 func (f *FilenameFilter) doMatch(filename string, isDir bool) bool {

@@ -1,4 +1,4 @@
-// Copyright 2022 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -97,11 +97,9 @@ func TestAppendSliceToASliceOfSlices(t *testing.T) {
 	).Build()
 
 	b.AssertFileContent("public/index.html", "[[a] [b] [c]]")
-
 }
 
 func TestAppendNilToSlice(t *testing.T) {
-
 	t.Parallel()
 
 	files := `
@@ -123,11 +121,9 @@ func TestAppendNilToSlice(t *testing.T) {
 	).Build()
 
 	b.AssertFileContent("public/index.html", "[a &lt;nil&gt;]")
-
 }
 
 func TestAppendNilsToSliceWithNils(t *testing.T) {
-
 	t.Parallel()
 
 	files := `
@@ -153,7 +149,6 @@ func TestAppendNilsToSliceWithNils(t *testing.T) {
 		b.AssertFileContent("public/index.html", "[a &lt;nil&gt; c &lt;nil&gt;]")
 
 	}
-
 }
 
 // Issue 11234.

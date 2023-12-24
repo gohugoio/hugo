@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,91 +18,64 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-	"sync"
 
-	"github.com/gohugoio/hugo/common/paths"
-
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugofs/files"
 
-	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 )
 
-// PageCollections contains the page collections for a site.
-type PageCollections struct {
+// pageFinder provides ways to find a Page in a Site.
+type pageFinder struct {
 	pageMap *pageMap
-
-	// Lazy initialized page collections
-	pages           *lazyPagesFactory
-	regularPages    *lazyPagesFactory
-	allPages        *lazyPagesFactory
-	allRegularPages *lazyPagesFactory
 }
 
-// Pages returns all pages.
-// This is for the current language only.
-func (c *PageCollections) Pages() page.Pages {
-	return c.pages.get()
-}
-
-// RegularPages returns all the regular pages.
-// This is for the current language only.
-func (c *PageCollections) RegularPages() page.Pages {
-	return c.regularPages.get()
-}
-
-// AllPages returns all pages for all languages.
-func (c *PageCollections) AllPages() page.Pages {
-	return c.allPages.get()
-}
-
-// AllRegularPages returns all regular pages for all languages.
-func (c *PageCollections) AllRegularPages() page.Pages {
-	return c.allRegularPages.get()
-}
-
-type lazyPagesFactory struct {
-	pages page.Pages
-
-	init    sync.Once
-	factory page.PagesFactory
-}
-
-func (l *lazyPagesFactory) get() page.Pages {
-	l.init.Do(func() {
-		l.pages = l.factory()
-	})
-	return l.pages
-}
-
-func newLazyPagesFactory(factory page.PagesFactory) *lazyPagesFactory {
-	return &lazyPagesFactory{factory: factory}
-}
-
-func newPageCollections(m *pageMap) *PageCollections {
+func newPageFinder(m *pageMap) *pageFinder {
 	if m == nil {
 		panic("must provide a pageMap")
 	}
-
-	c := &PageCollections{pageMap: m}
-
-	c.pages = newLazyPagesFactory(func() page.Pages {
-		return m.createListAllPages()
-	})
-
-	c.regularPages = newLazyPagesFactory(func() page.Pages {
-		return c.findPagesByKindIn(kinds.KindPage, c.pages.get())
-	})
-
+	c := &pageFinder{pageMap: m}
 	return c
+}
+
+// getPageRef resolves a Page from ref/relRef, with a slightly more comprehensive
+// search path than getPageNew.
+func (c *pageFinder) getPageRef(context page.Page, ref string) (page.Page, error) {
+	n, err := c.getContentNode(context, true, ref)
+	if err != nil {
+		return nil, err
+	}
+	if p, ok := n.(page.Page); ok {
+		return p, nil
+	}
+	return nil, nil
+}
+
+func (c *pageFinder) getPage(context page.Page, ref string) (page.Page, error) {
+	n, err := c.getContentNode(context, false, filepath.ToSlash(ref))
+	if err != nil {
+		return nil, err
+	}
+	if p, ok := n.(page.Page); ok {
+		return p, nil
+	}
+	return nil, nil
+}
+
+// Only used in tests.
+func (c *pageFinder) getPageOldVersion(kind string, sections ...string) page.Page {
+	refs := append([]string{kind}, path.Join(sections...))
+	p, _ := c.getPageForRefs(refs...)
+	return p
 }
 
 // This is an adapter func for the old API with Kind as first argument.
 // This is invoked when you do .Site.GetPage. We drop the Kind and fails
 // if there are more than 2 arguments, which would be ambiguous.
-func (c *PageCollections) getPageOldVersion(ref ...string) (page.Page, error) {
+func (c *pageFinder) getPageForRefs(ref ...string) (page.Page, error) {
 	var refs []string
 	for _, r := range ref {
 		// A common construct in the wild is
@@ -141,184 +114,95 @@ func (c *PageCollections) getPageOldVersion(ref ...string) (page.Page, error) {
 		key = "/" + key
 	}
 
-	return c.getPageNew(nil, key)
+	return c.getPage(nil, key)
 }
 
-// Only used in tests.
-func (c *PageCollections) getPage(typ string, sections ...string) page.Page {
-	refs := append([]string{typ}, path.Join(sections...))
-	p, _ := c.getPageOldVersion(refs...)
-	return p
-}
+const defaultContentExt = ".md"
 
-// getPageRef resolves a Page from ref/relRef, with a slightly more comprehensive
-// search path than getPageNew.
-func (c *PageCollections) getPageRef(context page.Page, ref string) (page.Page, error) {
-	n, err := c.getContentNode(context, true, ref)
-	if err != nil || n == nil || n.p == nil {
-		return nil, err
-	}
-	return n.p, nil
-}
-
-func (c *PageCollections) getPageNew(context page.Page, ref string) (page.Page, error) {
-	n, err := c.getContentNode(context, false, ref)
-	if err != nil || n == nil || n.p == nil {
-		return nil, err
-	}
-	return n.p, nil
-}
-
-func (c *PageCollections) getSectionOrPage(ref string) (*contentNode, string) {
-	var n *contentNode
-
-	pref := helpers.AddTrailingSlash(ref)
-	s, v, found := c.pageMap.sections.LongestPrefix(pref)
-
-	if found {
-		n = v.(*contentNode)
-	}
-
-	if found && s == pref {
-		// A section
-		return n, ""
-	}
-
-	m := c.pageMap
-
-	filename := strings.TrimPrefix(strings.TrimPrefix(ref, s), "/")
-	langSuffix := "." + m.s.Lang()
-
-	// Trim both extension and any language code.
-	name := paths.PathNoExt(filename)
-	name = strings.TrimSuffix(name, langSuffix)
-
-	// These are reserved bundle names and will always be stored by their owning
-	// folder name.
-	name = strings.TrimSuffix(name, "/index")
-	name = strings.TrimSuffix(name, "/_index")
-
-	if !found {
-		return nil, name
-	}
-
-	// Check if it's a section with filename provided.
-	if !n.p.File().IsZero() && n.p.File().LogicalName() == filename {
-		return n, name
-	}
-
-	return m.getPage(s, name), name
-}
-
-// For Ref/Reflink and .Site.GetPage do simple name lookups for the potentially ambiguous myarticle.md and /myarticle.md,
-// but not when we get ./myarticle*, section/myarticle.
-func shouldDoSimpleLookup(ref string) bool {
-	if ref[0] == '.' {
-		return false
-	}
-
-	slashCount := strings.Count(ref, "/")
-
-	if slashCount > 1 {
-		return false
-	}
-
-	return slashCount == 0 || ref[0] == '/'
-}
-
-func (c *PageCollections) getContentNode(context page.Page, isReflink bool, ref string) (*contentNode, error) {
-	ref = filepath.ToSlash(strings.ToLower(strings.TrimSpace(ref)))
-
+func (c *pageFinder) getContentNode(context page.Page, isReflink bool, ref string) (contentNodeI, error) {
+	inRef := ref
 	if ref == "" {
 		ref = "/"
 	}
 
-	inRef := ref
-	navUp := strings.HasPrefix(ref, "..")
-	var doSimpleLookup bool
-	if isReflink || context == nil {
-		doSimpleLookup = shouldDoSimpleLookup(ref)
+	if paths.HasExt(ref) {
+		return c.getContentNodeForRef(context, isReflink, inRef, ref)
 	}
+
+	var refs []string
+
+	// We are always looking for a content file and having an extension greatly simplifies the code that follows,
+	// even in the case where the extension does not match this one.
+	if ref == "/" {
+		refs = append(refs, "/_index"+defaultContentExt)
+	} else if strings.HasSuffix(ref, "/index") {
+		refs = append(refs, ref+"/index"+defaultContentExt)
+		refs = append(refs, ref+defaultContentExt)
+	} else {
+		refs = append(refs, ref+defaultContentExt)
+	}
+
+	for _, ref := range refs {
+		n, err := c.getContentNodeForRef(context, isReflink, inRef, ref)
+		if n != nil || err != nil {
+			return n, err
+		}
+	}
+
+	return nil, nil
+}
+
+func (c *pageFinder) getContentNodeForRef(context page.Page, isReflink bool, inRef, ref string) (contentNodeI, error) {
+	contentParser := c.pageMap.s.Conf.PathParser()
 
 	if context != nil && !strings.HasPrefix(ref, "/") {
-		// Try the page-relative path.
-		var base string
-		if context.File().IsZero() {
-			base = context.SectionsPath()
-		} else {
-			meta := context.File().FileInfo().Meta()
-			base = filepath.ToSlash(filepath.Dir(meta.Path))
-			if meta.Classifier == files.ContentClassLeaf {
-				// Bundles are stored in subfolders e.g. blog/mybundle/index.md,
-				// so if the user has not explicitly asked to go up,
-				// look on the "blog" level.
-				if !navUp {
-					base = path.Dir(base)
-				}
+		// Try the page-relative path first.
+		// Branch pages: /mysection, "./mypage" => /mysection/mypage
+		// Regular pages: /mysection/mypage.md, Path=/mysection/mypage, "./someotherpage" => /mysection/mypage/../someotherpage
+		// Regular leaf bundles: /mysection/mypage/index.md, Path=/mysection/mypage, "./someotherpage" => /mysection/mypage/../someotherpage
+		// Given the above, for regular pages we use the containing folder.
+		var baseDir string
+		if pi := context.PathInfo(); pi != nil {
+			if pi.IsBranchBundle() {
+				baseDir = pi.Dir()
+			} else {
+				baseDir = pi.ContainerDir()
 			}
 		}
-		ref = path.Join("/", strings.ToLower(base), ref)
-	}
 
-	if !strings.HasPrefix(ref, "/") {
-		ref = "/" + ref
-	}
+		rel := path.Join(baseDir, inRef)
 
-	m := c.pageMap
+		if !paths.HasExt(rel) {
+			// See comment above.
+			rel += defaultContentExt
+		}
 
-	// It's either a section, a page in a section or a taxonomy node.
-	// Start with the most likely:
-	n, name := c.getSectionOrPage(ref)
-	if n != nil {
-		return n, nil
-	}
+		relPath := contentParser.Parse(files.ComponentFolderContent, rel)
 
-	if !strings.HasPrefix(inRef, "/") {
-		// Many people will have "post/foo.md" in their content files.
-		if n, _ := c.getSectionOrPage("/" + inRef); n != nil {
-			return n, nil
+		n, err := c.getContentNodeFromPath(relPath, ref)
+		if n != nil || err != nil {
+			return n, err
 		}
 	}
 
-	// Check if it's a taxonomy node
-	pref := helpers.AddTrailingSlash(ref)
-	s, v, found := m.taxonomies.LongestPrefix(pref)
-
-	if found {
-		if !m.onSameLevel(pref, s) {
-			return nil, nil
-		}
-		return v.(*contentNode), nil
-	}
-
-	getByName := func(s string) (*contentNode, error) {
-		n := m.pageReverseIndex.Get(s)
-		if n != nil {
-			if n == ambiguousContentNode {
-				return nil, fmt.Errorf("page reference %q is ambiguous", ref)
-			}
-			return n, nil
-		}
-
+	if strings.HasPrefix(ref, ".") {
+		// Page relative, no need to look further.
 		return nil, nil
 	}
 
-	var module string
-	if context != nil && !context.File().IsZero() {
-		module = context.File().FileInfo().Meta().Module
+	refPath := contentParser.Parse(files.ComponentFolderContent, ref)
+
+	n, err := c.getContentNodeFromPath(refPath, ref)
+
+	if n != nil || err != nil {
+		return n, err
 	}
 
-	if module == "" && !c.pageMap.s.home.File().IsZero() {
-		module = c.pageMap.s.home.File().FileInfo().Meta().Module
-	}
-
-	if module != "" {
-		n, err := getByName(module + ref)
-		if err != nil {
-			return nil, err
-		}
-		if n != nil {
-			return n, nil
+	var doSimpleLookup bool
+	if isReflink || context == nil {
+		slashCount := strings.Count(inRef, "/")
+		if slashCount <= 1 {
+			doSimpleLookup = slashCount == 0 || ref[0] == '/'
 		}
 	}
 
@@ -326,16 +210,37 @@ func (c *PageCollections) getContentNode(context page.Page, isReflink bool, ref 
 		return nil, nil
 	}
 
-	// Ref/relref supports this potentially ambiguous lookup.
-	return getByName(path.Base(name))
+	n = c.pageMap.pageReverseIndex.Get(refPath.BaseNameNoIdentifier())
+	if n == ambiguousContentNode {
+		return nil, fmt.Errorf("page reference %q is ambiguous", inRef)
+	}
+
+	return n, nil
 }
 
-func (*PageCollections) findPagesByKindIn(kind string, inPages page.Pages) page.Pages {
-	var pages page.Pages
-	for _, p := range inPages {
-		if p.Kind() == kind {
-			pages = append(pages, p)
+func (c *pageFinder) getContentNodeFromPath(refPath *paths.Path, ref string) (contentNodeI, error) {
+	m := c.pageMap
+	s := refPath.Base()
+
+	n := c.pageMap.treePages.Get(s)
+	if n != nil {
+		return n, nil
+	}
+
+	// Do a reverse lookup assuming this is mounted from somewhere else.
+	fi, err := m.s.BaseFs.Content.Fs.Stat(ref + hugofs.SuffixReverseLookup)
+
+	if err == nil {
+		meta := fi.(hugofs.MetaProvider).Meta()
+		if meta.PathInfo == nil {
+			panic("meta.PathInfo is nil")
+		}
+
+		n := c.pageMap.treePages.Get(meta.PathInfo.Base())
+		if n != nil {
+			return n, nil
 		}
 	}
-	return pages
+
+	return nil, nil
 }

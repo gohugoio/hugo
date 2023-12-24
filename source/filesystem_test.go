@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,71 +14,35 @@
 package source_test
 
 import (
-	"fmt"
-	"path/filepath"
 	"runtime"
 	"testing"
 
-	"github.com/spf13/afero"
-
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/config/testconfig"
-	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/source"
+	"github.com/gohugoio/hugo/hugolib"
+	"golang.org/x/text/unicode/norm"
 )
-
-func TestEmptySourceFilesystem(t *testing.T) {
-	c := qt.New(t)
-	ss := newTestSourceSpec()
-	src := ss.NewFilesystem("")
-	files, err := src.Files()
-	c.Assert(err, qt.IsNil)
-	if len(files) != 0 {
-		t.Errorf("new filesystem should contain 0 files.")
-	}
-}
 
 func TestUnicodeNorm(t *testing.T) {
 	if runtime.GOOS != "darwin" {
-		// Normalization code is only for Mac OS, since it is not necessary for other OSes.
-		return
+		t.Skip("Skipping test on non-Darwin OS")
 	}
+	t.Parallel()
+	files := `
+-- hugo.toml --
+-- content/å.md --
+-- content/é.md --
+-- content/å/å.md --
+-- content/é/é.md --
+-- layouts/_default/single.html --
+Title: {{ .Title }}|File: {{ .File.Path}}
+`
+	b := hugolib.Test(t, files, hugolib.TestOptWithNFDOnDarwin())
 
-	c := qt.New(t)
-
-	paths := []struct {
-		NFC string
-		NFD string
-	}{
-		{NFC: "å", NFD: "\x61\xcc\x8a"},
-		{NFC: "é", NFD: "\x65\xcc\x81"},
+	for _, p := range b.H.Sites[0].RegularPages() {
+		f := p.File()
+		b.Assert(norm.NFC.IsNormalString(f.Path()), qt.IsTrue)
+		b.Assert(norm.NFC.IsNormalString(f.Dir()), qt.IsTrue)
+		b.Assert(norm.NFC.IsNormalString(f.Filename()), qt.IsTrue)
+		b.Assert(norm.NFC.IsNormalString(f.BaseFileName()), qt.IsTrue)
 	}
-
-	ss := newTestSourceSpec()
-
-	for i, path := range paths {
-		base := fmt.Sprintf("base%d", i)
-		c.Assert(afero.WriteFile(ss.Fs.Source, filepath.Join(base, path.NFD), []byte("some data"), 0777), qt.IsNil)
-		src := ss.NewFilesystem(base)
-		files, err := src.Files()
-		c.Assert(err, qt.IsNil)
-		f := files[0]
-		if f.BaseFileName() != path.NFC {
-			t.Fatalf("file %q name in NFD form should be normalized (%s)", f.BaseFileName(), path.NFC)
-		}
-	}
-}
-
-func newTestSourceSpec() *source.SourceSpec {
-	v := config.New()
-	afs := hugofs.NewBaseFileDecorator(afero.NewMemMapFs())
-	conf := testconfig.GetTestConfig(afs, v)
-	fs := hugofs.NewFrom(afs, conf.BaseConfig())
-	ps, err := helpers.NewPathSpec(fs, conf, nil)
-	if err != nil {
-		panic(err)
-	}
-	return source.NewSourceSpec(ps, nil, fs.Source)
 }

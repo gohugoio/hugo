@@ -27,7 +27,6 @@ import (
 	"github.com/alecthomas/chroma/v2/styles"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/text"
-	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/highlight/chromalexers"
 	"github.com/gohugoio/hugo/markup/internal/attributes"
@@ -146,13 +145,6 @@ func (h chromaHighlighter) IsDefaultCodeBlockRenderer() bool {
 	return true
 }
 
-var id = identity.NewPathIdentity("chroma", "highlight")
-
-// GetIdentity is for internal use.
-func (h chromaHighlighter) GetIdentity() identity.Identity {
-	return id
-}
-
 // HighlightResult holds the result of an highlighting operation.
 type HighlightResult struct {
 	innerLow    int
@@ -188,7 +180,7 @@ func highlight(fw hugio.FlexiWriter, code, lang string, attributes []attributes.
 
 	if lexer == nil {
 		if cfg.Hl_inline {
-			fmt.Fprint(w, fmt.Sprintf("<code%s>%s</code>", inlineCodeAttrs(lang), gohtml.EscapeString(code)))
+			fmt.Fprintf(w, "<code%s>%s</code>", inlineCodeAttrs(lang), gohtml.EscapeString(code))
 		} else {
 			preWrapper := getPreWrapper(lang, w)
 			fmt.Fprint(w, preWrapper.Start(true, ""))
@@ -278,8 +270,6 @@ func (p *preWrapper) Start(code bool, styleAttr string) string {
 }
 
 func inlineCodeAttrs(lang string) string {
-	if lang == "" {
-	}
 	return fmt.Sprintf(` class="code-inline language-%s"`, lang)
 }
 

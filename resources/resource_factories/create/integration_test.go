@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import (
 )
 
 func TestGetRemoteHead(t *testing.T) {
-
 	files := `
 -- config.toml --
 [security]
@@ -60,7 +59,6 @@ func TestGetRemoteHead(t *testing.T) {
 		"Head Content: .",
 		"Head Data: map[ContentLength:18210 ContentType:image/png Status:200 OK StatusCode:200 TransferEncoding:[]]",
 	)
-
 }
 
 func TestGetRemoteRetry(t *testing.T) {
@@ -133,14 +131,11 @@ mediaTypes = ['text/plain']
 				TxtarString: files,
 			},
 		).BuildE()
-
 		// This is hard to get stable on GitHub Actions, it sometimes succeeds due to timing issues.
 		if err != nil {
 			b.AssertLogContains("Got Err")
 			b.AssertLogContains("Retry timeout")
 			b.AssertLogContains("ContentLength:0")
 		}
-
 	})
-
 }

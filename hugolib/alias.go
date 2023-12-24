@@ -64,7 +64,7 @@ func (a aliasHandler) renderAlias(permalink string, p page.Page) (io.Reader, err
 		p,
 	}
 
-	ctx := tpl.SetPageInContext(context.Background(), p)
+	ctx := tpl.Context.Page.Set(context.Background(), p)
 
 	buffer := new(bytes.Buffer)
 	err := a.t.ExecuteWithContext(ctx, templ, buffer, data)

@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,15 +50,12 @@ func TestUnfinished(t *testing.T) {
 
 	p := commonTestScriptsParam
 	p.Dir = "testscripts/unfinished"
-	//p.UpdateScripts = true
+	// p.UpdateScripts = true
 
 	testscript.Run(t, p)
 }
 
 func TestMain(m *testing.M) {
-	type testInfo struct {
-		BaseURLs []string
-	}
 	os.Exit(
 		testscript.RunMain(m, map[string]func() int{
 			// The main program.
@@ -91,7 +88,7 @@ var commonTestScriptsParam = testscript.Params{
 				ts.Fatalf("%v", err)
 			}
 			b = bytes.Replace(b, []byte("\r\n"), []byte{'\n'}, -1)
-			if err := os.WriteFile(filename, b, 0666); err != nil {
+			if err := os.WriteFile(filename, b, 0o666); err != nil {
 				ts.Fatalf("%v", err)
 			}
 		},
@@ -115,15 +112,10 @@ var commonTestScriptsParam = testscript.Params{
 				}
 			}
 			time.Sleep(time.Duration(i) * time.Second)
-
 		},
 		// ls lists a directory to stdout.
 		"ls": func(ts *testscript.TestScript, neg bool, args []string) {
-			var dirname string
-			if len(args) > 0 {
-				dirname = args[0]
-			}
-			dirname = ts.MkAbs(args[0])
+			dirname := ts.MkAbs(args[0])
 
 			dir, err := os.Open(dirname)
 			if err != nil {
@@ -223,7 +215,6 @@ var commonTestScriptsParam = testscript.Params{
 					}
 				}
 				return nil
-
 			}
 
 			// The timing on server rebuilds can be a little tricky to get right,
@@ -350,7 +341,6 @@ var commonTestScriptsParam = testscript.Params{
 
 				return
 			}
-
 		},
 		"stopServer": func(ts *testscript.TestScript, neg bool, args []string) {
 			baseURL := ts.Getenv("HUGOTEST_BASEURL_0")
@@ -367,7 +357,6 @@ var commonTestScriptsParam = testscript.Params{
 			resp.Body.Close()
 			// Allow some time for the server to shut down.
 			time.Sleep(2 * time.Second)
-
 		},
 	},
 }
@@ -384,13 +373,13 @@ func testSetupFunc() func(env *testscript.Env) error {
 		keyVals = append(keyVals, "HOME", home)
 
 		if runtime.GOOS == "darwin" {
-			if err := os.MkdirAll(filepath.Join(home, "Library", "Caches"), 0777); err != nil {
+			if err := os.MkdirAll(filepath.Join(home, "Library", "Caches"), 0o777); err != nil {
 				return err
 			}
 		}
 
 		if runtime.GOOS == "linux" {
-			if err := os.MkdirAll(xdghome, 0777); err != nil {
+			if err := os.MkdirAll(xdghome, 0o777); err != nil {
 				return err
 			}
 		}

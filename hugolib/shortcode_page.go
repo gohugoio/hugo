@@ -17,6 +17,7 @@ import (
 	"context"
 	"html/template"
 
+	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/resources/page"
 )
 
@@ -73,6 +74,8 @@ type pageForShortcode struct {
 	p *pageState
 }
 
+var _ types.Unwrapper = (*pageForShortcode)(nil)
+
 func newPageForShortcode(p *pageState) page.Page {
 	return &pageForShortcode{
 		PageWithoutContent:      p,
@@ -83,7 +86,8 @@ func newPageForShortcode(p *pageState) page.Page {
 	}
 }
 
-func (p *pageForShortcode) page() page.Page {
+// For internal use.
+func (p *pageForShortcode) Unwrapv() any {
 	return p.PageWithoutContent.(page.Page)
 }
 
@@ -92,15 +96,17 @@ func (p *pageForShortcode) String() string {
 }
 
 func (p *pageForShortcode) TableOfContents(context.Context) template.HTML {
-	p.p.enablePlaceholders()
 	return p.toc
 }
+
+var _ types.Unwrapper = (*pageForRenderHooks)(nil)
 
 // This is what is sent into the content render hooks (link, image).
 type pageForRenderHooks struct {
 	page.PageWithoutContent
 	page.TableOfContentsProvider
 	page.ContentProvider
+	p *pageState
 }
 
 func newPageForRenderHook(p *pageState) page.Page {
@@ -108,9 +114,10 @@ func newPageForRenderHook(p *pageState) page.Page {
 		PageWithoutContent:      p,
 		ContentProvider:         page.NopPage,
 		TableOfContentsProvider: p,
+		p:                       p,
 	}
 }
 
-func (p *pageForRenderHooks) page() page.Page {
-	return p.PageWithoutContent.(page.Page)
+func (p *pageForRenderHooks) Unwrapv() any {
+	return p.p
 }

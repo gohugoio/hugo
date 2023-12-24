@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ func TestHashString(t *testing.T) {
 
 	c.Assert(HashString(vals...), qt.Equals, "12599484872364427450")
 	c.Assert(vals[2], qt.Equals, tstKeyer{"c"})
-
 }
 
 type tstKeyer struct {

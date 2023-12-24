@@ -170,7 +170,7 @@ func (namespaces TemplateFuncsNamespaces) MarshalJSON() ([]byte, error) {
 
 	for i, ns := range namespaces {
 
-		b, err := ns.toJSON(context.TODO())
+		b, err := ns.toJSON(context.Background())
 		if err != nil {
 			return nil, err
 		}

@@ -126,7 +126,7 @@ cascade:
 
 			b.Build(BuildCfg{})
 
-			p1 := b.H.Sites[0].getPage("p1")
+			p1 := b.H.Sites[0].getPageOldVersion("p1")
 
 			if withHomeContent {
 				b.Assert(p1.Params(), qt.DeepEquals, maps.Params{
@@ -158,34 +158,38 @@ func TestCascade(t *testing.T) {
 		b := newCascadeTestBuilder(t, langs)
 		b.Build(BuildCfg{})
 
+		// b.H.Sites[0].pageMap.debugPrint("", 999, os.Stdout)
+
+		// 12|term|/categories/cool|Cascade Category|cat.png|page|html-|\
+
 		b.AssertFileContent("public/index.html", `
-12|term|categories/cool/_index.md|Cascade Category|cat.png|categories|html-|
-12|term|categories/catsect1|catsect1|cat.png|categories|html-|
-12|term|categories/funny|funny|cat.png|categories|html-|
-12|taxonomy|categories/_index.md|My Categories|cat.png|categories|html-|
-32|term|categories/sad/_index.md|Cascade Category|sad.png|categories|html-|
-42|term|tags/blue|blue|home.png|tags|html-|
-42|taxonomy|tags|Cascade Home|home.png|tags|html-|
-42|section|sectnocontent|Cascade Home|home.png|sectnocontent|html-|
-42|section|sect3|Cascade Home|home.png|sect3|html-|
-42|page|bundle1/index.md|Cascade Home|home.png|page|html-|
-42|page|p2.md|Cascade Home|home.png|page|html-|
-42|page|sect2/p2.md|Cascade Home|home.png|sect2|html-|
-42|page|sect3/nofrontmatter.md|Cascade Home|home.png|sect3|html-|
-42|page|sect3/p1.md|Cascade Home|home.png|sect3|html-|
-42|page|sectnocontent/p1.md|Cascade Home|home.png|sectnocontent|html-|
-42|section|sectnofrontmatter/_index.md|Cascade Home|home.png|sectnofrontmatter|html-|
-42|term|tags/green|green|home.png|tags|html-|
-42|home|_index.md|Home|home.png|page|html-|
-42|page|p1.md|p1|home.png|page|html-|
-42|section|sect1/_index.md|Sect1|sect1.png|stype|html-|
-42|section|sect1/s1_2/_index.md|Sect1_2|sect1.png|stype|html-|
-42|page|sect1/s1_2/p1.md|Sect1_2_p1|sect1.png|stype|html-|
-42|page|sect1/s1_2/p2.md|Sect1_2_p2|sect1.png|stype|html-|
-42|section|sect2/_index.md|Sect2|home.png|sect2|html-|
-42|page|sect2/p1.md|Sect2_p1|home.png|sect2|html-|
-52|page|sect4/p1.md|Cascade Home|home.png|sect4|rss-|
-52|section|sect4/_index.md|Sect4|home.png|sect4|rss-|
+12|term|/categories/cool|Cascade Category|cat.png|categories|html-|
+12|term|/categories/catsect1|Cascade Category|cat.png|categories|html-|
+12|term|/categories/funny|Cascade Category|cat.png|categories|html-|
+12|taxonomy|/categories|My Categories|cat.png|categories|html-|
+32|term|/categories/sad|Cascade Category|sad.png|categories|html-|
+42|term|/tags/blue|Cascade Home|home.png|tags|html-|
+42|taxonomy|/tags|Cascade Home|home.png|tags|html-|
+42|section|/sectnocontent|Cascade Home|home.png|sectnocontent|html-|
+42|section|/sect3|Cascade Home|home.png|sect3|html-|
+42|page|/bundle1|Cascade Home|home.png|page|html-|
+42|page|/p2|Cascade Home|home.png|page|html-|
+42|page|/sect2/p2|Cascade Home|home.png|sect2|html-|
+42|page|/sect3/nofrontmatter|Cascade Home|home.png|sect3|html-|
+42|page|/sect3/p1|Cascade Home|home.png|sect3|html-|
+42|page|/sectnocontent/p1|Cascade Home|home.png|sectnocontent|html-|
+42|section|/sectnofrontmatter|Cascade Home|home.png|sectnofrontmatter|html-|
+42|term|/tags/green|Cascade Home|home.png|tags|html-|
+42|home|/|Home|home.png|page|html-|
+42|page|/p1|p1|home.png|page|html-|
+42|section|/sect1|Sect1|sect1.png|stype|html-|
+42|section|/sect1/s1_2|Sect1_2|sect1.png|stype|html-|
+42|page|/sect1/s1_2/p1|Sect1_2_p1|sect1.png|stype|html-|
+42|page|/sect1/s1_2/p2|Sect1_2_p2|sect1.png|stype|html-|
+42|section|/sect2|Sect2|home.png|sect2|html-|
+42|page|/sect2/p1|Sect2_p1|home.png|sect2|html-|
+52|page|/sect4/p1|Cascade Home|home.png|sect4|rss-|
+52|section|/sect4|Sect4|home.png|sect4|rss-|
 `)
 
 		// Check that type set in cascade gets the correct layout.
@@ -263,7 +267,7 @@ cascade:
 		assert()
 		b.AssertFileContent("public/post/dir/p1/index.html",
 			`content edit
-Banner: post.jpg`,
+	Banner: post.jpg`,
 		)
 	})
 
@@ -323,15 +327,54 @@ Banner: post.jpg`,
 
 		b.EditFiles("content/post/_index.md", indexContentCascade+"\ncontent edit")
 
-		counters := &testCounters{}
+		counters := &buildCounters{}
 		b.Build(BuildCfg{testCounters: counters})
-		// As we only changed the content, not the cascade front matter,
-		// only the home page is re-rendered.
-		b.Assert(int(counters.contentRenderCounter), qt.Equals, 1)
+		b.Assert(int(counters.contentRenderCounter.Load()), qt.Equals, 2)
 
 		b.AssertFileContent("public/post/index.html", `Banner: post.jpg|Layout: postlayout|Type: posttype|Content: <p>content edit</p>`)
 		b.AssertFileContent("public/post/dir/p1/index.html", `Banner: post.jpg|Layout: postlayout|`)
 	})
+}
+
+func TestCascadeBuildOptionsTaxonomies(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL="https://example.org"
+[taxonomies]
+tag = "tags"
+
+[[cascade]]
+
+[cascade._build]
+render = "never"
+list = "never"
+publishResources = false
+
+[cascade._target]
+path = '/hidden/**'
+-- content/p1.md --
+---
+title: P1
+---
+-- content/hidden/p2.md --
+---
+title: P2
+tags: [t1, t2]
+---
+-- layouts/_default/list.html --
+List: {{ len .Pages }}|
+-- layouts/_default/single.html --
+Single: Tags: {{ site.Taxonomies.tags }}|
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "Single: Tags: map[]|")
+	b.AssertFileContent("public/tags/index.html", "List: 0|")
+	b.AssertFileExists("public/hidden/p2/index.html", false)
+	b.AssertFileExists("public/tags/t2/index.html", false)
 }
 
 func newCascadeTestBuilder(t testing.TB, langs []string) *sitesBuilder {
@@ -474,7 +517,7 @@ defaultContentLanguageInSubDir = false
 	b.WithTemplates("index.html", `
 	
 {{ range .Site.Pages }}
-{{- .Weight }}|{{ .Kind }}|{{ path.Join .Path }}|{{ .Title }}|{{ .Params.icon }}|{{ .Type }}|{{ range .OutputFormats }}{{ .Name }}-{{ end }}|
+{{- .Weight }}|{{ .Kind }}|{{ .Path }}|{{ .Title }}|{{ .Params.icon }}|{{ .Type }}|{{ range .OutputFormats }}{{ .Name }}-{{ end }}|
 {{ end }}
 `,
 

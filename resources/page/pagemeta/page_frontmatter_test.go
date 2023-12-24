@@ -29,11 +29,10 @@ import (
 
 func newTestFd() *pagemeta.FrontMatterDescriptor {
 	return &pagemeta.FrontMatterDescriptor{
-		Frontmatter: make(map[string]any),
-		Params:      make(map[string]any),
-		Dates:       &resource.Dates{},
-		PageURLs:    &pagemeta.URLPath{},
-		Location:    time.UTC,
+		Params:   make(map[string]any),
+		Dates:    &resource.Dates{},
+		PageURLs: &pagemeta.URLPath{},
+		Location: time.UTC,
 	}
 }
 
@@ -106,66 +105,18 @@ func TestFrontMatterDatesHandlers(t *testing.T) {
 		case ":git":
 			d.GitAuthorDate = d1
 		}
-		d.Frontmatter["date"] = d2
+		d.Params["date"] = d2
 		c.Assert(handler.HandleDates(d), qt.IsNil)
 		c.Assert(d.Dates.FDate, qt.Equals, d1)
 		c.Assert(d.Params["date"], qt.Equals, d2)
 
 		d = newTestFd()
-		d.Frontmatter["date"] = d2
+		d.Params["date"] = d2
 		c.Assert(handler.HandleDates(d), qt.IsNil)
 		c.Assert(d.Dates.FDate, qt.Equals, d2)
 		c.Assert(d.Params["date"], qt.Equals, d2)
 
 	}
-}
-
-func TestFrontMatterDatesCustomConfig(t *testing.T) {
-	t.Parallel()
-
-	c := qt.New(t)
-
-	cfg := config.New()
-	cfg.Set("frontmatter", map[string]any{
-		"date":        []string{"mydate"},
-		"lastmod":     []string{"publishdate"},
-		"publishdate": []string{"publishdate"},
-	})
-
-	conf := testconfig.GetTestConfig(nil, cfg)
-	handler, err := pagemeta.NewFrontmatterHandler(nil, conf.GetConfigSection("frontmatter").(pagemeta.FrontmatterConfig))
-	c.Assert(err, qt.IsNil)
-
-	testDate, err := time.Parse("2006-01-02", "2018-02-01")
-	c.Assert(err, qt.IsNil)
-
-	d := newTestFd()
-	d.Frontmatter["mydate"] = testDate
-	testDate = testDate.Add(24 * time.Hour)
-	d.Frontmatter["date"] = testDate
-	testDate = testDate.Add(24 * time.Hour)
-	d.Frontmatter["lastmod"] = testDate
-	testDate = testDate.Add(24 * time.Hour)
-	d.Frontmatter["publishdate"] = testDate
-	testDate = testDate.Add(24 * time.Hour)
-	d.Frontmatter["expirydate"] = testDate
-
-	c.Assert(handler.HandleDates(d), qt.IsNil)
-
-	c.Assert(d.Dates.FDate.Day(), qt.Equals, 1)
-	c.Assert(d.Dates.FLastmod.Day(), qt.Equals, 4)
-	c.Assert(d.Dates.FPublishDate.Day(), qt.Equals, 4)
-	c.Assert(d.Dates.FExpiryDate.Day(), qt.Equals, 5)
-
-	c.Assert(d.Params["date"], qt.Equals, d.Dates.FDate)
-	c.Assert(d.Params["mydate"], qt.Equals, d.Dates.FDate)
-	c.Assert(d.Params["publishdate"], qt.Equals, d.Dates.FPublishDate)
-	c.Assert(d.Params["expirydate"], qt.Equals, d.Dates.FExpiryDate)
-
-	c.Assert(handler.IsDateKey("date"), qt.Equals, false) // This looks odd, but is configured like this.
-	c.Assert(handler.IsDateKey("mydate"), qt.Equals, true)
-	c.Assert(handler.IsDateKey("publishdate"), qt.Equals, true)
-	c.Assert(handler.IsDateKey("pubdate"), qt.Equals, true)
 }
 
 func TestFrontMatterDatesDefaultKeyword(t *testing.T) {
@@ -186,10 +137,10 @@ func TestFrontMatterDatesDefaultKeyword(t *testing.T) {
 
 	testDate, _ := time.Parse("2006-01-02", "2018-02-01")
 	d := newTestFd()
-	d.Frontmatter["mydate"] = testDate
-	d.Frontmatter["date"] = testDate.Add(1 * 24 * time.Hour)
-	d.Frontmatter["mypubdate"] = testDate.Add(2 * 24 * time.Hour)
-	d.Frontmatter["publishdate"] = testDate.Add(3 * 24 * time.Hour)
+	d.Params["mydate"] = testDate
+	d.Params["date"] = testDate.Add(1 * 24 * time.Hour)
+	d.Params["mypubdate"] = testDate.Add(2 * 24 * time.Hour)
+	d.Params["publishdate"] = testDate.Add(3 * 24 * time.Hour)
 
 	c.Assert(handler.HandleDates(d), qt.IsNil)
 

@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ Fragments: {{ .Fragments.Identifiers }}|
 HasShortcode Level 1: {{ .HasShortcode "include" }}|
 HasShortcode Level 2: {{ .HasShortcode "withmarkdown" }}|
 HasShortcode Level 3: {{ .HasShortcode "level3" }}|
-HasSHortcode not found: {{ .HasShortcode "notfound" }}|
+HasShortcode not found: {{ .HasShortcode "notfound" }}|
 Content: {{ .Content }}|
 `
 
@@ -79,11 +79,8 @@ Content: {{ .Content }}|
 		"HasShortcode Level 1: true|",
 		"HasShortcode Level 2: true|",
 		"HasShortcode Level 3: true|",
-		"HasSHortcode not found: false|",
+		"HasShortcode not found: false|",
 	)
-
-	// TODO1 more assertions.
-
 }
 
 func TestRenderShortcodesNestedMultipleOutputFormatTemplates(t *testing.T) {
@@ -130,7 +127,6 @@ JSON: {{ .Content }}
 
 	b.AssertFileContent("public/p1/index.html", "Myshort HTML")
 	b.AssertFileContent("public/p1/index.json", "Myshort JSON")
-
 }
 
 func TestRenderShortcodesEditNested(t *testing.T) {
@@ -159,27 +155,12 @@ title: "p2"
 Myshort Original.
 -- layouts/_default/single.html --
  {{ .Content }}
-
-
-
 `
-
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			Running:     true,
-		},
-	).Build()
-
+	b := TestRunning(t, files)
 	b.AssertFileContent("public/p1/index.html", "Myshort Original.")
 
-	b.EditFileReplace("layouts/shortcodes/myshort.html", func(s string) string {
-		return "Myshort Edited."
-	})
-	b.Build()
+	b.EditFileReplaceAll("layouts/shortcodes/myshort.html", "Original", "Edited").Build()
 	b.AssertFileContent("public/p1/index.html", "Myshort Edited.")
-
 }
 
 func TestRenderShortcodesEditIncludedPage(t *testing.T) {
@@ -223,10 +204,9 @@ Myshort Original.
 
 	b.AssertFileContent("public/p1/index.html", "Original")
 
-	b.EditFileReplace("content/p2.md", func(s string) string {
+	b.EditFileReplaceFunc("content/p2.md", func(s string) string {
 		return strings.Replace(s, "Original", "Edited", 1)
 	})
 	b.Build()
 	b.AssertFileContent("public/p1/index.html", "Edited")
-
 }

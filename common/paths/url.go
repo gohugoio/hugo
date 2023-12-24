@@ -184,3 +184,13 @@ func UrlToFilename(s string) (string, bool) {
 
 	return p, true
 }
+
+// URLEscape escapes unicode letters.
+func URLEscape(uri string) string {
+	// escape unicode letters
+	u, err := url.Parse(uri)
+	if err != nil {
+		panic(err)
+	}
+	return u.String()
+}

@@ -38,6 +38,7 @@ func TestTaxonomiesCountOrder(t *testing.T) {
 
 	cfg, fs := newTestCfg()
 
+	cfg.Set("titleCaseStyle", "none")
 	cfg.Set("taxonomies", taxonomies)
 	configs, err := loadTestConfigFromProvider(cfg)
 	c.Assert(err, qt.IsNil)
@@ -77,6 +78,7 @@ func TestTaxonomiesWithAndWithoutContentFile(t *testing.T) {
 func doTestTaxonomiesWithAndWithoutContentFile(t *testing.T, uglyURLs bool) {
 	siteConfig := `
 baseURL = "http://example.com/blog"
+titleCaseStyle = "firstupper"
 uglyURLs = %t
 paginate = 1
 defaultContentLanguage = "en"
@@ -135,7 +137,7 @@ permalinkeds:
 	}
 
 	// 1.
-	b.AssertFileContent(pathFunc("public/categories/cat1/index.html"), "List", "cAt1")
+	b.AssertFileContent(pathFunc("public/categories/cat1/index.html"), "List", "CAt1")
 	b.AssertFileContent(pathFunc("public/categories/index.html"), "Taxonomy Term Page", "Category Terms")
 
 	// 2.
@@ -168,7 +170,7 @@ permalinkeds:
 
 	for taxonomy, count := range taxonomyTermPageCounts {
 		msg := qt.Commentf(taxonomy)
-		term := s.getPage(kinds.KindTaxonomy, taxonomy)
+		term := s.getPageOldVersion(kinds.KindTaxonomy, taxonomy)
 		b.Assert(term, qt.Not(qt.IsNil), msg)
 		b.Assert(len(term.Pages()), qt.Equals, count, msg)
 
@@ -177,7 +179,7 @@ permalinkeds:
 		}
 	}
 
-	cat1 := s.getPage(kinds.KindTerm, "categories", "cat1")
+	cat1 := s.getPageOldVersion(kinds.KindTerm, "categories", "cat1")
 	b.Assert(cat1, qt.Not(qt.IsNil))
 	if uglyURLs {
 		b.Assert(cat1.RelPermalink(), qt.Equals, "/blog/categories/cat1.html")
@@ -185,8 +187,8 @@ permalinkeds:
 		b.Assert(cat1.RelPermalink(), qt.Equals, "/blog/categories/cat1/")
 	}
 
-	pl1 := s.getPage(kinds.KindTerm, "permalinkeds", "pl1")
-	permalinkeds := s.getPage(kinds.KindTaxonomy, "permalinkeds")
+	pl1 := s.getPageOldVersion(kinds.KindTerm, "permalinkeds", "pl1")
+	permalinkeds := s.getPageOldVersion(kinds.KindTaxonomy, "permalinkeds")
 	b.Assert(pl1, qt.Not(qt.IsNil))
 	b.Assert(permalinkeds, qt.Not(qt.IsNil))
 	if uglyURLs {
@@ -197,7 +199,7 @@ permalinkeds:
 		b.Assert(permalinkeds.RelPermalink(), qt.Equals, "/blog/permalinkeds/")
 	}
 
-	helloWorld := s.getPage(kinds.KindTerm, "others", "hello-hugo-world")
+	helloWorld := s.getPageOldVersion(kinds.KindTerm, "others", "hello-hugo-world")
 	b.Assert(helloWorld, qt.Not(qt.IsNil))
 	b.Assert(helloWorld.Title(), qt.Equals, "Hello Hugo world")
 
@@ -212,6 +214,7 @@ func TestTaxonomiesPathSeparation(t *testing.T) {
 
 	config := `
 baseURL = "https://example.com"
+titleCaseStyle = "none"
 [taxonomies]
 "news/tag" = "news/tags"
 "news/category" = "news/categories"
@@ -282,8 +285,8 @@ title: "This is S3s"
 	b.AssertFileContent("public/t1/t2/t3s/t4/t5/index.html", "Taxonomy List Page 1|This is T5|Hello|https://example.com/t1/t2/t3s/t4/t5/|")
 	b.AssertFileContent("public/t1/t2/t3s/t4/t5/t6/index.html", "Taxonomy List Page 1|t4/t5/t6|Hello|https://example.com/t1/t2/t3s/t4/t5/t6/|")
 
-	b.AssertFileContent("public/news/categories/index.html", "Taxonomy Term Page 1|News/Categories|Hello|https://example.com/news/categories/|")
-	b.AssertFileContent("public/t1/t2/t3s/index.html", "Taxonomy Term Page 1|T1/T2/T3s|Hello|https://example.com/t1/t2/t3s/|")
+	b.AssertFileContent("public/news/categories/index.html", "Taxonomy Term Page 1|categories|Hello|https://example.com/news/categories/|")
+	b.AssertFileContent("public/t1/t2/t3s/index.html", "Taxonomy Term Page 1|t3s|Hello|https://example.com/t1/t2/t3s/|")
 	b.AssertFileContent("public/s1/s2/s3s/index.html", "Taxonomy Term Page 1|This is S3s|Hello|https://example.com/s1/s2/s3s/|")
 }
 
@@ -326,8 +329,8 @@ Content.
 	b.CreateSites().Build(BuildCfg{})
 
 	b.AssertFileContent("public/index.html", `<li><a href="http://example.com/tags/hugo-rocks/">Hugo Rocks!</a> 10</li>`)
-	b.AssertFileContent("public/categories/index.html", `<li><a href="http://example.com/categories/this-is-cool/">This is Cool</a> 10</li>`)
-	b.AssertFileContent("public/tags/index.html", `<li><a href="http://example.com/tags/rocks-i-say/">Rocks I say!</a> 10</li>`)
+	b.AssertFileContent("public/categories/index.html", `<li><a href="http://example.com/categories/this-is-cool/">This Is Cool</a> 10</li>`)
+	b.AssertFileContent("public/tags/index.html", `<li><a href="http://example.com/tags/rocks-i-say/">Rocks I Say!</a> 10</li>`)
 }
 
 // Issue 6213
@@ -355,15 +358,14 @@ categories: ["regular"]
 	b.Assert(b.CheckExists("public/categories/regular/index.html"), qt.Equals, true)
 	b.Assert(b.CheckExists("public/categories/drafts/index.html"), qt.Equals, false)
 
-	reg, _ := s.getPageNew(nil, "categories/regular")
-	dra, _ := s.getPageNew(nil, "categories/draft")
+	reg, _ := s.getPage(nil, "categories/regular")
+	dra, _ := s.getPage(nil, "categories/draft")
 	b.Assert(reg, qt.Not(qt.IsNil))
 	b.Assert(dra, qt.IsNil)
 }
 
 func TestTaxonomiesIndexDraft(t *testing.T) {
 	t.Parallel()
-
 	b := newTestSitesBuilder(t)
 	b.WithContent(
 		"categories/_index.md", `---
@@ -393,7 +395,7 @@ Content.
 	b.Build(BuildCfg{})
 
 	b.AssertFileContentFn("public/index.html", func(s string) bool {
-		return !strings.Contains(s, "categories")
+		return !strings.Contains(s, "/categories/|")
 	})
 }
 
@@ -468,36 +470,37 @@ categories: ["funny"]
 }
 
 func TestTaxonomiesRemoveOne(t *testing.T) {
-	b := newTestSitesBuilder(t).Running()
-	b.WithTemplates("index.html", `
-	{{ $cats := .Site.Taxonomies.categories.cats }}
-	{{ if $cats }}
-	Len cats: {{ len $cats }}
-	{{ range $cats }}
-        Cats:|{{ .Page.RelPermalink }}|
-    {{ end }}
-    {{ end }}
-    {{ $funny := .Site.Taxonomies.categories.funny }}
-    {{ if $funny }}
-	Len funny: {{ len $funny }}
-    {{ range $funny }}
-        Funny:|{{ .Page.RelPermalink }}|
-    {{ end }}
-    {{ end }}
-	`)
-
-	b.WithContent("p1.md", `---
+	files := `
+-- hugo.toml --
+disableLiveReload = true
+-- layouts/index.html --
+{{ $cats := .Site.Taxonomies.categories.cats }}
+{{ if $cats }}
+Len cats: {{ len $cats }}
+{{ range $cats }}
+	Cats:|{{ .Page.RelPermalink }}|
+{{ end }}
+{{ end }}
+{{ $funny := .Site.Taxonomies.categories.funny }}
+{{ if $funny }}
+Len funny: {{ len $funny }}
+{{ range $funny }}
+	Funny:|{{ .Page.RelPermalink }}|
+{{ end }}
+{{ end }}
+-- content/p1.md --
+---
 title: Page
 categories: ["funny", "cats"]
 ---
-	`, "p2.md", `---
+-- content/p2.md --
+---
 title: Page2
 categories: ["funny", "cats"]
 ---
-	`,
-	)
 
-	b.Build(BuildCfg{})
+`
+	b := TestRunning(t, files)
 
 	b.AssertFileContent("public/index.html", `
 Len cats: 2
@@ -514,7 +517,7 @@ categories: ["funny"]
 ---
 	`)
 
-	b.Build(BuildCfg{})
+	b.Build()
 
 	b.AssertFileContent("public/index.html", `
 Len cats: 1
@@ -660,6 +663,7 @@ func TestTaxonomiesDirectoryOverlaps(t *testing.T) {
 
 	b.WithConfigFile("toml", `
 baseURL = "https://example.org"
+titleCaseStyle = "none"
 
 [taxonomies]
   abcdef = "abcdefs"
@@ -688,18 +692,17 @@ abcdefgs: {{ template "print-page" $abcdefgs }}|IsAncestor: {{ $abcdefgs.IsAnces
     Page: /abcdefgh/|abcdefgh|section|Parent: /|CurrentSection: /abcdefgh/|
     Page: /abcdefgh/p1/|abcdefgh-p|page|Parent: /abcdefgh/|CurrentSection: /abcdefgh/|
     Page: /abcdefghijk/|abcdefghijk|page|Parent: /|CurrentSection: /|
-    Page: /abcdefghis/|Abcdefghis|taxonomy|Parent: /|CurrentSection: /|
-    Page: /abcdefgs/|Abcdefgs|taxonomy|Parent: /|CurrentSection: /|
-    Page: /abcdefs/|Abcdefs|taxonomy|Parent: /|CurrentSection: /|
-    abc: /abcdefgs/abc/|abc|term|Parent: /abcdefgs/|CurrentSection: /abcdefgs/|
-    abcdefgs: /abcdefgs/|Abcdefgs|taxonomy|Parent: /|CurrentSection: /|
-    abc: /abcdefgs/abc/|abc|term|Parent: /abcdefgs/|CurrentSection: /abcdefgs/|FirstSection: /|IsAncestor: false|IsDescendant: true
-    abcdefgs: /abcdefgs/|Abcdefgs|taxonomy|Parent: /|CurrentSection: /|FirstSection: /|IsAncestor: true|IsDescendant: false
+    Page: /abcdefghis/|abcdefghis|taxonomy|Parent: /|CurrentSection: /abcdefghis/|
+    Page: /abcdefgs/|abcdefgs|taxonomy|Parent: /|CurrentSection: /abcdefgs/|
+    Page: /abcdefs/|abcdefs|taxonomy|Parent: /|CurrentSection: /abcdefs/|
+    abc: /abcdefgs/abc/|abc|term|Parent: /abcdefgs/|CurrentSection: /abcdefgs/abc/|
+    abcdefgs: /abcdefgs/|abcdefgs|taxonomy|Parent: /|CurrentSection: /abcdefgs/|
+    abc: /abcdefgs/abc/|abc|term|Parent: /abcdefgs/|CurrentSection: /abcdefgs/abc/|FirstSection: /abcdefgs/|IsAncestor: false|IsDescendant: true
+    abcdefgs: /abcdefgs/|abcdefgs|taxonomy|Parent: /|CurrentSection: /abcdefgs/|FirstSection: /abcdefgs/|IsAncestor: true|IsDescendant: false
 `)
 }
 
 func TestTaxonomiesWeightSort(t *testing.T) {
-
 	files := `
 -- layouts/index.html --
 {{ $a := site.GetPage "tags/a"}}

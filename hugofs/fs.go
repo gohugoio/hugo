@@ -111,7 +111,7 @@ func newFs(source, destination afero.Fs, workingDir, publishDir string) *Fs {
 	// If this does not exist, it will be created later.
 	absPublishDir := paths.AbsPathify(workingDir, publishDir)
 
-	pubFs := afero.NewBasePathFs(destination, absPublishDir)
+	pubFs := NewBasePathFs(destination, absPublishDir)
 
 	return &Fs{
 		Source:             source,
@@ -126,16 +126,16 @@ func newFs(source, destination afero.Fs, workingDir, publishDir string) *Fs {
 
 func getWorkingDirFsReadOnly(base afero.Fs, workingDir string) afero.Fs {
 	if workingDir == "" {
-		return afero.NewReadOnlyFs(base)
+		return NewReadOnlyFs(base)
 	}
-	return afero.NewBasePathFs(afero.NewReadOnlyFs(base), workingDir)
+	return NewBasePathFs(NewReadOnlyFs(base), workingDir)
 }
 
 func getWorkingDirFsWritable(base afero.Fs, workingDir string) afero.Fs {
 	if workingDir == "" {
 		return base
 	}
-	return afero.NewBasePathFs(base, workingDir)
+	return NewBasePathFs(base, workingDir)
 }
 
 func isWrite(flag int) bool {
@@ -171,14 +171,11 @@ func MakeReadableAndRemoveAllModulePkgDir(fs afero.Fs, dir string) (int, error) 
 func IsOsFs(fs afero.Fs) bool {
 	var isOsFs bool
 	WalkFilesystems(fs, func(fs afero.Fs) bool {
-		switch base := fs.(type) {
+		switch fs.(type) {
 		case *afero.MemMapFs:
 			isOsFs = false
 		case *afero.OsFs:
 			isOsFs = true
-		case *afero.BasePathFs:
-			_, supportsLstat, _ := base.LstatIfPossible("asdfasdfasdf")
-			isOsFs = supportsLstat
 		}
 		return isOsFs
 	})
@@ -224,4 +221,31 @@ func WalkFilesystems(fs afero.Fs, fn WalkFn) bool {
 	}
 
 	return false
+}
+
+var _ FilesystemUnwrapper = (*filesystemsWrapper)(nil)
+
+// NewBasePathFs creates a new BasePathFs.
+func NewBasePathFs(source afero.Fs, path string) afero.Fs {
+	return WrapFilesystem(afero.NewBasePathFs(source, path), source)
+}
+
+// NewReadOnlyFs creates a new ReadOnlyFs.
+func NewReadOnlyFs(source afero.Fs) afero.Fs {
+	return WrapFilesystem(afero.NewReadOnlyFs(source), source)
+}
+
+// WrapFilesystem is typically used to wrap a afero.BasePathFs to allow
+// access to the underlying filesystem if needed.
+func WrapFilesystem(container, content afero.Fs) afero.Fs {
+	return filesystemsWrapper{Fs: container, content: content}
+}
+
+type filesystemsWrapper struct {
+	afero.Fs
+	content afero.Fs
+}
+
+func (w filesystemsWrapper) UnwrapFilesystem() afero.Fs {
+	return w.content
 }

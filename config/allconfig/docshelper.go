@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import (
 // This is is just some helpers used to create some JSON used in the Hugo docs.
 func init() {
 	docsProvider := func() docshelper.DocProvider {
-
 		cfg := config.New()
 		for configRoot, v := range allDecoderSetups {
 			if v.internalOrDeprecated {

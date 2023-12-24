@@ -22,12 +22,17 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config/testconfig"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/output/layouts"
 	"github.com/gohugoio/hugo/tpl"
 )
 
 type templateFinder int
+
+func (templateFinder) GetIdentity(string) (identity.Identity, bool) {
+	return identity.StringIdentity("test"), true
+}
 
 func (templateFinder) Lookup(name string) (tpl.Template, bool) {
 	return nil, false

@@ -72,10 +72,9 @@ Copy3: /blog/js/copies/moo.a677329fc6c4ad947e0c7116d91f37a2.min.js|text/javascri
 
 		`)
 
-	b.AssertDestinationExists("images/copy2.png", true)
+	b.AssertFileExists("public/images/copy2.png", true)
 	// No permalink used.
-	b.AssertDestinationExists("images/copy3.png", false)
-
+	b.AssertFileExists("public/images/copy3.png", false)
 }
 
 func TestCopyPageShouldFail(t *testing.T) {
@@ -96,7 +95,6 @@ func TestCopyPageShouldFail(t *testing.T) {
 		}).BuildE()
 
 	b.Assert(err, qt.IsNotNil)
-
 }
 
 func TestGet(t *testing.T) {
@@ -125,5 +123,4 @@ Image OK
 Empty string not found
 
 		`)
-
 }

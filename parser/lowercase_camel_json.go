@@ -25,8 +25,7 @@ import (
 
 // Regexp definitions
 var (
-	keyMatchRegex    = regexp.MustCompile(`\"(\w+)\":`)
-	wordBarrierRegex = regexp.MustCompile(`(\w)([A-Z])`)
+	keyMatchRegex = regexp.MustCompile(`\"(\w+)\":`)
 )
 
 // Code adapted from https://gist.github.com/piersy/b9934790a8892db1a603820c0c23e4a7
@@ -92,19 +91,17 @@ func (c ReplacingJSONMarshaller) MarshalJSON() ([]byte, error) {
 				if !hreflect.IsTruthful(v) {
 					delete(m, k)
 				} else {
-					switch v.(type) {
+					switch vv := v.(type) {
 					case map[string]interface{}:
-						removeZeroVAlues(v.(map[string]any))
+						removeZeroVAlues(vv)
 					case []interface{}:
-						for _, vv := range v.([]interface{}) {
-							if m, ok := vv.(map[string]any); ok {
+						for _, vvv := range vv {
+							if m, ok := vvv.(map[string]any); ok {
 								removeZeroVAlues(m)
 							}
 						}
 					}
-
 				}
-
 			}
 		}
 		removeZeroVAlues(m)

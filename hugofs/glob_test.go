@@ -14,6 +14,7 @@
 package hugofs
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -28,14 +29,21 @@ func TestGlob(t *testing.T) {
 	fs := NewBaseFileDecorator(afero.NewMemMapFs())
 
 	create := func(filename string) {
-		err := afero.WriteFile(fs, filepath.FromSlash(filename), []byte("content "+filename), 0777)
+		filename = filepath.FromSlash(filename)
+		dir := filepath.Dir(filename)
+		if dir != "." {
+			err := fs.MkdirAll(dir, 0o777)
+			c.Assert(err, qt.IsNil)
+		}
+		err := afero.WriteFile(fs, filename, []byte("content "+filename), 0o777)
 		c.Assert(err, qt.IsNil)
 	}
 
 	collect := func(pattern string) []string {
 		var paths []string
 		h := func(fi FileMetaInfo) (bool, error) {
-			paths = append(paths, fi.Meta().Path)
+			p := fi.Meta().PathInfo.Path()
+			paths = append(paths, p)
 			return false, nil
 		}
 		err := Glob(fs, pattern, h)
@@ -43,17 +51,22 @@ func TestGlob(t *testing.T) {
 		return paths
 	}
 
-	create("root.json")
-	create("jsonfiles/d1.json")
-	create("jsonfiles/d2.json")
-	create("jsonfiles/sub/d3.json")
-	create("jsonfiles/d1.xml")
-	create("a/b/c/e/f.json")
-	create("UPPER/sub/style.css")
-	create("root/UPPER/sub/style.css")
+	create("/root.json")
+	create("/jsonfiles/d1.json")
+	create("/jsonfiles/d2.json")
+	create("/jsonfiles/sub/d3.json")
+	create("/jsonfiles/d1.xml")
+	create("/a/b/c/e/f.json")
+	create("/UPPER/sub/style.css")
+	create("/root/UPPER/sub/style.css")
+
+	afero.Walk(fs, "/", func(path string, info os.FileInfo, err error) error {
+		c.Assert(err, qt.IsNil)
+		return nil
+	})
 
 	c.Assert(collect(filepath.FromSlash("/jsonfiles/*.json")), qt.HasLen, 2)
-
+	c.Assert(collect("/*.json"), qt.HasLen, 1)
 	c.Assert(collect("**.json"), qt.HasLen, 5)
 	c.Assert(collect("**"), qt.HasLen, 8)
 	c.Assert(collect(""), qt.HasLen, 0)
@@ -63,5 +76,4 @@ func TestGlob(t *testing.T) {
 
 	c.Assert(collect("root/UPPER/sub/style.css"), qt.HasLen, 1)
 	c.Assert(collect("UPPER/sub/style.css"), qt.HasLen, 1)
-
 }

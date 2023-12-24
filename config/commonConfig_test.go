@@ -148,21 +148,13 @@ func TestBuildConfigCacheBusters(t *testing.T) {
 	l := loggers.NewDefault()
 	c.Assert(conf.CompileConfig(l), qt.IsNil)
 
-	m, err := conf.MatchCacheBuster(l, "assets/foo/main.js")
-	c.Assert(err, qt.IsNil)
+	m, _ := conf.MatchCacheBuster(l, "tailwind.config.js")
 	c.Assert(m, qt.IsNotNil)
-	c.Assert(m("scripts"), qt.IsTrue)
-	c.Assert(m("asdf"), qt.IsFalse)
-
-	m, _ = conf.MatchCacheBuster(l, "tailwind.config.js")
 	c.Assert(m("css"), qt.IsTrue)
 	c.Assert(m("js"), qt.IsFalse)
 
-	m, err = conf.MatchCacheBuster(l, "assets/foo.json")
-	c.Assert(err, qt.IsNil)
-	c.Assert(m, qt.IsNotNil)
-	c.Assert(m("json"), qt.IsTrue)
-
+	m, _ = conf.MatchCacheBuster(l, "foo.bar")
+	c.Assert(m, qt.IsNil)
 }
 
 func TestBuildConfigCacheBusterstTailwindSetup(t *testing.T) {

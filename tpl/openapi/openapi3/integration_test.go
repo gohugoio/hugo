@@ -67,7 +67,7 @@ API: {{ $api.Info.Title | safeHTML }}
 	b.AssertFileContent("public/index.html", `API: Sample API`)
 
 	b.
-		EditFileReplace("assets/api/myapi.yaml", func(s string) string { return strings.ReplaceAll(s, "Sample API", "Hugo API") }).
+		EditFileReplaceFunc("assets/api/myapi.yaml", func(s string) string { return strings.ReplaceAll(s, "Sample API", "Hugo API") }).
 		Build()
 
 	b.AssertFileContent("public/index.html", `API: Hugo API`)

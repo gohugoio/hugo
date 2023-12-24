@@ -87,7 +87,6 @@ User-Agent: foo
 
 		result, _ := h.Highlight(lines, "bash", "")
 		c.Assert(result, qt.Contains, "<span class=\"lnt\" id=\"2\"><a class=\"lnlinks\" href=\"#2\">2</a>\n</span>")
-		result, _ = h.Highlight(lines, "bash", "lineanchors=test")
 		result, _ = h.Highlight(lines, "bash", "anchorlinenos=false,hl_lines=2")
 		c.Assert(result, qt.Not(qt.Contains), "id=\"2\"")
 	})

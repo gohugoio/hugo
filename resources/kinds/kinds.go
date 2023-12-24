@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,10 +34,11 @@ const (
 
 	// The following are (currently) temporary nodes,
 	// i.e. nodes we create just to render in isolation.
-	KindRSS       = "rss"
-	KindSitemap   = "sitemap"
-	KindRobotsTXT = "robotstxt"
-	Kind404       = "404"
+	KindRSS          = "rss"
+	KindSitemap      = "sitemap"
+	KindSitemapIndex = "sitemapindex"
+	KindRobotsTXT    = "robotstxt"
+	KindStatus404    = "404"
 )
 
 var (
@@ -77,7 +78,7 @@ var kindMapTemporary = map[string]string{
 	KindRSS:       KindRSS,
 	KindSitemap:   KindSitemap,
 	KindRobotsTXT: KindRobotsTXT,
-	Kind404:       Kind404,
+	KindStatus404: KindStatus404,
 }
 
 // GetKindMain gets the page kind given a string, empty if not found.
@@ -92,6 +93,16 @@ func GetKindAny(s string) string {
 		return pkind
 	}
 	return kindMapTemporary[strings.ToLower(s)]
+}
+
+// IsBranch returns whether the given kind is a branch node.
+func IsBranch(kind string) bool {
+	switch kind {
+	case KindHome, KindSection, KindTaxonomy, KindTerm:
+		return true
+	default:
+		return false
+	}
 }
 
 // IsDeprecatedAndReplacedWith returns the new kind if the given kind is deprecated.

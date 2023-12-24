@@ -14,6 +14,7 @@
 package transform_test
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
 	"strings"
@@ -193,9 +194,11 @@ func BenchmarkUnmarshalString(b *testing.B) {
 		jsons[i] = strings.Replace(testJSON, "ROOT_KEY", fmt.Sprintf("root%d", i), 1)
 	}
 
+	ctx := context.Background()
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		result, err := ns.Unmarshal(jsons[rand.Intn(numJsons)])
+		result, err := ns.Unmarshal(ctx, jsons[rand.Intn(numJsons)])
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -220,9 +223,11 @@ func BenchmarkUnmarshalResource(b *testing.B) {
 		jsons[i] = testContentResource{key: key, content: strings.Replace(testJSON, "ROOT_KEY", key, 1), mime: media.Builtin.JSONType}
 	}
 
+	ctx := context.Background()
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		result, err := ns.Unmarshal(jsons[rand.Intn(numJsons)])
+		result, err := ns.Unmarshal(ctx, jsons[rand.Intn(numJsons)])
 		if err != nil {
 			b.Fatal(err)
 		}

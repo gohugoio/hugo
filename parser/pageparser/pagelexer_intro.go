@@ -13,6 +13,10 @@
 
 package pageparser
 
+import "errors"
+
+var ErrPlainHTMLDocumentsNotSupported = errors.New("plain HTML documents not supported")
+
 func lexIntroSection(l *pageLexer) stateFunc {
 	l.summaryDivider = summaryDivider
 
@@ -45,7 +49,7 @@ LOOP:
 					l.emit(TypeIgnore)
 					continue LOOP
 				} else {
-					return l.errorf("plain HTML documents not supported")
+					return l.documentError(ErrPlainHTMLDocumentsNotSupported)
 				}
 			}
 			break LOOP

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -29,17 +30,64 @@ import (
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
+	"golang.org/x/text/unicode/norm"
 	"golang.org/x/tools/txtar"
 )
 
+type TestOpt func(*IntegrationTestConfig)
+
+func TestOptRunning() TestOpt {
+	return func(c *IntegrationTestConfig) {
+		c.Running = true
+	}
+}
+
+// Enable tracing in integration tests.
+// THis should only be used during development and not committed to the repo.
+func TestOptTrace() TestOpt {
+	return func(c *IntegrationTestConfig) {
+		c.LogLevel = logg.LevelTrace
+	}
+}
+
+// TestOptDebug will enable debug logging in integration tests.
+func TestOptDebug() TestOpt {
+	return func(c *IntegrationTestConfig) {
+		c.LogLevel = logg.LevelDebug
+	}
+}
+
+// TestOptWithNFDOnDarwin will normalize the Unicode filenames to NFD on Darwin.
+func TestOptWithNFDOnDarwin() TestOpt {
+	return func(c *IntegrationTestConfig) {
+		c.NFDFormOnDarwin = true
+	}
+}
+
+// TestOptWithWorkingDir allows setting any config optiona as a function al option.
+func TestOptWithConfig(fn func(c *IntegrationTestConfig)) TestOpt {
+	return func(c *IntegrationTestConfig) {
+		fn(c)
+	}
+}
+
 // Test is a convenience method to create a new IntegrationTestBuilder from some files and run a build.
-func Test(t testing.TB, files string) *IntegrationTestBuilder {
-	return NewIntegrationTestBuilder(IntegrationTestConfig{T: t, TxtarString: files}).Build()
+func Test(t testing.TB, files string, opts ...TestOpt) *IntegrationTestBuilder {
+	cfg := IntegrationTestConfig{T: t, TxtarString: files}
+	for _, o := range opts {
+		o(&cfg)
+	}
+	return NewIntegrationTestBuilder(cfg).Build()
 }
 
 // TestRunning is a convenience method to create a new IntegrationTestBuilder from some files with Running set to true and run a build.
-func TestRunning(t testing.TB, files string) *IntegrationTestBuilder {
-	return NewIntegrationTestBuilder(IntegrationTestConfig{T: t, TxtarString: files, Running: true}).Build()
+// Deprecated: Use Test with TestOptRunning instead.
+func TestRunning(t testing.TB, files string, opts ...TestOpt) *IntegrationTestBuilder {
+	cfg := IntegrationTestConfig{T: t, TxtarString: files, Running: true}
+	for _, o := range opts {
+		o(&cfg)
+	}
+	return NewIntegrationTestBuilder(cfg).Build()
 }
 
 func NewIntegrationTestBuilder(conf IntegrationTestConfig) *IntegrationTestBuilder {
@@ -49,6 +97,12 @@ func NewIntegrationTestBuilder(conf IntegrationTestConfig) *IntegrationTestBuild
 	conf.TxtarString = strings.ReplaceAll(conf.TxtarString, "§§", "`")
 
 	data := txtar.Parse([]byte(conf.TxtarString))
+
+	if conf.NFDFormOnDarwin {
+		for i, f := range data.Files {
+			data.Files[i].Name = norm.NFD.String(f.Name)
+		}
+	}
 
 	c, ok := conf.T.(*qt.C)
 	if !ok {
@@ -95,10 +149,11 @@ type IntegrationTestBuilder struct {
 	createdFiles []string
 	removedFiles []string
 	renamedFiles []string
+	renamedDirs  []string
 
 	buildCount int
 	GCCount    int
-	counters   *testCounters
+	counters   *buildCounters
 	logBuff    lockingBuffer
 
 	builderInit sync.Once
@@ -142,11 +197,6 @@ func (s *IntegrationTestBuilder) AssertBuildCountLayouts(count int) {
 	s.Assert(s.H.init.layouts.InitCount(), qt.Equals, count)
 }
 
-func (s *IntegrationTestBuilder) AssertBuildCountTranslations(count int) {
-	s.Helper()
-	s.Assert(s.H.init.translations.InitCount(), qt.Equals, count)
-}
-
 func (s *IntegrationTestBuilder) AssertFileCount(dirname string, expected int) {
 	s.Helper()
 	fs := s.fs.WorkingDirReadOnly
@@ -168,6 +218,7 @@ func (s *IntegrationTestBuilder) AssertFileContent(filename string, matches ...s
 	s.Helper()
 	content := strings.TrimSpace(s.FileContent(filename))
 	for _, m := range matches {
+		cm := qt.Commentf("File: %s Match %s", filename, m)
 		lines := strings.Split(m, "\n")
 		for _, match := range lines {
 			match = strings.TrimSpace(match)
@@ -180,10 +231,10 @@ func (s *IntegrationTestBuilder) AssertFileContent(filename string, matches ...s
 				match = strings.TrimPrefix(match, "! ")
 			}
 			if negate {
-				s.Assert(content, qt.Not(qt.Contains), match, qt.Commentf(m))
+				s.Assert(content, qt.Not(qt.Contains), match, cm)
 				continue
 			}
-			s.Assert(content, qt.Contains, match, qt.Commentf(m))
+			s.Assert(content, qt.Contains, match, cm)
 		}
 	}
 }
@@ -208,24 +259,6 @@ func (s *IntegrationTestBuilder) AssertFileExists(filename string, b bool) {
 	s.Assert(err, checker)
 }
 
-// Deprecated: Use AssertFileExists instead but remember to prefix with "public/".
-// I have had some surprises with this one, hence the deprecation.
-func (s *IntegrationTestBuilder) AssertDestinationExists(filename string, b bool) {
-	checker := qt.IsTrue
-	if !b {
-		checker = qt.IsFalse
-	}
-	s.Assert(s.destinationExists(filepath.Clean(filename)), checker)
-}
-
-func (s *IntegrationTestBuilder) destinationExists(filename string) bool {
-	b, err := helpers.Exists(filename, s.fs.PublishDir)
-	if err != nil {
-		panic(err)
-	}
-	return b
-}
-
 func (s *IntegrationTestBuilder) AssertIsFileError(err error) herrors.FileError {
 	s.Assert(err, qt.ErrorAs, new(herrors.FileError))
 	return herrors.UnwrapFileError(err)
@@ -233,12 +266,18 @@ func (s *IntegrationTestBuilder) AssertIsFileError(err error) herrors.FileError 
 
 func (s *IntegrationTestBuilder) AssertRenderCountContent(count int) {
 	s.Helper()
-	s.Assert(s.counters.contentRenderCounter, qt.Equals, uint64(count))
+	s.Assert(s.counters.contentRenderCounter.Load(), qt.Equals, uint64(count))
 }
 
 func (s *IntegrationTestBuilder) AssertRenderCountPage(count int) {
 	s.Helper()
-	s.Assert(s.counters.pageRenderCounter, qt.Equals, uint64(count))
+	s.Assert(s.counters.pageRenderCounter.Load(), qt.Equals, uint64(count))
+}
+
+func (s *IntegrationTestBuilder) AssertRenderCountPageBetween(from, to int) {
+	s.Helper()
+	i := int(s.counters.pageRenderCounter.Load())
+	s.Assert(i >= from && i <= to, qt.IsTrue)
 }
 
 func (s *IntegrationTestBuilder) Build() *IntegrationTestBuilder {
@@ -246,10 +285,22 @@ func (s *IntegrationTestBuilder) Build() *IntegrationTestBuilder {
 	_, err := s.BuildE()
 	if s.Cfg.Verbose || err != nil {
 		fmt.Println(s.logBuff.String())
+		if s.H != nil && err == nil {
+			for _, s := range s.H.Sites {
+				m := s.pageMap
+				var buff bytes.Buffer
+				fmt.Fprintf(&buff, "PageMap for site %q\n\n", s.Language().Lang)
+				m.debugPrint("", 999, &buff)
+				fmt.Println(buff.String())
+			}
+		}
+	} else if s.Cfg.LogLevel <= logg.LevelDebug {
+		fmt.Println(s.logBuff.String())
 	}
 	s.Assert(err, qt.IsNil)
 	if s.Cfg.RunGC {
 		s.GCCount, err = s.H.GC()
+		s.Assert(err, qt.IsNil)
 	}
 
 	return s
@@ -286,7 +337,13 @@ type IntegrationTestDebugConfig struct {
 	PrefixPagemap       string
 }
 
-func (s *IntegrationTestBuilder) EditFileReplace(filename string, replacementFunc func(s string) string) *IntegrationTestBuilder {
+func (s *IntegrationTestBuilder) EditFileReplaceAll(filename, old, new string) *IntegrationTestBuilder {
+	return s.EditFileReplaceFunc(filename, func(s string) string {
+		return strings.ReplaceAll(s, old, new)
+	})
+}
+
+func (s *IntegrationTestBuilder) EditFileReplaceFunc(filename string, replacementFunc func(s string) string) *IntegrationTestBuilder {
 	absFilename := s.absFilename(filename)
 	b, err := afero.ReadFile(s.fs.Source, absFilename)
 	s.Assert(err, qt.IsNil)
@@ -337,6 +394,26 @@ func (s *IntegrationTestBuilder) RenameFile(old, new string) *IntegrationTestBui
 	return s
 }
 
+func (s *IntegrationTestBuilder) RenameDir(old, new string) *IntegrationTestBuilder {
+	absOldFilename := s.absFilename(old)
+	absNewFilename := s.absFilename(new)
+	s.renamedDirs = append(s.renamedDirs, absOldFilename)
+	s.changedFiles = append(s.changedFiles, absNewFilename)
+	afero.Walk(s.fs.Source, absOldFilename, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		s.createdFiles = append(s.createdFiles, strings.Replace(path, absOldFilename, absNewFilename, 1))
+		return nil
+	})
+	s.Assert(s.fs.Source.MkdirAll(filepath.Dir(absNewFilename), 0o777), qt.IsNil)
+	s.Assert(s.fs.Source.Rename(absOldFilename, absNewFilename), qt.IsNil)
+	return s
+}
+
 func (s *IntegrationTestBuilder) FileContent(filename string) string {
 	s.Helper()
 	return s.readWorkingDir(s, s.fs, filepath.FromSlash(filename))
@@ -353,7 +430,7 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 		}
 
 		if s.Cfg.LogLevel == 0 {
-			s.Cfg.LogLevel = logg.LevelWarn
+			s.Cfg.LogLevel = logg.LevelError
 		}
 
 		isBinaryRe := regexp.MustCompile(`^(.*)(\.png|\.jpg)$`)
@@ -365,7 +442,7 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 			data := bytes.TrimSuffix(f.Data, []byte("\n"))
 			datastr := strings.TrimSpace(string(data))
 			if strings.HasPrefix(datastr, dataSourceFilenamePrefix) {
-				// Read from file relative to tue current dir.
+				// Read from file relative to the current dir.
 				var err error
 				wd, _ := os.Getwd()
 				filename := filepath.Join(wd, strings.TrimSpace(strings.TrimPrefix(datastr, dataSourceFilenamePrefix)))
@@ -404,7 +481,12 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 			flags.Set("workingDir", s.Cfg.WorkingDir)
 		}
 
-		w := &s.logBuff
+		var w io.Writer
+		if s.Cfg.LogLevel == logg.LevelTrace {
+			w = os.Stdout
+		} else {
+			w = &s.logBuff
+		}
 
 		logger := loggers.New(
 			loggers.Options{
@@ -487,7 +569,7 @@ func (s *IntegrationTestBuilder) build(cfg BuildCfg) error {
 
 	changeEvents := s.changeEvents()
 	s.logBuff.Reset()
-	s.counters = &testCounters{}
+	s.counters = &buildCounters{}
 	cfg.testCounters = s.counters
 
 	if s.buildCount > 0 && (len(changeEvents) == 0) {
@@ -522,6 +604,15 @@ func (s *IntegrationTestBuilder) changeEvents() []fsnotify.Event {
 			Op:   fsnotify.Rename,
 		})
 	}
+
+	for _, v := range s.renamedDirs {
+		events = append(events, fsnotify.Event{
+			Name: v,
+			// This is what we get on MacOS.
+			Op: fsnotify.Remove | fsnotify.Rename,
+		})
+	}
+
 	for _, v := range s.changedFiles {
 		events = append(events, fsnotify.Event{
 			Name: v,
@@ -533,6 +624,12 @@ func (s *IntegrationTestBuilder) changeEvents() []fsnotify.Event {
 			Name: v,
 			Op:   fsnotify.Create,
 		})
+	}
+
+	// Shuffle events.
+	for i := range events {
+		j := rand.Intn(i + 1)
+		events[i], events[j] = events[j], events[i]
 	}
 
 	return events
@@ -598,6 +695,7 @@ type IntegrationTestConfig struct {
 	// Will print the log buffer after the build
 	Verbose bool
 
+	// The log level to use.
 	LogLevel logg.Level
 
 	// Whether it needs the real file system (e.g. for js.Build tests).
@@ -612,7 +710,12 @@ type IntegrationTestConfig struct {
 	// Whether to run npm install before Build.
 	NeedsNpmInstall bool
 
+	// Whether to normalize the Unicode filenames to NFD on Darwin.
+	NFDFormOnDarwin bool
+
+	// The working dir to use. If not absolute, a temp dir will be created.
 	WorkingDir string
 
+	// The config to pass to Build.
 	BuildCfg BuildCfg
 }

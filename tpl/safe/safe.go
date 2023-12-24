@@ -18,7 +18,6 @@ package safe
 import (
 	"html/template"
 
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/cast"
 )
 
@@ -64,10 +63,4 @@ func (ns *Namespace) JSStr(s any) (template.JSStr, error) {
 func (ns *Namespace) URL(s any) (template.URL, error) {
 	ss, err := cast.ToStringE(s)
 	return template.URL(ss), err
-}
-
-// SanitizeURL returns the string s as html/template URL content.
-func (ns *Namespace) SanitizeURL(s any) (string, error) {
-	ss, err := cast.ToStringE(s)
-	return helpers.SanitizeURL(ss), err
 }

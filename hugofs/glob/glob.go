@@ -69,7 +69,8 @@ func (gc *globCache) GetGlob(pattern string) (glob.Glob, error) {
 	eg = globErr{
 		globDecorator{
 			g:         g,
-			isWindows: gc.isWindows},
+			isWindows: gc.isWindows,
+		},
 		err,
 	}
 
@@ -119,15 +120,6 @@ func (g globDecorator) Match(s string) bool {
 	}
 	s = strings.ToLower(s)
 	return g.g.Match(s)
-}
-
-type globDecoratorDouble struct {
-	lowerCase    glob.Glob
-	originalCase glob.Glob
-}
-
-func (g globDecoratorDouble) Match(s string) bool {
-	return g.lowerCase.Match(s) || g.originalCase.Match(s)
 }
 
 func GetGlob(pattern string) (glob.Glob, error) {

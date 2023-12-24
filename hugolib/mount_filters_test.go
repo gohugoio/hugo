@@ -36,7 +36,7 @@ func TestMountFilters(t *testing.T) {
 	defer clean()
 
 	for _, component := range files.ComponentFolders {
-		b.Assert(os.MkdirAll(filepath.Join(workingDir, component), 0777), qt.IsNil)
+		b.Assert(os.MkdirAll(filepath.Join(workingDir, component), 0o777), qt.IsNil)
 	}
 	b.WithWorkingDir(workingDir).WithLogger(loggers.NewDefault())
 	b.WithConfigFile("toml", fmt.Sprintf(`
@@ -109,10 +109,9 @@ Resources: {{ resources.Match "**.js" }}
 	b.AssertFileContent(filepath.Join("public", "index.html"), `
 Data: map[mydata:map[b:map[b1:bval]]]:END	
 Template: false
-Resource1: js/include.js:END
+Resource1: /js/include.js:END
 Resource2: :END
 Resource3: :END
-Resources: [js/include.js]
+Resources: [/js/include.js]
 `)
-
 }

@@ -117,7 +117,7 @@ func NewDecoder(options ...func(*Decoder) error) (*Decoder, error) {
 func (d *Decoder) Decode(r io.Reader) (ex *ExifInfo, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("Exif failed: %v", r)
+			err = fmt.Errorf("exif failed: %v", r)
 		}
 	}()
 

@@ -31,6 +31,7 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/media"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -241,7 +242,7 @@ func TestWalkLocal(t *testing.T) {
 			for _, name := range tc.Given {
 				dir, _ := path.Split(name)
 				if dir != "" {
-					if err := fs.MkdirAll(dir, 0755); err != nil {
+					if err := fs.MkdirAll(dir, 0o755); err != nil {
 						t.Fatal(err)
 					}
 				}
@@ -530,7 +531,7 @@ func initFsTests(t *testing.T) []*fsTest {
 	membucket := memblob.OpenBucket(nil)
 	t.Cleanup(func() { membucket.Close() })
 
-	filefs := afero.NewBasePathFs(afero.NewOsFs(), tmpfsdir)
+	filefs := hugofs.NewBasePathFs(afero.NewOsFs(), tmpfsdir)
 	filebucket, err := fileblob.OpenBucket(tmpbucketdir, nil)
 	if err != nil {
 		t.Fatal(err)
