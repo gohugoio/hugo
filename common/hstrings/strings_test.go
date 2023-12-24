@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ func TestStringEqualFold(t *testing.T) {
 	c.Assert(StringEqualFold(s1).EqualFold("b"), qt.Equals, false)
 	c.Assert(StringEqualFold(s1).Eq(s2), qt.Equals, true)
 	c.Assert(StringEqualFold(s1).Eq("b"), qt.Equals, false)
-
 }
 
 func TestGetOrCompileRegexp(t *testing.T) {
@@ -42,7 +41,6 @@ func TestGetOrCompileRegexp(t *testing.T) {
 	re, err := GetOrCompileRegexp(`\d+`)
 	c.Assert(err, qt.IsNil)
 	c.Assert(re.MatchString("123"), qt.Equals, true)
-
 }
 
 func BenchmarkGetOrCompileRegexp(b *testing.B) {

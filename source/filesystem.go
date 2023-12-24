@@ -14,66 +14,27 @@
 package source
 
 import (
-	"fmt"
 	"path/filepath"
-	"sync"
 
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/spf13/afero"
 )
 
 // Filesystem represents a source filesystem.
 type Filesystem struct {
-	files        []File
-	filesInit    sync.Once
-	filesInitErr error
-
 	Base string
-
-	fi hugofs.FileMetaInfo
-
+	fs   afero.Fs
+	fi   hugofs.FileMetaInfo
 	SourceSpec
 }
 
-// NewFilesystem returns a new filesystem for a given source spec.
+// NewFilesystem returns a new filesytem for a given source spec.
 func (sp SourceSpec) NewFilesystem(base string) *Filesystem {
-	return &Filesystem{SourceSpec: sp, Base: base}
+	return &Filesystem{SourceSpec: sp, Base: base, fs: sp.Fs.Source}
 }
 
-func (sp SourceSpec) NewFilesystemFromFileMetaInfo(fi hugofs.FileMetaInfo) *Filesystem {
-	return &Filesystem{SourceSpec: sp, fi: fi}
-}
-
-// Files returns a slice of readable files.
-func (f *Filesystem) Files() ([]File, error) {
-	f.filesInit.Do(func() {
-		err := f.captureFiles()
-		if err != nil {
-			f.filesInitErr = fmt.Errorf("capture files: %w", err)
-		}
-	})
-	return f.files, f.filesInitErr
-}
-
-// add populates a file in the Filesystem.files
-func (f *Filesystem) add(name string, fi hugofs.FileMetaInfo) (err error) {
-	var file File
-
-	file, err = f.SourceSpec.NewFileInfo(fi)
-	if err != nil {
-		return err
-	}
-
-	f.files = append(f.files, file)
-
-	return err
-}
-
-func (f *Filesystem) captureFiles() error {
-	walker := func(path string, fi hugofs.FileMetaInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
+func (f *Filesystem) Walk(addFile func(*File) error) error {
+	walker := func(path string, fi hugofs.FileMetaInfo) error {
 		if fi.IsDir() {
 			return nil
 		}
@@ -87,14 +48,16 @@ func (f *Filesystem) captureFiles() error {
 		}
 
 		if b {
-			err = f.add(filename, fi)
+			if err = addFile(NewFileInfo(fi)); err != nil {
+				return err
+			}
 		}
 
 		return err
 	}
 
 	w := hugofs.NewWalkway(hugofs.WalkwayConfig{
-		Fs:     f.SourceFs,
+		Fs:     f.fs,
 		Info:   f.fi,
 		Root:   f.Base,
 		WalkFn: walker,

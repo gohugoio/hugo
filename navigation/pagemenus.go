@@ -125,7 +125,7 @@ type pageMenus struct {
 
 func (pm *pageMenus) HasMenuCurrent(menuID string, me *MenuEntry) bool {
 	if !types.IsNil(me.Page) && me.Page.IsSection() {
-		if ok, _ := me.Page.IsAncestor(pm.p); ok {
+		if ok := me.Page.IsAncestor(pm.p); ok {
 			return true
 		}
 	}

@@ -37,7 +37,7 @@ func TestLiveReloadInject(t *testing.T) {
 		out := new(bytes.Buffer)
 		in := strings.NewReader(s)
 
-		tr := transform.New(New(*lrurl))
+		tr := transform.New(New(lrurl))
 		tr.Apply(out, in)
 
 		return out.String()
@@ -134,7 +134,7 @@ func BenchmarkLiveReloadInject(b *testing.B) {
 	if err != nil {
 		b.Fatalf("Parsing test URL failed")
 	}
-	tr := transform.New(New(*lrurl))
+	tr := transform.New(New(lrurl))
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/fs"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/hugio"
@@ -44,17 +45,17 @@ const (
 }`
 )
 
-func Pack(fs afero.Fs, fis []hugofs.FileMetaInfo) error {
+func Pack(sourceFs, assetsWithDuplicatesPreservedFs afero.Fs) error {
 	var b *packageBuilder
 
 	// Have a package.hugo.json?
-	fi, err := fs.Stat(files.FilenamePackageHugoJSON)
+	fi, err := sourceFs.Stat(files.FilenamePackageHugoJSON)
 	if err != nil {
 		// Have a package.json?
-		fi, err = fs.Stat(packageJSONName)
+		fi, err = sourceFs.Stat(packageJSONName)
 		if err == nil {
 			// Preserve the original in package.hugo.json.
-			if err = hugio.CopyFile(fs, packageJSONName, files.FilenamePackageHugoJSON); err != nil {
+			if err = hugio.CopyFile(sourceFs, packageJSONName, files.FilenamePackageHugoJSON); err != nil {
 				return fmt.Errorf("npm pack: failed to copy package file: %w", err)
 			}
 		} else {
@@ -62,15 +63,15 @@ func Pack(fs afero.Fs, fis []hugofs.FileMetaInfo) error {
 			name := "project"
 			// Use the Hugo site's folder name as the default name.
 			// The owner can change it later.
-			rfi, err := fs.Stat("")
+			rfi, err := sourceFs.Stat("")
 			if err == nil {
 				name = rfi.Name()
 			}
 			packageJSONContent := fmt.Sprintf(packageJSONTemplate, name, "0.1.0")
-			if err = afero.WriteFile(fs, files.FilenamePackageHugoJSON, []byte(packageJSONContent), 0666); err != nil {
+			if err = afero.WriteFile(sourceFs, files.FilenamePackageHugoJSON, []byte(packageJSONContent), 0o666); err != nil {
 				return err
 			}
-			fi, err = fs.Stat(files.FilenamePackageHugoJSON)
+			fi, err = sourceFs.Stat(files.FilenamePackageHugoJSON)
 			if err != nil {
 				return err
 			}
@@ -86,9 +87,18 @@ func Pack(fs afero.Fs, fis []hugofs.FileMetaInfo) error {
 	b = newPackageBuilder(meta.Module, f)
 	f.Close()
 
+	d, err := assetsWithDuplicatesPreservedFs.Open(files.FolderJSConfig)
+	if err != nil {
+		return nil
+	}
+
+	fis, err := d.(fs.ReadDirFile).ReadDir(-1)
+	if err != nil {
+		return fmt.Errorf("npm pack: failed to read assets: %w", err)
+	}
+
 	for _, fi := range fis {
 		if fi.IsDir() {
-			// We only care about the files in the root.
 			continue
 		}
 
@@ -137,7 +147,7 @@ func Pack(fs afero.Fs, fis []hugofs.FileMetaInfo) error {
 		return fmt.Errorf("npm pack: failed to marshal JSON: %w", err)
 	}
 
-	if err := afero.WriteFile(fs, packageJSONName, packageJSONData.Bytes(), 0666); err != nil {
+	if err := afero.WriteFile(sourceFs, packageJSONName, packageJSONData.Bytes(), 0o666); err != nil {
 		return fmt.Errorf("npm pack: failed to write package.json: %w", err)
 	}
 

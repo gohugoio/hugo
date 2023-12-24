@@ -45,7 +45,7 @@ func TestRSSOutput(t *testing.T) {
 	// Section RSS
 	th.assertFileContent(filepath.Join("public", "sect", rssURI), "<?xml", "rss version", "Sects on RSSTest")
 	// Taxonomy RSS
-	th.assertFileContent(filepath.Join("public", "categories", "hugo", rssURI), "<?xml", "rss version", "hugo on RSSTest")
+	th.assertFileContent(filepath.Join("public", "categories", "hugo", rssURI), "<?xml", "rss version", "Hugo on RSSTest")
 
 	// RSS Item Limit
 	content := readWorkingDir(t, fs, filepath.Join("public", rssURI))

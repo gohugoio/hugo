@@ -25,6 +25,7 @@ import (
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugolib/filesystems"
@@ -78,7 +79,6 @@ func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) (*Client, error) 
 				}
 			},
 		})
-
 	} else {
 		transpilerv1, err = godartsassv1.Start(godartsassv1.Options{
 			DartSassEmbeddedFilename: hugo.DartSassBinaryName,
@@ -153,11 +153,11 @@ func (c *Client) toCSS(args godartsass.Args, src io.Reader) (godartsass.Result, 
 		}
 	} else {
 		res, err = c.transpiler.Execute(args)
-
 	}
 
 	if err != nil {
 		if err.Error() == "unexpected EOF" {
+			//lint:ignore ST1005 end user message.
 			return res, fmt.Errorf("got unexpected EOF when executing %q. The user running hugo must have read and execute permissions on this program. With execute permissions only, this error is thrown.", hugo.DartSassBinaryName)
 		}
 		return res, herrors.NewFileErrorFromFileInErr(err, hugofs.Os, herrors.OffsetMatcher)
@@ -167,7 +167,6 @@ func (c *Client) toCSS(args godartsass.Args, src io.Reader) (godartsass.Result, 
 }
 
 type Options struct {
-
 	// Hugo, will by default, just replace the extension of the source
 	// to .css, e.g. "scss/main.scss" becomes "scss/main.css". You can
 	// control this by setting this, e.g. "styles/main.css" will create
@@ -204,7 +203,7 @@ func decodeOptions(m map[string]any) (opts Options, err error) {
 	err = mapstructure.WeakDecode(m, &opts)
 
 	if opts.TargetPath != "" {
-		opts.TargetPath = helpers.ToSlashTrimLeading(opts.TargetPath)
+		opts.TargetPath = paths.ToSlashTrimLeading(opts.TargetPath)
 	}
 
 	return

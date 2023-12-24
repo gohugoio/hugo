@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@ package hugolib
 import "testing"
 
 func TestConfigDir(t *testing.T) {
-
 	t.Parallel()
 
 	files := `
@@ -51,5 +50,4 @@ Params: map[a:acp1 b:bc1 c:c1 d:dcp1]
 
 
 `)
-
 }

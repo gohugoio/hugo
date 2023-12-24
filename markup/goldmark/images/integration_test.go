@@ -39,10 +39,10 @@ This is an inline image: ![Inline Image](/inline.jpg). Some more text.
 		files = files + `-- layouts/_default/_markup/render-image.html --
 {{ if .IsBlock }}
 <figure class="{{ .Attributes.class }}">
-	<img src="{{ .Destination | safeURL }}" alt="{{ .Text }}" />
+	<img src="{{ .Destination | safeURL }}" alt="{{ .Text }}|{{ .Ordinal }}" />
 </figure>
 {{ else }}
-	<img src="{{ .Destination | safeURL }}" alt="{{ .Text }}" />
+	<img src="{{ .Destination | safeURL }}" alt="{{ .Text }}|{{ .Ordinal }}" />
 {{ end }}
 `
 		b := hugolib.NewIntegrationTestBuilder(
@@ -54,8 +54,8 @@ This is an inline image: ![Inline Image](/inline.jpg). Some more text.
 		).Build()
 
 		b.AssertFileContent("public/p1/index.html",
-			"This is an inline image: \n\t<img src=\"/inline.jpg\" alt=\"Inline Image\" />\n. Some more text.</p>",
-			"<figure class=\"b\">\n\t<img src=\"/block.jpg\" alt=\"Block Image\" />",
+			"This is an inline image: \n\t<img src=\"/inline.jpg\" alt=\"Inline Image|0\" />\n. Some more text.</p>",
+			"<figure class=\"b\">\n\t<img src=\"/block.jpg\" alt=\"Block Image|1\" />",
 		)
 	})
 
@@ -109,5 +109,4 @@ This is an inline image: ![Inline Image](/inline.jpg). Some more text.
 
 		b.AssertFileContent("public/p1/index.html", "<p class=\"b\"><img src=\"/block.jpg\" alt=\"Block Image\"></p>")
 	})
-
 }

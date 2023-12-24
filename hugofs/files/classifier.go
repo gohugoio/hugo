@@ -14,16 +14,10 @@
 package files
 
 import (
-	"bufio"
-	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
-	"unicode"
-
-	"github.com/spf13/afero"
 )
 
 const (
@@ -80,97 +74,12 @@ func IsIndexContentFile(filename string) bool {
 	return strings.HasPrefix(base, "index.") || strings.HasPrefix(base, "_index.")
 }
 
-func IsHTMLFile(filename string) bool {
-	return htmlFileExtensionsSet[strings.TrimPrefix(filepath.Ext(filename), ".")]
+func IsHTML(ext string) bool {
+	return htmlFileExtensionsSet[ext]
 }
 
 func IsContentExt(ext string) bool {
 	return contentFileExtensionsSet[ext]
-}
-
-type ContentClass string
-
-const (
-	ContentClassLeaf    ContentClass = "leaf"
-	ContentClassBranch  ContentClass = "branch"
-	ContentClassFile    ContentClass = "zfile" // Sort below
-	ContentClassContent ContentClass = "zcontent"
-)
-
-func (c ContentClass) IsBundle() bool {
-	return c == ContentClassLeaf || c == ContentClassBranch
-}
-
-func ClassifyContentFile(filename string, open func() (afero.File, error)) ContentClass {
-	if !IsContentFile(filename) {
-		return ContentClassFile
-	}
-
-	if IsHTMLFile(filename) {
-		// We need to look inside the file. If the first non-whitespace
-		// character is a "<", then we treat it as a regular file.
-		// Eearlier we created pages for these files, but that had all sorts
-		// of troubles, and isn't what it says in the documentation.
-		// See https://github.com/gohugoio/hugo/issues/7030
-		if open == nil {
-			panic(fmt.Sprintf("no file opener provided for %q", filename))
-		}
-
-		f, err := open()
-		if err != nil {
-			return ContentClassFile
-		}
-		ishtml := isHTMLContent(f)
-		f.Close()
-		if ishtml {
-			return ContentClassFile
-		}
-
-	}
-
-	if strings.HasPrefix(filename, "_index.") {
-		return ContentClassBranch
-	}
-
-	if strings.HasPrefix(filename, "index.") {
-		return ContentClassLeaf
-	}
-
-	return ContentClassContent
-}
-
-var htmlComment = []rune{'<', '!', '-', '-'}
-
-func isHTMLContent(r io.Reader) bool {
-	br := bufio.NewReader(r)
-	i := 0
-	for {
-		c, _, err := br.ReadRune()
-		if err != nil {
-			break
-		}
-
-		if i > 0 {
-			if i >= len(htmlComment) {
-				return false
-			}
-
-			if c != htmlComment[i] {
-				return true
-			}
-
-			i++
-			continue
-		}
-
-		if !unicode.IsSpace(c) {
-			if i == 0 && c != '<' {
-				return false
-			}
-			i++
-		}
-	}
-	return true
 }
 
 const (

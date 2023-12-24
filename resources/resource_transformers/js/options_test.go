@@ -14,10 +14,15 @@
 package js
 
 import (
+	"path"
 	"path/filepath"
 	"testing"
 
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/config/testconfig"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/hugolib/filesystems"
+	"github.com/gohugoio/hugo/hugolib/paths"
 	"github.com/gohugoio/hugo/media"
 
 	"github.com/spf13/afero"
@@ -164,20 +169,27 @@ func TestResolveComponentInAssets(t *testing.T) {
 			mfs := afero.NewMemMapFs()
 
 			for _, filename := range test.files {
-				c.Assert(afero.WriteFile(mfs, filepath.Join(baseDir, filename), []byte("let foo='bar';"), 0777), qt.IsNil)
+				c.Assert(afero.WriteFile(mfs, filepath.Join(baseDir, filename), []byte("let foo='bar';"), 0o777), qt.IsNil)
 			}
 
-			bfs := hugofs.DecorateBasePathFs(afero.NewBasePathFs(mfs, baseDir).(*afero.BasePathFs))
+			conf := testconfig.GetTestConfig(mfs, config.New())
+			fs := hugofs.NewFrom(mfs, conf.BaseConfig())
 
-			got := resolveComponentInAssets(bfs, test.impPath)
+			p, err := paths.New(fs, conf)
+			c.Assert(err, qt.IsNil)
+			bfs, err := filesystems.NewBase(p, nil)
+			c.Assert(err, qt.IsNil)
+
+			got := resolveComponentInAssets(bfs.Assets.Fs, test.impPath)
 
 			gotPath := ""
+			expect := test.expect
 			if got != nil {
-				gotPath = filepath.ToSlash(got.Path)
+				gotPath = filepath.ToSlash(got.Filename)
+				expect = path.Join(baseDir, test.expect)
 			}
 
-			c.Assert(gotPath, qt.Equals, test.expect)
+			c.Assert(gotPath, qt.Equals, expect)
 		})
-
 	}
 }

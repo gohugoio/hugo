@@ -50,6 +50,9 @@ type pageLexer struct {
 
 	// items delivered to client
 	items Items
+
+	// error delivered to the client
+	err error
 }
 
 // Implement the Result interface
@@ -164,7 +167,6 @@ func (l *pageLexer) emit(t ItemType) {
 	}
 
 	l.append(Item{Type: t, low: l.start, high: l.pos})
-
 }
 
 // sends a string item back to the client.
@@ -210,7 +212,6 @@ func (l *pageLexer) ignoreEscapesAndEmit(t ItemType, isString bool) {
 	}
 
 	l.start = l.pos
-
 }
 
 // gets the current value (for debugging and error handling)
@@ -227,7 +228,14 @@ var lf = []byte("\n")
 
 // nil terminates the parser
 func (l *pageLexer) errorf(format string, args ...any) stateFunc {
-	l.append(Item{Type: tError, Err: fmt.Errorf(format, args...)})
+	l.append(Item{Type: tError, Err: fmt.Errorf(format, args...), low: l.start, high: l.pos})
+	return nil
+}
+
+// documentError can be used to signal a fatal error in the lexing process.
+// nil terminates the parser
+func (l *pageLexer) documentError(err error) stateFunc {
+	l.err = err
 	return nil
 }
 
@@ -465,6 +473,7 @@ func lexDone(l *pageLexer) stateFunc {
 	return nil
 }
 
+//lint:ignore U1000 useful for debugging
 func (l *pageLexer) printCurrentInput() {
 	fmt.Printf("input[%d:]: %q", l.pos, string(l.input[l.pos:]))
 }
@@ -473,10 +482,6 @@ func (l *pageLexer) printCurrentInput() {
 
 func (l *pageLexer) index(sep []byte) int {
 	return bytes.Index(l.input[l.pos:], sep)
-}
-
-func (l *pageLexer) indexByte(sep byte) int {
-	return bytes.IndexByte(l.input[l.pos:], sep)
 }
 
 func (l *pageLexer) hasPrefix(prefix []byte) bool {

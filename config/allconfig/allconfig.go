@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import (
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/urls"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/privacy"
@@ -283,12 +284,13 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 
 	disabledLangs := make(map[string]bool)
 	for _, lang := range c.DisableLanguages {
-		if lang == c.DefaultContentLanguage {
-			return fmt.Errorf("cannot disable default content language %q", lang)
-		}
 		disabledLangs[lang] = true
 	}
 	for lang, language := range c.Languages {
+		if !language.Disabled && disabledLangs[lang] {
+			language.Disabled = true
+			c.Languages[lang] = language
+		}
 		if language.Disabled {
 			disabledLangs[lang] = true
 			if lang == c.DefaultContentLanguage {
@@ -408,13 +410,17 @@ type ConfigCompiled struct {
 }
 
 // This may be set after the config is compiled.
-func (c *ConfigCompiled) SetMainSectionsIfNotSet(sections []string) {
+func (c *ConfigCompiled) SetMainSections(sections []string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	if c.MainSections != nil {
-		return
-	}
 	c.MainSections = sections
+}
+
+// IsMainSectionsSet returns whether the main sections have been set.
+func (c *ConfigCompiled) IsMainSectionsSet() bool {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.MainSections != nil
 }
 
 // This is set after the config is compiled by the server command.
@@ -425,7 +431,6 @@ func (c *ConfigCompiled) SetBaseURL(baseURL, baseURLLiveReload urls.BaseURL) {
 
 // RootConfig holds all the top-level configuration options in Hugo
 type RootConfig struct {
-
 	// The base URL of the site.
 	// Note that the default value is empty, but Hugo requires a valid URL (e.g. "https://example.com/") to work properly.
 	// <docsmeta>{"identifiers": ["URL"] }</docsmeta>
@@ -648,12 +653,15 @@ type Configs struct {
 	LanguageConfigMap   map[string]*Config
 	LanguageConfigSlice []*Config
 
-	IsMultihost           bool
-	Languages             langs.Languages
-	LanguagesDefaultFirst langs.Languages
+	IsMultihost bool
 
 	Modules       modules.Modules
 	ModulesClient *modules.Client
+
+	// All below is set in Init.
+	Languages             langs.Languages
+	LanguagesDefaultFirst langs.Languages
+	ContentPathParser     paths.PathParser
 
 	configLangs []config.AllProvider
 }
@@ -674,6 +682,58 @@ func (c *Configs) IsZero() bool {
 }
 
 func (c *Configs) Init() error {
+	var languages langs.Languages
+	defaultContentLanguage := c.Base.DefaultContentLanguage
+	for k, v := range c.LanguageConfigMap {
+		c.LanguageConfigSlice = append(c.LanguageConfigSlice, v)
+		languageConf := v.Languages[k]
+		language, err := langs.NewLanguage(k, defaultContentLanguage, v.TimeZone, languageConf)
+		if err != nil {
+			return err
+		}
+		languages = append(languages, language)
+	}
+
+	// Sort the sites by language weight (if set) or lang.
+	sort.Slice(languages, func(i, j int) bool {
+		li := languages[i]
+		lj := languages[j]
+		if li.Weight != lj.Weight {
+			return li.Weight < lj.Weight
+		}
+		return li.Lang < lj.Lang
+	})
+
+	for _, l := range languages {
+		c.LanguageConfigSlice = append(c.LanguageConfigSlice, c.LanguageConfigMap[l.Lang])
+	}
+
+	// Filter out disabled languages.
+	var n int
+	for _, l := range languages {
+		if !l.Disabled {
+			languages[n] = l
+			n++
+		}
+	}
+	languages = languages[:n]
+
+	var languagesDefaultFirst langs.Languages
+	for _, l := range languages {
+		if l.Lang == defaultContentLanguage {
+			languagesDefaultFirst = append(languagesDefaultFirst, l)
+		}
+	}
+	for _, l := range languages {
+		if l.Lang != defaultContentLanguage {
+			languagesDefaultFirst = append(languagesDefaultFirst, l)
+		}
+	}
+
+	c.Languages = languages
+	c.LanguagesDefaultFirst = languagesDefaultFirst
+	c.ContentPathParser = paths.PathParser{LanguageIndex: languagesDefaultFirst.AsIndexSet()}
+
 	c.configLangs = make([]config.AllProvider, len(c.Languages))
 	for i, l := range c.LanguagesDefaultFirst {
 		c.configLangs[i] = ConfigLanguage{
@@ -751,7 +811,6 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 	}
 
 	langConfigMap := make(map[string]*Config)
-	var langConfigs []*Config
 
 	languagesConfig := cfg.GetStringMap("languages")
 	var isMultiHost bool
@@ -848,65 +907,24 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 		}
 	}
 
-	var languages langs.Languages
-	defaultContentLanguage := all.DefaultContentLanguage
-	for k, v := range langConfigMap {
-		languageConf := v.Languages[k]
-		language, err := langs.NewLanguage(k, defaultContentLanguage, v.TimeZone, languageConf)
-		if err != nil {
-			return nil, err
-		}
-		languages = append(languages, language)
-	}
-
-	// Sort the sites by language weight (if set) or lang.
-	sort.Slice(languages, func(i, j int) bool {
-		li := languages[i]
-		lj := languages[j]
-		if li.Weight != lj.Weight {
-			return li.Weight < lj.Weight
-		}
-		return li.Lang < lj.Lang
-	})
-
-	for _, l := range languages {
-		langConfigs = append(langConfigs, langConfigMap[l.Lang])
-	}
-
-	var languagesDefaultFirst langs.Languages
-	for _, l := range languages {
-		if l.Lang == defaultContentLanguage {
-			languagesDefaultFirst = append(languagesDefaultFirst, l)
-		}
-	}
-	for _, l := range languages {
-		if l.Lang != defaultContentLanguage {
-			languagesDefaultFirst = append(languagesDefaultFirst, l)
-		}
-	}
-
 	bcfg.PublishDir = all.PublishDir
 	res.BaseConfig = bcfg
 	all.CommonDirs.CacheDir = bcfg.CacheDir
-	for _, l := range langConfigs {
+	for _, l := range langConfigMap {
 		l.CommonDirs.CacheDir = bcfg.CacheDir
 	}
 
 	cm := &Configs{
-		Base:                  all,
-		LanguageConfigMap:     langConfigMap,
-		LanguageConfigSlice:   langConfigs,
-		LoadingInfo:           res,
-		IsMultihost:           isMultiHost,
-		Languages:             languages,
-		LanguagesDefaultFirst: languagesDefaultFirst,
+		Base:              all,
+		LanguageConfigMap: langConfigMap,
+		LoadingInfo:       res,
+		IsMultihost:       isMultiHost,
 	}
 
 	return cm, nil
 }
 
 func decodeConfigFromParams(fs afero.Fs, logger loggers.Logger, bcfg config.BaseConfig, p config.Provider, target *Config, keys []string) error {
-
 	var decoderSetups []decodeWeight
 
 	if len(keys) == 0 {

@@ -36,7 +36,7 @@ var (
 
 // New creates a function that can be used to inject a script tag for
 // the livereload JavaScript at the start of an HTML document's head.
-func New(baseURL url.URL) transform.Transformer {
+func New(baseURL *url.URL) transform.Transformer {
 	return func(ft transform.FromTo) error {
 		b := ft.From().Bytes()
 

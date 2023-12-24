@@ -35,6 +35,8 @@ import (
 
 	"github.com/spf13/afero"
 
+	iofs "io/fs"
+
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs"
 )
@@ -159,7 +161,12 @@ func GetExecEnviron(workDir string, cfg config.AllProvider, fs afero.Fs) []strin
 	config.SetEnvVars(&env, "HUGO_PUBLISHDIR", filepath.Join(workDir, cfg.BaseConfig().PublishDir))
 
 	if fs != nil {
-		fis, err := afero.ReadDir(fs, files.FolderJSConfig)
+		var fis []iofs.DirEntry
+		d, err := fs.Open(files.FolderJSConfig)
+		if err == nil {
+			fis, err = d.(iofs.ReadDirFile).ReadDir(-1)
+		}
+
 		if err == nil {
 			for _, fi := range fis {
 				key := fmt.Sprintf("HUGO_FILE_%s", strings.ReplaceAll(strings.ToUpper(fi.Name()), ".", "_"))

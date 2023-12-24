@@ -42,7 +42,7 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 
-	"github.com/rogpeppe/go-internal/module"
+	"golang.org/x/mod/module"
 
 	"github.com/gohugoio/hugo/common/hugio"
 

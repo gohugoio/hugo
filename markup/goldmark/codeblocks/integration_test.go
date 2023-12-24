@@ -1,4 +1,4 @@
-// Copyright 2022 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -339,7 +339,6 @@ Attributes: {{ .Attributes }}|Options: {{ .Options }}|
 }
 
 func TestPanics(t *testing.T) {
-
 	files := `
 -- config.toml --
 [markup]
@@ -384,7 +383,6 @@ Common
 			b.AssertFileContent("public/p1/index.html", "Common")
 		})
 	}
-
 }
 
 // Issue 10835
@@ -421,5 +419,4 @@ Attributes: {{ .Attributes }}|Type: {{ .Type }}|
 
 	b.Assert(err, qt.Not(qt.IsNil))
 	b.Assert(err.Error(), qt.Contains, "p1.md:7:9\": failed to parse Markdown attributes; you may need to quote the values")
-
 }

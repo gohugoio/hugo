@@ -1,4 +1,4 @@
-// Copyright 2022 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -297,7 +297,6 @@ timeout = '200ms'
 
 	b.Assert(err, qt.Not(qt.IsNil))
 	b.Assert(err.Error(), qt.Contains, "timed out")
-
 }
 
 func TestIncludeCachedTimeout(t *testing.T) {
@@ -322,7 +321,6 @@ timeout = '200ms'
 
 	b.Assert(err, qt.Not(qt.IsNil))
 	b.Assert(err.Error(), qt.Contains, "timed out")
-
 }
 
 // See Issue #10789
@@ -350,5 +348,4 @@ BAR
 	).Build()
 
 	b.AssertFileContent("public/index.html", "OO:BAR")
-
 }

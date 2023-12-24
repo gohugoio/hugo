@@ -21,8 +21,6 @@ import (
 
 var ns = New()
 
-type tstNoStringer struct{}
-
 func TestIsMap(t *testing.T) {
 	c := qt.New(t)
 	for _, test := range []struct {

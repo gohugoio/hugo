@@ -21,7 +21,6 @@ import (
 	"github.com/gohugoio/hugo/config/privacy"
 	"github.com/gohugoio/hugo/config/services"
 	"github.com/gohugoio/hugo/identity"
-	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/config"
 
@@ -88,7 +87,11 @@ type Site interface {
 	Taxonomies() TaxonomyList
 
 	// Returns the last modification date of the content.
+	// Deprecated: Use .Lastmod instead.
 	LastChange() time.Time
+
+	// Returns the last modification date of the content.
+	Lastmod() time.Time
 
 	// Returns the Menus for this site.
 	Menus() navigation.Menus
@@ -108,10 +111,6 @@ type Site interface {
 	// Returns the site config.
 	Config() SiteConfig
 
-	// Returns the identity of this site.
-	// This is for internal use only.
-	GetIdentity() identity.Identity
-
 	// Author is deprecated and will be removed in a future release.
 	Author() map[string]interface{}
 
@@ -126,9 +125,6 @@ type Site interface {
 
 	// Deprecated: Use Config().Privacy.Disqus instead.
 	DisqusShortname() string
-
-	// For internal use only.
-	GetPageWithTemplateInfo(info tpl.Info, ref ...string) (Page, error)
 
 	// BuildDrafts is deprecated and will be removed in a future release.
 	BuildDrafts() bool
@@ -154,6 +150,9 @@ func (s Sites) First() Site {
 	return s[0]
 }
 
+// Some additional interfaces implemented by siteWrapper that's not on Site.
+var _ identity.ForEeachIdentityByNameProvider = (*siteWrapper)(nil)
+
 type siteWrapper struct {
 	s Site
 }
@@ -163,6 +162,10 @@ func WrapSite(s Site) Site {
 		panic("Site is nil")
 	}
 	return &siteWrapper{s: s}
+}
+
+func (s *siteWrapper) Key() string {
+	return s.s.Language().Lang
 }
 
 func (s *siteWrapper) Social() map[string]string {
@@ -260,7 +263,11 @@ func (s *siteWrapper) Taxonomies() TaxonomyList {
 }
 
 func (s *siteWrapper) LastChange() time.Time {
-	return s.s.LastChange()
+	return s.s.Lastmod()
+}
+
+func (s *siteWrapper) Lastmod() time.Time {
+	return s.s.Lastmod()
 }
 
 func (s *siteWrapper) Menus() navigation.Menus {
@@ -283,14 +290,6 @@ func (s *siteWrapper) Data() map[string]any {
 	return s.s.Data()
 }
 
-func (s *siteWrapper) GetIdentity() identity.Identity {
-	return s.s.GetIdentity()
-}
-
-func (s *siteWrapper) GetPageWithTemplateInfo(info tpl.Info, ref ...string) (Page, error) {
-	return s.s.GetPageWithTemplateInfo(info, ref...)
-}
-
 func (s *siteWrapper) BuildDrafts() bool {
 	return s.s.BuildDrafts()
 }
@@ -310,6 +309,11 @@ func (s *siteWrapper) LanguagePrefix() string {
 
 func (s *siteWrapper) RSSLink() template.URL {
 	return s.s.RSSLink()
+}
+
+// For internal use only.
+func (s *siteWrapper) ForEeachIdentityByName(name string, f func(identity.Identity) bool) {
+	s.s.(identity.ForEeachIdentityByNameProvider).ForEeachIdentityByName(name, f)
 }
 
 type testSite struct {
@@ -338,6 +342,10 @@ func (t testSite) ServerPort() int {
 }
 
 func (testSite) LastChange() (t time.Time) {
+	return
+}
+
+func (testSite) Lastmod() (t time.Time) {
 	return
 }
 
@@ -384,10 +392,6 @@ func (t testSite) GoogleAnalytics() string {
 
 func (t testSite) MainSections() []string {
 	return nil
-}
-
-func (t testSite) GetIdentity() identity.Identity {
-	return identity.KeyValueIdentity{Key: "site", Value: t.l.Lang}
 }
 
 // Deprecated: use hugo.IsServer instead
@@ -437,10 +441,6 @@ func (t testSite) Data() map[string]any {
 
 func (s testSite) Config() SiteConfig {
 	return SiteConfig{}
-}
-
-func (testSite) GetPageWithTemplateInfo(info tpl.Info, ref ...string) (Page, error) {
-	return nil, nil
 }
 
 // Deprecated: Use .Site.Config.Services.Disqus.Shortname instead

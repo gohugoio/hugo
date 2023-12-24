@@ -10,7 +10,6 @@ import (
 )
 
 func TestDirsMount(t *testing.T) {
-
 	files := `
 -- hugo.toml --
 baseURL = "https://example.com"
@@ -44,7 +43,7 @@ Title: {{ .Title }}
 		hugolib.IntegrationTestConfig{T: t, TxtarString: files},
 	).Build()
 
-	//b.AssertFileContent("public/p1/index.html", "Title: p1")
+	// b.AssertFileContent("public/p1/index.html", "Title: p1")
 
 	sites := b.H.Sites
 	b.Assert(len(sites), qt.Equals, 2)
@@ -58,7 +57,7 @@ Title: {{ .Title }}
 	enConcp := sites[0].Conf
 	enConf := enConcp.GetConfig().(*allconfig.Config)
 
-	b.Assert(enConcp.BaseURL().String(), qt.Equals, "https://example.com")
+	b.Assert(enConcp.BaseURL().String(), qt.Equals, "https://example.com/")
 	modConf := enConf.Module
 	b.Assert(modConf.Mounts, qt.HasLen, 8)
 	b.Assert(modConf.Mounts[0].Source, qt.Equals, filepath.FromSlash("content/en"))
@@ -67,11 +66,9 @@ Title: {{ .Title }}
 	b.Assert(modConf.Mounts[1].Source, qt.Equals, filepath.FromSlash("content/sv"))
 	b.Assert(modConf.Mounts[1].Target, qt.Equals, "content")
 	b.Assert(modConf.Mounts[1].Lang, qt.Equals, "sv")
-
 }
 
 func TestConfigAliases(t *testing.T) {
-
 	files := `
 -- hugo.toml --
 baseURL = "https://example.com"

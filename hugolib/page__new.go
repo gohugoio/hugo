@@ -14,207 +14,173 @@
 package hugolib
 
 import (
-	"context"
-	"html/template"
-	"strings"
+	"fmt"
+	"sync"
+	"sync/atomic"
 
-	"go.uber.org/atomic"
-
-	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/resources"
 
 	"github.com/gohugoio/hugo/common/maps"
 
-	"github.com/gohugoio/hugo/output"
-
 	"github.com/gohugoio/hugo/lazy"
 
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 )
 
-var pageIdCounter atomic.Int64
+var pageIDCounter atomic.Uint64
 
-func newPageBase(metaProvider *pageMeta) (*pageState, error) {
-	if metaProvider.s == nil {
-		panic("must provide a Site")
-	}
-
-	id := int(pageIdCounter.Add(1))
-
-	s := metaProvider.s
-
-	ps := &pageState{
-		id:                                id,
-		pageOutput:                        nopPageOutput,
-		pageOutputTemplateVariationsState: atomic.NewUint32(0),
-		pageCommon: &pageCommon{
-			FileProvider:            metaProvider,
-			AuthorProvider:          metaProvider,
-			Scratcher:               maps.NewScratcher(),
-			store:                   maps.NewScratch(),
-			Positioner:              page.NopPage,
-			InSectionPositioner:     page.NopPage,
-			ResourceMetaProvider:    metaProvider,
-			ResourceParamsProvider:  metaProvider,
-			PageMetaProvider:        metaProvider,
-			RelatedKeywordsProvider: metaProvider,
-			OutputFormatsProvider:   page.NopPage,
-			ResourceTypeProvider:    pageTypesProvider,
-			MediaTypeProvider:       pageTypesProvider,
-			RefProvider:             page.NopPage,
-			ShortcodeInfoProvider:   page.NopPage,
-			LanguageProvider:        s,
-			pagePages:               &pagePages{},
-
-			InternalDependencies: s,
-			init:                 lazy.New(),
-			m:                    metaProvider,
-			s:                    s,
-			sWrapped:             page.WrapSite(s),
-		},
-	}
-
-	ps.shortcodeState = newShortcodeHandler(ps, ps.s)
-
-	siteAdapter := pageSiteAdapter{s: s, p: ps}
-
-	ps.pageMenus = &pageMenus{p: ps}
-	ps.PageMenusProvider = ps.pageMenus
-	ps.GetPageProvider = siteAdapter
-	ps.GitInfoProvider = ps
-	ps.TranslationsProvider = ps
-	ps.ResourceDataProvider = &pageData{pageState: ps}
-	ps.RawContentProvider = ps
-	ps.ChildCareProvider = ps
-	ps.TreeProvider = pageTree{p: ps}
-	ps.Eqer = ps
-	ps.TranslationKeyProvider = ps
-	ps.ShortcodeInfoProvider = ps
-	ps.AlternativeOutputFormatsProvider = ps
-
-	return ps, nil
-}
-
-func newPageBucket(p *pageState) *pagesMapBucket {
-	return &pagesMapBucket{owner: p, pagesMapBucketPages: &pagesMapBucketPages{}}
-}
-
-func newPageFromMeta(
-	n *contentNode,
-	parentBucket *pagesMapBucket,
-	meta map[string]any,
-	metaProvider *pageMeta) (*pageState, error) {
-	if metaProvider.f == nil {
-		metaProvider.f = page.NewZeroFile(metaProvider.s.Log)
-	}
-
-	ps, err := newPageBase(metaProvider)
-	if err != nil {
-		return nil, err
-	}
-
-	bucket := parentBucket
-
-	if ps.IsNode() {
-		ps.bucket = newPageBucket(ps)
-	}
-
-	if meta != nil || parentBucket != nil {
-		if err := metaProvider.setMetadata(bucket, ps, meta); err != nil {
-			return nil, ps.wrapError(err)
+func (h *HugoSites) newPage(m *pageMeta) (*pageState, error) {
+	if m.pathInfo == nil {
+		if m.f != nil {
+			m.pathInfo = m.f.FileInfo().Meta().PathInfo
+		}
+		if m.pathInfo == nil {
+			panic(fmt.Sprintf("missing pathInfo in %v", m))
 		}
 	}
 
-	if err := metaProvider.applyDefaultValues(n); err != nil {
-		return nil, err
-	}
+	m.Staler = &resources.AtomicStaler{}
 
-	ps.init.Add(func(context.Context) (any, error) {
-		pp, err := newPagePaths(metaProvider.s, ps, metaProvider)
-		if err != nil {
-			return nil, err
-		}
-
-		makeOut := func(f output.Format, render bool) *pageOutput {
-			return newPageOutput(ps, pp, f, render)
-		}
-
-		shouldRenderPage := !ps.m.noRender()
-
-		if ps.m.standalone {
-			ps.pageOutput = makeOut(ps.m.outputFormats()[0], shouldRenderPage)
-		} else {
-			outputFormatsForPage := ps.m.outputFormats()
-
-			// Prepare output formats for all sites.
-			// We do this even if this page does not get rendered on
-			// its own. It may be referenced via .Site.GetPage and
-			// it will then need an output format.
-			ps.pageOutputs = make([]*pageOutput, len(ps.s.h.renderFormats))
-			created := make(map[string]*pageOutput)
-			for i, f := range ps.s.h.renderFormats {
-				po, found := created[f.Name]
-				if !found {
-					render := shouldRenderPage
-					if render {
-						_, render = outputFormatsForPage.GetByName(f.Name)
-					}
-					po = makeOut(f, render)
-					created[f.Name] = po
+	ps, err := func() (*pageState, error) {
+		if m.s == nil {
+			// Identify the Site/language to associate this Page with.
+			var lang string
+			if m.f != nil {
+				meta := m.f.FileInfo().Meta()
+				lang = meta.Lang
+				m.s = h.Sites[meta.LangIndex]
+			} else {
+				lang = m.pathInfo.Lang()
+			}
+			var found bool
+			for _, ss := range h.Sites {
+				if ss.Lang() == lang {
+					m.s = ss
+					found = true
+					break
 				}
-				ps.pageOutputs[i] = po
+			}
+			if !found {
+				return nil, fmt.Errorf("no site found for language %q", lang)
+			}
+
+		}
+
+		// Identify Page Kind.
+		if m.kind == "" {
+			m.kind = kinds.KindSection
+			if m.pathInfo.Base() == "/" {
+				m.kind = kinds.KindHome
+			} else if m.pathInfo.IsBranchBundle() {
+				// A section, taxonomy or term.
+				tc := m.s.pageMap.cfg.getTaxonomyConfig(m.Path())
+				if !tc.IsZero() {
+					// Either a taxonomy or a term.
+					if tc.pluralTreeKey == m.Path() {
+						m.kind = kinds.KindTaxonomy
+					} else {
+						m.kind = kinds.KindTerm
+					}
+				}
+			} else if m.f != nil {
+				m.kind = kinds.KindPage
 			}
 		}
 
-		if err := ps.initCommonProviders(pp); err != nil {
-			return nil, err
+		if m.kind == kinds.KindPage && !m.s.conf.IsKindEnabled(m.kind) {
+			return nil, nil
 		}
 
-		return nil, nil
-	})
+		pid := pageIDCounter.Add(1)
+
+		// Parse page content.
+		cachedContent, err := newCachedContent(m, pid)
+		if err != nil {
+			return nil, m.wrapError(err)
+		}
+
+		var dependencyManager identity.Manager = identity.NopManager
+
+		if m.s.conf.Internal.Watch {
+			dependencyManager = identity.NewManager(m.Path())
+		}
+
+		ps := &pageState{
+			pid:                               pid,
+			pageOutput:                        nopPageOutput,
+			pageOutputTemplateVariationsState: &atomic.Uint32{},
+			resourcesPublishInit:              &sync.Once{},
+			Staler:                            m,
+			dependencyManager:                 dependencyManager,
+			pageCommon: &pageCommon{
+				content:                   cachedContent,
+				FileProvider:              m,
+				AuthorProvider:            m,
+				Scratcher:                 maps.NewScratcher(),
+				store:                     maps.NewScratch(),
+				Positioner:                page.NopPage,
+				InSectionPositioner:       page.NopPage,
+				ResourceNameTitleProvider: m,
+				ResourceParamsProvider:    m,
+				PageMetaProvider:          m,
+				RelatedKeywordsProvider:   m,
+				OutputFormatsProvider:     page.NopPage,
+				ResourceTypeProvider:      pageTypesProvider,
+				MediaTypeProvider:         pageTypesProvider,
+				RefProvider:               page.NopPage,
+				ShortcodeInfoProvider:     page.NopPage,
+				LanguageProvider:          m.s,
+
+				InternalDependencies: m.s,
+				init:                 lazy.New(),
+				m:                    m,
+				s:                    m.s,
+				sWrapped:             page.WrapSite(m.s),
+			},
+		}
+
+		if m.f != nil {
+			gi, err := m.s.h.gitInfoForPage(ps)
+			if err != nil {
+				return nil, fmt.Errorf("failed to load Git data: %w", err)
+			}
+			ps.gitInfo = gi
+			owners, err := m.s.h.codeownersForPage(ps)
+			if err != nil {
+				return nil, fmt.Errorf("failed to load CODEOWNERS: %w", err)
+			}
+			ps.codeowners = owners
+		}
+
+		ps.pageMenus = &pageMenus{p: ps}
+		ps.PageMenusProvider = ps.pageMenus
+		ps.GetPageProvider = pageSiteAdapter{s: m.s, p: ps}
+		ps.GitInfoProvider = ps
+		ps.TranslationsProvider = ps
+		ps.ResourceDataProvider = &pageData{pageState: ps}
+		ps.RawContentProvider = ps
+		ps.ChildCareProvider = ps
+		ps.TreeProvider = pageTree{p: ps}
+		ps.Eqer = ps
+		ps.TranslationKeyProvider = ps
+		ps.ShortcodeInfoProvider = ps
+		ps.AlternativeOutputFormatsProvider = ps
+
+		if err := ps.setMetaPre(); err != nil {
+			return nil, ps.wrapError(err)
+		}
+
+		if err := ps.initLazyProviders(); err != nil {
+			return nil, ps.wrapError(err)
+		}
+		return ps, nil
+	}()
+	// Make sure to evict any cached and now stale data.
+	if err != nil {
+		m.MarkStale()
+	}
 
 	return ps, err
-}
-
-// Used by the legacy 404, sitemap and robots.txt rendering
-func newPageStandalone(m *pageMeta, f output.Format) (*pageState, error) {
-	m.configuredOutputFormats = output.Formats{f}
-	m.standalone = true
-	p, err := newPageFromMeta(nil, nil, nil, m)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := p.initPage(); err != nil {
-		return nil, err
-	}
-
-	return p, nil
-}
-
-type pageDeprecatedWarning struct {
-	p *pageState
-}
-
-func (p *pageDeprecatedWarning) IsDraft() bool          { return p.p.m.draft }
-func (p *pageDeprecatedWarning) Hugo() hugo.HugoInfo    { return p.p.s.Hugo() }
-func (p *pageDeprecatedWarning) LanguagePrefix() string { return p.p.s.GetLanguagePrefix() }
-func (p *pageDeprecatedWarning) GetParam(key string) any {
-	return p.p.m.params[strings.ToLower(key)]
-}
-
-func (p *pageDeprecatedWarning) RSSLink() template.URL {
-	f := p.p.OutputFormats().Get("RSS")
-	if f == nil {
-		return ""
-	}
-	return template.URL(f.Permalink())
-}
-
-func (p *pageDeprecatedWarning) URL() string {
-	if p.p.IsPage() && p.p.m.urlPaths.URL != "" {
-		// This is the url set in front matter
-		return p.p.m.urlPaths.URL
-	}
-	// Fall back to the relative permalink.
-	return p.p.RelPermalink()
 }

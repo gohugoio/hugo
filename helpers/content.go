@@ -30,7 +30,6 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/markup/converter"
-	"github.com/gohugoio/hugo/markup/converter/hooks"
 
 	"github.com/gohugoio/hugo/markup"
 
@@ -38,19 +37,15 @@ import (
 )
 
 var (
-	openingPTag        = []byte("<p>")
-	closingPTag        = []byte("</p>")
-	paragraphIndicator = []byte("<p")
-	closingIndicator   = []byte("</")
+	openingPTag = []byte("<p>")
+	closingPTag = []byte("</p>")
 )
 
 // ContentSpec provides functionality to render markdown content.
 type ContentSpec struct {
 	Converters          markup.ConverterProvider
 	anchorNameSanitizer converter.AnchorNameSanitizer
-	getRenderer         func(t hooks.RendererType, id any) any
-
-	Cfg config.AllProvider
+	Cfg                 config.AllProvider
 }
 
 // NewContentSpec returns a ContentSpec initialized

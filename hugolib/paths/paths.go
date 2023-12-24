@@ -87,12 +87,13 @@ func (p *Paths) AllModules() modules.Modules {
 }
 
 // GetBasePath returns any path element in baseURL if needed.
+// The path returned will have a leading, but no trailing slash.
 func (p *Paths) GetBasePath(isRelativeURL bool) string {
 	if isRelativeURL && p.Cfg.CanonifyURLs() {
 		// The baseURL will be prepended later.
 		return ""
 	}
-	return p.Cfg.BaseURL().BasePath
+	return p.Cfg.BaseURL().BasePathNoTrailingSlash
 }
 
 func (p *Paths) Lang() string {

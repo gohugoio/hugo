@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -59,10 +59,10 @@ type keyer interface {
 // so rewrite the input slice for known identity types.
 func toHashable(v any) any {
 	switch t := v.(type) {
-	case Provider:
-		return t.GetIdentity()
 	case keyer:
 		return t.Key()
+	case IdentityProvider:
+		return t.GetIdentity()
 	default:
 		return v
 	}

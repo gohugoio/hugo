@@ -35,11 +35,11 @@ func NewEvictingStringQueue(size int) *EvictingStringQueue {
 }
 
 // Add adds a new string to the tail of the queue if it's not already there.
-func (q *EvictingStringQueue) Add(v string) {
+func (q *EvictingStringQueue) Add(v string) *EvictingStringQueue {
 	q.mu.Lock()
 	if q.set[v] {
 		q.mu.Unlock()
-		return
+		return q
 	}
 
 	if len(q.set) == q.size {
@@ -50,6 +50,17 @@ func (q *EvictingStringQueue) Add(v string) {
 	q.set[v] = true
 	q.vals = append(q.vals, v)
 	q.mu.Unlock()
+
+	return q
+}
+
+func (q *EvictingStringQueue) Len() int {
+	if q == nil {
+		return 0
+	}
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	return len(q.vals)
 }
 
 // Contains returns whether the queue contains v.

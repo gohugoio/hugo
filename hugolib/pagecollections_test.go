@@ -63,12 +63,12 @@ func BenchmarkGetPage(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		home, _ := s.getPageNew(nil, "/")
+		home, _ := s.getPage(nil, "/")
 		if home == nil {
 			b.Fatal("Home is nil")
 		}
 
-		p, _ := s.getPageNew(nil, pagePaths[i])
+		p, _ := s.getPage(nil, pagePaths[i])
 		if p == nil {
 			b.Fatal("Section is nil")
 		}
@@ -107,7 +107,7 @@ func TestBenchmarkGetPageRegular(t *testing.T) {
 
 	for i := 0; i < 10; i++ {
 		pp := path.Join("/", fmt.Sprintf("sect%d", i), fmt.Sprintf("page%d.md", i))
-		page, _ := s.getPageNew(nil, pp)
+		page, _ := s.getPage(nil, pp)
 		c.Assert(page, qt.Not(qt.IsNil), qt.Commentf(pp))
 	}
 }
@@ -127,7 +127,7 @@ func BenchmarkGetPageRegular(b *testing.B) {
 
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			page, _ := s.getPageNew(nil, pagePaths[i])
+			page, _ := s.getPage(nil, pagePaths[i])
 			c.Assert(page, qt.Not(qt.IsNil))
 		}
 	})
@@ -147,7 +147,7 @@ func BenchmarkGetPageRegular(b *testing.B) {
 
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			page, _ := s.getPageNew(pages[i], pagePaths[i])
+			page, _ := s.getPage(pages[i], pagePaths[i])
 			c.Assert(page, qt.Not(qt.IsNil))
 		}
 	})
@@ -226,7 +226,7 @@ func TestGetPage(t *testing.T) {
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
 
-	sec3, err := s.getPageNew(nil, "/sect3")
+	sec3, err := s.getPage(nil, "/sect3")
 	c.Assert(err, qt.IsNil)
 	c.Assert(sec3, qt.Not(qt.IsNil))
 
@@ -313,13 +313,34 @@ func TestGetPage(t *testing.T) {
 				}
 			}
 
-			// test new internal Site.getPageNew
+			// test new internal Site.getPage
 			for _, ref := range test.pathVariants {
-				page2, err := s.getPageNew(test.context, ref)
+				page2, err := s.getPage(test.context, ref)
 				test.check(page2, err, errorMsg, c)
 			}
 		})
 	}
+}
+
+// #11664
+func TestGetPageIndexIndex(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term"]	
+-- content/mysect/index/index.md --
+---
+title: "Mysect Index"
+---
+-- layouts/index.html --
+GetPage 1: {{ with site.GetPage "mysect/index/index.md" }}{{ .Title }}|{{ .RelPermalink }}|{{ .Path }}{{ end }}|
+GetPage 2: {{ with site.GetPage "mysect/index" }}{{ .Title }}|{{ .RelPermalink }}|{{ .Path }}{{ end }}|
+`
+
+	b := Test(t, files)
+	b.AssertFileContent("public/index.html",
+		"GetPage 1: Mysect Index|/mysect/index/|/mysect/index|",
+		"GetPage 2: Mysect Index|/mysect/index/|/mysect/index|",
+	)
 }
 
 // https://github.com/gohugoio/hugo/issues/6034
@@ -346,6 +367,172 @@ NOT FOUND
 	b.AssertFileContent("public/what/index.html", `Members: members what`)
 	b.AssertFileContent("public/where/index.html", `Members: members where`)
 	b.AssertFileContent("public/who/index.html", `NOT FOUND`)
+}
+
+func TestGetPageIssue11883(t *testing.T) {
+	files := `
+-- hugo.toml --
+-- p1/index.md --
+---
+title: p1
+---
+-- p1/p1.xyz --
+xyz.
+-- layouts/index.html --
+Home. {{ with .Page.GetPage "p1.xyz" }}{{ else }}OK 1{{ end }} {{ with .Site.GetPage "p1.xyz" }}{{ else }}OK 2{{ end }}
+`
+
+	b := Test(t, files)
+	b.AssertFileContent("public/index.html", "Home. OK 1 OK 2")
+}
+
+func TestGetPageBundleToRegular(t *testing.T) {
+	files := `
+-- hugo.toml --
+-- content/s1/p1/index.md --
+---
+title: p1
+---
+-- content/s1/p2.md --
+---
+title: p2
+---
+-- layouts/_default/single.html --
+{{ with .GetPage "p2" }}
+  OK: {{ .LinkTitle }}
+{{ else }}
+   Unable to get p2.
+{{ end }}
+`
+
+	b := Test(t, files)
+	b.AssertFileContent("public/s1/p1/index.html", "OK: p2")
+	b.AssertFileContent("public/s1/p2/index.html", "OK: p2")
+}
+
+func TestPageGetPageVariations(t *testing.T) {
+	files := `
+-- hugo.toml --
+-- content/s1/p1/index.md --
+---
+title: p1
+---
+-- content/s1/p2.md --
+---
+title: p2
+---
+-- content/s2/p3/index.md --
+---
+title: p3
+---
+-- content/p2.md --
+---
+title: p2_root
+---
+-- layouts/index.html --
+/s1/p2.md: {{ with .GetPage "/s1/p2.md" }}{{ .Title }}{{ end }}|
+/s1/p2: {{ with .GetPage "/s1/p2" }}{{ .Title }}{{ end }}|
+/s1/p1/index.md: {{ with .GetPage "/s1/p1/index.md" }}{{ .Title }}{{ end }}|
+/s1/p1: {{ with .GetPage "/s1/p1" }}{{ .Title }}{{ end }}|
+-- layouts/_default/single.html --
+../p2: {{ with .GetPage "../p2" }}{{ .Title }}{{ end }}|
+../p2.md: {{ with .GetPage "../p2.md" }}{{ .Title }}{{ end }}|
+p1/index.md: {{ with .GetPage "p1/index.md" }}{{ .Title }}{{ end }}|
+../s2/p3/index.md: {{ with .GetPage "../s2/p3/index.md" }}{{ .Title }}{{ end }}|
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html", `
+/s1/p2.md: p2|
+/s1/p2: p2|
+/s1/p1/index.md: p1|
+/s1/p1: p1|
+`)
+
+	b.AssertFileContent("public/s1/p1/index.html", `
+../p2: p2_root|
+../p2.md: p2|
+
+`)
+
+	b.AssertFileContent("public/s1/p2/index.html", `
+../p2: p2_root|	 
+../p2.md: p2_root|
+p1/index.md: p1|
+../s2/p3/index.md: p3|
+
+`)
+}
+
+func TestPageGetPageMountsReverseLookup(t *testing.T) {
+	tempDir := t.TempDir()
+
+	files := `
+-- README.md --
+---
+title: README
+---
+-- blog/b1.md --
+---
+title: b1
+---
+{{< ref "../docs/d1.md" >}}
+-- blog/b2/index.md --
+---
+title: b2
+---
+{{< ref "../../docs/d1.md" >}}
+-- docs/d1.md --
+---
+title: d1
+---
+-- hugo.toml --
+baseURL = "https://example.com/"
+[module]
+[[module.mounts]]
+source = "layouts"
+target = "layouts"
+[[module.mounts]]
+source = "README.md"
+target = "content/_index.md"
+[[module.mounts]]
+source = "blog"
+target = "content/posts"
+[[module.mounts]]
+source = "docs"
+target = "content/mydocs"
+-- layouts/shortcodes/ref.html --
+{{ $ref := .Get 0 }}
+.Page.GetPage({{ $ref }}).Title: {{ with .Page.GetPage $ref }}{{ .Title }}{{ end }}|
+-- layouts/index.html --
+Home.
+/blog/b1.md: {{ with .GetPage "/blog/b1.md" }}{{ .Title }}{{ end }}|
+/blog/b2/index.md: {{ with .GetPage "/blog/b2/index.md" }}{{ .Title }}{{ end }}|
+/docs/d1.md: {{ with .GetPage "/docs/d1.md" }}{{ .Title }}{{ end }}|
+/README.md: {{ with .GetPage "/README.md" }}{{ .Title }}{{ end }}|
+-- layouts/_default/single.html --
+Single.
+/README.md: {{ with .GetPage "/README.md" }}{{ .Title }}{{ end }}|
+{{ .Content }}
+
+
+`
+	b := Test(t, files, TestOptWithConfig(func(cfg *IntegrationTestConfig) { cfg.WorkingDir = tempDir }))
+
+	b.AssertFileContent("public/index.html",
+		`
+/blog/b1.md: b1|
+/blog/b2/index.md: b2|
+/docs/d1.md: d1|
+/README.md: README
+`,
+	)
+
+	b.AssertFileContent("public/mydocs/d1/index.html", `README.md: README|`)
+
+	b.AssertFileContent("public/posts/b1/index.html", `.Page.GetPage(../docs/d1.md).Title: d1|`)
+	b.AssertFileContent("public/posts/b2/index.html", `.Page.GetPage(../../docs/d1.md).Title: d1|`)
 }
 
 // https://github.com/gohugoio/hugo/issues/7016
@@ -384,15 +571,6 @@ NOT FOUND
 
 	b.AssertFileContent("public/index.html", `Docs p1: p1`)
 	b.AssertFileContent("public/en/index.html", `NOT FOUND`)
-}
-
-func TestShouldDoSimpleLookup(t *testing.T) {
-	c := qt.New(t)
-
-	c.Assert(shouldDoSimpleLookup("foo.md"), qt.Equals, true)
-	c.Assert(shouldDoSimpleLookup("/foo.md"), qt.Equals, true)
-	c.Assert(shouldDoSimpleLookup("./foo.md"), qt.Equals, false)
-	c.Assert(shouldDoSimpleLookup("docs/foo.md"), qt.Equals, false)
 }
 
 func TestRegularPagesRecursive(t *testing.T) {
@@ -449,5 +627,4 @@ RegularPagesRecursive: {{ range .RegularPagesRecursive }}{{ .Kind }}:{{ .RelPerm
 		}).Build()
 
 	b.AssertFileContent("public/index.html", `RegularPagesRecursive: page:/p1/|page:/post/p2/||End.`)
-
 }

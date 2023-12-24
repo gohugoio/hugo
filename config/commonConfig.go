@@ -86,28 +86,21 @@ var defaultBuild = BuildConfig{
 
 	CacheBusters: []CacheBuster{
 		{
-			Source: `assets/.*\.(js|ts|jsx|tsx)`,
-			Target: `(js|scripts|javascript)`,
-		},
-		{
-			Source: `assets/.*\.(css|sass|scss)$`,
-			Target: cssTargetCachebusterRe,
-		},
-		{
 			Source: `(postcss|tailwind)\.config\.js`,
 			Target: cssTargetCachebusterRe,
-		},
-		// This is deliberately coarse grained; it will cache bust resources with "json" in the cache key when js files changes, which is good.
-		{
-			Source: `assets/.*\.(.*)$`,
-			Target: `$1`,
 		},
 	},
 }
 
 // BuildConfig holds some build related configuration.
 type BuildConfig struct {
-	UseResourceCacheWhen string // never, fallback, always. Default is fallback
+	// When to use the resource file cache.
+	// One of never, fallback, always. Default is fallback
+	UseResourceCacheWhen string
+
+	// When enabled, will duplicate bundled resource files across languages that
+	// doesn't have a translated version.
+	DuplicateResourceFiles bool
 
 	// When enabled, will collect and write a hugo_stats.json with some build
 	// related aggregated data (e.g. CSS class names).
@@ -373,7 +366,6 @@ func (c *CacheBuster) CompileConfig(logger loggers.Logger) error {
 
 			return match
 		}
-
 	}
 	return compileErr
 }
@@ -416,7 +408,6 @@ func DecodeServer(cfg Provider) (Server, error) {
 				Status: 404,
 			},
 		}
-
 	}
 
 	return *s, nil

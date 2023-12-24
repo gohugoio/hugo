@@ -16,21 +16,25 @@ package hugofs
 
 import (
 	"errors"
+	"fmt"
+	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"reflect"
 	"runtime"
 	"sort"
-	"strings"
+	"sync"
 	"time"
 
 	"github.com/gohugoio/hugo/hugofs/glob"
 
-	"github.com/gohugoio/hugo/hugofs/files"
 	"golang.org/x/text/unicode/norm"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/htime"
+	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/spf13/afero"
 )
@@ -39,48 +43,37 @@ func NewFileMeta() *FileMeta {
 	return &FileMeta{}
 }
 
-// PathFile returns the relative file path for the file source.
-func (f *FileMeta) PathFile() string {
-	if f.BaseDir == "" {
-		return ""
-	}
-	return strings.TrimPrefix(strings.TrimPrefix(f.Filename, f.BaseDir), filepathSeparator)
-}
-
 type FileMeta struct {
-	Name             string
-	Filename         string
-	Path             string
-	PathWalk         string
-	OriginalFilename string
-	BaseDir          string
+	PathInfo *paths.Path
+	Name     string
+	Filename string
 
-	SourceRoot string
-	MountRoot  string
-	Module     string
+	BaseDir       string
+	SourceRoot    string
+	Module        string
+	ModuleOrdinal int
+	Component     string
 
-	Weight     int
-	IsOrdered  bool
-	IsSymlink  bool
-	IsRootFile bool
-	IsProject  bool
-	Watch      bool
+	Weight    int
+	IsProject bool
+	Watch     bool
 
-	Classifier files.ContentClass
+	// The lang associated with this file. This may be
+	// either the language set in the filename or
+	// the language defined in the source mount configuration.
+	Lang string
+	// The language index for the above lang. This is the index
+	// in the sorted list of languages/sites.
+	LangIndex int
 
-	SkipDir bool
-
-	Lang                       string
-	TranslationBaseName        string
-	TranslationBaseNameWithExt string
-	Translations               []string
-
-	Fs           afero.Fs
 	OpenFunc     func() (afero.File, error)
 	JoinStatFunc func(name string) (FileMetaInfo, error)
 
 	// Include only files or directories that match.
 	InclusionFilter *glob.FilenameFilter
+
+	// Rename the name part of the file (not the directory).
+	Rename func(name string, toFrom bool) string
 }
 
 func (m *FileMeta) Copy() *FileMeta {
@@ -120,6 +113,15 @@ func (f *FileMeta) Open() (afero.File, error) {
 	return f.OpenFunc()
 }
 
+func (f *FileMeta) ReadAll() ([]byte, error) {
+	file, err := f.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	return io.ReadAll(file)
+}
+
 func (f *FileMeta) JoinStat(name string) (FileMetaInfo, error) {
 	if f.JoinStatFunc == nil {
 		return nil, os.ErrNotExist
@@ -128,50 +130,123 @@ func (f *FileMeta) JoinStat(name string) (FileMetaInfo, error) {
 }
 
 type FileMetaInfo interface {
-	os.FileInfo
-	// Meta is for internal use.
+	fs.DirEntry
+	MetaProvider
+
+	// This is a real hybrid as it also implements the fs.FileInfo interface.
+	FileInfoOptionals
+}
+
+type MetaProvider interface {
 	Meta() *FileMeta
 }
 
-type fileInfoMeta struct {
-	os.FileInfo
+type FileInfoOptionals interface {
+	Size() int64
+	Mode() fs.FileMode
+	ModTime() time.Time
+	Sys() any
+}
 
+type FileNameIsDir interface {
+	Name() string
+	IsDir() bool
+}
+
+type FileInfoProvider interface {
+	FileInfo() FileMetaInfo
+}
+
+// DirOnlyOps is a subset of the afero.File interface covering
+// the methods needed for directory operations.
+type DirOnlyOps interface {
+	io.Closer
+	Name() string
+	Readdir(count int) ([]os.FileInfo, error)
+	Readdirnames(n int) ([]string, error)
+	Stat() (os.FileInfo, error)
+}
+
+type dirEntryMeta struct {
+	fs.DirEntry
 	m *FileMeta
+
+	fi     fs.FileInfo
+	fiInit sync.Once
 }
 
-type filenameProvider interface {
-	Filename() string
-}
-
-var _ filenameProvider = (*fileInfoMeta)(nil)
-
-// Filename returns the full filename.
-func (fi *fileInfoMeta) Filename() string {
-	return fi.m.Filename
-}
-
-// Name returns the file's name. Note that we follow symlinks,
-// if supported by the file system, and the Name given here will be the
-// name of the symlink, which is what Hugo needs in all situations.
-func (fi *fileInfoMeta) Name() string {
-	if name := fi.m.Name; name != "" {
-		return name
-	}
-	return fi.FileInfo.Name()
-}
-
-func (fi *fileInfoMeta) Meta() *FileMeta {
+func (fi *dirEntryMeta) Meta() *FileMeta {
 	return fi.m
 }
 
-func NewFileMetaInfo(fi os.FileInfo, m *FileMeta) FileMetaInfo {
+// Filename returns the full filename.
+func (fi *dirEntryMeta) Filename() string {
+	return fi.m.Filename
+}
+
+func (fi *dirEntryMeta) fileInfo() fs.FileInfo {
+	var err error
+	fi.fiInit.Do(func() {
+		fi.fi, err = fi.DirEntry.Info()
+	})
+	if err != nil {
+		panic(err)
+	}
+	return fi.fi
+}
+
+func (fi *dirEntryMeta) Size() int64 {
+	return fi.fileInfo().Size()
+}
+
+func (fi *dirEntryMeta) Mode() fs.FileMode {
+	return fi.fileInfo().Mode()
+}
+
+func (fi *dirEntryMeta) ModTime() time.Time {
+	return fi.fileInfo().ModTime()
+}
+
+func (fi *dirEntryMeta) Sys() any {
+	return fi.fileInfo().Sys()
+}
+
+// Name returns the file's name.
+func (fi *dirEntryMeta) Name() string {
+	if name := fi.m.Name; name != "" {
+		return name
+	}
+	return fi.DirEntry.Name()
+}
+
+// dirEntry is an adapter from os.FileInfo to fs.DirEntry
+type dirEntry struct {
+	fs.FileInfo
+}
+
+var _ fs.DirEntry = dirEntry{}
+
+func (d dirEntry) Type() fs.FileMode { return d.FileInfo.Mode().Type() }
+
+func (d dirEntry) Info() (fs.FileInfo, error) { return d.FileInfo, nil }
+
+func NewFileMetaInfo(fi FileNameIsDir, m *FileMeta) FileMetaInfo {
 	if m == nil {
 		panic("FileMeta must be set")
 	}
-	if fim, ok := fi.(FileMetaInfo); ok {
+	if fim, ok := fi.(MetaProvider); ok {
 		m.Merge(fim.Meta())
 	}
-	return &fileInfoMeta{FileInfo: fi, m: m}
+	switch v := fi.(type) {
+	case fs.DirEntry:
+		return &dirEntryMeta{DirEntry: v, m: m}
+	case fs.FileInfo:
+		return &dirEntryMeta{DirEntry: dirEntry{v}, m: m}
+	case nil:
+		return &dirEntryMeta{DirEntry: dirEntry{}, m: m}
+	default:
+		panic(fmt.Sprintf("Unsupported type: %T", fi))
+	}
 }
 
 type dirNameOnlyFileInfo struct {
@@ -212,7 +287,6 @@ func newDirNameOnlyFileInfo(name string, meta *FileMeta, fileOpener func() (afer
 		m.Filename = name
 	}
 	m.OpenFunc = fileOpener
-	m.IsOrdered = false
 
 	return NewFileMetaInfo(
 		&dirNameOnlyFileInfo{name: base, modTime: htime.Now()},
@@ -220,15 +294,9 @@ func newDirNameOnlyFileInfo(name string, meta *FileMeta, fileOpener func() (afer
 	)
 }
 
-func decorateFileInfo(
-	fi os.FileInfo,
-	fs afero.Fs, opener func() (afero.File, error),
-	filename, filepath string, inMeta *FileMeta,
-) FileMetaInfo {
+func decorateFileInfo(fi FileNameIsDir, opener func() (afero.File, error), filename string, inMeta *FileMeta) FileMetaInfo {
 	var meta *FileMeta
 	var fim FileMetaInfo
-
-	filepath = strings.TrimPrefix(filepath, filepathSeparator)
 
 	var ok bool
 	if fim, ok = fi.(FileMetaInfo); ok {
@@ -241,14 +309,8 @@ func decorateFileInfo(
 	if opener != nil {
 		meta.OpenFunc = opener
 	}
-	if fs != nil {
-		meta.Fs = fs
-	}
-	nfilepath := normalizeFilename(filepath)
+
 	nfilename := normalizeFilename(filename)
-	if nfilepath != "" {
-		meta.Path = nfilepath
-	}
 	if nfilename != "" {
 		meta.Filename = nfilename
 	}
@@ -258,14 +320,11 @@ func decorateFileInfo(
 	return fim
 }
 
-func isSymlink(fi os.FileInfo) bool {
-	return fi != nil && fi.Mode()&os.ModeSymlink == os.ModeSymlink
-}
-
-func fileInfosToFileMetaInfos(fis []os.FileInfo) []FileMetaInfo {
+func DirEntriesToFileMetaInfos(fis []fs.DirEntry) []FileMetaInfo {
 	fims := make([]FileMetaInfo, len(fis))
 	for i, v := range fis {
-		fims[i] = v.(FileMetaInfo)
+		fim := v.(FileMetaInfo)
+		fims[i] = fim
 	}
 	return fims
 }
@@ -281,17 +340,49 @@ func normalizeFilename(filename string) string {
 	return filename
 }
 
-func fileInfosToNames(fis []os.FileInfo) []string {
-	names := make([]string, len(fis))
-	for i, d := range fis {
-		names[i] = d.Name()
-	}
-	return names
-}
-
-func sortFileInfos(fis []os.FileInfo) {
+func sortDirEntries(fis []fs.DirEntry) {
 	sort.Slice(fis, func(i, j int) bool {
 		fimi, fimj := fis[i].(FileMetaInfo), fis[j].(FileMetaInfo)
 		return fimi.Meta().Filename < fimj.Meta().Filename
 	})
+}
+
+// AddFileInfoToError adds file info to the given error.
+func AddFileInfoToError(err error, fi FileMetaInfo, fs afero.Fs) error {
+	if err == nil {
+		return nil
+	}
+
+	meta := fi.Meta()
+	filename := meta.Filename
+
+	// Check if it's already added.
+	for _, ferr := range herrors.UnwrapFileErrors(err) {
+		pos := ferr.Position()
+		errfilename := pos.Filename
+		if errfilename == "" {
+			pos.Filename = filename
+			ferr.UpdatePosition(pos)
+		}
+
+		if errfilename == "" || errfilename == filename {
+			if filename != "" && ferr.ErrorContext() == nil {
+				f, ioerr := fs.Open(filename)
+				if ioerr != nil {
+					return err
+				}
+				defer f.Close()
+				ferr.UpdateContent(f, nil)
+			}
+			return err
+		}
+	}
+
+	lineMatcher := herrors.NopLineMatcher
+
+	if textSegmentErr, ok := err.(*herrors.TextSegmentError); ok {
+		lineMatcher = herrors.ContainsMatcher(textSegmentErr.Segment)
+	}
+
+	return herrors.NewFileErrorFromFile(err, filename, fs, lineMatcher)
 }

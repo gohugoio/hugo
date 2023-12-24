@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -135,7 +135,6 @@ Related 2: 2
 		"Related 1:  0: p2: h0: First title|ref1|::END",
 		"Related 2:  0: p5: h0: Common p3, p4, p5|common-p3-p4-p5|::END 1: p4: h0: Common p3, p4, p5|common-p3-p4-p5|::END",
 	)
-
 }
 
 func BenchmarkRelatedSite(b *testing.B) {
@@ -170,7 +169,6 @@ keywords: ['k%d']
 		}
 
 		return fmt.Sprintf(base, n, rand.Intn(32))
-
 	}
 
 	for i := 1; i < 100; i++ {

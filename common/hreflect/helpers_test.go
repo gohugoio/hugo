@@ -14,6 +14,7 @@
 package hreflect
 
 import (
+	"context"
 	"reflect"
 	"testing"
 	"time"
@@ -38,6 +39,42 @@ func TestGetMethodByName(t *testing.T) {
 	c.Assert(GetMethodIndexByName(tp, "Method1"), qt.Equals, 0)
 	c.Assert(GetMethodIndexByName(tp, "Method3"), qt.Equals, 2)
 	c.Assert(GetMethodIndexByName(tp, "Foo"), qt.Equals, -1)
+}
+
+func TestIsContextType(t *testing.T) {
+	c := qt.New(t)
+	type k string
+	ctx := context.Background()
+	valueCtx := context.WithValue(ctx, k("key"), 32)
+	c.Assert(IsContextType(reflect.TypeOf(ctx)), qt.IsTrue)
+	c.Assert(IsContextType(reflect.TypeOf(valueCtx)), qt.IsTrue)
+}
+
+func BenchmarkIsContextType(b *testing.B) {
+	type k string
+	b.Run("value", func(b *testing.B) {
+		ctx := context.Background()
+		ctxs := make([]reflect.Type, b.N)
+		for i := 0; i < b.N; i++ {
+			ctxs[i] = reflect.TypeOf(context.WithValue(ctx, k("key"), i))
+		}
+
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			if !IsContextType(ctxs[i]) {
+				b.Fatal("not context")
+			}
+		}
+	})
+
+	b.Run("background", func(b *testing.B) {
+		var ctxt reflect.Type = reflect.TypeOf(context.Background())
+		for i := 0; i < b.N; i++ {
+			if !IsContextType(ctxt) {
+				b.Fatal("not context")
+			}
+		}
+	})
 }
 
 func BenchmarkIsTruthFul(b *testing.B) {

@@ -31,7 +31,7 @@ import (
 type PostPublishedResource interface {
 	resource.ResourceTypeProvider
 	resource.ResourceLinksProvider
-	resource.ResourceMetaProvider
+	resource.ResourceNameTitleProvider
 	resource.ResourceParamsProvider
 	resource.ResourceDataProvider
 	resource.OriginProvider

@@ -447,6 +447,44 @@ func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 	}
 }
 
+func TestPageDatesTerms(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- content/p1.md --
+---
+title: p1
+date: 2022-01-15
+lastMod: 2022-01-16
+tags: ["a", "b"]
+categories: ["c", "d"]
+---
+p1
+-- content/p2.md --
+---
+title: p2
+date: 2017-01-16
+lastMod: 2017-01-17
+tags: ["a", "c"]
+categories: ["c", "e"]
+---
+p2
+-- layouts/_default/list.html --
+{{ .Title }}|Date: {{ .Date.Format "2006-01-02" }}|Lastmod: {{ .Lastmod.Format "2006-01-02" }}|
+
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/categories/index.html", "Categories|Date: 2022-01-15|Lastmod: 2022-01-16|")
+	b.AssertFileContent("public/categories/c/index.html", "C|Date: 2022-01-15|Lastmod: 2022-01-16|")
+	b.AssertFileContent("public/categories/e/index.html", "E|Date: 2017-01-16|Lastmod: 2017-01-17|")
+	b.AssertFileContent("public/tags/index.html", "Tags|Date: 2022-01-15|Lastmod: 2022-01-16|")
+	b.AssertFileContent("public/tags/a/index.html", "A|Date: 2022-01-15|Lastmod: 2022-01-16|")
+	b.AssertFileContent("public/tags/c/index.html", "C|Date: 2017-01-16|Lastmod: 2017-01-17|")
+}
+
 func TestPageDatesAllKinds(t *testing.T) {
 	t.Parallel()
 
@@ -469,10 +507,12 @@ categories: ["cool stuff"]
 	s := b.H.Sites[0]
 
 	checkDate := func(t time.Time, msg string) {
+		b.Helper()
 		b.Assert(t.Year(), qt.Equals, 2017, qt.Commentf(msg))
 	}
 
 	checkDated := func(d resource.Dated, msg string) {
+		b.Helper()
 		checkDate(d.Date(), "date: "+msg)
 		checkDate(d.Lastmod(), "lastmod: "+msg)
 	}
@@ -533,10 +573,10 @@ date: 2012-01-12
 		b.Assert(p.Lastmod().Year(), qt.Equals, year)
 	}
 
-	checkDate(s.getPage("/"), 2018)
-	checkDate(s.getPage("/no-index"), 2017)
-	b.Assert(s.getPage("/with-index-no-date").Date().IsZero(), qt.Equals, true)
-	checkDate(s.getPage("/with-index-date"), 2018)
+	checkDate(s.getPageOldVersion("/"), 2018)
+	checkDate(s.getPageOldVersion("/no-index"), 2017)
+	b.Assert(s.getPageOldVersion("/with-index-no-date").Date().IsZero(), qt.Equals, true)
+	checkDate(s.getPageOldVersion("/with-index-date"), 2018)
 
 	b.Assert(s.Site().LastChange().Year(), qt.Equals, 2018)
 }
@@ -711,6 +751,91 @@ func TestPageWithMoreTag(t *testing.T) {
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithSummaryDelimiterSameLine)
+}
+
+func TestSummaryInFrontMatter(t *testing.T) {
+	t.Parallel()
+	Test(t, `
+-- hugo.toml --
+-- content/simple.md --
+---
+title: Simple
+summary: "Front **matter** summary"
+---
+Simple Page
+-- layouts/_default/single.html --
+Summary: {{ .Summary }}|Truncated: {{ .Truncated }}|
+
+`).AssertFileContent("public/simple/index.html", "Summary: Front <strong>matter</strong> summary|", "Truncated: false")
+}
+
+func TestSummaryManualSplit(t *testing.T) {
+	t.Parallel()
+	Test(t, `
+-- hugo.toml --
+-- content/simple.md --
+---
+title: Simple
+---
+This is **summary**.
+<!--more--> 
+This is **content**.
+-- layouts/_default/single.html --
+Summary: {{ .Summary }}|Truncated: {{ .Truncated }}|
+Content: {{ .Content }}|
+
+`).AssertFileContent("public/simple/index.html",
+		"Summary: <p>This is <strong>summary</strong>.</p>|",
+		"Truncated: true|",
+		"Content: <p>This is <strong>summary</strong>.</p>\n<p>This is <strong>content</strong>.</p>|",
+	)
+}
+
+func TestSummaryManualSplitHTML(t *testing.T) {
+	t.Parallel()
+	Test(t, `
+-- hugo.toml --
+-- content/simple.html --
+---
+title: Simple
+---
+<div>
+This is <b>summary</b>.
+</div>
+<!--more-->
+<div>
+This is <b>content</b>.
+</div>
+-- layouts/_default/single.html --
+Summary: {{ .Summary }}|Truncated: {{ .Truncated }}|
+Content: {{ .Content }}|
+
+`).AssertFileContent("public/simple/index.html", "Summary: <div>\nThis is <b>summary</b>.\n</div>\n|Truncated: true|\nContent: \n\n<div>\nThis is <b>content</b>.\n</div>|")
+}
+
+func TestSummaryAuto(t *testing.T) {
+	t.Parallel()
+	Test(t, `
+-- hugo.toml --
+summaryLength = 10
+-- content/simple.md --
+---
+title: Simple
+---
+This is **summary**.
+This is **more summary**.
+This is *even more summary**.
+This is **more summary**.
+
+This is **content**.
+-- layouts/_default/single.html --
+Summary: {{ .Summary }}|Truncated: {{ .Truncated }}|
+Content: {{ .Content }}|
+
+`).AssertFileContent("public/simple/index.html",
+		"Summary: This is summary. This is more summary. This is even more summary*.|",
+		"Truncated: true|",
+		"Content: <p>This is <strong>summary</strong>.")
 }
 
 // #2973
@@ -1190,26 +1315,89 @@ func TestPagePaths(t *testing.T) {
 }
 
 func TestTranslationKey(t *testing.T) {
-	t.Parallel()
-	c := qt.New(t)
-	cfg, fs := newTestCfg()
-	configs, err := loadTestConfigFromProvider(cfg)
-	c.Assert(err, qt.IsNil)
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term"]
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+[languages]
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+-- content/sect/p1.en.md --
+---
+translationkey: "adfasdf"
+title: "p1 en"
+---
+-- content/sect/p1.nn.md --
+---
+translationkey: "adfasdf"
+title: "p1 nn"
+---
+-- layouts/_default/single.html --
+Title: {{ .Title }}|TranslationKey: {{ .TranslationKey }}|
+Translations: {{ range .Translations }}{{ .Language.Lang }}|{{ end }}|
+AllTranslations: {{ range .AllTranslations }}{{ .Language.Lang }}|{{ end }}|
 
-	writeSource(t, fs, filepath.Join("content", filepath.FromSlash("sect/simple.no.md")), "---\ntitle: \"A1\"\ntranslationKey: \"k1\"\n---\nContent\n")
-	writeSource(t, fs, filepath.Join("content", filepath.FromSlash("sect/simple.en.md")), "---\ntitle: \"A2\"\n---\nContent\n")
+`
+	b := Test(t, files)
+	b.AssertFileContent("public/en/sect/p1/index.html",
+		"TranslationKey: adfasdf|",
+		"AllTranslations: en|nn||",
+		"Translations: nn||",
+	)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
+	b.AssertFileContent("public/nn/sect/p1/index.html",
+		"TranslationKey: adfasdf|",
+		"Translations: en||",
+		"AllTranslations: en|nn||",
+	)
+}
 
-	c.Assert(len(s.RegularPages()), qt.Equals, 2)
+// Issue #11540.
+func TestTranslationKeyResourceSharing(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term"]
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+[languages]
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+-- content/sect/mybundle_en/index.en.md --
+---
+translationkey: "adfasdf"
+title: "mybundle en"
+---
+-- content/sect/mybundle_en/f1.txt --
+f1.en
+-- content/sect/mybundle_en/f2.txt --
+f2.en
+-- content/sect/mybundle_nn/index.nn.md --
+---
+translationkey: "adfasdf"
+title: "mybundle nn"
+---
+-- content/sect/mybundle_nn/f2.nn.txt --
+f2.nn
+-- layouts/_default/single.html --
+Title: {{ .Title }}|TranslationKey: {{ .TranslationKey }}|
+Resources: {{ range .Resources }}{{ .RelPermalink }}|{{ .Content }}|{{ end }}|
 
-	home := s.Home()
-	c.Assert(home, qt.Not(qt.IsNil))
-	c.Assert(home.TranslationKey(), qt.Equals, "home")
-	c.Assert(s.RegularPages()[0].TranslationKey(), qt.Equals, "page/k1")
-	p2 := s.RegularPages()[1]
+`
+	b := Test(t, files)
+	b.AssertFileContent("public/en/sect/mybundle_en/index.html",
+		"TranslationKey: adfasdf|",
+		"Resources: /en/sect/mybundle_en/f1.txt|f1.en|/en/sect/mybundle_en/f2.txt|f2.en||",
+	)
 
-	c.Assert(p2.TranslationKey(), qt.Equals, "page/sect/simple")
+	b.AssertFileContent("public/nn/sect/mybundle_nn/index.html",
+		"TranslationKey: adfasdf|",
+		"Title: mybundle nn|TranslationKey: adfasdf|\nResources: /en/sect/mybundle_en/f1.txt|f1.en|/nn/sect/mybundle_nn/f2.nn.txt|f2.nn||",
+	)
 }
 
 func TestChompBOM(t *testing.T) {
@@ -1383,12 +1571,6 @@ Content:{{ .Content }}
 	)
 }
 
-// https://github.com/gohugoio/hugo/issues/5781
-func TestPageWithZeroFile(t *testing.T) {
-	newTestSitesBuilder(t).WithLogger(loggers.NewDefault()).WithSimpleConfigFile().
-		WithTemplatesAdded("index.html", "{{ .File.Filename }}{{ with .File }}{{ .Dir }}{{ end }}").Build(BuildCfg{})
-}
-
 func TestHomePageWithNoTitle(t *testing.T) {
 	b := newTestSitesBuilder(t).WithConfigFile("toml", `
 title = "Site Title"
@@ -1499,93 +1681,45 @@ func TestShouldBuildWithClock(t *testing.T) {
 	}
 }
 
-// "dot" in path: #1885 and #2110
-// disablePathToLower regression: #3374
-func TestPathIssues(t *testing.T) {
-	for _, disablePathToLower := range []bool{false, true} {
-		for _, uglyURLs := range []bool{false, true} {
-			disablePathToLower := disablePathToLower
-			uglyURLs := uglyURLs
-			t.Run(fmt.Sprintf("disablePathToLower=%t,uglyURLs=%t", disablePathToLower, uglyURLs), func(t *testing.T) {
-				t.Parallel()
-				cfg, fs := newTestCfg()
-				c := qt.New(t)
-
-				cfg.Set("permalinks", map[string]string{
-					"post": ":section/:title",
-				})
-
-				cfg.Set("uglyURLs", uglyURLs)
-				cfg.Set("disablePathToLower", disablePathToLower)
-				cfg.Set("paginate", 1)
-				th, configs := newTestHelperFromProvider(cfg, fs, t)
-
-				writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), "<html><body>{{.Content}}</body></html>")
-				writeSource(t, fs, filepath.Join("layouts", "_default", "list.html"),
-					"<html><body>P{{.Paginator.PageNumber}}|URL: {{.Paginator.URL}}|{{ if .Paginator.HasNext }}Next: {{.Paginator.Next.URL }}{{ end }}</body></html>")
-
-				for i := 0; i < 3; i++ {
-					writeSource(t, fs, filepath.Join("content", "post", fmt.Sprintf("doc%d.md", i)),
-						fmt.Sprintf(`---
-title: "test%d.dot"
-tags:
-- ".net"
+// See https://github.com/gohugoio/hugo/issues/9171
+// We redefined disablePathToLower in v0.121.0.
+func TestPagePathDisablePathToLower(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com"
+disablePathToLower = true
+[permalinks]
+sect2 = "/:section/:filename/"
+sect3 = "/:section/:title/"
+-- content/sect/p1.md --
 ---
-# doc1
-*some content*`, i))
-				}
-
-				writeSource(t, fs, filepath.Join("content", "Blog", "Blog1.md"),
-					fmt.Sprintf(`---
-title: "testBlog"
-tags:
-- "Blog"
+title: "Page1"
 ---
-# doc1
-*some blog content*`))
-
-				s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
-
-				c.Assert(len(s.RegularPages()), qt.Equals, 4)
-
-				pathFunc := func(s string) string {
-					if uglyURLs {
-						return strings.Replace(s, "/index.html", ".html", 1)
-					}
-					return s
-				}
-
-				blog := "blog"
-
-				if disablePathToLower {
-					blog = "Blog"
-				}
-
-				th.assertFileContent(pathFunc("public/"+blog+"/"+blog+"1/index.html"), "some blog content")
-
-				th.assertFileContent(pathFunc("public/post/test0.dot/index.html"), "some content")
-
-				if uglyURLs {
-					th.assertFileContent("public/post/page/1.html", `canonical" href="/post.html"`)
-					th.assertFileContent("public/post.html", `<body>P1|URL: /post.html|Next: /post/page/2.html</body>`)
-					th.assertFileContent("public/post/page/2.html", `<body>P2|URL: /post/page/2.html|Next: /post/page/3.html</body>`)
-				} else {
-					th.assertFileContent("public/post/page/1/index.html", `canonical" href="/post/"`)
-					th.assertFileContent("public/post/index.html", `<body>P1|URL: /post/|Next: /post/page/2/</body>`)
-					th.assertFileContent("public/post/page/2/index.html", `<body>P2|URL: /post/page/2/|Next: /post/page/3/</body>`)
-					th.assertFileContent("public/tags/.net/index.html", `<body>P1|URL: /tags/.net/|Next: /tags/.net/page/2/</body>`)
-
-				}
-
-				p := s.RegularPages()[0]
-				if uglyURLs {
-					c.Assert(p.RelPermalink(), qt.Equals, "/post/test0.dot.html")
-				} else {
-					c.Assert(p.RelPermalink(), qt.Equals, "/post/test0.dot/")
-				}
-			})
-		}
-	}
+p1.
+-- content/sect/p2.md --
+---
+title: "Page2"
+slug: "PaGe2"
+---
+p2.
+-- content/sect2/PaGe3.md --
+---
+title: "Page3"
+---
+-- content/seCt3/p4.md --
+---
+title: "Pag.E4"
+slug: "PaGe4"
+---
+p4.
+-- layouts/_default/single.html --
+Single: {{ .Title}}|{{ .RelPermalink }}|{{ .Path }}|
+`
+	b := Test(t, files)
+	b.AssertFileContent("public/sect/p1/index.html", "Single: Page1|/sect/p1/|/sect/p1")
+	b.AssertFileContent("public/sect/PaGe2/index.html", "Single: Page2|/sect/PaGe2/|/sect/p2")
+	b.AssertFileContent("public/sect2/page3/index.html", "Single: Page3|/sect2/page3/|/sect2/page3|")
+	b.AssertFileContent("public/sect3/Pag.E4/index.html", "Single: Pag.E4|/sect3/Pag.E4/|/sect3/p4|")
 }
 
 // https://github.com/gohugoio/hugo/issues/4675
@@ -1709,50 +1843,6 @@ title: Scratch Me!
 
 	b.AssertFileContent("public/index.html", "B: bv")
 	b.AssertFileContent("public/scratchme/index.html", "C: cv")
-}
-
-func TestScratchRebuild(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- config.toml --
--- content/p1.md --
----
-title: "p1"
----
-{{< scratchme >}}
--- layouts/shortcodes/foo.html --
-notused
--- layouts/shortcodes/scratchme.html --
-{{ .Page.Scratch.Set "scratch" "foo" }}
-{{ .Page.Store.Set "scratch" "bar" }}
--- layouts/_default/single.html --
-{{ .Content }}
-Scratch: {{ .Scratch.Get "scratch" }}|
-Store: {{ .Store.Get "scratch" }}|
-`
-
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			Running:     true,
-		},
-	).Build()
-
-	b.AssertFileContent("public/p1/index.html", `
-Scratch: foo|
-Store: bar|
-	`)
-
-	b.EditFiles("layouts/shortcodes/foo.html", "edit")
-
-	b.Build()
-
-	b.AssertFileContent("public/p1/index.html", `
-Scratch: |
-Store: bar|
-	`)
 }
 
 func TestPageParam(t *testing.T) {
@@ -1879,27 +1969,6 @@ Link with URL as text
 `)
 }
 
-func TestPageCaseIssues(t *testing.T) {
-	t.Parallel()
-
-	b := newTestSitesBuilder(t)
-	b.WithConfigFile("toml", `defaultContentLanguage = "no"
-[languages]
-[languages.NO]
-title = "Norsk"
-`)
-	b.WithContent("a/B/C/Page1.md", "---\ntitle: Page1\n---")
-	b.WithTemplates("index.html", `
-{{ $p1 := site.GetPage "a/B/C/Page1" }}
-Lang: {{ .Lang }}
-Page1: {{ $p1.Path }}
-`)
-
-	b.Build(BuildCfg{})
-
-	b.AssertFileContent("public/index.html", "Lang: no", filepath.FromSlash("Page1: a/B/C/Page1.md"))
-}
-
 func TestPageHashString(t *testing.T) {
 	files := `
 -- config.toml --
@@ -1929,6 +1998,8 @@ title: "p2"
 	p1 := b.H.Sites[0].RegularPages()[0]
 	p2 := b.H.Sites[0].RegularPages()[1]
 	sites := p1.Sites()
+
+	b.Assert(p1, qt.Not(qt.Equals), p2)
 
 	b.Assert(identity.HashString(p1), qt.Not(qt.Equals), identity.HashString(p2))
 	b.Assert(identity.HashString(sites[0]), qt.Not(qt.Equals), identity.HashString(sites[1]))

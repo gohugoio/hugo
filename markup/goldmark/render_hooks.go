@@ -197,8 +197,6 @@ func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.N
 		},
 	)
 
-	ctx.AddIdentity(lr)
-
 	return ast.WalkContinue, err
 }
 
@@ -284,11 +282,6 @@ func (r *hookedRenderer) renderLink(w util.BufWriter, source []byte, node ast.No
 		},
 	)
 
-	// TODO(bep) I have a working branch that fixes these rather confusing identity types,
-	// but for now it's important that it's not .GetIdentity() that's added here,
-	// to make sure we search the entire chain on changes.
-	ctx.AddIdentity(lr)
-
 	return ast.WalkContinue, err
 }
 
@@ -352,11 +345,6 @@ func (r *hookedRenderer) renderAutoLink(w util.BufWriter, source []byte, node as
 			AttributesHolder: attributes.Empty,
 		},
 	)
-
-	// TODO(bep) I have a working branch that fixes these rather confusing identity types,
-	// but for now it's important that it's not .GetIdentity() that's added here,
-	// to make sure we search the entire chain on changes.
-	ctx.AddIdentity(lr)
 
 	return ast.WalkContinue, err
 }
@@ -442,8 +430,6 @@ func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast
 			AttributesHolder: attributes.New(n.Attributes(), attributes.AttributesOwnerGeneral),
 		},
 	)
-
-	ctx.AddIdentity(hr)
 
 	return ast.WalkContinue, err
 }

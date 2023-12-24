@@ -25,6 +25,7 @@ type lexerTest struct {
 	name  string
 	input string
 	items []typeText
+	err   error
 }
 
 type typeText struct {
@@ -58,34 +59,40 @@ var crLfReplacer = strings.NewReplacer("\r", "#", "\n", "$")
 
 // TODO(bep) a way to toggle ORG mode vs the rest.
 var frontMatterTests = []lexerTest{
-	{"empty", "", []typeText{tstEOF}},
-	{"Byte order mark", "\ufeff\nSome text.\n", []typeText{nti(TypeIgnore, "\ufeff"), tstSomeText, tstEOF}},
-	{"HTML Document", `  <html>  `, []typeText{nti(tError, "plain HTML documents not supported")}},
-	{"HTML Document with shortcode", `<html>{{< sc1 >}}</html>`, []typeText{nti(tError, "plain HTML documents not supported")}},
-	{"No front matter", "\nSome text.\n", []typeText{tstSomeText, tstEOF}},
-	{"YAML front matter", "---\nfoo: \"bar\"\n---\n\nSome text.\n", []typeText{tstFrontMatterYAML, tstSomeText, tstEOF}},
-	{"YAML empty front matter", "---\n---\n\nSome text.\n", []typeText{nti(TypeFrontMatterYAML, ""), tstSomeText, tstEOF}},
-	{"YAML commented out front matter", "<!--\n---\nfoo: \"bar\"\n---\n-->\nSome text.\n", []typeText{nti(TypeIgnore, "<!--\n"), tstFrontMatterYAML, nti(TypeIgnore, "-->"), tstSomeText, tstEOF}},
-	{"YAML commented out front matter, no end", "<!--\n---\nfoo: \"bar\"\n---\nSome text.\n", []typeText{nti(TypeIgnore, "<!--\n"), tstFrontMatterYAML, nti(tError, "starting HTML comment with no end")}},
+	{"empty", "", []typeText{tstEOF}, nil},
+	{"Byte order mark", "\ufeff\nSome text.\n", []typeText{nti(TypeIgnore, "\ufeff"), tstSomeText, tstEOF}, nil},
+	{"HTML Document", `  <html>  `, nil, ErrPlainHTMLDocumentsNotSupported},
+	{"HTML Document with shortcode", `<html>{{< sc1 >}}</html>`, nil, ErrPlainHTMLDocumentsNotSupported},
+	{"No front matter", "\nSome text.\n", []typeText{tstSomeText, tstEOF}, nil},
+	{"YAML front matter", "---\nfoo: \"bar\"\n---\n\nSome text.\n", []typeText{tstFrontMatterYAML, tstSomeText, tstEOF}, nil},
+	{"YAML empty front matter", "---\n---\n\nSome text.\n", []typeText{nti(TypeFrontMatterYAML, ""), tstSomeText, tstEOF}, nil},
+	{"YAML commented out front matter", "<!--\n---\nfoo: \"bar\"\n---\n-->\nSome text.\n", []typeText{nti(TypeIgnore, "<!--\n"), tstFrontMatterYAML, nti(TypeIgnore, "-->"), tstSomeText, tstEOF}, nil},
+	{"YAML commented out front matter, no end", "<!--\n---\nfoo: \"bar\"\n---\nSome text.\n", []typeText{nti(TypeIgnore, "<!--\n"), tstFrontMatterYAML, nti(tError, "starting HTML comment with no end")}, nil},
 	// Note that we keep all bytes as they are, but we need to handle CRLF
-	{"YAML front matter CRLF", "---\r\nfoo: \"bar\"\r\n---\n\nSome text.\n", []typeText{tstFrontMatterYAMLCRLF, tstSomeText, tstEOF}},
-	{"TOML front matter", "+++\nfoo = \"bar\"\n+++\n\nSome text.\n", []typeText{tstFrontMatterTOML, tstSomeText, tstEOF}},
-	{"JSON front matter", tstJSON + "\r\n\nSome text.\n", []typeText{tstFrontMatterJSON, tstSomeText, tstEOF}},
-	{"ORG front matter", tstORG + "\nSome text.\n", []typeText{tstFrontMatterORG, tstSomeText, tstEOF}},
-	{"Summary divider ORG", tstORG + "\nSome text.\n# more\nSome text.\n", []typeText{tstFrontMatterORG, tstSomeText, nti(TypeLeadSummaryDivider, "# more\n"), nti(tText, "Some text.\n"), tstEOF}},
-	{"Summary divider", "+++\nfoo = \"bar\"\n+++\n\nSome text.\n<!--more-->\nSome text.\n", []typeText{tstFrontMatterTOML, tstSomeText, tstSummaryDivider, nti(tText, "Some text.\n"), tstEOF}},
-	{"Summary divider same line", "+++\nfoo = \"bar\"\n+++\n\nSome text.<!--more-->Some text.\n", []typeText{tstFrontMatterTOML, nti(tText, "\nSome text."), nti(TypeLeadSummaryDivider, "<!--more-->"), nti(tText, "Some text.\n"), tstEOF}},
+	{"YAML front matter CRLF", "---\r\nfoo: \"bar\"\r\n---\n\nSome text.\n", []typeText{tstFrontMatterYAMLCRLF, tstSomeText, tstEOF}, nil},
+	{"TOML front matter", "+++\nfoo = \"bar\"\n+++\n\nSome text.\n", []typeText{tstFrontMatterTOML, tstSomeText, tstEOF}, nil},
+	{"JSON front matter", tstJSON + "\r\n\nSome text.\n", []typeText{tstFrontMatterJSON, tstSomeText, tstEOF}, nil},
+	{"ORG front matter", tstORG + "\nSome text.\n", []typeText{tstFrontMatterORG, tstSomeText, tstEOF}, nil},
+	{"Summary divider ORG", tstORG + "\nSome text.\n# more\nSome text.\n", []typeText{tstFrontMatterORG, tstSomeText, nti(TypeLeadSummaryDivider, "# more\n"), nti(tText, "Some text.\n"), tstEOF}, nil},
+	{"Summary divider", "+++\nfoo = \"bar\"\n+++\n\nSome text.\n<!--more-->\nSome text.\n", []typeText{tstFrontMatterTOML, tstSomeText, tstSummaryDivider, nti(tText, "Some text.\n"), tstEOF}, nil},
+	{"Summary divider same line", "+++\nfoo = \"bar\"\n+++\n\nSome text.<!--more-->Some text.\n", []typeText{tstFrontMatterTOML, nti(tText, "\nSome text."), nti(TypeLeadSummaryDivider, "<!--more-->"), nti(tText, "Some text.\n"), tstEOF}, nil},
 	// https://github.com/gohugoio/hugo/issues/5402
-	{"Summary and shortcode, no space", "+++\nfoo = \"bar\"\n+++\n\nSome text.\n<!--more-->{{< sc1 >}}\nSome text.\n", []typeText{tstFrontMatterTOML, tstSomeText, nti(TypeLeadSummaryDivider, "<!--more-->"), tstLeftNoMD, tstSC1, tstRightNoMD, tstSomeText, tstEOF}},
+	{"Summary and shortcode, no space", "+++\nfoo = \"bar\"\n+++\n\nSome text.\n<!--more-->{{< sc1 >}}\nSome text.\n", []typeText{tstFrontMatterTOML, tstSomeText, nti(TypeLeadSummaryDivider, "<!--more-->"), tstLeftNoMD, tstSC1, tstRightNoMD, tstSomeText, tstEOF}, nil},
 	// https://github.com/gohugoio/hugo/issues/5464
-	{"Summary and shortcode only", "+++\nfoo = \"bar\"\n+++\n{{< sc1 >}}\n<!--more-->\n{{< sc2 >}}", []typeText{tstFrontMatterTOML, tstLeftNoMD, tstSC1, tstRightNoMD, tstNewline, tstSummaryDivider, tstLeftNoMD, tstSC2, tstRightNoMD, tstEOF}},
+	{"Summary and shortcode only", "+++\nfoo = \"bar\"\n+++\n{{< sc1 >}}\n<!--more-->\n{{< sc2 >}}", []typeText{tstFrontMatterTOML, tstLeftNoMD, tstSC1, tstRightNoMD, tstNewline, tstSummaryDivider, tstLeftNoMD, tstSC2, tstRightNoMD, tstEOF}, nil},
 }
 
 func TestFrontMatter(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 	for i, test := range frontMatterTests {
-		items := collect([]byte(test.input), false, lexIntroSection)
+		items, err := collect([]byte(test.input), false, lexIntroSection)
+		if err != nil {
+			c.Assert(err, qt.Equals, test.err)
+			continue
+		} else {
+			c.Assert(test.err, qt.IsNil)
+		}
 		if !equal(test.input, items, test.items) {
 			got := itemsToString(items, []byte(test.input))
 			expected := testItemsToString(test.items)
@@ -124,12 +131,15 @@ func testItemsToString(items []typeText) string {
 	return crLfReplacer.Replace(sb.String())
 }
 
-func collectWithConfig(input []byte, skipFrontMatter bool, stateStart stateFunc, cfg Config) (items []Item) {
+func collectWithConfig(input []byte, skipFrontMatter bool, stateStart stateFunc, cfg Config) (items []Item, err error) {
 	l := newPageLexer(input, stateStart, cfg)
 	l.run()
 	iter := NewIterator(l.items)
 
 	for {
+		if l.err != nil {
+			return nil, l.err
+		}
 		item := iter.Next()
 		items = append(items, item)
 		if item.Type == tEOF || item.Type == tError {
@@ -139,13 +149,13 @@ func collectWithConfig(input []byte, skipFrontMatter bool, stateStart stateFunc,
 	return
 }
 
-func collect(input []byte, skipFrontMatter bool, stateStart stateFunc) (items []Item) {
+func collect(input []byte, skipFrontMatter bool, stateStart stateFunc) (items []Item, err error) {
 	var cfg Config
 
 	return collectWithConfig(input, skipFrontMatter, stateStart, cfg)
 }
 
-func collectStringMain(input string) []Item {
+func collectStringMain(input string) ([]Item, error) {
 	return collect([]byte(input), true, lexMainSection)
 }
 

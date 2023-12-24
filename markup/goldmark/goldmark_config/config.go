@@ -73,9 +73,10 @@ var Default = Config{
 
 // Config configures Goldmark.
 type Config struct {
-	Renderer   Renderer
-	Parser     Parser
-	Extensions Extensions
+	DuplicateResourceFiles bool
+	Renderer               Renderer
+	Parser                 Parser
+	Extensions             Extensions
 }
 
 type Extensions struct {

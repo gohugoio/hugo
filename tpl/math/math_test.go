@@ -335,7 +335,7 @@ func TestRound(t *testing.T) {
 		{0.5, 1.0},
 		{1.1, 1.0},
 		{1.5, 2.0},
-		{-0.1, -0.0},
+		{-0.1, 0.0},
 		{-0.5, -1.0},
 		{-1.1, -1.0},
 		{-1.5, -2.0},
@@ -524,7 +524,6 @@ func TestSum(t *testing.T) {
 
 	_, err := ns.Sum()
 	c.Assert(err, qt.Not(qt.IsNil))
-
 }
 
 func TestProduct(t *testing.T) {
@@ -547,5 +546,4 @@ func TestProduct(t *testing.T) {
 
 	_, err := ns.Product()
 	c.Assert(err, qt.Not(qt.IsNil))
-
 }

@@ -20,10 +20,10 @@ import (
 func Test404(t *testing.T) {
 	t.Parallel()
 
-	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile().WithTemplatesAdded(
-		"404.html",
-		`
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"	
+-- layouts/404.html --
 {{ $home := site.Home }}
 404: 
 Parent: {{ .Parent.Kind }}
@@ -35,16 +35,21 @@ InSection: {{ .InSection $home.Section }}|{{ $home.InSection . }}
 Sections: {{ len .Sections }}|
 Page: {{ .Page.RelPermalink }}|
 Data: {{ len .Data }}|
+`
 
-`,
-	)
-	b.Build(BuildCfg{})
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			//LogLevel:    logg.LevelTrace,
+			//Verbose:     true,
+		},
+	).Build()
 
 	// Note: We currently have only 1 404 page. One might think that we should have
 	// multiple, to follow the Custom Output scheme, but I don't see how that would work
 	// right now.
 	b.AssertFileContent("public/404.html", `
-
   404:
 Parent: home
 IsAncestor: false/true

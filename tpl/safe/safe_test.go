@@ -182,30 +182,3 @@ func TestURL(t *testing.T) {
 		c.Assert(result, qt.Equals, test.expect)
 	}
 }
-
-func TestSanitizeURL(t *testing.T) {
-	t.Parallel()
-	c := qt.New(t)
-
-	ns := New()
-
-	for _, test := range []struct {
-		a      any
-		expect any
-	}{
-		{"http://foo/../../bar", "http://foo/bar"},
-		// errors
-		{tstNoStringer{}, false},
-	} {
-
-		result, err := ns.SanitizeURL(test.a)
-
-		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
-			continue
-		}
-
-		c.Assert(err, qt.IsNil)
-		c.Assert(result, qt.Equals, test.expect)
-	}
-}

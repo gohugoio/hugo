@@ -169,7 +169,7 @@ func (p DestinationPublisher) createTransformerChain(f Descriptor) transform.Cha
 
 	if isHTML {
 		if f.LiveReloadBaseURL != nil {
-			transformers = append(transformers, livereloadinject.New(*f.LiveReloadBaseURL))
+			transformers = append(transformers, livereloadinject.New(f.LiveReloadBaseURL))
 		}
 
 		// This is only injected on the home page.

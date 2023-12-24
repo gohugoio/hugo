@@ -51,7 +51,7 @@ func (ns *Namespace) Where(ctx context.Context, c, key any, args ...any) (any, e
 	case reflect.Map:
 		return ns.checkWhereMap(ctxv, seqv, kv, mv, path, op)
 	default:
-		return nil, fmt.Errorf("can't iterate over %v", c)
+		return nil, fmt.Errorf("can't iterate over %T", c)
 	}
 }
 
@@ -320,7 +320,7 @@ func evaluateSubElem(ctx, obj reflect.Value, elemName string) (reflect.Value, er
 		mt := objPtr.Type().Method(index)
 		num := mt.Type.NumIn()
 		maxNumIn := 1
-		if num > 1 && mt.Type.In(1).Implements(hreflect.ContextInterface) {
+		if num > 1 && hreflect.IsContextType(mt.Type.In(1)) {
 			args = []reflect.Value{ctx}
 			maxNumIn = 2
 		}

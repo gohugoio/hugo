@@ -28,110 +28,160 @@ import (
 )
 
 var (
-	_ metaAssigner         = (*genericResource)(nil)
-	_ metaAssigner         = (*imageResource)(nil)
-	_ metaAssignerProvider = (*resourceAdapter)(nil)
+	_ mediaTypeAssigner             = (*genericResource)(nil)
+	_ mediaTypeAssigner             = (*imageResource)(nil)
+	_ resource.Staler               = (*genericResource)(nil)
+	_ resource.NameOriginalProvider = (*genericResource)(nil)
 )
-
-type metaAssignerProvider interface {
-	getMetaAssigner() metaAssigner
-}
 
 // metaAssigner allows updating metadata in resources that supports it.
 type metaAssigner interface {
 	setTitle(title string)
 	setName(name string)
-	setMediaType(mediaType media.Type)
 	updateParams(params map[string]any)
 }
 
+// metaAssigner allows updating the media type in resources that supports it.
+type mediaTypeAssigner interface {
+	setMediaType(mediaType media.Type)
+}
+
 const counterPlaceHolder = ":counter"
+
+var _ metaAssigner = (*metaResource)(nil)
+
+// metaResource is a resource with metadata that can be updated.
+type metaResource struct {
+	changed bool
+	title   string
+	name    string
+	params  maps.Params
+}
+
+func (r *metaResource) Name() string {
+	return r.name
+}
+
+func (r *metaResource) Title() string {
+	return r.title
+}
+
+func (r *metaResource) Params() maps.Params {
+	return r.params
+}
+
+func (r *metaResource) setTitle(title string) {
+	r.title = title
+	r.changed = true
+}
+
+func (r *metaResource) setName(name string) {
+	r.name = name
+	r.changed = true
+}
+
+func (r *metaResource) updateParams(params map[string]any) {
+	if r.params == nil {
+		r.params = make(map[string]interface{})
+	}
+	for k, v := range params {
+		r.params[k] = v
+	}
+	r.changed = true
+}
+
+func CloneWithMetadataIfNeeded(m []map[string]any, r resource.Resource) resource.Resource {
+	wmp, ok := r.(resource.WithResourceMetaProvider)
+	if !ok {
+		return r
+	}
+
+	wrapped := &metaResource{
+		name:   r.Name(),
+		title:  r.Title(),
+		params: r.Params(),
+	}
+
+	assignMetadata(m, wrapped)
+	if !wrapped.changed {
+		return r
+	}
+
+	return wmp.WithResourceMeta(wrapped)
+}
 
 // AssignMetadata assigns the given metadata to those resources that supports updates
 // and matching by wildcard given in `src` using `filepath.Match` with lower cased values.
 // This assignment is additive, but the most specific match needs to be first.
 // The `name` and `title` metadata field support shell-matched collection it got a match in.
 // See https://golang.org/pkg/path/#Match
-func AssignMetadata(metadata []map[string]any, resources ...resource.Resource) error {
+func assignMetadata(metadata []map[string]any, ma *metaResource) error {
 	counters := make(map[string]int)
 
-	for _, r := range resources {
-		var ma metaAssigner
-		mp, ok := r.(metaAssignerProvider)
-		if ok {
-			ma = mp.getMetaAssigner()
-		} else {
-			ma, ok = r.(metaAssigner)
-			if !ok {
-				continue
-			}
+	var (
+		nameSet, titleSet                   bool
+		nameCounter, titleCounter           = 0, 0
+		nameCounterFound, titleCounterFound bool
+		resourceSrcKey                      = strings.ToLower(ma.Name())
+	)
+
+	for _, meta := range metadata {
+		src, found := meta["src"]
+		if !found {
+			return fmt.Errorf("missing 'src' in metadata for resource")
 		}
 
-		var (
-			nameSet, titleSet                   bool
-			nameCounter, titleCounter           = 0, 0
-			nameCounterFound, titleCounterFound bool
-			resourceSrcKey                      = strings.ToLower(r.Name())
-		)
+		srcKey := strings.ToLower(cast.ToString(src))
 
-		for _, meta := range metadata {
-			src, found := meta["src"]
-			if !found {
-				return fmt.Errorf("missing 'src' in metadata for resource")
-			}
+		glob, err := glob.GetGlob(srcKey)
+		if err != nil {
+			return fmt.Errorf("failed to match resource with metadata: %w", err)
+		}
 
-			srcKey := strings.ToLower(cast.ToString(src))
+		match := glob.Match(resourceSrcKey)
 
-			glob, err := glob.GetGlob(srcKey)
-			if err != nil {
-				return fmt.Errorf("failed to match resource with metadata: %w", err)
-			}
-
-			match := glob.Match(resourceSrcKey)
-
-			if match {
-				if !nameSet {
-					name, found := meta["name"]
-					if found {
-						name := cast.ToString(name)
-						if !nameCounterFound {
-							nameCounterFound = strings.Contains(name, counterPlaceHolder)
-						}
-						if nameCounterFound && nameCounter == 0 {
-							counterKey := "name_" + srcKey
-							nameCounter = counters[counterKey] + 1
-							counters[counterKey] = nameCounter
-						}
-
-						ma.setName(replaceResourcePlaceholders(name, nameCounter))
-						nameSet = true
-					}
-				}
-
-				if !titleSet {
-					title, found := meta["title"]
-					if found {
-						title := cast.ToString(title)
-						if !titleCounterFound {
-							titleCounterFound = strings.Contains(title, counterPlaceHolder)
-						}
-						if titleCounterFound && titleCounter == 0 {
-							counterKey := "title_" + srcKey
-							titleCounter = counters[counterKey] + 1
-							counters[counterKey] = titleCounter
-						}
-						ma.setTitle((replaceResourcePlaceholders(title, titleCounter)))
-						titleSet = true
-					}
-				}
-
-				params, found := meta["params"]
+		if match {
+			if !nameSet {
+				name, found := meta["name"]
 				if found {
-					m := maps.ToStringMap(params)
-					// Needed for case insensitive fetching of params values
-					maps.PrepareParams(m)
-					ma.updateParams(m)
+					name := cast.ToString(name)
+					if !nameCounterFound {
+						nameCounterFound = strings.Contains(name, counterPlaceHolder)
+					}
+					if nameCounterFound && nameCounter == 0 {
+						counterKey := "name_" + srcKey
+						nameCounter = counters[counterKey] + 1
+						counters[counterKey] = nameCounter
+					}
+
+					ma.setName(replaceResourcePlaceholders(name, nameCounter))
+					nameSet = true
 				}
+			}
+
+			if !titleSet {
+				title, found := meta["title"]
+				if found {
+					title := cast.ToString(title)
+					if !titleCounterFound {
+						titleCounterFound = strings.Contains(title, counterPlaceHolder)
+					}
+					if titleCounterFound && titleCounter == 0 {
+						counterKey := "title_" + srcKey
+						titleCounter = counters[counterKey] + 1
+						counters[counterKey] = titleCounter
+					}
+					ma.setTitle((replaceResourcePlaceholders(title, titleCounter)))
+					titleSet = true
+				}
+			}
+
+			params, found := meta["params"]
+			if found {
+				m := maps.ToStringMap(params)
+				// Needed for case insensitive fetching of params values
+				maps.PrepareParams(m)
+				ma.updateParams(m)
 			}
 		}
 	}

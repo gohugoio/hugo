@@ -20,25 +20,23 @@ import (
 	"image/color"
 	"image/draw"
 	"image/gif"
-	_ "image/gif"
 	_ "image/png"
 	"io"
 	"os"
-	"path"
-	"path/filepath"
 	"strings"
 	"sync"
 
 	color_extractor "github.com/marekm4/color-extractor"
 
+	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/identity"
 
 	"github.com/disintegration/gift"
 
-	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/resources/images/exif"
+	"github.com/gohugoio/hugo/resources/internal"
 
 	"github.com/gohugoio/hugo/resources/resource"
 
@@ -50,9 +48,10 @@ import (
 )
 
 var (
-	_ images.ImageResource = (*imageResource)(nil)
-	_ resource.Source      = (*imageResource)(nil)
-	_ resource.Cloner      = (*imageResource)(nil)
+	_ images.ImageResource          = (*imageResource)(nil)
+	_ resource.Source               = (*imageResource)(nil)
+	_ resource.Cloner               = (*imageResource)(nil)
+	_ resource.NameOriginalProvider = (*imageResource)(nil)
 )
 
 // imageResource represents an image resource.
@@ -107,6 +106,7 @@ func (i *imageResource) getExif() *exif.ExifInfo {
 		}
 
 		create := func(info filecache.ItemInfo, w io.WriteCloser) (err error) {
+			defer w.Close()
 			f, err := i.root.ReadSeekCloser()
 			if err != nil {
 				i.metaInitErr = err
@@ -127,7 +127,7 @@ func (i *imageResource) getExif() *exif.ExifInfo {
 			return enc.Encode(i.meta)
 		}
 
-		_, i.metaInitErr = i.getSpec().ImageCache.fileCache.ReadOrCreate(key, read, create)
+		_, i.metaInitErr = i.getSpec().ImageCache.fcache.ReadOrCreate(key, read, create)
 	})
 
 	if i.metaInitErr != nil {
@@ -369,17 +369,14 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 			<-imageProcSem
 		}()
 
-		errOp := conf.Action
-		errPath := i.getSourceFilename()
-
 		src, err := i.DecodeImage()
 		if err != nil {
-			return nil, nil, &os.PathError{Op: errOp, Path: errPath, Err: err}
+			return nil, nil, &os.PathError{Op: conf.Action, Path: i.TargetPath(), Err: err}
 		}
 
 		converted, err := f(src)
 		if err != nil {
-			return nil, nil, &os.PathError{Op: errOp, Path: errPath, Err: err}
+			return nil, nil, &os.PathError{Op: conf.Action, Path: i.TargetPath(), Err: err}
 		}
 
 		hasAlpha := !images.IsOpaque(converted)
@@ -414,16 +411,15 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 		}
 
 		ci := i.clone(converted)
-		ci.setBasePath(conf)
+		targetPath := i.relTargetPathFromConfig(conf)
+		ci.setTargetPath(targetPath)
 		ci.Format = conf.TargetFormat
 		ci.setMediaType(conf.TargetFormat.MediaType())
 
 		return ci, converted, nil
 	})
 	if err != nil {
-		if i.root != nil && i.root.getFileInfo() != nil {
-			return nil, fmt.Errorf("image %q: %w", i.root.getFileInfo().Meta().Filename, err)
-		}
+		return nil, err
 	}
 	return img, nil
 }
@@ -474,32 +470,25 @@ func (i *imageResource) clone(img image.Image) *imageResource {
 	}
 }
 
-func (i *imageResource) setBasePath(conf images.ImageConfig) {
-	i.getResourcePaths().relTargetDirFile = i.relTargetPathFromConfig(conf)
-}
-
 func (i *imageResource) getImageMetaCacheTargetPath() string {
 	const imageMetaVersionNumber = 1 // Increment to invalidate the meta cache
 
 	cfgHash := i.getSpec().imaging.Cfg.SourceHash
-	df := i.getResourcePaths().relTargetDirFile
-	if fi := i.getFileInfo(); fi != nil {
-		df.dir = filepath.Dir(fi.Meta().Path)
-	}
-	p1, _ := paths.FileAndExt(df.file)
-	h, _ := i.hash()
+	df := i.getResourcePaths()
+	p1, _ := paths.FileAndExt(df.File)
+	h := i.hash()
 	idStr := identity.HashString(h, i.size(), imageMetaVersionNumber, cfgHash)
-	p := path.Join(df.dir, fmt.Sprintf("%s_%s.json", p1, idStr))
-	return p
+	df.File = fmt.Sprintf("%s_%s.json", p1, idStr)
+	return df.TargetPath()
 }
 
-func (i *imageResource) relTargetPathFromConfig(conf images.ImageConfig) dirFile {
-	p1, p2 := paths.FileAndExt(i.getResourcePaths().relTargetDirFile.file)
+func (i *imageResource) relTargetPathFromConfig(conf images.ImageConfig) internal.ResourcePaths {
+	p1, p2 := paths.FileAndExt(i.getResourcePaths().File)
 	if conf.TargetFormat != i.Format {
 		p2 = conf.TargetFormat.DefaultExtension()
 	}
 
-	h, _ := i.hash()
+	h := i.hash()
 	idStr := fmt.Sprintf("_hu%s_%d", h, i.size())
 
 	// Do not change for no good reason.
@@ -526,8 +515,8 @@ func (i *imageResource) relTargetPathFromConfig(conf images.ImageConfig) dirFile
 		idStr = ""
 	}
 
-	return dirFile{
-		dir:  i.getResourcePaths().relTargetDirFile.dir,
-		file: fmt.Sprintf("%s%s_%s%s", p1, idStr, key, p2),
-	}
+	rp := i.getResourcePaths()
+	rp.File = fmt.Sprintf("%s%s_%s%s", p1, idStr, key, p2)
+
+	return rp
 }

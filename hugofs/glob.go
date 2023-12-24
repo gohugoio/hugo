@@ -31,6 +31,9 @@ func Glob(fs afero.Fs, pattern string, handle func(fi FileMetaInfo) (bool, error
 		return nil
 	}
 	root := glob.ResolveRootDir(pattern)
+	if !strings.HasPrefix(root, "/") {
+		root = "/" + root
+	}
 	pattern = strings.ToLower(pattern)
 
 	g, err := glob.GetGlob(pattern)
@@ -44,7 +47,7 @@ func Glob(fs afero.Fs, pattern string, handle func(fi FileMetaInfo) (bool, error
 	// Signals that we're done.
 	done := errors.New("done")
 
-	wfn := func(p string, info FileMetaInfo, err error) error {
+	wfn := func(p string, info FileMetaInfo) error {
 		p = glob.NormalizePath(p)
 		if info.IsDir() {
 			if !hasSuperAsterisk {
@@ -69,11 +72,13 @@ func Glob(fs afero.Fs, pattern string, handle func(fi FileMetaInfo) (bool, error
 		return nil
 	}
 
-	w := NewWalkway(WalkwayConfig{
-		Root:   root,
-		Fs:     fs,
-		WalkFn: wfn,
-	})
+	w := NewWalkway(
+		WalkwayConfig{
+			Root:           root,
+			Fs:             fs,
+			WalkFn:         wfn,
+			FailOnNotExist: true,
+		})
 
 	err = w.Walk()
 

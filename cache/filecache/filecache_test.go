@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
@@ -86,17 +85,8 @@ dir = ":cacheDir/c"
 		cache := caches.Get("GetJSON")
 		c.Assert(cache, qt.Not(qt.IsNil))
 
-		bfs, ok := cache.Fs.(*afero.BasePathFs)
-		c.Assert(ok, qt.Equals, true)
-		filename, err := bfs.RealPath("key")
-		c.Assert(err, qt.IsNil)
-
 		cache = caches.Get("Images")
 		c.Assert(cache, qt.Not(qt.IsNil))
-		bfs, ok = cache.Fs.(*afero.BasePathFs)
-		c.Assert(ok, qt.Equals, true)
-		filename, _ = bfs.RealPath("key")
-		c.Assert(filename, qt.Equals, filepath.FromSlash("_gen/images/key"))
 
 		rf := func(s string) func() (io.ReadCloser, error) {
 			return func() (io.ReadCloser, error) {

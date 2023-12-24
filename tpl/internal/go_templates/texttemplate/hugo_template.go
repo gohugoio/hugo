@@ -1,4 +1,4 @@
-// Copyright 2022 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -58,23 +58,6 @@ type executer struct {
 func NewExecuter(helper ExecHelper) Executer {
 	return &executer{helper: helper}
 }
-
-type (
-	pageContextKeyType     string
-	hasLockContextKeyType  string
-	stackContextKeyType    string
-	callbackContextKeyType string
-)
-
-const (
-	// The data page passed to ExecuteWithContext gets stored with this key.
-	PageContextKey = pageContextKeyType("page")
-	// Used in partialCached to signal to nested templates that a lock is already taken.
-	HasLockContextKey = hasLockContextKeyType("hasLock")
-
-	// Used to pass down a callback function to nested templates.
-	CallbackContextKey = callbackContextKeyType("callback")
-)
 
 // Note: The context is currently not fully implemented in Hugo. This is a work in progress.
 func (t *executer) ExecuteWithContext(ctx context.Context, p Preparer, wr io.Writer, data any) error {

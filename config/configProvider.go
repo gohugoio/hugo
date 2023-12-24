@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/common/urls"
 	"github.com/gohugoio/hugo/langs"
@@ -30,6 +31,7 @@ type AllProvider interface {
 	LanguagePrefix() string
 	BaseURL() urls.BaseURL
 	BaseURLLiveReload() urls.BaseURL
+	PathParser() paths.PathParser
 	Environment() string
 	IsMultihost() bool
 	IsMultiLingual() bool
@@ -54,6 +56,7 @@ type AllProvider interface {
 	BuildFuture() bool
 	BuildDrafts() bool
 	Running() bool
+	Watching() bool
 	PrintUnusedTemplates() bool
 	EnableMissingTranslationPlaceholders() bool
 	TemplateMetrics() bool

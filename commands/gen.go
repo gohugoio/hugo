@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ See https://xyproto.github.io/splash/docs/all.html for a preview of the availabl
 				}
 				if found, _ := helpers.Exists(genmandir, hugofs.Os); !found {
 					r.Println("Directory", genmandir, "does not exist, creating...")
-					if err := hugofs.Os.MkdirAll(genmandir, 0777); err != nil {
+					if err := hugofs.Os.MkdirAll(genmandir, 0o777); err != nil {
 						return err
 					}
 				}
@@ -150,7 +150,7 @@ url: %s
 				}
 				if found, _ := helpers.Exists(gendocdir, hugofs.Os); !found {
 					r.Println("Directory", gendocdir, "does not exist, creating...")
-					if err := hugofs.Os.MkdirAll(gendocdir, 0777); err != nil {
+					if err := hugofs.Os.MkdirAll(gendocdir, 0o777); err != nil {
 						return err
 					}
 				}
@@ -177,7 +177,6 @@ url: %s
 				cmd.PersistentFlags().SetAnnotation("dir", cobra.BashCompSubdirsInDir, []string{})
 			},
 		}
-
 	}
 
 	var docsHelperTarget string
@@ -241,7 +240,6 @@ url: %s
 			newDocsHelper(),
 		},
 	}
-
 }
 
 type genCommand struct {

@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ func GetTestConfigs(fs afero.Fs, cfg config.Provider) *allconfig.Configs {
 	// Make sure that the workingDir exists.
 	workingDir := cfg.GetString("workingDir")
 	if workingDir != "" {
-		if err := fs.MkdirAll(workingDir, 0777); err != nil {
+		if err := fs.MkdirAll(workingDir, 0o777); err != nil {
 			panic(err)
 		}
 	}
@@ -46,7 +46,6 @@ func GetTestConfigs(fs afero.Fs, cfg config.Provider) *allconfig.Configs {
 		panic(err)
 	}
 	return configs
-
 }
 
 func GetTestConfig(fs afero.Fs, cfg config.Provider) config.AllProvider {

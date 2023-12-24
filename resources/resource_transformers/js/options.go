@@ -21,11 +21,12 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/spf13/afero"
 
 	"github.com/evanw/esbuild/pkg/api"
 
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/media"
 	"github.com/mitchellh/mapstructure"
@@ -113,7 +114,7 @@ func decodeOptions(m map[string]any) (Options, error) {
 	}
 
 	if opts.TargetPath != "" {
-		opts.TargetPath = helpers.ToSlashTrimLeading(opts.TargetPath)
+		opts.TargetPath = paths.ToSlashTrimLeading(opts.TargetPath)
 	}
 
 	opts.Target = strings.ToLower(opts.Target)
@@ -203,7 +204,7 @@ func resolveComponentInAssets(fs afero.Fs, impPath string) *hugofs.FileMeta {
 	return m
 }
 
-func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
+func createBuildPlugins(depsManager identity.Manager, c *Client, opts Options) ([]api.Plugin, error) {
 	fs := c.rs.Assets
 
 	resolveImport := func(args api.OnResolveArgs) (api.OnResolveResult, error) {
@@ -224,6 +225,7 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 				// ESBuild resolve this.
 				return api.OnResolveResult{}, nil
 			}
+
 			relDir = filepath.Dir(rel)
 		} else {
 			relDir = opts.sourceDir
@@ -238,6 +240,8 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 		m := resolveComponentInAssets(fs.Fs, impPath)
 
 		if m != nil {
+			depsManager.AddIdentity(m.PathInfo)
+
 			// Store the source root so we can create a jsconfig.json
 			// to help IntelliSense when the build is done.
 			// This should be a small number of elements, and when

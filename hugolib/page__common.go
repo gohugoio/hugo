@@ -19,20 +19,13 @@ import (
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/compare"
 	"github.com/gohugoio/hugo/lazy"
+	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/navigation"
 	"github.com/gohugoio/hugo/output/layouts"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/gohugoio/hugo/source"
 )
-
-type treeRefProvider interface {
-	getTreeRef() *contentTreeRef
-}
-
-func (p *pageCommon) getTreeRef() *contentTreeRef {
-	return p.treeRef
-}
 
 type nextPrevProvider interface {
 	getNextPrev() *nextPrev
@@ -55,9 +48,6 @@ type pageCommon struct {
 	m *pageMeta
 
 	sWrapped page.Site
-
-	bucket  *pagesMapBucket
-	treeRef *contentTreeRef
 
 	// Lazily initialized dependencies.
 	init *lazy.Init
@@ -87,7 +77,7 @@ type pageCommon struct {
 	page.TreeProvider
 	resource.LanguageProvider
 	resource.ResourceDataProvider
-	resource.ResourceMetaProvider
+	resource.ResourceNameTitleProvider
 	resource.ResourceParamsProvider
 	resource.ResourceTypeProvider
 	resource.MediaTypeProvider
@@ -101,11 +91,8 @@ type pageCommon struct {
 	layoutDescriptor     layouts.LayoutDescriptor
 	layoutDescriptorInit sync.Once
 
-	// The parsed page content.
-	pageContent
-
-	// Keeps track of the shortcodes on a page.
-	shortcodeState *shortcodeHandler
+	// The source and the parsed page content.
+	content *cachedContent
 
 	// Set if feature enabled and this is in a Git repo.
 	gitInfo    source.GitInfo
@@ -121,38 +108,10 @@ type pageCommon struct {
 	// Internal use
 	page.InternalDependencies
 
-	// The children. Regular pages will have none.
-	*pagePages
-
-	// Any bundled resources
-	resources            resource.Resources
-	resourcesInit        sync.Once
-	resourcesPublishInit sync.Once
-
-	translations    page.Pages
-	allTranslations page.Pages
-
-	// Calculated an cached translation mapping key
-	translationKey     string
-	translationKeyInit sync.Once
-
-	// Will only be set for bundled pages.
-	parent *pageState
-
-	// Set in fast render mode to force render a given page.
-	forceRender bool
+	contentConverterInit sync.Once
+	contentConverter     converter.Converter
 }
 
 func (p *pageCommon) Store() *maps.Scratch {
 	return p.store
-}
-
-type pagePages struct {
-	pagesInit sync.Once
-	pages     page.Pages
-
-	regularPagesInit          sync.Once
-	regularPages              page.Pages
-	regularPagesRecursiveInit sync.Once
-	regularPagesRecursive     page.Pages
 }

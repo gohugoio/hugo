@@ -14,6 +14,7 @@
 package hugio
 
 import (
+	"bytes"
 	"io"
 	"strings"
 )
@@ -57,3 +58,22 @@ func NewReadSeekerNoOpCloser(r ReadSeeker) ReadSeekerNoOpCloser {
 func NewReadSeekerNoOpCloserFromString(content string) ReadSeekerNoOpCloser {
 	return ReadSeekerNoOpCloser{strings.NewReader(content)}
 }
+
+// NewReadSeekerNoOpCloserFromString uses strings.NewReader to create a new ReadSeekerNoOpCloser
+// from the given bytes slice.
+func NewReadSeekerNoOpCloserFromBytes(content []byte) ReadSeekerNoOpCloser {
+	return ReadSeekerNoOpCloser{bytes.NewReader(content)}
+}
+
+// NewReadSeekCloser creates a new ReadSeekCloser from the given ReadSeeker.
+// The ReadSeeker will be seeked to the beginning before returned.
+func NewOpenReadSeekCloser(r ReadSeekCloser) OpenReadSeekCloser {
+	return func() (ReadSeekCloser, error) {
+		r.Seek(0, io.SeekStart)
+		return r, nil
+	}
+}
+
+// OpenReadSeekCloser allows setting some other way (than reading from a filesystem)
+// to open or create a ReadSeekCloser.
+type OpenReadSeekCloser func() (ReadSeekCloser, error)

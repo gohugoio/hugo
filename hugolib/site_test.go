@@ -419,7 +419,6 @@ Main section page: {{ .RelPermalink }}
 }
 
 func TestMainSectionsMoveToSite(t *testing.T) {
-
 	t.Run("defined in params", func(t *testing.T) {
 		t.Parallel()
 
@@ -510,7 +509,6 @@ MainSections Params: [mysect]|
 MainSections Site method: [mysect]|
 	`)
 	})
-
 }
 
 // Issue #1176
@@ -718,7 +716,7 @@ func TestOrderedPages(t *testing.T) {
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
 
-	if s.getPage(kinds.KindSection, "sect").Pages()[1].Title() != "Three" || s.getPage(kinds.KindSection, "sect").Pages()[2].Title() != "Four" {
+	if s.getPageOldVersion(kinds.KindSection, "sect").Pages()[1].Title() != "Three" || s.getPageOldVersion(kinds.KindSection, "sect").Pages()[2].Title() != "Four" {
 		t.Error("Pages in unexpected order.")
 	}
 
@@ -1011,7 +1009,7 @@ func TestRefLinking(t *testing.T) {
 	t.Parallel()
 	site := setupLinkingMockSite(t)
 
-	currentPage := site.getPage(kinds.KindPage, "level2/level3/start.md")
+	currentPage := site.getPageOldVersion(kinds.KindPage, "level2/level3/start.md")
 	if currentPage == nil {
 		t.Fatalf("failed to find current page in site")
 	}
@@ -1071,7 +1069,7 @@ func TestRefLinking(t *testing.T) {
 func checkLinkCase(site *Site, link string, currentPage page.Page, relative bool, outputFormat string, expected string, t *testing.T, i int) {
 	t.Helper()
 	if out, err := site.refLink(link, currentPage, relative, outputFormat); err != nil || out != expected {
-		t.Fatalf("[%d] Expected %q from %q to resolve to %q, got %q - error: %s", i, link, currentPage.Pathc(), expected, out, err)
+		t.Fatalf("[%d] Expected %q from %q to resolve to %q, got %q - error: %s", i, link, currentPage.Path(), expected, out, err)
 	}
 }
 
@@ -1199,7 +1197,7 @@ writeStats = true
 writeStats = false
 	`)
 
-	b.AssertDestinationExists("hugo_stats.json", false)
+	b.AssertFileExists("public/hugo_stats.json", false)
 
 	b = r(`
 [build.buildStats]
@@ -1245,8 +1243,7 @@ disableclasses = true
 [build.buildStats]
 enable = false
 	`)
-	b.AssertDestinationExists("hugo_stats.json", false)
-
+	b.AssertFileExists("public/hugo_stats.json", false)
 }
 
 func TestClassCollectorStress(t *testing.T) {

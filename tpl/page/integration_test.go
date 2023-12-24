@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -112,11 +112,11 @@ Bundled page: {{ $p2_1.Content }}
 -- layouts/shortcodes/shortcode.html --
 {{ if page.IsHome }}Shortcode {{ .Get 0 }} OK.{{ else }}Failed.{{ end }}
 -- layouts/sitemap.xml --
-HRE?{{ if eq page . }}Sitemap OK.{{ else }}Failed.{{ end }}
+{{ if eq page . }}Sitemap OK.{{ else }}Failed.{{ end }}
 -- layouts/robots.txt --
 {{ if eq page . }}Robots OK.{{ else }}Failed.{{ end }}
 -- layouts/sitemapindex.xml --
-{{ if not page }}SitemapIndex OK.{{ else }}Failed.{{ end }}
+{{ with page }}SitemapIndex OK: {{ .Kind }}{{ else }}Failed.{{ end }}
 
   `
 
@@ -167,15 +167,12 @@ Shortcode in bundled page OK.
 			b.AssertFileContent("public/page/1/index.html", `Alias OK.`)
 			b.AssertFileContent("public/page/2/index.html", `Page OK.`)
 			if multilingual {
-				b.AssertFileContent("public/sitemap.xml", `SitemapIndex OK.`)
+				b.AssertFileContent("public/sitemap.xml", `SitemapIndex OK: sitemapindex`)
 			} else {
 				b.AssertFileContent("public/sitemap.xml", `Sitemap OK.`)
 			}
-
 		})
-
 	}
-
 }
 
 // Issue 10791.
@@ -207,5 +204,23 @@ title: "P1"
 	).Build()
 
 	b.AssertFileContent("public/p1/index.html", "<nav id=\"TableOfContents\"></nav> \n<h1 id=\"heading-1\">Heading 1</h1>")
+}
 
+func TestFromStringRunning(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableLiveReload = true
+-- layouts/index.html --
+{{ with resources.FromString "foo" "{{ seq 3 }}" }}
+{{ with resources.ExecuteAsTemplate "bar" $ . }}
+	{{ .Content | safeHTML }}
+{{ end }}
+{{ end }}
+  `
+
+	b := hugolib.TestRunning(t, files)
+
+	b.AssertFileContent("public/index.html", "1\n2\n3")
 }

@@ -1,4 +1,4 @@
-// Copyright 2022 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -86,7 +86,6 @@ tags: ['T1']
 	b.AssertFileContent("public/en/tags/t1/index.html",
 		"<ul><li>T1-en</li></ul>",
 	)
-
 }
 
 // Issue #11538
@@ -112,7 +111,6 @@ func TestRenderStringBadMarkupOpt(t *testing.T) {
 	if !strings.Contains(err.Error(), want) {
 		t.Errorf("error msg must contain %q, error msg actually contains %q", want, err.Error())
 	}
-
 }
 
 // Issue #11547
