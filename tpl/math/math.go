@@ -18,6 +18,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"math/rand"
 	"reflect"
 	"sync/atomic"
 
@@ -155,6 +156,11 @@ func (ns *Namespace) Pow(n1, n2 any) (float64, error) {
 	}
 
 	return math.Pow(af, bf), nil
+}
+
+// Rand returns, as a float64, a pseudo-random number in the half-open interval [0.0,1.0).
+func (ns *Namespace) Rand() float64 {
+	return rand.Float64()
 }
 
 // Round returns the integer nearest to n, rounding half away from zero.

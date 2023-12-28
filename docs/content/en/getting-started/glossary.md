@@ -147,6 +147,16 @@ A numeric data type without a fractional component. For example, `42`.
 
 Software design and development efforts that enable [localization](#localization). See the [W3C definition](https://www.w3.org/International/questions/qa-i18n). Abbreviated i18n.
 
+###### interval
+
+An [interval](https://en.wikipedia.org/wiki/Interval_(mathematics)) is a range of numbers between two endpoints: closed, open, or half-open.
+
+- A _closed_ interval, denoted by brackets, includes its endpoints. For example, [0,&nbsp;1]&nbsp;is the interval where `0 <= x <= 1`.
+
+- An _open_ interval, denoted by parenthesis, excludes its endpoints. For example, (0,&nbsp;1)&nbsp;is the interval where `0 < x < 1`.
+
+- A _half-open_ interval includes only one of its endpoints. For example, (0,&nbsp;1]&nbsp;is the _left-open_ interval where `0 < x <= 1`, while [0,&nbsp;1)&nbsp;is the _right-open_ interval where `0 <= x < 1`.
+
 ###### kind
 
 See [page kind](#page-kind).
