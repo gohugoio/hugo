@@ -115,6 +115,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Rand,
+			nil,
+			[][2]string{
+				{"{{ math.Rand }}", "0.6312770459590062"},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Round,
 			nil,
 			[][2]string{

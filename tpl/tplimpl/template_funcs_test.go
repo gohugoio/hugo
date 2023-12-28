@@ -61,12 +61,10 @@ title: "**BatMan**"
 		ns := nsf(d)
 		for _, mm := range ns.MethodMappings {
 			for _, example := range mm.Examples {
-				if strings.Contains(example[0], "errorf") {
-					// This will fail the build, so skip for now.
-					continue
-				}
-				if strings.Contains(example[0], "transform.XMLEscape") {
-					// This will fail the build, so skip for now.
+				// These will fail the build, so skip.
+				if strings.Contains(example[0], "errorf") ||
+					strings.Contains(example[0], "transform.XMLEscape") ||
+					strings.Contains(example[0], "math.Rand") {
 					continue
 				}
 				templates = append(templates, example[0])
