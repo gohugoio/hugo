@@ -1,0 +1,14 @@
+{{ $_hugo_config := `{ "version": 1 }` }}
+
+{{ with .Get 0 }}
+  {{ $version := printf "v%v" (strings.TrimLeft "vV" .) }}
+  {{ $href := printf "https://github.com/gohugoio/hugo/releases/tag/%s" $version }}
+  <aside>
+    <div class="admonition-content bl bw2 b--dark-red" >
+      <p>Deprecated in <a href="{{ $href }}">{{ $version }}</a>.</p>
+      {{ $.Inner }}
+    </div>
+  </aside>
+{{ else }}
+  {{ errorf "The %q shortcode requires a single positional parameter indicating version. See %s" .Name .Position }}
+{{ end }}

@@ -306,13 +306,9 @@ When deprecating a function or method, add this to front matter:
 
 {{< code-toggle file=content/something/foo.md fm=true >}}
 expiryDate: 2024-10-30
-_build:
-  list: never
 {{< /code-toggle >}}
 
-Set the `expiryDate` to one year from the date of deprecation, and add a brief front matter comment to explain the settings.
-
-Users will be able to search for the page, but the page will not appear in any list views, including section menus.
+Set the `expiryDate` to one year from the date of deprecation, and add a brief front matter comment to explain the setting.
 
 ## GitHub workflow
 
