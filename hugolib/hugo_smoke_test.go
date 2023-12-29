@@ -339,70 +339,26 @@ func TestBenchmarkBaseline(t *testing.T) {
 	b.Assert(len(b.H.Sites[0].Pages()), qt.Equals, 197)
 	b.Assert(len(b.H.Sites[2].RegularPages()), qt.Equals, 158)
 	b.Assert(len(b.H.Sites[2].Pages()), qt.Equals, 194)
-
 }
 
 func BenchmarkBaseline(b *testing.B) {
-	b.Run("withrender", func(b *testing.B) {
-		cfg := IntegrationTestConfig{
-			T:           b,
-			TxtarString: benchmarkBaselineFiles(false),
-		}
-		builders := make([]*IntegrationTestBuilder, b.N)
+	cfg := IntegrationTestConfig{
+		T:           b,
+		TxtarString: benchmarkBaselineFiles(false),
+	}
+	builders := make([]*IntegrationTestBuilder, b.N)
 
-		for i := range builders {
-			builders[i] = NewIntegrationTestBuilder(cfg)
-		}
+	for i := range builders {
+		builders[i] = NewIntegrationTestBuilder(cfg)
+	}
 
-		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
-			builders[i].Build()
-		}
-	})
-
-	b.Run("skiprender", func(b *testing.B) {
-		cfg := IntegrationTestConfig{
-			T:           b,
-			TxtarString: benchmarkBaselineFiles(false),
-			BuildCfg: BuildCfg{
-				SkipRender: true,
-			},
-		}
-		builders := make([]*IntegrationTestBuilder, b.N)
-
-		for i := range builders {
-			builders[i] = NewIntegrationTestBuilder(cfg)
-		}
-
-		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
-			builders[i].Build()
-		}
-	})
-
-	b.Run("skiprender leaf", func(b *testing.B) {
-		cfg := IntegrationTestConfig{
-			T:           b,
-			TxtarString: benchmarkBaselineFiles(false),
-			BuildCfg: BuildCfg{
-				SkipRender: true,
-			},
-		}
-		builders := make([]*IntegrationTestBuilder, b.N)
-
-		for i := range builders {
-			builders[i] = NewIntegrationTestBuilder(cfg)
-		}
-
-		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
-			builders[i].Build()
-		}
-	})
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		builders[i].Build()
+	}
 }
 
 func benchmarkBaselineFiles(leafBundles bool) string {
-
 	rnd := rand.New(rand.NewSource(32))
 
 	files := `
