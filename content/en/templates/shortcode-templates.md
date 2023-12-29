@@ -155,7 +155,7 @@ While you can create shortcode templates that accept both positional and named p
 
 You can also use the variable `.Page` to access all the normal [page variables][pagevars].
 
-A shortcodes can also be nested. In a nested shortcode, you can access the parent shortcode context with [`.Parent` variable][shortcodesvars]. This can be very useful for inheritance of common shortcode parameters from the root.
+Shortcodes can also be nested. In a nested shortcode, you can access the parent shortcode context with the [`.Parent`] shortcode method. This can be very useful for inheritance of common shortcode parameters from the root.
 
 ### Checking for existence
 
@@ -307,7 +307,7 @@ The rendered output of the HTML example code block will be as follows:
 
 ### Nested shortcode: image gallery
 
-Hugo's [`.Parent` shortcode variable][parent] provides access to the parent shortcode context when the shortcode in question is called within the context of a *parent* shortcode. This provides an inheritance model for common shortcode parameters.
+Hugo's [`.Parent`] shortcode method provides access to the parent shortcode context when the shortcode in question is called within the context of a *parent* shortcode. This provides an inheritance model for common shortcode parameters.
 
 The following example is contrived but demonstrates the concept. Assume you have a `gallery` shortcode that expects one named `class` parameter:
 
@@ -350,7 +350,7 @@ This will output the following HTML. Note how the first two `img` shortcodes inh
 
 ## Error handling in shortcodes
 
-Use the [errorf](/functions/fmt/errorf) template func and [.Position](/variables/shortcode/) variable to get useful error messages in shortcodes:
+Use the [errorf](/functions/fmt/errorf) template function and [`.Position`] shortcode method to get useful error messages in shortcodes:
 
 ```sh
 {{ with .Get "name" }}
@@ -406,8 +406,8 @@ The same inline shortcode can be reused later in the same content file, with dif
 [hugosc]: /content-management/shortcodes/#using-hugo-s-built-in-shortcodes
 [lookup order]: /templates/lookup-order/
 [pagevars]: /variables/page/
-[parent]: /variables/shortcode/
-[shortcodesvars]: /variables/shortcode/
+[`.Parent`]: /methods/shortcode/parent/
+[`.Position`]: /methods/shortcode/position/
 [spfscs]: https://github.com/spf13/spf13.com/tree/master/layouts/shortcodes
 [vimeoexample]: #single-flexible-example-vimeo
 [youtubeshortcode]: /content-management/shortcodes/#youtube
