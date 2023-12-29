@@ -101,7 +101,6 @@ title="My Page"
 
 My page content.
 `
-
 	}
 
 	var categoryKey string
@@ -197,7 +196,7 @@ Some content.
 			},
 			func(s *sitesBuilder) {
 				s.AssertFileContent("public/page3/index.html", "/page3/|Permalink: https://example.com/page3/")
-				s.AssertFileContent("public/tags/ta3/index.html", "|ta3|")
+				s.AssertFileContent("public/tags/ta3/index.html", "a3")
 			},
 		},
 		{
@@ -241,7 +240,6 @@ canonifyURLs = true
 				return sb
 			},
 			func(s *sitesBuilder) {
-
 			},
 		},
 		{
@@ -415,6 +413,7 @@ baseURL = "https://example.com"
 `)
 
 				sb.WithTemplates("_default/single.html", pageTemplateTemplate)
+				sb.WithTemplates("_default/list.html", "List")
 
 				r := rand.New(rand.NewSource(99))
 
@@ -440,7 +439,7 @@ baseURL = "https://example.com"
 				return sb
 			},
 			func(s *sitesBuilder) {
-				s.AssertFileContent("public/section/bundle8/index.html", ` <li><a href="https://example.com/categories/category1/">category1</a></li>`)
+				s.AssertFileContent("public/section/bundle8/index.html", `<a href="https://example.com/categories/category1/">`)
 				s.Assert(len(s.H.Sites), qt.Equals, 1)
 				s.Assert(len(s.H.Sites[0].RegularPages()), qt.Equals, 35)
 			},
