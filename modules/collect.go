@@ -126,7 +126,7 @@ func (m ModulesConfig) HasConfigFile() bool {
 func (m *ModulesConfig) setActiveMods(logger loggers.Logger) error {
 	for _, mod := range m.AllModules {
 		if !mod.Config().HugoVersion.IsValid() {
-			logger.Warnf(`Module %q is not compatible with this Hugo version; run "hugo mod graph" for more information.`, mod.Path())
+			logger.Warnf(`Module %q is not compatible with this Hugo version: %s; run "hugo mod graph" for more information.`, mod.Path(), mod.Config().HugoVersion)
 		}
 	}
 
