@@ -5,18 +5,12 @@ categories: []
 keywords: []
 action:
   aliases: [seq]
+  related: []
   returnType: '[]int'
   signatures:
     - collections.Seq LAST
     - collections.Seq FIRST LAST
     - collections.Seq FIRST INCREMENT LAST
-related:
-  - collections.Apply
-  - collections.Delimit
-  - collections.In
-  - collections.Reverse
-  - collections.Seq
-  - collections.Slice
 aliases: [/functions/seq]
 ---
 

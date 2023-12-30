@@ -5,16 +5,11 @@ categories: []
 keywords: []
 action:
   aliases: [where]
+  related: []
   returnType: any
   signatures: ['collections.Where COLLECTION KEY [OPERATOR] VALUE']
-related:
-  - collections.Dictionary
-  - collections.Group
-  - collections.Index
-  - collections.IsSet
-  - collections.Where 
-aliases: [/functions/where]
 toc: true
+aliases: [/functions/where]
 ---
 
 The `where` function returns the given collection, removing elements that do not satisfy the comparison condition. The comparison condition is comprised of the `KEY`, `OPERATOR`, and `VALUE` arguments:

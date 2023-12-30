@@ -8,6 +8,7 @@ action:
   related:
     - methods/page/scratch
     - methods/page/store
+    - methods/shortcode/scratch
   returnType: maps.Scratch
   signatures: [collections.NewScratch ]
 ---

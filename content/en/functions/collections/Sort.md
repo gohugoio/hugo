@@ -5,13 +5,12 @@ categories: []
 keywords: []
 action:
   aliases: [sort]
+  related:
+    - functions/collections/Reverse
+    - functions/collections/Shuffle
+    - functions/collections/Uniq
   returnType: any
   signatures: ['collections.Sort COLLECTION [KEY] [ORDER]']
-related:
-  - collections.Reverse
-  - collections.Shuffle
-  - collections.Sort
-  - collections.Uniq
 toc: true
 aliases: [/functions/sort]
 ---

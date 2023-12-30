@@ -6,11 +6,6 @@ keywords: []
 action:
   aliases: [delimit]
   related:
-    - functions/collections/Apply
-    - functions/collections/In
-    - functions/collections/Reverse
-    - functions/collections/Seq
-    - functions/collections/Slice
     - functions/strings/Split
   returnType: string
   signatures: ['collections.Delimit COLLECTION DELIMITER [LAST]']

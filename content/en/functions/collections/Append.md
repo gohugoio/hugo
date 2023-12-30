@@ -7,7 +7,6 @@ action:
   aliases: [append]
   related:
     - functions/collections/Merge
-    - functions/collections/Slice
   returnType: any
   signatures:
     - collections.Append ELEMENT [ELEMENT...] COLLECTION
