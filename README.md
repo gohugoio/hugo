@@ -99,6 +99,14 @@ Build the extended edition:
 CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@latest
 ```
 
+Build the standard edition from latest git:
+
+```text
+git clone https://github.com/gohugoio/hugo
+cd hugo
+sudo go install
+```
+
 ## Documentation
 
 Hugo's [documentation] includes installation instructions, a quick start guide, conceptual explanations, reference information, and examples.
