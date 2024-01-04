@@ -1,6 +1,6 @@
 ---
 title: resources.ExecuteAsTemplate
-description: Creates a resource from a Go template, parsed and executed with the given context.
+description: Returns a resource created from a Go template, parsed and executed with the given context.
 categories: []
 keywords: []
 action:
@@ -11,7 +11,13 @@ action:
   signatures: [resources.ExecuteAsTemplate TARGETPATH CONTEXT RESOURCE]
 ---
 
-Hugo publishes the resource to the target path when you call its`.Publish`, `.Permalink`, or `.RelPermalink` method. The resource is cached, using the target path as the cache key.
+The `resources.ExecuteAsTemplate` function returns a resource created from a Go template, parsed and executed with the given context, caching the result using the target path as its cache key.
+
+Hugo publishes the resource to the target path when you call its [`Publish`], [`Permalink`], or [`RelPermalink`] methods.
+
+[`publish`]: /methods/resource/publish
+[`permalink`]: /methods/resource/permalink
+[`relpermalink`]: /methods/resource/relpermalink
 
 Let's say you have a CSS file that you wish to populate with values from your site configuration:
 
