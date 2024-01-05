@@ -81,7 +81,7 @@ To create a slice of slices, starting with an empty slice:
 {{ $s = $s | append (slice (slice "a" "b")) }}
 {{ $s }} → [[a b]]
 
-{{ $s = $s | append  (slice "c" "d") }}
+{{ $s = $s | append (slice "c" "d") }}
 {{ $s }} → [[a b] [c d]]
 ```
 
