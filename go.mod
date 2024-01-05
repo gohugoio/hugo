@@ -5,7 +5,7 @@ require (
 	github.com/PuerkitoBio/purell v1.1.1
 	github.com/alecthomas/chroma/v2 v2.12.0
 	github.com/armon/go-radix v1.0.0
-	github.com/aws/aws-sdk-go v1.48.6
+	github.com/aws/aws-sdk-go v1.49.15
 	github.com/bep/clocks v0.5.0
 	github.com/bep/debounce v1.2.0
 	github.com/bep/gitmap v1.1.2
