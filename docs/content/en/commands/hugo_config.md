@@ -9,7 +9,7 @@ Print the site configuration
 
 ### Synopsis
 
-Print the site configuration, both default and custom settings.
+Print the site configuration, both default and custom settings, and install modules from "go.mod".
 
 ```
 hugo config [command] [flags]

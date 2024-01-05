@@ -40,6 +40,7 @@ Go Modules, or a folder inside the themes directory, in that order.
 
 See https://gohugo.io/hugo-modules/ for more information.
 
+To install Hugo modules from "go.mod" without updating them, run [hugo config](/commands/hugo_config/).
 
 
 ```
