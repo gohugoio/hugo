@@ -84,8 +84,8 @@ Hugo is available in two editions: standard and extended. With the extended edit
 
 Prerequisites to build Hugo from source:
 
-- Standard edition: Go 1.19 or later
-- Extended edition: Go 1.19 or later, and GCC
+- Standard edition: Go 1.20 or later
+- Extended edition: Go 1.20 or later, and GCC
 
 Build the standard edition:
 
