@@ -49,6 +49,13 @@ var Default = Config{
 			EastAsianLineBreaksStyle: "simple",
 			EscapedSpace:             false,
 		},
+		Passthrough: Passthrough{
+			Enable: false,
+			Delimiters: DelimitersConfig{
+				Inline: [][]string{},
+				Block:  [][]string{},
+			},
+		},
 	},
 	Renderer: Renderer{
 		Unsafe: false,
@@ -75,6 +82,7 @@ type Extensions struct {
 	Typographer    Typographer
 	Footnote       bool
 	DefinitionList bool
+	Passthrough    Passthrough
 
 	// GitHub flavored markdown
 	Table           bool
@@ -110,6 +118,28 @@ type Typographer struct {
 	RightAngleQuote string
 	// Value used for apostrophe.
 	Apostrophe string
+}
+
+// Passthrough hold passthrough configuration.
+// github.com/hugoio/hugo-goldmark-extensions/passthrough
+type Passthrough struct {
+	// Whether to enable the extension
+	Enable bool
+
+	// The delimiters to use for inline and block passthroughs.
+	Delimiters DelimitersConfig
+}
+
+type DelimitersConfig struct {
+	// The delimiters to use for inline passthroughs. Each entry in the list
+	// is a size-2 list of strings, where the first string is the opening delimiter
+	// and the second string is the closing delimiter, e.g.,
+	//
+	// [["$", "$"], ["\\(", "\\)"]]
+	Inline [][]string
+
+	// The delimiters to use for block passthroughs. Same format as Inline.
+	Block [][]string
 }
 
 type CJK struct {

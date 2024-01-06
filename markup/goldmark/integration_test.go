@@ -711,3 +711,103 @@ echo "hello";
 	b := hugolib.Test(t, files)
 	b.AssertFileContent("public/index.html", "<div class=foo><?php\necho \"hello\";\n?>\n</div>")
 }
+
+// Issue #10894
+func TestPassthroughInlineFences(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+[markup.goldmark.extensions.passthrough]
+enable = true
+[markup.goldmark.extensions.passthrough.delimiters]
+inline = [['$', '$'], ['\(', '\)']]
+-- content/p1.md --
+---
+title: "p1"
+---
+## LaTeX test
+
+Inline equation that would be mangled by default parser: $a^*=x-b^*$
+
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/p1/index.html", `
+		$a^*=x-b^*$
+	`)
+}
+
+func TestPassthroughBlockFences(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+[markup.goldmark.extensions.passthrough]
+enable = true
+[markup.goldmark.extensions.passthrough.delimiters]
+block = [['$$', '$$']]
+-- content/p1.md --
+---
+title: "p1"
+---
+## LaTeX test
+
+Block equation that would be mangled by default parser:
+
+$$a^*=x-b^*$$
+
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/p1/index.html", `
+		$$a^*=x-b^*$$
+	`)
+}
+
+func TestPassthroughWithAlternativeFences(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+[markup.goldmark.extensions.passthrough]
+enable = true
+[markup.goldmark.extensions.passthrough.delimiters]
+inline = [['(((', ')))']]
+block = [['%!%', '%!%']]
+-- content/p1.md --
+---
+title: "p1"
+---
+## LaTeX test
+
+Inline equation that would be mangled by default parser: (((a^*=x-b^*)))
+Inline equation that should be mangled by default parser: $a^*=x-b^*$
+
+Block equation that would be mangled by default parser:
+
+%!%
+a^*=x-b^*
+%!%
+
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/p1/index.html", `
+		(((a^*=x-b^*)))
+	`)
+	b.AssertFileContent("public/p1/index.html", `
+		$a^<em>=x-b^</em>$
+	`)
+	b.AssertFileContent("public/p1/index.html", `
+%!%
+a^*=x-b^*
+%!%
+	`)
+}
