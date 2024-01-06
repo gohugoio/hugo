@@ -1,5 +1,7 @@
 module github.com/gohugoio/hugo
 
+go 1.20
+
 require (
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
 	github.com/PuerkitoBio/purell v1.1.1
@@ -156,5 +158,3 @@ require (
 	howett.net/plist v1.0.0 // indirect
 	software.sslmate.com/src/go-pkcs12 v0.2.0 // indirect
 )
-
-go 1.18
