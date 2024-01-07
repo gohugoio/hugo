@@ -100,7 +100,7 @@ Level 6 markdown headings are styled as `dt` elements. This was implemented to s
 
 ## Code examples
 
-Indent code by two spaces. With examples of template code, include a space after opening action delimiters, and include a space before closing action delimeters.
+Indent code by two spaces. With examples of template code, include a space after opening action delimiters, and include a space before closing action delimiters.
 
 ### Fenced code blocks
 
