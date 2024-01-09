@@ -344,13 +344,13 @@ Closes #1234
 Closes #5678"
 ```
 
-Step 5
+Step 6
 : Push the new branch to your fork of the documentation repository.
 
-Step 6
+Step 7
 : Visit the [documentation repository] and create a pull request (PR).
 
-Step 7
+Step 8
 : A project maintainer will review your PR and may request changes. You may delete your branch after the maintainer merges your PR.
 
 [ATX]: https://spec.commonmark.org/0.30/#atx-headings
