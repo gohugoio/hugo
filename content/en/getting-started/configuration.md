@@ -239,7 +239,7 @@ Pass down down default configuration values (front matter) to pages in the conte
 {{% note %}}
 For a website in a single language, define the `[[cascade]]` in [Front Matter](/content-management/front-matter#front-matter-cascade). For a multilingual website, define the `[[cascade]]` in [Site Config](../../getting-started/configuration/#cascade).
 
-To remain consistent and prevent unexpected behaviour, do not mix these strategies.
+To remain consistent and prevent unexpected behavior, do not mix these strategies.
 {{% /note %}}
 
 ###### canonifyURLs
