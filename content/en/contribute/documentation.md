@@ -269,7 +269,7 @@ Use the "note" shortcode with `{{%/* */%}}` delimiters to call attention to impo
 Use the [`math.Mod`] function to control...
 
 [`math.Mod`]: /functions/math/mod/
-{{%/* /code */%}}
+{{%/* /note */%}}
 ```
 
 Rendered:
@@ -278,7 +278,7 @@ Rendered:
 Use the [`math.Mod`] function to control...
 
 [`math.Mod`]: /functions/math/mod/
-{{% /code %}}
+{{% /note %}}
 
 ## New features
 
