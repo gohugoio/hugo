@@ -1265,7 +1265,7 @@ config:
         precision: 0
       html:
         keepComments: false
-        keepConditionalComments: true
+        keepSpecialComments: true
         keepDefaultAttrVals: true
         keepDocumentTags: true
         keepEndTags: true
