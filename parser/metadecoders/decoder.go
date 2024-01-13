@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/herrors"
@@ -41,6 +42,10 @@ type Decoder struct {
 	// Comment, if not 0, is the comment character used in the CSV decoder. Lines beginning with the
 	// Comment character without preceding whitespace are ignored.
 	Comment rune
+
+	// If true, a quote may appear in an unquoted field and a non-doubled quote
+	// may appear in a quoted field. It defaults to false.
+	LazyQuotes bool
 }
 
 // OptionsKey is used in cache keys.
@@ -48,6 +53,7 @@ func (d Decoder) OptionsKey() string {
 	var sb strings.Builder
 	sb.WriteRune(d.Delimiter)
 	sb.WriteRune(d.Comment)
+	sb.WriteString(strconv.FormatBool(d.LazyQuotes))
 	return sb.String()
 }
 
@@ -205,6 +211,7 @@ func (d Decoder) unmarshalCSV(data []byte, v any) error {
 	r := csv.NewReader(bytes.NewReader(data))
 	r.Comma = d.Delimiter
 	r.Comment = d.Comment
+	r.LazyQuotes = d.LazyQuotes
 
 	records, err := r.ReadAll()
 	if err != nil {
