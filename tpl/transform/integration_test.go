@@ -107,3 +107,29 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 	_, err := b.BuildE()
 	b.Assert(err.Error(), qt.Contains, "error calling highlight: invalid Highlight option: 0")
 }
+
+// Issue #11884
+func TestUnmarshalCSVLazyDecoding(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- assets/pets.csv --
+name,description,age
+Spot,a nice dog,3
+Rover,"a big dog",5
+Felix,a "malicious" cat,7
+Bella,"an "evil" cat",9
+Scar,"a "dead cat",11
+-- layouts/index.html --
+{{ $opts := dict "lazyQuotes" true }}
+{{ $data := resources.Get "pets.csv" | transform.Unmarshal $opts }}
+{{ printf "%v" $data | safeHTML }}
+  `
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", `
+[[name description age] [Spot a nice dog 3] [Rover a big dog 5] [Felix a "malicious" cat 7] [Bella an "evil" cat 9] [Scar a "dead cat 11]]
+	`)
+}
