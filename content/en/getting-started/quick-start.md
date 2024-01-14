@@ -109,11 +109,11 @@ hugo new content posts/my-first-post.md
 Hugo created the file in the `content/posts` directory. Open the file with your editor.
 
 ```text
----
-title: "My First Post"
-date: 2022-11-20T09:03:20-08:00
-draft: true
----
++++
+title = 'My First Post'
+date = 2024-01-14T07:07:07+01:00
+draft = true
++++
 ```
 
 Notice the `draft` value in the [front matter] is `true`. By default, Hugo does not publish draft content when you build the site. Learn more about [draft, future, and expired content].
@@ -123,11 +123,11 @@ Add some [markdown] to the body of the post, but do not change the `draft` value
 [markdown]: https://commonmark.org/help/
 
 ```text
----
-title: "My First Post"
-date: 2022-11-20T09:03:20-08:00
-draft: true
----
++++
+title = 'My First Post'
+date = 2024-01-14T07:07:07+01:00
+draft = true
++++
 ## Introduction
 
 This is **bold** text, and this is *emphasized* text.
