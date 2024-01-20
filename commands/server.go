@@ -814,13 +814,13 @@ func (c *serverCommand) fixURL(baseURLFromConfig, baseURLFromFlag string, port i
 	}
 
 	if c.serverAppend {
-		if strings.Contains(u.Host, ":") {
-			u.Host, _, err = net.SplitHostPort(u.Host)
-			if err != nil {
-				return "", fmt.Errorf("failed to split baseURL hostport: %w", err)
-			}
+		_, p, e := net.SplitHostPort(u.Host)
+		if e != nil {
+			return "", fmt.Errorf("failed to split baseURL hostport: %w", e)
 		}
-		u.Host += fmt.Sprintf(":%d", port)
+		if p == "" {
+			u.Host = net.JoinHostPort(u.Hostname(), fmt.Sprintf(":%d", port))
+		}
 	}
 
 	return u.String(), nil
