@@ -5,7 +5,7 @@ categories: []
 keywords: []
 action:
   related: []
-  returnType: hugolib.pageState
+  returnType: page.Page
   signatures: [MENUENTRY.Page]
 ---
 
