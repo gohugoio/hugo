@@ -32,7 +32,7 @@ Hugo will test for equality if you do not provide an `OPERATOR` argument. For ex
 The where function takes three or four arguments. The `OPERATOR` argument is optional.
 
 COLLECTION
-: (`any`) Typically a page collection or a [slice] of [maps].
+: (`any`) A page collection or a [slice] of [maps].
 
 [maps]: /getting-started/glossary/#map
 [slice]: /getting-started/glossary/#slice
@@ -45,7 +45,7 @@ KEY
 ```
 
 [chain]: /getting-started/glossary/#chain
-
+Typically a
 OPERATOR
 : (`string`) The logical comparison [operator](#operators).
 
