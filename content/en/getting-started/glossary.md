@@ -216,6 +216,10 @@ Created by invoking the [`Alphabetical`] or [`ByCount`] method on a [taxonomy ob
 
 A directory that encapsulates both content and associated [resources](#resource). There are two types of page bundles: [leaf bundles](#leaf-bundle) and [branch bundles](#branch-bundle). See&nbsp;[details](/content-management/page-bundles/).
 
+###### page collection
+
+A slice of page objects.
+
 ###### page kind
 
 A classification of pages, one of `home`, `page`, `section`, `taxonomy`, or `term`. See&nbsp;[details](/templates/section-templates/#page-kinds).
