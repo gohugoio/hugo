@@ -34,7 +34,7 @@ hugo --enableGitInfo
 ```
 
 {{% note %}}
-When you set `enableGitInto` to `true`, or enable the feature with the command line flag, the last modification date for each content page will be the Author Date of the last commit for that file.
+When you set `enableGitInfo` to `true`, or enable the feature with the command line flag, the last modification date for each content page will be the Author Date of the last commit for that file.
 
 This is configurable. See&nbsp;[details].
 
