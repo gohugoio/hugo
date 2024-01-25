@@ -21,7 +21,7 @@ flex_box_interior_classes = "flex-auto w-100 w-40-l mr3 mb3 bg-white ba b--moon-
 #sidebar_direction = "sidebar_left"
 
 [social]
-twitter = "GoHugoIO"
+  twitter = "GoHugoIOv2"
 
 [render_hooks.link]
-errorLevel = 'warning' # ignore (default), warning, or error (fails the build)
+  errorLevel = 'warning' # ignore (default), warning, or error (fails the build)
