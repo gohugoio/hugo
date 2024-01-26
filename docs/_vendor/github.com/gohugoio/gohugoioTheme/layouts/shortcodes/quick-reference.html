@@ -1,5 +1,5 @@
 {{/*
-Renders the child sections of the given top-level section, listing each childs's immediate descendants.
+Renders the child sections of the given top-level section, listing each child's immediate descendants.
 
 @param {string} section The top-level section to render.
 @returns template.HTML
@@ -11,7 +11,7 @@ Renders the child sections of the given top-level section, listing each childs's
 {{ with .Get "section" }}
   {{ $section = . }}
 {{ else }}
-  {{ errorf "The %q shortcodes requires a 'section' parameter. See %s" .Name .Postion }}
+  {{ errorf "The %q shortcodes requires a 'section' parameter. See %s" .Name .Position }}
 {{ end }}
 
 {{/* Do not change the markdown indentation, and do not remove blank lines. */}}
@@ -24,7 +24,9 @@ Renders the child sections of the given top-level section, listing each childs's
     {{ range .Pages }}
       {{ $aliases := "" }}
       {{ if eq .Section "functions" }}
-        {{ $aliases = delimit .Params.action.aliases " or " }}
+        {{ with .Params.action.aliases }}
+          {{ $aliases = delimit . " or " }}
+        {{ end }}
       {{ end }}
 
 [{{ .LinkTitle }}]({{ .RelPermalink }}) {{ with $aliases }}({{ . }}){{ end }}
@@ -33,5 +35,5 @@ Renders the child sections of the given top-level section, listing each childs's
     {{ end }}
   {{ end }}
 {{ else }}
-  {{ errorf "The %q shortcodes was unable to find the %q section. See %s" .Name $section .Postion }}
+  {{ errorf "The %q shortcodes was unable to find the %q section. See %s" .Name $section .Position }}
 {{ end }}

@@ -5,13 +5,13 @@ categories: []
 keywords: []
 action:
   aliases: [symdiff]
+  related:
+    - functions/collections/Complement
+    - functions/collections/Intersect
+    - functions/collections/SymDiff
+    - functions/collections/Union
   returnType: any
   signatures: [COLLECTION | collections.SymDiff COLLECTION]
-related:
-  - collections.Complement
-  - collections.Intersect
-  - collections.SymDiff
-  - collections.Union
 aliases: [/functions/symdiff]
 ---
 

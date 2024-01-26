@@ -17,7 +17,7 @@ action:
 
 ## Usage
 
-Any CSS, JS, JSON, HTML, SVG or XML resource can be minified using `resources.Minify` which takes for argument the resource object.
+Any CSS, JS, JSON, HTML, SVG, or XML resource can be minified using `resources.Minify` which takes for argument the resource object.
 
 ```go-html-template
 {{ $css := resources.Get "css/main.css" }}

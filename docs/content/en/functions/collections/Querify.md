@@ -5,13 +5,12 @@ categories: []
 keywords: []
 action:
   aliases: [querify]
+  related:
+    - functions/go-template/urlquery.md
   returnType: string
   signatures:
     - collections.Querify VALUE [VALUE...]
     - collections.Querify COLLECTION
-related:
-  - collections.Querify
-  - urlquery
 aliases: [/functions/querify]
 ---
 

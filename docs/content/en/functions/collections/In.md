@@ -6,7 +6,6 @@ keywords: []
 action:
   aliases: [in]
   related:
-    - functions/collections/Slice
     - functions/strings/Contains
     - functions/strings/ContainsAny
     - functions/strings/ContainsNonSpace

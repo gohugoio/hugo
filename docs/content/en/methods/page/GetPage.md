@@ -6,7 +6,7 @@ keywords: []
 action:
   related:
     - methods/site/GetPage
-  returnType: hugolib.pageState
+  returnType: page.Page
   signatures: [PAGE.GetPage PATH]
 aliases: [/functions/getpage]
 ---

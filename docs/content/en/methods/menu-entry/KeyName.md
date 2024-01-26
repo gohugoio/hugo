@@ -12,13 +12,13 @@ action:
 In this menu definition, the second entry does not contain an `identifier`, so the `Identifier` method returns its `name` property instead:
 
 {{< code-toggle file=hugo >}}
-[[menu.main]]
+[[menus.main]]
 identifier = 'about'
 name = 'About'
 pageRef = '/about'
 weight = 10
 
-[[menu.main]]
+[[menus.main]]
 name = 'Contact'
 pageRef = '/contact'
 weight = 20

@@ -7,14 +7,14 @@ In this site configuration we enable rendering of [emoji shortcodes], and add em
 {{< code-toggle file=hugo >}}
 enableEmoji = true
 
-[[menu.main]]
+[[menus.main]]
 name = 'About'
 pageRef = '/about'
 post = ':point_left:'
 pre = ':point_right:'
 weight = 10
 
-[[menu.main]]
+[[menus.main]]
 name = 'Contact'
 pageRef = '/contact'
 post = ':arrow_left:'

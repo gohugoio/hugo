@@ -17,7 +17,7 @@ Use the `openapi3.Unmarshal` function with [global], [page], or [remote] resourc
 [remote]: /getting-started/glossary/#remote-resource
 [OpenAPI]: https://www.openapis.org/
 
-For example, to work with a remote [OpenAPI] defintion:
+For example, to work with a remote [OpenAPI] definition:
 
 ```go-html-template
 {{ $url := "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.0/petstore.json" }}

@@ -21,8 +21,9 @@ To work with global or remote resources, see the [`resources`] functions.
 
 ## Methods
 
-ByType
-: (`resource.Resources`) Returns a collection of page resources of the given [media type], or nil if none found. The media type is typically one of `image`, `text`, `audio`, `video`, or `application`.
+###### ByType
+
+(`resource.Resources`) Returns a collection of page resources of the given [media type], or nil if none found. The media type is typically one of `image`, `text`, `audio`, `video`, or `application`.
 
 ```go-html-template
 {{ range .Resources.ByType "image" }}
@@ -32,8 +33,9 @@ ByType
 
 When working with global resources instead of page resources, use the [`resources.ByType`] function.
 
-Get
-: (`resource.Resource`) Returns a page resource from the given path, or nil if none found.
+###### Get
+
+(`resource.Resource`) Returns a page resource from the given path, or nil if none found.
 
 ```go-html-template
 {{ with .Resources.Get "images/a.jpg" }}
@@ -43,8 +45,9 @@ Get
 
 When working with global resources instead of page resources, use the [`resources.Get`] function.
 
-GetMatch
-: (`resource.Resource`) Returns the first page resource from paths matching the given [glob pattern], or nil if none found.
+###### GetMatch
+
+(`resource.Resource`) Returns the first page resource from paths matching the given [glob pattern], or nil if none found.
 
 ```go-html-template
 {{ with .Resources.GetMatch "images/*.jpg" }}
@@ -54,8 +57,9 @@ GetMatch
 
 When working with global resources instead of page resources, use the [`resources.GetMatch`] function.
 
-Match
-: (`resource.Resources`) Returns a collection of page resources from paths matching the given [glob pattern], or nil if none found.
+###### Match
+
+(`resource.Resources`) Returns a collection of page resources from paths matching the given [glob pattern], or nil if none found.
 
 ```go-html-template
 {{ range .Resources.Match "images/*.jpg" }}

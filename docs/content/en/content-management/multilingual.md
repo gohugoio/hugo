@@ -71,7 +71,7 @@ disabled
 : (`bool`) If `true`, Hugo will not render content for this language. Default is `false`.
 
 languageCode
-: (`string`) The language tag as defined by [RFC 5646]. This value may include upper and lower case characters, hyphens or underscores, and does not affect localization or URLs. Hugo uses this value to populate the `language` element in the [built-in RSS template], and the `lang` attribute of the `html` element in the [built-in alias template]. Examples:
+: (`string`) The language tag as defined by [RFC 5646]. This value may include upper and lower case characters, hyphens, or underscores, and does not affect localization or URLs. Hugo uses this value to populate the `language` element in the [built-in RSS template], and the `lang` attribute of the `html` element in the [built-in alias template]. Examples:
 
 - `en`
 - `en-GB`
@@ -546,12 +546,12 @@ languageCode = 'de-DE'
 languageName = 'Deutsch'
 weight = 1
 
-[[languages.de.menu.main]]
+[[languages.de.menus.main]]
 name = 'Produkte'
 pageRef = '/products'
 weight = 10
 
-[[languages.de.menu.main]]
+[[languages.de.menus.main]]
 name = 'Leistungen'
 pageRef = '/services'
 weight = 20
@@ -561,12 +561,12 @@ languageCode = 'en-US'
 languageName = 'English'
 weight = 2
 
-[[languages.en.menu.main]]
+[[languages.en.menus.main]]
 name = 'Products'
 pageRef = '/products'
 weight = 10
 
-[[languages.en.menu.main]]
+[[languages.en.menus.main]]
 name = 'Services'
 pageRef = '/services'
 weight = 20
@@ -579,13 +579,12 @@ With a more complex menu structure, create a [configuration directory] and split
 ```text
 config/
 └── _default/
-    ├── menus/
-    │  ├── menu.de.toml
-    │  └── menu.en.toml
+    ├── menus.de.toml
+    ├── menus.en.toml
     └── hugo.toml
 ```
 
-{{< code-toggle file=config/_default/menus/menu.de >}}
+{{< code-toggle file=config/_default/menus.de >}}
 [[main]]
 name = 'Produkte'
 pageRef = '/products'
@@ -596,7 +595,7 @@ pageRef = '/services'
 weight = 20
 {{< /code-toggle >}}
 
-{{< code-toggle file=config/_default/menus/menu.en >}}
+{{< code-toggle file=config/_default/menus.en >}}
 [[main]]
 name = 'Products'
 pageRef = '/products'
@@ -627,12 +626,12 @@ The `identifier` depends on how you define menu entries:
 For example, if you define menu entries in site configuration:
 
 {{< code-toggle file=hugo >}}
-[[menu.main]]
+[[menus.main]]
   identifier = 'products'
   name = 'Products'
   pageRef = '/products'
   weight = 10
-[[menu.main]]
+[[menus.main]]
   identifier = 'services'
   name = 'Services'
   pageRef = '/services'

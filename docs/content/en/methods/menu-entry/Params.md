@@ -12,21 +12,21 @@ action:
 When you define menu entries [in site configuration] or [in front matter], you can include a `params` key to attach additional information to the entry. For example:
 
 {{< code-toggle file=hugo >}}
-[[menu.main]]
+[[menus.main]]
 name = 'About'
 pageRef = '/about'
 weight = 10
 
-[[menu.main]]
+[[menus.main]]
 name = 'Contact'
 pageRef = '/contact'
 weight = 20
 
-[[menu.main]]
+[[menus.main]]
 name = 'Hugo'
 url = 'https://gohugo.io'
 weight = 30
-[menu.main.params]
+[menus.main.params]
   rel = 'external'
 {{< /code-toggle >}}
 

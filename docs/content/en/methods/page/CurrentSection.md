@@ -12,7 +12,7 @@ action:
     - methods/page/IsDescendant
     - methods/page/Parent
     - methods/page/Sections
-  returnType: hugolib.pageState
+  returnType: page.Page
   signatures: [PAGE.CurrentSection]
 ---
 

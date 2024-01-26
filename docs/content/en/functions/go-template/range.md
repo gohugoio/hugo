@@ -20,7 +20,7 @@ toc: true
 
 ```go-html-template
 {{ $s := slice "foo" "bar" "baz" }}
-{{ range $var }}
+{{ range $s }}
   {{ . }} → foo bar baz
 {{ end }}
 ```

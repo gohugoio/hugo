@@ -14,7 +14,7 @@ With this content:
 {{< code-toggle file=content/books/les-miserables.md fm=true >}}
 title = 'Les Misérables'
 author = 'Victor Hugo'
-published = 1862
+publication_year = 1862
 isbn = '978-0451419439'
 {{< /code-toggle >}}
 
