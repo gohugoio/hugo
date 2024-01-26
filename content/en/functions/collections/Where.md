@@ -46,7 +46,7 @@ KEY
 ```
 
 [chain]: /getting-started/glossary/#chain
-Typically a
+
 OPERATOR
 : (`string`) The logical comparison [operator](#operators).
 
