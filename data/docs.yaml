@@ -1051,6 +1051,11 @@ config:
         footnote: true
         linkify: true
         linkifyProtocol: https
+        passthrough:
+          delimiters:
+            block: []
+            inline: []
+          enable: false
         strikethrough: true
         table: true
         taskList: true
@@ -1265,11 +1270,12 @@ config:
         precision: 0
       html:
         keepComments: false
-        keepSpecialComments: true
+        keepConditionalComments: false
         keepDefaultAttrVals: true
         keepDocumentTags: true
         keepEndTags: true
         keepQuotes: false
+        keepSpecialComments: true
         keepWhitespace: false
         templateDelims:
         - ""
@@ -2954,6 +2960,11 @@ tpl:
         Description: ""
         Examples: null
     images:
+      AutoOrient:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       Brightness:
         Aliases: null
         Args: null
@@ -3327,6 +3338,14 @@ tpl:
         Args: null
         Description: ""
         Examples: null
+      Rand:
+        Aliases: null
+        Args: null
+        Description: Rand returns, as a float64, a pseudo-random number in the half-open
+          interval [0.0,1.0).
+        Examples:
+        - - '{{ math.Rand }}'
+          - "0.6312770459590062"
       Round:
         Aliases: null
         Args:
