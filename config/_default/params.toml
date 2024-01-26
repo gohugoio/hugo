@@ -1,6 +1,5 @@
-
 description = "The world’s fastest framework for building websites"
-## Setting this to true will add a "noindex" to *EVERY* page on the site..
+## Setting this to true will add a "noindex" to *EVERY* page on the site.
 removefromexternalsearch = false
 ## Gh repo for site footer (include trailing slash)
 ghrepo = "https://github.com/gohugoio/hugoDocs/"
@@ -12,6 +11,8 @@ ghdocsrepo = "https://github.com/gohugoio/hugoDocs/tree/master/docs"
 forum = "https://discourse.gohugo.io/"
 ## Google Tag Manager
 gtmid = ""
+## Setting this to true will load layouts/partials/math.html on every page on the site.
+math = false
 
 # First one is picked as the Twitter card image if not set on page.
 images = ["images/gohugoio-card.png"]
