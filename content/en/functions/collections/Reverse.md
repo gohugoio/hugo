@@ -5,15 +5,12 @@ categories: []
 keywords: []
 action:
   aliases: []
+  related:
+    - functions/collections/Sort
+    - functions/collections/Shuffle
+    - functions/collections/Uniq
   returnType: any
   signatures: [collections.Reverse COLLECTION]
-related:
-  - collections.Apply
-  - collections.Delimit
-  - collections.In
-  - collections.Reverse
-  - collections.Seq
-  - collections.Slice
 aliases: [/functions/collections.reverse]
 ---
 

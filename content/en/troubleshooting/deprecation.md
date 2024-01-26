@@ -16,13 +16,13 @@ When a project _deprecates_ something, they are telling its users:
 2. Use Thing Two instead.
 3. We're going to remove Thing One at some point in the future.
 
-[article]: https://en.wikipedia.org/wiki/Deprecation
+[reasons for deprecation]: https://en.wikipedia.org/wiki/Deprecation
 
-Think of deprecation as a statement of intent. This Wikipedia [article] describes common reasons for deprecation:
+Common [reasons for deprecation]:
 
-- The feature has been replaced by a more powerful alternative.
-- The feature contains a design flaw.
-- The feature is considered extraneous, and will be removed in the future in order to simplify the system as a whole.
+- A feature has been replaced by a more powerful alternative.
+- A feature contains a design flaw.
+- A feature is considered extraneous, and will be removed in the future in order to simplify the system as a whole.
 - A future version of the software will make major structural changes, making it impossible or impractical to support older features.
 - Standardization or increased consistency in naming.
 - A feature that once was available only independently is now combined with its co-feature.

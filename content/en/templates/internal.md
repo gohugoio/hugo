@@ -26,7 +26,7 @@ Hugo ships with an internal template supporting [Google Analytics 4].
 Provide your tracking ID in your configuration file:
 
 **Google Analytics 4 (gtag.js)**
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [services.googleAnalytics]
 ID = "G-MEASUREMENT_ID"
 {{</ code-toggle >}}

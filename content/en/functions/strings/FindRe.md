@@ -9,7 +9,7 @@ action:
     - functions/strings/FindRESubmatch
     - functions/strings/Replace
     - functions/strings/ReplaceRE
-  returnType: string
+  returnType: '[]string'
   signatures: ['strings.FindRE PATTERN INPUT [LIMIT]']
 aliases: [/functions/findre]
 ---

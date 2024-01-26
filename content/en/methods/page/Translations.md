@@ -63,8 +63,9 @@ And this template:
 {{ with .Translations }}
   <ul>
     {{ range . }}
-      {{ $lang := .Language.LanguageName}}
-      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }} ({{ $lang }})</a></li>
+      {{ $langName := or .Language.LanguageName .Language.Lang }}
+      {{ $langCode := or .Language.LanguageCode .Language.Lang }}
+      <li><a href="{{ .RelPermalink }}" hreflang="{{ $langCode }}">{{ .LinkTitle }} ({{ $langName }})</a></li>
     {{ end }}
   </ul>
 {{ end }}
@@ -74,8 +75,8 @@ Hugo will render this list on the "Book 1" page of the English site:
 
 ```html
 <ul>
-  <li><a href="/de/books/book-1/">Book 1 (Deutsch)</a></li>
-  <li><a href="/fr/books/book-1/">Book 1 (Français)</a></li>
+  <li><a href="/de/books/book-1/" hreflang="de-DE">Book 1 (Deutsch)</a></li>
+  <li><a href="/fr/books/book-1/" hreflang="fr-FR">Book 1 (Français)</a></li>
 </ul>
 ```
 
@@ -83,6 +84,6 @@ Hugo will render this list on the "Book 2" page of the English site:
 
 ```html
 <ul>
-  <li><a href="/de/books/book-1/">Book 1 (Deutsch)</a></li>
+  <li><a href="/de/books/book-1/" hreflang="de-DE">Book 1 (Deutsch)</a></li>
 </ul>
 ```

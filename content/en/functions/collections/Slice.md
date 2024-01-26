@@ -5,16 +5,10 @@ categories: []
 keywords: []
 action:
   aliases: [slice]
+  related:
+    - functions/collections/Dictionary
   returnType: any
   signatures: [collections.Slice ITEM...]
-related:
-  - collections.Append
-  - collections.Apply
-  - collections.Delimit
-  - collections.In
-  - collections.Reverse
-  - collections.Seq
-  - collections.Slice
 aliases: [/functions/slice]
 ---
 

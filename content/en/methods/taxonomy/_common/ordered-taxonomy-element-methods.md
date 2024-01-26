@@ -10,7 +10,7 @@ Count
 : (`int`) Returns the number of pages to which the term is assigned.
 
 Page
-: (`hugolib.pageState`) Returns the term's `Page` object, useful for linking to the term page.
+: (`page.Page`) Returns the term's `Page` object, useful for linking to the term page.
 
 Pages
 : (`page.Pages`) Returns a `Pages` object containing the `Page` objects to which the term is assigned, sorted by [taxonomic weight]. To sort or group, use any of the [methods] available to the `Pages` object. For example, sort by the last modification date.

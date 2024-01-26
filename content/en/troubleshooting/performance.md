@@ -14,7 +14,7 @@ aliases: [/troubleshooting/build-performance/]
 
 ## Template metrics
 
-Hugo is fast, but inefficient templates impede performance. Enable template metrics to determine which templates take the most time, and to identify caching opportunties:
+Hugo is fast, but inefficient templates impede performance. Enable template metrics to determine which templates take the most time, and to identify caching opportunities:
 
 ```sh
 hugo --templateMetrics --templateMetricsHints

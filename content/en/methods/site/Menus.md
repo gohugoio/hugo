@@ -22,27 +22,27 @@ Menus can be defined and localized in several ways. Please see the [menus] secti
 A site can have multiple menus. For example, a main menu and a footer menu:
 
 {{< code-toggle file=hugo >}}
-[[menu.main]]
+[[menus.main]]
 name = 'Home'
 pageRef = '/'
 weight = 10
 
-[[menu.main]]
+[[menus.main]]
 name = 'Books'
 pageRef = '/books'
 weight = 20
 
-[[menu.main]]
+[[menus.main]]
 name = 'Films'
 pageRef = '/films'
 weight = 30
 
-[[menu.footer]]
+[[menus.footer]]
 name = 'Legal'
 pageRef = '/legal'
 weight = 10
 
-[[menu.footer]]
+[[menus.footer]]
 name = 'Privacy'
 pageRef = '/privacy'
 weight = 20

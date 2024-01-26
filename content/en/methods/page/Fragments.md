@@ -28,14 +28,14 @@ Use the `Fragments` method on a `Page` object to create a table of contents with
 ## Methods
 
 Headings
-: (`map`) A nested map of all headings on the page. Each map contains the following keys: `ID`, `Title` and `Headings`. To inspect the data structure:
+: (`map`) A nested map of all headings on the page. Each map contains the following keys: `ID`, `Level`, `Title` and `Headings`. To inspect the data structure:
 
 ```go-html-template
 <pre>{{ .Fragments.Headings | jsonify (dict "indent" "  ") }}</pre>
 ```
 
 HeadingsMap
-: (`slice`) A slice of maps of all headings on the page, with first-level keys for each heading. Each map contains the following keys: `ID`, `Title` and `Headings`. To inspect the data structure:
+: (`slice`) A slice of maps of all headings on the page, with first-level keys for each heading. Each map contains the following keys: `ID`, `Level`, `Title` and `Headings`. To inspect the data structure:
 
 ```go-html-template
 <pre>{{ .Fragments.HeadingsMap | jsonify (dict "indent" "  ") }}</pre>

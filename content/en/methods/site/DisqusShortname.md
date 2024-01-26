@@ -7,10 +7,7 @@ action:
   related: []
   returnType: string
   signatures: [SITE.DisqusShortname]
-# deprecated 2023-10-30
-expiryDate: 2024-10-30 
-_build:
-  list: never
+expiryDate: 2024-10-30 # deprecated 2023-10-30
 ---
 
 {{% deprecated-in 0.120.0 %}}

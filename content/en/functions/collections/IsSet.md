@@ -6,10 +6,6 @@ keywords: []
 action:
   aliases: [isset]
   related:
-    - functions/collections/Dictionary
-    - functions/collections/Group
-    - functions/collections/IndexFunction
-    - functions/collections/Where
     - functions/go-template/if
     - functions/go-template/with
   returnType: bool

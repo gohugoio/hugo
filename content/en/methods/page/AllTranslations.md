@@ -63,8 +63,9 @@ And this template:
 {{ with .AllTranslations }}
   <ul>
     {{ range . }}
-      {{ $lang := .Language.LanguageName}}
-      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }} ({{ $lang }})</a></li>
+      {{ $langName := or .Language.LanguageName .Language.Lang }}
+      {{ $langCode := or .Language.LanguageCode .Language.Lang }}
+      <li><a href="{{ .RelPermalink }}" hreflang="{{ $langCode }}">{{ .LinkTitle }} ({{ $langName }})</a></li>
     {{ end }}
   </ul>
 {{ end }}
@@ -74,9 +75,9 @@ Hugo will render this list on the "Book 1" page of each site:
 
 ```html
 <ul>
-  <li><a href="/books/book-1/">Book 1 (English)</a></li>
-  <li><a href="/de/books/book-1/">Book 1 (Deutsch)</a></li>
-  <li><a href="/fr/books/book-1/">Book 1 (Français)</a></li>
+  <li><a href="/books/book-1/" hreflang="en-US">Book 1 (English)</a></li>
+  <li><a href="/de/books/book-1/" hreflang="de-DE">Book 1 (Deutsch)</a></li>
+  <li><a href="/fr/books/book-1/" hreflang="fr-FR">Book 1 (Français)</a></li>
 </ul>
 ```
 
@@ -84,7 +85,7 @@ On the "Book 2" page of the English and German sites, Hugo will render this:
 
 ```html
 <ul>
-  <li><a href="/books/book-1/">Book 1 (English)</a></li>
-  <li><a href="/de/books/book-1/">Book 1 (Deutsch)</a></li>
+  <li><a href="/books/book-1/" hreflang="en-US">Book 1 (English)</a></li>
+  <li><a href="/de/books/book-1/" hreflang="de-DE">Book 1 (Deutsch)</a></li>
 </ul>
 ```

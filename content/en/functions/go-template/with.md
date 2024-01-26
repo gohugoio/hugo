@@ -36,7 +36,7 @@ Use with the [`else`] statement:
 {{ end }}
 ```
 
-Intialize a variable, scoped to the current block:
+Initialize a variable, scoped to the current block:
 
 ```go-html-template
 {{ with $var := 42 }}
