@@ -16,19 +16,19 @@ The `ByWeight` method returns the given menu with its entries sorted by [`weight
 Consider this menu definition:
 
 {{< code-toggle file=hugo >}}
-[[menu.main]]
+[[menus.main]]
 identifier = 'about'
 name = 'About'
 pageRef = '/about'
 weight = 20
 
-[[menu.main]]
+[[menus.main]]
 identifier = 'services'
 name = 'Services'
 pageRef = '/services'
 weight = 10
 
-[[menu.main]]
+[[menus.main]]
 identifier = 'contact'
 name = 'Contact'
 pageRef = '/contact'

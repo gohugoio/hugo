@@ -29,7 +29,7 @@ enableGitInfo = true
 Consider this project structure:
 
 ```text
-hugo-testing/
+my-project/
 ├── content/
 │   ├── books/
 │   │   └── les-miserables.md

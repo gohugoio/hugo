@@ -505,7 +505,7 @@ hugo --gc
 [mounted]: /hugo-modules/configuration#module-configuration-mounts
 [page bundle]: /content-management/page-bundles
 [`lang.FormatNumber`]: /functions/lang/formatnumber
-[filters]: /functions/images
+[filters]: /functions/images/filter/#image-filters
 [github.com/disintegration/imaging]: <https://github.com/disintegration/imaging#image-resizing>
 [Smartcrop]: <https://github.com/muesli/smartcrop#smartcrop>
 [Exif]: <https://en.wikipedia.org/wiki/Exif>

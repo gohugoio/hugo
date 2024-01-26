@@ -10,7 +10,7 @@ action:
     - methods/page/NextInSection
     - methods/pages/Prev
     - methods/pages/Next
-  returnType: hugolib.pageState
+  returnType: page.Page
   signatures: [PAGE.Prev]
 toc: true
 ---

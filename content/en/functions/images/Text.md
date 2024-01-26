@@ -21,7 +21,9 @@ color
 : (`string`) The font color, either a 3-digit or 6-digit hexadecimal color code. Default is `#ffffff` (white).
 
 font
-: (`resource.Resource`) The font can be a [global resource], a [page resource], or a [remote resource]. Default is the "Go Regular" TrueType font.
+: (`resource.Resource`) The font can be a [global resource], a [page resource], or a [remote resource]. Default is [Go Regular], a proportional sans-serif TrueType font.
+
+[Go Regular]: https://go.dev/blog/go-fonts#sans-serif
 
 linespacing
 : (`int`) The number of pixels between each line. For a line height of 1.4, set the `linespacing` to 0.4 multiplied by the `size`. Default is `2`.
@@ -45,7 +47,7 @@ Capture the font as a resource:
 
 ```go-html-template
 {{ $font := "" }}
-{{ $path := "https://github.com/google/fonts/raw/main/apache/roboto/static/Roboto-Regular.ttf" }}
+{{ $path := "https://github.com/google/fonts/raw/main/ofl/lato/Lato-Regular.ttf" }}
 {{ with resources.GetRemote $path }}
   {{ with .Err }}
     {{ errorf "%s" . }}

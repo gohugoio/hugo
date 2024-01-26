@@ -22,7 +22,7 @@ Layout
 : Can be set in front matter.
 
 Output Format
-: See [Custom Output Formats](/templates/output-formats). An output format has both a `name` (e.g. `rss`, `amp`, `html`) and a `suffix` (e.g. `xml`, `html`). We prefer matches with both (e.g. `index.amp.html`, but look for less specific templates.
+: See [Custom Output Formats](/templates/output-formats). An output format has both a `name` (e.g. `rss`, `amp`, `html`) and a `suffix` (e.g. `xml`, `html`). We prefer matches with both (e.g. `index.amp.html`), but look for less specific templates.
 
 Note that if the output format's Media Type has more than one suffix defined, only the first is considered.
 

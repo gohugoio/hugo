@@ -55,7 +55,7 @@ In addition to Hugo, we are proudly using a number of other tools and services, 
 - [Federalist](https://federalist.18f.gov/)
 - [Search.gov](https://www.search.gov/)  — A free, hosted search platform for federal websites.
 - [Cloud.gov](https://www.cloud.gov/)  — helps teams build, run, and authorize cloud-ready or legacy government systems quickly and cheaply.
-- [Federal CrowdSource Mobile Testing Program](https://digital.gov/services/mobile-application-testing-program/)  — Free mobile compatibility testing by feds, for feds.
+- [Federal CrowdSource Mobile Testing Program](https://digital.gov/services/service_mobile-testing-program/)  — Free mobile compatibility testing by feds, for feds.
 - [Digital Analytics Program](https://digital.gov/services/dap/)  (DAP) — A free analytics tool for measuring digital services in the federal government
 - [Section508.gov](https://www.section508.gov/)  and  [PlainLanguage.gov](https://www.plainlanguage.gov/)  resources
 - [API.data.gov](https://api.data.gov/)  — a free API management service for federal agencies

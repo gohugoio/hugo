@@ -14,17 +14,17 @@ The `Limit` method returns the given menu, limited to the first N entries.
 Consider this menu definition:
 
 {{< code-toggle file=hugo >}}
-[[menu.main]]
+[[menus.main]]
 name = 'Services'
 pageRef = '/services'
 weight = 10
 
-[[menu.main]]
+[[menus.main]]
 name = 'About'
 pageRef = '/about'
 weight = 20
 
-[[menu.main]]
+[[menus.main]]
 name = 'Contact'
 pageRef = '/contact'
 weight = 30

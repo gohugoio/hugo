@@ -5,13 +5,13 @@ categories: []
 keywords: []
 action:
   aliases: [sort]
+  related:
+    - functions/collections/Reverse
+    - functions/collections/Shuffle
+    - functions/collections/Uniq
   returnType: any
   signatures: ['collections.Sort COLLECTION [KEY] [ORDER]']
-related:
-  - collections.Reverse
-  - collections.Shuffle
-  - collections.Sort
-  - collections.Uniq
+toc: true
 aliases: [/functions/sort]
 ---
 
@@ -103,6 +103,40 @@ This produces:
 
 ```text
 Victor Marius Jean
+```
+
+### First level key removal
+
+Hugo removes the first level keys when sorting a map.
+
+Original map:
+
+```json
+{
+  "felix": {
+    "breed": "malicious",
+    "type": "cat"
+  },
+  "spot": {
+    "breed": "boxer",
+    "type": "dog"
+  }
+}
+```
+
+After sorting:
+
+```json
+[
+  {
+    "breed": "malicious",
+    "type": "cat"
+  },
+  {
+    "breed": "boxer",
+    "type": "dog"
+  }
+]
 ```
 
 ## Sort a page collection

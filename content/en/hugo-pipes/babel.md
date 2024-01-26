@@ -24,7 +24,7 @@ Hugo Pipe's Babel requires the `@babel/cli` and `@babel/core` JavaScript package
 If you are using the Hugo Snap package, Babel and plugin(s) need to be installed locally within your Hugo site directory, e.g., `npm install @babel/cli @babel/core --save-dev` without the `-g` flag.
 {{% /note %}}
 
-### configuration
+## Configuration
 
 We add the main project's `node_modules` to `NODE_PATH` when running Babel and similar tools. There are some known [issues](https://github.com/babel/babel/issues/5618) with Babel in this area, so if you have a `babel.config.js` living in a Hugo Module (and not in the project itself), we recommend using `require` to load the presets/plugins, e.g.:
 
@@ -42,7 +42,7 @@ module.exports = {
 };
 ```
 
-### Options
+## Options
 
 config
 : (`string`) Path to the Babel configuration file. Hugo will, by default, look for a `babel.config.js` in your project. More information on these configuration files can be found here: [babel configuration](https://babeljs.io/docs/en/configuration).
@@ -62,7 +62,7 @@ verbose
 sourceMap
 : (`string`) Output `inline` or `external` sourcemap from the babel compile. External sourcemaps will be written to the target with the output file name + ".map". Input sourcemaps can be read from js.Build and node modules and combined into the output sourcemaps.
 
-### Examples
+## Examples
 
 ```go-html-template
 {{- $transpiled := resources.Get "scripts/main.js" | babel  -}}

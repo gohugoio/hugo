@@ -5,14 +5,9 @@ categories: []
 keywords: []
 action:
   aliases: [apply]
+  related: []
   returnType: '[]any'
   signatures: [collections.Apply COLLECTION FUNCTION PARAM...]
-relatedFunctions:
-  - collections.Delimit
-  - collections.In
-  - collections.Reverse
-  - collections.Seq
-  - collections.Slice
 aliases: [/functions/apply]
 ---
 

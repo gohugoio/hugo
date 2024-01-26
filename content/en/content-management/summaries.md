@@ -73,7 +73,7 @@ Cons
 
 Because there are multiple ways in which a summary can be specified it is useful to understand the order of selection Hugo follows when deciding on the text to be returned by `.Summary`. It is as follows:
 
-1. If there is a `<!--more-->`> summary divider present in the article the text up to the divider will be provided as per the manual summary split method
+1. If there is a `<!--more-->` summary divider present in the article, the text up to the divider will be provided as per the manual summary split method
 2. If there is a `summary` variable in the article front matter the value of the variable will be provided as per the front matter summary method
 3. The text at the start of the article will be provided as per the automatic summary split method
 

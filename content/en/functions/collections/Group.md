@@ -5,11 +5,7 @@ categories: []
 keywords: []
 action:
   aliases: [group]
-  related:
-    - functions/collections/Dictionary
-    - functions/collections/IndexFunction
-    - functions/collections/IsSet
-    - functions/collections/Where
+  related: []
   returnType: any
   signatures: [collections.Group KEY PAGES]
 aliases: [/functions/group]

@@ -20,8 +20,14 @@ chroma:
     - ada2005
     Name: Ada
   - Aliases:
+    - agda
+    Name: Agda
+  - Aliases:
     - al
     Name: AL
+  - Aliases:
+    - alloy
+    Name: Alloy
   - Aliases:
     - ng2
     Name: Angular2
@@ -199,6 +205,9 @@ chroma:
     - dart
     Name: Dart
   - Aliases:
+    - dax
+    Name: Dax
+  - Aliases:
     - diff
     - udiff
     Name: Diff
@@ -330,6 +339,9 @@ chroma:
     - handlebars
     - hbs
     Name: Handlebars
+  - Aliases:
+    - hare
+    Name: Hare
   - Aliases:
     - haskell
     - hs
@@ -501,6 +513,9 @@ chroma:
     - obj-c
     - objc
     Name: Objective-C
+  - Aliases:
+    - objectpascal
+    Name: ObjectPascal
   - Aliases:
     - ocaml
     Name: OCaml
@@ -824,6 +839,8 @@ chroma:
   - Aliases:
     - typoscripthtmldata
     Name: TypoScriptHtmlData
+  - Aliases: null
+    Name: ucode
   - Aliases:
     - v
     - vlang
@@ -1254,6 +1271,9 @@ config:
         keepEndTags: true
         keepQuotes: false
         keepWhitespace: false
+        templateDelims:
+        - ""
+        - ""
       js:
         keepVarNames: false
         precision: 0
@@ -1563,8 +1583,6 @@ config:
       getenv:
       - ^HUGO_
       - ^CI$
-    goTemplates:
-      allowActionJSTmpl: false
     http:
       mediaTypes: null
       methods:
@@ -2741,6 +2759,21 @@ tpl:
             map[string]interface {}{
               "Hugo": "Rocks!",
             }
+      TestDeprecationErr:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      TestDeprecationInfo:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      TestDeprecationWarn:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       Timer:
         Aliases: null
         Args: null
@@ -4364,6 +4397,16 @@ tpl:
         - - '{{ "hello = \"Hello World\"" | resources.FromString "data/greetings.toml"
             | transform.Unmarshal }}'
           - map[hello:Hello World]
+      XMLEscape:
+        Aliases: null
+        Args:
+        - s
+        Description: |-
+          XMLEscape returns the given string, removing disallowed characters then
+          escaping the result to its XML equivalent.
+        Examples:
+        - - '{{ transform.XMLEscape "<p>abc</p>" }}'
+          - '&lt;p&gt;abc&lt;/p&gt;'
     urls:
       AbsLangURL:
         Aliases:

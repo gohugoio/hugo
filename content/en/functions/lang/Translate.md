@@ -11,6 +11,23 @@ action:
 aliases: [/functions/i18n]
 ---
 
+The `lang.Translate` function returns the value associated with given key as defined in the translation table for the current language.
+
+If the key is not found in the translation table for the current language, the `lang.Translate` function falls back to the translation table for the [`defaultContentLanguage`]. 
+
+If the key is not found in the translation table for the `defaultContentLanguage`, the `lang.Translate` function returns an empty string.
+
+[`defaultContentLanguage`]: /getting-started/configuration/#defaultcontentlanguage
+
+{{% note %}}
+To list missing and fallback translations, use the `--printI18nWarnings` flag when building your site.
+
+To render placeholders for missing and fallback translations, set 
+[`enableMissingTranslationPlaceholders`] to `true` in your site configuration.
+
+[`enableMissingTranslationPlaceholders`]: /getting-started/configuration/#enablemissingtranslationplaceholders
+{{% /note %}}
+
 Let's say your multilingual site supports two languages, English and Polish. Create a translation table for each language in the `i18n` directory.
 
 ```text

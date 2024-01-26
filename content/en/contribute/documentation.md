@@ -100,7 +100,7 @@ Level 6 markdown headings are styled as `dt` elements. This was implemented to s
 
 ## Code examples
 
-Indent code by two spaces. With examples of template code, include a space after opening action delimiters, and include a space before closing action delimeters.
+Indent code by two spaces. With examples of template code, include a space after opening action delimiters, and include a space before closing action delimiters.
 
 ### Fenced code blocks
 
@@ -269,7 +269,7 @@ Use the "note" shortcode with `{{%/* */%}}` delimiters to call attention to impo
 Use the [`math.Mod`] function to control...
 
 [`math.Mod`]: /functions/math/mod/
-{{%/* /code */%}}
+{{%/* /note */%}}
 ```
 
 Rendered:
@@ -278,7 +278,7 @@ Rendered:
 Use the [`math.Mod`] function to control...
 
 [`math.Mod`]: /functions/math/mod/
-{{% /code %}}
+{{% /note %}}
 
 ## New features
 
@@ -306,13 +306,9 @@ When deprecating a function or method, add this to front matter:
 
 {{< code-toggle file=content/something/foo.md fm=true >}}
 expiryDate: 2024-10-30
-_build:
-  list: never
 {{< /code-toggle >}}
 
-Set the `expiryDate` to one year from the date of deprecation, and add a brief front matter comment to explain the settings.
-
-Users will be able to search for the page, but the page will not appear in any list views, including section menus.
+Set the `expiryDate` to one year from the date of deprecation, and add a brief front matter comment to explain the setting.
 
 ## GitHub workflow
 
@@ -348,13 +344,13 @@ Closes #1234
 Closes #5678"
 ```
 
-Step 5
+Step 6
 : Push the new branch to your fork of the documentation repository.
 
-Step 6
+Step 7
 : Visit the [documentation repository] and create a pull request (PR).
 
-Step 7
+Step 8
 : A project maintainer will review your PR and may request changes. You may delete your branch after the maintainer merges your PR.
 
 [ATX]: https://spec.commonmark.org/0.30/#atx-headings
