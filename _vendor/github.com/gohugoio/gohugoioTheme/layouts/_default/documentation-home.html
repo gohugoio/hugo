@@ -1,0 +1,4 @@
+{{ define "main" }}
+{{ $section_to_display := (.Site.Taxonomies.categories.fundamentals).Pages | lang.Merge (.Sites.First.Taxonomies.categories.fundamentals).Pages }}
+  {{ partial "pagelayout.html" (dict "context" . "section_to_display" $section_to_display ) }}
+{{ end }}

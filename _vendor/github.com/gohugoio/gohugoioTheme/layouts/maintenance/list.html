@@ -1,0 +1,78 @@
+{{ define "main" }}
+  <div class="w-100 ph4 pb5 pb6-ns pt1 mt4 pt3-ns">
+    <div class="flex-l">
+      <div class="order-2 w-100 w-20-l ph5-m ph0-l mb4 sticky">
+        <aside
+          class="fixed-lTK mw5-l right-0 f6 bl-l b--moon-gray pv4 pv0-ns ph4-l nested-list-reset nested-links nested-copy-line-height">
+          <p class="b">What's on this Page</p>
+          <ul>
+            <li><a href="#last-updated">Last Updated</a></li>
+            <li>
+              <a href="#least-recently-updated">Least Recently Updated</a>
+            </li>
+            <li><a href="#todos">Pages marked with TODO</a></li>
+            <li>
+              <a href="#dependencies">Project dependencies (Hugo Modules)</a>
+            </li>
+          </ul>
+        </aside>
+      </div>
+      <div class="w-100">
+        {{ $byLastMod :=  .Site.RegularPages.ByLastmod }}
+        {{ $recent := ($byLastMod | last 30).Reverse }}
+        {{ $leastRecent := $byLastMod | first 10 }}
+        <h2 id="last-updated">Last Updated</h2>
+        {{ partial "maintenance-pages-table.html" $recent }}
+        <h2 id="least-recently-updated">Least Recently Updated</h2>
+        {{ partial "maintenance-pages-table.html" $leastRecent }}
+
+        {{/* Don't think this is possible with where directly. Should investigate. */}}
+        {{ .Scratch.Set "todos" slice }}
+        {{ range .Site.RegularPages }}
+          {{ if .HasShortcode "todo" }}
+            {{ $.Scratch.Add "todos" . }}
+          {{ end }}
+        {{ end }}
+        <h2 id="todos">Pages marked with TODO</h2>
+        {{ partial "maintenance-pages-table.html" (.Scratch.Get "todos") }}
+
+
+        <h2 id="dependencies">Dependencies</h2>
+        <table class="collapse ba br2 b--black-10 pv2 ph3">
+          <thead>
+            <tr>
+              <th class="pv2 ph3 tl f6 fw6 ttu">#</th>
+              <th class="pv2 ph3 tl f6 fw6 ttu">Owner</th>
+              <th class="pv2 ph3 tl f6 fw6 ttu">Path</th>
+              <th class="pv2 ph3 tl f6 fw6 ttu">Version</th>
+              <th class="pv2 ph3 tl f6 fw6 ttu">Time</th>
+              <th class="pv2 ph3 tl f6 fw6 ttu">Vendor</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{ range $index, $element := hugo.Deps }}
+              <tr class="striped--light-gray">
+                <th class="pv2 ph3">{{ add $index 1 }}</th>
+                <td class="pv2 ph3">
+                  {{ with $element.Owner }}{{ .Path }}{{ end }}
+                </td>
+                <td class="pv2 ph3">
+                  {{ $element.Path }}
+                  {{ with $element.Replace }}
+                    =>
+                    {{ .Path }}
+                  {{ end }}
+                </td>
+                <td class="pv2 ph3">{{ $element.Version }}</td>
+                <td class="pv2 ph3">
+                  {{ with $element.Time }}{{ . }}{{ end }}
+                </td>
+                <td class="pv2 ph3">{{ $element.Vendor }}</td>
+              </tr>
+            {{ end }}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{{ end }}

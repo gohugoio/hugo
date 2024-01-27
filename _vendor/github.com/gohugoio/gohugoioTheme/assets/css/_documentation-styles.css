@@ -1,0 +1,54 @@
+.note,
+.warning {
+
+  border-left-width: 4px;
+  border-left-style: solid;
+  position: relative;
+  border-color: var(--primary-color);
+
+  display: block;
+}
+.note #exclamation-icon,
+.warning #exclamation-icon {
+
+  fill: var(--primary-color);
+  position: absolute;
+  top: 35%;
+  left: -12px;
+  /*background-color: white;*/
+}
+
+  .admonition-content {
+    display: block;
+    margin: 0px;
+    padding: .125em 1em;
+    /*margin-left: 1em;*/
+    margin-top: 2em;
+    margin-bottom: 2em;
+    overflow-x: auto;
+    /*font-size: .9375em;*/
+    background-color: var(--black-05);
+  }
+
+
+  .hide-child-menu .child-menu {
+    display: none;
+  }
+  .hide-child-menu:hover  .child-menu,
+  .hide-child-menu:focus  .child-menu,
+  .hide-child-menu:active .child-menu {
+  display: block;
+  }
+
+
+/*documentation-copy headings exaggerate spacing and size to chunk content */
+  .documentation-copy h2 {
+    margin-top: 3em;
+    &.minor {
+      font-size: inherit;
+      margin-top: inherit;
+      border-bottom: none;
+    }
+  }
+
+  

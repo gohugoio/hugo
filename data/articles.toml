@@ -1,0 +1,731 @@
+[[article]]
+	title = "A visit to the Workshop: Hugo/Unix/Vim integration"
+	url = "https://blog.afoolishmanifesto.com/posts/hugo-unix-vim-integration/"
+	author = "fREW Schmidt"
+	date = "2017-07-22"
+
+[[article]]
+	title = "Hugo Easy Gallery - Automagical PhotoSwipe image gallery with a one-line shortcode"
+	url = "https://www.liwen.id.au/heg/"
+	author = "Li-Wen Yip"
+	date = "2017-03-25"
+
+[[article]]
+	title = "Automagical Image Gallery in Hugo with PhotoSwipe and jQuery"
+	url = "https://www.liwen.id.au/photoswipe/"
+	author = "Li-Wen Yip"
+	date = "2017-03-04"
+
+[[article]]
+	title = "Adding Isso Comments to Hugo"
+	url = "https://stiobhart.net/2017-02-24-isso-comments/"
+	author = "Stíobhart Matulevicz"
+	date = "2017-02-24"
+
+[[article]]
+	title = "Hugo Tutorial: How to Build & Host a (Very Fast) Static E-Commerce Site"
+	url = "https://snipcart.com/blog/hugo-tutorial-static-site-ecommerce"
+	author = "Snipcart"
+	date = "2017-02-23"
+
+[[article]]
+	title = "How to Password Protect a Hugo Site"
+	url = "https://www.aerobatic.com/blog/password-protect-a-hugo-site/"
+	author = "Aerobatic"
+	date = "2017-02-19"
+
+[[article]]
+	title = "Switching from WordPress to Hugo"
+	url = "http://schnuddelhuddel.de/switching-from-wordpress-to-hugo/"
+	author = "Mario Martelli"
+	date = "2017-02-19"
+
+[[article]]
+	title = "Zero to HTTP/2 with AWS and Hugo"
+	url = "https://habd.as/zero-to-http-2-aws-hugo/"
+	author = "Josh Habdas"
+	date = "2017-02-16"
+
+[[article]]
+	title = "Deploy a Hugo site to Aerobatic with CircleCI"
+	url = "https://www.aerobatic.com/blog/hugo-github-circleci/"
+	author = "Aerobatic"
+	date = "2017-02-14"
+
+[[article]]
+	title = "NPM scripts for building and deploying Hugo site"
+	url = "https://www.aerobatic.com/blog/hugo-npm-buildtool-setup/"
+	author = "Aerobatic"
+	date = "2017-02-12"
+
+[[article]]
+	title = "Getting started with Hugo and the plain-blog theme, on NearlyFreeSpeech.Net"
+	url = "https://www.penwatch.net/cms/get_started_plain_blog/"
+	author = "Li-aung “Lewis” Yip"
+	date = "2017-02-12"
+
+[[article]]
+	title = "Choose Hugo over Jekyll"
+	url = "https://habd.as/choose-hugo-over-jekyll/"
+	author = "Josh Habdas"
+	date = "2017-02-10"
+
+[[article]]
+	title = "Build a Hugo site using Cloud9 IDE and host on App Engine"
+	url = "https://loyall.ch/lab/2017/01/build-a-static-website-with-cloud9-hugo-and-app-engine/"
+	author = "Pascal Aubort"
+	date = "2017-02-05"
+
+[[article]]
+	title = "Hugo Continuous Deployment with Bitbucket Pipelines and Aerobatic"
+	url = "https://www.aerobatic.com/blog/hugo-bitbucket-pipelines/"
+	author = "Aerobatic"
+	date = "2017-02-04"
+
+[[article]]
+	title = "How to use Firebase to host a Hugo site"
+	url = "https://code.selfmadefighter.com/post/static-site-firebase/"
+	author = "Andrew Cuga"
+	date= "2017-02-04"
+
+[[article]]
+	title = "A publishing workflow for teams using static site generators"
+	url = "https://www.keybits.net/post/publishing-workflow-for-teams-using-static-site-generators/"
+	author = "Tom Atkins"
+	date = "2017-01-02"
+
+[[article]]
+	title = "How To Dynamically Use Google Fonts In A Hugo Website"
+	url = "https://stoned.io/web-development/hugo/How-To-Dynamically-Use-Google-Fonts-In-A-Hugo-Website/"
+	author = "Hash Borgir"
+	date = "2016-10-27"
+
+[[article]]
+	title = "Embedding Facebook In A Hugo Template"
+	url = "https://stoned.io/web-development/hugo/Embedding-Facebook-In-A-Hugo-Template/"
+	author = "Hash Borgir"
+	date = "2016-10-22"
+
+[[article]]
+	title = "通过 Gitlab-cl 将 Hugo blog 自动部署至 GitHub <small>(Chinese, Continuous integration)</small>"
+	url = "https://zetaoyang.github.io/post/2016/10/17/gitlab-cl.html"
+	author = "Zetao Yang"
+	date = "2016-10-17"
+
+[[article]]
+	title = "A Step-by-Step Guide: Hugo on Netlify"
+	url = "https://www.netlify.com/blog/2016/09/21/a-step-by-step-guide-hugo-on-netlify/"
+	author = "Eli Williamson"
+	date = "2016-09-21"
+
+[[article]]
+	title = "Building our site: From Django & WordPress to a static generator (Part I)"
+	url = "https://tryolabs.com/blog/2016/09/20/building-our-site-django-wordpress-to-static-part-i/"
+	author = "Alan Descoins"
+	date = "2016-09-20"
+
+[[article]]
+	title = "Webseitenmaschine - Statische Websites mit Hugo erzeugen <small>(German, $)</small>"
+	url = "http://www.heise.de/ct/ausgabe/2016-12-Statische-Websites-mit-Hugo-erzeugen-3211704.html"
+	author = "Christian Helmbold"
+	date = "2016-05-27"
+
+[[article]]
+	title = "Cómo hacer sitios web estáticos con Hugo y Go - Platzi <small>(Video tutorial)</small>"
+	url = "https://www.youtube.com/watch?v=qaXXpdiCHXE"
+	author = "Verónica López"
+	date = "2016-04-06"
+
+[[article]]
+	title = "CDNOverview: A CDN comparison site made with Hugo"
+	url = "https://www.cloakfusion.com/cdnoverview-cdn-comparison-site-made-hugo/"
+	author = "Thijs de Zoete"
+	date = "2016-02-23"
+
+[[article]]
+	title = "Hugo: A Modern Website Engine That Just Works"
+	url = "https://github.com/shekhargulati/52-technologies-in-2016/blob/master/07-hugo/README.md"
+	author = "Shekhar Gulati"
+	date = "2016-02-14"
+
+[[article]]
+	title = "Minify Hugo Generated HTML"
+	url = "http://ratson.name/blog/minify-hugo-generated-html/"
+	author = "Ratson"
+	date = "2016-02-02"
+
+[[article]]
+	title = "<span lang='ja'>HugoのデプロイをWerckerからCircle CIに変更した</span> - log"
+	url = "http://log.deprode.net/logs/2016-01-17/"
+	author = "Deprode"
+	date = "2016-01-17"
+
+[[article]]
+	title = "Static site generators: el futuro de las webs estáticas<br>(Hugo, Jekyll, Flask y otros)"
+	url = "http://sitelabs.es/static-site-generators-futuro-las-webs-estaticas/"
+	author = "Eneko Sarasola"
+	date = "2016-01-09"
+
+[[article]]
+	title = "Writing a Lambda Function for Hugo"
+	url = "https://blog.jolexa.net/post/writing-a-lambda-function-for-hugo/"
+	author = "Jeremy Olexa"
+	date = "2016-01-01"
+
+[[article]]
+	title = "Ein Blog mit Hugo erstellen - Tutorial <small>(Deutsch/German)</small>"
+	url = "http://privat.albicker.org/tags/hugo.html"
+	author = "Bernhard Albicker"
+	date = "2015-12-30"
+
+[[article]]
+	title = "How to host Hugo static website generator on AWS Lambda"
+	url = "http://bezdelev.com/post/hugo-aws-lambda-static-website/"
+	author = "Ilya Bezdelev"
+	date = "2015-12-15"
+
+[[article]]
+	title = "Migrating from Pelican to Hugo"
+	url = "http://www.softinio.com/post/migrating-from-pelican-to-hugo/"
+	author = "Salar Rahmanian"
+	date = "2015-11-29"
+
+[[article]]
+	title = "Static Website Generators Reviewed: Jekyll, Middleman, Roots, Hugo"
+	url = "http://www.smashingmagazine.com/2015/11/static-website-generators-jekyll-middleman-roots-hugo-review/"
+	author = "Mathias Biilmann Christensen"
+	date = "2015-11-16"
+
+[[article]]
+	title = "How To Deploy a Hugo Site to Production with Git Hooks on Ubuntu 14.04"
+	url = "https://www.digitalocean.com/community/tutorials/how-to-deploy-a-hugo-site-to-production-with-git-hooks-on-ubuntu-14-04"
+	author = "Justin Ellingwood"
+	date = "2015-11-12"
+
+[[article]]
+	title = "How To Install and Use Hugo, a Static Site Generator, on Ubuntu 14.04"
+	url = "https://www.digitalocean.com/community/tutorials/how-to-install-and-use-hugo-a-static-site-generator-on-ubuntu-14-04"
+	author = "Justin Ellingwood"
+	date = "2015-11-09"
+
+[[article]]
+	title = "Switching from Wordpress to Hugo"
+	url = "http://justinfx.com/2015/11/08/switching-from-wordpress-to-hugo/"
+	author = "Justin Israel"
+	date = "2015-11-08"
+
+[[article]]
+	title = "Hands-on Experience with Hugo as a Static Site Generator"
+	url = "http://usersnap.com/blog/hands-on-experience-with-hugo-static-site-generator/"
+	author = "Thomas Peham"
+	date = "2015-10-15"
+
+[[article]]
+	title = "Statische Webseites mit Hugo erstellen/Vortrag mit Foliensatz (deutsch)"
+	url = "http://sfd.koelnerlinuxtreffen.de/2015/HaraldWeidner/"
+	author = "Harald Weidner"
+	date = "2015-09-19"
+
+[[article]]
+	title = "Moving from WordPress to Hugo"
+	url = "http://abhipandey.com/2015/09/moving-to-hugo/"
+	author = "Abhishek Pandey"
+	date = "2015-09-15"
+
+[[article]]
+	title = "<span lang='zh-CN'>通过webhook将Hugo自动部署至GitHub Pages和GitCafe Pages</span> <small>(Automated&nbsp;deployment)</small>"
+	url = "http://blog.coderzh.com/2015/09/13/use-webhook-automated-deploy-hugo/"
+	author = "CoderZh"
+	date = "2015-09-13"
+
+[[article]]
+	title = "<span lang='zh-CN'>使用hugo搭建个人博客站点</span> <small>(Using Hugo to build a personal blog site)</small>"
+	url = "http://blog.coderzh.com/2015/08/29/hugo/"
+	author = "CoderZh"
+	date = "2015-08-29"
+
+[[article]]
+	title = "Good-Bye Wordpress, Hello Hugo! <small>(German)</small>"
+	url = "http://blog.arminhanisch.de/2015/08/blog-migration-zu-hugo/"
+	author = "Armin Hanisch"
+	date = "2015-08-18"
+
+[[article]]
+	title = "Générer votre site web statique avec Hugo <small>(Generate your static site with Hugo)<small>"
+	url = "http://www.linux-pratique.com/?p=191"
+	author = "Benoît Benedetti"
+	date = "2015-06-26"
+
+[[article]]
+	title = "<span lang='ja'>Hugo向けの新しいテーマを作った</span> <small>(I created a new theme for Hugo)<small>"
+	url = "https://yet.unresolved.xyz/blog/2016/10/03/how-to-make-of-hugo-theme/"
+	author = "Daisuke Tsuji"
+	date = "2015-06-20"
+
+[[article]]
+	title = "Hugo - Gerando um site com conteúdo estático. (Portuguese Brazil)"
+	url = "http://blog.ffrizzo.com/posts/hugo/"
+	author = "Fabiano Frizzo"
+	date = "2015-06-02"
+
+[[article]]
+	title = "An Introduction to Static Site Generators"
+	url = "http://davidwalsh.name/introduction-static-site-generators"
+	author = "Eduardo Bouças"
+	date = "2015-05-20"
+
+[[article]]
+	title = "Hugo Still Rules"
+	url = "http://cheekycoder.com/2015/05/hugo-still-rules/"
+	author = "Cheeky Coder"
+	date = "2015-05-18"
+
+[[article]]
+	title = "hugo - Static Site Generator"
+	url = "http://gscacco.github.io/post/hugo/"
+	author = "G Scaccoio"
+	date = "2015-05-04"
+
+[[article]]
+	title = "<span lang='ja'>WindowsでHugoを使う</span>"
+	url = "http://ureta.net/2015/05/hugo-on-windows/"
+	author = "<span lang='ja'>うれ太郎</span>"
+	date = "2015-05-01"
+
+[[article]]
+	title = "<span lang='ja'>Hugoのshortcodesを用いてサイトにスライドなどを埋め込む</span>"
+	url = "http://blog.yucchiy.com/2015/04/29/hugo-shortcode/"
+	author = "Yucchiy"
+	date = "2015-04-29"
+
+[[article]]
+	title = "<span lang='ja'>HugoとCircleCIでGitHub PagesにBlogを公開してみたら超簡単だった</span>"
+	url = "http://hori-ryota.github.io/blog/create-blog-with-hugo-and-circleci/"
+	author = "Hori Ryota"
+	date = "2015-04-17"
+
+[[article]]
+	title = "10 Best Static Site Generators"
+	url = "http://beebom.com/2015/04/best-static-site-generators"
+	author = "Aniruddha Mysore"
+	date = "2015-04-06"
+
+[[article]]
+	title = "Goodbye WordPress; Hello Hugo"
+	url = "http://willwarren.com/2015/04/05/goodbye-wordpress-hello-hugo/"
+	author = "Will Warren"
+	date = "2015-04-05"
+
+[[article]]
+	title = "Static Websites with Hugo on Google Cloud Storage"
+	url = "http://www.moxie.io/post/static-websites-with-hugo-on-google-cloud-storage/"
+	author = "Moxie Input/Output"
+	date = "2015-04-02"
+
+[[article]]
+	title = "De nuevo iniciando un blog"
+	url = "https://alvarolizama.net/"
+	author = "Alvaro Lizama"
+	date = "2015-03-29"
+
+[[article]]
+	title = "We moved our blog from Posthaven to Hugo after only three posts. Why?"
+	url = "http://blog.hypriot.com/post/moved-from-posthaven-to-hugo/"
+	author = "Hypriot"
+	date = "2015-03-27"
+
+[[article]]
+	title = "Top Static Site Generators in 2015"
+	url = "http://superdevresources.com/static-site-generators-2015/"
+	author = "Kanishk Kunal"
+	date = "2015-03-12"
+
+[[article]]
+	title = "Moving to Hugo"
+	url = "http://abiosoft.com/moving-to-hugo/"
+	author = "Abiola Ibrahim"
+	date = "2015-03-08"
+
+[[article]]
+	title = "Migrating a blog (yes, this one!) from Wordpress to Hugo"
+	url = "http://justindunham.net/migrating-from-wordpress-to-hugo/"
+	author = "Justin Dunham"
+	date = "2015-02-13"
+
+[[article]]
+	title = "<span lang='ja'>blogをoctopressからHugoに乗り換えたメモ</span>"
+	url = "http://blog.jigyakkuma.org/2015/02/11/hugo/"
+	author = "jigyakkuma"
+	date = "2015-02-11"
+
+[[article]]
+	title = "<span lang='ja'>Hugoでブログをつくった</span>"
+	url = "http://porgy13.github.io/post/new-hugo-blog/"
+	author = "porgy13"
+	date = "2015-02-07"
+
+[[article]]
+	title = "<span lang='ja'>Hugoにブログを移行した</span>"
+	url = "http://keichi.net/post/first/"
+	author = "Keichi Takahashi"
+	date = "2015-02-04"
+
+[[article]]
+	title = "<span lang='zh-CN'>Hugo静态网站生成器中文教程</span>"
+	url = "http://nanshu.wang/post/2015-01-31/"
+	author = "Nanshu Wang"
+	date = "2015-01-31"
+
+[[article]]
+	title = "<span lang='ja'>Hugo + Github Pages + Wercker CI = ¥0（無料）<br>でコマンド 1 発（自動化）でサイト<br>・ブログを公開・運営・分析・収益化</span>"
+	url = "http://qiita.com/yoheimuta/items/8a619cac356bed89a4c9"
+	author = "Yohei Yoshimuta"
+	date = "2015-01-31"
+
+[[article]]
+	title = "Running Hugo websites on anynines"
+	url = "http://blog.anynines.com/running-hugo-websites-on-anynines/"
+	author = "Julian Weber"
+	date = "2015-01-30"
+
+[[article]]
+	title = "MiddlemanからHugoへ移行した"
+	url = "http://re-dzine.net/2015/01/hugo/"
+	author = "Haruki Konishi"
+	date = "2015-01-21"
+
+[[article]]
+	title = "WordPress から Hugo に乗り換えました"
+	url = "http://rakuishi.com/archives/wordpress-to-hugo/"
+	author = "rakuishi"
+	date = "2015-01-20"
+
+[[article]]
+	title = "HUGOを使ってサイトを立ち上げる方法"
+	url = "http://qiita.com/syui/items/869538099551f24acbbf"
+	author = "Syui"
+	date = "2015-01-17"
+
+[[article]]
+	title = "<span lang='ja'>Jekyllが許されるのは小学生までだよね</span>"
+	url = "http://t32k.me/mol/log/hugo/"
+	author = "Ishimoto Koji"
+	date = "2015-01-16"
+
+[[article]]
+	title = "Getting started with Hugo"
+	url = "http://anthonyfok.org/post/getting-started-with-hugo/"
+	author = "Anthony Fok"
+	date = "2015-01-12"
+
+[[article]]
+	title = "<span lang='zh-CN'>把这个博客静态化了</span> <small>(Migrate to Hugo)</small>"
+	url = "http://lich-eng.com/2015/01/03/migrate-to-hugo/"
+	author = "Li Cheng"
+	date = "2015-01-03"
+
+[[article]]
+	title = "Porting my blog with Hugo"
+	url = "http://blog.srackham.com/posts/porting-my-blog-with-hugo/"
+	author = "Stuart Rackham"
+	date = "2014-12-30"
+
+[[article]]
+	title = "Hugoを使ってみたときのメモ"
+	url = "http://machortz.github.io/posts/usinghugo/"
+	author = "Machortz"
+	date = "2014-12-29"
+
+[[article]]
+	title = "OctopressからHugoへ移行した"
+	url = "http://deeeet.com/writing/2014/12/25/hugo/"
+	author = "Taichi Nakashima"
+	date = "2014-12-25"
+
+[[article]]
+	title = "Migrating to Hugo From Octopress"
+	url = "http://nathanleclaire.com/blog/2014/12/22/migrating-to-hugo-from-octopress/"
+	author = "Nathan LeClaire"
+	date = "2014-12-22"
+
+[[article]]
+	title = "Dynamic Pages with GoHugo.io"
+	url = "http://cyrillschumacher.com/2014/12/21/dynamic-pages-with-gohugo.io/"
+	author = "Cyrill Schumacher"
+	date = "2014-12-21"
+
+[[article]]
+	title = "6 Static Blog Generators That Aren’t Jekyll"
+	url = "http://www.sitepoint.com/6-static-blog-generators-arent-jekyll/"
+	author = "David Turnbull"
+	date = "2014-12-08"
+
+[[article]]
+	title = "Travel Blogging Setup"
+	url = "http://www.stou.dk/2014/11/travel-blogging-setup/"
+	author = "Rasmus Stougaard"
+	date = "2014-11-23"
+
+[[article]]
+	title = "Hosting A Hugo Website Behind Nginx"
+	url = "http://www.bigbeeconsultants.co.uk/blog/hosting-hugo-website-behind-nginx"
+	author = "Rick Beton"
+	date = "2014-11-20"
+
+[[article]]
+	title = "<span lang='zh-CN'>使用Hugo搭建免费个人Blog</span> <small>(How to use Hugo)</small>"
+	url = "http://ulricqin.com/post/how-to-use-hugo/"
+	author = "Ulric Qin <span lang='zh-CN'>秦晓辉</span>"
+	date = "2014-11-11"
+
+[[article]]
+	title = "Built in Speed and Built for Speed by Hugo"
+	url = "http://cheekycoder.com/2014/10/built-for-speed-by-hugo/"
+	author = "Cheeky Coder"
+	date = "2014-10-30"
+
+[[article]]
+	title = "Hugo para crear sitios web estáticos"
+	url = "http://www.webbizarro.com/noticias/1076/hugo-para-crear-sitios-web-estaticos/"
+	author = "Web Bizarro"
+	date = "2014-08-19"
+
+[[article]]
+	title = "Going with Hugo"
+	url = "http://www.markuseliasson.se/article/going-with-hugo/"
+	author = "Markus Eliasson"
+	date = "2014-08-18"
+
+[[article]]
+	title = "Benchmarking Jekyll, Hugo and Wintersmith"
+	url = "http://fredrikloch.me/post/2014-08-12-Jekyll-and-its-alternatives-from-a-site-generation-point-of-view/"
+	author = "Fredrik Loch"
+	date = "2014-08-12"
+
+[[article]]
+	title = "Goodbye Octopress, Hello Hugo!"
+	url = "http://andreimihu.com/blog/2014/08/11/goodbye-octopress-hello-hugo/"
+	author = "Andrei Mihu"
+	date = "2014-08-11"
+
+[[article]]
+	title = "Beautiful sites for Open Source Projects"
+	url = "http://beautifulopen.com/2014/08/09/hugo/"
+	author = "Beautiful Open"
+	date = "2014-08-09"
+
+[[article]]
+	title = "Hugo: Beyond the Defaults"
+	url = "http://npf.io/2014/08/hugo-beyond-the-defaults/"
+	author = "Nate Finch"
+	date = "2014-08-08"
+
+[[article]]
+	title = "First Impressions of Hugo"
+	url = "https://peteraba.com/blog/first-impressions-of-hugo/"
+	author = "Peter Aba"
+	date = "2014-06-06"
+
+[[article]]
+	title = "New Site Workflow"
+	url = "http://vurt.co.uk/post/new_website/"
+	author = "Giles Paterson"
+	date = "2014-08-05"
+
+[[article]]
+	title = "How I Learned to Stop Worrying and Love the (Static) Web"
+	url = "http://cognition.ca/post/about-hugo/"
+	author = "Joshua McKenty"
+	date = "2014-08-04"
+
+[[article]]
+	title = "Hugo - Static Site Generator"
+	url = "http://kenwoo.io/blog/hugo---static-site-generator/"
+	author = "Kenny Woo"
+	date = "2014-08-03"
+
+[[article]]
+	title = "Hugo Is Freakin' Awesome"
+	url = "http://npf.io/2014/08/hugo-is-awesome/"
+	author = "Nate Finch"
+	date = "2014-08-01"
+
+[[article]]
+	title = "<span lang='zh-CN'>再次搬家</span> <small>(Move from WordPress to Hugo)</small>"
+	url = "http://www.chingli.com/misc/move-from-wordpress-to-hugo/"
+	author = "<span lang='zh-CN'>青砾</span> (chingli)"
+	date = "2014-07-12"
+
+[[article]]
+	title = "Embedding Gists in Hugo"
+	url = "http://danmux.com/posts/embedded_gists/"
+	author = "Dan Mull"
+	date = "2014-07-05"
+
+[[article]]
+	title = "An Introduction To Hugo"
+	url = "http://www.cirrushosting.com/web-hosting-blog/an-introduction-to-hugo/"
+	author = "Dan Silber"
+	date = "2014-07-01"
+
+[[article]]
+	title = "Moving to Hugo"
+	url = "http://danmux.com/posts/hugo_based_blog/"
+	author = "Dan Mull"
+	date = "2014-05-29"
+
+[[article]]
+	title = "<span lang='zh-CN'>开源之静态站点生成器排行榜</span><br><small>(Leaderboard of open-source static website generators)</small>"
+	url = "http://code.csdn.net/news/2819909"
+	author = "CSDN.net"
+	date = "2014-05-23"
+
+[[article]]
+	title = "Finally, a satisfying and effective blog setup"
+	url = "http://michaelwhatcott.com/now-powered-by-hugo/"
+	author = "Michael Whatcott"
+	date = "2014-05-20"
+
+[[article]]
+	title = "Hugo from scratch"
+	url = "http://zackofalltrades.com/notes/2014/05/hugo-from-scratch/"
+	author = "Zack Williams"
+	date = "2014-05-18"
+
+[[article]]
+	title = "Why I switched away from Jekyll"
+	url = "http://www.jakejanuzelli.com/why-I-switched-away-from-jekyll/"
+	author = "Jake Januzelli"
+	date = "2014-05-10"
+
+[[article]]
+	title = "Welcome our new blog"
+	url = "http://blog.ninya.io/posts/welcome-our-new-blog/"
+	author = "Ninya.io"
+	date = "2014-04-11"
+
+[[article]]
+	title = "Mission Not Accomplished"
+	url = "http://johnsto.co.uk/blog/mission-not-accomplished/"
+	author = "Dave Johnston"
+	date = "2014-04-03"
+
+[[article]]
+	title = "Hugo - A Static Site Builder in Go"
+	url = "http://deepfriedcode.com/post/hugo/"
+	author = "Deep Fried Code"
+	date = "2014-03-30"
+
+[[article]]
+	title = "Adventures in Angular Podcast"
+	url = "http://devchat.tv/adventures-in-angular/003-aia-gdes"
+	author = "Matias Niemela"
+	date = "2014-03-28"
+
+[[article]]
+	title = "Hugo"
+	url = "http://bra.am/post/hugo/"
+	author = "bra.am"
+	date = "2014-03-23"
+
+[[article]]
+	title = "Converting Blogger To Markdown"
+	url = "http://trishagee.github.io/project/atom-to-hugo/"
+	author = "Trisha Gee"
+	date = "2014-03-20"
+
+[[article]]
+	title = "Moving to Hugo Static Web Pages"
+	url = "http://tepid.org/tech/hugo-web/"
+	author = "Tobias Weingartner"
+	date = "2014-03-16"
+
+[[article]]
+	title = "New Blog Engine: Hugo"
+	url = "https://blog.afoolishmanifesto.com/posts/hugo/"
+	author = "fREW Schmidt"
+	date = "2014-03-15"
+
+[[article]]
+	title = "Hugo + gulp.js = Huggle"
+	url = "http://ktmud.github.io/huggle/en/intro/)"
+	author = "Jesse Yang <span lang='zh-CN'>杨建超</span>"
+	date = "2014-03-08"
+
+[[article]]
+	title = "Powered by Hugo"
+	url = "http://kieranhealy.org/blog/archives/2014/02/24/powered-by-hugo/"
+	author = "Kieran Healy"
+	date = "2014-02-24"
+
+[[article]]
+	title = "<span lang='ja'>静的サイトを素早く構築するために<br>GoLangで作られたジェネレータHugo</span>"
+	url = "http://hamasyou.com/blog/2014/02/21/hugo/"
+	author = "<div lang='ja' style='line-height: 1.1;'>Shogo Hamada<br>濱田章吾</div>"
+	date = "2014-02-21"
+
+[[article]]
+	title = "Latest Roundup of Useful Tools For Developers"
+	url = "http://codegeekz.com/latest-roundup-of-useful-tools-for-developers/"
+	author = "CodeGeekz"
+	date = "2014-02-13"
+
+[[article]]
+	title = "Hugo: Static Site Generator written in Go"
+	url = "http://www.braveterry.com/2014/02/06/hugo-static-site-generator-written-in-go/"
+	author = "Brave Terry"
+	date = "2014-02-06"
+
+[[article]]
+	title = "10 Useful HTML5 Tools for Web Designers and Developers"
+	url = "http://designdizzy.com/10-useful-html5-tools-for-web-designers-and-developers/"
+	author = "Design Dizzy"
+	date = "2014-02-04"
+
+[[article]]
+	title = "Hugo – Fast, Flexible Static Site Generator"
+	url = "http://cube3x.com/hugo-fast-flexible-static-site-generator/"
+	author = "Joby Joseph"
+	date = "2014-01-18"
+
+[[article]]
+	title = "Hugo: A new way to build static website"
+	url = "http://www.w3update.com/opensource/hugo-a-new-way-to-build-static-website.html"
+	author = "w3update"
+	date = "2014-01-17"
+
+[[article]]
+	title = "Xaprb now uses Hugo"
+	url = "http://xaprb.com/blog/2014/01/15/using-hugo/"
+	author = "Baron Schwartz"
+	date = "2014-01-15"
+
+[[article]]
+	title = "New jQuery Plugins And Resources That Web Designers Need"
+	url = "http://www.designyourway.net/blog/resources/new-jquery-plugins-and-resources-that-web-designers-need/"
+	author = "Design Your Way"
+	date = "2014-01-01"
+
+[[article]]
+	title = "On Blog Construction"
+	url = "http://alexla.sh/post/on-blog-construction/"
+	author = "Alexander Lash"
+	date = "2013-12-27"
+
+[[article]]
+	title = "Hugo"
+	url = "http://onethingwell.org/post/69070926608/hugo"
+	author = "One Thing Well"
+	date = "2013-12-05"
+
+[[article]]
+	title = "In Praise Of Hugo"
+	url = "http://sound-guru.com/blog/post/hello-world/"
+	author = "sound-guru.com"
+	date = "2013-10-19"
+
+[[article]]
+	title = "Hosting a blog on S3 and Cloudfront"
+	url = "http://www.danesparza.net/2013/07/hosting-a-blog-on-s3-and-cloudfront/"
+	author = "Dan Esparza"
+	date = "2013-07-24"

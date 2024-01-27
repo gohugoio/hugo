@@ -1,0 +1,11 @@
+<svg id="focus-icon" class="focus-row-icon" width="100%" height="100%" viewBox="0 0 60 60" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-miterlimit:10;">
+    <path d="M30.028,1L30.028,11" style="fill:none;stroke:rgb(0,168,138);stroke-width:2px;"/>
+    <path d="M30.028,11L34.028,7" style="fill:none;stroke:rgb(0,168,138);stroke-width:2px;"/>
+    <path d="M30.028,11L26.028,7" style="fill:none;stroke:rgb(0,168,138);stroke-width:2px;"/>
+    <path d="M30.028,59L30.028,49" style="fill:none;stroke:rgb(0,168,138);stroke-width:2px;"/>
+    <path d="M30.028,49L26.028,53" style="fill:none;stroke:rgb(0,168,138);stroke-width:2px;"/>
+    <path d="M30.028,49L34.028,53" style="fill:none;stroke:rgb(0,168,138);stroke-width:2px;"/>
+    <path d="M57.972,29.642L50.738,36.876C39.221,48.393 20.548,48.393 9.031,36.876L2.027,29.872L9.261,22.638C20.778,11.121 39.451,11.121 50.968,22.638L57.972,29.642Z" style="fill:rgb(231,236,237);fill-rule:nonzero;"/>
+    <circle cx="29.67" cy="29.783" r="11.813" style="fill:rgb(0,131,192);"/>
+    <path d="M22.857,31C22.305,31 21.857,30.552 21.857,30C21.857,26.14 24.997,23 28.857,23C29.409,23 29.857,23.448 29.857,24C29.857,24.552 29.409,25 28.857,25C26.1,25 23.857,27.243 23.857,30C23.857,30.552 23.41,31 22.857,31Z" style="fill:white;fill-rule:nonzero;"/>
+</svg>

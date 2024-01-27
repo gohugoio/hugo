@@ -1,0 +1,17 @@
+<!-- scripts -->
+{{ $scripts := resources.Get "output/js/app.js" }}
+{{ $isDev := eq hugo.Environment "development" }}
+{{ if not $isDev }}
+{{ $scripts = $scripts | fingerprint }}
+{{ end }}
+{{ with $scripts }}
+  {{ if  $isDev }}
+  <script type="text/javascript" src="{{ .RelPermalink }}" crossorigin="anonymous" defer></script>
+  {{ else }}
+  <script type="text/javascript" src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous" defer></script>
+  {{ end }}
+  {{ $.Scratch.Set "scripts" . }}    
+{{end}} 
+
+<!-- Place this tag in your head or just before your close body tag. -->
+<script async defer src="https://buttons.github.io/buttons.js"></script>

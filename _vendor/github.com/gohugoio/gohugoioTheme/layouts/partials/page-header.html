@@ -1,0 +1,20 @@
+{{ $currentPage := . }}
+{{ $currentURL := .RelPermalink }}
+<header class="ph4 flex pv4 bg-light-gray">
+  <ul class="list ma0 pa0 ">
+      <!-- TODO: Active classes -->
+      <li class="f5 dib mr3 mb3 mb0-ns v-top white">
+        <a href="/news/" class="link primary-color-dark dim">
+            News:
+        </a>
+      </li>
+      {{ range $name, $taxonomy := .Site.Taxonomies.categories }}
+        {{ $link :=  $name | printf "%s%s" "/categories/" | printf "%s/" }}
+        <li class="f5 dib mr3 v-top mr3 mb3 mb0-ns">
+          <a href="{{ $link }}" class="link {{ if eq $currentURL $link }} bg-primary-color-dark {{ else }} bg-primary-color-dark {{ end }} white ph3 pv1 br2 hover-bg-accent-color-light">
+            {{ $name  | humanize }}
+          </a>
+        </li>
+      {{ end }}
+  </ul>
+</header>

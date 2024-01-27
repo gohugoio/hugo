@@ -1,0 +1,10 @@
+.f2-fluid {
+  font-size: 2.25rem;
+}
+
+@media (--breakpoint-large) {
+  .f2-fluid {
+    font-size: 1.25rem;
+    font-size: calc(0.875rem + 0.5 * ((100vw - 20rem) / 60));
+  }
+}

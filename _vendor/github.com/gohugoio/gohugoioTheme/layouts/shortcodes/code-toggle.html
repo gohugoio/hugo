@@ -1,0 +1,101 @@
+{{- /*
+  Renders syntax-highlighted configuration data in JSON, TOML, and YAML formats.
+
+  @param {string} [config] The section of site.Data.docs.config to render.
+  @param {bool} [copy=false] If true, display a copy to clipboard button.
+  @param {string} [file] The file name to display above the rendered code.
+  @param {bool} [fm=false] If true, render the code as front matter.
+  @param {bool} [skipHeader=false] If false, omit top level key(s) when rendering a section of site.Data.docs.config.
+
+  @returns {template.HTML}
+*/}}
+
+{{- /* Initialize. */}}
+{{- $config := "" }}
+{{- $dataKey := "" }}
+{{- $copy := false }}
+{{- $file := "" }}
+{{- $fm := false }}
+{{- $skipHeader := false }}
+
+{{- /* Get parameters. */}}
+{{- $config = .Get "config" }}
+{{- $dataKey = .Get "dataKey" }}
+{{- $file = .Get "file" }}
+{{- if in (slice "false" false 0) (.Get "copy") }}
+  {{- $copy = false }}
+{{- else if in (slice "true" true 1) (.Get "copy") }}
+  {{- $copy = true }}
+{{- end }}
+{{- if in (slice "false" false 0) (.Get "fm") }}
+  {{- $fm = false }}
+{{- else if in (slice "true" true 1) (.Get "fm") }}
+  {{- $fm = true }}
+{{- end }}
+{{- if in (slice "false" false 0) (.Get "skipHeader") }}
+  {{- $skipHeader = false }}
+{{- else if in (slice "true" true 1) (.Get "skipHeader") }}
+  {{- $skipHeader = true }}
+{{- end }}
+
+{{- /* Define constants. */}}
+{{- $delimiters := dict "toml" "+++" "yaml" "---" }}
+{{- $langs := slice "yaml" "toml" "json" }}
+{{- $placeHolder := "#-hugo-placeholder-#" }}
+
+{{- /* Render. */}}
+{{- $code := "" }}
+{{- if $config }}
+  {{- $file = $file | default "hugo" }}
+  {{- $sections := (split $config ".") }}
+  {{- $configSection := index $.Site.Data.docs.config $sections }}
+  {{- $code = dict $sections $configSection }}
+  {{- if $skipHeader }}
+    {{- $code = $configSection }}
+  {{- end }}
+{{- else if $dataKey }}
+  {{- $file = $file | default $dataKey }}
+  {{- $sections := (split $dataKey ".") }}
+  {{- $code = index $.Site.Data.docs $sections }}
+{{- else }}
+  {{- $code = $.Inner }}
+{{- end }}
+<div class="code relative" {{ with $file }}id="{{ . | urlize }}"{{ end }}>
+  <div class="code-nav flex flex-nowrap items-stretch">
+    {{- with $file }}
+      <div class="san-serif f6 dib lh-solid pl2 pv2 mr2">
+        {{ . }}{{ if not $fm }}.{{ end }}
+      </div>
+    {{- end }}
+    {{- range $langs }}
+      <button
+        data-toggle-tab="{{ . }}"
+        class="tab-button {{ cond (eq . "yaml") "active" "" }} ba san-serif f6 dib lh-solid ph2 pv2">
+        {{ . }}
+      </button>
+      &nbsp;
+    {{- end }}
+  </div>
+  <div class="tab-content">
+    {{- range $langs }}
+      <div
+        data-pane="{{ . }}"
+        class="code-copy-content nt3 tab-pane {{ cond (eq . "yaml") "active" "" }}">
+        {{- $hCode := $code | transform.Remarshal . }}
+        {{- if and $fm (in (slice "toml" "yaml") .) }}
+          {{- $hCode = printf "%s\n%s\n%s" $placeHolder $hCode $placeHolder }}
+        {{- end }}
+        {{- $hCode = $hCode | replaceRE `\n+` "\n" }}
+        {{ highlight $hCode . "" | replaceRE $placeHolder (index $delimiters .) | safeHTML }}
+      </div>
+      {{- if $copy }}
+        <button
+          class="needs-js copy copy-toggle bg-accent-color-dark f6 absolute top-0 right-0 lh-solid hover-bg-primary-color-dark bn white ph3 pv2"
+          title="Copy this code to your clipboard."
+          data-clipboard-action="copy"
+          aria-label="copy button"></button>
+        {{- /* Functionality located within filesaver.js The copy here is located in the css with .copy class so it can be replaced with JS on success */}}
+      {{- end }}
+    {{- end }}
+  </div>
+</div>

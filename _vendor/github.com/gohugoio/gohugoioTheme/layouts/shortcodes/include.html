@@ -1,0 +1,20 @@
+{{- /*
+Renders the page using the RenderShortcode method on the Page object.
+
+You must call this shortcode using the {{% %}} notation.
+
+@param {string} (positional parameter 0) The path to the page, relative to the content directory.
+@returns template.HTML
+
+@example {{% include "functions/_common/glob-patterns" %}}
+*/}}
+
+{{- with .Get 0 }}
+  {{- with site.GetPage . }}
+    {{- .RenderShortcodes }}
+  {{- else }}
+    {{- errorf "The %q shortcode was unable to find %q. See %s" $.Name . $.Position }}
+  {{- end }}
+{{- else }}
+  {{- errorf "The %q shortcode requires a positional parameter indicating the path of the file to include. See %s" .Name .Position }}
+{{- end }}
