@@ -1,0 +1,16 @@
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],    // inline
+      displayMath: [['$$', '$$'], ['\\[', '\\]']]  // block
+    },
+    startup: {
+      pageReady: () => {
+        return MathJax.startup.defaultPageReady().then(() => {
+          document.body.classList.remove("dn");
+        });
+      }
+    }
+  };
+</script>

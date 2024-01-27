@@ -1,0 +1,124 @@
+<!doctype html>
+<html
+  class="no-js"
+  lang="{{ with $.Site.LanguageCode }}
+    {{ . }}
+  {{ else }}
+    en-us
+  {{ end }}
+  ">
+  <head>
+    <meta charset="utf-8" />
+    {{/* https://www.zachleat.com/web/preload/ */}}
+    <link
+      rel="preload"
+      href="{{ "fonts/muli-latin-200.woff2" | absURL }}"
+      as="font"
+      type="font/woff2"
+      crossorigin />
+    <link
+      rel="preload"
+      href="{{ "fonts/muli-latin-400.woff2" | absURL }}"
+      as="font"
+      type="font/woff2"
+      crossorigin />
+    <link
+      rel="preload"
+      href="{{ "fonts/muli-latin-800.woff2" | absURL }}"
+      as="font"
+      type="font/woff2"
+      crossorigin />
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    {{/* NOTE: the Site's title, and if there is a page title, that is set too */}}
+    <title>
+      {{ block "title" . }}
+        {{ with .Title }}{{ . }} | {{ end }}{{ .Site.Title }}
+      {{ end }}
+
+    </title>
+
+    <meta name="viewport" content="width=device-width,minimum-scale=1" />
+    {{ hugo.Generator }}
+
+    {{ if hugo.IsProduction }}
+      <meta name="robots" content="index, follow" />
+    {{ else }}
+      <meta name="robots" content="noindex, nofollow" />
+    {{ end }}
+
+    {{ range .AlternativeOutputFormats -}}
+      <link
+        rel="{{ .Rel }}"
+        type="{{ .MediaType.Type }}"
+        href="{{ .Permalink | safeURL }}" />
+    {{ end -}}
+
+    {{ $isDev := eq hugo.Environment "development" }}
+    {{ $stylesheet := resources.Get "output/css/app.css" }}
+    {{ if not $isDev }}
+      {{ $stylesheet = $stylesheet | minify | fingerprint }}
+    {{ end }}
+    {{ with $stylesheet }}
+      {{ if $isDev }}
+        <link
+          rel="stylesheet"
+          href="{{ .RelPermalink }}"
+          crossorigin="anonymous" />
+      {{ else }}
+        <link
+          rel="stylesheet"
+          href="{{ .RelPermalink }}"
+          integrity="{{ .Data.Integrity }}"
+          crossorigin="anonymous" />
+      {{ end }}
+      {{ $.Scratch.Set "stylesheet" . }}
+    {{ end }}
+
+
+    <meta
+      name="description"
+      content="{{ with .Description }}
+        {{ . }}
+      {{ else }}
+        {{ with .Site.Params.description }}{{ . }}{{ end }}
+      {{ end }}
+      " />
+
+    {{ block "scripts" . }}
+      {{- partial "site-scripts.html" . -}}
+    {{ end }}
+    {{ partial "site-manifest.html" . }}
+    {{- partial "head-additions.html" . -}}
+    {{- partial "opengraph/opengraph.html" . -}}
+    {{- template "_internal/schema.html" . -}}
+    {{- partial "opengraph/twitter_cards.html" . -}}
+
+    {{ if hugo.IsProduction }}
+      {{ partial "gtag.html" . }}
+    {{ end }}
+
+    {{ $hasMath := .Param "math" }}
+    {{ if $hasMath }}
+      {{ partialCached "math.html" . }}
+    {{ end }}
+
+  </head>
+
+  <body
+    class="ma0 sans-serif bg-primary-color-light{{ with getenv "HUGO_ENV" }}
+      {{ . }}
+    {{ end }} {{ if $hasMath }}{{ print " dn" }}{{ end }}">
+    {{ partial "hooks/after-body-start.html" . }}
+    {{ block "nav" . }}{{ partial "site-nav.html" . }}{{ end }}
+    {{ block "header" . }}{{ end }}
+    <main role="main" class="content-with-sidebar min-vh-100 pb7 pb0-ns">
+      {{ block "main" . }}{{ end }}
+    </main>
+
+    {{ block "footer" . }}{{ partialCached "site-footer.html" . }}{{ end }}
+
+    {{ partial "hooks/before-body-end.html" . }}
+
+  </body>
+</html>
