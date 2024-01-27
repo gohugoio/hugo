@@ -1,4 +1,0 @@
-# Test the completion commands.
-
-hugo completion -h
-stdout 'Generate the autocompletion script for hugo for the specified shell.'

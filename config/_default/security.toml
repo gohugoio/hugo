@@ -1,0 +1,9 @@
+
+  enableInlineShortcodes = false
+
+  [funcs]
+    getenv = ['^HUGO_', '^REPOSITORY_URL$', '^BRANCH$']
+
+  [http]
+    methods = ['(?i)GET|POST']
+    urls = ['.*']

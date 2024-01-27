@@ -1,0 +1,53 @@
+.prose ul, .prose ol {
+  margin-bottom: 2em;
+}
+.prose ul li, .prose  ol li {
+  margin-bottom: .5em;
+}
+.prose li:hover {
+  background-color: var(--light-gray)
+}
+.prose ::selection {
+  background: var(--primary-color); /* WebKit/Blink Browsers */
+  color: white;
+}
+
+.prose-glossary h3 {
+  margin-top: 0;
+  font-size: 1.125rem;
+}
+
+.prose-glossary h3:first-of-type {
+  margin-top: 3em;
+}
+
+.prose-glossary h3 ~ p {
+  margin: 0.5em 0 2em 0;
+}
+
+body {
+
+line-height: 1.45;
+
+}
+
+p {margin-bottom: 1.3em;}
+
+h1, h2, h3, h4 {
+margin: 1.414em 0 0.5em;
+
+line-height: 1.2;
+}
+
+h1 {
+margin-top: 0;
+font-size: 2.441em;
+}
+
+h2 {font-size: 1.953em;}
+
+h3 {font-size: 1.563em;}
+
+h4 {font-size: 1.25em;}
+
+small, .font_small {font-size: 0.8em;}

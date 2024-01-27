@@ -1,0 +1,29 @@
+{{- $highlight := or (.Get "highlight") "" }}
+
+{{- $markdown := false }}
+{{- if in (slice "false" false 0) (.Get "markdown") }}
+  {{- $markdown = false }}
+{{- else if in (slice "true" true 1) (.Get "markdown") }}
+  {{- $markdown = true }}
+{{- end }}
+
+{{- with .Get "file" }}
+  {{- if os.FileExists . }}
+    {{- with os.ReadFile . }}
+      {{- $content := trim . "\n\r" }}
+      {{- if $markdown }}
+        {{- $content | markdownify }}
+      {{- else if $highlight }}
+        {{- highlight $content $highlight }}
+      {{- else }}
+        {{- $content | safeHTML }}
+      {{- end }}
+    {{- else }}
+      {{- errorf "The %q shortcode was unable to read %q. See %s" $.Name . $.Position }}
+    {{- end }}
+  {{- else }}
+    {{- errorf "The %q shortcode was unable to find %q. See %s" $.Name . $.Position }}
+  {{- end }}
+{{- else }}
+  {{- errorf "The %q shortcode requires a 'file' parameter. See %s" $.Name $.Position }}
+{{- end }}

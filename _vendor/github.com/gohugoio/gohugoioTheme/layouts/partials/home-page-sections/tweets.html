@@ -1,0 +1,27 @@
+<div class="flex-ns flex-wrap center mw9">
+
+  {{ $interior_classes := $.Site.Params.flex_box_interior_classes }}
+
+  <h3 class="f2 fw4 white">See what others are saying about Hugo…</h3>
+
+  <div class="flex-ns flex-wrap justify-between">
+
+    {{ if $.Site.Data.homepagetweets }}
+    {{ range first 4 (sort $.Site.Data.homepagetweets.tweet "date" "desc" )  }}
+      <div class="homepage-tweet relative {{ $interior_classes }} br1 mid-gray  pv3 nested-links shadow-5">
+          <div class="absolute top-0 left-0 ma2  o-10">
+            {{ partial "svg/twitter.svg" . }}
+          </div>
+        <blockquote>
+          <p class="f4">
+            {{.quote | safeHTML}}
+          </p>
+          <cite class="homepage-tweet-attribution gray f6">&#9472; {{ .name }} ({{ .twitter_handle }}) <a href="{{ .link }}">
+            {{ dateFormat "January 2, 2006" .date }}</a>
+          </cite>
+        </blockquote>
+      </div>
+    {{ end }}
+    {{ end }}
+  </div>
+</div>

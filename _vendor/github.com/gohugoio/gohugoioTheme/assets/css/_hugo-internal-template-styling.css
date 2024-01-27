@@ -1,0 +1,52 @@
+/* pagination.html: https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/template_embedded.go#L117 */
+.pagination {
+  margin: 3rem 0;
+}
+
+.pagination li {
+  display: inline-block;
+  margin-right: .375rem;
+  font-size: .875rem;
+  margin-bottom: 2.5em;
+}
+.pagination li a {
+  padding: .5rem .625rem;
+  background-color: white;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  text-decoration: none;
+}
+.pagination li.disabled {
+  display: none;
+}
+.pagination li.active a:link,
+.pagination li.active a:active,
+.pagination li.active a:visited {
+  background-color: #ddd;
+}
+
+/* Hides non-meaningful TOC items*/
+#TableOfContents ul li ul li ul li{
+    display: none;
+  }
+
+
+#TableOfContents ul li {
+  color: black;
+  display: block;
+  margin-bottom: .375em;
+  line-height: 1.375;
+}
+
+#TableOfContents ul li a{
+  width: 100%;
+  padding: .25em .375em;
+  margin-left: -.375em;
+
+}
+#TableOfContents ul li a:hover {
+  background-color: #999;
+  color: white;
+
+}

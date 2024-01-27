@@ -1,0 +1,35 @@
+{{- /*
+Renders syntax highlighted code.
+
+@param {bool} [copy=false] If true, display a copy to clipboard button.
+@param {string} [file] The file name to display above the rendered code.
+@param {string} [lang] The code language of the inner content.
+
+@returns {template.HTML}
+*/}}
+
+{{- /* Get parameters. */}}
+{{- $copy := false }}
+{{- if in (slice "false" false 0) (.Get "copy") }}
+  {{- $copy = false }}
+{{- else if in (slice "true" true 1) (.Get "copy")}}
+  {{- $copy = true }}
+{{- end }}
+{{- $file := or (.Get "file") "&nbsp;" }}
+{{- $lang := or (.Get "lang") (path.Ext $file | strings.TrimPrefix ".") "text" }}
+
+{{- /* Use the go-html-template Chroma lexer for HTML. */}}
+{{- if eq $lang "html" }}
+  {{- $lang = "go-html-template" }}
+{{- end }}
+
+{{- /* Render. */}}
+<div class="code relative" id="{{ $file | urlize }}">
+  <div class="f6 dib lh-solid pl2 pv2">{{ $file | htmlUnescape }}</div>
+  {{- if $copy }}
+    <button class="needs-js copy bg-accent-color-dark f6 absolute top-0 right-0 lh-solid hover-bg-primary-color-dark bn white ph3 pv2" title="Copy this code to your clipboard." data-clipboard-action="copy" aria-label="copy button"></button>
+  {{- end }}
+  <div class="code-copy-content nt3">
+    {{- highlight (trim .Inner "\n\r") $lang }}
+  </div>
+</div>

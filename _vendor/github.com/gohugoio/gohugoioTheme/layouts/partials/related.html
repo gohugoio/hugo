@@ -1,0 +1,22 @@
+{{- $heading := "See also" }}
+{{- $related := site.RegularPages.Related . | first 5 }}
+
+{{- if in (slice "functions" "methods") .Type }}
+  {{- $related = slice }}
+  {{- range .Params.action.related }}
+    {{- with site.GetPage (lower .) }}
+      {{- $related = $related | append . }}
+    {{- else }}
+      {{- errorf "The 'related' partial was unable to get page %s" . }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- with $related }}
+  <h2>{{ $heading }}</h2>
+  <ul>
+    {{- range . }}
+      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+    {{- end }}
+  </ul>
+{{- end }}

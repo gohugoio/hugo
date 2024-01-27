@@ -1,3 +1,10 @@
-
-*.test
-imports.*
+/.idea
+/.vscode
+/public
+/dist
+node_modules
+nohup.out
+.DS_Store
+trace.out
+.hugo_build.lock
+resources/_gen/images/

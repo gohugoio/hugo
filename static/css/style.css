@@ -1,0 +1,684 @@
+/* Import fonts */
+@import url(//fonts.googleapis.com/css?family=Lato:300,400,700,900,300italic,400italic,700italic,900italic);
+
+/* ******************************
+ For the github btn
+****************************** */
+
+.github-btn {
+  font-size: 11px;
+}
+.github-btn,
+.github-btn .btn {
+  font-weight: bold;
+}
+.github-btn .btn-default {
+    text-shadow: 0 1px 0 #fff;
+    background-image: -webkit-gradient(linear, left 0%, left 100%, from(#ffffff), to(#e0e0e0));
+    background-image: -webkit-linear-gradient(top, #ffffff, 0%, #e0e0e0, 100%);
+    background-image: -moz-linear-gradient(top, #ffffff 0%, #e0e0e0 100%);
+    background-image: linear-gradient(to bottom, #ffffff 0%, #e0e0e0 100%);
+    background-repeat: repeat-x;
+    border-color: #dbdbdb;
+    border-color: #ccc;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#ffe0e0e0', GradientType=0);
+}
+
+.github-btn .btn-default:hover, .github-btn .btn-default:focus {
+    background-color: #e0e0e0;
+    background-position: 0 -15px;
+    color: #333;
+    border-color: #adadad;
+}
+
+.nav-github {
+    width: 325px;
+}
+ .nav-github > span {
+     padding-right: 0.5em;
+ }
+
+ .icon-github {
+    display: inline-block;
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+ }
+
+ .github-watchers .icon-github:before{
+      content: "\f005";
+ }
+
+ .github-forks .icon-github:before{
+      content: "\f126";
+ }
+
+.gh-count{
+  padding: 2px 5px 3px 4px;
+  color: #555;
+  text-decoration: none;
+  text-shadow:0 1px 0 #fff;
+  white-space:nowrap;
+  cursor:pointer;
+  border-radius:3px;
+  position:relative;
+  display:none;
+  margin-left:4px;
+  background-color:#fafafa;
+  border:1px solid #d4d4d4;
+}
+
+.gh-count:hover,.gh-count:focus{color:#4183c4;text-decoration: none;}
+.gh-count:before,.gh-count:after{content:' ';position:absolute;display:inline-block;width:0;height:0;border-color:transparent;border-style:solid}
+.gh-count:before{top:50%;left:-3px;margin-top:-4px;border-width:4px 4px 4px 0;border-right-color:#fafafa}
+.gh-count:after{top:50%;left:-4px;z-index:-1;margin-top:-5px;border-width:5px 5px 5px 0;border-right-color:#d4d4d4}
+
+thead {
+    font-weight: bold;
+}
+
+table {
+    width: 100%;
+}
+
+
+h1, h2, h3 {
+    margin-top: .8em;
+    margin-bottom: .7em;
+}
+
+pre code {
+    font-size: 15px !important;
+    font-family: Menlo, Consolas, 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Lucida Console', Monaco, 'Droid Sans Mono', monospace;
+}
+
+body {
+    color: #353b44;
+    background: #edece4;
+    font-family: 'Lato', sans-serif;
+    padding: 0px !important;
+    margin: 0px !important;
+    font-size: 16px !important;
+    font-weight: 400;
+}
+
+h2,h3,h4,h5{
+    font-weight: 700;
+}
+
+
+h1[id]:before, h2[id]:before, h3[id]:before, h4[id]:before, h5[id]:before {
+    display: block;
+    content: " ";
+    margin-top: -75px;
+    height: 75px;
+    visibility: hidden;
+}
+
+label{
+    font-weight: 400;
+}
+
+.sidebar-menu .fa {
+    width: 30px;
+    text-align: center;
+}
+
+a, a:hover, a:focus {
+    text-decoration: none;
+    outline: none;
+    outline: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+.panel-body a {
+    line-height: 1.1;
+    display: inline-block;
+}
+.panel-body a:after {
+  display: block;
+  content: "";
+  height: 1px;
+  width: 0%;
+  background-color: #ff4088;
+  -webkit-transition: width 0.5s ease;
+  -moz-transition: width 0.5s ease;
+  -ms-transition: width 0.5s ease;
+  transition: width 0.5s ease;
+}
+
+.panel-body a:hover:after, .panel-body a:focus:after {
+    width: 100%;
+}
+
+input:focus, textarea:focus { outline: none; }
+*:focus {outline: none;}
+::selection {
+    background: #ff4088;
+    color: #fff;
+}
+::-moz-selection {
+    background: #ff4088;
+    color: #fff;
+}
+
+#container {
+    width: 100%;
+    height: 100%;
+}
+
+/*sidebar navigation*/
+
+#sidebar {
+    width: 214px;
+    height: 100%;
+    position: fixed;
+    background: #ffffff;
+    overflow-y: auto;
+}
+
+
+ul.sidebar-menu , ul.sidebar-menu li ul.sub{
+    margin: -2px 0 0;
+    padding: 0;
+}
+
+ul.sidebar-menu {
+    margin-top: 60px;
+}
+
+#sidebar > ul > li > ul.sub {
+    display: none;
+}
+
+#sidebar > ul > li.active > ul.sub, #sidebar > ul > li > ul.sub > li > a {
+    display: block;
+}
+
+ul.sidebar-menu li ul.sub li{
+    background: #eeeeee;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+ul.sidebar-menu li ul.sub li:last-child{
+    border-radius: 0 0 4px 4px;
+    -webkit-border-radius: 0 0 4px 4px;
+}
+
+ul.sidebar-menu li ul.sub li a {
+    font-size: 12px;
+    padding: 0 0 0 32px;
+    line-height: 35px;
+    height: 35px;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    -ms-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+    color: #656C73;
+    font-size: 14px;
+}
+
+ul.sidebar-menu li ul.sub li a:hover, ul.sidebar-menu li ul.sub li.active a {
+    color: #ff4088;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    -ms-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+    display: block;
+}
+
+ul.sidebar-menu li{
+    line-height: 20px !important;
+}
+
+ul.sidebar-menu li.sub-menu{
+    line-height: 15px;
+    font-size: 16px;
+}
+
+ul.sidebar-menu li a span{
+    display: inline-block;
+}
+
+ul.sidebar-menu li a{
+    color: #72767D;
+    text-decoration: none;
+    display: block;
+    padding: 10px 0 10px 10px;
+    font-size: 16px;
+    font-weight: 400;
+    outline: none;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    -ms-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+    border-right: 1px solid #D7D7D7;
+    border-bottom: 1px solid #D7D7D7;
+    white-space: nowrap;
+}
+
+ul.sidebar-menu li.active a, ul.sidebar-menu li a:hover, ul.sidebar-menu li a:focus {
+    background: #eeeeee;
+    color: #ff4088;
+    display: block;
+    /*border-radius: 4px;
+    -webkit-border-radius: 4px;*/
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    -ms-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+}
+ul.sidebar-menu li a:hover, ul.sidebar-menu li a:focus {
+    border-bottom: 1px solid #ff4088;
+}
+/*ul.sidebar-menu li.active a,*/ ul.sidebar-menu .sub-menu li.active a{
+    border-bottom: 1px solid #ff4088;
+}
+
+ul.sidebar-menu li a i {
+    font-size: 18px;
+    padding-right: 6px;
+    /*color: #ff4088;*/
+}
+
+ul.sidebar-menu li a:hover i, ul.sidebar-menu li a:focus i {
+    color: #ff4088;
+}
+
+ul.sidebar-menu li.active a i {
+    color: #ff4088;
+}
+
+
+#sidebar ul > li > a .menu-arrow {
+    float: right;
+    margin-right: 8px;
+    margin-top: 6px;
+}
+
+@-moz-document url-prefix() {
+  #sidebar ul > li > a .menu-arrow {
+      float: right;
+      margin-right: 8px;
+      margin-top: -16px;
+  }
+}
+
+#main-content {
+    margin-left: 200px;
+    line-height: 1.8;
+    font-size: 18px;
+}
+
+.header {
+    min-height: 60px;
+    padding: 0 10px;
+}
+.header {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 1002;
+    text-align:center;
+}
+
+
+.black-bg {
+    background: rgba(20,20,20,0.9);
+    border-bottom: 1px solid #f1f2f7;
+}
+
+.wrapper {
+    display: inline-block;
+    margin-top: 60px;
+    padding: 0px 15px 15px 0px;
+    width: 100%;
+}
+
+a.logo {
+    font-size: 22px;
+    font-weight: 400;
+    color: #8E8E93;
+    float: left;
+    margin-top: 10px;
+    text-transform: uppercase;
+}
+
+a.logo:hover, a.logo:focus {
+    text-decoration: none;
+    outline: none;
+}
+
+h1.top-menu {
+    margin-top: -5px;
+}
+.title-row {
+    margin-top: 15px;
+    margin-left: 16px;
+    color: #EEE;
+}
+.notification-row {
+    float: right;
+    margin-top: 15px;
+    margin-left: 65px;
+}
+
+
+.top-nav  {
+    margin-top: 15px;
+}
+
+/*--sidebar toggle---*/
+
+.toggle-nav {
+    float: left;
+    padding-right: 5px;
+    margin-top: 20px;
+    cursor: pointer;
+    color: gray;
+}
+
+.toggle-nav .icon-reorder {
+    cursor: pointer;
+    display: inline-block;
+    font-size: 20px;
+}
+
+
+@-webkit-keyframes square {
+  0% { background-position: 0 0; }
+  25% { background-position: 100% 0; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0 100%; }
+  100% { background-position: 0 0; }
+}
+
+@-ms-keyframes square {
+  0% { background-position: 0 0; }
+  25% { background-position: 100% 0; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0 100%; }
+  100% { background-position: 0 0; }
+}
+
+@keyframes square {
+  0% { background-position: 0 0; }
+  25% { background-position: 100% 0; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0 100%; }
+  100% { background-position: 0 0; }
+}
+
+.navigation {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin: 0;
+    max-width: 150px;
+    min-width: 90px;
+    width:100%;
+    min-height:1200px;
+    cursor:pointer;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    flex-direction: column;
+    font-size: 6em;
+    color: rgba(0,0,0,0.5);
+    text-align: center;
+    -webkit-transition: all 350ms ease;
+    transition: all 350ms ease;
+}
+
+.navigation.next {
+    right:0;
+}
+
+
+.navigation:hover {
+    background-color: rgba(0,0,0,0.1);
+}
+
+/* Google Custom Search box */
+
+input.gsc-input,
+.gsc-input-box,
+.gsc-input-box-hover,
+.gsc-input-box-focus,
+.gsc-search-button,
+.gsc-inline-block {
+  box-sizing: content-box;
+  line-height: normal;
+}
+
+.gsc-control-cse {
+  padding: 0.1em 0 0.5em 1em !important;
+  width: 16em !important;
+  float: right;
+}
+
+input.gsc-search-button-v2 {
+  padding: 6px 12px !important;
+}
+
+.gsc-search-box-tools .gsc-search-box .gsc-input {
+  padding-right: 1px !important;
+}
+
+/* Styled keypress from Wikipedia */
+
+kbd {
+  border: 1px solid #aaa;
+  -moz-border-radius: 0.2em;
+  -webkit-border-radius: 0.2em;
+  border-radius: 0.2em;
+  -moz-box-shadow: 0.1em 0.2em 0.2em #ddd;
+  -webkit-box-shadow: 0.1em 0.2em 0.2em #ddd;
+  box-shadow: 0.1em 0.2em 0.2em #ddd;
+  background-color: #f9f9f9;
+  background-image: -moz-linear-gradient(top, #eee, #f9f9f9, #eee);
+  background-image: -o-linear-gradient(top, #eee, #f9f9f9, #eee);
+  background-image: -webkit-linear-gradient(top, #eee, #f9f9f9, #eee);
+  background-image: linear-gradient(to bottom, #eee, #f9f9f9, #eee);
+  padding: 0.1em 0.3em;
+  font-family: inherit;
+  font-size: 0.85em;
+}
+
+/* For definitions of variables */
+
+dl {
+    margin: 1em;
+    border-bottom: 1px solid #ccc;
+}
+
+dt {
+    float: left;
+    clear: left;
+    width: 9.5em;
+    margin: 0.125em;
+    padding: 2px 4px;
+}
+
+dd {
+    padding: 0.2em 0 0.2em 10em;
+    border-top: 1px solid #ccc;
+}
+
+/* Prevent linebreak right after an icon */
+#main-content .fa {
+  display: inline;
+}
+
+/* Logo for FreeBSD until Font Awesome adds it, see https://github.com/FortAwesome/Font-Awesome/issues/1116 */
+i.freebsd-19px:before {
+  content: url(/img/freebsd-19px.svg);
+  vertical-align: -7%;
+}
+
+/* Responsive videos */
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 */
+    padding-top: 30px;
+    height: 0;
+    overflow: hidden;
+    margin: 20px 0;
+}
+
+.video-container iframe,
+.video-container object,
+.video-container embed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Google custom search */
+.cse {
+    margin-top: 20px;
+    padding-right: 20px;
+}
+
+
+/* Table of contents */
+
+.toc ul { list-style: none; margin: 0; padding: 0 5px;  }
+.toc ul li { display: inline; }
+#TableOfContents > ul > li > ul > li > ul li { margin-right: 8px; }
+#TableOfContents > ul > li > ul > li > a, #TableOfContents > ul > li > a   { font-weight: bold; background-color: #eeeeee; padding: 0 10px; margin: 0 2px; }
+#TableOfContents > ul > li > ul > li > a { font-style: italic; }
+.toc.compact ul > li > ul > li > ul  { display: none; }
+
+#toc {
+    position:fixed;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 10px 50px 10px 20px;
+}
+
+.showcase-container {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+}
+
+.showcase-container img {
+  border: 1px solid #555;
+}
+
+.showcase-container h4 {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+.dummy {
+    padding-top: 90%; /* Making rows line up even if img proportions off */
+}
+
+.thumbnail {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+@media(max-width:1200px) {
+    .toc {
+        display: none;
+    }
+}
+
+
+/* Footer panel */
+.footer-panel {
+    width: 100%;
+    border-top:1px #efefef solid;
+    line-height: 30px;
+    padding: 25px 0px 15px;
+    margin-top: 15px;
+    background: #f9f9f9;
+    display: inline-block;
+    float: left;
+}
+
+.footer-panel p {
+    padding-left: 20px;
+    padding-right: 20px;
+    font-size: medium;
+    font-style: italic;
+}
+
+
+/* Search form */
+#search-input {
+    width: 100%;
+    border: 1px solid #B3B3B3;
+    border-radius: 3px;
+    padding: 5px;
+}
+
+#search-input:focus {
+    border-color: #F04A9C;
+}
+
+/* Search result wrapper */
+.algolia-autocomplete {
+    width: 100%;
+}
+
+/* List of search results */
+.aa-dropdown-menu {
+    box-sizing: border-box;
+    width: 100%;
+    background-color: #FFFFFF;
+    border: 1px solid #B3B3B3;
+    padding: 0;
+    font-size: 16px;
+    margin: 4 0 4 0;
+}
+
+/* Highlight terms in search result headers */
+.algolia-docsearch-suggestion--category-header .algolia-docsearch-suggestion--highlight {
+    background-color: #F04A9C;
+}
+
+/* Highlight terms in search result body */
+.algolia-docsearch-suggestion--highlight {
+    color: #F04A9C;
+    font-weight: 900;
+}
+
+/* Currently selected search result */
+.aa-cursor .algolia-docsearch-suggestion--content {
+    color: inherit;
+}
+
+.aa-cursor .algolia-docsearch-suggestion {
+    background: #EFEFEF;
+    color: #353B44;
+}
+
+.algolia-docsearch-suggestion {
+    font-size: 16px;
+    color: #9AA2AB;
+}
+
+.algolia-docsearch-suggestion--category-header,
+.algolia-docsearch-suggestion--subcategory-column {
+    display: none !important;
+}

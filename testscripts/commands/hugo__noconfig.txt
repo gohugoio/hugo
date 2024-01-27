@@ -1,8 +1,0 @@
-
-mkdir mysite
-cd mysite
-! hugo
-
-stderr 'Unable to locate config file or config directory'
-ls .
-stdout 'Empty dir'

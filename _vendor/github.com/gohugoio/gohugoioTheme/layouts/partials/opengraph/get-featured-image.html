@@ -1,0 +1,24 @@
+{{ $images := $.Resources.ByType "image" }}
+{{ $featured := $images.GetMatch "*feature*" }}
+{{ if not $featured }}{{ $featured = $images.GetMatch "{*cover*,*thumbnail*}" }}{{ end }}
+{{ if not $featured }}
+    {{ $featured = resources.Get "/opengraph/gohugoio-card-base-1.png" }}
+    {{ $size := 80 }}
+    {{ $title := $.LinkTitle }}
+    {{ if gt (len $title) 20 }}
+    {{ $size = 70 }}
+    {{ end }}
+
+    {{ $text := $title }}
+                {{ $textOptions := dict 
+                    "color" "#FFF"
+                    "size" $size
+                    "lineSpacing" 10
+                    "x" 65 "y" 80
+                    "font" (resources.Get "/opengraph/mulish-black.ttf")
+                }}
+
+    {{ $featured = $featured | images.Filter (images.Text $text $textOptions) }}
+{{ end }}
+
+{{ return $featured }}

@@ -1,0 +1,34 @@
+.tab-button{
+	margin-bottom:1px;
+	position: relative;
+	z-index: 1;
+	color:#333;
+	border-color:#ccc;
+	outline: none;
+	background-color:white;
+}
+.tab-pane code{
+	background:#f1f2f2;
+	border-radius:0;
+}
+.tab-pane .chroma{
+	background:none;
+	padding:0;
+}
+.tab-button.active{
+	border-bottom-color:#f1f2f2;
+	background-color: #f1f2f2;
+}
+.tab-content .tab-pane{
+	display: none;
+}
+.tab-content .tab-pane.active{
+	display: block;
+}
+/* Treatment of copy buttons inside a tab module */ 
+.tab-content .copy, .tab-content .copied{
+	display: none;
+}
+.tab-content .tab-pane.active + .copy, .tab-content .tab-pane.active + .copied{
+	display: block;
+}
