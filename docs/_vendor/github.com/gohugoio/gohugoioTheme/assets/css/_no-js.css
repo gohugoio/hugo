@@ -1,7 +1,0 @@
-.no-js .needs-js {
-  opacity: 0
-}
-.js .needs-js {
-  opacity: 1;
-  transition: opacity .15s ease-in;
-}
