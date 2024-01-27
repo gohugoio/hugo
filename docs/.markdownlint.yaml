@@ -1,0 +1,25 @@
+# https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+
+MD001: false
+MD002: false
+MD003: false
+MD004: false
+MD007: false
+MD012:
+  maximum: 2
+MD013: false
+MD014: false
+MD022: false
+MD024: false
+MD031: false
+MD032: false
+MD033: false
+MD034: false
+MD036: false
+MD037: false
+MD038: false
+MD041: false
+MD046: false
+MD049: false
+MD050: false
+MD053: false

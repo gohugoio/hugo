@@ -1,0 +1,48 @@
+{{ define "main" }}
+{{ $section_to_display := .Pages }}
+<div class="w-100 ph4 pb5 pb6-ns pt1 pt3-ns">
+
+  <div class="flex">
+    <div class="dn db-l w-20">
+        {{ partial "nav-links-docs.html" . }}
+    </div>
+
+    <div class="w-100 w-80-l ph0 ph4-l">
+      <article class="w-100 nested-copy-line-height nested-links nested-img">
+        <h1 class="primary-color-dark f2">
+          {{ .Title }}
+        </h1>
+      </article>
+      <div class="pa3 pa4-ns w-100 v-top column-count-3-l column-gap-1-l">
+          {{ range $key, $value := .Data.Terms }}
+            <div class="break-inside-avoid-l nested-copy-line-height mb5">
+              <h2 class="f3">
+                <a href="{{ "/" | relLangURL }}{{ $.Data.Plural | urlize }}/{{ $key | urlize }}" class="link black hover-blue">
+                  {{ $key }} <span class="f6 gray"> &#8599;</span>
+                </a>
+              </h2>
+              {{ range $value.Pages }}
+                <h3>
+                  <a href="{{ .Permalink }}" class="link blue">
+                    {{ .Title }}
+                  </a>
+                </h3>
+              {{ end }}
+            </div>
+
+          {{ end }}
+
+      </div>
+
+
+
+
+    </div>
+
+  </div>
+
+
+
+
+</div>
+{{ end }}

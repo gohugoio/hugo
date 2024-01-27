@@ -1,0 +1,11 @@
+{{ $currentPage := . }}
+{{ $menu := .Site.Menus.docs.ByWeight }}
+<ul class="list dib ph0 scrolling-touch tc">
+  {{ range $menu }}{{ $post := printf "%s" .Post }}
+    <li  class="tl dib ma0 hover-bg-black w-100{{ if eq $post "break" }} mb2 bb b--mid-gray{{ end }}">
+        <a href="{{.URL}}" class="ttu f6 link primary-color-light  hover-white db brand-font mb1  ma0 w-100 pv2 ph4{{if $currentPage.IsMenuCurrent "main" . }} bg-primary-color{{end}}">
+          {{ .Name }}
+        </a>
+    </li>
+  {{end}}
+</ul>

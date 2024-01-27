@@ -1,0 +1,3 @@
+<h6 class="f6 dark-gray mb2">
+  Last updated: {{ .Lastmod.Format "January 2, 2006" }}{{ with .GitInfo }}: <a class="hide-child link primary-color" href="{{$.Site.Params.ghrepo}}commit/{{ .Hash }}">{{ .Subject }} ({{ .AbbreviatedHash }})</a>{{end }}
+</h6>

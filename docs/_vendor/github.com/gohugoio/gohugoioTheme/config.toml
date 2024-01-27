@@ -1,0 +1,4 @@
+
+[module]
+    [module.hugoVersion]
+    min = "0.56.0"

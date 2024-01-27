@@ -1,0 +1,34 @@
+<div class="w-90-l center">
+  {{ if .Params.features }}
+    <div class=" flex-ns flex-wrap justify-center center mw9">
+      {{ $features := .Params.features }}
+      {{ range $i, $e := $features  }}
+        {{ $features_count := $e | len }}
+
+        <div class="w-100{{ if and (eq $i $features_count) (ne (modBool $features_count 2) true) }} w-70-ns {{ else }} w-50-ns {{ end }}ph5-l pv5-l nested-copy-line-height">
+          <!-- NOTE:  "if eq $i $features_count" makes the last item a bit wider for balance. If we use an even number of items, we'll want to remove this -->
+          <div class="flex-l flex-wrap justify-between">
+            <div class="flex-auto w-100 w-20-ns pt1 ">
+              {{ with .image_path }}
+                <img src="{{ . }}" alt="icon depicting {{ $e.heading }}" class="h3 o-80 v-mid center w-100">
+              {{ end }}
+            </div>
+
+            <div class="flex-auto tc tl-ns w-100 w-80-ns">
+              <h3 class="lh-title gray o-80 f4 f5-ns mb2 fw8 bmt1 mt0-l">
+                 {{ .heading }}
+              </h3>
+              <div class="db v-mid w-100 gray measure-wide mb5 mb0-l">
+                <p class="f3 primary-color mt0 mb2">{{.tagline}}</p>
+                <div class="lh-copy">
+                  {{ .copy }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      {{ end }}
+    </div>
+  {{ end }}
+</div>

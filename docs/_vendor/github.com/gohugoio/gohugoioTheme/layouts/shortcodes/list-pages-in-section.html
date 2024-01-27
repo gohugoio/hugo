@@ -1,0 +1,96 @@
+{{- /*
+Renders a description list of the pages in the given section.
+
+Render a subset of the pages in the section by specifying a predefined filter,
+and whether to include those pages.
+
+Filters are defined in the data directory, in the file named page_filters. Each
+filter is an array of paths to a file, relative to the root of the content
+directory. Hugo will throw an error if the specified filter does not exist, or
+if any of the pages in the filter do not exist.
+
+The definition term elements (dt) have an id attribute derived from the title
+of the page. This is probably unique, because pages of the same title in the
+same section is unlikely.
+
+If you render a complete list on a page, then call the shortcode again to
+render a subset, you will generate duplicate element ids. In this case, set
+omitElementIDs to true for the subset.
+
+@param {string} path The path to the section.
+@param {string} [filter=""] The name of filter list.
+@param {string} [filterType=""] The type of filter, either include or exclude.
+@param {string} [omitElementIDs=false] Whether to omit dt element ids.
+@param {string} [titlePrefix=""] The string to prepend to the link title.
+
+@returns template.HTML
+
+@example {{< list-pages-in-section path=/methods/resources >}}
+@example {{< list-pages-in-section path=/functions/images filter=some_filter filterType=exclude >}}
+@example {{< list-pages-in-section path=/functions/images filter=some_filter filterType=exclude titlePrefix=foo >}}
+@example {{< list-pages-in-section path=/functions/images filter=some_filter filterType=exclude titlePrefix=foo omitElementIDs=true >}}
+*/}}
+
+{{- /* Initialize. */}}
+{{- $filter := or "" (.Get "filter" | lower)}}
+{{- $filterType := or (.Get "filterType") "none" | lower }}
+{{- $filteredPages := slice }}
+{{- $titlePrefix := or (.Get "titlePrefix") "" }}
+{{- $omitElementIDs := false }}
+
+{{- /* Get boolean parameters. */}}
+{{- if in (slice "false" false 0) (.Get "omitElementIDs") }}
+  {{- $omitElementIDs = false }}
+{{- else if in (slice "true" true 1) (.Get "omitElementIDs")}}
+  {{- $omitElementIDs = true }}
+{{- end }}
+
+{{- /* Build slice of filtered pages. */}}
+{{- with $filter }}
+  {{- with index site.Data.page_filters . }}
+    {{- range . }}
+      {{- with site.GetPage . }}
+        {{- $filteredPages = $filteredPages | append . }}
+      {{- else }}
+        {{- errorf "The %q shortcode was unable to find %q as specified in the page_filters data file. See %s" $.Name . $.Position }}
+      {{- end }}
+    {{- end }}
+  {{- else }}
+    {{- errorf "The %q shortcode was unable to find the %q filter in the page_filters data file. See %s" $.Name . $.Position }}
+  {{- end }}
+{{- end }}
+
+{{- /* Render */}}
+{{- with $sectionPath := .Get "path" }}
+  {{- with site.GetPage . }}
+    {{- with .RegularPages }}
+      <dl>
+        {{- range $page := .ByTitle }}
+          {{- if or
+            (and (eq $filterType "include") (in $filteredPages $page))
+            (and (eq $filterType "exclude") (not (in $filteredPages $page)))
+            (eq $filterType "none")
+          }}
+            {{- $linkTitle := .LinkTitle }}
+            {{- with $titlePrefix }}
+            {{- $linkTitle = printf "%s%s" . $linkTitle }}
+            {{- end }}
+            {{- $idAttribute := "" }}
+            {{- if not $omitElementIDs }}
+              {{- $id := path.Join .File.Dir .File.ContentBaseName | replaceRE `[\|/]` ":" | lower }}
+              {{- $idAttribute = printf " id=%q" $id }}
+            {{- end }}
+            <dt {{- $idAttribute | safeHTMLAttr }}><a href="{{ $page.RelPermalink }}">{{ $linkTitle }}</a></dt>
+            <dd>{{- $page.Description | $page.RenderString }}</dd>
+          {{- end }}
+        {{- end }}
+      </dl>
+    {{- else }}
+      {{- warnf "The %q shortcode found no pages in the %q section. See %s" $.Name $sectionPath $.Position }}
+    {{- end }}
+  {{- else }}
+    {{- errorf "The %q shortcode was unable to find %q. See %s" $.Name $sectionPath $.Position }}
+  {{- end }}
+{{- else }}
+  {{- errorf "The %q shortcode requires a 'path' parameter indicating the path to the section. See %s" $.Name $.Position }}
+{{- end }}

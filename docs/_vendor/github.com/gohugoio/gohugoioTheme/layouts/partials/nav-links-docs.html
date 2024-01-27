@@ -1,0 +1,23 @@
+{{ $currentPage := . }}
+<nav role="navigation">
+  <ul class="list pa0 nl2">
+    {{ range .Site.Menus.docs.ByWeight }}
+      {{ $post := printf "%s" .Post }}
+      <li class="f5 w-100 hover-bg-light-gray hover-accent-color-light fw8{{ if eq $post "break" }} mb1 bb b--moon-gray{{ end }}">
+        <a href="{{ if .HasChildren }}javascript:void(0){{ else }}{{ .URL }}{{ end }}" class="js-toggle dib w-100 link mid-gray hover-accent-color-light pl2 pr2 pv2 {{if or ($currentPage.IsMenuCurrent "docs" .) ($currentPage.HasMenuCurrent "docs" .) }} primary-color{{end}}" data-target=".{{ .Identifier }}">{{ .Name }}</a>
+
+        {{- if .HasChildren }}
+        <ul class="{{ .Identifier }} desktopmenu animated fadeIn list pl0 bg-light-gray{{if $currentPage.HasMenuCurrent "docs" . }} db{{ else }} dn{{ end }}">
+          {{- range .Children }}
+          <li class="f6 fw4">
+            <a href="{{.URL}}" class="db link hover-bg-gray hover-white pl3 pr2 pv2 {{if $currentPage.IsMenuCurrent "docs" . }}primary-color {{ else }}black {{end}}">
+              {{ .Name }}
+            </a>
+          </li>
+          {{- end}}
+        </ul>
+        {{- end}}
+      </li>
+    {{- end}}
+  </ul>
+</nav>
