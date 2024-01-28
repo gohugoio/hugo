@@ -421,8 +421,19 @@ func (p *pageState) setMetaPostParams() error {
 	var sitemapSet bool
 
 	var draft, published, isCJKLanguage *bool
+	var userParams map[string]any
 	for k, v := range pm.params {
 		loki := strings.ToLower(k)
+
+		if loki == "params" {
+			vv, err := maps.ToStringMapE(v)
+			if err != nil {
+				return err
+			}
+			userParams = vv
+			delete(pm.params, k)
+			continue
+		}
 
 		if loki == "published" { // Intentionally undocumented
 			vv, err := cast.ToBoolE(v)
@@ -587,6 +598,10 @@ func (p *pageState) setMetaPostParams() error {
 				pm.params[loki] = vv
 			}
 		}
+	}
+
+	for k, v := range userParams {
+		pm.params[strings.ToLower(k)] = v
 	}
 
 	if !sitemapSet {

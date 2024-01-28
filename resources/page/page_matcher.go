@@ -144,7 +144,16 @@ func mapToPageMatcherParamsConfig(m map[string]any) (PageMatcherParamsConfig, er
 			// those values will now be moved to the top level.
 			// This should be very unlikely as it would lead to constructs like .Params.params.foo,
 			// and most people see params as an Hugo internal keyword.
-			pcfg.Params = maps.ToStringMap(v)
+			params := maps.ToStringMap(v)
+			if pcfg.Params == nil {
+				pcfg.Params = params
+			} else {
+				for k, v := range params {
+					if _, found := pcfg.Params[k]; !found {
+						pcfg.Params[k] = v
+					}
+				}
+			}
 		case "_target", "target":
 			var target PageMatcher
 			if err := decodePageMatcher(v, &target); err != nil {
