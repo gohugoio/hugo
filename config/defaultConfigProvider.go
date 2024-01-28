@@ -370,7 +370,6 @@ func (c *defaultConfigProvider) SetDefaultMergeStrategy() {
 		}
 		return false
 	})
-
 }
 
 func (c *defaultConfigProvider) getNestedKeyAndMap(key string, create bool) (string, maps.Params) {

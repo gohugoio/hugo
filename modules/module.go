@@ -25,7 +25,6 @@ import (
 var _ Module = (*moduleAdapter)(nil)
 
 type Module interface {
-
 	// Optional config read from the configFilename above.
 	Cfg() config.Provider
 
@@ -157,7 +156,6 @@ func (m *moduleAdapter) Time() time.Time {
 	}
 
 	return *m.gomod.Time
-
 }
 
 func (m *moduleAdapter) Watch() bool {

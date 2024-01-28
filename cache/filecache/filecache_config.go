@@ -15,6 +15,7 @@
 package filecache
 
 import (
+	"errors"
 	"fmt"
 	"path"
 	"path/filepath"
@@ -23,8 +24,6 @@ import (
 
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
-
-	"errors"
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/afero"
@@ -225,7 +224,6 @@ func DecodeConfig(fs afero.Fs, bcfg config.BaseConfig, m map[string]any) (Config
 
 // Resolves :resourceDir => /myproject/resources etc., :cacheDir => ...
 func resolveDirPlaceholder(fs afero.Fs, bcfg config.BaseConfig, placeholder string) (cacheDir string, isResource bool, err error) {
-
 	switch strings.ToLower(placeholder) {
 	case ":resourcedir":
 		return "", true, nil

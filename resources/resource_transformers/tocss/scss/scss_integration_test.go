@@ -228,7 +228,6 @@ T1: {{ $r.Content }}
 		b.Assert(fe.ErrorContext(), qt.IsNotNil)
 		b.Assert(fe.ErrorContext().Lines, qt.DeepEquals, []string{"/* comment line 4 */", "", "$maincolor #eee;", "", "body {"})
 		b.Assert(fe.ErrorContext().ChromaLexer, qt.Equals, "scss")
-
 	})
 
 	c.Run("error in import", func(c *qt.C) {
@@ -245,9 +244,7 @@ T1: {{ $r.Content }}
 		b.Assert(fe.ErrorContext(), qt.IsNotNil)
 		b.Assert(fe.ErrorContext().Lines, qt.DeepEquals, []string{"/* comment line 1 */", "$foocolor #ccc;", "", "foo {"})
 		b.Assert(fe.ErrorContext().ChromaLexer, qt.Equals, "scss")
-
 	})
-
 }
 
 func TestOptionVars(t *testing.T) {

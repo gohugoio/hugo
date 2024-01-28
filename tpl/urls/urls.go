@@ -189,7 +189,6 @@ func (ns *Namespace) AbsLangURL(s any) (string, error) {
 // of any ./ or ../ elements. If the argument list is empty, JoinPath returns
 // an empty string.
 func (ns *Namespace) JoinPath(elements ...any) (string, error) {
-
 	if len(elements) == 0 {
 		return "", nil
 	}

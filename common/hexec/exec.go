@@ -19,11 +19,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"regexp"
-	"strings"
-
 	"os"
 	"os/exec"
+	"regexp"
+	"strings"
 
 	"github.com/cli/safeexec"
 	"github.com/gohugoio/hugo/config"
@@ -142,7 +141,6 @@ func (e *Exec) New(name string, arg ...any) (Runner, error) {
 	}
 
 	return cm.command(arg...)
-
 }
 
 // Npx is a convenience method to create a Runner running npx --no-install <name> <args.

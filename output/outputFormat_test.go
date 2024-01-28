@@ -69,7 +69,6 @@ func TestDefaultTypes(t *testing.T) {
 	c.Assert(CalendarFormat.IsHTML, qt.Equals, false)
 
 	c.Assert(len(DefaultFormats), qt.Equals, 11)
-
 }
 
 func TestGetFormatByName(t *testing.T) {

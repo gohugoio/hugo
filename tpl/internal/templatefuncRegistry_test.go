@@ -20,8 +20,7 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
-type Test struct {
-}
+type Test struct{}
 
 func (t *Test) MyTestMethod() string {
 	return "abcde"

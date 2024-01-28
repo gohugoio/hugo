@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -45,8 +46,6 @@ import (
 	"golang.org/x/mod/module"
 
 	"github.com/gohugoio/hugo/common/hugio"
-
-	"errors"
 
 	"github.com/spf13/afero"
 )
@@ -199,7 +198,7 @@ func (c *Client) Vendor() error {
 	if err := c.rmVendorDir(vendorDir); err != nil {
 		return err
 	}
-	if err := c.fs.MkdirAll(vendorDir, 0755); err != nil {
+	if err := c.fs.MkdirAll(vendorDir, 0o755); err != nil {
 		return err
 	}
 
@@ -260,7 +259,7 @@ func (c *Client) Vendor() error {
 			} else {
 				targetDir := filepath.Dir(targetFilename)
 
-				if err := c.fs.MkdirAll(targetDir, 0755); err != nil {
+				if err := c.fs.MkdirAll(targetDir, 0o755); err != nil {
 					return fmt.Errorf("failed to make target dir: %w", err)
 				}
 
@@ -303,7 +302,7 @@ func (c *Client) Vendor() error {
 	}
 
 	if modulesContent.Len() > 0 {
-		if err := afero.WriteFile(c.fs, filepath.Join(vendorDir, vendorModulesFilename), modulesContent.Bytes(), 0666); err != nil {
+		if err := afero.WriteFile(c.fs, filepath.Join(vendorDir, vendorModulesFilename), modulesContent.Bytes(), 0o666); err != nil {
 			return err
 		}
 	}
@@ -558,7 +557,7 @@ func (c *Client) rewriteGoMod(name string, isGoMod map[string]bool) error {
 		return err
 	}
 	if data != nil {
-		if err := afero.WriteFile(c.fs, filepath.Join(c.ccfg.WorkingDir, name), data, 0666); err != nil {
+		if err := afero.WriteFile(c.fs, filepath.Join(c.ccfg.WorkingDir, name), data, 0o666); err != nil {
 			return err
 		}
 	}
@@ -636,7 +635,8 @@ func (c *Client) rmVendorDir(vendorDir string) error {
 func (c *Client) runGo(
 	ctx context.Context,
 	stdout io.Writer,
-	args ...string) error {
+	args ...string,
+) error {
 	if c.goBinaryStatus != 0 {
 		return nil
 	}

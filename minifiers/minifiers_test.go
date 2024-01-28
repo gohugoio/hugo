@@ -184,7 +184,6 @@ func TestDecodeConfigDecimalIsNowPrecision(t *testing.T) {
 	conf := testconfig.GetTestConfigs(nil, v).Base.Minify
 
 	c.Assert(conf.Tdewolff.CSS.Precision, qt.Equals, 3)
-
 }
 
 // Issue 9456
@@ -209,7 +208,7 @@ func TestDecodeConfigKeepWhitespace(t *testing.T) {
 			KeepDocumentTags:    true,
 			KeepEndTags:         false,
 			KeepQuotes:          false,
-			KeepWhitespace:      false},
+			KeepWhitespace:      false,
+		},
 	)
-
 }

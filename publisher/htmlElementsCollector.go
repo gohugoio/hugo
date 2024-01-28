@@ -466,7 +466,6 @@ func parseStartTag(s string) string {
 	}
 
 	return s
-
 }
 
 // isClosedByTag reports whether b ends with a closing tag for tagName.
@@ -523,7 +522,6 @@ LOOP:
 	}
 
 	return bytes.EqualFold(tagName, b[lo:hi])
-
 }
 
 func isSpace(b byte) bool {

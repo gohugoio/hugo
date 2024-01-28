@@ -56,7 +56,7 @@ func (a *attrParser) Continue(node ast.Node, reader text.Reader, pc parser.Conte
 func (a *attrParser) Open(parent ast.Node, reader text.Reader, pc parser.Context) (ast.Node, parser.State) {
 	if attrs, ok := parser.ParseAttributes(reader); ok {
 		// add attributes
-		var node = &attributesBlock{
+		node := &attributesBlock{
 			BaseBlock: ast.BaseBlock{},
 		}
 		for _, attr := range attrs {
@@ -95,7 +95,7 @@ func (a *attributesBlock) Kind() ast.NodeKind {
 type transformer struct{}
 
 func (a *transformer) Transform(node *ast.Document, reader text.Reader, pc parser.Context) {
-	var attributes = make([]ast.Node, 0, 500)
+	attributes := make([]ast.Node, 0, 500)
 	ast.Walk(node, func(node ast.Node, entering bool) (ast.WalkStatus, error) {
 		if entering && node.Kind() == kindAttributesBlock {
 			// Attributes for fenced code blocks are handled in their own extension,

@@ -46,5 +46,4 @@ func TestItemValTyped(t *testing.T) {
 	c.Assert(Item{low: 0, high: len(source)}.ValTyped(source), qt.Equals, "truex")
 	source = []byte("xtrue")
 	c.Assert(Item{low: 0, high: len(source)}.ValTyped(source), qt.Equals, "xtrue")
-
 }

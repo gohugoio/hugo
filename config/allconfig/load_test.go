@@ -50,7 +50,7 @@ weight = 3
 title = "Svenska"
 weight = 4
 `
-	if err := os.WriteFile(configFilename, []byte(config), 0666); err != nil {
+	if err := os.WriteFile(configFilename, []byte(config), 0o666); err != nil {
 		b.Fatal(err)
 	}
 	d := ConfigSourceDescriptor{

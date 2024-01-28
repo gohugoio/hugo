@@ -41,7 +41,6 @@ func createLayoutExamples() any {
 		name string
 		d    layouts.LayoutDescriptor
 	}{
-
 		// Taxonomy layouts.LayoutDescriptor={categories category taxonomy en  false Type Section
 		{"Single page in \"posts\" section", layouts.LayoutDescriptor{Kind: "page", Type: "posts", OutputFormatName: "html", Suffix: "html"}},
 		{"Base template for single page in \"posts\" section", layouts.LayoutDescriptor{Baseof: true, Kind: "page", Type: "posts", OutputFormatName: "html", Suffix: "html"}},

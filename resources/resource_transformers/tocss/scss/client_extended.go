@@ -47,7 +47,6 @@ func (c *Client) ToCSS(res resources.ResourceTransformer, opts Options) (resourc
 	}
 
 	return res.Transform(&toCSSTransformation{c: c, options: internalOptions})
-
 }
 
 type toCSSTransformation struct {
