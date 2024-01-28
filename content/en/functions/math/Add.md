@@ -22,3 +22,14 @@ If one of the numbers is a [`float`], the result is a `float`.
 ```
 
 [`float`]: /getting-started/glossary/#float
+
+You can also use the `add` function to concatenate strings.
+
+```go-html-template
+{{ $s := slice "h" "u" "g" "o" }}
+{{ $t := "" }}
+{{ range $s }}
+  {{ $t = add $t . }}
+{{ end }}
+{{ $t }} → hugo
+```
