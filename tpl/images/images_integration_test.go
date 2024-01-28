@@ -40,12 +40,7 @@ imageConfig2 OK: {{ (imageConfig $path2).Width }}|
 
   `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 fileExists OK: true|

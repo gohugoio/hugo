@@ -44,12 +44,7 @@ l1: {{ i18n "l1"  }}|l2: {{ i18n "l2"  }}|l3: {{ i18n "l3"  }}
 
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 l1: l1main|l2: l2main|l3: l3theme
@@ -92,12 +87,7 @@ i18n: {{ i18n "a" . }}|
 
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 	i18n: Reading time: 3|
@@ -131,12 +121,7 @@ title: home_es
 ---
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/es/index.html", `home_es_gato`)
 	b.AssertFileContent("public/fr/index.html", `home_fr_gato`)

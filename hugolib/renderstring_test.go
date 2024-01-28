@@ -172,12 +172,7 @@ Has other: {{ .HasShortcode "other" }}
 
 	`
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html",
 		`
@@ -213,12 +208,7 @@ title: "P1"
 {{ .Content }}
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html", `TableOfContents`)
 }

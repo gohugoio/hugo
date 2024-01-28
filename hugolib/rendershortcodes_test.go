@@ -67,12 +67,7 @@ HasShortcode not found: {{ .HasShortcode "notfound" }}|
 Content: {{ .Content }}|
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html",
 		"Fragments: [p1-h1 p2-h1 p2-h2 p2-h3 p2-withmarkdown p3-h1 p3-h2 p3-withmarkdown]|",
@@ -118,12 +113,7 @@ JSON: {{ .Content }}
 
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html", "Myshort HTML")
 	b.AssertFileContent("public/p1/index.json", "Myshort JSON")

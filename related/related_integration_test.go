@@ -114,11 +114,7 @@ Content: {{ .Content }}
 	
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		}).Build()
+	b := hugolib.Test(t, files)
 
 	expect := `
 P1 Fragments: [p1-title]	

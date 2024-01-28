@@ -32,12 +32,7 @@ baseURL = 'http://example.com/'
 {{ return "foo"}}
   `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 	[foo foo foo]
@@ -89,12 +84,7 @@ func TestAppendSliceToASliceOfSlices(t *testing.T) {
 
   `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html", "[[a] [b] [c]]")
 }
@@ -113,12 +103,7 @@ func TestAppendNilToSlice(t *testing.T) {
 
   `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html", "[a &lt;nil&gt;]")
 }
@@ -180,12 +165,7 @@ title: "p3"
 {{< lorem 60 >}}
   `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 Home: p1|p3|
@@ -218,12 +198,7 @@ foo: bc
   {{- end -}}
 </ul>
   `
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 	b.AssertFileContent("public/index.html", "<ul><li>P1</li><li>P2</li></ul>")
 }
 
@@ -246,12 +221,7 @@ boolf = false
 {{ echoParam .Site.Params.footer "boolf" }}
 	`
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 	b.AssertFileContent("public/index.html",
 		"foo",
 		"42",

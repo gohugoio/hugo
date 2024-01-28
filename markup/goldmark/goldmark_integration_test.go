@@ -50,13 +50,7 @@ foo
 {{ .Content }}
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   false,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html", `
 		<h2 class="a" id="heading">
@@ -85,13 +79,7 @@ title: "p1"
 >{{ .Text | safeHTML }}</h{{ .Level }}>
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   false,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html", `
 		<h2 data-foo="bar" id="heading">Heading</h2>
@@ -111,13 +99,7 @@ title: "p1"
 {{ .Content }}
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   false,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html", `
 class="a &lt; b"
@@ -141,13 +123,7 @@ safeHTML: |{{- range $k, $v := .Attributes -}}{{ $k }}: {{ $v | safeHTML }}|{{ e
 {{ .Content }}
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   false,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html", `
 plain: |class: Smith &amp; Wesson|id: heading-attribute-which-needs-escaping|
@@ -178,13 +154,7 @@ title: "p1"
 
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   false,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html",
 		"<h2 id=\"hello-testhttpsexamplecom\">\n  Hello <a href=\"https://example.com\">Test</a>\n\n  <a class=\"anchor\" href=\"#hello-testhttpsexamplecom\">#</a>\n</h2>",
@@ -252,12 +222,7 @@ LINE8
 
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html",
 		"<div class=\"highlight\"><pre tabindex=\"0\" class=\"chroma\"><code class=\"language-bash\" data-lang=\"bash\"><span class=\"line\"><span class=\"cl\">LINE1\n</span></span></code></pre></div>",
@@ -397,7 +362,6 @@ FENCE
 
 		runBenchmark(files, b)
 	})
-
 }
 
 // Iisse #8959
@@ -406,7 +370,6 @@ func TestHookInfiniteRecursion(t *testing.T) {
 
 	for _, renderFunc := range []string{"markdownify", ".Page.RenderString"} {
 		t.Run(renderFunc, func(t *testing.T) {
-
 			files := `
 -- config.toml --
 -- layouts/_default/_markup/render-link.html --
@@ -436,11 +399,8 @@ a@b.com
 
 			b.Assert(err, qt.IsNotNil)
 			b.Assert(err.Error(), qt.Contains, "text is already rendered, repeating it may cause infinite recursion")
-
 		})
-
 	}
-
 }
 
 // Issue 9594
@@ -460,12 +420,7 @@ title: "p1"
 {{ .Content }}
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html", `
 		<img src="b.jpg" alt="&quot;a&quot;">
@@ -476,7 +431,6 @@ func TestLinkifyProtocol(t *testing.T) {
 	t.Parallel()
 
 	runTest := func(protocol string, withHook bool) *hugolib.IntegrationTestBuilder {
-
 		files := `
 -- config.toml --
 [markup.goldmark]
@@ -507,7 +461,6 @@ Link https procol: https://www.example.org
 				TxtarString: files,
 			},
 		).Build()
-
 	}
 
 	for _, withHook := range []bool{false, true} {
@@ -564,12 +517,7 @@ a <!-- b --> c
 {{ .Content }}
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContentExact("public/p1/index.html",
 		// Issue 9650
@@ -621,12 +569,7 @@ sc3_begin|{{ .Inner }}|sc3_end
 {{ .Content }}
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContentExact("public/p1/index.html",
 		// Issue #7332
@@ -657,12 +600,7 @@ title: "p1"
 {{ .Content }}
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContentExact("public/p1/index.html", "<p>:x:</p>")
 }
@@ -680,12 +618,7 @@ title: "p1"
 {{ .Content }}
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContentExact("public/p1/index.html", "<p>:x:</p>")
 }

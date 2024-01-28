@@ -255,12 +255,7 @@ mydata.date: {{ site.Data.mydata.date }}
 Full time: {{ $p1Date | time.Format ":time_full" }}
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 Future talks: 2

@@ -20,7 +20,6 @@ import (
 )
 
 func TestGroupByLocalizedDate(t *testing.T) {
-
 	files := `
 -- config.toml --
 defaultContentLanguage = 'en'
@@ -72,7 +71,6 @@ date: "2020-02-01"
 }
 
 func TestPagesSortCollation(t *testing.T) {
-
 	files := `
 -- config.toml --
 defaultContentLanguage = 'en'
@@ -166,12 +164,7 @@ RelPermalink: {{ .RelPermalink }}
 
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		}).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/a/c/d/index.html", "RelPermalink: /a/c/d/")
-
 }

@@ -38,12 +38,7 @@ c = "c1"
 -- layouts/index.html --
 Params: {{ site.Params}}
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 Params: map[a:acp1 b:bc1 c:c1 d:dcp1]

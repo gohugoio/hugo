@@ -916,12 +916,7 @@ title: "p1"
 {{ .Content }}
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html", `
 <x
@@ -957,12 +952,7 @@ title: "p1"
 {{ .Content }}
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html", "<ol>\n<li>\n<p>List 1</p>\n<ol>\n<li>Item Mark1 1</li>\n<li>Item Mark1 2</li>\n<li>Item Mark2 1</li>\n<li>Item Mark2 2\n<ol>\n<li>Item Mark2 2-1</li>\n</ol>\n</li>\n<li>Item Mark2 3</li>\n</ol>\n</li>\n</ol>")
 }
@@ -987,12 +977,7 @@ echo "foo";
 {{ .Content }}
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html", "<pre><code>echo &quot;foo&quot;;\n</code></pre>")
 }
@@ -1023,12 +1008,7 @@ title: "p1"
 {{ .Content }}
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html", `
 <pre><code> <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">line 1<span class="p">;</span>

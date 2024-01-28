@@ -128,12 +128,7 @@ SectionsEntries: {{ .SectionsEntries }}
 
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/withfile/index.html", "SectionsEntries: [withfile]")
 	b.AssertFileContent("public/withoutfile/index.html", "SectionsEntries: [withoutfile]")

@@ -571,12 +571,7 @@ Page IsAncestor Self: {{ $page.IsAncestor $page }}
 Page IsDescendant Self: {{ $page.IsDescendant $page}}
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/tests/index.html", `
 Tests|/tests/|IsMenuCurrent = true|HasMenuCurrent = false
@@ -609,12 +604,7 @@ Menu Item: {{ $i }}: {{ .Pre }}{{ .Name }}{{ .Post }}|{{ .URL }}|
 {{ end }}
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 Menu Item: 0: <span>Home</span>|/|	
@@ -640,12 +630,7 @@ Menu Item: {{ $i }}|{{ .URL }}|
 {{ end }}
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 Menu Item: 0|/foo/posts|

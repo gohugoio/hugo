@@ -196,12 +196,7 @@ title: "P1"
 {{ .Content }}
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html", "<nav id=\"TableOfContents\"></nav> \n<h1 id=\"heading-1\">Heading 1</h1>")
 }

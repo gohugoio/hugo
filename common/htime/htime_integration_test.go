@@ -47,12 +47,7 @@ defaultContentLanguage = 'it'
 {{ end }}
   `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 month: _gennaio_ weekday: _lunedì_

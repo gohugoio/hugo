@@ -698,12 +698,7 @@ title: "empty"
 |{{ .RawContent }}|
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/basic/index.html", "|**basic**|")
 	b.AssertFileContent("public/empty/index.html", "! title")

@@ -730,12 +730,7 @@ tags_weight: 40
 ---
 	`
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `:/p1/|/p3/|/p2/|:`)
 }

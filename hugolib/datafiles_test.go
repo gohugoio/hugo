@@ -18,7 +18,6 @@ import (
 )
 
 func TestData(t *testing.T) {
-
 	t.Run("with theme", func(t *testing.T) {
 		t.Parallel()
 
@@ -43,14 +42,8 @@ b: {{  site.Data.b.v1 }}|
 cd: {{ site.Data.c.d.v1 }}|
 d: {{  site.Data.d.v1 }}|
 `
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := Test(t, files)
 
 		b.AssertFileContent("public/index.html", "a: a_v1|\nb: b_v1|\ncd: c_d_v1|\nd: d_v1_theme|")
-
 	})
 }

@@ -63,12 +63,7 @@ outputs: ["rss"]
 ---
 P3. [I'm an inline-style link](https://www.example.org)
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 P1: <p>P1. html-link: https://www.gohugo.io|</p>
@@ -163,12 +158,7 @@ P1 Fragments: {{ .Fragments.Identifiers }}|
 {{ .Content}}
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html", `
 Self Fragments: [b c z]

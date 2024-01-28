@@ -34,12 +34,7 @@ partials/doesnotexist.html: {{ templates.Exists "partials/doesnotexist.html" }}
 -- layouts/partials/foo.html --
   `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 index.html: true
@@ -69,12 +64,7 @@ post/doesnotexist.html: {{ templates.Exists "post/doesnotexist.html" }}
 
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 index.html: true
@@ -96,12 +86,7 @@ Home: {{ page.IsHome }}
 
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 Home: true

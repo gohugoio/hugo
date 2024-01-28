@@ -76,12 +76,7 @@ Foo: {{< param foo >}}
 -- layouts/index.html --
 Content: {{ .Content }}|
 `
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := Test(t, files)
 
 		b.AssertFileContent("public/index.html", `
 <figure>
@@ -94,6 +89,5 @@ Foo: bar
 
 
 `)
-
 	})
 }

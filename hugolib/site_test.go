@@ -436,12 +436,7 @@ MainSections Site method: {{ site.MainSections }}|
 	
 	`
 
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := Test(t, files)
 
 		b.AssertFileContent("public/index.html", `
 MainSections Params: [a b]|
@@ -469,12 +464,7 @@ MainSections Site method: {{ site.MainSections }}|
 
 `
 
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := Test(t, files)
 
 		b.AssertFileContent("public/index.html", `
 MainSections Params: [a b]|
@@ -497,12 +487,7 @@ MainSections Site method: {{ site.MainSections }}|
 	
 	`
 
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := Test(t, files)
 
 		b.AssertFileContent("public/index.html", `
 MainSections Params: [mysect]|

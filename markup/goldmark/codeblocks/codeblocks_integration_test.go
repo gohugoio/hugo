@@ -87,13 +87,7 @@ echo "l8";
 §§§
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   false,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html", `
 Goat SVG:<svg class='diagram'
@@ -152,13 +146,7 @@ fmt.Println("Hello, World!");
 
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   false,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html",
 		"Inner: |<span class=\"line\"><span class=\"cl\"><span class=\"nx\">fmt</span><span class=\"p\">.</span><span class=\"nf\">Println</span><span class=\"p\">(</span><span class=\"s\">&#34;Hello, World!&#34;</span><span class=\"p\">);</span></span></span>|",
@@ -188,13 +176,7 @@ title: "p1"
 
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   false,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html", `
 # Issue 9627: For the Position in code blocks we try to match the .Inner with the original source. This isn't always possible.
@@ -223,13 +205,7 @@ echo "p1";
 
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   false,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html", "|echo \"p1\";|")
 }
@@ -257,12 +233,7 @@ Position: {{ .Position | safeHTML }}
 
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html", filepath.FromSlash("Position: \"/content/p1.md:7:1\""))
 }
@@ -290,12 +261,7 @@ Hello, World!
 Attributes: {{ .Attributes }}|Type: {{ .Type }}|
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html", "<h2 id=\"issue-10118\">Issue 10118</h2>\nAttributes: map[foo:bar]|Type: |")
 }

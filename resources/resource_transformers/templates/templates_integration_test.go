@@ -59,11 +59,7 @@ LangURL: {{ relLangURL "foo" }}
 
 	`
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		}).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/en/index.html", `
 		Hello1: Hello

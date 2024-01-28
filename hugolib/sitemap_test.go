@@ -39,12 +39,7 @@ title: doc2
 Doc2
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/sitemap.xml", " <loc>https://example.com/sect/doc1/</loc>", "doc2")
 }
@@ -81,12 +76,7 @@ title: doc2
 Doc2
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/sitemap.xml", "<loc>https://example.com/en/sitemap.xml</loc>", "<loc>https://example.com/nn/sitemap.xml</loc>")
 	b.AssertFileContent("public/en/sitemap.xml", " <loc>https://example.com/sect/doc1/</loc>", "doc2")
@@ -109,12 +99,7 @@ outputs: [ "html", "amp" ]
 
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	// Should link to the HTML version.
 	b.AssertFileContent("public/sitemap.xml", " <loc>https://example.com/blog/html-amp/</loc>")

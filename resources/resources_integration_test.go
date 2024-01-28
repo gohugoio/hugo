@@ -156,11 +156,7 @@ resize 2|RelPermalink: {{ $image.RelPermalink }}|MediaType: {{ $image.MediaType 
 
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		}).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html",
 		"jpg|RelPermalink: /images/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_filter_17010532266664966692.jpg|MediaType: image/jpeg|Width: 1|Height: 1|",

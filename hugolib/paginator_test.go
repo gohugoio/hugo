@@ -153,12 +153,7 @@ Len: {{ len $empty }}: Type: {{ printf "%T" $empty }}
 {{ $pag := .Paginate $pgs }}
 Len Pag: {{ len $pag.Pages }}
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", "Len: 0", "Len Pag: 0")
 }

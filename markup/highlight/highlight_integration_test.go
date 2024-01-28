@@ -67,13 +67,7 @@ HighlightCodeBlock: Wrapped:{{ $result.Wrapped  }}|Inner:{{ $result.Inner }}
 {{ .Content }}
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   false,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html",
 		"Inline:<code class=\"code-inline language-emacs\"><span class=\"p\">(</span><span class=\"nf\">message</span> <span class=\"s\">&#34;this highlight shortcode&#34;</span><span class=\"p\">)</span></code>:End.",
@@ -103,13 +97,7 @@ xəx := 0
 {{ .Content }}
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   false,
-		},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 		<span class="nx">xəx</span>

@@ -45,13 +45,7 @@ This is an inline image: ![Inline Image](/inline.jpg). Some more text.
 	<img src="{{ .Destination | safeURL }}" alt="{{ .Text }}|{{ .Ordinal }}" />
 {{ end }}
 `
-		b := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-				NeedsOsFS:   false,
-			},
-		).Build()
+		b := hugolib.Test(t, files)
 
 		b.AssertFileContent("public/p1/index.html",
 			"This is an inline image: \n\t<img src=\"/inline.jpg\" alt=\"Inline Image|0\" />\n. Some more text.</p>",
@@ -70,13 +64,7 @@ This is an inline image: ![Inline Image](/inline.jpg). Some more text.
 	<img src="{{ .Destination | safeURL }}" alt="{{ .Text }}" />
 {{ end }}
 `
-		b := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-				NeedsOsFS:   false,
-			},
-		).Build()
+		b := hugolib.Test(t, files)
 
 		b.AssertFileContent("public/p1/index.html",
 			"This is an inline image: \n\t<img src=\"/inline.jpg\" alt=\"Inline Image\" />\n. Some more text.</p>",
@@ -86,26 +74,14 @@ This is an inline image: ![Inline Image](/inline.jpg). Some more text.
 
 	t.Run("No Hook, no wrap", func(t *testing.T) {
 		files := strings.ReplaceAll(filesTemplate, "CONFIG_VALUE", "false")
-		b := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-				NeedsOsFS:   false,
-			},
-		).Build()
+		b := hugolib.Test(t, files)
 
 		b.AssertFileContent("public/p1/index.html", "<p>This is an inline image: <img src=\"/inline.jpg\" alt=\"Inline Image\">. Some more text.</p>\n<img src=\"/block.jpg\" alt=\"Block Image\" class=\"b\">")
 	})
 
 	t.Run("No Hook, wrap", func(t *testing.T) {
 		files := strings.ReplaceAll(filesTemplate, "CONFIG_VALUE", "true")
-		b := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-				NeedsOsFS:   false,
-			},
-		).Build()
+		b := hugolib.Test(t, files)
 
 		b.AssertFileContent("public/p1/index.html", "<p class=\"b\"><img src=\"/block.jpg\" alt=\"Block Image\"></p>")
 	})

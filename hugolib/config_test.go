@@ -48,15 +48,8 @@ title = "English Title"
 [languages.en.params.comments]
 title = "English Comments Title"
 
-
-
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	enSite := b.H.Sites[0]
 	b.Assert(enSite.Title(), qt.Equals, "English Title")
@@ -97,14 +90,8 @@ weight = 2
 [languages.sv.params]
 myparam = "svParamValue"
 
-
 `
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := Test(t, files)
 
 		enSite := b.H.Sites[0]
 		svSite := b.H.Sites[1]
@@ -157,12 +144,7 @@ baseURL = "https://example.com"
 [internal]
 running = true
 `
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := Test(t, files)
 
 		b.Assert(b.H.Conf.Running(), qt.Equals, false)
 	})
@@ -236,12 +218,7 @@ p1: {{ .Site.Params.p1 }}|
 p2: {{ .Site.Params.p2 }}|
 sub: {{ .Site.Params.sub }}|
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/en/index.html", `
 title: English Title|
@@ -987,12 +964,7 @@ params:
 mainSections: {{ site.Params.mainSections }}
 
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 mainSections: []
@@ -1062,12 +1034,7 @@ Ein "Zitat" auf Deutsch.
 
 
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", "p1: p1base", "<p>A &ldquo;quote&rdquo; in English.</p>")
 	b.AssertFileContent("public/de/index.html", "p1: p1de", "<p>Ein &laquo;Zitat&raquo; auf Deutsch.</p>")
@@ -1129,12 +1096,7 @@ HTACCESS.
 
 	
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/.htaccess", "HTACCESS")
 }
@@ -1150,12 +1112,7 @@ LanguageCode: {{ .Site.LanguageCode }}|{{ site.Language.LanguageCode }}|
 
 	
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", "LanguageCode: en-US|en-US|")
 }
@@ -1181,12 +1138,7 @@ Home.
 
 	
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", "Home.")
 
@@ -1214,12 +1166,7 @@ Foo: {{ site.Params.foo }}|
 	
 		
 	`
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := Test(t, files)
 
 		b.AssertFileContent("public/index.html", "Foo: |")
 	})
@@ -1295,12 +1242,7 @@ Home.
 
 	
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.Assert(b.H.Configs.Base.Module.Mounts, qt.HasLen, 7)
 	b.Assert(b.H.Configs.LanguageConfigSlice[0].Module.Mounts, qt.HasLen, 7)
@@ -1321,12 +1263,7 @@ Foo.
 -- layouts/index.html --
 Home.
 `
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := Test(t, files)
 
 		b.AssertFileContent("public/en/index.html", "Home.")
 		b.AssertFileContent("public/en/foo/bar.txt", "Foo.")
@@ -1354,12 +1291,7 @@ Foo.
 -- layouts/index.html --
 Home.
 `
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := Test(t, files)
 
 		b.AssertFileContent("public/en/index.html", "Home.")
 		b.AssertFileContent("public/en/foo/bar.txt", "Foo.")
@@ -1387,12 +1319,7 @@ Foo.
 -- layouts/index.html --
 Home.
 `
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := Test(t, files)
 
 		b.AssertFileContent("public/index.html", "Home.")
 		b.AssertFileContent("public/foo/bar.txt", "Foo.")
@@ -1417,12 +1344,7 @@ Home.
 
 	
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.Assert(len(b.H.Sites), qt.Equals, 1)
 }
@@ -1557,12 +1479,7 @@ List.
 
 
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileExists("public/index.html", true)
 	b.AssertFileExists("public/categories/c1/index.html", true)
