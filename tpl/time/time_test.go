@@ -124,7 +124,7 @@ func TestFormat(t *testing.T) {
 		}
 	})
 
-	//Issue #9084
+	// Issue #9084
 	c.Run("TZ America/Los_Angeles", func(c *qt.C) {
 		c.Parallel()
 
@@ -136,9 +136,7 @@ func TestFormat(t *testing.T) {
 
 		c.Assert(err, qt.IsNil)
 		c.Assert(d, qt.Equals, "11:00:00 am Pacific Daylight Time")
-
 	})
-
 }
 
 func TestDuration(t *testing.T) {

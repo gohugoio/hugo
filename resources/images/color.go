@@ -50,7 +50,6 @@ func ColorToHexString(c color.Color) string {
 	r, g, b, a := c.RGBA()
 	rgba := color.RGBA{uint8(r), uint8(g), uint8(b), uint8(a)}
 	return fmt.Sprintf("#%.2x%.2x%.2x", rgba.R, rgba.G, rgba.B)
-
 }
 
 func hexStringToColor(s string) (color.Color, error) {

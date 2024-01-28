@@ -56,23 +56,26 @@ func TestUnmarshalXML(t *testing.T) {
 				"guid":        "https://example.com/2021/11/30/example-title/",
 				"link":        "https://example.com/2021/11/30/example-title/",
 				"pubDate":     "Tue, 30 Nov 2021 15:00:00 +0000",
-				"title":       "Example title"},
+				"title":       "Example title",
+			},
 			"language":      "en-us",
 			"lastBuildDate": "Fri, 08 Jan 2021 14:44:10 +0000",
 			"link": []any{"https://example.com/", map[string]any{
 				"-href": "https://example.com/feed.xml",
 				"-rel":  "self",
-				"-type": "application/rss+xml"}},
+				"-type": "application/rss+xml",
+			}},
 			"title": "Example feed",
-		}}
+		},
+	}
 
 	d := Default
 
 	m, err := d.Unmarshal([]byte(xmlDoc), XML)
 	c.Assert(err, qt.IsNil)
 	c.Assert(m, qt.DeepEquals, expect)
-
 }
+
 func TestUnmarshalToMap(t *testing.T) {
 	c := qt.New(t)
 

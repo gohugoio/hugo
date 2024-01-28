@@ -135,5 +135,4 @@ func TestSortedStringSlice(t *testing.T) {
 	c.Assert(s.Count("b"), qt.Equals, 3)
 	c.Assert(s.Count("z"), qt.Equals, 0)
 	c.Assert(s.Count("a"), qt.Equals, 1)
-
 }

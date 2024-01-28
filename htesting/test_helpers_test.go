@@ -20,12 +20,10 @@ import (
 )
 
 func TestExtractMinorVersionFromGoTag(t *testing.T) {
-
 	c := qt.New(t)
 
 	c.Assert(extractMinorVersionFromGoTag("go1.17"), qt.Equals, 17)
 	c.Assert(extractMinorVersionFromGoTag("go1.16.7"), qt.Equals, 16)
 	c.Assert(extractMinorVersionFromGoTag("go1.17beta1"), qt.Equals, 17)
 	c.Assert(extractMinorVersionFromGoTag("asdfadf"), qt.Equals, -1)
-
 }

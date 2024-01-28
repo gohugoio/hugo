@@ -208,7 +208,6 @@ func LoadConfigFromDir(sourceFs afero.Fs, configDir, environment string) (Provid
 	}
 
 	return cfg, dirnames, nil
-
 }
 
 var keyAliases maps.KeyRenamer

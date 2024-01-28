@@ -49,7 +49,6 @@ func GetMemoryLimit() uint64 {
 		if v := stringToGibabyte(mem); v > 0 {
 			return v
 		}
-
 	}
 
 	// There is a FreeMemory function, but as the kernel in most situations

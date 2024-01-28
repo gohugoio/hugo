@@ -101,7 +101,7 @@ func TestNSConfig(t *testing.T) {
 		// cast path to string for afero.WriteFile
 		sp, err := cast.ToStringE(test.path)
 		c.Assert(err, qt.IsNil)
-		afero.WriteFile(ns.deps.Fs.Source, filepath.Join(bcfg.WorkingDir(), sp), test.input, 0755)
+		afero.WriteFile(ns.deps.Fs.Source, filepath.Join(bcfg.WorkingDir(), sp), test.input, 0o755)
 
 		result, err := ns.Config(test.path)
 

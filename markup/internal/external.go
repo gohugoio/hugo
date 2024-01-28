@@ -13,7 +13,8 @@ import (
 func ExternallyRenderContent(
 	cfg converter.ProviderConfig,
 	ctx converter.DocumentContext,
-	content []byte, binaryName string, args []string) ([]byte, error) {
+	content []byte, binaryName string, args []string,
+) ([]byte, error) {
 	logger := cfg.Logger
 
 	if strings.Contains(binaryName, "/") {

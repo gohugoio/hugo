@@ -14,10 +14,9 @@
 package deploy
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
-
-	"errors"
 
 	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/config"
@@ -132,7 +131,6 @@ var DefaultConfig = DeployConfig{
 
 // DecodeConfig creates a config from a given Hugo configuration.
 func DecodeConfig(cfg config.Provider) (DeployConfig, error) {
-
 	dcfg := DefaultConfig
 
 	if !cfg.IsSet(deploymentConfigKey) {

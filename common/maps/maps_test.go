@@ -192,5 +192,4 @@ func TestLookupEqualFold(t *testing.T) {
 	v, found = LookupEqualFold(m2, "b")
 	c.Assert(found, qt.IsTrue)
 	c.Assert(v, qt.Equals, "bv")
-
 }

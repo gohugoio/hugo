@@ -293,7 +293,6 @@ T1: {{ $r.Content }}
 
 	b.AssertLogMatches(`Dart Sass: foo`)
 	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:1:0: bar`)
-
 }
 
 func TestTransformErrors(t *testing.T) {
@@ -347,7 +346,6 @@ T1: {{ $r.Content }}
 		b.Assert(fe.ErrorContext(), qt.IsNotNil)
 		b.Assert(fe.ErrorContext().Lines, qt.DeepEquals, []string{"  $maincolor #eee;", "", "body {", "\tcolor: $maincolor;", "}"})
 		b.Assert(fe.ErrorContext().ChromaLexer, qt.Equals, "scss")
-
 	})
 
 	c.Run("error in import", func(c *qt.C) {
@@ -365,9 +363,7 @@ T1: {{ $r.Content }}
 		b.Assert(fe.ErrorContext(), qt.IsNotNil)
 		b.Assert(fe.ErrorContext().Lines, qt.DeepEquals, []string{"/* comment line 1 */", "$foocolor #ccc;", "", "foo {"})
 		b.Assert(fe.ErrorContext().ChromaLexer, qt.Equals, "scss")
-
 	})
-
 }
 
 func TestOptionVars(t *testing.T) {
@@ -528,5 +524,4 @@ T1: {{ $r.Content }}
 	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:12:0: number`)
 	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:13:0: number`)
 	b.AssertLogMatches(`Dart Sass: .*assets.*main.scss:14:0: number`)
-
 }

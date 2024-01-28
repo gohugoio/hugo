@@ -73,7 +73,6 @@ func StringSliceToInterfaceSlice(ss []string) []any {
 		result[i] = s
 	}
 	return result
-
 }
 
 type SortedStringSlice []string

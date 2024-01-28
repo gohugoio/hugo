@@ -60,7 +60,6 @@ func (c *Cache) Prune(force bool) (int, error) {
 	counter := 0
 
 	err := afero.Walk(c.Fs, "", func(name string, info os.FileInfo, err error) error {
-
 		if info == nil {
 			return nil
 		}
@@ -69,7 +68,6 @@ func (c *Cache) Prune(force bool) (int, error) {
 
 		if info.IsDir() {
 			f, err := c.Fs.Open(name)
-
 			if err != nil {
 				// This cache dir may not exist.
 				return nil

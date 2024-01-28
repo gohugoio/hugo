@@ -215,7 +215,6 @@ func (ns *Namespace) applyOpToScalarsOrSlices(opName string, op func(x, y float6
 		return
 	}
 	return
-
 }
 
 func (ns *Namespace) toFloatsE(v any) ([]float64, bool, error) {

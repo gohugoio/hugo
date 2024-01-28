@@ -33,9 +33,7 @@ type DuplicatesReporter interface {
 	ReportDuplicates() string
 }
 
-var (
-	_ FilesystemUnwrapper = (*createCountingFs)(nil)
-)
+var _ FilesystemUnwrapper = (*createCountingFs)(nil)
 
 func NewCreateCountingFs(fs afero.Fs) afero.Fs {
 	return &createCountingFs{Fs: fs, fileCount: make(map[string]int)}

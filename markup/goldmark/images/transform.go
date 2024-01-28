@@ -71,7 +71,5 @@ func (t *Transformer) Transform(doc *ast.Document, reader text.Reader, pctx pars
 		}
 
 		return ast.WalkContinue, nil
-
 	})
-
 }

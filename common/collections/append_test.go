@@ -55,7 +55,7 @@ func TestAppend(t *testing.T) {
 			[]any{&tstSlicerIn1{"c"}},
 			testSlicerInterfaces{&tstSlicerIn1{"a"}, &tstSlicerIn1{"b"}, &tstSlicerIn1{"c"}},
 		},
-		//https://github.com/gohugoio/hugo/issues/5361
+		// https://github.com/gohugoio/hugo/issues/5361
 		{
 			[]string{"a", "b"},
 			[]any{tstSlicers{&tstSlicer{"a"}, &tstSlicer{"b"}}},
@@ -102,14 +102,16 @@ func TestAppendToMultiDimensionalSlice(t *testing.T) {
 		from     []any
 		expected any
 	}{
-		{[][]string{{"a", "b"}},
+		{
+			[][]string{{"a", "b"}},
 			[]any{[]string{"c", "d"}},
 			[][]string{
 				{"a", "b"},
 				{"c", "d"},
 			},
 		},
-		{[][]string{{"a", "b"}},
+		{
+			[][]string{{"a", "b"}},
 			[]any{[]string{"c", "d"}, []string{"e", "f"}},
 			[][]string{
 				{"a", "b"},
@@ -117,7 +119,8 @@ func TestAppendToMultiDimensionalSlice(t *testing.T) {
 				{"e", "f"},
 			},
 		},
-		{[][]string{{"a", "b"}},
+		{
+			[][]string{{"a", "b"}},
 			[]any{[]int{1, 2}},
 			false,
 		},
@@ -130,7 +133,6 @@ func TestAppendToMultiDimensionalSlice(t *testing.T) {
 			c.Assert(result, qt.DeepEquals, test.expected)
 		}
 	}
-
 }
 
 func TestAppendShouldMakeACopyOfTheInputSlice(t *testing.T) {

@@ -12,8 +12,7 @@ import (
 const name = "css"
 
 // Namespace provides template functions for the "css" namespace.
-type Namespace struct {
-}
+type Namespace struct{}
 
 // Quoted returns a string that needs to be quoted in CSS.
 func (ns *Namespace) Quoted(v any) css.QuotedString {

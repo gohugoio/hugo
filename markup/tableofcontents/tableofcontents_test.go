@@ -186,7 +186,6 @@ func TestTocMisc(t *testing.T) {
 }
 
 func BenchmarkToc(b *testing.B) {
-
 	newTocs := func(n int) []*Fragments {
 		var tocs []*Fragments
 		for i := 0; i < n; i++ {
@@ -216,5 +215,4 @@ func BenchmarkToc(b *testing.B) {
 			toc.ToHTML(1, -1, false)
 		}
 	})
-
 }

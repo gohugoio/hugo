@@ -51,58 +51,56 @@ type BuiltinTypes struct {
 	OctetType Type
 }
 
-var (
-	Builtin = BuiltinTypes{
-		CalendarType:   Type{Type: "text/calendar"},
-		CSSType:        Type{Type: "text/css"},
-		SCSSType:       Type{Type: "text/x-scss"},
-		SASSType:       Type{Type: "text/x-sass"},
-		CSVType:        Type{Type: "text/csv"},
-		HTMLType:       Type{Type: "text/html"},
-		JavascriptType: Type{Type: "text/javascript"},
-		TypeScriptType: Type{Type: "text/typescript"},
-		TSXType:        Type{Type: "text/tsx"},
-		JSXType:        Type{Type: "text/jsx"},
+var Builtin = BuiltinTypes{
+	CalendarType:   Type{Type: "text/calendar"},
+	CSSType:        Type{Type: "text/css"},
+	SCSSType:       Type{Type: "text/x-scss"},
+	SASSType:       Type{Type: "text/x-sass"},
+	CSVType:        Type{Type: "text/csv"},
+	HTMLType:       Type{Type: "text/html"},
+	JavascriptType: Type{Type: "text/javascript"},
+	TypeScriptType: Type{Type: "text/typescript"},
+	TSXType:        Type{Type: "text/tsx"},
+	JSXType:        Type{Type: "text/jsx"},
 
-		JSONType:           Type{Type: "application/json"},
-		WebAppManifestType: Type{Type: "application/manifest+json"},
-		RSSType:            Type{Type: "application/rss+xml"},
-		XMLType:            Type{Type: "application/xml"},
-		SVGType:            Type{Type: "image/svg+xml"},
-		TextType:           Type{Type: "text/plain"},
-		TOMLType:           Type{Type: "application/toml"},
-		YAMLType:           Type{Type: "application/yaml"},
+	JSONType:           Type{Type: "application/json"},
+	WebAppManifestType: Type{Type: "application/manifest+json"},
+	RSSType:            Type{Type: "application/rss+xml"},
+	XMLType:            Type{Type: "application/xml"},
+	SVGType:            Type{Type: "image/svg+xml"},
+	TextType:           Type{Type: "text/plain"},
+	TOMLType:           Type{Type: "application/toml"},
+	YAMLType:           Type{Type: "application/yaml"},
 
-		// Common image types
-		PNGType:  Type{Type: "image/png"},
-		JPEGType: Type{Type: "image/jpeg"},
-		GIFType:  Type{Type: "image/gif"},
-		TIFFType: Type{Type: "image/tiff"},
-		BMPType:  Type{Type: "image/bmp"},
-		WEBPType: Type{Type: "image/webp"},
+	// Common image types
+	PNGType:  Type{Type: "image/png"},
+	JPEGType: Type{Type: "image/jpeg"},
+	GIFType:  Type{Type: "image/gif"},
+	TIFFType: Type{Type: "image/tiff"},
+	BMPType:  Type{Type: "image/bmp"},
+	WEBPType: Type{Type: "image/webp"},
 
-		// Common font types
-		TrueTypeFontType: Type{Type: "font/ttf"},
-		OpenTypeFontType: Type{Type: "font/otf"},
+	// Common font types
+	TrueTypeFontType: Type{Type: "font/ttf"},
+	OpenTypeFontType: Type{Type: "font/otf"},
 
-		// Common document types
-		PDFType:      Type{Type: "application/pdf"},
-		MarkdownType: Type{Type: "text/markdown"},
+	// Common document types
+	PDFType:      Type{Type: "application/pdf"},
+	MarkdownType: Type{Type: "text/markdown"},
 
-		// Common video types
-		AVIType:  Type{Type: "video/x-msvideo"},
-		MPEGType: Type{Type: "video/mpeg"},
-		MP4Type:  Type{Type: "video/mp4"},
-		OGGType:  Type{Type: "video/ogg"},
-		WEBMType: Type{Type: "video/webm"},
-		GPPType:  Type{Type: "video/3gpp"},
+	// Common video types
+	AVIType:  Type{Type: "video/x-msvideo"},
+	MPEGType: Type{Type: "video/mpeg"},
+	MP4Type:  Type{Type: "video/mp4"},
+	OGGType:  Type{Type: "video/ogg"},
+	WEBMType: Type{Type: "video/webm"},
+	GPPType:  Type{Type: "video/3gpp"},
 
-		// Web assembly.
-		WasmType: Type{Type: "application/wasm"},
+	// Web assembly.
+	WasmType: Type{Type: "application/wasm"},
 
-		OctetType: Type{Type: "application/octet-stream"},
-	}
-)
+	OctetType: Type{Type: "application/octet-stream"},
+}
 
 var defaultMediaTypesConfig = map[string]any{
 	"text/calendar":   map[string]any{"suffixes": []string{"ics"}},

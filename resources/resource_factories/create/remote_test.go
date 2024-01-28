@@ -81,7 +81,6 @@ func TestDecodeRemoteOptions(t *testing.T) {
 			c.Assert(err, isErr)
 			c.Assert(got, qt.DeepEquals, test.want)
 		})
-
 	}
 }
 
@@ -114,7 +113,6 @@ func TestOptionsNewRequest(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	c.Assert(req.Method, qt.Equals, "GET")
 	c.Assert(req.Header["User-Agent"], qt.DeepEquals, []string{"foo"})
-
 }
 
 func TestCalculateResourceID(t *testing.T) {

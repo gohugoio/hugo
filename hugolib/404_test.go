@@ -41,8 +41,8 @@ Data: {{ len .Data }}|
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			//LogLevel:    logg.LevelTrace,
-			//Verbose:     true,
+			// LogLevel:    logg.LevelTrace,
+			// Verbose:     true,
 		},
 	).Build()
 
