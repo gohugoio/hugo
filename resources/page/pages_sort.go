@@ -54,6 +54,19 @@ func getOrdinals(p1, p2 Page) (int, int) {
 	return p1o.Ordinal(), p2o.Ordinal()
 }
 
+func getWeight0s(p1, p2 Page) (int, int) {
+	p1w, ok1 := p1.(resource.Weight0Provider)
+	if !ok1 {
+		return -1, -1
+	}
+	p2w, ok2 := p2.(resource.Weight0Provider)
+	if !ok2 {
+		return -1, -1
+	}
+
+	return p1w.Weight0(), p2w.Weight0()
+}
+
 // Sort stable sorts the pages given the receiver's sort order.
 func (by pageBy) Sort(pages Pages) {
 	ps := &pageSorter{
@@ -72,12 +85,17 @@ var (
 		if o1 != o2 && o1 != -1 && o2 != -1 {
 			return o1 < o2
 		}
+		// Weight0, as by the weight of the taxonomy entrie in the front matter.
+		w01, w02 := getWeight0s(p1, p2)
+		if w01 != w02 && w01 != -1 && w02 != -1 {
+			return w01 < w02
+		}
 		if p1.Weight() == p2.Weight() {
 			if p1.Date().Unix() == p2.Date().Unix() {
 				c := collatorStringCompare(func(p Page) string { return p.LinkTitle() }, p1, p2)
 				if c == 0 {
-					if p1.File().IsZero() || p2.File().IsZero() {
-						return p1.File().IsZero()
+					if p1.File() == nil || p2.File() == nil {
+						return p1.File() == nil
 					}
 					return compare.LessStrings(p1.File().Filename(), p2.File().Filename())
 				}
@@ -102,7 +120,7 @@ var (
 			if p1.Date().Unix() == p2.Date().Unix() {
 				c := compare.Strings(p1.LinkTitle(), p2.LinkTitle())
 				if c == 0 {
-					if !p1.File().IsZero() && !p2.File().IsZero() {
+					if p1.File() != nil && p2.File() != nil {
 						return compare.LessStrings(p1.File().Filename(), p2.File().Filename())
 					}
 				}
@@ -192,7 +210,6 @@ var collatorStringLess = func(p Page) (less func(s1, s2 string) bool, close func
 		func() {
 			coll.Unlock()
 		}
-
 }
 
 // ByWeight sorts the Pages by weight and returns a copy.
@@ -406,7 +423,6 @@ func (p Pages) ByParam(paramsKey any) Pages {
 		s2 := cast.ToString(v2)
 
 		return stringLess(s1, s2)
-
 	}
 
 	pages, _ := spc.get(key, pageBy(paramsKeyComparator).Sort, p)

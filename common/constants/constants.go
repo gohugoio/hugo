@@ -20,3 +20,24 @@ const (
 	ErrRemoteGetJSON = "error-remote-getjson"
 	ErrRemoteGetCSV  = "error-remote-getcsv"
 )
+
+// Field/method names with special meaning.
+const (
+	FieldRelPermalink = "RelPermalink"
+	FieldPermalink    = "Permalink"
+)
+
+// IsFieldRelOrPermalink returns whether the given name is a RelPermalink or Permalink.
+func IsFieldRelOrPermalink(name string) bool {
+	return name == FieldRelPermalink || name == FieldPermalink
+}
+
+// Resource transformations.
+const (
+	ResourceTransformationFingerprint = "fingerprint"
+)
+
+// IsResourceTransformationLinkChange returns whether the given name is a resource transformation that changes the permalink based on the content.
+func IsResourceTransformationPermalinkHash(name string) bool {
+	return name == ResourceTransformationFingerprint
+}

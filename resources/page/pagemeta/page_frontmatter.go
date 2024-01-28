@@ -47,9 +47,8 @@ type FrontMatterHandler struct {
 // FrontMatterDescriptor describes how to handle front matter for a given Page.
 // It has pointers to values in the receiving page which gets updated.
 type FrontMatterDescriptor struct {
-
-	// This the Page's front matter.
-	Frontmatter map[string]any
+	// This is the Page's params.
+	Params map[string]any
 
 	// This is the Page's base filename (BaseFilename), e.g. page.md., or
 	// if page is a leaf bundle, the bundle folder name (ContentBaseName).
@@ -62,9 +61,6 @@ type FrontMatterDescriptor struct {
 	GitAuthorDate time.Time
 
 	// The below are pointers to values on Page and will be modified.
-
-	// This is the Page's params.
-	Params map[string]any
 
 	// This is the Page's dates.
 	Dates *resource.Dates
@@ -365,7 +361,7 @@ type frontmatterFieldHandlers int
 
 func (f *frontmatterFieldHandlers) newDateFieldHandler(key string, setter func(d *FrontMatterDescriptor, t time.Time)) frontMatterFieldHandler {
 	return func(d *FrontMatterDescriptor) (bool, error) {
-		v, found := d.Frontmatter[key]
+		v, found := d.Params[key]
 
 		if !found {
 			return false, nil
@@ -396,7 +392,7 @@ func (f *frontmatterFieldHandlers) newDateFilenameHandler(setter func(d *FrontMa
 
 		setter(d, date)
 
-		if _, found := d.Frontmatter["slug"]; !found {
+		if _, found := d.Params["slug"]; !found {
 			// Use slug from filename
 			d.PageURLs.Slug = slug
 		}

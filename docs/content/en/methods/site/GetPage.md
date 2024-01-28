@@ -6,7 +6,7 @@ keywords: []
 action:
   related:
     - methods/page/GetPage
-  returnType: hugolib.pageState
+  returnType: page.Page
   signatures: [SITE.GetPage PATH]
 toc: true
 ---

@@ -1,4 +1,4 @@
-// Copyright 2022 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ func (e *execHelper) GetMapValue(ctx context.Context, tmpl Preparer, m, key refl
 	return m.MapIndex(key), true
 }
 
-func (e *execHelper) GetMethod(ctx context.Context, tmpl Preparer, receiver reflect.Value, name string) (method reflect.Value, firstArg reflect.Value) {
+func (e *execHelper) GetMethod(ctx context.Context, tmpl Preparer, receiver reflect.Value, name string) (reflect.Value, reflect.Value) {
 	if name != "Hello1" {
 		return zero, zero
 	}

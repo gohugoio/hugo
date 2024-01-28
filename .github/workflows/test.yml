@@ -87,6 +87,12 @@ jobs:
         curl -LJO "https://github.com/sass/dart-sass/releases/download/${env:SASS_VERSION}/dart-sass-${env:SASS_VERSION}-windows-x64.zip";
         Expand-Archive -Path "dart-sass-${env:SASS_VERSION}-windows-x64.zip" -DestinationPath .;
         echo  "$env:GITHUB_WORKSPACE/dart-sass/" | Out-File -FilePath $Env:GITHUB_PATH -Encoding utf-8 -Append
+    - if: matrix.os == 'ubuntu-latest'
+      name: Install staticcheck
+      run: go install honnef.co/go/tools/cmd/staticcheck@latest
+    - if: matrix.os == 'ubuntu-latest'
+      name: Run staticcheck
+      run: staticcheck ./...
     - if: matrix.os != 'windows-latest'
       name: Check
       run: |

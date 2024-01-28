@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -95,22 +95,13 @@ func NewLanguage(lang, defaultContentLanguage, timeZone string, languageConfig L
 // This is injected from hugolib to avoid circular dependencies.
 var DeprecationFunc = func(item, alternative string, err bool) {}
 
-const paramsDeprecationWarning = `.Language.Params is deprecated and will be removed in a future release. Use site.Params instead.
-
-- For all but custom parameters, you need to use the built in Hugo variables, e.g. site.Title, site.LanguageCode; site.Language.Params.Title will not work.
-- All custom parameters needs to be placed below params, e.g. [languages.en.params] in TOML.
-
-See https://gohugo.io/content-management/multilingual/#changes-in-hugo-01120
-
-`
-
 // Params returns the language params.
 // Note that this is the same as the Site.Params, but we keep it here for legacy reasons.
 // Deprecated: Use the site.Params instead.
 func (l *Language) Params() maps.Params {
 	// TODO(bep) Remove this for now as it created a little too much noise. Need to think about this.
 	// See https://github.com/gohugoio/hugo/issues/11025
-	//DeprecationFunc(".Language.Params", paramsDeprecationWarning, false)
+	// DeprecationFunc(".Language.Params", paramsDeprecationWarning, false)
 	return l.params
 }
 
@@ -147,7 +138,8 @@ func (l Languages) AsSet() map[string]bool {
 	return m
 }
 
-func (l Languages) AsOrdinalSet() map[string]int {
+// AsIndexSet returns a map with the language code as key and index in l as value.
+func (l Languages) AsIndexSet() map[string]int {
 	m := make(map[string]int)
 	for i, lang := range l {
 		m[lang.Lang] = i

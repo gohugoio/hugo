@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,79 +11,201 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package identity
+package identity_test
 
 import (
 	"fmt"
-	"math/rand"
-	"strconv"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/identity/identitytesting"
 )
 
-func TestIdentityManager(t *testing.T) {
-	c := qt.New(t)
-
-	id1 := testIdentity{name: "id1"}
-	im := NewManager(id1)
-
-	c.Assert(im.Search(id1).GetIdentity(), qt.Equals, id1)
-	c.Assert(im.Search(testIdentity{name: "notfound"}), qt.Equals, nil)
-}
-
 func BenchmarkIdentityManager(b *testing.B) {
-	createIds := func(num int) []Identity {
-		ids := make([]Identity, num)
+	createIds := func(num int) []identity.Identity {
+		ids := make([]identity.Identity, num)
 		for i := 0; i < num; i++ {
-			ids[i] = testIdentity{name: fmt.Sprintf("id%d", i)}
+			name := fmt.Sprintf("id%d", i)
+			ids[i] = &testIdentity{base: name, name: name}
 		}
 		return ids
 	}
 
-	b.Run("Add", func(b *testing.B) {
-		c := qt.New(b)
-		b.StopTimer()
-		ids := createIds(b.N)
-		im := NewManager(testIdentity{"first"})
-		b.StartTimer()
-
+	b.Run("identity.NewManager", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			im.Add(ids[i])
+			m := identity.NewManager("")
+			if m == nil {
+				b.Fatal("manager is nil")
+			}
 		}
-
-		b.StopTimer()
-		c.Assert(im.GetIdentities(), qt.HasLen, b.N+1)
 	})
 
-	b.Run("Search", func(b *testing.B) {
-		c := qt.New(b)
-		b.StopTimer()
+	b.Run("Add unique", func(b *testing.B) {
 		ids := createIds(b.N)
-		im := NewManager(testIdentity{"first"})
+		im := identity.NewManager("")
 
+		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			im.Add(ids[i])
+			im.AddIdentity(ids[i])
 		}
 
-		b.StartTimer()
+		b.StopTimer()
+	})
 
+	b.Run("Add duplicates", func(b *testing.B) {
+		id := &testIdentity{base: "a", name: "b"}
+		im := identity.NewManager("")
+
+		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			name := "id" + strconv.Itoa(rand.Intn(b.N))
-			id := im.Search(testIdentity{name: name})
-			c.Assert(id.GetIdentity().Name(), qt.Equals, name)
+			im.AddIdentity(id)
 		}
+
+		b.StopTimer()
+	})
+
+	b.Run("Nop StringIdentity const", func(b *testing.B) {
+		const id = identity.StringIdentity("test")
+		for i := 0; i < b.N; i++ {
+			identity.NopManager.AddIdentity(id)
+		}
+	})
+
+	b.Run("Nop StringIdentity const other package", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			identity.NopManager.AddIdentity(identitytesting.TestIdentity)
+		}
+	})
+
+	b.Run("Nop StringIdentity var", func(b *testing.B) {
+		id := identity.StringIdentity("test")
+		for i := 0; i < b.N; i++ {
+			identity.NopManager.AddIdentity(id)
+		}
+	})
+
+	b.Run("Nop pointer identity", func(b *testing.B) {
+		id := &testIdentity{base: "a", name: "b"}
+		for i := 0; i < b.N; i++ {
+			identity.NopManager.AddIdentity(id)
+		}
+	})
+
+	b.Run("Nop Anonymous", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			identity.NopManager.AddIdentity(identity.Anonymous)
+		}
+	})
+}
+
+func BenchmarkIsNotDependent(b *testing.B) {
+	runBench := func(b *testing.B, id1, id2 identity.Identity) {
+		for i := 0; i < b.N; i++ {
+			isNotDependent(id1, id2)
+		}
+	}
+
+	newNestedManager := func(depth, count int) identity.Manager {
+		m1 := identity.NewManager("")
+		for i := 0; i < depth; i++ {
+			m2 := identity.NewManager("")
+			m1.AddIdentity(m2)
+			for j := 0; j < count; j++ {
+				id := fmt.Sprintf("id%d", j)
+				m2.AddIdentity(&testIdentity{id, id, "", ""})
+			}
+			m1 = m2
+		}
+		return m1
+	}
+
+	type depthCount struct {
+		depth int
+		count int
+	}
+
+	for _, dc := range []depthCount{{10, 5}} {
+		b.Run(fmt.Sprintf("Nested not found %d %d", dc.depth, dc.count), func(b *testing.B) {
+			im := newNestedManager(dc.depth, dc.count)
+			id1 := identity.StringIdentity("idnotfound")
+			b.ResetTimer()
+			runBench(b, im, id1)
+		})
+	}
+}
+
+func TestIdentityManager(t *testing.T) {
+	c := qt.New(t)
+
+	newNestedManager := func() identity.Manager {
+		m1 := identity.NewManager("")
+		m2 := identity.NewManager("")
+		m3 := identity.NewManager("")
+		m1.AddIdentity(
+			testIdentity{"base", "id1", "", "pe1"},
+			testIdentity{"base2", "id2", "eq1", ""},
+			m2,
+			m3,
+		)
+
+		m2.AddIdentity(testIdentity{"base4", "id4", "", ""})
+
+		return m1
+	}
+
+	c.Run("Anonymous", func(c *qt.C) {
+		im := newNestedManager()
+		c.Assert(im.GetIdentity(), qt.Equals, identity.Anonymous)
+		im.AddIdentity(identity.Anonymous)
+		c.Assert(isNotDependent(identity.Anonymous, identity.Anonymous), qt.IsTrue)
+	})
+
+	c.Run("GenghisKhan", func(c *qt.C) {
+		c.Assert(isNotDependent(identity.GenghisKhan, identity.GenghisKhan), qt.IsTrue)
 	})
 }
 
 type testIdentity struct {
+	base string
 	name string
+
+	idEq         string
+	idProbablyEq string
 }
 
-func (id testIdentity) GetIdentity() Identity {
-	return id
+func (id testIdentity) Eq(other any) bool {
+	ot, ok := other.(testIdentity)
+	if !ok {
+		return false
+	}
+	if ot.idEq == "" || id.idEq == "" {
+		return false
+	}
+	return ot.idEq == id.idEq
+}
+
+func (id testIdentity) IdentifierBase() string {
+	return id.base
 }
 
 func (id testIdentity) Name() string {
 	return id.name
+}
+
+func (id testIdentity) ProbablyEq(other any) bool {
+	ot, ok := other.(testIdentity)
+	if !ok {
+		return false
+	}
+	if ot.idProbablyEq == "" || id.idProbablyEq == "" {
+		return false
+	}
+	return ot.idProbablyEq == id.idProbablyEq
+}
+
+func isNotDependent(a, b identity.Identity) bool {
+	f := identity.NewFinder(identity.FinderConfig{})
+	r := f.Contains(b, a, -1)
+	return r == 0
 }

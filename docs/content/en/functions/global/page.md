@@ -86,7 +86,7 @@ Do not use the global `page` function in:
 - Partials called by shortcodes
 - Partials cached by the [`partialCached`] function
 
-Hugo caches rendered shortcodes. If you use the global `page` function within a shortcode, and the page content is rendered in two or more templates, the cached shortcodes may be incorrect.
+Hugo caches rendered shortcodes. If you use the global `page` function within a shortcode, and the page content is rendered in two or more templates, the cached shortcode may be incorrect.
 
 Consider this section template:
 

@@ -23,7 +23,7 @@ Without `safeURL`, only the URI schemes `http:`, `https:` and `mailto:` are cons
 The following examples use a [site `hugo.toml`][configuration] with the following [menu entry][menus]:
 
 {{< code-toggle file=hugo >}}
-[[menu.main]]
+[[menus.main]]
 name = "IRC: #golang at freenode"
 url = "irc://irc.freenode.net/#golang"
 {{< /code-toggle >}}

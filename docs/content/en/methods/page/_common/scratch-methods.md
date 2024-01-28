@@ -4,25 +4,28 @@
 
 ## Methods
 
-Set
-: Sets the value of a given key.
+###### Set
+
+Sets the value of a given key.
 
 ```go-html-template
 {{ .Scratch.Set "greeting" "Hello" }}
 ```
 
-Get
-: Gets the value of a given key.
+###### Get
+
+Gets the value of a given key.
 
 ```go-html-template
 {{ .Scratch.Set "greeting" "Hello" }}
 {{ .Scratch.Get "greeting" }} → Hello
 ```
 
-Add
-: Adds a given value to existing value(s) of the given key.
+###### Add
 
-: For single values, `Add` accepts values that support Go's `+` operator. If the first `Add` for a key is an array or slice, the following adds will be appended to that list.
+Adds a given value to existing value(s) of the given key.
+
+For single values, `Add` accepts values that support Go's `+` operator. If the first `Add` for a key is an array or slice, the following adds will be appended to that list.
 
 ```go-html-template
 {{ .Scratch.Set "greeting" "Hello" }}
@@ -42,8 +45,9 @@ Add
 {{ .Scratch.Get "greetings" }} → [Hello Welcome Cheers]
 ```
 
-SetInMap
-: Takes a `key`, `mapKey` and `value` and adds a map of `mapKey` and `value` to the given `key`.
+###### SetInMap
+
+Takes a `key`, `mapKey` and `value` and adds a map of `mapKey` and `value` to the given `key`.
 
 ```go-html-template
 {{ .Scratch.SetInMap "greetings" "english" "Hello" }}
@@ -51,8 +55,9 @@ SetInMap
 {{ .Scratch.Get "greetings" }} → map[english:Hello french:Bonjour]
 ```
 
-DeleteInMap
-: Takes a `key` and `mapKey` and removes the map of `mapKey` from the given `key`.
+###### DeleteInMap
+
+Takes a `key` and `mapKey` and removes the map of `mapKey` from the given `key`.
 
 ```go-html-template
 {{ .Scratch.SetInMap "greetings" "english" "Hello" }}
@@ -61,8 +66,9 @@ DeleteInMap
 {{ .Scratch.Get "greetings" }} → map[french:Bonjour]
 ```
 
-GetSortedMapValues
-: Returns an array of values from `key` sorted by `mapKey`.
+###### GetSortedMapValues
+
+Returns an array of values from `key` sorted by `mapKey`.
 
 ```go-html-template
 {{ .Scratch.SetInMap "greetings" "english" "Hello" }}
@@ -70,8 +76,9 @@ GetSortedMapValues
 {{ .Scratch.GetSortedMapValues "greetings" }} → [Hello Bonjour]
 ```
 
-Delete
-: Removes the given key.
+###### Delete
+
+Removes the given key.
 
 ```go-html-template
 {{ .Scratch.Set "greeting" "Hello" }}

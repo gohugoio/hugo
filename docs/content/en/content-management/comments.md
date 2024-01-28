@@ -24,7 +24,7 @@ Hugo comes with all the code you need to load Disqus into your templates. Before
 
 Disqus comments require you set a single value in your [site's configuration file][configuration] like so:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [services.disqus]
 shortname = 'your-disqus-shortname'
 {{</ code-toggle >}}
@@ -48,6 +48,7 @@ Disqus has its own [internal template](/templates/internal/#disqus) available, t
 These are some alternatives to Disqus:
 
 * [Cactus Comments](https://cactus.chat/docs/integrations/hugo/) (Open Source, Matrix appservice, Docker install)
+* [Comentario](https://gitlab.com/comentario/comentario) (Open Source, self-hosted, Go/Angular, run locally, in Docker or Kubernetes)
 * [Commento](https://commento.io/) (Open Source, available as a service, local install, or docker image)
 * [Giscus](https://giscus.app/) (Open source, comments system powered by GitHub Discussions)
 * [Graph Comment](https://graphcomment.com/)

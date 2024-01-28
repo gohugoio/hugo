@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-
 	"strconv"
 	"strings"
 	"time"
@@ -66,7 +65,6 @@ Import from Jekyll requires two paths, e.g. ` + "`hugo import jekyll jekyll_root
 	}
 
 	return c
-
 }
 
 type importCommand struct {
@@ -312,7 +310,7 @@ func (c *importCommand) convertJekyllPost(path, relPath, targetDir string, draft
 
 	targetFile := filepath.Join(targetDir, relPath)
 	targetParentDir := filepath.Dir(targetFile)
-	os.MkdirAll(targetParentDir, 0777)
+	os.MkdirAll(targetParentDir, 0o777)
 
 	contentBytes, err := os.ReadFile(path)
 	if err != nil {
@@ -398,7 +396,6 @@ func (c *importCommand) copyJekyllFilesAndFolders(jekyllRoot, dest string, jekyl
 }
 
 func (c *importCommand) importFromJekyll(args []string) error {
-
 	jekyllRoot, err := filepath.Abs(filepath.Clean(args[0]))
 	if err != nil {
 		return newUserError("path error:", args[0])
@@ -429,11 +426,7 @@ func (c *importCommand) importFromJekyll(args []string) error {
 	c.r.Println("Importing...")
 
 	fileCount := 0
-	callback := func(path string, fi hugofs.FileMetaInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
+	callback := func(path string, fi hugofs.FileMetaInfo) error {
 		if fi.IsDir() {
 			return nil
 		}
@@ -462,7 +455,7 @@ func (c *importCommand) importFromJekyll(args []string) error {
 
 	for jekyllPostDir, hasAnyPostInDir := range jekyllPostDirs {
 		if hasAnyPostInDir {
-			if err = helpers.SymbolicWalk(hugofs.Os, filepath.Join(jekyllRoot, jekyllPostDir), callback); err != nil {
+			if err = helpers.Walk(hugofs.Os, filepath.Join(jekyllRoot, jekyllPostDir), callback); err != nil {
 				return err
 			}
 		}

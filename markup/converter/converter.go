@@ -89,7 +89,6 @@ func (nopConverter) Supports(feature identity.Identity) bool {
 // another format, e.g. Markdown to HTML.
 type Converter interface {
 	Convert(ctx RenderContext) (ResultRender, error)
-	Supports(feature identity.Identity) bool
 }
 
 // ParseRenderer is an optional interface.
@@ -156,5 +155,3 @@ type RenderContext struct {
 	// GerRenderer provides hook renderers on demand.
 	GetRenderer hooks.GetRendererFunc
 }
-
-var FeatureRenderHooks = identity.NewPathIdentity("markup", "renderingHooks")

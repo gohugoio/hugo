@@ -28,11 +28,11 @@ import (
 
 var defaultTdewolffConfig = TdewolffConfig{
 	HTML: html.Minifier{
-		KeepDocumentTags:        true,
-		KeepConditionalComments: true,
-		KeepEndTags:             true,
-		KeepDefaultAttrVals:     true,
-		KeepWhitespace:          false,
+		KeepDocumentTags:    true,
+		KeepSpecialComments: true,
+		KeepEndTags:         true,
+		KeepDefaultAttrVals: true,
+		KeepWhitespace:      false,
 	},
 	CSS: css.Minifier{
 		Precision: 0,
@@ -90,17 +90,39 @@ func DecodeConfig(v any) (conf MinifyConfig, err error) {
 	// Handle upstream renames.
 	if td, found := m["tdewolff"]; found {
 		tdm := maps.ToStringMap(td)
+
 		for _, key := range []string{"css", "svg"} {
 			if v, found := tdm[key]; found {
 				vm := maps.ToStringMap(v)
-				if vv, found := vm["decimal"]; found {
-					vvi := cast.ToInt(vv)
-					if vvi > 0 {
-						vm["precision"] = vvi
+				ko := "decimal"
+				kn := "precision"
+				if vv, found := vm[ko]; found {
+					if _, found = vm[kn]; !found {
+						vvi := cast.ToInt(vv)
+						if vvi > 0 {
+							vm[kn] = vvi
+						}
 					}
+					delete(vm, ko)
 				}
 			}
 		}
+
+		// keepConditionalComments was renamed to keepSpecialComments
+		if v, found := tdm["html"]; found {
+			vm := maps.ToStringMap(v)
+			ko := "keepconditionalcomments"
+			kn := "keepspecialcomments"
+			if vv, found := vm[ko]; found {
+				// Set keepspecialcomments, if not already set
+				if _, found := vm[kn]; !found {
+					vm[kn] = cast.ToBool(vv)
+				}
+				// Remove the old key to prevent deprecation warnings
+				delete(vm, ko)
+			}
+		}
+
 	}
 
 	err = mapstructure.WeakDecode(m, &conf)

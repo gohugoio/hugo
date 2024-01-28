@@ -52,6 +52,7 @@ func newTestTemplate(templ tpl.Template) *templateState {
 		templateInfo{
 			name: templ.Name(),
 		},
+		nil,
 	)
 }
 

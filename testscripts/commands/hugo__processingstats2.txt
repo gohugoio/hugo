@@ -1,0 +1,16 @@
+cp $SOURCE/resources/testdata/pix.gif content/posts/post-1/p1.gif
+cp $SOURCE/resources/testdata/pix.gif content/posts/post-1/p2.gif
+
+hugo
+
+stdout 'Pages.*/| 10\s'
+stdout 'Non-page files.*/| 2\s'
+
+-- content/posts/post-1/index.md --
+-- hugo.toml --
+baseURL = "https://example.com/"
+-- layouts/_default/list.html --
+List.
+-- layouts/_default/single.html --
+Single.
+

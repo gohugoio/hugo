@@ -18,7 +18,7 @@ aliases: [/functions/humanize]
 {{ humanize "myCamelPost" }} → My camel post
 ```
 
-If the input is either an int64 value or the string representation of an integer, humanize returns the number with the proper ordinal appended.
+If the input is an integer or a string representation of an integer, humanize returns the number with the proper ordinal appended.
 
 ```go-html-template
 {{ humanize "52" }} → 52nd

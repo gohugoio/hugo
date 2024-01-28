@@ -23,7 +23,7 @@ hugo version
 You should see something like:
 
 ```text
-hugo v0.105.0-0e3b42b4a9bdeb4d866210819fc6ddcf51582ffa+extended linux/amd64 BuildDate=2022-10-28T12:29:05Z VendorInfo=snap:0.105.0
+hugo v0.122.0-b9a03bd59d5f71a529acb3e33f995e0ef332b3aa+extended linux/amd64 BuildDate=2024-01-26T15:54:24Z VendorInfo=gohugoio
 ```
 
 ## Display available commands

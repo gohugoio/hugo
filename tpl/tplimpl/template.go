@@ -42,7 +42,6 @@ import (
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/hugofs/files"
 
 	htmltemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
@@ -121,10 +120,6 @@ func needsBaseTemplate(templ string) bool {
 	return baseTemplateDefineRe.MatchString(templ[idx:])
 }
 
-func newIdentity(name string) identity.Manager {
-	return identity.NewManager(identity.NewPathIdentity(files.ComponentFolderLayouts, name))
-}
-
 func newStandaloneTextTemplate(funcs map[string]any) tpl.TemplateParseFinder {
 	return &textTemplateWrapperWithLock{
 		RWMutex:  &sync.RWMutex{},
@@ -147,7 +142,6 @@ func newTemplateHandlers(d *deps.Deps) (*tpl.TemplateHandlers, error) {
 	h := &templateHandler{
 		nameBaseTemplateName: make(map[string]string),
 		transformNotFound:    make(map[string]*templateState),
-		identityNotFound:     make(map[string][]identity.Manager),
 
 		shortcodes:   make(map[string]*shortcodeTemplates),
 		templateInfo: make(map[string]tpl.Info),
@@ -187,7 +181,6 @@ func newTemplateHandlers(d *deps.Deps) (*tpl.TemplateHandlers, error) {
 		Tmpl:    e,
 		TxtTmpl: newStandaloneTextTemplate(funcMap),
 	}, nil
-
 }
 
 func newTemplateNamespace(funcs map[string]any) *templateNamespace {
@@ -200,13 +193,16 @@ func newTemplateNamespace(funcs map[string]any) *templateNamespace {
 	}
 }
 
-func newTemplateState(templ tpl.Template, info templateInfo) *templateState {
+func newTemplateState(templ tpl.Template, info templateInfo, id identity.Identity) *templateState {
+	if id == nil {
+		id = info
+	}
 	return &templateState{
 		info:      info,
 		typ:       info.resolveType(),
 		Template:  templ,
-		Manager:   newIdentity(info.name),
 		parseInfo: tpl.DefaultParseInfo,
+		id:        id,
 	}
 }
 
@@ -288,7 +284,7 @@ func (t *templateExec) UnusedTemplates() []tpl.FileInfo {
 
 	for _, ts := range t.main.templates {
 		ti := ts.info
-		if strings.HasPrefix(ti.name, "_internal/") || ti.realFilename == "" {
+		if strings.HasPrefix(ti.name, "_internal/") || ti.meta == nil {
 			continue
 		}
 
@@ -346,9 +342,6 @@ type templateHandler struct {
 	// AST transformation pass.
 	transformNotFound map[string]*templateState
 
-	// Holds identities of templates not found during first pass.
-	identityNotFound map[string][]identity.Manager
-
 	// shortcodes maps shortcode name to template variants
 	// (language, output format etc.) of that shortcode.
 	shortcodes map[string]*shortcodeTemplates
@@ -405,7 +398,6 @@ func (t *templateHandler) LookupLayout(d layouts.LayoutDescriptor, f output.Form
 	cacheVal := layoutCacheEntry{found: found, templ: templ, err: err}
 	t.layoutTemplateCache[key] = cacheVal
 	return cacheVal.templ, cacheVal.found, cacheVal.err
-
 }
 
 // This currently only applies to shortcodes and what we get here is the
@@ -456,6 +448,22 @@ func (t *templateHandler) HasTemplate(name string) bool {
 	return found
 }
 
+func (t *templateHandler) GetIdentity(name string) (identity.Identity, bool) {
+	if _, found := t.needsBaseof[name]; found {
+		return identity.StringIdentity(name), true
+	}
+
+	if _, found := t.baseof[name]; found {
+		return identity.StringIdentity(name), true
+	}
+
+	tt, found := t.Lookup(name)
+	if !found {
+		return nil, false
+	}
+	return tt.(identity.IdentityProvider).GetIdentity(), found
+}
+
 func (t *templateHandler) findLayout(d layouts.LayoutDescriptor, f output.Format) (tpl.Template, bool, error) {
 	d.OutputFormatName = f.Name
 	d.Suffix = f.MediaType.FirstSuffix.Suffix
@@ -488,13 +496,10 @@ func (t *templateHandler) findLayout(d layouts.LayoutDescriptor, f output.Format
 			return nil, false, err
 		}
 
-		ts := newTemplateState(templ, overlay)
+		ts := newTemplateState(templ, overlay, identity.Or(base, overlay))
 
 		if found {
 			ts.baseInfo = base
-
-			// Add the base identity to detect changes
-			ts.Add(identity.NewPathIdentity(files.ComponentFolderLayouts, base.name))
 		}
 
 		t.applyTemplateTransformers(t.main, ts)
@@ -508,13 +513,6 @@ func (t *templateHandler) findLayout(d layouts.LayoutDescriptor, f output.Format
 	}
 
 	return nil, false, nil
-}
-
-func (t *templateHandler) findTemplate(name string) *templateState {
-	if templ, found := t.Lookup(name); found {
-		return templ.(*templateState)
-	}
-	return nil
 }
 
 func (t *templateHandler) newTemplateInfo(name, tpl string) templateInfo {
@@ -539,9 +537,8 @@ func (t *templateHandler) addFileContext(templ tpl.Template, inerr error) error 
 
 	identifiers := t.extractIdentifiers(inerr.Error())
 
-	//lint:ignore ST1008 the error is the main result
 	checkFilename := func(info templateInfo, inErr error) (error, bool) {
-		if info.filename == "" {
+		if info.meta == nil {
 			return inErr, false
 		}
 
@@ -560,13 +557,13 @@ func (t *templateHandler) addFileContext(templ tpl.Template, inerr error) error 
 			return -1
 		}
 
-		f, err := t.layoutsFs.Open(info.filename)
+		f, err := info.meta.Open()
 		if err != nil {
 			return inErr, false
 		}
 		defer f.Close()
 
-		fe := herrors.NewFileErrorFromName(inErr, info.realFilename)
+		fe := herrors.NewFileErrorFromName(inErr, info.meta.Filename)
 		fe.UpdateContent(f, lineMatcher)
 
 		if !fe.ErrorContext().Position.IsValid() {
@@ -621,37 +618,33 @@ func (t *templateHandler) addShortcodeVariant(ts *templateState) {
 	}
 }
 
-func (t *templateHandler) addTemplateFile(name, path string) error {
-	getTemplate := func(filename string) (templateInfo, error) {
-		fs := t.Layouts.Fs
-		b, err := afero.ReadFile(fs, filename)
+func (t *templateHandler) addTemplateFile(name string, fim hugofs.FileMetaInfo) error {
+	getTemplate := func(fim hugofs.FileMetaInfo) (templateInfo, error) {
+		meta := fim.Meta()
+		f, err := meta.Open()
 		if err != nil {
-			return templateInfo{filename: filename, fs: fs}, err
+			return templateInfo{meta: meta}, err
+		}
+		defer f.Close()
+		b, err := io.ReadAll(f)
+		if err != nil {
+			return templateInfo{meta: meta}, err
 		}
 
 		s := removeLeadingBOM(string(b))
-
-		realFilename := filename
-		if fi, err := fs.Stat(filename); err == nil {
-			if fim, ok := fi.(hugofs.FileMetaInfo); ok {
-				realFilename = fim.Meta().Filename
-			}
-		}
 
 		var isText bool
 		name, isText = t.nameIsText(name)
 
 		return templateInfo{
-			name:         name,
-			isText:       isText,
-			template:     s,
-			filename:     filename,
-			realFilename: realFilename,
-			fs:           fs,
+			name:     name,
+			isText:   isText,
+			template: s,
+			meta:     meta,
 		}, nil
 	}
 
-	tinfo, err := getTemplate(path)
+	tinfo, err := getTemplate(fim)
 	if err != nil {
 		return err
 	}
@@ -741,11 +734,6 @@ func (t *templateHandler) applyTemplateTransformers(ns *templateNamespace, ts *t
 
 	for k := range c.templateNotFound {
 		t.transformNotFound[k] = ts
-		t.identityNotFound[k] = append(t.identityNotFound[k], c.t)
-	}
-
-	for k := range c.identityNotFound {
-		t.identityNotFound[k] = append(t.identityNotFound[k], c.t)
 	}
 
 	return c, err
@@ -804,9 +792,9 @@ func (t *templateHandler) loadEmbedded() error {
 }
 
 func (t *templateHandler) loadTemplates() error {
-	walker := func(path string, fi hugofs.FileMetaInfo, err error) error {
-		if err != nil || fi.IsDir() {
-			return err
+	walker := func(path string, fi hugofs.FileMetaInfo) error {
+		if fi.IsDir() {
+			return nil
 		}
 
 		if isDotFile(path) || isBackupFile(path) {
@@ -822,14 +810,14 @@ func (t *templateHandler) loadTemplates() error {
 			name = textTmplNamePrefix + name
 		}
 
-		if err := t.addTemplateFile(name, path); err != nil {
+		if err := t.addTemplateFile(name, fi); err != nil {
 			return err
 		}
 
 		return nil
 	}
 
-	if err := helpers.SymbolicWalk(t.Layouts.Fs, "", walker); err != nil {
+	if err := helpers.Walk(t.Layouts.Fs, "", walker); err != nil {
 		if !herrors.IsNotExist(err) {
 			return err
 		}
@@ -861,7 +849,7 @@ func (t *templateHandler) extractPartials(templ tpl.Template) error {
 			continue
 		}
 
-		ts := newTemplateState(templ, templateInfo{name: templ.Name()})
+		ts := newTemplateState(templ, templateInfo{name: templ.Name()}, nil)
 		ts.typ = templatePartial
 
 		t.main.mu.RLock()
@@ -923,15 +911,6 @@ func (t *templateHandler) postTransform() error {
 			_, err := applyTemplateTransformers(templ, lookup)
 			if err != nil {
 				return err
-			}
-		}
-	}
-
-	for k, v := range t.identityNotFound {
-		ts := t.findTemplate(k)
-		if ts != nil {
-			for _, im := range v {
-				im.Add(ts)
 			}
 		}
 	}
@@ -1008,7 +987,7 @@ func (t *templateNamespace) newTemplateLookup(in *templateState) func(name strin
 			return templ
 		}
 		if templ, found := findTemplateIn(name, in); found {
-			return newTemplateState(templ, templateInfo{name: templ.Name()})
+			return newTemplateState(templ, templateInfo{name: templ.Name()}, nil)
 		}
 		return nil
 	}
@@ -1026,7 +1005,7 @@ func (t *templateNamespace) parse(info templateInfo) (*templateState, error) {
 			return nil, err
 		}
 
-		ts := newTemplateState(templ, info)
+		ts := newTemplateState(templ, info, nil)
 
 		t.templates[info.name] = ts
 
@@ -1040,7 +1019,7 @@ func (t *templateNamespace) parse(info templateInfo) (*templateState, error) {
 		return nil, err
 	}
 
-	ts := newTemplateState(templ, info)
+	ts := newTemplateState(templ, info, nil)
 
 	t.templates[info.name] = ts
 
@@ -1052,10 +1031,14 @@ type templateState struct {
 
 	typ       templateType
 	parseInfo tpl.ParseInfo
-	identity.Manager
+	id        identity.Identity
 
 	info     templateInfo
 	baseInfo templateInfo // Set when a base template is used.
+}
+
+func (t *templateState) GetIdentity() identity.Identity {
+	return t.id
 }
 
 func (t *templateState) ParseInfo() tpl.ParseInfo {
@@ -1066,6 +1049,10 @@ func (t *templateState) isText() bool {
 	return isText(t.Template)
 }
 
+func (t *templateState) String() string {
+	return t.Name()
+}
+
 func isText(templ tpl.Template) bool {
 	_, isText := templ.(*texttemplate.Template)
 	return isText
@@ -1074,11 +1061,6 @@ func isText(templ tpl.Template) bool {
 type templateStateMap struct {
 	mu        sync.RWMutex
 	templates map[string]*templateState
-}
-
-type templateWrapperWithLock struct {
-	*sync.RWMutex
-	tpl.Template
 }
 
 type textTemplateWrapperWithLock struct {

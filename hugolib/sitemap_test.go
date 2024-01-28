@@ -17,67 +17,107 @@ import (
 	"reflect"
 	"testing"
 
-	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/deps"
 )
 
-const sitemapTemplate = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  {{ range .Data.Pages }}
-    {{- if .Permalink -}}
-  <url>
-    <loc>{{ .Permalink }}</loc>{{ if not .Lastmod.IsZero }}
-    <lastmod>{{ safeHTML ( .Lastmod.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ end }}{{ with .Sitemap.ChangeFreq }}
-    <changefreq>{{ . }}</changefreq>{{ end }}{{ if ge .Sitemap.Priority 0.0 }}
-    <priority>{{ .Sitemap.Priority }}</priority>{{ end }}
-  </url>
-    {{- end -}}
-  {{ end }}
-</urlset>`
-
-func TestSitemapOutput(t *testing.T) {
+func TestSitemapBasic(t *testing.T) {
 	t.Parallel()
-	for _, internal := range []bool{false, true} {
-		doTestSitemapOutput(t, internal)
-	}
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ["term", "taxonomy"]
+-- content/sect/doc1.md --
+---
+title: doc1
+---
+Doc1
+-- content/sect/doc2.md --
+---
+title: doc2
+---
+Doc2
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/sitemap.xml", " <loc>https://example.com/sect/doc1/</loc>", "doc2")
 }
 
-func doTestSitemapOutput(t *testing.T, internal bool) {
-	c := qt.New(t)
-	cfg, fs := newTestCfg()
-	cfg.Set("baseURL", "http://auth/bub/")
-	cfg.Set("defaultContentLanguageInSubdir", false)
-	configs, err := loadTestConfigFromProvider(cfg)
-	c.Assert(err, qt.IsNil)
-	writeSource(t, fs, "layouts/sitemap.xml", sitemapTemplate)
-	// We want to check that the 404 page is not included in the sitemap
-	// output. This template should have no effect either way, but include
-	// it for the clarity.
-	writeSource(t, fs, "layouts/404.html", "Not found")
+func TestSitemapMultilingual(t *testing.T) {
+	t.Parallel()
 
-	depsCfg := deps.DepsCfg{Fs: fs, Configs: configs}
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ["term", "taxonomy"]
+defaultContentLanguage = "en"
+[languages]
+[languages.en]
+weight = 1
+languageName = "English"
+[languages.nn]
+weight = 2
+languageName = "Nynorsk"
+-- content/sect/doc1.md --
+---
+title: doc1
+---
+Doc1
+-- content/sect/doc2.md --
+---
+title: doc2
+---
+Doc2
+-- content/sect/doc2.nn.md --
+---
+title: doc2
+---
+Doc2
+`
 
-	writeSourcesToSource(t, "content", fs, weightedSources...)
-	s := buildSingleSite(t, depsCfg, BuildCfg{})
-	th := newTestHelper(s.conf, s.Fs, t)
-	outputSitemap := "public/sitemap.xml"
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
 
-	th.assertFileContent(outputSitemap,
-		// Regular page
-		" <loc>http://auth/bub/sect/doc1/</loc>",
-		// Home page
-		"<loc>http://auth/bub/</loc>",
-		// Section
-		"<loc>http://auth/bub/sect/</loc>",
-		// Tax terms
-		"<loc>http://auth/bub/categories/</loc>",
-		// Tax list
-		"<loc>http://auth/bub/categories/hugo/</loc>",
-	)
+	b.AssertFileContent("public/sitemap.xml", "<loc>https://example.com/en/sitemap.xml</loc>", "<loc>https://example.com/nn/sitemap.xml</loc>")
+	b.AssertFileContent("public/en/sitemap.xml", " <loc>https://example.com/sect/doc1/</loc>", "doc2")
+	b.AssertFileContent("public/nn/sitemap.xml", " <loc>https://example.com/nn/sect/doc2/</loc>")
+}
 
-	content := readWorkingDir(th, th.Fs, outputSitemap)
-	c.Assert(content, qt.Not(qt.Contains), "404")
-	c.Assert(content, qt.Not(qt.Contains), "<loc></loc>")
+// https://github.com/gohugoio/hugo/issues/5910
+func TestSitemapOutputFormats(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ["term", "taxonomy"]
+-- content/blog/html-amp.md --
+---
+Title: AMP and HTML
+outputs: [ "html", "amp" ]
+---
+
+`
+
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	// Should link to the HTML version.
+	b.AssertFileContent("public/sitemap.xml", " <loc>https://example.com/blog/html-amp/</loc>")
 }
 
 func TestParseSitemap(t *testing.T) {
@@ -97,22 +137,4 @@ func TestParseSitemap(t *testing.T) {
 	if !reflect.DeepEqual(expected, result) {
 		t.Errorf("Got \n%v expected \n%v", result, expected)
 	}
-}
-
-// https://github.com/gohugoio/hugo/issues/5910
-func TestSitemapOutputFormats(t *testing.T) {
-	b := newTestSitesBuilder(t).WithSimpleConfigFile()
-
-	b.WithContent("blog/html-amp.md", `
----
-Title: AMP and HTML
-outputs: [ "html", "amp" ]
----
-
-`)
-
-	b.Build(BuildCfg{})
-
-	// Should link to the HTML version.
-	b.AssertFileContent("public/sitemap.xml", " <loc>http://example.com/blog/html-amp/</loc>")
 }

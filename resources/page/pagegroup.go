@@ -244,7 +244,7 @@ func (p Pages) groupByDateField(format string, sorter func(p Pages) Pages, getDa
 		return nil, nil
 	}
 
-	firstPage := sp[0].(Page)
+	firstPage := sp[0]
 	date := getDate(firstPage)
 
 	// Pages may be a mix of multiple languages, so we need to use the language
@@ -258,7 +258,7 @@ func (p Pages) groupByDateField(format string, sorter func(p Pages) Pages, getDa
 
 	i := 0
 	for _, e := range sp[1:] {
-		date = getDate(e.(Page))
+		date = getDate(e)
 		formatted := formatter.Format(date, format)
 		if r[i].Key.(string) != formatted {
 			r = append(r, PageGroup{Key: formatted})

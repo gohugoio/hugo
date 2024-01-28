@@ -125,6 +125,7 @@ func TestUnmarshalToInterface(t *testing.T) {
 		{[]byte(``), JSON, map[string]any{}},
 		{[]byte(nil), JSON, map[string]any{}},
 		{[]byte(`#+a: b`), ORG, expect},
+		{[]byte("#+a: foo bar\n#+a: baz"), ORG, map[string]any{"a": []string{string("foo bar"), string("baz")}}},
 		{[]byte(`#+DATE: <2020-06-26 Fri>`), ORG, map[string]any{"date": "2020-06-26"}},
 		{[]byte(`#+LASTMOD: <2020-06-26 Fri>`), ORG, map[string]any{"lastmod": "2020-06-26"}},
 		{[]byte(`#+PUBLISHDATE: <2020-06-26 Fri>`), ORG, map[string]any{"publishdate": "2020-06-26"}},

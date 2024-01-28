@@ -1,4 +1,4 @@
-// Copyright 2022 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import (
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/htesting"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/media"
 
 	"github.com/gohugoio/hugo/resources"
@@ -80,8 +81,9 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 		URL:          filename,
 		IncludePaths: t.c.sfs.RealDirs(baseDir),
 		ImportResolver: importResolver{
-			baseDir: baseDir,
-			c:       t.c,
+			baseDir:           baseDir,
+			c:                 t.c,
+			dependencyManager: ctx.DependencyManager,
 
 			varsStylesheet: godartsass.Import{Content: sass.CreateVarsStyleSheet(opts.Vars)},
 		},
@@ -126,10 +128,10 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 }
 
 type importResolver struct {
-	baseDir string
-	c       *Client
-
-	varsStylesheet godartsass.Import
+	baseDir           string
+	c                 *Client
+	dependencyManager identity.Manager
+	varsStylesheet    godartsass.Import
 }
 
 func (t importResolver) CanonicalizeURL(url string) (string, error) {
@@ -172,6 +174,7 @@ func (t importResolver) CanonicalizeURL(url string) (string, error) {
 		fi, err := t.c.sfs.Fs.Stat(filenameToCheck)
 		if err == nil {
 			if fim, ok := fi.(hugofs.FileMetaInfo); ok {
+				t.dependencyManager.AddIdentity(identity.CleanStringIdentity(filenameToCheck))
 				return "file://" + filepath.ToSlash(fim.Meta().Filename), nil
 			}
 		}
@@ -196,7 +199,6 @@ func (t importResolver) Load(url string) (godartsass.Import, error) {
 	}
 
 	return godartsass.Import{Content: string(b), SourceSyntax: sourceSyntax}, err
-
 }
 
 type importResolverV1 struct {

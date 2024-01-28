@@ -17,6 +17,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/gohugoio/hugo/config/testconfig"
 	"github.com/gohugoio/hugo/resources/resource"
 
 	qt "github.com/frankban/quicktest"
@@ -51,11 +52,12 @@ func TestHashFromAlgo(t *testing.T) {
 func TestTransform(t *testing.T) {
 	c := qt.New(t)
 
-	spec, err := htesting.NewTestResourceSpec()
-	c.Assert(err, qt.IsNil)
-	client := New(spec)
+	d := testconfig.GetTestDeps(nil, nil)
+	t.Cleanup(func() { c.Assert(d.Close(), qt.IsNil) })
 
-	r, err := htesting.NewResourceTransformerForSpec(spec, "hugo.txt", "Hugo Rocks!")
+	client := New(d.ResourceSpec)
+
+	r, err := htesting.NewResourceTransformerForSpec(d.ResourceSpec, "hugo.txt", "Hugo Rocks!")
 	c.Assert(err, qt.IsNil)
 
 	transformed, err := client.Fingerprint(r, "")

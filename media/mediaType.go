@@ -129,15 +129,6 @@ func FromStringAndExt(t, ext string) (Type, error) {
 	return tp, nil
 }
 
-// MustFromString is like FromString but panics on error.
-func MustFromString(t string) Type {
-	tp, err := FromString(t)
-	if err != nil {
-		panic(err)
-	}
-	return tp
-}
-
 // FromString creates a new Type given a type string on the form MainType/SubType and
 // an optional suffix, e.g. "text/html" or "text/html+html".
 func FromString(t string) (Type, error) {
@@ -207,14 +198,6 @@ func (m *Type) init() {
 		m.FirstSuffix.Suffix = suffixes[0]
 		m.FirstSuffix.FullSuffix = m.Delimiter + m.FirstSuffix.Suffix
 	}
-}
-
-// WithDelimiterAndSuffixes is used in tests.
-func WithDelimiterAndSuffixes(t Type, delimiter, suffixesCSV string) Type {
-	t.Delimiter = delimiter
-	t.SuffixesCSV = suffixesCSV
-	t.init()
-	return t
 }
 
 func newMediaType(main, sub string, suffixes []string) Type {
@@ -315,7 +298,6 @@ func (t Types) IsTextSuffix(suffix string) bool {
 		}
 	}
 	return false
-
 }
 
 func (m Type) hasSuffix(suffix string) bool {

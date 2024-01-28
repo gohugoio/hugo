@@ -16,6 +16,7 @@ package hugio
 import (
 	"fmt"
 	"io"
+	iofs "io/fs"
 	"path/filepath"
 
 	"github.com/spf13/afero"
@@ -60,12 +61,16 @@ func CopyDir(fs afero.Fs, from, to string, shouldCopy func(filename string) bool
 		return fmt.Errorf("%q is not a directory", from)
 	}
 
-	err = fs.MkdirAll(to, 0777) // before umask
+	err = fs.MkdirAll(to, 0o777) // before umask
 	if err != nil {
 		return err
 	}
 
-	entries, _ := afero.ReadDir(fs, from)
+	d, err := fs.Open(from)
+	if err != nil {
+		return err
+	}
+	entries, _ := d.(iofs.ReadDirFile).ReadDir(-1)
 	for _, entry := range entries {
 		fromFilename := filepath.Join(from, entry.Name())
 		toFilename := filepath.Join(to, entry.Name())

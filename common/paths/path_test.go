@@ -1,4 +1,4 @@
-// Copyright 2021 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -72,44 +72,6 @@ func TestMakePathRelative(t *testing.T) {
 
 	if error == nil {
 		t.Errorf("Test failed, expected error")
-	}
-}
-
-func TestGetDottedRelativePath(t *testing.T) {
-	// on Windows this will receive both kinds, both country and western ...
-	for _, f := range []func(string) string{filepath.FromSlash, func(s string) string { return s }} {
-		doTestGetDottedRelativePath(f, t)
-	}
-}
-
-func doTestGetDottedRelativePath(urlFixer func(string) string, t *testing.T) {
-	type test struct {
-		input, expected string
-	}
-	data := []test{
-		{"", "./"},
-		{urlFixer("/"), "./"},
-		{urlFixer("post"), "../"},
-		{urlFixer("/post"), "../"},
-		{urlFixer("post/"), "../"},
-		{urlFixer("tags/foo.html"), "../"},
-		{urlFixer("/tags/foo.html"), "../"},
-		{urlFixer("/post/"), "../"},
-		{urlFixer("////post/////"), "../"},
-		{urlFixer("/foo/bar/index.html"), "../../"},
-		{urlFixer("/foo/bar/foo/"), "../../../"},
-		{urlFixer("/foo/bar/foo"), "../../../"},
-		{urlFixer("foo/bar/foo/"), "../../../"},
-		{urlFixer("foo/bar/foo/bar"), "../../../../"},
-		{"404.html", "./"},
-		{"404.xml", "./"},
-		{"/404.html", "./"},
-	}
-	for i, d := range data {
-		output := GetDottedRelativePath(d.input)
-		if d.expected != output {
-			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
-		}
 	}
 }
 
@@ -225,4 +187,78 @@ func TestFileAndExt(t *testing.T) {
 			t.Errorf("Test %d failed. Expected extension %q got %q.", i, d.expectedExt, ext)
 		}
 	}
+}
+
+func TestSanitize(t *testing.T) {
+	c := qt.New(t)
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"  Foo bar  ", "Foo-bar"},
+		{"Foo.Bar/foo_Bar-Foo", "Foo.Bar/foo_Bar-Foo"},
+		{"fOO,bar:foobAR", "fOObarfoobAR"},
+		{"FOo/BaR.html", "FOo/BaR.html"},
+		{"FOo/Ba---R.html", "FOo/Ba---R.html"}, /// See #10104
+		{"FOo/Ba       R.html", "FOo/Ba-R.html"},
+		{"трям/трям", "трям/трям"},
+		{"은행", "은행"},
+		{"Банковский кассир", "Банковский-кассир"},
+		// Issue #1488
+		{"संस्कृत", "संस्कृत"},
+		{"a%C3%B1ame", "a%C3%B1ame"},         // Issue #1292
+		{"this+is+a+test", "this+is+a+test"}, // Issue #1290
+		{"~foo", "~foo"},                     // Issue #2177
+
+	}
+
+	for _, test := range tests {
+		c.Assert(Sanitize(test.input), qt.Equals, test.expected)
+	}
+}
+
+func BenchmarkSanitize(b *testing.B) {
+	const (
+		allAlowedPath = "foo/bar"
+		spacePath     = "foo bar"
+	)
+
+	// This should not allocate any memory.
+	b.Run("All allowed", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			got := Sanitize(allAlowedPath)
+			if got != allAlowedPath {
+				b.Fatal(got)
+			}
+		}
+	})
+
+	// This will allocate some memory.
+	b.Run("Spaces", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			got := Sanitize(spacePath)
+			if got != "foo-bar" {
+				b.Fatal(got)
+			}
+		}
+	})
+}
+
+func TestDir(t *testing.T) {
+	c := qt.New(t)
+	c.Assert(Dir("/a/b/c/d"), qt.Equals, "/a/b/c")
+	c.Assert(Dir("/a"), qt.Equals, "/")
+	c.Assert(Dir("/"), qt.Equals, "/")
+	c.Assert(Dir(""), qt.Equals, "")
+}
+
+func TestFieldsSlash(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(FieldsSlash("a/b/c"), qt.DeepEquals, []string{"a", "b", "c"})
+	c.Assert(FieldsSlash("/a/b/c"), qt.DeepEquals, []string{"a", "b", "c"})
+	c.Assert(FieldsSlash("/a/b/c/"), qt.DeepEquals, []string{"a", "b", "c"})
+	c.Assert(FieldsSlash("a/b/c/"), qt.DeepEquals, []string{"a", "b", "c"})
+	c.Assert(FieldsSlash("/"), qt.DeepEquals, []string{})
+	c.Assert(FieldsSlash(""), qt.DeepEquals, []string{})
 }

@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ func TestNamespace(t *testing.T) {
 	c := qt.New(t)
 	c.Assert(true, qt.Equals, true)
 
-	//ns, err := config.DecodeNamespace[map[string]DocsMediaTypeConfig](in, defaultMediaTypesConfig, buildConfig)
+	// ns, err := config.DecodeNamespace[map[string]DocsMediaTypeConfig](in, defaultMediaTypesConfig, buildConfig)
 
 	ns, err := DecodeNamespace[[]*tstNsExt](
 		map[string]interface{}{"foo": "bar"},
@@ -46,23 +46,15 @@ func TestNamespace(t *testing.T) {
 	c.Assert(ns.SourceHash, qt.Equals, "14368731254619220105")
 	c.Assert(ns.Config, qt.DeepEquals, &tstNsExt{Foo: "bar"})
 	c.Assert(ns.Signature(), qt.DeepEquals, []*tstNsExt(nil))
-
 }
 
 type (
 	tstNsExt struct {
 		Foo string
 	}
-	tstNsInt struct {
-		Foo string
-	}
 )
 
 func (t *tstNsExt) Init() error {
 	t.Foo = strings.ToUpper(t.Foo)
-	return nil
-}
-func (t *tstNsInt) Compile(ext *tstNsExt) error {
-	t.Foo = ext.Foo + " qux"
 	return nil
 }

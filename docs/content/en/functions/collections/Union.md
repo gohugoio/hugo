@@ -5,13 +5,13 @@ categories: []
 keywords: []
 action:
   aliases: [union]
+  related:
+    - functions/collections/Complement
+    - functions/collections/Intersect
+    - functions/collections/SymDiff
+    - functions/collections/Union
   returnType: any
   signatures: [collections.Union SET1 SET2]
-related:
-  - collections.Complement
-  - collections.Intersect
-  - collections.SymDiff
-  - collections.Union
 aliases: [/functions/union] 
 ---
 

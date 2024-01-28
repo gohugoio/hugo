@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config/security"
 
@@ -33,7 +34,6 @@ import (
 
 	"github.com/spf13/cast"
 
-	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/deps"
 )
 
@@ -108,7 +108,7 @@ func (ns *Namespace) GetJSON(args ...any) (any, error) {
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create request for getJSON resource %s: %w", url, err)
+		return nil, fmt.Errorf("failed to create request for getJSON resource %s: %w", url, err)
 	}
 
 	unmarshal := func(b []byte) (bool, error) {

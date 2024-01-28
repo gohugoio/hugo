@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -102,7 +102,6 @@ slug: "mytagslug"
 		"taxonomy": {"tags": "/tagsslug/:slug/"},
 		"term":     {"tags": "/tagsslug/tag/:slug/"},
 	})
-
 }
 
 func TestPermalinksOldSetup(t *testing.T) {
@@ -145,7 +144,6 @@ slug: "p1slugvalue"
 		"taxonomy": {},
 		"term":     {"withpageslug": "/pageslug/:slug/"},
 	})
-
 }
 
 func TestPermalinksNestedSections(t *testing.T) {
@@ -194,5 +192,4 @@ List.
 	b.AssertFileContent("public/libros/index.html", "List.")
 	b.AssertFileContent("public/libros/fiction/index.html", "List.")
 	b.AssertFileContent("public/libros/fiction/2023/book1/index.html", "Single.")
-
 }

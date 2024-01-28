@@ -70,11 +70,6 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.SanitizeURL,
-			[]string{"sanitizeURL", "sanitizeurl"},
-			[][2]string{},
-		)
-
 		return ns
 	}
 

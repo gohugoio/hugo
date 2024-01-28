@@ -63,7 +63,7 @@ func (m PageMatcher) Matches(p Page) bool {
 	if m.Path != "" {
 		g, err := glob.GetGlob(m.Path)
 		// TODO(bep) Path() vs filepath vs leading slash.
-		p := strings.ToLower(filepath.ToSlash(p.Pathc()))
+		p := strings.ToLower(filepath.ToSlash(p.Path()))
 		if !(strings.HasPrefix(p, "/")) {
 			p = "/" + p
 		}
@@ -123,7 +123,6 @@ func DecodeCascadeConfig(in any) (*config.ConfigNamespace[[]PageMatcherParamsCon
 	}
 
 	return config.DecodeNamespace[[]PageMatcherParamsConfig](in, buildConfig)
-
 }
 
 // DecodeCascade decodes in which could be either a map or a slice of maps.
@@ -161,7 +160,6 @@ func mapToPageMatcherParamsConfig(m map[string]any) (PageMatcherParamsConfig, er
 		}
 	}
 	return pcfg, pcfg.init()
-
 }
 
 // decodePageMatcher decodes m into v.

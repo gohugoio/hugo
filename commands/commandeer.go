@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -259,7 +259,7 @@ func (r *rootCommand) ConfigFromProvider(key int32, cfg config.Provider) (*commo
 			publishDirStatic := cfg.GetString("publishDirStatic")
 			workingDir := cfg.GetString("workingDir")
 			absPublishDirStatic := paths.AbsPathify(workingDir, publishDirStatic)
-			staticFs := afero.NewBasePathFs(afero.NewOsFs(), absPublishDirStatic)
+			staticFs := hugofs.NewBasePathFs(afero.NewOsFs(), absPublishDirStatic)
 
 			// Serve from both the static and dynamic fs,
 			// the first will take priority.
@@ -405,8 +405,14 @@ func (r *rootCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 		return err
 	}
 
-	r.commonConfigs = lazycache.New[int32, *commonConfig](lazycache.Options{MaxEntries: 5})
-	r.hugoSites = lazycache.New[int32, *hugolib.HugoSites](lazycache.Options{MaxEntries: 5})
+	r.commonConfigs = lazycache.New(lazycache.Options[int32, *commonConfig]{MaxEntries: 5})
+	// We don't want to keep stale HugoSites in memory longer than needed.
+	r.hugoSites = lazycache.New(lazycache.Options[int32, *hugolib.HugoSites]{
+		MaxEntries: 1,
+		OnEvict: func(key int32, value *hugolib.HugoSites) {
+			value.Close()
+		},
+	})
 
 	return nil
 }

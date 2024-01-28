@@ -1,6 +1,6 @@
 ---
 title: resources.FromString
-description: Creates a resource from a string.
+description: Returns a resource created from a string.
 categories: []
 keywords: []
 action:
@@ -11,14 +11,20 @@ action:
   signatures: [resources.FromString TARGETPATH STRING]
 ---
 
-Hugo publishes the resource to the target path when you call its`.Publish`, `.Permalink`, or `.RelPermalink` method. The resource is cached, using the target path as the cache key.
+The `resources.FromString` function returns a resource created from a string, caching the result using the target path as its cache key.
+
+Hugo publishes the resource to the target path when you call its [`Publish`], [`Permalink`], or [`RelPermalink`] methods.
+
+[`publish`]: /methods/resource/publish
+[`permalink`]: /methods/resource/permalink
+[`relpermalink`]: /methods/resource/relpermalink
 
 Let's say you need to publish a file named "site.json" in the root of your public directory, containing the build date, the Hugo version used to build the site, and the date that the content was last modified. For example:
 
 ```json
 {
   "build_date": "2023-10-03T10:50:40-07:00",
-  "hugo_version": "0.120.0",
+  "hugo_version": "0.122.0",
   "last_modified": "2023-10-02T15:21:27-07:00"
 }
 ```

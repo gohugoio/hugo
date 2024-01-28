@@ -16,7 +16,7 @@ package scss
 import (
 	"regexp"
 
-	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/spf13/afero"
@@ -37,7 +37,6 @@ func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) (*Client, error) 
 }
 
 type Options struct {
-
 	// Hugo, will by default, just replace the extension of the source
 	// to .css, e.g. "scss/main.scss" becomes "scss/main.css". You can
 	// control this by setting this, e.g. "styles/main.css" will create
@@ -73,7 +72,7 @@ func DecodeOptions(m map[string]any) (opts Options, err error) {
 	err = mapstructure.WeakDecode(m, &opts)
 
 	if opts.TargetPath != "" {
-		opts.TargetPath = helpers.ToSlashTrimLeading(opts.TargetPath)
+		opts.TargetPath = paths.ToSlashTrimLeading(opts.TargetPath)
 	}
 
 	return

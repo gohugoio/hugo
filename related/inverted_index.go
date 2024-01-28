@@ -265,7 +265,6 @@ func (idx *InvertedIndex) Finalize(ctx context.Context) error {
 	idx.finalized = true
 
 	return nil
-
 }
 
 // queryElement holds the index name and keywords that can be used to compose a
@@ -346,7 +345,6 @@ type SearchOpts struct {
 // threshold (normalize to 0..100) will be removed.
 // If an index name is provided, only that index will be queried.
 func (idx *InvertedIndex) Search(ctx context.Context, opts SearchOpts) ([]Document, error) {
-
 	var (
 		queryElements []queryElement
 		configs       IndicesConfig
@@ -379,7 +377,6 @@ func (idx *InvertedIndex) Search(ctx context.Context, opts SearchOpts) ([]Docume
 				keywords = append(keywords, FragmentKeyword(fragment))
 			}
 			if opts.Document != nil {
-
 				if fp, ok := opts.Document.(FragmentProvider); ok {
 					for _, fragment := range fp.Fragments(ctx).Identifiers {
 						keywords = append(keywords, FragmentKeyword(fragment))

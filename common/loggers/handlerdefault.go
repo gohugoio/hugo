@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 // Some functions in this file (see comments) is based on the Go source code,
 // copyright The Go Authors and  governed by a BSD-style license.
 //
@@ -27,10 +27,9 @@ import (
 	"github.com/fatih/color"
 )
 
-var bold = color.New(color.Bold)
-
 // levelColor mapping.
 var levelColor = [...]*color.Color{
+	logg.LevelTrace: color.New(color.FgWhite),
 	logg.LevelDebug: color.New(color.FgWhite),
 	logg.LevelInfo:  color.New(color.FgBlue),
 	logg.LevelWarn:  color.New(color.FgYellow),
@@ -39,6 +38,7 @@ var levelColor = [...]*color.Color{
 
 // levelString mapping.
 var levelString = [...]string{
+	logg.LevelTrace: "TRACE",
 	logg.LevelDebug: "DEBUG",
 	logg.LevelInfo:  "INFO ",
 	logg.LevelWarn:  "WARN ",

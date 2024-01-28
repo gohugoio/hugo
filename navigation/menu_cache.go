@@ -41,14 +41,6 @@ func newMenuCache() *menuCache {
 	return &menuCache{m: make(map[string][]menuCacheEntry)}
 }
 
-// clear clears the menuCache.
-func (c *menuCache) clear() {
-	c.Lock()
-	defer c.Unlock()
-	c.m = make(map[string][]menuCacheEntry)
-}
-
-// menuCache is a cache for menus.
 type menuCache struct {
 	sync.RWMutex
 	m map[string][]menuCacheEntry

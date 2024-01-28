@@ -5,18 +5,12 @@ categories: []
 keywords: []
 action:
   aliases: [seq]
+  related: []
   returnType: '[]int'
   signatures:
     - collections.Seq LAST
     - collections.Seq FIRST LAST
     - collections.Seq FIRST INCREMENT LAST
-related:
-  - collections.Apply
-  - collections.Delimit
-  - collections.In
-  - collections.Reverse
-  - collections.Seq
-  - collections.Slice
 aliases: [/functions/seq]
 ---
 
@@ -27,7 +21,7 @@ aliases: [/functions/seq]
 {{ seq -2 2 2 }} → [-2 0 2]
 ```
 
-Iterate over a sequence of integers:
+A contrived example of iterating over a sequence of integers:
 
 ```go-html-template
 {{ $product := 1 }}
@@ -37,10 +31,6 @@ Iterate over a sequence of integers:
 {{ $product }} → 24
 ```
 
-The example above is contrived. To calculate the product of 2 or more numbers, use the [`math.Product`] function:
-
-```go-html-template
-{{ math.Product (seq 4) }} → 24
-```
-
-[`math.Product`]: /functions/math/product
+{{% note %}}
+The slice created by the `seq` function is limited to 2000 elements.
+{{% /note %}}

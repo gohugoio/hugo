@@ -21,5 +21,5 @@ Template:
 
 ```go-html-template
 {{ $page := .Site.GetPage "/about" }}
-{{ $page.RelPermalink }} → https://example.org/docs/about/
+{{ $page.Permalink }} → https://example.org/docs/about/
 ```

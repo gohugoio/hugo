@@ -10,6 +10,7 @@ menu:
 weight: 20
 toc: true
 aliases: [/quickstart/,/overview/quickstart/]
+minVersion: v0.112.0
 ---
 
 In this tutorial you will:
@@ -23,7 +24,7 @@ In this tutorial you will:
 
 Before you begin this tutorial you must:
 
-1. [Install Hugo] (extended edition, v0.112.0 or later)
+1. [Install Hugo] (extended edition, {{% param "minVersion" %}} or later)
 1. [Install Git]
 
 You must also be comfortable working from the command line.
@@ -44,6 +45,12 @@ PowerShell and Windows PowerShell [are different applications].
 [PowerShell]: https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows
 [are different applications]: https://learn.microsoft.com/en-us/powershell/scripting/whats-new/differences-from-windows-powershell?view=powershell-7.3
 {{% /note %}}
+
+Verify that you have installed Hugo {{% param "minVersion" %}} or later.
+
+```text
+hugo version
+```
 
 Run these commands to create a Hugo site with the [Ananke] theme. The next section provides an explanation of each command.
 
@@ -109,11 +116,11 @@ hugo new content posts/my-first-post.md
 Hugo created the file in the `content/posts` directory. Open the file with your editor.
 
 ```text
----
-title: "My First Post"
-date: 2022-11-20T09:03:20-08:00
-draft: true
----
++++
+title = 'My First Post'
+date = 2024-01-14T07:07:07+01:00
+draft = true
++++
 ```
 
 Notice the `draft` value in the [front matter] is `true`. By default, Hugo does not publish draft content when you build the site. Learn more about [draft, future, and expired content].
@@ -123,11 +130,11 @@ Add some [markdown] to the body of the post, but do not change the `draft` value
 [markdown]: https://commonmark.org/help/
 
 ```text
----
-title: "My First Post"
-date: 2022-11-20T09:03:20-08:00
-draft: true
----
++++
+title = 'My First Post'
+date = 2024-01-14T07:07:07+01:00
+draft = true
++++
 ## Introduction
 
 This is **bold** text, and this is *emphasized* text.

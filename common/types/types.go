@@ -92,5 +92,18 @@ type DevMarker interface {
 	DevOnly()
 }
 
+// Unwrapper is implemented by types that can unwrap themselves.
+type Unwrapper interface {
+	// Unwrapv is for internal use only.
+	// It got its slightly odd name to prevent collisions with user types.
+	Unwrapv() any
+}
+
+// LowHigh is typically used to represent a slice boundary.
+type LowHigh struct {
+	Low  int
+	High int
+}
+
 // This is only used for debugging purposes.
 var InvocationCounter atomic.Int64

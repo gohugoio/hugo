@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 package source
 
 import (
-	"os"
 	"path/filepath"
 	"runtime"
 
@@ -38,7 +37,6 @@ type SourceSpec struct {
 
 // NewSourceSpec initializes SourceSpec using languages the given filesystem and PathSpec.
 func NewSourceSpec(ps *helpers.PathSpec, inclusionFilter *glob.FilenameFilter, fs afero.Fs) *SourceSpec {
-
 	shouldInclude := func(filename string) bool {
 		if !inclusionFilter.Match(filename, false) {
 			return false
@@ -89,35 +87,4 @@ func (s *SourceSpec) IgnoreFile(filename string) bool {
 	}
 
 	return false
-}
-
-// IsRegularSourceFile returns whether filename represents a regular file in the
-// source filesystem.
-func (s *SourceSpec) IsRegularSourceFile(filename string) (bool, error) {
-	fi, err := helpers.LstatIfPossible(s.SourceFs, filename)
-	if err != nil {
-		return false, err
-	}
-
-	if fi.IsDir() {
-		return false, nil
-	}
-
-	if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
-		link, err := filepath.EvalSymlinks(filename)
-		if err != nil {
-			return false, err
-		}
-
-		fi, err = helpers.LstatIfPossible(s.SourceFs, link)
-		if err != nil {
-			return false, err
-		}
-
-		if fi.IsDir() {
-			return false, nil
-		}
-	}
-
-	return true, nil
 }

@@ -5,11 +5,7 @@ categories: []
 keywords: []
 action:
   aliases: [index]
-  related:
-    - functions/collections/Dictionary
-    - functions/collections/Group
-    - functions/collections/IsSet
-    - functions/collections/Where
+  related: []
   returnType: any
   signatures:
     - collections.Index COLLECTION INDEXES

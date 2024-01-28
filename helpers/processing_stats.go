@@ -31,7 +31,6 @@ type ProcessingStats struct {
 	ProcessedImages uint64
 	Files           uint64
 	Aliases         uint64
-	Sitemaps        uint64
 	Cleaned         uint64
 }
 
@@ -48,7 +47,6 @@ func (s *ProcessingStats) toVals() []processingStatsTitleVal {
 		{"Static files", s.Static},
 		{"Processed images", s.ProcessedImages},
 		{"Aliases", s.Aliases},
-		{"Sitemaps", s.Sitemaps},
 		{"Cleaned", s.Cleaned},
 	}
 }

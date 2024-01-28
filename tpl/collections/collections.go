@@ -35,11 +35,6 @@ import (
 	"github.com/spf13/cast"
 )
 
-func init() {
-	// htime.Now cannot be used here
-	rand.Seed(time.Now().UTC().UnixNano())
-}
-
 // New returns a new instance of the collections-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
 	language := deps.Conf.Language()
@@ -149,7 +144,7 @@ func (ns *Namespace) Delimit(ctx context.Context, l, sep any, last ...any) (stri
 		}
 
 	default:
-		return "", fmt.Errorf("can't iterate over %v", l)
+		return "", fmt.Errorf("can't iterate over %T", l)
 	}
 
 	return str, nil

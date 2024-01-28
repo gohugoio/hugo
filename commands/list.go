@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import (
 
 // newListCommand creates a new list command and its subcommands.
 func newListCommand() *listCommand {
-
 	createRecord := func(workingDir string, p page.Page) []string {
 		return []string{
 			filepath.ToSlash(strings.TrimPrefix(p.File().Filename(), workingDir+string(os.PathSeparator))),
@@ -83,7 +82,6 @@ func newListCommand() *listCommand {
 		}
 
 		return nil
-
 	}
 
 	return &listCommand{
@@ -94,11 +92,10 @@ func newListCommand() *listCommand {
 				long:  `List all of the drafts in your content directory.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					shouldInclude := func(p page.Page) bool {
-						if !p.Draft() || p.File().IsZero() {
+						if !p.Draft() || p.File() == nil {
 							return false
 						}
 						return true
-
 					}
 					return list(cd, r, shouldInclude,
 						"buildDrafts", true,
@@ -113,11 +110,10 @@ func newListCommand() *listCommand {
 				long:  `List all of the posts in your content directory which will be posted in the future.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					shouldInclude := func(p page.Page) bool {
-						if !resource.IsFuture(p) || p.File().IsZero() {
+						if !resource.IsFuture(p) || p.File() == nil {
 							return false
 						}
 						return true
-
 					}
 					return list(cd, r, shouldInclude,
 						"buildFuture", true,
@@ -131,7 +127,7 @@ func newListCommand() *listCommand {
 				long:  `List all of the posts in your content directory which has already expired.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					shouldInclude := func(p page.Page) bool {
-						if !resource.IsExpired(p) || p.File().IsZero() {
+						if !resource.IsExpired(p) || p.File() == nil {
 							return false
 						}
 						return true
@@ -148,14 +144,13 @@ func newListCommand() *listCommand {
 				long:  `List all of the posts in your content directory, include drafts, future and expired pages.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					shouldInclude := func(p page.Page) bool {
-						return !p.File().IsZero()
+						return p.File() != nil
 					}
 					return list(cd, r, shouldInclude, "buildDrafts", true, "buildFuture", true, "buildExpired", true)
 				},
 			},
 		},
 	}
-
 }
 
 type listCommand struct {

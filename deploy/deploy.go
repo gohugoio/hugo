@@ -22,6 +22,7 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"mime"
@@ -32,8 +33,6 @@ import (
 	"sort"
 	"strings"
 	"sync"
-
-	"errors"
 
 	"github.com/dustin/go-humanize"
 	"github.com/gobwas/glob"
@@ -75,7 +74,6 @@ const metaMD5Hash = "md5chksum" // the meta key to store md5hash in
 
 // New constructs a new *Deployer.
 func New(cfg config.AllProvider, logger loggers.Logger, localFs afero.Fs) (*Deployer, error) {
-
 	dcfg := cfg.GetConfigSection(deploymentConfigKey).(DeployConfig)
 	targetName := dcfg.Target
 
@@ -675,8 +673,6 @@ func (d *Deployer) findDiffs(localFiles map[string]*localFile, remoteFiles map[s
 			} else if !bytes.Equal(lf.MD5(), remoteFile.MD5) {
 				upload = true
 				reason = reasonMD5Differs
-			} else {
-				// Nope! Leave uploaded = false.
 			}
 			found[path] = true
 		} else {

@@ -95,6 +95,7 @@ func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, erro
 
 type ConverterProvider interface {
 	Get(name string) converter.Provider
+	IsGoldmark(name string) bool
 	// Default() converter.Provider
 	GetMarkupConfig() markup_config.Config
 	GetHighlighter() highlight.Highlighter
@@ -108,6 +109,11 @@ type converterRegistry struct {
 	converters map[string]converter.Provider
 
 	config converter.ProviderConfig
+}
+
+func (r *converterRegistry) IsGoldmark(name string) bool {
+	cp := r.Get(name)
+	return cp != nil && cp.Name() == "goldmark"
 }
 
 func (r *converterRegistry) Get(name string) converter.Provider {

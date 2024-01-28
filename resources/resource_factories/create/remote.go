@@ -24,7 +24,6 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"path"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -253,15 +252,16 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 	resourceID = filename[:len(filename)-len(path.Ext(filename))] + "_" + resourceID + mediaType.FirstSuffix.FullSuffix
 	data := responseToData(res, false)
 
-	return c.rs.New(
+	return c.rs.NewResource(
 		resources.ResourceSourceDescriptor{
-			MediaType:   mediaType,
-			Data:        data,
-			LazyPublish: true,
+			MediaType:     mediaType,
+			Data:          data,
+			GroupIdentity: identity.StringIdentity(resourceID),
+			LazyPublish:   true,
 			OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
 				return hugio.NewReadSeekerNoOpCloser(bytes.NewReader(body)), nil
 			},
-			RelTargetFilename: filepath.Clean(resourceID),
+			TargetPath: resourceID,
 		})
 }
 

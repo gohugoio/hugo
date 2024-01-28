@@ -20,6 +20,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/htesting/hqt"
+	"github.com/gohugoio/hugo/identity"
 
 	"github.com/gohugoio/hugo/helpers"
 
@@ -71,7 +72,7 @@ func TestImportResolver(t *testing.T) {
 	fs := afero.NewMemMapFs()
 
 	writeFile := func(name, content string) {
-		c.Assert(afero.WriteFile(fs, name, []byte(content), 0777), qt.IsNil)
+		c.Assert(afero.WriteFile(fs, name, []byte(content), 0o777), qt.IsNil)
 	}
 
 	writeFile("a.css", `@import "b.css";
@@ -96,6 +97,7 @@ LOCAL_STYLE
 		"styles.css",
 		Options{},
 		fs, loggers.NewDefault(),
+		identity.NopManager,
 	)
 
 	r, err := imp.resolve()
@@ -123,7 +125,7 @@ func BenchmarkImportResolver(b *testing.B) {
 	fs := afero.NewMemMapFs()
 
 	writeFile := func(name, content string) {
-		c.Assert(afero.WriteFile(fs, name, []byte(content), 0777), qt.IsNil)
+		c.Assert(afero.WriteFile(fs, name, []byte(content), 0o777), qt.IsNil)
 	}
 
 	writeFile("a.css", `@import "b.css";
@@ -153,6 +155,7 @@ LOCAL_STYLE
 			"styles.css",
 			Options{},
 			fs, logger,
+			identity.NopManager,
 		)
 
 		b.StartTimer()

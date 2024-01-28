@@ -11,6 +11,8 @@ import (
 	"sync/atomic"
 
 	"github.com/bep/logg"
+	"github.com/gohugoio/hugo/cache/dynacache"
+	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
@@ -58,6 +60,9 @@ type Deps struct {
 
 	// The configuration to use
 	Conf config.AllProvider `json:"-"`
+
+	// The memory cache to use.
+	MemCache *dynacache.Cache
 
 	// The translation func to use
 	Translate func(ctx context.Context, translationID string, templateData any) string `json:"-"`
@@ -149,6 +154,10 @@ func (d *Deps) Init() error {
 		d.ExecHelper = hexec.New(d.Conf.GetConfigSection("security").(security.Config))
 	}
 
+	if d.MemCache == nil {
+		d.MemCache = dynacache.New(dynacache.Options{Running: d.Conf.Running(), Log: d.Log})
+	}
+
 	if d.PathSpec == nil {
 		hashBytesReceiverFunc := func(name string, match bool) {
 			if !match {
@@ -190,13 +199,16 @@ func (d *Deps) Init() error {
 	}
 
 	var common *resources.SpecCommon
-	var imageCache *resources.ImageCache
 	if d.ResourceSpec != nil {
 		common = d.ResourceSpec.SpecCommon
-		imageCache = d.ResourceSpec.ImageCache
 	}
 
-	resourceSpec, err := resources.NewSpec(d.PathSpec, common, imageCache, d.BuildState, d.Log, d, d.ExecHelper)
+	fileCaches, err := filecache.NewCaches(d.PathSpec)
+	if err != nil {
+		return fmt.Errorf("failed to create file caches from configuration: %w", err)
+	}
+
+	resourceSpec, err := resources.NewSpec(d.PathSpec, common, fileCaches, d.MemCache, d.BuildState, d.Log, d, d.ExecHelper)
 	if err != nil {
 		return fmt.Errorf("failed to create resource spec: %w", err)
 	}
@@ -307,6 +319,9 @@ func (d *Deps) TextTmpl() tpl.TemplateParseFinder {
 }
 
 func (d *Deps) Close() error {
+	if d.MemCache != nil {
+		d.MemCache.Stop()
+	}
 	return d.BuildClosers.Close()
 }
 

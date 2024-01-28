@@ -15,28 +15,29 @@ toc: true
 
 {{< code-toggle file=hugo >}}
 [module]
-noVendor = ""
-proxy = "direct"
-noProxy = "none"
-private = "*.*"
-replacements = ""
-workspace = "off"
+noProxy = 'none'
+noVendor = ''
+private = '*.*'
+proxy = 'direct'
+replacements = ''
+vendorClosest = false
+workspace = 'off'
 {{< /code-toggle >}}
-
-noVendor
-: A optional Glob pattern matching module paths to skip when vendoring, e.g. "github.com/**"
-
-vendorClosest
-: When enabled, we will pick the vendored module closest to the module using it. The default behavior is to pick the first. Note that there can still be only one dependency of a given module path, so once it is in use it cannot be redefined.
-
-proxy
-: Defines the proxy server to use to download remote modules. Default is `direct`, which means "git clone" and similar.
 
 noProxy
 : Comma separated glob list matching paths that should not use the proxy configured above.
 
+noVendor
+: A optional Glob pattern matching module paths to skip when vendoring, e.g. "github.com/**"
+
 private
 : Comma separated glob list matching paths that should be treated as private.
+
+proxy
+: Defines the proxy server to use to download remote modules. Default is `direct`, which means "git clone" and similar.
+
+vendorClosest
+: When enabled, we will pick the vendored module closest to the module using it. The default behavior is to pick the first. Note that there can still be only one dependency of a given module path, so once it is in use it cannot be redefined.
 
 workspace
 : The workspace file to use. This enables Go workspace mode. Note that this can also be set via OS env, e.g. `export HUGO_MODULE_WORKSPACE=/my/hugo.work` This only works with Go 1.18+. In Hugo `v0.109.0` we changed the default to `off` and we now resolve any relative work file names relative to the working directory.

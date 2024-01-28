@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/helpers"
 )
 
 func TestURLize(t *testing.T) {
@@ -193,7 +192,6 @@ func doTestRelURL(t testing.TB, defaultInSubDir, addLanguage, multilingual bool,
 		canonify bool
 		expected string
 	}{
-
 		// Issue 9994
 		{"/foo/bar", "https://example.org/foo/", false, "MULTI/foo/bar"},
 		{"foo/bar", "https://example.org/foo/", false, "/fooMULTI/foo/bar"},
@@ -211,7 +209,7 @@ func doTestRelURL(t testing.TB, defaultInSubDir, addLanguage, multilingual bool,
 		{"test/", "http://base/sub/", false, "/subMULTI/test/"},
 		{"/test/", "http://base/sub/", true, "MULTI/test/"},
 		{"", "http://base/ace/", false, "/aceMULTI/"},
-		{"", "http://base/ace", false, "/aceMULTI"},
+		{"", "http://base/ace", false, "/aceMULTI/"},
 		{"http://abs", "http://base/", false, "http://abs"},
 		{"//schemaless", "http://base/", false, "//schemaless"},
 	}
@@ -231,7 +229,6 @@ func doTestRelURL(t testing.TB, defaultInSubDir, addLanguage, multilingual bool,
 
 	for i, test := range tests {
 		c.Run(fmt.Sprintf("%v/defaultInSubDir=%t;addLanguage=%t;multilingual=%t/%s", test, defaultInSubDir, addLanguage, multilingual, lang), func(c *qt.C) {
-
 			v.Set("baseURL", test.baseURL)
 			v.Set("canonifyURLs", test.canonify)
 			defaultContentLanguage := lang
@@ -255,36 +252,6 @@ func doTestRelURL(t testing.TB, defaultInSubDir, addLanguage, multilingual bool,
 
 			c.Assert(output, qt.Equals, expected, qt.Commentf("[%d] %s", i, test.input))
 		})
-
-	}
-}
-
-func TestSanitizeURL(t *testing.T) {
-	tests := []struct {
-		input    string
-		expected string
-	}{
-		{"http://foo.bar/", "http://foo.bar"},
-		{"http://foo.bar", "http://foo.bar"},          // issue #1105
-		{"http://foo.bar/zoo/", "http://foo.bar/zoo"}, // issue #931
-	}
-
-	for i, test := range tests {
-		o1 := helpers.SanitizeURL(test.input)
-		o2 := helpers.SanitizeURLKeepTrailingSlash(test.input)
-
-		expected2 := test.expected
-
-		if strings.HasSuffix(test.input, "/") && !strings.HasSuffix(expected2, "/") {
-			expected2 += "/"
-		}
-
-		if o1 != test.expected {
-			t.Errorf("[%d] 1: Expected %#v, got %#v\n", i, test.expected, o1)
-		}
-		if o2 != expected2 {
-			t.Errorf("[%d] 2: Expected %#v, got %#v\n", i, expected2, o2)
-		}
 	}
 }
 

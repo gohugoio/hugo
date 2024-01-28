@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"path"
@@ -30,14 +31,13 @@ import (
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/identity"
 
 	"github.com/gohugoio/hugo/common/hugo"
 
 	"github.com/gohugoio/hugo/resources/internal"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
-
-	"errors"
 
 	"github.com/mitchellh/mapstructure"
 
@@ -86,7 +86,6 @@ func (c *Client) Process(res resources.ResourceTransformer, options map[string]a
 
 // Some of the options from https://github.com/postcss/postcss-cli
 type Options struct {
-
 	// Set a custom path to look for a config file.
 	Config string
 
@@ -151,7 +150,7 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	const binaryName = "postcss"
 
 	infol := t.rs.Logger.InfoCommand(binaryName)
-	infoW := loggers.LevelLoggerToWriter(infol)
+	infow := loggers.LevelLoggerToWriter(infol)
 
 	ex := t.rs.ExecHelper
 
@@ -179,7 +178,7 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 		configFile = t.rs.BaseFs.ResolveJSConfigFile(configFile)
 		if configFile == "" && options.Config != "" {
 			// Only fail if the user specified config file is not found.
-			return fmt.Errorf("postcss config %q not found:", options.Config)
+			return fmt.Errorf("postcss config %q not found", options.Config)
 		}
 	}
 
@@ -196,7 +195,7 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 
 	var errBuf bytes.Buffer
 
-	stderr := io.MultiWriter(infoW, &errBuf)
+	stderr := io.MultiWriter(infow, &errBuf)
 	cmdArgs = append(cmdArgs, hexec.WithStderr(stderr))
 	cmdArgs = append(cmdArgs, hexec.WithStdout(ctx.To))
 	cmdArgs = append(cmdArgs, hexec.WithEnviron(hugo.GetExecEnviron(t.rs.Cfg.BaseConfig().WorkingDir, t.rs.Cfg, t.rs.BaseFs.Assets.Fs)))
@@ -221,7 +220,7 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 		ctx.From,
 		ctx.InPath,
 		options,
-		t.rs.Assets.Fs, t.rs.Logger,
+		t.rs.Assets.Fs, t.rs.Logger, ctx.DependencyManager,
 	)
 
 	if options.InlineImports {
@@ -260,17 +259,19 @@ type importResolver struct {
 	inPath string
 	opts   Options
 
-	contentSeen map[string]bool
-	linemap     map[int]fileOffset
-	fs          afero.Fs
-	logger      loggers.Logger
+	contentSeen       map[string]bool
+	dependencyManager identity.Manager
+	linemap           map[int]fileOffset
+	fs                afero.Fs
+	logger            loggers.Logger
 }
 
-func newImportResolver(r io.Reader, inPath string, opts Options, fs afero.Fs, logger loggers.Logger) *importResolver {
+func newImportResolver(r io.Reader, inPath string, opts Options, fs afero.Fs, logger loggers.Logger, dependencyManager identity.Manager) *importResolver {
 	return &importResolver{
-		r:      r,
-		inPath: inPath,
-		fs:     fs, logger: logger,
+		r:                 r,
+		dependencyManager: dependencyManager,
+		inPath:            inPath,
+		fs:                fs, logger: logger,
 		linemap: make(map[int]fileOffset), contentSeen: make(map[string]bool),
 		opts: opts,
 	}
@@ -289,7 +290,8 @@ func (imp *importResolver) contentHash(filename string) ([]byte, string) {
 func (imp *importResolver) importRecursive(
 	lineNum int,
 	content string,
-	inPath string) (int, string, error) {
+	inPath string,
+) (int, string, error) {
 	basePath := path.Dir(inPath)
 
 	var replacements []string
@@ -312,6 +314,7 @@ func (imp *importResolver) importRecursive(
 		} else {
 			path := strings.Trim(strings.TrimPrefix(line, importIdentifier), " \"';")
 			filename := filepath.Join(basePath, path)
+			imp.dependencyManager.AddIdentity(identity.CleanStringIdentity(filename))
 			importContent, hash := imp.contentHash(filename)
 
 			if importContent == nil {
@@ -364,8 +367,6 @@ func (imp *importResolver) importRecursive(
 }
 
 func (imp *importResolver) resolve() (io.Reader, error) {
-	const importIdentifier = "@import"
-
 	content, err := io.ReadAll(imp.r)
 	if err != nil {
 		return nil, err
@@ -438,6 +439,5 @@ func (imp *importResolver) toFileError(output string) error {
 	pos.LineNumber = file.Offset + 1
 	return ferr.UpdatePosition(pos).UpdateContent(f, nil)
 
-	//return herrors.NewFileErrorFromFile(inErr, file.Filename, realFilename, hugofs.Os, herrors.SimpleLineMatcher)
-
+	// return herrors.NewFileErrorFromFile(inErr, file.Filename, realFilename, hugofs.Os, herrors.SimpleLineMatcher)
 }

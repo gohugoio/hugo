@@ -76,7 +76,7 @@ type Resource interface {
 	ResourceTypeProvider
 	MediaTypeProvider
 	ResourceLinksProvider
-	ResourceMetaProvider
+	ResourceNameTitleProvider
 	ResourceParamsProvider
 	ResourceDataProvider
 	ErrProvider
@@ -107,17 +107,39 @@ type ResourceLinksProvider interface {
 	RelPermalink() string
 }
 
+// ResourceMetaProvider provides metadata about a resource.
 type ResourceMetaProvider interface {
+	ResourceNameTitleProvider
+	ResourceParamsProvider
+}
+
+type WithResourceMetaProvider interface {
+	// WithResourceMeta creates a new Resource with the given metadata.
+	// For internal use.
+	WithResourceMeta(ResourceMetaProvider) Resource
+}
+
+type ResourceNameTitleProvider interface {
 	// Name is the logical name of this resource. This can be set in the front matter
 	// metadata for this resource. If not set, Hugo will assign a value.
 	// This will in most cases be the base filename.
 	// So, for the image "/some/path/sunset.jpg" this will be "sunset.jpg".
 	// The value returned by this method will be used in the GetByPrefix and ByPrefix methods
 	// on Resources.
+	// Note that for bundled content resources with language code in the filename, this will
+	// be the name without the language code.
 	Name() string
 
 	// Title returns the title if set in front matter. For content pages, this will be the expected value.
 	Title() string
+}
+
+type NameOriginalProvider interface {
+	// NameOriginal is the original name of this resource.
+	// Note that for bundled content resources with language code in the filename, this will
+	// be the name with the language code.
+	// For internal use (for now).
+	NameOriginal() string
 }
 
 type ResourceParamsProvider interface {
@@ -146,6 +168,17 @@ type Identifier interface {
 	Key() string
 }
 
+// WeightProvider provides a weight.
+type WeightProvider interface {
+	Weight() int
+}
+
+// Weight0Provider provides a weight that's considered before the WeightProvider in sorting.
+// This allows the weight set on a given term to win.
+type Weight0Provider interface {
+	Weight0() int
+}
+
 // ContentResource represents a Resource that provides a way to get to its content.
 // Most Resource types in Hugo implements this interface, including Page.
 type ContentResource interface {
@@ -165,10 +198,6 @@ type ContentProvider interface {
 	// * Etc.
 	Content(context.Context) (any, error)
 }
-
-// OpenReadSeekCloser allows setting some other way (than reading from a filesystem)
-// to open or create a ReadSeekCloser.
-type OpenReadSeekCloser func() (hugio.ReadSeekCloser, error)
 
 // ReadSeekCloserResource is a Resource that supports loading its content.
 type ReadSeekCloserResource interface {
@@ -190,6 +219,41 @@ type LanguageProvider interface {
 // TranslationKeyProvider connects translations of the same Resource.
 type TranslationKeyProvider interface {
 	TranslationKey() string
+}
+
+// Staler controls stale state of a Resource. A stale resource should be discarded.
+type Staler interface {
+	StaleMarker
+	StaleInfo
+}
+
+// StaleMarker marks a Resource as stale.
+type StaleMarker interface {
+	MarkStale()
+}
+
+// StaleInfo tells if a resource is marked as stale.
+type StaleInfo interface {
+	IsStale() bool
+}
+
+// IsStaleAny reports whether any of the os is marked as stale.
+func IsStaleAny(os ...any) bool {
+	for _, o := range os {
+		if s, ok := o.(StaleInfo); ok && s.IsStale() {
+			return true
+		}
+	}
+	return false
+}
+
+// MarkStale will mark any of the oses as stale, if possible.
+func MarkStale(os ...any) {
+	for _, o := range os {
+		if s, ok := o.(Staler); ok {
+			s.MarkStale()
+		}
+	}
 }
 
 // UnmarshableResource represents a Resource that can be unmarshaled to some other format.

@@ -1,6 +1,6 @@
 ---
 title: strings.HasSuffix
-description: Reports whether the given string begins with the given suffix.
+description: Reports whether the given string ends with the given suffix.
 categories: []
 keywords: []
 action:
