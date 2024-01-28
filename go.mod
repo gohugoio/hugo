@@ -4,7 +4,7 @@ require (
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
 	github.com/alecthomas/chroma/v2 v2.12.0
 	github.com/armon/go-radix v1.0.1-0.20221118154546-54df44f2176c
-	github.com/aws/aws-sdk-go v1.48.6
+	github.com/aws/aws-sdk-go v1.50.5
 	github.com/bep/clocks v0.5.0
 	github.com/bep/debounce v1.2.0
 	github.com/bep/gitmap v1.1.2
