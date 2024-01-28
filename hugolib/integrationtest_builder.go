@@ -90,6 +90,7 @@ func TestRunning(t testing.TB, files string, opts ...TestOpt) *IntegrationTestBu
 	return NewIntegrationTestBuilder(cfg).Build()
 }
 
+// In most cases you should not use this function directly, but the Test or TestRunning function.
 func NewIntegrationTestBuilder(conf IntegrationTestConfig) *IntegrationTestBuilder {
 	// Code fences.
 	conf.TxtarString = strings.ReplaceAll(conf.TxtarString, "§§§", "```")
