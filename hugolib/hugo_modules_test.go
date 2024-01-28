@@ -657,30 +657,24 @@ min_version = 0.55.0
 func TestMountsProject(t *testing.T) {
 	t.Parallel()
 
-	config := `
-
+	files := `
+-- config.toml --
 baseURL="https://example.org"
 
 [module]
 [[module.mounts]]
 source="mycontent"
 target="content"
-
-`
-	b := newTestSitesBuilder(t).
-		WithConfigFile("toml", config).
-		WithSourceFile(filepath.Join("mycontent", "mypage.md"), `
+-- layouts/_default/single.html --
+Permalink: {{ .Permalink }}|
+-- mycontent/mypage.md --
 ---
 title: "My Page"
 ---
+`
+	b := Test(t, files)
 
-`)
-
-	b.Build(BuildCfg{})
-
-	// helpers.PrintFs(b.H.Fs.Source, "public", os.Stdout)
-
-	b.AssertFileContent("public/mypage/index.html", "Permalink: https://example.org/mypage/")
+	b.AssertFileContent("public/mypage/index.html", "Permalink: https://example.org/mypage/|")
 }
 
 // https://github.com/gohugoio/hugo/issues/6684
@@ -706,25 +700,20 @@ Home: {{ .Title }}|{{ .Content }}|
 func TestSiteWithGoModButNoModules(t *testing.T) {
 	t.Parallel()
 
-	c := qt.New(t)
-	// We need to use the OS fs for this.
-	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-no-mod")
-	c.Assert(err, qt.IsNil)
+	tempDir := t.TempDir()
 
-	cfg := config.New()
-	cfg.Set("workingDir", workDir)
-	cfg.Set("publishDir", "public")
-	fs := hugofs.NewFromOld(hugofs.Os, cfg)
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+-- go.mod --
 
-	defer clean()
+`
 
-	b := newTestSitesBuilder(t)
-	b.Fs = fs
+	b := Test(t, files, TestOptWithConfig(func(cfg *IntegrationTestConfig) {
+		cfg.WorkingDir = tempDir
+	}))
 
-	b.WithWorkingDir(workDir).WithViper(cfg)
-
-	b.WithSourceFile("go.mod", "")
-	b.Build(BuildCfg{})
+	b.Build()
 }
 
 // https://github.com/gohugoio/hugo/issues/6622
@@ -783,7 +772,9 @@ P1: {{ $p1.Title }}|{{ $p1.RelPermalink }}|Filename: {{ $p1.File.Filename }}
 
 // Issue 9426
 func TestMountSameSource(t *testing.T) {
-	config := `baseURL = 'https://example.org/'
+	files := `
+-- hugo.toml --
+baseURL = 'https://example.org/'
 languageCode = 'en-us'
 title = 'Hugo GitHub Issue #9426'
 
@@ -800,18 +791,15 @@ target = "content/resources-a"
 [[module.mounts]]
 source = "extra-content"
 target = "content/resources-b"
+-- layouts/_default/single.html --
+Single
+-- content/p1.md --
+-- extra-content/_index.md --
+-- extra-content/subdir/_index.md --
+-- extra-content/subdir/about.md --
+"
 `
-	b := newTestSitesBuilder(t).WithConfigFile("toml", config)
-
-	b.WithContent("p1.md", "")
-
-	b.WithSourceFile(
-		"extra-content/_index.md", "",
-		"extra-content/subdir/_index.md", "",
-		"extra-content/subdir/about.md", "",
-	)
-
-	b.Build(BuildCfg{})
+	b := Test(t, files)
 
 	b.AssertFileContent("public/resources-a/subdir/about/index.html", "Single")
 	b.AssertFileContent("public/resources-b/subdir/about/index.html", "Single")
@@ -836,12 +824,7 @@ message: Hugo Rocks
 {{ site.Data.extra.test.message }}
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", "Hugo Rocks")
 }
