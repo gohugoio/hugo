@@ -26,6 +26,7 @@ import (
 	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/hugofs/glob"
 	"github.com/gohugoio/hugo/hugolib/doctree"
+	"github.com/gohugoio/hugo/resources"
 
 	"github.com/fsnotify/fsnotify"
 
@@ -72,6 +73,8 @@ type HugoSites struct {
 
 	// Cache for page listings.
 	cachePages *dynacache.Partition[string, page.Pages]
+	// Cache for content sources.
+	cacheContentSource *dynacache.Partition[string, *resources.StaleValue[[]byte]]
 
 	// Before Hugo 0.122.0 we managed all translations in a map using a translationKey
 	// that could be overridden in front matter.

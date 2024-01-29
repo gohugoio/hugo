@@ -187,7 +187,7 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo) error {
 		if pi.IsContent() {
 			// Create the page now as we need it at assemembly time.
 			// The other resources are created if needed.
-			pageResource, err := m.s.h.newPage(
+			pageResource, pi, err := m.s.h.newPage(
 				&pageMeta{
 					f:        source.NewFileInfo(fim),
 					pathInfo: pi,
@@ -197,6 +197,8 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo) error {
 			if err != nil {
 				return err
 			}
+			key = pi.Base()
+
 			rs = &resourceSource{r: pageResource}
 		} else {
 			rs = &resourceSource{path: pi, opener: r, fi: fim}
@@ -226,7 +228,7 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo) error {
 			},
 		))
 		// A content file.
-		p, err := m.s.h.newPage(
+		p, pi, err := m.s.h.newPage(
 			&pageMeta{
 				f:        source.NewFileInfo(fi),
 				pathInfo: pi,

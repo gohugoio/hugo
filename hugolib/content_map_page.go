@@ -43,6 +43,7 @@ import (
 
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/resources/page/pagemeta"
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
@@ -97,7 +98,6 @@ type pageMap struct {
 	cacheContentRendered   *dynacache.Partition[string, *resources.StaleValue[contentSummary]]
 	cacheContentPlain      *dynacache.Partition[string, *resources.StaleValue[contentPlainPlainWords]]
 	contentTableOfContents *dynacache.Partition[string, *resources.StaleValue[contentTableOfContents]]
-	cacheContentSource     *dynacache.Partition[string, *resources.StaleValue[[]byte]]
 
 	cfg contentMapConfig
 }
@@ -147,7 +147,6 @@ func (t *pageTrees) collectIdentities(key string) []identity.Identity {
 
 // collectIdentitiesSurrounding collects all identities surrounding the given key.
 func (t *pageTrees) collectIdentitiesSurrounding(key string, maxSamplesPerTree int) []identity.Identity {
-	// TODO1 test language coverage from this.
 	ids := t.collectIdentitiesSurroundingIn(key, maxSamplesPerTree, t.treePages)
 	ids = append(ids, t.collectIdentitiesSurroundingIn(key, maxSamplesPerTree, t.treeResources)...)
 	return ids
@@ -483,7 +482,7 @@ func (m *pageMap) getOrCreateResourcesForPage(ps *pageState) resource.Resources 
 			return nil, err
 		}
 
-		if translationKey := ps.m.translationKey; translationKey != "" {
+		if translationKey := ps.m.pageConfig.TranslationKey; translationKey != "" {
 			// This this should not be a very common case.
 			// Merge in resources from the other languages.
 			translatedPages, _ := m.s.h.translationKeyPages.Get(translationKey)
@@ -539,9 +538,9 @@ func (m *pageMap) getOrCreateResourcesForPage(ps *pageState) resource.Resources 
 
 		sort.SliceStable(res, lessFunc)
 
-		if len(ps.m.resourcesMetadata) > 0 {
+		if len(ps.m.pageConfig.Resources) > 0 {
 			for i, r := range res {
-				res[i] = resources.CloneWithMetadataIfNeeded(ps.m.resourcesMetadata, r)
+				res[i] = resources.CloneWithMetadataIfNeeded(ps.m.pageConfig.Resources, r)
 			}
 			sort.SliceStable(res, lessFunc)
 		}
@@ -819,7 +818,6 @@ func newPageMap(i int, s *Site, mcache *dynacache.Cache, pageTrees *pageTrees) *
 		cacheContentRendered:   dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentSummary]](mcache, fmt.Sprintf("/cont/ren/%d", i), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
 		cacheContentPlain:      dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentPlainPlainWords]](mcache, fmt.Sprintf("/cont/pla/%d", i), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
 		contentTableOfContents: dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentTableOfContents]](mcache, fmt.Sprintf("/cont/toc/%d", i), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
-		cacheContentSource:     dynacache.GetOrCreatePartition[string, *resources.StaleValue[[]byte]](mcache, fmt.Sprintf("/cont/src/%d", i), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
 
 		cfg: contentMapConfig{
 			lang:                 s.Lang(),
@@ -1215,7 +1213,7 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 			// Home page gets it's cascade from the site config.
 			cascade = sa.conf.Cascade.Config
 
-			if pageBundle.m.cascade == nil {
+			if pageBundle.m.pageConfig.Cascade == nil {
 				// Pass the site cascade downwards.
 				pw.WalkContext.Data().Insert(keyPage, cascade)
 			}
@@ -1227,12 +1225,12 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 		}
 
 		if (pageBundle.IsHome() || pageBundle.IsSection()) && pageBundle.m.setMetaPostCount > 0 {
-			oldDates := pageBundle.m.dates
+			oldDates := pageBundle.m.pageConfig.Dates
 
 			// We need to wait until after the walk to determine if any of the dates have changed.
 			pw.WalkContext.AddPostHook(
 				func() error {
-					if oldDates != pageBundle.m.dates {
+					if oldDates != pageBundle.m.pageConfig.Dates {
 						sa.assembleChanges.Add(pageBundle)
 					}
 					return nil
@@ -1251,11 +1249,12 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 
 		const eventName = "dates"
 		if n.isContentNodeBranch() {
-			if pageBundle.m.cascade != nil {
+			if pageBundle.m.pageConfig.Cascade != nil {
 				// Pass it down.
-				pw.WalkContext.Data().Insert(keyPage, pageBundle.m.cascade)
+				pw.WalkContext.Data().Insert(keyPage, pageBundle.m.pageConfig.Cascade)
 			}
-			wasZeroDates := resource.IsZeroDates(pageBundle.m.dates)
+
+			wasZeroDates := pageBundle.m.pageConfig.Dates.IsAllDatesZero()
 			if wasZeroDates || pageBundle.IsHome() {
 				pw.WalkContext.AddEventListener(eventName, keyPage, func(e *doctree.Event[contentNodeI]) {
 					sp, ok := e.Source.(*pageState)
@@ -1264,15 +1263,15 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 					}
 
 					if wasZeroDates {
-						pageBundle.m.dates.UpdateDateAndLastmodIfAfter(sp.m.dates)
+						pageBundle.m.pageConfig.Dates.UpdateDateAndLastmodIfAfter(sp.m.pageConfig.Dates)
 					}
 
 					if pageBundle.IsHome() {
-						if pageBundle.m.dates.Lastmod().After(pageBundle.s.lastmod) {
-							pageBundle.s.lastmod = pageBundle.m.dates.Lastmod()
+						if pageBundle.m.pageConfig.Dates.Lastmod.After(pageBundle.s.lastmod) {
+							pageBundle.s.lastmod = pageBundle.m.pageConfig.Dates.Lastmod
 						}
-						if sp.m.dates.Lastmod().After(pageBundle.s.lastmod) {
-							pageBundle.s.lastmod = sp.m.dates.Lastmod()
+						if sp.m.pageConfig.Dates.Lastmod.After(pageBundle.s.lastmod) {
+							pageBundle.s.lastmod = sp.m.pageConfig.Dates.Lastmod
 						}
 					}
 				})
@@ -1351,9 +1350,9 @@ func (sa *sitePagesAssembler) applyAggregatesToTaxonomiesAndTerms() error {
 				p := n.(*pageState)
 				if p.Kind() != kinds.KindTerm {
 					// The other kinds were handled in applyAggregates.
-					if p.m.cascade != nil {
+					if p.m.pageConfig.Cascade != nil {
 						// Pass it down.
-						pw.WalkContext.Data().Insert(s, p.m.cascade)
+						pw.WalkContext.Data().Insert(s, p.m.pageConfig.Cascade)
 					}
 				}
 
@@ -1388,14 +1387,14 @@ func (sa *sitePagesAssembler) applyAggregatesToTaxonomiesAndTerms() error {
 				// Send the date info up the tree.
 				pw.WalkContext.SendEvent(&doctree.Event[contentNodeI]{Source: n, Path: s, Name: eventName})
 
-				if resource.IsZeroDates(p.m.dates) {
+				if p.m.pageConfig.Dates.IsAllDatesZero() {
 					pw.WalkContext.AddEventListener(eventName, s, func(e *doctree.Event[contentNodeI]) {
 						sp, ok := e.Source.(*pageState)
 						if !ok {
 							return
 						}
 
-						p.m.dates.UpdateDateAndLastmodIfAfter(sp.m.dates)
+						p.m.pageConfig.Dates.UpdateDateAndLastmodIfAfter(sp.m.pageConfig.Dates)
 					})
 				}
 
@@ -1443,8 +1442,8 @@ func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
 			// This is a little out of place, but is conveniently put here.
 			// Check if translationKey is set by user.
 			// This is to support the manual way of setting the translationKey in front matter.
-			if ps.m.translationKey != "" {
-				sa.s.h.translationKeyPages.Append(ps.m.translationKey, ps)
+			if ps.m.pageConfig.TranslationKey != "" {
+				sa.s.h.translationKeyPages.Append(ps.m.pageConfig.TranslationKey, ps)
 			}
 
 			if sa.pageMap.cfg.taxonomyTermDisabled {
@@ -1477,9 +1476,13 @@ func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
 							singular: viewName.singular,
 							s:        sa.Site,
 							pathInfo: pi,
-							kind:     kinds.KindTerm,
+							pageMetaParams: pageMetaParams{
+								pageConfig: &pagemeta.PageConfig{
+									Kind: kinds.KindTerm,
+								},
+							},
 						}
-						n, err := sa.h.newPage(m)
+						n, pi, err := sa.h.newPage(m)
 						if err != nil {
 							return false, err
 						}
@@ -1524,7 +1527,7 @@ func (sa *sitePagesAssembler) assembleResources() error {
 			targetPaths := ps.targetPaths()
 			baseTarget := targetPaths.SubResourceBaseTarget
 			duplicateResourceFiles := true
-			if ps.s.ContentSpec.Converters.IsGoldmark(ps.m.markup) {
+			if ps.s.ContentSpec.Converters.IsGoldmark(ps.m.pageConfig.Markup) {
 				duplicateResourceFiles = ps.s.ContentSpec.Converters.GetMarkupConfig().Goldmark.DuplicateResourceFiles
 			}
 
@@ -1566,7 +1569,7 @@ func (sa *sitePagesAssembler) assembleResources() error {
 						BasePathTargetPath:   baseTarget,
 						Name:                 relPath,
 						NameOriginal:         relPathOriginal,
-						LazyPublish:          !ps.m.buildConfig.PublishResources,
+						LazyPublish:          !ps.m.pageConfig.Build.PublishResources,
 					}
 					r, err := ps.m.s.ResourceSpec.NewResource(rd)
 					if err != nil {
@@ -1631,7 +1634,7 @@ func (sa *sitePagesAssembler) removeShouldNotBuild() error {
 				case kinds.KindHome, kinds.KindSection, kinds.KindTaxonomy:
 					// We need to keep these for the structure, but disable
 					// them so they don't get listed/rendered.
-					(&p.m.buildConfig).Disable()
+					(&p.m.pageConfig.Build).Disable()
 				default:
 					keys = append(keys, key)
 				}
@@ -1673,13 +1676,17 @@ func (sa *sitePagesAssembler) addStandalonePages() error {
 		}
 
 		m := &pageMeta{
-			s:                      s,
-			pathInfo:               s.Conf.PathParser().Parse(files.ComponentFolderContent, key+f.MediaType.FirstSuffix.FullSuffix),
-			kind:                   kind,
+			s:        s,
+			pathInfo: s.Conf.PathParser().Parse(files.ComponentFolderContent, key+f.MediaType.FirstSuffix.FullSuffix),
+			pageMetaParams: pageMetaParams{
+				pageConfig: &pagemeta.PageConfig{
+					Kind: kind,
+				},
+			},
 			standaloneOutputFormat: f,
 		}
 
-		p, _ := s.h.newPage(m)
+		p, _, _ := s.h.newPage(m)
 
 		tree.InsertIntoValuesDimension(key, p)
 	}
@@ -1756,7 +1763,7 @@ func (sa *sitePagesAssembler) addMissingRootSections() error {
 					pathInfo: pth,
 				}
 
-				ps, err := sa.h.newPage(m)
+				ps, pth, err := sa.h.newPage(m)
 				if err != nil {
 					return false, err
 				}
@@ -1781,9 +1788,13 @@ func (sa *sitePagesAssembler) addMissingRootSections() error {
 		m := &pageMeta{
 			s:        sa.Site,
 			pathInfo: p,
-			kind:     kinds.KindHome,
+			pageMetaParams: pageMetaParams{
+				pageConfig: &pagemeta.PageConfig{
+					Kind: kinds.KindHome,
+				},
+			},
 		}
-		n, err := sa.h.newPage(m)
+		n, p, err := sa.h.newPage(m)
 		if err != nil {
 			return err
 		}
@@ -1810,10 +1821,14 @@ func (sa *sitePagesAssembler) addMissingTaxonomies() error {
 			m := &pageMeta{
 				s:        sa.Site,
 				pathInfo: sa.Conf.PathParser().Parse(files.ComponentFolderContent, key+"/_index.md"),
-				kind:     kinds.KindTaxonomy,
+				pageMetaParams: pageMetaParams{
+					pageConfig: &pagemeta.PageConfig{
+						Kind: kinds.KindTaxonomy,
+					},
+				},
 				singular: viewName.singular,
 			}
-			p, _ := sa.h.newPage(m)
+			p, _, _ := sa.h.newPage(m)
 			tree.InsertIntoValuesDimension(key, p)
 		}
 	}

@@ -40,6 +40,7 @@ import (
 	"github.com/gohugoio/hugo/navigation"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/publisher"
+	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
 	"github.com/gohugoio/hugo/resources/page/siteidentities"
@@ -281,6 +282,7 @@ func newHugoSites(cfg deps.DepsCfg, d *deps.Deps, pageTrees *pageTrees, sites []
 			page.Pages](d.MemCache, "/pags/all",
 			dynacache.OptionsPartition{Weight: 10, ClearWhen: dynacache.ClearOnRebuild},
 		),
+		cacheContentSource:      dynacache.GetOrCreatePartition[string, *resources.StaleValue[[]byte]](d.MemCache, "/cont/src", dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
 		translationKeyPages:     maps.NewSliceCache[page.Page](),
 		currentSite:             sites[0],
 		skipRebuildForFilenames: make(map[string]bool),

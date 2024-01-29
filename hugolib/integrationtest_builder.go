@@ -80,6 +80,15 @@ func Test(t testing.TB, files string, opts ...TestOpt) *IntegrationTestBuilder {
 	return NewIntegrationTestBuilder(cfg).Build()
 }
 
+// TestE is the same as Test, but returns an error instead of failing the test.
+func TestE(t testing.TB, files string, opts ...TestOpt) (*IntegrationTestBuilder, error) {
+	cfg := IntegrationTestConfig{T: t, TxtarString: files}
+	for _, o := range opts {
+		o(&cfg)
+	}
+	return NewIntegrationTestBuilder(cfg).BuildE()
+}
+
 // TestRunning is a convenience method to create a new IntegrationTestBuilder from some files with Running set to true and run a build.
 // Deprecated: Use Test with TestOptRunning instead.
 func TestRunning(t testing.TB, files string, opts ...TestOpt) *IntegrationTestBuilder {

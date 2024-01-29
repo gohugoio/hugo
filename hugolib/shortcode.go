@@ -315,7 +315,7 @@ func prepareShortcode(
 	isRenderString bool,
 ) (shortcodeRenderer, error) {
 	toParseErr := func(err error) error {
-		source := p.content.mustSource()
+		source := p.m.content.mustSource()
 		return p.parseError(fmt.Errorf("failed to render shortcode %q: %w", sc.name, err), source, sc.pos)
 	}
 
@@ -443,7 +443,7 @@ func doRenderShortcode(
 			//     unchanged.
 			// 2   If inner does not have a newline, strip the wrapping <p> block and
 			//     the newline.
-			switch p.m.markup {
+			switch p.m.pageConfig.Markup {
 			case "", "markdown":
 				if match, _ := regexp.MatchString(innerNewlineRegexp, inner); !match {
 					cleaner, err := regexp.Compile(innerCleanupRegexp)

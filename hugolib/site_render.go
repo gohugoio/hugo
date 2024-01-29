@@ -129,7 +129,7 @@ func pageRenderer(
 			continue
 		}
 
-		if p.m.buildConfig.PublishResources {
+		if p.m.pageConfig.Build.PublishResources {
 			if err := p.renderResources(); err != nil {
 				s.SendError(p.errorf(err, "failed to render page resources"))
 				continue

@@ -17,13 +17,6 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-type URLPath struct {
-	URL       string
-	Permalink string
-	Slug      string
-	Section   string
-}
-
 const (
 	Never       = "never"
 	Always      = "always"

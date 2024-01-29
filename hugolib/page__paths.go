@@ -127,7 +127,7 @@ func createTargetPathDescriptor(p *pageState) (page.TargetPathDescriptor, error)
 		Section:     pageInfoCurrentSection,
 		UglyURLs:    s.h.Conf.IsUglyURLs(p.Section()),
 		ForcePrefix: s.h.Conf.IsMultihost() || alwaysInSubDir,
-		URL:         pm.urlPaths.URL,
+		URL:         pm.pageConfig.URL,
 	}
 
 	if pm.Slug() != "" {
