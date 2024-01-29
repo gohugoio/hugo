@@ -91,9 +91,6 @@ type pageCommon struct {
 	layoutDescriptor     layouts.LayoutDescriptor
 	layoutDescriptorInit sync.Once
 
-	// The source and the parsed page content.
-	content *cachedContent
-
 	// Set if feature enabled and this is in a Git repo.
 	gitInfo    source.GitInfo
 	codeowners []string

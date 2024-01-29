@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 
@@ -53,9 +54,8 @@ type pageContentReplacement struct {
 	source pageparser.Item
 }
 
-func newCachedContent(m *pageMeta, pid uint64) (*cachedContent, error) {
+func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64, sourceKey string) (*contentParseInfo, error) {
 	var openSource hugio.OpenReadSeekCloser
-	var filename string
 	if m.f != nil {
 		meta := m.f.FileInfo().Meta()
 		openSource = func() (hugio.ReadSeekCloser, error) {
@@ -65,6 +65,44 @@ func newCachedContent(m *pageMeta, pid uint64) (*cachedContent, error) {
 			}
 			return r, nil
 		}
+	}
+
+	if sourceKey == "" {
+		sourceKey = strconv.Itoa(int(pid))
+	}
+
+	pi := &contentParseInfo{
+		h:          h,
+		pid:        pid,
+		sourceKey:  sourceKey,
+		openSource: openSource,
+	}
+
+	source, err := pi.contentSource(m)
+	if err != nil {
+		return nil, err
+	}
+
+	items, err := pageparser.ParseBytes(
+		source,
+		pageparser.Config{},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	pi.itemsStep1 = items
+
+	if err := pi.mapFrontMatter(source); err != nil {
+		return nil, err
+	}
+
+	return pi, nil
+}
+
+func (m *pageMeta) newCachedContent(h *HugoSites, pi *contentParseInfo) (*cachedContent, error) {
+	var filename string
+	if m.f != nil {
 		filename = m.f.Filename()
 	}
 
@@ -72,15 +110,11 @@ func newCachedContent(m *pageMeta, pid uint64) (*cachedContent, error) {
 		pm:             m.s.pageMap,
 		StaleInfo:      m,
 		shortcodeState: newShortcodeHandler(filename, m.s),
-		parseInfo: &contentParseInfo{
-			pid: pid,
-		},
-		cacheBaseKey: m.pathInfo.PathNoLang(),
-		openSource:   openSource,
-		enableEmoji:  m.s.conf.EnableEmoji,
+		pi:             pi,
+		enableEmoji:    m.s.conf.EnableEmoji,
 	}
 
-	source, err := c.contentSource()
+	source, err := c.pi.contentSource(m)
 	if err != nil {
 		return nil, err
 	}
@@ -95,23 +129,25 @@ func newCachedContent(m *pageMeta, pid uint64) (*cachedContent, error) {
 type cachedContent struct {
 	pm *pageMap
 
-	cacheBaseKey string
-
-	// The source bytes.
-	openSource hugio.OpenReadSeekCloser
-
 	resource.StaleInfo
 
 	shortcodeState *shortcodeHandler
 
 	// Parsed content.
-	parseInfo *contentParseInfo
+	pi *contentParseInfo
 
 	enableEmoji bool
 }
 
 type contentParseInfo struct {
-	pid         uint64
+	h *HugoSites
+
+	pid       uint64
+	sourceKey string
+
+	// The source bytes.
+	openSource hugio.OpenReadSeekCloser
+
 	frontMatter map[string]any
 
 	// Whether the parsed content contains a summary separator.
@@ -190,25 +226,15 @@ func (pi *contentParseInfo) contentToRender(ctx context.Context, source []byte, 
 }
 
 func (c *cachedContent) IsZero() bool {
-	return len(c.parseInfo.itemsStep2) == 0
+	return len(c.pi.itemsStep2) == 0
 }
 
 func (c *cachedContent) parseContentFile(source []byte) error {
-	if source == nil || c.openSource == nil {
+	if source == nil || c.pi.openSource == nil {
 		return nil
 	}
 
-	items, err := pageparser.ParseBytes(
-		source,
-		pageparser.Config{},
-	)
-	if err != nil {
-		return err
-	}
-
-	c.parseInfo.itemsStep1 = items
-
-	return c.parseInfo.mapItems(source, c.shortcodeState)
+	return c.pi.mapItemsAfterFrontMatter(source, c.shortcodeState)
 }
 
 func (c *contentParseInfo) parseFrontMatter(it pageparser.Item, iter *pageparser.Iterator, source []byte) error {
@@ -242,7 +268,49 @@ func (c *contentParseInfo) parseFrontMatter(it pageparser.Item, iter *pageparser
 	return nil
 }
 
-func (rn *contentParseInfo) mapItems(
+func (rn *contentParseInfo) failMap(source []byte, err error, i pageparser.Item) error {
+	if fe, ok := err.(herrors.FileError); ok {
+		return fe
+	}
+
+	pos := posFromInput("", source, i.Pos())
+
+	return herrors.NewFileErrorFromPos(err, pos)
+}
+
+func (rn *contentParseInfo) mapFrontMatter(source []byte) error {
+	if len(rn.itemsStep1) == 0 {
+		return nil
+	}
+	iter := pageparser.NewIterator(rn.itemsStep1)
+
+Loop:
+	for {
+		it := iter.Next()
+		switch {
+		case it.IsFrontMatter():
+			if err := rn.parseFrontMatter(it, iter, source); err != nil {
+				return err
+			}
+			next := iter.Peek()
+			if !next.IsDone() {
+				rn.posMainContent = next.Pos()
+			}
+			// Done.
+			break Loop
+		case it.IsEOF():
+			break Loop
+		case it.IsError():
+			return rn.failMap(source, it.Err, it)
+		default:
+
+		}
+	}
+
+	return nil
+}
+
+func (rn *contentParseInfo) mapItemsAfterFrontMatter(
 	source []byte,
 	s *shortcodeHandler,
 ) error {
@@ -273,13 +341,7 @@ Loop:
 		switch {
 		case it.Type == pageparser.TypeIgnore:
 		case it.IsFrontMatter():
-			if err := rn.parseFrontMatter(it, iter, source); err != nil {
-				return err
-			}
-			next := iter.Peek()
-			if !next.IsDone() {
-				rn.posMainContent = next.Pos()
-			}
+			// Ignore.
 		case it.Type == pageparser.TypeLeadSummaryDivider:
 			posBody := -1
 			f := func(item pageparser.Item) bool {
@@ -347,16 +409,16 @@ Loop:
 }
 
 func (c *cachedContent) mustSource() []byte {
-	source, err := c.contentSource()
+	source, err := c.pi.contentSource(c)
 	if err != nil {
 		panic(err)
 	}
 	return source
 }
 
-func (c *cachedContent) contentSource() ([]byte, error) {
-	key := c.cacheBaseKey
-	v, err := c.pm.cacheContentSource.GetOrCreate(key, func(string) (*resources.StaleValue[[]byte], error) {
+func (c *contentParseInfo) contentSource(s resource.StaleInfo) ([]byte, error) {
+	key := c.sourceKey
+	v, err := c.h.cacheContentSource.GetOrCreate(key, func(string) (*resources.StaleValue[[]byte], error) {
 		b, err := c.readSourceAll()
 		if err != nil {
 			return nil, err
@@ -365,7 +427,7 @@ func (c *cachedContent) contentSource() ([]byte, error) {
 		return &resources.StaleValue[[]byte]{
 			Value: b,
 			IsStaleFunc: func() bool {
-				return c.IsStale()
+				return s.IsStale()
 			},
 		}, nil
 	})
@@ -376,7 +438,7 @@ func (c *cachedContent) contentSource() ([]byte, error) {
 	return v.Value, nil
 }
 
-func (c *cachedContent) readSourceAll() ([]byte, error) {
+func (c *contentParseInfo) readSourceAll() ([]byte, error) {
 	if c.openSource == nil {
 		return []byte{}, nil
 	}
@@ -424,7 +486,7 @@ type contentPlainPlainWords struct {
 
 func (c *cachedContent) contentRendered(ctx context.Context, cp *pageContentOutput) (contentSummary, error) {
 	ctx = tpl.Context.DependencyScope.Set(ctx, pageDependencyScopeGlobal)
-	key := c.cacheBaseKey + "/" + cp.po.f.Name
+	key := c.pi.sourceKey + "/" + cp.po.f.Name
 	versionv := cp.contentRenderedVersion
 
 	v, err := c.pm.cacheContentRendered.GetOrCreate(key, func(string) (*resources.StaleValue[contentSummary], error) {
@@ -447,7 +509,7 @@ func (c *cachedContent) contentRendered(ctx context.Context, cp *pageContentOutp
 			},
 		}
 
-		if len(c.parseInfo.itemsStep2) == 0 {
+		if len(c.pi.itemsStep2) == 0 {
 			// Nothing to do.
 			return rs, nil
 		}
@@ -501,8 +563,8 @@ func (c *cachedContent) contentRendered(ctx context.Context, cp *pageContentOutp
 
 		var result contentSummary // hasVariants bool
 
-		if c.parseInfo.hasSummaryDivider {
-			isHTML := cp.po.p.m.markup == "html"
+		if c.pi.hasSummaryDivider {
+			isHTML := cp.po.p.m.pageConfig.Markup == "html"
 			if isHTML {
 				// Use the summary sections as provided by the user.
 				i := bytes.Index(b, internalSummaryDividerPre)
@@ -510,7 +572,7 @@ func (c *cachedContent) contentRendered(ctx context.Context, cp *pageContentOutp
 				b = b[i+len(internalSummaryDividerPre):]
 
 			} else {
-				summary, content, err := splitUserDefinedSummaryAndContent(cp.po.p.m.markup, b)
+				summary, content, err := splitUserDefinedSummaryAndContent(cp.po.p.m.pageConfig.Markup, b)
 				if err != nil {
 					cp.po.p.s.Log.Errorf("Failed to set user defined summary for page %q: %s", cp.po.p.pathOrTitle(), err)
 				} else {
@@ -518,7 +580,7 @@ func (c *cachedContent) contentRendered(ctx context.Context, cp *pageContentOutp
 					result.summary = helpers.BytesToHTML(summary)
 				}
 			}
-			result.summaryTruncated = c.parseInfo.summaryTruncated
+			result.summaryTruncated = c.pi.summaryTruncated
 		}
 		result.content = helpers.BytesToHTML(b)
 		rs.Value = result
@@ -543,11 +605,11 @@ func (c *cachedContent) mustContentToC(ctx context.Context, cp *pageContentOutpu
 var setGetContentCallbackInContext = hcontext.NewContextDispatcher[func(*pageContentOutput, contentTableOfContents)]("contentCallback")
 
 func (c *cachedContent) contentToC(ctx context.Context, cp *pageContentOutput) (contentTableOfContents, error) {
-	key := c.cacheBaseKey + "/" + cp.po.f.Name
+	key := c.pi.sourceKey + "/" + cp.po.f.Name
 	versionv := cp.contentRenderedVersion
 
 	v, err := c.pm.contentTableOfContents.GetOrCreate(key, func(string) (*resources.StaleValue[contentTableOfContents], error) {
-		source, err := c.contentSource()
+		source, err := c.pi.contentSource(c)
 		if err != nil {
 			return nil, err
 		}
@@ -572,7 +634,7 @@ func (c *cachedContent) contentToC(ctx context.Context, cp *pageContentOutput) (
 			}
 
 			if p.s.conf.Internal.Watch {
-				for _, s := range cp2.po.p.content.shortcodeState.shortcodes {
+				for _, s := range cp2.po.p.m.content.shortcodeState.shortcodes {
 					for _, templ := range s.templs {
 						cp.trackDependency(templ.(identity.IdentityProvider))
 					}
@@ -580,7 +642,7 @@ func (c *cachedContent) contentToC(ctx context.Context, cp *pageContentOutput) (
 			}
 
 			// Transfer shortcode names so HasShortcode works for shortcodes from included pages.
-			cp.po.p.content.shortcodeState.transferNames(cp2.po.p.content.shortcodeState)
+			cp.po.p.m.content.shortcodeState.transferNames(cp2.po.p.m.content.shortcodeState)
 			if cp2.po.p.pageOutputTemplateVariationsState.Load() > 0 {
 				cp.po.p.pageOutputTemplateVariationsState.Add(1)
 			}
@@ -589,7 +651,7 @@ func (c *cachedContent) contentToC(ctx context.Context, cp *pageContentOutput) (
 		ctx = setGetContentCallbackInContext.Set(ctx, ctxCallback)
 
 		var hasVariants bool
-		ct.contentToRender, hasVariants, err = c.parseInfo.contentToRender(ctx, source, ct.contentPlaceholders)
+		ct.contentToRender, hasVariants, err = c.pi.contentToRender(ctx, source, ct.contentPlaceholders)
 		if err != nil {
 			return nil, err
 		}
@@ -598,7 +660,7 @@ func (c *cachedContent) contentToC(ctx context.Context, cp *pageContentOutput) (
 			p.pageOutputTemplateVariationsState.Add(1)
 		}
 
-		isHTML := cp.po.p.m.markup == "html"
+		isHTML := cp.po.p.m.pageConfig.Markup == "html"
 
 		if !isHTML {
 			createAndSetToC := func(tocProvider converter.TableOfContentsProvider) {
@@ -661,7 +723,7 @@ func (c *cachedContent) contentToC(ctx context.Context, cp *pageContentOutput) (
 }
 
 func (c *cachedContent) contentPlain(ctx context.Context, cp *pageContentOutput) (contentPlainPlainWords, error) {
-	key := c.cacheBaseKey + "/" + cp.po.f.Name
+	key := c.pi.sourceKey + "/" + cp.po.f.Name
 
 	versionv := cp.contentRenderedVersion
 
@@ -681,7 +743,7 @@ func (c *cachedContent) contentPlain(ctx context.Context, cp *pageContentOutput)
 		result.plain = tpl.StripHTML(string(rendered.content))
 		result.plainWords = strings.Fields(result.plain)
 
-		isCJKLanguage := cp.po.p.m.isCJKLanguage
+		isCJKLanguage := cp.po.p.m.pageConfig.IsCJKLanguage
 
 		if isCJKLanguage {
 			result.wordCount = 0
@@ -711,8 +773,8 @@ func (c *cachedContent) contentPlain(ctx context.Context, cp *pageContentOutput)
 		if rendered.summary != "" {
 			result.summary = rendered.summary
 			result.summaryTruncated = rendered.summaryTruncated
-		} else if cp.po.p.m.summary != "" {
-			b, err := cp.po.contentRenderer.ParseAndRenderContent(ctx, []byte(cp.po.p.m.summary), false)
+		} else if cp.po.p.m.pageConfig.Summary != "" {
+			b, err := cp.po.contentRenderer.ParseAndRenderContent(ctx, []byte(cp.po.p.m.pageConfig.Summary), false)
 			if err != nil {
 				return nil, err
 			}

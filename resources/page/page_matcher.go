@@ -82,6 +82,14 @@ func (m PageMatcher) Matches(p Page) bool {
 	return true
 }
 
+var disallowedCascadeKeys = map[string]bool{
+	// These define the structure of the page tree and cannot
+	// currently be set in the cascade.
+	"kind": true,
+	"path": true,
+	"lang": true,
+}
+
 func DecodeCascadeConfig(in any) (*config.ConfigNamespace[[]PageMatcherParamsConfig, map[PageMatcher]maps.Params], error) {
 	buildConfig := func(in any) (map[PageMatcher]maps.Params, any, error) {
 		cascade := make(map[PageMatcher]maps.Params)
@@ -100,6 +108,11 @@ func DecodeCascadeConfig(in any) (*config.ConfigNamespace[[]PageMatcherParamsCon
 			c, err := mapToPageMatcherParamsConfig(m)
 			if err != nil {
 				return nil, nil, err
+			}
+			for k := range m {
+				if disallowedCascadeKeys[k] {
+					return nil, nil, fmt.Errorf("key %q not allowed in cascade config", k)
+				}
 			}
 			cfgs = append(cfgs, c)
 		}

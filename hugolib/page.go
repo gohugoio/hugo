@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import (
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/output/layouts"
 	"github.com/gohugoio/hugo/related"
+	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
@@ -197,7 +198,7 @@ func (p *pageHeadingsFiltered) page() page.Page {
 
 // For internal use by the related content feature.
 func (p *pageState) ApplyFilterToHeadings(ctx context.Context, fn func(*tableofcontents.Heading) bool) related.Document {
-	r, err := p.content.contentToC(ctx, p.pageOutput.pco)
+	r, err := p.m.content.contentToC(ctx, p.pageOutput.pco)
 	if err != nil {
 		panic(err)
 	}
@@ -313,14 +314,14 @@ func (p *pageState) Pages() page.Pages {
 // RawContent returns the un-rendered source content without
 // any leading front matter.
 func (p *pageState) RawContent() string {
-	if p.content.parseInfo.itemsStep2 == nil {
+	if p.m.content.pi.itemsStep2 == nil {
 		return ""
 	}
-	start := p.content.parseInfo.posMainContent
+	start := p.m.content.pi.posMainContent
 	if start == -1 {
 		start = 0
 	}
-	source, err := p.content.contentSource()
+	source, err := p.m.content.pi.contentSource(p.m.content)
 	if err != nil {
 		panic(err)
 	}
@@ -332,11 +333,11 @@ func (p *pageState) Resources() resource.Resources {
 }
 
 func (p *pageState) HasShortcode(name string) bool {
-	if p.content.shortcodeState == nil {
+	if p.m.content.shortcodeState == nil {
 		return false
 	}
 
-	return p.content.shortcodeState.hasName(name)
+	return p.m.content.shortcodeState.hasName(name)
 }
 
 func (p *pageState) Site() page.Site {
@@ -355,8 +356,8 @@ func (p *pageState) IsTranslated() bool {
 
 // TranslationKey returns the key used to identify a translation of this content.
 func (p *pageState) TranslationKey() string {
-	if p.m.translationKey != "" {
-		return p.m.translationKey
+	if p.m.pageConfig.TranslationKey != "" {
+		return p.m.pageConfig.TranslationKey
 	}
 	return p.Path()
 }
@@ -365,9 +366,9 @@ func (p *pageState) TranslationKey() string {
 func (p *pageState) AllTranslations() page.Pages {
 	key := p.Path() + "/" + "translations-all"
 	pages, err := p.s.pageMap.getOrCreatePagesFromCache(key, func(string) (page.Pages, error) {
-		if p.m.translationKey != "" {
+		if p.m.pageConfig.TranslationKey != "" {
 			// translationKey set by user.
-			pas, _ := p.s.h.translationKeyPages.Get(p.m.translationKey)
+			pas, _ := p.s.h.translationKeyPages.Get(p.m.pageConfig.TranslationKey)
 			pasc := make(page.Pages, len(pas))
 			copy(pasc, pas)
 			page.SortByLanguage(pasc)
@@ -534,7 +535,7 @@ var defaultRenderStringOpts = renderStringOpts{
 	Markup:  "", // Will inherit the page's value when not set.
 }
 
-func (p *pageMeta) wrapError(err error) error {
+func (p *pageMeta) wrapError(err error, sourceFs afero.Fs) error {
 	if err == nil {
 		panic("wrapError with nil")
 	}
@@ -544,18 +545,18 @@ func (p *pageMeta) wrapError(err error) error {
 		return fmt.Errorf("%q: %w", p.Path(), err)
 	}
 
-	return hugofs.AddFileInfoToError(err, p.File().FileInfo(), p.s.SourceSpec.Fs.Source)
+	return hugofs.AddFileInfoToError(err, p.File().FileInfo(), sourceFs)
 }
 
 // wrapError adds some more context to the given error if possible/needed
 func (p *pageState) wrapError(err error) error {
-	return p.m.wrapError(err)
+	return p.m.wrapError(err, p.s.h.SourceFs)
 }
 
 func (p *pageState) getContentConverter() converter.Converter {
 	var err error
 	p.contentConverterInit.Do(func() {
-		markup := p.m.markup
+		markup := p.m.pageConfig.Markup
 		if markup == "html" {
 			// Only used for shortcode inner content.
 			markup = "markdown"
@@ -612,7 +613,7 @@ func (p *pageState) posFromInput(input []byte, offset int) text.Position {
 }
 
 func (p *pageState) posOffset(offset int) text.Position {
-	return p.posFromInput(p.content.mustSource(), offset)
+	return p.posFromInput(p.m.content.mustSource(), offset)
 }
 
 // shiftToOutputFormat is serialized. The output format idx refers to the

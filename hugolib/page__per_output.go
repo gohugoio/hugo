@@ -104,12 +104,12 @@ func (pco *pageContentOutput) Reset() {
 }
 
 func (pco *pageContentOutput) Fragments(ctx context.Context) *tableofcontents.Fragments {
-	return pco.po.p.content.mustContentToC(ctx, pco).tableOfContents
+	return pco.po.p.m.content.mustContentToC(ctx, pco).tableOfContents
 }
 
 func (pco *pageContentOutput) RenderShortcodes(ctx context.Context) (template.HTML, error) {
-	content := pco.po.p.content
-	source, err := content.contentSource()
+	content := pco.po.p.m.content
+	source, err := content.pi.contentSource(content)
 	if err != nil {
 		return "", err
 	}
@@ -125,7 +125,7 @@ func (pco *pageContentOutput) RenderShortcodes(ctx context.Context) (template.HT
 		insertPlaceholders = true
 	}
 	c := make([]byte, 0, len(source)+(len(source)/10))
-	for _, it := range content.parseInfo.itemsStep2 {
+	for _, it := range content.pi.itemsStep2 {
 		switch v := it.(type) {
 		case pageparser.Item:
 			c = append(c, source[v.Pos():v.Pos()+len(v.Val(source))]...)
@@ -169,12 +169,12 @@ func (pco *pageContentOutput) RenderShortcodes(ctx context.Context) (template.HT
 }
 
 func (pco *pageContentOutput) Content(ctx context.Context) (any, error) {
-	r, err := pco.po.p.content.contentRendered(ctx, pco)
+	r, err := pco.po.p.m.content.contentRendered(ctx, pco)
 	return r.content, err
 }
 
 func (pco *pageContentOutput) TableOfContents(ctx context.Context) template.HTML {
-	return pco.po.p.content.mustContentToC(ctx, pco).tableOfContentsHTML
+	return pco.po.p.m.content.mustContentToC(ctx, pco).tableOfContentsHTML
 }
 
 func (p *pageContentOutput) Len(ctx context.Context) int {
@@ -182,7 +182,7 @@ func (p *pageContentOutput) Len(ctx context.Context) int {
 }
 
 func (pco *pageContentOutput) mustContentRendered(ctx context.Context) contentSummary {
-	r, err := pco.po.p.content.contentRendered(ctx, pco)
+	r, err := pco.po.p.m.content.contentRendered(ctx, pco)
 	if err != nil {
 		pco.fail(err)
 	}
@@ -190,7 +190,7 @@ func (pco *pageContentOutput) mustContentRendered(ctx context.Context) contentSu
 }
 
 func (pco *pageContentOutput) mustContentPlain(ctx context.Context) contentPlainPlainWords {
-	r, err := pco.po.p.content.contentPlain(ctx, pco)
+	r, err := pco.po.p.m.content.contentPlain(ctx, pco)
 	if err != nil {
 		pco.fail(err)
 	}
@@ -270,7 +270,7 @@ func (pco *pageContentOutput) RenderString(ctx context.Context, args ...any) (te
 	}
 
 	conv := pco.po.p.getContentConverter()
-	if opts.Markup != "" && opts.Markup != pco.po.p.m.markup {
+	if opts.Markup != "" && opts.Markup != pco.po.p.m.pageConfig.Markup {
 		var err error
 		conv, err = pco.po.p.m.newContentConverter(pco.po.p, opts.Markup)
 		if err != nil {
@@ -281,6 +281,7 @@ func (pco *pageContentOutput) RenderString(ctx context.Context, args ...any) (te
 	var rendered []byte
 
 	parseInfo := &contentParseInfo{
+		h:   pco.po.p.s.h,
 		pid: pco.po.p.pid,
 	}
 
@@ -293,7 +294,7 @@ func (pco *pageContentOutput) RenderString(ctx context.Context, args ...any) (te
 		}
 
 		s := newShortcodeHandler(pco.po.p.pathOrTitle(), pco.po.p.s)
-		if err := parseInfo.mapItems(contentToRenderb, s); err != nil {
+		if err := parseInfo.mapItemsAfterFrontMatter(contentToRenderb, s); err != nil {
 			return "", err
 		}
 
@@ -320,7 +321,7 @@ func (pco *pageContentOutput) RenderString(ctx context.Context, args ...any) (te
 
 			tokenHandler := func(ctx context.Context, token string) ([]byte, error) {
 				if token == tocShortcodePlaceholder {
-					toc, err := pco.po.p.content.contentToC(ctx, pco)
+					toc, err := pco.po.p.m.content.contentToC(ctx, pco)
 					if err != nil {
 						return nil, err
 					}
@@ -350,7 +351,7 @@ func (pco *pageContentOutput) RenderString(ctx context.Context, args ...any) (te
 		}
 
 		// We need a consolidated view in $page.HasShortcode
-		pco.po.p.content.shortcodeState.transferNames(s)
+		pco.po.p.m.content.shortcodeState.transferNames(s)
 
 	} else {
 		c, err := pco.renderContentWithConverter(ctx, conv, []byte(contentToRender), false)
@@ -411,7 +412,7 @@ func (pco *pageContentOutput) initRenderHooks() error {
 		var renderCacheMu sync.Mutex
 
 		resolvePosition := func(ctx any) text.Position {
-			source := pco.po.p.content.mustSource()
+			source := pco.po.p.m.content.mustSource()
 			var offset int
 
 			switch v := ctx.(type) {

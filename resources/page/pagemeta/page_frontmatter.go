@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,14 +19,75 @@ import (
 
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/spf13/cast"
 )
+
+type Dates struct {
+	Date        time.Time
+	Lastmod     time.Time
+	PublishDate time.Time
+	ExpiryDate  time.Time
+}
+
+func (d Dates) IsDateOrLastModAfter(in Dates) bool {
+	return d.Date.After(in.Date) || d.Lastmod.After(in.Lastmod)
+}
+
+func (d *Dates) UpdateDateAndLastmodIfAfter(in Dates) {
+	if in.Date.After(d.Date) {
+		d.Date = in.Date
+	}
+	if in.Lastmod.After(d.Lastmod) {
+		d.Lastmod = in.Lastmod
+	}
+}
+
+func (d Dates) IsAllDatesZero() bool {
+	return d.Date.IsZero() && d.Lastmod.IsZero() && d.PublishDate.IsZero() && d.ExpiryDate.IsZero()
+}
+
+// PageConfig configures a Page, typically from front matter.
+// Note that all the top level fields are reserved Hugo keywords.
+// Any custom configuration needs to be set in the Params map.
+type PageConfig struct {
+	Dates                   // Dates holds the fource core dates for this page.
+	Title          string   // The title of the page.
+	LinkTitle      string   // The link title of the page.
+	Type           string   // The content type of the page.
+	Layout         string   // The layout to use for to render this page.
+	Markup         string   // The markup used in the content file.
+	Weight         int      // The weight of the page, used in sorting if set to a non-zero value.
+	Kind           string   // The kind of page, e.g. "page", "section", "home" etc. This is usually derived from the content path.
+	Path           string   // The canonical path to the page, e.g. /sect/mypage. Note: Leading slash, no trailing slash, no extensions or language identifiers.
+	Lang           string   // The language code for this page. This is usually derived from the module mount or filename.
+	Slug           string   // The slug for this page.
+	Description    string   // The description for this page.
+	Summary        string   // The summary for this page.
+	Draft          bool     // Whether or not the content is a draft.
+	Headless       bool     // Whether or not the page should be rendered.
+	IsCJKLanguage  bool     // Whether or not the content is in a CJK language.
+	TranslationKey string   // The translation key for this page.
+	Keywords       []string // The keywords for this page.
+	Aliases        []string // The aliases for this page.
+	Outputs        []string // The output formats to render this page in. If not set, the site's configured output formats for this page kind will be used.
+
+	// These build options are set in the front matter,
+	// but not passed on to .Params.
+	Resources []map[string]any
+	Cascade   map[page.PageMatcher]maps.Params // Only relevant for branch nodes.
+	Sitemap   config.SitemapConfig
+	Build     BuildConfig
+
+	// User defined params.
+	Params maps.Params
+}
 
 // FrontMatterHandler maps front matter into Page fields and .Params.
 // Note that we currently have only extracted the date logic.
@@ -47,9 +108,6 @@ type FrontMatterHandler struct {
 // FrontMatterDescriptor describes how to handle front matter for a given Page.
 // It has pointers to values in the receiving page which gets updated.
 type FrontMatterDescriptor struct {
-	// This is the Page's params.
-	Params map[string]any
-
 	// This is the Page's base filename (BaseFilename), e.g. page.md., or
 	// if page is a leaf bundle, the bundle folder name (ContentBaseName).
 	BaseFilename string
@@ -60,13 +118,8 @@ type FrontMatterDescriptor struct {
 	// May be set from the author date in Git.
 	GitAuthorDate time.Time
 
-	// The below are pointers to values on Page and will be modified.
-
-	// This is the Page's dates.
-	Dates *resource.Dates
-
-	// This is the Page's Slug etc.
-	PageURLs *URLPath
+	// The below will be modified.
+	PageConfig *PageConfig
 
 	// The Location to use to parse dates without time zone info.
 	Location *time.Location
@@ -83,8 +136,8 @@ var dateFieldAliases = map[string][]string{
 // supplied front matter params. Note that this requires all lower-case keys
 // in the params map.
 func (f FrontMatterHandler) HandleDates(d *FrontMatterDescriptor) error {
-	if d.Dates == nil {
-		panic("missing dates")
+	if d.PageConfig == nil {
+		panic("missing pageConfig")
 	}
 
 	if f.dateHandler == nil {
@@ -297,7 +350,7 @@ func (f *FrontMatterHandler) createHandlers() error {
 
 	if f.dateHandler, err = f.createDateHandler(f.fmConfig.Date,
 		func(d *FrontMatterDescriptor, t time.Time) {
-			d.Dates.FDate = t
+			d.PageConfig.Date = t
 			setParamIfNotSet(fmDate, t, d)
 		}); err != nil {
 		return err
@@ -306,7 +359,7 @@ func (f *FrontMatterHandler) createHandlers() error {
 	if f.lastModHandler, err = f.createDateHandler(f.fmConfig.Lastmod,
 		func(d *FrontMatterDescriptor, t time.Time) {
 			setParamIfNotSet(fmLastmod, t, d)
-			d.Dates.FLastmod = t
+			d.PageConfig.Lastmod = t
 		}); err != nil {
 		return err
 	}
@@ -314,7 +367,7 @@ func (f *FrontMatterHandler) createHandlers() error {
 	if f.publishDateHandler, err = f.createDateHandler(f.fmConfig.PublishDate,
 		func(d *FrontMatterDescriptor, t time.Time) {
 			setParamIfNotSet(fmPubDate, t, d)
-			d.Dates.FPublishDate = t
+			d.PageConfig.PublishDate = t
 		}); err != nil {
 		return err
 	}
@@ -322,7 +375,7 @@ func (f *FrontMatterHandler) createHandlers() error {
 	if f.expiryDateHandler, err = f.createDateHandler(f.fmConfig.ExpiryDate,
 		func(d *FrontMatterDescriptor, t time.Time) {
 			setParamIfNotSet(fmExpiryDate, t, d)
-			d.Dates.FExpiryDate = t
+			d.PageConfig.ExpiryDate = t
 		}); err != nil {
 		return err
 	}
@@ -331,10 +384,10 @@ func (f *FrontMatterHandler) createHandlers() error {
 }
 
 func setParamIfNotSet(key string, value any, d *FrontMatterDescriptor) {
-	if _, found := d.Params[key]; found {
+	if _, found := d.PageConfig.Params[key]; found {
 		return
 	}
-	d.Params[key] = value
+	d.PageConfig.Params[key] = value
 }
 
 func (f FrontMatterHandler) createDateHandler(identifiers []string, setter func(d *FrontMatterDescriptor, t time.Time)) (frontMatterFieldHandler, error) {
@@ -361,7 +414,7 @@ type frontmatterFieldHandlers int
 
 func (f *frontmatterFieldHandlers) newDateFieldHandler(key string, setter func(d *FrontMatterDescriptor, t time.Time)) frontMatterFieldHandler {
 	return func(d *FrontMatterDescriptor) (bool, error) {
-		v, found := d.Params[key]
+		v, found := d.PageConfig.Params[key]
 
 		if !found {
 			return false, nil
@@ -377,7 +430,7 @@ func (f *frontmatterFieldHandlers) newDateFieldHandler(key string, setter func(d
 		setter(d, date)
 
 		// This is the params key as set in front matter.
-		d.Params[key] = date
+		d.PageConfig.Params[key] = date
 
 		return true, nil
 	}
@@ -392,9 +445,9 @@ func (f *frontmatterFieldHandlers) newDateFilenameHandler(setter func(d *FrontMa
 
 		setter(d, date)
 
-		if _, found := d.Params["slug"]; !found {
+		if _, found := d.PageConfig.Params["slug"]; !found {
 			// Use slug from filename
-			d.PageURLs.Slug = slug
+			d.PageConfig.Slug = slug
 		}
 
 		return true, nil

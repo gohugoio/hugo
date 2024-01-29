@@ -15,44 +15,105 @@ package hugolib
 
 import (
 	"fmt"
+	"path/filepath"
 	"sync"
 	"sync/atomic"
 
+	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/resources"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/gohugoio/hugo/lazy"
 
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/resources/page/pagemeta"
 )
 
 var pageIDCounter atomic.Uint64
 
-func (h *HugoSites) newPage(m *pageMeta) (*pageState, error) {
-	if m.pathInfo == nil {
+func (h *HugoSites) newPage(m *pageMeta) (*pageState, *paths.Path, error) {
+	m.Staler = &resources.AtomicStaler{}
+	if m.pageConfig == nil {
+		m.pageMetaParams = pageMetaParams{
+			pageConfig: &pagemeta.PageConfig{
+				Params: maps.Params{},
+			},
+		}
+	}
+
+	var sourceKey string
+	if m.f != nil {
+		sourceKey = filepath.ToSlash(m.f.Filename())
+	}
+
+	pid := pageIDCounter.Add(1)
+	pi, err := m.parseFrontMatter(h, pid, sourceKey)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if err := m.setMetaPre(pi, h.Conf); err != nil {
+		return nil, nil, m.wrapError(err, h.BaseFs.SourceFs)
+	}
+	pcfg := m.pageConfig
+
+	if pcfg.Path != "" {
+		s := m.pageConfig.Path
+		if !paths.HasExt(s) {
+			var (
+				isBranch bool
+				ext      string = "md"
+			)
+			if pcfg.Kind != "" {
+				isBranch = kinds.IsBranch(pcfg.Kind)
+			} else if m.pathInfo != nil {
+				isBranch = m.pathInfo.IsBranchBundle()
+				if m.pathInfo.Ext() != "" {
+					ext = m.pathInfo.Ext()
+				}
+			} else if m.f != nil {
+				pi := m.f.FileInfo().Meta().PathInfo
+				isBranch = pi.IsBranchBundle()
+				if pi.Ext() != "" {
+					ext = pi.Ext()
+				}
+			}
+			if isBranch {
+				s += "/_index." + ext
+			} else {
+				s += "/index." + ext
+			}
+		}
+		m.pathInfo = h.Conf.PathParser().Parse(files.ComponentFolderContent, s)
+	} else if m.pathInfo == nil {
 		if m.f != nil {
 			m.pathInfo = m.f.FileInfo().Meta().PathInfo
 		}
+
 		if m.pathInfo == nil {
 			panic(fmt.Sprintf("missing pathInfo in %v", m))
 		}
 	}
 
-	m.Staler = &resources.AtomicStaler{}
-
 	ps, err := func() (*pageState, error) {
 		if m.s == nil {
 			// Identify the Site/language to associate this Page with.
 			var lang string
-			if m.f != nil {
+			if pcfg.Lang != "" {
+				lang = pcfg.Lang
+			} else if m.f != nil {
 				meta := m.f.FileInfo().Meta()
 				lang = meta.Lang
 				m.s = h.Sites[meta.LangIndex]
 			} else {
 				lang = m.pathInfo.Lang()
+			}
+			if lang == "" {
+				lang = h.Conf.DefaultContentLanguage()
 			}
 			var found bool
 			for _, ss := range h.Sites {
@@ -62,49 +123,47 @@ func (h *HugoSites) newPage(m *pageMeta) (*pageState, error) {
 					break
 				}
 			}
+
 			if !found {
 				return nil, fmt.Errorf("no site found for language %q", lang)
 			}
-
 		}
 
 		// Identify Page Kind.
-		if m.kind == "" {
-			m.kind = kinds.KindSection
+		if m.pageConfig.Kind == "" {
+			m.pageConfig.Kind = kinds.KindSection
 			if m.pathInfo.Base() == "/" {
-				m.kind = kinds.KindHome
+				m.pageConfig.Kind = kinds.KindHome
 			} else if m.pathInfo.IsBranchBundle() {
 				// A section, taxonomy or term.
 				tc := m.s.pageMap.cfg.getTaxonomyConfig(m.Path())
 				if !tc.IsZero() {
 					// Either a taxonomy or a term.
 					if tc.pluralTreeKey == m.Path() {
-						m.kind = kinds.KindTaxonomy
+						m.pageConfig.Kind = kinds.KindTaxonomy
 					} else {
-						m.kind = kinds.KindTerm
+						m.pageConfig.Kind = kinds.KindTerm
 					}
 				}
 			} else if m.f != nil {
-				m.kind = kinds.KindPage
+				m.pageConfig.Kind = kinds.KindPage
 			}
 		}
 
-		if m.kind == kinds.KindPage && !m.s.conf.IsKindEnabled(m.kind) {
+		if m.pageConfig.Kind == kinds.KindPage && !m.s.conf.IsKindEnabled(m.pageConfig.Kind) {
 			return nil, nil
-		}
-
-		pid := pageIDCounter.Add(1)
-
-		// Parse page content.
-		cachedContent, err := newCachedContent(m, pid)
-		if err != nil {
-			return nil, m.wrapError(err)
 		}
 
 		var dependencyManager identity.Manager = identity.NopManager
 
 		if m.s.conf.Internal.Watch {
 			dependencyManager = identity.NewManager(m.Path())
+		}
+
+		// Parse the rest of the page content.
+		m.content, err = m.newCachedContent(h, pi)
+		if err != nil {
+			return nil, m.wrapError(err, h.SourceFs)
 		}
 
 		ps := &pageState{
@@ -115,7 +174,6 @@ func (h *HugoSites) newPage(m *pageMeta) (*pageState, error) {
 			Staler:                            m,
 			dependencyManager:                 dependencyManager,
 			pageCommon: &pageCommon{
-				content:                   cachedContent,
 				FileProvider:              m,
 				AuthorProvider:            m,
 				Scratcher:                 maps.NewScratcher(),
@@ -168,10 +226,6 @@ func (h *HugoSites) newPage(m *pageMeta) (*pageState, error) {
 		ps.ShortcodeInfoProvider = ps
 		ps.AlternativeOutputFormatsProvider = ps
 
-		if err := ps.setMetaPre(); err != nil {
-			return nil, ps.wrapError(err)
-		}
-
 		if err := ps.initLazyProviders(); err != nil {
 			return nil, ps.wrapError(err)
 		}
@@ -182,5 +236,9 @@ func (h *HugoSites) newPage(m *pageMeta) (*pageState, error) {
 		m.MarkStale()
 	}
 
-	return ps, err
+	if ps == nil {
+		return nil, nil, err
+	}
+
+	return ps, ps.PathInfo(), err
 }

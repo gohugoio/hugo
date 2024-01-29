@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,16 +22,15 @@ import (
 	"github.com/gohugoio/hugo/config/testconfig"
 
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
-	"github.com/gohugoio/hugo/resources/resource"
 
 	qt "github.com/frankban/quicktest"
 )
 
 func newTestFd() *pagemeta.FrontMatterDescriptor {
 	return &pagemeta.FrontMatterDescriptor{
-		Params:   make(map[string]any),
-		Dates:    &resource.Dates{},
-		PageURLs: &pagemeta.URLPath{},
+		PageConfig: &pagemeta.PageConfig{
+			Params: make(map[string]interface{}),
+		},
 		Location: time.UTC,
 	}
 }
@@ -105,16 +104,16 @@ func TestFrontMatterDatesHandlers(t *testing.T) {
 		case ":git":
 			d.GitAuthorDate = d1
 		}
-		d.Params["date"] = d2
+		d.PageConfig.Params["date"] = d2
 		c.Assert(handler.HandleDates(d), qt.IsNil)
-		c.Assert(d.Dates.FDate, qt.Equals, d1)
-		c.Assert(d.Params["date"], qt.Equals, d2)
+		c.Assert(d.PageConfig.Dates.Date, qt.Equals, d1)
+		c.Assert(d.PageConfig.Params["date"], qt.Equals, d2)
 
 		d = newTestFd()
-		d.Params["date"] = d2
+		d.PageConfig.Params["date"] = d2
 		c.Assert(handler.HandleDates(d), qt.IsNil)
-		c.Assert(d.Dates.FDate, qt.Equals, d2)
-		c.Assert(d.Params["date"], qt.Equals, d2)
+		c.Assert(d.PageConfig.Dates.Date, qt.Equals, d2)
+		c.Assert(d.PageConfig.Params["date"], qt.Equals, d2)
 
 	}
 }
@@ -137,15 +136,15 @@ func TestFrontMatterDatesDefaultKeyword(t *testing.T) {
 
 	testDate, _ := time.Parse("2006-01-02", "2018-02-01")
 	d := newTestFd()
-	d.Params["mydate"] = testDate
-	d.Params["date"] = testDate.Add(1 * 24 * time.Hour)
-	d.Params["mypubdate"] = testDate.Add(2 * 24 * time.Hour)
-	d.Params["publishdate"] = testDate.Add(3 * 24 * time.Hour)
+	d.PageConfig.Params["mydate"] = testDate
+	d.PageConfig.Params["date"] = testDate.Add(1 * 24 * time.Hour)
+	d.PageConfig.Params["mypubdate"] = testDate.Add(2 * 24 * time.Hour)
+	d.PageConfig.Params["publishdate"] = testDate.Add(3 * 24 * time.Hour)
 
 	c.Assert(handler.HandleDates(d), qt.IsNil)
 
-	c.Assert(d.Dates.FDate.Day(), qt.Equals, 1)
-	c.Assert(d.Dates.FLastmod.Day(), qt.Equals, 2)
-	c.Assert(d.Dates.FPublishDate.Day(), qt.Equals, 4)
-	c.Assert(d.Dates.FExpiryDate.IsZero(), qt.Equals, true)
+	c.Assert(d.PageConfig.Dates.Date.Day(), qt.Equals, 1)
+	c.Assert(d.PageConfig.Dates.Lastmod.Day(), qt.Equals, 2)
+	c.Assert(d.PageConfig.Dates.PublishDate.Day(), qt.Equals, 4)
+	c.Assert(d.PageConfig.Dates.ExpiryDate.IsZero(), qt.Equals, true)
 }
