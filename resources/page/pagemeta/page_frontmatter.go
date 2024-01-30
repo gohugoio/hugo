@@ -57,7 +57,7 @@ func (d Dates) IsAllDatesZero() bool {
 // Note that all the top level fields are reserved Hugo keywords.
 // Any custom configuration needs to be set in the Params map.
 type PageConfig struct {
-	Dates                   // Dates holds the fource core dates for this page.
+	Dates                   // Dates holds the four core dates for this page.
 	Title          string   // The title of the page.
 	LinkTitle      string   // The link title of the page.
 	Type           string   // The content type of the page.
@@ -66,6 +66,7 @@ type PageConfig struct {
 	Weight         int      // The weight of the page, used in sorting if set to a non-zero value.
 	Kind           string   // The kind of page, e.g. "page", "section", "home" etc. This is usually derived from the content path.
 	Path           string   // The canonical path to the page, e.g. /sect/mypage. Note: Leading slash, no trailing slash, no extensions or language identifiers.
+	URL            string   // The URL to the rendered page, e.g. /sect/mypage.html.
 	Lang           string   // The language code for this page. This is usually derived from the module mount or filename.
 	Slug           string   // The slug for this page.
 	Description    string   // The description for this page.
