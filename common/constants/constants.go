@@ -13,12 +13,14 @@
 
 package constants
 
-// Error IDs.
+// Error/Warning IDs.
 // Do not change these values.
 const (
 	// IDs for remote errors in tpl/data.
 	ErrRemoteGetJSON = "error-remote-getjson"
 	ErrRemoteGetCSV  = "error-remote-getcsv"
+
+	WarnFrontMatterParamsOverrides = "warning-frontmatter-params-overrides"
 )
 
 // Field/method names with special meaning.
