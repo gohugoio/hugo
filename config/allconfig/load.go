@@ -141,6 +141,7 @@ func (l configLoader) applyConfigAliases() error {
 		{Key: "indexes", Value: "taxonomies"},
 		{Key: "logI18nWarnings", Value: "printI18nWarnings"},
 		{Key: "logPathWarnings", Value: "printPathWarnings"},
+		{Key: "ignoreErrors", Value: "ignoreLogs"},
 	}
 
 	for _, alias := range aliases {

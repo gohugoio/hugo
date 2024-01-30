@@ -68,9 +68,7 @@ func (ns *Namespace) Errorf(format string, args ...any) string {
 // an information text that the error with the given id can be suppressed in config.
 // It returns an empty string.
 func (ns *Namespace) Erroridf(id, format string, args ...any) string {
-	format += "\nYou can suppress this error by adding the following to your site configuration:\nignoreErrors = ['%s']"
-	args = append(args, id)
-	ns.logger.Errorsf(id, format, args...)
+	ns.logger.Erroridf(id, format, args...)
 	return ""
 }
 
@@ -78,6 +76,14 @@ func (ns *Namespace) Erroridf(id, format string, args ...any) string {
 // It returns an empty string.
 func (ns *Namespace) Warnf(format string, args ...any) string {
 	ns.logger.Warnf(format, args...)
+	return ""
+}
+
+// Warnidf formats args according to a format specifier and logs an WARNING and
+// an information text that the warning with the given id can be suppressed in config.
+// It returns an empty string.
+func (ns *Namespace) Warnidf(id, format string, args ...any) string {
+	ns.logger.Warnidf(id, format, args...)
 	return ""
 }
 

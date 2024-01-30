@@ -206,7 +206,7 @@ func (c Config) cloneForLang() *Config {
 	x.DisableKinds = copyStringSlice(x.DisableKinds)
 	x.DisableLanguages = copyStringSlice(x.DisableLanguages)
 	x.MainSections = copyStringSlice(x.MainSections)
-	x.IgnoreErrors = copyStringSlice(x.IgnoreErrors)
+	x.IgnoreLogs = copyStringSlice(x.IgnoreLogs)
 	x.IgnoreFiles = copyStringSlice(x.IgnoreFiles)
 	x.Theme = copyStringSlice(x.Theme)
 
@@ -299,9 +299,9 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 		}
 	}
 
-	ignoredErrors := make(map[string]bool)
-	for _, err := range c.IgnoreErrors {
-		ignoredErrors[strings.ToLower(err)] = true
+	ignoredLogIDs := make(map[string]bool)
+	for _, err := range c.IgnoreLogs {
+		ignoredLogIDs[strings.ToLower(err)] = true
 	}
 
 	baseURL, err := urls.NewBaseURLFromString(c.BaseURL)
@@ -357,7 +357,7 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 		BaseURLLiveReload: baseURL,
 		DisabledKinds:     disabledKinds,
 		DisabledLanguages: disabledLangs,
-		IgnoredErrors:     ignoredErrors,
+		IgnoredLogs:       ignoredLogIDs,
 		KindOutputFormats: kindOutputFormats,
 		CreateTitle:       helpers.GetTitleFunc(c.TitleCaseStyle),
 		IsUglyURLSection:  isUglyURL,
@@ -394,7 +394,7 @@ type ConfigCompiled struct {
 	KindOutputFormats map[string]output.Formats
 	DisabledKinds     map[string]bool
 	DisabledLanguages map[string]bool
-	IgnoredErrors     map[string]bool
+	IgnoredLogs       map[string]bool
 	CreateTitle       func(s string) string
 	IsUglyURLSection  func(section string) bool
 	IgnoreFile        func(filename string) bool
@@ -501,8 +501,8 @@ type RootConfig struct {
 	// Enable to disable the build lock file.
 	NoBuildLock bool
 
-	// A list of error IDs to ignore.
-	IgnoreErrors []string
+	// A list of log IDs to ignore.
+	IgnoreLogs []string
 
 	// A list of regexps that match paths to ignore.
 	// Deprecated: Use the settings on module imports.

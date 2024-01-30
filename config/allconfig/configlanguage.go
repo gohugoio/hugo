@@ -89,8 +89,8 @@ func (c ConfigLanguage) IsLangDisabled(lang string) bool {
 	return c.config.C.DisabledLanguages[lang]
 }
 
-func (c ConfigLanguage) IgnoredErrors() map[string]bool {
-	return c.config.C.IgnoredErrors
+func (c ConfigLanguage) IgnoredLogs() map[string]bool {
+	return c.config.C.IgnoredLogs
 }
 
 func (c ConfigLanguage) NoBuildLock() bool {

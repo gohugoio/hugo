@@ -66,6 +66,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Warnidf,
+			[]string{"warnidf"},
+			[][2]string{
+				{`{{ warnidf "my-warn-id" "%s." "warning" }}`, ``},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Warnf,
 			[]string{"warnf"},
 			[][2]string{

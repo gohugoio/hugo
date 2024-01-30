@@ -16,6 +16,7 @@ package fmt_test
 import (
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugolib"
 )
 
@@ -32,13 +33,25 @@ ignoreErrors = ['error-b']
 {{ erroridf "error-b" "%s" "b"}}
   `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	)
+	b, err := hugolib.TestE(t, files)
 
-	b.BuildE()
-	b.AssertLogMatches(`^ERROR a\nYou can suppress this error by adding the following to your site configuration:\nignoreErrors = \['error-a'\]\n$`)
+	b.Assert(err, qt.IsNotNil)
+	b.AssertLogMatches(`^ERROR a\nYou can suppress this error by adding the following to your site configuration:\nignoreLogs = \['error-a'\]\n$`)
+}
+
+func TestWarnidf(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+ignoreLogs = ['warning-b']
+-- layouts/index.html --
+{{ warnidf "warning-a" "%s" "a"}}
+{{ warnidf "warning-b" "%s" "b"}}
+  `
+
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
+	b.AssertLogContains("WARN  a", "You can suppress this warning", "ignoreLogs", "['warning-a']")
+	b.AssertLogNotContains("['warning-b']")
 }

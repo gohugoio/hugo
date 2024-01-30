@@ -124,7 +124,7 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 			Stdout:             cfg.LogOut,
 			Stderr:             cfg.LogOut,
 			StoreErrors:        conf.Running(),
-			SuppressStatements: conf.IgnoredErrors(),
+			SuppressStatements: conf.IgnoredLogs(),
 		}
 		logger = loggers.New(logOpts)
 	}

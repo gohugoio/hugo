@@ -179,9 +179,9 @@ type Logger interface {
 	Debugln(v ...any)
 	Error() logg.LevelLogger
 	Errorf(format string, v ...any)
+	Erroridf(id, format string, v ...any)
 	Errorln(v ...any)
 	Errors() string
-	Errorsf(id, format string, v ...any)
 	Info() logg.LevelLogger
 	InfoCommand(command string) logg.LevelLogger
 	Infof(format string, v ...any)
@@ -197,6 +197,7 @@ type Logger interface {
 	Warn() logg.LevelLogger
 	WarnCommand(command string) logg.LevelLogger
 	Warnf(format string, v ...any)
+	Warnidf(id, format string, v ...any)
 	Warnln(v ...any)
 	Deprecatef(fail bool, format string, v ...any)
 	Trace(s logg.StringFunc)
@@ -321,8 +322,18 @@ func (l *logAdapter) Errors() string {
 	return l.errors.String()
 }
 
-func (l *logAdapter) Errorsf(id, format string, v ...any) {
+func (l *logAdapter) Erroridf(id, format string, v ...any) {
+	format += l.idfInfoStatement("error", id, format)
 	l.errorl.WithField(FieldNameStatementID, id).Logf(format, v...)
+}
+
+func (l *logAdapter) Warnidf(id, format string, v ...any) {
+	format += l.idfInfoStatement("warning", id, format)
+	l.warnl.WithField(FieldNameStatementID, id).Logf(format, v...)
+}
+
+func (l *logAdapter) idfInfoStatement(what, id, format string) string {
+	return fmt.Sprintf("\nYou can suppress this %s by adding the following to your site configuration:\nignoreLogs = ['%s']", what, id)
 }
 
 func (l *logAdapter) Trace(s logg.StringFunc) {

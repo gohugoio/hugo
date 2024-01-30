@@ -57,6 +57,13 @@ func TestOptDebug() TestOpt {
 	}
 }
 
+// TestOptWarn will enable warn logging in integration tests.
+func TestOptWarn() TestOpt {
+	return func(c *IntegrationTestConfig) {
+		c.LogLevel = logg.LevelWarn
+	}
+}
+
 // TestOptWithNFDOnDarwin will normalize the Unicode filenames to NFD on Darwin.
 func TestOptWithNFDOnDarwin() TestOpt {
 	return func(c *IntegrationTestConfig) {
@@ -181,9 +188,18 @@ func (b *lockingBuffer) Write(p []byte) (n int, err error) {
 	return
 }
 
-func (s *IntegrationTestBuilder) AssertLogContains(text string) {
+func (s *IntegrationTestBuilder) AssertLogContains(els ...string) {
 	s.Helper()
-	s.Assert(s.logBuff.String(), qt.Contains, text)
+	for _, el := range els {
+		s.Assert(s.logBuff.String(), qt.Contains, el)
+	}
+}
+
+func (s *IntegrationTestBuilder) AssertLogNotContains(els ...string) {
+	s.Helper()
+	for _, el := range els {
+		s.Assert(s.logBuff.String(), qt.Not(qt.Contains), el)
+	}
 }
 
 func (s *IntegrationTestBuilder) AssertLogMatches(expression string) {
