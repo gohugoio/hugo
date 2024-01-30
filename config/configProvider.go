@@ -67,7 +67,7 @@ type AllProvider interface {
 	NewContentEditor() string
 	Timeout() time.Duration
 	StaticDirs() []string
-	IgnoredErrors() map[string]bool
+	IgnoredLogs() map[string]bool
 	WorkingDir() string
 	EnableEmoji() bool
 }
