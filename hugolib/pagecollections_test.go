@@ -413,6 +413,10 @@ title: p2
 func TestPageGetPageVariations(t *testing.T) {
 	files := `
 -- hugo.toml --
+-- content/s1/_index.md --
+---
+title: s1 section
+---
 -- content/s1/p1/index.md --
 ---
 title: p1
@@ -430,6 +434,8 @@ title: p3
 title: p2_root
 ---
 -- layouts/index.html --
+/s1: {{ with .GetPage "/s1" }}{{ .Title }}{{ end }}|
+/s1/: {{ with .GetPage "/s1/" }}{{ .Title }}{{ end }}|
 /s1/p2.md: {{ with .GetPage "/s1/p2.md" }}{{ .Title }}{{ end }}|
 /s1/p2: {{ with .GetPage "/s1/p2" }}{{ .Title }}{{ end }}|
 /s1/p1/index.md: {{ with .GetPage "/s1/p1/index.md" }}{{ .Title }}{{ end }}|
@@ -444,6 +450,8 @@ p1/index.md: {{ with .GetPage "p1/index.md" }}{{ .Title }}{{ end }}|
 	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
+/s1: s1 section|
+/s1/: s1 section|
 /s1/p2.md: p2|
 /s1/p2: p2|
 /s1/p1/index.md: p1|

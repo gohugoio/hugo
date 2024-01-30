@@ -1,0 +1,26 @@
+{{- $u := urls.Parse .Destination -}}
+{{- $href := $u.String -}}
+{{- if not $u.IsAbs -}}
+  {{- with or
+    ($.Page.GetPage $u.Path)
+    ($.Page.Resources.Get $u.Path)
+    (resources.Get $u.Path)
+  -}}
+    {{- $href = .RelPermalink -}}
+    {{- with $u.RawQuery -}}
+      {{- $href = printf "%s?%s" $href . -}}
+    {{- end -}}
+    {{- with $u.Fragment -}}
+      {{- $href = printf "%s#%s" $href . -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $attributes := dict "href" $href "title" .Title -}}
+<a
+  {{- range $k, $v := $attributes -}}
+    {{- if $v -}}
+      {{- printf " %s=%q" $k $v | safeHTMLAttr -}}
+    {{- end -}}
+  {{- end -}}
+  >{{ .Text | safeHTML }}</a>
+{{- /**/ -}}

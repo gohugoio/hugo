@@ -387,6 +387,11 @@ func ToSlashTrimLeading(s string) string {
 	return strings.TrimPrefix(filepath.ToSlash(s), "/")
 }
 
+// ToSlashTrimTrailing is just a filepath.ToSlash with an added / suffix trimmer.
+func ToSlashTrimTrailing(s string) string {
+	return strings.TrimSuffix(filepath.ToSlash(s), "/")
+}
+
 // ToSlashPreserveLeading converts the path given to a forward slash separated path
 // and preserves the leading slash if present trimming any trailing slash.
 func ToSlashPreserveLeading(s string) string {

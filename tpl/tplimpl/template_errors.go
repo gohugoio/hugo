@@ -24,9 +24,10 @@ import (
 var _ identity.Identity = (*templateInfo)(nil)
 
 type templateInfo struct {
-	name     string
-	template string
-	isText   bool // HTML or plain text template.
+	name       string
+	template   string
+	isText     bool // HTML or plain text template.
+	isEmbedded bool
 
 	meta *hugofs.FileMeta
 }
