@@ -31,6 +31,7 @@ import (
 
 	"github.com/gohugoio/hugo/source"
 
+	"github.com/gohugoio/hugo/common/constants"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
@@ -621,6 +622,9 @@ func (p *pageState) setMetaPostParams() error {
 	}
 
 	for k, v := range userParams {
+		if _, found := params[k]; found {
+			p.s.Log.Warnidf(constants.WarnFrontMatterParamsOverrides, "Hugo front matter key %q is overridden in params section.", k)
+		}
 		params[strings.ToLower(k)] = v
 	}
 
