@@ -31,6 +31,7 @@ import (
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/common/urls"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/privacy"
@@ -897,6 +898,18 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 			}
 			if err := clone.CompileConfig(logger); err != nil {
 				return nil, err
+			}
+
+			// Adjust Goldmark config defaults for multilingual, single-host sites.
+			if len(languagesConfig) > 1 && !isMultiHost && !clone.Markup.Goldmark.DuplicateResourceFiles {
+				if !clone.Markup.Goldmark.DuplicateResourceFiles {
+					if clone.Markup.Goldmark.RenderHooks.Link.EnableDefault == nil {
+						clone.Markup.Goldmark.RenderHooks.Link.EnableDefault = types.NewBool(true)
+					}
+					if clone.Markup.Goldmark.RenderHooks.Image.EnableDefault == nil {
+						clone.Markup.Goldmark.RenderHooks.Image.EnableDefault = types.NewBool(true)
+					}
+				}
 			}
 
 			langConfigMap[k] = clone

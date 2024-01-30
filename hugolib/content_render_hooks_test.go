@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -168,4 +169,75 @@ P1 Fragments: [b c z]
 Self Fragments: [d e f]
 P1 Fragments: [b c z]
 	`)
+}
+
+func TestDefaultRenderHooksMultilingual(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT"]
+defaultContentLanguage = "nn"
+defaultContentLanguageInSubdir = true
+[markup]
+[markup.goldmark]
+duplicateResourceFiles = false
+[markup.goldmark.renderhooks]
+[markup.goldmark.renderhooks.link]
+#enableDefault = false
+[markup.goldmark.renderhooks.image]
+#enableDefault = false
+[languages]
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+-- content/p1/index.md --
+---
+title: "p1"
+---
+[P2](p2)
+![Pixel](pixel.png)
+-- content/p2/index.md --
+---
+title: "p2"
+---
+[P1](p1)
+![Pixel](pixel.jpg)
+-- content/p1/index.en.md --
+---
+title: "p1 en"
+---
+[P2](p2)
+![Pixel](pixel.png)
+-- content/p2/index.en.md --
+---
+title: "p2 en"
+---
+[P1](p1)
+![Pixel](pixel.png)
+
+-- content/p1/pixel.nn.png --
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+-- content/p2/pixel.png --
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+-- layouts/_default/single.html --
+{{ .Title }}|{{ .Content }}|$
+	
+`
+
+	t.Run("Default multilingual", func(t *testing.T) {
+		b := Test(t, files)
+
+		b.AssertFileContent("public/nn/p1/index.html",
+			"p1|<p><a href=\"/nn/p2/\">P2</a\n></p>", "<img alt=\"Pixel\" src=\"/nn/p1/pixel.nn.png\">")
+		b.AssertFileContent("public/en/p1/index.html",
+			"p1 en|<p><a href=\"/en/p2/\">P2</a\n></p>", "<img alt=\"Pixel\" src=\"/nn/p1/pixel.nn.png\">")
+	})
+
+	t.Run("Disabled", func(t *testing.T) {
+		b := Test(t, strings.ReplaceAll(files, "#enableDefault = false", "enableDefault = false"))
+
+		b.AssertFileContent("public/nn/p1/index.html",
+			"p1|<p><a href=\"p2\">P2</a>", "<img src=\"pixel.png\" alt=\"Pixel\">")
+	})
 }

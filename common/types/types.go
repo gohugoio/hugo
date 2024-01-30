@@ -107,3 +107,8 @@ type LowHigh struct {
 
 // This is only used for debugging purposes.
 var InvocationCounter atomic.Int64
+
+// NewTrue returns a pointer to b.
+func NewBool(b bool) *bool {
+	return &b
+}

@@ -55,6 +55,7 @@ const (
 
 	shortcodesPathPrefix = "shortcodes/"
 	internalPathPrefix   = "_internal/"
+	embeddedPathPrefix   = "_embedded/"
 	baseFileBase         = "baseof"
 )
 
@@ -517,11 +518,19 @@ func (t *templateHandler) findLayout(d layouts.LayoutDescriptor, f output.Format
 
 func (t *templateHandler) newTemplateInfo(name, tpl string) templateInfo {
 	var isText bool
+	var isEmbedded bool
+
+	if strings.HasPrefix(name, embeddedPathPrefix) {
+		isEmbedded = true
+		name = strings.TrimPrefix(name, embeddedPathPrefix)
+	}
+
 	name, isText = t.nameIsText(name)
 	return templateInfo{
-		name:     name,
-		isText:   isText,
-		template: tpl,
+		name:       name,
+		isText:     isText,
+		isEmbedded: isEmbedded,
+		template:   tpl,
 	}
 }
 
@@ -772,7 +781,7 @@ func (t *templateHandler) loadEmbedded() error {
 		}
 
 		if _, found := t.Lookup(templateName); !found {
-			if err := t.AddTemplate(templateName, templ); err != nil {
+			if err := t.AddTemplate(embeddedPathPrefix+templateName, templ); err != nil {
 				return err
 			}
 		}
@@ -781,7 +790,7 @@ func (t *templateHandler) loadEmbedded() error {
 			// TODO(bep) avoid reparsing these aliases
 			for _, alias := range aliases {
 				alias = internalPathPrefix + alias
-				if err := t.AddTemplate(alias, templ); err != nil {
+				if err := t.AddTemplate(embeddedPathPrefix+alias, templ); err != nil {
 					return err
 				}
 			}
@@ -1026,6 +1035,8 @@ func (t *templateNamespace) parse(info templateInfo) (*templateState, error) {
 	return ts, nil
 }
 
+var _ tpl.IsInternalTemplateProvider = (*templateState)(nil)
+
 type templateState struct {
 	tpl.Template
 
@@ -1035,6 +1046,10 @@ type templateState struct {
 
 	info     templateInfo
 	baseInfo templateInfo // Set when a base template is used.
+}
+
+func (t *templateState) IsInternalTemplate() bool {
+	return t.info.isEmbedded
 }
 
 func (t *templateState) GetIdentity() identity.Identity {

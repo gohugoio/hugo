@@ -25,6 +25,10 @@ type FileInfo interface {
 	Filename() string
 }
 
+type IsInternalTemplateProvider interface {
+	IsInternalTemplate() bool
+}
+
 type ParseInfo struct {
 	// Set for shortcode templates with any {{ .Inner }}
 	IsInner bool

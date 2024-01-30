@@ -56,7 +56,7 @@ func (c *pageFinder) getPageRef(context page.Page, ref string) (page.Page, error
 }
 
 func (c *pageFinder) getPage(context page.Page, ref string) (page.Page, error) {
-	n, err := c.getContentNode(context, false, filepath.ToSlash(ref))
+	n, err := c.getContentNode(context, false, paths.ToSlashTrimTrailing(ref))
 	if err != nil {
 		return nil, err
 	}

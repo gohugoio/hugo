@@ -469,6 +469,21 @@ func (pco *pageContentOutput) initRenderHooks() error {
 				if err != nil {
 					panic(err)
 				}
+				if found {
+					if isitp, ok := templ.(tpl.IsInternalTemplateProvider); ok && isitp.IsInternalTemplate() {
+						renderHookConfig := pco.po.p.s.conf.Markup.Goldmark.RenderHooks
+						switch templ.Name() {
+						case "_default/_markup/render-link.html":
+							if !renderHookConfig.Link.IsEnableDefault() {
+								return nil, false
+							}
+						case "_default/_markup/render-image.html":
+							if !renderHookConfig.Image.IsEnableDefault() {
+								return nil, false
+							}
+						}
+					}
+				}
 				return templ, found
 			}
 

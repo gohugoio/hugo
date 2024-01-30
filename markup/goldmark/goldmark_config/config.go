@@ -73,10 +73,39 @@ var Default = Config{
 
 // Config configures Goldmark.
 type Config struct {
-	DuplicateResourceFiles bool
 	Renderer               Renderer
 	Parser                 Parser
 	Extensions             Extensions
+	DuplicateResourceFiles bool
+	RenderHooks            RenderHooks
+}
+
+// RenderHooks contains configuration for Goldmark render hooks.
+type RenderHooks struct {
+	Image ImageRenderHook
+	Link  LinkRenderHook
+}
+
+// ImageRenderHook contains configuration for the image render hook.
+type ImageRenderHook struct {
+	// Enable the default image render hook.
+	// We need to know if it is set or not, hence the pointer.
+	EnableDefault *bool
+}
+
+func (h ImageRenderHook) IsEnableDefault() bool {
+	return h.EnableDefault != nil && *h.EnableDefault
+}
+
+// LinkRenderHook contains configuration for the link render hook.
+type LinkRenderHook struct {
+	// Disable the default image render hook.
+	// We need to know if it is set or not, hence the pointer.
+	EnableDefault *bool
+}
+
+func (h LinkRenderHook) IsEnableDefault() bool {
+	return h.EnableDefault != nil && *h.EnableDefault
 }
 
 type Extensions struct {
