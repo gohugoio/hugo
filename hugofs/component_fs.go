@@ -147,13 +147,13 @@ func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 	})
 
 	if f.fs.opts.Component == files.ComponentFolderContent {
-		// Finally filter out any duplicate content files, e.g. page.md and page.html.
+		// Finally filter out any duplicate content or resource files, e.g. page.md and page.html.
 		n := 0
 		seen := map[hstrings.Tuple]bool{}
 		for _, fi := range fis {
 			fim := fi.(FileMetaInfo)
 			pi := fim.Meta().PathInfo
-			keep := fim.IsDir() || !pi.IsContent()
+			keep := fim.IsDir()
 
 			if !keep {
 				baseLang := hstrings.Tuple{First: pi.Base(), Second: fim.Meta().Lang}

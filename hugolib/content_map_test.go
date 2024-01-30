@@ -299,3 +299,30 @@ R: {{ with $r }}{{ .Content }}{{ end }}|
 
 	b.AssertFileContent("public/index.html", "R: Data.")
 }
+
+// Issue #11946.
+func TestBundleResourcesGetDuplicateSortOrder(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+-- content/bundle/index.md --
+-- content/bundle/data-1.txt --
+data-1.txt
+-- content/bundle/data 1.txt --
+data 1.txt
+-- content/bundle/Data 1.txt --
+Data 1.txt
+-- content/bundle/Data-1.txt --
+Data-1.txt
+-- layouts/index.html --
+{{ $bundle := site.GetPage "bundle" }}
+{{ $r := $bundle.Resources.Get "data-1.txt" }}
+R: {{ with $r }}{{ .Content }}{{ end }}|Len: {{ len $bundle.Resources }}|$
+
+`
+
+	for i := 0; i < 3; i++ {
+		b := Test(t, files)
+		b.AssertFileContent("public/index.html", "R: Data 1.txt|", "Len: 1|")
+	}
+}
