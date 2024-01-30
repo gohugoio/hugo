@@ -280,3 +280,22 @@ P1: {{ $p1.Title }}|{{ $p1.Params.foo }}|{{ $p1.File.Filename }}|
 		filepath.FromSlash("P1: P1 md|md|/content/p1.md|"),
 	)
 }
+
+// Issue #11944
+func TestBundleResourcesGetWithSpacesInFilename(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ["taxonomy", "term"]
+-- content/bundle/index.md --
+-- content/bundle/data with Spaces.txt --
+Data.
+-- layouts/index.html --
+{{ $bundle := site.GetPage "bundle" }}
+{{ $r := $bundle.Resources.Get "data with Spaces.txt" }}
+R: {{ with $r }}{{ .Content }}{{ end }}|
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html", "R: Data.")
+}

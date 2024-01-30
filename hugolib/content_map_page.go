@@ -1548,7 +1548,7 @@ func (sa *sitePagesAssembler) assembleResources() error {
 						return false, nil
 					}
 
-					relPathOriginal := rs.path.PathRel(ps.m.pathInfo)
+					relPathOriginal := rs.path.Unmormalized().PathRel(ps.m.pathInfo.Unmormalized())
 					relPath := rs.path.BaseRel(ps.m.pathInfo)
 
 					var targetBasePaths []string
