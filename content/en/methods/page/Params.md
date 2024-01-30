@@ -17,8 +17,9 @@ With this front matter:
 {{< code-toggle file=content/news/annual-conference.md >}}
 title = 'Annual conference'
 date = 2023-10-17T15:11:37-07:00
+[params]
 display_related = true
-[author]
+[params.author]
   email = 'jsmith@example.org'
   name = 'John Smith'
 {{< /code-toggle >}}

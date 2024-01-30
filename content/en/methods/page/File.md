@@ -80,16 +80,6 @@ The path separators (slash or backslash) in `Path`, `Dir`, and `Filename` depend
 {{ end }}
 ```
 
-###### Lang
-
-(`string`) The language associated with the given file.
-
-```go-html-template
-{{ with .File }}
-  {{ .Lang }}
-{{ end }}
-```
-
 ###### LogicalName
 
 (`string`) The file name.
@@ -107,6 +97,16 @@ The path separators (slash or backslash) in `Path`, `Dir`, and `Filename` depend
 ```go-html-template
 {{ with .File }}
   {{ .Path }}
+{{ end }}
+```
+
+###### Section
+
+(`string`) The name of the top level section in which the file resides.
+
+```go-html-template
+{{ with .File }}
+  {{ .Section }}
 {{ end }}
 ```
 
@@ -157,9 +157,9 @@ ContentBaseName|a|b|news
 Dir|news/|news/b/|news/
 Ext|md|md|md
 Filename|/home/user/...|/home/user/...|/home/user/...
-Lang|en|en|en
 LogicalName|a.en.md|index.en.md|_index.en.md
 Path|news/a.en.md|news/b/index.en.md|news/_index.en.md
+Section|news|news|news
 TranslationBaseName|a|index|_index
 UniqueID|15be14b...|186868f...|7d9159d...
 

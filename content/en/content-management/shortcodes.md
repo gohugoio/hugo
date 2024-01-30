@@ -206,45 +206,22 @@ Rendered:
 
 ### `instagram`
 
-The `instagram` shortcode uses Facebook's **oEmbed Read** feature. The  Facebook [developer documentation] states:
-
-- This permission or feature requires successful completion of the App Review process before your app can access live data. [Learn More]
-- This permission or feature is only available with business verification. You may also need to sign additional contracts before your app can access data. [Learn More Here]
-
-[developer documentation]: https://developers.facebook.com/docs/features-reference/oembed-read
-[Learn More]: https://developers.facebook.com/docs/app-review
-[Learn More Here]: https://developers.facebook.com/docs/development/release/business-verification
-
-You must obtain an Access Token to use the `instagram` shortcode.
-
-If your site configuration is private:
-
-{{< code-toggle file=hugo >}}
-[services.instagram]
-accessToken = 'xxx'
-{{< /code-toggle >}}
-
-If your site configuration is _not_ private, set the Access Token with an environment variable:
-
-```sh
-HUGO_SERVICES_INSTAGRAM_ACCESSTOKEN=xxx hugo --gc --minify
-```
-
-{{% note %}}
-If you are using a Client Access Token, you must combine the Access Token with your App ID using a pipe symbol (`APPID|ACCESSTOKEN`).
-{{% /note %}}
 
 To display an Instagram post with this URL:
 
 ```text
-https://www.instagram.com/p/BWNjjyYFxVx/
+https://www.instagram.com/p/CxOWiQNP2MO/
 ```
 
 Include this in your markdown:
 
 ```text
-{{</* instagram BWNjjyYFxVx */>}}
+{{</* instagram CxOWiQNP2MO */>}}
 ```
+
+Rendered:
+
+{{< instagram CxOWiQNP2MO >}}
 
 ### `param`
 

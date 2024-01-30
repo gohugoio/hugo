@@ -39,17 +39,6 @@ In the content/_index.md file:
 
 If the answer to any of these questions is yes, either change the field values, or use one of these command line flags: `--buildDrafts`, `--buildFuture`, or `--buildExpired`.
 
-###### Why is a given section not published?
-
-In the content/section/_index.md file:
-
-  - Is `draft` set to `true`?
-  - Is the `date` in the future?
-  - Is the `publishDate` in the future?
-  - Is the `expiryDate` in the past?
-
-If the answer to any of these questions is yes, either change the field values, or use one of these command line flags: `--buildDrafts`, `--buildFuture`, or `--buildExpired`.
-
 ###### Why is a given page not published?
 
 In the content/section/page.md file, or in the content/section/page/index.md file:

@@ -5,7 +5,7 @@ categories: []
 keywords: []
 action:
   related: []
-  returnType: files.ContentClass
+  returnType: string
   signatures: [PAGE.BundleType]
 ---
 

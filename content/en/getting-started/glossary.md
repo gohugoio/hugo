@@ -22,6 +22,7 @@ weight: 60
 [K](#kind)
 [L](#layout)
 [M](#map)
+[N](#node)
 [O](#object)
 [P](#page-bundle)
 [R](#regular-page)
@@ -74,6 +75,10 @@ A software component that stores data so that future requests for the same data 
 ###### chain
 
 Within a template, to connect one or more [identifiers](#identifier) with a dot. An identifier can represent a method, object, or field. For example, `.Site.Params.author.name` or `.Date.UTC.Hour`.
+
+###### CJK
+
+A collective term for the Chinese, Japanese, and Korean languages. See [details](https://en.wikipedia.org/wiki/CJK_characters).
 
 ###### collection
 
@@ -217,6 +222,10 @@ Used within a [template action](#template-action) and associated with an [object
 
 Like a [theme](#theme), a module is a packaged combination of [archetypes](#archetype), assets, content, data, [templates](#template), translation tables, static files, or configuration settings. A module may serve as the basis for a new site, or to augment an existing site. See&nbsp;[details](/hugo-modules/).
 
+###### node
+
+A class of [page kinds](#page-kind) including `home`, `section`, `taxonomy`, and `term`.
+
 ###### object
 
 A data structure with or without associated [methods](#method).
@@ -300,7 +309,7 @@ The host-relative URL of a published resource or a rendered page.
 
 ###### render hook
 
-A [template](#template) that overrides standard markdown rendering. See&nbsp;[details](/templates/render-hooks/).
+A [template](#template) that overrides standard markdown rendering. See&nbsp;[details](/render-hooks).
 
 ###### remote resource
 

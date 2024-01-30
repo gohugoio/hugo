@@ -12,10 +12,10 @@ toc: true
 aliases: [/content/build-options/]
 ---
 
-Build options are stored in a reserved front matter object named `_build` with these defaults:
+Build options are stored in a reserved front matter object named `build` with these defaults:
 
 {{< code-toggle file=content/example/index.md fm=true >}}
-[_build]
+[build]
 list = 'always'
 publishResources = true
 render = 'always'
@@ -85,7 +85,7 @@ Set the build options in front matter:
 
 {{< code-toggle file=content/headless/index.md fm=true >}}
 title = 'Headless page'
-[_build]
+[build]
   list = 'never'
   publishResources = false
   render = 'never'
@@ -143,7 +143,7 @@ Set the build options in front matter, using the `cascade` keyword to "cascade" 
 {{< code-toggle file=content/headless/_index.md fm=true >}}
 title = 'Headless section'
 [[cascade]]
-[cascade._build]
+[cascade.build]
   list = 'local'
   publishResources = false
   render = 'never'
@@ -201,10 +201,10 @@ Set the build options in front matter, using the `cascade` keyword to "cascade" 
 
 {{< code-toggle file=content/glossary/_index.md fm=true >}}
 title = 'Glossary'
-[_build]
+[build]
 render = 'always'
 [[cascade]]
-[cascade._build]
+[cascade.build]
   list = 'local'
   publishResources = false
   render = 'never'
@@ -247,7 +247,7 @@ Set the build options in front matter:
 
 {{< code-toggle file=content/books/_index.md fm=true >}}
 title = 'Books'
-[_build]
+[build]
 render = 'never'
 list = 'never'
 {{< /code-toggle >}}
@@ -294,7 +294,7 @@ Set the build options in front matter, using the `cascade` keyword to "cascade" 
 {{< code-toggle file=content/internal/_index.md >}}
 title = 'Internal'
 [[cascade]]
-[cascade._build]
+[cascade.build]
 render = 'never'
 list = 'never'
 [cascade._target]

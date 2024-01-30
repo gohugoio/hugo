@@ -522,7 +522,7 @@ The templating engine will strip the content within the HTML comment, but will f
 
 ## Hugo parameters
 
-Hugo provides the option of passing values to your template layer through your [site configuration][config] (i.e. for site-wide values) or through the metadata of each specific piece of content (i.e. the [front matter]). You can define any values of any type and use them however you want in your templates, as long as the values are supported by the [front matter format](/content-management/front-matter#front-matter-formats).
+Hugo provides the option of passing values to your template layer through your [site configuration][config] (i.e. for site-wide values) or through the metadata of each specific piece of content (i.e. the [front matter]).
 
 ## Use content (`Page`) parameters
 
@@ -533,8 +533,9 @@ An example of this is used in the Hugo docs. Most of the pages benefit from havi
 Here is the example front matter:
 
 {{< code-toggle file=content/example.md fm=true >}}
-title: Example
-notoc: true
+title = 'Example'
+[params]
+  notoc = true
 {{< /code-toggle >}}
 
 Here is an example of corresponding code that could be used inside a `toc.html` [partial template][partials]:
@@ -618,6 +619,7 @@ content/
 title = 'Event 1'
 date = 2021-12-06T10:37:16-08:00
 draft = false
+[params]
 start_date = 2021-12-05T09:00:00-08:00
 end_date = 2021-12-05T11:00:00-08:00
 {{< /code-toggle >}}

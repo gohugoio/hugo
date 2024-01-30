@@ -9,10 +9,16 @@ action:
   signatures: [SITE.LastChange]
 ---
 
+{{% deprecated-in 0.123.0 %}}
+Use [`.Site.Lastmod`] instead.
+
+[`.Site.Lastmod`]: /methods/site/lastmod/
+{{% /deprecated-in %}}
+
 The `LastChange` method on a `Site` object returns a [`time.Time`] value. Use this with time [functions] and [methods]. For example:
 
 ```go-html-template
-{{ .Site.LastChange | time.Format ":date_long" }} → October 16, 2023
+{{ .Site.LastChange | time.Format ":date_long" }} → January 31, 2024
 
 ```
 

@@ -309,7 +309,7 @@ To create a list of links to translated content, use a template similar to the f
 <ul>
   {{ range .Translations }}
   <li>
-    <a href="{{ .RelPermalink }}">{{ .Lang }}: {{ .LinkTitle }}{{ if .IsPage }} ({{ i18n "wordCount" . }}){{ end }}</a>
+    <a href="{{ .RelPermalink }}">{{ .Language.Lang }}: {{ .LinkTitle }}{{ if .IsPage }} ({{ i18n "wordCount" . }}){{ end }}</a>
   </li>
   {{ end }}
 </ul>

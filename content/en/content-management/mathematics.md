@@ -152,8 +152,9 @@ If you set the `math` parameter to `false` in your site configuration, you must 
 
 {{< code-toggle file=content/math-examples.md fm=true >}}
 title = 'Math examples'
-math = true
 date = 2024-01-24T18:09:49-08:00
+[params]
+math = true
 {{< /code-toggle >}}
 
 ## Inline delimiters

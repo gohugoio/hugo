@@ -6,8 +6,8 @@ keywords: [diagrams,drawing]
 menu:
   docs:
     parent: content-management
-    weight: 50
-weight: 50
+    weight: 245
+weight: 245
 toc: true
 ---
 {{< new-in 0.93.0 >}}
@@ -44,16 +44,18 @@ Will be rendered as:
 
 ## Mermaid diagrams
 
-Hugo currently does not provide default templates for Mermaid diagrams. But you can easily add your own. One way to do it would be to create `layouts/_default/_markup/render-codeblock-mermaid.html`:
+Hugo does not provide a built-in template for Mermaid diagrams. Create your own using a [code block render hook]:
 
-```go-html-template
+[code block render hook]: /render-hooks/code-blocks
+
+{{< code file=layouts/_default/_markup/render-codeblock-mermaid.html >}}
 <pre class="mermaid">
   {{- .Inner | safeHTML }}
 </pre>
 {{ .Page.Store.Set "hasMermaid" true }}
-```
+{{< /code >}}
 
-And then include this snippet at the bottom of the content template (**Note**: below `.Content` as the render hook is not processed until `.Content` is executed):
+And then include this snippet at the bottom of the content template:
 
 ```go-html-template
 {{ if .Page.Store.Get "hasMermaid" }}

@@ -56,9 +56,32 @@ This is the default configuration for the Goldmark markdown renderer:
 
 {{< code-toggle config=markup.goldmark />}}
 
-For details on the extensions, refer to the [Goldmark documentation](https://github.com/yuin/goldmark/#built-in-extensions).
+### Goldmark extensions
 
-Some settings explained:
+
+Extension|Documentation
+:--|:--
+cjk|[Goldmark Extensions: CJK]
+definitionList|[PHP Markdown Extra: Definition lists]
+footnote|[PHP Markdown Extra: Footnotes]
+linkify|[GitHub Flavored Markdown: Autolinks]
+passthrough|[Hugo Goldmark Extensions: Passthrough]
+strikethrough|[GitHub Flavored Markdown: Strikethrough]
+table|[GitHub Flavored Markdown: Tables]
+taskList|[GitHub Flavored Markdown: Task list items]
+typographer|[Goldmark Extensions: Typographer]
+
+[GitHub Flavored Markdown: Autolinks]: https://github.github.com/gfm/#autolinks-extension-
+[GitHub Flavored Markdown: Strikethrough]: https://github.github.com/gfm/#strikethrough-extension-
+[GitHub Flavored Markdown: Tables]: https://github.github.com/gfm/#tables-extension-
+[GitHub Flavored Markdown: Task list items]: https://github.github.com/gfm/#task-list-items-extension-
+[Goldmark Extensions: CJK]: https://github.com/yuin/goldmark?tab=readme-ov-file#cjk-extension
+[Goldmark Extensions: Typographer]: https://github.com/yuin/goldmark?tab=readme-ov-file#typographer-extension
+[Hugo Goldmark Extensions: Passthrough]: https://github.com/gohugoio/hugo-goldmark-extensions?tab=readme-ov-file#passthrough-extension
+[PHP Markdown Extra: Definition lists]: https://michelf.ca/projects/php-markdown/extra/#def-list
+[PHP Markdown Extra: Footnotes]: https://michelf.ca/projects/php-markdown/extra/#footnotes
+
+### Goldmark settings
 
 hardWraps
 : By default, Goldmark ignores newlines within a paragraph. Set to `true` to render newlines as `<br>` elements.
@@ -212,7 +235,3 @@ endLevel
 
 ordered
 : If `true`, generates an ordered list instead of an unordered list.
-
-## Render hooks
-
-See [Markdown Render Hooks](/templates/render-hooks/).

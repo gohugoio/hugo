@@ -1,6 +1,6 @@
 ---
 title: Front matter
-description: Hugo allows you to add front matter in yaml, toml, or json to your content files.
+description: Use front matter to add metadata to your content.
 categories: [content management]
 keywords: [front matter,yaml,toml,json,metadata,archetypes]
 menu:
@@ -12,230 +12,361 @@ toc: true
 aliases: [/content/front-matter/]
 ---
 
-**Front matter** allows you to keep metadata attached to an instance of a [content type]---i.e., embedded inside a content file---and is one of the many features that gives Hugo its strength.
+## Overview
 
-{{< youtube Yh2xKRJGff4 >}}
+The front matter at the top of each content file is metadata that:
 
-## Front matter formats
+- Describes the content
+- Augments the content
+- Establishes relationships with other content
+- Controls the published structure of your site
+- Determines template selection
 
-Hugo supports four formats for front matter, each with their own identifying tokens.
+Provide front matter using a serialization format, one of [JSON], [TOML], or [YAML]. Hugo determines the front matter format by examining the delimiters that separate the front matter from the page content.
 
-TOML
-: identified by opening and closing `+++`.
+[json]: https://www.json.org/
+[toml]: https://toml.io/
+[yaml]: https://yaml.org/
 
-YAML
-: identified by opening and closing `---`.
+See examples of front matter delimiters by toggling between the serialization formats below.
 
-JSON
-: a single JSON object surrounded by '`{`' and '`}`', followed by a new line.
-
-ORG
-: a group of Org mode keywords in the format '`#+KEY: VALUE`'. Any line that does not start with `#+` ends the front matter section.
-  Array values can either be separated into multiple lines (`#+KEY: VALUE_1` and `#+KEY: VALUE_2`) or a whitespace separated list of strings (`#+KEY[]: VALUE_1 VALUE_2`).
-
-### Example
-
-{{< code-toggle >}}
-title = "spf13-vim 3.0 release and new website"
-description = "spf13-vim is a cross platform distribution of vim plugins and resources for Vim."
-tags = [ ".vimrc", "plugins", "spf13-vim", "vim" ]
-date = "2012-04-06"
-categories = [
-  "Development",
-  "VIM"
-]
-slug = "spf13-vim-3-0-release-and-new-website"
+{{< code-toggle file=content/example.md fm=true >}}
+title = 'Example'
+date = 2024-02-02T04:14:54-08:00
+draft = false
+weight = 10
+[params]
+myparam = 42
+tags = ['red','blue']
 {{< /code-toggle >}}
 
-## Front matter variables
+Front matter fields may be [scalar], [arrays], or [maps] containing [boolean], [integer], [float], or [string] values. Note that the TOML format also supports date/time values using unquoted strings.
 
-### Predefined
+[scalar]: /getting-started/glossary/#scalar
+[arrays]: /getting-started/glossary/#array
+[maps]: /getting-started/glossary/#map
+[boolean]: /getting-started/glossary/#boolean
+[integer]: /getting-started/glossary/#integer
+[float]: /getting-started/glossary/#float
+[string]: /getting-started/glossary/#string
 
-There are a few predefined variables that Hugo is aware of. See [Page Variables][pagevars] for how to call many of these predefined variables in your templates.
+## Fields
 
-aliases
-: An array of one or more aliases (e.g., old published paths of renamed content) that will be created in the output directory structure . See [Aliases][aliases] for details.
-
-audio
-: An array of paths to audio files related to the page; used by the `opengraph` [internal template](/templates/internal) to populate `og:audio`.
-
-cascade
-: A map of front matter keys whose values are passed down to the page's descendants unless overwritten by self or a closer ancestor's cascade. See [Front Matter Cascade](#front-matter-cascade) for details.
-
-date
-: The datetime assigned to this page. This is usually fetched from the `date` field in front matter, but this behavior is configurable.
-
-description
-: The description for the content.
-
-draft
-: If `true`, the content will not be rendered unless the `--buildDrafts` flag is passed to the `hugo` command.
-
-expiryDate
-: The datetime at which the content should no longer be published by Hugo; expired content will not be rendered unless the `--buildExpired` flag is passed to the `hugo` command.
-
-headless
-: If `true`, sets a leaf bundle to be [headless][headless-bundle].
-
-images
-: An array of paths to images related to the page; used by [internal templates](/templates/internal) such as `_internal/twitter_cards.html`.
-
-isCJKLanguage
-: If `true`, Hugo will explicitly treat the content as a CJK language; both `.Summary` and `.WordCount` work properly in CJK languages.
-
-keywords
-: The meta keywords for the content.
-
-layout
-: The layout Hugo should select from the [lookup order][lookup] when rendering the content. If a `type` is not specified in the front matter, Hugo will look for the layout of the same name in the layout directory that corresponds with a content's section. See [Content Types][content type].
-
-lastmod
-: The datetime at which the content was last modified.
-
-linkTitle
-: Used for creating links to content; if set, Hugo defaults to using the `linkTitle` before the `title`.
-
-markup
-: **experimental**; specify `"rst"` for reStructuredText (requires`rst2html`) or `"md"` (default) for Markdown.
-
-outputs
-: Allows you to specify output formats specific to the content. See [output formats][outputs].
-
-publishDate
-: If in the future, content will not be rendered unless the `--buildFuture` flag is passed to `hugo`.
-
-resources
-: Used for configuring page bundle resources. See [Page Resources][page-resources].
-
-series
-: An array of series this page belongs to, as a subset of the `series` [taxonomy](/content-management/taxonomies/); used by the `opengraph` [internal template](/templates/internal) to populate `og:see_also`.
-
-slug
-: Overrides the last segment of the URL path. Not applicable to section pages. See [URL Management](/content-management/urls/#slug) for details.
-
-summary
-: Text used when providing a summary of the article in the `.Summary` page variable; details available in the [content-summaries](/content-management/summaries/) section.
-
-title
-: The title for the content.
-
-type
-: The type of the content; this value will be automatically derived from the directory (i.e., the [section]) if not specified in front matter.
-
-url
-: Overrides the entire URL path. Applicable to regular pages and section pages. See [URL Management](/content-management/urls/#url) for details.
-
-videos
-: An array of paths to videos related to the page; used by the `opengraph` [internal template](/templates/internal) to populate `og:video`.
-
-weight
-: used for [ordering your content in lists][ordering]. Lower weight gets higher precedence. So content with lower weight will come first. If set, weights should be non-zero, as 0 is interpreted as an *unset* weight.
+The most common front matter fields are `date`, `draft`, `title`, and `weight`, but you can specify metadata using any of fields below.
 
 {{% note %}}
-If neither `slug` nor `url` is present and [permalinks are not configured otherwise in your site configuration file](/content-management/urls/#permalinks), Hugo will use the file name of your content to create the output URL. See [Content Organization](/content-management/organization) for an explanation of paths in Hugo and [URL Management](/content-management/urls/) for ways to customize Hugo's default behaviors.
+The field names below are reserved. For example, you cannot create a custom field named `type`. Create custom fields under the `params` key. See the [parameters] section for details.
+
+[parameters]: #parameters
 {{% /note %}}
 
-### User-defined
+###### aliases
 
-You can add fields to your front matter arbitrarily to meet your needs. These user-defined key-values are placed into a single `.Params` variable for use in your templates.
+(`string array`) An array of one or more aliases, where each alias is a relative URL that will redirect the browser to the current location. Access these values from a template using the [`Aliases`] method on a `Page` object. See the [aliases] section for details.
 
-The following fields can be accessed via `.Params.include_toc` and `.Params.show_comments`, respectively. The [Variables] section provides more information on using Hugo's page- and site-level variables in your templates.
+[`aliases`]: /methods/page/aliases/
+[aliases]: /content-management/urls/#aliases
 
-{{< code-toggle >}}
-include_toc: true
-show_comments: false
-{{</ code-toggle >}}
+###### build
 
-## Front matter cascade
+(`map`) A map of [build options].
 
-Any node or section can pass down to descendants a set of front matter values as long as defined underneath the reserved `cascade` front matter key.
+[build options]: /content-management/build-options
+
+###### cascade {#cascade-field}
+
+(`map`) A map of front matter keys whose values are passed down to the page’s descendants unless overwritten by self or a closer ancestor’s cascade. See the [cascade] section for details.
+
+[cascade]: #cascade
+
+###### date
+
+(`string`) The date associated with the page, typically the creation date. Note that the TOML format also supports date/time values using unquoted strings. Access this value from a template using the [`Date`] method on a `Page` object.
+
+[`date`]: /methods/page/date/
+
+###### description
+
+(`string`) Conceptually different than the page `summary`, the description is typically rendered within a `meta` element within the `head` element of the published HTML file. Access this value from a template using the [`Description`] method on a `Page` object.
+
+[`description`]: /methods/page/description/
+
+###### draft
+
+(`bool`)
+If `true`, the page will not be rendered unless you pass the `--buildDrafts` flag to the `hugo` command. Access this value from a template using the [`Draft`] method on a `Page` object.
+
+[`draft`]: /methods/page/draft/
+
+###### expiryDate
+
+(`string`) The page expiration date. On or after the expiration date, the page will not be rendered unless you pass the `--buildExpired` flag to the `hugo` command. Note that the TOML format also supports date/time values using unquoted strings. Access this value from a template using the [`ExpiryDate`] method on a `Page` object.
+
+[`expirydate`]: /methods/page/expirydate/
+
+###### headless
+
+(`bool`) Applicable to [leaf bundles], if `true` this value sets the `render` and `list` [build options] to `never`, creating a headless bundle of [page resources].
+
+[leaf bundles]: /content-management/page-bundles/#leaf-bundles
+[page resources]: /content-management/page-resources/
+
+###### isCJKLanguage
+
+(`bool`) Set to `true` if the content language is in the [CJK] family. This value determines how Hugo calculates word count, and affects the values returned by the [`WordCount`], [`FuzzyWordCount`], and [`Summary`] methods on a `Page` object.
+
+[`fuzzywordcount`]: /methods/page/wordcount
+[`summary`]: /methods/page/wordcount
+[`wordcount`]: /methods/page/wordcount
+[cjk]: /getting-started/glossary/#cjk
+
+###### keywords
+
+(`string array`) An array of keywords, typically rendered within a `meta` element within the `head` element of the published HTML file, or used as a [taxonomy] to classify content. Access these values from a template using the [`Keywords`] method on a `Page` object.
+
+[`keywords`]: /methods/page/keywords
+[taxonomy]: /getting-started/glossary/#taxonomy
+
+<!-- Added in v0.123.0 but purposefully omitted from documentation. -->
+<!--
+kind
+: The kind of page, e.g. "page", "section", "home" etc. This is usually derived from the content path.
+-->
+
+<!-- Added in v0.123.0 but purposefully omitted from documentation. -->
+<!--
+lang
+: The language code for this page. This is usually derived from the module mount or filename.
+-->
+
+###### lastmod
+
+(`string`) The date that the page was last modified. Note that the TOML format also supports date/time values using unquoted strings. Access this value from a template using the [`Lastmod`] method on a `Page` object.
+
+[`lastmod`]: /methods/page/date/
+
+###### layout
+
+(`string`) Provide a template name to [target a specific template],  overriding the default [template lookup order]. Set the value to the base file name of the template, excluding its extension. Access this value from a template using the [`Layout`] method on a `Page` object.
+
+[`layout`]: /methods/page/layout
+[template lookup order]: /templates/lookup-order
+[target a specific template]: templates/lookup-order/#target-a-template
+
+###### linkTitle
+
+(`string`) Typically a shorter version of the `title`. Access this value from a template using the [`LinkTitle`] method on a `Page` object.
+
+[`linktitle`]: /methods/page/linktitle/
+
+###### markup
+
+(`string`) A identifier corresponding to one of the supported [content formats]:
+
+Identifier|Content format
+:--|:--
+`adoc`|Asciidoc
+`html`|HTML
+`md`|Markdown
+`org`|Emacs Org Mode
+`pdc`|Pandoc
+`rst`|reStructuredText
+
+[content formats]: /content-management/formats
+
+###### menus
+
+(`string`,`string array`, or `map`) If set, Hugo adds the page to the given menu or menus. See the [menus] page for details.
+
+[menus]: /content-management/menus/#define-in-front-matter
+
+###### outputs
+
+(`string array`) The [output formats] to render.
+
+[output formats]: /templates/output-formats
+
+<!-- Added in v0.123.0 but purposefully omitted from documentation. -->
+<!--
+path
+: The canonical page path.
+-->
+
+###### params
+
+(`map`) A map of custom [page parameters].
+
+[page parameters]: #parameters
+
+###### publishDate
+
+(`string`) The page publication date. Before the publication date, the page will not be rendered unless you pass the `--buildFuture` flag to the `hugo` command. Note that the TOML format also supports date/time values using unquoted strings. Access this value from a template using the [`PublishDate`] method on a `Page` object.
+
+[`publishdate`]: /methods/page/publishdate
+
+###### resources
+
+(`map array`) An array of maps to provide metadata for [page resources].
+
+[page-resources]: /content-management/page-resources/#page-resources-metadata
+
+###### sitemap
+
+(`map`) A map of sitemap options. See the [sitemap templates] page for details. Access these values from a template using the [`Sitemap`] method on a `Page` object.
+
+[sitemap templates]: /templates/sitemap-template/
+[`sitemap`]: /methods/page/sitemap
+
+###### slug
+
+(`string`) Overrides the last segment of the URL path. Not applicable to section pages. See the [URL management] page for details. Access this value from a template using the [`Slug`] method on a `Page` object.
+
+[`slug`]: /methods/page/slug
+[URL management]: /content-management/urls/#slug
+
+###### summary
+
+(`string`) Conceptually different than the page `description`, the summary either summarizes the content or serves a teaser to encourage readers to visit the page. Access this value from a template using the [`Summary`] method on a `Page` object.
+
+[`Summary`]: /methods/page/summary
+
+###### title
+
+(`string`) The page title. Access this value from a template using the [`Title`] method on a `Page` object.
+
+[`title`]: /methods/page/title
+
+###### translationKey
+
+(`string`) An arbitrary value used to relate two or mote translations of the same page, useful when the translated pages do not share a common path. Access this value from a template using the [`TranslationKey`] method on a `Page` object.
+
+[`translationkey`]: /methods/page/translationkey/
+
+###### type
+
+(`string`) The [content type], overriding the value derived from the top level section in which the page resides. Access this value from a template using the [`Type`] method on a `Page` object.
+
+[content type]: /getting-started/glossary/#content-type
+[`type`]: /methods/page/type
+
+###### url
+
+(`string`) Overrides the entire URL path. Applicable to regular pages and section pages. See the [URL management] page for details.
+
+###### weight
+(`int`) The page [weight], used to order the page within a [page collection]. Access this value from a template using the [`Weight`] method on a `Page` object.
+
+[page collection]: /getting-started/glossary/#page-collection
+[weight]: /getting-started/glossary/#weight
+[`weight`]: /methods/page/weight
+
+## Parameters
+
+Specify custom page parameters, including taxonomy terms, under the `params` key in front matter:
+
+{{< code-toggle file=content/example.md fm=true >}}
+title = 'Example'
+date = 2024-02-02T04:14:54-08:00
+draft = false
+weight = 10
+[params]
+myparam = 42
+tags = ['red','blue']
+{{< /code-toggle >}}
+
+Access these values from a template using the [`Params`] or [`Param`] method on a `Page` object.
+
+[`param`]: /methods/page/param
+[`params`]: /methods/page/params
+
+## Cascade
+
+Any [node] can pass down to its descendants a set of front matter values.
+
+[node]: /getting-started/glossary/#node
 
 ### Target specific pages
 
-The `cascade` block can be a slice with a optional `_target` keyword, allowing for multiple `cascade` values targeting different page sets.
+The `cascade` block can be an array with an optional `_target` keyword, allowing you to target different page sets while cascading values.
 
-{{< code-toggle >}}
-title ="Blog"
+{{< code-toggle file=content/_index.md fm=true >}}
+title ="Home"
 [[cascade]]
+[cascade.params]
 background = "yosemite.jpg"
 [cascade._target]
-path="/blog/**"
+path="/articles/**"
 lang="en"
 kind="page"
 [[cascade]]
+[cascade.params]
 background = "goldenbridge.jpg"
 [cascade._target]
 kind="section"
 {{</ code-toggle >}}
 
-Keywords available for `_target`:
+Use any combination of these keywords to target a set of pages:
 
-path
-: A [Glob](https://github.com/gobwas/glob) pattern matching the content path below /content. Expects Unix-styled slashes. Note that this is the virtual path, so it starts at the mount root. The matching supports double-asterisks so you can match for patterns like `/blog/*/**` to match anything from the third level and down.
+###### path {#cascade-path}
 
-kind
-: A Glob pattern matching the Page's Kind(s), e.g. "{home,section}".
+(`string`) A [Glob](https://github.com/gobwas/glob) pattern matching the content path below /content. Expects Unix-styled slashes. Note that this is the virtual path, so it starts at the mount root. The matching supports double-asterisks so you can match for patterns like `/blog/*/**` to match anything from the third level and down.
 
-lang
-: A Glob pattern matching the Page's language, e.g. "{en,sv}".
+###### kind {#cascade-kind}
 
-environment
-: A Glob pattern matching the build environment, e.g. "{production,development}"
+(`string`) A Glob pattern matching the Page's Kind(s), e.g. "{home,section}".
+
+###### lang {#cascade-lang}
+
+(`string`) A Glob pattern matching the Page's language, e.g. "{en,sv}".
+
+###### environment {#cascade-environment}
+
+(`string`) A Glob pattern matching the build environment, e.g. "{production,development}"
 
 Any of the above can be omitted.
 
 {{% note %}}
-When making a site that supports multiple languages, defining a `[[cascade]]` is recommended to be done in [Site Config](../../getting-started/configuration/#cascade) to prevent duplication.
+With a multilingual site it may be more efficient to define the `cascade` values in your site configuration to avoid duplicating the `cascade` values on the section page for each language.
 
-If you instead define a `[[cascade]]` in front matter for multiple languages, an `content/XX/foo/_index.md` file needs to be made on a per-language basis, with `XX` the glob pattern matching the Page's language. In this case, the **lang** keyword is ignored. 
+With a multilingual site, if you choose to define the `cascade` values in front matter, you must create a [node] page for each language; the `lang` keyword is ignored.
+
+[node]: /getting-started/glossary/#node
 {{% /note %}}
 
 ### Example
 
-In `content/blog/_index.md`
-
-{{< code-toggle >}}
-title: Blog
-cascade:
-  banner: images/typewriter.jpg
+{{< code-toggle file=content/posts/_index.md fm=true >}}
+date = 2024-02-01T21:25:36-08:00
+title = 'Posts'
+[cascade]
+  [cascade.params]
+    banner = 'images/typewriter.jpg'
 {{</ code-toggle >}}
 
-With the above example the Blog section page and its descendants will return `images/typewriter.jpg` when `.Params.banner` is invoked unless:
+With the above example the posts section page and its descendants will return `images/typewriter.jpg` when `.Params.banner` is invoked unless:
 
 - Said descendant has its own `banner` value set
 - Or a closer ancestor node has its own `cascade.banner` value set.
 
-## Order content through front matter
+## Emacs Org Mode
 
-You can assign content-specific `weight` in the front matter of your content. These values are especially useful for [ordering][ordering] in list views. You can use `weight` for ordering of content and the convention of [`<TAXONOMY>_weight`][taxweight] for ordering content within a taxonomy. See [Ordering and Grouping Hugo Lists][lists] to see how `weight` can be used to organize your content in list views.
+If your [content format] is [Emacs Org Mode], you may provide front matter using Org Mode keywords. For example:
 
-## Override global markdown configuration
+{{< code file=content/example.org lang=text >}}
+#+TITLE: Example
+#+DATE: 2024-02-02T04:14:54-08:00
+#+DRAFT: false
+#+MYPARAM: 42
+#+TAGS: red
+#+TAGS: blue
+#+WEIGHT: 10
+{{< /code >}}
 
-It's possible to set some options for Markdown rendering in a content's front matter as an override to the [rendering options set in your project configuration][config].
+Note that you can also specify array elements on a single line:
 
-## Front matter format specs
+{{< code file=content/example.org lang=text >}}
+#+TAGS[]: red blue
+{{< /code >}}
 
-- [TOML Spec][toml]
-- [YAML Spec][yaml]
-- [JSON Spec][json]
-
-[variables]: /variables/
-[aliases]: /content-management/urls/#aliases
-[archetype]: /content-management/archetypes/
-[config]: /getting-started/configuration/
-[content type]: /content-management/types/
-[contentorg]: /content-management/organization/
-[headless-bundle]: /content-management/page-bundles/#headless-bundle
-[json]: https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf
-[lists]: /templates/lists/#sort-content
-[lookup]: /templates/lookup-order/
-[ordering]: /templates/lists/
-[outputs]: /templates/output-formats/
-[page-resources]: /content-management/page-resources/
-[pagevars]: /variables/page/
-[section]: /content-management/sections/
-[taxweight]: /content-management/taxonomies/
-[toml]: https://toml.io/
-[urls]: /content-management/urls/
-[variables]: /variables/
-[yaml]: https://yaml.org/spec/
+[content format]: /content-management/formats/
+[emacs org mode]: https://orgmode.org/

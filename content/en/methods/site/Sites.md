@@ -1,6 +1,6 @@
 ---
 title: Sites
-description: Returns a collection of all Site objects, one for each language, ordered by language weight.
+description: Returns a collection of all Site objects, one for each language, ordered by default content language then by language weight.
 categories: []
 keywords: []
 action:

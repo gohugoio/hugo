@@ -8,6 +8,7 @@ action:
   related:
     - functions/fmt/Errorf
     - functions/fmt/Erroridf
+    - functions/fmt/Warnidf
   returnType: string
   signatures: ['fmt.Warnf FORMAT [INPUT]']
 aliases: [/functions/warnf]
