@@ -14,6 +14,8 @@
 package hugolib
 
 import (
+	"fmt"
+
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources/page"
@@ -37,12 +39,16 @@ func newPageOutput(
 	targetPathsProvider = ft
 	linksProvider = ft
 
-	var paginatorProvider page.PaginatorProvider = page.NopPage
+	var paginatorProvider page.PaginatorProvider
 	var pag *pagePaginator
 
 	if render && ps.IsNode() {
 		pag = newPagePaginator(ps)
 		paginatorProvider = pag
+	} else {
+		paginatorProvider = page.PaginatorNotSupportedFunc(func() error {
+			return fmt.Errorf("pagination not supported for pages of kind %q", ps.Kind())
+		})
 	}
 
 	var dependencyManager identity.Manager = identity.NopManager

@@ -32,6 +32,18 @@ type PaginatorProvider interface {
 	Paginate(pages any, options ...any) (*Pager, error)
 }
 
+var _ PaginatorProvider = (*PaginatorNotSupportedFunc)(nil)
+
+type PaginatorNotSupportedFunc func() error
+
+func (f PaginatorNotSupportedFunc) Paginate(pages any, options ...any) (*Pager, error) {
+	return nil, f()
+}
+
+func (f PaginatorNotSupportedFunc) Paginator(options ...any) (*Pager, error) {
+	return nil, f()
+}
+
 // Pager represents one of the elements in a paginator.
 // The number, starting on 1, represents its place.
 type Pager struct {

@@ -157,3 +157,16 @@ Len Pag: {{ len $pag.Pages }}
 
 	b.AssertFileContent("public/index.html", "Len: 0", "Len Pag: 0")
 }
+
+func TestPaginatorNodePagesOnly(t *testing.T) {
+	files := `
+-- hugo.toml --
+paginate = 1
+-- content/p1.md --
+-- layouts/_default/single.html --
+Paginator: {{ .Paginator }}	
+`
+	b, err := TestE(t, files)
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, `error calling Paginator: pagination not supported for pages of kind "page"`)
+}
