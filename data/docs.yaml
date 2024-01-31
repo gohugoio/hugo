@@ -917,14 +917,9 @@ config:
       disableTags: false
       enable: false
     cacheBusters:
-    - source: assets/.*\.(js|ts|jsx|tsx)
-      target: (js|scripts|javascript)
-    - source: assets/.*\.(css|sass|scss)$
-      target: (css|styles|scss|sass)
     - source: (postcss|tailwind)\.config\.js
       target: (css|styles|scss|sass)
-    - source: assets/.*\.(.*)$
-      target: $1
+    duplicateResourceFiles: false
     noJSConfigInAssets: false
     useResourceCacheWhen: fallback
   buildDrafts: false
@@ -1007,8 +1002,8 @@ config:
   hasCJKLanguage: false
   i18nDir: i18n
   ignoreCache: false
-  ignoreErrors: null
   ignoreFiles: []
+  ignoreLogs: null
   ignoreVendorPaths: ""
   imaging:
     bgColor: '#ffffff'
@@ -1041,6 +1036,7 @@ config:
       workingFolderCurrent: false
     defaultMarkdownHandler: goldmark
     goldmark:
+      duplicateResourceFiles: false
       extensions:
         cjk:
           eastAsianLineBreaks: false
@@ -1078,6 +1074,11 @@ config:
         autoHeadingID: true
         autoHeadingIDType: github
         wrapStandAloneImageWithinParagraph: true
+      renderHooks:
+        image:
+          enableDefault: null
+        link:
+          enableDefault: null
       renderer:
         hardWraps: false
         unsafe: false
@@ -1352,143 +1353,154 @@ config:
       isHTML: true
       isPlainText: false
       mediaType: text/html
-      name: amp
       noUgly: false
       notAlternative: false
       path: amp
       permalinkable: true
       protocol: ""
       rel: amphtml
+      root: false
+      ugly: false
       weight: 0
     calendar:
       baseName: index
       isHTML: false
       isPlainText: true
       mediaType: text/calendar
-      name: calendar
       noUgly: false
       notAlternative: false
       path: ""
       permalinkable: false
       protocol: webcal://
       rel: alternate
+      root: false
+      ugly: false
       weight: 0
     css:
       baseName: styles
       isHTML: false
       isPlainText: true
       mediaType: text/css
-      name: css
       noUgly: false
       notAlternative: true
       path: ""
       permalinkable: false
       protocol: ""
       rel: stylesheet
+      root: false
+      ugly: false
       weight: 0
     csv:
       baseName: index
       isHTML: false
       isPlainText: true
       mediaType: text/csv
-      name: csv
       noUgly: false
       notAlternative: false
       path: ""
       permalinkable: false
       protocol: ""
       rel: alternate
+      root: false
+      ugly: false
       weight: 0
     html:
       baseName: index
       isHTML: true
       isPlainText: false
       mediaType: text/html
-      name: html
       noUgly: false
       notAlternative: false
       path: ""
       permalinkable: true
       protocol: ""
       rel: canonical
+      root: false
+      ugly: false
       weight: 10
     json:
       baseName: index
       isHTML: false
       isPlainText: true
       mediaType: application/json
-      name: json
       noUgly: false
       notAlternative: false
       path: ""
       permalinkable: false
       protocol: ""
       rel: alternate
+      root: false
+      ugly: false
       weight: 0
     markdown:
       baseName: index
       isHTML: false
       isPlainText: true
       mediaType: text/markdown
-      name: markdown
       noUgly: false
       notAlternative: false
       path: ""
       permalinkable: false
       protocol: ""
       rel: alternate
+      root: false
+      ugly: false
       weight: 0
     robots:
       baseName: robots
       isHTML: false
       isPlainText: true
       mediaType: text/plain
-      name: robots
       noUgly: false
       notAlternative: false
       path: ""
       permalinkable: false
       protocol: ""
       rel: alternate
+      root: true
+      ugly: false
       weight: 0
     rss:
       baseName: index
       isHTML: false
       isPlainText: false
       mediaType: application/rss+xml
-      name: rss
       noUgly: true
       notAlternative: false
       path: ""
       permalinkable: false
       protocol: ""
       rel: alternate
+      root: false
+      ugly: false
       weight: 0
     sitemap:
       baseName: sitemap
       isHTML: false
       isPlainText: false
       mediaType: application/xml
-      name: sitemap
-      noUgly: true
+      noUgly: false
       notAlternative: false
       path: ""
       permalinkable: false
       protocol: ""
       rel: sitemap
+      root: false
+      ugly: true
       weight: 0
     webappmanifest:
       baseName: manifest
       isHTML: false
       isPlainText: true
       mediaType: application/manifest+json
-      name: webappmanifest
       noUgly: false
       notAlternative: true
       path: ""
       permalinkable: false
       protocol: ""
       rel: manifest
+      root: false
+      ugly: false
       weight: 0
   outputs:
     home:
@@ -2913,6 +2925,20 @@ tpl:
         Examples:
         - - '{{ warnf "%s." "warning" }}'
           - ""
+      Warnidf:
+        Aliases:
+        - warnidf
+        Args:
+        - id
+        - format
+        - args
+        Description: |-
+          Warnidf formats args according to a format specifier and logs an WARNING and
+          an information text that the warning with the given id can be suppressed in config.
+          It returns an empty string.
+        Examples:
+        - - '{{ warnidf "my-warn-id" "%s." "warning" }}'
+          - ""
       Warnmf:
         Aliases: null
         Args: null
@@ -3688,14 +3714,6 @@ tpl:
         - s
         Description: JSStr returns the given string as a html/template JSStr content.
         Examples: []
-      SanitizeURL:
-        Aliases:
-        - sanitizeURL
-        - sanitizeurl
-        Args:
-        - s
-        Description: SanitizeURL returns the string s as html/template URL content.
-        Examples: []
       URL:
         Aliases:
         - safeURL
@@ -3756,17 +3774,12 @@ tpl:
         Args: null
         Description: ""
         Examples: null
-      GetIdentity:
+      ForEeachIdentityByName:
         Aliases: null
         Args: null
         Description: ""
         Examples: null
       GetPage:
-        Aliases: null
-        Args: null
-        Description: ""
-        Examples: null
-      GetPageWithTemplateInfo:
         Aliases: null
         Args: null
         Description: ""
@@ -3796,6 +3809,11 @@ tpl:
         Args: null
         Description: ""
         Examples: null
+      Key:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       Language:
         Aliases: null
         Args: null
@@ -3817,6 +3835,11 @@ tpl:
         Description: ""
         Examples: null
       LastChange:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Lastmod:
         Aliases: null
         Args: null
         Description: ""
