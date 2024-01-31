@@ -1076,9 +1076,9 @@ config:
         wrapStandAloneImageWithinParagraph: true
       renderHooks:
         image:
-          enableDefault: null
+          enableDefault: false
         link:
-          enableDefault: null
+          enableDefault: false
       renderer:
         hardWraps: false
         unsafe: false

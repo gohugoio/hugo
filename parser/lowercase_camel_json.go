@@ -25,8 +25,22 @@ import (
 
 // Regexp definitions
 var (
-	keyMatchRegex = regexp.MustCompile(`\"(\w+)\":`)
+	keyMatchRegex       = regexp.MustCompile(`\"(\w+)\":`)
+	nullEnableBoolRegex = regexp.MustCompile(`\"(enable\w+)\":null`)
 )
+
+type NullBoolJSONMarshaller struct {
+	Wrapped json.Marshaler
+}
+
+func (c NullBoolJSONMarshaller) MarshalJSON() ([]byte, error) {
+	b, err := c.Wrapped.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	i := bytes.Index(b, []byte("enableDefault"))
+	return nullEnableBoolRegex.ReplaceAll(b, []byte(`"$1": false`)), nil
+}
 
 // Code adapted from https://gist.github.com/piersy/b9934790a8892db1a603820c0c23e4a7
 type LowerCaseCamelJSONMarshaller struct {

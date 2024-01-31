@@ -195,7 +195,7 @@ url: %s
 				configProvider := func() docshelper.DocProvider {
 					conf := hugolib.DefaultConfig()
 					conf.CacheDir = "" // The default value does not make sense in the docs.
-					defaultConfig := parser.LowerCaseCamelJSONMarshaller{Value: conf}
+					defaultConfig := parser.NullBoolJSONMarshaller{Wrapped: parser.LowerCaseCamelJSONMarshaller{Value: conf}}
 					return docshelper.DocProvider{"config": defaultConfig}
 				}
 
