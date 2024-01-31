@@ -38,7 +38,6 @@ func (c NullBoolJSONMarshaller) MarshalJSON() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	i := bytes.Index(b, []byte("enableDefault"))
 	return nullEnableBoolRegex.ReplaceAll(b, []byte(`"$1": false`)), nil
 }
 
