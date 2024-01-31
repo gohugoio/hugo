@@ -29,7 +29,7 @@ type Format struct {
 	// The Name is used as an identifier. Internal output formats (i.e. html and rss)
 	// can be overridden by providing a new definition for those types.
 	// <docsmeta>{ "identifiers": ["html", "rss"] }</docsmeta>
-	Name string `json:"name"`
+	Name string `json:"-"`
 
 	MediaType media.Type `json:"-"`
 

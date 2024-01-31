@@ -65,10 +65,10 @@ func DecodeConfig(mediaTypes media.Types, in any) (*config.ConfigNamespace[map[s
 				}
 
 				newOutFormat := defaultOutputFormat
-				newOutFormat.Name = k
 				if err := decode(mediaTypes, v, &newOutFormat); err != nil {
 					return f, nil, err
 				}
+				newOutFormat.Name = k
 
 				f = append(f, newOutFormat)
 

@@ -330,8 +330,7 @@ func TestGetOutputFormatRel(t *testing.T) {
 	b := newTestSitesBuilder(t).
 		WithSimpleConfigFileAndSettings(map[string]any{
 			"outputFormats": map[string]any{
-				"humansTXT": map[string]any{
-					"name":        "HUMANS",
+				"HUMANS": map[string]any{
 					"mediaType":   "text/plain",
 					"baseName":    "humans",
 					"isPlainText": true,
