@@ -20,6 +20,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/hugolib/doctree"
 
 	"github.com/gohugoio/hugo/config"
@@ -110,7 +111,7 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 
 	err := <-errs
 	if err != nil {
-		return fmt.Errorf("failed to render pages: %w", err)
+		return fmt.Errorf("failed to render pages: %w", herrors.ImproveIfNilPointer(err))
 	}
 	return nil
 }
