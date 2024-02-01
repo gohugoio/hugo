@@ -94,11 +94,15 @@ func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 
 	fis = fis[:n]
 
+	n = 0
 	for _, fi := range fis {
 		s := path.Join(f.name, fi.Name())
-		_ = f.fs.applyMeta(fi, s)
-
+		if _, ok := f.fs.applyMeta(fi, s); ok {
+			fis[n] = fi
+			n++
+		}
 	}
+	fis = fis[:n]
 
 	sort.Slice(fis, func(i, j int) bool {
 		fimi, fimj := fis[i].(FileMetaInfo), fis[j].(FileMetaInfo)
@@ -180,7 +184,8 @@ func (f *componentFsDir) Stat() (iofs.FileInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	return f.fs.applyMeta(fi, f.name), nil
+	fim, _ := f.fs.applyMeta(fi, f.name)
+	return fim, nil
 }
 
 func (fs *componentFs) Stat(name string) (os.FileInfo, error) {
@@ -188,16 +193,26 @@ func (fs *componentFs) Stat(name string) (os.FileInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	return fs.applyMeta(fi, name), nil
+	fim, _ := fs.applyMeta(fi, name)
+	return fim, nil
 }
 
-func (fs *componentFs) applyMeta(fi FileNameIsDir, name string) FileMetaInfo {
+func (fs *componentFs) applyMeta(fi FileNameIsDir, name string) (FileMetaInfo, bool) {
 	if runtime.GOOS == "darwin" {
 		name = norm.NFC.String(name)
 	}
 	fim := fi.(FileMetaInfo)
 	meta := fim.Meta()
-	meta.PathInfo = fs.opts.PathParser.Parse(fs.opts.Component, name)
+	pi := fs.opts.PathParser.Parse(fs.opts.Component, name)
+	if pi.Disabled() {
+		return fim, false
+	}
+	if meta.Lang != "" {
+		if isLangDisabled := fs.opts.PathParser.IsLangDisabled; isLangDisabled != nil && isLangDisabled(meta.Lang) {
+			return fim, false
+		}
+	}
+	meta.PathInfo = pi
 	if !fim.IsDir() {
 		if fileLang := meta.PathInfo.Lang(); fileLang != "" {
 			// A valid lang set in filename.
@@ -223,7 +238,7 @@ func (fs *componentFs) applyMeta(fi FileNameIsDir, name string) FileMetaInfo {
 		}
 	}
 
-	return fim
+	return fim, true
 }
 
 func (f *componentFsDir) Readdir(count int) ([]os.FileInfo, error) {

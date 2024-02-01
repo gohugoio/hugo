@@ -416,3 +416,50 @@ Section: MySection|RelPermalink: |Outputs: 0
 	b.Assert(b.CheckExists("public/sect/no-render/index.html"), qt.Equals, false)
 	b.Assert(b.CheckExists("public/sect-no-render/index.html"), qt.Equals, false)
 }
+
+func TestDisableOneOfThreeLanguages(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+[languages]
+[languages.en]
+weight = 1
+title = "English"
+[languages.nn]
+weight = 2
+title = "Nynorsk"
+disabled = true
+[languages.nb]
+weight = 3
+title = "Bokmål"
+-- content/p1.nn.md --
+---
+title: "Page 1 nn"
+---
+-- content/p1.nb.md --
+---
+title: "Page 1 nb"
+---
+-- content/p1.en.md --
+---
+title: "Page 1 en"
+---
+-- content/p2.nn.md --
+---
+title: "Page 2 nn"
+---
+-- layouts/_default/single.html --
+{{ .Title }}
+`
+	b := Test(t, files)
+
+	b.Assert(len(b.H.Sites), qt.Equals, 2)
+	b.AssertFileContent("public/en/p1/index.html", "Page 1 en")
+	b.AssertFileContent("public/nb/p1/index.html", "Page 1 nb")
+
+	b.AssertFileExists("public/en/p2/index.html", false)
+	b.AssertFileExists("public/nn/p1/index.html", false)
+	b.AssertFileExists("public/nn/p2/index.html", false)
+}

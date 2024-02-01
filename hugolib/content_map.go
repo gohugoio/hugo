@@ -166,11 +166,6 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo) error {
 		return nil
 	}
 
-	meta := fi.Meta()
-	if m.s.conf.IsLangDisabled(meta.Lang) {
-		return nil
-	}
-
 	insertResource := func(fim hugofs.FileMetaInfo) error {
 		pi := fi.Meta().PathInfo
 		key := pi.Base()
@@ -209,6 +204,7 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo) error {
 		return nil
 	}
 
+	meta := fi.Meta()
 	pi := meta.PathInfo
 
 	switch pi.BundleType() {

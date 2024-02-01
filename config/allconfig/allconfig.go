@@ -733,7 +733,8 @@ func (c *Configs) Init() error {
 
 	c.Languages = languages
 	c.LanguagesDefaultFirst = languagesDefaultFirst
-	c.ContentPathParser = paths.PathParser{LanguageIndex: languagesDefaultFirst.AsIndexSet()}
+
+	c.ContentPathParser = paths.PathParser{LanguageIndex: languagesDefaultFirst.AsIndexSet(), IsLangDisabled: c.Base.IsLangDisabled}
 
 	c.configLangs = make([]config.AllProvider, len(c.Languages))
 	for i, l := range c.LanguagesDefaultFirst {

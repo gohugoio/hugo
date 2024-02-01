@@ -60,6 +60,11 @@ func (h *HugoSites) newPage(m *pageMeta) (*pageState, *paths.Path, error) {
 		return nil, nil, m.wrapError(err, h.BaseFs.SourceFs)
 	}
 	pcfg := m.pageConfig
+	if pcfg.Lang != "" {
+		if h.Conf.IsLangDisabled(pcfg.Lang) {
+			return nil, nil, nil
+		}
+	}
 
 	if pcfg.Path != "" {
 		s := m.pageConfig.Path
