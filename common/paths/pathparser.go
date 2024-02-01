@@ -29,6 +29,9 @@ var defaultPathParser PathParser
 type PathParser struct {
 	// Maps the language code to its index in the languages/sites slice.
 	LanguageIndex map[string]int
+
+	// Reports whether the given language is disabled.
+	IsLangDisabled func(string) bool
 }
 
 // Parse parses component c with path s into Path using the default path parser.
@@ -134,7 +137,16 @@ func (pp *PathParser) doParse(component, s string) (*Path, error) {
 					s := p.s[id.Low:id.High]
 
 					if hasLang {
-						if _, found := pp.LanguageIndex[s]; found {
+						var disabled bool
+						_, langFound := pp.LanguageIndex[s]
+						if !langFound {
+							disabled = pp.IsLangDisabled != nil && pp.IsLangDisabled(s)
+							if disabled {
+								p.disabled = true
+								langFound = true
+							}
+						}
+						if langFound {
 							p.posIdentifierLanguage = 1
 							p.identifiers = append(p.identifiers, id)
 						}
@@ -220,6 +232,7 @@ type Path struct {
 	identifiers []types.LowHigh
 
 	posIdentifierLanguage int
+	disabled              bool
 
 	trimLeadingSlash bool
 
@@ -433,6 +446,10 @@ func (p *Path) Lang() string {
 
 func (p *Path) Identifier(i int) string {
 	return p.identifierAsString(i)
+}
+
+func (p *Path) Disabled() bool {
+	return p.disabled
 }
 
 func (p *Path) Identifiers() []string {
