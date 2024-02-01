@@ -553,6 +553,14 @@ func (p *pageState) wrapError(err error) error {
 	return p.m.wrapError(err, p.s.h.SourceFs)
 }
 
+func (p *pageState) getPageInfoForError() string {
+	s := fmt.Sprintf("kind: %q, path: %q", p.Kind(), p.Path())
+	if p.File() != nil {
+		s += fmt.Sprintf(", file: %q", p.File().Filename())
+	}
+	return s
+}
+
 func (p *pageState) getContentConverter() converter.Converter {
 	var err error
 	p.contentConverterInit.Do(func() {

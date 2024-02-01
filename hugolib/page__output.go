@@ -47,7 +47,7 @@ func newPageOutput(
 		paginatorProvider = pag
 	} else {
 		paginatorProvider = page.PaginatorNotSupportedFunc(func() error {
-			return fmt.Errorf("pagination not supported for pages of kind %q", ps.Kind())
+			return fmt.Errorf("pagination not supported for this page: %s", ps.getPageInfoForError())
 		})
 	}
 
