@@ -2,8 +2,15 @@
 <script>
   MathJax = {
     tex: {
-      displayMath: [['\\[', '\\]'], ['$$', '$$']],  // block
-      inlineMath: [['\\(', '\\)']]                  // inline
+      inlineMath: [['$', '$'], ['\\(', '\\)']],    // inline
+      displayMath: [['$$', '$$'], ['\\[', '\\]']]  // block
+    },
+    startup: {
+      pageReady: () => {
+        return MathJax.startup.defaultPageReady().then(() => {
+          document.body.classList.remove("dn");
+        });
+      }
     }
   };
 </script>

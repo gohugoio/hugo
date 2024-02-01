@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html
   class="no-js"
   lang="{{ with $.Site.LanguageCode }}
@@ -98,7 +98,8 @@
       {{ partial "gtag.html" . }}
     {{ end }}
 
-    {{ if .Param "math" }}
+    {{ $hasMath := .Param "math" }}
+    {{ if $hasMath }}
       {{ partialCached "math.html" . }}
     {{ end }}
 
@@ -107,7 +108,7 @@
   <body
     class="ma0 sans-serif bg-primary-color-light{{ with getenv "HUGO_ENV" }}
       {{ . }}
-    {{ end }}">
+    {{ end }} {{ if $hasMath }}{{ print " dn" }}{{ end }}">
     {{ partial "hooks/after-body-start.html" . }}
     {{ block "nav" . }}{{ partial "site-nav.html" . }}{{ end }}
     {{ block "header" . }}{{ end }}
