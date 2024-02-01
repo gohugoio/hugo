@@ -64,7 +64,7 @@ type Namespace struct {
 // If you provide multiple parts for the URL they will be joined together to the final URL.
 // GetCSV returns nil or a slice slice to use in a short code.
 func (ns *Namespace) GetCSV(sep string, args ...any) (d [][]string, err error) {
-	hugo.Deprecate("data.GetJSON", "use resources.Get or resources.GetRemote with transform.Unmarshal.", "v0.123.0")
+	hugo.Deprecate("data.GetCSV", "use resources.Get or resources.GetRemote with transform.Unmarshal.", "v0.123.0")
 
 	url, headers := toURLAndHeaders(args)
 	cache := ns.cacheGetCSV
