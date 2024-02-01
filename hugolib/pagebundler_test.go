@@ -150,6 +150,8 @@ defaultContentLanguageInSubdir = true
 [languages]
 [languages.en]
 weight = 1
+[languages.en.permalinks]
+"/" = "/enpages/:slug/"
 [languages.nn]
 weight = 2
 -- content/mybundle/index.md --
@@ -173,8 +175,8 @@ Resources: {{ range .Resources }}RelPermalink: {{ .RelPermalink }}|Content: {{ .
 `
 	b := Test(t, files)
 
-	b.AssertFileContent("public/en/mybundle/index.html", "My Bundle|/en/mybundle/|en|\nResources: RelPermalink: /en/mybundle/f1.txt|Content: F1|RelPermalink: /en/mybundle/f2.txt|Content: F2||")
-	b.AssertFileContent("public/nn/mybundle/index.html", "My Bundle NN|/nn/mybundle/|nn|\nResources: RelPermalink: /en/mybundle/f1.txt|Content: F1|RelPermalink: /nn/mybundle/f2.nn.txt|Content: F2 nn.||")
+	b.AssertFileContent("public/en/enpages/my-bundle/index.html", "My Bundle|/en/enpages/my-bundle/|en|\nResources: RelPermalink: /en/enpages/my-bundle/f1.txt|Content: F1|RelPermalink: /en/enpages/my-bundle/f2.txt|Content: F2||")
+	b.AssertFileContent("public/nn/mybundle/index.html", "My Bundle NN|/nn/mybundle/|nn|\nResources: RelPermalink: /en/enpages/my-bundle/f1.txt|Content: F1|RelPermalink: /nn/mybundle/f2.nn.txt|Content: F2 nn.||")
 }
 
 func TestMultilingualDisableLanguage(t *testing.T) {
