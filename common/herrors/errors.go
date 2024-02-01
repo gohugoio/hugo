@@ -19,8 +19,10 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 	"runtime"
 	"runtime/debug"
+	"strings"
 	"time"
 )
 
@@ -115,4 +117,23 @@ func IsNotExist(err error) bool {
 	}
 
 	return false
+}
+
+var nilPointerErrRe = regexp.MustCompile(`at <(.*)>: error calling (.*?): runtime error: invalid memory address or nil pointer dereference`)
+
+func ImproveIfNilPointer(inErr error) (outErr error) {
+	outErr = inErr
+
+	m := nilPointerErrRe.FindStringSubmatch(inErr.Error())
+	if len(m) == 0 {
+		return
+	}
+	call := m[1]
+	field := m[2]
+	parts := strings.Split(call, ".")
+	receiverName := parts[len(parts)-2]
+	receiver := strings.Join(parts[:len(parts)-1], ".")
+	s := fmt.Sprintf("– %s is nil; wrap it in if or with: {{ with %s }}{{ .%s }}{{ end }}", receiverName, receiver, field)
+	outErr = errors.New(nilPointerErrRe.ReplaceAllString(inErr.Error(), s))
+	return
 }

@@ -170,3 +170,15 @@ Paginator: {{ .Paginator }}
 	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, `error calling Paginator: pagination not supported for this page: kind: "page"`)
 }
+
+func TestNilPointerErrorMessage(t *testing.T) {
+	files := `
+-- hugo.toml --
+-- content/p1.md --
+-- layouts/_default/single.html --
+Home Filename: {{ site.Home.File.Filename }}
+`
+	b, err := TestE(t, files)
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, `_default/single.html:1:22: executing "_default/single.html" – File is nil; wrap it in if or with: {{ with site.Home.File }}{{ .Filename }}{{ end }}`)
+}
