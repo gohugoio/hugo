@@ -3,25 +3,12 @@
   {{- if $pc.Simple -}}
     {{- template "_internal/shortcodes/twitter_simple.html" . -}}
   {{- else -}}
-    {{- $msg1 := "The %q shortcode requires two named parameters: user and id. See %s" -}}
-    {{- $msg2 := "The %q shortcode will soon require two named parameters: user and id. See %s" -}}
-    {{- if .IsNamedParams -}}
-      {{- $id := .Get "id" -}}
-      {{- $user := .Get "user" -}}
-      {{- if and $id $user -}}
-        {{- template "render-tweet" (dict "id" $id "user" $user "dnt" $pc.EnableDNT) -}}
-      {{- else -}}
-        {{- errorf $msg1 .Name .Position -}}
-      {{- end -}}
+    {{- $id := or (.Get "id") "" -}}
+    {{- $user := or (.Get "user") "" -}}
+    {{- if and $id $user -}}
+      {{- template "render-tweet" (dict "id" $id "user" $user "dnt" $pc.EnableDNT "name" .Name "position" .Position) -}}
     {{- else -}}
-      {{- $id := .Get 1 -}}
-      {{- $user := .Get 0 -}}
-      {{- if eq 1 (len .Params) -}}
-        {{- $id = .Get 0 -}}
-        {{- $user = "x" -}} {{/* This triggers a redirect. It works, but may not work forever. */}}
-        {{- warnf $msg2 .Name .Position -}}
-      {{- end -}}
-      {{- template "render-tweet" (dict "id" $id "user" $user "dnt" $pc.EnableDNT) -}}
+      {{- errorf "The %q shortcode requires two named parameters: user and id. See %s" .Name .Position -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}
@@ -30,6 +17,13 @@
   {{- $url := printf "https://twitter.com/%v/status/%v" .user .id -}}
   {{- $query := querify "url" $url "dnt" .dnt -}}
   {{- $request := printf "https://publish.twitter.com/oembed?%s" $query -}}
-  {{- $json := getJSON $request -}}
-  {{- $json.html | safeHTML -}}
+  {{- with resources.GetRemote $request -}}
+    {{- with .Err -}}
+      {{- errorf "%s" . -}}
+    {{- else -}}
+      {{- (. | transform.Unmarshal).html | safeHTML -}}
+    {{- end -}}
+  {{- else -}}
+    {{- warnidf "shortcode-twitter-getremote" "The %q shortcode was unable to retrieve the remote data. See %s" .name .position -}}
+  {{- end -}}
 {{- end -}}

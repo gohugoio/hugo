@@ -1,25 +1,12 @@
 {{- $pc := .Page.Site.Config.Privacy.Twitter -}}
 {{- $sc := .Page.Site.Config.Services.Twitter -}}
 {{- if not $pc.Disable -}}
-  {{- $msg1 := "The %q shortcode requires two named parameters: user and id. See %s" -}}
-  {{- $msg2 := "The %q shortcode will soon require two named parameters: user and id. See %s" -}}
-  {{- if .IsNamedParams -}}
-    {{- $id := .Get "id" -}}
-    {{- $user := .Get "user" -}}
-    {{- if and $id $user -}}
-      {{- template "render-simple-tweet" (dict "id" $id "user" $user "dnt" $pc.EnableDNT "disableInlineCSS" $sc.DisableInlineCSS "ctx" .) -}}
-    {{- else -}}
-      {{- errorf $msg1 .Name .Position -}}
-    {{- end -}}
+  {{- $id := or (.Get "id") "" -}}
+  {{- $user := or (.Get "user") "" -}}
+  {{- if and $id $user -}}
+    {{- template "render-simple-tweet" (dict "id" $id "user" $user "dnt" $pc.EnableDNT "name" .Name "position" .Position) -}}
   {{- else -}}
-    {{- $id := .Get 1 -}}
-    {{- $user := .Get 0 -}}
-    {{- if eq 1 (len .Params) -}}
-      {{- $id = .Get 0 -}}
-      {{- $user = "x" -}} {{/* This triggers a redirect. It works, but may not work forever. */}}
-      {{- warnf $msg2 .Name .Position -}}
-    {{- end -}}
-    {{- template "render-simple-tweet" (dict "id" $id "user" $user "dnt" $pc.EnableDNT "disableInlineCSS" $sc.DisableInlineCSS "ctx" .) -}}
+    {{- errorf "The %q shortcode requires two named parameters: user and id. See %s" .Name .Position -}}
   {{- end -}}
 {{- end -}}
 
@@ -27,17 +14,21 @@
   {{- $url := printf "https://twitter.com/%v/status/%v" .user .id -}}
   {{- $query := querify "url" $url "dnt" .dnt "omit_script" true -}}
   {{- $request := printf "https://publish.twitter.com/oembed?%s" $query -}}
-  {{- $json := getJSON $request -}}
-  {{- if not .disableInlineCSS -}}
-    {{- template "__h_simple_twitter_css" .ctx -}}
-  {{- end }}
-  {{ $json.html | safeHTML -}}
+  {{- with resources.GetRemote $request -}}
+    {{- with .Err -}}
+      {{- errorf "%s" . -}}
+    {{- else -}}
+      {{- (. | transform.Unmarshal).html | safeHTML -}}
+    {{- end -}}
+  {{- else -}}
+    {{- warnidf "shortcode-twitter-simple-getremote" "The %q shortcode was unable to retrieve the remote data. See %s" .name .position -}}
+  {{- end -}}
 {{- end -}}
 
 {{- define "__h_simple_twitter_css" -}}
   {{- if not (.Page.Scratch.Get "__h_simple_twitter_css") -}}
     {{/* Only include once */}}
-    {{- .Page.Scratch.Set "__h_simple_twitter_css" true }}
+    {{- .Page.Scratch.Set "__h_simple_twitter_css" true -}}
     <style type="text/css">
       .twitter-tweet {
         font: 14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
