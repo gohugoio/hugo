@@ -153,9 +153,7 @@ func (p *pageMeta) Description() string {
 	return p.pageConfig.Description
 }
 
-// Deprecated: use .Page.Language.Lang instead.
 func (p *pageMeta) Lang() string {
-	hugo.Deprecate(".Page.Lang", "Use .Page.Language.Lang instead.", "v0.123.0")
 	return p.s.Lang()
 }
 
