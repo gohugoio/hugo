@@ -105,6 +105,7 @@ func (p *pageMeta) Aliases() []string {
 	return p.pageConfig.Aliases
 }
 
+// Deprecated: use taxonomies.
 func (p *pageMeta) Author() page.Author {
 	hugo.Deprecate(".Author", "Use taxonomies.", "v0.98.0")
 	authors := p.Authors()
@@ -115,6 +116,7 @@ func (p *pageMeta) Author() page.Author {
 	return page.Author{}
 }
 
+// Deprecated: use taxonomies.
 func (p *pageMeta) Authors() page.AuthorList {
 	hugo.Deprecate(".Author", "Use taxonomies.", "v0.112.0")
 	return nil
@@ -151,7 +153,9 @@ func (p *pageMeta) Description() string {
 	return p.pageConfig.Description
 }
 
+// Deprecated: use .Page.Language.Lang instead.
 func (p *pageMeta) Lang() string {
+	hugo.Deprecate(".Page.Lang", "Use .Page.Language.Lang instead.", "v0.123.0")
 	return p.s.Lang()
 }
 
