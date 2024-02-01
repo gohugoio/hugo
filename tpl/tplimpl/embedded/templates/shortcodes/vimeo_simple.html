@@ -1,22 +1,52 @@
 {{- $pc := .Page.Site.Config.Privacy.Vimeo -}}
 {{- if not $pc.Disable -}}
-{{ $id := .Get "id" | default (.Get 0) }}
-{{ $dnt := cond (eq $pc.EnableDNT true) "?dnt=1" "" }}
-{{- $item := getJSON (print "https://vimeo.com/api/oembed.json?url=https://vimeo.com/" $id $dnt) -}}
-{{ $class := .Get "class" | default (.Get 1) }}
-{{ $hasClass := $class }}
-{{ $class := $class | default "__h_video" }}
-{{ if not $hasClass }}
-{{/* If class is set, assume the user wants to provide his own styles. */}}
-{{ template "__h_simple_css" $ }}
-{{ end }}
-{{ $secondClass := "s_video_simple" }}
-<div class="{{ $secondClass }} {{ $class }}">
-{{- with $item }}
-<a href="{{ .provider_url }}{{ .video_id }}" rel="noopener" target="_blank">
-{{ $thumb := .thumbnail_url }}
-{{ $original := $thumb | replaceRE "(_.*\\.)" "." }}
-<img src="{{ $thumb }}" srcset="{{ $thumb }} 1x, {{ $original }} 2x" alt="{{ .title }}">
-<div class="play">{{ template "__h_simple_icon_play" $ }}</div></a></div>
+  {{- $ctx := dict "page" .Page "pc" $pc "name" .Name "position" .Position }}
+  {{- if .IsNamedParams -}}
+    {{- with .Get "id" -}}
+      {{- $ctx = merge $ctx (dict "id" . "class" ($.Get "class")) -}}
+      {{- template "render-vimeo" $ctx -}}
+    {{- else -}}
+      {{- errorf "The %q shortocde requires a single named parameter, the ID of the Vimeo video. See %s" .Name .Position -}}
+    {{- end -}}
+  {{- else -}}
+    {{- with .Get 0 -}}
+      {{- $ctx = merge $ctx (dict "id" . "class" ($.Get 1)) -}}
+      {{- template "render-vimeo" $ctx -}}
+    {{- else -}}
+      {{- errorf "The %q shortocde requires a single positional parameter, the ID of the Vimeo video. See %s" .Name .Position -}}
+    {{- end -}}
+  {{- end -}}
 {{- end -}}
+
+{{- define "render-vimeo" -}}
+  {{- $dnt := cond .pc.EnableDNT 1 0 -}}
+  {{- $url := urls.JoinPath "https://vimeo.com" .id -}}
+  {{- $query := querify "url" $url "dnt" $dnt -}}
+  {{- $request := printf "https://vimeo.com/api/oembed.json?%s" $query -}}
+  {{- with resources.GetRemote $request -}}
+    {{- with .Err -}}
+      {{- errorf "%s" . -}}
+    {{- else -}}
+      {{- with . | transform.Unmarshal -}}
+        {{- $class := printf "%s %s" "s_video_simple" "__h_video" -}}
+        {{- with $.class -}}
+          {{- $class = printf "%s %s" "s_video_simple" . -}}
+        {{- else -}}
+          {{ template "__h_simple_css" $.page }}
+        {{- end -}}
+        {{- $thumbnail := .thumbnail_url -}}
+        {{- $original := $thumbnail | replaceRE "(_.*\\.)" "." -}}
+        <div class="{{ $class }}">
+          <a href="{{ .provider_url }}{{ .video_id }}" rel="noopener" target="_blank">
+            <img src="{{ $thumbnail }}" srcset="{{ $thumbnail }} 1x, {{ $original }} 2x" alt="{{ .title }}">
+            <div class="play">
+              {{ template "__h_simple_icon_play" $.page }}
+            </div>
+          </a>
+        </div>
+      {{- end -}}
+    {{- end -}}
+  {{- else -}}
+    {{- warnidf "shortcode-vimeo-simple" "The %q shortcode was unable to retrieve the remote data. See %s" .name .position -}}
+  {{- end -}}
 {{- end -}}
