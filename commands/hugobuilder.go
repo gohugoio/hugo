@@ -361,34 +361,32 @@ func (c *hugoBuilder) newWatcher(pollIntervalStr string, dirList ...string) (*wa
 	return watcher, nil
 }
 
-func (c *hugoBuilder) build() error {
+func (c *hugoBuilder) build() (func(), error) {
 	stopProfiling, err := c.initProfiling()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	defer func() {
-		if stopProfiling != nil {
-			stopProfiling()
-		}
-	}()
-
 	if err := c.fullBuild(false); err != nil {
-		return err
+		return nil, err
 	}
 
 	if !c.r.quiet {
 		c.r.Println()
 		h, err := c.hugo()
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		h.PrintProcessingStats(os.Stdout)
 		c.r.Println()
 	}
 
-	return nil
+	return func() {
+		if stopProfiling != nil {
+			stopProfiling()
+		}
+	}, nil
 }
 
 func (c *hugoBuilder) buildSites(noBuildLock bool) (err error) {

@@ -163,15 +163,15 @@ func (r *Spec) NewResource(rd ResourceSourceDescriptor) (resource.Resource, erro
 	}
 
 	gr := &genericResource{
-		Staler:          &AtomicStaler{},
-		h:               &resourceHash{},
-		paths:           rp,
-		spec:            r,
-		sd:              rd,
-		params:          make(map[string]any),
-		name:            rd.Name,
-		title:           rd.Name,
-		resourceContent: &resourceContent{},
+		Staler:      &AtomicStaler{},
+		h:           &resourceHash{},
+		publishInit: &sync.Once{},
+		paths:       rp,
+		spec:        r,
+		sd:          rd,
+		params:      make(map[string]any),
+		name:        rd.Name,
+		title:       rd.Name,
 	}
 
 	if rd.MediaType.MainType == "image" {

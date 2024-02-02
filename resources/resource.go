@@ -343,7 +343,7 @@ func GetTestInfoForResource(r resource.Resource) GenericResourceTestInfo {
 
 // genericResource represents a generic linkable resource.
 type genericResource struct {
-	*resourceContent
+	publishInit *sync.Once
 
 	sd    ResourceSourceDescriptor
 	paths internal.ResourcePaths
@@ -412,11 +412,18 @@ func (l *genericResource) cloneTo(targetPath string) resource.Resource {
 }
 
 func (l *genericResource) Content(context.Context) (any, error) {
-	if err := l.initContent(); err != nil {
-		return nil, err
+	r, err := l.ReadSeekCloser()
+	if err != nil {
+		return "", err
 	}
+	defer r.Close()
 
-	return l.content, nil
+	var b []byte
+	b, err = io.ReadAll(r)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
 }
 
 func (r *genericResource) Err() resource.ResourceError {
@@ -527,28 +534,6 @@ func (l *genericResource) Title() string {
 	return l.title
 }
 
-func (l *genericResource) initContent() error {
-	var err error
-	l.contentInit.Do(func() {
-		var r hugio.ReadSeekCloser
-		r, err = l.ReadSeekCloser()
-		if err != nil {
-			return
-		}
-		defer r.Close()
-
-		var b []byte
-		b, err = io.ReadAll(r)
-		if err != nil {
-			return
-		}
-
-		l.content = string(b)
-	})
-
-	return err
-}
-
 func (l *genericResource) getSpec() *Spec {
 	return l.spec
 }
@@ -588,12 +573,9 @@ func (rc *genericResource) cloneWithUpdates(u *transformationUpdate) (baseResour
 	r := rc.clone()
 
 	if u.content != nil {
-		r.contentInit.Do(func() {
-			r.content = *u.content
-			r.sd.OpenReadSeekCloser = func() (hugio.ReadSeekCloser, error) {
-				return hugio.NewReadSeekerNoOpCloserFromString(r.content), nil
-			}
-		})
+		r.sd.OpenReadSeekCloser = func() (hugio.ReadSeekCloser, error) {
+			return hugio.NewReadSeekerNoOpCloserFromString(*u.content), nil
+		}
 	}
 
 	r.sd.MediaType = u.mediaType
@@ -620,7 +602,7 @@ func (rc *genericResource) cloneWithUpdates(u *transformationUpdate) (baseResour
 }
 
 func (l genericResource) clone() *genericResource {
-	l.resourceContent = &resourceContent{}
+	l.publishInit = &sync.Once{}
 	return &l
 }
 
@@ -631,13 +613,6 @@ func (r *genericResource) openPublishFileForWriting(relTargetPath string) (io.Wr
 
 type targetPather interface {
 	TargetPath() string
-}
-
-type resourceContent struct {
-	content     string
-	contentInit sync.Once
-
-	publishInit sync.Once
 }
 
 type resourceHash struct {
