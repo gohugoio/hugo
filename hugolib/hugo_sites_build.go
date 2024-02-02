@@ -720,9 +720,11 @@ func (h *HugoSites) processPartial(ctx context.Context, l logg.LevelLogger, conf
 			h.pageTrees.treeTaxonomyEntries.DeletePrefix("")
 
 			if delete {
+
 				_, ok := h.pageTrees.treePages.LongestPrefixAll(pathInfo.Base())
 				if ok {
 					h.pageTrees.treePages.DeleteAll(pathInfo.Base())
+					h.pageTrees.resourceTrees.DeleteAll(pathInfo.Base())
 					if pathInfo.IsBundle() {
 						// Assume directory removed.
 						h.pageTrees.treePages.DeletePrefixAll(pathInfo.Base() + "/")

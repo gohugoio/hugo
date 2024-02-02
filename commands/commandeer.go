@@ -22,6 +22,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -341,8 +342,12 @@ func (r *rootCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args 
 		if r.buildWatch {
 			defer r.timeTrack(time.Now(), "Built")
 		}
-		err := b.build()
-		return err
+		close, err := b.build()
+		if err != nil {
+			return err
+		}
+		close()
+		return nil
 	}()
 	if err != nil {
 		return err
@@ -411,6 +416,7 @@ func (r *rootCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 		MaxEntries: 1,
 		OnEvict: func(key int32, value *hugolib.HugoSites) {
 			value.Close()
+			runtime.GC()
 		},
 	})
 

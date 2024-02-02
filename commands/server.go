@@ -25,6 +25,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	_ "net/http/pprof"
 	"net/url"
 	"os"
 	"os/signal"
@@ -451,6 +452,7 @@ type serverCommand struct {
 	tlsCertFile         string
 	tlsKeyFile          string
 	tlsAuto             bool
+	pprof               bool
 	serverPort          int
 	liveReloadPort      int
 	serverWatch         bool
@@ -465,6 +467,11 @@ func (c *serverCommand) Name() string {
 }
 
 func (c *serverCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args []string) error {
+	if c.pprof {
+		go func() {
+			http.ListenAndServe("localhost:8080", nil)
+		}()
+	}
 	// Watch runs its own server as part of the routine
 	if c.serverWatch {
 
@@ -487,14 +494,18 @@ func (c *serverCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 
 	}
 
+	var close func()
 	err := func() error {
 		defer c.r.timeTrack(time.Now(), "Built")
-		err := c.build()
+		var err error
+		close, err = c.build()
 		return err
 	}()
 	if err != nil {
 		return err
 	}
+
+	defer close()
 
 	return c.serve()
 }
@@ -520,6 +531,7 @@ of a second, you will be able to save and see your changes nearly instantly.`
 	cmd.Flags().StringVarP(&c.tlsCertFile, "tlsCertFile", "", "", "path to TLS certificate file")
 	cmd.Flags().StringVarP(&c.tlsKeyFile, "tlsKeyFile", "", "", "path to TLS key file")
 	cmd.Flags().BoolVar(&c.tlsAuto, "tlsAuto", false, "generate and use locally-trusted certificates.")
+	cmd.Flags().BoolVar(&c.pprof, "pprof", false, "enable the pprof server (port 8080)")
 	cmd.Flags().BoolVarP(&c.serverWatch, "watch", "w", true, "watch filesystem for changes and recreate as needed")
 	cmd.Flags().BoolVar(&c.noHTTPCache, "noHTTPCache", false, "prevent HTTP caching")
 	cmd.Flags().BoolVarP(&c.serverAppend, "appendPort", "", true, "append port to baseURL")

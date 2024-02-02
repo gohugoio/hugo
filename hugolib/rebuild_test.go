@@ -101,10 +101,10 @@ func TestRebuildEditTextFileInBranchBundle(t *testing.T) {
 
 func TestRebuildRenameTextFileInLeafBundle(t *testing.T) {
 	b := TestRunning(t, rebuildFilesSimple)
-	b.AssertFileContent("public/mysection/mysectionbundle/index.html", "My Section Bundle Text 2 Content.")
+	b.AssertFileContent("public/mysection/mysectionbundle/index.html", "My Section Bundle Text 2 Content.", "Len Resources: 2|")
 
 	b.RenameFile("content/mysection/mysectionbundle/mysectionbundletext.txt", "content/mysection/mysectionbundle/mysectionbundletext2.txt").Build()
-	b.AssertFileContent("public/mysection/mysectionbundle/index.html", "mysectionbundletext2", "My Section Bundle Text 2 Content.")
+	b.AssertFileContent("public/mysection/mysectionbundle/index.html", "mysectionbundletext2", "My Section Bundle Text 2 Content.", "Len Resources: 2|")
 	b.AssertRenderCountPage(3)
 	b.AssertRenderCountContent(3)
 }
