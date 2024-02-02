@@ -949,9 +949,10 @@ func (c *hugoBuilder) loadConfig(cd *simplecobra.Commandeer, running bool) error
 	cfg.Set("environment", c.r.environment)
 
 	cfg.Set("internal", maps.Params{
-		"running": running,
-		"watch":   watch,
-		"verbose": c.r.isVerbose(),
+		"running":        running,
+		"watch":          watch,
+		"verbose":        c.r.isVerbose(),
+		"fastRenderMode": c.fastRenderMode,
 	})
 
 	conf, err := c.r.ConfigFromProvider(c.r.configVersionID.Load(), flagsToCfg(cd, cfg))

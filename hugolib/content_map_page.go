@@ -1018,14 +1018,6 @@ func (h *HugoSites) resolveAndClearStateForIdentities(
 					b = cachebuster(s)
 				}
 
-				if b {
-					identity.WalkIdentitiesShallow(v, func(level int, id identity.Identity) bool {
-						// Add them to the change set so we can reset any page that depends on them.
-						changes = append(changes, id)
-						return false
-					})
-				}
-
 				return b
 			}
 
@@ -1035,6 +1027,15 @@ func (h *HugoSites) resolveAndClearStateForIdentities(
 		}); err != nil {
 			return err
 		}
+	}
+
+	// Drain the the cache eviction stack.
+	evicted := h.Deps.MemCache.DrainEvictedIdentities()
+	if len(evicted) < 200 {
+		changes = append(changes, evicted...)
+	} else {
+		// Mass eviction, we might as well invalidate everything.
+		changes = []identity.Identity{identity.GenghisKhan}
 	}
 
 	// Remove duplicates

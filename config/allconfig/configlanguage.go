@@ -73,6 +73,10 @@ func (c ConfigLanguage) IsMultihost() bool {
 	return c.m.IsMultihost
 }
 
+func (c ConfigLanguage) FastRenderMode() bool {
+	return c.config.Internal.FastRenderMode
+}
+
 func (c ConfigLanguage) IsMultiLingual() bool {
 	return len(c.m.Languages) > 1
 }
