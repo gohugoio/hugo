@@ -57,6 +57,7 @@ type AllProvider interface {
 	BuildDrafts() bool
 	Running() bool
 	Watching() bool
+	FastRenderMode() bool
 	PrintUnusedTemplates() bool
 	EnableMissingTranslationPlaceholders() bool
 	TemplateMetrics() bool

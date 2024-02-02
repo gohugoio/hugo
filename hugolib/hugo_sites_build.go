@@ -57,6 +57,9 @@ import (
 func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 	infol := h.Log.InfoCommand("build")
 	defer loggers.TimeTrackf(infol, time.Now(), nil, "")
+	defer func() {
+		h.buildCounter.Add(1)
+	}()
 
 	if h.Deps == nil {
 		panic("must have deps")
@@ -769,8 +772,9 @@ func (h *HugoSites) processPartial(ctx context.Context, l logg.LevelLogger, conf
 			}
 		case files.ComponentFolderAssets:
 			logger.Println("Asset changed", pathInfo.Path())
-			r, _ := h.ResourceSpec.ResourceCache.Get(context.Background(), dynacache.CleanKey(pathInfo.Base()))
+
 			var hasID bool
+			r, _ := h.ResourceSpec.ResourceCache.Get(context.Background(), dynacache.CleanKey(pathInfo.Base()))
 			identity.WalkIdentitiesShallow(r, func(level int, rid identity.Identity) bool {
 				hasID = true
 				changes = append(changes, rid)

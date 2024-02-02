@@ -25,6 +25,7 @@ import (
 
 	"github.com/bep/lazycache"
 	"github.com/bep/logg"
+	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/paths"
@@ -63,11 +64,26 @@ func New(opts Options) *Cache {
 
 	infol := opts.Log.InfoCommand("dynacache")
 
+	evictedIdentities := collections.NewStack[identity.Identity]()
+
+	onEvict := func(k, v any) {
+		if !opts.Running {
+			return
+		}
+		identity.WalkIdentitiesShallow(v, func(level int, id identity.Identity) bool {
+			evictedIdentities.Push(id)
+			return false
+		})
+		resource.MarkStale(v)
+	}
+
 	c := &Cache{
-		partitions: make(map[string]PartitionManager),
-		opts:       opts,
-		stats:      stats,
-		infol:      infol,
+		partitions:        make(map[string]PartitionManager),
+		onEvict:           onEvict,
+		evictedIdentities: evictedIdentities,
+		opts:              opts,
+		stats:             stats,
+		infol:             infol,
 	}
 
 	c.stop = c.start()
@@ -106,12 +122,21 @@ type Cache struct {
 	mu sync.RWMutex
 
 	partitions map[string]PartitionManager
-	opts       Options
-	infol      logg.LevelLogger
+
+	onEvict           func(k, v any)
+	evictedIdentities *collections.Stack[identity.Identity]
+
+	opts  Options
+	infol logg.LevelLogger
 
 	stats    *stats
 	stopOnce sync.Once
 	stop     func()
+}
+
+// DrainEvictedIdentities drains the evicted identities from the cache.
+func (c *Cache) DrainEvictedIdentities() []identity.Identity {
+	return c.evictedIdentities.Drain()
 }
 
 // ClearMatching clears all partition for which the predicate returns true.
@@ -318,9 +343,13 @@ func GetOrCreatePartition[K comparable, V any](c *Cache, name string, opts Optio
 	const numberOfPartitionsEstimate = 10
 	maxSize := opts.CalculateMaxSize(c.opts.MaxSize / numberOfPartitionsEstimate)
 
+	onEvict := func(k K, v V) {
+		c.onEvict(k, v)
+	}
+
 	// Create a new partition and cache it.
 	partition := &Partition[K, V]{
-		c:       lazycache.New(lazycache.Options[K, V]{MaxEntries: maxSize}),
+		c:       lazycache.New(lazycache.Options[K, V]{MaxEntries: maxSize, OnEvict: onEvict}),
 		maxSize: maxSize,
 		trace:   c.opts.Log.Logger().WithLevel(logg.LevelTrace).WithField("partition", name),
 		opts:    opts,
@@ -445,7 +474,6 @@ func (p *Partition[K, V]) clearOnRebuild(changeset ...identity.Identity) {
 					},
 				),
 			)
-			resource.MarkStale(v)
 			return true
 		}
 		return false
@@ -482,6 +510,10 @@ func (p *Partition[K, V]) clearStale() {
 func (p *Partition[K, V]) adjustMaxSize(newMaxSize int) int {
 	if newMaxSize < minMaxSize {
 		newMaxSize = minMaxSize
+	}
+	oldMaxSize := p.maxSize
+	if newMaxSize == oldMaxSize {
+		return 0
 	}
 	p.maxSize = newMaxSize
 	// fmt.Println("Adjusting max size of partition from", oldMaxSize, "to", newMaxSize)
@@ -535,7 +567,7 @@ type stats struct {
 func (s *stats) adjustCurrentMaxSize() bool {
 	newCurrentMaxSize := int(math.Floor(float64(s.opts.MaxSize) * s.adjustmentFactor))
 
-	if newCurrentMaxSize < s.opts.MaxSize {
+	if newCurrentMaxSize < s.opts.MinMaxSize {
 		newCurrentMaxSize = int(s.opts.MinMaxSize)
 	}
 	changed := newCurrentMaxSize != s.currentMaxSize

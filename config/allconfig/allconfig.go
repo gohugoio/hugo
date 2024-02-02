@@ -65,6 +65,7 @@ type InternalConfig struct {
 	Verbose        bool
 	Clock          string
 	Watch          bool
+	FastRenderMode bool
 	LiveReloadPort int
 }
 

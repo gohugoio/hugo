@@ -99,6 +99,8 @@ type HugoSites struct {
 
 	*fatalErrorHandler
 	*buildCounters
+	// Tracks invocations of the Build method.
+	buildCounter atomic.Uint64
 }
 
 // ShouldSkipFileChangeEvent allows skipping filesystem event early before
@@ -420,10 +422,9 @@ func (cfg *BuildCfg) shouldRender(p *pageState) bool {
 		return false
 	}
 
-	fastRenderMode := cfg.RecentlyVisited.Len() > 0
+	fastRenderMode := p.s.Conf.FastRenderMode()
 
-	if !fastRenderMode {
-		// Not in fast render mode or first time render.
+	if !fastRenderMode || p.s.h.buildCounter.Load() == 0 {
 		return shouldRender
 	}
 
