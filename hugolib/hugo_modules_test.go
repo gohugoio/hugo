@@ -677,6 +677,30 @@ title: "My Page"
 	b.AssertFileContent("public/mypage/index.html", "Permalink: https://example.org/mypage/|")
 }
 
+func TestMountsPathDemo(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL="https://example.org"
+[module]
+[[module.mounts]]
+source="mycontent/foo"
+target="content/bar"
+-- mycontent/foo/mypage.md --
+---
+title: "My Page"
+---
+-- layouts/_default/single.html --
+Path: {{ .Path }}|
+
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/bar/mypage/index.html", "Path: /bar/mypage|")
+}
+
 // https://github.com/gohugoio/hugo/issues/6684
 func TestMountsContentFile(t *testing.T) {
 	files := `
