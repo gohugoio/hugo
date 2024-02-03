@@ -55,17 +55,17 @@ func NewReadSeekerNoOpCloser(r ReadSeeker) ReadSeekCloser {
 // NewReadSeekerNoOpCloserFromString uses strings.NewReader to create a new ReadSeekerNoOpCloser
 // from the given string.
 func NewReadSeekerNoOpCloserFromString(content string) ReadSeekCloser {
-	return strigReadSeeker{s: content, readSeekerNopCloser: readSeekerNopCloser{strings.NewReader(content)}}
+	return stringReadSeeker{s: content, readSeekerNopCloser: readSeekerNopCloser{strings.NewReader(content)}}
 }
 
-var _ StringReader = (*strigReadSeeker)(nil)
+var _ StringReader = (*stringReadSeeker)(nil)
 
-type strigReadSeeker struct {
+type stringReadSeeker struct {
 	s string
 	readSeekerNopCloser
 }
 
-func (s *strigReadSeeker) ReadString() string {
+func (s *stringReadSeeker) ReadString() string {
 	return s.s
 }
 
