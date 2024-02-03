@@ -187,7 +187,7 @@ Any of the above can be omitted.
 {{% note %}}
 When making a site that supports multiple languages, defining a `[[cascade]]` is recommended to be done in [Site Config](../../getting-started/configuration/#cascade) to prevent duplication.
 
-If you instea define a `[[cascade]]` in front matter for multiple languages, an `content/XX/foo/_index.md` file needs to be made on a per-language basis, with `XX` the glob pattern matching the Page's language. In this case, the **lang** keyword is ignored. 
+If you instead define a `[[cascade]]` in front matter for multiple languages, an `content/XX/foo/_index.md` file needs to be made on a per-language basis, with `XX` the glob pattern matching the Page's language. In this case, the **lang** keyword is ignored. 
 {{% /note %}}
 
 ### Example
