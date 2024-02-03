@@ -11,6 +11,7 @@ menu:
     weight: 10
 weight: 10
 showSectionMenu: true
+aliases: ['/variables/']
 ---
 
 Use these methods within your templates.
