@@ -1239,7 +1239,9 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 		}
 
 		// Combine the cascade map with front matter.
-		pageBundle.setMetaPost(cascade)
+		if err := pageBundle.setMetaPost(cascade); err != nil {
+			return false, err
+		}
 
 		// We receive cascade values from above. If this leads to a change compared
 		// to the previous value, we need to mark the page and its dependencies as changed.
@@ -1304,7 +1306,9 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 				if data != nil {
 					cascade = data.(map[page.PageMatcher]maps.Params)
 				}
-				pageResource.setMetaPost(cascade)
+				if err := pageResource.setMetaPost(cascade); err != nil {
+					return false, err
+				}
 			}
 
 			return false, nil
@@ -1369,7 +1373,9 @@ func (sa *sitePagesAssembler) applyAggregatesToTaxonomiesAndTerms() error {
 					if data != nil {
 						cascade = data.(map[page.PageMatcher]maps.Params)
 					}
-					p.setMetaPost(cascade)
+					if err := p.setMetaPost(cascade); err != nil {
+						return false, err
+					}
 
 					if err := sa.pageMap.treeTaxonomyEntries.WalkPrefix(
 						doctree.LockTypeRead,

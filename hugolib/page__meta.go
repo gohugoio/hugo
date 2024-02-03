@@ -428,15 +428,29 @@ func (p *pageState) setMetaPostParams() error {
 	}
 
 	var buildConfig any
+	var isNewBuildKeyword bool
 	if v, ok := pm.pageConfig.Params["_build"]; ok {
 		buildConfig = v
 	} else {
 		buildConfig = pm.pageConfig.Params["build"]
+		isNewBuildKeyword = true
 	}
-
 	pm.pageConfig.Build, err = pagemeta.DecodeBuildConfig(buildConfig)
 	if err != nil {
-		return err
+		//lint:ignore ST1005 end user message.
+		var msgDetail string
+		if isNewBuildKeyword {
+			msgDetail = `. We renamed the _build keyword to build in Hugo 0.123.0. We recommend putting user defined params in the params section, e.g.:
+---
+title: "My Title"
+params:
+  build: "My Build"
+---
+´   
+
+`
+		}
+		return fmt.Errorf("failed to decode build config in front matter: %s%s", err, msgDetail)
 	}
 
 	var sitemapSet bool

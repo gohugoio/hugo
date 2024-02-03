@@ -181,3 +181,24 @@ lang = 'nn'
 	b, err := TestE(t, files)
 	b.Assert(err, qt.IsNotNil)
 }
+
+// Issue 11970.
+func TestFrontMatterBuildIsHugoKeyword(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+-- content/p1.md --
+---
+title: "P1"
+build: "foo"
+---
+-- layouts/_default/single.html --
+Params: {{ range $k, $v := .Params }}{{ $k }}: {{ $v }}|{{ end }}$
+`
+	b, err := TestE(t, files)
+
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, "We renamed the _build keyword")
+}
