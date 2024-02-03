@@ -418,12 +418,7 @@ func (l *genericResource) Content(context.Context) (any, error) {
 	}
 	defer r.Close()
 
-	var b []byte
-	b, err = io.ReadAll(r)
-	if err != nil {
-		return "", err
-	}
-	return string(b), nil
+	return hugio.ReadString(r)
 }
 
 func (r *genericResource) Err() resource.ResourceError {
