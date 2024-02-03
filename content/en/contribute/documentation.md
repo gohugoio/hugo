@@ -325,32 +325,44 @@ Step 2
 : Clone your fork.
 
 Step 3
-: Create a new branch with a descriptive name.
+: Create a new branch with a descriptive name that includes the corresponding issue number, if any:
 
 ```sh
-git checkout -b fix/typos-shortcode-templates
+git checkout -b restructure-foo-page-99999
 ```
 
 Step 4
 : Make changes.
 
 Step 5
-: Commit your changes with a descriptive commit message, typically 50 characters or less. Add the "Closes" keyword if your change addresses one or more open [issues].
-
-```sh
-git commit -m "Fix typos on the shortcode templates page
-
-Closes #1234
-Closes #5678"
-```
+: Build the site locally to preview your changes.
 
 Step 6
-: Push the new branch to your fork of the documentation repository.
+: Commit your changes with a descriptive commit message:
+
+- Provide a summary on the first line, typically 50 characters or less, followed by a blank line.
+- Optionally, provide a detailed description where each line is 80 characters or less, followed by a blank line.
+- Optionally, add one or more "Fixes" or "Closes" keywords, each on its own line, referencing the [issues] addressed by this change.
+
+For example:
+
+```sh
+git commit -m "Restructure the taxonomy page
+
+This restructures the taxonomy page by splitting topics into logical
+sections, each with one or more examples.
+
+Fixes #9999
+Closes #9998"
+```
 
 Step 7
-: Visit the [documentation repository] and create a pull request (PR).
+: Push the new branch to your fork of the documentation repository.
 
 Step 8
+: Visit the [documentation repository] and create a pull request (PR).
+
+Step 9
 : A project maintainer will review your PR and may request changes. You may delete your branch after the maintainer merges your PR.
 
 [ATX]: https://spec.commonmark.org/0.30/#atx-headings
