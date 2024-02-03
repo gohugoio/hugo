@@ -18,6 +18,7 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 
 	qt "github.com/frankban/quicktest"
@@ -128,7 +129,7 @@ func TestDecodeCascadeConfig(t *testing.T) {
 		},
 	}
 
-	got, err := DecodeCascadeConfig(in)
+	got, err := DecodeCascadeConfig(loggers.NewDefault(), in)
 
 	c.Assert(err, qt.IsNil)
 	c.Assert(got, qt.IsNotNil)
@@ -150,7 +151,7 @@ func TestDecodeCascadeConfig(t *testing.T) {
 		{Params: maps.Params{"b": string("bv")}, Target: PageMatcher{Kind: "page"}},
 	})
 
-	got, err = DecodeCascadeConfig(nil)
+	got, err = DecodeCascadeConfig(loggers.NewDefault(), nil)
 	c.Assert(err, qt.IsNil)
 	c.Assert(got, qt.IsNotNil)
 }
@@ -171,4 +172,18 @@ func (c testConfig) Running() bool {
 
 func (c testConfig) WorkingDir() string {
 	return c.workingDir
+}
+
+func TestIsGlobWithExtension(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(isGlobWithExtension("index.md"), qt.Equals, true)
+	c.Assert(isGlobWithExtension("foo/index.html"), qt.Equals, true)
+	c.Assert(isGlobWithExtension("posts/page"), qt.Equals, false)
+	c.Assert(isGlobWithExtension("pa.th/foo"), qt.Equals, false)
+	c.Assert(isGlobWithExtension(""), qt.Equals, false)
+	c.Assert(isGlobWithExtension("*.md?"), qt.Equals, true)
+	c.Assert(isGlobWithExtension("*.md*"), qt.Equals, true)
+	c.Assert(isGlobWithExtension("posts/*"), qt.Equals, false)
+	c.Assert(isGlobWithExtension("*.md"), qt.Equals, true)
 }

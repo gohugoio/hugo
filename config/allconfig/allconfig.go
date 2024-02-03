@@ -965,7 +965,7 @@ func decodeConfigFromParams(fs afero.Fs, logger loggers.Logger, bcfg config.Base
 	})
 
 	for _, v := range decoderSetups {
-		p := decodeConfig{p: p, c: target, fs: fs, bcfg: bcfg}
+		p := decodeConfig{p: p, c: target, fs: fs, logger: logger, bcfg: bcfg}
 		if err := v.decode(v, p); err != nil {
 			return fmt.Errorf("failed to decode %q: %w", v.key, err)
 		}

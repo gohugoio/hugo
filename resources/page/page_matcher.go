@@ -18,6 +18,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs/glob"
@@ -90,7 +91,14 @@ var disallowedCascadeKeys = map[string]bool{
 	"lang": true,
 }
 
-func DecodeCascadeConfig(in any) (*config.ConfigNamespace[[]PageMatcherParamsConfig, map[PageMatcher]maps.Params], error) {
+// See issue 11977.
+func isGlobWithExtension(s string) bool {
+	pathParts := strings.Split(s, "/")
+	last := pathParts[len(pathParts)-1]
+	return strings.Count(last, ".") > 0
+}
+
+func DecodeCascadeConfig(logger loggers.Logger, in any) (*config.ConfigNamespace[[]PageMatcherParamsConfig, map[PageMatcher]maps.Params], error) {
 	buildConfig := func(in any) (map[PageMatcher]maps.Params, any, error) {
 		cascade := make(map[PageMatcher]maps.Params)
 		if in == nil {
@@ -119,6 +127,9 @@ func DecodeCascadeConfig(in any) (*config.ConfigNamespace[[]PageMatcherParamsCon
 
 		for _, cfg := range cfgs {
 			m := cfg.Target
+			if isGlobWithExtension(m.Path) {
+				logger.Erroridf("cascade-pattern-with-extension", "cascade target path %q looks like a path with an extension; since Hugo v0.123.0 this will not match anything, see  https://gohugo.io/methods/page/path/", m.Path)
+			}
 			c, found := cascade[m]
 			if found {
 				// Merge
@@ -139,8 +150,8 @@ func DecodeCascadeConfig(in any) (*config.ConfigNamespace[[]PageMatcherParamsCon
 }
 
 // DecodeCascade decodes in which could be either a map or a slice of maps.
-func DecodeCascade(in any) (map[PageMatcher]maps.Params, error) {
-	conf, err := DecodeCascadeConfig(in)
+func DecodeCascade(logger loggers.Logger, in any) (map[PageMatcher]maps.Params, error) {
+	conf, err := DecodeCascadeConfig(logger, in)
 	if err != nil {
 		return nil, err
 	}
