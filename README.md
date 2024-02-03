@@ -17,4 +17,4 @@ Please see the [contributing] section for guidelines, examples, and process.
 [spf13]: https://github.com/spf13
 [friends]: https://github.com/gohugoio/hugo/graphs/contributors
 [go]: https://go.dev/
-[contributing]: https://gohugo.io/contribute/development/
+[contributing]: https://gohugo.io/contribute/documentation
