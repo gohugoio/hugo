@@ -116,8 +116,8 @@ func createTargetPathDescriptor(p *pageState) (page.TargetPathDescriptor, error)
 	pageInfoPage := p.PathInfo()
 	pageInfoCurrentSection := p.CurrentSection().PathInfo()
 	if p.s.Conf.DisablePathToLower() {
-		pageInfoPage = pageInfoPage.Unmormalized()
-		pageInfoCurrentSection = pageInfoCurrentSection.Unmormalized()
+		pageInfoPage = pageInfoPage.Unnormalized()
+		pageInfoCurrentSection = pageInfoCurrentSection.Unnormalized()
 	}
 
 	desc := page.TargetPathDescriptor{

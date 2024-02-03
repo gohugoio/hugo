@@ -502,7 +502,7 @@ func (h *HugoSites) handleDataFile(r *source.File) error {
 
 	// Crawl in data tree to insert data
 	current = h.data
-	dataPath := r.FileInfo().Meta().PathInfo.Unmormalized().Dir()[1:]
+	dataPath := r.FileInfo().Meta().PathInfo.Unnormalized().Dir()[1:]
 	keyParts := strings.Split(dataPath, "/")
 
 	for _, key := range keyParts {

@@ -1554,7 +1554,7 @@ func (sa *sitePagesAssembler) assembleResources() error {
 						return false, nil
 					}
 
-					relPathOriginal := rs.path.Unmormalized().PathRel(ps.m.pathInfo.Unmormalized())
+					relPathOriginal := rs.path.Unnormalized().PathRel(ps.m.pathInfo.Unnormalized())
 					relPath := rs.path.BaseRel(ps.m.pathInfo)
 
 					var targetBasePaths []string
@@ -1759,7 +1759,7 @@ func (sa *sitePagesAssembler) addMissingRootSections() error {
 			seen[section] = true
 
 			// Try to preserve the original casing if possible.
-			sectionUnnormalized := p.Unmormalized().Section()
+			sectionUnnormalized := p.Unnormalized().Section()
 			pth := sa.s.Conf.PathParser().Parse(files.ComponentFolderContent, "/"+sectionUnnormalized+"/_index.md")
 			nn := w.Tree.Get(pth.Base())
 

@@ -93,7 +93,7 @@ func TestParse(t *testing.T) {
 			"Basic text file, mixed case and spaces, unnormalized",
 			"/a/Foo BAR.txt",
 			func(c *qt.C, p *Path) {
-				pp := p.Unmormalized()
+				pp := p.Unnormalized()
 				c.Assert(pp, qt.IsNotNil)
 				c.Assert(pp.BaseNameNoIdentifier(), qt.Equals, "Foo BAR")
 			},

@@ -195,7 +195,7 @@ func (p *pageMeta) Name() string {
 		return p.resourcePath
 	}
 	if p.pageConfig.Kind == kinds.KindTerm {
-		return p.pathInfo.Unmormalized().BaseNameNoIdentifier()
+		return p.pathInfo.Unnormalized().BaseNameNoIdentifier()
 	}
 	return p.Title()
 }
@@ -742,7 +742,7 @@ func (p *pageMeta) applyDefaultValues() error {
 		case kinds.KindHome:
 			p.pageConfig.Title = p.s.Title()
 		case kinds.KindSection:
-			sectionName := p.pathInfo.Unmormalized().BaseNameNoIdentifier()
+			sectionName := p.pathInfo.Unnormalized().BaseNameNoIdentifier()
 			if p.s.conf.PluralizeListTitles {
 				sectionName = flect.Pluralize(sectionName)
 			}
@@ -754,7 +754,7 @@ func (p *pageMeta) applyDefaultValues() error {
 				panic("term not set")
 			}
 		case kinds.KindTaxonomy:
-			p.pageConfig.Title = strings.Replace(p.s.conf.C.CreateTitle(p.pathInfo.Unmormalized().BaseNameNoIdentifier()), "-", " ", -1)
+			p.pageConfig.Title = strings.Replace(p.s.conf.C.CreateTitle(p.pathInfo.Unnormalized().BaseNameNoIdentifier()), "-", " ", -1)
 		case kinds.KindStatus404:
 			p.pageConfig.Title = "404 Page not found"
 		}

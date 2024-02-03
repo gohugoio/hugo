@@ -359,8 +359,8 @@ func (p *Path) Path() (d string) {
 	return p.norm(p.s)
 }
 
-// Unmormalized returns the Path with the original case preserved.
-func (p *Path) Unmormalized() *Path {
+// Unnormalized returns the Path with the original case preserved.
+func (p *Path) Unnormalized() *Path {
 	return p.unnormalized
 }
 
