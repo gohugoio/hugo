@@ -130,7 +130,7 @@ func (fi *File) pathToDir(s string) string {
 }
 
 func (fi *File) p() *paths.Path {
-	return fi.fim.Meta().PathInfo
+	return fi.fim.Meta().PathInfo.Unmormalized()
 }
 
 func NewFileInfoFrom(path, filename string) *File {

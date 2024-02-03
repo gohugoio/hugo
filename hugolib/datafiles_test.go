@@ -47,3 +47,20 @@ d: {{  site.Data.d.v1 }}|
 		b.AssertFileContent("public/index.html", "a: a_v1|\nb: b_v1|\ncd: c_d_v1|\nd: d_v1_theme|")
 	})
 }
+
+func TestDataMixedCaseFolders(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+-- data/MyFolder/MyData.toml --
+v1 = "my_v1"
+-- layouts/index.html --
+{{ site.Data }}
+v1: {{  site.Data.MyFolder.MyData.v1 }}|
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html", "v1: my_v1|")
+}
