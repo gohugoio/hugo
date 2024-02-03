@@ -263,6 +263,7 @@ func (s *siteWrapper) Taxonomies() TaxonomyList {
 }
 
 func (s *siteWrapper) LastChange() time.Time {
+	hugo.Deprecate(".Site.LastChange", "Use .Site.Lastmod instead.", "v0.123.0")
 	return s.s.Lastmod()
 }
 
