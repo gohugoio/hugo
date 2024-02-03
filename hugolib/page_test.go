@@ -1713,7 +1713,7 @@ Single: {{ .Title}}|{{ .RelPermalink }}|{{ .Path }}|
 	b := Test(t, files)
 	b.AssertFileContent("public/sect/p1/index.html", "Single: Page1|/sect/p1/|/sect/p1")
 	b.AssertFileContent("public/sect/PaGe2/index.html", "Single: Page2|/sect/PaGe2/|/sect/p2")
-	b.AssertFileContent("public/sect2/page3/index.html", "Single: Page3|/sect2/page3/|/sect2/page3|")
+	b.AssertFileContent("public/sect2/PaGe3/index.html", "Single: Page3|/sect2/PaGe3/|/sect2/page3|")
 	b.AssertFileContent("public/sect3/Pag.E4/index.html", "Single: Pag.E4|/sect3/Pag.E4/|/sect3/p4|")
 }
 
