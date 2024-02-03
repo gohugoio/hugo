@@ -37,32 +37,47 @@ type ReadSeekCloserProvider interface {
 	ReadSeekCloser() (ReadSeekCloser, error)
 }
 
-// ReadSeekerNoOpCloser implements ReadSeekCloser by doing nothing in Close.
-// TODO(bep) rename this and similar to ReadSeekerNopCloser, naming used in stdlib, which kind of makes sense.
-type ReadSeekerNoOpCloser struct {
+// readSeekerNopCloser implements ReadSeekCloser by doing nothing in Close.
+type readSeekerNopCloser struct {
 	ReadSeeker
 }
 
 // Close does nothing.
-func (r ReadSeekerNoOpCloser) Close() error {
+func (r readSeekerNopCloser) Close() error {
 	return nil
 }
 
 // NewReadSeekerNoOpCloser creates a new ReadSeekerNoOpCloser with the given ReadSeeker.
-func NewReadSeekerNoOpCloser(r ReadSeeker) ReadSeekerNoOpCloser {
-	return ReadSeekerNoOpCloser{r}
+func NewReadSeekerNoOpCloser(r ReadSeeker) ReadSeekCloser {
+	return readSeekerNopCloser{r}
 }
 
 // NewReadSeekerNoOpCloserFromString uses strings.NewReader to create a new ReadSeekerNoOpCloser
 // from the given string.
-func NewReadSeekerNoOpCloserFromString(content string) ReadSeekerNoOpCloser {
-	return ReadSeekerNoOpCloser{strings.NewReader(content)}
+func NewReadSeekerNoOpCloserFromString(content string) ReadSeekCloser {
+	return strigReadSeeker{s: content, readSeekerNopCloser: readSeekerNopCloser{strings.NewReader(content)}}
+}
+
+var _ StringReader = (*strigReadSeeker)(nil)
+
+type strigReadSeeker struct {
+	s string
+	readSeekerNopCloser
+}
+
+func (s *strigReadSeeker) ReadString() string {
+	return s.s
+}
+
+// StringReader provides a way to read a string.
+type StringReader interface {
+	ReadString() string
 }
 
 // NewReadSeekerNoOpCloserFromString uses strings.NewReader to create a new ReadSeekerNoOpCloser
 // from the given bytes slice.
-func NewReadSeekerNoOpCloserFromBytes(content []byte) ReadSeekerNoOpCloser {
-	return ReadSeekerNoOpCloser{bytes.NewReader(content)}
+func NewReadSeekerNoOpCloserFromBytes(content []byte) readSeekerNopCloser {
+	return readSeekerNopCloser{bytes.NewReader(content)}
 }
 
 // NewReadSeekCloser creates a new ReadSeekCloser from the given ReadSeeker.
@@ -77,3 +92,15 @@ func NewOpenReadSeekCloser(r ReadSeekCloser) OpenReadSeekCloser {
 // OpenReadSeekCloser allows setting some other way (than reading from a filesystem)
 // to open or create a ReadSeekCloser.
 type OpenReadSeekCloser func() (ReadSeekCloser, error)
+
+// ReadString reads from the given reader and returns the content as a string.
+func ReadString(r io.Reader) (string, error) {
+	if sr, ok := r.(StringReader); ok {
+		return sr.ReadString(), nil
+	}
+	b, err := io.ReadAll(r)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
+}
