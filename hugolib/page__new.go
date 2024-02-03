@@ -56,7 +56,7 @@ func (h *HugoSites) newPage(m *pageMeta) (*pageState, *paths.Path, error) {
 		return nil, nil, err
 	}
 
-	if err := m.setMetaPre(pi, h.Conf); err != nil {
+	if err := m.setMetaPre(pi, h.Log, h.Conf); err != nil {
 		return nil, nil, m.wrapError(err, h.BaseFs.SourceFs)
 	}
 	pcfg := m.pageConfig

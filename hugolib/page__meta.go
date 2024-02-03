@@ -33,6 +33,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/constants"
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/config"
@@ -272,7 +273,7 @@ func (p *pageMeta) Weight() int {
 	return p.pageConfig.Weight
 }
 
-func (p *pageMeta) setMetaPre(pi *contentParseInfo, conf config.AllProvider) error {
+func (p *pageMeta) setMetaPre(pi *contentParseInfo, logger loggers.Logger, conf config.AllProvider) error {
 	frontmatter := pi.frontMatter
 	if frontmatter != nil {
 		pcfg := p.pageConfig
@@ -285,7 +286,7 @@ func (p *pageMeta) setMetaPre(pi *contentParseInfo, conf config.AllProvider) err
 		// Check for any cascade define on itself.
 		if cv, found := frontmatter["cascade"]; found {
 			var err error
-			cascade, err := page.DecodeCascade(cv)
+			cascade, err := page.DecodeCascade(logger, cv)
 			if err != nil {
 				return err
 			}
@@ -437,7 +438,6 @@ func (p *pageState) setMetaPostParams() error {
 	}
 	pm.pageConfig.Build, err = pagemeta.DecodeBuildConfig(buildConfig)
 	if err != nil {
-		//lint:ignore ST1005 end user message.
 		var msgDetail string
 		if isNewBuildKeyword {
 			msgDetail = `. We renamed the _build keyword to build in Hugo 0.123.0. We recommend putting user defined params in the params section, e.g.:
