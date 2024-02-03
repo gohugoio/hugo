@@ -13,5 +13,5 @@ expiryDate: 2024-10-30 # deprecated 2023-10-30
 {{% deprecated-in 0.120.0 %}}
 Use [`Site.Config.Services.GoogleAnalytics.ID`] instead.
 
-[`Site.Config.Services.GoogleAnalytics.ID`]: /methods/site/config
+[`Site.Config.Services.GoogleAnalytics.ID`]: /methods/site/config/
 {{% /deprecated-in %}}

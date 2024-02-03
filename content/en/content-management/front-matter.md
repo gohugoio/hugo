@@ -71,7 +71,7 @@ The field names below are reserved. For example, you cannot create a custom fiel
 
 (`map`) A map of [build options].
 
-[build options]: /content-management/build-options
+[build options]: /content-management/build-options/
 
 ###### cascade {#cascade-field}
 
@@ -115,16 +115,16 @@ If `true`, the page will not be rendered unless you pass the `--buildDrafts` fla
 
 (`bool`) Set to `true` if the content language is in the [CJK] family. This value determines how Hugo calculates word count, and affects the values returned by the [`WordCount`], [`FuzzyWordCount`], and [`Summary`] methods on a `Page` object.
 
-[`fuzzywordcount`]: /methods/page/wordcount
-[`summary`]: /methods/page/wordcount
-[`wordcount`]: /methods/page/wordcount
+[`fuzzywordcount`]: /methods/page/wordcount/
+[`summary`]: /methods/page/summary/
+[`wordcount`]: /methods/page/wordcount/
 [cjk]: /getting-started/glossary/#cjk
 
 ###### keywords
 
 (`string array`) An array of keywords, typically rendered within a `meta` element within the `head` element of the published HTML file, or used as a [taxonomy] to classify content. Access these values from a template using the [`Keywords`] method on a `Page` object.
 
-[`keywords`]: /methods/page/keywords
+[`keywords`]: /methods/page/keywords/
 [taxonomy]: /getting-started/glossary/#taxonomy
 
 <!-- Added in v0.123.0 but purposefully omitted from documentation. -->
@@ -149,8 +149,8 @@ lang
 
 (`string`) Provide a template name to [target a specific template],  overriding the default [template lookup order]. Set the value to the base file name of the template, excluding its extension. Access this value from a template using the [`Layout`] method on a `Page` object.
 
-[`layout`]: /methods/page/layout
-[template lookup order]: /templates/lookup-order
+[`layout`]: /methods/page/layout/
+[template lookup order]: /templates/lookup-order/
 [target a specific template]: templates/lookup-order/#target-a-template
 
 ###### linkTitle
@@ -172,7 +172,7 @@ Identifier|Content format
 `pdc`|Pandoc
 `rst`|reStructuredText
 
-[content formats]: /content-management/formats
+[content formats]: /content-management/formats/
 
 ###### menus
 
@@ -184,7 +184,7 @@ Identifier|Content format
 
 (`string array`) The [output formats] to render.
 
-[output formats]: /templates/output-formats
+[output formats]: /templates/output-formats/
 
 <!-- Added in v0.123.0 but purposefully omitted from documentation. -->
 <!--
@@ -202,7 +202,7 @@ path
 
 (`string`) The page publication date. Before the publication date, the page will not be rendered unless you pass the `--buildFuture` flag to the `hugo` command. Note that the TOML format also supports date/time values using unquoted strings. Access this value from a template using the [`PublishDate`] method on a `Page` object.
 
-[`publishdate`]: /methods/page/publishdate
+[`publishdate`]: /methods/page/publishdate/
 
 ###### resources
 
@@ -215,26 +215,26 @@ path
 (`map`) A map of sitemap options. See the [sitemap templates] page for details. Access these values from a template using the [`Sitemap`] method on a `Page` object.
 
 [sitemap templates]: /templates/sitemap-template/
-[`sitemap`]: /methods/page/sitemap
+[`sitemap`]: /methods/page/sitemap/
 
 ###### slug
 
 (`string`) Overrides the last segment of the URL path. Not applicable to section pages. See the [URL management] page for details. Access this value from a template using the [`Slug`] method on a `Page` object.
 
-[`slug`]: /methods/page/slug
+[`slug`]: /methods/page/slug/
 [URL management]: /content-management/urls/#slug
 
 ###### summary
 
 (`string`) Conceptually different than the page `description`, the summary either summarizes the content or serves a teaser to encourage readers to visit the page. Access this value from a template using the [`Summary`] method on a `Page` object.
 
-[`Summary`]: /methods/page/summary
+[`Summary`]: /methods/page/summary/
 
 ###### title
 
 (`string`) The page title. Access this value from a template using the [`Title`] method on a `Page` object.
 
-[`title`]: /methods/page/title
+[`title`]: /methods/page/title/
 
 ###### translationKey
 
@@ -247,7 +247,7 @@ path
 (`string`) The [content type], overriding the value derived from the top level section in which the page resides. Access this value from a template using the [`Type`] method on a `Page` object.
 
 [content type]: /getting-started/glossary/#content-type
-[`type`]: /methods/page/type
+[`type`]: /methods/page/type/
 
 ###### url
 
@@ -258,7 +258,7 @@ path
 
 [page collection]: /getting-started/glossary/#page-collection
 [weight]: /getting-started/glossary/#weight
-[`weight`]: /methods/page/weight
+[`weight`]: /methods/page/weight/
 
 ## Parameters
 
@@ -276,8 +276,8 @@ tags = ['red','blue']
 
 Access these values from a template using the [`Params`] or [`Param`] method on a `Page` object.
 
-[`param`]: /methods/page/param
-[`params`]: /methods/page/params
+[`param`]: /methods/page/param/
+[`params`]: /methods/page/params/
 
 ## Cascade
 

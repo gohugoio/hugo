@@ -140,7 +140,7 @@ The `url` is the entire URL path, defined by the file path and optionally overri
 [config]: /getting-started/configuration/
 [formats]: /content-management/formats/
 [front matter]: /content-management/front-matter/
-[getpage]: /methods/page/getpage
+[getpage]: /methods/page/getpage/
 [homepage template]: /templates/homepage/
 [homepage]: /templates/homepage/
 [lists]: /templates/lists/

@@ -46,5 +46,5 @@ Hugo renders the page to:
 {{% note %}}
 In the shortcode template above, the [`with`] statement is used to create conditional blocks. Remember that the `with` statement binds context (the dot) to its expression. Inside of a `with` block, preface shortcode method calls with a `$` to access the top level context passed into the template.
 
-[`with`]: /functions/go-template/with
+[`with`]: /functions/go-template/with/
 {{% /note %}}

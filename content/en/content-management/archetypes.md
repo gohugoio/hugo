@@ -72,10 +72,15 @@ You can use any [template function] within an archetype. As shown above, the def
 
 Archetypes receive the following objects and values in [context]:
 
-- `.Date`
-- `.Type`
-- `.Site` (see [details](/variables/site/))
-- `.File` (see [details](/variables/file/))
+- [`Date`]
+- [`Type`]
+- [`File`]
+- [`Site`]
+
+[`Date`]: /methods/page/date/
+[`Type`]: /methods/page/type/
+[`File`]: /methods/page/
+[`Site`]: /methods/site/
 
 As shown above, the default archetype passes `.File.ContentBaseName` as the argument to the `replace` function when populating the title in front matter.
 

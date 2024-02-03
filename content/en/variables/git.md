@@ -15,4 +15,4 @@ aliases: [/extras/gitinfo/]
 
 To retrieve Git information related to the last commit of any page, see the documentation for the [`GitInfo`] method on a `Page` object.
 
-[`GitInfo`]: /methods/page/gitinfo
+[`GitInfo`]: /methods/page/gitinfo/

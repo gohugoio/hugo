@@ -32,7 +32,7 @@ Create the filter:
 
 Combine with the [`Colors`] method to create a border with one of the image's most dominant colors:
 
-[`Colors`]: /methods/resource/colors
+[`Colors`]: /methods/resource/colors/
 
 ```go-html-template
 {{ with resources.Get "images/original.jpg" }}

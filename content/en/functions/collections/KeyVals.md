@@ -14,7 +14,7 @@ aliases: [/functions/keyvals]
 
 The primary application for this function is the definition of the `namedSlices` parameter in the options map passed to the [`Related`] method on the `Pages` object.
 
-[`Related`]: /methods/pages/related
+[`Related`]: /methods/pages/related/
 
 See [related content](/content-management/related).
 

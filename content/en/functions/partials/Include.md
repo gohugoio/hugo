@@ -17,7 +17,7 @@ aliases: [/functions/partial]
 
 Without a [`return`] statement, the `partial` function returns a string of type `template.HTML`. With a `return` statement, the `partial` function can return any data type.
 
-[`return`]: /functions/go-template/return
+[`return`]: /functions/go-template/return/
 
 In this example we have three partial templates:
 
@@ -79,7 +79,7 @@ To return a value from a partial template, it must contain only one `return` sta
 
 See&nbsp;[details][`return`].
 
-[`return`]: /functions/go-template/return
+[`return`]: /functions/go-template/return/
 
 [breadcrumb navigation]: /content-management/sections/#ancestors-and-descendants
-[details]: /functions/go-template/return
+[details]: /functions/go-template/return/

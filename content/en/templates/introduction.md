@@ -654,21 +654,21 @@ If you restrict front matter to the TOML format, and omit quotation marks surrou
 </ul>
 {{< /code >}}
 
-[`first`]: /functions/collections/first
-[`index`]: /functions/collections/indexfunction
-[`isset`]: /functions/collections/isset
-[config]: /getting-started/configuration
+[`first`]: /functions/collections/first/
+[`index`]: /functions/collections/indexfunction/
+[`isset`]: /functions/collections/isset/
+[config]: /getting-started/configuration/
 [dotdoc]: https://golang.org/pkg/text/template/#hdr-Variables
-[front matter]: /content-management/front-matter
-[functions]: /functions
+[front matter]: /content-management/front-matter/
+[functions]: /functions/
 [identifier]: /getting-started/glossary/#identifier
-[internal templates]: /templates/internal
-[math]: /functions/math
-[pagevars]: /variables/page
-[param]: /methods/page/param
-[partials]: /templates/partials
-[relpermalink]: /variables/page
-[`safehtml`]: /functions/safe/html
-[sitevars]: /variables/site
-[variables]: /variables
-[`with`]: /functions/go-template/with
+[internal templates]: /templates/internal/
+[math]: /functions/math/
+[pagevars]: /methods/page/
+[param]: /methods/page/param/
+[partials]: /templates/partials/
+[relpermalink]: /methods/page/relpermalink/
+[`safehtml`]: /functions/safe/html/
+[sitevars]: /methods/site/
+[variables]: /methods/
+[`with`]: /functions/go-template/with/

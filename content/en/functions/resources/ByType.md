@@ -28,7 +28,7 @@ This function operates on global resources. A global resource is a file within t
 
 For page resources, use the [`Resources.ByType`] method on the Page object.
 
-[`Resources.ByType`]: /methods/page/resources
+[`Resources.ByType`]: /methods/page/resources/
 {{% /note %}}
 
 [media type]: https://en.wikipedia.org/wiki/Media_type

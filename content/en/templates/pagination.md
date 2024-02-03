@@ -151,4 +151,4 @@ The pages are built on the following form (`BLANK` means no value):
 [`after`]: /functions/collections/after/
 [configuration]: /getting-started/configuration/
 [lists]: /templates/lists/
-[`where`]: /functions/collections/where
+[`where`]: /functions/collections/where/

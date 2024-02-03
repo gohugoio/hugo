@@ -500,11 +500,11 @@ If you change image processing methods or options, or if you rename or remove im
 hugo --gc
 ```
 
-[time.Format]: /functions/time/format
+[time.Format]: /functions/time/format/
 [`anchor`]: /content-management/image-processing#anchor
 [mounted]: /hugo-modules/configuration#module-configuration-mounts
-[page bundle]: /content-management/page-bundles
-[`lang.FormatNumber`]: /functions/lang/formatnumber
+[page bundle]: /content-management/page-bundles/
+[`lang.FormatNumber`]: /functions/lang/formatnumber/
 [filters]: /functions/images/filter/#image-filters
 [github.com/disintegration/imaging]: <https://github.com/disintegration/imaging#image-resizing>
 [Smartcrop]: <https://github.com/muesli/smartcrop#smartcrop>

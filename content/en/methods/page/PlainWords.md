@@ -32,5 +32,5 @@ To determine the approximate number of unique words on a page:
 {{ .PlainWords | uniq }} → 42
 ```
 
-[`Plain`]: /methods/page/plain
+[`Plain`]: /methods/page/plain/
 [`strings.Fields`]: https://pkg.go.dev/strings#Fields

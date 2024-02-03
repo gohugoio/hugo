@@ -46,8 +46,8 @@ If the entry is not associated with a page, we use its `url` and `name` properti
 
 See the [menu templates] section for more information.
 
-[`LinkTitle`]: /methods/page/linktitle
-[`RelPermalink`]: /methods/page/relpermalink
+[`LinkTitle`]: /methods/page/linktitle/
+[`RelPermalink`]: /methods/page/relpermalink/
 [define menu entries]: /content-management/menus/
 [menu templates]: /templates/menu-templates/#page-references
-[methods]: /methods/page
+[methods]: /methods/page/

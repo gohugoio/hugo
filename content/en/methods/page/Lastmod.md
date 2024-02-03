@@ -33,8 +33,8 @@ In the example above we explicitly set the last modification date in front matte
 
 Learn more about [date configuration].
 
-[`gitinfo`]: /methods/page/gitinfo
-[`time.format`]: /functions/time/format
+[`gitinfo`]: /methods/page/gitinfo/
+[`time.format`]: /functions/time/format/
 [date configuration]: /getting-started/configuration/#configure-dates
-[time methods]: /methods/time
+[time methods]: /methods/time/
 [time.time]: https://pkg.go.dev/time#time

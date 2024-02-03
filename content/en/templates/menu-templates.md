@@ -14,7 +14,7 @@ aliases: [/templates/menus/]
 
 ## Overview
 
-After [defining menu entries], use [menu variables and methods] to render a menu.
+After [defining menu entries], use [menu methods] to render a menu.
 
 Three factors determine how to render a menu:
 
@@ -128,5 +128,5 @@ Hugo provides two methods to localize your menu entries. See [multilingual].
 [localize the menu entries]: /content-management/multilingual/#menus
 [menu entry defined in front matter]: /content-management/menus/#example-front-matter
 [menu entry defined in site configuration]: /content-management/menus/#example-site-configuration
-[menu variables and methods]: /variables/menu-entry/
+[menu and methods]: /methods/menu/
 [multilingual]: /content-management/multilingual/#menus

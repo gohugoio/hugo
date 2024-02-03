@@ -100,7 +100,7 @@ When using the `Fragments` methods within a shortcode, call the shortcode using 
 [fragment]: /getting-started/glossary/#fragment
 [markdown attribute]: /getting-started/glossary/#markdown-attribute
 [setext]: https://spec.commonmark.org/0.30/#setext-headings
-[table of contents]: /methods/page/tableofcontents
+[table of contents]: /methods/page/tableofcontents/
 [walking]: /getting-started/glossary/#walk
-[`tableofcontents`]: /methods/page/tableofcontents
+[`tableofcontents`]: /methods/page/tableofcontents/
 [render hook]: /getting-started/glossary/#render-hook

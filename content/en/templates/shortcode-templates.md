@@ -405,7 +405,7 @@ The same inline shortcode can be reused later in the same content file, with dif
 [figure]: /content-management/shortcodes/#figure
 [hugosc]: /content-management/shortcodes/#using-hugo-s-built-in-shortcodes
 [lookup order]: /templates/lookup-order/
-[pagevars]: /variables/page/
+[pagevars]: /methods/page/
 [`.Parent`]: /methods/shortcode/parent/
 [`.Position`]: /methods/shortcode/position/
 [spfscs]: https://github.com/spf13/spf13.com/tree/master/layouts/shortcodes

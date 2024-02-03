@@ -12,7 +12,7 @@ action:
 
 The `LinkTitle` method returns the `linkTitle` field as defined in front matter, falling back to the value returned by the [`Title`] method.
 
-[`Title`]: /methods/page/title
+[`Title`]: /methods/page/title/
 
 {{< code-toggle file=content/articles/healthy-desserts.md fm=true >}}
 title = 'Seventeen delightful recipes for healthy desserts'

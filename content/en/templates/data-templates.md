@@ -167,11 +167,11 @@ If you change any local file and the LiveReload is triggered, Hugo will read the
 [json]: https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf
 [LiveReload]: /getting-started/usage/#livereload
 [lookup]: /templates/lookup-order/
-[`markdownify`]: /functions/transform/markdownify
+[`markdownify`]: /functions/transform/markdownify/
 [OAuth]: https://en.wikipedia.org/wiki/OAuth
 [partials]: /templates/partials/
 [toml]: https://toml.io/en/latest
 [variadic]: https://en.wikipedia.org/wiki/Variadic_function
-[vars]: /variables/
+[vars]: /methods/
 [yaml]: https://yaml.org/spec/
 [xml]: https://www.w3.org/XML/

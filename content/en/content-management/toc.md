@@ -112,6 +112,6 @@ Hugo will take this AsciiDoc and create a table of contents store it in the page
 
 [conditionals]: /templates/introduction/#conditionals
 [front matter]: /content-management/front-matter/
-[pagevars]: /variables/page/
+[pagevars]: /methods/page/
 [partials]: /templates/partials/
 [single page template]: /templates/single-page-templates/

@@ -17,5 +17,5 @@ weight: 90
 {{% note %}}
 Within a taxonomy or term template use the [`Data`] method to retrieve information specific to the taxonomy or term.
 
-[`Data`]: /methods/page/data
+[`Data`]: /methods/page/data/
 {{% /note %}}

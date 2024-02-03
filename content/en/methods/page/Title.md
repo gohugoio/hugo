@@ -34,5 +34,5 @@ To change the [title case style], specify one of `ap`, `chicago`, `go`, `firstup
 titleCaseStyle = "ap"
 {{< /code-toggle >}}
 
-[pluralization]: /functions/inflect/pluralize
+[pluralization]: /functions/inflect/pluralize/
 [title case style]: /getting-started/configuration/#configure-title-case

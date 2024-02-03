@@ -16,8 +16,8 @@ The `Scratch` method on a `Page` object creates a [scratch pad] to store and man
 
 To create a locally scoped scratch pad that is not attached to a `Page` object, use the [`newScratch`] function.
 
-[`Store`]: /methods/page/store
-[`newScratch`]: functions/collections/newscratch
+[`Store`]: /methods/page/store/
+[`newScratch`]: /functions/collections/newscratch/
 [scratch pad]: /getting-started/glossary/#scratch-pad
 
 {{% include "methods/page/_common/scratch-methods.md" %}}

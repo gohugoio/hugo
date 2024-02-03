@@ -369,11 +369,11 @@ To learn more about creating custom shortcodes, see the [shortcode template docu
 [figureelement]: https://html5doctor.com/the-figure-figcaption-elements/
 [Hugo and the GDPR]: /about/hugo-and-gdpr/
 [Instagram]: https://www.instagram.com/
-[pagevariables]: /variables/page/
+[pagevariables]: /methods/page/
 [partials]: /templates/partials/
 [quickstart]: /getting-started/quick-start/
 [sctemps]: /templates/shortcode-templates/
-[scvars]: /variables/shortcode/
+[scvars]: /methods/shortcode/
 [shortcode template documentation]: /templates/shortcode-templates/
 [templatessection]: /templates/
 [Vimeo]: https://vimeo.com/

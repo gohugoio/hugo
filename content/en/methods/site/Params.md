@@ -42,6 +42,6 @@ In the template example above, each of the keys is a valid identifier. For examp
 {{ index .Site.Params "copyright-year" }} → 2023
 ```
 
-[`index`]: /functions/collections/indexfunction
+[`index`]: /functions/collections/indexfunction/
 [chaining]: /getting-started/glossary/#chain
 [identifiers]: /getting-started/glossary/#identifier

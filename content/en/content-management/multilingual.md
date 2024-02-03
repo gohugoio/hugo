@@ -351,7 +351,7 @@ Private use subtags must not exceed 8 alphanumeric characters.
 
 From within your templates, use the [`i18n`] function like this:
 
-[`i18n`]: /functions/lang/translate
+[`i18n`]: /functions/lang/translate/
 
 ```go-html-template
 {{ i18n "home" }}
@@ -694,23 +694,23 @@ hugo new content content/en/post/test.md
 hugo new content content/de/post/test.md
 ```
 
-[`abslangurl`]: /functions/urls/abslangurl
+[`abslangurl`]: /functions/urls/abslangurl/
 [config]: /getting-started/configuration/
 [contenttemplate]: /templates/single-page-templates/
 [go-i18n-source]: https://github.com/nicksnyder/go-i18n
 [go-i18n]: https://github.com/nicksnyder/go-i18n
 [homepage]: /templates/homepage/
 [Hugo Multilingual Part 1: Content translation]: https://regisphilibert.com/blog/2018/08/hugo-multilingual-part-1-managing-content-translation/
-[i18func]: /functions/lang/translate
-[lang.FormatAccounting]: /functions/lang/formataccounting
-[lang.FormatCurrency]: /functions/lang/formatcurrency
-[lang.FormatNumber]: /functions/lang/formatnumber
-[lang.FormatNumberCustom]: /functions/lang/formatnumbercustom
-[lang.FormatPercent]: /functions/lang/formatpercent
+[i18func]: /functions/lang/translate/
+[lang.FormatAccounting]: /functions/lang/formataccounting/
+[lang.FormatCurrency]: /functions/lang/formatcurrency/
+[lang.FormatNumber]: /functions/lang/formatnumber/
+[lang.FormatNumberCustom]: /functions/lang/formatnumbercustom/
+[lang.FormatPercent]: /functions/lang/formatpercent/
 [lang.Merge]: /functions/lang/merge/
 [menus]: /content-management/menus/
 [OS environment]: /getting-started/configuration/#configure-with-environment-variables
-[`rellangurl`]: /functions/urls/rellangurl
-[RFC 5646]: https://tools.ietf.org/html/rfc5646
+[`rellangurl`]: /functions/urls/rellangurl/
+[RFC 5646]: https://tools.ietf.org/html/rfc564/
 [single page templates]: /templates/single-page-templates/
-[`time.Format`]: /functions/time/format
+[`time.Format`]: /functions/time/format/

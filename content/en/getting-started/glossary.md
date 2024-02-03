@@ -116,7 +116,7 @@ When running the built-in development server with the `hugo server` command, the
 
 To determine the current environment within a template, use the [`hugo.Environment`] function.
 
-[`hugo.Environment`]: /functions/hugo/environment
+[`hugo.Environment`]: /functions/hugo/environment/
 
 ###### field
 
@@ -151,10 +151,10 @@ Used within a [template action](#template-action), a function takes one or more 
 
 A file within the assets directory, or within any directory [mounted](/hugo-modules/configuration/#module-configuration-mounts) to the assets directory. Capture one or more global resources using the [`resources.Get`], [`resources.GetMatch`], [`resources.Match`], or [`resources.ByType`] functions.
 
-[`resources.Get`]: /functions/resources/get
-[`resources.GetMatch`]: /functions/resources/getmatch
-[`resources.Match`]: /functions/resources/match
-[`resources.ByType`]: /functions/resources/byType
+[`resources.Get`]: /functions/resources/get/
+[`resources.GetMatch`]: /functions/resources/getmatch/
+[`resources.Match`]: /functions/resources/match/
+[`resources.ByType`]: /functions/resources/byType/
 
 ###### identifier
 
@@ -234,8 +234,8 @@ A data structure with or without associated [methods](#method).
 
 Created by invoking the [`Alphabetical`] or [`ByCount`] method on a [taxonomy object](#taxonomy-object), which is a [map](#map), an ordered taxonomy is a [slice](#slice), where each element is an object that contains the [term](#term) and a slice of its [weighted pages](#weighted-page).
 
-[`Alphabetical`]: /methods/taxonomy/alphabetical
-[`ByCount`]: /methods/taxonomy/bycount
+[`Alphabetical`]: /methods/taxonomy/alphabetical/
+[`ByCount`]: /methods/taxonomy/bycount/
 
 ###### output format
 
@@ -329,9 +329,9 @@ A single value, one of [string](#string), [integer](#integer), [floating point](
 
 Conceptually, a [map](#map) with [methods](#method) to set, get, update, and delete values. Attach the data structure to a `Page` object using the [`Scratch`] or [`Store`] methods, or created a locally scoped scratch pad using the [`newScratch`] function.
 
-[`Scratch`]: /methods/page/scratch
-[`Store`]: /methods/page/store
-[`newScratch`]: /functions/collections/newscratch
+[`Scratch`]: /methods/page/scratch/
+[`Store`]: /methods/page/store/
+[`newScratch`]: /functions/collections/newscratch/
 
 ###### section
 

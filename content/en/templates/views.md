@@ -102,7 +102,7 @@ Continuing on the previous example, we can change our render function to use a s
 
 [lists]: /templates/lists/
 [lookup]: /templates/lookup-order/
-[pagevars]: /variables/page/
+[pagevars]: /methods/page/
 [render]: /methods/page/render/
 [single]: /templates/single-page-templates/
 [spf]: https://spf13.com

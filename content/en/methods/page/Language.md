@@ -61,5 +61,5 @@ Weight
 {{ .Language.Weight }} → 2
 ```
 
-[details]: /methods/site/language
+[details]: /methods/site/language/
 [RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646

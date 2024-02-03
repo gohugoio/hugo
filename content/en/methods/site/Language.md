@@ -77,7 +77,7 @@ The example above uses the global [`site`] function instead of accessing the `Si
 
 Also note that each attribute has a fallback value assigned via the [`or`] operator.
 
-[details]: /methods/page/language
+[details]: /methods/page/language/
 [RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646
-[`or`]: /functions/go-template/or
-[`site`]: /functions/global/site
+[`or`]: /functions/go-template/or/
+[`site`]: /functions/global/site/

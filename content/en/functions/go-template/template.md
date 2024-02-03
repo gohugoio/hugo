@@ -46,4 +46,4 @@ The example above can be rewritten using an [inline partial] template:
 
 [`partial`]: /functions/partials/include/
 [inline partial]: /templates/partials/#inline-partials
-[internal templates]: /templates/internal
+[internal templates]: /templates/internal/

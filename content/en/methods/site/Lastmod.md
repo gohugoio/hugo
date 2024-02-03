@@ -19,5 +19,5 @@ The `Lastmod` method on a `Site` object returns a [`time.Time`] value. Use this 
 ```
 
 [`time.Time`]: https://pkg.go.dev/time#Time
-[functions]: /functions/time
-[methods]: /methods/time
+[functions]: /functions/time/
+[methods]: /methods/time/

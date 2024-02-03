@@ -96,4 +96,4 @@ Hugo renders the markdown to:
 
 [commonmark]: https://commonmark.org/
 [indentation]: https://spec.commonmark.org/0.30/#indented-code-blocks
-[`Inner`]: /methods/shortcode/inner
+[`Inner`]: /methods/shortcode/inner/

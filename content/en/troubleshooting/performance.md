@@ -74,8 +74,8 @@ total count
 template
 : The path to the template, relative to the layouts directory.
 
-[`partial`]: /functions/partials/include
-[`partialCached`]: /functions/partials/includecached
+[`partial`]: /functions/partials/include/
+[`partialCached`]: /functions/partials/includecached/
 
 {{% note %}}
 Hugo builds pages in parallel where multiple pages are generated simultaneously. Because of this parallelism, the sum of "cumulative duration" values is usually greater than the actual time it takes to build a site.

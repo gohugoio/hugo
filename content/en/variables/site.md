@@ -26,9 +26,9 @@ Use these methods with your multilingual projects.
 
 {{< list-pages-in-section path=/methods/site filter=methods_site_multilingual filterType=include titlePrefix=.Site. omitElementIDs=true >}}
 
-[`site`]: /functions/global/site
+[`site`]: /functions/global/site/
 [context]: /getting-started/glossary/#context
-[configuration file]: /getting-started/configuration
+[configuration file]: /getting-started/configuration/
 
 ## Page collections
 

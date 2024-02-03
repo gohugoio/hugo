@@ -152,7 +152,7 @@ Using this same `layouts/_default/list.html` template and applying it to the `qu
 {{< /code >}}
 
 {{% note %}}
-The default behavior of Hugo is to pluralize list titles; hence the inflection of the `quote` section to "Quotes" when called with the `.Title` [page variable](/variables/page/). You can change this via the `pluralizeListTitles` directive in your [site configuration](/getting-started/configuration/).
+The default behavior of Hugo is to pluralize list titles; hence the inflection of the `quote` section to "Quotes" when called with the `.Title` [page variable](/methods/page/). You can change this via the `pluralizeListTitles` directive in your [site configuration](/getting-started/configuration/).
 {{% /note %}}
 
 ## Example list templates
@@ -203,10 +203,10 @@ By default, Hugo sorts page collections by:
 3. Page [linkTitle], falling back to page [title]
 4. Page file path if the page is backed by a file
 
-[date]: /methods/page/date
-[weight]: /methods/page/weight
-[linkTitle]: /methods/page/linktitle
-[title]: /methods/page/title
+[date]: /methods/page/date/
+[weight]: /methods/page/weight/
+[linkTitle]: /methods/page/linktitle/
+[title]: /methods/page/title/
 
 Change the sort order using any of the methods below.
 
@@ -235,18 +235,18 @@ See the documentation on [`where`] and
 [getpage]: /methods/page/getpage/
 [homepage]: /templates/homepage/
 [mentalmodel]: https://webstyleguide.com/wsg3/3-information-architecture/3-site-structure.html
-[pagevars]: /variables/page/
+[pagevars]: /methods/page/
 [partials]: /templates/partials/
 [RSS 2.0]: https://cyber.harvard.edu/rss/rss.html
 [rss]: /templates/rss/
 [sections]: /content-management/sections/
 [sectiontemps]: /templates/section-templates/
-[sitevars]: /variables/site/
+[sitevars]: /methods/site/
 [taxlists]: /templates/taxonomy-templates/#taxonomy-list-templates
 [taxterms]: /templates/taxonomy-templates/#taxonomy-terms-templates
-[taxvars]: /variables/taxonomy/
+[taxvars]: /methods/taxonomy/
 [views]: /templates/views/
-[`where`]: /functions/collections/where
+[`where`]: /functions/collections/where/
 [`first`]: /functions/collections/first/
-[main sections]: /methods/site/mainsections
-[`time.Format`]: /functions/time/format
+[main sections]: /methods/site/mainsections/
+[`time.Format`]: /functions/time/format/

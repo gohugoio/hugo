@@ -626,7 +626,7 @@ firstupper
 none
 : Disable transformation of automatic section titles, and disable the transformation performed by the `strings.Title` function. This is useful if you would prefer to manually capitalize section titles as needed, and to bypass opinionated theme usage of the `strings.Title` function.
 
-[`strings.Title`]: /functions/strings/title
+[`strings.Title`]: /functions/strings/title/
 [Associated Press Stylebook]: https://www.apstylebook.com/
 [Chicago Manual of Style]: https://www.chicagomanualofstyle.org/home.html
 [site configuration]: /getting-started/configuration/#configure-title-case
@@ -779,9 +779,9 @@ If this is not set, Hugo will use, in order of preference:
 
 If you want to know the current value of `cacheDir`, you can run `hugo config`, e.g: `hugo config | grep cachedir`.
 
-[`time`]: /functions/time/astime
-[`.Site.Params`]: /variables/site/
-[directory structure]: /getting-started/directory-structure
+[`time`]: /functions/time/astime/
+[`.Site.Params`]: /method/site/params/
+[directory structure]: /getting-started/directory-structure/
 [lookup order]: /templates/lookup-order/
 [Output Formats]: /templates/output-formats/
 [templates]: /templates/

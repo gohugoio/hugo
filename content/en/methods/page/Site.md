@@ -12,7 +12,7 @@ action:
 
 See [Site methods].
 
-[Site methods]: /methods/site
+[Site methods]: /methods/site/
 
 ```go-html-template
 {{ .Site.Title }}

@@ -146,7 +146,7 @@ Consider using the [`resources.GetRemote`] function with [`transform.Unmarshal`]
 {{ end }}
 ```
 
-[`Resources.Get`]: methods/page/Resources
-[`resources.GetRemote`]: /functions/resources/getremote
-[`resources.Get`]: /functions/resources/get
-[`transform.Unmarshal`]: /functions/transform/unmarshal
+[`Resources.Get`]: /methods/page/resources/
+[`resources.GetRemote`]: /functions/resources/getremote/
+[`resources.Get`]: /functions/resources/get/
+[`transform.Unmarshal`]: /functions/transform/unmarshal/

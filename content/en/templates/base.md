@@ -91,7 +91,7 @@ The following shows how you can override both the `"main"` and `"title"` block a
 {{ end }}
 {{< /code >}}
 
-[hugolists]: /templates/lists
+[hugolists]: /templates/lists/
 [lookup]: /templates/lookup-order/
 [rendering the section]: /templates/section-templates/
 [singletemplate]: /templates/single-page-templates/

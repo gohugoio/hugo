@@ -66,7 +66,7 @@ Hugo renders:
 ```
 
 [chaining]: /getting-started/glossary/#chain
-[`index`]: /functions/collections/indexfunction
+[`index`]: /functions/collections/indexfunction/
 [identifier]: /getting-started/glossary/#identifier
 [term]: /getting-started/glossary/#term
 [weighted pages]: /getting-started/glossary/#weighted-page

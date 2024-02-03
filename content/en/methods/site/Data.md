@@ -20,7 +20,7 @@ Use the `Data` method on a `Site` object to access data within the data director
 {{% note %}}
 Although Hugo can unmarshal CSV files with the [`transform.Unmarshal`] function, do not place CSV files in the data directory. You cannot access data within CSV files using this method.
 
-[`transform.Unmarshal`]: /functions/transform/unmarshal
+[`transform.Unmarshal`]: /functions/transform/unmarshal/
 {{% /note %}}
 
 Consider this data directory:
@@ -103,6 +103,6 @@ To find a fiction book by ISBN:
 
 In the template examples above, each of the keys is a valid identifier. For example, none of the keys contains a hyphen. To access a key that is not a valid identifier, use the [`index`] function:
 
-[`index`]: /functions/collections/indexfunction
+[`index`]: /functions/collections/indexfunction/
 [chaining]: /getting-started/glossary/#chain
 [identifiers]: /getting-started/glossary/#identifier

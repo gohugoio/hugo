@@ -34,4 +34,4 @@ Use `first` and [`where`] together.
 {{ end }}
 ```
 
-[`where`]: /functions/collections/where
+[`where`]: /functions/collections/where/

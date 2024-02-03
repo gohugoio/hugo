@@ -69,7 +69,7 @@ You can also change the request method and set the request body:
 
 When retrieving remote data, use the [`transform.Unmarshal`] function to [unmarshal] the response.
 
-[`transform.Unmarshal`]: /functions/transform/unmarshal
+[`transform.Unmarshal`]: /functions/transform/unmarshal/
 [unmarshal]: /getting-started/glossary/#unmarshal
 
 ```go-html-template
@@ -90,7 +90,7 @@ When retrieving remote data, use the [`transform.Unmarshal`] function to [unmars
 
 The [`Err`] method on a resource returned by the `resources.GetRemote` function returns an error message if the HTTP request fails, else nil. If you do not handle the error yourself, Hugo will fail the build.
 
-[`Err`]: /methods/resource/err
+[`Err`]: /methods/resource/err/
 
 ```go-html-template
 {{ $url := "https://broken-example.org/images/a.jpg" }}
@@ -124,7 +124,7 @@ To log an error as a warning instead of an error:
 
 The [`Data`] method on a resource returned by the `resources.GetRemote` function returns information from the HTTP response.
 
-[`Data`]: /methods/resource/data
+[`Data`]: /methods/resource/data/
 
 ```go-html-template
 {{ $url := "https://example.org/images/a.jpg" }}

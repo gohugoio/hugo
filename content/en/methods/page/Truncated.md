@@ -32,4 +32,4 @@ The `Truncated` method returns `true` if the content length exceeds the summary 
 {{ end }}
 ```
 
-[content summary]: /content-management/summaries
+[content summary]: /content-management/summaries/

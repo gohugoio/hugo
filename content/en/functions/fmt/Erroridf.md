@@ -38,4 +38,4 @@ To suppress this message:
 ignoreLogs = ["error-42"]
 {{< /code-toggle >}}
 
-[`errorf`]: /functions/fmt/errorf
+[`errorf`]: /functions/fmt/errorf/

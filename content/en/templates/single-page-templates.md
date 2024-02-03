@@ -77,9 +77,9 @@ To easily generate new instances of a content type (e.g., new `.md` files in a s
 [`.format` function]: /methods/time/format/
 [front matter]: /content-management/front-matter/
 [pagetaxonomy]: /templates/taxonomy-templates/#list-terms-assigned-to-a-page
-[pagevars]: /variables/page/
+[pagevars]: /methods/page/
 [partials]: /templates/partials/
 [section]: /content-management/sections/
-[site variables]: /variables/site/
+[site variables]: /methods/site/
 [spf13]: https://spf13.com/
 [`with`]: /functions/go-template/with/

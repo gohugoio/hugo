@@ -66,7 +66,7 @@ Use the [`printf`] function (render) or [`warnf`] function (log to console) to i
 {{ printf "%[1]v (%[1]T)" $value }} → 42 (int)
 ```
 
-[`jsonify`]: /functions/encoding/jsonify
-[`debug.Dump`]: /functions/debug/dump
-[`printf`]: /functions/fmt/printf
-[`warnf`]: /functions/fmt/warnf
+[`jsonify`]: /functions/encoding/jsonify/
+[`debug.Dump`]: /functions/debug/dump/
+[`printf`]: /functions/fmt/printf/
+[`warnf`]: /functions/fmt/warnf/

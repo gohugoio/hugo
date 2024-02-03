@@ -96,7 +96,7 @@ Other guidelines to consider:
 
 Level 6 markdown headings are styled as `dt` elements. This was implemented to support a [glossary] with linkable terms.
 
-[glossary]: /getting-started/glossary
+[glossary]: /getting-started/glossary/
 
 ## Code examples
 
@@ -210,7 +210,7 @@ Use the “deprecated-in” shortcode to indicate that a feature is deprecated:
 {{%/* deprecated-in 0.120.0 */%}}
 Use [`hugo.IsServer`] instead.
 
-[`hugo.IsServer`]: /functions/hugo/isserver
+[`hugo.IsServer`]: /functions/hugo/isserver/
 {{%/* /deprecated-in */%}}
 ```
 
@@ -219,7 +219,7 @@ Rendered:
 {{% deprecated-in 0.120.0 %}}
 Use [`hugo.IsServer`] instead.
 
-[`hugo.IsServer`]: /functions/hugo/isserver
+[`hugo.IsServer`]: /functions/hugo/isserver/
 {{% /deprecated-in %}}
 
 ### code
@@ -298,7 +298,7 @@ Use the "deprecated-in" shortcode to indicate that a feature is deprecated:
 {{%/* deprecated-in 0.120.0 */%}}
 Use [`hugo.IsServer`] instead.
 
-[`hugo.IsServer`]: /functions/hugo/isserver
+[`hugo.IsServer`]: /functions/hugo/isserver/
 {{%/* /deprecated-in */%}}
 {{< /code >}}
 

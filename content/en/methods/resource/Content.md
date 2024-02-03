@@ -12,7 +12,7 @@ toc:
 
 The `Content` method on a `Resource` object returns `template.HTML` when the resource type is `page`, otherwise it returns a `string`.
 
-[resource type]: /methods/resource/resourcetype
+[resource type]: /methods/resource/resourcetype/
 
 {{< code file=assets/quotations/kipling.txt >}}
 He travels the fastest who travels alone.

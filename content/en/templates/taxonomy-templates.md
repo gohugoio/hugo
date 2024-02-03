@@ -311,8 +311,8 @@ Because taxonomies are lists, the [`.GetPage` function][getpage] can be used to 
 </ul>
 {{< /code >}}
 
-[getpage]: /methods/page/getpage
+[getpage]: /methods/page/getpage/
 [lists]: /templates/lists/
 [renderlists]: /templates/lists/
 [single page template]: /templates/single-page-templates/
-[sitevars]: /variables/site/
+[sitevars]: /methods/site/

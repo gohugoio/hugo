@@ -37,8 +37,8 @@ To process an emoji shortcode from within a template, use the [`emojify`] functi
 {{ "Hello! :wave:" | .RenderString }}
 ```
 
-[`emojify`]: /functions/transform/emojify
-[`RenderString`]: /methods/page/renderstring
+[`emojify`]: /functions/transform/emojify/
+[`RenderString`]: /methods/page/renderstring/
 
 ## Introduction
 

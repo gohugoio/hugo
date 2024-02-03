@@ -16,8 +16,8 @@ The `Store` method on a `Page` object creates a persistent [scratch pad] to stor
 
 To create a locally scoped scratch pad that is not attached to a `Page` object, use the [`newScratch`] function.
 
-[`Scratch`]: /methods/page/scratch
-[`newScratch`]: functions/collections/newscratch
+[`Scratch`]: /methods/page/scratch/
+[`newScratch`]: /functions/collections/newscratch/
 [scratch pad]: /getting-started/glossary/#scratch-pad
 
 ## Methods

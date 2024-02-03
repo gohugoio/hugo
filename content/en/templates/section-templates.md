@@ -103,8 +103,8 @@ Which then returns the following:
 ```
 
 [contentorg]: /content-management/organization/
-[getpage]: /methods/page/getpage
+[getpage]: /methods/page/getpage/
 [lists]: /templates/lists/
 [lookup]: /templates/lookup-order/
-[`where`]: /functions/collections/where
+[`where`]: /functions/collections/where/
 [sections]: /content-management/sections/

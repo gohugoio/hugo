@@ -26,4 +26,4 @@ To list the pages in a section with a summary beneath each link:
 {{ end }}
 ```
 
-[content summary]: /content-management/summaries
+[content summary]: /content-management/summaries/

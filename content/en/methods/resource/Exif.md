@@ -75,4 +75,4 @@ To list specific values:
 
 [exif]: https://en.wikipedia.org/wiki/Exif
 [site configuration]: /content-management/image-processing/#exif-data
-[`time.Format`]: /functions/time/format
+[`time.Format`]: /functions/time/format/

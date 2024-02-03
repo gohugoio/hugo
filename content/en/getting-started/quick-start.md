@@ -216,13 +216,13 @@ Hugo's [forum] is an active community of users and developers who answer questio
 For other resources to help you learn Hugo, including books and video tutorials, see the [external learning resources](/getting-started/external-learning-resources/) page.
 
 [Ananke]: https://github.com/theNewDynamic/gohugo-theme-ananke
-[directory structure]: /getting-started/directory-structure
+[directory structure]: /getting-started/directory-structure/
 [draft, future, and expired content]: /getting-started/usage/#draft-future-and-expired-content
 [draft, future, or expired content]: /getting-started/usage/#draft-future-and-expired-content
 [external learning resources]:/getting-started/external-learning-resources/
 [forum]: https://discourse.gohugo.io/
 [forum]: https://discourse.gohugo.io/
-[front matter]: /content-management/front-matter
+[front matter]: /content-management/front-matter/
 [Git submodule]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
 [hosting and deployment]: /hosting-and-deployment/
 [Install Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git

@@ -15,4 +15,4 @@ aliases: [/variables/file-variables/,/variables/files/]
 
 To retrieve file information about any page that is backed by a file, see the documentation for the [`File`] method on a `Page` object.
 
-[`File`]: /methods/page/file
+[`File`]: /methods/page/file/

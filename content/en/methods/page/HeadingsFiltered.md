@@ -14,5 +14,5 @@ action:
 Use in conjunction with the [`Related`] method on a [`Pages`] object. See&nbsp;[details].
 
 [`Pages`]: /methods/pages/
-[`Related`]: /methods/pages/related
+[`Related`]: /methods/pages/related/
 [details]: /content-management/related/#index-content-headings-in-related-content

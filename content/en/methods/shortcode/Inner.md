@@ -48,7 +48,7 @@ Is rendered to:
 {{% note %}}
 Content between opening and closing shortcode tags may include leading and/or trailing newlines, depending on placement within the markdown. Use the [`trim`] function as shown above to remove both carriage returns and newlines.
 
-[`trim`]: /functions/strings/trim
+[`trim`]: /functions/strings/trim/
 {{% /note %}}
 
 {{% note %}}
@@ -60,7 +60,7 @@ In the example above, the value returned by `Inner` is markdown, but it was rend
 
 Let's modify the example above to pass the value returned by `Inner` through the [`RenderString`] method on the `Page` object:
 
-[`RenderString`]: /methods/page/renderstring
+[`RenderString`]: /methods/page/renderstring/
 
 {{< code file=layouts/shortcodes/card.html  >}}
 <div class="card">
@@ -86,8 +86,8 @@ Hugo renders this to:
 
 You can use the [`markdownify`] function instead of the `RenderString` method, but the latter is more flexible. See&nbsp;[details].
 
-[details]: /methods/page/renderstring
-[`markdownify`]: /functions/transform/markdownify
+[details]: /methods/page/renderstring/
+[`markdownify`]: /functions/transform/markdownify/
 
 ## Use alternate notation
 

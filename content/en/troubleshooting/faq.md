@@ -105,9 +105,9 @@ For other questions please visit the [forum]. A quick search of over 20,000 topi
 [requesting help]: https://discourse.gohugo.io/t/requesting-help/9132
 {{% /note %}}
 
-[`Paginate`]: /methods/page/paginate
-[`Paginator`]: /methods/page/paginator
+[`Paginate`]: /methods/page/paginate/
+[`Paginator`]: /methods/page/paginator/
 [context]: /getting-started/glossary/#context
 [forum]: https://discourse.gohugo.io
-[installation]: /installation
+[installation]: /installation/
 [requesting help]: https://discourse.gohugo.io/t/requesting-help/9132

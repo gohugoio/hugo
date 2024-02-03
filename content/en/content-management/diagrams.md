@@ -46,7 +46,7 @@ Will be rendered as:
 
 Hugo does not provide a built-in template for Mermaid diagrams. Create your own using a [code block render hook]:
 
-[code block render hook]: /render-hooks/code-blocks
+[code block render hook]: /render-hooks/code-blocks/
 
 {{< code file=layouts/_default/_markup/render-codeblock-mermaid.html >}}
 <pre class="mermaid">

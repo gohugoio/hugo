@@ -20,4 +20,4 @@ For menu entries associated with a page, the `URL` method returns the page's [`R
 </ul>
 ```
 
-[`RelPermalink`]: /methods/page/relpermalink
+[`RelPermalink`]: /methods/page/relpermalink/

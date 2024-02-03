@@ -18,7 +18,7 @@ toc: true
 
 This filter has the same options as the [`Process`] method on a `Resource` object, but using it as a filter may be more effective if you need to apply multiple filters to an image.
 
-[`Process`]: /methods/resource/process
+[`Process`]: /methods/resource/process/
 
 The process specification is a space-delimited, case-insensitive list of one or more of the following in any sequence:
 

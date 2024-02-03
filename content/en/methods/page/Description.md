@@ -25,4 +25,4 @@ description = 'Instructions for making spicy tuna hand rolls.'
 </head>
 {{< /code >}}
 
-[content summary]: /content-management/summaries
+[content summary]: /content-management/summaries/

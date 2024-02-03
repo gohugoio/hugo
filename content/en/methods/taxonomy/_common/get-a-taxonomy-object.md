@@ -60,9 +60,9 @@ Although the [`Alphabetical`] and [`ByCount`] methods provide a better data stru
 In the example above, the first anchor element is a link to the term page.
 
 
-[`Alphabetical`]: /methods/taxonomy/alphabetical
-[`ByCount`]: /methods/taxonomy/bycount
+[`Alphabetical`]: /methods/taxonomy/alphabetical/
+[`ByCount`]: /methods/taxonomy/bycount/
 
-[`data`]: /methods/page/data
+[`data`]: /methods/page/data/
 [`terms`]: /methods/page/data/#in-a-taxonomy-template
-[`taxonomies`]: /methods/site/taxonomies
+[`taxonomies`]: /methods/site/taxonomies/

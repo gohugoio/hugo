@@ -66,7 +66,7 @@ toc: true
 [install]: /installation/
 [LiveReload]: /getting-started/usage/
 [organization for your projects]: /getting-started/directory-structure/
-[pagevars]: /variables/page/
+[pagevars]: /methods/page/
 [Permalink]: /content-management/urls/#permalinks
 [Powerful theming]: /hugo-modules/theme-components/
 [Pretty URLs]: /content-management/urls/

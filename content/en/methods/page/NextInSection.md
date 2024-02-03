@@ -65,7 +65,7 @@ With the `PrevInSection` and `NextInSection` methods, the navigation sort order 
 
 For example, with a page collection sorted by title, the navigation sort order will use Hugo’s default sort order. This is probably not what you want or expect. For this reason, the Next and Prev methods on a Pages object are generally a better choice.
 
-[date]: /methods/page/date
-[weight]: /methods/page/weight
-[linkTitle]: /methods/page/linktitle
-[title]: /methods/page/title
+[date]: /methods/page/date/
+[weight]: /methods/page/weight/
+[linkTitle]: /methods/page/linktitle/
+[title]: /methods/page/title/

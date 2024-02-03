@@ -23,7 +23,7 @@ Hugo supports multiple [content formats] including markdown, HTML, AsciiDoc, Ema
 
 The render hook capability is limited to markdown. You cannot create render hooks for the other content formats.
 
-[content formats]: /content-management/formats
+[content formats]: /content-management/formats/
 {{% /note %}}
 
 For example, consider this markdown:

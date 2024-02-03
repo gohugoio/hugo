@@ -31,4 +31,4 @@ To prevent suppression of duplicate messages when using `warnf` for debugging, m
 {{ end }}
 ```
 
-[`math.Counter`]: /functions/math/counter
+[`math.Counter`]: /functions/math/counter/

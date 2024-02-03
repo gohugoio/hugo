@@ -24,4 +24,4 @@ The `errorf` function evaluates the format string, then prints the result to the
 
 Use the [`erroridf`] function to allow optional suppression of specific errors.
 
-[`erroridf`]: /functions/fmt/erroridf
+[`erroridf`]: /functions/fmt/erroridf/

@@ -20,5 +20,5 @@ Since Go templates are HTML-aware, `truncate` will intelligently handle normal s
 {{% note %}}
 If you have a raw string that contains HTML tags you want to remain treated as HTML, you will need to convert the string to HTML using the [`safeHTML`]function before sending the value to `truncate`. Otherwise, the HTML tags will be escaped when passed through the `truncate` function.
 
-[`safeHTML`]: /functions/safe/html
+[`safeHTML`]: /functions/safe/html/
 {{% /note %}}

@@ -15,9 +15,9 @@ The `resources.FromString` function returns a resource created from a string, ca
 
 Hugo publishes the resource to the target path when you call its [`Publish`], [`Permalink`], or [`RelPermalink`] methods.
 
-[`publish`]: /methods/resource/publish
-[`permalink`]: /methods/resource/permalink
-[`relpermalink`]: /methods/resource/relpermalink
+[`publish`]: /methods/resource/publish/
+[`permalink`]: /methods/resource/permalink/
+[`relpermalink`]: /methods/resource/relpermalink/
 
 Let's say you need to publish a file named "site.json" in the root of your public directory, containing the build date, the Hugo version used to build the site, and the date that the content was last modified. For example:
 
@@ -72,6 +72,6 @@ Combine `resources.FromString` with [`resources.ExecuteAsTemplate`] if your stri
 {{ end }}
 ```
 
-[`dict`]: /functions/collections/dictionary
-[`jsonify`]: /functions/encoding/jsonify
-[`resources.ExecuteAsTemplate`]: /functions/resources/executeastemplate
+[`dict`]: /functions/collections/dictionary/
+[`jsonify`]: /functions/encoding/jsonify/
+[`resources.ExecuteAsTemplate`]: /functions/resources/executeastemplate/

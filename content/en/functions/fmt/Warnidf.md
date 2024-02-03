@@ -40,4 +40,4 @@ To suppress this message:
 ignoreLogs = ["warning-42"]
 {{< /code-toggle >}}
 
-[`warnf`]: /functions/fmt/warnf
+[`warnf`]: /functions/fmt/warnf/

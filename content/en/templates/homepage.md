@@ -60,6 +60,6 @@ The following is an example of a homepage template that uses [partial][partials]
 [contentorg]: /content-management/organization/
 [lists]: /templates/lists/
 [lookup]: /templates/lookup-order/
-[pagevars]: /variables/page/
+[pagevars]: /methods/page/
 [partials]: /templates/partials/
-[sitevars]: /variables/site/
+[sitevars]: /methods/site/

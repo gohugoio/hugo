@@ -14,7 +14,7 @@ toc: true
 Useful in a code block [render hook], the `diagram.Goat` function converts ASCII art to an SVG diagram, returning a [GoAT] diagram object with the following methods:
 
 [GoAT]: https://github.com/blampe/goat#readme
-[render hook]: /render-hooks
+[render hook]: /render-hooks/
 
 Inner
 : (`template.HTML`) Returns the SVG child elements without a wrapping `svg` element, allowing you to create your own wrapper.

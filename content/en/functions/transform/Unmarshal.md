@@ -113,7 +113,7 @@ A remote resource is a file on a remote server, accessible via HTTP or HTTPS.
 ```
 
 [resource]: /getting-started/glossary/#resource
-[page bundle]: /content-management/page-bundles
+[page bundle]: /content-management/page-bundles/
 
 ## Options
 
@@ -288,5 +288,5 @@ Hugo renders this to:
 </ul>
 ```
 
-[`index`]: /functions/collections/indexfunction
+[`index`]: /functions/collections/indexfunction/
 [identifiers]: https://go.dev/ref/spec#Identifiers
