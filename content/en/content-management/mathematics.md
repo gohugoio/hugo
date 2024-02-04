@@ -7,8 +7,8 @@ keywords: [chemical,chemistry,latex,math,mathjax,tex,typesetting]
 menu:
   docs:
     parent: content-management
-    weight: 250
-weight: 250
+    weight: 270
+weight: 270
 toc: true
 math: true
 ---

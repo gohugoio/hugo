@@ -6,8 +6,8 @@ keywords: [highlighting,chroma,code blocks,syntax]
 menu:
   docs:
     parent: content-management
-    weight: 240
-weight: 240
+    weight: 250
+weight: 250
 toc: true
 aliases: [/extras/highlighting/,/extras/highlight/,/tools/syntax-highlighting/]
 ---

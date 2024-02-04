@@ -63,7 +63,7 @@ In its default configuration, Hugo renders markdown links according to the [Comm
 [CommonMark specification]: https://spec.commonmark.org/current/
 
 {{< code file=layouts/_default/_markup/render-link.html copy=true >}}
-<a href="{{ .Destination }}"
+<a href="{{ .Destination | safeURL }}"
   {{- with .Title }} title="{{ . }}"{{ end -}}
 >
   {{- with .Text | safeHTML }}{{ . }}{{ end -}}
@@ -75,7 +75,7 @@ To include a `rel` attribute set to `external` for external links:
 
 {{< code file=layouts/_default/_markup/render-link.html copy=true >}}
 {{- $u := urls.Parse .Destination -}}
-<a href="{{ .Destination }}"
+<a href="{{ .Destination | safeURL }}"
   {{- with .Title }} title="{{ . }}"{{ end -}}
   {{- if $u.IsAbs }} rel="external"{{ end -}}
 >
@@ -86,21 +86,23 @@ To include a `rel` attribute set to `external` for external links:
 
 ## Default
 
-{{< new-in v0.123.0 >}}
+{{< new-in 0.123.0 >}}
 
 Hugo includes an [embedded link render hook] to resolve markdown link destinations. Disabled by default, you can enable it in your site configuration:
 
 [embedded link render hook]: https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/_markup/render-link.html
 
 {{< code-toggle file=hugo >}}
-[markup.goldmark.renderhooks.link]
+[markup.goldmark.renderHooks.link]
 enableDefault = true
 {{< /code-toggle >}}
 
 A custom render hook, even when provided by a theme or module, will override the embedded render hook regardless of the configuration setting above.
 
 {{% note %}}
-The embedded link render hook is automatically enabled for multilingual, single-host sites provided that page resource duplication across languages is disabled. This is the default configuration for multilingual, single-host sites.
+The embedded link render hook is automatically enabled for multilingual single-host sites if [duplication of shared page resources] is disabled. This is the default configuration for multilingual single-host sites.
+
+[duplication of shared page resources]: /getting-started/configuration-markup/#duplicateresourcefiles
 {{% /note %}}
 
 The embedded link render hook resolves internal markdown destinations by looking for a matching page, falling back to a matching [page resource], then falling back to a matching [global resource]. Remote destinations are passed through, and the render hook will not throw an error or warning if it is unable to resolve a destination.

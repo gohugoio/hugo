@@ -6,8 +6,8 @@ keywords: [diagrams,drawing]
 menu:
   docs:
     parent: content-management
-    weight: 245
-weight: 245
+    weight: 260
+weight: 260
 toc: true
 ---
 {{< new-in 0.93.0 >}}

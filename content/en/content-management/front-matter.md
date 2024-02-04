@@ -36,8 +36,7 @@ date = 2024-02-02T04:14:54-08:00
 draft = false
 weight = 10
 [params]
-myparam = 42
-tags = ['red','blue']
+author = 'John Smith'
 {{< /code-toggle >}}
 
 Front matter fields may be [scalar], [arrays], or [maps] containing [boolean], [integer], [float], or [string] values. Note that the TOML format also supports date/time values using unquoted strings.
@@ -194,6 +193,8 @@ path
 
 ###### params
 
+{{< new-in 0.123.0 >}}
+
 (`map`) A map of custom [page parameters].
 
 [page parameters]: #parameters
@@ -262,7 +263,9 @@ path
 
 ## Parameters
 
-Specify custom page parameters, including taxonomy terms, under the `params` key in front matter:
+{{< new-in 0.123.0 >}}
+
+Specify custom page parameters under the `params` key in front matter:
 
 {{< code-toggle file=content/example.md fm=true >}}
 title = 'Example'
@@ -270,14 +273,41 @@ date = 2024-02-02T04:14:54-08:00
 draft = false
 weight = 10
 [params]
-myparam = 42
-tags = ['red','blue']
+author = 'John Smith'
 {{< /code-toggle >}}
 
 Access these values from a template using the [`Params`] or [`Param`] method on a `Page` object.
 
 [`param`]: /methods/page/param/
 [`params`]: /methods/page/params/
+
+## Taxonomies
+
+Classify content by adding taxonomy terms to front matter. For example, with this site configuration:
+
+{{< code-toggle file=hugo >}}
+[taxonomies]
+tag = 'tags'
+genre = 'genres'
+{{< /code-toggle >}}
+
+Add taxonomy terms as shown below:
+
+{{< code file=content/example.md >}}
+title = 'Example'
+date = 2024-02-02T04:14:54-08:00
+draft = false
+weight = 10
+tags = ['red','blue']
+genres = ['mystery','romance']
+[params]
+author = 'John Smith'
+{{< /code >}}
+
+Access taxonomy terms from a template using the [`Params`] or [`GetTerms`] method on a `Page` object:
+
+[`Params`]: /methods/page/params/
+[`GetTerms`]: /methods/page/getterms/
 
 ## Cascade
 
@@ -356,7 +386,9 @@ If your [content format] is [Emacs Org Mode], you may provide front matter using
 #+TITLE: Example
 #+DATE: 2024-02-02T04:14:54-08:00
 #+DRAFT: false
-#+MYPARAM: 42
+#+AUTHOR: John Smith
+#+GENRES: mystery
+#+GENRES: romance
 #+TAGS: red
 #+TAGS: blue
 #+WEIGHT: 10

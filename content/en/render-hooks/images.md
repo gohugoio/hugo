@@ -80,7 +80,7 @@ In its default configuration, Hugo renders markdown images according to the [Com
 [CommonMark specification]: https://spec.commonmark.org/current/
 
 {{< code file=layouts/_default/_markup/render-image.html copy=true >}}
-<img src="{{ .Destination }}"
+<img src="{{ .Destination | safeURL }}"
   {{- with .Text }} alt="{{ . }}"{{ end -}}
   {{- with .Title }} title="{{ . }}"{{ end -}}
 >
@@ -92,13 +92,13 @@ To render standalone images within `figure` elements:
 {{< code file=layouts/_default/_markup/render-image.html copy=true >}}
 {{- if .IsBlock -}}
   <figure>
-    <img src="{{ .Destination }}"
+    <img src="{{ .Destination | safeURL }}"
       {{- with .Text }} alt="{{ . }}"{{ end -}}
     >
     <figcaption>{{ .Title }}</figcaption>
   </figure>
 {{- else -}}
-  <img src="{{ .Destination }}"
+  <img src="{{ .Destination | safeURL }}"
     {{- with .Text }} alt="{{ . }}"{{ end -}}
     {{- with .Title }} title="{{ . }}"{{ end -}}
   >
@@ -114,21 +114,23 @@ wrapStandAloneImageWithinParagraph = false
 
 ## Default
 
-{{< new-in v0.123.0 >}}
+{{< new-in 0.123.0 >}}
 
 Hugo includes an [embedded image render hook] to resolve markdown image destinations. Disabled by default, you can enable it in your site configuration:
 
 [embedded image render hook]: https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/_markup/render-image.html
 
 {{< code-toggle file=hugo >}}
-[markup.goldmark.renderhooks.image]
+[markup.goldmark.renderHooks.image]
 enableDefault = true
 {{< /code-toggle >}}
 
 A custom render hook, even when provided by a theme or module, will override the embedded render hook regardless of the configuration setting above.
 
 {{% note %}}
-The embedded image render hook is automatically enabled for multilingual, single-host sites provided that page resource duplication across languages is disabled. This is the default configuration for multilingual, single-host sites.
+The embedded image render hook is automatically enabled for multilingual single-host sites if [duplication of shared page resources] is disabled. This is the default configuration for multilingual single-host sites.
+
+[duplication of shared page resources]: /getting-started/configuration-markup/#duplicateresourcefiles
 {{% /note %}}
 
 The embedded image render hook resolves internal markdown destinations by looking for a matching [page resource], falling back to a matching [global resource]. Remote destinations are passed through, and the render hook will not throw an error or warning if it is unable to resolve a destination.
