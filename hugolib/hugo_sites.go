@@ -473,7 +473,8 @@ func (h *HugoSites) loadData() error {
 	h.data = make(map[string]any)
 	w := hugofs.NewWalkway(
 		hugofs.WalkwayConfig{
-			Fs: h.PathSpec.BaseFs.Data.Fs,
+			Fs:         h.PathSpec.BaseFs.Data.Fs,
+			IgnoreFile: h.SourceSpec.IgnoreFile,
 			WalkFn: func(path string, fi hugofs.FileMetaInfo) error {
 				if fi.IsDir() {
 					return nil

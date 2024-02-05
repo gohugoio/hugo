@@ -249,9 +249,6 @@ func (c *pagesCollector) collectDir(dirPath *paths.Path, isDir bool, inFilter fu
 
 func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, inFilter func(fim hugofs.FileMetaInfo) bool) error {
 	filter := func(fim hugofs.FileMetaInfo) bool {
-		if c.sp.IgnoreFile(fim.Meta().Filename) {
-			return false
-		}
 		if inFilter != nil {
 			return inFilter(fim)
 		}
@@ -330,13 +327,14 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 
 	w := hugofs.NewWalkway(
 		hugofs.WalkwayConfig{
-			Logger:   c.logger,
-			Root:     path,
-			Info:     root,
-			Fs:       c.fs,
-			HookPre:  preHook,
-			HookPost: postHook,
-			WalkFn:   wfn,
+			Logger:     c.logger,
+			Root:       path,
+			Info:       root,
+			Fs:         c.fs,
+			IgnoreFile: c.h.SourceSpec.IgnoreFile,
+			HookPre:    preHook,
+			HookPost:   postHook,
+			WalkFn:     wfn,
 		})
 
 	return w.Walk()
@@ -371,6 +369,7 @@ func (c *pagesCollector) handleBundleLeaf(dir, bundle hugofs.FileMetaInfo, inPat
 			Logger:     c.logger,
 			Info:       dir,
 			DirEntries: readdir,
+			IgnoreFile: c.h.SourceSpec.IgnoreFile,
 			WalkFn:     walk,
 		})
 

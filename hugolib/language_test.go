@@ -135,3 +135,14 @@ FormatNumberCustom: 12,345.68
 NumFmt: -98,765.43
 `)
 }
+
+// Issue 11993.
+func TestI18nDotFile(t *testing.T) {
+	files := `
+-- hugo.toml --{}
+baseURL = "https://example.com"
+-- i18n/.keep --
+-- data/.keep --
+`
+	Test(t, files)
+}

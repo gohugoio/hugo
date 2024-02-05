@@ -53,8 +53,9 @@ type WalkwayConfig struct {
 	Logger loggers.Logger
 
 	// One or both of these may be pre-set.
-	Info       FileMetaInfo   // The start info.
-	DirEntries []FileMetaInfo // The start info's dir entries.
+	Info       FileMetaInfo               // The start info.
+	DirEntries []FileMetaInfo             // The start info's dir entries.
+	IgnoreFile func(filename string) bool // Optional
 
 	// Will be called in order.
 	HookPre  WalkHook // Optional.
@@ -170,6 +171,17 @@ func (w *Walkway) walk(path string, info FileMetaInfo, dirEntries []FileMetaInfo
 			})
 		}
 
+	}
+
+	if w.cfg.IgnoreFile != nil {
+		n := 0
+		for _, fi := range dirEntries {
+			if !w.cfg.IgnoreFile(fi.Meta().Filename) {
+				dirEntries[n] = fi
+				n++
+			}
+		}
+		dirEntries = dirEntries[:n]
 	}
 
 	if w.cfg.HookPre != nil {
