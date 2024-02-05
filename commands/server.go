@@ -538,9 +538,6 @@ of a second, you will be able to save and see your changes nearly instantly.`
 	cmd.Flags().BoolVar(&c.disableFastRender, "disableFastRender", false, "enables full re-renders on changes")
 	cmd.Flags().BoolVar(&c.disableBrowserError, "disableBrowserError", false, "do not show build errors in the browser")
 
-	cmd.Flags().String("memstats", "", "log memory usage to this file")
-	cmd.Flags().String("meminterval", "100ms", "interval to poll memory usage (requires --memstats), valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".")
-
 	cmd.Flags().SetAnnotation("tlsCertFile", cobra.BashCompSubdirsInDir, []string{})
 	cmd.Flags().SetAnnotation("tlsKeyFile", cobra.BashCompSubdirsInDir, []string{})
 
