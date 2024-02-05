@@ -497,9 +497,7 @@ func (c *serverCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 
 	err := func() error {
 		defer c.r.timeTrack(time.Now(), "Built")
-		var err error
-		err = c.build()
-		return err
+		return c.build()
 	}()
 	if err != nil {
 		return err
