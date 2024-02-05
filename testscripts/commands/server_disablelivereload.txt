@@ -1,4 +1,4 @@
-hugo server --renderToDisk --disableLiveReload &
+hugo server --disableLiveReload &
 
 waitServer
 

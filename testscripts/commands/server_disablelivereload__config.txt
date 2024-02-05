@@ -1,4 +1,4 @@
-hugo server --renderToDisk &
+hugo server &
 
 waitServer
 

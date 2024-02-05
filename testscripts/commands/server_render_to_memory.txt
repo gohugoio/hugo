@@ -2,7 +2,7 @@
 
 # We run these tests in parallel so let Hugo decide which port to use.
 # Deliberately using the alias 'serve' here.
-hugo serve &
+hugo serve --renderToMemory &
 
 waitServer
 
