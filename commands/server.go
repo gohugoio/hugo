@@ -495,18 +495,15 @@ func (c *serverCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 
 	}
 
-	var close func()
 	err := func() error {
 		defer c.r.timeTrack(time.Now(), "Built")
 		var err error
-		close, err = c.build()
+		err = c.build()
 		return err
 	}()
 	if err != nil {
 		return err
 	}
-
-	defer close()
 
 	return c.serve()
 }

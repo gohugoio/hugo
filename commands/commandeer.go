@@ -339,11 +339,10 @@ func (r *rootCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args 
 		if r.buildWatch {
 			defer r.timeTrack(time.Now(), "Built")
 		}
-		close, err := b.build()
+		err := b.build()
 		if err != nil {
 			return err
 		}
-		close()
 		return nil
 	}()
 	if err != nil {
