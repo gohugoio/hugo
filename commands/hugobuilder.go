@@ -928,7 +928,7 @@ func (c *hugoBuilder) hugoTry() *hugolib.HugoSites {
 
 func (c *hugoBuilder) loadConfig(cd *simplecobra.Commandeer, running bool) error {
 	cfg := config.New()
-	cfg.Set("renderToDisk", (c.s == nil && !c.r.renderToMemory) || (c.s != nil && c.s.renderToDisk))
+	cfg.Set("renderToMemory", c.r.renderToMemory)
 	watch := c.r.buildWatch || (c.s != nil && c.s.serverWatch)
 	if c.r.environment == "" {
 		// We need to set the environment as early as possible because we need it to load the correct config.

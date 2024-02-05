@@ -1,7 +1,7 @@
 # Test the hugo server command when editing the config file.
 
 # We run these tests in parallel so let Hugo decide which port to use.
-hugo server &
+hugo server --renderToMemory &
 
 waitServer
 

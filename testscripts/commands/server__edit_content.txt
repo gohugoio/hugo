@@ -2,7 +2,7 @@
 
 # We run these tests in parallel so let Hugo decide which port to use.
 # Render to disk so we can check the /public dir.
-hugo server --renderToDisk &
+hugo server &
 
 waitServer
 

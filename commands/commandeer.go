@@ -203,9 +203,6 @@ func (r *rootCommand) ConfigFromProvider(key int32, cfg config.Provider) (*commo
 			cfg = config.New()
 		}
 
-		if !cfg.IsSet("renderToDisk") {
-			cfg.Set("renderToDisk", true)
-		}
 		if !cfg.IsSet("workingDir") {
 			cfg.Set("workingDir", dir)
 		} else {
@@ -239,9 +236,7 @@ func (r *rootCommand) ConfigFromProvider(key int32, cfg config.Provider) (*commo
 
 		sourceFs := hugofs.Os
 		var destinationFs afero.Fs
-		if cfg.GetBool("renderToDisk") {
-			destinationFs = hugofs.Os
-		} else {
+		if cfg.GetBool("renderToMemory") {
 			destinationFs = afero.NewMemMapFs()
 			if renderStaticToDisk {
 				// Hybrid, render dynamic content to Root.
@@ -251,6 +246,8 @@ func (r *rootCommand) ConfigFromProvider(key int32, cfg config.Provider) (*commo
 				cfg.Set("publishDirDynamic", "/")
 				cfg.Set("publishDirStatic", "/")
 			}
+		} else {
+			destinationFs = hugofs.Os
 		}
 
 		fs := hugofs.NewFromSourceAndDestination(sourceFs, destinationFs, cfg)
@@ -498,6 +495,7 @@ Complete documentation is available at https://gohugo.io/.`
 	cmd.PersistentFlags().StringVar(&r.cfgFile, "config", "", "config file (default is hugo.yaml|json|toml)")
 	cmd.PersistentFlags().StringVar(&r.cfgDir, "configDir", "config", "config dir")
 	cmd.PersistentFlags().BoolVar(&r.quiet, "quiet", false, "build in quiet mode")
+	cmd.PersistentFlags().BoolVar(&r.renderToMemory, "renderToMemory", false, "render to memory (mostly useful when running the server)")
 
 	// Set bash-completion
 	_ = cmd.PersistentFlags().SetAnnotation("config", cobra.BashCompFilenameExt, config.ValidConfigFileExtensions)
@@ -506,7 +504,6 @@ Complete documentation is available at https://gohugo.io/.`
 	cmd.PersistentFlags().BoolVarP(&r.debug, "debug", "", false, "debug output")
 	cmd.PersistentFlags().StringVar(&r.logLevel, "logLevel", "", "log level (debug|info|warn|error)")
 	cmd.Flags().BoolVarP(&r.buildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
-	cmd.Flags().BoolVar(&r.renderToMemory, "renderToMemory", false, "render to memory (only useful for benchmark testing)")
 
 	// Configure local flags
 	applyLocalFlagsBuild(cmd, r)
