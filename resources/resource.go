@@ -85,7 +85,7 @@ type ResourceSourceDescriptor struct {
 	// Set when its known up front, else it's resolved from the target filename.
 	MediaType media.Type
 
-	// Used to track depenencies (e.g. imports). May be nil if that's of no concern.
+	// Used to track dependencies (e.g. imports). May be nil if that's of no concern.
 	DependencyManager identity.Manager
 
 	// A shared identity for this resource and all its clones.

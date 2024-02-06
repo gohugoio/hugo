@@ -21,7 +21,7 @@ import (
 	"github.com/gohugoio/hugo/common/paths"
 )
 
-// ResourcePaths holds path information for a resouce.
+// ResourcePaths holds path information for a resource.
 // All directories in here have Unix-style slashes, with leading slash, but no trailing slash.
 // Empty directories are represented with an empty string.
 type ResourcePaths struct {
