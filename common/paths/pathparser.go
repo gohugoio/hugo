@@ -480,6 +480,11 @@ func (p *Path) IsLeafBundle() bool {
 	return p.bundleType == PathTypeLeaf
 }
 
+func (p Path) ForBundleType(t PathType) *Path {
+	p.bundleType = t
+	return &p
+}
+
 func (p *Path) identifierAsString(i int) string {
 	i = p.identifierIndex(i)
 	if i == -1 {

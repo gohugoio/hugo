@@ -127,7 +127,22 @@ type pageTrees struct {
 
 // collectIdentities collects all identities from in all trees matching the given key.
 // This will at most match in one tree, but may give identies from multiple dimensions (e.g. language).
-func (t *pageTrees) collectIdentities(key string) []identity.Identity {
+func (t *pageTrees) collectIdentities(p *paths.Path) []identity.Identity {
+	ids := t.collectIdentitiesFor(p.Base())
+
+	if p.Component() == files.ComponentFolderContent {
+		// It may also be a bundled content resource.
+		if n := t.treeResources.Get(p.ForBundleType(paths.PathTypeContentResource).Base()); n != nil {
+			n.ForEeachIdentity(func(id identity.Identity) bool {
+				ids = append(ids, id)
+				return false
+			})
+		}
+	}
+	return ids
+}
+
+func (t *pageTrees) collectIdentitiesFor(key string) []identity.Identity {
 	var ids []identity.Identity
 	if n := t.treePages.Get(key); n != nil {
 		n.ForEeachIdentity(func(id identity.Identity) bool {
@@ -135,6 +150,7 @@ func (t *pageTrees) collectIdentities(key string) []identity.Identity {
 			return false
 		})
 	}
+
 	if n := t.treeResources.Get(key); n != nil {
 		n.ForEeachIdentity(func(id identity.Identity) bool {
 			ids = append(ids, id)

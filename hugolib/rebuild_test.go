@@ -39,7 +39,7 @@ My Section Bundle Text 2 Content.
 ---
 title: "My Section Bundle Content"
 ---
-My Section Bundle Content.
+My Section Bundle Content Content.
 -- content/mysection/_index.md --
 ---
 title: "My Section"
@@ -68,7 +68,7 @@ Foo.
 func TestRebuildEditTextFileInLeafBundle(t *testing.T) {
 	b := TestRunning(t, rebuildFilesSimple)
 	b.AssertFileContent("public/mysection/mysectionbundle/index.html",
-		"Resources: 0:/mysection/mysectionbundle/mysectionbundletext.txt|My Section Bundle Text 2 Content.|1:|<p>My Section Bundle Content.</p>\n|$")
+		"Resources: 0:/mysection/mysectionbundle/mysectionbundletext.txt|My Section Bundle Text 2 Content.|1:|<p>My Section Bundle Content Content.</p>\n|$")
 
 	b.EditFileReplaceAll("content/mysection/mysectionbundle/mysectionbundletext.txt", "Content.", "Content Edited.").Build()
 	b.AssertFileContent("public/mysection/mysectionbundle/index.html",
@@ -107,6 +107,13 @@ func TestRebuildRenameTextFileInLeafBundle(t *testing.T) {
 	b.AssertFileContent("public/mysection/mysectionbundle/index.html", "mysectionbundletext2", "My Section Bundle Text 2 Content.", "Len Resources: 2|")
 	b.AssertRenderCountPage(3)
 	b.AssertRenderCountContent(3)
+}
+
+func TestRebuilEditContentFileInLeafBundle(t *testing.T) {
+	b := TestRunning(t, rebuildFilesSimple)
+	b.AssertFileContent("public/mysection/mysectionbundle/index.html", "My Section Bundle Content Content.")
+	b.EditFileReplaceAll("content/mysection/mysectionbundle/mysectionbundlecontent.md", "Content Content.", "Content Content Edited.").Build()
+	b.AssertFileContent("public/mysection/mysectionbundle/index.html", "My Section Bundle Content Content Edited.")
 }
 
 func TestRebuildRenameTextFileInBranchBundle(t *testing.T) {

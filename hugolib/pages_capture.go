@@ -196,6 +196,11 @@ func (c *pagesCollector) Collect() (collectErr error) {
 
 						return id.p.Dir() == fim.Meta().PathInfo.Dir()
 					}
+
+					if fim.Meta().PathInfo.IsLeafBundle() && id.p.BundleType() == paths.PathTypeContentSingle {
+						return id.p.Dir() == fim.Meta().PathInfo.Dir()
+					}
+
 					return id.p.Path() == fim.Meta().PathInfo.Path()
 				})
 			}
