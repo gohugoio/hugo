@@ -23,6 +23,64 @@ import (
 	"golang.org/x/text/unicode/norm"
 )
 
+var transliteratePool = &sync.Pool{
+	New: func() any {
+		return transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)),
+			runes.Map(func(r rune) rune {
+				switch r {
+				case 'ą':
+					return 'a'
+				case 'ć':
+					return 'c'
+				case 'ę':
+					return 'e'
+				case 'ł':
+					return 'l'
+				case 'ń':
+					return 'n'
+				case 'ó':
+					return 'o'
+				case 'ś':
+					return 's'
+				case 'ż':
+					return 'z'
+				case 'ź':
+					return 'z'
+				case 'ø':
+					return 'o'
+				}
+				return r
+			}),
+			norm.NFC)
+	},
+}
+
+var transliterateMap = map[rune]rune{
+	'ą': 'a',
+	'ć': 'c',
+	'ę': 'e',
+	'ł': 'l',
+	'ń': 'n',
+	'ó': 'o',
+	'ś': 's',
+	'ż': 'z',
+	'ź': 'z',
+	'ø': 'o',
+}
+
+var transliteratePoolMap = &sync.Pool{
+	New: func() any {
+		return transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)),
+			runes.Map(func(r rune) rune {
+				if rr, ok := transliterateMap[r]; ok {
+					return rr
+				}
+				return r
+			}),
+			norm.NFC)
+	},
+}
+
 var accentTransformerPool = &sync.Pool{
 	New: func() any {
 		return transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
@@ -44,6 +102,22 @@ func RemoveAccentsString(s string) string {
 	s, _, _ = transform.String(t, s)
 	t.Reset()
 	accentTransformerPool.Put(t)
+	return s
+}
+
+func TransliterateString(s string) string {
+	t := transliteratePool.Get().(transform.Transformer)
+	s, _, _ = transform.String(t, s)
+	t.Reset()
+	transliteratePool.Put(t)
+	return s
+}
+
+func TransliterateStringMap(s string) string {
+	t := transliteratePoolMap.Get().(transform.Transformer)
+	s, _, _ = transform.String(t, s)
+	t.Reset()
+	transliteratePoolMap.Put(t)
 	return s
 }
 
