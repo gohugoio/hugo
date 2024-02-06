@@ -21,9 +21,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout code
-      uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+      uses: actions/checkout@v4
     - name: Install Go
-      uses: actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753
+      uses: actions/setup-go@v5
       with:
         go-version: ${{ matrix.go-version }}
         check-latest: true
@@ -32,18 +32,18 @@ jobs:
           **/go.sum
           **/go.mod
     - name: Install Ruby
-      uses: ruby/setup-ruby@036ef458ddccddb148a2b9fb67e95a22fdbf728b
+      uses: ruby/setup-ruby@v1.171.0
       with:
         ruby-version: '2.7'
         bundler-cache: true #
     - name: Install Python
-      uses: actions/setup-python@3105fb18c05ddd93efea5f9e0bef7a03a6e9e7df
+      uses: actions/setup-python@v5
       with:
         python-version: '3.x'
     - name: Install Mage
       run: go install github.com/magefile/mage@v1.15.0
     - name: Install asciidoctor
-      uses: reitzig/actions-asciidoctor@7570212ae20b63653481675fb1ff62d1073632b0
+      uses: reitzig/actions-asciidoctor@v2.0.1
     - name: Install docutils
       run: |
         pip install docutils
