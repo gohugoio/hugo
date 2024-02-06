@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Lint Code Base
-        uses: super-linter/super-linter/slim@v5
+        uses: super-linter/super-linter/slim@v6
         env:
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
