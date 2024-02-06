@@ -1859,13 +1859,12 @@ func (m *pageMap) CreateSiteTaxonomies(ctx context.Context) error {
 			LockType: doctree.LockTypeRead,
 			Handle: func(s string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
 				p := n.(*pageState)
-				plural := p.Section()
 
 				switch p.Kind() {
 				case kinds.KindTerm:
-					taxonomy := m.s.taxonomies[plural]
+					taxonomy := m.s.taxonomies[viewName.plural]
 					if taxonomy == nil {
-						return true, fmt.Errorf("missing taxonomy: %s", plural)
+						return true, fmt.Errorf("missing taxonomy: %s", viewName.plural)
 					}
 					k := strings.ToLower(p.m.term)
 					err := m.treeTaxonomyEntries.WalkPrefix(

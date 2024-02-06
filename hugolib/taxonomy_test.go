@@ -753,3 +753,26 @@ Single.
 `
 	Test(t, files)
 }
+
+func TestTaxonomiesSpaceInName(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+[taxonomies]
+authors = 'book authors'
+-- content/p1.md --
+---
+title: Good Omens
+book authors:
+  - Neil Gaiman
+  - Terry Pratchett
+---
+-- layouts/index.html --
+{{- $taxonomy := "book authors" }}
+Len Book Authors: {{ len (index .Site.Taxonomies $taxonomy) }}
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html", "Len Book Authors: 2")
+}
