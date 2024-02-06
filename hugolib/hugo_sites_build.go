@@ -702,9 +702,7 @@ func (h *HugoSites) processPartial(ctx context.Context, l logg.LevelLogger, conf
 		switch pathInfo.Component() {
 		case files.ComponentFolderContent:
 			logger.Println("Source changed", pathInfo.Path())
-			base := pathInfo.Base()
-
-			if ids := h.pageTrees.collectIdentities(base); len(ids) > 0 {
+			if ids := h.pageTrees.collectIdentities(pathInfo); len(ids) > 0 {
 				changes = append(changes, ids...)
 			}
 
@@ -723,7 +721,6 @@ func (h *HugoSites) processPartial(ctx context.Context, l logg.LevelLogger, conf
 			h.pageTrees.treeTaxonomyEntries.DeletePrefix("")
 
 			if delete {
-
 				_, ok := h.pageTrees.treePages.LongestPrefixAll(pathInfo.Base())
 				if ok {
 					h.pageTrees.treePages.DeleteAll(pathInfo.Base())
