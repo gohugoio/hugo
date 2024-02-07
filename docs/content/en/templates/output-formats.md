@@ -85,9 +85,6 @@ The above example is fictional, but if used for the homepage on a site with `bas
 
 The following is the full list of configuration options for output formats and their default values:
 
-name
-: the output format identifier. This is used to define what output format(s) you want for your pages.
-
 mediaType
 : this must match the `Type` of a defined media type.
 
