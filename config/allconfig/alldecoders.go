@@ -25,7 +25,7 @@ import (
 	"github.com/gohugoio/hugo/config/privacy"
 	"github.com/gohugoio/hugo/config/security"
 	"github.com/gohugoio/hugo/config/services"
-	"github.com/gohugoio/hugo/deploy"
+	"github.com/gohugoio/hugo/deploy/deployconfig"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/markup/markup_config"
 	"github.com/gohugoio/hugo/media"
@@ -333,7 +333,7 @@ var allDecoderSetups = map[string]decodeWeight{
 		key: "deployment",
 		decode: func(d decodeWeight, p decodeConfig) error {
 			var err error
-			p.c.Deployment, err = deploy.DecodeConfig(p.p)
+			p.c.Deployment, err = deployconfig.DecodeConfig(p.p)
 			return err
 		},
 	},
