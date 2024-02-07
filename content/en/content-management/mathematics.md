@@ -1,9 +1,9 @@
 ---
 title: Mathematics in markdown
 linkTitle: Mathematics
-description: Include mathematical equations and expressions in your markdown using LaTeX or TeX typsetting syntax.
+description: Include mathematical equations and expressions in your markdown using LaTeX or TeX typesetting syntax.
 categories: [content management]
-keywords: [chemical,chemistry,latex,math,mathjax,tex,typsetting]
+keywords: [chemical,chemistry,latex,math,mathjax,tex,typesetting]
 menu:
   docs:
     parent: content-management
@@ -45,7 +45,7 @@ The approach described below avoids reliance on platform-specific features like 
 
 ## Setup
 
-Follow these instructions to include mathematical equations and expressions in your markdown using LaTeX or TeX typsetting syntax.
+Follow these instructions to include mathematical equations and expressions in your markdown using LaTeX or TeX typesetting syntax.
 
 ###### Step 1
 
@@ -122,7 +122,7 @@ The example above loads the partial template if you have set the `math` paramete
 
 ###### Step 4
 
-Include mathematical equations and expressions in your markdown using LaTeX or TeX typsetting syntax.
+Include mathematical equations and expressions in your markdown using LaTeX or TeX typesetting syntax.
 
 {{< code file=content/math-examples.md copy=true >}}
 This is an inline \(a^*=x-b^*\) equation.

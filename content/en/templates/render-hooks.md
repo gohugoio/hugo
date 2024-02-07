@@ -128,7 +128,7 @@ Here is a code example for how the render-image.html template could look:
 Given this template file
 
 {{< code file=layouts/_default/_markup/render-heading.html >}}
-<h{{ .Level }} id="{{ .Anchor | safeURL }}">{{ .Text | safeHTML }} <a href="#{{ .Anchor | safeURL }}">¶</a></h{{ .Level }}>
+<h{{ .Level }} id="{{ .Anchor }}">{{ .Text | safeHTML }} <a href="#{{ .Anchor | safeURL }}">¶</a></h{{ .Level }}>
 {{< /code >}}
 
 And this markdown

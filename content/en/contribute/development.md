@@ -11,420 +11,138 @@ weight: 20
 toc: true
 ---
 
+
+
 ## Introduction
 
-Hugo is an open-source project and lives by the work of its [contributors]. There are plenty of [open issues][issues], and we need your help to make Hugo even more awesome. You don't need to be a Go guru to contribute to the project's development.
+You can contribute to the Hugo project by:
 
-## Assumptions
+- Answering questions on the [forum]
+- Improving the [documentation]
+- Monitoring the [issue queue]
+- Creating or improving [themes]
+- Squashing [bugs]
 
-This contribution guide takes a step-by-step approach in hopes of helping newcomers. Therefore, we only assume the following:
+Please submit documentation issues and pull requests to the [documentation repository].
 
-* You are new to Git or open-source projects in general
-* You are a fan of Hugo and enthusiastic about contributing to the project
+If you have an idea for an enhancement or new feature, create a new topic on the [forum] in the "Feature" category. This will help you to:
 
-{{% note %}}
-If you're struggling at any point in this contribution guide, reach out to the Hugo community in [Hugo's Discussion forum](https://discourse.gohugo.io).
-{{% /note %}}
+- Determine if the capability already exists
+- Measure interest
+- Refine the concept
 
-## Install Go
+If there is sufficient interest, [create a proposal]. Do not submit a pull request until the project lead accepts the proposal.
 
-The installation of Go should take only a few minutes. You have more than one option to get Go up and running on your machine.
+For a complete guide to contributing to Hugo, see the [Contribution Guide].
 
-If you are having trouble following the installation guides for Go, check out [Go Bootcamp, which contains setups for every platform][gobootcamp] or reach out to the Hugo community in the [Hugo Discussion Forums][forums].
+[bugs]: https://github.com/gohugoio/hugo/issues?q=is%3Aopen+is%3Aissue+label%3ABug
+[contributing]: CONTRIBUTING.md
+[create a proposal]: https://github.com/gohugoio/hugo/issues/new?labels=Proposal%2C+NeedsTriage&template=feature_request.md
+[documentation repository]: https://github.com/gohugoio/hugoDocs
+[documentation]: https://gohugo.io/documentation
+[forum]: https://discourse.gohugo.io
+[issue queue]: https://github.com/gohugoio/hugo/issues
+[themes]: https://themes.gohugo.io/
+[contribution guide]: https://github.com/gohugoio/hugo/blob/master/CONTRIBUTING.md
 
-### Install Go from source
+## Prerequisites
 
-[Download the latest stable version of Go][godl] and follow the official [Go installation guide][goinstall].
+To build the extended edition of Hugo from source you must:
 
-Once you're finished installing Go, let's confirm everything is working correctly. Open a terminal---or command line under Windows--and type the following:
+1. Install [Git]
+1. Install [Go] version 1.20 or later
+1. Install a C compiler, either [GCC] or [Clang]
+1. Update your `PATH` environment variable as described in the [Go documentation]
 
-```txt
-go version
-```
-
-You should see something similar to the following written to the console. Note that the version here reflects the most recent version of Go as of the last update for this page:
-
-```txt
-go version go1.12 darwin/amd64
-```
-
-Next, make sure that you set up your `GOPATH` [as described in the installation guide][setupgopath].
-
-You can print the `GOPATH` with `echo $GOPATH`. You should see a non-empty string containing a valid path to your Go workspace; for example:
-
-```txt
-/Users/<yourusername>/Code/go
-```
-
-### Install Go with Homebrew
-
-If you are a macOS user and have [Homebrew](https://brew.sh/) installed on your machine, installing Go is as simple as the following command:
-
-{{< code file=install-go.sh >}}
-brew install go
-{{< /code >}}
-
-### Install Go via GVM
-
-More experienced users can use the [Go Version Manager][gvm] (GVM). GVM allows you to switch between different Go versions *on the same machine*. If you're a beginner, you probably don't need this feature. However, GVM makes it easy to upgrade to a new released Go version with just a few commands.
-
-GVM comes in especially handy if you follow the development of Hugo over a longer period of time. Future versions of Hugo will usually be compiled with the latest version of Go. Sooner or later, you will have to upgrade if you want to keep up.
-
-## Create a GitHub account
-
-If you're going to contribute code, you'll need to have an account on GitHub. Go to [www.github.com/join](https://github.com/join) and set up a personal account.
-
-## Install Git on your system
-
-You will need to have Git installed on your computer to contribute to Hugo development. Teaching Git is outside the scope of the Hugo docs, but if you're looking for an excellent reference to learn the basics of Git, we recommend the [Git book][gitbook] if you are not sure where to begin. We will include short explanations of the Git commands in this document.
-
-Git is a [version control system](https://en.wikipedia.org/wiki/Version_control) to track the changes of source code. Hugo depends on smaller third-party packages that are used to extend the functionality. We use them because we don't want to reinvent the wheel.
-
-Go ships with a sub-command called `get` that will download these packages for us when we set up our working environment. The source code of the packages is tracked with Git. `get` will interact with the Git servers of the package hosters in order to fetch all dependencies.
-
-Move back to the terminal and check if Git is already installed. Type in `git version` and press enter. You can skip the rest of this section if the command returned a version number. Otherwise [download](https://git-scm.com/downloads) the latest version of Git and follow this [installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
-
-Finally, check again with `git version` if Git was installed successfully.
-
-### Git graphical front ends
-
-There are several [GUI clients](https://git-scm.com/downloads/guis) that help you to operate Git. Not all are available for all operating systems and maybe differ in their usage. Because of this we will document how to use the command-line, since the commands are the same everywhere.
-
-### Install Hub on your system (optional)
-
-Hub is a great tool for working with GitHub. The main site for it is [hub.github.com](https://hub.github.com/). Feel free to install this little Git wrapper.
-
-On a Mac, you can install [Hub](https://github.com/github/hub) using [Homebrew](https://brew.sh):
-
-```txt
-brew install hub
-```
-
-Now we'll create an [alias in Bash](https://tldp.org/LDP/abs/html/aliases.html) so that typing `git` actually runs `Hub`:
-
-```txt
-echo "alias git='hub'" >> ~/.bash_profile
-```
-
-Confirm the installation:
-
-```txt
-git version 2.21.0
-hub version 2.10.0
-```
-
-## Set up your working copy
-
-You set up the working copy of the repository locally on your computer. Your local copy of the files is what you'll edit, compile, and end up pushing back to GitHub. The main steps are cloning the repository and creating your fork as a remote.
-
-### Clone the repository
-
-We assume that you've set up your `GOPATH` (see the section above if you're unsure about this). You should now copy the Hugo repository down to your computer. You'll hear this called "clone the repo". GitHub's [help pages](https://help.github.com/articles/cloning-a-repository/) give us a short explanation:
+[Clang]: https://clang.llvm.org/
+[GCC]: https://gcc.gnu.org/
+[Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
+[Go documentation]: https://go.dev/doc/code#Command
+[Go]: https://go.dev/doc/install
 
 {{% note %}}
-When you create a repository on GitHub, it exists as a remote repository. You can create a local clone of your repository on your computer and sync between the two locations.
+See these [detailed instructions](https://discourse.gohugo.io/t/41370) to install GCC on Windows.
 {{% /note %}}
 
-We're going to clone the [master Hugo repository](https://github.com/gohugoio/hugo). That seems counter-intuitive, since you won't have commit rights on it. But it's required for the Go workflow. You'll work on a copy of the master and push your changes to your own repository on GitHub.
-
-So, let's make a new directory and clone that master repository:
-
-```txt
-mkdir $HOME/src
-cd $HOME/src
-git clone https://github.com/gohugoio/hugo.git
-```
-
-Since Hugo 0.48, Hugo uses the Go Modules support built into Go 1.11 to build. The easiest is to clone Hugo in a directory outside of GOPATH
-
-And then, install dependencies of Hugo by running the following in the cloned directory:
-
-```txt
-cd $HOME/src/hugo
-go install
-```
-
-Hugo relies on [mage](https://github.com/magefile/mage) for some convenient build and test targets. If you don't already have it, get it:
-
-```txt
-go install github.com/magefile/mage@latest
-```
-
-### Fork the repository
-
-If you're not familiar with this term, GitHub's [help pages](https://help.github.com/articles/fork-a-repo/) provide again a simple explanation:
+## GitHub workflow
 
 {{% note %}}
-A fork is a copy of a repository. Forking a repository allows you to freely experiment with changes without affecting the original project.
+This section assumes that you have a working knowledge of Go, Git and GitHub, and are comfortable working on the command line.
 {{% /note %}}
 
-#### Fork by hand
+Use this workflow to create and submit pull requests.
 
-Open the [Hugo repository](https://github.com/gohugoio/hugo) on GitHub and click on the "Fork" button in the top right.
+Step 1
+: Fork the [project repository].
 
-![Fork button](/images/contribute/development/forking-a-repository.png)
+[project repository]: https://github.com/gohugoio/hugo/
 
-Now open your fork repository on GitHub and copy the remote URL of your fork. You can choose between HTTPS and SSH as protocol that Git should use for the following operations. HTTPS works always [if you're not sure](https://help.github.com/articles/which-remote-url-should-i-use/).
+Step 2
+: Clone your fork.
 
-![Copy remote url](/images/contribute/development/copy-remote-url.png)
+Step 3
+: Create a new branch with a descriptive name that includes the corresponding issue number.
 
-Switch back to the terminal and move into the directory of the cloned master repository from the last step.
+For a new feature:
 
-```txt
-cd $HOME/src/hugo
+```sh
+git checkout -b feat/implement-some-feature-99999
 ```
 
-Now Git needs to know that our fork exists by adding the copied remote url:
+For a bug fix:
 
-```txt
-git remote add <YOUR-GITHUB-USERNAME> <COPIED REMOTE-URL>
+```sh
+git checkout -b fix/fix-some-bug-99999
 ```
 
-#### Fork with Hub
+Step 4
+: Make changes.
 
-Alternatively, you can use the Git wrapper Hub. Hub makes forking a repository easy:
+Step 5
+: Compile and install:
 
-```txt
-git fork
+```text
+CGO_ENABLED=1 go install -tags extended
 ```
 
-That command will log in to GitHub using your account, create a fork of the repository that you're currently working in, and add it as a remote to your working copy.
+Step 6
+: Test your changes:
 
-#### Trust, but verify
-
-Let's check if everything went right by listing all known remotes:
-
-```txt
-git remote -v
+```text
+go test ./...
 ```
 
-The output should look similar:
+Step 7
+: Commit your changes with a descriptive commit message:
 
-```txt
-digitalcraftsman    git@github.com:digitalcraftsman/hugo.git (fetch)
-digitalcraftsman    git@github.com:digitalcraftsman/hugo.git (push)
-origin  https://github.com/gohugoio/hugo (fetch)
-origin  https://github.com/gohugoio/hugo (push)
-```
+- Provide a summary on the first line, typically 50 characters or less, followed by a blank line.
+- Optionally, provide a detailed description where each line is 80 characters or less, followed by a blank line.
+- Add one or more "Fixes" or "Closes" keywords, each on its own line, referencing the [issues] addressed by this change.
 
-## The Hugo Git contribution workflow
-
-### Create a new branch
-
-You should never develop against the "master" branch. The development team will not accept a pull request against that branch. Instead, create a descriptive named branch and work on it.
-
-First, you should always pull the latest changes from the master repository:
-
-```txt
-git checkout master
-git pull
-```
-
-Now we can create a new branch for your additions:
-
-```txt
-git checkout -b <BRANCH-NAME>
-```
-
-You can check on which branch you are with `git branch`. You should see a list of all local branches. The current branch is indicated with a little asterisk.
-
-### Contribute to documentation
-
-Perhaps you want to start contributing to the Hugo docs. If so, you can ignore most of the following steps and focus on the `/docs` directory within your newly cloned repository. You can change directories into the Hugo docs using `cd docs`.
-
-You can start Hugo's built-in server via `hugo server`. Browse the documentation by entering [http://localhost:1313](http://localhost:1313) in the address bar of your browser. The server automatically updates the page whenever you change content.
-
-We have developed a [separate Hugo documentation contribution guide][docscontrib] for more information on how the Hugo docs are built, organized, and improved by the generosity of people like you.
-
-### Build Hugo
-
-While making changes in the codebase it's a good idea to build the binary to test them:
-
-```txt
-mage hugo
-```
-
-This command generates the binary file at the root of the repository.
-
-If you want to install the binary in `$GOPATH/bin`, run
-
-```txt
-mage install
-```
-
-### Test
-
-Sometimes changes on the codebase can cause unintended side effects. Or they don't work as expected. Most functions have their own test cases. You can find them in files ending with `_test.go`.
-
-Make sure the commands
-
-```txt
-mage -v check
-```
-
-passes.
-
-### Formatting
-
-The Go code style guide maybe is opinionated but it ensures that the codebase looks the same, regardless who wrote the code. Go comes with its own formatting tool. Let's apply the style guide to our additions:
-
-```txt
-mage fmt
-```
-
-Once you made your additions commit your changes. Make sure that you follow our [code contribution guidelines](https://github.com/gohugoio/hugo/blob/master/CONTRIBUTING.md):
-
-```txt
-# Add all changed files
-git add --all
-git commit --message "YOUR COMMIT MESSAGE"
-```
-
-The commit message should describe what the commit does (e.g. add feature XYZ), not how it is done.
-
-### Modify commits
-
-You noticed some commit messages don't fulfill the code contribution guidelines or you just forget something to add some files? No problem. Git provides the necessary tools to fix such problems. The next two methods cover all common cases.
-
-If you are unsure what a command does leave the commit as it is. We can fix your commits later in the pull request.
-
-#### Modify the last commit
-
-Let's say you want to modify the last commit message. Run the following command and replace the current message:
-
-```txt
-git commit --amend -m"YOUR NEW COMMIT MESSAGE"
-```
-
-Take a look at the commit log to see the change:
-
-```txt
-git log
-# Exit with q
-```
-
-After making the last commit you may have forgotten something. There is no need to create a new commit. Just add the latest changes and merge them into the intended commit:
-
-```txt
-git add --all
-git commit --amend
-```
-
-#### Modify multiple commits
-
-{{% note %}}
-Modifications such as those described in this section can have serious unintended consequences. Skip this section if you're not sure!
-{{% /note %}}
-
-This is a bit more advanced. Git allows you to [rebase](https://git-scm.com/docs/git-rebase) commits interactively. In other words: it allows you to rewrite the commit history.
-
-```txt
-git rebase --interactive @~6
-```
-
-The `6` at the end of the command represents the number of commits that should be modified. An editor should open and present a list of last six commit messages:
-
-```txt
-pick 80d02a1 tpl: Add hasPrefix to template function smoke test"
-pick aaee038 tpl: Sort the smoke tests
-pick f0dbf2c tpl: Add the other test case for hasPrefix
-pick 911c35b Add "How to contribute to Hugo" tutorial
-pick 33c8973 Begin workflow
-pick 3502f2e Refactoring and typo fixes
-```
-
-In the case above we should merge the last two commits in the commit of this tutorial (`Add "How to contribute to Hugo" tutorial`). You can "squash" commits, i.e. merge two or more commits into a single one.
-
-All operations are written before the commit message. Replace "pick" with an operation. In this case `squash` or `s` for short:
-
-```txt
-pick 80d02a1 tpl: Add hasPrefix to template function smoke test"
-pick aaee038 tpl: Sort the smoke tests
-pick f0dbf2c tpl: Add the other test case for hasPrefix
-pick 911c35b Add "How to contribute to Hugo" tutorial
-squash 33c8973 Begin workflow
-squash 3502f2e Refactoring and typo fixes
-```
-
-We also want to rewrite the commits message of the third last commit. We forgot "docs:" as prefix according to the code contribution guidelines. The operation to rewrite a commit is called `reword` (or `r` as shortcut).
-
-You should end up with a similar setup:
-
-```txt
-pick 80d02a1 tpl: Add hasPrefix to template function smoke test"
-pick aaee038 tpl: Sort the smoke tests
-pick f0dbf2c tpl: Add the other test case for hasPrefix
-reword 911c35b Add "How to contribute to Hugo" tutorial
-squash 33c8973 Begin workflow
-squash 3502f2e Refactoring and typo fixes
-```
-
-Close the editor. It should open again with a new tab. A text is instructing you to define a new commit message for the last two commits that should be merged (aka "squashed"). Save the file with <kbd>CTRL</kbd>+<kbd>S</kbd> and close the editor again.
-
-A last time a new tab opens. Enter a new commit message and save again. Your terminal should contain a status message. Hopefully this one:
-
-```txt
-Successfully rebased and updated refs/heads/<BRANCHNAME>.
-```
-
-Check the commit log if everything looks as expected. Should an error occur you can abort this rebase with `git rebase --abort`.
-
-### Push commits
-
-To push our commits to the fork on GitHub we need to specify a destination. A destination is defined by the remote and a branch name. Earlier, the defined that the remote URL of our fork is the same as our GitHub handle, in my case `digitalcraftsman`. The branch should have the same as our local one. This makes it easy to identify corresponding branches.
-
-```txt
-git push --set-upstream <YOUR-GITHUB-USERNAME> <BRANCHNAME>
-```
-
-Now Git knows the destination. Next time when you to push commits you just need to enter `git push`.
-
-If you modified your commit history in the last step GitHub will reject your try to push. This is a safety-feature because the commit history isn't the same and new commits can't be appended as usual. You can enforce this push explicitly with `git push --force`.
-
-## Open a pull request
-
-We made a lot of progress. Good work. In this step we finally open a pull request to submit our additions. Open the [Hugo master repository](https://github.com/gohugoio/hugo/) on GitHub in your browser.
-
-You should find a green button labeled with "New pull request". But GitHub is clever and probably suggests you a pull request like in the beige box below:
-
-![Open a pull request](/images/contribute/development/open-pull-request.png)
-
-The new page summaries the most important information of your pull request. Scroll down and you find the additions of all your commits. Make sure everything looks as expected and click on "Create pull request".
-
-### Accept the contributor license agreement
-
-Last but not least you should accept the contributor license agreement (CLA). A new comment should be added automatically to your pull request. Click on the yellow badge, accept the agreement and authenticate yourself with your GitHub account. It just takes a few clicks and only needs to be done once.
-
-![Accept the CLA](/images/contribute/development/accept-cla.png)
-
-### Automatic builds
-
-We use a GitHub Actions workflow to build and test. This is a matrix build across combinations of operating system (macOS, Windows, and Ubuntu) and Go versions. The workflow is triggered by the submission of a pull request. If you are a first-time contributor, the workflow requires approval from a project maintainer.
-
-## Where to start?
-
-Thank you for reading through this contribution guide. Hopefully, we will see you again soon on GitHub. There are plenty of [open issues][issues] for you to help with.
-
-Feel free to [open an issue][newissue] if you think you found a bug or you have a new idea to improve Hugo. We are happy to hear from you.
-
-## Additional references for learning Git and Go
-
-* [Codecademy's Free "Learn Git" Course][codecademy] (Free)
-* [Code School and GitHub's "Try Git" Tutorial][trygit] (Free)
-* [The Git Book][gitbook] (Free)
-* [Go Bootcamp][gobootcamp]
-
-[codecademy]: https://www.codecademy.com/learn/learn-git
-[contributors]: https://github.com/gohugoio/hugo/graphs/contributors
-[docscontrib]: /contribute/documentation/
-[forums]: https://discourse.gohugo.io
-[gitbook]: https://git-scm.com/
-[gobootcamp]: https://www.golang-book.com/guides/machine_setup
-[godl]: https://go.dev/dl/
-[goinstall]: https://go.dev/doc/install
-[gvm]: https://github.com/moovweb/gvm
 [issues]: https://github.com/gohugoio/hugo/issues
-[newissue]: https://github.com/gohugoio/hugo/issues/new
-[releases]: /getting-started/
-[setupgopath]: https://go.dev/doc/code#Workspaces
-[trygit]: https://try.github.io/levels/1/challenges/1
+
+For example:
+
+```sh
+git commit -m "tpl/strings: Create wrap function
+
+The strings.Wrap function wraps a string into one or more lines,
+splitting the string after the given number of characters, but not
+splitting in the middle of a word.
+
+Fixes #99998
+Closes #99999"
+```
+
+See the [commit message guidelines] for details.
+
+[commit message guidelines]: https://github.com/gohugoio/hugo/blob/master/CONTRIBUTING.md#git-commit-message-guidelines
+
+Step 8
+: Push the new branch to your fork of the documentation repository.
+
+Step 9
+: Visit the [project repository] and create a pull request (PR).
+
+Step 10
+: A project maintainer will review your PR and may request changes. You may delete your branch after the maintainer merges your PR.

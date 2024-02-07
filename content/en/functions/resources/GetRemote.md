@@ -175,3 +175,41 @@ Override the cache key by setting a `key` in the options map. Use this approach 
 ```
 
 [configure file caches]: /getting-started/configuration/#configure-file-caches
+
+## Security
+
+To protect against malicious intent, the `resources.GetRemote` function inspects the server response including:
+
+- The [Content-Type] in the response header
+- The file extension, if any
+- The content itself
+
+If Hugo is unable to resolve the media type to an entry in its [allowlist], the function throws an error:
+
+```text
+ERROR error calling resources.GetRemote: failed to resolve media type...
+```
+
+For example, you will see the error above if you attempt to download an executable.
+
+Although the allowlist contains entries for common media types, you may encounter situations where Hugo is unable to resolve the media type of a file that you know to be safe. In these situations, edit your site configuration to add the media type to the allowlist. For example:
+
+```text
+[security.http]
+mediaTypes=['application/vnd\.api\+json'] 
+```
+
+Note that the entry above is:
+
+- An _addition_ to the allowlist; it does not _replace_ the allowlist
+- An array of regular expressions
+
+For example, to add two entries to the allowlist:
+
+```text
+[security.http]
+mediaTypes=['application/vnd\.api\+json','image/avif']
+```
+
+[allowlist]: https://en.wikipedia.org/wiki/Whitelist
+[Content-Type]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
