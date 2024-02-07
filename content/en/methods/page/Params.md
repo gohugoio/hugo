@@ -18,7 +18,7 @@ With this front matter:
 title = 'Annual conference'
 date = 2023-10-17T15:11:37-07:00
 display_related = true
-[params.author]
+[author]
   email = 'jsmith@example.org'
   name = 'John Smith'
 {{< /code-toggle >}}
