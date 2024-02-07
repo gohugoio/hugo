@@ -35,6 +35,7 @@ hugo convert toTOML [flags] [args]
       --logLevel string            log level (debug|info|warn|error)
   -o, --output string              filesystem path to write files to
       --quiet                      build in quiet mode
+      --renderToMemory             render to memory (mostly useful when running the server)
   -s, --source string              filesystem path to read files relative from
       --themesDir string           filesystem path to themes directory
       --unsafe                     enable less safe operations, please backup first

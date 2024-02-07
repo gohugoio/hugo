@@ -56,7 +56,7 @@ hugo [flags]
       --printPathWarnings          print warnings on duplicate target paths etc.
       --printUnusedTemplates       print warnings on unused templates.
       --quiet                      build in quiet mode
-      --renderToMemory             render to memory (only useful for benchmark testing)
+      --renderToMemory             render to memory (mostly useful when running the server)
   -s, --source string              filesystem path to read files relative from
       --templateMetrics            display metrics about template executions
       --templateMetricsHints       calculate some improvement hints when combined with --templateMetrics
