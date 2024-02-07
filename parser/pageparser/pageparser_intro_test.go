@@ -61,13 +61,9 @@ var crLfReplacer = strings.NewReplacer("\r", "#", "\n", "$")
 var frontMatterTests = []lexerTest{
 	{"empty", "", []typeText{tstEOF}, nil},
 	{"Byte order mark", "\ufeff\nSome text.\n", []typeText{nti(TypeIgnore, "\ufeff"), tstSomeText, tstEOF}, nil},
-	{"HTML Document", `  <html>  `, nil, ErrPlainHTMLDocumentsNotSupported},
-	{"HTML Document with shortcode", `<html>{{< sc1 >}}</html>`, nil, ErrPlainHTMLDocumentsNotSupported},
 	{"No front matter", "\nSome text.\n", []typeText{tstSomeText, tstEOF}, nil},
 	{"YAML front matter", "---\nfoo: \"bar\"\n---\n\nSome text.\n", []typeText{tstFrontMatterYAML, tstSomeText, tstEOF}, nil},
 	{"YAML empty front matter", "---\n---\n\nSome text.\n", []typeText{nti(TypeFrontMatterYAML, ""), tstSomeText, tstEOF}, nil},
-	{"YAML commented out front matter", "<!--\n---\nfoo: \"bar\"\n---\n-->\nSome text.\n", []typeText{nti(TypeIgnore, "<!--\n"), tstFrontMatterYAML, nti(TypeIgnore, "-->"), tstSomeText, tstEOF}, nil},
-	{"YAML commented out front matter, no end", "<!--\n---\nfoo: \"bar\"\n---\nSome text.\n", []typeText{nti(TypeIgnore, "<!--\n"), tstFrontMatterYAML, nti(tError, "starting HTML comment with no end")}, nil},
 	// Note that we keep all bytes as they are, but we need to handle CRLF
 	{"YAML front matter CRLF", "---\r\nfoo: \"bar\"\r\n---\n\nSome text.\n", []typeText{tstFrontMatterYAMLCRLF, tstSomeText, tstEOF}, nil},
 	{"TOML front matter", "+++\nfoo = \"bar\"\n+++\n\nSome text.\n", []typeText{tstFrontMatterTOML, tstSomeText, tstEOF}, nil},

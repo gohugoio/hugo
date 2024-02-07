@@ -757,3 +757,81 @@ func TestPageBundlerHome(t *testing.T) {
 Title: Home|First Resource: data.json|Content: <p>Hook Len Page Resources 1</p>
 `)
 }
+
+func TestHTMLFilesIsue11999(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap", "robotsTXT", "404"]
+[permalinks]
+posts = "/myposts/:slugorfilename"
+-- content/posts/markdown-without-frontmatter.md --
+-- content/posts/html-without-frontmatter.html --
+<html>hello</html>
+-- content/posts/html-with-frontmatter.html --
+---
+title: "HTML with frontmatter"
+---
+<html>hello</html>
+-- content/posts/html-with-commented-out-frontmatter.html --
+<!--
+---
+title: "HTML with commented out frontmatter"
+---
+-->
+<html>hello</html>
+-- content/posts/markdown-with-frontmatter.md --
+---
+title: "Markdown"
+---
+-- content/posts/mybundle/index.md --
+---
+title: My Bundle
+---
+-- content/posts/mybundle/data.txt --
+Data.txt
+-- content/posts/mybundle/html-in-bundle-without-frontmatter.html --
+<html>hell</html>
+-- content/posts/mybundle/html-in-bundle-with-frontmatter.html --
+---
+title: Hello
+---
+<html>hello</html>
+-- content/posts/mybundle/html-in-bundle-with-commented-out-frontmatter.html --
+<!--
+---
+title: "HTML with commented out frontmatter"
+---
+-->
+<html>hello</html>
+-- layouts/index.html --
+{{ range site.RegularPages }}{{ .RelPermalink }}|{{ end }}$
+-- layouts/_default/single.html --
+{{ .Title }}|{{ .RelPermalink }}Resources: {{ range .Resources }}{{ .Name }}|{{ end }}$
+
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html", "/myposts/html-with-commented-out-frontmatter/|/myposts/html-without-frontmatter/|/myposts/markdown-without-frontmatter/|/myposts/html-with-frontmatter/|/myposts/markdown-with-frontmatter/|/myposts/mybundle/|$")
+
+	b.AssertFileContent("public/myposts/mybundle/index.html",
+		"My Bundle|/myposts/mybundle/Resources: html-in-bundle-with-commented-out-frontmatter.html|html-in-bundle-without-frontmatter.html|html-in-bundle-with-frontmatter.html|data.txt|$")
+
+	b.AssertPublishDir(`
+index.html
+myposts/html-with-commented-out-frontmatter
+myposts/html-with-commented-out-frontmatter/index.html
+myposts/html-with-frontmatter
+myposts/html-with-frontmatter/index.html
+myposts/html-without-frontmatter
+myposts/html-without-frontmatter/index.html
+myposts/markdown-with-frontmatter
+myposts/markdown-with-frontmatter/index.html
+myposts/markdown-without-frontmatter
+myposts/markdown-without-frontmatter/index.html
+myposts/mybundle/data.txt
+myposts/mybundle/index.html
+! myposts/mybundle/html-in-bundle-with-frontmatter.html
+`)
+}
