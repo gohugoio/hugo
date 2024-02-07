@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package deploy
+package deployconfig
 
 import (
 	"errors"
@@ -24,7 +24,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-const deploymentConfigKey = "deployment"
+const DeploymentConfigKey = "deployment"
 
 // DeployConfig is the complete configuration for deployment.
 type DeployConfig struct {
@@ -48,7 +48,7 @@ type DeployConfig struct {
 	// Number of concurrent workers to use when uploading files.
 	Workers int
 
-	ordering []*regexp.Regexp // compiled Order
+	Ordering []*regexp.Regexp `json:"-"` // compiled Order
 }
 
 type Target struct {
@@ -67,20 +67,20 @@ type Target struct {
 	Exclude string
 
 	// Parsed versions of Include/Exclude.
-	includeGlob glob.Glob
-	excludeGlob glob.Glob
+	IncludeGlob glob.Glob `json:"-"`
+	ExcludeGlob glob.Glob `json:"-"`
 }
 
-func (tgt *Target) parseIncludeExclude() error {
+func (tgt *Target) ParseIncludeExclude() error {
 	var err error
 	if tgt.Include != "" {
-		tgt.includeGlob, err = hglob.GetGlob(tgt.Include)
+		tgt.IncludeGlob, err = hglob.GetGlob(tgt.Include)
 		if err != nil {
 			return fmt.Errorf("invalid deployment.target.include %q: %v", tgt.Include, err)
 		}
 	}
 	if tgt.Exclude != "" {
-		tgt.excludeGlob, err = hglob.GetGlob(tgt.Exclude)
+		tgt.ExcludeGlob, err = hglob.GetGlob(tgt.Exclude)
 		if err != nil {
 			return fmt.Errorf("invalid deployment.target.exclude %q: %v", tgt.Exclude, err)
 		}
@@ -115,12 +115,12 @@ type Matcher struct {
 	// other route-determined metadata (e.g., ContentType) has changed.
 	Force bool
 
-	// re is Pattern compiled.
-	re *regexp.Regexp
+	// Re is Pattern compiled.
+	Re *regexp.Regexp `json:"-"`
 }
 
 func (m *Matcher) Matches(path string) bool {
-	return m.re.MatchString(path)
+	return m.Re.MatchString(path)
 }
 
 var DefaultConfig = DeployConfig{
@@ -133,10 +133,10 @@ var DefaultConfig = DeployConfig{
 func DecodeConfig(cfg config.Provider) (DeployConfig, error) {
 	dcfg := DefaultConfig
 
-	if !cfg.IsSet(deploymentConfigKey) {
+	if !cfg.IsSet(DeploymentConfigKey) {
 		return dcfg, nil
 	}
-	if err := mapstructure.WeakDecode(cfg.GetStringMap(deploymentConfigKey), &dcfg); err != nil {
+	if err := mapstructure.WeakDecode(cfg.GetStringMap(DeploymentConfigKey), &dcfg); err != nil {
 		return dcfg, err
 	}
 
@@ -148,7 +148,7 @@ func DecodeConfig(cfg config.Provider) (DeployConfig, error) {
 		if *tgt == (Target{}) {
 			return dcfg, errors.New("empty deployment target")
 		}
-		if err := tgt.parseIncludeExclude(); err != nil {
+		if err := tgt.ParseIncludeExclude(); err != nil {
 			return dcfg, err
 		}
 	}
@@ -157,7 +157,7 @@ func DecodeConfig(cfg config.Provider) (DeployConfig, error) {
 		if *m == (Matcher{}) {
 			return dcfg, errors.New("empty deployment matcher")
 		}
-		m.re, err = regexp.Compile(m.Pattern)
+		m.Re, err = regexp.Compile(m.Pattern)
 		if err != nil {
 			return dcfg, fmt.Errorf("invalid deployment.matchers.pattern: %v", err)
 		}
@@ -167,7 +167,7 @@ func DecodeConfig(cfg config.Provider) (DeployConfig, error) {
 		if err != nil {
 			return dcfg, fmt.Errorf("invalid deployment.orderings.pattern: %v", err)
 		}
-		dcfg.ordering = append(dcfg.ordering, re)
+		dcfg.Ordering = append(dcfg.Ordering, re)
 	}
 
 	return dcfg, nil

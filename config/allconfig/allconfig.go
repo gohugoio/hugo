@@ -37,7 +37,7 @@ import (
 	"github.com/gohugoio/hugo/config/privacy"
 	"github.com/gohugoio/hugo/config/security"
 	"github.com/gohugoio/hugo/config/services"
-	"github.com/gohugoio/hugo/deploy"
+	"github.com/gohugoio/hugo/deploy/deployconfig"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/markup/markup_config"
@@ -141,8 +141,8 @@ type Config struct {
 	// <docsmeta>{"refs": ["config:languages:menus"] }</docsmeta>
 	Menus *config.ConfigNamespace[map[string]navigation.MenuConfig, navigation.Menus] `mapstructure:"-"`
 
-	// The deployment configuration section contains for hugo deploy.
-	Deployment deploy.DeployConfig `mapstructure:"-"`
+	// The deployment configuration section contains for hugo deployconfig.
+	Deployment deployconfig.DeployConfig `mapstructure:"-"`
 
 	// Module configuration.
 	Module modules.Config `mapstructure:"-"`

@@ -32,8 +32,10 @@ package commands
 import (
 	"context"
 
-	"github.com/bep/simplecobra"
 	"github.com/gohugoio/hugo/deploy"
+	"github.com/gohugoio/hugo/deploy/deployconfig"
+
+	"github.com/bep/simplecobra"
 	"github.com/spf13/cobra"
 )
 
@@ -62,9 +64,9 @@ documentation.
 			cmd.Flags().Bool("confirm", false, "ask for confirmation before making changes to the target")
 			cmd.Flags().Bool("dryRun", false, "dry run")
 			cmd.Flags().Bool("force", false, "force upload of all files")
-			cmd.Flags().Bool("invalidateCDN", deploy.DefaultConfig.InvalidateCDN, "invalidate the CDN cache listed in the deployment target")
-			cmd.Flags().Int("maxDeletes", deploy.DefaultConfig.MaxDeletes, "maximum # of files to delete, or -1 to disable")
-			cmd.Flags().Int("workers", deploy.DefaultConfig.Workers, "number of workers to transfer files. defaults to 10")
+			cmd.Flags().Bool("invalidateCDN", deployconfig.DefaultConfig.InvalidateCDN, "invalidate the CDN cache listed in the deployment target")
+			cmd.Flags().Int("maxDeletes", deployconfig.DefaultConfig.MaxDeletes, "maximum # of files to delete, or -1 to disable")
+			cmd.Flags().Int("workers", deployconfig.DefaultConfig.Workers, "number of workers to transfer files. defaults to 10")
 		},
 	}
 }

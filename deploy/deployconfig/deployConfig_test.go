@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 //go:build !nodeploy
 // +build !nodeploy
 
-package deploy
+package deployconfig
 
 import (
 	"fmt"
@@ -91,7 +91,7 @@ force = true
 	c.Assert(len(dcfg.Order), qt.Equals, 2)
 	c.Assert(dcfg.Order[0], qt.Equals, "o1")
 	c.Assert(dcfg.Order[1], qt.Equals, "o2")
-	c.Assert(len(dcfg.ordering), qt.Equals, 2)
+	c.Assert(len(dcfg.Ordering), qt.Equals, 2)
 
 	// Targets.
 	c.Assert(len(dcfg.Targets), qt.Equals, 3)
@@ -104,11 +104,11 @@ force = true
 		c.Assert(tgt.CloudFrontDistributionID, qt.Equals, fmt.Sprintf("cdn%d", i))
 		c.Assert(tgt.Include, qt.Equals, wantInclude[i])
 		if wantInclude[i] != "" {
-			c.Assert(tgt.includeGlob, qt.Not(qt.IsNil))
+			c.Assert(tgt.IncludeGlob, qt.Not(qt.IsNil))
 		}
 		c.Assert(tgt.Exclude, qt.Equals, wantExclude[i])
 		if wantExclude[i] != "" {
-			c.Assert(tgt.excludeGlob, qt.Not(qt.IsNil))
+			c.Assert(tgt.ExcludeGlob, qt.Not(qt.IsNil))
 		}
 	}
 
@@ -117,7 +117,7 @@ force = true
 	for i := 0; i < 3; i++ {
 		m := dcfg.Matchers[i]
 		c.Assert(m.Pattern, qt.Equals, fmt.Sprintf("^pattern%d$", i))
-		c.Assert(m.re, qt.Not(qt.IsNil))
+		c.Assert(m.Re, qt.Not(qt.IsNil))
 		c.Assert(m.CacheControl, qt.Equals, fmt.Sprintf("cachecontrol%d", i))
 		c.Assert(m.ContentEncoding, qt.Equals, fmt.Sprintf("contentencoding%d", i))
 		c.Assert(m.ContentType, qt.Equals, fmt.Sprintf("contenttype%d", i))

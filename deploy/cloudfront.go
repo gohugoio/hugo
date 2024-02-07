@@ -24,6 +24,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudfront"
 	"github.com/aws/aws-sdk-go-v2/service/cloudfront/types"
+	"github.com/gohugoio/hugo/deploy/deployconfig"
 	gcaws "gocloud.dev/aws"
 )
 
@@ -38,7 +39,7 @@ var v2ConfigValidParams = map[string]bool{
 
 // InvalidateCloudFront invalidates the CloudFront cache for distributionID.
 // Uses AWS credentials config from the bucket URL.
-func InvalidateCloudFront(ctx context.Context, target *Target) error {
+func InvalidateCloudFront(ctx context.Context, target *deployconfig.Target) error {
 	u, err := url.Parse(target.URL)
 	if err != nil {
 		return err
