@@ -43,8 +43,6 @@ type pageLexer struct {
 	summaryDivider []byte
 	// Set when we have parsed any summary divider
 	summaryDividerChecked bool
-	// Whether we're in a HTML comment.
-	isInHTMLComment bool
 
 	lexerShortcodeState
 
@@ -102,8 +100,6 @@ var (
 	delimTOML         = []byte("+++")
 	delimYAML         = []byte("---")
 	delimOrg          = []byte("#+")
-	htmlCommentStart  = []byte("<!--")
-	htmlCommentEnd    = []byte("-->")
 )
 
 func (l *pageLexer) next() rune {
@@ -232,13 +228,6 @@ func (l *pageLexer) errorf(format string, args ...any) stateFunc {
 	return nil
 }
 
-// documentError can be used to signal a fatal error in the lexing process.
-// nil terminates the parser
-func (l *pageLexer) documentError(err error) stateFunc {
-	l.err = err
-	return nil
-}
-
 func (l *pageLexer) consumeCRLF() bool {
 	var consumed bool
 	for _, r := range crLf {
@@ -249,15 +238,6 @@ func (l *pageLexer) consumeCRLF() bool {
 		}
 	}
 	return consumed
-}
-
-func (l *pageLexer) consumeToNextLine() {
-	for {
-		r := l.next()
-		if r == eof || isEndOfLine(r) {
-			return
-		}
-	}
 }
 
 func (l *pageLexer) consumeToSpace() {
@@ -439,10 +419,6 @@ func (s *sectionHandler) skip() int {
 func lexMainSection(l *pageLexer) stateFunc {
 	if l.isEOF() {
 		return lexDone
-	}
-
-	if l.isInHTMLComment {
-		return lexEndFrontMatterHTMLComment
 	}
 
 	// Fast forward as far as possible.

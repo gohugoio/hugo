@@ -1540,32 +1540,6 @@ CONTENT:{{ .Content }}
 	)
 }
 
-// https://github.com/gohugoio/hugo/issues/5478
-func TestPageWithCommentedOutFrontMatter(t *testing.T) {
-	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile()
-
-	b.WithContent("page.md", `<!--
-+++
-title = "hello"
-+++
--->
-This is the content.
-`)
-
-	b.WithTemplatesAdded("layouts/_default/single.html", `
-Title: {{ .Title }}
-Content:{{ .Content }}
-`)
-
-	b.CreateSites().Build(BuildCfg{})
-
-	b.AssertFileContent("public/page/index.html",
-		"Title: hello",
-		"Content:<p>This is the content.</p>",
-	)
-}
-
 func TestHomePageWithNoTitle(t *testing.T) {
 	b := newTestSitesBuilder(t).WithConfigFile("toml", `
 title = "Site Title"

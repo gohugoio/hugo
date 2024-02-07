@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"sync"
 	"testing"
@@ -270,6 +271,32 @@ func (s *IntegrationTestBuilder) AssertFileContentExact(filename string, matches
 	content := s.FileContent(filename)
 	for _, m := range matches {
 		s.Assert(content, qt.Contains, m, qt.Commentf(m))
+	}
+}
+
+func (s *IntegrationTestBuilder) AssertPublishDir(matches ...string) {
+	s.Helper()
+	var buff bytes.Buffer
+	helpers.PrintFs(s.H.Fs.PublishDir, "", &buff)
+	printFsLines := strings.Split(buff.String(), "\n")
+	sort.Strings(printFsLines)
+	content := strings.TrimSpace((strings.Join(printFsLines, "\n")))
+	for _, m := range matches {
+		cm := qt.Commentf("Match: %q\nIn:\n%s", m, content)
+		lines := strings.Split(m, "\n")
+		for _, match := range lines {
+			match = strings.TrimSpace(match)
+			var negate bool
+			if strings.HasPrefix(match, "! ") {
+				negate = true
+				match = strings.TrimPrefix(match, "! ")
+			}
+			if negate {
+				s.Assert(content, qt.Not(qt.Contains), match, cm)
+				continue
+			}
+			s.Assert(content, qt.Contains, match, cm)
+		}
 	}
 }
 

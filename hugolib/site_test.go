@@ -32,11 +32,6 @@ import (
 	"github.com/gohugoio/hugo/resources/page"
 )
 
-const (
-	templateMissingFunc = "{{ .Title | funcdoesnotexists }}"
-	templateWithURLAbs  = "<a href=\"/foobar.jpg\">Going</a>"
-)
-
 func TestDraftAndFutureRender(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
@@ -574,60 +569,6 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 		}
 
 		th.assertFileContent(filepath.Join("public", test.doc), test.expected)
-	}
-}
-
-func TestAbsURLify(t *testing.T) {
-	t.Parallel()
-	c := qt.New(t)
-	sources := [][2]string{
-		{filepath.FromSlash("sect/doc1.html"), "<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>"},
-		{filepath.FromSlash("blue/doc2.html"), "---\nf: t\n---\n<!doctype html><html><body>more content</body></html>"},
-	}
-	for _, baseURL := range []string{"http://auth/bub", "http://base", "//base"} {
-		for _, canonify := range []bool{true, false} {
-
-			cfg, fs := newTestCfg()
-
-			cfg.Set("uglyURLs", true)
-			cfg.Set("canonifyURLs", canonify)
-			cfg.Set("baseURL", baseURL)
-
-			configs, err := loadTestConfigFromProvider(cfg)
-			c.Assert(err, qt.IsNil)
-
-			for _, src := range sources {
-				writeSource(t, fs, filepath.Join("content", src[0]), src[1])
-			}
-
-			writeSource(t, fs, filepath.Join("layouts", "blue/single.html"), templateWithURLAbs)
-
-			s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
-			th := newTestHelper(s.conf, s.Fs, t)
-
-			tests := []struct {
-				file, expected string
-			}{
-				{"public/blue/doc2.html", "<a href=\"%s/foobar.jpg\">Going</a>"},
-				{"public/sect/doc1.html", "<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>"},
-			}
-
-			for _, test := range tests {
-
-				expected := test.expected
-
-				if strings.Contains(expected, "%s") {
-					expected = fmt.Sprintf(expected, baseURL)
-				}
-
-				if !canonify {
-					expected = strings.Replace(expected, baseURL, "", -1)
-				}
-
-				th.assertFileContent(test.file, expected)
-
-			}
-		}
 	}
 }
 

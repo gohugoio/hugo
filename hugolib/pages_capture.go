@@ -15,7 +15,6 @@ package hugolib
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -27,8 +26,6 @@ import (
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/rungroup"
-	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/parser/pageparser"
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/source"
@@ -77,26 +74,6 @@ type pagesCollector struct {
 	g rungroup.Group[hugofs.FileMetaInfo]
 }
 
-func (c *pagesCollector) copyFile(fim hugofs.FileMetaInfo) error {
-	meta := fim.Meta()
-	f, err := meta.Open()
-	if err != nil {
-		return fmt.Errorf("copyFile: failed to open: %w", err)
-	}
-
-	s := c.m.s
-
-	target := filepath.Join(s.PathSpec.GetTargetLanguageBasePath(), meta.PathInfo.Path())
-
-	defer f.Close()
-
-	fs := s.PublishFsStatic
-
-	s.PathSpec.ProcessingStats.Incr(&s.PathSpec.ProcessingStats.Files)
-
-	return helpers.WriteToDisk(filepath.Clean(target), f, fs)
-}
-
 // Collect collects content by walking the file system and storing
 // it in the content tree.
 // It may be restricted by filenames set on the collector (partial build).
@@ -136,14 +113,7 @@ func (c *pagesCollector) Collect() (collectErr error) {
 		NumWorkers: numWorkers,
 		Handle: func(ctx context.Context, fi hugofs.FileMetaInfo) error {
 			if err := c.m.AddFi(fi); err != nil {
-				if errors.Is(err, pageparser.ErrPlainHTMLDocumentsNotSupported) {
-					// Reclassify this as a static file.
-					if err := c.copyFile(fi); err != nil {
-						return err
-					}
-				} else {
-					return hugofs.AddFileInfoToError(err, fi, c.fs)
-				}
+				return hugofs.AddFileInfoToError(err, fi, c.fs)
 			}
 			numFilesProcessedTotal.Add(1)
 			if numFilesProcessedTotal.Load()%1000 == 0 {

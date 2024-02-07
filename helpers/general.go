@@ -328,7 +328,7 @@ func PrintFs(fs afero.Fs, path string, w io.Writer) {
 	}
 
 	afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
-		fmt.Println(path)
+		fmt.Fprintln(w, filepath.ToSlash(path))
 		return nil
 	})
 }
