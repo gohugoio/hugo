@@ -17,10 +17,13 @@ package images
 import (
 	"fmt"
 	"image/color"
+	"strings"
 
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/resources/resource"
+	"github.com/makeworld-the-better-one/dither/v2"
+	"github.com/mitchellh/mapstructure"
 
 	"github.com/disintegration/gift"
 	"github.com/spf13/cast"
@@ -171,6 +174,56 @@ func (*Filters) Padding(args ...any) gift.Filter {
 			left:   left,
 			ccolor: ccolor,
 		},
+	}
+}
+
+// Dither creates a filter that dithers an image.
+func (*Filters) Dither(options ...any) gift.Filter {
+	ditherOptions := struct {
+		Colors     []string
+		Method     string
+		Serpentine bool
+		Strength   float32
+	}{
+		Colors:     []string{"000000ff", "ffffffff"},
+		Method:     "floydsteinberg",
+		Serpentine: true,
+		Strength:   1.0,
+	}
+
+	if len(options) != 0 {
+		err := mapstructure.WeakDecode(options[0], &ditherOptions)
+		if err != nil {
+			panic(fmt.Sprintf("failed to decode options: %s", err))
+		}
+	}
+
+	if len(ditherOptions.Colors) < 2 {
+		panic("palette must have at least two colors")
+	}
+
+	var palette []color.Color
+	for _, c := range ditherOptions.Colors {
+		cc, err := hexStringToColor(c)
+		if err != nil {
+			panic(fmt.Sprintf("%q is an invalid color: specify RGB or RGBA using hexadecimal notation", c))
+		}
+		palette = append(palette, cc)
+	}
+
+	d := dither.NewDitherer(palette)
+	if method, ok := ditherMethodsErrorDiffusion[strings.ToLower(ditherOptions.Method)]; ok {
+		d.Matrix = dither.ErrorDiffusionStrength(method, ditherOptions.Strength)
+		d.Serpentine = ditherOptions.Serpentine
+	} else if method, ok := ditherMethodsOrdered[strings.ToLower(ditherOptions.Method)]; ok {
+		d.Mapper = dither.PixelMapperFromMatrix(method, ditherOptions.Strength)
+	} else {
+		panic(fmt.Sprintf("%q is an invalid dithering method: see documentation", ditherOptions.Method))
+	}
+
+	return filter{
+		Options: newFilterOpts(ditherOptions),
+		Filter:  ditherFilter{ditherer: d},
 	}
 }
 
