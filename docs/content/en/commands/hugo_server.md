@@ -12,8 +12,9 @@ A high performance webserver
 Hugo provides its own webserver which builds and serves the site.
 While hugo server is high performance, it is a webserver with limited options.
 
-'hugo server' will avoid writing the rendered and served content to disk,
-preferring to store it in memory.
+'hugo server' will by default write and server files from disk, but you can
+render to memory by using the '--renderToMemory' flag. This can be faster
+in some cases, but it will consume more memory.
 
 By default hugo will also watch your files for any changes you make and
 automatically rebuild the site. It will then live reload any open browser pages
@@ -47,8 +48,6 @@ hugo server [command] [flags]
       --ignoreCache            ignores the cache directory
   -l, --layoutDir string       filesystem path to layout directory
       --liveReloadPort int     port for live reloading (i.e. 443 in HTTPS proxy situations) (default -1)
-      --meminterval string     interval to poll memory usage (requires --memstats), valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". (default "100ms")
-      --memstats string        log memory usage to this file
       --minify                 minify any supported output format (HTML, XML etc.)
       --navigateToChanged      navigate to changed content file on live browser reload
       --noBuildLock            don't create .hugo_build.lock file
@@ -58,12 +57,12 @@ hugo server [command] [flags]
       --panicOnWarning         panic on first WARNING log
       --poll string            set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes
   -p, --port int               port on which the server will listen (default 1313)
+      --pprof                  enable the pprof server (port 8080)
       --printI18nWarnings      print missing translations
       --printMemoryUsage       print memory usage to screen at intervals
       --printPathWarnings      print warnings on duplicate target paths etc.
       --printUnusedTemplates   print warnings on unused templates.
       --renderStaticToDisk     serve static files from disk and dynamic files from memory
-      --renderToDisk           serve all files from disk (default is from memory)
       --templateMetrics        display metrics about template executions
       --templateMetricsHints   calculate some improvement hints when combined with --templateMetrics
   -t, --theme strings          themes to use (located in /themes/THEMENAME/)
@@ -86,6 +85,7 @@ hugo server [command] [flags]
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --logLevel string            log level (debug|info|warn|error)
       --quiet                      build in quiet mode
+      --renderToMemory             render to memory (mostly useful when running the server)
   -s, --source string              filesystem path to read files relative from
       --themesDir string           filesystem path to themes directory
   -v, --verbose                    verbose output
