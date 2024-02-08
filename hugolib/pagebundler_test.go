@@ -835,3 +835,44 @@ myposts/mybundle/index.html
 ! myposts/mybundle/html-in-bundle-with-frontmatter.html
 `)
 }
+
+func TestBundleDuplicatePagesAndResources(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ["taxonomy", "term"]
+-- content/mysection/mybundle/index.md --
+-- content/mysection/mybundle/index.html --
+-- content/mysection/mybundle/p1.md --
+-- content/mysection/mybundle/p1.html --
+-- content/mysection/mybundle/foo/p1.html --
+-- content/mysection/mybundle/data.txt --
+Data txt.
+-- content/mysection/mybundle/data.en.txt --
+Data en txt.
+-- content/mysection/mybundle/data.json --
+Data JSON.
+-- content/mysection/_index.md --
+-- content/mysection/_index.html --
+-- content/mysection/sectiondata.json --
+Secion data JSON.
+-- content/mysection/sectiondata.txt --
+Section data TXT.
+-- content/mysection/p2.md --
+-- content/mysection/p2.html --
+-- content/mysection/foo/p2.md --
+-- layouts/_default/single.html --
+Single:{{ .Title }}|{{ .Path }}|File LogicalName: {{ with .File }}{{ .LogicalName }}{{ end }}||{{ .RelPermalink }}|{{ .Kind }}|Resources: {{ range .Resources}}{{ .Name }}: {{ .Content }}|{{ end }}$
+-- layouts/_default/list.html --
+List: {{ .Title }}|{{ .Path }}|File LogicalName: {{ with .File }}{{ .LogicalName }}{{ end }}|{{ .RelPermalink }}|{{ .Kind }}|Resources: {{ range .Resources}}{{ .Name }}: {{ .Content }}|{{ end }}$
+RegularPages: {{ range .RegularPages }}{{ .RelPermalink }}|File LogicalName: {{ with .File }}{{ .LogicalName }}|{{ end }}{{ end }}$
+`
+
+	b := Test(t, files)
+
+	// Note that the sort order gives us the most specific data file for the en language (the data.en.json).
+	b.AssertFileContent("public/mysection/mybundle/index.html", `Single:|/mysection/mybundle|File LogicalName: index.md||/mysection/mybundle/|page|Resources: data.json: Data JSON.|foo/p1.html: |p1.html: |p1.md: |data.txt: Data en txt.|$`)
+	b.AssertFileContent("public/mysection/index.html",
+		"List: |/mysection|File LogicalName: _index.md|/mysection/|section|Resources: sectiondata.json: Secion data JSON.|sectiondata.txt: Section data TXT.|$",
+		"RegularPages: /mysection/foo/p2/|File LogicalName: p2.md|/mysection/mybundle/|File LogicalName: index.md|/mysection/p2/|File LogicalName: p2.md|$")
+}

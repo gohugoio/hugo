@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/bep/logg"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/rungroup"
 	"github.com/spf13/afero"
@@ -270,13 +271,25 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 			return nil, filepath.SkipDir
 		}
 
+		seen := map[hstrings.Tuple]bool{}
 		for _, fi := range readdir {
 			if fi.IsDir() {
 				continue
 			}
 
+			pi := fi.Meta().PathInfo
 			meta := fi.Meta()
-			pi := meta.PathInfo
+
+			// Filter out duplicate page or resource.
+			// These would eventually have been filtered out as duplicates when
+			// inserting them into the document store,
+			// but doing it here will preserve a consistent ordering.
+			baseLang := hstrings.Tuple{First: pi.Base(), Second: meta.Lang}
+			if seen[baseLang] {
+				continue
+			}
+			seen[baseLang] = true
+
 			if pi == nil {
 				panic(fmt.Sprintf("no path info for %q", meta.Filename))
 			}
@@ -317,6 +330,8 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 
 func (c *pagesCollector) handleBundleLeaf(dir, bundle hugofs.FileMetaInfo, inPath string, readdir []hugofs.FileMetaInfo) error {
 	bundlePi := bundle.Meta().PathInfo
+	seen := map[hstrings.Tuple]bool{}
+
 	walk := func(path string, info hugofs.FileMetaInfo) error {
 		if info.IsDir() {
 			return nil
@@ -332,6 +347,16 @@ func (c *pagesCollector) handleBundleLeaf(dir, bundle hugofs.FileMetaInfo, inPat
 				paths.ModifyPathBundleTypeResource(pi)
 			}
 		}
+
+		// Filter out duplicate page or resource.
+		// These would eventually have been filtered out as duplicates when
+		// inserting them into the document store,
+		// but doing it here will preserve a consistent ordering.
+		baseLang := hstrings.Tuple{First: pi.Base(), Second: info.Meta().Lang}
+		if seen[baseLang] {
+			return nil
+		}
+		seen[baseLang] = true
 
 		return c.g.Enqueue(info)
 	}

@@ -21,7 +21,6 @@ import (
 	"sort"
 
 	"github.com/gohugoio/hugo/common/herrors"
-	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/spf13/afero"
@@ -149,32 +148,6 @@ func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 
 		return fimi.Name() < fimj.Name()
 	})
-
-	if f.fs.opts.Component == files.ComponentFolderContent {
-		// Finally filter out any duplicate content or resource files, e.g. page.md and page.html.
-		n := 0
-		seen := map[hstrings.Tuple]bool{}
-		for _, fi := range fis {
-			fim := fi.(FileMetaInfo)
-			pi := fim.Meta().PathInfo
-			keep := fim.IsDir()
-
-			if !keep {
-				baseLang := hstrings.Tuple{First: pi.Base(), Second: fim.Meta().Lang}
-				if !seen[baseLang] {
-					keep = true
-					seen[baseLang] = true
-				}
-			}
-
-			if keep {
-				fis[n] = fi
-				n++
-			}
-		}
-
-		fis = fis[:n]
-	}
 
 	return fis, nil
 }
