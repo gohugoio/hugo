@@ -148,6 +148,7 @@ func (h *HugoSites) newPage(m *pageMeta) (*pageState, *paths.Path, error) {
 						m.pageConfig.Kind = kinds.KindTaxonomy
 					} else {
 						m.pageConfig.Kind = kinds.KindTerm
+						m.term = m.pathInfo.Unnormalized().BaseNameNoIdentifier()
 					}
 				}
 			} else if m.f != nil {

@@ -1511,6 +1511,8 @@ func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
 						}
 						pages.InsertIntoValuesDimension(pi.Base(), n)
 						term = pages.Get(pi.Base())
+					} else if term.(*pageState).m.term != v {
+						term.(*pageState).m.term = v
 					}
 
 					if s == "" {
@@ -1882,11 +1884,15 @@ func (m *pageMap) CreateSiteTaxonomies(ctx context.Context) error {
 					if taxonomy == nil {
 						return true, fmt.Errorf("missing taxonomy: %s", viewName.plural)
 					}
+					if p.m.term == "" {
+						panic("term is empty")
+					}
 					k := strings.ToLower(p.m.term)
+
 					err := m.treeTaxonomyEntries.WalkPrefix(
 						doctree.LockTypeRead,
 						paths.AddTrailingSlash(s),
-						func(s string, wn *weightedContentNode) (bool, error) {
+						func(ss string, wn *weightedContentNode) (bool, error) {
 							taxonomy[k] = append(taxonomy[k], page.NewWeightedPage(wn.weight, wn.n.(page.Page), wn.term.Page()))
 							return false, nil
 						},
