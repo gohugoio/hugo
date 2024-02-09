@@ -615,15 +615,6 @@ unsafe = true
 	return testconfig.GetTestConfig(nil, cfg)
 }
 
-func safeConf() config.AllProvider {
-	cfg := config.FromTOMLConfigString(`
-[markup]
-[markup.goldmark.renderer]
-unsafe = false
-`)
-	return testconfig.GetTestConfig(nil, cfg)
-}
-
 func TestConvertCJK(t *testing.T) {
 	c := qt.New(t)
 
