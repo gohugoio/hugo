@@ -104,6 +104,22 @@ In its default configuration, Hugo's file watcher may not be able detect file ch
 
 In these cases, instead of monitoring native file system events, use the `--poll` command line flag. For example, to poll the project files every 700 milliseconds ms, use `--poll 700ms`.
 
+###### Why is my page Scratch or Store missing a value?
+
+The [`Scratch`] and [`Store`] methods on a `Page` object allow you to create a "scratch pad" on the given page to store and manipulate data. Values are often set within a shortcode, a partial template called by a shortcode, or by a markdown render hook. In all three cases, the "scratch pad" values are not determinate until Hugo renders the page content.
+
+If you need to access a "scratch pad" value from a parent template, and the parent template has not yet rendered the page content, you can trigger content rendering by assigning the returned value to a noop variable:
+
+```go-html-template
+{{ $noop := .Content }}
+{{ .Store.Get "mykey" }}
+```
+
+You can trigger content rendering with other methods as well. See next FAQ.
+
+[`Scratch`]: /methods/page/scratch
+[`Store`]: /methods/page/store
+
 ###### Which page methods trigger content rendering?
 
 The following methods on a `Page` object trigger content rendering: `Content`, `FuzzyWordCount`, `Len`, `Plain`, `PlainWords`, `ReadingTime`, `Summary`, `Truncated`, and `WordCount`.

@@ -122,7 +122,7 @@ For example, to create a code block render hook to render [Mermaid] diagrams:
 Then include this snippet at the bottom of the your base template:
 
 {{< code file=layouts/_default/baseof.html copy=true >}}
-{{ if .Page.Store.Get "hasMermaid" }}
+{{ if .Store.Get "hasMermaid" }}
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad: true });

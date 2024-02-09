@@ -58,7 +58,7 @@ Hugo does not provide a built-in template for Mermaid diagrams. Create your own 
 And then include this snippet at the bottom of the content template:
 
 ```go-html-template
-{{ if .Page.Store.Get "hasMermaid" }}
+{{ if .Store.Get "hasMermaid" }}
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad: true });

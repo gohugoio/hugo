@@ -9,6 +9,7 @@ action:
   - functions/collections/NewScratch
   returnType: maps.Scratch
   signatures: [PAGE.Store]
+toc: true
 aliases: [/functions/store]
 ---
 
@@ -101,4 +102,22 @@ Removes the given key.
 ```go-html-template
 {{ .Store.Set "greeting" "Hello" }}
 {{ .Store.Delete "greeting" }}
+```
+
+## Determinate values
+
+The `Store` method is often used to set "scratch pad" values within a shortcode, a partial template called by a shortcode, or by a markdown render hook. In all three cases, the "scratch pad" values are not determinate until Hugo renders the page content.
+
+If you need to access a "scratch pad" value from a parent template, and the parent template has not yet rendered the page content, you can trigger content rendering by assigning the returned value to a noop variable:
+
+```go-html-template
+{{ $noop := .Content }}
+{{ .Store.Get "mykey" }}
+```
+
+You can also trigger content rendering with the `FuzzyWordCount`, `Len`, `Plain`, `PlainWords`, `ReadingTime`, `Summary`, `Truncated`, and `WordCount` methods. For example:
+
+```go-html-template
+{{ $noop := .WordCount }}
+{{ .Store.Get "mykey" }}
 ```
