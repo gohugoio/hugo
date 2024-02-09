@@ -20,7 +20,6 @@ import (
 	"sync/atomic"
 
 	"github.com/gohugoio/hugo/hugofs/files"
-	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/resources"
 
 	"github.com/gohugoio/hugo/common/maps"
@@ -160,12 +159,6 @@ func (h *HugoSites) newPage(m *pageMeta) (*pageState, *paths.Path, error) {
 			return nil, nil
 		}
 
-		var dependencyManager identity.Manager = identity.NopManager
-
-		if m.s.conf.Internal.Watch {
-			dependencyManager = identity.NewManager(m.Path())
-		}
-
 		// Parse the rest of the page content.
 		m.content, err = m.newCachedContent(h, pi)
 		if err != nil {
@@ -178,7 +171,7 @@ func (h *HugoSites) newPage(m *pageMeta) (*pageState, *paths.Path, error) {
 			pageOutputTemplateVariationsState: &atomic.Uint32{},
 			resourcesPublishInit:              &sync.Once{},
 			Staler:                            m,
-			dependencyManager:                 dependencyManager,
+			dependencyManager:                 m.s.Conf.NewIdentityManager(m.Path()),
 			pageCommon: &pageCommon{
 				FileProvider:              m,
 				AuthorProvider:            m,

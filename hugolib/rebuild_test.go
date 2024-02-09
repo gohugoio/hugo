@@ -1131,7 +1131,7 @@ Single.
 			Running:         true,
 			NeedsOsFS:       true,
 			NeedsNpmInstall: true,
-			// LogLevel:        logg.LevelTrace,
+			// LogLevel:        logg.LevelDebug,
 		},
 	).Build()
 
@@ -1260,4 +1260,36 @@ func BenchmarkRebuildContentFileChange(b *testing.B) {
 		}).Build()
 		// fmt.Println(bb.LogString())
 	}
+}
+
+func TestRebuildConcat(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+disableKinds = ["taxonomy", "term", "sitemap", "robotsTXT", "404", "rss"]
+-- assets/a.css --
+a
+-- assets/b.css --
+b
+-- assets/c.css --
+c
+-- assets/common/c1.css --
+c1
+-- assets/common/c2.css --
+c2
+-- layouts/index.html --
+{{ $a := resources.Get "a.css" }}
+{{ $b := resources.Get "b.css" }}
+{{ $common := resources.Match "common/*.css" | resources.Concat "common.css" | minify }}
+{{ $ab := slice $a $b $common | resources.Concat "ab.css" }}
+all: {{ $ab.RelPermalink }}
+`
+	b := TestRunning(t, files)
+
+	b.AssertFileContent("public/ab.css", "abc1c2")
+	b.EditFileReplaceAll("assets/common/c2.css", "c2", "c2 edited").Build()
+	b.AssertFileContent("public/ab.css", "abc1c2 edited")
+	b.AddFiles("assets/common/c3.css", "c3").Build()
+	b.AssertFileContent("public/ab.css", "abc1c2 editedc3")
 }

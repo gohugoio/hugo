@@ -39,7 +39,7 @@ func newResourceCache(rs *Spec, memCache *dynacache.Cache) *ResourceCache {
 		cacheResources: dynacache.GetOrCreatePartition[string, resource.Resources](
 			memCache,
 			"/ress",
-			dynacache.OptionsPartition{ClearWhen: dynacache.ClearOnChange, Weight: 40},
+			dynacache.OptionsPartition{ClearWhen: dynacache.ClearOnRebuild, Weight: 40},
 		),
 		cacheResourceTransformation: dynacache.GetOrCreatePartition[string, *resourceAdapterInner](
 			memCache,

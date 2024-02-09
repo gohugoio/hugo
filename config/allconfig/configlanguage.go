@@ -19,6 +19,7 @@ import (
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/urls"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/langs"
 )
 
@@ -42,7 +43,7 @@ func (c ConfigLanguage) LanguagesDefaultFirst() langs.Languages {
 	return c.m.LanguagesDefaultFirst
 }
 
-func (c ConfigLanguage) PathParser() paths.PathParser {
+func (c ConfigLanguage) PathParser() *paths.PathParser {
 	return c.m.ContentPathParser
 }
 
@@ -131,6 +132,13 @@ func (c ConfigLanguage) Quiet() bool {
 
 func (c ConfigLanguage) Watching() bool {
 	return c.m.Base.Internal.Watch
+}
+
+func (c ConfigLanguage) NewIdentityManager(name string) identity.Manager {
+	if !c.Watching() {
+		return identity.NopManager
+	}
+	return identity.NewManager(name)
 }
 
 // GetConfigSection is mostly used in tests. The switch statement isn't complete, but what's in use.

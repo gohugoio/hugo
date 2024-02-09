@@ -241,7 +241,7 @@ type ComponentFsOptions struct {
 	DefaultContentLanguage string
 
 	// The parser used to parse paths provided by this filesystem.
-	PathParser paths.PathParser
+	PathParser *paths.PathParser
 }
 
 func (fs *componentFs) Open(name string) (afero.File, error) {

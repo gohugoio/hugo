@@ -169,12 +169,7 @@ func (f *Finder) checkManager(sid *searchID, m Manager, level int) FinderResult 
 		return r
 	}
 
-	ids := m.getIdentities()
-	if len(ids) == 0 {
-		r = FinderNotFound
-	} else {
-		r = f.search(sid, ids, level)
-	}
+	r = f.search(sid, m, level)
 
 	if r == FinderFoundOneOfMany {
 		// Don't cache this one.
@@ -270,11 +265,7 @@ func (f *Finder) doCheckOne(sid *searchID, v Identity, depth int) FinderResult {
 }
 
 // search searches for id in ids.
-func (f *Finder) search(sid *searchID, ids Identities, depth int) FinderResult {
-	if len(ids) == 0 {
-		return FinderNotFound
-	}
-
+func (f *Finder) search(sid *searchID, m Manager, depth int) FinderResult {
 	id := sid.id
 
 	if id == Anonymous {
@@ -285,19 +276,24 @@ func (f *Finder) search(sid *searchID, ids Identities, depth int) FinderResult {
 		return FinderNotFound
 	}
 
-	for v := range ids {
-		r := f.checkOne(sid, v, depth)
-		if r > 0 {
-			return r
-		}
-
-		m := GetDependencyManager(v)
-		if r := f.checkManager(sid, m, depth+1); r > 0 {
-			return r
-		}
-	}
-
-	return FinderNotFound
+	var r FinderResult
+	m.forEeachIdentity(
+		func(v Identity) bool {
+			if r > 0 {
+				panic("should be terminated")
+			}
+			r = f.checkOne(sid, v, depth)
+			if r > 0 {
+				return true
+			}
+			m := GetDependencyManager(v)
+			if r = f.checkManager(sid, m, depth+1); r > 0 {
+				return true
+			}
+			return false
+		},
+	)
+	return r
 }
 
 // FinderConfig provides configuration for the Finder.
