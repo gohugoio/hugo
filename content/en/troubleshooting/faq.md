@@ -94,6 +94,16 @@ Yes. See&nbsp;[details](/getting-started/configuration/#configure-with-environme
 
 The most common causes are page collisions (publishing two pages to the same path) and the effects of concurrency. Use the `--printPathWarnings` command line flag to check for page collisions, and create a topic on the [forum] if you suspect concurrency problems.
 
+###### Why isn't Hugo's development server detecting file changes?
+
+In its default configuration, Hugo's file watcher may not be able detect file changes when:
+
+- Running Hugo within Windows Subsystem for Linux (WSL/WSL2) with project files on a Windows partition
+- Running Hugo locally with project files on a removable drive
+- Running Hugo locally with project files on a storage server accessed via the NFS, SMB, or CIFS protocols
+
+In these cases, instead of monitoring native file system events, use the `--poll` command line flag. For example, to poll the project files every 700 milliseconds ms, use `--poll 700ms`.
+
 ###### Which page methods trigger content rendering?
 
 The following methods on a `Page` object trigger content rendering: `Content`, `FuzzyWordCount`, `Len`, `Plain`, `PlainWords`, `ReadingTime`, `Summary`, `Truncated`, and `WordCount`.
