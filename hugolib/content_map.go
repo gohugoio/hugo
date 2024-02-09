@@ -93,8 +93,8 @@ func (r *resourceSource) GetIdentity() identity.Identity {
 	return r.path
 }
 
-func (r *resourceSource) ForEeachIdentity(f func(identity.Identity) bool) {
-	f(r.GetIdentity())
+func (r *resourceSource) ForEeachIdentity(f func(identity.Identity) bool) bool {
+	return f(r.GetIdentity())
 }
 
 func (r *resourceSource) Path() string {
@@ -142,14 +142,15 @@ func (n resourceSources) GetIdentity() identity.Identity {
 	return nil
 }
 
-func (n resourceSources) ForEeachIdentity(f func(identity.Identity) bool) {
+func (n resourceSources) ForEeachIdentity(f func(identity.Identity) bool) bool {
 	for _, r := range n {
 		if r != nil {
 			if f(r.GetIdentity()) {
-				return
+				return true
 			}
 		}
 	}
+	return false
 }
 
 func (cfg contentMapConfig) getTaxonomyConfig(s string) (v viewName) {

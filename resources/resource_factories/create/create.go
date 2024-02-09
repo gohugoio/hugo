@@ -63,13 +63,6 @@ func (c *Client) Copy(r resource.Resource, targetPath string) (resource.Resource
 	})
 }
 
-func (c *Client) newDependencyManager() identity.Manager {
-	if c.rs.Cfg.Running() {
-		return identity.NewManager("resources")
-	}
-	return identity.NopManager
-}
-
 // Get creates a new Resource by opening the given pathname in the assets filesystem.
 func (c *Client) Get(pathname string) (resource.Resource, error) {
 	pathname = path.Clean(pathname)
@@ -79,7 +72,8 @@ func (c *Client) Get(pathname string) (resource.Resource, error) {
 		// The resource file will not be read before it gets used (e.g. in .Content),
 		// so we need to check that the file exists here.
 		filename := filepath.FromSlash(pathname)
-		if _, err := c.rs.BaseFs.Assets.Fs.Stat(filename); err != nil {
+		fi, err := c.rs.BaseFs.Assets.Fs.Stat(filename)
+		if err != nil {
 			if os.IsNotExist(err) {
 				return nil, nil
 			}
@@ -87,14 +81,16 @@ func (c *Client) Get(pathname string) (resource.Resource, error) {
 			return nil, err
 		}
 
+		pi := fi.(hugofs.FileMetaInfo).Meta().PathInfo
+
 		return c.rs.NewResource(resources.ResourceSourceDescriptor{
 			LazyPublish: true,
 			OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
 				return c.rs.BaseFs.Assets.Fs.Open(filename)
 			},
-			GroupIdentity:     identity.StringIdentity(key),
-			DependencyManager: c.newDependencyManager(),
-			TargetPath:        pathname,
+			Path:          pi,
+			GroupIdentity: pi,
+			TargetPath:    pathname,
 		})
 	})
 }

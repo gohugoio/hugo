@@ -605,12 +605,15 @@ func (n contentNodeIs) GetIdentity() identity.Identity {
 	return n[0].GetIdentity()
 }
 
-func (n contentNodeIs) ForEeachIdentity(f func(identity.Identity) bool) {
+func (n contentNodeIs) ForEeachIdentity(f func(identity.Identity) bool) bool {
 	for _, nn := range n {
 		if nn != nil {
-			nn.ForEeachIdentity(f)
+			if nn.ForEeachIdentity(f) {
+				return true
+			}
 		}
 	}
+	return false
 }
 
 func (n contentNodeIs) resetBuildState() {
@@ -1151,7 +1154,7 @@ func (h *HugoSites) resolveAndResetDependententPageOutputs(ctx context.Context, 
 			// First check the top level dependency manager.
 			for _, id := range changes {
 				checkedCounter.Add(1)
-				if r := depsFinder.Contains(id, p.dependencyManager, 100); r > identity.FinderFoundOneOfManyRepetition {
+				if r := depsFinder.Contains(id, p.dependencyManager, 2); r > identity.FinderFoundOneOfManyRepetition {
 					for _, po := range p.pageOutputs {
 						resetPo(po, r)
 					}
@@ -1167,7 +1170,7 @@ func (h *HugoSites) resolveAndResetDependententPageOutputs(ctx context.Context, 
 				}
 				for _, id := range changes {
 					checkedCounter.Add(1)
-					if r := depsFinder.Contains(id, po.dependencyManagerOutput, 2); r > identity.FinderFoundOneOfManyRepetition {
+					if r := depsFinder.Contains(id, po.dependencyManagerOutput, 50); r > identity.FinderFoundOneOfManyRepetition {
 						resetPo(po, r)
 						continue OUTPUTS
 					}

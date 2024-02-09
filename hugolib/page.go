@@ -120,8 +120,8 @@ func (p *pageState) GetIdentity() identity.Identity {
 	return p
 }
 
-func (p *pageState) ForEeachIdentity(f func(identity.Identity) bool) {
-	f(p)
+func (p *pageState) ForEeachIdentity(f func(identity.Identity) bool) bool {
+	return f(p)
 }
 
 func (p *pageState) GetDependencyManager() identity.Manager {

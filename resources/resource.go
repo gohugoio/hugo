@@ -171,7 +171,7 @@ func (fd *ResourceSourceDescriptor) init(r *Spec) error {
 	fd.MediaType = mediaType
 
 	if fd.DependencyManager == nil {
-		fd.DependencyManager = identity.NopManager
+		fd.DependencyManager = r.Cfg.NewIdentityManager("resource")
 	}
 
 	return nil

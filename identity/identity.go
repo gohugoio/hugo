@@ -55,8 +55,8 @@ func NewManager(name string, opts ...ManagerOption) Manager {
 // CleanString cleans s to be suitable as an identifier.
 func CleanString(s string) string {
 	s = strings.ToLower(s)
-	s = strings.TrimPrefix(filepath.ToSlash(s), "/")
-	return path.Clean(s)
+	s = strings.Trim(filepath.ToSlash(s), "/")
+	return "/" + path.Clean(s)
 }
 
 // CleanStringIdentity cleans s to be suitable as an identifier and wraps it in a StringIdentity.
@@ -73,23 +73,6 @@ func GetDependencyManager(v any) Manager {
 		return GetDependencyManager(vv.Unwrapv())
 	case DependencyManagerProvider:
 		return vv.GetDependencyManager()
-	}
-	return nil
-}
-
-// GetDependencyManagerForScope returns the DependencyManager for the given scope from v or nil if none found.
-// Note that it will fall back to an unscoped manager if none found for the given scope.
-func GetDependencyManagerForScope(v any, scope int) Manager {
-	switch vv := v.(type) {
-	case DependencyManagerScopedProvider:
-		return vv.GetDependencyManagerForScope(scope)
-	case types.Unwrapper:
-		return GetDependencyManagerForScope(vv.Unwrapv(), scope)
-	case Manager:
-		return vv
-	case DependencyManagerProvider:
-		return vv.GetDependencyManager()
-
 	}
 	return nil
 }
@@ -169,7 +152,15 @@ type DependencyManagerScopedProvider interface {
 type ForEeachIdentityProvider interface {
 	// ForEeachIdentityProvider calls cb for each Identity.
 	// If cb returns true, the iteration is terminated.
-	ForEeachIdentity(cb func(id Identity) bool)
+	// The return value is whether the iteration was terminated.
+	ForEeachIdentity(cb func(id Identity) bool) bool
+}
+
+// ForEeachIdentityProviderFunc is a function that implements the ForEeachIdentityProvider interface.
+type ForEeachIdentityProviderFunc func(func(id Identity) bool) bool
+
+func (f ForEeachIdentityProviderFunc) ForEeachIdentity(cb func(id Identity) bool) bool {
+	return f(cb)
 }
 
 // ForEeachIdentityByNameProvider provides a way to look up identities by name.
@@ -279,9 +270,10 @@ type IsProbablyDependencyProvider interface {
 type Manager interface {
 	Identity
 	AddIdentity(ids ...Identity)
+	AddIdentityForEach(ids ...ForEeachIdentityProvider)
 	GetIdentity() Identity
 	Reset()
-	getIdentities() Identities
+	forEeachIdentity(func(id Identity) bool) bool
 }
 
 type ManagerOption func(m *identityManager)
@@ -301,8 +293,9 @@ type identityManager struct {
 
 	// mu protects _changes_ to this manager,
 	// reads currently assumes no concurrent writes.
-	mu  sync.RWMutex
-	ids Identities
+	mu         sync.RWMutex
+	ids        Identities
+	forEachIds []ForEeachIdentityProvider
 
 	// Hooks used in debugging.
 	onAddIdentity func(id Identity)
@@ -312,7 +305,7 @@ func (im *identityManager) AddIdentity(ids ...Identity) {
 	im.mu.Lock()
 
 	for _, id := range ids {
-		if id == Anonymous {
+		if id == nil || id == Anonymous {
 			continue
 		}
 		if _, found := im.ids[id]; !found {
@@ -322,6 +315,12 @@ func (im *identityManager) AddIdentity(ids ...Identity) {
 			im.ids[id] = true
 		}
 	}
+	im.mu.Unlock()
+}
+
+func (im *identityManager) AddIdentityForEach(ids ...ForEeachIdentityProvider) {
+	im.mu.Lock()
+	im.forEachIds = append(im.forEachIds, ids...)
 	im.mu.Unlock()
 }
 
@@ -355,15 +354,28 @@ func (im *identityManager) String() string {
 	return fmt.Sprintf("IdentityManager(%s)", im.name)
 }
 
-// TODO(bep) these identities are currently only read on server reloads
-// so there should be no concurrency issues, but that may change.
-func (im *identityManager) getIdentities() Identities {
-	return im.ids
+func (im *identityManager) forEeachIdentity(fn func(id Identity) bool) bool {
+	// The absense of a lock here is debliberate. This is currently opnly used on server reloads
+	// in a single-threaded context.
+	for id := range im.ids {
+		if fn(id) {
+			return true
+		}
+	}
+	for _, fe := range im.forEachIds {
+		if fe.ForEeachIdentity(fn) {
+			return true
+		}
+	}
+	return false
 }
 
 type nopManager int
 
 func (m *nopManager) AddIdentity(ids ...Identity) {
+}
+
+func (m *nopManager) AddIdentityForEach(ids ...ForEeachIdentityProvider) {
 }
 
 func (m *nopManager) IdentifierBase() string {
@@ -377,8 +389,8 @@ func (m *nopManager) GetIdentity() Identity {
 func (m *nopManager) Reset() {
 }
 
-func (m *nopManager) getIdentities() Identities {
-	return nil
+func (m *nopManager) forEeachIdentity(func(id Identity) bool) bool {
+	return false
 }
 
 // returns whether further walking should be terminated.
@@ -401,11 +413,9 @@ func walkIdentities(v any, level int, deep bool, seen map[Identity]bool, cb func
 
 		if deep {
 			if m := GetDependencyManager(id); m != nil {
-				for id2 := range m.getIdentities() {
-					if walkIdentitiesShallow(id2, level+1, cbRecursive) {
-						return true
-					}
-				}
+				m.forEeachIdentity(func(id2 Identity) bool {
+					return walkIdentitiesShallow(id2, level+1, cbRecursive)
+				})
 			}
 		}
 		return false
@@ -418,6 +428,9 @@ func walkIdentities(v any, level int, deep bool, seen map[Identity]bool, cb func
 func walkIdentitiesShallow(v any, level int, cb func(level int, id Identity) bool) bool {
 	cb2 := func(level int, id Identity) bool {
 		if id == Anonymous {
+			return false
+		}
+		if id == nil {
 			return false
 		}
 		return cb(level, id)
