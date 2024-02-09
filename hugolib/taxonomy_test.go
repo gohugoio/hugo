@@ -776,3 +776,42 @@ Len Book Authors: {{ len (index .Site.Taxonomies $taxonomy) }}
 
 	b.AssertFileContent("public/index.html", "Len Book Authors: 2")
 }
+
+func TestTaxonomiesListTermsHome(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+[taxonomies]
+tag = "tags"
+-- content/_index.md --
+---
+title: "Home"
+tags: ["a", "b", "c", "hello world"]
+---
+-- content/tags/a/_index.md --
+---
+title: "A"
+---
+-- content/tags/b/_index.md --
+---
+title: "B"
+---
+-- content/tags/c/_index.md --
+---
+title: "C"
+---
+-- content/tags/d/_index.md --
+---
+title: "D"
+---
+-- content/tags/hello-world/_index.md --
+---
+title: "Hello World!"
+---
+-- layouts/home.html --
+Terms: {{ range site.Taxonomies.tags }}{{ .Page.Title }}: {{ .Count }}|{{ end }}$
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html", "Terms: A: 1|B: 1|C: 1|Hello World!: 1|$")
+}
