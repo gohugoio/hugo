@@ -1,4 +1,4 @@
-// Copyright 2021 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ func TestTableOfContents(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 disableKinds = ['home','rss','section','sitemap','taxonomy','term']
 enableEmoji = false
 
@@ -147,7 +147,7 @@ func TestTableOfContentsAdvanced(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 disableKinds = ['home','rss','section','sitemap','taxonomy','term']
 enableEmoji = true
 
@@ -253,13 +253,13 @@ title: p7 (emoji)
 `)
 
 	// strikethrough
-	// TODO failing test
+	// TODO failing test: Issue #8087
 	// 	b.AssertFileContent("public/p6/index.html", `
 	// <li><a href="#ome-deleted-text">Some <del>deleted</del> text</a></li>
 	// 	`)
 
 	// emoji
-	// TODO failing test
+	// TODO failing test: Issue #12022
 	// 	b.AssertFileContent("public/p7/index.html", `
 	// <li><a href="#a-snake-emoji">A &#x1f40d; emoji</a></li>
 	// 		`)
