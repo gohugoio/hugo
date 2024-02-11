@@ -1,16 +1,14 @@
 ---
 title: Host on GitHub Pages
-description: Deploy Hugo as a GitHub Pages project or personal/organizational site and automate the whole process with GitHub Actions
+description: Host your site on GitHub Pages with continuous deployment using project, user, or organization pages.
 categories: [hosting and deployment]
-keywords: [hosting,github]
+keywords: [hosting]
 menu:
   docs:
     parent: hosting-and-deployment
 toc: true
 aliases: [/tutorials/github-pages-blog/]
 ---
-
-GitHub provides free and fast static hosting over SSL for personal, organization, or project pages directly from a GitHub repository via its GitHub Pages service and automating development workflows and build with GitHub Actions.
 
 ## Prerequisites
 
