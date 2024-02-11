@@ -151,6 +151,8 @@ hugo server -D
 
 View your site at the URL displayed in your terminal. Keep the development server running as you continue to add and change content.
 
+When satisfied with your new content, set the front matter `draft` parameter to `false`.
+
 {{% note %}}
 Hugo's rendering engine conforms to the CommonMark [specification] for markdown. The CommonMark organization provides a useful [live testing tool] powered by the reference implementation.
 
