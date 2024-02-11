@@ -30,7 +30,7 @@ import (
 	"github.com/gohugoio/hugo/resources/kinds"
 )
 
-// PermalinkExpander holds permalin mappings per section.
+// PermalinkExpander holds permalink mappings per section.
 type PermalinkExpander struct {
 	// knownPermalinkAttributes maps :tags in a permalink specification to a
 	// function which, given a page and the tag, returns the resulting string
@@ -422,7 +422,7 @@ func DecodePermalinksConfig(m map[string]any) (map[string]map[string]string, err
 			// [permalinks]
 			//   key = '...'
 
-			// To sucessfully be backward compatible, "default" patterns need to be set for both page and term
+			// To successfully be backward compatible, "default" patterns need to be set for both page and term
 			permalinksConfig[kinds.KindPage][k] = v
 			permalinksConfig[kinds.KindTerm][k] = v
 

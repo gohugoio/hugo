@@ -201,7 +201,7 @@ func (r *recording) record(filename string) error {
 	r.FileInfo = fi
 
 	// If fi is a dir, we watch the files inside that directory (not recursively).
-	// This matches the behaviour of fsnotity.
+	// This matches the behavior of fsnotity.
 	if fi.IsDir() {
 		f, err := os.Open(filename)
 		if err != nil {

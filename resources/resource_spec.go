@@ -126,7 +126,7 @@ type Spec struct {
 	*SpecCommon
 }
 
-// The parts of Spec that's comoon for all sites.
+// The parts of Spec that's common for all sites.
 type SpecCommon struct {
 	incr          identity.Incrementer
 	ResourceCache *ResourceCache

@@ -72,10 +72,10 @@ type Format struct {
 	// Setting this will make this output format control the value of
 	// .Permalink and .RelPermalink for a rendered Page.
 	// If not set, these values will point to the main (first) output format
-	// configured. That is probably the behaviour you want in most situations,
+	// configured. That is probably the behavior you want in most situations,
 	// as you probably don't want to link back to the RSS version of a page, as an
 	// example. AMP would, however, be a good example of an output format where this
-	// behaviour is wanted.
+	// behavior is wanted.
 	Permalinkable bool `json:"permalinkable"`
 
 	// Setting this to a non-zero value will be used as the first sort criteria.

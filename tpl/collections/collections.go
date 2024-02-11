@@ -572,7 +572,7 @@ func (ns *Namespace) Seq(args ...any) ([]int, error) {
 	return seq, nil
 }
 
-// Shuffle returns list l in a randomised order.
+// Shuffle returns list l in a randomized order.
 func (ns *Namespace) Shuffle(l any) (any, error) {
 	if l == nil {
 		return nil, errors.New("both count and seq must be provided")
