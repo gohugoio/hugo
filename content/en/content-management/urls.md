@@ -307,7 +307,7 @@ Hugo provides two mutually exclusive configuration options to alter URLs _after_
 #### Canonical URLs
 
 {{% note %}}
-This is a legacy configuration option, superseded by template functions and markdown render hooks, and will likely be [removed in a future release].
+This is a legacy configuration option, superseded by template functions and Markdown render hooks, and will likely be [removed in a future release].
 
 [removed in a future release]: https://github.com/gohugoio/hugo/issues/4733
 {{% /note %}}

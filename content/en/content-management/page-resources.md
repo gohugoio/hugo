@@ -210,7 +210,7 @@ the `Name` and `Title` will be assigned to the resource files as follows:
 By default, with a multilingual single-host site, Hugo does not duplicate shared page resources when building the site.
 
 {{% note %}}
-This behavior is limited to markdown content. Shared page resources for other [content formats] are copied into each language bundle.
+This behavior is limited to Markdown content. Shared page resources for other [content formats] are copied into each language bundle.
 
 [content formats]: /content-management/formats/
 {{% /note %}}
@@ -289,9 +289,9 @@ public/
 This approach reduces build times, storage requirements, bandwidth consumption, and deployment times, ultimately reducing cost.
 
 {{% note %}}
-To resolve markdown link and image destinations to the correct location, you must use link and image render hooks that capture the page resource with the [`Resources.Get`] method, and then invoke its [`RelPermalink`] method.
+To resolve Markdown link and image destinations to the correct location, you must use link and image render hooks that capture the page resource with the [`Resources.Get`] method, and then invoke its [`RelPermalink`] method.
 
-By default, with multilingual single-host sites, Hugo enables its [embedded link render hook] and [embedded image render hook] to resolve markdown link and image destinations.
+By default, with multilingual single-host sites, Hugo enables its [embedded link render hook] and [embedded image render hook] to resolve Markdown link and image destinations.
 
 You may override the embedded render hooks as needed, provided they capture the resource as described above.
 

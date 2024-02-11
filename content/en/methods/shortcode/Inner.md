@@ -46,13 +46,13 @@ Is rendered to:
 ```
 
 {{% note %}}
-Content between opening and closing shortcode tags may include leading and/or trailing newlines, depending on placement within the markdown. Use the [`trim`] function as shown above to remove both carriage returns and newlines.
+Content between opening and closing shortcode tags may include leading and/or trailing newlines, depending on placement within the Markdown. Use the [`trim`] function as shown above to remove both carriage returns and newlines.
 
 [`trim`]: /functions/strings/trim/
 {{% /note %}}
 
 {{% note %}}
-In the example above, the value returned by `Inner` is markdown, but it was rendered as plain text. Use either of the following approaches to render markdown to HTML.
+In the example above, the value returned by `Inner` is Markdown, but it was rendered as plain text. Use either of the following approaches to render Markdown to HTML.
 {{% /note %}}
 
 
@@ -99,9 +99,9 @@ We design the **best** widgets in the world.
 {{%/* /card */%}}
 {{< /code >}}
 
-When you use the `{{%/* */%}}` notation, Hugo renders the entire shortcode as markdown, requiring the following changes.
+When you use the `{{%/* */%}}` notation, Hugo renders the entire shortcode as Markdown, requiring the following changes.
 
-First, configure the renderer to allow raw HTML within markdown:
+First, configure the renderer to allow raw HTML within Markdown:
 
 {{< code-toggle file=hugo >}}
 [markup.goldmark.renderer]
@@ -110,7 +110,7 @@ unsafe = true
 
 This configuration is not unsafe if _you_ control the content. Read more about Hugo's [security model].
 
-Second, because we are rendering the entire shortcode as markdown, we must adhere to the rules governing [indentation] and inclusion of [raw HTML blocks] as provided in the [CommonMark] specification.
+Second, because we are rendering the entire shortcode as Markdown, we must adhere to the rules governing [indentation] and inclusion of [raw HTML blocks] as provided in the [CommonMark] specification.
 
 {{< code file=layouts/shortcodes/card.html  >}}
 <div class="card">

@@ -1,7 +1,7 @@
 ---
 title: Render hooks
 linkTitle: Overview
-description: Create render hooks to override the rendering of markdown to HTML.
+description: Create render hooks to override the rendering of Markdown to HTML.
 categories: []
 keywords: []
 menu:
@@ -14,4 +14,4 @@ showSectionMenu: false
 aliases: [/templates/render-hooks/]
 ---
 
-Create render hooks to override the rendering of markdown to HTML.
+Create render hooks to override the rendering of Markdown to HTML.

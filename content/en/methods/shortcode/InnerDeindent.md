@@ -14,7 +14,7 @@ Similar to the [`Inner`] method, `InnerDeindent` returns the content between ope
 
 This allows us to effectively bypass the rules governing [indentation] as provided in the [CommonMark] specification.
 
-Consider this markdown, an unordered list with a small gallery of thumbnail images within each list item:
+Consider this Markdown, an unordered list with a small gallery of thumbnail images within each list item:
 
 {{< code file=content/about.md lang=md >}}
 - Gallery one
@@ -42,7 +42,7 @@ With this shortcode, calling `Inner` instead of `InnerDeindent`:
 </div>
 {{< /code >}}
 
-Hugo renders the markdown to:
+Hugo renders the Markdown to:
 
 ```html
 <ul>
@@ -73,7 +73,7 @@ Although technically correct per the CommonMark specification, this is not what 
 </div>
 {{< /code >}}
 
-Hugo renders the markdown to:
+Hugo renders the Markdown to:
 
 ```html
 <ul>

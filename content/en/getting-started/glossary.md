@@ -86,7 +86,7 @@ An [array](#array), [slice](#slice), or [map](#map).
 
 ###### content format
 
-A markup language for creating content. Typically markdown, but may also be HTML, AsciiDoc, Org, Pandoc, or reStructuredText. See&nbsp;[details](/content-management/formats/).
+A markup language for creating content. Typically Markdown, but may also be HTML, AsciiDoc, Org, Pandoc, or reStructuredText. See&nbsp;[details](/content-management/formats/).
 
 ###### content type
 
@@ -206,9 +206,9 @@ Adaptation of a site to meet language and regional requirements. This includes t
 
 An unordered group of elements, each indexed by a unique key. See the [Go&nbsp;documentation](https://go.dev/ref/spec#Map_types) for details.
 
-###### markdown attribute
+###### Markdown attribute
 
-A list of attributes, containing one or more key/value pairs, separated by spaces or commas, and wrapped by braces. Apply markdown attributes to images and block-level elements including blockquotes, fenced code blocks, headings, horizontal rules, lists, paragraphs, and tables. See&nbsp;[details](/getting-started/configuration-markup/#goldmark).
+A list of attributes, containing one or more key/value pairs, separated by spaces or commas, and wrapped by braces. Apply Markdown attributes to images and block-level elements including blockquotes, fenced code blocks, headings, horizontal rules, lists, paragraphs, and tables. See&nbsp;[details](/getting-started/configuration-markup/#goldmark).
 
 ###### marshal
 
@@ -309,7 +309,7 @@ The host-relative URL of a published resource or a rendered page.
 
 ###### render hook
 
-A [template](#template) that overrides standard markdown rendering. See&nbsp;[details](/render-hooks).
+A [template](#template) that overrides standard Markdown rendering. See&nbsp;[details](/render-hooks).
 
 ###### remote resource
 
@@ -343,7 +343,7 @@ Content with the "section" [page kind](#page-kind). Typically a listing of [regu
 
 ###### shortcode
 
-A [template](#template) called from within markdown, taking zero or more [arguments](#argument). See&nbsp;[details](/content-management/shortcodes/).
+A [template](#template) called from within Markdown, taking zero or more [arguments](#argument). See&nbsp;[details](/content-management/shortcodes/).
 
 ###### slice
 

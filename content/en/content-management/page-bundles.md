@@ -144,7 +144,7 @@ A _Branch Bundle_ is any directory at any hierarchy within the
 This `_index.md` can also be directly under the `content/` directory.
 
 {{% note %}}
-Here `md` (markdown) is used just as an example. You can use any file
+Here `md` (Markdown) is used just as an example. You can use any file
 type as a content resource as long as it is a content type recognized by Hugo.
 {{% /note %}}
 

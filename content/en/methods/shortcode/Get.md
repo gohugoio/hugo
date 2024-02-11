@@ -12,7 +12,7 @@ action:
 toc: true
 ---
 
-Specify the parameter by position or by name. When calling a shortcode within markdown, use either positional or named parameters, but not both.
+Specify the parameter by position or by name. When calling a shortcode within Markdown, use either positional or named parameters, but not both.
 
 {{% note %}}
 Some shortcodes support positional parameters, some support named parameters, and others support both. Refer to the shortcode's documentation for usage details.

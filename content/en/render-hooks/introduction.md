@@ -11,7 +11,7 @@ menu:
 weight: 20
 ---
 
-When rendering markdown to HTML, render hooks override the conversion. Each render hook is a template, with one template for each supported element type:
+When rendering Markdown to HTML, render hooks override the conversion. Each render hook is a template, with one template for each supported element type:
 
 - [Code blocks](/render-hooks/code-blocks)
 - [Headings](/render-hooks/headings)
@@ -19,14 +19,14 @@ When rendering markdown to HTML, render hooks override the conversion. Each rend
 - [Links](/render-hooks/links)
 
 {{% note %}}
-Hugo supports multiple [content formats] including markdown, HTML, AsciiDoc, Emacs Org Mode, Pandoc, and reStructuredText.
+Hugo supports multiple [content formats] including Markdown, HTML, AsciiDoc, Emacs Org Mode, Pandoc, and reStructuredText.
 
-The render hook capability is limited to markdown. You cannot create render hooks for the other content formats.
+The render hook capability is limited to Markdown. You cannot create render hooks for the other content formats.
 
 [content formats]: /content-management/formats/
 {{% /note %}}
 
-For example, consider this markdown:
+For example, consider this Markdown:
 
 ```text
 [Hugo](https://gohugo.io)
@@ -41,7 +41,7 @@ Without link or image render hooks, this example above is rendered to:
 <p><img alt="kitten" src="kitten.jpg"></p>
 ```
 
-By creating link and image render hooks, you can alter the conversion from markdown to HTML. For example:
+By creating link and image render hooks, you can alter the conversion from Markdown to HTML. For example:
 
 ```html
 <p><a href="https://gohugo.io" rel="external">Hugo</a></p>

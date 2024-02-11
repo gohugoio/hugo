@@ -1,7 +1,7 @@
 ---
 title: Heading render hooks
 linkTitle: Headings
-description: Create a heading render hook to override the rendering of markdown headings to HTML.
+description: Create a heading render hook to override the rendering of Markdown headings to HTML.
 categories: [render hooks]
 keywords: []
 menu:
@@ -24,7 +24,7 @@ Heading render hook templates receive the following [context]:
 
 ###### Attributes
 
-(`map`) The markdown attributes, available if you configure your site as follows:
+(`map`) The Markdown attributes, available if you configure your site as follows:
 
 {{< code-toggle file=hugo >}}
 [markup.goldmark.parser.attribute]
@@ -49,7 +49,7 @@ title = true
 
 ## Examples
 
-In its default configuration, Hugo renders markdown headings according to the [CommonMark specification] with the addition of automatic `id` attributes. To create a render hook that does the same thing:
+In its default configuration, Hugo renders Markdown headings according to the [CommonMark specification] with the addition of automatic `id` attributes. To create a render hook that does the same thing:
 
 [CommonMark specification]: https://spec.commonmark.org/current/
 

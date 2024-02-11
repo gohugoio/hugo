@@ -34,7 +34,7 @@ Hugo natively supports [GoAT](https://github.com/bep/goat) diagrams with an [emb
 
 [embedded code block render hook]: {{% eturl render-codeblock-goat %}}
 
-This markdown:
+This Markdown:
 
 ````
 ```goat
@@ -83,7 +83,7 @@ By way of example, let's create a code block render hook to render GoAT diagrams
 </figure>
 {{< /code >}}
 
-This markdown:
+This Markdown:
 
 {{< code file=content/example.md lang=text >}}
 ```goat {class="foo" caption="Diagram 1: Example"}

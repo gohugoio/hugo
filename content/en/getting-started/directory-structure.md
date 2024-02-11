@@ -88,7 +88,7 @@ config
 : The `config` directory contains your site configuration, possibly split into multiple subdirectories and files. For projects with minimal configuration or projects that do not need to behave differently in different environments, a single configuration file named `hugo.toml` in the root of the project is sufficient. See&nbsp;[details](/getting-started/configuration/#configuration-directory).
 
 content
-: The `content` directory contains the markup files (typically markdown) and page resources that comprise the content of your site. See&nbsp;[details](/content-management/organization/).
+: The `content` directory contains the markup files (typically Markdown) and page resources that comprise the content of your site. See&nbsp;[details](/content-management/organization/).
 
 data
 : The `data` directory contains data files (JSON, TOML, YAML, or XML) that augment content, configuration, localization, and navigation. See&nbsp;[details](/templates/data-templates/).

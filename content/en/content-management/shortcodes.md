@@ -54,11 +54,11 @@ You can pass multiple lines as parameters to a shortcode by using raw string lit
 and a new line with a "quoted string".` */>}}
 ```
 
-### Shortcodes with markdown
+### Shortcodes with Markdown
 
 Shortcodes using the `%` as the outer-most delimiter will be fully rendered when sent to the content renderer. This means that the rendered output from a shortcode can be part of the page's table of contents, footnotes, etc.
 
-### Shortcodes without markdown
+### Shortcodes without Markdown
 
 The `<` character indicates that the shortcode's inner content does *not* need further rendering. Often shortcodes without Markdown include internal HTML:
 

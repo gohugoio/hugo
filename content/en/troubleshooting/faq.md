@@ -83,7 +83,7 @@ You are probably invoking the [`Paginate`] or [`Paginator`] method more than onc
 
 ###### Why are there two ways to call a shortcode?
 
-Use the `{{%/* shortcode */%}}` notation if the shortcode template, or the content between the opening and closing shortcode tags, contains markdown. Otherwise use the\
+Use the `{{%/* shortcode */%}}` notation if the shortcode template, or the content between the opening and closing shortcode tags, contains Markdown. Otherwise use the\
 `{{</* shortcode */>}}` notation. See&nbsp;[details](/content-management/shortcodes/).
 
 ###### Can I use environment variables to control configuration?
@@ -106,7 +106,7 @@ In these cases, instead of monitoring native file system events, use the `--poll
 
 ###### Why is my page Scratch or Store missing a value?
 
-The [`Scratch`] and [`Store`] methods on a `Page` object allow you to create a "scratch pad" on the given page to store and manipulate data. Values are often set within a shortcode, a partial template called by a shortcode, or by a markdown render hook. In all three cases, the "scratch pad" values are not determinate until Hugo renders the page content.
+The [`Scratch`] and [`Store`] methods on a `Page` object allow you to create a "scratch pad" on the given page to store and manipulate data. Values are often set within a shortcode, a partial template called by a shortcode, or by a Markdown render hook. In all three cases, the "scratch pad" values are not determinate until Hugo renders the page content.
 
 If you need to access a "scratch pad" value from a parent template, and the parent template has not yet rendered the page content, you can trigger content rendering by assigning the returned value to a noop variable:
 

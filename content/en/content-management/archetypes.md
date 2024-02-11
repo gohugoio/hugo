@@ -15,7 +15,7 @@ aliases: [/content/archetypes/]
 
 ## Overview
 
-A content file consists of [front matter] and markup. The markup is typically markdown, but Hugo also supports other [content formats]. Front matter can be TOML, YAML, or JSON.
+A content file consists of [front matter] and markup. The markup is typically Markdown, but Hugo also supports other [content formats]. Front matter can be TOML, YAML, or JSON.
 
 The `hugo new content` command creates a new file in the `content` directory, using an archetype as a template. This is the default archetype:
 

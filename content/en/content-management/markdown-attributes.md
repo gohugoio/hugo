@@ -1,6 +1,6 @@
 ---
 title: Markdown attributes
-description: Use mardown attributes to add HTML attributes when rendering markdown to HTML.
+description: Use mardown attributes to add HTML attributes when rendering Markdown to HTML.
 categories: [content management]
 keywords: [goldmark,markdown]
 menu:
@@ -13,7 +13,7 @@ toc: true
 
 ## Overview
 
-Hugo supports markdown attributes on images and block elements including blockquotes, fenced code blocks, headings, horizontal rules, lists, paragraphs, and tables.
+Hugo supports Markdown attributes on images and block elements including blockquotes, fenced code blocks, headings, horizontal rules, lists, paragraphs, and tables.
 
 For example:
 
@@ -37,7 +37,7 @@ Hugo renders both of these to:
 
 ## Block elements
 
-Update your site configuration to enable markdown attributes for block-level elements.
+Update your site configuration to enable Markdown attributes for block-level elements.
 
 {{< code-toggle file=hugo >}}
 [markup.goldmark.parser.attribute]
@@ -48,7 +48,7 @@ block = true # default is false
 
 ## Standalone images
 
-By default, when the [Goldmark] markdown renderer encounters a standalone image element (no other elements or text on the same line), it wraps the image element within a paragraph element per the [CommonMark specification].
+By default, when the [Goldmark] Markdown renderer encounters a standalone image element (no other elements or text on the same line), it wraps the image element within a paragraph element per the [CommonMark specification].
 
 [CommonMark specification]: https://spec.commonmark.org/current/
 [Goldmark]: https://github.com/yuin/goldmark

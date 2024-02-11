@@ -13,7 +13,7 @@ action:
   signatures: [PAGE.Content]
 ---
 
-The `Content` method on a `Page` object renders markdown and shortcodes to HTML. The content does not include front matter.
+The `Content` method on a `Page` object renders Markdown and shortcodes to HTML. The content does not include front matter.
 
 [shortcodes]: /getting-started/glossary/#shortcode
 

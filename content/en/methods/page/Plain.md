@@ -13,7 +13,7 @@ action:
   signatures: [PAGE.Plain]
 ---
 
-The `Plain` method on a `Page` object renders markdown and [shortcodes] to HTML, then strips the HTML [tags]. It does not strip HTML [entities]. The plain content does not include front matter.
+The `Plain` method on a `Page` object renders Markdown and [shortcodes] to HTML, then strips the HTML [tags]. It does not strip HTML [entities]. The plain content does not include front matter.
 
 To prevent Go's [html/template] package from escaping HTML entities, pass the result through the [`htmlUnescape`] function.
 

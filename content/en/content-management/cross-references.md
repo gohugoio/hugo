@@ -60,7 +60,7 @@ index.md can be reference either by its path or by its containing folder without
 {{</* ref "/products/index" */>}}    // <- References /products/index.md
 ```
 
-To generate a hyperlink using `ref` or `relref` in markdown:
+To generate a hyperlink using `ref` or `relref` in Markdown:
 
 ```text
 [About]({{</* ref "/about" */>}} "About Us")

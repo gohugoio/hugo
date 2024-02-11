@@ -1,7 +1,7 @@
 ---
 title: Link render hooks
 linkTitle: Links
-description: Create a link render hook to override the rendering of markdown links to HTML.
+description: Create a link render hook to override the rendering of Markdown links to HTML.
 categories: [render hooks]
 keywords: []
 menu:
@@ -14,7 +14,7 @@ toc: true
 
 ## Markdown
 
-A markdown link has three components: the link text, the link destination, and optionally the link title.
+A Markdown link has three components: the link text, the link destination, and optionally the link title.
 
 ```text
 [Post 1](/posts/post-1 "My first post")
@@ -58,7 +58,7 @@ Link render hook templates receive the following context:
 With inline elements such as images and links, remove leading and trailing white space using the `{{‑ ‑}}` delimiter notation to prevent white space between adjacent inline elements and text.
 {{% /note %}}
 
-In its default configuration, Hugo renders markdown links according to the [CommonMark specification]. To create a render hook that does the same thing:
+In its default configuration, Hugo renders Markdown links according to the [CommonMark specification]. To create a render hook that does the same thing:
 
 [CommonMark specification]: https://spec.commonmark.org/current/
 
@@ -88,7 +88,7 @@ To include a `rel` attribute set to `external` for external links:
 
 {{< new-in 0.123.0 >}}
 
-Hugo includes an [embedded link render hook] to resolve markdown link destinations. Disabled by default, you can enable it in your site configuration:
+Hugo includes an [embedded link render hook] to resolve Markdown link destinations. Disabled by default, you can enable it in your site configuration:
 
 [embedded link render hook]: {{% eturl render-link %}}
 
@@ -105,7 +105,7 @@ The embedded link render hook is automatically enabled for multilingual single-h
 [duplication of shared page resources]: /getting-started/configuration-markup/#duplicateresourcefiles
 {{% /note %}}
 
-The embedded link render hook resolves internal markdown destinations by looking for a matching page, falling back to a matching [page resource], then falling back to a matching [global resource]. Remote destinations are passed through, and the render hook will not throw an error or warning if it is unable to resolve a destination.
+The embedded link render hook resolves internal Markdown destinations by looking for a matching page, falling back to a matching [page resource], then falling back to a matching [global resource]. Remote destinations are passed through, and the render hook will not throw an error or warning if it is unable to resolve a destination.
 
 [page resource]: /getting-started/glossary/#page-resource
 [global resource]: /getting-started/glossary/#global-resource

@@ -1,7 +1,7 @@
 ---
 title: Code block render hooks
 linkTitle: Code blocks
-description: Create a code block render hook to override the rendering of markdown code blocks to HTML.
+description: Create a code block render hook to override the rendering of Markdown code blocks to HTML.
 categories: [render hooks]
 keywords: []
 menu:
@@ -14,7 +14,7 @@ toc: true
 
 ## Markdown
 
-This markdown example contains a fenced code block:
+This Markdown example contains a fenced code block:
 
 {{< code file=content/example.md lang=text >}}
 ```bash {class="my-class" id="my-codeblock" lineNos=inline tabWidth=2}

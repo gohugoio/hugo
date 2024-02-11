@@ -1,7 +1,7 @@
 ---
 title: Image render hooks
 linkTitle: Images
-description: Create an image render to hook override the rendering of markdown images to HTML.
+description: Create an image render to hook override the rendering of Markdown images to HTML.
 categories: [render hooks]
 keywords: []
 menu:
@@ -14,7 +14,7 @@ toc: true
 
 ## Markdown
 
-A markdown image has three components: the image description, the image destination, and optionally the image title.
+A Markdown image has three components: the image description, the image destination, and optionally the image title.
 
 ```text
 ![white kitten](/images/kitten.jpg "A kitten!")
@@ -32,7 +32,7 @@ Image render hook templates receive the following context:
 
 ###### Attributes
 
-(`map`) The markdown attributes, available if you configure your site as follows:
+(`map`) The Markdown attributes, available if you configure your site as follows:
 
 {{< code-toggle file=hugo >}}
 [markup.goldmark.parser]
@@ -75,7 +75,7 @@ block = true
 With inline elements such as images and links, remove leading and trailing white space using the `{{‑ ‑}}` delimiter notation to prevent white space between adjacent inline elements and text.
 {{% /note %}}
 
-In its default configuration, Hugo renders markdown images according to the [CommonMark specification]. To create a render hook that does the same thing:
+In its default configuration, Hugo renders Markdown images according to the [CommonMark specification]. To create a render hook that does the same thing:
 
 [CommonMark specification]: https://spec.commonmark.org/current/
 
@@ -116,7 +116,7 @@ wrapStandAloneImageWithinParagraph = false
 
 {{< new-in 0.123.0 >}}
 
-Hugo includes an [embedded image render hook] to resolve markdown image destinations. Disabled by default, you can enable it in your site configuration:
+Hugo includes an [embedded image render hook] to resolve Markdown image destinations. Disabled by default, you can enable it in your site configuration:
 
 [embedded image render hook]: {{% eturl render-image %}}
 
@@ -133,7 +133,7 @@ The embedded image render hook is automatically enabled for multilingual single-
 [duplication of shared page resources]: /getting-started/configuration-markup/#duplicateresourcefiles
 {{% /note %}}
 
-The embedded image render hook resolves internal markdown destinations by looking for a matching [page resource], falling back to a matching [global resource]. Remote destinations are passed through, and the render hook will not throw an error or warning if it is unable to resolve a destination.
+The embedded image render hook resolves internal Markdown destinations by looking for a matching [page resource], falling back to a matching [global resource]. Remote destinations are passed through, and the render hook will not throw an error or warning if it is unable to resolve a destination.
 
 [page resource]: /getting-started/glossary/#page-resource
 [global resource]: /getting-started/glossary/#global-resource
@@ -150,4 +150,4 @@ source = 'static'
 target = 'assets'
 {{< /code-toggle >}}
 
-Note that the embedded image render hook does not perform image processing. Its sole purpose is to resolve markdown image destinations.
+Note that the embedded image render hook does not perform image processing. Its sole purpose is to resolve Markdown image destinations.

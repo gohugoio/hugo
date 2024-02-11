@@ -14,16 +14,16 @@ toc: true
 
 ## Default handler
 
-Hugo uses [Goldmark] to render markdown to HTML.
+Hugo uses [Goldmark] to render Markdown to HTML.
 
 {{< code-toggle file=hugo >}}
 [markup]
 defaultMarkdownHandler = 'goldmark'
 {{< /code-toggle >}}
 
-Files with the `.md` or `.markdown` extension are processed as markdown, provided that you have not specified a different [content format] using the `markup` field in front matter.
+Files with the `.md` or `.markdown` extension are processed as Markdown, provided that you have not specified a different [content format] using the `markup` field in front matter.
 
-To use a different renderer for markdown files, specify one of `asciidocext`, `org`, `pandoc`, or `rst` in your site configuration.
+To use a different renderer for Markdown files, specify one of `asciidocext`, `org`, `pandoc`, or `rst` in your site configuration.
 
 defaultMarkdownHandler|Description
 :--|:--
@@ -36,7 +36,7 @@ defaultMarkdownHandler|Description
 To use Asciidoc, Pandoc, or reStructuredText you must install the relevant renderer and update your [security policy].
 
 {{% note %}}
-Unless you need a unique capability provided by one of the alternate markdown handlers, we strongly recommend that you use the default setting. Goldmark is fast, well maintained, conforms to the [CommonMark] specification, and is compatible with [GitHub Flavored Markdown] (GFM).
+Unless you need a unique capability provided by one of the alternate Markdown handlers, we strongly recommend that you use the default setting. Goldmark is fast, well maintained, conforms to the [CommonMark] specification, and is compatible with [GitHub Flavored Markdown] (GFM).
 
 [commonmark]: https://spec.commonmark.org/0.30/
 [github flavored markdown]: https://github.github.com/gfm/
@@ -52,7 +52,7 @@ Unless you need a unique capability provided by one of the alternate markdown ha
 
 ## Goldmark
 
-This is the default configuration for the Goldmark markdown renderer:
+This is the default configuration for the Goldmark Markdown renderer:
 
 {{< code-toggle config=markup.goldmark />}}
 
@@ -60,9 +60,9 @@ This is the default configuration for the Goldmark markdown renderer:
 
 The extensions below, excluding passthrough, are enabled by default.
 
-Enable the passthrough extension if you include mathematical equations and expressions in your markdown using LaTeX or TeX typesetting syntax. See [mathematics in markdown] for details.
+Enable the passthrough extension if you include mathematical equations and expressions in your Markdown using LaTeX or TeX typesetting syntax. See [mathematics in Markdown] for details.
 
-[mathematics in markdown]: content-management/mathematics/
+[mathematics in Markdown]: content-management/mathematics/
 
 Extension|Documentation
 :--|:--
@@ -122,7 +122,7 @@ With multilingual single-host sites, setting this parameter to `false` will enab
 
 ###### parser.wrapStandAloneImageWithinParagraph
 
-(`bool`) If `true`, image elements without adjacent content will be wrapped within a `p` element when rendered. This is the default markdown behavior. Set to `false` when using an [image render hook] to render standalone images as `figure` elements. Default is `true`.
+(`bool`) If `true`, image elements without adjacent content will be wrapped within a `p` element when rendered. This is the default Markdown behavior. Set to `false` when using an [image render hook] to render standalone images as `figure` elements. Default is `true`.
 
 [image render hook]: /render-hooks/images/
 
@@ -132,19 +132,19 @@ With multilingual single-host sites, setting this parameter to `false` will enab
 
 - `github` produces GitHub-compatible `id` attributes
 - `github-ascii` drops any non-ASCII characters after accent normalization
-- `blackfriday` produces `id` attributes compatible with the Blackfriday markdown renderer
+- `blackfriday` produces `id` attributes compatible with the Blackfriday Markdown renderer
 
 This is also the strategy used by the [anchorize](/functions/urls/anchorize) template function. Default is `github`.
 
 ###### parser.attribute.block
 
-(`bool`) If `true`, enables [markdown attributes] for block elements. Default is `false`.
+(`bool`) If `true`, enables [Markdown attributes] for block elements. Default is `false`.
 
-[markdown attributes]: /content-management/markdown-attributes/
+[Markdown attributes]: /content-management/markdown-attributes/
 
 ###### parser.attribute.title
 
-(`bool`) If `true`, enables [markdown attributes] for headings. Default is `true`.
+(`bool`) If `true`, enables [Markdown attributes] for headings. Default is `true`.
 
 ###### renderHooks.image.enableDefault
 
@@ -180,11 +180,11 @@ The embedded link render hook is automatically enabled for multilingual single-h
 
 ###### renderer.unsafe
 
-(`bool`) If `true`, Goldmark renders raw HTML mixed within the markdown. This is unsafe unless the content is under your control. Default is `false`.
+(`bool`) If `true`, Goldmark renders raw HTML mixed within the Markdown. This is unsafe unless the content is under your control. Default is `false`.
 
 ## Asciidoc
 
-This is the default configuration for the AsciiDoc markdown renderer:
+This is the default configuration for the AsciiDoc Markdown renderer:
 
 {{< code-toggle config=markup.asciidocExt />}}
 

@@ -21,7 +21,7 @@ In a URL, whether absolute or relative, the [fragment] links to an `id` attribut
        path         fragment
 ```
 
-Hugo assigns an `id` attribute to each markdown [ATX] and [setext] heading within the page content. You can override the `id` with a [markdown attribute] as needed. This creates the relationship between an entry in the [table of contents] (TOC) and a heading on the page.
+Hugo assigns an `id` attribute to each Markdown [ATX] and [setext] heading within the page content. You can override the `id` with a [Markdown attribute] as needed. This creates the relationship between an entry in the [table of contents] (TOC) and a heading on the page.
 
 Use the `Fragments` method on a `Page` object to create a table of contents with the `Fragments.ToHTML` method, or by [walking] the `Fragments.Map` data structure.
 

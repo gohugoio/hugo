@@ -24,7 +24,7 @@ The current list of content formats in Hugo:
 
 | Name  | Markup identifiers | Comment |
 | ------------- | ------------- |-------------|
-| Goldmark  | `markdown`, `goldmark`  |Note that you can set the default handler of `md` and `markdown` to something else, see [Configure Markup](/getting-started/configuration-markup/).|
+| Goldmark  | `markdown`, `goldmark`  |Note that you can set the default handler of `md` and `Markdown` to something else, see [Configure Markup](/getting-started/configuration-markup/).|
 |Emacs Org-Mode|`org`|See [go-org](https://github.com/niklasfasching/go-org).|
 |AsciiDoc|`asciidocext`, `adoc`, `ad`|Needs [Asciidoctor][ascii] installed.|
 |RST|`rst`|Needs [RST](https://docutils.sourceforge.io/rst.html) installed.|
@@ -63,7 +63,7 @@ Some Asciidoctor parameters can be customized in Hugo. See&nbsp;[details].
 
 [details]: /getting-started/configuration-markup/#asciidoc
 
-## Learn markdown
+## Learn Markdown
 
 Markdown syntax is simple enough to learn in a single sitting. The following are excellent resources to get you up and running:
 
@@ -75,8 +75,8 @@ Markdown syntax is simple enough to learn in a single sitting. The following are
 [ascii]: https://asciidoctor.org/
 [config]: /getting-started/configuration/
 [developer tools]: /tools/
-[fireball]: https://daringfireball.net/projects/markdown/
-[gfmtasks]: https://guides.github.com/features/mastering-markdown/#syntax
+[fireball]: https://daringfireball.net/projects/Markdown/
+[gfmtasks]: https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#syntax
 [helperssource]: https://github.com/gohugoio/hugo/blob/77c60a3440806067109347d04eb5368b65ea0fe8/helpers/general.go#L65
 [hl]: /content-management/syntax-highlighting/
 [hlsc]: /content-management/shortcodes/#highlight

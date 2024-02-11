@@ -30,7 +30,7 @@ By default, `findRESubmatch` finds all matches. You can limit the number of matc
 
 ## Practical example
 
-This markdown:
+This Markdown:
 
 ```text
 - [Example](https://example.org)

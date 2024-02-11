@@ -125,7 +125,7 @@ draft = true
 
 Notice the `draft` value in the [front matter] is `true`. By default, Hugo does not publish draft content when you build the site. Learn more about [draft, future, and expired content].
 
-Add some [markdown] to the body of the post, but do not change the `draft` value.
+Add some [Markdown] to the body of the post, but do not change the `draft` value.
 
 [markdown]: https://commonmark.org/help/
 
@@ -154,7 +154,7 @@ View your site at the URL displayed in your terminal. Keep the development serve
 When satisfied with your new content, set the front matter `draft` parameter to `false`.
 
 {{% note %}}
-Hugo's rendering engine conforms to the CommonMark [specification] for markdown. The CommonMark organization provides a useful [live testing tool] powered by the reference implementation.
+Hugo's rendering engine conforms to the CommonMark [specification] for Markdown. The CommonMark organization provides a useful [live testing tool] powered by the reference implementation.
 
 [live testing tool]: https://spec.commonmark.org/dingus/
 [specification]: https://spec.commonmark.org/
