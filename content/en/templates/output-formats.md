@@ -209,7 +209,7 @@ In order for them to return the output format of the current template file inste
 {{ end }}
 ```
 
-From content files, you can use the [`ref` or `relref` shortcodes](/content-management/shortcodes/#ref-and-relref):
+From content files, you can use the `ref` or `relref` shortcodes:
 
 ```go-html-template
 [Neat]({{</* ref "blog/neat.md" "amp" */>}})

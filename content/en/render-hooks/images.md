@@ -118,7 +118,7 @@ wrapStandAloneImageWithinParagraph = false
 
 Hugo includes an [embedded image render hook] to resolve markdown image destinations. Disabled by default, you can enable it in your site configuration:
 
-[embedded image render hook]: https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/_markup/render-image.html
+[embedded image render hook]: {{% eturl render-image %}}
 
 {{< code-toggle file=hugo >}}
 [markup.goldmark.renderHooks.image]

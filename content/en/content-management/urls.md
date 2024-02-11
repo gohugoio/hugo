@@ -423,10 +423,12 @@ Hugo renders alias files before rendering pages. A new page with the previous fi
 
 ### Customize
 
-Create a new template (`layouts/alias.html`) to customize the content of the alias files. The template receives the following context:
+To override Hugo's embedded `alias` template, copy the [source code] to a file with the same name in the layouts directory. The template receives the following context:
 
 Permalink
 : the link to the page being aliased
 
 Page
 : the Page data for the page being aliased
+
+[source code]: {{% eturl alias %}}

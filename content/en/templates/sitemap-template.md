@@ -14,14 +14,17 @@ aliases: [/layout/sitemap/,/templates/sitemap/]
 
 ## Overview
 
-Hugo's built-in sitemap templates conform to v0.9 of the [sitemap protocol].
+Hugo's embedded sitemap templates conform to v0.9 of the [sitemap protocol].
 
-With a monolingual project, Hugo generates a sitemap.xml file in the root of the [`publishDir`] using the built-in [sitemap.xml] template.
+With a monolingual project, Hugo generates a sitemap.xml file in the root of the [`publishDir`] using the [embedded sitemap template].
 
 With a multilingual project, Hugo generates:
 
-- A sitemap.xml file in the root of each site (language) using the built-in [sitemap.xml] template
-- A sitemap.xml file in the root of the [`publishDir`] using the built-in [sitemapindex.xml] template
+- A sitemap.xml file in the root of each site (language) using the [embedded sitemap template]
+- A sitemap.xml file in the root of the [`publishDir`] using the [embedded sitemapindex template]
+
+[embedded sitemap template]: {{% eturl sitemap %}}
+[embedded sitemapindex template]: {{% eturl sitemapindex %}}
 
 ## Configuration
 
@@ -75,5 +78,3 @@ disableKinds = ['sitemap']
 [change frequency]: <https://www.sitemaps.org/protocol.html#changefreqdef>
 [priority]: <https://www.sitemaps.org/protocol.html#priority>
 [sitemap protocol]: <https://www.sitemaps.org/protocol.html>
-[sitemap.xml]: <https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/sitemap.xml>
-[sitemapindex.xml]: <https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/sitemapindex.xml>

@@ -60,9 +60,16 @@ It is also possible to use the `GroupBy` functions in combination with paginatio
 
 ## Build the navigation
 
-The `.Paginator` contains enough information to build a paginator interface.
+{{% note %}}
+To override Hugo's embedded pagination template, copy the [source code] to a file with the same name in the layouts/partials directory, then call it from your templates using the [`partial`] function:
 
-The easiest way to add this to your pages is to include the built-in template (with `Bootstrap`-compatible styles):
+`{{ partial "pagination" . }}`
+
+[`partial`]: /functions/partials/include/
+[source code]: {{% eturl pagination %}}
+{{% /note %}}
+
+The easiest way to add this to your pages is to include the embedded template:
 
 ```go-html-template
 {{ template "_internal/pagination.html" . }}

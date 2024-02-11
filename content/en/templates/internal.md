@@ -15,35 +15,18 @@ toc: true
 While the following internal templates are called similar to partials, they do *not* observe the partial template lookup order.
 {{% /note %}}
 
-## Google Analytics
-
-Hugo ships with an internal template supporting [Google Analytics 4].
-
-[Google Analytics 4]: https://support.google.com/analytics/answer/10089681
-
-### Configure Google Analytics
-
-Provide your tracking ID in your configuration file:
-
-**Google Analytics 4 (gtag.js)**
-{{< code-toggle file=hugo >}}
-[services.googleAnalytics]
-ID = "G-MEASUREMENT_ID"
-{{</ code-toggle >}}
-
-### Use the Google Analytics template
-
-Include the Google Analytics internal template in your templates where you want the code to appear:
-
-```go-html-template
-{{ template "_internal/google_analytics.html" . }}
-```
-
-To create your own template, access the configured ID with `{{ site.Config.Services.GoogleAnalytics.ID }}`.
-
 ## Disqus
 
-Hugo also ships with an internal template for [Disqus comments][disqus], a popular commenting system for both static and dynamic websites. To effectively use Disqus, secure a Disqus "shortname" by [signing up for the free service][disqussignup].
+{{% note %}}
+To override Hugo's embedded Disqus template, copy the [source code] to a file with the same name in the layouts/partials directory, then call it from your templates using the [`partial`] function:
+
+`{{ partial "disqus.html" . }}`
+
+[`partial`]: /functions/partials/include/
+[source code]: {{% eturl disqus %}}
+{{% /note %}}
+
+Hugo includes an embedded template for [Disqus comments][disqus], a popular commenting system for both static and dynamic websites. To effectively use Disqus, secure a Disqus "shortname" by [signing up for the free service][disqussignup].
 
 ### Configure Disqus
 
@@ -108,9 +91,53 @@ You can then render your custom Disqus partial template as follows:
 {{ partial "disqus.html" . }}
 ```
 
+## Google Analytics
+
+{{% note %}}
+To override Hugo's embedded Google Analytics template, copy the [source code] to a file with the same name in the layouts/partials directory, then call it from your templates using the [`partial`] function:
+
+`{{ partial "google_analytics.html" . }}`
+
+[`partial`]: /functions/partials/include/
+[source code]: {{% eturl google_analytics %}}
+{{% /note %}}
+
+Hugo includes an embedded template supporting [Google Analytics 4].
+
+[Google Analytics 4]: https://support.google.com/analytics/answer/10089681
+
+### Configure Google Analytics
+
+Provide your tracking ID in your configuration file:
+
+**Google Analytics 4 (gtag.js)**
+{{< code-toggle file=hugo >}}
+[services.googleAnalytics]
+ID = "G-MEASUREMENT_ID"
+{{</ code-toggle >}}
+
+### Use the Google Analytics template
+
+Include the Google Analytics internal template in your templates where you want the code to appear:
+
+```go-html-template
+{{ template "_internal/google_analytics.html" . }}
+```
+
+To create your own template, access the configured ID with `{{ site.Config.Services.GoogleAnalytics.ID }}`.
+
 ## Open Graph
 
-An internal template for the [Open Graph protocol](https://ogp.me/), metadata that enables a page to become a rich object in a social graph.
+{{% note %}}
+To override Hugo's embedded Open Graph template, copy the [source code] to a file with the same name in the layouts/partials directory, then call it from your templates using the [`partial`] function:
+
+`{{ partial "opengraph.html" . }}`
+
+[`partial`]: /functions/partials/include/
+[source code]: {{% eturl opengraph %}}
+{{% /note %}}
+
+Hugo includes an embedded template for the [Open Graph protocol](https://ogp.me/), metadata that enables a page to become a rich object in a social graph.
 This format is used for Facebook and some other sites.
 
 ### Configure Open Graph
@@ -158,9 +185,39 @@ To add Open Graph metadata, include the following line between the `<head>` tags
 {{ template "_internal/opengraph.html" . }}
 ```
 
+## Schema
+
+{{% note %}}
+To override Hugo's embedded Schema template, copy the [source code] to a file with the same name in the layouts/partials directory, then call it from your templates using the [`partial`] function:
+
+`{{ partial "schema.html" . }}`
+
+[`partial`]: /functions/partials/include/
+[source code]: {{% eturl schema %}}
+{{% /note %}}
+
+Hugo includes an embedded template to render [microdata] `meta` elements within the `head` element of your templates.
+
+[microdata]: https://html.spec.whatwg.org/multipage/microdata.html#microdata
+
+To call the embedded template from your templates:
+
+```go-html-template
+{{ template "_internal/schema.xml" . }}
+```
+
 ## Twitter Cards
 
-An internal template for [Twitter Cards](https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/abouts-cards),
+{{% note %}}
+To override Hugo's embedded Twitter Cards template, copy the [source code] to a file with the same name in the layouts/partials directory, then call it from your templates using the [`partial`] function:
+
+`{{ partial "twitter_cards.html" . }}`
+
+[`partial`]: /functions/partials/include/
+[source code]: {{% eturl twitter_cards %}}
+{{% /note %}}
+
+Hugo includes an embedded template for [Twitter Cards](https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/abouts-cards),
 metadata used to attach rich media to Tweets linking to your site.
 
 ### Configure Twitter Cards
@@ -206,16 +263,7 @@ To add Twitter card metadata, include the following line immediately after the `
 {{ template "_internal/twitter_cards.html" . }}
 ```
 
-## The internal templates
 
-The code for these templates is located [here](https://github.com/gohugoio/hugo/tree/master/tpl/tplimpl/embedded/templates).
-
-* `_internal/disqus.html`
-* `_internal/google_analytics.html`
-* `_internal/opengraph.html`
-* `_internal/pagination.html`
-* `_internal/schema.html`
-* `_internal/twitter_cards.html`
 
 [disqus]: https://disqus.com
 [disqussignup]: https://disqus.com/profile/signup/

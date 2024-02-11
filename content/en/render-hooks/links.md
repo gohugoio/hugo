@@ -90,7 +90,7 @@ To include a `rel` attribute set to `external` for external links:
 
 Hugo includes an [embedded link render hook] to resolve markdown link destinations. Disabled by default, you can enable it in your site configuration:
 
-[embedded link render hook]: https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/_markup/render-link.html
+[embedded link render hook]: {{% eturl render-link %}}
 
 {{< code-toggle file=hugo >}}
 [markup.goldmark.renderHooks.link]

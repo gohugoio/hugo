@@ -14,7 +14,10 @@ toc: true
 
 ## GoAT diagrams (ASCII)
 
-Hugo supports [GoAT](https://github.com/bep/goat) natively. This means that this code block:
+Hugo natively supports [GoAT] diagrams with an [embedded code block render hook]. This means that this code block:
+
+[GoAT]: https://github.com/bep/goat
+[embedded code block render hook]: {{% eturl render-codeblock-goat %}}
 
 ````txt
 ```goat

@@ -1,7 +1,7 @@
 ---
 title: Create your own shortcodes
 linkTitle: Shortcode templates
-description: You can extend Hugo's built-in shortcodes by creating your own using the same templating syntax as that for single and list pages.
+description: You can extend Hugo's embedded shortcodes by creating your own using the same templating syntax as that for single and list pages.
 categories: [templates]
 keywords: [shortcodes,templates]
 menu:
@@ -16,12 +16,12 @@ toc: true
 Shortcodes are a means to consolidate templating into small, reusable snippets that you can embed directly inside your content.
 
 {{% note %}}
-Hugo also ships with built-in shortcodes for common use cases. (See [Content Management: Shortcodes](/content-management/shortcodes/).)
+Hugo also ships with embedded shortcodes for common use cases. (See [Content Management: Shortcodes](/content-management/shortcodes/).)
 {{% /note %}}
 
 ## Create custom shortcodes
 
-Hugo's built-in shortcodes cover many common, but not all, use cases. Luckily, Hugo provides the ability to easily create custom shortcodes to meet your website's needs.
+Hugo's embedded shortcodes cover many common, but not all, use cases. Luckily, Hugo provides the ability to easily create custom shortcodes to meet your website's needs.
 
 {{< youtube Eu4zSaKOY4A >}}
 
