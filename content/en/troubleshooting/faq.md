@@ -102,13 +102,17 @@ In its default configuration, Hugo's file watcher may not be able detect file ch
 - Running Hugo locally with project files on a removable drive
 - Running Hugo locally with project files on a storage server accessed via the NFS, SMB, or CIFS protocols
 
-In these cases, instead of monitoring native file system events, use the `--poll` command line flag. For example, to poll the project files every 700 milliseconds ms, use `--poll 700ms`.
+In these cases, instead of monitoring native file system events, use the `--poll` command line flag. For example, to poll the project files every 700 milliseconds, use `--poll 700ms`.
 
 ###### Why is my page Scratch or Store missing a value?
 
-The [`Scratch`] and [`Store`] methods on a `Page` object allow you to create a "scratch pad" on the given page to store and manipulate data. Values are often set within a shortcode, a partial template called by a shortcode, or by a Markdown render hook. In all three cases, the "scratch pad" values are not determinate until Hugo renders the page content.
+The [`Scratch`] and [`Store`] methods on a `Page` object allow you to create a [scratch pad] on the given page to store and manipulate data. Values are often set within a shortcode, a partial template called by a shortcode, or by a Markdown render hook. In all three cases, the scratch pad values are not determinate until Hugo renders the page content.
 
-If you need to access a "scratch pad" value from a parent template, and the parent template has not yet rendered the page content, you can trigger content rendering by assigning the returned value to a noop variable:
+[scratch pad]: /getting-started/glossary/#scratch-pad
+
+If you need to access a scratch pad value from a parent template, and the parent template has not yet rendered the page content, you can trigger content rendering by assigning the returned value to a [noop] variable:
+
+[noop]: /getting-started/glossary/#noop
 
 ```go-html-template
 {{ $noop := .Content }}

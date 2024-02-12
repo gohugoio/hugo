@@ -633,8 +633,24 @@ none
 
 ## Configuration environment variables
 
+DART_SASS_BINARY
+: (`string`) The absolute path to the Dart Sass executable. By default, Hugo searches for the executable in each of the paths in the `PATH` environment variable.
+
+HUGO_ENVIRONMENT
+: (`string`) Overrides the default [environment], typically one of `development`, `staging`, or `production`.
+
+[environment]: /getting-started/glossary/#environment
+
+HUGO_FILE_LOG_FORMAT
+: (`string`) A format string for the file path, line number, and column number displayed when reporting errors, or when calling the `Position` method from a shortcode or Markdown render hook. Valid tokens are `:file`, `:line`, and `:col`. Default is `:file::line::col`.
+
+{{< new-in 0.123.0 >}}
+
+HUGO_MEMORYLIMIT
+: (`int`) The maximum amount of system memory, in gigabytes, that Hugo can use while rendering your site. Default is 25% of total system memory.
+
 HUGO_NUMWORKERMULTIPLIER
-: Can be set to increase or reduce the number of workers used in parallel processing in Hugo. If not set, the number of logical CPUs will be used.
+: (`int`) The number of workers used in parallel processing. Default is the number of logical CPUs.
 
 ## Configure with environment variables
 

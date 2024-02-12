@@ -29,7 +29,7 @@ embedded_templates.toml file in the data directory.
       {{- errorf "The %q shortcode was unable to find a URL for the embedded template named %q. Check the name. See %s" $.Name $filename $.Position -}}
     {{- end -}}
   {{- else -}}
-    {{- errorf "The %q shortcode was unable to find the embedded_templates data file in the site's data directory. See %s" $.Name $.Position -}}
+    {{- errorf "The %q shortcode was unable to find the embedded_template_urls data file in the site's data directory. See %s" $.Name $.Position -}}
   {{- end -}}
 {{- else -}}
  {{- errorf "The %q shortcodes requires a named or positional parameter, the file name of the embedded template, excluding its extension. See %s" .Name .Position -}}
