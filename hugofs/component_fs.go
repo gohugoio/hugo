@@ -59,7 +59,7 @@ type componentFsDir struct {
 	fs   *componentFs
 }
 
-// ReadDir reads count entries from this virtual directorie and
+// ReadDir reads count entries from this virtual directory and
 // sorts the entries according to the component filesystem rules.
 func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 	fis, err := f.DirOnlyOps.(iofs.ReadDirFile).ReadDir(-1)

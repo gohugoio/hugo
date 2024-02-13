@@ -206,7 +206,7 @@ type shortcode struct {
 	// Before Hug0 0.55 we didn't send any shortcode output to the markup
 	// renderer, and this flag told Hugo to process the {{ .Inner }} content
 	// separately.
-	// The old behaviour can be had by starting your shortcode template with:
+	// The old behavior can be had by starting your shortcode template with:
 	//    {{ $_hugo_config := `{ "version": 1 }`}}
 	doMarkup bool
 
@@ -422,7 +422,7 @@ func doRenderShortcode(
 			}
 		}
 
-		// Pre Hugo 0.55 this was the behaviour even for the outer-most
+		// Pre Hugo 0.55 this was the behavior even for the outer-most
 		// shortcode.
 		if sc.doMarkup && (level > 0 || sc.configVersion() == 1) {
 			var err error

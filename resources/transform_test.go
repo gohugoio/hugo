@@ -185,7 +185,7 @@ func TestTransform(t *testing.T) {
 
 		spec := newTestResourceSpec(specDescriptor{c: c})
 
-		// Two transformations with same id, different behaviour.
+		// Two transformations with same id, different behavior.
 		t1 := createContentReplacer("t1", "blue", "green")
 		t2 := createContentReplacer("t1", "color", "car")
 

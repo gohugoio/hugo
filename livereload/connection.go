@@ -28,7 +28,7 @@ type connection struct {
 	send chan []byte
 
 	// There is a potential data race, especially visible with large files.
-	// This is protected by synchronisation of the send channel's close.
+	// This is protected by synchronization of the send channel's close.
 	closer sync.Once
 }
 

@@ -150,7 +150,7 @@ func createTargetPathDescriptor(p *pageState) (page.TargetPathDescriptor, error)
 		opath, _ = url.QueryUnescape(opath)
 		if strings.HasSuffix(opath, "//") {
 			// When rewriting the _index of the section the permalink config is applied to,
-			// we get douple slashes at the end sometimes; clear them up here
+			// we get double slashes at the end sometimes; clear them up here
 			opath = strings.TrimSuffix(opath, "/")
 		}
 

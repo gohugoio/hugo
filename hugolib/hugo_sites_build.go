@@ -236,7 +236,7 @@ func (h *HugoSites) process(ctx context.Context, l logg.LevelLogger, config *Bui
 	return h.processFull(ctx, l, *config)
 }
 
-// assemble creates missing sections, applies agregate values (e.g. dates, cascading params),
+// assemble creates missing sections, applies aggregate values (e.g. dates, cascading params),
 // removes disabled pages etc.
 func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *BuildCfg) error {
 	l = l.WithField("step", "assemble")
