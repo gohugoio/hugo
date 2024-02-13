@@ -31,7 +31,7 @@ type AllProvider interface {
 	LanguagePrefix() string
 	BaseURL() urls.BaseURL
 	BaseURLLiveReload() urls.BaseURL
-	PathParser() paths.PathParser
+	PathParser() *paths.PathParser
 	Environment() string
 	IsMultihost() bool
 	IsMultiLingual() bool

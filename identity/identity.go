@@ -308,13 +308,39 @@ type identityManager struct {
 	onAddIdentity func(id Identity)
 }
 
+func (im *identityManager) validateIdentity(id Identity) {
+	id = Unwrap(id)
+	base := id.IdentifierBase()
+
+	switch id {
+	case Anonymous:
+		return
+	}
+
+	if base == "__anonymous" {
+		fmt.Println("IdentifierBase __anonymous is reserved", id != Anonymous)
+	}
+
+	if base == "/" || strings.Contains(base, "_default") || strings.Contains(base, "partial") {
+		return
+	}
+
+	if !strings.HasPrefix(base, "/") {
+		fmt.Printf("IdentifierBase %q should start with a slash\n", base)
+	}
+
+	if strings.HasSuffix(base, "/") {
+		fmt.Printf("IdentifierBase %q should not end with a slash\n", base)
+	}
+}
+
 func (im *identityManager) AddIdentity(ids ...Identity) {
 	im.mu.Lock()
-
 	for _, id := range ids {
-		if id == Anonymous {
+		if id == nil || id == Anonymous {
 			continue
 		}
+		// TODO1 im.validateIdentity(id)
 		if _, found := im.ids[id]; !found {
 			if im.onAddIdentity != nil {
 				im.onAddIdentity(id)
@@ -417,7 +443,7 @@ func walkIdentities(v any, level int, deep bool, seen map[Identity]bool, cb func
 // Anonymous identities are skipped.
 func walkIdentitiesShallow(v any, level int, cb func(level int, id Identity) bool) bool {
 	cb2 := func(level int, id Identity) bool {
-		if id == Anonymous {
+		if id == nil || id == Anonymous {
 			return false
 		}
 		return cb(level, id)

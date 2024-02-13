@@ -23,7 +23,10 @@ import (
 	"github.com/spf13/cast"
 )
 
-var _ ResourceFinder = (*Resources)(nil)
+var (
+	_ ResourceFinder = (*Resources)(nil)
+	_ StaleInfo      = (*Resources)(nil)
+)
 
 // Resources represents a slice of resources, which can be a mix of different types.
 // I.e. both pages and images etc.
@@ -100,9 +103,20 @@ func (r Resources) GetMatch(pattern any) Resource {
 		panic(err)
 	}
 
+	// TODO1. A strings.ToLower should be good enough.
+	// Or maybe not even that. Test. Also see above.
 	for _, resource := range r {
 		if g.Match(paths.NormalizePathStringBasic(resource.Name())) {
 			return resource
+		}
+	}
+
+	// Finally, check the original name.
+	for _, resource := range r {
+		if nop, ok := resource.(NameOriginalProvider); ok {
+			if g.Match(paths.NormalizePathStringBasic(nop.NameOriginal())) {
+				return resource
+			}
 		}
 	}
 
@@ -124,6 +138,8 @@ func (r Resources) Match(pattern any) Resources {
 		panic(err)
 	}
 
+	patternstr = paths.NormalizePathStringBasic(patternstr)
+
 	g, err := glob.GetGlob(patternstr)
 	if err != nil {
 		panic(err)
@@ -131,8 +147,19 @@ func (r Resources) Match(pattern any) Resources {
 
 	var matches Resources
 	for _, resource := range r {
-		if g.Match(strings.ToLower(resource.Name())) {
+		if g.Match(paths.NormalizePathStringBasic(resource.Name())) {
 			matches = append(matches, resource)
+		}
+	}
+
+	if r == nil {
+		// Fallback to check the original name.
+		for _, resource := range r {
+			if nop, ok := resource.(NameOriginalProvider); ok {
+				if g.Match(paths.NormalizePathStringBasic(nop.NameOriginal())) {
+					matches = append(matches, resource)
+				}
+			}
 		}
 	}
 	return matches
@@ -171,6 +198,15 @@ func (r Resources) MergeByLanguageInterface(in any) (any, error) {
 		return nil, fmt.Errorf("%T cannot be merged by language", in)
 	}
 	return r.MergeByLanguage(r2), nil
+}
+
+func (r Resources) IsStale() bool {
+	for _, rr := range r {
+		if IsStaleAny(rr) {
+			return true
+		}
+	}
+	return false
 }
 
 // Source is an internal template and not meant for use in the templates. It

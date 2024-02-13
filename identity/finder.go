@@ -226,6 +226,7 @@ func (f *Finder) doCheckOne(sid *searchID, v Identity, depth int) FinderResult {
 		return FinderNotFound
 	}
 	id := sid.id
+
 	if sid.hasEqer {
 		if sid.eqer.Eq(id2) {
 			return FinderFound
@@ -292,6 +293,7 @@ func (f *Finder) search(sid *searchID, ids Identities, depth int) FinderResult {
 		}
 
 		m := GetDependencyManager(v)
+
 		if r := f.checkManager(sid, m, depth+1); r > 0 {
 			return r
 		}

@@ -30,6 +30,7 @@ import (
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
+	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources"
@@ -256,7 +257,7 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 		resources.ResourceSourceDescriptor{
 			MediaType:     mediaType,
 			Data:          data,
-			GroupIdentity: identity.StringIdentity(resourceID),
+			GroupIdentity: c.rs.Cfg.PathParser().ParseIdentity(files.ComponentFolderAssets, resourceID),
 			LazyPublish:   true,
 			OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
 				return hugio.NewReadSeekerNoOpCloser(bytes.NewReader(body)), nil

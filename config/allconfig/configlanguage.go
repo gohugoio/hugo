@@ -42,7 +42,7 @@ func (c ConfigLanguage) LanguagesDefaultFirst() langs.Languages {
 	return c.m.LanguagesDefaultFirst
 }
 
-func (c ConfigLanguage) PathParser() paths.PathParser {
+func (c ConfigLanguage) PathParser() *paths.PathParser {
 	return c.m.ContentPathParser
 }
 

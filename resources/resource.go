@@ -89,7 +89,7 @@ type ResourceSourceDescriptor struct {
 	DependencyManager identity.Manager
 
 	// A shared identity for this resource and all its clones.
-	// If this is not set, an Identity is created.
+	// If this is not set, it's set to Anonymous.
 	GroupIdentity identity.Identity
 }
 
@@ -171,7 +171,15 @@ func (fd *ResourceSourceDescriptor) init(r *Spec) error {
 	fd.MediaType = mediaType
 
 	if fd.DependencyManager == nil {
-		fd.DependencyManager = identity.NopManager
+		if r.Cfg.Watching() {
+			fd.DependencyManager = identity.NewManager("resource")
+		} else {
+			fd.DependencyManager = identity.NopManager
+		}
+	}
+
+	if fd.GroupIdentity == nil {
+		fd.GroupIdentity = identity.Anonymous
 	}
 
 	return nil

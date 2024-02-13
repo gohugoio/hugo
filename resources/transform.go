@@ -191,6 +191,7 @@ func (r *resourceAdapter) Err() resource.ResourceError {
 	return nil
 }
 
+// TODO1 remove me.
 func (r *resourceAdapter) GetIdentity() identity.Identity {
 	return identity.FirstIdentity(r.target)
 }
@@ -205,6 +206,7 @@ func (r *resourceAdapter) ForEeachIdentityByName(name string, f func(identity.Id
 		// Special case for links without any content hash in the URL.
 		// We don't need to rebuild all pages that use this resource,
 		// but we want to make sure that the resource is accessed at least once.
+
 		f(identity.NewFindFirstManagerIdentityProvider(r.target.GetDependencyManager(), r.target.GetIdentityGroup()))
 		return
 	}

@@ -164,7 +164,7 @@ func (t *templateExecHelper) trackDependencies(ctx context.Context, tmpl texttem
 		idm.AddIdentity(info.GetIdentity())
 	}
 
-	// The receive is the "." in the method execution or map lookup, e.g. the Page in .Resources.
+	// The receiver is the "." in the method execution or map lookup, e.g. the Page in .Resources.
 	if hreflect.IsValid(receiver) {
 		in := receiver.Interface()
 
