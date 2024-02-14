@@ -81,6 +81,8 @@ func newPageOutput(
 	return po
 }
 
+var _ identity.ForEeachIdentityProviderProvider = (*pageOutput)(nil)
+
 // We create a pageOutput for every output format combination, even if this
 // particular page isn't configured to be rendered to that format.
 type pageOutput struct {
@@ -135,6 +137,10 @@ func (po *pageOutput) IdentifierBase() string {
 }
 
 func (po *pageOutput) GetDependencyManager() identity.Manager {
+	return po.dependencyManagerOutput
+}
+
+func (po *pageOutput) GetForEeachIdentityProvider() identity.ForEeachIdentityProvider {
 	return po.dependencyManagerOutput
 }
 

@@ -85,11 +85,6 @@ func (c *Client) Concat(targetPath string, r resource.Resources) (resource.Resou
 	return c.rs.ResourceCache.GetOrCreate(targetPath, func() (resource.Resource, error) {
 		var resolvedm media.Type
 
-		var idm identity.Manager = identity.NopManager
-		if c.rs.Cfg.Watching() {
-			idm = identity.NewManager("concat")
-		}
-
 		// The given set of resources must be of the same Media Type.
 		// We may improve on that in the future, but then we need to know more.
 		for i, r := range r {
@@ -97,10 +92,7 @@ func (c *Client) Concat(targetPath string, r resource.Resources) (resource.Resou
 				return nil, fmt.Errorf("resources in Concat must be of the same Media Type, got %q and %q", r.MediaType().Type, resolvedm.Type)
 			}
 			resolvedm = r.MediaType()
-			identity.WalkIdentitiesShallow(r, func(level int, id identity.Identity) bool {
-				idm.AddIdentity(id)
-				return false
-			})
+
 		}
 
 		concatr := func() (hugio.ReadSeekCloser, error) {
@@ -141,12 +133,32 @@ func (c *Client) Concat(targetPath string, r resource.Resources) (resource.Resou
 			return newMultiReadSeekCloser(rcsources...), nil
 		}
 
+		forEachIdentity := identity.NopForEeachIdentityProvider
+		if c.rs.Cfg.Watching() {
+			forEachIdentity = identity.ForEeachIdentityProviderFunc(func(f func(identity.Identity) bool) {
+				ff := func(id identity.Identity) bool {
+					return f(id)
+				}
+				for _, rr := range r {
+					identity.WalkIdentitiesShallow(rr, ff)
+				}
+			})
+		}
+
 		composite, err := c.rs.NewResource(
 			resources.ResourceSourceDescriptor{
 				LazyPublish:        true,
 				OpenReadSeekCloser: concatr,
 				TargetPath:         targetPath,
-				DependencyManager:  idm,
+				ForEeachIdentity:   forEachIdentity,
+				StaleInfo: resource.StaleInfoFunc(func() bool {
+					for _, rr := range r {
+						if resource.IsStaleAny(rr) {
+							return true
+						}
+					}
+					return false
+				}),
 			})
 		if err != nil {
 			return nil, err

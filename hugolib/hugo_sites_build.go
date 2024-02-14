@@ -772,7 +772,7 @@ func (h *HugoSites) processPartial(ctx context.Context, l logg.LevelLogger, conf
 
 			var hasID bool
 			r, _ := h.ResourceSpec.ResourceCache.Get(context.Background(), dynacache.CleanKey(pathInfo.Base()))
-			identity.WalkIdentitiesShallow(r, func(level int, rid identity.Identity) bool {
+			identity.WalkIdentitiesShallow(r, func(rid identity.Identity) bool {
 				hasID = true
 				changes = append(changes, rid)
 				return false

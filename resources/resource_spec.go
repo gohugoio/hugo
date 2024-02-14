@@ -162,17 +162,40 @@ func (r *Spec) NewResource(rd ResourceSourceDescriptor) (resource.Resource, erro
 		TargetBasePaths: rd.TargetBasePaths,
 	}
 
-	gr := &genericResource{
-		Staler:      &AtomicStaler{},
-		h:           &resourceHash{},
-		publishInit: &sync.Once{},
-		paths:       rp,
-		spec:        r,
-		sd:          rd,
-		params:      make(map[string]any),
-		name:        rd.Name,
-		title:       rd.Name,
+	staler := &AtomicStaler{}
+	var staleInfo resource.StaleInfo = staler
+	if rd.StaleInfo != nil {
+		staleInfo = resource.StaleInfoFunc(func() bool {
+			return staler.IsStale() || rd.StaleInfo.IsStale()
+		})
 	}
+
+	gr := &genericResource{
+		StaleMarker:             staler,
+		StaleInfo:               staleInfo,
+		h:                       &resourceHash{},
+		publishInit:             &sync.Once{},
+		foreachIdentityProvider: identity.NopForEeachIdentityProvider,
+		paths:                   rp,
+		spec:                    r,
+		sd:                      rd,
+		params:                  make(map[string]any),
+		name:                    rd.Name,
+		title:                   rd.Name,
+	}
+
+	if r.Cfg.Watching() {
+		forEachIdentity := identity.ForEeachIdentityProviderFunc(func(f func(identity.Identity) bool) {
+			if f(gr.GetIdentityGroup()) {
+				return
+			}
+			if f(rd.DependencyManager) {
+				return
+			}
+		})
+		gr.foreachIdentityProvider = identity.ChainedForEeachIdentityProvider(forEachIdentity, rd.ForEeachIdentity)
+	}
+
 
 	if rd.MediaType.MainType == "image" {
 		imgFormat, ok := images.ImageFormatFromMediaSubType(rd.MediaType.SubType)

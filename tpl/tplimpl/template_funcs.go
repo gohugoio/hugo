@@ -177,7 +177,7 @@ func (t *templateExecHelper) trackDependencies(ctx context.Context, tmpl texttem
 				return false
 			})
 		} else {
-			identity.WalkIdentitiesShallow(in, func(level int, id identity.Identity) bool {
+			identity.WalkIdentitiesShallow(in, func(id identity.Identity) bool {
 				idm.AddIdentity(id)
 				return false
 			})

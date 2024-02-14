@@ -20,6 +20,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs/glob"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/spf13/cast"
 )
 
@@ -207,6 +208,12 @@ func (r Resources) IsStale() bool {
 		}
 	}
 	return false
+}
+
+func (r Resources) ForEeachIdentity(f func(identity.Identity) bool) {
+	for _, rr := range r {
+		identity.WalkIdentitiesShallow(rr, f)
+	}
 }
 
 // Source is an internal template and not meant for use in the templates. It

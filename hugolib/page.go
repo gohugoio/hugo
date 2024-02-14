@@ -47,12 +47,13 @@ import (
 )
 
 var (
-	_ page.Page                                = (*pageState)(nil)
-	_ collections.Grouper                      = (*pageState)(nil)
-	_ collections.Slicer                       = (*pageState)(nil)
-	_ identity.DependencyManagerScopedProvider = (*pageState)(nil)
-	_ contentNodeI                             = (*pageState)(nil)
-	_ pageContext                              = (*pageState)(nil)
+	_ page.Page                                 = (*pageState)(nil)
+	_ collections.Grouper                       = (*pageState)(nil)
+	_ collections.Slicer                        = (*pageState)(nil)
+	_ identity.DependencyManagerScopedProvider  = (*pageState)(nil)
+	_ identity.ForEeachIdentityProviderProvider = (*pageState)(nil)
+	_ contentNodeI                              = (*pageState)(nil)
+	_ pageContext                               = (*pageState)(nil)
 )
 
 var (
@@ -120,10 +121,16 @@ func (p *pageState) GetIdentity() identity.Identity {
 	return p
 }
 
+// TODO1 rename this cosntruct to ForEeachD...
+func (p *pageState) GetForEeachIdentityProvider() identity.ForEeachIdentityProvider {
+	return p.dependencyManager
+}
+
 func (p *pageState) ForEeachIdentity(f func(identity.Identity) bool) {
 	f(p)
 }
 
+// TODO1 remove.
 func (p *pageState) GetDependencyManager() identity.Manager {
 	return p.dependencyManager
 }

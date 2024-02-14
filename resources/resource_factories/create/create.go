@@ -132,8 +132,8 @@ func (c *Client) match(name, pattern string, matchFunc func(r resource.Resource)
 				OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
 					return meta.Open()
 				},
-				// TODO1 replace this with a ForEachIdentity method that's reachable from Finder. Also check vs the other interface.
-				GroupIdentity: meta.PathInfo,
+				Path:          meta.PathInfo,
+				GroupIdentity: meta.PathInfo, // TODO1 remove me.
 				TargetPath:    meta.PathInfo.PathNoLang(),
 			})
 			if err != nil {

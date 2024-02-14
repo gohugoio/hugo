@@ -126,13 +126,14 @@ func (f *Finder) Contains(id, in Identity, maxDepth int) FinderResult {
 		return r
 	}
 
-	m := GetDependencyManager(in)
-	if m != nil {
-		if r := f.checkManager(sid, m, 0); r > 0 {
-			return r
-		}
+	fep := GetForEeachIdentityProvider(in)
+	if fep == nil {
+		return FinderNotFound
 	}
-	return FinderNotFound
+
+	r := f.checkForEachIdentityProvider(sid, fep, 0)
+
+	return r
 }
 
 func (f *Finder) checkMaxDepth(sid *searchID, level int) FinderResult {
@@ -149,68 +150,104 @@ func (f *Finder) checkMaxDepth(sid *searchID, level int) FinderResult {
 	return -1
 }
 
-func (f *Finder) checkManager(sid *searchID, m Manager, level int) FinderResult {
+func (f *Finder) checkForEachIdentityProvider(sid *searchID, fe ForEeachIdentityProvider, level int) FinderResult {
 	if r := f.checkMaxDepth(sid, level); r >= 0 {
 		return r
 	}
 
-	if m == nil {
+	if fe == nil {
 		return FinderNotFound
 	}
-	if sid.seen[m] {
-		return FinderNotFound
-	}
-	sid.seen[m] = true
 
-	f.muAnswers.RLock()
-	r, ok := f.answers[ManagerIdentity{Manager: m, Identity: sid.id}]
-	f.muAnswers.RUnlock()
-	if ok {
-		return r
+	m, isM := fe.(Manager)
+	if isM {
+		// Managers may create circular dependencies, so we need to keep track of them.
+		if sid.seen[m] {
+			return FinderNotFound
+		}
+		sid.seen[m] = true
+
+		f.muAnswers.RLock()
+		r, ok := f.answers[ManagerIdentity{Manager: m, Identity: sid.id}]
+		f.muAnswers.RUnlock()
+		if ok {
+			return r
+		}
 	}
 
-	ids := m.getIdentities()
-	if len(ids) == 0 {
-		r = FinderNotFound
-	} else {
-		r = f.search(sid, ids, level)
-	}
+	r := f.search(sid, fe, level)
 
 	if r == FinderFoundOneOfMany {
 		// Don't cache this one.
 		return r
 	}
 
-	f.muAnswers.Lock()
-	f.answers[ManagerIdentity{Manager: m, Identity: sid.id}] = r
-	f.muAnswers.Unlock()
+	if isM {
+		f.muAnswers.Lock()
+		f.answers[ManagerIdentity{Manager: m, Identity: sid.id}] = r
+		f.muAnswers.Unlock()
+	}
+
+	return r
+}
+
+// search searches for id in ids.
+func (f *Finder) search(sid *searchID, fe ForEeachIdentityProvider, depth int) FinderResult {
+	id := sid.id
+
+	if id == Anonymous {
+		return FinderNotFound
+	}
+
+	if !f.cfg.Exact && id == GenghisKhan {
+		return FinderNotFound
+	}
+
+	var r FinderResult
+	fe.ForEeachIdentity(
+		func(v Identity) bool {
+			r = f.checkOne(sid, v, depth)
+			if r > 0 {
+				return true
+			}
+			fe2 := GetForEeachIdentityProvider(v)
+			if fe2 != nil {
+				if r = f.checkForEachIdentityProvider(sid, fe2, depth+1); r > 0 {
+					return true
+				}
+			}
+			return false
+		},
+	)
 
 	return r
 }
 
 func (f *Finder) checkOne(sid *searchID, v Identity, depth int) (r FinderResult) {
-	if ff, ok := v.(FindFirstManagerIdentityProvider); ok {
+	if ff, ok := v.(FindFirstIdentityProvider); ok {
 		f.muSeenFindOnce.RLock()
-		mi := ff.FindFirstManagerIdentity()
-		seen := f.seenFindOnce[mi.Identity]
+		fid := ff.FindFirstIdentity()
+		seen := f.seenFindOnce[fid]
 		f.muSeenFindOnce.RUnlock()
 		if seen {
 			return FinderFoundOneOfManyRepetition
 		}
 
-		r = f.doCheckOne(sid, mi.Identity, depth)
-		if r == 0 {
-			r = f.checkManager(sid, mi.Manager, depth)
+		mid := GetForEeachIdentityProvider(fid)
+		if mid != nil {
+			r = f.checkForEachIdentityProvider(sid, mid, depth)
+		} else {
+			r = f.doCheckOne(sid, fid, depth)
 		}
 
 		if r > FinderFoundOneOfManyRepetition {
 			f.muSeenFindOnce.Lock()
 			// Double check.
-			if f.seenFindOnce[mi.Identity] {
+			if f.seenFindOnce[fid] {
 				f.muSeenFindOnce.Unlock()
 				return FinderFoundOneOfManyRepetition
 			}
-			f.seenFindOnce[mi.Identity] = true
+			f.seenFindOnce[fid] = true
 			f.muSeenFindOnce.Unlock()
 			r = FinderFoundOneOfMany
 		}
@@ -222,6 +259,7 @@ func (f *Finder) checkOne(sid *searchID, v Identity, depth int) (r FinderResult)
 
 func (f *Finder) doCheckOne(sid *searchID, v Identity, depth int) FinderResult {
 	id2 := Unwrap(v)
+
 	if id2 == Anonymous {
 		return FinderNotFound
 	}
@@ -270,38 +308,6 @@ func (f *Finder) doCheckOne(sid *searchID, v Identity, depth int) FinderResult {
 	return FinderNotFound
 }
 
-// search searches for id in ids.
-func (f *Finder) search(sid *searchID, ids Identities, depth int) FinderResult {
-	if len(ids) == 0 {
-		return FinderNotFound
-	}
-
-	id := sid.id
-
-	if id == Anonymous {
-		return FinderNotFound
-	}
-
-	if !f.cfg.Exact && id == GenghisKhan {
-		return FinderNotFound
-	}
-
-	for v := range ids {
-		r := f.checkOne(sid, v, depth)
-		if r > 0 {
-			return r
-		}
-
-		m := GetDependencyManager(v)
-
-		if r := f.checkManager(sid, m, depth+1); r > 0 {
-			return r
-		}
-	}
-
-	return FinderNotFound
-}
-
 // FinderConfig provides configuration for the Finder.
 // Note that we by default will use a strategy where probable matches are
 // good enough. The primary use case for this is to identity the change set
@@ -313,6 +319,7 @@ type FinderConfig struct {
 }
 
 // ManagerIdentity wraps a pair of Identity and Manager.
+// TODO1 remove.
 type ManagerIdentity struct {
 	Identity
 	Manager

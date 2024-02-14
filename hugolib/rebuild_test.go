@@ -65,6 +65,24 @@ Foo.
 
 `
 
+func TestRebuildBasic(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ["term", "taxonomy", "sitemap", "robotstxt", "404", "page", "section"]
+disableLiveReload = true
+-- assets/f1.txt --
+Asset 1
+-- layouts/index.html --
+F1: {{ (resources.Get "f1.txt").Content }}$
+`
+
+	b := TestRunning(t, files)
+
+	b.AssertFileContent("public/index.html", "F1: Asset 1")
+
+	b.EditFileReplaceAll("assets/f1.txt", "Asset 1", "Asset 1 Edited").Build()
+}
+
 func TestRebuildEditTextFileInLeafBundle(t *testing.T) {
 	b := TestRunning(t, rebuildFilesSimple)
 	b.AssertFileContent("public/mysection/mysectionbundle/index.html",
@@ -281,6 +299,8 @@ Single HTML: {{ .Title }}|{{ .Content }}|
 Single JSON: {{ .Title }}|{{ .Content }}|
 -- layouts/shortcodes/myshort.html --
 My short.
+-- layouts/_default/rss.xml --
+{{ range site.RegularPages}}Content: {{ .Content }}{{ end }}
 `
 	b := Test(t, files, TestOptRunning())
 	b.AssertRenderCountPage(3)
@@ -1259,7 +1279,7 @@ c2
 all: {{ $ab.RelPermalink }}
 
 `
-	b := TestRunning(t, files, TestOptTrace())
+	b := TestRunning(t, files)
 
 	b.AssertFileContent("public/ab.css", "abc1c2")
 	b.EditFileReplaceAll("assets/common/c2.css", "c2", "c2 edited").Build()

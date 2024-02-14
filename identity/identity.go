@@ -65,6 +65,7 @@ func CleanStringIdentity(s string) StringIdentity {
 }
 
 // GetDependencyManager returns the DependencyManager from v or nil if none found.
+// TODO1 remove me.
 func GetDependencyManager(v any) Manager {
 	switch vv := v.(type) {
 	case Manager:
@@ -77,8 +78,25 @@ func GetDependencyManager(v any) Manager {
 	return nil
 }
 
+func GetForEeachIdentityProvider(v any) ForEeachIdentityProvider {
+	switch vv := v.(type) {
+	// TODO1 there can be mmore than one. 1) Remobe the dependency on Manager, 2) Add a ForEeachIdentityProviderProvider or something.
+	case ForEeachIdentityProviderProvider:
+		return vv.GetForEeachIdentityProvider()
+	case DependencyManagerProvider:
+		return vv.GetDependencyManager()
+	case ForEeachIdentityProvider:
+		return vv
+	case types.Unwrapper:
+		return GetForEeachIdentityProvider(vv.Unwrapv())
+
+	}
+	return nil
+}
+
 // GetDependencyManagerForScope returns the DependencyManager for the given scope from v or nil if none found.
 // Note that it will fall back to an unscoped manager if none found for the given scope.
+// TODO1 remove this (and related)
 func GetDependencyManagerForScope(v any, scope int) Manager {
 	switch vv := v.(type) {
 	case DependencyManagerScopedProvider:
@@ -97,7 +115,7 @@ func GetDependencyManagerForScope(v any, scope int) Manager {
 // FirstIdentity returns the first Identity in v, Anonymous if none found
 func FirstIdentity(v any) Identity {
 	var result Identity = Anonymous
-	WalkIdentitiesShallow(v, func(level int, id Identity) bool {
+	WalkIdentitiesShallow(v, func(id Identity) bool {
 		result = id
 		return true
 	})
@@ -137,8 +155,8 @@ func WalkIdentitiesDeep(v any, cb func(level int, id Identity) bool) {
 // WalkIdentitiesShallow will not walk into a Manager's Identities.
 // See WalkIdentitiesDeep.
 // cb is called for every Identity found and returns whether to terminate the walk.
-func WalkIdentitiesShallow(v any, cb func(level int, id Identity) bool) {
-	walkIdentitiesShallow(v, 0, cb)
+func WalkIdentitiesShallow(v any, cb func(id Identity) bool) bool {
+	return walkIdentitiesShallow(v, cb)
 }
 
 // WithOnAddIdentity sets a callback that will be invoked when an identity is added to the manager.
@@ -172,6 +190,35 @@ type ForEeachIdentityProvider interface {
 	ForEeachIdentity(cb func(id Identity) bool)
 }
 
+// ForEeachIdentityProviderProvider
+type ForEeachIdentityProviderProvider interface {
+	GetForEeachIdentityProvider() ForEeachIdentityProvider
+}
+
+// ChainedForEeachIdentityProvider returns a ForEeachIdentityProvider that chains the given providers.
+func ChainedForEeachIdentityProvider(a, b ForEeachIdentityProvider) ForEeachIdentityProvider {
+	return ForEeachIdentityProviderFunc(func(cb func(id Identity) bool) {
+		a.ForEeachIdentity(func(id Identity) bool {
+			return cb(id)
+		})
+		b.ForEeachIdentity(func(id Identity) bool {
+			return cb(id)
+		})
+	})
+}
+
+// ForEeachIdentityProviderFunc is a function that implements the ForEeachIdentityProvider interface.
+type ForEeachIdentityProviderFunc func(cb func(id Identity) bool)
+
+func (f ForEeachIdentityProviderFunc) ForEeachIdentity(cb func(id Identity) bool) {
+	f(cb)
+}
+
+// ForEeachIdentityProviderFunc is a function that implements the ForEeachIdentityProvider interface
+// and does nothing.
+var NopForEeachIdentityProvider = ForEeachIdentityProviderFunc(func(cb func(id Identity) bool) {
+})
+
 // ForEeachIdentityByNameProvider provides a way to look up identities by name.
 type ForEeachIdentityByNameProvider interface {
 	// ForEeachIdentityByName calls cb for each Identity that relates to name.
@@ -179,27 +226,23 @@ type ForEeachIdentityByNameProvider interface {
 	ForEeachIdentityByName(name string, cb func(id Identity) bool)
 }
 
-type FindFirstManagerIdentityProvider interface {
+type FindFirstIdentityProvider interface {
 	Identity
-	FindFirstManagerIdentity() ManagerIdentity
+	FindFirstIdentity() Identity
 }
 
-func NewFindFirstManagerIdentityProvider(m Manager, id Identity) FindFirstManagerIdentityProvider {
-	return findFirstManagerIdentity{
-		Identity: Anonymous,
-		ManagerIdentity: ManagerIdentity{
-			Manager: m, Identity: id,
-		},
+func NewFindFirstIdentity(id Identity) FindFirstIdentityProvider {
+	return &findFirstForEeachIdentityProvider{
+		Identity: id,
 	}
 }
 
-type findFirstManagerIdentity struct {
+type findFirstForEeachIdentityProvider struct {
 	Identity
-	ManagerIdentity
 }
 
-func (f findFirstManagerIdentity) FindFirstManagerIdentity() ManagerIdentity {
-	return f.ManagerIdentity
+func (f findFirstForEeachIdentityProvider) FindFirstIdentity() Identity {
+	return f.Identity
 }
 
 // Identities stores identity providers.
@@ -278,6 +321,7 @@ type IsProbablyDependencyProvider interface {
 // Manager  is an Identity that also manages identities, typically dependencies.
 type Manager interface {
 	Identity
+	ForEeachIdentityProvider
 	AddIdentity(ids ...Identity)
 	GetIdentity() Identity
 	Reset()
@@ -308,39 +352,12 @@ type identityManager struct {
 	onAddIdentity func(id Identity)
 }
 
-func (im *identityManager) validateIdentity(id Identity) {
-	id = Unwrap(id)
-	base := id.IdentifierBase()
-
-	switch id {
-	case Anonymous:
-		return
-	}
-
-	if base == "__anonymous" {
-		fmt.Println("IdentifierBase __anonymous is reserved", id != Anonymous)
-	}
-
-	if base == "/" || strings.Contains(base, "_default") || strings.Contains(base, "partial") {
-		return
-	}
-
-	if !strings.HasPrefix(base, "/") {
-		fmt.Printf("IdentifierBase %q should start with a slash\n", base)
-	}
-
-	if strings.HasSuffix(base, "/") {
-		fmt.Printf("IdentifierBase %q should not end with a slash\n", base)
-	}
-}
-
 func (im *identityManager) AddIdentity(ids ...Identity) {
 	im.mu.Lock()
 	for _, id := range ids {
 		if id == nil || id == Anonymous {
 			continue
 		}
-		// TODO1 im.validateIdentity(id)
 		if _, found := im.ids[id]; !found {
 			if im.onAddIdentity != nil {
 				im.onAddIdentity(id)
@@ -349,6 +366,15 @@ func (im *identityManager) AddIdentity(ids ...Identity) {
 		}
 	}
 	im.mu.Unlock()
+}
+
+func (im *identityManager) ForEeachIdentity(cb func(id Identity) bool) {
+	for id := range im.getIdentities() {
+		if cb(id) {
+			return
+		}
+	}
+	return
 }
 
 func (im *identityManager) ContainsIdentity(id Identity) FinderResult {
@@ -407,13 +433,20 @@ func (m *nopManager) getIdentities() Identities {
 	return nil
 }
 
+func (m *nopManager) ForEeachIdentity(cb func(id Identity) bool) {
+}
+
+func (m *nopManager) String() string {
+	return "NopManager"
+}
+
 // returns whether further walking should be terminated.
 func walkIdentities(v any, level int, deep bool, seen map[Identity]bool, cb func(level int, id Identity) bool) {
 	if level > 20 {
 		panic("too deep")
 	}
-	var cbRecursive func(level int, id Identity) bool
-	cbRecursive = func(level int, id Identity) bool {
+	var cbRecursive func(id Identity) bool
+	cbRecursive = func(id Identity) bool {
 		if id == nil {
 			return false
 		}
@@ -426,43 +459,52 @@ func walkIdentities(v any, level int, deep bool, seen map[Identity]bool, cb func
 		}
 
 		if deep {
-			if m := GetDependencyManager(id); m != nil {
-				for id2 := range m.getIdentities() {
-					if walkIdentitiesShallow(id2, level+1, cbRecursive) {
-						return true
-					}
-				}
+			if fe := GetForEeachIdentityProvider(id); fe != nil {
+				fe.ForEeachIdentity(func(id2 Identity) bool {
+					return walkIdentitiesShallow(id2, cbRecursive)
+				})
 			}
 		}
 		return false
 	}
-	walkIdentitiesShallow(v, level, cbRecursive)
+	walkIdentitiesShallow(v, cbRecursive)
 }
 
 // returns whether further walking should be terminated.
 // Anonymous identities are skipped.
-func walkIdentitiesShallow(v any, level int, cb func(level int, id Identity) bool) bool {
-	cb2 := func(level int, id Identity) bool {
+func walkIdentitiesShallow(v any, cb func(id Identity) bool) bool {
+	cb2 := func(id Identity) bool {
 		if id == nil || id == Anonymous {
 			return false
 		}
-		return cb(level, id)
+		return cb(id)
 	}
 
 	if id, ok := v.(Identity); ok {
-		if cb2(level, id) {
+		if cb2(id) {
 			return true
 		}
 	}
 
 	if ipd, ok := v.(IdentityProvider); ok {
-		if cb2(level, ipd.GetIdentity()) {
+		if cb2(ipd.GetIdentity()) {
 			return true
 		}
 	}
 
+	// TODO1 use ForEach here, remove dep.
+	/*fp := GetForEeachIdentityProvider(v)
+	if fp != nil {
+		fp.ForEeachIdentity(func(id Identity) bool {
+			if cb2(id) {
+				return true
+			}
+			return false
+		})
+	}*/
+
 	if ipdgp, ok := v.(IdentityGroupProvider); ok {
-		if cb2(level, ipdgp.GetIdentityGroup()) {
+		if cb2(ipdgp.GetIdentityGroup()) {
 			return true
 		}
 	}

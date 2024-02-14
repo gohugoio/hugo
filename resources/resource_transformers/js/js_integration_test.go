@@ -18,6 +18,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bep/logg"
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
@@ -59,7 +60,7 @@ JS Content:{{ $js.Content }}:End:
 	})
 
 	c.Run("Edit Import", func(c *qt.C) {
-		b := hugolib.NewIntegrationTestBuilder(hugolib.IntegrationTestConfig{T: c, Running: true, NeedsOsFS: true, TxtarString: mainWithImport}).Build()
+		b := hugolib.NewIntegrationTestBuilder(hugolib.IntegrationTestConfig{T: c, Running: true, NeedsOsFS: true, TxtarString: mainWithImport, LogLevel: logg.LevelError}).Build()
 
 		b.AssertFileContent("public/index.html", `abcd`)
 		b.EditFileReplaceFunc("assets/js/util1.js", func(s string) string { return strings.ReplaceAll(s, "abcd", "1234") }).Build()

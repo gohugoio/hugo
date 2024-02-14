@@ -44,18 +44,19 @@ import (
 )
 
 var (
-	_ resource.ContentResource           = (*resourceAdapter)(nil)
-	_ resourceCopier                     = (*resourceAdapter)(nil)
-	_ resource.ReadSeekCloserResource    = (*resourceAdapter)(nil)
-	_ resource.Resource                  = (*resourceAdapter)(nil)
-	_ resource.Staler                    = (*resourceAdapterInner)(nil)
-	_ resource.Source                    = (*resourceAdapter)(nil)
-	_ resource.Identifier                = (*resourceAdapter)(nil)
-	_ resource.ResourceNameTitleProvider = (*resourceAdapter)(nil)
-	_ resource.WithResourceMetaProvider  = (*resourceAdapter)(nil)
-	_ identity.DependencyManagerProvider = (*resourceAdapter)(nil)
-	_ identity.IdentityGroupProvider     = (*resourceAdapter)(nil)
-	_ resource.NameOriginalProvider      = (*resourceAdapter)(nil)
+	_ resource.ContentResource                  = (*resourceAdapter)(nil)
+	_ resourceCopier                            = (*resourceAdapter)(nil)
+	_ resource.ReadSeekCloserResource           = (*resourceAdapter)(nil)
+	_ resource.Resource                         = (*resourceAdapter)(nil)
+	_ resource.Staler                           = (*resourceAdapterInner)(nil)
+	_ resource.Source                           = (*resourceAdapter)(nil)
+	_ resource.Identifier                       = (*resourceAdapter)(nil)
+	_ resource.ResourceNameTitleProvider        = (*resourceAdapter)(nil)
+	_ resource.WithResourceMetaProvider         = (*resourceAdapter)(nil)
+	_ identity.DependencyManagerProvider        = (*resourceAdapter)(nil)
+	_ identity.ForEeachIdentityProviderProvider = (*resourceAdapter)(nil)
+	_ identity.IdentityGroupProvider            = (*resourceAdapter)(nil)
+	_ resource.NameOriginalProvider             = (*resourceAdapter)(nil)
 )
 
 // These are transformations that need special support in Hugo that may not
@@ -206,12 +207,11 @@ func (r *resourceAdapter) ForEeachIdentityByName(name string, f func(identity.Id
 		// Special case for links without any content hash in the URL.
 		// We don't need to rebuild all pages that use this resource,
 		// but we want to make sure that the resource is accessed at least once.
-
-		f(identity.NewFindFirstManagerIdentityProvider(r.target.GetDependencyManager(), r.target.GetIdentityGroup()))
+		f(identity.NewFindFirstIdentity(r.target))
 		return
 	}
-	f(r.target.GetIdentityGroup())
-	f(r.target.GetDependencyManager())
+	f(r.target)
+	// TODO1 f(r.target.GetDependencyManager())
 }
 
 func (r *resourceAdapter) GetIdentityGroup() identity.Identity {
@@ -220,6 +220,10 @@ func (r *resourceAdapter) GetIdentityGroup() identity.Identity {
 
 func (r *resourceAdapter) GetDependencyManager() identity.Manager {
 	return r.target.GetDependencyManager()
+}
+
+func (r *resourceAdapter) GetForEeachIdentityProvider() identity.ForEeachIdentityProvider {
+	return r.target.GetForEeachIdentityProvider()
 }
 
 func (r resourceAdapter) cloneTo(targetPath string) resource.Resource {

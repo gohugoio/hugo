@@ -70,7 +70,7 @@ func New(opts Options) *Cache {
 		if !opts.Running {
 			return
 		}
-		identity.WalkIdentitiesShallow(v, func(level int, id identity.Identity) bool {
+		identity.WalkIdentitiesShallow(v, func(id identity.Identity) bool {
 			evictedIdentities.Push(id)
 			return false
 		})
@@ -448,7 +448,7 @@ func (p *Partition[K, V]) clearOnRebuild(changeset ...identity.Identity) {
 		}
 
 		var probablyDependent bool
-		identity.WalkIdentitiesShallow(v, func(level int, id2 identity.Identity) bool {
+		identity.WalkIdentitiesShallow(v, func(id2 identity.Identity) bool {
 			for _, id := range changeset {
 				if r := depsFinder.Contains(id, id2, -1); r > 0 {
 					// It's probably dependent, evict from cache.

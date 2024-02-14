@@ -39,17 +39,18 @@ import (
 )
 
 var (
-	_ resource.ContentResource           = (*genericResource)(nil)
-	_ resource.ReadSeekCloserResource    = (*genericResource)(nil)
-	_ resource.Resource                  = (*genericResource)(nil)
-	_ resource.Source                    = (*genericResource)(nil)
-	_ resource.Cloner                    = (*genericResource)(nil)
-	_ resource.ResourcesLanguageMerger   = (*resource.Resources)(nil)
-	_ resource.Identifier                = (*genericResource)(nil)
-	_ identity.IdentityGroupProvider     = (*genericResource)(nil)
-	_ identity.DependencyManagerProvider = (*genericResource)(nil)
-	_ identity.Identity                  = (*genericResource)(nil)
-	_ fileInfo                           = (*genericResource)(nil)
+	_ resource.ContentResource                  = (*genericResource)(nil)
+	_ resource.ReadSeekCloserResource           = (*genericResource)(nil)
+	_ resource.Resource                         = (*genericResource)(nil)
+	_ resource.Source                           = (*genericResource)(nil)
+	_ resource.Cloner                           = (*genericResource)(nil)
+	_ resource.ResourcesLanguageMerger          = (*resource.Resources)(nil)
+	_ resource.Identifier                       = (*genericResource)(nil)
+	_ identity.IdentityGroupProvider            = (*genericResource)(nil)
+	_ identity.DependencyManagerProvider        = (*genericResource)(nil)
+	_ identity.ForEeachIdentityProviderProvider = (*genericResource)(nil)
+	_ identity.Identity                         = (*genericResource)(nil)
+	_ fileInfo                                  = (*genericResource)(nil)
 )
 
 type ResourceSourceDescriptor struct {
@@ -57,7 +58,7 @@ type ResourceSourceDescriptor struct {
 	OpenReadSeekCloser hugio.OpenReadSeekCloser
 
 	// The canonical source path.
-	Path *paths.Path
+	Path *paths.Path // TODO1 this should be a string / StringIdentity. Check usage.
 
 	// The name of the resource.
 	Name string
@@ -88,8 +89,15 @@ type ResourceSourceDescriptor struct {
 	// Used to track dependencies (e.g. imports). May be nil if that's of no concern.
 	DependencyManager identity.Manager
 
+	// Used to track dependencies know at creation time (e.g. in resources.Concat).
+	ForEeachIdentity identity.ForEeachIdentityProvider
+
+	// Otional; tells if this resource is stale.s
+	StaleInfo resource.StaleInfo
+
 	// A shared identity for this resource and all its clones.
 	// If this is not set, it's set to Anonymous.
+	// TODO1 remove me.
 	GroupIdentity identity.Identity
 }
 
@@ -178,6 +186,10 @@ func (fd *ResourceSourceDescriptor) init(r *Spec) error {
 		}
 	}
 
+	if fd.ForEeachIdentity == nil {
+		fd.ForEeachIdentity = identity.NopForEeachIdentityProvider
+	}
+
 	if fd.GroupIdentity == nil {
 		fd.GroupIdentity = identity.Anonymous
 	}
@@ -244,8 +256,11 @@ type baseResourceInternal interface {
 
 	ReadSeekCloser() (hugio.ReadSeekCloser, error)
 
+	// TODO1 clean
+	identity.Identity
 	identity.IdentityGroupProvider
 	identity.DependencyManagerProvider
+	identity.ForEeachIdentityProviderProvider
 
 	// For internal use.
 	cloneWithUpdates(*transformationUpdate) (baseResource, error)
@@ -360,7 +375,9 @@ type genericResource struct {
 
 	h *resourceHash // A hash of the source content. Is only calculated in caching situations.
 
-	resource.Staler
+	resource.StaleMarker
+	resource.StaleInfo
+	foreachIdentityProvider identity.ForEeachIdentityProvider
 
 	title  string
 	name   string
@@ -379,6 +396,10 @@ func (l *genericResource) GetIdentityGroup() identity.Identity {
 
 func (l *genericResource) GetDependencyManager() identity.Manager {
 	return l.sd.DependencyManager
+}
+
+func (l *genericResource) GetForEeachIdentityProvider() identity.ForEeachIdentityProvider {
+	return l.foreachIdentityProvider
 }
 
 func (l *genericResource) ReadSeekCloser() (hugio.ReadSeekCloser, error) {

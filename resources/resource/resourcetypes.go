@@ -237,6 +237,13 @@ type StaleInfo interface {
 	IsStale() bool
 }
 
+// StaleInfoFunc is a function that tells if a resource is stale.
+type StaleInfoFunc func() bool
+
+func (f StaleInfoFunc) IsStale() bool {
+	return f()
+}
+
 // IsStaleAny reports whether any of the os is marked as stale.
 func IsStaleAny(os ...any) bool {
 	for _, o := range os {
