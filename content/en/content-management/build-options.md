@@ -50,7 +50,7 @@ render
     : Always render the page to disk. This is the default value.
 
   - `link`
-    : Do not render the page to disk, but include it in all page collections.
+    : Do not render the page to disk, but assign `Permalink` and `RelPermalink` values.
 
   - `never`
     : Never render the page to disk, and exclude it from all page collections.
