@@ -245,7 +245,7 @@ content/
 
 Set the build options in front matter:
 
-{{< code-toggle file=content/books/_index.md >}}
+{{< code-toggle file=content/books/_index.md fm=true >}}
 title = 'Books'
 [_build]
 render = 'never'
