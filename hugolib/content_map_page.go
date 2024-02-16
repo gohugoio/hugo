@@ -125,37 +125,52 @@ type pageTrees struct {
 	resourceTrees doctree.MutableTrees
 }
 
-// collectIdentities collects all identities from in all trees matching the given key.
-// This will at most match in one tree, but may give identies from multiple dimensions (e.g. language).
-func (t *pageTrees) collectIdentities(p *paths.Path) []identity.Identity {
-	ids := t.collectIdentitiesFor(p.Base())
+// collectAndMarkStaleIdentities collects all identities from in all trees matching the given key.
+// We currently re-read all page/resources for all languages that share the same path,
+// so we mark all entries as stale (which will trigger cache invalidation), then
+// return the first.
+func (t *pageTrees) collectAndMarkStaleIdentities(p *paths.Path) []identity.Identity {
+	ids := t.collectAndMarkStaleIdentitiesFor(p.Base())
 
 	if p.Component() == files.ComponentFolderContent {
 		// It may also be a bundled content resource.
-		if n := t.treeResources.Get(p.ForBundleType(paths.PathTypeContentResource).Base()); n != nil {
+		key := p.ForBundleType(paths.PathTypeContentResource).Base()
+		tree := t.treeResources
+		if n := tree.Get(key); n != nil {
 			n.ForEeachIdentity(func(id identity.Identity) bool {
 				ids = append(ids, id)
 				return false
 			})
+			if n, ok := tree.GetRaw(key); ok {
+				n.MarkStale()
+			}
 		}
 	}
 	return ids
 }
 
-func (t *pageTrees) collectIdentitiesFor(key string) []identity.Identity {
+func (t *pageTrees) collectAndMarkStaleIdentitiesFor(key string) []identity.Identity {
 	var ids []identity.Identity
-	if n := t.treePages.Get(key); n != nil {
+	tree := t.treePages
+	if n := tree.Get(key); n != nil {
 		n.ForEeachIdentity(func(id identity.Identity) bool {
 			ids = append(ids, id)
 			return false
 		})
+		if n, ok := tree.GetRaw(key); ok {
+			n.MarkStale()
+		}
 	}
 
-	if n := t.treeResources.Get(key); n != nil {
+	tree = t.treeResources
+	if n := tree.Get(key); n != nil {
 		n.ForEeachIdentity(func(id identity.Identity) bool {
 			ids = append(ids, id)
 			return false
 		})
+		if n, ok := tree.GetRaw(key); ok {
+			n.MarkStale()
+		}
 	}
 
 	return ids
@@ -626,9 +641,7 @@ func (n contentNodeIs) resetBuildState() {
 
 func (n contentNodeIs) MarkStale() {
 	for _, nn := range n {
-		if nn != nil {
-			nn.MarkStale()
-		}
+		resource.MarkStale(nn)
 	}
 }
 
@@ -799,6 +812,7 @@ func (s *contentNodeShifter) Insert(old, new contentNodeI) contentNodeI {
 		if !ok {
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
+		resource.MarkStale(vv[newp.s.languagei])
 		vv[newp.s.languagei] = new
 		return vv
 	case *resourceSource:
@@ -818,6 +832,7 @@ func (s *contentNodeShifter) Insert(old, new contentNodeI) contentNodeI {
 		if !ok {
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
+		resource.MarkStale(vv[newp.LangIndex()])
 		vv[newp.LangIndex()] = newp
 		return vv
 	default:
@@ -1014,8 +1029,12 @@ func (h *HugoSites) resolveAndClearStateForIdentities(
 	)
 
 	for _, id := range changes {
-		if staler, ok := id.(resource.Staler); ok {
-			h.Log.Trace(logg.StringFunc(func() string { return fmt.Sprintf("Marking stale: %s (%T)\n", id, id) }))
+		if staler, ok := id.(resource.Staler); ok && !staler.IsStale() {
+			var msgDetail string
+			if p, ok := id.(*pageState); ok && p.File() != nil {
+				msgDetail = fmt.Sprintf(" (%s)", p.File().Filename())
+			}
+			h.Log.Trace(logg.StringFunc(func() string { return fmt.Sprintf("Marking stale: %s (%T)%s\n", id, id, msgDetail) }))
 			staler.MarkStale()
 		}
 	}

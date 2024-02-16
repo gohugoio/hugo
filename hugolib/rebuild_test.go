@@ -1171,6 +1171,59 @@ Hello: {{ i18n "hello" }}
 	b.AssertFileContent("public/index.html", "Hello: Hugo")
 }
 
+func TestRebuildEditContentNonDefaultLanguage(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+[languages]
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+-- content/p1/index.en.md --
+---
+title: "P1 en"
+---
+P1 en.
+-- content/p1/b.en.md --
+---
+title: "B en"
+---
+B en.
+-- content/p1/f1.en.txt --
+F1 en
+-- content/p1/index.nn.md --
+---
+title: "P1 nn"
+---
+P1 nn.
+-- content/p1/b.nn.md --
+---
+title: "B nn"
+---
+B nn.
+-- content/p1/f1.nn.txt --
+F1 nn
+-- layouts/_default/single.html --
+Single: {{ .Title }}|{{ .Content }}|Bundled File: {{ with .Resources.GetMatch "f1.*" }}{{ .Content }}{{ end }}|Bundled Page: {{ with .Resources.GetMatch "b.*" }}{{ .Content }}{{ end }}|
+`
+
+	b := TestRunning(t, files)
+
+	b.AssertFileContent("public/nn/p1/index.html", "Single: P1 nn|<p>P1 nn.</p>", "F1 nn|")
+	b.EditFileReplaceAll("content/p1/index.nn.md", "P1 nn.", "P1 nn edit.").Build()
+	b.AssertFileContent("public/nn/p1/index.html", "Single: P1 nn|<p>P1 nn edit.</p>\n|")
+	b.EditFileReplaceAll("content/p1/f1.nn.txt", "F1 nn", "F1 nn edit.").Build()
+	b.AssertFileContent("public/nn/p1/index.html", "Bundled File: F1 nn edit.")
+	b.EditFileReplaceAll("content/p1/b.nn.md", "B nn.", "B nn edit.").Build()
+	b.AssertFileContent("public/nn/p1/index.html", "B nn edit.")
+}
+
 func TestRebuildVariationsAssetsSassImport(t *testing.T) {
 	if !htesting.IsCI() {
 		t.Skip("skip CI only")
