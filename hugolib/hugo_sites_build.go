@@ -702,7 +702,7 @@ func (h *HugoSites) processPartial(ctx context.Context, l logg.LevelLogger, conf
 		switch pathInfo.Component() {
 		case files.ComponentFolderContent:
 			logger.Println("Source changed", pathInfo.Path())
-			if ids := h.pageTrees.collectIdentities(pathInfo); len(ids) > 0 {
+			if ids := h.pageTrees.collectAndMarkStaleIdentities(pathInfo); len(ids) > 0 {
 				changes = append(changes, ids...)
 			}
 

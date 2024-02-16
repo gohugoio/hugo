@@ -17,6 +17,7 @@ import (
 	"context"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/media"
 
@@ -250,7 +251,10 @@ func IsStaleAny(os ...any) bool {
 // MarkStale will mark any of the oses as stale, if possible.
 func MarkStale(os ...any) {
 	for _, o := range os {
-		if s, ok := o.(Staler); ok {
+		if types.IsNil(o) {
+			continue
+		}
+		if s, ok := o.(StaleMarker); ok {
 			s.MarkStale()
 		}
 	}
