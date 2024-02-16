@@ -1149,6 +1149,28 @@ Single.
 	b.AssertFileContent("public/index.html", "Home.", "<style>body {\n\tbackground: blue;\n}</style>")
 }
 
+func TestRebuildI18n(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+-- i18n/en.toml --
+hello = "Hello"
+-- layouts/index.html --
+Hello: {{ i18n "hello" }}
+`
+
+	b := TestRunning(t, files)
+
+	b.AssertFileContent("public/index.html", "Hello: Hello")
+
+	b.EditFileReplaceAll("i18n/en.toml", "Hello", "Hugo").Build()
+
+	b.AssertFileContent("public/index.html", "Hello: Hugo")
+}
+
 func TestRebuildVariationsAssetsSassImport(t *testing.T) {
 	if !htesting.IsCI() {
 		t.Skip("skip CI only")
