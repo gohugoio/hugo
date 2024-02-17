@@ -204,9 +204,9 @@ archive_alias_replacements = { "linux-amd64.tar.gz" = "Linux-64bit.tar.gz" }
             command = "github.com/gohugoio/hugoreleaser-archive-plugins/deb@v0.6.1"
         [archives.archive_settings.custom_settings]
             vendor      = "gohugo.io"
-            homepage    = "https://github.com/gohugoio/hugoreleaser"
+            homepage    = "https://github.com/gohugoio/hugo"
             maintainer  = "Bjørn Erik Pedersen <bjorn.erik.pedersen@gmail.com>"
-            description = "Build, archive and release Go programs."
+            description = "A fast and flexible Static Site Generator written in Go."
             license     = "Apache-2.0"
 [[archives]]
     paths = ["builds/**/extended/linux/{arm64,amd64}"]
@@ -223,9 +223,9 @@ archive_alias_replacements = { "linux-amd64.tar.gz" = "Linux-64bit.tar.gz" }
             command = "github.com/gohugoio/hugoreleaser-archive-plugins/deb@latest"
         [archives.archive_settings.custom_settings]
             vendor      = "gohugo.io"
-            homepage    = "https://github.com/gohugoio/hugoreleaser"
+            homepage    = "https://github.com/gohugoio/hugo"
             maintainer  = "Bjørn Erik Pedersen <bjorn.erik.pedersen@gmail.com>"
-            description = "Build, archive and release Go programs."
+            description = "A fast and flexible Static Site Generator written in Go."
             license     = "Apache-2.0"
 
 [[releases]]
