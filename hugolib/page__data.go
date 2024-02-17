@@ -44,7 +44,7 @@ func (p *pageData) Data() any {
 			p.data[name.singular] = term
 			p.data["Singular"] = name.singular
 			p.data["Plural"] = name.plural
-			p.data["Term"] = p.Title()
+			p.data["Term"] = p.m.term
 		case kinds.KindTaxonomy:
 			viewCfg := p.s.pageMap.cfg.getTaxonomyConfig(p.Path())
 			p.data["Singular"] = viewCfg.singular

@@ -815,3 +815,23 @@ Terms: {{ range site.Taxonomies.tags }}{{ .Page.Title }}: {{ .Count }}|{{ end }}
 
 	b.AssertFileContent("public/index.html", "Terms: A: 1|B: 1|C: 1|Hello World!: 1|$")
 }
+
+func TestTaxonomiesTermTitleAndTerm(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+[taxonomies]
+tag = "tags"
+-- content/_index.md --
+---
+title: "Home"
+tags: ["hellO world"]
+---
+-- layouts/_default/term.html --
+{{ .Title }}|{{ .Kind }}|{{ .Data.Singular }}|{{ .Data.Plural }}|{{ .Page.Data.Term }}|
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/tags/hello-world/index.html", "HellO World|term|tag|tags|hellO world|")
+}
