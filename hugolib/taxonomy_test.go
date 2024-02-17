@@ -835,3 +835,26 @@ tags: ["hellO world"]
 
 	b.AssertFileContent("public/tags/hello-world/index.html", "HellO World|term|tag|tags|hellO world|")
 }
+
+func TestTermDraft(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- layouts/_default/list.html --
+|{{ .Title }}|
+-- content/p1.md --
+---
+title: p1
+tags: [a]
+---
+-- content/tags/a/_index.md --
+---
+title: tag-a-title-override
+draft: true
+---
+  `
+
+	b := Test(t, files)
+
+	b.AssertFileExists("public/tags/a/index.html", false)
+}
