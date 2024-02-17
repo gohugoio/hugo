@@ -160,7 +160,7 @@ Draft5: {{ if (.Site.GetPage "blog/draftsection/sub/page") }}FOUND{{ end }}|
         Sections: /blog/|/docs/|/overlap/|/overlap2/|:END
 		Categories: /categories/funny/; Funny; 12|/categories/sad/; Sad; 2|:END
         Category Terms:  taxonomy: /categories/funny/; Funny; 12|/categories/sad/; Sad; 2|:END
-		Category Funny:  term; Funny: /blog/subsection/page4/;|/blog/page3/;|/blog/subsection/;|/blog/page2/;|/blog/page1/;|/blog/subsection/page5/;|/docs/page6/;|/blog/bundle/;|/blog/draftsection/page/;|/blog/draftsection/sub/;|/blog/draftsection/sub/page/;|/overlap2/;|:END
+		Category Funny:  term; funny: /blog/subsection/page4/;|/blog/page3/;|/blog/subsection/;|/blog/page2/;|/blog/page1/;|/blog/subsection/page5/;|/docs/page6/;|/blog/bundle/;|/blog/draftsection/page/;|/blog/draftsection/sub/;|/blog/draftsection/sub/page/;|/overlap2/;|:END
  		Pag Num Pages: 9
         Pag Blog Num Pages: 4
         Blog Num RegularPages: 4
