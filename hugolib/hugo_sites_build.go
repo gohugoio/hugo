@@ -739,7 +739,6 @@ func (h *HugoSites) processPartial(ctx context.Context, l logg.LevelLogger, conf
 
 		case files.ComponentFolderLayouts:
 			tmplChanged = true
-			h.init.layouts.Reset()
 			templatePath := pathInfo.TrimLeadingSlash().PathNoLang()
 			if !h.Tmpl().HasTemplate(templatePath) {
 				tmplAdded = true
@@ -899,6 +898,9 @@ func (h *HugoSites) processPartial(ctx context.Context, l logg.LevelLogger, conf
 	}
 
 	if tmplChanged || i18nChanged {
+		// TODO(bep) we should split this, but currently the loading of i18n and layout files are tied together. See #12048.
+		h.init.layouts.Reset()
+
 		if err := loggers.TimeTrackfn(func() (logg.LevelLogger, error) {
 			// TODO(bep) this could probably be optimized to somehow
 			// only load the changed templates and its dependencies, but that is non-trivial.
