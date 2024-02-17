@@ -23,7 +23,6 @@ import (
 	"time"
 
 	"github.com/bep/simplecobra"
-	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -46,7 +45,7 @@ func newListCommand() *listCommand {
 
 	list := func(cd *simplecobra.Commandeer, r *rootCommand, shouldInclude func(page.Page) bool, opts ...any) error {
 		bcfg := hugolib.BuildCfg{SkipRender: true}
-		cfg := config.New()
+		cfg := flagsToCfg(cd, nil)
 		for i := 0; i < len(opts); i += 2 {
 			cfg.Set(opts[i].(string), opts[i+1])
 		}
