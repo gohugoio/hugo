@@ -11,26 +11,26 @@ weight: 60
 # Use level 6 headings for each term in the glossary.
 ---
 
-[A](#action)
-[B](#bool)
-[C](#cache)
-[D](#default-sort-order)
-[E](#environment)
-[F](#field)
-[G](#global-resource)
-[I](#identifier)
-[K](#kind)
-[L](#layout)
-[M](#map)
-[N](#node)
-[O](#object)
-[P](#page-bundle)
-[R](#regular-page)
-[S](#scalar)
-[T](#taxonomic-weight)
-[U](#unmarshal)
-[V](#variable)
-[W](#walk)
+[A](#action)&nbsp;
+[B](#bool)&nbsp;
+[C](#cache)&nbsp;
+[D](#default-sort-order)&nbsp;
+[E](#environment)&nbsp;
+[F](#field)&nbsp;
+[G](#global-resource)&nbsp;
+[I](#identifier)&nbsp;
+[K](#kind)&nbsp;
+[L](#layout)&nbsp;
+[M](#map)&nbsp;
+[N](#node)&nbsp;
+[O](#object)&nbsp;
+[P](#page-bundle)&nbsp;
+[R](#regular-page)&nbsp;
+[S](#scalar)&nbsp;
+[T](#taxonomic-weight)&nbsp;
+[U](#unmarshal)&nbsp;
+[V](#variable)&nbsp;
+[W](#walk)&nbsp;
 
 ###### action
 
@@ -201,6 +201,12 @@ Any [page kind](#page-kind) that receives a page [collection](#collection) in [c
 ###### localization
 
 Adaptation of a site to meet language and regional requirements. This includes translations, language-specific media, date and currency formats, etc. See&nbsp;[details](/content-management/multilingual/) and the [W3C definition](https://www.w3.org/International/questions/qa-i18n). Abbreviated l10n.
+
+###### logical path
+
+{{< new-in 0.123.0 >}}
+
+A page or page resource identifier derived from the file path, excluding its extension and language identifier. This value is neither a file path nor a URL. <!-- You may also set this value using the `path` front matter field. --> See [details](/methods/page/path).
 
 ###### map
 

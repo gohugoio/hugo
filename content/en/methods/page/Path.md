@@ -1,6 +1,6 @@
 ---
 title: Path
-description: Returns the canonical page path of the given page.
+description: Returns the logical path of the given page.
 categories: []
 keywords: []
 action:
@@ -9,20 +9,23 @@ action:
     - methods/page/RelPermalink
   returnType: string
   signatures: [PAGE.Path]
+toc: true
 ---
 
 {{< new-in 0.123.0 >}}
 
-The `Path` method on a `Page` object returns the canonical page path of the given page, regardless of whether the page is backed by a file.
+The `Path` method on a `Page` object returns the logical path of the given page, regardless of whether the page is backed by a file.
+
+[logical path]: /getting-started/glossary#logical-path
 
 ```go-html-template
 {{ .Path }} → /posts/post-1
 ```
 
-This value is neither a file path nor a relative URL. It is a canonical identifier for each page, independent of content format, language, and URL.
+This value is neither a file path nor a relative URL. It is a logical identifier for each page, independent of content format, language, and URL modifiers.
 
 {{% note %}}
-Beginning with the release of [v0.92.0] in January 2022, Hugo emitted a warning whenever the `Path` method was called. The warning indicated that this method would change in a future release.
+Beginning with the release of [v0.92.0] in January 2022, Hugo emitted a warning whenever calling the `Path` method. The warning indicated that this method would change in a future release.
 
 The meaning of, and value returned by, the `Path` method on a `Page` object changed with the release of [v0.123.0] in February 2024.
 
@@ -30,7 +33,7 @@ The meaning of, and value returned by, the `Path` method on a `Page` object chan
 [v0.123.0]: https://github.com/gohugoio/hugo/releases/tag/v0.123.0
 {{% /note %}}
 
-To determine the canonical page path for pages backed by a file, Hugo starts with the file path, relative to the content directory, and then:
+To determine the logical path for pages backed by a file, Hugo starts with the file path, relative to the content directory, and then:
 
 1. Strips the file extension
 2. Strips the language identifier
@@ -39,16 +42,24 @@ To determine the canonical page path for pages backed by a file, Hugo starts wit
 
 The value returned by the `Path` method on a `Page` object is independent of content format, language, and URL modifiers such as the `slug` and `url` front matter fields.
 
-File path|Front matter slug|Value returned by .Path
+## Examples
+
+### Monolingual site
+
+Note that the logical path is independent of content format and URL modifiers.
+
+File path|Front matter slug|Logical path
 :--|:--|:--
 `content/_index.md`||`/`
 `content/posts/_index.md`||`/posts`
 `content/posts/post-1.md`|`foo`|`/posts/post-1`
 `content/posts/post-2.html`|`bar`|`/posts/post-2`
 
-On a multilingual site, note that the return value is the same regardless of language:
+### Multilingual site
 
-File path|Front matter slug|Value returned by .Path
+Note that the logical path is independent of content format, language identifiers, and URL modifiers.
+
+File path|Front matter slug|Logical path
 :--|:--|:--
 `content/_index.en.md`||`/`
 `content/_index.de.md`||`/`
@@ -58,6 +69,8 @@ File path|Front matter slug|Value returned by .Path
 `content/posts/posts-1.de.md`|`foo`|`/posts/post-1`
 `content/posts/posts-2.en.html`|`bar`|`/posts/post-2`
 `content/posts/posts-2.de.html`|`bar`|`/posts/post-2`
+
+### Pages not backed by a file
 
 The `Path` method on a `Page` object returns a value regardless of whether the page is backed by a file.
 
@@ -81,3 +94,60 @@ public/
 │   └── index.html        .Page.Path = /tags
 └── index.html            .Page.Path = /
 ```
+
+## Finding pages
+
+These methods, functions, and shortcodes use the logical path to find the given page:
+
+Methods|Functions|Shortcodes
+:--|:--|:--
+[`Site.GetPage`]|[`urls.Ref`]|[`ref`]
+[`Page.GetPage`]|[`urls.RelRef`]|[`relref`]
+[`Page.Ref`]||
+[`Page.RelRef`]||
+
+[`urls.Ref`]: functions/urls/ref/
+[`urls.RelRef`]: /functions/urls/relref/
+[`Page.GetPage`]: /methods/page/getpage/
+[`Site.GetPage`]: /methods/site/getpage/
+[`ref`]: /content-management/shortcodes/#ref
+[`relref`]: /content-management/shortcodes/#relref
+[`Page.Ref`]: /methods/page/ref
+[`Page.RelRef`]: /methods/page/relref
+
+{{% note %}}
+Specify the logical path when using any of these methods, functions, or shortcodes. If you include a file extension or language identifier, Hugo will strip these values before finding the page in the logical tree.
+{{% /note %}}
+
+
+## Logical tree
+
+Just as file paths form a file tree, logical paths form a logical tree.
+
+A file tree:
+
+```text
+content/
+└── s1/
+    ├── p1/
+    │   └── index.md 
+    └── p2.md
+```
+
+The same content represented as a logical tree:
+
+```text
+content/
+└── s1/
+    ├── p1
+    └── p2 
+```
+
+A key difference between these trees is the relative path from p1 to p2:
+
+- In the file tree, the relative path from p1 to p2 is `../p2.md`
+- In the logical tree, the relative path is `p2`
+
+{{% note %}}
+Rember to use the logical path when using any of the methods, functions, or shortcodes listed in the previous section. If you include a file extension or language identifier, Hugo will strip these values before finding the page in the logical tree.
+{{% /note %}}
