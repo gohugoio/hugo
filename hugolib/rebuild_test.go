@@ -1131,7 +1131,7 @@ Single.
 			Running:         true,
 			NeedsOsFS:       true,
 			NeedsNpmInstall: true,
-			// LogLevel:        logg.LevelTrace,
+			// LogLevel:        logg.LevelDebug,
 		},
 	).Build()
 
@@ -1147,6 +1147,81 @@ Single.
 	b.AssertRenderCountPage(3)
 
 	b.AssertFileContent("public/index.html", "Home.", "<style>body {\n\tbackground: blue;\n}</style>")
+}
+
+func TestRebuildI18n(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+-- i18n/en.toml --
+hello = "Hello"
+-- layouts/index.html --
+Hello: {{ i18n "hello" }}
+`
+
+	b := TestRunning(t, files)
+
+	b.AssertFileContent("public/index.html", "Hello: Hello")
+
+	b.EditFileReplaceAll("i18n/en.toml", "Hello", "Hugo").Build()
+
+	b.AssertFileContent("public/index.html", "Hello: Hugo")
+}
+
+func TestRebuildEditContentNonDefaultLanguage(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+[languages]
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+-- content/p1/index.en.md --
+---
+title: "P1 en"
+---
+P1 en.
+-- content/p1/b.en.md --
+---
+title: "B en"
+---
+B en.
+-- content/p1/f1.en.txt --
+F1 en
+-- content/p1/index.nn.md --
+---
+title: "P1 nn"
+---
+P1 nn.
+-- content/p1/b.nn.md --
+---
+title: "B nn"
+---
+B nn.
+-- content/p1/f1.nn.txt --
+F1 nn
+-- layouts/_default/single.html --
+Single: {{ .Title }}|{{ .Content }}|Bundled File: {{ with .Resources.GetMatch "f1.*" }}{{ .Content }}{{ end }}|Bundled Page: {{ with .Resources.GetMatch "b.*" }}{{ .Content }}{{ end }}|
+`
+
+	b := TestRunning(t, files)
+
+	b.AssertFileContent("public/nn/p1/index.html", "Single: P1 nn|<p>P1 nn.</p>", "F1 nn|")
+	b.EditFileReplaceAll("content/p1/index.nn.md", "P1 nn.", "P1 nn edit.").Build()
+	b.AssertFileContent("public/nn/p1/index.html", "Single: P1 nn|<p>P1 nn edit.</p>\n|")
+	b.EditFileReplaceAll("content/p1/f1.nn.txt", "F1 nn", "F1 nn edit.").Build()
+	b.AssertFileContent("public/nn/p1/index.html", "Bundled File: F1 nn edit.")
+	b.EditFileReplaceAll("content/p1/b.nn.md", "B nn.", "B nn edit.").Build()
+	b.AssertFileContent("public/nn/p1/index.html", "B nn edit.")
 }
 
 func TestRebuildVariationsAssetsSassImport(t *testing.T) {
@@ -1260,4 +1335,36 @@ func BenchmarkRebuildContentFileChange(b *testing.B) {
 		}).Build()
 		// fmt.Println(bb.LogString())
 	}
+}
+
+func TestRebuildConcat(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+disableKinds = ["taxonomy", "term", "sitemap", "robotsTXT", "404", "rss"]
+-- assets/a.css --
+a
+-- assets/b.css --
+b
+-- assets/c.css --
+c
+-- assets/common/c1.css --
+c1
+-- assets/common/c2.css --
+c2
+-- layouts/index.html --
+{{ $a := resources.Get "a.css" }}
+{{ $b := resources.Get "b.css" }}
+{{ $common := resources.Match "common/*.css" | resources.Concat "common.css" | minify }}
+{{ $ab := slice $a $b $common | resources.Concat "ab.css" }}
+all: {{ $ab.RelPermalink }}
+`
+	b := TestRunning(t, files)
+
+	b.AssertFileContent("public/ab.css", "abc1c2")
+	b.EditFileReplaceAll("assets/common/c2.css", "c2", "c2 edited").Build()
+	b.AssertFileContent("public/ab.css", "abc1c2 edited")
+	b.AddFiles("assets/common/c3.css", "c3").Build()
+	b.AssertFileContent("public/ab.css", "abc1c2 editedc3")
 }

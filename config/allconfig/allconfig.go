@@ -663,7 +663,7 @@ type Configs struct {
 	// All below is set in Init.
 	Languages             langs.Languages
 	LanguagesDefaultFirst langs.Languages
-	ContentPathParser     paths.PathParser
+	ContentPathParser     *paths.PathParser
 
 	configLangs []config.AllProvider
 }
@@ -735,7 +735,7 @@ func (c *Configs) Init() error {
 	c.Languages = languages
 	c.LanguagesDefaultFirst = languagesDefaultFirst
 
-	c.ContentPathParser = paths.PathParser{LanguageIndex: languagesDefaultFirst.AsIndexSet(), IsLangDisabled: c.Base.IsLangDisabled}
+	c.ContentPathParser = &paths.PathParser{LanguageIndex: languagesDefaultFirst.AsIndexSet(), IsLangDisabled: c.Base.IsLangDisabled}
 
 	c.configLangs = make([]config.AllProvider, len(c.Languages))
 	for i, l := range c.LanguagesDefaultFirst {

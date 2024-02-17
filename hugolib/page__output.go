@@ -51,11 +51,6 @@ func newPageOutput(
 		})
 	}
 
-	var dependencyManager identity.Manager = identity.NopManager
-	if ps.s.conf.Internal.Watch {
-		dependencyManager = identity.NewManager(ps.Path() + "/" + f.Name)
-	}
-
 	providers := struct {
 		page.PaginatorProvider
 		resource.ResourceLinksProvider
@@ -75,7 +70,7 @@ func newPageOutput(
 		TableOfContentsProvider: page.NopPage,
 		render:                  render,
 		paginator:               pag,
-		dependencyManagerOutput: dependencyManager,
+		dependencyManagerOutput: ps.s.Conf.NewIdentityManager((ps.Path() + "/" + f.Name)),
 	}
 
 	return po

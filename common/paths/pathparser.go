@@ -18,9 +18,11 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/identity"
 )
 
 var defaultPathParser PathParser
@@ -50,19 +52,42 @@ func NormalizePathStringBasic(s string) string {
 	return s
 }
 
+// ParseIdentity parses component c with path s into a StringIdentity.
+func (pp *PathParser) ParseIdentity(c, s string) identity.StringIdentity {
+	s = NormalizePathStringBasic(s)
+	p := getPath()
+	p.component = c
+	defer putPath(p)
+	p, err := pp.doParse(c, s, p)
+	if err != nil {
+		panic(err)
+	}
+	return identity.StringIdentity(p.IdentifierBase())
+}
+
 // Parse parses component c with path s into Path using Hugo's content path rules.
-func (parser PathParser) Parse(c, s string) *Path {
-	p, err := parser.parse(c, s)
+func (pp *PathParser) Parse(c, s string) *Path {
+	p, err := pp.parse(c, s)
 	if err != nil {
 		panic(err)
 	}
 	return p
 }
 
+func (pp *PathParser) newPath(component string) *Path {
+	return &Path{
+		component:             component,
+		posContainerLow:       -1,
+		posContainerHigh:      -1,
+		posSectionHigh:        -1,
+		posIdentifierLanguage: -1,
+	}
+}
+
 func (pp *PathParser) parse(component, s string) (*Path, error) {
 	ss := NormalizePathStringBasic(s)
 
-	p, err := pp.doParse(component, ss)
+	p, err := pp.doParse(component, ss, pp.newPath(component))
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +95,7 @@ func (pp *PathParser) parse(component, s string) (*Path, error) {
 	if s != ss {
 		var err error
 		// Preserve the original case for titles etc.
-		p.unnormalized, err = pp.doParse(component, s)
+		p.unnormalized, err = pp.doParse(component, s, pp.newPath(component))
 
 		if err != nil {
 			return nil, err
@@ -82,15 +107,7 @@ func (pp *PathParser) parse(component, s string) (*Path, error) {
 	return p, nil
 }
 
-func (pp *PathParser) doParse(component, s string) (*Path, error) {
-	p := &Path{
-		component:             component,
-		posContainerLow:       -1,
-		posContainerHigh:      -1,
-		posSectionHigh:        -1,
-		posIdentifierLanguage: -1,
-	}
-
+func (pp *PathParser) doParse(component, s string, p *Path) (*Path, error) {
 	hasLang := pp.LanguageIndex != nil
 	hasLang = hasLang && (component == files.ComponentFolderContent || component == files.ComponentFolderLayouts)
 
@@ -220,6 +237,7 @@ const (
 )
 
 type Path struct {
+	// Note: Any additions to this struct should also be added to the pathPool.
 	s string
 
 	posContainerLow  int
@@ -239,6 +257,31 @@ type Path struct {
 	unnormalized *Path
 }
 
+var pathPool = &sync.Pool{
+	New: func() any {
+		return &Path{}
+	},
+}
+
+func getPath() *Path {
+	return pathPool.Get().(*Path)
+}
+
+func putPath(p *Path) {
+	p.s = ""
+	p.posContainerLow = -1
+	p.posContainerHigh = -1
+	p.posSectionHigh = -1
+	p.component = ""
+	p.bundleType = 0
+	p.identifiers = p.identifiers[:0]
+	p.posIdentifierLanguage = -1
+	p.disabled = false
+	p.trimLeadingSlash = false
+	p.unnormalized = nil
+	pathPool.Put(p)
+}
+
 // TrimLeadingSlash returns a copy of the Path with the leading slash removed.
 func (p Path) TrimLeadingSlash() *Path {
 	p.trimLeadingSlash = true
@@ -254,7 +297,7 @@ func (p *Path) norm(s string) string {
 
 // IdentifierBase satifies identity.Identity.
 func (p *Path) IdentifierBase() string {
-	return p.Base()[1:]
+	return p.Base()
 }
 
 // Component returns the component for this path (e.g. "content").

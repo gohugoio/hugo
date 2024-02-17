@@ -397,7 +397,7 @@ func (w *whatChanged) Changes() []identity.Identity {
 func (s *Site) RegisterMediaTypes() {
 	for _, mt := range s.conf.MediaTypes.Config {
 		for _, suffix := range mt.Suffixes() {
-			_ = mime.AddExtensionType(mt.Delimiter+suffix, mt.Type+"; charset=utf-8")
+			_ = mime.AddExtensionType(mt.Delimiter+suffix, mt.Type)
 		}
 	}
 }

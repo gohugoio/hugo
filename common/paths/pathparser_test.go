@@ -349,3 +349,9 @@ func TestHasExt(t *testing.T) {
 	c.Assert(HasExt("/a/b/c"), qt.IsFalse)
 	c.Assert(HasExt("/a/b.c/d"), qt.IsFalse)
 }
+
+func BenchmarkParseIdentity(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		testParser.ParseIdentity(files.ComponentFolderAssets, "/a/b.css")
+	}
+}
