@@ -1415,8 +1415,10 @@ func (sa *sitePagesAssembler) applyAggregatesToTaxonomiesAndTerms() error {
 					if err := p.setMetaPost(cascade); err != nil {
 						return false, err
 					}
-
-					if err := sa.pageMap.treeTaxonomyEntries.WalkPrefix(
+					if !p.s.shouldBuild(p) {
+						sa.pageMap.treePages.Delete(s)
+						sa.pageMap.treeTaxonomyEntries.DeletePrefix(paths.AddTrailingSlash(s))
+					} else if err := sa.pageMap.treeTaxonomyEntries.WalkPrefix(
 						doctree.LockTypeRead,
 						paths.AddTrailingSlash(s),
 						func(ss string, wn *weightedContentNode) (bool, error) {
