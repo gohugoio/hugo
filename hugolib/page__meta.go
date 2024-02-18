@@ -92,7 +92,7 @@ type pageMetaParams struct {
 
 // From page front matter.
 type pageMetaFrontMatter struct {
-	configuredOutputFormats output.Formats // outputs defiend in front matter.
+	configuredOutputFormats output.Formats // outputs defined in front matter.
 }
 
 func (m *pageMetaParams) init(preserveOringal bool) {
@@ -333,7 +333,7 @@ func (ps *pageState) setMetaPost(cascade map[page.PageMatcher]maps.Params) error
 
 	}
 
-	// Apply cascades first so they can be overriden later.
+	// Apply cascades first so they can be overridden later.
 	if cascade != nil {
 		if ps.m.pageConfig.Cascade != nil {
 			for k, v := range cascade {

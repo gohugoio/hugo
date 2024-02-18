@@ -169,7 +169,7 @@ ExpiryDate: 2099-07-13 15:28:01 +0000 UTC`
 	// have date literals.
 
 	// YAML
-	// Note: This is with go-yaml v2, I suspect v3 will fail with the unquouted values.
+	// Note: This is with go-yaml v2, I suspect v3 will fail with the unquoted values.
 	b.AssertFileContent("public/en/short-date-yaml-unqouted/index.html", expectShortDateEn)
 	b.AssertFileContent("public/nn/short-date-yaml-unqouted/index.html", expectShortDateNn)
 	b.AssertFileContent("public/en/short-date-yaml-qouted/index.html", expectShortDateEn)

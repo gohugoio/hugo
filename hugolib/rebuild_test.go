@@ -462,7 +462,7 @@ func TestRebuildVariations(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "https://example.com"
-disdableKinds = ["term", "taxonomy"]
+disableKinds = ["term", "taxonomy"]
 disableLiveReload = true
 defaultContentLanguage = "nn"
 paginate = 20
@@ -597,7 +597,7 @@ Codeblock Include: {{ .Title }}|
 	// - Edit content file direct
 	// - Edit content file transitive shortcode
 	// - Edit content file transitive render hook
-	// - Rename one languge version of a content file
+	// - Rename one language version of a content file
 	// - Delete content file, check site.RegularPages and section.RegularPagesRecursive (length)
 	// - Add content file (see above).
 	// - Edit shortcode
@@ -1284,7 +1284,7 @@ func benchmarkFilesEdit(count int) string {
 	files := `
 -- hugo.toml --
 baseURL = "https://example.com"
-disdableKinds = ["term", "taxonomy"]
+disableKinds = ["term", "taxonomy"]
 disableLiveReload = true
 -- layouts/_default/single.html --
 Single: {{ .Title }}|{{ .Content }}|

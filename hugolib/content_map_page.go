@@ -103,16 +103,16 @@ type pageMap struct {
 }
 
 // pageTrees holds pages and resources in a tree structure for all sites/languages.
-// Eeach site gets its own tree set via the Shape method.
+// Each site gets its own tree set via the Shape method.
 type pageTrees struct {
 	// This tree contains all Pages.
-	// This include regular pages, sections, taxonimies and so on.
+	// This include regular pages, sections, taxonomies and so on.
 	// Note that all of these trees share the same key structure,
 	// so you can take a leaf Page key and do a prefix search
 	// with key + "/" to get all of its resources.
 	treePages *doctree.NodeShiftTree[contentNodeI]
 
-	// This tree contains Resoures bundled in pages.
+	// This tree contains Resources bundled in pages.
 	treeResources *doctree.NodeShiftTree[contentNodeI]
 
 	// All pages and resources.
@@ -1012,7 +1012,7 @@ func (h *HugoSites) resolveAndClearStateForIdentities(
 				seen := map[string]bool{
 					change.IdentifierBase(): true,
 				}
-				// Print the top level dependenies.
+				// Print the top level dependencies.
 				identity.WalkIdentitiesDeep(change, func(level int, id identity.Identity) bool {
 					if level > 1 {
 						return true

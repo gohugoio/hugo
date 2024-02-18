@@ -47,7 +47,7 @@ type siteRenderContext struct {
 }
 
 // Whether to render 404.html, robotsTXT.txt and similar.
-// These are useually rendered once in the root of public.
+// These are usually rendered once in the root of public.
 func (s siteRenderContext) shouldRenderStandalonePage(kind string) bool {
 	if s.multihost || kind == kinds.KindSitemap {
 		// 1 per site

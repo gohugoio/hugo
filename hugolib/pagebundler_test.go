@@ -516,7 +516,7 @@ baseURL = "https://example.org"
 disableKinds = ["taxonomy", "term"]
 disableLiveReload = true
 [outputs]
-# This looks odd, but it triggers the behaviour in #5858
+# This looks odd, but it triggers the behavior in #5858
 # The total output formats list gets sorted, so CSS before HTML.
 home = [ "CSS" ]
 -- content/mybundle/index.md --

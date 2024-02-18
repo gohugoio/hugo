@@ -188,7 +188,7 @@ func ReaderContains(r io.Reader, subslice []byte) bool {
 //
 // - "Go" (strings.Title)
 // - "AP" (see https://www.apstylebook.com/)
-// - "Chicago" (see http://www.chicagomanualofstyle.org/home.html)
+// - "Chicago" (see https://www.chicagomanualofstyle.org/home.html)
 // - "FirstUpper" (only the first character is upper case)
 // - "None" (no transformation)
 //

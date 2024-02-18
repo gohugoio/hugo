@@ -479,7 +479,7 @@ func (h *HugoSites) fileEventsContentPaths(p []pathChange) []pathChange {
 		}
 	}
 
-	// Remve all files below dir.
+	// Remove all files below dir.
 	if len(dirs) > 0 {
 		n := 0
 		for _, d := range dirs {
@@ -877,7 +877,7 @@ func (s *Site) render(ctx *siteRenderContext) (err error) {
 	if ctx.outIdx == 0 {
 		// Note that even if disableAliases is set, the aliases themselves are
 		// preserved on page. The motivation with this is to be able to generate
-		// 301 redirects in a .htacess file and similar using a custom output format.
+		// 301 redirects in a .htaccess file and similar using a custom output format.
 		if !s.conf.DisableAliases {
 			// Aliases must be rendered before pages.
 			// Some sites, Hugo docs included, have faulty alias definitions that point
