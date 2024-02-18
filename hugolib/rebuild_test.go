@@ -261,6 +261,29 @@ func TestRebuilErrorRecovery(t *testing.T) {
 	b.EditFileReplaceAll("content/mysection/mysectionbundle/index.md", "{{< foo }}", "{{< foo >}}").Build()
 }
 
+func TestRebuildAddPageListPagesInHome(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+-- content/asection/s1.md --
+-- content/p1.md --
+---
+title: "P1"
+weight: 1
+---
+-- layouts/_default/single.html --
+Single: {{ .Title }}|{{ .Content }}|
+-- layouts/index.html --
+Pages: {{ range .RegularPages }}{{ .RelPermalink }}|{{ end }}$
+`
+
+	b := TestRunning(t, files)
+	b.AssertFileContent("public/index.html", "Pages: /p1/|$")
+	b.AddFiles("content/p2.md", ``).Build()
+	b.AssertFileContent("public/index.html", "Pages: /p1/|/p2/|$")
+}
+
 func TestRebuildScopedToOutputFormat(t *testing.T) {
 	files := `
 -- hugo.toml --

@@ -192,7 +192,7 @@ func (t *pageTrees) collectIdentitiesSurroundingIn(key string, maxSamples int, t
 		level := strings.Count(prefix, "/")
 		tree.WalkPrefixRaw(prefix, func(s string, n contentNodeI) bool {
 			if level != strings.Count(s, "/") {
-				return true
+				return false
 			}
 			n.ForEeachIdentity(func(id identity.Identity) bool {
 				ids = append(ids, id)
