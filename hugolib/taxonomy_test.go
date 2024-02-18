@@ -858,3 +858,30 @@ draft: true
 
 	b.AssertFileExists("public/tags/a/index.html", false)
 }
+
+func TestTermBuildNeverRenderNorList(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- layouts/index.html --
+|{{ len site.Taxonomies.tags }}|
+-- content/p1.md --
+---
+title: p1
+tags: [a]
+---
+-- content/tags/a/_index.md --
+---
+title: tag-a-title-override
+build:
+  render: never
+  list: never
+---
+
+  `
+
+	b := Test(t, files)
+
+	b.AssertFileExists("public/tags/a/index.html", false)
+	b.AssertFileContent("public/index.html", "|0|")
+}
