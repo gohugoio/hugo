@@ -2506,7 +2506,7 @@ tpl:
         - shuffle
         Args:
         - l
-        Description: Shuffle returns list l in a randomised order.
+        Description: Shuffle returns list l in a randomized order.
         Examples: []
       Slice:
         Aliases:
@@ -2898,7 +2898,7 @@ tpl:
         - format
         - args
         Description: Printf returns string representation of args formatted with the
-          layouut in format.
+          layout in format.
         Examples:
         - - '{{ printf "%s!" "works" }}'
           - works!
@@ -3016,6 +3016,11 @@ tpl:
           working directory.
         Examples: []
       Contrast:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Dither:
         Aliases: null
         Args: null
         Description: ""
