@@ -849,6 +849,14 @@ func (s *Site) shouldBuild(p page.Page) bool {
 	if !s.conf.IsKindEnabled(p.Kind()) {
 		return false
 	}
+	switch p.Kind() {
+	case kinds.KindTerm:
+		if ps, ok := p.(*pageState); ok {
+			if ps.m.noLink() && !ps.m.shouldListAny() {
+				return false
+			}
+		}
+	}
 	return shouldBuild(s.Conf.BuildFuture(), s.Conf.BuildExpired(),
 		s.Conf.BuildDrafts(), p.Draft(), p.PublishDate(), p.ExpiryDate())
 }

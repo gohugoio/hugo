@@ -116,7 +116,7 @@ func (f ContentFactory) CreateContentPlaceHolder(filename string, force bool) (s
 title: "Content Placeholder"
 _build:
   render: never
-  list: never
+  list: local
   publishResources: false
 ---
 
