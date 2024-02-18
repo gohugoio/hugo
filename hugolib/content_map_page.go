@@ -1904,6 +1904,9 @@ func (m *pageMap) CreateSiteTaxonomies(ctx context.Context) error {
 
 				switch p.Kind() {
 				case kinds.KindTerm:
+					if !p.m.shouldList(true) {
+						return false, nil
+					}
 					taxonomy := m.s.taxonomies[viewName.plural]
 					if taxonomy == nil {
 						return true, fmt.Errorf("missing taxonomy: %s", viewName.plural)
