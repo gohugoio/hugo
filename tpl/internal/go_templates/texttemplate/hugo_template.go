@@ -44,6 +44,7 @@ type ExecHelper interface {
 	GetFunc(ctx context.Context, tmpl Preparer, name string) (reflect.Value, reflect.Value, bool)
 	GetMethod(ctx context.Context, tmpl Preparer, receiver reflect.Value, name string) (method reflect.Value, firstArg reflect.Value)
 	GetMapValue(ctx context.Context, tmpl Preparer, receiver, key reflect.Value) (reflect.Value, bool)
+	OnCalled(ctx context.Context, tmpl Preparer, name string, args []reflect.Value, result reflect.Value)
 }
 
 // Executer executes a given template.
@@ -356,7 +357,14 @@ func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node
 		s.at(node)
 		s.errorf("error calling %s: %w", name, err)
 	}
-	return unwrap(v)
+	vv := unwrap(v)
+
+	// Added for Hugo
+	if s.helper != nil {
+		s.helper.OnCalled(s.ctx, s.prep, name, argv, vv)
+	}
+
+	return vv
 }
 
 func isTrue(val reflect.Value) (truth, ok bool) {

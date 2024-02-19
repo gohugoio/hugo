@@ -77,6 +77,27 @@ func TestRebuildEditTextFileInLeafBundle(t *testing.T) {
 	b.AssertRenderCountContent(1)
 }
 
+func TestRebuiEditUnmarshaledYamlFileInLeafBundle(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+disableKinds = ["taxonomy", "term", "sitemap", "robotsTXT", "404", "rss"]
+-- content/mybundle/index.md --
+-- content/mybundle/mydata.yml --
+foo: bar
+-- layouts/_default/single.html --
+MyData: {{ .Resources.Get "mydata.yml" | transform.Unmarshal }}|
+`
+	b := TestRunning(t, files)
+
+	b.AssertFileContent("public/mybundle/index.html", "MyData: map[foo:bar]")
+
+	b.EditFileReplaceAll("content/mybundle/mydata.yml", "bar", "bar edited").Build()
+
+	b.AssertFileContent("public/mybundle/index.html", "MyData: map[foo:bar edited]")
+}
+
 func TestRebuildEditTextFileInHomeBundle(t *testing.T) {
 	b := TestRunning(t, rebuildFilesSimple)
 	b.AssertFileContent("public/index.html", "Home Content.")
