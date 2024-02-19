@@ -171,7 +171,7 @@ Override the cache key by setting a `key` in the options map. Use this approach 
 ```go-html-template
 {{ $url := "https://example.org/images/a.jpg" }}
 {{ $cacheKey := print $url (now.Format "2006-01-02") }}
-{{ $resource := resource.GetRemote $url (dict "key" $cacheKey) }}
+{{ $resource := resources.GetRemote $url (dict "key" $cacheKey) }}
 ```
 
 [configure file caches]: /getting-started/configuration/#configure-file-caches
