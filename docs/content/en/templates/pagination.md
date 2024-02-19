@@ -31,7 +31,7 @@ Setting `paginate` to a positive value will split the list pages for the homepag
 ## List paginator pages
 
 {{% note %}}
-`.Paginator` is provided to help you build a pager menu. This feature is currently only supported on homepage and list pages (i.e., taxonomies and section lists).
+Paginate a page collection in list templates for these page kinds: `home`, `section`, `taxonomy`, or `term`. You cannot paginate a page collection in a template for the `page` page kind.
 {{% /note %}}
 
 There are two ways to configure and use a `.Paginator`:
