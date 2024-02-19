@@ -15,6 +15,8 @@ action:
 toc: true
 ---
 
+{{< new-in 0.123.0 >}}
+
 ## Options
 
 colors
