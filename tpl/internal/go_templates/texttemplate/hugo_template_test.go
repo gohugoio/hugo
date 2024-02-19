@@ -64,6 +64,9 @@ func (e *execHelper) GetMethod(ctx context.Context, tmpl Preparer, receiver refl
 	return m, reflect.ValueOf("v2")
 }
 
+func (e *execHelper) OnCalled(ctx context.Context, tmpl Preparer, name string, args []reflect.Value, returnValue reflect.Value) {
+}
+
 func TestTemplateExecutor(t *testing.T) {
 	c := qt.New(t)
 

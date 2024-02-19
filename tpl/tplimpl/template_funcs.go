@@ -150,6 +150,30 @@ func (t *templateExecHelper) GetMethod(ctx context.Context, tmpl texttemplate.Pr
 	return fn, zero
 }
 
+func (t *templateExecHelper) OnCalled(ctx context.Context, tmpl texttemplate.Preparer, name string, args []reflect.Value, result reflect.Value) {
+	if !t.running {
+		return
+	}
+
+	// This switch is mostly for speed.
+	switch name {
+	case "Unmarshal":
+	default:
+		return
+	}
+	idm := tpl.Context.GetDependencyManagerInCurrentScope(ctx)
+	if idm == nil {
+		return
+	}
+
+	for _, arg := range args {
+		identity.WalkIdentitiesShallow(arg.Interface(), func(level int, id identity.Identity) bool {
+			idm.AddIdentity(id)
+			return false
+		})
+	}
+}
+
 func (t *templateExecHelper) trackDependencies(ctx context.Context, tmpl texttemplate.Preparer, name string, receiver reflect.Value) context.Context {
 	if tmpl == nil {
 		panic("must provide a template")
