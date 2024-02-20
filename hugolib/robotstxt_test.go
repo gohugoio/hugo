@@ -39,3 +39,16 @@ func TestRobotsTXTOutput(t *testing.T) {
 
 	b.AssertFileContent("public/robots.txt", "User-agent: Googlebot")
 }
+
+func TestRobotsTXTDefaultTemplate(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+baseURL = "http://auth/bub/"
+enableRobotsTXT = true
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/robots.txt", "User-agent: *")
+}
