@@ -1268,6 +1268,43 @@ Single: {{ .Title }}|{{ .Content }}|Bundled File: {{ with .Resources.GetMatch "f
 	b.AssertFileContent("public/nn/p1/index.html", "B nn edit.")
 }
 
+func TestRebuildEditContentNonDefaultLanguageDifferentBundles(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+[languages]
+[languages.en]
+weight = 1
+contentDir = "content/en"
+[languages.nn]
+weight = 2
+contentDir = "content/nn"
+-- content/en/p1en/index.md --
+---
+title: "P1 en"
+---
+-- content/nn/p1nn/index.md --
+---
+title: "P1 nn"
+---
+P1 nn.
+-- layouts/_default/single.html --
+Single: {{ .Title }}|{{ .Content }}|
+`
+
+	b := TestRunning(t, files)
+
+	b.AssertFileContent("public/nn/p1nn/index.html", "Single: P1 nn|<p>P1 nn.</p>")
+	b.EditFileReplaceAll("content/nn/p1nn/index.md", "P1 nn.", "P1 nn edit.").Build()
+	b.AssertFileContent("public/nn/p1nn/index.html", "Single: P1 nn|<p>P1 nn edit.</p>\n|")
+	b.AssertFileContent("public/nn/p1nn/index.html", "P1 nn edit.")
+}
+
 func TestRebuildVariationsAssetsSassImport(t *testing.T) {
 	if !htesting.IsCI() {
 		t.Skip("skip CI only")

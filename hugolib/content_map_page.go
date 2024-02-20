@@ -130,49 +130,48 @@ type pageTrees struct {
 // so we mark all entries as stale (which will trigger cache invalidation), then
 // return the first.
 func (t *pageTrees) collectAndMarkStaleIdentities(p *paths.Path) []identity.Identity {
-	ids := t.collectAndMarkStaleIdentitiesFor(p.Base())
+	key := p.Base()
+	var ids []identity.Identity
+	// We need only one identity sample per dimensio.
+	nCount := 0
+	cb := func(n contentNodeI) bool {
+		if n == nil {
+			return false
+		}
+		n.MarkStale()
+		if nCount > 0 {
+			return true
+		}
+		nCount++
+		n.ForEeachIdentity(func(id identity.Identity) bool {
+			ids = append(ids, id)
+			return false
+		})
+
+		return false
+	}
+	tree := t.treePages
+	nCount = 0
+	tree.ForEeachInDimension(key, doctree.DimensionLanguage.Index(),
+		cb,
+	)
+
+	tree = t.treeResources
+	nCount = 0
+	tree.ForEeachInDimension(key, doctree.DimensionLanguage.Index(),
+		cb,
+	)
 
 	if p.Component() == files.ComponentFolderContent {
 		// It may also be a bundled content resource.
 		key := p.ForBundleType(paths.PathTypeContentResource).Base()
-		tree := t.treeResources
-		if n := tree.Get(key); n != nil {
-			n.ForEeachIdentity(func(id identity.Identity) bool {
-				ids = append(ids, id)
-				return false
-			})
-			if n, ok := tree.GetRaw(key); ok {
-				n.MarkStale()
-			}
-		}
-	}
-	return ids
-}
+		tree = t.treeResources
+		nCount = 0
+		tree.ForEeachInDimension(key, doctree.DimensionLanguage.Index(),
+			cb,
+		)
 
-func (t *pageTrees) collectAndMarkStaleIdentitiesFor(key string) []identity.Identity {
-	var ids []identity.Identity
-	tree := t.treePages
-	if n := tree.Get(key); n != nil {
-		n.ForEeachIdentity(func(id identity.Identity) bool {
-			ids = append(ids, id)
-			return false
-		})
-		if n, ok := tree.GetRaw(key); ok {
-			n.MarkStale()
-		}
 	}
-
-	tree = t.treeResources
-	if n := tree.Get(key); n != nil {
-		n.ForEeachIdentity(func(id identity.Identity) bool {
-			ids = append(ids, id)
-			return false
-		})
-		if n, ok := tree.GetRaw(key); ok {
-			n.MarkStale()
-		}
-	}
-
 	return ids
 }
 
