@@ -147,7 +147,7 @@ type codeBlockContext struct {
 	ordinal int
 
 	// This is only used in error situations and is expensive to create,
-	// to deleay creation until needed.
+	// to delay creation until needed.
 	pos       htext.Position
 	posInit   sync.Once
 	createPos func() htext.Position

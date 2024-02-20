@@ -270,7 +270,7 @@ type Config struct {
 
 	// When enabled, we will pick the vendored module closest to the module
 	// using it.
-	// The default behaviour is to pick the first.
+	// The default behavior is to pick the first.
 	// Note that there can still be only one dependency of a given module path,
 	// so once it is in use it cannot be redefined.
 	VendorClosest bool

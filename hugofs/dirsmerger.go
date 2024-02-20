@@ -42,7 +42,7 @@ var LanguageDirsMerger overlayfs.DirsMerger = func(lofi, bofi []fs.DirEntry) []f
 
 // AppendDirsMerger merges two directories keeping all regular files
 // with the first slice as the base.
-// Duplicate directories in the secnond slice will be ignored.
+// Duplicate directories in the second slice will be ignored.
 // This strategy is used for the i18n and data fs where we need all entries.
 var AppendDirsMerger overlayfs.DirsMerger = func(lofi, bofi []fs.DirEntry) []fs.DirEntry {
 	for _, fi1 := range bofi {

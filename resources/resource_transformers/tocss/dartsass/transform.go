@@ -180,7 +180,7 @@ func (t importResolver) CanonicalizeURL(url string) (string, error) {
 		}
 	}
 
-	// Not found, let Dart Dass handle it
+	// Not found, let Dart Sass handle it
 	return "", nil
 }
 

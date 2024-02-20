@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package dartsass integrates with the Dass Sass Embedded protocol to transpile
+// Package dartsass integrates with the Dart Sass Embedded protocol to transpile
 // SCSS/SASS.
 package dartsass
 
