@@ -79,7 +79,7 @@ When retrieving remote data, use the [`transform.Unmarshal`] function to [unmars
   {{ with .Err }}
     {{ errorf "%s" . }}
   {{ else }}
-    {{ $data = . | transform.Unmarshal }}
+    {{ $data = .Content | transform.Unmarshal }}
   {{ end }}
 {{ else }}
   {{ errorf "Unable to get remote resource %q" $url }}

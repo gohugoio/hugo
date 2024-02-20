@@ -15,7 +15,7 @@ action:
 {{ $p := "data/books.json" }}
 {{ with resources.Get $p }}
   {{ $opts := dict "delimiter" "," }}
-  {{ $data = . | transform.Unmarshal $opts }}
+  {{ $data = .Content | transform.Unmarshal $opts }}
 {{ else }}
   {{ errorf "Unable to get resource %q" $p }}
 {{ end }}

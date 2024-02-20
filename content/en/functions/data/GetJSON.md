@@ -101,7 +101,7 @@ my-project/
 {{ $data := "" }}
 {{ $p := "data/books.json" }}
 {{ with resources.Get $p }}
-  {{ $data = . | transform.Unmarshal }}
+  {{ $data = .Content | transform.Unmarshal }}
 {{ else }}
   {{ errorf "Unable to get resource %q" $p }}
 {{ end }}
@@ -124,7 +124,7 @@ my-project/
 {{ $data := "" }}
 {{ $p := "books.json" }}
 {{ with .Resources.Get $p }}
-  {{ $data = . | transform.Unmarshal }}
+  {{ $data = .Content | transform.Unmarshal }}
 {{ else }}
   {{ errorf "Unable to get resource %q" $p }}
 {{ end }}
@@ -141,7 +141,7 @@ Consider using the [`resources.GetRemote`] function with [`transform.Unmarshal`]
   {{ with .Err }}
     {{ errorf "%s" . }}
   {{ else }}
-    {{ $data = . | transform.Unmarshal }}
+    {{ $data = .Content | transform.Unmarshal }}
   {{ end }}
 {{ else }}
   {{ errorf "Unable to get remote resource %q" $u }}

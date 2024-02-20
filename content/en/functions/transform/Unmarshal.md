@@ -49,7 +49,7 @@ assets/
 {{ $data := "" }}
 {{ $path := "data/books.json" }}
 {{ with resources.Get $path }}
-  {{ with unmarshal . }}
+  {{ with unmarshal .Content }}
     {{ $data = . }}
   {{ end }}
 {{ else }}
@@ -78,7 +78,7 @@ content/
 {{ $data := "" }}
 {{ $path := "books.json" }}
 {{ with .Resources.Get $path }}
-  {{ with unmarshal . }}
+  {{ with unmarshal .Content }}
     {{ $data = . }}
   {{ end }}
 {{ else }}
@@ -101,7 +101,7 @@ A remote resource is a file on a remote server, accessible via HTTP or HTTPS.
   {{ with .Err }}
     {{ errorf "%s" . }}
   {{ else }}
-    {{ $data = . | transform.Unmarshal }}
+    {{ $data = .Content | transform.Unmarshal }}
   {{ end }}
 {{ else }}
   {{ errorf "Unable to get remote resource %q" $url }}
@@ -172,7 +172,7 @@ Get the remote data:
   {{ with .Err }}
     {{ errorf "%s" . }}
   {{ else }}
-    {{ $data = . | transform.Unmarshal }}
+    {{ $data = .Content | transform.Unmarshal }}
   {{ end }}
 {{ else }}
   {{ errorf "Unable to get remote resource %q" $url }}

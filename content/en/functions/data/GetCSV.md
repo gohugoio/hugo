@@ -97,7 +97,7 @@ my-project/
 {{ $p := "data/pets.csv" }}
 {{ with resources.Get $p }}
   {{ $opts := dict "delimiter" "," }}
-  {{ $data = . | transform.Unmarshal $opts }}
+  {{ $data = .Content | transform.Unmarshal $opts }}
 {{ else }}
   {{ errorf "Unable to get resource %q" $p }}
 {{ end }}
@@ -121,7 +121,7 @@ my-project/
 {{ $p := "pets.csv" }}
 {{ with .Resources.Get $p }}
   {{ $opts := dict "delimiter" "," }}
-  {{ $data = . | transform.Unmarshal $opts }}
+  {{ $data = .Content | transform.Unmarshal $opts }}
 {{ else }}
   {{ errorf "Unable to get resource %q" $p }}
 {{ end }}
@@ -139,7 +139,7 @@ Consider using the [`resources.GetRemote`] function with [`transform.Unmarshal`]
     {{ errorf "%s" . }}
   {{ else }}
     {{ $opts := dict "delimiter" "," }}
-    {{ $data = . | transform.Unmarshal $opts }}
+    {{ $data = .Content | transform.Unmarshal $opts }}
   {{ end }}
 {{ else }}
   {{ errorf "Unable to get remote resource %q" $u }}
