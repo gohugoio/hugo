@@ -105,6 +105,8 @@ Methods|Functions|Shortcodes
 [`Page.GetPage`]|[`urls.RelRef`]|[`relref`]
 [`Page.Ref`]||
 [`Page.RelRef`]||
+[`Shortcode.Ref`]||
+[`Shortcode.RelRef`]||
 
 [`urls.Ref`]: functions/urls/ref/
 [`urls.RelRef`]: /functions/urls/relref/
@@ -112,8 +114,10 @@ Methods|Functions|Shortcodes
 [`Site.GetPage`]: /methods/site/getpage/
 [`ref`]: /content-management/shortcodes/#ref
 [`relref`]: /content-management/shortcodes/#relref
-[`Page.Ref`]: /methods/page/ref
-[`Page.RelRef`]: /methods/page/relref
+[`Page.Ref`]: /methods/page/ref/
+[`Page.RelRef`]: /methods/page/relref/
+[`Shortcode.Ref`]: /methods/shortcode/ref
+[`Shortcode.RelRef`]: /methods/shortcode/relref
 
 {{% note %}}
 Specify the logical path when using any of these methods, functions, or shortcodes. If you include a file extension or language identifier, Hugo will strip these values before finding the page in the logical tree.
