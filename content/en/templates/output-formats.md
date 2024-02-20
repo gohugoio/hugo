@@ -114,7 +114,7 @@ path
 : (`string`) The path to the directory containing the published files, relative to the root of the publish directory.
 
 permalinkable
-: (`bool`) If `true`, the [`Permalink`] and [`RelPermalink`] methods on a `Page` object return the rendering output format rather than main ouptut format ([see below](#link-to-output-formats)). Enabled by default for the `html` and `amp` output formats. Default is `false`.
+: (`bool`) If `true`, the [`Permalink`] and [`RelPermalink`] methods on a `Page` object return the rendering output format rather than main output format ([see below](#link-to-output-formats)). Enabled by default for the `html` and `amp` output formats. Default is `false`.
 
 [`Permalink`]: /methods/page/permalink/
 [`RelPermalink`]: /methods/page/relpermalink/
@@ -123,7 +123,7 @@ protocol
 : (`string`) The protocol (scheme) of the URL for this output format. For example, `https://` or `webcal://`. Default is the scheme of the `baseURL` parameter in your site configuration, typically `https://`.
 
 rel
-: (`string`) If provided, you can assign this value to `rel` attributes in `link` elements when iterating over ouput formats in your templates. Default is `alternate`.
+: (`string`) If provided, you can assign this value to `rel` attributes in `link` elements when iterating over output formats in your templates. Default is `alternate`.
 
 root
 : (`bool`) If `true`, files will be published to the root of the publish directory. Default is `false`.

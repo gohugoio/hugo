@@ -153,5 +153,5 @@ A key difference between these trees is the relative path from p1 to p2:
 - In the logical tree, the relative path is `p2`
 
 {{% note %}}
-Rember to use the logical path when using any of the methods, functions, or shortcodes listed in the previous section. If you include a file extension or language identifier, Hugo will strip these values before finding the page in the logical tree.
+Remember to use the logical path when using any of the methods, functions, or shortcodes listed in the previous section. If you include a file extension or language identifier, Hugo will strip these values before finding the page in the logical tree.
 {{% /note %}}
