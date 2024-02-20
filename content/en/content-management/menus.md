@@ -34,7 +34,7 @@ Although you can use these methods in combination when defining a menu, the menu
 
 ## Define automatically
 
-To automatically define menu entries for each top-level section of your site, enable the section pages menu in your site configuration.
+To automatically define a menu entry for each top-level [section] of your site, enable the section pages menu in your site configuration.
 
 {{< code-toggle file=hugo >}}
 sectionPagesMenu = "main"
@@ -229,4 +229,5 @@ See [menu templates].
 [localize]: /content-management/multilingual/#menus
 [menu templates]: /templates/menu-templates/
 [multilingual]: /content-management/multilingual/#menus
+[section]: /getting-started/glossary/#section
 [template]: /templates/menu-templates/
