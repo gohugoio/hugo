@@ -336,7 +336,7 @@ func (s *SourceFilesystems) ResolvePaths(filename string, checkExists bool) []hu
 // It will return an empty string if the filename is not a member of a static filesystem.
 func (s SourceFilesystems) MakeStaticPathRelative(filename string) string {
 	for _, staticFs := range s.Static {
-		rel, _ := staticFs.MakePathRelative(filename)
+		rel, _ := staticFs.MakePathRelative(filename, true)
 		if rel != "" {
 			return rel
 		}
@@ -345,8 +345,8 @@ func (s SourceFilesystems) MakeStaticPathRelative(filename string) string {
 }
 
 // MakePathRelative creates a relative path from the given filename.
-func (d *SourceFilesystem) MakePathRelative(filename string) (string, bool) {
-	cps, err := d.ReverseLookup(filename)
+func (d *SourceFilesystem) MakePathRelative(filename string, checkExists bool) (string, bool) {
+	cps, err := d.ReverseLookup(filename, checkExists)
 	if err != nil {
 		panic(err)
 	}
@@ -358,11 +358,11 @@ func (d *SourceFilesystem) MakePathRelative(filename string) (string, bool) {
 }
 
 // ReverseLookup returns the component paths for the given filename.
-func (d *SourceFilesystem) ReverseLookup(filename string) ([]hugofs.ComponentPath, error) {
+func (d *SourceFilesystem) ReverseLookup(filename string, checkExists bool) ([]hugofs.ComponentPath, error) {
 	var cps []hugofs.ComponentPath
 	hugofs.WalkFilesystems(d.Fs, func(fs afero.Fs) bool {
 		if rfs, ok := fs.(hugofs.ReverseLookupProvder); ok {
-			if c, err := rfs.ReverseLookup(filename, true); err == nil {
+			if c, err := rfs.ReverseLookup(filename, checkExists); err == nil {
 				cps = append(cps, c...)
 			}
 		}

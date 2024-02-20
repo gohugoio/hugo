@@ -380,11 +380,11 @@ Main.
 `
 	b := hugolib.Test(t, files)
 
-	rel, found := b.H.BaseFs.Assets.MakePathRelative(filepath.FromSlash("/themes/t1/src/main.js"))
+	rel, found := b.H.BaseFs.Assets.MakePathRelative(filepath.FromSlash("/themes/t1/src/main.js"), true)
 	b.Assert(found, qt.Equals, true)
 	b.Assert(rel, qt.Equals, filepath.FromSlash("foo/bar/main.js"))
 
-	rel, found = b.H.BaseFs.Assets.MakePathRelative(filepath.FromSlash("/bar.txt"))
+	rel, found = b.H.BaseFs.Assets.MakePathRelative(filepath.FromSlash("/bar.txt"), true)
 	b.Assert(found, qt.Equals, true)
 	b.Assert(rel, qt.Equals, filepath.FromSlash("foo/baz.txt"))
 }
@@ -460,7 +460,7 @@ Home.
 	b.AssertFileContent("public/index.html", "Home.")
 
 	stat := func(path string) hugofs.FileMetaInfo {
-		ps, err := b.H.BaseFs.Content.ReverseLookup(filepath.FromSlash(path))
+		ps, err := b.H.BaseFs.Content.ReverseLookup(filepath.FromSlash(path), true)
 		b.Assert(err, qt.IsNil)
 		b.Assert(ps, qt.HasLen, 1)
 		first := ps[0]

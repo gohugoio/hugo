@@ -138,12 +138,13 @@ func (t importResolver) CanonicalizeURL(url string) (string, error) {
 	if url == sass.HugoVarsNamespace {
 		return url, nil
 	}
+
 	filePath, isURL := paths.UrlToFilename(url)
 	var prevDir string
 	var pathDir string
 	if isURL {
 		var found bool
-		prevDir, found = t.c.sfs.MakePathRelative(filepath.Dir(filePath))
+		prevDir, found = t.c.sfs.MakePathRelative(filepath.Dir(filePath), false)
 
 		if !found {
 			// Not a member of this filesystem, let Dart Sass handle it.
