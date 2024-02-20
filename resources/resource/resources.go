@@ -106,6 +106,15 @@ func (r Resources) GetMatch(pattern any) Resource {
 		}
 	}
 
+	// Finally, check the original name.
+	for _, resource := range r {
+		if nop, ok := resource.(NameOriginalProvider); ok {
+			if g.Match(paths.NormalizePathStringBasic(nop.NameOriginal())) {
+				return resource
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -133,6 +142,16 @@ func (r Resources) Match(pattern any) Resources {
 	for _, resource := range r {
 		if g.Match(strings.ToLower(resource.Name())) {
 			matches = append(matches, resource)
+		}
+	}
+	if len(matches) == 0 {
+		// 	Fall back to the original name.
+		for _, resource := range r {
+			if nop, ok := resource.(NameOriginalProvider); ok {
+				if g.Match(strings.ToLower(nop.NameOriginal())) {
+					matches = append(matches, resource)
+				}
+			}
 		}
 	}
 	return matches

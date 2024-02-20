@@ -876,3 +876,20 @@ RegularPages: {{ range .RegularPages }}{{ .RelPermalink }}|File LogicalName: {{ 
 		"List: |/mysection|File LogicalName: _index.md|/mysection/|section|Resources: sectiondata.json: Secion data JSON.|sectiondata.txt: Section data TXT.|$",
 		"RegularPages: /mysection/foo/p2/|File LogicalName: p2.md|/mysection/mybundle/|File LogicalName: index.md|/mysection/p2/|File LogicalName: p2.md|$")
 }
+
+func TestBundleResourcesGetMatchOriginalName(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+-- content/mybundle/index.md --
+-- content/mybundle/f1.en.txt --
+F1.
+-- layouts/_default/single.html --
+GetMatch: {{ with .Resources.GetMatch "f1.en.*" }}{{ .Name }}: {{ .Content }}|{{ end }}
+Match: {{ range .Resources.Match "f1.en.*" }}{{ .Name }}: {{ .Content }}|{{ end }}
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/mybundle/index.html", "GetMatch: f1.txt: F1.|", "Match: f1.txt: F1.|")
+}
