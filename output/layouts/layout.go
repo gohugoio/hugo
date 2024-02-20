@@ -222,7 +222,7 @@ func resolvePageTemplate(d LayoutDescriptor) []string {
 	}
 
 	switch d.Kind {
-	case "robotsTXT":
+	case "robotstxt":
 		layouts = append(layouts, "_internal/_default/robots.txt")
 	case "sitemap":
 		layouts = append(layouts, "_internal/_default/sitemap.xml")
