@@ -218,7 +218,7 @@ func createBuildPlugins(depsManager identity.Manager, c *Client, opts Options) (
 		isStdin := args.Importer == stdinImporter
 		var relDir string
 		if !isStdin {
-			rel, found := fs.MakePathRelative(args.Importer)
+			rel, found := fs.MakePathRelative(args.Importer, true)
 			if !found {
 				// Not in any of the /assets folders.
 				// This is an import from a node_modules, let
