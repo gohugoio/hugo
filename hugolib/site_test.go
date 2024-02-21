@@ -992,6 +992,28 @@ func TestRefLinking(t *testing.T) {
 	// TODO: and then the failure cases.
 }
 
+func TestRelRefWithTrailingSlash(t *testing.T) {
+	files := `
+-- hugo.toml --
+-- content/docs/5.3/examples/_index.md --
+---
+title: "Examples"
+---
+-- content/_index.md --
+---
+title: "Home"
+---
+
+Examples: {{< relref "/docs/5.3/examples/" >}}
+-- layouts/home.html --
+Content: {{ .Content }}|
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html", "Examples: /docs/5.3/examples/")
+}
+
 func checkLinkCase(site *Site, link string, currentPage page.Page, relative bool, outputFormat string, expected string, t *testing.T, i int) {
 	t.Helper()
 	if out, err := site.refLink(link, currentPage, relative, outputFormat); err != nil || out != expected {
