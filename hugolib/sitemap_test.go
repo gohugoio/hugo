@@ -123,3 +123,28 @@ func TestParseSitemap(t *testing.T) {
 		t.Errorf("Got \n%v expected \n%v", result, expected)
 	}
 }
+
+func TestSitemapShouldNotUseListXML(t *testing.T) {
+	t.Parallel()
+
+	files := `		
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ["term", "taxonomy"]
+[languages]
+[languages.en]
+weight = 1
+languageName = "English"
+[languages.nn]
+weight = 2
+-- layouts/_default/list.xml --
+Site: {{ .Site.Title }}|
+-- layouts/home --
+Home.
+
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/sitemap.xml", "https://example.com/en/sitemap.xml")
+}
