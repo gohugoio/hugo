@@ -275,9 +275,13 @@ func (s *IntegrationTestBuilder) AssertFileContentExact(filename string, matches
 }
 
 func (s *IntegrationTestBuilder) AssertPublishDir(matches ...string) {
+	s.AssertFs(s.fs.PublishDir, matches...)
+}
+
+func (s *IntegrationTestBuilder) AssertFs(fs afero.Fs, matches ...string) {
 	s.Helper()
 	var buff bytes.Buffer
-	helpers.PrintFs(s.H.Fs.PublishDir, "", &buff)
+	helpers.PrintFs(fs, "", &buff)
 	printFsLines := strings.Split(buff.String(), "\n")
 	sort.Strings(printFsLines)
 	content := strings.TrimSpace((strings.Join(printFsLines, "\n")))
