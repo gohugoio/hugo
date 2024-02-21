@@ -446,7 +446,7 @@ func (r *resourceAdapter) transform(key string, publish, setContent bool) (*reso
 	tctx.To = b1
 
 	tctx.InPath = r.target.TargetPath()
-	tctx.SourcePath = tctx.InPath
+	tctx.SourcePath = strings.TrimPrefix(tctx.InPath, "/")
 
 	counter := 0
 	writeToFileCache := false
