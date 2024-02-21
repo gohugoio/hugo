@@ -512,9 +512,9 @@ func (c *serverCommand) Init(cd *simplecobra.Commandeer) error {
 	cmd.Long = `Hugo provides its own webserver which builds and serves the site.
 While hugo server is high performance, it is a webserver with limited options.
 
-'hugo server' will by default write and server files from disk, but you can
-render to memory by using the '--renderToMemory' flag. This can be faster
-in some cases, but it will consume more memory.
+The ` + "`" + `hugo server` + "`" + ` command will by default write and serve files from disk, but
+you can render to memory by using the ` + "`" + `--renderToMemory` + "`" + ` flag. This can be
+faster in some cases, but it will consume more memory.
 
 By default hugo will also watch your files for any changes you make and
 automatically rebuild the site. It will then live reload any open browser pages
