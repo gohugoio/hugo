@@ -1,6 +1,8 @@
 {{- $u := urls.Parse .Destination -}}
 {{- $href := $u.String -}}
-{{- if not $u.IsAbs -}}
+{{- if strings.HasPrefix $u.String "#" }}
+  {{- $href = printf "%s#%s" .Page.RelPermalink $u.Fragment }}
+{{- else if not $u.IsAbs -}}
   {{- with or
     ($.Page.GetPage $u.Path)
     ($.Page.Resources.Get $u.Path)
