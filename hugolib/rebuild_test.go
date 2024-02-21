@@ -305,6 +305,29 @@ Pages: {{ range .RegularPages }}{{ .RelPermalink }}|{{ end }}$
 	b.AssertFileContent("public/index.html", "Pages: /p1/|/p2/|$")
 }
 
+func TestRebuildAddPageWithSpaceListPagesInHome(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+-- content/asection/s1.md --
+-- content/p1.md --
+---
+title: "P1"
+weight: 1
+---
+-- layouts/_default/single.html --
+Single: {{ .Title }}|{{ .Content }}|
+-- layouts/index.html --
+Pages: {{ range .RegularPages }}{{ .RelPermalink }}|{{ end }}$
+`
+
+	b := TestRunning(t, files)
+	b.AssertFileContent("public/index.html", "Pages: /p1/|$")
+	b.AddFiles("content/test test/index.md", ``).Build()
+	b.AssertFileContent("public/index.html", "Pages: /p1/|/test-test/|$")
+}
+
 func TestRebuildScopedToOutputFormat(t *testing.T) {
 	files := `
 -- hugo.toml --

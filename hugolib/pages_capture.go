@@ -195,9 +195,9 @@ func (c *pagesCollector) collectDir(dirPath *paths.Path, isDir bool, inFilter fu
 	var dpath string
 	if dirPath != nil {
 		if isDir {
-			dpath = filepath.FromSlash(dirPath.Path())
+			dpath = filepath.FromSlash(dirPath.Unnormalized().Path())
 		} else {
-			dpath = filepath.FromSlash(dirPath.Dir())
+			dpath = filepath.FromSlash(dirPath.Unnormalized().Dir())
 		}
 	}
 
