@@ -136,7 +136,7 @@ See the [diagrams] page for details.
 
 ## Embedded
 
-Hugo includes an [embedded code block render hook]({{% eturl render-image %}}) to render [GoAT diagrams].
+Hugo includes an [embedded code block render hook] to render [GoAT diagrams].
 
 [embedded code block render hook]: {{% eturl render-codeblock-goat %}}
 [GoAT diagrams]: /content-management/diagrams/#goat-diagrams-ascii
