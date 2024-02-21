@@ -50,7 +50,7 @@ type LayoutDescriptor struct {
 }
 
 func (d LayoutDescriptor) isList() bool {
-	return !d.RenderingHook && d.Kind != "page" && d.Kind != "404"
+	return !d.RenderingHook && d.Kind != "page" && d.Kind != "404" && d.Kind != "sitemap" && d.Kind != "sitemapindex"
 }
 
 // LayoutHandler calculates the layout template to use to render a given output type.
