@@ -323,7 +323,6 @@ func (fs *RootMappingFs) Stat(name string) (os.FileInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return fis[0], nil
 }
 
@@ -403,16 +402,42 @@ func (fs *RootMappingFs) getRoot(key string) []RootMapping {
 }
 
 func (fs *RootMappingFs) getRoots(key string) (string, []RootMapping) {
-	return fs.getRootsIn(key, fs.rootMapToReal)
+	tree := fs.rootMapToReal
+	levels := strings.Count(key, filepathSeparator)
+	seen := make(map[RootMapping]bool)
+
+	var roots []RootMapping
+	var s string
+
+	for {
+		var found bool
+		ss, vv, found := tree.LongestPrefix(key)
+		if !found || (levels < 2 && ss == key) {
+			break
+		}
+
+		for _, rm := range vv.([]RootMapping) {
+			if !seen[rm] {
+				seen[rm] = true
+				roots = append(roots, rm)
+			}
+		}
+		s = ss
+
+		// We may have more than one root for this key, so walk up.
+		oldKey := key
+		key = filepath.Dir(key)
+		if key == oldKey {
+			break
+		}
+	}
+
+	return s, roots
 }
 
 func (fs *RootMappingFs) getRootsReverse(key string) (string, []RootMapping) {
-	return fs.getRootsIn(key, fs.realMapToRoot)
-}
-
-func (fs *RootMappingFs) getRootsIn(key string, tree *radix.Tree) (string, []RootMapping) {
+	tree := fs.realMapToRoot
 	s, v, found := tree.LongestPrefix(key)
-
 	if !found {
 		return "", nil
 	}

@@ -478,11 +478,47 @@ Home.
 	_ = stat("blog/b1.md")
 }
 
+func TestStaticComposite(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term"]
+[module]
+[[module.mounts]]
+source = "myfiles/f1.txt"
+target = "static/files/f1.txt"
+[[module.mounts]]
+source = "f3.txt"
+target = "static/f3.txt"
+[[module.mounts]]
+source = "static"
+target = "static"
+-- static/files/f2.txt --
+f2
+-- myfiles/f1.txt --
+f1
+-- f3.txt --
+f3
+-- layouts/home.html --
+Home.
+
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFs(b.H.BaseFs.StaticFs(""), `
+. true
+f3.txt false
+files true
+files/f1.txt false
+files/f2.txt false
+`)
+}
+
 func checkFileCount(fs afero.Fs, dirname string, c *qt.C, expected int) {
 	c.Helper()
-	count, _, err := countFilesAndGetFilenames(fs, dirname)
-	c.Assert(err, qt.IsNil)
-	c.Assert(count, qt.Equals, expected)
+	count, names, err := countFilesAndGetFilenames(fs, dirname)
+	namesComment := qt.Commentf("filenames: %v", names)
+	c.Assert(err, qt.IsNil, namesComment)
+	c.Assert(count, qt.Equals, expected, namesComment)
 }
 
 func checkFileContent(fs afero.Fs, filename string, c *qt.C, expected ...string) {
