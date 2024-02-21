@@ -56,7 +56,7 @@ func (c *pageFinder) getPageRef(context page.Page, ref string) (page.Page, error
 }
 
 func (c *pageFinder) getPage(context page.Page, ref string) (page.Page, error) {
-	n, err := c.getContentNode(context, false, paths.ToSlashTrimTrailing(ref))
+	n, err := c.getContentNode(context, false, ref)
 	if err != nil {
 		return nil, err
 	}
@@ -121,6 +121,7 @@ func (c *pageFinder) getPageForRefs(ref ...string) (page.Page, error) {
 const defaultContentExt = ".md"
 
 func (c *pageFinder) getContentNode(context page.Page, isReflink bool, ref string) (contentNodeI, error) {
+	ref = paths.ToSlashTrimTrailing(ref)
 	inRef := ref
 	if ref == "" {
 		ref = "/"
