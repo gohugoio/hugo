@@ -38,7 +38,7 @@ To determine the logical path for pages backed by a file, Hugo starts with the f
 1. Strips the file extension
 2. Strips the language identifier
 3. Converts the result to lower case
-4. Replaces all spaces with hyphens
+4. Replaces spaces with hyphens
 
 The value returned by the `Path` method on a `Page` object is independent of content format, language, and URL modifiers such as the `slug` and `url` front matter fields.
 

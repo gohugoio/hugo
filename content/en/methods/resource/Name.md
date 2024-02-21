@@ -1,6 +1,6 @@
 ---
 title: Name
-description: Returns the name of the given resource as optionally defined in front matter, falling back to a relative path or hashed file name depending on resource type.
+description: Returns the name of the given resource as optionally defined in front matter, falling back to its path.
 categories: []
 keywords: []
 action:
@@ -25,13 +25,31 @@ assets/
 
 ```go-html-template
 {{ with resources.Get "images/a.jpg" }}
-  {{ .Name }} → images/a.jpg
+  {{ .Name }} → /images/a.jpg
 {{ end }}
 ```
 
 ## Page resource
 
-With a [page resource], the `Name` method returns the path to the resource, relative to the page bundle.
+With a [page resource], if you create an element in the `resources` array in front matter, the `Name` method returns the value of the `name` parameter:
+
+{{< code-toggle file=content/posts/post-1.md fm=true >}}
+title = 'Post 1'
+[[resources]]
+src = 'images/a.jpg'
+name = 'cat'
+title = 'Felix the cat'
+[resources.params]
+temperament = 'malicious'
+{{< /code-toggle >}}
+
+```go-html-template
+{{ with .Resources.Get "cat" }}
+  {{ .Name }} →  cat
+{{ end }}
+```
+
+If you do not create an element in the `resources` array in front matter, the `Name` method returns the [logical path] to the resource, relative to the page bundle.
 
 ```text
 content/
@@ -49,34 +67,17 @@ content/
   {{ .Name }} → images/a.jpg
 {{ end }}
 ```
-
-If you create an element in the `resources` array in front matter, the `Name` method returns the value of the `name` parameter:
-
-{{< code-toggle file=content/posts/post-1.md fm=true >}}
-title = 'Post 1'
-[[resources]]
-src = 'images/a.jpg'
-name = 'cat'
-title = 'Felix the cat'
-[resources.params]
-temperament = 'malicious'
-{{< /code-toggle >}}
-
-```go-html-template
-{{ with .Resources.Get "cat" }}
-  {{ .Name }} →  cat
-{{ end }}
-```
 ## Remote resource
 
 With a [remote resource], the `Name` method returns a hashed file name.
 
 ```go-html-template
 {{ with resources.GetRemote "https://example.org/images/a.jpg" }}
-  {{ .Name }} → a_18432433023265451104.jpg
+  {{ .Name }} → /a_18432433023265451104.jpg
 {{ end }}
 ```
 
 [global resource]: /getting-started/glossary/#global-resource
+[logical path]: /getting-started/glossary/#logical-path
 [page resource]: /getting-started/glossary/#page-resource
 [remote resource]: /getting-started/glossary/#remote-resource
