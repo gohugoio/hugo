@@ -135,6 +135,20 @@ func TestToBuildOptions(t *testing.T) {
 			Loader: api.LoaderJS,
 		},
 	})
+
+	opts, err = toBuildOptions(Options{mediaType: media.Builtin.JavascriptType,
+		JSX: "automatic", JSXImportSource: "preact"})
+	c.Assert(err, qt.IsNil)
+	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
+		Bundle: true,
+		Target: api.ESNext,
+		Format: api.FormatIIFE,
+		Stdin: &api.StdinOptions{
+			Loader: api.LoaderJS,
+		},
+		JSX:             api.JSXAutomatic,
+		JSXImportSource: "preact",
+	})
 }
 
 func TestResolveComponentInAssets(t *testing.T) {
