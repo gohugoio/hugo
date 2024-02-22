@@ -325,7 +325,7 @@ func (c *Client) Get(args ...string) error {
 				return coll.err
 			}
 			for _, m := range mc.AllModules {
-				if m.Owner() == nil {
+				if m.Owner() == nil || !isProbablyModule(m.Path()) {
 					continue
 				}
 				modules = append(modules, m.Path())
