@@ -86,6 +86,14 @@ type Options struct {
 	// What to use instead of React.Fragment.
 	JSXFragment string
 
+	// What to do about JSX syntax.
+	// See https://esbuild.github.io/api/#jsx
+	JSX string
+
+	// Which library to use to automatically import JSX helper functions from. Only works if JSX is set to automatic.
+	// See https://esbuild.github.io/api/#jsx-import-source
+	JSXImportSource string
+
 	// There is/was a bug in WebKit with severe performance issue with the tracking
 	// of TDZ checks in JavaScriptCore.
 	//
@@ -375,6 +383,19 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 		return
 	}
 
+	var jsx api.JSX
+	switch opts.JSX {
+	case "", "transform":
+		jsx = api.JSXTransform
+	case "preserve":
+		jsx = api.JSXPreserve
+	case "automatic":
+		jsx = api.JSXAutomatic
+	default:
+		err = fmt.Errorf("unsupported jsx type: %q", opts.JSX)
+		return
+	}
+
 	var defines map[string]string
 	if opts.Defines != nil {
 		defines = maps.ToStringMapString(opts.Defines)
@@ -415,6 +436,9 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 
 		JSXFactory:  opts.JSXFactory,
 		JSXFragment: opts.JSXFragment,
+
+		JSX:             jsx,
+		JSXImportSource: opts.JSXImportSource,
 
 		Tsconfig: opts.tsConfig,
 
