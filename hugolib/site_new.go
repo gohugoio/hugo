@@ -165,14 +165,7 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 		treeTaxonomyEntries: doctree.NewTreeShiftTree[*weightedContentNode](doctree.DimensionLanguage.Index(), len(confm.Languages)),
 	}
 
-	pageTrees.treePagesResources = doctree.WalkableTrees[contentNodeI]{
-		pageTrees.treePages,
-		pageTrees.treeResources,
-	}
-
-	pageTrees.resourceTrees = doctree.MutableTrees{
-		pageTrees.treeResources,
-	}
+	pageTrees.createMutableTrees()
 
 	for i, confp := range confm.ConfigLangs() {
 		language := confp.Language()

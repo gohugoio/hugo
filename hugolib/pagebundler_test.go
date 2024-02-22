@@ -893,3 +893,29 @@ Match: {{ range .Resources.Match "f1.en.*" }}{{ .Name }}: {{ .Content }}|{{ end 
 
 	b.AssertFileContent("public/mybundle/index.html", "GetMatch: f1.txt: F1.|", "Match: f1.txt: F1.|")
 }
+
+func TestBundleResourcesWhenLanguageVariantIsDraft(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+defaultContentLanguage = "en"
+[languages]
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+-- content/mybundle/index.en.md --
+-- content/mybundle/index.nn.md --
+---
+draft: true
+---
+-- content/mybundle/f1.en.txt --
+F1.
+-- layouts/_default/single.html --
+GetMatch: {{ with .Resources.GetMatch "f1.*" }}{{ .Name }}: {{ .Content }}|{{ end }}$
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/mybundle/index.html", "GetMatch: f1.txt: F1.|")
+}
