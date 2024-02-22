@@ -538,6 +538,9 @@ type RootConfig struct {
 	// Note that this currently only works for English, but you can provide your own title in the content file's front matter.
 	PluralizeListTitles bool
 
+	// Whether to capitalize automatic page titles, applicable to section, taxonomy, and term pages.
+	CapitalizeListTitles bool
+
 	// Make all relative URLs absolute using the baseURL.
 	// <docsmeta>{"identifiers": ["baseURL"] }</docsmeta>
 	CanonifyURLs bool

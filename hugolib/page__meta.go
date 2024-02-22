@@ -446,7 +446,7 @@ title: "My Title"
 params:
   build: "My Build"
 ---
-´   
+´
 
 `
 		}
@@ -746,15 +746,26 @@ func (p *pageMeta) applyDefaultValues() error {
 			if p.s.conf.PluralizeListTitles {
 				sectionName = flect.Pluralize(sectionName)
 			}
-			p.pageConfig.Title = p.s.conf.C.CreateTitle(sectionName)
+			if p.s.conf.CapitalizeListTitles {
+				sectionName = p.s.conf.C.CreateTitle(sectionName)
+			}
+			p.pageConfig.Title = sectionName
 		case kinds.KindTerm:
 			if p.term != "" {
-				p.pageConfig.Title = p.s.conf.C.CreateTitle(p.term)
+				if p.s.conf.CapitalizeListTitles {
+					p.pageConfig.Title = p.s.conf.C.CreateTitle(p.term)
+				} else {
+					p.pageConfig.Title = p.term
+				}
 			} else {
 				panic("term not set")
 			}
 		case kinds.KindTaxonomy:
-			p.pageConfig.Title = strings.Replace(p.s.conf.C.CreateTitle(p.pathInfo.Unnormalized().BaseNameNoIdentifier()), "-", " ", -1)
+			if p.s.conf.CapitalizeListTitles {
+				p.pageConfig.Title = strings.Replace(p.s.conf.C.CreateTitle(p.pathInfo.Unnormalized().BaseNameNoIdentifier()), "-", " ", -1)
+			} else {
+				p.pageConfig.Title = strings.Replace(p.pathInfo.Unnormalized().BaseNameNoIdentifier(), "-", " ", -1)
+			}
 		case kinds.KindStatus404:
 			p.pageConfig.Title = "404 Page not found"
 		}
