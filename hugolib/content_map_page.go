@@ -221,8 +221,20 @@ func (t pageTrees) Shape(d, v int) *pageTrees {
 	t.treePages = t.treePages.Shape(d, v)
 	t.treeResources = t.treeResources.Shape(d, v)
 	t.treeTaxonomyEntries = t.treeTaxonomyEntries.Shape(d, v)
+	t.createMutableTrees()
 
 	return &t
+}
+
+func (t *pageTrees) createMutableTrees() {
+	t.treePagesResources = doctree.WalkableTrees[contentNodeI]{
+		t.treePages,
+		t.treeResources,
+	}
+
+	t.resourceTrees = doctree.MutableTrees{
+		t.treeResources,
+	}
 }
 
 var (
@@ -676,9 +688,15 @@ func (s *contentNodeShifter) Delete(n contentNodeI, dimension doctree.Dimension)
 		}
 		return wasDeleted, isEmpty
 	case *resourceSource:
+		if lidx > 0 {
+			return false, false
+		}
 		resource.MarkStale(v)
 		return true, true
 	case *pageState:
+		if lidx > 0 {
+			return false, false
+		}
 		resource.MarkStale(v)
 		return true, true
 	default:
@@ -1694,6 +1712,9 @@ func (sa *sitePagesAssembler) removeShouldNotBuild() error {
 		return err
 	}
 
+	if len(keys) == 0 {
+		return nil
+	}
 	sa.pageMap.DeletePageAndResourcesBelow(keys...)
 
 	return nil
