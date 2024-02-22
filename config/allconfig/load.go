@@ -189,6 +189,7 @@ func (l configLoader) applyDefaultConfig() error {
 		"menus":                                maps.Params{},
 		"disableLiveReload":                    false,
 		"pluralizeListTitles":                  true,
+		"CapitalizeListTitles":                 true,
 		"forceSyncStatic":                      false,
 		"footnoteAnchorPrefix":                 "",
 		"footnoteReturnLinkContents":           "",
