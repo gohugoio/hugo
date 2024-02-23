@@ -295,6 +295,8 @@ func (c *Cache) start() func() {
 			select {
 			case <-ticker.C:
 				c.adjustCurrentMaxSize()
+				// Reset the ticker to avoid drift.
+				ticker.Reset(c.opts.CheckInterval)
 			case <-quit:
 				ticker.Stop()
 				return
