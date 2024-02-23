@@ -232,6 +232,14 @@ See [Configure Build](#configure-build).
 
 See [Configure File Caches](#configure-file-caches).
 
+###### capitalizeListTitles
+
+{{< new-in 0.123.3 >}}
+
+(`bool`) Whether to capitalize automatic list titles. Applicable to section, taxonomy, and term pages. Default is `true`. You can change the capitalization style in your site configuration to one of `ap`, `chicago`, `go`, `firstupper`, or `none`. See [details].
+
+[details]: /getting-started/configuration/#configure-title-case
+
 ###### cascade
 
 Pass down down default configuration values (front matter) to pages in the content tree. The options in site config is the same as in page front matter, see [Front Matter Cascade](/content-management/front-matter#cascade).
@@ -385,7 +393,7 @@ See [Content Management](/content-management/urls/#permalinks).
 
 ###### pluralizeListTitles
 
-(`bool`) Pluralize titles in lists. Default is `true`.
+(`bool`) Whether to pluralize automatic list titles. Applicable to section pages. Default is `true`.
 
 ###### publishDir
 

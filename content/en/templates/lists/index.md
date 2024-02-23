@@ -152,7 +152,13 @@ Using this same `layouts/_default/list.html` template and applying it to the `qu
 {{< /code >}}
 
 {{% note %}}
-The default behavior of Hugo is to pluralize list titles; hence the inflection of the `quote` section to "Quotes" when called with the `.Title` [page variable](/methods/page/). You can change this via the `pluralizeListTitles` directive in your [site configuration](/getting-started/configuration/).
+By default, Hugo capitalizes and pluralizes automatic list titles including section, taxonomy, and term pages. You can disable these transformations by setting [`capitalizeListTitles`] and [`pluralizeListTitles`] in your site configuration.
+
+You can change the capitalization style in your site configuration to one of `ap`, `chicago`, `go`, `firstupper`, or `none`. See [details].
+
+[`capitalizeListTitles`]: /getting-started/configuration/#capitalizelisttitles
+[`pluralizeListTitles`]: /getting-started/configuration/#pluralizelisttitles
+[details]: /getting-started/configuration/#configure-title-case
 {{% /note %}}
 
 ## Example list templates
