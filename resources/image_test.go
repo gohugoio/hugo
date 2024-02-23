@@ -30,6 +30,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/resources/images/webp"
 
 	"github.com/gohugoio/hugo/common/paths"
@@ -545,6 +546,9 @@ func goldenEqual(img1, img2 *image.NRGBA) bool {
 
 // Issue #8729
 func TestImageOperationsGoldenWebp(t *testing.T) {
+	if !htesting.IsCI() {
+		t.Skip("skip long running test in local mode")
+	}
 	if !webp.Supports() {
 		t.Skip("skip webp test")
 	}
@@ -584,6 +588,9 @@ func TestImageOperationsGoldenWebp(t *testing.T) {
 }
 
 func TestImageOperationsGolden(t *testing.T) {
+	if !htesting.IsCI() {
+		t.Skip("skip long running test in local mode")
+	}
 	c := qt.New(t)
 	c.Parallel()
 
