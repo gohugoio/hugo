@@ -166,19 +166,14 @@ func (c *pageFinder) getContentNodeForRef(context page.Page, isReflink, hadExten
 		// Given the above, for regular pages we use the containing folder.
 		var baseDir string
 		if pi := context.PathInfo(); pi != nil {
-			if pi.IsBranchBundle() || (hadExtension) {
+			if pi.IsBranchBundle() || (hadExtension && strings.HasPrefix(ref, "../")) {
 				baseDir = pi.Dir()
 			} else {
 				baseDir = pi.ContainerDir()
 			}
 		}
 
-		rel := path.Join(baseDir, inRef)
-
-		if !hadExtension && !paths.HasExt(rel) {
-			// See comment above.
-			rel += defaultContentExt
-		}
+		rel := path.Join(baseDir, ref)
 
 		relPath := contentPathParser.Parse(files.ComponentFolderContent, rel)
 
