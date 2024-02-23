@@ -386,6 +386,33 @@ Home. {{ with .Page.GetPage "p1.xyz" }}{{ else }}OK 1{{ end }} {{ with .Site.Get
 	b.AssertFileContent("public/index.html", "Home. OK 1 OK 2")
 }
 
+func TestGetPageIssue12120(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+-- content/s1/p1/index.md --
+---
+title: p1
+layout: p1
+---
+-- content/s1/p2.md --
+---
+title: p2
+layout: p2
+---
+-- layouts/_default/p1.html --
+{{ (.GetPage "p2.md").Title }}|
+-- layouts/_default/p2.html --
+{{ (.GetPage "p1").Title }}|
+`
+
+	b := Test(t, files)
+	b.AssertFileContent("public/s1/p1/index.html", "p2") // failing test
+	b.AssertFileContent("public/s1/p2/index.html", "p1")
+}
+
 func TestGetPageBundleToRegular(t *testing.T) {
 	files := `
 -- hugo.toml --
