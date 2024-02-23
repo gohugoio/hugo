@@ -54,15 +54,27 @@ func NormalizePathStringBasic(s string) string {
 
 // ParseIdentity parses component c with path s into a StringIdentity.
 func (pp *PathParser) ParseIdentity(c, s string) identity.StringIdentity {
+	p := pp.parsePooled(c, s)
+	defer putPath(p)
+	return identity.StringIdentity(p.IdentifierBase())
+}
+
+// ParseBaseAndBaseNameNoIdentifier parses component c with path s into a base and a base name without any identifier.
+func (pp *PathParser) ParseBaseAndBaseNameNoIdentifier(c, s string) (string, string) {
+	p := pp.parsePooled(c, s)
+	defer putPath(p)
+	return p.Base(), p.BaseNameNoIdentifier()
+}
+
+func (pp *PathParser) parsePooled(c, s string) *Path {
 	s = NormalizePathStringBasic(s)
 	p := getPath()
 	p.component = c
-	defer putPath(p)
 	p, err := pp.doParse(c, s, p)
 	if err != nil {
 		panic(err)
 	}
-	return identity.StringIdentity(p.IdentifierBase())
+	return p
 }
 
 // Parse parses component c with path s into Path using Hugo's content path rules.
@@ -259,7 +271,9 @@ type Path struct {
 
 var pathPool = &sync.Pool{
 	New: func() any {
-		return &Path{}
+		p := &Path{}
+		p.reset()
+		return p
 	},
 }
 
@@ -268,6 +282,11 @@ func getPath() *Path {
 }
 
 func putPath(p *Path) {
+	p.reset()
+	pathPool.Put(p)
+}
+
+func (p *Path) reset() {
 	p.s = ""
 	p.posContainerLow = -1
 	p.posContainerHigh = -1
@@ -279,7 +298,6 @@ func putPath(p *Path) {
 	p.disabled = false
 	p.trimLeadingSlash = false
 	p.unnormalized = nil
-	pathPool.Put(p)
 }
 
 // TrimLeadingSlash returns a copy of the Path with the leading slash removed.
