@@ -119,7 +119,8 @@ func (o OptionsPartition) CalculateMaxSize(maxSizePerPartition int) int {
 
 // A dynamic partitioned cache.
 type Cache struct {
-	mu sync.RWMutex
+	mu       sync.RWMutex
+	resizeMu sync.Mutex
 
 	partitions map[string]PartitionManager
 
@@ -231,6 +232,12 @@ func (c *Cache) Stop() {
 }
 
 func (c *Cache) adjustCurrentMaxSize() {
+	if !c.resizeMu.TryLock() {
+		// Prevent multiple concurrent resizes.
+		return
+	}
+	defer c.resizeMu.Unlock()
+
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
