@@ -338,12 +338,17 @@ func (c ComponentPath) ComponentPathJoined() string {
 
 type ReverseLookupProvder interface {
 	ReverseLookup(filename string, checkExists bool) ([]ComponentPath, error)
+	ReverseLookupComponent(component, filename string, checkExists bool) ([]ComponentPath, error)
 }
 
 // func (fs *RootMappingFs) ReverseStat(filename string) ([]FileMetaInfo, error)
-func (fs *RootMappingFs) ReverseLookup(in string, checkExists bool) ([]ComponentPath, error) {
-	in = fs.cleanName(in)
-	key := filepathSeparator + in
+func (fs *RootMappingFs) ReverseLookup(filename string, checkExists bool) ([]ComponentPath, error) {
+	return fs.ReverseLookupComponent("", filename, checkExists)
+}
+
+func (fs *RootMappingFs) ReverseLookupComponent(component, filename string, checkExists bool) ([]ComponentPath, error) {
+	filename = fs.cleanName(filename)
+	key := filepathSeparator + filename
 
 	s, roots := fs.getRootsReverse(key)
 
@@ -357,6 +362,9 @@ func (fs *RootMappingFs) ReverseLookup(in string, checkExists bool) ([]Component
 	dir, name := filepath.Split(base)
 
 	for _, first := range roots {
+		if component != "" && first.FromBase != component {
+			continue
+		}
 		if first.Meta.Rename != nil {
 			name = first.Meta.Rename(name, true)
 		}

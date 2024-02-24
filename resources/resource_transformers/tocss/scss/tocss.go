@@ -86,7 +86,7 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		if prev == "stdin" {
 			prevDir = baseDir
 		} else {
-			prevDir, _ = t.c.sfs.MakePathRelative(filepath.Dir(prev), false)
+			prevDir, _ = t.c.sfs.MakePathRelative(filepath.Dir(prev), true)
 
 			if prevDir == "" {
 				// Not a member of this filesystem. Let LibSASS handle it.

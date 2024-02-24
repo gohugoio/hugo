@@ -362,7 +362,7 @@ func (d *SourceFilesystem) ReverseLookup(filename string, checkExists bool) ([]h
 	var cps []hugofs.ComponentPath
 	hugofs.WalkFilesystems(d.Fs, func(fs afero.Fs) bool {
 		if rfs, ok := fs.(hugofs.ReverseLookupProvder); ok {
-			if c, err := rfs.ReverseLookup(filename, checkExists); err == nil {
+			if c, err := rfs.ReverseLookupComponent(d.Name, filename, checkExists); err == nil {
 				cps = append(cps, c...)
 			}
 		}
