@@ -441,6 +441,9 @@ func (m *pageMap) getTermsForPageInTaxonomy(path, taxonomy string) page.Pages {
 			doctree.LockTypeNone,
 			paths.AddTrailingSlash(prefix),
 			func(s string, n *weightedContentNode) (bool, error) {
+				if !n.term.m.shouldList(false) {
+					return false, nil
+				}
 				if strings.HasSuffix(s, path) {
 					pas = append(pas, n.term)
 				}
@@ -1932,7 +1935,7 @@ func (m *pageMap) CreateSiteTaxonomies(ctx context.Context) error {
 
 				switch p.Kind() {
 				case kinds.KindTerm:
-					if !p.m.shouldList(true) {
+					if !(p.m.linkOnly() || p.m.shouldList(true)) {
 						return false, nil
 					}
 					taxonomy := m.s.taxonomies[viewName.plural]

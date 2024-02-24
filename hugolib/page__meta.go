@@ -718,6 +718,10 @@ func (p *pageMeta) noLink() bool {
 	return p.pageConfig.Build.Render == pagemeta.Never
 }
 
+func (p *pageMeta) linkOnly() bool {
+	return p.pageConfig.Build.Render == pagemeta.Link
+}
+
 func (p *pageMeta) applyDefaultValues() error {
 	if p.pageConfig.Build.IsZero() {
 		p.pageConfig.Build, _ = pagemeta.DecodeBuildConfig(nil)

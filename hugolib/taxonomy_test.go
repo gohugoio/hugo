@@ -970,3 +970,34 @@ title: p1
 	b.AssertFileExists("public/ja/s1/index.html", false) // failing test
 	b.AssertFileExists("public/ja/s1/category/index.html", true)
 }
+
+func TestTermBuildRenderLinkListNever(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- layouts/index.html --
+Tags: {{ len site.Taxonomies.tags }}|
+a: {{with site.GetPage "tags/a" }}{{ .Title }}:{{ .RelPermalink }}{{ end }}|
+{{ $p1 := site.GetPage "p1" }}
+p1.GetTerms.tags: {{ range $p1.GetTerms "tags" }}{{ .Title }}|{{ end }}$
+tags.Pages: {{ with site.GetPage "tags"}}{{ range .Pages }}{{ .Title }}{{end }}{{ end }}$
+-- content/p1.md --
+---
+title: p1
+tags: [a]
+---
+-- content/tags/a/_index.md --
+---
+title: A
+build:
+  render: link
+  list: never
+---
+
+  `
+
+	b := Test(t, files)
+
+	b.AssertFileExists("public/tags/a/index.html", false)
+	b.AssertFileContent("public/index.html", "Tags: 1|\na: A:/tags/a/|\n\np1.GetTerms.tags: $\ntags.Pages: $")
+}
