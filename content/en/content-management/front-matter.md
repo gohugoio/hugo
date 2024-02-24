@@ -293,7 +293,7 @@ genre = 'genres'
 
 Add taxonomy terms as shown below:
 
-{{< code file=content/example.md >}}
+{{< code-toggle file=content/example.md fm=true >}}
 title = 'Example'
 date = 2024-02-02T04:14:54-08:00
 draft = false
@@ -302,9 +302,30 @@ tags = ['red','blue']
 genres = ['mystery','romance']
 [params]
 author = 'John Smith'
-{{< /code >}}
+{{< /code-toggle >}}
 
-Access taxonomy terms from a template using the [`Params`] or [`GetTerms`] method on a `Page` object:
+You can add taxonomy terms to the front matter of any these [page kinds]: 
+
+- `home`
+- `page`
+- `section`
+- `taxonomy`
+- `term`
+
+[page kinds]: /getting-started/glossary/#page-kind
+
+Access taxonomy terms from a template using the [`Params`] or [`GetTerms`] method on a `Page` object. For example:
+
+{{< code file=layouts/_default/single.html >}}
+{{ with .GetTerms "tags" }}
+  <p>Tags</p>
+  <ul>
+    {{ range . }}
+      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+    {{ end }}
+  </ul>
+{{ end }}
+{{< /code >}}
 
 [`Params`]: /methods/page/params/
 [`GetTerms`]: /methods/page/getterms/
