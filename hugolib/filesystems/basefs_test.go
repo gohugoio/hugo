@@ -478,6 +478,36 @@ Home.
 	_ = stat("blog/b1.md")
 }
 
+func TestReverseLookupShouldOnlyConsiderFilesInCurrentComponent(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com/"
+[module]
+[[module.mounts]]
+source = "files/layouts"
+target = "layouts"
+[[module.mounts]]
+source = "files/layouts/assets"
+target = "assets"
+-- files/layouts/l1.txt --
+l1
+-- files/layouts/assets/l2.txt --
+l2
+`
+	b := hugolib.Test(t, files)
+
+	assetsFs := b.H.Assets
+
+	for _, checkExists := range []bool{false, true} {
+		cps, err := assetsFs.ReverseLookup(filepath.FromSlash("files/layouts/assets/l2.txt"), checkExists)
+		b.Assert(err, qt.IsNil)
+		b.Assert(cps, qt.HasLen, 1)
+		cps, err = assetsFs.ReverseLookup(filepath.FromSlash("files/layouts/l2.txt"), checkExists)
+		b.Assert(err, qt.IsNil)
+		b.Assert(cps, qt.HasLen, 0)
+	}
+}
+
 func TestStaticComposite(t *testing.T) {
 	files := `
 -- hugo.toml --

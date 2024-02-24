@@ -144,7 +144,7 @@ func (t importResolver) CanonicalizeURL(url string) (string, error) {
 	var pathDir string
 	if isURL {
 		var found bool
-		prevDir, found = t.c.sfs.MakePathRelative(filepath.Dir(filePath), false)
+		prevDir, found = t.c.sfs.MakePathRelative(filepath.Dir(filePath), true)
 
 		if !found {
 			// Not a member of this filesystem, let Dart Sass handle it.
