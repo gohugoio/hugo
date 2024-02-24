@@ -166,6 +166,8 @@ type ResourcesLanguageMerger interface {
 
 // Identifier identifies a resource.
 type Identifier interface {
+	// Key is is mostly for internal use and should be considered opaque.
+	// This value may change between Hugo versions.
 	Key() string
 }
 
