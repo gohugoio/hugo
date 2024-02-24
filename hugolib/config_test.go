@@ -1539,3 +1539,22 @@ List.
 	b.AssertLogContains("WARN  DEPRECATED: Kind \"taxonomyterm\" used in disableKinds is deprecated, use \"taxonomy\" instead.\n")
 	b.AssertLogContains("WARN  DEPRECATED: Kind \"taxonomyterm\" used in outputs configuration is deprecated, use \"taxonomy\" instead.\n")
 }
+
+func TestDisableKindsIssue12144(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ["page"]
+defaultContentLanguage = "pt-br"
+-- layouts/index.html --
+Home.
+-- content/custom/index.pt-br.md --
+---
+title: "P1 pt"
+---
+-- content/custom/index.en-us.md --
+---
+title: "P1 us"
+---
+`
+	Test(t, files)
+}

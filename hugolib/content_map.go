@@ -193,6 +193,10 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo) error {
 			if err != nil {
 				return err
 			}
+			if pageResource == nil {
+				// Disabled page.
+				return nil
+			}
 			key = pi.Base()
 
 			rs = &resourceSource{r: pageResource}
