@@ -1,6 +1,7 @@
 ---
 title: Key
 description: Returns the unique key for the given resource, equivalent to its publishing path.
+draft: true
 categories: []
 keywords: []
 action:
