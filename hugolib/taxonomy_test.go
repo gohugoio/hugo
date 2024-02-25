@@ -885,3 +885,29 @@ build:
 	b.AssertFileExists("public/tags/a/index.html", false)
 	b.AssertFileContent("public/index.html", "|0|")
 }
+
+func TestTaxonomiesTermLookup(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+[taxonomies]
+tag = "tags"
+-- content/_index.md --
+---
+title: "Home"
+tags: ["a", "b"]
+---
+-- layouts/taxonomy/tag.html --
+Tag: {{ .Title }}|
+-- content/tags/a/_index.md --
+---
+title: tag-a-title-override
+---
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/tags/a/index.html", "Tag: tag-a-title-override|")
+}

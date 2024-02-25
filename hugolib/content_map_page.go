@@ -1552,8 +1552,10 @@ func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
 						}
 						pages.InsertIntoValuesDimension(pi.Base(), n)
 						term = pages.Get(pi.Base())
-					} else if term.(*pageState).m.term != v {
-						term.(*pageState).m.term = v
+					} else {
+						m := term.(*pageState).m
+						m.term = v
+						m.singular = viewName.singular
 					}
 
 					if s == "" {
