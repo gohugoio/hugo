@@ -871,7 +871,7 @@ RegularPages: {{ range .RegularPages }}{{ .RelPermalink }}|File LogicalName: {{ 
 	b := Test(t, files)
 
 	// Note that the sort order gives us the most specific data file for the en language (the data.en.json).
-	b.AssertFileContent("public/mysection/mybundle/index.html", `Single:|/mysection/mybundle|File LogicalName: index.md||/mysection/mybundle/|page|Resources: data.json: Data JSON.|foo/p1.html: |p1.html: |p1.md: |data.txt: Data en txt.|$`)
+	b.AssertFileContent("public/mysection/mybundle/index.html", `Single:|/mysection/mybundle|File LogicalName: index.md||/mysection/mybundle/|page|Resources: data.en.txt: Data en txt.|data.json: Data JSON.|foo/p1.html: |p1.html: |p1.md: |$`)
 	b.AssertFileContent("public/mysection/index.html",
 		"List: |/mysection|File LogicalName: _index.md|/mysection/|section|Resources: sectiondata.json: Secion data JSON.|sectiondata.txt: Section data TXT.|$",
 		"RegularPages: /mysection/foo/p2/|File LogicalName: p2.md|/mysection/mybundle/|File LogicalName: index.md|/mysection/p2/|File LogicalName: p2.md|$")
@@ -886,12 +886,12 @@ baseURL = "https://example.com"
 F1.
 -- layouts/_default/single.html --
 GetMatch: {{ with .Resources.GetMatch "f1.en.*" }}{{ .Name }}: {{ .Content }}|{{ end }}
-Match: {{ range .Resources.Match "f1.en.*" }}{{ .Name }}: {{ .Content }}|{{ end }}
+Match: {{ range .Resources.Match "f1.En.*" }}{{ .Name }}: {{ .Content }}|{{ end }}
 `
 
 	b := Test(t, files)
 
-	b.AssertFileContent("public/mybundle/index.html", "GetMatch: f1.txt: F1.|", "Match: f1.txt: F1.|")
+	b.AssertFileContent("public/mybundle/index.html", "GetMatch: f1.en.txt: F1.|", "Match: f1.en.txt: F1.|")
 }
 
 func TestBundleResourcesWhenLanguageVariantIsDraft(t *testing.T) {
@@ -917,5 +917,5 @@ GetMatch: {{ with .Resources.GetMatch "f1.*" }}{{ .Name }}: {{ .Content }}|{{ en
 
 	b := Test(t, files)
 
-	b.AssertFileContent("public/mybundle/index.html", "GetMatch: f1.txt: F1.|")
+	b.AssertFileContent("public/mybundle/index.html", "GetMatch: f1.en.txt: F1.|")
 }

@@ -127,20 +127,16 @@ type ResourceNameTitleProvider interface {
 	// So, for the image "/some/path/sunset.jpg" this will be "sunset.jpg".
 	// The value returned by this method will be used in the GetByPrefix and ByPrefix methods
 	// on Resources.
-	// Note that for bundled content resources with language code in the filename, this will
-	// be the name without the language code.
 	Name() string
 
 	// Title returns the title if set in front matter. For content pages, this will be the expected value.
 	Title() string
 }
 
-type NameOriginalProvider interface {
-	// NameOriginal is the original name of this resource.
-	// Note that for bundled content resources with language code in the filename, this will
-	// be the name with the language code.
+type NameNormalizedProvider interface {
+	// NameNormalized is the normalized name of this resource.
 	// For internal use (for now).
-	NameOriginal() string
+	NameNormalized() string
 }
 
 type ResourceParamsProvider interface {

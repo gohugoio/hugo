@@ -28,10 +28,10 @@ import (
 )
 
 var (
-	_ mediaTypeAssigner             = (*genericResource)(nil)
-	_ mediaTypeAssigner             = (*imageResource)(nil)
-	_ resource.Staler               = (*genericResource)(nil)
-	_ resource.NameOriginalProvider = (*genericResource)(nil)
+	_ mediaTypeAssigner               = (*genericResource)(nil)
+	_ mediaTypeAssigner               = (*imageResource)(nil)
+	_ resource.Staler                 = (*genericResource)(nil)
+	_ resource.NameNormalizedProvider = (*genericResource)(nil)
 )
 
 // metaAssigner allows updating metadata in resources that supports it.

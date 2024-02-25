@@ -170,8 +170,8 @@ func (r *Spec) NewResource(rd ResourceSourceDescriptor) (resource.Resource, erro
 		spec:        r,
 		sd:          rd,
 		params:      make(map[string]any),
-		name:        rd.Name,
-		title:       rd.Name,
+		name:        rd.NameOriginal,
+		title:       rd.NameOriginal,
 	}
 
 	if rd.MediaType.MainType == "image" {

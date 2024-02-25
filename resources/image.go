@@ -48,10 +48,10 @@ import (
 )
 
 var (
-	_ images.ImageResource          = (*imageResource)(nil)
-	_ resource.Source               = (*imageResource)(nil)
-	_ resource.Cloner               = (*imageResource)(nil)
-	_ resource.NameOriginalProvider = (*imageResource)(nil)
+	_ images.ImageResource            = (*imageResource)(nil)
+	_ resource.Source                 = (*imageResource)(nil)
+	_ resource.Cloner                 = (*imageResource)(nil)
+	_ resource.NameNormalizedProvider = (*imageResource)(nil)
 )
 
 // imageResource represents an image resource.
