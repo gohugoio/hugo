@@ -70,19 +70,33 @@ If none of these exists, Hugo uses a built-in default archetype.
 
 You can use any [template function] within an archetype. As shown above, the default archetype uses the [`replace`](/functions/strings/replace) function to replace hyphens with spaces when populating the title in front matter.
 
-Archetypes receive the following objects and values in [context]:
+Archetypes receive the following [context]:
 
-- [`Date`]
-- [`Type`]
-- [`File`]
-- [`Site`]
+Date
+: (`string`) The current date and time, formatted in compliance with RFC3339.
 
-[`Date`]: /methods/page/date/
-[`Type`]: /methods/page/type/
-[`File`]: /methods/page/
-[`Site`]: /methods/site/
+File
+: (`hugolib.fileInfo`) Returns file information for the current page. See [details](/methods/page/file).
 
-As shown above, the default archetype passes `.File.ContentBaseName` as the argument to the `replace` function when populating the title in front matter.
+Type
+: (`string`) The [content type] inferred from the top-level directory name, or as specified by the `--kind` flag passed to the `hugo new content` command.
+
+[content type]: /getting-started/glossary#content-type
+
+Site
+: (`page.Site`) The current site object. See [details](/methods/site/).
+
+## Alternate date format
+
+To insert date and time with an altnerate format, use the [`time.Now`] function:
+
+[`time.Now`]: /functions/time/now/
+
+{{< code-toggle file=archetypes/default.md fm=true >}}
+title = '{{ replace .File.ContentBaseName `-` ` ` | title }}'
+date = '{{ time.Now.Format "2006-01-02" }}'
+draft = true
+{{< /code-toggle >}}
 
 ## Include content
 
