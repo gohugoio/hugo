@@ -117,8 +117,8 @@ func fetchResourceForSpec(spec *resources.Spec, c *qt.C, name string, targetPath
 	targetPath := name
 	base := "/a/"
 	r, err := spec.NewResource(resources.ResourceSourceDescriptor{
-		LazyPublish: true,
-		Name:        name, TargetPath: targetPath, BasePathRelPermalink: base, BasePathTargetPath: base, OpenReadSeekCloser: open,
+		LazyPublish:    true,
+		NameNormalized: name, TargetPath: targetPath, BasePathRelPermalink: base, BasePathTargetPath: base, OpenReadSeekCloser: open,
 		GroupIdentity: identity.Anonymous,
 	})
 	c.Assert(err, qt.IsNil)

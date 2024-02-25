@@ -55,7 +55,7 @@ var (
 	_ resource.WithResourceMetaProvider  = (*resourceAdapter)(nil)
 	_ identity.DependencyManagerProvider = (*resourceAdapter)(nil)
 	_ identity.IdentityGroupProvider     = (*resourceAdapter)(nil)
-	_ resource.NameOriginalProvider      = (*resourceAdapter)(nil)
+	_ resource.NameNormalizedProvider    = (*resourceAdapter)(nil)
 )
 
 // These are transformations that need special support in Hugo that may not
@@ -282,9 +282,9 @@ func (r *resourceAdapter) Name() string {
 	return r.metaProvider.Name()
 }
 
-func (r *resourceAdapter) NameOriginal() string {
+func (r *resourceAdapter) NameNormalized() string {
 	r.init(false, false)
-	return r.target.(resource.NameOriginalProvider).NameOriginal()
+	return r.target.(resource.NameNormalizedProvider).NameNormalized()
 }
 
 func (r *resourceAdapter) Params() maps.Params {

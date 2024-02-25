@@ -59,8 +59,8 @@ type ResourceSourceDescriptor struct {
 	// The canonical source path.
 	Path *paths.Path
 
-	// The name of the resource.
-	Name string
+	// The normalized name of the resource.
+	NameNormalized string
 
 	// The name of the resource as it was read from the source.
 	NameOriginal string
@@ -135,12 +135,12 @@ func (fd *ResourceSourceDescriptor) init(r *Spec) error {
 		fd.TargetBasePaths[i] = dir
 	}
 
-	if fd.Name == "" {
-		fd.Name = fd.TargetPath
+	if fd.NameNormalized == "" {
+		fd.NameNormalized = fd.TargetPath
 	}
 
 	if fd.NameOriginal == "" {
-		fd.NameOriginal = fd.Name
+		fd.NameOriginal = fd.NameNormalized
 	}
 
 	mediaType := fd.MediaType
@@ -228,7 +228,7 @@ type baseResourceResource interface {
 
 type baseResourceInternal interface {
 	resource.Source
-	resource.NameOriginalProvider
+	resource.NameNormalizedProvider
 
 	fileInfo
 	mediaTypeAssigner
@@ -457,8 +457,8 @@ func (l *genericResource) Name() string {
 	return l.name
 }
 
-func (l *genericResource) NameOriginal() string {
-	return l.sd.NameOriginal
+func (l *genericResource) NameNormalized() string {
+	return l.sd.NameNormalized
 }
 
 func (l *genericResource) Params() maps.Params {

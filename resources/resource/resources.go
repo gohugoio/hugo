@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs/glob"
 	"github.com/spf13/cast"
 )
@@ -73,10 +72,10 @@ func (r Resources) Get(name any) Resource {
 		}
 	}
 
-	// Finally, check the original name.
+	// Finally, check the normalized name.
 	for _, resource := range r {
-		if nop, ok := resource.(NameOriginalProvider); ok {
-			if strings.EqualFold(namestr, nop.NameOriginal()) {
+		if nop, ok := resource.(NameNormalizedProvider); ok {
+			if strings.EqualFold(namestr, nop.NameNormalized()) {
 				return resource
 			}
 		}
@@ -93,23 +92,21 @@ func (r Resources) GetMatch(pattern any) Resource {
 		panic(err)
 	}
 
-	patternstr = paths.NormalizePathStringBasic(patternstr)
-
 	g, err := glob.GetGlob(patternstr)
 	if err != nil {
 		panic(err)
 	}
 
 	for _, resource := range r {
-		if g.Match(paths.NormalizePathStringBasic(resource.Name())) {
+		if g.Match(resource.Name()) {
 			return resource
 		}
 	}
 
 	// Finally, check the original name.
 	for _, resource := range r {
-		if nop, ok := resource.(NameOriginalProvider); ok {
-			if g.Match(paths.NormalizePathStringBasic(nop.NameOriginal())) {
+		if nop, ok := resource.(NameNormalizedProvider); ok {
+			if g.Match(nop.NameNormalized()) {
 				return resource
 			}
 		}
@@ -140,15 +137,15 @@ func (r Resources) Match(pattern any) Resources {
 
 	var matches Resources
 	for _, resource := range r {
-		if g.Match(strings.ToLower(resource.Name())) {
+		if g.Match(resource.Name()) {
 			matches = append(matches, resource)
 		}
 	}
 	if len(matches) == 0 {
-		// 	Fall back to the original name.
+		// 	Fall back to the normalized name.
 		for _, resource := range r {
-			if nop, ok := resource.(NameOriginalProvider); ok {
-				if g.Match(strings.ToLower(nop.NameOriginal())) {
+			if nop, ok := resource.(NameNormalizedProvider); ok {
+				if g.Match(nop.NameNormalized()) {
 					matches = append(matches, resource)
 				}
 			}
