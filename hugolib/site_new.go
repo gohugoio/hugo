@@ -127,6 +127,7 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 			SuppressStatements: conf.IgnoredLogs(),
 		}
 		logger = loggers.New(logOpts)
+
 	}
 
 	memCache := dynacache.New(dynacache.Options{Running: conf.Running(), Log: logger})
@@ -145,6 +146,9 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 	}
 
 	confm := cfg.Configs
+	if err := confm.Validate(logger); err != nil {
+		return nil, err
+	}
 	var sites []*Site
 
 	ns := &contentNodeShifter{

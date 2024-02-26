@@ -18,7 +18,6 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/cache/filecache"
-	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/config"
@@ -43,11 +42,10 @@ import (
 )
 
 type decodeConfig struct {
-	p      config.Provider
-	c      *Config
-	fs     afero.Fs
-	logger loggers.Logger
-	bcfg   config.BaseConfig
+	p    config.Provider
+	c    *Config
+	fs   afero.Fs
+	bcfg config.BaseConfig
 }
 
 type decodeWeight struct {
@@ -293,7 +291,7 @@ var allDecoderSetups = map[string]decodeWeight{
 		key: "cascade",
 		decode: func(d decodeWeight, p decodeConfig) error {
 			var err error
-			p.c.Cascade, err = page.DecodeCascadeConfig(p.logger, p.p.Get(d.key))
+			p.c.Cascade, err = page.DecodeCascadeConfig(nil, p.p.Get(d.key))
 			return err
 		},
 	},
