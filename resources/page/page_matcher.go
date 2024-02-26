@@ -98,6 +98,12 @@ func isGlobWithExtension(s string) bool {
 	return strings.Count(last, ".") > 0
 }
 
+func CheckCascadePattern(logger loggers.Logger, m PageMatcher) {
+	if logger != nil && isGlobWithExtension(m.Path) {
+		logger.Erroridf("cascade-pattern-with-extension", "cascade target path %q looks like a path with an extension; since Hugo v0.123.0 this will not match anything, see  https://gohugo.io/methods/page/path/", m.Path)
+	}
+}
+
 func DecodeCascadeConfig(logger loggers.Logger, in any) (*config.ConfigNamespace[[]PageMatcherParamsConfig, map[PageMatcher]maps.Params], error) {
 	buildConfig := func(in any) (map[PageMatcher]maps.Params, any, error) {
 		cascade := make(map[PageMatcher]maps.Params)
@@ -127,9 +133,7 @@ func DecodeCascadeConfig(logger loggers.Logger, in any) (*config.ConfigNamespace
 
 		for _, cfg := range cfgs {
 			m := cfg.Target
-			if isGlobWithExtension(m.Path) {
-				logger.Erroridf("cascade-pattern-with-extension", "cascade target path %q looks like a path with an extension; since Hugo v0.123.0 this will not match anything, see  https://gohugo.io/methods/page/path/", m.Path)
-			}
+			CheckCascadePattern(logger, m)
 			c, found := cascade[m]
 			if found {
 				// Merge

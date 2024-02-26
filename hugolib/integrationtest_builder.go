@@ -169,10 +169,11 @@ type IntegrationTestBuilder struct {
 	renamedFiles []string
 	renamedDirs  []string
 
-	buildCount int
-	GCCount    int
-	counters   *buildCounters
-	logBuff    lockingBuffer
+	buildCount   int
+	GCCount      int
+	counters     *buildCounters
+	logBuff      lockingBuffer
+	lastBuildLog string
 
 	builderInit sync.Once
 }
@@ -192,21 +193,21 @@ func (b *lockingBuffer) Write(p []byte) (n int, err error) {
 func (s *IntegrationTestBuilder) AssertLogContains(els ...string) {
 	s.Helper()
 	for _, el := range els {
-		s.Assert(s.logBuff.String(), qt.Contains, el)
+		s.Assert(s.lastBuildLog, qt.Contains, el)
 	}
 }
 
 func (s *IntegrationTestBuilder) AssertLogNotContains(els ...string) {
 	s.Helper()
 	for _, el := range els {
-		s.Assert(s.logBuff.String(), qt.Not(qt.Contains), el)
+		s.Assert(s.lastBuildLog, qt.Not(qt.Contains), el)
 	}
 }
 
 func (s *IntegrationTestBuilder) AssertLogMatches(expression string) {
 	s.Helper()
 	re := regexp.MustCompile(expression)
-	s.Assert(re.MatchString(s.logBuff.String()), qt.IsTrue, qt.Commentf(s.logBuff.String()))
+	s.Assert(re.MatchString(s.lastBuildLog), qt.IsTrue, qt.Commentf(s.lastBuildLog))
 }
 
 func (s *IntegrationTestBuilder) AssertBuildCountData(count int) {
@@ -341,7 +342,7 @@ func (s *IntegrationTestBuilder) Build() *IntegrationTestBuilder {
 	s.Helper()
 	_, err := s.BuildE()
 	if s.Cfg.Verbose || err != nil {
-		fmt.Println(s.logBuff.String())
+		fmt.Println(s.lastBuildLog)
 		if s.H != nil && err == nil {
 			for _, s := range s.H.Sites {
 				m := s.pageMap
@@ -352,7 +353,7 @@ func (s *IntegrationTestBuilder) Build() *IntegrationTestBuilder {
 			}
 		}
 	} else if s.Cfg.LogLevel <= logg.LevelDebug {
-		fmt.Println(s.logBuff.String())
+		fmt.Println(s.lastBuildLog)
 	}
 	s.Assert(err, qt.IsNil)
 	if s.Cfg.RunGC {
@@ -364,7 +365,7 @@ func (s *IntegrationTestBuilder) Build() *IntegrationTestBuilder {
 }
 
 func (s *IntegrationTestBuilder) LogString() string {
-	return s.logBuff.String()
+	return s.lastBuildLog
 }
 
 func (s *IntegrationTestBuilder) BuildE() (*IntegrationTestBuilder, error) {
@@ -381,6 +382,7 @@ func (s *IntegrationTestBuilder) Init() *IntegrationTestBuilder {
 	if err := s.initBuilder(); err != nil {
 		s.Fatalf("Failed to init builder: %s", err)
 	}
+	s.lastBuildLog = s.logBuff.String()
 	return s
 }
 
@@ -626,10 +628,11 @@ func (s *IntegrationTestBuilder) build(cfg BuildCfg) error {
 	s.Helper()
 	defer func() {
 		s.reset()
+		s.lastBuildLog = s.logBuff.String()
+		s.logBuff.Reset()
 	}()
 
 	changeEvents := s.changeEvents()
-	s.logBuff.Reset()
 	s.counters = &buildCounters{}
 	cfg.testCounters = s.counters
 
@@ -642,10 +645,6 @@ func (s *IntegrationTestBuilder) build(cfg BuildCfg) error {
 	err := s.H.Build(cfg, changeEvents...)
 	if err != nil {
 		return err
-	}
-	logErrorCount := s.H.NumLogErrors()
-	if logErrorCount > 0 {
-		return fmt.Errorf("logged %d error(s): %s", logErrorCount, s.logBuff.String())
 	}
 
 	return nil

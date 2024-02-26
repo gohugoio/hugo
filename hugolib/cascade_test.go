@@ -674,6 +674,8 @@ S1|p1:|p2:p2|
 
 // Issue 11977.
 func TestCascadeExtensionInPath(t *testing.T) {
+	t.Parallel()
+
 	files := `
 -- hugo.toml --
 baseURL = "https://example.org"
@@ -699,4 +701,68 @@ title: "Post 1"
 	b, err := TestE(t, files)
 	b.Assert(err, qt.IsNotNil)
 	b.AssertLogContains(`cascade target path "/posts/post-1.de.md" looks like a path with an extension; since Hugo v0.123.0 this will not match anything, see  https://gohugo.io/methods/page/path/`)
+}
+
+func TestCascadeExtensionInPathIgnore(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+ignoreLogs   = ['cascade-pattern-with-extension']
+[languages]
+[languages.en]
+weight = 1
+[languages.de]
+-- content/_index.de.md --
++++
+[[cascade]]
+[cascade.params]
+foo = 'bar'
+[cascade._target]
+path = '/posts/post-1.de.md'
++++
+-- content/posts/post-1.de.md --
+---
+title: "Post 1"
+---
+-- layouts/_default/single.html --
+{{ .Title }}|{{ .Params.foo }}$
+`
+	b := Test(t, files)
+	b.AssertLogNotContains(`looks like a path with an extension`)
+}
+
+func TestCascadConfigExtensionInPath(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+[[cascade]]
+[cascade.params]
+foo = 'bar'
+[cascade._target]
+path = '/p1.md'
+`
+	b, err := TestE(t, files)
+	b.Assert(err, qt.IsNotNil)
+	b.AssertLogContains(`looks like a path with an extension`)
+}
+
+func TestCascadConfigExtensionInPathIgnore(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+ignoreLogs   = ['cascade-pattern-with-extension']
+[[cascade]]
+[cascade.params]
+foo = 'bar'
+[cascade._target]
+path = '/p1.md'
+`
+	b := Test(t, files)
+	b.AssertLogNotContains(`looks like a path with an extension`)
 }
