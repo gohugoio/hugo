@@ -17,7 +17,7 @@ package hugo
 // This should be the only one.
 var CurrentVersion = Version{
 	Major:      0,
-	Minor:      123,
-	PatchLevel: 4,
-	Suffix:     "",
+	Minor:      124,
+	PatchLevel: 0,
+	Suffix:     "-DEV",
 }
