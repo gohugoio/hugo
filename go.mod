@@ -18,7 +18,7 @@ require (
 	github.com/bep/lazycache v0.4.0
 	github.com/bep/logg v0.4.0
 	github.com/bep/mclib v1.20400.20402
-	github.com/bep/overlayfs v0.9.1
+	github.com/bep/overlayfs v0.9.2
 	github.com/bep/simplecobra v0.4.0
 	github.com/bep/tmc v0.5.1
 	github.com/clbanning/mxj/v2 v2.7.0
