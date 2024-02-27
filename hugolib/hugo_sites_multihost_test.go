@@ -162,6 +162,52 @@ title: "Mybundle fr"
 	b.AssertFileContent("public/fr/section/mybundle/styles.min.css", ".body{color:french}")
 }
 
+func TestResourcePerLanguageIssue12163(t *testing.T) {
+	files := `
+-- hugo.toml --
+defaultContentLanguage = 'de'
+disableKinds = ['rss','sitemap','taxonomy','term']
+
+[languages.de]
+baseURL = 'https://de.example.org/'
+contentDir = 'content/de'
+weight = 1
+
+[languages.en]
+baseURL = 'https://en.example.org/'
+contentDir = 'content/en'
+weight = 2
+-- content/de/mybundle/index.md --
+---
+title: mybundle-de
+---
+-- content/de/mybundle/pixel.png --
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+-- content/en/mybundle/index.md --
+---
+title: mybundle-en
+---
+-- layouts/_default/single.html --
+{{ with .Resources.Get "pixel.png" }}
+  {{ with .Resize "2x2" }}
+    {{ .RelPermalink }}|
+  {{ end }}
+{{ end }}
+`
+
+	b := Test(t, files)
+
+	b.AssertFileExists("public/de/mybundle/index.html", true)
+	b.AssertFileExists("public/en/mybundle/index.html", true)
+
+	b.AssertFileExists("public/de/mybundle/pixel.png", true)
+	b.AssertFileExists("public/en/mybundle/pixel.png", true)
+
+	b.AssertFileExists("public/de/mybundle/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_2x2_resize_box_3.png", true)
+	// failing test below
+	b.AssertFileExists("public/en/mybundle/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_2x2_resize_box_3.png", true)
+}
+
 func TestMultihostResourceOneBaseURLWithSuPath(t *testing.T) {
 	files := `
 -- hugo.toml --

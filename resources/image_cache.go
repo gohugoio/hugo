@@ -39,7 +39,16 @@ func (c *ImageCache) getOrCreate(
 ) (*resourceAdapter, error) {
 	relTarget := parent.relTargetPathFromConfig(conf)
 	relTargetPath := relTarget.TargetPath()
-	memKey := dynacache.CleanKey(relTargetPath)
+	memKey := relTargetPath
+
+	// For multihost sites, we duplicate language versions of the same resource,
+	// so we need to include the language in the key.
+	// Note that we don't need to include the language in the file cache key,
+	// as the hash will take care of any different content.
+	if c.pathSpec.Cfg.IsMultihost() {
+		memKey = c.pathSpec.Lang() + memKey
+	}
+	memKey = dynacache.CleanKey(memKey)
 
 	v, err := c.mcache.GetOrCreate(memKey, func(key string) (*resourceAdapter, error) {
 		var img *imageResource
