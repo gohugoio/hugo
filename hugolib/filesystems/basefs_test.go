@@ -234,6 +234,7 @@ foo
 	b := hugolib.Test(t, files)
 	bfs := b.H.BaseFs
 	watchFilenames := bfs.WatchFilenames()
+	//   []string{"/hugo_stats.json", "/content", "/content2", "/themes/t1/layouts", "/themes/t1/layouts/_default", "/themes/t1/static"}
 	b.Assert(watchFilenames, qt.HasLen, 6)
 }
 
@@ -540,6 +541,30 @@ f3.txt false
 files true
 files/f1.txt false
 files/f2.txt false
+`)
+}
+
+func TestMountIssue12141(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term"]
+[module]
+[[module.mounts]]
+source = "myfiles"
+target = "static"
+[[module.mounts]]
+source = "myfiles/f1.txt"
+target = "static/f2.txt"
+-- myfiles/f1.txt --
+f1
+`
+	b := hugolib.Test(t, files)
+	fs := b.H.BaseFs.StaticFs("")
+
+	b.AssertFs(fs, `
+. true
+f1.txt false
+f2.txt false
 `)
 }
 

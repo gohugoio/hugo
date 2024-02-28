@@ -282,7 +282,7 @@ func (s *IntegrationTestBuilder) AssertPublishDir(matches ...string) {
 func (s *IntegrationTestBuilder) AssertFs(fs afero.Fs, matches ...string) {
 	s.Helper()
 	var buff bytes.Buffer
-	helpers.PrintFs(fs, "", &buff)
+	s.Assert(s.printAndCheckFs(fs, "", &buff), qt.IsNil)
 	printFsLines := strings.Split(buff.String(), "\n")
 	sort.Strings(printFsLines)
 	content := strings.TrimSpace((strings.Join(printFsLines, "\n")))
@@ -303,6 +303,34 @@ func (s *IntegrationTestBuilder) AssertFs(fs afero.Fs, matches ...string) {
 			s.Assert(content, qt.Contains, match, cm)
 		}
 	}
+}
+
+func (s *IntegrationTestBuilder) printAndCheckFs(fs afero.Fs, path string, w io.Writer) error {
+	if fs == nil {
+		return nil
+	}
+
+	return afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return fmt.Errorf("error: path %q: %s", path, err)
+		}
+		path = filepath.ToSlash(path)
+		if path == "" {
+			path = "."
+		}
+		if !info.IsDir() {
+			f, err := fs.Open(path)
+			if err != nil {
+				return fmt.Errorf("error: path %q: %s", path, err)
+			}
+			defer f.Close()
+			// This will panic if the file is a directory.
+			var buf [1]byte
+			io.ReadFull(f, buf[:])
+		}
+		fmt.Fprintln(w, path, info.IsDir())
+		return nil
+	})
 }
 
 func (s *IntegrationTestBuilder) AssertFileExists(filename string, b bool) {
