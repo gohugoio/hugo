@@ -78,7 +78,7 @@ With a [remote resource], the `Title` method returns a hashed file name.
 
 ```go-html-template
 {{ with resources.GetRemote "https://example.org/images/a.jpg" }}
-  {{ .Title }} → a_18432433023265451104.jpg
+  {{ .Title }} → /a_18432433023265451104.jpg
 {{ end }}
 ```
 
