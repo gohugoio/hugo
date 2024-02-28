@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -80,42 +80,36 @@ func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 		if !fi.IsDir() {
 			// We do allow single file mounts.
 			// However, the file system logic will be much simpler with just directories.
-			// So, convert this mount into a directory mount with a nameTo filter and renamer.
+			// So, convert this mount into a directory mount with a renamer,
+			// which will tell the caller if name should be included.
 			dirFrom, nameFrom := filepath.Split(rm.From)
 			dirTo, nameTo := filepath.Split(rm.To)
 			dirFrom, dirTo = strings.TrimSuffix(dirFrom, filepathSeparator), strings.TrimSuffix(dirTo, filepathSeparator)
 			rm.From = dirFrom
-
-			fi, err = fs.Stat(rm.To)
-			if err != nil {
-				if herrors.IsNotExist(err) {
-					continue
-				}
-				return nil, err
-			}
-
-			rm.fiSingleFile = NewFileMetaInfo(fi, rm.Meta.Copy())
+			singleFileMeta := rm.Meta.Copy()
+			singleFileMeta.Name = nameFrom
+			rm.fiSingleFile = NewFileMetaInfo(fi, singleFileMeta)
 			rm.To = dirTo
 
-			rm.Meta.Rename = func(name string, toFrom bool) string {
+			rm.Meta.Rename = func(name string, toFrom bool) (string, bool) {
 				if toFrom {
 					if name == nameTo {
-						return nameFrom
+						return nameFrom, true
 					}
-					return name
+					return "", false
 				}
 
 				if name == nameFrom {
-					return nameTo
+					return nameTo, true
 				}
 
-				return name
+				return "", false
 			}
 			nameToFilename := filepathSeparator + nameTo
 
 			rm.Meta.InclusionFilter = rm.Meta.InclusionFilter.Append(glob.NewFilenameFilterForInclusionFunc(
 				func(filename string) bool {
-					return strings.HasPrefix(nameToFilename, filename)
+					return nameToFilename == filename
 				},
 			))
 
@@ -252,13 +246,11 @@ func (fs *RootMappingFs) Mounts(base string) ([]FileMetaInfo, error) {
 
 	fss := make([]FileMetaInfo, len(roots))
 	for i, r := range roots {
-
 		if r.fiSingleFile != nil {
 			// A single file mount.
 			fss[i] = r.fiSingleFile
 			continue
 		}
-
 		bfs := NewBasePathFs(fs.Fs, r.To)
 		fs := bfs
 		if r.Meta.InclusionFilter != nil {
@@ -269,11 +261,6 @@ func (fs *RootMappingFs) Mounts(base string) ([]FileMetaInfo, error) {
 		if err != nil {
 			return nil, fmt.Errorf("RootMappingFs.Dirs: %w", err)
 		}
-
-		if !fi.IsDir() {
-			fi.(FileMetaInfo).Meta().Merge(r.Meta)
-		}
-
 		fss[i] = fi.(FileMetaInfo)
 	}
 
@@ -365,18 +352,25 @@ func (fs *RootMappingFs) ReverseLookupComponent(component, filename string, chec
 		if component != "" && first.FromBase != component {
 			continue
 		}
+
+		var filename string
 		if first.Meta.Rename != nil {
-			name = first.Meta.Rename(name, true)
-		}
-
-		// Now we know that this file _could_ be in this fs.
-		filename := filepathSeparator + filepath.Join(first.path, dir, name)
-
-		if checkExists {
-			// Confirm that it exists.
-			_, err := fs.Stat(first.FromBase + filename)
-			if err != nil {
+			// Single file mount.
+			if newname, ok := first.Meta.Rename(name, true); ok {
+				filename = filepathSeparator + filepath.Join(first.path, dir, newname)
+			} else {
 				continue
+			}
+		} else {
+			// Now we know that this file _could_ be in this fs.
+			filename = filepathSeparator + filepath.Join(first.path, dir, name)
+
+			if checkExists {
+				// Confirm that it exists.
+				_, err := fs.Stat(first.FromBase + filename)
+				if err != nil {
+					continue
+				}
 			}
 		}
 
@@ -570,9 +564,11 @@ func (rfs *RootMappingFs) collectDirEntries(prefix string) ([]iofs.DirEntry, err
 				}
 				fi = newDirNameOnlyFileInfo(name, meta, opener)
 			} else if rm.Meta.Rename != nil {
-				if n := rm.Meta.Rename(fi.Name(), true); n != fi.Name() {
-					fi.(MetaProvider).Meta().Name = n
+				n, ok := rm.Meta.Rename(fi.Name(), true)
+				if !ok {
+					continue
 				}
+				fi.(MetaProvider).Meta().Name = n
 			}
 			fis = append(fis, fi)
 		}
@@ -617,25 +613,16 @@ func (rfs *RootMappingFs) collectDirEntries(prefix string) ([]iofs.DirEntry, err
 
 		rms := v.([]RootMapping)
 		for _, rm := range rms {
-			if !rm.fi.IsDir() {
-				// A single file mount
-				fis = append(fis, rm.fi)
-				continue
-			}
 			name := filepath.Base(rm.From)
 			if seen[name] {
 				continue
 			}
 			seen[name] = true
-
 			opener := func() (afero.File, error) {
 				return rfs.Open(rm.From)
 			}
-
 			fi := newDirNameOnlyFileInfo(name, rm.Meta, opener)
-
 			fis = append(fis, fi)
-
 		}
 
 		return false
@@ -701,48 +688,20 @@ func (fs *RootMappingFs) doStat(name string) ([]FileMetaInfo, error) {
 		return nil, err
 	}
 
-	fileCount := 0
-	var wasFiltered bool
-	for _, root := range roots {
-		meta := root.fi.Meta()
-		if !meta.InclusionFilter.Match(strings.TrimPrefix(meta.Filename, meta.SourceRoot), root.fi.IsDir()) {
-			wasFiltered = true
-			continue
-		}
-
-		if !root.fi.IsDir() {
-			fileCount++
-		}
-		if fileCount > 1 {
-			break
-		}
-	}
-
-	if fileCount == 0 {
-		if wasFiltered {
-			return nil, os.ErrNotExist
-		}
-		// Dir only.
-		return []FileMetaInfo{newDirNameOnlyFileInfo(name, roots[0].Meta, fs.virtualDirOpener(name))}, nil
-	}
-
-	if fileCount > 1 {
-		// Not supported by this filesystem.
-		return nil, fmt.Errorf("found multiple files with name %q, use .Readdir or the source filesystem directly", name)
-	}
-
-	return []FileMetaInfo{roots[0].fi}, nil
+	return []FileMetaInfo{newDirNameOnlyFileInfo(name, roots[0].Meta, fs.virtualDirOpener(name))}, nil
 }
 
 func (fs *RootMappingFs) statRoot(root RootMapping, filename string) (FileMetaInfo, error) {
 	dir, name := filepath.Split(filename)
 	if root.Meta.Rename != nil {
-		if n := root.Meta.Rename(name, false); n != name {
-			filename = filepath.Join(dir, n)
+		n, ok := root.Meta.Rename(name, false)
+		if !ok {
+			return nil, os.ErrNotExist
 		}
+		filename = filepath.Join(dir, n)
 	}
 
-	if !root.Meta.InclusionFilter.Match(root.trimFrom(filename), root.fi.IsDir()) {
+	if !root.Meta.InclusionFilter.Match(root.trimFrom(filename), true) {
 		return nil, os.ErrNotExist
 	}
 
@@ -753,24 +712,27 @@ func (fs *RootMappingFs) statRoot(root RootMapping, filename string) (FileMetaIn
 	}
 
 	var opener func() (afero.File, error)
-	if fi.IsDir() {
-		// Make sure metadata gets applied in ReadDir.
-		opener = fs.realDirOpener(filename, root.Meta)
-	} else {
-		if root.Meta.Rename != nil {
-			if n := root.Meta.Rename(fi.Name(), true); n != fi.Name() {
-				meta := fi.(MetaProvider).Meta()
-
-				meta.Name = n
-
-			}
-		}
-
+	if !fi.IsDir() {
+		// Open the file directly.
 		// Opens the real file directly.
 		opener = func() (afero.File, error) {
 			return fs.Fs.Open(filename)
 		}
-
+	} else if root.Meta.Rename != nil {
+		// A single file mount where we have mounted the containing directory.
+		n, ok := root.Meta.Rename(fi.Name(), true)
+		if !ok {
+			return nil, os.ErrNotExist
+		}
+		meta := fi.(MetaProvider).Meta()
+		meta.Name = n
+		// Opens the real file directly.
+		opener = func() (afero.File, error) {
+			return fs.Fs.Open(filename)
+		}
+	} else {
+		// Make sure metadata gets applied in ReadDir.
+		opener = fs.realDirOpener(filename, root.Meta)
 	}
 
 	fim := decorateFileInfo(fi, opener, "", root.Meta)

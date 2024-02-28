@@ -280,6 +280,11 @@ func TestRootMappingFsMount(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	c.Assert(cps, qt.DeepEquals, []ComponentPath{
 		{Component: "content", Path: "singles/p1.md", Lang: "no"},
+	})
+
+	cps, err = rfs.ReverseLookup(filepath.FromSlash("singlefiles/sv.txt"), true)
+	c.Assert(err, qt.IsNil)
+	c.Assert(cps, qt.DeepEquals, []ComponentPath{
 		{Component: "content", Path: "singles/p1.md", Lang: "sv"},
 	})
 
