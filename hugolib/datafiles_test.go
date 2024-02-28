@@ -64,3 +64,21 @@ v1: {{  site.Data.MyFolder.MyData.v1 }}|
 
 	b.AssertFileContent("public/index.html", "v1: my_v1|")
 }
+
+// Issue #12133
+func TestDataNoAssets(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- assets/data/foo.toml --
+content = "I am assets/data/foo.toml"
+-- layouts/index.html --
+|{{ site.Data.foo.content }}|
+	`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html", "||")
+}

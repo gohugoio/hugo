@@ -43,7 +43,6 @@ var _ ReverseLookupProvder = (*RootMappingFs)(nil)
 func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 	rootMapToReal := radix.New()
 	realMapToRoot := radix.New()
-	var virtualRoots []RootMapping
 
 	addMapping := func(key string, rm RootMapping, to *radix.Tree) {
 		var mappings []RootMapping
@@ -154,10 +153,7 @@ func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 
 		addMapping(rev, rm, realMapToRoot)
 
-		virtualRoots = append(virtualRoots, rm)
 	}
-
-	rootMapToReal.Insert(filepathSeparator, virtualRoots)
 
 	rfs := &RootMappingFs{
 		Fs:            fs,
@@ -414,6 +410,7 @@ func (fs *RootMappingFs) getRoots(key string) (string, []RootMapping) {
 	for {
 		var found bool
 		ss, vv, found := tree.LongestPrefix(key)
+
 		if !found || (levels < 2 && ss == key) {
 			break
 		}
