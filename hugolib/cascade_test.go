@@ -766,3 +766,29 @@ path = '/p1.md'
 	b := Test(t, files)
 	b.AssertLogNotContains(`looks like a path with an extension`)
 }
+
+func TestCascadeIssue12172(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['rss','sitemap','taxonomy','term']
+[[cascade]]
+headless = true
+[cascade._target]
+path = '/s1**'
+-- content/s1/p1.md --
+---
+title: p1
+---
+-- layouts/_default/single.html --
+{{ .Title }}|
+-- layouts/_default/list.html --
+{{ .Title }}|
+  `
+	b := Test(t, files)
+
+	b.AssertFileExists("public/index.html", true)
+	b.AssertFileExists("public/s1/index.html", false)
+	b.AssertFileExists("public/s1/p1/index.html", false)
+}
