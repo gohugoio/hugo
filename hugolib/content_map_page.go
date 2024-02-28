@@ -685,13 +685,13 @@ func (s *contentNodeShifter) Delete(n contentNodeI, dimension doctree.Dimension)
 		}
 		return wasDeleted, isEmpty
 	case *resourceSource:
-		if lidx > 0 {
+		if lidx != v.LangIndex() {
 			return false, false
 		}
 		resource.MarkStale(v)
 		return true, true
 	case *pageState:
-		if lidx > 0 {
+		if lidx != v.s.languagei {
 			return false, false
 		}
 		resource.MarkStale(v)
@@ -1714,6 +1714,7 @@ func (sa *sitePagesAssembler) removeShouldNotBuild() error {
 	if len(keys) == 0 {
 		return nil
 	}
+
 	sa.pageMap.DeletePageAndResourcesBelow(keys...)
 
 	return nil
