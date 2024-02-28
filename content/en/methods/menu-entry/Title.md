@@ -11,7 +11,7 @@ action:
 
 If you define the menu entry [automatically], the `Title` method returns the page’s [`LinkTitle`], falling back to its [`Title`].
 
-If you define the menu entry [in front matter] or [in site configuration], the `Name` method returns the `title` property, falling back to the page’s `LinkTitle`, then to its `Title`.
+If you define the menu entry [in front matter] or [in site configuration], the `Title` method returns the `title` property, falling back to the page’s `LinkTitle`, then to its `Title`.
 
 [`LinkTitle`]: /methods/page/linktitle/
 [`Title`]: /methods/page/title/
