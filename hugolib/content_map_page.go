@@ -348,31 +348,28 @@ func (m *pageMap) getPagesInSection(q pageMapQueryPagesInSection) page.Pages {
 		w := &doctree.NodeShiftTreeWalker[contentNodeI]{
 			Tree:   m.treePages,
 			Prefix: prefix,
-			Handle: func(key string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
-				if q.Recursive {
-					if p, ok := n.(*pageState); ok && include(p) {
-						pas = append(pas, p)
-					}
-					return false, nil
-				}
+		}
 
-				// We store both leafs and branches in the same tree, so for non-recursive walks,
-				// we need to walk until the end, but can skip
-				// any not belonging to child branches.
-				if otherBranch != "" && strings.HasPrefix(key, otherBranch) {
-					return false, nil
-				}
-
+		w.Handle = func(key string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+			if q.Recursive {
 				if p, ok := n.(*pageState); ok && include(p) {
 					pas = append(pas, p)
 				}
-
-				if n.isContentNodeBranch() {
-					otherBranch = key + "/"
-				}
-
 				return false, nil
-			},
+			}
+
+			if p, ok := n.(*pageState); ok && include(p) {
+				pas = append(pas, p)
+			}
+
+			if n.isContentNodeBranch() {
+				currentBranch := key + "/"
+				if otherBranch == "" || otherBranch != currentBranch {
+					w.SkipPrefix(currentBranch)
+				}
+				otherBranch = currentBranch
+			}
+			return false, nil
 		}
 
 		err := w.Walk(context.Background())
