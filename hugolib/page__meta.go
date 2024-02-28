@@ -523,7 +523,7 @@ params:
 			// pages.
 			isHeadless := cast.ToBool(v)
 			params[loki] = isHeadless
-			if p.File().TranslationBaseName() == "index" && isHeadless {
+			if isHeadless {
 				pm.pageConfig.Build.List = pagemeta.Never
 				pm.pageConfig.Build.Render = pagemeta.Never
 			}
