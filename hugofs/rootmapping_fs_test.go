@@ -276,20 +276,20 @@ func TestRootMappingFsMount(t *testing.T) {
 
 	// Test ReverseLookup.
 	// Single file mounts.
-	cps, err := rfs.ReverseLookup(filepath.FromSlash("singlefiles/no.txt"), true)
+	cps, err := rfs.ReverseLookup(filepath.FromSlash("singlefiles/no.txt"))
 	c.Assert(err, qt.IsNil)
 	c.Assert(cps, qt.DeepEquals, []ComponentPath{
 		{Component: "content", Path: "singles/p1.md", Lang: "no"},
 	})
 
-	cps, err = rfs.ReverseLookup(filepath.FromSlash("singlefiles/sv.txt"), true)
+	cps, err = rfs.ReverseLookup(filepath.FromSlash("singlefiles/sv.txt"))
 	c.Assert(err, qt.IsNil)
 	c.Assert(cps, qt.DeepEquals, []ComponentPath{
 		{Component: "content", Path: "singles/p1.md", Lang: "sv"},
 	})
 
 	// File inside directory mount.
-	cps, err = rfs.ReverseLookup(filepath.FromSlash("mynoblogcontent/test.txt"), true)
+	cps, err = rfs.ReverseLookup(filepath.FromSlash("mynoblogcontent/test.txt"))
 	c.Assert(err, qt.IsNil)
 	c.Assert(cps, qt.DeepEquals, []ComponentPath{
 		{Component: "content", Path: "blog/test.txt", Lang: "no"},

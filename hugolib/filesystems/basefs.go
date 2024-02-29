@@ -265,6 +265,9 @@ type SourceFilesystem struct {
 	// This is a virtual composite filesystem. It expects path relative to a context.
 	Fs afero.Fs
 
+	// The source filesystem (usually the OS filesystem).
+	SourceFs afero.Fs
+
 	// When syncing a source folder to the target (e.g. /public), this may
 	// be set to publish into a subfolder. This is used for static syncing
 	// in multihost mode.
@@ -320,10 +323,10 @@ func (s SourceFilesystems) IsContent(filename string) bool {
 }
 
 // ResolvePaths resolves the given filename to a list of paths in the filesystems.
-func (s *SourceFilesystems) ResolvePaths(filename string, checkExists bool) []hugofs.ComponentPath {
+func (s *SourceFilesystems) ResolvePaths(filename string) []hugofs.ComponentPath {
 	var cpss []hugofs.ComponentPath
 	for _, rfs := range s.RootFss {
-		cps, err := rfs.ReverseLookup(filename, checkExists)
+		cps, err := rfs.ReverseLookup(filename)
 		if err != nil {
 			panic(err)
 		}
@@ -362,7 +365,17 @@ func (d *SourceFilesystem) ReverseLookup(filename string, checkExists bool) ([]h
 	var cps []hugofs.ComponentPath
 	hugofs.WalkFilesystems(d.Fs, func(fs afero.Fs) bool {
 		if rfs, ok := fs.(hugofs.ReverseLookupProvder); ok {
-			if c, err := rfs.ReverseLookupComponent(d.Name, filename, checkExists); err == nil {
+			if c, err := rfs.ReverseLookupComponent(d.Name, filename); err == nil {
+				if checkExists {
+					n := 0
+					for _, cp := range c {
+						if _, err := d.Fs.Stat(filepath.FromSlash(cp.Path)); err == nil {
+							c[n] = cp
+							n++
+						}
+					}
+					c = c[:n]
+				}
 				cps = append(cps, c...)
 			}
 		}
@@ -379,11 +392,12 @@ func (d *SourceFilesystem) mounts() []hugofs.FileMetaInfo {
 			if err == nil {
 				m = append(m, mounts...)
 			}
-
 		}
 		return false
 	})
+
 	// Filter out any mounts not belonging to this filesystem.
+	// TODO(bep) I think this is superflous.
 	n := 0
 	for _, mm := range m {
 		if mm.Meta().Component == d.Name {
@@ -392,6 +406,7 @@ func (d *SourceFilesystem) mounts() []hugofs.FileMetaInfo {
 		}
 	}
 	m = m[:n]
+
 	return m
 }
 
@@ -428,10 +443,8 @@ func (d *SourceFilesystem) RealDirs(from string) []string {
 		if !m.IsDir() {
 			continue
 		}
-		meta := m.Meta()
-		_, err := d.Fs.Stat(from)
-		if err == nil {
-			dirname := filepath.Join(meta.Filename, from)
+		dirname := filepath.Join(m.Meta().Filename, from)
+		if _, err := d.SourceFs.Stat(dirname); err == nil {
 			dirnames = append(dirnames, dirname)
 		}
 	}
@@ -519,8 +532,9 @@ func newSourceFilesystemsBuilder(p *paths.Paths, logger loggers.Logger, b *BaseF
 
 func (b *sourceFilesystemsBuilder) newSourceFilesystem(name string, fs afero.Fs) *SourceFilesystem {
 	return &SourceFilesystem{
-		Name: name,
-		Fs:   fs,
+		Name:     name,
+		Fs:       fs,
+		SourceFs: b.sourceFs,
 	}
 }
 
