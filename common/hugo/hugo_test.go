@@ -68,6 +68,7 @@ type testConfig struct {
 	environment string
 	running     bool
 	workingDir  string
+	multihost   bool
 }
 
 func (c testConfig) Environment() string {
@@ -80,4 +81,8 @@ func (c testConfig) Running() bool {
 
 func (c testConfig) WorkingDir() string {
 	return c.workingDir
+}
+
+func (c testConfig) IsMultihost() bool {
+	return c.multihost
 }
