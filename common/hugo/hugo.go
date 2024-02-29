@@ -111,11 +111,17 @@ func (i HugoInfo) Deps() []*Dependency {
 	return i.deps
 }
 
+// IsMultiHost reports whether each configured language has a unique baseURL.
+func (i HugoInfo) IsMultiHost() bool {
+	return i.conf.IsMultihost()
+}
+
 // ConfigProvider represents the config options that are relevant for HugoInfo.
 type ConfigProvider interface {
 	Environment() string
 	Running() bool
 	WorkingDir() string
+	IsMultihost() bool
 }
 
 // NewInfo creates a new Hugo Info object.

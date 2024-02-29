@@ -1,0 +1,13 @@
+hugo
+
+stdout 'IsMultiHost: true'
+
+-- hugo.toml --
+title = "Hugo IsMultiHost Test"
+[languages.en]
+baseURL = "https://example.org"
+[languages.zh]
+baseURL = "https://zh.example.org"
+
+-- layouts/index.html --
+{{ warnf "IsMultiHost: %v" hugo.IsMultiHost }}
