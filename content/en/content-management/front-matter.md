@@ -239,7 +239,7 @@ path
 
 ###### translationKey
 
-(`string`) An arbitrary value used to relate two or mote translations of the same page, useful when the translated pages do not share a common path. Access this value from a template using the [`TranslationKey`] method on a `Page` object.
+(`string`) An arbitrary value used to relate two or more translations of the same page, useful when the translated pages do not share a common path. Access this value from a template using the [`TranslationKey`] method on a `Page` object.
 
 [`translationkey`]: /methods/page/translationkey/
 
