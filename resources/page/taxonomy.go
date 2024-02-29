@@ -16,6 +16,7 @@ package page
 import (
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/gohugoio/hugo/compare"
 	"github.com/gohugoio/hugo/langs"
@@ -58,11 +59,11 @@ type OrderedTaxonomyEntry struct {
 
 // Get the weighted pages for the given key.
 func (i Taxonomy) Get(key string) WeightedPages {
-	return i[key]
+	return i[strings.ToLower(key)]
 }
 
 // Count the weighted pages for the given key.
-func (i Taxonomy) Count(key string) int { return len(i[key]) }
+func (i Taxonomy) Count(key string) int { return len(i[strings.ToLower(key)]) }
 
 // TaxonomyArray returns an ordered taxonomy with a non defined order.
 func (i Taxonomy) TaxonomyArray() OrderedTaxonomy {
