@@ -20,6 +20,7 @@ import (
 
 	qt "github.com/frankban/quicktest"
 
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/scss"
 )
@@ -289,4 +290,40 @@ T1: {{ $r.Content }}
 		}).Build()
 
 	b.AssertFileContent("public/index.html", `T1: body body{background:url(images/hero.jpg) no-repeat center/cover;font-family:Hugo&#39;s New Roman}p{color:blue;font-size:var 24px}b{color:green}`)
+}
+
+// Note: This test is more or less duplicated in both of the SCSS packages (libsass and dartsass).
+func TestBootstrap(t *testing.T) {
+	t.Parallel()
+	if !scss.Supports() {
+		t.Skip()
+	}
+	if !htesting.IsCI() {
+		t.Skip("skip (slow) test in non-CI environment")
+	}
+
+	files := `
+-- hugo.toml --
+disableKinds = ["term", "taxonomy", "section", "page"]
+[module]
+[[module.imports]]
+path="github.com/gohugoio/hugo-mod-bootstrap-scss/v5"
+-- go.mod --
+module github.com/gohugoio/tests/testHugoModules
+-- assets/scss/main.scss --
+@import "bootstrap/bootstrap";
+-- layouts/index.html --
+{{ $cssOpts := (dict "transpiler" "libsass" ) }}
+{{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts }}
+Styles: {{ $r.RelPermalink }}
+		`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   true,
+		}).Build()
+
+	b.AssertFileContent("public/index.html", "Styles: /scss/main.css")
 }

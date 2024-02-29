@@ -656,7 +656,7 @@ func (h *HugoSites) processPartial(ctx context.Context, l logg.LevelLogger, conf
 
 		isChangedDir := statErr == nil && fi.IsDir()
 
-		cpss := h.BaseFs.ResolvePaths(ev.Name, !removed)
+		cpss := h.BaseFs.ResolvePaths(ev.Name)
 		pss := make([]*paths.Path, len(cpss))
 		for i, cps := range cpss {
 			p := cps.Path

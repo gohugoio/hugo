@@ -183,6 +183,13 @@ type lockingBuffer struct {
 	bytes.Buffer
 }
 
+func (b *lockingBuffer) ReadFrom(r io.Reader) (n int64, err error) {
+	b.Lock()
+	n, err = b.Buffer.ReadFrom(r)
+	b.Unlock()
+	return
+}
+
 func (b *lockingBuffer) Write(p []byte) (n int, err error) {
 	b.Lock()
 	n, err = b.Buffer.Write(p)

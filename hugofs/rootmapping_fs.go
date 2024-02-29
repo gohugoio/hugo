@@ -21,6 +21,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"sync/atomic"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/paths"
@@ -43,6 +44,7 @@ var _ ReverseLookupProvder = (*RootMappingFs)(nil)
 func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 	rootMapToReal := radix.New()
 	realMapToRoot := radix.New()
+	id := fmt.Sprintf("rfs-%d", rootMappingFsCounter.Add(1))
 
 	addMapping := func(key string, rm RootMapping, to *radix.Tree) {
 		var mappings []RootMapping
@@ -75,6 +77,16 @@ func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 		if rm.Meta == nil {
 			rm.Meta = NewFileMeta()
 		}
+
+		if rm.FromBase == "" {
+			panic(" rm.FromBase is empty")
+		}
+
+		rm.Meta.Component = rm.FromBase
+		rm.Meta.Module = rm.Module
+		rm.Meta.ModuleOrdinal = rm.ModuleOrdinal
+		rm.Meta.IsProject = rm.IsProject
+		rm.Meta.BaseDir = rm.ToBase
 
 		if !fi.IsDir() {
 			// We do allow single file mounts.
@@ -122,19 +134,9 @@ func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 			}
 		}
 
-		if rm.FromBase == "" {
-			panic(" rm.FromBase is empty")
-		}
-
 		// Extract "blog" from "content/blog"
 		rm.path = strings.TrimPrefix(strings.TrimPrefix(rm.From, rm.FromBase), filepathSeparator)
-
 		rm.Meta.SourceRoot = fi.(MetaProvider).Meta().Filename
-		rm.Meta.BaseDir = rm.ToBase
-		rm.Meta.Module = rm.Module
-		rm.Meta.ModuleOrdinal = rm.ModuleOrdinal
-		rm.Meta.Component = rm.FromBase
-		rm.Meta.IsProject = rm.IsProject
 
 		meta := rm.Meta.Copy()
 
@@ -156,6 +158,7 @@ func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 	}
 
 	rfs := &RootMappingFs{
+		id:            id,
 		Fs:            fs,
 		rootMapToReal: rootMapToReal,
 		realMapToRoot: realMapToRoot,
@@ -227,10 +230,13 @@ var _ FilesystemUnwrapper = (*RootMappingFs)(nil)
 // is directories only, and they will be returned in Readdir and Readdirnames
 // in the order given.
 type RootMappingFs struct {
+	id string
 	afero.Fs
 	rootMapToReal *radix.Tree
 	realMapToRoot *radix.Tree
 }
+
+var rootMappingFsCounter atomic.Int32
 
 func (fs *RootMappingFs) Mounts(base string) ([]FileMetaInfo, error) {
 	base = filepathSeparator + fs.cleanName(base)
@@ -261,6 +267,10 @@ func (fs *RootMappingFs) Mounts(base string) ([]FileMetaInfo, error) {
 	}
 
 	return fss, nil
+}
+
+func (fs *RootMappingFs) Key() string {
+	return fs.id
 }
 
 func (fs *RootMappingFs) UnwrapFilesystem() afero.Fs {
@@ -320,16 +330,16 @@ func (c ComponentPath) ComponentPathJoined() string {
 }
 
 type ReverseLookupProvder interface {
-	ReverseLookup(filename string, checkExists bool) ([]ComponentPath, error)
-	ReverseLookupComponent(component, filename string, checkExists bool) ([]ComponentPath, error)
+	ReverseLookup(filename string) ([]ComponentPath, error)
+	ReverseLookupComponent(component, filename string) ([]ComponentPath, error)
 }
 
 // func (fs *RootMappingFs) ReverseStat(filename string) ([]FileMetaInfo, error)
-func (fs *RootMappingFs) ReverseLookup(filename string, checkExists bool) ([]ComponentPath, error) {
-	return fs.ReverseLookupComponent("", filename, checkExists)
+func (fs *RootMappingFs) ReverseLookup(filename string) ([]ComponentPath, error) {
+	return fs.ReverseLookupComponent("", filename)
 }
 
-func (fs *RootMappingFs) ReverseLookupComponent(component, filename string, checkExists bool) ([]ComponentPath, error) {
+func (fs *RootMappingFs) ReverseLookupComponent(component, filename string) ([]ComponentPath, error) {
 	filename = fs.cleanName(filename)
 	key := filepathSeparator + filename
 
@@ -360,14 +370,6 @@ func (fs *RootMappingFs) ReverseLookupComponent(component, filename string, chec
 		} else {
 			// Now we know that this file _could_ be in this fs.
 			filename = filepathSeparator + filepath.Join(first.path, dir, name)
-
-			if checkExists {
-				// Confirm that it exists.
-				_, err := fs.Stat(first.FromBase + filename)
-				if err != nil {
-					continue
-				}
-			}
 		}
 
 		cps = append(cps, ComponentPath{
@@ -667,6 +669,7 @@ func (fs *RootMappingFs) doStat(name string) ([]FileMetaInfo, error) {
 		var fis []FileMetaInfo
 
 		for _, rm := range roots {
+
 			var fi FileMetaInfo
 			fi, err = fs.statRoot(rm, name)
 			if err == nil {
