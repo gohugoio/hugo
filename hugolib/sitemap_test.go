@@ -148,3 +148,25 @@ Home.
 
 	b.AssertFileContent("public/sitemap.xml", "https://example.com/en/sitemap.xml")
 }
+
+func TestSitemapAndContentBundleNamedSitemap(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','taxonomy','term']
+-- layouts/_default/single.html --
+layouts/_default/single.html
+-- layouts/sitemap/single.html --
+layouts/sitemap/single.html
+-- content/sitemap/index.md --
+---
+title: My sitemap
+type: sitemap
+---
+`
+
+	b := Test(t, files)
+
+	b.AssertFileExists("public/sitemap.xml", true)
+}
