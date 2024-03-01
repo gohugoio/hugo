@@ -1764,7 +1764,7 @@ func (sa *sitePagesAssembler) addStandalonePages() error {
 
 	if s.conf.EnableRobotsTXT {
 		if m.i == 0 || s.Conf.IsMultihost() {
-			addStandalone("/robots", kinds.KindRobotsTXT, output.RobotsTxtFormat)
+			addStandalone("/_robots", kinds.KindRobotsTXT, output.RobotsTxtFormat)
 		}
 	}
 
@@ -1777,11 +1777,11 @@ func (sa *sitePagesAssembler) addStandalonePages() error {
 	}
 
 	if sitemapEnabled {
-		addStandalone("/sitemap", kinds.KindSitemap, output.SitemapFormat)
+		addStandalone("/_sitemap", kinds.KindSitemap, output.SitemapFormat)
 		skipSitemapIndex := s.Conf.IsMultihost() || !(s.Conf.DefaultContentLanguageInSubdir() || s.Conf.IsMultiLingual())
 
 		if !skipSitemapIndex {
-			addStandalone("/sitemapindex", kinds.KindSitemapIndex, output.SitemapIndexFormat)
+			addStandalone("/_sitemapindex", kinds.KindSitemapIndex, output.SitemapIndexFormat)
 		}
 	}
 
