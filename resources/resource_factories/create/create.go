@@ -134,7 +134,7 @@ func (c *Client) match(name, pattern string, matchFunc func(r resource.Resource)
 					return meta.Open()
 				},
 				GroupIdentity: meta.PathInfo,
-				TargetPath:    meta.PathInfo.PathNoLang(),
+				TargetPath:    meta.PathInfo.Unnormalized().Path(),
 			})
 			if err != nil {
 				return true, err

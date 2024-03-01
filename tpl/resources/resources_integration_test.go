@@ -116,3 +116,30 @@ Empty string not found
 
 		`)
 }
+
+func TestResourcesGettersShouldNotNormalizePermalinks(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+baseURL = "http://example.com/"
+-- assets/401K Prospectus.txt --
+Prospectus.
+-- layouts/index.html --
+{{ $name := "401K Prospectus.txt" }}
+Get: {{ with resources.Get $name }}{{ .RelPermalink }}|{{ .Permalink }}|{{ end }}
+GetMatch: {{ with resources.GetMatch $name }}{{ .RelPermalink }}|{{ .Permalink }}|{{ end }}
+Match: {{ with (index (resources.Match $name) 0) }}{{ .RelPermalink }}|{{ .Permalink }}|{{ end }}
+ByType: {{ with (index (resources.ByType "text") 0) }}{{ .RelPermalink }}|{{ .Permalink }}|{{ end }}
+	`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", `
+Get: /401K%20Prospectus.txt|http://example.com/401K%20Prospectus.txt|
+GetMatch: /401K%20Prospectus.txt|http://example.com/401K%20Prospectus.txt|
+Match: /401K%20Prospectus.txt|http://example.com/401K%20Prospectus.txt|
+ByType: /401K%20Prospectus.txt|http://example.com/401K%20Prospectus.txt|
+
+		`)
+}
