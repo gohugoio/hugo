@@ -475,6 +475,11 @@ func (fs *RootMappingFs) newUnionFile(fis ...FileMetaInfo) (afero.File, error) {
 		return fis[0].Meta().Open()
 	}
 
+	if !fis[0].IsDir() {
+		// Pick the last file mount.
+		return fis[len(fis)-1].Meta().Open()
+	}
+
 	openers := make([]func() (afero.File, error), len(fis))
 	for i := len(fis) - 1; i >= 0; i-- {
 		fi := fis[i]
@@ -647,6 +652,28 @@ func (rfs *RootMappingFs) collectDirEntries(prefix string) ([]iofs.DirEntry, err
 }
 
 func (fs *RootMappingFs) doStat(name string) ([]FileMetaInfo, error) {
+	fis, err := fs.doDoStat(name)
+	if err != nil {
+		return nil, err
+	}
+	// Sanity check. Check that all is either file or directories.
+	var isDir, isFile bool
+	for _, fi := range fis {
+		if fi.IsDir() {
+			isDir = true
+		} else {
+			isFile = true
+		}
+	}
+	if isDir && isFile {
+		// For now.
+		return nil, os.ErrNotExist
+	}
+
+	return fis, nil
+}
+
+func (fs *RootMappingFs) doDoStat(name string) ([]FileMetaInfo, error) {
 	name = fs.cleanName(name)
 	key := filepathSeparator + name
 
@@ -669,7 +696,6 @@ func (fs *RootMappingFs) doStat(name string) ([]FileMetaInfo, error) {
 		var fis []FileMetaInfo
 
 		for _, rm := range roots {
-
 			var fi FileMetaInfo
 			fi, err = fs.statRoot(rm, name)
 			if err == nil {

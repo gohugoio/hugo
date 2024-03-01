@@ -509,6 +509,40 @@ l2
 	}
 }
 
+func TestAssetsIssue12175(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com/"
+[module]
+[[module.mounts]]
+source = "node_modules/@foo/core/assets"
+target = "assets"
+[[module.mounts]]
+source = "assets"
+target = "assets"
+-- node_modules/@foo/core/assets/js/app.js --
+JS.
+-- node_modules/@foo/core/assets/scss/app.scss --
+body { color: red; }
+-- assets/scss/app.scss --
+body { color: blue; }
+-- layouts/index.html --
+Home.
+SCSS: {{ with resources.Get "scss/app.scss" }}{{ .RelPermalink }}|{{ .Content }}{{ end }}|
+# Note that the pattern below will match 2 resources, which doesn't make much sense,
+# but is how the current (and also < v0.123.0) merge logic works, and for most practical purposes, it doesn't matter.
+SCSS Match: {{ with resources.Match "**.scss" }}{{ . | len }}|{{ range .}}{{ .RelPermalink }}|{{ end }}{{ end }}|
+
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", `	
+SCSS: /scss/app.scss|body { color: blue; }|
+SCSS Match: 2|
+`)
+}
+
 func TestStaticComposite(t *testing.T) {
 	files := `
 -- hugo.toml --
