@@ -27,7 +27,7 @@ button will be hidden if any of the following conditions is true:
       {{- warnf "This call to the %q shortcode should be removed: %s. The button is now hidden because the specified version (%s) is older than the display threshold." $.Name $.Position $version }}
     {{- end }}
   {{- else }}
-    <button class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 mr2 px-4 border border-gray-400 rounded shadow">
+    <button class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 mr2 mt2 px-4 border border-gray-400 rounded shadow">
       <a href="{{ printf "https://github.com/gohugoio/hugo/releases/tag/v%s" $version }}">New in v{{ $version }}</a>
     </button>
   {{- end }}
