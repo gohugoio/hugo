@@ -150,8 +150,9 @@ If you change any local file and the LiveReload is triggered, Hugo will read the
 
 ## Examples of data-driven content
 
-- Photo gallery JSON powered: [https://github.com/pcdummy/hugo-lightslider-example](https://github.com/pcdummy/hugo-lightslider-example)
+- Photo gallery JSON powered: [https://github.com/pcdummy/hugo-lightslider-example](https://github.com/pcdummy/hugo-lightslider-example).
 - GitHub Starred Repositories [in a post](https://github.com/SchumacherFM/blog-cs/blob/master/content%2Fposts%2Fgithub-starred.md) using data-driven content in a [custom short code](https://github.com/SchumacherFM/blog-cs/blob/master/layouts%2Fshortcodes%2FghStarred.html).
+- Importing exported social media data from popular services using [https://github.com/ttybitnik/diego](https://github.com/ttybitnik/diego).
 
 ## Specs for data formats
 
