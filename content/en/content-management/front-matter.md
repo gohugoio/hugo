@@ -112,9 +112,10 @@ If `true`, the page will not be rendered unless you pass the `--buildDrafts` fla
 
 ###### isCJKLanguage
 
-(`bool`) Set to `true` if the content language is in the [CJK] family. This value determines how Hugo calculates word count, and affects the values returned by the [`WordCount`], [`FuzzyWordCount`], and [`Summary`] methods on a `Page` object.
+(`bool`) Set to `true` if the content language is in the [CJK] family. This value determines how Hugo calculates word count, and affects the values returned by the [`WordCount`], [`FuzzyWordCount`], [`ReadingTime`], and [`Summary`] methods on a `Page` object.
 
 [`fuzzywordcount`]: /methods/page/wordcount/
+[`readingtime`]: /methods/page/readingtime/
 [`summary`]: /methods/page/summary/
 [`wordcount`]: /methods/page/wordcount/
 [cjk]: /getting-started/glossary/#cjk
