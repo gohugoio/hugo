@@ -228,7 +228,7 @@ path
 
 ###### summary
 
-(`string`) Conceptually different than the page `description`, the summary either summarizes the content or serves a teaser to encourage readers to visit the page. Access this value from a template using the [`Summary`] method on a `Page` object.
+(`string`) Conceptually different than the page `description`, the summary either summarizes the content or serves as a teaser to encourage readers to visit the page. Access this value from a template using the [`Summary`] method on a `Page` object.
 
 [`Summary`]: /methods/page/summary/
 
