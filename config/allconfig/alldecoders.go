@@ -25,11 +25,13 @@ import (
 	"github.com/gohugoio/hugo/config/security"
 	"github.com/gohugoio/hugo/config/services"
 	"github.com/gohugoio/hugo/deploy/deployconfig"
+	"github.com/gohugoio/hugo/hugolib/segments"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/markup/markup_config"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/minifiers"
 	"github.com/gohugoio/hugo/modules"
+
 	"github.com/gohugoio/hugo/navigation"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/related"
@@ -117,6 +119,14 @@ var allDecoderSetups = map[string]decodeWeight{
 		decode: func(d decodeWeight, p decodeConfig) error {
 			var err error
 			p.c.Markup, err = markup_config.Decode(p.p)
+			return err
+		},
+	},
+	"segments": {
+		key: "segments",
+		decode: func(d decodeWeight, p decodeConfig) error {
+			var err error
+			p.c.Segments, err = segments.DecodeSegments(p.p.GetStringMap(d.key))
 			return err
 		},
 	},

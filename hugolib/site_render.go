@@ -271,7 +271,7 @@ func (s *Site) renderAliases() error {
 			p := n.(*pageState)
 
 			// We cannot alias a page that's not rendered.
-			if p.m.noLink() {
+			if p.m.noLink() || p.skipRender() {
 				return false, nil
 			}
 

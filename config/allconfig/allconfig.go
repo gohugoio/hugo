@@ -39,6 +39,7 @@ import (
 	"github.com/gohugoio/hugo/config/services"
 	"github.com/gohugoio/hugo/deploy/deployconfig"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/hugolib/segments"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/markup/markup_config"
 	"github.com/gohugoio/hugo/media"
@@ -136,6 +137,9 @@ type Config struct {
 	// The cascade configuration section contains the top level front matter cascade configuration options,
 	// a slice of page matcher and params to apply to those pages.
 	Cascade *config.ConfigNamespace[[]page.PageMatcherParamsConfig, map[page.PageMatcher]maps.Params] `mapstructure:"-"`
+
+	// The segments defines segments for the site. Used for partial/segmented builds.
+	Segments *config.ConfigNamespace[map[string]segments.SegmentConfig, segments.Segments] `mapstructure:"-"`
 
 	// Menu configuration.
 	// <docsmeta>{"refs": ["config:languages:menus"] }</docsmeta>
@@ -364,6 +368,7 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 		CreateTitle:       helpers.GetTitleFunc(c.TitleCaseStyle),
 		IsUglyURLSection:  isUglyURL,
 		IgnoreFile:        ignoreFile,
+		SegmentFilter:     c.Segments.Config.Get(func(s string) { logger.Warnf("Render segment %q not found in configuration", s) }, c.RootConfig.RenderSegments...),
 		MainSections:      c.MainSections,
 		Clock:             clock,
 		transientErr:      transientErr,
@@ -400,6 +405,7 @@ type ConfigCompiled struct {
 	CreateTitle       func(s string) string
 	IsUglyURLSection  func(section string) bool
 	IgnoreFile        func(filename string) bool
+	SegmentFilter     segments.SegmentFilter
 	MainSections      []string
 	Clock             time.Time
 
@@ -471,6 +477,10 @@ type RootConfig struct {
 
 	// A list of languages to disable.
 	DisableLanguages []string
+
+	// The named segments to render.
+	// This needs to match the name of the segment in the segments configuration.
+	RenderSegments []string
 
 	// Disable the injection of the Hugo generator tag on the home page.
 	DisableHugoGeneratorInject bool
