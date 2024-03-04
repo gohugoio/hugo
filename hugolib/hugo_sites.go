@@ -410,6 +410,10 @@ type BuildCfg struct {
 
 // shouldRender returns whether this output format should be rendered or not.
 func (cfg *BuildCfg) shouldRender(p *pageState) bool {
+	if p.skipRender() {
+		return false
+	}
+
 	if !p.renderOnce {
 		return true
 	}

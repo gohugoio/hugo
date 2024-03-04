@@ -22,6 +22,7 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugolib/doctree"
+	"github.com/gohugoio/hugo/hugolib/segments"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/output"
@@ -150,6 +151,19 @@ func (p *pageState) resetBuildState() {
 
 func (p *pageState) reusePageOutputContent() bool {
 	return p.pageOutputTemplateVariationsState.Load() == 1
+}
+
+func (p *pageState) skipRender() bool {
+	b := p.s.conf.C.SegmentFilter.ShouldExcludeFine(
+		segments.SegmentMatcherFields{
+			Path:   p.Path(),
+			Kind:   p.Kind(),
+			Lang:   p.Lang(),
+			Output: p.pageOutput.f.Name,
+		},
+	)
+
+	return b
 }
 
 func (po *pageState) isRenderedAny() bool {

@@ -521,6 +521,7 @@ func applyLocalFlagsBuildConfig(cmd *cobra.Command, r *rootCommand) {
 	cmd.Flags().StringP("cacheDir", "", "", "filesystem path to cache directory")
 	_ = cmd.Flags().SetAnnotation("cacheDir", cobra.BashCompSubdirsInDir, []string{})
 	cmd.Flags().StringP("contentDir", "c", "", "filesystem path to content directory")
+	cmd.Flags().StringSliceP("renderSegments", "", []string{}, "named segments to render (configured in the segments config)")
 	_ = cmd.Flags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
 }
 

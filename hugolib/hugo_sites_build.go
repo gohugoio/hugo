@@ -28,15 +28,15 @@ import (
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/hugofs/glob"
+	"github.com/gohugoio/hugo/hugolib/segments"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/publisher"
 	"github.com/gohugoio/hugo/source"
 	"github.com/gohugoio/hugo/tpl"
-
-	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/loggers"
@@ -318,9 +318,20 @@ func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
 
 	i := 0
 	for _, s := range h.Sites {
+		segmentFilter := s.conf.C.SegmentFilter
+		if segmentFilter.ShouldExcludeCoarse(segments.SegmentMatcherFields{Lang: s.language.Lang}) {
+			l.Logf("skip language %q not matching segments set in --renderSegments", s.language.Lang)
+			continue
+		}
+
 		siteRenderContext.languageIdx = s.languagei
 		h.currentSite = s
 		for siteOutIdx, renderFormat := range s.renderFormats {
+			if segmentFilter.ShouldExcludeCoarse(segments.SegmentMatcherFields{Output: renderFormat.Name, Lang: s.language.Lang}) {
+				l.Logf("skip output format %q for language %q not matching segments set in --renderSegments", renderFormat.Name, s.language.Lang)
+				continue
+			}
+
 			siteRenderContext.outIdx = siteOutIdx
 			siteRenderContext.sitesOutIdx = i
 			i++
