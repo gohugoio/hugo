@@ -35,6 +35,7 @@ require (
 	github.com/gobuffalo/flect v1.0.2
 	github.com/gobwas/glob v0.2.3
 	github.com/gohugoio/go-i18n/v2 v2.1.3-0.20230805085216-e63c13218d0e
+	github.com/gohugoio/hugo-goldmark-extensions/extras v0.0.0-00010101000000-000000000000
 	github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.2.0
 	github.com/gohugoio/locales v0.14.0
 	github.com/gohugoio/localescompressed v1.0.1
@@ -80,6 +81,8 @@ require (
 	google.golang.org/api v0.152.0
 	gopkg.in/yaml.v2 v2.4.0
 )
+
+replace github.com/gohugoio/hugo-goldmark-extensions/extras => /home/jmooring/code/hugo-goldmark-extensions/extras
 
 require (
 	cloud.google.com/go v0.110.10 // indirect
@@ -158,4 +161,4 @@ require (
 	software.sslmate.com/src/go-pkcs12 v0.2.0 // indirect
 )
 
-go 1.20
+go 1.22.1

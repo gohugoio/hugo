@@ -17,6 +17,7 @@ package goldmark
 import (
 	"bytes"
 
+	"github.com/gohugoio/hugo-goldmark-extensions/extras"
 	"github.com/gohugoio/hugo-goldmark-extensions/passthrough"
 	"github.com/yuin/goldmark/util"
 
@@ -115,16 +116,36 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 		extensions = append(extensions, codeblocks.New())
 	}
 
-	if cfg.Extensions.Table {
-		extensions = append(extensions, extension.Table)
+	if cfg.Extensions.DefinitionList {
+		extensions = append(extensions, extension.DefinitionList)
+	}
+
+	if cfg.Extensions.Footnote {
+		extensions = append(extensions, extension.Footnote)
+	}
+
+	if cfg.Extensions.Extras.Insert {
+		extensions = append(extensions, extras.Insert)
+	}
+
+	if cfg.Extensions.Linkify {
+		extensions = append(extensions, extension.Linkify)
 	}
 
 	if cfg.Extensions.Strikethrough {
 		extensions = append(extensions, extension.Strikethrough)
 	}
 
-	if cfg.Extensions.Linkify {
-		extensions = append(extensions, extension.Linkify)
+	if cfg.Extensions.Extras.Subscript {
+		extensions = append(extensions, extras.Subscript)
+	}
+
+	if cfg.Extensions.Extras.Superscript {
+		extensions = append(extensions, extras.Superscript)
+	}
+
+	if cfg.Extensions.Table {
+		extensions = append(extensions, extension.Table)
 	}
 
 	if cfg.Extensions.TaskList {
@@ -136,14 +157,6 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 			extension.WithTypographicSubstitutions(toTypographicPunctuationMap(cfg.Extensions.Typographer)),
 		)
 		extensions = append(extensions, t)
-	}
-
-	if cfg.Extensions.DefinitionList {
-		extensions = append(extensions, extension.DefinitionList)
-	}
-
-	if cfg.Extensions.Footnote {
-		extensions = append(extensions, extension.Footnote)
 	}
 
 	if cfg.Extensions.CJK.Enable {

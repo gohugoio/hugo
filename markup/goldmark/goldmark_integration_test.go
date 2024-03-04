@@ -744,3 +744,34 @@ a^*=x-b^*
 %!%
 	`)
 }
+
+func TestExtrasExtension(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','section','rss','sitemap','taxonomy','term']
+[markup.goldmark.extensions.extras]
+insert = true
+subscript = true
+superscript = true
+-- layouts/index.html --
+{{ .Content }}
+-- content/_index.md --
+---
+title: home
+---
+Hydrogen (H) is the 1^st^ element in the periodic table.
+
+Water (H~2~O) is a liquid.
+
+Water (H~2~O) is a ++transparent++ liquid.
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html",
+		"<p>Hydrogen (H) is the 1<sup>st</sup> element in the periodic table.</p>",
+		"<p>Water (H<sub>2</sub>O) is a liquid.</p>",
+		"<p>Water (H<sub>2</sub>O) is a <ins>transparent</ins> liquid.</p>",
+	)
+}

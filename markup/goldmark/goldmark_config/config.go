@@ -23,6 +23,31 @@ const (
 // Default holds the default Goldmark configuration.
 var Default = Config{
 	Extensions: Extensions{
+		CJK: CJK{
+			Enable:                   false,
+			EastAsianLineBreaks:      false,
+			EastAsianLineBreaksStyle: "simple",
+			EscapedSpace:             false,
+		},
+		DefinitionList: true,
+		Extras: Extras{
+			Insert:      false,
+			Subscript:   false,
+			Superscript: false,
+		},
+		Footnote:        true,
+		Linkify:         true,
+		LinkifyProtocol: "https",
+		Passthrough: Passthrough{
+			Enable: false,
+			Delimiters: DelimitersConfig{
+				Inline: [][]string{},
+				Block:  [][]string{},
+			},
+		},
+		Strikethrough: true,
+		Table:         true,
+		TaskList:      true,
 		Typographer: Typographer{
 			Disable:          false,
 			LeftSingleQuote:  "&lsquo;",
@@ -35,26 +60,6 @@ var Default = Config{
 			LeftAngleQuote:   "&laquo;",
 			RightAngleQuote:  "&raquo;",
 			Apostrophe:       "&rsquo;",
-		},
-		Footnote:        true,
-		DefinitionList:  true,
-		Table:           true,
-		Strikethrough:   true,
-		Linkify:         true,
-		LinkifyProtocol: "https",
-		TaskList:        true,
-		CJK: CJK{
-			Enable:                   false,
-			EastAsianLineBreaks:      false,
-			EastAsianLineBreaksStyle: "simple",
-			EscapedSpace:             false,
-		},
-		Passthrough: Passthrough{
-			Enable: false,
-			Delimiters: DelimitersConfig{
-				Inline: [][]string{},
-				Block:  [][]string{},
-			},
 		},
 	},
 	Renderer: Renderer{
@@ -109,18 +114,23 @@ func (h LinkRenderHook) IsEnableDefault() bool {
 }
 
 type Extensions struct {
-	Typographer    Typographer
-	Footnote       bool
-	DefinitionList bool
-	Passthrough    Passthrough
-
-	// GitHub flavored markdown
-	Table           bool
-	Strikethrough   bool
+	CJK             CJK
+	DefinitionList  bool
+	Extras          Extras
+	Footnote        bool
 	Linkify         bool
 	LinkifyProtocol string
+	Passthrough     Passthrough
+	Strikethrough   bool
+	Table           bool
 	TaskList        bool
-	CJK             CJK
+	Typographer     Typographer
+}
+
+type Extras struct {
+	Insert      bool
+	Subscript   bool
+	Superscript bool
 }
 
 // Typographer holds typographer configuration.
