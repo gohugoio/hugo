@@ -1,6 +1,6 @@
 ---
 title: AllTranslations
-description: Returns all translation of the given page, including the given page. 
+description: Returns all translations of the given page, including the current language. 
 categories: []
 keywords: []
 action:
