@@ -91,15 +91,19 @@ func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options)
 	y := f.y
 	d.Dot = fixed.P(f.x, f.y)
 
-	// Draw text and break line at max width
-	parts := strings.Fields(f.text)
-	for _, str := range parts {
-		strWith := font.MeasureString(face, str)
-		if (d.Dot.X.Ceil() + strWith.Ceil()) >= maxWidth {
-			y = y + fontHeight + f.linespacing
-			d.Dot = fixed.P(f.x, y)
+	// Draw text line by line, breaking each line at the maximum width.
+	f.text = strings.ReplaceAll(f.text, "\r", "")
+	for _, line := range strings.Split(f.text, "\n") {
+		for _, str := range strings.Fields(line) {
+			strWidth := font.MeasureString(face, str)
+			if (d.Dot.X.Ceil() + strWidth.Ceil()) >= maxWidth {
+				y = y + fontHeight + f.linespacing
+				d.Dot = fixed.P(f.x, y)
+			}
+			d.DrawString(str + " ")
 		}
-		d.DrawString(str + " ")
+		y = y + fontHeight + f.linespacing
+		d.Dot = fixed.P(f.x, y)
 	}
 }
 
