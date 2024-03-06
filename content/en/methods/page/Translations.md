@@ -1,6 +1,6 @@
 ---
 title: Translations
-description: Returns all translation of the given page, excluding the current language.  
+description: Returns all translations of the given page, excluding the current language.  
 categories: []
 keywords: []
 action:
