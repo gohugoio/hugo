@@ -313,7 +313,7 @@ func (p *Path) norm(s string) string {
 	return s
 }
 
-// IdentifierBase satifies identity.Identity.
+// IdentifierBase satisfies identity.Identity.
 func (p *Path) IdentifierBase() string {
 	return p.Base()
 }

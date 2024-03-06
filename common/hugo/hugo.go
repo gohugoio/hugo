@@ -379,7 +379,7 @@ func DeprecateLevel(item, alternative, version string, level logg.Level) {
 	loggers.Log().Logger().WithLevel(level).WithField(loggers.FieldNameCmd, "deprecated").Logf(msg)
 }
 
-// We ususally do about one minor version a month.
+// We usually do about one minor version a month.
 // We want people to run at least the current and previous version without any warnings.
 // We want people who don't update Hugo that often to see the warnings and errors before we remove the feature.
 func deprecationLogLevelFromVersion(ver string) logg.Level {
