@@ -12,7 +12,7 @@ toc: true
 aliases: [/functions/where]
 ---
 
-The `where` function returns the given collection, removing elements that do not satisfy the comparison condition. The comparison condition is comprised of the `KEY`, `OPERATOR`, and `VALUE` arguments:
+The `where` function returns the given collection, removing elements that do not satisfy the comparison condition. The comparison condition is composed of the `KEY`, `OPERATOR`, and `VALUE` arguments:
 
 ```text
 collections.Where COLLECTION KEY [OPERATOR] VALUE
