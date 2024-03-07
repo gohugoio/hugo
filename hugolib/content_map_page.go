@@ -1814,6 +1814,14 @@ func (sa *sitePagesAssembler) addMissingRootSections() error {
 				return false, nil
 			}
 
+			switch ps.Kind() {
+			case kinds.KindPage, kinds.KindSection:
+				// OK
+			default:
+				// Skip taxonomy nodes etc.
+				return false, nil
+			}
+
 			p := ps.m.pathInfo
 			section := p.Section()
 			if section == "" || seen[section] {

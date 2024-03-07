@@ -936,3 +936,37 @@ title: Authors Page
 	b.AssertFileExists("public/authors/index.html", true)
 	b.AssertFileContent("public/authors/index.html", "layouts/_default/author.terms.html") // failing test
 }
+
+func TestTaxonomyNestedEmptySectionsIssue12188(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['rss','sitemap']
+defaultContentLanguage = 'en'
+defaultContentLanguageInSubdir = true
+[languages.en]
+weight = 1
+[languages.ja]
+weight = 2
+[taxonomies]
+'s1/category' = 's1/category'
+-- layouts/_default/single.html --
+{{ .Title }}|
+-- layouts/_default/list.html --
+{{ .Title }}|
+-- content/s1/p1.en.md --
+---
+title: p1
+---
+`
+
+	b := Test(t, files)
+
+	b.AssertFileExists("public/en/s1/index.html", true)
+	b.AssertFileExists("public/en/s1/p1/index.html", true)
+	b.AssertFileExists("public/en/s1/category/index.html", true)
+
+	b.AssertFileExists("public/ja/s1/index.html", false) // failing test
+	b.AssertFileExists("public/ja/s1/category/index.html", true)
+}
