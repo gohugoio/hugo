@@ -22,7 +22,7 @@ The `hugo.IsMultihost` function reports whether each configured language has a u
     title = 'In English'
     weight = 2
   [languages.fr]
-    baseURL = 'https://fr.example.fr'
+    baseURL = 'https://fr.example.org'
     languageName = 'Français'
     title = 'En Français'
     weight = 1

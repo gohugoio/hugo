@@ -162,17 +162,16 @@ Example:
 
 {{< code-toggle file=hugo >}}
 [languages]
-[languages.fr]
-baseURL = "https://example.fr"
-languageName = "Français"
-weight = 1
-title = "En Français"
-
-[languages.en]
-baseURL = "https://example.org/"
-languageName = "English"
-weight = 2
-title = "In English"
+  [languages.en]
+    baseURL = 'https://en.example.org/'
+    languageName = 'English'
+    title = 'In English'
+    weight = 2
+  [languages.fr]
+    baseURL = 'https://fr.example.org'
+    languageName = 'Français'
+    title = 'En Français'
+    weight = 1
 {{</ code-toggle >}}
 
 With the above, the two sites will be generated into `public` with their own root:
@@ -334,96 +333,9 @@ The above also uses the [`i18n` function][i18func] described in the next section
 
 ## Translation of strings
 
-Hugo uses [go-i18n] to support string translations. [See the project's source repository][go-i18n-source] to find tools that will help you manage your translation workflows.
+See the [`lang.Translate`] template function.
 
-Translations are collected from the `themes/<THEME>/i18n/` folder (built into the theme), as well as translations present in `i18n/` at the root of your project. In the `i18n`, the translations will be merged and take precedence over what is in the theme folder. Language files should be named according to [RFC 5646] with names such as `en-US.toml`, `fr.toml`, etc.
-
-Artificial languages with private use subtags as defined in [RFC 5646 &#167; 2.2.7](https://datatracker.ietf.org/doc/html/rfc5646#section-2.2.7) are also supported. You may omit the `art-x-` prefix for brevity. For example:
-
-```text
-art-x-hugolang
-hugolang
-```
-
-Private use subtags must not exceed 8 alphanumeric characters.
-
-### Query basic translation
-
-From within your templates, use the [`i18n`] function like this:
-
-[`i18n`]: /functions/lang/translate/
-
-```go-html-template
-{{ i18n "home" }}
-```
-
-The function will search for the `"home"` id:
-
-{{< code-toggle file=i18n/en-US >}}
-[home]
-other = "Home"
-{{< /code-toggle >}}
-
-The result will be
-
-```text
-Home
-```
-
-### Query a flexible translation with variables
-
-Often you will want to use the page variables in the translation strings. To do so, pass the `.` context when calling `i18n`:
-
-```go-html-template
-{{ i18n "wordCount" . }}
-```
-
-The function will pass the `.` context to the `"wordCount"` id:
-
-{{< code-toggle file=i18n/en-US >}}
-[wordCount]
-other = "This article has {{ .WordCount }} words."
-{{< /code-toggle >}}
-
-Assume `.WordCount` in the context has value is 101. The result will be:
-
-```text
-This article has 101 words.
-```
-
-### Query a singular/plural translation
-
-To enable pluralization when translating, pass a map with a numeric `.Count` property to the `i18n` function. The example below uses `.ReadingTime` variable which has a built-in `.Count` property.
-
-```go-html-template
-{{ i18n "readingTime" .ReadingTime }}
-```
-
-The function will read `.Count` from `.ReadingTime` and evaluate whether the number is singular (`one`) or plural (`other`). After that, it will pass to `readingTime` id in `i18n/en-US.toml` file:
-
-{{< code-toggle file=i18n/en-US >}}
-[readingTime]
-one = "One minute to read"
-other = "{{ .Count }} minutes to read"
-{{< /code-toggle >}}
-
-Assuming `.ReadingTime.Count` in the context has value is 525600. The result will be:
-
-```text
-525600 minutes to read
-```
-
-If `.ReadingTime.Count` in the context has value is 1. The result is:
-
-```text
-One minute to read
-```
-
-In case you need to pass a custom data: (`(dict "Count" numeric_value_only)` is minimum requirement)
-
-```go-html-template
-{{ i18n "readingTime" (dict "Count" 25 "FirstArgument" true "SecondArgument" false "Etc" "so on, so far") }}
-```
+[`lang.Translate`]: /functions/lang/translate
 
 ## Localization
 
