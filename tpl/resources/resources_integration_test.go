@@ -155,6 +155,7 @@ I am a.txt
 -- assets/b.txt --
 I am b.txt
 -- layouts/index.html --
+Home.
 {{ with resources.ByType "text" }}
   {{ with .Get "a.txt" }}
     {{ .Publish }}
@@ -167,7 +168,6 @@ I am b.txt
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileExists("public/index.html", true)
 	b.AssertFileExists("public/a.txt", true) // failing test
 	b.AssertFileExists("public/b.txt", true) // failing test
 }

@@ -128,13 +128,16 @@ func (c *Client) match(name, pattern string, matchFunc func(r resource.Resource)
 
 		handle := func(info hugofs.FileMetaInfo) (bool, error) {
 			meta := info.Meta()
+
 			r, err := c.rs.NewResource(resources.ResourceSourceDescriptor{
 				LazyPublish: true,
 				OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
 					return meta.Open()
 				},
-				GroupIdentity: meta.PathInfo,
-				TargetPath:    meta.PathInfo.Unnormalized().Path(),
+				NameNormalized: meta.PathInfo.Name(),
+				NameOriginal:   meta.PathInfo.Unnormalized().Name(),
+				GroupIdentity:  meta.PathInfo,
+				TargetPath:     meta.PathInfo.Unnormalized().Path(),
 			})
 			if err != nil {
 				return true, err
