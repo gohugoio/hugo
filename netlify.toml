@@ -3,7 +3,7 @@
   command = "hugo --gc --minify"
 
   [build.environment]
-    HUGO_VERSION = "0.123.7"
+    HUGO_VERSION = "0.123.8"
 
 [context.production.environment]
   HUGO_ENV           = "production"
