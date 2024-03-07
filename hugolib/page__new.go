@@ -145,9 +145,11 @@ func (h *HugoSites) newPage(m *pageMeta) (*pageState, *paths.Path, error) {
 					// Either a taxonomy or a term.
 					if tc.pluralTreeKey == m.Path() {
 						m.pageConfig.Kind = kinds.KindTaxonomy
+						m.singular = tc.singular
 					} else {
 						m.pageConfig.Kind = kinds.KindTerm
 						m.term = m.pathInfo.Unnormalized().BaseNameNoIdentifier()
+						m.singular = tc.singular
 					}
 				}
 			} else if m.f != nil {
