@@ -143,3 +143,31 @@ ByType: /401K%20Prospectus.txt|http://example.com/401K%20Prospectus.txt|
 
 		`)
 }
+
+func TestGlobalResourcesNotPublishedRegressionIssue12190(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- assets/a.txt --
+I am a.txt
+-- assets/b.txt --
+I am b.txt
+-- layouts/index.html --
+{{ with resources.ByType "text" }}
+  {{ with .Get "a.txt" }}
+    {{ .Publish }}
+  {{ end }}
+  {{ with .GetMatch "*b*" }}
+    {{ .Publish }}
+  {{ end }}
+{{ end }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileExists("public/index.html", true)
+	b.AssertFileExists("public/a.txt", true) // failing test
+	b.AssertFileExists("public/b.txt", true) // failing test
+}
