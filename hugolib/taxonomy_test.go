@@ -911,3 +911,28 @@ title: tag-a-title-override
 
 	b.AssertFileContent("public/tags/a/index.html", "Tag: tag-a-title-override|")
 }
+
+func TestTaxonomyLookupIssue12193(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap']
+[taxonomies]
+author = 'authors'
+-- layouts/_default/list.html --
+{{ .Title }}|
+-- layouts/_default/author.terms.html --
+layouts/_default/author.terms.html
+-- content/authors/_index.md --
+---
+title: Authors Page
+---
+`
+
+	b := Test(t, files)
+
+	b.AssertFileExists("public/index.html", true)
+	b.AssertFileExists("public/authors/index.html", true)
+	b.AssertFileContent("public/authors/index.html", "layouts/_default/author.terms.html") // failing test
+}
