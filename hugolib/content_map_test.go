@@ -326,3 +326,35 @@ R: {{ with $r }}{{ .Content }}{{ end }}|Len: {{ len $bundle.Resources }}|$
 		b.AssertFileContent("public/index.html", "R: Data 1.txt|", "Len: 1|")
 	}
 }
+
+func TestBundleResourcesNoPublishedIssue12198(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','sitemap','taxonomy','term']
+-- content/s1/p1.md --
+---
+title: p1
+---
+-- content/s1/foo.txt --
+foo.txt
+-- content/s1/p1.txt --
+p1.txt
+-- content/s1/p1-foo.txt --
+p1-foo.txt
+-- layouts/_default/list.html --
+{{.Title }}|
+-- layouts/_default/single.html --
+{{.Title }}|
+	`
+
+	b := Test(t, files)
+	b.Build()
+
+	b.AssertFileExists("public/s1/index.html", true)
+	b.AssertFileExists("public/s1/foo.txt", true)
+	b.AssertFileExists("public/s1/p1.txt", true)     // failing test
+	b.AssertFileExists("public/s1/p1-foo.txt", true) // failing test
+	b.AssertFileExists("public/s1/p1/index.html", true)
+}
