@@ -485,7 +485,7 @@ func (m *pageMap) forEachResourceInPage(
 	rw.Handle = func(resourceKey string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
 		if isBranch {
 			ownerKey, _ := m.treePages.LongestPrefixAll(resourceKey)
-			if ownerKey != keyPage {
+			if ownerKey != keyPage && path.Dir(ownerKey) != path.Dir(resourceKey) {
 				// Stop walking downwards, someone else owns this resource.
 				rw.SkipPrefix(ownerKey + "/")
 				return false, nil
