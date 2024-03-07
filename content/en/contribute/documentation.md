@@ -47,6 +47,7 @@ Please link to the [glossary of terms] when necessary, and use the terms consist
 - Use the word "map" instead of "dictionary"
 - Use the word "flag" instead of "option" when referring to a command line flag
 - Capitalize the word "Markdown"
+- Hyphenate the term "open-source" when used an adjective.
 
 #### Page titles and headings
 

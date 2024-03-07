@@ -21,7 +21,7 @@ aliases: [/tools/frontends/]
 [DatoCMS](https://www.datocms.com)
 : DatoCMS is a fully customizable administrative area for your static websites. Use your favorite website generator, let your clients publish new content independently, and the host the site anywhere you like.
 
-## Open source
+## Open-source
 
 [Decap CMS](https://decapcms.org/)
 : Decap CMS is an open-source, serverless solution for managing Git based content in static sites, and it works on any platform that can host static sites. A [Hugo/Decap CMS starter](https://github.com/decaporg/one-click-hugo-cms) is available to get new projects running quickly.
