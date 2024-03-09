@@ -65,10 +65,11 @@ func TestDeprecationLogLevelFromVersion(t *testing.T) {
 }
 
 type testConfig struct {
-	environment string
-	running     bool
-	workingDir  string
-	multihost   bool
+	environment  string
+	running      bool
+	workingDir   string
+	multihost    bool
+	multilingual bool
 }
 
 func (c testConfig) Environment() string {
@@ -85,4 +86,8 @@ func (c testConfig) WorkingDir() string {
 
 func (c testConfig) IsMultihost() bool {
 	return c.multihost
+}
+
+func (c testConfig) IsMultiLingual() bool {
+	return c.multilingual
 }

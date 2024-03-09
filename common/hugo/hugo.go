@@ -116,12 +116,18 @@ func (i HugoInfo) IsMultiHost() bool {
 	return i.conf.IsMultihost()
 }
 
+// IsMultiLingual reports whether there are two or more configured languages.
+func (i HugoInfo) IsMultiLingual() bool {
+	return i.conf.IsMultiLingual()
+}
+
 // ConfigProvider represents the config options that are relevant for HugoInfo.
 type ConfigProvider interface {
 	Environment() string
 	Running() bool
 	WorkingDir() string
 	IsMultihost() bool
+	IsMultiLingual() bool
 }
 
 // NewInfo creates a new Hugo Info object.

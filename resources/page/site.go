@@ -54,8 +54,7 @@ type Site interface {
 	// A shortcut to the home
 	Home() Page
 
-	// Returns true if we're running in a server.
-	// Deprecated: use hugo.IsServer instead
+	// Deprecated: Use hugo.IsServer instead.
 	IsServer() bool
 
 	// Returns the server port.
@@ -64,7 +63,6 @@ type Site interface {
 	// Returns the configured title for this Site.
 	Title() string
 
-	// Returns the configured language code for this Site.
 	// Deprecated: Use .Language.LanguageCode instead.
 	LanguageCode() string
 
@@ -86,7 +84,6 @@ type Site interface {
 	// Returns a taxonomy map.
 	Taxonomies() TaxonomyList
 
-	// Returns the last modification date of the content.
 	// Deprecated: Use .Lastmod instead.
 	LastChange() time.Time
 
@@ -129,13 +126,13 @@ type Site interface {
 	// BuildDrafts is deprecated and will be removed in a future release.
 	BuildDrafts() bool
 
-	// IsMultiLingual reports whether this site is configured with more than one language.
+	// Deprecated: Use hugo.IsMultiLingual instead.
 	IsMultiLingual() bool
 
 	// LanguagePrefix returns the language prefix for this site.
 	LanguagePrefix() string
 
-	// Deprecated. Use site.Home.OutputFormats.Get "rss" instead.
+	// Deprecated: Use .Site.Home.OutputFormats.Get "rss" instead.
 	RSSLink() template.URL
 }
 
@@ -180,7 +177,7 @@ func (s *siteWrapper) Authors() AuthorList {
 	return AuthorList{}
 }
 
-// Deprecated: Use .Site.Config.Services.GoogleAnalytics.ID instead
+// Deprecated: Use .Site.Config.Services.GoogleAnalytics.ID instead.
 func (s *siteWrapper) GoogleAnalytics() string {
 	return s.s.GoogleAnalytics()
 }
@@ -217,7 +214,7 @@ func (s *siteWrapper) Home() Page {
 	return s.s.Home()
 }
 
-// Deprecated: use hugo.IsServer instead
+// Deprecated: Use hugo.IsServer instead.
 func (s *siteWrapper) IsServer() bool {
 	return s.s.IsServer()
 }
@@ -262,9 +259,9 @@ func (s *siteWrapper) Taxonomies() TaxonomyList {
 	return s.s.Taxonomies()
 }
 
+// Deprecated: Use .Site.Lastmod instead.
 func (s *siteWrapper) LastChange() time.Time {
-	hugo.Deprecate(".Site.LastChange", "Use .Site.Lastmod instead.", "v0.123.0")
-	return s.s.Lastmod()
+	return s.s.LastChange()
 }
 
 func (s *siteWrapper) Lastmod() time.Time {
@@ -295,11 +292,12 @@ func (s *siteWrapper) BuildDrafts() bool {
 	return s.s.BuildDrafts()
 }
 
+// Deprecated: Use hugo.IsMultiLingual instead.
 func (s *siteWrapper) IsMultiLingual() bool {
 	return s.s.IsMultiLingual()
 }
 
-// Deprecated: Use .Site.Config.Services.Disqus.Shortname instead
+// Deprecated: Use .Site.Config.Services.Disqus.Shortname instead.
 func (s *siteWrapper) DisqusShortname() string {
 	return s.s.DisqusShortname()
 }
@@ -308,6 +306,7 @@ func (s *siteWrapper) LanguagePrefix() string {
 	return s.s.LanguagePrefix()
 }
 
+// Deprecated: Use .Site.Home.OutputFormats.Get "rss" instead.
 func (s *siteWrapper) RSSLink() template.URL {
 	return s.s.RSSLink()
 }
@@ -342,6 +341,7 @@ func (t testSite) ServerPort() int {
 	return 1313
 }
 
+// Deprecated: Use .Site.Lastmod instead.
 func (testSite) LastChange() (t time.Time) {
 	return
 }
@@ -386,7 +386,7 @@ func (t testSite) Languages() langs.Languages {
 	return nil
 }
 
-// Deprecated: Use .Site.Config.Services.GoogleAnalytics.ID instead
+// Deprecated: Use .Site.Config.Services.GoogleAnalytics.ID instead.
 func (t testSite) GoogleAnalytics() string {
 	return ""
 }
@@ -395,7 +395,7 @@ func (t testSite) MainSections() []string {
 	return nil
 }
 
-// Deprecated: use hugo.IsServer instead
+// Deprecated: Use hugo.IsServer instead.
 func (t testSite) IsServer() bool {
 	return false
 }
@@ -444,7 +444,7 @@ func (s testSite) Config() SiteConfig {
 	return SiteConfig{}
 }
 
-// Deprecated: Use .Site.Config.Services.Disqus.Shortname instead
+// Deprecated: Use .Site.Config.Services.Disqus.Shortname instead.
 func (testSite) DisqusShortname() string {
 	return ""
 }
@@ -453,6 +453,7 @@ func (s testSite) BuildDrafts() bool {
 	return false
 }
 
+// Deprecated: Use hugo.IsMultiLingual instead.
 func (s testSite) IsMultiLingual() bool {
 	return false
 }
@@ -461,6 +462,7 @@ func (s testSite) Param(key any) (any, error) {
 	return nil, nil
 }
 
+// Deprecated: Use .Site.Home.OutputFormats.Get "rss" instead.
 func (s testSite) RSSLink() template.URL {
 	return ""
 }

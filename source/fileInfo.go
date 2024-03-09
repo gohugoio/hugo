@@ -61,7 +61,7 @@ func (fi *File) Extension() string {
 func (fi *File) Ext() string { return fi.p().Ext() }
 
 // Lang returns a file's language (e.g. "sv").
-// Deprecated: use .Page.Language.Lang instead.
+// Deprecated: Use .Page.Language.Lang instead.
 func (fi *File) Lang() string {
 	hugo.Deprecate(".Page.File.Lang", "Use .Page.Language.Lang instead.", "v0.123.0")
 	return fi.fim.Meta().Lang
