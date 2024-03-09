@@ -239,7 +239,7 @@ Use `:=` to initialize a variable, and use `=` to assign a value to a variable t
 {{ range slice 7 11 21 }}
   {{ $total = add $total . }}
 {{ end }}
-{{ $v1 }} → 42
+{{ $total }} → 42
 ```
 
 Variables initialized inside of an `if`, `range`, or `with` block are scoped to the block. Variables initialized outside of these blocks are scoped to the template.
