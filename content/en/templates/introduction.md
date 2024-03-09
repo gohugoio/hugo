@@ -407,7 +407,7 @@ Use the [`partial`] or [`partialCached`] function to include one or more [partia
 
 ```go-html-template
 {{ partial "breadcrumbs.html" . }}
-{{ partialCached "css.html" .}}
+{{ partialCached "css.html" . }}
 ```
 
 Create your partial templates in the layouts/partials directory.
