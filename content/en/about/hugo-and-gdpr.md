@@ -22,7 +22,7 @@ aliases: [/privacy/,/gdpr/]
  Note that:
 
  * These settings have their defaults setting set to _off_, i.e. how it worked before Hugo `0.41`. You must do your own evaluation of your site and apply the appropriate settings.
- * These settings work with the [internal templates](/templates/internal/). Some theme may contain custom templates for embedding services like Google Analytics. In that case these options have no effect.
+ * These settings work with the [embedded templates](/templates/embedded/). Some theme may contain custom templates for embedding services like Google Analytics. In that case these options have no effect.
  * We will continue this work and improve this further in future Hugo versions.
 
 ## All privacy settings

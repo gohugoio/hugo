@@ -108,7 +108,7 @@ Methods|Functions|Shortcodes
 [`Shortcode.Ref`]||
 [`Shortcode.RelRef`]||
 
-[`urls.Ref`]: functions/urls/ref/
+[`urls.Ref`]: /functions/urls/ref/
 [`urls.RelRef`]: /functions/urls/relref/
 [`Page.GetPage`]: /methods/page/getpage/
 [`Site.GetPage`]: /methods/site/getpage/

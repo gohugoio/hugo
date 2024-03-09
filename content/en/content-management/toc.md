@@ -110,7 +110,7 @@ A collection of textile samples lay spread out on the table - Samsa was a travel
 
 Hugo will take this AsciiDoc and create a table of contents store it in the page variable `.TableOfContents`, in the same as described for Markdown.
 
-[conditionals]: /templates/introduction/#conditionals
+[conditionals]: /templates/introduction/#conditional-blocks
 [front matter]: /content-management/front-matter/
 [pagevars]: /methods/page/
 [partials]: /templates/partials/

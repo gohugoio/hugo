@@ -37,7 +37,7 @@ Place this in your baseof.html template:
   {{ $m := dict
     "hugo_version" hugo.Version
     "build_date" (now.Format $rfc3339)
-    "last_modified" (site.LastChange.Format $rfc3339)
+    "last_modified" (site.Lastmod.Format $rfc3339)
   }}
   {{ $json := jsonify $m }}
   {{ $r := resources.FromString "site.json" $json }}
@@ -61,7 +61,7 @@ Combine `resources.FromString` with [`resources.ExecuteAsTemplate`] if your stri
     {{ $m := dict
       "hugo_version" hugo.Version
       "build_date" (now.Format $rfc3339)
-      "last_modified" (site.LastChange.Format $rfc3339)
+      "last_modified" (site.Lastmod.Format $rfc3339)
     }}
     {{ $json := jsonify $m }}
     `

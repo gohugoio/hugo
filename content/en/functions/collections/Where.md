@@ -243,7 +243,7 @@ To return a collection of future events:
 {{ $futureEvents := where $events "Params.eventDate" "gt" now }}
 ```
 
-When working with YAML or JSON, or quoted TOML values, custom dates are strings; you cannot compare them with `time.Time` values. String comparisons may be possible if the custom date layout is consistent from one page to the next. However, to be safe, filter the pages by ranging through the collection:
+When working with YAML or JSON, or quoted TOML values, custom dates are strings; you cannot compare them with `time.Time` values. String comparisons may be possible if the custom date layout is consistent from one page to the next. To be safe, filter the pages by ranging through the collection:
 
 ```go-html-template
 {{ $events := where .Site.RegularPages "Type" "events" }}

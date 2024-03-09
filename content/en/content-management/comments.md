@@ -37,7 +37,7 @@ For many websites, this is enough configuration. However, you also have the opti
 
 ### Render Hugo's built-in Disqus partial template
 
-Disqus has its own [internal template](/templates/internal/#disqus) available, to render it add the following code where you want comments to appear:
+Disqus has its own [internal template](/templates/embedded/#disqus) available, to render it add the following code where you want comments to appear:
 
 ```go-html-template
 {{ template "_internal/disqus.html" . }}
@@ -66,7 +66,7 @@ Open-source commenting systems:
 - [Utterances](https://utteranc.es/)
 
 [configuration]: /getting-started/configuration/
-[disquspartial]: /templates/internal/#disqus
+[disquspartial]: /templates/embedded/#disqus
 [disqussetup]: https://disqus.com/profile/signup/
 [forum]: https://discourse.gohugo.io
 [front matter]: /content-management/front-matter/

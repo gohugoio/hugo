@@ -95,7 +95,7 @@ most helpful when the condition depends on either of the values, or both:
 
 #### `.Inner`
 
-If a closing shortcode is used, the `.Inner` variable will be populated with the content between the opening and closing shortcodes. To check if `.Inner` contains anything other than white space:
+If a closing shortcode is used, the `.Inner` variable will be populated with the content between the opening and closing shortcodes. To check if `.Inner` contains anything other than whitespace:
 
 ```go-html-template
 {{ if strings.ContainsNonSpace .Inner }}
