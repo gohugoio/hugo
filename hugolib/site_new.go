@@ -361,8 +361,7 @@ func newHugoSites(cfg deps.DepsCfg, d *deps.Deps, pageTrees *pageTrees, sites []
 	return h, nil
 }
 
-// Returns true if we're running in a server.
-// Deprecated: use hugo.IsServer instead
+// Deprecated: Use hugo.IsServer instead.
 func (s *Site) IsServer() bool {
 	hugo.Deprecate(".Site.IsServer", "Use hugo.IsServer instead.", "v0.120.0")
 	return s.conf.Internal.Running
@@ -382,8 +381,9 @@ func (s *Site) Copyright() string {
 	return s.conf.Copyright
 }
 
+// Deprecated: Use .Site.Home.OutputFormats.Get "rss" instead.
 func (s *Site) RSSLink() template.URL {
-	hugo.Deprecate("Site.RSSLink", "Use the Output Format's Permalink method instead, e.g. .OutputFormats.Get \"RSS\".Permalink", "v0.114.0")
+	hugo.Deprecate(".Site.RSSLink", "Use the Output Format's Permalink method instead, e.g. .OutputFormats.Get \"RSS\".Permalink", "v0.114.0")
 	rssOutputFormat := s.home.OutputFormats().Get("rss")
 	return template.URL(rssOutputFormat.Permalink())
 }
@@ -431,9 +431,9 @@ func (s *Site) BaseURL() string {
 	return s.conf.C.BaseURL.WithPath
 }
 
-// Returns the last modification date of the content.
-// Deprecated: Use .Lastmod instead.
+// Deprecated: Use .Site.Lastmod instead.
 func (s *Site) LastChange() time.Time {
+	hugo.Deprecate(".Site.LastChange", "Use .Site.Lastmod instead.", "v0.123.0")
 	return s.lastmod
 }
 
@@ -459,13 +459,13 @@ func (s *Site) Social() map[string]string {
 	return s.conf.Social
 }
 
-// Deprecated: Use .Site.Config.Services.Disqus.Shortname instead
+// Deprecated: Use .Site.Config.Services.Disqus.Shortname instead.
 func (s *Site) DisqusShortname() string {
 	hugo.Deprecate(".Site.DisqusShortname", "Use .Site.Config.Services.Disqus.Shortname instead.", "v0.120.0")
 	return s.Config().Services.Disqus.Shortname
 }
 
-// Deprecated: Use .Site.Config.Services.GoogleAnalytics.ID instead
+// Deprecated: Use .Site.Config.Services.GoogleAnalytics.ID instead.
 func (s *Site) GoogleAnalytics() string {
 	hugo.Deprecate(".Site.GoogleAnalytics", "Use .Site.Config.Services.GoogleAnalytics.ID instead.", "v0.120.0")
 	return s.Config().Services.GoogleAnalytics.ID
@@ -484,7 +484,9 @@ func (s *Site) BuildDrafts() bool {
 	return s.conf.BuildDrafts
 }
 
+// Deprecated: Use hugo.IsMultiLingual instead.
 func (s *Site) IsMultiLingual() bool {
+	hugo.Deprecate(".Site.IsMultiLingual", "Use hugo.IsMultiLingual instead.", "v0.124.0")
 	return s.h.isMultiLingual()
 }
 

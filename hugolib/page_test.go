@@ -578,7 +578,7 @@ date: 2012-01-12
 	b.Assert(s.getPageOldVersion("/with-index-no-date").Date().IsZero(), qt.Equals, true)
 	checkDate(s.getPageOldVersion("/with-index-date"), 2018)
 
-	b.Assert(s.Site().LastChange().Year(), qt.Equals, 2018)
+	b.Assert(s.Site().Lastmod().Year(), qt.Equals, 2018)
 }
 
 func TestCreateNewPage(t *testing.T) {
@@ -773,7 +773,7 @@ func TestSummaryManualSplit(t *testing.T) {
 title: Simple
 ---
 This is **summary**.
-<!--more--> 
+<!--more-->
 This is **content**.
 -- layouts/_default/single.html --
 Summary: {{ .Summary }}|Truncated: {{ .Truncated }}|
