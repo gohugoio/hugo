@@ -1,12 +1,12 @@
 ---
 title: Methods
-linkTitle: Overview
+linkTitle: In this section
 description: A list of Hugo template methods including examples.
 categories: []
 keywords: []
 menu:
   docs:
-    identifier: methods-overview
+    identifier: methods-in-this-section
     parent: methods
     weight: 10
 weight: 10

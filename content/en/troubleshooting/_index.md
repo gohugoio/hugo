@@ -1,12 +1,12 @@
 ---
 title: Troubleshooting
-linkTitle: Overview
+linkTitle: In this section
 description: Use these techniques when troubleshooting your site.
 categories: []
 keywords: []
 menu:
   docs:
-    identifier: troubleshooting-overview
+    identifier: troubleshooting-in-this-section
     parent: troubleshooting
     weight: 10
 weight: 10
