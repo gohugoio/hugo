@@ -68,7 +68,7 @@ The `<` character indicates that the shortcode's inner content does *not* need f
 
 ### Nested shortcodes
 
-You can call shortcodes within other shortcodes by creating your own templates that leverage the `.Parent` variable. `.Parent` allows you to check the context in which the shortcode is being called. See [Shortcode templates][sctemps].
+You can call shortcodes within other shortcodes by creating your own templates that leverage the `.Parent` method. `.Parent` allows you to check the context in which the shortcode is being called. See [Shortcode templates][sctemps].
 
 ## Embedded shortcodes
 
@@ -443,19 +443,10 @@ To learn how to configure your Hugo site to meet the new EU privacy regulation, 
 
 To learn more about creating custom shortcodes, see the [shortcode template documentation].
 
-[`figure` shortcode]: #figure
-[contentmanagementsection]: /content-management/formats/
-[examplegist]: https://gist.github.com/spf13/7896402
-[figureelement]: https://html5doctor.com/the-figure-figcaption-elements/
 [Hugo and the GDPR]: /about/hugo-and-gdpr/
-[Instagram]: https://www.instagram.com/
-[pagevariables]: /methods/page/
 [partials]: /templates/partials/
 [quickstart]: /getting-started/quick-start/
 [sctemps]: /templates/shortcode-templates/
-[scvars]: /methods/shortcode/
 [shortcode template documentation]: /templates/shortcode-templates/
-[templatessection]: /templates/
 [Vimeo]: https://vimeo.com/
 [YouTube Videos]: https://www.youtube.com/
-[YouTube Input shortcode]: #youtube

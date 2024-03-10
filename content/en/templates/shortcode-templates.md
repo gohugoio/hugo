@@ -125,11 +125,11 @@ $.Page.Params
 : refers to the page's parameters; the "page" in this case refers to the content file in which the shortcode is declared (e.g., a `shortcode_color` field in a content's front matter could be accessed via `$.Page.Params.shortcode_color`).
 
 $.Page.Site.Params
-: refers to global variables as defined in your [site's configuration file][config].
+: refers to parameters defined in your site configuration.
 
 #### `.IsNamedParams`
 
-The `.IsNamedParams` variable checks whether the shortcode declaration uses named parameters and returns a boolean value.
+The `.IsNamedParams` method checks whether the shortcode declaration uses named parameters and returns a boolean value.
 
 For example, you could create an `image` shortcode that can take either a `src` named parameter or the first positional parameter, depending on the preference of the content's author. Let's assume the `image` shortcode is called as follows:
 
@@ -350,19 +350,20 @@ This will output the following HTML. Note how the first two `img` shortcodes inh
 
 ## Error handling in shortcodes
 
-Use the [errorf](/functions/fmt/errorf) template function and [`.Position`] shortcode method to get useful error messages in shortcodes:
+Use the [`errorf`] template function with the [`Name`] and [`Position`] shortcode methods to generate useful error messages:
 
-```sh
+{{< code file=layouts/shortcodes/greeting.html >}}
 {{ with .Get "name" }}
+  <p>Hello, my name is {{ . }}.</p>
 {{ else }}
-{{ errorf "missing value for parameter 'name': %s" .Position }}
+  {{ errorf "The %q shortcode requires a 'name' parameter. See %s" .Name .Position }}
 {{ end }}
-```
+{{< /code >}}
 
-When the above fails, you will see an `ERROR` log similar to the below:
+When the above fails, you will see an `ERROR` message such as:
 
 ```sh
-ERROR 2018/11/07 10:05:55 missing value for parameter name: "/Users/bep/dev/go/gohugoio/hugo/docs/content/en/variables/shortcodes.md:32:1"
+ERROR The "greeting" shortcode requires a 'name' parameter. See "/home/user/project/content/_index.md:12:1"
 ```
 
 ## Inline shortcodes
@@ -396,18 +397,14 @@ The same inline shortcode can be reused later in the same content file, with dif
 {{</* time.inline /*/>}}
 ```
 
-[basic content files]: /content-management/formats/
+[`.Parent`]: /methods/shortcode/parent/
+[`errorf`]: /functions/fmt/errorf/
+[`Name`]: /methods/shortcode/name/
+[`Position`]: /methods/shortcode/position/
 [built-in shortcode]: /content-management/shortcodes/
-[config]: /getting-started/configuration/
-[Content Management: Shortcodes]: /content-management/shortcodes/#using-hugo-s-built-in-shortcodes
-[source organization]: /getting-started/directory-structure/
-[docsshortcodes]: https://github.com/gohugoio/hugo/tree/master/docs/layouts/shortcodes
 [figure]: /content-management/shortcodes/#figure
-[hugosc]: /content-management/shortcodes/#using-hugo-s-built-in-shortcodes
 [lookup order]: /templates/lookup-order/
 [pagevars]: /methods/page/
-[`.Parent`]: /methods/shortcode/parent/
-[`.Position`]: /methods/shortcode/position/
-[spfscs]: https://github.com/spf13/spf13.com/tree/master/layouts/shortcodes
+[source organization]: /getting-started/directory-structure/
 [vimeoexample]: #single-flexible-example-vimeo
 [youtubeshortcode]: /content-management/shortcodes/#youtube

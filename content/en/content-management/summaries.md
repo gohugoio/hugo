@@ -13,9 +13,7 @@ toc: true
 aliases: [/content/summaries/,/content-management/content-summaries/]
 ---
 
-<!--more-->
-
-With the use of the `.Summary` [page variable][pagevariables], Hugo generates summaries of content to use as a short version in summary views.
+With the use of the [`Summary`] method on `Page` object, Hugo generates summaries of content to use as a short version in summary views.
 
 ## Summary splitting options
 
@@ -23,7 +21,7 @@ With the use of the `.Summary` [page variable][pagevariables], Hugo generates su
 * Manual Summary Split
 * Front Matter Summary
 
-It is natural to accompany the summary with links to the original content, and a common design pattern is to see this link in the form of a "Read More ..." button. See the `.RelPermalink`, `.Permalink`, and `.Truncated` [page variables][pagevariables].
+It is natural to accompany the summary with links to the original content, and a common design pattern is to see this link in the form of a "Read More ..." button. See the [`RelPermalink`], [`Permalink`], and [`Truncated`] methods.
 
 ### Automatic summary splitting
 
@@ -105,6 +103,9 @@ You can show content summaries with the following code. You could use the follow
 
 Note how the `.Truncated` boolean variable value may be used to hide the "Read More..." link when the content is not truncated; i.e., when the summary contains the entire article.
 
+[`Permalink`]: /methods/page/permalink/
+[`RelPermalink`]: /methods/page/relpermalink/
+[`Summary`]: /methods/page/summary/
+[`Truncated`]: /methods/page/truncated/
 [org]: /content-management/formats/
-[pagevariables]: /methods/page/
 [section template]: /templates/section-templates/

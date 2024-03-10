@@ -249,19 +249,21 @@ You may also access EXIF fields individually, using the [`lang.FormatNumber`] fu
 {{ end }}
 ```
 
-#### EXIF variables
+#### EXIF methods
 
-.Date
-: Image creation date/time. Format with the [time.Format] function.
+Date
+: (`time.Time`) Returns the image creation date/time. Format with the [`time.Format`]function.
 
-.Lat
-: GPS latitude in degrees.
+[time.Format]: /functions/time/format/
 
-.Long
-: GPS longitude in degrees.
+Lat
+: (`float64`) Returns the GPS latitude in degrees.
 
-.Tags
-: A collection of the available EXIF tags for this image. You may include or exclude specific tags from this collection in the [site configuration](#exif-data).
+Long
+: (`float64`) Returns the GPS longitude in degrees.
+
+Tags
+: (`exif.Tags`) Returns a collection of the available EXIF tags for this image. You may include or exclude specific tags from this collection in the [site configuration].
 
 ## Image processing options
 
@@ -500,7 +502,7 @@ If you change image processing methods or options, or if you rename or remove im
 hugo --gc
 ```
 
-[time.Format]: /functions/time/format/
+
 [`anchor`]: /content-management/image-processing#anchor
 [mounted]: /hugo-modules/configuration#module-configuration-mounts
 [page bundle]: /content-management/page-bundles/

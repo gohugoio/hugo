@@ -155,10 +155,10 @@ Hugo's Open Graph template is configured using a mix of configuration variables 
   series = "series"
 {{</ code-toggle >}}
 
-{{< code-toggle file=content/blog/my-post.md >}}
+{{< code-toggle file=content/blog/my-post.md fm=true >}}
 title = "Post title"
 description = "Text about this post"
-date = "2006-01-02"
+date = 2024-03-08T08:18:11-08:00
 images = ["post-cover.png"]
 audio = []
 videos = []

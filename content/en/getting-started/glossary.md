@@ -421,7 +421,7 @@ To transform a serialized object into a data structure. For example, transformin
 
 ###### variable
 
-A user-defined [identifier](#identifier) prefaced with a `$` symbol, representing a value of any data type, initialized or assigned within a [template action](#template-action). For example, `$foo`&nbsp;and&nbsp;`$bar` are variables.
+A user-defined [identifier](#identifier) prepended with a `$` symbol, representing a value of any data type, initialized or assigned within a [template action](#template-action). For example, `$foo`&nbsp;and&nbsp;`$bar` are variables.
 
 ###### walk
 

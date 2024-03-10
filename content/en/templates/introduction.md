@@ -64,7 +64,7 @@ In the example above the dot represents the `Page` object, and we call its [`Tit
 [front matter]: /content-management/front-matter/
 [`Title`]: /methods/page/title
 
-The current context may change within a template. For example, at the top of a template the context might be a `Page` object, but we can rebind the context to another value or object within [`range`] or [`with`] blocks.
+The current context may change within a template. For example, at the top of a template the context might be a `Page` object, but we rebind the context to another value or object within [`range`] or [`with`] blocks.
 
 [`range`]: /functions/go-template/range/
 [`with`]: /functions/go-template/with/
@@ -221,7 +221,7 @@ This is line two.`
 
 ## Variables
 
-A variable is a user-defined [identifier] prefaced with a dollar sign (`$`), representing a value of any data type, initialized or assigned within a template action. For example, `$foo` and `$bar` are variables.
+A variable is a user-defined [identifier] prepended with a dollar sign (`$`), representing a value of any data type, initialized or assigned within a template action. For example, `$foo` and `$bar` are variables.
 
 [identifier]: /getting-started/glossary/#identifier
 
@@ -299,7 +299,7 @@ As shown above, frequently used functions have an alias. Use aliases in your tem
 When calling a function, separate the arguments from the function, and from each other, with a space. For example:
 
 ```go-html-template
-{{ $total := add 1 2 3 4 }} → 10
+{{ $total := add 1 2 3 4 }}
 ```
 
 ## Methods

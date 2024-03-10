@@ -15,7 +15,7 @@ Applicable to JPEG and TIFF images, the `Exif` method on an image `Resource` obj
 ## Methods
 
 Date
-: (`time.Time`) Returns the image creation date/time. Format with the [`time.Format`]function.
+: (`time.Time`) Returns the image creation date/time. Format with the [`time.Format`] function.
 
 Lat
 : (`float64`) Returns the GPS latitude in degrees.

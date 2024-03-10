@@ -46,7 +46,7 @@ Hugo also has support for a default content template to be used in the event tha
 
 ## Which template will be rendered?
 
-The following is the [lookup order][lookup] for content views:
+The following is the [lookup order] for content views:
 
 1. `/layouts/<TYPE>/<VIEW>.html`
 2. `/layouts/_default/<VIEW>.html`
@@ -74,7 +74,7 @@ In this example, `.Render` is passed into the template to call the [render funct
 
 ### `summary.html`
 
-Hugo will pass the entire page object to the following `summary.html` view template. (See [Page Variables][pagevars] for a complete list.)
+Hugo passes the page object to the following `summary.html` view template.
 
 {{< code file=layouts/_default/summary.html >}}
 <article class="post">
@@ -101,13 +101,7 @@ Continuing on the previous example, we can change our render function to use a s
 {{< /code >}}
 
 [lists]: /templates/lists/
-[lookup]: /templates/lookup-order/
-[pagevars]: /methods/page/
 [render]: /methods/page/render/
 [single]: /templates/single-page-templates/
-[spf]: https://spf13.com
-[spfsourceli]: https://github.com/spf13/spf13.com/blob/master/layouts/_default/li.html
-[spfsourcesection]: https://github.com/spf13/spf13.com/blob/master/layouts/_default/section.html
-[spfsourcesummary]: https://github.com/spf13/spf13.com/blob/master/layouts/_default/summary.html
 [summaries]: /content-management/summaries/
 [taxonomylists]: /templates/taxonomy-templates/

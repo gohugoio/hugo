@@ -305,7 +305,7 @@ genres = ['mystery','romance']
 author = 'John Smith'
 {{< /code-toggle >}}
 
-You can add taxonomy terms to the front matter of any these [page kinds]: 
+You can add taxonomy terms to the front matter of any these [page kinds]:
 
 - `home`
 - `page`

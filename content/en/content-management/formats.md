@@ -24,14 +24,14 @@ The current list of content formats in Hugo:
 
 | Name  | Markup identifiers | Comment |
 | ------------- | ------------- |-------------|
-| Goldmark  | `markdown`, `goldmark`  |Note that you can set the default handler of `md` and `Markdown` to something else, see [Configure Markup](/getting-started/configuration-markup/).|
+| Goldmark  | `markdown`, `goldmark`  |Note that you can set the default handler of `md` and `markdown` to something else, see [Configure Markup](/getting-started/configuration-markup/).|
 |Emacs Org-Mode|`org`|See [go-org](https://github.com/niklasfasching/go-org).|
 |AsciiDoc|`asciidocext`, `adoc`, `ad`|Needs [Asciidoctor][ascii] installed.|
 |RST|`rst`|Needs [RST](https://docutils.sourceforge.io/rst.html) installed.|
 |Pandoc|`pandoc`, `pdc`|Needs [Pandoc](https://www.pandoc.org/) installed.|
 |HTML|`html`, `htm`|To be treated as a content file, with layout, shortcodes etc., it must have front matter. If not, it will be copied as-is.|
 
-The `markup identifier` is fetched from either the `markup` variable in front matter or from the file extension. For markup-related configuration, see [Configure Markup](/getting-started/configuration-markup/).
+The `markup` identifier is fetched from either the `markup` field in front matter or from the file extension. For markup-related configuration, see [Configure Markup](/getting-started/configuration-markup/).
 
 ## External helpers
 

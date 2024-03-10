@@ -22,7 +22,7 @@ Hugo provides multiple ways to use taxonomies throughout your project templates:
 
 ## Taxonomy list templates
 
-Taxonomy list page templates are lists and therefore have all the variables and methods available to [list pages][lists].
+Taxonomy list page templates are lists and therefore have all the methods available to [list pages][lists].
 
 ### Taxonomy list template lookup order
 
@@ -102,7 +102,7 @@ type WeightedPages []WeightedPage
 
 ## Displaying custom metadata in taxonomy terms templates
 
-If you need to display custom metadata for each taxonomy term, you will need to create a page for that term at `/content/<TAXONOMY>/<TERM>/_index.md` and add your metadata in its front matter, [as explained in the taxonomies documentation](/content-management/taxonomies/#add-custom-metadata-to-a-taxonomy-or-term). Based on the Actors taxonomy example shown there, within your taxonomy terms template, you may access your custom fields by iterating through the variable `.Pages` as such:
+If you need to display custom metadata for each taxonomy term, you will need to create a page for that term at `/content/<TAXONOMY>/<TERM>/_index.md` and add your metadata in its front matter, [as explained in the taxonomies documentation](/content-management/taxonomies/#add-custom-metadata-to-a-taxonomy-or-term). Based on the Actors taxonomy example shown there, within your taxonomy terms template, you may access your custom fields by ranging over the page collection returned by the [`Pages`] method:
 
 ```go-html-template
 <ul>
@@ -311,6 +311,7 @@ Because taxonomies are lists, the [`.GetPage` function][getpage] can be used to 
 </ul>
 {{< /code >}}
 
+[`Pages`]: /methods/page/pages/
 [getpage]: /methods/page/getpage/
 [lists]: /templates/lists/
 [renderlists]: /templates/lists/
