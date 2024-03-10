@@ -21,6 +21,7 @@ methods_site_multilingual:
   - /methods/site/languageprefix
   - /methods/site/languages
 methods_site_page_collections:
+  - /methods/site/allpages
   - /methods/site/pages
   - /methods/site/regularpages
   - /methods/site/sections
