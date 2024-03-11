@@ -16,4 +16,4 @@ checkfilecount $NUM_COMMANDS manpages
 hugo gen chromastyles -h
 stdout 'Generate CSS stylesheet for the Chroma code highlighter'
 hugo gen chromastyles --style monokai
-stdout '/\* LineHighlight \*/ \.chroma \.hl \{ background-color: #3c3d38 \}'
+stdout '/\* LineHighlight \*/ \.chroma \.hl \{ background-color:#3c3d38 \}'
