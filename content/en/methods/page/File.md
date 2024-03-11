@@ -22,7 +22,9 @@ content/
     └── book-2.md
 ```
 
-Code defensively by verifying file existence as shown in each of the examples below.
+{{% note %}}
+Code defensively by verifying file existence as shown in the examples below.
+{{% /note %}}
 
 ## Methods
 
@@ -171,13 +173,7 @@ Some of the pages on a site may not be backed by a file. For example:
 - Taxonomy pages
 - Term pages
 
-Without a backing file, Hugo will throw a warning if you attempt to access a `.File` property. For example:
-
-```text
-WARN .File.ContentBaseName on zero object. Wrap it in if or with...
-```
-
-To code defensively, first check for file existence:
+Without a backing file, Hugo will throw an error if you attempt to access a `.File` property. To code defensively, first check for file existence:
 
 ```go-html-template
 {{ with .File }}
