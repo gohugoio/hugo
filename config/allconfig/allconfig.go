@@ -103,9 +103,11 @@ type Config struct {
 	RootConfig
 
 	// Author information.
+	// Deprecated: Use taxonomies instead.
 	Author map[string]any
 
 	// Social links.
+	// Deprecated: Use .Site.Params instead.
 	Social map[string]string
 
 	// The build configuration section contains build-related configuration options.

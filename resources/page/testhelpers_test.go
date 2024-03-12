@@ -127,10 +127,12 @@ func (p *testPage) AlternativeOutputFormats() OutputFormats {
 	panic("testpage: not implemented")
 }
 
+// Deprecated: Use taxonomies instead.
 func (p *testPage) Author() Author {
 	return Author{}
 }
 
+// Deprecated: Use taxonomies instead.
 func (p *testPage) Authors() AuthorList {
 	return nil
 }
