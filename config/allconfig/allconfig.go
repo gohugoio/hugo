@@ -826,7 +826,7 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 	langConfigMap := make(map[string]*Config)
 
 	languagesConfig := cfg.GetStringMap("languages")
-	var isMultiHost bool
+	var isMultihost bool
 
 	if err := all.CompileConfig(logger); err != nil {
 		return nil, err
@@ -863,7 +863,7 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 				}
 				if kk == "baseurl" {
 					// baseURL configure don the language level is a multihost setup.
-					isMultiHost = true
+					isMultihost = true
 				}
 				mergedConfig.Set(kk, vv)
 				rootv := cfg.Get(kk)
@@ -913,7 +913,7 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 			}
 
 			// Adjust Goldmark config defaults for multilingual, single-host sites.
-			if len(languagesConfig) > 1 && !isMultiHost && !clone.Markup.Goldmark.DuplicateResourceFiles {
+			if len(languagesConfig) > 1 && !isMultihost && !clone.Markup.Goldmark.DuplicateResourceFiles {
 				if !clone.Markup.Goldmark.DuplicateResourceFiles {
 					if clone.Markup.Goldmark.RenderHooks.Link.EnableDefault == nil {
 						clone.Markup.Goldmark.RenderHooks.Link.EnableDefault = types.NewBool(true)
@@ -943,7 +943,7 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 		Base:              all,
 		LanguageConfigMap: langConfigMap,
 		LoadingInfo:       res,
-		IsMultihost:       isMultiHost,
+		IsMultihost:       isMultihost,
 	}
 
 	return cm, nil

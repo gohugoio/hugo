@@ -334,7 +334,7 @@ func (s *Site) renderAliases() error {
 // renderMainLanguageRedirect creates a redirect to the main language home,
 // depending on if it lives in sub folder (e.g. /en) or not.
 func (s *Site) renderMainLanguageRedirect() error {
-	if s.h.Conf.IsMultihost() || !(s.h.Conf.DefaultContentLanguageInSubdir() || s.h.Conf.IsMultiLingual()) {
+	if s.h.Conf.IsMultihost() || !(s.h.Conf.DefaultContentLanguageInSubdir() || s.h.Conf.IsMultilingual()) {
 		// No need for a redirect
 		return nil
 	}

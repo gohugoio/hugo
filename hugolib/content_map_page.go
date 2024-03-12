@@ -1778,7 +1778,7 @@ func (sa *sitePagesAssembler) addStandalonePages() error {
 
 	if sitemapEnabled {
 		addStandalone("/_sitemap", kinds.KindSitemap, output.SitemapFormat)
-		skipSitemapIndex := s.Conf.IsMultihost() || !(s.Conf.DefaultContentLanguageInSubdir() || s.Conf.IsMultiLingual())
+		skipSitemapIndex := s.Conf.IsMultihost() || !(s.Conf.DefaultContentLanguageInSubdir() || s.Conf.IsMultilingual())
 
 		if !skipSitemapIndex {
 			addStandalone("/_sitemapindex", kinds.KindSitemapIndex, output.SitemapIndexFormat)

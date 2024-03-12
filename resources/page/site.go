@@ -126,7 +126,7 @@ type Site interface {
 	// BuildDrafts is deprecated and will be removed in a future release.
 	BuildDrafts() bool
 
-	// Deprecated: Use hugo.IsMultiLingual instead.
+	// Deprecated: Use hugo.IsMultilingual instead.
 	IsMultiLingual() bool
 
 	// LanguagePrefix returns the language prefix for this site.
@@ -292,7 +292,7 @@ func (s *siteWrapper) BuildDrafts() bool {
 	return s.s.BuildDrafts()
 }
 
-// Deprecated: Use hugo.IsMultiLingual instead.
+// Deprecated: Use hugo.IsMultilingual instead.
 func (s *siteWrapper) IsMultiLingual() bool {
 	return s.s.IsMultiLingual()
 }
@@ -453,7 +453,7 @@ func (s testSite) BuildDrafts() bool {
 	return false
 }
 
-// Deprecated: Use hugo.IsMultiLingual instead.
+// Deprecated: Use hugo.IsMultilingual instead.
 func (s testSite) IsMultiLingual() bool {
 	return false
 }

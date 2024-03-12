@@ -315,7 +315,7 @@ func TestStaticFs(t *testing.T) {
 	checkFileContent(sfs, "f2.txt", c, "Hugo Themes Still Rocks!")
 }
 
-func TestStaticFsMultiHost(t *testing.T) {
+func TestStaticFsMultihost(t *testing.T) {
 	c := qt.New(t)
 	v := config.New()
 	workDir := "mywork"
@@ -537,7 +537,7 @@ SCSS Match: {{ with resources.Match "**.scss" }}{{ . | len }}|{{ range .}}{{ .Re
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/index.html", `	
+	b.AssertFileContent("public/index.html", `
 SCSS: /scss/app.scss|body { color: blue; }|
 SCSS Match: 2|
 `)

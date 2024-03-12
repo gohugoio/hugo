@@ -35,7 +35,7 @@ type AllProvider interface {
 	PathParser() *paths.PathParser
 	Environment() string
 	IsMultihost() bool
-	IsMultiLingual() bool
+	IsMultilingual() bool
 	NoBuildLock() bool
 	BaseConfig() BaseConfig
 	Dirs() CommonDirs

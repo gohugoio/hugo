@@ -180,7 +180,7 @@ func (c testConfig) IsMultihost() bool {
 	return c.multihost
 }
 
-func (c testConfig) IsMultiLingual() bool {
+func (c testConfig) IsMultilingual() bool {
 	return c.multilingual
 }
 

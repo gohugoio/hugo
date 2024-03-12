@@ -20,7 +20,7 @@ import (
 	"github.com/gohugoio/hugo/hugolib"
 )
 
-func TestIsMultiLingualAndIsMultiHost(t *testing.T) {
+func TestIsMultilingualAndIsMultihost(t *testing.T) {
 	t.Parallel()
 
 	files := `
@@ -36,8 +36,8 @@ baseURL = 'https://en.example.org/'
 title: home
 ---
 -- layouts/index.html --
-multilingual={{ hugo.IsMultiLingual }}
-multihost={{ hugo.IsMultiHost }}
+multilingual={{ hugo.IsMultilingual }}
+multihost={{ hugo.IsMultihost }}
   `
 
 	b := hugolib.Test(t, files)

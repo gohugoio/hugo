@@ -111,14 +111,20 @@ func (i HugoInfo) Deps() []*Dependency {
 	return i.deps
 }
 
-// IsMultiHost reports whether each configured language has a unique baseURL.
+// Deprecated: Use hugo.IsMultihost instead.
 func (i HugoInfo) IsMultiHost() bool {
+	Deprecate("hugo.IsMultiHost", "Use hugo.IsMultihost instead.", "v0.124.0")
 	return i.conf.IsMultihost()
 }
 
-// IsMultiLingual reports whether there are two or more configured languages.
-func (i HugoInfo) IsMultiLingual() bool {
-	return i.conf.IsMultiLingual()
+// IsMultihost reports whether each configured language has a unique baseURL.
+func (i HugoInfo) IsMultihost() bool {
+	return i.conf.IsMultihost()
+}
+
+// IsMultilingual reports whether there are two or more configured languages.
+func (i HugoInfo) IsMultilingual() bool {
+	return i.conf.IsMultilingual()
 }
 
 // ConfigProvider represents the config options that are relevant for HugoInfo.
@@ -127,7 +133,7 @@ type ConfigProvider interface {
 	Running() bool
 	WorkingDir() string
 	IsMultihost() bool
-	IsMultiLingual() bool
+	IsMultilingual() bool
 }
 
 // NewInfo creates a new Hugo Info object.
