@@ -297,7 +297,6 @@ func (s *siteRefLinker) refLink(ref string, source any, relative bool, outputFor
 	ref = filepath.ToSlash(ref)
 
 	refURL, err = url.Parse(ref)
-
 	if err != nil {
 		return s.notFoundURL, err
 	}
@@ -681,7 +680,7 @@ func (s *Site) getLanguagePermalinkLang(alwaysInSubDir bool) string {
 		return ""
 	}
 
-	if s.h.Conf.IsMultiLingual() && alwaysInSubDir {
+	if s.h.Conf.IsMultilingual() && alwaysInSubDir {
 		return s.Language().Lang
 	}
 

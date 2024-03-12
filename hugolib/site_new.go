@@ -484,10 +484,10 @@ func (s *Site) BuildDrafts() bool {
 	return s.conf.BuildDrafts
 }
 
-// Deprecated: Use hugo.IsMultiLingual instead.
+// Deprecated: Use hugo.IsMultilingual instead.
 func (s *Site) IsMultiLingual() bool {
-	hugo.Deprecate(".Site.IsMultiLingual", "Use hugo.IsMultiLingual instead.", "v0.124.0")
-	return s.h.isMultiLingual()
+	hugo.Deprecate(".Site.IsMultiLingual", "Use hugo.IsMultilingual instead.", "v0.124.0")
+	return s.h.isMultilingual()
 }
 
 func (s *Site) LanguagePrefix() string {

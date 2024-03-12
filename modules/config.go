@@ -86,7 +86,7 @@ func ApplyProjectConfigDefaults(mod Module, cfgs ...config.AllProvider) error {
 
 		first := cfgs[0]
 		dirsBase := first.DirsBase()
-		isMultiHost := first.IsMultihost()
+		isMultihost := first.IsMultihost()
 
 		for i, cfg := range cfgs {
 			dirs := cfg.Dirs()
@@ -113,7 +113,7 @@ func ApplyProjectConfigDefaults(mod Module, cfgs ...config.AllProvider) error {
 				dir = dirs.AssetDir
 			case files.ComponentFolderStatic:
 				// For static dirs, we only care about the language in multihost setups.
-				dropLang = !isMultiHost
+				dropLang = !isMultihost
 			}
 
 			var perLang bool

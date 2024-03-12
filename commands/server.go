@@ -617,9 +617,9 @@ func (c *serverCommand) setBaseURLsInConfig() error {
 	}
 	return c.withConfE(func(conf *commonConfig) error {
 		for i, language := range conf.configs.Languages {
-			isMultiHost := conf.configs.IsMultihost
+			isMultihost := conf.configs.IsMultihost
 			var serverPort int
-			if isMultiHost {
+			if isMultihost {
 				serverPort = c.serverPorts[i].p
 			} else {
 				serverPort = c.serverPorts[0].p
@@ -737,9 +737,9 @@ func (c *serverCommand) createServerPorts(cd *simplecobra.Commandeer) error {
 	flags := cd.CobraCommand.Flags()
 	var cerr error
 	c.withConf(func(conf *commonConfig) {
-		isMultiHost := conf.configs.IsMultihost
+		isMultihost := conf.configs.IsMultihost
 		c.serverPorts = make([]serverPortListener, 1)
-		if isMultiHost {
+		if isMultihost {
 			if !c.serverAppend {
 				cerr = errors.New("--appendPort=false not supported when in multihost mode")
 				return
@@ -852,7 +852,7 @@ func (c *serverCommand) serve() error {
 		h        *hugolib.HugoSites
 	)
 	err := c.withConfE(func(conf *commonConfig) error {
-		isMultiHost := conf.configs.IsMultihost
+		isMultihost := conf.configs.IsMultihost
 		var err error
 		h, err = c.r.HugFromConfig(conf)
 		if err != nil {
@@ -862,7 +862,7 @@ func (c *serverCommand) serve() error {
 		// We need the server to share the same logger as the Hugo build (for error counts etc.)
 		c.r.logger = h.Log
 
-		if isMultiHost {
+		if isMultihost {
 			for _, l := range conf.configs.ConfigLangs() {
 				baseURLs = append(baseURLs, l.BaseURL())
 				roots = append(roots, l.Language().Lang)
@@ -1005,7 +1005,6 @@ func (c *serverCommand) serve() error {
 			}
 		}
 	}()
-
 	if err != nil {
 		c.r.Println("Error:", err)
 	}

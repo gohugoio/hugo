@@ -66,12 +66,12 @@ robots|{{ site.Language.Lang }}
 404|{{ site.Language.Lang }}
 
 
-	
+
 `
 
 	b := Test(t, files)
 
-	b.Assert(b.H.Conf.IsMultiLingual(), qt.Equals, true)
+	b.Assert(b.H.Conf.IsMultilingual(), qt.Equals, true)
 	b.Assert(b.H.Conf.IsMultihost(), qt.Equals, true)
 
 	// helpers.PrintFs(b.H.Fs.PublishDir, "", os.Stdout)

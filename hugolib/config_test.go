@@ -508,12 +508,12 @@ func TestLoadConfigFromThemeDir(t *testing.T) {
 theme = "test-theme"
 
 [params]
-m1 = "mv1"	
+m1 = "mv1"
 `
 
 	themeConfig := `
 [params]
-t1 = "tv1"	
+t1 = "tv1"
 t2 = "tv2"
 `
 
@@ -885,9 +885,9 @@ ThisIsAParam: {{ site.Params.thisIsAParam }}
 	).BuildE()
 
 	b.Assert(err, qt.IsNil)
-	b.AssertFileContent("public/index.html", `		
+	b.AssertFileContent("public/index.html", `
 MyParam: enParamValue
-ThisIsAParam: thisIsAParamValue	
+ThisIsAParam: thisIsAParamValue
 `)
 }
 
@@ -919,7 +919,7 @@ title: "My Swedish Section"
 -- layouts/index.html --
 LanguageCode: {{ eq site.LanguageCode site.Language.LanguageCode }}|{{ site.Language.LanguageCode }}|
 {{ range $i, $e := (slice site .Site) }}
-{{ $i }}|AllPages: {{ len .AllPages }}|Sections: {{ if .Sections }}true{{ end }}| Author: {{ .Authors }}|BuildDrafts: {{ .BuildDrafts }}|IsMultiLingual: {{ .IsMultiLingual }}|Param: {{ .Language.Params.myparam }}|Language string: {{ .Language }}|Languages: {{ .Languages }}
+{{ $i }}|AllPages: {{ len .AllPages }}|Sections: {{ if .Sections }}true{{ end }}| Author: {{ .Authors }}|BuildDrafts: {{ .BuildDrafts }}|IsMultilingual: {{ .IsMultiLingual }}|Param: {{ .Language.Params.myparam }}|Language string: {{ .Language }}|Languages: {{ .Languages }}
 {{ end }}
 
 
@@ -939,9 +939,9 @@ LanguageCode: {{ eq site.LanguageCode site.Language.LanguageCode }}|{{ site.Lang
 	b.AssertFileContent("public/index.html", `
 AllPages: 4|
 Sections: true|
-Param: enParamValue	
-Param: enParamValue	
-IsMultiLingual: true
+Param: enParamValue
+Param: enParamValue
+IsMultilingual: true
 LanguageCode: true|en-US|
 `)
 
@@ -1062,7 +1062,7 @@ Home
 	).BuildE()
 
 	b.Assert(err, qt.IsNil)
-	b.AssertFileContent("public/index.html", `		
+	b.AssertFileContent("public/index.html", `
 Home
 `)
 
@@ -1095,7 +1095,7 @@ HTML.
 HTACCESS.
 
 
-	
+
 `
 	b := Test(t, files)
 
@@ -1111,7 +1111,7 @@ languageCode = "en-US"
 -- layouts/index.html --
 LanguageCode: {{ .Site.LanguageCode }}|{{ site.Language.LanguageCode }}|
 
-	
+
 `
 	b := Test(t, files)
 
@@ -1137,7 +1137,7 @@ suffixes = ["bar"]
 -- layouts/index.html --
 Home.
 
-	
+
 `
 	b := Test(t, files)
 
@@ -1164,8 +1164,8 @@ func TestConfigMiscPanics(t *testing.T) {
 params:
 -- layouts/index.html --
 Foo: {{ site.Params.foo }}|
-	
-		
+
+
 	`
 		b := Test(t, files)
 
@@ -1188,8 +1188,8 @@ defaultContentLanguage = "en"
 	weight = 1
 -- layouts/index.html --
 Foo: {{ site.Params.foo }}|
-	
-		
+
+
 	`
 		b, err := NewIntegrationTestBuilder(
 			IntegrationTestConfig{
@@ -1215,8 +1215,8 @@ languageCode = "en"
 languageName = "English"
 weight = 1
 
-	
-		
+
+
 	`
 		b, err := NewIntegrationTestBuilder(
 			IntegrationTestConfig{
@@ -1241,7 +1241,7 @@ contentDir = "mycontent"
 -- layouts/index.html --
 Home.
 
-	
+
 `
 	b := Test(t, files)
 
@@ -1343,7 +1343,7 @@ disabled = true
 -- layouts/index.html --
 Home.
 
-	
+
 `
 	b := Test(t, files)
 
@@ -1438,7 +1438,7 @@ home = ["html"]
 -- hugo.toml --
 baseURL = "https://example.com"
 disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "section"]
-		
+
 		`
 
 		runVariant(t, files, nil)

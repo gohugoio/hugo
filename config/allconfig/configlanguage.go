@@ -52,7 +52,7 @@ func (c ConfigLanguage) LanguagePrefix() string {
 		return c.Language().Lang
 	}
 
-	if !c.IsMultiLingual() || c.DefaultContentLanguage() == c.Language().Lang {
+	if !c.IsMultilingual() || c.DefaultContentLanguage() == c.Language().Lang {
 		return ""
 	}
 	return c.Language().Lang
@@ -78,7 +78,7 @@ func (c ConfigLanguage) FastRenderMode() bool {
 	return c.config.Internal.FastRenderMode
 }
 
-func (c ConfigLanguage) IsMultiLingual() bool {
+func (c ConfigLanguage) IsMultilingual() bool {
 	return len(c.m.Languages) > 1
 }
 

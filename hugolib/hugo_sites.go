@@ -269,7 +269,7 @@ func (h *HugoSites) pickOneAndLogTheRest(errors []error) error {
 	return errors[i]
 }
 
-func (h *HugoSites) isMultiLingual() bool {
+func (h *HugoSites) isMultilingual() bool {
 	return len(h.Sites) > 1
 }
 
