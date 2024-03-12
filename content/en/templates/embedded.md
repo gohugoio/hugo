@@ -148,11 +148,13 @@ Hugo's Open Graph template is configured using a mix of configuration variables 
 
 {{< code-toggle file=hugo >}}
 [params]
-  title = "My cool site"
-  images = ["site-feature-image.jpg"]
-  description = "Text about my cool site"
+  description = 'Text about my cool site'
+  images = ['site-feature-image.jpg']
+  title = 'My cool site'
+  [params.social]
+  facebook_admin = 'jsmith'
 [taxonomies]
-  series = "series"
+  series = 'series'
 {{</ code-toggle >}}
 
 {{< code-toggle file=content/blog/my-post.md fm=true >}}
