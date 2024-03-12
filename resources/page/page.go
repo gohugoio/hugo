@@ -52,9 +52,9 @@ type AlternativeOutputFormatsProvider interface {
 
 // AuthorProvider provides author information.
 type AuthorProvider interface {
-	// Deprecated.
+	// Deprecated: Use taxonomies instead.
 	Author() Author
-	// Deprecated.
+	// Deprecated: Use taxonomies instead.
 	Authors() AuthorList
 }
 

@@ -34,18 +34,11 @@
 {{ end }}{{ end }}
 {{- end }}
 
-{{- /* Deprecate site.Social.facebook_admin in favor of site.Params.social.facebook_admin */}}
-{{- $facebookAdmin := "" }}
+{{- /* Facebook Page Admin ID for Domain Insights */}}
 {{- with site.Params.social }}
   {{- if reflect.IsMap . }}
-    {{- $facebookAdmin = .facebook_admin }}
-  {{- end }}
-{{- else }}
-  {{- with site.Social.facebook_admin }}
-    {{- $facebookAdmin = . }}
-    {{- warnf "The social key in site configuration is deprecated. Use params.social.facebook_admin instead." }}
+    {{- with .facebook_admin }}
+      <meta property="fb:admins" content="{{ . }}" />
+    {{- end }}
   {{- end }}
 {{- end }}
-
-{{- /* Facebook Page Admin ID for Domain Insights */}}
-{{ with $facebookAdmin }}<meta property="fb:admins" content="{{ . }}" />{{ end }}

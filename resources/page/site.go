@@ -108,13 +108,13 @@ type Site interface {
 	// Returns the site config.
 	Config() SiteConfig
 
-	// Author is deprecated and will be removed in a future release.
+	// Deprecated: Use taxonomies instead.
 	Author() map[string]interface{}
 
-	// Authors is deprecated and will be removed in a future release.
+	// Deprecated: Use taxonomies instead.
 	Authors() AuthorList
 
-	// Returns the social links for this site.
+	// Deprecated: Use .Site.Params instead.
 	Social() map[string]string
 
 	// Deprecated: Use Config().Services.GoogleAnalytics instead.
@@ -165,16 +165,19 @@ func (s *siteWrapper) Key() string {
 	return s.s.Language().Lang
 }
 
+// // Deprecated: Use .Site.Params instead.
 func (s *siteWrapper) Social() map[string]string {
 	return s.s.Social()
 }
 
+// Deprecated: Use taxonomies instead.
 func (s *siteWrapper) Author() map[string]interface{} {
 	return s.s.Author()
 }
 
+// Deprecated: Use taxonomies instead.
 func (s *siteWrapper) Authors() AuthorList {
-	return AuthorList{}
+	return s.s.Authors()
 }
 
 // Deprecated: Use .Site.Config.Services.GoogleAnalytics.ID instead.
@@ -321,14 +324,17 @@ type testSite struct {
 	l *langs.Language
 }
 
+// Deprecated: Use taxonomies instead.
 func (s testSite) Author() map[string]interface{} {
 	return nil
 }
 
+// Deprecated: Use taxonomies instead.
 func (s testSite) Authors() AuthorList {
 	return AuthorList{}
 }
 
+// Deprecated: Use .Site.Params instead.
 func (s testSite) Social() map[string]string {
 	return make(map[string]string)
 }

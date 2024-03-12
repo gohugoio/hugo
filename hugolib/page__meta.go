@@ -106,9 +106,9 @@ func (p *pageMeta) Aliases() []string {
 	return p.pageConfig.Aliases
 }
 
-// Deprecated: use taxonomies.
+// Deprecated: Use taxonomies instead.
 func (p *pageMeta) Author() page.Author {
-	hugo.Deprecate(".Author", "Use taxonomies.", "v0.98.0")
+	hugo.Deprecate(".Page.Author", "Use taxonomies instead.", "v0.98.0")
 	authors := p.Authors()
 
 	for _, author := range authors {
@@ -117,9 +117,9 @@ func (p *pageMeta) Author() page.Author {
 	return page.Author{}
 }
 
-// Deprecated: use taxonomies.
+// Deprecated: Use taxonomies instead.
 func (p *pageMeta) Authors() page.AuthorList {
-	hugo.Deprecate(".Author", "Use taxonomies.", "v0.112.0")
+	hugo.Deprecate(".Page.Authors", "Use taxonomies instead.", "v0.112.0")
 	return nil
 }
 

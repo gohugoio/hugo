@@ -79,10 +79,12 @@ func (p *nopPage) RSSLink() template.URL {
 	return ""
 }
 
+// Deprecated: Use taxonomies instead.
 func (p *nopPage) Author() Author {
 	return Author{}
 }
 
+// Deprecated: Use taxonomies instead.
 func (p *nopPage) Authors() AuthorList {
 	return nil
 }
