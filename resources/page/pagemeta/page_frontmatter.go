@@ -421,17 +421,21 @@ func (f *frontmatterFieldHandlers) newDateFieldHandler(key string, setter func(d
 			return false, nil
 		}
 
-		date, err := htime.ToTimeInDefaultLocationE(v, d.Location)
-		if err != nil {
-			return false, nil
+		var date time.Time
+		if vt, ok := v.(time.Time); ok && vt.Location() == d.Location {
+			date = vt
+		} else {
+			var err error
+			date, err = htime.ToTimeInDefaultLocationE(v, d.Location)
+			if err != nil {
+				return false, nil
+			}
+			d.PageConfig.Params[key] = date
 		}
 
 		// We map several date keys to one, so, for example,
 		// "expirydate", "unpublishdate" will all set .ExpiryDate (first found).
 		setter(d, date)
-
-		// This is the params key as set in front matter.
-		d.PageConfig.Params[key] = date
 
 		return true, nil
 	}
