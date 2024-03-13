@@ -1472,3 +1472,21 @@ all: {{ $ab.RelPermalink }}
 	b.AddFiles("assets/common/c3.css", "c3").Build()
 	b.AssertFileContent("public/ab.css", "abc1c2 editedc3")
 }
+
+func TestRebuildEditArchetypeFile(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+-- archetypes/default.md --
+---
+title: "Default"
+---
+`
+
+	b := TestRunning(t, files)
+	// Just make sure that it doesn't panic.
+	b.EditFileReplaceAll("archetypes/default.md", "Default", "Default Edited").Build()
+}

@@ -792,6 +792,8 @@ func (h *HugoSites) processPartial(ctx context.Context, l logg.LevelLogger, conf
 			// It's hard to determine the exact change set of this,
 			// so be very coarse grained for now.
 			changes = append(changes, identity.GenghisKhan)
+		case files.ComponentFolderArchetypes:
+			// Ignore for now.
 		default:
 			panic(fmt.Sprintf("unknown component: %q", pathInfo.Component()))
 		}
