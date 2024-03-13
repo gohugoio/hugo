@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs/glob"
 	"github.com/spf13/cast"
 )
@@ -61,13 +62,14 @@ func (r Resources) Get(name any) Resource {
 	if err != nil {
 		panic(err)
 	}
-	namestr = strings.ToLower(namestr)
+
+	namestr = paths.AddLeadingSlash(namestr)
 
 	// First check the Name.
 	// Note that this can be modified by the user in the front matter,
 	// also, it does not contain any language code.
 	for _, resource := range r {
-		if strings.EqualFold(namestr, resource.Name()) {
+		if strings.EqualFold(namestr, paths.AddLeadingSlash(resource.Name())) {
 			return resource
 		}
 	}
@@ -75,7 +77,7 @@ func (r Resources) Get(name any) Resource {
 	// Finally, check the normalized name.
 	for _, resource := range r {
 		if nop, ok := resource.(NameNormalizedProvider); ok {
-			if strings.EqualFold(namestr, nop.NameNormalized()) {
+			if strings.EqualFold(namestr, paths.AddLeadingSlash(nop.NameNormalized())) {
 				return resource
 			}
 		}
@@ -92,21 +94,21 @@ func (r Resources) GetMatch(pattern any) Resource {
 		panic(err)
 	}
 
-	g, err := glob.GetGlob(patternstr)
+	g, err := glob.GetGlob(paths.AddLeadingSlash(patternstr))
 	if err != nil {
 		panic(err)
 	}
 
 	for _, resource := range r {
-		if g.Match(resource.Name()) {
+		if g.Match(paths.AddLeadingSlash(resource.Name())) {
 			return resource
 		}
 	}
 
-	// Finally, check the original name.
+	// Finally, check the normalized name.
 	for _, resource := range r {
 		if nop, ok := resource.(NameNormalizedProvider); ok {
-			if g.Match(nop.NameNormalized()) {
+			if g.Match(paths.AddLeadingSlash(nop.NameNormalized())) {
 				return resource
 			}
 		}
@@ -130,14 +132,14 @@ func (r Resources) Match(pattern any) Resources {
 		panic(err)
 	}
 
-	g, err := glob.GetGlob(patternstr)
+	g, err := glob.GetGlob(paths.AddLeadingSlash(patternstr))
 	if err != nil {
 		panic(err)
 	}
 
 	var matches Resources
 	for _, resource := range r {
-		if g.Match(resource.Name()) {
+		if g.Match(paths.AddLeadingSlash(resource.Name())) {
 			matches = append(matches, resource)
 		}
 	}
@@ -145,7 +147,7 @@ func (r Resources) Match(pattern any) Resources {
 		// 	Fall back to the normalized name.
 		for _, resource := range r {
 			if nop, ok := resource.(NameNormalizedProvider); ok {
-				if g.Match(nop.NameNormalized()) {
+				if g.Match(paths.AddLeadingSlash(nop.NameNormalized())) {
 					matches = append(matches, resource)
 				}
 			}
