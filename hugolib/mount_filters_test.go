@@ -112,6 +112,6 @@ Template: false
 Resource1: /js/include.js:END
 Resource2: :END
 Resource3: :END
-Resources: [include.js]
+Resources: [/js/include.js]
 `)
 }

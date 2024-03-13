@@ -171,3 +171,70 @@ Home.
 	b.AssertFileExists("public/a.txt", true) // failing test
 	b.AssertFileExists("public/b.txt", true) // failing test
 }
+
+func TestGlobalResourcesNotPublishedRegressionIssue12214(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- assets/files/a.txt --
+I am a.txt
+-- assets/files/b.txt --
+I am b.txt
+-- assets/files/c.txt --
+I am c.txt
+-- assets/files/C.txt --
+I am C.txt
+-- layouts/index.html --
+Home.
+{{ with resources.ByType "text" }}
+  {{ with .Get "files/a.txt" }}
+    {{ .Publish }}
+	files/a.txt: {{ .Name }}
+  {{ end }}
+  {{ with .Get "/files/a.txt" }}
+	/files/a.txt: {{ .Name }}
+  {{ end }}
+  {{ with .GetMatch "files/*b*" }}
+    {{ .Publish }}
+	files/*b*: {{ .Name }}
+  {{ end }}
+  {{ with .GetMatch "files/C*" }}
+    {{ .Publish }}
+    files/C*: {{ .Name }}
+  {{ end }}
+  {{ with .GetMatch "files/c*" }}
+	{{ .Publish }}
+	files/c*: {{ .Name }}
+  {{ end }}
+  {{ with .GetMatch "/files/c*" }}
+    /files/c*: {{ .Name }}
+  {{ end }}
+  {{ with .Match "files/C*" }}
+	match files/C*: {{ len . }}|
+  {{ end }}
+  {{ with .Match "/files/C*" }}
+  match /files/C*: {{ len . }}|
+{{ end }}
+{{ end }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", `
+files/a.txt: /files/a.txt
+# There are both C.txt and c.txt in the assets, but the Glob matching is case insensitive, so GetMatch returns the first.
+files/C*: /files/C.txt
+files/c*: /files/C.txt
+files/*b*: /files/b.txt
+/files/c*: /files/C.txt
+/files/a.txt: /files/a.txt
+match files/C*: 2|
+match /files/C*: 2|
+	`)
+
+	b.AssertFileContent("public/files/a.txt", "I am a.txt")
+	b.AssertFileContent("public/files/b.txt", "I am b.txt")
+	b.AssertFileContent("public/files/C.txt", "I am C.txt")
+}

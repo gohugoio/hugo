@@ -134,8 +134,8 @@ func (c *Client) match(name, pattern string, matchFunc func(r resource.Resource)
 				OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
 					return meta.Open()
 				},
-				NameNormalized: meta.PathInfo.Name(),
-				NameOriginal:   meta.PathInfo.Unnormalized().Name(),
+				NameNormalized: meta.PathInfo.Path(),
+				NameOriginal:   meta.PathInfo.Unnormalized().Path(),
 				GroupIdentity:  meta.PathInfo,
 				TargetPath:     meta.PathInfo.Unnormalized().Path(),
 			})
