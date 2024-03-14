@@ -17,5 +17,5 @@ import (
 var Sigquit = os.Kill
 
 func syscallIsNotSupported(err error) bool {
-	return errors.Is(err, fs.ErrPermission)
+	return errors.Is(err, fs.ErrPermission) || errors.Is(err, errors.ErrUnsupported)
 }
