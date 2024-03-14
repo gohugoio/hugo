@@ -22,7 +22,7 @@ aliases: [/tools/frontends/]
 : DatoCMS is a fully customizable administrative area for your static websites. Use your favorite website generator, let your clients publish new content independently, and the host the site anywhere you like.
 
 [PubCrank](https://www.pubcrank.com/)
-: PubCrank is a static site editor which lets you define templates for different front matter layouts in your site. This gives writers an easy to use visual interface to create and edit content while also maintaining the guards that the developer has setup. PubCrank is free for local editing.
+: PubCrank is a static site editor which lets you define templates for different front matter layouts in your site. This gives writers an easy to use visual interface to create and edit content while also maintaining the guardrails that the developer has setup. PubCrank is free for local editing.
 
 ## Open source
 
