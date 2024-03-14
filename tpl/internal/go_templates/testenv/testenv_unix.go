@@ -35,7 +35,7 @@ func syscallIsNotSupported(err error) bool {
 		}
 	}
 
-	if errors.Is(err, fs.ErrPermission) {
+	if errors.Is(err, fs.ErrPermission) || errors.Is(err, errors.ErrUnsupported) {
 		return true
 	}
 

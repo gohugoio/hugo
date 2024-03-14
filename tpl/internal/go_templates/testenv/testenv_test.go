@@ -54,8 +54,8 @@ func TestGoToolLocation(t *testing.T) {
 	}
 }
 
+// Modified by Hugo.
 func TestHasGoBuild(t *testing.T) {
-	// Removed by Hugo.
 }
 
 func TestMustHaveExec(t *testing.T) {
@@ -73,7 +73,7 @@ func TestMustHaveExec(t *testing.T) {
 			t.Errorf("expected MustHaveExec to skip on %v", runtime.GOOS)
 		}
 	case "ios":
-		if b := testenv.Builder(); strings.HasSuffix(b, "-corellium") && !hasExec {
+		if b := testenv.Builder(); isCorelliumBuilder(b) && !hasExec {
 			// Most ios environments can't exec, but the corellium builder can.
 			t.Errorf("expected MustHaveExec not to skip on %v", b)
 		}
@@ -105,4 +105,24 @@ func TestCleanCmdEnvPWD(t *testing.T) {
 		}
 	}
 	t.Error("PWD not set in cmd.Env")
+}
+
+func isCorelliumBuilder(builderName string) bool {
+	// Support both the old infra's builder names and the LUCI builder names.
+	// The former's names are ad-hoc so we could maintain this invariant on
+	// the builder side. The latter's names are structured, and "corellium" will
+	// appear as a "host" suffix after the GOOS and GOARCH, which always begin
+	// with an underscore.
+	return strings.HasSuffix(builderName, "-corellium") || strings.Contains(builderName, "_corellium")
+}
+
+func isEmulatedBuilder(builderName string) bool {
+	// Support both the old infra's builder names and the LUCI builder names.
+	// The former's names are ad-hoc so we could maintain this invariant on
+	// the builder side. The latter's names are structured, and the signifier
+	// of emulation "emu" will appear as a "host" suffix after the GOOS and
+	// GOARCH because it modifies the run environment in such a way that it
+	// the target GOOS and GOARCH may not match the host. This suffix always
+	// begins with an underscore.
+	return strings.HasSuffix(builderName, "-emu") || strings.Contains(builderName, "_emu")
 }

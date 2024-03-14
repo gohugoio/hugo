@@ -6,14 +6,14 @@ package fmtsort_test
 
 import (
 	"fmt"
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/fmtsort"
 	"math"
 	"reflect"
+	"runtime"
 	"sort"
 	"strings"
 	"testing"
 	"unsafe"
-
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/fmtsort"
 )
 
 var compareTests = [][]reflect.Value{
@@ -191,14 +191,14 @@ func sprintKey(key reflect.Value) string {
 var (
 	ints  [3]int
 	chans = makeChans()
-	// pin   runtime.Pinner
+	pin   runtime.Pinner
 )
 
 func makeChans() []chan int {
 	cs := []chan int{make(chan int), make(chan int), make(chan int)}
 	// Order channels by address. See issue #49431.
 	for i := range cs {
-		reflect.ValueOf(cs[i]).UnsafePointer()
+		pin.Pin(reflect.ValueOf(cs[i]).UnsafePointer())
 	}
 	sort.Slice(cs, func(i, j int) bool {
 		return uintptr(reflect.ValueOf(cs[i]).UnsafePointer()) < uintptr(reflect.ValueOf(cs[j]).UnsafePointer())

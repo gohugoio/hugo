@@ -16,7 +16,8 @@ import (
 )
 
 func main() {
-	// The current is built with 446a5dcf5a3230ce9832682d8f521071d8a34a2b (go 1.22 dev. Thu Oct 5 12:20:11 2023 -0700)
+	// The current is built with db6097f8cb [release-branch.go1.22] go1.22.1
+	// TODO(bep) preserve the staticcheck.conf file.
 	fmt.Println("Forking ...")
 	defer fmt.Println("Done ...")
 
