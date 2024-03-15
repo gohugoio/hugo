@@ -124,11 +124,16 @@ func (pt pageTree) Parent() page.Page {
 		return pt.p.s.home
 	}
 
-	_, n := pt.p.s.pageMap.treePages.LongestPrefix(dir, true, nil)
-	if n != nil {
-		return n.(page.Page)
+	for {
+		_, n := pt.p.s.pageMap.treePages.LongestPrefix(dir, true, nil)
+		if n == nil {
+			return pt.p.s.home
+		}
+		if pt.p.m.bundled || n.isContentNodeBranch() {
+			return n.(page.Page)
+		}
+		dir = paths.Dir(dir)
 	}
-	return nil
 }
 
 func (pt pageTree) Ancestors() page.Pages {
