@@ -99,6 +99,14 @@ type Unwrapper interface {
 	Unwrapv() any
 }
 
+// Unwrap returns the underlying value of v if it implements Unwrapper, otherwise v is returned.
+func Unwrapv(v any) any {
+	if u, ok := v.(Unwrapper); ok {
+		return u.Unwrapv()
+	}
+	return v
+}
+
 // LowHigh is typically used to represent a slice boundary.
 type LowHigh struct {
 	Low  int

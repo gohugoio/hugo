@@ -617,10 +617,10 @@ type intersector struct {
 }
 
 func (i *intersector) appendIfNotSeen(v reflect.Value) {
-	vi := v.Interface()
-	if !i.seen[vi] {
+	k := normalize(v)
+	if !i.seen[k] {
 		i.r = reflect.Append(i.r, v)
-		i.seen[vi] = true
+		i.seen[k] = true
 	}
 }
 
@@ -638,7 +638,7 @@ func (i *intersector) handleValuePair(l1vv, l2vv reflect.Value) {
 			i.appendIfNotSeen(l1vv)
 		}
 	case kind == reflect.Ptr, kind == reflect.Struct:
-		if l1vv.Interface() == l2vv.Interface() {
+		if types.Unwrapv(l1vv.Interface()) == types.Unwrapv(l2vv.Interface()) {
 			i.appendIfNotSeen(l1vv)
 		}
 	case kind == reflect.Interface:
