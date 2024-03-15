@@ -19,6 +19,7 @@ import (
 	"io"
 	"mime"
 	"net/url"
+	"os"
 	"path/filepath"
 	"runtime"
 	"sort"
@@ -424,6 +425,73 @@ func (h *HugoSites) fileEventsFilter(events []fsnotify.Event) []fsnotify.Event {
 		n++
 	}
 	return events[:n]
+}
+
+type fileEventInfo struct {
+	fsnotify.Event
+	fi           os.FileInfo
+	added        bool
+	removed      bool
+	isChangedDir bool
+}
+
+func (h *HugoSites) fileEventsApplyInfo(events []fsnotify.Event) []fileEventInfo {
+	var infos []fileEventInfo
+	for _, ev := range events {
+		removed := false
+		added := false
+
+		if ev.Op&fsnotify.Remove == fsnotify.Remove {
+			removed = true
+		}
+
+		fi, statErr := h.Fs.Source.Stat(ev.Name)
+
+		// Some editors (Vim) sometimes issue only a Rename operation when writing an existing file
+		// Sometimes a rename operation means that file has been renamed other times it means
+		// it's been updated.
+		if ev.Op.Has(fsnotify.Rename) {
+			// If the file is still on disk, it's only been updated, if it's not, it's been moved
+			if statErr != nil {
+				removed = true
+			}
+		}
+		if ev.Op.Has(fsnotify.Create) {
+			added = true
+		}
+
+		isChangedDir := statErr == nil && fi.IsDir()
+
+		infos = append(infos, fileEventInfo{
+			Event:        ev,
+			fi:           fi,
+			added:        added,
+			removed:      removed,
+			isChangedDir: isChangedDir,
+		})
+	}
+
+	n := 0
+
+	for _, ev := range infos {
+		// Remove any directories that's also represented by a file.
+		keep := true
+		if ev.isChangedDir {
+			for _, ev2 := range infos {
+				if ev2.fi != nil && !ev2.fi.IsDir() && filepath.Dir(ev2.Name) == ev.Name {
+					keep = false
+					break
+				}
+			}
+		}
+		if keep {
+			infos[n] = ev
+			n++
+		}
+	}
+	infos = infos[:n]
+
+	return infos
 }
 
 func (h *HugoSites) fileEventsTranslate(events []fsnotify.Event) []fsnotify.Event {

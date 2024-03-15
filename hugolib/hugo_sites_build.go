@@ -595,8 +595,10 @@ func (h *HugoSites) processPartial(ctx context.Context, l logg.LevelLogger, conf
 		return sb.String()
 	}))
 
+	// For a list of events for the different OSes, see the test output in https://github.com/bep/fsnotifyeventlister/.
 	events = h.fileEventsFilter(events)
 	events = h.fileEventsTranslate(events)
+	eventInfos := h.fileEventsApplyInfo(events)
 
 	logger := h.Log
 
@@ -631,36 +633,12 @@ func (h *HugoSites) processPartial(ctx context.Context, l logg.LevelLogger, conf
 		addedContentPaths []*paths.Path
 	)
 
-	for _, ev := range events {
-		removed := false
-		added := false
-
-		if ev.Op&fsnotify.Remove == fsnotify.Remove {
-			removed = true
-		}
-
-		fi, statErr := h.Fs.Source.Stat(ev.Name)
-
-		// Some editors (Vim) sometimes issue only a Rename operation when writing an existing file
-		// Sometimes a rename operation means that file has been renamed other times it means
-		// it's been updated.
-		if ev.Op.Has(fsnotify.Rename) {
-			// If the file is still on disk, it's only been updated, if it's not, it's been moved
-			if statErr != nil {
-				removed = true
-			}
-		}
-		if ev.Op.Has(fsnotify.Create) {
-			added = true
-		}
-
-		isChangedDir := statErr == nil && fi.IsDir()
-
+	for _, ev := range eventInfos {
 		cpss := h.BaseFs.ResolvePaths(ev.Name)
 		pss := make([]*paths.Path, len(cpss))
 		for i, cps := range cpss {
 			p := cps.Path
-			if removed && !paths.HasExt(p) {
+			if ev.removed && !paths.HasExt(p) {
 				// Assume this is a renamed/removed directory.
 				// For deletes, we walk up the tree to find the container (e.g. branch bundle),
 				// so we will catch this even if it is a file without extension.
@@ -671,7 +649,7 @@ func (h *HugoSites) processPartial(ctx context.Context, l logg.LevelLogger, conf
 			}
 
 			pss[i] = h.Configs.ContentPathParser.Parse(cps.Component, p)
-			if added && !isChangedDir && cps.Component == files.ComponentFolderContent {
+			if ev.added && !ev.isChangedDir && cps.Component == files.ComponentFolderContent {
 				addedContentPaths = append(addedContentPaths, pss[i])
 			}
 
@@ -683,9 +661,9 @@ func (h *HugoSites) processPartial(ctx context.Context, l logg.LevelLogger, conf
 			}
 		}
 
-		if removed {
+		if ev.removed {
 			changedPaths.deleted = append(changedPaths.deleted, pss...)
-		} else if isChangedDir {
+		} else if ev.isChangedDir {
 			changedPaths.changedDirs = append(changedPaths.changedDirs, pss...)
 		} else {
 			changedPaths.changedFiles = append(changedPaths.changedFiles, pss...)

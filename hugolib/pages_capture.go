@@ -161,7 +161,7 @@ func (c *pagesCollector) Collect() (collectErr error) {
 				// We always start from a directory.
 				collectErr = c.collectDir(id.p, id.isDir, func(fim hugofs.FileMetaInfo) bool {
 					if id.delete || id.isDir {
-						if id.isDir {
+						if id.isDir && fim.Meta().PathInfo.IsLeafBundle() {
 							return strings.HasPrefix(fim.Meta().PathInfo.Path(), paths.AddTrailingSlash(id.p.Path()))
 						}
 
