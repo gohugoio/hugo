@@ -601,7 +601,7 @@ func (h *HugoSites) fileEventsContentPaths(p []pathChange) []pathChange {
 // HomeAbsURL is a convenience method giving the absolute URL to the home page.
 func (s *Site) HomeAbsURL() string {
 	base := ""
-	if len(s.conf.Languages) > 1 {
+	if len(s.conf.Languages) > 1 || s.Conf.DefaultContentLanguageInSubdir() {
 		base = s.Language().Lang
 	}
 	return s.AbsURL(base, false)

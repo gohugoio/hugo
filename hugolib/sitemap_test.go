@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/config"
@@ -127,7 +128,7 @@ func TestParseSitemap(t *testing.T) {
 func TestSitemapShouldNotUseListXML(t *testing.T) {
 	t.Parallel()
 
-	files := `		
+	files := `
 -- hugo.toml --
 baseURL = "https://example.com"
 disableKinds = ["term", "taxonomy"]
@@ -169,4 +170,58 @@ type: sitemap
 	b := Test(t, files)
 
 	b.AssertFileExists("public/sitemap.xml", true)
+}
+
+// Issue 12266
+func TestSitemapIssue12266(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'https://example.org/'
+disableKinds = ['rss','taxonomy','term']
+defaultContentLanguage = 'en'
+defaultContentLanguageInSubdir = true
+[languages.de]
+[languages.en]
+  `
+
+	// Test A: multilingual with defaultContentLanguageInSubdir = true
+	b := Test(t, files)
+
+	b.AssertFileContent("public/sitemap.xml",
+		"<loc>https://example.org/de/sitemap.xml</loc>",
+		"<loc>https://example.org/en/sitemap.xml</loc>",
+	)
+	b.AssertFileContent("public/de/sitemap.xml", "<loc>https://example.org/de/</loc>")
+	b.AssertFileContent("public/en/sitemap.xml", "<loc>https://example.org/en/</loc>")
+
+	// Test B: multilingual with defaultContentLanguageInSubdir = false
+	files = strings.ReplaceAll(files, "defaultContentLanguageInSubdir = true", "defaultContentLanguageInSubdir = false")
+
+	b = Test(t, files)
+
+	b.AssertFileContent("public/sitemap.xml",
+		"<loc>https://example.org/de/sitemap.xml</loc>",
+		"<loc>https://example.org/en/sitemap.xml</loc>",
+	)
+	b.AssertFileContent("public/de/sitemap.xml", "<loc>https://example.org/de/</loc>")
+	b.AssertFileContent("public/en/sitemap.xml", "<loc>https://example.org/</loc>")
+
+	// Test C: monolingual with defaultContentLanguageInSubdir = false
+	files = strings.ReplaceAll(files, "[languages.de]", "")
+	files = strings.ReplaceAll(files, "[languages.en]", "")
+
+	b = Test(t, files)
+
+	b.AssertFileExists("public/en/sitemap.xml", false)
+	b.AssertFileContent("public/sitemap.xml", "<loc>https://example.org/</loc>")
+
+	// Test D: monolingual with defaultContentLanguageInSubdir = true
+	files = strings.ReplaceAll(files, "defaultContentLanguageInSubdir = false", "defaultContentLanguageInSubdir = true")
+
+	b = Test(t, files)
+
+	b.AssertFileContent("public/sitemap.xml", "<loc>https://example.org/en/sitemap.xml</loc>")
+	b.AssertFileContent("public/en/sitemap.xml", "<loc>https://example.org/en/</loc>")
 }
