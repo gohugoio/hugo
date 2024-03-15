@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/gohugoio/hugo/common/types"
 	"github.com/mitchellh/hashstructure"
 )
 
@@ -60,7 +61,7 @@ func normalize(v reflect.Value) any {
 			return f
 		}
 	}
-	return v.Interface()
+	return types.Unwrapv(v.Interface())
 }
 
 // collects identities from the slices in seqs into a set. Numeric values are normalized,

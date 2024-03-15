@@ -230,3 +230,51 @@ boolf = false
 		"false",
 	)
 }
+
+func TestTermEntriesCollectionsIssue12254(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+capitalizeListTitles = false
+disableKinds = ['rss','sitemap']
+-- content/p1.md --
+---
+title: p1
+categories: [cat-a]
+tags: ['tag-b','tag-a','tag-c']
+---
+-- content/p2.md --
+---
+title: p2
+categories: [cat-a]
+tags: ['tag-b','tag-a']
+---
+-- content/p3.md --
+---
+title: p3
+categories: [cat-a]
+tags: ['tag-b']
+---
+-- layouts/_default/term.html --
+{{ $list1 := .Pages }}
+{{ range $i, $e := site.Taxonomies.tags.ByCount }}
+{{ $list2 := .Pages }}
+{{ $i }}: List1: {{ len $list1 }}|
+{{ $i }}: List2: {{ len $list2 }}|
+{{ $i }}: Intersect: {{ intersect $.Pages .Pages | len }}|
+{{ $i }}: Union: {{ union $.Pages .Pages | len }}|
+{{ $i }}: SymDiff: {{ symdiff $.Pages .Pages | len }}|
+{{ $i }}: Uniq: {{ append $.Pages .Pages | uniq | len }}|
+{{ end }}
+
+
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/categories/cat-a/index.html",
+		"0: List1: 3|\n0: List2: 3|\n0: Intersect: 3|\n0: Union: 3|\n0: SymDiff: 0|\n0: Uniq: 3|\n\n\n1: List1: 3|",
+		"1: List2: 2|\n1: Intersect: 2|\n1: Union: 3|\n1: SymDiff: 1|\n1: Uniq: 3|\n\n\n2: List1: 3|\n2: List2: 1|",
+		"2: Intersect: 1|\n2: Union: 3|\n2: SymDiff: 2|\n2: Uniq: 3|",
+	)
+}

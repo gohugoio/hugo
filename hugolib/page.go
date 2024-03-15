@@ -36,6 +36,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/gohugoio/hugo/source"
 
@@ -729,5 +730,11 @@ func (p pageWithWeight0) Weight0() int {
 }
 
 func (p pageWithWeight0) page() page.Page {
+	return p.pageState
+}
+
+var _ types.Unwrapper = (*pageWithWeight0)(nil)
+
+func (p pageWithWeight0) Unwrapv() any {
 	return p.pageState
 }
