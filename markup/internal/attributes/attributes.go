@@ -95,7 +95,7 @@ func New(astAttributes []ast.Attribute, ownerType AttributesOwnerType) *Attribut
 		case []byte:
 			// Note that we don't do any HTML escaping here.
 			// We used to do that, but that changed in #9558.
-			// Noww it's up to the templates to decide.
+			// Now it's up to the templates to decide.
 			vv = string(vvv)
 		default:
 			panic(fmt.Sprintf("not implemented: %T", vvv))
@@ -175,7 +175,7 @@ func (a *AttributesHolder) OptionsSlice() []Attribute {
 
 // RenderASTAttributes writes the AST attributes to the given as attributes to an HTML element.
 // This is used by the default HTML renderers, e.g. for headings etc. where no hook template could be found.
-// This performs HTML esacaping of string attributes.
+// This performs HTML escaping of string attributes.
 func RenderASTAttributes(w hugio.FlexiWriter, attributes ...ast.Attribute) {
 	for _, attr := range attributes {
 

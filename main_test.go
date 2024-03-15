@@ -134,7 +134,7 @@ var commonTestScriptsParam = testscript.Params{
 				fmt.Fprintf(ts.Stdout(), "%s %04o %s %s\n", fi.Mode(), fi.Mode().Perm(), fi.ModTime().Format(time.RFC3339Nano), fi.Name())
 			}
 		},
-		// append appends to a file with a leaading newline.
+		// append appends to a file with a leading newline.
 		"append": func(ts *testscript.TestScript, neg bool, args []string) {
 			if len(args) < 2 {
 				ts.Fatalf("usage: append FILE TEXT")

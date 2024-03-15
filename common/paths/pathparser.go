@@ -239,7 +239,7 @@ const (
 	// E.g. /blog/my-post.md
 	PathTypeContentSingle
 
-	// All bewlow are bundled content files.
+	// All below are bundled content files.
 
 	// Leaf bundles, e.g. /blog/my-post/index.md
 	PathTypeLeaf
@@ -313,7 +313,7 @@ func (p *Path) norm(s string) string {
 	return s
 }
 
-// IdentifierBase satifies identity.Identity.
+// IdentifierBase satisfies identity.Identity.
 func (p *Path) IdentifierBase() string {
 	return p.Base()
 }
@@ -368,7 +368,7 @@ func (p *Path) Name() string {
 	return p.s
 }
 
-// Name returns the last element of path withhout any extension.
+// Name returns the last element of path without any extension.
 func (p *Path) NameNoExt() string {
 	if i := p.identifierIndex(0); i != -1 {
 		return p.s[p.posContainerHigh : p.identifiers[i].Low-1]
@@ -376,7 +376,7 @@ func (p *Path) NameNoExt() string {
 	return p.s[p.posContainerHigh:]
 }
 
-// Name returns the last element of path withhout any language identifier.
+// Name returns the last element of path without any language identifier.
 func (p *Path) NameNoLang() string {
 	i := p.identifierIndex(p.posIdentifierLanguage)
 	if i == -1 {
@@ -386,7 +386,7 @@ func (p *Path) NameNoLang() string {
 	return p.s[p.posContainerHigh:p.identifiers[i].Low-1] + p.s[p.identifiers[i].High:]
 }
 
-// BaseNameNoIdentifier returns the logcical base name for a resource without any idenifier (e.g. no extension).
+// BaseNameNoIdentifier returns the logical base name for a resource without any identifier (e.g. no extension).
 // For bundles this will be the containing directory's name, e.g. "blog".
 func (p *Path) BaseNameNoIdentifier() string {
 	if p.IsBundle() {
@@ -395,7 +395,7 @@ func (p *Path) BaseNameNoIdentifier() string {
 	return p.NameNoIdentifier()
 }
 
-// NameNoIdentifier returns the last element of path withhout any identifier (e.g. no extension).
+// NameNoIdentifier returns the last element of path without any identifier (e.g. no extension).
 func (p *Path) NameNoIdentifier() string {
 	if len(p.identifiers) > 0 {
 		return p.s[p.posContainerHigh : p.identifiers[len(p.identifiers)-1].Low-1]
@@ -435,7 +435,7 @@ func (p *Path) PathNoIdentifier() string {
 	return p.base(false, false)
 }
 
-// PathRel returns the path relativeto the given owner.
+// PathRel returns the path relative to the given owner.
 func (p *Path) PathRel(owner *Path) string {
 	ob := owner.Base()
 	if !strings.HasSuffix(ob, "/") {

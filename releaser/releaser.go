@@ -29,7 +29,7 @@ import (
 
 const commitPrefix = "releaser:"
 
-// New initialises a ReleaseHandler.
+// New initializes a ReleaseHandler.
 func New(skipPush, try bool, step int) (*ReleaseHandler, error) {
 	if step < 1 || step > 2 {
 		return nil, fmt.Errorf("step must be 1 or 2")

@@ -822,7 +822,7 @@ func (f *rootMappingDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 	return f.fs.collectDirEntries(f.name)
 }
 
-// Sentinal error to signal that a file is a directory.
+// Sentinel error to signal that a file is a directory.
 var errIsDir = errors.New("isDir")
 
 func (f *rootMappingDir) Stat() (iofs.FileInfo, error) {

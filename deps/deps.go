@@ -361,7 +361,7 @@ type BuildState struct {
 
 	mu sync.Mutex // protects state below.
 
-	// A set of ilenames in /public that
+	// A set of filenames in /public that
 	// contains a post-processing prefix.
 	filenamesWithPostPrefix map[string]bool
 }

@@ -355,7 +355,7 @@ func (im *identityManager) String() string {
 }
 
 func (im *identityManager) forEeachIdentity(fn func(id Identity) bool) bool {
-	// The absense of a lock here is debliberate. This is currently opnly used on server reloads
+	// The absence of a lock here is deliberate. This is currently only used on server reloads
 	// in a single-threaded context.
 	for id := range im.ids {
 		if fn(id) {
