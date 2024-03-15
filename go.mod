@@ -35,7 +35,7 @@ require (
 	github.com/gobuffalo/flect v1.0.2
 	github.com/gobwas/glob v0.2.3
 	github.com/gohugoio/go-i18n/v2 v2.1.3-0.20230805085216-e63c13218d0e
-	github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.1.0
+	github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.2.0
 	github.com/gohugoio/locales v0.14.0
 	github.com/gohugoio/localescompressed v1.0.1
 	github.com/gohugoio/testmodBuilder/mods v0.0.0-20190520184928-c56af20f2e95

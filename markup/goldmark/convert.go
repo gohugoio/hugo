@@ -184,9 +184,11 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 			}
 		}
 
-		extensions = append(extensions, passthrough.NewPassthroughWithDelimiters(
-			inlineDelimiters,
-			blockDelimiters,
+		extensions = append(extensions, passthrough.New(
+			passthrough.Config{
+				InlineDelimiters: inlineDelimiters,
+				BlockDelimiters:  blockDelimiters,
+			},
 		))
 	}
 
