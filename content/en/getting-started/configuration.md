@@ -81,7 +81,7 @@ my-project/
         └── params.toml
 ```
 
-The root configuration keys are `build`, `caches`, `cascade`, `deployment`, `frontmatter`, `imaging`, `languages`, `markup`, `mediatypes`, `menus`, `minify`, `module`, `outputformats`, `outputs`, `params`, `permalinks`, `privacy`, `related`, `security`, `server`, `services`, `sitemap`, and `taxonomies`.
+The root configuration keys are `build`, `caches`, `cascade`, `deployment`, `frontmatter`, `imaging`, `languages`, `markup`, `mediatypes`, `menus`, `minify`, `module`, `outputformats`, `outputs`, `params`, `permalinks`, `privacy`, `related`, `security`, `segments`, `server`, `services`, `sitemap`, and `taxonomies`.
 
 ### Omit the root key
 
