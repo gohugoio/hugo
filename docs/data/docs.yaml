@@ -208,6 +208,10 @@ chroma:
     - dax
     Name: Dax
   - Aliases:
+    - desktop
+    - desktop_entry
+    Name: Desktop file
+  - Aliases:
     - diff
     - udiff
     Name: Diff
@@ -444,6 +448,10 @@ chroma:
     - mason
     Name: Mason
   - Aliases:
+    - materialize
+    - mzsql
+    Name: Materialize SQL dialect
+  - Aliases:
     - mathematica
     - mma
     - nb
@@ -493,6 +501,9 @@ chroma:
   - Aliases:
     - natural
     Name: Natural
+  - Aliases:
+    - ndisasm
+    Name: NDISASM
   - Aliases:
     - newspeak
     Name: Newspeak
@@ -608,6 +619,9 @@ chroma:
     - prolog
     Name: Prolog
   - Aliases:
+    - promela
+    Name: Promela
+  - Aliases:
     - promql
     Name: PromQL
   - Aliases:
@@ -674,6 +688,9 @@ chroma:
     - registry
     Name: reg
   - Aliases:
+    - rego
+    Name: Rego
+  - Aliases:
     - rst
     - rest
     - restructuredtext
@@ -682,6 +699,9 @@ chroma:
     - rexx
     - arexx
     Name: Rexx
+  - Aliases:
+    - spec
+    Name: RPMSpec
   - Aliases:
     - rb
     - ruby
@@ -946,6 +966,7 @@ config:
       dir: :cacheDir/modules
       maxAge: -1
   canonifyURLs: false
+  capitalizeListTitles: true
   cascade: []
   cleanDestinationDir: false
   contentDir: content
@@ -1585,6 +1606,7 @@ config:
     toLower: false
   relativeURLs: false
   removePathAccents: false
+  renderSegments: null
   resourceDir: resources
   sectionPagesMenu: ""
   security:
@@ -1607,6 +1629,7 @@ config:
       - (?i)GET|POST
       urls:
       - .*
+  segments: {}
   server:
     headers: null
     redirects:
@@ -1703,6 +1726,8 @@ config_helpers:
     related:
       _merge: none
     security:
+      _merge: none
+    segments:
       _merge: none
     server:
       _merge: none
@@ -2961,6 +2986,21 @@ tpl:
         Description: ""
         Examples: null
       IsExtended:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      IsMultiHost:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      IsMultihost:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      IsMultilingual:
         Aliases: null
         Args: null
         Description: ""
