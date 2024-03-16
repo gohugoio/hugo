@@ -25,14 +25,15 @@ hugo new content [path] [flags]
 ### Options
 
 ```
-  -b, --baseURL string      hostname (and path) to the root, e.g. https://spf13.com/
-      --cacheDir string     filesystem path to cache directory
-  -c, --contentDir string   filesystem path to content directory
-      --editor string       edit new content with this editor, if provided
-  -f, --force               overwrite file if it already exists
-  -h, --help                help for content
-  -k, --kind string         content type to create
-  -t, --theme strings       themes to use (located in /themes/THEMENAME/)
+  -b, --baseURL string           hostname (and path) to the root, e.g. https://spf13.com/
+      --cacheDir string          filesystem path to cache directory
+  -c, --contentDir string        filesystem path to content directory
+      --editor string            edit new content with this editor, if provided
+  -f, --force                    overwrite file if it already exists
+  -h, --help                     help for content
+  -k, --kind string              content type to create
+      --renderSegments strings   named segments to render (configured in the segments config)
+  -t, --theme strings            themes to use (located in /themes/THEMENAME/)
 ```
 
 ### Options inherited from parent commands
