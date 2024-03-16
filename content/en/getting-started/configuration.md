@@ -827,8 +827,8 @@ If you want to know the current value of `cacheDir`, you can run `hugo config`, 
 {{< new-in 0.124.0 >}}
 
 {{% note %}}
-The `segments` configuration is currently only used to configure partitioned rendering, and this is
-feature is only about what gets rendered when, Hugo's entire object graph (sites and pages) is
+The `segments` configuration is currently only used to configure partitioned rendering.
+This feature is only about what gets rendered when, Hugo's entire object graph (sites and pages) is
 always available.
 {{% /note %}}
 
@@ -880,8 +880,7 @@ Some use cases for this feature:
 * Enable faster builds during development by only rendering a subset of the site.
 * Partial rebuilds, e.g. render the home page and the "news section" every hour, render the entire site once a week.
 * Render only e.g. the JSON output format to push to e.g. a search index.
-
-
+  
 [path]: /methods/page/path/
 [page language]: /methods/page/language/
 [kind]: /getting-started/glossary/#page-kind
