@@ -598,18 +598,13 @@ func (h *HugoSites) fileEventsContentPaths(p []pathChange) []pathChange {
 	return keepers
 }
 
-// HomeAbsURL is a convenience method giving the absolute URL to the home page.
-func (s *Site) HomeAbsURL() string {
+// SitemapAbsURL is a convenience method giving the absolute URL to the sitemap.
+func (s *Site) SitemapAbsURL() string {
 	base := ""
 	if len(s.conf.Languages) > 1 || s.Conf.DefaultContentLanguageInSubdir() {
 		base = s.Language().Lang
 	}
-	return s.AbsURL(base, false)
-}
-
-// SitemapAbsURL is a convenience method giving the absolute URL to the sitemap.
-func (s *Site) SitemapAbsURL() string {
-	p := s.HomeAbsURL()
+	p := s.AbsURL(base, false)
 	if !strings.HasSuffix(p, "/") {
 		p += "/"
 	}
