@@ -407,6 +407,12 @@ See [Related Content](/content-management/related/#configure-related-content).
 
 (`bool`) Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.  Default is `false`. See&nbsp;[details](/content-management/urls/#relative-urls).
 
+###### renderSegments
+
+(`string slice`) A list of segments to render. If not set, everything will be rendered. This is more commonly set in a CLI flag, e.g. `hugo --renderSegments segment1,segment2`.
+
+The segment names must match the names in the [segments](#configure-segments) configuration.
+
 ###### refLinksErrorLevel
 
 (`string`) When using `ref` or `relref` to resolve page links and a link cannot be resolved, it will be logged with this log level. Valid values are `ERROR` (default) or `WARNING`. Any `ERROR` will fail the build (`exit -1`).  Default is `ERROR`.
@@ -430,6 +436,10 @@ See [Menus](/content-management/menus/#define-automatically).
 ###### security
 
 See [Security Policy](/about/security-model/#security-policy).
+
+###### segments
+
+See [Segments](#configure-segments).
 
 ###### sitemap
 
@@ -810,3 +820,70 @@ If you want to know the current value of `cacheDir`, you can run `hugo config`, 
 [Output Formats]: /templates/output-formats/
 [templates]: /templates/
 [static-files]: /content-management/static-files/
+
+
+## Configure segments
+
+{{< new-in 0.124.0 >}}
+
+{{% note %}}
+The `segments` configuration is currently only used to configure partitioned rendering, and this is
+feature is only about what gets rendered when, Hugo's entire object graph (sites and pages) is
+always available.
+{{% /note %}}
+
+* Each segment consists of zero or more `exclude` filters and zero or more `include` filters.
+* Each filter consists of one or more field Glob matchers.
+* Each filter in a section (`exclude` or `include`) is ORed together, each matcher in a filter is ANDed together.
+
+The fields that can be used in the filters are:
+
+path
+: The logical page [path].
+
+lang
+: The [page language].
+
+kind
+: The [kind] of the page.
+
+output
+: The [output format] of the page.
+
+It is recommended to put coarse grained filters (e.g. for language and output format) in the excludes section, e.g.:
+
+
+{{< code-toggle file=hugo >}}
+[segments.segment1]
+  [[segments.segment1.excludes]]
+    lang = "n*"
+  [[segments.segment1.excludes]]
+    en     = "en"
+    output = "rss"
+  [[segments.segment1.includes]]
+    term = "{home,term,taxonomy}"
+  [[segments.segment1.includes]]
+    path = "{/docs,/docs/**}"
+{{< /code-toggle >}}
+
+With the above you can render only the pages in `segment1` by configuring the [renderSegments](#rendersegments) or setting the `--renderSegments` flag:
+
+```bash
+hugo --renderSegments segment1
+```
+
+Multiple segments can be configured, and the `--renderSegments` flag can take a comma separated list of segments.
+
+Some use cases for this feature:
+
+* Splitting builds of big sites.
+* Enable faster builds during development by only rendering a subset of the site.
+* Partial rebuilds, e.g. render the home page and the "news section" every hour, render the entire site once a week.
+* Render only e.g. the JSON output format to push to e.g. a search index.
+
+
+[path]: /methods/page/path/
+[page language]: /methods/page/language/
+[kind]: /getting-started/glossary/#page-kind
+[output format]: /getting-started/glossary/#output-format
+[type]: /getting-started/glossary/#content-type
