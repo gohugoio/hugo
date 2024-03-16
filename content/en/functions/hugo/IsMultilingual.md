@@ -1,19 +1,16 @@
 ---
-title: IsMultiLingual
+title: hugo.IsMultilingual
 description: Reports whether there are two or more configured languages.
 categories: []
 keywords: []
 action:
-  related: []
+  related:
+    - /functions/hugo/IsMultihost
   returnType: bool
-  signatures: [SITE.IsMultiLingual]
+  signatures: [hugo.IsMultilingual]
 ---
 
-{{% deprecated-in 0.124.0 %}}
-Use [`hugo.IsMultilingual`] instead.
-
-[`hugo.IsMultilingual`]: /functions/hugo/ismultilingual/
-{{% /deprecated-in %}}
+{{< new-in v0.124.0 >}}
 
 Site configuration:
 
@@ -36,5 +33,5 @@ defaultContentLanguageInSubdir = true
 Template:
 
 ```go-html-template
-{{ .Site.IsMultiLingual }} → true
+{{ hugo.IsMultilingual }} → true
 ```
