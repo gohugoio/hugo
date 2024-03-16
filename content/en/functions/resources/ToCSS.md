@@ -139,8 +139,8 @@ To install Dart Sass for your builds on GitLab Pages, the `.gitlab-ci.yml` file 
 
 ```yaml
 variables:
-  HUGO_VERSION: 0.123.7
-  DART_SASS_VERSION: 1.71.0
+  HUGO_VERSION: 0.124.0
+  DART_SASS_VERSION: 1.72.0
   GIT_DEPTH: 0
   GIT_STRATEGY: clone
   GIT_SUBMODULE_STRATEGY: recursive
@@ -173,8 +173,8 @@ To install Dart Sass for your builds on Netlify, the `netlify.toml` file should 
 
 ```toml
 [build.environment]
-HUGO_VERSION = "0.123.7"
-DART_SASS_VERSION = "1.71.0"
+HUGO_VERSION = "0.124.0"
+DART_SASS_VERSION = "1.72.0"
 TZ = "America/Los_Angeles"
 
 [build]

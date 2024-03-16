@@ -11,7 +11,7 @@ action:
   signatures: [hugo.IsMultihost]
 ---
 
-{{< new-in v0.123.8 >}}
+{{< new-in v0.124.0 >}}
 
 The `hugo.IsMultihost` function reports whether each configured language has a unique `baseURL`.
 
