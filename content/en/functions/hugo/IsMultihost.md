@@ -13,7 +13,7 @@ action:
 
 {{< new-in v0.124.0 >}}
 
-The `hugo.IsMultihost` function reports whether each configured language has a unique `baseURL`.
+Site configuration:
 
 {{< code-toggle file=hugo >}}
 [languages]
@@ -28,6 +28,8 @@ The `hugo.IsMultihost` function reports whether each configured language has a u
     title = 'En Français'
     weight = 1
 {{< /code-toggle >}}
+
+Template:
 
 ```go-html-template
 {{ hugo.IsMultihost }} → true
