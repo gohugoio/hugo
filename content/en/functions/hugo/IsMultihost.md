@@ -16,17 +16,21 @@ action:
 Site configuration:
 
 {{< code-toggle file=hugo >}}
+defaultContentLanguage = 'de'
+defaultContentLanguageInSubdir = true
 [languages]
+  [languages.de]
+    baseURL = 'https://de.example.org/'
+    languageCode = 'de-DE'
+    languageName = 'Deutsch'
+    title = 'Projekt Dokumentation'
+    weight = 1
   [languages.en]
     baseURL = 'https://en.example.org/'
+    languageCode = 'en-US'
     languageName = 'English'
-    title = 'In English'
+    title = 'Project Documentation'
     weight = 2
-  [languages.fr]
-    baseURL = 'https://fr.example.org'
-    languageName = 'Français'
-    title = 'En Français'
-    weight = 1
 {{< /code-toggle >}}
 
 Template:
