@@ -113,7 +113,7 @@ type LockType int
 
 // MutableTree is a tree that can be modified.
 type MutableTree interface {
-	Delete(key string)
+	DeleteRaw(key string)
 	DeleteAll(key string)
 	DeletePrefix(prefix string) int
 	DeletePrefixAll(prefix string) int
@@ -140,9 +140,9 @@ var _ MutableTree = MutableTrees(nil)
 
 type MutableTrees []MutableTree
 
-func (t MutableTrees) Delete(key string) {
+func (t MutableTrees) DeleteRaw(key string) {
 	for _, tree := range t {
-		tree.Delete(key)
+		tree.DeleteRaw(key)
 	}
 }
 

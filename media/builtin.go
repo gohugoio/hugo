@@ -34,8 +34,12 @@ type BuiltinTypes struct {
 	OpenTypeFontType Type
 
 	// Common document types
-	PDFType      Type
-	MarkdownType Type
+	PDFType              Type
+	MarkdownType         Type
+	EmacsOrgModeType     Type
+	AsciiDocType         Type
+	PandocType           Type
+	ReStructuredTextType Type
 
 	// Common video types
 	AVIType  Type
@@ -85,8 +89,12 @@ var Builtin = BuiltinTypes{
 	OpenTypeFontType: Type{Type: "font/otf"},
 
 	// Common document types
-	PDFType:      Type{Type: "application/pdf"},
-	MarkdownType: Type{Type: "text/markdown"},
+	PDFType:              Type{Type: "application/pdf"},
+	MarkdownType:         Type{Type: "text/markdown"},
+	AsciiDocType:         Type{Type: "text/asciidoc"}, // https://github.com/asciidoctor/asciidoctor/issues/2502
+	PandocType:           Type{Type: "text/pandoc"},
+	ReStructuredTextType: Type{Type: "text/rst"}, // https://docutils.sourceforge.io/FAQ.html#what-s-the-official-mime-type-for-restructuredtext-data
+	EmacsOrgModeType:     Type{Type: "text/org"},
 
 	// Common video types
 	AVIType:  Type{Type: "video/x-msvideo"},
@@ -108,7 +116,7 @@ var defaultMediaTypesConfig = map[string]any{
 	"text/x-scss":     map[string]any{"suffixes": []string{"scss"}},
 	"text/x-sass":     map[string]any{"suffixes": []string{"sass"}},
 	"text/csv":        map[string]any{"suffixes": []string{"csv"}},
-	"text/html":       map[string]any{"suffixes": []string{"html"}},
+	"text/html":       map[string]any{"suffixes": []string{"html", "htm"}},
 	"text/javascript": map[string]any{"suffixes": []string{"js", "jsm", "mjs"}},
 	"text/typescript": map[string]any{"suffixes": []string{"ts"}},
 	"text/tsx":        map[string]any{"suffixes": []string{"tsx"}},
@@ -137,7 +145,11 @@ var defaultMediaTypesConfig = map[string]any{
 
 	// Common document types
 	"application/pdf": map[string]any{"suffixes": []string{"pdf"}},
-	"text/markdown":   map[string]any{"suffixes": []string{"md", "markdown"}},
+	"text/markdown":   map[string]any{"suffixes": []string{"md", "mdown", "markdown"}},
+	"text/asciidoc":   map[string]any{"suffixes": []string{"adoc", "asciidoc", "ad"}},
+	"text/pandoc":     map[string]any{"suffixes": []string{"pandoc", "pdc"}},
+	"text/rst":        map[string]any{"suffixes": []string{"rst"}},
+	"text/org":        map[string]any{"suffixes": []string{"org"}},
 
 	// Common video types
 	"video/x-msvideo": map[string]any{"suffixes": []string{"avi"}},
@@ -151,11 +163,4 @@ var defaultMediaTypesConfig = map[string]any{
 	"application/wasm": map[string]any{"suffixes": []string{"wasm"}},
 
 	"application/octet-stream": map[string]any{},
-}
-
-func init() {
-	// Apply delimiter to all.
-	for _, m := range defaultMediaTypesConfig {
-		m.(map[string]any)["delimiter"] = "."
-	}
 }

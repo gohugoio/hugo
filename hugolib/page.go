@@ -510,9 +510,15 @@ func (p *pageState) renderResources() error {
 				continue
 			}
 
+			if _, isWrapper := r.(resource.ResourceWrapper); isWrapper {
+				// Skip resources that are wrapped.
+				// These gets published on its own.
+				continue
+			}
+
 			src, ok := r.(resource.Source)
 			if !ok {
-				initErr = fmt.Errorf("resource %T does not support resource.Source", src)
+				initErr = fmt.Errorf("resource %T does not support resource.Source", r)
 				return
 			}
 
@@ -581,7 +587,11 @@ func (p *pageState) getPageInfoForError() string {
 func (p *pageState) getContentConverter() converter.Converter {
 	var err error
 	p.contentConverterInit.Do(func() {
-		markup := p.m.pageConfig.Markup
+		if p.m.pageConfig.ContentMediaType.IsZero() {
+			panic("ContentMediaType not set")
+		}
+		markup := p.m.pageConfig.ContentMediaType.SubType
+
 		if markup == "html" {
 			// Only used for shortcode inner content.
 			markup = "markdown"

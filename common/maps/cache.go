@@ -27,7 +27,12 @@ func NewCache[K comparable, T any]() *Cache[K, T] {
 }
 
 // Delete deletes the given key from the cache.
+// If c is nil, this method is a no-op.
 func (c *Cache[K, T]) Get(key K) (T, bool) {
+	if c == nil {
+		var zero T
+		return zero, false
+	}
 	c.RLock()
 	v, found := c.m[key]
 	c.RUnlock()
@@ -58,6 +63,15 @@ func (c *Cache[K, T]) Set(key K, value T) {
 	c.Lock()
 	c.m[key] = value
 	c.Unlock()
+}
+
+// ForEeach calls the given function for each key/value pair in the cache.
+func (c *Cache[K, T]) ForEeach(f func(K, T)) {
+	c.RLock()
+	defer c.RUnlock()
+	for k, v := range c.m {
+		f(k, v)
+	}
 }
 
 // SliceCache is a simple thread safe cache backed by a map.

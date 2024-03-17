@@ -26,6 +26,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/media"
 
 	"github.com/spf13/afero"
 
@@ -135,20 +136,16 @@ func (c *ContentSpec) SanitizeAnchorName(s string) string {
 }
 
 func (c *ContentSpec) ResolveMarkup(in string) string {
-	if c == nil {
-		panic("nil ContentSpec")
-	}
 	in = strings.ToLower(in)
-	switch in {
-	case "md", "markdown", "mdown":
-		return "markdown"
-	case "html", "htm":
-		return "html"
-	default:
-		if conv := c.Converters.Get(in); conv != nil {
-			return conv.Name()
-		}
+
+	if mediaType, found := c.Cfg.ContentTypes().(media.ContentTypes).Types().GetBestMatch(markup.ResolveMarkup(in)); found {
+		return mediaType.SubType
 	}
+
+	if conv := c.Converters.Get(in); conv != nil {
+		return markup.ResolveMarkup(conv.Name())
+	}
+
 	return ""
 }
 
@@ -244,7 +241,7 @@ func (c *ContentSpec) TrimShortHTML(input []byte, markup string) []byte {
 	openingTag := []byte("<p>")
 	closingTag := []byte("</p>")
 
-	if markup == "asciidocext" {
+	if markup == media.DefaultContentTypes.AsciiDoc.SubType {
 		openingTag = []byte("<div class=\"paragraph\">\n<p>")
 		closingTag = []byte("</p>\n</div>")
 	}

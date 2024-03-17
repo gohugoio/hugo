@@ -14,20 +14,37 @@
 package pagemeta
 
 import (
+	"errors"
+	"fmt"
+	"path"
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/htime"
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/markup"
+	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/spf13/cast"
 )
+
+type DatesStrings struct {
+	Date        string `json:"date"`
+	Lastmod     string `json:"lastMod"`
+	PublishDate string `json:"publishDate"`
+	ExpiryDate  string `json:"expiryDate"`
+}
 
 type Dates struct {
 	Date        time.Time
@@ -57,46 +74,229 @@ func (d Dates) IsAllDatesZero() bool {
 // Note that all the top level fields are reserved Hugo keywords.
 // Any custom configuration needs to be set in the Params map.
 type PageConfig struct {
-	Dates                   // Dates holds the four core dates for this page.
+	Dates Dates `json:"-"` // Dates holds the four core dates for this page.
+	DatesStrings
 	Title          string   // The title of the page.
 	LinkTitle      string   // The link title of the page.
 	Type           string   // The content type of the page.
 	Layout         string   // The layout to use for to render this page.
-	Markup         string   // The markup used in the content file.
 	Weight         int      // The weight of the page, used in sorting if set to a non-zero value.
 	Kind           string   // The kind of page, e.g. "page", "section", "home" etc. This is usually derived from the content path.
 	Path           string   // The canonical path to the page, e.g. /sect/mypage. Note: Leading slash, no trailing slash, no extensions or language identifiers.
-	URL            string   // The URL to the rendered page, e.g. /sect/mypage.html.
 	Lang           string   // The language code for this page. This is usually derived from the module mount or filename.
+	URL            string   // The URL to the rendered page, e.g. /sect/mypage.html.
 	Slug           string   // The slug for this page.
 	Description    string   // The description for this page.
 	Summary        string   // The summary for this page.
 	Draft          bool     // Whether or not the content is a draft.
-	Headless       bool     // Whether or not the page should be rendered.
+	Headless       bool     `json:"-"` // Whether or not the page should be rendered.
 	IsCJKLanguage  bool     // Whether or not the content is in a CJK language.
 	TranslationKey string   // The translation key for this page.
 	Keywords       []string // The keywords for this page.
 	Aliases        []string // The aliases for this page.
 	Outputs        []string // The output formats to render this page in. If not set, the site's configured output formats for this page kind will be used.
 
-	// These build options are set in the front matter,
-	// but not passed on to .Params.
-	Resources []map[string]any
-	Cascade   map[page.PageMatcher]maps.Params // Only relevant for branch nodes.
-	Sitemap   config.SitemapConfig
-	Build     BuildConfig
+	FrontMatterOnlyValues `mapstructure:"-" json:"-"`
+
+	Cascade []map[string]any
+	Sitemap config.SitemapConfig
+	Build   BuildConfig
 
 	// User defined params.
 	Params maps.Params
 
+	// Content holds the content for this page.
+	Content Source
+
 	// Compiled values.
-	IsGoldmark bool `json:"-"`
+	CascadeCompiled      map[page.PageMatcher]maps.Params
+	ContentMediaType     media.Type `mapstructure:"-" json:"-"`
+	IsFromContentAdapter bool       `mapstructure:"-" json:"-"`
+}
+
+var DefaultPageConfig = PageConfig{
+	Build: DefaultBuildConfig,
+}
+
+func (p *PageConfig) Validate(pagesFromData bool) error {
+	if pagesFromData {
+		if p.Path == "" {
+			return errors.New("path must be set")
+		}
+		if strings.HasPrefix(p.Path, "/") {
+			return fmt.Errorf("path %q must not start with a /", p.Path)
+		}
+		if p.Lang != "" {
+			return errors.New("lang must not be set")
+		}
+
+		if p.Content.Markup != "" {
+			return errors.New("markup must not be set, use mediaType")
+		}
+	}
+
+	if p.Cascade != nil {
+		if !kinds.IsBranch(p.Kind) {
+			return errors.New("cascade is only supported for branch nodes")
+		}
+	}
+
+	return nil
+}
+
+// Compile sets up the page configuration after all fields have been set.
+func (p *PageConfig) Compile(basePath string, pagesFromData bool, ext string, logger loggers.Logger, mediaTypes media.Types) error {
+	// In content adapters, we always get relative paths.
+	if basePath != "" {
+		p.Path = path.Join(basePath, p.Path)
+	}
+
+	if pagesFromData {
+		// Note that NormalizePathStringBasic will make sure that we don't preserve the unnormalized path.
+		// We do that when we create pages from the file system; mostly for backward compatibility,
+		// but also because people tend to use use the filename to name their resources (with spaces and all),
+		// and this isn't relevant when creating resources from an API where it's easy to add textual meta data.
+		p.Path = paths.NormalizePathStringBasic(p.Path)
+	}
+
+	if p.Content.Markup == "" && p.Content.MediaType == "" {
+		if ext == "" {
+			ext = "md"
+		}
+		p.ContentMediaType = MarkupToMediaType(ext, mediaTypes)
+		if p.ContentMediaType.IsZero() {
+			return fmt.Errorf("failed to resolve media type for suffix %q", ext)
+		}
+	}
+
+	var s string
+	if p.ContentMediaType.IsZero() {
+		if p.Content.MediaType != "" {
+			s = p.Content.MediaType
+			p.ContentMediaType, _ = mediaTypes.GetByType(s)
+		}
+
+		if p.ContentMediaType.IsZero() && p.Content.Markup != "" {
+			s = p.Content.Markup
+			p.ContentMediaType = MarkupToMediaType(s, mediaTypes)
+		}
+	}
+
+	if p.ContentMediaType.IsZero() {
+		return fmt.Errorf("failed to resolve media type for %q", s)
+	}
+
+	if p.Content.Markup == "" {
+		p.Content.Markup = p.ContentMediaType.SubType
+	}
+
+	if p.Cascade != nil {
+		cascade, err := page.DecodeCascade(logger, p.Cascade)
+		if err != nil {
+			return fmt.Errorf("failed to decode cascade: %w", err)
+		}
+		p.CascadeCompiled = cascade
+	}
+
+	return nil
+}
+
+// MarkupToMediaType converts a markup string to a media type.
+func MarkupToMediaType(s string, mediaTypes media.Types) media.Type {
+	s = strings.ToLower(s)
+	mt, _ := mediaTypes.GetBestMatch(markup.ResolveMarkup(s))
+	return mt
+}
+
+type ResourceConfig struct {
+	Path    string
+	Name    string
+	Title   string
+	Params  maps.Params
+	Content Source
+
+	// Compiled values.
+	PathInfo         *paths.Path `mapstructure:"-" json:"-"`
+	ContentMediaType media.Type
+}
+
+func (rc *ResourceConfig) Validate() error {
+	if rc.Path == "" {
+		return errors.New("path must be set")
+	}
+	if rc.Content.Markup != "" {
+		return errors.New("markup must not be set, use mediaType")
+	}
+	return nil
+}
+
+func (rc *ResourceConfig) Compile(basePath string, pathParser *paths.PathParser, mediaTypes media.Types) error {
+	if rc.Params != nil {
+		maps.PrepareParams(rc.Params)
+	}
+
+	// Note that NormalizePathStringBasic will make sure that we don't preserve the unnormalized path.
+	// We do that when we create resources from the file system; mostly for backward compatibility,
+	// but also because people tend to use use the filename to name their resources (with spaces and all),
+	// and this isn't relevant when creating resources from an API where it's easy to add textual meta data.
+	rc.Path = paths.NormalizePathStringBasic(path.Join(basePath, rc.Path))
+	rc.PathInfo = pathParser.Parse(files.ComponentFolderContent, rc.Path)
+	if rc.Content.MediaType != "" {
+		var found bool
+		rc.ContentMediaType, found = mediaTypes.GetByType(rc.Content.MediaType)
+		if !found {
+			return fmt.Errorf("media type %q not found", rc.Content.MediaType)
+		}
+	}
+	return nil
+}
+
+type Source struct {
+	// MediaType is the media type of the content.
+	MediaType string
+
+	// The markup used in Value. Only used in front matter.
+	Markup string
+
+	// The content.
+	Value any
+}
+
+func (s Source) IsZero() bool {
+	return !hreflect.IsTruthful(s.Value)
+}
+
+func (s Source) IsResourceValue() bool {
+	_, ok := s.Value.(resource.Resource)
+	return ok
+}
+
+func (s Source) ValueAsString() string {
+	if s.Value == nil {
+		return ""
+	}
+	ss, err := cast.ToStringE(s.Value)
+	if err != nil {
+		panic(fmt.Errorf("content source: failed to convert %T to string: %s", s.Value, err))
+	}
+	return ss
+}
+
+func (s Source) ValueAsOpenReadSeekCloser() hugio.OpenReadSeekCloser {
+	return hugio.NewOpenReadSeekCloser(hugio.NewReadSeekerNoOpCloserFromString(s.ValueAsString()))
+}
+
+// FrontMatterOnlyValues holds values that can only be set via front matter.
+type FrontMatterOnlyValues struct {
+	ResourcesMeta []map[string]any
 }
 
 // FrontMatterHandler maps front matter into Page fields and .Params.
 // Note that we currently have only extracted the date logic.
 type FrontMatterHandler struct {
 	fmConfig FrontmatterConfig
+
+	contentAdapterDatesHandler func(d *FrontMatterDescriptor) error
 
 	dateHandler        frontMatterFieldHandler
 	lastModHandler     frontMatterFieldHandler
@@ -142,6 +342,13 @@ var dateFieldAliases = map[string][]string{
 func (f FrontMatterHandler) HandleDates(d *FrontMatterDescriptor) error {
 	if d.PageConfig == nil {
 		panic("missing pageConfig")
+	}
+
+	if d.PageConfig.IsFromContentAdapter {
+		if f.contentAdapterDatesHandler == nil {
+			panic("missing content adapter date handler")
+		}
+		return f.contentAdapterDatesHandler(d)
 	}
 
 	if f.dateHandler == nil {
@@ -352,9 +559,13 @@ func NewFrontmatterHandler(logger loggers.Logger, frontMatterConfig FrontmatterC
 func (f *FrontMatterHandler) createHandlers() error {
 	var err error
 
+	if f.contentAdapterDatesHandler, err = f.createContentAdapterDatesHandler(f.fmConfig); err != nil {
+		return err
+	}
+
 	if f.dateHandler, err = f.createDateHandler(f.fmConfig.Date,
 		func(d *FrontMatterDescriptor, t time.Time) {
-			d.PageConfig.Date = t
+			d.PageConfig.Dates.Date = t
 			setParamIfNotSet(fmDate, t, d)
 		}); err != nil {
 		return err
@@ -363,7 +574,7 @@ func (f *FrontMatterHandler) createHandlers() error {
 	if f.lastModHandler, err = f.createDateHandler(f.fmConfig.Lastmod,
 		func(d *FrontMatterDescriptor, t time.Time) {
 			setParamIfNotSet(fmLastmod, t, d)
-			d.PageConfig.Lastmod = t
+			d.PageConfig.Dates.Lastmod = t
 		}); err != nil {
 		return err
 	}
@@ -371,7 +582,7 @@ func (f *FrontMatterHandler) createHandlers() error {
 	if f.publishDateHandler, err = f.createDateHandler(f.fmConfig.PublishDate,
 		func(d *FrontMatterDescriptor, t time.Time) {
 			setParamIfNotSet(fmPubDate, t, d)
-			d.PageConfig.PublishDate = t
+			d.PageConfig.Dates.PublishDate = t
 		}); err != nil {
 		return err
 	}
@@ -379,7 +590,7 @@ func (f *FrontMatterHandler) createHandlers() error {
 	if f.expiryDateHandler, err = f.createDateHandler(f.fmConfig.ExpiryDate,
 		func(d *FrontMatterDescriptor, t time.Time) {
 			setParamIfNotSet(fmExpiryDate, t, d)
-			d.PageConfig.ExpiryDate = t
+			d.PageConfig.Dates.ExpiryDate = t
 		}); err != nil {
 		return err
 	}
@@ -392,6 +603,86 @@ func setParamIfNotSet(key string, value any, d *FrontMatterDescriptor) {
 		return
 	}
 	d.PageConfig.Params[key] = value
+}
+
+func (f FrontMatterHandler) createContentAdapterDatesHandler(fmcfg FrontmatterConfig) (func(d *FrontMatterDescriptor) error, error) {
+	setTime := func(key string, value time.Time, in *PageConfig) {
+		switch key {
+		case fmDate:
+			in.Dates.Date = value
+		case fmLastmod:
+			in.Dates.Lastmod = value
+		case fmPubDate:
+			in.Dates.PublishDate = value
+		case fmExpiryDate:
+			in.Dates.ExpiryDate = value
+		}
+	}
+
+	getTime := func(key string, in *PageConfig) time.Time {
+		switch key {
+		case fmDate:
+			return in.Dates.Date
+		case fmLastmod:
+			return in.Dates.Lastmod
+		case fmPubDate:
+			return in.Dates.PublishDate
+		case fmExpiryDate:
+			return in.Dates.ExpiryDate
+		}
+		return time.Time{}
+	}
+
+	createSetter := func(identifiers []string, date string) func(pcfg *PageConfig) {
+		var getTimes []func(in *PageConfig) time.Time
+		for _, identifier := range identifiers {
+			if strings.HasPrefix(identifier, ":") {
+				continue
+			}
+			switch identifier {
+			case fmDate:
+				getTimes = append(getTimes, func(in *PageConfig) time.Time {
+					return getTime(fmDate, in)
+				})
+			case fmLastmod:
+				getTimes = append(getTimes, func(in *PageConfig) time.Time {
+					return getTime(fmLastmod, in)
+				})
+			case fmPubDate:
+				getTimes = append(getTimes, func(in *PageConfig) time.Time {
+					return getTime(fmPubDate, in)
+				})
+			case fmExpiryDate:
+				getTimes = append(getTimes, func(in *PageConfig) time.Time {
+					return getTime(fmExpiryDate, in)
+				})
+			}
+		}
+
+		return func(pcfg *PageConfig) {
+			for _, get := range getTimes {
+				if t := get(pcfg); !t.IsZero() {
+					setTime(date, t, pcfg)
+					return
+				}
+			}
+		}
+	}
+
+	setDate := createSetter(fmcfg.Date, fmDate)
+	setLastmod := createSetter(fmcfg.Lastmod, fmLastmod)
+	setPublishDate := createSetter(fmcfg.PublishDate, fmPubDate)
+	setExpiryDate := createSetter(fmcfg.ExpiryDate, fmExpiryDate)
+
+	fn := func(d *FrontMatterDescriptor) error {
+		pcfg := d.PageConfig
+		setDate(pcfg)
+		setLastmod(pcfg)
+		setPublishDate(pcfg)
+		setExpiryDate(pcfg)
+		return nil
+	}
+	return fn, nil
 }
 
 func (f FrontMatterHandler) createDateHandler(identifiers []string, setter func(d *FrontMatterDescriptor, t time.Time)) (frontMatterFieldHandler, error) {

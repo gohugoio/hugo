@@ -41,7 +41,7 @@ Home: {{ .Title }}
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			LogLevel:    logg.LevelTrace,
+			// LogLevel:    logg.LevelTrace,
 		},
 	).Build()
 

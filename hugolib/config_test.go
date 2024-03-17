@@ -1144,7 +1144,7 @@ Home.
 
 	enConfig := b.H.Sites[0].conf
 	m, _ := enConfig.MediaTypes.Config.GetByType("text/html")
-	b.Assert(m.Suffixes(), qt.DeepEquals, []string{"html"})
+	b.Assert(m.Suffixes(), qt.DeepEquals, []string{"html", "htm"})
 
 	svConfig := b.H.Sites[1].conf
 	f, _ := svConfig.OutputFormats.Config.GetByName("html")

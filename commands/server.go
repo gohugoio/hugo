@@ -46,12 +46,12 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugo"
+
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/common/urls"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 	"github.com/gohugoio/hugo/livereload"
@@ -1188,16 +1188,16 @@ func partitionDynamicEvents(sourceFs *filesystems.SourceFilesystems, events []fs
 	return
 }
 
-func pickOneWriteOrCreatePath(events []fsnotify.Event) string {
+func pickOneWriteOrCreatePath(contentTypes config.ContentTypesProvider, events []fsnotify.Event) string {
 	name := ""
 
 	for _, ev := range events {
 		if ev.Op&fsnotify.Write == fsnotify.Write || ev.Op&fsnotify.Create == fsnotify.Create {
-			if files.IsIndexContentFile(ev.Name) {
+			if contentTypes.IsIndexContentFile(ev.Name) {
 				return ev.Name
 			}
 
-			if files.IsContentFile(ev.Name) {
+			if contentTypes.IsContentFile(ev.Name) {
 				name = ev.Name
 			}
 

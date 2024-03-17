@@ -111,6 +111,24 @@ func (h *HugoSites) ShouldSkipFileChangeEvent(ev fsnotify.Event) bool {
 	return h.skipRebuildForFilenames[ev.Name]
 }
 
+func (h *HugoSites) isRebuild() bool {
+	return h.buildCounter.Load() > 0
+}
+
+func (h *HugoSites) resolveSite(lang string) *Site {
+	if lang == "" {
+		lang = h.Conf.DefaultContentLanguage()
+	}
+
+	for _, s := range h.Sites {
+		if s.Lang() == lang {
+			return s
+		}
+	}
+
+	return nil
+}
+
 // Only used in tests.
 type buildCounters struct {
 	contentRenderCounter atomic.Uint64
@@ -479,6 +497,7 @@ func (h *HugoSites) loadData() error {
 		hugofs.WalkwayConfig{
 			Fs:         h.PathSpec.BaseFs.Data.Fs,
 			IgnoreFile: h.SourceSpec.IgnoreFile,
+			PathParser: h.Conf.PathParser(),
 			WalkFn: func(path string, fi hugofs.FileMetaInfo) error {
 				if fi.IsDir() {
 					return nil

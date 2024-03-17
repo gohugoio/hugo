@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,20 +11,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hugolib
+package pagesfromdata
 
-import (
-	"github.com/gohugoio/hugo/resources/page"
-)
+import "testing"
 
-// Sections returns the top level sections.
-func (s *Site) Sections() page.Pages {
-	s.checkReady()
-	return s.Home().Sections()
-}
+func BenchmarkHash(b *testing.B) {
+	m := map[string]any{
+		"foo":         "bar",
+		"bar":         "foo",
+		"stringSlice": []any{"a", "b", "c"},
+		"intSlice":    []any{1, 2, 3},
+		"largeText":   "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas congue ligula ac quam viverra nec consectetur ante hendrerit.",
+	}
 
-// Home is a shortcut to the home page, equivalent to .Site.GetPage "home".
-func (s *Site) Home() page.Page {
-	s.checkReady()
-	return s.s.home
+	bs := BuildState{}
+
+	for i := 0; i < b.N; i++ {
+		bs.hash(m)
+	}
 }

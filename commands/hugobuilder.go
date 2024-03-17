@@ -854,7 +854,7 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 			h.BaseFs.SourceFilesystems,
 			dynamicEvents)
 
-		onePageName := pickOneWriteOrCreatePath(partitionedEvents.ContentEvents)
+		onePageName := pickOneWriteOrCreatePath(h.Conf.ContentTypes(), partitionedEvents.ContentEvents)
 
 		c.printChangeDetected("")
 		c.changeDetector.PrepareNew()

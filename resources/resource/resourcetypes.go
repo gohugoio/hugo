@@ -74,13 +74,21 @@ type ErrProvider interface {
 
 // Resource represents a linkable resource, i.e. a content page, image etc.
 type Resource interface {
+	ResourceWithoutMeta
+	ResourceMetaProvider
+}
+
+type ResourceWithoutMeta interface {
 	ResourceTypeProvider
 	MediaTypeProvider
 	ResourceLinksProvider
-	ResourceNameTitleProvider
-	ResourceParamsProvider
 	ResourceDataProvider
 	ErrProvider
+}
+
+type ResourceWrapper interface {
+	UnwrappedResource() Resource
+	WrapResource(Resource) ResourceWrapper
 }
 
 type ResourceTypeProvider interface {

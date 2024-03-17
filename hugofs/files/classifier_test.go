@@ -14,21 +14,10 @@
 package files
 
 import (
-	"path/filepath"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
 )
-
-func TestIsContentFile(t *testing.T) {
-	c := qt.New(t)
-
-	c.Assert(IsContentFile(filepath.FromSlash("my/file.md")), qt.Equals, true)
-	c.Assert(IsContentFile(filepath.FromSlash("my/file.ad")), qt.Equals, true)
-	c.Assert(IsContentFile(filepath.FromSlash("textfile.txt")), qt.Equals, false)
-	c.Assert(IsContentExt("md"), qt.Equals, true)
-	c.Assert(IsContentExt("json"), qt.Equals, false)
-}
 
 func TestComponentFolders(t *testing.T) {
 	c := qt.New(t)

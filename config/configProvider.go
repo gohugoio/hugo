@@ -41,6 +41,7 @@ type AllProvider interface {
 	Dirs() CommonDirs
 	Quiet() bool
 	DirsBase() CommonDirs
+	ContentTypes() ContentTypesProvider
 	GetConfigSection(string) any
 	GetConfig() any
 	CanonifyURLs() bool
@@ -73,6 +74,15 @@ type AllProvider interface {
 	IgnoredLogs() map[string]bool
 	WorkingDir() string
 	EnableEmoji() bool
+}
+
+// We cannot import the media package as that would create a circular dependency.
+// This interface defineds a sub set of what media.ContentTypes provides.
+type ContentTypesProvider interface {
+	IsContentSuffix(suffix string) bool
+	IsContentFile(filename string) bool
+	IsIndexContentFile(filename string) bool
+	IsHTMLSuffix(suffix string) bool
 }
 
 // Provider provides the configuration settings for Hugo.

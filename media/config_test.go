@@ -114,7 +114,7 @@ func TestDefaultTypes(t *testing.T) {
 		tp               Type
 		expectedMainType string
 		expectedSubType  string
-		expectedSuffix   string
+		expectedSuffixes string
 		expectedType     string
 		expectedString   string
 	}{
@@ -122,29 +122,34 @@ func TestDefaultTypes(t *testing.T) {
 		{Builtin.CSSType, "text", "css", "css", "text/css", "text/css"},
 		{Builtin.SCSSType, "text", "x-scss", "scss", "text/x-scss", "text/x-scss"},
 		{Builtin.CSVType, "text", "csv", "csv", "text/csv", "text/csv"},
-		{Builtin.HTMLType, "text", "html", "html", "text/html", "text/html"},
-		{Builtin.JavascriptType, "text", "javascript", "js", "text/javascript", "text/javascript"},
+		{Builtin.HTMLType, "text", "html", "html,htm", "text/html", "text/html"},
+		{Builtin.MarkdownType, "text", "markdown", "md,mdown,markdown", "text/markdown", "text/markdown"},
+		{Builtin.EmacsOrgModeType, "text", "org", "org", "text/org", "text/org"},
+		{Builtin.PandocType, "text", "pandoc", "pandoc,pdc", "text/pandoc", "text/pandoc"},
+		{Builtin.ReStructuredTextType, "text", "rst", "rst", "text/rst", "text/rst"},
+		{Builtin.AsciiDocType, "text", "asciidoc", "adoc,asciidoc,ad", "text/asciidoc", "text/asciidoc"},
+		{Builtin.JavascriptType, "text", "javascript", "js,jsm,mjs", "text/javascript", "text/javascript"},
 		{Builtin.TypeScriptType, "text", "typescript", "ts", "text/typescript", "text/typescript"},
 		{Builtin.TSXType, "text", "tsx", "tsx", "text/tsx", "text/tsx"},
 		{Builtin.JSXType, "text", "jsx", "jsx", "text/jsx", "text/jsx"},
 		{Builtin.JSONType, "application", "json", "json", "application/json", "application/json"},
-		{Builtin.RSSType, "application", "rss", "xml", "application/rss+xml", "application/rss+xml"},
+		{Builtin.RSSType, "application", "rss", "xml,rss", "application/rss+xml", "application/rss+xml"},
 		{Builtin.SVGType, "image", "svg", "svg", "image/svg+xml", "image/svg+xml"},
 		{Builtin.TextType, "text", "plain", "txt", "text/plain", "text/plain"},
 		{Builtin.XMLType, "application", "xml", "xml", "application/xml", "application/xml"},
 		{Builtin.TOMLType, "application", "toml", "toml", "application/toml", "application/toml"},
-		{Builtin.YAMLType, "application", "yaml", "yaml", "application/yaml", "application/yaml"},
+		{Builtin.YAMLType, "application", "yaml", "yaml,yml", "application/yaml", "application/yaml"},
 		{Builtin.PDFType, "application", "pdf", "pdf", "application/pdf", "application/pdf"},
 		{Builtin.TrueTypeFontType, "font", "ttf", "ttf", "font/ttf", "font/ttf"},
 		{Builtin.OpenTypeFontType, "font", "otf", "otf", "font/otf", "font/otf"},
 	} {
 		c.Assert(test.tp.MainType, qt.Equals, test.expectedMainType)
 		c.Assert(test.tp.SubType, qt.Equals, test.expectedSubType)
-
+		c.Assert(test.tp.SuffixesCSV, qt.Equals, test.expectedSuffixes)
 		c.Assert(test.tp.Type, qt.Equals, test.expectedType)
 		c.Assert(test.tp.String(), qt.Equals, test.expectedString)
 
 	}
 
-	c.Assert(len(DefaultTypes), qt.Equals, 36)
+	c.Assert(len(DefaultTypes), qt.Equals, 40)
 }

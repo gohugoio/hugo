@@ -18,8 +18,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/testconfig"
+	"github.com/gohugoio/hugo/media"
 
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
 
@@ -147,4 +149,33 @@ func TestFrontMatterDatesDefaultKeyword(t *testing.T) {
 	c.Assert(d.PageConfig.Dates.Lastmod.Day(), qt.Equals, 2)
 	c.Assert(d.PageConfig.Dates.PublishDate.Day(), qt.Equals, 4)
 	c.Assert(d.PageConfig.Dates.ExpiryDate.IsZero(), qt.Equals, true)
+}
+
+func TestContentMediaTypeFromMarkup(t *testing.T) {
+	c := qt.New(t)
+	logger := loggers.NewDefault()
+
+	for _, test := range []struct {
+		in       string
+		expected string
+	}{
+		{"", "text/markdown"},
+		{"md", "text/markdown"},
+		{"markdown", "text/markdown"},
+		{"mdown", "text/markdown"},
+		{"goldmark", "text/markdown"},
+		{"html", "text/html"},
+		{"htm", "text/html"},
+		{"asciidoc", "text/asciidoc"},
+		{"asciidocext", "text/asciidoc"},
+		{"adoc", "text/asciidoc"},
+		{"pandoc", "text/pandoc"},
+		{"pdc", "text/pandoc"},
+		{"rst", "text/rst"},
+	} {
+		var pc pagemeta.PageConfig
+		pc.Content.Markup = test.in
+		c.Assert(pc.Compile("", true, "", logger, media.DefaultTypes), qt.IsNil)
+		c.Assert(pc.ContentMediaType.Type, qt.Equals, test.expected)
+	}
 }

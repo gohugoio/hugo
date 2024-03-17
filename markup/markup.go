@@ -19,6 +19,7 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/markup/highlight"
+	"github.com/gohugoio/hugo/media"
 
 	"github.com/gohugoio/hugo/markup/markup_config"
 
@@ -44,7 +45,7 @@ func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, erro
 	defaultHandler := mcfg.DefaultMarkdownHandler
 	var defaultFound bool
 
-	add := func(p converter.ProviderProvider, aliases ...string) error {
+	add := func(p converter.ProviderProvider, subType string, aliases ...string) error {
 		c, err := p.New(cfg)
 		if err != nil {
 			return err
@@ -53,6 +54,7 @@ func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, erro
 		name := c.Name()
 
 		aliases = append(aliases, name)
+		aliases = append(aliases, subType)
 
 		if strings.EqualFold(name, defaultHandler) {
 			aliases = append(aliases, "markdown")
@@ -63,19 +65,21 @@ func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, erro
 		return nil
 	}
 
-	if err := add(goldmark.Provider); err != nil {
+	contentTypes := cfg.Conf.ContentTypes().(media.ContentTypes)
+
+	if err := add(goldmark.Provider, contentTypes.Markdown.SubType, contentTypes.Markdown.Suffixes()...); err != nil {
 		return nil, err
 	}
-	if err := add(asciidocext.Provider, "ad", "adoc"); err != nil {
+	if err := add(asciidocext.Provider, contentTypes.AsciiDoc.SubType, contentTypes.AsciiDoc.Suffixes()...); err != nil {
 		return nil, err
 	}
-	if err := add(rst.Provider); err != nil {
+	if err := add(rst.Provider, contentTypes.ReStructuredText.SubType, contentTypes.ReStructuredText.Suffixes()...); err != nil {
 		return nil, err
 	}
-	if err := add(pandoc.Provider, "pdc"); err != nil {
+	if err := add(pandoc.Provider, contentTypes.Pandoc.SubType, contentTypes.Pandoc.Suffixes()...); err != nil {
 		return nil, err
 	}
-	if err := add(org.Provider); err != nil {
+	if err := add(org.Provider, contentTypes.EmacsOrgMode.SubType, contentTypes.EmacsOrgMode.Suffixes()...); err != nil {
 		return nil, err
 	}
 
@@ -131,5 +135,18 @@ func (r *converterRegistry) GetMarkupConfig() markup_config.Config {
 func addConverter(m map[string]converter.Provider, c converter.Provider, aliases ...string) {
 	for _, alias := range aliases {
 		m[alias] = c
+	}
+}
+
+// ResolveMarkup returns the markup type.
+func ResolveMarkup(s string) string {
+	s = strings.ToLower(s)
+	switch s {
+	case "goldmark":
+		return media.DefaultContentTypes.Markdown.SubType
+	case "asciidocext":
+		return media.DefaultContentTypes.AsciiDoc.SubType
+	default:
+		return s
 	}
 }

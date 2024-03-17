@@ -25,6 +25,8 @@ import (
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/common/types/hstring"
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/markup"
+	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/parser/pageparser"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cast"
@@ -262,6 +264,9 @@ func (pco *pageContentOutput) RenderString(ctx context.Context, args ...any) (te
 		if err := mapstructure.WeakDecode(m, &opts); err != nil {
 			return "", fmt.Errorf("failed to decode options: %w", err)
 		}
+		if opts.Markup != "" {
+			opts.Markup = markup.ResolveMarkup(opts.Markup)
+		}
 	}
 
 	contentToRenderv := args[sidx]
@@ -283,7 +288,8 @@ func (pco *pageContentOutput) RenderString(ctx context.Context, args ...any) (te
 	}
 
 	conv := pco.po.p.getContentConverter()
-	if opts.Markup != "" && opts.Markup != pco.po.p.m.pageConfig.Markup {
+
+	if opts.Markup != "" && opts.Markup != pco.po.p.m.pageConfig.ContentMediaType.SubType {
 		var err error
 		conv, err = pco.po.p.m.newContentConverter(pco.po.p, opts.Markup)
 		if err != nil {
@@ -376,7 +382,7 @@ func (pco *pageContentOutput) RenderString(ctx context.Context, args ...any) (te
 	}
 
 	if opts.Display == "inline" {
-		markup := pco.po.p.m.pageConfig.Markup
+		markup := pco.po.p.m.pageConfig.Content.Markup
 		if opts.Markup != "" {
 			markup = pco.po.p.s.ContentSpec.ResolveMarkup(opts.Markup)
 		}
@@ -657,7 +663,7 @@ func splitUserDefinedSummaryAndContent(markup string, c []byte) (summary []byte,
 
 	startTag := "p"
 	switch markup {
-	case "asciidocext":
+	case media.DefaultContentTypes.AsciiDoc.SubType:
 		startTag = "div"
 	}
 

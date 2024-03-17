@@ -84,3 +84,21 @@ logPathWarnings = true
 	b.Assert(conf.PrintI18nWarnings, qt.Equals, true)
 	b.Assert(conf.PrintPathWarnings, qt.Equals, true)
 }
+
+func TestRedefineContentTypes(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+[mediaTypes]
+[mediaTypes."text/html"]
+suffixes = ["html", "xhtml"]
+`
+
+	b := hugolib.Test(t, files)
+
+	conf := b.H.Configs.Base
+	contentTypes := conf.C.ContentTypes
+
+	b.Assert(contentTypes.HTML.Suffixes(), qt.DeepEquals, []string{"html", "xhtml"})
+	b.Assert(contentTypes.Markdown.Suffixes(), qt.DeepEquals, []string{"md", "mdown", "markdown"})
+}

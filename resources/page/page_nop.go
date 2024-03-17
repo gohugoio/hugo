@@ -57,7 +57,7 @@ var (
 // PageNop implements Page, but does nothing.
 type nopPage int
 
-var noOpPathInfo = paths.Parse(files.ComponentFolderContent, "no-op.md")
+var noOpPathInfo = media.DefaultPathParser.Parse(files.ComponentFolderContent, "no-op.md")
 
 func (p *nopPage) Err() resource.ResourceError {
 	return nil

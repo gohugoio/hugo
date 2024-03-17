@@ -25,8 +25,6 @@ import (
 	"github.com/gohugoio/hugo/identity"
 )
 
-var defaultPathParser PathParser
-
 // PathParser parses a path into a Path.
 type PathParser struct {
 	// Maps the language code to its index in the languages/sites slice.
@@ -34,11 +32,9 @@ type PathParser struct {
 
 	// Reports whether the given language is disabled.
 	IsLangDisabled func(string) bool
-}
 
-// Parse parses component c with path s into Path using the default path parser.
-func Parse(c, s string) *Path {
-	return defaultPathParser.Parse(c, s)
+	// Reports whether the given ext is a content file.
+	IsContentExt func(string) bool
 }
 
 // NormalizePathString returns a normalized path string using the very basic Hugo rules.
@@ -108,7 +104,6 @@ func (pp *PathParser) parse(component, s string) (*Path, error) {
 		var err error
 		// Preserve the original case for titles etc.
 		p.unnormalized, err = pp.doParse(component, s, pp.newPath(component))
-
 		if err != nil {
 			return nil, err
 		}
@@ -195,23 +190,26 @@ func (pp *PathParser) doParse(component, s string, p *Path) (*Path, error) {
 		}
 	}
 
-	isContentComponent := p.component == files.ComponentFolderContent || p.component == files.ComponentFolderArchetypes
-	isContent := isContentComponent && files.IsContentExt(p.Ext())
-
-	if isContent {
+	if len(p.identifiers) > 0 {
+		isContentComponent := p.component == files.ComponentFolderContent || p.component == files.ComponentFolderArchetypes
+		isContent := isContentComponent && pp.IsContentExt(p.Ext())
 		id := p.identifiers[len(p.identifiers)-1]
 		b := p.s[p.posContainerHigh : id.Low-1]
-		switch b {
-		case "index":
-			p.bundleType = PathTypeLeaf
-		case "_index":
-			p.bundleType = PathTypeBranch
-		default:
-			p.bundleType = PathTypeContentSingle
-		}
+		if isContent {
+			switch b {
+			case "index":
+				p.bundleType = PathTypeLeaf
+			case "_index":
+				p.bundleType = PathTypeBranch
+			default:
+				p.bundleType = PathTypeContentSingle
+			}
 
-		if slashCount == 2 && p.IsLeafBundle() {
-			p.posSectionHigh = 0
+			if slashCount == 2 && p.IsLeafBundle() {
+				p.posSectionHigh = 0
+			}
+		} else if b == files.NameContentData && files.IsContentDataExt(p.Ext()) {
+			p.bundleType = PathTypeContentData
 		}
 	}
 
@@ -246,6 +244,9 @@ const (
 
 	// Branch bundles, e.g. /blog/_index.md
 	PathTypeBranch
+
+	// Content data file, _content.gotmpl.
+	PathTypeContentData
 )
 
 type Path struct {
@@ -521,10 +522,6 @@ func (p *Path) Identifiers() []string {
 	return ids
 }
 
-func (p *Path) IsHTML() bool {
-	return files.IsHTML(p.Ext())
-}
-
 func (p *Path) BundleType() PathType {
 	return p.bundleType
 }
@@ -539,6 +536,10 @@ func (p *Path) IsBranchBundle() bool {
 
 func (p *Path) IsLeafBundle() bool {
 	return p.bundleType == PathTypeLeaf
+}
+
+func (p *Path) IsContentData() bool {
+	return p.bundleType == PathTypeContentData
 }
 
 func (p Path) ForBundleType(t PathType) *Path {

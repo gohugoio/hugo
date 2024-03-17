@@ -256,6 +256,10 @@ func (r *resourceAdapter) Filter(filters ...any) (images.ImageResource, error) {
 	return r.getImageOps().Filter(filters...)
 }
 
+func (r *resourceAdapter) Resize(spec string) (images.ImageResource, error) {
+	return r.getImageOps().Resize(spec)
+}
+
 func (r *resourceAdapter) Height() int {
 	return r.getImageOps().Height()
 }
@@ -312,10 +316,6 @@ func (r *resourceAdapter) ReadSeekCloser() (hugio.ReadSeekCloser, error) {
 func (r *resourceAdapter) RelPermalink() string {
 	r.init(true, false)
 	return r.target.RelPermalink()
-}
-
-func (r *resourceAdapter) Resize(spec string) (images.ImageResource, error) {
-	return r.getImageOps().Resize(spec)
 }
 
 func (r *resourceAdapter) ResourceType() string {

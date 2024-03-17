@@ -367,6 +367,7 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 		DisabledLanguages: disabledLangs,
 		IgnoredLogs:       ignoredLogIDs,
 		KindOutputFormats: kindOutputFormats,
+		ContentTypes:      media.DefaultContentTypes.FromTypes(c.MediaTypes.Config),
 		CreateTitle:       helpers.GetTitleFunc(c.TitleCaseStyle),
 		IsUglyURLSection:  isUglyURL,
 		IgnoreFile:        ignoreFile,
@@ -402,6 +403,7 @@ type ConfigCompiled struct {
 	BaseURLLiveReload urls.BaseURL
 	ServerInterface   string
 	KindOutputFormats map[string]output.Formats
+	ContentTypes      media.ContentTypes
 	DisabledKinds     map[string]bool
 	DisabledLanguages map[string]bool
 	IgnoredLogs       map[string]bool
@@ -759,7 +761,7 @@ func (c *Configs) Init() error {
 	c.Languages = languages
 	c.LanguagesDefaultFirst = languagesDefaultFirst
 
-	c.ContentPathParser = &paths.PathParser{LanguageIndex: languagesDefaultFirst.AsIndexSet(), IsLangDisabled: c.Base.IsLangDisabled}
+	c.ContentPathParser = &paths.PathParser{LanguageIndex: languagesDefaultFirst.AsIndexSet(), IsLangDisabled: c.Base.IsLangDisabled, IsContentExt: c.Base.C.ContentTypes.IsContentSuffix}
 
 	c.configLangs = make([]config.AllProvider, len(c.Languages))
 	for i, l := range c.LanguagesDefaultFirst {

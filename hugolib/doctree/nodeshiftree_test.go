@@ -173,7 +173,7 @@ func TestTreeInsert(t *testing.T) {
 	c.Assert(tree.Get("/notfound"), qt.IsNil)
 
 	ab2 := &testValue{ID: "/a/b", Lang: 0}
-	v, ok := tree.InsertIntoValuesDimension("/a/b", ab2)
+	v, _, ok := tree.InsertIntoValuesDimension("/a/b", ab2)
 	c.Assert(ok, qt.IsTrue)
 	c.Assert(v, qt.DeepEquals, ab2)
 
@@ -239,16 +239,16 @@ func (s *testShifter) ForEeachInDimension(n *testValue, d int, f func(n *testVal
 	f(n)
 }
 
-func (s *testShifter) Insert(old, new *testValue) *testValue {
-	return new
+func (s *testShifter) Insert(old, new *testValue) (*testValue, *testValue, bool) {
+	return new, old, true
 }
 
-func (s *testShifter) InsertInto(old, new *testValue, dimension doctree.Dimension) *testValue {
-	return new
+func (s *testShifter) InsertInto(old, new *testValue, dimension doctree.Dimension) (*testValue, *testValue, bool) {
+	return new, old, true
 }
 
-func (s *testShifter) Delete(n *testValue, dimension doctree.Dimension) (bool, bool) {
-	return true, true
+func (s *testShifter) Delete(n *testValue, dimension doctree.Dimension) (*testValue, bool, bool) {
+	return nil, true, true
 }
 
 func (s *testShifter) Shift(n *testValue, dimension doctree.Dimension, exact bool) (*testValue, bool, doctree.DimensionFlag) {

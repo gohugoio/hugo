@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -54,21 +55,31 @@ type pageContentReplacement struct {
 	source pageparser.Item
 }
 
-func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64, sourceKey string) (*contentParseInfo, error) {
-	var openSource hugio.OpenReadSeekCloser
-	if m.f != nil {
-		meta := m.f.FileInfo().Meta()
-		openSource = func() (hugio.ReadSeekCloser, error) {
-			r, err := meta.Open()
-			if err != nil {
-				return nil, fmt.Errorf("failed to open file %q: %w", meta.Filename, err)
+func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64) (*contentParseInfo, error) {
+	var (
+		sourceKey  string
+		openSource hugio.OpenReadSeekCloser
+		hasContent = m.pageConfig.IsFromContentAdapter
+	)
+
+	if m.f != nil && !hasContent {
+		sourceKey = filepath.ToSlash(m.f.Filename())
+		if !hasContent {
+			meta := m.f.FileInfo().Meta()
+			openSource = func() (hugio.ReadSeekCloser, error) {
+				r, err := meta.Open()
+				if err != nil {
+					return nil, fmt.Errorf("failed to open file %q: %w", meta.Filename, err)
+				}
+				return r, nil
 			}
-			return r, nil
 		}
+	} else if hasContent {
+		openSource = m.pageConfig.Content.ValueAsOpenReadSeekCloser()
 	}
 
 	if sourceKey == "" {
-		sourceKey = strconv.Itoa(int(pid))
+		sourceKey = strconv.FormatUint(pid, 10)
 	}
 
 	pi := &contentParseInfo{
@@ -92,6 +103,11 @@ func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64, sourceKey string) 
 	}
 
 	pi.itemsStep1 = items
+
+	if hasContent {
+		// No front matter.
+		return pi, nil
+	}
 
 	if err := pi.mapFrontMatter(source); err != nil {
 		return nil, err
@@ -567,15 +583,14 @@ func (c *cachedContent) contentRendered(ctx context.Context, cp *pageContentOutp
 		var result contentSummary // hasVariants bool
 
 		if c.pi.hasSummaryDivider {
-			isHTML := cp.po.p.m.pageConfig.Markup == "html"
-			if isHTML {
+			if cp.po.p.m.pageConfig.ContentMediaType.IsHTML() {
 				// Use the summary sections as provided by the user.
 				i := bytes.Index(b, internalSummaryDividerPre)
 				result.summary = helpers.BytesToHTML(b[:i])
 				b = b[i+len(internalSummaryDividerPre):]
 
 			} else {
-				summary, content, err := splitUserDefinedSummaryAndContent(cp.po.p.m.pageConfig.Markup, b)
+				summary, content, err := splitUserDefinedSummaryAndContent(cp.po.p.m.pageConfig.Content.Markup, b)
 				if err != nil {
 					cp.po.p.s.Log.Errorf("Failed to set user defined summary for page %q: %s", cp.po.p.pathOrTitle(), err)
 				} else {
@@ -665,7 +680,7 @@ func (c *cachedContent) contentToC(ctx context.Context, cp *pageContentOutput) (
 			p.pageOutputTemplateVariationsState.Add(1)
 		}
 
-		isHTML := cp.po.p.m.pageConfig.Markup == "html"
+		isHTML := cp.po.p.m.pageConfig.ContentMediaType.IsHTML()
 
 		if !isHTML {
 			createAndSetToC := func(tocProvider converter.TableOfContentsProvider) {
@@ -788,7 +803,7 @@ func (c *cachedContent) contentPlain(ctx context.Context, cp *pageContentOutput)
 			if err != nil {
 				return nil, err
 			}
-			html := cp.po.p.s.ContentSpec.TrimShortHTML(b.Bytes(), cp.po.p.m.pageConfig.Markup)
+			html := cp.po.p.s.ContentSpec.TrimShortHTML(b.Bytes(), cp.po.p.m.pageConfig.Content.Markup)
 			result.summary = helpers.BytesToHTML(html)
 		} else {
 			var summary string

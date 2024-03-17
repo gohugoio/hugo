@@ -29,57 +29,13 @@ const (
 	FilenameHugoStatsJSON = "hugo_stats.json"
 )
 
-var (
-	// This should be the only list of valid extensions for content files.
-	contentFileExtensions = []string{
-		"html", "htm",
-		"mdown", "markdown", "md",
-		"asciidoc", "adoc", "ad",
-		"rest", "rst",
-		"org",
-		"pandoc", "pdc",
-	}
-
-	contentFileExtensionsSet map[string]bool
-
-	htmlFileExtensions = []string{
-		"html", "htm",
-	}
-
-	htmlFileExtensionsSet map[string]bool
-)
-
-func init() {
-	contentFileExtensionsSet = make(map[string]bool)
-	for _, ext := range contentFileExtensions {
-		contentFileExtensionsSet[ext] = true
-	}
-	htmlFileExtensionsSet = make(map[string]bool)
-	for _, ext := range htmlFileExtensions {
-		htmlFileExtensionsSet[ext] = true
-	}
+func IsGoTmplExt(ext string) bool {
+	return ext == "gotmpl"
 }
 
-func IsContentFile(filename string) bool {
-	return contentFileExtensionsSet[strings.TrimPrefix(filepath.Ext(filename), ".")]
-}
-
-func IsIndexContentFile(filename string) bool {
-	if !IsContentFile(filename) {
-		return false
-	}
-
-	base := filepath.Base(filename)
-
-	return strings.HasPrefix(base, "index.") || strings.HasPrefix(base, "_index.")
-}
-
-func IsHTML(ext string) bool {
-	return htmlFileExtensionsSet[ext]
-}
-
-func IsContentExt(ext string) bool {
-	return contentFileExtensionsSet[ext]
+// Supported data file extensions for _content.* files.
+func IsContentDataExt(ext string) bool {
+	return IsGoTmplExt(ext)
 }
 
 const (
@@ -93,6 +49,8 @@ const (
 
 	FolderResources = "resources"
 	FolderJSConfig  = "_jsconfig" // Mounted below /assets with postcss.config.js etc.
+
+	NameContentData = "_content"
 )
 
 var (

@@ -104,7 +104,6 @@ func InterfaceToFrontMatter(in any, format metadecoders.Format, w io.Writer) err
 		}
 
 		err = InterfaceToConfig(in, format, w)
-
 		if err != nil {
 			return err
 		}

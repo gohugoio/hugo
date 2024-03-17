@@ -65,10 +65,14 @@ type TemplateHandlers struct {
 	TxtTmpl TemplateParseFinder
 }
 
+type TemplateExecutor interface {
+	ExecuteWithContext(ctx context.Context, t Template, wr io.Writer, data any) error
+}
+
 // TemplateHandler finds and executes templates.
 type TemplateHandler interface {
 	TemplateFinder
-	ExecuteWithContext(ctx context.Context, t Template, wr io.Writer, data any) error
+	TemplateExecutor
 	LookupLayout(d layouts.LayoutDescriptor, f output.Format) (Template, bool, error)
 	HasTemplate(name string) bool
 	GetIdentity(name string) (identity.Identity, bool)

@@ -20,6 +20,7 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs/glob"
 	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/resources/page/pagemeta"
 	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/spf13/cast"
@@ -90,7 +91,33 @@ func (r *metaResource) updateParams(params map[string]any) {
 	r.changed = true
 }
 
-func CloneWithMetadataIfNeeded(m []map[string]any, r resource.Resource) resource.Resource {
+// cloneWithMetadataFromResourceConfigIfNeeded clones the given resource with the given metadata if the resource supports it.
+func cloneWithMetadataFromResourceConfigIfNeeded(rc *pagemeta.ResourceConfig, r resource.Resource) resource.Resource {
+	wmp, ok := r.(resource.WithResourceMetaProvider)
+	if !ok {
+		return r
+	}
+
+	if rc.Name == "" && rc.Title == "" && len(rc.Params) == 0 {
+		// No metadata.
+		return r
+	}
+
+	if rc.Title == "" {
+		rc.Title = rc.Name
+	}
+
+	wrapped := &metaResource{
+		name:   rc.Name,
+		title:  rc.Title,
+		params: rc.Params,
+	}
+
+	return wmp.WithResourceMeta(wrapped)
+}
+
+// CloneWithMetadataFromMapIfNeeded clones the given resource with the given metadata if the resource supports it.
+func CloneWithMetadataFromMapIfNeeded(m []map[string]any, r resource.Resource) resource.Resource {
 	wmp, ok := r.(resource.WithResourceMetaProvider)
 	if !ok {
 		return r

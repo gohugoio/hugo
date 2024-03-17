@@ -28,12 +28,12 @@ type Tree[T any] interface {
 }
 
 // NewSimpleTree creates a new SimpleTree.
-func NewSimpleTree[T any]() *SimpleTree[T] {
+func NewSimpleTree[T comparable]() *SimpleTree[T] {
 	return &SimpleTree[T]{tree: radix.New()}
 }
 
 // SimpleTree is a thread safe radix tree that holds T.
-type SimpleTree[T any] struct {
+type SimpleTree[T comparable] struct {
 	mu   sync.RWMutex
 	tree *radix.Tree
 	zero T
@@ -67,16 +67,23 @@ func (tree *SimpleTree[T]) Insert(s string, v T) T {
 	return v
 }
 
-func (tree *SimpleTree[T]) WalkPrefix(lockType LockType, s string, f func(s string, v T) (bool, error)) error {
+func (tree *SimpleTree[T]) Lock(lockType LockType) func() {
 	switch lockType {
 	case LockTypeNone:
+		return func() {}
 	case LockTypeRead:
 		tree.mu.RLock()
-		defer tree.mu.RUnlock()
+		return tree.mu.RUnlock
 	case LockTypeWrite:
 		tree.mu.Lock()
-		defer tree.mu.Unlock()
+		return tree.mu.Unlock
 	}
+	return func() {}
+}
+
+func (tree *SimpleTree[T]) WalkPrefix(lockType LockType, s string, f func(s string, v T) (bool, error)) error {
+	commit := tree.Lock(lockType)
+	defer commit()
 	var err error
 	tree.tree.WalkPrefix(s, func(s string, v any) bool {
 		var b bool

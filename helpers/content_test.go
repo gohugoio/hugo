@@ -41,7 +41,7 @@ func TestTrimShortHTML(t *testing.T) {
 		{"markdown", []byte("<h2 id=`a`>b</h2>\n\n<p>c</p>"), []byte("<h2 id=`a`>b</h2>\n\n<p>c</p>")},
 		// Issue 12369
 		{"markdown", []byte("<div class=\"paragraph\">\n<p>foo</p>\n</div>"), []byte("<div class=\"paragraph\">\n<p>foo</p>\n</div>")},
-		{"asciidocext", []byte("<div class=\"paragraph\">\n<p>foo</p>\n</div>"), []byte("foo")},
+		{"asciidoc", []byte("<div class=\"paragraph\">\n<p>foo</p>\n</div>"), []byte("foo")},
 	}
 
 	c := newTestContentSpec(nil)

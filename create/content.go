@@ -29,8 +29,6 @@ import (
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/paths"
 
-	"github.com/gohugoio/hugo/hugofs/files"
-
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -98,7 +96,7 @@ func NewContent(h *hugolib.HugoSites, kind, targetPath string, force bool) error
 			return "", fmt.Errorf("failed to resolve %q to an archetype template", targetPath)
 		}
 
-		if !files.IsContentFile(b.targetPath) {
+		if !h.Conf.ContentTypes().IsContentFile(b.targetPath) {
 			return "", fmt.Errorf("target path %q is not a known content format", b.targetPath)
 		}
 

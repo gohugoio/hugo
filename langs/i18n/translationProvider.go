@@ -61,6 +61,7 @@ func (tp *TranslationProvider) NewResource(dst *deps.Deps) error {
 		hugofs.WalkwayConfig{
 			Fs:         dst.BaseFs.I18n.Fs,
 			IgnoreFile: dst.SourceSpec.IgnoreFile,
+			PathParser: dst.SourceSpec.Cfg.PathParser(),
 			WalkFn: func(path string, info hugofs.FileMetaInfo) error {
 				if info.IsDir() {
 					return nil

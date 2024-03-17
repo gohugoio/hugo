@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"context"
 	"fmt"
 	"path"
 	"path/filepath"
@@ -23,10 +24,13 @@ import (
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/hugolib/pagesfromdata"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/source"
 
 	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/resources/page/pagemeta"
 	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -51,9 +55,11 @@ type contentMapConfig struct {
 var _ contentNodeI = (*resourceSource)(nil)
 
 type resourceSource struct {
-	path   *paths.Path
-	opener hugio.OpenReadSeekCloser
-	fi     hugofs.FileMetaInfo
+	langIndex int
+	path      *paths.Path
+	opener    hugio.OpenReadSeekCloser
+	fi        hugofs.FileMetaInfo
+	rc        *pagemeta.ResourceConfig
 
 	r resource.Resource
 }
@@ -64,11 +70,7 @@ func (r resourceSource) clone() *resourceSource {
 }
 
 func (r *resourceSource) LangIndex() int {
-	if r.r != nil && r.isPage() {
-		return r.r.(*pageState).s.languagei
-	}
-
-	return r.fi.Meta().LangIndex
+	return r.langIndex
 }
 
 func (r *resourceSource) MarkStale() {
@@ -162,12 +164,13 @@ func (cfg contentMapConfig) getTaxonomyConfig(s string) (v viewName) {
 	return
 }
 
-func (m *pageMap) AddFi(fi hugofs.FileMetaInfo) error {
+func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCount uint64, resourceCount uint64, addErr error) {
 	if fi.IsDir() {
-		return nil
+		return
 	}
 
 	insertResource := func(fim hugofs.FileMetaInfo) error {
+		resourceCount++
 		pi := fi.Meta().PathInfo
 		key := pi.Base()
 		tree := m.treeResources
@@ -199,9 +202,9 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo) error {
 			}
 			key = pi.Base()
 
-			rs = &resourceSource{r: pageResource}
+			rs = &resourceSource{r: pageResource, langIndex: pageResource.s.languagei}
 		} else {
-			rs = &resourceSource{path: pi, opener: r, fi: fim}
+			rs = &resourceSource{path: pi, opener: r, fi: fim, langIndex: fim.Meta().LangIndex}
 		}
 
 		tree.InsertIntoValuesDimension(key, rs)
@@ -220,14 +223,27 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo) error {
 			},
 		))
 		if err := insertResource(fi); err != nil {
-			return err
+			addErr = err
+			return
 		}
+	case paths.PathTypeContentData:
+		pc, rc, err := m.addPagesFromGoTmplFi(fi, buildConfig)
+		pageCount += pc
+		resourceCount += rc
+		if err != nil {
+			addErr = err
+			return
+		}
+
 	default:
 		m.s.Log.Trace(logg.StringFunc(
 			func() string {
 				return fmt.Sprintf("insert bundle: %q", fi.Meta().Filename)
 			},
 		))
+
+		pageCount++
+
 		// A content file.
 		p, pi, err := m.s.h.newPage(
 			&pageMeta{
@@ -237,17 +253,164 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo) error {
 			},
 		)
 		if err != nil {
-			return err
+			addErr = err
+			return
 		}
 		if p == nil {
 			// Disabled page.
-			return nil
+			return
 		}
 
-		m.treePages.InsertWithLock(pi.Base(), p)
+		m.treePages.InsertIntoValuesDimensionWithLock(pi.Base(), p)
 
 	}
-	return nil
+	return
+}
+
+func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCount uint64, resourceCount uint64, addErr error) {
+	meta := fi.Meta()
+	pi := meta.PathInfo
+
+	m.s.Log.Trace(logg.StringFunc(
+		func() string {
+			return fmt.Sprintf("insert pages from data file: %q", fi.Meta().Filename)
+		},
+	))
+
+	if !files.IsGoTmplExt(pi.Ext()) {
+		addErr = fmt.Errorf("unsupported data file extension %q", pi.Ext())
+		return
+	}
+
+	s := m.s.h.resolveSite(fi.Meta().Lang)
+	f := source.NewFileInfo(fi)
+	h := s.h
+
+	// Make sure the layouts are initialized.
+	if _, err := h.init.layouts.Do(context.Background()); err != nil {
+		addErr = err
+		return
+	}
+
+	contentAdapter := s.pageMap.treePagesFromTemplateAdapters.Get(pi.Base())
+	var rebuild bool
+	if contentAdapter != nil {
+		// Rebuild
+		contentAdapter = contentAdapter.CloneForGoTmpl(fi)
+		rebuild = true
+	} else {
+		contentAdapter = pagesfromdata.NewPagesFromTemplate(
+			pagesfromdata.PagesFromTemplateOptions{
+				GoTmplFi: fi,
+				Site:     s,
+				DepsFromSite: func(s page.Site) pagesfromdata.PagesFromTemplateDeps {
+					ss := s.(*Site)
+					return pagesfromdata.PagesFromTemplateDeps{
+						TmplFinder: ss.TextTmpl(),
+						TmplExec:   ss.Tmpl(),
+					}
+				},
+				DependencyManager: s.Conf.NewIdentityManager("pagesfromdata"),
+				Watching:          s.Conf.Watching(),
+				HandlePage: func(pt *pagesfromdata.PagesFromTemplate, pc *pagemeta.PageConfig) error {
+					s := pt.Site.(*Site)
+					if err := pc.Compile(pt.GoTmplFi.Meta().PathInfo.Base(), true, "", s.Log, s.conf.MediaTypes.Config); err != nil {
+						return err
+					}
+
+					ps, pi, err := h.newPage(
+						&pageMeta{
+							f: f,
+							s: s,
+							pageMetaParams: &pageMetaParams{
+								pageConfig: pc,
+							},
+						},
+					)
+					if err != nil {
+						return err
+					}
+
+					if ps == nil {
+						// Disabled page.
+						return nil
+					}
+
+					u, n, replaced := s.pageMap.treePages.InsertIntoValuesDimensionWithLock(pi.Base(), ps)
+
+					if h.isRebuild() {
+						if replaced {
+							pt.AddChange(n.GetIdentity())
+						} else {
+							pt.AddChange(u.GetIdentity())
+						}
+					}
+
+					return nil
+				},
+				HandleResource: func(pt *pagesfromdata.PagesFromTemplate, rc *pagemeta.ResourceConfig) error {
+					s := pt.Site.(*Site)
+					if err := rc.Compile(
+						pt.GoTmplFi.Meta().PathInfo.Base(),
+						s.Conf.PathParser(),
+						s.conf.MediaTypes.Config,
+					); err != nil {
+						return err
+					}
+
+					rs := &resourceSource{path: rc.PathInfo, rc: rc, opener: nil, fi: nil, langIndex: s.languagei}
+
+					_, n, replaced := s.pageMap.treeResources.InsertIntoValuesDimensionWithLock(rc.PathInfo.Base(), rs)
+
+					if h.isRebuild() && replaced {
+						pt.AddChange(n.GetIdentity())
+					}
+					return nil
+				},
+			},
+		)
+
+		s.pageMap.treePagesFromTemplateAdapters.Insert(pi.Base(), contentAdapter)
+
+	}
+
+	handleBuildInfo := func(s *Site, bi pagesfromdata.BuildInfo) {
+		resourceCount += bi.NumResourcesAdded
+		pageCount += bi.NumPagesAdded
+		s.handleContentAdapterChanges(bi, buildConfig)
+	}
+
+	bi, err := contentAdapter.Execute(context.Background())
+	if err != nil {
+		addErr = err
+		return
+	}
+	handleBuildInfo(s, bi)
+
+	if !rebuild && bi.EnableAllLanguages {
+		// Clone and insert the adapter for the other sites.
+		for _, ss := range s.h.Sites {
+			if s == ss {
+				continue
+			}
+
+			clone := contentAdapter.CloneForSite(ss)
+
+			// Make sure it gets executed for the first time.
+			bi, err := clone.Execute(context.Background())
+			if err != nil {
+				addErr = err
+				return
+			}
+			handleBuildInfo(ss, bi)
+
+			// Insert into the correct language tree so it get rebuilt on changes.
+			ss.pageMap.treePagesFromTemplateAdapters.Insert(pi.Base(), clone)
+
+		}
+	}
+
+	return
 }
 
 // The home page is represented with the zero string.

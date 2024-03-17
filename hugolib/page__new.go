@@ -15,7 +15,6 @@ package hugolib
 
 import (
 	"fmt"
-	"path/filepath"
 	"sync"
 	"sync/atomic"
 
@@ -36,21 +35,17 @@ var pageIDCounter atomic.Uint64
 
 func (h *HugoSites) newPage(m *pageMeta) (*pageState, *paths.Path, error) {
 	m.Staler = &resources.AtomicStaler{}
-	if m.pageConfig == nil {
-		m.pageMetaParams = pageMetaParams{
-			pageConfig: &pagemeta.PageConfig{
-				Params: maps.Params{},
-			},
+	if m.pageMetaParams == nil {
+		m.pageMetaParams = &pageMetaParams{
+			pageConfig: &pagemeta.PageConfig{},
 		}
 	}
-
-	var sourceKey string
-	if m.f != nil {
-		sourceKey = filepath.ToSlash(m.f.Filename())
+	if m.pageConfig.Params == nil {
+		m.pageConfig.Params = maps.Params{}
 	}
 
 	pid := pageIDCounter.Add(1)
-	pi, err := m.parseFrontMatter(h, pid, sourceKey)
+	pi, err := m.parseFrontMatter(h, pid)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -69,28 +64,40 @@ func (h *HugoSites) newPage(m *pageMeta) (*pageState, *paths.Path, error) {
 		s := m.pageConfig.Path
 		if !paths.HasExt(s) {
 			var (
-				isBranch bool
-				ext      string = "md"
+				isBranch    bool
+				isBranchSet bool
+				ext         string = m.pageConfig.ContentMediaType.FirstSuffix.Suffix
 			)
 			if pcfg.Kind != "" {
 				isBranch = kinds.IsBranch(pcfg.Kind)
-			} else if m.pathInfo != nil {
-				isBranch = m.pathInfo.IsBranchBundle()
-				if m.pathInfo.Ext() != "" {
-					ext = m.pathInfo.Ext()
-				}
-			} else if m.f != nil {
-				pi := m.f.FileInfo().Meta().PathInfo
-				isBranch = pi.IsBranchBundle()
-				if pi.Ext() != "" {
-					ext = pi.Ext()
+				isBranchSet = true
+			}
+
+			if !pcfg.IsFromContentAdapter {
+				if m.pathInfo != nil {
+					if !isBranchSet {
+						isBranch = m.pathInfo.IsBranchBundle()
+					}
+					if m.pathInfo.Ext() != "" {
+						ext = m.pathInfo.Ext()
+					}
+				} else if m.f != nil {
+					pi := m.f.FileInfo().Meta().PathInfo
+					if !isBranchSet {
+						isBranch = pi.IsBranchBundle()
+					}
+					if pi.Ext() != "" {
+						ext = pi.Ext()
+					}
 				}
 			}
+
 			if isBranch {
 				s += "/_index." + ext
 			} else {
 				s += "/index." + ext
 			}
+
 		}
 		m.pathInfo = h.Conf.PathParser().Parse(files.ComponentFolderContent, s)
 	} else if m.pathInfo == nil {
@@ -112,23 +119,13 @@ func (h *HugoSites) newPage(m *pageMeta) (*pageState, *paths.Path, error) {
 			} else if m.f != nil {
 				meta := m.f.FileInfo().Meta()
 				lang = meta.Lang
-				m.s = h.Sites[meta.LangIndex]
 			} else {
 				lang = m.pathInfo.Lang()
 			}
-			if lang == "" {
-				lang = h.Conf.DefaultContentLanguage()
-			}
-			var found bool
-			for _, ss := range h.Sites {
-				if ss.Lang() == lang {
-					m.s = ss
-					found = true
-					break
-				}
-			}
 
-			if !found {
+			m.s = h.resolveSite(lang)
+
+			if m.s == nil {
 				return nil, fmt.Errorf("no site found for language %q", lang)
 			}
 		}

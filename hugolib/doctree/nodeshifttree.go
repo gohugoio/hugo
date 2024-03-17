@@ -38,16 +38,18 @@ type (
 
 		// Insert inserts new into the tree into the dimension it provides.
 		// It may replace old.
-		// It returns a T (can be the same as old).
-		Insert(old, new T) T
+		// It returns the updated and existing T
+		// and a bool indicating if an existing record is updated.
+		Insert(old, new T) (T, T, bool)
 
 		// Insert inserts new into the given dimension.
 		// It may replace old.
-		// It returns a T (can be the same as old).
-		InsertInto(old, new T, dimension Dimension) T
+		// It returns the updated and existing T
+		// and a bool indicating if an existing record is updated.
+		InsertInto(old, new T, dimension Dimension) (T, T, bool)
 
-		// Delete deletes T from the given dimension and returns whether the dimension was deleted and if  it's empty after the delete.
-		Delete(v T, dimension Dimension) (bool, bool)
+		// Delete deletes T from the given dimension and returns the deleted T and whether the dimension was deleted and if  it's empty after the delete.
+		Delete(v T, dimension Dimension) (T, bool, bool)
 
 		// Shift shifts T into the given dimension
 		// and returns the shifted T and a bool indicating if the shift was successful and
@@ -81,7 +83,11 @@ func New[T any](cfg Config[T]) *NodeShiftTree[T] {
 	}
 }
 
-func (r *NodeShiftTree[T]) Delete(key string) {
+func (r *NodeShiftTree[T]) Delete(key string) (T, bool) {
+	return r.delete(key)
+}
+
+func (r *NodeShiftTree[T]) DeleteRaw(key string) {
 	r.delete(key)
 }
 
@@ -103,23 +109,24 @@ func (r *NodeShiftTree[T]) DeletePrefix(prefix string) int {
 		return false
 	})
 	for _, key := range keys {
-		if ok := r.delete(key); ok {
+		if _, ok := r.delete(key); ok {
 			count++
 		}
 	}
 	return count
 }
 
-func (r *NodeShiftTree[T]) delete(key string) bool {
+func (r *NodeShiftTree[T]) delete(key string) (T, bool) {
 	var wasDeleted bool
+	var deleted T
 	if v, ok := r.tree.Get(key); ok {
 		var isEmpty bool
-		wasDeleted, isEmpty = r.shifter.Delete(v.(T), r.dims)
+		deleted, wasDeleted, isEmpty = r.shifter.Delete(v.(T), r.dims)
 		if isEmpty {
 			r.tree.Delete(key)
 		}
 	}
-	return wasDeleted
+	return deleted, wasDeleted
 }
 
 func (t *NodeShiftTree[T]) DeletePrefixAll(prefix string) int {
@@ -141,22 +148,33 @@ func (t *NodeShiftTree[T]) Increment(d int) *NodeShiftTree[T] {
 	return t.Shape(d, t.dims[d]+1)
 }
 
-func (r *NodeShiftTree[T]) InsertIntoCurrentDimension(s string, v T) (T, bool) {
+func (r *NodeShiftTree[T]) InsertIntoCurrentDimension(s string, v T) (T, T, bool) {
 	s = mustValidateKey(cleanKey(s))
+	var (
+		updated  bool
+		existing T
+	)
 	if vv, ok := r.tree.Get(s); ok {
-		v = r.shifter.InsertInto(vv.(T), v, r.dims)
+		v, existing, updated = r.shifter.InsertInto(vv.(T), v, r.dims)
 	}
 	r.tree.Insert(s, v)
-	return v, true
+	return v, existing, updated
 }
 
-func (r *NodeShiftTree[T]) InsertIntoValuesDimension(s string, v T) (T, bool) {
+// InsertIntoValuesDimension inserts v into the tree at the given key and the
+// dimension defined by the value.
+// It returns the updated and existing T and a bool indicating if an existing record is updated.
+func (r *NodeShiftTree[T]) InsertIntoValuesDimension(s string, v T) (T, T, bool) {
 	s = mustValidateKey(cleanKey(s))
+	var (
+		updated  bool
+		existing T
+	)
 	if vv, ok := r.tree.Get(s); ok {
-		v = r.shifter.Insert(vv.(T), v)
+		v, existing, updated = r.shifter.Insert(vv.(T), v)
 	}
 	r.tree.Insert(s, v)
-	return v, true
+	return v, existing, updated
 }
 
 func (r *NodeShiftTree[T]) InsertRawWithLock(s string, v any) (any, bool) {
@@ -165,7 +183,8 @@ func (r *NodeShiftTree[T]) InsertRawWithLock(s string, v any) (any, bool) {
 	return r.tree.Insert(s, v)
 }
 
-func (r *NodeShiftTree[T]) InsertWithLock(s string, v T) (T, bool) {
+// It returns the updated and existing T and a bool indicating if an existing record is updated.
+func (r *NodeShiftTree[T]) InsertIntoValuesDimensionWithLock(s string, v T) (T, T, bool) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	return r.InsertIntoValuesDimension(s, v)

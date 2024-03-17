@@ -65,6 +65,9 @@ type ResourceSourceDescriptor struct {
 	// The name of the resource as it was read from the source.
 	NameOriginal string
 
+	// The title of the resource.
+	Title string
+
 	// Any base paths prepended to the target path. This will also typically be the
 	// language code, but setting it here means that it should not have any effect on
 	// the permalink.
@@ -78,6 +81,9 @@ type ResourceSourceDescriptor struct {
 
 	// The Data to associate with this resource.
 	Data map[string]any
+
+	// The Params to associate with this resource.
+	Params maps.Params
 
 	// Delay publishing until either Permalink or RelPermalink is called. Maybe never.
 	LazyPublish bool
@@ -107,8 +113,12 @@ func (fd *ResourceSourceDescriptor) init(r *Spec) error {
 		panic(errors.New("RelPath is empty"))
 	}
 
+	if fd.Params == nil {
+		fd.Params = make(maps.Params)
+	}
+
 	if fd.Path == nil {
-		fd.Path = paths.Parse("", fd.TargetPath)
+		fd.Path = r.Cfg.PathParser().Parse("", fd.TargetPath)
 	}
 
 	if fd.TargetPath == "" {
@@ -141,6 +151,10 @@ func (fd *ResourceSourceDescriptor) init(r *Spec) error {
 
 	if fd.NameOriginal == "" {
 		fd.NameOriginal = fd.NameNormalized
+	}
+
+	if fd.Title == "" {
+		fd.Title = fd.NameOriginal
 	}
 
 	mediaType := fd.MediaType
