@@ -43,7 +43,7 @@ Access the data with either of the following:
 ```
 
 {{% note %}}
-When working with local data, the filepath is relative to the working directory.
+When working with local data, the file path is relative to the working directory.
 {{% /note %}}
 
 Access remote data with either of the following:

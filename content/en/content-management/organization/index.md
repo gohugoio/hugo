@@ -69,7 +69,7 @@ You can create one `_index.md` for your homepage and one in each of your content
 .       ⊢--^-⊣
 .        path    slug
 .       ⊢--^-⊣⊢---^---⊣
-.           filepath
+.           file path
 .       ⊢------^------⊣
 content/posts/_index.md
 ```

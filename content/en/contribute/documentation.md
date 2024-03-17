@@ -216,7 +216,7 @@ file
 : (`string`) The file name to display.
 
 lang
-: (`string`) The code language. If you do not provide a `lang` argument, the code language is determined by the file extension. If the file extension is "html", sets the code language to `go-html-template`. Default is `text`.
+: (`string`) The code language. If you do not provide a `lang` argument, the code language is determined by the file extension. If the file extension is `html`, sets the code language to `go-html-template`. Default is `text`.
 
 ### code-toggle
 

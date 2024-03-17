@@ -222,7 +222,7 @@ See [Configure Build](#configure-build).
 
 ###### buildFuture
 
-(`bool`) Include content with publishdate in the future. Default is `false`.
+(`bool`) Include content with a future publication date. Default is `false`.
 
 ###### caches
 
@@ -238,7 +238,7 @@ See [Configure File Caches](#configure-file-caches).
 
 ###### cascade
 
-Pass down down default configuration values (front matter) to pages in the content tree. The options in site config is the same as in page front matter, see [Front Matter Cascade](/content-management/front-matter#cascade).
+Pass down default configuration values (front matter) to pages in the content tree. The options in site config is the same as in page front matter, see [Front Matter Cascade](/content-management/front-matter#cascade).
 
 {{% note %}}
 For a website in a single language, define the `[[cascade]]` in [Front Matter](/content-management/front-matter#cascade). For a multilingual website, define the `[[cascade]]` in [Site Config](/getting-started/configuration/#cascade).
@@ -795,7 +795,7 @@ dir
 
 This is the directory where Hugo by default will store its file caches. See [Configure File Caches](#configure-file-caches).
 
-This can be set using the `cacheDir` config option or via the OS env variable `HUGO_CACHEDIR`.
+This can be set using the `cacheDir` config option or via the OS environment variable `HUGO_CACHEDIR`.
 
 If this is not set, Hugo will use, in order of preference:
 

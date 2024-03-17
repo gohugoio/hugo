@@ -33,7 +33,7 @@ defaultMarkdownHandler|Description
 `pandoc`|[Pandoc]
 `rst`|[reStructuredText]
 
-To use Asciidoc, Pandoc, or reStructuredText you must install the relevant renderer and update your [security policy].
+To use AsciiDoc, Pandoc, or reStructuredText you must install the relevant renderer and update your [security policy].
 
 {{% note %}}
 Unless you need a unique capability provided by one of the alternate Markdown handlers, we strongly recommend that you use the default setting. Goldmark is fast, well maintained, conforms to the [CommonMark] specification, and is compatible with [GitHub Flavored Markdown] (GFM).
@@ -182,13 +182,13 @@ The embedded link render hook is automatically enabled for multilingual single-h
 
 (`bool`) If `true`, Goldmark renders raw HTML mixed within the Markdown. This is unsafe unless the content is under your control. Default is `false`.
 
-## Asciidoc
+## AsciiDoc
 
 This is the default configuration for the AsciiDoc Markdown renderer:
 
 {{< code-toggle config=markup.asciidocExt />}}
 
-### Asciidoc settings explained
+### AsciiDoc settings explained
 
 ###### attributes
 

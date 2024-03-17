@@ -17,7 +17,7 @@ action:
 
 ## Usage
 
-Any JavaScript resource file can be transpiled and "tree shaken" using `js.Build` which takes for argument either a string for the filepath or a dict of options listed below.
+Any JavaScript resource file can be transpiled and "tree shaken" using `js.Build` which takes for argument either a string for the file path or a dict of options listed below.
 
 ### Options
 
