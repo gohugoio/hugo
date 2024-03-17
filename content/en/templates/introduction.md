@@ -431,7 +431,7 @@ See documentation for [`if`], [`else`], and [`end`].
 [`end`]: /functions/go-template/end/
 
 ```go-html-template
-{{ $var := 12 }}
+{{ $var := 42 }}
 {{ if eq $var 6 }}
   {{ print "var is 6" }}
 {{ else if eq $var 7 }}
@@ -453,14 +453,15 @@ See documentation for [`and`] and [`or`].
 ```go-html-template
 {{ $v1 := true }}
 {{ $v2 := false }}
+{{ $v3 := false }}
 {{ $result := false }}
 
-{{ if and $v1 $v2 }}
+{{ if and $v1 $v2 $v3 }}
   {{ $result = true }}
 {{ end }}
 {{ $result }} → false
 
-{{ if or $v1 $v2 }}
+{{ if or $v1 $v2 $v3 }}
   {{ $result = true }}
 {{ end }}
 {{ $result }} → true

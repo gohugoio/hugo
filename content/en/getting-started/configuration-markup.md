@@ -48,7 +48,7 @@ Unless you need a unique capability provided by one of the alternate Markdown ha
 [goldmark]: https://github.com/yuin/goldmark/
 [pandoc]: https://pandoc.org/
 [restructuredtext]: https://docutils.sourceforge.io/rst.html
-[security policy]: /about/security-model/#security-policy
+[security policy]: /about/security/#security-policy
 
 ## Goldmark
 

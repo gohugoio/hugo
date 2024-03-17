@@ -1,16 +1,16 @@
 ---
-title: Hugo and the General Data Protection Regulation
-linkTitle: Hugo and the GDPR
-description: About how to configure your Hugo site to meet the new regulations.
+title: Privacy
+linkTitle: Privacy
+description: Configure your site to facilitate compliance with regional privacy regulations.
 categories: [about]
 keywords: ["GDPR", "Privacy", "Data Protection"]
 menu:
   docs:
     parent: about
-    weight: 60
-weight: 60
+    weight: 40
+weight: 40
 toc: true
-aliases: [/privacy/,/gdpr/]
+aliases: [/gdpr/,/about/hugo-and-gdpr/]
 ---
 
  General Data Protection Regulation ([GDPR](https://en.wikipedia.org/wiki/General_Data_Protection_Regulation)) is a regulation in EU law on data protection and privacy for all individuals within the European Union and the European Economic Area. It became enforceable on 25 May 2018.

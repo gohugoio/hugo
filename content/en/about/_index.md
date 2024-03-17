@@ -1,7 +1,7 @@
 ---
 title: About Hugo
 linkTitle: In this section
-description: Hugo's features, roadmap, license, and motivation.
+description: Learn about Hugo and its features, security model, and privacy protections.
 categories: []
 keywords: []
 menu:
@@ -13,4 +13,4 @@ weight: 10
 aliases: [/about-hugo/,/docs/]
 ---
 
-Hugo is not your average static site generator.
+Learn about Hugo and its features, privacy protections, and security model.

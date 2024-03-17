@@ -44,6 +44,7 @@ Although we do not strictly adhere to the [Microsoft Writing Style Guide], it is
 Please link to the [glossary of terms] when necessary, and use the terms consistently throughout the documentation. Of special note:
 
 - The term "front matter" is two words unless you are referring to the configuration key
+- The term "standlone" is one word, not hyphenated
 - Use the word "map" instead of "dictionary"
 - Use the word "flag" instead of "option" when referring to a command line flag
 - Capitalize the word "Markdown"

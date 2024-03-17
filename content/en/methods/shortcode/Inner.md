@@ -150,4 +150,4 @@ When using the `{{%/* */%}}` notation, do not pass the value returned by `Inner`
 [commonmark]: https://commonmark.org/
 [indentation]: https://spec.commonmark.org/0.30/#indented-code-blocks
 [raw html blocks]: https://spec.commonmark.org/0.30/#html-blocks
-[security model]: /about/security-model/
+[security model]: /about/security/

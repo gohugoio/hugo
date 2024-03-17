@@ -73,11 +73,7 @@ my-project/
     │   ├── menus.en.toml
     │   ├── menus.de.toml
     │   └── params.toml
-    ├── production/
-    │   ├── hugo.toml
-    │   └── params.toml
-    └── staging/
-        ├── hugo.toml
+    ├── production/, giving you
         └── params.toml
 ```
 
@@ -377,7 +373,7 @@ Module configuration see [module configuration](/hugo-modules/configuration/).
 
 ###### outputFormats
 
-See [Configure Output Formats](#configure-additional-output-formats).
+See [custom output formats].
 
 ###### paginate
 
@@ -435,7 +431,7 @@ See [Menus](/content-management/menus/#define-automatically).
 
 ###### security
 
-See [Security Policy](/about/security-model/#security-policy).
+See [Security Policy](/about/security/#security-policy).
 
 ###### segments
 
@@ -760,10 +756,6 @@ The above will try first to extract the value for `.Date` from the file name, th
 `:git`
 : This is the Git author date for the last revision of this content file. This will only be set if `--enableGitInfo` is set or `enableGitInfo = true` is set in site configuration.
 
-## Configure additional output formats
-
-Hugo v0.20 introduced the ability to render your content to multiple output formats (e.g., to JSON, AMP html, or CSV). See [Output Formats] for information on how to add these values to your Hugo project's configuration file.
-
 ## Configure minify
 
 See the [tdewolff/minify] project page for details.
@@ -817,7 +809,7 @@ If you want to know the current value of `cacheDir`, you can run `hugo config`, 
 [`.Site.Params`]: /method/site/params/
 [directory structure]: /getting-started/directory-structure/
 [lookup order]: /templates/lookup-order/
-[Output Formats]: /templates/output-formats/
+[custom output formats]: /templates/output-formats/
 [templates]: /templates/
 [static-files]: /content-management/static-files/
 
