@@ -82,6 +82,13 @@ func IsContentExt(ext string) bool {
 	return contentFileExtensionsSet[ext]
 }
 
+// Supported data file extensions for _content.* files.
+// We currently only support JSON and YAML.
+// Both of these have a streaming API.
+func IsContentDataExt(ext string) bool {
+	return ext == "json" || ext == "yaml" || ext == "yml"
+}
+
 const (
 	ComponentFolderArchetypes = "archetypes"
 	ComponentFolderStatic     = "static"
@@ -93,6 +100,8 @@ const (
 
 	FolderResources = "resources"
 	FolderJSConfig  = "_jsconfig" // Mounted below /assets with postcss.config.js etc.
+
+	NameContentData = "_content"
 )
 
 var (

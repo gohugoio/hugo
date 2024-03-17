@@ -29,19 +29,14 @@ import (
 
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
-	"github.com/gohugoio/hugo/resources/page/pagemeta"
 )
 
 var pageIDCounter atomic.Uint64
 
 func (h *HugoSites) newPage(m *pageMeta) (*pageState, *paths.Path, error) {
 	m.Staler = &resources.AtomicStaler{}
-	if m.pageConfig == nil {
-		m.pageMetaParams = pageMetaParams{
-			pageConfig: &pagemeta.PageConfig{
-				Params: maps.Params{},
-			},
-		}
+	if m.pageConfig.Params == nil {
+		m.pageConfig.Params = maps.Params{}
 	}
 
 	var sourceKey string

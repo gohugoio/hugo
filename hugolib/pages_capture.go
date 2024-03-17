@@ -42,18 +42,20 @@ func newPagesCollector(
 	logger loggers.Logger,
 	infoLogger logg.LevelLogger,
 	m *pageMap,
+	whatChanged *whatChanged,
 	ids []pathChange,
 ) *pagesCollector {
 	return &pagesCollector{
-		ctx:        ctx,
-		h:          h,
-		fs:         sp.BaseFs.Content.Fs,
-		m:          m,
-		sp:         sp,
-		logger:     logger,
-		infoLogger: infoLogger,
-		ids:        ids,
-		seenDirs:   make(map[string]bool),
+		ctx:         ctx,
+		h:           h,
+		fs:          sp.BaseFs.Content.Fs,
+		m:           m,
+		sp:          sp,
+		logger:      logger,
+		infoLogger:  infoLogger,
+		whatChanged: whatChanged,
+		ids:         ids,
+		seenDirs:    make(map[string]bool),
 	}
 }
 
@@ -67,6 +69,8 @@ type pagesCollector struct {
 	m *pageMap
 
 	fs afero.Fs
+
+	whatChanged *whatChanged
 
 	// List of paths that have changed. Used in partial builds.
 	ids      []pathChange
@@ -113,7 +117,7 @@ func (c *pagesCollector) Collect() (collectErr error) {
 	c.g = rungroup.Run[hugofs.FileMetaInfo](c.ctx, rungroup.Config[hugofs.FileMetaInfo]{
 		NumWorkers: numWorkers,
 		Handle: func(ctx context.Context, fi hugofs.FileMetaInfo) error {
-			if err := c.m.AddFi(fi); err != nil {
+			if err := c.m.AddFi(fi, c.whatChanged); err != nil {
 				return hugofs.AddFileInfoToError(err, fi, c.fs)
 			}
 			numFilesProcessedTotal.Add(1)
@@ -243,6 +247,20 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 			return nil, nil
 		}
 
+		n := 0
+		for _, fi := range readdir {
+			if fi.Meta().PathInfo.IsContentData() {
+				// _content.json
+				// These are not part of any bundle, so just add them directly and remove them from the readdir slice.
+				if err := c.g.Enqueue(fi); err != nil {
+					return nil, err
+				}
+			} else {
+				n++
+			}
+		}
+		readdir = readdir[:n]
+
 		// Pick the first regular file.
 		var first hugofs.FileMetaInfo
 		for _, fi := range readdir {
@@ -260,6 +278,7 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 
 		// Any bundle file will always be first.
 		firstPi := first.Meta().PathInfo
+
 		if firstPi == nil {
 			panic(fmt.Sprintf("collectDirDir: no path info for %q", first.Meta().Filename))
 		}

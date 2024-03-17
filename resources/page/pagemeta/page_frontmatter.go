@@ -29,12 +29,21 @@ import (
 	"github.com/spf13/cast"
 )
 
+type DatesStrings struct {
+	Date        string `json:"date"`
+	Lastmod     string `json:"lastMod"`
+	PublishDate string `json:"publishDate"`
+	ExpiryDate  string `json:"expiryDate"`
+}
+
 type Dates struct {
 	Date        time.Time
 	Lastmod     time.Time
 	PublishDate time.Time
 	ExpiryDate  time.Time
 }
+
+// date, err = htime.ToTimeInDefaultLocationE(v, d.Location)
 
 func (d Dates) IsDateOrLastModAfter(in Dates) bool {
 	return d.Date.After(in.Date) || d.Lastmod.After(in.Lastmod)
@@ -57,7 +66,8 @@ func (d Dates) IsAllDatesZero() bool {
 // Note that all the top level fields are reserved Hugo keywords.
 // Any custom configuration needs to be set in the Params map.
 type PageConfig struct {
-	Dates                   // Dates holds the four core dates for this page.
+	Dates Dates `json:"-"` // Dates holds the four core dates for this page.
+	DatesStrings
 	Title          string   // The title of the page.
 	LinkTitle      string   // The link title of the page.
 	Type           string   // The content type of the page.
@@ -75,16 +85,17 @@ type PageConfig struct {
 	Headless       bool     // Whether or not the page should be rendered.
 	IsCJKLanguage  bool     // Whether or not the content is in a CJK language.
 	TranslationKey string   // The translation key for this page.
-	Keywords       []string // The keywords for this page.
-	Aliases        []string // The aliases for this page.
-	Outputs        []string // The output formats to render this page in. If not set, the site's configured output formats for this page kind will be used.
+	Keywords       []string `hash:"ignore"` // The keywords for this page.
+	Aliases        []string `hash:"ignore"` // The aliases for this page.
+	Outputs        []string `hash:"ignore"` // The output formats to render this page in. If not set, the site's configured output formats for this page kind will be used.
 
 	// These build options are set in the front matter,
 	// but not passed on to .Params.
-	Resources []map[string]any
-	Cascade   map[page.PageMatcher]maps.Params // Only relevant for branch nodes.
-	Sitemap   config.SitemapConfig
-	Build     BuildConfig
+	// TODO1
+	Resources []map[string]any                 `hash:"ignore"`
+	Cascade   map[page.PageMatcher]maps.Params `hash:"ignore"` // Only relevant for branch nodes.
+	Sitemap   config.SitemapConfig             `hash:"ignore"`
+	Build     BuildConfig                      `hash:"ignore"`
 
 	// User defined params.
 	Params maps.Params
@@ -351,7 +362,7 @@ func (f *FrontMatterHandler) createHandlers() error {
 
 	if f.dateHandler, err = f.createDateHandler(f.fmConfig.Date,
 		func(d *FrontMatterDescriptor, t time.Time) {
-			d.PageConfig.Date = t
+			d.PageConfig.Dates.Date = t
 			setParamIfNotSet(fmDate, t, d)
 		}); err != nil {
 		return err
@@ -360,7 +371,7 @@ func (f *FrontMatterHandler) createHandlers() error {
 	if f.lastModHandler, err = f.createDateHandler(f.fmConfig.Lastmod,
 		func(d *FrontMatterDescriptor, t time.Time) {
 			setParamIfNotSet(fmLastmod, t, d)
-			d.PageConfig.Lastmod = t
+			d.PageConfig.Dates.Lastmod = t
 		}); err != nil {
 		return err
 	}
@@ -368,7 +379,7 @@ func (f *FrontMatterHandler) createHandlers() error {
 	if f.publishDateHandler, err = f.createDateHandler(f.fmConfig.PublishDate,
 		func(d *FrontMatterDescriptor, t time.Time) {
 			setParamIfNotSet(fmPubDate, t, d)
-			d.PageConfig.PublishDate = t
+			d.PageConfig.Dates.PublishDate = t
 		}); err != nil {
 		return err
 	}
@@ -376,7 +387,7 @@ func (f *FrontMatterHandler) createHandlers() error {
 	if f.expiryDateHandler, err = f.createDateHandler(f.fmConfig.ExpiryDate,
 		func(d *FrontMatterDescriptor, t time.Time) {
 			setParamIfNotSet(fmExpiryDate, t, d)
-			d.PageConfig.ExpiryDate = t
+			d.PageConfig.Dates.ExpiryDate = t
 		}); err != nil {
 		return err
 	}

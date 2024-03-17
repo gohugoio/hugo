@@ -82,7 +82,7 @@ type pageMetaParams struct {
 	setMetaPostCount          int
 	setMetaPostCascadeChanged bool
 
-	pageConfig *pagemeta.PageConfig
+	pageConfig pagemeta.PageConfig
 
 	// These are only set in watch mode.
 	datesOriginal   pagemeta.Dates
@@ -135,19 +135,19 @@ func (p *pageMeta) BundleType() string {
 }
 
 func (p *pageMeta) Date() time.Time {
-	return p.pageConfig.Date
+	return p.pageConfig.Dates.Date
 }
 
 func (p *pageMeta) PublishDate() time.Time {
-	return p.pageConfig.PublishDate
+	return p.pageConfig.Dates.PublishDate
 }
 
 func (p *pageMeta) Lastmod() time.Time {
-	return p.pageConfig.Lastmod
+	return p.pageConfig.Dates.Lastmod
 }
 
 func (p *pageMeta) ExpiryDate() time.Time {
-	return p.pageConfig.ExpiryDate
+	return p.pageConfig.Dates.ExpiryDate
 }
 
 func (p *pageMeta) Description() string {
@@ -276,10 +276,7 @@ func (p *pageMeta) Weight() int {
 func (p *pageMeta) setMetaPre(pi *contentParseInfo, logger loggers.Logger, conf config.AllProvider) error {
 	frontmatter := pi.frontMatter
 	if frontmatter != nil {
-		pcfg := p.pageConfig
-		if pcfg == nil {
-			panic("pageConfig not set")
-		}
+		pcfg := &p.pageConfig
 		// Needed for case insensitive fetching of params values
 		maps.PrepareParams(frontmatter)
 		pcfg.Params = frontmatter
@@ -413,7 +410,7 @@ func (p *pageState) setMetaPostParams() error {
 	}
 
 	descriptor := &pagemeta.FrontMatterDescriptor{
-		PageConfig:    pm.pageConfig,
+		PageConfig:    &pm.pageConfig,
 		BaseFilename:  contentBaseName,
 		ModTime:       mtime,
 		GitAuthorDate: gitAuthorDate,
@@ -455,9 +452,11 @@ params:
 
 	var sitemapSet bool
 
-	pcfg := pm.pageConfig
-
+	pcfg := &pm.pageConfig
 	params := pcfg.Params
+	if params == nil {
+		panic("params not set for " + p.Title())
+	}
 
 	var draft, published, isCJKLanguage *bool
 	var userParams map[string]any

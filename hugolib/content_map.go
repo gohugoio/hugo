@@ -22,7 +22,9 @@ import (
 
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/hugolib/pagesfromdata"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/source"
 
@@ -162,10 +164,15 @@ func (cfg contentMapConfig) getTaxonomyConfig(s string) (v viewName) {
 	return
 }
 
-func (m *pageMap) AddFi(fi hugofs.FileMetaInfo) error {
+// TODO1 move this somewhere
+var skipc = maps.NewCache[string, map[uint64]bool]()
+
+func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, whatChanged *whatChanged) error {
 	if fi.IsDir() {
 		return nil
 	}
+
+	rebuilding := m.s.h.buildCounter.Load() > 0
 
 	insertResource := func(fim hugofs.FileMetaInfo) error {
 		pi := fi.Meta().PathInfo
@@ -222,6 +229,63 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo) error {
 		if err := insertResource(fi); err != nil {
 			return err
 		}
+	case paths.PathTypeContentData:
+		m.s.Log.Trace(logg.StringFunc(
+			func() string {
+				return fmt.Sprintf("insert pages from data file: %q", fi.Meta().Filename)
+			},
+		))
+
+		if err := func() error {
+			// TODO1 validate no leading slash in v1.
+			// TODO1 benchmark this vs a more fine grained lock.
+			commit1, commit2 := m.treePages.Lock(true), m.treeResources.Lock(true)
+			defer commit1()
+			defer commit2()
+
+			seen := make(map[uint64]bool)
+			handle := func(p pagesfromdata.PageData, skip bool) error {
+				seen[p.SourceHash] = true
+				if skip {
+					return nil
+				}
+				pc := p.PageConfig
+				pc.Path = path.Join(pi.Base(), pc.Path)
+				ps, pi, err := m.s.h.newPage(
+					&pageMeta{
+						f: source.NewFileInfo(fi),
+						pageMetaParams: pageMetaParams{
+							pageConfig: pc,
+						},
+					},
+				)
+				if err != nil {
+					return err
+				}
+				if ps == nil {
+					// Disabled page.
+					return nil
+				}
+
+				n, _, replaced := m.treePages.InsertIntoValuesDimension(pi.Base(), ps)
+
+				if rebuilding && replaced {
+					whatChanged.Add(n.GetIdentity())
+				}
+				return nil
+			}
+
+			skip, _ := skipc.Get(fi.Meta().Filename)
+			if err := pagesfromdata.PagesFromJSONFile(fi, skip, handle); err != nil {
+				return err
+			}
+
+			skipc.Set(fi.Meta().Filename, seen)
+
+			return nil
+		}(); err != nil {
+			return err
+		}
 	default:
 		m.s.Log.Trace(logg.StringFunc(
 			func() string {
@@ -244,7 +308,7 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo) error {
 			return nil
 		}
 
-		m.treePages.InsertWithLock(pi.Base(), p)
+		m.treePages.InsertIntoValuesDimensionWithLock(pi.Base(), p)
 
 	}
 	return nil

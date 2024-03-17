@@ -333,6 +333,15 @@ func TestParse(t *testing.T) {
 				c.Assert(p.Path(), qt.Equals, "/a/b/c.txt")
 			},
 		},
+		{
+			"Content data file",
+			"/a/b/_content.json",
+			func(c *qt.C, p *Path) {
+				c.Assert(p.Path(), qt.Equals, "/a/b/_content.json")
+				c.Assert(p.Ext(), qt.Equals, "json")
+				c.Assert(p.IsContentData(), qt.IsTrue)
+			},
+		},
 	}
 	for _, test := range tests {
 		c.Run(test.name, func(c *qt.C) {

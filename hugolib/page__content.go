@@ -56,7 +56,7 @@ type pageContentReplacement struct {
 
 func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64, sourceKey string) (*contentParseInfo, error) {
 	var openSource hugio.OpenReadSeekCloser
-	if m.f != nil {
+	if m.f != nil && !m.f.IsMultipart() {
 		meta := m.f.FileInfo().Meta()
 		openSource = func() (hugio.ReadSeekCloser, error) {
 			r, err := meta.Open()

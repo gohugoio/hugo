@@ -768,7 +768,7 @@ func (s *contentNodeShifter) ForEeachInDimension(n contentNodeI, d int, f func(c
 	}
 }
 
-func (s *contentNodeShifter) InsertInto(old, new contentNodeI, dimension doctree.Dimension) contentNodeI {
+func (s *contentNodeShifter) InsertInto(old, new contentNodeI, dimension doctree.Dimension) (contentNodeI, contentNodeI, bool) {
 	langi := dimension[doctree.DimensionLanguage.Index()]
 	switch vv := old.(type) {
 	case *pageState:
@@ -777,37 +777,39 @@ func (s *contentNodeShifter) InsertInto(old, new contentNodeI, dimension doctree
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
 		if vv.s.languagei == newp.s.languagei && newp.s.languagei == langi {
-			return new
+			return new, vv, true
 		}
 		is := make(contentNodeIs, s.numLanguages)
 		is[vv.s.languagei] = old
 		is[langi] = new
-		return is
+		return is, old, false
 	case contentNodeIs:
+		oldv := vv[langi]
 		vv[langi] = new
-		return vv
+		return vv, oldv, oldv != nil
 	case resourceSources:
+		oldv := vv[langi]
 		vv[langi] = new.(*resourceSource)
-		return vv
+		return vv, oldv, oldv != nil
 	case *resourceSource:
 		newp, ok := new.(*resourceSource)
 		if !ok {
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
 		if vv.LangIndex() == newp.LangIndex() && newp.LangIndex() == langi {
-			return new
+			return new, vv, true
 		}
 		rs := make(resourceSources, s.numLanguages)
 		rs[vv.LangIndex()] = vv
 		rs[langi] = newp
-		return rs
+		return rs, vv, false
 
 	default:
 		panic(fmt.Sprintf("unknown type %T", old))
 	}
 }
 
-func (s *contentNodeShifter) Insert(old, new contentNodeI) contentNodeI {
+func (s *contentNodeShifter) Insert(old, new contentNodeI) (contentNodeI, contentNodeI, bool) {
 	switch vv := old.(type) {
 	case *pageState:
 		newp, ok := new.(*pageState)
@@ -815,40 +817,42 @@ func (s *contentNodeShifter) Insert(old, new contentNodeI) contentNodeI {
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
 		if vv.s.languagei == newp.s.languagei {
-			return new
+			return new, vv, true
 		}
 		is := make(contentNodeIs, s.numLanguages)
 		is[newp.s.languagei] = new
 		is[vv.s.languagei] = old
-		return is
+		return is, old, false
 	case contentNodeIs:
 		newp, ok := new.(*pageState)
 		if !ok {
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
-		resource.MarkStale(vv[newp.s.languagei])
+		oldv := vv[newp.s.languagei]
+		resource.MarkStale(oldv)
 		vv[newp.s.languagei] = new
-		return vv
+		return vv, oldv, oldv != nil
 	case *resourceSource:
 		newp, ok := new.(*resourceSource)
 		if !ok {
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
 		if vv.LangIndex() == newp.LangIndex() {
-			return new
+			return new, vv, true
 		}
 		rs := make(resourceSources, s.numLanguages)
 		rs[newp.LangIndex()] = newp
 		rs[vv.LangIndex()] = vv
-		return rs
+		return rs, vv, false
 	case resourceSources:
 		newp, ok := new.(*resourceSource)
 		if !ok {
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
-		resource.MarkStale(vv[newp.LangIndex()])
+		oldv := vv[newp.LangIndex()]
+		resource.MarkStale(oldv)
 		vv[newp.LangIndex()] = newp
-		return vv
+		return vv, oldv, oldv != nil
 	default:
 		panic(fmt.Sprintf("unknown type %T", old))
 	}
@@ -937,8 +941,6 @@ type contentTreeReverseIndexMap struct {
 
 type sitePagesAssembler struct {
 	*Site
-	watching        bool
-	incomingChanges *whatChanged
 	assembleChanges *whatChanged
 	ctx             context.Context
 }
@@ -1009,11 +1011,13 @@ func (m *pageMap) debugPrint(prefix string, maxLevel int, w io.Writer) {
 	}
 }
 
+// TODO1 do once?
 func (h *HugoSites) resolveAndClearStateForIdentities(
 	ctx context.Context,
 	l logg.LevelLogger,
 	cachebuster func(s string) bool, changes []identity.Identity,
 ) error {
+	// TODO1 add a threshold for len(changes) => Djengis Khan. Check if we have a similar somewhere else.
 	h.Log.Debug().Log(logg.StringFunc(
 		func() string {
 			var sb strings.Builder
@@ -1246,6 +1250,7 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 	rw := pw.Extend()
 	rw.Tree = sa.pageMap.treeResources
 	sa.lastmod = time.Time{}
+	rebuild := sa.s.h.buildCounter.Load() > 0
 
 	pw.Handle = func(keyPage string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
 		pageBundle := n.(*pageState)
@@ -1277,18 +1282,20 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 			}
 		}
 
-		if (pageBundle.IsHome() || pageBundle.IsSection()) && pageBundle.m.setMetaPostCount > 0 {
-			oldDates := pageBundle.m.pageConfig.Dates
+		if rebuild {
+			if (pageBundle.IsHome() || pageBundle.IsSection()) && pageBundle.m.setMetaPostCount > 0 {
+				oldDates := pageBundle.m.pageConfig.Dates
 
-			// We need to wait until after the walk to determine if any of the dates have changed.
-			pw.WalkContext.AddPostHook(
-				func() error {
-					if oldDates != pageBundle.m.pageConfig.Dates {
-						sa.assembleChanges.Add(pageBundle)
-					}
-					return nil
-				},
-			)
+				// We need to wait until after the walk to determine if any of the dates have changed.
+				pw.WalkContext.AddPostHook(
+					func() error {
+						if oldDates != pageBundle.m.pageConfig.Dates {
+							sa.assembleChanges.Add(pageBundle)
+						}
+						return nil
+					},
+				)
+			}
 		}
 
 		// Combine the cascade map with front matter.
@@ -1298,7 +1305,7 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 
 		// We receive cascade values from above. If this leads to a change compared
 		// to the previous value, we need to mark the page and its dependencies as changed.
-		if pageBundle.m.setMetaPostCascadeChanged {
+		if rebuild && pageBundle.m.setMetaPostCascadeChanged {
 			sa.assembleChanges.Add(pageBundle)
 		}
 
@@ -1531,7 +1538,7 @@ func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
 							s:        sa.Site,
 							pathInfo: pi,
 							pageMetaParams: pageMetaParams{
-								pageConfig: &pagemeta.PageConfig{
+								pageConfig: pagemeta.PageConfig{
 									Kind: kinds.KindTerm,
 								},
 							},
@@ -1753,7 +1760,7 @@ func (sa *sitePagesAssembler) addStandalonePages() error {
 			s:        s,
 			pathInfo: s.Conf.PathParser().Parse(files.ComponentFolderContent, key+f.MediaType.FirstSuffix.FullSuffix),
 			pageMetaParams: pageMetaParams{
-				pageConfig: &pagemeta.PageConfig{
+				pageConfig: pagemeta.PageConfig{
 					Kind: kind,
 				},
 			},
@@ -1871,7 +1878,7 @@ func (sa *sitePagesAssembler) addMissingRootSections() error {
 			s:        sa.Site,
 			pathInfo: p,
 			pageMetaParams: pageMetaParams{
-				pageConfig: &pagemeta.PageConfig{
+				pageConfig: pagemeta.PageConfig{
 					Kind: kinds.KindHome,
 				},
 			},
@@ -1880,7 +1887,7 @@ func (sa *sitePagesAssembler) addMissingRootSections() error {
 		if err != nil {
 			return err
 		}
-		w.Tree.InsertWithLock(p.Base(), n)
+		w.Tree.InsertIntoValuesDimensionWithLock(p.Base(), n)
 		sa.home = n
 	}
 
@@ -1904,7 +1911,7 @@ func (sa *sitePagesAssembler) addMissingTaxonomies() error {
 				s:        sa.Site,
 				pathInfo: sa.Conf.PathParser().Parse(files.ComponentFolderContent, key+"/_index.md"),
 				pageMetaParams: pageMetaParams{
-					pageConfig: &pagemeta.PageConfig{
+					pageConfig: pagemeta.PageConfig{
 						Kind: kinds.KindTaxonomy,
 					},
 				},

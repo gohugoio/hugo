@@ -38,13 +38,15 @@ type (
 
 		// Insert inserts new into the tree into the dimension it provides.
 		// It may replace old.
-		// It returns a T (can be the same as old).
-		Insert(old, new T) T
+		// It returns the updated and existing T
+		// and a bool indicating if an existing record is updated.
+		Insert(old, new T) (T, T, bool)
 
 		// Insert inserts new into the given dimension.
 		// It may replace old.
-		// It returns a T (can be the same as old).
-		InsertInto(old, new T, dimension Dimension) T
+		// It returns the updated and existing T
+		// and a bool indicating if an existing record is updated.
+		InsertInto(old, new T, dimension Dimension) (T, T, bool)
 
 		// Delete deletes T from the given dimension and returns whether the dimension was deleted and if  it's empty after the delete.
 		Delete(v T, dimension Dimension) (bool, bool)
@@ -141,22 +143,30 @@ func (t *NodeShiftTree[T]) Increment(d int) *NodeShiftTree[T] {
 	return t.Shape(d, t.dims[d]+1)
 }
 
-func (r *NodeShiftTree[T]) InsertIntoCurrentDimension(s string, v T) (T, bool) {
+func (r *NodeShiftTree[T]) InsertIntoCurrentDimension(s string, v T) (T, T, bool) {
 	s = mustValidateKey(cleanKey(s))
+	var (
+		updated  bool
+		existing T
+	)
 	if vv, ok := r.tree.Get(s); ok {
-		v = r.shifter.InsertInto(vv.(T), v, r.dims)
+		v, existing, updated = r.shifter.InsertInto(vv.(T), v, r.dims)
 	}
 	r.tree.Insert(s, v)
-	return v, true
+	return v, existing, updated
 }
 
-func (r *NodeShiftTree[T]) InsertIntoValuesDimension(s string, v T) (T, bool) {
+func (r *NodeShiftTree[T]) InsertIntoValuesDimension(s string, v T) (T, T, bool) {
 	s = mustValidateKey(cleanKey(s))
+	var (
+		updated  bool
+		existing T
+	)
 	if vv, ok := r.tree.Get(s); ok {
-		v = r.shifter.Insert(vv.(T), v)
+		v, existing, updated = r.shifter.Insert(vv.(T), v)
 	}
 	r.tree.Insert(s, v)
-	return v, true
+	return v, existing, updated
 }
 
 func (r *NodeShiftTree[T]) InsertRawWithLock(s string, v any) (any, bool) {
@@ -165,7 +175,7 @@ func (r *NodeShiftTree[T]) InsertRawWithLock(s string, v any) (any, bool) {
 	return r.tree.Insert(s, v)
 }
 
-func (r *NodeShiftTree[T]) InsertWithLock(s string, v T) (T, bool) {
+func (r *NodeShiftTree[T]) InsertIntoValuesDimensionWithLock(s string, v T) (T, T, bool) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	return r.InsertIntoValuesDimension(s, v)
