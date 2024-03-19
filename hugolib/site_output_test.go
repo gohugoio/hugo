@@ -646,3 +646,40 @@ WordCount: {{ .WordCount }}
 	b.AssertFileContent("public/outputs-empty/index.html", "HTML:", "Word1. Word2.")
 	b.AssertFileContent("public/outputs-string/index.html", "O1:", "Word1. Word2.")
 }
+
+func TestOuputFormatFrontMatterTermIssue12275(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','page','rss','section','sitemap','taxonomy']
+-- content/p1.md --
+---
+title: p1
+tags:
+  - tag-a
+  - tag-b
+---
+-- content/tags/tag-a/_index.md --
+---
+title: tag-a
+outputs:
+  - html
+  - json
+---
+-- content/tags/tag-b/_index.md --
+---
+title: tag-b
+---
+-- layouts/_default/term.html --
+{{ .Title }}
+-- layouts/_default/term.json --
+{{ jsonify (dict "title" .Title) }}
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/tags/tag-a/index.html", "tag-a")
+	b.AssertFileContent("public/tags/tag-b/index.html", "tag-b")
+	b.AssertFileContent("public/tags/tag-a/index.json", `{"title":"tag-a"}`) // failing test
+}
