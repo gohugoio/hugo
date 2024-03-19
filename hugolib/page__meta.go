@@ -600,7 +600,7 @@ params:
 			}
 
 			if handled {
-				pcfg.Resources = resources
+				pcfg.ResourcesMeta = resources
 				break
 			}
 			fallthrough

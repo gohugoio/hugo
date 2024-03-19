@@ -33,7 +33,7 @@ List: {{ .Title }}|{{ .Content }}|
 ---
 title: "My Docs"
 ---
--- content/docs/_content.json --
+-- content/docs/_content.jsonl --
 {
     "path": "my-section",
     "title": "My Section",
@@ -58,7 +58,11 @@ title: "My Docs"
     "kind": "page",
     "title": "My Page",
     "date": "2018-12-25",
-    "lastMod": "2018-12-25"
+    "lastMod": "2018-12-25",
+    "content": {
+        "type": "text",
+        "value": "My **Page** Content"
+    }
 }
 
 
@@ -70,7 +74,7 @@ func TestPagesFromDataBasicJSON(t *testing.T) {
 
 	b := hugolib.Test(t, pagesFromDataBasicJSON)
 
-	b.AssertFileContent("public/docs/my-section/my-page/index.html", "Single: My Page||")
+	b.AssertFileContent("public/docs/my-section/my-page/index.html", "Single: My Page|<p>My <strong>Page</strong> Content</p>\n|")
 	b.AssertFileContent("public/docs/my-section/index.html", "List: My Section||")
 }
 
@@ -114,7 +118,7 @@ func TestPagesFromDataRebuildEditPage(t *testing.T) {
 
 	b.AssertFileContent("public/docs/my-section/my-page/index.html", "Single: My Page")
 	b.AssertRenderCountPage(3)
-	b.EditFileReplaceAll("content/docs/_content.json", "My Page", "My Page edited").Build()
+	b.EditFileReplaceAll("content/docs/_content.jsonl", "My Page", "My Page edited").Build()
 	b.AssertFileContent("public/docs/my-section/my-page/index.html", "Single: My Page edited")
 	b.AssertRenderCountPage(1)
 }

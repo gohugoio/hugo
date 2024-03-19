@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -54,9 +55,19 @@ type pageContentReplacement struct {
 	source pageparser.Item
 }
 
-func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64, sourceKey string) (*contentParseInfo, error) {
-	var openSource hugio.OpenReadSeekCloser
-	if m.f != nil && !m.f.IsMultipart() {
+func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64) (*contentParseInfo, error) {
+	var (
+		sourceKey  string
+		openSource hugio.OpenReadSeekCloser
+		isDataFile = !m.pageConfig.Content.IsZero()
+	)
+
+	if isDataFile {
+		sourceKey = strconv.FormatUint(m.pageConfig.SourceHash, 10)
+		// Only text values implemented for now.
+		openSource = hugio.NewOpenReadSeekCloser(hugio.NewReadSeekerNoOpCloserFromString(m.pageConfig.Content.Value))
+	} else if m.f != nil {
+		sourceKey = filepath.ToSlash(m.f.Filename())
 		meta := m.f.FileInfo().Meta()
 		openSource = func() (hugio.ReadSeekCloser, error) {
 			r, err := meta.Open()
@@ -68,7 +79,7 @@ func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64, sourceKey string) 
 	}
 
 	if sourceKey == "" {
-		sourceKey = strconv.Itoa(int(pid))
+		sourceKey = strconv.FormatUint(pid, 10)
 	}
 
 	pi := &contentParseInfo{
@@ -92,6 +103,11 @@ func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64, sourceKey string) 
 	}
 
 	pi.itemsStep1 = items
+
+	if isDataFile {
+		// No front matter.
+		return pi, nil
+	}
 
 	if err := pi.mapFrontMatter(source); err != nil {
 		return nil, err

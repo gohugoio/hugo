@@ -19,6 +19,6 @@ func BenchmarkCalculateSourceHash(b *testing.B) {
 	pd := PageData{}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		pd.calculateSourceHash([]byte("Hello, World!"))
+		pd.calculateAndSetSourceHash([]byte("Hello, World!"))
 	}
 }

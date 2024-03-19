@@ -251,6 +251,9 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, whatChanged *whatChanged) error 
 				}
 				pc := p.PageConfig
 				pc.Path = path.Join(pi.Base(), pc.Path)
+				if err := pc.Compile(true); err != nil {
+					return err
+				}
 				ps, pi, err := m.s.h.newPage(
 					&pageMeta{
 						f: source.NewFileInfo(fi),

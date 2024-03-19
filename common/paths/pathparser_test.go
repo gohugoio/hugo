@@ -334,12 +334,33 @@ func TestParse(t *testing.T) {
 			},
 		},
 		{
-			"Content data file",
+			"Content data file jsonl",
+			"/a/b/_content.jsonl",
+			func(c *qt.C, p *Path) {
+				c.Assert(p.Path(), qt.Equals, "/a/b/_content.jsonl")
+				c.Assert(p.Ext(), qt.Equals, "jsonl")
+				c.Assert(p.IsContentData(), qt.IsTrue)
+			},
+		},
+		{
+			"Content data file yaml",
+			"/a/b/_content.yaml",
+			func(c *qt.C, p *Path) {
+				c.Assert(p.IsContentData(), qt.IsTrue)
+			},
+		},
+		{
+			"Content data file yml",
+			"/a/b/_content.yml",
+			func(c *qt.C, p *Path) {
+				c.Assert(p.IsContentData(), qt.IsTrue)
+			},
+		},
+		{
+			"Not content data file json",
 			"/a/b/_content.json",
 			func(c *qt.C, p *Path) {
-				c.Assert(p.Path(), qt.Equals, "/a/b/_content.json")
-				c.Assert(p.Ext(), qt.Equals, "json")
-				c.Assert(p.IsContentData(), qt.IsTrue)
+				c.Assert(p.IsContentData(), qt.IsFalse)
 			},
 		},
 	}

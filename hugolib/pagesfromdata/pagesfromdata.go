@@ -21,22 +21,19 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
+	"gopkg.in/yaml.v3"
 )
 
 type PageData struct {
 	skip map[uint64]bool
-
-	SourceHash uint64 `json:"-"`
-
 	pagemeta.PageConfig
-
-	Content string
 }
 
 var errSkipPage = fmt.Errorf("skip page")
 
 func (a *PageData) UnmarshalJSON(b []byte) error {
-	a.calculateSourceHash(b)
+	a.calculateAndSetSourceHash(b)
+
 	if a.skip != nil {
 		if a.skip[a.SourceHash] {
 			return errSkipPage
@@ -45,18 +42,38 @@ func (a *PageData) UnmarshalJSON(b []byte) error {
 	return json.Unmarshal(b, &a.PageConfig)
 }
 
+func (a *PageData) UnmarshalYAML(node *yaml.Node) error {
+	// TODO1 make sure all of this is only performed when rebuilding.
+	a.calculateAndSetSourceHash(node.Value)
+	if a.skip != nil {
+		if a.skip[a.SourceHash] {
+			return errSkipPage
+		}
+	}
+	return node.Decode(&a.PageConfig)
+}
+
 // This is safe to use in parallel.
 var sourceHashSeed = maphash.MakeSeed()
 
-func (a *PageData) calculateSourceHash(b []byte) {
+func (a *PageData) calculateAndSetSourceHash(bytesOrString any) {
 	var h maphash.Hash
 	h.SetSeed(sourceHashSeed)
-	h.Write(b)
+	switch v := bytesOrString.(type) {
+	case []byte:
+		h.Write(v)
+	case string:
+		h.WriteString(v)
+	default:
+		panic(fmt.Sprintf("unsupported type %T", v))
+	}
 	a.SourceHash = h.Sum64()
 }
 
-/*
- */
+type decoder interface {
+	Decode(v any) error
+}
+
 func PagesFromJSONFile(fim hugofs.FileMetaInfo, skip map[uint64]bool, handle func(p PageData, skip bool) error) error {
 	f, err := fim.Meta().Open()
 	if err != nil {
@@ -64,7 +81,10 @@ func PagesFromJSONFile(fim hugofs.FileMetaInfo, skip map[uint64]bool, handle fun
 	}
 	defer f.Close()
 
-	dec := json.NewDecoder(f)
+	dec, err := decoderFromExt(fim.Meta().PathInfo.Ext(), f)
+	if err != nil {
+		return err
+	}
 
 	for {
 		var p PageData
@@ -86,4 +106,14 @@ func PagesFromJSONFile(fim hugofs.FileMetaInfo, skip map[uint64]bool, handle fun
 	}
 
 	return nil
+}
+
+func decoderFromExt(ext string, r io.Reader) (decoder, error) {
+	switch ext {
+	case "json", "jsonl":
+		return json.NewDecoder(r), nil
+	case "yaml", "yml":
+		return yaml.NewDecoder(r), nil
+	}
+	return nil, fmt.Errorf("unsupported data file extension %q", ext)
 }

@@ -14,6 +14,7 @@
 package pagemeta
 
 import (
+	"errors"
 	"strings"
 	"time"
 
@@ -82,23 +83,63 @@ type PageConfig struct {
 	Description    string   // The description for this page.
 	Summary        string   // The summary for this page.
 	Draft          bool     // Whether or not the content is a draft.
-	Headless       bool     // Whether or not the page should be rendered.
+	Headless       bool     `json:"-"` // Whether or not the page should be rendered.
 	IsCJKLanguage  bool     // Whether or not the content is in a CJK language.
 	TranslationKey string   // The translation key for this page.
-	Keywords       []string `hash:"ignore"` // The keywords for this page.
-	Aliases        []string `hash:"ignore"` // The aliases for this page.
-	Outputs        []string `hash:"ignore"` // The output formats to render this page in. If not set, the site's configured output formats for this page kind will be used.
+	Keywords       []string // The keywords for this page.
+	Aliases        []string // The aliases for this page.
+	Outputs        []string // The output formats to render this page in. If not set, the site's configured output formats for this page kind will be used.
+
+	FrontMatterOnlyValues `json:"-"`
 
 	// These build options are set in the front matter,
 	// but not passed on to .Params.
 	// TODO1
-	Resources []map[string]any                 `hash:"ignore"`
-	Cascade   map[page.PageMatcher]maps.Params `hash:"ignore"` // Only relevant for branch nodes.
-	Sitemap   config.SitemapConfig             `hash:"ignore"`
-	Build     BuildConfig                      `hash:"ignore"`
+	Cascade map[page.PageMatcher]maps.Params // Only relevant for branch nodes.
+	Sitemap config.SitemapConfig
+	Build   BuildConfig
 
 	// User defined params.
 	Params maps.Params
+
+	// Only from data files.
+	Content Source
+
+	SourceHash uint64 `json:"-"`
+}
+
+// Compile validates and sets defaults etc.
+func (p *PageConfig) Compile(pagesFromData bool) error {
+	if pagesFromData {
+		if p.Content.Type == "" {
+			p.Content.Type = SourceTypeText
+		}
+		if p.Content.Type != SourceTypeText {
+			return errors.New("only text content is implemented in data files")
+		}
+	}
+	return nil
+}
+
+type SourceType string
+
+const (
+	SourceTypeText SourceType = "text"
+	SourceTypeURL  SourceType = "url"
+)
+
+type Source struct {
+	// Type may be either "text" or "url".
+	Type  SourceType
+	Value string
+}
+
+func (s Source) IsZero() bool {
+	return s.Type == ""
+}
+
+type FrontMatterOnlyValues struct {
+	ResourcesMeta []map[string]any
 }
 
 // FrontMatterHandler maps front matter into Page fields and .Params.

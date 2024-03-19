@@ -85,8 +85,10 @@ func IsContentExt(ext string) bool {
 // Supported data file extensions for _content.* files.
 // We currently only support JSON and YAML.
 // Both of these have a streaming API.
+// Note: We currently don't support (regular) json,
+// as that is somthing different than jsonl, and we may add support for that later.
 func IsContentDataExt(ext string) bool {
-	return ext == "json" || ext == "yaml" || ext == "yml"
+	return ext == "jsonl" || ext == "yaml" || ext == "yml"
 }
 
 const (

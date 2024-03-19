@@ -1,0 +1,31 @@
+{
+    "path": "my-section",
+    "title": "My Section",
+    "kind": "section",
+    "date": "2018-12-25",
+    "lastMod": "2018-12-25",
+    "resources": [
+        {
+            "path": "sunset.jpg",
+            "mediaType": "image/jpg",
+            "url": "file:///Users/bep/Downloads/IMG_20181225_123456.jpg"
+        },
+        {
+            "path": "bootstrap.min.css",
+            "mediaType": "txt/css",
+            "url": "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        }
+    ]
+}
+{
+    "path": "my-section/my-page",
+    "kind": "page",
+    "markup": "markdown",
+    "content": {
+        "type": "text",
+        "value": "# My Page\n\nThis is my page.",
+    },
+    "title": "My Page",
+    "date": "2018-12-25",
+    "lastMod": "2018-12-25"
+}

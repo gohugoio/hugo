@@ -15,7 +15,6 @@ package hugolib
 
 import (
 	"fmt"
-	"path/filepath"
 	"sync"
 	"sync/atomic"
 
@@ -39,13 +38,8 @@ func (h *HugoSites) newPage(m *pageMeta) (*pageState, *paths.Path, error) {
 		m.pageConfig.Params = maps.Params{}
 	}
 
-	var sourceKey string
-	if m.f != nil {
-		sourceKey = filepath.ToSlash(m.f.Filename())
-	}
-
 	pid := pageIDCounter.Add(1)
-	pi, err := m.parseFrontMatter(h, pid, sourceKey)
+	pi, err := m.parseFrontMatter(h, pid)
 	if err != nil {
 		return nil, nil, err
 	}
