@@ -248,15 +248,18 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 
 	h.translationKeyPages.Reset()
 	assemblers := make([]*sitePagesAssembler, len(h.Sites))
+
+	var assembleChanges *whatChanged
 	// Changes detected during assembly (e.g. aggregate date changes)
-	assembleChanges := &whatChanged{
-		identitySet: make(map[identity.Identity]bool),
+	if h.isRebuild() {
+		assembleChanges = &whatChanged{
+			identitySet: make(map[identity.Identity]bool),
+		}
 	}
 	for i, s := range h.Sites {
 		assemblers[i] = &sitePagesAssembler{
 			Site:            s,
 			watching:        s.watching(),
-			incomingChanges: bcfg.whatChanged,
 			assembleChanges: assembleChanges,
 			ctx:             ctx,
 		}
@@ -273,15 +276,17 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 		return err
 	}
 
-	changes := assembleChanges.Changes()
-
-	// Changes from the assemble step (e.g. lastMod, cascase) needs a re-calculation
-	// of what needs to be re-built.
-	if len(changes) > 0 {
-		if err := h.resolveAndClearStateForIdentities(ctx, l, nil, changes); err != nil {
-			return err
+	if assembleChanges != nil {
+		changes := assembleChanges.Changes()
+		// Changes from the assemble step (e.g. lastMod, cascase) needs a re-calculation
+		// of what needs to be re-built.
+		if len(changes) > 0 {
+			if err := h.resolveAndClearStateForIdentities(ctx, l, nil, changes); err != nil {
+				return err
+			}
 		}
 	}
+
 	h.renderFormats = output.Formats{}
 	for _, s := range h.Sites {
 		s.s.initRenderFormats()

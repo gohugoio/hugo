@@ -938,7 +938,6 @@ type contentTreeReverseIndexMap struct {
 type sitePagesAssembler struct {
 	*Site
 	watching        bool
-	incomingChanges *whatChanged
 	assembleChanges *whatChanged
 	ctx             context.Context
 }
@@ -1277,18 +1276,20 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 			}
 		}
 
-		if (pageBundle.IsHome() || pageBundle.IsSection()) && pageBundle.m.setMetaPostCount > 0 {
-			oldDates := pageBundle.m.pageConfig.Dates
+		if sa.assembleChanges != nil {
+			if (pageBundle.IsHome() || pageBundle.IsSection()) && pageBundle.m.setMetaPostCount > 0 {
+				oldDates := pageBundle.m.pageConfig.Dates
 
-			// We need to wait until after the walk to determine if any of the dates have changed.
-			pw.WalkContext.AddPostHook(
-				func() error {
-					if oldDates != pageBundle.m.pageConfig.Dates {
-						sa.assembleChanges.Add(pageBundle)
-					}
-					return nil
-				},
-			)
+				// We need to wait until after the walk to determine if any of the dates have changed.
+				pw.WalkContext.AddPostHook(
+					func() error {
+						if oldDates != pageBundle.m.pageConfig.Dates {
+							sa.assembleChanges.Add(pageBundle)
+						}
+						return nil
+					},
+				)
+			}
 		}
 
 		// Combine the cascade map with front matter.
@@ -1298,7 +1299,7 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 
 		// We receive cascade values from above. If this leads to a change compared
 		// to the previous value, we need to mark the page and its dependencies as changed.
-		if pageBundle.m.setMetaPostCascadeChanged {
+		if pageBundle.m.setMetaPostCascadeChanged && sa.assembleChanges != nil {
 			sa.assembleChanges.Add(pageBundle)
 		}
 

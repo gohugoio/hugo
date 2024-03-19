@@ -111,6 +111,10 @@ func (h *HugoSites) ShouldSkipFileChangeEvent(ev fsnotify.Event) bool {
 	return h.skipRebuildForFilenames[ev.Name]
 }
 
+func (h *HugoSites) isRebuild() bool {
+	return h.buildCounter.Load() > 0
+}
+
 // Only used in tests.
 type buildCounters struct {
 	contentRenderCounter atomic.Uint64
@@ -428,7 +432,7 @@ func (cfg *BuildCfg) shouldRender(p *pageState) bool {
 
 	fastRenderMode := p.s.Conf.FastRenderMode()
 
-	if !fastRenderMode || p.s.h.buildCounter.Load() == 0 {
+	if !fastRenderMode || !p.s.h.isRebuild() {
 		return shouldRender
 	}
 
