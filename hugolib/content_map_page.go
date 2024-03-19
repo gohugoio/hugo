@@ -1678,6 +1678,11 @@ func (sa *sitePagesAssembler) assemblePagesStep2() error {
 	if err := sa.applyAggregatesToTaxonomiesAndTerms(); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (sa *sitePagesAssembler) assemblePagesStepFinal() error {
 	if err := sa.assembleResources(); err != nil {
 		return err
 	}

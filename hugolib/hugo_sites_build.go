@@ -282,11 +282,6 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 			return err
 		}
 	}
-	h.renderFormats = output.Formats{}
-	for _, s := range h.Sites {
-		s.s.initRenderFormats()
-		h.renderFormats = append(h.renderFormats, s.renderFormats...)
-	}
 
 	for _, s := range assemblers {
 		if err := s.assemblePagesStep2(); err != nil {
@@ -296,7 +291,14 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 
 	h.renderFormats = output.Formats{}
 	for _, s := range h.Sites {
+		s.s.initRenderFormats()
 		h.renderFormats = append(h.renderFormats, s.renderFormats...)
+	}
+
+	for _, s := range assemblers {
+		if err := s.assemblePagesStepFinal(); err != nil {
+			return err
+		}
 	}
 
 	return nil
