@@ -380,7 +380,9 @@ func (p *pageState) TranslationKey() string {
 // AllTranslations returns all translations, including the current Page.
 func (p *pageState) AllTranslations() page.Pages {
 	key := p.Path() + "/" + "translations-all"
-	pages, err := p.s.pageMap.getOrCreatePagesFromCache(key, func(string) (page.Pages, error) {
+	// This is called from Translations, so we need to use a different partition, cachePages2,
+	// to avoid potential deadlocks.
+	pages, err := p.s.pageMap.getOrCreatePagesFromCache(p.s.pageMap.cachePages2, key, func(string) (page.Pages, error) {
 		if p.m.pageConfig.TranslationKey != "" {
 			// translationKey set by user.
 			pas, _ := p.s.h.translationKeyPages.Get(p.m.pageConfig.TranslationKey)
@@ -413,7 +415,7 @@ func (p *pageState) AllTranslations() page.Pages {
 // Translations returns the translations excluding the current Page.
 func (p *pageState) Translations() page.Pages {
 	key := p.Path() + "/" + "translations"
-	pages, err := p.s.pageMap.getOrCreatePagesFromCache(key, func(string) (page.Pages, error) {
+	pages, err := p.s.pageMap.getOrCreatePagesFromCache(nil, key, func(string) (page.Pages, error) {
 		var pas page.Pages
 		for _, pp := range p.AllTranslations() {
 			if !pp.Eq(p) {
