@@ -509,7 +509,8 @@ func BenchmarkImageExif(b *testing.B) {
 var usesFMA = runtime.GOARCH == "s390x" ||
 	runtime.GOARCH == "ppc64" ||
 	runtime.GOARCH == "ppc64le" ||
-	runtime.GOARCH == "arm64"
+	runtime.GOARCH == "arm64" ||
+	runtime.GOARCH == "riscv64"
 
 // goldenEqual compares two NRGBA images.  It is used in golden tests only.
 // A small tolerance is allowed on architectures using "fused multiply and add"
