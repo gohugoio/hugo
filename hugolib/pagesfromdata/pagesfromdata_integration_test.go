@@ -116,6 +116,7 @@ func TestPagesFromDataRebuildEditPage(t *testing.T) {
 
 	b := hugolib.TestRunning(t, pagesFromDataBasicJSON)
 
+	b.AssertPublishDir("docs/my-section/my-page/index.html")
 	b.AssertFileContent("public/docs/my-section/my-page/index.html", "Single: My Page")
 	b.AssertRenderCountPage(3)
 	b.EditFileReplaceAll("content/docs/_content.jsonl", "My Page", "My Page edited").Build()
