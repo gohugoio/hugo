@@ -730,7 +730,7 @@ func (h *HugoSites) processPartial(ctx context.Context, l logg.LevelLogger, conf
 
 		case files.ComponentFolderLayouts:
 			tmplChanged = true
-			templatePath := pathInfo.TrimLeadingSlash().PathNoLang()
+			templatePath := pathInfo.Unnormalized().TrimLeadingSlash().PathNoLang()
 			if !h.Tmpl().HasTemplate(templatePath) {
 				tmplAdded = true
 			}
