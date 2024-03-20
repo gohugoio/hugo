@@ -93,7 +93,8 @@ type pageMap struct {
 	// Used for simple page lookups by name, e.g. "mypage.md" or "mypage".
 	pageReverseIndex *contentTreeReverseIndex
 
-	cachePages             *dynacache.Partition[string, page.Pages]
+	cachePages1            *dynacache.Partition[string, page.Pages]
+	cachePages2            *dynacache.Partition[string, page.Pages]
 	cacheResources         *dynacache.Partition[string, resource.Resources]
 	cacheContentRendered   *dynacache.Partition[string, *resources.StaleValue[contentSummary]]
 	cacheContentPlain      *dynacache.Partition[string, *resources.StaleValue[contentPlainPlainWords]]
@@ -324,15 +325,19 @@ func (m *pageMap) forEeachPageIncludingBundledPages(include predicate.P[*pageSta
 }
 
 func (m *pageMap) getOrCreatePagesFromCache(
+	cache *dynacache.Partition[string, page.Pages],
 	key string, create func(string) (page.Pages, error),
 ) (page.Pages, error) {
-	return m.cachePages.GetOrCreate(key, create)
+	if cache == nil {
+		cache = m.cachePages1
+	}
+	return cache.GetOrCreate(key, create)
 }
 
 func (m *pageMap) getPagesInSection(q pageMapQueryPagesInSection) page.Pages {
 	cacheKey := q.Key()
 
-	pages, err := m.getOrCreatePagesFromCache(cacheKey, func(string) (page.Pages, error) {
+	pages, err := m.getOrCreatePagesFromCache(nil, cacheKey, func(string) (page.Pages, error) {
 		prefix := paths.AddTrailingSlash(q.Path)
 
 		var (
@@ -397,7 +402,7 @@ func (m *pageMap) getPagesInSection(q pageMapQueryPagesInSection) page.Pages {
 func (m *pageMap) getPagesWithTerm(q pageMapQueryPagesBelowPath) page.Pages {
 	key := q.Key()
 
-	v, err := m.cachePages.GetOrCreate(key, func(string) (page.Pages, error) {
+	v, err := m.cachePages1.GetOrCreate(key, func(string) (page.Pages, error) {
 		var pas page.Pages
 		include := q.Include
 		if include == nil {
@@ -434,7 +439,7 @@ func (m *pageMap) getPagesWithTerm(q pageMapQueryPagesBelowPath) page.Pages {
 func (m *pageMap) getTermsForPageInTaxonomy(path, taxonomy string) page.Pages {
 	prefix := paths.AddLeadingSlash(taxonomy)
 
-	v, err := m.cachePages.GetOrCreate(prefix+path, func(string) (page.Pages, error) {
+	v, err := m.cachePages1.GetOrCreate(prefix+path, func(string) (page.Pages, error) {
 		var pas page.Pages
 
 		err := m.treeTaxonomyEntries.WalkPrefix(
@@ -861,7 +866,8 @@ func newPageMap(i int, s *Site, mcache *dynacache.Cache, pageTrees *pageTrees) *
 
 	m = &pageMap{
 		pageTrees:              pageTrees.Shape(0, i),
-		cachePages:             dynacache.GetOrCreatePartition[string, page.Pages](mcache, fmt.Sprintf("/pags/%d", i), dynacache.OptionsPartition{Weight: 10, ClearWhen: dynacache.ClearOnRebuild}),
+		cachePages1:            dynacache.GetOrCreatePartition[string, page.Pages](mcache, fmt.Sprintf("/pag1/%d", i), dynacache.OptionsPartition{Weight: 10, ClearWhen: dynacache.ClearOnRebuild}),
+		cachePages2:            dynacache.GetOrCreatePartition[string, page.Pages](mcache, fmt.Sprintf("/pag2/%d", i), dynacache.OptionsPartition{Weight: 10, ClearWhen: dynacache.ClearOnRebuild}),
 		cacheResources:         dynacache.GetOrCreatePartition[string, resource.Resources](mcache, fmt.Sprintf("/ress/%d", i), dynacache.OptionsPartition{Weight: 60, ClearWhen: dynacache.ClearOnRebuild}),
 		cacheContentRendered:   dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentSummary]](mcache, fmt.Sprintf("/cont/ren/%d", i), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
 		cacheContentPlain:      dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentPlainPlainWords]](mcache, fmt.Sprintf("/cont/pla/%d", i), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
