@@ -99,6 +99,8 @@ type pageMap struct {
 	cacheContentPlain      *dynacache.Partition[string, *resources.StaleValue[contentPlainPlainWords]]
 	contentTableOfContents *dynacache.Partition[string, *resources.StaleValue[contentTableOfContents]]
 
+	contentDataFileSeenItems *maps.Cache[string, map[uint64]bool]
+
 	cfg contentMapConfig
 }
 
@@ -870,6 +872,8 @@ func newPageMap(i int, s *Site, mcache *dynacache.Cache, pageTrees *pageTrees) *
 		cacheContentRendered:   dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentSummary]](mcache, fmt.Sprintf("/cont/ren/%d", i), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
 		cacheContentPlain:      dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentPlainPlainWords]](mcache, fmt.Sprintf("/cont/pla/%d", i), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
 		contentTableOfContents: dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentTableOfContents]](mcache, fmt.Sprintf("/cont/toc/%d", i), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
+
+		contentDataFileSeenItems: maps.NewCache[string, map[uint64]bool](),
 
 		cfg: contentMapConfig{
 			lang:                 s.Lang(),

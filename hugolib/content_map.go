@@ -22,7 +22,6 @@ import (
 
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/hugio"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugolib/pagesfromdata"
 	"github.com/gohugoio/hugo/identity"
@@ -164,9 +163,6 @@ func (cfg contentMapConfig) getTaxonomyConfig(s string) (v viewName) {
 	return
 }
 
-// TODO1 move this somewhere
-var skipc = maps.NewCache[string, map[uint64]bool]()
-
 func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, whatChanged *whatChanged) error {
 	if fi.IsDir() {
 		return nil
@@ -278,12 +274,14 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, whatChanged *whatChanged) error 
 				return nil
 			}
 
-			skip, _ := skipc.Get(fi.Meta().Filename)
+			skip, _ := m.contentDataFileSeenItems.Get(fi.Meta().Filename)
 			if err := pagesfromdata.PagesFromJSONFile(fi, skip, handle); err != nil {
 				return err
 			}
 
-			skipc.Set(fi.Meta().Filename, seen)
+			if m.s.watching() {
+				m.contentDataFileSeenItems.Set(fi.Meta().Filename, seen)
+			}
 
 			return nil
 		}(); err != nil {
