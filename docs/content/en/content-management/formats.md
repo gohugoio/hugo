@@ -43,7 +43,7 @@ Hugo passes reasonable default arguments to these external helpers by default:
 
 - `asciidoctor`: `--no-header-footer -`
 - `rst2html`: `--leave-comments --initial-header-level=2`
-- `pandoc`: `--mathjax`
+- `pandoc`: `--mathjax` and, for pandoc >= 2.11, `--citeproc`
 
 {{% note %}}
 Because additional formats are external commands, generation performance will rely heavily on the performance of the external tool you are using. As this feature is still in its infancy, feedback is welcome.
@@ -63,7 +63,59 @@ Some Asciidoctor parameters can be customized in Hugo. See&nbsp;[details].
 
 [details]: /getting-started/configuration-markup/#asciidoc
 
-## Learn markdown
+### External Helper Pandoc
+
+[Pandoc](https://pandoc.org) is a universal document converter and can be used to convert markdown files.
+In Hugo, Pandoc can be used for LaTeX-style math (the `--mathjax` command line option is provided):
+
+```
+---
+title: Math document
+---
+
+Some inline math: $a^2 + b^2 = c^2$.
+```
+
+This will render in your HTML as:
+
+```
+<p>Some inline math: <span class="math inline">\(a^2 + b^2 = c^2\)</span></p>
+```
+You will have to [add MathJax](https://www.mathjax.org/#gettingstarted) to your template to properly render the math.
+
+For **Pandoc >= 2.11**, you can use [citations](https://pandoc.org/MANUAL.html#extension-citations).
+One way is to employ [BibTeX files](https://en.wikibooks.org/wiki/LaTeX/Bibliography_Management#BibTeX) to cite:
+
+```
+---
+title: Citation document
+---
+---
+bibliography: assets/bibliography.bib
+...
+This is a citation: @Doe2022
+```
+
+Note that Hugo will **not** pass its metadata YAML block to Pandoc; however, it will pass the **second** meta data block, denoted with `---` and `...` to Pandoc.
+Thus, all Pandoc settings should go there.
+
+You can also add all elements from a bibliography file (without citing them explicitly) using:
+
+```
+---
+title: My Publications
+---
+---
+bibliography: assets/bibliography.bib
+nocite: |
+  @*
+...
+```
+
+It is also possible to provide a custom [CSL style](https://citationstyles.org/authors/) by passing `csl: path-to-style.csl` as a Pandoc option.
+
+
+## Learn Markdown
 
 Markdown syntax is simple enough to learn in a single sitting. The following are excellent resources to get you up and running:
 
