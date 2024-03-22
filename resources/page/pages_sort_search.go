@@ -71,7 +71,7 @@ func searchPageBinary(p Page, pages Pages, less func(p1, p2 Page) bool) int {
 	return searchPageLinear(p, pages, i)
 }
 
-// isProbablySorted tests if the pages slice is probably sorted.
+// isPagesProbablySorted tests if the pages slice is probably sorted.
 func isPagesProbablySorted(pages Pages, lessFuncs ...func(p1, p2 Page) bool) func(p1, p2 Page) bool {
 	n := len(pages)
 	step := 1
