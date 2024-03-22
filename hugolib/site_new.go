@@ -449,7 +449,9 @@ func (s *Site) Params() maps.Params {
 
 // Deprecated: Use taxonomies instead.
 func (s *Site) Author() map[string]any {
-	hugo.Deprecate(".Site.Author", "Use taxonomies instead.", "v0.124.0")
+	if len(s.conf.Author) != 0 {
+		hugo.Deprecate(".Site.Author", "Use taxonomies instead.", "v0.124.0")
+	}
 	return s.conf.Author
 }
 
