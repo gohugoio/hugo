@@ -340,7 +340,7 @@ func GetOrCreatePartition[K comparable, V any](c *Cache, name string, opts Optio
 		return p.(*Partition[K, V])
 	}
 
-	// At this point, we don't know the the number of partitions or their configuration, but
+	// At this point, we don't know the number of partitions or their configuration, but
 	// this will be re-adjusted later.
 	const numberOfPartitionsEstimate = 10
 	maxSize := opts.CalculateMaxSize(c.opts.MaxSize / numberOfPartitionsEstimate)
