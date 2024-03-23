@@ -258,7 +258,6 @@ id = "UA-ga_id"
 disable = false
 [privacy.googleAnalytics]
 respectDoNotTrack = true
-anonymizeIP = true
 [privacy.instagram]
 simple = true
 [privacy.twitter]
