@@ -1,17 +1,56 @@
-<meta itemprop="name" content="{{ .Title }}">
-<meta itemprop="description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}">
+{{- with or .Title site.Title }}
+  <meta itemprop="name" content="{{ . }}">
+{{- end }}
 
-{{- if .IsPage -}}
-{{- $iso8601 := "2006-01-02T15:04:05-07:00" -}}
-{{ with .PublishDate }}<meta itemprop="datePublished" {{ .Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />{{ end}}
-{{ with .Lastmod }}<meta itemprop="dateModified" {{ .Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />{{ end}}
-<meta itemprop="wordCount" content="{{ .WordCount }}">
+{{- with or .Description .Summary site.Params.Description }}
+  <meta itemprop="description" content="{{ . }}">
+{{- end }}
 
-{{- $images := partial "_funcs/get-page-images" . -}}
-{{- range first 6 $images -}}
-  <meta itemprop="image" content="{{ .Permalink }}" />
-{{- end -}}
+{{- $ISO8601 := "2006-01-02T15:04:05-07:00" }}
+{{- with .PublishDate }}
+  <meta itemprop="datePublished" {{ .Format $ISO8601 | printf "content=%q" | safeHTMLAttr }}>
+{{- end }}
 
-<!-- Output all taxonomies as schema.org keywords -->
-<meta itemprop="keywords" content="{{ if .IsPage}}{{ range $index, $tag := .Params.tags }}{{ $tag }},{{ end }}{{ else }}{{ range $plural, $terms := .Site.Taxonomies }}{{ range $term, $val := $terms }}{{ printf "%s," $term }}{{ end }}{{ end }}{{ end }}" />
+{{- with .Lastmod }}
+  <meta itemprop="dateModified" {{ .Format $ISO8601 | printf "content=%q" | safeHTMLAttr }}>
+{{- end }}
+
+{{- with .WordCount }}
+  <meta itemprop="wordCount" content="{{ . }}">
+{{- end }}
+
+{{- $images := partial "_funcs/get-page-images" . }}
+{{- range first 6 $images }}
+  <meta itemprop="image" content="{{ .Permalink }}">
+{{- end }}
+
+{{- /*
+Keywords precedence:
+
+1. Use "keywords" term page titles.
+2. Use "keywords" from front matter if "keywords" is not a taxonomy.
+3. Use "tags" term page titles.
+4. Use term page titles from all taxonomies.
+
+*/}}
+{{- $keywords := slice }}
+{{- range .GetTerms "keywords" }}
+  {{- $keywords = $keywords | append .Title }}
+{{- else }}
+  {{- with .Keywords }}
+    {{- $keywords = . }}
+  {{- else }}
+    {{- range .GetTerms "tags" }}
+      {{- $keywords = $keywords | append .Title }}
+    {{- else }}
+      {{- range $taxonomy, $_ := site.Taxonomies }}
+        {{- range $.GetTerms $taxonomy }}
+          {{- $keywords = $keywords | append .Title }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- with $keywords }}
+  <meta itemprop="keywords" content="{{ delimit . `,` }}">
 {{- end -}}
