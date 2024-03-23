@@ -210,3 +210,47 @@ var a = §§{{.Title }}§§;
 	// This used to fail, but not in >= Hugo 0.121.0.
 	b.Assert(err, qt.IsNil)
 }
+
+func TestGoogleAnalyticsTemplate(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','section','rss','sitemap','taxonomy','term']
+[privacy.googleAnalytics]
+disable = false
+respectDoNotTrack = true
+[services.googleAnalytics]
+id = 'G-0123456789'
+-- layouts/index.html --
+{{ template "_internal/google_analytics.html" . }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		`<script async src="https://www.googletagmanager.com/gtag/js?id=G-0123456789"></script>`,
+		`var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);`,
+	)
+}
+
+func TestDisqusTemplate(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','section','rss','sitemap','taxonomy','term']
+[services.disqus]
+shortname = 'foo'
+[privacy.disqus]
+disable = false
+-- layouts/index.html --
+{{ template "_internal/disqus.html" . }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		`s.src = '//' + "foo" + '.disqus.com/embed.js';`,
+	)
+}

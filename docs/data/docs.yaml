@@ -1557,10 +1557,8 @@ config:
     disqus:
       disable: false
     googleAnalytics:
-      anonymizeIP: false
       disable: false
       respectDoNotTrack: false
-      useSessionStorage: false
     instagram:
       disable: false
       simple: false

@@ -15,8 +15,6 @@ package hugolib
 
 import (
 	"testing"
-
-	qt "github.com/frankban/quicktest"
 )
 
 func TestInternalTemplatesImage(t *testing.T) {
@@ -95,43 +93,6 @@ title: My Site
 <meta property="og:image" content="https://example.org/siteimg1.jpg" />
 <meta itemprop="image" content="https://example.org/siteimg1.jpg" />
 `)
-}
-
-// Just some simple test of the embedded templates to avoid
-// https://github.com/gohugoio/hugo/issues/4757 and similar.
-func TestEmbeddedTemplates(t *testing.T) {
-	t.Parallel()
-
-	c := qt.New(t)
-	c.Assert(true, qt.Equals, true)
-
-	home := []string{"index.html", `
-GA:
-{{ template "_internal/google_analytics.html" . }}
-
-GA async:
-
-{{ template "_internal/google_analytics_async.html" . }}
-
-Disqus:
-
-{{ template "_internal/disqus.html" . }}
-
-`}
-
-	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile().WithTemplatesAdded(home...)
-
-	b.Build(BuildCfg{})
-
-	// Gheck GA regular and async
-	b.AssertFileContent("public/index.html",
-		"'anonymizeIp', true",
-		"'script','https://www.google-analytics.com/analytics.js','ga');\n\tga('create', 'UA-ga_id', 'auto')",
-		"<script async src='https://www.google-analytics.com/analytics.js'>")
-
-	// Disqus
-	b.AssertFileContent("public/index.html", "\"disqus_shortname\" + '.disqus.com/embed.js';")
 }
 
 func TestEmbeddedPaginationTemplate(t *testing.T) {
