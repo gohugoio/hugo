@@ -227,3 +227,50 @@ eventDate: 2023-11-01T07:00:00-08:00
 
 	b.AssertFileContent("public/index.html", "2023-11|p9|p8|p7|2023-10|p6|p5|p4|2023-09|p3|p2|p1|")
 }
+
+// Issue 10412
+func TestImageTransformThenCopy(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- assets/pixel.png --
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+-- layouts/index.html --
+{{- with resources.Get "pixel.png" }}
+  {{- with .Resize "200x" | resources.Copy "pixel.png" }}
+    <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}">|{{ .Key }}
+  {{- end }}
+{{- end }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileExists("public/pixel.png", true)
+	b.AssertFileContent("public/index.html",
+		`<img src="/pixel.png" width="200" height="200">|/pixel.png`,
+	)
+}
+
+// Issue 12310
+func TestUseDifferentCacheKeyForResourceCopy(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','section','rss','sitemap','taxonomy','term']
+-- assets/a.txt --
+This was assets/a.txt
+-- layouts/index.html --
+{{ $nilResource := resources.Get "/p1/b.txt" }}
+{{ $r := resources.Get "a.txt" }}
+{{ $r = resources.Copy "/p1/b.txt" $r }}
+{{ $r.RelPermalink }}
+`
+
+	b, err := hugolib.TestE(t, files)
+
+	b.Assert(err, qt.IsNil)
+	b.AssertFileContent("public/p1/b.txt", "This was assets/a.txt")
+}

@@ -57,7 +57,7 @@ func New(rs *resources.Spec) *Client {
 
 // Copy copies r to the new targetPath.
 func (c *Client) Copy(r resource.Resource, targetPath string) (resource.Resource, error) {
-	key := dynacache.CleanKey(targetPath)
+	key := dynacache.CleanKey(targetPath) + "__copy"
 	return c.rs.ResourceCache.GetOrCreate(key, func() (resource.Resource, error) {
 		return resources.Copy(r, targetPath), nil
 	})
@@ -66,7 +66,7 @@ func (c *Client) Copy(r resource.Resource, targetPath string) (resource.Resource
 // Get creates a new Resource by opening the given pathname in the assets filesystem.
 func (c *Client) Get(pathname string) (resource.Resource, error) {
 	pathname = path.Clean(pathname)
-	key := dynacache.CleanKey(pathname)
+	key := dynacache.CleanKey(pathname) + "__get"
 
 	return c.rs.ResourceCache.GetOrCreate(key, func() (resource.Resource, error) {
 		// The resource file will not be read before it gets used (e.g. in .Content),
