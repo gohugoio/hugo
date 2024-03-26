@@ -184,7 +184,7 @@ The embedded link render hook is automatically enabled for multilingual single-h
 
 ## AsciiDoc
 
-This is the default configuration for the AsciiDoc Markdown renderer:
+This is the default configuration for the AsciiDoc renderer:
 
 {{< code-toggle config=markup.asciidocExt />}}
 
