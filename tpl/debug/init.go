@@ -36,7 +36,7 @@ func init() {
 			[][2]string{
 				{`{{ $m := newScratch }}
 {{ $m.Set "Hugo" "Rocks!" }}
-{{ $m.Values | debug.Dump | safeHTML }}`, "map[string]interface {}{\n  \"Hugo\": \"Rocks!\",\n}"},
+{{ $m.Values | debug.Dump | safeHTML }}`, "{\n  \"Hugo\": \"Rocks!\"\n}"},
 			},
 		)
 

@@ -15,12 +15,12 @@
 package debug
 
 import (
+	"encoding/json"
 	"sort"
 	"sync"
 	"time"
 
 	"github.com/bep/logg"
-	"github.com/sanity-io/litter"
 	"github.com/spf13/cast"
 	"github.com/yuin/goldmark/util"
 
@@ -108,7 +108,11 @@ type Namespace struct {
 // Also note that the output from Dump may change from Hugo version to the next,
 // so don't depend on a specific output.
 func (ns *Namespace) Dump(val any) string {
-	return litter.Sdump(val)
+	b, err := json.MarshalIndent(val, "", "  ")
+	if err != nil {
+		return ""
+	}
+	return string(b)
 }
 
 // VisualizeSpaces returns a string with spaces replaced by a visible string.
