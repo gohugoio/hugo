@@ -43,3 +43,33 @@ disableKinds = ["taxonomy", "term"]
 
 	b.AssertLogContains("timer:  name foo count 5 duration")
 }
+
+func TestDebugDumpPage(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+disableLiveReload = true
+[taxonomies]
+tag = "tags"
+-- content/_index.md --
+---
+title: "The Index"
+date: 2012-03-15
+---
+-- content/p1.md --
+---
+title: "The First"
+tags: ["a", "b"]
+---
+-- layouts/_default/list.html --
+Dump: {{ debug.Dump . | safeHTML }}
+Dump Site: {{ debug.Dump site }}
+Dum site.Taxonomies: {{ debug.Dump site.Taxonomies | safeHTML }}
+-- layouts/_default/single.html --
+Dump: {{ debug.Dump . | safeHTML }}
+
+
+`
+	b := hugolib.TestRunning(t, files)
+	b.AssertFileContent("public/index.html", "Dump: {\n  \"Date\": \"2012-03-15T00:00:00Z\"")
+}
