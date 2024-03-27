@@ -337,7 +337,7 @@ A single value, one of [string](#string), [integer](#integer), [floating point](
 
 ###### scratch pad
 
-Conceptually, a [map](#map) with [methods](#method) to set, get, update, and delete values. Attach the data structure to a `Page` object using the [`Scratch`] or [`Store`] methods, or created a locally scoped scratch pad using the [`newScratch`] function.
+Conceptually, a [map](#map) with [methods](#method) to set, get, update, and delete values. Attach the data structure to a `Page` object using the [`Scratch`] or [`Store`] methods, or create a locally scoped scratch pad using the [`newScratch`] function.
 
 [`Scratch`]: /methods/page/scratch/
 [`Store`]: /methods/page/store/
