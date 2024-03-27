@@ -1052,6 +1052,8 @@ config:
       preserveTOC: false
       safeMode: unsafe
       sectionNumbers: false
+      templateDirectories: []
+      templateEngine: handlebars
       trace: false
       verbose: false
       workingFolderCurrent: false
@@ -2797,8 +2799,8 @@ tpl:
             {{ $m.Set "Hugo" "Rocks!" }}
             {{ $m.Values | debug.Dump | safeHTML }}
           - |-
-            map[string]interface {}{
-              "Hugo": "Rocks!",
+            {
+              "Hugo": "Rocks!"
             }
       TestDeprecationErr:
         Aliases: null

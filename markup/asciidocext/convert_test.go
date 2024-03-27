@@ -56,7 +56,7 @@ func TestAsciidoctorDefaultArgs(t *testing.T) {
 	c.Assert(ac, qt.Not(qt.IsNil))
 
 	args := ac.ParseArgs(converter.DocumentContext{})
-	expected := []string{"--no-header-footer"}
+	expected := []string{"--template-engine", "handlebars", "--no-header-footer"}
 	c.Assert(args, qt.DeepEquals, expected)
 }
 
@@ -70,6 +70,8 @@ func TestAsciidoctorNonDefaultArgs(t *testing.T) {
 	mconf.AsciidocExt.Verbose = true
 	mconf.AsciidocExt.Trace = false
 	mconf.AsciidocExt.FailureLevel = "warn"
+	mconf.AsciidocExt.TemplateDirectories = []string{"foo"}
+	mconf.AsciidocExt.TemplateEngine = "handlebars"
 
 	conf := testconfig.GetTestConfigSectionFromStruct("markup", mconf)
 
@@ -88,7 +90,10 @@ func TestAsciidoctorNonDefaultArgs(t *testing.T) {
 	c.Assert(ac, qt.Not(qt.IsNil))
 
 	args := ac.ParseArgs(converter.DocumentContext{})
-	expected := []string{"-b", "manpage", "--section-numbers", "--verbose", "--failure-level", "warn", "--safe-mode", "safe"}
+	expected := []string{
+		"-b", "manpage", "--failure-level", "warn", "--safe-mode", "safe",
+		"--template-engine", "handlebars", "--section-numbers", "--verbose",
+	}
 	c.Assert(args, qt.DeepEquals, expected)
 }
 
@@ -100,6 +105,7 @@ func TestAsciidoctorDisallowedArgs(t *testing.T) {
 	mconf.AsciidocExt.Attributes = map[string]string{"outdir": "disallowed-attribute"}
 	mconf.AsciidocExt.SafeMode = "disallowed-safemode"
 	mconf.AsciidocExt.FailureLevel = "disallowed-failurelevel"
+	mconf.AsciidocExt.TemplateEngine = "disallowed-templateengine"
 
 	conf := testconfig.GetTestConfigSectionFromStruct("markup", mconf)
 
@@ -142,7 +148,7 @@ func TestAsciidoctorArbitraryExtension(t *testing.T) {
 	c.Assert(ac, qt.Not(qt.IsNil))
 
 	args := ac.ParseArgs(converter.DocumentContext{})
-	expected := []string{"-r", "arbitrary-extension", "--no-header-footer"}
+	expected := []string{"--template-engine", "handlebars", "-r", "arbitrary-extension", "--no-header-footer"}
 	c.Assert(args, qt.DeepEquals, expected)
 }
 
@@ -176,7 +182,7 @@ func TestAsciidoctorDisallowedExtension(t *testing.T) {
 		c.Assert(ac, qt.Not(qt.IsNil))
 
 		args := ac.ParseArgs(converter.DocumentContext{})
-		expected := []string{"--no-header-footer"}
+		expected := []string{"--template-engine", "handlebars", "--no-header-footer"}
 		c.Assert(args, qt.DeepEquals, expected)
 	}
 }
@@ -188,6 +194,8 @@ func TestAsciidoctorWorkingFolderCurrent(t *testing.T) {
 [markup.asciidocext]
 workingFolderCurrent = true
 trace = false
+templateDirectories = ['foo']
+templateEngine = 'handlebars'
 `)
 
 	conf := testconfig.GetTestConfig(afero.NewMemMapFs(), cfg)
@@ -208,12 +216,14 @@ trace = false
 	c.Assert(ac, qt.Not(qt.IsNil))
 
 	args := ac.ParseArgs(ctx)
-	c.Assert(len(args), qt.Equals, 5)
-	c.Assert(args[0], qt.Equals, "--base-dir")
-	c.Assert(filepath.ToSlash(args[1]), qt.Matches, "/tmp/hugo_asciidoc_ddd/docs/chapter2")
-	c.Assert(args[2], qt.Equals, "-a")
-	c.Assert(args[3], qt.Matches, `outdir=.*chapter2`)
-	c.Assert(args[4], qt.Equals, "--no-header-footer")
+	c.Assert(len(args), qt.Equals, 7)
+	c.Assert(args[0], qt.Equals, "--template-engine")
+	c.Assert(args[1], qt.Equals, "handlebars")
+	c.Assert(args[2], qt.Equals, "--base-dir")
+	c.Assert(filepath.ToSlash(args[3]), qt.Matches, "/tmp/hugo_asciidoc_ddd/docs/chapter2")
+	c.Assert(args[4], qt.Equals, "-a")
+	c.Assert(args[5], qt.Matches, `outdir=.*chapter2`)
+	c.Assert(args[6], qt.Equals, "--no-header-footer")
 }
 
 func TestAsciidoctorWorkingFolderCurrentAndExtensions(t *testing.T) {
@@ -226,6 +236,8 @@ workingFolderCurrent = true
 trace = false
 noHeaderOrFooter = true
 extensions = ["asciidoctor-html5s", "asciidoctor-diagram"]
+templateDirectories = ['foo']
+templateEngine = 'handlebars'
 `)
 	conf := testconfig.GetTestConfig(afero.NewMemMapFs(), cfg)
 
@@ -244,18 +256,20 @@ extensions = ["asciidoctor-html5s", "asciidoctor-diagram"]
 	c.Assert(ac, qt.Not(qt.IsNil))
 
 	args := ac.ParseArgs(converter.DocumentContext{})
-	c.Assert(len(args), qt.Equals, 11)
+	c.Assert(len(args), qt.Equals, 13)
 	c.Assert(args[0], qt.Equals, "-b")
 	c.Assert(args[1], qt.Equals, "html5s")
-	c.Assert(args[2], qt.Equals, "-r")
-	c.Assert(args[3], qt.Equals, "asciidoctor-html5s")
+	c.Assert(args[2], qt.Equals, "--template-engine")
+	c.Assert(args[3], qt.Equals, "handlebars")
 	c.Assert(args[4], qt.Equals, "-r")
-	c.Assert(args[5], qt.Equals, "asciidoctor-diagram")
-	c.Assert(args[6], qt.Equals, "--base-dir")
-	c.Assert(args[7], qt.Equals, ".")
-	c.Assert(args[8], qt.Equals, "-a")
-	c.Assert(args[9], qt.Contains, "outdir=")
-	c.Assert(args[10], qt.Equals, "--no-header-footer")
+	c.Assert(args[5], qt.Equals, "asciidoctor-html5s")
+	c.Assert(args[6], qt.Equals, "-r")
+	c.Assert(args[7], qt.Equals, "asciidoctor-diagram")
+	c.Assert(args[8], qt.Equals, "--base-dir")
+	c.Assert(args[9], qt.Equals, ".")
+	c.Assert(args[10], qt.Equals, "-a")
+	c.Assert(args[11], qt.Contains, "outdir=")
+	c.Assert(args[12], qt.Equals, "--no-header-footer")
 }
 
 func TestAsciidoctorAttributes(t *testing.T) {
@@ -264,6 +278,8 @@ func TestAsciidoctorAttributes(t *testing.T) {
 [markup]
 [markup.asciidocext]
 trace = false
+templateDirectories = ['foo']
+templateEngine = 'handlebars'
 [markup.asciidocext.attributes]
 my-base-url = "https://gohugo.io/"
 my-attribute-name = "my value"
@@ -289,12 +305,14 @@ my-attribute-name = "my value"
 	}
 
 	args := ac.ParseArgs(converter.DocumentContext{})
-	c.Assert(len(args), qt.Equals, 5)
-	c.Assert(args[0], qt.Equals, "-a")
-	c.Assert(expectedValues[args[1]], qt.Equals, true)
+	c.Assert(len(args), qt.Equals, 7)
+	c.Assert(args[0], qt.Equals, "--template-engine")
+	c.Assert(args[1], qt.Equals, "handlebars")
 	c.Assert(args[2], qt.Equals, "-a")
 	c.Assert(expectedValues[args[3]], qt.Equals, true)
-	c.Assert(args[4], qt.Equals, "--no-header-footer")
+	c.Assert(args[4], qt.Equals, "-a")
+	c.Assert(expectedValues[args[5]], qt.Equals, true)
+	c.Assert(args[6], qt.Equals, "--no-header-footer")
 }
 
 func getProvider(c *qt.C, mConfStr string) converter.Provider {

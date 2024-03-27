@@ -2,6 +2,8 @@ package internal
 
 import (
 	"bytes"
+	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -13,6 +15,8 @@ import (
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"golang.org/x/net/html"
 )
+
+const asciiDocBinaryName = "asciidoctor"
 
 type AsciidocConverter struct {
 	Ctx converter.DocumentContext
@@ -74,6 +78,37 @@ func (a *AsciidocConverter) ParseArgs(ctx converter.DocumentContext) []string {
 	args := []string{}
 
 	args = a.AppendArg(args, "-b", cfg.Backend, asciidocext_config.CliDefault.Backend, asciidocext_config.AllowedBackend)
+	args = a.AppendArg(args, "--failure-level", cfg.FailureLevel, asciidocext_config.CliDefault.FailureLevel, asciidocext_config.AllowedFailureLevel)
+	args = a.AppendArg(args, "--safe-mode", cfg.SafeMode, asciidocext_config.CliDefault.SafeMode, asciidocext_config.AllowedSafeMode)
+	args = a.AppendArg(args, "--template-engine", cfg.TemplateEngine, asciidocext_config.CliDefault.TemplateEngine, asciidocext_config.AllowedTemplateEngine)
+
+	// Add template directories to arguments. Reverse the slice because the
+	// asciidoctor CLI flag precedence is right-to-left.
+	for i := len(cfg.TemplateDirectories) - 1; i >= 0; i-- {
+		appendDir := true
+		path := path.Join(a.Cfg.Conf.WorkingDir(), cfg.TemplateDirectories[i])
+		entries, _ := os.ReadDir(path)
+
+		// Skip directory if empty.
+		if len(entries) == 0 {
+			continue
+		}
+
+		// Skip directory if it contains files without the .handlebars extension.
+		// For example, skip the directory if it contains helpers.js.
+		for _, entry := range entries {
+			ext := filepath.Ext(entry.Name())
+			if ext != ".handlebars" {
+				a.Cfg.Logger.Warnf("asciidoctor: the %q directory (for AsciiDoc converter templates) contains one or more disallowed file types: this directory may only contain files with the '.handlebars' extension: skipping this directory", path)
+				appendDir = false
+				break
+			}
+		}
+
+		if appendDir {
+			args = append(args, "--template-dir", path)
+		}
+	}
 
 	for _, extension := range cfg.Extensions {
 		if strings.LastIndexAny(extension, `\/.`) > -1 {
@@ -88,7 +123,6 @@ func (a *AsciidocConverter) ParseArgs(ctx converter.DocumentContext) []string {
 			a.Cfg.Logger.Errorln("Unsupported asciidoctor attribute was passed in. Attribute `" + attributeKey + "` ignored.")
 			continue
 		}
-
 		args = append(args, "-a", attributeKey+"="+attributeValue)
 	}
 
@@ -114,7 +148,6 @@ func (a *AsciidocConverter) ParseArgs(ctx converter.DocumentContext) []string {
 			} else {
 				a.Cfg.Logger.Errorln("unable to cast interface to pageSubset")
 			}
-
 			outDir, err = filepath.Abs(filepath.Join(destinationDir, filepath.Dir(ctx.DocumentName), postDir))
 		}
 
@@ -143,10 +176,6 @@ func (a *AsciidocConverter) ParseArgs(ctx converter.DocumentContext) []string {
 		args = append(args, "--trace")
 	}
 
-	args = a.AppendArg(args, "--failure-level", cfg.FailureLevel, asciidocext_config.CliDefault.FailureLevel, asciidocext_config.AllowedFailureLevel)
-
-	args = a.AppendArg(args, "--safe-mode", cfg.SafeMode, asciidocext_config.CliDefault.SafeMode, asciidocext_config.AllowedSafeMode)
-
 	return args
 }
 
@@ -160,8 +189,6 @@ func (a *AsciidocConverter) AppendArg(args []string, option, value, defaultValue
 	}
 	return args
 }
-
-const asciiDocBinaryName = "asciidoctor"
 
 func HasAsciiDoc() bool {
 	return hexec.InPath(asciiDocBinaryName)

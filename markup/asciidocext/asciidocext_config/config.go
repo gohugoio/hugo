@@ -28,6 +28,8 @@ var (
 		FailureLevel:         "fatal",
 		WorkingFolderCurrent: false,
 		PreserveTOC:          false,
+		TemplateDirectories:  []string{},
+		TemplateEngine:       "handlebars",
 	}
 
 	// CliDefault holds Asciidoctor CLI defaults (see https://asciidoctor.org/docs/user-manual/)
@@ -58,6 +60,10 @@ var (
 		"manpage":   true,
 	}
 
+	AllowedTemplateEngine = map[string]bool{
+		"handlebars": true,
+	}
+
 	DisallowedAttributes = map[string]bool{
 		"outdir": true,
 	}
@@ -76,4 +82,6 @@ type Config struct {
 	FailureLevel         string
 	WorkingFolderCurrent bool
 	PreserveTOC          bool
+	TemplateDirectories  []string
+	TemplateEngine       string
 }
