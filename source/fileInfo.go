@@ -37,6 +37,11 @@ type File struct {
 	lazyInit sync.Once
 }
 
+// TODO1 name.
+func (fi *File) IsMultipart() bool {
+	return fi.fim.Meta().PathInfo.IsContentData()
+}
+
 // Filename returns a file's absolute path and filename on disk.
 func (fi *File) Filename() string { return fi.fim.Meta().Filename }
 

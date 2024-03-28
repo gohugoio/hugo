@@ -249,15 +249,11 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 	h.translationKeyPages.Reset()
 	assemblers := make([]*sitePagesAssembler, len(h.Sites))
 	// Changes detected during assembly (e.g. aggregate date changes)
-	assembleChanges := &whatChanged{
-		identitySet: make(map[identity.Identity]bool),
-	}
+
 	for i, s := range h.Sites {
 		assemblers[i] = &sitePagesAssembler{
 			Site:            s,
-			watching:        s.watching(),
-			incomingChanges: bcfg.whatChanged,
-			assembleChanges: assembleChanges,
+			assembleChanges: bcfg.whatChanged,
 			ctx:             ctx,
 		}
 	}
@@ -273,7 +269,7 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 		return err
 	}
 
-	changes := assembleChanges.Changes()
+	changes := bcfg.whatChanged.Changes()
 
 	// Changes from the assemble step (e.g. lastMod, cascase) needs a re-calculation
 	// of what needs to be re-built.
@@ -693,12 +689,16 @@ func (h *HugoSites) processPartial(ctx context.Context, l logg.LevelLogger, conf
 		switch pathInfo.Component() {
 		case files.ComponentFolderContent:
 			logger.Println("Source changed", pathInfo.Path())
-			if ids := h.pageTrees.collectAndMarkStaleIdentities(pathInfo); len(ids) > 0 {
-				changes = append(changes, ids...)
+			isContentDataFile := pathInfo.IsContentData()
+			if !isContentDataFile {
+				if ids := h.pageTrees.collectAndMarkStaleIdentities(pathInfo); len(ids) > 0 {
+					changes = append(changes, ids...)
+				}
 			}
 
 			contentChanged = true
 
+			// TODO1 move?
 			if config.RecentlyVisited != nil {
 				// Fast render mode. Adding them to the visited queue
 				// avoids rerendering them on navigation.
@@ -940,7 +940,7 @@ func (s *HugoSites) processFiles(ctx context.Context, l logg.LevelLogger, buildC
 	// For inserts, we can pick an arbitrary pageMap.
 	pageMap := s.Sites[0].pageMap
 
-	c := newPagesCollector(ctx, s.h, sourceSpec, s.Log, l, pageMap, filenames)
+	c := newPagesCollector(ctx, s.h, sourceSpec, s.Log, l, pageMap, buildConfig.whatChanged, filenames)
 
 	if err := c.Collect(); err != nil {
 		return err

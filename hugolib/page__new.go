@@ -15,7 +15,6 @@ package hugolib
 
 import (
 	"fmt"
-	"path/filepath"
 	"sync"
 	"sync/atomic"
 
@@ -29,28 +28,18 @@ import (
 
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
-	"github.com/gohugoio/hugo/resources/page/pagemeta"
 )
 
 var pageIDCounter atomic.Uint64
 
 func (h *HugoSites) newPage(m *pageMeta) (*pageState, *paths.Path, error) {
 	m.Staler = &resources.AtomicStaler{}
-	if m.pageConfig == nil {
-		m.pageMetaParams = pageMetaParams{
-			pageConfig: &pagemeta.PageConfig{
-				Params: maps.Params{},
-			},
-		}
-	}
-
-	var sourceKey string
-	if m.f != nil {
-		sourceKey = filepath.ToSlash(m.f.Filename())
+	if m.pageConfig.Params == nil {
+		m.pageConfig.Params = maps.Params{}
 	}
 
 	pid := pageIDCounter.Add(1)
-	pi, err := m.parseFrontMatter(h, pid, sourceKey)
+	pi, err := m.parseFrontMatter(h, pid)
 	if err != nil {
 		return nil, nil, err
 	}

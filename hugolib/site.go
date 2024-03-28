@@ -385,6 +385,12 @@ func (w *whatChanged) Add(ids ...identity.Identity) {
 	}
 }
 
+func (w *whatChanged) Clear() {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	w.identitySet = identity.Identities{}
+}
+
 func (w *whatChanged) Changes() []identity.Identity {
 	if w == nil || w.identitySet == nil {
 		return nil
