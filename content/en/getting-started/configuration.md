@@ -853,7 +853,7 @@ It is recommended to put coarse grained filters (e.g. for language and output fo
     lang   = "en"
     output = "rss"
   [[segments.segment1.includes]]
-    term = "{home,term,taxonomy}"
+    kind = "{home,term,taxonomy}"
   [[segments.segment1.includes]]
     path = "{/docs,/docs/**}"
 {{< /code-toggle >}}
