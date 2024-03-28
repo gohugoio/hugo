@@ -850,7 +850,7 @@ It is recommended to put coarse grained filters (e.g. for language and output fo
   [[segments.segment1.excludes]]
     lang = "n*"
   [[segments.segment1.excludes]]
-    en     = "en"
+    lang   = "en"
     output = "rss"
   [[segments.segment1.includes]]
     term = "{home,term,taxonomy}"
