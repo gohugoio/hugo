@@ -349,7 +349,7 @@ Some methods take an argument. Separate the argument from the method with a spac
 {{% note %}}
 Do not attempt to use HTML comment delimiters to comment out template code.
 
-Hugo strips HTML comments when rendering a page, but first evaluates any template code within the HTML comment delimiters. Depending on the template code within the HTML comment delimeters, this could cause unexpected results or fail the build.
+Hugo strips HTML comments when rendering a page, but first evaluates any template code within the HTML comment delimiters. Depending on the template code within the HTML comment delimiters, this could cause unexpected results or fail the build.
 {{% /note %}}
 
 Template comments are similar to template actions. Paired opening and closing braces represent the beginning and end of a comment. For example:

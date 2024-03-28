@@ -95,7 +95,7 @@ toc: true
 : Reduce build time and cost by rendering a partial template once then cache the result, either globally or within a given context. For example, cache the result of an asset pipeline to prevent reprocessing on every rendered page.
 
 [Segmentation]
-: Reduce build time and cost by partioning your sites into segments. For example, render the home page and the "news section" every hour, and render the entire site once a week.
+: Reduce build time and cost by partitioning your sites into segments. For example, render the home page and the "news section" every hour, and render the entire site once a week.
 
 [Minification]
 : Minify HTML, CSS, and JavaScript to reduce file size, bandwidth consumption, and loading times.
