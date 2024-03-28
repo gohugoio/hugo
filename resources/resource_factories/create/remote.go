@@ -138,7 +138,7 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 
 				if res.StatusCode != http.StatusNotFound {
 					if res.StatusCode < 200 || res.StatusCode > 299 {
-						return nil, temporaryHTTPStatusCodes[res.StatusCode], toHTTPError(fmt.Errorf("failed to fetch remote resource: %s", http.StatusText(res.StatusCode)), res, !isHeadMethod)
+						return nil, temporaryHTTPStatusCodes[res.StatusCode], toHTTPError(fmt.Errorf("failed to fetch remote resource from '%s': %s", uri, http.StatusText(res.StatusCode)), res, !isHeadMethod)
 					}
 				}
 
