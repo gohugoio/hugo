@@ -1087,7 +1087,7 @@ func (h *HugoSites) resolveAndClearStateForIdentities(
 		}
 	}
 
-	// Drain the the cache eviction stack.
+	// Drain the cache eviction stack.
 	evicted := h.Deps.MemCache.DrainEvictedIdentities()
 	if len(evicted) < 200 {
 		changes = append(changes, evicted...)

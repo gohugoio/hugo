@@ -70,7 +70,7 @@ func (ns *Namespace) RelURL(s any) (string, error) {
 	return ns.deps.PathSpec.RelURL(ss, false), nil
 }
 
-// URLize returns the the strings s formatted as an URL.
+// URLize returns the strings s formatted as an URL.
 func (ns *Namespace) URLize(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
