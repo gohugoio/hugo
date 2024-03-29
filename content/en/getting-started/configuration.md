@@ -73,7 +73,7 @@ my-project/
     │   ├── menus.en.toml
     │   ├── menus.de.toml
     │   └── params.toml
-    ├── production/, giving you
+    └── production/
         └── params.toml
 ```
 
