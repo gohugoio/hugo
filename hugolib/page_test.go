@@ -65,6 +65,15 @@ Summary Next Line
 Some more text
 `
 
+	simplePageWithBlankSummary = `---
+title: SimpleWithBlankSummary
+---
+
+<!--more-->
+
+Some text.
+`
+
 	simplePageWithSummaryParameter = `---
 title: SimpleWithSummaryParameter
 summary: "Page with summary parameter and [a link](http://www.example.com/)"
@@ -351,6 +360,9 @@ func normalizeExpected(ext, str string) string {
 
 		return expected
 	case "rst":
+		if str == "" {
+			return "<div class=\"document\"></div>"
+		}
 		return fmt.Sprintf("<div class=\"document\">\n\n\n%s</div>", str)
 	}
 }
@@ -628,6 +640,19 @@ func TestPageWithDelimiter(t *testing.T) {
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithSummaryDelimiter)
+}
+
+func TestPageWithBlankSummary(t *testing.T) {
+	t.Parallel()
+	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
+		p := pages[0]
+		checkPageTitle(t, p, "SimpleWithBlankSummary")
+		checkPageContent(t, p, normalizeExpected(ext, "<p>Some text.</p>\n"), ext)
+		checkPageSummary(t, p, normalizeExpected(ext, ""), ext)
+		checkPageType(t, p, "page")
+	}
+
+	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithBlankSummary)
 }
 
 func TestPageWithSummaryParameter(t *testing.T) {
