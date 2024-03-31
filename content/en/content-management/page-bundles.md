@@ -1,6 +1,6 @@
 ---
 title: Page bundles
-description: Content organization using Page Bundles
+description: Use page bundles to logically associate one or more resources with content.
 categories: [content management]
 keywords: [page,bundle,leaf,branch]
 menu :
@@ -11,173 +11,147 @@ weight: 30
 toc: true
 ---
 
-Page Bundles are a way to group [Page Resources](/content-management/page-resources/).
+## Introduction
 
-A Page Bundle can be one of:
+A page bundle is a directory that encapsulates both content and associated resources.
 
-- Leaf Bundle (leaf means it has no children)
-- Branch Bundle (home page, section, taxonomy terms, taxonomy list)
+By way of example, this site has an "about" page and a "privacy" page:
 
-|                                     | Leaf Bundle                                              | Branch Bundle                                                                                   |
-|-------------------------------------|----------------------------------------------------------|-------------------------------------------------------------------------------------------------|
-| Usage                               | Collection of content and attachments for single pages   | Collection of attachments for section pages (home page, section, taxonomy terms, taxonomy list) |
-| Index file name                     | `index.md` [^fn:1]                                       | `_index.md` [^fn:1]                                                                             |
-| Allowed Resources                   | Page and non-page (like images, PDF, etc.) types         | Only non-page (like images, PDF, etc.) types                                                    |
-| Where can the Resources live?       | At any directory level within the leaf bundle directory. | At any directory level within the branch bundle directory.                                      |
-| Layout type                         | [`single`](/templates/single-page-templates/)            | [`list`](/templates/lists)                                                                      |
-| Nesting                             | Does not allow nesting of more bundles under it          | Allows nesting of leaf or branch bundles under it                                               |
-| Example                             | `content/posts/my-post/index.md`                         | `content/posts/_index.md`                                                                       |
-| Content from non-index page files...| Accessed only as page resources                          | Accessed only as regular pages                                                                  |
+```text
+content/
+├── about/
+│   ├── index.md
+│   └── welcome.jpg
+└── privacy.md
+```
+
+The "about" page is a page bundle. It logically associates a resource with content by bundling them together. Resources within a page bundle are [page resources], accessible with the [`Resources`] method on the `Page` object.
+
+Page bundles are either _leaf bundles_ or _branch bundles_.
+
+leaf bundle
+: A _leaf bundle_ is a directory that contains an index.md file and zero or more resources. Analogous to a physical leaf, a leaf bundle is at the end of a branch. It has no descendants.
+
+branch bundle
+: A _branch bundle_ is a directory that contains an _index.md file and zero or more resources. Analogous to a physical branch, a branch bundle may have descendants including leaf bundles and other branch bundles. Top level directories with or without _index.md files are also branch bundles. This includes the home page.
+
+{{% note %}}
+In the definitions above and the examples below, the extension of the index file depends on the [content format]. For example, use index.md for Markdown content, index.html for HTML content, index.adoc for AsciiDoc content, etc.
+
+[content format]: /getting-started/glossary/#content-format
+{{% /note %}}
+
+## Comparison
+
+Page bundle characteristics vary by bundle type.
+
+|                     | Leaf bundle                                             | Branch bundle                                           |
+|---------------------|---------------------------------------------------------|---------------------------------------------------------|
+| Index file          | index.md                                                | _index.md                                               |
+| Example             | content/about/index.md                                  | content/posts/_index.md                                 |
+| [Page kinds]        | `page`                                                  | `home`, `section`, `taxonomy`, or `term`                |
+| Layout type         | [single]                                                | [list]                                                  |
+| Descendant pages    | None                                                    | Zero or more                                            |
+| Resource location   | Adjacent to the index file or in a nested subdirectory  | Same as a leaf bundles, but excludes descendant bundles |
+| [Resource types]    | `page`, `image`, `video`, etc.                          | all but `page`                                          |
+
+Files with [resource type] `page` include content written in Markdown, HTML, AsciiDoc, Pandoc, reStructuredText, and Emacs Org Mode. In a leaf bundle, excluding the index file, these files are only accessible as page resources. In a branch bundle, these files are only accessible as content pages.
 
 ## Leaf bundles
 
-A _Leaf Bundle_ is a directory at any hierarchy within the `content/`
-directory, that contains an **`index.md`** file.
-
-### Examples of leaf bundle organization {#examples-of-leaf-bundle-organization}
+A _leaf bundle_ directory that contains an index.md file and zero or more resources. Analogous to a physical leaf, a leaf bundle is at the end of a branch. It has no descendants.
 
 ```text
 content/
 ├── about
-│   ├── index.md
+│   └── index.md
 ├── posts
 │   ├── my-post
-│   │   ├── content1.md
-│   │   ├── content2.md
-│   │   ├── image1.jpg
-│   │   ├── image2.png
+│   │   ├── content-1.md
+│   │   ├── content-2.md
+│   │   ├── image-1.jpg
+│   │   ├── image-2.png
 │   │   └── index.md
 │   └── my-other-post
 │       └── index.md
-│
 └── another-section
-    ├── ..
+    ├── foo.md
     └── not-a-leaf-bundle
-        ├── ..
+        ├── bar.md
         └── another-leaf-bundle
             └── index.md
 ```
 
-In the above example `content/` directory, there are four leaf
-bundles:
+There are four leaf bundles in the example above:
 
 about
-: This leaf bundle is at the root level (directly under
-    `content` directory) and has only the `index.md`.
+: This leaf bundle does not contain any page resources.
 
 my-post
-: This leaf bundle has the `index.md`, two other content
-    Markdown files and two image files.
+: This leaf bundle contains an index file, two resources of [resource type] `page`, and two resources of resource type `image`.
 
-- image1, image2:
-These images are page resources of `my-post`
-    and only available in `my-post/index.md` resources.
+- content-1, content-2
 
-- content1, content2:
-These content files are page resources of `my-post`
-    and only available in `my-post/index.md` resources.
-    They will **not** be rendered as individual pages.
+  These are resources of resource type `page`, accessible via the [`Resources`] method on the `Page` object. Hugo will not render these as individual pages.
+
+- image-1, image-2
+
+  These are resources of resource type `image`, accessible via the `Resources` method on the `Page` object
 
 my-other-post
-: This leaf bundle has only the `index.md`.
+: This leaf bundle does not contain any page resources.
 
 another-leaf-bundle
-: This leaf bundle is nested under couple of
-    directories. This bundle also has only the `index.md`.
+: This leaf bundle does not contain any page resources.
 
 {{% note %}}
-The hierarchy depth at which a leaf bundle is created does not matter,
-as long as it is not inside another **leaf** bundle.
+Create leaf bundles at any depth within the content directory, but a leaf bundle may not contain another bundle. Leaf bundles do not have descendants.
 {{% /note %}}
-
-### Headless bundle
-
-A headless bundle is a bundle that is configured to not get published
-anywhere:
-
-- It will have no `Permalink` and no rendered HTML in `public/`.
-- It will not be part of `.Site.RegularPages`, etc.
-
-But you can get it by `.Site.GetPage`. Here is an example:
-
-```go-html-template
-{{ $headless := .Site.GetPage "/some-headless-bundle" }}
-{{ $reusablePages := $headless.Resources.Match "author*" }}
-<h2>Authors</h2>
-{{ range $reusablePages }}
-    <h3>{{ .Title }}</h3>
-    {{ .Content }}
-{{ end }}
-```
-
-_In this example, we are assuming the `some-headless-bundle` to be a headless
-   bundle containing one or more **page** resources whose `.Name` matches
-   `"author*"`._
-
-Explanation of the above example:
-
-1. Get the `some-headless-bundle` Page "object".
-2. Collect a _slice_ of resources in this _Page Bundle_ that matches
-   `"author*"` using `.Resources.Match`.
-3. Loop through that _slice_ of nested pages, and output their `.Title` and
-   `.Content`.
-
----
-
-A leaf bundle can be made headless by adding below in the front matter
-(in the `index.md`):
-
-{{< code-toggle file=content/headless/index.md fm=true >}}
-headless = true
-{{< /code-toggle >}}
-
-There are many use cases of such headless page bundles:
-
-- Shared media galleries
-- Reusable page content "snippets"
 
 ## Branch bundles
 
-A _Branch Bundle_ is any directory at any hierarchy within the
-`content/` directory, that contains at least an **`_index.md`** file.
-
-This `_index.md` can also be directly under the `content/` directory.
-
-{{% note %}}
-Here `md` (Markdown) is used just as an example. You can use any file
-type as a content resource as long as it is a content type recognized by Hugo.
-{{% /note %}}
-
-### Examples of branch bundle organization
+A _branch bundle_ is a directory that contains an _index.md file and zero or more resources. Analogous to a physical branch, a branch bundle may have descendants including leaf bundles and other branch bundles. Top level directories with or without _index.md files are also branch bundles. This includes the home page.
 
 ```text
 content/
-├── branch-bundle-1
-│   ├── branch-content1.md
-│   ├── branch-content2.md
-│   ├── image1.jpg
-│   ├── image2.png
+├── branch-bundle-1/
+│   ├── _index.md
+│   ├── content-1.md
+│   ├── content-2.md
+│   ├── image-1.md
+│   └── image-2.md
+├── branch-bundle-2/
+│   ├── a-leaf-bundle/
+│   │   └── index.md
 │   └── _index.md
-└── branch-bundle-2
-    ├── _index.md
-    └── a-leaf-bundle
-        └── index.md
+└── _index.md
 ```
 
-In the above example `content/` directory, there are two branch
-bundles (and a leaf bundle):
+There are three branch bundles in the example above:
+
+home page
+: This branch bundle contains an index file, two descendant branch bundles, and no resources.
 
 branch-bundle-1
-: This branch bundle has the `_index.md`, two
-    other content Markdown files and two image files.
+:  This branch bundle contains an index file, two resources of [resource type] `page`, and two resources of resource type `image`.
 
 branch-bundle-2
-: This branch bundle has the `_index.md` and a
-    nested leaf bundle.
+: This branch bundle contains an index file and a leaf bundle.
 
 {{% note %}}
-The hierarchy depth at which a branch bundle is created does not
-matter.
+Create branch bundles at any depth within the content directory, but a leaf bundle may not contain another bundle. Leaf bundles do not have descendants.
 {{% /note %}}
 
-[^fn:1]: The `.md` extension is just an example. The extension can be `.html`, `.json` or any valid MIME type.
+
+## Headless bundles
+
+Use [build options] in front matter to create an unpublished leaf or branch bundle whose content and resources you can include in other pages.
+
+[`Resources`]: /methods/page/resources/
+[build options]: content-management/build-options/
+[list]: /templates/lists/
+[page kinds]: /getting-started/glossary/#page-kind
+[page resources]: /content-management/page-resources/
+[resource type]: /getting-started/glossary/#resource-type
+[resource types]: /getting-started/glossary/#resource-type
+[single]: /templates/single-page-templates/

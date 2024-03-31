@@ -18,6 +18,7 @@ weight: 60
 [E](#environment)&nbsp;
 [F](#field)&nbsp;
 [G](#global-resource)&nbsp;
+[H](#headless-bundle)&nbsp;
 [I](#identifier)&nbsp;
 [K](#kind)&nbsp;
 [L](#layout)&nbsp;
@@ -58,7 +59,7 @@ A data type with two possible values, either `true` or `false`.
 
 ###### branch bundle
 
-A [page bundle](#page-bundle) with an&nbsp;_index.md file and zero or more [resources](#resource). Analogous to a physical branch, a branch bundle may have descendants including regular pages, [leaf bundles](/getting-started/glossary/#leaf-bundle), and other branch bundles. See&nbsp;[details](/content-management/page-bundles/).
+A directory that contains an _index.md file and zero or more [resources](#resource). Analogous to a physical branch, a branch bundle may have descendants including leaf bundles and other branch bundles. Top level directories with or without _index.md files are also branch bundles. This includes the home page. See&nbsp;[details](/content-management/page-bundles/).
 
 ###### build
 
@@ -156,6 +157,10 @@ A file within the assets directory, or within any directory [mounted](/hugo-modu
 [`resources.Match`]: /functions/resources/match/
 [`resources.ByType`]: /functions/resources/byType/
 
+###### headless bundle
+
+An unpublished leaf or branch bundle whose content and resources you can include in other pages. See [build options](/content-management/build-options/).
+
 ###### identifier
 
 A string that represents a variable, method, object, or field. It must conform to Go's [language specification](https://go.dev/ref/spec#Identifiers), beginning with a letter or underscore, followed by zero or more letters, digits, or underscores.
@@ -192,7 +197,7 @@ See [template](#template).
 
 ###### leaf bundle
 
-A [page bundle](#page-bundle) with an index.md file and zero or more [resources](#resource). Analogous to a physical leaf, a leaf bundle is at the end of a branch. Hugo ignores content (but not resources) beneath the leaf bundle. See&nbsp;[details](/content-management/page-bundles/).
+A directory that contains an index.md file and zero or more [resources](#resource). Analogous to a physical leaf, a leaf bundle is at the end of a branch. It has no descendants. See&nbsp;[details](/content-management/page-bundles/).
 
 ###### list page
 
@@ -330,6 +335,13 @@ A file on a remote server, accessible via HTTP or HTTPS with the [`resources.Get
 Any file consumed by the build process to augment or generate content, structure, behavior, or presentation. For example: images, videos, content snippets, CSS, Sass, JavaScript, and data.
 
 Hugo supports three types of resources: [global](#global-resource), [page](#page-resource), and [remote](#remote-resource)
+
+###### resource type
+
+The main type of a resource's [media type]. Content files such as Markdown, HTML, AsciiDoc, Pandoc, reStructuredText, and Emacs Org Mode have resource type `page`. Other resource types include `image`, `video`, etc. Retrieve the resource type using the [`ResourceType`] method on a `Resource` object.
+
+[media type]: /methods/resource/mediatype/
+[`ResourceType`]: /methods/resource/resourcetype/
 
 ###### scalar
 
