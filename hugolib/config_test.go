@@ -490,11 +490,10 @@ name = "menu-theme"
 			got := b.Configs.Base
 
 			if mergeStrategy == "none" {
-				b.Assert(got.Sitemap, qt.DeepEquals, config.SitemapConfig{ChangeFreq: "", Priority: -1, Filename: "sitemap.xml"})
-
+				b.Assert(got.Sitemap, qt.DeepEquals, config.SitemapConfig{ChangeFreq: "", Disable: false, Priority: -1, Filename: "sitemap.xml"})
 				b.AssertFileContent("public/sitemap.xml", "schemas/sitemap")
 			} else {
-				b.Assert(got.Sitemap, qt.DeepEquals, config.SitemapConfig{ChangeFreq: "monthly", Priority: -1, Filename: "sitemap.xml"})
+				b.Assert(got.Sitemap, qt.DeepEquals, config.SitemapConfig{ChangeFreq: "monthly", Disable: false, Priority: -1, Filename: "sitemap.xml"})
 				b.AssertFileContent("public/sitemap.xml", "<changefreq>monthly</changefreq>")
 			}
 		})

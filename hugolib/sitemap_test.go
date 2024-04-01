@@ -108,11 +108,12 @@ outputs: [ "html", "amp" ]
 
 func TestParseSitemap(t *testing.T) {
 	t.Parallel()
-	expected := config.SitemapConfig{Priority: 3.0, Filename: "doo.xml", ChangeFreq: "3"}
+	expected := config.SitemapConfig{ChangeFreq: "3", Disable: true, Filename: "doo.xml", Priority: 3.0}
 	input := map[string]any{
 		"changefreq": "3",
-		"priority":   3.0,
+		"disable":    true,
 		"filename":   "doo.xml",
+		"priority":   3.0,
 		"unknown":    "ignore",
 	}
 	result, err := config.DecodeSitemap(config.SitemapConfig{}, input)
