@@ -59,7 +59,7 @@ Files with [resource type] `page` include content written in Markdown, HTML, Asc
 
 ## Leaf bundles
 
-A _leaf bundle_ directory that contains an index.md file and zero or more resources. Analogous to a physical leaf, a leaf bundle is at the end of a branch. It has no descendants.
+A _leaf bundle_ is a directory that contains an index.md file and zero or more resources. Analogous to a physical leaf, a leaf bundle is at the end of a branch. It has no descendants.
 
 ```text
 content/
