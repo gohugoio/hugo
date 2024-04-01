@@ -67,7 +67,7 @@ var builtinFuncsOnce struct {
 	v map[string]reflect.Value
 }
 
-// builtinFuncsOnce lazily computes & caches the builtinFuncs map.
+// builtinFuncs lazily computes & caches the builtinFuncs map.
 // TODO: revert this back to a global map once golang.org/issue/2559 is fixed.
 func builtinFuncs() map[string]reflect.Value {
 	builtinFuncsOnce.Do(func() {

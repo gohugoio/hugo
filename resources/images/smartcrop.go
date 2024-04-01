@@ -43,7 +43,7 @@ type imagingResizer struct {
 
 func (r imagingResizer) Resize(img image.Image, width, height uint) image.Image {
 	// See https://github.com/gohugoio/hugo/issues/7955#issuecomment-861710681
-	scaleX, scaleY := calcFactorsNfnt(width, height, float64(img.Bounds().Dx()), float64(img.Bounds().Dy()))
+	scaleX, scaleY := Calculates(width, height, float64(img.Bounds().Dx()), float64(img.Bounds().Dy()))
 	if width == 0 {
 		width = uint(math.Ceil(float64(img.Bounds().Dx()) / scaleX))
 	}
@@ -83,7 +83,7 @@ func (p *ImageProcessor) smartCrop(img image.Image, width, height int, filter gi
 
 // Calculates scaling factors using old and new image dimensions.
 // Code borrowed from https://github.com/nfnt/resize/blob/83c6a9932646f83e3267f353373d47347b6036b2/resize.go#L593
-func calcFactorsNfnt(width, height uint, oldWidth, oldHeight float64) (scaleX, scaleY float64) {
+func Calculates(width, height uint, oldWidth, oldHeight float64) (scaleX, scaleY float64) {
 	if width == 0 {
 		if height == 0 {
 			scaleX = 1.0
