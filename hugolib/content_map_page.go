@@ -133,7 +133,7 @@ type pageTrees struct {
 func (t *pageTrees) collectAndMarkStaleIdentities(p *paths.Path) []identity.Identity {
 	key := p.Base()
 	var ids []identity.Identity
-	// We need only one identity sample per dimensio.
+	// We need only one identity sample per dimension.
 	nCount := 0
 	cb := func(n contentNodeI) bool {
 		if n == nil {

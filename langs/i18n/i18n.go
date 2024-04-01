@@ -87,7 +87,7 @@ func (t Translator) initFuncs(bndl *i18n.Bundle) {
 						// the context.Context.
 						// A common pattern is to pass Page to i18n, and use .ReadingTime etc.
 						// We need to improve this, but that requires some upstream changes.
-						// For now, just creata a wrepper.
+						// For now, just create a wrapper.
 						templateData = page.PageWithContext{Page: p, Ctx: ctx}
 					}
 				}

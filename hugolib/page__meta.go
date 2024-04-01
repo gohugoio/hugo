@@ -676,7 +676,7 @@ params:
 }
 
 // shouldList returns whether this page should be included in the list of pages.
-// glogal indicates site.Pages etc.
+// global indicates site.Pages etc.
 func (p *pageMeta) shouldList(global bool) bool {
 	if p.isStandalone() {
 		// Never list 404, sitemap and similar.
