@@ -254,3 +254,54 @@ disable = false
 		`s.src = '//' + "foo" + '.disqus.com/embed.js';`,
 	)
 }
+
+func TestSitemap(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','taxonomy','term']
+[sitemap]
+disable = true
+-- content/p1.md --
+---
+title: p1
+sitemap:
+  p1_disable: foo
+---
+-- content/p2.md --
+---
+title: p2
+
+---
+-- layouts/_default/single.html --
+{{ .Title }}
+`
+
+	// Test A: Exclude all pages via site config.
+	b := hugolib.Test(t, files)
+	b.AssertFileContentExact("public/sitemap.xml",
+		"<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"\n  xmlns:xhtml=\"http://www.w3.org/1999/xhtml\">\n  \n</urlset>\n",
+	)
+
+	// Test B: Include all pages via site config.
+	files_b := strings.ReplaceAll(files, "disable = true", "disable = false")
+	b = hugolib.Test(t, files_b)
+	b.AssertFileContentExact("public/sitemap.xml",
+		"<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"\n  xmlns:xhtml=\"http://www.w3.org/1999/xhtml\">\n  <url>\n    <loc>/p1/</loc>\n  </url><url>\n    <loc>/p2/</loc>\n  </url>\n</urlset>\n",
+	)
+
+	// Test C: Exclude all pages via site config, but include p1 via front matter.
+	files_c := strings.ReplaceAll(files, "p1_disable: foo", "disable: false")
+	b = hugolib.Test(t, files_c)
+	b.AssertFileContentExact("public/sitemap.xml",
+		"<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"\n  xmlns:xhtml=\"http://www.w3.org/1999/xhtml\">\n  <url>\n    <loc>/p1/</loc>\n  </url>\n</urlset>\n",
+	)
+
+	// Test D:  Include all pages via site config, but exclude p1 via front matter.
+	files_d := strings.ReplaceAll(files_b, "p1_disable: foo", "disable: true")
+	b = hugolib.Test(t, files_d)
+	b.AssertFileContentExact("public/sitemap.xml",
+		"<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"\n  xmlns:xhtml=\"http://www.w3.org/1999/xhtml\">\n  <url>\n    <loc>/p2/</loc>\n  </url>\n</urlset>\n",
+	)
+}

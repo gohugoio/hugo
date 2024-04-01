@@ -215,6 +215,8 @@ type SitemapConfig struct {
 	Priority float64
 	// The sitemap filename.
 	Filename string
+	// Whether to disable page inclusion.
+	Disable bool
 }
 
 func DecodeSitemap(prototype SitemapConfig, input map[string]any) (SitemapConfig, error) {
