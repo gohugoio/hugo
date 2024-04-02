@@ -17,10 +17,9 @@ import (
 	"html/template"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config/testconfig"
 	"github.com/gohugoio/hugo/deps"
-
-	qt "github.com/frankban/quicktest"
 	"github.com/spf13/cast"
 )
 
@@ -806,5 +805,28 @@ func TestRepeat(t *testing.T) {
 
 		c.Assert(err, qt.IsNil)
 		c.Assert(result, qt.Equals, test.expect)
+	}
+}
+
+func TestDiff(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	for _, tt := range []struct {
+		oldname string
+		old     any
+		newname string
+		new     any
+		expect  string
+	}{
+		{"old", "foo\n", "new", "bar\n", "diff old new\n--- old\n+++ new\n@@ -1,1 +1,1 @@\n-foo\n+bar\n"},
+		{"old", "foo\n", "new", "foo\n", ""},
+		{"old", "foo\n", "new", "", "diff old new\n--- old\n+++ new\n@@ -1,1 +0,0 @@\n-foo\n"},
+		{"old", "foo\n", "new", nil, "diff old new\n--- old\n+++ new\n@@ -1,1 +0,0 @@\n-foo\n"},
+		{"old", "", "new", "", ""},
+	} {
+
+		result := ns.Diff(tt.oldname, tt.old, tt.newname, tt.new)
+		c.Assert(result, qt.Equals, tt.expect)
 	}
 }

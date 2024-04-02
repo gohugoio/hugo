@@ -27,6 +27,7 @@ import (
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/tpl"
+	"github.com/rogpeppe/go-internal/diff"
 
 	"github.com/spf13/cast"
 )
@@ -170,6 +171,15 @@ func (ns *Namespace) ContainsNonSpace(s any) bool {
 		}
 	}
 	return false
+}
+
+// Diff returns an anchored diff of the two texts old and new in the “unified
+// diff” format. If old and new are identical, Diff returns an empty string.
+func (ns *Namespace) Diff(oldname string, old any, newname string, new any) string {
+	oldb := []byte(cast.ToString(old))
+	newb := []byte(cast.ToString(new))
+
+	return string(diff.Diff(oldname, oldb, newname, newb))
 }
 
 // HasPrefix tests whether the input s begins with prefix.
