@@ -919,3 +919,42 @@ GetMatch: {{ with .Resources.GetMatch "f1.*" }}{{ .Name }}: {{ .Content }}|{{ en
 
 	b.AssertFileContent("public/mybundle/index.html", "GetMatch: f1.en.txt: F1.|")
 }
+
+func TestBundleBranchIssue12320(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['rss','sitemap','taxonomy','term']
+defaultContentLanguage = 'en'
+defaultContentLanguageInSubdir = true
+[languages.en]
+baseURL = "https://en.example.org/"
+contentDir = "content/en"
+[languages.fr]
+baseURL = "https://fr.example.org/"
+contentDir = "content/fr"
+-- content/en/s1/p1.md --
+---
+title: p1
+---
+-- content/en/s1/p1.txt --
+---
+p1.txt
+---
+-- layouts/_default/single.html --
+{{ .Title }}|
+-- layouts/_default/list.html --
+{{ .Title }}|
+`
+
+	b := Test(t, files)
+
+	b.AssertFileExists("public/en/s1/index.html", true)
+	b.AssertFileExists("public/en/s1/p1/index.html", true)
+	b.AssertFileExists("public/en/s1/p1.txt", true)
+
+	b.AssertFileExists("public/fr/s1/index.html", false)
+	b.AssertFileExists("public/fr/s1/p1/index.html", false)
+	b.AssertFileExists("public/fr/s1/p1.txt", false) // failing test
+}

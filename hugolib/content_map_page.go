@@ -489,12 +489,17 @@ func (m *pageMap) forEachResourceInPage(
 
 	rw.Handle = func(resourceKey string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
 		if isBranch {
-			ownerKey, _ := m.treePages.LongestPrefixAll(resourceKey)
-			if ownerKey != keyPage && path.Dir(ownerKey) != path.Dir(resourceKey) {
+			// A resourceKey always represents a filename with extension.
+			// A page key points to the logical path of a page, which when sourced from the filesystem
+			// may represent a directory (bundles) or a single content file (e.g. p1.md).
+			// So, to avoid any overlapping ambiguity, we start looking from the owning directory.
+			ownerKey, _ := m.treePages.LongestPrefixAll(path.Dir(resourceKey))
+			if ownerKey != keyPage {
 				// Stop walking downwards, someone else owns this resource.
 				rw.SkipPrefix(ownerKey + "/")
 				return false, nil
 			}
+
 		}
 		return handle(resourceKey, n, match)
 	}
