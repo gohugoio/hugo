@@ -63,10 +63,10 @@
   {{- if reflect.IsMap . }}
     {{- with .facebook_app_id }}
       <meta property="fb:app_id" content="{{ . }}">
-    {{- else }}
-      {{- with .facebook_admin }}
-        <meta property="fb:admins" content="{{ . }}">
-      {{- end }}
+    {{- end }}  
+  {{- else }}
+    {{- with .facebook_admin }}
+      <meta property="fb:admins" content="{{ . }}">
     {{- end }}
   {{- end }}
 {{- end }}
