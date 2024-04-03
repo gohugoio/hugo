@@ -42,7 +42,7 @@ type Namespace struct {
 func (ns *Namespace) AbsURL(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	return ns.deps.PathSpec.AbsURL(ss, false), nil
@@ -64,7 +64,7 @@ func (ns *Namespace) Parse(rawurl any) (*url.URL, error) {
 func (ns *Namespace) RelURL(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	return ns.deps.PathSpec.RelURL(ss, false), nil
@@ -74,7 +74,7 @@ func (ns *Namespace) RelURL(s any) (string, error) {
 func (ns *Namespace) URLize(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	return ns.deps.PathSpec.URLize(ss), nil
 }
@@ -84,7 +84,7 @@ func (ns *Namespace) URLize(s any) (string, error) {
 func (ns *Namespace) Anchorize(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	return ns.deps.ContentSpec.SanitizeAnchorName(ss), nil
 }
