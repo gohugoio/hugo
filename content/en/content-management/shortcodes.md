@@ -392,7 +392,7 @@ If you want to further customize the visual styling of the YouTube or Vimeo outp
 {{% note %}}
 To override Hugo's embedded `vimeo` shortcode, copy the [source code] to a file with the same name in the layouts/shortcodes directory.
 
-[source code]: {{% eturl vimeo %}}
+[source code]: {{% eturl youtube %}}
 {{% /note %}}
 
 The `youtube` shortcode embeds a responsive video player for [YouTube videos]. Only the ID of the video is required, e.g.:
