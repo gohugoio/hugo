@@ -35,3 +35,5 @@ Learn more about Hugo's [features], [privacy protections], and [security model].
 [features]: /about/features
 [security model]: /about/security
 [privacy protections]: /about/privacy
+
+{{< youtube 0RKpf3rK57I >}}
