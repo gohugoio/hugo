@@ -73,7 +73,7 @@ When retrieving remote data, use the [`transform.Unmarshal`] function to [unmars
 [unmarshal]: /getting-started/glossary/#unmarshal
 
 ```go-html-template
-{{ $data := "" }}
+{{ $data := dict }}
 {{ $url := "https://example.org/books.json" }}
 {{ with resources.GetRemote $url }}
   {{ with .Err }}

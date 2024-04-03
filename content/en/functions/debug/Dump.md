@@ -11,7 +11,7 @@ action:
 ---
 
 ```go-html-template
-{{ $data := "" }}
+{{ $data := dict }}
 {{ $p := "data/books.json" }}
 {{ with resources.Get $p }}
   {{ $opts := dict "delimiter" "," }}

@@ -46,10 +46,10 @@ assets/
 ```
 
 ```go-html-template
-{{ $data := "" }}
+{{ $data := dict }}
 {{ $path := "data/books.json" }}
 {{ with resources.Get $path }}
-  {{ with unmarshal .Content }}
+  {{ with .Content | transform.Unmarshal }}
     {{ $data = . }}
   {{ end }}
 {{ else }}
@@ -75,10 +75,10 @@ content/
 ```
 
 ```go-html-template
-{{ $data := "" }}
+{{ $data := dict }}
 {{ $path := "books.json" }}
 {{ with .Resources.Get $path }}
-  {{ with unmarshal .Content }}
+  {{ with .Content | transform.Unmarshal }}
     {{ $data = . }}
   {{ end }}
 {{ else }}
@@ -95,7 +95,7 @@ content/
 A remote resource is a file on a remote server, accessible via HTTP or HTTPS.
 
 ```go-html-template
-{{ $data := "" }}
+{{ $data := dict }}
 {{ $url := "https://example.org/books.json" }}
 {{ with resources.GetRemote $url }}
   {{ with .Err }}
@@ -166,7 +166,7 @@ When unmarshaling an XML file, do not include the root node when accessing data.
 Get the remote data:
 
 ```go-html-template
-{{ $data := "" }}
+{{ $data := dict }}
 {{ $url := "https://example.org/books/index.xml" }}
 {{ with resources.GetRemote $url }}
   {{ with .Err }}

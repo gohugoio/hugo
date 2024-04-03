@@ -98,7 +98,7 @@ my-project/
 ```
 
 ```go-html-template
-{{ $data := "" }}
+{{ $data := dict }}
 {{ $p := "data/books.json" }}
 {{ with resources.Get $p }}
   {{ $data = .Content | transform.Unmarshal }}
@@ -121,7 +121,7 @@ my-project/
 ```
 
 ```go-html-template
-{{ $data := "" }}
+{{ $data := dict }}
 {{ $p := "books.json" }}
 {{ with .Resources.Get $p }}
   {{ $data = .Content | transform.Unmarshal }}
@@ -135,7 +135,7 @@ my-project/
 Consider using the [`resources.GetRemote`] function with [`transform.Unmarshal`] when accessing a remote resource to improve error handling and cache control.
 
 ```go-html-template
-{{ $data := "" }}
+{{ $data := dict }}
 {{ $u := "https://example.org/books.json" }}
 {{ with resources.GetRemote $u }}
   {{ with .Err }}
