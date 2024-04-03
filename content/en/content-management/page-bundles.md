@@ -118,8 +118,8 @@ content/
 │   ├── _index.md
 │   ├── content-1.md
 │   ├── content-2.md
-│   ├── image-1.md
-│   └── image-2.md
+│   ├── image-1.jpg
+│   └── image-2.png
 ├── branch-bundle-2/
 │   ├── a-leaf-bundle/
 │   │   └── index.md
