@@ -1,10 +1,148 @@
-{{- $pc := .Page.Site.Config.Privacy.YouTube -}}
-{{- if not $pc.Disable -}}
-{{- $ytHost := cond $pc.PrivacyEnhanced  "www.youtube-nocookie.com" "www.youtube.com" -}}
-{{- $id := .Get "id" | default (.Get 0) -}}
-{{- $class := .Get "class" | default (.Get 1) -}}
-{{- $title := .Get "title" | default "YouTube Video" }}
-<div {{ with $class }}class="{{ . }}"{{ else }}style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;"{{ end }}>
-  <iframe src="https://{{ $ytHost }}/embed/{{ $id }}{{ with .Get "autoplay" }}{{ if eq . "true" }}?autoplay=1{{ end }}{{ end }}" {{ if not $class }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" {{ end }}allowfullscreen title="{{ $title }}"></iframe>
-</div>
-{{ end -}}
+{{- /*
+Renders an embedded YouTube video.
+
+@param {bool} [allowFullScreen=true] Whether the iframe element can activate full screen mode.
+@param {bool} [autoplay=false] Whether to automatically play the video. Forces mute to be true.
+@param {string} [class] The class attribute of the wrapping div element. When specified, removes the style attributes from the iframe element and its wrapping div element.
+@param {bool} [controls=true] Whether to display the video controls.
+@param {int} [end] The time, measured in seconds from the start of the video, when the player should stop playing the video.
+@param {string} [id] The video id. Optional if the id is provided as first positional argument.
+@param {string} [loading=eager] The loading attribute of the iframe element.
+@param {bool} [loop=false] Whether to indefinitely repeat the video.
+@param {bool} [mute=false] Whether to mute the video. Always true when autoplay is true.
+@param {int} [start] The time, measured in seconds from the start of the video, when the player should start playing the video.
+@param {string} [title] The title attribute of the iframe element. Defaults to the title returned by YouTube oEmbed API.
+
+@returns {template.HTML}
+
+@reference https://developers.google.com/youtube/player_parameters
+
+@example {{< youtube 0RKpf3rK57I >}}
+@example {{< youtube id=0RKpf3rK57I loading=lazy start=30 >}}
+*/}}
+
+{{- $pc := .Page.Site.Config.Privacy.YouTube }}
+{{- if not $pc.Disable }}
+  {{- with $id := or (.Get "id") (.Get 0) }}
+
+    {{- /* Get data from the YouTube oEmbed API. */}}
+    {{- $q := querify "url" (printf "https://www.youtube.com/watch?v=%s" $id) "format" "json" }}
+    {{- $url := printf "https://www.youtube.com/oembed?%s" $q }}
+    {{- $data := dict }}
+    {{- with resources.GetRemote $url }}
+      {{- with .Err }}
+        {{- errorf "The %q shortcode was unable to get remote resource %q. %s. See %s" $.Name $url . $.Position }}
+      {{- else }}
+        {{- $data = .Content | transform.Unmarshal }}
+      {{- end }}
+    {{- else }}
+      {{- errorf "The %q shortcode was unable to get remote resource %q. See %s" $.Name $url $.Position }}
+    {{- end }}
+
+    {{/* Set defaults. */}}
+    {{- $allowFullScreen := "allowfullscreen" }}
+    {{- $autoplay := 0 }}
+    {{- $class := "" }}
+    {{- $controls := 1 }}
+    {{- $end := 0 }}
+    {{- $loading := "eager" }}
+    {{- $loop := 0 }}
+    {{- $mute := 0 }}
+    {{- $start := 0 }}
+    {{- $title := $data.title }}
+
+    {{- /* Get arguments. */}}
+    {{- if in (slice "false" false 0) ($.Get "allowFullScreen") }}
+      {{- $allowFullScreen = "" }}
+    {{- else if in (slice "true" true 1) ($.Get "allowFullScreen") }}
+      {{- $allowFullScreen = "allowfullscreen" }}
+    {{- end }}
+    {{- if in (slice "false" false 0) ($.Get "autoplay") }}
+      {{- $autoplay = 0 }}
+    {{- else if in (slice "true" true 1) ($.Get "autoplay") }}
+      {{- $autoplay = 1 }}
+    {{- end }}
+    {{- if in (slice "false" false 0) ($.Get "controls") }}
+      {{- $controls = 0 }}
+    {{- else if in (slice "true" true 1) ($.Get "controls") }}
+      {{- $controls = 1 }}
+    {{- end }}
+    {{- if in (slice "false" false 0) ($.Get "loop") }}
+      {{- $loop = 0 }}
+    {{- else if in (slice "true" true 1) ($.Get "loop") }}
+      {{- $loop = 1 }}
+    {{- end }}
+    {{- if in (slice "false" false 0) ($.Get "mute") }}
+      {{- $mute = 0 }}
+    {{- else if or (in (slice "true" true 1) ($.Get "mute")) $autoplay }}
+      {{- $mute = 1 }}
+    {{- end }}
+    {{- $class := or ($.Get "class") $class }}
+    {{- $end := or ($.Get "end") $end }}
+    {{- $loading := or ($.Get "loading") $loading }}
+    {{- $start := or ($.Get "start") $start }}
+    {{- $title := or ($.Get "title") $title }}
+
+    {{- /* Determine host. */}}
+    {{- $host := cond $pc.PrivacyEnhanced "www.youtube-nocookie.com" "www.youtube.com" }}
+
+    {{- /* Set styles. */}}
+    {{- $divStyle := "position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;" }}
+    {{- $iframeStyle := "position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" }}
+    {{- if $class }}
+      {{- $iframeStyle = "" }}
+    {{- end }}
+
+    {{- /* Set class or style of wrapping div element. */}}
+    {{- $divClassOrStyle := printf "style=%q" $divStyle }}
+    {{- with $class }}
+      {{- $divClassOrStyle = printf "class=%q" $class }}
+    {{- end }}
+
+    {{- /* Define src attribute. */}}
+    {{- $src := printf "https://%s/embed/%s" $host $id }}
+    {{- $params := dict
+      "autoplay" $autoplay
+      "controls" $controls
+      "end" $end
+      "mute" $mute
+      "start" $start
+      "loop" $loop
+    }}
+    {{- if $loop }}
+      {{- $params = merge $params (dict "playlist" $id) }}
+    {{- end }}
+    {{- $s := slice }}
+    {{- range $k, $v := $params }}
+      {{- $s = $s | append $k }}
+      {{- $s = $s | append $v }}
+    {{- end }}
+    {{- with querify $s }}
+      {{- $src = printf "%s?%s" $src . }}
+    {{- end }}
+
+    {{- /* Set iframe attributes. */}}
+    {{- $iframeAttributes := dict
+      "allow" "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      "allowfullscreen" $allowFullScreen
+      "loading" $loading
+      "referrerpolicy" "strict-origin-when-cross-origin"
+      "src" $src
+      "style" $iframeStyle
+      "title" $title
+    }}
+
+    {{- /* Render. */}}
+    <div {{ $divClassOrStyle | safeHTMLAttr }}>
+      <iframe
+        {{- range $k, $v := $iframeAttributes }}
+          {{- if $v }}
+            {{- printf " %s=%q" $k $v | safeHTMLAttr }}
+          {{- end }}
+        {{- end }}
+      ></iframe>
+    </div>
+  {{- else }}
+    {{- errorf "The %q shortcode requires an id argument. See %s" .Name .Position }}
+  {{- end }}
+{{- end }}
