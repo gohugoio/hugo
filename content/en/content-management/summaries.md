@@ -13,6 +13,10 @@ toc: true
 aliases: [/content/summaries/,/content-management/content-summaries/]
 ---
 
+<!-- Do not remove the manual summary divider below. -->
+<!-- If you do, you will break its first literal usage on this page. -->
+<!--more-->
+
 With the use of the [`Summary`] method on `Page` object, Hugo generates summaries of content to use as a short version in summary views.
 
 ## Summary splitting options
