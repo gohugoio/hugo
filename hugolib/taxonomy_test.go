@@ -970,3 +970,40 @@ title: p1
 	b.AssertFileExists("public/ja/s1/index.html", false) // failing test
 	b.AssertFileExists("public/ja/s1/category/index.html", true)
 }
+
+func TestTermsListNeverIssue12339(t *testing.T) {
+	files := `
+-- hugo.toml --
+[taxonomies]
+tag = "tags"
+-- content/nolist/_index.md --
+---
+title: "No list"
+cascade:
+   _build:
+      render: always
+      list: never
+      publishResources: false
+---
+-- content/nolist/p1.md --
+---
+title: "P1"
+tags: ["a"]
+---
+-- content/posts/p2.md --
+---
+title: "P2"
+tags: ["b"]
+---
+-- layouts/_default/taxonomy.html --
+Pages: {{ len .Pages }}|
+Data.Terms.Alphabetical: {{ range .Data.Terms.Alphabetical }}{{ .Page.Title }}|{{ .Count }}|{{ end }}$
+
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/tags/index.html",
+		"Pages: 1|",
+		"Data.Terms.Alphabetical: B|1|$",
+	)
+}

@@ -1507,7 +1507,7 @@ func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
 		Handle: func(s string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
 			ps := n.(*pageState)
 
-			if ps.m.noLink() {
+			if ps.m.noLink() || !ps.m.shouldList(false) {
 				return false, nil
 			}
 
