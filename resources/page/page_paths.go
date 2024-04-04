@@ -268,6 +268,13 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 		tp.SubResourceBaseTarget = pb.PathDir()
 		tp.SubResourceBaseLink = pb.LinkDir()
 	}
+
+	// paths.{URL,Path}Escape rely on url.Parse which
+	// will consider # a fragment identifier, so it and
+	// and everything after it will be stripped from
+	// `link`, so we need to escape it first.
+	link = strings.ReplaceAll(link, "#", "%23")
+
 	if d.URL != "" {
 		tp.Link = paths.URLEscape(link)
 	} else {
