@@ -157,3 +157,25 @@ Some content.
 	b.AssertFileContent("public/myblog/p2/index.html", "Single: A page|Hello|en|RelPermalink: /myblog/p2/|Permalink: https://example.com/myblog/p2/|")
 	b.AssertFileContent("public/myblog/p3/index.html", "Single: A page|Hello|en|RelPermalink: /myblog/p3/|Permalink: https://example.com/myblog/p3/|")
 }
+
+func TestPermalinkHashInSlugIssue12342(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKind = ["taxonomy", "term", "section"]
+baseURL = "https://example.com/"
+[permalinks]
+posts = "/posts/:year/:month/:slug/"
+-- content/posts/p1.md --
+---
+title: 'Newsletter #4'
+date: 2024-04-04T12:27:52-07:00
+---
+Foo
+-- layouts/_default/single.html --
+{{ .Title }}|{{ .RelPermalink }}|{{ .Permalink }}|$
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/posts/2024/04/newsletter-4/index.html", "Newsletter #4|/posts/2024/04/newsletter-4/|https://example.com/posts/2024/04/newsletter-4/|$")
+}

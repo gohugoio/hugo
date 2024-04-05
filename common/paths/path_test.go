@@ -14,7 +14,10 @@
 package paths
 
 import (
+	"fmt"
+	"net/url"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -204,17 +207,30 @@ func TestSanitize(t *testing.T) {
 		{"трям/трям", "трям/трям"},
 		{"은행", "은행"},
 		{"Банковский кассир", "Банковский-кассир"},
-		// Issue #1488
-		{"संस्कृत", "संस्कृत"},
-		{"a%C3%B1ame", "a%C3%B1ame"},         // Issue #1292
+
+		{"संस्कृत", "संस्कृत"},               // Issue #1488
 		{"this+is+a+test", "this+is+a+test"}, // Issue #1290
 		{"~foo", "~foo"},                     // Issue #2177
 
+		// Issue #2342
+		{"foo#bar", "foobar"},
+		{"foo@bar", "foo@bar"},
 	}
 
 	for _, test := range tests {
 		c.Assert(Sanitize(test.input), qt.Equals, test.expected)
+
+		// Make sure they survive the URL roundtrip, which makes sure that this works with URLs (e.g. in Permalink)
+		protocol := "https://"
+		urlString := fmt.Sprintf("%s%s", protocol, test.expected)
+		unescaped, err := url.PathUnescape(strings.TrimPrefix(URLEscape(urlString), protocol))
+		c.Assert(err, qt.IsNil)
+		c.Assert(unescaped, qt.Equals, test.expected)
+
 	}
+
+	// Some special cases.
+	c.Assert(Sanitize("a%C3%B1ame"), qt.Equals, "a%C3%B1ame") // Issue #1292
 }
 
 func BenchmarkSanitize(b *testing.B) {

@@ -28,25 +28,13 @@ import (
 //	uri: Vim (text editor)
 //	urlize: vim-text-editor
 func (p *PathSpec) URLize(uri string) string {
-	return p.URLEscape(p.MakePathSanitized(uri))
+	return paths.URLEscape(p.MakePathSanitized(uri))
 }
 
 // URLizeFilename creates an URL from a filename by escaping unicode letters
 // and turn any filepath separator into forward slashes.
 func (p *PathSpec) URLizeFilename(filename string) string {
-	return p.URLEscape(filepath.ToSlash(filename))
-}
-
-// URLEscape escapes unicode letters.
-func (p *PathSpec) URLEscape(uri string) string {
-	// escape unicode letters
-	parsedURI, err := url.Parse(uri)
-	if err != nil {
-		// if net/url can not parse URL it means Sanitize works incorrectly
-		panic(err)
-	}
-	x := parsedURI.String()
-	return x
+	return paths.URLEscape(filepath.ToSlash(filename))
 }
 
 // AbsURL creates an absolute URL from the relative path given and the BaseURL set in config.

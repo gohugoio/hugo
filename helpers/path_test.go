@@ -35,7 +35,7 @@ func TestMakePath(t *testing.T) {
 		expected      string
 		removeAccents bool
 	}{
-		{"dot.slash/backslash\\underscore_pound#plus+hyphen-", "dot.slash/backslash\\underscore_pound#plus+hyphen-", true},
+		{"dot.slash/backslash\\underscore_pound#plus+hyphen-", "dot.slash/backslash\\underscore_poundplus+hyphen-", true},
 		{"abcXYZ0123456789", "abcXYZ0123456789", true},
 		{"%20 %2", "%20-2", true},
 		{"foo- bar", "foo-bar", true},

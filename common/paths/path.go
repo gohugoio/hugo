@@ -318,7 +318,7 @@ func isAllowedPathCharacter(s string, i int, r rune) bool {
 	}
 	// Check for the most likely first (faster).
 	isAllowed := unicode.IsLetter(r) || unicode.IsDigit(r)
-	isAllowed = isAllowed || r == '.' || r == '/' || r == '\\' || r == '_' || r == '#' || r == '+' || r == '~' || r == '-' || r == '@'
+	isAllowed = isAllowed || r == '.' || r == '/' || r == '\\' || r == '_' || r == '+' || r == '~' || r == '-' || r == '@'
 	isAllowed = isAllowed || unicode.IsMark(r)
 	isAllowed = isAllowed || (r == '%' && i+2 < len(s) && ishex(s[i+1]) && ishex(s[i+2]))
 	return isAllowed
