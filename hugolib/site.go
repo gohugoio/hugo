@@ -658,8 +658,13 @@ func (s *Site) assembleMenus() error {
 			if p.IsHome() || !p.m.shouldBeCheckedForMenuDefinitions() {
 				return false, nil
 			}
+
 			// The section pages menus are attached to the top level section.
 			id := p.Section()
+			if id == "" {
+				id = "/"
+			}
+
 			if _, ok := flat[twoD{sectionPagesMenu, id}]; ok {
 				return false, nil
 			}
@@ -671,6 +676,7 @@ func (s *Site) assembleMenus() error {
 				},
 				Page: p,
 			}
+
 			navigation.SetPageValues(&me, p)
 			flat[twoD{sectionPagesMenu, me.KeyName()}] = &me
 			return false, nil
@@ -678,6 +684,7 @@ func (s *Site) assembleMenus() error {
 			return err
 		}
 	}
+
 	// Add menu entries provided by pages
 	if err := s.pageMap.forEachPage(pagePredicates.ShouldListGlobal, func(p *pageState) (bool, error) {
 		for name, me := range p.pageMenus.menus() {
