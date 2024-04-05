@@ -770,7 +770,7 @@ func (c *cachedContent) contentPlain(ctx context.Context, cp *pageContentOutput)
 			result.readingTime = (result.wordCount + 212) / 213
 		}
 
-		if rendered.summary != "" {
+		if c.pi.hasSummaryDivider || rendered.summary != "" {
 			result.summary = rendered.summary
 			result.summaryTruncated = rendered.summaryTruncated
 		} else if cp.po.p.m.pageConfig.Summary != "" {
