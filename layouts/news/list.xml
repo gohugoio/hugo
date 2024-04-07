@@ -57,10 +57,13 @@
       }}
       {{- $news_items = $news_items | append $ctx }}
     {{- end }}
-
-    {{- /* Sort by PublishDate (descending) and render. */}}
+    {{- /* Sort, limit, and render lastBuildDate. */}}
     {{- $limit := cond (gt site.Config.Services.RSS.Limit 1) site.Config.Services.RSS.Limit 999 }}
-    {{- range sort $news_items "PublishDate" "desc" | first $limit }}
+    {{- $news_items = sort $news_items "PublishDate" "desc" | first $limit }}
+    <lastBuildDate>{{ (index $news_items 0).PublishDate.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</lastBuildDate>
+
+    {{- /* Render items. */}}
+    {{- range $news_items }}
       <item>
         <title>{{ .Title }}</title>
         <link>{{ .Permalink }}</link>
@@ -69,6 +72,5 @@
         <description>{{ .Summary | transform.XMLEscape | safeHTML }}</description>
       </item>
     {{- end }}
-    <lastBuildDate>{{ (index (sort $news_items "PublishDate" "desc") 0).PublishDate.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</lastBuildDate>
   </channel>
 </rss>
