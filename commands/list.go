@@ -26,6 +26,7 @@ import (
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
+	"github.com/spf13/cobra"
 )
 
 // newListCommand creates a new list command and its subcommands.
@@ -102,6 +103,9 @@ func newListCommand() *listCommand {
 						"buildExpired", true,
 					)
 				},
+				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = cobra.NoFileCompletions
+				},
 			},
 			&simpleCommand{
 				name:  "future",
@@ -118,6 +122,9 @@ func newListCommand() *listCommand {
 						"buildFuture", true,
 						"buildDrafts", true,
 					)
+				},
+				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = cobra.NoFileCompletions
 				},
 			},
 			&simpleCommand{
@@ -136,6 +143,9 @@ func newListCommand() *listCommand {
 						"buildDrafts", true,
 					)
 				},
+				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = cobra.NoFileCompletions
+				},
 			},
 			&simpleCommand{
 				name:  "all",
@@ -146,6 +156,9 @@ func newListCommand() *listCommand {
 						return p.File() != nil
 					}
 					return list(cd, r, shouldInclude, "buildDrafts", true, "buildFuture", true, "buildExpired", true)
+				},
+				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = cobra.NoFileCompletions
 				},
 			},
 		},

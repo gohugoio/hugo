@@ -75,9 +75,13 @@ See https://xyproto.github.io/splash/docs/all.html for a preview of the availabl
 				return nil
 			},
 			withc: func(cmd *cobra.Command, r *rootCommand) {
+				cmd.ValidArgsFunction = cobra.NoFileCompletions
 				cmd.PersistentFlags().StringVar(&style, "style", "friendly", "highlighter style (see https://xyproto.github.io/splash/docs/)")
+				_ = cmd.RegisterFlagCompletionFunc("style", cobra.NoFileCompletions)
 				cmd.PersistentFlags().StringVar(&highlightStyle, "highlightStyle", "", "style used for highlighting lines (see https://github.com/alecthomas/chroma)")
+				_ = cmd.RegisterFlagCompletionFunc("highlightStyle", cobra.NoFileCompletions)
 				cmd.PersistentFlags().StringVar(&linesStyle, "linesStyle", "", "style used for line numbers (see https://github.com/alecthomas/chroma)")
+				_ = cmd.RegisterFlagCompletionFunc("linesStyle", cobra.NoFileCompletions)
 			},
 		}
 	}
@@ -115,9 +119,9 @@ See https://xyproto.github.io/splash/docs/all.html for a preview of the availabl
 				return nil
 			},
 			withc: func(cmd *cobra.Command, r *rootCommand) {
+				cmd.ValidArgsFunction = cobra.NoFileCompletions
 				cmd.PersistentFlags().StringVar(&genmandir, "dir", "man/", "the directory to write the man pages.")
-				// For bash-completion
-				cmd.PersistentFlags().SetAnnotation("dir", cobra.BashCompSubdirsInDir, []string{})
+				_ = cmd.MarkFlagDirname("dir")
 			},
 		}
 	}
@@ -172,9 +176,9 @@ url: %s
 				return nil
 			},
 			withc: func(cmd *cobra.Command, r *rootCommand) {
+				cmd.ValidArgsFunction = cobra.NoFileCompletions
 				cmd.PersistentFlags().StringVar(&gendocdir, "dir", "/tmp/hugodoc/", "the directory to write the doc.")
-				// For bash-completion
-				cmd.PersistentFlags().SetAnnotation("dir", cobra.BashCompSubdirsInDir, []string{})
+				_ = cmd.MarkFlagDirname("dir")
 			},
 		}
 	}
@@ -227,6 +231,7 @@ url: %s
 			},
 			withc: func(cmd *cobra.Command, r *rootCommand) {
 				cmd.Hidden = true
+				cmd.ValidArgsFunction = cobra.NoFileCompletions
 				cmd.PersistentFlags().StringVarP(&docsHelperTarget, "dir", "", "docs/data", "data dir")
 			},
 		}

@@ -43,9 +43,11 @@ func newReleaseCommand() simplecobra.Commander {
 		},
 		withc: func(cmd *cobra.Command, r *rootCommand) {
 			cmd.Hidden = true
+			cmd.ValidArgsFunction = cobra.NoFileCompletions
 			cmd.PersistentFlags().BoolVarP(&skipPush, "skip-push", "", false, "skip pushing to remote")
 			cmd.PersistentFlags().BoolVarP(&try, "try", "", false, "no changes")
 			cmd.PersistentFlags().IntVarP(&step, "step", "", 0, "step to run (1: set new version 2: prepare next dev version)")
+			_ = cmd.RegisterFlagCompletionFunc("step", cobra.FixedCompletions([]string{"1", "2"}, cobra.ShellCompDirectiveNoFileComp))
 		},
 	}
 }

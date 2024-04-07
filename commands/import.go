@@ -58,6 +58,7 @@ Import from Jekyll requires two paths, e.g. ` + "`hugo import jekyll jekyll_root
 					return c.importFromJekyll(args)
 				},
 				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = cobra.NoFileCompletions
 					cmd.Flags().BoolVar(&c.force, "force", false, "allow import into non-empty target directory")
 				},
 			},

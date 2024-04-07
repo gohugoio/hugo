@@ -24,6 +24,7 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/create"
 	"github.com/gohugoio/hugo/create/skeletons"
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/spf13/cobra"
 )
 
@@ -60,8 +61,16 @@ Ensure you run this within the root directory of your site.`,
 					return create.NewContent(h, contentType, args[0], force)
 				},
 				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+						if len(args) != 0 {
+							return []string{}, cobra.ShellCompDirectiveNoFileComp
+						}
+						return []string{}, cobra.ShellCompDirectiveNoFileComp | cobra.ShellCompDirectiveFilterDirs
+					}
 					cmd.Flags().StringVarP(&contentType, "kind", "k", "", "content type to create")
+					_ = cmd.RegisterFlagCompletionFunc("kind", cobra.FixedCompletions(kinds.AllKindsInPages, cobra.ShellCompDirectiveNoFileComp))
 					cmd.Flags().String("editor", "", "edit new content with this editor, if provided")
+					_ = cmd.RegisterFlagCompletionFunc("editor", cobra.NoFileCompletions)
 					cmd.Flags().BoolVarP(&force, "force", "f", false, "overwrite file if it already exists")
 					applyLocalFlagsBuildConfig(cmd, r)
 				},
@@ -103,8 +112,15 @@ Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
 					return nil
 				},
 				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+						if len(args) != 0 {
+							return []string{}, cobra.ShellCompDirectiveNoFileComp
+						}
+						return []string{}, cobra.ShellCompDirectiveNoFileComp | cobra.ShellCompDirectiveFilterDirs
+					}
 					cmd.Flags().BoolVarP(&force, "force", "f", false, "init inside non-empty directory")
 					cmd.Flags().StringVar(&format, "format", "toml", "preferred file format (toml, yaml or json)")
+					_ = cmd.RegisterFlagCompletionFunc("format", cobra.FixedCompletions([]string{"toml", "yaml", "json"}, cobra.ShellCompDirectiveNoFileComp))
 				},
 			},
 			&simpleCommand{
@@ -136,6 +152,9 @@ according to your needs.`,
 					}
 
 					return nil
+				},
+				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = cobra.NoFileCompletions
 				},
 			},
 		},
