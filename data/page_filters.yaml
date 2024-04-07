@@ -12,6 +12,7 @@ functions_fmt_logging:
   - /functions/fmt/errorf
   - /functions/fmt/erroridf
   - /functions/fmt/warnf
+  - /functions/fmt/warnidf
 functions_images_no_filters:
   - /functions/images/filter
   - /functions/images/config
