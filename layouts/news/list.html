@@ -1,0 +1,57 @@
+{{ define "main" }}
+<div class="w-100 ph4 ph5-ns pb5 pb6-ns pt1 pt3-ns ">
+
+  <article class="cf pa3 pa4-m pa4-l nested-copy-line-height nested-img">
+    <h1 class="primary-color-dark">
+      {{ .Title }}
+    </h1>
+    <div class="nested-copy-line-height">
+      {{ .Content }}
+    </div>
+  </article>
+
+  <div class="flex flex-wrap">
+    {{ $interior_classes := $.Site.Params.flex_box_interior_classes }}
+    <section class="flex-ns flex-wrap justify-between w-100 w-80-nsTK v-top">
+
+      {{ $news_items := slice }}
+
+      {{/* Get releases from GitHub. */}}
+      {{ $u := "https://api.github.com/repos/gohugoio/hugo/releases" }}
+      {{ $releases := partial "utilities/get-remote-data.html" $u }}
+      {{ $releases = where $releases "draft" false }}
+      {{ $releases = where $releases "prerelease" false }}
+      {{ range $releases | first 20 }}
+        {{ $ctx := dict
+          "Date" (.published_at | time.AsTime)
+          "Title" (printf "Release %s" .name)
+          "Permalink" .html_url
+          "Section" "news"
+          "Summary" ""
+        }}
+        {{ $news_items = $news_items | append $ctx }}
+      {{ end }}
+
+      {{/* Get content pages from news section. */}}
+      {{ range .Pages }}
+        {{ $ctx := dict
+          "Date" .Date
+          "Title" .Title
+          "RelPermalink" .RelPermalink
+          "Section" "news"
+          "Summary" .Summary
+          "Params" (dict "description" .Description)
+        }}
+        {{ $news_items = $news_items | append $ctx }}
+      {{ end }}
+
+      {{/* Sort by date (descending) and render. */}}
+      {{ range sort $news_items "Date" "desc" }}
+        {{ partial "boxes-section-summaries.html" (dict "context" . "classes" $interior_classes "fullcontent" false) }}
+      {{ end }}
+
+    </section>
+  </div>
+
+</div>
+{{ end }}
