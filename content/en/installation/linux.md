@@ -106,7 +106,7 @@ You can also download Debian packages from the [latest release] page.
 [Ubuntu]: https://ubuntu.com/
 [Zorin OS]: https://zorin.com/os/
 
-## Exherbo
+### Exherbo
 
 To install the extended edition of Hugo on [Exherbo]:
 
