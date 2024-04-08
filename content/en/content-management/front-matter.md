@@ -378,11 +378,9 @@ Use any combination of these keywords to target a set of pages:
 Any of the above can be omitted.
 
 {{% note %}}
-With a multilingual site it may be more efficient to define the `cascade` values in your site configuration to avoid duplicating the `cascade` values on the section page for each language.
+With a multilingual site it may be more efficient to define the `cascade` values in your site configuration to avoid duplicating the `cascade` values on the section, taxonomy, or term page for each language.
 
-With a multilingual site, if you choose to define the `cascade` values in front matter, you must create a [node] page for each language; the `lang` keyword is ignored.
-
-[node]: /getting-started/glossary/#node
+With a multilingual site, if you choose to define the `cascade` values in front matter, you must create a section, taxonomy, or term page for each language; the `lang` keyword is ignored.
 {{% /note %}}
 
 ### Example
