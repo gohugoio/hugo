@@ -173,8 +173,8 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	cmdArgs = append(cmdArgs, hexec.WithEnviron(hugo.GetExecEnviron(t.rs.Cfg.BaseConfig().WorkingDir, t.rs.Cfg, t.rs.BaseFs.Assets.Fs)))
 
 	defer func() {
-			compileOutput.Close()
-			os.Remove(compileOutput.Name())
+		compileOutput.Close()
+		os.Remove(compileOutput.Name())
 	}()
 
 	// ARGA [--no-install babel --config-file /private/var/folders/_g/j3j21hts4fn7__h04w2x8gb40000gn/T/hugo-test-babel812882892/babel.config.js --source-maps --filename=js/main2.js --out-file=/var/folders/_g/j3j21hts4fn7__h04w2x8gb40000gn/T/compileOut-2237820197.js]
