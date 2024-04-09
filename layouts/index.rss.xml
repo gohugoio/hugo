@@ -38,7 +38,7 @@
     {{- end }}
 
     {{- /* Get content pages from news section. */}}
-    {{- range .Pages }}
+    {{- range where site.RegularPages "Section" "news" }}
       {{- $ctx := dict
         "PublishDate" .PublishDate
         "Title" .Title
