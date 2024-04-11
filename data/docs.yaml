@@ -4581,5 +4581,5 @@ tpl:
         - urlize
         Args:
         - s
-        Description: URLize returns the the strings s formatted as an URL.
+        Description: URLize returns the strings s formatted as an URL.
         Examples: []
