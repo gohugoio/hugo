@@ -45,7 +45,7 @@ jobs:
     - name: Install docutils
       run: |
         pip install docutils
-        rst2html.py --version
+        rst2html --version
     - if: matrix.os == 'ubuntu-latest'
       name: Install pandoc on Linux
       run: |
