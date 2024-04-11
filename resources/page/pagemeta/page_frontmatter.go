@@ -88,6 +88,9 @@ type PageConfig struct {
 
 	// User defined params.
 	Params maps.Params
+
+	// Compiled values.
+	IsGoldmark bool `json:"-"`
 }
 
 // FrontMatterHandler maps front matter into Page fields and .Params.

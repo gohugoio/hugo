@@ -30,6 +30,7 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/markup/converter/hooks"
+	"github.com/gohugoio/hugo/markup/goldmark/hugocontext"
 	"github.com/gohugoio/hugo/markup/highlight/chromalexers"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 
@@ -68,8 +69,9 @@ var (
 
 func newPageContentOutput(po *pageOutput) (*pageContentOutput, error) {
 	cp := &pageContentOutput{
-		po:          po,
-		renderHooks: &renderHooks{},
+		po:           po,
+		renderHooks:  &renderHooks{},
+		otherOutputs: make(map[uint64]*pageContentOutput),
 	}
 	return cp, nil
 }
@@ -82,6 +84,10 @@ type renderHooks struct {
 // pageContentOutput represents the Page content for a given output format.
 type pageContentOutput struct {
 	po *pageOutput
+
+	// Other pages involved in rendering of this page,
+	// typically included with .RenderShortcodes.
+	otherOutputs map[uint64]*pageContentOutput
 
 	contentRenderedVersion int  // Incremented on reset.
 	contentRendered        bool // Set on content render.
@@ -163,6 +169,13 @@ func (pco *pageContentOutput) RenderShortcodes(ctx context.Context) (template.HT
 
 	if cb != nil {
 		cb(pco, ct)
+	}
+
+	if tpl.Context.IsInGoldmark.Get(ctx) {
+		// This content will be parsed and rendered by Goldmark.
+		// Wrap it in a special Hugo markup to assign the correct Page from
+		// the stack.
+		c = hugocontext.Wrap(c, pco.po.p.pid)
 	}
 
 	return helpers.BytesToHTML(c), nil

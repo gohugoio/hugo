@@ -200,3 +200,99 @@ Myshort Original.
 	b.Build()
 	b.AssertFileContent("public/p1/index.html", "Edited")
 }
+
+func TestRenderShortcodesNestedPageContextIssue12356(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap", "robotsTXT", "404"]
+-- layouts/_default/_markup/render-image.html --
+{{- with .PageInner.Resources.Get .Destination -}}Image: {{ .RelPermalink }}|{{- end -}}
+-- layouts/_default/_markup/render-link.html --
+{{- with .PageInner.GetPage .Destination -}}Link: {{ .RelPermalink }}|{{- end -}}
+-- layouts/_default/_markup/render-heading.html --
+Heading: {{ .PageInner.Title }}: {{ .PlainText }}|
+-- layouts/_default/_markup/render-codeblock.html --
+CodeBlock: {{ .PageInner.Title }}: {{ .Type }}|
+-- layouts/_default/list.html --
+Content:{{ .Content }}|
+Fragments: {{ with .Fragments }}{{.Identifiers }}{{ end }}|
+-- layouts/_default/single.html --
+Content:{{ .Content }}|
+-- layouts/shortcodes/include.html --
+{{ with site.GetPage (.Get 0) }}
+  {{ .RenderShortcodes }}
+{{ end }}
+-- content/markdown/_index.md --
+---
+title: "Markdown"
+---
+# H1
+|{{% include "/posts/p1" %}}|
+![kitten](pixel3.png "Pixel 3")
+
+§§§go
+fmt.Println("Hello")
+§§§
+
+-- content/markdown2/_index.md --
+---
+title: "Markdown 2"
+---
+|{{< include "/posts/p1" >}}|
+-- content/html/_index.html --
+---
+title: "HTML"
+---
+|{{% include "/posts/p1" %}}|
+
+-- content/posts/p1/index.md --
+---
+title: "p1"
+---
+## H2-p1
+![kitten](pixel1.png "Pixel 1")
+![kitten](pixel2.png "Pixel 2")
+[p2](p2)
+
+§§§bash
+echo "Hello"
+§§§
+
+-- content/posts/p2/index.md --
+---
+title: "p2"
+---
+-- content/posts/p1/pixel1.png --
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+-- content/posts/p1/pixel2.png --
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+-- content/markdown/pixel3.png --
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+-- content/html/pixel4.png --
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/markdown/index.html",
+		// Images.
+		"Image: /posts/p1/pixel1.png|\nImage: /posts/p1/pixel2.png|\n|\nImage: /markdown/pixel3.png|</p>\n|",
+		// Links.
+		"Link: /posts/p2/|",
+		// Code blocks
+		"CodeBlock: p1: bash|", "CodeBlock: Markdown: go|",
+		// Headings.
+		"Heading: Markdown: H1|", "Heading: p1: H2-p1|",
+		// Fragments.
+		"Fragments: [h1 h2-p1]|",
+		// Check that the special context markup is not rendered.
+		"! hugo_ctx",
+	)
+
+	b.AssertFileContent("public/markdown2/index.html", "! hugo_ctx", "Content:<p>|\n  ![kitten](pixel1.png \"Pixel 1\")\n![kitten](pixel2.png \"Pixel 2\")\n|</p>\n|")
+
+	b.AssertFileContent("public/html/index.html", "! hugo_ctx")
+}

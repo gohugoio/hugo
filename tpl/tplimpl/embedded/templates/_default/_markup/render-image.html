@@ -1,7 +1,7 @@
 {{- $u := urls.Parse .Destination -}}
 {{- $src := $u.String -}}
 {{- if not $u.IsAbs -}}
-  {{- with or (.Page.Resources.Get $u.Path) (resources.Get $u.Path) -}}
+  {{- with or (.PageInner.Resources.Get $u.Path) (resources.Get $u.Path) -}}
     {{- $src = .RelPermalink -}}
   {{- end -}}
 {{- end -}}

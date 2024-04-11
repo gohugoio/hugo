@@ -522,6 +522,7 @@ func (c *cachedContent) contentRendered(ctx context.Context, cp *pageContentOutp
 			if err != nil {
 				return nil, err
 			}
+
 			if !ok {
 				return nil, errors.New("invalid state: astDoc is set but RenderContent returned false")
 			}
@@ -626,8 +627,10 @@ func (c *cachedContent) contentToC(ctx context.Context, cp *pageContentOutput) (
 			return nil, err
 		}
 
-		// Callback called from above (e.g. in .RenderString)
+		// Callback called from below (e.g. in .RenderString)
 		ctxCallback := func(cp2 *pageContentOutput, ct2 contentTableOfContents) {
+			cp.otherOutputs[cp2.po.p.pid] = cp2
+
 			// Merge content placeholders
 			for k, v := range ct2.contentPlaceholders {
 				ct.contentPlaceholders[k] = v

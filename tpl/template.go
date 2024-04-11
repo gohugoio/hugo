@@ -165,10 +165,12 @@ var Context = struct {
 	SetDependencyManagerInCurrentScope func(context.Context, identity.Manager) context.Context
 	DependencyScope                    hcontext.ContextDispatcher[int]
 	Page                               hcontext.ContextDispatcher[page]
+	IsInGoldmark                       hcontext.ContextDispatcher[bool]
 }{
 	DependencyManagerScopedProvider: hcontext.NewContextDispatcher[identity.DependencyManagerScopedProvider](contextKey("DependencyManagerScopedProvider")),
 	DependencyScope:                 hcontext.NewContextDispatcher[int](contextKey("DependencyScope")),
 	Page:                            hcontext.NewContextDispatcher[page](contextKey("Page")),
+	IsInGoldmark:                    hcontext.NewContextDispatcher[bool](contextKey("IsInGoldmark")),
 }
 
 func init() {

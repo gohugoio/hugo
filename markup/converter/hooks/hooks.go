@@ -32,8 +32,7 @@ type AttributesProvider interface {
 
 // LinkContext is the context passed to a link render hook.
 type LinkContext interface {
-	// The Page being rendered.
-	Page() any
+	PageProvider
 
 	// The link URL.
 	Destination() string
@@ -64,6 +63,7 @@ type ImageLinkContext interface {
 type CodeblockContext interface {
 	AttributesProvider
 	text.Positioner
+	PageProvider
 
 	// Chroma highlighting processing options. This will only be filled if Type is a known Chroma Lexer.
 	Options() map[string]any
@@ -76,9 +76,6 @@ type CodeblockContext interface {
 
 	// Zero-based ordinal for all code blocks in the current document.
 	Ordinal() int
-
-	// The owning Page.
-	Page() any
 }
 
 type AttributesOptionsSliceProvider interface {
@@ -101,8 +98,7 @@ type IsDefaultCodeBlockRendererProvider interface {
 // HeadingContext contains accessors to all attributes that a HeadingRenderer
 // can use to render a heading.
 type HeadingContext interface {
-	// Page is the page containing the heading.
-	Page() any
+	PageProvider
 	// Level is the level of the header (i.e. 1 for top-level, 2 for sub-level, etc.).
 	Level() int
 	// Anchor is the HTML id assigned to the heading.
@@ -114,6 +110,16 @@ type HeadingContext interface {
 
 	// Attributes (e.g. CSS classes)
 	AttributesProvider
+}
+
+type PageProvider interface {
+	// Page is the page being rendered.
+	Page() any
+
+	// PageInner may be different than Page when .RenderShortcodes is in play.
+	// The main use case for this is to include other pages' markdown into the current page
+	// but resolve resources and pages relative to the original.
+	PageInner() any
 }
 
 // HeadingRenderer describes a uniquely identifiable rendering hook.
