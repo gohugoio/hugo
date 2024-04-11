@@ -112,6 +112,14 @@ func (i Taxonomy) ByCount() OrderedTaxonomy {
 	return ia
 }
 
+// Page returns the taxonomy page or nil if the taxonomy has no terms.
+func (i Taxonomy) Page() Page {
+	for _, v := range i {
+		return v.Page().Parent()
+	}
+	return nil
+}
+
 // Pages returns the Pages for this taxonomy.
 func (ie OrderedTaxonomyEntry) Pages() Pages {
 	return ie.WeightedPages.Pages()

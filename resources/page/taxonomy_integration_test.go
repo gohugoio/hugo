@@ -53,3 +53,29 @@ authors: [John Smith]
 		"Robert Jones count: 1",
 	)
 }
+
+func TestTaxonomiesPage(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['rss','section','sitemap']
+[taxonomies]
+tag = 'tags'
+category = 'categories'
+-- content/p1.md --
+---
+title: p1
+tags: [tag-a]
+---
+-- layouts/_default/list.html --
+{{- with site.Taxonomies.tags.Page }}{{ .RelPermalink }}{{ end }}|
+{{- with site.Taxonomies.categories.Page }}{{ .RelPermalink }}{{ end }}|
+-- layouts/_default/single.html --
+{{ .Title }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "/tags/||")
+}
