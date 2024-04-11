@@ -41,6 +41,7 @@ func (b *BufWriter) Flush() error {
 type Context struct {
 	*BufWriter
 	positions []int
+	pids      []uint64
 	ContextData
 }
 
@@ -52,6 +53,30 @@ func (ctx *Context) PopPos() int {
 	i := len(ctx.positions) - 1
 	p := ctx.positions[i]
 	ctx.positions = ctx.positions[:i]
+	return p
+}
+
+// PushPid pushes a new page ID to the stack.
+func (ctx *Context) PushPid(pid uint64) {
+	ctx.pids = append(ctx.pids, pid)
+}
+
+// PeekPid returns the current page ID without removing it from the stack.
+func (ctx *Context) PeekPid() uint64 {
+	if len(ctx.pids) == 0 {
+		return 0
+	}
+	return ctx.pids[len(ctx.pids)-1]
+}
+
+// PopPid pops the last page ID from the stack.
+func (ctx *Context) PopPid() uint64 {
+	if len(ctx.pids) == 0 {
+		return 0
+	}
+	i := len(ctx.pids) - 1
+	p := ctx.pids[i]
+	ctx.pids = ctx.pids[:i]
 	return p
 }
 

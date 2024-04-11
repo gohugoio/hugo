@@ -321,10 +321,16 @@ func prepareShortcode(
 
 	// Allow the caller to delay the rendering of the shortcode if needed.
 	var fn shortcodeRenderFunc = func(ctx context.Context) ([]byte, bool, error) {
+		if p.m.pageConfig.IsGoldmark && sc.doMarkup {
+			// Signal downwards that the content rendered will be
+			// parsed and rendered by Goldmark.
+			ctx = tpl.Context.IsInGoldmark.Set(ctx, true)
+		}
 		r, err := doRenderShortcode(ctx, level, s, tplVariants, sc, parent, p, isRenderString)
 		if err != nil {
 			return nil, false, toParseErr(err)
 		}
+
 		b, hasVariants, err := r.renderShortcode(ctx)
 		if err != nil {
 			return nil, false, toParseErr(err)

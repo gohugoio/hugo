@@ -737,6 +737,8 @@ func (p *pageMeta) applyDefaultValues() error {
 		}
 	}
 
+	p.pageConfig.IsGoldmark = p.s.ContentSpec.Converters.IsGoldmark(p.pageConfig.Markup)
+
 	if p.pageConfig.Title == "" && p.f == nil {
 		switch p.Kind() {
 		case kinds.KindHome:
@@ -794,12 +796,26 @@ func (p *pageMeta) newContentConverter(ps *pageState, markup string) (converter.
 		path = p.Path()
 	}
 
+	doc := newPageForRenderHook(ps)
+
+	documentLookup := func(id uint64) any {
+		if id == ps.pid {
+			// This prevents infinite recursion in some cases.
+			return doc
+		}
+		if v, ok := ps.pageOutput.pco.otherOutputs[id]; ok {
+			return v.po.p
+		}
+		return nil
+	}
+
 	cpp, err := cp.New(
 		converter.DocumentContext{
-			Document:     newPageForRenderHook(ps),
-			DocumentID:   id,
-			DocumentName: path,
-			Filename:     filename,
+			Document:       doc,
+			DocumentLookup: documentLookup,
+			DocumentID:     id,
+			DocumentName:   path,
+			Filename:       filename,
 		},
 	)
 	if err != nil {

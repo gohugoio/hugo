@@ -108,6 +108,7 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 	}
 	cbctx := &codeBlockContext{
 		page:             ctx.DocumentContext().Document,
+		pageInner:        r.getPageInner(ctx),
 		lang:             lang,
 		code:             s,
 		ordinal:          ordinal,
@@ -132,7 +133,6 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 		w,
 		cbctx,
 	)
-
 	if err != nil {
 		return ast.WalkContinue, herrors.NewFileErrorFromPos(err, cbctx.createPos())
 	}
@@ -140,11 +140,24 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 	return ast.WalkContinue, nil
 }
 
+func (r *htmlRenderer) getPageInner(rctx *render.Context) any {
+	pid := rctx.PeekPid()
+	if pid > 0 {
+		if lookup := rctx.DocumentContext().DocumentLookup; lookup != nil {
+			if v := rctx.DocumentContext().DocumentLookup(pid); v != nil {
+				return v
+			}
+		}
+	}
+	return rctx.DocumentContext().Document
+}
+
 type codeBlockContext struct {
-	page    any
-	lang    string
-	code    string
-	ordinal int
+	page      any
+	pageInner any
+	lang      string
+	code      string
+	ordinal   int
 
 	// This is only used in error situations and is expensive to create,
 	// to delay creation until needed.
@@ -157,6 +170,10 @@ type codeBlockContext struct {
 
 func (c *codeBlockContext) Page() any {
 	return c.page
+}
+
+func (c *codeBlockContext) PageInner() any {
+	return c.pageInner
 }
 
 func (c *codeBlockContext) Type() string {

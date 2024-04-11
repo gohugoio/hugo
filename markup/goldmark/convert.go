@@ -18,6 +18,7 @@ import (
 	"bytes"
 
 	"github.com/gohugoio/hugo-goldmark-extensions/passthrough"
+	"github.com/gohugoio/hugo/markup/goldmark/hugocontext"
 	"github.com/yuin/goldmark/util"
 
 	"github.com/gohugoio/hugo/markup/goldmark/codeblocks"
@@ -103,6 +104,7 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 		renderer.WithNodeRenderers(util.Prioritized(emoji.NewHTMLRenderer(), 200)))
 	var (
 		extensions = []goldmark.Extender{
+			hugocontext.New(),
 			newLinks(cfg),
 			newTocExtension(tocRendererOptions),
 		}

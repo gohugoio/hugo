@@ -1603,7 +1603,7 @@ func (sa *sitePagesAssembler) assembleResources() error {
 			targetPaths := ps.targetPaths()
 			baseTarget := targetPaths.SubResourceBaseTarget
 			duplicateResourceFiles := true
-			if ps.s.ContentSpec.Converters.IsGoldmark(ps.m.pageConfig.Markup) {
+			if ps.m.pageConfig.IsGoldmark {
 				duplicateResourceFiles = ps.s.ContentSpec.Converters.GetMarkupConfig().Goldmark.DuplicateResourceFiles
 			}
 

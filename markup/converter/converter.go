@@ -135,10 +135,11 @@ func (b Bytes) Bytes() []byte {
 
 // DocumentContext holds contextual information about the document to convert.
 type DocumentContext struct {
-	Document     any // May be nil. Usually a page.Page
-	DocumentID   string
-	DocumentName string
-	Filename     string
+	Document       any              // May be nil. Usually a page.Page
+	DocumentLookup func(uint64) any // May be nil.
+	DocumentID     string
+	DocumentName   string
+	Filename       string
 }
 
 // RenderContext holds contextual information about the content to render.
