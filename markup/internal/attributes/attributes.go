@@ -136,7 +136,7 @@ type AttributesHolder struct {
 	// Attributes considered to be an option (code blocks)
 	options []Attribute
 
-	// What we send to the the render hooks.
+	// What we send to the render hooks.
 	attributesMapInit sync.Once
 	attributesMap     map[string]any
 	optionsMapInit    sync.Once
