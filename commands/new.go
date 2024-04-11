@@ -24,7 +24,6 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/create"
 	"github.com/gohugoio/hugo/create/skeletons"
-	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/spf13/cobra"
 )
 
@@ -68,7 +67,6 @@ Ensure you run this within the root directory of your site.`,
 						return []string{}, cobra.ShellCompDirectiveNoFileComp | cobra.ShellCompDirectiveFilterDirs
 					}
 					cmd.Flags().StringVarP(&contentType, "kind", "k", "", "content type to create")
-					_ = cmd.RegisterFlagCompletionFunc("kind", cobra.FixedCompletions(kinds.AllKindsInPages, cobra.ShellCompDirectiveNoFileComp))
 					cmd.Flags().String("editor", "", "edit new content with this editor, if provided")
 					_ = cmd.RegisterFlagCompletionFunc("editor", cobra.NoFileCompletions)
 					cmd.Flags().BoolVarP(&force, "force", "f", false, "overwrite file if it already exists")
