@@ -307,7 +307,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 			if redirect := serverConfig.MatchRedirect(requestURI); !redirect.IsZero() {
 				// fullName := filepath.Join(dir, filepath.FromSlash(path.Clean("/"+name)))
 				doRedirect := true
-				// This matches Netlify's behaviour and is needed for SPA behaviour.
+				// This matches Netlify's behavior and is needed for SPA behavior.
 				// See https://docs.netlify.com/routing/redirects/rewrites-proxies/
 				if !redirect.Force {
 					path := filepath.Clean(strings.TrimPrefix(requestURI, baseURL.Path()))

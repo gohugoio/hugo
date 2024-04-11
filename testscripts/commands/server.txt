@@ -9,7 +9,7 @@ httpget $HUGOTEST_BASEURL_0 'Title: Hugo Server Test' $HUGOTEST_BASEURL_0 'Serve
 httpget ${HUGOTEST_BASEURL_0}doesnotexist 'custom 404'
 httpget ${HUGOTEST_BASEURL_0}livereload.js 'function'
 
-# By defauilt, the server renders to memory.
+# By default, the server renders to memory.
 ! exists public/index.html
 
 stopServer

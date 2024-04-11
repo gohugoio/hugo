@@ -181,7 +181,7 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo) error {
 
 		var rs *resourceSource
 		if pi.IsContent() {
-			// Create the page now as we need it at assemembly time.
+			// Create the page now as we need it at assembly time.
 			// The other resources are created if needed.
 			pageResource, pi, err := m.s.h.newPage(
 				&pageMeta{

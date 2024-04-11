@@ -27,7 +27,7 @@ import (
 
 var (
 	_ error = (*errorResource)(nil)
-	// Imnage covers all current Resource implementations.
+	// Image covers all current Resource implementations.
 	_ images.ImageResource = (*errorResource)(nil)
 	// The list of user facing and exported interfaces in resource.go
 	// Note that if we're missing some interface here, the user will still

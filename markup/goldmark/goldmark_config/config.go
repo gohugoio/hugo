@@ -217,6 +217,6 @@ type Parser struct {
 type ParserAttribute struct {
 	// Enables custom attributes for titles.
 	Title bool
-	// Enables custom attributeds for blocks.
+	// Enables custom attributes for blocks.
 	Block bool
 }
