@@ -68,6 +68,17 @@ The following is an example of a very basic [single page template]:
 
 The following is a [partial template][partials] that adds slightly more logic for page-level control over your table of contents. It assumes you are using a `toc` field in your content's [front matter] that, unless specifically set to `false`, will add a TOC to any page with a [`WordCount`] greater than 400. This example also demonstrates how to use [conditionals] in your templating:
 
+{{< code file=layouts/partials/toc.html >}}
+{{ if and (gt .WordCount 400 ) (.Params.toc) }}
+<aside>
+    <header>
+    <h2>{{ .Title }}</h2>
+    </header>
+    {{ .TableOfContents }}
+</aside>
+{{ end }}
+{{< /code >}}
+
 {{% note %}}
 With the preceding example, even pages with > 400 words *and* `toc` not set to `false` will not render a table of contents if there are no headings in the page for the `.TableOfContents` method to pull from.
 {{% /note %}}
