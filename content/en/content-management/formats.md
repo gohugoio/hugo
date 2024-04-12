@@ -29,7 +29,7 @@ The current list of content formats in Hugo:
 |AsciiDoc|`asciidocext`, `adoc`, `ad`|Needs [Asciidoctor][ascii] installed.|
 |RST|`rst`|Needs [RST](https://docutils.sourceforge.io/rst.html) installed.|
 |Pandoc|`pandoc`, `pdc`|Needs [Pandoc](https://www.pandoc.org/) installed.|
-|HTML|`html`, `htm`|To be treated as a content file, with layout, shortcodes etc., it must have front matter. If not, it will be copied as-is.|
+|HTML|`html`, `htm`|To be treated as a content file, with layout, shortcodes etc., it must have front matter.|
 
 The `markup` identifier is fetched from either the `markup` field in front matter or from the file extension. For markup-related configuration, see [Configure Markup](/getting-started/configuration-markup/).
 
