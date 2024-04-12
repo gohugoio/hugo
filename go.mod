@@ -5,7 +5,7 @@ require (
 	github.com/alecthomas/chroma/v2 v2.13.0
 	github.com/armon/go-radix v1.0.1-0.20221118154546-54df44f2176c
 	github.com/aws/aws-sdk-go-v2 v1.26.1
-	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.35.4
+	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.36.0
 	github.com/bep/clocks v0.5.0
 	github.com/bep/debounce v1.2.0
 	github.com/bep/gitmap v1.1.2
