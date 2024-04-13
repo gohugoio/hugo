@@ -400,6 +400,7 @@ type ConfigCompiled struct {
 	Timeout           time.Duration
 	BaseURL           urls.BaseURL
 	BaseURLLiveReload urls.BaseURL
+	ServerInterface   string
 	KindOutputFormats map[string]output.Formats
 	DisabledKinds     map[string]bool
 	DisabledLanguages map[string]bool
@@ -434,9 +435,10 @@ func (c *ConfigCompiled) IsMainSectionsSet() bool {
 }
 
 // This is set after the config is compiled by the server command.
-func (c *ConfigCompiled) SetBaseURL(baseURL, baseURLLiveReload urls.BaseURL) {
+func (c *ConfigCompiled) SetServerInfo(baseURL, baseURLLiveReload urls.BaseURL, serverInterface string) {
 	c.BaseURL = baseURL
 	c.BaseURLLiveReload = baseURLLiveReload
+	c.ServerInterface = serverInterface
 }
 
 // RootConfig holds all the top-level configuration options in Hugo

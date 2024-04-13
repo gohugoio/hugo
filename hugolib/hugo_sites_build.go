@@ -919,7 +919,20 @@ func (h *HugoSites) processPartial(ctx context.Context, l logg.LevelLogger, conf
 		}
 	}
 
+	h.logServerAddresses()
+
 	return nil
+}
+
+func (h *HugoSites) logServerAddresses() {
+	if h.hugoInfo.IsMultihost() {
+		for _, s := range h.Sites {
+			h.Log.Printf("Web Server is available at %s (bind address %s) %s\n", s.conf.C.BaseURL, s.conf.C.ServerInterface, s.Language().Lang)
+		}
+	} else {
+		s := h.Sites[0]
+		h.Log.Printf("Web Server is available at %s (bind address %s)\n", s.conf.C.BaseURL, s.conf.C.ServerInterface)
+	}
 }
 
 func (h *HugoSites) processFull(ctx context.Context, l logg.LevelLogger, config BuildCfg) (err error) {
