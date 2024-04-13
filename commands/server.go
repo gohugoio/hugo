@@ -237,9 +237,8 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 	listener := f.c.serverPorts[i].ln
 	logger := f.c.r.logger
 
-	r.Printf("Environment: %q\n", f.c.hugoTry().Deps.Site.Hugo().Environment)
-
 	if i == 0 {
+		r.Printf("Environment: %q\n", f.c.hugoTry().Deps.Site.Hugo().Environment)
 		mainTarget := "disk"
 		if f.c.r.renderToMemory {
 			mainTarget = "memory"
@@ -569,7 +568,7 @@ func (c *serverCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 				}
 			}
 
-			if err := c.setBaseURLsInConfig(); err != nil {
+			if err := c.setServerInfoInConfig(); err != nil {
 				return err
 			}
 
@@ -614,7 +613,7 @@ func (c *serverCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 	return nil
 }
 
-func (c *serverCommand) setBaseURLsInConfig() error {
+func (c *serverCommand) setServerInfoInConfig() error {
 	if len(c.serverPorts) == 0 {
 		panic("no server ports set")
 	}
@@ -641,7 +640,8 @@ func (c *serverCommand) setBaseURLsInConfig() error {
 			if c.liveReloadPort != -1 {
 				baseURLLiveReload, _ = baseURLLiveReload.WithPort(c.liveReloadPort)
 			}
-			langConfig.C.SetBaseURL(baseURL, baseURLLiveReload)
+			langConfig.C.SetServerInfo(baseURL, baseURLLiveReload, c.serverInterface)
+
 		}
 		return nil
 	})
