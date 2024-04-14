@@ -26,24 +26,27 @@ import (
 
 func TestTrimShortHTML(t *testing.T) {
 	tests := []struct {
-		input, output []byte
+		markup string
+		input  []byte
+		output []byte
 	}{
-		{[]byte(""), []byte("")},
-		{[]byte("Plain text"), []byte("Plain text")},
-		// This seems wrong. Why touch it if it doesn't have p tag?
-		// {[]byte("  \t\n Whitespace text\n\n"), []byte("Whitespace text")},
-		{[]byte("<p>Simple paragraph</p>"), []byte("Simple paragraph")},
-		{[]byte("\n  \n \t  <p> \t Whitespace\nHTML  \n\t </p>\n\t"), []byte("Whitespace\nHTML")},
-		{[]byte("<p>Multiple</p><p>paragraphs</p>"), []byte("<p>Multiple</p><p>paragraphs</p>")},
-		{[]byte("<p>Nested<p>paragraphs</p></p>"), []byte("<p>Nested<p>paragraphs</p></p>")},
-		{[]byte("<p>Hello</p>\n<ul>\n<li>list1</li>\n<li>list2</li>\n</ul>"), []byte("<p>Hello</p>\n<ul>\n<li>list1</li>\n<li>list2</li>\n</ul>")},
-		// Issue #11698
-		{[]byte("<h2 id=`a`>b</h2>\n\n<p>c</p>"), []byte("<h2 id=`a`>b</h2>\n\n<p>c</p>")},
+		{"markdown", []byte(""), []byte("")},
+		{"markdown", []byte("Plain text"), []byte("Plain text")},
+		{"markdown", []byte("<p>Simple paragraph</p>"), []byte("Simple paragraph")},
+		{"markdown", []byte("\n  \n \t  <p> \t Whitespace\nHTML  \n\t </p>\n\t"), []byte("Whitespace\nHTML")},
+		{"markdown", []byte("<p>Multiple</p><p>paragraphs</p>"), []byte("<p>Multiple</p><p>paragraphs</p>")},
+		{"markdown", []byte("<p>Nested<p>paragraphs</p></p>"), []byte("<p>Nested<p>paragraphs</p></p>")},
+		{"markdown", []byte("<p>Hello</p>\n<ul>\n<li>list1</li>\n<li>list2</li>\n</ul>"), []byte("<p>Hello</p>\n<ul>\n<li>list1</li>\n<li>list2</li>\n</ul>")},
+		// Issue 11698
+		{"markdown", []byte("<h2 id=`a`>b</h2>\n\n<p>c</p>"), []byte("<h2 id=`a`>b</h2>\n\n<p>c</p>")},
+		// Issue 12369
+		{"markdown", []byte("<div class=\"paragraph\">\n<p>foo</p>\n</div>"), []byte("<div class=\"paragraph\">\n<p>foo</p>\n</div>")},
+		{"asciidocext", []byte("<div class=\"paragraph\">\n<p>foo</p>\n</div>"), []byte("foo")},
 	}
 
 	c := newTestContentSpec(nil)
 	for i, test := range tests {
-		output := c.TrimShortHTML(test.input)
+		output := c.TrimShortHTML(test.input, test.markup)
 		if !bytes.Equal(test.output, output) {
 			t.Errorf("Test %d failed. Expected %q got %q", i, test.output, output)
 		}
@@ -54,7 +57,7 @@ func BenchmarkTrimShortHTML(b *testing.B) {
 	c := newTestContentSpec(nil)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		c.TrimShortHTML([]byte("<p>Simple paragraph</p>"))
+		c.TrimShortHTML([]byte("<p>Simple paragraph</p>"), "markdown")
 	}
 }
 

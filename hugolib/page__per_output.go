@@ -363,9 +363,11 @@ func (pco *pageContentOutput) RenderString(ctx context.Context, args ...any) (te
 	}
 
 	if opts.Display == "inline" {
-		// We may have to rethink this in the future when we get other
-		// renderers.
-		rendered = pco.po.p.s.ContentSpec.TrimShortHTML(rendered)
+		markup := pco.po.p.m.pageConfig.Markup
+		if opts.Markup != "" {
+			markup = pco.po.p.s.ContentSpec.ResolveMarkup(opts.Markup)
+		}
+		rendered = pco.po.p.s.ContentSpec.TrimShortHTML(rendered, markup)
 	}
 
 	return template.HTML(string(rendered)), nil

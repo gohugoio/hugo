@@ -36,11 +36,6 @@ import (
 	"github.com/gohugoio/hugo/config"
 )
 
-var (
-	openingPTag = []byte("<p>")
-	closingPTag = []byte("</p>")
-)
-
 // ContentSpec provides functionality to render markdown content.
 type ContentSpec struct {
 	Converters          markup.ConverterProvider
@@ -242,19 +237,26 @@ func (c *ContentSpec) TruncateWordsToWholeSentence(s string) (string, bool) {
 	return strings.TrimSpace(s[:endIndex]), endIndex < len(s)
 }
 
-// TrimShortHTML removes the <p>/</p> tags from HTML input in the situation
-// where said tags are the only <p> tags in the input and enclose the content
-// of the input (whitespace excluded).
-func (c *ContentSpec) TrimShortHTML(input []byte) []byte {
-	if bytes.Count(input, openingPTag) == 1 {
+// TrimShortHTML removes the outer tags from HTML input where (a) the opening
+// tag is present only once with the input, and (b) the opening and closing
+// tags wrap the input after white space removal.
+func (c *ContentSpec) TrimShortHTML(input []byte, markup string) []byte {
+	openingTag := []byte("<p>")
+	closingTag := []byte("</p>")
+
+	if markup == "asciidocext" {
+		openingTag = []byte("<div class=\"paragraph\">\n<p>")
+		closingTag = []byte("</p>\n</div>")
+	}
+
+	if bytes.Count(input, openingTag) == 1 {
 		input = bytes.TrimSpace(input)
-		if bytes.HasPrefix(input, openingPTag) && bytes.HasSuffix(input, closingPTag) {
-			input = bytes.TrimPrefix(input, openingPTag)
-			input = bytes.TrimSuffix(input, closingPTag)
+		if bytes.HasPrefix(input, openingTag) && bytes.HasSuffix(input, closingTag) {
+			input = bytes.TrimPrefix(input, openingTag)
+			input = bytes.TrimSuffix(input, closingTag)
 			input = bytes.TrimSpace(input)
 		}
 	}
-
 	return input
 }
 
