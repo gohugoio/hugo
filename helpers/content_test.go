@@ -50,6 +50,14 @@ func TestTrimShortHTML(t *testing.T) {
 	}
 }
 
+func BenchmarkTrimShortHTML(b *testing.B) {
+	c := newTestContentSpec(nil)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		c.TrimShortHTML([]byte("<p>Simple paragraph</p>"))
+	}
+}
+
 func TestBytesToHTML(t *testing.T) {
 	c := qt.New(t)
 	c.Assert(helpers.BytesToHTML([]byte("dobedobedo")), qt.Equals, template.HTML("dobedobedo"))
