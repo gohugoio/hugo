@@ -167,7 +167,7 @@ func (ns *Namespace) Markdownify(ctx context.Context, s any) (template.HTML, err
 	}
 
 	// Strip if this is a short inline type of text.
-	bb := ns.deps.ContentSpec.TrimShortHTML([]byte(ss))
+	bb := ns.deps.ContentSpec.TrimShortHTML([]byte(ss), "markdown")
 
 	return helpers.BytesToHTML(bb), nil
 }

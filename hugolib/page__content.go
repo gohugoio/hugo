@@ -778,7 +778,7 @@ func (c *cachedContent) contentPlain(ctx context.Context, cp *pageContentOutput)
 			if err != nil {
 				return nil, err
 			}
-			html := cp.po.p.s.ContentSpec.TrimShortHTML(b.Bytes())
+			html := cp.po.p.s.ContentSpec.TrimShortHTML(b.Bytes(), cp.po.p.m.pageConfig.Markup)
 			result.summary = helpers.BytesToHTML(html)
 		} else {
 			var summary string
