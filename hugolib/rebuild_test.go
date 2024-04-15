@@ -11,6 +11,7 @@ import (
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/htesting"
+	"github.com/gohugoio/hugo/markup/asciidocext"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/dartsass"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/scss"
 )
@@ -1513,4 +1514,42 @@ MyTemplate: {{ partial "MyTemplate.html" . }}|
 	b.EditFileReplaceAll("layouts/partials/MyTemplate.html", "MyTemplate", "MyTemplate Edited").Build()
 
 	b.AssertFileContent("public/index.html", "MyTemplate: MyTemplate Edited")
+}
+
+func TestRebuildEditAsciidocContentFile(t *testing.T) {
+	if !asciidocext.Supports() {
+		t.Skip("skip asciidoc")
+	}
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+disableKinds = ["taxonomy", "term", "sitemap", "robotsTXT", "404", "rss", "home", "section"]
+[security]
+[security.exec]
+allow = ['^python$', '^rst2html.*', '^asciidoctor$']
+-- content/posts/p1.adoc --
+---
+title: "P1"
+---
+P1 Content.
+-- content/posts/p2.adoc --
+---
+title: "P2"
+---
+P2 Content.
+-- layouts/_default/single.html --
+Single: {{ .Title }}|{{ .Content }}|
+`
+	b := TestRunning(t, files)
+	b.AssertFileContent("public/posts/p1/index.html",
+		"Single: P1|<div class=\"paragraph\">\n<p>P1 Content.</p>\n</div>\n|")
+	b.AssertRenderCountPage(2)
+	b.AssertRenderCountContent(2)
+
+	b.EditFileReplaceAll("content/posts/p1.adoc", "P1 Content.", "P1 Content Edited.").Build()
+
+	b.AssertFileContent("public/posts/p1/index.html", "Single: P1|<div class=\"paragraph\">\n<p>P1 Content Edited.</p>\n</div>\n|")
+	b.AssertRenderCountPage(1)
+	b.AssertRenderCountContent(1)
 }
