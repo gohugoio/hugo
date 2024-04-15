@@ -15,6 +15,7 @@ package images
 
 import (
 	"image"
+	"image/color"
 	"image/draw"
 	"io"
 	"strings"
@@ -31,7 +32,8 @@ import (
 var _ gift.Filter = (*textFilter)(nil)
 
 type textFilter struct {
-	text, color string
+	text        string
+	color       color.Color
 	x, y        int
 	size        float64
 	linespacing int
@@ -39,11 +41,6 @@ type textFilter struct {
 }
 
 func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) {
-	color, err := hexStringToColor(f.color)
-	if err != nil {
-		panic(err)
-	}
-
 	// Load and parse font
 	ttf := goregular.TTF
 	if f.fontSource != nil {
@@ -74,7 +71,7 @@ func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options)
 
 	d := font.Drawer{
 		Dst:  dst,
-		Src:  image.NewUniform(color),
+		Src:  image.NewUniform(f.color),
 		Face: face,
 	}
 

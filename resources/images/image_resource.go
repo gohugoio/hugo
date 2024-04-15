@@ -63,7 +63,7 @@ type ImageResourceOps interface {
 
 	// Colors returns a slice of the most dominant colors in an image
 	// using a simple histogram method.
-	Colors() ([]string, error)
+	Colors() ([]Color, error)
 
 	// For internal use.
 	DecodeImage() (image.Image, error)
