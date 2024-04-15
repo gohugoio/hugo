@@ -85,9 +85,16 @@ func TestImageTransformBasic(t *testing.T) {
 		assertWidthHeight(c, img, w, h)
 	}
 
-	colors, err := image.Colors()
+	gotColors, err := image.Colors()
 	c.Assert(err, qt.IsNil)
-	c.Assert(colors, qt.DeepEquals, []string{"#2d2f33", "#a49e93", "#d39e59", "#a76936", "#737a84", "#7c838b"})
+	expectedColors := images.HexStringsToColors("#2d2f33", "#a49e93", "#d39e59", "#a76936", "#737a84", "#7c838b")
+	c.Assert(len(gotColors), qt.Equals, len(expectedColors))
+	for i := range gotColors {
+		c1, c2 := gotColors[i], expectedColors[i]
+		c.Assert(c1.ColorHex(), qt.Equals, c2.ColorHex())
+		c.Assert(c1.ColorGo(), qt.DeepEquals, c2.ColorGo())
+		c.Assert(c1.Luminance(), qt.Equals, c2.Luminance())
+	}
 
 	c.Assert(image.RelPermalink(), qt.Equals, "/a/sunset.jpg")
 	c.Assert(image.ResourceType(), qt.Equals, "image")
@@ -443,6 +450,24 @@ func TestImageExif(t *testing.T) {
 	image = fetchResourceForSpec(spec, c, "sunset.jpg").(images.ImageResource)
 	// This will read from file cache.
 	getAndCheckExif(c, image)
+}
+
+func TestImageColorsLuminance(t *testing.T) {
+	c := qt.New(t)
+
+	_, image := fetchSunset(c)
+	c.Assert(image, qt.Not(qt.IsNil))
+	colors, err := image.Colors()
+	c.Assert(err, qt.IsNil)
+	c.Assert(len(colors), qt.Equals, 6)
+	var prevLuminance float64
+	for i, color := range colors {
+		luminance := color.Luminance()
+		c.Assert(err, qt.IsNil)
+		c.Assert(luminance > 0, qt.IsTrue)
+		c.Assert(luminance, qt.Not(qt.Equals), prevLuminance, qt.Commentf("i=%d", i))
+		prevLuminance = luminance
+	}
 }
 
 func BenchmarkImageExif(b *testing.B) {

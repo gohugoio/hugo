@@ -263,7 +263,7 @@ func (r *resourceAdapter) Exif() *exif.ExifInfo {
 	return r.getImageOps().Exif()
 }
 
-func (r *resourceAdapter) Colors() ([]string, error) {
+func (r *resourceAdapter) Colors() ([]images.Color, error) {
 	return r.getImageOps().Colors()
 }
 

@@ -67,7 +67,7 @@ type imageResource struct {
 	meta        *imageMeta
 
 	dominantColorInit sync.Once
-	dominantColors    []string
+	dominantColors    []images.Color
 
 	baseResource
 }
@@ -143,7 +143,7 @@ func (i *imageResource) getExif() *exif.ExifInfo {
 
 // Colors returns a slice of the most dominant colors in an image
 // using a simple histogram method.
-func (i *imageResource) Colors() ([]string, error) {
+func (i *imageResource) Colors() ([]images.Color, error) {
 	var err error
 	i.dominantColorInit.Do(func() {
 		var img image.Image
@@ -153,7 +153,7 @@ func (i *imageResource) Colors() ([]string, error) {
 		}
 		colors := color_extractor.ExtractColors(img)
 		for _, c := range colors {
-			i.dominantColors = append(i.dominantColors, images.ColorToHexString(c))
+			i.dominantColors = append(i.dominantColors, images.ColorGoToColor(c))
 		}
 	})
 	return i.dominantColors, nil

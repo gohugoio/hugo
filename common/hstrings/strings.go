@@ -123,6 +123,20 @@ func InSlicEqualFold(arr []string, el string) bool {
 	return false
 }
 
+// ToString converts the given value to a string.
+// Note that this is a more strict version compared to cast.ToString,
+// as it will not try to convert numeric values to strings,
+// but only accept strings or fmt.Stringer.
+func ToString(v any) (string, bool) {
+	switch vv := v.(type) {
+	case string:
+		return vv, true
+	case fmt.Stringer:
+		return vv.String(), true
+	}
+	return "", false
+}
+
 type Tuple struct {
 	First  string
 	Second string

@@ -128,7 +128,7 @@ func (e *errorResource) Exif() *exif.ExifInfo {
 	panic(e.ResourceError)
 }
 
-func (e *errorResource) Colors() ([]string, error) {
+func (e *errorResource) Colors() ([]images.Color, error) {
 	panic(e.ResourceError)
 }
 
