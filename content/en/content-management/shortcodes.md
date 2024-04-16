@@ -380,7 +380,7 @@ Rendered:
 {{< vimeo 55073825 >}}
 
 {{% note %}}
-If you want to further customize the visual styling of the YouTube or Vimeo output, add a `class` parameter when calling the shortcode. The new `class` will be added to the `<div>` that wraps the `<iframe>` *and* will remove the inline styles. Note that you will need to call the `id` as a named parameter as well. You can also give the vimeo video a descriptive title with `title`.
+If you want to further customize the visual styling, add a `class` parameter when calling the shortcode. The new `class` will be added to the `<div>` that wraps the `<iframe>` *and* will remove the inline styles. Note that you will need to call the `id` as a named parameter as well. You can also give the vimeo video a descriptive title with `title`.
 
 ```go
 {{</* vimeo id="146022717" class="my-vimeo-wrapper-class" title="My vimeo video" */>}}
@@ -390,50 +390,67 @@ If you want to further customize the visual styling of the YouTube or Vimeo outp
 ### youtube
 
 {{% note %}}
-To override Hugo's embedded `vimeo` shortcode, copy the [source code] to a file with the same name in the layouts/shortcodes directory.
+To override Hugo's embedded `youtube` shortcode, copy the [source code] to a file with the same name in the layouts/shortcodes directory.
 
 [source code]: {{% eturl youtube %}}
 {{% /note %}}
 
-The `youtube` shortcode embeds a responsive video player for [YouTube videos]. Only the ID of the video is required, e.g.:
+To display a YouTube video with this URL:
 
-```txt
-https://www.youtube.com/watch?v=w7Ft2ymGmfc
+```text
+https://www.youtube.com/watch?v=0RKpf3rK57I
 ```
 
-#### Example `youtube` input
+Include this in your Markdown:
 
-Copy the YouTube video ID that follows `v=` in the video's URL and pass it to the `youtube` shortcode:
+```text
+{{</* youtube 0RKpf3rK57I */>}}
+```
 
-{{< code file=example-youtube-input.md >}}
-{{</* youtube w7Ft2ymGmfc */>}}
-{{< /code >}}
+Rendered:
 
-Furthermore, you can automatically start playback of the embedded video by setting the `autoplay` parameter to `true`. Remember that you can't mix named and unnamed parameters, so you'll need to assign the yet unnamed video ID to the parameter `id`:
+{{< youtube 0RKpf3rK57I >}}
 
-{{< code file=example-youtube-input-with-autoplay.md >}}
-{{</* youtube id="w7Ft2ymGmfc" autoplay="true" */>}}
-{{< /code >}}
+The youtube shortcode accepts these named parameters:
 
-For [accessibility reasons](https://dequeuniversity.com/tips/provide-iframe-titles), it's best to provide a title for your YouTube video. You  can do this using the shortcode by providing a `title` parameter. If no title is provided, a default of "YouTube Video" will be used.
+id
+: (`string`) The video `id`. Optional if the `id` is provided as a positional argument as shown in the example above.
 
-{{< code file=example-youtube-input-with-title.md >}}
-{{</* youtube id="w7Ft2ymGmfc" title="A New Hugo Site in Under Two Minutes" */>}}
-{{< /code >}}
+allowFullScreen {{< new-in 0.125.0 >}}
+: (`bool`) Whether the `iframe` element can activate full screen mode. Default is `true`.
 
-#### Example `youtube` output
+autoplay {{< new-in 0.125.0 >}}
+: (`bool`) Whether to automatically play the video. Forces `mute` to `true`. Default is `false`.
 
-Using the preceding `youtube` example, the following HTML will be added to your rendered website's markup:
+class
+: (`string`) The `class` attribute of the wrapping `div` element. When specified, removes the `style` attributes from the `iframe` element and its wrapping `div` element.
 
-{{< code file=example-youtube-output.html >}}
-{{< youtube id="w7Ft2ymGmfc" autoplay="true" >}}
-{{< /code >}}
+controls {{< new-in 0.125.0 >}}
+: (`bool`) Whether to display the video controls. Default is `true`.
 
-#### Example `youtube` display
+end {{< new-in 0.125.0 >}}
+: (`int`) The time, measured in seconds from the start of the video, when the player should stop playing the video.
 
-Using the preceding `youtube` example (without `autoplay="true"`), the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your style sheets and surrounding markup. The video is also include in the [Quick Start of the Hugo documentation][quickstart].
+loading {{< new-in 0.125.0 >}}
+: (`string`) The loading attribute of the `iframe` element, either `eager` or `lazy`. Default is `eager`.
 
-{{< youtube w7Ft2ymGmfc >}}
+loop {{< new-in 0.125.0 >}}
+: (`bool`) Whether to indefinitely repeat the video. Ignores the `start` and `end` arguments after the first play.  Default is `false`.
+
+mute {{< new-in 0.125.0 >}}
+: (`bool`) Whether to mute the video. Always `true` when `autoplay` is `true`. Default is `false`.
+
+start {{< new-in 0.125.0 >}}
+: (`int`) The time, measured in seconds from the start of the video, when the player should start playing the video.
+
+title
+: (`string`) The `title` attribute of the `iframe` element. Defaults to the title returned by the YouTube oEmbed API.
+
+Example using some of the above:
+
+```text
+{{</* youtube id=0RKpf3rK57I start=30 end=60 loading=lazy */>}}
+```
 
 ## Privacy configuration
 
