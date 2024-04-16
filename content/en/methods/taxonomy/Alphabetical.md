@@ -34,7 +34,7 @@ To reverse the sort order:
 To inspect the data structure:
 
 ```go-html-template
-<pre>{{ jsonify (dict "indent" "  ") $taxonomyObject.Alphabetical }}</pre>
+<pre>{{ debug.Dump $taxonomyObject.Alphabetical }}</pre>
 ```
 
 {{% include "methods/taxonomy/_common/ordered-taxonomy-element-methods.md" %}}

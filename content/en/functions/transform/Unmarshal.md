@@ -182,7 +182,7 @@ Get the remote data:
 Inspect the data structure:
 
 ```go-html-template
-<pre>{{ jsonify (dict "indent" "  ") $data }}</pre>
+<pre>{{ debug.Dump $data }}</pre>
 ```
 
 List the book titles:
@@ -245,7 +245,7 @@ Let's add a `lang` attribute to the `title` nodes of our RSS feed, and a namespa
 After retrieving the remote data, inspect the data structure:
 
 ```go-html-template
-<pre>{{ jsonify (dict "indent" "  ") $data }}</pre>
+<pre>{{ debug.Dump $data }}</pre>
 ```
 
 Each item node looks like this:

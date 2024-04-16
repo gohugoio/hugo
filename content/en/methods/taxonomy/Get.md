@@ -43,7 +43,7 @@ You could also use the [`index`] function, but the syntax is more verbose:
 To inspect the data structure:
 
 ```go-html-template
-<pre>{{ jsonify (dict "indent" "  ") $weightedPages }}</pre>
+<pre>{{ debug.Dump $weightedPages }}</pre>
 ```
 
 ## Example

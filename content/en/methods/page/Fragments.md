@@ -31,21 +31,21 @@ Headings
 : (`map`) A nested map of all headings on the page. Each map contains the following keys: `ID`, `Level`, `Title` and `Headings`. To inspect the data structure:
 
 ```go-html-template
-<pre>{{ .Fragments.Headings | jsonify (dict "indent" "  ") }}</pre>
+<pre>{{ debug.Dump .Fragments.Headings }}</pre>
 ```
 
 HeadingsMap
 : (`slice`) A slice of maps of all headings on the page, with first-level keys for each heading. Each map contains the following keys: `ID`, `Level`, `Title` and `Headings`. To inspect the data structure:
 
 ```go-html-template
-<pre>{{ .Fragments.HeadingsMap | jsonify (dict "indent" "  ") }}</pre>
+<pre>{{ debug.Dump .Fragments.HeadingsMap }}</pre>
 ```
 
 Identifiers
 : (`slice`) A slice containing the `id` of each heading on the page. To inspect the data structure:
 
 ```go-html-template
-<pre>{{ .Fragments.Identifiers | jsonify (dict "indent" "  ") }}</pre>
+<pre>{{ debug.Dump .Fragments.Identifiers }}</pre>
 ```
 
 Identifiers.Contains ID
