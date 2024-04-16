@@ -2,7 +2,7 @@
 # Do not remove front matter.
 ---
 
-## PageInner
+## PageInner details
 
 {{< new-in 0.125.0 >}}
 

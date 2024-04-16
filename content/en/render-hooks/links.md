@@ -44,7 +44,7 @@ Link render hook templates receive the following context:
 
 {{< new-in 0.125.0 >}}
 
-(`page`) A reference to a page nested via the [`RenderShortcodes`] method. [See details](#pageinner).
+(`page`) A reference to a page nested via the [`RenderShortcodes`] method. [See details](#pageinner-details).
 
 [`RenderShortcodes`]: /methods/page/rendershortcodes
 
