@@ -24,7 +24,7 @@ Use `strings.Diff` to compare two strings and render a highlighted diff:
 <p>The product of 7 and 6 is 13.</p>
 `}}
 
-{{ $diff := strings.Diff "want" $want "got" $got" }}
+{{ $diff := strings.Diff "want" $want "got" $got }}
 {{ transform.Highlight $diff "diff" }}
 ```
 
