@@ -4017,6 +4017,11 @@ tpl:
         - s
         Description: CountWords returns the approximate word count in s.
         Examples: []
+      Diff:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       FindRE:
         Aliases:
         - findRE
