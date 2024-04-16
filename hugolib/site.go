@@ -424,7 +424,35 @@ func (h *HugoSites) fileEventsFilter(events []fsnotify.Event) []fsnotify.Event {
 		events[n] = ev
 		n++
 	}
-	return events[:n]
+	events = events[:n]
+
+	eventOrdinal := func(e fsnotify.Event) int {
+		// Pull the structural changes to the top.
+		if e.Op.Has(fsnotify.Create) {
+			return 1
+		}
+		if e.Op.Has(fsnotify.Remove) {
+			return 2
+		}
+		if e.Op.Has(fsnotify.Rename) {
+			return 3
+		}
+		if e.Op.Has(fsnotify.Write) {
+			return 4
+		}
+		return 5
+	}
+
+	sort.Slice(events, func(i, j int) bool {
+		// First sort by event type.
+		if eventOrdinal(events[i]) != eventOrdinal(events[j]) {
+			return eventOrdinal(events[i]) < eventOrdinal(events[j])
+		}
+		// Then sort by name.
+		return events[i].Name < events[j].Name
+	})
+
+	return events
 }
 
 type fileEventInfo struct {
@@ -494,41 +522,17 @@ func (h *HugoSites) fileEventsApplyInfo(events []fsnotify.Event) []fileEventInfo
 	return infos
 }
 
-func (h *HugoSites) fileEventsTranslate(events []fsnotify.Event) []fsnotify.Event {
-	eventMap := make(map[string][]fsnotify.Event)
-
-	// We often get a Remove etc. followed by a Create, a Create followed by a Write.
-	// Remove the superfluous events to make the update logic simpler.
-	for _, ev := range events {
-		eventMap[ev.Name] = append(eventMap[ev.Name], ev)
-	}
-
+func (h *HugoSites) fileEventsTrim(events []fsnotify.Event) []fsnotify.Event {
+	seen := make(map[string]bool)
 	n := 0
 	for _, ev := range events {
-		mapped := eventMap[ev.Name]
-
-		// Keep one
-		found := false
-		var kept fsnotify.Event
-		for i, ev2 := range mapped {
-			if i == 0 {
-				kept = ev2
-			}
-
-			if ev2.Op&fsnotify.Write == fsnotify.Write {
-				kept = ev2
-				found = true
-			}
-
-			if !found && ev2.Op&fsnotify.Create == fsnotify.Create {
-				kept = ev2
-			}
+		if seen[ev.Name] {
+			continue
 		}
-
-		events[n] = kept
+		seen[ev.Name] = true
+		events[n] = ev
 		n++
 	}
-
 	return events
 }
 

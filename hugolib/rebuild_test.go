@@ -1553,3 +1553,27 @@ Single: {{ .Title }}|{{ .Content }}|
 	b.AssertRenderCountPage(1)
 	b.AssertRenderCountContent(1)
 }
+
+func TestRebuildEditSingleListChangeUbuntuIssue12362(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['rss','section','sitemap','taxonomy','term']
+disableLiveReload = true
+-- layouts/_default/list.html --
+{{ range .Pages }}{{ .Title }}|{{ end }}
+-- layouts/_default/single.html --
+{{ .Title }}
+-- content/p1.md --
+---
+title: p1
+---
+`
+
+	b := TestRunning(t, files)
+	b.AssertFileContent("public/index.html", "p1|")
+
+	b.AddFiles("content/p2.md", "---\ntitle: p2\n---").Build()
+	b.AssertFileContent("public/index.html", "p1|p2|") // this test passes, which doesn't match reality
+}
