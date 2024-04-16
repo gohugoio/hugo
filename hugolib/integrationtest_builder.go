@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"sort"
 	"strings"
 	"sync"
@@ -685,8 +686,17 @@ func (s *IntegrationTestBuilder) build(cfg BuildCfg) error {
 	return nil
 }
 
+// We simulate the fsnotify events.
+// See the test output in https://github.com/bep/fsnotifyeventlister for what events gets produced
+// by the different OSes.
 func (s *IntegrationTestBuilder) changeEvents() []fsnotify.Event {
-	var events []fsnotify.Event
+	var (
+		events    []fsnotify.Event
+		isLinux   = runtime.GOOS == "linux"
+		isMacOs   = runtime.GOOS == "darwin"
+		isWindows = runtime.GOOS == "windows"
+	)
+
 	for _, v := range s.removedFiles {
 		events = append(events, fsnotify.Event{
 			Name: v,
@@ -713,12 +723,32 @@ func (s *IntegrationTestBuilder) changeEvents() []fsnotify.Event {
 			Name: v,
 			Op:   fsnotify.Write,
 		})
+		if isLinux || isWindows {
+			// Duplicate write events, for some reason.
+			events = append(events, fsnotify.Event{
+				Name: v,
+				Op:   fsnotify.Write,
+			})
+		}
+		if isMacOs {
+			events = append(events, fsnotify.Event{
+				Name: v,
+				Op:   fsnotify.Chmod,
+			})
+		}
 	}
 	for _, v := range s.createdFiles {
 		events = append(events, fsnotify.Event{
 			Name: v,
 			Op:   fsnotify.Create,
 		})
+		if isLinux || isWindows {
+			events = append(events, fsnotify.Event{
+				Name: v,
+				Op:   fsnotify.Write,
+			})
+		}
+
 	}
 
 	// Shuffle events.

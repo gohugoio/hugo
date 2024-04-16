@@ -610,7 +610,7 @@ func (h *HugoSites) processPartial(ctx context.Context, l logg.LevelLogger, conf
 
 	// For a list of events for the different OSes, see the test output in https://github.com/bep/fsnotifyeventlister/.
 	events = h.fileEventsFilter(events)
-	events = h.fileEventsTranslate(events)
+	events = h.fileEventsTrim(events)
 	eventInfos := h.fileEventsApplyInfo(events)
 
 	logger := h.Log
