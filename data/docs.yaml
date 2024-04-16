@@ -1557,10 +1557,8 @@ config:
     disqus:
       disable: false
     googleAnalytics:
-      anonymizeIP: false
       disable: false
       respectDoNotTrack: false
-      useSessionStorage: false
     instagram:
       disable: false
       simple: false
@@ -1651,6 +1649,7 @@ config:
       disableInlineCSS: false
   sitemap:
     changeFreq: ""
+    disable: false
     filename: sitemap.xml
     priority: -1
   social: null
@@ -2799,8 +2798,8 @@ tpl:
             {{ $m.Set "Hugo" "Rocks!" }}
             {{ $m.Values | debug.Dump | safeHTML }}
           - |-
-            map[string]interface {}{
-              "Hugo": "Rocks!",
+            {
+              "Hugo": "Rocks!"
             }
       TestDeprecationErr:
         Aliases: null

@@ -76,7 +76,15 @@ Code block render hook templates receive the following [context]:
 
 ###### Page
 
-(`page`) A reference to the page containing the code block.
+(`page`) A reference to the current page.
+
+###### PageInner
+
+{{< new-in 0.125.0 >}}
+
+(`page`) A reference to a page nested via the [`RenderShortcodes`] method. [See details](#pageinner).
+
+[`RenderShortcodes`]: /methods/page/rendershortcodes
 
 ###### Position
 
@@ -140,3 +148,5 @@ Hugo includes an [embedded code block render hook] to render [GoAT diagrams].
 
 [embedded code block render hook]: {{% eturl render-codeblock-goat %}}
 [GoAT diagrams]: /content-management/diagrams/#goat-diagrams-ascii
+
+{{% include "/render-hooks/_common/pageinner.md" %}}

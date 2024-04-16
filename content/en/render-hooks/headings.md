@@ -37,7 +37,15 @@ title = true
 
 ###### Page
 
-(`page`) A reference to the page containing the heading.
+(`page`) A reference to the current page.
+
+###### PageInner
+
+{{< new-in 0.125.0 >}}
+
+(`page`) A reference to a page nested via the [`RenderShortcodes`] method. [See details](#pageinner).
+
+[`RenderShortcodes`]: /methods/page/rendershortcodes
 
 ###### PlainText
 
@@ -67,3 +75,5 @@ To add an anchor link to the right of each heading:
   <a href="#{{ .Anchor }}">#</a>
 </h{{ .Level }}>
 {{< /code >}}
+
+{{% include "/render-hooks/_common/pageinner.md" %}}

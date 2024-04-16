@@ -22,11 +22,12 @@ Use this method in shortcode templates to compose a page from multiple content f
 For example:
 
 {{< code file=layouts/shortcodes/include.html >}}
-{{ $p := site.GetPage (.Get 0) }}
-{{ $p.RenderShortcodes }}
+{{ with site.GetPage (.Get 0) }}
+  {{ .RenderShortcodes }}
+{{ end }}
 {{< /code >}}
 
-Then in your Markdown:
+Then call the shortcode in your Markdown:
 
 {{< code file=content/about.md lang=md >}}
 {{%/* include "/snippets/services.md" */%}}
