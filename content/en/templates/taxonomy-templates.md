@@ -36,24 +36,8 @@ See [Template Lookup](/templates/lookup-order/).
 
 ### Taxonomy methods
 
-A Taxonomy is a `map[string]WeightedPages`.
+{{< list-pages-in-section path=/methods/taxonomy/ >}}
 
-.Get TERM
-: Returns the WeightedPages for a given term. For example: ;
-`site.Taxonomies.tags.Get "tag-a"`.
-
-.Count TERM
-: The number of pieces of content assigned to the given term. For example: \
-`site.Taxonomies.tags.Count "tag-a"`.
-
-.Alphabetical
-: Returns an OrderedTaxonomy (slice) ordered by term.
-
-.ByCount
-: Returns an OrderedTaxonomy (slice) ordered by number of entries.
-
-.Reverse
-: Returns an OrderedTaxonomy (slice) in reverse order. Must be used with an OrderedTaxonomy.
 
 ### OrderedTaxonomy
 
@@ -273,27 +257,36 @@ The following example displays all terms in a site's tags taxonomy:
 This example will list all taxonomies and their terms, as well as all the content assigned to each of the terms.
 
 {{< code file=layouts/partials/all-taxonomies.html >}}
-<ul>
-  {{ range $taxonomy, $terms := site.Taxonomies }}
-    <li>
-      {{ with site.GetPage $taxonomy }}
-        <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
-      {{ end }}
-      <ul>
-        {{ range $term, $weightedPages := $terms }}
+{{ with .Site.Taxonomies }}
+  {{ $numberOfTerms := 0 }}
+  {{ range $taxonomy, $terms := . }}
+    {{ $numberOfTerms = len . | add $numberOfTerms }}
+  {{ end }}
+
+  {{ if gt $numberOfTerms 0 }}
+    <ul>
+      {{ range $taxonomy, $terms := . }}
+        {{ with $terms }}
           <li>
             <a href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }}</a>
             <ul>
-              {{ range $weightedPages }}
-                <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+              {{ range $term, $weightedPages := . }}
+                <li>
+                  <a href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }}</a>
+                  <ul>
+                    {{ range $weightedPages }}
+                      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+                    {{ end }}
+                  </ul>
+                </li>
               {{ end }}
             </ul>
           </li>
         {{ end }}
-      </ul>
-    </li>
+      {{ end }}
+    </ul>
   {{ end }}
-</ul>
+{{ end }}
 {{< /code >}}
 
 ## `.Site.GetPage` for taxonomies
