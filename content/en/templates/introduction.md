@@ -105,7 +105,7 @@ Within a `range` or `with` block you can access the context passed into the temp
 Hugo renders this to:
 
 ```html
-<p>My Page Title - foo</h2>
+<p>My Page Title - foo</p>
 ```
 
 {{% note %}}
