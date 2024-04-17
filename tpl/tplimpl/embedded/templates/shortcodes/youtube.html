@@ -22,6 +22,7 @@ Renders an embedded YouTube video.
 */}}
 
 {{- $pc := .Page.Site.Config.Privacy.YouTube }}
+{{- $remoteErrID := "err-youtube-remote" }}
 {{- if not $pc.Disable }}
   {{- with $id := or (.Get "id") (.Get 0) }}
 
@@ -31,12 +32,12 @@ Renders an embedded YouTube video.
     {{- $data := dict }}
     {{- with resources.GetRemote $url }}
       {{- with .Err }}
-        {{- errorf "The %q shortcode was unable to get remote resource %q. %s. See %s" $.Name $url . $.Position }}
+        {{- erroridf $remoteErrID "The %q shortcode was unable to get remote resource %q. %s. See %s" $.Name $url . $.Position }}
       {{- else }}
         {{- $data = .Content | transform.Unmarshal }}
       {{- end }}
     {{- else }}
-      {{- errorf "The %q shortcode was unable to get remote resource %q. See %s" $.Name $url $.Position }}
+      {{- erroridf $remoteErrID "The %q shortcode was unable to get remote resource %q. See %s" $.Name $url $.Position }}
     {{- end }}
 
     {{/* Set defaults. */}}
