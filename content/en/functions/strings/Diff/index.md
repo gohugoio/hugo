@@ -14,12 +14,12 @@ action:
 Use `strings.Diff` to compare two strings and render a highlighted diff:
 
 ```go-html-template
-{{ $want = `
+{{ $want := `
 <p>The product of 6 and 7 is 42.</p>
 <p>The product of 7 and 6 is 42.</p>
 `}}
 
-{{ $got = `
+{{ $got := `
 <p>The product of 6 and 7 is 42.</p>
 <p>The product of 7 and 6 is 13.</p>
 `}}
