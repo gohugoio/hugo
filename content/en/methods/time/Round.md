@@ -6,6 +6,8 @@ keywords: []
 action:
   related:
     - functions/time/AsTime
+    - functions/time/ParseDuration
+    - methods/time/Truncate
   returnType: time.Time
   signatures: [TIME.Round DURATION]
 ---
