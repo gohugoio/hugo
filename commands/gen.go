@@ -45,9 +45,10 @@ func newGenCommand() *genCommand {
 		genmandir string
 
 		// Chroma flags.
-		style          string
-		highlightStyle string
-		linesStyle     string
+		style                  string
+		highlightStyle         string
+		lineNumbersInlineStyle string
+		lineNumbersTableStyle  string
 	)
 
 	newChromaStyles := func() simplecobra.Commander {
@@ -63,8 +64,11 @@ See https://xyproto.github.io/splash/docs/all.html for a preview of the availabl
 				if highlightStyle != "" {
 					builder.Add(chroma.LineHighlight, highlightStyle)
 				}
-				if linesStyle != "" {
-					builder.Add(chroma.LineNumbers, linesStyle)
+				if lineNumbersInlineStyle != "" {
+					builder.Add(chroma.LineNumbers, lineNumbersInlineStyle)
+				}
+				if lineNumbersTableStyle != "" {
+					builder.Add(chroma.LineNumbersTable, lineNumbersTableStyle)
 				}
 				style, err := builder.Build()
 				if err != nil {
@@ -80,8 +84,10 @@ See https://xyproto.github.io/splash/docs/all.html for a preview of the availabl
 				_ = cmd.RegisterFlagCompletionFunc("style", cobra.NoFileCompletions)
 				cmd.PersistentFlags().StringVar(&highlightStyle, "highlightStyle", "", `foreground and background colors for highlighted lines, e.g. --highlightStyle "#fff000 bg:#000fff"`)
 				_ = cmd.RegisterFlagCompletionFunc("highlightStyle", cobra.NoFileCompletions)
-				cmd.PersistentFlags().StringVar(&linesStyle, "linesStyle", "", `foreground and background colors for inline line numbers, e.g. --linesStyle "#fff000 bg:#000fff"`)
-				_ = cmd.RegisterFlagCompletionFunc("linesStyle", cobra.NoFileCompletions)
+				cmd.PersistentFlags().StringVar(&lineNumbersInlineStyle, "lineNumbersInlineStyle", "", `foreground and background colors for inline line numbers, e.g. --lineNumbersInlineStyle "#fff000 bg:#000fff"`)
+				_ = cmd.RegisterFlagCompletionFunc("lineNumbersInlineStyle", cobra.NoFileCompletions)
+				cmd.PersistentFlags().StringVar(&lineNumbersTableStyle, "lineNumbersTableStyle", "", `foreground and background colors for table line numbers, e.g. --lineNumbersTableStyle "#fff000 bg:#000fff"`)
+				_ = cmd.RegisterFlagCompletionFunc("lineNumbersTableStyle", cobra.NoFileCompletions)
 			},
 		}
 	}
