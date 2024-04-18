@@ -78,9 +78,9 @@ See https://xyproto.github.io/splash/docs/all.html for a preview of the availabl
 				cmd.ValidArgsFunction = cobra.NoFileCompletions
 				cmd.PersistentFlags().StringVar(&style, "style", "friendly", "highlighter style (see https://xyproto.github.io/splash/docs/)")
 				_ = cmd.RegisterFlagCompletionFunc("style", cobra.NoFileCompletions)
-				cmd.PersistentFlags().StringVar(&highlightStyle, "highlightStyle", "", "style used for highlighting lines (see https://github.com/alecthomas/chroma)")
+				cmd.PersistentFlags().StringVar(&highlightStyle, "highlightStyle", "", `foreground and background colors for highlighted lines, e.g. --highlightStyle "#fff000 bg:#000fff"`)
 				_ = cmd.RegisterFlagCompletionFunc("highlightStyle", cobra.NoFileCompletions)
-				cmd.PersistentFlags().StringVar(&linesStyle, "linesStyle", "", "style used for line numbers (see https://github.com/alecthomas/chroma)")
+				cmd.PersistentFlags().StringVar(&linesStyle, "linesStyle", "", `foreground and background colors for inline line numbers, e.g. --linesStyle "#fff000 bg:#000fff"`)
 				_ = cmd.RegisterFlagCompletionFunc("linesStyle", cobra.NoFileCompletions)
 			},
 		}
