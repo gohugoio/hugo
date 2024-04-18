@@ -32,6 +32,7 @@ weight: 60
 [U](#unmarshal)&nbsp;
 [V](#variable)&nbsp;
 [W](#walk)&nbsp;
+[Z](#zero-time)&nbsp;
 
 ###### action
 
@@ -446,3 +447,7 @@ Used to position an element within a collection sorted by weight. Assign weights
 ###### weighted page
 
 Contained within a [taxonomy object](#taxonomy-object), a weighted page is a [map](#map) with two elements: a `Page` object, and its [taxonomic weight](#taxonomic-weight) as defined in front matter. Access the elements using the `Page` and `Weight` keys.
+
+###### zero time
+
+The _zero time_ is January 1, 0001, 00:00:00 UTC. Formatted per [RFC3339](https://www.rfc-editor.org/rfc/rfc3339) the _zero time_ is 0001-01-01T00:00:00-00:00.
