@@ -1,6 +1,6 @@
 ---
 title: strings.Diff
-description: Returns an anchored diff of the two texts old and new in the unified diff format. If old and new are identical, returns an empty string.
+description: Returns an anchored diff of the two texts OLD and NEW in the unified diff format. If OLD and NEW are identical, returns an empty string.
 categories: []
 keywords: []
 action:
