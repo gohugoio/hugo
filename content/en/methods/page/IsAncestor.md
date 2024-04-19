@@ -1,6 +1,6 @@
 ---
 title: IsAncestor
-description: Reports whether PAGE1 in an ancestor of PAGE2.
+description: Reports whether PAGE1 is an ancestor of PAGE2.
 categories: []
 keywords: []
 action:
