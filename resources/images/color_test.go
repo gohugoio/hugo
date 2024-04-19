@@ -18,6 +18,7 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/htesting/hqt"
 )
 
 func TestHexStringToColor(t *testing.T) {
@@ -119,8 +120,8 @@ func TestReplaceColorInPalette(t *testing.T) {
 
 func TestColorLuminance(t *testing.T) {
 	c := qt.New(t)
-	c.Assert(hexStringToColor("#000000").Luminance(), qt.Equals, 0.0)
-	c.Assert(hexStringToColor("#768a9a").Luminance(), qt.Equals, 0.24361603589088263)
-	c.Assert(hexStringToColor("#d5bc9f").Luminance(), qt.Equals, 0.5261577672685374)
-	c.Assert(hexStringToColor("#ffffff").Luminance(), qt.Equals, 1.0)
+	c.Assert(hexStringToColor("#000000").Luminance(), hqt.IsSameFloat64, 0.0)
+	c.Assert(hexStringToColor("#768a9a").Luminance(), hqt.IsSameFloat64, 0.24361603589088263)
+	c.Assert(hexStringToColor("#d5bc9f").Luminance(), hqt.IsSameFloat64, 0.5261577672685374)
+	c.Assert(hexStringToColor("#ffffff").Luminance(), hqt.IsSameFloat64, 1.0)
 }
