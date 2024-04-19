@@ -1,6 +1,6 @@
 ---
 title: IsDescendant
-description: Reports whether PAGE1 in a descendant of PAGE2.
+description: Reports whether PAGE1 is a descendant of PAGE2.
 categories: []
 keywords: []
 action:
