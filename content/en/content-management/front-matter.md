@@ -282,6 +282,21 @@ Access these values from a template using the [`Params`] or [`Param`] method on 
 [`param`]: /methods/page/param/
 [`params`]: /methods/page/params/
 
+Hugo provides [embedded templates] to optionally insert meta data within the `head` element of your rendered pages. These embedded templates expect the following front matter parameters:
+
+Parameter|Data type|Used by these embedded templates
+:--|:--|:--
+`audio`|`[]string`|[`opengraph.html`]
+`images`|`[]string`|[`opengraph.html`], [`schema.html`], [`twitter_cards.html`]
+`videos`|`[]string`|[`opengraph.html`]
+
+The embedded templates will skip a parameter if not provided in front matter, but will throw an error if the data type is unexpected. 
+
+[`opengraph.html`]: {{% eturl opengraph %}}
+[`schema.html`]: {{% eturl schema %}}
+[`twitter_cards.html`]: {{% eturl twitter_cards %}}
+[embedded templates]: /templates/embedded/
+
 ## Taxonomies
 
 Classify content by adding taxonomy terms to front matter. For example, with this site configuration:
