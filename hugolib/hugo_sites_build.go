@@ -23,6 +23,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/bep/logg"
@@ -46,6 +47,7 @@ import (
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/page/siteidentities"
 	"github.com/gohugoio/hugo/resources/postpub"
+	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/spf13/afero"
 
@@ -758,15 +760,45 @@ func (h *HugoSites) processPartial(ctx context.Context, l logg.LevelLogger, conf
 				}
 			}
 		case files.ComponentFolderAssets:
-			logger.Println("Asset changed", pathInfo.Path())
+			p := pathInfo.Path()
+			logger.Println("Asset changed", p)
+
+			var matches []any
+			var mu sync.Mutex
+
+			h.MemCache.ClearMatching(
+				func(k string, pm dynacache.PartitionManager) bool {
+					// Avoid going through everything.
+					return strings.HasPrefix(k, "/res")
+				},
+				func(k, v any) bool {
+					if strings.Contains(k.(string), p) {
+						mu.Lock()
+						defer mu.Unlock()
+						switch vv := v.(type) {
+						case resource.Resources:
+							// GetMatch/Match.
+							for _, r := range vv {
+								matches = append(matches, r)
+							}
+							return true
+						default:
+							matches = append(matches, vv)
+							return true
+
+						}
+					}
+					return false
+				})
 
 			var hasID bool
-			r, _ := h.ResourceSpec.ResourceCache.Get(context.Background(), dynacache.CleanKey(pathInfo.Base()))
-			identity.WalkIdentitiesShallow(r, func(level int, rid identity.Identity) bool {
-				hasID = true
-				changes = append(changes, rid)
-				return false
-			})
+			for _, r := range matches {
+				identity.WalkIdentitiesShallow(r, func(level int, rid identity.Identity) bool {
+					hasID = true
+					changes = append(changes, rid)
+					return false
+				})
+			}
 			if !hasID {
 				changes = append(changes, pathInfo)
 			}
