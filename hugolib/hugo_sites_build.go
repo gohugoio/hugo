@@ -951,12 +951,10 @@ func (h *HugoSites) processPartial(ctx context.Context, l logg.LevelLogger, conf
 		}
 	}
 
-	h.logServerAddresses()
-
 	return nil
 }
 
-func (h *HugoSites) logServerAddresses() {
+func (h *HugoSites) LogServerAddresses() {
 	if h.hugoInfo.IsMultihost() {
 		for _, s := range h.Sites {
 			h.Log.Printf("Web Server is available at %s (bind address %s) %s\n", s.conf.C.BaseURL, s.conf.C.ServerInterface, s.Language().Lang)

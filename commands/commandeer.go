@@ -327,11 +327,11 @@ func (r *rootCommand) Name() string {
 }
 
 func (r *rootCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args []string) error {
-	if !r.buildWatch {
-		defer r.timeTrack(time.Now(), "Total")
-	}
-
 	b := newHugoBuilder(r, nil)
+
+	if !r.buildWatch {
+		defer b.postBuild("Total", time.Now())
+	}
 
 	if err := b.loadConfig(cd, false); err != nil {
 		return err

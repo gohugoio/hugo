@@ -75,9 +75,14 @@ type hugoBuilder struct {
 	errState hugoBuilderErrState
 }
 
+var errConfigNotSet = errors.New("config not set")
+
 func (c *hugoBuilder) withConfE(fn func(conf *commonConfig) error) error {
 	c.confmu.Lock()
 	defer c.confmu.Unlock()
+	if c.conf == nil {
+		return errConfigNotSet
+	}
 	return fn(c.conf)
 }
 
@@ -585,7 +590,7 @@ func (c *hugoBuilder) fullRebuild(changeType string) {
 			time.Sleep(2 * time.Second)
 		}()
 
-		defer c.r.timeTrack(time.Now(), "Rebuilt")
+		defer c.postBuild("Rebuilt", time.Now())
 
 		err := c.reloadConfig()
 		if err != nil {
@@ -855,7 +860,7 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 		c.changeDetector.PrepareNew()
 
 		func() {
-			defer c.r.timeTrack(time.Now(), "Total")
+			defer c.postBuild("Total", time.Now())
 			if err := c.rebuildSites(dynamicEvents); err != nil {
 				c.handleBuildErr(err, "Rebuild failed")
 			}
@@ -899,6 +904,13 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 			}
 		}
 	}
+}
+
+func (c *hugoBuilder) postBuild(what string, start time.Time) {
+	if h, err := c.hugo(); err == nil && h.Conf.Running() {
+		h.LogServerAddresses()
+	}
+	c.r.timeTrack(start, what)
 }
 
 func (c *hugoBuilder) hugo() (*hugolib.HugoSites, error) {
