@@ -20,10 +20,11 @@ hugo gen chromastyles [flags] [args]
 ### Options
 
 ```
-  -h, --help                    help for chromastyles
-      --highlightStyle string   foreground and background colors for highlighted lines, e.g. --highlightStyle "#fff000 bg:#000fff"
-      --linesStyle string       foreground and background colors for inline line numbers, e.g. --linesStyle "#fff000 bg:#000fff"
-      --style string            highlighter style (see https://xyproto.github.io/splash/docs/) (default "friendly")
+  -h, --help                            help for chromastyles
+      --highlightStyle string           foreground and background colors for highlighted lines, e.g. --highlightStyle "#fff000 bg:#000fff"
+      --lineNumbersInlineStyle string   foreground and background colors for inline line numbers, e.g. --lineNumbersInlineStyle "#fff000 bg:#000fff"
+      --lineNumbersTableStyle string    foreground and background colors for table line numbers, e.g. --lineNumbersTableStyle "#fff000 bg:#000fff"
+      --style string                    highlighter style (see https://xyproto.github.io/splash/docs/) (default "friendly")
 ```
 
 ### Options inherited from parent commands
