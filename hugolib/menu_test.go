@@ -676,3 +676,37 @@ menu: main
 	b.AssertFileContent("public/fr/index.html", `<a href="/fr/p1/">p1</a>`)
 	b.AssertLogNotContains("WARN")
 }
+
+func TestSectionPagesIssue12399(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['rss','sitemap','taxonomy','term']
+capitalizeListTitles = false
+pluralizeListTitles = false
+sectionPagesMenu = 'main'
+-- content/p1.md --
+---
+title: p1
+---
+-- content/s1/p2.md --
+---
+title: p2
+menus: main
+---
+-- content/s1/p3.md --
+---
+title: p3
+---
+-- layouts/_default/list.html --
+{{ range site.Menus.main }}<a href="{{ .URL }}">{{ .Name }}</a>{{ end }}
+-- layouts/_default/single.html --
+{{ .Title }}
+`
+
+	b := Test(t, files)
+
+	b.AssertFileExists("public/index.html", true)
+	b.AssertFileContent("public/index.html", `<a href="/s1/p2/">p2</a><a href="/s1/">s1</a>`)
+}

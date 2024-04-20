@@ -659,7 +659,7 @@ func (s *Site) assembleMenus() error {
 
 	if sectionPagesMenu != "" {
 		if err := s.pageMap.forEachPage(pagePredicates.ShouldListGlobal, func(p *pageState) (bool, error) {
-			if p.IsHome() || !p.m.shouldBeCheckedForMenuDefinitions() {
+			if p.Kind() != kinds.KindSection || !p.m.shouldBeCheckedForMenuDefinitions() {
 				return false, nil
 			}
 
