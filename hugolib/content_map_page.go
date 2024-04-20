@@ -1084,7 +1084,7 @@ func (h *HugoSites) resolveAndClearStateForIdentities(
 				return b
 			}
 
-			h.MemCache.ClearMatching(shouldDelete)
+			h.MemCache.ClearMatching(nil, shouldDelete)
 
 			return ll, nil
 		}); err != nil {

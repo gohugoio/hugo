@@ -128,6 +128,7 @@ type rootCommand struct {
 	verbose bool
 	debug   bool
 	quiet   bool
+	devMode bool // Hidden flag.
 
 	renderToMemory bool
 
@@ -423,29 +424,33 @@ func (r *rootCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 func (r *rootCommand) createLogger(running bool) (loggers.Logger, error) {
 	level := logg.LevelWarn
 
-	if r.logLevel != "" {
-		switch strings.ToLower(r.logLevel) {
-		case "debug":
-			level = logg.LevelDebug
-		case "info":
-			level = logg.LevelInfo
-		case "warn", "warning":
-			level = logg.LevelWarn
-		case "error":
-			level = logg.LevelError
-		default:
-			return nil, fmt.Errorf("invalid log level: %q, must be one of debug, warn, info or error", r.logLevel)
-		}
+	if r.devMode {
+		level = logg.LevelTrace
 	} else {
-		if r.verbose {
-			hugo.Deprecate("--verbose", "use --logLevel info", "v0.114.0")
-			hugo.Deprecate("--verbose", "use --logLevel info", "v0.114.0")
-			level = logg.LevelInfo
-		}
+		if r.logLevel != "" {
+			switch strings.ToLower(r.logLevel) {
+			case "debug":
+				level = logg.LevelDebug
+			case "info":
+				level = logg.LevelInfo
+			case "warn", "warning":
+				level = logg.LevelWarn
+			case "error":
+				level = logg.LevelError
+			default:
+				return nil, fmt.Errorf("invalid log level: %q, must be one of debug, warn, info or error", r.logLevel)
+			}
+		} else {
+			if r.verbose {
+				hugo.Deprecate("--verbose", "use --logLevel info", "v0.114.0")
+				hugo.Deprecate("--verbose", "use --logLevel info", "v0.114.0")
+				level = logg.LevelInfo
+			}
 
-		if r.debug {
-			hugo.Deprecate("--debug", "use --logLevel debug", "v0.114.0")
-			level = logg.LevelDebug
+			if r.debug {
+				hugo.Deprecate("--debug", "use --logLevel debug", "v0.114.0")
+				level = logg.LevelDebug
+			}
 		}
 	}
 
@@ -505,9 +510,12 @@ Complete documentation is available at https://gohugo.io/.`
 
 	cmd.PersistentFlags().BoolVarP(&r.verbose, "verbose", "v", false, "verbose output")
 	cmd.PersistentFlags().BoolVarP(&r.debug, "debug", "", false, "debug output")
+	cmd.PersistentFlags().BoolVarP(&r.devMode, "devMode", "", false, "only used for internal testing, flag hidden.")
 	cmd.PersistentFlags().StringVar(&r.logLevel, "logLevel", "", "log level (debug|info|warn|error)")
 	_ = cmd.RegisterFlagCompletionFunc("logLevel", cobra.FixedCompletions([]string{"debug", "info", "warn", "error"}, cobra.ShellCompDirectiveNoFileComp))
 	cmd.Flags().BoolVarP(&r.buildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
+
+	cmd.PersistentFlags().MarkHidden("devMode")
 
 	// Configure local flags
 	applyLocalFlagsBuild(cmd, r)

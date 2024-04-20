@@ -327,3 +327,34 @@ Styles: {{ $r.RelPermalink }}
 
 	b.AssertFileContent("public/index.html", "Styles: /scss/main.css")
 }
+
+func TestRebuildAssetGetMatch(t *testing.T) {
+	t.Parallel()
+	if !scss.Supports() {
+		t.Skip()
+	}
+
+	files := `
+-- assets/scss/main.scss --
+b {
+	color: red;
+}
+-- layouts/index.html --
+{{ $r := resources.GetMatch "scss/main.scss" |  toCSS  }}
+T1: {{ $r.Content }}
+	`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   true,
+			Running:     true,
+		}).Build()
+
+	b.AssertFileContent("public/index.html", `color: red`)
+
+	b.EditFiles("assets/scss/main.scss", `b { color: blue; }`).Build()
+
+	b.AssertFileContent("public/index.html", `color: blue`)
+}

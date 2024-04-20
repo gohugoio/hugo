@@ -156,7 +156,7 @@ func TestClear(t *testing.T) {
 
 	cache = newTestCache(t)
 
-	cache.ClearMatching(func(k, v any) bool {
+	cache.ClearMatching(nil, func(k, v any) bool {
 		return k.(string) == "clearOnRebuild"
 	})
 

@@ -140,16 +140,25 @@ func (c *Cache) DrainEvictedIdentities() []identity.Identity {
 }
 
 // ClearMatching clears all partition for which the predicate returns true.
-func (c *Cache) ClearMatching(predicate func(k, v any) bool) {
+func (c *Cache) ClearMatching(predicatePartition func(k string, p PartitionManager) bool, predicateValue func(k, v any) bool) {
+	if predicatePartition == nil {
+		predicatePartition = func(k string, p PartitionManager) bool { return true }
+	}
+	if predicateValue == nil {
+		panic("nil predicateValue")
+	}
 	g := rungroup.Run[PartitionManager](context.Background(), rungroup.Config[PartitionManager]{
 		NumWorkers: len(c.partitions),
 		Handle: func(ctx context.Context, partition PartitionManager) error {
-			partition.clearMatching(predicate)
+			partition.clearMatching(predicateValue)
 			return nil
 		},
 	})
 
-	for _, p := range c.partitions {
+	for k, p := range c.partitions {
+		if !predicatePartition(k, p) {
+			continue
+		}
 		g.Enqueue(p)
 	}
 
@@ -356,6 +365,7 @@ func GetOrCreatePartition[K comparable, V any](c *Cache, name string, opts Optio
 		trace:   c.opts.Log.Logger().WithLevel(logg.LevelTrace).WithField("partition", name),
 		opts:    opts,
 	}
+
 	c.partitions[name] = partition
 
 	return partition
