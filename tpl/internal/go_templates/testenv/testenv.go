@@ -162,7 +162,7 @@ func findGOROOT() (string, error) {
 			parent := filepath.Dir(dir)
 			if parent == dir {
 				// dir is either "." or only a volume name.
-				gorootErr = fmt.Errorf("failed to locate GOROOT/src in any parent directory")
+				gorootErr = errors.New("failed to locate GOROOT/src in any parent directory")
 				return
 			}
 

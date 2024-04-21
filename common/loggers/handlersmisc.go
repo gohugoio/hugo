@@ -16,7 +16,7 @@
 package loggers
 
 import (
-	"fmt"
+	"errors"
 	"strings"
 	"sync"
 
@@ -69,7 +69,7 @@ func (h *logLevelCounter) HandleLog(e *logg.Entry) error {
 	return nil
 }
 
-var errStop = fmt.Errorf("stop")
+var errStop = errors.New("stop")
 
 type logOnceHandler struct {
 	threshold logg.Level

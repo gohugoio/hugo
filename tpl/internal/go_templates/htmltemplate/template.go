@@ -5,6 +5,7 @@
 package template
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -32,7 +33,7 @@ type Template struct {
 }
 
 // escapeOK is a sentinel value used to indicate valid escaping.
-var escapeOK = fmt.Errorf("template escaped correctly")
+var escapeOK = errors.New("template escaped correctly")
 
 // nameSpace is the data structure shared by all templates in an association.
 type nameSpace struct {
