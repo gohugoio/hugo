@@ -10,7 +10,7 @@ menu:
     weight: 50
 weight: 50
 toc: true
-aliases: [/security-model/]
+aliases: [/about/security-model/]
 ---
 
 ## Runtime security
