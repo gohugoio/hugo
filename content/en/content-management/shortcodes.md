@@ -444,7 +444,7 @@ start {{< new-in 0.125.0 >}}
 : (`int`) The time, measured in seconds from the start of the video, when the player should start playing the video.
 
 title
-: (`string`) The `title` attribute of the `iframe` element. Defaults to the title returned by the YouTube oEmbed API.
+: (`string`) The `title` attribute of the `iframe` element. Defaults to "YouTube video".
 
 Example using some of the above:
 
