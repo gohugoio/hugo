@@ -175,7 +175,7 @@ func (pco *pageContentOutput) RenderShortcodes(ctx context.Context) (template.HT
 		// This content will be parsed and rendered by Goldmark.
 		// Wrap it in a special Hugo markup to assign the correct Page from
 		// the stack.
-		c = hugocontext.Wrap(c, pco.po.p.pid)
+		return template.HTML(hugocontext.Wrap(c, pco.po.p.pid)), nil
 	}
 
 	return helpers.BytesToHTML(c), nil
