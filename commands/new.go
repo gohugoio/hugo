@@ -209,7 +209,7 @@ func (c *newCommand) newSiteNextStepsText(path string, format string) string {
 1. Change the current directory to ` + path + `.
 2. Create or install a theme:
    - Create a new theme with the command "hugo new theme <THEMENAME>"
-   - Install a theme from https://themes.gohugo.io/
+   - Or, install a theme from https://themes.gohugo.io/
 3. Edit hugo.` + format + `, setting the "theme" property to the theme name.
 4. Create new content with the command "hugo new content `)
 
