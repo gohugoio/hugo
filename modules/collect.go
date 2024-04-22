@@ -261,7 +261,10 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import) (*moduleAdapt
 					// This will select the latest release-version (not beta etc.).
 					versionQuery = "upgrade"
 				}
-				if err := c.Get(fmt.Sprintf("%s@%s", modulePath, versionQuery)); err != nil {
+
+				// Note that we cannot use c.Get for this, as that may
+				// trigger a new module collection and potentially create a infinite loop.
+				if err := c.get(fmt.Sprintf("%s@%s", modulePath, versionQuery)); err != nil {
 					return nil, err
 				}
 				if err := c.loadModules(); err != nil {
