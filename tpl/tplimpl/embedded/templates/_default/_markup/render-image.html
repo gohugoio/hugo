@@ -5,7 +5,7 @@
     {{- $src = .RelPermalink -}}
   {{- end -}}
 {{- end -}}
-{{- $attributes := merge .Attributes (dict "alt" .Text "src" $src "title" .Title) -}}
+{{- $attributes := merge .Attributes (dict "alt" .Text "src" $src "title" (.Title | transform.HTMLEscape)) -}}
 <img
   {{- range $k, $v := $attributes -}}
     {{- if $v -}}
