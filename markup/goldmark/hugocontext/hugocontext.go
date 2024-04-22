@@ -34,7 +34,7 @@ func New() goldmark.Extender {
 
 // Wrap wraps the given byte slice in a Hugo context that used to determine the correct Page
 // in .RenderShortcodes.
-func Wrap(b []byte, pid uint64) []byte {
+func Wrap(b []byte, pid uint64) string {
 	buf := bufferpool.GetBuffer()
 	defer bufferpool.PutBuffer(buf)
 	buf.Write(prefix)
@@ -45,7 +45,7 @@ func Wrap(b []byte, pid uint64) []byte {
 	buf.Write(b)
 	buf.Write(prefix)
 	buf.Write(closingDelimAndNewline)
-	return buf.Bytes()
+	return buf.String()
 }
 
 var kindHugoContext = ast.NewNodeKind("HugoContext")
