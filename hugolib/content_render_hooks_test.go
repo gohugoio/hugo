@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -240,4 +241,53 @@ iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAA
 		b.AssertFileContent("public/nn/p1/index.html",
 			"p1|<p><a href=\"p2\">P2</a>", "<img src=\"pixel.png\" alt=\"Pixel\">")
 	})
+}
+
+func TestRenderHooksDefaultEscape(t *testing.T) {
+	files := `
+-- hugo.toml --
+[markup.goldmark.renderHooks]
+[markup.goldmark.renderHooks.image]
+  enableDefault = ENABLE
+[markup.goldmark.renderHooks.link]
+enableDefault = ENABLE
+[markup.goldmark.parser]
+wrapStandAloneImageWithinParagraph = false
+[markup.goldmark.parser.attribute]
+block = true
+title = true
+-- content/_index.md --
+---
+title: "Home"
+---
+Link: [text-"<>&](/destination-"<> 'title-"<>&')
+
+Image: ![alt-"<>&](/destination-"<> 'title-"<>&')
+{class="><script>alert()</script>" id="baz"}
+
+-- layouts/index.html --
+{{ .Content }}
+`
+
+	for _, enabled := range []bool{true, false} {
+		enabled := enabled
+		t.Run(fmt.Sprint(enabled), func(t *testing.T) {
+			t.Parallel()
+			b := Test(t, strings.ReplaceAll(files, "ENABLE", fmt.Sprint(enabled)))
+
+			// The escaping is slightly different between the two.
+			if enabled {
+				b.AssertFileContent("public/index.html",
+					"Link: <a href=\"/destination-%22%3C%3E\" title=\"title-&#34;&lt;&gt;&amp;\">text-&quot;&lt;&gt;&amp;</a>",
+					"img alt=\"alt-&quot;&lt;&gt;&amp;\" src=\"/destination-%22%3C%3E\" title=\"title-&#34;&lt;&gt;&amp;\">",
+					"&gt;&lt;script&gt;",
+				)
+			} else {
+				b.AssertFileContent("public/index.html",
+					"Link: <a href=\"/destination-%22%3C%3E\" title=\"title-&quot;&lt;&gt;&amp;\">text-&quot;&lt;&gt;&amp;</a>",
+					"Image: <img src=\"/destination-%22%3C%3E\" alt=\"alt-&quot;&lt;&gt;&amp;\" title=\"title-&quot;&lt;&gt;&amp;\">",
+				)
+			}
+		})
+	}
 }

@@ -17,7 +17,7 @@
     {{- end -}}
   {{- end -}}
 {{- end -}}
-{{- $attributes := dict "href" $href "title" .Title -}}
+{{- $attributes := dict "href" $href "title" (.Title | transform.HTMLEscape) -}}
 <a
   {{- range $k, $v := $attributes -}}
     {{- if $v -}}
