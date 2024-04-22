@@ -8,10 +8,10 @@ Renders an embedded YouTube video.
 @param {int} [end] The time, measured in seconds from the start of the video, when the player should stop playing the video.
 @param {string} [id] The video id. Optional if the id is provided as first positional argument.
 @param {string} [loading=eager] The loading attribute of the iframe element.
-@param {bool} [loop=false] Whether to indefinitely repeat the video.
+@param {bool} [loop=false] Whether to indefinitely repeat the video. Ignores the start and end arguments after the first play.
 @param {bool} [mute=false] Whether to mute the video. Always true when autoplay is true.
 @param {int} [start] The time, measured in seconds from the start of the video, when the player should start playing the video.
-@param {string} [title] The title attribute of the iframe element. Defaults to the title returned by YouTube oEmbed API.
+@param {string} [title] The title attribute of the iframe element. Defaults to "YouTube video".
 
 @returns {template.HTML}
 
@@ -26,20 +26,6 @@ Renders an embedded YouTube video.
 {{- if not $pc.Disable }}
   {{- with $id := or (.Get "id") (.Get 0) }}
 
-    {{- /* Get data from the YouTube oEmbed API. */}}
-    {{- $q := querify "url" (printf "https://www.youtube.com/watch?v=%s" $id) "format" "json" }}
-    {{- $url := printf "https://www.youtube.com/oembed?%s" $q }}
-    {{- $data := dict }}
-    {{- with resources.GetRemote $url }}
-      {{- with .Err }}
-        {{- erroridf $remoteErrID "The %q shortcode was unable to get remote resource %q. %s. See %s" $.Name $url . $.Position }}
-      {{- else }}
-        {{- $data = .Content | transform.Unmarshal }}
-      {{- end }}
-    {{- else }}
-      {{- erroridf $remoteErrID "The %q shortcode was unable to get remote resource %q. See %s" $.Name $url $.Position }}
-    {{- end }}
-
     {{/* Set defaults. */}}
     {{- $allowFullScreen := "allowfullscreen" }}
     {{- $autoplay := 0 }}
@@ -50,7 +36,7 @@ Renders an embedded YouTube video.
     {{- $loop := 0 }}
     {{- $mute := 0 }}
     {{- $start := 0 }}
-    {{- $title := $data.title }}
+    {{- $title := "YouTube video" }}
 
     {{- /* Get arguments. */}}
     {{- if in (slice "false" false 0) ($.Get "allowFullScreen") }}
