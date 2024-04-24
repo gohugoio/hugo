@@ -305,3 +305,109 @@ title: p2
 		"<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"\n  xmlns:xhtml=\"http://www.w3.org/1999/xhtml\">\n  <url>\n    <loc>/p2/</loc>\n  </url>\n</urlset>\n",
 	)
 }
+
+// Issue 12418
+func TestOpengraph(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+capitalizeListTitles = false
+disableKinds = ['rss','sitemap']
+languageCode = 'en-US'
+[markup.goldmark.renderer]
+unsafe = true
+[params]
+description = "m <em>n</em> and **o** can't."
+[params.social]
+facebook_admin = 'foo'
+[taxonomies]
+series = 'series'
+tag = 'tags'
+-- layouts/_default/list.html --
+{{ template "_internal/opengraph.html" . }}
+-- layouts/_default/single.html --
+{{ template "_internal/opengraph.html" . }}
+-- content/s1/p1.md --
+---
+title: p1
+date: 2024-04-24T08:00:00-07:00
+lastmod: 2024-04-24T11:00:00-07:00
+images: [a.jpg,b.jpg]
+audio: [c.mp3,d.mp3]
+videos: [e.mp4,f.mp4]
+series: [series-1]
+tags: [t1,t2]
+---
+a <em>b</em> and **c** can't.
+-- content/s1/p2.md --
+---
+title: p2
+series: [series-1]
+---
+d <em>e</em> and **f** can't.
+<!--more-->
+-- content/s1/p3.md --
+---
+title: p3
+series: [series-1]
+summary: g <em>h</em> and **i** can't.
+---
+-- content/s1/p4.md --
+---
+title: p4
+series: [series-1]
+description: j <em>k</em> and **l** can't.
+---
+-- content/s1/p5.md --
+---
+title: p5
+series: [series-1]
+---
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/s1/p1/index.html", `
+		<meta property="og:url" content="/s1/p1/">
+		<meta property="og:title" content="p1">
+		<meta property="og:description" content="a b and c can’t.">
+		<meta property="og:locale" content="en-US">
+		<meta property="og:type" content="article">
+		<meta property="article:section" content="s1">
+		<meta property="article:published_time" content="2024-04-24T08:00:00-07:00">
+		<meta property="article:modified_time" content="2024-04-24T11:00:00-07:00">
+		<meta property="article:tag" content="t1">
+		<meta property="article:tag" content="t2">
+		<meta property="og:image" content="/a.jpg">
+		<meta property="og:image" content="/b.jpg">
+		<meta property="og:audio" content="/c.mp3">
+		<meta property="og:audio" content="/d.mp3">
+		<meta property="og:video" content="/e.mp4">
+		<meta property="og:video" content="/f.mp4">
+		<meta property="og:see_also" content="/s1/p2/">
+		<meta property="og:see_also" content="/s1/p3/">
+		<meta property="og:see_also" content="/s1/p4/">
+		<meta property="og:see_also" content="/s1/p5/">
+		<meta property="fb:admins" content="foo">
+		`,
+	)
+
+	b.AssertFileContent("public/s1/p2/index.html",
+		`<meta property="og:description" content="d e and f can’t.">`,
+	)
+
+	b.AssertFileContent("public/s1/p3/index.html",
+		`<meta property="og:description" content="g h and i can’t.">`,
+	)
+
+	// The markdown is intentionally not rendered to HTML.
+	b.AssertFileContent("public/s1/p4/index.html",
+		`<meta property="og:description" content="j k and **l** can&#39;t.">`,
+	)
+
+	// The markdown is intentionally not rendered to HTML.
+	b.AssertFileContent("public/s1/p5/index.html",
+		`<meta property="og:description" content="m n and **o** can&#39;t.">`,
+	)
+}
