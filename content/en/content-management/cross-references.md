@@ -72,7 +72,7 @@ Hugo emits an error or warning if a document cannot be uniquely resolved. The er
 
 To link to another language version of a document, use this syntax:
 
-```go-html-template
+```text
 {{</* relref path="document.md" lang="ja" */>}}
 ```
 
@@ -80,7 +80,7 @@ To link to another language version of a document, use this syntax:
 
 To link to another Output Format of a document, use this syntax:
 
-```go-html-template
+```text
 {{</* relref path="document.md" outputFormat="rss" */>}}
 ```
 
@@ -88,7 +88,7 @@ To link to another Output Format of a document, use this syntax:
 
 When using Markdown document types, Hugo generates element IDs for every heading on a page. For example:
 
-```md
+```text
 ## Reference
 ```
 
@@ -100,14 +100,14 @@ produces this HTML:
 
 Get the permalink to a heading by appending the ID to the path when using the `ref` or `relref` shortcodes:
 
-```go-html-template
+```text
 {{</* ref "document.md#reference" */>}}
 {{</* relref "document.md#reference" */>}}
 ```
 
 Generate a custom heading ID by including an attribute. For example:
 
-```md
+```text
 ## Reference A {#foo}
 ## Reference B {id="bar"}
 ```
@@ -121,7 +121,7 @@ produces this HTML:
 
 Hugo will generate unique element IDs if the same heading appears more than once on a page. For example:
 
-```md
+```text
 ## Reference
 ## Reference
 ## Reference
