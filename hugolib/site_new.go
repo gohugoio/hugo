@@ -123,14 +123,14 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 			HandlerPost:        logHookLast,
 			Stdout:             cfg.LogOut,
 			Stderr:             cfg.LogOut,
-			StoreErrors:        conf.Running(),
+			StoreErrors:        conf.Watching(),
 			SuppressStatements: conf.IgnoredLogs(),
 		}
 		logger = loggers.New(logOpts)
 
 	}
 
-	memCache := dynacache.New(dynacache.Options{Running: conf.Running(), Log: logger})
+	memCache := dynacache.New(dynacache.Options{Watching: conf.Watching(), Log: logger})
 
 	firstSiteDeps := &deps.Deps{
 		Fs:                  cfg.Fs,

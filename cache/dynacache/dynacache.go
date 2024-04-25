@@ -67,7 +67,7 @@ func New(opts Options) *Cache {
 	evictedIdentities := collections.NewStack[identity.Identity]()
 
 	onEvict := func(k, v any) {
-		if !opts.Running {
+		if !opts.Watching {
 			return
 		}
 		identity.WalkIdentitiesShallow(v, func(level int, id identity.Identity) bool {
@@ -97,7 +97,7 @@ type Options struct {
 	CheckInterval time.Duration
 	MaxSize       int
 	MinMaxSize    int
-	Running       bool
+	Watching      bool
 }
 
 // Options for a partition.

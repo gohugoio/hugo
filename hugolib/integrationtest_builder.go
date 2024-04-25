@@ -38,9 +38,17 @@ import (
 
 type TestOpt func(*IntegrationTestConfig)
 
+// TestOptRunning will enable running in integration tests.
 func TestOptRunning() TestOpt {
 	return func(c *IntegrationTestConfig) {
 		c.Running = true
+	}
+}
+
+// TestOptWatching will enable watching in integration tests.
+func TestOptWatching() TestOpt {
+	return func(c *IntegrationTestConfig) {
+		c.Watching = true
 	}
 }
 
@@ -570,6 +578,10 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 				"running": s.Cfg.Running,
 				"watch":   s.Cfg.Running,
 			})
+		} else if s.Cfg.Watching {
+			flags.Set("internal", maps.Params{
+				"watch": s.Cfg.Watching,
+			})
 		}
 
 		if s.Cfg.WorkingDir != "" {
@@ -816,6 +828,11 @@ type IntegrationTestConfig struct {
 
 	// Whether to simulate server mode.
 	Running bool
+
+	// Watch for changes.
+	// This is (currently) always set to true when Running is set.
+	// Note that the CLI for the server does allow for --watch=false, but that is not used in these test.
+	Watching bool
 
 	// Will print the log buffer after the build
 	Verbose bool
