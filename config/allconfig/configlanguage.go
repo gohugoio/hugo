@@ -71,6 +71,9 @@ func (c ConfigLanguage) Environment() string {
 }
 
 func (c ConfigLanguage) IsMultihost() bool {
+	if len(c.m.Languages)-len(c.config.C.DisabledLanguages) <= 1 {
+		return false
+	}
 	return c.m.IsMultihost
 }
 
