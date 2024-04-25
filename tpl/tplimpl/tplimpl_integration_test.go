@@ -493,3 +493,80 @@ title: p5
 		`<meta itemprop="description" content="m n and **o** can&#39;t.">`,
 	)
 }
+
+// Issue 12433
+func TestTwitterCards(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+capitalizeListTitles = false
+disableKinds = ['rss','sitemap','taxonomy','term']
+[markup.goldmark.renderer]
+unsafe = true
+[params]
+description = "m <em>n</em> and **o** can't."
+[params.social]
+twitter = 'foo'
+-- layouts/_default/list.html --
+{{ template "_internal/twitter_cards.html" . }}
+-- layouts/_default/single.html --
+{{ template "_internal/twitter_cards.html" . }}
+-- content/s1/p1.md --
+---
+title: p1
+images: [a.jpg,b.jpg]
+---
+a <em>b</em> and **c** can't.
+-- content/s1/p2.md --
+---
+title: p2
+---
+d <em>e</em> and **f** can't.
+<!--more-->
+-- content/s1/p3.md --
+---
+title: p3
+summary: g <em>h</em> and **i** can't.
+---
+-- content/s1/p4.md --
+---
+title: p4
+description: j <em>k</em> and **l** can't.
+---
+-- content/s1/p5.md --
+---
+title: p5
+---
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/s1/p1/index.html", `
+		<meta name="twitter:card" content="summary_large_image">
+		<meta name="twitter:image" content="/a.jpg">
+		<meta name="twitter:title" content="p1">
+		<meta name="twitter:description" content="a b and c can’t.">
+		<meta name="twitter:site" content="@foo">
+		`,
+	)
+
+	b.AssertFileContent("public/s1/p2/index.html",
+		`<meta name="twitter:card" content="summary">`,
+		`<meta name="twitter:description" content="d e and f can’t.">`,
+	)
+
+	b.AssertFileContent("public/s1/p3/index.html",
+		`<meta name="twitter:description" content="g h and i can’t.">`,
+	)
+
+	// The markdown is intentionally not rendered to HTML.
+	b.AssertFileContent("public/s1/p4/index.html",
+		`<meta name="twitter:description" content="j k and **l** can&#39;t.">`,
+	)
+
+	// The markdown is intentionally not rendered to HTML.
+	b.AssertFileContent("public/s1/p5/index.html",
+		`<meta name="twitter:description" content="m n and **o** can&#39;t.">`,
+	)
+}
