@@ -252,3 +252,31 @@ Files: {{ range $files }}{{ .Permalink }}|{{ end }}$
 	b.AssertFileContent("public/en/enpages/mybundle-en/file2.txt", "File 2 en.")
 	b.AssertFileContent("public/fr/section/mybundle/file2.txt", "File 2 en.")
 }
+
+func TestMultihostAllButOneLanguageDisabledIssue12288(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+defaultContentLanguage = "en"
+disableLanguages = ["fr"]
+#baseURL = "https://example.com"
+[languages]
+[languages.en]
+baseURL = "https://example.en"
+weight = 1
+[languages.fr]
+baseURL = "https://example.fr"
+weight = 2
+--  assets/css/main.css --
+body { color: red; }
+-- layouts/index.html --
+{{ $css := resources.Get "css/main.css" | minify }}
+CSS: {{ $css.Permalink }}|{{ $css.RelPermalink }}|
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/css/main.min.css", "body{color:red}")
+	b.AssertFileContent("public/index.html", "CSS: https://example.en/css/main.min.css|/css/main.min.css|")
+}
