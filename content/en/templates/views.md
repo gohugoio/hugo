@@ -34,7 +34,7 @@ To create a new view, create a template in each of your different content type d
         summary.html
 ```
 
-Hugo also has support for a default content template to be used in the event that a specific content view template has not been provided for that type. Content views can also be defined in the `_default` directory and will work the same as list and single templates who eventually trickle down to the `_default` directory as a matter of the lookup order.
+Hugo also has support for a default content view template to be used in the event that a specific content view template has not been provided for that type. Content views can also be defined in the `_default` directory and will work the same as list and single templates who eventually trickle down to the `_default` directory as a matter of the lookup order.
 
 ```txt
 ▾ layouts/
