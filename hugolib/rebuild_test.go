@@ -121,14 +121,23 @@ func TestRebuildEditTextFileInBranchBundle(t *testing.T) {
 	b.AssertRenderCountContent(1)
 }
 
-func TestRebuildRenameTextFileInLeafBundle(t *testing.T) {
-	b := TestRunning(t, rebuildFilesSimple)
-	b.AssertFileContent("public/mysection/mysectionbundle/index.html", "My Section Bundle Text 2 Content.", "Len Resources: 2|")
+func testRebuildBothWatchingAndRunning(t *testing.T, files string, withB func(b *IntegrationTestBuilder)) {
+	t.Helper()
+	for _, opt := range []TestOpt{TestOptWatching(), TestOptRunning()} {
+		b := Test(t, files, opt)
+		withB(b)
+	}
+}
 
-	b.RenameFile("content/mysection/mysectionbundle/mysectionbundletext.txt", "content/mysection/mysectionbundle/mysectionbundletext2.txt").Build()
-	b.AssertFileContent("public/mysection/mysectionbundle/index.html", "mysectionbundletext2", "My Section Bundle Text 2 Content.", "Len Resources: 2|")
-	b.AssertRenderCountPage(3)
-	b.AssertRenderCountContent(3)
+func TestRebuildRenameTextFileInLeafBundle(t *testing.T) {
+	testRebuildBothWatchingAndRunning(t, rebuildFilesSimple, func(b *IntegrationTestBuilder) {
+		b.AssertFileContent("public/mysection/mysectionbundle/index.html", "My Section Bundle Text 2 Content.", "Len Resources: 2|")
+
+		b.RenameFile("content/mysection/mysectionbundle/mysectionbundletext.txt", "content/mysection/mysectionbundle/mysectionbundletext2.txt").Build()
+		b.AssertFileContent("public/mysection/mysectionbundle/index.html", "mysectionbundletext2", "My Section Bundle Text 2 Content.", "Len Resources: 2|")
+		b.AssertRenderCountPage(3)
+		b.AssertRenderCountContent(3)
+	})
 }
 
 func TestRebuilEditContentFileInLeafBundle(t *testing.T) {
@@ -367,8 +376,6 @@ My short.
 }
 
 func TestRebuildBaseof(t *testing.T) {
-	t.Parallel()
-
 	files := `
 -- hugo.toml --
 title = "Hugo Site"
@@ -383,12 +390,13 @@ Baseof: {{ .Title }}|
 Home: {{ .Title }}|{{ .Content }}|
 {{ end }}
 `
-	b := Test(t, files, TestOptRunning())
-	b.AssertFileContent("public/index.html", "Baseof: Hugo Site|", "Home: Hugo Site||")
-	b.EditFileReplaceFunc("layouts/_default/baseof.html", func(s string) string {
-		return strings.Replace(s, "Baseof", "Baseof Edited", 1)
-	}).Build()
-	b.AssertFileContent("public/index.html", "Baseof Edited: Hugo Site|", "Home: Hugo Site||")
+	testRebuildBothWatchingAndRunning(t, files, func(b *IntegrationTestBuilder) {
+		b.AssertFileContent("public/index.html", "Baseof: Hugo Site|", "Home: Hugo Site||")
+		b.EditFileReplaceFunc("layouts/_default/baseof.html", func(s string) string {
+			return strings.Replace(s, "Baseof", "Baseof Edited", 1)
+		}).Build()
+		b.AssertFileContent("public/index.html", "Baseof Edited: Hugo Site|", "Home: Hugo Site||")
+	})
 }
 
 func TestRebuildSingleWithBaseof(t *testing.T) {

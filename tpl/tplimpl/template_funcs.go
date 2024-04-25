@@ -71,7 +71,7 @@ var (
 )
 
 type templateExecHelper struct {
-	running    bool // whether we're in server mode.
+	watching   bool // whether we're in server/watch mode.
 	site       reflect.Value
 	siteParams reflect.Value
 	funcs      map[string]reflect.Value
@@ -95,7 +95,7 @@ func (t *templateExecHelper) GetFunc(ctx context.Context, tmpl texttemplate.Prep
 }
 
 func (t *templateExecHelper) Init(ctx context.Context, tmpl texttemplate.Preparer) {
-	if t.running {
+	if t.watching {
 		_, ok := tmpl.(identity.IdentityProvider)
 		if ok {
 			t.trackDependencies(ctx, tmpl, "", reflect.Value{})
@@ -129,7 +129,7 @@ func (t *templateExecHelper) GetMethod(ctx context.Context, tmpl texttemplate.Pr
 		name = "MainSections"
 	}
 
-	if t.running {
+	if t.watching {
 		ctx = t.trackDependencies(ctx, tmpl, name, receiver)
 	}
 
@@ -151,7 +151,7 @@ func (t *templateExecHelper) GetMethod(ctx context.Context, tmpl texttemplate.Pr
 }
 
 func (t *templateExecHelper) OnCalled(ctx context.Context, tmpl texttemplate.Preparer, name string, args []reflect.Value, result reflect.Value) {
-	if !t.running {
+	if !t.watching {
 		return
 	}
 
@@ -238,7 +238,7 @@ func newTemplateExecuter(d *deps.Deps) (texttemplate.Executer, map[string]reflec
 	}
 
 	exeHelper := &templateExecHelper{
-		running:    d.Conf.Running(),
+		watching:   d.Conf.Watching(),
 		funcs:      funcsv,
 		site:       reflect.ValueOf(d.Site),
 		siteParams: reflect.ValueOf(d.Site.Params()),
