@@ -1,8 +1,8 @@
-{{- with or .Title site.Title }}
+{{- with or .Title site.Title | plainify }}
   <meta itemprop="name" content="{{ . }}">
 {{- end }}
 
-{{- with or .Description .Summary site.Params.Description }}
+{{- with or .Description .Summary site.Params.description | plainify | htmlUnescape | chomp }}
   <meta itemprop="description" content="{{ . }}">
 {{- end }}
 
