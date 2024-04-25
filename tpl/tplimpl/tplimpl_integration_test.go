@@ -411,3 +411,85 @@ series: [series-1]
 		`<meta property="og:description" content="m n and **o** can&#39;t.">`,
 	)
 }
+
+// Issue 12432
+func TestSchema(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+capitalizeListTitles = false
+disableKinds = ['rss','sitemap']
+[markup.goldmark.renderer]
+unsafe = true
+[params]
+description = "m <em>n</em> and **o** can't."
+[taxonomies]
+tag = 'tags'
+-- layouts/_default/list.html --
+{{ template "_internal/schema.html" . }}
+-- layouts/_default/single.html --
+{{ template "_internal/schema.html" . }}
+-- content/s1/p1.md --
+---
+title: p1
+date: 2024-04-24T08:00:00-07:00
+lastmod: 2024-04-24T11:00:00-07:00
+images: [a.jpg,b.jpg]
+tags: [t1,t2]
+---
+a <em>b</em> and **c** can't.
+-- content/s1/p2.md --
+---
+title: p2
+---
+d <em>e</em> and **f** can't.
+<!--more-->
+-- content/s1/p3.md --
+---
+title: p3
+summary: g <em>h</em> and **i** can't.
+---
+-- content/s1/p4.md --
+---
+title: p4
+description: j <em>k</em> and **l** can't.
+---
+-- content/s1/p5.md --
+---
+title: p5
+---
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/s1/p1/index.html", `
+		<meta itemprop="name" content="p1">
+		<meta itemprop="description" content="a b and c can’t.">
+		<meta itemprop="datePublished" content="2024-04-24T08:00:00-07:00">
+		<meta itemprop="dateModified" content="2024-04-24T11:00:00-07:00">
+		<meta itemprop="wordCount" content="5">
+		<meta itemprop="image" content="/a.jpg">
+		<meta itemprop="image" content="/b.jpg">
+		<meta itemprop="keywords" content="t1,t2">
+  		`,
+	)
+
+	b.AssertFileContent("public/s1/p2/index.html",
+		`<meta itemprop="description" content="d e and f can’t.">`,
+	)
+
+	b.AssertFileContent("public/s1/p3/index.html",
+		`<meta itemprop="description" content="g h and i can’t.">`,
+	)
+
+	// The markdown is intentionally not rendered to HTML.
+	b.AssertFileContent("public/s1/p4/index.html",
+		`<meta itemprop="description" content="j k and **l** can&#39;t.">`,
+	)
+
+	// The markdown is intentionally not rendered to HTML.
+	b.AssertFileContent("public/s1/p5/index.html",
+		`<meta itemprop="description" content="m n and **o** can&#39;t.">`,
+	)
+}
