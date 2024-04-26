@@ -15,6 +15,7 @@ package pageparser
 
 func lexIntroSection(l *pageLexer) stateFunc {
 	l.summaryDivider = summaryDivider
+	l.summaryDividerReg = summaryDividerReg
 
 LOOP:
 	for {
@@ -94,6 +95,7 @@ func lexFrontMatterOrgMode(l *pageLexer) stateFunc {
 	*/
 
 	l.summaryDivider = summaryDividerOrg
+	l.summaryDividerReg = summaryDividerReg
 
 	l.backup()
 

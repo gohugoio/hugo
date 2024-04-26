@@ -16,6 +16,7 @@ package pageparser
 import (
 	"bytes"
 	"fmt"
+	"regexp"
 	"unicode"
 	"unicode/utf8"
 )
@@ -40,7 +41,8 @@ type pageLexer struct {
 	cfg Config
 
 	// The summary divider to look for.
-	summaryDivider []byte
+	summaryDivider    []byte
+	summaryDividerReg *regexp.Regexp
 	// Set when we have parsed any summary divider
 	summaryDividerChecked bool
 
@@ -96,6 +98,7 @@ func (l *pageLexer) run() *pageLexer {
 var (
 	byteOrderMark     = '\ufeff'
 	summaryDivider    = []byte("<!--more-->")
+	summaryDividerReg = regexp.MustCompile("(?m)^<!--more-->")
 	summaryDividerOrg = []byte("# more")
 	delimTOML         = []byte("+++")
 	delimYAML         = []byte("---")
@@ -333,10 +336,11 @@ func createSectionHandlers(l *pageLexer) *sectionHandlers {
 	summaryDividerHandler := &sectionHandler{
 		l: l,
 		skipFunc: func(l *pageLexer) int {
-			if l.summaryDividerChecked || l.summaryDivider == nil {
+			if l.summaryDividerChecked || l.summaryDividerReg == nil {
 				return -1
 			}
-			return l.index(l.summaryDivider)
+			return l.regexIndex(l.summaryDividerReg)
+			//return l.index(l.summaryDivider)
 		},
 		lexFunc: func(origin stateFunc, l *pageLexer) (stateFunc, bool) {
 			if !l.hasPrefix(l.summaryDivider) {
@@ -458,6 +462,14 @@ func (l *pageLexer) printCurrentInput() {
 
 func (l *pageLexer) index(sep []byte) int {
 	return bytes.Index(l.input[l.pos:], sep)
+}
+
+func (l *pageLexer) regexIndex(re *regexp.Regexp) int {
+	pos := re.FindIndex(l.input[l.pos:])
+	if pos == nil {
+		return -1
+	}
+	return pos[0]
 }
 
 func (l *pageLexer) hasPrefix(prefix []byte) bool {
