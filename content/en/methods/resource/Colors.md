@@ -30,12 +30,13 @@ Luminance
 : (`float64`) Returns the [relative luminance] of the color in the sRGB colorspace in the range [0, 1]. A value of `0` represents the darkest black, while a value of `1` represents the lightest white.
 
 {{% note %}}
-Image filters such as [`images.Overlay`] and [`images.Padding`] will accept either a hexadecimal color value or an `images.Color` object.
+Image filters such as [`images.Dither`], [`images.Padding`], and [`images.Text`] accept either hexadecimal color values or `images.Color` objects as arguments.
 
 Hugo renders an `images.Color` object as a hexadecimal color value.
 
-[`images.Overlay`]: /functions/images/overlay/
+[`images.Dither`]: /functions/images/dither/
 [`images.Padding`]: /functions/images/padding/
+[`images.Text`]: /functions/images/text/
 {{% /note %}}
 
 [hexadecimal color]: https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color
