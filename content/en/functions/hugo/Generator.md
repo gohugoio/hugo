@@ -11,5 +11,5 @@ action:
 ---
 
 ```go-html-template
-{{ hugo.Generator }} → <meta name="generator" content="Hugo 0.124.0">
+{{ hugo.Generator }} → <meta name="generator" content="Hugo 0.125.4">
 ```

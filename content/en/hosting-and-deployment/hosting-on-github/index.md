@@ -97,7 +97,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      HUGO_VERSION: 0.124.0
+      HUGO_VERSION: 0.125.4
     steps:
       - name: Install Hugo CLI
         run: |
@@ -120,6 +120,7 @@ jobs:
           # For maximum backward compatibility with Hugo modules
           HUGO_ENVIRONMENT: production
           HUGO_ENV: production
+          TZ: America/Los_Angeles
         run: |
           hugo \
             --gc \
