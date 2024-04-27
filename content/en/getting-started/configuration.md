@@ -619,6 +619,39 @@ to     = "/404.html"
 status = 404
 {{< /code-toggle >}}
 
+With a multilingual site, define the redirect for the default content language last:
+
+{{< code-toggle file=config/development/server >}}
+defaultContentLanguage = 'en'
+defaultContentLanguageInSubdir = false
+[[redirects]]
+from = '/fr/**'
+to = '/fr/404.html'
+status = 404
+
+[[redirects]] # Default language must be last.
+from = '/**'
+to = '/404.html'
+status = 404
+{{< /code-toggle >}}
+
+If you are serving the default content language from a subdirectory:
+
+{{< code-toggle file=config/development/server >}}
+defaultContentLanguage = 'en'
+defaultContentLanguageInSubdir = true
+[[redirects]]
+from = '/fr/**'
+to = '/fr/404.html'
+status = 404
+
+[[redirects]] # Default language must be last.
+from = '/**'
+to = '/en/404.html'
+status = 404
+{{< /code-toggle >}}
+
+
 ## Configure title case
 
 By default, Hugo follows the capitalization rules published in the [Associated Press Stylebook] when creating automatic section titles, and when transforming strings with the [`strings.Title`] function.
