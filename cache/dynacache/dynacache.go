@@ -74,7 +74,6 @@ func New(opts Options) *Cache {
 			evictedIdentities.Push(id)
 			return false
 		})
-		resource.MarkStale(v)
 	}
 
 	c := &Cache{
@@ -458,11 +457,8 @@ func (p *Partition[K, V]) clearMatching(predicate func(k, v any) bool) {
 
 func (p *Partition[K, V]) clearOnRebuild(changeset ...identity.Identity) {
 	opts := p.getOptions()
-	if opts.ClearWhen == ClearNever {
-		return
-	}
 
-	if opts.ClearWhen == ClearOnRebuild {
+	if opts.ClearWhen == ClearOnRebuild && len(changeset) == 0 {
 		// Clear all.
 		p.Clear()
 		return
@@ -502,7 +498,14 @@ func (p *Partition[K, V]) clearOnRebuild(changeset ...identity.Identity) {
 	// Second pass needs to be done in a separate loop to catch any
 	// elements marked as stale in the other partitions.
 	p.c.DeleteFunc(func(key K, v V) bool {
-		if shouldDelete(key, v) {
+		match := shouldDelete(key, v)
+		clear := match || opts.ClearWhen == ClearOnRebuild
+
+		if match {
+			resource.MarkStale(v)
+		}
+
+		if clear {
 			p.trace.Log(
 				logg.StringFunc(
 					func() string {
@@ -510,9 +513,9 @@ func (p *Partition[K, V]) clearOnRebuild(changeset ...identity.Identity) {
 					},
 				),
 			)
-			return true
 		}
-		return false
+
+		return clear
 	})
 }
 
@@ -586,7 +589,6 @@ type PartitionManager interface {
 const (
 	ClearOnRebuild ClearWhen = iota + 1
 	ClearOnChange
-	ClearNever
 )
 
 type ClearWhen int
