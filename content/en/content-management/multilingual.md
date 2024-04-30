@@ -1,7 +1,7 @@
 ---
 title: Multilingual mode
 linkTitle: Multilingual
-description: Hugo supports the creation of websites with multiple languages side by side.
+description: Localize your project for each language and region, including translations, images, dates, currencies, numbers, percentages, and collation sequence. Hugo's multilingual framework supports single-host and multihost configurations.
 categories: [content management]
 keywords: [multilingual,i18n,internationalization]
 menu:
@@ -13,15 +13,23 @@ toc: true
 aliases: [/content/multilingual/,/tutorials/create-a-multilingual-site/]
 ---
 
-You should define the available languages in a `languages` section in your site configuration.
-
-Also See [Hugo Multilingual Part 1: Content translation].
-
 ## Configure languages
 
 This is the default language configuration:
 
 {{< code-toggle config=languages />}}
+
+In the above, `en` is the language key.
+
+{{% note %}}
+Each language key must conform to the syntax described in [RFC 5646]. You must use hyphens to separate subtags. For example:
+
+- `en`
+- `en-GB`
+- `pt-BR`
+
+[RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.1
+{{% /note %}}
 
 This is an example of a site configuration for a multilingual project. Any key not defined in a `languages` object will fall back to the global value in the root of your site configuration.
 
@@ -55,11 +63,11 @@ subtitle = 'Reference, Tutorials, and Explanations'
 {{< /code-toggle >}}
 
 defaultContentLanguage
-: (`string`) The project's default language tag as defined by [RFC 5646]. Must be lower case, and must match one of the defined language keys. Default is `en`. Examples:
+: (`string`) The project's default language key, conforming to the syntax described in [RFC 5646]. This value must match one of the defined language keys. Examples:
 
 - `en`
-- `en-gb`
-- `pt-br`
+- `en-GB`
+- `pt-BR`
 
 defaultContentLanguageInSubdir
 : (`bool`)  If `true`, Hugo renders the default language site in a subdirectory matching the `defaultContentLanguage`. Default is `false`.
@@ -71,7 +79,7 @@ disabled
 : (`bool`) If `true`, Hugo will not render content for this language. Default is `false`.
 
 languageCode
-: (`string`) The language tag as defined by [RFC 5646]. This value does not affect localization or URLs. Hugo uses this value to populate the `language` element in the [built-in RSS template], and the `lang` attribute of the `html` element in the [built-in alias template]. Examples:
+: (`string`) The language tag as described in [RFC 5646]. This value does not affect localization or URLs. Hugo uses this value to populate the `language` element in the [built-in RSS template], and the `lang` attribute of the `html` element in the [built-in alias template]. Examples:
 
 - `en`
 - `en-GB`
@@ -92,7 +100,7 @@ weight
 [`dir`]: https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/dir
 [built-in RSS template]: https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/rss.xml
 [built-in alias template]: https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/alias.html
-[RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646
+[RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.1
 [translating by file name]: #translation-by-file-name
 
 ### Changes in Hugo 0.112.0
@@ -622,6 +630,5 @@ hugo new content content/de/post/test.md
 [menus]: /content-management/menus/
 [OS environment]: /getting-started/configuration/#configure-with-environment-variables
 [`rellangurl`]: /functions/urls/rellangurl/
-[RFC 5646]: https://tools.ietf.org/html/rfc564/
 [single page templates]: /templates/single-page-templates/
 [`time.Format`]: /functions/time/format/
