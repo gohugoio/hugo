@@ -1585,3 +1585,39 @@ title: p1
 	b.AddFiles("content/p2.md", "---\ntitle: p2\n---").Build()
 	b.AssertFileContent("public/index.html", "p1|p2|") // this test passes, which doesn't match reality
 }
+
+func TestRebuildHomeThenPageIssue12436(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ['sitemap','taxonomy','term']
+disableLiveReload = true
+-- layouts/_default/list.html --
+{{ .Content }}
+-- layouts/_default/single.html --
+{{ .Content }}
+-- content/_index.md --
+---
+title: home
+---
+home-content|
+-- content/p1/index.md --
+---
+title: p1
+---
+p1-content|
+`
+
+	b := TestRunning(t, files)
+
+	b.AssertFileContent("public/index.html", "home-content|")
+	b.AssertFileContent("public/p1/index.html", "p1-content|")
+
+	b.EditFileReplaceAll("content/_index.md", "home-content", "home-content-foo").Build()
+	b.AssertFileContent("public/index.html", "home-content-foo")
+
+	b.EditFileReplaceAll("content/p1/index.md", "p1-content", "p1-content-foo").Build()
+	b.AssertFileContent("public/p1/index.html", "p1-content-foo")
+}
