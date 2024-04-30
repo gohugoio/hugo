@@ -71,7 +71,7 @@ disabled
 : (`bool`) If `true`, Hugo will not render content for this language. Default is `false`.
 
 languageCode
-: (`string`) The language tag as defined by [RFC 5646]. This value may include upper and lower case characters, hyphens, or underscores, and does not affect localization or URLs. Hugo uses this value to populate the `language` element in the [built-in RSS template], and the `lang` attribute of the `html` element in the [built-in alias template]. Examples:
+: (`string`) The language tag as defined by [RFC 5646]. This value does not affect localization or URLs. Hugo uses this value to populate the `language` element in the [built-in RSS template], and the `lang` attribute of the `html` element in the [built-in alias template]. Examples:
 
 - `en`
 - `en-GB`
