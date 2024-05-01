@@ -277,7 +277,7 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 
 	changes := assembleChanges.Changes()
 
-	// Changes from the assemble step (e.g. lastMod, cascase) needs a re-calculation
+	// Changes from the assemble step (e.g. lastMod, cascade) needs a re-calculation
 	// of what needs to be re-built.
 	if len(changes) > 0 {
 		if err := h.resolveAndClearStateForIdentities(ctx, l, nil, changes); err != nil {
@@ -596,6 +596,10 @@ type pathChange struct {
 
 	// If true, this is a directory.
 	isDir bool
+}
+
+func (p pathChange) isStructuralChange() bool {
+	return p.delete || p.isDir
 }
 
 // processPartial prepares the Sites' sources for a partial rebuild.
