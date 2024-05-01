@@ -148,7 +148,6 @@ func liveReloadJS() []byte {
 }
 
 var (
-	// This is a patched version, see https://github.com/livereload/livereload-js/pull/84
 	//go:embed livereload.js
 	livereloadJS         string
 	hugoLiveReloadPlugin = fmt.Sprintf(`
@@ -168,11 +167,11 @@ HugoReload.prototype.reload = function(path, options) {
 	if (path.lastIndexOf(prefix, 0) !== 0) {
 		return false
 	}
-	
+
 	path = path.substring(prefix.length);
 
 	var portChanged = options.overrideURL && options.overrideURL != window.location.port
-	
+
 	if (!portChanged && window.location.pathname === path) {
 		window.location.reload();
 	} else {
