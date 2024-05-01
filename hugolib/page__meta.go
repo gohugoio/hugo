@@ -74,7 +74,9 @@ type pageMeta struct {
 // Prepare for a rebuild of the data passed in from front matter.
 func (m *pageMeta) setMetaPostPrepareRebuild() {
 	params := xmaps.Clone[map[string]any](m.paramsOriginal)
-	m.pageMetaParams.pageConfig.Params = params
+	m.pageMetaParams.pageConfig = &pagemeta.PageConfig{
+		Params: params,
+	}
 	m.pageMetaFrontMatter = pageMetaFrontMatter{}
 }
 
@@ -275,6 +277,7 @@ func (p *pageMeta) Weight() int {
 
 func (p *pageMeta) setMetaPre(pi *contentParseInfo, logger loggers.Logger, conf config.AllProvider) error {
 	frontmatter := pi.frontMatter
+
 	if frontmatter != nil {
 		pcfg := p.pageConfig
 		if pcfg == nil {
@@ -362,6 +365,7 @@ func (ps *pageState) setMetaPost(cascade map[page.PageMatcher]maps.Params) error
 	if ps.m.setMetaPostCount > 1 {
 		ps.m.setMetaPostCascadeChanged = cascadeHashPre != identity.HashUint64(ps.m.pageConfig.Cascade)
 		if !ps.m.setMetaPostCascadeChanged {
+
 			// No changes, restore any value that may be changed by aggregation.
 			ps.m.pageConfig.Dates = ps.m.datesOriginal
 			return nil

@@ -1614,9 +1614,11 @@ p1-content|
 
 	b.AssertFileContent("public/index.html", "home-content|")
 	b.AssertFileContent("public/p1/index.html", "p1-content|")
+	b.AssertRenderCountPage(3)
 
 	b.EditFileReplaceAll("content/_index.md", "home-content", "home-content-foo").Build()
 	b.AssertFileContent("public/index.html", "home-content-foo")
+	b.AssertRenderCountPage(2) // Home page rss + html
 
 	b.EditFileReplaceAll("content/p1/index.md", "p1-content", "p1-content-foo").Build()
 	b.AssertFileContent("public/p1/index.html", "p1-content-foo")

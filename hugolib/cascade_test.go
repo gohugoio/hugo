@@ -329,7 +329,7 @@ cascade:
 
 		counters := &buildCounters{}
 		b.Build(BuildCfg{testCounters: counters})
-		b.Assert(int(counters.contentRenderCounter.Load()), qt.Equals, 2)
+		b.Assert(int(counters.contentRenderCounter.Load()), qt.Equals, 1)
 
 		b.AssertFileContent("public/post/index.html", `Banner: post.jpg|Layout: postlayout|Type: posttype|Content: <p>content edit</p>`)
 		b.AssertFileContent("public/post/dir/p1/index.html", `Banner: post.jpg|Layout: postlayout|`)
@@ -670,6 +670,55 @@ S1|p1:|p2:p2|
 		S1|p1:|p2:p2|
 		`)
 	})
+}
+
+func TestCascadeEditIssue12449(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ['sitemap','rss', 'home', 'taxonomy','term']
+disableLiveReload = true
+-- layouts/_default/list.html --
+Title: {{ .Title }}|{{ .Content }}|cascadeparam: {{ .Params.cascadeparam }}|
+-- layouts/_default/single.html --
+Title: {{ .Title }}|{{ .Content }}|cascadeparam: {{ .Params.cascadeparam }}|
+-- content/mysect/_index.md --
+---
+title: mysect
+cascade:
+  description: descriptionvalue
+  params:
+    cascadeparam: cascadeparamvalue
+---
+mysect-content|
+-- content/mysect/p1/index.md --
+---
+slug: p1
+---
+p1-content|
+-- content/mysect/subsect/_index.md --
+---
+slug: subsect
+---
+subsect-content|
+`
+
+	b := TestRunning(t, files)
+
+	// Make the cascade set the title.
+	b.EditFileReplaceAll("content/mysect/_index.md", "description: descriptionvalue", "title: cascadetitle").Build()
+	b.AssertFileContent("public/mysect/subsect/index.html", "Title: cascadetitle|")
+
+	// Edit cascade title.
+	b.EditFileReplaceAll("content/mysect/_index.md", "title: cascadetitle", "title: cascadetitle-edit").Build()
+	b.AssertFileContent("public/mysect/subsect/index.html", "Title: cascadetitle-edit|")
+
+	// Revert title change.
+	// The step below failed in #12449.
+	b.EditFileReplaceAll("content/mysect/_index.md", "title: cascadetitle-edit", "description: descriptionvalue").Build()
+	b.AssertFileContent("public/mysect/subsect/index.html", "Title: |")
 }
 
 // Issue 11977.

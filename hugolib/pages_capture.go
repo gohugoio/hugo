@@ -147,7 +147,7 @@ func (c *pagesCollector) Collect() (collectErr error) {
 					false,
 					func(fim hugofs.FileMetaInfo) bool {
 						if fim.IsDir() {
-							return true
+							return id.isStructuralChange()
 						}
 						fimp := fim.Meta().PathInfo
 						if fimp == nil {
@@ -160,7 +160,7 @@ func (c *pagesCollector) Collect() (collectErr error) {
 			} else {
 				// We always start from a directory.
 				collectErr = c.collectDir(id.p, id.isDir, func(fim hugofs.FileMetaInfo) bool {
-					if id.delete || id.isDir {
+					if id.isStructuralChange() {
 						if id.isDir && fim.Meta().PathInfo.IsLeafBundle() {
 							return strings.HasPrefix(fim.Meta().PathInfo.Path(), paths.AddTrailingSlash(id.p.Path()))
 						}
