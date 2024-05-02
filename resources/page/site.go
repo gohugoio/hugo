@@ -21,6 +21,7 @@ import (
 	"github.com/gohugoio/hugo/config/privacy"
 	"github.com/gohugoio/hugo/config/services"
 	"github.com/gohugoio/hugo/identity"
+	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/config"
 
@@ -145,6 +146,20 @@ func (s Sites) First() Site {
 		return nil
 	}
 	return s[0]
+}
+
+// GetSite returns the site corresponding to the given language.
+func (s Sites) GetSite(lang string) (Site, error) {
+	slang, err := cast.ToStringE(lang)
+	if err != nil {
+		return nil, err
+	}
+	for _, site := range s {
+		if site.Language().Lang == slang {
+			return site, nil
+		}
+	}
+	return nil, nil
 }
 
 // Some additional interfaces implemented by siteWrapper that's not on Site.

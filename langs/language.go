@@ -15,6 +15,7 @@
 package langs
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"time"
@@ -24,6 +25,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/maps"
+
 	"github.com/gohugoio/locales"
 	translators "github.com/gohugoio/localescompressed"
 )
@@ -110,6 +112,12 @@ func (l *Language) LanguageCode() string {
 		return l.LanguageConfig.LanguageCode
 	}
 	return l.Lang
+}
+
+// Translate returns a translated string for id.
+func (l *Language) Translate(ctx context.Context, id string, args ...any) (string, error) {
+	translatedString := "" // TODO (jmm)
+	return translatedString, nil
 }
 
 func (l *Language) loadLocation(tzStr string) error {

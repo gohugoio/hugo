@@ -126,3 +126,43 @@ title: home_es
 	b.AssertFileContent("public/es/index.html", `home_es_gato`)
 	b.AssertFileContent("public/fr/index.html", `home_fr_gato`)
 }
+
+// Issue 7844
+func TestSiteLanguageTranslate(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+defaultContentLanguage = 'de'
+defaultContentLanguageInSubdir = true
+[languages.en]
+weight = 2
+[languages.de]
+weight = 1
+-- i18n/de.toml --
+[cat]
+one = '{{ . }} Katze'
+other = '{{ . }} Katzen'
+[dog]
+one = '{{ . }} Hund'
+other = '{{ . }} Hunde'
+-- i18n/en.toml --
+[cat]
+one = '{{ . }} cat'
+other = '{{ . }} cats'
+[dog]
+one = '{{ . }} dog'
+other = '{{ . }} dogs'
+-- layouts/index.html --
+{{ range .AllTranslations }}{{ .Language.Lang }}|{{ .Site.Language.Translate "cat" 6 }}|{{ end }}
+{{ with .Sites.GetSite "en" }}{{ .Language.Lang }}|{{ .Language.Translate "dog" 7 }}|{{ end }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/de/index.html",
+		"de|6 Katzen|en|6 cats|",
+		"en|7 dogs|",
+	)
+}
