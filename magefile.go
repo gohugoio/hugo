@@ -79,8 +79,7 @@ func flagEnv() map[string]string {
 // Generate autogen packages
 func Generate() error {
 	generatorPackages := []string{
-		//"tpl/tplimpl/embedded/generate",
-		//"resources/page/generate",
+		"livereload/gen",
 	}
 
 	for _, pkg := range generatorPackages {
