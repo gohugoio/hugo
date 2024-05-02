@@ -114,7 +114,7 @@ If your site requires Dart Sass to transpile Sass to CSS, the configuration file
 {{< code file=netlify.toml >}}
 [build.environment]
 HUGO_VERSION = "0.125.4"
-DART_SASS_VERSION = "1.72.0"
+DART_SASS_VERSION = "1.76.0"
 TZ = "America/Los_Angeles"
 
 [build]
