@@ -225,9 +225,6 @@ type PageMetaProvider interface {
 	// to the source of this Page. It will be relative to any content root.
 	Path() string
 
-	// This is for internal use only.
-	PathInfo() *paths.Path
-
 	// The slug, typically defined in front matter.
 	Slug() string
 
@@ -253,6 +250,12 @@ type PageMetaProvider interface {
 	Weight() int
 }
 
+// PageMetaInternalProvider provides internal page metadata.
+type PageMetaInternalProvider interface {
+	// This is for internal use only.
+	PathInfo() *paths.Path
+}
+
 // PageRenderProvider provides a way for a Page to render content.
 type PageRenderProvider interface {
 	// Render renders the given layout with this Page as context.
@@ -273,6 +276,7 @@ type PageWithoutContent interface {
 	RenderShortcodesProvider
 	resource.Resource
 	PageMetaProvider
+	PageMetaInternalProvider
 	resource.LanguageProvider
 
 	// For pages backed by a file.

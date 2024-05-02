@@ -67,6 +67,7 @@ type pageCommon struct {
 	page.InSectionPositioner
 	page.OutputFormatsProvider
 	page.PageMetaProvider
+	page.PageMetaInternalProvider
 	page.Positioner
 	page.RawContentProvider
 	page.RelatedKeywordsProvider

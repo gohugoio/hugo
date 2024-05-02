@@ -184,6 +184,7 @@ func (h *HugoSites) newPage(m *pageMeta) (*pageState, *paths.Path, error) {
 				ResourceNameTitleProvider: m,
 				ResourceParamsProvider:    m,
 				PageMetaProvider:          m,
+				PageMetaInternalProvider:  m,
 				RelatedKeywordsProvider:   m,
 				OutputFormatsProvider:     page.NopPage,
 				ResourceTypeProvider:      pageTypesProvider,
