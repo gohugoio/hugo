@@ -385,13 +385,37 @@ type Partition[K comparable, V any] struct {
 
 // GetOrCreate gets or creates a value for the given key.
 func (p *Partition[K, V]) GetOrCreate(key K, create func(key K) (V, error)) (V, error) {
+	v, err := p.doGetOrCreate(key, create)
+	if err != nil {
+		return p.zero, err
+	}
+	if resource.StaleVersion(v) > 0 {
+		p.c.Delete(key)
+		return p.doGetOrCreate(key, create)
+	}
+	return v, err
+}
+
+func (p *Partition[K, V]) doGetOrCreate(key K, create func(key K) (V, error)) (V, error) {
 	v, _, err := p.c.GetOrCreate(key, create)
+	return v, err
+}
+
+func (p *Partition[K, V]) GetOrCreateWitTimeout(key K, duration time.Duration, create func(key K) (V, error)) (V, error) {
+	v, err := p.doGetOrCreateWitTimeout(key, duration, create)
+	if err != nil {
+		return p.zero, err
+	}
+	if resource.StaleVersion(v) > 0 {
+		p.c.Delete(key)
+		return p.doGetOrCreateWitTimeout(key, duration, create)
+	}
 	return v, err
 }
 
 // GetOrCreateWitTimeout gets or creates a value for the given key and times out if the create function
 // takes too long.
-func (p *Partition[K, V]) GetOrCreateWitTimeout(key K, duration time.Duration, create func(key K) (V, error)) (V, error) {
+func (p *Partition[K, V]) doGetOrCreateWitTimeout(key K, duration time.Duration, create func(key K) (V, error)) (V, error) {
 	resultch := make(chan V, 1)
 	errch := make(chan error, 1)
 
@@ -448,7 +472,7 @@ func (p *Partition[K, V]) clearOnRebuild(changeset ...identity.Identity) {
 
 	shouldDelete := func(key K, v V) bool {
 		// We always clear elements marked as stale.
-		if resource.IsStaleAny(v) {
+		if resource.StaleVersion(v) > 0 {
 			return true
 		}
 
@@ -503,8 +527,8 @@ func (p *Partition[K, V]) Keys() []K {
 
 func (p *Partition[K, V]) clearStale() {
 	p.c.DeleteFunc(func(key K, v V) bool {
-		isStale := resource.IsStaleAny(v)
-		if isStale {
+		staleVersion := resource.StaleVersion(v)
+		if staleVersion > 0 {
 			p.trace.Log(
 				logg.StringFunc(
 					func() string {
@@ -514,7 +538,7 @@ func (p *Partition[K, V]) clearStale() {
 			)
 		}
 
-		return isStale
+		return staleVersion > 0
 	})
 }
 

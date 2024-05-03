@@ -233,17 +233,27 @@ type StaleMarker interface {
 
 // StaleInfo tells if a resource is marked as stale.
 type StaleInfo interface {
-	IsStale() bool
+	StaleVersion() uint32
 }
 
-// IsStaleAny reports whether any of the os is marked as stale.
-func IsStaleAny(os ...any) bool {
-	for _, o := range os {
-		if s, ok := o.(StaleInfo); ok && s.IsStale() {
-			return true
+// StaleVersion returns the StaleVersion for the given os,
+// or 0 if not set.
+func StaleVersion(os any) uint32 {
+	if s, ok := os.(StaleInfo); ok {
+		return s.StaleVersion()
+	}
+	return 0
+}
+
+// StaleVersionSum calculates the sum of the StaleVersionSum for the given oss.
+func StaleVersionSum(oss ...any) uint32 {
+	var version uint32
+	for _, o := range oss {
+		if s, ok := o.(StaleInfo); ok && s.StaleVersion() > 0 {
+			version += s.StaleVersion()
 		}
 	}
-	return false
+	return version
 }
 
 // MarkStale will mark any of the oses as stale, if possible.

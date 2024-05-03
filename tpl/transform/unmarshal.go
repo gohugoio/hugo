@@ -95,8 +95,8 @@ func (ns *Namespace) Unmarshal(args ...any) (any, error) {
 
 			return &resources.StaleValue[any]{
 				Value: v,
-				IsStaleFunc: func() bool {
-					return resource.IsStaleAny(r)
+				StaleVersionFunc: func() uint32 {
+					return resource.StaleVersion(r)
 				},
 			}, nil
 		})
@@ -132,8 +132,8 @@ func (ns *Namespace) Unmarshal(args ...any) (any, error) {
 
 		return &resources.StaleValue[any]{
 			Value: v,
-			IsStaleFunc: func() bool {
-				return false
+			StaleVersionFunc: func() uint32 {
+				return 0
 			},
 		}, nil
 	})

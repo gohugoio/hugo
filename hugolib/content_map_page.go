@@ -824,10 +824,10 @@ func (s *contentNodeShifter) Insert(old, new contentNodeI) contentNodeI {
 		if !ok {
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
-		if newp != old {
-			resource.MarkStale(old)
-		}
 		if vv.s.languagei == newp.s.languagei {
+			if newp != old {
+				resource.MarkStale(old)
+			}
 			return new
 		}
 		is := make(contentNodeIs, s.numLanguages)
@@ -843,7 +843,6 @@ func (s *contentNodeShifter) Insert(old, new contentNodeI) contentNodeI {
 		if oldp != newp {
 			resource.MarkStale(oldp)
 		}
-
 		vv[newp.s.languagei] = new
 		return vv
 	case *resourceSource:
@@ -852,6 +851,9 @@ func (s *contentNodeShifter) Insert(old, new contentNodeI) contentNodeI {
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
 		if vv.LangIndex() == newp.LangIndex() {
+			if vv != newp {
+				resource.MarkStale(vv)
+			}
 			return new
 		}
 		rs := make(resourceSources, s.numLanguages)
@@ -1064,7 +1066,7 @@ func (h *HugoSites) resolveAndClearStateForIdentities(
 	)
 
 	for _, id := range changes {
-		if staler, ok := id.(resource.Staler); ok && !staler.IsStale() {
+		if staler, ok := id.(resource.Staler); ok {
 			var msgDetail string
 			if p, ok := id.(*pageState); ok && p.File() != nil {
 				msgDetail = fmt.Sprintf(" (%s)", p.File().Filename())

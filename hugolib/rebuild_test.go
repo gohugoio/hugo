@@ -53,6 +53,11 @@ title: "Home"
 Home Content.
 -- content/hometext.txt --
 Home Text Content.
+-- content/myothersection/myothersectionpage.md --
+---
+title: "myothersectionpage"
+---
+myothersectionpage Content.
 -- layouts/_default/single.html --
 Single: {{ .Title }}|{{ .Content }}$
 Resources: {{ range $i, $e := .Resources }}{{ $i }}:{{ .RelPermalink }}|{{ .Content }}|{{ end }}$
@@ -135,8 +140,8 @@ func TestRebuildRenameTextFileInLeafBundle(t *testing.T) {
 
 		b.RenameFile("content/mysection/mysectionbundle/mysectionbundletext.txt", "content/mysection/mysectionbundle/mysectionbundletext2.txt").Build()
 		b.AssertFileContent("public/mysection/mysectionbundle/index.html", "mysectionbundletext2", "My Section Bundle Text 2 Content.", "Len Resources: 2|")
-		b.AssertRenderCountPage(3)
-		b.AssertRenderCountContent(3)
+		b.AssertRenderCountPage(5)
+		b.AssertRenderCountContent(6)
 	})
 }
 
@@ -145,6 +150,19 @@ func TestRebuilEditContentFileInLeafBundle(t *testing.T) {
 	b.AssertFileContent("public/mysection/mysectionbundle/index.html", "My Section Bundle Content Content.")
 	b.EditFileReplaceAll("content/mysection/mysectionbundle/mysectionbundlecontent.md", "Content Content.", "Content Content Edited.").Build()
 	b.AssertFileContent("public/mysection/mysectionbundle/index.html", "My Section Bundle Content Content Edited.")
+}
+
+func TestRebuilEditContentFileThenAnother(t *testing.T) {
+	b := TestRunning(t, rebuildFilesSimple)
+	b.EditFileReplaceAll("content/mysection/mysectionbundle/mysectionbundlecontent.md", "Content Content.", "Content Content Edited.").Build()
+	b.AssertFileContent("public/mysection/mysectionbundle/index.html", "My Section Bundle Content Content Edited.")
+	b.AssertRenderCountPage(1)
+	b.AssertRenderCountContent(2)
+
+	b.EditFileReplaceAll("content/myothersection/myothersectionpage.md", "myothersectionpage Content.", "myothersectionpage Content Edited.").Build()
+	b.AssertFileContent("public/myothersection/myothersectionpage/index.html", "myothersectionpage Content Edited")
+	b.AssertRenderCountPage(1)
+	b.AssertRenderCountContent(1)
 }
 
 func TestRebuildRenameTextFileInBranchBundle(t *testing.T) {
@@ -163,7 +181,7 @@ func TestRebuildRenameTextFileInHomeBundle(t *testing.T) {
 
 	b.RenameFile("content/hometext.txt", "content/hometext2.txt").Build()
 	b.AssertFileContent("public/index.html", "hometext2", "Home Text Content.")
-	b.AssertRenderCountPage(2)
+	b.AssertRenderCountPage(3)
 }
 
 func TestRebuildRenameDirectoryWithLeafBundle(t *testing.T) {
@@ -179,7 +197,7 @@ func TestRebuildRenameDirectoryWithBranchBundle(t *testing.T) {
 	b.AssertFileContent("public/mysectionrenamed/index.html", "My Section")
 	b.AssertFileContent("public/mysectionrenamed/mysectionbundle/index.html", "My Section Bundle")
 	b.AssertFileContent("public/mysectionrenamed/mysectionbundle/mysectionbundletext.txt", "My Section Bundle Text 2 Content.")
-	b.AssertRenderCountPage(2)
+	b.AssertRenderCountPage(3)
 }
 
 func TestRebuildRenameDirectoryWithRegularPageUsedInHome(t *testing.T) {
@@ -278,7 +296,7 @@ func TestRebuildRenameDirectoryWithBranchBundleFastRender(t *testing.T) {
 	b.AssertFileContent("public/mysectionrenamed/index.html", "My Section")
 	b.AssertFileContent("public/mysectionrenamed/mysectionbundle/index.html", "My Section Bundle")
 	b.AssertFileContent("public/mysectionrenamed/mysectionbundle/mysectionbundletext.txt", "My Section Bundle Text 2 Content.")
-	b.AssertRenderCountPage(2)
+	b.AssertRenderCountPage(3)
 }
 
 func TestRebuilErrorRecovery(t *testing.T) {

@@ -657,8 +657,9 @@ type resourceAdapterInner struct {
 	*publishOnce
 }
 
-func (r *resourceAdapterInner) IsStale() bool {
-	return r.Staler.IsStale() || r.target.IsStale()
+func (r *resourceAdapterInner) StaleVersion() uint32 {
+	// Both of these are incremented on change.
+	return r.Staler.StaleVersion() + r.target.StaleVersion()
 }
 
 type resourceTransformations struct {

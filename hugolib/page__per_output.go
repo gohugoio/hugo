@@ -89,8 +89,8 @@ type pageContentOutput struct {
 	// typically included with .RenderShortcodes.
 	otherOutputs map[uint64]*pageContentOutput
 
-	contentRenderedVersion int  // Incremented on reset.
-	contentRendered        bool // Set on content render.
+	contentRenderedVersion uint32 // Incremented on reset.
+	contentRendered        bool   // Set on content render.
 
 	// Renders Markdown hooks.
 	renderHooks *renderHooks
