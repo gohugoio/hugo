@@ -235,46 +235,46 @@ public/
 
 #### Tokens
 
-Use these tokens when defining the URL pattern. The `date` field in front matter determines the value of time-related tokens.
+Use these tokens when defining the URL pattern.
 
 `:year`
-: the 4-digit year
+: The 4-digit year as defined in the front matter `date` field.
 
 `:month`
-: the 2-digit month
+: The 2-digit month as defined in the front matter `date` field.
 
 `:monthname`
-: the name of the month
+: The name of the month as defined in the front matter `date` field.
 
 `:day`
-: the 2-digit day
+: The 2-digit day as defined in the front matter `date` field.
 
 `:weekday`
-: the 1-digit day of the week (Sunday = 0)
+: The 1-digit day of the week as defined in the front matter `date` field  (Sunday = 0).
 
 `:weekdayname`
-: the name of the day of the week
+: The name of the day of the week as defined in the front matter `date` field.
 
 `:yearday`
-: the 1- to 3-digit day of the year
+: The 1- to 3-digit day of the year as defined in the front matter `date` field.
 
 `:section`
-: the content's section
+: The content's section.
 
 `:sections`
-: the content's sections hierarchy. You can use a selection of the sections using _slice syntax_: `:sections[1:]` includes all but the first, `:sections[:last]` includes all but the last, `:sections[last]` includes only the last, `:sections[1:2]` includes section 2 and 3. Note that this slice access will not throw any out-of-bounds errors, so you don't have to be exact.
+: The content's sections hierarchy. You can use a selection of the sections using _slice syntax_: `:sections[1:]` includes all but the first, `:sections[:last]` includes all but the last, `:sections[last]` includes only the last, `:sections[1:2]` includes section 2 and 3. Note that this slice access will not throw any out-of-bounds errors, so you don't have to be exact.
 
 `:title`
-: the content's title
+: The title as defined in front matter, else the automatic title. Hugo generates titles automatically for section, taxonomy, and term pages that are not backed by a file.
 
 `:slug`
-: the content's slug (or title if no slug is provided in the front matter)
-
-`:slugorfilename`
-: the content's slug (or file name if no slug is provided in the front matter)
+: The slug as defined in front matter, else the title as defined in front matter, else the automatic title. Hugo generates titles automatically for section, taxonomy, and term pages that are not backed by a file.
 
 `:filename`
-: the content's file name (without extension)
+: The content's file name without extension, applicable to the `page` page kind.
+
+`:slugorfilename`
+: The slug as defined in front matter, else the content's file name without extension, applicable to the `page` page kind.
 
 For time-related values, you can also use the layout string components defined in Go's [time package]. For example:
 
@@ -426,9 +426,9 @@ Hugo renders alias files before rendering pages. A new page with the previous fi
 To override Hugo's embedded `alias` template, copy the [source code] to a file with the same name in the layouts directory. The template receives the following context:
 
 Permalink
-: the link to the page being aliased
+: The link to the page being aliased.
 
 Page
-: the Page data for the page being aliased
+: The Page data for the page being aliased.
 
 [source code]: {{% eturl alias %}}
