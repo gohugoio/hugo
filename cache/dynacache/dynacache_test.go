@@ -29,12 +29,12 @@ var (
 )
 
 type testItem struct {
-	name    string
-	isStale bool
+	name         string
+	staleVersion uint32
 }
 
-func (t testItem) IsStale() bool {
-	return t.isStale
+func (t testItem) StaleVersion() uint32 {
+	return t.staleVersion
 }
 
 func (t testItem) IdentifierBase() string {
@@ -109,7 +109,7 @@ func newTestCache(t *testing.T) *Cache {
 
 	p2.GetOrCreate("clearBecauseStale", func(string) (testItem, error) {
 		return testItem{
-			isStale: true,
+			staleVersion: 32,
 		}, nil
 	})
 
@@ -121,7 +121,7 @@ func newTestCache(t *testing.T) *Cache {
 
 	p2.GetOrCreate("clearNever", func(string) (testItem, error) {
 		return testItem{
-			isStale: false,
+			staleVersion: 0,
 		}, nil
 	})
 

@@ -487,7 +487,7 @@ Edited!!`, p.Title()))
 
 	// We currently rebuild all the language versions of the same content file.
 	// We could probably optimize that case, but it's not trivial.
-	b.Assert(int(counters.contentRenderCounter.Load()), qt.Equals, 33)
+	b.Assert(int(counters.contentRenderCounter.Load()), qt.Equals, 4)
 	b.AssertFileContent("public"+p.RelPermalink()+"index.html", "Edited!!")
 }
 

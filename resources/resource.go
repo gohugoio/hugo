@@ -296,16 +296,19 @@ type hashProvider interface {
 	hash() string
 }
 
+var _ resource.StaleInfo = (*StaleValue[any])(nil)
+
 type StaleValue[V any] struct {
 	// The value.
 	Value V
 
-	// IsStaleFunc reports whether the value is stale.
-	IsStaleFunc func() bool
+	// StaleVersionFunc reports the current version of the value.
+	// This always starts out at 0 and get incremented on staleness.
+	StaleVersionFunc func() uint32
 }
 
-func (s *StaleValue[V]) IsStale() bool {
-	return s.IsStaleFunc()
+func (s *StaleValue[V]) StaleVersion() uint32 {
+	return s.StaleVersionFunc()
 }
 
 type AtomicStaler struct {
@@ -313,11 +316,11 @@ type AtomicStaler struct {
 }
 
 func (s *AtomicStaler) MarkStale() {
-	atomic.StoreUint32(&s.stale, 1)
+	atomic.AddUint32(&s.stale, 1)
 }
 
-func (s *AtomicStaler) IsStale() bool {
-	return atomic.LoadUint32(&(s.stale)) > 0
+func (s *AtomicStaler) StaleVersion() uint32 {
+	return atomic.LoadUint32(&(s.stale))
 }
 
 // For internal use.

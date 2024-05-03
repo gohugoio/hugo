@@ -418,6 +418,8 @@ func (c *cachedContent) mustSource() []byte {
 
 func (c *contentParseInfo) contentSource(s resource.StaleInfo) ([]byte, error) {
 	key := c.sourceKey
+	versionv := s.StaleVersion()
+
 	v, err := c.h.cacheContentSource.GetOrCreate(key, func(string) (*resources.StaleValue[[]byte], error) {
 		b, err := c.readSourceAll()
 		if err != nil {
@@ -426,8 +428,8 @@ func (c *contentParseInfo) contentSource(s resource.StaleInfo) ([]byte, error) {
 
 		return &resources.StaleValue[[]byte]{
 			Value: b,
-			IsStaleFunc: func() bool {
-				return s.IsStale()
+			StaleVersionFunc: func() uint32 {
+				return s.StaleVersion() - versionv
 			},
 		}, nil
 	})
@@ -487,7 +489,7 @@ type contentPlainPlainWords struct {
 func (c *cachedContent) contentRendered(ctx context.Context, cp *pageContentOutput) (contentSummary, error) {
 	ctx = tpl.Context.DependencyScope.Set(ctx, pageDependencyScopeGlobal)
 	key := c.pi.sourceKey + "/" + cp.po.f.Name
-	versionv := cp.contentRenderedVersion
+	versionv := c.version(cp)
 
 	v, err := c.pm.cacheContentRendered.GetOrCreate(key, func(string) (*resources.StaleValue[contentSummary], error) {
 		cp.po.p.s.Log.Trace(logg.StringFunc(func() string {
@@ -504,8 +506,8 @@ func (c *cachedContent) contentRendered(ctx context.Context, cp *pageContentOutp
 		}
 
 		rs := &resources.StaleValue[contentSummary]{
-			IsStaleFunc: func() bool {
-				return c.IsStale() || cp.contentRenderedVersion != versionv
+			StaleVersionFunc: func() uint32 {
+				return c.version(cp) - versionv
 			},
 		}
 
@@ -607,7 +609,7 @@ var setGetContentCallbackInContext = hcontext.NewContextDispatcher[func(*pageCon
 
 func (c *cachedContent) contentToC(ctx context.Context, cp *pageContentOutput) (contentTableOfContents, error) {
 	key := c.pi.sourceKey + "/" + cp.po.f.Name
-	versionv := cp.contentRenderedVersion
+	versionv := c.version(cp)
 
 	v, err := c.pm.contentTableOfContents.GetOrCreate(key, func(string) (*resources.StaleValue[contentTableOfContents], error) {
 		source, err := c.pi.contentSource(c)
@@ -713,8 +715,8 @@ func (c *cachedContent) contentToC(ctx context.Context, cp *pageContentOutput) (
 
 		return &resources.StaleValue[contentTableOfContents]{
 			Value: ct,
-			IsStaleFunc: func() bool {
-				return c.IsStale() || cp.contentRenderedVersion != versionv
+			StaleVersionFunc: func() uint32 {
+				return c.version(cp) - versionv
 			},
 		}, nil
 	})
@@ -725,16 +727,21 @@ func (c *cachedContent) contentToC(ctx context.Context, cp *pageContentOutput) (
 	return v.Value, nil
 }
 
+func (c *cachedContent) version(cp *pageContentOutput) uint32 {
+	// Both of these gets incremented on change.
+	return c.StaleVersion() + cp.contentRenderedVersion
+}
+
 func (c *cachedContent) contentPlain(ctx context.Context, cp *pageContentOutput) (contentPlainPlainWords, error) {
 	key := c.pi.sourceKey + "/" + cp.po.f.Name
 
-	versionv := cp.contentRenderedVersion
+	versionv := c.version(cp)
 
 	v, err := c.pm.cacheContentPlain.GetOrCreateWitTimeout(key, cp.po.p.s.Conf.Timeout(), func(string) (*resources.StaleValue[contentPlainPlainWords], error) {
 		var result contentPlainPlainWords
 		rs := &resources.StaleValue[contentPlainPlainWords]{
-			IsStaleFunc: func() bool {
-				return c.IsStale() || cp.contentRenderedVersion != versionv
+			StaleVersionFunc: func() uint32 {
+				return c.version(cp) - versionv
 			},
 		}
 

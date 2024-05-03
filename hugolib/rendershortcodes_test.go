@@ -201,6 +201,43 @@ Myshort Original.
 	b.AssertFileContent("public/p1/index.html", "Edited")
 }
 
+func TestRenderShortcodesEditSectionContentWithShortcodeInIncludedPageIssue12458(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableLiveReload = true
+disableKinds = ["home", "taxonomy", "term", "rss", "sitemap", "robotsTXT", "404"]
+-- content/mysection/_index.md --
+---
+title: "My Section"
+---
+## p1-h1
+{{% include "p2" %}}
+-- content/mysection/p2.md --
+---
+title: "p2"
+---
+### Original
+{{% myshort %}}
+-- layouts/shortcodes/include.html --
+{{ $p := .Page.GetPage (.Get 0) }}
+{{ $p.RenderShortcodes }}
+-- layouts/shortcodes/myshort.html --
+Myshort Original.
+-- layouts/_default/list.html --
+ {{ .Content }}
+
+
+
+`
+	b := TestRunning(t, files)
+
+	b.AssertFileContent("public/mysection/index.html", "p1-h1")
+	b.EditFileReplaceAll("content/mysection/_index.md", "p1-h1", "p1-h1 Edited").Build()
+	b.AssertFileContent("public/mysection/index.html", "p1-h1 Edited")
+}
+
 func TestRenderShortcodesNestedPageContextIssue12356(t *testing.T) {
 	t.Parallel()
 
