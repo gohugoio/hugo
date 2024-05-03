@@ -40,7 +40,7 @@ toc: true
 ## Content authoring
 
 [Content formats]
-: Create your content using Markdown, HTML, AsciiDoc, Pandoc, reStructuredText, or Emacs Org Mode. Markdown is the default content format, conforming to the [CommonMark] and [GitHub Flavored Markdown] specifications.
+: Create your content using Markdown, HTML, AsciiDoc, Emacs Org Mode, Pandoc, or reStructuredText. Markdown is the default content format, conforming to the [CommonMark] and [GitHub Flavored Markdown] specifications.
 
 [Markdown attributes]
 : Apply HTML attributes such as `class` and `id` to Markdown images and block elements including blockquotes, fenced code blocks, headings, horizontal rules, lists, paragraphs, and tables.

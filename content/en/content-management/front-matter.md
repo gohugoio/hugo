@@ -161,18 +161,9 @@ lang
 
 ###### markup
 
-(`string`) A identifier corresponding to one of the supported [content formats]:
+(`string`) An identifier corresponding to one of the supported [content formats]. If not provided, Hugo determines the content renderer based on the file extension.
 
-Identifier|Content format
-:--|:--
-`adoc`|Asciidoc
-`html`|HTML
-`md`|Markdown
-`org`|Emacs Org Mode
-`pdc`|Pandoc
-`rst`|reStructuredText
-
-[content formats]: /content-management/formats/
+[content formats]: /content-management/formats/#comparison
 
 ###### menus
 

@@ -43,7 +43,7 @@ Unless you need a unique capability provided by one of the alternate Markdown ha
 {{% /note %}}
 
 [asciidoc]: https://asciidoc.org/
-[content format]: /content-management/formats/#list-of-content-formats
+[content format]: /content-management/formats/#formats
 [emacs org mode]: https://orgmode.org/
 [goldmark]: https://github.com/yuin/goldmark/
 [pandoc]: https://pandoc.org/

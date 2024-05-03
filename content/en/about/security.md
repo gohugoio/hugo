@@ -24,7 +24,7 @@ But when developing and building your site, the runtime is the `hugo` executable
 * Hugo has a virtual file system and only the main project (not third-party components) is allowed to mount directories or files outside the project root.
 * Only the main project can walk symbolic links.
 * User-defined components have read-only access to the filesystem.
-* We shell out to some external binaries to support [Asciidoctor](/content-management/formats/#list-of-content-formats) and similar, but those binaries and their flags are predefined and disabled by default (see [Security Policy](#security-policy)). General functions to run arbitrary external OS commands have been [discussed](https://github.com/gohugoio/hugo/issues/796), but not implemented because of security concerns.
+* We shell out to some external binaries to support [Asciidoctor](/content-management/formats/#formats) and similar, but those binaries and their flags are predefined and disabled by default (see [Security Policy](#security-policy)). General functions to run arbitrary external OS commands have been [discussed](https://github.com/gohugoio/hugo/issues/796), but not implemented because of security concerns.
 
 ## Security policy
 

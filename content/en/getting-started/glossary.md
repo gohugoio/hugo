@@ -82,6 +82,10 @@ Within a template, to connect one or more [identifiers](#identifier) with a dot.
 
 A collective term for the Chinese, Japanese, and Korean languages. See [details](https://en.wikipedia.org/wiki/CJK_characters).
 
+###### CLI
+
+Command line interface.
+
 ###### collection
 
 An [array](#array), [slice](#slice), or [map](#map).
