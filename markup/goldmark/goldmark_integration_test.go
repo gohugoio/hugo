@@ -744,3 +744,53 @@ a^*=x-b^*
 %!%
 	`)
 }
+
+func TestExtrasExtension(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+[markup.goldmark.extensions.extras.insert]
+enable = false
+[markup.goldmark.extensions.extras.mark]
+enable = false
+[markup.goldmark.extensions.extras.subscript]
+enable = false
+[markup.goldmark.extensions.extras.superscript]
+enable = false
+-- layouts/index.html --
+{{ .Content }}
+-- content/_index.md --
+---
+title: home
+---
+++insert++
+
+==mark==
+
+H~2~0
+
+1^st^
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		"<p>++insert++</p>",
+		"<p>==mark==</p>",
+		"<p>H~2~0</p>",
+		"<p>1^st^</p>",
+	)
+
+	files = strings.ReplaceAll(files, "enable = false", "enable = true")
+
+	b = hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		"<p><ins>insert</ins></p>",
+		"<p><mark>mark</mark></p>",
+		"<p>H<sub>2</sub>0</p>",
+		"<p>1<sup>st</sup></p>",
+	)
+}

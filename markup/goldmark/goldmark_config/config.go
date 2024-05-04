@@ -49,6 +49,20 @@ var Default = Config{
 			EastAsianLineBreaksStyle: "simple",
 			EscapedSpace:             false,
 		},
+		Extras: Extras{
+			Superscript: Superscript{
+				Enable: false,
+			},
+			Subscript: Subscript{
+				Enable: false,
+			},
+			Insert: Insert{
+				Enable: false,
+			},
+			Mark: Mark{
+				Enable: false,
+			},
+		},
 		Passthrough: Passthrough{
 			Enable: false,
 			Delimiters: DelimitersConfig{
@@ -112,6 +126,7 @@ type Extensions struct {
 	Typographer    Typographer
 	Footnote       bool
 	DefinitionList bool
+	Extras         Extras
 	Passthrough    Passthrough
 
 	// GitHub flavored markdown
@@ -150,7 +165,32 @@ type Typographer struct {
 	Apostrophe string
 }
 
-// Passthrough hold passthrough configuration.
+// Extras holds extras configuration.
+// github.com/hugoio/hugo-goldmark-extensions/extras
+type Extras struct {
+	Insert      Insert
+	Mark        Mark
+	Subscript   Subscript
+	Superscript Superscript
+}
+
+type Insert struct {
+	Enable bool
+}
+
+type Mark struct {
+	Enable bool
+}
+
+type Subscript struct {
+	Enable bool
+}
+
+type Superscript struct {
+	Enable bool
+}
+
+// Passthrough holds passthrough configuration.
 // github.com/hugoio/hugo-goldmark-extensions/passthrough
 type Passthrough struct {
 	// Whether to enable the extension

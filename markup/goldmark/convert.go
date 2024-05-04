@@ -17,6 +17,7 @@ package goldmark
 import (
 	"bytes"
 
+	"github.com/gohugoio/hugo-goldmark-extensions/extras"
 	"github.com/gohugoio/hugo-goldmark-extensions/passthrough"
 	"github.com/gohugoio/hugo/markup/goldmark/hugocontext"
 	"github.com/yuin/goldmark/util"
@@ -112,6 +113,15 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 	)
 
 	extensions = append(extensions, images.New(cfg.Parser.WrapStandAloneImageWithinParagraph))
+
+	extensions = append(extensions, extras.New(
+		extras.Config{
+			Insert:      extras.InsertConfig{Enable: cfg.Extensions.Extras.Insert.Enable},
+			Mark:        extras.MarkConfig{Enable: cfg.Extensions.Extras.Mark.Enable},
+			Subscript:   extras.SubscriptConfig{Enable: cfg.Extensions.Extras.Subscript.Enable},
+			Superscript: extras.SuperscriptConfig{Enable: cfg.Extensions.Extras.Superscript.Enable},
+		},
+	))
 
 	if mcfg.Highlight.CodeFences {
 		extensions = append(extensions, codeblocks.New())
