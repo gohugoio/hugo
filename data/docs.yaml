@@ -1065,6 +1065,15 @@ config:
           enable: false
           escapedSpace: false
         definitionList: true
+        extras:
+          insert:
+            enable: false
+          mark:
+            enable: false
+          subscript:
+            enable: false
+          superscript:
+            enable: false
         footnote: true
         linkify: true
         linkifyProtocol: https
