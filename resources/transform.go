@@ -49,6 +49,7 @@ var (
 	_ resource.ReadSeekCloserResource    = (*resourceAdapter)(nil)
 	_ resource.Resource                  = (*resourceAdapter)(nil)
 	_ resource.Staler                    = (*resourceAdapterInner)(nil)
+	_ identity.IdentityGroupProvider     = (*resourceAdapterInner)(nil)
 	_ resource.Source                    = (*resourceAdapter)(nil)
 	_ resource.Identifier                = (*resourceAdapter)(nil)
 	_ resource.ResourceNameTitleProvider = (*resourceAdapter)(nil)
@@ -655,6 +656,10 @@ type resourceAdapterInner struct {
 
 	// Handles publishing (to /public) if needed.
 	*publishOnce
+}
+
+func (r *resourceAdapterInner) GetIdentityGroup() identity.Identity {
+	return r.target.GetIdentityGroup()
 }
 
 func (r *resourceAdapterInner) StaleVersion() uint32 {
