@@ -30,7 +30,7 @@ To retrieve and render the content:
   {{ with .Err }}
     {{ errorf "%s" . }}
   {{ else }}
-    {{ with .Content | transform.Unmarshal }}
+    {{ with . | transform.Unmarshal }}
       {{ .content | base64Decode | markdownify }}
     {{ end }}
   {{ end }}

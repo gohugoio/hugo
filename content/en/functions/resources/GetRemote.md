@@ -79,12 +79,22 @@ When retrieving remote data, use the [`transform.Unmarshal`] function to [unmars
   {{ with .Err }}
     {{ errorf "%s" . }}
   {{ else }}
-    {{ $data = .Content | transform.Unmarshal }}
+    {{ $data = . | transform.Unmarshal }}
   {{ end }}
 {{ else }}
   {{ errorf "Unable to get remote resource %q" $url }}
 {{ end }}
 ```
+
+{{% note %}}
+When retrieving remote data, a misconfigured server may send a response header with an incorrect [Content-Type]. For example, the server may set the Content-Type header to `application/octet-stream` instead of `application/json`.
+
+In these cases, pass the resource `Content` through the `transform.Unmarshal` function instead of passing the resource itself. For example, in the above, do this instead:
+
+`{{ $data = .Content | transform.Unmarshal }}`
+
+[Content-Type]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
+{{% /note %}}
 
 ## Error handling
 
