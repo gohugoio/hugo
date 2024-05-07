@@ -3,6 +3,12 @@
 {{- if not $u.IsAbs -}}
   {{- with or (.PageInner.Resources.Get $u.Path) (resources.Get $u.Path) -}}
     {{- $src = .RelPermalink -}}
+    {{- with $u.RawQuery -}}
+      {{- $src = printf "%s?%s" $src . -}}
+    {{- end -}}
+    {{- with $u.Fragment -}}
+      {{- $src = printf "%s#%s" $src . -}}
+    {{- end -}}
   {{- end -}}
 {{- end -}}
 {{- $attributes := merge .Attributes (dict "alt" .Text "src" $src "title" (.Title | transform.HTMLEscape)) -}}

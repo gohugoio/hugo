@@ -130,30 +130,34 @@ title: s1/p3
 }
 
 // Issue 12203
-func TestEmbeddedImageRenderHookMarkdownAttributes(t *testing.T) {
+// Issue 12468
+func TestEmbeddedImageRenderHook(t *testing.T) {
 	t.Parallel()
 
 	files := `
 -- config.toml --
-disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+baseURL = 'https://example.org/dir/'
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
 [markup.goldmark.parser]
 wrapStandAloneImageWithinParagraph = false
 [markup.goldmark.parser.attribute]
 block = false
 [markup.goldmark.renderHooks.image]
 enableDefault = true
--- content/_index.md --
-![alt](a.jpg)
+-- content/p1/index.md --
+![alt](pixel.png?a=b&c=d#fragment)
 {.foo #bar}
--- layouts/index.html --
+-- content/p1/pixel.png --
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+-- layouts/_default/single.html --
 {{ .Content }}
 `
 
 	b := hugolib.Test(t, files)
-	b.AssertFileContent("public/index.html", `<img alt="alt" src="a.jpg">`)
+	b.AssertFileContent("public/p1/index.html", `<img alt="alt" src="/dir/p1/pixel.png?a=b&c=d#fragment">`)
 
 	files = strings.Replace(files, "block = false", "block = true", -1)
 
 	b = hugolib.Test(t, files)
-	b.AssertFileContent("public/index.html", `<img alt="alt" class="foo" id="bar" src="a.jpg">`)
+	b.AssertFileContent("public/p1/index.html", `<img alt="alt" class="foo" id="bar" src="/dir/p1/pixel.png?a=b&c=d#fragment">`)
 }
