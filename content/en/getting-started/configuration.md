@@ -248,7 +248,7 @@ To remain consistent and prevent unexpected behavior, do not mix these strategie
 
 ###### canonifyURLs
 
-(`bool`) Enable to turn relative URLs into absolute.  Default is `false`. See&nbsp;[details](/content-management/urls/#canonical-urls).
+(`bool`) See [details](/content-management/urls/#canonical-urls) before enabling this feature. Default is `false`.
 
 ###### cleanDestinationDir
 
@@ -395,20 +395,6 @@ See [Content Management](/content-management/urls/#permalinks).
 
 (`string`) The directory to where Hugo will write the final static site (the HTML files etc.). Default is `public`.
 
-###### related
-
-See [Related Content](/content-management/related/#configure-related-content).
-
-###### relativeURLs
-
-(`bool`) Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.  Default is `false`. See&nbsp;[details](/content-management/urls/#relative-urls).
-
-###### renderSegments
-
-(`string slice`) A list of segments to render. If not set, everything will be rendered. This is more commonly set in a CLI flag, e.g. `hugo --renderSegments segment1,segment2`.
-
-The segment names must match the names in the [segments](#configure-segments) configuration.
-
 ###### refLinksErrorLevel
 
 (`string`) When using `ref` or `relref` to resolve page links and a link cannot be resolved, it will be logged with this log level. Valid values are `ERROR` (default) or `WARNING`. Any `ERROR` will fail the build (`exit -1`).  Default is `ERROR`.
@@ -416,6 +402,20 @@ The segment names must match the names in the [segments](#configure-segments) co
 ###### refLinksNotFoundURL
 
 (`string`) URL to be used as a placeholder when a page reference cannot be found in `ref` or `relref`. Is used as-is.
+
+###### related
+
+See [Related Content](/content-management/related/#configure-related-content).
+
+###### relativeURLs
+
+(`bool`) See [details](/content-management/urls/#relative-urls) before enabling this feature. Default is `false`.
+
+###### renderSegments
+
+{{< new-in 0.124.0 >}}
+
+(`string slice`) A list of segments to render. If not set, everything will be rendered. This is more commonly set in a CLI flag, e.g. `hugo --renderSegments segment1,segment2`. The segment names must match the names in the [segments](#configure-segments) configuration.
 
 ###### removePathAccents
 
