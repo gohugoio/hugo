@@ -92,7 +92,7 @@ languageName
 : (`string`) The language name, typically used when rendering a language switcher.
 
 title
-: (`string`) The language title. When set, this overrides the site title for this language.
+: (`string`) The site title for this langauge (optional).
 
 weight
 : (`int`) The language weight. When set to a non-zero value, this is the primary sort criteria for this language.
