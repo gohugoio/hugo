@@ -372,7 +372,7 @@ series: [series-1]
 		<meta property="og:url" content="/s1/p1/">
 		<meta property="og:title" content="p1">
 		<meta property="og:description" content="a b and c can’t.">
-		<meta property="og:locale" content="en-US">
+		<meta property="og:locale" content="en_US">
 		<meta property="og:type" content="article">
 		<meta property="article:section" content="s1">
 		<meta property="article:published_time" content="2024-04-24T08:00:00-07:00">
