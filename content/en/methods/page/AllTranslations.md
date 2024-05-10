@@ -63,9 +63,9 @@ And this template:
 {{ with .AllTranslations }}
   <ul>
     {{ range . }}
-      {{ $langName := or .Language.LanguageName .Language.Lang }}
-      {{ $langCode := or .Language.LanguageCode .Language.Lang }}
-      <li><a href="{{ .RelPermalink }}" hreflang="{{ $langCode }}">{{ .LinkTitle }} ({{ $langName }})</a></li>
+      <li>
+        <a href="{{ .RelPermalink }}" hreflang="{{ .Language.LanguageCode }}">{{ .LinkTitle }} ({{ or .Language.LanguageName .Language.Lang }})</a>
+      </li>
     {{ end }}
   </ul>
 {{ end }}
