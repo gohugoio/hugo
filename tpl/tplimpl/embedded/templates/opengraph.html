@@ -12,8 +12,8 @@
   <meta property="og:description" content="{{ . }}">
 {{- end }}
 
-{{- with or .Params.locale site.Language.LanguageCode site.Language.Lang }}
-  <meta property="og:locale" content="{{ . }}">
+{{- with or .Params.locale site.Language.LanguageCode }}
+  <meta property="og:locale" content="{{ replace . `-` `_` }}">
 {{- end }}
 
 {{- if .IsPage }}
