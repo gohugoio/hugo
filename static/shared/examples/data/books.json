@@ -1,6 +1,7 @@
 [
   {
     "author": "Victor Hugo",
+    "cover": "https://gohugo.io/shared/examples/images/the-hunchback-of-notre-dame.webp",
     "date": "2024-05-06",
     "isbn": "978-0140443530",
     "rating": 4,
@@ -13,18 +14,21 @@
   },
   {
     "author": "Victor Hugo",
+    "cover": "https://gohugo.io/shared/examples/images/les-misérables.webp",
     "date": "2022-12-30",
     "isbn": "978-0451419439",
     "rating": 5,
     "summary": "Introducing one of the most **famous characters** in literature, Jean Valjean—the noble peasant imprisoned for stealing a loaf of bread—Les Misérables ranks among the greatest novels of all time. In it, Victor Hugo takes readers deep into the Parisian underworld, immerses them in a battle between good and evil, and carries them to the barricades during the uprising of 1832 with a breathtaking realism that is unsurpassed in modern prose.",
     "tags": [
       "fiction",
-      "historical"
+      "historical",
+      "revolution"
     ],
     "title": "Les Misérables"
   },
   {
     "author": "Alexis de Tocqueville",
+    "cover": "https://gohugo.io/shared/examples/images/the-ancien-regime-and-the-revolution.webp",
     "date": "2023-04-01",
     "isbn": "978-0141441641",
     "rating": 3,
@@ -37,6 +41,7 @@
   },
   {
     "author": "François Furet",
+    "cover": "https://gohugo.io/shared/examples/images/interpreting-the-french-revolution.webp",
     "date": "2024-01-12",
     "isbn": "978-0521280495",
     "rating": 5,
