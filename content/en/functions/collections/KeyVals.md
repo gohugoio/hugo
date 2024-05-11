@@ -8,7 +8,7 @@ action:
   related:
     - methods/pages/Related
   returnType: types.KeyValues
-  signatures: [collections.KeyVals KEY VALUES...]
+  signatures: [collections.KeyVals KEY VALUE...]
 aliases: [/functions/keyvals]
 ---
 
