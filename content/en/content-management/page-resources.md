@@ -134,7 +134,7 @@ title
 : Sets the value returned in `Title`
 
 params
-: A map of custom key/values.
+: A map of custom key-value pairs.
 
 ### Resources metadata example
 

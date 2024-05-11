@@ -126,7 +126,7 @@ To determine the current environment within a template, use the [`hugo.Environme
 
 ###### field
 
-A predefined key/value pair in front matter such as `date` or `title`. See&nbsp;also&nbsp;[parameter](#parameter).
+A predefined key-value pair in front matter such as `date` or `title`. See&nbsp;also&nbsp;[parameter](#parameter).
 
 
 ###### flag
@@ -224,7 +224,7 @@ An unordered group of elements, each indexed by a unique key. See the [Go&nbsp;d
 
 ###### Markdown attribute
 
-A list of attributes, containing one or more key/value pairs, separated by spaces or commas, and wrapped by braces. Apply Markdown attributes to images and block-level elements including blockquotes, fenced code blocks, headings, horizontal rules, lists, paragraphs, and tables. See&nbsp;[details](/getting-started/configuration-markup/#goldmark).
+A list of attributes, containing one or more key-value pairs, separated by spaces or commas, and wrapped by braces. Apply Markdown attributes to images and block-level elements including blockquotes, fenced code blocks, headings, horizontal rules, lists, paragraphs, and tables. See&nbsp;[details](/getting-started/configuration-markup/#goldmark).
 
 ###### marshal
 
@@ -295,7 +295,7 @@ The process of [paginating](#paginate) a [section](#section) list.
 
 ###### parameter
 
-Typically, a user-defined key/value pair at the site or page level, but may also refer to a configuration setting or an [argument](#argument). See&nbsp;also&nbsp;[field](#field).
+Typically, a user-defined key-value pair at the site or page level, but may also refer to a configuration setting or an [argument](#argument). See&nbsp;also&nbsp;[field](#field).
 
 ###### partial
 

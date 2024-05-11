@@ -46,7 +46,7 @@ targetPath
 : (`string`) If not set, the transformed resource's target path will be the original path of the asset file with its extension replaced by `.css`.
 
 vars
-: (`map`) A map of key/value pairs that will be available in the `hugo:vars` namespace. Useful for [initializing Sass variables from Hugo templates](https://discourse.gohugo.io/t/42053/).
+: (`map`) A map of key-value pairs that will be available in the `hugo:vars` namespace. Useful for [initializing Sass variables from Hugo templates](https://discourse.gohugo.io/t/42053/).
 
 ```scss
 // LibSass

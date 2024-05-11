@@ -68,7 +68,7 @@ You may add [global HTML attributes], or HTML attributes specific to the current
 
 [global HTML attributes]: https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes
 
-The attribute list consists of one or more key/value pairs, separated by spaces or commas, wrapped by braces. You must quote string values that contain spaces. Unlike HTML, boolean attributes must have both key and value.
+The attribute list consists of one or more key-value pairs, separated by spaces or commas, wrapped by braces. You must quote string values that contain spaces. Unlike HTML, boolean attributes must have both key and value.
 
 For example:
 
