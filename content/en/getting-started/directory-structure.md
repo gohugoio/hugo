@@ -150,7 +150,7 @@ target = 'content'
 {{% note %}}
 When you overlay one directory on top of another, you must mount both directories.
 
-If you think you need a symbolic link in your project directory, use Hugo's union file system instead.
+Hugo does not follow symbolic links. If you need the functionality provided by symbolic links, use Hugo's union file system instead.
 {{% /note %}}
 
 After mounting, the union file system has this structure:
