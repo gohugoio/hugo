@@ -34,7 +34,7 @@ Lang
 ```
 
 LanguageCode
-: (`string`) The language code from the site configuration.
+: (`string`) The language code from the site configuration. Falls back to `Lang` if not defined.
 
 ```go-html-template
 {{ .Language.LanguageCode }} → de-DE

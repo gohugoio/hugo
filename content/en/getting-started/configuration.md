@@ -328,8 +328,11 @@ See [image processing configuration](/content-management/image-processing/#imagi
 
 (`string`) A language tag as defined by [RFC 5646](https://datatracker.ietf.org/doc/html/rfc5646). This value is used to populate:
 
-- The `<language>` element in the internal [RSS template](https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/rss.xml)
-- The `lang` attribute of the `<html>` element in the internal [alias template](https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/alias.html)
+- The `<language>` element in the embedded [RSS template]({{% eturl rss %}})
+- The `lang` attribute of the `<html>` element in the embedded [alias template]({{% eturl alias %}})
+- The `og:locale` `meta` element in the embedded [Open Graph template]({{% eturl opengraph %}})
+
+When present in the root of the configuration, this value is ignored if one or more language keys exists. Please specify this value independently for each language key.
 
 ###### languages
 
