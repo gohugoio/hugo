@@ -114,7 +114,6 @@ To include the embedded template:
 
 Provide your tracking ID in your configuration file:
 
-**Google Analytics 4 (gtag.js)**
 {{< code-toggle file=hugo >}}
 [services.googleAnalytics]
 ID = "G-MEASUREMENT_ID"
