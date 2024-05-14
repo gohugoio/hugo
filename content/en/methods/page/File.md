@@ -82,6 +82,20 @@ The path separators (slash or backslash) in `Path`, `Dir`, and `Filename` depend
 {{ end }}
 ```
 
+###### IsContentAdapter
+
+{{< new-in 0.126.0 >}}
+
+(`bool`) Reports whether the file is a [content adapter].
+
+[content adapter]: /content-management/content-adapters/
+
+```go-html-template
+{{ with .File }}
+  {{ .IsContentAdapter }}
+{{ end }}
+```
+
 ###### LogicalName
 
 (`string`) The file name.
@@ -159,6 +173,7 @@ ContentBaseName|a|b|news
 Dir|news/|news/b/|news/
 Ext|md|md|md
 Filename|/home/user/...|/home/user/...|/home/user/...
+IsContentAdapter|false|false|false
 LogicalName|a.en.md|index.en.md|_index.en.md
 Path|news/a.en.md|news/b/index.en.md|news/_index.en.md
 Section|news|news|news

@@ -163,7 +163,7 @@ lang
 
 (`string`) An identifier corresponding to one of the supported [content formats]. If not provided, Hugo determines the content renderer based on the file extension.
 
-[content formats]: /content-management/formats/#comparison
+[content formats]: /content-management/formats/#classification
 
 ###### menus
 

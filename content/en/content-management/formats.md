@@ -29,7 +29,7 @@ content/
 
 Regardless of content format, all content must have [front matter], preferably including both `title` and `date`.
 
-Hugo selects the content renderer based on the `markup` identifier in front matter, falling back to the file extension. See the [comparison table](#comparison) table below for a list of markup identifiers and recognized file extensions.
+Hugo selects the content renderer based on the `markup` identifier in front matter, falling back to the file extension. See the [classification](#classification) table below for a list of markup identifiers and recognized file extensions.
 
 ## Formats
 
@@ -99,16 +99,16 @@ Hugo passes these CLI flags when calling the rst2html executable:
 --leave-comments --initial-header-level=2
 ```
 
-## Comparison
+## Classification
 
-Content format|Identifier|Identifier aliases|File extensions
+Content format|Media type|Identifier|File extensions
 :--|:--|:--|:--
-Markdown|`goldmark`|`md`, `mdown`, `markdown`|`md`, `mdown`, `markdown`
-HTML|`html`|`htm`|`html`, `htm`
-Emacs Org Mode|`org`||`org`
-AsciiDoc|`asciidocext`|`adoc`, `ad`|`adoc`, `ad`
-Pandoc|`pandoc`|`pdc`|`pandoc`, `pdc`
-reStructuredText|`rst`||`rst`
+Markdown|`text/markdown`|`markdown`|`markdown`,`md`, `mdown`
+HTML|`text/html`|`html`|`htm`, `html`
+Emacs Org Mode|`text/org`|`org`|`org`
+AsciiDoc|`text/asciidoc`|`asciidoc`|`ad`, `adoc`, `asciidoc`
+Pandoc|`text/pandoc`|`pandoc`|`pandoc`, `pdc`
+reStructuredText|`text/rst`|`rst`|`rst`
 
 When converting content to HTML, Hugo uses:
 

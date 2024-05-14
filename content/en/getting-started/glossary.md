@@ -90,6 +90,10 @@ Command line interface.
 
 An [array](#array), [slice](#slice), or [map](#map).
 
+###### content adapter
+
+A template that dynamically creates pages when building a site. For example, use a content adapter to create pages from a remote data source such as JSON, TOML, YAML, or XML. See&nbsp;[details](/content-management/content-adapters/).
+
 ###### content format
 
 A markup language for creating content. Typically Markdown, but may also be HTML, AsciiDoc, Org, Pandoc, or reStructuredText. See&nbsp;[details](/content-management/formats/).
