@@ -1209,6 +1209,12 @@ config:
       delimiter: .
       suffixes:
       - webp
+    text/asciidoc:
+      delimiter: .
+      suffixes:
+      - adoc
+      - asciidoc
+      - ad
     text/calendar:
       delimiter: .
       suffixes:
@@ -1225,6 +1231,7 @@ config:
       delimiter: .
       suffixes:
       - html
+      - htm
     text/javascript:
       delimiter: .
       suffixes:
@@ -1239,11 +1246,25 @@ config:
       delimiter: .
       suffixes:
       - md
+      - mdown
       - markdown
+    text/org:
+      delimiter: .
+      suffixes:
+      - org
+    text/pandoc:
+      delimiter: .
+      suffixes:
+      - pandoc
+      - pdc
     text/plain:
       delimiter: .
       suffixes:
       - txt
+    text/rst:
+      delimiter: .
+      suffixes:
+      - rst
     text/tsx:
       delimiter: .
       suffixes:
