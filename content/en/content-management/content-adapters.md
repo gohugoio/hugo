@@ -93,7 +93,7 @@ Returns the `Site` to which the pages will be added.
 
 ###### Store
 
-Creates a persistent “scratch pad” to store and manipulate data. See [examples](/methods/page/store/).
+Returns a persistent “scratch pad” to store and manipulate data. The main use case for this is to transfer values between executions when [EnableAllLanguages](#enablealllanguages) is set. See [examples](/methods/page/store/).
 
 {{< code file=content/books/_content.gotmpl >}}
 {{ .Store.Set "key" "value" }}
