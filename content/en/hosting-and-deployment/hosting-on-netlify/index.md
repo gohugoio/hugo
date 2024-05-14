@@ -101,7 +101,7 @@ Create a new file named netlify.toml in the root of your project directory. In i
 
 {{< code file=netlify.toml >}}
 [build.environment]
-HUGO_VERSION = "0.125.4"
+HUGO_VERSION = "0.126.0"
 TZ = "America/Los_Angeles"
 
 [build]
@@ -113,8 +113,8 @@ If your site requires Dart Sass to transpile Sass to CSS, the configuration file
 
 {{< code file=netlify.toml >}}
 [build.environment]
-HUGO_VERSION = "0.125.4"
-DART_SASS_VERSION = "1.76.0"
+HUGO_VERSION = "0.126.0"
+DART_SASS_VERSION = "1.77.1"
 TZ = "America/Los_Angeles"
 
 [build]
