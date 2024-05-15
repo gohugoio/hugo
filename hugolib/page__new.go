@@ -62,7 +62,8 @@ func (h *HugoSites) newPage(m *pageMeta) (*pageState, *paths.Path, error) {
 
 	if pcfg.Path != "" {
 		s := m.pageConfig.Path
-		if !paths.HasExt(s) {
+		// Paths from content adapters should never have any extension.
+		if pcfg.IsFromContentAdapter || !paths.HasExt(s) {
 			var (
 				isBranch    bool
 				isBranchSet bool

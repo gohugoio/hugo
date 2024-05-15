@@ -151,14 +151,6 @@ func (p *PageConfig) Compile(basePath string, pagesFromData bool, ext string, lo
 		p.Path = path.Join(basePath, p.Path)
 	}
 
-	if pagesFromData {
-		// Note that NormalizePathStringBasic will make sure that we don't preserve the unnormalized path.
-		// We do that when we create pages from the file system; mostly for backward compatibility,
-		// but also because people tend to use use the filename to name their resources (with spaces and all),
-		// and this isn't relevant when creating resources from an API where it's easy to add textual meta data.
-		p.Path = paths.NormalizePathStringBasic(p.Path)
-	}
-
 	if p.Content.Markup == "" && p.Content.MediaType == "" {
 		if ext == "" {
 			ext = "md"
@@ -188,6 +180,18 @@ func (p *PageConfig) Compile(basePath string, pagesFromData bool, ext string, lo
 
 	if p.Content.Markup == "" {
 		p.Content.Markup = p.ContentMediaType.SubType
+	}
+
+	if pagesFromData {
+		if p.Kind == "" {
+			p.Kind = kinds.KindPage
+		}
+
+		// Note that NormalizePathStringBasic will make sure that we don't preserve the unnormalized path.
+		// We do that when we create pages from the file system; mostly for backward compatibility,
+		// but also because people tend to use use the filename to name their resources (with spaces and all),
+		// and this isn't relevant when creating resources from an API where it's easy to add textual meta data.
+		p.Path = paths.NormalizePathStringBasic(p.Path)
 	}
 
 	if p.Cascade != nil {
