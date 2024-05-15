@@ -45,7 +45,7 @@ Hugo provides custom Markdown features including:
 : Apply HTML attributes such as `class` and `id` to Markdown images and block elements including blockquotes, fenced code blocks, headings, horizontal rules, lists, paragraphs, and tables.
 
 [Extensions]
-: Leverage the embedded Markdown extensions to create tables, definition lists, footnotes, task lists, and more.
+: Leverage the embedded Markdown extensions to create tables, definition lists, footnotes, task lists, inserted text, mark text, subscripts, superscripts, and more.
 
 [Mathematics]
 : Include mathematical equations and expressions in Markdown using LaTeX or TeX typesetting syntax.
