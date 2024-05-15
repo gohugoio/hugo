@@ -494,3 +494,27 @@ disableKinds = ['home','section','rss','sitemap','taxonomy','term']
 
 	b.AssertFileExists("public/s-1.2.3/p-4.5.6/index.html", true)
 }
+
+func TestPagesFromGoParamsIssue12497(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','section','rss','sitemap','taxonomy','term']
+-- content/_content.gotmpl --
+{{ .AddPage (dict "path" "p1" "title" "p1" "params" (dict "paraM1" "param1v" )) }}
+{{ .AddResource (dict "path" "p1/data1.yaml" "content" (dict "value" "data1" ) "params" (dict "paraM1" "param1v" )) }}
+-- layouts/_default/single.html --
+{{ .Title }}|{{ .Params.paraM1 }}
+{{ range .Resources }}
+{{ .Name }}|{{ .Params.paraM1 }}
+{{ end }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html",
+		"p1|param1v",
+		"data1.yaml|param1v",
+	)
+}
