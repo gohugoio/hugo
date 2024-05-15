@@ -477,3 +477,20 @@ baseURL = "https://example.com"
 	b.AssertFileExists("public/docs/p1/index.html", true)
 	b.AssertFileExists("public/docs/p2/index.html", false)
 }
+
+func TestPagesFromGoPathsWithDotsIssue12493(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','section','rss','sitemap','taxonomy','term']
+-- content/_content.gotmpl --
+{{ .AddPage (dict "path" "s-1.2.3/p-4.5.6" "title" "p-4.5.6") }}
+-- layouts/_default/single.html --
+{{ .Title }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileExists("public/s-1.2.3/p-4.5.6/index.html", true)
+}
