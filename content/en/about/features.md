@@ -46,7 +46,7 @@ toc: true
 : Apply HTML attributes such as `class` and `id` to Markdown images and block elements including blockquotes, fenced code blocks, headings, horizontal rules, lists, paragraphs, and tables.
 
 [Markdown extensions]
-: Leverage the embedded Markdown extensions to create tables, definition lists, footnotes, task lists, inserted text, mark test, subscripts, superscripts, and more.
+: Leverage the embedded Markdown extensions to create tables, definition lists, footnotes, task lists, inserted text, mark text, subscripts, superscripts, and more.
 
 [Markdown render hooks]
 : Override the conversion of Markdown to HTML when rendering fenced code blocks, headings, images, and links. For example, render every standalone image as an HTML `figure` element.
