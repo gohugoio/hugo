@@ -151,6 +151,11 @@ func (p *PageConfig) Compile(basePath string, pagesFromData bool, ext string, lo
 		p.Path = path.Join(basePath, p.Path)
 	}
 
+	if p.Params == nil {
+		p.Params = make(maps.Params)
+	}
+	maps.PrepareParams(p.Params)
+
 	if p.Content.Markup == "" && p.Content.MediaType == "" {
 		if ext == "" {
 			ext = "md"
