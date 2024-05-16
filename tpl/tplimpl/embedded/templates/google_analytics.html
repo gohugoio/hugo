@@ -6,7 +6,7 @@
       <script async src="https://www.googletagmanager.com/gtag/js?id={{- . }}"></script>
       <script>
         var doNotTrack = false;
-        if ({{- site.Config.Privacy.GoogleAnalytics.RespectDoNotTrack }}) {
+        if ({{ site.Config.Privacy.GoogleAnalytics.RespectDoNotTrack }}) {
           var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
           var doNotTrack = (dnt == "1" || dnt == "yes");
         }
