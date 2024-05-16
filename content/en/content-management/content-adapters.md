@@ -330,6 +330,20 @@ content/
         └── _index.md
 ```
 
+## Page collisions
+
+Two or more pages collide when they have the same publication path. Due to concurrency, the content of the published page is indeterminate. Consider this example:
+
+```text
+content/
+└── books/
+    ├── _content.gotmpl  <-- content adapter
+    ├── _index.md
+    └── the-hunchback-of-notre-dame.md
+```
+
+If the content adapter also creates books/the-hunchback-of-notre-dame, the content of the published page is indeterminate. You can not define the rendering order. Avoid this content structure.
+
 [content formats]: /content-management/formats/#classification
 [front matter field]: /content-management/front-matter/#fields
 [logical path]: /getting-started/glossary/#logical-path
