@@ -117,7 +117,7 @@ func (t ContentTypes) IsIndexContentFile(filename string) bool {
 
 	base := filepath.Base(filename)
 
-	return strings.HasPrefix(base, "index.") || strings.HasPrefix(base, "_index.")
+	return strings.HasPrefix(base, "index.") || strings.HasPrefix(base, "_index.") || strings.HasPrefix(base, "text.")
 }
 
 // IsHTMLSuffix returns whether the given suffix is a HTML media type.

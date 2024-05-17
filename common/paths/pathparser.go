@@ -198,6 +198,7 @@ func (pp *PathParser) doParse(component, s string, p *Path) (*Path, error) {
 		if isContent {
 			switch b {
 			case "index":
+			case "text":
 				p.bundleType = PathTypeLeaf
 			case "_index":
 				p.bundleType = PathTypeBranch
