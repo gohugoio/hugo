@@ -65,6 +65,9 @@ toc: true
 
 ## Content management
 
+[Content adapters]
+: Create content adapters to dynamically add content when building your site. For example, use a content adapter to create pages from a remote data source such as JSON, TOML, YAML, or XML.
+
 [Taxonomies]
 : Classify content to establish simple or complex logical relationships between pages. For example, create an authors taxonomy, and assign one or more authors to each page. Among other uses, the taxonomy system provides an inverted, weighted index to render a list of related pages, ordered by relevance.
 
@@ -100,11 +103,12 @@ toc: true
 [Minification]
 : Minify HTML, CSS, and JavaScript to reduce file size, bandwidth consumption, and loading times.
 
-[Caching]: /functions/partials/includecached/
 [CCPA]: https://en.wikipedia.org/wiki/California_Consumer_Privacy_Act
-[CommonMark]: https://spec.commonmark.org/current/
-[Content formats]: /content-management/formats/
 [CSS bundling]: /functions/resources/tocss/
+[Caching]: /functions/partials/includecached/
+[CommonMark]: https://spec.commonmark.org/current/
+[Content adapters]: /content-management/content-adapters/
+[Content formats]: /content-management/formats/
 [Data]: /templates/data-templates/
 [Diagrams]: /content-management/diagrams/
 [GDPR]: https://en.wikipedia.org/wiki/General_Data_Protection_Regulation
