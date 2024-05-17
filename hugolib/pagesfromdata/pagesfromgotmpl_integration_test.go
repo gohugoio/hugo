@@ -518,3 +518,70 @@ disableKinds = ['home','section','rss','sitemap','taxonomy','term']
 		"data1.yaml|param1v",
 	)
 }
+
+func TestPagesFromGoTmplPathWarningsPathPage(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ['home','section','rss','sitemap','taxonomy','term']
+printPathWarnings = true
+-- content/_content.gotmpl --
+{{ .AddPage (dict "path" "p1" "title" "p1" ) }}
+{{ .AddPage (dict "path" "p2" "title" "p2" ) }}
+-- content/p1.md --
+---
+title: "p1"
+---
+-- layouts/_default/single.html --
+{{ .Title }}|
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
+
+	b.AssertFileContent("public/p1/index.html", "p1|")
+
+	b.AssertLogContains("Duplicate content path")
+
+	files = strings.ReplaceAll(files, `"path" "p1"`, `"path" "p1new"`)
+
+	b = hugolib.Test(t, files, hugolib.TestOptWarn())
+
+	b.AssertLogNotContains("WARN")
+}
+
+func TestPagesFromGoTmplPathWarningsPathResource(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ['home','section','rss','sitemap','taxonomy','term']
+printPathWarnings = true
+-- content/_content.gotmpl --
+{{ .AddResource (dict "path" "p1/data1.yaml" "content" (dict "value" "data1" ) ) }}
+{{ .AddResource (dict "path" "p1/data2.yaml" "content" (dict "value" "data2" ) ) }}
+
+-- content/p1/index.md --
+---
+title: "p1"
+---
+-- content/p1/data1.yaml --
+value: data1
+-- layouts/_default/single.html --
+{{ .Title }}|
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
+
+	b.AssertFileContent("public/p1/index.html", "p1|")
+
+	b.AssertLogContains("Duplicate resource path")
+
+	files = strings.ReplaceAll(files, `"path" "p1/data1.yaml"`, `"path" "p1/data1new.yaml"`)
+
+	b = hugolib.Test(t, files, hugolib.TestOptWarn())
+
+	b.AssertLogNotContains("WARN")
+}

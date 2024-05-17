@@ -164,6 +164,55 @@ func (cfg contentMapConfig) getTaxonomyConfig(s string) (v viewName) {
 	return
 }
 
+func (m *pageMap) insertPageWithLock(s string, p *pageState) (contentNodeI, contentNodeI, bool) {
+	u, n, replaced := m.treePages.InsertIntoValuesDimensionWithLock(s, p)
+
+	if replaced && !m.s.h.isRebuild() && m.s.conf.PrintPathWarnings {
+		var messageDetail string
+		if p1, ok := n.(*pageState); ok && p1.File() != nil {
+			messageDetail = fmt.Sprintf(" file: %q", p1.File().Filename())
+		}
+		if p2, ok := u.(*pageState); ok && p2.File() != nil {
+			messageDetail += fmt.Sprintf(" file: %q", p2.File().Filename())
+		}
+
+		m.s.Log.Warnf("Duplicate content path: %q%s", s, messageDetail)
+	}
+
+	return u, n, replaced
+}
+
+func (m *pageMap) insertResourceWithLock(s string, r contentNodeI) (contentNodeI, contentNodeI, bool) {
+	u, n, replaced := m.treeResources.InsertIntoValuesDimensionWithLock(s, r)
+	if replaced {
+		m.handleDuplicateResourcePath(s, r, n)
+	}
+	return u, n, replaced
+}
+
+func (m *pageMap) insertResource(s string, r contentNodeI) (contentNodeI, contentNodeI, bool) {
+	u, n, replaced := m.treeResources.InsertIntoValuesDimension(s, r)
+	if replaced {
+		m.handleDuplicateResourcePath(s, r, n)
+	}
+	return u, n, replaced
+}
+
+func (m *pageMap) handleDuplicateResourcePath(s string, updated, existing contentNodeI) {
+	if m.s.h.isRebuild() || !m.s.conf.PrintPathWarnings {
+		return
+	}
+	var messageDetail string
+	if r1, ok := existing.(*resourceSource); ok && r1.fi != nil {
+		messageDetail = fmt.Sprintf(" file: %q", r1.fi.Meta().Filename)
+	}
+	if r2, ok := updated.(*resourceSource); ok && r2.fi != nil {
+		messageDetail += fmt.Sprintf(" file: %q", r2.fi.Meta().Filename)
+	}
+
+	m.s.Log.Warnf("Duplicate resource path: %q%s", s, messageDetail)
+}
+
 func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCount uint64, resourceCount uint64, addErr error) {
 	if fi.IsDir() {
 		return
@@ -207,7 +256,7 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 			rs = &resourceSource{path: pi, opener: r, fi: fim, langIndex: fim.Meta().LangIndex}
 		}
 
-		tree.InsertIntoValuesDimension(key, rs)
+		_, _, _ = m.insertResource(key, rs)
 
 		return nil
 	}
@@ -261,7 +310,7 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 			return
 		}
 
-		m.treePages.InsertIntoValuesDimensionWithLock(pi.Base(), p)
+		m.insertPageWithLock(pi.Base(), p)
 
 	}
 	return
@@ -336,7 +385,7 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 						return nil
 					}
 
-					u, n, replaced := s.pageMap.treePages.InsertIntoValuesDimensionWithLock(pi.Base(), ps)
+					u, n, replaced := s.pageMap.insertPageWithLock(pi.Base(), ps)
 
 					if h.isRebuild() {
 						if replaced {
@@ -358,9 +407,9 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 						return err
 					}
 
-					rs := &resourceSource{path: rc.PathInfo, rc: rc, opener: nil, fi: nil, langIndex: s.languagei}
+					rs := &resourceSource{path: rc.PathInfo, rc: rc, opener: nil, fi: pt.GoTmplFi, langIndex: s.languagei}
 
-					_, n, replaced := s.pageMap.treeResources.InsertIntoValuesDimensionWithLock(rc.PathInfo.Base(), rs)
+					_, n, replaced := s.pageMap.insertResourceWithLock(rc.PathInfo.Base(), rs)
 
 					if h.isRebuild() && replaced {
 						pt.AddChange(n.GetIdentity())
