@@ -135,7 +135,7 @@ Key|Descripion|Required
 `dates.publishDate`|The page publication date as a `time.Time` value.|&nbsp;
 `kind`|The [page kind]. Default is `page`.|&nbsp;
 `params`|A map of page parameters.|&nbsp;
-`path`|The page's [logical path] relative to the content adapter. Do not include a leading slash.|:heavy_check_mark:
+`path`|The page's [logical path] relative to the content adapter. Do not include a leading slash or file extension.|:heavy_check_mark:
 `title`|The page title.|&nbsp;
 
 {{% note %}}
