@@ -180,16 +180,18 @@ func TestLookupEqualFold(t *testing.T) {
 		"B": "bv",
 	}
 
-	v, found := LookupEqualFold(m1, "b")
+	v, k, found := LookupEqualFold(m1, "b")
 	c.Assert(found, qt.IsTrue)
 	c.Assert(v, qt.Equals, "bv")
+	c.Assert(k, qt.Equals, "B")
 
 	m2 := map[string]string{
 		"a": "av",
 		"B": "bv",
 	}
 
-	v, found = LookupEqualFold(m2, "b")
+	v, k, found = LookupEqualFold(m2, "b")
 	c.Assert(found, qt.IsTrue)
+	c.Assert(k, qt.Equals, "B")
 	c.Assert(v, qt.Equals, "bv")
 }

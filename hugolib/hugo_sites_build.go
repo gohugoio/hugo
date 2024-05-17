@@ -114,9 +114,9 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 
 	// Need a pointer as this may be modified.
 	conf := &config
-	if conf.whatChanged == nil {
+	if conf.WhatChanged == nil {
 		// Assume everything has changed
-		conf.whatChanged = &whatChanged{needsPagesAssembly: true}
+		conf.WhatChanged = &WhatChanged{needsPagesAssembly: true}
 	}
 
 	var prepareErr error
@@ -128,7 +128,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 					s.Deps.BuildStartListeners.Notify()
 				}
 
-				if len(events) > 0 {
+				if len(events) > 0 || len(conf.WhatChanged.Changes()) > 0 {
 					// Rebuild
 					if err := h.initRebuild(conf); err != nil {
 						return fmt.Errorf("initRebuild: %w", err)
@@ -224,7 +224,7 @@ func (h *HugoSites) initRebuild(config *BuildCfg) error {
 	})
 
 	for _, s := range h.Sites {
-		s.resetBuildState(config.whatChanged.needsPagesAssembly)
+		s.resetBuildState(config.WhatChanged.needsPagesAssembly)
 	}
 
 	h.reset(config)
@@ -245,7 +245,9 @@ func (h *HugoSites) process(ctx context.Context, l logg.LevelLogger, config *Bui
 
 	if len(events) > 0 {
 		// This is a rebuild
-		return h.processPartial(ctx, l, config, init, events)
+		return h.processPartialFileEvents(ctx, l, config, init, events)
+	} else if len(config.WhatChanged.Changes()) > 0 {
+		return h.processPartialRebuildChanges(ctx, l, config)
 	}
 	return h.processFull(ctx, l, config)
 }
@@ -256,8 +258,8 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 	l = l.WithField("step", "assemble")
 	defer loggers.TimeTrackf(l, time.Now(), nil, "")
 
-	if !bcfg.whatChanged.needsPagesAssembly {
-		changes := bcfg.whatChanged.Drain()
+	if !bcfg.WhatChanged.needsPagesAssembly {
+		changes := bcfg.WhatChanged.Drain()
 		if len(changes) > 0 {
 			if err := h.resolveAndClearStateForIdentities(ctx, l, nil, changes); err != nil {
 				return err
@@ -273,7 +275,7 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 	for i, s := range h.Sites {
 		assemblers[i] = &sitePagesAssembler{
 			Site:            s,
-			assembleChanges: bcfg.whatChanged,
+			assembleChanges: bcfg.WhatChanged,
 			ctx:             ctx,
 		}
 	}
@@ -289,7 +291,7 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 		return err
 	}
 
-	changes := bcfg.whatChanged.Drain()
+	changes := bcfg.WhatChanged.Drain()
 
 	// Changes from the assemble step (e.g. lastMod, cascade) needs a re-calculation
 	// of what needs to be re-built.
@@ -612,8 +614,19 @@ func (p pathChange) isStructuralChange() bool {
 	return p.delete || p.isDir
 }
 
-// processPartial prepares the Sites' sources for a partial rebuild.
-func (h *HugoSites) processPartial(ctx context.Context, l logg.LevelLogger, config *BuildCfg, init func(config *BuildCfg) error, events []fsnotify.Event) error {
+func (h *HugoSites) processPartialRebuildChanges(ctx context.Context, l logg.LevelLogger, config *BuildCfg) error {
+	if err := h.resolveAndClearStateForIdentities(ctx, l, nil, config.WhatChanged.Drain()); err != nil {
+		return err
+	}
+
+	if err := h.processContentAdaptersOnRebuild(ctx, config); err != nil {
+		return err
+	}
+	return nil
+}
+
+// processPartialFileEvents prepares the Sites' sources for a partial rebuild.
+func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLogger, config *BuildCfg, init func(config *BuildCfg) error, events []fsnotify.Event) error {
 	h.Log.Trace(logg.StringFunc(func() string {
 		var sb strings.Builder
 		sb.WriteString("File events:\n")
@@ -887,13 +900,13 @@ func (h *HugoSites) processPartial(ctx context.Context, l logg.LevelLogger, conf
 
 	resourceFiles := h.fileEventsContentPaths(addedOrChangedContent)
 
-	changed := &whatChanged{
+	changed := &WhatChanged{
 		needsPagesAssembly: needsPagesAssemble,
 		identitySet:        make(identity.Identities),
 	}
 	changed.Add(changes...)
 
-	config.whatChanged = changed
+	config.WhatChanged = changed
 
 	if err := init(config); err != nil {
 		return err
@@ -977,14 +990,14 @@ func (s *Site) handleContentAdapterChanges(bi pagesfromdata.BuildInfo, buildConf
 	}
 
 	if len(bi.ChangedIdentities) > 0 {
-		buildConfig.whatChanged.Add(bi.ChangedIdentities...)
-		buildConfig.whatChanged.needsPagesAssembly = true
+		buildConfig.WhatChanged.Add(bi.ChangedIdentities...)
+		buildConfig.WhatChanged.needsPagesAssembly = true
 	}
 
 	for _, p := range bi.DeletedPaths {
 		pp := path.Join(bi.Path.Base(), p)
 		if v, ok := s.pageMap.treePages.Delete(pp); ok {
-			buildConfig.whatChanged.Add(v.GetIdentity())
+			buildConfig.WhatChanged.Add(v.GetIdentity())
 		}
 	}
 }

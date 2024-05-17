@@ -194,7 +194,7 @@ func DecodeTypes(in map[string]any) (*config.ConfigNamespace[map[string]MediaTyp
 				return nil, nil, err
 			}
 			mm := maps.ToStringMap(v)
-			suffixes, found := maps.LookupEqualFold(mm, "suffixes")
+			suffixes, _, found := maps.LookupEqualFold(mm, "suffixes")
 			if found {
 				mediaType.SuffixesCSV = strings.TrimSpace(strings.ToLower(strings.Join(cast.ToStringSlice(suffixes), ",")))
 			}

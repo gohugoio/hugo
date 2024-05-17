@@ -36,6 +36,11 @@ func newResourceCache(rs *Spec, memCache *dynacache.Cache) *ResourceCache {
 			"/res1",
 			dynacache.OptionsPartition{ClearWhen: dynacache.ClearOnChange, Weight: 40},
 		),
+		CacheResourceRemote: dynacache.GetOrCreatePartition[string, resource.Resource](
+			memCache,
+			"/resr",
+			dynacache.OptionsPartition{ClearWhen: dynacache.ClearOnChange, Weight: 40},
+		),
 		cacheResources: dynacache.GetOrCreatePartition[string, resource.Resources](
 			memCache,
 			"/ress",
@@ -53,6 +58,7 @@ type ResourceCache struct {
 	sync.RWMutex
 
 	cacheResource               *dynacache.Partition[string, resource.Resource]
+	CacheResourceRemote         *dynacache.Partition[string, resource.Resource]
 	cacheResources              *dynacache.Partition[string, resource.Resources]
 	cacheResourceTransformation *dynacache.Partition[string, *resourceAdapterInner]
 

@@ -24,6 +24,9 @@ func (p P[T]) And(ps ...P[T]) P[T] {
 				return false
 			}
 		}
+		if p == nil {
+			return true
+		}
 		return p(v)
 	}
 }
@@ -35,6 +38,9 @@ func (p P[T]) Or(ps ...P[T]) P[T] {
 			if pp(v) {
 				return true
 			}
+		}
+		if p == nil {
+			return false
 		}
 		return p(v)
 	}

@@ -134,8 +134,7 @@ mediaTypes = ['text/plain']
 		// This is hard to get stable on GitHub Actions, it sometimes succeeds due to timing issues.
 		if err != nil {
 			b.AssertLogContains("Got Err")
-			b.AssertLogContains("Retry timeout")
-			b.AssertLogContains("ContentLength:0")
+			b.AssertLogContains("retry timeout")
 		}
 	})
 }

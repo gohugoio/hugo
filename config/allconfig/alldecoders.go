@@ -18,6 +18,8 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/cache/filecache"
+
+	"github.com/gohugoio/hugo/cache/httpcache"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/config"
@@ -92,6 +94,18 @@ var allDecoderSetups = map[string]decodeWeight{
 					cache.MaxAge = 0
 					p.c.Caches[k] = cache
 				}
+			}
+			return err
+		},
+	},
+	"httpcache": {
+		key: "httpcache",
+		decode: func(d decodeWeight, p decodeConfig) error {
+			var err error
+			p.c.HTTPCache, err = httpcache.DecodeConfig(p.bcfg, p.p.GetStringMap(d.key))
+			if p.c.IgnoreCache {
+				p.c.HTTPCache.Cache.For.Excludes = []string{"**"}
+				p.c.HTTPCache.Cache.For.Includes = []string{}
 			}
 			return err
 		},

@@ -141,10 +141,23 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 
 	memCache := dynacache.New(dynacache.Options{Watching: conf.Watching(), Log: logger})
 
+	var h *HugoSites
+	onSignalRebuild := func(ids ...identity.Identity) {
+		// This channel is buffered, but make sure we do this in a non-blocking way.
+		if cfg.ChangesFromBuild != nil {
+			go func() {
+				cfg.ChangesFromBuild <- ids
+			}()
+		}
+	}
+
 	firstSiteDeps := &deps.Deps{
-		Fs:                  cfg.Fs,
-		Log:                 logger,
-		Conf:                conf,
+		Fs:   cfg.Fs,
+		Log:  logger,
+		Conf: conf,
+		BuildState: &deps.BuildState{
+			OnSignalRebuild: onSignalRebuild,
+		},
 		MemCache:            memCache,
 		TemplateProvider:    tplimpl.DefaultTemplateProvider,
 		TranslationProvider: i18n.NewTranslationProvider(),
@@ -261,7 +274,8 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 		return li.Lang < lj.Lang
 	})
 
-	h, err := newHugoSites(cfg, firstSiteDeps, pageTrees, sites)
+	var err error
+	h, err = newHugoSites(cfg, firstSiteDeps, pageTrees, sites)
 	if err == nil && h == nil {
 		panic("hugo: newHugoSitesNew returned nil error and nil HugoSites")
 	}

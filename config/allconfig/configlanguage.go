@@ -173,6 +173,8 @@ func (c ConfigLanguage) GetConfigSection(s string) any {
 		return c.m.Modules
 	case "deployment":
 		return c.config.Deployment
+	case "httpCacheCompiled":
+		return c.config.C.HTTPCache
 	default:
 		panic("not implemented: " + s)
 	}

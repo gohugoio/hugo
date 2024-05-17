@@ -29,6 +29,7 @@ import (
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/gohugoio/hugo/identity"
 
@@ -53,6 +54,8 @@ func NewSpec(
 	logger loggers.Logger,
 	errorHandler herrors.ErrorSender,
 	execHelper *hexec.Exec,
+	buildClosers types.CloseAdder,
+	rebuilder identity.SignalRebuilder,
 ) (*Spec, error) {
 	conf := s.Cfg.GetConfig().(*allconfig.Config)
 	imgConfig := conf.Imaging
@@ -87,10 +90,12 @@ func NewSpec(
 	}
 
 	rs := &Spec{
-		PathSpec:    s,
-		Logger:      logger,
-		ErrorSender: errorHandler,
-		imaging:     imaging,
+		PathSpec:     s,
+		Logger:       logger,
+		ErrorSender:  errorHandler,
+		BuildClosers: buildClosers,
+		Rebuilder:    rebuilder,
+		imaging:      imaging,
 		ImageCache: newImageCache(
 			fileCaches.ImageCache(),
 			memCache,
@@ -111,8 +116,10 @@ func NewSpec(
 type Spec struct {
 	*helpers.PathSpec
 
-	Logger      loggers.Logger
-	ErrorSender herrors.ErrorSender
+	Logger       loggers.Logger
+	ErrorSender  herrors.ErrorSender
+	BuildClosers types.CloseAdder
+	Rebuilder    identity.SignalRebuilder
 
 	TextTemplates tpl.TemplateParseFinder
 

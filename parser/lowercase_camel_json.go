@@ -46,6 +46,12 @@ type LowerCaseCamelJSONMarshaller struct {
 	Value any
 }
 
+var preserveUpperCaseKeyRe = regexp.MustCompile(`^"HTTP`)
+
+func preserveUpperCaseKey(match []byte) bool {
+	return preserveUpperCaseKeyRe.Match(match)
+}
+
 func (c LowerCaseCamelJSONMarshaller) MarshalJSON() ([]byte, error) {
 	marshalled, err := json.Marshal(c.Value)
 
@@ -59,7 +65,7 @@ func (c LowerCaseCamelJSONMarshaller) MarshalJSON() ([]byte, error) {
 
 			// Empty keys are valid JSON, only lowercase if we do not have an
 			// empty key.
-			if len(match) > 2 {
+			if len(match) > 2 && !preserveUpperCaseKey(match) {
 				// Decode first rune after the double quotes
 				r, width := utf8.DecodeRune(match[1:])
 				r = unicode.ToLower(r)

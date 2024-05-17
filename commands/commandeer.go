@@ -48,6 +48,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugolib"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
@@ -102,6 +103,9 @@ type rootCommand struct {
 	// Some needs more than one, so keep them in a small cache.
 	commonConfigs *lazycache.Cache[int32, *commonConfig]
 	hugoSites     *lazycache.Cache[int32, *hugolib.HugoSites]
+
+	// changesFromBuild received from Hugo in watch mode.
+	changesFromBuild chan []identity.Identity
 
 	commands []simplecobra.Commander
 
@@ -304,7 +308,7 @@ func (r *rootCommand) ConfigFromProvider(key int32, cfg config.Provider) (*commo
 
 func (r *rootCommand) HugFromConfig(conf *commonConfig) (*hugolib.HugoSites, error) {
 	h, _, err := r.hugoSites.GetOrCreate(r.configVersionID.Load(), func(key int32) (*hugolib.HugoSites, error) {
-		depsCfg := deps.DepsCfg{Configs: conf.configs, Fs: conf.fs, LogOut: r.logger.Out(), LogLevel: r.logger.Level()}
+		depsCfg := r.newDepsConfig(conf)
 		return hugolib.NewHugoSites(depsCfg)
 	})
 	return h, err
@@ -316,10 +320,14 @@ func (r *rootCommand) Hugo(cfg config.Provider) (*hugolib.HugoSites, error) {
 		if err != nil {
 			return nil, err
 		}
-		depsCfg := deps.DepsCfg{Configs: conf.configs, Fs: conf.fs, LogOut: r.logger.Out(), LogLevel: r.logger.Level()}
+		depsCfg := r.newDepsConfig(conf)
 		return hugolib.NewHugoSites(depsCfg)
 	})
 	return h, err
+}
+
+func (r *rootCommand) newDepsConfig(conf *commonConfig) deps.DepsCfg {
+	return deps.DepsCfg{Configs: conf.configs, Fs: conf.fs, LogOut: r.logger.Out(), LogLevel: r.logger.Level(), ChangesFromBuild: r.changesFromBuild}
 }
 
 func (r *rootCommand) Name() string {
@@ -407,6 +415,8 @@ func (r *rootCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 	if err != nil {
 		return err
 	}
+
+	r.changesFromBuild = make(chan []identity.Identity, 10)
 
 	r.commonConfigs = lazycache.New(lazycache.Options[int32, *commonConfig]{MaxEntries: 5})
 	// We don't want to keep stale HugoSites in memory longer than needed.

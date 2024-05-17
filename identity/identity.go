@@ -241,6 +241,11 @@ type IdentityProvider interface {
 	GetIdentity() Identity
 }
 
+// SignalRebuilder is an optional interface for types that can signal a rebuild.
+type SignalRebuilder interface {
+	SignalRebuild(ids ...Identity)
+}
+
 // IncrementByOne implements Incrementer adding 1 every time Incr is called.
 type IncrementByOne struct {
 	counter uint64

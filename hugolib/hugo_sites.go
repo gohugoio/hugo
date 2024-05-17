@@ -405,8 +405,9 @@ func (h *HugoSites) withPage(fn func(s string, p *pageState) bool) {
 type BuildCfg struct {
 	// Skip rendering. Useful for testing.
 	SkipRender bool
+
 	// Use this to indicate what changed (for rebuilds).
-	whatChanged *whatChanged
+	WhatChanged *WhatChanged
 
 	// This is a partial re-render of some selected pages.
 	PartialReRender bool
