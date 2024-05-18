@@ -139,8 +139,15 @@ type Site interface {
 // Sites represents an ordered list of sites (languages).
 type Sites []Site
 
-// First is a convenience method to get the first Site, i.e. the main language.
+// Deprecated: Use .Sites.Default instead.
 func (s Sites) First() Site {
+	hugo.Deprecate(".Sites.First", "Use .Sites.Default instead.", "v0.127.0")
+	return s.Default()
+}
+
+// Default is a convenience method to get the site corresponding to the default
+// content language.
+func (s Sites) Default() Site {
 	if len(s) == 0 {
 		return nil
 	}
@@ -165,7 +172,7 @@ func (s *siteWrapper) Key() string {
 	return s.s.Language().Lang
 }
 
-// // Deprecated: Use .Site.Params instead.
+// Deprecated: Use .Site.Params instead.
 func (s *siteWrapper) Social() map[string]string {
 	return s.s.Social()
 }
