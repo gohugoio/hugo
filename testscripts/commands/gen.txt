@@ -1,6 +1,6 @@
 # Test the gen commands.
 # Note that adding new commands will require updating the NUM_COMMANDS value.
-env NUM_COMMANDS=42
+env NUM_COMMANDS=43
 
 hugo gen -h
 stdout 'A collection of several useful generators\.'

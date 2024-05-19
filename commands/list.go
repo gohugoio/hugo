@@ -41,6 +41,8 @@ func newListCommand() *listCommand {
 			p.PublishDate().Format(time.RFC3339),
 			strconv.FormatBool(p.Draft()),
 			p.Permalink(),
+			p.Kind(),
+			p.Section(),
 		}
 	}
 
@@ -67,15 +69,14 @@ func newListCommand() *listCommand {
 			"publishDate",
 			"draft",
 			"permalink",
+			"kind",
+			"section",
 		})
 
 		for _, p := range h.Pages() {
 			if shouldInclude(p) {
 				record := createRecord(h.Conf.BaseConfig().WorkingDir, p)
 				if err := writer.Write(record); err != nil {
-					return err
-				}
-				if err != nil {
 					return err
 				}
 			}
@@ -88,8 +89,8 @@ func newListCommand() *listCommand {
 		commands: []simplecobra.Commander{
 			&simpleCommand{
 				name:  "drafts",
-				short: "List all drafts",
-				long:  `List all of the drafts in your content directory.`,
+				short: "List draft content",
+				long:  `List draft content.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					shouldInclude := func(p page.Page) bool {
 						if !p.Draft() || p.File() == nil {
@@ -109,8 +110,8 @@ func newListCommand() *listCommand {
 			},
 			&simpleCommand{
 				name:  "future",
-				short: "List all posts dated in the future",
-				long:  `List all of the posts in your content directory which will be posted in the future.`,
+				short: "List future content",
+				long:  `List content with a future publication date.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					shouldInclude := func(p page.Page) bool {
 						if !resource.IsFuture(p) || p.File() == nil {
@@ -129,8 +130,8 @@ func newListCommand() *listCommand {
 			},
 			&simpleCommand{
 				name:  "expired",
-				short: "List all posts already expired",
-				long:  `List all of the posts in your content directory which has already expired.`,
+				short: "List expired content",
+				long:  `List content with a past expiration date.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					shouldInclude := func(p page.Page) bool {
 						if !resource.IsExpired(p) || p.File() == nil {
@@ -149,13 +150,27 @@ func newListCommand() *listCommand {
 			},
 			&simpleCommand{
 				name:  "all",
-				short: "List all posts",
-				long:  `List all of the posts in your content directory, include drafts, future and expired pages.`,
+				short: "List all content",
+				long:  `List all content including draft, future, and expired.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					shouldInclude := func(p page.Page) bool {
 						return p.File() != nil
 					}
 					return list(cd, r, shouldInclude, "buildDrafts", true, "buildFuture", true, "buildExpired", true)
+				},
+				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = cobra.NoFileCompletions
+				},
+			},
+			&simpleCommand{
+				name:  "published",
+				short: "List published content",
+				long:  `List content that is not draft, future, or expired.`,
+				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
+					shouldInclude := func(p page.Page) bool {
+						return !p.Draft() && !resource.IsFuture(p) && !resource.IsExpired(p) && p.File() != nil
+					}
+					return list(cd, r, shouldInclude)
 				},
 				withc: func(cmd *cobra.Command, r *rootCommand) {
 					cmd.ValidArgsFunction = cobra.NoFileCompletions
