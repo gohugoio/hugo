@@ -76,4 +76,3 @@ Open-source commenting systems:
 [issotutorial]: https://stiobhart.net/2017-02-24-isso-comments/
 [partials]: /templates/partials/
 [MongoDB]: https://www.mongodb.com/
-[tweet]: https://twitter.com/spf13

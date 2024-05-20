@@ -342,7 +342,7 @@ You may call the `twitter` shortcode by using its `tweet` alias.
 To display a Twitter post with this URL:
 
 ```txt
-https://twitter.com/SanDiegoZoo/status/1453110110599868418
+https://x.com/SanDiegoZoo/status/1453110110599868418
 ```
 
 Include this in your Markdown:

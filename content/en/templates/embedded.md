@@ -201,7 +201,7 @@ To include the embedded template:
 {{ template "_internal/schema.html" . }}
 ```
 
-## Twitter Cards
+## X (Twitter) Cards
 
 {{% note %}}
 To override Hugo's embedded Twitter Cards template, copy the [source code] to a file with the same name in the layouts/partials directory, then call it from your templates using the [`partial`] function:
@@ -212,7 +212,7 @@ To override Hugo's embedded Twitter Cards template, copy the [source code] to a 
 [source code]: {{% eturl twitter_cards %}}
 {{% /note %}}
 
-Hugo includes an embedded template for [Twitter Cards](https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/abouts-cards),
+Hugo includes an embedded template for [X (Twitter) Cards](https://developer.x.com/en/docs/twitter-for-websites/cards/overview/abouts-cards),
 metadata used to attach rich media to Tweets linking to your site.
 
 To include the embedded template:
@@ -221,9 +221,9 @@ To include the embedded template:
 {{ template "_internal/twitter_cards.html" . }}
 ```
 
-### Configure Twitter Cards
+### Configure X (Twitter) Cards
 
-Hugo's Twitter Card template is configured using a mix of configuration variables and [front-matter](/content-management/front-matter/) on individual pages.
+Hugo's X (Twitter) Card template is configured using a mix of configuration variables and [front-matter](/content-management/front-matter/) on individual pages.
 
 {{< code-toggle file=hugo >}}
 [params]

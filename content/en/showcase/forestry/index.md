@@ -36,7 +36,7 @@ Lastly, we want to take the opportunity to give some love to other amazing tools
 ### What tools did we use?
 
 * Our Norwegian designer Nichlas is in love with [**Sketch**](https://www.sketchapp.com/). From what we hear it’s a designer’s dream come true.
-* Some say our main graphic is [mesmerizing](https://twitter.com/hmncllctv/status/968907474664284160). Nichlas created it using [**3DS Max**](https://www.autodesk.com/products/3ds-max/overview).
+* Some say our main graphic is [mesmerizing](https://x.com/hmncllctv/status/968907474664284160). Nichlas created it using [**3DS Max**](https://www.autodesk.com/products/3ds-max/overview).
 * [**Hugo**](https://gohugo.io/) -- of course.
 * Chris can’t think of modern web development without [**Gulp**](https://gulpjs.com/) & [**Webpack**](https://webpack.js.org/). We used them to add additional build steps such as Browsersync, CSS, JS and SVG optimization.
 * Speaking about adding steps to our build, our lives would be much harder without [**CircleCI**](https://circleci.com/) for continuous deployment and automated testing purposes.
