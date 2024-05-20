@@ -204,22 +204,15 @@ For example, you will see the error above if you attempt to download an executab
 
 Although the allowlist contains entries for common media types, you may encounter situations where Hugo is unable to resolve the media type of a file that you know to be safe. In these situations, edit your site configuration to add the media type to the allowlist. For example:
 
-```text
+{{< code-toggle file=hugo >}}
 [security.http]
-mediaTypes=['application/vnd\.api\+json'] 
-```
+mediaTypes = ['^image/avif$','^application/vnd\.api\+json$']
+{{< /code-toggle >}}
 
 Note that the entry above is:
 
 - An _addition_ to the allowlist; it does not _replace_ the allowlist
 - An array of regular expressions
-
-For example, to add two entries to the allowlist:
-
-```text
-[security.http]
-mediaTypes=['application/vnd\.api\+json','image/avif']
-```
 
 [allowlist]: https://en.wikipedia.org/wiki/Whitelist
 [Content-Type]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
