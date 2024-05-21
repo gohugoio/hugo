@@ -167,7 +167,7 @@ Each menu entry defined in site configuration requires two or more properties:
 - Specify `name` and `url` for external links
 
 pageRef
-: (`string`) The file path of the target page, relative to the `content` directory. Omit language code and file extension. Required for *internal* links.
+: (`string`) The logical path of the target page, relative to the `content` directory. Omit language code and file extension. Required for *internal* links.
 
 Kind|pageRef
 :--|:--
