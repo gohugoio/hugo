@@ -98,10 +98,6 @@ type BuildConfig struct {
 	// One of never, fallback, always. Default is fallback
 	UseResourceCacheWhen string
 
-	// When enabled, will duplicate bundled resource files across languages that
-	// doesn't have a translated version.
-	DuplicateResourceFiles bool
-
 	// When enabled, will collect and write a hugo_stats.json with some build
 	// related aggregated data (e.g. CSS class names).
 	// Note that this was a bool <= v0.115.0.
