@@ -939,7 +939,6 @@ config:
     cacheBusters:
     - source: (postcss|tailwind)\.config\.js
       target: (css|styles|scss|sass)
-    duplicateResourceFiles: false
     noJSConfigInAssets: false
     useResourceCacheWhen: fallback
   buildDrafts: false
