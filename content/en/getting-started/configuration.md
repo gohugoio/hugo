@@ -852,6 +852,52 @@ If you want to know the current value of `cacheDir`, you can run `hugo config`, 
 [static-files]: /content-management/static-files/
 
 
+## Configure HTTP cache
+
+{{< new-in 0.127.0 >}}
+
+Note that this configuration is currently only relevant when using the [resources.GetRemote] function.
+
+The caching in Hugo is layered:
+
+```goat {.w-40}
+ .-----------.
+|  dynacache  |
+ '-----+-----'
+       |
+       v
+ .----------.
+| HTTP cache |
+ '-----+----'
+       |
+       v
+ .----------.
+| file cache |
+ '-----+----'
+```
+
+Dynacache
+: A in memory LRU cache that gets evicted on changes, [Cache Buster](#configure-cache-busters) matches and in low memory situations.
+
+HTTP Cache
+: Enables HTTP cache behavior (RFC 9111) for remote resources. This works best for resources with properly set up HTTP cache headers. The HTTP cache uses the [file cache] to store and serve cached resources.
+
+File Cache
+: See [file cache].
+
+The default HTTP cache disables everything:
+
+{{< code-toggle config=HTTPCache />}}
+
+caching
+: Enabled RFC 9111 cache behavior _for_ a configured set of resources. Stale resources will be refreshed from the [file cache] even if their configured TTL isn't reached.
+
+polling
+: Enables polling _for_ a set of resources. Note that you can enable polling for resources even if HTTP caching is disabled. This setting is only used when in watch mode (e.g. `hugo server`). When a change resource is detected, that change triggers a rebuild of pages using that resource.
+
+[resources.GetRemote]: /functions/resources/getremote/
+[file cache]: #configure-file-caches
+
 ## Configure segments
 
 {{< new-in 0.124.0 >}}
@@ -916,3 +962,4 @@ Some use cases for this feature:
 [kind]: /getting-started/glossary/#page-kind
 [output format]: /getting-started/glossary/#output-format
 [type]: /getting-started/glossary/#content-type
+

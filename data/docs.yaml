@@ -926,6 +926,20 @@ chroma:
     - zig
     Name: Zig
 config:
+  HTTPCache:
+    cache:
+      for:
+        excludes:
+        - '**'
+        includes: null
+    polls:
+    - disable: true
+      for:
+        excludes: null
+        includes:
+        - '**'
+      high: 0s
+      low: 0s
   archeTypeDir: archetypes
   assetDir: assets
   author: {}
@@ -1720,6 +1734,8 @@ config_helpers:
     deployment:
       _merge: none
     frontmatter:
+      _merge: none
+    httpcache:
       _merge: none
     imaging:
       _merge: none
