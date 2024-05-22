@@ -16,6 +16,7 @@ package hugolib
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -27,7 +28,7 @@ func TestContentMapSite(t *testing.T) {
 	pageTempl := `
 ---
 title: "Page %d"
-date: "2019-06-0%d"	
+date: "2019-06-0%d"
 lastMod: "2019-06-0%d"
 categories: [%q]
 ---
@@ -54,7 +55,7 @@ draft: true
 title: "Hugo Home"
 cascade:
     description: "Common Description"
-    
+
 ---
 
 Home Content.
@@ -110,7 +111,7 @@ IsDescendant overlap2: false: {{ $overlap2.IsDescendant $overlap1 }}
 IsAncestor overlap1: false: {{ $overlap1.IsAncestor $overlap2 }}
 IsAncestor overlap2: false: {{ $overlap2.IsAncestor $overlap1 }}
 FirstSection: {{ $blogSub.FirstSection.RelPermalink }} {{ $blog.FirstSection.RelPermalink }} {{ $home.FirstSection.RelPermalink }} {{ $page.FirstSection.RelPermalink }}
-InSection: true: {{ $page.InSection $blog }} false: {{ $page.InSection $blogSub }} 
+InSection: true: {{ $page.InSection $blog }} false: {{ $page.InSection $blogSub }}
 Next: {{ $page2.Next.RelPermalink }}
 NextInSection: {{ $page2.NextInSection.RelPermalink }}
 Pages: {{ range $blog.Pages }}{{ .RelPermalink }}|{{ end }}
@@ -140,11 +141,11 @@ Draft5: {{ if (.Site.GetPage "blog/draftsection/sub/page") }}FOUND{{ end }}|
 	 Num Regular: 9
         Main Sections: [blog]
         Pag Num Pages: 9
-        
-      Home: Hugo Home|/|2019-06-08|Current Section: /|Resources: 
-        Blog Section: Blogs|/blog/|2019-06-08|Current Section: /blog|Resources: 
+
+      Home: Hugo Home|/|2019-06-08|Current Section: /|Resources:
+        Blog Section: Blogs|/blog/|2019-06-08|Current Section: /blog|Resources:
         Blog Sub Section: Page 3|/blog/subsection/|2019-06-03|Current Section: /blog/subsection|Resources: application: /blog/subsection/subdata.json|
-        Page: Page 1|/blog/page1/|2019-06-01|Current Section: /blog|Resources: 
+        Page: Page 1|/blog/page1/|2019-06-01|Current Section: /blog|Resources:
         Bundle: Page 12|/blog/bundle/|0001-01-01|Current Section: /blog|Resources: application: /blog/bundle/data.json|page: |
         IsDescendant: true: true true: true true: true true: true true: true false: false false: false
         IsAncestor: true: true true: true true: true true: true true: true true: true false: false false: false false: false  false: false
@@ -153,7 +154,7 @@ Draft5: {{ if (.Site.GetPage "blog/draftsection/sub/page") }}FOUND{{ end }}|
         IsAncestor overlap1: false: false
         IsAncestor overlap2: false: false
         FirstSection: /blog/ /blog/ / /blog/
-        InSection: true: true false: false 
+        InSection: true: true false: false
         Next: /blog/page3/
         NextInSection: /blog/page3/
         Pages: /blog/page3/|/blog/subsection/|/blog/page2/|/blog/page1/|/blog/bundle/|
@@ -165,13 +166,13 @@ Draft5: {{ if (.Site.GetPage "blog/draftsection/sub/page") }}FOUND{{ end }}|
         Pag Blog Num Pages: 4
         Blog Num RegularPages: 4
         Blog Num Pages: 5
-        
+
         Draft1: |
         Draft2: FOUND|
         Draft3: FOUND|
         Draft4: FOUND|
         Draft5: FOUND|
-           
+
 `)
 }
 
@@ -185,7 +186,7 @@ title = "Integration Test"
 disableKinds=["page", "section", "taxonomy", "term", "sitemap", "robotsTXT", "RSS"]
 -- layouts/index.html --
 Home: {{ .Title }}|
-		
+
 	`
 
 	b := NewIntegrationTestBuilder(
@@ -357,4 +358,42 @@ p1-foo.txt
 	b.AssertFileExists("public/s1/p1.txt", true)     // failing test
 	b.AssertFileExists("public/s1/p1-foo.txt", true) // failing test
 	b.AssertFileExists("public/s1/p1/index.html", true)
+}
+
+func TestSitemapOverrideFilename(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'https://example.org/'
+disableKinds = ['page','rss','section','taxonomy','term']
+defaultContentLanguage = 'de'
+defaultContentLanguageInSubdir = true
+[languages.de]
+[languages.en]
+[sitemap]
+filename = 'foo.xml'
+-- layouts/index.html --
+irrelevant
+`
+
+	b := Test(t, files)
+
+	b.AssertFileExists("public/de/foo.xml", true)
+	b.AssertFileExists("public/en/foo.xml", true)
+	b.AssertFileContent("public/foo.xml",
+		"<loc>https://example.org/de/foo.xml</loc>",
+		"<loc>https://example.org/en/foo.xml</loc>",
+	)
+
+	files = strings.ReplaceAll(files, "filename = 'foo.xml'", "")
+
+	b = Test(t, files)
+
+	b.AssertFileExists("public/de/sitemap.xml", true)
+	b.AssertFileExists("public/en/sitemap.xml", true)
+	b.AssertFileContent("public/sitemap.xml",
+		"<loc>https://example.org/de/sitemap.xml</loc>",
+		"<loc>https://example.org/en/sitemap.xml</loc>",
+	)
 }
