@@ -1881,11 +1881,19 @@ func (sa *sitePagesAssembler) addStandalonePages() error {
 	}
 
 	if sitemapEnabled {
-		addStandalone("/_sitemap", kinds.KindSitemap, output.SitemapFormat)
-		skipSitemapIndex := s.Conf.IsMultihost() || !(s.Conf.DefaultContentLanguageInSubdir() || s.Conf.IsMultilingual())
+		of := output.SitemapFormat
+		if s.conf.Sitemap.Filename != "" {
+			of.BaseName = paths.Filename(s.conf.Sitemap.Filename)
+		}
+		addStandalone("/_sitemap", kinds.KindSitemap, of)
 
+		skipSitemapIndex := s.Conf.IsMultihost() || !(s.Conf.DefaultContentLanguageInSubdir() || s.Conf.IsMultilingual())
 		if !skipSitemapIndex {
-			addStandalone("/_sitemapindex", kinds.KindSitemapIndex, output.SitemapIndexFormat)
+			of = output.SitemapIndexFormat
+			if s.conf.Sitemap.Filename != "" {
+				of.BaseName = paths.Filename(s.conf.Sitemap.Filename)
+			}
+			addStandalone("/_sitemapindex", kinds.KindSitemapIndex, of)
 		}
 	}
 
