@@ -1,6 +1,6 @@
 ---
 title: Menu templates
-description: Use menu variables and methods in your templates to render a menu.
+description: Create templates to render one or more menus.
 categories: [templates]
 keywords: [lists,sections,menus]
 menu:

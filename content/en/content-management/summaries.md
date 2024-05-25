@@ -29,14 +29,20 @@ It is natural to accompany the summary with links to the original content, and a
 
 ### Automatic summary splitting
 
-By default, Hugo automatically takes the first 70 words of your content as its summary and stores it into the `.Summary` page variable for use in your templates. You may customize the summary length by setting `summaryLength` in your [site configuration](/getting-started/configuration/).
+By default, Hugo automatically takes the first 70 words of your content as its summary. Access this value from a template using the [`Summary`] method on a `Page` object. You may customize the summary length by setting [`summaryLength`] in your site configuration.
+
+[`Summary`]: /methods/page/summary
+[`summaryLength`]: /getting-started/configuration/#summarylength
 
 {{% note %}}
 You can customize how HTML tags in the summary are loaded using functions such as `plainify` and `safeHTML`.
 {{% /note %}}
 
 {{% note %}}
-The Hugo-defined summaries are set to use word count calculated by splitting the text by one or more consecutive whitespace characters. If you are creating content in a `CJK` language and want to use Hugo's automatic summary splitting, set `hasCJKLanguage` to `true` in your [site configuration](/getting-started/configuration/).
+The Hugo-defined summaries are set to use word count calculated by splitting the text by one or more consecutive whitespace characters. If you are creating content in a [`CJK`] language and want to use Hugo's automatic summary splitting, set [`hasCJKLanguage`] to `true` in your site configuration.
+
+[`CJK`]: /getting-started/glossary/#cjk
+[`hasCJKLanguage`]: /getting-started/configuration/#hascjklanguage
 {{% /note %}}
 
 ### Manual summary splitting
@@ -63,7 +69,7 @@ Be careful to enter `<!--more-->` exactly; i.e., all lowercase and with no white
 
 ### Front matter summary
 
-You might want your summary to be something other than the text that starts the article. In this case you can provide a separate summary in the `summary` variable of the article front matter.
+You might want your summary to be something other than the text that starts the article. In this case you can provide a separate summary in the `summary` field in front matter.
 
 Pros
 : Complete freedom of text independent of the content of the article. Markup can be used within the summary.
@@ -76,11 +82,11 @@ Cons
 Because there are multiple ways in which a summary can be specified it is useful to understand the order of selection Hugo follows when deciding on the text to be returned by `.Summary`. It is as follows:
 
 1. If there is a `<!--more-->` summary divider present in the article, the text up to the divider will be provided as per the manual summary split method
-2. If there is a `summary` variable in the article front matter the value of the variable will be provided as per the front matter summary method
+2. If there is a `summary` field in the article front matter the value of the variable will be provided as per the front matter summary method
 3. The text at the start of the article will be provided as per the automatic summary split method
 
 {{% note %}}
-Hugo uses the _first_ of the above steps that returns text. So if, for example, your article has both `summary` variable in its front matter and a `<!--more-->` summary divider Hugo will use the manual summary split method.
+Hugo uses the _first_ of the above steps that returns text. So if, for example, your article has both `summary` field in its front matter and a `<!--more-->` summary divider Hugo will use the manual summary split method.
 {{% /note %}}
 
 ## Example: first 10 articles with summaries
@@ -105,8 +111,9 @@ You can show content summaries with the following code. You could use the follow
 {{ end }}
 {{< /code >}}
 
-Note how the `.Truncated` boolean variable value may be used to hide the "Read More..." link when the content is not truncated; i.e., when the summary contains the entire article.
+Note how the `Truncated` method may be used to hide the "Read More..." link when the content is not truncated; i.e., when the summary contains the entire article.
 
+[`Truncated`]: /methods/page/truncated
 [`Permalink`]: /methods/page/permalink/
 [`RelPermalink`]: /methods/page/relpermalink/
 [`Summary`]: /methods/page/summary/

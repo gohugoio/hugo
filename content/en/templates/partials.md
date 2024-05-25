@@ -68,7 +68,7 @@ As shown in the above example directory structure, you can nest your directories
 
 The second argument in a partial call is the variable being passed down. The above examples are passing the `.`, which tells the template receiving the partial to apply the current [context][context].
 
-This means the partial will *only* be able to access those variables. The partial is isolated and *has no access to the outer scope*. From within the partial, `$.Var` is equivalent to `.Var`.
+This means the partial will *only* be able to access those variables. The partial is isolated and cannot access the outer scope. From within the partial, `$.Var` is equivalent to `.Var`.
 
 ## Returning a value from a partial
 

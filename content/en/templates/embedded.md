@@ -143,7 +143,7 @@ To include the embedded template:
 
 ### Configure Open Graph
 
-Hugo's Open Graph template is configured using a mix of configuration variables and [front-matter](/content-management/front-matter/) on individual pages.
+Hugo's Open Graph template is configured using a mix of configuration settings and [front matter](/content-management/front-matter/) on individual pages.
 
 {{< code-toggle file=hugo >}}
 [params]
