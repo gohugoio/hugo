@@ -13,43 +13,54 @@ action:
     - functions/safe/URL
   returnType: template.HTMLAttr
   signatures: [safe.HTMLAttr INPUT]
+toc: true
 aliases: [/functions/safehtmlattr]
 ---
 
-Given a site configuration that contains this menu entry:
+## Introduction
 
-{{< code-toggle file=hugo >}}
-[[menus.main]]
-  name = "IRC"
-  url = "irc://irc.freenode.net/#golang"
-{{< /code-toggle >}}
+{{% include "functions/_common/go-html-template-package.md" %}}
 
-Attempting to use the `url` value directly in an attribute:
+## Usage
+
+Use the `safe.HTMLAttr` function to encapsulate an HTML attribute from a trusted source.
+ 
+Use of this type presents a security risk: the encapsulated content should come from a trusted source, as it will be included verbatim in the template output.
+
+See the [Go documentation] for details.
+
+[Go documentation]: https://pkg.go.dev/html/template#HTMLAttr
+
+## Example
+
+Without a safe declaration:
 
 ```go-html-template
-{{ range site.Menus.main }}
-  <a href="{{ .URL }}">{{ .Name }}</a>
+{{ with .Date }}
+  {{ $humanDate := time.Format "2 Jan 2006" . }}
+  {{ $machineDate := time.Format "2006-01-02T15:04:05-07:00" . }}
+  <time datetime="{{ $machineDate }}">{{ $humanDate }}</time>
 {{ end }}
 ```
 
-Will produce:
+Hugo renders the above to:
 
 ```html
-<a href="#ZgotmplZ">IRC</a>
+<time datetime="2024-05-26T07:19:55&#43;02:00">26 May 2024</time>
 ```
 
-`ZgotmplZ` is a special value, inserted by Go's [template/html] package, that indicates that unsafe content reached a CSS or URL context.
-
-To indicate that the HTML attribute is safe:
+To declare the key-value pair as safe:
 
 ```go-html-template
-{{ range site.Menus.main }}
-  <a {{ printf "href=%q" .URL | safeHTMLAttr }}>{{ .Name }}</a>
+{{ with .Date }}
+  {{ $humanDate := time.Format "2 Jan 2006" . }}
+  {{ $machineDate := time.Format "2006-01-02T15:04:05-07:00" . }}
+  <time {{ printf "datetime=%q" $machineDate | safeHTMLAttr }}>{{ $humanDate }}</time>
 {{ end }}
 ```
 
-{{% note %}}
-As demonstrated above, you must pass the HTML attribute name _and_ value through the function. Applying `safeHTMLAttr` to the attribute value has no effect.
-{{% /note %}}
+Hugo renders the above to:
 
-[template/html]: https://pkg.go.dev/html/template
+```html
+<time datetime="2024-05-26T07:19:55+02:00">26 May 2024</time>
+```

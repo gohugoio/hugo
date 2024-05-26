@@ -13,27 +13,48 @@ action:
     - functions/safe/URL
   returnType: template.HTML
   signatures: [safe.HTML INPUT]
+toc: true
 aliases: [/functions/safehtml]
 ---
 
-It should not be used for HTML from a third-party, or HTML with unclosed tags or comments.
+## Introduction
 
-Given a site-wide [`hugo.toml`][config] with the following `copyright` value:
+{{% include "functions/_common/go-html-template-package.md" %}}
 
-{{< code-toggle file=hugo >}}
-copyright = "© 2015 Jane Doe.  <a href=\"https://creativecommons.org/licenses/by/4.0/\">Some rights reserved</a>."
-{{< /code-toggle >}}
+## Usage
 
-`{{ .Site.Copyright | safeHTML }}` in a template would then output:
+Use the `safe.HTML` function to encapsulate a known safe HTML document fragment. It should not be used for HTML from a third-party, or HTML with unclosed tags or comments.
 
-```html
-© 2015 Jane Doe.  <a href="https://creativecommons.org/licenses/by/4.0/">Some rights reserved</a>.
+Use of this type presents a security risk: the encapsulated content should come from a trusted source, as it will be included verbatim in the template output.
+
+See the [Go documentation] for details.
+
+[Go documentation]: https://pkg.go.dev/html/template#HTML
+
+## Example
+
+Without a safe declaration:
+
+```go-html-template
+{{ $html := "<em>emphasized</em>" }}
+{{ $html }}
 ```
 
-However, without the `safeHTML` function, html/template assumes `.Site.Copyright` to be unsafe and therefore escapes all HTML tags and renders the whole string as plain text:
+Hugo renders the above to:
 
 ```html
-<p>© 2015 Jane Doe.  &lt;a href=&#34;https://creativecommons.org/licenses by/4.0/&#34;&gt;Some rights reserved&lt;/a&gt;.</p>
+&lt;em&gt;emphasized&lt;/em&gt;
 ```
 
-[config]: /getting-started/configuration/
+To declare the string as safe:
+
+```go-html-template
+{{ $html := "<em>emphasized</em>" }}
+{{ $html | safeHTML }}
+```
+
+Hugo renders the above to:
+
+```html
+<em>emphasized</em>
+```
