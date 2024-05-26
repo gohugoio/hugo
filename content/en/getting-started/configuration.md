@@ -446,7 +446,9 @@ Default [sitemap configuration](/templates/sitemap-template/#configuration).
 
 ###### summaryLength
 
-(`int`) The length of text in words to show in a [`.Summary`](/content-management/summaries/#automatic-summary-splitting). Default is `70`.
+(`int`) Applicable to automatic summaries, the approximate number of words to render when calling the [`Summary`] method on a `Page` object. Default is `70`.
+
+[`Summary`]: /methods/page/summary/
 
 ###### taxonomies
 
