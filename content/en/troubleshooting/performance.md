@@ -24,7 +24,13 @@ For example, with Microsoft Defender Antivirus:
 
 Then type `hugo.exe` add press the **Add** button.
 
-Other virus scanners have similar exclusion mechanisms. See documentation.
+{{% note %}}
+Virus scanning exclusions are common, but use caution when changing these settings. See the Microsoft Defender Antivirus documentation for details.
+
+[How to add a file type or process exclusion to Windows Security](https://support.microsoft.com/en-us/topic/how-to-add-a-file-type-or-process-exclusion-to-windows-security-e524cbc2-3975-63c2-f9d1-7c2eb5331e53)
+{{% /note %}}
+
+Other virus scanners have similar exclusion mechanisms. See their respective documentation.
 
 ## Template metrics
 
