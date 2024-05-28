@@ -70,6 +70,8 @@ Hugo emits an error or warning if a document cannot be uniquely resolved. The er
 
 ### Link to another language version
 
+Using `ref` or `relref` without specifying a language, will make the reference resolve to the language of the current content page.
+
 To link to another language version of a document, use this syntax:
 
 ```text
