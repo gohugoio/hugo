@@ -57,14 +57,14 @@ type pageContentReplacement struct {
 
 func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64) (*contentParseInfo, error) {
 	var (
-		sourceKey  string
-		openSource hugio.OpenReadSeekCloser
-		hasContent = m.pageConfig.IsFromContentAdapter
+		sourceKey            string
+		openSource           hugio.OpenReadSeekCloser
+		isFromContentAdapter = m.pageConfig.IsFromContentAdapter
 	)
 
-	if m.f != nil && !hasContent {
+	if m.f != nil && !isFromContentAdapter {
 		sourceKey = filepath.ToSlash(m.f.Filename())
-		if !hasContent {
+		if !isFromContentAdapter {
 			meta := m.f.FileInfo().Meta()
 			openSource = func() (hugio.ReadSeekCloser, error) {
 				r, err := meta.Open()
@@ -74,7 +74,7 @@ func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64) (*contentParseInfo
 				return r, nil
 			}
 		}
-	} else if hasContent {
+	} else if isFromContentAdapter {
 		openSource = m.pageConfig.Content.ValueAsOpenReadSeekCloser()
 	}
 
@@ -96,7 +96,9 @@ func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64) (*contentParseInfo
 
 	items, err := pageparser.ParseBytes(
 		source,
-		pageparser.Config{},
+		pageparser.Config{
+			NoFrontMatter: isFromContentAdapter,
+		},
 	)
 	if err != nil {
 		return nil, err
@@ -104,7 +106,7 @@ func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64) (*contentParseInfo
 
 	pi.itemsStep1 = items
 
-	if hasContent {
+	if isFromContentAdapter {
 		// No front matter.
 		return pi, nil
 	}

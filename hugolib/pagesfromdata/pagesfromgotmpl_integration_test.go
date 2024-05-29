@@ -585,3 +585,28 @@ value: data1
 
 	b.AssertLogNotContains("WARN")
 }
+
+func TestPagesFromGoTmplShortcodeNoPreceddingCharacterIssue12544(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+-- content/_content.gotmpl --
+{{ $content := dict "mediaType" "text/html" "value" "x{{< sc >}}" }}
+{{ .AddPage (dict "content" $content "path" "a") }}
+
+{{ $content := dict "mediaType" "text/html" "value" "{{< sc >}}" }}
+{{ .AddPage (dict "content" $content "path" "b") }}
+-- layouts/_default/single.html --
+|{{ .Content }}|
+-- layouts/shortcodes/sc.html --
+foo
+{{- /**/ -}}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/a/index.html", "|xfoo|")
+	b.AssertFileContent("public/b/index.html", "|foo|") // fails
+}
