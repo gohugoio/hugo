@@ -36,7 +36,11 @@ var _ Result = (*pageLexer)(nil)
 
 // ParseBytes parses the page in b according to the given Config.
 func ParseBytes(b []byte, cfg Config) (Items, error) {
-	l, err := parseBytes(b, cfg, lexIntroSection)
+	startLexer := lexIntroSection
+	if cfg.NoFrontMatter {
+		startLexer = lexMainSection
+	}
+	l, err := parseBytes(b, cfg, startLexer)
 	if err != nil {
 		return nil, err
 	}

@@ -62,7 +62,9 @@ func (l *pageLexer) Input() []byte {
 	return l.input
 }
 
-type Config struct{}
+type Config struct {
+	NoFrontMatter bool
+}
 
 // note: the input position here is normally 0 (start), but
 // can be set if position of first shortcode is known
