@@ -41,20 +41,8 @@ type MenuQueryProvider interface {
 	IsMenuCurrent(menuID string, inme *MenuEntry) bool
 }
 
-func PageMenusFromPage(p Page) (PageMenus, error) {
-	params := p.Params()
-
-	ms, ok := params["menus"]
-	if !ok {
-		ms, ok = params["menu"]
-	}
-
+func PageMenusFromPage(ms any, p Page) (PageMenus, error) {
 	pm := PageMenus{}
-
-	if !ok {
-		return nil, nil
-	}
-
 	me := MenuEntry{}
 	SetPageValues(&me, p)
 

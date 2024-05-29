@@ -101,6 +101,7 @@ type PageConfig struct {
 	Cascade []map[string]any
 	Sitemap config.SitemapConfig
 	Build   BuildConfig
+	Menus   []string
 
 	// User defined params.
 	Params maps.Params
