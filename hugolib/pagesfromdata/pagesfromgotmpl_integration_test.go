@@ -610,3 +610,31 @@ foo
 	b.AssertFileContent("public/a/index.html", "|xfoo|")
 	b.AssertFileContent("public/b/index.html", "|foo|") // fails
 }
+
+func TestPagesFromGoTmplMenus(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['rss','section','sitemap','taxonomy','term']
+
+[menus]
+[[menus.main]]
+name = "Main"
+[[menus.footer]]
+name = "Footer"
+-- content/_content.gotmpl --
+{{ .AddPage (dict "path" "p1" "title" "p1" "menus" "main" ) }}
+{{ .AddPage (dict "path" "p2" "title" "p2" "menus" (slice "main" "footer")) }}
+-- layouts/index.html --
+Main: {{ range index site.Menus.main }}{{ .Name }}|{{ end }}|
+Footer: {{ range index site.Menus.footer }}{{ .Name }}|{{ end }}|
+
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		"Main: Main|p1|p2||",
+		"Footer: Footer|p2||",
+	)
+}
