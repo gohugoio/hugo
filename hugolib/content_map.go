@@ -335,12 +335,6 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 	f := source.NewFileInfo(fi)
 	h := s.h
 
-	// Make sure the layouts are initialized.
-	if _, err := h.init.layouts.Do(context.Background()); err != nil {
-		addErr = err
-		return
-	}
-
 	contentAdapter := s.pageMap.treePagesFromTemplateAdapters.Get(pi.Base())
 	var rebuild bool
 	if contentAdapter != nil {
