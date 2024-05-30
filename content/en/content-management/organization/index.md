@@ -19,13 +19,28 @@ Hugo `0.32` announced page-relative images and other resources packaged into `Pa
 
 These terms are connected, and you also need to read about [Page Resources](/content-management/page-resources) and [Image Processing](/content-management/image-processing) to get the full picture.
 
-{{< imgproc "1-featured-content-bundles.png" "resize 300x" >}}
-The illustration shows three bundles. Note that the home page bundle cannot contain other content pages, although other files (images etc.) are allowed.
-{{< /imgproc >}}
+```text
+content/
+├── blog/
+│   ├── hugo-is-cool/
+│   │   ├── images/
+│   │   │   ├── funnier-cat.jpg
+│   │   │   └── funny-cat.jpg
+│   │   ├── cats-info.md
+│   │   └── index.md
+│   ├── posts/
+│   │   ├── post1.md
+│   │   └── post2.md
+│   ├── 1-landscape.jpg
+│   ├── 2-sunset.jpg
+│   ├── _index.md
+│   ├── content-1.md
+│   └── content-2.md
+├── 1-logo.png
+└── _index.md
+```
 
-{{% note %}}
-The bundle documentation is a **work in progress**. We will publish more comprehensive docs about this soon.
-{{% /note %}}
+The file tree above shows three bundles. Note that the home page bundle cannot contain other content pages, although other files (images etc.) are allowed.
 
 ## Organization of content source
 
