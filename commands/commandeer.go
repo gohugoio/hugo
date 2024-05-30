@@ -506,7 +506,7 @@ Complete documentation is available at https://gohugo.io/.`
 	cmd.PersistentFlags().StringVar(&r.cfgDir, "configDir", "config", "config dir")
 	_ = cmd.MarkFlagDirname("configDir")
 	cmd.PersistentFlags().BoolVar(&r.quiet, "quiet", false, "build in quiet mode")
-	cmd.PersistentFlags().BoolVar(&r.renderToMemory, "renderToMemory", false, "render to memory (mostly useful when running the server)")
+	cmd.PersistentFlags().BoolVarP(&r.renderToMemory, "renderToMemory", "M", false, "render to memory (mostly useful when running the server)")
 
 	cmd.PersistentFlags().BoolVarP(&r.verbose, "verbose", "v", false, "verbose output")
 	cmd.PersistentFlags().BoolVarP(&r.debug, "debug", "", false, "debug output")

@@ -538,7 +538,7 @@ of a second, you will be able to save and see your changes nearly instantly.`
 	cmd.Flags().BoolVar(&c.noHTTPCache, "noHTTPCache", false, "prevent HTTP caching")
 	cmd.Flags().BoolVarP(&c.serverAppend, "appendPort", "", true, "append port to baseURL")
 	cmd.Flags().BoolVar(&c.disableLiveReload, "disableLiveReload", false, "watch without enabling live browser reload on rebuild")
-	cmd.Flags().BoolVar(&c.navigateToChanged, "navigateToChanged", false, "navigate to changed content file on live browser reload")
+	cmd.Flags().BoolVarP(&c.navigateToChanged, "navigateToChanged", "N", false, "navigate to changed content file on live browser reload")
 	cmd.Flags().BoolVar(&c.renderStaticToDisk, "renderStaticToDisk", false, "serve static files from disk and dynamic files from memory")
 	cmd.Flags().BoolVar(&c.disableFastRender, "disableFastRender", false, "enables full re-renders on changes")
 	cmd.Flags().BoolVar(&c.disableBrowserError, "disableBrowserError", false, "do not show build errors in the browser")
