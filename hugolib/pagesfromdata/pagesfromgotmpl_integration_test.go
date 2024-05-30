@@ -38,7 +38,11 @@ draft: false
 -- layouts/partials/get-value.html --
 {{ $val := "p1" }}
 {{ return $val }}
+-- layouts/_default/baseof.html --
+Baseof:
+{{ block "main" . }}{{ end }}
 -- layouts/_default/single.html --
+{{ define "main" }}
 Single: {{ .Title }}|{{ .Content }}|Params: {{ .Params.param1 }}|Path: {{ .Path }}|
 Dates: Date: {{ .Date.Format "2006-01-02" }}|Lastmod: {{ .Lastmod.Format "2006-01-02" }}|PublishDate: {{ .PublishDate.Format "2006-01-02" }}|ExpiryDate: {{ .ExpiryDate.Format "2006-01-02" }}|
 Len Resources: {{ .Resources | len }}
@@ -48,6 +52,7 @@ Featured Image: {{ .RelPermalink }}|{{ .Name }}|
 {{ with .Resize "10x10" }}
 Resized Featured Image: {{ .RelPermalink }}|{{ .Width }}|
 {{ end}}
+{{ end }}
 {{ end }}
 -- layouts/_default/list.html --
 List: {{ .Title }}|{{ .Content }}|
