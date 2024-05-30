@@ -342,7 +342,9 @@ content/
     └── the-hunchback-of-notre-dame.md
 ```
 
-If the content adapter also creates books/the-hunchback-of-notre-dame, the content of the published page is indeterminate. You can not define the rendering order. Avoid this content structure.
+If the content adapter also creates books/the-hunchback-of-notre-dame, the content of the published page is indeterminate. You can not define the processing order.
+
+To detect page collisions, use the `--printPathWarnings` flag when building your site.
 
 [content formats]: /content-management/formats/#classification
 [front matter field]: /content-management/front-matter/#fields
