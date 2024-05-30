@@ -120,15 +120,15 @@ Renders an embedded YouTube video.
     }}
 
     {{- /* Render. */}}
-    <div {{ $divClassOrStyle | safeHTMLAttr }}>
-      <iframe
-        {{- range $k, $v := $iframeAttributes }}
-          {{- if $v }}
-            {{- printf " %s=%q" $k $v | safeHTMLAttr }}
-          {{- end }}
-        {{- end }}
-      ></iframe>
-    </div>
+<div {{ $divClassOrStyle | safeHTMLAttr }}>
+  <iframe
+    {{- range $k, $v := $iframeAttributes }}
+      {{- if $v }}
+        {{- printf " %s=%q" $k $v | safeHTMLAttr }}
+      {{- end }}
+    {{- end }}
+  ></iframe>
+</div>
   {{- else }}
     {{- errorf "The %q shortcode requires an id argument. See %s" .Name .Position }}
   {{- end }}
