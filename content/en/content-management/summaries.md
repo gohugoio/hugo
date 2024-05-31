@@ -102,7 +102,7 @@ Automatic|3|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:x:
 
 Render the summary in a template by calling the [`Summary`] method on a `Page` object.
 
-[`Summary]: /methods/page/summary
+[`Summary`]: /methods/page/summary
 
 ```go-html-template
 {{ range site.RegularPages }}
