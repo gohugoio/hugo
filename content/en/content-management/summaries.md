@@ -96,7 +96,7 @@ Type|Precedence|Renders markdown|Renders shortcodes|Strips HTML tags|Wraps singl
 :--|:-:|:-:|:-:|:-:|:-:
 Manual|1|:heavy_check_mark:|:heavy_check_mark:|:x:|:heavy_check_mark:
 Front&nbsp;matter|2|:heavy_check_mark:|:x:|:x:|:x:
-Automatic|3|:heavy_check_mark:|:x:|:heavy_check_mark:|:x:
+Automatic|3|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:x:
 
 ## Rendering
 
