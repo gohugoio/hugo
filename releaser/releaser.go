@@ -1,4 +1,4 @@
-// Copyright 2017-present The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -92,6 +92,8 @@ func (r *ReleaseHandler) Run() error {
 	mainVersion := newVersion
 	mainVersion.PatchLevel = 0
 
+	r.gitPull()
+
 	defer r.gitPush()
 
 	if r.step == 1 {
@@ -176,6 +178,12 @@ func (r ReleaseHandler) calculateVersions() (hugo.Version, hugo.Version) {
 	finalVersion.Suffix = "-DEV"
 
 	return newVersion, finalVersion
+}
+
+func (r *ReleaseHandler) gitPull() {
+	if _, err := r.git("pull", "origin", "HEAD"); err != nil {
+		log.Fatal("pull failed:", err)
+	}
 }
 
 func (r *ReleaseHandler) gitPush() {
