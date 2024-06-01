@@ -643,3 +643,29 @@ Footer: {{ range index site.Menus.footer }}{{ .Name }}|{{ end }}|
 		"Footer: Footer|p2||",
 	)
 }
+
+func TestPagesFromGoTmplMore(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+[markup.goldmark.renderer]
+unsafe = true
+-- content/s1/_content.gotmpl --
+{{ $page := dict
+	"content" (dict "mediaType" "text/markdown" "value" "aaa <!--more--> bbb")
+	"title" "p1"
+	"path" "p1"
+  }}
+  {{ .AddPage $page }}
+-- layouts/_default/single.html --
+summary: {{ .Summary }}|content: {{ .Content}}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/s1/p1/index.html",
+		"<p>aaa</p>|content: <p>aaa</p>\n<p>bbb</p>",
+	)
+}

@@ -14,8 +14,6 @@
 package pageparser
 
 func lexIntroSection(l *pageLexer) stateFunc {
-	l.summaryDivider = summaryDivider
-
 LOOP:
 	for {
 		r := l.next()
