@@ -168,22 +168,21 @@ func (s *Store) WriteMetrics(w io.Writer) {
 	s.mu.Unlock()
 
 	if s.calculateHints {
-		fmt.Fprintf(w, "  %13s  %12s  %12s  %9s  %7s  %6s  %5s  %s\n", "cumulative", "average", "maximum", "cache", "percent", "cached", "total", "")
-		fmt.Fprintf(w, "  %13s  %12s  %12s  %9s  %7s  %6s  %5s  %s\n", "duration", "duration", "duration", "potential", "cached", "count", "count", "template")
-		fmt.Fprintf(w, "  %13s  %12s  %12s  %9s  %7s  %6s  %5s  %s\n", "----------", "--------", "--------", "---------", "-------", "------", "-----", "--------")
+		fmt.Fprintf(w, "  %15s  %12s  %12s  %9s  %7s  %6s  %5s  %s\n", "cumulative", "average", "maximum", "cache", "percent", "cached", "total", "")
+		fmt.Fprintf(w, "  %15s  %12s  %12s  %9s  %7s  %6s  %5s  %s\n", "duration", "duration", "duration", "potential", "cached", "count", "count", "template")
+		fmt.Fprintf(w, "  %15s  %12s  %12s  %9s  %7s  %6s  %5s  %s\n", "----------", "--------", "--------", "---------", "-------", "------", "-----", "--------")
 	} else {
-		fmt.Fprintf(w, "  %13s  %12s  %12s  %5s  %s\n", "cumulative", "average", "maximum", "", "")
-		fmt.Fprintf(w, "  %13s  %12s  %12s  %5s  %s\n", "duration", "duration", "duration", "count", "template")
-		fmt.Fprintf(w, "  %13s  %12s  %12s  %5s  %s\n", "----------", "--------", "--------", "-----", "--------")
-
+		fmt.Fprintf(w, "  %15s  %12s  %12s  %5s  %s\n", "cumulative", "average", "maximum", "", "")
+		fmt.Fprintf(w, "  %15s  %12s  %12s  %5s  %s\n", "duration", "duration", "duration", "count", "template")
+		fmt.Fprintf(w, "  %15s  %12s  %12s  %5s  %s\n", "----------", "--------", "--------", "-----", "--------")
 	}
 
 	sort.Sort(bySum(results))
 	for _, v := range results {
 		if s.calculateHints {
-			fmt.Fprintf(w, "  %13s  %12s  %12s  %9d  %7.f  %6d  %5d  %s\n", v.sum, v.avg, v.max, v.cacheFactor, float64(v.cacheCount)/float64(v.count)*100, v.cacheCount, v.count, v.key)
+			fmt.Fprintf(w, "  %15s  %12s  %12s  %9d  %7.f  %6d  %5d  %s\n", v.sum, v.avg, v.max, v.cacheFactor, float64(v.cacheCount)/float64(v.count)*100, v.cacheCount, v.count, v.key)
 		} else {
-			fmt.Fprintf(w, "  %13s  %12s  %12s  %5d  %s\n", v.sum, v.avg, v.max, v.count, v.key)
+			fmt.Fprintf(w, "  %15s  %12s  %12s  %5d  %s\n", v.sum, v.avg, v.max, v.count, v.key)
 		}
 	}
 }
