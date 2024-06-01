@@ -307,7 +307,10 @@ func (pco *pageContentOutput) RenderString(ctx context.Context, args ...any) (te
 	if pageparser.HasShortcode(contentToRender) {
 		contentToRenderb := []byte(contentToRender)
 		// String contains a shortcode.
-		parseInfo.itemsStep1, err = pageparser.ParseBytesMain(contentToRenderb, pageparser.Config{})
+		parseInfo.itemsStep1, err = pageparser.ParseBytes(contentToRenderb, pageparser.Config{
+			NoFrontMatter:    true,
+			NoSummaryDivider: true,
+		})
 		if err != nil {
 			return "", err
 		}

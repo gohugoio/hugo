@@ -63,16 +63,18 @@ func (l *pageLexer) Input() []byte {
 }
 
 type Config struct {
-	NoFrontMatter bool
+	NoFrontMatter    bool
+	NoSummaryDivider bool
 }
 
 // note: the input position here is normally 0 (start), but
 // can be set if position of first shortcode is known
 func newPageLexer(input []byte, stateStart stateFunc, cfg Config) *pageLexer {
 	lexer := &pageLexer{
-		input:      input,
-		stateStart: stateStart,
-		cfg:        cfg,
+		input:          input,
+		stateStart:     stateStart,
+		summaryDivider: summaryDivider,
+		cfg:            cfg,
 		lexerShortcodeState: lexerShortcodeState{
 			currLeftDelimItem:  tLeftDelimScNoMarkup,
 			currRightDelimItem: tRightDelimScNoMarkup,
@@ -297,6 +299,8 @@ func (s *sectionHandlers) skip() int {
 }
 
 func createSectionHandlers(l *pageLexer) *sectionHandlers {
+	handlers := make([]*sectionHandler, 0, 2)
+
 	shortCodeHandler := &sectionHandler{
 		l: l,
 		skipFunc: func(l *pageLexer) int {
@@ -332,30 +336,35 @@ func createSectionHandlers(l *pageLexer) *sectionHandlers {
 		},
 	}
 
-	summaryDividerHandler := &sectionHandler{
-		l: l,
-		skipFunc: func(l *pageLexer) int {
-			if l.summaryDividerChecked || l.summaryDivider == nil {
-				return -1
-			}
-			return l.index(l.summaryDivider)
-		},
-		lexFunc: func(origin stateFunc, l *pageLexer) (stateFunc, bool) {
-			if !l.hasPrefix(l.summaryDivider) {
-				return origin, false
-			}
+	handlers = append(handlers, shortCodeHandler)
 
-			l.summaryDividerChecked = true
-			l.pos += len(l.summaryDivider)
-			// This makes it a little easier to reason about later.
-			l.consumeSpace()
-			l.emit(TypeLeadSummaryDivider)
+	if !l.cfg.NoSummaryDivider {
+		summaryDividerHandler := &sectionHandler{
+			l: l,
+			skipFunc: func(l *pageLexer) int {
+				if l.summaryDividerChecked {
+					return -1
+				}
+				return l.index(l.summaryDivider)
+			},
+			lexFunc: func(origin stateFunc, l *pageLexer) (stateFunc, bool) {
+				if !l.hasPrefix(l.summaryDivider) {
+					return origin, false
+				}
 
-			return origin, true
-		},
+				l.summaryDividerChecked = true
+				l.pos += len(l.summaryDivider)
+				// This makes it a little easier to reason about later.
+				l.consumeSpace()
+				l.emit(TypeLeadSummaryDivider)
+
+				return origin, true
+			},
+		}
+
+		handlers = append(handlers, summaryDividerHandler)
+
 	}
-
-	handlers := []*sectionHandler{shortCodeHandler, summaryDividerHandler}
 
 	return &sectionHandlers{
 		l:           l,

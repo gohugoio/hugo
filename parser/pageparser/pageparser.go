@@ -47,15 +47,6 @@ func ParseBytes(b []byte, cfg Config) (Items, error) {
 	return l.items, l.err
 }
 
-// ParseBytesMain parses b starting with the main section.
-func ParseBytesMain(b []byte, cfg Config) (Items, error) {
-	l, err := parseBytes(b, cfg, lexMainSection)
-	if err != nil {
-		return nil, err
-	}
-	return l.items, l.err
-}
-
 type ContentFrontMatter struct {
 	Content           []byte
 	FrontMatter       map[string]any

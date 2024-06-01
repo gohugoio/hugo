@@ -101,3 +101,14 @@ func BenchmarkHasShortcode(b *testing.B) {
 		}
 	})
 }
+
+func TestSummaryDividerStartingFromMain(t *testing.T) {
+	c := qt.New(t)
+
+	input := `aaa <!--more--> bbb`
+	items, err := collectStringMain(input)
+	c.Assert(err, qt.IsNil)
+
+	c.Assert(items, qt.HasLen, 4)
+	c.Assert(items[1].Type, qt.Equals, TypeLeadSummaryDivider)
+}
