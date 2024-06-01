@@ -21,26 +21,6 @@ To effectively leverage section page templates, you should first understand Hugo
 
 See [Template Lookup](/templates/lookup-order/).
 
-## Page kinds
-
-Every `Page` in Hugo has a `.Kind` attribute.
-
-{{% include "content-management/_common/page-kinds.md" %}}
-
-## `.Site.GetPage` with sections
-
-`Kind` can easily be combined with the [`where`] function in your templates to create kind-specific lists of content. This method is ideal for creating lists, but there are times where you may want to fetch just the index page of a single section via the section's path.
-
-The [`.GetPage` function][getpage] looks up an index page of a given `Kind` and `path`.
-
-You can call `.Site.GetPage` with two arguments: `kind` (one of the valid values
-of `Kind` from above) and `kind value`.
-
-Examples:
-
-- `{{ .Site.GetPage "section" "posts" }}`
-- `{{ .Site.GetPage "page" "search" }}`
-
 ## Example: creating a default section template
 
 {{< code file=layouts/_default/section.html >}}
@@ -69,11 +49,11 @@ The `.Site.GetPage` example that follows assumes the following project directory
 .
 └── content
     ├── blog
-    │   ├── _index.md # "title: My Hugo Blog" in the front matter
+    │   ├── _index.md   <-- title: My Hugo Blog
     │   ├── post-1.md
     │   ├── post-2.md
     │   └── post-3.md
-    └── events #Note there is no _index.md file in "events"
+    └── events
         ├── event-1.md
         └── event-2.md
 ```
@@ -81,7 +61,7 @@ The `.Site.GetPage` example that follows assumes the following project directory
 `.Site.GetPage` will return `nil` if no `_index.md` page is found. Therefore, if `content/blog/_index.md` does not exist, the template will output the section name:
 
 ```go-html-template
-<h1>{{ with .Site.GetPage "section" "blog" }}{{ .Title }}{{ end }}</h1>
+<h1>{{ with .Site.GetPage "/blog" }}{{ .Title }}{{ end }}</h1>
 ```
 
 Since `blog` has a section index page with front matter at `content/blog/_index.md`, the above code will return the following result:
@@ -93,7 +73,7 @@ Since `blog` has a section index page with front matter at `content/blog/_index.
 If we try the same code with the `events` section, however, Hugo will default to the section title because there is no `content/events/_index.md` from which to pull content and front matter:
 
 ```go-html-template
-<h1>{{ with .Site.GetPage "section" "events" }}{{ .Title }}{{ end }}</h1>
+<h1>{{ with .Site.GetPage "/events" }}{{ .Title }}{{ end }}</h1>
 ```
 
 Which then returns the following:
