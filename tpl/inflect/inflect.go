@@ -18,6 +18,7 @@ import (
 	"strconv"
 	"strings"
 
+	_humanize "github.com/dustin/go-humanize"
 	_inflect "github.com/gobuffalo/flect"
 	"github.com/spf13/cast"
 )
@@ -72,4 +73,22 @@ func (ns *Namespace) Singularize(v any) (string, error) {
 	}
 
 	return _inflect.Singularize(word), nil
+}
+
+// SI formats numbers with SI notation.
+func (ns *Namespace) SI(v any, args ...any) (string, error) {
+	number, err := cast.ToFloat64E(v)
+	if err != nil {
+		return "", err
+	}
+
+	unit := ""
+	if len(args) > 0 {
+		unit, err = cast.ToStringE(args[0])
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return strings.TrimSuffix(_humanize.SI(number, unit), " "), nil
 }
