@@ -52,7 +52,7 @@ Produces a list of links to each home page:
 To render a link to the home page of the site corresponding to the default content language:
 
 ```go-html-template
-{{ with .Site.Sites.First }}
+{{ with .Site.Sites.Default }}
   <a href="{{ .Home.Permalink }}">{{ .Title }}</a>
 {{ end }}
 ```
