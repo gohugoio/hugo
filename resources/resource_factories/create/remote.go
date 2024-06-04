@@ -170,7 +170,7 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 
 	// A common pattern is to use the key in the options map as
 	// a way to control cache eviction,
-	// so make sure we use any user provided kehy as the file cache key,
+	// so make sure we use any user provided key as the file cache key,
 	// but the auto generated and more stable key for everything else.
 	filecacheKey := userKey
 
