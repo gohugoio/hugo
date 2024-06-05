@@ -80,6 +80,7 @@ Pfile Content
 {{ $.AddPage  (dict "kind" "page" "path" "p2" "title" "p2title" "dates" $dates "content" $contentHTML ) }}
 {{ $.AddPage  (dict "kind" "page" "path" "p3" "title" "p3title" "dates" $dates "content" $contentMarkdownDefault "draft" false ) }}
 {{ $.AddPage  (dict "kind" "page" "path" "p4" "title" "p4title" "dates" $dates "content" $contentMarkdownDefault "draft" $data.draft ) }}
+ADD_MORE_PLACEHOLDER
 
 
 {{ $resourceContent := dict "value" $dataResource }}
@@ -277,6 +278,14 @@ func TestPagesFromGoTmplRemovePage(t *testing.T) {
 	b := hugolib.TestRunning(t, filesPagesFromDataTempleBasic)
 	b.EditFileReplaceAll("content/docs/_content.gotmpl", `{{ $.AddPage  (dict "kind" "page" "path" "p2" "title" "p2title" "dates" $dates "content" $contentHTML ) }}`, "").Build()
 	b.AssertFileContent("public/index.html", "RegularPagesRecursive: p1:p1:/docs/p1|p3title:/docs/p3|p4title:/docs/p4|pfile:/docs/pfile|$")
+}
+
+func TestPagesFromGoTmplAddPage(t *testing.T) {
+	t.Parallel()
+	b := hugolib.TestRunning(t, filesPagesFromDataTempleBasic)
+	b.EditFileReplaceAll("content/docs/_content.gotmpl", "ADD_MORE_PLACEHOLDER", `{{ $.AddPage  (dict "kind" "page" "path" "page_added" "title" "page_added_title" "dates" $dates "content" $contentHTML ) }}`).Build()
+	b.AssertFileExists("public/docs/page_added/index.html", true)
+	b.AssertFileContent("public/index.html", "RegularPagesRecursive: p1:p1:/docs/p1|p2title:/docs/p2|p3title:/docs/p3|p4title:/docs/p4|page_added_title:/docs/page_added|pfile:/docs/pfile|$")
 }
 
 func TestPagesFromGoTmplDraftPage(t *testing.T) {

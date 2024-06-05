@@ -345,6 +345,7 @@ func (c *hugoBuilder) newWatcher(pollIntervalStr string, dirList ...string) (*wa
 		for {
 			select {
 			case changes := <-c.r.changesFromBuild:
+				c.errState.setBuildErr(nil)
 				unlock, err := h.LockBuild()
 				if err != nil {
 					c.r.logger.Errorln("Failed to acquire a build lock: %s", err)
@@ -356,7 +357,9 @@ func (c *hugoBuilder) newWatcher(pollIntervalStr string, dirList ...string) (*wa
 					c.r.logger.Errorln("Error while watching:", err)
 				}
 				if c.s != nil && c.s.doLiveReload {
-					if c.changeDetector == nil || len(c.changeDetector.changed()) > 0 {
+					doReload := c.changeDetector == nil || len(c.changeDetector.changed()) > 0
+					doReload = doReload || c.showErrorInBrowser && c.errCount() > 0
+					if doReload {
 						livereload.ForceRefresh()
 					}
 				}
