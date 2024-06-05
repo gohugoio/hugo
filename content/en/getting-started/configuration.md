@@ -893,7 +893,7 @@ caching
 : Enabled RFC 9111 cache behavior _for_ a configured set of resources. Stale resources will be refreshed from the [file cache] even if their configured TTL isn't reached.
 
 polling
-: Enables polling _for_ a set of resources. Note that you can enable polling for resources even if HTTP caching is disabled. This setting is only used when in watch mode (e.g. `hugo server`). When a change resource is detected, that change triggers a rebuild of pages using that resource.
+: Enables polling _for_ a set of resources. Note that you can enable polling for resources even if HTTP caching is disabled. This setting is only used when in watch mode (e.g. `hugo server`). When a changed resource is detected, that change triggers a rebuild of pages using that resource.
 
 [resources.GetRemote]: /functions/resources/getremote/
 [file cache]: #configure-file-caches
