@@ -386,6 +386,21 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 							pt.AddChange(n.GetIdentity())
 						} else {
 							pt.AddChange(u.GetIdentity())
+							// New content not in use anywhere.
+							// To make sure that these gets listed in any site.RegularPages ranges or similar
+							// we could invalidate everything, but first try to collect a sample set
+							// from the surrounding pages.
+							var surroundingIDs []identity.Identity
+							ids := h.pageTrees.collectIdentitiesSurrounding(pi.Base(), 10)
+							if len(ids) > 0 {
+								surroundingIDs = append(surroundingIDs, ids...)
+							} else {
+								// No surrounding pages found, so invalidate everything.
+								surroundingIDs = []identity.Identity{identity.GenghisKhan}
+							}
+							for _, id := range surroundingIDs {
+								pt.AddChange(id)
+							}
 						}
 					}
 

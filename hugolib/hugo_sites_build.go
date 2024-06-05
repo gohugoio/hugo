@@ -244,9 +244,13 @@ func (h *HugoSites) process(ctx context.Context, l logg.LevelLogger, config *Bui
 	}
 
 	if len(events) > 0 {
-		// This is a rebuild
+		// This is a rebuild triggered from file events.
 		return h.processPartialFileEvents(ctx, l, config, init, events)
 	} else if len(config.WhatChanged.Changes()) > 0 {
+		// Rebuild triggered from remote events.
+		if err := init(config); err != nil {
+			return err
+		}
 		return h.processPartialRebuildChanges(ctx, l, config)
 	}
 	return h.processFull(ctx, l, config)
