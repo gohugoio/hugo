@@ -28,13 +28,13 @@ Produces this console log:
 ```text
 ERROR You should consider fixing this.
 You can suppress this error by adding the following to your site configuration:
-ignoreErrors = ['error-42']
+ignoreLogs = ['error-42']
 ```
 
 To suppress this message:
 
 {{< code-toggle file=hugo >}}
-ignoreErrors = ["error-42"]
+ignoreLogs = ["error-42"]
 {{< /code-toggle >}}
 
 [`errorf`]: /functions/fmt/errorf
