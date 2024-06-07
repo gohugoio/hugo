@@ -52,8 +52,7 @@ type AllProvider interface {
 	DefaultContentLanguageInSubdir() bool
 	IsLangDisabled(string) bool
 	SummaryLength() int
-	Paginate() int
-	PaginatePath() string
+	Pagination() Pagination
 	BuildExpired() bool
 	BuildFuture() bool
 	BuildDrafts() bool

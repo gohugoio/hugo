@@ -223,7 +223,7 @@ func (s *Site) logMissingLayout(name, layout, kind, outputFormat string) {
 
 // renderPaginator must be run after the owning Page has been rendered.
 func (s *Site) renderPaginator(p *pageState, templ tpl.Template) error {
-	paginatePath := s.conf.PaginatePath
+	paginatePath := s.Conf.Pagination().Path
 
 	d := p.targetPathDescriptor
 	f := p.s.rc.Format
@@ -233,7 +233,7 @@ func (s *Site) renderPaginator(p *pageState, templ tpl.Template) error {
 		panic(fmt.Sprintf("invalid paginator state for %q", p.pathOrTitle()))
 	}
 
-	if f.IsHTML {
+	if f.IsHTML && !s.Conf.Pagination().DisableAliases {
 		// Write alias for page 1
 		d.Addends = fmt.Sprintf("/%s/%d", paginatePath, 1)
 		targetPaths := page.CreateTargetPaths(d)

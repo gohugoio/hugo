@@ -194,8 +194,8 @@ func (l configLoader) applyDefaultConfig() error {
 		"footnoteAnchorPrefix":                 "",
 		"footnoteReturnLinkContents":           "",
 		"newContentEditor":                     "",
-		"paginate":                             10,
-		"paginatePath":                         "page",
+		"paginate":                             0,  // Moved into the paginator struct in Hugo v0.128.0.
+		"paginatePath":                         "", // Moved into the paginator struct in Hugo v0.128.0.
 		"summaryLength":                        70,
 		"rssLimit":                             -1,
 		"sectionPagesMenu":                     "",

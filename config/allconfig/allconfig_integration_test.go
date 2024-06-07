@@ -102,3 +102,85 @@ suffixes = ["html", "xhtml"]
 	b.Assert(contentTypes.HTML.Suffixes(), qt.DeepEquals, []string{"html", "xhtml"})
 	b.Assert(contentTypes.Markdown.Suffixes(), qt.DeepEquals, []string{"md", "mdown", "markdown"})
 }
+
+func TestPaginationConfigOld(t *testing.T) {
+	files := `
+-- hugo.toml --
+ [languages.en]
+ weight = 1
+ paginatePath = "page-en"
+ 
+ [languages.de]
+ weight = 2
+ paginatePath = "page-de"
+ paginate = 20
+`
+
+	b := hugolib.Test(t, files)
+
+	confEn := b.H.Sites[0].Conf.Pagination()
+	confDe := b.H.Sites[1].Conf.Pagination()
+
+	b.Assert(confEn.Path, qt.Equals, "page-en")
+	b.Assert(confEn.DefaultPageSize, qt.Equals, 10)
+	b.Assert(confDe.Path, qt.Equals, "page-de")
+	b.Assert(confDe.DefaultPageSize, qt.Equals, 20)
+}
+
+func TestPaginationConfigNew(t *testing.T) {
+	files := `
+-- hugo.toml --
+ [languages.en]
+ weight = 1
+ [languages.en.pagination]
+ defaultPageSize = 20
+ [languages.de]
+ weight = 2
+ [languages.de.pagination]
+ path = "page-de"
+
+`
+
+	b := hugolib.Test(t, files)
+
+	confEn := b.H.Sites[0].Conf.Pagination()
+	confDe := b.H.Sites[1].Conf.Pagination()
+
+	b.Assert(confEn.Path, qt.Equals, "page")
+	b.Assert(confEn.DefaultPageSize, qt.Equals, 20)
+	b.Assert(confDe.Path, qt.Equals, "page-de")
+	b.Assert(confDe.DefaultPageSize, qt.Equals, 10)
+}
+
+func TestPaginationConfigDisableAliases(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term"]
+[pagination]
+disableAliases = true
+defaultPageSize = 2
+-- layouts/_default/list.html --
+{{ $paginator := .Paginate  site.RegularPages }}
+{{ template "_internal/pagination.html" . }}
+{{ range $paginator.Pages }}
+  {{ .Title }}
+{{ end }}
+-- content/p1.md --
+---
+title: "p1"
+---
+-- content/p2.md --
+---
+title: "p2"
+---
+-- content/p3.md --
+---
+title: "p3"
+---
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileExists("public/page/1/index.html", false)
+	b.AssertFileContent("public/page/2/index.html", "pagination-default")
+}
