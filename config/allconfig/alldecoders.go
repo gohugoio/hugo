@@ -327,6 +327,22 @@ var allDecoderSetups = map[string]decodeWeight{
 			return err
 		},
 	},
+	"pagination": {
+		key: "pagination",
+		decode: func(d decodeWeight, p decodeConfig) error {
+			p.c.Pagination = config.Pagination{
+				DefaultPageSize: 10,
+				Path:            "page",
+			}
+			if p.p.IsSet(d.key) {
+				if err := mapstructure.WeakDecode(p.p.Get(d.key), &p.c.Pagination); err != nil {
+					return err
+				}
+			}
+
+			return nil
+		},
+	},
 	"privacy": {
 		key: "privacy",
 		decode: func(d decodeWeight, p decodeConfig) error {

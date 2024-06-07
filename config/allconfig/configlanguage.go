@@ -248,12 +248,8 @@ func (c ConfigLanguage) CreateTitle(s string) string {
 	return c.config.C.CreateTitle(s)
 }
 
-func (c ConfigLanguage) Paginate() int {
-	return c.config.Paginate
-}
-
-func (c ConfigLanguage) PaginatePath() string {
-	return c.config.PaginatePath
+func (c ConfigLanguage) Pagination() config.Pagination {
+	return c.config.Pagination
 }
 
 func (c ConfigLanguage) StaticDirs() []string {

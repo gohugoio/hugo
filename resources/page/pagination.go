@@ -263,7 +263,7 @@ func splitPageGroups(pageGroups PagesGroup, size int) []paginatedElement {
 
 func ResolvePagerSize(conf config.AllProvider, options ...any) (int, error) {
 	if len(options) == 0 {
-		return conf.Paginate(), nil
+		return conf.Pagination().DefaultPageSize, nil
 	}
 
 	if len(options) > 1 {
@@ -400,7 +400,7 @@ func newPaginationURLFactory(d TargetPathDescriptor) paginationURLFactory {
 		pathDescriptor := d
 		var rel string
 		if pageNumber > 1 {
-			rel = fmt.Sprintf("/%s/%d/", d.PathSpec.Cfg.PaginatePath(), pageNumber)
+			rel = fmt.Sprintf("/%s/%d/", d.PathSpec.Cfg.Pagination().Path, pageNumber)
 			pathDescriptor.Addends = rel
 		}
 
