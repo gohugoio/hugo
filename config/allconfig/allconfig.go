@@ -374,8 +374,8 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 
 	// Legacy paginate values.
 	if c.Paginate != 0 {
-		hugo.Deprecate("site config key paginate", "Use paginator.defaultPageSize instead.", "v0.128.0")
-		c.Pagination.DefaultPageSize = c.Paginate
+		hugo.Deprecate("site config key paginate", "Use paginator.pagerSize instead.", "v0.128.0")
+		c.Pagination.PagerSize = c.Paginate
 	}
 
 	if c.PaginatePath != "" {

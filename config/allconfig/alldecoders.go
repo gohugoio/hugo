@@ -331,8 +331,8 @@ var allDecoderSetups = map[string]decodeWeight{
 		key: "pagination",
 		decode: func(d decodeWeight, p decodeConfig) error {
 			p.c.Pagination = config.Pagination{
-				DefaultPageSize: 10,
-				Path:            "page",
+				PagerSize: 10,
+				Path:      "page",
 			}
 			if p.p.IsSet(d.key) {
 				if err := mapstructure.WeakDecode(p.p.Get(d.key), &p.c.Pagination); err != nil {

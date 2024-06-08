@@ -122,9 +122,9 @@ func TestPaginationConfigOld(t *testing.T) {
 	confDe := b.H.Sites[1].Conf.Pagination()
 
 	b.Assert(confEn.Path, qt.Equals, "page-en")
-	b.Assert(confEn.DefaultPageSize, qt.Equals, 10)
+	b.Assert(confEn.PagerSize, qt.Equals, 10)
 	b.Assert(confDe.Path, qt.Equals, "page-de")
-	b.Assert(confDe.DefaultPageSize, qt.Equals, 20)
+	b.Assert(confDe.PagerSize, qt.Equals, 20)
 }
 
 func TestPaginationConfigNew(t *testing.T) {
@@ -133,7 +133,7 @@ func TestPaginationConfigNew(t *testing.T) {
  [languages.en]
  weight = 1
  [languages.en.pagination]
- defaultPageSize = 20
+ pagerSize = 20
  [languages.de]
  weight = 2
  [languages.de.pagination]
@@ -147,9 +147,9 @@ func TestPaginationConfigNew(t *testing.T) {
 	confDe := b.H.Sites[1].Conf.Pagination()
 
 	b.Assert(confEn.Path, qt.Equals, "page")
-	b.Assert(confEn.DefaultPageSize, qt.Equals, 20)
+	b.Assert(confEn.PagerSize, qt.Equals, 20)
 	b.Assert(confDe.Path, qt.Equals, "page-de")
-	b.Assert(confDe.DefaultPageSize, qt.Equals, 10)
+	b.Assert(confDe.PagerSize, qt.Equals, 10)
 }
 
 func TestPaginationConfigDisableAliases(t *testing.T) {
@@ -158,7 +158,7 @@ func TestPaginationConfigDisableAliases(t *testing.T) {
 disableKinds = ["taxonomy", "term"]
 [pagination]
 disableAliases = true
-defaultPageSize = 2
+pagerSize = 2
 -- layouts/_default/list.html --
 {{ $paginator := .Paginate  site.RegularPages }}
 {{ template "_internal/pagination.html" . }}

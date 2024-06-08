@@ -263,7 +263,7 @@ func splitPageGroups(pageGroups PagesGroup, size int) []paginatedElement {
 
 func ResolvePagerSize(conf config.AllProvider, options ...any) (int, error) {
 	if len(options) == 0 {
-		return conf.Pagination().DefaultPageSize, nil
+		return conf.Pagination().PagerSize, nil
 	}
 
 	if len(options) > 1 {
