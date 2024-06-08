@@ -134,6 +134,12 @@ type Site interface {
 
 	// Deprecated: Use .Site.Home.OutputFormats.Get "rss" instead.
 	RSSLink() template.URL
+
+	// For internal use only.
+	// This will panic if the site is not fully initialized.
+	// This is typically used to inform the user in the content adapter templates,
+	// as these are executed before all the page collections etc. are ready to use.
+	CheckReady()
 }
 
 // Sites represents an ordered list of sites (languages).
@@ -326,6 +332,11 @@ func (s *siteWrapper) ForEeachIdentityByName(name string, f func(identity.Identi
 	s.s.(identity.ForEeachIdentityByNameProvider).ForEeachIdentityByName(name, f)
 }
 
+// For internal use only.
+func (s *siteWrapper) CheckReady() {
+	s.s.CheckReady()
+}
+
 type testSite struct {
 	h hugo.HugoInfo
 	l *langs.Language
@@ -478,6 +489,9 @@ func (s testSite) Param(key any) (any, error) {
 // Deprecated: Use .Site.Home.OutputFormats.Get "rss" instead.
 func (s testSite) RSSLink() template.URL {
 	return ""
+}
+
+func (s testSite) CheckReady() {
 }
 
 // NewDummyHugoSite creates a new minimal test site.

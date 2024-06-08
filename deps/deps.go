@@ -15,6 +15,7 @@ import (
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/allconfig"
@@ -135,6 +136,15 @@ func (d *Deps) Init() error {
 	if d.BuildState == nil {
 		d.BuildState = &BuildState{}
 	}
+	if d.BuildState.DeferredExecutions == nil {
+		if d.BuildState.DeferredExecutionsGroupedByRenderingContext == nil {
+			d.BuildState.DeferredExecutionsGroupedByRenderingContext = make(map[tpl.RenderingContext]*DeferredExecutions)
+		}
+		d.BuildState.DeferredExecutions = &DeferredExecutions{
+			Executions:              maps.NewCache[string, *tpl.DeferredExecution](),
+			FilenamesWithPostPrefix: maps.NewCache[string, bool](),
+		}
+	}
 
 	if d.BuildStartListeners == nil {
 		d.BuildStartListeners = &Listeners{}
@@ -161,20 +171,29 @@ func (d *Deps) Init() error {
 	}
 
 	if d.PathSpec == nil {
-		hashBytesReceiverFunc := func(name string, match bool) {
-			if !match {
-				return
+		hashBytesReceiverFunc := func(name string, match []byte) {
+			s := string(match)
+			switch s {
+			case postpub.PostProcessPrefix:
+				d.BuildState.AddFilenameWithPostPrefix(name)
+			case tpl.HugoDeferredTemplatePrefix:
+				d.BuildState.DeferredExecutions.FilenamesWithPostPrefix.Set(name, true)
 			}
-			d.BuildState.AddFilenameWithPostPrefix(name)
 		}
 
 		// Skip binary files.
 		mediaTypes := d.Conf.GetConfigSection("mediaTypes").(media.Types)
-		hashBytesSHouldCheck := func(name string) bool {
+		hashBytesShouldCheck := func(name string) bool {
 			ext := strings.TrimPrefix(filepath.Ext(name), ".")
 			return mediaTypes.IsTextSuffix(ext)
 		}
-		d.Fs.PublishDir = hugofs.NewHasBytesReceiver(d.Fs.PublishDir, hashBytesSHouldCheck, hashBytesReceiverFunc, []byte(postpub.PostProcessPrefix))
+		d.Fs.PublishDir = hugofs.NewHasBytesReceiver(
+			d.Fs.PublishDir,
+			hashBytesShouldCheck,
+			hashBytesReceiverFunc,
+			[]byte(tpl.HugoDeferredTemplatePrefix),
+			[]byte(postpub.PostProcessPrefix))
+
 		pathSpec, err := helpers.NewPathSpec(d.Fs, d.Conf, d.Log)
 		if err != nil {
 			return err
@@ -371,9 +390,36 @@ type BuildState struct {
 	// A set of filenames in /public that
 	// contains a post-processing prefix.
 	filenamesWithPostPrefix map[string]bool
+
+	DeferredExecutions *DeferredExecutions
+
+	// Deferred executions grouped by rendering context.
+	DeferredExecutionsGroupedByRenderingContext map[tpl.RenderingContext]*DeferredExecutions
+}
+
+type DeferredExecutions struct {
+	// A set of filenames in /public that
+	// contains a post-processing prefix.
+	FilenamesWithPostPrefix *maps.Cache[string, bool]
+
+	// Maps a placeholder to a deferred execution.
+	Executions *maps.Cache[string, *tpl.DeferredExecution]
 }
 
 var _ identity.SignalRebuilder = (*BuildState)(nil)
+
+// StartStageRender will be called before a stage is rendered.
+func (b *BuildState) StartStageRender(stage tpl.RenderingContext) {
+}
+
+// StopStageRender will be called after a stage is rendered.
+func (b *BuildState) StopStageRender(stage tpl.RenderingContext) {
+	b.DeferredExecutionsGroupedByRenderingContext[stage] = b.DeferredExecutions
+	b.DeferredExecutions = &DeferredExecutions{
+		Executions:              maps.NewCache[string, *tpl.DeferredExecution](),
+		FilenamesWithPostPrefix: maps.NewCache[string, bool](),
+	}
+}
 
 func (b *BuildState) SignalRebuild(ids ...identity.Identity) {
 	b.OnSignalRebuild(ids...)

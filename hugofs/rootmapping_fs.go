@@ -323,6 +323,7 @@ type ComponentPath struct {
 	Component string
 	Path      string
 	Lang      string
+	Watch     bool
 }
 
 func (c ComponentPath) ComponentPathJoined() string {
@@ -376,6 +377,7 @@ func (fs *RootMappingFs) ReverseLookupComponent(component, filename string) ([]C
 			Component: first.FromBase,
 			Path:      paths.ToSlashTrimLeading(filename),
 			Lang:      first.Meta.Lang,
+			Watch:     first.Meta.Watch,
 		})
 	}
 

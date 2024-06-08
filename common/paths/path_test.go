@@ -262,3 +262,52 @@ func TestFieldsSlash(t *testing.T) {
 	c.Assert(FieldsSlash("/"), qt.DeepEquals, []string{})
 	c.Assert(FieldsSlash(""), qt.DeepEquals, []string{})
 }
+
+func TestCommonDirPath(t *testing.T) {
+	c := qt.New(t)
+
+	for _, this := range []struct {
+		a, b, expected string
+	}{
+		{"/a/b/c", "/a/b/d", "/a/b"},
+		{"/a/b/c", "a/b/d", "/a/b"},
+		{"a/b/c", "/a/b/d", "/a/b"},
+		{"a/b/c", "a/b/d", "a/b"},
+		{"/a/b/c", "/a/b/c", "/a/b/c"},
+		{"/a/b/c", "/a/b/c/d", "/a/b/c"},
+		{"/a/b/c", "/a/b", "/a/b"},
+		{"/a/b/c", "/a", "/a"},
+		{"/a/b/c", "/d/e/f", ""},
+	} {
+		c.Assert(CommonDirPath(this.a, this.b), qt.Equals, this.expected, qt.Commentf("a: %s b: %s", this.a, this.b))
+	}
+}
+
+func TestIsSameFilePath(t *testing.T) {
+	c := qt.New(t)
+
+	for _, this := range []struct {
+		a, b     string
+		expected bool
+	}{
+		{"/a/b/c", "/a/b/c", true},
+		{"/a/b/c", "/a/b/c/", true},
+		{"/a/b/c", "/a/b/d", false},
+		{"/a/b/c", "/a/b", false},
+		{"/a/b/c", "/a/b/c/d", false},
+		{"/a/b/c", "/a/b/cd", false},
+		{"/a/b/c", "/a/b/cc", false},
+		{"/a/b/c", "/a/b/c/", true},
+		{"/a/b/c", "/a/b/c//", true},
+		{"/a/b/c", "/a/b/c/.", true},
+		{"/a/b/c", "/a/b/c/./", true},
+		{"/a/b/c", "/a/b/c/./.", true},
+		{"/a/b/c", "/a/b/c/././", true},
+		{"/a/b/c", "/a/b/c/././.", true},
+		{"/a/b/c", "/a/b/c/./././", true},
+		{"/a/b/c", "/a/b/c/./././.", true},
+		{"/a/b/c", "/a/b/c/././././", true},
+	} {
+		c.Assert(IsSameFilePath(filepath.FromSlash(this.a), filepath.FromSlash(this.b)), qt.Equals, this.expected, qt.Commentf("a: %s b: %s", this.a, this.b))
+	}
+}

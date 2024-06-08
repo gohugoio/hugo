@@ -74,6 +74,26 @@ func (c *Cache[K, T]) ForEeach(f func(K, T)) {
 	}
 }
 
+func (c *Cache[K, T]) Drain() map[K]T {
+	c.Lock()
+	m := c.m
+	c.m = make(map[K]T)
+	c.Unlock()
+	return m
+}
+
+func (c *Cache[K, T]) Len() int {
+	c.RLock()
+	defer c.RUnlock()
+	return len(c.m)
+}
+
+func (c *Cache[K, T]) Reset() {
+	c.Lock()
+	c.m = make(map[K]T)
+	c.Unlock()
+}
+
 // SliceCache is a simple thread safe cache backed by a map.
 type SliceCache[T any] struct {
 	m map[string][]T

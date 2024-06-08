@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/bep/logg"
+	"github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -171,6 +172,16 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 
 		if err := h.postRenderOnce(); err != nil {
 			h.SendError(fmt.Errorf("postRenderOnce: %w", err))
+		}
+
+		// Make sure to write any build stats to disk first so it's available
+		// to the post processors.
+		if err := h.writeBuildStats(); err != nil {
+			return err
+		}
+
+		if err := h.renderDeferred(infol); err != nil {
+			h.SendError(fmt.Errorf("renderDeferred: %w", err))
 		}
 
 		if err := h.postProcess(infol); err != nil {
@@ -352,47 +363,172 @@ func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
 				continue
 			}
 
-			siteRenderContext.outIdx = siteOutIdx
-			siteRenderContext.sitesOutIdx = i
-			i++
+			if err := func() error {
+				rc := tpl.RenderingContext{Site: s, SiteOutIdx: siteOutIdx}
+				h.BuildState.StartStageRender(rc)
+				defer h.BuildState.StopStageRender(rc)
 
-			select {
-			case <-h.Done():
+				siteRenderContext.outIdx = siteOutIdx
+				siteRenderContext.sitesOutIdx = i
+				i++
+
+				select {
+				case <-h.Done():
+					return nil
+				default:
+					for _, s2 := range h.Sites {
+						if err := s2.preparePagesForRender(s == s2, siteRenderContext.sitesOutIdx); err != nil {
+							return err
+						}
+					}
+					if !config.SkipRender {
+						ll := l.WithField("substep", "pages").
+							WithField("site", s.language.Lang).
+							WithField("outputFormat", renderFormat.Name)
+
+						start := time.Now()
+
+						if config.PartialReRender {
+							if err := s.renderPages(siteRenderContext); err != nil {
+								return err
+							}
+						} else {
+							if err := s.render(siteRenderContext); err != nil {
+								return err
+							}
+						}
+						loggers.TimeTrackf(ll, start, nil, "")
+					}
+				}
 				return nil
-			default:
-				for _, s2 := range h.Sites {
-					// We render site by site, but since the content is lazily rendered
-					// and a site can "borrow" content from other sites, every site
-					// needs this set.
-					s2.rc = &siteRenderingContext{Format: renderFormat}
-
-					if err := s2.preparePagesForRender(s == s2, siteRenderContext.sitesOutIdx); err != nil {
-						return err
-					}
-				}
-				if !config.SkipRender {
-					ll := l.WithField("substep", "pages").
-						WithField("site", s.language.Lang).
-						WithField("outputFormat", renderFormat.Name)
-
-					start := time.Now()
-
-					if config.PartialReRender {
-						if err := s.renderPages(siteRenderContext); err != nil {
-							return err
-						}
-					} else {
-						if err := s.render(siteRenderContext); err != nil {
-							return err
-						}
-					}
-					loggers.TimeTrackf(ll, start, nil, "")
-				}
+			}(); err != nil {
+				return err
 			}
+
 		}
 	}
 
 	return nil
+}
+
+func (h *HugoSites) renderDeferred(l logg.LevelLogger) error {
+	l = l.WithField("step", "render deferred")
+	start := time.Now()
+
+	var deferredCount int
+
+	for rc, de := range h.Deps.BuildState.DeferredExecutionsGroupedByRenderingContext {
+		if de.FilenamesWithPostPrefix.Len() == 0 {
+			continue
+		}
+
+		deferredCount += de.FilenamesWithPostPrefix.Len()
+
+		s := rc.Site.(*Site)
+		for _, s2 := range h.Sites {
+			if err := s2.preparePagesForRender(s == s2, rc.SiteOutIdx); err != nil {
+				return err
+			}
+		}
+		if err := s.executeDeferredTemplates(de); err != nil {
+			return herrors.ImproveRenderErr(err)
+		}
+	}
+
+	loggers.TimeTrackf(l, start, logg.Fields{
+		logg.Field{Name: "count", Value: deferredCount},
+	}, "")
+
+	return nil
+}
+
+func (s *Site) executeDeferredTemplates(de *deps.DeferredExecutions) error {
+	handleFile := func(filename string) error {
+		content, err := afero.ReadFile(s.BaseFs.PublishFs, filename)
+		if err != nil {
+			return err
+		}
+
+		k := 0
+		changed := false
+
+		for {
+			if k >= len(content) {
+				break
+			}
+			l := bytes.Index(content[k:], []byte(tpl.HugoDeferredTemplatePrefix))
+			if l == -1 {
+				break
+			}
+			m := bytes.Index(content[k+l:], []byte(tpl.HugoDeferredTemplateSuffix)) + len(tpl.HugoDeferredTemplateSuffix)
+
+			low, high := k+l, k+l+m
+
+			forward := l + m
+			id := string(content[low:high])
+
+			if err := func() error {
+				deferred, found := de.Executions.Get(id)
+				if !found {
+					panic(fmt.Sprintf("deferred execution with id %q not found", id))
+				}
+				deferred.Mu.Lock()
+				defer deferred.Mu.Unlock()
+
+				if !deferred.Executed {
+					tmpl := s.Deps.Tmpl()
+					templ, found := tmpl.Lookup(deferred.TemplateName)
+					if !found {
+						panic(fmt.Sprintf("template %q not found", deferred.TemplateName))
+					}
+
+					if err := func() error {
+						buf := bufferpool.GetBuffer()
+						defer bufferpool.PutBuffer(buf)
+
+						err = tmpl.ExecuteWithContext(deferred.Ctx, templ, buf, deferred.Data)
+						if err != nil {
+							return err
+						}
+						deferred.Result = buf.String()
+						deferred.Executed = true
+
+						return nil
+					}(); err != nil {
+						return err
+					}
+				}
+
+				content = append(content[:low], append([]byte(deferred.Result), content[high:]...)...)
+				changed = true
+
+				return nil
+			}(); err != nil {
+				return err
+			}
+
+			k += forward
+		}
+
+		if changed {
+			return afero.WriteFile(s.BaseFs.PublishFs, filename, content, 0o666)
+		}
+
+		return nil
+	}
+
+	g := rungroup.Run[string](context.Background(), rungroup.Config[string]{
+		NumWorkers: s.h.numWorkers,
+		Handle: func(ctx context.Context, filename string) error {
+			return handleFile(filename)
+		},
+	})
+
+	de.FilenamesWithPostPrefix.ForEeach(func(filename string, _ bool) {
+		g.Enqueue(filename)
+	})
+
+	return g.Wait()
 }
 
 // / postRenderOnce runs some post processing that only needs to be done once, e.g. printing of unused templates.
@@ -427,12 +563,6 @@ func (h *HugoSites) postRenderOnce() error {
 func (h *HugoSites) postProcess(l logg.LevelLogger) error {
 	l = l.WithField("step", "postProcess")
 	defer loggers.TimeTrackf(l, time.Now(), nil, "")
-
-	// Make sure to write any build stats to disk first so it's available
-	// to the post processors.
-	if err := h.writeBuildStats(); err != nil {
-		return err
-	}
 
 	// This will only be set when js.Build have been triggered with
 	// imports that resolves to the project or a module.
@@ -599,6 +729,10 @@ func (h *HugoSites) writeBuildStats() error {
 			return err
 		}
 	}
+
+	// This step may be followed by a post process step that may
+	// rebuild e.g. CSS, so clear any cache that's defined for the hugo_stats.json.
+	h.dynacacheGCFilenameIfNotWatchedAndDrainMatching(filename)
 
 	return nil
 }

@@ -47,7 +47,7 @@ func TestTransformRecursiveTemplate(t *testing.T) {
 }
 
 func newTestTemplate(templ tpl.Template) *templateState {
-	return newTemplateState(
+	return newTemplateState(nil,
 		templ,
 		templateInfo{
 			name: templ.Name(),

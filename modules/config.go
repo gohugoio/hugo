@@ -402,6 +402,9 @@ type Mount struct {
 
 	// Exclude all files matching the given Glob patterns (string or slice).
 	ExcludeFiles any
+
+	// Disable watching in watch mode for this mount.
+	DisableWatch bool
 }
 
 // Used as key to remove duplicates.

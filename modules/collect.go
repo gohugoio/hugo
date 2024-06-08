@@ -27,6 +27,7 @@ import (
 	"github.com/bep/debounce"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/spf13/cast"
 
@@ -657,7 +658,13 @@ func (c *collector) normalizeMounts(owner *moduleAdapter, mounts []Mount) ([]Mou
 		// Verify that Source exists
 		_, err := c.fs.Stat(sourceDir)
 		if err != nil {
-			if strings.HasSuffix(sourceDir, files.FilenameHugoStatsJSON) {
+			if paths.IsSameFilePath(sourceDir, c.ccfg.PublishDir) {
+				// This is a little exotic, but there are use cases for mounting the public folder.
+				// This will typically also be in .gitingore, so create it.
+				if err := c.fs.MkdirAll(sourceDir, 0o755); err != nil {
+					return nil, fmt.Errorf("%s: %q", errMsg, err)
+				}
+			} else if strings.HasSuffix(sourceDir, files.FilenameHugoStatsJSON) {
 				// A common pattern for Tailwind 3 is to mount that file to get it on the server watch list.
 
 				// A common pattern is also to add hugo_stats.json to .gitignore.
@@ -669,6 +676,7 @@ func (c *collector) normalizeMounts(owner *moduleAdapter, mounts []Mount) ([]Mou
 				}
 				f.Close()
 			} else {
+				c.logger.Warnf("module %q: mount source %q does not exist", owner.Path(), sourceDir)
 				continue
 			}
 		}

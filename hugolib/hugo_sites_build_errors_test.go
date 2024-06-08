@@ -628,3 +628,20 @@ title: "A page"
 
 	b.CreateSites().BuildFail(BuildCfg{})
 }
+
+func TestErrorTemplateRuntime(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/index.html --
+Home.
+{{ .ThisDoesNotExist }}
+ `
+
+	b, err := TestE(t, files)
+
+	b.Assert(err, qt.Not(qt.IsNil))
+	b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`/layouts/index.html:2:3`))
+	b.Assert(err.Error(), qt.Contains, `can't evaluate field ThisDoesNotExist`)
+}

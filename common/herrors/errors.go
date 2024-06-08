@@ -68,6 +68,20 @@ func (e *TimeoutError) Is(target error) bool {
 	return ok
 }
 
+// errMessage wraps an error with a message.
+type errMessage struct {
+	msg string
+	err error
+}
+
+func (e *errMessage) Error() string {
+	return e.msg
+}
+
+func (e *errMessage) Unwrap() error {
+	return e.err
+}
+
 // IsFeatureNotAvailableError returns true if the given error is or contains a FeatureNotAvailableError.
 func IsFeatureNotAvailableError(err error) bool {
 	return errors.Is(err, &FeatureNotAvailableError{})
@@ -121,19 +135,38 @@ func IsNotExist(err error) bool {
 
 var nilPointerErrRe = regexp.MustCompile(`at <(.*)>: error calling (.*?): runtime error: invalid memory address or nil pointer dereference`)
 
-func ImproveIfNilPointer(inErr error) (outErr error) {
-	outErr = inErr
+const deferredPrefix = "__hdeferred/"
 
+var deferredStringToRemove = regexp.MustCompile(`executing "__hdeferred/.*" `)
+
+// ImproveRenderErr improves the error message for rendering errors.
+func ImproveRenderErr(inErr error) (outErr error) {
+	outErr = inErr
+	msg := improveIfNilPointerMsg(inErr)
+	if msg != "" {
+		outErr = &errMessage{msg: msg, err: outErr}
+	}
+
+	if strings.Contains(inErr.Error(), deferredPrefix) {
+		msg := deferredStringToRemove.ReplaceAllString(inErr.Error(), "executing ")
+		outErr = &errMessage{msg: msg, err: outErr}
+	}
+	return
+}
+
+func improveIfNilPointerMsg(inErr error) string {
 	m := nilPointerErrRe.FindStringSubmatch(inErr.Error())
 	if len(m) == 0 {
-		return
+		return ""
 	}
 	call := m[1]
 	field := m[2]
 	parts := strings.Split(call, ".")
+	if len(parts) < 2 {
+		return ""
+	}
 	receiverName := parts[len(parts)-2]
 	receiver := strings.Join(parts[:len(parts)-1], ".")
 	s := fmt.Sprintf("– %s is nil; wrap it in if or with: {{ with %s }}{{ .%s }}{{ end }}", receiverName, receiver, field)
-	outErr = errors.New(nilPointerErrRe.ReplaceAllString(inErr.Error(), s))
-	return
+	return nilPointerErrRe.ReplaceAllString(inErr.Error(), s)
 }

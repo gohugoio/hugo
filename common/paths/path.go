@@ -237,11 +237,16 @@ func prettifyPath(in string, b filepathPathBridge) string {
 	return b.Join(b.Dir(in), name, "index"+ext)
 }
 
-// CommonDir returns the common directory of the given paths.
-func CommonDir(path1, path2 string) string {
+// CommonDirPath returns the common directory of the given paths.
+func CommonDirPath(path1, path2 string) string {
 	if path1 == "" || path2 == "" {
 		return ""
 	}
+
+	hadLeadingSlash := strings.HasPrefix(path1, "/") || strings.HasPrefix(path2, "/")
+
+	path1 = TrimLeading(path1)
+	path2 = TrimLeading(path2)
 
 	p1 := strings.Split(path1, "/")
 	p2 := strings.Split(path2, "/")
@@ -256,7 +261,13 @@ func CommonDir(path1, path2 string) string {
 		}
 	}
 
-	return strings.Join(common, "/")
+	s := strings.Join(common, "/")
+
+	if hadLeadingSlash && s != "" {
+		s = "/" + s
+	}
+
+	return s
 }
 
 // Sanitize sanitizes string to be used in Hugo's file paths and URLs, allowing only
@@ -384,16 +395,36 @@ func PathEscape(pth string) string {
 
 // ToSlashTrimLeading is just a filepath.ToSlash with an added / prefix trimmer.
 func ToSlashTrimLeading(s string) string {
-	return strings.TrimPrefix(filepath.ToSlash(s), "/")
+	return TrimLeading(filepath.ToSlash(s))
+}
+
+// TrimLeading trims the leading slash from the given string.
+func TrimLeading(s string) string {
+	return strings.TrimPrefix(s, "/")
 }
 
 // ToSlashTrimTrailing is just a filepath.ToSlash with an added / suffix trimmer.
 func ToSlashTrimTrailing(s string) string {
-	return strings.TrimSuffix(filepath.ToSlash(s), "/")
+	return TrimTrailing(filepath.ToSlash(s))
+}
+
+// TrimTrailing trims the trailing slash from the given string.
+func TrimTrailing(s string) string {
+	return strings.TrimSuffix(s, "/")
+}
+
+// ToSlashTrim trims any leading and trailing slashes from the given string and converts it to a forward slash separated path.
+func ToSlashTrim(s string) string {
+	return strings.Trim(filepath.ToSlash(s), "/")
 }
 
 // ToSlashPreserveLeading converts the path given to a forward slash separated path
 // and preserves the leading slash if present trimming any trailing slash.
 func ToSlashPreserveLeading(s string) string {
 	return "/" + strings.Trim(filepath.ToSlash(s), "/")
+}
+
+// IsSameFilePath checks if s1 and s2 are the same file path.
+func IsSameFilePath(s1, s2 string) bool {
+	return path.Clean(ToSlashTrim(s1)) == path.Clean(ToSlashTrim(s2))
 }

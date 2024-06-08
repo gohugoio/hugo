@@ -33,6 +33,7 @@ import (
 	"github.com/gohugoio/hugo/common/rungroup"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/hugofs/glob"
 	"github.com/gohugoio/hugo/hugolib/doctree"
 	"github.com/gohugoio/hugo/hugolib/pagesfromdata"
 	"github.com/gohugoio/hugo/identity"
@@ -1002,7 +1003,7 @@ func (m *pageMap) debugPrint(prefix string, maxLevel int, w io.Writer) {
 		}
 		const indentStr = " "
 		p := n.(*pageState)
-		s := strings.TrimPrefix(keyPage, paths.CommonDir(prevKey, keyPage))
+		s := strings.TrimPrefix(keyPage, paths.CommonDirPath(prevKey, keyPage))
 		lenIndent := len(keyPage) - len(s)
 		fmt.Fprint(w, strings.Repeat(indentStr, lenIndent))
 		info := fmt.Sprintf("%s lm: %s (%s)", s, p.Lastmod().Format("2006-01-02"), p.Kind())
@@ -1045,6 +1046,59 @@ func (m *pageMap) debugPrint(prefix string, maxLevel int, w io.Writer) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func (h *HugoSites) dynacacheGCFilenameIfNotWatchedAndDrainMatching(filename string) {
+	cpss := h.BaseFs.ResolvePaths(filename)
+	if len(cpss) == 0 {
+		return
+	}
+	// Compile cache busters.
+	var cacheBusters []func(string) bool
+	for _, cps := range cpss {
+		if cps.Watch {
+			continue
+		}
+		np := glob.NormalizePath(path.Join(cps.Component, cps.Path))
+		g, err := h.ResourceSpec.BuildConfig().MatchCacheBuster(h.Log, np)
+		if err == nil && g != nil {
+			cacheBusters = append(cacheBusters, g)
+		}
+	}
+	if len(cacheBusters) == 0 {
+		return
+	}
+	cacheBusterOr := func(s string) bool {
+		for _, cb := range cacheBusters {
+			if cb(s) {
+				return true
+			}
+		}
+		return false
+	}
+
+	h.dynacacheGCCacheBuster(cacheBusterOr)
+
+	// We want to avoid that evicted items in the above is considered in the next step server change.
+	_ = h.MemCache.DrainEvictedIdentitiesMatching(func(ki dynacache.KeyIdentity) bool {
+		return cacheBusterOr(ki.Key.(string))
+	})
+}
+
+func (h *HugoSites) dynacacheGCCacheBuster(cachebuster func(s string) bool) {
+	if cachebuster == nil {
+		return
+	}
+	shouldDelete := func(k, v any) bool {
+		var b bool
+		if s, ok := k.(string); ok {
+			b = cachebuster(s)
+		}
+
+		return b
+	}
+
+	h.MemCache.ClearMatching(nil, shouldDelete)
 }
 
 func (h *HugoSites) resolveAndClearStateForIdentities(
@@ -1095,25 +1149,10 @@ func (h *HugoSites) resolveAndClearStateForIdentities(
 	// 1. Handle the cache busters first, as those may produce identities for the page reset step.
 	// 2. Then reset the page outputs, which may mark some resources as stale.
 	// 3. Then GC the cache.
-	// TOOD1
 	if cachebuster != nil {
 		if err := loggers.TimeTrackfn(func() (logg.LevelLogger, error) {
 			ll := l.WithField("substep", "gc dynacache cachebuster")
-
-			shouldDelete := func(k, v any) bool {
-				if cachebuster == nil {
-					return false
-				}
-				var b bool
-				if s, ok := k.(string); ok {
-					b = cachebuster(s)
-				}
-
-				return b
-			}
-
-			h.MemCache.ClearMatching(nil, shouldDelete)
-
+			h.dynacacheGCCacheBuster(cachebuster)
 			return ll, nil
 		}); err != nil {
 			return err
@@ -1123,7 +1162,9 @@ func (h *HugoSites) resolveAndClearStateForIdentities(
 	// Drain the cache eviction stack.
 	evicted := h.Deps.MemCache.DrainEvictedIdentities()
 	if len(evicted) < 200 {
-		changes = append(changes, evicted...)
+		for _, c := range evicted {
+			changes = append(changes, c.Identity)
+		}
 	} else {
 		// Mass eviction, we might as well invalidate everything.
 		changes = []identity.Identity{identity.GenghisKhan}
