@@ -136,8 +136,10 @@ func TestToBuildOptions(t *testing.T) {
 		},
 	})
 
-	opts, err = toBuildOptions(Options{mediaType: media.Builtin.JavascriptType,
-		JSX: "automatic", JSXImportSource: "preact"})
+	opts, err = toBuildOptions(Options{
+		mediaType: media.Builtin.JavascriptType,
+		JSX:       "automatic", JSXImportSource: "preact",
+	})
 	c.Assert(err, qt.IsNil)
 	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
 		Bundle: true,
@@ -149,6 +151,36 @@ func TestToBuildOptions(t *testing.T) {
 		JSX:             api.JSXAutomatic,
 		JSXImportSource: "preact",
 	})
+}
+
+func TestToBuildOptionsTarget(t *testing.T) {
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		target string
+		expect api.Target
+	}{
+		{"es2015", api.ES2015},
+		{"es2016", api.ES2016},
+		{"es2017", api.ES2017},
+		{"es2018", api.ES2018},
+		{"es2019", api.ES2019},
+		{"es2020", api.ES2020},
+		{"es2021", api.ES2021},
+		{"es2022", api.ES2022},
+		{"es2023", api.ES2023},
+		{"", api.ESNext},
+		{"esnext", api.ESNext},
+	} {
+		c.Run(test.target, func(c *qt.C) {
+			opts, err := toBuildOptions(Options{
+				Target:    test.target,
+				mediaType: media.Builtin.JavascriptType,
+			})
+			c.Assert(err, qt.IsNil)
+			c.Assert(opts.Target, qt.Equals, test.expect)
+		})
+	}
 }
 
 func TestResolveComponentInAssets(t *testing.T) {
