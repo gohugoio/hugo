@@ -342,6 +342,12 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 		target = api.ES2019
 	case "es2020":
 		target = api.ES2020
+	case "es2021":
+		target = api.ES2021
+	case "es2022":
+		target = api.ES2022
+	case "es2023":
+		target = api.ES2023
 	default:
 		err = fmt.Errorf("invalid target: %q", opts.Target)
 		return
