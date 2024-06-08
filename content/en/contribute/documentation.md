@@ -237,7 +237,7 @@ fm
 Use the “deprecated-in” shortcode to indicate that a feature is deprecated:
 
 ```text
-{{%/* deprecated-in 0.120.0 */%}}
+{{%/* deprecated-in 0.127.0 */%}}
 Use [`hugo.IsServer`] instead.
 
 [`hugo.IsServer`]: /functions/hugo/isserver/
@@ -246,7 +246,7 @@ Use [`hugo.IsServer`] instead.
 
 Rendered:
 
-{{% deprecated-in 0.120.0 %}}
+{{% deprecated-in 0.127.0 %}}
 Use [`hugo.IsServer`] instead.
 
 [`hugo.IsServer`]: /functions/hugo/isserver/
@@ -273,12 +273,12 @@ This is a link to the [embedded alias template].
 Use the "new-in" shortcode to indicate a new feature:
 
 ```text
-{{</* new-in 0.120.0 */>}}
+{{</* new-in 0.127.0 */>}}
 ```
 
 Rendered:
 
-{{< new-in 0.120.0 >}}
+{{< new-in 0.127.0 >}}
 
 ### note
 
@@ -308,7 +308,7 @@ Use the "new-in" shortcode to indicate a new feature:
 {{</* new-in 0.120.0 */>}}
 {{< /code >}}
 
-The "new in" label will be hidden if the specified version is older than a predefined threshold, based on differences in major and minor versions. See&nbsp;[details](https://github.com/gohugoio/hugoDocs/blob/master/layouts/shortcodes/new-in.html).
+The "new in" label will be hidden if the specified version is older than a predefined threshold, based on differences in major and minor versions. See&nbsp;[details](https://github.com/gohugoio/hugoDocs/blob/master/_vendor/github.com/gohugoio/gohugoioTheme/layouts/shortcodes/new-in.html).
 
 ## Deprecated features
 
