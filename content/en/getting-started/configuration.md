@@ -378,13 +378,9 @@ Module configuration see [module configuration](/hugo-modules/configuration/).
 
 See [custom output formats].
 
-###### paginate
+###### pagination
 
-(`int`) Default number of elements per page in [pagination](/templates/pagination/). Default is `10`.
-
-###### paginatePath
-
-(`string`) The path element used during pagination (`https://example.org/page/2`). Default is `page`.
+See [configure pagination](/templates/pagination/#configuration).
 
 ###### permalinks
 
@@ -962,4 +958,3 @@ Some use cases for this feature:
 [kind]: /getting-started/glossary/#page-kind
 [output format]: /getting-started/glossary/#output-format
 [type]: /getting-started/glossary/#content-type
-

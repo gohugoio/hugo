@@ -7,6 +7,7 @@ action:
   related: []
   returnType: bool
   signatures: [SITE.IsMultiLingual]
+expiryDate: 2025-03-16 # deprecated 2024-03-16
 ---
 
 {{% deprecated-in 0.124.0 %}}

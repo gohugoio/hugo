@@ -287,15 +287,19 @@ A file within a [page bundle](#page-bundle). Capture one or more page resources 
 
 ###### pager
 
-Created during [pagination](#pagination), a pager contains a subset of a section list, and navigation links to other pagers.
+Created during [pagination](#pagination), a pager contains a subset of a list page and navigation links to other pagers.
 
 ###### paginate
 
-To split a [section](#section) list into two or more [pagers](#pager) See&nbsp;[details](/templates/pagination/).
+To split a list page into two or more subsets.
 
 ###### pagination
 
-The process of [paginating](#paginate) a [section](#section) list.
+The process of [paginating](#paginate) a list page. See&nbsp;[details](/templates/pagination/).
+
+###### paginator
+
+A collection of [pagers](#pager).
 
 ###### parameter
 

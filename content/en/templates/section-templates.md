@@ -27,16 +27,15 @@ See [Template Lookup](/templates/lookup-order/).
 {{ define "main" }}
   <main>
     {{ .Content }}
-      <ul class="contents">
-        {{ range .Paginator.Pages }}
-          <li>{{ .Title }}
-            <div>
-              {{ partial "summary.html" . }}
-            </div>
-          </li>
-        {{ end }}
-      </ul>
-    {{ partial "pagination.html" . }}
+
+    {{ $pages := where site.RegularPages "Type" "posts" }}
+    {{ $paginator := .Paginate $pages }}
+
+    {{ range $paginator.Pages }}
+      <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+    {{ end }}
+
+    {{ template "_internal/pagination.html" . }}
   </main>
 {{ end }}
 {{< /code >}}

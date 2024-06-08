@@ -10,9 +10,13 @@ action:
   signatures: [PAGE.Paginator]
 ---
 
-[Pagination] is the process of splitting a list page into two or more pagers, where each pager contains a subset of the page collection and navigation links to other pagers. The number of elements on each pager is determined by the value of the `paginate` setting in your site configuration. The default value is `10`.
+[Pagination] is the process of splitting a list page into two or more pagers, where each pager contains a subset of the page collection and navigation links to other pagers.
 
-You can invoke pagination on the home page template, [`section`] templates, [`taxonomy`] templates, and [`term`] templates. Each of these receive a collection of regular pages in [context]. When you invoke the `Paginator` method, it paginates the page collection received in context.
+The number of elements on each pager is determined by your [site configuration]. The default is `10`.
+
+[site configuration]: /getting-started/configuration/#pagination
+
+You can invoke pagination on `home`, `section`, `taxonomy`, and `term` pages. Each of these receive a collection of regular pages in [context]. When you invoke the `Paginator` method, it paginates the page collection received in context.
 
 {{< code file=layouts/_default/list.html >}}
 {{ range .Paginator.Pages }}
@@ -21,7 +25,7 @@ You can invoke pagination on the home page template, [`section`] templates, [`ta
 {{ template "_internal/pagination.html" . }}
 {{< /code >}}
 
-In the example above, the internal "pagination" template creates the navigation links between pagers.
+In the example above, the embedded pagination template creates navigation links between pagers.
 
 {{% note %}}
 Although simple to invoke, with the `Paginator` method you can neither filter nor sort the page collection. It acts upon the page collection received in context.
@@ -37,6 +41,3 @@ Please note that the results of pagination are cached. Once you have invoked eit
 
 [context]: /getting-started/glossary/#context
 [pagination]: /templates/pagination/
-[`section`]: /getting-started/glossary/#section
-[`taxonomy`]: /getting-started/glossary/#taxonomy
-[`term`]: /getting-started/glossary/#term
