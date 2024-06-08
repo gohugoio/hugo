@@ -427,8 +427,8 @@ mainSections=["a", "b"]
 {{/* Behaviour before Hugo 0.112.0. */}}
 MainSections Params: {{ site.Params.mainSections }}|
 MainSections Site method: {{ site.MainSections }}|
-	
-	
+
+
 	`
 
 		b := Test(t, files)
@@ -478,8 +478,8 @@ disableKinds = ['RSS','sitemap','taxonomy','term']
 -- layouts/index.html --
 MainSections Params: {{ site.Params.mainSections }}|
 MainSections Site method: {{ site.MainSections }}|
-	
-	
+
+
 	`
 
 		b := Test(t, files)
@@ -787,9 +787,12 @@ func TestGroupedPages(t *testing.T) {
 		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 2, len(byparam[0].Pages))
 	}
 
-	_, err = s.RegularPages().GroupByParam("not_exist")
-	if err == nil {
-		t.Errorf("GroupByParam didn't return an expected error")
+	byNonExistentParam, err := s.RegularPages().GroupByParam("not_exist")
+	if err != nil {
+		t.Errorf("GroupByParam returned an error when it shouldn't")
+	}
+	if len(byNonExistentParam) != 0 {
+		t.Errorf("PageGroup array has unexpected elements. Group length should be '%d', got '%d'", 0, len(byNonExistentParam))
 	}
 
 	byOnlyOneParam, err := s.RegularPages().GroupByParam("only_one")
