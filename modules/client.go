@@ -760,6 +760,9 @@ type ClientConfig struct {
 	// Absolute path to the project's themes dir.
 	ThemesDir string
 
+	// The publish dir.
+	PublishDir string
+
 	// Eg. "production"
 	Environment string
 

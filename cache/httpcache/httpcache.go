@@ -83,7 +83,6 @@ func (c *Config) Compile() (ConfigCompiled, error) {
 }
 
 // PollConfig holds the configuration for polling remote resources to detect changes in watch mode.
-// TODO1 make sure this enabled only in watch mode.
 type PollConfig struct {
 	// What remote resources to apply this configuration to.
 	For GlobMatcher

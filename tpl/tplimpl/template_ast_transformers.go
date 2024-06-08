@@ -17,6 +17,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/gohugoio/hugo/helpers"
 	htmltemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 
@@ -38,6 +39,7 @@ const (
 type templateContext struct {
 	visited          map[string]bool
 	templateNotFound map[string]bool
+	deferNodes       map[string]*parse.ListNode
 	lookupFn         func(name string) *templateState
 
 	// The last error encountered.
@@ -77,6 +79,7 @@ func newTemplateContext(
 		lookupFn:         lookupFn,
 		visited:          make(map[string]bool),
 		templateNotFound: make(map[string]bool),
+		deferNodes:       make(map[string]*parse.ListNode),
 	}
 }
 
@@ -116,9 +119,14 @@ const (
 	// "range" over a one-element slice so we can shift dot to the
 	// partial's argument, Arg, while allowing Arg to be falsy.
 	partialReturnWrapperTempl = `{{ $_hugo_dot := $ }}{{ $ := .Arg }}{{ range (slice .Arg) }}{{ $_hugo_dot.Set ("PLACEHOLDER") }}{{ end }}`
+
+	doDeferTempl = `{{ doDefer ("PLACEHOLDER1") ("PLACEHOLDER2") }}`
 )
 
-var partialReturnWrapper *parse.ListNode
+var (
+	partialReturnWrapper *parse.ListNode
+	doDefer              *parse.ListNode
+)
 
 func init() {
 	templ, err := texttemplate.New("").Parse(partialReturnWrapperTempl)
@@ -126,6 +134,12 @@ func init() {
 		panic(err)
 	}
 	partialReturnWrapper = templ.Tree.Root
+
+	templ, err = texttemplate.New("").Funcs(texttemplate.FuncMap{"doDefer": func(string, string) string { return "" }}).Parse(doDeferTempl)
+	if err != nil {
+		panic(err)
+	}
+	doDefer = templ.Tree.Root
 }
 
 // wrapInPartialReturnWrapper copies and modifies the parsed nodes of a
@@ -158,6 +172,7 @@ func (c *templateContext) applyTransformations(n parse.Node) (bool, error) {
 	case *parse.IfNode:
 		c.applyTransformationsToNodes(x.Pipe, x.List, x.ElseList)
 	case *parse.WithNode:
+		c.handleDefer(x)
 		c.applyTransformationsToNodes(x.Pipe, x.List, x.ElseList)
 	case *parse.RangeNode:
 		c.applyTransformationsToNodes(x.Pipe, x.List, x.ElseList)
@@ -189,6 +204,58 @@ func (c *templateContext) applyTransformations(n parse.Node) (bool, error) {
 	}
 
 	return true, c.err
+}
+
+func (c *templateContext) handleDefer(withNode *parse.WithNode) {
+	if len(withNode.Pipe.Cmds) != 1 {
+		return
+	}
+	cmd := withNode.Pipe.Cmds[0]
+	if len(cmd.Args) != 1 {
+		return
+	}
+	idArg := cmd.Args[0]
+
+	p, ok := idArg.(*parse.PipeNode)
+	if !ok {
+		return
+	}
+
+	if len(p.Cmds) != 1 {
+		return
+	}
+
+	cmd = p.Cmds[0]
+
+	if len(cmd.Args) != 2 {
+		return
+	}
+
+	idArg = cmd.Args[0]
+
+	id, ok := idArg.(*parse.ChainNode)
+	if !ok || len(id.Field) != 1 || id.Field[0] != "Defer" {
+		return
+	}
+	if id2, ok := id.Node.(*parse.IdentifierNode); !ok || id2.Ident != "templates" {
+		return
+	}
+
+	deferArg := cmd.Args[1]
+	cmd.Args = []parse.Node{idArg}
+
+	l := doDefer.CopyList()
+	n := l.Nodes[0].(*parse.ActionNode)
+
+	inner := withNode.List.CopyList()
+	innerHash := helpers.MD5String(inner.String())
+	deferredID := tpl.HugoDeferredTemplatePrefix + innerHash
+
+	c.deferNodes[deferredID] = inner
+	withNode.List = l
+
+	n.Pipe.Cmds[0].Args[1].(*parse.PipeNode).Cmds[0].Args[0].(*parse.StringNode).Text = deferredID
+	n.Pipe.Cmds[0].Args[2] = deferArg
 }
 
 func (c *templateContext) applyTransformationsToNodes(nodes ...parse.Node) {

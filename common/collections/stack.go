@@ -65,3 +65,16 @@ func (s *Stack[T]) Drain() []T {
 	s.items = nil
 	return items
 }
+
+func (s *Stack[T]) DrainMatching(predicate func(T) bool) []T {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var items []T
+	for i := len(s.items) - 1; i >= 0; i-- {
+		if predicate(s.items[i]) {
+			items = append(items, s.items[i])
+			s.items = append(s.items[:i], s.items[i+1:]...)
+		}
+	}
+	return items
+}

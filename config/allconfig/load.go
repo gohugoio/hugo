@@ -458,6 +458,7 @@ func (l *configLoader) loadModules(configs *Configs) (modules.ModulesConfig, *mo
 	conf := configs.Base
 	workingDir := bcfg.WorkingDir
 	themesDir := bcfg.ThemesDir
+	publishDir := bcfg.PublishDir
 
 	cfg := configs.LoadingInfo.Cfg
 
@@ -492,6 +493,7 @@ func (l *configLoader) loadModules(configs *Configs) (modules.ModulesConfig, *mo
 		HookBeforeFinalize: hook,
 		WorkingDir:         workingDir,
 		ThemesDir:          themesDir,
+		PublishDir:         publishDir,
 		Environment:        l.Environment,
 		CacheDir:           conf.Caches.CacheDirModules(),
 		ModuleConfig:       conf.Module,

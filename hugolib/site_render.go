@@ -111,7 +111,7 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 
 	err := <-errs
 	if err != nil {
-		return fmt.Errorf("failed to render pages: %w", herrors.ImproveIfNilPointer(err))
+		return fmt.Errorf("failed to render pages: %w", herrors.ImproveRenderErr(err))
 	}
 	return nil
 }
@@ -226,7 +226,7 @@ func (s *Site) renderPaginator(p *pageState, templ tpl.Template) error {
 	paginatePath := s.Conf.Pagination().Path
 
 	d := p.targetPathDescriptor
-	f := p.s.rc.Format
+	f := p.outputFormat()
 	d.Type = f
 
 	if p.paginator.current == nil || p.paginator.current != p.paginator.current.First() {

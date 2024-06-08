@@ -720,7 +720,7 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 				ModuleOrdinal: md.ordinal,
 				IsProject:     md.isMainProject,
 				Meta: &hugofs.FileMeta{
-					Watch:           md.Watch(),
+					Watch:           !mount.DisableWatch && md.Watch(),
 					Weight:          mountWeight,
 					InclusionFilter: inclusionFilter,
 				},
