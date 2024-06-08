@@ -308,6 +308,9 @@ chroma:
     - Gherkin
     Name: Gherkin
   - Aliases:
+    - gleam>
+    Name: Gleam
+  - Aliases:
     - glsl
     Name: GLSL
   - Aliases:
@@ -926,6 +929,20 @@ chroma:
     - zig
     Name: Zig
 config:
+  HTTPCache:
+    cache:
+      for:
+        excludes:
+        - '**'
+        includes: null
+    polls:
+    - disable: true
+      for:
+        excludes: null
+        includes:
+        - '**'
+      high: 0s
+      low: 0s
   archeTypeDir: archetypes
   assetDir: assets
   author: {}
@@ -1569,8 +1586,12 @@ config:
     term:
     - html
     - rss
-  paginate: 10
-  paginatePath: page
+  paginate: 0
+  paginatePath: ""
+  pagination:
+    defaultPageSize: 10
+    disableAliases: false
+    path: page
   panicOnWarning: false
   params: {}
   permalinks:
@@ -1721,6 +1742,8 @@ config_helpers:
       _merge: none
     frontmatter:
       _merge: none
+    httpcache:
+      _merge: none
     imaging:
       _merge: none
     languages:
@@ -1744,6 +1767,8 @@ config_helpers:
     outputformats:
       _merge: shallow
     outputs:
+      _merge: none
+    pagination:
       _merge: none
     params:
       _merge: deep
