@@ -141,7 +141,7 @@ system.
 
 ### Default output formats
 
-Every `Page` has a [`Kind`][page_kinds] attribute, and the default Output
+Every `Page` has a [`Kind`] attribute, and the default Output
 Formats are set based on that.
 
 {{< code-toggle config=outputs />}}
@@ -247,4 +247,4 @@ The partial below is a plain text template . The output format is `csv`, and sin
 [lookup order]: /templates/lookup-order/
 [media type]: https://en.wikipedia.org/wiki/Media_type
 [partials]: /templates/partials/
-[page_kinds]: /templates/section-templates/#page-kinds
+[`kind`]: /methods/page/kind/

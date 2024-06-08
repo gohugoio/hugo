@@ -89,11 +89,9 @@ If you set both `slug` and `url` in front matter, the `url` value takes preceden
 
 ### Permalinks
 
-In your site configuration, define a URL pattern for each top-level section. Each URL pattern can target a given language and/or [page kind].
+In your site configuration, define a URL pattern for each top-level section. Each URL pattern can target a given language and/or page kind.
 
 Front matter `url` values override the URL patterns defined in the `permalinks` section of your site configuration.
-
-[page kind]: /templates/section-templates/#page-kinds
 
 #### Monolingual examples {#permalinks-monolingual-examples}
 
