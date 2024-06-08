@@ -205,7 +205,7 @@ func (p Pages) GroupByParam(key string, order ...string) (PagesGroup, error) {
 		}
 	}
 	if !tmp.IsValid() {
-		return nil, errors.New("there is no such param")
+		return nil, nil
 	}
 
 	for _, e := range p {
