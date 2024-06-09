@@ -114,7 +114,7 @@ func doTestPages(t *testing.T, paginator *Paginator) {
 
 	c.Assert(len(paginatorPages), qt.Equals, 5)
 	c.Assert(paginator.TotalNumberOfElements(), qt.Equals, 21)
-	c.Assert(paginator.PageSize(), qt.Equals, 5)
+	c.Assert(paginator.PagerSize(), qt.Equals, 5)
 	c.Assert(paginator.TotalPages(), qt.Equals, 5)
 
 	first := paginatorPages[0]
@@ -172,7 +172,7 @@ func doTestPagerNoPages(t *testing.T, paginator *Paginator) {
 	c := qt.New(t)
 	c.Assert(len(paginatorPages), qt.Equals, 1)
 	c.Assert(paginator.TotalNumberOfElements(), qt.Equals, 0)
-	c.Assert(paginator.PageSize(), qt.Equals, 5)
+	c.Assert(paginator.PagerSize(), qt.Equals, 5)
 	c.Assert(paginator.TotalPages(), qt.Equals, 0)
 
 	// pageOne should be nothing but the first
@@ -187,7 +187,7 @@ func doTestPagerNoPages(t *testing.T, paginator *Paginator) {
 	c.Assert(pageOne.TotalNumberOfElements(), qt.Equals, 0)
 	c.Assert(pageOne.TotalPages(), qt.Equals, 0)
 	c.Assert(pageOne.PageNumber(), qt.Equals, 1)
-	c.Assert(pageOne.PageSize(), qt.Equals, 5)
+	c.Assert(pageOne.PagerSize(), qt.Equals, 5)
 }
 
 func TestProbablyEqualPageLists(t *testing.T) {
