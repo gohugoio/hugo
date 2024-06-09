@@ -419,6 +419,6 @@ type Pagination struct {
 	// The path element used during pagination.
 	Path string
 
-	// WHether to disable generation of alias for the first pagination page.
+	// Whether to disable generation of alias for the first pagination page.
 	DisableAliases bool
 }
