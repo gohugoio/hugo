@@ -15,9 +15,9 @@ aliases: [/functions/slicestr]
 The START and END positions are zero-based, where `0` represents the first character of the string. If START is not specified, the substring will begin at position `0`. If END is not specified, the substring will end after the last character.
 
 ```go-html-template
-{{ slicestr "BatMan" }}` → BatMan
-{{ slicestr "BatMan" 3 }}` → Man
-{{ slicestr "BatMan" 0 3 }}` → Bat
+{{ slicestr "BatMan" }} → BatMan
+{{ slicestr "BatMan" 3 }} → Man
+{{ slicestr "BatMan" 0 3 }} → Bat
 ```
 
 The START and END arguments represent the endpoints of a [half-open interval], a concept that may be difficult to grasp when first encountered. You may find that the [`strings.Substr`] function is easier to understand.
