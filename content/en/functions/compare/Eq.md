@@ -25,3 +25,5 @@ aliases: [/functions/eq]
 {{ eq 1 2 1 }} → true
 {{ eq 1 2 2 }} → false
 ```
+
+You can also use the `compare.Eq` function to compare strings, boolean values, dates, slices, maps, and pages.

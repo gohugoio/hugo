@@ -30,3 +30,11 @@ aliases: [/functions/ge]
 {{ ge 2 1 2 }} → true
 {{ ge 2 2 1 }} → true
 ```
+
+Use the `compare.Ge` function to compare other data types as well:
+
+```go-html-template
+{{ ge "ab" "a" }} → true
+{{ ge time.Now (time.AsTime "1964-12-30") }} → true
+{{ ge true false }} → true
+```
