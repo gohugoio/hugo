@@ -24,6 +24,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gohugoio/hugo/cache/filecache"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config/security"
 
@@ -33,7 +35,6 @@ import (
 
 	"github.com/spf13/cast"
 
-	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/deps"
 )
 
@@ -63,6 +64,8 @@ type Namespace struct {
 // If you provide multiple parts for the URL they will be joined together to the final URL.
 // GetCSV returns nil or a slice slice to use in a short code.
 func (ns *Namespace) GetCSV(sep string, args ...any) (d [][]string, err error) {
+	hugo.Deprecate("data.GetCSV", "use resources.Get or resources.GetRemote with transform.Unmarshal.", "v0.123.0")
+
 	url, headers := toURLAndHeaders(args)
 	cache := ns.cacheGetCSV
 
@@ -91,7 +94,7 @@ func (ns *Namespace) GetCSV(sep string, args ...any) (d [][]string, err error) {
 		if security.IsAccessDenied(err) {
 			return nil, err
 		}
-		ns.deps.Log.Errorsf(constants.ErrRemoteGetCSV, "Failed to get CSV resource %q: %s", url, err)
+		ns.deps.Log.Erroridf(constants.ErrRemoteGetCSV, "Failed to get CSV resource %q: %s", url, err)
 		return nil, nil
 	}
 
@@ -102,13 +105,15 @@ func (ns *Namespace) GetCSV(sep string, args ...any) (d [][]string, err error) {
 // If you provide multiple parts they will be joined together to the final URL.
 // GetJSON returns nil or parsed JSON to use in a short code.
 func (ns *Namespace) GetJSON(args ...any) (any, error) {
+	hugo.Deprecate("data.GetJSON", "use resources.Get or resources.GetRemote with transform.Unmarshal.", "v0.123.0")
+
 	var v any
 	url, headers := toURLAndHeaders(args)
 	cache := ns.cacheGetJSON
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create request for getJSON resource %s: %w", url, err)
+		return nil, fmt.Errorf("failed to create request for getJSON resource %s: %w", url, err)
 	}
 
 	unmarshal := func(b []byte) (bool, error) {
@@ -127,7 +132,7 @@ func (ns *Namespace) GetJSON(args ...any) (any, error) {
 		if security.IsAccessDenied(err) {
 			return nil, err
 		}
-		ns.deps.Log.Errorsf(constants.ErrRemoteGetJSON, "Failed to get JSON resource %q: %s", url, err)
+		ns.deps.Log.Erroridf(constants.ErrRemoteGetJSON, "Failed to get JSON resource %q: %s", url, err)
 		return nil, nil
 	}
 

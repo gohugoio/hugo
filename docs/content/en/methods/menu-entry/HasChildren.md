@@ -15,18 +15,18 @@ Use the `HasChildren` method when rendering a nested menu.
 With this site configuration:
 
 {{< code-toggle file=hugo >}}
-[[menu.main]]
+[[menus.main]]
 name = 'Products'
 pageRef = '/product'
 weight = 10
 
-[[menu.main]]
+[[menus.main]]
 name = 'Product 1'
 pageRef = '/products/product-1'
 parent = 'Products'
 weight = 1
 
-[[menu.main]]
+[[menus.main]]
 name = 'Product 2'
 pageRef = '/products/product-2'
 parent = 'Products'

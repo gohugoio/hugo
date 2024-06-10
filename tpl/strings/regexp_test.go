@@ -83,6 +83,7 @@ func TestFindRESubmatch(t *testing.T) {
 		c.Check(result, qt.DeepEquals, test.expect)
 	}
 }
+
 func TestReplaceRE(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)

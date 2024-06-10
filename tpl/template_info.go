@@ -13,18 +13,11 @@
 
 package tpl
 
-import (
-	"github.com/gohugoio/hugo/identity"
-)
-
 // Increments on breaking changes.
 const TemplateVersion = 2
 
 type Info interface {
 	ParseInfo() ParseInfo
-
-	// Identifies this template and its dependencies.
-	identity.Provider
 }
 
 type FileInfo interface {
@@ -32,11 +25,8 @@ type FileInfo interface {
 	Filename() string
 }
 
-type InfoManager interface {
-	ParseInfo() ParseInfo
-
-	// Identifies and manages this template and its dependencies.
-	identity.Manager
+type IsInternalTemplateProvider interface {
+	IsInternalTemplate() bool
 }
 
 type ParseInfo struct {

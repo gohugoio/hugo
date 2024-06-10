@@ -699,7 +699,6 @@ func TestShuffleRandomising(t *testing.T) {
 	// of the sequence happens to be the same as the original sequence. However
 	// the probability of the event is 10^-158 which is negligible.
 	seqLen := 100
-	rand.Seed(time.Now().UTC().UnixNano())
 
 	for _, test := range []struct {
 		seq []int
@@ -895,6 +894,7 @@ func (x TstX) TstRv2() string {
 	return "r" + x.B
 }
 
+//lint:ignore U1000 reflect test
 func (x TstX) unexportedMethod() string {
 	return x.unexported
 }
@@ -923,7 +923,7 @@ func (x TstX) String() string {
 
 type TstX struct {
 	A, B       string
-	unexported string
+	unexported string //lint:ignore U1000 reflect test
 }
 
 type TstParams struct {

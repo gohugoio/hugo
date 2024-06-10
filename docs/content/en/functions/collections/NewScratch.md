@@ -8,6 +8,7 @@ action:
   related:
     - methods/page/scratch
     - methods/page/store
+    - methods/shortcode/scratch
   returnType: maps.Scratch
   signatures: [collections.NewScratch ]
 ---
@@ -20,16 +21,18 @@ The `collections.NewScratch` function creates a locally scoped [scratch pad] to 
 
 ## Methods
 
-Set
-: Sets the value of a given key.
+###### Set
+
+Sets the value of a given key.
 
 ```go-html-template
 {{ $s := newScratch }}
 {{ $s.Set "greeting" "Hello" }}
 ```
 
-Get
-: Gets the value of a given key.
+###### Get
+
+Gets the value of a given key.
 
 ```go-html-template
 {{ $s := newScratch }}
@@ -37,10 +40,11 @@ Get
 {{ $s.Get "greeting" }} → Hello
 ```
 
-Add
-: Adds a given value to existing value(s) of the given key.
+###### Add
 
-: For single values, `Add` accepts values that support Go's `+` operator. If the first `Add` for a key is an array or slice, the following adds will be appended to that list.
+Adds a given value to existing value(s) of the given key.
+
+For single values, `Add` accepts values that support Go's `+` operator. If the first `Add` for a key is an array or slice, the following adds will be appended to that list.
 
 ```go-html-template
 {{ $s := newScratch }}
@@ -63,8 +67,9 @@ Add
 {{ $s.Get "greetings" }} → [Hello Welcome Cheers]
 ```
 
-SetInMap
-: Takes a `key`, `mapKey` and `value` and adds a map of `mapKey` and `value` to the given `key`.
+###### SetInMap
+
+Takes a `key`, `mapKey` and `value` and adds a map of `mapKey` and `value` to the given `key`.
 
 ```go-html-template
 {{ $s := newScratch }}
@@ -73,8 +78,9 @@ SetInMap
 {{ $s.Get "greetings" }} → map[english:Hello french:Bonjour]
 ```
 
-DeleteInMap
-: Takes a `key` and `mapKey` and removes the map of `mapKey` from the given `key`.
+###### DeleteInMap
+
+Takes a `key` and `mapKey` and removes the map of `mapKey` from the given `key`.
 
 ```go-html-template
 {{ $s := newScratch }}
@@ -84,8 +90,9 @@ DeleteInMap
 {{ $s.Get "greetings" }} → map[french:Bonjour]
 ```
 
-GetSortedMapValues
-: Returns an array of values from `key` sorted by `mapKey`.
+###### GetSortedMapValues
+
+Returns an array of values from `key` sorted by `mapKey`.
 
 ```go-html-template
 {{ $s := newScratch }}
@@ -94,8 +101,9 @@ GetSortedMapValues
 {{ $s.GetSortedMapValues "greetings" }} → [Hello Bonjour]
 ```
 
-Delete
-: Removes the given key.
+###### Delete
+
+Removes the given key.
 
 ```go-html-template
 {{ $s := newScratch }}
@@ -103,8 +111,9 @@ Delete
 {{ $s.Delete "greeting" }}
 ```
 
-Values
-: Returns the raw backing map. Do not use with `Scratch` or `Store` methods on a `Page` object due to concurrency issues.
+###### Values
+
+Returns the raw backing map. Do not use with `Scratch` or `Store` methods on a `Page` object due to concurrency issues.
 
 ```go-html-template
 {{ $s := newScratch }}

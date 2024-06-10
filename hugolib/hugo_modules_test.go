@@ -28,8 +28,6 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/gohugoio/hugo/hugofs/files"
-
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 
@@ -159,7 +157,7 @@ JS imported in module: |
 }`)
 
 		b.Build(BuildCfg{})
-		b.Assert(npm.Pack(b.H.BaseFs.SourceFs, b.H.BaseFs.Assets.Dirs), qt.IsNil)
+		b.Assert(npm.Pack(b.H.BaseFs.ProjectSourceFs, b.H.BaseFs.AssetsWithDuplicatesPreserved.Fs), qt.IsNil)
 
 		b.AssertFileContentFn("package.json", func(s string) bool {
 			return s == `{
@@ -218,7 +216,7 @@ JS imported in module: |
 		b.WithSourceFile("package.json", origPackageJSON)
 
 		b.Build(BuildCfg{})
-		b.Assert(npm.Pack(b.H.BaseFs.SourceFs, b.H.BaseFs.Assets.Dirs), qt.IsNil)
+		b.Assert(npm.Pack(b.H.BaseFs.ProjectSourceFs, b.H.BaseFs.AssetsWithDuplicatesPreserved.Fs), qt.IsNil)
 
 		b.AssertFileContentFn("package.json", func(s string) bool {
 			return s == `{
@@ -265,7 +263,7 @@ JS imported in module: |
 		b := newTestBuilder(t, "")
 
 		b.Build(BuildCfg{})
-		b.Assert(npm.Pack(b.H.BaseFs.SourceFs, b.H.BaseFs.Assets.Dirs), qt.IsNil)
+		b.Assert(npm.Pack(b.H.BaseFs.ProjectSourceFs, b.H.BaseFs.AssetsWithDuplicatesPreserved.Fs), qt.IsNil)
 
 		b.AssertFileContentFn("package.json", func(s string) bool {
 			return s == `{
@@ -656,437 +654,66 @@ min_version = 0.55.0
 	c.Assert(logger.LoggCount(logg.LevelWarn), qt.Equals, 3)
 }
 
-func TestModulesSymlinks(t *testing.T) {
-	skipSymlink(t)
-
-	wd, _ := os.Getwd()
-	defer func() {
-		os.Chdir(wd)
-	}()
-
-	c := qt.New(t)
-	workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-mod-sym")
-	c.Assert(err, qt.IsNil)
-
-	// We need to use the OS fs for this.
-	cfg := config.New()
-	cfg.Set("workingDir", workingDir)
-	cfg.Set("publishDir", "public")
-	fs := hugofs.NewFromOld(hugofs.Os, cfg)
-
-	defer clean()
-
-	const homeTemplate = `
-Data: {{ .Site.Data }}
-`
-
-	createDirsAndFiles := func(baseDir string) {
-		for _, dir := range files.ComponentFolders {
-			realDir := filepath.Join(baseDir, dir, "real")
-			c.Assert(os.MkdirAll(realDir, 0o777), qt.IsNil)
-			c.Assert(afero.WriteFile(fs.Source, filepath.Join(realDir, "data.toml"), []byte("[hello]\nother = \"hello\""), 0o777), qt.IsNil)
-		}
-
-		c.Assert(afero.WriteFile(fs.Source, filepath.Join(baseDir, "layouts", "index.html"), []byte(homeTemplate), 0o777), qt.IsNil)
-	}
-
-	// Create project dirs and files.
-	createDirsAndFiles(workingDir)
-	// Create one module inside the default themes folder.
-	themeDir := filepath.Join(workingDir, "themes", "mymod")
-	createDirsAndFiles(themeDir)
-
-	createSymlinks := func(baseDir, id string) {
-		for _, dir := range files.ComponentFolders {
-			// Issue #9119: private use language tags cannot exceed 8 characters.
-			if dir != "i18n" {
-				c.Assert(os.Chdir(filepath.Join(baseDir, dir)), qt.IsNil)
-				c.Assert(os.Symlink("real", fmt.Sprintf("realsym%s", id)), qt.IsNil)
-				c.Assert(os.Chdir(filepath.Join(baseDir, dir, "real")), qt.IsNil)
-				c.Assert(os.Symlink("data.toml", fmt.Sprintf(filepath.FromSlash("datasym%s.toml"), id)), qt.IsNil)
-			}
-		}
-	}
-
-	createSymlinks(workingDir, "project")
-	createSymlinks(themeDir, "mod")
-
-	config := `
-baseURL = "https://example.com"
-theme="mymod"
-defaultContentLanguage="nn"
-defaultContentLanguageInSubDir=true
-
-[languages]
-[languages.nn]
-weight = 1
-[languages.en]
-weight = 2
-
-
-`
-
-	b := newTestSitesBuilder(t).WithNothingAdded().WithWorkingDir(workingDir)
-	b.WithLogger(loggers.NewDefault())
-	b.Fs = fs
-
-	b.WithConfigFile("toml", config)
-	c.Assert(os.Chdir(workingDir), qt.IsNil)
-
-	b.Build(BuildCfg{})
-
-	b.AssertFileContentFn(filepath.Join("public", "en", "index.html"), func(s string) bool {
-		// Symbolic links only followed in project. There should be WARNING logs.
-		return !strings.Contains(s, "symmod") && strings.Contains(s, "symproject")
-	})
-
-	bfs := b.H.BaseFs
-
-	for i, componentFs := range []afero.Fs{
-		bfs.Static[""].Fs,
-		bfs.Archetypes.Fs,
-		bfs.Content.Fs,
-		bfs.Data.Fs,
-		bfs.Assets.Fs,
-		bfs.I18n.Fs,
-	} {
-
-		if i != 0 {
-			continue
-		}
-
-		for j, id := range []string{"mod", "project"} {
-
-			statCheck := func(fs afero.Fs, filename string, isDir bool) {
-				shouldFail := j == 0
-				if !shouldFail && i == 0 {
-					// Static dirs only supports symlinks for files
-					shouldFail = isDir
-				}
-
-				_, err := fs.Stat(filepath.FromSlash(filename))
-				if err != nil {
-					if i > 0 && strings.HasSuffix(filename, "toml") && strings.Contains(err.Error(), "files not supported") {
-						// OK
-						return
-					}
-				}
-
-				if shouldFail {
-					c.Assert(err, qt.Not(qt.IsNil))
-					c.Assert(err, qt.Equals, hugofs.ErrPermissionSymlink)
-				} else {
-					c.Assert(err, qt.IsNil)
-				}
-			}
-
-			c.Logf("Checking %d:%d %q", i, j, id)
-
-			statCheck(componentFs, fmt.Sprintf("realsym%s", id), true)
-			statCheck(componentFs, fmt.Sprintf("real/datasym%s.toml", id), false)
-
-		}
-	}
-}
-
 func TestMountsProject(t *testing.T) {
 	t.Parallel()
 
-	config := `
-
+	files := `
+-- config.toml --
 baseURL="https://example.org"
 
 [module]
 [[module.mounts]]
 source="mycontent"
 target="content"
-
-`
-	b := newTestSitesBuilder(t).
-		WithConfigFile("toml", config).
-		WithSourceFile(filepath.Join("mycontent", "mypage.md"), `
+-- layouts/_default/single.html --
+Permalink: {{ .Permalink }}|
+-- mycontent/mypage.md --
 ---
 title: "My Page"
 ---
+`
+	b := Test(t, files)
 
-`)
-
-	b.Build(BuildCfg{})
-
-	// helpers.PrintFs(b.H.Fs.Source, "public", os.Stdout)
-
-	b.AssertFileContent("public/mypage/index.html", "Permalink: https://example.org/mypage/")
+	b.AssertFileContent("public/mypage/index.html", "Permalink: https://example.org/mypage/|")
 }
 
 // https://github.com/gohugoio/hugo/issues/6684
 func TestMountsContentFile(t *testing.T) {
-	t.Parallel()
-	c := qt.New(t)
-	workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-modules-content-file")
-	c.Assert(err, qt.IsNil)
-	defer clean()
-
-	configTemplate := `
-baseURL = "https://example.com"
-title = "My Modular Site"
-workingDir = %q
-
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "page", "section"]
+disableLiveReload = true
 [module]
-  [[module.mounts]]
-    source = "README.md"
-    target = "content/_index.md"
-  [[module.mounts]]
-    source = "mycontent"
-    target = "content/blog"
-
+[[module.mounts]]
+source = "README.md"
+target = "content/_index.md"	
+-- README.md --
+# Hello World
+-- layouts/index.html --
+Home: {{ .Title }}|{{ .Content }}|
 `
-
-	tomlConfig := fmt.Sprintf(configTemplate, workingDir)
-
-	b := newTestSitesBuilder(t).Running()
-
-	cfg := config.New()
-	cfg.Set("workingDir", workingDir)
-	cfg.Set("publishDir", "public")
-
-	b.Fs = hugofs.NewDefault(cfg)
-
-	b.WithWorkingDir(workingDir).WithConfigFile("toml", tomlConfig)
-	b.WithTemplatesAdded("index.html", `
-{{ .Title }}
-{{ .Content }}
-
-{{ $readme := .Site.GetPage "/README.md" }}
-{{ with $readme }}README: {{ .Title }}|Filename: {{ path.Join .File.Filename }}|Path: {{ path.Join .File.Path }}|FilePath: {{ path.Join .File.FileInfo.Meta.PathFile }}|{{ end }}
-
-
-{{ $mypage := .Site.GetPage "/blog/mypage.md" }}
-{{ with $mypage }}MYPAGE: {{ .Title }}|Path: {{ path.Join .File.Path }}|FilePath: {{ path.Join .File.FileInfo.Meta.PathFile }}|{{ end }}
-{{ $mybundle := .Site.GetPage "/blog/mybundle" }}
-{{ with $mybundle }}MYBUNDLE: {{ .Title }}|Path: {{ path.Join .File.Path }}|FilePath: {{ path.Join .File.FileInfo.Meta.PathFile }}|{{ end }}
-
-
-`, "_default/_markup/render-link.html", `
-{{ $link := .Destination }}
-{{ $isRemote := strings.HasPrefix $link "http" }}
-{{- if not $isRemote -}}
-{{ $url := urls.Parse .Destination }}
-{{ $fragment := "" }}
-{{- with $url.Fragment }}{{ $fragment = printf "#%s" . }}{{ end -}}
-{{- with .Page.GetPage $url.Path }}{{ $link = printf "%s%s" .Permalink $fragment }}{{ end }}{{ end -}}
-<a href="{{ $link | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}{{ if $isRemote }} target="_blank"{{ end }}>{{ .Text | safeHTML }}</a>
-`)
-
-	os.Mkdir(filepath.Join(workingDir, "mycontent"), 0o777)
-	os.Mkdir(filepath.Join(workingDir, "mycontent", "mybundle"), 0o777)
-
-	b.WithSourceFile("README.md", `---
-title: "Readme Title"
----
-
-Readme Content.
-`,
-		filepath.Join("mycontent", "mypage.md"), `
----
-title: "My Page"
----
-
-
-* [Relative Link From Page](mybundle)
-* [Relative Link From Page, filename](mybundle/index.md)
-* [Link using original path](/mycontent/mybundle/index.md)
-
-
-`, filepath.Join("mycontent", "mybundle", "index.md"), `
----
-title: "My Bundle"
----
-
-* [Dot Relative Link From Bundle](../mypage.md)
-* [Link using original path](/mycontent/mypage.md)
-* [Link to Home](/)
-* [Link to Home, README.md](/README.md)
-* [Link to Home, _index.md](/_index.md)
-
-`)
-
-	b.Build(BuildCfg{})
-
-	b.AssertFileContent("public/index.html", `
-README: Readme Title
-/README.md|Path: _index.md|FilePath: README.md
-Readme Content.
-MYPAGE: My Page|Path: blog/mypage.md|FilePath: mycontent/mypage.md|
-MYBUNDLE: My Bundle|Path: blog/mybundle/index.md|FilePath: mycontent/mybundle/index.md|
-`)
-	b.AssertFileContent("public/blog/mypage/index.html", `
-<a href="https://example.com/blog/mybundle/">Relative Link From Page</a>
-<a href="https://example.com/blog/mybundle/">Relative Link From Page, filename</a>
-<a href="https://example.com/blog/mybundle/">Link using original path</a>
-
-`)
-	b.AssertFileContent("public/blog/mybundle/index.html", `
-<a href="https://example.com/blog/mypage/">Dot Relative Link From Bundle</a>
-<a href="https://example.com/blog/mypage/">Link using original path</a>
-<a href="https://example.com/">Link to Home</a>
-<a href="https://example.com/">Link to Home, README.md</a>
-<a href="https://example.com/">Link to Home, _index.md</a>
-`)
-
-	b.EditFiles("README.md", `---
-title: "Readme Edit"
----
-`)
-
-	b.Build(BuildCfg{})
-
-	b.AssertFileContent("public/index.html", `
-Readme Edit
-`)
-}
-
-func TestMountsPaths(t *testing.T) {
-	c := qt.New(t)
-
-	type test struct {
-		b          *sitesBuilder
-		clean      func()
-		workingDir string
-	}
-
-	prepare := func(c *qt.C, mounts string) test {
-		workingDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-mounts-paths")
-		c.Assert(err, qt.IsNil)
-
-		configTemplate := `
-baseURL = "https://example.com"
-title = "My Modular Site"
-workingDir = %q
-
-%s
-
-`
-		tomlConfig := fmt.Sprintf(configTemplate, workingDir, mounts)
-		tomlConfig = strings.Replace(tomlConfig, "WORKING_DIR", workingDir, -1)
-
-		b := newTestSitesBuilder(c).Running()
-
-		cfg := config.New()
-		cfg.Set("workingDir", workingDir)
-		cfg.Set("publishDir", "public")
-		b.Fs = hugofs.NewDefault(cfg)
-
-		os.MkdirAll(filepath.Join(workingDir, "content", "blog"), 0o777)
-
-		b.WithWorkingDir(workingDir).WithConfigFile("toml", tomlConfig)
-
-		return test{
-			b:          b,
-			clean:      clean,
-			workingDir: workingDir,
-		}
-	}
-
-	c.Run("Default", func(c *qt.C) {
-		mounts := ``
-
-		test := prepare(c, mounts)
-		b := test.b
-		defer test.clean()
-
-		b.WithContent("blog/p1.md", `---
-title: P1
----`)
-
-		b.Build(BuildCfg{})
-
-		p := b.GetPage("blog/p1.md")
-		f := p.File().FileInfo().Meta()
-		b.Assert(filepath.ToSlash(f.Path), qt.Equals, "blog/p1.md")
-		b.Assert(filepath.ToSlash(f.PathFile()), qt.Equals, "content/blog/p1.md")
-
-		b.Assert(b.H.BaseFs.Layouts.Path(filepath.Join(test.workingDir, "layouts", "_default", "single.html")), qt.Equals, filepath.FromSlash("_default/single.html"))
-	})
-
-	c.Run("Mounts", func(c *qt.C) {
-		absDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-mounts-paths-abs")
-		c.Assert(err, qt.IsNil)
-		defer clean()
-
-		mounts := `[module]
-  [[module.mounts]]
-    source = "README.md"
-    target = "content/_index.md"
-  [[module.mounts]]
-    source = "mycontent"
-    target = "content/blog"
-   [[module.mounts]]
-    source = "subdir/mypartials"
-    target = "layouts/partials"
-   [[module.mounts]]
-    source = %q
-    target = "layouts/shortcodes"
-`
-		mounts = fmt.Sprintf(mounts, filepath.Join(absDir, "/abs/myshortcodes"))
-
-		test := prepare(c, mounts)
-		b := test.b
-		defer test.clean()
-
-		subContentDir := filepath.Join(test.workingDir, "mycontent", "sub")
-		os.MkdirAll(subContentDir, 0o777)
-		myPartialsDir := filepath.Join(test.workingDir, "subdir", "mypartials")
-		os.MkdirAll(myPartialsDir, 0o777)
-
-		absShortcodesDir := filepath.Join(absDir, "abs", "myshortcodes")
-		os.MkdirAll(absShortcodesDir, 0o777)
-
-		b.WithSourceFile("README.md", "---\ntitle: Readme\n---")
-		b.WithSourceFile("mycontent/sub/p1.md", "---\ntitle: P1\n---")
-
-		b.WithSourceFile(filepath.Join(absShortcodesDir, "myshort.html"), "MYSHORT")
-		b.WithSourceFile(filepath.Join(myPartialsDir, "mypartial.html"), "MYPARTIAL")
-
-		b.Build(BuildCfg{})
-
-		p1_1 := b.GetPage("/blog/sub/p1.md")
-		p1_2 := b.GetPage("/mycontent/sub/p1.md")
-		b.Assert(p1_1, qt.Not(qt.IsNil))
-		b.Assert(p1_2, qt.Equals, p1_1)
-
-		f := p1_1.File().FileInfo().Meta()
-		b.Assert(filepath.ToSlash(f.Path), qt.Equals, "blog/sub/p1.md")
-		b.Assert(filepath.ToSlash(f.PathFile()), qt.Equals, "mycontent/sub/p1.md")
-		b.Assert(b.H.BaseFs.Layouts.Path(filepath.Join(myPartialsDir, "mypartial.html")), qt.Equals, filepath.FromSlash("partials/mypartial.html"))
-		b.Assert(b.H.BaseFs.Layouts.Path(filepath.Join(absShortcodesDir, "myshort.html")), qt.Equals, filepath.FromSlash("shortcodes/myshort.html"))
-		b.Assert(b.H.BaseFs.Content.Path(filepath.Join(subContentDir, "p1.md")), qt.Equals, filepath.FromSlash("blog/sub/p1.md"))
-		b.Assert(b.H.BaseFs.Content.Path(filepath.Join(test.workingDir, "README.md")), qt.Equals, filepath.FromSlash("_index.md"))
-	})
+	b := Test(t, files)
+	b.AssertFileContent("public/index.html", "Home: |<h1 id=\"hello-world\">Hello World</h1>\n|")
 }
 
 // https://github.com/gohugoio/hugo/issues/6299
 func TestSiteWithGoModButNoModules(t *testing.T) {
 	t.Parallel()
 
-	c := qt.New(t)
-	// We need to use the OS fs for this.
-	workDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-no-mod")
-	c.Assert(err, qt.IsNil)
+	tempDir := t.TempDir()
 
-	cfg := config.New()
-	cfg.Set("workingDir", workDir)
-	cfg.Set("publishDir", "public")
-	fs := hugofs.NewFromOld(hugofs.Os, cfg)
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+-- go.mod --
 
-	defer clean()
+`
 
-	b := newTestSitesBuilder(t)
-	b.Fs = fs
+	b := Test(t, files, TestOptWithConfig(func(cfg *IntegrationTestConfig) {
+		cfg.WorkingDir = tempDir
+	}))
 
-	b.WithWorkingDir(workDir).WithViper(cfg)
-
-	b.WithSourceFile("go.mod", "")
-	b.Build(BuildCfg{})
+	b.Build()
 }
 
 // https://github.com/gohugoio/hugo/issues/6622
@@ -1145,7 +772,9 @@ P1: {{ $p1.Title }}|{{ $p1.RelPermalink }}|Filename: {{ $p1.File.Filename }}
 
 // Issue 9426
 func TestMountSameSource(t *testing.T) {
-	config := `baseURL = 'https://example.org/'
+	files := `
+-- hugo.toml --
+baseURL = 'https://example.org/'
 languageCode = 'en-us'
 title = 'Hugo GitHub Issue #9426'
 
@@ -1162,18 +791,15 @@ target = "content/resources-a"
 [[module.mounts]]
 source = "extra-content"
 target = "content/resources-b"
+-- layouts/_default/single.html --
+Single
+-- content/p1.md --
+-- extra-content/_index.md --
+-- extra-content/subdir/_index.md --
+-- extra-content/subdir/about.md --
+"
 `
-	b := newTestSitesBuilder(t).WithConfigFile("toml", config)
-
-	b.WithContent("p1.md", "")
-
-	b.WithSourceFile(
-		"extra-content/_index.md", "",
-		"extra-content/subdir/_index.md", "",
-		"extra-content/subdir/about.md", "",
-	)
-
-	b.Build(BuildCfg{})
+	b := Test(t, files)
 
 	b.AssertFileContent("public/resources-a/subdir/about/index.html", "Single")
 	b.AssertFileContent("public/resources-b/subdir/about/index.html", "Single")
@@ -1198,12 +824,7 @@ message: Hugo Rocks
 {{ site.Data.extra.test.message }}
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", "Hugo Rocks")
 }

@@ -26,31 +26,22 @@ import (
 
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/media"
 
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/markup/converter"
-	"github.com/gohugoio/hugo/markup/converter/hooks"
 
 	"github.com/gohugoio/hugo/markup"
 
 	"github.com/gohugoio/hugo/config"
 )
 
-var (
-	openingPTag        = []byte("<p>")
-	closingPTag        = []byte("</p>")
-	paragraphIndicator = []byte("<p")
-	closingIndicator   = []byte("</")
-)
-
 // ContentSpec provides functionality to render markdown content.
 type ContentSpec struct {
 	Converters          markup.ConverterProvider
 	anchorNameSanitizer converter.AnchorNameSanitizer
-	getRenderer         func(t hooks.RendererType, id any) any
-
-	Cfg config.AllProvider
+	Cfg                 config.AllProvider
 }
 
 // NewContentSpec returns a ContentSpec initialized
@@ -145,20 +136,16 @@ func (c *ContentSpec) SanitizeAnchorName(s string) string {
 }
 
 func (c *ContentSpec) ResolveMarkup(in string) string {
-	if c == nil {
-		panic("nil ContentSpec")
-	}
 	in = strings.ToLower(in)
-	switch in {
-	case "md", "markdown", "mdown":
-		return "markdown"
-	case "html", "htm":
-		return "html"
-	default:
-		if conv := c.Converters.Get(in); conv != nil {
-			return conv.Name()
-		}
+
+	if mediaType, found := c.Cfg.ContentTypes().(media.ContentTypes).Types().GetBestMatch(markup.ResolveMarkup(in)); found {
+		return mediaType.SubType
 	}
+
+	if conv := c.Converters.Get(in); conv != nil {
+		return markup.ResolveMarkup(conv.Name())
+	}
+
 	return ""
 }
 
@@ -247,19 +234,26 @@ func (c *ContentSpec) TruncateWordsToWholeSentence(s string) (string, bool) {
 	return strings.TrimSpace(s[:endIndex]), endIndex < len(s)
 }
 
-// TrimShortHTML removes the <p>/</p> tags from HTML input in the situation
-// where said tags are the only <p> tags in the input and enclose the content
-// of the input (whitespace excluded).
-func (c *ContentSpec) TrimShortHTML(input []byte) []byte {
-	if bytes.Count(input, openingPTag) == 1 {
+// TrimShortHTML removes the outer tags from HTML input where (a) the opening
+// tag is present only once with the input, and (b) the opening and closing
+// tags wrap the input after white space removal.
+func (c *ContentSpec) TrimShortHTML(input []byte, markup string) []byte {
+	openingTag := []byte("<p>")
+	closingTag := []byte("</p>")
+
+	if markup == media.DefaultContentTypes.AsciiDoc.SubType {
+		openingTag = []byte("<div class=\"paragraph\">\n<p>")
+		closingTag = []byte("</p>\n</div>")
+	}
+
+	if bytes.Count(input, openingTag) == 1 {
 		input = bytes.TrimSpace(input)
-		if bytes.HasPrefix(input, openingPTag) && bytes.HasSuffix(input, closingPTag) {
-			input = bytes.TrimPrefix(input, openingPTag)
-			input = bytes.TrimSuffix(input, closingPTag)
+		if bytes.HasPrefix(input, openingTag) && bytes.HasSuffix(input, closingTag) {
+			input = bytes.TrimPrefix(input, openingTag)
+			input = bytes.TrimSuffix(input, closingTag)
 			input = bytes.TrimSpace(input)
 		}
 	}
-
 	return input
 }
 

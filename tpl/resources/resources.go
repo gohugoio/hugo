@@ -16,16 +16,15 @@ package resources
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sync"
 
-	"errors"
-
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/gohugoio/hugo/tpl/internal/resourcehelpers"
 
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources/postpub"
 
 	"github.com/gohugoio/hugo/deps"
@@ -104,7 +103,6 @@ func (ns *Namespace) getscssClientDartSass() (*dartsass.Client, error) {
 			return
 		}
 		ns.deps.BuildClosers.Add(ns.scssClientDartSass)
-
 	})
 
 	return ns.scssClientDartSass, err
@@ -122,7 +120,6 @@ func (ns *Namespace) Copy(s any, r resource.Resource) (resource.Resource, error)
 // Get locates the filename given in Hugo's assets filesystem
 // and creates a Resource object that can be used for further transformations.
 func (ns *Namespace) Get(filename any) resource.Resource {
-
 	filenamestr, err := cast.ToStringE(filename)
 	if err != nil {
 		panic(err)
@@ -172,7 +169,6 @@ func (ns *Namespace) GetRemote(args ...any) resource.Resource {
 		}
 
 		return ns.createClient.FromRemote(urlstr, options)
-
 	}
 
 	r, err := get(args...)
@@ -183,10 +179,8 @@ func (ns *Namespace) GetRemote(args ...any) resource.Resource {
 		default:
 			return resources.NewErrorResource(resource.NewResourceError(fmt.Errorf("error calling resources.GetRemote: %w", err), make(map[string]any)))
 		}
-
 	}
 	return r
-
 }
 
 // GetMatch finds the first Resource matching the given pattern, or nil if none found.
@@ -344,7 +338,6 @@ func (ns *Namespace) Minify(r resources.ResourceTransformer) (resource.Resource,
 // as second argument. As an option, you can e.g. specify e.g. the target path (string)
 // for the converted CSS resource.
 func (ns *Namespace) ToCSS(args ...any) (resource.Resource, error) {
-
 	if len(args) > 2 {
 		return nil, errors.New("must not provide more arguments than resource object and options")
 	}
@@ -376,7 +369,7 @@ func (ns *Namespace) ToCSS(args ...any) (resource.Resource, error) {
 	}
 
 	if m != nil {
-		if t, found := maps.LookupEqualFold(m, "transpiler"); found {
+		if t, _, found := maps.LookupEqualFold(m, "transpiler"); found {
 			switch t {
 			case transpilerDart, transpilerLibSass:
 				transpiler = cast.ToString(t)
@@ -389,7 +382,7 @@ func (ns *Namespace) ToCSS(args ...any) (resource.Resource, error) {
 	if transpiler == transpilerLibSass {
 		var options scss.Options
 		if targetPath != "" {
-			options.TargetPath = helpers.ToSlashTrimLeading(targetPath)
+			options.TargetPath = paths.ToSlashTrimLeading(targetPath)
 		} else if m != nil {
 			options, err = scss.DecodeOptions(m)
 			if err != nil {
@@ -413,12 +406,10 @@ func (ns *Namespace) ToCSS(args ...any) (resource.Resource, error) {
 	}
 
 	return client.ToCSS(r, m)
-
 }
 
 // PostCSS processes the given Resource with PostCSS
 func (ns *Namespace) PostCSS(args ...any) (resource.Resource, error) {
-
 	if len(args) > 2 {
 		return nil, errors.New("must not provide more arguments than resource object and options")
 	}
@@ -438,7 +429,6 @@ func (ns *Namespace) PostProcess(r resource.Resource) (postpub.PostPublishedReso
 
 // Babel processes the given Resource with Babel.
 func (ns *Namespace) Babel(args ...any) (resource.Resource, error) {
-
 	if len(args) > 2 {
 		return nil, errors.New("must not provide more arguments than resource object and options")
 	}
@@ -450,7 +440,6 @@ func (ns *Namespace) Babel(args ...any) (resource.Resource, error) {
 	var options babel.Options
 	if m != nil {
 		options, err = babel.DecodeOptions(m)
-
 		if err != nil {
 			return nil, err
 		}

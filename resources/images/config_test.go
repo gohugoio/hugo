@@ -132,7 +132,7 @@ func newImageConfig(action string, width, height, quality, rotate int, filter, a
 	c.qualitySetForImage = quality != 75
 	c.Rotate = rotate
 	c.BgColorStr = bgColor
-	c.BgColor, _ = hexStringToColor(bgColor)
+	c.BgColor, _ = hexStringToColorGo(bgColor)
 
 	if filter != "" {
 		filter = strings.ToLower(filter)

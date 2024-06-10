@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import (
 	"sort"
 	"time"
 
-	radix "github.com/armon/go-radix"
 	"github.com/bep/logg"
+	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
@@ -31,6 +31,8 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/hugolib/doctree"
+	"github.com/gohugoio/hugo/hugolib/pagesfromdata"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/langs/i18n"
@@ -39,9 +41,10 @@ import (
 	"github.com/gohugoio/hugo/navigation"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/publisher"
-	"github.com/gohugoio/hugo/resources/kinds"
+	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
+	"github.com/gohugoio/hugo/resources/page/siteidentities"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/gohugoio/hugo/tpl/tplimpl"
@@ -49,9 +52,19 @@ import (
 
 var _ page.Site = (*Site)(nil)
 
+type siteState int
+
+const (
+	siteStateInit siteState = iota
+	siteStateReady
+)
+
 type Site struct {
-	conf     *allconfig.Config
-	language *langs.Language
+	state     siteState
+	conf      *allconfig.Config
+	language  *langs.Language
+	languagei int
+	pageMap   *pageMap
 
 	// The owning container.
 	h *HugoSites
@@ -59,11 +72,9 @@ type Site struct {
 	*deps.Deps
 
 	// Page navigation.
-	*PageCollections
+	*pageFinder
 	taxonomies page.TaxonomyList
 	menus      navigation.Menus
-
-	siteBucket *pagesMapBucket
 
 	// Shortcut to the home page. Note that this may be nil if
 	// home page, for some odd reason, is disabled.
@@ -93,7 +104,7 @@ type Site struct {
 
 func (s *Site) Debug() {
 	fmt.Println("Debugging site", s.Lang(), "=>")
-	fmt.Println(s.pageMap.testDump())
+	// fmt.Println(s.pageMap.testDump())
 }
 
 // NewHugoSites creates HugoSites from the given config.
@@ -121,16 +132,33 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 			HandlerPost:        logHookLast,
 			Stdout:             cfg.LogOut,
 			Stderr:             cfg.LogOut,
-			StoreErrors:        conf.Running(),
-			SuppressStatements: conf.IgnoredErrors(),
+			StoreErrors:        conf.Watching(),
+			SuppressStatements: conf.IgnoredLogs(),
 		}
 		logger = loggers.New(logOpts)
+
+	}
+
+	memCache := dynacache.New(dynacache.Options{Watching: conf.Watching(), Log: logger})
+
+	var h *HugoSites
+	onSignalRebuild := func(ids ...identity.Identity) {
+		// This channel is buffered, but make sure we do this in a non-blocking way.
+		if cfg.ChangesFromBuild != nil {
+			go func() {
+				cfg.ChangesFromBuild <- ids
+			}()
+		}
 	}
 
 	firstSiteDeps := &deps.Deps{
-		Fs:                  cfg.Fs,
-		Log:                 logger,
-		Conf:                conf,
+		Fs:   cfg.Fs,
+		Log:  logger,
+		Conf: conf,
+		BuildState: &deps.BuildState{
+			OnSignalRebuild: onSignalRebuild,
+		},
+		MemCache:            memCache,
 		TemplateProvider:    tplimpl.DefaultTemplateProvider,
 		TranslationProvider: i18n.NewTranslationProvider(),
 	}
@@ -140,16 +168,39 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 	}
 
 	confm := cfg.Configs
+	if err := confm.Validate(logger); err != nil {
+		return nil, err
+	}
 	var sites []*Site
+
+	ns := &contentNodeShifter{
+		numLanguages: len(confm.Languages),
+	}
+
+	treeConfig := doctree.Config[contentNodeI]{
+		Shifter: ns,
+	}
+
+	pageTrees := &pageTrees{
+		treePages: doctree.New(
+			treeConfig,
+		),
+		treeResources: doctree.New(
+			treeConfig,
+		),
+		treeTaxonomyEntries:           doctree.NewTreeShiftTree[*weightedContentNode](doctree.DimensionLanguage.Index(), len(confm.Languages)),
+		treePagesFromTemplateAdapters: doctree.NewTreeShiftTree[*pagesfromdata.PagesFromTemplate](doctree.DimensionLanguage.Index(), len(confm.Languages)),
+	}
+
+	pageTrees.createMutableTrees()
 
 	for i, confp := range confm.ConfigLangs() {
 		language := confp.Language()
-		if confp.IsLangDisabled(language.Lang) {
+		if language.Disabled {
 			continue
 		}
 		k := language.Lang
 		conf := confm.LanguageConfigMap[k]
-
 		frontmatterHandler, err := pagemeta.NewFrontmatterHandler(firstSiteDeps.Log, conf.Frontmatter)
 		if err != nil {
 			return nil, err
@@ -158,11 +209,9 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 		langs.SetParams(language, conf.Params)
 
 		s := &Site{
-			conf:     conf,
-			language: language,
-			siteBucket: &pagesMapBucket{
-				cascade: conf.Cascade.Config,
-			},
+			conf:               conf,
+			language:           language,
+			languagei:          i,
 			frontmatterHandler: frontmatterHandler,
 		}
 
@@ -177,20 +226,9 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 			s.Deps = d
 		}
 
-		// Site deps start.
-		var taxonomiesConfig taxonomiesConfig = conf.Taxonomies
-		pm := &pageMap{
-			contentMap: newContentMap(contentMapConfig{
-				lang:                 k,
-				taxonomyConfig:       taxonomiesConfig.Values(),
-				taxonomyDisabled:     !conf.IsKindEnabled(kinds.KindTerm),
-				taxonomyTermDisabled: !conf.IsKindEnabled(kinds.KindTaxonomy),
-				pageDisabled:         !conf.IsKindEnabled(kinds.KindPage),
-			}),
-			s: s,
-		}
+		s.pageMap = newPageMap(i, s, memCache, pageTrees)
 
-		s.PageCollections = newPageCollections(pm)
+		s.pageFinder = newPageFinder(s.pageMap)
 		s.siteRefLinker, err = newSiteRefLinker(s)
 		if err != nil {
 			return nil, err
@@ -217,17 +255,27 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 		return nil, errors.New("no sites to build")
 	}
 
-	// Sort the sites by language weight (if set) or lang.
+	// Pull the default content language to the top, then sort the sites by language weight (if set) or lang.
+	defaultContentLanguage := confm.Base.DefaultContentLanguage
 	sort.Slice(sites, func(i, j int) bool {
 		li := sites[i].language
 		lj := sites[j].language
+		if li.Lang == defaultContentLanguage {
+			return true
+		}
+
+		if lj.Lang == defaultContentLanguage {
+			return false
+		}
+
 		if li.Weight != lj.Weight {
 			return li.Weight < lj.Weight
 		}
 		return li.Lang < lj.Lang
 	})
 
-	h, err := newHugoSitesNew(cfg, firstSiteDeps, sites)
+	var err error
+	h, err = newHugoSites(cfg, firstSiteDeps, pageTrees, sites)
 	if err == nil && h == nil {
 		panic("hugo: newHugoSitesNew returned nil error and nil HugoSites")
 	}
@@ -235,29 +283,34 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 	return h, err
 }
 
-func newHugoSitesNew(cfg deps.DepsCfg, d *deps.Deps, sites []*Site) (*HugoSites, error) {
+func newHugoSites(cfg deps.DepsCfg, d *deps.Deps, pageTrees *pageTrees, sites []*Site) (*HugoSites, error) {
 	numWorkers := config.GetNumWorkerMultiplier()
-	if numWorkers > len(sites) {
-		numWorkers = len(sites)
+	numWorkersSite := numWorkers
+	if numWorkersSite > len(sites) {
+		numWorkersSite = len(sites)
 	}
-	var workers *para.Workers
-	if numWorkers > 1 {
-		workers = para.New(numWorkers)
-	}
+	workersSite := para.New(numWorkersSite)
 
 	h := &HugoSites{
-		Sites:                   sites,
-		Deps:                    sites[0].Deps,
-		Configs:                 cfg.Configs,
-		workers:                 workers,
-		numWorkers:              numWorkers,
+		Sites:           sites,
+		Deps:            sites[0].Deps,
+		Configs:         cfg.Configs,
+		workersSite:     workersSite,
+		numWorkersSites: numWorkers,
+		numWorkers:      numWorkers,
+		pageTrees:       pageTrees,
+		cachePages: dynacache.GetOrCreatePartition[string,
+			page.Pages](d.MemCache, "/pags/all",
+			dynacache.OptionsPartition{Weight: 10, ClearWhen: dynacache.ClearOnRebuild},
+		),
+		cacheContentSource:      dynacache.GetOrCreatePartition[string, *resources.StaleValue[[]byte]](d.MemCache, "/cont/src", dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
+		translationKeyPages:     maps.NewSliceCache[page.Page](),
 		currentSite:             sites[0],
 		skipRebuildForFilenames: make(map[string]bool),
 		init: &hugoSitesInit{
-			data:         lazy.New(),
-			layouts:      lazy.New(),
-			gitInfo:      lazy.New(),
-			translations: lazy.New(),
+			data:    lazy.New(),
+			layouts: lazy.New(),
+			gitInfo: lazy.New(),
 		},
 	}
 
@@ -304,18 +357,8 @@ func newHugoSitesNew(cfg deps.DepsCfg, d *deps.Deps, sites []*Site) (*HugoSites,
 		donec: make(chan bool),
 	}
 
-	// Only needed in server mode.
-	if cfg.Configs.Base.Internal.Watch {
-		h.ContentChanges = &contentChangeMap{
-			pathSpec:      h.PathSpec,
-			symContent:    make(map[string]map[string]bool),
-			leafBundles:   radix.New(),
-			branchBundles: make(map[string]bool),
-		}
-	}
-
 	h.init.data.Add(func(context.Context) (any, error) {
-		err := h.loadData(h.PathSpec.BaseFs.Data.Dirs)
+		err := h.loadData()
 		if err != nil {
 			return nil, fmt.Errorf("failed to load data: %w", err)
 		}
@@ -331,15 +374,6 @@ func newHugoSitesNew(cfg deps.DepsCfg, d *deps.Deps, sites []*Site) (*HugoSites,
 		return nil, nil
 	})
 
-	h.init.translations.Add(func(context.Context) (any, error) {
-		if len(h.Sites) > 1 {
-			allTranslations := pagesToTranslationsMap(h.Sites)
-			assignTranslationsToPages(allTranslations, h.Sites)
-		}
-
-		return nil, nil
-	})
-
 	h.init.gitInfo.Add(func(context.Context) (any, error) {
 		err := h.loadGitInfo()
 		if err != nil {
@@ -351,8 +385,7 @@ func newHugoSitesNew(cfg deps.DepsCfg, d *deps.Deps, sites []*Site) (*HugoSites,
 	return h, nil
 }
 
-// Returns true if we're running in a server.
-// Deprecated: use hugo.IsServer instead
+// Deprecated: Use hugo.IsServer instead.
 func (s *Site) IsServer() bool {
 	hugo.Deprecate(".Site.IsServer", "Use hugo.IsServer instead.", "v0.120.0")
 	return s.conf.Internal.Running
@@ -372,8 +405,9 @@ func (s *Site) Copyright() string {
 	return s.conf.Copyright
 }
 
+// Deprecated: Use .Site.Home.OutputFormats.Get "rss" instead.
 func (s *Site) RSSLink() template.URL {
-	hugo.Deprecate("Site.RSSLink", "Use the Output Format's Permalink method instead, e.g. .OutputFormats.Get \"RSS\".Permalink", "v0.114.0")
+	hugo.Deprecate(".Site.RSSLink", "Use the Output Format's Permalink method instead, e.g. .OutputFormats.Get \"RSS\".Permalink", "v0.114.0")
 	rssOutputFormat := s.home.OutputFormats().Get("rss")
 	return template.URL(rssOutputFormat.Permalink())
 }
@@ -405,6 +439,7 @@ func (s *Site) Current() page.Site {
 
 // MainSections returns the list of main sections.
 func (s *Site) MainSections() []string {
+	s.checkReady()
 	return s.conf.C.MainSections
 }
 
@@ -421,8 +456,15 @@ func (s *Site) BaseURL() string {
 	return s.conf.C.BaseURL.WithPath
 }
 
-// Returns the last modification date of the content.
+// Deprecated: Use .Site.Lastmod instead.
 func (s *Site) LastChange() time.Time {
+	s.checkReady()
+	hugo.Deprecate(".Site.LastChange", "Use .Site.Lastmod instead.", "v0.123.0")
+	return s.lastmod
+}
+
+// Returns the last modification date of the content.
+func (s *Site) Lastmod() time.Time {
 	return s.lastmod
 }
 
@@ -431,25 +473,33 @@ func (s *Site) Params() maps.Params {
 	return s.conf.Params
 }
 
+// Deprecated: Use taxonomies instead.
 func (s *Site) Author() map[string]any {
+	if len(s.conf.Author) != 0 {
+		hugo.Deprecate(".Site.Author", "Use taxonomies instead.", "v0.124.0")
+	}
 	return s.conf.Author
 }
 
+// Deprecated: Use taxonomies instead.
 func (s *Site) Authors() page.AuthorList {
+	hugo.Deprecate(".Site.Authors", "Use taxonomies instead.", "v0.124.0")
 	return page.AuthorList{}
 }
 
+// Deprecated: Use .Site.Params instead.
 func (s *Site) Social() map[string]string {
+	hugo.Deprecate(".Site.Social", "Use .Site.Params instead.", "v0.124.0")
 	return s.conf.Social
 }
 
-// Deprecated: Use .Site.Config.Services.Disqus.Shortname instead
+// Deprecated: Use .Site.Config.Services.Disqus.Shortname instead.
 func (s *Site) DisqusShortname() string {
 	hugo.Deprecate(".Site.DisqusShortname", "Use .Site.Config.Services.Disqus.Shortname instead.", "v0.120.0")
 	return s.Config().Services.Disqus.Shortname
 }
 
-// Deprecated: Use .Site.Config.Services.GoogleAnalytics.ID instead
+// Deprecated: Use .Site.Config.Services.GoogleAnalytics.ID instead.
 func (s *Site) GoogleAnalytics() string {
 	hugo.Deprecate(".Site.GoogleAnalytics", "Use .Site.Config.Services.GoogleAnalytics.ID instead.", "v0.120.0")
 	return s.Config().Services.GoogleAnalytics.ID
@@ -468,8 +518,10 @@ func (s *Site) BuildDrafts() bool {
 	return s.conf.BuildDrafts
 }
 
+// Deprecated: Use hugo.IsMultilingual instead.
 func (s *Site) IsMultiLingual() bool {
-	return s.h.isMultiLingual()
+	hugo.Deprecate(".Site.IsMultiLingual", "Use hugo.IsMultilingual instead.", "v0.124.0")
+	return s.h.isMultilingual()
 }
 
 func (s *Site) LanguagePrefix() string {
@@ -480,12 +532,65 @@ func (s *Site) LanguagePrefix() string {
 	return "/" + prefix
 }
 
-// Returns the identity of this site.
-// This is for internal use only.
-func (s *Site) GetIdentity() identity.Identity {
-	return identity.KeyValueIdentity{Key: "site", Value: s.Lang()}
-}
-
 func (s *Site) Site() page.Site {
 	return page.WrapSite(s)
+}
+
+func (s *Site) ForEeachIdentityByName(name string, f func(identity.Identity) bool) {
+	if id, found := siteidentities.FromString(name); found {
+		if f(id) {
+			return
+		}
+	}
+}
+
+// Pages returns all pages.
+// This is for the current language only.
+func (s *Site) Pages() page.Pages {
+	s.checkReady()
+	return s.pageMap.getPagesInSection(
+		pageMapQueryPagesInSection{
+			pageMapQueryPagesBelowPath: pageMapQueryPagesBelowPath{
+				Path:    "",
+				KeyPart: "global",
+				Include: pagePredicates.ShouldListGlobal,
+			},
+			Recursive:   true,
+			IncludeSelf: true,
+		},
+	)
+}
+
+// RegularPages returns all the regular pages.
+// This is for the current language only.
+func (s *Site) RegularPages() page.Pages {
+	s.checkReady()
+	return s.pageMap.getPagesInSection(
+		pageMapQueryPagesInSection{
+			pageMapQueryPagesBelowPath: pageMapQueryPagesBelowPath{
+				Path:    "",
+				KeyPart: "global",
+				Include: pagePredicates.ShouldListGlobal.And(pagePredicates.KindPage),
+			},
+			Recursive: true,
+		},
+	)
+}
+
+// AllPages returns all pages for all sites.
+func (s *Site) AllPages() page.Pages {
+	s.checkReady()
+	return s.h.Pages()
+}
+
+// AllRegularPages returns all regular pages for all sites.
+func (s *Site) AllRegularPages() page.Pages {
+	s.checkReady()
+	return s.h.RegularPages()
+}
+
+func (s *Site) checkReady() {
+	if s.state != siteStateReady {
+		panic("this method cannot be called before the site is fully initialized")
+	}
 }

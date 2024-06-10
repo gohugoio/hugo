@@ -31,7 +31,7 @@ JSON
 
 ORG
 : a group of Org mode keywords in the format '`#+KEY: VALUE`'. Any line that does not start with `#+` ends the front matter section.
-  Keyword values can be either strings (`#+KEY: VALUE`) or a whitespace separated list of strings (`#+KEY[]: VALUE_1 VALUE_2`).
+  Array values can either be separated into multiple lines (`#+KEY: VALUE_1` and `#+KEY: VALUE_2`) or a whitespace separated list of strings (`#+KEY[]: VALUE_1 VALUE_2`).
 
 ### Example
 
@@ -131,9 +131,6 @@ videos
 weight
 : used for [ordering your content in lists][ordering]. Lower weight gets higher precedence. So content with lower weight will come first. If set, weights should be non-zero, as 0 is interpreted as an *unset* weight.
 
-taxonomies
-: Field name of the *plural* form of the index. See `tags` and `categories` in the above front matter examples. *Note that the plural form of user-defined taxonomies cannot be the same as any of the predefined front matter variables.*
-
 {{% note %}}
 If neither `slug` nor `url` is present and [permalinks are not configured otherwise in your site configuration file](/content-management/urls/#permalinks), Hugo will use the file name of your content to create the output URL. See [Content Organization](/content-management/organization) for an explanation of paths in Hugo and [URL Management](/content-management/urls/) for ways to customize Hugo's default behaviors.
 {{% /note %}}
@@ -190,7 +187,7 @@ Any of the above can be omitted.
 {{% note %}}
 When making a site that supports multiple languages, defining a `[[cascade]]` is recommended to be done in [Site Config](../../getting-started/configuration/#cascade) to prevent duplication.
 
-If you instea define a `[[cascade]]` in front matter for multiple languages, an `content/XX/foo/_index.md` file needs to be made on a per-language basis, with `XX` the glob pattern matching the Page's language. In this case, the **lang** keyword is ignored. 
+If you instead define a `[[cascade]]` in front matter for multiple languages, an `content/XX/foo/_index.md` file needs to be made on a per-language basis, with `XX` the glob pattern matching the Page's language. In this case, the **lang** keyword is ignored. 
 {{% /note %}}
 
 ### Example

@@ -20,11 +20,12 @@ hugo mod vendor [flags] [args]
 ### Options
 
 ```
-  -b, --baseURL string      hostname (and path) to the root, e.g. https://spf13.com/
-      --cacheDir string     filesystem path to cache directory
-  -c, --contentDir string   filesystem path to content directory
-  -h, --help                help for vendor
-  -t, --theme strings       themes to use (located in /themes/THEMENAME/)
+  -b, --baseURL string           hostname (and path) to the root, e.g. https://spf13.com/
+      --cacheDir string          filesystem path to cache directory
+  -c, --contentDir string        filesystem path to content directory
+  -h, --help                     help for vendor
+      --renderSegments strings   named segments to render (configured in the segments config)
+  -t, --theme strings            themes to use (located in /themes/THEMENAME/)
 ```
 
 ### Options inherited from parent commands
@@ -39,6 +40,7 @@ hugo mod vendor [flags] [args]
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --logLevel string            log level (debug|info|warn|error)
       --quiet                      build in quiet mode
+      --renderToMemory             render to memory (mostly useful when running the server)
   -s, --source string              filesystem path to read files relative from
       --themesDir string           filesystem path to themes directory
   -v, --verbose                    verbose output

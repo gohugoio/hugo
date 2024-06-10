@@ -26,8 +26,7 @@ func New() *Namespace {
 }
 
 // Namespace provides template functions for the "cast" namespace.
-type Namespace struct {
-}
+type Namespace struct{}
 
 // ToInt converts v to an int.
 func (ns *Namespace) ToInt(v any) (int, error) {

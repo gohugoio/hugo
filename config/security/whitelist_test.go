@@ -43,5 +43,4 @@ func TestWhitelist(t *testing.T) {
 		c.Assert(w.Accept("bar"), qt.IsTrue)
 		c.Assert(w.Accept("mbar"), qt.IsFalse)
 	})
-
 }

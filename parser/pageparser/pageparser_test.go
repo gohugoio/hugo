@@ -68,7 +68,8 @@ func TestIsProbablyItemsSource(t *testing.T) {
 	c := qt.New(t)
 
 	input := ` {{< foo >}} `
-	items := collectStringMain(input)
+	items, err := collectStringMain(input)
+	c.Assert(err, qt.IsNil)
 
 	c.Assert(IsProbablySourceOfItems([]byte(input), items), qt.IsTrue)
 	c.Assert(IsProbablySourceOfItems(bytes.Repeat([]byte(" "), len(input)), items), qt.IsFalse)
@@ -83,7 +84,6 @@ func TestHasShortcode(t *testing.T) {
 	c.Assert(HasShortcode("aSDasd  SDasd aSD\n\nasdfadf{{% foo %}}\nasdf"), qt.IsTrue)
 	c.Assert(HasShortcode("{{</* foo */>}}"), qt.IsFalse)
 	c.Assert(HasShortcode("{{%/* foo */%}}"), qt.IsFalse)
-
 }
 
 func BenchmarkHasShortcode(b *testing.B) {
@@ -100,5 +100,15 @@ func BenchmarkHasShortcode(b *testing.B) {
 			HasShortcode(withoutShortcode)
 		}
 	})
+}
 
+func TestSummaryDividerStartingFromMain(t *testing.T) {
+	c := qt.New(t)
+
+	input := `aaa <!--more--> bbb`
+	items, err := collectStringMain(input)
+	c.Assert(err, qt.IsNil)
+
+	c.Assert(items, qt.HasLen, 4)
+	c.Assert(items[1].Type, qt.Equals, TypeLeadSummaryDivider)
 }

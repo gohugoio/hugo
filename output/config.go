@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -65,10 +65,10 @@ func DecodeConfig(mediaTypes media.Types, in any) (*config.ConfigNamespace[map[s
 				}
 
 				newOutFormat := defaultOutputFormat
-				newOutFormat.Name = k
 				if err := decode(mediaTypes, v, &newOutFormat); err != nil {
 					return f, nil, err
 				}
+				newOutFormat.Name = k
 
 				f = append(f, newOutFormat)
 
@@ -140,5 +140,4 @@ func decode(mediaTypes media.Types, input any, output *Format) error {
 	}
 
 	return nil
-
 }

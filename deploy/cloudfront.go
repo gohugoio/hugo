@@ -21,32 +21,53 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/cloudfront"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/cloudfront"
+	"github.com/aws/aws-sdk-go-v2/service/cloudfront/types"
+	"github.com/gohugoio/hugo/deploy/deployconfig"
 	gcaws "gocloud.dev/aws"
 )
 
+// V2ConfigFromURLParams will fail for any unknown params, so we need to remove them.
+// This is a mysterious API, but inspecting the code the known params are:
+var v2ConfigValidParams = map[string]bool{
+	"endpoint": true,
+	"region":   true,
+	"profile":  true,
+	"awssdk":   true,
+}
+
 // InvalidateCloudFront invalidates the CloudFront cache for distributionID.
 // Uses AWS credentials config from the bucket URL.
-func InvalidateCloudFront(ctx context.Context, target *Target) error {
+func InvalidateCloudFront(ctx context.Context, target *deployconfig.Target) error {
 	u, err := url.Parse(target.URL)
 	if err != nil {
 		return err
 	}
-	sess, _, err := gcaws.NewSessionFromURLParams(u.Query())
+	vals := u.Query()
+
+	// Remove any unknown params.
+	for k := range vals {
+		if !v2ConfigValidParams[k] {
+			vals.Del(k)
+		}
+	}
+
+	cfg, err := gcaws.V2ConfigFromURLParams(ctx, vals)
 	if err != nil {
 		return err
 	}
+	cf := cloudfront.NewFromConfig(cfg)
 	req := &cloudfront.CreateInvalidationInput{
 		DistributionId: aws.String(target.CloudFrontDistributionID),
-		InvalidationBatch: &cloudfront.InvalidationBatch{
+		InvalidationBatch: &types.InvalidationBatch{
 			CallerReference: aws.String(time.Now().Format("20060102150405")),
-			Paths: &cloudfront.Paths{
-				Items:    []*string{aws.String("/*")},
-				Quantity: aws.Int64(1),
+			Paths: &types.Paths{
+				Items:    []string{"/*"},
+				Quantity: aws.Int32(1),
 			},
 		},
 	}
-	_, err = cloudfront.New(sess).CreateInvalidationWithContext(ctx, req)
+	_, err = cf.CreateInvalidation(ctx, req)
 	return err
 }

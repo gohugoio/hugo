@@ -36,6 +36,8 @@ func TestCreatePlaceholders(t *testing.T) {
 		"SuffixesCSV": "pre_foo.SuffixesCSV_post",
 		"Delimiter":   "pre_foo.Delimiter_post",
 		"FirstSuffix": "pre_foo.FirstSuffix_post",
+		"IsHTML":      "pre_foo.IsHTML_post",
+		"IsMarkdown":  "pre_foo.IsMarkdown_post",
 		"IsText":      "pre_foo.IsText_post",
 		"String":      "pre_foo.String_post",
 		"Type":        "pre_foo.Type_post",

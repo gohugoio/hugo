@@ -17,8 +17,10 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/common/urls"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/langs"
 )
 
@@ -30,14 +32,16 @@ type AllProvider interface {
 	LanguagePrefix() string
 	BaseURL() urls.BaseURL
 	BaseURLLiveReload() urls.BaseURL
+	PathParser() *paths.PathParser
 	Environment() string
 	IsMultihost() bool
-	IsMultiLingual() bool
+	IsMultilingual() bool
 	NoBuildLock() bool
 	BaseConfig() BaseConfig
 	Dirs() CommonDirs
 	Quiet() bool
 	DirsBase() CommonDirs
+	ContentTypes() ContentTypesProvider
 	GetConfigSection(string) any
 	GetConfig() any
 	CanonifyURLs() bool
@@ -48,12 +52,14 @@ type AllProvider interface {
 	DefaultContentLanguageInSubdir() bool
 	IsLangDisabled(string) bool
 	SummaryLength() int
-	Paginate() int
-	PaginatePath() string
+	Pagination() Pagination
 	BuildExpired() bool
 	BuildFuture() bool
 	BuildDrafts() bool
 	Running() bool
+	Watching() bool
+	NewIdentityManager(name string) identity.Manager
+	FastRenderMode() bool
 	PrintUnusedTemplates() bool
 	EnableMissingTranslationPlaceholders() bool
 	TemplateMetrics() bool
@@ -64,9 +70,18 @@ type AllProvider interface {
 	NewContentEditor() string
 	Timeout() time.Duration
 	StaticDirs() []string
-	IgnoredErrors() map[string]bool
+	IgnoredLogs() map[string]bool
 	WorkingDir() string
 	EnableEmoji() bool
+}
+
+// We cannot import the media package as that would create a circular dependency.
+// This interface defineds a sub set of what media.ContentTypes provides.
+type ContentTypesProvider interface {
+	IsContentSuffix(suffix string) bool
+	IsContentFile(filename string) bool
+	IsIndexContentFile(filename string) bool
+	IsHTMLSuffix(suffix string) bool
 }
 
 // Provider provides the configuration settings for Hugo.

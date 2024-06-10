@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,15 +23,14 @@ import (
 	"time"
 
 	"github.com/bep/simplecobra"
-	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
+	"github.com/spf13/cobra"
 )
 
 // newListCommand creates a new list command and its subcommands.
 func newListCommand() *listCommand {
-
 	createRecord := func(workingDir string, p page.Page) []string {
 		return []string{
 			filepath.ToSlash(strings.TrimPrefix(p.File().Filename(), workingDir+string(os.PathSeparator))),
@@ -42,12 +41,14 @@ func newListCommand() *listCommand {
 			p.PublishDate().Format(time.RFC3339),
 			strconv.FormatBool(p.Draft()),
 			p.Permalink(),
+			p.Kind(),
+			p.Section(),
 		}
 	}
 
 	list := func(cd *simplecobra.Commandeer, r *rootCommand, shouldInclude func(page.Page) bool, opts ...any) error {
 		bcfg := hugolib.BuildCfg{SkipRender: true}
-		cfg := config.New()
+		cfg := flagsToCfg(cd, nil)
 		for i := 0; i < len(opts); i += 2 {
 			cfg.Set(opts[i].(string), opts[i+1])
 		}
@@ -68,6 +69,8 @@ func newListCommand() *listCommand {
 			"publishDate",
 			"draft",
 			"permalink",
+			"kind",
+			"section",
 		})
 
 		for _, p := range h.Pages() {
@@ -76,62 +79,62 @@ func newListCommand() *listCommand {
 				if err := writer.Write(record); err != nil {
 					return err
 				}
-				if err != nil {
-					return err
-				}
 			}
 		}
 
 		return nil
-
 	}
 
 	return &listCommand{
 		commands: []simplecobra.Commander{
 			&simpleCommand{
 				name:  "drafts",
-				short: "List all drafts",
-				long:  `List all of the drafts in your content directory.`,
+				short: "List draft content",
+				long:  `List draft content.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					shouldInclude := func(p page.Page) bool {
-						if !p.Draft() || p.File().IsZero() {
+						if !p.Draft() || p.File() == nil {
 							return false
 						}
 						return true
-
 					}
 					return list(cd, r, shouldInclude,
 						"buildDrafts", true,
 						"buildFuture", true,
 						"buildExpired", true,
 					)
+				},
+				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = cobra.NoFileCompletions
 				},
 			},
 			&simpleCommand{
 				name:  "future",
-				short: "List all posts dated in the future",
-				long:  `List all of the posts in your content directory which will be posted in the future.`,
+				short: "List future content",
+				long:  `List content with a future publication date.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					shouldInclude := func(p page.Page) bool {
-						if !resource.IsFuture(p) || p.File().IsZero() {
+						if !resource.IsFuture(p) || p.File() == nil {
 							return false
 						}
 						return true
-
 					}
 					return list(cd, r, shouldInclude,
 						"buildFuture", true,
 						"buildDrafts", true,
 					)
 				},
+				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = cobra.NoFileCompletions
+				},
 			},
 			&simpleCommand{
 				name:  "expired",
-				short: "List all posts already expired",
-				long:  `List all of the posts in your content directory which has already expired.`,
+				short: "List expired content",
+				long:  `List content with a past expiration date.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					shouldInclude := func(p page.Page) bool {
-						if !resource.IsExpired(p) || p.File().IsZero() {
+						if !resource.IsExpired(p) || p.File() == nil {
 							return false
 						}
 						return true
@@ -141,21 +144,40 @@ func newListCommand() *listCommand {
 						"buildDrafts", true,
 					)
 				},
+				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = cobra.NoFileCompletions
+				},
 			},
 			&simpleCommand{
 				name:  "all",
-				short: "List all posts",
-				long:  `List all of the posts in your content directory, include drafts, future and expired pages.`,
+				short: "List all content",
+				long:  `List all content including draft, future, and expired.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					shouldInclude := func(p page.Page) bool {
-						return !p.File().IsZero()
+						return p.File() != nil
 					}
 					return list(cd, r, shouldInclude, "buildDrafts", true, "buildFuture", true, "buildExpired", true)
+				},
+				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = cobra.NoFileCompletions
+				},
+			},
+			&simpleCommand{
+				name:  "published",
+				short: "List published content",
+				long:  `List content that is not draft, future, or expired.`,
+				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
+					shouldInclude := func(p page.Page) bool {
+						return !p.Draft() && !resource.IsFuture(p) && !resource.IsExpired(p) && p.File() != nil
+					}
+					return list(cd, r, shouldInclude)
+				},
+				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = cobra.NoFileCompletions
 				},
 			},
 		},
 	}
-
 }
 
 type listCommand struct {

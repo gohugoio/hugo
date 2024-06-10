@@ -21,6 +21,7 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 )
@@ -31,8 +32,10 @@ func TestNestedSections(t *testing.T) {
 		cfg, fs = newTestCfg()
 	)
 
+	tt := htesting.NewPinnedRunner(c, "")
+
 	cfg.Set("permalinks", map[string]string{
-		"perm a": ":sections/:title",
+		"perm-a": ":sections/:title",
 	})
 
 	pageTemplate := `---
@@ -127,7 +130,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 		{"elsewhere", func(c *qt.C, p page.Page) {
 			c.Assert(len(p.Pages()), qt.Equals, 1)
 			for _, p := range p.Pages() {
-				c.Assert(p.SectionsPath(), qt.Equals, "elsewhere")
+				c.Assert(p.SectionsPath(), qt.Equals, "/elsewhere")
 			}
 		}},
 		{"post", func(c *qt.C, p page.Page) {
@@ -179,8 +182,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			c.Assert(home.IsHome(), qt.Equals, true)
 			c.Assert(len(p.Sections()), qt.Equals, 0)
 			c.Assert(home.CurrentSection(), qt.Equals, home)
-			active, err := home.InSection(home)
-			c.Assert(err, qt.IsNil)
+			active := home.InSection(home)
 			c.Assert(active, qt.Equals, true)
 			c.Assert(p.FirstSection(), qt.Equals, p)
 			c.Assert(len(p.Ancestors()), qt.Equals, 1)
@@ -208,29 +210,22 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 				}
 
 				c.Assert(child.CurrentSection(), qt.Equals, p)
-				active, err := child.InSection(p)
-				c.Assert(err, qt.IsNil)
+				active := child.InSection(p)
 
 				c.Assert(active, qt.Equals, true)
-				active, err = p.InSection(child)
-				c.Assert(err, qt.IsNil)
+				active = p.InSection(child)
 				c.Assert(active, qt.Equals, true)
-				active, err = p.InSection(getPage(p, "/"))
-				c.Assert(err, qt.IsNil)
+				active = p.InSection(getPage(p, "/"))
 				c.Assert(active, qt.Equals, false)
 
-				isAncestor, err := p.IsAncestor(child)
-				c.Assert(err, qt.IsNil)
+				isAncestor := p.IsAncestor(child)
 				c.Assert(isAncestor, qt.Equals, true)
-				isAncestor, err = child.IsAncestor(p)
-				c.Assert(err, qt.IsNil)
+				isAncestor = child.IsAncestor(p)
 				c.Assert(isAncestor, qt.Equals, false)
 
-				isDescendant, err := p.IsDescendant(child)
-				c.Assert(err, qt.IsNil)
+				isDescendant := p.IsDescendant(child)
 				c.Assert(isDescendant, qt.Equals, false)
-				isDescendant, err = child.IsDescendant(p)
-				c.Assert(err, qt.IsNil)
+				isDescendant = child.IsDescendant(p)
 				c.Assert(isDescendant, qt.Equals, true)
 			}
 
@@ -254,32 +249,26 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			c.Assert(len(p.Ancestors()), qt.Equals, 3)
 
 			l1 := getPage(p, "/l1")
-			isDescendant, err := l1.IsDescendant(p)
-			c.Assert(err, qt.IsNil)
+			isDescendant := l1.IsDescendant(p)
 			c.Assert(isDescendant, qt.Equals, false)
-			isDescendant, err = l1.IsDescendant(nil)
-			c.Assert(err, qt.IsNil)
+			isDescendant = l1.IsDescendant(nil)
 			c.Assert(isDescendant, qt.Equals, false)
-			isDescendant, err = nilp.IsDescendant(p)
-			c.Assert(err, qt.IsNil)
+			isDescendant = nilp.IsDescendant(p)
 			c.Assert(isDescendant, qt.Equals, false)
-			isDescendant, err = p.IsDescendant(l1)
-			c.Assert(err, qt.IsNil)
+			isDescendant = p.IsDescendant(l1)
 			c.Assert(isDescendant, qt.Equals, true)
 
-			isAncestor, err := l1.IsAncestor(p)
-			c.Assert(err, qt.IsNil)
+			isAncestor := l1.IsAncestor(p)
 			c.Assert(isAncestor, qt.Equals, true)
-			isAncestor, err = p.IsAncestor(l1)
-			c.Assert(err, qt.IsNil)
+			isAncestor = p.IsAncestor(l1)
 			c.Assert(isAncestor, qt.Equals, false)
 			c.Assert(p.FirstSection(), qt.Equals, l1)
-			isAncestor, err = p.IsAncestor(nil)
-			c.Assert(err, qt.IsNil)
+			isAncestor = p.IsAncestor(nil)
 			c.Assert(isAncestor, qt.Equals, false)
-			isAncestor, err = nilp.IsAncestor(l1)
-			c.Assert(err, qt.IsNil)
 			c.Assert(isAncestor, qt.Equals, false)
+
+			l3 := getPage(p, "/l1/l2/l3")
+			c.Assert(l3.FirstSection(), qt.Equals, l1)
 		}},
 		{"perm a,link", func(c *qt.C, p page.Page) {
 			c.Assert(p.Title(), qt.Equals, "T9_-1")
@@ -294,15 +283,14 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 		}},
 	}
 
-	home := s.getPage(kinds.KindHome)
+	home := s.getPageOldVersion(kinds.KindHome)
 
 	for _, test := range tests {
 		test := test
-		t.Run(fmt.Sprintf("sections %s", test.sections), func(t *testing.T) {
-			t.Parallel()
-			c := qt.New(t)
+		tt.Run(fmt.Sprintf("sections %s", test.sections), func(c *qt.C) {
+			c.Parallel()
 			sections := strings.Split(test.sections, ",")
-			p := s.getPage(kinds.KindSection, sections...)
+			p := s.getPageOldVersion(kinds.KindSection, sections...)
 			c.Assert(p, qt.Not(qt.IsNil), qt.Commentf(fmt.Sprint(sections)))
 
 			if p.Pages() != nil {
@@ -319,19 +307,14 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 	c.Assert(len(home.Sections()), qt.Equals, 9)
 	c.Assert(s.Sections(), deepEqualsPages, home.Sections())
 
-	rootPage := s.getPage(kinds.KindPage, "mypage.md")
+	rootPage := s.getPageOldVersion(kinds.KindPage, "mypage.md")
 	c.Assert(rootPage, qt.Not(qt.IsNil))
 	c.Assert(rootPage.Parent().IsHome(), qt.Equals, true)
 	// https://github.com/gohugoio/hugo/issues/6365
 	c.Assert(rootPage.Sections(), qt.HasLen, 0)
 
-	// Add a odd test for this as this looks a little bit off, but I'm not in the mood
-	// to think too hard a out this right now. It works, but people will have to spell
-	// out the directory name as is.
-	// If we later decide to do something about this, we will have to do some normalization in
-	// getPage.
-	// TODO(bep)
-	sectionWithSpace := s.getPage(kinds.KindSection, "Spaces in Section")
+	sectionWithSpace := s.getPageOldVersion(kinds.KindSection, "Spaces in Section")
+	// s.h.pageTrees.debugPrint()
 	c.Assert(sectionWithSpace, qt.Not(qt.IsNil))
 	c.Assert(sectionWithSpace.RelPermalink(), qt.Equals, "/spaces-in-section/")
 
@@ -380,4 +363,61 @@ Next: {{ with .NextInSection }}{{ .RelPermalink }}{{ end }}|
 		"Prev: /blog/cool/cool2/|", "Next: |")
 	b.AssertFileContent("public/blog/cool/cool2/index.html",
 		"Prev: |", "Next: /blog/cool/cool1/|")
+}
+
+func TestSectionEntries(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com/"
+-- content/myfirstsection/p1.md --
+---
+title: "P1"
+---
+P1
+-- content/a/b/c/_index.md --
+---
+title: "C"
+---
+C
+-- content/a/b/c/mybundle/index.md --
+---
+title: "My Bundle"
+---
+-- layouts/_default/list.html --
+Kind: {{ .Kind }}|RelPermalink: {{ .RelPermalink }}|SectionsPath: {{ .SectionsPath }}|SectionsEntries: {{ .SectionsEntries }}|Len: {{ len .SectionsEntries }}|
+-- layouts/_default/single.html --
+Kind: {{ .Kind }}|RelPermalink: {{ .RelPermalink }}|SectionsPath: {{ .SectionsPath }}|SectionsEntries: {{ .SectionsEntries }}|Len: {{ len .SectionsEntries }}|
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/myfirstsection/p1/index.html", "RelPermalink: /myfirstsection/p1/|SectionsPath: /myfirstsection|SectionsEntries: [myfirstsection]|Len: 1")
+	b.AssertFileContent("public/a/b/c/index.html", "RelPermalink: /a/b/c/|SectionsPath: /a/b/c|SectionsEntries: [a b c]|Len: 3")
+	b.AssertFileContent("public/a/b/c/mybundle/index.html", "Kind: page|RelPermalink: /a/b/c/mybundle/|SectionsPath: /a/b/c|SectionsEntries: [a b c]|Len: 3")
+	b.AssertFileContent("public/index.html", "Kind: home|RelPermalink: /|SectionsPath: /|SectionsEntries: []|Len: 0")
+}
+
+func TestParentWithPageOverlap(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com/"
+-- content/docs/_index.md --
+-- content/docs/logs/_index.md --
+-- content/docs/logs/sdk.md --
+-- content/docs/logs/sdk_exporters/stdout.md --
+-- layouts/_default/list.html --
+{{ .RelPermalink }}|{{ with .Parent}}{{ .RelPermalink }}{{ end }}|
+-- layouts/_default/single.html --
+{{ .RelPermalink }}|{{ with .Parent}}{{ .RelPermalink }}{{ end }}|
+
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html", "/||")
+	b.AssertFileContent("public/docs/index.html", "/docs/|/|")
+	b.AssertFileContent("public/docs/logs/index.html", "/docs/logs/|/docs/|")
+	b.AssertFileContent("public/docs/logs/sdk/index.html", "/docs/logs/sdk/|/docs/logs/|")
+	b.AssertFileContent("public/docs/logs/sdk_exporters/stdout/index.html", "/docs/logs/sdk_exporters/stdout/|/docs/logs/|")
 }

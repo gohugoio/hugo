@@ -38,7 +38,7 @@ func ResolveIfFirstArgIsString(args []any) (resources.ResourceTransformer, strin
 	return v2, v1, ok2
 }
 
-// This roundabout way of doing it is needed to get both pipeline behaviour and options as arguments.
+// This roundabout way of doing it is needed to get both pipeline behavior and options as arguments.
 func ResolveArgs(args []any) (resources.ResourceTransformer, map[string]any, error) {
 	if len(args) == 0 {
 		return nil, nil, errors.New("no Resource provided in transformation")

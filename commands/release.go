@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import (
 // Note: This is a command only meant for internal use and must be run
 // via "go run -tags release main.go release" on the actual code base that is in the release.
 func newReleaseCommand() simplecobra.Commander {
-
 	var (
 		step     int
 		skipPush bool
@@ -44,9 +43,11 @@ func newReleaseCommand() simplecobra.Commander {
 		},
 		withc: func(cmd *cobra.Command, r *rootCommand) {
 			cmd.Hidden = true
+			cmd.ValidArgsFunction = cobra.NoFileCompletions
 			cmd.PersistentFlags().BoolVarP(&skipPush, "skip-push", "", false, "skip pushing to remote")
 			cmd.PersistentFlags().BoolVarP(&try, "try", "", false, "no changes")
 			cmd.PersistentFlags().IntVarP(&step, "step", "", 0, "step to run (1: set new version 2: prepare next dev version)")
+			_ = cmd.RegisterFlagCompletionFunc("step", cobra.FixedCompletions([]string{"1", "2"}, cobra.ShellCompDirectiveNoFileComp))
 		},
 	}
 }

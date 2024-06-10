@@ -111,5 +111,4 @@ func BenchmarkTruncate(b *testing.B) {
 			ns.Truncate(10, "I have a <a href='/markdown'>Markdown link</a> inside")
 		}
 	})
-
 }

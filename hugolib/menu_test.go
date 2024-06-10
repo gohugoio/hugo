@@ -161,35 +161,35 @@ menu:
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent("public/index.html",
-		`Default1|0|10|A|/blog/a/|Page(/blog/A.md)
-        Default1|1|20|B|/blog/b/|Page(/blog/B.md)
-        Default1|2|30|C|/blog/c/|Page(/blog/C.md)
-        Default1|3|100|Home|/|Page(/_index.md)
+		`Default1|0|10|A|/blog/a/|Page(/blog/a)
+        Default1|1|20|B|/blog/b/|Page(/blog/b)
+        Default1|2|30|C|/blog/c/|Page(/blog/c)
+        Default1|3|100|Home|/|Page(/)
 
-        ByWeight|0|10|A|/blog/a/|Page(/blog/A.md)
-        ByWeight|1|20|B|/blog/b/|Page(/blog/B.md)
-        ByWeight|2|30|C|/blog/c/|Page(/blog/C.md)
-        ByWeight|3|100|Home|/|Page(/_index.md)
+        ByWeight|0|10|A|/blog/a/|Page(/blog/a)
+        ByWeight|1|20|B|/blog/b/|Page(/blog/b)
+        ByWeight|2|30|C|/blog/c/|Page(/blog/c)
+        ByWeight|3|100|Home|/|Page(/)
 
-        Reverse|0|100|Home|/|Page(/_index.md)
-        Reverse|1|30|C|/blog/c/|Page(/blog/C.md)
-        Reverse|2|20|B|/blog/b/|Page(/blog/B.md)
-        Reverse|3|10|A|/blog/a/|Page(/blog/A.md)
+        Reverse|0|100|Home|/|Page(/)
+        Reverse|1|30|C|/blog/c/|Page(/blog/c)
+        Reverse|2|20|B|/blog/b/|Page(/blog/b)
+        Reverse|3|10|A|/blog/a/|Page(/blog/a)
 
-        Default2|0|10|A|/blog/a/|Page(/blog/A.md)
-        Default2|1|20|B|/blog/b/|Page(/blog/B.md)
-        Default2|2|30|C|/blog/c/|Page(/blog/C.md)
-        Default2|3|100|Home|/|Page(/_index.md)
+        Default2|0|10|A|/blog/a/|Page(/blog/a)
+        Default2|1|20|B|/blog/b/|Page(/blog/b)
+        Default2|2|30|C|/blog/c/|Page(/blog/c)
+        Default2|3|100|Home|/|Page(/)
 
-        ByWeight|0|10|A|/blog/a/|Page(/blog/A.md)
-        ByWeight|1|20|B|/blog/b/|Page(/blog/B.md)
-        ByWeight|2|30|C|/blog/c/|Page(/blog/C.md)
-        ByWeight|3|100|Home|/|Page(/_index.md)
+        ByWeight|0|10|A|/blog/a/|Page(/blog/a)
+        ByWeight|1|20|B|/blog/b/|Page(/blog/b)
+        ByWeight|2|30|C|/blog/c/|Page(/blog/c)
+        ByWeight|3|100|Home|/|Page(/)
 
-        Default3|0|10|A|/blog/a/|Page(/blog/A.md)
-        Default3|1|20|B|/blog/b/|Page(/blog/B.md)
-        Default3|2|30|C|/blog/c/|Page(/blog/C.md)
-        Default3|3|100|Home|/|Page(/_index.md)`,
+        Default3|0|10|A|/blog/a/|Page(/blog/a)
+        Default3|1|20|B|/blog/b/|Page(/blog/b)
+        Default3|2|30|C|/blog/c/|Page(/blog/c)
+        Default3|3|100|Home|/|Page(/)`,
 	)
 }
 
@@ -494,34 +494,34 @@ title: "Contact: With  No Menu Defined"
 
 	b.AssertFileContent("public/index.html", `
 Main: 5
-Home|HasMenuCurrent: false|Page: Page(/_index.md)
-Blog|HasMenuCurrent: false|Page: Page(/blog/_index.md)
-My Post 2: With Menu Defined|HasMenuCurrent: false|Page: Page(/blog/post2.md)
-My Post 3|HasMenuCurrent: false|Page: Page(/blog/post3.md)
-Contact Us|HasMenuCurrent: false|Page: Page(/contact.md)
+Home|HasMenuCurrent: false|Page: Page(/)
+Blog|HasMenuCurrent: false|Page: Page(/blog)
+My Post 2: With Menu Defined|HasMenuCurrent: false|Page: Page(/blog/post2)
+My Post 3|HasMenuCurrent: false|Page: Page(/blog/post3)
+Contact Us|HasMenuCurrent: false|Page: Page(/contact)
 `)
 
 	b.AssertFileContent("public/blog/post1/index.html", `
-Home|HasMenuCurrent: false|Page: Page(/_index.md)
-Blog|HasMenuCurrent: true|Page: Page(/blog/_index.md)
+Home|HasMenuCurrent: false|Page: Page(/)
+Blog|HasMenuCurrent: true|Page: Page(/blog)
 `)
 
 	b.AssertFileContent("public/blog/post2/index.html", `
-Home|HasMenuCurrent: false|Page: Page(/_index.md)
-Blog|HasMenuCurrent: true|Page: Page(/blog/_index.md)
-Blog|IsMenuCurrent: false|Page: Page(/blog/_index.md)
+Home|HasMenuCurrent: false|Page: Page(/)
+Blog|HasMenuCurrent: true|Page: Page(/blog)
+Blog|IsMenuCurrent: false|Page: Page(/blog)
 `)
 
 	b.AssertFileContent("public/blog/post3/index.html", `
-Home|HasMenuCurrent: false|Page: Page(/_index.md)
-Blog|HasMenuCurrent: true|Page: Page(/blog/_index.md)
+Home|HasMenuCurrent: false|Page: Page(/)
+Blog|HasMenuCurrent: true|Page: Page(/blog)
 `)
 
 	b.AssertFileContent("public/contact/index.html", `
-Contact Us|HasMenuCurrent: false|Page: Page(/contact.md)
-Contact Us|IsMenuCurrent: true|Page: Page(/contact.md)
-Blog|HasMenuCurrent: false|Page: Page(/blog/_index.md)
-Blog|IsMenuCurrent: false|Page: Page(/blog/_index.md)
+Contact Us|HasMenuCurrent: false|Page: Page(/contact)
+Contact Us|IsMenuCurrent: true|Page: Page(/contact)
+Blog|HasMenuCurrent: false|Page: Page(/blog)
+Blog|IsMenuCurrent: false|Page: Page(/blog)
 `)
 }
 
@@ -571,12 +571,7 @@ Page IsAncestor Self: {{ $page.IsAncestor $page }}
 Page IsDescendant Self: {{ $page.IsDescendant $page}}
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/tests/index.html", `
 Tests|/tests/|IsMenuCurrent = true|HasMenuCurrent = false
@@ -609,17 +604,11 @@ Menu Item: {{ $i }}: {{ .Pre }}{{ .Name }}{{ .Post }}|{{ .URL }}|
 {{ end }}
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 Menu Item: 0: <span>Home</span>|/|	
 `)
-
 }
 
 // Issue #11062
@@ -641,15 +630,83 @@ Menu Item: {{ $i }}|{{ .URL }}|
 {{ end }}
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 Menu Item: 0|/foo/posts|
 `)
+}
 
+func TestSectionPagesMenuMultilingualWarningIssue12306(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['section','rss','sitemap','taxonomy','term']
+defaultContentLanguageInSubdir = true
+sectionPagesMenu = "main"
+[languages.en]
+[languages.fr]
+-- layouts/_default/home.html --
+{{- range site.Menus.main -}}
+  <a href="{{ .URL }}">{{ .Name }}</a>
+{{- end -}}
+-- layouts/_default/single.html --
+{{ .Title }}
+-- content/p1.en.md --
+---
+title: p1
+menu: main
+---
+-- content/p1.fr.md --
+---
+title: p1
+menu: main
+---
+-- content/p2.en.md --
+---
+title: p2
+menu: main
+---
+`
+
+	b := Test(t, files, TestOptWarn())
+
+	b.AssertFileContent("public/en/index.html", `<a href="/en/p1/">p1</a><a href="/en/p2/">p2</a>`)
+	b.AssertFileContent("public/fr/index.html", `<a href="/fr/p1/">p1</a>`)
+	b.AssertLogNotContains("WARN")
+}
+
+func TestSectionPagesIssue12399(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['rss','sitemap','taxonomy','term']
+capitalizeListTitles = false
+pluralizeListTitles = false
+sectionPagesMenu = 'main'
+-- content/p1.md --
+---
+title: p1
+---
+-- content/s1/p2.md --
+---
+title: p2
+menus: main
+---
+-- content/s1/p3.md --
+---
+title: p3
+---
+-- layouts/_default/list.html --
+{{ range site.Menus.main }}<a href="{{ .URL }}">{{ .Name }}</a>{{ end }}
+-- layouts/_default/single.html --
+{{ .Title }}
+`
+
+	b := Test(t, files)
+
+	b.AssertFileExists("public/index.html", true)
+	b.AssertFileContent("public/index.html", `<a href="/s1/p2/">p2</a><a href="/s1/">s1</a>`)
 }

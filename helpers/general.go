@@ -188,7 +188,7 @@ func ReaderContains(r io.Reader, subslice []byte) bool {
 //
 // - "Go" (strings.Title)
 // - "AP" (see https://www.apstylebook.com/)
-// - "Chicago" (see http://www.chicagomanualofstyle.org/home.html)
+// - "Chicago" (see https://www.chicagomanualofstyle.org/home.html)
 // - "FirstUpper" (only the first character is upper case)
 // - "None" (no transformation)
 //
@@ -196,6 +196,7 @@ func ReaderContains(r io.Reader, subslice []byte) bool {
 func GetTitleFunc(style string) func(s string) string {
 	switch strings.ToLower(style) {
 	case "go":
+		//lint:ignore SA1019 keep for now.
 		return strings.Title
 	case "chicago":
 		tc := transform.NewTitleConverter(transform.ChicagoStyle)
@@ -263,10 +264,11 @@ func MD5String(f string) string {
 	return hex.EncodeToString(h.Sum([]byte{}))
 }
 
-// MD5FromFileFast creates a MD5 hash from the given file. It only reads parts of
+// MD5FromReaderFast creates a MD5 hash from the given file. It only reads parts of
 // the file for speed, so don't use it if the files are very subtly different.
 // It will not close the file.
-func MD5FromFileFast(r io.ReadSeeker) (string, error) {
+// It will return the MD5 hash and the size of r in bytes.
+func MD5FromReaderFast(r io.ReadSeeker) (string, int64, error) {
 	const (
 		// Do not change once set in stone!
 		maxChunks = 8
@@ -284,7 +286,7 @@ func MD5FromFileFast(r io.ReadSeeker) (string, error) {
 				if err == io.EOF {
 					break
 				}
-				return "", err
+				return "", 0, err
 			}
 		}
 
@@ -294,12 +296,14 @@ func MD5FromFileFast(r io.ReadSeeker) (string, error) {
 				h.Write(buff)
 				break
 			}
-			return "", err
+			return "", 0, err
 		}
 		h.Write(buff)
 	}
 
-	return hex.EncodeToString(h.Sum(nil)), nil
+	size, _ := r.Seek(0, io.SeekEnd)
+
+	return hex.EncodeToString(h.Sum(nil)), size, nil
 }
 
 // MD5FromReader creates a MD5 hash from the given reader.
@@ -324,7 +328,32 @@ func PrintFs(fs afero.Fs, path string, w io.Writer) {
 	}
 
 	afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
-		fmt.Println(path)
+		if err != nil {
+			panic(fmt.Sprintf("error: path %q: %s", path, err))
+		}
+		path = filepath.ToSlash(path)
+		if path == "" {
+			path = "."
+		}
+		fmt.Fprintln(w, path, info.IsDir())
 		return nil
 	})
+}
+
+// FormatByteCount pretty formats b.
+func FormatByteCount(bc uint64) string {
+	const (
+		Gigabyte = 1 << 30
+		Megabyte = 1 << 20
+		Kilobyte = 1 << 10
+	)
+	switch {
+	case bc > Gigabyte || -bc > Gigabyte:
+		return fmt.Sprintf("%.2f GB", float64(bc)/Gigabyte)
+	case bc > Megabyte || -bc > Megabyte:
+		return fmt.Sprintf("%.2f MB", float64(bc)/Megabyte)
+	case bc > Kilobyte || -bc > Kilobyte:
+		return fmt.Sprintf("%.2f KB", float64(bc)/Kilobyte)
+	}
+	return fmt.Sprintf("%d B", bc)
 }

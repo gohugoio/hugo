@@ -1,4 +1,4 @@
-// Copyright 2022 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,11 +14,10 @@
 package herrors
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"testing"
-
-	"errors"
 
 	"github.com/gohugoio/hugo/common/text"
 
@@ -48,7 +47,6 @@ func TestNewFileError(t *testing.T) {
 	c.Assert(errorContext.Lines, qt.DeepEquals, []string{"line 30", "line 31", "line 32", "line 33", "line 34"})
 	c.Assert(errorContext.LinesPos, qt.Equals, 2)
 	c.Assert(errorContext.ChromaLexer, qt.Equals, "go-html-template")
-
 }
 
 func TestNewFileErrorExtractFromMessage(t *testing.T) {

@@ -31,6 +31,8 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/deploy/deployconfig"
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/media"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -109,7 +111,7 @@ func TestFindDiffs(t *testing.T) {
 		{
 			Description: "local == remote with route.Force true -> diffs",
 			Local: []*localFile{
-				{NativePath: "aaa", SlashPath: "aaa", UploadSize: 1, matcher: &Matcher{Force: true}, md5: hash1},
+				{NativePath: "aaa", SlashPath: "aaa", UploadSize: 1, matcher: &deployconfig.Matcher{Force: true}, md5: hash1},
 				makeLocal("bbb", 2, hash1),
 			},
 			Remote: []*blob.ListObject{
@@ -241,7 +243,7 @@ func TestWalkLocal(t *testing.T) {
 			for _, name := range tc.Given {
 				dir, _ := path.Split(name)
 				if dir != "" {
-					if err := fs.MkdirAll(dir, 0755); err != nil {
+					if err := fs.MkdirAll(dir, 0o755); err != nil {
 						t.Fatal(err)
 					}
 				}
@@ -292,7 +294,7 @@ func TestLocalFile(t *testing.T) {
 	tests := []struct {
 		Description         string
 		Path                string
-		Matcher             *Matcher
+		Matcher             *deployconfig.Matcher
 		MediaTypesConfig    map[string]any
 		WantContent         []byte
 		WantSize            int64
@@ -318,7 +320,7 @@ func TestLocalFile(t *testing.T) {
 		{
 			Description:      "CacheControl from matcher",
 			Path:             "foo.txt",
-			Matcher:          &Matcher{CacheControl: "max-age=630720000"},
+			Matcher:          &deployconfig.Matcher{CacheControl: "max-age=630720000"},
 			WantContent:      contentBytes,
 			WantSize:         contentLen,
 			WantMD5:          contentMD5[:],
@@ -327,7 +329,7 @@ func TestLocalFile(t *testing.T) {
 		{
 			Description:         "ContentEncoding from matcher",
 			Path:                "foo.txt",
-			Matcher:             &Matcher{ContentEncoding: "foobar"},
+			Matcher:             &deployconfig.Matcher{ContentEncoding: "foobar"},
 			WantContent:         contentBytes,
 			WantSize:            contentLen,
 			WantMD5:             contentMD5[:],
@@ -336,7 +338,7 @@ func TestLocalFile(t *testing.T) {
 		{
 			Description:     "ContentType from matcher",
 			Path:            "foo.txt",
-			Matcher:         &Matcher{ContentType: "foo/bar"},
+			Matcher:         &deployconfig.Matcher{ContentType: "foo/bar"},
 			WantContent:     contentBytes,
 			WantSize:        contentLen,
 			WantMD5:         contentMD5[:],
@@ -345,7 +347,7 @@ func TestLocalFile(t *testing.T) {
 		{
 			Description:         "gzipped content",
 			Path:                "foo.txt",
-			Matcher:             &Matcher{Gzip: true},
+			Matcher:             &deployconfig.Matcher{Gzip: true},
 			WantContent:         gzBytes,
 			WantSize:            gzLen,
 			WantMD5:             gzMD5[:],
@@ -530,7 +532,7 @@ func initFsTests(t *testing.T) []*fsTest {
 	membucket := memblob.OpenBucket(nil)
 	t.Cleanup(func() { membucket.Close() })
 
-	filefs := afero.NewBasePathFs(afero.NewOsFs(), tmpfsdir)
+	filefs := hugofs.NewBasePathFs(afero.NewOsFs(), tmpfsdir)
 	filebucket, err := fileblob.OpenBucket(tmpbucketdir, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -559,7 +561,7 @@ func TestEndToEndSync(t *testing.T) {
 				localFs:    test.fs,
 				bucket:     test.bucket,
 				mediaTypes: media.DefaultTypes,
-				cfg:        DeployConfig{MaxDeletes: -1},
+				cfg:        deployconfig.DeployConfig{MaxDeletes: -1},
 			}
 
 			// Initial deployment should sync remote with local.
@@ -642,7 +644,7 @@ func TestMaxDeletes(t *testing.T) {
 				localFs:    test.fs,
 				bucket:     test.bucket,
 				mediaTypes: media.DefaultTypes,
-				cfg:        DeployConfig{MaxDeletes: -1},
+				cfg:        deployconfig.DeployConfig{MaxDeletes: -1},
 			}
 
 			// Sync remote with local.
@@ -763,16 +765,16 @@ func TestIncludeExclude(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			tgt := &Target{
+			tgt := &deployconfig.Target{
 				Include: test.Include,
 				Exclude: test.Exclude,
 			}
-			if err := tgt.parseIncludeExclude(); err != nil {
+			if err := tgt.ParseIncludeExclude(); err != nil {
 				t.Error(err)
 			}
 			deployer := &Deployer{
 				localFs: fsTest.fs,
-				cfg:     DeployConfig{MaxDeletes: -1}, bucket: fsTest.bucket,
+				cfg:     deployconfig.DeployConfig{MaxDeletes: -1}, bucket: fsTest.bucket,
 				target:     tgt,
 				mediaTypes: media.DefaultTypes,
 			}
@@ -829,7 +831,7 @@ func TestIncludeExcludeRemoteDelete(t *testing.T) {
 			}
 			deployer := &Deployer{
 				localFs: fsTest.fs,
-				cfg:     DeployConfig{MaxDeletes: -1}, bucket: fsTest.bucket,
+				cfg:     deployconfig.DeployConfig{MaxDeletes: -1}, bucket: fsTest.bucket,
 				mediaTypes: media.DefaultTypes,
 			}
 
@@ -847,11 +849,11 @@ func TestIncludeExcludeRemoteDelete(t *testing.T) {
 			}
 
 			// Second sync
-			tgt := &Target{
+			tgt := &deployconfig.Target{
 				Include: test.Include,
 				Exclude: test.Exclude,
 			}
-			if err := tgt.parseIncludeExclude(); err != nil {
+			if err := tgt.ParseIncludeExclude(); err != nil {
 				t.Error(err)
 			}
 			deployer.target = tgt
@@ -881,7 +883,7 @@ func TestCompression(t *testing.T) {
 			deployer := &Deployer{
 				localFs:    test.fs,
 				bucket:     test.bucket,
-				cfg:        DeployConfig{MaxDeletes: -1, Matchers: []*Matcher{{Pattern: ".*", Gzip: true, re: regexp.MustCompile(".*")}}},
+				cfg:        deployconfig.DeployConfig{MaxDeletes: -1, Matchers: []*deployconfig.Matcher{{Pattern: ".*", Gzip: true, Re: regexp.MustCompile(".*")}}},
 				mediaTypes: media.DefaultTypes,
 			}
 
@@ -936,7 +938,7 @@ func TestMatching(t *testing.T) {
 			deployer := &Deployer{
 				localFs:    test.fs,
 				bucket:     test.bucket,
-				cfg:        DeployConfig{MaxDeletes: -1, Matchers: []*Matcher{{Pattern: "^subdir/aaa$", Force: true, re: regexp.MustCompile("^subdir/aaa$")}}},
+				cfg:        deployconfig.DeployConfig{MaxDeletes: -1, Matchers: []*deployconfig.Matcher{{Pattern: "^subdir/aaa$", Force: true, Re: regexp.MustCompile("^subdir/aaa$")}}},
 				mediaTypes: media.DefaultTypes,
 			}
 
@@ -961,7 +963,7 @@ func TestMatching(t *testing.T) {
 			}
 
 			// Repeat with a matcher that should now match 3 files.
-			deployer.cfg.Matchers = []*Matcher{{Pattern: "aaa", Force: true, re: regexp.MustCompile("aaa")}}
+			deployer.cfg.Matchers = []*deployconfig.Matcher{{Pattern: "aaa", Force: true, Re: regexp.MustCompile("aaa")}}
 			if err := deployer.Deploy(ctx); err != nil {
 				t.Errorf("no-op deploy with triple force matcher: %v", err)
 			}

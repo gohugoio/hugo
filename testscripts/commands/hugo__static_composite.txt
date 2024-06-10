@@ -1,0 +1,27 @@
+hugo
+ls public/files
+checkfile public/files/f1.txt
+checkfile public/files/f2.txt
+checkfile public/f3.txt
+
+-- hugo.toml --
+disableKinds = ["taxonomy", "term"]
+[module]
+[[module.mounts]]
+source = "myfiles/f1.txt"
+target = "static/files/f1.txt"
+[[module.mounts]]
+source = "f3.txt"
+target = "static/f3.txt"
+[[module.mounts]]
+source = "static"
+target = "static"
+-- static/files/f2.txt --
+f2
+-- myfiles/f1.txt --
+f1
+-- f3.txt --
+f3
+-- layouts/home.html --
+Home.
+

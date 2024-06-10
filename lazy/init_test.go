@@ -234,5 +234,4 @@ func TestResetError(t *testing.T) {
 	r = true
 	_, err = i.Do(context.Background())
 	c.Assert(err, qt.IsNil)
-
 }

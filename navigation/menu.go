@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,7 +49,6 @@ type MenuEntry struct {
 }
 
 func (m *MenuEntry) URL() string {
-
 	// Check page first.
 	// In Hugo 0.86.0 we added `pageRef`,
 	// a way to connect menu items in site config to pages.
@@ -88,7 +87,7 @@ type Page interface {
 	Weight() int
 	IsPage() bool
 	IsSection() bool
-	IsAncestor(other any) (bool, error)
+	IsAncestor(other any) bool
 	Params() maps.Params
 }
 
@@ -290,7 +289,6 @@ func DecodeConfig(in any) (*config.ConfigNamespace[map[string]MenuConfig, Menus]
 			if err != nil {
 				return ret, nil, err
 			} else {
-
 				for _, entry := range m {
 					var menuConfig MenuConfig
 					if err := mapstructure.WeakDecode(entry, &menuConfig); err != nil {
@@ -312,7 +310,6 @@ func DecodeConfig(in any) (*config.ConfigNamespace[map[string]MenuConfig, Menus]
 		}
 
 		return ret, menus, nil
-
 	}
 
 	return config.DecodeNamespace[map[string]MenuConfig](in, buildConfig)

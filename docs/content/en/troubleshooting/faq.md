@@ -107,7 +107,7 @@ The most common causes are page collisions (publishing two pages to the same pat
 
 ###### Which page methods trigger content rendering?
 
-The following methods on a `Page` object triggering content rendering: `Content`, `FuzzyWordCount`, `Len`, `Plain`, `PlainWords`, `ReadingTime`, `Summary`, `Truncated`, and `WordCount`.
+The following methods on a `Page` object trigger content rendering: `Content`, `FuzzyWordCount`, `Len`, `Plain`, `PlainWords`, `ReadingTime`, `Summary`, `Truncated`, and `WordCount`.
 
 {{% note %}}
 For other questions please visit the [forum]. A quick search of over 20,000 topics will often answer your question. Please be sure to read about [requesting help] before asking your first question.

@@ -29,7 +29,7 @@ A static website with a dynamic search function? Yes, Hugo provides an alternati
 : A bit like Hugo-lunr, but Hugo-lunr-zh can help you separate the Chinese keywords.
 
 [GitHub Gist for Fuse.js integration](https://gist.github.com/eddiewebb/735feb48f50f0ddd65ae5606a1cb41ae)
-: This gist demonstrates how to leverage Hugo's existing build time processing to generate a searchable JSON index used by [Fuse.js](https://fusejs.io/) on the client-side. Although this gist uses Fuse.js for fuzzy matching, any client-side search tool capable of reading JSON indexes will work. Does not require npm, grunt or other build-time tools except Hugo!
+: This gist demonstrates how to leverage Hugo's existing build time processing to generate a searchable JSON index used by [Fuse.js](https://fusejs.io/) on the client-side. Although this gist uses Fuse.js for fuzzy matching, any client-side search tool capable of reading JSON indexes will work. Does not require npm, grunt, or other build-time tools except Hugo!
 
 [hugo-search-index](https://www.npmjs.com/package/hugo-search-index)
 : A library containing Gulp tasks and a prebuilt browser script that implements search. Gulp generates a search index from project markdown files.
@@ -49,7 +49,7 @@ A static website with a dynamic search function? Yes, Hugo provides an alternati
 : Algolia's Search API makes it easy to deliver a great search experience in your apps and websites. Algolia Search provides hosted full-text, numerical, faceted, and geolocalized search.
 
 [Bonsai](https://www.bonsai.io)
-: Bonsai is a fully-managed hosted Elasticsearch service that is fast, reliable, and simple to set up. Easily ingest your docs from Hugo into Elasticsearch following [this guide from the docs](https://docs.bonsai.io/hc/en-us/articles/13929190788756-Hugo).
+: Bonsai is a fully-managed hosted Elasticsearch service that is fast, reliable, and simple to set up. Easily ingest your docs from Hugo into Elasticsearch following [this guide from the docs](https://bonsai.io/docs/hugo).
 
 [ExpertRec](https://www.expertrec.com/)
 : ExpertRec is a hosted search-as-a-service solution that is fast and scalable. Set-up and integration is extremely easy and takes only a few minutes. The search settings can be modified without coding using a dashboard.

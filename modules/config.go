@@ -29,7 +29,6 @@ import (
 const WorkspaceDisabled = "off"
 
 var DefaultModuleConfig = Config{
-
 	// Default to direct, which means "git clone" and similar. We
 	// will investigate proxy settings in more depth later.
 	// See https://github.com/golang/go/issues/26334
@@ -58,7 +57,6 @@ var DefaultModuleConfig = Config{
 // ApplyProjectConfigDefaults applies default/missing module configuration for
 // the main project.
 func ApplyProjectConfigDefaults(mod Module, cfgs ...config.AllProvider) error {
-
 	moda := mod.(*moduleAdapter)
 
 	// To bridge between old and new configuration format we need
@@ -88,7 +86,7 @@ func ApplyProjectConfigDefaults(mod Module, cfgs ...config.AllProvider) error {
 
 		first := cfgs[0]
 		dirsBase := first.DirsBase()
-		isMultiHost := first.IsMultihost()
+		isMultihost := first.IsMultihost()
 
 		for i, cfg := range cfgs {
 			dirs := cfg.Dirs()
@@ -99,18 +97,23 @@ func ApplyProjectConfigDefaults(mod Module, cfgs ...config.AllProvider) error {
 				dir = dirs.ContentDir
 				dropLang = dir == dirsBase.ContentDir
 			case files.ComponentFolderData:
+				//lint:ignore SA1019 Keep as adapter for now.
 				dir = dirs.DataDir
 			case files.ComponentFolderLayouts:
+				//lint:ignore SA1019 Keep as adapter for now.
 				dir = dirs.LayoutDir
 			case files.ComponentFolderI18n:
+				//lint:ignore SA1019 Keep as adapter for now.
 				dir = dirs.I18nDir
 			case files.ComponentFolderArchetypes:
+				//lint:ignore SA1019 Keep as adapter for now.
 				dir = dirs.ArcheTypeDir
 			case files.ComponentFolderAssets:
+				//lint:ignore SA1019 Keep as adapter for now.
 				dir = dirs.AssetDir
 			case files.ComponentFolderStatic:
 				// For static dirs, we only care about the language in multihost setups.
-				dropLang = !isMultiHost
+				dropLang = !isMultihost
 			}
 
 			var perLang bool
@@ -230,6 +233,7 @@ func decodeConfig(cfg config.Provider, pathReplacements map[string]string) (Conf
 				c.Workspace = filepath.Join(workingDir, c.Workspace)
 			}
 			if _, err := os.Stat(c.Workspace); err != nil {
+				//lint:ignore ST1005 end user message.
 				return c, fmt.Errorf("module workspace %q does not exist. Check your module.workspace setting (or HUGO_MODULE_WORKSPACE env var).", c.Workspace)
 			}
 		}
@@ -266,7 +270,7 @@ type Config struct {
 
 	// When enabled, we will pick the vendored module closest to the module
 	// using it.
-	// The default behaviour is to pick the first.
+	// The default behavior is to pick the first.
 	// Note that there can still be only one dependency of a given module path,
 	// so once it is in use it cannot be redefined.
 	VendorClosest bool

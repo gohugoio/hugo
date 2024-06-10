@@ -22,10 +22,11 @@ import (
 	"html/template"
 	"strings"
 
-	"github.com/gohugoio/hugo/cache/namedmemcache"
+	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/highlight"
 	"github.com/gohugoio/hugo/markup/highlight/chromalexers"
+	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/deps"
@@ -35,21 +36,23 @@ import (
 
 // New returns a new instance of the transform-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
-	cache := namedmemcache.New()
-	deps.BuildStartListeners.Add(
-		func() {
-			cache.Clear()
-		})
+	if deps.MemCache == nil {
+		panic("must provide MemCache")
+	}
 
 	return &Namespace{
-		cache: cache,
-		deps:  deps,
+		deps: deps,
+		cache: dynacache.GetOrCreatePartition[string, *resources.StaleValue[any]](
+			deps.MemCache,
+			"/tmpl/transform",
+			dynacache.OptionsPartition{Weight: 30, ClearWhen: dynacache.ClearOnChange},
+		),
 	}
 }
 
 // Namespace provides template functions for the "transform" namespace.
 type Namespace struct {
-	cache *namedmemcache.Cache
+	cache *dynacache.Partition[string, *resources.StaleValue[any]]
 	deps  *deps.Deps
 }
 
@@ -154,7 +157,6 @@ func (ns *Namespace) XMLEscape(s any) (string, error) {
 
 // Markdownify renders s from Markdown to HTML.
 func (ns *Namespace) Markdownify(ctx context.Context, s any) (template.HTML, error) {
-
 	home := ns.deps.Site.Home()
 	if home == nil {
 		panic("home must not be nil")
@@ -165,7 +167,7 @@ func (ns *Namespace) Markdownify(ctx context.Context, s any) (template.HTML, err
 	}
 
 	// Strip if this is a short inline type of text.
-	bb := ns.deps.ContentSpec.TrimShortHTML([]byte(ss))
+	bb := ns.deps.ContentSpec.TrimShortHTML([]byte(ss), "markdown")
 
 	return helpers.BytesToHTML(bb), nil
 }

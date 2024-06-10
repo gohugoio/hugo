@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,10 +23,12 @@ import (
 // A BaseURL in Hugo is normally on the form scheme://path, but the
 // form scheme: is also valid (mailto:hugo@rules.com).
 type BaseURL struct {
-	url         *url.URL
-	WithPath    string
-	WithoutPath string
-	BasePath    string
+	url                     *url.URL
+	WithPath                string
+	WithPathNoTrailingSlash string
+	WithoutPath             string
+	BasePath                string
+	BasePathNoTrailingSlash string
 }
 
 func (b BaseURL) String() string {
@@ -92,19 +94,19 @@ func NewBaseURLFromString(b string) (BaseURL, error) {
 		return BaseURL{}, err
 	}
 	return newBaseURLFromURL(u)
-
 }
 
 func newBaseURLFromURL(u *url.URL) (BaseURL, error) {
-	baseURL := BaseURL{url: u, WithPath: u.String()}
-	var baseURLNoPath = baseURL.URL()
+	// A baseURL should always have a trailing slash, see #11669.
+	if !strings.HasSuffix(u.Path, "/") {
+		u.Path += "/"
+	}
+	baseURL := BaseURL{url: u, WithPath: u.String(), WithPathNoTrailingSlash: strings.TrimSuffix(u.String(), "/")}
+	baseURLNoPath := baseURL.URL()
 	baseURLNoPath.Path = ""
 	baseURL.WithoutPath = baseURLNoPath.String()
-
-	basePath := u.Path
-	if basePath != "" && basePath != "/" {
-		baseURL.BasePath = basePath
-	}
+	baseURL.BasePath = u.Path
+	baseURL.BasePathNoTrailingSlash = strings.TrimSuffix(u.Path, "/")
 
 	return baseURL, nil
 }

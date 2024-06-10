@@ -104,7 +104,7 @@ title: Headless Local Lists Sub
 
 	getPage := func(b *sitesBuilder, ref string) page.Page {
 		b.Helper()
-		p, err := b.H.Sites[0].getPageNew(nil, ref)
+		p, err := b.H.Sites[0].getPage(nil, ref)
 		b.Assert(err, qt.IsNil)
 		return p
 	}
@@ -113,7 +113,7 @@ title: Headless Local Lists Sub
 		b.Helper()
 		for _, pages := range []page.Pages{b.H.Sites[0].Pages(), b.H.Sites[0].RegularPages()} {
 			for _, p := range pages {
-				if ref == p.(*pageState).sourceRef() {
+				if ref == p.Path() {
 					return p
 				}
 			}
@@ -127,7 +127,7 @@ title: Headless Local Lists Sub
 		}
 		for _, pages := range pageCollections {
 			for _, p := range pages {
-				if ref == p.(*pageState).sourceRef() {
+				if ref == p.Path() {
 					return p
 				}
 			}
@@ -206,7 +206,7 @@ title: Headless Local Lists Sub
 		page := getPage(b, "/sect/page.md")
 		b.Assert(page, qt.Not(qt.IsNil))
 		b.Assert(page.CurrentSection(), qt.Equals, sect)
-		b.Assert(getPageInPagePages(sect, "/sect/page.md"), qt.Not(qt.IsNil))
+		b.Assert(getPageInPagePages(sect, "/sect/page"), qt.Not(qt.IsNil))
 		b.AssertFileContent("public/sitemap.xml", "sitemap")
 		b.AssertFileContent("public/index.xml", "rss")
 	})
@@ -227,7 +227,7 @@ title: Headless Local Lists Sub
 		b.Assert(b.CheckExists("public/sitemap.xml"), qt.Equals, false)
 	})
 
-	disableKind = kinds.Kind404
+	disableKind = kinds.KindStatus404
 	c.Run("Disable "+disableKind, func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
@@ -277,10 +277,10 @@ title: Headless Local Lists Sub
 		b.Assert(sect, qt.Not(qt.IsNil))
 		b.Assert(getPageInSitePages(b, ref), qt.IsNil)
 
-		b.Assert(getPageInSitePages(b, "/headless-local/_index.md"), qt.IsNil)
-		b.Assert(getPageInSitePages(b, "/headless-local/headless-local-page.md"), qt.IsNil)
+		b.Assert(getPageInSitePages(b, "/headless-local"), qt.IsNil)
+		b.Assert(getPageInSitePages(b, "/headless-local/headless-local-page"), qt.IsNil)
 
-		localPageRef := ref + "/headless-local-page.md"
+		localPageRef := ref + "/headless-local-page"
 
 		b.Assert(getPageInPagePages(sect, localPageRef, sect.RegularPages()), qt.Not(qt.IsNil))
 		b.Assert(getPageInPagePages(sect, localPageRef, sect.RegularPagesRecursive()), qt.Not(qt.IsNil))
@@ -291,14 +291,14 @@ title: Headless Local Lists Sub
 		sect = getPage(b, ref)
 		b.Assert(sect, qt.Not(qt.IsNil))
 
-		localPageRef = ref + "/headless-local-sub-page.md"
+		localPageRef = ref + "/headless-local-sub-page"
 		b.Assert(getPageInPagePages(sect, localPageRef), qt.Not(qt.IsNil))
 	})
 
 	c.Run("Build config, no render", func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
-		ref := "/sect/no-render.md"
+		ref := "/sect/no-render"
 		b.Assert(b.CheckExists("public/sect/no-render/index.html"), qt.Equals, false)
 		p := getPage(b, ref)
 		b.Assert(p, qt.Not(qt.IsNil))
@@ -312,7 +312,7 @@ title: Headless Local Lists Sub
 	c.Run("Build config, no render link", func(c *qt.C) {
 		b := newSitesBuilder(c, disableKind)
 		b.Build(BuildCfg{})
-		ref := "/sect/no-render-link.md"
+		ref := "/sect/no-render-link"
 		b.Assert(b.CheckExists("public/sect/no-render/index.html"), qt.Equals, false)
 		p := getPage(b, ref)
 		b.Assert(p, qt.Not(qt.IsNil))
@@ -415,4 +415,51 @@ Section: MySection|RelPermalink: |Outputs: 0
 
 	b.Assert(b.CheckExists("public/sect/no-render/index.html"), qt.Equals, false)
 	b.Assert(b.CheckExists("public/sect-no-render/index.html"), qt.Equals, false)
+}
+
+func TestDisableOneOfThreeLanguages(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+[languages]
+[languages.en]
+weight = 1
+title = "English"
+[languages.nn]
+weight = 2
+title = "Nynorsk"
+disabled = true
+[languages.nb]
+weight = 3
+title = "Bokmål"
+-- content/p1.nn.md --
+---
+title: "Page 1 nn"
+---
+-- content/p1.nb.md --
+---
+title: "Page 1 nb"
+---
+-- content/p1.en.md --
+---
+title: "Page 1 en"
+---
+-- content/p2.nn.md --
+---
+title: "Page 2 nn"
+---
+-- layouts/_default/single.html --
+{{ .Title }}
+`
+	b := Test(t, files)
+
+	b.Assert(len(b.H.Sites), qt.Equals, 2)
+	b.AssertFileContent("public/en/p1/index.html", "Page 1 en")
+	b.AssertFileContent("public/nb/p1/index.html", "Page 1 nb")
+
+	b.AssertFileExists("public/en/p2/index.html", false)
+	b.AssertFileExists("public/nn/p1/index.html", false)
+	b.AssertFileExists("public/nn/p2/index.html", false)
 }

@@ -7,8 +7,10 @@
   "flagWords": [
     "alot",
     "hte",
+    "langauge",
     "reccommend",
-    "seperate"
+    "seperate",
+    "teh"
   ],
   "ignorePaths": [
     "**/emojis.md",
@@ -69,6 +71,7 @@
     "transpile",
     "transpiles",
     "unmarshal",
+    "unmarshals",
     "unmarshaling",
     "# ----------------------------------------------------------------------",
     "# cspell: ignore foreign language words",
@@ -102,9 +105,12 @@
     "doas",
     "eopkg",
     "gitee",
+    "gohugoio",
     "goldmark",
+    "KaTeX",
     "kubuntu",
     "lubuntu",
+    "MathJax",
     "nosql",
     "pandoc",
     "pkgin",

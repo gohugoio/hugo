@@ -19,7 +19,7 @@ aliases: [/functions/safehtmlattr]
 Given a site configuration that contains this menu entry:
 
 {{< code-toggle file=hugo >}}
-[[menu.main]]
+[[menus.main]]
   name = "IRC"
   url = "irc://irc.freenode.net/#golang"
 {{< /code-toggle >}}

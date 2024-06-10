@@ -34,8 +34,12 @@ type BuiltinTypes struct {
 	OpenTypeFontType Type
 
 	// Common document types
-	PDFType      Type
-	MarkdownType Type
+	PDFType              Type
+	MarkdownType         Type
+	EmacsOrgModeType     Type
+	AsciiDocType         Type
+	PandocType           Type
+	ReStructuredTextType Type
 
 	// Common video types
 	AVIType  Type
@@ -51,58 +55,60 @@ type BuiltinTypes struct {
 	OctetType Type
 }
 
-var (
-	Builtin = BuiltinTypes{
-		CalendarType:   Type{Type: "text/calendar"},
-		CSSType:        Type{Type: "text/css"},
-		SCSSType:       Type{Type: "text/x-scss"},
-		SASSType:       Type{Type: "text/x-sass"},
-		CSVType:        Type{Type: "text/csv"},
-		HTMLType:       Type{Type: "text/html"},
-		JavascriptType: Type{Type: "text/javascript"},
-		TypeScriptType: Type{Type: "text/typescript"},
-		TSXType:        Type{Type: "text/tsx"},
-		JSXType:        Type{Type: "text/jsx"},
+var Builtin = BuiltinTypes{
+	CalendarType:   Type{Type: "text/calendar"},
+	CSSType:        Type{Type: "text/css"},
+	SCSSType:       Type{Type: "text/x-scss"},
+	SASSType:       Type{Type: "text/x-sass"},
+	CSVType:        Type{Type: "text/csv"},
+	HTMLType:       Type{Type: "text/html"},
+	JavascriptType: Type{Type: "text/javascript"},
+	TypeScriptType: Type{Type: "text/typescript"},
+	TSXType:        Type{Type: "text/tsx"},
+	JSXType:        Type{Type: "text/jsx"},
 
-		JSONType:           Type{Type: "application/json"},
-		WebAppManifestType: Type{Type: "application/manifest+json"},
-		RSSType:            Type{Type: "application/rss+xml"},
-		XMLType:            Type{Type: "application/xml"},
-		SVGType:            Type{Type: "image/svg+xml"},
-		TextType:           Type{Type: "text/plain"},
-		TOMLType:           Type{Type: "application/toml"},
-		YAMLType:           Type{Type: "application/yaml"},
+	JSONType:           Type{Type: "application/json"},
+	WebAppManifestType: Type{Type: "application/manifest+json"},
+	RSSType:            Type{Type: "application/rss+xml"},
+	XMLType:            Type{Type: "application/xml"},
+	SVGType:            Type{Type: "image/svg+xml"},
+	TextType:           Type{Type: "text/plain"},
+	TOMLType:           Type{Type: "application/toml"},
+	YAMLType:           Type{Type: "application/yaml"},
 
-		// Common image types
-		PNGType:  Type{Type: "image/png"},
-		JPEGType: Type{Type: "image/jpeg"},
-		GIFType:  Type{Type: "image/gif"},
-		TIFFType: Type{Type: "image/tiff"},
-		BMPType:  Type{Type: "image/bmp"},
-		WEBPType: Type{Type: "image/webp"},
+	// Common image types
+	PNGType:  Type{Type: "image/png"},
+	JPEGType: Type{Type: "image/jpeg"},
+	GIFType:  Type{Type: "image/gif"},
+	TIFFType: Type{Type: "image/tiff"},
+	BMPType:  Type{Type: "image/bmp"},
+	WEBPType: Type{Type: "image/webp"},
 
-		// Common font types
-		TrueTypeFontType: Type{Type: "font/ttf"},
-		OpenTypeFontType: Type{Type: "font/otf"},
+	// Common font types
+	TrueTypeFontType: Type{Type: "font/ttf"},
+	OpenTypeFontType: Type{Type: "font/otf"},
 
-		// Common document types
-		PDFType:      Type{Type: "application/pdf"},
-		MarkdownType: Type{Type: "text/markdown"},
+	// Common document types
+	PDFType:              Type{Type: "application/pdf"},
+	MarkdownType:         Type{Type: "text/markdown"},
+	AsciiDocType:         Type{Type: "text/asciidoc"}, // https://github.com/asciidoctor/asciidoctor/issues/2502
+	PandocType:           Type{Type: "text/pandoc"},
+	ReStructuredTextType: Type{Type: "text/rst"}, // https://docutils.sourceforge.io/FAQ.html#what-s-the-official-mime-type-for-restructuredtext-data
+	EmacsOrgModeType:     Type{Type: "text/org"},
 
-		// Common video types
-		AVIType:  Type{Type: "video/x-msvideo"},
-		MPEGType: Type{Type: "video/mpeg"},
-		MP4Type:  Type{Type: "video/mp4"},
-		OGGType:  Type{Type: "video/ogg"},
-		WEBMType: Type{Type: "video/webm"},
-		GPPType:  Type{Type: "video/3gpp"},
+	// Common video types
+	AVIType:  Type{Type: "video/x-msvideo"},
+	MPEGType: Type{Type: "video/mpeg"},
+	MP4Type:  Type{Type: "video/mp4"},
+	OGGType:  Type{Type: "video/ogg"},
+	WEBMType: Type{Type: "video/webm"},
+	GPPType:  Type{Type: "video/3gpp"},
 
-		// Web assembly.
-		WasmType: Type{Type: "application/wasm"},
+	// Web assembly.
+	WasmType: Type{Type: "application/wasm"},
 
-		OctetType: Type{Type: "application/octet-stream"},
-	}
-)
+	OctetType: Type{Type: "application/octet-stream"},
+}
 
 var defaultMediaTypesConfig = map[string]any{
 	"text/calendar":   map[string]any{"suffixes": []string{"ics"}},
@@ -110,7 +116,7 @@ var defaultMediaTypesConfig = map[string]any{
 	"text/x-scss":     map[string]any{"suffixes": []string{"scss"}},
 	"text/x-sass":     map[string]any{"suffixes": []string{"sass"}},
 	"text/csv":        map[string]any{"suffixes": []string{"csv"}},
-	"text/html":       map[string]any{"suffixes": []string{"html"}},
+	"text/html":       map[string]any{"suffixes": []string{"html", "htm"}},
 	"text/javascript": map[string]any{"suffixes": []string{"js", "jsm", "mjs"}},
 	"text/typescript": map[string]any{"suffixes": []string{"ts"}},
 	"text/tsx":        map[string]any{"suffixes": []string{"tsx"}},
@@ -139,7 +145,11 @@ var defaultMediaTypesConfig = map[string]any{
 
 	// Common document types
 	"application/pdf": map[string]any{"suffixes": []string{"pdf"}},
-	"text/markdown":   map[string]any{"suffixes": []string{"md", "markdown"}},
+	"text/markdown":   map[string]any{"suffixes": []string{"md", "mdown", "markdown"}},
+	"text/asciidoc":   map[string]any{"suffixes": []string{"adoc", "asciidoc", "ad"}},
+	"text/pandoc":     map[string]any{"suffixes": []string{"pandoc", "pdc"}},
+	"text/rst":        map[string]any{"suffixes": []string{"rst"}},
+	"text/org":        map[string]any{"suffixes": []string{"org"}},
 
 	// Common video types
 	"video/x-msvideo": map[string]any{"suffixes": []string{"avi"}},
@@ -153,11 +163,4 @@ var defaultMediaTypesConfig = map[string]any{
 	"application/wasm": map[string]any{"suffixes": []string{"wasm"}},
 
 	"application/octet-stream": map[string]any{},
-}
-
-func init() {
-	// Apply delimiter to all.
-	for _, m := range defaultMediaTypesConfig {
-		m.(map[string]any)["delimiter"] = "."
-	}
 }

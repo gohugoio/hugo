@@ -18,8 +18,7 @@ With this front matter:
 title = 'Annual conference'
 date = 2023-10-17T15:11:37-07:00
 display_related = true
-event-date = '2023'
-[params.author]
+[author]
   email = 'jsmith@example.org'
   name = 'John Smith'
 {{< /code-toggle >}}
@@ -36,8 +35,9 @@ Access the custom parameters by [chaining] the [identifiers]:
 In the template example above, each of the keys is a valid identifier. For example, none of the keys contains a hyphen. To access a key that is not a valid identifier, use the [`index`] function:
 
 ```go-html-template
-{{ index .Params "event-date" }} → 2023
+{{ index .Params "key-with-hyphens" }} → 2023
 ```
+
 [`index`]: /functions/collections/indexfunction
 [chaining]: /getting-started/glossary/#chain
 [identifiers]: /getting-started/glossary/#identifier

@@ -1,14 +1,15 @@
 # Test the hugo server command.
 
 # We run these tests in parallel so let Hugo decide which port to use.
-hugo server --gc &
+hugo server --renderToMemory --gc &
 
 waitServer
 
 httpget $HUGOTEST_BASEURL_0 'Title: Hugo Server Test' $HUGOTEST_BASEURL_0 'ServerPort: \d{4,5}' 'myenv: thedevelopment' 'livereload\.js' 'Env: development' 'IsServer: true'
 httpget ${HUGOTEST_BASEURL_0}doesnotexist 'custom 404'
+httpget ${HUGOTEST_BASEURL_0}livereload.js 'function'
 
-# By defauilt, the server renders to memory.
+# By default, the server renders to memory.
 ! exists public/index.html
 
 stopServer

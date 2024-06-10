@@ -2,23 +2,21 @@ package resources_test
 
 import (
 	"image"
-	"io"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
-	"testing"
 
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/testconfig"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/resources"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/resources/images"
-	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/afero"
 )
@@ -44,7 +42,7 @@ func newTestResourceSpec(desc specDescriptor) *resources.Spec {
 		panic("osFs not supported for this test")
 	}
 
-	if err := afs.MkdirAll("assets", 0755); err != nil {
+	if err := afs.MkdirAll("assets", 0o755); err != nil {
 		panic(err)
 	}
 
@@ -64,16 +62,13 @@ func newTestResourceSpec(desc specDescriptor) *resources.Spec {
 		func(d *deps.Deps) { d.Fs.PublishDir = hugofs.NewCreateCountingFs(d.Fs.PublishDir) },
 	)
 
-	return d.ResourceSpec
-}
-
-func newTargetPaths(link string) func() page.TargetPaths {
-	return func() page.TargetPaths {
-		return page.TargetPaths{
-			SubResourceBaseTarget: filepath.FromSlash(link),
-			SubResourceBaseLink:   link,
+	desc.c.Cleanup(func() {
+		if err := d.Close(); err != nil {
+			panic(err)
 		}
-	}
+	})
+
+	return d.ResourceSpec
 }
 
 func newTestResourceOsFs(c *qt.C) (*resources.Spec, string) {
@@ -92,7 +87,7 @@ func newTestResourceOsFs(c *qt.C) (*resources.Spec, string) {
 
 	cfg.Set("workingDir", workDir)
 
-	os.MkdirAll(filepath.Join(workDir, "assets"), 0755)
+	os.MkdirAll(filepath.Join(workDir, "assets"), 0o755)
 
 	d := testconfig.GetTestDeps(hugofs.Os, cfg)
 
@@ -116,22 +111,16 @@ func fetchImageForSpec(spec *resources.Spec, c *qt.C, name string) images.ImageR
 }
 
 func fetchResourceForSpec(spec *resources.Spec, c *qt.C, name string, targetPathAddends ...string) resource.ContentResource {
-	src, err := os.Open(filepath.FromSlash("testdata/" + name))
+	b, err := os.ReadFile(filepath.FromSlash("testdata/" + name))
 	c.Assert(err, qt.IsNil)
-	if len(targetPathAddends) > 0 {
-		addends := strings.Join(targetPathAddends, "_")
-		name = addends + "_" + name
-	}
-	out, err := helpers.OpenFileForWriting(spec.Fs.WorkingDirWritable, filepath.Join(filepath.Join("assets", name)))
-	c.Assert(err, qt.IsNil)
-	_, err = io.Copy(out, src)
-	out.Close()
-	src.Close()
-	c.Assert(err, qt.IsNil)
-
-	factory := newTargetPaths("/a")
-
-	r, err := spec.New(resources.ResourceSourceDescriptor{Fs: spec.BaseFs.Assets.Fs, TargetPaths: factory, LazyPublish: true, RelTargetFilename: name, SourceFilename: name})
+	open := hugio.NewOpenReadSeekCloser(hugio.NewReadSeekerNoOpCloserFromBytes(b))
+	targetPath := name
+	base := "/a/"
+	r, err := spec.NewResource(resources.ResourceSourceDescriptor{
+		LazyPublish:    true,
+		NameNormalized: name, TargetPath: targetPath, BasePathRelPermalink: base, BasePathTargetPath: base, OpenReadSeekCloser: open,
+		GroupIdentity: identity.Anonymous,
+	})
 	c.Assert(err, qt.IsNil)
 	c.Assert(r, qt.Not(qt.IsNil))
 
@@ -149,18 +138,4 @@ func assertImageFile(c *qt.C, fs afero.Fs, filename string, width, height int) {
 
 	c.Assert(config.Width, qt.Equals, width)
 	c.Assert(config.Height, qt.Equals, height)
-}
-
-func assertFileCache(c *qt.C, fs afero.Fs, filename string, width, height int) {
-	assertImageFile(c, fs, filepath.Clean(filename), width, height)
-}
-
-func writeSource(t testing.TB, fs *hugofs.Fs, filename, content string) {
-	writeToFs(t, fs.Source, filename, content)
-}
-
-func writeToFs(t testing.TB, fs afero.Fs, filename, content string) {
-	if err := afero.WriteFile(fs, filepath.FromSlash(filename), []byte(content), 0755); err != nil {
-		t.Fatalf("Failed to write file: %s", err)
-	}
 }

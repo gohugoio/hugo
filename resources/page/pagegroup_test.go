@@ -142,15 +142,6 @@ func TestGroupByCalledWithEmptyPages(t *testing.T) {
 	}
 }
 
-func TestGroupByParamCalledWithUnavailableKey(t *testing.T) {
-	t.Parallel()
-	pages := preparePageGroupTestPages(t)
-	_, err := pages.GroupByParam("UnavailableKey")
-	if err == nil {
-		t.Errorf("GroupByParam should return an error but didn't")
-	}
-}
-
 func TestReverse(t *testing.T) {
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
@@ -256,8 +247,8 @@ func TestGroupByParamCalledWithUnavailableParam(t *testing.T) {
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	_, err := pages.GroupByParam("unavailable_param")
-	if err == nil {
-		t.Errorf("GroupByParam should return an error but didn't")
+	if err != nil {
+		t.Errorf("GroupByParam returned an error when it shouldn't")
 	}
 }
 

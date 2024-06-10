@@ -1,4 +1,4 @@
-// Copyright 2022 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ type ImageResourceOps interface {
 
 	// Colors returns a slice of the most dominant colors in an image
 	// using a simple histogram method.
-	Colors() ([]string, error)
+	Colors() ([]Color, error)
 
 	// For internal use.
 	DecodeImage() (image.Image, error)

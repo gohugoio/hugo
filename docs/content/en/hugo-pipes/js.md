@@ -25,7 +25,7 @@ targetPath
 : (`string`) If not set, the source path will be used as the base target path.
 Note that the target path's extension may change if the target MIME type is different, e.g. when the source is TypeScript.
 
-params
+params {{< new-in "0.96.0" >}}
 : (`map` or `slice`) Params that can be imported as JSON in your JS files, e.g.:
 
 ```go-html-template
@@ -94,6 +94,29 @@ format
 
 sourceMap
 : (`string`) Whether to generate `inline` or `external` source maps from esbuild. External source maps will be written to the target with the output file name + ".map". Input source maps can be read from js.Build and node modules and combined into the output source maps. By default, source maps are not created.
+
+JSX {{< new-in 0.124.0 >}}
+: (`string`) How to handle/transform JSX syntax. One of: `transform`, `preserve`, `automatic`. Default is `transform`. Notably, the `automatic` transform was introduced in React 17+ and will cause the necessary JSX helper functions to be imported automatically. See https://esbuild.github.io/api/#jsx
+
+JSXImportSource {{< new-in 0.124.0 >}}
+: (`string`) Which library to use to automatically import its JSX helper functions from. This only works if `JSX` is set to `automatic`. The specified library needs to be installed through NPM and expose certain exports. See https://esbuild.github.io/api/#jsx-import-source
+
+The combination of `JSX` and `JSXImportSource` is helpful if you want to use a non-React JSX library like Preact, e.g.:
+
+```go-html-template
+{{ $js := resources.Get "js/main.jsx" | js.Build (dict "JSX" "automatic" "JSXImportSource" "preact") }}
+```
+
+With the above, you can use Preact components and JSX without having to manually import `h` and `Fragment` every time:
+
+```jsx
+import { render } from 'preact';
+
+const App = () => <>Hello world!</>;
+
+const container = document.getElementById('app');
+if (container) render(<App />, container);
+```
 
 ### Import JS code from /assets
 

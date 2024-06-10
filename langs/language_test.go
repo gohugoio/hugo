@@ -23,7 +23,6 @@ import (
 )
 
 func TestCollator(t *testing.T) {
-
 	c := qt.New(t)
 
 	var wg sync.WaitGroup
@@ -43,7 +42,6 @@ func TestCollator(t *testing.T) {
 		}()
 	}
 	wg.Wait()
-
 }
 
 func BenchmarkCollator(b *testing.B) {
@@ -75,5 +73,4 @@ func BenchmarkCollator(b *testing.B) {
 			}
 		})
 	})
-
 }

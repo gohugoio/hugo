@@ -7,10 +7,7 @@ action:
   related: []
   returnType: bool
   signatures: [SITE.IsServer]
-# deprecated 2023-10-30
-expiryDate: 2024-10-30 
-_build:
-  list: never
+expiryDate: 2024-10-30 # deprecated 2023-10-30
 ---
 
 {{% deprecated-in 0.120.0 %}}
@@ -18,3 +15,7 @@ Use [`hugo.IsServer`] instead.
 
 [`hugo.IsServer`]: /functions/hugo/isserver
 {{% /deprecated-in %}}
+
+```go-html-template
+{{ .Site.IsServer }} → true/false
+```

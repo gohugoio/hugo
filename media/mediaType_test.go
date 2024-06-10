@@ -115,10 +115,10 @@ func TestFromTypeString(t *testing.T) {
 
 func TestFromStringAndExt(t *testing.T) {
 	c := qt.New(t)
-	f, err := FromStringAndExt("text/html", "html")
+	f, err := FromStringAndExt("text/html", "html", "htm")
 	c.Assert(err, qt.IsNil)
 	c.Assert(f, qt.Equals, Builtin.HTMLType)
-	f, err = FromStringAndExt("text/html", ".html")
+	f, err = FromStringAndExt("text/html", ".html", ".htm")
 	c.Assert(err, qt.IsNil)
 	c.Assert(f, qt.Equals, Builtin.HTMLType)
 }
@@ -213,4 +213,12 @@ func BenchmarkTypeOps(b *testing.B) {
 		_, _, _ = mts.GetFirstBySuffix("xml")
 
 	}
+}
+
+func TestIsContentFile(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(DefaultContentTypes.IsContentFile(filepath.FromSlash("my/file.md")), qt.Equals, true)
+	c.Assert(DefaultContentTypes.IsContentFile(filepath.FromSlash("my/file.ad")), qt.Equals, true)
+	c.Assert(DefaultContentTypes.IsContentFile(filepath.FromSlash("textfile.txt")), qt.Equals, false)
 }

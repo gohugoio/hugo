@@ -20,4 +20,4 @@ action:
 {{ $style := $css | minify }}
 ```
 
-Any CSS, JS, JSON, HTML, SVG or XML resource can be minified using resources.Minify which takes for argument the resource object.
+Any CSS, JS, JSON, HTML, SVG, or XML resource can be minified using resources.Minify which takes for argument the resource object.

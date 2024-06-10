@@ -119,8 +119,8 @@ Renders the given image using the given filter, if any.
 {{- end }}
 
 {{- $validFilters := slice
-  "autoorient" "brightness" "colorbalance" "colorize" "contrast" "gamma"
-  "gaussianblur" "grayscale" "hue" "invert" "none" "opacity" "overlay"
+  "autoorient" "brightness" "colorbalance" "colorize" "contrast" "dither"
+  "gamma" "gaussianblur" "grayscale" "hue" "invert" "none" "opacity" "overlay"
   "padding" "pixelate" "process" "saturation" "sepia" "sigmoid" "text"
   "unsharpmask"
 }}
@@ -198,6 +198,8 @@ Renders the given image using the given filter, if any.
   {{- $ctx = merge $ctx (dict "argName" "percentage" "argValue" (index $filterArgs 0) "min" -100 "max" 100) }}
   {{- template "validate-arg-value" $ctx }}
   {{- $f = images.Contrast (index $filterArgs 0) }}
+{{- else if eq $filter "dither" }}
+  {{- $f = images.Dither }}
 {{- else if eq $filter "gamma" }}
   {{- $ctx = merge $ctx (dict "argsRequired" 1) }}
   {{- template "validate-arg-count" $ctx }}

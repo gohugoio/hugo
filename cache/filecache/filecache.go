@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +23,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gohugoio/httpcache"
 	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/helpers"
 
@@ -109,7 +111,7 @@ func (l *lockedFile) Close() error {
 func (c *Cache) init() error {
 	c.initOnce.Do(func() {
 		// Create the base dir if it does not exist.
-		if err := c.Fs.MkdirAll("", 0777); err != nil && !os.IsExist(err) {
+		if err := c.Fs.MkdirAll("", 0o777); err != nil && !os.IsExist(err) {
 			c.initErr = err
 		}
 	})
@@ -146,7 +148,8 @@ func (c *Cache) WriteCloser(id string) (ItemInfo, io.WriteCloser, error) {
 // it when done.
 func (c *Cache) ReadOrCreate(id string,
 	read func(info ItemInfo, r io.ReadSeeker) error,
-	create func(info ItemInfo, w io.WriteCloser) error) (info ItemInfo, err error) {
+	create func(info ItemInfo, w io.WriteCloser) error,
+) (info ItemInfo, err error) {
 	if err := c.init(); err != nil {
 		return ItemInfo{}, err
 	}
@@ -178,6 +181,15 @@ func (c *Cache) ReadOrCreate(id string,
 	err = create(info, f)
 
 	return
+}
+
+// NamedLock locks the given id. The lock is released when the returned function is called.
+func (c *Cache) NamedLock(id string) func() {
+	id = cleanID(id)
+	c.nlocker.Lock(id)
+	return func() {
+		c.nlocker.Unlock(id)
+	}
 }
 
 // GetOrCreate tries to get the file with the given id from cache. If not found or expired, create will
@@ -216,7 +228,23 @@ func (c *Cache) GetOrCreate(id string, create func() (io.ReadCloser, error)) (It
 	var buff bytes.Buffer
 	return info,
 		hugio.ToReadCloser(&buff),
-		afero.WriteReader(c.Fs, id, io.TeeReader(r, &buff))
+		c.writeReader(id, io.TeeReader(r, &buff))
+}
+
+func (c *Cache) writeReader(id string, r io.Reader) error {
+	dir := filepath.Dir(id)
+	if dir != "" {
+		_ = c.Fs.MkdirAll(dir, 0o777)
+	}
+	f, err := c.Fs.Create(id)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	_, _ = io.Copy(f, r)
+
+	return nil
 }
 
 // GetOrCreateBytes is the same as GetOrCreate, but produces a byte slice.
@@ -251,9 +279,10 @@ func (c *Cache) GetOrCreateBytes(id string, create func() ([]byte, error)) (Item
 		return info, b, nil
 	}
 
-	if err := afero.WriteReader(c.Fs, id, bytes.NewReader(b)); err != nil {
+	if err := c.writeReader(id, bytes.NewReader(b)); err != nil {
 		return info, nil, err
 	}
+
 	return info, b, nil
 }
 
@@ -303,16 +332,8 @@ func (c *Cache) getOrRemove(id string) hugio.ReadSeekCloser {
 		return nil
 	}
 
-	if c.maxAge > 0 {
-		fi, err := c.Fs.Stat(id)
-		if err != nil {
-			return nil
-		}
-
-		if c.isExpired(fi.ModTime()) {
-			c.Fs.Remove(id)
-			return nil
-		}
+	if removed, err := c.removeIfExpired(id); err != nil || removed {
+		return nil
 	}
 
 	f, err := c.Fs.Open(id)
@@ -321,6 +342,49 @@ func (c *Cache) getOrRemove(id string) hugio.ReadSeekCloser {
 	}
 
 	return f
+}
+
+func (c *Cache) getBytesAndRemoveIfExpired(id string) ([]byte, bool) {
+	if c.maxAge == 0 {
+		// No caching.
+		return nil, false
+	}
+
+	f, err := c.Fs.Open(id)
+	if err != nil {
+		return nil, false
+	}
+	defer f.Close()
+
+	b, err := io.ReadAll(f)
+	if err != nil {
+		return nil, false
+	}
+
+	removed, err := c.removeIfExpired(id)
+	if err != nil {
+		return nil, false
+	}
+
+	return b, removed
+}
+
+func (c *Cache) removeIfExpired(id string) (bool, error) {
+	if c.maxAge <= 0 {
+		return false, nil
+	}
+
+	fi, err := c.Fs.Stat(id)
+	if err != nil {
+		return false, err
+	}
+
+	if c.isExpired(fi.ModTime()) {
+		c.Fs.Remove(id)
+		return true, nil
+	}
+
+	return false, nil
 }
 
 func (c *Cache) isExpired(modTime time.Time) bool {
@@ -380,7 +444,7 @@ func NewCaches(p *helpers.PathSpec) (Caches, error) {
 
 		baseDir := v.DirCompiled
 
-		bfs := afero.NewBasePathFs(cfs, baseDir)
+		bfs := hugofs.NewBasePathFs(cfs, baseDir)
 
 		var pruneAllRootDir string
 		if k == CacheKeyModules {
@@ -395,4 +459,38 @@ func NewCaches(p *helpers.PathSpec) (Caches, error) {
 
 func cleanID(name string) string {
 	return strings.TrimPrefix(filepath.Clean(name), helpers.FilePathSeparator)
+}
+
+// AsHTTPCache returns an httpcache.Cache implementation for this file cache.
+// Note that none of the methods are protected by named locks, so you need to make sure
+// to do that in your own code.
+func (c *Cache) AsHTTPCache() httpcache.Cache {
+	return &httpCache{c: c}
+}
+
+type httpCache struct {
+	c *Cache
+}
+
+func (h *httpCache) Get(id string) (resp []byte, ok bool) {
+	id = cleanID(id)
+	b, removed := h.c.getBytesAndRemoveIfExpired(id)
+
+	return b, !removed
+}
+
+func (h *httpCache) Set(id string, resp []byte) {
+	if h.c.maxAge == 0 {
+		return
+	}
+
+	id = cleanID(id)
+
+	if err := h.c.writeReader(id, bytes.NewReader(resp)); err != nil {
+		panic(err)
+	}
+}
+
+func (h *httpCache) Delete(key string) {
+	h.c.Fs.Remove(key)
 }

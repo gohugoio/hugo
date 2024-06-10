@@ -8,7 +8,7 @@ action:
     - functions/cast/ToFloat
     - functions/cast/ToString
   returnType: int
-  signatures: [cast/ToInt INPUT]
+  signatures: [cast.ToInt INPUT]
 aliases: [/functions/int]
 ---
 
@@ -49,5 +49,5 @@ With a hexadecimal (base 16) input:
 {{% note %}}
 Values with a leading zero are octal (base 8). When casting a string representation of a decimal (base 10) number, remove leading zeros:
 
-`{{ strings/TrimLeft "0" "0011" | int }} → 11`
+`{{ strings.TrimLeft "0" "0011" | int }} → 11`
 {{% /note %}}

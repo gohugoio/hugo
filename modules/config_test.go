@@ -100,7 +100,6 @@ lang="en"
 		c.Assert(imp.Mounts[1].Source, qt.Equals, "src/markdown/blog")
 		c.Assert(imp.Mounts[1].Target, qt.Equals, "content/blog")
 		c.Assert(imp.Mounts[1].Lang, qt.Equals, "en")
-
 	})
 
 	c.Run("Replacements", func(c *qt.C) {

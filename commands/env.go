@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import (
 
 	"github.com/bep/simplecobra"
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/spf13/cobra"
 )
 
 func newEnvCommand() simplecobra.Commander {
@@ -47,6 +48,9 @@ func newEnvCommand() simplecobra.Commander {
 			}
 			return nil
 		},
+		withc: func(cmd *cobra.Command, r *rootCommand) {
+			cmd.ValidArgsFunction = cobra.NoFileCompletions
+		},
 	}
 }
 
@@ -59,5 +63,8 @@ func newVersionCmd() simplecobra.Commander {
 		},
 		short: "Print Hugo version and environment info",
 		long:  "Print Hugo version and environment info. This is useful in Hugo bug reports.",
+		withc: func(cmd *cobra.Command, r *rootCommand) {
+			cmd.ValidArgsFunction = cobra.NoFileCompletions
+		},
 	}
 }

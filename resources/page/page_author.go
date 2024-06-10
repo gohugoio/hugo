@@ -14,9 +14,11 @@
 package page
 
 // AuthorList is a list of all authors and their metadata.
+// Deprecated: Use taxonomies instead.
 type AuthorList map[string]Author
 
 // Author contains details about the author of a page.
+// Deprecated: Use taxonomies instead.
 type Author struct {
 	GivenName   string
 	FamilyName  string
@@ -41,4 +43,5 @@ type Author struct {
 // - youtube
 // - linkedin
 // - skype
+// Deprecated: Use taxonomies instead.
 type AuthorSocial map[string]string

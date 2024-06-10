@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import (
 	"github.com/spf13/afero"
 )
 
+//lint:ignore ST1005 end user message.
 var ErrNoConfigFile = errors.New("Unable to locate config file or config directory. Perhaps you need to create a new site.\n       Run `hugo help new` for details.\n")
 
 func LoadConfig(d ConfigSourceDescriptor) (*Configs, error) {
@@ -140,6 +141,7 @@ func (l configLoader) applyConfigAliases() error {
 		{Key: "indexes", Value: "taxonomies"},
 		{Key: "logI18nWarnings", Value: "printI18nWarnings"},
 		{Key: "logPathWarnings", Value: "printPathWarnings"},
+		{Key: "ignoreErrors", Value: "ignoreLogs"},
 	}
 
 	for _, alias := range aliases {
@@ -187,12 +189,13 @@ func (l configLoader) applyDefaultConfig() error {
 		"menus":                                maps.Params{},
 		"disableLiveReload":                    false,
 		"pluralizeListTitles":                  true,
+		"capitalizeListTitles":                 true,
 		"forceSyncStatic":                      false,
 		"footnoteAnchorPrefix":                 "",
 		"footnoteReturnLinkContents":           "",
 		"newContentEditor":                     "",
-		"paginate":                             10,
-		"paginatePath":                         "page",
+		"paginate":                             0,  // Moved into the paginator struct in Hugo v0.128.0.
+		"paginatePath":                         "", // Moved into the paginator struct in Hugo v0.128.0.
 		"summaryLength":                        70,
 		"rssLimit":                             -1,
 		"sectionPagesMenu":                     "",
@@ -564,15 +567,6 @@ func (l configLoader) deleteMergeStrategies() {
 		params[len(params)-1].Params.DeleteMergeStrategy()
 		return false
 	})
-}
-
-func (l configLoader) loadModulesConfig() (modules.Config, error) {
-	modConfig, err := modules.DecodeConfig(l.cfg)
-	if err != nil {
-		return modules.Config{}, err
-	}
-
-	return modConfig, nil
 }
 
 func (l configLoader) wrapFileError(err error, filename string) error {

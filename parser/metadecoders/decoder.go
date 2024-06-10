@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/herrors"
@@ -41,6 +42,10 @@ type Decoder struct {
 	// Comment, if not 0, is the comment character used in the CSV decoder. Lines beginning with the
 	// Comment character without preceding whitespace are ignored.
 	Comment rune
+
+	// If true, a quote may appear in an unquoted field and a non-doubled quote
+	// may appear in a quoted field. It defaults to false.
+	LazyQuotes bool
 }
 
 // OptionsKey is used in cache keys.
@@ -48,6 +53,7 @@ func (d Decoder) OptionsKey() string {
 	var sb strings.Builder
 	sb.WriteRune(d.Delimiter)
 	sb.WriteRune(d.Comment)
+	sb.WriteString(strconv.FormatBool(d.LazyQuotes))
 	return sb.String()
 }
 
@@ -168,22 +174,22 @@ func (d Decoder) UnmarshalTo(data []byte, f Format, v any) error {
 		// and change all maps to map[string]interface{} like we would've
 		// gotten from `json`.
 		var ptr any
-		switch v.(type) {
+		switch vv := v.(type) {
 		case *map[string]any:
-			ptr = *v.(*map[string]any)
+			ptr = *vv
 		case *any:
-			ptr = *v.(*any)
+			ptr = *vv
 		default:
 			// Not a map.
 		}
 
 		if ptr != nil {
 			if mm, changed := stringifyMapKeys(ptr); changed {
-				switch v.(type) {
+				switch vv := v.(type) {
 				case *map[string]any:
-					*v.(*map[string]any) = mm.(map[string]any)
+					*vv = mm.(map[string]any)
 				case *any:
-					*v.(*any) = mm
+					*vv = mm
 				}
 			}
 		}
@@ -205,15 +211,16 @@ func (d Decoder) unmarshalCSV(data []byte, v any) error {
 	r := csv.NewReader(bytes.NewReader(data))
 	r.Comma = d.Delimiter
 	r.Comment = d.Comment
+	r.LazyQuotes = d.LazyQuotes
 
 	records, err := r.ReadAll()
 	if err != nil {
 		return err
 	}
 
-	switch v.(type) {
+	switch vv := v.(type) {
 	case *any:
-		*v.(*any) = records
+		*vv = records
 	default:
 		return fmt.Errorf("CSV cannot be unmarshaled into %T", v)
 
@@ -242,20 +249,19 @@ func (d Decoder) unmarshalORG(data []byte, v any) error {
 		k = strings.ToLower(k)
 		if strings.HasSuffix(k, "[]") {
 			frontMatter[k[:len(k)-2]] = strings.Fields(v)
-		} else if k == "tags" || k == "categories" || k == "aliases" {
-			log.Printf("warn: Please use '#+%s[]:' notation, automatic conversion is deprecated.", k)
-			frontMatter[k] = strings.Fields(v)
+		} else if strings.Contains(v, "\n") {
+			frontMatter[k] = strings.Split(v, "\n")
 		} else if k == "date" || k == "lastmod" || k == "publishdate" || k == "expirydate" {
 			frontMatter[k] = parseORGDate(v)
 		} else {
 			frontMatter[k] = v
 		}
 	}
-	switch v.(type) {
+	switch vv := v.(type) {
 	case *map[string]any:
-		*v.(*map[string]any) = frontMatter
-	default:
-		*v.(*any) = frontMatter
+		*vv = frontMatter
+	case *any:
+		*vv = frontMatter
 	}
 	return nil
 }

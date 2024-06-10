@@ -36,5 +36,3 @@ This is **bold** text.
 ```
 
 Note that `os.ReadFile` returns raw (uninterpreted) content.
-
-For more information on using `readDir` and `readFile` in your templates, see [Local File Templates](/templates/files).

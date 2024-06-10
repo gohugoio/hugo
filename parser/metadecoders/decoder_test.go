@@ -56,23 +56,26 @@ func TestUnmarshalXML(t *testing.T) {
 				"guid":        "https://example.com/2021/11/30/example-title/",
 				"link":        "https://example.com/2021/11/30/example-title/",
 				"pubDate":     "Tue, 30 Nov 2021 15:00:00 +0000",
-				"title":       "Example title"},
+				"title":       "Example title",
+			},
 			"language":      "en-us",
 			"lastBuildDate": "Fri, 08 Jan 2021 14:44:10 +0000",
 			"link": []any{"https://example.com/", map[string]any{
 				"-href": "https://example.com/feed.xml",
 				"-rel":  "self",
-				"-type": "application/rss+xml"}},
+				"-type": "application/rss+xml",
+			}},
 			"title": "Example feed",
-		}}
+		},
+	}
 
 	d := Default
 
 	m, err := d.Unmarshal([]byte(xmlDoc), XML)
 	c.Assert(err, qt.IsNil)
 	c.Assert(m, qt.DeepEquals, expect)
-
 }
+
 func TestUnmarshalToMap(t *testing.T) {
 	c := qt.New(t)
 
@@ -125,6 +128,7 @@ func TestUnmarshalToInterface(t *testing.T) {
 		{[]byte(``), JSON, map[string]any{}},
 		{[]byte(nil), JSON, map[string]any{}},
 		{[]byte(`#+a: b`), ORG, expect},
+		{[]byte("#+a: foo bar\n#+a: baz"), ORG, map[string]any{"a": []string{string("foo bar"), string("baz")}}},
 		{[]byte(`#+DATE: <2020-06-26 Fri>`), ORG, map[string]any{"date": "2020-06-26"}},
 		{[]byte(`#+LASTMOD: <2020-06-26 Fri>`), ORG, map[string]any{"lastmod": "2020-06-26"}},
 		{[]byte(`#+PUBLISHDATE: <2020-06-26 Fri>`), ORG, map[string]any{"publishdate": "2020-06-26"}},

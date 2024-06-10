@@ -42,7 +42,7 @@ type Namespace struct {
 func (ns *Namespace) AbsURL(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	return ns.deps.PathSpec.AbsURL(ss, false), nil
@@ -64,17 +64,17 @@ func (ns *Namespace) Parse(rawurl any) (*url.URL, error) {
 func (ns *Namespace) RelURL(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	return ns.deps.PathSpec.RelURL(ss, false), nil
 }
 
-// URLize returns the the strings s formatted as an URL.
+// URLize returns the strings s formatted as an URL.
 func (ns *Namespace) URLize(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	return ns.deps.PathSpec.URLize(ss), nil
 }
@@ -84,7 +84,7 @@ func (ns *Namespace) URLize(s any) (string, error) {
 func (ns *Namespace) Anchorize(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	return ns.deps.ContentSpec.SanitizeAnchorName(ss), nil
 }
@@ -189,7 +189,6 @@ func (ns *Namespace) AbsLangURL(s any) (string, error) {
 // of any ./ or ../ elements. If the argument list is empty, JoinPath returns
 // an empty string.
 func (ns *Namespace) JoinPath(elements ...any) (string, error) {
-
 	if len(elements) == 0 {
 		return "", nil
 	}

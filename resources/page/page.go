@@ -19,16 +19,14 @@ import (
 	"context"
 	"html/template"
 
-	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 
 	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/compare"
-	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/gohugoio/hugo/navigation"
 	"github.com/gohugoio/hugo/related"
@@ -54,9 +52,9 @@ type AlternativeOutputFormatsProvider interface {
 
 // AuthorProvider provides author information.
 type AuthorProvider interface {
-	// Deprecated.
+	// Deprecated: Use taxonomies instead.
 	Author() Author
-	// Deprecated.
+	// Deprecated: Use taxonomies instead.
 	Authors() AuthorList
 }
 
@@ -122,7 +120,7 @@ type ContentRenderer interface {
 type FileProvider interface {
 	// File returns the source file for this Page,
 	// or a zero File if this Page is not backed by a file.
-	File() source.File
+	File() *source.File
 }
 
 // GetPageProvider provides the GetPage method.
@@ -133,9 +131,6 @@ type GetPageProvider interface {
 	// This will return nil when no page could be found, and will return
 	// an error if the ref is ambiguous.
 	GetPage(ref string) (Page, error)
-
-	// GetPageWithTemplateInfo is for internal use only.
-	GetPageWithTemplateInfo(info tpl.Info, ref string) (Page, error)
 }
 
 // GitInfoProvider provides Git info.
@@ -166,6 +161,12 @@ type OutputFormatsProvider interface {
 	OutputFormats() OutputFormats
 }
 
+// PageProvider provides access to a Page.
+// Implemented by shortcodes and others.
+type PageProvider interface {
+	Page() Page
+}
+
 // Page is the core interface in Hugo and what you get as the top level data context in your templates.
 type Page interface {
 	ContentProvider
@@ -175,7 +176,7 @@ type Page interface {
 
 type PageFragment interface {
 	resource.ResourceLinksProvider
-	resource.ResourceMetaProvider
+	resource.ResourceNameTitleProvider
 }
 
 // PageMetaProvider provides page metadata, typically provided via front matter.
@@ -187,7 +188,7 @@ type PageMetaProvider interface {
 	Aliases() []string
 
 	// BundleType returns the bundle type: `leaf`, `branch` or an empty string.
-	BundleType() files.ContentClass
+	BundleType() string
 
 	// A configured description.
 	Description() string
@@ -224,10 +225,6 @@ type PageMetaProvider interface {
 	// to the source of this Page. It will be relative to any content root.
 	Path() string
 
-	// This is just a temporary bridge method. Use Path in templates.
-	// Pathc is for internal usage only.
-	Pathc() string
-
 	// The slug, typically defined in front matter.
 	Slug() string
 
@@ -240,13 +237,6 @@ type PageMetaProvider interface {
 	// Section returns the first path element below the content root.
 	Section() string
 
-	// Returns a slice of sections (directories if it's a file) to this
-	// Page.
-	SectionsEntries() []string
-
-	// SectionsPath is SectionsEntries joined with a /.
-	SectionsPath() string
-
 	// Sitemap returns the sitemap configuration for this page.
 	// This is for internal use only.
 	Sitemap() config.SitemapConfig
@@ -258,6 +248,12 @@ type PageMetaProvider interface {
 	// The configured weight, used as the first sort value in the default
 	// page sort if non-zero.
 	Weight() int
+}
+
+// PageMetaInternalProvider provides internal page metadata.
+type PageMetaInternalProvider interface {
+	// This is for internal use only.
+	PathInfo() *paths.Path
 }
 
 // PageRenderProvider provides a way for a Page to render content.
@@ -280,6 +276,7 @@ type PageWithoutContent interface {
 	RenderShortcodesProvider
 	resource.Resource
 	PageMetaProvider
+	PageMetaInternalProvider
 	resource.LanguageProvider
 
 	// For pages backed by a file.
@@ -331,9 +328,6 @@ type PageWithoutContent interface {
 	// GetTerms gets the terms of a given taxonomy,
 	// e.g. GetTerms("categories")
 	GetTerms(taxonomy string) Pages
-
-	// Used in change/dependency tracking.
-	identity.Provider
 
 	// HeadingsFiltered returns the headings for this page when a filter is set.
 	// This is currently only triggered with the Related content feature
@@ -430,7 +424,7 @@ type TranslationsProvider interface {
 type TreeProvider interface {
 	// IsAncestor returns whether the current page is an ancestor of other.
 	// Note that this method is not relevant for taxonomy lists and taxonomy terms pages.
-	IsAncestor(other any) (bool, error)
+	IsAncestor(other any) bool
 
 	// CurrentSection returns the page's current section or the page itself if home or a section.
 	// Note that this will return nil for pages that is not regular, home or section pages.
@@ -438,7 +432,7 @@ type TreeProvider interface {
 
 	// IsDescendant returns whether the current page is a descendant of other.
 	// Note that this method is not relevant for taxonomy lists and taxonomy terms pages.
-	IsDescendant(other any) (bool, error)
+	IsDescendant(other any) bool
 
 	// FirstSection returns the section on level 1 below home, e.g. "/docs".
 	// For the home page, this will return itself.
@@ -447,7 +441,7 @@ type TreeProvider interface {
 	// InSection returns whether other is in the current section.
 	// Note that this will always return false for pages that are
 	// not either regular, home or section pages.
-	InSection(other any) (bool, error)
+	InSection(other any) bool
 
 	// Parent returns a section's parent section or a page's section.
 	// To get a section's subsections, see Page's Sections method.
@@ -463,6 +457,13 @@ type TreeProvider interface {
 	// Page returns a reference to the Page itself, kept here mostly
 	// for legacy reasons.
 	Page() Page
+
+	// Returns a slice of sections (directories if it's a file) to this
+	// Page.
+	SectionsEntries() []string
+
+	// SectionsPath is SectionsEntries joined with a /.
+	SectionsPath() string
 }
 
 // PageWithContext is a Page with a context.Context.

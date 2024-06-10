@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@ package hugolib
 import (
 	"fmt"
 	"math/rand"
-	"strings"
 	"testing"
 
+	"github.com/bep/logg"
 	qt "github.com/frankban/quicktest"
 )
 
@@ -34,30 +34,86 @@ disableKinds = ["term", "taxonomy", "section", "page"]
 title: Page
 ---
 -- layouts/index.html --
-{{ .Title }}
+Home: {{ .Title }}
 `
 
 	b := NewIntegrationTestBuilder(
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
+			// LogLevel:    logg.LevelTrace,
 		},
 	).Build()
 
+	b.Assert(b.H.Log.LoggCount(logg.LevelWarn), qt.Equals, 0)
 	b.AssertFileContent("public/index.html", `Hello`)
+}
+
+func TestSmokeOutputFormats(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com/"
+defaultContentLanguage = "en"
+disableKinds = ["term", "taxonomy", "robotsTXT", "sitemap"]
+[outputs]
+home = ["html",  "rss"]
+section = ["html", "rss"]
+page = ["html"]
+-- content/p1.md --
+---
+title: Page
+---
+Page.
+
+-- layouts/_default/list.html --
+List: {{ .Title }}|{{ .RelPermalink}}|{{ range .OutputFormats }}{{ .Name }}: {{ .RelPermalink }}|{{ end }}$
+-- layouts/_default/list.xml --
+List xml: {{ .Title }}|{{ .RelPermalink}}|{{ range .OutputFormats }}{{ .Name }}: {{ .RelPermalink }}|{{ end }}$
+-- layouts/_default/single.html --
+Single: {{ .Title }}|{{ .RelPermalink}}|{{ range .OutputFormats }}{{ .Name }}: {{ .RelPermalink }}|{{ end }}$
+
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html", `List: |/|html: /|rss: /index.xml|$`)
+	b.AssertFileContent("public/index.xml", `List xml: |/|html: /|rss: /index.xml|$`)
+	b.AssertFileContent("public/p1/index.html", `Single: Page|/p1/|html: /p1/|$`)
+	b.AssertFileExists("public/p1/index.xml", false)
 }
 
 func TestSmoke(t *testing.T) {
 	t.Parallel()
 
-	c := qt.New(t)
+	// Basic test cases.
+	// OK translations
+	// OK page collections
+	// OK next, prev in section
+	// OK GetPage
+	// OK Pagination
+	// OK RenderString with shortcode
+	// OK cascade
+	// OK site last mod, section last mod.
+	// OK main sections
+	// OK taxonomies
+	// OK GetTerms
+	// OK Resource page
+	// OK Resource txt
 
-	const configFile = `
+	const files = `
+-- hugo.toml --
 baseURL = "https://example.com"
-title = "Simple Site"
+title = "Smoke Site"
 rssLimit = 3
+paginate = 1
 defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
 enableRobotsTXT = true
+[taxonomies]
+category = 'categories'
+tag = 'tags'
 
 [languages]
 [languages.en]
@@ -71,222 +127,305 @@ title = "På norsk"
 hugo = "Rules!"
 
 [outputs]
-  home = ["HTML", "JSON", "CSV", "RSS"]
-
-`
-
-	const pageContentAndSummaryDivider = `---
-title: Page with outputs
-hugo: "Rocks!"
-outputs: ["HTML", "JSON"]
-tags: [ "hugo" ]
-aliases: [ "/a/b/c" ]
+  home = ["html", "json", "rss"]
+-- layouts/index.html --
+Home: {{ .Lang}}|{{ .Kind }}|{{ .RelPermalink }}|{{ .Title }}|{{ .Content }}|Len Resources: {{ len .Resources }}|HTML
+Resources: {{ range .Resources }}{{ .ResourceType }}|{{ .RelPermalink }}|{{ .MediaType }} - {{ end }}|
+Site last mod: {{ site.Lastmod.Format "2006-02-01" }}|
+Home last mod: {{ .Lastmod.Format "2006-02-01" }}|
+Len Translations: {{ len .Translations }}|
+Len home.RegularPagesRecursive: {{ len .RegularPagesRecursive }}|
+RegularPagesRecursive: {{ range .RegularPagesRecursive }}{{ .RelPermalink }}|{{ end }}@
+Len site.RegularPages: {{ len site.RegularPages }}|
+Len site.Pages: {{ len site.Pages }}|
+Len site.AllPages: {{ len site.AllPages }}|
+GetPage: {{ with .Site.GetPage "posts/p1" }}{{ .RelPermalink }}|{{ .Title }}{{ end }}|
+RenderString with shortcode: {{ .RenderString "{{% hello %}}" }}|
+Paginate: {{ .Paginator.PageNumber }}/{{ .Paginator.TotalPages }}|
+-- layouts/index.json --
+Home:{{ .Lang}}|{{ .Kind }}|{{ .RelPermalink }}|{{ .Title }}|{{ .Content }}|Len Resources: {{ len .Resources }}|JSON
+-- layouts/_default/list.html --
+List: {{ .Lang}}|{{ .Kind }}|{{ .RelPermalink }}|{{ .Title }}|{{ .Content }}|Len Resources: {{ len .Resources }}|
+Resources: {{ range .Resources }}{{ .ResourceType }}|{{ .RelPermalink }}|{{ .MediaType }} - {{ end }}
+Pages Length: {{ len .Pages }}
+RegularPages Length: {{ len .RegularPages }}
+RegularPagesRecursive Length: {{ len .RegularPagesRecursive }}
+List last mod: {{ .Lastmod.Format "2006-02-01" }}
+Background: {{ .Params.background }}|
+Kind: {{ .Kind }}
+Type: {{ .Type }}
+Paginate: {{ .Paginator.PageNumber }}/{{ .Paginator.TotalPages }}|
+-- layouts/_default/single.html --
+Single: {{ .Lang}}|{{ .Kind }}|{{ .RelPermalink }}|{{ .Title }}|{{ .Content }}|Len Resources: {{ len .Resources }}|Background: {{ .Params.background }}|
+Resources: {{ range .Resources }}{{ .ResourceType }}|{{ .RelPermalink }}|{{ .MediaType }}|{{ .Params }} - {{ end }}
+{{ $textResource := .Resources.GetMatch "**.txt" }}
+{{ with $textResource }}
+Icon: {{ .Params.icon }}|
+{{ $textResourceFingerprinted :=  . | fingerprint }}
+Icon fingerprinted: {{ with $textResourceFingerprinted }}{{ .Params.icon }}|{{ .RelPermalink }}{{ end }}|
+{{ end }}
+NextInSection: {{ with .NextInSection }}{{ .RelPermalink }}|{{ .Title }}{{ end }}|
+PrevInSection: {{ with .PrevInSection }}{{ .RelPermalink }}|{{ .Title }}{{ end }}|
+GetTerms: {{ range .GetTerms "tags" }}name: {{ .Name }}, title: {{ .Title }}|{{ end }}
+-- layouts/shortcodes/hello.html --
+Hello.
+-- content/_index.md --
 ---
-
-This is summary.
-
-<!--more--> 
-
-This is content with some shortcodes.
-
-Shortcode 1: {{< sc >}}.
-Shortcode 2: {{< sc >}}.
-
-`
-
-	const pageContentWithMarkdownShortcodes = `---
-title: Page with markdown shortcode
-hugo: "Rocks!"
-outputs: ["HTML", "JSON"]
+title: Home in English
 ---
+Home Content.
+-- content/_index.no.md --
+---
+title: Hjem
+cascade:
+  - _target:
+      kind: page
+      path: /posts/**
+    background: post.jpg
+  - _target:
+      kind: term
+    background: term.jpg
+---
+Hjem Innhold.
+-- content/posts/f1.txt --
+posts f1 text.
+-- content/posts/sub/f1.txt --
+posts sub f1 text.
+-- content/posts/p1/index.md --
++++
+title = "Post 1"
+lastMod = "2001-01-01"
+tags = ["tag1"]
+[[resources]]
+src = '**'
+[resources.params]
+icon = 'enicon'
++++
+Content 1.
+-- content/posts/p1/index.no.md --
++++
+title = "Post 1 no"
+lastMod = "2002-02-02"
+tags = ["tag1", "tag2"]
+[[resources]]
+src = '**'
+[resources.params]
+icon = 'noicon'
++++
+Content 1 no.
+-- content/posts/_index.md --
+---
+title: Posts
+---
+-- content/posts/p1/f1.txt --
+posts p1 f1 text.
+-- content/posts/p1/sub/ps1.md --
+---
+title: Post Sub 1
+---
+Content Sub 1.
+-- content/posts/p2.md --
+---
+title: Post 2
+tags: ["tag1", "tag3"]
+---
+Content 2.
+-- content/posts/p2.no.md --
+---
+title: Post 2 No
+---
+Content 2 No.
+-- content/tags/_index.md --
+---
+title: Tags
+---
+Content Tags.
+-- content/tags/tag1/_index.md --
+---
+title: Tag 1
+---
+Content Tag 1.
 
-This is summary.
-
-<!--more--> 
-
-This is content[^a].
-
-# Header above
-
-{{% markdown-shortcode %}}
-# Header inside
-
-Some **markdown**.[^b]
-
-{{% /markdown-shortcode %}}
-
-# Heder below
-
-Some more content[^c].
-
-Footnotes:
-
-[^a]: Fn 1
-[^b]: Fn 2
-[^c]: Fn 3
 
 `
 
-	pageContentAutoSummary := strings.Replace(pageContentAndSummaryDivider, "<!--more-->", "", 1)
+	b := NewIntegrationTestBuilder(IntegrationTestConfig{
+		T:           t,
+		TxtarString: files,
+		NeedsOsFS:   true,
+		// Verbose:     true,
+		// LogLevel:    logg.LevelTrace,
+	}).Build()
 
-	b := newTestSitesBuilder(t).WithConfigFile("toml", configFile)
-	b.WithTemplatesAdded("shortcodes/markdown-shortcode.html", `
-Some **Markdown** in shortcode.
+	b.AssertFileContent("public/en/index.html",
+		"Home: en|home|/en/|Home in English|<p>Home Content.</p>\n|HTML",
+		"Site last mod: 2001-01-01",
+		"Home last mod: 2001-01-01",
+		"Translations: 1|",
+		"Len home.RegularPagesRecursive: 2|",
+		"Len site.RegularPages: 2|",
+		"Len site.Pages: 8|",
+		"Len site.AllPages: 16|",
+		"GetPage: /en/posts/p1/|Post 1|",
+		"RenderString with shortcode: Hello.|",
+		"Paginate: 1/2|",
+	)
+	b.AssertFileContent("public/en/page/2/index.html", "Paginate: 2/2|")
 
-{{ .Inner }}
-
-
-	
-`)
-
-	b.WithTemplatesAdded("shortcodes/markdown-shortcode.json", `
-Some **Markdown** in JSON shortcode.
-{{ .Inner }}
-
-`)
-
-	for i := 1; i <= 11; i++ {
-		if i%2 == 0 {
-			b.WithContent(fmt.Sprintf("blog/page%d.md", i), pageContentAndSummaryDivider)
-			b.WithContent(fmt.Sprintf("blog/page%d.no.md", i), pageContentAndSummaryDivider)
-		} else {
-			b.WithContent(fmt.Sprintf("blog/page%d.md", i), pageContentAutoSummary)
-		}
-	}
-
-	for i := 1; i <= 5; i++ {
-		// Root section pages
-		b.WithContent(fmt.Sprintf("root%d.md", i), pageContentAutoSummary)
-	}
-
-	// https://github.com/gohugoio/hugo/issues/4695
-	b.WithContent("blog/markyshort.md", pageContentWithMarkdownShortcodes)
-
-	// Add one bundle
-	b.WithContent("blog/mybundle/index.md", pageContentAndSummaryDivider)
-	b.WithContent("blog/mybundle/mydata.csv", "Bundled CSV")
-
-	const (
-		commonPageTemplate            = `|{{ .Kind }}|{{ .Title }}|{{ .File.Path }}|{{ .Summary }}|{{ .Content }}|RelPermalink: {{ .RelPermalink }}|WordCount: {{ .WordCount }}|Pages: {{ .Pages }}|Data Pages: Pages({{ len .Data.Pages }})|Resources: {{ len .Resources }}|Summary: {{ .Summary }}`
-		commonPaginatorTemplate       = `|Paginator: {{ with .Paginator }}{{ .PageNumber }}{{ else }}NIL{{ end }}`
-		commonListTemplateNoPaginator = `|{{ $pages := .Pages }}{{ if .IsHome }}{{ $pages = .Site.RegularPages }}{{ end }}{{ range $i, $e := ($pages | first 1) }}|Render {{ $i }}: {{ .Kind }}|{{ .Render "li" }}|{{ end }}|Site params: {{ $.Site.Params.hugo }}|RelPermalink: {{ .RelPermalink }}`
-		commonListTemplate            = commonPaginatorTemplate + `|{{ $pages := .Pages }}{{ if .IsHome }}{{ $pages = .Site.RegularPages }}{{ end }}{{ range $i, $e := ($pages | first 1) }}|Render {{ $i }}: {{ .Kind }}|{{ .Render "li" }}|{{ end }}|Site params: {{ $.Site.Params.hugo }}|RelPermalink: {{ .RelPermalink }}`
-		commonShortcodeTemplate       = `|{{ .Name }}|{{ .Ordinal }}|{{ .Page.Summary }}|{{ .Page.Content }}|WordCount: {{ .Page.WordCount }}`
-		prevNextTemplate              = `|Prev: {{ with .Prev }}{{ .RelPermalink }}{{ end }}|Next: {{ with .Next }}{{ .RelPermalink }}{{ end }}`
-		prevNextInSectionTemplate     = `|PrevInSection: {{ with .PrevInSection }}{{ .RelPermalink }}{{ end }}|NextInSection: {{ with .NextInSection }}{{ .RelPermalink }}{{ end }}`
-		paramsTemplate                = `|Params: {{ .Params.hugo }}`
-		treeNavTemplate               = `|CurrentSection: {{ .CurrentSection }}`
+	b.AssertFileContent("public/no/index.html",
+		"Home: no|home|/no/|Hjem|<p>Hjem Innhold.</p>\n|HTML",
+		"Site last mod: 2002-02-02",
+		"Home last mod: 2002-02-02",
+		"Translations: 1",
+		"GetPage: /no/posts/p1/|Post 1 no|",
 	)
 
-	b.WithTemplates(
-		"_default/list.html", "HTML: List"+commonPageTemplate+commonListTemplate+"|First Site: {{ .Sites.First.Title }}",
-		"_default/list.json", "JSON: List"+commonPageTemplate+commonListTemplateNoPaginator,
-		"_default/list.csv", "CSV: List"+commonPageTemplate+commonListTemplateNoPaginator,
-		"_default/single.html", "HTML: Single"+commonPageTemplate+prevNextTemplate+prevNextInSectionTemplate+treeNavTemplate,
-		"_default/single.json", "JSON: Single"+commonPageTemplate,
+	b.AssertFileContent("public/en/index.json", "Home:en|home|/en/|Home in English|<p>Home Content.</p>\n|JSON")
+	b.AssertFileContent("public/no/index.json", "Home:no|home|/no/|Hjem|<p>Hjem Innhold.</p>\n|JSON")
 
-		// For .Render test
-		"_default/li.html", `HTML: LI|{{ strings.Contains .Content "HTML: Shortcode: sc" }}`+paramsTemplate,
-		"_default/li.json", `JSON: LI|{{ strings.Contains .Content "JSON: Shortcode: sc" }}`+paramsTemplate,
-		"_default/li.csv", `CSV: LI|{{ strings.Contains .Content "CSV: Shortcode: sc" }}`+paramsTemplate,
-
-		"404.html", "{{ .Kind }}|{{ .Title }}|Page not found",
-
-		"shortcodes/sc.html", "HTML: Shortcode: "+commonShortcodeTemplate,
-		"shortcodes/sc.json", "JSON: Shortcode: "+commonShortcodeTemplate,
-		"shortcodes/sc.csv", "CSV: Shortcode: "+commonShortcodeTemplate,
+	b.AssertFileContent("public/en/posts/p1/index.html",
+		"Single: en|page|/en/posts/p1/|Post 1|<p>Content 1.</p>\n|Len Resources: 2|",
+		"Resources: text|/en/posts/p1/f1.txt|text/plain|map[icon:enicon] - page||application/octet-stream|map[draft:false iscjklanguage:false title:Post Sub 1] -",
+		"Icon: enicon",
+		"Icon fingerprinted: enicon|/en/posts/p1/f1.e5746577af5cbfc4f34c558051b7955a9a5a795a84f1c6ab0609cb3473a924cb.txt|",
+		"NextInSection: |\nPrevInSection: /en/posts/p2/|Post 2|",
+		"GetTerms: name: tag1, title: Tag 1|",
 	)
 
-	b.CreateSites().Build(BuildCfg{})
-
-	b.AssertFileContent("public/blog/page1/index.html",
-		"This is content with some shortcodes.",
-		"Page with outputs",
-		"Pages: Pages(0)",
-		"RelPermalink: /blog/page1/|",
-		"Shortcode 1: HTML: Shortcode: |sc|0|||WordCount: 0.",
-		"Shortcode 2: HTML: Shortcode: |sc|1|||WordCount: 0.",
-		"Prev: /blog/page10/|Next: /blog/mybundle/",
-		"PrevInSection: /blog/page10/|NextInSection: /blog/mybundle/",
-		"Summary: This is summary.",
-		"CurrentSection: Page(/blog)",
-	)
-
-	b.AssertFileContent("public/blog/page1/index.json",
-		"JSON: Single|page|Page with outputs|",
-		"SON: Shortcode: |sc|0||")
-
-	b.AssertFileContent("public/index.html",
-		"home|In English",
-		"Site params: Rules",
-		"Pages: Pages(6)|Data Pages: Pages(6)",
-		"Paginator: 1",
-		"First Site: In English",
-		"RelPermalink: /",
-	)
-
-	b.AssertFileContent("public/no/index.html", "home|På norsk", "RelPermalink: /no/")
-
-	// Check RSS
-	rssHome := b.FileContent("public/index.xml")
-	c.Assert(rssHome, qt.Contains, `<atom:link href="https://example.com/index.xml" rel="self" type="application/rss+xml" />`)
-	c.Assert(strings.Count(rssHome, "<item>"), qt.Equals, 3) // rssLimit = 3
-
-	// .Render should use template/content from the current output format
-	// even if that output format isn't configured for that page.
-	b.AssertFileContent(
-		"public/index.json",
-		"Render 0: page|JSON: LI|false|Params: Rocks!",
-	)
-
-	b.AssertFileContent(
-		"public/index.html",
-		"Render 0: page|HTML: LI|false|Params: Rocks!|",
-	)
-
-	b.AssertFileContent(
-		"public/index.csv",
-		"Render 0: page|CSV: LI|false|Params: Rocks!|",
-	)
-
-	// Check bundled resources
-	b.AssertFileContent(
-		"public/blog/mybundle/index.html",
+	b.AssertFileContent("public/no/posts/p1/index.html",
 		"Resources: 1",
+		"Resources: text|/en/posts/p1/f1.txt|text/plain|map[icon:noicon] -",
+		"Icon: noicon",
+		"Icon fingerprinted: noicon|/en/posts/p1/f1.e5746577af5cbfc4f34c558051b7955a9a5a795a84f1c6ab0609cb3473a924cb.txt|",
+		"Background: post.jpg",
+		"NextInSection: |\nPrevInSection: /no/posts/p2/|Post 2 No|",
 	)
 
-	// Check pages in root section
-	b.AssertFileContent(
-		"public/root3/index.html",
-		"Single|page|Page with outputs|root3.md|",
-		"Prev: /root4/|Next: /root2/|PrevInSection: /root4/|NextInSection: /root2/",
+	b.AssertFileContent("public/en/posts/index.html",
+		"List: en|section|/en/posts/|Posts||Len Resources: 2|",
+		"Resources: text|/en/posts/f1.txt|text/plain - text|/en/posts/sub/f1.txt|text/plain -",
+		"List last mod: 2001-01-01",
 	)
 
-	b.AssertFileContent(
-		"public/root3/index.json", "Shortcode 1: JSON:")
+	b.AssertFileContent("public/no/posts/index.html",
+		"List last mod: 2002-02-02",
+	)
 
-	// Paginators
-	b.AssertFileContent("public/page/1/index.html", `rel="canonical" href="https://example.com/"`)
-	b.AssertFileContent("public/page/2/index.html", "HTML: List|home|In English|", "Paginator: 2")
+	b.AssertFileContent("public/en/posts/p2/index.html", "Single: en|page|/en/posts/p2/|Post 2|<p>Content 2.</p>\n|",
+		"|Len Resources: 0",
+		"GetTerms: name: tag1, title: Tag 1|name: tag3, title: Tag3|",
+	)
+	b.AssertFileContent("public/no/posts/p2/index.html", "Single: no|page|/no/posts/p2/|Post 2 No|<p>Content 2 No.</p>\n|")
 
-	// 404
-	b.AssertFileContent("public/404.html", "404|404 Page not found")
+	b.AssertFileContent("public/no/categories/index.html",
+		"Kind: taxonomy",
+		"Type: categories",
+	)
+	b.AssertFileContent("public/no/tags/index.html",
+		"Kind: taxonomy",
+		"Type: tags",
+	)
 
-	// Sitemaps
-	b.AssertFileContent("public/en/sitemap.xml", "<loc>https://example.com/blog/</loc>")
-	b.AssertFileContent("public/no/sitemap.xml", `hreflang="no"`)
+	b.AssertFileContent("public/no/tags/tag1/index.html",
+		"Background: term.jpg",
+		"Kind: term",
+		"Type: tags",
+		"Paginate: 1/1|",
+	)
 
-	b.AssertFileContent("public/sitemap.xml", "<loc>https://example.com/en/sitemap.xml</loc>", "<loc>https://example.com/no/sitemap.xml</loc>")
+	b.AssertFileContent("public/en/tags/tag1/index.html",
+		"Kind: term",
+		"Type: tags",
+		"Paginate: 1/2|",
+	)
+}
 
-	// robots.txt
-	b.AssertFileContent("public/robots.txt", `User-agent: *`)
+// Basic tests that verifies that the different file systems work as expected.
+func TestSmokeFilesystems(t *testing.T) {
+	t.Parallel()
 
-	// Aliases
-	b.AssertFileContent("public/a/b/c/index.html", `refresh`)
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+[languages]
+[languages.en]
+title = "In English"
+[languages.nn]
+title = "På nynorsk"
+[module]
+[[module.mounts]]
+source = "i18n"
+target = "i18n"
+[[module.mounts]]
+source = "data"
+target = "data"
+[[module.mounts]]
+source = "content/en"
+target = "content"
+lang = "en"
+[[module.mounts]]
+source = "content/nn"
+target = "content"
+lang = "nn"
+[[module.imports]]
+path = "mytheme"
+-- layouts/index.html --
+i18n s1: {{ i18n "s1" }}|
+i18n s2: {{ i18n "s2" }}|
+data s1: {{ site.Data.d1.s1 }}|
+data s2: {{ site.Data.d1.s2 }}|
+title: {{ .Title }}|
+-- themes/mytheme/hugo.toml --
+[[module.mounts]]
+source = "i18n"
+target = "i18n"
+[[module.mounts]]
+source = "data"
+target = "data"
+# i18n files both project and theme.
+-- i18n/en.toml --
+[s1]
+other = 's1project'
+-- i18n/nn.toml --
+[s1]
+other = 's1prosjekt'
+-- themes/mytheme/i18n/en.toml --
+[s1]
+other = 's1theme'
+[s2]
+other = 's2theme'
+# data files both project and theme.
+-- data/d1.yaml --
+s1: s1project
+-- themes/mytheme/data/d1.yaml --
+s1: s1theme
+s2: s2theme
+# Content
+-- content/en/_index.md --
+---
+title: "Home"
+---
+-- content/nn/_index.md --
+---
+title: "Heim"
+---
 
-	// Markdown vs shortcodes
-	// Check that all footnotes are grouped (even those from inside the shortcode)
-	b.AssertFileContentRe("public/blog/markyshort/index.html", `Footnotes:.*<ol>.*Fn 1.*Fn 2.*Fn 3.*</ol>`)
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/en/index.html",
+		"i18n s1: s1project", "i18n s2: s2theme",
+		"data s1: s1project", "data s2: s2theme",
+		"title: Home",
+	)
+
+	b.AssertFileContent("public/nn/index.html",
+		"i18n s1: s1prosjekt", "i18n s2: s2theme",
+		"data s1: s1project", "data s2: s2theme",
+		"title: Heim",
+	)
 }
 
 // https://github.com/golang/go/issues/30286

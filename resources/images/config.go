@@ -171,7 +171,7 @@ func DecodeConfig(in map[string]any) (*config.ConfigNamespace[ImagingConfig, Ima
 			return i, nil, err
 		}
 
-		i.BgColor, err = hexStringToColor(i.Imaging.BgColor)
+		i.BgColor, err = hexStringToColorGo(i.Imaging.BgColor)
 		if err != nil {
 			return i, nil, err
 		}
@@ -230,7 +230,7 @@ func DecodeImageConfig(action string, options []string, defaults *config.ConfigN
 			c.Hint = hint
 		} else if part[0] == '#' {
 			c.BgColorStr = part[1:]
-			c.BgColor, err = hexStringToColor(c.BgColorStr)
+			c.BgColor, err = hexStringToColorGo(c.BgColorStr)
 			if err != nil {
 				return c, err
 			}
@@ -424,7 +424,7 @@ type ImagingConfigInternal struct {
 
 func (i *ImagingConfigInternal) Compile(externalCfg *ImagingConfig) error {
 	var err error
-	i.BgColor, err = hexStringToColor(externalCfg.BgColor)
+	i.BgColor, err = hexStringToColorGo(externalCfg.BgColor)
 	if err != nil {
 		return err
 	}

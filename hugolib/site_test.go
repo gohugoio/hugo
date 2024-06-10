@@ -32,11 +32,6 @@ import (
 	"github.com/gohugoio/hugo/resources/page"
 )
 
-const (
-	templateMissingFunc = "{{ .Title | funcdoesnotexists }}"
-	templateWithURLAbs  = "<a href=\"/foobar.jpg\">Going</a>"
-)
-
 func TestDraftAndFutureRender(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
@@ -419,7 +414,6 @@ Main section page: {{ .RelPermalink }}
 }
 
 func TestMainSectionsMoveToSite(t *testing.T) {
-
 	t.Run("defined in params", func(t *testing.T) {
 		t.Parallel()
 
@@ -433,16 +427,11 @@ mainSections=["a", "b"]
 {{/* Behaviour before Hugo 0.112.0. */}}
 MainSections Params: {{ site.Params.mainSections }}|
 MainSections Site method: {{ site.MainSections }}|
-	
-	
+
+
 	`
 
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := Test(t, files)
 
 		b.AssertFileContent("public/index.html", `
 MainSections Params: [a b]|
@@ -470,12 +459,7 @@ MainSections Site method: {{ site.MainSections }}|
 
 `
 
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := Test(t, files)
 
 		b.AssertFileContent("public/index.html", `
 MainSections Params: [a b]|
@@ -494,23 +478,17 @@ disableKinds = ['RSS','sitemap','taxonomy','term']
 -- layouts/index.html --
 MainSections Params: {{ site.Params.mainSections }}|
 MainSections Site method: {{ site.MainSections }}|
-	
-	
+
+
 	`
 
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := Test(t, files)
 
 		b.AssertFileContent("public/index.html", `
 MainSections Params: [mysect]|
 MainSections Site method: [mysect]|
 	`)
 	})
-
 }
 
 // Issue #1176
@@ -594,60 +572,6 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 	}
 }
 
-func TestAbsURLify(t *testing.T) {
-	t.Parallel()
-	c := qt.New(t)
-	sources := [][2]string{
-		{filepath.FromSlash("sect/doc1.html"), "<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>"},
-		{filepath.FromSlash("blue/doc2.html"), "---\nf: t\n---\n<!doctype html><html><body>more content</body></html>"},
-	}
-	for _, baseURL := range []string{"http://auth/bub", "http://base", "//base"} {
-		for _, canonify := range []bool{true, false} {
-
-			cfg, fs := newTestCfg()
-
-			cfg.Set("uglyURLs", true)
-			cfg.Set("canonifyURLs", canonify)
-			cfg.Set("baseURL", baseURL)
-
-			configs, err := loadTestConfigFromProvider(cfg)
-			c.Assert(err, qt.IsNil)
-
-			for _, src := range sources {
-				writeSource(t, fs, filepath.Join("content", src[0]), src[1])
-			}
-
-			writeSource(t, fs, filepath.Join("layouts", "blue/single.html"), templateWithURLAbs)
-
-			s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
-			th := newTestHelper(s.conf, s.Fs, t)
-
-			tests := []struct {
-				file, expected string
-			}{
-				{"public/blue/doc2.html", "<a href=\"%s/foobar.jpg\">Going</a>"},
-				{"public/sect/doc1.html", "<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>"},
-			}
-
-			for _, test := range tests {
-
-				expected := test.expected
-
-				if strings.Contains(expected, "%s") {
-					expected = fmt.Sprintf(expected, baseURL)
-				}
-
-				if !canonify {
-					expected = strings.Replace(expected, baseURL, "", -1)
-				}
-
-				th.assertFileContent(test.file, expected)
-
-			}
-		}
-	}
-}
-
 var weightedPage1 = `+++
 weight = "2"
 title = "One"
@@ -718,7 +642,7 @@ func TestOrderedPages(t *testing.T) {
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
 
-	if s.getPage(kinds.KindSection, "sect").Pages()[1].Title() != "Three" || s.getPage(kinds.KindSection, "sect").Pages()[2].Title() != "Four" {
+	if s.getPageOldVersion(kinds.KindSection, "sect").Pages()[1].Title() != "Three" || s.getPageOldVersion(kinds.KindSection, "sect").Pages()[2].Title() != "Four" {
 		t.Error("Pages in unexpected order.")
 	}
 
@@ -863,9 +787,12 @@ func TestGroupedPages(t *testing.T) {
 		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 2, len(byparam[0].Pages))
 	}
 
-	_, err = s.RegularPages().GroupByParam("not_exist")
-	if err == nil {
-		t.Errorf("GroupByParam didn't return an expected error")
+	byNonExistentParam, err := s.RegularPages().GroupByParam("not_exist")
+	if err != nil {
+		t.Errorf("GroupByParam returned an error when it shouldn't")
+	}
+	if len(byNonExistentParam) != 0 {
+		t.Errorf("PageGroup array has unexpected elements. Group length should be '%d', got '%d'", 0, len(byNonExistentParam))
 	}
 
 	byOnlyOneParam, err := s.RegularPages().GroupByParam("only_one")
@@ -1011,7 +938,7 @@ func TestRefLinking(t *testing.T) {
 	t.Parallel()
 	site := setupLinkingMockSite(t)
 
-	currentPage := site.getPage(kinds.KindPage, "level2/level3/start.md")
+	currentPage := site.getPageOldVersion(kinds.KindPage, "level2/level3/start.md")
 	if currentPage == nil {
 		t.Fatalf("failed to find current page in site")
 	}
@@ -1068,10 +995,32 @@ func TestRefLinking(t *testing.T) {
 	// TODO: and then the failure cases.
 }
 
+func TestRelRefWithTrailingSlash(t *testing.T) {
+	files := `
+-- hugo.toml --
+-- content/docs/5.3/examples/_index.md --
+---
+title: "Examples"
+---
+-- content/_index.md --
+---
+title: "Home"
+---
+
+Examples: {{< relref "/docs/5.3/examples/" >}}
+-- layouts/home.html --
+Content: {{ .Content }}|
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html", "Examples: /docs/5.3/examples/")
+}
+
 func checkLinkCase(site *Site, link string, currentPage page.Page, relative bool, outputFormat string, expected string, t *testing.T, i int) {
 	t.Helper()
 	if out, err := site.refLink(link, currentPage, relative, outputFormat); err != nil || out != expected {
-		t.Fatalf("[%d] Expected %q from %q to resolve to %q, got %q - error: %s", i, link, currentPage.Pathc(), expected, out, err)
+		t.Fatalf("[%d] Expected %q from %q to resolve to %q, got %q - error: %s", i, link, currentPage.Path(), expected, out, err)
 	}
 }
 
@@ -1199,7 +1148,7 @@ writeStats = true
 writeStats = false
 	`)
 
-	b.AssertDestinationExists("hugo_stats.json", false)
+	b.AssertFileExists("public/hugo_stats.json", false)
 
 	b = r(`
 [build.buildStats]
@@ -1245,8 +1194,7 @@ disableclasses = true
 [build.buildStats]
 enable = false
 	`)
-	b.AssertDestinationExists("hugo_stats.json", false)
-
+	b.AssertFileExists("public/hugo_stats.json", false)
 }
 
 func TestClassCollectorStress(t *testing.T) {

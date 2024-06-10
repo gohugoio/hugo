@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"math"
 	"math/big"
 	"regexp"
 	"strings"
@@ -117,7 +118,7 @@ func NewDecoder(options ...func(*Decoder) error) (*Decoder, error) {
 func (d *Decoder) Decode(r io.Reader) (ex *ExifInfo, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("Exif failed: %v", r)
+			err = fmt.Errorf("exif failed: %v", r)
 		}
 	}()
 
@@ -140,6 +141,12 @@ func (d *Decoder) Decode(r io.Reader) (ex *ExifInfo, err error) {
 
 	if !d.noLatLong {
 		lat, long, _ = x.LatLong()
+		if math.IsNaN(lat) {
+			lat = 0
+		}
+		if math.IsNaN(long) {
+			long = 0
+		}
 	}
 
 	walker := &exifWalker{x: x, vals: make(map[string]any), includeMatcher: d.includeFieldsRe, excludeMatcher: d.excludeFieldsrRe}

@@ -14,7 +14,7 @@
 				<a href="{{ .Permalink }}">{{ .Title }}</a>
 			</td>
 			<td class="pv2 ph3">
-				<a href="{{.Site.Params.ghrepo}}blob/master/content/{{.Lang }}/{{.File.Path}}">
+				<a href="{{ .Site.Params.ghrepo }}blob/master/content/{{ .Language.Lang }}/{{ .File.Path }}">
 					{{ with .GitInfo }}{{ .Subject }}{{ else }}Source{{ end }}
 				</a>
 			</td>

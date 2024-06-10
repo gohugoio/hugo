@@ -29,7 +29,7 @@ func ToStringMapE(in any) (map[string]any, error) {
 	case Params:
 		return vv, nil
 	case map[string]string:
-		var m = map[string]any{}
+		m := map[string]any{}
 		for k, v := range vv {
 			m[k] = v
 		}
@@ -112,17 +112,17 @@ func ToSliceStringMap(in any) ([]map[string]any, error) {
 }
 
 // LookupEqualFold finds key in m with case insensitive equality checks.
-func LookupEqualFold[T any | string](m map[string]T, key string) (T, bool) {
+func LookupEqualFold[T any | string](m map[string]T, key string) (T, string, bool) {
 	if v, found := m[key]; found {
-		return v, true
+		return v, key, true
 	}
 	for k, v := range m {
 		if strings.EqualFold(k, key) {
-			return v, true
+			return v, k, true
 		}
 	}
 	var s T
-	return s, false
+	return s, "", false
 }
 
 // MergeShallow merges src into dst, but only if the key does not already exist in dst.
@@ -192,21 +192,20 @@ func (KeyRenamer) keyPath(k1, k2 string) string {
 }
 
 func (r KeyRenamer) renamePath(parentKeyPath string, m map[string]any) {
-	for key, val := range m {
-		keyPath := r.keyPath(parentKeyPath, key)
-		switch val.(type) {
+	for k, v := range m {
+		keyPath := r.keyPath(parentKeyPath, k)
+		switch vv := v.(type) {
 		case map[any]any:
-			val = cast.ToStringMap(val)
-			r.renamePath(keyPath, val.(map[string]any))
+			r.renamePath(keyPath, cast.ToStringMap(vv))
 		case map[string]any:
-			r.renamePath(keyPath, val.(map[string]any))
+			r.renamePath(keyPath, vv)
 		}
 
 		newKey := r.getNewKey(keyPath)
 
 		if newKey != "" {
-			delete(m, key)
-			m[newKey] = val
+			delete(m, k)
+			m[newKey] = v
 		}
 	}
 }

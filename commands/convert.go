@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ to use JSON for the front matter.`,
 					return c.convertContents(metadecoders.JSON)
 				},
 				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = cobra.NoFileCompletions
 				},
 			},
 			&simpleCommand{
@@ -57,6 +58,7 @@ to use TOML for the front matter.`,
 					return c.convertContents(metadecoders.TOML)
 				},
 				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = cobra.NoFileCompletions
 				},
 			},
 			&simpleCommand{
@@ -68,6 +70,7 @@ to use YAML for the front matter.`,
 					return c.convertContents(metadecoders.YAML)
 				},
 				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = cobra.NoFileCompletions
 				},
 			},
 		},
@@ -108,6 +111,7 @@ func (c *convertCommand) Init(cd *simplecobra.Commandeer) error {
 See convert's subcommands toJSON, toTOML and toYAML for more information.`
 
 	cmd.PersistentFlags().StringVarP(&c.outputDir, "output", "o", "", "filesystem path to write files to")
+	_ = cmd.MarkFlagDirname("output")
 	cmd.PersistentFlags().BoolVar(&c.unsafe, "unsafe", false, "enable less safe operations, please backup first")
 
 	cmd.RunE = nil
@@ -134,7 +138,7 @@ func (c *convertCommand) convertAndSavePage(p page.Page, site *hugolib.Site, tar
 		}
 	}
 
-	if p.File().IsZero() {
+	if p.File() == nil {
 		// No content file.
 		return nil
 	}
@@ -209,7 +213,7 @@ func (c *convertCommand) convertContents(format metadecoders.Format) error {
 
 	var pagesBackedByFile page.Pages
 	for _, p := range site.AllPages() {
-		if p.File().IsZero() {
+		if p.File() == nil {
 			continue
 		}
 		pagesBackedByFile = append(pagesBackedByFile, p)

@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,22 +18,22 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/testconfig"
+	"github.com/gohugoio/hugo/media"
 
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
-	"github.com/gohugoio/hugo/resources/resource"
 
 	qt "github.com/frankban/quicktest"
 )
 
 func newTestFd() *pagemeta.FrontMatterDescriptor {
 	return &pagemeta.FrontMatterDescriptor{
-		Frontmatter: make(map[string]any),
-		Params:      make(map[string]any),
-		Dates:       &resource.Dates{},
-		PageURLs:    &pagemeta.URLPath{},
-		Location:    time.UTC,
+		PageConfig: &pagemeta.PageConfig{
+			Params: make(map[string]interface{}),
+		},
+		Location: time.UTC,
 	}
 }
 
@@ -106,66 +106,18 @@ func TestFrontMatterDatesHandlers(t *testing.T) {
 		case ":git":
 			d.GitAuthorDate = d1
 		}
-		d.Frontmatter["date"] = d2
+		d.PageConfig.Params["date"] = d2
 		c.Assert(handler.HandleDates(d), qt.IsNil)
-		c.Assert(d.Dates.FDate, qt.Equals, d1)
-		c.Assert(d.Params["date"], qt.Equals, d2)
+		c.Assert(d.PageConfig.Dates.Date, qt.Equals, d1)
+		c.Assert(d.PageConfig.Params["date"], qt.Equals, d2)
 
 		d = newTestFd()
-		d.Frontmatter["date"] = d2
+		d.PageConfig.Params["date"] = d2
 		c.Assert(handler.HandleDates(d), qt.IsNil)
-		c.Assert(d.Dates.FDate, qt.Equals, d2)
-		c.Assert(d.Params["date"], qt.Equals, d2)
+		c.Assert(d.PageConfig.Dates.Date, qt.Equals, d2)
+		c.Assert(d.PageConfig.Params["date"], qt.Equals, d2)
 
 	}
-}
-
-func TestFrontMatterDatesCustomConfig(t *testing.T) {
-	t.Parallel()
-
-	c := qt.New(t)
-
-	cfg := config.New()
-	cfg.Set("frontmatter", map[string]any{
-		"date":        []string{"mydate"},
-		"lastmod":     []string{"publishdate"},
-		"publishdate": []string{"publishdate"},
-	})
-
-	conf := testconfig.GetTestConfig(nil, cfg)
-	handler, err := pagemeta.NewFrontmatterHandler(nil, conf.GetConfigSection("frontmatter").(pagemeta.FrontmatterConfig))
-	c.Assert(err, qt.IsNil)
-
-	testDate, err := time.Parse("2006-01-02", "2018-02-01")
-	c.Assert(err, qt.IsNil)
-
-	d := newTestFd()
-	d.Frontmatter["mydate"] = testDate
-	testDate = testDate.Add(24 * time.Hour)
-	d.Frontmatter["date"] = testDate
-	testDate = testDate.Add(24 * time.Hour)
-	d.Frontmatter["lastmod"] = testDate
-	testDate = testDate.Add(24 * time.Hour)
-	d.Frontmatter["publishdate"] = testDate
-	testDate = testDate.Add(24 * time.Hour)
-	d.Frontmatter["expirydate"] = testDate
-
-	c.Assert(handler.HandleDates(d), qt.IsNil)
-
-	c.Assert(d.Dates.FDate.Day(), qt.Equals, 1)
-	c.Assert(d.Dates.FLastmod.Day(), qt.Equals, 4)
-	c.Assert(d.Dates.FPublishDate.Day(), qt.Equals, 4)
-	c.Assert(d.Dates.FExpiryDate.Day(), qt.Equals, 5)
-
-	c.Assert(d.Params["date"], qt.Equals, d.Dates.FDate)
-	c.Assert(d.Params["mydate"], qt.Equals, d.Dates.FDate)
-	c.Assert(d.Params["publishdate"], qt.Equals, d.Dates.FPublishDate)
-	c.Assert(d.Params["expirydate"], qt.Equals, d.Dates.FExpiryDate)
-
-	c.Assert(handler.IsDateKey("date"), qt.Equals, false) // This looks odd, but is configured like this.
-	c.Assert(handler.IsDateKey("mydate"), qt.Equals, true)
-	c.Assert(handler.IsDateKey("publishdate"), qt.Equals, true)
-	c.Assert(handler.IsDateKey("pubdate"), qt.Equals, true)
 }
 
 func TestFrontMatterDatesDefaultKeyword(t *testing.T) {
@@ -186,15 +138,44 @@ func TestFrontMatterDatesDefaultKeyword(t *testing.T) {
 
 	testDate, _ := time.Parse("2006-01-02", "2018-02-01")
 	d := newTestFd()
-	d.Frontmatter["mydate"] = testDate
-	d.Frontmatter["date"] = testDate.Add(1 * 24 * time.Hour)
-	d.Frontmatter["mypubdate"] = testDate.Add(2 * 24 * time.Hour)
-	d.Frontmatter["publishdate"] = testDate.Add(3 * 24 * time.Hour)
+	d.PageConfig.Params["mydate"] = testDate
+	d.PageConfig.Params["date"] = testDate.Add(1 * 24 * time.Hour)
+	d.PageConfig.Params["mypubdate"] = testDate.Add(2 * 24 * time.Hour)
+	d.PageConfig.Params["publishdate"] = testDate.Add(3 * 24 * time.Hour)
 
 	c.Assert(handler.HandleDates(d), qt.IsNil)
 
-	c.Assert(d.Dates.FDate.Day(), qt.Equals, 1)
-	c.Assert(d.Dates.FLastmod.Day(), qt.Equals, 2)
-	c.Assert(d.Dates.FPublishDate.Day(), qt.Equals, 4)
-	c.Assert(d.Dates.FExpiryDate.IsZero(), qt.Equals, true)
+	c.Assert(d.PageConfig.Dates.Date.Day(), qt.Equals, 1)
+	c.Assert(d.PageConfig.Dates.Lastmod.Day(), qt.Equals, 2)
+	c.Assert(d.PageConfig.Dates.PublishDate.Day(), qt.Equals, 4)
+	c.Assert(d.PageConfig.Dates.ExpiryDate.IsZero(), qt.Equals, true)
+}
+
+func TestContentMediaTypeFromMarkup(t *testing.T) {
+	c := qt.New(t)
+	logger := loggers.NewDefault()
+
+	for _, test := range []struct {
+		in       string
+		expected string
+	}{
+		{"", "text/markdown"},
+		{"md", "text/markdown"},
+		{"markdown", "text/markdown"},
+		{"mdown", "text/markdown"},
+		{"goldmark", "text/markdown"},
+		{"html", "text/html"},
+		{"htm", "text/html"},
+		{"asciidoc", "text/asciidoc"},
+		{"asciidocext", "text/asciidoc"},
+		{"adoc", "text/asciidoc"},
+		{"pandoc", "text/pandoc"},
+		{"pdc", "text/pandoc"},
+		{"rst", "text/rst"},
+	} {
+		var pc pagemeta.PageConfig
+		pc.Content.Markup = test.in
+		c.Assert(pc.Compile("", true, "", logger, media.DefaultTypes), qt.IsNil)
+		c.Assert(pc.ContentMediaType.Type, qt.Equals, test.expected)
+	}
 }

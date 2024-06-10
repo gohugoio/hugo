@@ -70,7 +70,6 @@ func (ns *Namespace) FindRESubmatch(expr string, content any, limit ...any) ([][
 	}
 
 	return re.FindAllStringSubmatch(conv, n), nil
-
 }
 
 // ReplaceRE returns a copy of s, replacing all matches of the regular

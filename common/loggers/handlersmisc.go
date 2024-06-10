@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 // Some functions in this file (see comments) is based on the Go source code,
 // copyright The Go Authors and  governed by a BSD-style license.
 //
@@ -69,7 +69,7 @@ func (h *logLevelCounter) HandleLog(e *logg.Entry) error {
 	return nil
 }
 
-var stopError = fmt.Errorf("stop")
+var errStop = fmt.Errorf("stop")
 
 type logOnceHandler struct {
 	threshold logg.Level
@@ -87,7 +87,7 @@ func (h *logOnceHandler) HandleLog(e *logg.Entry) error {
 	defer h.mu.Unlock()
 	hash := identity.HashUint64(e.Level, e.Message, e.Fields)
 	if h.seen[hash] {
-		return stopError
+		return errStop
 	}
 	h.seen[hash] = true
 	return nil
@@ -107,7 +107,7 @@ type stopHandler struct {
 func (h *stopHandler) HandleLog(e *logg.Entry) error {
 	for _, handler := range h.handlers {
 		if err := handler.HandleLog(e); err != nil {
-			if err == stopError {
+			if err == errStop {
 				return nil
 			}
 			return err
@@ -124,24 +124,11 @@ func (h *suppressStatementsHandler) HandleLog(e *logg.Entry) error {
 	for _, field := range e.Fields {
 		if field.Name == FieldNameStatementID {
 			if h.statements[field.Value.(string)] {
-				return stopError
+				return errStop
 			}
 		}
 	}
 	return nil
-}
-
-// replacer creates a new log handler that does string replacement in log messages.
-func replacer(repl *strings.Replacer) logg.Handler {
-	return logg.HandlerFunc(func(e *logg.Entry) error {
-		e.Message = repl.Replace(e.Message)
-		for i, field := range e.Fields {
-			if s, ok := field.Value.(string); ok {
-				e.Fields[i].Value = repl.Replace(s)
-			}
-		}
-		return nil
-	})
 }
 
 // whiteSpaceTrimmer creates a new log handler that trims whitespace from log messages and string fields.

@@ -144,7 +144,7 @@ A workspace can be configured in a `*.work` file and activated with the [module.
 See the [hugo.work](https://github.com/gohugoio/hugo/blob/master/docs/hugo.work) file in the Hugo Docs repo for an example:
 
 ```text
-go 1.19
+go 1.20
 
 use .
 use ../gohugoioTheme

@@ -25,13 +25,31 @@ import (
 
 // Regexp definitions
 var (
-	keyMatchRegex    = regexp.MustCompile(`\"(\w+)\":`)
-	wordBarrierRegex = regexp.MustCompile(`(\w)([A-Z])`)
+	keyMatchRegex       = regexp.MustCompile(`\"(\w+)\":`)
+	nullEnableBoolRegex = regexp.MustCompile(`\"(enable\w+)\":null`)
 )
+
+type NullBoolJSONMarshaller struct {
+	Wrapped json.Marshaler
+}
+
+func (c NullBoolJSONMarshaller) MarshalJSON() ([]byte, error) {
+	b, err := c.Wrapped.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return nullEnableBoolRegex.ReplaceAll(b, []byte(`"$1": false`)), nil
+}
 
 // Code adapted from https://gist.github.com/piersy/b9934790a8892db1a603820c0c23e4a7
 type LowerCaseCamelJSONMarshaller struct {
 	Value any
+}
+
+var preserveUpperCaseKeyRe = regexp.MustCompile(`^"HTTP`)
+
+func preserveUpperCaseKey(match []byte) bool {
+	return preserveUpperCaseKeyRe.Match(match)
 }
 
 func (c LowerCaseCamelJSONMarshaller) MarshalJSON() ([]byte, error) {
@@ -47,7 +65,7 @@ func (c LowerCaseCamelJSONMarshaller) MarshalJSON() ([]byte, error) {
 
 			// Empty keys are valid JSON, only lowercase if we do not have an
 			// empty key.
-			if len(match) > 2 {
+			if len(match) > 2 && !preserveUpperCaseKey(match) {
 				// Decode first rune after the double quotes
 				r, width := utf8.DecodeRune(match[1:])
 				r = unicode.ToLower(r)
@@ -92,19 +110,17 @@ func (c ReplacingJSONMarshaller) MarshalJSON() ([]byte, error) {
 				if !hreflect.IsTruthful(v) {
 					delete(m, k)
 				} else {
-					switch v.(type) {
+					switch vv := v.(type) {
 					case map[string]interface{}:
-						removeZeroVAlues(v.(map[string]any))
+						removeZeroVAlues(vv)
 					case []interface{}:
-						for _, vv := range v.([]interface{}) {
-							if m, ok := vv.(map[string]any); ok {
+						for _, vvv := range vv {
+							if m, ok := vvv.(map[string]any); ok {
 								removeZeroVAlues(m)
 							}
 						}
 					}
-
 				}
-
 			}
 		}
 		removeZeroVAlues(m)

@@ -15,11 +15,10 @@ package hugolib
 
 import (
 	"fmt"
-
-	qt "github.com/frankban/quicktest"
-
 	"strings"
 	"testing"
+
+	qt "github.com/frankban/quicktest"
 )
 
 func TestDateFormatMultilingual(t *testing.T) {
@@ -57,7 +56,6 @@ Date: {{ .Date | time.Format ":date_long" }}
 
 	b.AssertFileContent("public/en/index.html", `Date: July 18, 2021`)
 	b.AssertFileContent("public/nn/index.html", `Date: 18. juli 2021`)
-
 }
 
 func TestTimeZones(t *testing.T) {
@@ -171,7 +169,7 @@ ExpiryDate: 2099-07-13 15:28:01 +0000 UTC`
 	// have date literals.
 
 	// YAML
-	// Note: This is with go-yaml v2, I suspect v3 will fail with the unquouted values.
+	// Note: This is with go-yaml v2, I suspect v3 will fail with the unquoted values.
 	b.AssertFileContent("public/en/short-date-yaml-unqouted/index.html", expectShortDateEn)
 	b.AssertFileContent("public/nn/short-date-yaml-unqouted/index.html", expectShortDateNn)
 	b.AssertFileContent("public/en/short-date-yaml-qouted/index.html", expectShortDateEn)
@@ -187,7 +185,6 @@ ExpiryDate: 2099-07-13 15:28:01 +0000 UTC`
 	b.AssertFileContent("public/nn/short-date-toml-unqouted/index.html", expectShortDateNn)
 	b.AssertFileContent("public/en/short-date-toml-qouted/index.html", expectShortDateEn)
 	b.AssertFileContent("public/nn/short-date-toml-qouted/index.html", expectShortDateNn)
-
 }
 
 // Issue 8832
@@ -212,7 +209,6 @@ func TestTimeOnError(t *testing.T) {
 	b.WithContent("p1.md", "")
 
 	b.Assert(b.BuildE(BuildCfg{}), qt.Not(qt.IsNil))
-
 }
 
 func TestTOMLDates(t *testing.T) {
@@ -254,15 +250,12 @@ Past talks: {{ len $pastTalks }}
 Home's Date should be greater than past: {{ gt $homeDate (index $pastTalks 0).date }}
 Home's Date should be less than future: {{ lt $homeDate (index $futureTalks 0).date }}
 Home's Date should be equal mydata date: {{ eq $homeDate site.Data.mydata.date }}
+Home date: {{ $homeDate }}
+mydata.date: {{ site.Data.mydata.date }}
 Full time: {{ $p1Date | time.Format ":time_full" }}
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 Future talks: 2

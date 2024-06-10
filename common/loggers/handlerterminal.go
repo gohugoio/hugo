@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 // Some functions in this file (see comments) is based on the Go source code,
 // copyright The Go Authors and  governed by a BSD-style license.
 //
@@ -81,7 +81,7 @@ func (h *noColoursHandler) HandleLog(e *logg.Entry) error {
 		if strings.HasPrefix(field.Name, reservedFieldNamePrefix) {
 			continue
 		}
-		fmt.Fprintf(w, " %s %q", field.Name, field.Value)
+		fmt.Fprintf(w, " %s %v", field.Name, field.Value)
 
 	}
 	fmt.Fprintln(w)

@@ -12,7 +12,7 @@ action:
     - methods/page/IsAncestor
     - methods/page/IsDescendant
     - methods/page/Sections
-  returnType: hugolib.pageState
+  returnType: page.Page
   signatures: [PAGE.Parent]
 ---
 

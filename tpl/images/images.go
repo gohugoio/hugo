@@ -15,10 +15,9 @@
 package images
 
 import (
+	"errors"
 	"image"
 	"sync"
-
-	"errors"
 
 	"github.com/bep/overlayfs"
 	"github.com/gohugoio/hugo/resources/images"

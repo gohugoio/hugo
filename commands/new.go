@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -60,11 +60,17 @@ Ensure you run this within the root directory of your site.`,
 					return create.NewContent(h, contentType, args[0], force)
 				},
 				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+						if len(args) != 0 {
+							return []string{}, cobra.ShellCompDirectiveNoFileComp
+						}
+						return []string{}, cobra.ShellCompDirectiveNoFileComp | cobra.ShellCompDirectiveFilterDirs
+					}
 					cmd.Flags().StringVarP(&contentType, "kind", "k", "", "content type to create")
 					cmd.Flags().String("editor", "", "edit new content with this editor, if provided")
+					_ = cmd.RegisterFlagCompletionFunc("editor", cobra.NoFileCompletions)
 					cmd.Flags().BoolVarP(&force, "force", "f", false, "overwrite file if it already exists")
 					applyLocalFlagsBuildConfig(cmd, r)
-
 				},
 			},
 			&simpleCommand{
@@ -104,8 +110,15 @@ Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
 					return nil
 				},
 				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+						if len(args) != 0 {
+							return []string{}, cobra.ShellCompDirectiveNoFileComp
+						}
+						return []string{}, cobra.ShellCompDirectiveNoFileComp | cobra.ShellCompDirectiveFilterDirs
+					}
 					cmd.Flags().BoolVarP(&force, "force", "f", false, "init inside non-empty directory")
 					cmd.Flags().StringVar(&format, "format", "toml", "preferred file format (toml, yaml or json)")
+					_ = cmd.RegisterFlagCompletionFunc("format", cobra.FixedCompletions([]string{"toml", "yaml", "json"}, cobra.ShellCompDirectiveNoFileComp))
 				},
 			},
 			&simpleCommand{
@@ -138,12 +151,14 @@ according to your needs.`,
 
 					return nil
 				},
+				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = cobra.NoFileCompletions
+				},
 			},
 		},
 	}
 
 	return c
-
 }
 
 type newCommand struct {
@@ -194,7 +209,7 @@ func (c *newCommand) newSiteNextStepsText(path string, format string) string {
 1. Change the current directory to ` + path + `.
 2. Create or install a theme:
    - Create a new theme with the command "hugo new theme <THEMENAME>"
-   - Install a theme from https://themes.gohugo.io/
+   - Or, install a theme from https://themes.gohugo.io/
 3. Edit hugo.` + format + `, setting the "theme" property to the theme name.
 4. Create new content with the command "hugo new content `)
 

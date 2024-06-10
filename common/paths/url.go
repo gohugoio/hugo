@@ -163,7 +163,6 @@ func Uglify(in string) string {
 // If ParseRequestURI fails, the input is just converted to OS specific slashes and returned.
 func UrlToFilename(s string) (string, bool) {
 	u, err := url.ParseRequestURI(s)
-
 	if err != nil {
 		return filepath.FromSlash(s), false
 	}
@@ -183,4 +182,14 @@ func UrlToFilename(s string) (string, bool) {
 	}
 
 	return p, true
+}
+
+// URLEscape escapes unicode letters.
+func URLEscape(uri string) string {
+	// escape unicode letters
+	u, err := url.Parse(uri)
+	if err != nil {
+		panic(err)
+	}
+	return u.String()
 }

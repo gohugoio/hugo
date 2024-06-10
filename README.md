@@ -62,8 +62,7 @@ And with [Hugo Modules], you can share content, assets, data, translations, them
 
 <p>&nbsp;</p>
 <p float="left">
-  <a href="https://www.linode.com/?utm_campaign=hugosponsor&utm_medium=banner&utm_source=hugogithub" target="_blank"><img src="https://raw.githubusercontent.com/gohugoio/gohugoioTheme/master/assets/images/sponsors/linode-logo_standard_light_medium.png" width="200" alt="Linode"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="https://cloudcannon.com/hugo-cms/?utm_campaign=HugoSponsorship&utm_source=sponsor&utm_content=gohugo" target="_blank"><img src="https://raw.githubusercontent.com/gohugoio/gohugoioTheme/master/assets/images/sponsors/cloudcannon-blue.svg" width="220" alt="CloudCannon"></a>
+  <a href="https://www.linode.com/?utm_campaign=hugosponsor&utm_medium=banner&utm_source=hugogithub" target="_blank"><img src="https://raw.githubusercontent.com/gohugoio/gohugoioTheme/master/assets/images/sponsors/linode-logo_standard_light_medium.png" width="200" alt="Linode"></a>
 <p>&nbsp;</p>
 
 ## Installation
@@ -84,8 +83,8 @@ Hugo is available in two editions: standard and extended. With the extended edit
 
 Prerequisites to build Hugo from source:
 
-- Standard edition: Go 1.19 or later
-- Extended edition: Go 1.19 or later, and GCC
+- Standard edition: Go 1.20 or later
+- Extended edition: Go 1.20 or later, and GCC
 
 Build the standard edition:
 

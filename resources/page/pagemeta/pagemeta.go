@@ -17,13 +17,6 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-type URLPath struct {
-	URL       string
-	Permalink string
-	Slug      string
-	Section   string
-}
-
 const (
 	Never       = "never"
 	Always      = "always"
@@ -31,7 +24,7 @@ const (
 	Link        = "link"
 )
 
-var defaultBuildConfig = BuildConfig{
+var DefaultBuildConfig = BuildConfig{
 	List:             Always,
 	Render:           Always,
 	PublishResources: true,
@@ -76,7 +69,7 @@ func (b BuildConfig) IsZero() bool {
 }
 
 func DecodeBuildConfig(m any) (BuildConfig, error) {
-	b := defaultBuildConfig
+	b := DefaultBuildConfig
 	if m == nil {
 		return b, nil
 	}

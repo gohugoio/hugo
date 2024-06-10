@@ -1,4 +1,4 @@
-hugo server --disableLiveReload  &
+hugo server --renderToMemory --disableLiveReload  &
 
 waitServer
 stopServer

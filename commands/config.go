@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import (
 	"github.com/gohugoio/hugo/modules"
 	"github.com/gohugoio/hugo/parser"
 	"github.com/gohugoio/hugo/parser/metadecoders"
+	"github.com/spf13/cobra"
 )
 
 // newConfigCommand creates a new config command and its subcommands.
@@ -37,7 +38,6 @@ func newConfigCommand() *configCommand {
 			&configMountsCommand{},
 		},
 	}
-
 }
 
 type configCommand struct {
@@ -113,7 +113,9 @@ func (c *configCommand) Init(cd *simplecobra.Commandeer) error {
 	cmd.Short = "Print the site configuration"
 	cmd.Long = `Print the site configuration, both default and custom settings.`
 	cmd.Flags().StringVar(&c.format, "format", "toml", "preferred file format (toml, yaml or json)")
+	_ = cmd.RegisterFlagCompletionFunc("format", cobra.FixedCompletions([]string{"toml", "yaml", "json"}, cobra.ShellCompDirectiveNoFileComp))
 	cmd.Flags().StringVar(&c.lang, "lang", "", "the language to display config for. Defaults to the first language defined.")
+	_ = cmd.RegisterFlagCompletionFunc("lang", cobra.NoFileCompletions)
 	applyLocalFlagsBuildConfig(cmd, c.r)
 
 	return nil
@@ -190,7 +192,6 @@ func (m *configModMounts) MarshalJSON() ([]byte, error) {
 		Dir:     m.m.Dir(),
 		Mounts:  mounts,
 	})
-
 }
 
 type configMountsCommand struct {
@@ -225,6 +226,7 @@ func (c *configMountsCommand) Init(cd *simplecobra.Commandeer) error {
 	c.r = cd.Root.Command.(*rootCommand)
 	cmd := cd.CobraCommand
 	cmd.Short = "Print the configured file mounts"
+	cmd.ValidArgsFunction = cobra.NoFileCompletions
 	applyLocalFlagsBuildConfig(cmd, c.r)
 	return nil
 }

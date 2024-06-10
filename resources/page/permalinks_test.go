@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -202,7 +202,6 @@ func TestPermalinkExpansionSliceSyntax(t *testing.T) {
 		c.Assert(fn1("[:last]"), qt.DeepEquals, []string{})
 		c.Assert(fn1("[1:last]"), qt.DeepEquals, []string{})
 		c.Assert(fn1("[1]"), qt.DeepEquals, []string{})
-
 	})
 
 	c.Run("Out of bounds", func(c *qt.C) {
@@ -218,9 +217,7 @@ func TestPermalinkExpansionSliceSyntax(t *testing.T) {
 		c.Assert(fn4("[]"), qt.IsNil)
 		c.Assert(fn4("[1:}"), qt.IsNil)
 		c.Assert(fn4("foo"), qt.IsNil)
-
 	})
-
 }
 
 func BenchmarkPermalinkExpand(b *testing.B) {

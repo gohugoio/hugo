@@ -243,6 +243,7 @@ func parseTOC(doc *html.Node) *tableofcontents.Fragments {
 					toc.AddAt(&tableofcontents.Heading{
 						Title: nodeContent(c),
 						ID:    href,
+						Level: level + 1,
 					}, row, level)
 				}
 				f(n.FirstChild, row, level)

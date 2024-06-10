@@ -11,6 +11,26 @@ weight: 60
 # Use level 6 headings for each term in the glossary.
 ---
 
+[A](#action)
+[B](#bool)
+[C](#cache)
+[D](#default-sort-order)
+[E](#environment)
+[F](#field)
+[G](#global-resource)
+[I](#identifier)
+[K](#kind)
+[L](#layout)
+[M](#map)
+[O](#object)
+[P](#page-bundle)
+[R](#regular-page)
+[S](#scalar)
+[T](#taxonomic-weight)
+[U](#unmarshal)
+[V](#variable)
+[W](#walk)
+
 ###### action
 
 See [template action](#template-action).
@@ -153,7 +173,7 @@ An [interval](https://en.wikipedia.org/wiki/Interval_(mathematics)) is a range o
 
 - A _closed_ interval, denoted by brackets, includes its endpoints. For example, [0,&nbsp;1]&nbsp;is the interval where `0 <= x <= 1`.
 
-- An _open_ interval, denoted by parenthesis, excludes its endpoints. For example, (0,&nbsp;1)&nbsp;is the interval where `0 < x < 1`.
+- An _open_ interval, denoted by parentheses, excludes its endpoints. For example, (0,&nbsp;1)&nbsp;is the interval where `0 < x < 1`.
 
 - A _half-open_ interval includes only one of its endpoints. For example, (0,&nbsp;1]&nbsp;is the _left-open_ interval where `0 < x <= 1`, while [0,&nbsp;1)&nbsp;is the _right-open_ interval where `0 <= x < 1`.
 
@@ -215,6 +235,10 @@ Created by invoking the [`Alphabetical`] or [`ByCount`] method on a [taxonomy ob
 ###### page bundle
 
 A directory that encapsulates both content and associated [resources](#resource). There are two types of page bundles: [leaf bundles](#leaf-bundle) and [branch bundles](#branch-bundle). See&nbsp;[details](/content-management/page-bundles/).
+
+###### page collection
+
+A slice of page objects.
 
 ###### page kind
 

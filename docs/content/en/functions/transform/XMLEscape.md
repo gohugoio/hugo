@@ -10,6 +10,8 @@ action:
   signatures: [transform.XMLEscape INPUT]
 ---
 
+{{< new-in 0.121.0 >}}
+
 The `transform.XMLEscape` function removes [disallowed characters] as defined in the XML specification, then escapes the result by replacing the following characters with [HTML entities]:
 
 - `"` → `&#34;`
@@ -24,7 +26,7 @@ The `transform.XMLEscape` function removes [disallowed characters] as defined in
 For example:
 
 ```go-html-template
-transform.XMLEscape "<p>abc</p>" → &lt;p&gt;abc&lt;/p&gt;
+{{ transform.XMLEscape "<p>abc</p>" }} → &lt;p&gt;abc&lt;/p&gt;
 ```
 
 When using `transform.XMLEscape` in a template rendered by Go's [html/template] package, declare the string to be safe HTML to avoid double escaping. For example, in an RSS template:

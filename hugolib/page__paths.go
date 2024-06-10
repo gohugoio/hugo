@@ -17,29 +17,34 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/output"
 
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 )
 
-func newPagePaths(
-	s *Site,
-	p page.Page,
-	pm *pageMeta) (pagePaths, error) {
-	targetPathDescriptor, err := createTargetPathDescriptor(s, p, pm)
+func newPagePaths(ps *pageState) (pagePaths, error) {
+	s := ps.s
+	pm := ps.m
+
+	targetPathDescriptor, err := createTargetPathDescriptor(ps)
 	if err != nil {
 		return pagePaths{}, err
 	}
 
-	outputFormats := pm.outputFormats()
-	if len(outputFormats) == 0 {
-		return pagePaths{}, nil
-	}
+	var outputFormats output.Formats
 
-	if pm.noRender() {
-		outputFormats = outputFormats[:1]
+	if ps.m.isStandalone() {
+		outputFormats = output.Formats{ps.m.standaloneOutputFormat}
+	} else {
+		outputFormats = pm.outputFormats()
+		if len(outputFormats) == 0 {
+			return pagePaths{}, nil
+		}
+
+		if pm.noRender() {
+			outputFormats = outputFormats[:1]
+		}
 	}
 
 	pageOutputFormats := make(page.OutputFormats, len(outputFormats))
@@ -102,46 +107,35 @@ func (l pagePaths) OutputFormats() page.OutputFormats {
 	return l.outputFormats
 }
 
-func createTargetPathDescriptor(s *Site, p page.Page, pm *pageMeta) (page.TargetPathDescriptor, error) {
-	var (
-		dir             string
-		baseName        string
-		contentBaseName string
-	)
-
+func createTargetPathDescriptor(p *pageState) (page.TargetPathDescriptor, error) {
+	s := p.s
 	d := s.Deps
-	var classifier files.ContentClass
-
-	if !p.File().IsZero() {
-		dir = p.File().Dir()
-		baseName = p.File().TranslationBaseName()
-		contentBaseName = p.File().ContentBaseName()
-		classifier = p.File().FileInfo().Meta().Classifier
-	}
-
-	if classifier == files.ContentClassLeaf {
-		// See https://github.com/gohugoio/hugo/issues/4870
-		// A leaf bundle
-		dir = strings.TrimSuffix(dir, contentBaseName+helpers.FilePathSeparator)
-		baseName = contentBaseName
-	}
-
+	pm := p.m
 	alwaysInSubDir := p.Kind() == kinds.KindSitemap
+
+	pageInfoPage := p.PathInfo()
+	pageInfoCurrentSection := p.CurrentSection().PathInfo()
+	if p.s.Conf.DisablePathToLower() {
+		pageInfoPage = pageInfoPage.Unnormalized()
+		pageInfoCurrentSection = pageInfoCurrentSection.Unnormalized()
+	}
 
 	desc := page.TargetPathDescriptor{
 		PathSpec:    d.PathSpec,
 		Kind:        p.Kind(),
-		Sections:    p.SectionsEntries(),
+		Path:        pageInfoPage,
+		Section:     pageInfoCurrentSection,
 		UglyURLs:    s.h.Conf.IsUglyURLs(p.Section()),
 		ForcePrefix: s.h.Conf.IsMultihost() || alwaysInSubDir,
-		Dir:         dir,
-		URL:         pm.urlPaths.URL,
+		URL:         pm.pageConfig.URL,
 	}
 
 	if pm.Slug() != "" {
 		desc.BaseName = pm.Slug()
+	} else if pm.isStandalone() && pm.standaloneOutputFormat.BaseName != "" {
+		desc.BaseName = pm.standaloneOutputFormat.BaseName
 	} else {
-		desc.BaseName = baseName
+		desc.BaseName = pageInfoPage.BaseNameNoIdentifier()
 	}
 
 	desc.PrefixFilePath = s.getLanguageTargetPathLang(alwaysInSubDir)
@@ -156,16 +150,16 @@ func createTargetPathDescriptor(s *Site, p page.Page, pm *pageMeta) (page.Target
 		opath, _ = url.QueryUnescape(opath)
 		if strings.HasSuffix(opath, "//") {
 			// When rewriting the _index of the section the permalink config is applied to,
-			// we get douple slashes at the end sometimes; clear them up here
+			// we get double slashes at the end sometimes; clear them up here
 			opath = strings.TrimSuffix(opath, "/")
 		}
 
 		desc.ExpandedPermalink = opath
 
-		if !p.File().IsZero() {
+		if p.File() != nil {
 			s.Log.Debugf("Set expanded permalink path for %s %s to %#v", p.Kind(), p.File().Path(), opath)
 		} else {
-			s.Log.Debugf("Set expanded permalink path for %s in %v to %#v", p.Kind(), desc.Sections, opath)
+			s.Log.Debugf("Set expanded permalink path for %s in %v to %#v", p.Kind(), desc.Section.Path(), opath)
 		}
 	}
 

@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@ package allconfig
 import (
 	"time"
 
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/urls"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/langs"
 )
 
@@ -41,11 +43,16 @@ func (c ConfigLanguage) LanguagesDefaultFirst() langs.Languages {
 	return c.m.LanguagesDefaultFirst
 }
 
+func (c ConfigLanguage) PathParser() *paths.PathParser {
+	return c.m.ContentPathParser
+}
+
 func (c ConfigLanguage) LanguagePrefix() string {
 	if c.DefaultContentLanguageInSubdir() && c.DefaultContentLanguage() == c.Language().Lang {
 		return c.Language().Lang
 	}
-	if !c.IsMultiLingual() || c.DefaultContentLanguage() == c.Language().Lang {
+
+	if !c.IsMultilingual() || c.DefaultContentLanguage() == c.Language().Lang {
 		return ""
 	}
 	return c.Language().Lang
@@ -64,10 +71,17 @@ func (c ConfigLanguage) Environment() string {
 }
 
 func (c ConfigLanguage) IsMultihost() bool {
+	if len(c.m.Languages)-len(c.config.C.DisabledLanguages) <= 1 {
+		return false
+	}
 	return c.m.IsMultihost
 }
 
-func (c ConfigLanguage) IsMultiLingual() bool {
+func (c ConfigLanguage) FastRenderMode() bool {
+	return c.config.Internal.FastRenderMode
+}
+
+func (c ConfigLanguage) IsMultilingual() bool {
 	return len(c.m.Languages) > 1
 }
 
@@ -83,8 +97,8 @@ func (c ConfigLanguage) IsLangDisabled(lang string) bool {
 	return c.config.C.DisabledLanguages[lang]
 }
 
-func (c ConfigLanguage) IgnoredErrors() map[string]bool {
-	return c.config.C.IgnoredErrors
+func (c ConfigLanguage) IgnoredLogs() map[string]bool {
+	return c.config.C.IgnoredLogs
 }
 
 func (c ConfigLanguage) NoBuildLock() bool {
@@ -119,6 +133,21 @@ func (c ConfigLanguage) Quiet() bool {
 	return c.m.Base.Internal.Quiet
 }
 
+func (c ConfigLanguage) Watching() bool {
+	return c.m.Base.Internal.Watch
+}
+
+func (c ConfigLanguage) NewIdentityManager(name string) identity.Manager {
+	if !c.Watching() {
+		return identity.NopManager
+	}
+	return identity.NewManager(name)
+}
+
+func (c ConfigLanguage) ContentTypes() config.ContentTypesProvider {
+	return c.config.C.ContentTypes
+}
+
 // GetConfigSection is mostly used in tests. The switch statement isn't complete, but what's in use.
 func (c ConfigLanguage) GetConfigSection(s string) any {
 	switch s {
@@ -144,6 +173,8 @@ func (c ConfigLanguage) GetConfigSection(s string) any {
 		return c.m.Modules
 	case "deployment":
 		return c.config.Deployment
+	case "httpCacheCompiled":
+		return c.config.C.HTTPCache
 	default:
 		panic("not implemented: " + s)
 	}
@@ -217,12 +248,8 @@ func (c ConfigLanguage) CreateTitle(s string) string {
 	return c.config.C.CreateTitle(s)
 }
 
-func (c ConfigLanguage) Paginate() int {
-	return c.config.Paginate
-}
-
-func (c ConfigLanguage) PaginatePath() string {
-	return c.config.PaginatePath
+func (c ConfigLanguage) Pagination() config.Pagination {
+	return c.config.Pagination
 }
 
 func (c ConfigLanguage) StaticDirs() []string {

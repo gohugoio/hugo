@@ -41,20 +41,11 @@ type MenuQueryProvider interface {
 	IsMenuCurrent(menuID string, inme *MenuEntry) bool
 }
 
-func PageMenusFromPage(p Page) (PageMenus, error) {
-	params := p.Params()
-
-	ms, ok := params["menus"]
-	if !ok {
-		ms, ok = params["menu"]
-	}
-
-	pm := PageMenus{}
-
-	if !ok {
+func PageMenusFromPage(ms any, p Page) (PageMenus, error) {
+	if ms == nil {
 		return nil, nil
 	}
-
+	pm := PageMenus{}
 	me := MenuEntry{}
 	SetPageValues(&me, p)
 
@@ -78,7 +69,7 @@ func PageMenusFromPage(p Page) (PageMenus, error) {
 		return pm, nil
 	}
 
-	var wrapErr = func(err error) error {
+	wrapErr := func(err error) error {
 		return fmt.Errorf("unable to process menus for page %q: %w", p.Path(), err)
 	}
 
@@ -109,7 +100,8 @@ func PageMenusFromPage(p Page) (PageMenus, error) {
 func NewMenuQueryProvider(
 	pagem PageMenusGetter,
 	sitem MenusGetter,
-	p Page) MenuQueryProvider {
+	p Page,
+) MenuQueryProvider {
 	return &pageMenus{
 		p:     p,
 		pagem: pagem,
@@ -125,7 +117,7 @@ type pageMenus struct {
 
 func (pm *pageMenus) HasMenuCurrent(menuID string, me *MenuEntry) bool {
 	if !types.IsNil(me.Page) && me.Page.IsSection() {
-		if ok, _ := me.Page.IsAncestor(pm.p); ok {
+		if ok := me.Page.IsAncestor(pm.p); ok {
 			return true
 		}
 	}

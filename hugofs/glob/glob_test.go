@@ -75,7 +75,6 @@ func TestGetGlob(t *testing.T) {
 }
 
 func BenchmarkGetGlob(b *testing.B) {
-
 	runBench := func(name string, cache *globCache, search string) {
 		b.Run(name, func(b *testing.B) {
 			g, err := GetGlob("**/foo")

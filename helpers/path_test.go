@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -134,7 +134,6 @@ func TestMakePathRelative(t *testing.T) {
 }
 
 func TestGetDottedRelativePath(t *testing.T) {
-	// on Windows this will receive both kinds, both country and western ...
 	for _, f := range []func(string) string{filepath.FromSlash, func(s string) string { return s }} {
 		doTestGetDottedRelativePath(f, t)
 	}
@@ -258,7 +257,7 @@ func createNonZeroSizedFileInTempDir(t *testing.T) *os.File {
 
 	f := createZeroSizedFileInTempDir(t)
 	byteString := []byte("byteString")
-	err := os.WriteFile(f.Name(), byteString, 0644)
+	err := os.WriteFile(f.Name(), byteString, 0o644)
 	if err != nil {
 		t.Error(err)
 	}

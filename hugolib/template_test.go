@@ -20,12 +20,10 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/allconfig"
-	"github.com/gohugoio/hugo/identity"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/tpl"
 )
 
 func TestTemplateLookupOrder(t *testing.T) {
@@ -536,56 +534,6 @@ with: Zero OK
 `)
 }
 
-func TestTemplateDependencies(t *testing.T) {
-	b := newTestSitesBuilder(t).Running()
-
-	b.WithTemplates("index.html", `
-{{ $p := site.GetPage "p1" }}
-{{ partial "p1.html"  $p }}
-{{ partialCached "p2.html" "foo" }}
-{{ partials.Include "p3.html" "data" }}
-{{ partials.IncludeCached "p4.html" "foo" }}
-{{ $p := partial "p5" }}
-{{ partial "sub/p6.html" }}
-{{ partial "P7.html" }}
-{{ template "_default/foo.html" }}
-Partial nested: {{ partial "p10" }}
-
-`,
-		"partials/p1.html", `ps: {{ .Render "li" }}`,
-		"partials/p2.html", `p2`,
-		"partials/p3.html", `p3`,
-		"partials/p4.html", `p4`,
-		"partials/p5.html", `p5`,
-		"partials/sub/p6.html", `p6`,
-		"partials/P7.html", `p7`,
-		"partials/p8.html", `p8 {{ partial "p9.html" }}`,
-		"partials/p9.html", `p9`,
-		"partials/p10.html", `p10 {{ partial "p11.html" }}`,
-		"partials/p11.html", `p11`,
-		"_default/foo.html", `foo`,
-		"_default/li.html", `li {{ partial "p8.html" }}`,
-	)
-
-	b.WithContent("p1.md", `---
-title: P1
----
-
-
-`)
-
-	b.Build(BuildCfg{})
-
-	s := b.H.Sites[0]
-
-	templ, found := s.lookupTemplate("index.html")
-	b.Assert(found, qt.Equals, true)
-
-	idset := make(map[identity.Identity]bool)
-	collectIdentities(idset, templ.(tpl.Info))
-	b.Assert(idset, qt.HasLen, 11)
-}
-
 func TestTemplateGoIssues(t *testing.T) {
 	b := newTestSitesBuilder(t)
 
@@ -623,16 +571,6 @@ Population in Norway is {{
 Population in Norway is 5 MILLIONS
 
 `)
-}
-
-func collectIdentities(set map[identity.Identity]bool, provider identity.Provider) {
-	if ids, ok := provider.(identity.IdentitiesProvider); ok {
-		for _, id := range ids.GetIdentities() {
-			collectIdentities(set, id)
-		}
-	} else {
-		set[provider.GetIdentity()] = true
-	}
 }
 
 func TestPartialInline(t *testing.T) {

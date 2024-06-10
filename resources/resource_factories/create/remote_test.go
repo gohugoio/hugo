@@ -81,7 +81,6 @@ func TestDecodeRemoteOptions(t *testing.T) {
 			c.Assert(err, isErr)
 			c.Assert(got, qt.DeepEquals, test.want)
 		})
-
 	}
 }
 
@@ -114,18 +113,23 @@ func TestOptionsNewRequest(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	c.Assert(req.Method, qt.Equals, "GET")
 	c.Assert(req.Header["User-Agent"], qt.DeepEquals, []string{"foo"})
-
 }
 
-func TestCalculateResourceID(t *testing.T) {
+func TestRemoteResourceKeys(t *testing.T) {
 	t.Parallel()
 
 	c := qt.New(t)
 
-	c.Assert(calculateResourceID("foo", nil), qt.Equals, "5917621528921068675")
-	c.Assert(calculateResourceID("foo", map[string]any{"bar": "baz"}), qt.Equals, "7294498335241413323")
+	check := func(uri string, optionsm map[string]any, expect1, expect2 string) {
+		got1, got2 := remoteResourceKeys(uri, optionsm)
+		c.Assert(got1, qt.Equals, expect1)
+		c.Assert(got2, qt.Equals, expect2)
+	}
 
-	c.Assert(calculateResourceID("foo", map[string]any{"key": "1234", "bar": "baz"}), qt.Equals, "14904296279238663669")
-	c.Assert(calculateResourceID("asdf", map[string]any{"key": "1234", "bar": "asdf"}), qt.Equals, "14904296279238663669")
-	c.Assert(calculateResourceID("asdf", map[string]any{"key": "12345", "bar": "asdf"}), qt.Equals, "12191037851845371770")
+	check("foo", nil, "5917621528921068675", "5917621528921068675")
+	check("foo", map[string]any{"bar": "baz"}, "7294498335241413323", "7294498335241413323")
+	check("foo", map[string]any{"key": "1234", "bar": "baz"}, "14904296279238663669", "7294498335241413323")
+	check("foo", map[string]any{"key": "12345", "bar": "baz"}, "12191037851845371770", "7294498335241413323")
+	check("asdf", map[string]any{"key": "1234", "bar": "asdf"}, "14904296279238663669", "3787889110563790121")
+	check("asdf", map[string]any{"key": "12345", "bar": "asdf"}, "12191037851845371770", "3787889110563790121")
 }

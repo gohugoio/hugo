@@ -83,7 +83,5 @@ func TestConfig(t *testing.T) {
 		c.Assert(err, qt.IsNil)
 		c.Assert(conf.Goldmark.Extensions.Typographer.Disable, qt.Equals, false)
 		c.Assert(conf.Goldmark.Extensions.Typographer.Ellipsis, qt.Equals, "&hellip;")
-
 	})
-
 }

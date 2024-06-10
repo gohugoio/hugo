@@ -1,4 +1,4 @@
-// Copyright 2022 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -121,7 +121,6 @@ HasShortcode: foo:{{ .HasShortcode "foo" }}:false
 `
 
 	t.Run("Basic", func(t *testing.T) {
-
 		b := NewIntegrationTestBuilder(
 			IntegrationTestConfig{
 				T:           t,
@@ -139,11 +138,9 @@ HasShortcode: mark2:true:true
 HasShortcode: foo:false:false
 Page Type: *hugolib.pageForShortcode`,
 		)
-
 	})
 
 	t.Run("Edit shortcode", func(t *testing.T) {
-
 		b := NewIntegrationTestBuilder(
 			IntegrationTestConfig{
 				T:           t,
@@ -157,7 +154,6 @@ Page Type: *hugolib.pageForShortcode`,
 		b.AssertFileContent("public/p1/index.html",
 			`Edit shortcode`,
 		)
-
 	})
 }
 
@@ -176,12 +172,7 @@ Has other: {{ .HasShortcode "other" }}
 
 	`
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html",
 		`
@@ -189,7 +180,6 @@ Page Kind: home
 Has myshort: true
 Has other: false
 `)
-
 }
 
 func TestRenderStringWithShortcodeIssue10654(t *testing.T) {
@@ -218,12 +208,7 @@ title: "P1"
 {{ .Content }}
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html", `TableOfContents`)
 }

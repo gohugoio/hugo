@@ -29,7 +29,7 @@ type Format struct {
 	// The Name is used as an identifier. Internal output formats (i.e. html and rss)
 	// can be overridden by providing a new definition for those types.
 	// <docsmeta>{ "identifiers": ["html", "rss"] }</docsmeta>
-	Name string `json:"name"`
+	Name string `json:"-"`
 
 	MediaType media.Type `json:"-"`
 
@@ -56,26 +56,33 @@ type Format struct {
 	// Enable to ignore the global uglyURLs setting.
 	NoUgly bool `json:"noUgly"`
 
+	// Enable to override the global uglyURLs setting.
+	Ugly bool `json:"ugly"`
+
 	// Enable if it doesn't make sense to include this format in an alternative
 	// format listing, CSS being one good example.
 	// Note that we use the term "alternative" and not "alternate" here, as it
 	// does not necessarily replace the other format, it is an alternative representation.
 	NotAlternative bool `json:"notAlternative"`
 
+	// Eneable if this is a resource which path always starts at the root,
+	// e.g. /robots.txt.
+	Root bool `json:"root"`
+
 	// Setting this will make this output format control the value of
 	// .Permalink and .RelPermalink for a rendered Page.
 	// If not set, these values will point to the main (first) output format
-	// configured. That is probably the behaviour you want in most situations,
+	// configured. That is probably the behavior you want in most situations,
 	// as you probably don't want to link back to the RSS version of a page, as an
 	// example. AMP would, however, be a good example of an output format where this
-	// behaviour is wanted.
+	// behavior is wanted.
 	Permalinkable bool `json:"permalinkable"`
 
 	// Setting this to a non-zero value will be used as the first sort criteria.
 	Weight int `json:"weight"`
 }
 
-// An ordered list of built-in output formats.
+// Built-in output formats.
 var (
 	AMPFormat = Format{
 		Name:          "amp",
@@ -156,6 +163,7 @@ var (
 		MediaType:   media.Builtin.TextType,
 		BaseName:    "robots",
 		IsPlainText: true,
+		Root:        true,
 		Rel:         "alternate",
 	}
 
@@ -171,8 +179,26 @@ var (
 		Name:      "sitemap",
 		MediaType: media.Builtin.XMLType,
 		BaseName:  "sitemap",
-		NoUgly:    true,
+		Ugly:      true,
 		Rel:       "sitemap",
+	}
+
+	SitemapIndexFormat = Format{
+		Name:      "sitemapindex",
+		MediaType: media.Builtin.XMLType,
+		BaseName:  "sitemap",
+		Ugly:      true,
+		Root:      true,
+		Rel:       "sitemap",
+	}
+
+	HTTPStatusHTMLFormat = Format{
+		Name:           "httpstatus",
+		MediaType:      media.Builtin.HTMLType,
+		NotAlternative: true,
+		Ugly:           true,
+		IsHTML:         true,
+		Permalinkable:  true,
 	}
 )
 
@@ -295,6 +321,11 @@ func (formats Formats) FromFilename(filename string) (f Format, found bool) {
 // "index.xml").
 func (f Format) BaseFilename() string {
 	return f.BaseName + f.MediaType.FirstSuffix.FullSuffix
+}
+
+// IsZero returns true if f represents a zero value.
+func (f Format) IsZero() bool {
+	return f.Name == ""
 }
 
 // MarshalJSON returns the JSON encoding of f.

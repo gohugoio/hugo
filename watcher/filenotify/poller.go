@@ -201,7 +201,7 @@ func (r *recording) record(filename string) error {
 	r.FileInfo = fi
 
 	// If fi is a dir, we watch the files inside that directory (not recursively).
-	// This matches the behaviour of fsnotity.
+	// This matches the behavior of fsnotity.
 	if fi.IsDir() {
 		f, err := os.Open(filename)
 		if err != nil {
@@ -248,7 +248,6 @@ func newItemToWatch(filename string) (*itemToWatch, error) {
 	}
 
 	return &itemToWatch{filename: filename, left: r}, nil
-
 }
 
 func (item *itemToWatch) checkForChanges() ([]fsnotify.Event, error) {
@@ -298,7 +297,6 @@ func (item *itemToWatch) checkForChanges() ([]fsnotify.Event, error) {
 	}
 
 	return evs, nil
-
 }
 
 func checkChange(fi1, fi2 os.FileInfo) fsnotify.Op {

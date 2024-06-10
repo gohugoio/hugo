@@ -1,23 +1,43 @@
 # Test mod npm.
 
+dostounix golden/package.json
+
 hugo mod npm pack
-cmp package.hugo.json golden/package.hugo.json
+cmp package.json golden/package.json
 
 -- hugo.toml --
 baseURL = "https://example.org/"
--- package.json --
+[module]
+[[module.imports]]
+path="github.com/gohugoio/hugoTestModule2"
+
+
+-- golden/package.json --
 {
-  "name": "test",
-  "version": "1.0.0",
+  "comments": {
+    "dependencies": {
+      "react-dom": "github.com/gohugoio/hugoTestModule2"
+    },
+    "devDependencies": {
+      "@babel/cli": "github.com/gohugoio/hugoTestModule2",
+      "@babel/core": "github.com/gohugoio/hugoTestModule2",
+      "@babel/preset-env": "github.com/gohugoio/hugoTestModule2",
+      "postcss-cli": "github.com/gohugoio/hugoTestModule2",
+      "tailwindcss": "github.com/gohugoio/hugoTestModule2"
+    }
+  },
   "dependencies": {
-    "mod": "foo-bar"
-  }
+    "react-dom": "^16.13.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "7.8.4",
+    "@babel/core": "7.9.0",
+    "@babel/preset-env": "7.9.5",
+    "postcss-cli": "7.1.0",
+    "tailwindcss": "1.2.0"
+  },
+  "name": "script-mod_npm",
+  "version": "0.1.0"
 }
--- golden/package.hugo.json --
-{
-  "name": "test",
-  "version": "1.0.0",
-  "dependencies": {
-    "mod": "foo-bar"
-  }
-}
+-- go.mod --
+module github.com/gohugoio/hugoTestModule

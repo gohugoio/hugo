@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,10 +21,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/gohugoio/hugo/hugofs/files"
-	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
-	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/resources/resource"
 
@@ -32,6 +29,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/langs"
@@ -54,7 +52,7 @@ func newTestPage() *testPage {
 
 func newTestPageWithFile(filename string) *testPage {
 	filename = filepath.FromSlash(filename)
-	file := source.NewTestFile(filename)
+	file := source.NewFileInfoFrom(filename, filename)
 
 	l, err := langs.NewLanguage(
 		"en",
@@ -107,7 +105,7 @@ type testPage struct {
 	params map[string]any
 	data   map[string]any
 
-	file source.File
+	file *source.File
 
 	currentSection *testPage
 	sectionEntries []string
@@ -129,10 +127,12 @@ func (p *testPage) AlternativeOutputFormats() OutputFormats {
 	panic("testpage: not implemented")
 }
 
+// Deprecated: Use taxonomies instead.
 func (p *testPage) Author() Author {
 	return Author{}
 }
 
+// Deprecated: Use taxonomies instead.
 func (p *testPage) Authors() AuthorList {
 	return nil
 }
@@ -141,7 +141,7 @@ func (p *testPage) BaseFileName() string {
 	panic("testpage: not implemented")
 }
 
-func (p *testPage) BundleType() files.ContentClass {
+func (p *testPage) BundleType() string {
 	panic("testpage: not implemented")
 }
 
@@ -201,7 +201,7 @@ func (p *testPage) Extension() string {
 	panic("testpage: not implemented")
 }
 
-func (p *testPage) File() source.File {
+func (p *testPage) File() *source.File {
 	return p.file
 }
 
@@ -222,10 +222,6 @@ func (p *testPage) FuzzyWordCount(context.Context) int {
 }
 
 func (p *testPage) GetPage(ref string) (Page, error) {
-	panic("testpage: not implemented")
-}
-
-func (p *testPage) GetPageWithTemplateInfo(info tpl.Info, ref string) (Page, error) {
 	panic("testpage: not implemented")
 }
 
@@ -261,15 +257,15 @@ func (p *testPage) Hugo() hugo.HugoInfo {
 	panic("testpage: not implemented")
 }
 
-func (p *testPage) InSection(other any) (bool, error) {
+func (p *testPage) InSection(other any) bool {
 	panic("testpage: not implemented")
 }
 
-func (p *testPage) IsAncestor(other any) (bool, error) {
+func (p *testPage) IsAncestor(other any) bool {
 	panic("testpage: not implemented")
 }
 
-func (p *testPage) IsDescendant(other any) (bool, error) {
+func (p *testPage) IsDescendant(other any) bool {
 	panic("testpage: not implemented")
 }
 
@@ -298,6 +294,10 @@ func (p *testPage) IsSection() bool {
 }
 
 func (p *testPage) IsTranslated() bool {
+	panic("testpage: not implemented")
+}
+
+func (p *testPage) Ancestors() Pages {
 	panic("testpage: not implemented")
 }
 
@@ -415,16 +415,12 @@ func (p *testPage) Parent() Page {
 	panic("testpage: not implemented")
 }
 
-func (p *testPage) Ancestors() Pages {
-	panic("testpage: not implemented")
-}
-
 func (p *testPage) Path() string {
 	return p.path
 }
 
-func (p *testPage) Pathc() string {
-	return p.path
+func (p *testPage) PathInfo() *paths.Path {
+	panic("testpage: not implemented")
 }
 
 func (p *testPage) Permalink() string {
@@ -601,10 +597,6 @@ func (p *testPage) Weight() int {
 }
 
 func (p *testPage) WordCount(context.Context) int {
-	panic("testpage: not implemented")
-}
-
-func (p *testPage) GetIdentity() identity.Identity {
 	panic("testpage: not implemented")
 }
 

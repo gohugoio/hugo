@@ -157,7 +157,7 @@ module github.com/bep/mymod
 
 	tempDir := os.TempDir()
 	cacheDir := filepath.Join(tempDir, "hugocache")
-	if err := os.MkdirAll(cacheDir, 0777); err != nil {
+	if err := os.MkdirAll(cacheDir, 0o777); err != nil {
 		return nil, err
 	}
 	cfg.Set("cacheDir", cacheDir)
@@ -168,11 +168,11 @@ module github.com/bep/mymod
 
 	fs := afero.NewOsFs()
 
-	if err := afero.WriteFile(fs, filepath.Join(tempDir, "hugo.toml"), []byte(configToml), 0644); err != nil {
+	if err := afero.WriteFile(fs, filepath.Join(tempDir, "hugo.toml"), []byte(configToml), 0o644); err != nil {
 		return nil, err
 	}
 
-	if err := afero.WriteFile(fs, filepath.Join(tempDir, "go.mod"), []byte(goMod), 0644); err != nil {
+	if err := afero.WriteFile(fs, filepath.Join(tempDir, "go.mod"), []byte(goMod), 0o644); err != nil {
 		return nil, err
 	}
 
@@ -181,5 +181,4 @@ module github.com/bep/mymod
 		return nil, err
 	}
 	return conf.Base, err
-
 }

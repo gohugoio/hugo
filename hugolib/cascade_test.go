@@ -126,7 +126,7 @@ cascade:
 
 			b.Build(BuildCfg{})
 
-			p1 := b.H.Sites[0].getPage("p1")
+			p1 := b.H.Sites[0].getPageOldVersion("p1")
 
 			if withHomeContent {
 				b.Assert(p1.Params(), qt.DeepEquals, maps.Params{
@@ -158,34 +158,38 @@ func TestCascade(t *testing.T) {
 		b := newCascadeTestBuilder(t, langs)
 		b.Build(BuildCfg{})
 
+		// b.H.Sites[0].pageMap.debugPrint("", 999, os.Stdout)
+
+		// 12|term|/categories/cool|Cascade Category|cat.png|page|html-|\
+
 		b.AssertFileContent("public/index.html", `
-12|term|categories/cool/_index.md|Cascade Category|cat.png|categories|html-|
-12|term|categories/catsect1|catsect1|cat.png|categories|html-|
-12|term|categories/funny|funny|cat.png|categories|html-|
-12|taxonomy|categories/_index.md|My Categories|cat.png|categories|html-|
-32|term|categories/sad/_index.md|Cascade Category|sad.png|categories|html-|
-42|term|tags/blue|blue|home.png|tags|html-|
-42|taxonomy|tags|Cascade Home|home.png|tags|html-|
-42|section|sectnocontent|Cascade Home|home.png|sectnocontent|html-|
-42|section|sect3|Cascade Home|home.png|sect3|html-|
-42|page|bundle1/index.md|Cascade Home|home.png|page|html-|
-42|page|p2.md|Cascade Home|home.png|page|html-|
-42|page|sect2/p2.md|Cascade Home|home.png|sect2|html-|
-42|page|sect3/nofrontmatter.md|Cascade Home|home.png|sect3|html-|
-42|page|sect3/p1.md|Cascade Home|home.png|sect3|html-|
-42|page|sectnocontent/p1.md|Cascade Home|home.png|sectnocontent|html-|
-42|section|sectnofrontmatter/_index.md|Cascade Home|home.png|sectnofrontmatter|html-|
-42|term|tags/green|green|home.png|tags|html-|
-42|home|_index.md|Home|home.png|page|html-|
-42|page|p1.md|p1|home.png|page|html-|
-42|section|sect1/_index.md|Sect1|sect1.png|stype|html-|
-42|section|sect1/s1_2/_index.md|Sect1_2|sect1.png|stype|html-|
-42|page|sect1/s1_2/p1.md|Sect1_2_p1|sect1.png|stype|html-|
-42|page|sect1/s1_2/p2.md|Sect1_2_p2|sect1.png|stype|html-|
-42|section|sect2/_index.md|Sect2|home.png|sect2|html-|
-42|page|sect2/p1.md|Sect2_p1|home.png|sect2|html-|
-52|page|sect4/p1.md|Cascade Home|home.png|sect4|rss-|
-52|section|sect4/_index.md|Sect4|home.png|sect4|rss-|
+12|term|/categories/cool|Cascade Category|cat.png|categories|html-|
+12|term|/categories/catsect1|Cascade Category|cat.png|categories|html-|
+12|term|/categories/funny|Cascade Category|cat.png|categories|html-|
+12|taxonomy|/categories|My Categories|cat.png|categories|html-|
+32|term|/categories/sad|Cascade Category|sad.png|categories|html-|
+42|term|/tags/blue|Cascade Home|home.png|tags|html-|
+42|taxonomy|/tags|Cascade Home|home.png|tags|html-|
+42|section|/sectnocontent|Cascade Home|home.png|sectnocontent|html-|
+42|section|/sect3|Cascade Home|home.png|sect3|html-|
+42|page|/bundle1|Cascade Home|home.png|page|html-|
+42|page|/p2|Cascade Home|home.png|page|html-|
+42|page|/sect2/p2|Cascade Home|home.png|sect2|html-|
+42|page|/sect3/nofrontmatter|Cascade Home|home.png|sect3|html-|
+42|page|/sect3/p1|Cascade Home|home.png|sect3|html-|
+42|page|/sectnocontent/p1|Cascade Home|home.png|sectnocontent|html-|
+42|section|/sectnofrontmatter|Cascade Home|home.png|sectnofrontmatter|html-|
+42|term|/tags/green|Cascade Home|home.png|tags|html-|
+42|home|/|Home|home.png|page|html-|
+42|page|/p1|p1|home.png|page|html-|
+42|section|/sect1|Sect1|sect1.png|stype|html-|
+42|section|/sect1/s1_2|Sect1_2|sect1.png|stype|html-|
+42|page|/sect1/s1_2/p1|Sect1_2_p1|sect1.png|stype|html-|
+42|page|/sect1/s1_2/p2|Sect1_2_p2|sect1.png|stype|html-|
+42|section|/sect2|Sect2|home.png|sect2|html-|
+42|page|/sect2/p1|Sect2_p1|home.png|sect2|html-|
+52|page|/sect4/p1|Cascade Home|home.png|sect4|rss-|
+52|section|/sect4|Sect4|home.png|sect4|rss-|
 `)
 
 		// Check that type set in cascade gets the correct layout.
@@ -263,7 +267,7 @@ cascade:
 		assert()
 		b.AssertFileContent("public/post/dir/p1/index.html",
 			`content edit
-Banner: post.jpg`,
+	Banner: post.jpg`,
 		)
 	})
 
@@ -323,15 +327,54 @@ Banner: post.jpg`,
 
 		b.EditFiles("content/post/_index.md", indexContentCascade+"\ncontent edit")
 
-		counters := &testCounters{}
+		counters := &buildCounters{}
 		b.Build(BuildCfg{testCounters: counters})
-		// As we only changed the content, not the cascade front matter,
-		// only the home page is re-rendered.
-		b.Assert(int(counters.contentRenderCounter), qt.Equals, 1)
+		b.Assert(int(counters.contentRenderCounter.Load()), qt.Equals, 1)
 
 		b.AssertFileContent("public/post/index.html", `Banner: post.jpg|Layout: postlayout|Type: posttype|Content: <p>content edit</p>`)
 		b.AssertFileContent("public/post/dir/p1/index.html", `Banner: post.jpg|Layout: postlayout|`)
 	})
+}
+
+func TestCascadeBuildOptionsTaxonomies(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL="https://example.org"
+[taxonomies]
+tag = "tags"
+
+[[cascade]]
+
+[cascade._build]
+render = "never"
+list = "never"
+publishResources = false
+
+[cascade._target]
+path = '/hidden/**'
+-- content/p1.md --
+---
+title: P1
+---
+-- content/hidden/p2.md --
+---
+title: P2
+tags: [t1, t2]
+---
+-- layouts/_default/list.html --
+List: {{ len .Pages }}|
+-- layouts/_default/single.html --
+Single: Tags: {{ site.Taxonomies.tags }}|
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "Single: Tags: map[]|")
+	b.AssertFileContent("public/tags/index.html", "List: 0|")
+	b.AssertFileExists("public/hidden/p2/index.html", false)
+	b.AssertFileExists("public/tags/t2/index.html", false)
 }
 
 func newCascadeTestBuilder(t testing.TB, langs []string) *sitesBuilder {
@@ -474,7 +517,7 @@ defaultContentLanguageInSubDir = false
 	b.WithTemplates("index.html", `
 	
 {{ range .Site.Pages }}
-{{- .Weight }}|{{ .Kind }}|{{ path.Join .Path }}|{{ .Title }}|{{ .Params.icon }}|{{ .Type }}|{{ range .OutputFormats }}{{ .Name }}-{{ end }}|
+{{- .Weight }}|{{ .Kind }}|{{ .Path }}|{{ .Title }}|{{ .Params.icon }}|{{ .Type }}|{{ range .OutputFormats }}{{ .Name }}-{{ end }}|
 {{ end }}
 `,
 
@@ -627,4 +670,174 @@ S1|p1:|p2:p2|
 		S1|p1:|p2:p2|
 		`)
 	})
+}
+
+func TestCascadeEditIssue12449(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ['sitemap','rss', 'home', 'taxonomy','term']
+disableLiveReload = true
+-- layouts/_default/list.html --
+Title: {{ .Title }}|{{ .Content }}|cascadeparam: {{ .Params.cascadeparam }}|
+-- layouts/_default/single.html --
+Title: {{ .Title }}|{{ .Content }}|cascadeparam: {{ .Params.cascadeparam }}|
+-- content/mysect/_index.md --
+---
+title: mysect
+cascade:
+  description: descriptionvalue
+  params:
+    cascadeparam: cascadeparamvalue
+---
+mysect-content|
+-- content/mysect/p1/index.md --
+---
+slug: p1
+---
+p1-content|
+-- content/mysect/subsect/_index.md --
+---
+slug: subsect
+---
+subsect-content|
+`
+
+	b := TestRunning(t, files)
+
+	// Make the cascade set the title.
+	b.EditFileReplaceAll("content/mysect/_index.md", "description: descriptionvalue", "title: cascadetitle").Build()
+	b.AssertFileContent("public/mysect/subsect/index.html", "Title: cascadetitle|")
+
+	// Edit cascade title.
+	b.EditFileReplaceAll("content/mysect/_index.md", "title: cascadetitle", "title: cascadetitle-edit").Build()
+	b.AssertFileContent("public/mysect/subsect/index.html", "Title: cascadetitle-edit|")
+
+	// Revert title change.
+	// The step below failed in #12449.
+	b.EditFileReplaceAll("content/mysect/_index.md", "title: cascadetitle-edit", "description: descriptionvalue").Build()
+	b.AssertFileContent("public/mysect/subsect/index.html", "Title: |")
+}
+
+// Issue 11977.
+func TestCascadeExtensionInPath(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+[languages]
+[languages.en]
+weight = 1
+[languages.de]
+-- content/_index.de.md --
++++
+[[cascade]]
+[cascade.params]
+foo = 'bar'
+[cascade._target]
+path = '/posts/post-1.de.md'
++++
+-- content/posts/post-1.de.md --
+---
+title: "Post 1"
+---
+-- layouts/_default/single.html --
+{{ .Title }}|{{ .Params.foo }}$
+`
+	b, err := TestE(t, files)
+	b.Assert(err, qt.IsNotNil)
+	b.AssertLogContains(`cascade target path "/posts/post-1.de.md" looks like a path with an extension; since Hugo v0.123.0 this will not match anything, see  https://gohugo.io/methods/page/path/`)
+}
+
+func TestCascadeExtensionInPathIgnore(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+ignoreLogs   = ['cascade-pattern-with-extension']
+[languages]
+[languages.en]
+weight = 1
+[languages.de]
+-- content/_index.de.md --
++++
+[[cascade]]
+[cascade.params]
+foo = 'bar'
+[cascade._target]
+path = '/posts/post-1.de.md'
++++
+-- content/posts/post-1.de.md --
+---
+title: "Post 1"
+---
+-- layouts/_default/single.html --
+{{ .Title }}|{{ .Params.foo }}$
+`
+	b := Test(t, files)
+	b.AssertLogNotContains(`looks like a path with an extension`)
+}
+
+func TestCascadConfigExtensionInPath(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+[[cascade]]
+[cascade.params]
+foo = 'bar'
+[cascade._target]
+path = '/p1.md'
+`
+	b, err := TestE(t, files)
+	b.Assert(err, qt.IsNotNil)
+	b.AssertLogContains(`looks like a path with an extension`)
+}
+
+func TestCascadConfigExtensionInPathIgnore(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+ignoreLogs   = ['cascade-pattern-with-extension']
+[[cascade]]
+[cascade.params]
+foo = 'bar'
+[cascade._target]
+path = '/p1.md'
+`
+	b := Test(t, files)
+	b.AssertLogNotContains(`looks like a path with an extension`)
+}
+
+func TestCascadeIssue12172(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['rss','sitemap','taxonomy','term']
+[[cascade]]
+headless = true
+[cascade._target]
+path = '/s1**'
+-- content/s1/p1.md --
+---
+title: p1
+---
+-- layouts/_default/single.html --
+{{ .Title }}|
+-- layouts/_default/list.html --
+{{ .Title }}|
+  `
+	b := Test(t, files)
+
+	b.AssertFileExists("public/index.html", true)
+	b.AssertFileExists("public/s1/index.html", false)
+	b.AssertFileExists("public/s1/p1/index.html", false)
 }

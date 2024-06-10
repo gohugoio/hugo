@@ -47,7 +47,7 @@ func (ns *Namespace) Print(args ...any) string {
 	return _fmt.Sprint(args...)
 }
 
-// Printf returns string representation of args formatted with the layouut in format.
+// Printf returns string representation of args formatted with the layout in format.
 func (ns *Namespace) Printf(format string, args ...any) string {
 	return _fmt.Sprintf(format, args...)
 }
@@ -68,9 +68,7 @@ func (ns *Namespace) Errorf(format string, args ...any) string {
 // an information text that the error with the given id can be suppressed in config.
 // It returns an empty string.
 func (ns *Namespace) Erroridf(id, format string, args ...any) string {
-	format += "\nYou can suppress this error by adding the following to your site configuration:\nignoreErrors = ['%s']"
-	args = append(args, id)
-	ns.logger.Errorsf(id, format, args...)
+	ns.logger.Erroridf(id, format, args...)
 	return ""
 }
 
@@ -81,12 +79,20 @@ func (ns *Namespace) Warnf(format string, args ...any) string {
 	return ""
 }
 
-// Warnmf is epxermimental and subject to change at any time.
+// Warnidf formats args according to a format specifier and logs an WARNING and
+// an information text that the warning with the given id can be suppressed in config.
+// It returns an empty string.
+func (ns *Namespace) Warnidf(id, format string, args ...any) string {
+	ns.logger.Warnidf(id, format, args...)
+	return ""
+}
+
+// Warnmf is experimental and subject to change at any time.
 func (ns *Namespace) Warnmf(m any, format string, args ...any) string {
 	return ns.logmf(ns.logger.Warn(), m, format, args...)
 }
 
-// Errormf is epxermimental and subject to change at any time.
+// Errormf is experimental and subject to change at any time.
 func (ns *Namespace) Errormf(m any, format string, args ...any) string {
 	return ns.logmf(ns.logger.Error(), m, format, args...)
 }

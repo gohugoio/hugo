@@ -1,5 +1,6 @@
 # https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
 
+MD001: false
 MD002: false
 MD003: false
 MD004: false

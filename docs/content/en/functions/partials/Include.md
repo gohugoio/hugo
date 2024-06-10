@@ -68,7 +68,7 @@ Then, within the partial template:
 To return a value from a partial template, it must contain only one `return` statement, placed at the end of the template:
 
 ```go-html-template
-{{ $result := false }}
+{{ $result := "" }}
 {{ if math.ModBool . 2 }}
   {{ $result = "even" }}
 {{ else }}

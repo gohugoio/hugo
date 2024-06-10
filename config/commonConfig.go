@@ -86,28 +86,17 @@ var defaultBuild = BuildConfig{
 
 	CacheBusters: []CacheBuster{
 		{
-			Source: `assets/.*\.(js|ts|jsx|tsx)`,
-			Target: `(js|scripts|javascript)`,
-		},
-		{
-			Source: `assets/.*\.(css|sass|scss)$`,
-			Target: cssTargetCachebusterRe,
-		},
-		{
 			Source: `(postcss|tailwind)\.config\.js`,
 			Target: cssTargetCachebusterRe,
-		},
-		// This is deliberately coarse grained; it will cache bust resources with "json" in the cache key when js files changes, which is good.
-		{
-			Source: `assets/.*\.(.*)$`,
-			Target: `$1`,
 		},
 	},
 }
 
 // BuildConfig holds some build related configuration.
 type BuildConfig struct {
-	UseResourceCacheWhen string // never, fallback, always. Default is fallback
+	// When to use the resource file cache.
+	// One of never, fallback, always. Default is fallback
+	UseResourceCacheWhen string
 
 	// When enabled, will collect and write a hugo_stats.json with some build
 	// related aggregated data (e.g. CSS class names).
@@ -222,6 +211,8 @@ type SitemapConfig struct {
 	Priority float64
 	// The sitemap filename.
 	Filename string
+	// Whether to disable page inclusion.
+	Disable bool
 }
 
 func DecodeSitemap(prototype SitemapConfig, input map[string]any) (SitemapConfig, error) {
@@ -373,7 +364,6 @@ func (c *CacheBuster) CompileConfig(logger loggers.Logger) error {
 
 			return match
 		}
-
 	}
 	return compileErr
 }
@@ -416,8 +406,19 @@ func DecodeServer(cfg Provider) (Server, error) {
 				Status: 404,
 			},
 		}
-
 	}
 
 	return *s, nil
+}
+
+// Pagination configures the pagination behavior.
+type Pagination struct {
+	//  Default number of elements per pager in pagination.
+	PagerSize int
+
+	// The path element used during pagination.
+	Path string
+
+	// Whether to disable generation of alias for the first pagination page.
+	DisableAliases bool
 }

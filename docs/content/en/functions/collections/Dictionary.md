@@ -6,10 +6,7 @@ keywords: []
 action:
   aliases: [dict]
   related:
-    - functions/collections/Group
-    - functions/collections/IndexFunction
-    - functions/collections/IsSet
-    - functions/collections/Where
+    - functions/collections/Slice
   returnType: mapany
   signatures: ['collections.Dictionary KEY VALUE [VALUE...]']
 aliases: [/functions/dict]

@@ -43,13 +43,14 @@ type pageLexer struct {
 	summaryDivider []byte
 	// Set when we have parsed any summary divider
 	summaryDividerChecked bool
-	// Whether we're in a HTML comment.
-	isInHTMLComment bool
 
 	lexerShortcodeState
 
 	// items delivered to client
 	items Items
+
+	// error delivered to the client
+	err error
 }
 
 // Implement the Result interface
@@ -61,15 +62,19 @@ func (l *pageLexer) Input() []byte {
 	return l.input
 }
 
-type Config struct{}
+type Config struct {
+	NoFrontMatter    bool
+	NoSummaryDivider bool
+}
 
 // note: the input position here is normally 0 (start), but
 // can be set if position of first shortcode is known
 func newPageLexer(input []byte, stateStart stateFunc, cfg Config) *pageLexer {
 	lexer := &pageLexer{
-		input:      input,
-		stateStart: stateStart,
-		cfg:        cfg,
+		input:          input,
+		stateStart:     stateStart,
+		summaryDivider: summaryDivider,
+		cfg:            cfg,
 		lexerShortcodeState: lexerShortcodeState{
 			currLeftDelimItem:  tLeftDelimScNoMarkup,
 			currRightDelimItem: tRightDelimScNoMarkup,
@@ -99,8 +104,6 @@ var (
 	delimTOML         = []byte("+++")
 	delimYAML         = []byte("---")
 	delimOrg          = []byte("#+")
-	htmlCommentStart  = []byte("<!--")
-	htmlCommentEnd    = []byte("-->")
 )
 
 func (l *pageLexer) next() rune {
@@ -164,7 +167,6 @@ func (l *pageLexer) emit(t ItemType) {
 	}
 
 	l.append(Item{Type: t, low: l.start, high: l.pos})
-
 }
 
 // sends a string item back to the client.
@@ -210,7 +212,6 @@ func (l *pageLexer) ignoreEscapesAndEmit(t ItemType, isString bool) {
 	}
 
 	l.start = l.pos
-
 }
 
 // gets the current value (for debugging and error handling)
@@ -227,7 +228,7 @@ var lf = []byte("\n")
 
 // nil terminates the parser
 func (l *pageLexer) errorf(format string, args ...any) stateFunc {
-	l.append(Item{Type: tError, Err: fmt.Errorf(format, args...)})
+	l.append(Item{Type: tError, Err: fmt.Errorf(format, args...), low: l.start, high: l.pos})
 	return nil
 }
 
@@ -241,15 +242,6 @@ func (l *pageLexer) consumeCRLF() bool {
 		}
 	}
 	return consumed
-}
-
-func (l *pageLexer) consumeToNextLine() {
-	for {
-		r := l.next()
-		if r == eof || isEndOfLine(r) {
-			return
-		}
-	}
 }
 
 func (l *pageLexer) consumeToSpace() {
@@ -307,6 +299,8 @@ func (s *sectionHandlers) skip() int {
 }
 
 func createSectionHandlers(l *pageLexer) *sectionHandlers {
+	handlers := make([]*sectionHandler, 0, 2)
+
 	shortCodeHandler := &sectionHandler{
 		l: l,
 		skipFunc: func(l *pageLexer) int {
@@ -342,30 +336,35 @@ func createSectionHandlers(l *pageLexer) *sectionHandlers {
 		},
 	}
 
-	summaryDividerHandler := &sectionHandler{
-		l: l,
-		skipFunc: func(l *pageLexer) int {
-			if l.summaryDividerChecked || l.summaryDivider == nil {
-				return -1
-			}
-			return l.index(l.summaryDivider)
-		},
-		lexFunc: func(origin stateFunc, l *pageLexer) (stateFunc, bool) {
-			if !l.hasPrefix(l.summaryDivider) {
-				return origin, false
-			}
+	handlers = append(handlers, shortCodeHandler)
 
-			l.summaryDividerChecked = true
-			l.pos += len(l.summaryDivider)
-			// This makes it a little easier to reason about later.
-			l.consumeSpace()
-			l.emit(TypeLeadSummaryDivider)
+	if !l.cfg.NoSummaryDivider {
+		summaryDividerHandler := &sectionHandler{
+			l: l,
+			skipFunc: func(l *pageLexer) int {
+				if l.summaryDividerChecked {
+					return -1
+				}
+				return l.index(l.summaryDivider)
+			},
+			lexFunc: func(origin stateFunc, l *pageLexer) (stateFunc, bool) {
+				if !l.hasPrefix(l.summaryDivider) {
+					return origin, false
+				}
 
-			return origin, true
-		},
+				l.summaryDividerChecked = true
+				l.pos += len(l.summaryDivider)
+				// This makes it a little easier to reason about later.
+				l.consumeSpace()
+				l.emit(TypeLeadSummaryDivider)
+
+				return origin, true
+			},
+		}
+
+		handlers = append(handlers, summaryDividerHandler)
+
 	}
-
-	handlers := []*sectionHandler{shortCodeHandler, summaryDividerHandler}
 
 	return &sectionHandlers{
 		l:           l,
@@ -433,10 +432,6 @@ func lexMainSection(l *pageLexer) stateFunc {
 		return lexDone
 	}
 
-	if l.isInHTMLComment {
-		return lexEndFrontMatterHTMLComment
-	}
-
 	// Fast forward as far as possible.
 	skip := l.sectionHandlers.skip()
 
@@ -465,6 +460,7 @@ func lexDone(l *pageLexer) stateFunc {
 	return nil
 }
 
+//lint:ignore U1000 useful for debugging
 func (l *pageLexer) printCurrentInput() {
 	fmt.Printf("input[%d:]: %q", l.pos, string(l.input[l.pos:]))
 }
@@ -473,10 +469,6 @@ func (l *pageLexer) printCurrentInput() {
 
 func (l *pageLexer) index(sep []byte) int {
 	return bytes.Index(l.input[l.pos:], sep)
-}
-
-func (l *pageLexer) indexByte(sep byte) int {
-	return bytes.IndexByte(l.input[l.pos:], sep)
 }
 
 func (l *pageLexer) hasPrefix(prefix []byte) bool {

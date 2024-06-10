@@ -118,7 +118,6 @@ func TestCardinalityThreshold(t *testing.T) {
 	c.Assert(hasKeyword("tags", "b"), qt.Equals, false)
 	c.Assert(hasKeyword("tags", "d"), qt.Equals, true)
 	c.Assert(hasKeyword("keywords", "b"), qt.Equals, true)
-
 }
 
 func TestSearch(t *testing.T) {

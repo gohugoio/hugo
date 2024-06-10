@@ -22,6 +22,7 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"mime"
@@ -33,12 +34,11 @@ import (
 	"strings"
 	"sync"
 
-	"errors"
-
 	"github.com/dustin/go-humanize"
 	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/deploy/deployconfig"
 	"github.com/gohugoio/hugo/media"
 	"github.com/spf13/afero"
 	"golang.org/x/text/unicode/norm"
@@ -58,10 +58,10 @@ type Deployer struct {
 	mediaTypes media.Types // Hugo's MediaType to guess ContentType
 	quiet      bool        // true reduces STDOUT // TODO(bep) remove, this is a global feature.
 
-	cfg    DeployConfig
+	cfg    deployconfig.DeployConfig
 	logger loggers.Logger
 
-	target *Target // the target to deploy to
+	target *deployconfig.Target // the target to deploy to
 
 	// For tests...
 	summary deploySummary // summary of latest Deploy results
@@ -75,8 +75,7 @@ const metaMD5Hash = "md5chksum" // the meta key to store md5hash in
 
 // New constructs a new *Deployer.
 func New(cfg config.AllProvider, logger loggers.Logger, localFs afero.Fs) (*Deployer, error) {
-
-	dcfg := cfg.GetConfigSection(deploymentConfigKey).(DeployConfig)
+	dcfg := cfg.GetConfigSection(deployconfig.DeploymentConfigKey).(deployconfig.DeployConfig)
 	targetName := dcfg.Target
 
 	if len(dcfg.Targets) == 0 {
@@ -85,7 +84,7 @@ func New(cfg config.AllProvider, logger loggers.Logger, localFs afero.Fs) (*Depl
 	mediaTypes := cfg.GetConfigSection("mediaTypes").(media.Types)
 
 	// Find the target to deploy to.
-	var tgt *Target
+	var tgt *deployconfig.Target
 	if targetName == "" {
 		// Default to the first target.
 		tgt = dcfg.Targets[0]
@@ -135,7 +134,7 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 	// Load local files from the source directory.
 	var include, exclude glob.Glob
 	if d.target != nil {
-		include, exclude = d.target.includeGlob, d.target.excludeGlob
+		include, exclude = d.target.IncludeGlob, d.target.ExcludeGlob
 	}
 	local, err := d.walkLocal(d.localFs, d.cfg.Matchers, include, exclude, d.mediaTypes)
 	if err != nil {
@@ -180,7 +179,7 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 
 	// Order the uploads. They are organized in groups; all uploads in a group
 	// must be complete before moving on to the next group.
-	uploadGroups := applyOrdering(d.cfg.ordering, uploads)
+	uploadGroups := applyOrdering(d.cfg.Ordering, uploads)
 
 	nParallel := d.cfg.Workers
 	var errs []error
@@ -345,14 +344,14 @@ type localFile struct {
 	UploadSize int64
 
 	fs         afero.Fs
-	matcher    *Matcher
+	matcher    *deployconfig.Matcher
 	md5        []byte       // cache
 	gzipped    bytes.Buffer // cached of gzipped contents if gzipping
 	mediaTypes media.Types
 }
 
 // newLocalFile initializes a *localFile.
-func newLocalFile(fs afero.Fs, nativePath, slashpath string, m *Matcher, mt media.Types) (*localFile, error) {
+func newLocalFile(fs afero.Fs, nativePath, slashpath string, m *deployconfig.Matcher, mt media.Types) (*localFile, error) {
 	f, err := fs.Open(nativePath)
 	if err != nil {
 		return nil, err
@@ -484,7 +483,7 @@ func knownHiddenDirectory(name string) bool {
 
 // walkLocal walks the source directory and returns a flat list of files,
 // using localFile.SlashPath as the map keys.
-func (d *Deployer) walkLocal(fs afero.Fs, matchers []*Matcher, include, exclude glob.Glob, mediaTypes media.Types) (map[string]*localFile, error) {
+func (d *Deployer) walkLocal(fs afero.Fs, matchers []*deployconfig.Matcher, include, exclude glob.Glob, mediaTypes media.Types) (map[string]*localFile, error) {
 	retval := map[string]*localFile{}
 	err := afero.Walk(fs, "", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -523,7 +522,7 @@ func (d *Deployer) walkLocal(fs afero.Fs, matchers []*Matcher, include, exclude 
 		}
 
 		// Find the first matching matcher (if any).
-		var m *Matcher
+		var m *deployconfig.Matcher
 		for _, cur := range matchers {
 			if cur.Matches(slashpath) {
 				m = cur
@@ -675,8 +674,6 @@ func (d *Deployer) findDiffs(localFiles map[string]*localFile, remoteFiles map[s
 			} else if !bytes.Equal(lf.MD5(), remoteFile.MD5) {
 				upload = true
 				reason = reasonMD5Differs
-			} else {
-				// Nope! Leave uploaded = false.
 			}
 			found[path] = true
 		} else {

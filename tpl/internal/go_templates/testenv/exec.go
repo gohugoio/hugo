@@ -6,6 +6,7 @@ package testenv
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -59,6 +60,13 @@ func tryExec() error {
 	// As of 2023-04-19 wasip1 and js don't have exec syscalls at all, but we
 	// may as well use the same path so that this branch can be tested without
 	// an ios environment.
+
+	if !testing.Testing() {
+		// This isn't a standard 'go test' binary, so we don't know how to
+		// self-exec in a way that should succeed without side effects.
+		// Just forget it.
+		return errors.New("can't probe for exec support with a non-test executable")
+	}
 
 	// We know that this is a test executable. We should be able to run it with a
 	// no-op flag to check for overall exec support.

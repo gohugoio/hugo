@@ -21,11 +21,12 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/spf13/afero"
 
 	"github.com/evanw/esbuild/pkg/api"
 
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/media"
 	"github.com/mitchellh/mapstructure"
@@ -85,6 +86,14 @@ type Options struct {
 	// What to use instead of React.Fragment.
 	JSXFragment string
 
+	// What to do about JSX syntax.
+	// See https://esbuild.github.io/api/#jsx
+	JSX string
+
+	// Which library to use to automatically import JSX helper functions from. Only works if JSX is set to automatic.
+	// See https://esbuild.github.io/api/#jsx-import-source
+	JSXImportSource string
+
 	// There is/was a bug in WebKit with severe performance issue with the tracking
 	// of TDZ checks in JavaScriptCore.
 	//
@@ -113,7 +122,7 @@ func decodeOptions(m map[string]any) (Options, error) {
 	}
 
 	if opts.TargetPath != "" {
-		opts.TargetPath = helpers.ToSlashTrimLeading(opts.TargetPath)
+		opts.TargetPath = paths.ToSlashTrimLeading(opts.TargetPath)
 	}
 
 	opts.Target = strings.ToLower(opts.Target)
@@ -203,7 +212,7 @@ func resolveComponentInAssets(fs afero.Fs, impPath string) *hugofs.FileMeta {
 	return m
 }
 
-func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
+func createBuildPlugins(depsManager identity.Manager, c *Client, opts Options) ([]api.Plugin, error) {
 	fs := c.rs.Assets
 
 	resolveImport := func(args api.OnResolveArgs) (api.OnResolveResult, error) {
@@ -217,13 +226,14 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 		isStdin := args.Importer == stdinImporter
 		var relDir string
 		if !isStdin {
-			rel, found := fs.MakePathRelative(args.Importer)
+			rel, found := fs.MakePathRelative(args.Importer, true)
 			if !found {
 				// Not in any of the /assets folders.
 				// This is an import from a node_modules, let
 				// ESBuild resolve this.
 				return api.OnResolveResult{}, nil
 			}
+
 			relDir = filepath.Dir(rel)
 		} else {
 			relDir = opts.sourceDir
@@ -238,6 +248,8 @@ func createBuildPlugins(c *Client, opts Options) ([]api.Plugin, error) {
 		m := resolveComponentInAssets(fs.Fs, impPath)
 
 		if m != nil {
+			depsManager.AddIdentity(m.PathInfo)
+
 			// Store the source root so we can create a jsconfig.json
 			// to help IntelliSense when the build is done.
 			// This should be a small number of elements, and when
@@ -330,6 +342,12 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 		target = api.ES2019
 	case "es2020":
 		target = api.ES2020
+	case "es2021":
+		target = api.ES2021
+	case "es2022":
+		target = api.ES2022
+	case "es2023":
+		target = api.ES2023
 	default:
 		err = fmt.Errorf("invalid target: %q", opts.Target)
 		return
@@ -368,6 +386,19 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 		format = api.FormatCommonJS
 	default:
 		err = fmt.Errorf("unsupported script output format: %q", opts.Format)
+		return
+	}
+
+	var jsx api.JSX
+	switch opts.JSX {
+	case "", "transform":
+		jsx = api.JSXTransform
+	case "preserve":
+		jsx = api.JSXPreserve
+	case "automatic":
+		jsx = api.JSXAutomatic
+	default:
+		err = fmt.Errorf("unsupported jsx type: %q", opts.JSX)
 		return
 	}
 
@@ -411,6 +442,9 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 
 		JSXFactory:  opts.JSXFactory,
 		JSXFragment: opts.JSXFragment,
+
+		JSX:             jsx,
+		JSXImportSource: opts.JSXImportSource,
 
 		Tsconfig: opts.tsConfig,
 

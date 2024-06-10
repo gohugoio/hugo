@@ -154,7 +154,6 @@ func (ns *Namespace) Join(elements ...any) (string, error) {
 // extraneous slashes are removed.
 func (ns *Namespace) Clean(path any) (string, error) {
 	spath, err := cast.ToStringE(path)
-
 	if err != nil {
 		return "", err
 	}

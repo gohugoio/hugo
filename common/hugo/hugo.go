@@ -35,6 +35,8 @@ import (
 
 	"github.com/spf13/afero"
 
+	iofs "io/fs"
+
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs"
 )
@@ -109,11 +111,29 @@ func (i HugoInfo) Deps() []*Dependency {
 	return i.deps
 }
 
+// Deprecated: Use hugo.IsMultihost instead.
+func (i HugoInfo) IsMultiHost() bool {
+	Deprecate("hugo.IsMultiHost", "Use hugo.IsMultihost instead.", "v0.124.0")
+	return i.conf.IsMultihost()
+}
+
+// IsMultihost reports whether each configured language has a unique baseURL.
+func (i HugoInfo) IsMultihost() bool {
+	return i.conf.IsMultihost()
+}
+
+// IsMultilingual reports whether there are two or more configured languages.
+func (i HugoInfo) IsMultilingual() bool {
+	return i.conf.IsMultilingual()
+}
+
 // ConfigProvider represents the config options that are relevant for HugoInfo.
 type ConfigProvider interface {
 	Environment() string
 	Running() bool
 	WorkingDir() string
+	IsMultihost() bool
+	IsMultilingual() bool
 }
 
 // NewInfo creates a new Hugo Info object.
@@ -159,7 +179,12 @@ func GetExecEnviron(workDir string, cfg config.AllProvider, fs afero.Fs) []strin
 	config.SetEnvVars(&env, "HUGO_PUBLISHDIR", filepath.Join(workDir, cfg.BaseConfig().PublishDir))
 
 	if fs != nil {
-		fis, err := afero.ReadDir(fs, files.FolderJSConfig)
+		var fis []iofs.DirEntry
+		d, err := fs.Open(files.FolderJSConfig)
+		if err == nil {
+			fis, err = d.(iofs.ReadDirFile).ReadDir(-1)
+		}
+
 		if err == nil {
 			for _, fi := range fis {
 				key := fmt.Sprintf("HUGO_FILE_%s", strings.ReplaceAll(strings.ToUpper(fi.Name()), ".", "_"))

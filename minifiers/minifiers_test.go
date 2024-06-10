@@ -184,7 +184,6 @@ func TestDecodeConfigDecimalIsNowPrecision(t *testing.T) {
 	conf := testconfig.GetTestConfigs(nil, v).Base.Minify
 
 	c.Assert(conf.Tdewolff.CSS.Precision, qt.Equals, 3)
-
 }
 
 // Issue 9456
@@ -203,13 +202,13 @@ func TestDecodeConfigKeepWhitespace(t *testing.T) {
 
 	c.Assert(conf.Tdewolff.HTML, qt.DeepEquals,
 		html.Minifier{
-			KeepComments:            false,
-			KeepConditionalComments: true,
-			KeepDefaultAttrVals:     true,
-			KeepDocumentTags:        true,
-			KeepEndTags:             false,
-			KeepQuotes:              false,
-			KeepWhitespace:          false},
+			KeepComments:        false,
+			KeepSpecialComments: true,
+			KeepDefaultAttrVals: true,
+			KeepDocumentTags:    true,
+			KeepEndTags:         false,
+			KeepQuotes:          false,
+			KeepWhitespace:      false,
+		},
 	)
-
 }

@@ -67,7 +67,7 @@ package main
 
 ## YouTube
 
-{{< youtube PArFPgHrNZM >}}
+{{< youtube 0RKpf3rK57I >}}
 
 ## Param
 
@@ -76,24 +76,18 @@ Foo: {{< param foo >}}
 -- layouts/index.html --
 Content: {{ .Content }}|
 `
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := Test(t, files)
 
 		b.AssertFileContent("public/index.html", `
 <figure>
 https://gist.github.com/spf13/7896402.js
 <span style="color:#a6e22e">main</span></span>
 https://t.co/X94FmYDEZJ
-https://www.youtube.com/embed/PArFPgHrNZM
+https://www.youtube.com/embed/0RKpf3rK57I
 Foo: bar
 
 
 
 `)
-
 	})
 }

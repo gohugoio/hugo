@@ -49,6 +49,7 @@ func newLinks(cfg goldmark_config.Config) goldmark.Extender {
 
 type linkContext struct {
 	page        any
+	pageInner   any
 	destination string
 	title       string
 	text        hstring.RenderedString
@@ -62,6 +63,10 @@ func (ctx linkContext) Destination() string {
 
 func (ctx linkContext) Page() any {
 	return ctx.page
+}
+
+func (ctx linkContext) PageInner() any {
+	return ctx.pageInner
 }
 
 func (ctx linkContext) Text() hstring.RenderedString {
@@ -92,6 +97,7 @@ func (ctx imageLinkContext) Ordinal() int {
 
 type headingContext struct {
 	page      any
+	pageInner any
 	level     int
 	anchor    string
 	text      hstring.RenderedString
@@ -101,6 +107,10 @@ type headingContext struct {
 
 func (ctx headingContext) Page() any {
 	return ctx.page
+}
+
+func (ctx headingContext) PageInner() any {
+	return ctx.pageInner
 }
 
 func (ctx headingContext) Level() int {
@@ -186,6 +196,7 @@ func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.N
 		imageLinkContext{
 			linkContext: linkContext{
 				page:             ctx.DocumentContext().Document,
+				pageInner:        r.getPageInner(ctx),
 				destination:      string(n.Destination),
 				title:            string(n.Title),
 				text:             hstring.RenderedString(text),
@@ -197,9 +208,19 @@ func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.N
 		},
 	)
 
-	ctx.AddIdentity(lr)
-
 	return ast.WalkContinue, err
+}
+
+func (r *hookedRenderer) getPageInner(rctx *render.Context) any {
+	pid := rctx.PeekPid()
+	if pid > 0 {
+		if lookup := rctx.DocumentContext().DocumentLookup; lookup != nil {
+			if v := rctx.DocumentContext().DocumentLookup(pid); v != nil {
+				return v
+			}
+		}
+	}
+	return rctx.DocumentContext().Document
 }
 
 func (r *hookedRenderer) filterInternalAttributes(attrs []ast.Attribute) []ast.Attribute {
@@ -276,6 +297,7 @@ func (r *hookedRenderer) renderLink(w util.BufWriter, source []byte, node ast.No
 		w,
 		linkContext{
 			page:             ctx.DocumentContext().Document,
+			pageInner:        r.getPageInner(ctx),
 			destination:      string(n.Destination),
 			title:            string(n.Title),
 			text:             hstring.RenderedString(text),
@@ -283,11 +305,6 @@ func (r *hookedRenderer) renderLink(w util.BufWriter, source []byte, node ast.No
 			AttributesHolder: attributes.Empty,
 		},
 	)
-
-	// TODO(bep) I have a working branch that fixes these rather confusing identity types,
-	// but for now it's important that it's not .GetIdentity() that's added here,
-	// to make sure we search the entire chain on changes.
-	ctx.AddIdentity(lr)
 
 	return ast.WalkContinue, err
 }
@@ -346,17 +363,13 @@ func (r *hookedRenderer) renderAutoLink(w util.BufWriter, source []byte, node as
 		w,
 		linkContext{
 			page:             ctx.DocumentContext().Document,
+			pageInner:        r.getPageInner(ctx),
 			destination:      url,
 			text:             hstring.RenderedString(label),
 			plainText:        label,
 			AttributesHolder: attributes.Empty,
 		},
 	)
-
-	// TODO(bep) I have a working branch that fixes these rather confusing identity types,
-	// but for now it's important that it's not .GetIdentity() that's added here,
-	// to make sure we search the entire chain on changes.
-	ctx.AddIdentity(lr)
 
 	return ast.WalkContinue, err
 }
@@ -435,6 +448,7 @@ func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast
 		w,
 		headingContext{
 			page:             ctx.DocumentContext().Document,
+			pageInner:        r.getPageInner(ctx),
 			level:            n.Level,
 			anchor:           string(anchor),
 			text:             hstring.RenderedString(text),
@@ -442,8 +456,6 @@ func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast
 			AttributesHolder: attributes.New(n.Attributes(), attributes.AttributesOwnerGeneral),
 		},
 	)
-
-	ctx.AddIdentity(hr)
 
 	return ast.WalkContinue, err
 }
