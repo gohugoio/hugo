@@ -109,7 +109,7 @@ toc: true
 [CommonMark]: https://spec.commonmark.org/current/
 [Content adapters]: /content-management/content-adapters/
 [Content formats]: /content-management/formats/
-[Data]: /templates/data-templates/
+[Data]: /content-management/data-sources/
 [Diagrams]: /content-management/diagrams/
 [GDPR]: https://en.wikipedia.org/wiki/General_Data_Protection_Regulation
 [GitHub Flavored Markdown]: https://github.github.com/gfm/

@@ -91,7 +91,7 @@ content
 : The `content` directory contains the markup files (typically Markdown) and page resources that comprise the content of your site. See&nbsp;[details](/content-management/organization/).
 
 data
-: The `data` directory contains data files (JSON, TOML, YAML, or XML) that augment content, configuration, localization, and navigation. See&nbsp;[details](/templates/data-templates/).
+: The `data` directory contains data files (JSON, TOML, YAML, or XML) that augment content, configuration, localization, and navigation. See&nbsp;[details](/content-management/data-sources/).
 
 i18n
 : The `i18n` directory contains translation tables for multilingual sites. See&nbsp;[details](/content-management/multilingual/).

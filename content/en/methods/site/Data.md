@@ -101,7 +101,13 @@ To find a fiction book by ISBN:
 {{ end }}
 ```
 
-In the template examples above, each of the keys is a valid identifier. For example, none of the keys contains a hyphen. To access a key that is not a valid identifier, use the [`index`] function:
+In the template examples above, each of the keys is a valid [identifier]. For example, none of the keys contains a hyphen. To access a key that is not a valid identifier, use the [`index`] function. For example:
+
+[identifier]: /getting-started/glossary/#identifier
+
+```go-html-template
+{{ index .Site.Data.books "historical-fiction" }}
+```
 
 [`index`]: /functions/collections/indexfunction/
 [chaining]: /getting-started/glossary/#chain
