@@ -39,7 +39,7 @@ import (
 	"github.com/bep/godartsass/v2"
 )
 
-// Supports returns whether dart-sass-embedded is found in $PATH.
+// Supports returns whether sass, dart-sass, or dart-sass-embedded is found in $PATH.
 func Supports() bool {
 	if htesting.SupportsAll() {
 		return true

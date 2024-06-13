@@ -493,7 +493,7 @@ func (r *resourceAdapter) transform(key string, publish, setContent bool) (*reso
 				} else if tr.Key().Name == "tocss" {
 					errMsg = ". Check your Hugo installation; you need the extended version to build SCSS/SASS with transpiler set to 'libsass'."
 				} else if tr.Key().Name == "tocss-dart" {
-					errMsg = ". You need dart-sass-embedded in your system $PATH."
+					errMsg = ". You need to install Dart Sass, see https://gohugo.io/functions/resources/tocss/#dart-sass"
 				} else if tr.Key().Name == "babel" {
 					errMsg = ". You need to install Babel, see https://gohugo.io/hugo-pipes/babel/"
 				}
