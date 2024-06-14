@@ -7,8 +7,8 @@ keywords: []
 menu:
   docs:
     parent: render-hooks
-    weight: 50
-weight: 50
+    weight: 60
+weight: 60
 toc: true
 ---
 
@@ -32,7 +32,9 @@ Image render hook templates receive the following context:
 
 ###### Attributes
 
-(`map`) The Markdown attributes, available if you configure your site as follows:
+(`map`) The [Markdown attributes], available if you configure your site as follows:
+
+[Markdown attributes]: /content-management/markdown-attributes/
 
 {{< code-toggle file=hugo >}}
 [markup.goldmark.parser]
