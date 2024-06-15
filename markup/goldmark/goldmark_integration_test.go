@@ -751,6 +751,10 @@ func TestExtrasExtension(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+[markup.goldmark.extensions]
+strikethrough = false
+[markup.goldmark.extensions.extras.delete]
+enable = false
 [markup.goldmark.extensions.extras.insert]
 enable = false
 [markup.goldmark.extensions.extras.mark]
@@ -765,6 +769,8 @@ enable = false
 ---
 title: home
 ---
+~~delete~~
+
 ++insert++
 
 ==mark==
@@ -777,6 +783,7 @@ H~2~0
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html",
+		"<p>~~delete~~</p>",
 		"<p>++insert++</p>",
 		"<p>==mark==</p>",
 		"<p>H~2~0</p>",
@@ -788,6 +795,7 @@ H~2~0
 	b = hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html",
+		"<p><del>delete</del></p>",
 		"<p><ins>insert</ins></p>",
 		"<p><mark>mark</mark></p>",
 		"<p>H<sub>2</sub>0</p>",

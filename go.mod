@@ -36,7 +36,7 @@ require (
 	github.com/gobwas/glob v0.2.3
 	github.com/gohugoio/go-i18n/v2 v2.1.3-0.20230805085216-e63c13218d0e
 	github.com/gohugoio/httpcache v0.7.0
-	github.com/gohugoio/hugo-goldmark-extensions/extras v0.1.0
+	github.com/gohugoio/hugo-goldmark-extensions/extras v0.2.0
 	github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.2.0
 	github.com/gohugoio/locales v0.14.0
 	github.com/gohugoio/localescompressed v1.0.1
@@ -68,7 +68,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/tdewolff/minify/v2 v2.20.20
 	github.com/tdewolff/parse/v2 v2.7.13
-	github.com/yuin/goldmark v1.7.1
+	github.com/yuin/goldmark v1.7.2
 	github.com/yuin/goldmark-emoji v1.0.2
 	go.uber.org/automaxprocs v1.5.3
 	gocloud.dev v0.36.0

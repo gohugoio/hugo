@@ -50,16 +50,19 @@ var Default = Config{
 			EscapedSpace:             false,
 		},
 		Extras: Extras{
-			Superscript: Superscript{
-				Enable: false,
-			},
-			Subscript: Subscript{
+			Delete: Delete{
 				Enable: false,
 			},
 			Insert: Insert{
 				Enable: false,
 			},
 			Mark: Mark{
+				Enable: false,
+			},
+			Subscript: Subscript{
+				Enable: false,
+			},
+			Superscript: Superscript{
 				Enable: false,
 			},
 		},
@@ -168,10 +171,15 @@ type Typographer struct {
 // Extras holds extras configuration.
 // github.com/hugoio/hugo-goldmark-extensions/extras
 type Extras struct {
+	Delete      Delete
 	Insert      Insert
 	Mark        Mark
 	Subscript   Subscript
 	Superscript Superscript
+}
+
+type Delete struct {
+	Enable bool
 }
 
 type Insert struct {
