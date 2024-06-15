@@ -903,6 +903,29 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 					livereload.RefreshPath(pathToRefresh)
 				} else {
 					livereload.ForceRefresh()
+					// See https://github.com/gohugoio/hugo/issues/12600.
+					// If this change set also contains one or more CSS files, we need to
+					// refresh these as well.
+					var cssChanges []string
+					var otherChanges []string
+
+					for _, ev := range changed {
+						if strings.HasSuffix(ev, ".css") {
+							cssChanges = append(cssChanges, ev)
+						} else {
+							otherChanges = append(otherChanges, ev)
+						}
+					}
+
+					if len(otherChanges) > 0 {
+						livereload.ForceRefresh()
+						// Allow some time for the live reload script to get reconnected.
+						time.Sleep(100 * time.Millisecond)
+					}
+
+					for _, ev := range cssChanges {
+						livereload.RefreshPath(h.PathSpec.RelURL(paths.ToSlashTrimLeading(ev), false))
+					}
 				}
 			}
 
