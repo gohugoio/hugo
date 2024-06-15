@@ -14,7 +14,7 @@ action:
 aliases: [/functions/relurl]
 ---
 
-With multilingual configurations, use the [`relLangURL`] function instead. The URL returned by this function depends on:
+With multilingual configurations, use the [`urls.RelLangURL`] function instead. The URL returned by this function depends on:
 
 - Whether the input begins with a slash
 - The `baseURL` in your site configuration
@@ -43,7 +43,7 @@ With `baseURL = https://example.org/docs/`
 
 #### Input begins with a slash
 
-If the input begins with a slash, the resulting URL will be relative to the protocol+host portion of the `baseURL`.
+If the input begins with a slash, the resulting URL will be relative to the protocol+host of the `baseURL` in your site configuration.
 
 With `baseURL = https://example.org/`
 
@@ -61,4 +61,4 @@ With `baseURL = https://example.org/docs/`
 {{ relURL "/style.css" }} → /style.css
 ```
 
-[`relLangURL`]: /functions/urls/rellangurl/
+[`urls.RelLangURL`]: /functions/urls/rellangurl/
