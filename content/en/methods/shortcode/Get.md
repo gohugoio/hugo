@@ -8,7 +8,7 @@ action:
     - methods/shortcode/IsNamedParams
     - methods/shortcode/Params
   returnType: any
-  signatures: [SHORTCODE.Get PARAM]
+  signatures: [SHORTCODE.Get ARG]
 toc: true
 ---
 
