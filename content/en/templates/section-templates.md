@@ -1,7 +1,7 @@
 ---
 title: Section page templates
 linkTitle: Section templates
-description: Templates used for section pages are **lists** and therefore have all the variables and methods available to list pages.
+description: Use section templates to list members of a section.
 categories: [templates]
 keywords: [lists,sections,templates]
 menu:

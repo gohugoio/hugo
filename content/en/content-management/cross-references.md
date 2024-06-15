@@ -16,7 +16,7 @@ The `ref` and `relref` shortcodes display the absolute and relative permalinks t
 
 ## Use of `ref` and `relref`
 
-The `ref` and `relref` shortcodes require a single parameter: the path to a content document, with or without a file extension, with or without an anchor. Paths without a leading `/` are first resolved relative to the current page, then to the remainder of the site.
+The `ref` and `relref` shortcodes require a single argument: the path to a content document, with or without a file extension, with or without an anchor. Paths without a leading `/` are first resolved relative to the current page, then to the remainder of the site.
 
 ```text
 .

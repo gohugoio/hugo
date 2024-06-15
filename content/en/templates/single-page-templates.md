@@ -18,12 +18,6 @@ See [Template Lookup](/templates/lookup-order/).
 
 ## Example single page templates
 
-Content pages are of the type `page` and will therefore have all the [page variables][pagevars] and [site variables] available to use in their templates.
-
-### `posts/single.html`
-
-This single page template makes use of Hugo [base templates], the [`.Format` function] for dates, the [`.WordCount` page variable][pagevars], and ranges through the single content's specific [taxonomies][pagetaxonomy]. [`with`] is also used to check whether the taxonomies are set in the front matter.
-
 {{< code file=layouts/posts/single.html >}}
 {{ define "main" }}
   <section id="main">
@@ -77,9 +71,7 @@ To easily generate new instances of a content type (e.g., new `.md` files in a s
 [`.format` function]: /methods/time/format/
 [front matter]: /content-management/front-matter/
 [pagetaxonomy]: /templates/taxonomy-templates/#list-terms-assigned-to-a-page
-[pagevars]: /methods/page/
 [partials]: /templates/partials/
 [section]: /content-management/sections/
-[site variables]: /methods/site/
 [spf13]: https://spf13.com/
 [`with`]: /functions/go-template/with/

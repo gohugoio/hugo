@@ -27,9 +27,9 @@ In addition to cleaner Markdown, shortcodes can be updated any time to reflect n
 
 {{< youtube 2xkNJL4gJ9E >}}
 
-In your content files, a shortcode can be called by calling `{{%/* shortcodename parameters */%}}`. Shortcode parameters are space delimited, and parameters with internal spaces can be quoted.
+In your content files, a shortcode can be called by calling `{{%/* shortcodename arguments */%}}`. Shortcode arguments are space delimited, and arguments with internal spaces must be quoted.
 
-The first word in the shortcode declaration is always the name of the shortcode. Parameters follow the name. Depending upon how the shortcode is defined, the parameters may be named, positional, or both, although you can't mix parameter types in a single call. The format for named parameters models that of HTML with the format `name="value"`.
+The first word in the shortcode declaration is always the name of the shortcode. Arguments follow the name. Depending upon how the shortcode is defined, the arguments may be named, positional, or both, although you can't mix argument types in a single call. The format for named arguments models that of HTML with the format `name="value"`.
 
 Some shortcodes use or require closing shortcodes. Again like HTML, the opening and closing shortcodes match (name only) with the closing declaration, which is prepended with a slash.
 
@@ -45,9 +45,9 @@ Here are two examples of paired shortcodes:
 
 The examples above use two different delimiters, the difference being the `%` character in the first and the `<>` characters in the second.
 
-### Shortcodes with raw string parameters
+### Shortcodes with raw string arguments
 
-You can pass multiple lines as parameters to a shortcode by using raw string literals:
+You can pass multiple lines as arguments to a shortcode by using raw string literals:
 
 ```go-html-template
 {{</*  myshortcode `This is some <b>HTML</b>,
@@ -82,7 +82,7 @@ To override Hugo's embedded `figure` shortcode, copy the [source code] to a file
 [source code]: {{% eturl figure %}}
 {{% /note %}}
 
-The `figure` shortcode can use the following named parameters:
+The `figure` shortcode can use the following named arguments:
 
 src
 : URL of the image to be displayed.
@@ -91,10 +91,10 @@ link
 : If the image needs to be hyperlinked, URL of the destination.
 
 target
-: Optional `target` attribute for the URL if `link` parameter is set.
+: Optional `target` attribute for the URL if `link` argument is set.
 
 rel
-: Optional `rel` attribute for the URL if `link` parameter is set.
+: Optional `rel` attribute for the URL if `link` argument is set.
 
 alt
 : Alternate text for the image if the image cannot be displayed.
@@ -380,7 +380,7 @@ Rendered:
 {{< vimeo 55073825 >}}
 
 {{% note %}}
-If you want to further customize the visual styling, add a `class` parameter when calling the shortcode. The new `class` will be added to the `<div>` that wraps the `<iframe>` *and* will remove the inline styles. Note that you will need to call the `id` as a named parameter as well. You can also give the vimeo video a descriptive title with `title`.
+If you want to further customize the visual styling, add a `class` argument when calling the shortcode. The new `class` will be added to the `<div>` that wraps the `<iframe>` *and* will remove the inline styles. Note that you will need to call the `id` as a named argument as well. You can also give the vimeo video a descriptive title with `title`.
 
 ```go
 {{</* vimeo id="146022717" class="my-vimeo-wrapper-class" title="My vimeo video" */>}}
@@ -411,7 +411,7 @@ Rendered:
 
 {{< youtube 0RKpf3rK57I >}}
 
-The youtube shortcode accepts these named parameters:
+The youtube shortcode accepts these named arguments:
 
 id
 : (`string`) The video `id`. Optional if the `id` is provided as a positional argument as shown in the example above.

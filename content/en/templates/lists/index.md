@@ -34,25 +34,9 @@ The idea of a list page comes from the [hierarchical mental model of the web][me
 
 [![Image demonstrating a hierarchical website sitemap.](site-hierarchy.svg)](site-hierarchy.svg)
 
-## List defaults
-
-### Default templates
-
-Since section lists and taxonomy lists (N.B., *not* [taxonomy terms lists][taxterms]) are both *lists* with regards to their templates, both have the same terminating default of `_default/list.html` or `themes/<THEME>/layouts/_default/list.html` in their lookup order. In addition, both [section lists][sectiontemps] and [taxonomy lists][taxlists] have their own default list templates in `_default`.
-
-See [Template Lookup Order](/templates/lookup-order/) for the complete reference.
-
 ## Add content and front matter to list pages
 
-Since v0.18, [everything in Hugo is a `Page`][bepsays]. This means list pages and the homepage can have associated content files (i.e. `_index.md`) that contain page metadata (i.e., front matter) and content.
-
-This new model allows you to include list-specific front matter via `.Params` and also means that list templates (e.g., `layouts/_default/list.html`) have access to all [page variables][pagevars].
-
-{{% note %}}
-It is important to note that all `_index.md` content files will render according to a *list* template and not according to a [single page template](/templates/single-page-templates/).
-{{% /note %}}
-
-### Example project directory
+Add content and front matter to list pages by creating an _index.md file for `home`, `section`, `taxonomy`, and `term` pages.
 
 The following is an example of a typical Hugo project directory's content:
 
@@ -241,15 +225,13 @@ See the documentation on [`where`] and
 [getpage]: /methods/page/getpage/
 [homepage]: /templates/homepage/
 [mentalmodel]: https://webstyleguide.com/wsg3/3-information-architecture/3-site-structure.html
-[pagevars]: /methods/page/
 [partials]: /templates/partials/
 [RSS 2.0]: https://cyber.harvard.edu/rss/rss.html
 [rss]: /templates/rss/
 [sections]: /content-management/sections/
 [sectiontemps]: /templates/section-templates/
-[sitevars]: /methods/site/
-[taxlists]: /templates/taxonomy-templates/#taxonomy-list-templates
-[taxterms]: /templates/taxonomy-templates/#taxonomy-terms-templates
+[taxlists]: /templates/taxonomy-templates/#taxonomy-templates
+[taxterms]: /templates/taxonomy-templates/#term-templates
 [taxvars]: /methods/taxonomy/
 [views]: /templates/views/
 [`where`]: /functions/collections/where/

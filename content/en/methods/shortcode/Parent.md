@@ -9,7 +9,7 @@ action:
   signatures: [SHORTCODE.Parent]
 ---
 
-This is useful for inheritance of common shortcode parameters from the root.
+This is useful for inheritance of common shortcode arguments from the root.
 
 In this contrived example, the "greeting" shortcode is the parent, and the "now" shortcode is child.
 
@@ -45,6 +45,6 @@ Welcome. Today is {{</* now */>}}.
 
 The "now" shortcode formats the current time using:
 
-1. The `dateFormat` parameter passed to the "now" shortcode, if present
-2. The `dateFormat` parameter passed to the "greeting" shortcode, if present
+1. The `dateFormat` argument passed to the "now" shortcode, if present
+2. The `dateFormat` argument passed to the "greeting" shortcode, if present
 3. The default layout string defined at the top of the shortcode

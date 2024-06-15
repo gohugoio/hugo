@@ -171,7 +171,7 @@ wikipedia: "https://en.wikipedia.org/wiki/Bruce_Willis"
 [content type]: /content-management/types/
 [documentation on archetypes]: /content-management/archetypes/
 [front matter]: /content-management/front-matter/
-[taxonomy list templates]: /templates/taxonomy-templates/#taxonomy-list-templates
+[taxonomy list templates]: /templates/taxonomy-templates/#taxonomy-templates
 [taxonomy templates]: /templates/taxonomy-templates/
-[terms within the taxonomy]: /templates/taxonomy-templates/#taxonomy-terms-templates
+[terms within the taxonomy]: /templates/taxonomy-templates/#term-templates
 [site configuration]: /getting-started/configuration/

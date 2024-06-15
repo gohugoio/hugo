@@ -32,7 +32,7 @@ This shortcode performs error checking, then renders an HTML `img` element with 
     {{ errorf "The %q shortcode was unable to find %s. See %s" $.Name $src $.Position }}
   {{ end }}
 {{ else }}
-  {{ errorf "The %q shortcode requires a 'src' parameter. See %s" .Name .Position }}
+  {{ errorf "The %q shortcode requires a 'src' argument. See %s" .Name .Position }}
 {{ end }}
 {{< /code >}}
 

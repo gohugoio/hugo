@@ -16,21 +16,21 @@ Hugo includes support for user-defined groupings of content called **taxonomies*
 
 Hugo provides multiple ways to use taxonomies throughout your project templates:
 
-* Order the way content associated with a taxonomy term is displayed in a [taxonomy list template](#taxonomy-list-templates)
-* Order the way the terms for a taxonomy are displayed in a [taxonomy terms template](#taxonomy-terms-templates)
+* Order the way content associated with a taxonomy term is displayed in a [taxonomy template](#taxonomy-templates)
+* Order the way the terms for a taxonomy are displayed in a [term template](#term-templates)
 * List a single content's taxonomy terms within a [single page template]
 
-## Taxonomy list templates
+## Taxonomy templates
 
 Taxonomy list page templates are lists and therefore have all the methods available to [list pages][lists].
 
-### Taxonomy list template lookup order
+### Taxonomy template lookup order
 
 See [Template Lookup](/templates/lookup-order/).
 
-## Taxonomy terms templates
+## Term templates
 
-### Taxonomy terms templates lookup order
+### Term template lookup order
 
 See [Template Lookup](/templates/lookup-order/).
 
@@ -201,9 +201,9 @@ To render a comma-delimited list:
 
 ## List content with the same taxonomy term
 
-If you are using a taxonomy for something like a series of posts, you can list individual pages associated with the same taxonomy. This is also a quick and dirty method for showing related content:
+If you are using a taxonomy for something like a series of posts, you can list individual pages associated with the same term. For example:
 
-### Example: showing content in same series
+
 
 ```go-html-template
 <ul>
@@ -217,13 +217,11 @@ If you are using a taxonomy for something like a series of posts, you can list i
 
 This would be very useful in a sidebar as “featured content”. You could even have different sections of “featured content” by assigning different terms to the content.
 
-### Example: grouping "featured" content
-
 ```go-html-template
 <section id="menu">
   <ul>
-    {{ range $key, $taxonomy := .Site.Taxonomies.featured }}
-      <li>{{ $key }}</li>
+    {{ range $term, $taxonomy := .Site.Taxonomies.featured }}
+      <li>{{ $term }}</li>
       <ul>
         {{ range $taxonomy.Pages }}
           <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
@@ -236,13 +234,7 @@ This would be very useful in a sidebar as “featured content”. You could even
 
 ## Render a site's taxonomies
 
-If you wish to display the list of all keys for your site's taxonomy, you can retrieve them from the [`.Site` variable][sitevars] available on every page.
-
-This may take the form of a tag cloud, a menu, or simply a list.
-
 The following example displays all terms in a site's tags taxonomy:
-
-### Example: list all site tags
 
 ```go-html-template
 <ul>
@@ -251,9 +243,6 @@ The following example displays all terms in a site's tags taxonomy:
   {{ end }}
 </ul>
 ```
-
-### Example: list all taxonomies, terms, and assigned content
-
 This example will list all taxonomies and their terms, as well as all the content assigned to each of the terms.
 
 {{< code file=layouts/partials/all-taxonomies.html >}}
@@ -289,24 +278,8 @@ This example will list all taxonomies and their terms, as well as all the conten
 {{ end }}
 {{< /code >}}
 
-## `.Site.GetPage` for taxonomies
-
-Because taxonomies are lists, the [`.GetPage` function][getpage] can be used to get all the pages associated with a particular taxonomy term using a terse syntax. The following ranges over the full list of tags on your site and links to each of the individual taxonomy pages for each term without having to use the more fragile URL construction of the ["List All Site Tags" example above](#example-list-all-site-tags):
-
-{{< code file=links-to-all-tags.html >}}
-{{ $taxo := "tags" }}
-<ul class="{{ $taxo }}">
-  {{ with ($.Site.GetPage (printf "/%s" $taxo)) }}
-    {{ range .Pages }}
-      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
-    {{ end }}
-  {{ end }}
-</ul>
-{{< /code >}}
-
 [`Pages`]: /methods/page/pages/
 [getpage]: /methods/page/getpage/
 [lists]: /templates/lists/
 [renderlists]: /templates/lists/
 [single page template]: /templates/single-page-templates/
-[sitevars]: /methods/site/

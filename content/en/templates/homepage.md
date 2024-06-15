@@ -12,11 +12,8 @@ toc: true
 aliases: [/layout/homepage/,/templates/homepage-template/]
 ---
 
-Homepage is a `Page` and therefore has all the [page variables][pagevars] and [site variables][sitevars] available for use.
-
-{{% note %}}
 The homepage template is the *only* required template for building a site and therefore useful when bootstrapping a new site and template. It is also the only required template if you are developing a single-page website.
-{{% /note %}}
+
 
 {{< youtube ut1xtRZ1QOA >}}
 
@@ -31,8 +28,6 @@ The homepage, similar to other [list pages in Hugo][lists], accepts content and 
 See the homepage template below or [Content Organization][contentorg] for more information on the role of `_index.md` in adding content and front matter to list pages.
 
 ## Example homepage template
-
-The following is an example of a homepage template that uses [partial][partials], [base] templates, and a content file at `content/_index.md` to populate the `{{ .Title }}` and `{{ .Content }}` [page variables][pagevars].
 
 {{< code file=layouts/index.html >}}
 {{ define "main" }}
@@ -56,10 +51,6 @@ The following is an example of a homepage template that uses [partial][partials]
 {{ end }}
 {{< /code >}}
 
-[base]: /templates/base/
 [contentorg]: /content-management/organization/
 [lists]: /templates/lists/
 [lookup]: /templates/lookup-order/
-[pagevars]: /methods/page/
-[partials]: /templates/partials/
-[sitevars]: /methods/site/

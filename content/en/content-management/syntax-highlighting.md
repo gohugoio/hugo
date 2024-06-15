@@ -32,7 +32,7 @@ Run `hugo gen chromastyles -h` for more options. See https://xyproto.github.io/s
 
 ## Highlight shortcode
 
-Highlighting is carried out via the built-in [`highlight` shortcode](/content-management/shortcodes/#highlight). It takes exactly one required parameter for the programming language to be highlighted and requires a closing shortcode.
+Highlighting is carried out via the built-in [`highlight` shortcode](/content-management/shortcodes/#highlight). It takes exactly one required argument for the programming language to be highlighted and requires a closing tag.
 
 Options:
 

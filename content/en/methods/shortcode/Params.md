@@ -1,6 +1,6 @@
 ---
 title: Params
-description: Returns a collection of the shortcode parameters.
+description: Returns a collection of the shortcode arguments.
 categories: []
 keywords: []
 action:
@@ -10,7 +10,7 @@ action:
   signatures: [SHORTCODE.Params]
 ---
 
-When you call a shortcode using positional parameters, the `Params` method returns a slice.
+When you call a shortcode using positional arguments, the `Params` method returns a slice.
 
 {{< code file=content/about.md lang=md >}}
 {{</* myshortcode "Hello" "world" */>}}
@@ -21,7 +21,7 @@ When you call a shortcode using positional parameters, the `Params` method retur
 {{ index .Params 1 }} → world
 {{< /code >}}
 
-When you call a shortcode using named parameters, the `Params` method returns a map.
+When you call a shortcode using named arguments, the `Params` method returns a map.
 
 {{< code file=content/about.md lang=md >}}
 {{</* myshortcode greeting="Hello" name="world" */>}}
