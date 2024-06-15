@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.35.4
 	github.com/bep/clocks v0.5.0
 	github.com/bep/debounce v1.2.0
-	github.com/bep/gitmap v1.1.2
+	github.com/bep/gitmap v1.1.3
 	github.com/bep/goat v0.5.0
 	github.com/bep/godartsass v1.2.0
 	github.com/bep/godartsass/v2 v2.0.0
