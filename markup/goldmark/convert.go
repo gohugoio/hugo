@@ -116,6 +116,7 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 
 	extensions = append(extensions, extras.New(
 		extras.Config{
+			Delete:      extras.DeleteConfig{Enable: cfg.Extensions.Extras.Delete.Enable},
 			Insert:      extras.InsertConfig{Enable: cfg.Extensions.Extras.Insert.Enable},
 			Mark:        extras.MarkConfig{Enable: cfg.Extensions.Extras.Mark.Enable},
 			Subscript:   extras.SubscriptConfig{Enable: cfg.Extensions.Extras.Subscript.Enable},

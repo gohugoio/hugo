@@ -1082,6 +1082,8 @@ config:
           escapedSpace: false
         definitionList: true
         extras:
+          delete:
+            enable: false
           insert:
             enable: false
           mark:
@@ -1589,8 +1591,8 @@ config:
   paginate: 0
   paginatePath: ""
   pagination:
-    defaultPageSize: 10
     disableAliases: false
+    pagerSize: 10
     path: page
   panicOnWarning: false
   params: {}
