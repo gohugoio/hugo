@@ -69,4 +69,4 @@ For example:
 http://localhost:1313/?debug=LR-verbose
 ```
 
-Then monitor the reload requests in your browser's dev tools console. Make sure the dev tools "preserve log" is enabled.
+Then monitor the reload requests in your browser's dev tools console. Make sure the dev tools "preserve log" option is enabled.
