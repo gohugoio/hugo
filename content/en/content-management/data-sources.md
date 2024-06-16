@@ -28,6 +28,10 @@ The data directory in the root of your project may contain one or more data file
 
 Hugo also merges data directories from themes and modules into this single data structure, where the data directory in the root of your project takes precedence.
 
+{{% note %}}
+Hugo reads the combined data structure into memory and keeps it there for the entire build. For data that is infrequently accessed, use global or page resources instead.
+{{% /note %}}
+
 Theme and module authors may wish to namespace their data files to prevent collisions. For example:
 
 ```text
