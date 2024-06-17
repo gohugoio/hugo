@@ -1082,6 +1082,8 @@ config:
           escapedSpace: false
         definitionList: true
         extras:
+          delete:
+            enable: false
           insert:
             enable: false
           mark:
