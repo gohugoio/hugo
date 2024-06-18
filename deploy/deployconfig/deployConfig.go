@@ -69,6 +69,11 @@ type Target struct {
 	// Parsed versions of Include/Exclude.
 	IncludeGlob glob.Glob `json:"-"`
 	ExcludeGlob glob.Glob `json:"-"`
+
+	// If true, any local path matching <dir>/index.html will be mapped to the
+	// remote path <dir>/. This does not affect the top-level index.html file,
+	// since that would result in an empty path.
+	StripIndexHTML bool
 }
 
 func (tgt *Target) ParseIncludeExclude() error {

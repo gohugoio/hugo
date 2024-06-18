@@ -186,6 +186,15 @@ URL = "<FILL ME IN>"
 #include = "**.html" # would only include files with ".html" suffix
 #exclude = "**.{jpg, png}" # would exclude files with ".jpg" or ".png" suffix
 
+# Map any file named "<dir>/index.html" to the remote file "<dir>/". This does
+# not affect the root "index.html" file, and it does not affect matchers below.
+# This works when deploying to key-value cloud storage systems, such as Amazon
+# S3 (general purpose buckets, not directory buckets), Google Cloud Storage, and
+# Azure Blob Storage. This makes it so the canonical URL will match the object
+# key in cloud storage, except for the root index.html file.
+#
+#stripIndexHTML = true
+
 
 #######################
 [[deployment.matchers]] 
@@ -195,6 +204,7 @@ URL = "<FILL ME IN>"
 
 # See https://golang.org/pkg/regexp/syntax/ for pattern syntax.
 # Pattern searching is stopped on first match.
+# This is not affected by stripIndexHTML, above.
 pattern = "<FILL ME IN>"
 
 # If true, Hugo will gzip the file before uploading it to the bucket.
