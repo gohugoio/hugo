@@ -63,7 +63,9 @@ And with [Hugo Modules], you can share content, assets, data, translations, them
 <p>&nbsp;</p>
 <p float="left">
   <a href="https://www.linode.com/?utm_campaign=hugosponsor&utm_medium=banner&utm_source=hugogithub" target="_blank"><img src="https://raw.githubusercontent.com/gohugoio/gohugoioTheme/master/assets/images/sponsors/linode-logo_standard_light_medium.png" width="200" alt="Linode"></a>
-<p>&nbsp;</p>
+&nbsp;&nbsp;&nbsp;
+  <a href="https://route4me.com/?utm_campaign=hugosponsor&utm_medium=banner&utm_source=hugogithub" target="_blank"><img src="https://raw.githubusercontent.com/gohugoio/gohugoioTheme/master/assets/images/sponsors/Route4MeLogoBlueOnWhite.svg" width="200" alt="Route Planning & Route Optimization Software"></a>
+</p>
 
 ## Installation
 
