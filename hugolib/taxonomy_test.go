@@ -970,3 +970,58 @@ title: p1
 	b.AssertFileExists("public/ja/s1/index.html", false) // failing test
 	b.AssertFileExists("public/ja/s1/category/index.html", true)
 }
+
+func BenchmarkTaxonomiesGetTerms(b *testing.B) {
+	createBuilders := func(b *testing.B, numPages int) []*IntegrationTestBuilder {
+		files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ["RSS", "sitemap", "section"]
+[taxononomies]
+tag = "tags"
+-- layouts/_default/list.html --
+List.
+-- layouts/_default/single.html --
+GetTerms.tags: {{ range .GetTerms "tags" }}{{ .Title }}|{{ end }}
+-- content/_index.md --
+`
+
+		tagsVariants := []string{
+			"tags: ['a']",
+			"tags: ['a', 'b']",
+			"tags: ['a', 'b', 'c']",
+			"tags: ['a', 'b', 'c', 'd']",
+			"tags: ['a', 'b',  'd', 'e']",
+			"tags: ['a', 'b', 'c', 'd', 'e']",
+			"tags: ['a', 'd']",
+			"tags: ['a',  'f']",
+		}
+
+		for i := 1; i < numPages; i++ {
+			tags := tagsVariants[i%len(tagsVariants)]
+			files += fmt.Sprintf("\n-- content/posts/p%d.md --\n---\n%s\n---", i+1, tags)
+		}
+		cfg := IntegrationTestConfig{
+			T:           b,
+			TxtarString: files,
+		}
+		builders := make([]*IntegrationTestBuilder, b.N)
+
+		for i := range builders {
+			builders[i] = NewIntegrationTestBuilder(cfg)
+		}
+
+		b.ResetTimer()
+
+		return builders
+	}
+
+	for _, numPages := range []int{100, 1000, 10000, 20000} {
+		b.Run(fmt.Sprintf("pages_%d", numPages), func(b *testing.B) {
+			builders := createBuilders(b, numPages)
+			for i := 0; i < b.N; i++ {
+				builders[i].Build()
+			}
+		})
+	}
+}
