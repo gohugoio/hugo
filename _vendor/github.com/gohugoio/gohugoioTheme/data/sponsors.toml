@@ -6,11 +6,12 @@
     bgcolor      = "#ffffff"
 
 [[banners]]
-    name          = "Your Company?"
-    link          = "https://bep.is/en/hugo-sponsor-2023-01/"
-    utm_campaign  = "hugosponsor"
-    show_on_hover = true
-    bgcolor       = "#4e4f4f"
+    name         = "Route4Me"
+    link         = "https://route4me.com"
+    title        = "Route Planning & Route Optimization Software"
+    utm_campaign = "hugosponsor"
+    bgcolor      = "#334799"
+    link_attr    = "style='color: #ffffff; font-weight: bold; text-decoration: none; text-align: center'"
 
 [[banners]]
     name          = "Your Company?"
@@ -18,3 +19,4 @@
     utm_campaign  = "hugosponsor"
     show_on_hover = true
     bgcolor       = "#4e4f4f"
+    link_attr     = "style='color: #ffffff; font-weight: bold; text-decoration: none; text-align: center'"

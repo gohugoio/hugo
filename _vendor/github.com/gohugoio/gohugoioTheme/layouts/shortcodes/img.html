@@ -356,7 +356,7 @@ Renders the given image using the given filter, if any.
   {{- if $u.IsAbs }}
     {{- with resources.GetRemote $u.String }}
       {{- with .Err }}
-        {{- errorf "%s" }}
+        {{- errorf "%s" . }}
       {{- else }}
         {{- /* This is a remote resource. */}}
         {{- $r = . }}
