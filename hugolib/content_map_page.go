@@ -98,6 +98,7 @@ type pageMap struct {
 	cachePages1            *dynacache.Partition[string, page.Pages]
 	cachePages2            *dynacache.Partition[string, page.Pages]
 	cacheResources         *dynacache.Partition[string, resource.Resources]
+	cacheGetTerms          *dynacache.Partition[string, map[string]page.Pages]
 	cacheContentRendered   *dynacache.Partition[string, *resources.StaleValue[contentSummary]]
 	cacheContentPlain      *dynacache.Partition[string, *resources.StaleValue[contentPlainPlainWords]]
 	contentTableOfContents *dynacache.Partition[string, *resources.StaleValue[contentTableOfContents]]
@@ -448,16 +449,13 @@ func (m *pageMap) getPagesWithTerm(q pageMapQueryPagesBelowPath) page.Pages {
 func (m *pageMap) getTermsForPageInTaxonomy(path, taxonomy string) page.Pages {
 	prefix := paths.AddLeadingSlash(taxonomy)
 
-	v, err := m.cachePages1.GetOrCreate(prefix+path, func(string) (page.Pages, error) {
-		var pas page.Pages
-
+	termPages, err := m.cacheGetTerms.GetOrCreate(prefix, func(string) (map[string]page.Pages, error) {
+		mm := make(map[string]page.Pages)
 		err := m.treeTaxonomyEntries.WalkPrefix(
 			doctree.LockTypeNone,
 			paths.AddTrailingSlash(prefix),
 			func(s string, n *weightedContentNode) (bool, error) {
-				if strings.HasSuffix(s, path) {
-					pas = append(pas, n.term)
-				}
+				mm[n.n.Path()] = append(mm[n.n.Path()], n.term)
 				return false, nil
 			},
 		)
@@ -465,15 +463,18 @@ func (m *pageMap) getTermsForPageInTaxonomy(path, taxonomy string) page.Pages {
 			return nil, err
 		}
 
-		page.SortByDefault(pas)
+		// Sort the terms.
+		for _, v := range mm {
+			page.SortByDefault(v)
+		}
 
-		return pas, nil
+		return mm, nil
 	})
 	if err != nil {
 		panic(err)
 	}
 
-	return v
+	return termPages[path]
 }
 
 func (m *pageMap) forEachResourceInPage(
@@ -898,6 +899,7 @@ func newPageMap(i int, s *Site, mcache *dynacache.Cache, pageTrees *pageTrees) *
 		pageTrees:              pageTrees.Shape(0, i),
 		cachePages1:            dynacache.GetOrCreatePartition[string, page.Pages](mcache, fmt.Sprintf("/pag1/%d", i), dynacache.OptionsPartition{Weight: 10, ClearWhen: dynacache.ClearOnRebuild}),
 		cachePages2:            dynacache.GetOrCreatePartition[string, page.Pages](mcache, fmt.Sprintf("/pag2/%d", i), dynacache.OptionsPartition{Weight: 10, ClearWhen: dynacache.ClearOnRebuild}),
+		cacheGetTerms:          dynacache.GetOrCreatePartition[string, map[string]page.Pages](mcache, fmt.Sprintf("/gett/%d", i), dynacache.OptionsPartition{Weight: 5, ClearWhen: dynacache.ClearOnRebuild}),
 		cacheResources:         dynacache.GetOrCreatePartition[string, resource.Resources](mcache, fmt.Sprintf("/ress/%d", i), dynacache.OptionsPartition{Weight: 60, ClearWhen: dynacache.ClearOnRebuild}),
 		cacheContentRendered:   dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentSummary]](mcache, fmt.Sprintf("/cont/ren/%d", i), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
 		cacheContentPlain:      dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentPlainPlainWords]](mcache, fmt.Sprintf("/cont/pla/%d", i), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
