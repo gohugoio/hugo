@@ -986,19 +986,8 @@ GetTerms.tags: {{ range .GetTerms "tags" }}{{ .Title }}|{{ end }}
 -- content/_index.md --
 `
 
-		tagsVariants := []string{
-			"tags: ['a']",
-			"tags: ['a', 'b']",
-			"tags: ['a', 'b', 'c']",
-			"tags: ['a', 'b', 'c', 'd']",
-			"tags: ['a', 'b',  'd', 'e']",
-			"tags: ['a', 'b', 'c', 'd', 'e']",
-			"tags: ['a', 'd']",
-			"tags: ['a',  'f']",
-		}
-
 		for i := 1; i < numPages; i++ {
-			tags := tagsVariants[i%len(tagsVariants)]
+			tags := fmt.Sprintf("tags: ['a', 'b%d', 'c%d']", i+1, i+1)
 			files += fmt.Sprintf("\n-- content/posts/p%d.md --\n---\n%s\n---", i+1, tags)
 		}
 		cfg := IntegrationTestConfig{
