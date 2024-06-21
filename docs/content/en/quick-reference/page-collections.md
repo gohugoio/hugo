@@ -31,7 +31,7 @@ Use these `Site` methods when rendering lists on any page.
 
 Use the [`where`] function to filter page collections.
 
-[`where`]: /functions/collections/where
+[`where`]: /functions/collections/where/
 
 ## Sort
 

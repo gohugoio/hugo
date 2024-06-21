@@ -63,7 +63,7 @@ Given a media type and some additional configuration, you get an **Output Format
 
 This is the full set of Hugo's built-in output formats:
 
-{{< datatable "config" "outputFormats" "name" "mediaType" "path" "baseName" "rel" "protocol" "isPlainText" "isHTML" "noUgly" "permalinkable" >}}
+{{< datatable "config" "outputFormats" "_key" "baseName" "isHTML" "isPlainText" "mediaType" "noUgly"  "path" "permalinkable" "protocol"  "rel" >}}
 
 - A page can be output in as many output formats as you want, and you can have an infinite amount of output formats defined **as long as they resolve to a unique path on the file system**. In the above table, the best example of this is `amp` vs. `html`. `amp` has the value `amp` for `path` so it doesn't overwrite the `html` version; e.g. we can now have both `/index.html` and `/amp/index.html`.
 - The `mediaType` must match a defined media type.
@@ -83,40 +83,56 @@ The above example is fictional, but if used for the homepage on a site with `bas
 
 ### Configure output formats
 
-The following is the full list of configuration options for output formats and their default values:
-
-mediaType
-: this must match the `Type` of a defined media type.
-
-path
-: sub path to save the output files.
+Use these parameters when configuring an output format:
 
 baseName
-: the base file name for the list file names (homepage, etc.). **Default:** `index`.
-
-rel
-: can be used to create `rel` values in `link` tags. **Default:** `alternate`.
-
-protocol
-: will replace the "http://" or "https://" in your `baseURL` for this output format.
-
-isPlainText
-: use Go's plain text templates parser for the templates. **Default:** `false`.
+: (`string`) The base name of the published file. Default is `index`.
 
 isHTML
-: used in situations only relevant for `HTML`-type formats; e.g., page aliases. **Default:** `false`.
+: (`bool`) If `true`, classifies the output format as HTML. Hugo uses this value to determine when to create alias redirects, when to inject the LiveReload script, etc. Default is `false`.
 
-noUgly
-: used to turn off ugly URLs If `uglyURLs` is set to `true` in your site. **Default:** `false`.
+isPlainText
+: (`bool`) If `true`, Hugo parses templates for this output format with Go's [text/template] package instead of the [html/template] package. Default is `false`.
+
+[html/template]: https://pkg.go.dev/html/template
+[text/template]: https://pkg.go.dev/text/template
+
+mediaType
+: (`string`) The [media type] of the published file. This must match a defined media type, either [built-in](#media-types) or custom.
+
+[media type]: https://en.wikipedia.org/wiki/Media_type
 
 notAlternative
-: enable if it doesn't make sense to include this format in an `AlternativeOutputFormats` format listing on `Page` (e.g., with `CSS`). Note that we use the term _alternative_ and not _alternate_ here, as it does not necessarily replace the other format. **Default:** `false`.
+: (`bool`) If `true`, excludes this output format from the values returned by the [`AlternativeOutputFormats`] method on a `Page` object. Default is `false`.
+
+[`AlternativeOutputFormats`]: /methods/page/alternativeoutputformats/
+
+noUgly
+: (`bool`) If `true`, disables ugly URLs for this output format when `uglyURLs` is `true` in your site configuration. Default is `false`.
+
+path
+: (`string`) The path to the directory containing the published files, relative to the root of the publish directory.
 
 permalinkable
-: make `.Permalink` and `.RelPermalink` return the rendering Output Format rather than main ([see below](#link-to-output-formats)). This is enabled by default for `HTML` and `AMP`. **Default:** `false`.
+: (`bool`) If `true`, the [`Permalink`] and [`RelPermalink`] methods on a `Page` object return the rendering output format rather than main output format ([see below](#link-to-output-formats)). Enabled by default for the `html` and `amp` output formats. Default is `false`.
+
+[`Permalink`]: /methods/page/permalink/
+[`RelPermalink`]: /methods/page/relpermalink/
+
+protocol
+: (`string`) The protocol (scheme) of the URL for this output format. For example, `https://` or `webcal://`. Default is the scheme of the `baseURL` parameter in your site configuration, typically `https://`.
+
+rel
+: (`string`) If provided, you can assign this value to `rel` attributes in `link` elements when iterating over output formats in your templates. Default is `alternate`.
+
+root
+: (`bool`) If `true`, files will be published to the root of the publish directory. Default is `false`.
+
+ugly
+: (`bool`) If `true`, enables uglyURLs for this output format when `uglyURLs` is `false` in your site configuration. Default is `false`.
 
 weight
-: Setting this to a non-zero value will be used as the first sort criteria.
+: (`int`) When set to a non-zero value, Hugo uses the `weight` as the first criteria when sorting output formats, falling back to the name of the output format. Lighter items float to the top, while heavier items sink to the bottom. Hugo renders output formats sequentially based on the sort order.
 
 ## Output formats for pages
 
@@ -125,7 +141,7 @@ system.
 
 ### Default output formats
 
-Every `Page` has a [`Kind`][page_kinds] attribute, and the default Output
+Every `Page` has a [`Kind`] attribute, and the default Output
 Formats are set based on that.
 
 {{< code-toggle config=outputs />}}
@@ -162,7 +178,10 @@ outputs:
 
 ## List output formats
 
-Each `Page` has both an `.OutputFormats` (all formats, including the current) and an `.AlternativeOutputFormats` variable, the latter of which is useful for creating a `link rel` list in your site's `<head>`:
+Each `Page` object has both an [`OutputFormats`] method (all formats, including the current) and an [`AlternativeOutputFormats`] method, the latter of which is useful for creating a `link rel` list in your site's `<head>`:
+
+[`OutputFormats`]: /methods/page/outputformats
+[`AlternativeOutputFormats`]: /methods/page/alternativeoutputformats
 
 ```go-html-template
 {{ range .AlternativeOutputFormats -}}
@@ -172,7 +191,10 @@ Each `Page` has both an `.OutputFormats` (all formats, including the current) an
 
 ## Link to output formats
 
-`.Permalink` and `.RelPermalink` on `Page` will return the first output format defined for that page (usually `HTML` if nothing else is defined). This is regardless of the template file they are being called from.
+The [`Permalink`] and [`RelPermalink`] methods on a `Page` object return the first output format defined for that page (usually `HTML` if nothing else is defined). This is regardless of the template from which they are called.
+
+[`Permalink`]: /methods/page/permalink
+[`RelPermalink`]: /methods/page/relpermalink
 
 __from `single.json.json`:__
 ```go-html-template
@@ -193,7 +215,7 @@ In order for them to return the output format of the current template file inste
 {{ end }}
 ```
 
-From content files, you can use the [`ref` or `relref` shortcodes](/content-management/shortcodes/#ref-and-relref):
+From content files, you can use the `ref` or `relref` shortcodes:
 
 ```go-html-template
 [Neat]({{</* ref "blog/neat.md" "amp" */>}})
@@ -225,4 +247,4 @@ The partial below is a plain text template . The output format is `csv`, and sin
 [lookup order]: /templates/lookup-order/
 [media type]: https://en.wikipedia.org/wiki/Media_type
 [partials]: /templates/partials/
-[page_kinds]: /templates/section-templates/#page-kinds
+[`kind`]: /methods/page/kind/

@@ -5,11 +5,11 @@ url: /commands/hugo_list_future/
 ---
 ## hugo list future
 
-List all posts dated in the future
+List future content
 
 ### Synopsis
 
-List all of the posts in your content directory which will be posted in the future.
+List content with a future publication date.
 
 ```
 hugo list future [flags] [args]
@@ -33,7 +33,7 @@ hugo list future [flags] [args]
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --logLevel string            log level (debug|info|warn|error)
       --quiet                      build in quiet mode
-      --renderToMemory             render to memory (mostly useful when running the server)
+  -M, --renderToMemory             render to memory (mostly useful when running the server)
   -s, --source string              filesystem path to read files relative from
       --themesDir string           filesystem path to themes directory
   -v, --verbose                    verbose output

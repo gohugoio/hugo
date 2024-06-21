@@ -75,7 +75,7 @@ In the last example, the collection includes pages in the resources subdirectory
 {{% note %}}
 When used with a `Site` object, the `Pages` method recursively returns all pages within the site. See&nbsp;[details].
 
-[details]: /methods/site/pages
+[details]: /methods/site/pages/
 {{% /note %}}
 
 ```go-html-template

@@ -30,3 +30,11 @@ aliases: [/functions/lt]
 {{ lt 2 1 2 }} → false
 {{ lt 2 2 1 }} → false
 ```
+
+Use the `compare.Lt` function to compare other data types as well:
+
+```go-html-template
+{{ lt "ab" "a" }} → false
+{{ lt time.Now (time.AsTime "1964-12-30") }} → false
+{{ lt true false }} → false
+```

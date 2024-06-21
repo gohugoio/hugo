@@ -19,13 +19,28 @@ Hugo `0.32` announced page-relative images and other resources packaged into `Pa
 
 These terms are connected, and you also need to read about [Page Resources](/content-management/page-resources) and [Image Processing](/content-management/image-processing) to get the full picture.
 
-{{< imgproc "1-featured-content-bundles.png" "resize 300x" >}}
-The illustration shows three bundles. Note that the home page bundle cannot contain other content pages, although other files (images etc.) are allowed.
-{{< /imgproc >}}
+```text
+content/
+├── blog/
+│   ├── hugo-is-cool/
+│   │   ├── images/
+│   │   │   ├── funnier-cat.jpg
+│   │   │   └── funny-cat.jpg
+│   │   ├── cats-info.md
+│   │   └── index.md
+│   ├── posts/
+│   │   ├── post1.md
+│   │   └── post2.md
+│   ├── 1-landscape.jpg
+│   ├── 2-sunset.jpg
+│   ├── _index.md
+│   ├── content-1.md
+│   └── content-2.md
+├── 1-logo.png
+└── _index.md
+```
 
-{{% note %}}
-The bundle documentation is a **work in progress**. We will publish more comprehensive docs about this soon.
-{{% /note %}}
+The file tree above shows three bundles. Note that the home page bundle cannot contain other content pages, although other files (images etc.) are allowed.
 
 ## Organization of content source
 
@@ -52,7 +67,7 @@ Without any additional configuration, the following will automatically work:
 
 ## Path breakdown in Hugo
 
-The following demonstrates the relationships between your content organization and the output URL structure for your Hugo website when it renders. These examples assume you are [using pretty URLs][pretty], which is the default behavior for Hugo. The examples also assume a key-value of `baseURL = "https://example.org"` in your [site's configuration file][config].
+The following demonstrates the relationships between your content organization and the output URL structure for your Hugo website when it renders. These examples assume you are [using pretty URLs][pretty], which is the default behavior for Hugo. The examples also assume a key-value of `baseURL = "https://example.org/"` in your [site's configuration file][config].
 
 ### Index pages: `_index.md`
 
@@ -69,7 +84,7 @@ You can create one `_index.md` for your homepage and one in each of your content
 .       ⊢--^-⊣
 .        path    slug
 .       ⊢--^-⊣⊢---^---⊣
-.           filepath
+.           file path
 .       ⊢------^------⊣
 content/posts/_index.md
 ```
@@ -140,7 +155,7 @@ The `url` is the entire URL path, defined by the file path and optionally overri
 [config]: /getting-started/configuration/
 [formats]: /content-management/formats/
 [front matter]: /content-management/front-matter/
-[getpage]: /methods/page/getpage
+[getpage]: /methods/page/getpage/
 [homepage template]: /templates/homepage/
 [homepage]: /templates/homepage/
 [lists]: /templates/lists/

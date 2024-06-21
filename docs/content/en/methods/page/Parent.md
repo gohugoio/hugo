@@ -21,7 +21,7 @@ action:
 {{% note %}}
 The parent section of a regular page is the [current section].
 
-[current section]: /methods/page/currentsection
+[current section]: /methods/page/currentsection/
 {{% /note %}}
 
 Consider this content structure:

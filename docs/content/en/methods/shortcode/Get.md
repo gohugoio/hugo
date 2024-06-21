@@ -1,6 +1,6 @@
 ---
 title: Get
-description: Returns the value of the given parameter.
+description: Returns the value of the given argument.
 categories: []
 keywords: []
 action:
@@ -8,44 +8,44 @@ action:
     - methods/shortcode/IsNamedParams
     - methods/shortcode/Params
   returnType: any
-  signatures: [SHORTCODE.Get PARAM]
+  signatures: [SHORTCODE.Get ARG]
 toc: true
 ---
 
-Specify the parameter by position or by name. When calling a shortcode within markdown, use either positional or named parameters, but not both.
+Specify the argument by position or by name. When calling a shortcode within Markdown, use either positional or named argument, but not both.
 
 {{% note %}}
-Some shortcodes support positional parameters, some support named parameters, and others support both. Refer to the shortcode's documentation for usage details.
+Some shortcodes support positional arguments, some support named arguments, and others support both. Refer to the shortcode's documentation for usage details.
 {{% /note %}}
 
-## Positional parameters
+## Positional arguments
 
-This shortcode call uses positional parameters:
+This shortcode call uses positional arguments:
 
 {{< code file=content/about.md lang=md >}}
 {{</* myshortcode "Hello" "world" */>}}
 {{< /code >}}
 
-To retrieve parameters by position:
+To retrieve arguments by position:
 
 {{< code file=layouts/shortcodes/myshortcode.html  >}}
 {{ printf "%s %s." (.Get 0) (.Get 1) }} → Hello world.
 {{< /code >}}
 
-## Named parameters
+## Named arguments
 
-This shortcode call uses named parameters:
+This shortcode call uses named arguments:
 
 {{< code file=content/about.md lang=md >}}
 {{</* myshortcode greeting="Hello" firstName="world" */>}}
 {{< /code >}}
 
-To retrieve parameters by name:
+To retrieve arguments by name:
 
 {{< code file=layouts/shortcodes/myshortcode.html  >}}
 {{ printf "%s %s." (.Get "greeting") (.Get "firstName") }} → Hello world.
 {{< /code >}}
 
 {{% note %}}
-Parameter names are case-sensitive.
+Argument names are case-sensitive.
 {{% /note %}}

@@ -75,11 +75,11 @@ With the `GetMatch` and `Match` methods, Hugo determines a match using a case-in
 
 {{% include "functions/_common/glob-patterns.md" %}}
 
-[`resources.ByType`]: /functions/resources/ByType
-[`resources.GetMatch`]: /functions/resources/ByType
-[`resources.Get`]: /functions/resources/ByType
-[`resources.Match`]: /functions/resources/ByType
-[`resources`]: /functions/resources
+[`resources.ByType`]: /functions/resources/ByType/
+[`resources.GetMatch`]: /functions/resources/ByType/
+[`resources.Get`]: /functions/resources/ByType/
+[`resources.Match`]: /functions/resources/ByType/
+[`resources`]: /functions/resources/
 [glob pattern]: https://github.com/gobwas/glob#example
 [media type]: https://en.wikipedia.org/wiki/Media_type
 [page bundle]: /getting-started/glossary/#page-bundle

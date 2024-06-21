@@ -115,7 +115,7 @@ JSX {{< new-in 0.124.0 >}}
 : (`string`) How to handle/transform JSX syntax. One of: `transform`, `preserve`, `automatic`. Default is `transform`. Notably, the `automatic` transform was introduced in React 17+ and will cause the necessary JSX helper functions to be imported automatically. See https://esbuild.github.io/api/#jsx
 
 JSXImportSource {{< new-in 0.124.0 >}}
-: (`string`) Which library to use to automatically import its JSX helper functions from. This only works if `JSX` is set to `automatic`. The specified library needs to be installed through NPM and expose certain exports. See https://esbuild.github.io/api/#jsx-import-source
+: (`string`) Which library to use to automatically import its JSX helper functions from. This only works if `JSX` is set to `automatic`. The specified library needs to be installed through npm and expose certain exports. See https://esbuild.github.io/api/#jsx-import-source
 
 The combination of `JSX` and `JSXImportSource` is helpful if you want to use a non-React JSX library like Preact, e.g.:
 

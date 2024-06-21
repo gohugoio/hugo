@@ -13,7 +13,7 @@ toc: true
 
 The `GetPage` method is also available on `Page` objects, allowing you to specify a path relative to the current page. See&nbsp;[details].
 
-[details]: /methods/page/getpage
+[details]: /methods/page/getpage/
 
 When using the `GetPage` method on a `Site` object, specify a path relative to the content directory.
 

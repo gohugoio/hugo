@@ -1,6 +1,7 @@
 ---
 title: Key
 description: Returns the unique key for the given resource, equivalent to its publishing path.
+draft: true
 categories: []
 keywords: []
 action:
@@ -40,6 +41,6 @@ The `Key` method is useful if you need to get the resource's publishing path wit
 
 {{% include "methods/resource/_common/global-page-remote-resources.md" %}}
 
-[`Permalink`]: /methods/resource/permalink
-[`RelPermalink`]: /methods/resource/relpermalink
-[`resources.Copy`]: /functions/resources/copy
+[`Permalink`]: /methods/resource/permalink/
+[`RelPermalink`]: /methods/resource/relpermalink/
+[`resources.Copy`]: /functions/resources/copy/

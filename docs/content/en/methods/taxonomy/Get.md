@@ -43,7 +43,7 @@ You could also use the [`index`] function, but the syntax is more verbose:
 To inspect the data structure:
 
 ```go-html-template
-<pre>{{ jsonify (dict "indent" "  ") $weightedPages }}</pre>
+<pre>{{ debug.Dump $weightedPages }}</pre>
 ```
 
 ## Example
@@ -66,7 +66,7 @@ Hugo renders:
 ```
 
 [chaining]: /getting-started/glossary/#chain
-[`index`]: /functions/collections/indexfunction
+[`index`]: /functions/collections/indexfunction/
 [identifier]: /getting-started/glossary/#identifier
 [term]: /getting-started/glossary/#term
 [weighted pages]: /getting-started/glossary/#weighted-page

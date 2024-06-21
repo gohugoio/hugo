@@ -12,6 +12,7 @@ functions_fmt_logging:
   - /functions/fmt/errorf
   - /functions/fmt/erroridf
   - /functions/fmt/warnf
+  - /functions/fmt/warnidf
 functions_images_no_filters:
   - /functions/images/filter
   - /functions/images/config
@@ -21,6 +22,7 @@ methods_site_multilingual:
   - /methods/site/languageprefix
   - /methods/site/languages
 methods_site_page_collections:
+  - /methods/site/allpages
   - /methods/site/pages
   - /methods/site/regularpages
   - /methods/site/sections

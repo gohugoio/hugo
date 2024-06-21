@@ -308,9 +308,6 @@ chroma:
     - Gherkin
     Name: Gherkin
   - Aliases:
-    - gleam>
-    Name: Gleam
-  - Aliases:
     - glsl
     Name: GLSL
   - Aliases:
@@ -1082,8 +1079,6 @@ config:
           escapedSpace: false
         definitionList: true
         extras:
-          delete:
-            enable: false
           insert:
             enable: false
           mark:
@@ -1588,12 +1583,8 @@ config:
     term:
     - html
     - rss
-  paginate: 0
-  paginatePath: ""
-  pagination:
-    disableAliases: false
-    pagerSize: 10
-    path: page
+  paginate: 10
+  paginatePath: page
   panicOnWarning: false
   params: {}
   permalinks:
@@ -1769,8 +1760,6 @@ config_helpers:
     outputformats:
       _merge: shallow
     outputs:
-      _merge: none
-    pagination:
       _merge: none
     params:
       _merge: deep

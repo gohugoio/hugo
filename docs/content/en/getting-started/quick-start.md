@@ -110,7 +110,7 @@ Press `Ctrl + C` to stop Hugo's development server.
 Add a new page to your site.
 
 ```text
-hugo new content posts/my-first-post.md
+hugo new content content/posts/my-first-post.md
 ```
 
 Hugo created the file in the `content/posts` directory. Open the file with your editor.
@@ -125,7 +125,7 @@ draft = true
 
 Notice the `draft` value in the [front matter] is `true`. By default, Hugo does not publish draft content when you build the site. Learn more about [draft, future, and expired content].
 
-Add some [markdown] to the body of the post, but do not change the `draft` value.
+Add some [Markdown] to the body of the post, but do not change the `draft` value.
 
 [markdown]: https://commonmark.org/help/
 
@@ -151,8 +151,10 @@ hugo server -D
 
 View your site at the URL displayed in your terminal. Keep the development server running as you continue to add and change content.
 
+When satisfied with your new content, set the front matter `draft` parameter to `false`.
+
 {{% note %}}
-Hugo's rendering engine conforms to the CommonMark [specification] for markdown. The CommonMark organization provides a useful [live testing tool] powered by the reference implementation.
+Hugo's rendering engine conforms to the CommonMark [specification] for Markdown. The CommonMark organization provides a useful [live testing tool] powered by the reference implementation.
 
 [live testing tool]: https://spec.commonmark.org/dingus/
 [specification]: https://spec.commonmark.org/
@@ -216,13 +218,13 @@ Hugo's [forum] is an active community of users and developers who answer questio
 For other resources to help you learn Hugo, including books and video tutorials, see the [external learning resources](/getting-started/external-learning-resources/) page.
 
 [Ananke]: https://github.com/theNewDynamic/gohugo-theme-ananke
-[directory structure]: /getting-started/directory-structure
+[directory structure]: /getting-started/directory-structure/
 [draft, future, and expired content]: /getting-started/usage/#draft-future-and-expired-content
 [draft, future, or expired content]: /getting-started/usage/#draft-future-and-expired-content
 [external learning resources]:/getting-started/external-learning-resources/
 [forum]: https://discourse.gohugo.io/
 [forum]: https://discourse.gohugo.io/
-[front matter]: /content-management/front-matter
+[front matter]: /content-management/front-matter/
 [Git submodule]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
 [hosting and deployment]: /hosting-and-deployment/
 [Install Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git

@@ -46,10 +46,10 @@ assets/
 ```
 
 ```go-html-template
-{{ $data := "" }}
+{{ $data := dict }}
 {{ $path := "data/books.json" }}
 {{ with resources.Get $path }}
-  {{ with unmarshal . }}
+  {{ with . | transform.Unmarshal }}
     {{ $data = . }}
   {{ end }}
 {{ else }}
@@ -75,10 +75,10 @@ content/
 ```
 
 ```go-html-template
-{{ $data := "" }}
+{{ $data := dict }}
 {{ $path := "books.json" }}
 {{ with .Resources.Get $path }}
-  {{ with unmarshal . }}
+  {{ with . | transform.Unmarshal }}
     {{ $data = . }}
   {{ end }}
 {{ else }}
@@ -95,7 +95,7 @@ content/
 A remote resource is a file on a remote server, accessible via HTTP or HTTPS.
 
 ```go-html-template
-{{ $data := "" }}
+{{ $data := dict }}
 {{ $url := "https://example.org/books.json" }}
 {{ with resources.GetRemote $url }}
   {{ with .Err }}
@@ -112,8 +112,15 @@ A remote resource is a file on a remote server, accessible via HTTP or HTTPS.
 {{ end }}
 ```
 
-[resource]: /getting-started/glossary/#resource
-[page bundle]: /content-management/page-bundles
+{{% note %}}
+When retrieving remote data, a misconfigured server may send a response header with an incorrect [Content-Type]. For example, the server may set the Content-Type header to `application/octet-stream` instead of `application/json`.
+
+In these cases, pass the resource `Content` through the `transform.Unmarshal` function instead of passing the resource itself. For example, in the above, do this instead:
+
+`{{ $data = .Content | transform.Unmarshal }}`
+
+[Content-Type]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
+{{% /note %}}
 
 ## Options
 
@@ -166,7 +173,7 @@ When unmarshaling an XML file, do not include the root node when accessing data.
 Get the remote data:
 
 ```go-html-template
-{{ $data := "" }}
+{{ $data := dict }}
 {{ $url := "https://example.org/books/index.xml" }}
 {{ with resources.GetRemote $url }}
   {{ with .Err }}
@@ -182,7 +189,7 @@ Get the remote data:
 Inspect the data structure:
 
 ```go-html-template
-<pre>{{ jsonify (dict "indent" "  ") $data }}</pre>
+<pre>{{ debug.Dump $data }}</pre>
 ```
 
 List the book titles:
@@ -245,7 +252,7 @@ Let's add a `lang` attribute to the `title` nodes of our RSS feed, and a namespa
 After retrieving the remote data, inspect the data structure:
 
 ```go-html-template
-<pre>{{ jsonify (dict "indent" "  ") $data }}</pre>
+<pre>{{ debug.Dump $data }}</pre>
 ```
 
 Each item node looks like this:
@@ -288,5 +295,7 @@ Hugo renders this to:
 </ul>
 ```
 
-[`index`]: /functions/collections/indexfunction
+[`index`]: /functions/collections/indexfunction/
 [identifiers]: https://go.dev/ref/spec#Identifiers
+[resource]: /getting-started/glossary/#resource
+[page bundle]: /content-management/page-bundles/

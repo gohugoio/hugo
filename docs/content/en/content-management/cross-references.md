@@ -16,7 +16,7 @@ The `ref` and `relref` shortcodes display the absolute and relative permalinks t
 
 ## Use of `ref` and `relref`
 
-The `ref` and `relref` shortcodes require a single parameter: the path to a content document, with or without a file extension, with or without an anchor. Paths without a leading `/` are first resolved relative to the current page, then to the remainder of the site.
+The `ref` and `relref` shortcodes require a single argument: the path to a content document, with or without a file extension, with or without an anchor. Paths without a leading `/` are first resolved relative to the current page, then to the remainder of the site.
 
 ```text
 .
@@ -60,7 +60,7 @@ index.md can be reference either by its path or by its containing folder without
 {{</* ref "/products/index" */>}}    // <- References /products/index.md
 ```
 
-To generate a hyperlink using `ref` or `relref` in markdown:
+To generate a hyperlink using `ref` or `relref` in Markdown:
 
 ```text
 [About]({{</* ref "/about" */>}} "About Us")
@@ -70,9 +70,11 @@ Hugo emits an error or warning if a document cannot be uniquely resolved. The er
 
 ### Link to another language version
 
+Using `ref` or `relref` without specifying a language, will make the reference resolve to the language of the current content page.
+
 To link to another language version of a document, use this syntax:
 
-```go-html-template
+```text
 {{</* relref path="document.md" lang="ja" */>}}
 ```
 
@@ -80,7 +82,7 @@ To link to another language version of a document, use this syntax:
 
 To link to another Output Format of a document, use this syntax:
 
-```go-html-template
+```text
 {{</* relref path="document.md" outputFormat="rss" */>}}
 ```
 
@@ -88,7 +90,7 @@ To link to another Output Format of a document, use this syntax:
 
 When using Markdown document types, Hugo generates element IDs for every heading on a page. For example:
 
-```md
+```text
 ## Reference
 ```
 
@@ -100,14 +102,14 @@ produces this HTML:
 
 Get the permalink to a heading by appending the ID to the path when using the `ref` or `relref` shortcodes:
 
-```go-html-template
+```text
 {{</* ref "document.md#reference" */>}}
 {{</* relref "document.md#reference" */>}}
 ```
 
 Generate a custom heading ID by including an attribute. For example:
 
-```md
+```text
 ## Reference A {#foo}
 ## Reference B {id="bar"}
 ```
@@ -121,7 +123,7 @@ produces this HTML:
 
 Hugo will generate unique element IDs if the same heading appears more than once on a page. For example:
 
-```md
+```text
 ## Reference
 ## Reference
 ## Reference

@@ -1,6 +1,6 @@
 ---
 title: Menu templates
-description: Use menu variables and methods in your templates to render a menu.
+description: Create templates to render one or more menus.
 categories: [templates]
 keywords: [lists,sections,menus]
 menu:
@@ -14,7 +14,7 @@ aliases: [/templates/menus/]
 
 ## Overview
 
-After [defining menu entries], use [menu variables and methods] to render a menu.
+After [defining menu entries], use [menu methods] to render a menu.
 
 Three factors determine how to render a menu:
 
@@ -82,7 +82,7 @@ Call the partial above, passing a menu ID and the current page in context.
 
 ## Page references
 
-Regardless of how you [define menu entries], an entry associated with a page has access to page variables and methods.
+Regardless of how you [define menu entries], an entry associated with a page has access to page context.
 
 This simplistic example renders a page parameter named `version` next to each entry's `name`. Code defensively using `with` or `if` to handle entries where (a) the entry points to an external resource, or (b) the `version` parameter is not defined.
 
@@ -128,5 +128,5 @@ Hugo provides two methods to localize your menu entries. See [multilingual].
 [localize the menu entries]: /content-management/multilingual/#menus
 [menu entry defined in front matter]: /content-management/menus/#example-front-matter
 [menu entry defined in site configuration]: /content-management/menus/#example-site-configuration
-[menu variables and methods]: /variables/menu-entry/
+[menu and methods]: /methods/menu/
 [multilingual]: /content-management/multilingual/#menus

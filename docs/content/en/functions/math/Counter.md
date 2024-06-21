@@ -27,8 +27,8 @@ Use this function to:
 - Create unique warnings as shown above; the [`warnf`] function suppresses duplicate messages
 - Create unique target paths for the `resources.FromString` function where the target path is also the cache key
 
-[`warnf`]: /functions/fmt/warnf
-[`resources.FromString`]: /functions/resources/fromstring
+[`warnf`]: /functions/fmt/warnf/
+[`resources.FromString`]: /functions/resources/fromstring/
 
 {{% note %}}
 Due to concurrency, the value returned in a given template for a given page will vary from one build to the next. You cannot use this function to assign a static id to each page.

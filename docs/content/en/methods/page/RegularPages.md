@@ -72,7 +72,7 @@ In the last example, the collection includes pages in the resources subdirectory
 {{% note %}}
 When used with the `Site` object, the `RegularPages` method recursively returns all regular pages within the site. See&nbsp;[details].
 
-[details]: /methods/site/regularpages
+[details]: /methods/site/regularpages/
 {{% /note %}}
 
 ```go-html-template

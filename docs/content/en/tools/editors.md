@@ -58,8 +58,6 @@ toc: true
 [Vim Hugo Helper]
 : A small Vim plugin that facilitates authoring pages and blog posts with Hugo.
 
-[xxx]: xxx
-
 [vim-hugo](https://github.com/phelipetls/vim-hugo)
 : A Vim plugin with syntax highlighting for templates and a few other features.
 

@@ -62,4 +62,4 @@ You can also sort menu entries using the [`sort`] function. For example, to sort
 
 When using the sort function with menu entries, specify any of the following keys: `Identifier`, `Name`, `Parent`, `Post`, `Pre`, `Title`, `URL`, or `Weight`.
 
-[`sort`]: /functions/collections/sort
+[`sort`]: /functions/collections/sort/

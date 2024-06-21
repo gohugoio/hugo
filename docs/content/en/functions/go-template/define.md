@@ -48,8 +48,8 @@ Use with the [`template`] function:
 {{ end }}
 ```
 
-[`block`]: /functions/go-template/block
-[`template`]: /functions/go-template/block
+[`block`]: /functions/go-template/block/
+[`template`]: /functions/go-template/block/
 [`partial`]: /functions/partials/include/
 
 {{% include "functions/go-template/_common/text-template.md" %}}

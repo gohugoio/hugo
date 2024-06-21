@@ -43,4 +43,4 @@ microseconds|`microsecond`, `us`, `µs`
 nanoseconds|`nanosecond`, `ns`
 
 [`time.Duration`]: https://pkg.go.dev/time#Duration
-[methods]: /methods/duration
+[methods]: /methods/duration/

@@ -33,7 +33,7 @@ Access the custom parameters by [chaining] the [identifiers]:
 {{ .Site.Params.author.name }} → John Smith
 
 {{ $layout := .Site.Params.layouts.rfc_1123 }}
-{{ .Site.LastChange.Format $layout }} → Tue, 17 Oct 2023 13:21:02 PDT
+{{ .Site.Lastmod.Format $layout }} → Tue, 17 Oct 2023 13:21:02 PDT
 ```
 
 In the template example above, each of the keys is a valid identifier. For example, none of the keys contains a hyphen. To access a key that is not a valid identifier, use the [`index`] function:
@@ -42,6 +42,6 @@ In the template example above, each of the keys is a valid identifier. For examp
 {{ index .Site.Params "copyright-year" }} → 2023
 ```
 
-[`index`]: /functions/collections/indexfunction
+[`index`]: /functions/collections/indexfunction/
 [chaining]: /getting-started/glossary/#chain
 [identifiers]: /getting-started/glossary/#identifier

@@ -1,6 +1,6 @@
 ---
 title: IsDescendant
-description: Reports whether PAGE1 in a descendant of PAGE2.
+description: Reports whether PAGE1 is a descendant of PAGE2.
 categories: []
 keywords: []
 action:
@@ -95,5 +95,5 @@ Gaining a thorough understanding of context is critical for anyone writing templ
 {{% /note %}}
 
 [context]: /getting-started/glossary/#context
-[`with`]: /functions/go-template/with
-[`else`]: /functions/go-template/else
+[`with`]: /functions/go-template/with/
+[`else`]: /functions/go-template/else/

@@ -31,4 +31,4 @@ For a simpler function that adapts to the current language, see [`lang.FormatNum
 
 {{% include "functions/_common/locales.md" %}}
 
-[`lang.FormatNumber`]: /functions/lang/formatnumber
+[`lang.FormatNumber`]: /functions/lang/formatnumber/

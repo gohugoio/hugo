@@ -95,5 +95,5 @@ Hugo's taxonomy system is powerful, allowing you to classify content and create 
 
 Please see the [taxonomies] section for a complete explanation and examples.
 
-[taxonomies]: content-management/taxonomies/
+[taxonomies]: /content-management/taxonomies/
 {{% /note %}}

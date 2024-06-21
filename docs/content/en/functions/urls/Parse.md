@@ -19,6 +19,7 @@ The `urls.Parse` function parses a URL into a [URL structure](https://godoc.org/
 {{ $url := "https://example.org:123/foo?a=6&b=7#bar" }}
 {{ $u := urls.Parse $url }}
 
+{{ $u.String }} → https://example.org:123/foo?a=6&b=7#bar
 {{ $u.IsAbs }} → true
 {{ $u.Scheme }} → https
 {{ $u.Host }} → example.org:123

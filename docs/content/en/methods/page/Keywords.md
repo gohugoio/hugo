@@ -11,7 +11,7 @@ action:
 
 By default, Hugo evaluates the keywords when creating collections of [related content].
 
-[related content]: /content-management/related
+[related content]: /content-management/related/
 
 {{< code-toggle file=content/recipes/sushi.md fm=true >}}
 title = 'How to make spicy tuna hand rolls'
@@ -32,7 +32,7 @@ Or use the [delimit] function:
 {{ delimit .Keywords ", " ", and " }} → tuna, sriracha, nori, and rice
 ```
 
-[delimit]: /functions/collections/delimit
+[delimit]: /functions/collections/delimit/
 
 Keywords are also a useful [taxonomy]:
 
@@ -43,4 +43,4 @@ keyword = 'keywords'
 category = 'categories'
 {{< /code-toggle >}}
 
-[taxonomy]: /content-management/taxonomies
+[taxonomy]: /content-management/taxonomies/

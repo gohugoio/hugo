@@ -17,7 +17,7 @@ action:
 
 ## Usage
 
-Any JavaScript resource file can be transpiled and "tree shaken" using `js.Build` which takes for argument either a string for the filepath or a dict of options listed below.
+Any JavaScript resource file can be transpiled and "tree shaken" using `js.Build` which takes for argument either a string for the file path or a dict of options listed below.
 
 ### Options
 
@@ -25,7 +25,7 @@ targetPath
 : (`string`) If not set, the source path will be used as the base target path.
 Note that the target path's extension may change if the target MIME type is different, e.g. when the source is TypeScript.
 
-params {{< new-in "0.96.0" >}}
+params
 : (`map` or `slice`) Params that can be imported as JSON in your JS files, e.g.:
 
 ```go-html-template

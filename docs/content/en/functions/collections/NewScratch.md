@@ -15,8 +15,8 @@ action:
 
 The `collections.NewScratch` function creates a locally scoped [scratch pad] to store and manipulate data. To create a scratch pad that is attached to a `Page` object, use the [`Scratch`] or [`Store`] method.
 
-[`Scratch`]: /methods/page/scratch
-[`Store`]: /methods/page/store
+[`Scratch`]: /methods/page/scratch/
+[`Store`]: /methods/page/store/
 [scratch pad]: /getting-started/glossary/#scratch-pad
 
 ## Methods

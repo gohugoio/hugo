@@ -8,4 +8,4 @@ Hugo generates one or more files per page when building a site. For example, whe
 [taxonomy]: /getting-started/glossary/#taxonomy
 [term]: /getting-started/glossary/#term
 [page kind]: /getting-started/glossary/#page-kind
-[details]: /templates/output-formats
+[details]: /templates/output-formats/

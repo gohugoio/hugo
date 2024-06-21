@@ -58,7 +58,7 @@ To list everything except blog articles (`blog`) and frequently asked questions 
 {{% note %}}
 Although the example above demonstrates the `complement` function, you could use the [`where`] function as well:
 
-[`where`]: /functions/collections/where
+[`where`]: /functions/collections/where/
 {{% /note %}}
 
 ```go-html-template

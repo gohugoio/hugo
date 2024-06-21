@@ -27,10 +27,10 @@ Supported image formats include GIF, JPEG, PNG, TIFF, and WebP.
 {{% note %}}
 This is a legacy function, superseded by the [`Width`] and [`Height`] methods for [global], [page], and [remote] resources. See the [image processing] section for details.
 
-[`Width`]: /methods/resource/width
-[`Height`]: /methods/resource/height
+[`Width`]: /methods/resource/width/
+[`Height`]: /methods/resource/height/
 [global]: /getting-started/glossary/#global-resource
-[image processing]: /content-management/image-processing
+[image processing]: /content-management/image-processing/
 [page]: /getting-started/glossary/#page-resource
 [remote]: /getting-started/glossary/#remote-resource
 {{% /note %}}

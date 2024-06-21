@@ -11,10 +11,10 @@ action:
 toc: true
 ---
 
-Useful in a code block [render hook], the `diagram.Goat` function converts ASCII art to an SVG diagram, returning a [GoAT] diagram object with the following methods:
+Useful in a [code block render hook], the `diagram.Goat` function converts ASCII art to an SVG diagram, returning a [GoAT] diagram object with the following methods:
 
 [GoAT]: https://github.com/blampe/goat#readme
-[render hook]: https://gohugo.io/templates/render-hooks/
+[code block render hook]: /render-hooks/code-blocks/
 
 Inner
 : (`template.HTML`) Returns the SVG child elements without a wrapping `svg` element, allowing you to create your own wrapper.
@@ -30,9 +30,11 @@ Height
 
 ## GoAT Diagrams
 
-Hugo natively supports [GoAT] diagrams.
+Hugo natively supports [GoAT](https://github.com/bep/goat) diagrams with an [embedded code block render hook].
 
-This markdown:
+[embedded code block render hook]: {{% eturl render-codeblock-goat %}}
+
+This Markdown:
 
 ````
 ```goat
@@ -60,9 +62,7 @@ Which appears in your browser as:
 '---'     '-'       '+'       '+'     '---'
 ```
 
-To customize rendering, override Hugo's [built-in code block render hook] for GoAT diagrams.
-
-[built-in code block render hook]: https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/_markup/render-codeblock-goat.html
+To customize rendering, override Hugo's [embedded code block render hook] for GoAT diagrams.
 
 ## Code block render hook
 
@@ -83,7 +83,7 @@ By way of example, let's create a code block render hook to render GoAT diagrams
 </figure>
 {{< /code >}}
 
-This markdown:
+This Markdown:
 
 {{< code file=content/example.md lang=text >}}
 ```goat {class="foo" caption="Diagram 1: Example"}

@@ -63,4 +63,4 @@ Render the code owners for each content page:
 
 Combine this method with [`resources.GetRemote`] to retrieve names and avatars from your Git provider by querying their API.
 
-[`resources.GetRemote`]: functions/resources/getremote
+[`resources.GetRemote`]: /functions/resources/getremote/
