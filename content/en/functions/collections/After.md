@@ -65,7 +65,7 @@ You can use `after` in combination with the [`first`] function and Hugo's [power
 {{ end }}
 {{< /code >}}
 
-[`first`]: /functions/collections/first
-[list/section page]: /templates/section-templates
+[`first`]: /functions/collections/first/
+[list/section page]: /templates/section-templates/
 [lists]: /templates/lists/#sort-content
 [`slice`]: /functions/collections/slice/

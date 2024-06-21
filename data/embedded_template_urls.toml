@@ -1,0 +1,36 @@
+# Used by the embedded template URL (eturl.html) shortcode.
+# Quoted all keys because some are not valid identifiers.
+
+# BaseURL
+'base_url' = 'https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates'
+
+# Templates
+'alias' = 'alias.html'
+'disqus' = 'disqus.html'
+'google_analytics' = 'google_analytics.html'
+'opengraph' = 'opengraph.html'
+'pagination' = 'pagination.html'
+'schema' = 'schema.html'
+'twitter_cards' = 'twitter_cards.html'
+
+'robots' = '_default/robots.txt'
+'rss' = '_default/rss.xml'
+'sitemap' = '_default/sitemap.xml'
+'sitemapindex' = '_default/sitemapindex.xml'
+
+# Render hooks
+'render-image' = '_default/_markup/render-image.html'
+'render-link' = '_default/_markup/render-link.html'
+'render-codeblock-goat' = '_default/_markup/render-codeblock-goat.html'
+
+# Shortcodes
+'figure' = 'shortcodes/figure.html'
+'gist' = 'shortcodes/gist.html'
+'highlight' = 'shortcodes/highlight.html'
+'instagram' = 'shortcodes/instagram.html'
+'param' = 'shortcodes/param.html'
+'ref' = 'shortcodes/ref.html'
+'relref' = 'shortcodes/relref.html'
+'twitter' = 'shortcodes/twitter.html'
+'vimeo' = 'shortcodes/vimeo.html'
+'youtube' = 'shortcodes/youtube.html'

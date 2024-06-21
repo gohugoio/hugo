@@ -64,6 +64,6 @@ Use `else if` to check multiple conditions.
 
 {{% include "functions/go-template/_common/text-template.md" %}}
 
-[`if`]: /functions/go-template/if
-[`with`]: /functions/go-template/with
-[`range`]: /functions/go-template/range
+[`if`]: /functions/go-template/if/
+[`with`]: /functions/go-template/with/
+[`range`]: /functions/go-template/range/

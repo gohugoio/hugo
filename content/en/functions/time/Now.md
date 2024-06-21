@@ -43,6 +43,6 @@ The `time.Now` function returns a `time.Time` value, so you can chain any of the
 {{ time.Now.Unix }} → 1697400955 (int64)
 ```
 
-[`time.Format`]: /functions/time/format
+[`time.Format`]: /functions/time/format/
 [localize]: /getting-started/glossary/#localization
 [time methods]: /methods/time/

@@ -26,5 +26,5 @@ This function operates on global resources. A global resource is a file within t
 
 For page resources, use the [`Resources.Get`] method on the Page object.
 
-[`Resources.Get`]: /methods/page/resources
+[`Resources.Get`]: /methods/page/resources/
 {{% /note %}}

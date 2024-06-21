@@ -24,13 +24,13 @@ For documentation related to a new feature, please include the documentation cha
 
 ### Markdown
 
-Please follow these markdown guidelines:
+Please follow these guidelines:
 
 - Use [ATX] headings, not [setext] headings, levels 2 through 4
 - Use [fenced code blocks], not [indented code blocks]
 - Use hyphens, not asterisks, with unordered [list items]
 - Use the [note shortcode] instead of blockquotes
-- Do not mix [raw HTML] within markdown
+- Do not mix [raw HTML] within Markdown
 - Do not use bold text instead of a heading or description term (`dt`)
 - Remove consecutive blank lines (maximum of two)
 - Remove trailing spaces
@@ -44,15 +44,18 @@ Although we do not strictly adhere to the [Microsoft Writing Style Guide], it is
 Please link to the [glossary of terms] when necessary, and use the terms consistently throughout the documentation. Of special note:
 
 - The term "front matter" is two words unless you are referring to the configuration key
+- The term "standalone" is one word, not hyphenated
 - Use the word "map" instead of "dictionary"
 - Use the word "flag" instead of "option" when referring to a command line flag
+- Capitalize the word "Markdown"
+- Hyphenate the term "open-source" when used an adjective.
 
 #### Page titles and headings
 
 Please follow these guidelines for page titles and headings:
 
 - Use sentence-style capitalization
-- Avoid markdown in headings and page titles
+- Avoid formatted strings in headings and page titles
 - Shorter is better
 
 #### Use active voice with present tense
@@ -92,11 +95,11 @@ Other guidelines to consider:
 - When including code samples, use short snippets that demonstrate the concept.
 - The Hugo user community is global; use  [basic english](https://simple.wikipedia.org/wiki/Basic_English) when possible.
 
-#### Level 6 markdown headings
+#### Level 6 headings
 
-Level 6 markdown headings are styled as `dt` elements. This was implemented to support a [glossary] with linkable terms.
+Level 6 headings are styled as `dt` elements. This was implemented to support a [glossary] with linkable terms.
 
-[glossary]: /getting-started/glossary
+[glossary]: /getting-started/glossary/
 
 ## Code examples
 
@@ -202,26 +205,6 @@ Rendered:
 
 These shortcodes are commonly used throughout the documentation. Other shortcodes are available for specialized use.
 
-### deprecated-in
-
-Use the “deprecated-in” shortcode to indicate that a feature is deprecated:
-
-```text
-{{%/* deprecated-in 0.120.0 */%}}
-Use [`hugo.IsServer`] instead.
-
-[`hugo.IsServer`]: /functions/hugo/isserver
-{{%/* /deprecated-in */%}}
-```
-
-Rendered:
-
-{{% deprecated-in 0.120.0 %}}
-Use [`hugo.IsServer`] instead.
-
-[`hugo.IsServer`]: /functions/hugo/isserver
-{{% /deprecated-in %}}
-
 ### code
 
 Use the "code" shortcode for other code examples that require a file name. See the [code examples] above. This shortcode takes these arguments:
@@ -233,7 +216,7 @@ file
 : (`string`) The file name to display.
 
 lang
-: (`string`) The code language. If you do not provide a `lang` argument, the code language is determined by the file extension. If the file extension is "html", sets the code language to `go-html-template`. Default is `text`.
+: (`string`) The code language. If you do not provide a `lang` argument, the code language is determined by the file extension. If the file extension is `html`, sets the code language to `go-html-template`. Default is `text`.
 
 ### code-toggle
 
@@ -248,17 +231,54 @@ file
 fm
 : (`bool`) Whether the example is front matter. Default is `false`.
 
+
+### deprecated-in
+
+Use the “deprecated-in” shortcode to indicate that a feature is deprecated:
+
+```text
+{{%/* deprecated-in 0.127.0 */%}}
+Use [`hugo.IsServer`] instead.
+
+[`hugo.IsServer`]: /functions/hugo/isserver/
+{{%/* /deprecated-in */%}}
+```
+
+Rendered:
+
+{{% deprecated-in 0.127.0 %}}
+Use [`hugo.IsServer`] instead.
+
+[`hugo.IsServer`]: /functions/hugo/isserver/
+{{% /deprecated-in %}}
+
+### eturl
+
+Use the embedded template URL (eturl) shortcode to insert an absolute URL to the source code for an embedded template. The shortcode takes a single argument, the base file name of the template (omit the file extension).
+
+```text
+This is a link to the [embedded alias template].
+
+[embedded alias template]: {{%/* eturl alias */%}}
+```
+
+Rendered:
+
+This is a link to the [embedded alias template].
+
+[embedded alias template]: {{% eturl alias %}}
+
 ### new-in
 
 Use the "new-in" shortcode to indicate a new feature:
 
 ```text
-{{</* new-in 0.120.0 */>}}
+{{</* new-in 0.127.0 */>}}
 ```
 
 Rendered:
 
-{{< new-in 0.120.0 >}}
+{{< new-in 0.127.0 >}}
 
 ### note
 
@@ -288,7 +308,7 @@ Use the "new-in" shortcode to indicate a new feature:
 {{</* new-in 0.120.0 */>}}
 {{< /code >}}
 
-The "new in" label will be hidden if the specified version is older than a predefined threshold, based on differences in major and minor versions. See&nbsp;[details](https://github.com/gohugoio/hugoDocs/blob/master/layouts/shortcodes/new-in.html).
+The "new in" label will be hidden if the specified version is older than a predefined threshold, based on differences in major and minor versions. See&nbsp;[details](https://github.com/gohugoio/hugoDocs/blob/master/_vendor/github.com/gohugoio/gohugoioTheme/layouts/shortcodes/new-in.html).
 
 ## Deprecated features
 
@@ -298,7 +318,7 @@ Use the "deprecated-in" shortcode to indicate that a feature is deprecated:
 {{%/* deprecated-in 0.120.0 */%}}
 Use [`hugo.IsServer`] instead.
 
-[`hugo.IsServer`]: /functions/hugo/isserver
+[`hugo.IsServer`]: /functions/hugo/isserver/
 {{%/* /deprecated-in */%}}
 {{< /code >}}
 

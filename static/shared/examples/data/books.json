@@ -1,0 +1,55 @@
+[
+  {
+    "author": "Victor Hugo",
+    "cover": "https://gohugo.io/shared/examples/images/the-hunchback-of-notre-dame.webp",
+    "date": "2024-05-06",
+    "isbn": "978-0140443530",
+    "rating": 4,
+    "summary": "In the vaulted Gothic towers of **Notre-Dame Cathedral** lives Quasimodo, the hunchbacked bellringer. Mocked and shunned for his appearance, he is pitied only by Esmerelda, a beautiful gypsy dancer to whom he becomes completely devoted. Esmerelda, however, has also attracted the attention of the sinister archdeacon Claude Frollo, and when she rejects his lecherous approaches, Frollo hatches a plot to destroy her, that only Quasimodo can prevent. Victor Hugo's sensational, evocative novel brings life to the medieval Paris he loved, and mourns its passing in one of the greatest historical romances of the nineteenth century.",
+    "tags": [
+      "fiction",
+      "historical"
+    ],
+    "title": "The Hunchback of Notre Dame"
+  },
+  {
+    "author": "Victor Hugo",
+    "cover": "https://gohugo.io/shared/examples/images/les-misérables.webp",
+    "date": "2022-12-30",
+    "isbn": "978-0451419439",
+    "rating": 5,
+    "summary": "Introducing one of the most **famous characters** in literature, Jean Valjean—the noble peasant imprisoned for stealing a loaf of bread—Les Misérables ranks among the greatest novels of all time. In it, Victor Hugo takes readers deep into the Parisian underworld, immerses them in a battle between good and evil, and carries them to the barricades during the uprising of 1832 with a breathtaking realism that is unsurpassed in modern prose.",
+    "tags": [
+      "fiction",
+      "historical",
+      "revolution"
+    ],
+    "title": "Les Misérables"
+  },
+  {
+    "author": "Alexis de Tocqueville",
+    "cover": "https://gohugo.io/shared/examples/images/the-ancien-régime-and-the-revolution.webp",
+    "date": "2023-04-01",
+    "isbn": "978-0141441641",
+    "rating": 3,
+    "summary": "The Ancien Régime and the Revolution is a comparison of **revolutionary France** and the despotic rule it toppled. Alexis de Tocqueville (1805–59) is an objective observer of both periods – providing a merciless critique of the ancien régime, with its venality, oppression and inequality, yet acknowledging the reforms introduced under Louis XVI, and claiming that the post-Revolution state was in many ways as tyrannical as that of the King; its once lofty and egalitarian ideals corrupted and forgotten. Writing in the 1850s, Tocqueville wished to expose the return to despotism he witnessed in his own time under Napoleon III, by illuminating the grand, but ultimately doomed, call to liberty made by the French people in 1789. His eloquent and instructive study raises questions about liberty, nationalism and justice that remain urgent today.",
+    "tags": [
+      "nonfiction",
+      "revolution"
+    ],
+    "title": "The Ancien Régime and the Revolution"
+  },
+  {
+    "author": "François Furet",
+    "cover": "https://gohugo.io/shared/examples/images/interpreting-the-french-revolution.webp",
+    "date": "2024-01-12",
+    "isbn": "978-0521280495",
+    "rating": 5,
+    "summary": "The French Revolution is an historical event **unlike any other**. It is more than just a topic of intellectual interest: it has become part of a moral and political heritage. But after two centuries, this central event in French history has usually been thought of in much the same terms as it was by its contemporaries. There have been many accounts of the French Revolution, and though their opinions differ, they have often been commemorative or anniversary interpretations of the original event. The dividing line of revolutionary historiography, in intellectual terms, is therefore not between the right and the left, but between commemorative and conceptual history, as exemplified respectively in the works of Michelet and Tocquevifle. In this book, François Furet analyses how an event like the French Revolution can be conceptualised, and identifies the radically new changes the Revolution produced as well as the continuity it provided, albeit under the appearance of change. This question has become a riddle for the European left, answered neither by Marx nor by the theorists of our own century. In his analysis of the tragic relevance of the Revolution, Furet both refers to contemporary experience and discusses various elements in the work of Alexis de Tocclueville and that of Augustin Cochin, which has never been systematically applied by historians of the Revolution. Furet's book is based on the complementary ideas of these two writers in an attempt to cut through the apparent and misleading clarity of various contradictory views of the Revolution, and to help decipher some of the enigmatic problems of revolutionary ideology. It will be of value to historians of modern Europe and their students; to political, social and economic historians; to sociologists; and to students of political thought.",
+    "tags": [
+      "nonfiction",
+      "revolution"
+    ],
+    "title": "Interpreting the French Revolution"
+  }
+]

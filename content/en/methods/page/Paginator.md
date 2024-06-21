@@ -28,7 +28,7 @@ Although simple to invoke, with the `Paginator` method you can neither filter no
 
 The [`Paginate`] method is more flexible, and strongly recommended.
 
-[`paginate`]: /methods/page/paginate
+[`paginate`]: /methods/page/paginate/
 {{% /note %}}
 
 {{% note %}}

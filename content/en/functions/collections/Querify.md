@@ -1,6 +1,6 @@
 ---
 title: collections.Querify
-description: Takes a set or slice of key-value pairs and returns a query string to be appended to URLs.
+description: Returns a URL query string composed of the given key-value pairs.
 categories: []
 keywords: []
 action:
@@ -9,24 +9,29 @@ action:
     - functions/go-template/urlquery.md
   returnType: string
   signatures:
-    - collections.Querify VALUE [VALUE...]
-    - collections.Querify COLLECTION
+    - collections.Querify [VALUE...]
 aliases: [/functions/querify]
 ---
 
-`querify` takes a set or slice of key-value pairs and returns a [query string](https://en.wikipedia.org/wiki/Query_string) that can be appended to a URL.
+Specify the key-value pairs as individual arguments, or as a slice. The following are equivalent:
 
-The following examples create a link to a search results page on Google.
 
 ```go-html-template
-<a href="https://www.google.com?{{ (querify "q" "test" "page" 3) | safeURL }}">Search</a>
-
-{{ $qs := slice "q" "test" "page" 3 }}
-<a href="https://www.google.com?{{ (querify $qs) | safeURL }}">Search</a>
+{{ collections.Querify "a" 1 "b" 2 }}
+{{ collections.Querify (slice "a" 1 "b" 2) }}
 ```
 
-Both of these examples render the following HTML:
+To append a query string to a URL:
+
+```go-html-template
+{{ $qs := collections.Querify "a" 1 "b" 2 }}
+{{ $href := printf "https://example.org?%s" $qs }}
+
+<a href="{{ $href }}">Link</a>
+```
+
+Hugo renders this to:
 
 ```html
-<a href="https://www.google.com?page=3&q=test">Search</a>
+<a href="https://example.org?a=1&amp;b=2">Link</a>
 ```

@@ -10,6 +10,7 @@ menu:
 weight: 80
 toc: true
 ---
+
 Page resources are only accessible from [page bundles](/content-management/page-bundles), those directories with `index.md` or
 `_index.md` files at their root. Page resources are only available to the
 page with which they are bundled.
@@ -114,7 +115,7 @@ GetMatch
 .Resources.Match "*sunset.jpg" 🚫
 ```
 
-## Page resources metadata
+## Metadata
 
 The page resources' metadata is managed from the corresponding page's front matter with an array/table parameter named `resources`. You can batch assign values using [wildcards](https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm).
 
@@ -133,7 +134,7 @@ title
 : Sets the value returned in `Title`
 
 params
-: A map of custom key/values.
+: A map of custom key-value pairs.
 
 ### Resources metadata example
 
@@ -201,3 +202,108 @@ the `Name` and `Title` will be assigned to the resource files as follows:
 | guide.pdf         | `"pdf-file-2.pdf` | `"guide.pdf"`         |
 | other\_specs.pdf  | `"pdf-file-3.pdf` | `"Specification #1"` |
 | photo\_specs.pdf  | `"pdf-file-4.pdf` | `"Specification #2"` |
+
+## Multilingual
+
+{{< new-in 0.123.0 >}}
+
+By default, with a multilingual single-host site, Hugo does not duplicate shared page resources when building the site.
+
+{{% note %}}
+This behavior is limited to Markdown content. Shared page resources for other [content formats] are copied into each language bundle.
+
+[content formats]: /content-management/formats/
+{{% /note %}}
+
+Consider this site configuration:
+
+{{< code-toggle file=hugo >}}
+defaultContentLanguage = 'de'
+defaultContentLanguageInSubdir = true
+
+[languages.de]
+languageCode = 'de-DE'
+languageName = 'Deutsch'
+weight = 1
+
+[languages.en]
+languageCode = 'en-US'
+languageName = 'English'
+weight = 2
+{{< /code-toggle >}}
+
+And this content:
+
+```text
+content/
+└── my-bundle/
+    ├── a.jpg     <-- shared page resource
+    ├── b.jpg     <-- shared page resource
+    ├── c.de.jpg
+    ├── c.en.jpg
+    ├── index.de.md
+    └── index.en.md
+```
+
+With v0.122.0 and earlier, Hugo duplicated the shared page resources, creating copies for each language:
+
+```text
+public/
+├── de/
+│   ├── my-bundle/
+│   │   ├── a.jpg     <-- shared page resource
+│   │   ├── b.jpg     <-- shared page resource
+│   │   ├── c.de.jpg
+│   │   └── index.html
+│   └── index.html
+├── en/
+│   ├── my-bundle/
+│   │   ├── a.jpg     <-- shared page resource (duplicate)
+│   │   ├── b.jpg     <-- shared page resource (duplicate)
+│   │   ├── c.en.jpg
+│   │   └── index.html
+│   └── index.html
+└── index.html
+
+```
+
+With v0.123.0 and later, Hugo places the shared resources in the page bundle for the default content language:
+
+```text
+public/
+├── de/
+│   ├── my-bundle/
+│   │   ├── a.jpg     <-- shared page resource
+│   │   ├── b.jpg     <-- shared page resource
+│   │   ├── c.de.jpg
+│   │   └── index.html
+│   └── index.html
+├── en/
+│   ├── my-bundle/
+│   │   ├── c.en.jpg
+│   │   └── index.html
+│   └── index.html
+└── index.html
+```
+
+This approach reduces build times, storage requirements, bandwidth consumption, and deployment times, ultimately reducing cost.
+
+{{% note %}}
+To resolve Markdown link and image destinations to the correct location, you must use link and image render hooks that capture the page resource with the [`Resources.Get`] method, and then invoke its [`RelPermalink`] method.
+
+By default, with multilingual single-host sites, Hugo enables its [embedded link render hook] and [embedded image render hook] to resolve Markdown link and image destinations.
+
+You may override the embedded render hooks as needed, provided they capture the resource as described above.
+
+[embedded link render hook]: /render-hooks/links/#default
+[embedded image render hook]: /render-hooks/images/#default
+[`Resources.Get`]: /methods/page/resources/#get
+[`RelPermalink`]: /methods/resource/relpermalink/
+{{% /note %}}
+
+Although duplicating shared page resources is inefficient, you can enable this feature in your site configuration if desired:
+
+{{< code-toggle file=hugo >}}
+[markup.goldmark]
+duplicateResourceFiles = true
+{{< /code-toggle >}}

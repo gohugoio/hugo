@@ -208,6 +208,10 @@ chroma:
     - dax
     Name: Dax
   - Aliases:
+    - desktop
+    - desktop_entry
+    Name: Desktop file
+  - Aliases:
     - diff
     - udiff
     Name: Diff
@@ -444,6 +448,10 @@ chroma:
     - mason
     Name: Mason
   - Aliases:
+    - materialize
+    - mzsql
+    Name: Materialize SQL dialect
+  - Aliases:
     - mathematica
     - mma
     - nb
@@ -493,6 +501,9 @@ chroma:
   - Aliases:
     - natural
     Name: Natural
+  - Aliases:
+    - ndisasm
+    Name: NDISASM
   - Aliases:
     - newspeak
     Name: Newspeak
@@ -608,6 +619,9 @@ chroma:
     - prolog
     Name: Prolog
   - Aliases:
+    - promela
+    Name: Promela
+  - Aliases:
     - promql
     Name: PromQL
   - Aliases:
@@ -674,6 +688,9 @@ chroma:
     - registry
     Name: reg
   - Aliases:
+    - rego
+    Name: Rego
+  - Aliases:
     - rst
     - rest
     - restructuredtext
@@ -682,6 +699,9 @@ chroma:
     - rexx
     - arexx
     Name: Rexx
+  - Aliases:
+    - spec
+    Name: RPMSpec
   - Aliases:
     - rb
     - ruby
@@ -906,6 +926,20 @@ chroma:
     - zig
     Name: Zig
 config:
+  HTTPCache:
+    cache:
+      for:
+        excludes:
+        - '**'
+        includes: null
+    polls:
+    - disable: true
+      for:
+        excludes: null
+        includes:
+        - '**'
+      high: 0s
+      low: 0s
   archeTypeDir: archetypes
   assetDir: assets
   author: {}
@@ -917,14 +951,8 @@ config:
       disableTags: false
       enable: false
     cacheBusters:
-    - source: assets/.*\.(js|ts|jsx|tsx)
-      target: (js|scripts|javascript)
-    - source: assets/.*\.(css|sass|scss)$
-      target: (css|styles|scss|sass)
     - source: (postcss|tailwind)\.config\.js
       target: (css|styles|scss|sass)
-    - source: assets/.*\.(.*)$
-      target: $1
     noJSConfigInAssets: false
     useResourceCacheWhen: fallback
   buildDrafts: false
@@ -951,6 +979,7 @@ config:
       dir: :cacheDir/modules
       maxAge: -1
   canonifyURLs: false
+  capitalizeListTitles: true
   cascade: []
   cleanDestinationDir: false
   contentDir: content
@@ -1007,8 +1036,8 @@ config:
   hasCJKLanguage: false
   i18nDir: i18n
   ignoreCache: false
-  ignoreErrors: null
   ignoreFiles: []
+  ignoreLogs: null
   ignoreVendorPaths: ""
   imaging:
     bgColor: '#ffffff'
@@ -1041,6 +1070,7 @@ config:
       workingFolderCurrent: false
     defaultMarkdownHandler: goldmark
     goldmark:
+      duplicateResourceFiles: false
       extensions:
         cjk:
           eastAsianLineBreaks: false
@@ -1048,6 +1078,15 @@ config:
           enable: false
           escapedSpace: false
         definitionList: true
+        extras:
+          insert:
+            enable: false
+          mark:
+            enable: false
+          subscript:
+            enable: false
+          superscript:
+            enable: false
         footnote: true
         linkify: true
         linkifyProtocol: https
@@ -1078,6 +1117,11 @@ config:
         autoHeadingID: true
         autoHeadingIDType: github
         wrapStandAloneImageWithinParagraph: true
+      renderHooks:
+        image:
+          enableDefault: false
+        link:
+          enableDefault: false
       renderer:
         hardWraps: false
         unsafe: false
@@ -1178,6 +1222,12 @@ config:
       delimiter: .
       suffixes:
       - webp
+    text/asciidoc:
+      delimiter: .
+      suffixes:
+      - adoc
+      - asciidoc
+      - ad
     text/calendar:
       delimiter: .
       suffixes:
@@ -1194,6 +1244,7 @@ config:
       delimiter: .
       suffixes:
       - html
+      - htm
     text/javascript:
       delimiter: .
       suffixes:
@@ -1208,11 +1259,25 @@ config:
       delimiter: .
       suffixes:
       - md
+      - mdown
       - markdown
+    text/org:
+      delimiter: .
+      suffixes:
+      - org
+    text/pandoc:
+      delimiter: .
+      suffixes:
+      - pandoc
+      - pdc
     text/plain:
       delimiter: .
       suffixes:
       - txt
+    text/rst:
+      delimiter: .
+      suffixes:
+      - rst
     text/tsx:
       delimiter: .
       suffixes:
@@ -1352,143 +1417,154 @@ config:
       isHTML: true
       isPlainText: false
       mediaType: text/html
-      name: amp
       noUgly: false
       notAlternative: false
       path: amp
       permalinkable: true
       protocol: ""
       rel: amphtml
+      root: false
+      ugly: false
       weight: 0
     calendar:
       baseName: index
       isHTML: false
       isPlainText: true
       mediaType: text/calendar
-      name: calendar
       noUgly: false
       notAlternative: false
       path: ""
       permalinkable: false
       protocol: webcal://
       rel: alternate
+      root: false
+      ugly: false
       weight: 0
     css:
       baseName: styles
       isHTML: false
       isPlainText: true
       mediaType: text/css
-      name: css
       noUgly: false
       notAlternative: true
       path: ""
       permalinkable: false
       protocol: ""
       rel: stylesheet
+      root: false
+      ugly: false
       weight: 0
     csv:
       baseName: index
       isHTML: false
       isPlainText: true
       mediaType: text/csv
-      name: csv
       noUgly: false
       notAlternative: false
       path: ""
       permalinkable: false
       protocol: ""
       rel: alternate
+      root: false
+      ugly: false
       weight: 0
     html:
       baseName: index
       isHTML: true
       isPlainText: false
       mediaType: text/html
-      name: html
       noUgly: false
       notAlternative: false
       path: ""
       permalinkable: true
       protocol: ""
       rel: canonical
+      root: false
+      ugly: false
       weight: 10
     json:
       baseName: index
       isHTML: false
       isPlainText: true
       mediaType: application/json
-      name: json
       noUgly: false
       notAlternative: false
       path: ""
       permalinkable: false
       protocol: ""
       rel: alternate
+      root: false
+      ugly: false
       weight: 0
     markdown:
       baseName: index
       isHTML: false
       isPlainText: true
       mediaType: text/markdown
-      name: markdown
       noUgly: false
       notAlternative: false
       path: ""
       permalinkable: false
       protocol: ""
       rel: alternate
+      root: false
+      ugly: false
       weight: 0
     robots:
       baseName: robots
       isHTML: false
       isPlainText: true
       mediaType: text/plain
-      name: robots
       noUgly: false
       notAlternative: false
       path: ""
       permalinkable: false
       protocol: ""
       rel: alternate
+      root: true
+      ugly: false
       weight: 0
     rss:
       baseName: index
       isHTML: false
       isPlainText: false
       mediaType: application/rss+xml
-      name: rss
       noUgly: true
       notAlternative: false
       path: ""
       permalinkable: false
       protocol: ""
       rel: alternate
+      root: false
+      ugly: false
       weight: 0
     sitemap:
       baseName: sitemap
       isHTML: false
       isPlainText: false
       mediaType: application/xml
-      name: sitemap
-      noUgly: true
+      noUgly: false
       notAlternative: false
       path: ""
       permalinkable: false
       protocol: ""
       rel: sitemap
+      root: false
+      ugly: true
       weight: 0
     webappmanifest:
       baseName: manifest
       isHTML: false
       isPlainText: true
       mediaType: application/manifest+json
-      name: webappmanifest
       noUgly: false
       notAlternative: true
       path: ""
       permalinkable: false
       protocol: ""
       rel: manifest
+      root: false
+      ugly: false
       weight: 0
   outputs:
     home:
@@ -1524,10 +1600,8 @@ config:
     disqus:
       disable: false
     googleAnalytics:
-      anonymizeIP: false
       disable: false
       respectDoNotTrack: false
-      useSessionStorage: false
     instagram:
       disable: false
       simple: false
@@ -1573,6 +1647,7 @@ config:
     toLower: false
   relativeURLs: false
   removePathAccents: false
+  renderSegments: null
   resourceDir: resources
   sectionPagesMenu: ""
   security:
@@ -1584,7 +1659,7 @@ config:
       - ^npx$
       - ^postcss$
       osEnv:
-      - (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG)$
+      - (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE)$
     funcs:
       getenv:
       - ^HUGO_
@@ -1595,6 +1670,7 @@ config:
       - (?i)GET|POST
       urls:
       - .*
+  segments: {}
   server:
     headers: null
     redirects:
@@ -1616,6 +1692,7 @@ config:
       disableInlineCSS: false
   sitemap:
     changeFreq: ""
+    disable: false
     filename: sitemap.xml
     priority: -1
   social: null
@@ -1658,6 +1735,8 @@ config_helpers:
       _merge: none
     frontmatter:
       _merge: none
+    httpcache:
+      _merge: none
     imaging:
       _merge: none
     languages:
@@ -1691,6 +1770,8 @@ config_helpers:
     related:
       _merge: none
     security:
+      _merge: none
+    segments:
       _merge: none
     server:
       _merge: none
@@ -2494,7 +2575,7 @@ tpl:
         - shuffle
         Args:
         - l
-        Description: Shuffle returns list l in a randomised order.
+        Description: Shuffle returns list l in a randomized order.
         Examples: []
       Slice:
         Aliases:
@@ -2762,8 +2843,8 @@ tpl:
             {{ $m.Set "Hugo" "Rocks!" }}
             {{ $m.Values | debug.Dump | safeHTML }}
           - |-
-            map[string]interface {}{
-              "Hugo": "Rocks!",
+            {
+              "Hugo": "Rocks!"
             }
       TestDeprecationErr:
         Aliases: null
@@ -2886,7 +2967,7 @@ tpl:
         - format
         - args
         Description: Printf returns string representation of args formatted with the
-          layouut in format.
+          layout in format.
         Examples:
         - - '{{ printf "%s!" "works" }}'
           - works!
@@ -2913,6 +2994,20 @@ tpl:
         Examples:
         - - '{{ warnf "%s." "warning" }}'
           - ""
+      Warnidf:
+        Aliases:
+        - warnidf
+        Args:
+        - id
+        - format
+        - args
+        Description: |-
+          Warnidf formats args according to a format specifier and logs an WARNING and
+          an information text that the warning with the given id can be suppressed in config.
+          It returns an empty string.
+        Examples:
+        - - '{{ warnidf "my-warn-id" "%s." "warning" }}'
+          - ""
       Warnmf:
         Aliases: null
         Args: null
@@ -2935,6 +3030,21 @@ tpl:
         Description: ""
         Examples: null
       IsExtended:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      IsMultiHost:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      IsMultihost:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      IsMultilingual:
         Aliases: null
         Args: null
         Description: ""
@@ -2990,6 +3100,11 @@ tpl:
           working directory.
         Examples: []
       Contrast:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Dither:
         Aliases: null
         Args: null
         Description: ""
@@ -3688,14 +3803,6 @@ tpl:
         - s
         Description: JSStr returns the given string as a html/template JSStr content.
         Examples: []
-      SanitizeURL:
-        Aliases:
-        - sanitizeURL
-        - sanitizeurl
-        Args:
-        - s
-        Description: SanitizeURL returns the string s as html/template URL content.
-        Examples: []
       URL:
         Aliases:
         - safeURL
@@ -3756,17 +3863,12 @@ tpl:
         Args: null
         Description: ""
         Examples: null
-      GetIdentity:
+      ForEeachIdentityByName:
         Aliases: null
         Args: null
         Description: ""
         Examples: null
       GetPage:
-        Aliases: null
-        Args: null
-        Description: ""
-        Examples: null
-      GetPageWithTemplateInfo:
         Aliases: null
         Args: null
         Description: ""
@@ -3796,6 +3898,11 @@ tpl:
         Args: null
         Description: ""
         Examples: null
+      Key:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       Language:
         Aliases: null
         Args: null
@@ -3817,6 +3924,11 @@ tpl:
         Description: ""
         Examples: null
       LastChange:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Lastmod:
         Aliases: null
         Args: null
         Description: ""
@@ -3950,6 +4062,11 @@ tpl:
         - s
         Description: CountWords returns the approximate word count in s.
         Examples: []
+      Diff:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       FindRE:
         Aliases:
         - findRE
@@ -4514,5 +4631,5 @@ tpl:
         - urlize
         Args:
         - s
-        Description: URLize returns the the strings s formatted as an URL.
+        Description: URLize returns the strings s formatted as an URL.
         Examples: []

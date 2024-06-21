@@ -35,11 +35,11 @@ content/
 │   ├── bidding.md
 │   └── payment.md
 ├── books/
-│   ├── _index.md         <-- front matter: weight = 10
+│   ├── _index.md         <-- front matter: weight = 20
 │   ├── book-1.md
 │   └── book-2.md
 ├── films/
-│   ├── _index.md         <-- front matter: weight = 20
+│   ├── _index.md         <-- front matter: weight = 10
 │   ├── film-1.md
 │   └── film-2.md
 └── _index.md

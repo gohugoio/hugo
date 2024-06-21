@@ -1,14 +1,14 @@
 ---
-title: Mathematics in markdown
+title: Mathematics in Markdown
 linkTitle: Mathematics
-description: Include mathematical equations and expressions in your markdown using LaTeX or TeX typesetting syntax.
+description: Include mathematical equations and expressions in your Markdown using LaTeX or TeX typesetting syntax.
 categories: [content management]
 keywords: [chemical,chemistry,latex,math,mathjax,tex,typesetting]
 menu:
   docs:
     parent: content-management
-    weight: 250
-weight: 250
+    weight: 270
+weight: 270
 toc: true
 math: true
 ---
@@ -45,11 +45,11 @@ The approach described below avoids reliance on platform-specific features like 
 
 ## Setup
 
-Follow these instructions to include mathematical equations and expressions in your markdown using LaTeX or TeX typesetting syntax.
+Follow these instructions to include mathematical equations and expressions in your Markdown using LaTeX or TeX typesetting syntax.
 
 ###### Step 1
 
-Enable and configure the Goldmark [passthrough extension] in your site configuration. The passthrough extension preserves raw markdown within delimited snippets of text, including the delimiters themselves.
+Enable and configure the Goldmark [passthrough extension] in your site configuration. The passthrough extension preserves raw Markdown within delimited snippets of text, including the delimiters themselves.
 
 {{< code-toggle file=hugo copy=true >}}
 [markup.goldmark.extensions.passthrough]
@@ -122,7 +122,7 @@ The example above loads the partial template if you have set the `math` paramete
 
 ###### Step 4
 
-Include mathematical equations and expressions in your markdown using LaTeX or TeX typesetting syntax.
+Include mathematical equations and expressions in your Markdown using LaTeX or TeX typesetting syntax.
 
 {{< code file=content/math-examples.md copy=true >}}
 This is an inline \(a^*=x-b^*\) equation.
@@ -152,8 +152,9 @@ If you set the `math` parameter to `false` in your site configuration, you must 
 
 {{< code-toggle file=content/math-examples.md fm=true >}}
 title = 'Math examples'
-math = true
 date = 2024-01-24T18:09:49-08:00
+[params]
+math = true
 {{< /code-toggle >}}
 
 ## Inline delimiters

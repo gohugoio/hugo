@@ -30,3 +30,11 @@ aliases: [/functions/le]
 {{ le 2 1 2 }} → false
 {{ le 2 2 1 }} → false
 ```
+
+Use the `compare.Le` function to compare other data types as well:
+
+```go-html-template
+{{ le "ab" "a" }} → false
+{{ le time.Now (time.AsTime "1964-12-30") }} → false
+{{ le true false }} → false
+```

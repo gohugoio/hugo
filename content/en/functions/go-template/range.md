@@ -75,7 +75,7 @@ This template will render the page title three times:
 Gaining a thorough understanding of context is critical for anyone writing template code.
 {{% /note %}}
 
-[`seq`]: functions/collections/seq/
+[`seq`]: /functions/collections/seq/
 [context]: /getting-started/glossary/#context
 
 ## Array or slice of scalars
@@ -194,6 +194,6 @@ Unlike ranging over an array or slice, Hugo sorts by key when ranging over a map
 
 {{% include "functions/go-template/_common/text-template.md" %}}
 
-[`else`]: /functions/go-template/else
-[`break`]: /functions/go-template/break
-[`continue`]: /functions/go-template/continue
+[`else`]: /functions/go-template/else/
+[`break`]: /functions/go-template/break/
+[`continue`]: /functions/go-template/continue/

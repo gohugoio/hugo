@@ -15,7 +15,7 @@ action:
 The `PlainWords` method on a `Page` object calls the [`Plain`] method, then uses Go's [`strings.Fields`] function to split the result into words.
 
 {{% note %}}
-_Fields splits the string s around each instance of one or more consecutive white space characters, as defined by [`unicode.IsSpace`], returning a slice of substrings of s or an empty slice if s contains only white space._
+_Fields splits the string s around each instance of one or more consecutive whitespace characters, as defined by [`unicode.IsSpace`], returning a slice of substrings of s or an empty slice if s contains only whitespace._
 
 [`unicode.IsSpace`]: https://pkg.go.dev/unicode#IsSpace
 {{% /note %}}
@@ -32,5 +32,5 @@ To determine the approximate number of unique words on a page:
 {{ .PlainWords | uniq }} → 42
 ```
 
-[`Plain`]: /methods/page/plain
+[`Plain`]: /methods/page/plain/
 [`strings.Fields`]: https://pkg.go.dev/strings#Fields

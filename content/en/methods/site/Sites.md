@@ -1,6 +1,6 @@
 ---
 title: Sites
-description: Returns a collection of all Site objects, one for each language, ordered by language weight.
+description: Returns a collection of all Site objects, one for each language, ordered by default content language then by language weight.
 categories: []
 keywords: []
 action:
@@ -49,10 +49,10 @@ Produces a list of links to each home page:
 </ul>
 ```
 
-To render a link to home page of the primary (first) language:
+To render a link to the home page of the site corresponding to the default content language:
 
 ```go-html-template
-{{ with .Site.Sites.First }}
+{{ with .Site.Sites.Default }}
   <a href="{{ .Home.Permalink }}">{{ .Title }}</a>
 {{ end }}
 ```

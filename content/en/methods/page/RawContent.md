@@ -25,7 +25,7 @@ This is useful when rendering a page in a plain text [output format].
 [Shortcodes] within the content are not rendered. To get the raw content with shortcodes rendered, use the [`RenderShortcodes`] method on a `Page` object.
 
 [shortcodes]: /getting-started/glossary/#shortcode
-[`RenderShortcodes`]: /methods/page/rendershortcodes
+[`RenderShortcodes`]: /methods/page/rendershortcodes/
 {{% /note %}}
 
-[output format]: /templates/output-formats
+[output format]: /templates/output-formats/

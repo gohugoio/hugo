@@ -27,8 +27,8 @@ Define your [CI/CD](https://docs.gitlab.com/ee/ci/quick_start/) jobs by creating
 
 {{< code file=.gitlab-ci.yml copy=true >}}
 variables:
-  DART_SASS_VERSION: 1.70.0
-  HUGO_VERSION: 0.122.0
+  DART_SASS_VERSION: 1.77.1
+  HUGO_VERSION: 0.126.0
   NODE_VERSION: 20.x
   GIT_DEPTH: 0
   GIT_STRATEGY: clone
@@ -36,7 +36,7 @@ variables:
   TZ: America/Los_Angeles
 
 image:
-  name: golang:1.20.6-bookworm
+  name: golang:1.22.1-bookworm
 
 pages:
   script:

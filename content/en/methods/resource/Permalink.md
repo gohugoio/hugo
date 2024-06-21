@@ -7,7 +7,6 @@ action:
   related:
     - methods/resource/RelPermalink
     - methods/resource/Publish
-    - methods/resource/Key
   returnType: string
   signatures: [RESOURCE.Permalink]
 ---

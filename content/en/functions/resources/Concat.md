@@ -15,9 +15,9 @@ The `resources.Concat` function returns a concatenated slice of resources, cachi
 Hugo publishes the resource to the target path when you call its [`Publish`], [`Permalink`], or [`RelPermalink`] methods. 
 
 [media type]: https://en.wikipedia.org/wiki/Media_type
-[`publish`]: /methods/resource/publish
-[`permalink`]: /methods/resource/permalink
-[`relpermalink`]: /methods/resource/relpermalink
+[`publish`]: /methods/resource/publish/
+[`permalink`]: /methods/resource/permalink/
+[`relpermalink`]: /methods/resource/relpermalink/
 
 ```go-html-template
 {{ $plugins := resources.Get "js/plugins.js" }}

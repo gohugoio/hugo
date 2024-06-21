@@ -2,7 +2,7 @@
 title: Configure markup
 description: Configure rendering of markup to HTML.
 categories: [getting started,fundamentals]
-keywords: [configuration,highlighting]
+keywords: [markup,markdown,goldmark,asciidoc,asciidoctor,highlighting]
 menu:
   docs:
     parent: getting-started
@@ -14,16 +14,16 @@ toc: true
 
 ## Default handler
 
-By default, Hugo uses [Goldmark] to render markdown to HTML.
+Hugo uses [Goldmark] to render Markdown to HTML.
 
 {{< code-toggle file=hugo >}}
 [markup]
 defaultMarkdownHandler = 'goldmark'
 {{< /code-toggle >}}
 
-Files with the `.md` or `.markdown` extension are processed as markdown, provided that you have not specified a different [content format] using the `markup` field in front matter.
+Files with the `.md` or `.markdown` extension are processed as Markdown, provided that you have not specified a different [content format] using the `markup` field in front matter.
 
-To use a different renderer for markdown files, specify one of `asciidocext`, `org`, `pandoc`, or `rst` in your site configuration.
+To use a different renderer for Markdown files, specify one of `asciidocext`, `org`, `pandoc`, or `rst` in your site configuration.
 
 defaultMarkdownHandler|Description
 :--|:--
@@ -33,41 +33,86 @@ defaultMarkdownHandler|Description
 `pandoc`|[Pandoc]
 `rst`|[reStructuredText]
 
-To use Asciidoc, Pandoc, or reStructuredText you must install the relevant renderer and update your [security policy].
+To use AsciiDoc, Pandoc, or reStructuredText you must install the relevant renderer and update your [security policy].
 
 {{% note %}}
-Unless you need a unique capability provided by one of the alternate markdown handlers, we strongly recommend that you use the default setting. Goldmark is fast, well maintained, conforms to the [CommonMark] specification, and is compatible with [GitHub Flavored Markdown] (GFM).
+Unless you need a unique capability provided by one of the alternate Markdown handlers, we strongly recommend that you use the default setting. Goldmark is fast, well maintained, conforms to the [CommonMark] specification, and is compatible with [GitHub Flavored Markdown] (GFM).
 
 [commonmark]: https://spec.commonmark.org/0.30/
 [github flavored markdown]: https://github.github.com/gfm/
 {{% /note %}}
 
 [asciidoc]: https://asciidoc.org/
-[content format]: /content-management/formats/#list-of-content-formats
+[content format]: /content-management/formats/#formats
 [emacs org mode]: https://orgmode.org/
 [goldmark]: https://github.com/yuin/goldmark/
 [pandoc]: https://pandoc.org/
 [restructuredtext]: https://docutils.sourceforge.io/rst.html
-[security policy]: /about/security-model/#security-policy
+[security policy]: /about/security/#security-policy
 
 ## Goldmark
 
-This is the default configuration for the Goldmark markdown renderer:
+This is the default configuration for the Goldmark Markdown renderer:
 
 {{< code-toggle config=markup.goldmark />}}
 
-For details on the extensions, refer to the [Goldmark documentation](https://github.com/yuin/goldmark/#built-in-extensions).
+### Goldmark extensions
 
-Some settings explained:
+The extensions below, excluding Extras and Passthrough, are enabled by default.
 
-hardWraps
-: By default, Goldmark ignores newlines within a paragraph. Set to `true` to render newlines as `<br>` elements.
+Extension|Documentation|Enabled
+:--|:--|:-:
+cjk|[Goldmark Extensions: CJK]|:heavy_check_mark:
+definitionList|[PHP Markdown Extra: Definition lists]|:heavy_check_mark:
+extras|[Hugo Goldmark Extensions: Extras]|
+footnote|[PHP Markdown Extra: Footnotes]|:heavy_check_mark:
+linkify|[GitHub Flavored Markdown: Autolinks]|:heavy_check_mark:
+passthrough|[Hugo Goldmark Extensions: Passthrough]|
+strikethrough|[GitHub Flavored Markdown: Strikethrough]|:heavy_check_mark:
+table|[GitHub Flavored Markdown: Tables]|:heavy_check_mark:
+taskList|[GitHub Flavored Markdown: Task list items]|:heavy_check_mark:
+typographer|[Goldmark Extensions: Typographer]|:heavy_check_mark:
 
-unsafe
-: By default, Goldmark does not render raw HTML and potentially dangerous links. If you have lots of inline HTML and/or JavaScript, you may need to turn this on.
+[GitHub Flavored Markdown: Autolinks]: https://github.github.com/gfm/#autolinks-extension-
+[GitHub Flavored Markdown: Strikethrough]: https://github.github.com/gfm/#strikethrough-extension-
+[GitHub Flavored Markdown: Tables]: https://github.github.com/gfm/#tables-extension-
+[GitHub Flavored Markdown: Task list items]: https://github.github.com/gfm/#task-list-items-extension-
+[Goldmark Extensions: CJK]: https://github.com/yuin/goldmark?tab=readme-ov-file#cjk-extension
+[Goldmark Extensions: Typographer]: https://github.com/yuin/goldmark?tab=readme-ov-file#typographer-extension
+[Hugo Goldmark Extensions: Extras]: https://github.com/gohugoio/hugo-goldmark-extensions?tab=readme-ov-file#extras-extension
+[Hugo Goldmark Extensions: Passthrough]: https://github.com/gohugoio/hugo-goldmark-extensions?tab=readme-ov-file#passthrough-extension
+[PHP Markdown Extra: Definition lists]: https://michelf.ca/projects/php-markdown/extra/#def-list
+[PHP Markdown Extra: Footnotes]: https://michelf.ca/projects/php-markdown/extra/#footnotes
 
-typographer
-: The typographer extension replaces certain character combinations with HTML entities as specified below:
+#### Extras extension
+
+{{< new-in 0.126.0 >}}
+
+Configure the extras extension to enable [inserted text], [mark text], [subscript], and [superscript] elements in Markdown.
+
+Element|Markdown|Rendered
+:--|:--|:--
+Inserted text|`++foo++`|`<ins>foo</ins>`
+Mark text|`==bar==`|`<mark>bar</mark>`
+Subscript|`H~2~O`|`H<sub>2</sub>O`
+Superscript|`1^st^`|`1<sup>st</sup>`
+
+[inserted text]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ins
+[mark text]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/mark
+[subscript]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sub
+[superscript]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sup
+
+#### Passthrough extension
+
+{{< new-in 0.122.0 >}}
+
+Enable the passthrough extension to include mathematical equations and expressions in Markdown using LaTeX or TeX typesetting syntax. See [mathematics in Markdown] for details.
+
+[mathematics in Markdown]: content-management/mathematics/
+
+#### Typographer extension
+
+The Typographer extension replaces certain character combinations with HTML entities as specified below:
 
 Markdown|Replaced by|Description
 :--|:--|:--
@@ -82,104 +127,164 @@ Markdown|Replaced by|Description
 `”`|`&rdquo;`|right double quote
 `’`|`&rsquo;`|right single quote
 
-attribute
-: Enable custom attribute support for titles and blocks by adding attribute lists inside single curly brackets (`{.myclass class="class1 class2" }`) and placing it _after the Markdown element it decorates_, on the same line for titles and on a new line directly below for blocks.
+### Goldmark settings explained
 
-Hugo supports adding attributes (e.g. CSS classes) to Markdown blocks, e.g. tables, lists, paragraphs etc.
+Most of the Goldmark settings above are self-explanatory, but some require explanation.
 
-A blockquote with a CSS class:
+###### duplicateResourceFiles
 
-```md
-> foo
-> bar
-{.myclass}
-```
+{{< new-in 0.123.0 >}}
 
-There are some current limitations: For tables you can currently only apply it to the full table, and for lists the `ul`/`ol`-nodes only, e.g.:
+(`bool`) If `true`, shared page resources on multilingual single-host sites will be duplicated for each language. See [multilingual page resources] for details. Default is `false`.
 
-```md
-* Fruit
-  * Apple
-  * Orange
-  * Banana
-  {.fruits}
-* Dairy
-  * Milk
-  * Cheese
-  {.dairies}
-{.list}
-```
+[multilingual page resources]: /content-management/page-resources/#multilingual
 
-Note that attributes in [code fences](/content-management/syntax-highlighting/#highlighting-in-code-fences) must come after the opening tag, with any other highlighting processing instruction, e.g.:
+{{% note %}}
+With multilingual single-host sites, setting this parameter to `false` will enable Hugo's [embedded link render hook] and [embedded image render hook]. This is the default configuration for multilingual single-host sites.
 
-````txt
-```go {.myclass linenos=table,hl_lines=[8,"15-17"],linenostart=199}
-// ... code
-```
-````
+[embedded image render hook]: /render-hooks/images/#default
+[embedded link render hook]: /render-hooks/links/#default
+{{% /note %}}
 
-autoHeadingIDType ("github")
-: The strategy used for creating auto IDs (anchor names). Available types are `github`, `github-ascii` and `blackfriday`. `github` produces GitHub-compatible IDs, `github-ascii` will drop any non-ASCII characters after accent normalization, and `blackfriday` will make the IDs compatible with Blackfriday, the default Markdown engine before Hugo 0.60. Note that if Goldmark is your default Markdown engine, this is also the strategy used in the [anchorize](/functions/urls/anchorize) template func.
+###### parser.wrapStandAloneImageWithinParagraph
 
-## Asciidoc
+(`bool`) If `true`, image elements without adjacent content will be wrapped within a `p` element when rendered. This is the default Markdown behavior. Set to `false` when using an [image render hook] to render standalone images as `figure` elements. Default is `true`.
 
-This is the default configuration for the AsciiDoc markdown renderer:
+[image render hook]: /render-hooks/images/
+
+###### parser.autoHeadingIDType
+
+(`string`) The strategy used to automatically generate heading `id` attributes, one of `github`, `github-ascii` or `blackfriday`.
+
+- `github` produces GitHub-compatible `id` attributes
+- `github-ascii` drops any non-ASCII characters after accent normalization
+- `blackfriday` produces `id` attributes compatible with the Blackfriday Markdown renderer
+
+This is also the strategy used by the [anchorize](/functions/urls/anchorize) template function. Default is `github`.
+
+###### parser.attribute.block
+
+(`bool`) If `true`, enables [Markdown attributes] for block elements. Default is `false`.
+
+[Markdown attributes]: /content-management/markdown-attributes/
+
+###### parser.attribute.title
+
+(`bool`) If `true`, enables [Markdown attributes] for headings. Default is `true`.
+
+###### renderHooks.image.enableDefault
+
+{{< new-in 0.123.0 >}}
+
+(`bool`) If `true`, enables Hugo's [embedded image render hook]. Default is `false`.
+
+[embedded image render hook]: /render-hooks/images/#default
+
+{{% note %}}
+The embedded image render hook is automatically enabled for multilingual single-host sites if [duplication of shared page resources] is disabled. This is the default configuration for multilingual single-host sites.
+
+[duplication of shared page resources]: /getting-started/configuration-markup/#duplicateresourcefiles
+{{% /note %}}
+
+###### renderHooks.link.enableDefault
+
+{{< new-in 0.123.0 >}}
+
+(`bool`) If `true`, enables Hugo's [embedded link render hook]. Default is `false`.
+
+[embedded link render hook]: /render-hooks/links/#default
+
+{{% note %}}
+The embedded link render hook is automatically enabled for multilingual single-host sites if [duplication of shared page resources] is disabled. This is the default configuration for multilingual single-host sites.
+
+[duplication of shared page resources]: /getting-started/configuration-markup/#duplicateresourcefiles
+{{% /note %}}
+
+###### renderer.hardWraps
+
+(`bool`) If `true`, Goldmark replaces newline characters within a paragraph with `br` elements. Default is `false`.
+
+###### renderer.unsafe
+
+(`bool`) If `true`, Goldmark renders raw HTML mixed within the Markdown. This is unsafe unless the content is under your control. Default is `false`.
+
+## AsciiDoc
+
+This is the default configuration for the AsciiDoc renderer:
 
 {{< code-toggle config=markup.asciidocExt />}}
 
-attributes
-: (`map`) Variables to be referenced in your AsciiDoc file. This is a list of variable name/value maps. See Asciidoctor’s [attributes].
+### AsciiDoc settings explained
+
+###### attributes
+
+(`map`) A map of key-value pairs, each a document attributes,See Asciidoctor’s [attributes].
 
 [attributes]: https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#attributes-and-substitutions
 
-backend:
-: (`string`) Don’t change this unless you know what you are doing.
+###### backend
 
-extensions
-: (`[]string`) Possible extensions are `asciidoctor-html5s`, `asciidoctor-bibtex`, `asciidoctor-diagram`, `asciidoctor-interdoc-reftext`, `asciidoctor-katex`, `asciidoctor-latex`, `asciidoctor-mathematical`, and `asciidoctor-question`.
+(`string`) The backend output file format. Default is `html5`.
 
-failureLevel
-: (`string`) The minimum logging level that triggers a non-zero exit code (failure).
+###### extensions
 
-noHeaderOrFooter
-: (`bool`) Output an embeddable document, which excludes the header, the footer, and everything outside the body of the document. Don’t change this unless you know what you are doing.
+(`string array`) An array of enabled extensions, one or more of `asciidoctor-html5s`, `asciidoctor-bibtex`, `asciidoctor-diagram`, `asciidoctor-interdoc-reftext`, `asciidoctor-katex`, `asciidoctor-latex`, `asciidoctor-mathematical`, or `asciidoctor-question`.
 
-preserveTOC
-: (`bool`) By default, Hugo removes the table of contents generated by Asciidoctor and provides it through the built-in variable `.TableOfContents` to enable further customization and better integration with the various Hugo themes. This option can be set to true to preserve Asciidoctor’s TOC in the generated page.
+{{% note %}}
+To mitigate security risks, entries in the extension array may not contain forward slashes (`/`), backslashes (`\`), or periods. Due to this restriction, extensions must be in Ruby's `$LOAD_PATH`.
+{{% /note %}}
 
-safeMode
-: (`string`) Safe mode level `unsafe`, `safe`, `server`, or `secure`. Don’t change this unless you know what you are doing.
+###### failureLevel
 
-sectionNumbers
-: (`bool`) Auto-number section titles.
+(`string`) The minimum logging level that triggers a non-zero exit code (failure). Default is `fatal`.
 
-trace
-: (`bool`) Include backtrace information on errors.
+###### noHeaderOrFooter
 
-verbose
-: (`bool`) Verbosely print processing information and configuration file checks to stderr.
+(`bool`) If `true`, outputs an embeddable document, which excludes the header, the footer, and everything outside the body of the document. Default is `true`.
 
-workingFolderCurrent
-: (`bool`) Sets the working directory to be the same as that of the AsciiDoc file being processed, so that [include] will work with relative paths. This setting uses the asciidoctor cli parameter --base-dir and attribute outdir=. For rendering diagrams with [asciidoctor-diagram], `workingFolderCurrent` must be set to `true`.
+###### preserveTOC
+
+(`bool`) If `true`, preserves the table of contents (TOC) rendered by Asciidoctor. By default, to make the TOC compatible with existing themes, Hugo removes the TOC rendered by Asciidoctor. To render the TOC, use the [`TableOfContents`] method on a `Page` object in your templates. Default is `false`.
+
+[`TableOfContents`]: /methods/page/tableofcontents/
+
+###### safeMode
+
+(`string`) The safe mode level, one of `unsafe`, `safe`, `server`, or `secure`. Default is `unsafe`.
+
+###### sectionNumbers
+
+(`bool`) If `true`, numbers each section title. Default is `false`.
+
+###### trace
+
+(`bool`) If `true`, include backtrace information on errors. Default is `false`.
+
+###### verbose
+
+(`bool`)If `true`, verbosely prints processing information and configuration file checks to stderr. Default is `false`.
+
+###### workingFolderCurrent
+
+(`bool`) If `true`, sets the working directory to be the same as that of the AsciiDoc file being processed, allowing [includes] to work with relative paths. Set to `true` to render diagrams with the [asciidoctor-diagram] extension. Default is `false`.
 
 [asciidoctor-diagram]: https://asciidoctor.org/docs/asciidoctor-diagram/
-[include]: https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#include-files
+[includes]: https://docs.asciidoctor.org/asciidoc/latest/syntax-quick-reference/#includes
 
-Notice that for security concerns only extensions that do not have path separators (either `\`, `/` or `.`) are allowed. That means that extensions can only be invoked if they are in the Ruby's `$LOAD_PATH` (ie. most likely, the extension has been installed by the user). Any extension declared relative to the website's path will not be accepted.
+### AsciiDoc configuration example
 
-Example of how to set extensions and attributes:
-
-```yml
+{{< code-toggle file=hugo >}}
 [markup.asciidocExt]
     extensions = ["asciidoctor-html5s", "asciidoctor-diagram"]
     workingFolderCurrent = true
     [markup.asciidocExt.attributes]
         my-base-url = "https://example.com/"
         my-attribute-name = "my value"
-```
+{{< /code-toggle >}}
 
-In a complex Asciidoctor environment it is sometimes helpful to debug the exact call to your external helper with all
-parameters. Run Hugo with `-v`. You will get an output like
+### AsciiDoc troubleshooting
+
+Run `hugo --logLevel debug` to examine Hugo's call to the Asciidoctor executable:
 
 ```txt
 INFO 2019/12/22 09:08:48 Rendering book-as-pdf.adoc with C:\Ruby26-x64\bin\asciidoctor.bat using asciidoc args [--no-header-footer -r asciidoctor-html5s -b html5s -r asciidoctor-diagram --base-dir D:\prototypes\hugo_asciidoc_ddd\docs -a outdir=D:\prototypes\hugo_asciidoc_ddd\build -] ...
@@ -200,19 +305,18 @@ For CSS, see [Generate Syntax Highlighter CSS](/content-management/syntax-highli
 
 ## Table of contents
 
+This is the default configuration for the table of contents, applicable to Goldmark and Asciidoctor:
+
 {{< code-toggle config=markup.tableOfContents />}}
 
-These settings only works for the Goldmark renderer:
+###### startLevel
 
-startLevel
-: The heading level, values starting at 1 (`h1`), to start render the table of contents.
+(`int`) Heading levels less than this value will be excluded from the table of contents. For example, to exclude `h1` elements from the table of contents, set this value to `2`. Default is `2`.
 
-endLevel
-: The heading level, inclusive, to stop render the table of contents.
+###### endLevel
 
-ordered
-: If `true`, generates an ordered list instead of an unordered list.
+(`int`) Heading levels greater than this value will be excluded from the table of contents. For example, to exclude `h4`, `h5`, and `h6` elements from the table of contents, set this value to `3`. Default is `3`.
 
-## Render hooks
+###### ordered
 
-See [Markdown Render Hooks](/templates/render-hooks/).
+(`bool`) If `true`, generates an ordered list instead of an unordered list. Default is `false`.

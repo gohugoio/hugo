@@ -96,6 +96,7 @@ sudo apt install hugo
 You can also download Debian packages from the [latest release] page.
 
 [Debian]: https://www.debian.org/
+[Exherbo]: https://www.exherbolinux.org/
 [elementary OS]: https://elementary.io/
 [KDE neon]: https://neon.kde.org/
 [Linux Lite]: https://www.linuxliteos.com/
@@ -104,6 +105,24 @@ You can also download Debian packages from the [latest release] page.
 [Pop!_OS]: https://pop.system76.com/
 [Ubuntu]: https://ubuntu.com/
 [Zorin OS]: https://zorin.com/os/
+
+### Exherbo
+
+To install the extended edition of Hugo on [Exherbo]:
+
+1. Add this line to /etc/paludis/options.conf:
+
+   ```text
+   www-apps/hugo extended
+   ```
+
+2. Install using the Paludis package manager:
+
+
+   ```sh
+   cave resolve -x repository/heirecka
+   cave resolve -x hugo
+   ```
 
 ### Fedora
 
@@ -119,7 +138,7 @@ sudo dnf install hugo
 
 ### Gentoo
 
-Derivatives of the [Gentoo] distribution of Linux include [Calculate Linux], [Funtoo], and others. Follow the instructions below to install the extended edition of Hugo:
+Derivatives of the [Gentoo] distribution of Linux include [Calculate Linux], [Funtoo], and others. To install the extended edition of Hugo:
 
 1. Specify the `extended` [USE] flag in /etc/portage/package.use/hugo:
 

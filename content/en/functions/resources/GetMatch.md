@@ -26,7 +26,7 @@ This function operates on global resources. A global resource is a file within t
 
 For page resources, use the [`Resources.GetMatch`] method on the Page object.
 
-[`Resources.GetMatch`]: /methods/page/resources
+[`Resources.GetMatch`]: /methods/page/resources/
 {{% /note %}}
 
 Hugo determines a match using a case-insensitive [glob pattern].

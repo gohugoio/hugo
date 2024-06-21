@@ -8,9 +8,10 @@ action:
     - methods/page/Fragments
   returnType: template.HTML
   signatures: [PAGE.TableOfContents]
+aliases: [/content-management/toc/]
 ---
 
-The `TableOfContents` method on a `Page` object returns an ordered or unordered list of the markdown [ATX] and [setext] headings within the page content.
+The `TableOfContents` method on a `Page` object returns an ordered or unordered list of the Markdown [ATX] and [setext] headings within the page content.
 
 [atx]: https://spec.commonmark.org/0.30/#atx-headings
 [setext]: https://spec.commonmark.org/0.30/#setext-headings

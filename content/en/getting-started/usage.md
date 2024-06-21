@@ -23,7 +23,7 @@ hugo version
 You should see something like:
 
 ```text
-hugo v0.122.0-b9a03bd59d5f71a529acb3e33f995e0ef332b3aa+extended linux/amd64 BuildDate=2024-01-26T15:54:24Z VendorInfo=gohugoio
+hugo v0.123.0-3c8a4713908e48e6523f058ca126710397aa4ed5+extended linux/amd64 BuildDate=2024-02-19T16:32:38Z VendorInfo=gohugoio
 ```
 
 ## Display available commands
@@ -64,6 +64,16 @@ Hugo allows you to set `draft`, `date`, `publishDate`, and `expiryDate` in the [
 - The `date` is in the future
 - The `publishDate` is in the future
 - The `expiryDate` is in the past
+
+{{< new-in 0.123.0 >}}
+
+{{% note %}}
+Hugo publishes descendants of draft, future, and expired [node] pages. To prevent publication of these descendants, use the [`cascade`] front matter field to cascade [build options] to the descendant pages.
+
+[build options]: /content-management/build-options/
+[`cascade`]: /content-management/front-matter/#cascade-field
+[node]: /getting-started/glossary/#node
+{{% /note %}}
 
 You can override the default behavior when running `hugo` or `hugo server` with command line flags:
 
@@ -130,7 +140,7 @@ public/
 ├── categories/
 │   ├── index.html
 │   └── index.xml  <-- RSS feed for this section
-├── post/
+├── posts/
 │   ├── my-first-post/
 │   │   └── index.html
 │   ├── index.html

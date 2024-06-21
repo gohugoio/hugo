@@ -47,5 +47,5 @@ Render with [Pandoc]:
 {{ .RenderString $opts $s }} → <p>H<sub>2</sub>O</p>
 ```
 
-[markup identifier]: /content-management/formats/#list-of-content-formats
+[markup identifier]: /content-management/formats/#classification
 [pandoc]: https://www.pandoc.org/

@@ -22,7 +22,9 @@ content/
     └── book-2.md
 ```
 
-Code defensively by verifying file existence as shown in each of the examples below.
+{{% note %}}
+Code defensively by verifying file existence as shown in the examples below.
+{{% /note %}}
 
 ## Methods
 
@@ -80,13 +82,17 @@ The path separators (slash or backslash) in `Path`, `Dir`, and `Filename` depend
 {{ end }}
 ```
 
-###### Lang
+###### IsContentAdapter
 
-(`string`) The language associated with the given file.
+{{< new-in 0.126.0 >}}
+
+(`bool`) Reports whether the file is a [content adapter].
+
+[content adapter]: /content-management/content-adapters/
 
 ```go-html-template
 {{ with .File }}
-  {{ .Lang }}
+  {{ .IsContentAdapter }}
 {{ end }}
 ```
 
@@ -107,6 +113,16 @@ The path separators (slash or backslash) in `Path`, `Dir`, and `Filename` depend
 ```go-html-template
 {{ with .File }}
   {{ .Path }}
+{{ end }}
+```
+
+###### Section
+
+(`string`) The name of the top level section in which the file resides.
+
+```go-html-template
+{{ with .File }}
+  {{ .Section }}
 {{ end }}
 ```
 
@@ -157,9 +173,10 @@ ContentBaseName|a|b|news
 Dir|news/|news/b/|news/
 Ext|md|md|md
 Filename|/home/user/...|/home/user/...|/home/user/...
-Lang|en|en|en
+IsContentAdapter|false|false|false
 LogicalName|a.en.md|index.en.md|_index.en.md
 Path|news/a.en.md|news/b/index.en.md|news/_index.en.md
+Section|news|news|news
 TranslationBaseName|a|index|_index
 UniqueID|15be14b...|186868f...|7d9159d...
 
@@ -171,13 +188,7 @@ Some of the pages on a site may not be backed by a file. For example:
 - Taxonomy pages
 - Term pages
 
-Without a backing file, Hugo will throw a warning if you attempt to access a `.File` property. For example:
-
-```text
-WARN .File.ContentBaseName on zero object. Wrap it in if or with...
-```
-
-To code defensively, first check for file existence:
+Without a backing file, Hugo will throw an error if you attempt to access a `.File` property. To code defensively, first check for file existence:
 
 ```go-html-template
 {{ with .File }}

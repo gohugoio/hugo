@@ -1,7 +1,7 @@
 ---
 title: Create your own shortcodes
 linkTitle: Shortcode templates
-description: You can extend Hugo's built-in shortcodes by creating your own using the same templating syntax as that for single and list pages.
+description: You can extend Hugo's embedded shortcodes by creating your own using the same templating syntax as that for single and list pages.
 categories: [templates]
 keywords: [shortcodes,templates]
 menu:
@@ -16,18 +16,18 @@ toc: true
 Shortcodes are a means to consolidate templating into small, reusable snippets that you can embed directly inside your content.
 
 {{% note %}}
-Hugo also ships with built-in shortcodes for common use cases. (See [Content Management: Shortcodes](/content-management/shortcodes/).)
+Hugo also ships with embedded shortcodes for common use cases. (See [Content Management: Shortcodes](/content-management/shortcodes/).)
 {{% /note %}}
 
 ## Create custom shortcodes
 
-Hugo's built-in shortcodes cover many common, but not all, use cases. Luckily, Hugo provides the ability to easily create custom shortcodes to meet your website's needs.
+Hugo's embedded shortcodes cover many common, but not all, use cases. Luckily, Hugo provides the ability to easily create custom shortcodes to meet your website's needs.
 
 {{< youtube Eu4zSaKOY4A >}}
 
 ### File location
 
-To create a shortcode, place an HTML template in the `layouts/shortcodes` directory of your [source organization]. Consider the file name carefully since the shortcode name will mirror that of the file but without the `.html` extension. For example, `layouts/shortcodes/myshortcode.html` will be called with either `{{</* myshortcode /*/>}}` or `{{%/* myshortcode /*/%}}`.
+To create a shortcode, place an HTML template in the `layouts/shortcodes` directory. Consider the file name carefully since the shortcode name will mirror that of the file but without the `.html` extension. For example, `layouts/shortcodes/myshortcode.html` will be called with either `{{</* myshortcode /*/>}}` or `{{%/* myshortcode /*/%}}`.
 
 You can organize your shortcodes in subdirectories, e.g. in `layouts/shortcodes/boxes`. These shortcodes would then be accessible with their relative path, e.g:
 
@@ -44,31 +44,31 @@ Shortcode templates have a simple [lookup order]:
 1. `/layouts/shortcodes/<SHORTCODE>.html`
 2. `/themes/<THEME>/layouts/shortcodes/<SHORTCODE>.html`
 
-### Positional vs. named parameters
+### Positional vs. named arguments
 
-You can create shortcodes using the following types of parameters:
+You can create shortcodes using the following types of arguments:
 
-* Positional parameters
-* Named parameters
-* Positional *or* named parameters (i.e, "flexible")
+* Positional arguments
+* Named arguments
+* Positional *or* named arguments
 
-In shortcodes with positional parameters, the order of the parameters is important. If a shortcode has a single required value (e.g., the `youtube` shortcode below), positional parameters work very well and require less typing from content authors.
+In shortcodes with positional arguments, the order of the arguments is important. If a shortcode has a single required value, positional arguments require less typing from content authors.
 
-For more complex layouts with multiple or optional parameters, named parameters work best. While less terse, named parameters require less memorization from a content author and can be added in a shortcode declaration in any order.
+For more complex layouts with multiple or optional arguments, named arguments work best. While less terse, named arguments require less memorization from a content author and can be added in a shortcode declaration in any order.
 
-Allowing both types of parameters (i.e., a "flexible" shortcode) is useful for complex layouts where you want to set default values that can be easily overridden by users.
+Allowing both types of arguments is useful for complex layouts where you want to set default values that can be easily overridden by users.
 
-### Access parameters
+### Access arguments
 
-All shortcode parameters can be accessed via the `.Get` method. Whether you pass a key (i.e., string) or a number to the `.Get` method depends on whether you are accessing a named or positional parameter, respectively.
+All shortcode arguments can be accessed via the `.Get` method. Whether you pass a string or a number to the `.Get` method depends on whether you are accessing a named or positional argument, respectively.
 
-To access a parameter by name, use the `.Get` method followed by the named parameter as a quoted string:
+To access an argument by name, use the `.Get` method followed by the named argument as a quoted string:
 
 ```go-html-template
 {{ .Get "class" }}
 ```
 
-To access a parameter by position, use the `.Get` followed by a numeric position, keeping in mind that positional parameters are zero-indexed:
+To access an argument by position, use the `.Get` followed by a numeric position, keeping in mind that positional arguments are zero-indexed:
 
 ```go-html-template
 {{ .Get 0 }}
@@ -80,13 +80,13 @@ For the second position, you would just use:
 {{ .Get 1 }}
 ```
 
-`with` is great when the output depends on a parameter being set:
+`with` is great when the output depends on a argument being set:
 
 ```go-html-template
 {{ with .Get "class" }} class="{{ . }}"{{ end }}
 ```
 
-`.Get` can also be used to check if a parameter has been provided. This is
+`.Get` can also be used to check if a argument has been provided. This is
 most helpful when the condition depends on either of the values, or both:
 
 ```go-html-template
@@ -95,7 +95,7 @@ most helpful when the condition depends on either of the values, or both:
 
 #### `.Inner`
 
-If a closing shortcode is used, the `.Inner` variable will be populated with the content between the opening and closing shortcodes. To check if `.Inner` contains anything other than white space:
+The `.Inner` method returns the content between the opening and closing shortcode tags. To check if `.Inner` returns anything other than whitespace:
 
 ```go-html-template
 {{ if strings.ContainsNonSpace .Inner }}
@@ -103,35 +103,33 @@ If a closing shortcode is used, the `.Inner` variable will be populated with the
 {{ end }}
 ```
 
-A shortcode with content declared via the `.Inner` variable can also be declared without the content and without the closing tag by using the self-closing syntax:
+{{% note %}}
+Any shortcode that calls the `.Inner` method must be closed or self-closed. To call a shortcode using the self-closing sytax
 
 ```go-html-template
 {{</* innershortcode /*/>}}
 ```
 
-{{% note %}}
-Any shortcode that refers to `.Inner` must be closed or self-closed.
-
 {{% /note %}}
 
 #### `.Params`
 
-The `.Params` variable in shortcodes contains the list parameters passed to shortcode for more complicated use cases. You can also access higher-scoped parameters with the following logic:
+The `.Params` method in shortcodes returns the arguments passed to the shortcode for more complicated use cases. You can also access higher-scoped arguments with the following logic:
 
 $.Params
-: these are the parameters passed directly into the shortcode declaration (e.g., a YouTube video ID)
+: these are the arguments passed directly into the shortcode declaration (e.g., a YouTube video ID)
 
 $.Page.Params
 : refers to the page's parameters; the "page" in this case refers to the content file in which the shortcode is declared (e.g., a `shortcode_color` field in a content's front matter could be accessed via `$.Page.Params.shortcode_color`).
 
-$.Page.Site.Params
-: refers to global variables as defined in your [site's configuration file][config].
+$.Site.Params
+: refers to parameters defined in your site configuration.
 
 #### `.IsNamedParams`
 
-The `.IsNamedParams` variable checks whether the shortcode declaration uses named parameters and returns a boolean value.
+The `.IsNamedParams` method checks whether the shortcode declaration uses named arguments and returns a boolean value.
 
-For example, you could create an `image` shortcode that can take either a `src` named parameter or the first positional parameter, depending on the preference of the content's author. Let's assume the `image` shortcode is called as follows:
+For example, you could create an `image` shortcode that can take either a `src` named argument or the first positional argument, depending on the preference of the content's author. Let's assume the `image` shortcode is called as follows:
 
 ```go-html-template
 {{</* image src="images/my-image.jpg" */>}}
@@ -141,25 +139,23 @@ You could then include the following as part of your shortcode templating:
 
 ```go-html-template
 {{ if .IsNamedParams }}
-<img src="{{ .Get "src" }}" alt="">
+  <img src="{{ .Get "src" }}" alt="">
 {{ else }}
-<img src="{{ .Get 0 }}" alt="">
+  <img src="{{ .Get 0 }}" alt="">
 {{ end }}
 ```
 
 See the [example Vimeo shortcode][vimeoexample] below for `.IsNamedParams` in action.
 
 {{% note %}}
-While you can create shortcode templates that accept both positional and named parameters, you *cannot* declare shortcodes in content with a mix of parameter types. Therefore, a shortcode declared like `{{</* image src="images/my-image.jpg" "This is my alt text" */>}}` will return an error.
+While you can create shortcode templates that accept both positional and named arguments, you *cannot* declare shortcodes in content with a mix of argument types. Therefore, a shortcode declared like `{{</* image src="images/my-image.jpg" "This is my alt text" */>}}` will return an error.
 {{% /note %}}
 
-You can also use the variable `.Page` to access all the normal [page variables][pagevars].
-
-Shortcodes can also be nested. In a nested shortcode, you can access the parent shortcode context with the [`.Parent`] shortcode method. This can be very useful for inheritance of common shortcode parameters from the root.
+Shortcodes can also be nested. In a nested shortcode, you can access the parent shortcode context with the [`.Parent`] shortcode method. This can be very useful for inheritance from the root.
 
 ### Checking for existence
 
-You can check if a specific shortcode is used on a page by calling `.HasShortcode` in that page template, providing the name of the shortcode. This is sometimes useful when you want to include specific scripts or styles in the header that are only used by that shortcode.
+You can check if a specific shortcode is used on a page by calling `.HasShortcode` in that page template, providing the name of the shortcode. This is useful when you want to include specific scripts or styles in the header that are only used by that shortcode.
 
 ## Custom shortcode examples
 
@@ -179,7 +175,7 @@ Let's assume you would like to keep mentions of your copyright year current in y
 
 ### Single positional example: `youtube`
 
-Embedded videos are a common addition to Markdown content that can quickly become unsightly. The following is the code used by [Hugo's built-in YouTube shortcode][youtubeshortcode]:
+Embedded videos are a common addition to Markdown content. The following is the code used by [Hugo's built-in YouTube shortcode][youtubeshortcode]:
 
 ```go-html-template
 {{</* youtube 09jf3ow9jfw */>}}
@@ -307,9 +303,9 @@ The rendered output of the HTML example code block will be as follows:
 
 ### Nested shortcode: image gallery
 
-Hugo's [`.Parent`] shortcode method provides access to the parent shortcode context when the shortcode in question is called within the context of a *parent* shortcode. This provides an inheritance model for common shortcode parameters.
+Hugo's [`.Parent`] shortcode method provides access to the parent shortcode context when the shortcode in question is called within the context of a parent shortcode. This provides an inheritance model.
 
-The following example is contrived but demonstrates the concept. Assume you have a `gallery` shortcode that expects one named `class` parameter:
+The following example is contrived but demonstrates the concept. Assume you have a `gallery` shortcode that expects one named `class` argument:
 
 {{< code file=layouts/shortcodes/gallery.html >}}
 <div class="{{ .Get "class" }}">
@@ -317,7 +313,7 @@ The following example is contrived but demonstrates the concept. Assume you have
 </div>
 {{< /code >}}
 
-You also have an `img` shortcode with a single named `src` parameter that you want to call inside of `gallery` and other shortcodes, so that the parent defines the context of each `img`:
+You also have an `img` shortcode with a single named `src` argument that you want to call inside of `gallery` and other shortcodes, so that the parent defines the context of each `img`:
 
 {{< code file=layouts/shortcodes/img.html >}}
 {{- $src := .Get "src" -}}
@@ -350,19 +346,20 @@ This will output the following HTML. Note how the first two `img` shortcodes inh
 
 ## Error handling in shortcodes
 
-Use the [errorf](/functions/fmt/errorf) template function and [`.Position`] shortcode method to get useful error messages in shortcodes:
+Use the [`errorf`] template function with the [`Name`] and [`Position`] shortcode methods to generate useful error messages:
 
-```sh
+{{< code file=layouts/shortcodes/greeting.html >}}
 {{ with .Get "name" }}
+  <p>Hello, my name is {{ . }}.</p>
 {{ else }}
-{{ errorf "missing value for parameter 'name': %s" .Position }}
+  {{ errorf "The %q shortcode requires a 'name' argument. See %s" .Name .Position }}
 {{ end }}
-```
+{{< /code >}}
 
-When the above fails, you will see an `ERROR` log similar to the below:
+When the above fails, you will see an `ERROR` message such as:
 
 ```sh
-ERROR 2018/11/07 10:05:55 missing value for parameter name: "/Users/bep/dev/go/gohugoio/hugo/docs/content/en/variables/shortcodes.md:32:1"
+ERROR The "greeting" shortcode requires a 'name' argument. See "/home/user/project/content/_index.md:12:1"
 ```
 
 ## Inline shortcodes
@@ -386,28 +383,23 @@ And once enabled, you can do this in your content files:
 
 The above will print the current date and time.
 
- Note that an inline shortcode's inner content is parsed and executed as a Go text template with the same context as a regular shortcode template.
+Note that an inline shortcode's inner content is parsed and executed as a Go text template with the same context as a regular shortcode template.
 
 This means that the current page can be accessed via `.Page.Title` etc. This also means that there are no concept of "nested inline shortcodes".
 
-The same inline shortcode can be reused later in the same content file, with different parameters if needed, using the self-closing syntax:
+The same inline shortcode can be reused later in the same content file, with different arguments if needed, using the self-closing syntax:
 
  ```go-html-template
 {{</* time.inline /*/>}}
 ```
 
-[basic content files]: /content-management/formats/
-[built-in shortcode]: /content-management/shortcodes/
-[config]: /getting-started/configuration/
-[Content Management: Shortcodes]: /content-management/shortcodes/#using-hugo-s-built-in-shortcodes
-[source organization]: /getting-started/directory-structure/
-[docsshortcodes]: https://github.com/gohugoio/hugo/tree/master/docs/layouts/shortcodes
-[figure]: /content-management/shortcodes/#figure
-[hugosc]: /content-management/shortcodes/#using-hugo-s-built-in-shortcodes
-[lookup order]: /templates/lookup-order/
-[pagevars]: /variables/page/
 [`.Parent`]: /methods/shortcode/parent/
-[`.Position`]: /methods/shortcode/position/
-[spfscs]: https://github.com/spf13/spf13.com/tree/master/layouts/shortcodes
+[`errorf`]: /functions/fmt/errorf/
+[`Name`]: /methods/shortcode/name/
+[`Position`]: /methods/shortcode/position/
+[built-in shortcode]: /content-management/shortcodes/
+[figure]: /content-management/shortcodes/#figure
+[lookup order]: /templates/lookup-order/
+[source organization]: /getting-started/directory-structure/
 [vimeoexample]: #single-flexible-example-vimeo
 [youtubeshortcode]: /content-management/shortcodes/#youtube

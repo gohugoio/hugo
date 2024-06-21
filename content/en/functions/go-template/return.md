@@ -80,7 +80,7 @@ See additional examples in the [partial templates] section.
 ## Usage
 
 {{% note %}}
-Unlike `return` statements in other languages, Hugo executes the first occurrence of the `return` statement regardless of its position within logical blocks
+Unlike `return` statements in other languages, Hugo executes the first occurrence of the `return` statement regardless of its position within logical blocks.
 {{% /note %}}
 
 A partial that returns a value must contain only one `return` statement, placed at the end of the template.

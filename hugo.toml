@@ -29,7 +29,7 @@ ID = 'G-MBZGKNMDWC'
 
 [outputs]
   home    = ["HTML", "RSS", "REDIR", "HEADERS"]
-  section = ["HTML", "RSS"]
+  section = ["HTML"]
 
 [mediaTypes]
   [mediaTypes."text/netlify"]

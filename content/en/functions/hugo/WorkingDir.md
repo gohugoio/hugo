@@ -13,3 +13,5 @@ action:
 ```go-html-template
 {{ hugo.WorkingDir }} → /home/user/projects/my-hugo-site
 ```
+
+{{< new-in 0.112.0 >}}

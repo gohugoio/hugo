@@ -21,5 +21,5 @@ Term
 WeightedPages
 : (`page.WeightedPages`) Returns a slice of weighted pages to which the term is assigned, sorted by [taxonomic weight]. The `Pages` method above is more flexible, allowing you to sort and group.
 
-[methods]: /methods/pages
+[methods]: /methods/pages/
 [taxonomic weight]: /getting-started/glossary/#taxonomic-weight

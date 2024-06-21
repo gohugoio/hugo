@@ -34,7 +34,7 @@ Although you can use these methods in combination when defining a menu, the menu
 
 ## Define automatically
 
-To automatically define menu entries for each top-level section of your site, enable the section pages menu in your site configuration.
+To automatically define a menu entry for each top-level [section] of your site, enable the section pages menu in your site configuration.
 
 {{< code-toggle file=hugo >}}
 sectionPagesMenu = "main"
@@ -167,7 +167,7 @@ Each menu entry defined in site configuration requires two or more properties:
 - Specify `name` and `url` for external links
 
 pageRef
-: (`string`) The file path of the target page, relative to the `content` directory. Omit language code and file extension. Required for *internal* links.
+: (`string`) The logical path of the target page, relative to the `content` directory. Omit language code and file extension. Required for *internal* links.
 
 Kind|pageRef
 :--|:--
@@ -229,4 +229,5 @@ See [menu templates].
 [localize]: /content-management/multilingual/#menus
 [menu templates]: /templates/menu-templates/
 [multilingual]: /content-management/multilingual/#menus
+[section]: /getting-started/glossary/#section
 [template]: /templates/menu-templates/

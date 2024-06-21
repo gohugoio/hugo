@@ -1,12 +1,12 @@
 ---
 title: Hosting and deployment
-linkTitle: Overview
+linkTitle: In this section
 description: Site builds, automated deployments, and popular hosting solutions.
 categories: []
 keywords: []
 menu:
   docs:
-    identifier: hosting-and-deployment-overview
+    identifier: hosting-and-deployment-in-this-section
     parent: hosting-and-deployment
     weight: 1
 weight: 1

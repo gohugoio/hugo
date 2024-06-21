@@ -12,10 +12,10 @@ action:
 
 The `Languages` method on a `Site` object returns a collection of language objects for all sites, ordered by language weight. Each language object points to its language definition in the site configuration.
 
-To view the data structure:
+To inspect the data structure:
 
 ```go-html-template
-<pre>{{ jsonify (dict "indent" "  ") .Site.Languages }}</pre>
+<pre>{{ debug.Dump .Site.Languages }}</pre>
 ```
 
 With this site configuration:

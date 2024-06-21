@@ -22,11 +22,12 @@ Use this method in shortcode templates to compose a page from multiple content f
 For example:
 
 {{< code file=layouts/shortcodes/include.html >}}
-{{ $p := site.GetPage (.Get 0) }}
-{{ $p.RenderShortcodes }}
+{{ with site.GetPage (.Get 0) }}
+  {{ .RenderShortcodes }}
+{{ end }}
 {{< /code >}}
 
-Then in your markdown:
+Then call the shortcode in your Markdown:
 
 {{< code file=content/about.md lang=md >}}
 {{%/* include "/snippets/services.md" */%}}
@@ -34,14 +35,14 @@ Then in your markdown:
 {{%/* include "/snippets/leadership.md" */%}}
 {{< /code >}}
 
-Each of the included markdown files can contain calls to other shortcodes.
+Each of the included Markdown files can contain calls to other shortcodes.
 
 ## Shortcode notation
 
 In the example above it's important to understand the difference between the two delimiters used when calling a shortcode:
 
 - `{{</* myshortcode */>}}` tells Hugo that the rendered shortcode does not need further processing. For example, the shortcode content is HTML.
-- `{{%/* myshortcode */%}}` tells Hugo that the rendered shortcode needs further processing. For example, the shortcode content is markdown.
+- `{{%/* myshortcode */%}}` tells Hugo that the rendered shortcode needs further processing. For example, the shortcode content is Markdown.
 
 Use the latter for the "include" shortcode described above.
 
@@ -75,4 +76,4 @@ https://example.org/privacy/
 An *emphasized* word.
 ```
 
-Note that the shortcode within the content file was rendered, but the surrounding markdown was preserved.
+Note that the shortcode within the content file was rendered, but the surrounding Markdown was preserved.

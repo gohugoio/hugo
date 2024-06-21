@@ -21,4 +21,4 @@ In contrast with the [`strings.RuneCount`] function, which counts every rune in 
 {{ "Hello, 世界" | strings.CountRunes }} → 8
 ```
 
-[`strings.RuneCount`]: /functions/strings/runecount
+[`strings.RuneCount`]: /functions/strings/runecount/

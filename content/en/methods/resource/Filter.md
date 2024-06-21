@@ -39,7 +39,7 @@ To apply two or more filters, executing from left to right:
 
 You can also apply image filters using the [`images.Filter`] function.
 
-[`images.Filter`]: /functions/images/filter
+[`images.Filter`]: /functions/images/filter/
 
 {{% include "methods/resource/_common/global-page-remote-resources.md" %}}
 
