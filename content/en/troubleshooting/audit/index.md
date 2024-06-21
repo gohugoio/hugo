@@ -53,7 +53,7 @@ _Tested with GNU Bash 5.1 and GNU grep 3.7._
 ### Patterns
 
 `<!-- raw HTML omitted -->`
-: By default, Hugo strips raw HTML from your markdown prior to rendering, and leaves this HTML comment in its place.
+: By default, Hugo strips raw HTML from your Markdown prior to rendering, and leaves this HTML comment in its place.
 
 `ZgotmplZ`
 : ZgotmplZ is a special value that indicates that unsafe content reached a CSS or URL context at runtime. See&nbsp;[details].

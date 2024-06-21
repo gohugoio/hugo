@@ -21,7 +21,7 @@ When the second argument is the boolean `false` value, the `default` function re
 
 To set a default value based on truthiness, use the [`or`] operator instead.
 
-[`or`]: /functions/go-template/or
+[`or`]: /functions/go-template/or/
 {{% /note %}}
 
 The `default` function returns the second argument if set:

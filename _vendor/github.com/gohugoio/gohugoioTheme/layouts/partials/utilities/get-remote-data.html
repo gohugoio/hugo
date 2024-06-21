@@ -1,0 +1,23 @@
+{{/*
+Parses the serialized data from the given URL and returns a map or an array.
+
+Supports CSV, JSON, TOML, YAML, and XML.
+
+@param {string} . The URL from which to retrieve the serialized data.
+@returns {any}
+
+@example {{ partial "get-remote-data.html" "https://example.org/foo.json" }}
+*/}}
+
+{{ $url := . }}
+{{ $data := dict }}
+{{ with resources.GetRemote $url }}
+  {{ with .Err }}
+    {{ errorf "%s" . }}
+  {{ else }}
+    {{ $data = .Content | transform.Unmarshal }}
+  {{ end }}
+{{ else }}
+  {{ errorf "Unable to get remote resource %q" $url }}
+{{ end }}
+{{ return $data }}

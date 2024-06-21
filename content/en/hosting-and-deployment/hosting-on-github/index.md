@@ -1,16 +1,14 @@
 ---
 title: Host on GitHub Pages
-description: Deploy Hugo as a GitHub Pages project or personal/organizational site and automate the whole process with GitHub Actions
+description: Host your site on GitHub Pages with continuous deployment using project, user, or organization pages.
 categories: [hosting and deployment]
-keywords: [hosting,github]
+keywords: [hosting]
 menu:
   docs:
     parent: hosting-and-deployment
 toc: true
 aliases: [/tutorials/github-pages-blog/]
 ---
-
-GitHub provides free and fast static hosting over SSL for personal, organization, or project pages directly from a GitHub repository via its GitHub Pages service and automating development workflows and build with GitHub Actions.
 
 ## Prerequisites
 
@@ -99,7 +97,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      HUGO_VERSION: 0.122.0
+      HUGO_VERSION: 0.127.0
     steps:
       - name: Install Hugo CLI
         run: |
@@ -122,13 +120,14 @@ jobs:
           # For maximum backward compatibility with Hugo modules
           HUGO_ENVIRONMENT: production
           HUGO_ENV: production
+          TZ: America/Los_Angeles
         run: |
           hugo \
             --gc \
             --minify \
             --baseURL "${{ steps.pages.outputs.base_url }}/"
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./public
 
@@ -142,7 +141,7 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v3
+        uses: actions/deploy-pages@v4
 {{< /code >}}
 
 Step 7

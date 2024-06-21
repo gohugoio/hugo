@@ -27,4 +27,4 @@ aliases: [/functions/urls.joinpath]
 
 Unlike the [`path.Join`] function, `urls.JoinPath` retains consecutive leading slashes.
 
-[`path.Join`]: /functions/path/join
+[`path.Join`]: /functions/path/join/

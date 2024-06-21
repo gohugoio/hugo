@@ -17,4 +17,4 @@ action:
 
 To get the exact word count, use the [`WordCount`] method.
 
-[`WordCount`]: /methods/page/wordcount
+[`WordCount`]: /methods/page/wordcount/

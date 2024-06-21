@@ -1,6 +1,6 @@
 ---
 title: IsMultiLingual
-description: Reports whether the site is multilingual.
+description: Reports whether there are two or more configured languages.
 categories: []
 keywords: []
 action:
@@ -8,6 +8,12 @@ action:
   returnType: bool
   signatures: [SITE.IsMultiLingual]
 ---
+
+{{% deprecated-in 0.124.0 %}}
+Use [`hugo.IsMultilingual`] instead.
+
+[`hugo.IsMultilingual`]: /functions/hugo/ismultilingual/
+{{% /deprecated-in %}}
 
 Site configuration:
 

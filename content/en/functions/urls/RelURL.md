@@ -14,53 +14,51 @@ action:
 aliases: [/functions/relurl]
 ---
 
-With multilingual configurations, use the [`relLangURL`] function instead. The URL returned by this function depends on:
+With multilingual configurations, use the [`urls.RelLangURL`] function instead. The URL returned by this function depends on:
 
 - Whether the input begins with a slash
-- The `baseURL` in site configuration
+- The `baseURL` in your site configuration
 
 ### Input does not begin with a slash
 
-If the input does not begin with a slash, the resulting URL will be correct regardless of the `baseURL`.
+If the input does not begin with a slash, the resulting URL will be relative to the `baseURL` in your site configuration.
 
 With `baseURL = https://example.org/`
 
 ```go-html-template
-{{ relURL "" }}           →   /
-{{ relURL "articles" }}   →   /articles
-{{ relURL "style.css" }}  →   /style.css
+{{ relURL "" }}                        → /
+{{ relURL "articles" }}                → /articles
+{{ relURL "style.css" }}               → /style.css
+{{ relURL "https://example.org/foo" }} → /foo
 ```
 
 With `baseURL = https://example.org/docs/`
 
 ```go-html-template
-{{ relURL "" }}           →   /docs/
-{{ relURL "articles" }}   →   /docs/articles
-{{ relURL "style.css" }}  →   /docs/style.css
+{{ relURL "" }}                             → /docs/
+{{ relURL "articles" }}                     → /docs/articles
+{{ relURL "style.css" }}                    → /docs/style.css
+{{ relURL "https://example.org/docs/foo" }} → /docs/foo
 ```
 
 #### Input begins with a slash
 
-If the input begins with a slash, the resulting URL will be incorrect when the `baseURL` includes a subdirectory. With a leading slash, the function returns a URL relative to the protocol+host section of the `baseURL`.
+If the input begins with a slash, the resulting URL will be relative to the protocol+host of the `baseURL` in your site configuration.
 
 With `baseURL = https://example.org/`
 
 ```go-html-template
-{{ relURL "/" }}          →   /
-{{ relURL "/articles" }}  →   /articles
-{{ relURL "style.css" }}  →   /style.css
+{{ relURL "/" }}          → /
+{{ relURL "/articles" }}  → /articles
+{{ relURL "/style.css" }} → /style.css
 ```
 
 With `baseURL = https://example.org/docs/`
 
 ```go-html-template
-{{ relURL "/" }}          →   /
-{{ relURL "/articles" }}  →   /articles
-{{ relURL "/style.css" }} →   /style.css
+{{ relURL "/" }}          → /
+{{ relURL "/articles" }}  → /articles
+{{ relURL "/style.css" }} → /style.css
 ```
 
-{{% note %}}
-The last three examples are not desirable in most situations. As a best practice, never include a leading slash when using this function.
-{{% /note %}}
-
-[`relLangURL`]: /functions/urls/rellangurl/
+[`urls.RelLangURL`]: /functions/urls/rellangurl/

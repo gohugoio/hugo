@@ -62,4 +62,4 @@ Hugo renders:
 
 See the [page resources] section for more information.
 
-[page resources]: /content-management/page-resources
+[page resources]: /content-management/page-resources/

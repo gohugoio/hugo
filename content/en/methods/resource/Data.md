@@ -13,7 +13,7 @@ action:
 
 The `Data` method on a resource returned by the [`resources.GetRemote`] function returns information from the HTTP response.
 
-[`resources.GetRemote`]: functions/resources/getremote
+[`resources.GetRemote`]: /functions/resources/getremote/
 
 ```go-html-template
 {{ $url := "https://example.org/images/a.jpg" }}
@@ -50,4 +50,4 @@ TransferEncoding
 : (`string`) The transfer encoding.
 
 
-[`resources.GetRemote`]: functions/resources/getremote
+[`resources.GetRemote`]: /functions/resources/getremote/

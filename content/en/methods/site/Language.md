@@ -35,7 +35,7 @@ Lang
 ```
 
 LanguageCode
-: (`string`) The language code from the site configuration.
+: (`string`) The language code from the site configuration. Falls back to `Lang` if not defined.
 
 ```go-html-template
 {{ .Site.Language.LanguageCode }} → de-DE
@@ -68,16 +68,10 @@ Some of the methods above are commonly used in a base template as attributes for
 
 ```go-html-template
 <html
-  lang="{{ or site.Language.LanguageCode site.Language.Lang }}" 
-  dir="{{ or site.Language.LanguageDirection `ltr` }}
+  lang="{{ .Site.Language.LanguageCode }}" 
+  dir="{{ or .Site.Language.LanguageDirection `ltr` }}
 >
 ```
 
-The example above uses the global [`site`] function instead of accessing the `Site` object via the `.Site` notation.
-
-Also note that each attribute has a fallback value assigned via the [`or`] operator.
-
-[details]: /methods/page/language
+[details]: /methods/page/language/
 [RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646
-[`or`]: /functions/go-template/or
-[`site`]: /functions/global/site

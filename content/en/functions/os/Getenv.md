@@ -32,7 +32,7 @@ getenv = ['^HUGO_', '^CI$', '^USER$', '^HOME$']
 
 Read more about Hugo's [security policy].
 
-[security policy]: /about/security-model/#security-policy
+[security policy]: /about/security/#security-policy
 
 ## Examples
 

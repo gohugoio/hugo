@@ -30,3 +30,11 @@ aliases: [/functions/gt]
 {{ gt 2 1 2 }} → false
 {{ gt 2 2 1 }} → false
 ```
+
+Use the `compare.Gt` function to compare other data types as well:
+
+```go-html-template
+{{ gt "ab" "a" }} → true
+{{ gt time.Now (time.AsTime "1964-12-30") }} → true
+{{ gt true false }} → true
+```

@@ -77,7 +77,10 @@ With the file structure from the [example above](#overview):
 
 1. The articles/2022 and articles/2023 directories do not have list pages; they are not sections.
 
-1. The list page for the products section, by default, includes product-1 and product-2, but not their descendant pages. To include descendant pages, use the `.RegularPagesRecursive` collection instead of the `.Pages` collection in the list template. See&nbsp;[details](/variables/page/#page-collections).
+1. The list page for the products section, by default, includes product-1 and product-2, but not their descendant pages. To include descendant pages, use the `RegularPagesRecursive` method instead of the `Pages` method in the list template.
+
+[`Pages`]: /methods/page/pages/
+[`RegularPagesRecursive`]: /methods/page/regularpagesrecursive/
 
 1. All directories in the products section have list pages; each directory is a section.
 

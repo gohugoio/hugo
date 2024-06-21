@@ -11,8 +11,6 @@ weight: 20
 toc: true
 ---
 
-
-
 ## Introduction
 
 You can contribute to the Hugo project by:
@@ -146,3 +144,31 @@ Step 9
 
 Step 10
 : A project maintainer will review your PR and may request changes. You may delete your branch after the maintainer merges your PR.
+
+## Building from source
+
+You can build, install, and test Hugo at any point in its development history. The examples below build and install the extended version of Hugo.
+
+To build and install the latest release:
+
+```sh
+CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@latest
+```
+
+To build and install a specific release:
+
+```sh
+CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@v0.126.0
+```
+
+To build and install at the latest commit on the master branch:
+
+```sh
+CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@master
+```
+
+To build and install at a specific commit:
+
+```sh
+CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@0851c17
+```

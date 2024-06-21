@@ -58,8 +58,8 @@ Use with the [`define`] statement:
 
 {{% include "functions/go-template/_common/text-template.md" %}}
 
-[`block`]: /functions/go-template/block
-[`define`]: /functions/go-template/define
-[`if`]: /functions/go-template/if
-[`range`]: /functions/go-template/range
-[`with`]: /functions/go-template/with
+[`block`]: /functions/go-template/block/
+[`define`]: /functions/go-template/define/
+[`if`]: /functions/go-template/if/
+[`range`]: /functions/go-template/range/
+[`with`]: /functions/go-template/with/

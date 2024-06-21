@@ -15,6 +15,18 @@ action:
 toc: true
 ---
 
+{{% deprecated-in 0.123.0 %}}
+Instead, use [`transform.Unmarshal`] with a [global], [page], or [remote] resource.
+
+See the [remote data example].
+
+[`transform.Unmarshal`]: /functions/transform/unmarshal/
+[global]: /getting-started/glossary/#global-resource
+[page]: /getting-started/glossary/#page-resource
+[remote data example]: /functions/resources/getremote/#remote-data
+[remote]: /getting-started/glossary/#remote-resource
+{{% /deprecated-in %}}
+
 Given the following directory structure:
 
 ```text
@@ -31,7 +43,7 @@ Access the data with either of the following:
 ```
 
 {{% note %}}
-When working with local data, the filepath is relative to the working directory.
+When working with local data, the file path is relative to the working directory.
 {{% /note %}}
 
 Access remote data with either of the following:
@@ -86,7 +98,7 @@ my-project/
 ```
 
 ```go-html-template
-{{ $data := "" }}
+{{ $data := dict }}
 {{ $p := "data/books.json" }}
 {{ with resources.Get $p }}
   {{ $data = . | transform.Unmarshal }}
@@ -109,7 +121,7 @@ my-project/
 ```
 
 ```go-html-template
-{{ $data := "" }}
+{{ $data := dict }}
 {{ $p := "books.json" }}
 {{ with .Resources.Get $p }}
   {{ $data = . | transform.Unmarshal }}
@@ -123,7 +135,7 @@ my-project/
 Consider using the [`resources.GetRemote`] function with [`transform.Unmarshal`] when accessing a remote resource to improve error handling and cache control.
 
 ```go-html-template
-{{ $data := "" }}
+{{ $data := dict }}
 {{ $u := "https://example.org/books.json" }}
 {{ with resources.GetRemote $u }}
   {{ with .Err }}
@@ -136,7 +148,7 @@ Consider using the [`resources.GetRemote`] function with [`transform.Unmarshal`]
 {{ end }}
 ```
 
-[`Resources.Get`]: methods/page/Resources
-[`resources.GetRemote`]: /functions/resources/getremote
-[`resources.Get`]: /functions/resources/get
-[`transform.Unmarshal`]: /functions/transform/unmarshal
+[`Resources.Get`]: /methods/page/resources/
+[`resources.GetRemote`]: /functions/resources/getremote/
+[`resources.Get`]: /functions/resources/get/
+[`transform.Unmarshal`]: /functions/transform/unmarshal/

@@ -15,7 +15,7 @@ features:
   - heading: Shortcodes
     image_path: /images/icon-shortcodes.svg
     tagline: Hugo's shortcodes are Markdown's hidden superpower.
-    copy: We love the beautiful simplicity of markdown’s syntax, but there are times when we want more flexibility. Hugo shortcodes allow for both beauty and flexibility.
+    copy: We love the beautiful simplicity of Markdown’s syntax, but there are times when we want more flexibility. Hugo shortcodes allow for both beauty and flexibility.
 
   - heading: Built-in Templates
     image_path: /images/icon-built-in-templates.svg

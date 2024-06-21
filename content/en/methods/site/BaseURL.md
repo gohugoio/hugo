@@ -30,8 +30,8 @@ There is almost never a good reason to use this method in your templates. Its us
 
 Use the [`absURL`], [`absLangURL`], [`relURL`], or [`relLangURL`] functions instead.
 
-[`absURL`]: /functions/urls/absURL
-[`absLangURL`]: /functions/urls/absLangURL
-[`relURL`]: /functions/urls/relURL
-[`relLangURL`]: /functions/urls/relLangURL
+[`absURL`]: /functions/urls/absURL/
+[`absLangURL`]: /functions/urls/absLangURL/
+[`relURL`]: /functions/urls/relURL/
+[`relLangURL`]: /functions/urls/relLangURL/
 {{% /note %}}

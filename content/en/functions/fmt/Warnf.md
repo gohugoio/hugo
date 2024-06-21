@@ -8,6 +8,7 @@ action:
   related:
     - functions/fmt/Errorf
     - functions/fmt/Erroridf
+    - functions/fmt/Warnidf
   returnType: string
   signatures: ['fmt.Warnf FORMAT [INPUT]']
 aliases: [/functions/warnf]
@@ -21,6 +22,8 @@ The `warnf` function evaluates the format string, then prints the result to the 
 {{ warnf "The %q shortcode was unable to find %s. See %s" .Name $file .Position }}
 ```
 
+Use the [`warnidf`] function to allow optional suppression of specific warnings.
+
 To prevent suppression of duplicate messages when using `warnf` for debugging, make each message unique with the [`math.Counter`] function. For example:
 
 
@@ -30,4 +33,6 @@ To prevent suppression of duplicate messages when using `warnf` for debugging, m
 {{ end }}
 ```
 
-[`math.Counter`]: /functions/math/counter
+[`math.Counter`]: /functions/math/counter/
+
+[`warnidf`]: /functions/fmt/warnidf/

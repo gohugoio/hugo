@@ -29,7 +29,7 @@ The expiry date is a [time.Time] value. Format and localize the value with the [
 
 In the example above we explicitly set the expiry date in front matter. With Hugo's default configuration, the `ExpiryDate` method returns the front matter value. This behavior is configurable, allowing you to set fallback values if the expiry date is not defined in front matter. See&nbsp;[details].
 
-[`time.Format`]: /functions/time/format
+[`time.Format`]: /functions/time/format/
 [details]: /getting-started/configuration/#configure-dates
-[time methods]: /methods/time
+[time methods]: /methods/time/
 [time.Time]: https://pkg.go.dev/time#Time

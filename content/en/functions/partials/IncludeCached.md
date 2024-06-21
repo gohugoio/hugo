@@ -62,4 +62,4 @@ To return a value from a partial template, it must contain only one `return` sta
 
 See&nbsp;[details][`return`].
 
-[`return`]: /functions/go-template/return
+[`return`]: /functions/go-template/return/

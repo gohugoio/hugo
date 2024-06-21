@@ -46,13 +46,13 @@ Is rendered to:
 ```
 
 {{% note %}}
-Content between opening and closing shortcode tags may include leading and/or trailing newlines, depending on placement within the markdown. Use the [`trim`] function as shown above to remove both carriage returns and newlines.
+Content between opening and closing shortcode tags may include leading and/or trailing newlines, depending on placement within the Markdown. Use the [`trim`] function as shown above to remove both carriage returns and newlines.
 
-[`trim`]: /functions/strings/trim
+[`trim`]: /functions/strings/trim/
 {{% /note %}}
 
 {{% note %}}
-In the example above, the value returned by `Inner` is markdown, but it was rendered as plain text. Use either of the following approaches to render markdown to HTML.
+In the example above, the value returned by `Inner` is Markdown, but it was rendered as plain text. Use either of the following approaches to render Markdown to HTML.
 {{% /note %}}
 
 
@@ -60,7 +60,7 @@ In the example above, the value returned by `Inner` is markdown, but it was rend
 
 Let's modify the example above to pass the value returned by `Inner` through the [`RenderString`] method on the `Page` object:
 
-[`RenderString`]: /methods/page/renderstring
+[`RenderString`]: /methods/page/renderstring/
 
 {{< code file=layouts/shortcodes/card.html  >}}
 <div class="card">
@@ -86,8 +86,8 @@ Hugo renders this to:
 
 You can use the [`markdownify`] function instead of the `RenderString` method, but the latter is more flexible. See&nbsp;[details].
 
-[details]: /methods/page/renderstring
-[`markdownify`]: /functions/transform/markdownify
+[details]: /methods/page/renderstring/
+[`markdownify`]: /functions/transform/markdownify/
 
 ## Use alternate notation
 
@@ -99,9 +99,9 @@ We design the **best** widgets in the world.
 {{%/* /card */%}}
 {{< /code >}}
 
-When you use the `{{%/* */%}}` notation, Hugo renders the entire shortcode as markdown, requiring the following changes.
+When you use the `{{%/* */%}}` notation, Hugo renders the entire shortcode as Markdown, requiring the following changes.
 
-First, configure the renderer to allow raw HTML within markdown:
+First, configure the renderer to allow raw HTML within Markdown:
 
 {{< code-toggle file=hugo >}}
 [markup.goldmark.renderer]
@@ -110,7 +110,7 @@ unsafe = true
 
 This configuration is not unsafe if _you_ control the content. Read more about Hugo's [security model].
 
-Second, because we are rendering the entire shortcode as markdown, we must adhere to the rules governing [indentation] and inclusion of [raw HTML blocks] as provided in the [CommonMark] specification.
+Second, because we are rendering the entire shortcode as Markdown, we must adhere to the rules governing [indentation] and inclusion of [raw HTML blocks] as provided in the [CommonMark] specification.
 
 {{< code file=layouts/shortcodes/card.html  >}}
 <div class="card">
@@ -150,4 +150,4 @@ When using the `{{%/* */%}}` notation, do not pass the value returned by `Inner`
 [commonmark]: https://commonmark.org/
 [indentation]: https://spec.commonmark.org/0.30/#indented-code-blocks
 [raw html blocks]: https://spec.commonmark.org/0.30/#html-blocks
-[security model]: /about/security-model/
+[security model]: /about/security/

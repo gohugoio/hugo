@@ -40,7 +40,7 @@ To apply two or more filters, executing from left to right:
 
 You can also apply image filters using the [`Filter`] method on a `Resource` object.
 
-[`Filter`]: /methods/resource/filter
+[`Filter`]: /methods/resource/filter/
 
 ## Example
 

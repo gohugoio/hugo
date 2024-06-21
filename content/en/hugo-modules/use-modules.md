@@ -21,7 +21,7 @@ toc: true
 Use `hugo mod init` to initialize a new Hugo Module. If it fails to guess the module path, you must provide it as an argument, e.g.:
 
 ```sh
-hugo mod init github.com/gohugoio/myShortcodes
+hugo mod init github.com/<your_user>/<your_project>
 ```
 
 Also see the [CLI Doc](/commands/hugo_mod_init/).

@@ -1,6 +1,6 @@
 [[docs]]
 identifier = 'about'
-name = 'About Hugo'
+name = 'About'
 pageRef = '/about/'
 weight = 10
 
@@ -15,60 +15,60 @@ name = 'Getting started'
 weight = 30
 identifier = 'getting-started'
 pageRef = '/getting-started/'
+
+[[docs]]
+name = 'Quick reference'
+weight = 40
+identifier = 'quick-reference'
+pageRef = '/quick-reference/'
 post = 'break'
 
 [[docs]]
 name = 'Content management'
-weight = 40
+weight = 50
 identifier = 'content-management'
 post = 'expanded'
 pageRef = '/content-management/'
 
 [[docs]]
 name = 'Templates'
-weight = 50
+weight = 60
 identifier = 'templates'
 pageRef = '/templates/'
 
 [[docs]]
 name = 'Functions'
-weight = 60
+weight = 70
 identifier = 'functions'
 pageRef = '/functions/'
 
 [[docs]]
 name = 'Methods'
-weight = 70
+weight = 80
 identifier = 'methods'
 pageRef = '/methods/'
 
 [[docs]]
-name = 'Quick reference'
-weight = 80
-identifier = 'quick-reference'
-pageRef = '/quick-reference/'
-
-[[docs]]
-name = 'Variables'
-weight = 85
-identifier = 'variables'
-pageRef = '/variables/'
+name = 'Render hooks'
+weight = 90
+identifier = 'render-hooks'
+pageRef = '/render-hooks/'
 
 [[docs]]
 name = 'Hugo Modules'
-weight = 90
+weight = 100
 identifier = 'modules'
 pageRef = '/hugo-modules/'
 
 [[docs]]
 name = 'Hugo Pipes'
-weight = 100
+weight = 110
 identifier = 'hugo-pipes'
 pageRef = '/hugo-pipes/'
 
 [[docs]]
 name = 'CLI'
-weight = 110
+weight = 120
 post = 'break'
 identifier = 'commands'
 pageRef = '/commands/'
@@ -77,25 +77,25 @@ pageRef = '/commands/'
 
 [[docs]]
 name = 'Troubleshooting'
-weight = 120
+weight = 130
 identifier = 'troubleshooting'
 pageRef = '/troubleshooting/'
 
 [[docs]]
 name = 'Developer tools'
-weight = 130
+weight = 140
 identifier = 'developer-tools'
 pageRef = '/tools/'
 
 [[docs]]
 name = 'Hosting and deployment'
-weight = 140
+weight = 150
 identifier = 'hosting-and-deployment'
 pageRef = '/hosting-and-deployment/'
 
 [[docs]]
 name = 'Contribute'
-weight = 150
+weight = 160
 post = 'break'
 identifier = 'contribute'
 pageRef = '/contribute/'

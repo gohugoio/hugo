@@ -59,8 +59,8 @@ The `Process` method is also available as a filter, which is more effective if y
   example=true
 >}}
 
-[`Crop`]: /methods/resource/crop
-[`Fill`]: /methods/resource/fill
-[`Fit`]: /methods/resource/fit
-[`Resize`]: /methods/resource/resize
-[`images.Process`]: /functions/images/process
+[`Crop`]: /methods/resource/crop/
+[`Fill`]: /methods/resource/fill/
+[`Fit`]: /methods/resource/fit/
+[`Resize`]: /methods/resource/resize/
+[`images.Process`]: /functions/images/process/

@@ -17,8 +17,9 @@ With this front matter:
 {{< code-toggle file=content/news/annual-conference.md >}}
 title = 'Annual conference'
 date = 2023-10-17T15:11:37-07:00
+[params]
 display_related = true
-[author]
+[params.author]
   email = 'jsmith@example.org'
   name = 'John Smith'
 {{< /code-toggle >}}
@@ -38,6 +39,6 @@ In the template example above, each of the keys is a valid identifier. For examp
 {{ index .Params "key-with-hyphens" }} → 2023
 ```
 
-[`index`]: /functions/collections/indexfunction
+[`index`]: /functions/collections/indexfunction/
 [chaining]: /getting-started/glossary/#chain
 [identifiers]: /getting-started/glossary/#identifier

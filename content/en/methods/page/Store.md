@@ -1,6 +1,6 @@
 ---
 title: Store
-description: Creates a persistent "scratch pad" on the given page to store and manipulate data.
+description: Returns a persistent "scratch pad" on the given page to store and manipulate data.
 categories: []
 keywords: []
 action:
@@ -9,6 +9,7 @@ action:
   - functions/collections/NewScratch
   returnType: maps.Scratch
   signatures: [PAGE.Store]
+toc: true
 aliases: [/functions/store]
 ---
 
@@ -16,8 +17,8 @@ The `Store` method on a `Page` object creates a persistent [scratch pad] to stor
 
 To create a locally scoped scratch pad that is not attached to a `Page` object, use the [`newScratch`] function.
 
-[`Scratch`]: /methods/page/scratch
-[`newScratch`]: functions/collections/newscratch
+[`Scratch`]: /methods/page/scratch/
+[`newScratch`]: /functions/collections/newscratch/
 [scratch pad]: /getting-started/glossary/#scratch-pad
 
 ## Methods
@@ -101,4 +102,24 @@ Removes the given key.
 ```go-html-template
 {{ .Store.Set "greeting" "Hello" }}
 {{ .Store.Delete "greeting" }}
+```
+
+## Determinate values
+
+The `Store` method is often used to set scratch pad values within a shortcode, a partial template called by a shortcode, or by a Markdown render hook. In all three cases, the scratch pad values are not determinate until Hugo renders the page content.
+
+If you need to access a scratch pad value from a parent template, and the parent template has not yet rendered the page content, you can trigger content rendering by assigning the returned value to a [noop] variable:
+
+[noop]: /getting-started/glossary/#noop
+
+```go-html-template
+{{ $noop := .Content }}
+{{ .Store.Get "mykey" }}
+```
+
+You can also trigger content rendering with the `FuzzyWordCount`, `Len`, `Plain`, `PlainWords`, `ReadingTime`, `Summary`, `Truncated`, and `WordCount` methods. For example:
+
+```go-html-template
+{{ $noop := .WordCount }}
+{{ .Store.Get "mykey" }}
 ```

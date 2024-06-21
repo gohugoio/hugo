@@ -29,6 +29,7 @@ Content:
 title = 'Example'
 date = 2023-01-01
 draft = false
+[params]
 display_toc = false
 {{< /code-toggle >}}
 

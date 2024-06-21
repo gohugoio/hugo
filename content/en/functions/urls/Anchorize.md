@@ -16,14 +16,14 @@ aliases: [/functions/anchorize]
 
 ## Sanitizing logic
 
-With the default markdown renderer, Goldmark, the sanitizing logic is controlled by your site configuration:
+With the default Markdown renderer, Goldmark, the sanitizing logic is controlled by your site configuration:
 
 {{< code-toggle file=hugo >}}
 [markup.goldmark.parser]
 autoHeadingIDType = 'github'
 {{< /code-toggle >}}
 
-This controls the behavior of the `anchorize` function and the generation of heading IDs when rendering markdown to HTML.
+This controls the behavior of the `anchorize` function and the generation of heading IDs when rendering Markdown to HTML.
 
 Set `autoHeadingIDType` to one of:
 

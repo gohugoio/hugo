@@ -1,12 +1,12 @@
 ---
 title: Hugo Modules
-linkTitle: Overview
+linkTitle: In this section
 description: How to use Hugo Modules.
 categories: []
 keywords: []
 menu:
   docs:
-    identifier: hugo-modules-overview
+    identifier: hugo-modules-in-this-section
     parent: modules
     weight: 10
 weight: 10
@@ -20,7 +20,7 @@ You can combine modules in any combination you like, and even mount directories 
 
 Hugo Modules are powered by Go Modules. For more information about Go Modules, see:
 
-- [https://github.com/golang/go/wiki/Modules](https://github.com/golang/go/wiki/Modules)
+- [https://go.dev/wiki/Modules](https://go.dev/wiki/Modules)
 - [https://go.dev/blog/using-go-modules](https://go.dev/blog/using-go-modules)
 
 Some example projects:

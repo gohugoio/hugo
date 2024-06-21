@@ -130,26 +130,15 @@ If you want to disable all taxonomies altogether, see the use of `disableKinds` 
 You can add content and front matter to your taxonomy list and taxonomy terms pages. See [Content Organization](/content-management/organization/) for more information on how to add an `_index.md` for this purpose.
 {{% /note %}}
 
-## Add taxonomies to content
+## Assign terms to content
 
-Once a taxonomy is defined at the site level, any piece of content can be assigned to it, regardless of [content type] or [content section].
-
-Assigning content to a taxonomy is done in the [front matter]. Simply create a variable with the *plural* name of the taxonomy and assign all terms you want to apply to the instance of the content type.
-
-{{% note %}}
-If you would like the ability to quickly generate content files with preconfigured taxonomies or terms, read the docs on [Hugo archetypes](/content-management/archetypes/).
-{{% /note %}}
-
-### Example: front matter with taxonomies
+To assign one or more terms to a page, create a front matter field using the plural name of the taxonomy, then add terms to the corresponding array. For example:
 
 {{< code-toggle file=content/example.md fm=true >}}
-title = "Hugo: A fast and flexible static site generator"
-tags = [ "Development", "Go", "fast", "Blogging" ]
-categories = [ "Development" ]
-series = [ "Go Web Dev" ]
-slug = "hugo"
-project_url = "https://github.com/gohugoio/hugo"
-{{</ code-toggle >}}
+title = 'Example'
+tags = ['Tag A','Tag B']
+categories = ['Category A','Category B']
+{{< /code-toggle >}}
 
 ## Order taxonomies
 
@@ -182,7 +171,7 @@ wikipedia: "https://en.wikipedia.org/wiki/Bruce_Willis"
 [content type]: /content-management/types/
 [documentation on archetypes]: /content-management/archetypes/
 [front matter]: /content-management/front-matter/
-[taxonomy list templates]: /templates/taxonomy-templates/#taxonomy-list-templates
+[taxonomy list templates]: /templates/taxonomy-templates/#taxonomy-templates
 [taxonomy templates]: /templates/taxonomy-templates/
-[terms within the taxonomy]: /templates/taxonomy-templates/#taxonomy-terms-templates
+[terms within the taxonomy]: /templates/taxonomy-templates/#term-templates
 [site configuration]: /getting-started/configuration/

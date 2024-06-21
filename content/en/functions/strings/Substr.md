@@ -1,21 +1,20 @@
 ---
 title: strings.Substr
-description: Extracts parts of a string from a specified character's position and returns the specified number of characters.
+description: Returns a substring of the given string, beginning with the start position and ending after the given length.
 categories: []
 keywords: []
 action:
   aliases: [substr]
-  related: []
+  related:
+    - functions/strings/SliceString
   returnType: string
-  signatures: ['strings.Substr STRING START [LENGTH]']
+  signatures: ['strings.Substr STRING [START] [LENGTH]']
 aliases: [/functions/substr]
 ---
 
-It normally takes two argument: `start` and `length`. It can also take one argument: `start`, i.e. `length` is omitted, in which case the substring starting from start until the end of the string will be returned.
+The start position is zero-based, where `0` represents the first character of the string. If START is not specified, the substring will begin at position `0`. Specify a negative START position to extract characters from the end of the string. 
 
-To extract characters from the end of the string, use a negative start number.
-
-If `length` is given and is negative, that number of characters will be omitted from the end of string.
+If LENGTH is not specified, the substring will include all characters from the START position to the end of the string. If negative, that number of characters will be omitted from the end of string.
 
 ```go-html-template
 {{ substr "abcdef" 0 }} → abcdef

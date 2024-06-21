@@ -1,11 +1,11 @@
 ---
 title: Hugo Pipes
-linkTitle: Overview
+linkTitle: In this section
 categories: []
 keywords: []
 menu:
   docs:
-    identifier: hugo-pipes-overview
+    identifier: hugo-pipes-in-this-section
     parent: hugo-pipes
     weight: 10
 weight: 10

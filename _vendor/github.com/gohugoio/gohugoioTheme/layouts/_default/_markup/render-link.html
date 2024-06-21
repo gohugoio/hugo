@@ -1,4 +1,4 @@
-{{- /* Last modified: 2023-09-04T09:23:04-07:00 */}}
+{{- /* Last modified: 2024-04-26T13:54:00-07:00 */}}
 
 {{- /*
 Copyright 2023 Veriphor LLC
@@ -118,7 +118,7 @@ either of these shortcodes in conjunction with this render hook.
   {{- $attrs = merge $attrs (dict "rel" "external") }}
 {{- else }}
   {{- with $u.Path }}
-    {{- with $p := or ($.Page.GetPage .) ($.Page.GetPage (strings.TrimRight "/" .)) }}
+    {{- with $p := or ($.PageInner.GetPage .) ($.PageInner.GetPage (strings.TrimRight "/" .)) }}
       {{- /* Destination is a page. */}}
       {{- $href := .RelPermalink }}
       {{- with $u.RawQuery }}
@@ -137,7 +137,7 @@ either of these shortcodes in conjunction with this render hook.
       {{- end }}
       {{- $attrs = dict "href" $href }}
     {{- else }}
-      {{- with $.Page.Resources.Get $u.Path }}
+      {{- with $.PageInner.Resources.Get $u.Path }}
         {{- /* Destination is a page resource; drop query and fragment. */}}
         {{- $attrs = dict "href" .RelPermalink }}
       {{- else }}
@@ -185,14 +185,14 @@ either of these shortcodes in conjunction with this render hook.
     {{- end }}
   {{- end }}
 {{- end }}
-{{- with .Title }}
-  {{- $attrs = merge $attrs (dict "title" .) }}
-{{- end -}}
+{{- $attrs = merge $attrs (dict "title" (.Title | transform.HTMLEscape)) }}
 
 {{- /* Render anchor element. */ -}}
 <a
   {{- range $k, $v := $attrs }}
-    {{- printf " %s=%q" $k $v | safeHTMLAttr }}
+    {{- if $v }}
+      {{- printf " %s=%q" $k $v | safeHTMLAttr }}
+    {{- end }}
   {{- end -}}
 >{{ .Text | safeHTML }}</a>
 

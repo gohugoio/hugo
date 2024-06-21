@@ -25,8 +25,6 @@ The relative URL of the new published resource will be:
 /img/new-image-name.jpg
 ```
 
-The target path must be different than the source path, as shown in the example above.
-
 {{% note %}}
 Use the `resources.Copy` function with global, page, and remote resources.
 {{% /note %}}

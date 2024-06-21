@@ -15,7 +15,7 @@ aliases: [/content/archetypes/]
 
 ## Overview
 
-A content file consists of [front matter] and markup. The markup is typically markdown, but Hugo also supports other [content formats]. Front matter can be TOML, YAML, or JSON.
+A content file consists of [front matter] and markup. The markup is typically Markdown, but Hugo also supports other [content formats]. Front matter can be TOML, YAML, or JSON.
 
 The `hugo new content` command creates a new file in the `content` directory, using an archetype as a template. This is the default archetype:
 
@@ -70,14 +70,33 @@ If none of these exists, Hugo uses a built-in default archetype.
 
 You can use any [template function] within an archetype. As shown above, the default archetype uses the [`replace`](/functions/strings/replace) function to replace hyphens with spaces when populating the title in front matter.
 
-Archetypes receive the following objects and values in [context]:
+Archetypes receive the following [context]:
 
-- `.Date`
-- `.Type`
-- `.Site` (see [details](/variables/site/))
-- `.File` (see [details](/variables/file/))
+Date
+: (`string`) The current date and time, formatted in compliance with RFC3339.
 
-As shown above, the default archetype passes `.File.ContentBaseName` as the argument to the `replace` function when populating the title in front matter.
+File
+: (`hugolib.fileInfo`) Returns file information for the current page. See [details](/methods/page/file).
+
+Type
+: (`string`) The [content type] inferred from the top-level directory name, or as specified by the `--kind` flag passed to the `hugo new content` command.
+
+[content type]: /getting-started/glossary#content-type
+
+Site
+: (`page.Site`) The current site object. See [details](/methods/site/).
+
+## Alternate date format
+
+To insert date and time with an alternate format, use the [`time.Now`] function:
+
+[`time.Now`]: /functions/time/now/
+
+{{< code-toggle file=archetypes/default.md fm=true >}}
+title = '{{ replace .File.ContentBaseName `-` ` ` | title }}'
+date = '{{ time.Now.Format "2006-01-02" }}'
+draft = true
+{{< /code-toggle >}}
 
 ## Include content
 

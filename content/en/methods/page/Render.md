@@ -70,6 +70,6 @@ layouts/_default/li.html
 
 See [content views] for more examples.
 
-[content views]: /templates/views
-[`partial`]: /functions/partials/include
+[content views]: /templates/views/
+[`partial`]: /functions/partials/include/
 [content type]: /getting-started/glossary/#content-type

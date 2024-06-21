@@ -1,7 +1,7 @@
 ---
 title: Multilingual mode
 linkTitle: Multilingual
-description: Hugo supports the creation of websites with multiple languages side by side.
+description: Localize your project for each language and region, including translations, images, dates, currencies, numbers, percentages, and collation sequence. Hugo's multilingual framework supports single-host and multihost configurations.
 categories: [content management]
 keywords: [multilingual,i18n,internationalization]
 menu:
@@ -13,15 +13,23 @@ toc: true
 aliases: [/content/multilingual/,/tutorials/create-a-multilingual-site/]
 ---
 
-You should define the available languages in a `languages` section in your site configuration.
-
-Also See [Hugo Multilingual Part 1: Content translation].
-
 ## Configure languages
 
 This is the default language configuration:
 
 {{< code-toggle config=languages />}}
+
+In the above, `en` is the language key.
+
+{{% note %}}
+Each language key must conform to the syntax described in [RFC 5646]. You must use hyphens to separate subtags. For example:
+
+- `en`
+- `en-GB`
+- `pt-BR`
+
+[RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.1
+{{% /note %}}
 
 This is an example of a site configuration for a multilingual project. Any key not defined in a `languages` object will fall back to the global value in the root of your site configuration.
 
@@ -55,11 +63,11 @@ subtitle = 'Reference, Tutorials, and Explanations'
 {{< /code-toggle >}}
 
 defaultContentLanguage
-: (`string`) The project's default language tag as defined by [RFC 5646]. Must be lower case, and must match one of the defined language keys. Default is `en`. Examples:
+: (`string`) The project's default language key, conforming to the syntax described in [RFC 5646]. This value must match one of the defined language keys. Examples:
 
 - `en`
-- `en-gb`
-- `pt-br`
+- `en-GB`
+- `pt-BR`
 
 defaultContentLanguageInSubdir
 : (`bool`)  If `true`, Hugo renders the default language site in a subdirectory matching the `defaultContentLanguage`. Default is `false`.
@@ -71,7 +79,7 @@ disabled
 : (`bool`) If `true`, Hugo will not render content for this language. Default is `false`.
 
 languageCode
-: (`string`) The language tag as defined by [RFC 5646]. This value may include upper and lower case characters, hyphens, or underscores, and does not affect localization or URLs. Hugo uses this value to populate the `language` element in the [built-in RSS template], and the `lang` attribute of the `html` element in the [built-in alias template]. Examples:
+: (`string`) The language tag as described in [RFC 5646]. This value does not affect localization or URLs. Hugo uses this value to populate the `language` element in the [built-in RSS template], and the `lang` attribute of the `html` element in the [built-in alias template]. Examples:
 
 - `en`
 - `en-GB`
@@ -84,7 +92,7 @@ languageName
 : (`string`) The language name, typically used when rendering a language switcher.
 
 title
-: (`string`) The language title. When set, this overrides the site title for this language.
+: (`string`) The site title for this langauge (optional).
 
 weight
 : (`int`) The language weight. When set to a non-zero value, this is the primary sort criteria for this language.
@@ -92,7 +100,7 @@ weight
 [`dir`]: https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/dir
 [built-in RSS template]: https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/rss.xml
 [built-in alias template]: https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/alias.html
-[RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646
+[RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.1
 [translating by file name]: #translation-by-file-name
 
 ### Changes in Hugo 0.112.0
@@ -150,9 +158,8 @@ Note that you cannot disable the default content language.
 
 ### Configure multilingual multihost
 
-From **Hugo 0.31** we support multiple languages in a multihost configuration. See [this issue](https://github.com/gohugoio/hugo/issues/4027) for details.
 
-This means that you can now configure a `baseURL` per `language`:
+Hugo supports multiple languages in a multihost configuration. This means you can configure a `baseURL` per `language`.
 
 {{% note %}}
 If a `baseURL` is set on the `language` level, then all languages must have one and they must all be different.
@@ -162,17 +169,16 @@ Example:
 
 {{< code-toggle file=hugo >}}
 [languages]
-[languages.fr]
-baseURL = "https://example.fr"
-languageName = "Français"
-weight = 1
-title = "En Français"
-
-[languages.en]
-baseURL = "https://example.org/"
-languageName = "English"
-weight = 2
-title = "In English"
+  [languages.en]
+    baseURL = 'https://en.example.org/'
+    languageName = 'English'
+    title = 'In English'
+    weight = 2
+  [languages.fr]
+    baseURL = 'https://fr.example.org'
+    languageName = 'Français'
+    title = 'En Français'
+    weight = 1
 {{</ code-toggle >}}
 
 With the above, the two sites will be generated into `public` with their own root:
@@ -309,7 +315,7 @@ To create a list of links to translated content, use a template similar to the f
 <ul>
   {{ range .Translations }}
   <li>
-    <a href="{{ .RelPermalink }}">{{ .Lang }}: {{ .LinkTitle }}{{ if .IsPage }} ({{ i18n "wordCount" . }}){{ end }}</a>
+    <a href="{{ .RelPermalink }}">{{ .Language.Lang }}: {{ .LinkTitle }}{{ if .IsPage }} ({{ i18n "wordCount" . }}){{ end }}</a>
   </li>
   {{ end }}
 </ul>
@@ -334,96 +340,9 @@ The above also uses the [`i18n` function][i18func] described in the next section
 
 ## Translation of strings
 
-Hugo uses [go-i18n] to support string translations. [See the project's source repository][go-i18n-source] to find tools that will help you manage your translation workflows.
+See the [`lang.Translate`] template function.
 
-Translations are collected from the `themes/<THEME>/i18n/` folder (built into the theme), as well as translations present in `i18n/` at the root of your project. In the `i18n`, the translations will be merged and take precedence over what is in the theme folder. Language files should be named according to [RFC 5646] with names such as `en-US.toml`, `fr.toml`, etc.
-
-Artificial languages with private use subtags as defined in [RFC 5646 &#167; 2.2.7](https://datatracker.ietf.org/doc/html/rfc5646#section-2.2.7) are also supported. You may omit the `art-x-` prefix for brevity. For example:
-
-```text
-art-x-hugolang
-hugolang
-```
-
-Private use subtags must not exceed 8 alphanumeric characters.
-
-### Query basic translation
-
-From within your templates, use the [`i18n`] function like this:
-
-[`i18n`]: /functions/lang/translate
-
-```go-html-template
-{{ i18n "home" }}
-```
-
-The function will search for the `"home"` id:
-
-{{< code-toggle file=i18n/en-US >}}
-[home]
-other = "Home"
-{{< /code-toggle >}}
-
-The result will be
-
-```text
-Home
-```
-
-### Query a flexible translation with variables
-
-Often you will want to use the page variables in the translation strings. To do so, pass the `.` context when calling `i18n`:
-
-```go-html-template
-{{ i18n "wordCount" . }}
-```
-
-The function will pass the `.` context to the `"wordCount"` id:
-
-{{< code-toggle file=i18n/en-US >}}
-[wordCount]
-other = "This article has {{ .WordCount }} words."
-{{< /code-toggle >}}
-
-Assume `.WordCount` in the context has value is 101. The result will be:
-
-```text
-This article has 101 words.
-```
-
-### Query a singular/plural translation
-
-To enable pluralization when translating, pass a map with a numeric `.Count` property to the `i18n` function. The example below uses `.ReadingTime` variable which has a built-in `.Count` property.
-
-```go-html-template
-{{ i18n "readingTime" .ReadingTime }}
-```
-
-The function will read `.Count` from `.ReadingTime` and evaluate whether the number is singular (`one`) or plural (`other`). After that, it will pass to `readingTime` id in `i18n/en-US.toml` file:
-
-{{< code-toggle file=i18n/en-US >}}
-[readingTime]
-one = "One minute to read"
-other = "{{ .Count }} minutes to read"
-{{< /code-toggle >}}
-
-Assuming `.ReadingTime.Count` in the context has value is 525600. The result will be:
-
-```text
-525600 minutes to read
-```
-
-If `.ReadingTime.Count` in the context has value is 1. The result is:
-
-```text
-One minute to read
-```
-
-In case you need to pass a custom data: (`(dict "Count" numeric_value_only)` is minimum requirement)
-
-```go-html-template
-{{ i18n "readingTime" (dict "Count" 25 "FirstArgument" true "SecondArgument" false "Etc" "so on, so far") }}
-```
+[`lang.Translate`]: /functions/lang/translate
 
 ## Localization
 
@@ -676,7 +595,7 @@ To support Multilingual mode in your themes, some considerations must be taken f
 * Come from the built-in `.Permalink` or `.RelPermalink`
 * Be constructed with the [`relLangURL`] or [`absLangURL`] template function, or be prefixed with `{{ .LanguagePrefix }}`
 
-If there is more than one language defined, the `LanguagePrefix` variable will equal `/en` (or whatever your `CurrentLanguage` is). If not enabled, it will be an empty string (and is therefore harmless for single-language Hugo websites).
+If there is more than one language defined, the `LanguagePrefix` method will return `/en` (or whatever the current language is). If not enabled, it will be an empty string (and is therefore harmless for single-language Hugo websites).
 
 ## Generate multilingual content with `hugo new content`
 
@@ -694,23 +613,22 @@ hugo new content content/en/post/test.md
 hugo new content content/de/post/test.md
 ```
 
-[`abslangurl`]: /functions/urls/abslangurl
+[`abslangurl`]: /functions/urls/abslangurl/
 [config]: /getting-started/configuration/
 [contenttemplate]: /templates/single-page-templates/
 [go-i18n-source]: https://github.com/nicksnyder/go-i18n
 [go-i18n]: https://github.com/nicksnyder/go-i18n
 [homepage]: /templates/homepage/
 [Hugo Multilingual Part 1: Content translation]: https://regisphilibert.com/blog/2018/08/hugo-multilingual-part-1-managing-content-translation/
-[i18func]: /functions/lang/translate
-[lang.FormatAccounting]: /functions/lang/formataccounting
-[lang.FormatCurrency]: /functions/lang/formatcurrency
-[lang.FormatNumber]: /functions/lang/formatnumber
-[lang.FormatNumberCustom]: /functions/lang/formatnumbercustom
-[lang.FormatPercent]: /functions/lang/formatpercent
+[i18func]: /functions/lang/translate/
+[lang.FormatAccounting]: /functions/lang/formataccounting/
+[lang.FormatCurrency]: /functions/lang/formatcurrency/
+[lang.FormatNumber]: /functions/lang/formatnumber/
+[lang.FormatNumberCustom]: /functions/lang/formatnumbercustom/
+[lang.FormatPercent]: /functions/lang/formatpercent/
 [lang.Merge]: /functions/lang/merge/
 [menus]: /content-management/menus/
 [OS environment]: /getting-started/configuration/#configure-with-environment-variables
-[`rellangurl`]: /functions/urls/rellangurl
-[RFC 5646]: https://tools.ietf.org/html/rfc5646
+[`rellangurl`]: /functions/urls/rellangurl/
 [single page templates]: /templates/single-page-templates/
-[`time.Format`]: /functions/time/format
+[`time.Format`]: /functions/time/format/

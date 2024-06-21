@@ -32,7 +32,7 @@ To remove leading and trailing newline characters and carriage returns:
 
 The `strings.Trim` function is commonly used in shortcodes to remove leading and trailing newlines characters and carriage returns from the content within the opening and closing shortcode tags.
 
-For example, with this markdown:
+For example, with this Markdown:
 
 ```text
 {{</* my-shortcode */>}}

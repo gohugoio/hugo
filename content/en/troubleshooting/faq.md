@@ -39,17 +39,6 @@ In the content/_index.md file:
 
 If the answer to any of these questions is yes, either change the field values, or use one of these command line flags: `--buildDrafts`, `--buildFuture`, or `--buildExpired`.
 
-###### Why is a given section not published?
-
-In the content/section/_index.md file:
-
-  - Is `draft` set to `true`?
-  - Is the `date` in the future?
-  - Is the `publishDate` in the future?
-  - Is the `expiryDate` in the past?
-
-If the answer to any of these questions is yes, either change the field values, or use one of these command line flags: `--buildDrafts`, `--buildFuture`, or `--buildExpired`.
-
 ###### Why is a given page not published?
 
 In the content/section/page.md file, or in the content/section/page/index.md file:
@@ -94,7 +83,7 @@ You are probably invoking the [`Paginate`] or [`Paginator`] method more than onc
 
 ###### Why are there two ways to call a shortcode?
 
-Use the `{{%/* shortcode */%}}` notation if the shortcode template, or the content between the opening and closing shortcode tags, contains markdown. Otherwise use the\
+Use the `{{%/* shortcode */%}}` notation if the shortcode template, or the content between the opening and closing shortcode tags, contains Markdown. Otherwise use the\
 `{{</* shortcode */>}}` notation. See&nbsp;[details](/content-management/shortcodes/).
 
 ###### Can I use environment variables to control configuration?
@@ -104,6 +93,36 @@ Yes. See&nbsp;[details](/getting-started/configuration/#configure-with-environme
 ###### Why am I seeing inconsistent output from one build to the next?
 
 The most common causes are page collisions (publishing two pages to the same path) and the effects of concurrency. Use the `--printPathWarnings` command line flag to check for page collisions, and create a topic on the [forum] if you suspect concurrency problems.
+
+###### Why isn't Hugo's development server detecting file changes?
+
+In its default configuration, Hugo's file watcher may not be able detect file changes when:
+
+- Running Hugo within Windows Subsystem for Linux (WSL/WSL2) with project files on a Windows partition
+- Running Hugo locally with project files on a removable drive
+- Running Hugo locally with project files on a storage server accessed via the NFS, SMB, or CIFS protocols
+
+In these cases, instead of monitoring native file system events, use the `--poll` command line flag. For example, to poll the project files every 700 milliseconds, use `--poll 700ms`.
+
+###### Why is my page Scratch or Store missing a value?
+
+The [`Scratch`] and [`Store`] methods on a `Page` object allow you to create a [scratch pad] on the given page to store and manipulate data. Values are often set within a shortcode, a partial template called by a shortcode, or by a Markdown render hook. In all three cases, the scratch pad values are not determinate until Hugo renders the page content.
+
+[scratch pad]: /getting-started/glossary/#scratch-pad
+
+If you need to access a scratch pad value from a parent template, and the parent template has not yet rendered the page content, you can trigger content rendering by assigning the returned value to a [noop] variable:
+
+[noop]: /getting-started/glossary/#noop
+
+```go-html-template
+{{ $noop := .Content }}
+{{ .Store.Get "mykey" }}
+```
+
+You can trigger content rendering with other methods as well. See next FAQ.
+
+[`Scratch`]: /methods/page/scratch
+[`Store`]: /methods/page/store
 
 ###### Which page methods trigger content rendering?
 
@@ -116,9 +135,9 @@ For other questions please visit the [forum]. A quick search of over 20,000 topi
 [requesting help]: https://discourse.gohugo.io/t/requesting-help/9132
 {{% /note %}}
 
-[`Paginate`]: /methods/page/paginate
-[`Paginator`]: /methods/page/paginator
+[`Paginate`]: /methods/page/paginate/
+[`Paginator`]: /methods/page/paginator/
 [context]: /getting-started/glossary/#context
 [forum]: https://discourse.gohugo.io
-[installation]: /installation
+[installation]: /installation/
 [requesting help]: https://discourse.gohugo.io/t/requesting-help/9132

@@ -25,3 +25,5 @@ aliases: [/functions/ne]
 {{ ne 1 2 1 }} → false
 {{ ne 1 2 2 }} → true
 ```
+
+You can also use the `compare.Ne` function to compare strings, boolean values, dates, slices, maps, and pages.

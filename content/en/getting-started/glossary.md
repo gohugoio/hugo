@@ -11,25 +11,28 @@ weight: 60
 # Use level 6 headings for each term in the glossary.
 ---
 
-[A](#action)
-[B](#bool)
-[C](#cache)
-[D](#default-sort-order)
-[E](#environment)
-[F](#field)
-[G](#global-resource)
-[I](#identifier)
-[K](#kind)
-[L](#layout)
-[M](#map)
-[O](#object)
-[P](#page-bundle)
-[R](#regular-page)
-[S](#scalar)
-[T](#taxonomic-weight)
-[U](#unmarshal)
-[V](#variable)
-[W](#walk)
+[A](#action)&nbsp;
+[B](#bool)&nbsp;
+[C](#cache)&nbsp;
+[D](#default-sort-order)&nbsp;
+[E](#environment)&nbsp;
+[F](#field)&nbsp;
+[G](#global-resource)&nbsp;
+[H](#headless-bundle)&nbsp;
+[I](#identifier)&nbsp;
+[K](#kind)&nbsp;
+[L](#layout)&nbsp;
+[M](#map)&nbsp;
+[N](#node)&nbsp;
+[O](#object)&nbsp;
+[P](#page-bundle)&nbsp;
+[R](#regular-page)&nbsp;
+[S](#scalar)&nbsp;
+[T](#taxonomic-weight)&nbsp;
+[U](#unmarshal)&nbsp;
+[V](#variable)&nbsp;
+[W](#walk)&nbsp;
+[Z](#zero-time)&nbsp;
 
 ###### action
 
@@ -57,7 +60,7 @@ A data type with two possible values, either `true` or `false`.
 
 ###### branch bundle
 
-A [page bundle](#page-bundle) with an&nbsp;_index.md file and zero or more [resources](#resource). Analogous to a physical branch, a branch bundle may have descendants including regular pages, [leaf bundles](/getting-started/glossary/#leaf-bundle), and other branch bundles. See&nbsp;[details](/content-management/page-bundles/).
+A directory that contains an _index.md file and zero or more [resources](#resource). Analogous to a physical branch, a branch bundle may have descendants including leaf bundles and other branch bundles. Top level directories with or without _index.md files are also branch bundles. This includes the home page. See&nbsp;[details](/content-management/page-bundles/).
 
 ###### build
 
@@ -75,13 +78,25 @@ A software component that stores data so that future requests for the same data 
 
 Within a template, to connect one or more [identifiers](#identifier) with a dot. An identifier can represent a method, object, or field. For example, `.Site.Params.author.name` or `.Date.UTC.Hour`.
 
+###### CJK
+
+A collective term for the Chinese, Japanese, and Korean languages. See [details](https://en.wikipedia.org/wiki/CJK_characters).
+
+###### CLI
+
+Command line interface.
+
 ###### collection
 
 An [array](#array), [slice](#slice), or [map](#map).
 
+###### content adapter
+
+A template that dynamically creates pages when building a site. For example, use a content adapter to create pages from a remote data source such as JSON, TOML, YAML, or XML. See&nbsp;[details](/content-management/content-adapters/).
+
 ###### content format
 
-A markup language for creating content. Typically markdown, but may also be HTML, AsciiDoc, Org, Pandoc, or reStructuredText. See&nbsp;[details](/content-management/formats/).
+A markup language for creating content. Typically Markdown, but may also be HTML, AsciiDoc, Org, Pandoc, or reStructuredText. See&nbsp;[details](/content-management/formats/).
 
 ###### content type
 
@@ -93,7 +108,7 @@ A template called with the `.Page.Render` method. See&nbsp;[details](/templates/
 
 ###### context
 
-Represented by a dot "." within a [template action](#template-action), context is the current location in a data structure. For example, while iterating over a [collection](#collection) of pages, the context within each iteration is the page's data structure. The context received by each template depends on template type and/or how it was called. See&nbsp;[details](/templates/introduction/#the-dot).
+Represented by a dot "." within a [template action](#template-action), context is the current location in a data structure. For example, while iterating over a [collection](#collection) of pages, the context within each iteration is the page's data structure. The context received by each template depends on template type and/or how it was called. See&nbsp;[details](/templates/introduction/#context).
 
 ###### default sort order
 
@@ -107,15 +122,15 @@ A member of a slice or array.
 
 Typically one of `development`, `staging`, or `production`, each environment may exhibit different behavior depending on configuration and template logic. For example, in a production environment you might minify and fingerprint CSS, but that probably doesn't make sense in a development environment.
 
-When running the built-in development server with the `hugo server` command, the environment is set to `development`. When building your site with the `hugo` command, the environment is set to `production`. To override the environment value, use the `--environment` command line flag.
+When running the built-in development server with the `hugo server` command, the environment is set to `development`. When building your site with the `hugo` command, the environment is set to `production`. To override the environment value, use the `--environment` command line flag or the `HUGO_ENVIRONMENT` environment variable.
 
 To determine the current environment within a template, use the [`hugo.Environment`] function.
 
-[`hugo.Environment`]: /functions/hugo/environment
+[`hugo.Environment`]: /functions/hugo/environment/
 
 ###### field
 
-A predefined key/value pair in front matter such as `date` or `title`. See&nbsp;also&nbsp;[parameter](#parameter).
+A predefined key-value pair in front matter such as `date` or `title`. See&nbsp;also&nbsp;[parameter](#parameter).
 
 
 ###### flag
@@ -146,10 +161,14 @@ Used within a [template action](#template-action), a function takes one or more 
 
 A file within the assets directory, or within any directory [mounted](/hugo-modules/configuration/#module-configuration-mounts) to the assets directory. Capture one or more global resources using the [`resources.Get`], [`resources.GetMatch`], [`resources.Match`], or [`resources.ByType`] functions.
 
-[`resources.Get`]: /functions/resources/get
-[`resources.GetMatch`]: /functions/resources/getmatch
-[`resources.Match`]: /functions/resources/match
-[`resources.ByType`]: /functions/resources/byType
+[`resources.Get`]: /functions/resources/get/
+[`resources.GetMatch`]: /functions/resources/getmatch/
+[`resources.Match`]: /functions/resources/match/
+[`resources.ByType`]: /functions/resources/byType/
+
+###### headless bundle
+
+An unpublished leaf or branch bundle whose content and resources you can include in other pages. See [build options](/content-management/build-options/).
 
 ###### identifier
 
@@ -187,7 +206,7 @@ See [template](#template).
 
 ###### leaf bundle
 
-A [page bundle](#page-bundle) with an index.md file and zero or more [resources](#resource). Analogous to a physical leaf, a leaf bundle is at the end of a branch. Hugo ignores content (but not resources) beneath the leaf bundle. See&nbsp;[details](/content-management/page-bundles/).
+A directory that contains an index.md file and zero or more [resources](#resource). Analogous to a physical leaf, a leaf bundle is at the end of a branch. It has no descendants. See&nbsp;[details](/content-management/page-bundles/).
 
 ###### list page
 
@@ -197,13 +216,19 @@ Any [page kind](#page-kind) that receives a page [collection](#collection) in [c
 
 Adaptation of a site to meet language and regional requirements. This includes translations, language-specific media, date and currency formats, etc. See&nbsp;[details](/content-management/multilingual/) and the [W3C definition](https://www.w3.org/International/questions/qa-i18n). Abbreviated l10n.
 
+###### logical path
+
+{{< new-in 0.123.0 >}}
+
+A page or page resource identifier derived from the file path, excluding its extension and language identifier. This value is neither a file path nor a URL. Starting with a file path relative to the content directory, Hugo determines the logical path by stripping the file extension and language identifier, converting to lower case, then replacing spaces with hyphens. <!-- You may also set this value using the `path` front matter field. --> See [examples](/methods/page/path/#examples).
+
 ###### map
 
 An unordered group of elements, each indexed by a unique key. See the [Go&nbsp;documentation](https://go.dev/ref/spec#Map_types) for details.
 
-###### markdown attribute
+###### Markdown attribute
 
-A list of attributes, containing one or more key/value pairs, separated by spaces or commas, and wrapped by braces. Apply markdown attributes to images and block-level elements including blockquotes, fenced code blocks, headings, horizontal rules, lists, paragraphs, and tables. See&nbsp;[details](/getting-started/configuration-markup/#goldmark).
+A list of attributes, containing one or more key-value pairs, separated by spaces or commas, and wrapped by braces. Apply Markdown attributes to images and block-level elements including blockquotes, fenced code blocks, headings, horizontal rules, lists, paragraphs, and tables. See&nbsp;[details](/getting-started/configuration-markup/#goldmark).
 
 ###### marshal
 
@@ -217,6 +242,14 @@ Used within a [template action](#template-action) and associated with an [object
 
 Like a [theme](#theme), a module is a packaged combination of [archetypes](#archetype), assets, content, data, [templates](#template), translation tables, static files, or configuration settings. A module may serve as the basis for a new site, or to augment an existing site. See&nbsp;[details](/hugo-modules/).
 
+###### node
+
+A class of [page kinds](#page-kind) including `home`, `section`, `taxonomy`, and `term`.
+
+###### noop
+
+An abbreviated form of "no operation", a _noop_ is a statement that does nothing.
+
 ###### object
 
 A data structure with or without associated [methods](#method).
@@ -225,8 +258,8 @@ A data structure with or without associated [methods](#method).
 
 Created by invoking the [`Alphabetical`] or [`ByCount`] method on a [taxonomy object](#taxonomy-object), which is a [map](#map), an ordered taxonomy is a [slice](#slice), where each element is an object that contains the [term](#term) and a slice of its [weighted pages](#weighted-page).
 
-[`Alphabetical`]: /methods/taxonomy/alphabetical
-[`ByCount`]: /methods/taxonomy/bycount
+[`Alphabetical`]: /methods/taxonomy/alphabetical/
+[`ByCount`]: /methods/taxonomy/bycount/
 
 ###### output format
 
@@ -242,7 +275,7 @@ A slice of page objects.
 
 ###### page kind
 
-A classification of pages, one of `home`, `page`, `section`, `taxonomy`, or `term`. See&nbsp;[details](/templates/section-templates/#page-kinds).
+A classification of pages, one of `home`, `page`, `section`, `taxonomy`, or `term`. See&nbsp;[details](/methods/page/kind/).
 
 Note that there are also `RSS`, `sitemap`, `robotsTXT`, and `404` page kinds, but these are only available during the rendering of each of these respective page's kind and therefore *not* available in any of the `Pages` collections.
 
@@ -266,7 +299,7 @@ The process of [paginating](#paginate) a [section](#section) list.
 
 ###### parameter
 
-Typically, a user-defined key/value pair at the site or page level, but may also refer to a configuration setting or an [argument](#argument). See&nbsp;also&nbsp;[field](#field).
+Typically, a user-defined key-value pair at the site or page level, but may also refer to a configuration setting or an [argument](#argument). See&nbsp;also&nbsp;[field](#field).
 
 ###### partial
 
@@ -300,7 +333,7 @@ The host-relative URL of a published resource or a rendered page.
 
 ###### render hook
 
-A [template](#template) that overrides standard markdown rendering. See&nbsp;[details](/templates/render-hooks/).
+A [template](#template) that overrides standard Markdown rendering. See&nbsp;[details](/render-hooks).
 
 ###### remote resource
 
@@ -312,17 +345,24 @@ Any file consumed by the build process to augment or generate content, structure
 
 Hugo supports three types of resources: [global](#global-resource), [page](#page-resource), and [remote](#remote-resource)
 
+###### resource type
+
+The main type of a resource's [media type]. Content files such as Markdown, HTML, AsciiDoc, Pandoc, reStructuredText, and Emacs Org Mode have resource type `page`. Other resource types include `image`, `video`, etc. Retrieve the resource type using the [`ResourceType`] method on a `Resource` object.
+
+[media type]: /methods/resource/mediatype/
+[`ResourceType`]: /methods/resource/resourcetype/
+
 ###### scalar
 
 A single value, one of [string](#string), [integer](#integer), [floating point](#floating-point), or [boolean](#boolean).
 
 ###### scratch pad
 
-Conceptually, a [map](#map) with [methods](#method) to set, get, update, and delete values. Attach the data structure to a `Page` object using the [`Scratch`] or [`Store`] methods, or created a locally scoped scratch pad using the [`newScratch`] function.
+Conceptually, a [map](#map) with [methods](#method) to set, get, update, and delete values. Attach the data structure to a `Page` object using the [`Scratch`] or [`Store`] methods, or create a locally scoped scratch pad using the [`newScratch`] function.
 
-[`Scratch`]: /methods/page/scratch
-[`Store`]: /methods/page/store
-[`newScratch`]: /functions/collections/newscratch
+[`Scratch`]: /methods/page/scratch/
+[`Store`]: /methods/page/store/
+[`newScratch`]: /functions/collections/newscratch/
 
 ###### section
 
@@ -334,7 +374,7 @@ Content with the "section" [page kind](#page-kind). Typically a listing of [regu
 
 ###### shortcode
 
-A [template](#template) called from within markdown, taking zero or more [arguments](#argument). See&nbsp;[details](/content-management/shortcodes/).
+A [template](#template) called from within Markdown, taking zero or more [arguments](#argument). See&nbsp;[details](/content-management/shortcodes/).
 
 ###### slice
 
@@ -343,6 +383,14 @@ A numbered sequence of elements. Unlike Go's [array](#array) data type, slices a
 ###### string
 
 A sequence of bytes. For example, `"What is 6 times 7?"`&nbsp;.
+
+###### string literal (interpreted)
+
+Interpreted string literals are character sequences between double quotes, as in "foo". Within the quotes, any character may appear except a newline and an unescaped double quote. The text between the quotes forms the value of the literal, with backslash escapes interpreted. See [details](https://go.dev/ref/spec#String_literals).
+
+###### string literal (raw)
+
+Raw string literals are character sequences between backticks, as in \`bar\`. Within the backticks, any character may appear except a backtick. Backslashes have no special meaning and the string may contain newlines. Carriage return characters ('\r') inside raw string literals are discarded from the raw string value. See [details](https://go.dev/ref/spec#String_literals).
 
 ###### taxonomic weight
 
@@ -394,7 +442,7 @@ To transform a serialized object into a data structure. For example, transformin
 
 ###### variable
 
-A user-defined [identifier](#identifier) prefaced with a `$` symbol, representing a value of any data type, initialized or assigned within a [template action](#template-action). For example, `$foo`&nbsp;and&nbsp;`$bar` are variables.
+A user-defined [identifier](#identifier) prepended with a `$` symbol, representing a value of any data type, initialized or assigned within a [template action](#template-action). For example, `$foo`&nbsp;and&nbsp;`$bar` are variables.
 
 ###### walk
 
@@ -407,3 +455,7 @@ Used to position an element within a collection sorted by weight. Assign weights
 ###### weighted page
 
 Contained within a [taxonomy object](#taxonomy-object), a weighted page is a [map](#map) with two elements: a `Page` object, and its [taxonomic weight](#taxonomic-weight) as defined in front matter. Access the elements using the `Page` and `Weight` keys.
+
+###### zero time
+
+The _zero time_ is January 1, 0001, 00:00:00 UTC. Formatted per [RFC3339](https://www.rfc-editor.org/rfc/rfc3339) the _zero time_ is 0001-01-01T00:00:00-00:00.

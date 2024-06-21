@@ -13,7 +13,7 @@ action:
 
 The `Err` method on a resource returned by the [`resources.GetRemote`] function returns an error message if the HTTP request fails, else nil. If you do not handle the error yourself, Hugo will fail the build.
 
-[`resources.GetRemote`]: functions/resources/getremote
+[`resources.GetRemote`]: /functions/resources/getremote/
 
 In this example we send an HTTP request to a nonexistent domain:
 

@@ -1,12 +1,12 @@
 ---
 title: Templates
-linkTitle: Overview
+linkTitle: In this section
 description: Go templating, template types and lookup order, shortcodes, and data.
 categories: []
 keywords: []
 menu:
   docs:
-    identifier: templates-overview
+    identifier: templates-in-this-section
     parent: templates
     weight: 10
 weight: 10

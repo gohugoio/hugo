@@ -29,7 +29,7 @@ The publish date is a [time.Time] value. Format and localize the value with the 
 
 In the example above we explicitly set the publish date in front matter. With Hugo's default configuration, the `PublishDate` method returns the front matter value. This behavior is configurable, allowing you to set fallback values if the publish date is not defined in front matter. See&nbsp;[details].
 
-[`time.Format`]: /functions/time/format
+[`time.Format`]: /functions/time/format/
 [details]: /getting-started/configuration/#configure-dates
-[time methods]: /methods/time
+[time methods]: /methods/time/
 [time.Time]: https://pkg.go.dev/time#Time

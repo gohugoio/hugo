@@ -25,26 +25,30 @@
             {{ $query_params := .query_params | default "" }}
             {{ $url := printf "%s?%s%s" .link $query_params (querify "utm_source" (.utm_source | default $utmSource ) "utm_medium" "banner" "utm_campaign" (.utm_campaign | default "hugosponsor") "utm_content" (.utm_content | default "gohugoio")) | safeURL }}
             {{ $logo := resources.Get .logo }}
-            {{ if hugo.IsProduction }}
-              {{ $gtagID := printf "Sponsor %s %s" .name $gtag | title }}
-              <a
-                href="{{ $url }}"
-                onclick="trackOutboundLink({{ printf "'%s', '%s'" $gtagID $url | safeJS }});"
-                class="w-100 grow pa3{{ if .show_on_hover }}
-                  show-on-hover
-                {{ end }}"
-                style="">
-                {{ with $logo }}{{ .Content | safeHTML }}{{ end }}
-              </a>
-            {{ else }}
-              <a
-                href="{{ $url }}"
-                class="w-100 grow pa3{{ if .show_on_hover }}
-                  show-on-hover
-                {{ end }}">
-                {{ with $logo }}{{ .Content | safeHTML }}{{ end }}
-              </a>
+            {{ $gtagID := printf "Sponsor %s %s" .name $gtag | title }}
+            {{ $classes := "" }}
+            {{ if .show_on_hover }}
+              {{ $classes = printf "%s show-on-hover" $classes }}
             {{ end }}
+            {{ if $isFooter }}
+              {{ $classes = printf "%s f3" $classes }}
+            {{ else }}
+              {{ $classes = printf "%s f1" $classes }}
+            {{ end }}
+            <a
+              href="{{ $url }}"
+              title="{{ .title | default .name }}"
+              {{ if hugo.IsProduction }}
+                onclick="trackOutboundLink({{ printf "'%s', '%s'" $gtagID $url | safeJS }});"
+              {{ end }}
+              class="w-100 grow pa3 {{ $classes }}"
+              {{ with .link_attr }}{{ . | safeHTMLAttr }}{{ end }}>
+              {{ with $logo }}
+                {{ .Content | safeHTML }}
+              {{ else }}
+                {{ .name }}
+              {{ end }}
+            </a>
           </div>
         {{ end }}
       </div>

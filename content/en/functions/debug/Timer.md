@@ -33,5 +33,5 @@ hugo --logLevel info
 The results are displayed in the console at the end of the build. You can have as many timers as you want and if you don't stop them, they will be stopped at the end of build.
 
 ```text
-INFO  timer:  name TestSqrt total 12.429355ms
+INFO  timer:  name TestSqrt count 1002 duration 2.496017496s average 2.491035ms median 2.282291ms
 ```

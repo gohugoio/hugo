@@ -12,17 +12,19 @@ action:
 aliases: [/functions/site]
 ---
 
-At the top level of a template that receives the `Site` object in context, these are equivalent:
+Use the `site` function to return the `Site` object regardless of current context.
 
 ```go-html-template
-{{ .Site.Params.foo }}
 {{ site.Params.foo }}
 ```
 
-When the `Site` object is not in context, use the global `site` function:
+When the `Site` object is in context you can use the `Site` property:
 
 ```go-html-template
-{{ site.Params.foo }}
+<!-- current context -->
+{{ .Site.Params.foo }}
+<!-- template context -->
+{{ $.Site.Params.foo }}
 ```
 
 {{% note %}}

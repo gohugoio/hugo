@@ -12,7 +12,7 @@ toc: true
 aliases: [/functions/where]
 ---
 
-The `where` function returns the given collection, removing elements that do not satisfy the comparison condition. The comparison condition is comprised of the `KEY`, `OPERATOR`, and `VALUE` arguments:
+The `where` function returns the given collection, removing elements that do not satisfy the comparison condition. The comparison condition is composed of the `KEY`, `OPERATOR`, and `VALUE` arguments:
 
 ```text
 collections.Where COLLECTION KEY [OPERATOR] VALUE
@@ -204,10 +204,10 @@ Use the `like` operator to compare string values. Comparing other data types wil
 
 There are four predefined front matter dates: [`date`], [`publishDate`], [`lastmod`], and [`expiryDate`]. Regardless of the front matter data format (TOML, YAML, or JSON) these are [`time.Time`] values, allowing precise comparisons.
 
-[`date`]: /methods/page/date
-[`publishdate`]: /methods/page/publishdate
-[`lastmod`]: /methods/page/lastmod
-[`expirydate`]: /methods/page/expirydate
+[`date`]: /methods/page/date/
+[`publishdate`]: /methods/page/publishdate/
+[`lastmod`]: /methods/page/lastmod/
+[`expirydate`]: /methods/page/expirydate/
 [`time.Time`]: https://pkg.go.dev/time#Time
 
 For example, to return a collection of pages that were created before the current year:
@@ -243,7 +243,7 @@ To return a collection of future events:
 {{ $futureEvents := where $events "Params.eventDate" "gt" now }}
 ```
 
-When working with YAML or JSON, or quoted TOML values, custom dates are strings; you cannot compare them with `time.Time` values. String comparisons may be possible if the custom date layout is consistent from one page to the next. However, to be safe, filter the pages by ranging through the collection:
+When working with YAML or JSON, or quoted TOML values, custom dates are strings; you cannot compare them with `time.Time` values. String comparisons may be possible if the custom date layout is consistent from one page to the next. To be safe, filter the pages by ranging through the collection:
 
 ```go-html-template
 {{ $events := where .Site.RegularPages "Type" "events" }}
@@ -288,7 +288,7 @@ These are equivalent:
 
 Useful for theme authors, avoid hardcoding section names by using the `where` function with the [`MainSections`] method on a `Site` object.
 
-[`MainSections`]: /methods/site/mainsections
+[`MainSections`]: /methods/site/mainsections/
 
 ```go-html-template
 {{ $pages := where .Site.RegularPages "Section" "in" .Site.MainSections }}
@@ -403,7 +403,7 @@ To exclude a page with an undefined field from a boolean _inequality_ test:
 2. Create a collection using a nil comparison
 3. Subtract the second collection from the first collection using the [`collections.Complement`] function.
 
-[`collections.Complement`]: /functions/collections/complement
+[`collections.Complement`]: /functions/collections/complement/
 
 This template:
 

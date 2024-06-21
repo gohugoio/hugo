@@ -34,4 +34,4 @@ There are 86400 seconds in one day.
 ```
 
 [`time.Duration`]: https://pkg.go.dev/time#Duration
-[methods]: /methods/duration
+[methods]: /methods/duration/

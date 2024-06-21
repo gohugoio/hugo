@@ -41,7 +41,7 @@ To capture the "genres" taxonomy object when rendering its page with a taxonomy 
 To inspect the data structure:
 
 ```go-html-template
-<pre>{{ jsonify (dict "indent" "  ") $taxonomyObject }}</pre>
+<pre>{{ debug.Dump $taxonomyObject }}</pre>
 ```
 
 Although the [`Alphabetical`] and [`ByCount`] methods provide a better data structure for ranging through the taxonomy, you can render the weighted pages by term directly from the `Taxonomy` object:
@@ -60,9 +60,9 @@ Although the [`Alphabetical`] and [`ByCount`] methods provide a better data stru
 In the example above, the first anchor element is a link to the term page.
 
 
-[`Alphabetical`]: /methods/taxonomy/alphabetical
-[`ByCount`]: /methods/taxonomy/bycount
+[`Alphabetical`]: /methods/taxonomy/alphabetical/
+[`ByCount`]: /methods/taxonomy/bycount/
 
-[`data`]: /methods/page/data
+[`data`]: /methods/page/data/
 [`terms`]: /methods/page/data/#in-a-taxonomy-template
-[`taxonomies`]: /methods/site/taxonomies
+[`taxonomies`]: /methods/site/taxonomies/

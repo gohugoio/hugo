@@ -74,7 +74,7 @@ Terms
 {{% note %}}
 Once you have captured the taxonomy object, use any of the [taxonomy methods] to sort, count, or capture a subset of its weighted pages.
 
-[taxonomy methods]: /methods/taxonomy
+[taxonomy methods]: /methods/taxonomy/
 {{% /note %}}
 
 Learn more about [taxonomy templates].

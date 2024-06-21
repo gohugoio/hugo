@@ -43,7 +43,7 @@ targetPath
 : (`string`) If not set, the transformed resource's target path will be the original path of the asset file with its extension replaced by `.css`.
 
 vars {{< new-in 0.109.0 >}}
-: (`map`) A map of key/value pairs that will be available in the `hugo:vars` namespace. Useful for [initializing Sass variables from Hugo templates](https://discourse.gohugo.io/t/42053/).
+: (`map`) A map of key-value pairs that will be available in the `hugo:vars` namespace. Useful for [initializing Sass variables from Hugo templates](https://discourse.gohugo.io/t/42053/).
 
 ```scss
 // LibSass
@@ -136,8 +136,8 @@ To install Dart Sass for your builds on GitLab Pages, the `.gitlab-ci.yml` file 
 
 ```yaml
 variables:
-  HUGO_VERSION: 0.122.0
-  DART_SASS_VERSION: 1.70.0
+  HUGO_VERSION: 0.126.0
+  DART_SASS_VERSION: 1.77.1
   GIT_DEPTH: 0
   GIT_STRATEGY: clone
   GIT_SUBMODULE_STRATEGY: recursive
@@ -171,7 +171,7 @@ To install Dart Sass for your builds on Netlify, the `netlify.toml` file should 
 ```toml
 [build.environment]
 HUGO_VERSION = "0.122.2"
-DART_SASS_VERSION = "1.70.0"
+DART_SASS_VERSION = "1.77.1"
 TZ = "America/Los_Angeles"
 
 [build]

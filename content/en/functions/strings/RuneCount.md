@@ -21,4 +21,4 @@ In contrast with the [`strings.CountRunes`] function, which excludes whitespace,
 {{ "Hello, 世界" | strings.RuneCount }} → 9
 ```
 
-[`strings.CountRunes`]: /functions/strings/countrunes
+[`strings.CountRunes`]: /functions/strings/countrunes/

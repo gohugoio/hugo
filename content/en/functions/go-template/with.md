@@ -84,4 +84,4 @@ Gaining a thorough understanding of context is critical for anyone writing templ
 
 {{% include "functions/go-template/_common/text-template.md" %}}
 
-[`else`]: /functions/go-template/else
+[`else`]: /functions/go-template/else/

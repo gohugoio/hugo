@@ -18,7 +18,9 @@ To generate a robots.txt file from a template, change the [site configuration]:
 enableRobotsTXT = true
 {{< /code-toggle >}}
 
-By default, Hugo generates robots.txt using an [internal template][internal].
+By default, Hugo generates robots.txt using an [embedded template].
+
+[embedded template]: {{% eturl robots %}}
 
 ```text
 User-agent: *
@@ -56,4 +58,3 @@ Remember that Hugo copies everything in the [static directory][static] to the ro
 {{% /note %}}
 
 [site configuration]: /getting-started/configuration/
-[internal]: https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates/_default/robots.txt
