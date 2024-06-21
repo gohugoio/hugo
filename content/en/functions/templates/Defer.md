@@ -45,7 +45,7 @@ For the above to work well when running the server (or `hugo -w`), you want to h
 source       = "hugo_stats.json"
 target       = "assets/notwatching/hugo_stats.json"
 disableWatch = true
-[build]
+[build.buildStats]
 writeStats           = true
 [[build.cachebusters]]
 source = "assets/notwatching/hugo_stats\\.json"
