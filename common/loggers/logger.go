@@ -323,11 +323,13 @@ func (l *logAdapter) Errors() string {
 }
 
 func (l *logAdapter) Erroridf(id, format string, v ...any) {
+	id = strings.ToLower(id)
 	format += l.idfInfoStatement("error", id, format)
 	l.errorl.WithField(FieldNameStatementID, id).Logf(format, v...)
 }
 
 func (l *logAdapter) Warnidf(id, format string, v ...any) {
+	id = strings.ToLower(id)
 	format += l.idfInfoStatement("warning", id, format)
 	l.warnl.WithField(FieldNameStatementID, id).Logf(format, v...)
 }
