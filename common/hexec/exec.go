@@ -143,8 +143,18 @@ func (e *Exec) New(name string, arg ...any) (Runner, error) {
 	return cm.command(arg...)
 }
 
-// Npx is a convenience method to create a Runner running npx --no-install <name> <args.
+// Npx will try to run npx, and if that fails, it will
+// try to run the binary directly.
 func (e *Exec) Npx(name string, arg ...any) (Runner, error) {
+	r, err := e.npx(name, arg...)
+	if err == nil {
+		return r, nil
+	}
+	return e.New(name, arg...)
+}
+
+// npx is a convenience method to create a Runner running npx --no-install <name> <args.
+func (e *Exec) npx(name string, arg ...any) (Runner, error) {
 	arg = append(arg[:0], append([]any{"--no-install", name}, arg[0:]...)...)
 	return e.New("npx", arg...)
 }
