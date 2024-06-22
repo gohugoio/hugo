@@ -6,12 +6,13 @@
     bgcolor      = "#ffffff"
 
 [[banners]]
-    name         = "Route4Me"
-    link         = "https://route4me.com"
-    title        = "Route Planning & Route Optimization Software"
-    utm_campaign = "hugosponsor"
-    bgcolor      = "#334799"
-    link_attr    = "style='color: #ffffff; font-weight: bold; text-decoration: none; text-align: center'"
+    name            = "Route4Me"
+    link            = "https://route4me.com/"
+    title           = "Route Planning & Route Optimization Software"
+    no_query_params = true
+    utm_campaign    = "hugosponsor"
+    bgcolor         = "#334799"
+    link_attr       = "style='color: #ffffff; font-weight: bold; text-decoration: none; text-align: center'"
 
 [[banners]]
     name          = "Your Company?"
