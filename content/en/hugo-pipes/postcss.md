@@ -12,7 +12,7 @@ toc: true
 action:
   aliases: [postCSS]
   returnType: resource.Resource
-  signatures: ['resources.PostCSS [OPTIONS] RESOURCE']
+  signatures: ['css.PostCSS [OPTIONS] RESOURCE']
 ---
 
 ## Setup
@@ -50,7 +50,7 @@ Step 4
 : Place your CSS file within the `assets` directory.
 
 Step 5
-: Capture the CSS file as a resource and pipe it through `resources.PostCSS` (alias `postCSS`):
+: Capture the CSS file as a resource and pipe it through `css.PostCSS` (alias `postCSS`):
 
 {{< code file=layouts/partials/css.html >}}
 {{ with resources.Get "css/main.css" | postCSS }}
@@ -68,7 +68,7 @@ If starting with a Sass file within the `assets` directory:
 
 ## Options
 
-The `resources.PostCSS` method takes an optional map of options.
+The `css.PostCSS` method takes an optional map of options.
 
 config
 : (`string`) The directory that contains the PostCSS configuration file. Default is the root of the project directory.

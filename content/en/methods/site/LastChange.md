@@ -7,7 +7,7 @@ action:
   related: []
   returnType: time.Time
   signatures: [SITE.LastChange]
-expiryDate: 2025-02-19 # deprecated 2024-02-19  
+expiryDate: 2025-02-19 # deprecated 2024-02-19
 ---
 
 {{% deprecated-in 0.123.0 %}}

@@ -1369,37 +1369,44 @@ config:
       min: ""
     imports: null
     mounts:
-    - excludeFiles: null
+    - disableWatch: false
+      excludeFiles: null
       includeFiles: null
       lang: ""
       source: content
       target: content
-    - excludeFiles: null
+    - disableWatch: false
+      excludeFiles: null
       includeFiles: null
       lang: ""
       source: data
       target: data
-    - excludeFiles: null
+    - disableWatch: false
+      excludeFiles: null
       includeFiles: null
       lang: ""
       source: layouts
       target: layouts
-    - excludeFiles: null
+    - disableWatch: false
+      excludeFiles: null
       includeFiles: null
       lang: ""
       source: i18n
       target: i18n
-    - excludeFiles: null
+    - disableWatch: false
+      excludeFiles: null
       includeFiles: null
       lang: ""
       source: archetypes
       target: archetypes
-    - excludeFiles: null
+    - disableWatch: false
+      excludeFiles: null
       includeFiles: null
       lang: ""
       source: assets
       target: assets
-    - excludeFiles: null
+    - disableWatch: false
+      excludeFiles: null
       includeFiles: null
       lang: ""
       source: static
@@ -1667,6 +1674,7 @@ config:
       - ^go$
       - ^npx$
       - ^postcss$
+      - ^tailwindcss$
       osEnv:
       - (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE)$
     funcs:
@@ -2799,7 +2807,26 @@ tpl:
         - - '{{ sha256 "Hello world, gophers!" }}'
           - 6ec43b78da9669f50e4e422575c54bf87536954ccd58280219c393f2ce352b46
     css:
+      PostCSS:
+        Aliases:
+        - postCSS
+        Args:
+        - args
+        Description: PostCSS processes the given Resource with PostCSS.
+        Examples: []
       Quoted:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Sass:
+        Aliases:
+        - toCSS
+        Args:
+        - args
+        Description: Sass processes the given Resource with SASS.
+        Examples: []
+      TailwindCSS:
         Aliases: null
         Args: null
         Description: ""
@@ -3239,6 +3266,13 @@ tpl:
         - - '{{ "cats" | singularize }}'
           - cat
     js:
+      Babel:
+        Aliases:
+        - babel
+        Args:
+        - args
+        Description: Babel processes the given Resource with Babel.
+        Examples: []
       Build:
         Aliases: null
         Args: null
@@ -3668,12 +3702,10 @@ tpl:
           - Slice
     resources:
       Babel:
-        Aliases:
-        - babel
-        Args:
-        - args
-        Description: Babel processes the given Resource with Babel.
-        Examples: []
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       ByType:
         Aliases: null
         Args: null
@@ -3749,27 +3781,20 @@ tpl:
           minifier.
         Examples: []
       PostCSS:
-        Aliases:
-        - postCSS
-        Args:
-        - args
-        Description: PostCSS processes the given Resource with PostCSS
-        Examples: []
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       PostProcess:
         Aliases: null
         Args: null
         Description: ""
         Examples: null
       ToCSS:
-        Aliases:
-        - toCSS
-        Args:
-        - args
-        Description: |-
-          ToCSS converts the given Resource to CSS. You can optional provide an Options object
-          as second argument. As an option, you can e.g. specify e.g. the target path (string)
-          for the converted CSS resource.
-        Examples: []
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
     safe:
       CSS:
         Aliases:
@@ -3845,6 +3870,11 @@ tpl:
         Description: ""
         Examples: null
       BuildDrafts:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      CheckReady:
         Aliases: null
         Args: null
         Description: ""
@@ -4350,6 +4380,23 @@ tpl:
         - - '{{ "With [Markdown](/markdown) inside." | markdownify | truncate 14 }}'
           - With <a href="/markdown">Markdown …</a>
     templates:
+      Defer:
+        Aliases: null
+        Args:
+        - args
+        Description: Defer defers the execution of a template block.
+        Examples: []
+      DoDefer:
+        Aliases:
+        - doDefer
+        Args:
+        - ctx
+        - id
+        - optsv
+        Description: |-
+          DoDefer defers the execution of a template block.
+          For internal use only.
+        Examples: []
       Exists:
         Aliases: null
         Args:

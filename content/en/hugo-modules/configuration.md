@@ -25,25 +25,25 @@ workspace = 'off'
 {{< /code-toggle >}}
 
 noProxy
-: Comma separated glob list matching paths that should not use the proxy configured above.
+: (`string`) Comma separated glob list matching paths that should not use the proxy configured above.
 
 noVendor
-: A optional Glob pattern matching module paths to skip when vendoring, e.g. "github.com/**"
+: (`string`) A optional Glob pattern matching module paths to skip when vendoring, e.g. "github.com/**"
 
 private
-: Comma separated glob list matching paths that should be treated as private.
+: (`string`) Comma separated glob list matching paths that should be treated as private.
 
 proxy
-: Defines the proxy server to use to download remote modules. Default is `direct`, which means "git clone" and similar.
+: (`string`) Defines the proxy server to use to download remote modules. Default is `direct`, which means "git clone" and similar.
 
 vendorClosest
-: When enabled, we will pick the vendored module closest to the module using it. The default behavior is to pick the first. Note that there can still be only one dependency of a given module path, so once it is in use it cannot be redefined.
+: (`bool`) When enabled, we will pick the vendored module closest to the module using it. The default behavior is to pick the first. Note that there can still be only one dependency of a given module path, so once it is in use it cannot be redefined. Default is `false`.
 
 workspace
-: The workspace file to use. This enables Go workspace mode. Note that this can also be set via OS env, e.g. `export HUGO_MODULE_WORKSPACE=/my/hugo.work` This only works with Go 1.18+. In Hugo `v0.109.0` we changed the default to `off` and we now resolve any relative work file names relative to the working directory.
+: (`string`) The workspace file to use. This enables Go workspace mode. Note that this can also be set via OS env, e.g. `export HUGO_MODULE_WORKSPACE=/my/hugo.work` This only works with Go 1.18+. In Hugo `v0.109.0` we changed the default to `off` and we now resolve any relative work file names relative to the working directory.
 
 replacements
-: A comma-separated list of mappings from module paths to directories, e.g. `github.com/bep/my-theme -> ../..,github.com/bep/shortcodes -> /some/path`. This is mostly useful for temporary local development of a module, in which case you might want to save it as an environment variable, e.g: `env HUGO_MODULE_REPLACEMENTS="github.com/bep/my-theme -> ../.."`. Relative paths are relative to [themesDir](/getting-started/configuration/#all-configuration-settings). Absolute paths are allowed.
+: (`string`) A comma-separated list of mappings from module paths to directories, e.g. `github.com/bep/my-theme -> ../..,github.com/bep/shortcodes -> /some/path`. This is mostly useful for temporary local development of a module, in which case you might want to save it as an environment variable, e.g: `env HUGO_MODULE_REPLACEMENTS="github.com/bep/my-theme -> ../.."`. Relative paths are relative to [themesDir](/getting-started/configuration/#all-configuration-settings). Absolute paths are allowed.
 
 Note that the above terms maps directly to their counterparts in Go Modules. Some of these setting may be natural to set as OS environment variables. To set the proxy server to use, as an example:
 
@@ -69,13 +69,13 @@ If your module requires a particular version of Hugo to work, you can indicate t
 Any of the above can be omitted.
 
 min
-: The minimum Hugo version supported, e.g. `0.55.0`
+: (`string`) The minimum Hugo version supported, e.g. `0.55.0`
 
 max
-: The maximum Hugo version supported, e.g. `0.55.0`
+: (`string`) The maximum Hugo version supported, e.g. `0.55.0`
 
 extended
-: Whether the extended version of Hugo is required.
+: (`bool`) Whether the extended version of Hugo is required.
 
 ## Module configuration: imports
 
@@ -120,7 +120,8 @@ When the `mounts` configuration was introduced in Hugo 0.56.0, we were careful t
 When you add a mount, the default mount for the concerned target root is ignored: be sure to explicitly add it.
 {{% /note %}}
 
-**Default mounts**
+### Default mounts
+
 {{< code-toggle file=hugo >}}
 [module]
 [[module.mounts]]
@@ -147,25 +148,30 @@ When you add a mount, the default mount for the concerned target root is ignored
 {{< /code-toggle >}}
 
 source
-: The source directory of the mount. For the main project, this can be either project-relative or absolute. For other modules it must be project-relative.
+: (`string`) The source directory of the mount. For the main project, this can be either project-relative or absolute. For other modules it must be project-relative.
 
 target
-: Where it should be mounted into Hugo's virtual filesystem. It must start with one of Hugo's component folders: `static`, `content`, `layouts`, `data`, `assets`, `i18n`, or `archetypes`. E.g. `content/blog`.
+: (`string`) Where it should be mounted into Hugo's virtual filesystem. It must start with one of Hugo's component folders: `static`, `content`, `layouts`, `data`, `assets`, `i18n`, or `archetypes`. E.g. `content/blog`.
+
+disableWatch
+{{< new-in 0.128.0 >}}
+: (`bool`) Whether to disable watching in watch mode for this mount. Default is `false`.
 
 lang
-: The language code, e.g. "en". Only relevant for `content` mounts, and `static` mounts when in multihost mode.
+: (`string`) The language code, e.g. "en". Only relevant for `content` mounts, and `static` mounts when in multihost mode.
 
-includeFiles (string or slice)
-: One or more [glob](https://github.com/gobwas/glob) patterns matching files or directories to include. If `excludeFiles` is not set, the files matching `includeFiles` will be the files mounted.
+includeFiles
+: (`string` or `string slice`) One or more [glob](https://github.com/gobwas/glob) patterns matching files or directories to include. If `excludeFiles` is not set, the files matching `includeFiles` will be the files mounted.
 
 The glob patterns are matched to the file names starting from the `source` root, they should have Unix styled slashes even on Windows, `/` matches the mount root and `**` can be used as a  super-asterisk to match recursively down all directories, e.g `/posts/**.jpg`.
 
 The search is case-insensitive.
 
-excludeFiles (string or slice)
-: One or more glob patterns matching files to exclude.
+excludeFiles
+: (`string` or `string slice`) One or more glob patterns matching files to exclude.
 
-**Example**
+### Example
+
 {{< code-toggle file=hugo >}}
 [module]
 [[module.mounts]]

@@ -149,7 +149,7 @@ You cannot manipulate the values returned from the resource’s methods. For exa
 
 ```go-html-template
 {{ $css := resources.Get "css/main.css" }}
-{{ $css = $css | resources.PostCSS | minify | fingerprint | resources.PostProcess }}
+{{ $css = $css | css.PostCSS | minify | fingerprint | resources.PostProcess }}
 {{ $css.RelPermalink | strings.ToUpper }}
 ```
 

@@ -104,7 +104,7 @@ The `.Inner` method returns the content between the opening and closing shortcod
 ```
 
 {{% note %}}
-Any shortcode that calls the `.Inner` method must be closed or self-closed. To call a shortcode using the self-closing sytax
+Any shortcode that calls the `.Inner` method must be closed or self-closed. To call a shortcode using the self-closing syntax.
 
 ```go-html-template
 {{</* innershortcode /*/>}}

@@ -1,33 +1,38 @@
 ---
-title: ToCSS
-linkTitle: Transpile Sass to CSS
-description: Transpile Sass to CSS.
-categories: [asset management]
+title: css.Sass
+description: Transpiles Sass to CSS.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: hugo-pipes
-    returnType: resource.Resource
-    weight: 30
-weight: 30
 action:
   aliases: [toCSS]
+  related:
+    - functions/resources/Fingerprint
+    - functions/resources/Minify
+    - functions/css/PostCSS
+    - functions/resources/PostProcess
   returnType: resource.Resource
   signatures: ['css.Sass [OPTIONS] RESOURCE']
 toc: true
-aliases: [/hugo-pipes/transform-to-css/]
 ---
 
-## Usage
-
-Transpile Sass to CSS using the LibSass transpiler included in Hugo's extended edition, or [install Dart Sass](#dart-sass) to use the latest features of the Sass language.
+{{< new-in 0.128.0 >}}
 
 ```go-html-template
-{{ $opts := dict "transpiler" "libsass" "targetPath" "css/style.css" }}
-{{ with resources.Get "sass/main.scss" | toCSS $opts | minify | fingerprint }}
-  <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
+{{ with resources.Get "sass/main.scss" }}
+  {{ $opts := dict "transpiler" "libsass" "targetPath" "css/style.css" }}
+  {{ with . | toCSS $opts }}
+    {{ if hugo.IsDevelopment }}
+      <link rel="stylesheet" href="{{ .RelPermalink }}">
+    {{ else }}
+      {{ with . | minify | fingerprint }}
+        <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
+      {{ end }}
+    {{ end }}
+  {{ end }}
 {{ end }}
 ```
+
+Transpile Sass to CSS using the LibSass transpiler included in Hugo's extended edition, or [install Dart Sass](#dart-sass) to use the latest features of the Sass language.
 
 Sass has two forms of syntax: [SCSS] and [indented]. Hugo supports both.
 
@@ -42,7 +47,7 @@ transpiler
 targetPath
 : (`string`) If not set, the transformed resource's target path will be the original path of the asset file with its extension replaced by `.css`.
 
-vars {{< new-in 0.109.0 >}}
+vars
 : (`map`) A map of key-value pairs that will be available in the `hugo:vars` namespace. Useful for [initializing Sass variables from Hugo templates](https://discourse.gohugo.io/t/42053/).
 
 ```scss
@@ -62,7 +67,7 @@ precision
 enableSourceMap
 : (`bool`) If `true`, generates a source map.
 
-sourceMapIncludeSources {{< new-in 0.108.0 >}}
+sourceMapIncludeSources
 : (`bool`) If `true`, embeds sources in the generated source map. Not applicable to LibSass.
 
 includePaths
@@ -170,7 +175,7 @@ To install Dart Sass for your builds on Netlify, the `netlify.toml` file should 
 
 ```toml
 [build.environment]
-HUGO_VERSION = "0.122.2"
+HUGO_VERSION = "0.126.0"
 DART_SASS_VERSION = "1.77.1"
 TZ = "America/Los_Angeles"
 
@@ -190,9 +195,17 @@ command = """\
 To transpile with Dart Sass, set `transpiler` to `dartsass` in the options map passed to `css.Sass`. For example:
 
 ```go-html-template
-{{ $opts := dict "transpiler" "dartsass" "targetPath" "css/style.css" }}
-{{ with resources.Get "sass/main.scss" | toCSS $opts | minify | fingerprint }}
-  <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
+{{ with resources.Get "sass/main.scss" }}
+  {{ $opts := dict "transpiler" "dartsass" "targetPath" "css/style.css" }}
+  {{ with . | toCSS $opts }}
+    {{ if hugo.IsDevelopment }}
+      <link rel="stylesheet" href="{{ .RelPermalink }}">
+    {{ else }}
+      {{ with . | minify | fingerprint }}
+        <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
+      {{ end }}
+    {{ end }}
+  {{ end }}
 {{ end }}
 ```
 

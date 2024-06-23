@@ -1,28 +1,55 @@
 ---
-title: Babel
-description: Hugo Pipes can process JS files with Babel.
-categories: [asset management]
+title: js.Babel
+description: Compiles the given JavaScript resource with Babel.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: hugo-pipes
-    weight: 70
-weight: 70
-function:
+action:
   aliases: [babel]
+  related:
+    - functions/js/Build
+    - functions/resources/Fingerprint
+    - functions/resources/Minify
   returnType: resource.Resource
   signatures: ['js.Babel [OPTIONS] RESOURCE']
+toc: true
 ---
 
-## Usage
+{{< new-in 0.128.0 >}}
 
-Any JavaScript resource file can be transpiled to another JavaScript version using `js.Babel` which takes for argument the resource object and an optional dict of options listed below. Babel uses the [babel cli](https://babeljs.io/docs/en/babel-cli).
+```go-html-template
+{{ with resources.Get "js/main.js" }}
+  {{ if hugo.IsDevelopment }}
+    {{ with . | babel }}
+      <script src="{{ .RelPermalink }}"></script>
+    {{ end }}
+  {{ else }}
+    {{ $opts := dict "minified" true }}
+    {{ with . | babel $opts | fingerprint }}
+      <script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous"></script>
+    {{ end }}
+  {{ end }}
+{{ end }}
+```
 
-{{% note %}}
-Hugo Pipe's Babel requires the `@babel/cli` and `@babel/core` JavaScript packages to be installed in the project or globally (`npm install -g @babel/cli @babel/core`) along with any Babel plugin(s) or preset(s) used (e.g., `npm install @babel/preset-env --save-dev`).
+## Setup
 
-If you are using the Hugo Snap package, Babel and plugin(s) need to be installed locally within your Hugo site directory, e.g., `npm install @babel/cli @babel/core --save-dev` without the `-g` flag.
-{{% /note %}}
+Step 1
+: Install [Node.js](https://nodejs.org/en/download)
+
+Step 2
+: Install the required Node.js packages in the root of your project.
+
+```sh
+npm install --save-dev @babel/core @babel/cli
+```
+
+Step 3
+: Add the babel executable to Hugo's `security.exec.allow` list in your site configuration:
+
+{{< code-toggle file=hugo >}}
+[security.exec]
+  allow = ['^(dart-)?sass(-embedded)?$', '^go$', '^npx$', '^postcss$', '^babel$']
+{{< /code-toggle >}}
 
 ## Configuration
 
@@ -61,16 +88,3 @@ verbose
 
 sourceMap
 : (`string`) Output `inline` or `external` sourcemap from the babel compile. External sourcemaps will be written to the target with the output file name + ".map". Input sourcemaps can be read from js.Build and node modules and combined into the output sourcemaps.
-
-## Examples
-
-```go-html-template
-{{- $transpiled := resources.Get "scripts/main.js" | babel  -}}
-```
-
-Or with options:
-
-```go-html-template
-{{ $opts := dict "noComments" true }}
-{{- $transpiled := resources.Get "scripts/main.js" | babel $opts -}}
-```

@@ -8,12 +8,19 @@ action:
   related:
     - functions/resources/Fingerprint
     - functions/resources/Minify
-    - functions/resources/PostCSS
+    - functions/css/PostCSS
     - functions/resources/PostProcess
   returnType: resource.Resource
   signatures: ['resources.ToCSS [OPTIONS] RESOURCE']
 toc: true
+expiryDate: 2025-06-24 # deprecated 2024-06-24
 ---
+
+{{% deprecated-in 0.128.0 %}}
+Use [css.Sass] instead.
+
+[css.Sass]: /functions/css/sass/
+{{% /deprecated-in %}}
 
 ```go-html-template
 {{ with resources.Get "sass/main.scss" }}
@@ -76,7 +83,7 @@ includePaths
   "transpiler" "dartsass"
   "targetPath" "css/style.css"
   "vars" site.Params.styles
-  "enableSourceMap" (not hugo.IsProduction) 
+  "enableSourceMap" (not hugo.IsProduction)
   "includePaths" (slice "node_modules/bootstrap/scss")
 }}
 {{ with resources.Get "sass/main.scss" | toCSS $opts | minify | fingerprint }}
