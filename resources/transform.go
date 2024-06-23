@@ -486,16 +486,20 @@ func (r *resourceAdapter) transform(key string, publish, setContent bool) (*reso
 
 			if herrors.IsFeatureNotAvailableError(err) {
 				var errMsg string
-				if tr.Key().Name == "postcss" {
+				switch strings.ToLower(tr.Key().Name) {
+				case "postcss":
 					// This transformation is not available in this
 					// Most likely because PostCSS is not installed.
-					errMsg = ". Check your PostCSS installation; install with \"npm install postcss-cli\". See https://gohugo.io/hugo-pipes/postcss/"
-				} else if tr.Key().Name == "tocss" {
+					errMsg = ". You need to install PostCSS. See https://gohugo.io/functions/css/postcss/"
+				case "tailwindcss":
+					errMsg = ". You need to install TailwindCSS CLI. See https://gohugo.io/functions/css/tailwindcss/"
+				case "tocss":
 					errMsg = ". Check your Hugo installation; you need the extended version to build SCSS/SASS with transpiler set to 'libsass'."
-				} else if tr.Key().Name == "tocss-dart" {
-					errMsg = ". You need to install Dart Sass, see https://gohugo.io/functions/resources/tocss/#dart-sass"
-				} else if tr.Key().Name == "babel" {
-					errMsg = ". You need to install Babel, see https://gohugo.io/hugo-pipes/babel/"
+				case "tocss-dart":
+					errMsg = ". You need to install Dart Sass, see https://gohugo.io//functions/css/sass/#dart-sass"
+				case "babel":
+					errMsg = ". You need to install Babel, see https://gohugo.io/functions/js/babel/"
+
 				}
 
 				return fmt.Errorf(msg+errMsg+": %w", err)

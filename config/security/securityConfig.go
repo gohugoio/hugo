@@ -39,6 +39,7 @@ var DefaultConfig = Config{
 			"^go$",                       // for Go Modules
 			"^npx$",                      // used by all Node tools (Babel, PostCSS).
 			"^postcss$",
+			"^tailwindcss$",
 		),
 		// These have been tested to work with Hugo's external programs
 		// on Windows, Linux and MacOS.

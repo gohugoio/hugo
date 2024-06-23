@@ -920,7 +920,7 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 					if len(otherChanges) > 0 {
 						livereload.ForceRefresh()
 						// Allow some time for the live reload script to get reconnected.
-						time.Sleep(100 * time.Millisecond)
+						time.Sleep(200 * time.Millisecond)
 					}
 
 					for _, ev := range cssChanges {

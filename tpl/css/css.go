@@ -13,7 +13,7 @@ import (
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/gohugoio/hugo/resources/resource_transformers/babel"
-	"github.com/gohugoio/hugo/resources/resource_transformers/postcss"
+	"github.com/gohugoio/hugo/resources/resource_transformers/cssjs"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/dartsass"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/scss"
 	"github.com/gohugoio/hugo/tpl/internal"
@@ -27,7 +27,8 @@ const name = "css"
 type Namespace struct {
 	d                 *deps.Deps
 	scssClientLibSass *scss.Client
-	postcssClient     *postcss.Client
+	postcssClient     *cssjs.PostCSSClient
+	tailwindcssClient *cssjs.TailwindCSSClient
 	babelClient       *babel.Client
 
 	// The Dart Client requires a os/exec process, so  only
@@ -63,7 +64,21 @@ func (ns *Namespace) PostCSS(args ...any) (resource.Resource, error) {
 	return ns.postcssClient.Process(r, m)
 }
 
-// Sass processes the given Resource with Sass.
+// TailwindCSS processes the given Resource with tailwindcss.
+func (ns *Namespace) TailwindCSS(args ...any) (resource.Resource, error) {
+	if len(args) > 2 {
+		return nil, errors.New("must not provide more arguments than resource object and options")
+	}
+
+	r, m, err := resourcehelpers.ResolveArgs(args)
+	if err != nil {
+		return nil, err
+	}
+
+	return ns.tailwindcssClient.Process(r, m)
+}
+
+// Sass processes the given Resource with SASS.
 func (ns *Namespace) Sass(args ...any) (resource.Resource, error) {
 	if len(args) > 2 {
 		return nil, errors.New("must not provide more arguments than resource object and options")
@@ -144,7 +159,8 @@ func init() {
 		ctx := &Namespace{
 			d:                 d,
 			scssClientLibSass: scssClient,
-			postcssClient:     postcss.New(d.ResourceSpec),
+			postcssClient:     cssjs.NewPostCSSClient(d.ResourceSpec),
+			tailwindcssClient: cssjs.NewTailwindCSSClient(d.ResourceSpec),
 			babelClient:       babel.New(d.ResourceSpec),
 		}
 
