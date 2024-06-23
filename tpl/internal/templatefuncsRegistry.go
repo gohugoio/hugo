@@ -51,6 +51,9 @@ type TemplateFuncsNamespace struct {
 	// This is the method receiver.
 	Context func(ctx context.Context, v ...any) (any, error)
 
+	// OnCreated is called when all the namespaces are ready.
+	OnCreated func(namespaces map[string]any)
+
 	// Additional info, aliases and examples, per method name.
 	MethodMappings map[string]TemplateFuncMethodMapping
 }
