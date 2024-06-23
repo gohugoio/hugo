@@ -15,9 +15,12 @@
 package js
 
 import (
+	"errors"
+
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
+	"github.com/gohugoio/hugo/resources/resource_transformers/babel"
 	"github.com/gohugoio/hugo/resources/resource_transformers/js"
 	"github.com/gohugoio/hugo/tpl/internal/resourcehelpers"
 )
@@ -28,13 +31,15 @@ func New(deps *deps.Deps) *Namespace {
 		return &Namespace{}
 	}
 	return &Namespace{
-		client: js.New(deps.BaseFs.Assets, deps.ResourceSpec),
+		client:      js.New(deps.BaseFs.Assets, deps.ResourceSpec),
+		babelClient: babel.New(deps.ResourceSpec),
 	}
 }
 
 // Namespace provides template functions for the "js" namespace.
 type Namespace struct {
-	client *js.Client
+	client      *js.Client
+	babelClient *babel.Client
 }
 
 // Build processes the given Resource with ESBuild.
@@ -61,4 +66,25 @@ func (ns *Namespace) Build(args ...any) (resource.Resource, error) {
 	}
 
 	return ns.client.Process(r, m)
+}
+
+// Babel processes the given Resource with Babel.
+func (ns *Namespace) Babel(args ...any) (resource.Resource, error) {
+	if len(args) > 2 {
+		return nil, errors.New("must not provide more arguments than resource object and options")
+	}
+
+	r, m, err := resourcehelpers.ResolveArgs(args)
+	if err != nil {
+		return nil, err
+	}
+	var options babel.Options
+	if m != nil {
+		options, err = babel.DecodeOptions(m)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return ns.babelClient.Process(r, options)
 }

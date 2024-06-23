@@ -252,6 +252,9 @@ func newTemplateExecuter(d *deps.Deps) (texttemplate.Executer, map[string]reflec
 func createFuncMap(d *deps.Deps) map[string]any {
 	funcMap := template.FuncMap{}
 
+	nsMap := make(map[string]any)
+	var onCreated []func(namespaces map[string]any)
+
 	// Merge the namespace funcs
 	for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
 		ns := nsf(d)
@@ -259,6 +262,11 @@ func createFuncMap(d *deps.Deps) map[string]any {
 			panic(ns.Name + " is a duplicate template func")
 		}
 		funcMap[ns.Name] = ns.Context
+		contextV, err := ns.Context(context.Background())
+		if err != nil {
+			panic(err)
+		}
+		nsMap[ns.Name] = contextV
 		for _, mm := range ns.MethodMappings {
 			for _, alias := range mm.Aliases {
 				if _, exists := funcMap[alias]; exists {
@@ -267,6 +275,14 @@ func createFuncMap(d *deps.Deps) map[string]any {
 				funcMap[alias] = mm.Method
 			}
 		}
+
+		if ns.OnCreated != nil {
+			onCreated = append(onCreated, ns.OnCreated)
+		}
+	}
+
+	for _, f := range onCreated {
+		f(nsMap)
 	}
 
 	if d.OverloadedTemplateFuncs != nil {
