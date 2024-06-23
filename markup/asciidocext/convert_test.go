@@ -313,7 +313,7 @@ allow = ['asciidoctor']
 		converter.ProviderConfig{
 			Logger: loggers.NewDefault(),
 			Conf:   conf,
-			Exec:   hexec.New(securityConfig),
+			Exec:   hexec.New(securityConfig, ""),
 		},
 	)
 	c.Assert(err, qt.IsNil)

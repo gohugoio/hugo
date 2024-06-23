@@ -163,7 +163,7 @@ func (d *Deps) Init() error {
 	}
 
 	if d.ExecHelper == nil {
-		d.ExecHelper = hexec.New(d.Conf.GetConfigSection("security").(security.Config))
+		d.ExecHelper = hexec.New(d.Conf.GetConfigSection("security").(security.Config), d.Conf.WorkingDir())
 	}
 
 	if d.MemCache == nil {

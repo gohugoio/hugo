@@ -467,7 +467,7 @@ func (l *configLoader) loadModules(configs *Configs) (modules.ModulesConfig, *mo
 		ignoreVendor, _ = hglob.GetGlob(hglob.NormalizePath(s))
 	}
 
-	ex := hexec.New(conf.Security)
+	ex := hexec.New(conf.Security, workingDir)
 
 	hook := func(m *modules.ModulesConfig) error {
 		for _, tc := range m.AllModules {

@@ -21,8 +21,10 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/cli/safeexec"
 	"github.com/gohugoio/hugo/config"
@@ -84,7 +86,7 @@ var WithEnviron = func(env []string) func(c *commandeer) {
 }
 
 // New creates a new Exec using the provided security config.
-func New(cfg security.Config) *Exec {
+func New(cfg security.Config, workingDir string) *Exec {
 	var baseEnviron []string
 	for _, v := range os.Environ() {
 		k, _ := config.SplitEnvVar(v)
@@ -95,6 +97,7 @@ func New(cfg security.Config) *Exec {
 
 	return &Exec{
 		sc:          cfg,
+		workingDir:  workingDir,
 		baseEnviron: baseEnviron,
 	}
 }
@@ -119,15 +122,23 @@ func SafeCommand(name string, arg ...string) (*exec.Cmd, error) {
 
 // Exec enforces a security policy for commands run via os/exec.
 type Exec struct {
-	sc security.Config
+	sc         security.Config
+	workingDir string
 
 	// os.Environ filtered by the Exec.OsEnviron whitelist filter.
 	baseEnviron []string
+
+	npxInit      sync.Once
+	npxAvailable bool
+}
+
+func (e *Exec) New(name string, arg ...any) (Runner, error) {
+	return e.new(name, "", arg...)
 }
 
 // New will fail if name is not allowed according to the configured security policy.
 // Else a configured Runner will be returned ready to be Run.
-func (e *Exec) New(name string, arg ...any) (Runner, error) {
+func (e *Exec) new(name string, fullyQualifiedName string, arg ...any) (Runner, error) {
 	if err := e.sc.CheckAllowedExec(name); err != nil {
 		return nil, err
 	}
@@ -136,27 +147,51 @@ func (e *Exec) New(name string, arg ...any) (Runner, error) {
 	copy(env, e.baseEnviron)
 
 	cm := &commandeer{
-		name: name,
-		env:  env,
+		name:               name,
+		fullyQualifiedName: fullyQualifiedName,
+		env:                env,
 	}
 
 	return cm.command(arg...)
 }
 
-// Npx will try to run npx, and if that fails, it will
-// try to run the binary directly.
+// Npx will in order:
+// 1. Try fo find the binary in the WORKINGDIR/node_modules/.bin directory.
+// 2. If not found, and npx is available, run npx --no-install <name> <args>.
+// 3. Fall back to the PATH.
 func (e *Exec) Npx(name string, arg ...any) (Runner, error) {
-	r, err := e.npx(name, arg...)
+	// npx is slow, so first try the common case.
+	nodeBinFilename := filepath.Join(e.workingDir, nodeModulesBinPath, name)
+	_, err := safeexec.LookPath(nodeBinFilename)
 	if err == nil {
-		return r, nil
+		return e.new(name, nodeBinFilename, arg...)
+	}
+	e.checkNpx()
+	if e.npxAvailable {
+		r, err := e.npx(name, arg...)
+		if err == nil {
+			return r, nil
+		}
 	}
 	return e.New(name, arg...)
 }
 
+const (
+	npxNoInstall       = "--no-install"
+	npxBinary          = "npx"
+	nodeModulesBinPath = "node_modules/.bin"
+)
+
+func (e *Exec) checkNpx() {
+	e.npxInit.Do(func() {
+		e.npxAvailable = InPath(npxBinary)
+	})
+}
+
 // npx is a convenience method to create a Runner running npx --no-install <name> <args.
 func (e *Exec) npx(name string, arg ...any) (Runner, error) {
-	arg = append(arg[:0], append([]any{"--no-install", name}, arg[0:]...)...)
-	return e.New("npx", arg...)
+	arg = append(arg[:0], append([]any{npxNoInstall, name}, arg[0:]...)...)
+	return e.New(npxBinary, arg...)
 }
 
 // Sec returns the security policies this Exec is configured with.
@@ -165,11 +200,12 @@ func (e *Exec) Sec() security.Config {
 }
 
 type NotFoundError struct {
-	name string
+	name   string
+	method string
 }
 
 func (e *NotFoundError) Error() string {
-	return fmt.Sprintf("binary with name %q not found", e.name)
+	return fmt.Sprintf("binary with name %q not found %s", e.name, e.method)
 }
 
 // Runner wraps a *os.Cmd.
@@ -192,8 +228,14 @@ func (c *cmdWrapper) Run() error {
 	if err == nil {
 		return nil
 	}
+	name := c.name
+	method := "in PATH"
+	if name == npxBinary {
+		name = c.c.Args[2]
+		method = "using npx"
+	}
 	if notFoundRe.MatchString(c.outerr.String()) {
-		return &NotFoundError{name: c.name}
+		return &NotFoundError{name: name, method: method}
 	}
 	return fmt.Errorf("failed to execute binary %q with args %v: %s", c.name, c.c.Args[1:], c.outerr.String())
 }
@@ -209,8 +251,9 @@ type commandeer struct {
 	dir    string
 	ctx    context.Context
 
-	name string
-	env  []string
+	name               string
+	fullyQualifiedName string
+	env                []string
 }
 
 func (c *commandeer) command(arg ...any) (*cmdWrapper, error) {
@@ -230,10 +273,17 @@ func (c *commandeer) command(arg ...any) (*cmdWrapper, error) {
 		}
 	}
 
-	bin, err := safeexec.LookPath(c.name)
-	if err != nil {
-		return nil, &NotFoundError{
-			name: c.name,
+	var bin string
+	if c.fullyQualifiedName != "" {
+		bin = c.fullyQualifiedName
+	} else {
+		var err error
+		bin, err = safeexec.LookPath(c.name)
+		if err != nil {
+			return nil, &NotFoundError{
+				name:   c.name,
+				method: "in PATH",
+			}
 		}
 	}
 

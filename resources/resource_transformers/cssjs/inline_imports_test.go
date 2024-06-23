@@ -1,4 +1,4 @@
-// Copyright 2020 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package postcss
+package cssjs
 
 import (
 	"regexp"
@@ -32,14 +32,14 @@ import (
 // Issue 6166
 func TestDecodeOptions(t *testing.T) {
 	c := qt.New(t)
-	opts1, err := decodeOptions(map[string]any{
+	opts1, err := decodePostCSSOptions(map[string]any{
 		"no-map": true,
 	})
 
 	c.Assert(err, qt.IsNil)
 	c.Assert(opts1.NoMap, qt.Equals, true)
 
-	opts2, err := decodeOptions(map[string]any{
+	opts2, err := decodePostCSSOptions(map[string]any{
 		"noMap": true,
 	})
 
@@ -65,6 +65,16 @@ func TestShouldImport(t *testing.T) {
 	} {
 		c.Assert(imp.shouldImport(test.input), qt.Equals, test.expect)
 	}
+}
+
+func TestShouldImportExcludes(t *testing.T) {
+	c := qt.New(t)
+	var imp *importResolver
+
+	c.Assert(imp.shouldImport(`@import "navigation.css";`), qt.Equals, true)
+	c.Assert(imp.shouldImport(`@import "tailwindcss";`), qt.Equals, false)
+	c.Assert(imp.shouldImport(`@import "tailwindcss.css";`), qt.Equals, true)
+	c.Assert(imp.shouldImport(`@import "tailwindcss/preflight";`), qt.Equals, false)
 }
 
 func TestImportResolver(t *testing.T) {
@@ -95,7 +105,7 @@ LOCAL_STYLE
 	imp := newImportResolver(
 		mainStyles,
 		"styles.css",
-		Options{},
+		InlineImports{},
 		fs, loggers.NewDefault(),
 		identity.NopManager,
 	)
@@ -153,7 +163,7 @@ LOCAL_STYLE
 		imp := newImportResolver(
 			strings.NewReader(mainStyles),
 			"styles.css",
-			Options{},
+			InlineImports{},
 			fs, logger,
 			identity.NopManager,
 		)

@@ -834,7 +834,7 @@ func (s *sitesBuilder) NpmInstall() hexec.Runner {
 	var err error
 	sc.Exec.Allow, err = security.NewWhitelist("npm")
 	s.Assert(err, qt.IsNil)
-	ex := hexec.New(sc)
+	ex := hexec.New(sc, s.workingDir)
 	command, err := ex.New("npm", "install")
 	s.Assert(err, qt.IsNil)
 	return command
