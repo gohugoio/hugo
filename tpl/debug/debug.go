@@ -30,12 +30,9 @@ import (
 
 // New returns a new instance of the debug-namespaced template functions.
 func New(d *deps.Deps) *Namespace {
-	var timers map[string][]*timer
+	ns := &Namespace{}
 	if d.Log.Level() <= logg.LevelInfo {
-		timers = make(map[string][]*timer)
-	}
-	ns := &Namespace{
-		timers: timers,
+		ns.timers = make(map[string][]*timer)
 	}
 
 	if ns.timers == nil {
@@ -55,7 +52,7 @@ func New(d *deps.Deps) *Namespace {
 
 		var timersSorted []data
 
-		for k, v := range timers {
+		for k, v := range ns.timers {
 			var total time.Duration
 			var median time.Duration
 			sort.Slice(v, func(i, j int) bool {
