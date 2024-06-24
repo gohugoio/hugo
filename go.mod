@@ -69,7 +69,7 @@ require (
 	github.com/tdewolff/minify/v2 v2.20.20
 	github.com/tdewolff/parse/v2 v2.7.13
 	github.com/yuin/goldmark v1.7.2
-	github.com/yuin/goldmark-emoji v1.0.2
+	github.com/yuin/goldmark-emoji v1.0.3
 	go.uber.org/automaxprocs v1.5.3
 	gocloud.dev v0.36.0
 	golang.org/x/exp v0.0.0-20221031165847-c99f073a8326
