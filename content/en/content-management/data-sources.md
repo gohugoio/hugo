@@ -45,7 +45,7 @@ project/
 Do not place CSV files in the data directory. Access CSV files as page, global, or remote resources.
 {{% /note %}}
 
-See the documentation for the [`Data`] method on `Page` object for details and examples.
+See the documentation for the [`Data`] method on a `Site` object for details and examples.
 
 [`Data`]: /methods/site/data/
 
