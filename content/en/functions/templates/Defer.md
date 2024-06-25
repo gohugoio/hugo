@@ -77,7 +77,7 @@ key (`string`)
 : The key to use for the deferred template. This will, combined with a hash of the template content, be used as a cache key. If this is not set, Hugo will execute the deferred template on every render. This is not what you want for shared resources like CSS and JavaScript.
 
 data (`map`) 
-: Optional map to pass as data the deferred template. This will be available in the deferred template as `.` or `$`.
+: Optional map to pass as data to the deferred template. This will be available in the deferred template as `.` or `$`.
 
 
 ```go-html-template
@@ -92,4 +92,4 @@ I18n Outside: {{ i18n "hello" }}
 {{ end }}
 ```
 
-The [Output Format](/templates/output-formats/), [Site](/methods/page/site/), and [language](/methods/site/language) will be the same, even if the execution is deferred. In the example above, this means that the `site.Language.Lang` and `.RelPermalink` will be the same on the inside and the outside the deferred template. 
+The [Output Format](/templates/output-formats/), [Site](/methods/page/site/), and [language](/methods/site/language) will be the same, even if the execution is deferred. In the example above, this means that the `site.Language.Lang` and `.RelPermalink` will be the same on the inside and the outside of the deferred template. 
