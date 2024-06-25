@@ -50,10 +50,16 @@ Page bundle characteristics vary by bundle type.
 | Index file          | index.md                                                | _index.md                                               |
 | Example             | content/about/index.md                                  | content/posts/_index.md                                 |
 | [Page kinds]        | `page`                                                  | `home`, `section`, `taxonomy`, or `term`                |
-| Layout type         | [single]                                                | [list]                                                  |
+| Template types       | [single]                                                | [home], [section], [taxonomy], or [term]           |
 | Descendant pages    | None                                                    | Zero or more                                            |
 | Resource location   | Adjacent to the index file or in a nested subdirectory  | Same as a leaf bundles, but excludes descendant bundles |
 | [Resource types]    | `page`, `image`, `video`, etc.                          | all but `page`                                          |
+
+[single]: /templates/types/#single
+[home]: /templates/types/#home
+[section]: /templates/types/#section
+[taxonomy]: /templates/types/#taxonomy
+[term]: /templates/types/#term
 
 Files with [resource type] `page` include content written in Markdown, HTML, AsciiDoc, Pandoc, reStructuredText, and Emacs Org Mode. In a leaf bundle, excluding the index file, these files are only accessible as page resources. In a branch bundle, these files are only accessible as content pages.
 
@@ -149,9 +155,7 @@ Use [build options] in front matter to create an unpublished leaf or branch bund
 
 [`Resources`]: /methods/page/resources/
 [build options]: content-management/build-options/
-[list]: /templates/lists/
 [page kinds]: /getting-started/glossary/#page-kind
 [page resources]: /content-management/page-resources/
 [resource type]: /getting-started/glossary/#resource-type
 [resource types]: /getting-started/glossary/#resource-type
-[single]: /templates/single-page-templates/

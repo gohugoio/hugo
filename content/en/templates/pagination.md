@@ -6,8 +6,8 @@ keywords: []
 menu:
   docs:
     parent: templates
-    weight: 180
-weight: 180
+    weight: 190
+weight: 190
 toc: true
 aliases: [/extras/pagination,/doc/pagination/]
 ---
@@ -27,7 +27,7 @@ The most common templating mistake related to pagination is invoking pagination 
 ## Terminology
 
 paginate
-: To split a list page into two or more subsets.
+: To split a [list page] into two or more subsets.
 
 pagination
 : The process of paginating a list page.
@@ -37,6 +37,8 @@ pager
 
 paginator
 : A collection of pagers.
+
+[list page]: /getting-started/glossary/#list-page
 
 ## Configuration
 
@@ -150,7 +152,9 @@ When paginating conditionally, do not use the `compare.Conditional` function due
 
 ## Grouping
 
-Use pagination with any of the grouping methods. For example:
+Use pagination with any of the [grouping methods]. For example:
+
+[grouping methods]: /quick-reference/page-collections/#group
 
 ```go-html-template
 {{ $pages := where site.RegularPages "Type" "posts" }}

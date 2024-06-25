@@ -75,7 +75,7 @@ Hugo renders:
 
 See additional examples in the [partial templates] section.
 
-[partial templates]: /templates/partials/#returning-a-value-from-a-partial
+[partial templates]: /templates/partial/#returning-a-value-from-a-partial
 
 ## Usage
 

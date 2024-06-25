@@ -22,7 +22,12 @@ There is also a `Paginator` method on `Page` objects, but it can neither filter 
 The `Paginate` method is more flexible.
 {{% /note %}}
 
-You can invoke pagination on `home`, `section`, `taxonomy`, and `term` pages.
+You can invoke pagination on the [home template], [section templates], [taxonomy templates], and [term templates].
+
+[home template]: /templates/types/#home
+[section templates]: /templates/types/#section
+[taxonomy templates]: /templates/types/#taxonomy
+[term templates]: /templates/types/#term
 
 {{< code file=layouts/_default/list.html >}}
 {{ $pages := where .Site.RegularPages "Section" "articles" }}
@@ -44,6 +49,3 @@ In the example above, we:
 {{% note %}}
 Please note that the results of pagination are cached. Once you have invoked either the `Paginator` or `Paginate` method, the paginated collection is immutable. Additional invocations of these methods will have no effect.
 {{% /note %}}
-
-[context]: /getting-started/glossary/#context
-[pagination]: /templates/pagination/

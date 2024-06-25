@@ -2,7 +2,7 @@
 title: Custom output formats
 description: Hugo can output content in multiple formats, including calendar events, e-book formats, Google AMP, and JSON search indexes, or any custom text format.
 categories: [templates,fundamentals]
-keywords: ["amp", "outputs", "rss"]
+keywords: []
 menu:
   docs:
     parent: templates
@@ -79,7 +79,7 @@ isPlainText = true
 protocol = "bep://"
 {{</ code-toggle >}}
 
-The above example is fictional, but if used for the homepage on a site with `baseURL` `https://example.org`, it will produce a plain text homepage with the URL `bep://example.org/myindex.enr`.
+The above example is fictional, but if used for the home page on a site with `baseURL` `https://example.org`, it will produce a plain text home page with the URL `bep://example.org/myindex.enr`.
 
 ### Configure output formats
 
@@ -163,7 +163,7 @@ Example from site configuration file:
 Note that in the above examples, the _output formats_ for `section`,
 `taxonomy` and `term` will stay at their default value `['html','rss']`.
 
-* The `outputs` definition is per page [`Kind`][page_kinds].
+* The `outputs` definition is per page [`Kind`].
 * The names (e.g. `html`, `amp`) must match the `name` of a defined output format, and can be overridden per page in front matter.
 
 The following is an example of front matter in a content file that defines output formats for the rendered `Page`:
@@ -242,9 +242,7 @@ The partial below is a plain text template . The output format is `csv`, and sin
 {{ partial "mytextpartial.csv" . }}
 ```
 
-[base]: /templates/base/
 [site configuration]: /getting-started/configuration/
 [lookup order]: /templates/lookup-order/
 [media type]: https://en.wikipedia.org/wiki/Media_type
-[partials]: /templates/partials/
 [`kind`]: /methods/page/kind/

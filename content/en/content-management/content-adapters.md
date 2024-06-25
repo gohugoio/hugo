@@ -241,7 +241,7 @@ Step 3
 {{< /code >}}
 
 Step 4
-: Create a single page template to render each book review.
+: Create a single template to render each book review.
 
 {{< code file=layouts/books/single.html copy=true >}}
 {{ define "main" }}

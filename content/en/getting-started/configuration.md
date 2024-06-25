@@ -438,7 +438,7 @@ See [Segments](#configure-segments).
 
 ###### sitemap
 
-Default [sitemap configuration](/templates/sitemap-template/#configuration).
+Default [sitemap configuration](/templates/sitemap/#configuration).
 
 ###### summaryLength
 

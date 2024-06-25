@@ -1,14 +1,14 @@
 ---
-title: Robots.txt file
-linkTitle: Robots.txt
+title: robots.txt template
+linkTitle: robots.txt templates
 description: Hugo can generate a customized robots.txt in the same way as any other template.
 categories: [templates]
-keywords: [robots,search engines]
+keywords: []
 menu:
   docs:
     parent: templates
-    weight: 230
-weight: 230
+    weight: 170
+weight: 170
 aliases: [/extras/robots-txt/]
 ---
 

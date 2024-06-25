@@ -3,13 +3,13 @@ title: Create your own shortcodes
 linkTitle: Shortcode templates
 description: You can extend Hugo's embedded shortcodes by creating your own using the same templating syntax as that for single and list pages.
 categories: [templates]
-keywords: [shortcodes,templates]
+keywords: []
 menu:
   docs:
     parent: templates
     weight: 130
 weight: 130
-aliases: [/functions/get]
+aliases: [/templates/shortcode-templates/]
 toc: true
 ---
 

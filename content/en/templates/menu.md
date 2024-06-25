@@ -1,15 +1,16 @@
 ---
-title: Menu templates
+title: Menus
 description: Create templates to render one or more menus.
 categories: [templates]
-keywords: [lists,sections,menus]
+keywords: []
 menu:
   docs:
+    identifier: templates-menu
     parent: templates
-    weight: 140
-weight: 140
+    weight: 180
+weight: 180
 toc: true
-aliases: [/templates/menus/]
+aliases: [/templates/menus/,/templates/menu-templates/]
 ---
 
 ## Overview

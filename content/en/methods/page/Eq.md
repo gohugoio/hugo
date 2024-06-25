@@ -9,7 +9,7 @@ action:
   signatures: [PAGE1.Eq PAGE2]
 ---
 
-In this contrived example from a single page template, we list all pages in the current section except for the current page.
+In this contrived example from a single template, we list all pages in the current section except for the current page.
 
 ```go-html-template
 {{ $currentPage := . }}

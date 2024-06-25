@@ -59,7 +59,7 @@ A remote resource is a file on a remote server, accessible via HTTP or HTTPS. To
 
 ## Image rendering
 
-Once you have accessed an image as either a page resource or a global resource, render it in your templates using the `Permalink`, `RelPermalink`, `Width`, and `Height` properties.
+Once you have accessed an image as a resource, render it in your templates using the `Permalink`, `RelPermalink`, `Width`, and `Height` properties.
 
 Example 1: Throws an error if the resource is not found.
 

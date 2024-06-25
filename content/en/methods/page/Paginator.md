@@ -16,7 +16,13 @@ The number of elements on each pager is determined by your [site configuration].
 
 [site configuration]: /getting-started/configuration/#pagination
 
-You can invoke pagination on `home`, `section`, `taxonomy`, and `term` pages. Each of these receive a collection of regular pages in [context]. When you invoke the `Paginator` method, it paginates the page collection received in context.
+You can invoke pagination on the [home template], [section templates], [taxonomy templates], and [term templates]. Each of these receives a collection of regular pages in [context]. When you invoke the `Paginator` method, it paginates the page collection received in context.
+
+[home template]: /templates/types/#home
+[section templates]: /templates/types/#section
+[taxonomy templates]: /templates/types/#taxonomy
+[term templates]: /templates/types/#term
+[context]: /getting-started/glossary/#context
 
 {{< code file=layouts/_default/list.html >}}
 {{ range .Paginator.Pages }}
@@ -38,6 +44,3 @@ The [`Paginate`] method is more flexible, and strongly recommended.
 {{% note %}}
 Please note that the results of pagination are cached. Once you have invoked either the `Paginator` or `Paginate` method, the paginated collection is immutable. Additional invocations of these methods will have no effect.
 {{% /note %}}
-
-[context]: /getting-started/glossary/#context
-[pagination]: /templates/pagination/

@@ -79,3 +79,7 @@ Process the resource:
 ```
 
 The example above publishes the minified CSS file to public/css/main.css.
+
+See [this repository] for more information about the integration with Tailwind CSS v4.0.
+
+[this repository]: https://github.com/bep/hugo-testing-tailwindcss-v4
