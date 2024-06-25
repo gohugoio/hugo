@@ -17,14 +17,28 @@ aliases: [/functions/templates.defer]
 In some rare use cases, you may need to defer the execution of a template until after all sites and output formats have been rendered. One such example could be [TailwindCSS](https://github.com/bep/hugo-starter-tailwind-basic) using the output of [hugo_stats.json](https://gohugo.io/getting-started/configuration/#configure-build) to determine which classes and other HTML identifiers are being used in the final output:
 
 ```go-html-template
-{{ with (templates.Defer (dict "key" "global-styles" )) }}
-      {{ $options := dict "inlineImports" true }}
-      {{ $styles := resources.Get "css/styles.css" }}
-      {{ $styles = $styles | resources.PostCSS $options }}
-      {{ if hugo.IsProduction }}
-        {{ $styles = $styles | minify | fingerprint }}
+{{ with (templates.Defer (dict "key" "global")) }}
+  {{ $t := debug.Timer "tailwindcss" }}
+  {{ with resources.Get "css/styles.css" }}
+    {{ $opts := dict
+      "inlineImports" true
+      "optimize" hugo.IsProduction
+    }}
+    {{ with . | css.TailwindCSS $opts }}
+      {{ if hugo.IsDevelopment }}
+        <link rel="stylesheet" href="{{ .RelPermalink }}" />
+      {{ else }}
+        {{ with . | minify | fingerprint }}
+          <link
+            rel="stylesheet"
+            href="{{ .RelPermalink }}"
+            integrity="{{ .Data.Integrity }}"
+            crossorigin="anonymous" />
+        {{ end }}
       {{ end }}
-      <link href="{{ $styles.RelPermalink }}" rel="stylesheet" />
+    {{ end }}
+  {{ end }}
+  {{ $t.Stop }}
 {{ end }}
 ```
 
