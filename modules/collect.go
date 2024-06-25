@@ -676,7 +676,8 @@ func (c *collector) normalizeMounts(owner *moduleAdapter, mounts []Mount) ([]Mou
 				}
 				f.Close()
 			} else {
-				c.logger.Warnf("module %q: mount source %q does not exist", owner.Path(), sourceDir)
+				// TODO(bep) commenting out for now, as this will create to much noise.
+				// c.logger.Warnf("module %q: mount source %q does not exist", owner.Path(), sourceDir)
 				continue
 			}
 		}
