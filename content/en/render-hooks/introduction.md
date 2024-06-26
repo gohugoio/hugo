@@ -67,15 +67,15 @@ layouts/
 ├── _default/
 │   └── _markup/
 │       ├── render-link.html
-│       └── render-link.text.txt
+│       └── render-link.rss.xml
 ├── books/
 │   └── _markup/
 │       ├── render-link.html
-│       └── render-link.text.txt
+│       └── render-link.rss.xml
 └── films/
     └── _markup/
         ├── render-link.html
-        └── render-link.text.txt
+        └── render-link.rss.xml
 ```
 
 [kind]: /getting-started/glossary/#page-kind
