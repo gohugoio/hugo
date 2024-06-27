@@ -88,8 +88,8 @@ module.exports = window.ReactDOM;
 With the above, these imports should work in both scenarios:
 
 ```js
-import * as React from 'react'
-import * as ReactDOM from 'react-dom';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom/client';
 ```
 
 target
