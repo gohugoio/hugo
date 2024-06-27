@@ -50,7 +50,11 @@ func TestOptionKey(t *testing.T) {
 func TestToBuildOptions(t *testing.T) {
 	c := qt.New(t)
 
-	opts, err := toBuildOptions(Options{mediaType: media.Builtin.JavascriptType})
+	opts, err := toBuildOptions(Options{
+		InternalOptions: InternalOptions{
+			MediaType: media.Builtin.JavascriptType,
+		},
+	})
 
 	c.Assert(err, qt.IsNil)
 	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
@@ -62,13 +66,19 @@ func TestToBuildOptions(t *testing.T) {
 		},
 	})
 
-	opts, err = toBuildOptions(Options{
-		Target:    "es2018",
-		Format:    "cjs",
-		Minify:    true,
-		mediaType: media.Builtin.JavascriptType,
-		AvoidTDZ:  true,
-	})
+	opts, err = toBuildOptions(
+		Options{
+			ExternalOptions: ExternalOptions{
+				Target:   "es2018",
+				Format:   "cjs",
+				Minify:   true,
+				AvoidTDZ: true,
+			},
+			InternalOptions: InternalOptions{
+				MediaType: media.Builtin.JavascriptType,
+			},
+		},
+	)
 	c.Assert(err, qt.IsNil)
 	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
 		Bundle:            true,
@@ -82,10 +92,17 @@ func TestToBuildOptions(t *testing.T) {
 		},
 	})
 
-	opts, err = toBuildOptions(Options{
-		Target: "es2018", Format: "cjs", Minify: true, mediaType: media.Builtin.JavascriptType,
-		SourceMap: "inline",
-	})
+	opts, err = toBuildOptions(
+		Options{
+			ExternalOptions: ExternalOptions{
+				Target: "es2018", Format: "cjs", Minify: true,
+				SourceMap: "inline",
+			},
+			InternalOptions: InternalOptions{
+				MediaType: media.Builtin.JavascriptType,
+			},
+		},
+	)
 	c.Assert(err, qt.IsNil)
 	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
 		Bundle:            true,
@@ -100,10 +117,17 @@ func TestToBuildOptions(t *testing.T) {
 		},
 	})
 
-	opts, err = toBuildOptions(Options{
-		Target: "es2018", Format: "cjs", Minify: true, mediaType: media.Builtin.JavascriptType,
-		SourceMap: "inline",
-	})
+	opts, err = toBuildOptions(
+		Options{
+			ExternalOptions: ExternalOptions{
+				Target: "es2018", Format: "cjs", Minify: true,
+				SourceMap: "inline",
+			},
+			InternalOptions: InternalOptions{
+				MediaType: media.Builtin.JavascriptType,
+			},
+		},
+	)
 	c.Assert(err, qt.IsNil)
 	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
 		Bundle:            true,
@@ -118,10 +142,18 @@ func TestToBuildOptions(t *testing.T) {
 		},
 	})
 
-	opts, err = toBuildOptions(Options{
-		Target: "es2018", Format: "cjs", Minify: true, mediaType: media.Builtin.JavascriptType,
-		SourceMap: "external",
-	})
+	opts, err = toBuildOptions(
+		Options{
+			ExternalOptions: ExternalOptions{
+				Target: "es2018", Format: "cjs", Minify: true,
+				SourceMap: "external",
+			},
+			InternalOptions: InternalOptions{
+				MediaType: media.Builtin.JavascriptType,
+			},
+		},
+	)
+
 	c.Assert(err, qt.IsNil)
 	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
 		Bundle:            true,
@@ -136,10 +168,17 @@ func TestToBuildOptions(t *testing.T) {
 		},
 	})
 
-	opts, err = toBuildOptions(Options{
-		mediaType: media.Builtin.JavascriptType,
-		JSX:       "automatic", JSXImportSource: "preact",
-	})
+	opts, err = toBuildOptions(
+		Options{
+			ExternalOptions: ExternalOptions{
+				JSX: "automatic", JSXImportSource: "preact",
+			},
+			InternalOptions: InternalOptions{
+				MediaType: media.Builtin.JavascriptType,
+			},
+		},
+	)
+
 	c.Assert(err, qt.IsNil)
 	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
 		Bundle: true,
@@ -173,10 +212,17 @@ func TestToBuildOptionsTarget(t *testing.T) {
 		{"esnext", api.ESNext},
 	} {
 		c.Run(test.target, func(c *qt.C) {
-			opts, err := toBuildOptions(Options{
-				Target:    test.target,
-				mediaType: media.Builtin.JavascriptType,
-			})
+			opts, err := toBuildOptions(
+				Options{
+					ExternalOptions: ExternalOptions{
+						Target: test.target,
+					},
+					InternalOptions: InternalOptions{
+						MediaType: media.Builtin.JavascriptType,
+					},
+				},
+			)
+
 			c.Assert(err, qt.IsNil)
 			c.Assert(opts.Target, qt.Equals, test.expect)
 		})
