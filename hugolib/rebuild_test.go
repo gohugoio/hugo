@@ -71,6 +71,18 @@ Foo.
 
 `
 
+func TestRebuildEditLeafBundleHeaderOnly(t *testing.T) {
+	b := TestRunning(t, rebuildFilesSimple)
+	b.AssertFileContent("public/mysection/mysectionbundle/index.html",
+		"My Section Bundle Content Content.")
+
+	b.EditFileReplaceAll("content/mysection/mysectionbundle/index.md", "My Section Bundle Content.", "My Section Bundle Content Edited.").Build()
+	b.AssertFileContent("public/mysection/mysectionbundle/index.html",
+		"My Section Bundle Content Edited.")
+	b.AssertRenderCountPage(1)
+	b.AssertRenderCountContent(1)
+}
+
 func TestRebuildEditTextFileInLeafBundle(t *testing.T) {
 	b := TestRunning(t, rebuildFilesSimple)
 	b.AssertFileContent("public/mysection/mysectionbundle/index.html",

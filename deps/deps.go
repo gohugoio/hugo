@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -266,6 +267,20 @@ func (d *Deps) Compile(prototype *Deps) error {
 	}
 
 	return nil
+}
+
+// MkdirTemp returns a temporary directory path that will be cleaned up on exit.
+func (d Deps) MkdirTemp(pattern string) (string, error) {
+	filename, err := os.MkdirTemp("", pattern)
+	if err != nil {
+		return "", err
+	}
+	d.BuildClosers.Add(types.CloserFunc(
+		func() error {
+			return os.RemoveAll(filename)
+		}))
+
+	return filename, nil
 }
 
 type globalErrHandler struct {

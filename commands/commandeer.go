@@ -455,6 +455,7 @@ func (r *rootCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 	r.hugoSites = lazycache.New(lazycache.Options[configKey, *hugolib.HugoSites]{
 		MaxEntries: 1,
 		OnEvict: func(key configKey, value *hugolib.HugoSites) {
+			fmt.Println("Evicting HugoSites", key) // TODO1 remove me.
 			value.Close()
 			runtime.GC()
 		},

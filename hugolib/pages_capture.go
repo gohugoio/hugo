@@ -149,7 +149,15 @@ func (c *pagesCollector) Collect() (collectErr error) {
 					id.p,
 					false,
 					func(fim hugofs.FileMetaInfo) bool {
-						return true
+						if id.isStructuralChange() {
+							return true
+						}
+						fimp := fim.Meta().PathInfo
+						if fimp == nil {
+							return true
+						}
+
+						return fimp.Path() == id.p.Path()
 					},
 				)
 			} else if id.p.IsBranchBundle() {
