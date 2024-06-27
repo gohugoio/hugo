@@ -4,7 +4,6 @@ description: Compiles the given JavaScript resource with Babel.
 categories: []
 keywords: []
 action:
-  aliases: [babel]
   related:
     - functions/js/Build
     - functions/resources/Fingerprint

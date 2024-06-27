@@ -6,7 +6,7 @@ keywords: []
 action:
   aliases: []
   related:
-    - functions/resources/Babel
+    - functions/js/Babel
     - functions/resources/Fingerprint
     - functions/resources/Minify
   returnType: resource.Resource

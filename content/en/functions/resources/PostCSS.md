@@ -4,7 +4,6 @@ description: Processes the given resource with PostCSS using any PostCSS plugin.
 categories: []
 keywords: []
 action:
-  aliases: [postCSS]
   related:
     - functions/resources/Fingerprint
     - functions/resources/Minify
@@ -133,4 +132,4 @@ module.exports = {
 [node.js]: https://nodejs.org/en/download
 [postcss plugins]: https://www.postcss.parts/
 [supported file name]: https://github.com/postcss/postcss-load-config#usage
-[transpile to CSS]: /functions/resources/tocss.md
+[transpile to CSS]: /functions/css/sass/

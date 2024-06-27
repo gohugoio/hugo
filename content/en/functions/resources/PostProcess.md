@@ -6,10 +6,8 @@ keywords: []
 action:
   aliases: []
   related:
-    - functions/resources/Fingerprint
-    - functions/resources/Minify
-    - functions/resources/PostCSS
-    - functions/resources/ToCSS
+    - functions/css/PostCSS
+    - functions/css/Sass
   returnType: postpub.PostPublishedResource
   signatures: [resources.PostProcess RESOURCE]
 toc: true

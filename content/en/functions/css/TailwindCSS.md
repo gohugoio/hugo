@@ -8,6 +8,7 @@ action:
   related:
     - functions/resources/Fingerprint
     - functions/resources/Minify
+    - functions/css/PostCSS
   returnType: resource.Resource
   signatures: ['css.TailwindCSS [OPTIONS] RESOURCE']
 toc: true

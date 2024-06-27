@@ -4,7 +4,6 @@ description: Transpiles Sass to CSS.
 categories: []
 keywords: []
 action:
-  aliases: [toCSS]
   related:
     - functions/resources/Fingerprint
     - functions/resources/Minify
