@@ -69,6 +69,13 @@ func TestOptDebug() TestOpt {
 	}
 }
 
+// TestOptInfo will enable info logging in integration tests.
+func TestOptInfo() TestOpt {
+	return func(c *IntegrationTestConfig) {
+		c.LogLevel = logg.LevelInfo
+	}
+}
+
 // TestOptWarn will enable warn logging in integration tests.
 func TestOptWarn() TestOpt {
 	return func(c *IntegrationTestConfig) {
@@ -87,6 +94,13 @@ func TestOptOsFs() TestOpt {
 func TestOptWithNFDOnDarwin() TestOpt {
 	return func(c *IntegrationTestConfig) {
 		c.NFDFormOnDarwin = true
+	}
+}
+
+// TestOptWithOSFs enables the real file system.
+func TestOptWithOSFs() TestOpt {
+	return func(c *IntegrationTestConfig) {
+		c.NeedsOsFS = true
 	}
 }
 
@@ -284,8 +298,9 @@ func (s *IntegrationTestBuilder) negate(match string) (string, bool) {
 func (s *IntegrationTestBuilder) AssertFileContent(filename string, matches ...string) {
 	s.Helper()
 	content := strings.TrimSpace(s.FileContent(filename))
+
 	for _, m := range matches {
-		cm := qt.Commentf("File: %s Match %s", filename, m)
+		cm := qt.Commentf("File: %s Match %s\nContent:\n%s", filename, m, content)
 		lines := strings.Split(m, "\n")
 		for _, match := range lines {
 			match = strings.TrimSpace(match)
@@ -313,7 +328,8 @@ func (s *IntegrationTestBuilder) AssertFileContentExact(filename string, matches
 	s.Helper()
 	content := s.FileContent(filename)
 	for _, m := range matches {
-		s.Assert(content, qt.Contains, m, qt.Commentf(m))
+		cm := qt.Commentf("File: %s Match %s\nContent:\n%s", filename, m, content)
+		s.Assert(content, qt.Contains, m, cm)
 	}
 }
 
@@ -448,6 +464,11 @@ func (s *IntegrationTestBuilder) Build() *IntegrationTestBuilder {
 	})
 
 	return s
+}
+
+func (s *IntegrationTestBuilder) Close() {
+	s.Helper()
+	s.Assert(s.H.Close(), qt.IsNil)
 }
 
 func (s *IntegrationTestBuilder) LogString() string {

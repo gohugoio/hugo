@@ -143,13 +143,29 @@ func (c *pagesCollector) Collect() (collectErr error) {
 			s.pageMap.cfg.isRebuild = true
 		}
 
+		var hasStructuralChange bool
+		for _, id := range c.ids {
+			if id.isStructuralChange() {
+				hasStructuralChange = true
+				break
+			}
+		}
+
 		for _, id := range c.ids {
 			if id.p.IsLeafBundle() {
 				collectErr = c.collectDir(
 					id.p,
 					false,
 					func(fim hugofs.FileMetaInfo) bool {
-						return true
+						if hasStructuralChange {
+							return true
+						}
+						fimp := fim.Meta().PathInfo
+						if fimp == nil {
+							return true
+						}
+
+						return fimp.Path() == id.p.Path()
 					},
 				)
 			} else if id.p.IsBranchBundle() {

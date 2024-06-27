@@ -15,6 +15,7 @@ package resources
 
 import (
 	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -26,6 +27,7 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/paths"
 )
 
 var (
@@ -172,6 +174,8 @@ func assignMetadata(metadata []map[string]any, ma *metaResource) error {
 				name, found := meta["name"]
 				if found {
 					name := cast.ToString(name)
+					// Bundled resources in sub folders are relative paths with forward slashes. Make sure any renames also matches that format:
+					name = paths.TrimLeading(filepath.ToSlash(name))
 					if !nameCounterFound {
 						nameCounterFound = strings.Contains(name, counterPlaceHolder)
 					}
