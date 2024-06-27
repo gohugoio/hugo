@@ -920,7 +920,11 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 
 			changed := c.changeDetector.changed()
 			if c.changeDetector != nil {
-				lrl.Logf("build changed %d files", len(changed))
+				if len(changed) >= 10 {
+					lrl.Logf("build changed %d files", len(changed))
+				} else {
+					lrl.Logf("build changed %d files: %q", len(changed), changed)
+				}
 				if len(changed) == 0 {
 					// Nothing has changed.
 					return

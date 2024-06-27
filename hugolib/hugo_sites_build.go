@@ -520,8 +520,9 @@ func (s *Site) executeDeferredTemplates(de *deps.DeferredExecutions) error {
 		},
 	})
 
-	de.FilenamesWithPostPrefix.ForEeach(func(filename string, _ bool) {
+	de.FilenamesWithPostPrefix.ForEeach(func(filename string, _ bool) bool {
 		g.Enqueue(filename)
+		return true
 	})
 
 	return g.Wait()
@@ -1057,6 +1058,8 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 			return false
 		}
 	}
+
+	h.Deps.OnChangeListeners.Notify(changed.Changes()...)
 
 	if err := h.resolveAndClearStateForIdentities(ctx, l, cacheBusterOr, changed.Drain()); err != nil {
 		return err
