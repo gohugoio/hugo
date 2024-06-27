@@ -1522,7 +1522,11 @@ func (s *Site) renderForTemplate(ctx context.Context, name, outputFormat string,
 	}
 
 	if err = s.Tmpl().ExecuteWithContext(ctx, templ, w, d); err != nil {
-		return fmt.Errorf("render of %q failed: %w", name, err)
+		filename := name
+		if p, ok := d.(*pageState); ok {
+			filename = p.pathOrTitle()
+		}
+		return fmt.Errorf("render of %q failed: %w", filename, err)
 	}
 	return
 }

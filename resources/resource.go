@@ -47,6 +47,7 @@ var (
 	_ resource.Cloner                    = (*genericResource)(nil)
 	_ resource.ResourcesLanguageMerger   = (*resource.Resources)(nil)
 	_ resource.Identifier                = (*genericResource)(nil)
+	_ resource.PathProvider              = (*genericResource)(nil)
 	_ identity.IdentityGroupProvider     = (*genericResource)(nil)
 	_ identity.DependencyManagerProvider = (*genericResource)(nil)
 	_ identity.Identity                  = (*genericResource)(nil)
@@ -461,6 +462,11 @@ func (l *genericResource) Key() string {
 	}
 
 	return key
+}
+
+// TODO1 test and document this. Consider adding it to the Resource interface.
+func (l *genericResource) Path() string {
+	return l.paths.TargetPath()
 }
 
 func (l *genericResource) MediaType() media.Type {
