@@ -108,6 +108,13 @@ type MediaTypeProvider interface {
 	MediaType() media.Type
 }
 
+type PathProvider interface {
+	// Path is the relative path to this resource.
+	// In most cases this will be the same as the RelPermalink(),
+	// but it will not trigger any lazy publishing.
+	Path() string
+}
+
 type ResourceLinksProvider interface {
 	// Permalink represents the absolute link to this resource.
 	Permalink() string
