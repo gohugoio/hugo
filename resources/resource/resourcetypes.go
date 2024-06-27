@@ -108,6 +108,14 @@ type MediaTypeProvider interface {
 	MediaType() media.Type
 }
 
+// TODO1 consider removing.s
+type PathProvider interface {
+	// Path is the relative path to this resource.
+	// In most cases this will be the same as the RelPermalink(),
+	// but it will not trigger any lazy publishing.
+	Path() string
+}
+
 type ResourceLinksProvider interface {
 	// Permalink represents the absolute link to this resource.
 	Permalink() string
@@ -242,6 +250,13 @@ type StaleMarker interface {
 // StaleInfo tells if a resource is marked as stale.
 type StaleInfo interface {
 	StaleVersion() uint32
+}
+
+// StaleInfoFunc is a function that returns the StaleVersion for one or more resources.
+type StaleInfoFunc func() uint32
+
+func (f StaleInfoFunc) StaleVersion() uint32 {
+	return f()
 }
 
 // StaleVersion returns the StaleVersion for the given os,

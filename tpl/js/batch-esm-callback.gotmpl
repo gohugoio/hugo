@@ -1,0 +1,17 @@
+{{ range $i, $e := .Modules -}}
+  import { default as {{ printf "Mod%d" $i }} } from "{{ .ImportPath }}";
+{{ end -}}
+{{ range $i, $e := .Callbacks }}
+  {{ $id := printf "Callback%d" $i }}
+  import { default as {{ $id }} } from "{{ . }}";
+{{ end }}
+{{/*  */}}
+let mods = [];
+{{ range $i, $e := .Modules -}}
+  mods.push({{ .CallbackJSON $i }});
+{{ end -}}
+{{/*  */}}
+{{ range $i, $e := .Callbacks }}
+  {{ $id := printf "Callback%d" $i }}
+  {{ $id }}(mods);
+{{ end }}
