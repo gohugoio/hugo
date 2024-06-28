@@ -117,9 +117,8 @@ jobs:
         run: "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
       - name: Build with Hugo
         env:
-          # For maximum backward compatibility with Hugo modules
+          HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache
           HUGO_ENVIRONMENT: production
-          HUGO_ENV: production
           TZ: America/Los_Angeles
         run: |
           hugo \
