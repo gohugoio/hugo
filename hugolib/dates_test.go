@@ -266,3 +266,86 @@ Home's Date should be equal mydata date: true
 Full time: 6:00:00 am UTC
 `)
 }
+
+func TestPublisDateRollupIssue12438(t *testing.T) {
+	t.Parallel()
+
+	// To future Hugo maintainers, this test will start to fail in 2099.
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','sitemap']
+[taxonomies]
+tag = 'tags'
+-- layouts/_default/list.html --
+Date: {{ .Date.Format "2006-01-02" }}
+PublishDate: {{ .PublishDate.Format "2006-01-02" }}
+Lastmod: {{ .Lastmod.Format "2006-01-02" }}
+-- layouts/_default/single.html --
+{{ .Title }}
+-- content/s1/p1.md --
+---
+title: p1
+date: 2024-03-01
+lastmod: 2024-03-02
+tags: [t1]
+---
+-- content/s1/p2.md --
+---
+title: p2
+date: 2024-04-03
+lastmod: 2024-04-04
+tags: [t1]
+---
+-- content/s1/p3.md --
+---
+title: p3
+lastmod: 2099-05-06
+tags: [t1]
+---
+
+`
+
+	// Test without publishDate in front matter.
+	b := Test(t, files)
+
+	b.AssertFileContent("public/s1/index.html", `
+		Date: 2099-05-06
+		PublishDate: 2024-04-03
+		Lastmod: 2099-05-06
+	`)
+
+	b.AssertFileContent("public/tags/index.html", `
+		Date: 2024-04-03
+		PublishDate: 2024-04-03
+		Lastmod: 2024-04-04
+	`)
+
+	b.AssertFileContent("public/tags/t1/index.html", `
+		Date: 2024-04-03
+		PublishDate: 2024-04-03
+		Lastmod: 2024-04-04
+	`)
+
+	// Test with publishDate in front matter.
+	files = strings.ReplaceAll(files, "lastmod", "publishDate")
+
+	b = Test(t, files)
+
+	b.AssertFileContent("public/s1/index.html", `
+		Date: 2099-05-06
+		PublishDate: 2024-04-04
+		Lastmod: 2099-05-06
+	`)
+
+	b.AssertFileContent("public/tags/index.html", `
+		Date: 2024-04-03
+		PublishDate: 2024-04-04
+		Lastmod: 2024-04-03
+	`)
+
+	b.AssertFileContent("public/tags/t1/index.html", `
+		Date: 2024-04-03
+		PublishDate: 2024-04-04
+		Lastmod: 2024-04-03
+	`)
+}

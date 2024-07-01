@@ -1428,7 +1428,7 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 					}
 
 					if wasZeroDates {
-						pageBundle.m.pageConfig.Dates.UpdateDateAndLastmodIfAfter(sp.m.pageConfig.Dates)
+						pageBundle.m.pageConfig.Dates.UpdateDateAndLastmodAndPublishDateIfAfter(sp.m.pageConfig.Dates)
 					}
 
 					if pageBundle.IsHome() {
@@ -1565,7 +1565,7 @@ func (sa *sitePagesAssembler) applyAggregatesToTaxonomiesAndTerms() error {
 							return
 						}
 
-						p.m.pageConfig.Dates.UpdateDateAndLastmodIfAfter(sp.m.pageConfig.Dates)
+						p.m.pageConfig.Dates.UpdateDateAndLastmodAndPublishDateIfAfter(sp.m.pageConfig.Dates)
 					})
 				}
 
