@@ -28,6 +28,8 @@ import (
 	"github.com/gohugoio/hugo/markup/goldmark/internal/extensions/attributes"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
 
+	katex "github.com/libkush/goldmark-katex"
+
 	"github.com/yuin/goldmark"
 	emoji "github.com/yuin/goldmark-emoji"
 	"github.com/yuin/goldmark/ast"
@@ -207,6 +209,10 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 
 	if pcfg.Conf.EnableEmoji() {
 		extensions = append(extensions, emoji.Emoji)
+	}
+
+	if cfg.Extensions.KaTeX {
+		extensions = append(extensions, &katex.Extender{})
 	}
 
 	if cfg.Parser.AutoHeadingID {

@@ -43,6 +43,7 @@ var Default = Config{
 		Linkify:         true,
 		LinkifyProtocol: "https",
 		TaskList:        true,
+		KaTeX:           false,
 		CJK: CJK{
 			Enable:                   false,
 			EastAsianLineBreaks:      false,
@@ -138,6 +139,7 @@ type Extensions struct {
 	Linkify         bool
 	LinkifyProtocol string
 	TaskList        bool
+	KaTeX           bool
 	CJK             CJK
 }
 
