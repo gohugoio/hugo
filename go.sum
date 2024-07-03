@@ -357,6 +357,10 @@ github.com/kyokomi/emoji/v2 v2.2.12 h1:sSVA5nH9ebR3Zji1o31wu3yOwD1zKXQA2z0zUyeit
 github.com/kyokomi/emoji/v2 v2.2.12/go.mod h1:JUcn42DTdsXJo1SWanHh4HKDEyPaR5CqkmoirZZP9qE=
 github.com/libkush/goldmark-katex v0.2.1 h1:Jsun+3wqVkS7KYZsyCVOF4DYOeAKNcTU4nMxALk4/8s=
 github.com/libkush/goldmark-katex v0.2.1/go.mod h1:ePURpnisAv5tpG0cP9va109B7F+3zqgP+DrASzz4CSo=
+github.com/libkush/goldmark-katex v0.2.2 h1:RX/o7beYHznzU6Jq9dAb6uvYcEMKpFJ5JpNWkmoApwU=
+github.com/libkush/goldmark-katex v0.2.2/go.mod h1:ePURpnisAv5tpG0cP9va109B7F+3zqgP+DrASzz4CSo=
+github.com/libkush/goldmark-katex v0.2.3 h1:Vk/xpN/yfRf7GV2X04q+nNfp0wQFjFhI0LPVQLrW864=
+github.com/libkush/goldmark-katex v0.2.3/go.mod h1:ePURpnisAv5tpG0cP9va109B7F+3zqgP+DrASzz4CSo=
 github.com/magefile/mage v1.15.0 h1:BvGheCMAsG3bWUDbZ8AyXXpCNwU9u5CB6sM+HNb9HYg=
 github.com/magefile/mage v1.15.0/go.mod h1:z5UZb/iS3GoOSn0JgWuiw7dxlurVYTu+/jHXqQg881A=
 github.com/mailru/easyjson v0.7.7 h1:UGYAvKxe3sBsEDzO8ZeWOSlIQfWFlxbzLZe7hwFURr0=
