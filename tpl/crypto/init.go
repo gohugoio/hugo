@@ -53,13 +53,6 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.FNV32a,
-			nil,
-			[][2]string{
-				{`{{ crypto.FNV32a "Hugo Rocks!!" }}`, `1515779328`},
-			},
-		)
-
 		ns.AddMethodMapping(ctx.HMAC,
 			[]string{"hmac"},
 			[][2]string{
