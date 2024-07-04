@@ -413,6 +413,35 @@ layout: p2
 	b.AssertFileContent("public/s1/p2/index.html", "p1")
 }
 
+func TestGetPageNewsVsTagsNewsIssue12638(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['rss','section','sitemap']
+[taxonomies]
+  tag = "tags"
+-- content/p1.md --
+---
+title: p1
+tags: [news]
+---
+-- layouts/index.html --
+/tags/news: {{ with .Site.GetPage "/tags/news" }}{{ .Title }}{{ end }}|
+news: {{ with .Site.GetPage "news" }}{{ .Title }}{{ end }}|
+/news: {{ with .Site.GetPage "/news" }}{{ .Title }}{{ end }}|
+
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		"/tags/news: News|",
+		"news: News|",
+		"/news: |",
+	)
+}
+
 func TestGetPageBundleToRegular(t *testing.T) {
 	files := `
 -- hugo.toml --
