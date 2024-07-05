@@ -363,6 +363,8 @@ github.com/libkush/goldmark-katex v0.2.3 h1:Vk/xpN/yfRf7GV2X04q+nNfp0wQFjFhI0LPV
 github.com/libkush/goldmark-katex v0.2.3/go.mod h1:ePURpnisAv5tpG0cP9va109B7F+3zqgP+DrASzz4CSo=
 github.com/libkush/goldmark-katex v0.2.4 h1:NQRffwMoe5XS6qN1tKjyHPqwBxsxZYAq2EaXomqxcxU=
 github.com/libkush/goldmark-katex v0.2.4/go.mod h1:ePURpnisAv5tpG0cP9va109B7F+3zqgP+DrASzz4CSo=
+github.com/libkush/goldmark-katex v0.3.4 h1:j4X9+u1oYaneK2gg1J2Xj6sF8PS2CGPar+MhRWRJQG8=
+github.com/libkush/goldmark-katex v0.3.4/go.mod h1:ePURpnisAv5tpG0cP9va109B7F+3zqgP+DrASzz4CSo=
 github.com/magefile/mage v1.15.0 h1:BvGheCMAsG3bWUDbZ8AyXXpCNwU9u5CB6sM+HNb9HYg=
 github.com/magefile/mage v1.15.0/go.mod h1:z5UZb/iS3GoOSn0JgWuiw7dxlurVYTu+/jHXqQg881A=
 github.com/mailru/easyjson v0.7.7 h1:UGYAvKxe3sBsEDzO8ZeWOSlIQfWFlxbzLZe7hwFURr0=
