@@ -162,16 +162,16 @@ type dynamicEvents struct {
 
 type fileChangeDetector struct {
 	sync.Mutex
-	current map[string]string
-	prev    map[string]string
+	current map[string]uint64
+	prev    map[string]uint64
 
 	irrelevantRe *regexp.Regexp
 }
 
-func (f *fileChangeDetector) OnFileClose(name, md5sum string) {
+func (f *fileChangeDetector) OnFileClose(name string, checksum uint64) {
 	f.Lock()
 	defer f.Unlock()
-	f.current[name] = md5sum
+	f.current[name] = checksum
 }
 
 func (f *fileChangeDetector) PrepareNew() {
@@ -183,16 +183,16 @@ func (f *fileChangeDetector) PrepareNew() {
 	defer f.Unlock()
 
 	if f.current == nil {
-		f.current = make(map[string]string)
-		f.prev = make(map[string]string)
+		f.current = make(map[string]uint64)
+		f.prev = make(map[string]uint64)
 		return
 	}
 
-	f.prev = make(map[string]string)
+	f.prev = make(map[string]uint64)
 	for k, v := range f.current {
 		f.prev[k] = v
 	}
-	f.current = make(map[string]string)
+	f.current = make(map[string]uint64)
 }
 
 func (f *fileChangeDetector) changed() []string {

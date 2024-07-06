@@ -14,25 +14,24 @@
 package hugofs
 
 import (
-	"crypto/md5"
-	"encoding/hex"
 	"hash"
 	"os"
 
+	"github.com/cespare/xxhash/v2"
 	"github.com/spf13/afero"
 )
 
 var (
-	_ afero.Fs            = (*md5HashingFs)(nil)
-	_ FilesystemUnwrapper = (*md5HashingFs)(nil)
+	_ afero.Fs            = (*hashingFs)(nil)
+	_ FilesystemUnwrapper = (*hashingFs)(nil)
 )
 
 // FileHashReceiver will receive the filename an the content's MD5 sum on file close.
 type FileHashReceiver interface {
-	OnFileClose(name, md5sum string)
+	OnFileClose(name string, checksum uint64)
 }
 
-type md5HashingFs struct {
+type hashingFs struct {
 	afero.Fs
 	hashReceiver FileHashReceiver
 }
@@ -45,14 +44,14 @@ type md5HashingFs struct {
 // Note that this will only work for file operations that use the io.Writer
 // to write content to file, but that is fine for the "publish content" use case.
 func NewHashingFs(delegate afero.Fs, hashReceiver FileHashReceiver) afero.Fs {
-	return &md5HashingFs{Fs: delegate, hashReceiver: hashReceiver}
+	return &hashingFs{Fs: delegate, hashReceiver: hashReceiver}
 }
 
-func (fs *md5HashingFs) UnwrapFilesystem() afero.Fs {
+func (fs *hashingFs) UnwrapFilesystem() afero.Fs {
 	return fs.Fs
 }
 
-func (fs *md5HashingFs) Create(name string) (afero.File, error) {
+func (fs *hashingFs) Create(name string) (afero.File, error) {
 	f, err := fs.Fs.Create(name)
 	if err == nil {
 		f = fs.wrapFile(f)
@@ -60,7 +59,7 @@ func (fs *md5HashingFs) Create(name string) (afero.File, error) {
 	return f, err
 }
 
-func (fs *md5HashingFs) OpenFile(name string, flag int, perm os.FileMode) (afero.File, error) {
+func (fs *hashingFs) OpenFile(name string, flag int, perm os.FileMode) (afero.File, error) {
 	f, err := fs.Fs.OpenFile(name, flag, perm)
 	if err == nil && isWrite(flag) {
 		f = fs.wrapFile(f)
@@ -68,17 +67,17 @@ func (fs *md5HashingFs) OpenFile(name string, flag int, perm os.FileMode) (afero
 	return f, err
 }
 
-func (fs *md5HashingFs) wrapFile(f afero.File) afero.File {
-	return &hashingFile{File: f, h: md5.New(), hashReceiver: fs.hashReceiver}
+func (fs *hashingFs) wrapFile(f afero.File) afero.File {
+	return &hashingFile{File: f, h: xxhash.New(), hashReceiver: fs.hashReceiver}
 }
 
-func (fs *md5HashingFs) Name() string {
-	return "md5HashingFs"
+func (fs *hashingFs) Name() string {
+	return "hashingFs"
 }
 
 type hashingFile struct {
 	hashReceiver FileHashReceiver
-	h            hash.Hash
+	h            hash.Hash64
 	afero.File
 }
 
@@ -91,7 +90,6 @@ func (h *hashingFile) Write(p []byte) (n int, err error) {
 }
 
 func (h *hashingFile) Close() error {
-	sum := hex.EncodeToString(h.h.Sum(nil))
-	h.hashReceiver.OnFileClose(h.Name(), sum)
+	h.hashReceiver.OnFileClose(h.Name(), h.h.Sum64())
 	return h.File.Close()
 }
