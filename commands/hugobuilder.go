@@ -744,6 +744,20 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 	staticEvents := []fsnotify.Event{}
 	dynamicEvents := []fsnotify.Event{}
 
+	filterDuplicateEvents := func(evs []fsnotify.Event) []fsnotify.Event {
+		seen := make(map[string]bool)
+		var n int
+		for _, ev := range evs {
+			if seen[ev.Name] {
+				continue
+			}
+			seen[ev.Name] = true
+			evs[n] = ev
+			n++
+		}
+		return evs[:n]
+	}
+
 	h, err := c.hugo()
 	if err != nil {
 		c.r.logger.Errorln("Error getting the Hugo object:", err)
@@ -833,6 +847,11 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 		}
 	}
 
+	lrl := c.r.logger.InfoCommand("livereload")
+
+	staticEvents = filterDuplicateEvents(staticEvents)
+	dynamicEvents = filterDuplicateEvents(dynamicEvents)
+
 	if len(staticEvents) > 0 {
 		c.printChangeDetected("Static files")
 
@@ -853,19 +872,20 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 		if c.s != nil && c.s.doLiveReload {
 			// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
 
-			// force refresh when more than one file
 			if !c.errState.wasErr() && len(staticEvents) == 1 {
-				ev := staticEvents[0]
 				h, err := c.hugo()
 				if err != nil {
 					c.r.logger.Errorln("Error getting the Hugo object:", err)
 					return
 				}
-				path := h.BaseFs.SourceFilesystems.MakeStaticPathRelative(ev.Name)
+
+				path := h.BaseFs.SourceFilesystems.MakeStaticPathRelative(staticEvents[0].Name)
 				path = h.RelURL(paths.ToSlashTrimLeading(path), false)
 
+				lrl.Logf("refreshing static file %q", path)
 				livereload.RefreshPath(path)
 			} else {
+				lrl.Logf("got %d static file change events, force refresh", len(staticEvents))
 				livereload.ForceRefresh()
 			}
 		}
@@ -889,43 +909,30 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 		}()
 
 		if c.s != nil && c.s.doLiveReload {
-			if len(partitionedEvents.ContentEvents) == 0 && len(partitionedEvents.AssetEvents) > 0 {
-				if c.errState.wasErr() {
-					livereload.ForceRefresh()
-					return
-				}
-				changed := c.changeDetector.changed()
-				if c.changeDetector != nil && len(changed) == 0 {
+			if c.errState.wasErr() {
+				livereload.ForceRefresh()
+				return
+			}
+
+			changed := c.changeDetector.changed()
+			if c.changeDetector != nil {
+				lrl.Logf("build changed %d files", len(changed))
+				if len(changed) == 0 {
 					// Nothing has changed.
 					return
-				} else if len(changed) == 1 {
-					pathToRefresh := h.PathSpec.RelURL(paths.ToSlashTrimLeading(changed[0]), false)
-					livereload.RefreshPath(pathToRefresh)
+				}
+			}
+
+			// If this change set also contains one or more CSS files, we need to
+			// refresh these as well.
+			var cssChanges []string
+			var otherChanges []string
+
+			for _, ev := range changed {
+				if strings.HasSuffix(ev, ".css") {
+					cssChanges = append(cssChanges, ev)
 				} else {
-					livereload.ForceRefresh()
-					// See https://github.com/gohugoio/hugo/issues/12600.
-					// If this change set also contains one or more CSS files, we need to
-					// refresh these as well.
-					var cssChanges []string
-					var otherChanges []string
-
-					for _, ev := range changed {
-						if strings.HasSuffix(ev, ".css") {
-							cssChanges = append(cssChanges, ev)
-						} else {
-							otherChanges = append(otherChanges, ev)
-						}
-					}
-
-					if len(otherChanges) > 0 {
-						livereload.ForceRefresh()
-						// Allow some time for the live reload script to get reconnected.
-						time.Sleep(200 * time.Millisecond)
-					}
-
-					for _, ev := range cssChanges {
-						livereload.RefreshPath(h.PathSpec.RelURL(paths.ToSlashTrimLeading(ev), false))
-					}
+					otherChanges = append(otherChanges, ev)
 				}
 			}
 
@@ -942,9 +949,34 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 				}
 
 				if p != nil {
-					livereload.NavigateToPathForPort(p.RelPermalink(), p.Site().ServerPort())
+					link, port := p.RelPermalink(), p.Site().ServerPort()
+					lrl.Logf("navigating to %q using port %d", link, port)
+					livereload.NavigateToPathForPort(link, port)
 				} else {
+					lrl.Logf("no page to navigate to, force refresh")
 					livereload.ForceRefresh()
+				}
+			} else if len(otherChanges) > 0 {
+				if len(otherChanges) == 1 {
+					// Allow single changes to be refreshed without a full page reload.
+					pathToRefresh := h.PathSpec.RelURL(paths.ToSlashTrimLeading(otherChanges[0]), false)
+					lrl.Logf("refreshing %q", pathToRefresh)
+					livereload.RefreshPath(pathToRefresh)
+				} else if len(cssChanges) == 0 {
+					lrl.Logf("force refresh")
+					livereload.ForceRefresh()
+				}
+			}
+
+			if len(cssChanges) > 0 {
+				// Allow some time for the live reload script to get reconnected.
+				if len(otherChanges) > 0 {
+					time.Sleep(200 * time.Millisecond)
+				}
+				for _, ev := range cssChanges {
+					pathToRefresh := h.PathSpec.RelURL(paths.ToSlashTrimLeading(ev), false)
+					lrl.Logf("refreshing CSS %q", pathToRefresh)
+					livereload.RefreshPath(pathToRefresh)
 				}
 			}
 		}
