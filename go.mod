@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.35.4
 	github.com/bep/clocks v0.5.0
 	github.com/bep/debounce v1.2.0
-	github.com/bep/gitmap v1.1.2
+	github.com/bep/gitmap v1.4.0
 	github.com/bep/goat v0.5.0
 	github.com/bep/godartsass v1.2.0
 	github.com/bep/godartsass/v2 v2.0.0
@@ -21,6 +21,7 @@ require (
 	github.com/bep/overlayfs v0.9.2
 	github.com/bep/simplecobra v0.4.0
 	github.com/bep/tmc v0.5.1
+	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/clbanning/mxj/v2 v2.7.0
 	github.com/cli/safeexec v1.0.1
 	github.com/disintegration/gift v1.2.1

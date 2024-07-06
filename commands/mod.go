@@ -268,13 +268,14 @@ Run "go help get" for more information. All flags available for "go get" is also
 							if info.Name() == "go.mod" {
 								// Found a module.
 								dir := filepath.Dir(path)
-								r.Println("Update module in", dir)
+
 								cfg := config.New()
 								cfg.Set("workingDir", dir)
-								conf, err := r.ConfigFromProvider(r.configVersionID.Load(), flagsToCfg(cd, cfg))
+								conf, err := r.ConfigFromProvider(r.configVersionID.Add(1), flagsToCfg(cd, cfg))
 								if err != nil {
 									return err
 								}
+								r.Println("Update module in", conf.configs.Base.WorkingDir)
 								client := conf.configs.ModulesClient
 								return client.Get(args...)
 

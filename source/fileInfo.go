@@ -175,6 +175,8 @@ type GitInfo struct {
 	AuthorDate time.Time `json:"authorDate"`
 	// The commit date.
 	CommitDate time.Time `json:"commitDate"`
+	// The commit message's body.
+	Body string `json:"body"`
 }
 
 // IsZero returns true if the GitInfo is empty,
