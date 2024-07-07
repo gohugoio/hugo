@@ -948,7 +948,7 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 					}
 				}
 
-				if p != nil {
+				if p != nil && p.RelPermalink() != "" {
 					link, port := p.RelPermalink(), p.Site().ServerPort()
 					lrl.Logf("navigating to %q using port %d", link, port)
 					livereload.NavigateToPathForPort(link, port)
