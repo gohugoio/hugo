@@ -15,6 +15,7 @@ require (
 	github.com/bep/golibsass v1.1.1
 	github.com/bep/gowebp v0.3.0
 	github.com/bep/helpers v0.4.0
+	github.com/bep/imagemeta v0.7.0
 	github.com/bep/lazycache v0.4.0
 	github.com/bep/logg v0.4.0
 	github.com/bep/mclib v1.20400.20402
@@ -60,7 +61,6 @@ require (
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58
 	github.com/pelletier/go-toml/v2 v2.2.2
 	github.com/rogpeppe/go-internal v1.12.0
-	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 	github.com/sanity-io/litter v1.5.5
 	github.com/spf13/afero v1.11.0
 	github.com/spf13/cast v1.6.0

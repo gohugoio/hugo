@@ -99,11 +99,6 @@ func (t *tailwindcssTransformation) Transform(ctx *resources.ResourceTransformat
 
 	cmdArgs = append(cmdArgs, options.toArgs()...)
 
-	// TODO1
-	//   npm i tailwindcss @tailwindcss/cli
-	// npm i tailwindcss@next @tailwindcss/cli@next
-	// npx tailwindcss -h
-
 	var errBuf bytes.Buffer
 
 	stderr := io.MultiWriter(infow, &errBuf)
@@ -134,7 +129,6 @@ func (t *tailwindcssTransformation) Transform(ctx *resources.ResourceTransformat
 		t.rs.Assets.Fs, t.rs.Logger, ctx.DependencyManager,
 	)
 
-	// TODO1 option {
 	src, err = imp.resolve()
 	if err != nil {
 		return err
