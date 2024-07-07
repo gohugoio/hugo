@@ -19,7 +19,6 @@ import (
 	"image"
 	"image/gif"
 	"io/fs"
-	"math/big"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -30,6 +29,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bep/imagemeta"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/resources/images/webp"
 
@@ -67,8 +67,13 @@ var eq = qt.CmpEquals(
 		return m1.Type == m2.Type
 	}),
 	cmp.Comparer(
-		func(v1, v2 *big.Rat) bool {
-			return v1.RatString() == v2.RatString()
+		func(v1, v2 imagemeta.Rat[uint32]) bool {
+			return v1.String() == v2.String()
+		},
+	),
+	cmp.Comparer(
+		func(v1, v2 imagemeta.Rat[int32]) bool {
+			return v1.String() == v2.String()
 		},
 	),
 	cmp.Comparer(func(v1, v2 time.Time) bool {
@@ -392,7 +397,7 @@ func TestImageResize8BitPNG(t *testing.T) {
 	c.Assert(image.MediaType().Type, qt.Equals, "image/png")
 	c.Assert(image.RelPermalink(), qt.Equals, "/a/gohugoio.png")
 	c.Assert(image.ResourceType(), qt.Equals, "image")
-	c.Assert(image.Exif(), qt.IsNil)
+	c.Assert(image.Exif(), qt.IsNotNil)
 
 	resized, err := image.Resize("800x")
 	c.Assert(err, qt.IsNil)
@@ -443,6 +448,7 @@ func TestImageExif(t *testing.T) {
 		c.Assert(lensModel, qt.Equals, "smc PENTAX-DA* 16-50mm F2.8 ED AL [IF] SDM")
 		resized, _ := image.Resize("300x200")
 		x2 := resized.Exif()
+
 		c.Assert(x2, eq, x)
 	}
 

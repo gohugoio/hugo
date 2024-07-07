@@ -82,8 +82,9 @@ func (i *imageResource) Exif() *exif.ExifInfo {
 
 func (i *imageResource) getExif() *exif.ExifInfo {
 	i.metaInit.Do(func() {
-		supportsExif := i.Format == images.JPEG || i.Format == images.TIFF
-		if !supportsExif {
+		mf := i.Format.ToImageMetaImageFormatFormat()
+		if mf == -1 {
+			// No Exif support for this format.
 			return
 		}
 
@@ -114,7 +115,8 @@ func (i *imageResource) getExif() *exif.ExifInfo {
 			}
 			defer f.Close()
 
-			x, err := i.getSpec().imaging.DecodeExif(f)
+			filename := i.getResourcePaths().Path()
+			x, err := i.getSpec().imaging.DecodeExif(filename, mf, f)
 			if err != nil {
 				i.getSpec().Logger.Warnf("Unable to decode Exif metadata from image: %s", i.Key())
 				return nil
@@ -471,7 +473,9 @@ func (i *imageResource) clone(img image.Image) *imageResource {
 }
 
 func (i *imageResource) getImageMetaCacheTargetPath() string {
-	const imageMetaVersionNumber = 1 // Increment to invalidate the meta cache
+	// Increment to invalidate the meta cache
+	// Last increment: v0.130.0 when change to the new imagemeta library for Exif.
+	const imageMetaVersionNumber = 2
 
 	cfgHash := i.getSpec().imaging.Cfg.SourceHash
 	df := i.getResourcePaths()
