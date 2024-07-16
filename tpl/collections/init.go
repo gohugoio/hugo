@@ -170,6 +170,11 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.Partition,
+			[]string{"partition"},
+			[][2]string{},
+		)
+
 		ns.AddMethodMapping(ctx.Seq,
 			[]string{"seq"},
 			[][2]string{

@@ -432,6 +432,27 @@ func (ns *Namespace) Last(limit any, l any) (any, error) {
 	return seqv.Slice(seqv.Len()-limitv, seqv.Len()).Interface(), nil
 }
 
+// Partition splits a set of items into chunks of given maximal length.
+// This is currently only supported for Pages.
+func (ns *Namespace) Partition(n any, items any) (any, error) {
+	nv, err := cast.ToIntE(n)
+	if err != nil {
+		return nil, err
+	}
+
+	if p, ok := items.(collections.Partitioner); ok {
+		return p.Partition(nv, items)
+	}
+
+	in := newSliceElement(items)
+
+	if p, ok := in.(collections.Partitioner); ok {
+		return p.Partition(nv, items)
+	}
+
+	return nil, fmt.Errorf("partitioning not supported for type %T %T", items, in)
+}
+
 // Querify encodes the given params in URL-encoded form ("bar=baz&foo=quux") sorted by key.
 func (ns *Namespace) Querify(params ...any) (string, error) {
 	qs := url.Values{}

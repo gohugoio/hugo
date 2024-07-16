@@ -19,3 +19,9 @@ package collections
 type Grouper interface {
 	Group(key any, items any) (any, error)
 }
+
+// Partitioner defines a very generic way to partition sets of items into
+// chunks of given maximal length.
+type Partitioner interface {
+	Partition(n any, items any) (any, error)
+}
