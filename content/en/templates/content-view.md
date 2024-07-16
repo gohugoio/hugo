@@ -29,7 +29,7 @@ To create a new view, create a template in each of your different content type d
         summary.html
     ▾ project/
         li.html
-        single.htm]
+        single.html
       summary.html
 ```
 
