@@ -254,7 +254,7 @@ func (c *templateContext) handleDefer(withNode *parse.WithNode) {
 		c.err = errors.New("resources.PostProcess cannot be used in a deferred template")
 		return
 	}
-	innerHash := helpers.MD5String(s)
+	innerHash := helpers.XxHashString(s)
 	deferredID := tpl.HugoDeferredTemplatePrefix + innerHash
 
 	c.deferNodes[deferredID] = inner
