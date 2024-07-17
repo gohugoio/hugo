@@ -200,3 +200,23 @@ func TestDeferFromContentAdapterShouldFail(t *testing.T) {
 	b.Assert(err, qt.Not(qt.IsNil))
 	b.Assert(err.Error(), qt.Contains, "error calling Defer: this method cannot be called before the site is fully initialized")
 }
+
+func TestDeferPostProcessShouldThrowAnError(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- assets/mytext.txt --
+ABCD.
+-- layouts/index.html --
+Home
+{{ with (templates.Defer (dict "key" "foo")) }}
+{{ $mytext := resources.Get "mytext.txt" | minify | resources.PostProcess }}
+{{ end }}
+
+`
+	b, err := hugolib.TestE(t, files)
+
+	b.Assert(err, qt.Not(qt.IsNil))
+	b.Assert(err.Error(), qt.Contains, "resources.PostProcess cannot be used in a deferred template")
+}
