@@ -37,6 +37,7 @@ var DefaultConfig = Config{
 		Allow: MustNewWhitelist(
 			"^(dart-)?sass(-embedded)?$", // sass, dart-sass, dart-sass-embedded.
 			"^go$",                       // for Go Modules
+			"^git$",                      // For Git info
 			"^npx$",                      // used by all Node tools (Babel, PostCSS).
 			"^postcss$",
 			"^tailwindcss$",
