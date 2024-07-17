@@ -4,7 +4,7 @@ description: Returns the 64-bit xxHash non-cryptographic hash of the given strin
 categories: []
 keywords: []
 action:
-  aliases: []
+  aliases: [xxhash]
   related:
     - functions/hash/FNV32a
     - functions/crypto/HMAC
