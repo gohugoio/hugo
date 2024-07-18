@@ -118,7 +118,21 @@ func init() {
 		ns.AddMethodMapping(ctx.Log,
 			nil,
 			[][2]string{
-				{"{{ math.Log 1 }}", "0"},
+				{"{{ math.Log 2.718281828459045 }}", "1"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Log2,
+			nil,
+			[][2]string{
+				{"{{ math.Log2 8 }}", "3"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Log10,
+			nil,
+			[][2]string{
+				{"{{ math.Log10 100 }}", "2"},
 			},
 		)
 

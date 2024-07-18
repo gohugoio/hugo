@@ -8,6 +8,8 @@ action:
   related:
     - functions/math/E
     - functions/math/Log
+    - functions/math/Log2
+    - functions/math/Log10
   returnType: float64
   signatures: [math.Exp VALUE]
 ---

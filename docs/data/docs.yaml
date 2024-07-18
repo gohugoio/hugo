@@ -3506,8 +3506,24 @@ tpl:
         - "n"
         Description: Log returns the natural logarithm of the number n.
         Examples:
-        - - '{{ math.Log 1 }}'
-          - "0"
+        - - '{{ math.Log 2.718281828459045 }}'
+          - "1"
+      Log2:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Log2 returns the binary logarithm of the number n.
+        Examples:
+        - - '{{ math.Log2 8 }}'
+          - "3"
+      Log10:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Log10 returns the decimal logarithm of the number n.
+        Examples:
+        - - '{{ math.Log10 100 }}'
+          - "2"
       Max:
         Aliases: null
         Args:
