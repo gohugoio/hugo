@@ -3541,6 +3541,13 @@ tpl:
         Examples:
         - - '{{ mul 2 3 }}'
           - "6"
+      Phi:
+        Aliases: null
+        Args: null
+        Description: Returns the golden ratio constant phi.
+        Examples:
+        - - '{{ math.Phi }}'
+          - "1.618033988749895"
       Pi:
         Aliases: null
         Args: null
