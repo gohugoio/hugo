@@ -3618,6 +3618,22 @@ tpl:
         Examples:
         - - '{{ math.Tan 1 }}'
           - "1.557407724654902"
+      ToDegrees:
+        Aliases: null
+        Args:
+        - "n"
+        Description: ToDegrees converts radians into degrees.
+        Examples:
+        - - '{{ math.ToDegrees 1.5707963267948966 }}'
+          - "90"
+      ToRadians:
+        Aliases: null
+        Args:
+        - "n"
+        Description: ToRadians converts degrees into radians.
+        Examples:
+        - - '{{ math.ToRadians 90 }}'
+          - "1.5707963267948966"
     openapi3:
       Unmarshal:
         Aliases: null

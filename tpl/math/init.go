@@ -199,6 +199,20 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.ToDegrees,
+			nil,
+			[][2]string{
+				{"{{ math.ToDegrees 1.5707963267948966 }}", "90"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.ToRadians,
+			nil,
+			[][2]string{
+				{"{{ math.ToRadians 90 }}", "1.5707963267948966"},
+			},
+		)
+
 		return ns
 	}
 

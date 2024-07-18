@@ -260,6 +260,26 @@ func (ns *Namespace) Tan(n any) (float64, error) {
 	return math.Tan(af), nil
 }
 
+// ToDegrees converts radians into degrees.
+func (ns *Namespace) ToDegrees(n any) (float64, error) {
+	af, err := cast.ToFloat64E(n)
+	if err != nil {
+		return 0, errors.New("requires a numeric argument")
+	}
+
+	return af * 180 / math.Pi, nil
+}
+
+// ToRadians converts degrees into radians.
+func (ns *Namespace) ToRadians(n any) (float64, error) {
+	af, err := cast.ToFloat64E(n)
+	if err != nil {
+		return 0, errors.New("requires a numeric argument")
+	}
+
+	return af * math.Pi / 180, nil
+}
+
 func (ns *Namespace) applyOpToScalarsOrSlices(opName string, op func(x, y float64) float64, inputs ...any) (result float64, err error) {
 	var i int
 	var hasValue bool
