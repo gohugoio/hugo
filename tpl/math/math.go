@@ -138,6 +138,20 @@ func (ns *Namespace) Log(n any) (float64, error) {
 	return math.Log(af), nil
 }
 
+// Returns the mathematical constant e.
+func (ns *Namespace) E() float64 {
+	return math.E
+}
+
+// Exp returns the base-e exponential of n.
+func (ns *Namespace) Exp(n any) (float64, error) {
+	af, err := cast.ToFloat64E(n)
+	if err != nil {
+		return 0, errors.New("requires a numeric argument")
+	}
+	return math.Exp(af), nil
+}
+
 // Max returns the greater of all numbers in inputs. Any slices in inputs are flattened.
 func (ns *Namespace) Max(inputs ...any) (maximum float64, err error) {
 	return ns.applyOpToScalarsOrSlices("Max", math.Max, inputs...)

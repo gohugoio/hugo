@@ -548,6 +548,59 @@ func TestProduct(t *testing.T) {
 	c.Assert(err, qt.Not(qt.IsNil))
 }
 
+// Test exponential functions
+
+func TestE(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	expect := 2.7182
+	result := ns.E()
+
+	// we compare only 4 digits behind point if its a real float
+	// otherwise we usually get different float values on the last positions
+	result = float64(int(result*10000)) / 10000
+
+	c.Assert(result, qt.Equals, expect)
+}
+
+func TestExp(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	for _, test := range []struct {
+		a      any
+		expect any
+	}{
+		{0, 1.0},
+		{1, 2.7182},
+		{2, 7.3890},
+		{-1.0, 0.3678},
+		{"abc", false},
+	} {
+
+		result, err := ns.Exp(test.a)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		// we compare only 4 digits behind point if its a real float
+		// otherwise we usually get different float values on the last positions
+		if result != math.Inf(-1) {
+			result = float64(int(result*10000)) / 10000
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}
+
 // Test trigonometric functions
 
 func TestPi(t *testing.T) {

@@ -94,6 +94,20 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.E,
+			nil,
+			[][2]string{
+				{"{{ math.E }}", "2.718281828459045"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Exp,
+			nil,
+			[][2]string{
+				{"{{ math.Exp 1 }}", "2.718281828459045"},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Floor,
 			nil,
 			[][2]string{

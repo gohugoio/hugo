@@ -3476,6 +3476,21 @@ tpl:
         Examples:
         - - '{{ div 6 3 }}'
           - "2"
+      E:
+        Aliases: null
+        Args: null
+        Description: Returns the mathematical constant e.
+        Examples:
+        - - '{{ math.E }}'
+          - "2.718281828459045"
+      Exp:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Exp returns the base-e exponential of n.
+        Examples:
+        - - '{{ math.Exp 1 }}'
+          - "2.718281828459045"
       Floor:
         Aliases: null
         Args:
