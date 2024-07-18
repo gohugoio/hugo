@@ -64,6 +64,15 @@ func (ns *Namespace) Ceil(n any) (float64, error) {
 	return math.Ceil(xf), nil
 }
 
+// Cos returns the cosine of the radian argument n.
+func (ns *Namespace) Cos(n any) (float64, error) {
+	af, err := cast.ToFloat64E(n)
+	if err != nil {
+		return 0, errors.New("requires a numeric argument")
+	}
+	return math.Cos(af), nil
+}
+
 // Div divides n1 by n2.
 func (ns *Namespace) Div(inputs ...any) (any, error) {
 	return ns.doArithmetic(inputs, '/')
@@ -130,6 +139,11 @@ func (ns *Namespace) Mul(inputs ...any) (any, error) {
 	return ns.doArithmetic(inputs, '*')
 }
 
+// Pi returns the mathematical constant pi.
+func (ns *Namespace) Pi() float64 {
+	return math.Pi
+}
+
 // Pow returns n1 raised to the power of n2.
 func (ns *Namespace) Pow(n1, n2 any) (float64, error) {
 	af, erra := cast.ToFloat64E(n1)
@@ -165,6 +179,15 @@ func (ns *Namespace) Round(n any) (float64, error) {
 	return _round(xf), nil
 }
 
+// Sin returns the sine of the radian argument n.
+func (ns *Namespace) Sin(n any) (float64, error) {
+	af, err := cast.ToFloat64E(n)
+	if err != nil {
+		return 0, errors.New("requires a numeric argument")
+	}
+	return math.Sin(af), nil
+}
+
 // Sqrt returns the square root of the number n.
 func (ns *Namespace) Sqrt(n any) (float64, error) {
 	af, err := cast.ToFloat64E(n)
@@ -186,6 +209,15 @@ func (ns *Namespace) Sum(inputs ...any) (sum float64, err error) {
 		return x + y
 	}
 	return ns.applyOpToScalarsOrSlices("Sum", fn, inputs...)
+}
+
+// Tan returns the tangent of the radian argument n.
+func (ns *Namespace) Tan(n any) (float64, error) {
+	af, err := cast.ToFloat64E(n)
+	if err != nil {
+		return 0, errors.New("requires a numeric argument")
+	}
+	return math.Tan(af), nil
 }
 
 func (ns *Namespace) applyOpToScalarsOrSlices(opName string, op func(x, y float64) float64, inputs ...any) (result float64, err error) {

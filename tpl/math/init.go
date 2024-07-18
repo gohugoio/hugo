@@ -52,6 +52,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Cos,
+			nil,
+			[][2]string{
+				{"{{ math.Cos 1 }}", "0.5403023058681398"},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Div,
 			[]string{"div"},
 			[][2]string{
@@ -108,6 +115,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Pi,
+			nil,
+			[][2]string{
+				{"{{ math.Pi }}", "3.141592653589793"},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Pow,
 			[]string{"pow"},
 			[][2]string{
@@ -129,6 +143,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Sin,
+			nil,
+			[][2]string{
+				{"{{ math.Sin 1 }}", "0.8414709848078965"},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Sqrt,
 			nil,
 			[][2]string{
@@ -140,6 +161,13 @@ func init() {
 			[]string{"sub"},
 			[][2]string{
 				{"{{ sub 3 2 }}", "1"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Tan,
+			nil,
+			[][2]string{
+				{"{{ math.Tan 1 }}", "1.557407724654902"},
 			},
 		)
 

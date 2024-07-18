@@ -547,3 +547,130 @@ func TestProduct(t *testing.T) {
 	_, err := ns.Product()
 	c.Assert(err, qt.Not(qt.IsNil))
 }
+
+// Test trigonometric functions
+
+func TestPi(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	expect := 3.1415
+	result := ns.Pi()
+
+	// we compare only 4 digits behind point if its a real float
+	// otherwise we usually get different float values on the last positions
+	result = float64(int(result*10000)) / 10000
+
+	c.Assert(result, qt.Equals, expect)
+}
+
+func TestSin(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	for _, test := range []struct {
+		a      any
+		expect any
+	}{
+		{0, 0.0},
+		{1, 0.8414},
+		{math.Pi / 2, 1.0},
+		{math.Pi, 0.0},
+		{-1.0, -0.8414},
+		{"abc", false},
+	} {
+
+		result, err := ns.Sin(test.a)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		// we compare only 4 digits behind point if its a real float
+		// otherwise we usually get different float values on the last positions
+		result = float64(int(result*10000)) / 10000
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}
+
+func TestCos(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	for _, test := range []struct {
+		a      any
+		expect any
+	}{
+		{0, 1.0},
+		{1, 0.5403},
+		{math.Pi / 2, 0.0},
+		{math.Pi, -1.0},
+		{-1.0, 0.5403},
+		{"abc", false},
+	} {
+
+		result, err := ns.Cos(test.a)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		// we compare only 4 digits behind point if its a real float
+		// otherwise we usually get different float values on the last positions
+		result = float64(int(result*10000)) / 10000
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}
+
+func TestTan(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	for _, test := range []struct {
+		a      any
+		expect any
+	}{
+		{0, 0.0},
+		{1, 1.5574},
+		// {math.Pi / 2, math.Inf(1)},
+		{math.Pi, 0.0},
+		{-1.0, -1.5574},
+		{"abc", false},
+	} {
+
+		result, err := ns.Tan(test.a)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		// we compare only 4 digits behind point if its a real float
+		// otherwise we usually get different float values on the last positions
+		if result != math.Inf(1) {
+			result = float64(int(result*10000)) / 10000
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+
+	// Separate test for Tan(oo) -- returns NaN
+	result, err := ns.Tan(math.Inf(1))
+	c.Assert(err, qt.IsNil)
+	c.Assert(result, qt.Satisfies, math.IsNaN)
+}
