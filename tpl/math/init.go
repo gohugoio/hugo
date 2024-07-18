@@ -38,10 +38,38 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Acos,
+			nil,
+			[][2]string{
+				{"{{ math.Acos 1 }}", "0"},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Add,
 			[]string{"add"},
 			[][2]string{
 				{"{{ add 1 2 }}", "3"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Asin,
+			nil,
+			[][2]string{
+				{"{{ math.Asin 1 }}", "1.5707963267948966"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Atan,
+			nil,
+			[][2]string{
+				{"{{ math.Atan 1 }}", "0.7853981633974483"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Atan2,
+			nil,
+			[][2]string{
+				{"{{ math.Atan2 1 2 }}", "0.4636476090008061"},
 			},
 		)
 

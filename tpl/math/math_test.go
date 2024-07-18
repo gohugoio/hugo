@@ -674,3 +674,144 @@ func TestTan(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	c.Assert(result, qt.Satisfies, math.IsNaN)
 }
+
+// Test inverse trigonometric functions
+
+func TestAsin(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	ns := New()
+
+	for _, test := range []struct {
+		x      any
+		expect any
+	}{
+		{0.0, 0.0},
+		{1.0, 1.5707},
+		{-1.0, -1.5707},
+		{0.5, 0.5235},
+		{"abc", false},
+	} {
+		result, err := ns.Asin(test.x)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+		// we compare only 4 digits behind point if its a real float
+		// otherwise we usually get different float values on the last positions
+		result = float64(int(result*10000)) / 10000
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+
+	// Separate test for Asin(2) -- returns NaN
+	result, err := ns.Asin(2)
+	c.Assert(err, qt.IsNil)
+	c.Assert(result, qt.Satisfies, math.IsNaN)
+}
+
+func TestAcos(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	ns := New()
+
+	for _, test := range []struct {
+		x      any
+		expect any
+	}{
+		{1.0, 0.0},
+		{0.0, 1.5707},
+		{-1.0, 3.1415},
+		{0.5, 1.0471},
+		{"abc", false},
+	} {
+		result, err := ns.Acos(test.x)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		// we compare only 4 digits behind point if its a real float
+		// otherwise we usually get different float values on the last positions
+		result = float64(int(result*10000)) / 10000
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+
+	// Separate test for Acos(2) -- returns NaN
+	result, err := ns.Acos(2)
+	c.Assert(err, qt.IsNil)
+	c.Assert(result, qt.Satisfies, math.IsNaN)
+}
+
+func TestAtan(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	ns := New()
+
+	for _, test := range []struct {
+		x      any
+		expect any
+	}{
+		{0.0, 0.0},
+		{1, 0.7853},
+		{-1.0, -0.7853},
+		{math.Inf(1), 1.5707},
+		{"abc", false},
+	} {
+		result, err := ns.Atan(test.x)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		// we compare only 4 digits behind point if its a real float
+		// otherwise we usually get different float values on the last positions
+		result = float64(int(result*10000)) / 10000
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}
+
+func TestAtan2(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	ns := New()
+
+	for _, test := range []struct {
+		x      any
+		y      any
+		expect any
+	}{
+		{1.0, 1.0, 0.7853},
+		{-1.0, 1.0, -0.7853},
+		{1.0, -1.0, 2.3561},
+		{-1.0, -1.0, -2.3561},
+		{1, 0, 1.5707},
+		{-1, 0, -1.5707},
+		{0, 1, 0.0},
+		{0, -1, 3.1415},
+		{0.0, 0.0, 0.0},
+		{"abc", "def", false},
+	} {
+		result, err := ns.Atan2(test.x, test.y)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		// we compare only 4 digits behind point if its a real float
+		// otherwise we usually get different float values on the last positions
+		result = float64(int(result*10000)) / 10000
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}

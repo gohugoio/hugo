@@ -3402,6 +3402,14 @@ tpl:
         Examples:
         - - '{{ math.Abs -2.1 }}'
           - "2.1"
+      Acos:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Acos returns the arccosine, in radians, of n.
+        Examples:
+        - - '{{ math.Acos 1 }}'
+          - "0"
       Add:
         Aliases:
         - add
@@ -3411,6 +3419,32 @@ tpl:
         Examples:
         - - '{{ add 1 2 }}'
           - "3"
+      Asin:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Asin returns the arcsine, in radians, of n.
+        Examples:
+        - - '{{ math.Asin 1 }}'
+          - "1.5707963267948966"
+      Atan:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Atan returns the arctangent, in radians, of n.
+        Examples:
+        - - '{{ math.Atan 1 }}'
+          - "0.7853981633974483"
+      Atan2:
+        Aliases: null
+        Args:
+        - "n"
+        - m
+        Description: Atan2 returns the arc tangent of n/m, using the signs of the
+          two to determine the quadrant of the return value.
+        Examples:
+        - - '{{ math.Atan2 1 2 }}'
+          - "0.4636476090008061"
       Ceil:
         Aliases: null
         Args:

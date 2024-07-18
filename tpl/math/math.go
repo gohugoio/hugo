@@ -49,9 +49,49 @@ func (ns *Namespace) Abs(n any) (float64, error) {
 	return math.Abs(af), nil
 }
 
+// Acos returns the arccosine, in radians, of n.
+func (ns *Namespace) Acos(n any) (float64, error) {
+	af, err := cast.ToFloat64E(n)
+	if err != nil {
+		return 0, errors.New("requires a numeric argument")
+	}
+	return math.Acos(af), nil
+}
+
 // Add adds the multivalued addends n1 and n2 or more values.
 func (ns *Namespace) Add(inputs ...any) (any, error) {
 	return ns.doArithmetic(inputs, '+')
+}
+
+// Asin returns the arcsine, in radians, of n.
+func (ns *Namespace) Asin(n any) (float64, error) {
+	af, err := cast.ToFloat64E(n)
+	if err != nil {
+		return 0, errors.New("requires a numeric argument")
+	}
+	return math.Asin(af), nil
+}
+
+// Atan returns the arctangent, in radians, of n.
+func (ns *Namespace) Atan(n any) (float64, error) {
+	af, err := cast.ToFloat64E(n)
+	if err != nil {
+		return 0, errors.New("requires a numeric argument")
+	}
+	return math.Atan(af), nil
+}
+
+// Atan2 returns the arc tangent of n/m, using the signs of the two to determine the quadrant of the return value.
+func (ns *Namespace) Atan2(n, m any) (float64, error) {
+	afx, err := cast.ToFloat64E(n)
+	if err != nil {
+		return 0, errors.New("requires numeric arguments")
+	}
+	afy, err := cast.ToFloat64E(m)
+	if err != nil {
+		return 0, errors.New("requires numeric arguments")
+	}
+	return math.Atan2(afx, afy), nil
 }
 
 // Ceil returns the least integer value greater than or equal to n.

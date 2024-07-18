@@ -9,6 +9,10 @@ action:
     - functions/math/Pi
     - functions/math/Sin
     - functions/math/Tan
+    - functions/math/Asin
+    - functions/math/Acos
+    - functions/math/Atan
+    - functions/math/Atan2
   returnType: float64
   signatures: [math.Cos VALUE]
 ---
