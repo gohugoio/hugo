@@ -99,22 +99,6 @@ func (ns *Namespace) Min(inputs ...any) (minimum float64, err error) {
 	return ns.applyOpToScalarsOrSlices("Min", math.Min, inputs...)
 }
 
-// Sum returns the sum of all numbers in inputs. Any slices in inputs are flattened.
-func (ns *Namespace) Sum(inputs ...any) (sum float64, err error) {
-	fn := func(x, y float64) float64 {
-		return x + y
-	}
-	return ns.applyOpToScalarsOrSlices("Sum", fn, inputs...)
-}
-
-// Product returns the product of all numbers in inputs. Any slices in inputs are flattened.
-func (ns *Namespace) Product(inputs ...any) (product float64, err error) {
-	fn := func(x, y float64) float64 {
-		return x * y
-	}
-	return ns.applyOpToScalarsOrSlices("Product", fn, inputs...)
-}
-
 // Mod returns n1 % n2.
 func (ns *Namespace) Mod(n1, n2 any) (int64, error) {
 	ai, erra := cast.ToInt64E(n1)
@@ -158,6 +142,14 @@ func (ns *Namespace) Pow(n1, n2 any) (float64, error) {
 	return math.Pow(af, bf), nil
 }
 
+// Product returns the product of all numbers in inputs. Any slices in inputs are flattened.
+func (ns *Namespace) Product(inputs ...any) (product float64, err error) {
+	fn := func(x, y float64) float64 {
+		return x * y
+	}
+	return ns.applyOpToScalarsOrSlices("Product", fn, inputs...)
+}
+
 // Rand returns, as a float64, a pseudo-random number in the half-open interval [0.0,1.0).
 func (ns *Namespace) Rand() float64 {
 	return rand.Float64()
@@ -186,6 +178,14 @@ func (ns *Namespace) Sqrt(n any) (float64, error) {
 // Sub subtracts multivalued.
 func (ns *Namespace) Sub(inputs ...any) (any, error) {
 	return ns.doArithmetic(inputs, '-')
+}
+
+// Sum returns the sum of all numbers in inputs. Any slices in inputs are flattened.
+func (ns *Namespace) Sum(inputs ...any) (sum float64, err error) {
+	fn := func(x, y float64) float64 {
+		return x + y
+	}
+	return ns.applyOpToScalarsOrSlices("Sum", fn, inputs...)
 }
 
 func (ns *Namespace) applyOpToScalarsOrSlices(opName string, op func(x, y float64) float64, inputs ...any) (result float64, err error) {
