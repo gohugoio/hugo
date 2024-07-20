@@ -70,10 +70,6 @@ See the [features] section of the documentation for a comprehensive summary of H
   <a href="https://route4me.com/" target="_blank"><img src="https://raw.githubusercontent.com/gohugoio/gohugoioTheme/master/assets/images/sponsors/Route4MeLogoBlueOnWhite.svg" width="200" alt="Route Planning & Route Optimization Software"></a>
 </p>
 
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=gohugoio/hugo&type=Timeline)](https://star-history.com/#gohugoio/hugo&Timeline)
-
 ## Installation
 
 Install Hugo from a [prebuilt binary], package manager, or package repository. Please see the installation instructions for your operating system:
@@ -106,6 +102,9 @@ Build the extended edition:
 ```text
 CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@latest
 ```
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=gohugoio/hugo&type=Timeline)](https://star-history.com/#gohugoio/hugo&Timeline)
 
 ## Documentation
 
