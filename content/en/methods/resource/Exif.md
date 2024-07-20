@@ -1,6 +1,6 @@
 ---
 title: Exif
-description: Applicable to JPEG and TIFF images, returns an EXIF object containing image metadata.
+description: Applicable to JPEG, PNG, TIFF, and WebP images, returns an EXIF object containing image metadata.
 categories: []
 keywords: []
 action:
@@ -10,7 +10,7 @@ action:
 toc: true
 ---
 
-Applicable to JPEG and TIFF images, the `Exif` method on an image `Resource` object returns an [EXIF] object containing image metadata.
+Applicable to JPEG, PNG, TIFF, and WebP images, the `Exif` method on an image `Resource` object returns an [EXIF] object containing image metadata.
 
 ## Methods
 
