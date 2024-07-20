@@ -1,0 +1,381 @@
+{{- /*
+Renders the given image using the given filter, if any.
+
+@param {string} src The path to the image which must be a remote, page, or global resource.
+@param {string} [filter] The filter to apply to the image (case-insensitive).
+@param {string} [filterArgs] A comma-delimited list of arguments to pass to the filter.
+@param {bool} [example=false] If true, renders a before/after example.
+@param {int} [exampleWidth=384] Image width, in pixels, when rendering a before/after example.
+
+@returns {template.HTML}
+
+@examples
+
+  {{< img src="zion-national-park.jpg" >}}
+
+  {{< img src="zion-national-park.jpg" alt="Zion National Park" >}}
+
+  {{< img
+    src="zion-national-park.jpg"
+    alt="Zion National Park"
+    filter="grayscale"
+  >}}
+
+  {{< img
+    src="zion-national-park.jpg"
+    alt="Zion National Park"
+    filter="process"
+    filterArgs="resize 400x webp"
+  >}}
+
+  {{< img
+    src="zion-national-park.jpg"
+    alt="Zion National Park"
+    filter="colorize"
+    filterArgs="180,50,20"
+  >}}
+
+  {{< img
+    src="zion-national-park.jpg"
+    alt="Zion National Park"
+    filter="grayscale"
+    example=true
+  >}}
+
+  {{< img
+    src="zion-national-park.jpg"
+    alt="Zion National Park"
+    filter="grayscale"
+    example=true
+    exampleWidth=400
+  >}}
+
+  When using the text filter, provide the arguments in this order:
+
+    0. The text
+    1. The horizontal offset, in pixels, relative to the left of the image (default 20)
+    2. The vertical offset, in pixels, relative to the top of the image (default 20)
+    3. The font size in pixels (default 64)
+    4. The line height (default 1.2)
+    5. The font color (default #ffffff)
+
+  {{< img
+    src="images/examples/zion-national-park.jpg"
+    alt="Zion National Park"
+    filter="Text"
+    filterArgs="Zion National Park,25,250,56"
+    example=true
+  >}}
+
+  When using the padding filter, provide all arguments in this order:
+
+  0. Padding top
+  1. Padding right
+  2. Padding bottom
+  3. Padding right
+  4. Canvas color
+
+  {{< img
+    src="images/examples/zion-national-park.jpg"
+    alt="Zion National Park"
+    filter="Padding"
+    filterArgs="20,50,20,50,#0705"
+    example=true
+  >}}
+
+*/}}
+
+{{- /* Initialize. */}}
+{{- $alt := "" }}
+{{- $src := "" }}
+{{- $filter := "" }}
+{{- $filterArgs := slice }}
+{{- $example := false }}
+{{- $exampleWidth := 384 }}
+
+{{- /* Default values to use with the text filter. */}}
+{{ $textFilterOpts := dict
+  "xOffset" 20
+  "yOffset" 20
+  "fontSize" 64
+  "lineHeight" 1.2
+  "fontColor" "#ffffff"
+  "fontPath" "https://github.com/google/fonts/raw/main/ofl/lato/Lato-Regular.ttf"
+}}
+
+{{- /* Get and validate parameters. */}}
+{{- with .Get "alt" }}
+  {{- $alt = .}}
+{{- end }}
+
+{{- with .Get "src" }}
+  {{- $src = . }}
+{{- else }}
+  {{- errorf "The %q shortcode requires a file parameter. See %s" .Name .Position }}
+{{- end }}
+
+{{- with .Get "filter" }}
+  {{- $filter = . | lower }}
+{{- end }}
+
+{{- $validFilters := slice
+  "autoorient" "brightness" "colorbalance" "colorize" "contrast" "dither"
+  "gamma" "gaussianblur" "grayscale" "hue" "invert" "none" "opacity" "overlay"
+  "padding" "pixelate" "process" "saturation" "sepia" "sigmoid" "text"
+  "unsharpmask"
+}}
+
+{{- with $filter }}
+  {{- if not (in $validFilters .) }}
+    {{- errorf "The filter passed to the %q shortcode is invalid. The filter must be one of %s. See %s" $.Name (delimit $validFilters ", " ", or ") $.Position }}
+  {{- end }}
+{{- end }}
+
+{{- with .Get "filterArgs" }}
+  {{- $filterArgs = split . "," }}
+  {{- $filterArgs = apply $filterArgs "trim" "." " " }}
+{{- end }}
+
+{{- if in (slice "false" false 0) (.Get "example") }}
+  {{- $example = false }}
+{{- else if in (slice "true" true 1) (.Get "example")}}
+  {{- $example = true }}
+{{- end }}
+
+{{- with .Get "exampleWidth" }}
+  {{- $exampleWidth = . | int }}
+{{- end }}
+
+{{- /* Get image. */}}
+{{- $ctx := dict "page" .Page "src" $src "name" .Name "position" .Position }}
+{{- $i := partial "inline/get-resource.html" $ctx }}
+
+{{- /* Resize if rendering before/after examples. */}}
+{{- if $example }}
+  {{- $i = $i.Resize (printf "%dx" $exampleWidth) }}
+{{- end }}
+
+{{- /* Create filter. */}}
+{{- $f := "" }}
+{{- $ctx := dict "filter" $filter "args" $filterArgs "name" .Name "position" .Position }}
+{{- if eq $filter "autoorient" }}
+  {{- $ctx = merge $ctx (dict "argsRequired" 0) }}
+  {{- template "validate-arg-count" $ctx }}
+  {{- $f = images.AutoOrient }}
+{{- else if eq $filter "brightness" }}
+  {{- $ctx = merge $ctx (dict "argsRequired" 1) }}
+  {{- template "validate-arg-count" $ctx }}
+  {{- $filterArgs = apply $filterArgs "float" "." }}
+  {{- $ctx = merge $ctx (dict "argName" "percentage" "argValue" (index $filterArgs 0) "min" -100 "max" 100) }}
+  {{- template "validate-arg-value" $ctx }}
+  {{- $f = images.Brightness (index $filterArgs 0) }}
+{{- else if eq $filter "colorbalance" }}
+  {{- $ctx = merge $ctx (dict "argsRequired" 3) }}
+  {{- template "validate-arg-count" $ctx }}
+  {{- $filterArgs = apply $filterArgs "float" "." }}
+  {{- $ctx = merge $ctx (dict "argName" "percentage red" "argValue" (index $filterArgs 0) "min" -100 "max" 500) }}
+  {{- template "validate-arg-value" $ctx }}
+  {{- $ctx = merge $ctx (dict "argName" "percentage green" "argValue" (index $filterArgs 1) "min" -100 "max" 500) }}
+  {{- template "validate-arg-value" $ctx }}
+  {{- $ctx = merge $ctx (dict "argName" "percentage blue" "argValue" (index $filterArgs 2) "min" -100 "max" 500) }}
+  {{- template "validate-arg-value" $ctx }}
+  {{- $f = images.ColorBalance (index $filterArgs 0) (index $filterArgs 1) (index $filterArgs 2) }}
+{{- else if eq $filter "colorize" }}
+  {{- $ctx = merge $ctx (dict "argsRequired" 3) }}
+  {{- template "validate-arg-count" $ctx }}
+  {{- $filterArgs = apply $filterArgs "float" "." }}
+  {{- $ctx = merge $ctx (dict "argName" "hue" "argValue" (index $filterArgs 0) "min" 0 "max" 360) }}
+  {{- template "validate-arg-value" $ctx }}
+  {{- $ctx = merge $ctx (dict "argName" "saturation" "argValue" (index $filterArgs 1) "min" 0 "max" 100) }}
+  {{- template "validate-arg-value" $ctx }}
+  {{- $ctx = merge $ctx (dict "argName" "percentage" "argValue" (index $filterArgs 2) "min" 0 "max" 100) }}
+  {{- template "validate-arg-value" $ctx }}
+  {{- $f = images.Colorize (index $filterArgs 0) (index $filterArgs 1) (index $filterArgs 2) }}
+{{- else if eq $filter "contrast" }}
+  {{- $ctx = merge $ctx (dict "argsRequired" 1) }}
+  {{- template "validate-arg-count" $ctx }}
+  {{- $filterArgs = apply $filterArgs "float" "." }}
+  {{- $ctx = merge $ctx (dict "argName" "percentage" "argValue" (index $filterArgs 0) "min" -100 "max" 100) }}
+  {{- template "validate-arg-value" $ctx }}
+  {{- $f = images.Contrast (index $filterArgs 0) }}
+{{- else if eq $filter "dither" }}
+  {{- $f = images.Dither }}
+{{- else if eq $filter "gamma" }}
+  {{- $ctx = merge $ctx (dict "argsRequired" 1) }}
+  {{- template "validate-arg-count" $ctx }}
+  {{- $filterArgs = apply $filterArgs "float" "." }}
+  {{- $ctx = merge $ctx (dict "argName" "gamma" "argValue" (index $filterArgs 0) "min" 0 "max" 100) }}
+  {{- template "validate-arg-value" $ctx }}
+  {{- $f = images.Gamma (index $filterArgs 0) }}
+{{- else if eq $filter "gaussianblur" }}
+  {{- $ctx = merge $ctx (dict "argsRequired" 1) }}
+  {{- template "validate-arg-count" $ctx }}
+  {{- $filterArgs = apply $filterArgs "float" "." }}
+  {{- $ctx = merge $ctx (dict "argName" "sigma" "argValue" (index $filterArgs 0) "min" 0 "max" 1000) }}
+  {{- template "validate-arg-value" $ctx }}
+  {{- $f = images.GaussianBlur (index $filterArgs 0) }}
+{{- else if eq $filter "grayscale" }}
+  {{- $ctx = merge $ctx (dict "argsRequired" 0) }}
+  {{- template "validate-arg-count" $ctx }}
+  {{- $f = images.Grayscale }}
+{{- else if eq $filter "hue" }}
+  {{- $ctx = merge $ctx (dict "argsRequired" 1) }}
+  {{- template "validate-arg-count" $ctx }}
+  {{- $filterArgs = apply $filterArgs "float" "." }}
+  {{- $ctx = merge $ctx (dict "argName" "shift" "argValue" (index $filterArgs 0) "min" -180 "max" 180) }}
+  {{- template "validate-arg-value" $ctx }}
+  {{- $f = images.Hue (index $filterArgs 0) }}
+{{- else if eq $filter "invert" }}
+  {{- $ctx = merge $ctx (dict "argsRequired" 0) }}
+  {{- template "validate-arg-count" $ctx }}
+  {{- $f = images.Invert }}
+{{- else if eq $filter "opacity" }}
+  {{- $ctx = merge $ctx (dict "argsRequired" 1) }}
+  {{- template "validate-arg-count" $ctx }}
+  {{- $filterArgs = apply $filterArgs "float" "." }}
+  {{- $ctx = merge $ctx (dict "argName" "opacity" "argValue" (index $filterArgs 0) "min" 0 "max" 1) }}
+  {{- template "validate-arg-value" $ctx }}
+  {{- $f = images.Opacity (index $filterArgs 0) }}
+{{- else if eq $filter "overlay" }}
+  {{- $ctx = merge $ctx (dict "argsRequired" 3) }}
+  {{- template "validate-arg-count" $ctx }}
+  {{- $ctx := dict "src" (index $filterArgs 0) "name" .Name "position" .Position }}
+  {{- $overlayImg := partial "inline/get-resource.html" $ctx }}
+  {{- $f = images.Overlay $overlayImg (index $filterArgs 1 | float ) (index $filterArgs 2 | float) }}
+{{- else if eq $filter "padding" }}
+  {{- $ctx = merge $ctx (dict "argsRequired" 5) }}
+  {{- template "validate-arg-count" $ctx }}
+  {{- $f = images.Padding
+    (index $filterArgs 0 | int)
+    (index $filterArgs 1 | int)
+    (index $filterArgs 2 | int)
+    (index $filterArgs 3 | int)
+    (index $filterArgs 4)
+  }}
+{{- else if eq $filter "pixelate" }}
+  {{- $ctx = merge $ctx (dict "argsRequired" 1) }}
+  {{- template "validate-arg-count" $ctx }}
+  {{- $filterArgs = apply $filterArgs "float" "." }}
+  {{- $ctx = merge $ctx (dict "argName" "size" "argValue" (index $filterArgs 0) "min" 0 "max" 1000) }}
+  {{- template "validate-arg-value" $ctx }}
+  {{- $f = images.Pixelate (index $filterArgs 0) }}
+{{- else if eq $filter "process" }}
+  {{- $ctx = merge $ctx (dict "argsRequired" 1) }}
+  {{- template "validate-arg-count" $ctx }}
+  {{- $f = images.Process (index $filterArgs 0) }}
+{{- else if eq $filter "saturation" }}
+  {{- $ctx = merge $ctx (dict "argsRequired" 1) }}
+  {{- template "validate-arg-count" $ctx }}
+  {{- $filterArgs = apply $filterArgs "float" "." }}
+  {{- $ctx = merge $ctx (dict "argName" "percentage" "argValue" (index $filterArgs 0) "min" -100 "max" 500) }}
+  {{- template "validate-arg-value" $ctx }}
+  {{- $f = images.Saturation (index $filterArgs 0) }}
+{{- else if eq $filter "sepia" }}
+  {{- $ctx = merge $ctx (dict "argsRequired" 1) }}
+  {{- template "validate-arg-count" $ctx }}
+  {{- $filterArgs = apply $filterArgs "float" "." }}
+  {{- $ctx = merge $ctx (dict "argName" "percentage" "argValue" (index $filterArgs 0) "min" 0 "max" 100) }}
+  {{- template "validate-arg-value" $ctx }}
+  {{- $f = images.Sepia (index $filterArgs 0) }}
+{{- else if eq $filter "sigmoid" }}
+  {{- $ctx = merge $ctx (dict "argsRequired" 2) }}
+  {{- template "validate-arg-count" $ctx }}
+  {{- $filterArgs = apply $filterArgs "float" "." }}
+  {{- $ctx = merge $ctx (dict "argName" "midpoint" "argValue" (index $filterArgs 0) "min" 0 "max" 1) }}
+  {{- template "validate-arg-value" $ctx }}
+  {{- $ctx = merge $ctx (dict "argName" "factor" "argValue" (index $filterArgs 1) "min" -10 "max" 10) }}
+  {{- template "validate-arg-value" $ctx }}
+  {{- $f = images.Sigmoid (index $filterArgs 0) (index $filterArgs 1) }}
+{{- else if eq $filter "text" }}
+  {{- $ctx = merge $ctx (dict "argsRequired" 1) }}
+  {{- template "validate-arg-count" $ctx }}
+  {{- $ctx := dict "src" $textFilterOpts.fontPath "name" .Name "position" .Position }}
+  {{- $font := or (partial "inline/get-resource.html" $ctx) }}
+  {{- $fontSize := or (index $filterArgs 3 | int) $textFilterOpts.fontSize }}
+  {{- $lineHeight := math.Max (or (index $filterArgs 4 | float) $textFilterOpts.lineHeight) 1 }}
+  {{- $opts := dict
+    "x" (or (index $filterArgs 1 | int) $textFilterOpts.xOffset)
+    "y" (or (index $filterArgs 2 | int) $textFilterOpts.yOffset)
+    "size" $fontSize
+    "linespacing" (mul (sub $lineHeight 1) $fontSize)
+    "color" (or (index $filterArgs 5) $textFilterOpts.fontColor)
+    "font" $font
+  }}
+  {{- $f = images.Text (index $filterArgs 0) $opts }}
+{{- else if eq $filter "unsharpmask" }}
+  {{- $ctx = merge $ctx (dict "argsRequired" 3) }}
+  {{- template "validate-arg-count" $ctx }}
+  {{- $filterArgs = apply $filterArgs "float" "." }}
+  {{- $ctx = merge $ctx (dict "argName" "sigma" "argValue" (index $filterArgs 0) "min" 0 "max" 500) }}
+  {{- template "validate-arg-value" $ctx }}
+  {{- $ctx = merge $ctx (dict "argName" "amount" "argValue" (index $filterArgs 1) "min" 0 "max" 100) }}
+  {{- template "validate-arg-value" $ctx }}
+  {{- $ctx = merge $ctx (dict "argName" "threshold" "argValue" (index $filterArgs 2) "min" 0 "max" 1) }}
+  {{- template "validate-arg-value" $ctx }}
+  {{- $f = images.UnsharpMask (index $filterArgs 0) (index $filterArgs 1) (index $filterArgs 2) }}
+{{- end }}
+
+{{- /* Apply filter. */}}
+{{- $fi := $i }}
+{{- with $f }}
+  {{- $fi = $i.Filter . }}
+{{- end }}
+
+{{- /* Render. */}}
+{{- if $example }}
+  <p>Original</p>
+  <img class='di ba b--black-20' style="width: initial;" src="{{ $i.RelPermalink }}" alt="{{ $alt }}">
+  <p>Processed</p>
+  <img class='di ba b--black-20' style="width: initial;" src="{{ $fi.RelPermalink }}" alt="{{ $alt }}">
+{{- else -}}
+  <img class='di' style="width: initial;" src="{{ $fi.RelPermalink }}" alt="{{ $alt }}">
+{{- end }}
+
+{{- define "validate-arg-count" }}
+  {{- $msg := "When using the %q filter, the %q shortcode requires an args parameter with %d %s. See %s" }}
+  {{- if lt (len .args) .argsRequired }}
+    {{- $text := "values" }}
+    {{- if eq 1 .argsRequired }}
+      {{- $text = "value" }}
+    {{- end }}
+    {{- errorf $msg .filter .name .argsRequired $text .position }}
+  {{- end }}
+{{- end }}
+
+{{- define "validate-arg-value" }}
+  {{- $msg := "The %q argument passed to the %q shortcode is invalid. Expected a value in the range [%v,%v], but received %v. See %s" }}
+  {{- if or (lt .argValue .min) (gt .argValue .max) }}
+    {{- errorf $msg .argName .name .min .max .argValue .position }}
+  {{- end }}
+{{- end }}
+
+{{- define "partials/inline/get-resource.html" }}
+  {{- $r := "" }}
+  {{- $u := urls.Parse .src }}
+  {{- $msg := "The %q shortcode was unable to resolve %s. See %s" }}
+  {{- if $u.IsAbs }}
+    {{- with resources.GetRemote $u.String }}
+      {{- with .Err }}
+        {{- errorf "%s" . }}
+      {{- else }}
+        {{- /* This is a remote resource. */}}
+        {{- $r = . }}
+      {{- end }}
+    {{- else }}
+      {{- errorf $msg $.name $u.String $.position }}
+    {{- end }}
+  {{- else }}
+    {{- with .page.Resources.Get (strings.TrimPrefix "./" $u.Path) }}
+      {{- /* This is a page resource. */}}
+      {{- $r = . }}
+    {{- else }}
+      {{- with resources.Get $u.Path }}
+        {{- /* This is a global resource. */}}
+        {{- $r = . }}
+      {{- else }}
+        {{- errorf $msg $.name $u.Path $.position }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+  {{- return $r}}
+{{- end -}}

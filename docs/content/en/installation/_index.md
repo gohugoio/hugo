@@ -1,15 +1,16 @@
 ---
 title: Installation
-linkTitle: Installation overview
+linkTitle: In this section
 description: Install Hugo on macOS, Linux, Windows, BSD, and on any machine that can run the Go compiler tool chain.
 aliases: [/getting-started/installing/]
-categories: [installation]
-keywords: [installation]
+categories: []
+keywords: []
 menu:
   docs:
+    identifier: installation-in-this-section
     parent: installation
     weight: 10
-toc: false
+weight: 10
 ---
 
-{{% param "description" %}}
+Install Hugo on macOS, Linux, Windows, BSD, and on any machine that can run the Go compiler tool chain.

@@ -14,14 +14,18 @@
 package js
 
 import (
+	"path"
 	"path/filepath"
 	"testing"
 
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/config/testconfig"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/hugolib/filesystems"
+	"github.com/gohugoio/hugo/hugolib/paths"
+	"github.com/gohugoio/hugo/media"
 
 	"github.com/spf13/afero"
-
-	"github.com/gohugoio/hugo/media"
 
 	"github.com/evanw/esbuild/pkg/api"
 
@@ -46,7 +50,7 @@ func TestOptionKey(t *testing.T) {
 func TestToBuildOptions(t *testing.T) {
 	c := qt.New(t)
 
-	opts, err := toBuildOptions(Options{mediaType: media.JavascriptType})
+	opts, err := toBuildOptions(Options{mediaType: media.Builtin.JavascriptType})
 
 	c.Assert(err, qt.IsNil)
 	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
@@ -62,7 +66,7 @@ func TestToBuildOptions(t *testing.T) {
 		Target:    "es2018",
 		Format:    "cjs",
 		Minify:    true,
-		mediaType: media.JavascriptType,
+		mediaType: media.Builtin.JavascriptType,
 		AvoidTDZ:  true,
 	})
 	c.Assert(err, qt.IsNil)
@@ -79,7 +83,7 @@ func TestToBuildOptions(t *testing.T) {
 	})
 
 	opts, err = toBuildOptions(Options{
-		Target: "es2018", Format: "cjs", Minify: true, mediaType: media.JavascriptType,
+		Target: "es2018", Format: "cjs", Minify: true, mediaType: media.Builtin.JavascriptType,
 		SourceMap: "inline",
 	})
 	c.Assert(err, qt.IsNil)
@@ -97,7 +101,7 @@ func TestToBuildOptions(t *testing.T) {
 	})
 
 	opts, err = toBuildOptions(Options{
-		Target: "es2018", Format: "cjs", Minify: true, mediaType: media.JavascriptType,
+		Target: "es2018", Format: "cjs", Minify: true, mediaType: media.Builtin.JavascriptType,
 		SourceMap: "inline",
 	})
 	c.Assert(err, qt.IsNil)
@@ -115,7 +119,7 @@ func TestToBuildOptions(t *testing.T) {
 	})
 
 	opts, err = toBuildOptions(Options{
-		Target: "es2018", Format: "cjs", Minify: true, mediaType: media.JavascriptType,
+		Target: "es2018", Format: "cjs", Minify: true, mediaType: media.Builtin.JavascriptType,
 		SourceMap: "external",
 	})
 	c.Assert(err, qt.IsNil)
@@ -131,6 +135,52 @@ func TestToBuildOptions(t *testing.T) {
 			Loader: api.LoaderJS,
 		},
 	})
+
+	opts, err = toBuildOptions(Options{
+		mediaType: media.Builtin.JavascriptType,
+		JSX:       "automatic", JSXImportSource: "preact",
+	})
+	c.Assert(err, qt.IsNil)
+	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
+		Bundle: true,
+		Target: api.ESNext,
+		Format: api.FormatIIFE,
+		Stdin: &api.StdinOptions{
+			Loader: api.LoaderJS,
+		},
+		JSX:             api.JSXAutomatic,
+		JSXImportSource: "preact",
+	})
+}
+
+func TestToBuildOptionsTarget(t *testing.T) {
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		target string
+		expect api.Target
+	}{
+		{"es2015", api.ES2015},
+		{"es2016", api.ES2016},
+		{"es2017", api.ES2017},
+		{"es2018", api.ES2018},
+		{"es2019", api.ES2019},
+		{"es2020", api.ES2020},
+		{"es2021", api.ES2021},
+		{"es2022", api.ES2022},
+		{"es2023", api.ES2023},
+		{"", api.ESNext},
+		{"esnext", api.ESNext},
+	} {
+		c.Run(test.target, func(c *qt.C) {
+			opts, err := toBuildOptions(Options{
+				Target:    test.target,
+				mediaType: media.Builtin.JavascriptType,
+			})
+			c.Assert(err, qt.IsNil)
+			c.Assert(opts.Target, qt.Equals, test.expect)
+		})
+	}
 }
 
 func TestResolveComponentInAssets(t *testing.T) {
@@ -165,20 +215,27 @@ func TestResolveComponentInAssets(t *testing.T) {
 			mfs := afero.NewMemMapFs()
 
 			for _, filename := range test.files {
-				c.Assert(afero.WriteFile(mfs, filepath.Join(baseDir, filename), []byte("let foo='bar';"), 0777), qt.IsNil)
+				c.Assert(afero.WriteFile(mfs, filepath.Join(baseDir, filename), []byte("let foo='bar';"), 0o777), qt.IsNil)
 			}
 
-			bfs := hugofs.DecorateBasePathFs(afero.NewBasePathFs(mfs, baseDir).(*afero.BasePathFs))
+			conf := testconfig.GetTestConfig(mfs, config.New())
+			fs := hugofs.NewFrom(mfs, conf.BaseConfig())
 
-			got := resolveComponentInAssets(bfs, test.impPath)
+			p, err := paths.New(fs, conf)
+			c.Assert(err, qt.IsNil)
+			bfs, err := filesystems.NewBase(p, nil)
+			c.Assert(err, qt.IsNil)
+
+			got := resolveComponentInAssets(bfs.Assets.Fs, test.impPath)
 
 			gotPath := ""
+			expect := test.expect
 			if got != nil {
-				gotPath = filepath.ToSlash(got.Path)
+				gotPath = filepath.ToSlash(got.Filename)
+				expect = path.Join(baseDir, test.expect)
 			}
 
-			c.Assert(gotPath, qt.Equals, test.expect)
+			c.Assert(gotPath, qt.Equals, expect)
 		})
-
 	}
 }

@@ -42,7 +42,6 @@ func TestSecurityPolicies(t *testing.T) {
 		} else {
 			b.Build(BuildCfg{})
 		}
-
 	}
 
 	httpTestVariant := func(c *qt.C, templ, expectErr string, withBuilder func(b *sitesBuilder)) {
@@ -102,9 +101,7 @@ func TestSecurityPolicies(t *testing.T) {
 			testVariant(c, cb, `(?s).*python(\.exe)?" is not whitelisted in policy "security\.exec\.allow".*`)
 		} else {
 			testVariant(c, cb, `(?s).*"rst2html(\.py)?" is not whitelisted in policy "security\.exec\.allow".*`)
-
 		}
-
 	})
 
 	c.Run("Pandoc, denied", func(c *qt.C) {
@@ -117,7 +114,7 @@ func TestSecurityPolicies(t *testing.T) {
 			b.WithContent("page.pdc", "foo")
 		}
 
-		testVariant(c, cb, `"(?s).*pandoc" is not whitelisted in policy "security\.exec\.allow".*`)
+		testVariant(c, cb, `(?s).*pandoc" is not whitelisted in policy "security\.exec\.allow".*`)
 	})
 
 	c.Run("Dart SASS, OK", func(c *qt.C) {
@@ -138,14 +135,14 @@ func TestSecurityPolicies(t *testing.T) {
 		}
 		cb := func(b *sitesBuilder) {
 			b.WithConfigFile("toml", `
-			[security]
-			[security.exec]
-			allow="none"	
+[security]
+[security.exec]
+allow="none"	
 		
 			`)
 			b.WithTemplatesAdded("index.html", `{{ $scss := "body { color: #333; }" | resources.FromString "foo.scss"  | resources.ToCSS (dict "transpiler" "dartsass") }}`)
 		}
-		testVariant(c, cb, `(?s).*"dart-sass-embedded" is not whitelisted in policy "security\.exec\.allow".*`)
+		testVariant(c, cb, `(?s).*sass(-embedded)?" is not whitelisted in policy "security\.exec\.allow".*`)
 	})
 
 	c.Run("resources.GetRemote, OK", func(c *qt.C) {
@@ -166,6 +163,28 @@ func TestSecurityPolicies(t *testing.T) {
 [security]		
 [security.http]
 urls="none"
+`)
+			})
+	})
+
+	c.Run("resources.GetRemote, fake JSON", func(c *qt.C) {
+		c.Parallel()
+		httpTestVariant(c, `{{ $json := resources.GetRemote "%[1]s/fakejson.json" }}{{ $json.Content }}`, `(?s).*failed to resolve media type.*`,
+			func(b *sitesBuilder) {
+				b.WithConfigFile("toml", `
+`)
+			})
+	})
+
+	c.Run("resources.GetRemote, fake JSON whitelisted", func(c *qt.C) {
+		c.Parallel()
+		httpTestVariant(c, `{{ $json := resources.GetRemote "%[1]s/fakejson.json" }}{{ $json.Content }}`, ``,
+			func(b *sitesBuilder) {
+				b.WithConfigFile("toml", `
+[security]		
+[security.http]
+mediaTypes=["application/json"]
+
 `)
 			})
 	})
@@ -198,5 +217,4 @@ urls="none"
 `)
 			})
 	})
-
 }

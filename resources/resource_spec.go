@@ -14,53 +14,55 @@
 package resources
 
 import (
-	"errors"
 	"fmt"
-	"mime"
-	"os"
 	"path"
-	"path/filepath"
-	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/config/allconfig"
+	"github.com/gohugoio/hugo/output"
+	"github.com/gohugoio/hugo/resources/internal"
 	"github.com/gohugoio/hugo/resources/jsconfig"
+	"github.com/gohugoio/hugo/resources/page/pagemeta"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/common/types"
 
-	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/identity"
 
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/resources/postpub"
 
+	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/cache/filecache"
-	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/media"
-	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources/images"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/gohugoio/hugo/tpl"
-	"github.com/spf13/afero"
 )
 
 func NewSpec(
 	s *helpers.PathSpec,
+	common *SpecCommon, // may be nil
 	fileCaches filecache.Caches,
+	memCache *dynacache.Cache,
 	incr identity.Incrementer,
 	logger loggers.Logger,
 	errorHandler herrors.ErrorSender,
 	execHelper *hexec.Exec,
-	outputFormats output.Formats,
-	mimeTypes media.Types) (*Spec, error) {
-	imgConfig, err := images.DecodeConfig(s.Cfg.GetStringMap("imaging"))
-	if err != nil {
-		return nil, err
-	}
+	buildClosers types.CloseAdder,
+	rebuilder identity.SignalRebuilder,
+) (*Spec, error) {
+	conf := s.Cfg.GetConfig().(*allconfig.Config)
+	imgConfig := conf.Imaging
 
-	imaging, err := images.NewImageProcessor(imgConfig)
+	imagesWarnl := logger.WarnCommand("images")
+
+	imaging, err := images.NewImageProcessor(imagesWarnl, imgConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -70,38 +72,45 @@ func NewSpec(
 	}
 
 	if logger == nil {
-		logger = loggers.NewErrorLogger()
+		logger = loggers.NewDefault()
 	}
 
-	permalinks, err := page.NewPermalinkExpander(s)
+	permalinks, err := page.NewPermalinkExpander(s.URLize, conf.Permalinks)
 	if err != nil {
 		return nil, err
 	}
 
-	rs := &Spec{
-		PathSpec:      s,
-		Logger:        logger,
-		ErrorSender:   errorHandler,
-		imaging:       imaging,
-		ExecHelper:    execHelper,
-		incr:          incr,
-		MediaTypes:    mimeTypes,
-		OutputFormats: outputFormats,
-		Permalinks:    permalinks,
-		BuildConfig:   config.DecodeBuild(s.Cfg),
-		FileCaches:    fileCaches,
-		PostBuildAssets: &PostBuildAssets{
-			PostProcessResources: make(map[string]postpub.PostPublishedResource),
-			JSConfigBuilder:      jsconfig.NewBuilder(),
-		},
-		imageCache: newImageCache(
-			fileCaches.ImageCache(),
-
-			s,
-		),
+	if common == nil {
+		common = &SpecCommon{
+			incr:       incr,
+			FileCaches: fileCaches,
+			PostBuildAssets: &PostBuildAssets{
+				PostProcessResources: make(map[string]postpub.PostPublishedResource),
+				JSConfigBuilder:      jsconfig.NewBuilder(),
+			},
+		}
 	}
 
-	rs.ResourceCache = newResourceCache(rs)
+	rs := &Spec{
+		PathSpec:     s,
+		Logger:       logger,
+		ErrorSender:  errorHandler,
+		BuildClosers: buildClosers,
+		Rebuilder:    rebuilder,
+		imaging:      imaging,
+		ImageCache: newImageCache(
+			fileCaches.ImageCache(),
+			memCache,
+			s,
+		),
+		ExecHelper: execHelper,
+
+		Permalinks: permalinks,
+
+		SpecCommon: common,
+	}
+
+	rs.ResourceCache = newResourceCache(rs, memCache)
 
 	return rs, nil
 }
@@ -109,24 +118,28 @@ func NewSpec(
 type Spec struct {
 	*helpers.PathSpec
 
-	MediaTypes    media.Types
-	OutputFormats output.Formats
-
-	Logger      loggers.Logger
-	ErrorSender herrors.ErrorSender
+	Logger       loggers.Logger
+	ErrorSender  herrors.ErrorSender
+	BuildClosers types.CloseAdder
+	Rebuilder    identity.SignalRebuilder
 
 	TextTemplates tpl.TemplateParseFinder
 
-	Permalinks  page.PermalinkExpander
-	BuildConfig config.Build
+	Permalinks page.PermalinkExpander
+
+	ImageCache *ImageCache
 
 	// Holds default filter settings etc.
 	imaging *images.ImageProcessor
 
 	ExecHelper *hexec.Exec
 
+	*SpecCommon
+}
+
+// The parts of Spec that's common for all sites.
+type SpecCommon struct {
 	incr          identity.Incrementer
-	imageCache    *imageCache
 	ResourceCache *ResourceCache
 	FileCaches    filecache.Caches
 
@@ -141,210 +154,75 @@ type PostBuildAssets struct {
 	JSConfigBuilder      *jsconfig.Builder
 }
 
-func (r *Spec) New(fd ResourceSourceDescriptor) (resource.Resource, error) {
-	return r.newResourceFor(fd)
+func (r *Spec) NewResourceWrapperFromResourceConfig(rc *pagemeta.ResourceConfig) (resource.Resource, error) {
+	content := rc.Content
+	switch r := content.Value.(type) {
+	case resource.Resource:
+		return cloneWithMetadataFromResourceConfigIfNeeded(rc, r), nil
+	default:
+		return nil, fmt.Errorf("failed to create resource for path %q, expected a resource.Resource, got %T", rc.PathInfo.Path(), content.Value)
+	}
 }
 
-func (r *Spec) CacheStats() string {
-	r.imageCache.mu.RLock()
-	defer r.imageCache.mu.RUnlock()
-
-	s := fmt.Sprintf("Cache entries: %d", len(r.imageCache.store))
-
-	count := 0
-	for k := range r.imageCache.store {
-		if count > 5 {
-			break
-		}
-		s += "\n" + k
-		count++
+// NewResource creates a new Resource from the given ResourceSourceDescriptor.
+func (r *Spec) NewResource(rd ResourceSourceDescriptor) (resource.Resource, error) {
+	if err := rd.init(r); err != nil {
+		return nil, err
 	}
 
-	return s
-}
-
-func (r *Spec) ClearCaches() {
-	r.imageCache.clear()
-	r.ResourceCache.clear()
-}
-
-func (r *Spec) DeleteBySubstring(s string) {
-	r.imageCache.deleteIfContains(s)
-}
-
-func (s *Spec) String() string {
-	return "spec"
-}
-
-// TODO(bep) clean up below
-func (r *Spec) newGenericResource(sourceFs afero.Fs,
-	targetPathBuilder func() page.TargetPaths,
-	osFileInfo os.FileInfo,
-	sourceFilename,
-	baseFilename string,
-	mediaType media.Type) *genericResource {
-	return r.newGenericResourceWithBase(
-		sourceFs,
-		nil,
-		nil,
-		targetPathBuilder,
-		osFileInfo,
-		sourceFilename,
-		baseFilename,
-		mediaType,
-		nil,
-	)
-}
-
-func (r *Spec) newGenericResourceWithBase(
-	sourceFs afero.Fs,
-	openReadSeekerCloser resource.OpenReadSeekCloser,
-	targetPathBaseDirs []string,
-	targetPathBuilder func() page.TargetPaths,
-	osFileInfo os.FileInfo,
-	sourceFilename,
-	baseFilename string,
-	mediaType media.Type,
-	data map[string]any,
-) *genericResource {
-	if osFileInfo != nil && osFileInfo.IsDir() {
-		panic(fmt.Sprintf("dirs not supported resource types: %v", osFileInfo))
+	dir, name := path.Split(rd.TargetPath)
+	dir = paths.ToSlashPreserveLeading(dir)
+	if dir == "/" {
+		dir = ""
+	}
+	rp := internal.ResourcePaths{
+		File:            name,
+		Dir:             dir,
+		BaseDirTarget:   rd.BasePathTargetPath,
+		BaseDirLink:     rd.BasePathRelPermalink,
+		TargetBasePaths: rd.TargetBasePaths,
 	}
 
-	// This value is used both to construct URLs and file paths, but start
-	// with a Unix-styled path.
-	baseFilename = helpers.ToSlashTrimLeading(baseFilename)
-	fpath, fname := path.Split(baseFilename)
-
-	resourceType := mediaType.MainType
-
-	pathDescriptor := &resourcePathDescriptor{
-		baseTargetPathDirs: helpers.UniqueStringsReuse(targetPathBaseDirs),
-		targetPathBuilder:  targetPathBuilder,
-		relTargetDirFile:   dirFile{dir: fpath, file: fname},
+	gr := &genericResource{
+		Staler:      &AtomicStaler{},
+		h:           &resourceHash{},
+		publishInit: &sync.Once{},
+		paths:       rp,
+		spec:        r,
+		sd:          rd,
+		params:      rd.Params,
+		name:        rd.NameOriginal,
+		title:       rd.Title,
 	}
 
-	var fim hugofs.FileMetaInfo
-	if osFileInfo != nil {
-		fim = osFileInfo.(hugofs.FileMetaInfo)
-	}
-
-	gfi := &resourceFileInfo{
-		fi:                   fim,
-		openReadSeekerCloser: openReadSeekerCloser,
-		sourceFs:             sourceFs,
-		sourceFilename:       sourceFilename,
-		h:                    &resourceHash{},
-	}
-
-	g := &genericResource{
-		resourceFileInfo:       gfi,
-		resourcePathDescriptor: pathDescriptor,
-		mediaType:              mediaType,
-		resourceType:           resourceType,
-		spec:                   r,
-		params:                 make(map[string]any),
-		name:                   baseFilename,
-		title:                  baseFilename,
-		resourceContent:        &resourceContent{},
-		data:                   data,
-	}
-
-	return g
-}
-
-func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (resource.Resource, error) {
-	fi := fd.FileInfo
-	var sourceFilename string
-
-	if fd.OpenReadSeekCloser != nil {
-	} else if fd.SourceFilename != "" {
-		var err error
-		fi, err = sourceFs.Stat(fd.SourceFilename)
-		if err != nil {
-			if herrors.IsNotExist(err) {
-				return nil, nil
-			}
-			return nil, err
-		}
-		sourceFilename = fd.SourceFilename
-	} else {
-		sourceFilename = fd.SourceFile.Filename()
-	}
-
-	if fd.RelTargetFilename == "" {
-		fd.RelTargetFilename = sourceFilename
-	}
-
-	mimeType := fd.MediaType
-	if mimeType.IsZero() {
-		ext := strings.ToLower(filepath.Ext(fd.RelTargetFilename))
-		var (
-			found      bool
-			suffixInfo media.SuffixInfo
-		)
-		mimeType, suffixInfo, found = r.MediaTypes.GetFirstBySuffix(strings.TrimPrefix(ext, "."))
-		// TODO(bep) we need to handle these ambiguous types better, but in this context
-		// we most likely want the application/xml type.
-		if suffixInfo.Suffix == "xml" && mimeType.SubType == "rss" {
-			mimeType, found = r.MediaTypes.GetByType("application/xml")
-		}
-
-		if !found {
-			// A fallback. Note that mime.TypeByExtension is slow by Hugo standards,
-			// so we should configure media types to avoid this lookup for most
-			// situations.
-			mimeStr := mime.TypeByExtension(ext)
-			if mimeStr != "" {
-				mimeType, _ = media.FromStringAndExt(mimeStr, ext)
-			}
-		}
-	}
-
-	gr := r.newGenericResourceWithBase(
-		sourceFs,
-		fd.OpenReadSeekCloser,
-		fd.TargetBasePaths,
-		fd.TargetPaths,
-		fi,
-		sourceFilename,
-		fd.RelTargetFilename,
-		mimeType,
-		fd.Data)
-
-	if mimeType.MainType == "image" {
-		imgFormat, ok := images.ImageFormatFromMediaSubType(mimeType.SubType)
+	if rd.MediaType.MainType == "image" {
+		imgFormat, ok := images.ImageFormatFromMediaSubType(rd.MediaType.SubType)
 		if ok {
 			ir := &imageResource{
 				Image:        images.NewImage(imgFormat, r.imaging, nil, gr),
 				baseResource: gr,
 			}
 			ir.root = ir
-			return newResourceAdapter(gr.spec, fd.LazyPublish, ir), nil
+			return newResourceAdapter(gr.spec, rd.LazyPublish, ir), nil
 		}
 
 	}
 
-	return newResourceAdapter(gr.spec, fd.LazyPublish, gr), nil
+	return newResourceAdapter(gr.spec, rd.LazyPublish, gr), nil
 }
 
-func (r *Spec) newResourceFor(fd ResourceSourceDescriptor) (resource.Resource, error) {
-	if fd.OpenReadSeekCloser == nil {
-		if fd.SourceFile != nil && fd.SourceFilename != "" {
-			return nil, errors.New("both SourceFile and AbsSourceFilename provided")
-		} else if fd.SourceFile == nil && fd.SourceFilename == "" {
-			return nil, errors.New("either SourceFile or AbsSourceFilename must be provided")
-		}
-	}
+func (r *Spec) MediaTypes() media.Types {
+	return r.Cfg.GetConfigSection("mediaTypes").(media.Types)
+}
 
-	if fd.RelTargetFilename == "" {
-		fd.RelTargetFilename = fd.Filename()
-	}
+func (r *Spec) OutputFormats() output.Formats {
+	return r.Cfg.GetConfigSection("outputFormats").(output.Formats)
+}
 
-	if len(fd.TargetBasePaths) == 0 {
-		// If not set, we publish the same resource to all hosts.
-		fd.TargetBasePaths = r.MultihostTargetBasePaths
-	}
+func (r *Spec) BuildConfig() config.BuildConfig {
+	return r.Cfg.GetConfigSection("build").(config.BuildConfig)
+}
 
-	return r.newResource(fd.Fs, fd)
+func (s *Spec) String() string {
+	return "spec"
 }

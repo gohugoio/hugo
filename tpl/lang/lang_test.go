@@ -41,8 +41,8 @@ func TestNumFmt(t *testing.T) {
 		{6, -12345.6789, "-|,| ", "|", "-12 345,678900"},
 
 		// Arabic, ar_AE
-		{6, -12345.6789, "‏- ٫ ٬", "", "‏-12٬345٫678900"},
-		{6, -12345.6789, "‏-|٫| ", "|", "‏-12 345٫678900"},
+		{6, -12345.6789, "\u200f- ٫ ٬", "", "\u200f-12٬345٫678900"},
+		{6, -12345.6789, "\u200f-|٫| ", "|", "\u200f-12 345٫678900"},
 	}
 
 	for _, cas := range cases {
@@ -65,7 +65,6 @@ func TestNumFmt(t *testing.T) {
 }
 
 func TestFormatNumbers(t *testing.T) {
-
 	c := qt.New(t)
 
 	nsNn := New(&deps.Deps{}, translators.GetTranslator("nn"))
@@ -103,12 +102,10 @@ func TestFormatNumbers(t *testing.T) {
 		c.Assert(err, qt.IsNil)
 		c.Assert(got, qt.Equals, "$20,000.00")
 	})
-
 }
 
 // Issue 9446
 func TestLanguageKeyFormat(t *testing.T) {
-
 	c := qt.New(t)
 
 	nsUnderscoreUpper := New(&deps.Deps{}, translators.GetTranslator("es_ES"))
@@ -134,7 +131,5 @@ func TestLanguageKeyFormat(t *testing.T) {
 		got, err = nsHyphenLower.FormatNumber(3, pi)
 		c.Assert(err, qt.IsNil)
 		c.Assert(got, qt.Equals, "3,142")
-
 	})
-
 }

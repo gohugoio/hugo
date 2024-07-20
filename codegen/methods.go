@@ -461,7 +461,6 @@ func collectMethodsRecursive(pkg string, f []*ast.Field) []string {
 						pkg,
 						tt.Methods.List)...)
 			}
-
 		} else {
 			// Embedded, but in a different file/package. Return the
 			// package.Name and deal with that later.

@@ -14,24 +14,22 @@
 package collections
 
 import (
+	"context"
 	"fmt"
 	"html/template"
+	"math/rand"
 	"reflect"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/gohugoio/hugo/common/maps"
-	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/langs"
-
-	"github.com/gohugoio/hugo/deps"
 )
 
 func TestWhere(t *testing.T) {
 	t.Parallel()
 
-	ns := New(&deps.Deps{Language: langs.NewDefaultLanguage(config.New())})
+	ns := newNs()
 
 	type Mid struct {
 		Tst TstX
@@ -645,9 +643,9 @@ func TestWhere(t *testing.T) {
 				var err error
 
 				if len(test.op) > 0 {
-					results, err = ns.Where(test.seq, test.key, test.op, test.match)
+					results, err = ns.Where(context.Background(), test.seq, test.key, test.op, test.match)
 				} else {
-					results, err = ns.Where(test.seq, test.key, test.match)
+					results, err = ns.Where(context.Background(), test.seq, test.key, test.match)
 				}
 				if b, ok := test.expect.(bool); ok && !b {
 					if err == nil {
@@ -666,17 +664,17 @@ func TestWhere(t *testing.T) {
 	}
 
 	var err error
-	_, err = ns.Where(map[string]int{"a": 1, "b": 2}, "a", []byte("="), 1)
+	_, err = ns.Where(context.Background(), map[string]int{"a": 1, "b": 2}, "a", []byte("="), 1)
 	if err == nil {
 		t.Errorf("Where called with none string op value didn't return an expected error")
 	}
 
-	_, err = ns.Where(map[string]int{"a": 1, "b": 2}, "a", []byte("="), 1, 2)
+	_, err = ns.Where(context.Background(), map[string]int{"a": 1, "b": 2}, "a", []byte("="), 1, 2)
 	if err == nil {
 		t.Errorf("Where called with more than two variable arguments didn't return an expected error")
 	}
 
-	_, err = ns.Where(map[string]int{"a": 1, "b": 2}, "a")
+	_, err = ns.Where(context.Background(), map[string]int{"a": 1, "b": 2}, "a")
 	if err == nil {
 		t.Errorf("Where called with no variable arguments didn't return an expected error")
 	}
@@ -685,7 +683,7 @@ func TestWhere(t *testing.T) {
 func TestCheckCondition(t *testing.T) {
 	t.Parallel()
 
-	ns := New(&deps.Deps{Language: langs.NewDefaultLanguage(config.New())})
+	ns := newNs()
 
 	type expect struct {
 		result  bool
@@ -846,7 +844,7 @@ func TestEvaluateSubElem(t *testing.T) {
 		{reflect.ValueOf(map[int]string{1: "foo", 2: "bar"}), "1", false},
 		{reflect.ValueOf([]string{"foo", "bar"}), "1", false},
 	} {
-		result, err := evaluateSubElem(test.value, test.key)
+		result, err := evaluateSubElem(reflect.ValueOf(context.Background()), test.value, test.key)
 		if b, ok := test.expect.(bool); ok && !b {
 			if err == nil {
 				t.Errorf("[%d] evaluateSubElem didn't return an expected error", i)
@@ -861,4 +859,46 @@ func TestEvaluateSubElem(t *testing.T) {
 			}
 		}
 	}
+}
+
+func BenchmarkWhereOps(b *testing.B) {
+	ns := newNs()
+	var seq []map[string]string
+	ctx := context.Background()
+	for i := 0; i < 500; i++ {
+		seq = append(seq, map[string]string{"foo": "bar"})
+	}
+	for i := 0; i < 500; i++ {
+		seq = append(seq, map[string]string{"foo": "baz"})
+	}
+	// Shuffle the sequence.
+	for i := range seq {
+		j := rand.Intn(i + 1)
+		seq[i], seq[j] = seq[j], seq[i]
+	}
+	// results, err = ns.Where(context.Background(), test.seq, test.key, test.op, test.match)
+	runOps := func(b *testing.B, op, match string) {
+		_, err := ns.Where(ctx, seq, "foo", op, match)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+
+	b.Run("eq", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			runOps(b, "eq", "bar")
+		}
+	})
+
+	b.Run("ne", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			runOps(b, "ne", "baz")
+		}
+	})
+
+	b.Run("like", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			runOps(b, "like", "^bar")
+		}
+	})
 }

@@ -19,17 +19,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/tpl/transform"
-	"github.com/spf13/afero"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/langs"
 )
 
 type tstNoStringer struct{}
@@ -252,23 +245,5 @@ func TestPlainify(t *testing.T) {
 
 		b.Assert(err, qt.IsNil)
 		b.Assert(result, qt.Equals, test.expect)
-	}
-}
-
-func newDeps(cfg config.Provider) *deps.Deps {
-	cfg.Set("contentDir", "content")
-	cfg.Set("i18nDir", "i18n")
-
-	l := langs.NewLanguage("en", cfg)
-
-	cs, err := helpers.NewContentSpec(l, loggers.NewErrorLogger(), afero.NewMemMapFs(), nil)
-	if err != nil {
-		panic(err)
-	}
-
-	return &deps.Deps{
-		Cfg:         cfg,
-		Fs:          hugofs.NewMem(l),
-		ContentSpec: cs,
 	}
 }

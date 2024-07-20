@@ -14,6 +14,7 @@
 package tableofcontents
 
 import (
+	"html/template"
 	"sort"
 	"strings"
 
@@ -31,7 +32,7 @@ type Builder struct {
 	toc *Fragments
 }
 
-// Add adds the heading to the ToC.
+// AddAt adds the heading to the ToC.
 func (b *Builder) AddAt(h *Heading, row, level int) {
 	if b.toc == nil {
 		b.toc = &Fragments{}
@@ -76,6 +77,7 @@ func (h Headings) FilterBy(fn func(*Heading) bool) Headings {
 // Heading holds the data about a heading and its children.
 type Heading struct {
 	ID    string
+	Level int
 	Title string
 
 	Headings Headings
@@ -131,7 +133,7 @@ func (toc *Fragments) addAt(h *Heading, row, level int) {
 }
 
 // ToHTML renders the ToC as HTML.
-func (toc *Fragments) ToHTML(startLevel, stopLevel int, ordered bool) string {
+func (toc *Fragments) ToHTML(startLevel, stopLevel int, ordered bool) template.HTML {
 	if toc == nil {
 		return ""
 	}
@@ -143,7 +145,7 @@ func (toc *Fragments) ToHTML(startLevel, stopLevel int, ordered bool) string {
 		ordered:    ordered,
 	}
 	b.Build()
-	return b.s.String()
+	return template.HTML(b.s.String())
 }
 
 func (toc Fragments) walk(fn func(*Heading)) {
@@ -237,6 +239,7 @@ var DefaultConfig = Config{
 type Config struct {
 	// Heading start level to include in the table of contents, starting
 	// at h1 (inclusive).
+	// <docsmeta>{ "identifiers": ["h1"] }</docsmeta>
 	StartLevel int
 
 	// Heading end level, inclusive, to include in the table of contents.

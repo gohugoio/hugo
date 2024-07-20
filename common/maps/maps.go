@@ -29,7 +29,7 @@ func ToStringMapE(in any) (map[string]any, error) {
 	case Params:
 		return vv, nil
 	case map[string]string:
-		var m = map[string]any{}
+		m := map[string]any{}
 		for k, v := range vv {
 			m[k] = v
 		}
@@ -43,25 +43,25 @@ func ToStringMapE(in any) (map[string]any, error) {
 // ToParamsAndPrepare converts in to Params and prepares it for use.
 // If in is nil, an empty map is returned.
 // See PrepareParams.
-func ToParamsAndPrepare(in any) (Params, bool) {
+func ToParamsAndPrepare(in any) (Params, error) {
 	if types.IsNil(in) {
-		return Params{}, true
+		return Params{}, nil
 	}
 	m, err := ToStringMapE(in)
 	if err != nil {
-		return nil, false
+		return nil, err
 	}
 	PrepareParams(m)
-	return m, true
+	return m, nil
 }
 
 // MustToParamsAndPrepare calls ToParamsAndPrepare and panics if it fails.
 func MustToParamsAndPrepare(in any) Params {
-	if p, ok := ToParamsAndPrepare(in); ok {
-		return p
-	} else {
-		panic(fmt.Sprintf("cannot convert %T to maps.Params", in))
+	p, err := ToParamsAndPrepare(in)
+	if err != nil {
+		panic(fmt.Sprintf("cannot convert %T to maps.Params: %s", in, err))
 	}
+	return p
 }
 
 // ToStringMap converts in to map[string]interface{}.
@@ -96,6 +96,8 @@ func ToSliceStringMap(in any) ([]map[string]any, error) {
 	switch v := in.(type) {
 	case []map[string]any:
 		return v, nil
+	case Params:
+		return []map[string]any{v}, nil
 	case []any:
 		var s []map[string]any
 		for _, entry := range v {
@@ -110,17 +112,34 @@ func ToSliceStringMap(in any) ([]map[string]any, error) {
 }
 
 // LookupEqualFold finds key in m with case insensitive equality checks.
-func LookupEqualFold[T any | string](m map[string]T, key string) (T, bool) {
+func LookupEqualFold[T any | string](m map[string]T, key string) (T, string, bool) {
 	if v, found := m[key]; found {
-		return v, true
+		return v, key, true
 	}
 	for k, v := range m {
 		if strings.EqualFold(k, key) {
-			return v, true
+			return v, k, true
 		}
 	}
 	var s T
-	return s, false
+	return s, "", false
+}
+
+// MergeShallow merges src into dst, but only if the key does not already exist in dst.
+// The keys are compared case insensitively.
+func MergeShallow(dst, src map[string]any) {
+	for k, v := range src {
+		found := false
+		for dk := range dst {
+			if strings.EqualFold(dk, k) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			dst[k] = v
+		}
+	}
 }
 
 type keyRename struct {
@@ -173,21 +192,45 @@ func (KeyRenamer) keyPath(k1, k2 string) string {
 }
 
 func (r KeyRenamer) renamePath(parentKeyPath string, m map[string]any) {
-	for key, val := range m {
-		keyPath := r.keyPath(parentKeyPath, key)
-		switch val.(type) {
+	for k, v := range m {
+		keyPath := r.keyPath(parentKeyPath, k)
+		switch vv := v.(type) {
 		case map[any]any:
-			val = cast.ToStringMap(val)
-			r.renamePath(keyPath, val.(map[string]any))
+			r.renamePath(keyPath, cast.ToStringMap(vv))
 		case map[string]any:
-			r.renamePath(keyPath, val.(map[string]any))
+			r.renamePath(keyPath, vv)
 		}
 
 		newKey := r.getNewKey(keyPath)
 
 		if newKey != "" {
-			delete(m, key)
-			m[newKey] = val
+			delete(m, k)
+			m[newKey] = v
+		}
+	}
+}
+
+// ConvertFloat64WithNoDecimalsToInt converts float64 values with no decimals to int recursively.
+func ConvertFloat64WithNoDecimalsToInt(m map[string]any) {
+	for k, v := range m {
+		switch vv := v.(type) {
+		case float64:
+			if v == float64(int64(vv)) {
+				m[k] = int64(vv)
+			}
+		case map[string]any:
+			ConvertFloat64WithNoDecimalsToInt(vv)
+		case []any:
+			for i, vvv := range vv {
+				switch vvvv := vvv.(type) {
+				case float64:
+					if vvv == float64(int64(vvvv)) {
+						vv[i] = int64(vvvv)
+					}
+				case map[string]any:
+					ConvertFloat64WithNoDecimalsToInt(vvvv)
+				}
+			}
 		}
 	}
 }

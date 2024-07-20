@@ -16,10 +16,10 @@ package page
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"math"
 	"reflect"
 
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/config"
 
 	"github.com/spf13/cast"
@@ -31,6 +31,18 @@ type PaginatorProvider interface {
 	Paginator(options ...any) (*Pager, error)
 	// Paginate creates a paginator with the given page set in pages.
 	Paginate(pages any, options ...any) (*Pager, error)
+}
+
+var _ PaginatorProvider = (*PaginatorNotSupportedFunc)(nil)
+
+type PaginatorNotSupportedFunc func() error
+
+func (f PaginatorNotSupportedFunc) Paginate(pages any, options ...any) (*Pager, error) {
+	return nil, f()
+}
+
+func (f PaginatorNotSupportedFunc) Paginator(options ...any) (*Pager, error) {
+	return nil, f()
 }
 
 // Pager represents one of the elements in a paginator.
@@ -71,8 +83,8 @@ func (p *Pager) PageNumber() int {
 }
 
 // URL returns the URL to the current page.
-func (p *Pager) URL() template.HTML {
-	return template.HTML(p.paginationURLFactory(p.PageNumber()))
+func (p *Pager) URL() string {
+	return p.paginationURLFactory(p.PageNumber())
 }
 
 // Pages returns the Pages on this page.
@@ -183,7 +195,14 @@ func (p *Paginator) Pagers() pagers {
 }
 
 // PageSize returns the size of each paginator page.
+// Deprecated: Use PagerSize instead.
 func (p *Paginator) PageSize() int {
+	hugo.Deprecate("PageSize", "Use PagerSize instead.", "v0.128.0")
+	return p.size
+}
+
+// PagerSize returns the size of each paginator page.
+func (p *Paginator) PagerSize() int {
 	return p.size
 }
 
@@ -250,9 +269,9 @@ func splitPageGroups(pageGroups PagesGroup, size int) []paginatedElement {
 	return split
 }
 
-func ResolvePagerSize(cfg config.Provider, options ...any) (int, error) {
+func ResolvePagerSize(conf config.AllProvider, options ...any) (int, error) {
 	if len(options) == 0 {
-		return cfg.GetInt("paginate"), nil
+		return conf.Pagination().PagerSize, nil
 	}
 
 	if len(options) > 1 {
@@ -389,7 +408,7 @@ func newPaginationURLFactory(d TargetPathDescriptor) paginationURLFactory {
 		pathDescriptor := d
 		var rel string
 		if pageNumber > 1 {
-			rel = fmt.Sprintf("/%s/%d/", d.PathSpec.PaginatePath, pageNumber)
+			rel = fmt.Sprintf("/%s/%d/", d.PathSpec.Cfg.Pagination().Path, pageNumber)
 			pathDescriptor.Addends = rel
 		}
 

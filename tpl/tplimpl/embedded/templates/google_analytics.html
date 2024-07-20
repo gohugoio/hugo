@@ -1,51 +1,22 @@
-{{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
-{{- if not $pc.Disable }}{{ with .Site.GoogleAnalytics -}}
-{{ if hasPrefix . "G-"}}
-<script async src="https://www.googletagmanager.com/gtag/js?id={{ . }}"></script>
-<script>
-{{ template "__ga_js_set_doNotTrack" $ }}
-if (!doNotTrack) {
-	window.dataLayer = window.dataLayer || [];
-	function gtag(){dataLayer.push(arguments);}
-	gtag('js', new Date());
-	gtag('config', '{{ . }}', { 'anonymize_ip': {{- $pc.AnonymizeIP -}} });
-}
-</script>
-{{ else if hasPrefix . "UA-" }}
-<script type="application/javascript">
-{{ template "__ga_js_set_doNotTrack" $ }}
-if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	{{- if $pc.UseSessionStorage }}
-	if (window.sessionStorage) {
-		var GA_SESSION_STORAGE_KEY = 'ga:clientId';
-		ga('create', '{{ . }}', {
-	    'storage': 'none',
-	    'clientId': sessionStorage.getItem(GA_SESSION_STORAGE_KEY)
-	   });
-	   ga(function(tracker) {
-	    sessionStorage.setItem(GA_SESSION_STORAGE_KEY, tracker.get('clientId'));
-	   });
-   }
-	{{ else }}
-	ga('create', '{{ . }}', 'auto');
-	{{ end -}}
-	{{ if $pc.AnonymizeIP }}ga('set', 'anonymizeIp', true);{{ end }}
-	ga('send', 'pageview');
-}
-</script>
-{{- end -}}
-{{- end }}{{ end -}}
-
-{{- define "__ga_js_set_doNotTrack" -}}{{/* This is also used in the async version. */}}
-{{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
-{{- if not $pc.RespectDoNotTrack -}}
-var doNotTrack = false;
-{{- else -}}
-var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
-var doNotTrack = (dnt == "1" || dnt == "yes");
-{{- end -}}
-{{- end -}}
+{{ if not site.Config.Privacy.GoogleAnalytics.Disable }}
+  {{ with site.Config.Services.GoogleAnalytics.ID }}
+    {{ if strings.HasPrefix (lower .) "ua-" }}
+      {{ warnf "Google Analytics 4 (GA4) replaced Google Universal Analytics (UA) effective 1 July 2023. See https://support.google.com/analytics/answer/11583528. Create a GA4 property and data stream, then replace the Google Analytics ID in your site configuration with the new value." }}
+    {{ else }}
+      <script async src="https://www.googletagmanager.com/gtag/js?id={{ . }}"></script>
+      <script>
+        var doNotTrack = false;
+        if ({{ site.Config.Privacy.GoogleAnalytics.RespectDoNotTrack }}) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '{{ . }}');
+        }
+      </script>
+    {{ end }}
+  {{ end }}
+{{ end }}

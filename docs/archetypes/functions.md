@@ -1,12 +1,11 @@
 ---
-linktitle: ""
-description: ""
-categories: [functions]
-tags: []
-ns: ""
-signature: []
-hugoversion: ""
-aliases: []
-relatedfuncs: []
-toc: false
+title: {{ replace .File.ContentBaseName "-" " " | title }}
+description:
+categories: []
+keywords: []
+action:
+  aliases: []
+  related: []
+  returnType:
+  signatures: []
 ---

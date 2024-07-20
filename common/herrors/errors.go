@@ -1,4 +1,4 @@
-// Copyright 2022 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,14 +15,15 @@
 package herrors
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 	"runtime"
 	"runtime/debug"
-	"strconv"
+	"strings"
+	"time"
 )
 
 // PrintStackTrace prints the current stacktrace to w.
@@ -49,21 +50,66 @@ func Recover(args ...any) {
 	}
 }
 
-// Get the current goroutine id. Used only for debugging.
-func GetGID() uint64 {
-	b := make([]byte, 64)
-	b = b[:runtime.Stack(b, false)]
-	b = bytes.TrimPrefix(b, []byte("goroutine "))
-	b = b[:bytes.IndexByte(b, ' ')]
-	n, _ := strconv.ParseUint(string(b), 10, 64)
-	return n
+// IsTimeoutError returns true if the given error is or contains a TimeoutError.
+func IsTimeoutError(err error) bool {
+	return errors.Is(err, &TimeoutError{})
+}
+
+type TimeoutError struct {
+	Duration time.Duration
+}
+
+func (e *TimeoutError) Error() string {
+	return fmt.Sprintf("timeout after %s", e.Duration)
+}
+
+func (e *TimeoutError) Is(target error) bool {
+	_, ok := target.(*TimeoutError)
+	return ok
+}
+
+// errMessage wraps an error with a message.
+type errMessage struct {
+	msg string
+	err error
+}
+
+func (e *errMessage) Error() string {
+	return e.msg
+}
+
+func (e *errMessage) Unwrap() error {
+	return e.err
+}
+
+// IsFeatureNotAvailableError returns true if the given error is or contains a FeatureNotAvailableError.
+func IsFeatureNotAvailableError(err error) bool {
+	return errors.Is(err, &FeatureNotAvailableError{})
 }
 
 // ErrFeatureNotAvailable denotes that a feature is unavailable.
 //
 // We will, at least to begin with, make some Hugo features (SCSS with libsass) optional,
 // and this error is used to signal those situations.
-var ErrFeatureNotAvailable = errors.New("this feature is not available in your current Hugo version, see https://goo.gl/YMrWcn for more information")
+var ErrFeatureNotAvailable = &FeatureNotAvailableError{Cause: errors.New("this feature is not available in your current Hugo version, see https://goo.gl/YMrWcn for more information")}
+
+// FeatureNotAvailableError is an error type used to signal that a feature is not available.
+type FeatureNotAvailableError struct {
+	Cause error
+}
+
+func (e *FeatureNotAvailableError) Unwrap() error {
+	return e.Cause
+}
+
+func (e *FeatureNotAvailableError) Error() string {
+	return e.Cause.Error()
+}
+
+func (e *FeatureNotAvailableError) Is(target error) bool {
+	_, ok := target.(*FeatureNotAvailableError)
+	return ok
+}
 
 // Must panics if err != nil.
 func Must(err error) {
@@ -85,4 +131,42 @@ func IsNotExist(err error) bool {
 	}
 
 	return false
+}
+
+var nilPointerErrRe = regexp.MustCompile(`at <(.*)>: error calling (.*?): runtime error: invalid memory address or nil pointer dereference`)
+
+const deferredPrefix = "__hdeferred/"
+
+var deferredStringToRemove = regexp.MustCompile(`executing "__hdeferred/.*" `)
+
+// ImproveRenderErr improves the error message for rendering errors.
+func ImproveRenderErr(inErr error) (outErr error) {
+	outErr = inErr
+	msg := improveIfNilPointerMsg(inErr)
+	if msg != "" {
+		outErr = &errMessage{msg: msg, err: outErr}
+	}
+
+	if strings.Contains(inErr.Error(), deferredPrefix) {
+		msg := deferredStringToRemove.ReplaceAllString(inErr.Error(), "executing ")
+		outErr = &errMessage{msg: msg, err: outErr}
+	}
+	return
+}
+
+func improveIfNilPointerMsg(inErr error) string {
+	m := nilPointerErrRe.FindStringSubmatch(inErr.Error())
+	if len(m) == 0 {
+		return ""
+	}
+	call := m[1]
+	field := m[2]
+	parts := strings.Split(call, ".")
+	if len(parts) < 2 {
+		return ""
+	}
+	receiverName := parts[len(parts)-2]
+	receiver := strings.Join(parts[:len(parts)-1], ".")
+	s := fmt.Sprintf("– %s is nil; wrap it in if or with: {{ with %s }}{{ .%s }}{{ end }}", receiverName, receiver, field)
+	return nilPointerErrRe.ReplaceAllString(inErr.Error(), s)
 }

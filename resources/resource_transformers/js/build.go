@@ -14,6 +14,7 @@
 package js
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -22,17 +23,15 @@ import (
 	"regexp"
 	"strings"
 
-	"errors"
-
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/media"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/text"
 
 	"github.com/gohugoio/hugo/hugolib/filesystems"
-	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/internal"
 
 	"github.com/evanw/esbuild/pkg/api"
@@ -64,7 +63,7 @@ func (t *buildTransformation) Key() internal.ResourceTransformationKey {
 }
 
 func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
-	ctx.OutMediaType = media.JavascriptType
+	ctx.OutMediaType = media.Builtin.JavascriptType
 
 	opts, err := decodeOptions(t.optsm)
 	if err != nil {
@@ -83,16 +82,17 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	}
 
 	opts.sourceDir = filepath.FromSlash(path.Dir(ctx.SourcePath))
-	opts.resolveDir = t.c.rs.WorkingDir // where node_modules gets resolved
+	opts.resolveDir = t.c.rs.Cfg.BaseConfig().WorkingDir // where node_modules gets resolved
 	opts.contents = string(src)
 	opts.mediaType = ctx.InMediaType
+	opts.tsConfig = t.c.rs.ResolveJSConfigFile("tsconfig.json")
 
 	buildOptions, err := toBuildOptions(opts)
 	if err != nil {
 		return err
 	}
 
-	buildOptions.Plugins, err = createBuildPlugins(t.c, opts)
+	buildOptions.Plugins, err = createBuildPlugins(ctx.DependencyManager, t.c, opts)
 	if err != nil {
 		return err
 	}

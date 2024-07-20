@@ -1,0 +1,32 @@
+# Test the hugo server command.
+
+# We run these tests in parallel so let Hugo decide which port to use.
+hugo server --renderToMemory &
+
+waitServer
+
+httpget $HUGOTEST_BASEURL_0 'Title: Hugo Server Test' $HUGOTEST_BASEURL_0
+httpget $HUGOTEST_BASEURL_1 'Title: Hugo Serveur Test' $HUGOTEST_BASEURL_1
+
+stopServer
+! stderr .
+
+-- hugo.toml --
+title = "Hugo Server Test"
+baseURL = "https://example.org/"
+disableKinds = ["taxonomy", "term", "sitemap"]
+[languages]
+[languages.en]
+baseURL = "https://en.example.org/"
+languageName = "English"
+title = "Hugo Server Test"
+weight = 1
+[languages.fr]
+baseURL = "https://fr.example.org/"
+title = "Hugo Serveur Test"
+languageName = "Français"
+weight = 2
+-- layouts/index.html --
+Title: {{ .Title }}|BaseURL: {{ site.BaseURL }}|
+
+

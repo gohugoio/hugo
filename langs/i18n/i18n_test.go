@@ -19,14 +19,12 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/types"
-
-	"github.com/gohugoio/hugo/modules"
+	"github.com/gohugoio/hugo/config/testconfig"
 
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 
-	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/spf13/afero"
 
@@ -34,10 +32,7 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/hugofs"
 )
-
-var logger = loggers.NewErrorLogger()
 
 type i18nTest struct {
 	name                             string
@@ -392,32 +387,25 @@ other = "{{ . }} miesiąca"
 			},
 		},
 	} {
-
 		c.Run(test.name, func(c *qt.C) {
-			cfg := getConfig()
+			cfg := config.New()
 			cfg.Set("enableMissingTranslationPlaceholders", true)
-			fs := hugofs.NewMem(cfg)
+			cfg.Set("publishDir", "public")
+			afs := afero.NewMemMapFs()
 
-			err := afero.WriteFile(fs.Source, filepath.Join("i18n", test.lang+".toml"), []byte(test.templ), 0755)
+			err := afero.WriteFile(afs, filepath.Join("i18n", test.lang+".toml"), []byte(test.templ), 0o755)
 			c.Assert(err, qt.IsNil)
 
-			tp := NewTranslationProvider()
-			depsCfg := newDepsConfig(tp, cfg, fs)
-			depsCfg.Logger = loggers.NewWarningLogger()
-			d, err := deps.New(depsCfg)
-			c.Assert(err, qt.IsNil)
-			c.Assert(d.LoadResources(), qt.IsNil)
+			d, tp := prepareDeps(afs, cfg)
 
 			f := tp.t.Func(test.lang)
 			ctx := context.Background()
 
 			for _, variant := range test.variants {
 				c.Assert(f(ctx, test.id, variant.Key), qt.Equals, variant.Value, qt.Commentf("input: %v", variant.Key))
-				c.Assert(int(depsCfg.Logger.LogCounters().WarnCounter.Count()), qt.Equals, 0)
+				c.Assert(d.Log.LoggCount(logg.LevelWarn), qt.Equals, 0)
 			}
-
 		})
-
 	}
 }
 
@@ -435,8 +423,7 @@ type noCountField struct {
 	Counts int
 }
 
-type countMethod struct {
-}
+type countMethod struct{}
 
 func (c countMethod) Count() any {
 	return 32.5
@@ -471,52 +458,33 @@ func TestGetPluralCount(t *testing.T) {
 
 func prepareTranslationProvider(t testing.TB, test i18nTest, cfg config.Provider) *TranslationProvider {
 	c := qt.New(t)
-	fs := hugofs.NewMem(cfg)
+	afs := afero.NewMemMapFs()
 
 	for file, content := range test.data {
-		err := afero.WriteFile(fs.Source, filepath.Join("i18n", file), []byte(content), 0755)
+		err := afero.WriteFile(afs, filepath.Join("i18n", file), []byte(content), 0o755)
 		c.Assert(err, qt.IsNil)
 	}
 
-	tp := NewTranslationProvider()
-	depsCfg := newDepsConfig(tp, cfg, fs)
-	d, err := deps.New(depsCfg)
-	c.Assert(err, qt.IsNil)
-	c.Assert(d.LoadResources(), qt.IsNil)
-
+	_, tp := prepareDeps(afs, cfg)
 	return tp
 }
 
-func newDepsConfig(tp *TranslationProvider, cfg config.Provider, fs *hugofs.Fs) deps.DepsCfg {
-	l := langs.NewLanguage("en", cfg)
-	l.Set("i18nDir", "i18n")
-	return deps.DepsCfg{
-		Language:            l,
-		Site:                page.NewDummyHugoSite(cfg),
-		Cfg:                 cfg,
-		Fs:                  fs,
-		Logger:              logger,
-		TemplateProvider:    tplimpl.DefaultTemplateProvider,
-		TranslationProvider: tp,
-	}
-}
-
-func getConfig() config.Provider {
-	v := config.NewWithTestDefaults()
-	langs.LoadLanguageSettings(v, nil)
-	mod, err := modules.CreateProjectModule(v)
-	if err != nil {
+func prepareDeps(afs afero.Fs, cfg config.Provider) (*deps.Deps, *TranslationProvider) {
+	d := testconfig.GetTestDeps(afs, cfg)
+	translationProvider := NewTranslationProvider()
+	d.TemplateProvider = tplimpl.DefaultTemplateProvider
+	d.TranslationProvider = translationProvider
+	d.Site = page.NewDummyHugoSite(d.Conf)
+	if err := d.Compile(nil); err != nil {
 		panic(err)
 	}
-	v.Set("allModules", modules.Modules{mod})
-
-	return v
+	return d, translationProvider
 }
 
 func TestI18nTranslate(t *testing.T) {
 	c := qt.New(t)
 	var actual, expected string
-	v := getConfig()
+	v := config.New()
 
 	// Test without and with placeholders
 	for _, enablePlaceholders := range []bool{false, true} {
@@ -537,7 +505,7 @@ func TestI18nTranslate(t *testing.T) {
 }
 
 func BenchmarkI18nTranslate(b *testing.B) {
-	v := getConfig()
+	v := config.New()
 	for _, test := range i18nTests {
 		b.Run(test.name, func(b *testing.B) {
 			tp := prepareTranslationProvider(b, test, v)

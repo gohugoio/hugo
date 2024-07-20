@@ -51,9 +51,10 @@ var pb pathBridge
 
 // MakePermalink combines base URL with content path to create full URL paths.
 // Example
-//    base:   http://spf13.com/
-//    path:   post/how-i-blog
-//    result: http://spf13.com/post/how-i-blog
+//
+//	base:   http://spf13.com/
+//	path:   post/how-i-blog
+//	result: http://spf13.com/post/how-i-blog
 func MakePermalink(host, plink string) *url.URL {
 	base, err := url.Parse(host)
 	if err != nil {
@@ -70,6 +71,8 @@ func MakePermalink(host, plink string) *url.URL {
 	}
 
 	base.Path = path.Join(base.Path, p.Path)
+	base.Fragment = p.Fragment
+	base.RawQuery = p.RawQuery
 
 	// path.Join will strip off the last /, so put it back if it was there.
 	hadTrailingSlash := (plink == "" && strings.HasSuffix(host, "/")) || strings.HasSuffix(p.Path, "/")
@@ -117,17 +120,19 @@ func PrettifyURL(in string) string {
 
 // PrettifyURLPath takes a URL path to a content and converts it
 // to enable pretty URLs.
-//     /section/name.html       becomes /section/name/index.html
-//     /section/name/           becomes /section/name/index.html
-//     /section/name/index.html becomes /section/name/index.html
+//
+//	/section/name.html       becomes /section/name/index.html
+//	/section/name/           becomes /section/name/index.html
+//	/section/name/index.html becomes /section/name/index.html
 func PrettifyURLPath(in string) string {
 	return prettifyPath(in, pb)
 }
 
 // Uglify does the opposite of PrettifyURLPath().
-//     /section/name/index.html becomes /section/name.html
-//     /section/name/           becomes /section/name.html
-//     /section/name.html       becomes /section/name.html
+//
+//	/section/name/index.html becomes /section/name.html
+//	/section/name/           becomes /section/name.html
+//	/section/name.html       becomes /section/name.html
 func Uglify(in string) string {
 	if path.Ext(in) == "" {
 		if len(in) < 2 {
@@ -158,7 +163,6 @@ func Uglify(in string) string {
 // If ParseRequestURI fails, the input is just converted to OS specific slashes and returned.
 func UrlToFilename(s string) (string, bool) {
 	u, err := url.ParseRequestURI(s)
-
 	if err != nil {
 		return filepath.FromSlash(s), false
 	}
@@ -178,4 +182,14 @@ func UrlToFilename(s string) (string, bool) {
 	}
 
 	return p, true
+}
+
+// URLEscape escapes unicode letters.
+func URLEscape(uri string) string {
+	// escape unicode letters
+	u, err := url.Parse(uri)
+	if err != nil {
+		panic(err)
+	}
+	return u.String()
 }

@@ -1,0 +1,19 @@
+hugo server --renderToMemory --disableLiveReload  &
+
+waitServer
+stopServer
+wait
+! stderr .
+stdout 'Watching for config changes in.*mytheme'
+
+
+-- hugo.toml --
+title = "Hugo Server Test"
+baseURL = "https://example.org/"
+disableKinds = ["section", "page", "taxonomy", "term", "RSS", "sitemap", "robotsTXT", "404"]
+theme = "mytheme"
+-- layouts/index.html --
+foo: {{ .Site.Params.foo }}
+-- themes/mytheme/hugo.toml --
+[params]
+    foo = "bar"

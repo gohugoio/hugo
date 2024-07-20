@@ -1,0 +1,34 @@
+{{- /*
+Renders a "new in" button indicating the version in which a feature was added.
+
+When comparing the current version to the specified version, the "new in"
+button will be hidden if any of the following conditions is true:
+
+- The major version difference exceeds the majorVersionDiffThreshold
+- The minor version difference exceeds the minorVersionDiffThreshold
+
+@param {string} version The semantic version string, with or without a leading v.
+@returns {template.HTML}
+
+@example {{< new-in 0.100.0 >}}
+*/}}
+
+{{- /* Set defaults. */}}
+{{- $majorVersionDiffThreshold := 0 }}
+{{- $minorVersionDiffThreshold := 30 }}
+{{- $displayExpirationWarning := true }}
+
+{{- /* Render. */}}
+{{- with $version := .Get 0 | strings.TrimPrefix "v" }}
+  {{- $majorVersionDiff := sub (index (split hugo.Version ".") 0 | int) (index (split $version ".") 0 | int) }}
+  {{- $minorVersionDiff := sub (index (split hugo.Version ".") 1 | int) (index (split $version ".") 1 | int) }}
+  {{- if or (gt $majorVersionDiff $majorVersionDiffThreshold) (gt $minorVersionDiff $minorVersionDiffThreshold) }}
+    {{- if $displayExpirationWarning }}
+      {{- warnf "This call to the %q shortcode should be removed: %s. The button is now hidden because the specified version (%s) is older than the display threshold." $.Name $.Position $version }}
+    {{- end }}
+  {{- else }}
+    <a class="dib f5 fw6 ba bw1 b--gray ph2 mt1" href="{{ printf "https://github.com/gohugoio/hugo/releases/tag/v%s" $version }}">New in v{{ $version }}</a>
+  {{- end }}
+{{- else }}
+  {{- errorf "The %q shortcode requires a positional parameter (version). See %s" .Name .Position }}
+{{- end -}}

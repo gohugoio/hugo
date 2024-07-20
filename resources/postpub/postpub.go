@@ -31,7 +31,7 @@ import (
 type PostPublishedResource interface {
 	resource.ResourceTypeProvider
 	resource.ResourceLinksProvider
-	resource.ResourceMetaProvider
+	resource.ResourceNameTitleProvider
 	resource.ResourceParamsProvider
 	resource.ResourceDataProvider
 	resource.OriginProvider
@@ -55,7 +55,7 @@ func NewPostPublishResource(id int, r resource.Resource) PostPublishedResource {
 	}
 }
 
-// postPublishResource holds a Resource to be transformed post publishing.
+// PostPublishResource holds a Resource to be transformed post publishing.
 type PostPublishResource struct {
 	prefix   string
 	delegate resource.Resource

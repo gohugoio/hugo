@@ -31,6 +31,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/gohugoio/hugo/common/types"
+	"github.com/gohugoio/hugo/output/layouts"
 
 	"github.com/gohugoio/hugo/helpers"
 
@@ -41,7 +42,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 
 	htmltemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
@@ -55,6 +56,7 @@ const (
 
 	shortcodesPathPrefix = "shortcodes/"
 	internalPathPrefix   = "_internal/"
+	embeddedPathPrefix   = "_embedded/"
 	baseFileBase         = "baseof"
 )
 
@@ -120,10 +122,6 @@ func needsBaseTemplate(templ string) bool {
 	return baseTemplateDefineRe.MatchString(templ[idx:])
 }
 
-func newIdentity(name string) identity.Manager {
-	return identity.NewManager(identity.NewPathIdentity(files.ComponentFolderLayouts, name))
-}
-
 func newStandaloneTextTemplate(funcs map[string]any) tpl.TemplateParseFinder {
 	return &textTemplateWrapperWithLock{
 		RWMutex:  &sync.RWMutex{},
@@ -131,7 +129,7 @@ func newStandaloneTextTemplate(funcs map[string]any) tpl.TemplateParseFinder {
 	}
 }
 
-func newTemplateExec(d *deps.Deps) (*templateExec, error) {
+func newTemplateHandlers(d *deps.Deps) (*tpl.TemplateHandlers, error) {
 	exec, funcs := newTemplateExecuter(d)
 	funcMap := make(map[string]any)
 	for k, v := range funcs {
@@ -139,14 +137,13 @@ func newTemplateExec(d *deps.Deps) (*templateExec, error) {
 	}
 
 	var templateUsageTracker map[string]templateInfo
-	if d.Cfg.GetBool("printUnusedTemplates") {
+	if d.Conf.PrintUnusedTemplates() {
 		templateUsageTracker = make(map[string]templateInfo)
 	}
 
 	h := &templateHandler{
 		nameBaseTemplateName: make(map[string]string),
 		transformNotFound:    make(map[string]*templateState),
-		identityNotFound:     make(map[string][]identity.Manager),
 
 		shortcodes:   make(map[string]*shortcodeTemplates),
 		templateInfo: make(map[string]tpl.Info),
@@ -156,7 +153,7 @@ func newTemplateExec(d *deps.Deps) (*templateExec, error) {
 		main: newTemplateNamespace(funcMap),
 
 		Deps:                d,
-		layoutHandler:       output.NewLayoutHandler(),
+		layoutHandler:       layouts.NewLayoutHandler(),
 		layoutsFs:           d.BaseFs.Layouts.Fs,
 		layoutTemplateCache: make(map[layoutCacheKey]layoutCacheEntry),
 
@@ -178,16 +175,14 @@ func newTemplateExec(d *deps.Deps) (*templateExec, error) {
 		templateHandler: h,
 	}
 
-	d.SetTmpl(e)
-	d.SetTextTmpl(newStandaloneTextTemplate(funcMap))
-
-	if d.WithTemplate != nil {
-		if err := d.WithTemplate(e); err != nil {
-			return nil, err
-		}
+	if err := e.postTransform(); err != nil {
+		return nil, err
 	}
 
-	return e, nil
+	return &tpl.TemplateHandlers{
+		Tmpl:    e,
+		TxtTmpl: newStandaloneTextTemplate(funcMap),
+	}, nil
 }
 
 func newTemplateNamespace(funcs map[string]any) *templateNamespace {
@@ -200,18 +195,22 @@ func newTemplateNamespace(funcs map[string]any) *templateNamespace {
 	}
 }
 
-func newTemplateState(templ tpl.Template, info templateInfo) *templateState {
+func newTemplateState(owner *templateState, templ tpl.Template, info templateInfo, id identity.Identity) *templateState {
+	if id == nil {
+		id = info
+	}
 	return &templateState{
+		owner:     owner,
 		info:      info,
 		typ:       info.resolveType(),
 		Template:  templ,
-		Manager:   newIdentity(info.name),
 		parseInfo: tpl.DefaultParseInfo,
+		id:        id,
 	}
 }
 
 type layoutCacheKey struct {
-	d output.LayoutDescriptor
+	d layouts.LayoutDescriptor
 	f string
 }
 
@@ -232,10 +231,6 @@ func (t templateExec) Clone(d *deps.Deps) *templateExec {
 }
 
 func (t *templateExec) Execute(templ tpl.Template, wr io.Writer, data any) error {
-	// TOD1
-	if true {
-		//panic("not implemented")
-	}
 	return t.ExecuteWithContext(context.Background(), templ, wr, data)
 }
 
@@ -250,6 +245,7 @@ func (t *templateExec) ExecuteWithContext(ctx context.Context, templ tpl.Templat
 
 	if t.templateUsageTracker != nil {
 		if ts, ok := templ.(*templateState); ok {
+
 			t.templateUsageTrackerMu.Lock()
 			if _, found := t.templateUsageTracker[ts.Name()]; !found {
 				t.templateUsageTracker[ts.Name()] = ts.info
@@ -266,7 +262,11 @@ func (t *templateExec) ExecuteWithContext(ctx context.Context, templ tpl.Templat
 
 	execErr := t.executor.ExecuteWithContext(ctx, templ, wr, data)
 	if execErr != nil {
-		execErr = t.addFileContext(templ, execErr)
+		owner := templ
+		if ts, ok := templ.(*templateState); ok && ts.owner != nil {
+			owner = ts.owner
+		}
+		execErr = t.addFileContext(owner, execErr)
 	}
 	return execErr
 }
@@ -291,7 +291,7 @@ func (t *templateExec) UnusedTemplates() []tpl.FileInfo {
 
 	for _, ts := range t.main.templates {
 		ti := ts.info
-		if strings.HasPrefix(ti.name, "_internal/") || ti.realFilename == "" {
+		if strings.HasPrefix(ti.name, "_internal/") || ti.meta == nil {
 			continue
 		}
 
@@ -318,6 +318,9 @@ func (t *templateExec) MarkReady() error {
 		// We only need the clones if base templates are in use.
 		if len(t.needsBaseof) > 0 {
 			err = t.main.createPrototypes()
+			if err != nil {
+				return
+			}
 		}
 	})
 
@@ -335,7 +338,7 @@ type templateHandler struct {
 	// stored in the root of this filesystem.
 	layoutsFs afero.Fs
 
-	layoutHandler *output.LayoutHandler
+	layoutHandler *layouts.LayoutHandler
 
 	layoutTemplateCache   map[layoutCacheKey]layoutCacheEntry
 	layoutTemplateCacheMu sync.RWMutex
@@ -348,9 +351,6 @@ type templateHandler struct {
 	// Holds name and source of template definitions not found during the first
 	// AST transformation pass.
 	transformNotFound map[string]*templateState
-
-	// Holds identities of templates not found during first pass.
-	identityNotFound map[string][]identity.Manager
 
 	// shortcodes maps shortcode name to template variants
 	// (language, output format etc.) of that shortcode.
@@ -378,7 +378,7 @@ type layoutCacheEntry struct {
 func (t *templateHandler) AddTemplate(name, tpl string) error {
 	templ, err := t.addTemplateTo(t.newTemplateInfo(name, tpl), t.main)
 	if err == nil {
-		t.applyTemplateTransformers(t.main, templ)
+		_, err = t.applyTemplateTransformers(t.main, templ)
 	}
 	return err
 }
@@ -392,13 +392,14 @@ func (t *templateHandler) Lookup(name string) (tpl.Template, bool) {
 	return nil, false
 }
 
-func (t *templateHandler) LookupLayout(d output.LayoutDescriptor, f output.Format) (tpl.Template, bool, error) {
+func (t *templateHandler) LookupLayout(d layouts.LayoutDescriptor, f output.Format) (tpl.Template, bool, error) {
 	key := layoutCacheKey{d, f.Name}
 	t.layoutTemplateCacheMu.RLock()
 	if cacheVal, found := t.layoutTemplateCache[key]; found {
 		t.layoutTemplateCacheMu.RUnlock()
 		return cacheVal.templ, cacheVal.found, cacheVal.err
 	}
+
 	t.layoutTemplateCacheMu.RUnlock()
 
 	t.layoutTemplateCacheMu.Lock()
@@ -408,7 +409,6 @@ func (t *templateHandler) LookupLayout(d output.LayoutDescriptor, f output.Forma
 	cacheVal := layoutCacheEntry{found: found, templ: templ, err: err}
 	t.layoutTemplateCache[key] = cacheVal
 	return cacheVal.templ, cacheVal.found, cacheVal.err
-
 }
 
 // This currently only applies to shortcodes and what we get here is the
@@ -459,8 +459,26 @@ func (t *templateHandler) HasTemplate(name string) bool {
 	return found
 }
 
-func (t *templateHandler) findLayout(d output.LayoutDescriptor, f output.Format) (tpl.Template, bool, error) {
-	layouts, _ := t.layoutHandler.For(d, f)
+func (t *templateHandler) GetIdentity(name string) (identity.Identity, bool) {
+	if _, found := t.needsBaseof[name]; found {
+		return identity.StringIdentity(name), true
+	}
+
+	if _, found := t.baseof[name]; found {
+		return identity.StringIdentity(name), true
+	}
+
+	tt, found := t.Lookup(name)
+	if !found {
+		return nil, false
+	}
+	return tt.(identity.IdentityProvider).GetIdentity(), found
+}
+
+func (t *templateHandler) findLayout(d layouts.LayoutDescriptor, f output.Format) (tpl.Template, bool, error) {
+	d.OutputFormatName = f.Name
+	d.Suffix = f.MediaType.FirstSuffix.Suffix
+	layouts, _ := t.layoutHandler.For(d)
 	for _, name := range layouts {
 		templ, found := t.main.Lookup(name)
 		if found {
@@ -474,7 +492,7 @@ func (t *templateHandler) findLayout(d output.LayoutDescriptor, f output.Format)
 		}
 
 		d.Baseof = true
-		baseLayouts, _ := t.layoutHandler.For(d, f)
+		baseLayouts, _ := t.layoutHandler.For(d)
 		var base templateInfo
 		found = false
 		for _, l := range baseLayouts {
@@ -489,16 +507,15 @@ func (t *templateHandler) findLayout(d output.LayoutDescriptor, f output.Format)
 			return nil, false, err
 		}
 
-		ts := newTemplateState(templ, overlay)
+		ts := newTemplateState(nil, templ, overlay, identity.Or(base, overlay))
 
 		if found {
 			ts.baseInfo = base
-
-			// Add the base identity to detect changes
-			ts.Add(identity.NewPathIdentity(files.ComponentFolderLayouts, base.name))
 		}
 
-		t.applyTemplateTransformers(t.main, ts)
+		if _, err := t.applyTemplateTransformers(t.main, ts); err != nil {
+			return nil, false, err
+		}
 
 		if err := t.extractPartials(ts.Template); err != nil {
 			return nil, false, err
@@ -511,20 +528,21 @@ func (t *templateHandler) findLayout(d output.LayoutDescriptor, f output.Format)
 	return nil, false, nil
 }
 
-func (t *templateHandler) findTemplate(name string) *templateState {
-	if templ, found := t.Lookup(name); found {
-		return templ.(*templateState)
-	}
-	return nil
-}
-
 func (t *templateHandler) newTemplateInfo(name, tpl string) templateInfo {
 	var isText bool
+	var isEmbedded bool
+
+	if strings.HasPrefix(name, embeddedPathPrefix) {
+		isEmbedded = true
+		name = strings.TrimPrefix(name, embeddedPathPrefix)
+	}
+
 	name, isText = t.nameIsText(name)
 	return templateInfo{
-		name:     name,
-		isText:   isText,
-		template: tpl,
+		name:       name,
+		isText:     isText,
+		isEmbedded: isEmbedded,
+		template:   tpl,
 	}
 }
 
@@ -540,9 +558,8 @@ func (t *templateHandler) addFileContext(templ tpl.Template, inerr error) error 
 
 	identifiers := t.extractIdentifiers(inerr.Error())
 
-	//lint:ignore ST1008 the error is the main result
 	checkFilename := func(info templateInfo, inErr error) (error, bool) {
-		if info.filename == "" {
+		if info.meta == nil {
 			return inErr, false
 		}
 
@@ -561,13 +578,13 @@ func (t *templateHandler) addFileContext(templ tpl.Template, inerr error) error 
 			return -1
 		}
 
-		f, err := t.layoutsFs.Open(info.filename)
+		f, err := info.meta.Open()
 		if err != nil {
 			return inErr, false
 		}
 		defer f.Close()
 
-		fe := herrors.NewFileErrorFromName(inErr, info.realFilename)
+		fe := herrors.NewFileErrorFromName(inErr, info.meta.Filename)
 		fe.UpdateContent(f, lineMatcher)
 
 		if !fe.ErrorContext().Position.IsValid() {
@@ -622,37 +639,33 @@ func (t *templateHandler) addShortcodeVariant(ts *templateState) {
 	}
 }
 
-func (t *templateHandler) addTemplateFile(name, path string) error {
-	getTemplate := func(filename string) (templateInfo, error) {
-		fs := t.Layouts.Fs
-		b, err := afero.ReadFile(fs, filename)
+func (t *templateHandler) addTemplateFile(name string, fim hugofs.FileMetaInfo) error {
+	getTemplate := func(fim hugofs.FileMetaInfo) (templateInfo, error) {
+		meta := fim.Meta()
+		f, err := meta.Open()
 		if err != nil {
-			return templateInfo{filename: filename, fs: fs}, err
+			return templateInfo{meta: meta}, err
+		}
+		defer f.Close()
+		b, err := io.ReadAll(f)
+		if err != nil {
+			return templateInfo{meta: meta}, err
 		}
 
 		s := removeLeadingBOM(string(b))
-
-		realFilename := filename
-		if fi, err := fs.Stat(filename); err == nil {
-			if fim, ok := fi.(hugofs.FileMetaInfo); ok {
-				realFilename = fim.Meta().Filename
-			}
-		}
 
 		var isText bool
 		name, isText = t.nameIsText(name)
 
 		return templateInfo{
-			name:         name,
-			isText:       isText,
-			template:     s,
-			filename:     filename,
-			realFilename: realFilename,
-			fs:           fs,
+			name:     name,
+			isText:   isText,
+			template: s,
+			meta:     meta,
 		}, nil
 	}
 
-	tinfo, err := getTemplate(path)
+	tinfo, err := getTemplate(fim)
 	if err != nil {
 		return err
 	}
@@ -673,7 +686,10 @@ func (t *templateHandler) addTemplateFile(name, path string) error {
 	if err != nil {
 		return tinfo.errWithFileContext("parse failed", err)
 	}
-	t.applyTemplateTransformers(t.main, templ)
+
+	if _, err = t.applyTemplateTransformers(t.main, templ); err != nil {
+		return tinfo.errWithFileContext("transform failed", err)
+	}
 
 	return nil
 }
@@ -742,28 +758,32 @@ func (t *templateHandler) applyTemplateTransformers(ns *templateNamespace, ts *t
 
 	for k := range c.templateNotFound {
 		t.transformNotFound[k] = ts
-		t.identityNotFound[k] = append(t.identityNotFound[k], c.t)
 	}
 
-	for k := range c.identityNotFound {
-		t.identityNotFound[k] = append(t.identityNotFound[k], c.t)
+	for k, v := range c.deferNodes {
+		if err = t.main.addDeferredTemplate(ts, k, v); err != nil {
+			return nil, err
+		}
 	}
 
 	return c, err
 }
 
-//go:embed embedded/templates/*
+//go:embed all:embedded/templates/*
 //go:embed embedded/templates/_default/*
 //go:embed embedded/templates/_server/*
-var embededTemplatesFs embed.FS
+var embeddedTemplatesFs embed.FS
 
 func (t *templateHandler) loadEmbedded() error {
-	return fs.WalkDir(embededTemplatesFs, ".", func(path string, d fs.DirEntry, err error) error {
+	return fs.WalkDir(embeddedTemplatesFs, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
 		if d == nil || d.IsDir() {
 			return nil
 		}
 
-		templb, err := embededTemplatesFs.ReadFile(path)
+		templb, err := embeddedTemplatesFs.ReadFile(path)
 		if err != nil {
 			return err
 		}
@@ -777,12 +797,12 @@ func (t *templateHandler) loadEmbedded() error {
 		// For the render hooks and the server templates it does not make sense to preserve the
 		// double _internal double book-keeping,
 		// just add it if its now provided by the user.
-		if !strings.Contains(path, "_default/_markup") && !strings.HasPrefix(name, "_server/") {
+		if !strings.Contains(path, "_default/_markup") && !strings.HasPrefix(name, "_server/") && !strings.HasPrefix(name, "partials/_funcs/") {
 			templateName = internalPathPrefix + name
 		}
 
 		if _, found := t.Lookup(templateName); !found {
-			if err := t.AddTemplate(templateName, templ); err != nil {
+			if err := t.AddTemplate(embeddedPathPrefix+templateName, templ); err != nil {
 				return err
 			}
 		}
@@ -791,7 +811,7 @@ func (t *templateHandler) loadEmbedded() error {
 			// TODO(bep) avoid reparsing these aliases
 			for _, alias := range aliases {
 				alias = internalPathPrefix + alias
-				if err := t.AddTemplate(alias, templ); err != nil {
+				if err := t.AddTemplate(embeddedPathPrefix+alias, templ); err != nil {
 					return err
 				}
 			}
@@ -802,9 +822,9 @@ func (t *templateHandler) loadEmbedded() error {
 }
 
 func (t *templateHandler) loadTemplates() error {
-	walker := func(path string, fi hugofs.FileMetaInfo, err error) error {
-		if err != nil || fi.IsDir() {
-			return err
+	walker := func(path string, fi hugofs.FileMetaInfo) error {
+		if fi.IsDir() {
+			return nil
 		}
 
 		if isDotFile(path) || isBackupFile(path) {
@@ -813,20 +833,21 @@ func (t *templateHandler) loadTemplates() error {
 
 		name := strings.TrimPrefix(filepath.ToSlash(path), "/")
 		filename := filepath.Base(path)
-		outputFormat, found := t.OutputFormatsConfig.FromFilename(filename)
+		outputFormats := t.Conf.GetConfigSection("outputFormats").(output.Formats)
+		outputFormat, found := outputFormats.FromFilename(filename)
 
 		if found && outputFormat.IsPlainText {
 			name = textTmplNamePrefix + name
 		}
 
-		if err := t.addTemplateFile(name, path); err != nil {
+		if err := t.addTemplateFile(name, fi); err != nil {
 			return err
 		}
 
 		return nil
 	}
 
-	if err := helpers.SymbolicWalk(t.Layouts.Fs, "", walker); err != nil {
+	if err := helpers.Walk(t.Layouts.Fs, "", walker); err != nil {
 		if !herrors.IsNotExist(err) {
 			return err
 		}
@@ -858,7 +879,7 @@ func (t *templateHandler) extractPartials(templ tpl.Template) error {
 			continue
 		}
 
-		ts := newTemplateState(templ, templateInfo{name: templ.Name()})
+		ts := newTemplateState(nil, templ, templateInfo{name: templ.Name()}, nil)
 		ts.typ = templatePartial
 
 		t.main.mu.RLock()
@@ -924,15 +945,6 @@ func (t *templateHandler) postTransform() error {
 		}
 	}
 
-	for k, v := range t.identityNotFound {
-		ts := t.findTemplate(k)
-		if ts != nil {
-			for _, im := range v {
-				im.Add(ts)
-			}
-		}
-	}
-
 	for _, v := range t.shortcodes {
 		sort.Slice(v.variants, func(i, j int) bool {
 			v1, v2 := v.variants[i], v.variants[j]
@@ -963,18 +975,18 @@ type templateNamespace struct {
 	*templateStateMap
 }
 
-func (t templateNamespace) Clone() *templateNamespace {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
-	t.templateStateMap = &templateStateMap{
-		templates: make(map[string]*templateState),
+func (t *templateNamespace) getPrototypeText() *texttemplate.Template {
+	if t.prototypeTextClone != nil {
+		return t.prototypeTextClone
 	}
+	return t.prototypeText
+}
 
-	t.prototypeText = texttemplate.Must(t.prototypeText.Clone())
-	t.prototypeHTML = htmltemplate.Must(t.prototypeHTML.Clone())
-
-	return &t
+func (t *templateNamespace) getPrototypeHTML() *htmltemplate.Template {
+	if t.prototypeHTMLClone != nil {
+		return t.prototypeHTMLClone
+	}
+	return t.prototypeHTML
 }
 
 func (t *templateNamespace) Lookup(name string) (tpl.Template, bool) {
@@ -1005,10 +1017,44 @@ func (t *templateNamespace) newTemplateLookup(in *templateState) func(name strin
 			return templ
 		}
 		if templ, found := findTemplateIn(name, in); found {
-			return newTemplateState(templ, templateInfo{name: templ.Name()})
+			return newTemplateState(nil, templ, templateInfo{name: templ.Name()}, nil)
 		}
 		return nil
 	}
+}
+
+func (t *templateNamespace) addDeferredTemplate(owner *templateState, name string, n *parse.ListNode) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
+	if _, found := t.templates[name]; found {
+		return nil
+	}
+
+	var templ tpl.Template
+
+	if owner.isText() {
+		prototype := t.getPrototypeText()
+		tt, err := prototype.New(name).Parse("")
+		if err != nil {
+			return fmt.Errorf("failed to parse empty text template %q: %w", name, err)
+		}
+		tt.Tree.Root = n
+		templ = tt
+	} else {
+		prototype := t.getPrototypeHTML()
+		tt, err := prototype.New(name).Parse("")
+		if err != nil {
+			return fmt.Errorf("failed to parse empty HTML template %q: %w", name, err)
+		}
+		tt.Tree.Root = n
+		templ = tt
+	}
+
+	dts := newTemplateState(owner, templ, templateInfo{name: name}, nil)
+	t.templates[name] = dts
+
+	return nil
 }
 
 func (t *templateNamespace) parse(info templateInfo) (*templateState, error) {
@@ -1023,7 +1069,7 @@ func (t *templateNamespace) parse(info templateInfo) (*templateState, error) {
 			return nil, err
 		}
 
-		ts := newTemplateState(templ, info)
+		ts := newTemplateState(nil, templ, info, nil)
 
 		t.templates[info.name] = ts
 
@@ -1037,22 +1083,35 @@ func (t *templateNamespace) parse(info templateInfo) (*templateState, error) {
 		return nil, err
 	}
 
-	ts := newTemplateState(templ, info)
+	ts := newTemplateState(nil, templ, info, nil)
 
 	t.templates[info.name] = ts
 
 	return ts, nil
 }
 
+var _ tpl.IsInternalTemplateProvider = (*templateState)(nil)
+
 type templateState struct {
 	tpl.Template
 
+	// Set for deferred templates.
+	owner *templateState
+
 	typ       templateType
 	parseInfo tpl.ParseInfo
-	identity.Manager
+	id        identity.Identity
 
 	info     templateInfo
 	baseInfo templateInfo // Set when a base template is used.
+}
+
+func (t *templateState) IsInternalTemplate() bool {
+	return t.info.isEmbedded
+}
+
+func (t *templateState) GetIdentity() identity.Identity {
+	return t.id
 }
 
 func (t *templateState) ParseInfo() tpl.ParseInfo {
@@ -1063,6 +1122,10 @@ func (t *templateState) isText() bool {
 	return isText(t.Template)
 }
 
+func (t *templateState) String() string {
+	return t.Name()
+}
+
 func isText(templ tpl.Template) bool {
 	_, isText := templ.(*texttemplate.Template)
 	return isText
@@ -1071,11 +1134,6 @@ func isText(templ tpl.Template) bool {
 type templateStateMap struct {
 	mu        sync.RWMutex
 	templates map[string]*templateState
-}
-
-type templateWrapperWithLock struct {
-	*sync.RWMutex
-	tpl.Template
 }
 
 type textTemplateWrapperWithLock struct {

@@ -26,6 +26,7 @@ import (
 	"github.com/bep/lazycache"
 
 	"github.com/gohugoio/hugo/identity"
+
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 
 	"github.com/gohugoio/hugo/tpl"
@@ -34,18 +35,15 @@ import (
 	"github.com/gohugoio/hugo/deps"
 )
 
-// TestTemplateProvider is global deps.ResourceProvider.
-// NOTE: It's currently unused.
-var TestTemplateProvider deps.ResourceProvider
-
 type partialCacheKey struct {
 	Name     string
 	Variants []any
 }
 type includeResult struct {
-	name   string
-	result any
-	err    error
+	name     string
+	result   any
+	mangager identity.Manager
+	err      error
 }
 
 func (k partialCacheKey) Key() string {
@@ -68,7 +66,7 @@ type partialCache struct {
 }
 
 func (p *partialCache) clear() {
-	p.cache.DeleteFunc(func(string, includeResult) bool {
+	p.cache.DeleteFunc(func(s string, r includeResult) bool {
 		return true
 	})
 }
@@ -78,7 +76,7 @@ func New(deps *deps.Deps) *Namespace {
 	// This lazycache was introduced in Hugo 0.111.0.
 	// We're going to expand and consolidate all memory caches in Hugo using this,
 	// so just set a high limit for now.
-	lru := lazycache.New[string, includeResult](lazycache.Options{MaxEntries: 1000})
+	lru := lazycache.New(lazycache.Options[string, includeResult]{MaxEntries: 1000})
 
 	cache := &partialCache{cache: lru}
 	deps.BuildStartListeners.Add(
@@ -130,7 +128,7 @@ func (ns *Namespace) Include(ctx context.Context, name string, contextList ...an
 
 func (ns *Namespace) includWithTimeout(ctx context.Context, name string, dataList ...any) includeResult {
 	// Create a new context with a timeout not connected to the incoming context.
-	timeoutCtx, cancel := context.WithTimeout(context.Background(), ns.deps.Timeout)
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), ns.deps.Conf.Timeout())
 	defer cancel()
 
 	res := make(chan includeResult, 1)
@@ -145,11 +143,11 @@ func (ns *Namespace) includWithTimeout(ctx context.Context, name string, dataLis
 	case <-timeoutCtx.Done():
 		err := timeoutCtx.Err()
 		if err == context.DeadlineExceeded {
-			err = fmt.Errorf("partial %q timed out after %s. This is most likely due to infinite recursion. If this is just a slow template, you can try to increase the 'timeout' config setting.", name, ns.deps.Timeout)
+			//lint:ignore ST1005 end user message.
+			err = fmt.Errorf("partial %q timed out after %s. This is most likely due to infinite recursion. If this is just a slow template, you can try to increase the 'timeout' config setting.", name, ns.deps.Conf.Timeout())
 		}
 		return includeResult{err: err}
 	}
-
 }
 
 // include is a helper function that lookups and executes the named partial.
@@ -218,7 +216,6 @@ func (ns *Namespace) include(ctx context.Context, name string, dataList ...any) 
 		name:   templ.Name(),
 		result: result,
 	}
-
 }
 
 // IncludeCached executes and caches partial templates.  The cache is created with name+variants as the key.
@@ -229,12 +226,22 @@ func (ns *Namespace) IncludeCached(ctx context.Context, name string, context any
 		Name:     name,
 		Variants: variants,
 	}
+	depsManagerIn := tpl.Context.GetDependencyManagerInCurrentScope(ctx)
 
 	r, found, err := ns.cachedPartials.cache.GetOrCreate(key.Key(), func(string) (includeResult, error) {
+		var depsManagerShared identity.Manager
+		if ns.deps.Conf.Watching() {
+			// We need to create a shared dependency manager to pass downwards
+			// and add those same dependencies to any cached invocation of this partial.
+			depsManagerShared = identity.NewManager("partials")
+			ctx = tpl.Context.DependencyManagerScopedProvider.Set(ctx, depsManagerShared.(identity.DependencyManagerScopedProvider))
+		}
 		r := ns.includWithTimeout(ctx, key.Name, context)
+		if ns.deps.Conf.Watching() {
+			r.mangager = depsManagerShared
+		}
 		return r, r.err
 	})
-
 	if err != nil {
 		return nil, err
 	}
@@ -245,9 +252,12 @@ func (ns *Namespace) IncludeCached(ctx context.Context, name string, context any
 			// We need to track the time spent in the cache to
 			// get the totals correct.
 			ns.deps.Metrics.MeasureSince(key.templateName(), start)
-
 		}
 		ns.deps.Metrics.TrackValue(key.templateName(), r.result, found)
+	}
+
+	if r.mangager != nil && depsManagerIn != nil {
+		depsManagerIn.AddIdentity(r.mangager)
 	}
 
 	return r.result, nil

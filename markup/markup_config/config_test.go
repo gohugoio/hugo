@@ -52,4 +52,36 @@ func TestConfig(t *testing.T) {
 		c.Assert(conf.AsciidocExt.Extensions[0], qt.Equals, "asciidoctor-html5s")
 	})
 
+	c.Run("Decode legacy typographer", func(c *qt.C) {
+		c.Parallel()
+		v := config.New()
+
+		// typographer was changed from a bool to a struct in 0.112.0.
+		v.Set("markup", map[string]any{
+			"goldmark": map[string]any{
+				"extensions": map[string]any{
+					"typographer": false,
+				},
+			},
+		})
+
+		conf, err := Decode(v)
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(conf.Goldmark.Extensions.Typographer.Disable, qt.Equals, true)
+
+		v.Set("markup", map[string]any{
+			"goldmark": map[string]any{
+				"extensions": map[string]any{
+					"typographer": true,
+				},
+			},
+		})
+
+		conf, err = Decode(v)
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(conf.Goldmark.Extensions.Typographer.Disable, qt.Equals, false)
+		c.Assert(conf.Goldmark.Extensions.Typographer.Ellipsis, qt.Equals, "&hellip;")
+	})
 }

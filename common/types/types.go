@@ -17,6 +17,7 @@ package types
 import (
 	"fmt"
 	"reflect"
+	"sync/atomic"
 
 	"github.com/spf13/cast"
 )
@@ -89,4 +90,33 @@ func IsNil(v any) bool {
 // development.
 type DevMarker interface {
 	DevOnly()
+}
+
+// Unwrapper is implemented by types that can unwrap themselves.
+type Unwrapper interface {
+	// Unwrapv is for internal use only.
+	// It got its slightly odd name to prevent collisions with user types.
+	Unwrapv() any
+}
+
+// Unwrap returns the underlying value of v if it implements Unwrapper, otherwise v is returned.
+func Unwrapv(v any) any {
+	if u, ok := v.(Unwrapper); ok {
+		return u.Unwrapv()
+	}
+	return v
+}
+
+// LowHigh is typically used to represent a slice boundary.
+type LowHigh struct {
+	Low  int
+	High int
+}
+
+// This is only used for debugging purposes.
+var InvocationCounter atomic.Int64
+
+// NewTrue returns a pointer to b.
+func NewBool(b bool) *bool {
+	return &b
 }

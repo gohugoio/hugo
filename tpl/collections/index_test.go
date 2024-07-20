@@ -18,17 +18,14 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/common/maps"
-	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/langs"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/deps"
 )
 
 func TestIndex(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
-	ns := New(&deps.Deps{Language: langs.NewDefaultLanguage(config.New())})
+	ns := newNs()
 
 	var (
 		emptyInterface any

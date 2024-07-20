@@ -18,41 +18,11 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/config"
 	"golang.org/x/text/collate"
 	"golang.org/x/text/language"
 )
 
-func TestGetGlobalOnlySetting(t *testing.T) {
-	c := qt.New(t)
-	v := config.NewWithTestDefaults()
-	v.Set("defaultContentLanguageInSubdir", true)
-	v.Set("contentDir", "content")
-	v.Set("paginatePath", "page")
-	lang := NewDefaultLanguage(v)
-	lang.Set("defaultContentLanguageInSubdir", false)
-	lang.Set("paginatePath", "side")
-
-	c.Assert(lang.GetBool("defaultContentLanguageInSubdir"), qt.Equals, true)
-	c.Assert(lang.GetString("paginatePath"), qt.Equals, "side")
-}
-
-func TestLanguageParams(t *testing.T) {
-	c := qt.New(t)
-
-	v := config.NewWithTestDefaults()
-	v.Set("p1", "p1cfg")
-	v.Set("contentDir", "content")
-
-	lang := NewDefaultLanguage(v)
-	lang.SetParam("p1", "p1p")
-
-	c.Assert(lang.Params()["p1"], qt.Equals, "p1p")
-	c.Assert(lang.Get("p1"), qt.Equals, "p1cfg")
-}
-
 func TestCollator(t *testing.T) {
-
 	c := qt.New(t)
 
 	var wg sync.WaitGroup
@@ -72,7 +42,6 @@ func TestCollator(t *testing.T) {
 		}()
 	}
 	wg.Wait()
-
 }
 
 func BenchmarkCollator(b *testing.B) {
@@ -104,5 +73,4 @@ func BenchmarkCollator(b *testing.B) {
 			}
 		})
 	})
-
 }

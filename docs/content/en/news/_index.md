@@ -1,4 +1,7 @@
 ---
-title: "Hugo News"
+title: News
+outputs:
+  - html
+  - rss
 aliases: [/release-notes/]
 ---

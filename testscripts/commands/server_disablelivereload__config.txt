@@ -1,0 +1,21 @@
+hugo server &
+
+waitServer
+
+! grep 'livereload' public/index.html
+
+stopServer
+! stderr .
+
+-- hugo.toml --
+baseURL = "http://example.org/"
+disableKinds = ["RSS", "sitemap", "robotsTXT", "404", "taxonomy", "term"]
+disableLiveReload = true
+-- layouts/index.html --
+<html>
+<head>
+</head>
+<body>
+Home.
+</body>
+</html>

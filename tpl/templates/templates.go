@@ -15,14 +15,24 @@
 package templates
 
 import (
+	"context"
+	"fmt"
+	"strconv"
+	"sync/atomic"
+
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/tpl"
+	"github.com/mitchellh/mapstructure"
 )
 
 // New returns a new instance of the templates-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
-	return &Namespace{
+	ns := &Namespace{
 		deps: deps,
 	}
+
+	return ns
 }
 
 // Namespace provides template functions for the "templates" namespace.
@@ -35,4 +45,60 @@ type Namespace struct {
 // e.g. partials/header.html
 func (ns *Namespace) Exists(name string) bool {
 	return ns.deps.Tmpl().HasTemplate(name)
+}
+
+// Defer defers the execution of a template block.
+func (ns *Namespace) Defer(args ...any) (bool, error) {
+	// Prevent defer from being used in content adapters,
+	// that just doesn't work.
+	ns.deps.Site.CheckReady()
+
+	if len(args) != 0 {
+		return false, fmt.Errorf("Defer does not take any arguments")
+	}
+	return true, nil
+}
+
+var defferedIDCounter atomic.Uint64
+
+type DeferOpts struct {
+	// Optional cache key. If set, the deferred block will be executed
+	// once per unique key.
+	Key string
+
+	// Optional data context to use when executing the deferred block.
+	Data any
+}
+
+// DoDefer defers the execution of a template block.
+// For internal use only.
+func (ns *Namespace) DoDefer(ctx context.Context, id string, optsv any) string {
+	var opts DeferOpts
+	if optsv != nil {
+		if err := mapstructure.WeakDecode(optsv, &opts); err != nil {
+			panic(err)
+		}
+	}
+
+	templateName := id
+	var key string
+	if opts.Key != "" {
+		key = helpers.MD5String(opts.Key)
+	} else {
+		key = strconv.FormatUint(defferedIDCounter.Add(1), 10)
+	}
+
+	id = fmt.Sprintf("%s_%s%s", id, key, tpl.HugoDeferredTemplateSuffix)
+
+	_ = ns.deps.BuildState.DeferredExecutions.Executions.GetOrCreate(id,
+		func() *tpl.DeferredExecution {
+			return &tpl.DeferredExecution{
+				TemplateName: templateName,
+				Ctx:          ctx,
+				Data:         opts.Data,
+				Executed:     false,
+			}
+		})
+
+	return id
 }

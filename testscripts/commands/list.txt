@@ -1,0 +1,65 @@
+# Test the hugo list commands.
+
+hugo list drafts
+! stderr .
+stdout 'path,slug,title,date,expiryDate,publishDate,draft,permalink'
+stdout 'content/draft.md,draft,The Draft,2019-01-01T00:00:00Z,2032-01-01T00:00:00Z,2018-01-01T00:00:00Z,true,https://example.org/draft/'
+stdout 'draftexpired.md'
+stdout 'draftfuture.md'
+! stdout '/expired.md'
+
+hugo list future
+stdout 'path,slug,title,date,expiryDate,publishDate,draft,permalink'
+stdout 'future.md'
+stdout 'draftfuture.md'
+! stdout 'expired.md'
+
+hugo list expired
+stdout 'path,slug,title,date,expiryDate,publishDate,draft,permalink'
+stdout 'expired.md'
+stdout 'draftexpired.md'
+! stdout 'future.md'
+
+hugo list all
+stdout 'path,slug,title,date,expiryDate,publishDate,draft,permalink'
+stdout 'future.md'
+stdout 'draft.md'
+stdout 'expired.md'
+stdout 'draftexpired.md'
+stdout 'draftfuture.md'
+
+hugo list expired --clock 2000-01-01T00:00:00Z
+! stdout 'expired.md'
+
+-- hugo.toml --
+baseURL = "https://example.org/"
+disableKinds = ["taxonomy", "term"]
+-- content/draft.md --
+---
+title: "The Draft"
+slug: "draft"
+draft: true
+date: 2019-01-01
+expiryDate: 2032-01-01
+publishDate: 2018-01-01
+---
+-- content/expired.md --
+---
+date: 2018-01-01
+expiryDate: 2019-01-01
+---
+-- content/future.md --
+---
+date: 2030-01-01
+---
+-- content/draftfuture.md --
+---
+date: 2030-01-01
+draft: true
+---
+-- content/draftexpired.md --
+---
+date: 2018-01-01
+expiryDate: 2019-01-01
+draft: true
+---

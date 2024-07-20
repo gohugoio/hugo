@@ -19,6 +19,7 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/markup/highlight"
+	"github.com/gohugoio/hugo/media"
 
 	"github.com/gohugoio/hugo/markup/markup_config"
 
@@ -35,20 +36,16 @@ import (
 func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, error) {
 	converters := make(map[string]converter.Provider)
 
-	markupConfig, err := markup_config.Decode(cfg.Cfg)
-	if err != nil {
-		return nil, err
-	}
+	mcfg := cfg.MarkupConfig()
 
 	if cfg.Highlighter == nil {
-		cfg.Highlighter = highlight.New(markupConfig.Highlight)
+		cfg.Highlighter = highlight.New(mcfg.Highlight)
 	}
 
-	cfg.MarkupConfig = markupConfig
-	defaultHandler := cfg.MarkupConfig.DefaultMarkdownHandler
+	defaultHandler := mcfg.DefaultMarkdownHandler
 	var defaultFound bool
 
-	add := func(p converter.ProviderProvider, aliases ...string) error {
+	add := func(p converter.ProviderProvider, subType string, aliases ...string) error {
 		c, err := p.New(cfg)
 		if err != nil {
 			return err
@@ -57,6 +54,7 @@ func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, erro
 		name := c.Name()
 
 		aliases = append(aliases, name)
+		aliases = append(aliases, subType)
 
 		if strings.EqualFold(name, defaultHandler) {
 			aliases = append(aliases, "markdown")
@@ -67,19 +65,21 @@ func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, erro
 		return nil
 	}
 
-	if err := add(goldmark.Provider); err != nil {
+	contentTypes := cfg.Conf.ContentTypes().(media.ContentTypes)
+
+	if err := add(goldmark.Provider, contentTypes.Markdown.SubType, contentTypes.Markdown.Suffixes()...); err != nil {
 		return nil, err
 	}
-	if err := add(asciidocext.Provider, "ad", "adoc"); err != nil {
+	if err := add(asciidocext.Provider, contentTypes.AsciiDoc.SubType, contentTypes.AsciiDoc.Suffixes()...); err != nil {
 		return nil, err
 	}
-	if err := add(rst.Provider); err != nil {
+	if err := add(rst.Provider, contentTypes.ReStructuredText.SubType, contentTypes.ReStructuredText.Suffixes()...); err != nil {
 		return nil, err
 	}
-	if err := add(pandoc.Provider, "pdc"); err != nil {
+	if err := add(pandoc.Provider, contentTypes.Pandoc.SubType, contentTypes.Pandoc.Suffixes()...); err != nil {
 		return nil, err
 	}
-	if err := add(org.Provider); err != nil {
+	if err := add(org.Provider, contentTypes.EmacsOrgMode.SubType, contentTypes.EmacsOrgMode.Suffixes()...); err != nil {
 		return nil, err
 	}
 
@@ -99,6 +99,7 @@ func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, erro
 
 type ConverterProvider interface {
 	Get(name string) converter.Provider
+	IsGoldmark(name string) bool
 	// Default() converter.Provider
 	GetMarkupConfig() markup_config.Config
 	GetHighlighter() highlight.Highlighter
@@ -114,6 +115,11 @@ type converterRegistry struct {
 	config converter.ProviderConfig
 }
 
+func (r *converterRegistry) IsGoldmark(name string) bool {
+	cp := r.Get(name)
+	return cp != nil && cp.Name() == "goldmark"
+}
+
 func (r *converterRegistry) Get(name string) converter.Provider {
 	return r.converters[strings.ToLower(name)]
 }
@@ -123,11 +129,24 @@ func (r *converterRegistry) GetHighlighter() highlight.Highlighter {
 }
 
 func (r *converterRegistry) GetMarkupConfig() markup_config.Config {
-	return r.config.MarkupConfig
+	return r.config.MarkupConfig()
 }
 
 func addConverter(m map[string]converter.Provider, c converter.Provider, aliases ...string) {
 	for _, alias := range aliases {
 		m[alias] = c
+	}
+}
+
+// ResolveMarkup returns the markup type.
+func ResolveMarkup(s string) string {
+	s = strings.ToLower(s)
+	switch s {
+	case "goldmark":
+		return media.DefaultContentTypes.Markdown.SubType
+	case "asciidocext":
+		return media.DefaultContentTypes.AsciiDoc.SubType
+	default:
+		return s
 	}
 }

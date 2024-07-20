@@ -53,32 +53,15 @@ var (
 	// DefaultConfig is the default related config.
 	DefaultConfig = Config{
 		Threshold: 80,
-		Indices: IndexConfigs{
+		Indices: IndicesConfig{
 			IndexConfig{Name: "keywords", Weight: 100, Type: TypeBasic},
 			IndexConfig{Name: "date", Weight: 10, Type: TypeBasic},
 		},
 	}
 )
 
-/*
-Config is the top level configuration element used to configure how to retrieve
-related content in Hugo.
-
-An example site config.toml:
-
-	[related]
-	threshold = 1
-	[[related.indices]]
-	name = "keywords"
-	weight = 200
-	[[related.indices]]
-	name  = "tags"
-	weight = 100
-	[[related.indices]]
-	name  = "date"
-	weight = 1
-	pattern = "2006"
-*/
+// Config is the top level configuration element used to configure how to retrieve
+// related content in Hugo.
 type Config struct {
 	// Only include matches >= threshold, a normalized rank between 0 and 100.
 	Threshold int
@@ -90,7 +73,7 @@ type Config struct {
 	// May get better results, but at a slight performance cost.
 	ToLower bool
 
-	Indices IndexConfigs
+	Indices IndicesConfig
 }
 
 // Add adds a given index.
@@ -110,8 +93,8 @@ func (c *Config) HasType(s string) bool {
 	return false
 }
 
-// IndexConfigs holds a set of index configurations.
-type IndexConfigs []IndexConfig
+// IndicesConfig holds a set of index configurations.
+type IndicesConfig []IndexConfig
 
 // IndexConfig configures an index.
 type IndexConfig struct {
@@ -282,7 +265,6 @@ func (idx *InvertedIndex) Finalize(ctx context.Context) error {
 	idx.finalized = true
 
 	return nil
-
 }
 
 // queryElement holds the index name and keywords that can be used to compose a
@@ -363,16 +345,15 @@ type SearchOpts struct {
 // threshold (normalize to 0..100) will be removed.
 // If an index name is provided, only that index will be queried.
 func (idx *InvertedIndex) Search(ctx context.Context, opts SearchOpts) ([]Document, error) {
-
 	var (
 		queryElements []queryElement
-		configs       IndexConfigs
+		configs       IndicesConfig
 	)
 
 	if len(opts.Indices) == 0 {
 		configs = idx.cfg.Indices
 	} else {
-		configs = make(IndexConfigs, len(opts.Indices))
+		configs = make(IndicesConfig, len(opts.Indices))
 		for i, indexName := range opts.Indices {
 			cfg, found := idx.getIndexCfg(indexName)
 			if !found {
@@ -402,6 +383,7 @@ func (idx *InvertedIndex) Search(ctx context.Context, opts SearchOpts) ([]Docume
 					}
 				}
 			}
+
 		}
 		queryElements = append(queryElements, newQueryElement(cfg.Name, keywords...))
 	}
@@ -553,6 +535,7 @@ func (idx *InvertedIndex) searchDate(ctx context.Context, self Document, upperDa
 
 	for i, m := range matches {
 		result[i] = m.Doc
+
 		if len(fragmentsFilter) > 0 {
 			if dp, ok := result[i].(FragmentProvider); ok {
 				result[i] = dp.ApplyFilterToHeadings(ctx, func(h *tableofcontents.Heading) bool {

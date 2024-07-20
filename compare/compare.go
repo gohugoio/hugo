@@ -52,3 +52,16 @@ func Eq(v1, v2 any) bool {
 
 	return v1 == v2
 }
+
+// ProbablyEq returns whether v1 is probably equal to v2.
+func ProbablyEq(v1, v2 any) bool {
+	if Eq(v1, v2) {
+		return true
+	}
+
+	if peqer, ok := v1.(ProbablyEqer); ok {
+		return peqer.ProbablyEq(v2)
+	}
+
+	return false
+}

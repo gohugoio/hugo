@@ -25,6 +25,7 @@ import (
 	"hash"
 	"hash/fnv"
 
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/spf13/cast"
 )
 
@@ -70,7 +71,9 @@ func (ns *Namespace) SHA256(v any) (string, error) {
 }
 
 // FNV32a hashes v using fnv32a algorithm.
+// <docsmeta>{"newIn": "0.98.0" }</docsmeta>
 func (ns *Namespace) FNV32a(v any) (int, error) {
+	hugo.Deprecate("crypto.FNV32a", "Use hash.FNV32a.", "v0.129.0")
 	conv, err := cast.ToStringE(v)
 	if err != nil {
 		return 0, err
@@ -117,7 +120,7 @@ func (ns *Namespace) HMAC(h any, k any, m any, e ...any) (string, error) {
 		return "", err
 	}
 
-	var encoding = "hex"
+	encoding := "hex"
 	if len(e) > 0 && e[0] != nil {
 		encoding, err = cast.ToStringE(e[0])
 		if err != nil {
@@ -133,5 +136,4 @@ func (ns *Namespace) HMAC(h any, k any, m any, e ...any) (string, error) {
 	default:
 		return "", fmt.Errorf("%q is not a supported encoding method", encoding)
 	}
-
 }

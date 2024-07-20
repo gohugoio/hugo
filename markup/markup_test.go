@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,20 +11,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package markup
+package markup_test
 
 import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/config/testconfig"
+	"github.com/gohugoio/hugo/markup"
 	"github.com/gohugoio/hugo/markup/converter"
 )
 
 func TestConverterRegistry(t *testing.T) {
 	c := qt.New(t)
-
-	r, err := NewConverterProvider(converter.ProviderConfig{Cfg: config.New()})
+	conf := testconfig.GetTestConfig(nil, nil)
+	r, err := markup.NewConverterProvider(converter.ProviderConfig{Conf: conf})
 
 	c.Assert(err, qt.IsNil)
 	c.Assert("goldmark", qt.Equals, r.GetMarkupConfig().DefaultMarkdownHandler)

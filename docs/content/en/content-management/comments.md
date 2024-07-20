@@ -1,15 +1,14 @@
 ---
 title: Comments
-linkTitle: Comments
 description: Hugo ships with an internal Disqus template, but this isn't the only commenting system that will work with your new Hugo website.
+categories: [content management]
 keywords: [sections,content,organization]
-categories: [project organization, fundamentals]
 menu:
   docs:
     parent: content-management
     weight: 220
-toc: true
 weight: 220
+toc: true
 aliases: [/extras/comments/]
 ---
 
@@ -25,8 +24,9 @@ Hugo comes with all the code you need to load Disqus into your templates. Before
 
 Disqus comments require you set a single value in your [site's configuration file][configuration] like so:
 
-{{< code-toggle copy="false" >}}
-disqusShortname = "yourDisqusShortname"
+{{< code-toggle file=hugo >}}
+[services.disqus]
+shortname = 'your-disqus-shortname'
 {{</ code-toggle >}}
 
 For many websites, this is enough configuration. However, you also have the option to set the following in the [front matter] of a single content file:
@@ -35,9 +35,9 @@ For many websites, this is enough configuration. However, you also have the opti
 * `disqus_title`
 * `disqus_url`
 
-### Render Hugo's Built-in Disqus Partial Template
+### Render Hugo's built-in Disqus partial template
 
-Disqus has its own [internal template](https://gohugo.io/templates/internal/#disqus) available, to render it add the following code where you want comments to appear:
+Disqus has its own [internal template](/templates/embedded/#disqus) available, to render it add the following code where you want comments to appear:
 
 ```go-html-template
 {{ template "_internal/disqus.html" . }}
@@ -45,23 +45,30 @@ Disqus has its own [internal template](https://gohugo.io/templates/internal/#dis
 
 ## Alternatives
 
-These are some alternatives to Disqus:
+Commercial commenting systems:
 
-* [Cactus Comments](https://cactus.chat/docs/integrations/hugo/) (Open Source, Matrix appservice, Docker install)
-* [Commento](https://commento.io/) (Open Source, available as a service, local install, or docker image)
-* [Graph Comment](https://graphcomment.com/)
-* [Hyvor Talk](https://talk.hyvor.com/) (Available as a service)
-* [IntenseDebate](https://intensedebate.com/)
-* [Isso](https://isso-comments.de/) (Self-hosted, Python) ([tutorial][issotutorial])
-* [Muut](https://muut.com/)
-* [Remark42](https://remark42.com/) (Open source, Golang, Easy to run docker)
-* [ReplyBox](https://getreplybox.com/)
-* [Staticman](https://staticman.net/)
-* [Talkyard](https://blog-comments.talkyard.io/) (Open source, & serverless hosting)
-* [Utterances](https://utteranc.es/) (Open source, GitHub comments widget built on GitHub issues)
+- [Emote](https://emote.com/)
+- [Graph Comment](https://graphcomment.com/)
+- [Hyvor Talk](https://talk.hyvor.com/)
+- [IntenseDebate](https://intensedebate.com/)
+- [ReplyBox](https://getreplybox.com/)
+
+Open-source commenting systems:
+
+- [Cactus Comments](https://cactus.chat/docs/integrations/hugo/)
+- [Comentario](https://gitlab.com/comentario/comentario/)
+- [Comma](https://github.com/Dieterbe/comma/)
+- [Commento](https://commento.io/)
+- [Discourse](https://meta.discourse.org/t/embed-discourse-comments-on-another-website-via-javascript/31963)
+- [Giscus](https://giscus.app/)
+- [Isso](https://isso-comments.de/)
+- [Remark42](https://remark42.com/)
+- [Staticman](https://staticman.net/)
+- [Talkyard](https://blog-comments.talkyard.io/)
+- [Utterances](https://utteranc.es/)
 
 [configuration]: /getting-started/configuration/
-[disquspartial]: /templates/internal/#disqus
+[disquspartial]: /templates/embedded/#disqus
 [disqussetup]: https://disqus.com/profile/signup/
 [forum]: https://discourse.gohugo.io
 [front matter]: /content-management/front-matter/
@@ -69,4 +76,3 @@ These are some alternatives to Disqus:
 [issotutorial]: https://stiobhart.net/2017-02-24-isso-comments/
 [partials]: /templates/partials/
 [MongoDB]: https://www.mongodb.com/
-[tweet]: https://twitter.com/spf13

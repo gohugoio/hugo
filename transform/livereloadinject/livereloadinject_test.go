@@ -15,6 +15,7 @@ package livereloadinject
 
 import (
 	"bytes"
+	"io"
 	"net/url"
 	"strings"
 	"testing"
@@ -36,37 +37,108 @@ func TestLiveReloadInject(t *testing.T) {
 		out := new(bytes.Buffer)
 		in := strings.NewReader(s)
 
-		tr := transform.New(New(*lrurl))
+		tr := transform.New(New(lrurl))
 		tr.Apply(out, in)
 
 		return out.String()
 	}
 
-	c.Run("Head lower", func(c *qt.C) {
-		c.Assert(apply("<html><head>foo"), qt.Equals, "<html><head>"+expectBase+"foo")
+	c.Run("Inject after head tag", func(c *qt.C) {
+		c.Assert(apply("<!doctype html><html><head>after"), qt.Equals, "<!doctype html><html><head>"+expectBase+"after")
 	})
 
-	c.Run("Head upper", func(c *qt.C) {
-		c.Assert(apply("<html><HEAD>foo"), qt.Equals, "<html><HEAD>"+expectBase+"foo")
+	c.Run("Inject after head tag when doctype and html omitted", func(c *qt.C) {
+		c.Assert(apply("<head>after"), qt.Equals, "<head>"+expectBase+"after")
 	})
 
-	c.Run("Body lower", func(c *qt.C) {
-		c.Assert(apply("foo</body>"), qt.Equals, "foo"+expectBase+"</body>")
+	c.Run("Inject after html when head omitted", func(c *qt.C) {
+		c.Assert(apply("<html>after"), qt.Equals, "<html>"+expectBase+"after")
 	})
 
-	c.Run("Body upper", func(c *qt.C) {
-		c.Assert(apply("foo</BODY>"), qt.Equals, "foo"+expectBase+"</BODY>")
+	c.Run("Inject after doctype when head and html omitted", func(c *qt.C) {
+		c.Assert(apply("<!doctype html>after"), qt.Equals, "<!doctype html>"+expectBase+"after")
 	})
 
-	c.Run("Html upper", func(c *qt.C) {
-		c.Assert(apply("<html>foo"), qt.Equals, "<html>"+expectBase+warnScript+"foo")
+	c.Run("Inject before other elements if all else omitted", func(c *qt.C) {
+		c.Assert(apply("<title>after</title>"), qt.Equals, expectBase+"<title>after</title>")
 	})
 
-	c.Run("Html upper with attr", func(c *qt.C) {
-		c.Assert(apply(`<html lang="en">foo`), qt.Equals, `<html lang="en">`+expectBase+warnScript+"foo")
+	c.Run("Inject before text content if all else omitted", func(c *qt.C) {
+		c.Assert(apply("after"), qt.Equals, expectBase+"after")
 	})
 
-	c.Run("No match", func(c *qt.C) {
-		c.Assert(apply("<h1>No match</h1>"), qt.Equals, "<h1>No match</h1>"+expectBase+warnScript)
+	c.Run("Inject after HeAd tag MiXed CaSe", func(c *qt.C) {
+		c.Assert(apply("<HeAd>AfTer"), qt.Equals, "<HeAd>"+expectBase+"AfTer")
 	})
+
+	c.Run("Inject after HtMl tag MiXed CaSe", func(c *qt.C) {
+		c.Assert(apply("<HtMl>AfTer"), qt.Equals, "<HtMl>"+expectBase+"AfTer")
+	})
+
+	c.Run("Inject after doctype mixed case", func(c *qt.C) {
+		c.Assert(apply("<!DocType HtMl>AfTer"), qt.Equals, "<!DocType HtMl>"+expectBase+"AfTer")
+	})
+
+	c.Run("Inject after html tag with attributes", func(c *qt.C) {
+		c.Assert(apply(`<html lang="en">after`), qt.Equals, `<html lang="en">`+expectBase+"after")
+	})
+
+	c.Run("Inject after html tag with newline", func(c *qt.C) {
+		c.Assert(apply("<html\n>after"), qt.Equals, "<html\n>"+expectBase+"after")
+	})
+
+	c.Run("Skip comments and whitespace", func(c *qt.C) {
+		c.Assert(
+			apply(" <!--x--> <!doctype html>\n<?xml instruction ?> <head>after"),
+			qt.Equals,
+			" <!--x--> <!doctype html>\n<?xml instruction ?> <head>"+expectBase+"after",
+		)
+	})
+
+	c.Run("Do not search inside comment", func(c *qt.C) {
+		c.Assert(apply("<html><!--<head>-->"), qt.Equals, "<html><!--<head>-->"+expectBase)
+	})
+
+	c.Run("Do not search inside scripts", func(c *qt.C) {
+		c.Assert(apply("<html><script>`<head>`</script>"), qt.Equals, "<html>"+expectBase+"<script>`<head>`</script>")
+	})
+
+	c.Run("Do not search inside templates", func(c *qt.C) {
+		c.Assert(apply("<html><template><head></template>"), qt.Not(qt.Equals), "<html><template><head>"+expectBase+"</template>")
+	})
+
+	c.Run("Search from the start of the input", func(c *qt.C) {
+		c.Assert(apply("<head>after<head>"), qt.Equals, "<head>"+expectBase+"after<head>")
+	})
+
+	c.Run("Do not mistake header for head", func(c *qt.C) {
+		c.Assert(apply("<html><header>"), qt.Equals, "<html>"+expectBase+"<header>")
+	})
+
+	c.Run("Do not mistake custom elements for head", func(c *qt.C) {
+		c.Assert(apply("<html><head-custom>"), qt.Equals, "<html>"+expectBase+"<head-custom>")
+	})
+}
+
+func BenchmarkLiveReloadInject(b *testing.B) {
+	s := `
+<html>
+<head>
+</head>
+<body>
+</body>
+</html>	
+`
+	in := strings.NewReader(s)
+	lrurl, err := url.Parse("http://localhost:1234/subpath")
+	if err != nil {
+		b.Fatalf("Parsing test URL failed")
+	}
+	tr := transform.New(New(lrurl))
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		in.Seek(0, 0)
+		tr.Apply(io.Discard, in)
+	}
 }

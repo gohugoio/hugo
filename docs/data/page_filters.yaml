@@ -1,0 +1,95 @@
+# Do not delete. Required for layouts/shortcodes/list-pages-in-section.html.
+#
+# When calling the list-pages-in-section shortcode, you can specify a page
+# filter, and whether the pages in the filter should be included or excluded
+# from the list.
+#
+# For example:
+#
+# {{< list-pages-in-section path=/functions/images filter=functions_images_no_filters filterType=exclude >}}
+
+functions_fmt_logging:
+  - /functions/fmt/errorf
+  - /functions/fmt/erroridf
+  - /functions/fmt/warnf
+  - /functions/fmt/warnidf
+functions_images_no_filters:
+  - /functions/images/filter
+  - /functions/images/config
+methods_site_multilingual:
+  - /methods/site/ismultilingual
+  - /methods/site/language
+  - /methods/site/languageprefix
+  - /methods/site/languages
+methods_site_page_collections:
+  - /methods/site/allpages
+  - /methods/site/pages
+  - /methods/site/regularpages
+  - /methods/site/sections
+methods_page_dates:
+  - /methods/page/date
+  - /methods/page/expirydate
+  - /methods/page/lastmod
+  - /methods/page/publishdate
+methods_page_menu:
+  - /methods/page/hasmenucurrent
+  - /methods/page/ismenucurrent
+methods_page_multilingual:
+  - /methods/page/alltranslations
+  - /methods/page/istranslated
+  - /methods/page/language
+  - /methods/page/translationkey
+  - /methods/page/translations
+methods_page_page_collections:
+  - /methods/page/pages
+  - /methods/page/regularpages
+  - /methods/page/regularpagesrecursive
+  - /methods/page/sections
+methods_page_parameters:
+  - /methods/page/param
+  - /methods/page/params
+methods_page_sections:
+  - /methods/page/ancestors
+  - /methods/page/currentsection
+  - /methods/page/firstsection
+  - /methods/page/insection
+  - /methods/page/isancestor
+  - /methods/page/isdescendant
+  - /methods/page/parent
+  - /methods/page/sections
+  - /methods/page/section
+methods_pages_sort:
+  - /methods/pages/bydate
+  - /methods/pages/byexpirydate
+  - /methods/pages/bylanguage
+  - /methods/pages/bylastmod
+  - /methods/pages/bylength
+  - /methods/pages/bylinktitle
+  - /methods/pages/byparam
+  - /methods/pages/bypublishdate
+  - /methods/pages/bytitle
+  - /methods/pages/byweight
+  - /methods/pages/reverse
+methods_pages_group:
+  - /methods/pages/groupby
+  - /methods/pages/groupbydate
+  - /methods/pages/groupbyexpirydate
+  - /methods/pages/groupbylastmod
+  - /methods/pages/groupbyparam
+  - /methods/pages/groupbyparamdate
+  - /methods/pages/groupbypublishdate
+  - /methods/pages/groupbydate
+  - /methods/pages/groupbydate
+  - /methods/pages/groupbydate
+  - /methods/pages/groupbydate
+  - /methods/pages/groupbydate
+  - /methods/pages/groupbydate
+  - /methods/pages/reverse
+methods_pages_navigation:
+  - /methods/pages/next
+  - /methods/pages/prev
+methods_page_navigation:
+  - /methods/page/next
+  - /methods/page/nextinsection
+  - /methods/page/prev
+  - /methods/page/previnsection

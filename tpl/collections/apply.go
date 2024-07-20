@@ -24,7 +24,7 @@ import (
 	"github.com/gohugoio/hugo/tpl"
 )
 
-// Apply takes a map, array, or slice c and returns a new slice with the function fname applied over it.
+// Apply takes an array or slice c and returns a new slice with the function fname applied over it.
 func (ns *Namespace) Apply(ctx context.Context, c any, fname string, args ...any) (any, error) {
 	if c == nil {
 		return make([]any, 0), nil
@@ -67,7 +67,7 @@ func (ns *Namespace) Apply(ctx context.Context, c any, fname string, args ...any
 
 func applyFnToThis(ctx context.Context, fn, this reflect.Value, args ...any) (reflect.Value, error) {
 	num := fn.Type().NumIn()
-	if num > 0 && fn.Type().In(0).Implements(hreflect.ContextInterface) {
+	if num > 0 && hreflect.IsContextType(fn.Type().In(0)) {
 		args = append([]any{ctx}, args...)
 	}
 

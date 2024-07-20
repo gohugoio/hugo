@@ -1,0 +1,26 @@
+# Test the hugo server command.
+
+# We run these tests in parallel so let Hugo decide which port to use.
+# Deliberately using the alias 'serve' here.
+hugo serve --renderToMemory &
+
+waitServer
+
+httpget $HUGOTEST_BASEURL_0 'Title: Hugo Server Test' $HUGOTEST_BASEURL_0
+
+! exists public/index.html
+! exists public/mystatic.txt
+
+stopServer
+! stderr .
+
+-- hugo.toml --
+title = "Hugo Server Test"
+baseURL = "https://example.org/"
+disableKinds = ["taxonomy", "term", "sitemap"]
+-- static/mystatic.txt --
+This is a static file.
+-- layouts/index.html --
+Title: {{ .Title }}|BaseURL: {{ site.BaseURL }}|
+
+

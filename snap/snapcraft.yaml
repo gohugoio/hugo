@@ -1,16 +1,33 @@
 name: hugo
-issues: https://github.com/gohugoio/hugo/issues
-source-code: https://github.com/gohugoio/hugo.git
-website: https://gohugo.io/
-summary: Fast and Flexible Static Site Generator
-description: |
-  Hugo is a static HTML and CSS website generator written in Go. It is
-  optimized for speed, easy use and configurability. Hugo takes a directory
-  with content and templates and renders them into a full HTML website.
-license: "Apache-2.0"
-base: core20
+base: core22
 confinement: strict
 adopt-info: hugo
+title: Hugo
+icon: snap/local/logo.png
+summary: Fast and Flexible Static Site Generator
+description: |
+  Hugo is a static site generator written in Go, optimized for speed and
+  designed for flexibility. With its advanced templating system and fast asset
+  pipelines, Hugo renders a complete site in seconds, often less.
+
+  Due to its flexible framework, multilingual support, and powerful taxonomy
+  system, Hugo is widely used to create:
+
+  * Corporate, government, nonprofit, education, news, event, and project sites
+  * Documentation sites
+  * Image portfolios
+  * Landing pages
+  * Business, professional, and personal blogs
+  * Resumes and CVs
+
+  Use Hugo's embedded web server during development to instantly see changes to
+  content, structure, behavior, and presentation. Then deploy the site to your
+  host, or push changes to your Git provider for automated builds and
+  deployment.
+issues: https://github.com/gohugoio/hugo/issues
+license: "Apache-2.0"
+source-code: https://github.com/gohugoio/hugo.git
+website: https://gohugo.io/
 
 package-repositories:
   - type: apt
@@ -28,8 +45,26 @@ plugs:
     interface: personal-files
     read:
       - $HOME/.gitconfig
-      - $HOME/.config/git       # Allows $HOME/.config/git/config and more
-      - $HOME/.gitconfig.local  # See #10337
+      - $HOME/.config/git
+      - $HOME/.gitconfig.local
+  dot-aws:
+    interface: personal-files
+    read:
+      - $HOME/.aws
+  dot-azure:
+    interface: personal-files
+    read:
+      - $HOME/.azure
+  dot-config-gcloud:
+    interface: personal-files
+    read:
+      - $HOME/.config/gcloud
+  dot-cache-hugo:
+    interface: personal-files
+    write:
+      - $HOME/.cache/hugo_cache
+  ssh-keys:
+    interface: ssh-keys
 
 environment:
   HOME: $SNAP_REAL_HOME
@@ -40,8 +75,19 @@ environment:
   npm_config_userconfig: $SNAP_USER_DATA/.npmrc
   pandoc_datadir: $SNAP/usr/share/pandoc
   PYTHONHOME: /usr:$SNAP/usr
-  RUBYLIB: $SNAP/usr/lib/ruby/vendor_ruby/2.7.0:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/ruby/vendor_ruby/2.7.0:$SNAP/usr/lib/ruby/vendor_ruby:$SNAP/usr/lib/ruby/2.7.0:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/ruby/2.7.0
+  RUBYLIB: $SNAP/usr/lib/ruby/vendor_ruby/3.0.0:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/ruby/vendor_ruby/3.0.0:$SNAP/usr/lib/ruby/vendor_ruby:$SNAP/usr/lib/ruby/3.0.0:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/ruby/3.0.0
 
+  # HUGO_SECURITY_EXEC_OSENV
+  #
+  # Default value:
+  #   (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE)$
+  # Bundled applications require additional access:
+  #   git:          GIT_EXEC_PATH and LD_LIBRARY_PATH
+  #   npx:          npm_config_{cache,init_module,userconfig}
+  #   pandoc:       pandoc_datadir
+  #   rst2html:     PYTHONHOME and SNAP
+  #   asciidoctor:  RUBYLIB
+  HUGO_SECURITY_EXEC_OSENV: (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|GIT_EXEC_PATH|LD_LIBRARY_PATH|npm_config_(cache|init_module|userconfig)|pandoc_datadir|PYTHONHOME|SNAP|RUBYLIB)$
 apps:
   hugo:
     command: bin/hugo
@@ -52,6 +98,11 @@ apps:
       - removable-media
       - etc-gitconfig
       - gitconfig
+      - dot-aws
+      - dot-azure
+      - dot-config-gcloud
+      - dot-cache-hugo
+      - ssh-keys
 
 parts:
   git:
@@ -65,7 +116,7 @@ parts:
   go:
     plugin: nil
     stage-snaps:
-      - go/1.19/stable
+      - go/1.22/stable
     prime:
       - bin/go
       - pkg/tool
@@ -78,12 +129,12 @@ parts:
       - git
       - go
     override-pull: |
-      snapcraftctl pull
-      snapcraftctl set-version "$(git describe --tags --always --match 'v[0-9]*' | sed 's/^v//; s/-/+git/; s/-g/./')"
+      craftctl default
+      craftctl set version=$(git describe --tags --always --match 'v[0-9]*' | sed 's/^v//; s/-/+git/; s/-g/./')
       if grep -q 'Suffix:\s*""' common/hugo/version_current.go; then
-        snapcraftctl set-grade "stable"
+        craftctl set grade=stable
       else
-        snapcraftctl set-grade "devel"
+        craftctl set grade=devel
       fi
     override-build: |
       echo "\nStarting override-build:"
@@ -92,22 +143,7 @@ parts:
       export GOPATH=$(realpath ../go)
       export PATH=$GOPATH/bin:$PATH
 
-      echo " * Patch securityConfig.go to allow"
-      echo "   - GIT_EXEC_PATH and LD_LIBRARY_PATH to be passed to git"
-      echo "   - npm_config_{cache,init_module,userconfig} to be passed to npx"
-      echo "   - pandoc_datadir to be passed to pandoc"
-      echo "   - PYTHONHOME and SNAP to be passed to rst2html"
-      echo "   - RUBYLIB to be passed to asciidoctor"
-      sed -i '/OsEnv: NewWhitelist/s/)\$/|GIT_EXEC_PATH|LD_LIBRARY_PATH|npm_config_(cache|init_module|userconfig)|pandoc_datadir|PYTHONHOME|RUBYLIB|SNAP&/' config/security/securityConfig.go
-      git diff config/security/securityConfig.go
-
-      echo " * SNAPCRAFT_IMAGE_INFO=${SNAPCRAFT_IMAGE_INFO=}"
-      # Example: SNAPCRAFT_IMAGE_INFO='{"build_url": "https://launchpad.net/~gohugoio/+snap/hugo-extended-dev/+build/344022"}'
-      export HUGO_BUILD_TAGS=""
-      if echo $SNAPCRAFT_IMAGE_INFO | grep -q '/+snap/hugo-extended'; then
-        HUGO_BUILD_TAGS="extended"
-      fi
-
+      HUGO_BUILD_TAGS="extended"
       echo " * Building hugo (HUGO_BUILD_TAGS=\"$HUGO_BUILD_TAGS\")..."
       go build -v -ldflags "-X github.com/gohugoio/hugo/common/hugo.vendorInfo=snap:$(git describe --tags --always --match 'v[0-9]*' | sed 's/^v//; s/-/+git/; s/-g/./')" -tags "$HUGO_BUILD_TAGS"
       ./hugo version
@@ -116,15 +152,15 @@ parts:
       echo " * Building shell completion..."
       ./hugo completion bash > hugo-completion
 
-      echo " * Installing to ${SNAPCRAFT_PART_INSTALL}..."
-      install -d $SNAPCRAFT_PART_INSTALL/bin
-      cp -av hugo $SNAPCRAFT_PART_INSTALL/bin/
-      mv -v hugo-completion $SNAPCRAFT_PART_INSTALL/
+      echo " * Installing to ${CRAFT_PART_INSTALL}..."
+      install -d $CRAFT_PART_INSTALL/bin
+      cp -av hugo $CRAFT_PART_INSTALL/bin/
+      mv -v hugo-completion $CRAFT_PART_INSTALL/
 
       echo " * Stripping binary..."
-      ls -l $SNAPCRAFT_PART_INSTALL/bin/hugo
-      strip --remove-section=.comment --remove-section=.note $SNAPCRAFT_PART_INSTALL/bin/hugo
-      ls -l $SNAPCRAFT_PART_INSTALL/bin/hugo
+      ls -l $CRAFT_PART_INSTALL/bin/hugo
+      strip --remove-section=.comment --remove-section=.note $CRAFT_PART_INSTALL/bin/hugo
+      ls -l $CRAFT_PART_INSTALL/bin/hugo
 
   asciidoctor:
     plugin: nil
@@ -132,17 +168,21 @@ parts:
       - asciidoctor
     override-build: |
       set -ex
-      snapcraftctl build
-      sed -i '1s|#!/usr/bin/ruby|#!/usr/bin/env ruby|' $SNAPCRAFT_PART_INSTALL/usr/bin/asciidoctor
+      craftctl default
+      sed -i '1s|#!/usr/bin/ruby|#!/usr/bin/env ruby|' $CRAFT_PART_INSTALL/usr/bin/asciidoctor
+      # don't try and flock() gemspecs since this is blocked by AppArmor - see
+      # https://github.com/rubygems/rubygems/pull/5278 in particular
+      # https://github.com/rubygems/rubygems/pull/5278/commits/27b682c81226838b1254ac5843a3f5b1cb20f076
+      sed -i 's|!solaris_platform|win_platform|' $CRAFT_PART_INSTALL/usr/lib/ruby/vendor_ruby/rubygems.rb
 
-  dart-sass-embedded:
+  dart-sass:
     plugin: nil
     build-packages:
       - curl
     override-build: |
       set -ex
-      snapcraftctl build
-      case "$SNAPCRAFT_TARGET_ARCH" in
+      craftctl default
+      case "$CRAFT_TARGET_ARCH" in
         amd64)  arch=x64    ;;
         arm64)  arch=arm64  ;;
         armhf)  arch=arm    ;;
@@ -150,11 +190,11 @@ parts:
         *)      arch=""     ;;
       esac
       if [[ -n $arch ]]; then
-        url=$(curl -s https://api.github.com/repos/sass/dart-sass-embedded/releases/latest | awk -F\" "/browser_download_url.*-linux-${arch}.tar.gz/{print \$(NF-1)}")
-        curl -LO --retry-connrefused --retry 10 "$url"
-        tar xf sass_embedded-*-linux-$arch.tar.gz
-        install -d $SNAPCRAFT_PART_INSTALL/bin
-        cp -av sass_embedded/* $SNAPCRAFT_PART_INSTALL/bin/
+        url=$(curl -s https://api.github.com/repos/sass/dart-sass/releases/latest | awk -F\" "/browser_download_url.*-linux-${arch}.tar.gz/{print \$(NF-1)}")
+        curl -LO --retry-connrefused --retry 10 "${url}"
+        tar xf dart-sass-*-linux-${arch}.tar.gz
+        install -d $CRAFT_PART_INSTALL/bin
+        cp -av dart-sass/* $CRAFT_PART_INSTALL/bin/
       fi
 
   node:
@@ -173,7 +213,7 @@ parts:
       - python3-docutils
     override-build: |
       set -ex
-      snapcraftctl build
-      sed -i "s|'/usr/share/docutils/'|os.path.expandvars('\$SNAP/usr/share/docutils/')|" $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages/docutils/__init__.py
+      craftctl default
+      sed -i "s|'/usr/share/docutils/'|os.path.expandvars('\$SNAP/usr/share/docutils/')|" $CRAFT_PART_INSTALL/usr/lib/python3/dist-packages/docutils/__init__.py
     organize:
       usr/share/docutils/scripts/python3: usr/bin

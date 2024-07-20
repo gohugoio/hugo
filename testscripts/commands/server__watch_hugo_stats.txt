@@ -1,0 +1,18 @@
+hugo server  --renderToMemory &
+
+waitServer
+stopServer
+! stderr .
+
+exists hugo_stats.json
+
+-- hugo.toml --
+title = "Hugo Server Test"
+baseURL = "https://example.org/"
+disableKinds = ["taxonomy", "term", "sitemap"]
+[module]
+[[module.mounts]]
+source = "hugo_stats.json"
+target = "assets/watching/hugo_stats.json"
+-- layouts/index.html --
+<body>Home</body>

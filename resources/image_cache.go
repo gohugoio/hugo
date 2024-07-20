@@ -16,153 +16,110 @@ package resources
 import (
 	"image"
 	"io"
-	"path/filepath"
-	"strings"
-	"sync"
 
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/resources/images"
 
+	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/helpers"
 )
 
-type imageCache struct {
+// ImageCache is a cache for image resources. The backing caches are shared between all sites.
+type ImageCache struct {
 	pathSpec *helpers.PathSpec
 
-	fileCache *filecache.Cache
-
-	mu    sync.RWMutex
-	store map[string]*resourceAdapter
+	fcache *filecache.Cache
+	mcache *dynacache.Partition[string, *resourceAdapter]
 }
 
-func (c *imageCache) deleteIfContains(s string) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	s = c.normalizeKeyBase(s)
-	for k := range c.store {
-		if strings.Contains(k, s) {
-			delete(c.store, k)
-		}
-	}
-}
-
-// The cache key is a lowercase path with Unix style slashes and it always starts with
-// a leading slash.
-func (c *imageCache) normalizeKey(key string) string {
-	return "/" + c.normalizeKeyBase(key)
-}
-
-func (c *imageCache) normalizeKeyBase(key string) string {
-	return strings.Trim(strings.ToLower(filepath.ToSlash(key)), "/")
-}
-
-func (c *imageCache) clear() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.store = make(map[string]*resourceAdapter)
-}
-
-func (c *imageCache) getOrCreate(
+func (c *ImageCache) getOrCreate(
 	parent *imageResource, conf images.ImageConfig,
-	createImage func() (*imageResource, image.Image, error)) (*resourceAdapter, error) {
+	createImage func() (*imageResource, image.Image, error),
+) (*resourceAdapter, error) {
 	relTarget := parent.relTargetPathFromConfig(conf)
-	memKey := parent.relTargetPathForRel(relTarget.path(), false, false, false)
-	memKey = c.normalizeKey(memKey)
+	relTargetPath := relTarget.TargetPath()
+	memKey := relTargetPath
 
-	// For the file cache we want to generate and store it once if possible.
-	fileKeyPath := relTarget
-	if fi := parent.root.getFileInfo(); fi != nil {
-		fileKeyPath.dir = filepath.ToSlash(filepath.Dir(fi.Meta().Path))
+	// For multihost sites, we duplicate language versions of the same resource,
+	// so we need to include the language in the key.
+	// Note that we don't need to include the language in the file cache key,
+	// as the hash will take care of any different content.
+	if c.pathSpec.Cfg.IsMultihost() {
+		memKey = c.pathSpec.Lang() + memKey
 	}
-	fileKey := fileKeyPath.path()
+	memKey = dynacache.CleanKey(memKey)
 
-	// First check the in-memory store, then the disk.
-	c.mu.RLock()
-	cachedImage, found := c.store[memKey]
-	c.mu.RUnlock()
+	v, err := c.mcache.GetOrCreate(memKey, func(key string) (*resourceAdapter, error) {
+		var img *imageResource
 
-	if found {
-		return cachedImage, nil
-	}
+		// These funcs are protected by a named lock.
+		// read clones the parent to its new name and copies
+		// the content to the destinations.
+		read := func(info filecache.ItemInfo, r io.ReadSeeker) error {
+			img = parent.clone(nil)
+			targetPath := img.getResourcePaths()
+			targetPath.File = relTarget.File
+			img.setTargetPath(targetPath)
+			img.setOpenSource(func() (hugio.ReadSeekCloser, error) {
+				return c.fcache.Fs.Open(info.Name)
+			})
+			img.setSourceFilenameIsHash(true)
+			img.setMediaType(conf.TargetFormat.MediaType())
 
-	var img *imageResource
+			if err := img.InitConfig(r); err != nil {
+				return err
+			}
 
-	// These funcs are protected by a named lock.
-	// read clones the parent to its new name and copies
-	// the content to the destinations.
-	read := func(info filecache.ItemInfo, r io.ReadSeeker) error {
-		img = parent.clone(nil)
-		rp := img.getResourcePaths()
-		rp.relTargetDirFile.file = relTarget.file
-		img.setSourceFilename(info.Name)
-		img.setMediaType(conf.TargetFormat.MediaType())
-
-		if err := img.InitConfig(r); err != nil {
-			return err
-		}
-
-		r.Seek(0, 0)
-
-		w, err := img.openDestinationsForWriting()
-		if err != nil {
-			return err
-		}
-
-		if w == nil {
-			// Nothing to write.
 			return nil
 		}
 
-		defer w.Close()
-		_, err = io.Copy(w, r)
+		// create creates the image and encodes it to the cache (w).
+		create := func(info filecache.ItemInfo, w io.WriteCloser) (err error) {
+			defer w.Close()
 
-		return err
-	}
-
-	// create creates the image and encodes it to the cache (w).
-	create := func(info filecache.ItemInfo, w io.WriteCloser) (err error) {
-		defer w.Close()
-
-		var conv image.Image
-		img, conv, err = createImage()
-		if err != nil {
-			return
+			var conv image.Image
+			img, conv, err = createImage()
+			if err != nil {
+				return
+			}
+			targetPath := img.getResourcePaths()
+			targetPath.File = relTarget.File
+			img.setTargetPath(targetPath)
+			img.setOpenSource(func() (hugio.ReadSeekCloser, error) {
+				return c.fcache.Fs.Open(info.Name)
+			})
+			return img.EncodeTo(conf, conv, w)
 		}
-		rp := img.getResourcePaths()
-		rp.relTargetDirFile.file = relTarget.file
-		img.setSourceFilename(info.Name)
 
-		return img.EncodeTo(conf, conv, w)
-	}
+		// Now look in the file cache.
 
-	// Now look in the file cache.
+		// The definition of this counter is not that we have processed that amount
+		// (e.g. resized etc.), it can be fetched from file cache,
+		//  but the count of processed image variations for this site.
+		c.pathSpec.ProcessingStats.Incr(&c.pathSpec.ProcessingStats.ProcessedImages)
 
-	// The definition of this counter is not that we have processed that amount
-	// (e.g. resized etc.), it can be fetched from file cache,
-	//  but the count of processed image variations for this site.
-	c.pathSpec.ProcessingStats.Incr(&c.pathSpec.ProcessingStats.ProcessedImages)
+		_, err := c.fcache.ReadOrCreate(relTargetPath, read, create)
+		if err != nil {
+			return nil, err
+		}
 
-	_, err := c.fileCache.ReadOrCreate(fileKey, read, create)
-	if err != nil {
-		return nil, err
-	}
+		imgAdapter := newResourceAdapter(parent.getSpec(), true, img)
 
-	// The file is now stored in this cache.
-	img.setSourceFs(c.fileCache.Fs)
+		return imgAdapter, nil
+	})
 
-	c.mu.Lock()
-	if cachedImage, found = c.store[memKey]; found {
-		c.mu.Unlock()
-		return cachedImage, nil
-	}
-
-	imgAdapter := newResourceAdapter(parent.getSpec(), true, img)
-	c.store[memKey] = imgAdapter
-	c.mu.Unlock()
-
-	return imgAdapter, nil
+	return v, err
 }
 
-func newImageCache(fileCache *filecache.Cache, ps *helpers.PathSpec) *imageCache {
-	return &imageCache{fileCache: fileCache, pathSpec: ps, store: make(map[string]*resourceAdapter)}
+func newImageCache(fileCache *filecache.Cache, memCache *dynacache.Cache, ps *helpers.PathSpec) *ImageCache {
+	return &ImageCache{
+		fcache: fileCache,
+		mcache: dynacache.GetOrCreatePartition[string, *resourceAdapter](
+			memCache,
+			"/imgs",
+			dynacache.OptionsPartition{ClearWhen: dynacache.ClearOnChange, Weight: 70},
+		),
+		pathSpec: ps,
+	}
 }

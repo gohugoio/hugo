@@ -31,12 +31,12 @@ func TestConvert(t *testing.T) {
 	}
 	c := qt.New(t)
 	sc := security.DefaultConfig
-	sc.Exec.Allow = security.NewWhitelist("rst", "python")
+	sc.Exec.Allow = security.MustNewWhitelist("rst", "python")
 
 	p, err := Provider.New(
 		converter.ProviderConfig{
-			Logger: loggers.NewErrorLogger(),
-			Exec:   hexec.New(sc),
+			Logger: loggers.NewDefault(),
+			Exec:   hexec.New(sc, ""),
 		})
 	c.Assert(err, qt.IsNil)
 	conv, err := p.New(converter.DocumentContext{})

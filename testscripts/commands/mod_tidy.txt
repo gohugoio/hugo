@@ -1,0 +1,21 @@
+# Test hugo mod tidy.
+
+dostounix golden/go.mod.cleaned
+
+hugo mod tidy
+
+cmp go.mod golden/go.mod.cleaned
+
+-- hugo.toml --
+title = "Hugo Modules Test"
+-- go.mod --
+go 1.19
+
+require github.com/bep/empty-hugo-module v1.0.0
+
+module github.com/gohugoio/testmod
+-- golden/go.mod.cleaned --
+go 1.19
+
+
+module github.com/gohugoio/testmod

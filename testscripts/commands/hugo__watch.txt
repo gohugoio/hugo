@@ -1,0 +1,29 @@
+# Test the hugo command.
+
+# See https://github.com/rogpeppe/go-internal/issues/228
+[windows] skip
+
+hugo -w &
+
+sleep 3
+grep 'P1start' public/p1/index.html
+
+replace content/p1.md 'P1start' 'P1end'
+sleep 2
+grep 'P1end' public/p1/index.html
+! grep 'livereload' public/p1/index.html
+
+stop
+
+-- hugo.toml --
+baseURL = "http://example.org/"
+disableKinds = ["RSS", "sitemap", "robotsTXT", "404", "taxonomy", "term"]
+-- layouts/index.html --
+Home.
+-- layouts/_default/single.html --
+Title: {{ .Title }}| {{ .Content }}
+-- content/p1.md --
+---
+title: "P1"
+---
+P1start

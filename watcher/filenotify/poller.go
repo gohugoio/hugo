@@ -1,5 +1,3 @@
-// Package filenotify is adapted from https://github.com/moby/moby/tree/master/pkg/filenotify, Apache-2.0 License.
-// Hopefully this can be replaced with an external package sometime in the future, see https://github.com/fsnotify/fsnotify/issues/9
 package filenotify
 
 import (
@@ -203,7 +201,7 @@ func (r *recording) record(filename string) error {
 	r.FileInfo = fi
 
 	// If fi is a dir, we watch the files inside that directory (not recursively).
-	// This matches the behaviour of fsnotity.
+	// This matches the behavior of fsnotity.
 	if fi.IsDir() {
 		f, err := os.Open(filename)
 		if err != nil {
@@ -250,7 +248,6 @@ func newItemToWatch(filename string) (*itemToWatch, error) {
 	}
 
 	return &itemToWatch{filename: filename, left: r}, nil
-
 }
 
 func (item *itemToWatch) checkForChanges() ([]fsnotify.Event, error) {
@@ -300,7 +297,6 @@ func (item *itemToWatch) checkForChanges() ([]fsnotify.Event, error) {
 	}
 
 	return evs, nil
-
 }
 
 func checkChange(fi1, fi2 os.FileInfo) fsnotify.Op {

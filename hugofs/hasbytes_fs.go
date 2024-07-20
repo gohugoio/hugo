@@ -1,4 +1,4 @@
-// Copyright 2022 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,12 +28,12 @@ var (
 type hasBytesFs struct {
 	afero.Fs
 	shouldCheck      func(name string) bool
-	hasBytesCallback func(name string, match bool)
-	pattern          []byte
+	hasBytesCallback func(name string, match []byte)
+	patterns         [][]byte
 }
 
-func NewHasBytesReceiver(delegate afero.Fs, shouldCheck func(name string) bool, hasBytesCallback func(name string, match bool), pattern []byte) afero.Fs {
-	return &hasBytesFs{Fs: delegate, shouldCheck: shouldCheck, hasBytesCallback: hasBytesCallback, pattern: pattern}
+func NewHasBytesReceiver(delegate afero.Fs, shouldCheck func(name string) bool, hasBytesCallback func(name string, match []byte), patterns ...[]byte) afero.Fs {
+	return &hasBytesFs{Fs: delegate, shouldCheck: shouldCheck, hasBytesCallback: hasBytesCallback, patterns: patterns}
 }
 
 func (fs *hasBytesFs) UnwrapFilesystem() afero.Fs {
@@ -60,14 +60,18 @@ func (fs *hasBytesFs) wrapFile(f afero.File) afero.File {
 	if !fs.shouldCheck(f.Name()) {
 		return f
 	}
+	patterns := make([]*hugio.HasBytesPattern, len(fs.patterns))
+	for i, p := range fs.patterns {
+		patterns[i] = &hugio.HasBytesPattern{Pattern: p}
+	}
+
 	return &hasBytesFile{
 		File: f,
 		hbw: &hugio.HasBytesWriter{
-			Pattern: fs.pattern,
+			Patterns: patterns,
 		},
 		hasBytesCallback: fs.hasBytesCallback,
 	}
-
 }
 
 func (fs *hasBytesFs) Name() string {
@@ -75,7 +79,7 @@ func (fs *hasBytesFs) Name() string {
 }
 
 type hasBytesFile struct {
-	hasBytesCallback func(name string, match bool)
+	hasBytesCallback func(name string, match []byte)
 	hbw              *hugio.HasBytesWriter
 	afero.File
 }
@@ -89,6 +93,10 @@ func (h *hasBytesFile) Write(p []byte) (n int, err error) {
 }
 
 func (h *hasBytesFile) Close() error {
-	h.hasBytesCallback(h.Name(), h.hbw.Match)
+	for _, p := range h.hbw.Patterns {
+		if p.Match {
+			h.hasBytesCallback(h.Name(), p.Pattern)
+		}
+	}
 	return h.File.Close()
 }

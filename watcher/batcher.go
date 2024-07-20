@@ -30,7 +30,7 @@ type Batcher struct {
 }
 
 // New creates and starts a Batcher with the given time interval.
-// It will fall back to a poll based watcher if native isn's supported.
+// It will fall back to a poll based watcher if native isn't supported.
 // To always use polling, set poll to true.
 func New(intervalBatcher, intervalPoll time.Duration, poll bool) (*Batcher, error) {
 	var err error

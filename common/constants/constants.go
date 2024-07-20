@@ -13,13 +13,33 @@
 
 package constants
 
-// Error IDs.
+// Error/Warning IDs.
 // Do not change these values.
 const (
-	ErrIDAmbigousDisableKindTaxonomy = "error-disable-taxonomy"
-	ErrIDAmbigousOutputKindTaxonomy  = "error-output-taxonomy"
-
 	// IDs for remote errors in tpl/data.
 	ErrRemoteGetJSON = "error-remote-getjson"
 	ErrRemoteGetCSV  = "error-remote-getcsv"
+
+	WarnFrontMatterParamsOverrides = "warning-frontmatter-params-overrides"
 )
+
+// Field/method names with special meaning.
+const (
+	FieldRelPermalink = "RelPermalink"
+	FieldPermalink    = "Permalink"
+)
+
+// IsFieldRelOrPermalink returns whether the given name is a RelPermalink or Permalink.
+func IsFieldRelOrPermalink(name string) bool {
+	return name == FieldRelPermalink || name == FieldPermalink
+}
+
+// Resource transformations.
+const (
+	ResourceTransformationFingerprint = "fingerprint"
+)
+
+// IsResourceTransformationLinkChange returns whether the given name is a resource transformation that changes the permalink based on the content.
+func IsResourceTransformationPermalinkHash(name string) bool {
+	return name == ResourceTransformationFingerprint
+}

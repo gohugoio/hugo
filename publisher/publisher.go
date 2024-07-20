@@ -81,8 +81,8 @@ func NewDestinationPublisher(rs *resources.Spec, outputFormats output.Formats, m
 	fs := rs.BaseFs.PublishFs
 	cfg := rs.Cfg
 	var classCollector *htmlElementsCollector
-	if rs.BuildConfig.WriteStats {
-		classCollector = newHTMLElementsCollector()
+	if rs.BuildConfig().BuildStats.Enabled() {
+		classCollector = newHTMLElementsCollector(rs.BuildConfig().BuildStats)
 	}
 	pub = DestinationPublisher{fs: fs, htmlElementsCollector: classCollector}
 	pub.min, err = minifiers.New(mediaTypes, outputFormats, cfg)
@@ -169,7 +169,7 @@ func (p DestinationPublisher) createTransformerChain(f Descriptor) transform.Cha
 
 	if isHTML {
 		if f.LiveReloadBaseURL != nil {
-			transformers = append(transformers, livereloadinject.New(*f.LiveReloadBaseURL))
+			transformers = append(transformers, livereloadinject.New(f.LiveReloadBaseURL))
 		}
 
 		// This is only injected on the home page.

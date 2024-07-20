@@ -1,331 +1,403 @@
 ---
-title: Contribute to the Hugo Docs
-linktitle: Documentation
-description: Documentation is an integral part of any open source project. The Hugo docs are as much a work in progress as the source it attempts to cover.
-date: 2017-02-01
-publishdate: 2017-02-01
+title: Documentation
+description: Help us to improve the documentation by identifying issues and suggesting changes.
 categories: [contribute]
-keywords: [docs,documentation,community, contribute]
+keywords: [documentation]
 menu:
   docs:
-    parent: "contribute"
-    weight: 20
-weight: 20
-sections_weight: 20
-aliases: [/contribute/docs/]
+    parent: contribute
+    weight: 30
+weight: 30
 toc: true
+aliases: [/contribute/docs/]
 ---
 
-## Create Your Fork
+## Introduction
 
-It's best to make changes to the Hugo docs on your local machine to check for consistent visual styling. Make sure you've created a fork of [hugoDocs](https://github.com/gohugoio/hugoDocs) on GitHub and cloned the repository locally on your machine. For more information, you can see [GitHub's documentation on "forking"][ghforking] or follow along with [Hugo's development contribution guide][hugodev].
+We welcome corrections and improvements to the documentation. Please note that the documentation resides in its own repository, separate from the project repository.
 
-You can then create a separate branch for your additions. Be sure to choose a descriptive branch name that best fits the type of content. The following is an example of a branch name you might use for adding a new website to the showcase:
+For corrections and improvements to the current documentation, please submit issues and pull requests to the [documentation repository].
 
-```txt
-git checkout -b jon-doe-showcase-addition
-```
+For documentation related to a new feature, please include the documentation changes when you submit a pull request to the [project repository].
 
-## Add New Content
+## Guidelines
 
-The Hugo docs make heavy use of Hugo's [archetypes] feature. All content sections in Hugo documentation have an assigned archetype.
+### Markdown
 
-Adding new content to the Hugo docs follows the same pattern, regardless of the content section:
+Please follow these guidelines:
 
-```txt
-hugo new <DOCS-SECTION>/<new-content-lowercase>.md
-```
+- Use [ATX] headings, not [setext] headings, levels 2 through 4
+- Use [fenced code blocks], not [indented code blocks]
+- Use hyphens, not asterisks, with unordered [list items]
+- Use the [note shortcode] instead of blockquotes
+- Do not mix [raw HTML] within Markdown
+- Do not use bold text instead of a heading or description term (`dt`)
+- Remove consecutive blank lines (maximum of two)
+- Remove trailing spaces
 
-### Add a New Function
+### Style
 
-Once you have cloned the Hugo repository, you can create a new function via the following command. Keep the filename lowercase.
+Although we do not strictly adhere to the [Microsoft Writing Style Guide], it is an excellent resource for questions related to style, grammar, and voice.
 
-```txt
-hugo new functions/newfunction.md
-```
+#### Terminology
 
-The archetype for `functions` according to the Hugo docs is as follows:
+Please link to the [glossary of terms] when necessary, and use the terms consistently throughout the documentation. Of special note:
 
-{{< code file="archetypes/functions.md" >}}
-{{< readfile file="/archetypes/functions.md">}}
-{{< /code >}}
+- The term "front matter" is two words unless you are referring to the configuration key
+- The term "standalone" is one word, not hyphenated
+- Use the word "map" instead of "dictionary"
+- Use the word "flag" instead of "option" when referring to a command line flag
+- Capitalize the word "Markdown"
+- Hyphenate the term "open-source" when used an adjective.
 
-#### New Function Required Fields
+#### Page titles and headings
 
-Here is a review of the front matter fields automatically generated for you using `hugo new functions/*`:
+Please follow these guidelines for page titles and headings:
 
-***`title`***
-: this will be auto-populated in all lowercase when you use `hugo new` generator.
+- Use sentence-style capitalization
+- Avoid formatted strings in headings and page titles
+- Shorter is better
 
-***`linktitle`***
-: the function's actual casing (e.g., `replaceRE` rather than `replacere`).
+#### Use active voice with present tense
 
-***`description`***
-: a brief description used to populate the [Functions Quick Reference](/functions/).
+In software documentation, passive voice is unavoidable in some cases. Please use active voice when possible.
 
-`categories`
-: currently auto-populated with 'functions` for future-proofing and portability reasons only; ignore this field.
+No → With Hugo you can build a static site.\
+Yes → Build a static site with Hugo.
 
-`tags`
-: only if you think it will help end users find other related functions
+No → This will cause Hugo to generate HTML files in the public directory.\
+Yes → Hugo generates HTML files in the public directory.
 
-`signature`
-: this is a signature/syntax definition for calling the function (e.g., `apply SEQUENCE FUNCTION [PARAM...]`).
+#### Use second person instead of third person
 
-`workson`
-: acceptable values include `lists`,`taxonomies`, `terms`, `groups`, and `files`.
+No → Users should exercise caution when deleting files.\
+Better → You must be cautious when deleting files.\
+Best → Be cautious when deleting files.
 
-`hugoversion`
-: the version of Hugo that will ship with this new function.
+#### Avoid adverbs when possible
 
-`relatedfuncs`
-: other [templating functions] you feel are related to your new function to help fellow Hugo users.
+No → Hugo is extremely fast.\
+Yes → Hugo is fast.
 
-`{{.Content}}`
-: an extended description of the new function; examples are not only welcomed but encouraged.
+{{% note %}}
+"It's an adverb, Sam. It's a lazy tool of a weak mind." (Outbreak, 1995).
+{{% /note %}}
 
-In the body of your function, expand the short description used in the front matter. Include as many examples as possible, and leverage the Hugo docs [`code` shortcode](#add-code-blocks). If you are unable to add examples but would like to solicit help from the Hugo community, add `needsexample: true` to your front matter.
+#### Miscellaneous
 
-## Add Code Blocks
+Other guidelines to consider:
 
-Code blocks are crucial for providing examples of Hugo's new features to end users of the Hugo docs. Whenever possible, create examples that you think Hugo users will be able to implement in their own projects.
+- Do not place list items directly under a heading; include an introductory sentence or phrase before the list.
+- Avoid use of **bold** text. Use the [note shortcode] to draw attention to important content.
+- Do not place description terms (`dt`) within backticks unless required for syntactic clarity.
+- Do not use Hugo's `ref` or `relref` shortcodes. We use a link render hook to resolve and validate link destinations, including fragments.
+- Shorter is better. If there is more than one way to do something, describe the current best practice. For example, avoid phrases such as "you can also do..." and "in older versions you had to..."
+- When including code samples, use short snippets that demonstrate the concept.
+- The Hugo user community is global; use  [basic english](https://simple.wikipedia.org/wiki/Basic_English) when possible.
 
-### Standard Syntax
+#### Level 6 headings
 
-Across many pages on the Hugo docs, the typical triple-back-tick Markdown syntax (```` ``` ````) is used. If you do not want to take the extra time to implement the following code block shortcodes, please use standard GitHub-flavored Markdown. 
+Level 6 headings are styled as `dt` elements. This was implemented to support a [glossary] with linkable terms.
 
-````txt
+[glossary]: /getting-started/glossary/
+
+## Code examples
+
+Indent code by two spaces. With examples of template code, include a space after opening action delimiters, and include a space before closing action delimiters.
+
+### Fenced code blocks
+
+Always include the language code when using a fenced code block:
+
+````text
 ```go-html-template
-{{ range site.RegularPages }}
-  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+{{ if eq $foo "bar" }}
+  {{ print "foo is bar" }}
 {{ end }}
 ```
 ````
 
-
-### Code Block Shortcode
-
-The Hugo documentation comes with a very robust shortcode for adding interactive code blocks.
-
-{{% note %}}
-With the `code` shortcodes, *you must include triple back ticks and a language declaration*. This was done by design so that the shortcode wrappers were easily added to legacy documentation and will be that much easier to remove if needed in future versions of the Hugo docs.
-{{% /note %}}
-
-### `code`
-
-`code` is the Hugo docs shortcode you'll use most often. `code` requires has only one named parameter: `file`. Here is the pattern:
+Rendered:
 
 ```go-html-template
-{{%/* code file="smart/file/name/with/path.html" download="download.html" copy="true" */%}}
-A whole bunch of coding going on up in here!
-{{%/* /code */%}}
+{{ if eq $foo "bar" }}
+  {{ print "foo is bar" }}
+{{ end }}
 ```
 
-The following are the arguments passed into `code`:
+### Shortcode calls
 
-***`file`***
-: the only *required* argument. `file` is needed for styling but also plays an important role in helping users create a mental model around Hugo's directory structure. Visually, this will be displayed as text in the top left of the code block.
+Use this syntax to include shortcodes calls within your code examples:
 
-`download`
-: if omitted, this will have no effect on the rendered shortcode. When a value is added to `download`, it's used as the filename for a downloadable version of the code block.
+```text
+{{</*/* foo */*/>}}
+{{%/*/* foo */*/%}}
+```
 
-`copy`
-: a copy button is added automatically to all `code` shortcodes. If you want to keep the filename and styling of `code` but don't want to encourage readers to copy the code (e.g., a "Do not do" snippet in a tutorial), use `copy="false"`.
+Rendered:
 
-#### Example `code` Input
+```text
+{{</* foo */>}}
+{{%/* foo */%}}
+```
 
-This example HTML code block tells Hugo users the following:
+### Site configuration
 
-1. This file *could* live in `layouts/_default`, as demonstrated by `layouts/_default/single.html` as the value for `file`.
-2. This snippet is complete enough to be downloaded and implemented in a Hugo project, as demonstrated by `download="single.html"`.
+Use the [code-toggle shortcode] to include site configuration examples:
 
-```go-html-template
-{{</* code file="layouts/_default/single.html" download="single.html" */>}}
-{{ define "main" }}
-<main>
-    <article>
-        <header>
-            <h1>{{.Title}}</h1>
-            {{with .Params.subtitle}}
-            <span>{{.}}</span>
-        </header>
-        <div>
-            {{.Content}}
-        </div>
-        <aside>
-            {{.TableOfContents}}
-        </aside>
-    </article>
-</main>
+```text
+{{</* code-toggle file=hugo */>}}
+baseURL = 'https://example.org/'
+languageCode = 'en-US'
+title = 'My Site'
+{{</* /code-toggle */>}}
+```
+
+Rendered:
+
+{{< code-toggle file=hugo >}}
+baseURL = 'https://example.org/'
+languageCode = 'en-US'
+title = 'My Site'
+{{< /code-toggle >}}
+
+### Front matter
+
+Use the [code-toggle shortcode] to include front matter examples:
+
+```text
+{{</* code-toggle file=content/posts/my-first-post.md fm=true */>}}
+title = 'My first post'
+date = 2023-11-09T12:56:07-08:00
+draft = false
+{{</* /code-toggle */>}}
+```
+
+Rendered:
+
+{{< code-toggle file=content/posts/my-first-post.md fm=true >}}
+title = 'My first post'
+date = 2023-11-09T12:56:07-08:00
+draft = false
+{{< /code-toggle >}}
+
+### Other code examples
+
+Use the [code shortcode] for other code examples that require a file name:
+
+```text
+{{</* code file=layouts/_default/single.html */>}}
+{{ range .Site.RegularPages }}
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 {{</* /code */>}}
 ```
 
-##### Example 'code' Display
+Rendered:
 
-The output of this example will render to the Hugo docs as follows:
-
-{{< code file="layouts/_default/single.html" download="single.html" >}}
-{{ define "main" }}
-<main>
-    <article>
-        <header>
-            <h1>{{.Title}}</h1>
-            {{with .Params.subtitle}}
-            <span>{{.}}</span>
-        </header>
-        <div>
-            {{.Content}}
-        </div>
-        <aside>
-            {{.TableOfContents}}
-        </aside>
-    </article>
-</main>
+{{< code file=layouts/_default/single.html >}}
+{{ range .Site.RegularPages }}
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 {{< /code >}}
 
-<!-- #### Output Code Block
+## Shortcodes
 
-The `output` shortcode is almost identical to the `code` shortcode but only takes and requires `file`. The purpose of `output` is to show *rendered* HTML and therefore almost always follows another basic code block *or* and instance of the `code` shortcode:
+These shortcodes are commonly used throughout the documentation. Other shortcodes are available for specialized use.
 
+### code
+
+Use the "code" shortcode for other code examples that require a file name. See the [code examples] above. This shortcode takes these arguments:
+
+copy
+: (`bool`) Whether to display a copy-to-clipboard button. Default is `false`.
+
+file
+: (`string`) The file name to display.
+
+lang
+: (`string`) The code language. If you do not provide a `lang` argument, the code language is determined by the file extension. If the file extension is `html`, sets the code language to `go-html-template`. Default is `text`.
+
+### code-toggle
+
+Use the "code-toggle" shortcode to display examples of site configuration, front matter, or data files. See the [code examples] above. This shortcode takes these arguments:
+
+copy
+: (`bool`) Whether to display a copy-to-clipboard button. Default is `false`.
+
+file
+: (`string`) The file name to display. Omit the file extension for site configuration examples.
+
+fm
+: (`bool`) Whether the example is front matter. Default is `false`.
+
+
+### deprecated-in
+
+Use the “deprecated-in” shortcode to indicate that a feature is deprecated:
+
+```text
+{{%/* deprecated-in 0.127.0 */%}}
+Use [`hugo.IsServer`] instead.
+
+[`hugo.IsServer`]: /functions/hugo/isserver/
+{{%/* /deprecated-in */%}}
 ```
-{{%/* output file="posts/my-first-post/index.html" */%}}
-<h1>This is my First Hugo Blog Post</h1>
-<p>I am excited to be using Hugo.</p>
-{{%/* /output */%}}
+
+Rendered:
+
+{{% deprecated-in 0.127.0 %}}
+Use [`hugo.IsServer`] instead.
+
+[`hugo.IsServer`]: /functions/hugo/isserver/
+{{% /deprecated-in %}}
+
+### eturl
+
+Use the embedded template URL (eturl) shortcode to insert an absolute URL to the source code for an embedded template. The shortcode takes a single argument, the base file name of the template (omit the file extension).
+
+```text
+This is a link to the [embedded alias template].
+
+[embedded alias template]: {{%/* eturl alias */%}}
 ```
 
-The preceding `output` example will render as follows to the Hugo docs:
+Rendered:
 
-{{< output file="posts/my-first-post/index.html" >}}
-<h1>This is my First Hugo Blog Post</h1>
-<p>I am excited to be using Hugo.</p>
-{{< /output >}} -->
+This is a link to the [embedded alias template].
 
-## Blockquotes
+[embedded alias template]: {{% eturl alias %}}
 
-Blockquotes can be added to the Hugo documentation using [typical Markdown blockquote syntax][bqsyntax]:
+### new-in
 
-```md
-> Without the threat of punishment, there is no joy in flight.
+Use the "new-in" shortcode to indicate a new feature:
+
+```text
+{{</* new-in 0.127.0 */>}}
 ```
 
-The preceding blockquote will render as follows in the Hugo docs:
+Rendered:
 
-> Without the threat of punishment, there is no joy in flight.
+{{< new-in 0.127.0 >}}
 
-However, you can add a quick and easy `<cite>` element (added on the client via JavaScript) by separating your main blockquote and the citation with a hyphen with a single space on each side:
+### note
 
-```md
-> Without the threat of punishment, there is no joy in flight. - [Kobo Abe](https://en.wikipedia.org/wiki/Kobo_Abe)
-```
+Use the "note" shortcode with `{{%/* */%}}` delimiters to call attention to important content:
 
-Which will render as follows in the Hugo docs:
-
-> Without the threat of punishment, there is no joy in flight. - [Kobo Abe][abe]
-
-{{% note "Blockquotes `!=` Admonitions" %}}
-Previous versions of Hugo documentation used blockquotes to draw attention to text. This is *not* the [intended semantic use of `<blockquote>`](https://html5doctor.com/cite-and-blockquote-reloaded/). Use blockquotes when quoting. To note or warn your user of specific information, use the admonition shortcodes that follow.
-{{% /note %}}
-
-## Admonitions
-
-**Admonitions** are common in technical documentation. The most popular is that seen in [reStructuredText Directives][sourceforge]. From the SourceForge documentation:
-
-> Admonitions are specially marked "topics" that can appear anywhere an ordinary body element can. They contain arbitrary body elements. Typically, an admonition is rendered as an offset block in a document, sometimes outlined or shaded, with a title matching the admonition type. - [SourceForge][sourceforge]
-
-The Hugo docs contain three admonitions: `note`, `tip`, and `warning`.
-
-### `note` Admonition
-
-Use the `note` shortcode when you want to draw attention to information subtly. `note` is intended to be less of an interruption in content than is `warning`.
-
-#### Example `note` Input
-
-{{< code file="note-with-heading.md" >}}
+```text
 {{%/* note */%}}
-Here is a piece of information I would like to draw your **attention** to.
+Use the [`math.Mod`] function to control...
+
+[`math.Mod`]: /functions/math/mod/
 {{%/* /note */%}}
-{{< /code >}}
+```
 
-#### Example `note` Output
-
-{{< output file="note-with-heading.html" >}}
-{{% note %}}
-Here is a piece of information I would like to draw your **attention** to.
-{{% /note %}}
-{{< /output >}}
-
-#### Example `note` Display
+Rendered:
 
 {{% note %}}
-Here is a piece of information I would like to draw your **attention** to.
+Use the [`math.Mod`] function to control...
+
+[`math.Mod`]: /functions/math/mod/
 {{% /note %}}
 
-### `tip` Admonition
+## New features
 
-Use the `tip` shortcode when you want to give the reader advice. `tip`, like `note`, is intended to be less of an interruption in content than is `warning`.
+Use the "new-in" shortcode to indicate a new feature:
 
-#### Example `tip` Input
-
-{{< code file="using-tip.md" >}}
-{{%/* tip */%}}
-Here's a bit of advice to improve your productivity with Hugo.
-{{%/* /tip */%}}
+{{< code file=content/something/foo.md lang=text >}}
+{{</* new-in 0.120.0 */>}}
 {{< /code >}}
 
-#### Example `tip` Output
+The "new in" label will be hidden if the specified version is older than a predefined threshold, based on differences in major and minor versions. See&nbsp;[details](https://github.com/gohugoio/hugoDocs/blob/master/_vendor/github.com/gohugoio/gohugoioTheme/layouts/shortcodes/new-in.html).
 
-{{< output file="tip-output.html" >}}
-{{% tip %}}
-Here's a bit of advice to improve your productivity with Hugo.
-{{% /tip %}}
-{{< /output >}}
+## Deprecated features
 
-#### Example `tip` Display
+Use the "deprecated-in" shortcode to indicate that a feature is deprecated:
 
-{{% tip %}}
-Here's a bit of advice to improve your productivity with Hugo.
-{{% /tip %}}
+{{< code file=content/something/foo.md >}}
+{{%/* deprecated-in 0.120.0 */%}}
+Use [`hugo.IsServer`] instead.
 
-### `warning` Admonition
-
-Use the `warning` shortcode when you want to draw the user's attention to something important. A good usage example is for articulating breaking changes in Hugo versions, known bugs, or templating "gotchas."
-
-#### Example `warning` Input
-
-{{< code file="warning-admonition-input.md" >}}
-{{%/* warning */%}}
-This is a warning, which should be reserved for *important* information like breaking changes.
-{{%/* /warning */%}}
+[`hugo.IsServer`]: /functions/hugo/isserver/
+{{%/* /deprecated-in */%}}
 {{< /code >}}
 
-#### Example `warning` Output
+When deprecating a function or method, add this to front matter:
 
-{{< output file="warning-admonition-output.html" >}}
-{{% warning %}}
-This is a warning, which should be reserved for *important* information like breaking changes.
-{{% /warning %}}
-{{< /output >}}
+{{< code-toggle file=content/something/foo.md fm=true >}}
+expiryDate: 2024-10-30
+{{< /code-toggle >}}
 
-#### Example `warning` Display
+Set the `expiryDate` to one year from the date of deprecation, and add a brief front matter comment to explain the setting.
 
-{{% warning %}}
-This is a warning, which should be reserved for *important* information like breaking changes.
-{{% /warning %}}
+## GitHub workflow
 
-{{% note "Pull Requests and Branches" %}}
-Similar to [contributing to Hugo development](/contribute/development/), the Hugo team expects you to create a separate branch/fork when you make your contributions to the Hugo docs.
+{{% note %}}
+This section assumes that you have a working knowledge of Git and GitHub, and are comfortable working on the command line.
 {{% /note %}}
 
-[abe]: https://en.wikipedia.org/wiki/Kobo_Abe
-[archetypes]: /content-management/archetypes/
-[bqsyntax]: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#blockquotes
-[charcount]: https://www.lettercount.com/
-[`docs/static/images/showcase/`]: https://github.com/gohugoio/hugo/tree/master/docs/static/images/showcase/
-[ghforking]: https://help.github.com/articles/fork-a-repo/
-[hugodev]: /contribute/development/
-[shortcodeparams]: content-management/shortcodes/#shortcodes-without-markdown
-[sourceforge]: https://docutils.sourceforge.io/docs/ref/rst/directives.html#admonitions
-[templating function]: /functions/
+Use this workflow to create and submit pull requests.
+
+Step 1
+: Fork the [documentation repository].
+
+Step 2
+: Clone your fork.
+
+Step 3
+: Create a new branch with a descriptive name that includes the corresponding issue number, if any:
+
+```sh
+git checkout -b restructure-foo-page-99999
+```
+
+Step 4
+: Make changes.
+
+Step 5
+: Build the site locally to preview your changes.
+
+Step 6
+: Commit your changes with a descriptive commit message:
+
+- Provide a summary on the first line, typically 50 characters or less, followed by a blank line.
+- Optionally, provide a detailed description where each line is 80 characters or less, followed by a blank line.
+- Optionally, add one or more "Fixes" or "Closes" keywords, each on its own line, referencing the [issues] addressed by this change.
+
+For example:
+
+```sh
+git commit -m "Restructure the taxonomy page
+
+This restructures the taxonomy page by splitting topics into logical
+sections, each with one or more examples.
+
+Fixes #9999
+Closes #9998"
+```
+
+Step 7
+: Push the new branch to your fork of the documentation repository.
+
+Step 8
+: Visit the [documentation repository] and create a pull request (PR).
+
+Step 9
+: A project maintainer will review your PR and may request changes. You may delete your branch after the maintainer merges your PR.
+
+[ATX]: https://spec.commonmark.org/0.30/#atx-headings
+[Microsoft Writing Style Guide]: https://learn.microsoft.com/en-us/style-guide/welcome/
+[basic english]: https://simple.wikipedia.org/wiki/Basic_English
+[code examples]: #code-examples
+[code shortcode]: #code
+[code-toggle shortcode]: #code-toggle
+[documentation repository]: https://github.com/gohugoio/hugoDocs/
+[fenced code blocks]: https://spec.commonmark.org/0.30/#fenced-code-blocks
+[glossary of terms]: /getting-started/glossary/
+[indented code blocks]: https://spec.commonmark.org/0.30/#indented-code-blocks
+[issues]: https://github.com/gohugoio/hugoDocs/issues
+[list items]: https://spec.commonmark.org/0.30/#list-items
+[note shortcode]: #note
+[project repository]: https://github.com/gohugoio/hugo
+[raw HTML]: https://spec.commonmark.org/0.30/#raw-html
+[setext]: https://spec.commonmark.org/0.30/#setext-heading

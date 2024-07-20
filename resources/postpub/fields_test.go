@@ -17,14 +17,13 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
-
 	"github.com/gohugoio/hugo/media"
 )
 
 func TestCreatePlaceholders(t *testing.T) {
 	c := qt.New(t)
 
-	m := structToMap(media.CSSType)
+	m := structToMap(media.Builtin.CSSType)
 
 	insertFieldPlaceholders("foo", m, func(s string) string {
 		return "pre_" + s + "_post"
@@ -34,8 +33,11 @@ func TestCreatePlaceholders(t *testing.T) {
 		"IsZero":      "pre_foo.IsZero_post",
 		"MarshalJSON": "pre_foo.MarshalJSON_post",
 		"Suffixes":    "pre_foo.Suffixes_post",
+		"SuffixesCSV": "pre_foo.SuffixesCSV_post",
 		"Delimiter":   "pre_foo.Delimiter_post",
 		"FirstSuffix": "pre_foo.FirstSuffix_post",
+		"IsHTML":      "pre_foo.IsHTML_post",
+		"IsMarkdown":  "pre_foo.IsMarkdown_post",
 		"IsText":      "pre_foo.IsText_post",
 		"String":      "pre_foo.String_post",
 		"Type":        "pre_foo.Type_post",

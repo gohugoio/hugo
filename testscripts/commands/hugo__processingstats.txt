@@ -1,0 +1,49 @@
+cp $SOURCE/resources/testdata/pix.gif content/en/bundle1/pix.gif
+cp $SOURCE/resources/testdata/pix.gif content/en/bundle2/pix.gif
+cp $SOURCE/resources/testdata/pix.gif content/fr/bundle1/pix.gif
+mkdir static/images
+cp $SOURCE/resources/testdata/pix.gif static/images/p1.gif
+cp $SOURCE/resources/testdata/pix.gif static/images/p2.gif
+cp $SOURCE/resources/testdata/pix.gif static/images/p3.gif
+cp $SOURCE/resources/testdata/pix.gif static/images/p4.gif
+
+
+hugo
+
+stdout 'Pages.*3.*2'
+stdout 'Processed images.*2.*1'
+stdout 'Static files.*4 |'
+
+ls public/images
+stdout 'p1.gif'
+stdout 'p2.gif'
+stdout 'p3.gif'
+stdout 'p4.gif'
+
+-- content/en/bundle1/index.md --
+-- content/en/bundle2/index.md --
+-- content/fr/bundle1/index.md --
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "404"]
+defaultLanguage = "en"
+defaultLanguageInSubdir = true
+baseURL = "https://example.com/"
+[languages]
+    [languages.en]
+        languageName = "English"
+        weight = 1
+        title = "English Title"
+        contentDir = "content/en"
+    [languages.fr]
+        languageName = "French"
+        weight = 2
+        title = "French Title"
+        contentDir = "content/fr"
+-- layouts/index.html --
+Home.
+-- layouts/_default/single.html --
+Single.
+{{ range .Resources }}
+{{ $img := .Resize "3x" }}
+Resized: {{ $img.RelPermalink }}
+{{ end }}

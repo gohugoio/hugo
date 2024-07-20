@@ -24,6 +24,7 @@ import (
 
 	"golang.org/x/net/html"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 )
 
@@ -31,7 +32,7 @@ const eof = -1
 
 var (
 	htmlJsonFixer = strings.NewReplacer(", ", "\n")
-	jsonAttrRe    = regexp.MustCompile(`'?(.*?)'?:.*`)
+	jsonAttrRe    = regexp.MustCompile(`'?(.*?)'?:\s.*`)
 	classAttrRe   = regexp.MustCompile(`(?i)^class$|transition`)
 
 	skipInnerElementRe = regexp.MustCompile(`(?i)^(pre|textarea|script|style)`)
@@ -46,8 +47,9 @@ var (
 	}
 )
 
-func newHTMLElementsCollector() *htmlElementsCollector {
+func newHTMLElementsCollector(conf config.BuildStats) *htmlElementsCollector {
 	return &htmlElementsCollector{
+		conf:       conf,
 		elementSet: make(map[string]bool),
 	}
 }
@@ -93,6 +95,8 @@ type htmlElement struct {
 }
 
 type htmlElementsCollector struct {
+	conf config.BuildStats
+
 	// Contains the raw HTML string. We will get the same element
 	// several times, and want to avoid costly reparsing when this
 	// is used for aggregated data only.
@@ -113,7 +117,9 @@ func (c *htmlElementsCollector) getHTMLElements() HTMLElements {
 	for _, el := range c.elements {
 		classes = append(classes, el.Classes...)
 		ids = append(ids, el.IDs...)
-		tags = append(tags, el.Tag)
+		if !c.conf.DisableTags {
+			tags = append(tags, el.Tag)
+		}
 	}
 
 	classes = helpers.UniqueStringsSorted(classes)
@@ -246,7 +252,7 @@ func (w *htmlElementsCollectorWriter) lexElementInside(resolve htmlCollectorStat
 			}
 
 			// Parse each collected element.
-			el, err := parseHTMLElement(s)
+			el, err := w.parseHTMLElement(s)
 			if err != nil {
 				w.err = err
 				return resolve
@@ -363,7 +369,8 @@ func htmlLexToEndOfComment(w *htmlElementsCollectorWriter) htmlCollectorStateFun
 	return htmlLexToEndOfComment
 }
 
-func parseHTMLElement(elStr string) (el htmlElement, err error) {
+func (w *htmlElementsCollectorWriter) parseHTMLElement(elStr string) (el htmlElement, err error) {
+	conf := w.collector.conf
 
 	tagName := parseStartTag(elStr)
 
@@ -390,23 +397,38 @@ func parseHTMLElement(elStr string) (el htmlElement, err error) {
 				switch {
 				case strings.EqualFold(a.Key, "id"):
 					// There should be only one, but one never knows...
-					el.IDs = append(el.IDs, a.Val)
+					if !conf.DisableIDs {
+						el.IDs = append(el.IDs, a.Val)
+					}
 				default:
+					if conf.DisableClasses {
+						continue
+					}
+
 					if classAttrRe.MatchString(a.Key) {
 						el.Classes = append(el.Classes, strings.Fields(a.Val)...)
 					} else {
 						key := strings.ToLower(a.Key)
 						val := strings.TrimSpace(a.Val)
-						if strings.Contains(key, "class") && strings.HasPrefix(val, "{") {
-							// This looks like a Vue or AlpineJS class binding.
-							val = htmlJsonFixer.Replace(strings.Trim(val, "{}"))
-							lines := strings.Split(val, "\n")
-							for i, l := range lines {
-								lines[i] = strings.TrimSpace(l)
+
+						if strings.Contains(key, ":class") {
+							if strings.HasPrefix(val, "{") {
+								// This looks like a Vue or AlpineJS class binding.
+								val = htmlJsonFixer.Replace(strings.Trim(val, "{}"))
+								lines := strings.Split(val, "\n")
+								for i, l := range lines {
+									lines[i] = strings.TrimSpace(l)
+								}
+								val = strings.Join(lines, "\n")
+
+								val = jsonAttrRe.ReplaceAllString(val, "$1")
+
+								el.Classes = append(el.Classes, strings.Fields(val)...)
 							}
-							val = strings.Join(lines, "\n")
-							val = jsonAttrRe.ReplaceAllString(val, "$1")
-							el.Classes = append(el.Classes, strings.Fields(val)...)
+							// Also add single quoted strings.
+							// This may introduce some false positives, but it covers some missing cases in the above.
+							// E.g. AlpinesJS' :class="isTrue 'class1' : 'class2'"
+							el.Classes = append(el.Classes, extractSingleQuotedStrings(val)...)
 						}
 					}
 				}
@@ -444,7 +466,6 @@ func parseStartTag(s string) string {
 	}
 
 	return s
-
 }
 
 // isClosedByTag reports whether b ends with a closing tag for tagName.
@@ -501,9 +522,34 @@ LOOP:
 	}
 
 	return bytes.EqualFold(tagName, b[lo:hi])
-
 }
 
 func isSpace(b byte) bool {
 	return b == ' ' || b == '\t' || b == '\n'
+}
+
+func extractSingleQuotedStrings(s string) []string {
+	var (
+		inQuote bool
+		lo      int
+		hi      int
+	)
+
+	var words []string
+
+	for i, r := range s {
+		switch {
+		case r == '\'':
+			if !inQuote {
+				inQuote = true
+				lo = i + 1
+			} else {
+				inQuote = false
+				hi = i
+				words = append(words, strings.Fields(s[lo:hi])...)
+			}
+		}
+	}
+
+	return words
 }

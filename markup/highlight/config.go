@@ -84,7 +84,7 @@ type Config struct {
 	GuessSyntax bool
 }
 
-func (cfg Config) ToHTMLOptions() []html.Option {
+func (cfg Config) toHTMLOptions() []html.Option {
 	var lineAnchors string
 	if cfg.LineAnchors != "" {
 		lineAnchors = cfg.LineAnchors + "-"
@@ -136,7 +136,7 @@ func applyOptions(opts any, cfg *Config) error {
 }
 
 func applyOptionsFromString(opts string, cfg *Config) error {
-	optsm, err := parseHightlightOptions(opts)
+	optsm, err := parseHighlightOptions(opts)
 	if err != nil {
 		return err
 	}
@@ -188,7 +188,7 @@ func ApplyLegacyConfig(cfg config.Provider, conf *Config) error {
 	return nil
 }
 
-func parseHightlightOptions(in string) (map[string]any, error) {
+func parseHighlightOptions(in string) (map[string]any, error) {
 	in = strings.Trim(in, " ")
 	opts := make(map[string]any)
 

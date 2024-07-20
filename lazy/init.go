@@ -15,11 +15,10 @@ package lazy
 
 import (
 	"context"
+	"errors"
 	"sync"
 	"sync/atomic"
 	"time"
-
-	"errors"
 )
 
 // New creates a new empty Init.
@@ -73,7 +72,7 @@ func (ini *Init) Branch(initFn func(context.Context) (any, error)) *Init {
 	return ini.add(true, initFn)
 }
 
-// BranchdWithTimeout is same as Branch, but with a timeout.
+// BranchWithTimeout is same as Branch, but with a timeout.
 func (ini *Init) BranchWithTimeout(timeout time.Duration, f func(ctx context.Context) (any, error)) *Init {
 	return ini.Branch(func(ctx context.Context) (any, error) {
 		return ini.withTimeout(ctx, timeout, f)
@@ -197,6 +196,7 @@ func (ini *Init) withTimeout(ctx context.Context, timeout time.Duration, f func(
 
 	select {
 	case <-waitCtx.Done():
+		//lint:ignore ST1005 end user message.
 		return nil, errors.New("timed out initializing value. You may have a circular loop in a shortcode, or your site may have resources that take longer to build than the `timeout` limit in your Hugo config file.")
 	case ve := <-c:
 		return ve.v, ve.err

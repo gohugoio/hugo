@@ -14,13 +14,13 @@
 package hugolib
 
 import (
+	"os"
 	"path/filepath"
 	"runtime"
 	"testing"
 
-	"github.com/gohugoio/hugo/common/loggers"
-
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/loggers"
 )
 
 const pageWithAlias = `---
@@ -91,6 +91,8 @@ func TestAliasMultipleOutputFormats(t *testing.T) {
 
 	b.CreateSites().Build(BuildCfg{})
 
+	b.H.Sites[0].pageMap.debugPrint("", 999, os.Stdout)
+
 	// the real pages
 	b.AssertFileContent("public/blog/page/index.html", "For some moments the old man")
 	b.AssertFileContent("public/amp/blog/page/index.html", "For some moments the old man")
@@ -117,7 +119,7 @@ func TestAliasTemplate(t *testing.T) {
 }
 
 func TestTargetPathHTMLRedirectAlias(t *testing.T) {
-	h := newAliasHandler(nil, loggers.NewErrorLogger(), false)
+	h := newAliasHandler(nil, loggers.NewDefault(), false)
 
 	errIsNilForThisOS := runtime.GOOS != "windows"
 

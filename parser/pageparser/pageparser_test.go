@@ -24,7 +24,7 @@ import (
 
 func BenchmarkParse(b *testing.B) {
 	start := `
-	
+
 
 ---
 title: "Front Matters"
@@ -38,33 +38,7 @@ This is some summary. This is some summary. This is some summary. This is some s
 
 `
 	input := []byte(start + strings.Repeat(strings.Repeat("this is text", 30)+"{{< myshortcode >}}This is some inner content.{{< /myshortcode >}}", 10))
-	cfg := Config{EnableEmoji: false}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		if _, err := parseBytes(input, cfg, lexIntroSection); err != nil {
-			b.Fatal(err)
-		}
-	}
-}
-
-func BenchmarkParseWithEmoji(b *testing.B) {
-	start := `
-	
-
----
-title: "Front Matters"
-description: "It really does"
----
-
-This is some summary. This is some summary. This is some summary. This is some summary.
-
- <!--more-->
-
-
-`
-	input := []byte(start + strings.Repeat("this is not emoji: ", 50) + strings.Repeat("some text ", 70) + strings.Repeat("this is not: ", 50) + strings.Repeat("but this is a :smile: ", 3) + strings.Repeat("some text ", 70))
-	cfg := Config{EnableEmoji: true}
+	cfg := Config{}
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -94,7 +68,8 @@ func TestIsProbablyItemsSource(t *testing.T) {
 	c := qt.New(t)
 
 	input := ` {{< foo >}} `
-	items := collectStringMain(input)
+	items, err := collectStringMain(input)
+	c.Assert(err, qt.IsNil)
 
 	c.Assert(IsProbablySourceOfItems([]byte(input), items), qt.IsTrue)
 	c.Assert(IsProbablySourceOfItems(bytes.Repeat([]byte(" "), len(input)), items), qt.IsFalse)
@@ -109,7 +84,6 @@ func TestHasShortcode(t *testing.T) {
 	c.Assert(HasShortcode("aSDasd  SDasd aSD\n\nasdfadf{{% foo %}}\nasdf"), qt.IsTrue)
 	c.Assert(HasShortcode("{{</* foo */>}}"), qt.IsFalse)
 	c.Assert(HasShortcode("{{%/* foo */%}}"), qt.IsFalse)
-
 }
 
 func BenchmarkHasShortcode(b *testing.B) {
@@ -126,5 +100,15 @@ func BenchmarkHasShortcode(b *testing.B) {
 			HasShortcode(withoutShortcode)
 		}
 	})
+}
 
+func TestSummaryDividerStartingFromMain(t *testing.T) {
+	c := qt.New(t)
+
+	input := `aaa <!--more--> bbb`
+	items, err := collectStringMain(input)
+	c.Assert(err, qt.IsNil)
+
+	c.Assert(items, qt.HasLen, 4)
+	c.Assert(items[1].Type, qt.Equals, TypeLeadSummaryDivider)
 }

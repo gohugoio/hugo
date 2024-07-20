@@ -1,0 +1,43 @@
+# Test the hugo server command when editing the config file.
+
+# We run these tests in parallel so let Hugo decide which port to use.
+hugo server --renderToMemory &
+
+waitServer
+
+httpget $HUGOTEST_BASEURL_0 'Title: Hugo Server Test' $HUGOTEST_BASEURL_0
+
+mv edits/title.toml hugo.toml
+
+httpget $HUGOTEST_BASEURL_0 'Title: Hugo New Server Test' $HUGOTEST_BASEURL_0
+
+mv edits/addlanguage.toml hugo.toml
+
+httpget $HUGOTEST_BASEURL_0 'Title: Hugo New Server Test' $HUGOTEST_BASEURL_0
+httpget ${HUGOTEST_BASEURL_0}nn/ 'Hugo Nynorsk Server Test' ${HUGOTEST_BASEURL_0}nn/
+
+stopServer
+! stderr .
+
+-- hugo.toml --
+title = "Hugo Server Test"
+baseURL = "https://example.org/"
+-- edits/title.toml --
+title = "Hugo New Server Test"
+baseURL = "https://example.org/"
+-- edits/addlanguage.toml --
+title = "Hugo New Server Test"
+baseURL = "https://example.org/"
+[languages]
+[languages.en]
+languageName = "English"
+weight = 1
+[languages.nn]
+languageName = "Nynorsk"
+title = "Hugo Nynorsk Server Test"
+weight = 2
+
+-- layouts/index.html --
+Title: {{ .Title }}|BaseURL: {{ .Permalink }}|
+
+

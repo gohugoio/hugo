@@ -3,22 +3,20 @@
     link         = "https://www.linode.com/"
     logo         = "images/sponsors/linode-logo.svg"
     utm_campaign = "hugosponsor"
+    bgcolor      = "#ffffff"
 
 [[banners]]
-    name         = "ButterCMS"
-    link         = "https://buttercms.com/hugo-cms/"
-    logo         = "images/sponsors/butter-light.svg"
-    utm_campaign = "sponsorship"
-    bgcolor      = "#131A3E"
-
-[[banners]]
-    name         = "Gravity Kit"
-    link         = "https://www.gravitykit.com/"
-    logo         = "images/sponsors/graitykit-dark.svg"
-    query_params = "ref=532&campaign=hugo&"
+    name         = "Route4Me"
+    link         = "https://route4me.com"
+    title        = "Route Planning & Route Optimization Software"
     utm_campaign = "hugosponsor"
-    bgcolor      = "#e0ecf3"
+    bgcolor      = "#334799"
+    link_attr    = "style='color: #ffffff; font-weight: bold; text-decoration: none; text-align: center'"
 
-    #hugohome
-    #hugofooter
-    #hugogithub
+[[banners]]
+    name          = "Your Company?"
+    link          = "https://bep.is/en/hugo-sponsor-2023-01/"
+    utm_campaign  = "hugosponsor"
+    show_on_hover = true
+    bgcolor       = "#4e4f4f"
+    link_attr     = "style='color: #ffffff; font-weight: bold; text-decoration: none; text-align: center'"

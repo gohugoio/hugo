@@ -68,10 +68,10 @@ func TestMergeLanguages(t *testing.T) {
 
 	firstNN := nnSite.RegularPages()[0]
 	c.Assert(len(firstNN.Sites()), qt.Equals, 4)
-	c.Assert(firstNN.Sites().First().Language().Lang, qt.Equals, "en")
+	c.Assert(firstNN.Sites().Default().Language().Lang, qt.Equals, "en")
 
-	nnBundle := nnSite.getPage("page", "bundle")
-	enBundle := enSite.getPage("page", "bundle")
+	nnBundle := nnSite.getPageOldVersion("page", "bundle")
+	enBundle := enSite.getPageOldVersion("page", "bundle")
 
 	c.Assert(len(enBundle.Resources()), qt.Equals, 6)
 	c.Assert(len(nnBundle.Resources()), qt.Equals, 2)

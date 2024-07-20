@@ -14,6 +14,7 @@
 package images
 
 import (
+	"errors"
 	"fmt"
 	"image"
 	"image/color"
@@ -25,6 +26,9 @@ import (
 	"sync"
 
 	"github.com/bep/gowebp/libwebp/webpoptions"
+	"github.com/bep/imagemeta"
+	"github.com/bep/logg"
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/resources/images/webp"
 
 	"github.com/gohugoio/hugo/media"
@@ -33,8 +37,6 @@ import (
 	"github.com/disintegration/gift"
 	"golang.org/x/image/bmp"
 	"golang.org/x/image/tiff"
-
-	"errors"
 
 	"github.com/gohugoio/hugo/common/hugio"
 )
@@ -174,13 +176,14 @@ func (i *Image) initConfig() error {
 	return nil
 }
 
-func NewImageProcessor(cfg ImagingConfig) (*ImageProcessor, error) {
-	e := cfg.Cfg.Exif
+func NewImageProcessor(warnl logg.LevelLogger, cfg *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]) (*ImageProcessor, error) {
+	e := cfg.Config.Imaging.Exif
 	exifDecoder, err := exif.NewDecoder(
 		exif.WithDateDisabled(e.DisableDate),
 		exif.WithLatLongDisabled(e.DisableLatLong),
 		exif.ExcludeFields(e.ExcludeFields),
 		exif.IncludeFields(e.IncludeFields),
+		exif.WithWarnLogger(warnl),
 	)
 	if err != nil {
 		return nil, err
@@ -193,15 +196,16 @@ func NewImageProcessor(cfg ImagingConfig) (*ImageProcessor, error) {
 }
 
 type ImageProcessor struct {
-	Cfg         ImagingConfig
+	Cfg         *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]
 	exifDecoder *exif.Decoder
 }
 
-func (p *ImageProcessor) DecodeExif(r io.Reader) (*exif.ExifInfo, error) {
-	return p.exifDecoder.Decode(r)
+// Filename is only used for logging.
+func (p *ImageProcessor) DecodeExif(filename string, format imagemeta.ImageFormat, r io.Reader) (*exif.ExifInfo, error) {
+	return p.exifDecoder.Decode(filename, format, r)
 }
 
-func (p *ImageProcessor) ApplyFiltersFromConfig(src image.Image, conf ImageConfig) (image.Image, error) {
+func (p *ImageProcessor) FiltersFromConfig(src image.Image, conf ImageConfig) ([]gift.Filter, error) {
 	var filters []gift.Filter
 
 	if conf.Rotate != 0 {
@@ -244,7 +248,19 @@ func (p *ImageProcessor) ApplyFiltersFromConfig(src image.Image, conf ImageConfi
 	case "fit":
 		filters = append(filters, gift.ResizeToFit(conf.Width, conf.Height, conf.Filter))
 	default:
-		return nil, fmt.Errorf("unsupported action: %q", conf.Action)
+
+	}
+	return filters, nil
+}
+
+func (p *ImageProcessor) ApplyFiltersFromConfig(src image.Image, conf ImageConfig) (image.Image, error) {
+	filters, err := p.FiltersFromConfig(src, conf)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(filters) == 0 {
+		return p.resolveSrc(src, conf.TargetFormat), nil
 	}
 
 	img, err := p.doFilter(src, conf.TargetFormat, filters...)
@@ -259,8 +275,17 @@ func (p *ImageProcessor) Filter(src image.Image, filters ...gift.Filter) (image.
 	return p.doFilter(src, 0, filters...)
 }
 
-func (p *ImageProcessor) doFilter(src image.Image, targetFormat Format, filters ...gift.Filter) (image.Image, error) {
+func (p *ImageProcessor) resolveSrc(src image.Image, targetFormat Format) image.Image {
+	if giph, ok := src.(Giphy); ok {
+		g := giph.GIF()
+		if len(g.Image) < 2 || (targetFormat == 0 || targetFormat != GIF) {
+			src = g.Image[0]
+		}
+	}
+	return src
+}
 
+func (p *ImageProcessor) doFilter(src image.Image, targetFormat Format, filters ...gift.Filter) (image.Image, error) {
 	filter := gift.New(filters...)
 
 	if giph, ok := src.(Giphy); ok {
@@ -304,11 +329,14 @@ func (p *ImageProcessor) doFilter(src image.Image, targetFormat Format, filters 
 	return dst, nil
 }
 
-func GetDefaultImageConfig(action string, defaults ImagingConfig) ImageConfig {
+func GetDefaultImageConfig(action string, defaults *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]) ImageConfig {
+	if defaults == nil {
+		defaults = defaultImageConfig
+	}
 	return ImageConfig{
 		Action:  action,
-		Hint:    defaults.Hint,
-		Quality: defaults.Cfg.Quality,
+		Hint:    defaults.Config.Hint,
+		Quality: defaults.Config.Imaging.Quality,
 	}
 }
 
@@ -328,6 +356,21 @@ const (
 	BMP
 	WEBP
 )
+
+func (f Format) ToImageMetaImageFormatFormat() imagemeta.ImageFormat {
+	switch f {
+	case JPEG:
+		return imagemeta.JPEG
+	case PNG:
+		return imagemeta.PNG
+	case TIFF:
+		return imagemeta.TIFF
+	case WEBP:
+		return imagemeta.WebP
+	default:
+		return -1
+	}
+}
 
 // RequiresDefaultQuality returns if the default quality needs to be applied to
 // images of this format.
@@ -350,17 +393,17 @@ func (f Format) DefaultExtension() string {
 func (f Format) MediaType() media.Type {
 	switch f {
 	case JPEG:
-		return media.JPEGType
+		return media.Builtin.JPEGType
 	case PNG:
-		return media.PNGType
+		return media.Builtin.PNGType
 	case GIF:
-		return media.GIFType
+		return media.Builtin.GIFType
 	case TIFF:
-		return media.TIFFType
+		return media.Builtin.TIFFType
 	case BMP:
-		return media.BMPType
+		return media.Builtin.BMPType
 	case WEBP:
-		return media.WEBPType
+		return media.Builtin.WEBPType
 	default:
 		panic(fmt.Sprintf("%d is not a valid image format", f))
 	}
@@ -373,10 +416,22 @@ type imageConfig struct {
 }
 
 func imageConfigFromImage(img image.Image) image.Config {
+	if giphy, ok := img.(Giphy); ok {
+		return giphy.GIF().Config
+	}
 	b := img.Bounds()
 	return image.Config{Width: b.Max.X, Height: b.Max.Y}
 }
 
+// UnwrapFilter unwraps the given filter if it is a filter wrapper.
+func UnwrapFilter(in gift.Filter) gift.Filter {
+	if f, ok := in.(filter); ok {
+		return f.Filter
+	}
+	return in
+}
+
+// ToFilters converts the given input to a slice of gift.Filter.
 func ToFilters(in any) []gift.Filter {
 	switch v := in.(type) {
 	case []gift.Filter:

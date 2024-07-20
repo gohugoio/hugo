@@ -1,103 +1,132 @@
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
 name: Test
 env:
-    GOPROXY: https://proxy.golang.org
-    GO111MODULE: on
-    DART_SASS_VERSION: 1.56.2
-    DART_SASS_SHA_LINUX: 9e4f455f7b8619959d7878af2862383be58392eb963a14ff87cc512c03701e2a
-    DART_SASS_SHA_MACOS: 5992e979e2c30ec363f8e338822bb2b4443c74232b3340501a76180f5652cb09
-    DART_SASS_SHA_WINDOWS: 8d3d9117c54840e3e6a4919e43acf75ea52f28a64fc87a8e29d80ec72ee36cfb
+  GOPROXY: https://proxy.golang.org
+  GO111MODULE: on
+  SASS_VERSION: 1.63.2
+  DART_SASS_SHA_LINUX: 3ea33c95ad5c35fda6e9a0956199eef38a398f496cfb8750e02479d7d1dd42af
+  DART_SASS_SHA_MACOS: 11c70f259836b250b44a9cb57fed70e030f21f45069b467d371685855f1eb4f0
+  DART_SASS_SHA_WINDOWS: cd8cd36a619dd8e27f93d3186c52d70eb7d69472aa6c85f5094b29693e773f64
 permissions:
   contents: read
 jobs:
   test:
     strategy:
       matrix:
-        go-version: [1.19.x,1.20.x]
+        go-version: [1.21.x, 1.22.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-    - name: Checkout code
-      uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
-    - name: Install Go
-      uses: actions/setup-go@268d8c0ca0432bb2cf416faae41297df9d262d7f
-      with:
-        go-version: ${{ matrix.go-version }}
-        check-latest: true
-        cache: true
-        cache-dependency-path: |
-          **/go.sum
-          **/go.mod
-    - name: Install Ruby
-      uses: ruby/setup-ruby@ee2113536afb7f793eed4ce60e8d3b26db912da4
-      with:
-        ruby-version: '2.7' 
-        bundler-cache: true #
-    - name: Install Python
-      uses: actions/setup-python@3105fb18c05ddd93efea5f9e0bef7a03a6e9e7df
-      with:
-        python-version: '3.x'
-    - name: Install Mage
-      run: go install github.com/magefile/mage@07afc7d24f4d6d6442305d49552f04fbda5ccb3e
-    - name: Install asciidoctor
-      uses: reitzig/actions-asciidoctor@7570212ae20b63653481675fb1ff62d1073632b0
-    - name: Install docutils
-      run: |
-        pip install docutils
-        rst2html.py --version
-    - if: matrix.os == 'ubuntu-latest'
-      name: Install pandoc on Linux
-      run: |
+      - if: matrix.os == 'ubuntu-latest'
+        name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - name: Install Go
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491
+        with:
+          go-version: ${{ matrix.go-version }}
+          check-latest: true
+          cache: true
+          cache-dependency-path: |
+            **/go.sum
+            **/go.mod
+      - name: Install Ruby
+        uses: ruby/setup-ruby@5f19ec79cedfadb78ab837f95b87734d0003c899
+        with:
+          ruby-version: "2.7"
+          bundler-cache: true #
+      - name: Install Python
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.x"
+      - name: Install Mage
+        run: go install github.com/magefile/mage@v1.15.0
+      - name: Install asciidoctor
+        uses: reitzig/actions-asciidoctor@03fcc74cd74880b697950c4930c9ec8a67c69ecc
+      - name: Install docutils
+        run: |
+          pip install docutils
+          rst2html --version
+      - if: matrix.os == 'ubuntu-latest'
+        name: Install pandoc on Linux
+        run: |
           sudo apt-get update -y
           sudo apt-get install -y pandoc
-    - if: matrix.os == 'macos-latest'
-      run: |
-        brew install pandoc
-    - if: matrix.os == 'windows-latest'
-      run: |
-        Choco-Install -PackageName pandoc
-    - run: pandoc -v
-    - if: matrix.os == 'windows-latest'
-      run: |
-        Choco-Install -PackageName mingw -ArgumentList "--version","10.2.0","--allow-downgrade"
-    - if: matrix.os == 'ubuntu-latest'
-      name: Install dart-sass-embedded Linux
-      run: |
-        echo "Install Dart Sass version ${DART_SASS_VERSION} ..."
-        curl -LJO "https://github.com/sass/dart-sass-embedded/releases/download/${DART_SASS_VERSION}/sass_embedded-${DART_SASS_VERSION}-linux-x64.tar.gz";
-        echo "${DART_SASS_SHA_LINUX}  sass_embedded-${DART_SASS_VERSION}-linux-x64.tar.gz" | sha256sum -c;
-        tar -xvf "sass_embedded-${DART_SASS_VERSION}-linux-x64.tar.gz";
-        echo "$GITHUB_WORKSPACE/sass_embedded/" >> $GITHUB_PATH
-    - if: matrix.os == 'macos-latest'
-      name: Install dart-sass-embedded MacOS
-      run: |
-        echo "Install Dart Sass version ${DART_SASS_VERSION} ..."
-        curl -LJO "https://github.com/sass/dart-sass-embedded/releases/download/${DART_SASS_VERSION}/sass_embedded-${DART_SASS_VERSION}-macos-x64.tar.gz";
-        echo "${DART_SASS_SHA_MACOS}  sass_embedded-${DART_SASS_VERSION}-macos-x64.tar.gz" | shasum -a 256 -c;
-        tar -xvf "sass_embedded-${DART_SASS_VERSION}-macos-x64.tar.gz";
-        echo "$GITHUB_WORKSPACE/sass_embedded/" >> $GITHUB_PATH
-    - if: matrix.os == 'windows-latest'
-      name: Install dart-sass-embedded Windows
-      run: |
-        echo "Install Dart Sass version ${env:DART_SASS_VERSION} ..."
-        curl -LJO "https://github.com/sass/dart-sass-embedded/releases/download/${env:DART_SASS_VERSION}/sass_embedded-${env:DART_SASS_VERSION}-windows-x64.zip";
-        Expand-Archive -Path "sass_embedded-${env:DART_SASS_VERSION}-windows-x64.zip" -DestinationPath .;
-        echo  "$env:GITHUB_WORKSPACE/sass_embedded/" | Out-File -FilePath $Env:GITHUB_PATH -Encoding utf-8 -Append
-    - name: Check
-      run: |
-        mage -v check;
-      env:
-        HUGO_BUILD_TAGS: extended
-    - name: Build Docs
-      env:
-        HUGO_BUILD_TAGS: extended
-        HUGO_TIMEOUT: 31000
-        HUGO_IGNOREERRORS: error-remote-getjson
-        HUGO_SERVICES_INSTAGRAM_ACCESSTOKEN: dummytoken
-      run: |
-        mage -v hugo
-        ./hugo -s docs/
-        ./hugo --renderToMemory -s docs/
+      - if: matrix.os == 'macos-latest'
+        run: |
+          brew install pandoc
+      - if: matrix.os == 'windows-latest'
+        run: |
+          choco install pandoc
+      - run: pandoc -v
+      - if: matrix.os == 'windows-latest'
+        run: |
+          choco install mingw
+      - if: matrix.os == 'ubuntu-latest'
+        name: Install dart-sass Linux
+        run: |
+          echo "Install Dart Sass version ${SASS_VERSION} ..."
+          curl -LJO "https://github.com/sass/dart-sass/releases/download/${SASS_VERSION}/dart-sass-${SASS_VERSION}-linux-x64.tar.gz";
+          echo "${DART_SASS_SHA_LINUX}  dart-sass-${SASS_VERSION}-linux-x64.tar.gz" | sha256sum -c;
+          tar -xvf "dart-sass-${SASS_VERSION}-linux-x64.tar.gz";
+          echo "$GOBIN"
+          echo "$GITHUB_WORKSPACE/dart-sass/" >> $GITHUB_PATH
+      - if: matrix.os == 'macos-latest'
+        name: Install dart-sass MacOS
+        run: |
+          echo "Install Dart Sass version ${SASS_VERSION} ..."
+          curl -LJO "https://github.com/sass/dart-sass/releases/download/${SASS_VERSION}/dart-sass-${SASS_VERSION}-macos-x64.tar.gz";
+          echo "${DART_SASS_SHA_MACOS}  dart-sass-${SASS_VERSION}-macos-x64.tar.gz" | shasum -a 256 -c;
+          tar -xvf "dart-sass-${SASS_VERSION}-macos-x64.tar.gz";
+          echo "$GITHUB_WORKSPACE/dart-sass/" >> $GITHUB_PATH
+      - if: matrix.os == 'windows-latest'
+        name: Install dart-sass Windows
+        run: |
+          echo "Install Dart Sass version ${env:SASS_VERSION} ..."
+          curl -LJO "https://github.com/sass/dart-sass/releases/download/${env:SASS_VERSION}/dart-sass-${env:SASS_VERSION}-windows-x64.zip";
+          Expand-Archive -Path "dart-sass-${env:SASS_VERSION}-windows-x64.zip" -DestinationPath .;
+          echo  "$env:GITHUB_WORKSPACE/dart-sass/" | Out-File -FilePath $Env:GITHUB_PATH -Encoding utf-8 -Append
+      - if: matrix.os == 'ubuntu-latest'
+        name: Install staticcheck
+        run: go install honnef.co/go/tools/cmd/staticcheck@latest
+      - if: matrix.os == 'ubuntu-latest'
+        name: Run staticcheck
+        run: staticcheck ./...
+      - if: matrix.os != 'windows-latest'
+        name: Check
+        run: |
+          sass --version;
+          mage -v check;
+        env:
+          HUGO_BUILD_TAGS: extended
+      - if: matrix.os == 'windows-latest'
+        # See issue #11052. We limit the build to regular test (no -race flag) on Windows for now.
+        name: Test
+        run: |
+          mage -v test;
+        env:
+          HUGO_BUILD_TAGS: extended
+      - name: Build tags
+        run: |
+          go install -tags extended,nodeploy
+      - if: matrix.os == 'ubuntu-latest'
+        name: Build for dragonfly
+        run: |
+          go install
+        env:
+          GOARCH: amd64
+          GOOS: dragonfly

@@ -26,54 +26,33 @@ import (
 
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/media"
 
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/markup/converter"
-	"github.com/gohugoio/hugo/markup/converter/hooks"
 
 	"github.com/gohugoio/hugo/markup"
 
 	"github.com/gohugoio/hugo/config"
 )
 
-var (
-	openingPTag        = []byte("<p>")
-	closingPTag        = []byte("</p>")
-	paragraphIndicator = []byte("<p")
-	closingIndicator   = []byte("</")
-)
-
 // ContentSpec provides functionality to render markdown content.
 type ContentSpec struct {
 	Converters          markup.ConverterProvider
 	anchorNameSanitizer converter.AnchorNameSanitizer
-	getRenderer         func(t hooks.RendererType, id any) any
-
-	// SummaryLength is the length of the summary that Hugo extracts from a content.
-	summaryLength int
-
-	BuildFuture  bool
-	BuildExpired bool
-	BuildDrafts  bool
-
-	Cfg config.Provider
+	Cfg                 config.AllProvider
 }
 
 // NewContentSpec returns a ContentSpec initialized
 // with the appropriate fields from the given config.Provider.
-func NewContentSpec(cfg config.Provider, logger loggers.Logger, contentFs afero.Fs, ex *hexec.Exec) (*ContentSpec, error) {
+func NewContentSpec(cfg config.AllProvider, logger loggers.Logger, contentFs afero.Fs, ex *hexec.Exec) (*ContentSpec, error) {
 	spec := &ContentSpec{
-		summaryLength: cfg.GetInt("summaryLength"),
-		BuildFuture:   cfg.GetBool("buildFuture"),
-		BuildExpired:  cfg.GetBool("buildExpired"),
-		BuildDrafts:   cfg.GetBool("buildDrafts"),
-
 		Cfg: cfg,
 	}
 
 	converterProvider, err := markup.NewConverterProvider(converter.ProviderConfig{
-		Cfg:       cfg,
+		Conf:      cfg,
 		ContentFs: contentFs,
 		Logger:    logger,
 		Exec:      ex,
@@ -158,16 +137,15 @@ func (c *ContentSpec) SanitizeAnchorName(s string) string {
 
 func (c *ContentSpec) ResolveMarkup(in string) string {
 	in = strings.ToLower(in)
-	switch in {
-	case "md", "markdown", "mdown":
-		return "markdown"
-	case "html", "htm":
-		return "html"
-	default:
-		if conv := c.Converters.Get(in); conv != nil {
-			return conv.Name()
-		}
+
+	if mediaType, found := c.Cfg.ContentTypes().(media.ContentTypes).Types().GetBestMatch(markup.ResolveMarkup(in)); found {
+		return mediaType.SubType
 	}
+
+	if conv := c.Converters.Get(in); conv != nil {
+		return markup.ResolveMarkup(conv.Name())
+	}
+
 	return ""
 }
 
@@ -194,17 +172,17 @@ func (c *ContentSpec) TruncateWordsByRune(in []string) (string, bool) {
 
 	count := 0
 	for index, word := range words {
-		if count >= c.summaryLength {
+		if count >= c.Cfg.SummaryLength() {
 			return strings.Join(words[:index], " "), true
 		}
 		runeCount := utf8.RuneCountInString(word)
 		if len(word) == runeCount {
 			count++
-		} else if count+runeCount < c.summaryLength {
+		} else if count+runeCount < c.Cfg.SummaryLength() {
 			count += runeCount
 		} else {
 			for ri := range word {
-				if count >= c.summaryLength {
+				if count >= c.Cfg.SummaryLength() {
 					truncatedWords := append(words[:index], word[:ri])
 					return strings.Join(truncatedWords, " "), true
 				}
@@ -229,7 +207,7 @@ func (c *ContentSpec) TruncateWordsToWholeSentence(s string) (string, bool) {
 			wordCount++
 			lastWordIndex = i
 
-			if wordCount >= c.summaryLength {
+			if wordCount >= c.Cfg.SummaryLength() {
 				break
 			}
 
@@ -256,46 +234,29 @@ func (c *ContentSpec) TruncateWordsToWholeSentence(s string) (string, bool) {
 	return strings.TrimSpace(s[:endIndex]), endIndex < len(s)
 }
 
-// TrimShortHTML removes the <p>/</p> tags from HTML input in the situation
-// where said tags are the only <p> tags in the input and enclose the content
-// of the input (whitespace excluded).
-func (c *ContentSpec) TrimShortHTML(input []byte) []byte {
-	firstOpeningP := bytes.Index(input, paragraphIndicator)
-	lastOpeningP := bytes.LastIndex(input, paragraphIndicator)
+// TrimShortHTML removes the outer tags from HTML input where (a) the opening
+// tag is present only once with the input, and (b) the opening and closing
+// tags wrap the input after white space removal.
+func (c *ContentSpec) TrimShortHTML(input []byte, markup string) []byte {
+	openingTag := []byte("<p>")
+	closingTag := []byte("</p>")
 
-	lastClosingP := bytes.LastIndex(input, closingPTag)
-	lastClosing := bytes.LastIndex(input, closingIndicator)
+	if markup == media.DefaultContentTypes.AsciiDoc.SubType {
+		openingTag = []byte("<div class=\"paragraph\">\n<p>")
+		closingTag = []byte("</p>\n</div>")
+	}
 
-	if firstOpeningP == lastOpeningP && lastClosingP == lastClosing {
+	if bytes.Count(input, openingTag) == 1 {
 		input = bytes.TrimSpace(input)
-		input = bytes.TrimPrefix(input, openingPTag)
-		input = bytes.TrimSuffix(input, closingPTag)
-		input = bytes.TrimSpace(input)
+		if bytes.HasPrefix(input, openingTag) && bytes.HasSuffix(input, closingTag) {
+			input = bytes.TrimPrefix(input, openingTag)
+			input = bytes.TrimSuffix(input, closingTag)
+			input = bytes.TrimSpace(input)
+		}
 	}
 	return input
 }
 
 func isEndOfSentence(r rune) bool {
 	return r == '.' || r == '?' || r == '!' || r == '"' || r == '\n'
-}
-
-// Kept only for benchmark.
-func (c *ContentSpec) truncateWordsToWholeSentenceOld(content string) (string, bool) {
-	words := strings.Fields(content)
-
-	if c.summaryLength >= len(words) {
-		return strings.Join(words, " "), false
-	}
-
-	for counter, word := range words[c.summaryLength:] {
-		if strings.HasSuffix(word, ".") ||
-			strings.HasSuffix(word, "?") ||
-			strings.HasSuffix(word, ".\"") ||
-			strings.HasSuffix(word, "!") {
-			upper := c.summaryLength + counter + 1
-			return strings.Join(words[:upper], " "), (upper < len(words))
-		}
-	}
-
-	return strings.Join(words[:c.summaryLength], " "), true
 }

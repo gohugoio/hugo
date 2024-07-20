@@ -91,7 +91,7 @@ func TestCardinalityThreshold(t *testing.T) {
 	config := Config{
 		Threshold:    90,
 		IncludeNewer: false,
-		Indices: IndexConfigs{
+		Indices: IndicesConfig{
 			IndexConfig{Name: "tags", Weight: 50, CardinalityThreshold: 79},
 			IndexConfig{Name: "keywords", Weight: 65, CardinalityThreshold: 90},
 		},
@@ -118,14 +118,13 @@ func TestCardinalityThreshold(t *testing.T) {
 	c.Assert(hasKeyword("tags", "b"), qt.Equals, false)
 	c.Assert(hasKeyword("tags", "d"), qt.Equals, true)
 	c.Assert(hasKeyword("keywords", "b"), qt.Equals, true)
-
 }
 
 func TestSearch(t *testing.T) {
 	config := Config{
 		Threshold:    90,
 		IncludeNewer: false,
-		Indices: IndexConfigs{
+		Indices: IndicesConfig{
 			IndexConfig{Name: "tags", Weight: 50},
 			IndexConfig{Name: "keywords", Weight: 65},
 		},
@@ -293,7 +292,7 @@ func BenchmarkRelatedNewIndex(b *testing.B) {
 
 	cfg := Config{
 		Threshold: 50,
-		Indices: IndexConfigs{
+		Indices: IndicesConfig{
 			IndexConfig{Name: "tags", Weight: 100},
 			IndexConfig{Name: "keywords", Weight: 200},
 		},
@@ -334,7 +333,7 @@ func BenchmarkRelatedMatchesIn(b *testing.B) {
 
 	cfg := Config{
 		Threshold: 20,
-		Indices: IndexConfigs{
+		Indices: IndicesConfig{
 			IndexConfig{Name: "tags", Weight: 100},
 			IndexConfig{Name: "keywords", Weight: 200},
 		},

@@ -14,6 +14,7 @@
 package hugofs
 
 import (
+	"io/fs"
 	"os"
 	"strings"
 	"syscall"
@@ -23,9 +24,7 @@ import (
 	"github.com/spf13/afero"
 )
 
-var (
-	_ FilesystemUnwrapper = (*filenameFilterFs)(nil)
-)
+var _ FilesystemUnwrapper = (*filenameFilterFs)(nil)
 
 func newFilenameFilterFs(fs afero.Fs, base string, filter *glob.FilenameFilter) afero.Fs {
 	return &filenameFilterFs{
@@ -45,17 +44,6 @@ type filenameFilterFs struct {
 
 func (fs *filenameFilterFs) UnwrapFilesystem() afero.Fs {
 	return fs.fs
-}
-
-func (fs *filenameFilterFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {
-	fi, b, err := fs.fs.(afero.Lstater).LstatIfPossible(name)
-	if err != nil {
-		return nil, false, err
-	}
-	if !fs.filter.Match(name, fi.IsDir()) {
-		return nil, false, os.ErrNotExist
-	}
-	return fi, b, nil
 }
 
 func (fs *filenameFilterFs) Open(name string) (afero.File, error) {
@@ -89,14 +77,14 @@ func (fs *filenameFilterFs) OpenFile(name string, flag int, perm os.FileMode) (a
 }
 
 func (fs *filenameFilterFs) Stat(name string) (os.FileInfo, error) {
-	fi, _, err := fs.LstatIfPossible(name)
-	return fi, err
-}
-
-func (fs *filenameFilterFs) getOpener(name string) func() (afero.File, error) {
-	return func() (afero.File, error) {
-		return fs.Open(name)
+	fi, err := fs.fs.Stat(name)
+	if err != nil {
+		return nil, err
 	}
+	if !fs.filter.Match(name, fi.IsDir()) {
+		return nil, os.ErrNotExist
+	}
+	return fi, nil
 }
 
 type filenameFilterDir struct {
@@ -105,31 +93,35 @@ type filenameFilterDir struct {
 	filter *glob.FilenameFilter
 }
 
-func (f *filenameFilterDir) Readdir(count int) ([]os.FileInfo, error) {
-	fis, err := f.File.Readdir(-1)
+func (f *filenameFilterDir) ReadDir(n int) ([]fs.DirEntry, error) {
+	des, err := f.File.(fs.ReadDirFile).ReadDir(n)
 	if err != nil {
 		return nil, err
 	}
-
-	var result []os.FileInfo
-	for _, fi := range fis {
-		fim := fi.(FileMetaInfo)
-		if f.filter.Match(strings.TrimPrefix(fim.Meta().Filename, f.base), fim.IsDir()) {
-			result = append(result, fi)
+	i := 0
+	for _, de := range des {
+		fim := de.(FileMetaInfo)
+		rel := strings.TrimPrefix(fim.Meta().Filename, f.base)
+		if f.filter.Match(rel, de.IsDir()) {
+			des[i] = de
+			i++
 		}
 	}
+	return des[:i], nil
+}
 
-	return result, nil
+func (f *filenameFilterDir) Readdir(count int) ([]os.FileInfo, error) {
+	panic("not supported: Use ReadDir")
 }
 
 func (f *filenameFilterDir) Readdirnames(count int) ([]string, error) {
-	dirsi, err := f.Readdir(count)
+	des, err := f.ReadDir(count)
 	if err != nil {
 		return nil, err
 	}
 
-	dirs := make([]string, len(dirsi))
-	for i, d := range dirsi {
+	dirs := make([]string, len(des))
+	for i, d := range des {
 		dirs[i] = d.Name()
 	}
 	return dirs, nil
@@ -162,9 +154,11 @@ func (fs *filenameFilterFs) RemoveAll(p string) error {
 func (fs *filenameFilterFs) Rename(o, n string) error {
 	return syscall.EPERM
 }
+
 func (fs *filenameFilterFs) Create(n string) (afero.File, error) {
 	return nil, syscall.EPERM
 }
+
 func (fs *filenameFilterFs) Name() string {
 	return "FinameFilterFS"
 }

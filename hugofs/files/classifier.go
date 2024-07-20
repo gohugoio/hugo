@@ -14,16 +14,10 @@
 package files
 
 import (
-	"bufio"
-	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
-	"unicode"
-
-	"github.com/spf13/afero"
 )
 
 const (
@@ -31,144 +25,17 @@ const (
 	FilenamePackageHugoJSON = "package.hugo.json"
 	// The NPM package file.
 	FilenamePackageJSON = "package.json"
+
+	FilenameHugoStatsJSON = "hugo_stats.json"
 )
 
-var (
-	// This should be the only list of valid extensions for content files.
-	contentFileExtensions = []string{
-		"html", "htm",
-		"mdown", "markdown", "md",
-		"asciidoc", "adoc", "ad",
-		"rest", "rst",
-		"org",
-		"pandoc", "pdc",
-	}
-
-	contentFileExtensionsSet map[string]bool
-
-	htmlFileExtensions = []string{
-		"html", "htm",
-	}
-
-	htmlFileExtensionsSet map[string]bool
-)
-
-func init() {
-	contentFileExtensionsSet = make(map[string]bool)
-	for _, ext := range contentFileExtensions {
-		contentFileExtensionsSet[ext] = true
-	}
-	htmlFileExtensionsSet = make(map[string]bool)
-	for _, ext := range htmlFileExtensions {
-		htmlFileExtensionsSet[ext] = true
-	}
+func IsGoTmplExt(ext string) bool {
+	return ext == "gotmpl"
 }
 
-func IsContentFile(filename string) bool {
-	return contentFileExtensionsSet[strings.TrimPrefix(filepath.Ext(filename), ".")]
-}
-
-func IsIndexContentFile(filename string) bool {
-	if !IsContentFile(filename) {
-		return false
-	}
-
-	base := filepath.Base(filename)
-
-	return strings.HasPrefix(base, "index.") || strings.HasPrefix(base, "_index.")
-}
-
-func IsHTMLFile(filename string) bool {
-	return htmlFileExtensionsSet[strings.TrimPrefix(filepath.Ext(filename), ".")]
-}
-
-func IsContentExt(ext string) bool {
-	return contentFileExtensionsSet[ext]
-}
-
-type ContentClass string
-
-const (
-	ContentClassLeaf    ContentClass = "leaf"
-	ContentClassBranch  ContentClass = "branch"
-	ContentClassFile    ContentClass = "zfile" // Sort below
-	ContentClassContent ContentClass = "zcontent"
-)
-
-func (c ContentClass) IsBundle() bool {
-	return c == ContentClassLeaf || c == ContentClassBranch
-}
-
-func ClassifyContentFile(filename string, open func() (afero.File, error)) ContentClass {
-	if !IsContentFile(filename) {
-		return ContentClassFile
-	}
-
-	if IsHTMLFile(filename) {
-		// We need to look inside the file. If the first non-whitespace
-		// character is a "<", then we treat it as a regular file.
-		// Eearlier we created pages for these files, but that had all sorts
-		// of troubles, and isn't what it says in the documentation.
-		// See https://github.com/gohugoio/hugo/issues/7030
-		if open == nil {
-			panic(fmt.Sprintf("no file opener provided for %q", filename))
-		}
-
-		f, err := open()
-		if err != nil {
-			return ContentClassFile
-		}
-		ishtml := isHTMLContent(f)
-		f.Close()
-		if ishtml {
-			return ContentClassFile
-		}
-
-	}
-
-	if strings.HasPrefix(filename, "_index.") {
-		return ContentClassBranch
-	}
-
-	if strings.HasPrefix(filename, "index.") {
-		return ContentClassLeaf
-	}
-
-	return ContentClassContent
-}
-
-var htmlComment = []rune{'<', '!', '-', '-'}
-
-func isHTMLContent(r io.Reader) bool {
-	br := bufio.NewReader(r)
-	i := 0
-	for {
-		c, _, err := br.ReadRune()
-		if err != nil {
-			break
-		}
-
-		if i > 0 {
-			if i >= len(htmlComment) {
-				return false
-			}
-
-			if c != htmlComment[i] {
-				return true
-			}
-
-			i++
-			continue
-		}
-
-		if !unicode.IsSpace(c) {
-			if i == 0 && c != '<' {
-				return false
-			}
-			i++
-		}
-	}
-	return true
+// Supported data file extensions for _content.* files.
+func IsContentDataExt(ext string) bool {
+	return IsGoTmplExt(ext)
 }
 
 const (
@@ -182,6 +49,8 @@ const (
 
 	FolderResources = "resources"
 	FolderJSConfig  = "_jsconfig" // Mounted below /assets with postcss.config.js etc.
+
+	NameContentData = "_content"
 )
 
 var (

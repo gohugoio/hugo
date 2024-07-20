@@ -4,7 +4,7 @@ parameters:
 defaults: &defaults
   resource_class: large
   docker:
-      - image: bepsays/ci-hugoreleaser:1.22000.20100
+      - image: bepsays/ci-hugoreleaser:1.22200.20201
 environment: &buildenv
       GOMODCACHE: /root/project/gomodcache
 version: 2
@@ -60,7 +60,7 @@ jobs:
     environment:
         <<: [*buildenv]
     docker:
-    - image: bepsays/ci-hugoreleaser-linux-arm64:1.22000.20100
+    - image: bepsays/ci-hugoreleaser-linux-arm64:1.22200.20201
     steps:
       - *restore-cache
       - &attach-workspace
@@ -80,6 +80,9 @@ jobs:
       - *restore-cache
       - *attach-workspace
       - *git-config
+      - run:
+          name: Add github.com to known hosts
+          command: ssh-keyscan github.com >> ~/.ssh/known_hosts
       - run:
           command: |
             cp -a /tmp/workspace/dist1/. ./hugo/dist

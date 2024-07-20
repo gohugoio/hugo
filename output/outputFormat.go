@@ -17,20 +17,19 @@ package output
 import (
 	"encoding/json"
 	"fmt"
-	"reflect"
 	"sort"
 	"strings"
-
-	"github.com/mitchellh/mapstructure"
 
 	"github.com/gohugoio/hugo/media"
 )
 
 // Format represents an output representation, usually to a file on disk.
+// <docsmeta>{ "name": "OutputFormat" }</docsmeta>
 type Format struct {
-	// The Name is used as an identifier. Internal output formats (i.e. HTML and RSS)
+	// The Name is used as an identifier. Internal output formats (i.e. html and rss)
 	// can be overridden by providing a new definition for those types.
-	Name string `json:"name"`
+	// <docsmeta>{ "identifiers": ["html", "rss"] }</docsmeta>
+	Name string `json:"-"`
 
 	MediaType media.Type `json:"-"`
 
@@ -40,14 +39,7 @@ type Format struct {
 	// The base output file name used when not using "ugly URLs", defaults to "index".
 	BaseName string `json:"baseName"`
 
-	// The value to use for rel links
-	//
-	// See https://www.w3schools.com/tags/att_link_rel.asp
-	//
-	// AMP has a special requirement in this department, see:
-	// https://www.ampproject.org/docs/guides/deploy/discovery
-	// I.e.:
-	// <link rel="amphtml" href="https://www.example.com/url/to/amp/document.html">
+	// The value to use for rel links.
 	Rel string `json:"rel"`
 
 	// The protocol to use, i.e. "webcal://". Defaults to the protocol of the baseURL.
@@ -64,30 +56,37 @@ type Format struct {
 	// Enable to ignore the global uglyURLs setting.
 	NoUgly bool `json:"noUgly"`
 
+	// Enable to override the global uglyURLs setting.
+	Ugly bool `json:"ugly"`
+
 	// Enable if it doesn't make sense to include this format in an alternative
 	// format listing, CSS being one good example.
 	// Note that we use the term "alternative" and not "alternate" here, as it
 	// does not necessarily replace the other format, it is an alternative representation.
 	NotAlternative bool `json:"notAlternative"`
 
+	// Eneable if this is a resource which path always starts at the root,
+	// e.g. /robots.txt.
+	Root bool `json:"root"`
+
 	// Setting this will make this output format control the value of
 	// .Permalink and .RelPermalink for a rendered Page.
 	// If not set, these values will point to the main (first) output format
-	// configured. That is probably the behaviour you want in most situations,
+	// configured. That is probably the behavior you want in most situations,
 	// as you probably don't want to link back to the RSS version of a page, as an
 	// example. AMP would, however, be a good example of an output format where this
-	// behaviour is wanted.
+	// behavior is wanted.
 	Permalinkable bool `json:"permalinkable"`
 
 	// Setting this to a non-zero value will be used as the first sort criteria.
 	Weight int `json:"weight"`
 }
 
-// An ordered list of built-in output formats.
+// Built-in output formats.
 var (
 	AMPFormat = Format{
-		Name:          "AMP",
-		MediaType:     media.HTMLType,
+		Name:          "amp",
+		MediaType:     media.Builtin.HTMLType,
 		BaseName:      "index",
 		Path:          "amp",
 		Rel:           "amphtml",
@@ -97,8 +96,8 @@ var (
 	}
 
 	CalendarFormat = Format{
-		Name:        "Calendar",
-		MediaType:   media.CalendarType,
+		Name:        "calendar",
+		MediaType:   media.Builtin.CalendarType,
 		IsPlainText: true,
 		Protocol:    "webcal://",
 		BaseName:    "index",
@@ -106,24 +105,24 @@ var (
 	}
 
 	CSSFormat = Format{
-		Name:           "CSS",
-		MediaType:      media.CSSType,
+		Name:           "css",
+		MediaType:      media.Builtin.CSSType,
 		BaseName:       "styles",
 		IsPlainText:    true,
 		Rel:            "stylesheet",
 		NotAlternative: true,
 	}
 	CSVFormat = Format{
-		Name:        "CSV",
-		MediaType:   media.CSVType,
+		Name:        "csv",
+		MediaType:   media.Builtin.CSVType,
 		BaseName:    "index",
 		IsPlainText: true,
 		Rel:         "alternate",
 	}
 
 	HTMLFormat = Format{
-		Name:          "HTML",
-		MediaType:     media.HTMLType,
+		Name:          "html",
+		MediaType:     media.Builtin.HTMLType,
 		BaseName:      "index",
 		Rel:           "canonical",
 		IsHTML:        true,
@@ -135,24 +134,24 @@ var (
 	}
 
 	MarkdownFormat = Format{
-		Name:        "MARKDOWN",
-		MediaType:   media.MarkdownType,
+		Name:        "markdown",
+		MediaType:   media.Builtin.MarkdownType,
 		BaseName:    "index",
 		Rel:         "alternate",
 		IsPlainText: true,
 	}
 
 	JSONFormat = Format{
-		Name:        "JSON",
-		MediaType:   media.JSONType,
+		Name:        "json",
+		MediaType:   media.Builtin.JSONType,
 		BaseName:    "index",
 		IsPlainText: true,
 		Rel:         "alternate",
 	}
 
 	WebAppManifestFormat = Format{
-		Name:           "WebAppManifest",
-		MediaType:      media.WebAppManifestType,
+		Name:           "webappmanifest",
+		MediaType:      media.Builtin.WebAppManifestType,
 		BaseName:       "manifest",
 		IsPlainText:    true,
 		NotAlternative: true,
@@ -160,27 +159,46 @@ var (
 	}
 
 	RobotsTxtFormat = Format{
-		Name:        "ROBOTS",
-		MediaType:   media.TextType,
+		Name:        "robots",
+		MediaType:   media.Builtin.TextType,
 		BaseName:    "robots",
 		IsPlainText: true,
+		Root:        true,
 		Rel:         "alternate",
 	}
 
 	RSSFormat = Format{
-		Name:      "RSS",
-		MediaType: media.RSSType,
+		Name:      "rss",
+		MediaType: media.Builtin.RSSType,
 		BaseName:  "index",
 		NoUgly:    true,
 		Rel:       "alternate",
 	}
 
 	SitemapFormat = Format{
-		Name:      "Sitemap",
-		MediaType: media.XMLType,
+		Name:      "sitemap",
+		MediaType: media.Builtin.XMLType,
 		BaseName:  "sitemap",
-		NoUgly:    true,
+		Ugly:      true,
 		Rel:       "sitemap",
+	}
+
+	SitemapIndexFormat = Format{
+		Name:      "sitemapindex",
+		MediaType: media.Builtin.XMLType,
+		BaseName:  "sitemap",
+		Ugly:      true,
+		Root:      true,
+		Rel:       "sitemap",
+	}
+
+	HTTPStatusHTMLFormat = Format{
+		Name:           "httpstatus",
+		MediaType:      media.Builtin.HTMLType,
+		NotAlternative: true,
+		Ugly:           true,
+		IsHTML:         true,
+		Permalinkable:  true,
 	}
 )
 
@@ -204,6 +222,7 @@ func init() {
 }
 
 // Formats is a slice of Format.
+// <docsmeta>{ "name": "OutputFormats" }</docsmeta>
 type Formats []Format
 
 func (formats Formats) Len() int      { return len(formats) }
@@ -298,106 +317,15 @@ func (formats Formats) FromFilename(filename string) (f Format, found bool) {
 	return
 }
 
-// DecodeFormats takes a list of output format configurations and merges those,
-// in the order given, with the Hugo defaults as the last resort.
-func DecodeFormats(mediaTypes media.Types, maps ...map[string]any) (Formats, error) {
-	f := make(Formats, len(DefaultFormats))
-	copy(f, DefaultFormats)
-
-	for _, m := range maps {
-		for k, v := range m {
-			found := false
-			for i, vv := range f {
-				if strings.EqualFold(k, vv.Name) {
-					// Merge it with the existing
-					if err := decode(mediaTypes, v, &f[i]); err != nil {
-						return f, err
-					}
-					found = true
-				}
-			}
-			if !found {
-				var newOutFormat Format
-				newOutFormat.Name = k
-				if err := decode(mediaTypes, v, &newOutFormat); err != nil {
-					return f, err
-				}
-
-				// We need values for these
-				if newOutFormat.BaseName == "" {
-					newOutFormat.BaseName = "index"
-				}
-				if newOutFormat.Rel == "" {
-					newOutFormat.Rel = "alternate"
-				}
-
-				f = append(f, newOutFormat)
-
-			}
-		}
-	}
-
-	sort.Sort(f)
-
-	return f, nil
-}
-
-func decode(mediaTypes media.Types, input any, output *Format) error {
-	config := &mapstructure.DecoderConfig{
-		Metadata:         nil,
-		Result:           output,
-		WeaklyTypedInput: true,
-		DecodeHook: func(a reflect.Type, b reflect.Type, c any) (any, error) {
-			if a.Kind() == reflect.Map {
-				dataVal := reflect.Indirect(reflect.ValueOf(c))
-				for _, key := range dataVal.MapKeys() {
-					keyStr, ok := key.Interface().(string)
-					if !ok {
-						// Not a string key
-						continue
-					}
-					if strings.EqualFold(keyStr, "mediaType") {
-						// If mediaType is a string, look it up and replace it
-						// in the map.
-						vv := dataVal.MapIndex(key)
-						vvi := vv.Interface()
-
-						switch vviv := vvi.(type) {
-						case media.Type:
-						// OK
-						case string:
-							mediaType, found := mediaTypes.GetByType(vviv)
-							if !found {
-								return c, fmt.Errorf("media type %q not found", vviv)
-							}
-							dataVal.SetMapIndex(key, reflect.ValueOf(mediaType))
-						default:
-							return nil, fmt.Errorf("invalid output format configuration; wrong type for media type, expected string (e.g. text/html), got %T", vvi)
-						}
-					}
-				}
-			}
-			return c, nil
-		},
-	}
-
-	decoder, err := mapstructure.NewDecoder(config)
-	if err != nil {
-		return err
-	}
-
-	if err = decoder.Decode(input); err != nil {
-		return fmt.Errorf("failed to decode output format configuration: %w", err)
-	}
-
-	return nil
-
-}
-
 // BaseFilename returns the base filename of f including an extension (ie.
 // "index.xml").
 func (f Format) BaseFilename() string {
 	return f.BaseName + f.MediaType.FirstSuffix.FullSuffix
+}
+
+// IsZero returns true if f represents a zero value.
+func (f Format) IsZero() bool {
+	return f.Name == ""
 }
 
 // MarshalJSON returns the JSON encoding of f.

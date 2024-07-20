@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,197 +14,200 @@
 package commands
 
 import (
+	"context"
 	"encoding/csv"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/bep/simplecobra"
 	"github.com/gohugoio/hugo/hugolib"
+	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/cobra"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
-var _ cmder = (*listCmd)(nil)
-
-type listCmd struct {
-	*baseBuilderCmd
-}
-
-func (lc *listCmd) buildSites(config map[string]any) (*hugolib.HugoSites, error) {
-	cfgInit := func(c *commandeer) error {
-		for key, value := range config {
-			c.Set(key, value)
+// newListCommand creates a new list command and its subcommands.
+func newListCommand() *listCommand {
+	createRecord := func(workingDir string, p page.Page) []string {
+		return []string{
+			filepath.ToSlash(strings.TrimPrefix(p.File().Filename(), workingDir+string(os.PathSeparator))),
+			p.Slug(),
+			p.Title(),
+			p.Date().Format(time.RFC3339),
+			p.ExpiryDate().Format(time.RFC3339),
+			p.PublishDate().Format(time.RFC3339),
+			strconv.FormatBool(p.Draft()),
+			p.Permalink(),
+			p.Kind(),
+			p.Section(),
 		}
+	}
+
+	list := func(cd *simplecobra.Commandeer, r *rootCommand, shouldInclude func(page.Page) bool, opts ...any) error {
+		bcfg := hugolib.BuildCfg{SkipRender: true}
+		cfg := flagsToCfg(cd, nil)
+		for i := 0; i < len(opts); i += 2 {
+			cfg.Set(opts[i].(string), opts[i+1])
+		}
+		h, err := r.Build(cd, bcfg, cfg)
+		if err != nil {
+			return err
+		}
+
+		writer := csv.NewWriter(r.Out)
+		defer writer.Flush()
+
+		writer.Write([]string{
+			"path",
+			"slug",
+			"title",
+			"date",
+			"expiryDate",
+			"publishDate",
+			"draft",
+			"permalink",
+			"kind",
+			"section",
+		})
+
+		for _, p := range h.Pages() {
+			if shouldInclude(p) {
+				record := createRecord(h.Conf.BaseConfig().WorkingDir, p)
+				if err := writer.Write(record); err != nil {
+					return err
+				}
+			}
+		}
+
 		return nil
 	}
 
-	c, err := initializeConfig(true, true, false, &lc.hugoBuilderCommon, lc, cfgInit)
-	if err != nil {
-		return nil, err
+	return &listCommand{
+		commands: []simplecobra.Commander{
+			&simpleCommand{
+				name:  "drafts",
+				short: "List draft content",
+				long:  `List draft content.`,
+				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
+					shouldInclude := func(p page.Page) bool {
+						if !p.Draft() || p.File() == nil {
+							return false
+						}
+						return true
+					}
+					return list(cd, r, shouldInclude,
+						"buildDrafts", true,
+						"buildFuture", true,
+						"buildExpired", true,
+					)
+				},
+				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = cobra.NoFileCompletions
+				},
+			},
+			&simpleCommand{
+				name:  "future",
+				short: "List future content",
+				long:  `List content with a future publication date.`,
+				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
+					shouldInclude := func(p page.Page) bool {
+						if !resource.IsFuture(p) || p.File() == nil {
+							return false
+						}
+						return true
+					}
+					return list(cd, r, shouldInclude,
+						"buildFuture", true,
+						"buildDrafts", true,
+					)
+				},
+				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = cobra.NoFileCompletions
+				},
+			},
+			&simpleCommand{
+				name:  "expired",
+				short: "List expired content",
+				long:  `List content with a past expiration date.`,
+				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
+					shouldInclude := func(p page.Page) bool {
+						if !resource.IsExpired(p) || p.File() == nil {
+							return false
+						}
+						return true
+					}
+					return list(cd, r, shouldInclude,
+						"buildExpired", true,
+						"buildDrafts", true,
+					)
+				},
+				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = cobra.NoFileCompletions
+				},
+			},
+			&simpleCommand{
+				name:  "all",
+				short: "List all content",
+				long:  `List all content including draft, future, and expired.`,
+				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
+					shouldInclude := func(p page.Page) bool {
+						return p.File() != nil
+					}
+					return list(cd, r, shouldInclude, "buildDrafts", true, "buildFuture", true, "buildExpired", true)
+				},
+				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = cobra.NoFileCompletions
+				},
+			},
+			&simpleCommand{
+				name:  "published",
+				short: "List published content",
+				long:  `List content that is not draft, future, or expired.`,
+				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
+					shouldInclude := func(p page.Page) bool {
+						return !p.Draft() && !resource.IsFuture(p) && !resource.IsExpired(p) && p.File() != nil
+					}
+					return list(cd, r, shouldInclude)
+				},
+				withc: func(cmd *cobra.Command, r *rootCommand) {
+					cmd.ValidArgsFunction = cobra.NoFileCompletions
+				},
+			},
+		},
 	}
-
-	sites, err := hugolib.NewHugoSites(*c.DepsCfg)
-	if err != nil {
-		return nil, newSystemError("Error creating sites", err)
-	}
-
-	if err := sites.Build(hugolib.BuildCfg{SkipRender: true}); err != nil {
-		return nil, newSystemError("Error Processing Source Content", err)
-	}
-
-	return sites, nil
 }
 
-func (b *commandsBuilder) newListCmd() *listCmd {
-	cc := &listCmd{}
+type listCommand struct {
+	commands []simplecobra.Commander
+}
 
-	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Listing out various types of content",
-		Long: `Listing out various types of content.
+func (c *listCommand) Commands() []simplecobra.Commander {
+	return c.commands
+}
 
-List requires a subcommand, e.g. ` + "`hugo list drafts`.",
-		RunE: nil,
-	}
+func (c *listCommand) Name() string {
+	return "list"
+}
 
-	cmd.AddCommand(
-		&cobra.Command{
-			Use:   "drafts",
-			Short: "List all drafts",
-			Long:  `List all of the drafts in your content directory.`,
-			RunE: func(cmd *cobra.Command, args []string) error {
-				sites, err := cc.buildSites(map[string]any{"buildDrafts": true})
-				if err != nil {
-					return newSystemError("Error building sites", err)
-				}
+func (c *listCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args []string) error {
+	// Do nothing.
+	return nil
+}
 
-				for _, p := range sites.Pages() {
-					if p.Draft() {
-						jww.FEEDBACK.Println(strings.TrimPrefix(p.File().Filename(), sites.WorkingDir+string(os.PathSeparator)))
-					}
-				}
+func (c *listCommand) Init(cd *simplecobra.Commandeer) error {
+	cmd := cd.CobraCommand
+	cmd.Short = "Listing out various types of content"
+	cmd.Long = `Listing out various types of content.
 
-				return nil
-			},
-		},
-		&cobra.Command{
-			Use:   "future",
-			Short: "List all posts dated in the future",
-			Long:  `List all of the posts in your content directory which will be posted in the future.`,
-			RunE: func(cmd *cobra.Command, args []string) error {
-				sites, err := cc.buildSites(map[string]any{"buildFuture": true})
-				if err != nil {
-					return newSystemError("Error building sites", err)
-				}
+List requires a subcommand, e.g. hugo list drafts`
 
-				if err != nil {
-					return newSystemError("Error building sites", err)
-				}
+	cmd.RunE = nil
+	return nil
+}
 
-				writer := csv.NewWriter(os.Stdout)
-				defer writer.Flush()
-
-				for _, p := range sites.Pages() {
-					if resource.IsFuture(p) {
-						err := writer.Write([]string{
-							strings.TrimPrefix(p.File().Filename(), sites.WorkingDir+string(os.PathSeparator)),
-							p.PublishDate().Format(time.RFC3339),
-						})
-						if err != nil {
-							return newSystemError("Error writing future posts to stdout", err)
-						}
-					}
-				}
-
-				return nil
-			},
-		},
-		&cobra.Command{
-			Use:   "expired",
-			Short: "List all posts already expired",
-			Long:  `List all of the posts in your content directory which has already expired.`,
-			RunE: func(cmd *cobra.Command, args []string) error {
-				sites, err := cc.buildSites(map[string]any{"buildExpired": true})
-				if err != nil {
-					return newSystemError("Error building sites", err)
-				}
-
-				if err != nil {
-					return newSystemError("Error building sites", err)
-				}
-
-				writer := csv.NewWriter(os.Stdout)
-				defer writer.Flush()
-
-				for _, p := range sites.Pages() {
-					if resource.IsExpired(p) {
-						err := writer.Write([]string{
-							strings.TrimPrefix(p.File().Filename(), sites.WorkingDir+string(os.PathSeparator)),
-							p.ExpiryDate().Format(time.RFC3339),
-						})
-						if err != nil {
-							return newSystemError("Error writing expired posts to stdout", err)
-						}
-					}
-				}
-
-				return nil
-			},
-		},
-		&cobra.Command{
-			Use:   "all",
-			Short: "List all posts",
-			Long:  `List all of the posts in your content directory, include drafts, future and expired pages.`,
-			RunE: func(cmd *cobra.Command, args []string) error {
-				sites, err := cc.buildSites(map[string]any{
-					"buildExpired": true,
-					"buildDrafts":  true,
-					"buildFuture":  true,
-				})
-				if err != nil {
-					return newSystemError("Error building sites", err)
-				}
-
-				writer := csv.NewWriter(os.Stdout)
-				defer writer.Flush()
-
-				writer.Write([]string{
-					"path",
-					"slug",
-					"title",
-					"date",
-					"expiryDate",
-					"publishDate",
-					"draft",
-					"permalink",
-				})
-				for _, p := range sites.Pages() {
-					if !p.IsPage() {
-						continue
-					}
-					err := writer.Write([]string{
-						strings.TrimPrefix(p.File().Filename(), sites.WorkingDir+string(os.PathSeparator)),
-						p.Slug(),
-						p.Title(),
-						p.Date().Format(time.RFC3339),
-						p.ExpiryDate().Format(time.RFC3339),
-						p.PublishDate().Format(time.RFC3339),
-						strconv.FormatBool(p.Draft()),
-						p.Permalink(),
-					})
-					if err != nil {
-						return newSystemError("Error writing posts to stdout", err)
-					}
-				}
-
-				return nil
-			},
-		},
-	)
-
-	cc.baseBuilderCmd = b.newBuilderBasicCmd(cmd)
-
-	return cc
+func (c *listCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
+	return nil
 }

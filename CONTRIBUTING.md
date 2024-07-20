@@ -122,8 +122,6 @@ cd hugo
 go install
 ```
 
->Note: Some Go tools may not be fully updated to support Go Modules yet. One example would be LiteIDE. Follow [this workaround](https://github.com/visualfc/liteide/issues/986#issuecomment-428117702) for how to continue to work with Hugo below `GOPATH`.
-
 For some convenient build and test targets, you also will want to install Mage:
 
 ```bash

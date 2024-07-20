@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,25 +11,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package org
+package org_test
 
 import (
 	"testing"
 
-	"github.com/gohugoio/hugo/config"
-
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/config/testconfig"
+	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/markup/converter"
+	"github.com/gohugoio/hugo/markup/org"
 
 	qt "github.com/frankban/quicktest"
 )
 
 func TestConvert(t *testing.T) {
 	c := qt.New(t)
-	p, err := Provider.New(converter.ProviderConfig{
-		Logger: loggers.NewErrorLogger(),
-		Cfg:    config.New(),
+	p, err := org.Provider.New(converter.ProviderConfig{
+		Logger: loggers.NewDefault(),
+		Conf:   testconfig.GetTestConfig(afero.NewMemMapFs(), nil),
 	})
 	c.Assert(err, qt.IsNil)
 	conv, err := p.New(converter.DocumentContext{})

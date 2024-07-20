@@ -15,14 +15,18 @@
 package transform
 
 import (
+	"bytes"
 	"context"
+	"encoding/xml"
 	"html"
 	"html/template"
+	"strings"
 
-	"github.com/gohugoio/hugo/cache/namedmemcache"
+	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/highlight"
 	"github.com/gohugoio/hugo/markup/highlight/chromalexers"
+	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/deps"
@@ -32,21 +36,23 @@ import (
 
 // New returns a new instance of the transform-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
-	cache := namedmemcache.New()
-	deps.BuildStartListeners.Add(
-		func() {
-			cache.Clear()
-		})
+	if deps.MemCache == nil {
+		panic("must provide MemCache")
+	}
 
 	return &Namespace{
-		cache: cache,
-		deps:  deps,
+		deps: deps,
+		cache: dynacache.GetOrCreatePartition[string, *resources.StaleValue[any]](
+			deps.MemCache,
+			"/tmpl/transform",
+			dynacache.OptionsPartition{Weight: 30, ClearWhen: dynacache.ClearOnChange},
+		),
 	}
 }
 
 // Namespace provides template functions for the "transform" namespace.
 type Namespace struct {
-	cache *namedmemcache.Cache
+	cache *dynacache.Partition[string, *resources.StaleValue[any]]
 	deps  *deps.Deps
 }
 
@@ -76,12 +82,15 @@ func (ns *Namespace) Highlight(s any, lang string, opts ...any) (template.HTML, 
 	}
 
 	hl := ns.deps.ContentSpec.Converters.GetHighlighter()
-	highlighted, _ := hl.Highlight(ss, lang, optsv)
+	highlighted, err := hl.Highlight(ss, lang, optsv)
+	if err != nil {
+		return "", err
+	}
 	return template.HTML(highlighted), nil
 }
 
 // HighlightCodeBlock highlights a code block on the form received in the codeblock render hooks.
-func (ns *Namespace) HighlightCodeBlock(ctx hooks.CodeblockContext, opts ...any) (highlight.HightlightResult, error) {
+func (ns *Namespace) HighlightCodeBlock(ctx hooks.CodeblockContext, opts ...any) (highlight.HighlightResult, error) {
 	var optsv any
 	if len(opts) > 0 {
 		optsv = opts[0]
@@ -118,9 +127,36 @@ func (ns *Namespace) HTMLUnescape(s any) (string, error) {
 	return html.UnescapeString(ss), nil
 }
 
+// XMLEscape returns the given string, removing disallowed characters then
+// escaping the result to its XML equivalent.
+func (ns *Namespace) XMLEscape(s any) (string, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+
+	// https://www.w3.org/TR/xml/#NT-Char
+	cleaned := strings.Map(func(r rune) rune {
+		if r == 0x9 || r == 0xA || r == 0xD ||
+			(r >= 0x20 && r <= 0xD7FF) ||
+			(r >= 0xE000 && r <= 0xFFFD) ||
+			(r >= 0x10000 && r <= 0x10FFFF) {
+			return r
+		}
+		return -1
+	}, ss)
+
+	var buf bytes.Buffer
+	err = xml.EscapeText(&buf, []byte(cleaned))
+	if err != nil {
+		return "", err
+	}
+
+	return buf.String(), nil
+}
+
 // Markdownify renders s from Markdown to HTML.
 func (ns *Namespace) Markdownify(ctx context.Context, s any) (template.HTML, error) {
-
 	home := ns.deps.Site.Home()
 	if home == nil {
 		panic("home must not be nil")
@@ -131,7 +167,7 @@ func (ns *Namespace) Markdownify(ctx context.Context, s any) (template.HTML, err
 	}
 
 	// Strip if this is a short inline type of text.
-	bb := ns.deps.ContentSpec.TrimShortHTML([]byte(ss))
+	bb := ns.deps.ContentSpec.TrimShortHTML([]byte(ss), "markdown")
 
 	return helpers.BytesToHTML(bb), nil
 }

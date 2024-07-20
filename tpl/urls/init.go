@@ -68,6 +68,14 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.JoinPath,
+			nil,
+			[][2]string{
+				{`{{ urls.JoinPath "https://example.org" "foo" }}`, `https://example.org/foo`},
+				{`{{ urls.JoinPath (slice "a" "b") }}`, `a/b`},
+			},
+		)
+
 		return ns
 	}
 

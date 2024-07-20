@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,10 +16,14 @@ package images
 
 import (
 	"fmt"
+	"image/color"
+	"strings"
 
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/resources/resource"
+	"github.com/makeworld-the-better-one/dither/v2"
+	"github.com/mitchellh/mapstructure"
 
 	"github.com/disintegration/gift"
 	"github.com/spf13/cast"
@@ -28,7 +32,16 @@ import (
 // Increment for re-generation of images using these filters.
 const filterAPIVersion = 0
 
-type Filters struct {
+type Filters struct{}
+
+// Process creates a filter that processes an image using the given specification.
+func (*Filters) Process(spec any) gift.Filter {
+	return filter{
+		Options: newFilterOpts(spec),
+		Filter: processFilter{
+			spec: cast.ToString(spec),
+		},
+	}
 }
 
 // Overlay creates a filter that overlays src at position x y.
@@ -39,11 +52,20 @@ func (*Filters) Overlay(src ImageSource, x, y any) gift.Filter {
 	}
 }
 
+// Opacity creates a filter that changes the opacity of an image.
+// The opacity parameter must be in range (0, 1).
+func (*Filters) Opacity(opacity any) gift.Filter {
+	return filter{
+		Options: newFilterOpts(opacity),
+		Filter:  opacityFilter{opacity: cast.ToFloat32(opacity)},
+	}
+}
+
 // Text creates a filter that draws text with the given options.
 func (*Filters) Text(text string, options ...any) gift.Filter {
 	tf := textFilter{
 		text:        text,
-		color:       "#ffffff",
+		color:       color.White,
 		size:        20,
 		x:           10,
 		y:           10,
@@ -56,7 +78,9 @@ func (*Filters) Text(text string, options ...any) gift.Filter {
 		for option, v := range opt {
 			switch option {
 			case "color":
-				tf.color = cast.ToString(v)
+				if color, ok, _ := toColorGo(v); ok {
+					tf.color = color
+				}
 			case "size":
 				tf.size = cast.ToFloat64(v)
 			case "x":
@@ -90,6 +114,128 @@ func (*Filters) Text(text string, options ...any) gift.Filter {
 	return filter{
 		Options: newFilterOpts(text, opt),
 		Filter:  tf,
+	}
+}
+
+// Padding creates a filter that resizes the image canvas without resizing the
+// image. The last argument is the canvas color, expressed as an RGB or RGBA
+// hexadecimal color. The default value is `ffffffff` (opaque white). The
+// preceding arguments are the padding values, in pixels, using the CSS
+// shorthand property syntax. Negative padding values will crop the image. The
+// signature is images.Padding V1 [V2] [V3] [V4] [COLOR].
+func (*Filters) Padding(args ...any) gift.Filter {
+	if len(args) < 1 || len(args) > 5 {
+		panic("the padding filter requires between 1 and 5 arguments")
+	}
+
+	var top, right, bottom, left int
+	var ccolor color.Color = color.White // canvas color
+
+	_args := args // preserve original args for most stable hash
+
+	if vcs, ok, err := toColorGo(args[len(args)-1]); ok || err != nil {
+		if err != nil {
+			panic("invalid canvas color: specify RGB or RGBA using hex notation")
+		}
+		ccolor = vcs
+		args = args[:len(args)-1]
+		if len(args) == 0 {
+			panic("not enough arguments: provide one or more padding values using the CSS shorthand property syntax")
+		}
+	}
+
+	var vals []int
+	for _, v := range args {
+		vi := cast.ToInt(v)
+		if vi > 5000 {
+			panic("padding values must not exceed 5000 pixels")
+		}
+		vals = append(vals, vi)
+	}
+
+	switch len(args) {
+	case 1:
+		top, right, bottom, left = vals[0], vals[0], vals[0], vals[0]
+	case 2:
+		top, right, bottom, left = vals[0], vals[1], vals[0], vals[1]
+	case 3:
+		top, right, bottom, left = vals[0], vals[1], vals[2], vals[1]
+	case 4:
+		top, right, bottom, left = vals[0], vals[1], vals[2], vals[3]
+	default:
+		panic(fmt.Sprintf("too many padding values: received %d, expected maximum of 4", len(args)))
+	}
+
+	return filter{
+		Options: newFilterOpts(_args...),
+		Filter: paddingFilter{
+			top:    top,
+			right:  right,
+			bottom: bottom,
+			left:   left,
+			ccolor: ccolor,
+		},
+	}
+}
+
+// Dither creates a filter that dithers an image.
+func (*Filters) Dither(options ...any) gift.Filter {
+	ditherOptions := struct {
+		Colors     []any
+		Method     string
+		Serpentine bool
+		Strength   float32
+	}{
+		Method:     "floydsteinberg",
+		Serpentine: true,
+		Strength:   1.0,
+	}
+
+	if len(options) != 0 {
+		err := mapstructure.WeakDecode(options[0], &ditherOptions)
+		if err != nil {
+			panic(fmt.Sprintf("failed to decode options: %s", err))
+		}
+	}
+
+	if len(ditherOptions.Colors) == 0 {
+		ditherOptions.Colors = []any{"000000ff", "ffffffff"}
+	}
+
+	if len(ditherOptions.Colors) < 2 {
+		panic("palette must have at least two colors")
+	}
+
+	var palette []color.Color
+	for _, c := range ditherOptions.Colors {
+		cc, ok, err := toColorGo(c)
+		if !ok || err != nil {
+			panic(fmt.Sprintf("%q is an invalid color: specify RGB or RGBA using hexadecimal notation", c))
+		}
+		palette = append(palette, cc)
+	}
+
+	d := dither.NewDitherer(palette)
+	if method, ok := ditherMethodsErrorDiffusion[strings.ToLower(ditherOptions.Method)]; ok {
+		d.Matrix = dither.ErrorDiffusionStrength(method, ditherOptions.Strength)
+		d.Serpentine = ditherOptions.Serpentine
+	} else if method, ok := ditherMethodsOrdered[strings.ToLower(ditherOptions.Method)]; ok {
+		d.Mapper = dither.PixelMapperFromMatrix(method, ditherOptions.Strength)
+	} else {
+		panic(fmt.Sprintf("%q is an invalid dithering method: see documentation", ditherOptions.Method))
+	}
+
+	return filter{
+		Options: newFilterOpts(ditherOptions),
+		Filter:  ditherFilter{ditherer: d},
+	}
+}
+
+// AutoOrient creates a filter that rotates and flips an image as needed per
+// its EXIF orientation tag.
+func (*Filters) AutoOrient() gift.Filter {
+	return filter{
+		Filter: autoOrientFilter{},
 	}
 }
 

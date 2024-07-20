@@ -23,7 +23,6 @@ import (
 const numTemplateVariants = 3
 
 type shortcodeVariant struct {
-
 	// The possible variants: lang, outFormat, suffix
 	// gtag
 	// gtag.html

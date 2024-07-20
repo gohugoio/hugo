@@ -1,183 +1,132 @@
 ---
-title: Menu Templates
-linktitle: Menu Templates
-description: Menus are a powerful but simple feature for content management but can be easily manipulated in your templates to meet your design needs.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
+title: Menu templates
+description: Create templates to render one or more menus.
 categories: [templates]
 keywords: [lists,sections,menus]
 menu:
   docs:
-    title: "how to use menus in templates"
-    parent: "templates"
-    weight: 130
-weight: 130
-sections_weight: 130
-draft: false
+    parent: templates
+    weight: 140
+weight: 140
+toc: true
 aliases: [/templates/menus/]
-toc: false
 ---
 
-Hugo makes no assumptions about how your rendered HTML will be
-structured. Instead, it provides all the functions you will need to
-build your menu however you want.
+## Overview
 
-The following is an example:
+After [defining menu entries], use [menu methods] to render a menu.
 
-{{< code file="layouts/partials/sidebar.html" download="sidebar.html" >}}
-<!-- sidebar start -->
-<aside>
+Three factors determine how to render a menu:
+
+1. The method used to define the menu entries: [automatic], [in front matter], or [in site configuration]
+1. The menu structure: flat or nested
+1. The method used to [localize the menu entries]: site configuration or translation tables
+
+The example below handles every combination.
+
+## Example
+
+This partial template recursively "walks" a menu structure, rendering a localized, accessible nested list.
+
+{{< code file=layouts/partials/menu.html copy=true >}}
+{{- $page := .page }}
+{{- $menuID := .menuID }}
+
+{{- with index site.Menus $menuID }}
+  <nav>
     <ul>
-        {{ $currentPage := . }}
-        {{ range .Site.Menus.main }}
-            {{ if .HasChildren }}
-                <li class="{{ if $currentPage.HasMenuCurrent "main" . }}active{{ end }}">
-                    <a href="#">
-                        {{ .Pre }}
-                        <span>{{ .Name }}</span>
-                    </a>
-                </li>
-                <ul class="sub-menu">
-                    {{ range .Children }}
-                        <li class="{{ if $currentPage.IsMenuCurrent "main" . }}active{{ end }}">
-                            <a href="{{ .URL }}">{{ .Name }}</a>
-                        </li>
-                    {{ end }}
-                </ul>
-            {{ else }}
-                <li>
-                    <a href="{{ .URL }}">
-                        {{ .Pre }}
-                        <span>{{ .Name }}</span>
-                    </a>
-                </li>
-            {{ end }}
-        {{ end }}
-        <li>
-            <a href="#" target="_blank">Hardcoded Link 1</a>
-        </li>
-        <li>
-            <a href="#" target="_blank">Hardcoded Link 2</a>
-        </li>
+      {{- partial "inline/menu/walk.html" (dict "page" $page "menuEntries" .) }}
     </ul>
-</aside>
+  </nav>
+{{- end }}
+
+{{- define "partials/inline/menu/walk.html" }}
+  {{- $page := .page }}
+  {{- range .menuEntries }}
+    {{- $attrs := dict "href" .URL }}
+    {{- if $page.IsMenuCurrent .Menu . }}
+      {{- $attrs = merge $attrs (dict "class" "active" "aria-current" "page") }}
+    {{- else if $page.HasMenuCurrent .Menu .}}
+      {{- $attrs = merge $attrs (dict "class" "ancestor" "aria-current" "true") }}
+    {{- end }}
+    {{- $name := .Name }}
+    {{- with .Identifier }}
+      {{- with T . }}
+        {{- $name = . }}
+      {{- end }}
+    {{- end }}
+    <li>
+      <a
+        {{- range $k, $v := $attrs }}
+          {{- with $v }}
+            {{- printf " %s=%q" $k $v | safeHTMLAttr }}
+          {{- end }}
+        {{- end -}}
+      >{{ $name }}</a>
+      {{- with .Children }}
+        <ul>
+          {{- partial "inline/menu/walk.html" (dict "page" $page "menuEntries" .) }}
+        </ul>
+      {{- end }}
+    </li>
+  {{- end }}
+{{- end }}
 {{< /code >}}
 
-{{% note "`absLangURL` and `relLangURL`" %}}
-Use the [`absLangURL`](/functions/abslangurl) or [`relLangURL`](/functions/rellangurl) functions if your theme makes use of the [multilingual feature](/content-management/multilingual/). In contrast to `absURL` and `relURL`, these two functions add the correct language prefix to the url.
-{{% /note %}}
+Call the partial above, passing a menu ID and the current page in context.
 
-## Section Menu for Lazy Bloggers
+{{< code file=layouts/_default/single.html >}}
+{{ partial "menu.html" (dict "menuID" "main" "page" .) }}
+{{ partial "menu.html" (dict "menuID" "footer" "page" .) }}
+{{< /code >}}
 
-To enable this menu, configure `sectionPagesMenu` in your site `config`:
+## Page references
 
-```yml
-sectionPagesMenu = "main"
-```
+Regardless of how you [define menu entries], an entry associated with a page has access to page context.
 
-The menu name can be anything, but take a note of what it is.
+This simplistic example renders a page parameter named `version` next to each entry's `name`. Code defensively using `with` or `if` to handle entries where (a) the entry points to an external resource, or (b) the `version` parameter is not defined.
 
-This will create a menu with all the sections as menu items and all the sections' pages as "shadow-members". Ensure that all first level directories that you would like to show up on this menu are [Branch Bundles](https://gohugo.io/content-management/sections/). Leaf Bundles do not form sections.
+{{< code file=layouts/_default/single.html >}}
+{{- range site.Menus.main }}
+  <a href="{{ .URL }}">
+    {{ .Name }}
+    {{- with .Page }}
+      {{- with .Params.version -}}
+        ({{ . }})
+      {{- end }}
+    {{- end }}
+  </a>
+{{- end }}
+{{< /code >}}
 
-The _shadow_ implies that the pages isn't represented by a menu-item themselves, but this enables you to create a top-level menu like this:
+## Menu entry parameters
 
-```go-html-template
-<nav class="sidebar-nav">
-    {{ $currentPage := . }}
-    {{ range .Site.Menus.main }}
-    <a class="sidebar-nav-item{{if or ($currentPage.IsMenuCurrent "main" .) ($currentPage.HasMenuCurrent "main" .) }} active{{end}}" href="{{ .URL }}" title="{{ .Title }}">{{ .Name }}</a>
-    {{ end }}
-</nav>
-```
+When you define menu entries [in site configuration] or [in front matter], you can include a `params` key as shown in these examples:
 
-In the above, the menu item is marked as active if on the current section's list page or on a page in that section.
+- [Menu entry defined in site configuration]
+- [Menu entry defined in front matter]
 
-## Site Config menus
+This simplistic example renders a `class` attribute for each anchor element. Code defensively using `with` or `if` to handle entries where `params.class` is not defined.
 
-The above is all that's needed. But if you want custom menu items, e.g. changing weight, name, or link title attribute, you can define them manually in the site config file:
+{{< code file=layouts/partials/menu.html >}}
+{{- range site.Menus.main }}
+  <a {{ with .Params.class -}} class="{{ . }}" {{ end -}} href="{{ .URL }}">
+    {{ .Name }}
+  </a>
+{{- end }}
+{{< /code >}}
 
-{{< code-toggle file="config" >}}
-[[menu.main]]
-    name = "This is the blog section"
-    title = "blog section"
-    weight = -110
-    identifier = "blog"
-    url = "/blog/"
-{{</ code-toggle >}}
+## Localize
 
-{{% note %}}
-The `identifier` *must* match the section name.
-{{% /note %}}
+Hugo provides two methods to localize your menu entries. See [multilingual].
 
-## Menu Entries from the Page's front matter
-
-It's also possible to create menu entries from the page (i.e. the `.md`-file).
-
-Here is a `yaml` example:
-
-```yml
----
-title: Menu Templates
-linktitle: Menu Templates
-menu:
-  docs:
-    title: "how to use menus in templates"
-    parent: "templates"
-    weight: 130
----
-...
-```
-
-{{% note %}}
-You can define more than one menu. It also doesn't have to be a complex value,
-`menu` can also be a string, an array of strings, or an array of complex values
-like in the example above.
-{{% /note %}}
-
-### Using .Page in Menus
-
-If you use the front matter method of defining menu entries, you'll get access to the `.Page` variable.
-This allows to use every variable that's reachable from the [page variable](/variables/page/).
-
-This variable is only set when the menu entry is defined in the page's front matter.
-Menu entries from the site config don't know anything about `.Page`.
-
-That's why you have to use the go template's `with` keyword or something similar in your templating language.
-
-Here's an example:
-
-```go-html-template
-<nav class="sidebar-nav">
-  {{ range .Site.Menus.main }}
-    <a href="{{ .URL }}" title="{{ .Title }}">
-      {{- .Name -}}
-      {{- with .Page -}}
-        <span class="date">
-        {{- dateFormat " (2006-01-02)" .Date -}}
-        </span>
-      {{- end -}}
-    </a>
-  {{ end }}
-</nav>
-```
-
-## Using .Params in Menus
-
-User-defined content on menu items are accessible via `.Params`.
-
-Here's an example:
-
-```go-html-template
-<nav class="sidebar-nav">
-  {{ range .Site.Menus.main }}
-    <a href="{{ .URL }}" title="{{ .Title }}" class="{{ with .Params.class }}{{ . }}{{ end }}">
-      {{- .Name -}}
-    </a>
-  {{ end }}
-</nav>
-```
-
-{{% note %}}
-With Menu-level .Params they can easily exist on one menu item but not another. It's recommended to access them gracefully using the [with function](/functions/with).
-{{% /note %}}
+[automatic]: /content-management/menus/#define-automatically
+[define menu entries]: /content-management/menus/
+[defining menu entries]: /content-management/menus/
+[in front matter]: /content-management/menus/#define-in-front-matter
+[in site configuration]: /content-management/menus/#define-in-site-configuration
+[localize the menu entries]: /content-management/multilingual/#menus
+[menu entry defined in front matter]: /content-management/menus/#example-front-matter
+[menu entry defined in site configuration]: /content-management/menus/#example-site-configuration
+[menu and methods]: /methods/menu/
+[multilingual]: /content-management/multilingual/#menus

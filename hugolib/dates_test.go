@@ -15,11 +15,10 @@ package hugolib
 
 import (
 	"fmt"
-
-	qt "github.com/frankban/quicktest"
-
 	"strings"
 	"testing"
+
+	qt "github.com/frankban/quicktest"
 )
 
 func TestDateFormatMultilingual(t *testing.T) {
@@ -57,7 +56,6 @@ Date: {{ .Date | time.Format ":date_long" }}
 
 	b.AssertFileContent("public/en/index.html", `Date: July 18, 2021`)
 	b.AssertFileContent("public/nn/index.html", `Date: 18. juli 2021`)
-
 }
 
 func TestTimeZones(t *testing.T) {
@@ -171,7 +169,7 @@ ExpiryDate: 2099-07-13 15:28:01 +0000 UTC`
 	// have date literals.
 
 	// YAML
-	// Note: This is with go-yaml v2, I suspect v3 will fail with the unquouted values.
+	// Note: This is with go-yaml v2, I suspect v3 will fail with the unquoted values.
 	b.AssertFileContent("public/en/short-date-yaml-unqouted/index.html", expectShortDateEn)
 	b.AssertFileContent("public/nn/short-date-yaml-unqouted/index.html", expectShortDateNn)
 	b.AssertFileContent("public/en/short-date-yaml-qouted/index.html", expectShortDateEn)
@@ -187,7 +185,6 @@ ExpiryDate: 2099-07-13 15:28:01 +0000 UTC`
 	b.AssertFileContent("public/nn/short-date-toml-unqouted/index.html", expectShortDateNn)
 	b.AssertFileContent("public/en/short-date-toml-qouted/index.html", expectShortDateEn)
 	b.AssertFileContent("public/nn/short-date-toml-qouted/index.html", expectShortDateNn)
-
 }
 
 // Issue 8832
@@ -201,7 +198,7 @@ timeZone = "America/LosAngeles"   # Should be America/Los_Angeles
 
 	err := b.CreateSitesE()
 	b.Assert(err, qt.Not(qt.IsNil))
-	b.Assert(err.Error(), qt.Contains, `failed to load config: invalid timeZone for language "en": unknown time zone America/LosAngeles`)
+	b.Assert(err.Error(), qt.Contains, `invalid timeZone for language "en": unknown time zone America/LosAngeles`)
 }
 
 // Issue 8835
@@ -212,7 +209,6 @@ func TestTimeOnError(t *testing.T) {
 	b.WithContent("p1.md", "")
 
 	b.Assert(b.BuildE(BuildCfg{}), qt.Not(qt.IsNil))
-
 }
 
 func TestTOMLDates(t *testing.T) {
@@ -254,15 +250,12 @@ Past talks: {{ len $pastTalks }}
 Home's Date should be greater than past: {{ gt $homeDate (index $pastTalks 0).date }}
 Home's Date should be less than future: {{ lt $homeDate (index $futureTalks 0).date }}
 Home's Date should be equal mydata date: {{ eq $homeDate site.Data.mydata.date }}
+Home date: {{ $homeDate }}
+mydata.date: {{ site.Data.mydata.date }}
 Full time: {{ $p1Date | time.Format ":time_full" }}
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 Future talks: 2
@@ -272,4 +265,87 @@ Home's Date should be less than future: true
 Home's Date should be equal mydata date: true
 Full time: 6:00:00 am UTC
 `)
+}
+
+func TestPublisDateRollupIssue12438(t *testing.T) {
+	t.Parallel()
+
+	// To future Hugo maintainers, this test will start to fail in 2099.
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','sitemap']
+[taxonomies]
+tag = 'tags'
+-- layouts/_default/list.html --
+Date: {{ .Date.Format "2006-01-02" }}
+PublishDate: {{ .PublishDate.Format "2006-01-02" }}
+Lastmod: {{ .Lastmod.Format "2006-01-02" }}
+-- layouts/_default/single.html --
+{{ .Title }}
+-- content/s1/p1.md --
+---
+title: p1
+date: 2024-03-01
+lastmod: 2024-03-02
+tags: [t1]
+---
+-- content/s1/p2.md --
+---
+title: p2
+date: 2024-04-03
+lastmod: 2024-04-04
+tags: [t1]
+---
+-- content/s1/p3.md --
+---
+title: p3
+lastmod: 2099-05-06
+tags: [t1]
+---
+
+`
+
+	// Test without publishDate in front matter.
+	b := Test(t, files)
+
+	b.AssertFileContent("public/s1/index.html", `
+		Date: 2099-05-06
+		PublishDate: 2024-04-03
+		Lastmod: 2099-05-06
+	`)
+
+	b.AssertFileContent("public/tags/index.html", `
+		Date: 2024-04-03
+		PublishDate: 2024-04-03
+		Lastmod: 2024-04-04
+	`)
+
+	b.AssertFileContent("public/tags/t1/index.html", `
+		Date: 2024-04-03
+		PublishDate: 2024-04-03
+		Lastmod: 2024-04-04
+	`)
+
+	// Test with publishDate in front matter.
+	files = strings.ReplaceAll(files, "lastmod", "publishDate")
+
+	b = Test(t, files)
+
+	b.AssertFileContent("public/s1/index.html", `
+		Date: 2099-05-06
+		PublishDate: 2024-04-04
+		Lastmod: 2099-05-06
+	`)
+
+	b.AssertFileContent("public/tags/index.html", `
+		Date: 2024-04-03
+		PublishDate: 2024-04-04
+		Lastmod: 2024-04-03
+	`)
+
+	b.AssertFileContent("public/tags/t1/index.html", `
+		Date: 2024-04-03
+		PublishDate: 2024-04-04
+		Lastmod: 2024-04-03
+	`)
 }

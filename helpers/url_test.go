@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,21 +11,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package helpers
+package helpers_test
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/langs"
+	"github.com/gohugoio/hugo/config"
 )
 
 func TestURLize(t *testing.T) {
-	v := newTestCfg()
-	l := langs.NewDefaultLanguage(v)
-	p, _ := NewPathSpec(hugofs.NewMem(v), l, nil)
+	p := newTestPathSpec()
 
 	tests := []struct {
 		input    string
@@ -61,10 +59,6 @@ func TestAbsURL(t *testing.T) {
 
 func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool, lang string) {
 	c := qt.New(t)
-	v := newTestCfg()
-	v.Set("multilingual", multilingual)
-	v.Set("defaultContentLanguage", "en")
-	v.Set("defaultContentLanguageInSubdir", defaultInSubDir)
 
 	tests := []struct {
 		input    string
@@ -103,24 +97,55 @@ func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 	}
 
 	for _, test := range tests {
-		v.Set("baseURL", test.baseURL)
-		v.Set("contentDir", "content")
-		l := langs.NewLanguage(lang, v)
-		p, _ := NewPathSpec(hugofs.NewMem(v), l, nil)
-
-		output := p.AbsURL(test.input, addLanguage)
-		expected := test.expected
-		if multilingual && addLanguage {
-			if !defaultInSubDir && lang == "en" {
-				expected = strings.Replace(expected, "MULTI", "", 1)
+		c.Run(fmt.Sprintf("%v/%t-%t-%t/%s", test, defaultInSubDir, addLanguage, multilingual, lang), func(c *qt.C) {
+			v := config.New()
+			if multilingual {
+				v.Set("languages", map[string]any{
+					"fr": map[string]interface{}{
+						"weight": 20,
+					},
+					"en": map[string]interface{}{
+						"weight": 10,
+					},
+				})
+				v.Set("defaultContentLanguage", "en")
 			} else {
-				expected = strings.Replace(expected, "MULTI", lang+"/", 1)
+				v.Set("defaultContentLanguage", lang)
+				v.Set("languages", map[string]any{
+					lang: map[string]interface{}{
+						"weight": 10,
+					},
+				})
 			}
-		} else {
-			expected = strings.Replace(expected, "MULTI", "", 1)
-		}
 
-		c.Assert(output, qt.Equals, expected)
+			v.Set("defaultContentLanguageInSubdir", defaultInSubDir)
+			v.Set("baseURL", test.baseURL)
+
+			var configLang string
+			if multilingual {
+				configLang = lang
+			}
+			defaultContentLanguage := lang
+			if multilingual {
+				defaultContentLanguage = "en"
+			}
+
+			p := newTestPathSpecFromCfgAndLang(v, configLang)
+
+			output := p.AbsURL(test.input, addLanguage)
+			expected := test.expected
+			if addLanguage {
+				addLanguage = defaultInSubDir && lang == defaultContentLanguage
+				addLanguage = addLanguage || (lang != defaultContentLanguage && multilingual)
+			}
+			if addLanguage {
+				expected = strings.Replace(expected, "MULTI", lang+"/", 1)
+			} else {
+				expected = strings.Replace(expected, "MULTI", "", 1)
+			}
+
+			c.Assert(output, qt.Equals, expected)
+		})
 	}
 }
 
@@ -136,11 +161,29 @@ func TestRelURL(t *testing.T) {
 	}
 }
 
-func doTestRelURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool, lang string) {
+func doTestRelURL(t testing.TB, defaultInSubDir, addLanguage, multilingual bool, lang string) {
+	t.Helper()
 	c := qt.New(t)
-	v := newTestCfg()
-	v.Set("multilingual", multilingual)
-	v.Set("defaultContentLanguage", "en")
+	v := config.New()
+	if multilingual {
+		v.Set("languages", map[string]any{
+			"fr": map[string]interface{}{
+				"weight": 20,
+			},
+			"en": map[string]interface{}{
+				"weight": 10,
+			},
+		})
+		v.Set("defaultContentLanguage", "en")
+	} else {
+		v.Set("defaultContentLanguage", lang)
+		v.Set("languages", map[string]any{
+			lang: map[string]interface{}{
+				"weight": 10,
+			},
+		})
+	}
+
 	v.Set("defaultContentLanguageInSubdir", defaultInSubDir)
 
 	tests := []struct {
@@ -149,10 +192,13 @@ func doTestRelURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 		canonify bool
 		expected string
 	}{
-
 		// Issue 9994
 		{"/foo/bar", "https://example.org/foo/", false, "MULTI/foo/bar"},
 		{"foo/bar", "https://example.org/foo/", false, "/fooMULTI/foo/bar"},
+
+		// Issue 11080
+		{"mailto:a@b.com", "http://base/", false, "mailto:a@b.com"},
+		{"ftp://b.com/a.txt", "http://base/", false, "ftp://b.com/a.txt"},
 
 		{"/test/foo", "http://base/", false, "MULTI/test/foo"},
 		{"/" + lang + "/test/foo", "http://base/", false, "/" + lang + "/test/foo"},
@@ -163,7 +209,7 @@ func doTestRelURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 		{"test/", "http://base/sub/", false, "/subMULTI/test/"},
 		{"/test/", "http://base/sub/", true, "MULTI/test/"},
 		{"", "http://base/ace/", false, "/aceMULTI/"},
-		{"", "http://base/ace", false, "/aceMULTI"},
+		{"", "http://base/ace", false, "/aceMULTI/"},
 		{"http://abs", "http://base/", false, "http://abs"},
 		{"//schemaless", "http://base/", false, "//schemaless"},
 	}
@@ -182,79 +228,56 @@ func doTestRelURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 	}
 
 	for i, test := range tests {
-		v.Set("baseURL", test.baseURL)
-		v.Set("canonifyURLs", test.canonify)
-		l := langs.NewLanguage(lang, v)
-		p, _ := NewPathSpec(hugofs.NewMem(v), l, nil)
-
-		output := p.RelURL(test.input, addLanguage)
-
-		expected := test.expected
-		if multilingual && addLanguage {
-			if !defaultInSubDir && lang == "en" {
-				expected = strings.Replace(expected, "MULTI", "", 1)
-			} else {
-				expected = strings.Replace(expected, "MULTI", "/"+lang, 1)
+		c.Run(fmt.Sprintf("%v/defaultInSubDir=%t;addLanguage=%t;multilingual=%t/%s", test, defaultInSubDir, addLanguage, multilingual, lang), func(c *qt.C) {
+			v.Set("baseURL", test.baseURL)
+			v.Set("canonifyURLs", test.canonify)
+			defaultContentLanguage := lang
+			if multilingual {
+				defaultContentLanguage = "en"
 			}
-		} else {
-			expected = strings.Replace(expected, "MULTI", "", 1)
-		}
+			p := newTestPathSpecFromCfgAndLang(v, lang)
 
-		c.Assert(output, qt.Equals, expected, qt.Commentf("[%d] %s", i, test.input))
+			output := p.RelURL(test.input, addLanguage)
 
+			expected := test.expected
+			if addLanguage {
+				addLanguage = defaultInSubDir && lang == defaultContentLanguage
+				addLanguage = addLanguage || (lang != defaultContentLanguage && multilingual)
+			}
+			if addLanguage {
+				expected = strings.Replace(expected, "MULTI", "/"+lang, 1)
+			} else {
+				expected = strings.Replace(expected, "MULTI", "", 1)
+			}
+
+			c.Assert(output, qt.Equals, expected, qt.Commentf("[%d] %s", i, test.input))
+		})
 	}
 }
 
-func TestSanitizeURL(t *testing.T) {
-	tests := []struct {
-		input    string
-		expected string
-	}{
-		{"http://foo.bar/", "http://foo.bar"},
-		{"http://foo.bar", "http://foo.bar"},          // issue #1105
-		{"http://foo.bar/zoo/", "http://foo.bar/zoo"}, // issue #931
-	}
-
-	for i, test := range tests {
-		o1 := SanitizeURL(test.input)
-		o2 := SanitizeURLKeepTrailingSlash(test.input)
-
-		expected2 := test.expected
-
-		if strings.HasSuffix(test.input, "/") && !strings.HasSuffix(expected2, "/") {
-			expected2 += "/"
-		}
-
-		if o1 != test.expected {
-			t.Errorf("[%d] 1: Expected %#v, got %#v\n", i, test.expected, o1)
-		}
-		if o2 != expected2 {
-			t.Errorf("[%d] 2: Expected %#v, got %#v\n", i, expected2, o2)
-		}
+func BenchmarkRelURL(b *testing.B) {
+	v := config.New()
+	v.Set("baseURL", "https://base/")
+	p := newTestPathSpecFromCfgAndLang(v, "")
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = p.RelURL("https://base/foo/bar", false)
 	}
 }
 
-func TestURLPrep(t *testing.T) {
-	type test struct {
-		ugly   bool
-		input  string
-		output string
-	}
-
-	data := []test{
-		{false, "/section/name.html", "/section/name/"},
-		{true, "/section/name/index.html", "/section/name.html"},
-	}
-
-	for i, d := range data {
-		v := newTestCfg()
-		v.Set("uglyURLs", d.ugly)
-		l := langs.NewDefaultLanguage(v)
-		p, _ := NewPathSpec(hugofs.NewMem(v), l, nil)
-
-		output := p.URLPrep(d.input)
-		if d.output != output {
-			t.Errorf("Test #%d failed. Expected %q got %q", i, d.output, output)
+func BenchmarkAbsURL(b *testing.B) {
+	v := config.New()
+	v.Set("baseURL", "https://base/")
+	p := newTestPathSpecFromCfgAndLang(v, "")
+	b.ResetTimer()
+	b.Run("relurl", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_ = p.AbsURL("foo/bar", false)
 		}
-	}
+	})
+	b.Run("absurl", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_ = p.AbsURL("https://base/foo/bar", false)
+		}
+	})
 }

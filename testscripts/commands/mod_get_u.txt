@@ -1,0 +1,22 @@
+hugo mod get -u
+hugo mod graph
+stdout 'commonmod@v1.0.1.*commonmod2@v1.0.2'
+
+-- hugo.toml --
+title = "Hugo Modules Update Test"
+theme = ["my-theme"]
+[module]
+[[module.imports]]
+path="github.com/gohugoio/hugo-mod-integrationtests/withconfigtoml"
+disable = true
+[[module.imports]]
+path="github.com/gohugoio/hugo-mod-integrationtests/withhugotoml"
+-- go.mod --
+module foo
+go 1.20
+require (
+  github.com/gohugoio/hugo-mod-integrationtests/withhugotoml v1.1.0 // indirect
+  github.com/gohugoio/hugo-mod-integrationtests/commonmod v0.0.0-20230823103305-919cefe8a425 // indirect
+)
+-- themes/my-theme/dummy.txt --
+MY THEME

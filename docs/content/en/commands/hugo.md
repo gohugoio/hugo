@@ -27,7 +27,7 @@ hugo [flags]
   -D, --buildDrafts                include content marked as draft
   -E, --buildExpired               include expired content
   -F, --buildFuture                include content with publishdate in the future
-      --cacheDir string            filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
+      --cacheDir string            filesystem path to cache directory
       --cleanDestinationDir        remove files from destination not found in static directories
       --clock string               set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00
       --config string              config file (default is hugo.yaml|json|toml)
@@ -44,8 +44,7 @@ hugo [flags]
       --ignoreCache                ignores the cache directory
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
   -l, --layoutDir string           filesystem path to layout directory
-      --log                        enable Logging
-      --logFile string             log File path (if set, logging enabled automatically)
+      --logLevel string            log level (debug|info|warn|error)
       --minify                     minify any supported output format (HTML, XML etc.)
       --noBuildLock                don't create .hugo_build.lock file
       --noChmod                    don't sync permission mode of files
@@ -57,7 +56,8 @@ hugo [flags]
       --printPathWarnings          print warnings on duplicate target paths etc.
       --printUnusedTemplates       print warnings on unused templates.
       --quiet                      build in quiet mode
-      --renderToMemory             render to memory (only useful for benchmark testing)
+      --renderSegments strings     named segments to render (configured in the segments config)
+  -M, --renderToMemory             render to memory (mostly useful when running the server)
   -s, --source string              filesystem path to read files relative from
       --templateMetrics            display metrics about template executions
       --templateMetricsHints       calculate some improvement hints when combined with --templateMetrics
@@ -65,7 +65,6 @@ hugo [flags]
       --themesDir string           filesystem path to themes directory
       --trace file                 write trace to file (not useful in general)
   -v, --verbose                    verbose output
-      --verboseLog                 verbose logging
   -w, --watch                      watch filesystem for changes and recreate as needed
 ```
 
@@ -82,5 +81,5 @@ hugo [flags]
 * [hugo mod](/commands/hugo_mod/)	 - Various Hugo Modules helpers.
 * [hugo new](/commands/hugo_new/)	 - Create new content for your site
 * [hugo server](/commands/hugo_server/)	 - A high performance webserver
-* [hugo version](/commands/hugo_version/)	 - Print the version number of Hugo
+* [hugo version](/commands/hugo_version/)	 - Print Hugo version and environment info
 

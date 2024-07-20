@@ -27,30 +27,28 @@ import (
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/tpl"
+	"github.com/rogpeppe/go-internal/diff"
 
 	"github.com/spf13/cast"
 )
 
 // New returns a new instance of the strings-namespaced template functions.
 func New(d *deps.Deps) *Namespace {
-	titleCaseStyle := d.Cfg.GetString("titleCaseStyle")
-	titleFunc := helpers.GetTitleFunc(titleCaseStyle)
-	return &Namespace{deps: d, titleFunc: titleFunc}
+	return &Namespace{deps: d}
 }
 
 // Namespace provides template functions for the "strings" namespace.
 // Most functions mimic the Go stdlib, but the order of the parameters may be
 // different to ease their use in the Go template system.
 type Namespace struct {
-	titleFunc func(s string) string
-	deps      *deps.Deps
+	deps *deps.Deps
 }
 
 // CountRunes returns the number of runes in s, excluding whitespace.
 func (ns *Namespace) CountRunes(s any) (int, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
-		return 0, fmt.Errorf("Failed to convert content to string: %w", err)
+		return 0, fmt.Errorf("failed to convert content to string: %w", err)
 	}
 
 	counter := 0
@@ -67,7 +65,7 @@ func (ns *Namespace) CountRunes(s any) (int, error) {
 func (ns *Namespace) RuneCount(s any) (int, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
-		return 0, fmt.Errorf("Failed to convert content to string: %w", err)
+		return 0, fmt.Errorf("failed to convert content to string: %w", err)
 	}
 	return utf8.RuneCountInString(ss), nil
 }
@@ -76,12 +74,12 @@ func (ns *Namespace) RuneCount(s any) (int, error) {
 func (ns *Namespace) CountWords(s any) (int, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
-		return 0, fmt.Errorf("Failed to convert content to string: %w", err)
+		return 0, fmt.Errorf("failed to convert content to string: %w", err)
 	}
 
 	isCJKLanguage, err := regexp.MatchString(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`, ss)
 	if err != nil {
-		return 0, fmt.Errorf("Failed to match regex pattern against string: %w", err)
+		return 0, fmt.Errorf("failed to match regex pattern against string: %w", err)
 	}
 
 	if !isCJKLanguage {
@@ -106,11 +104,11 @@ func (ns *Namespace) CountWords(s any) (int, error) {
 func (ns *Namespace) Count(substr, s any) (int, error) {
 	substrs, err := cast.ToStringE(substr)
 	if err != nil {
-		return 0, fmt.Errorf("Failed to convert substr to string: %w", err)
+		return 0, fmt.Errorf("failed to convert substr to string: %w", err)
 	}
 	ss, err := cast.ToStringE(s)
 	if err != nil {
-		return 0, fmt.Errorf("Failed to convert s to string: %w", err)
+		return 0, fmt.Errorf("failed to convert s to string: %w", err)
 	}
 	return strings.Count(ss, substrs), nil
 }
@@ -163,15 +161,33 @@ func (ns *Namespace) ContainsAny(s, chars any) (bool, error) {
 
 // ContainsNonSpace reports whether s contains any non-space characters as defined
 // by Unicode's White Space property,
-func (ns *Namespace) ContainsNonSpace(s any) bool {
-	ss := cast.ToString(s)
+// <docsmeta>{"newIn": "0.111.0" }</docsmeta>
+func (ns *Namespace) ContainsNonSpace(s any) (bool, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return false, err
+	}
 
 	for _, r := range ss {
 		if !unicode.IsSpace(r) {
-			return true
+			return true, nil
 		}
 	}
-	return false
+	return false, nil
+}
+
+// Diff returns an anchored diff of the two texts old and new in the “unified
+// diff” format. If old and new are identical, Diff returns an empty string.
+func (ns *Namespace) Diff(oldname string, old any, newname string, new any) (string, error) {
+	olds, err := cast.ToStringE(old)
+	if err != nil {
+		return "", err
+	}
+	news, err := cast.ToStringE(new)
+	if err != nil {
+		return "", err
+	}
+	return string(diff.Diff(oldname, []byte(olds), newname, []byte(news))), nil
 }
 
 // HasPrefix tests whether the input s begins with prefix.
@@ -383,8 +399,7 @@ func (ns *Namespace) Title(s any) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	return ns.titleFunc(ss), nil
+	return ns.deps.Conf.CreateTitle(ss), nil
 }
 
 // FirstUpper converts s making  the first character upper case.

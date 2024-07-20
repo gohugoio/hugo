@@ -36,11 +36,10 @@ func TestResourceChainBasic(t *testing.T) {
 	failIfHandler := func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path == "/fail.jpg" {
-				http.Error(w, "{ msg: failed }", 500)
+				http.Error(w, "{ msg: failed }", http.StatusNotImplemented)
 				return
 			}
 			h.ServeHTTP(w, r)
-
 		})
 	}
 	ts := httptest.NewServer(
@@ -89,7 +88,7 @@ FAILED REMOTE ERROR DETAILS CONTENT: {{ with $failedImg.Err }}|{{ . }}|{{ with .
 	fs := b.Fs.Source
 
 	imageDir := filepath.Join("assets", "images")
-	b.Assert(os.MkdirAll(imageDir, 0777), qt.IsNil)
+	b.Assert(os.MkdirAll(imageDir, 0o777), qt.IsNil)
 	src, err := os.Open("testdata/sunset.jpg")
 	b.Assert(err, qt.IsNil)
 	out, err := fs.Create(filepath.Join(imageDir, "sunset.jpg"))
@@ -101,23 +100,23 @@ FAILED REMOTE ERROR DETAILS CONTENT: {{ with $failedImg.Err }}|{{ . }}|{{ with .
 	b.Running()
 
 	for i := 0; i < 2; i++ {
-
+		b.Logf("Test run %d", i)
 		b.Build(BuildCfg{})
 
 		b.AssertFileContent("public/index.html",
 			fmt.Sprintf(`
-SUNSET: images/sunset.jpg|/images/sunset.a9bf1d944e19c0f382e0d8f51de690f7d0bc8fa97390c4242a86c3e5c0737e71.jpg|900|90587
-FIT: images/sunset.jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x200_fit_q75_box.jpg|200
+SUNSET: /images/sunset.jpg|/images/sunset.a9bf1d944e19c0f382e0d8f51de690f7d0bc8fa97390c4242a86c3e5c0737e71.jpg|900|90587
+FIT: /images/sunset.jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x200_fit_q75_box.jpg|200
 CSS integrity Data first: sha256-od9YaHw8nMOL8mUy97Sy8sKwMV3N4hI3aVmZXATxH&#43;8= /styles.min.a1df58687c3c9cc38bf26532f7b4b2f2c2b0315dcde212376959995c04f11fef.css
 CSS integrity Data last:  /styles2.min.1cfc52986836405d37f9998a63fd6dd8608e8c410e5e3db1daaa30f78bc273ba.css sha256-HPxSmGg2QF03&#43;ZmKY/1t2GCOjEEOXj2x2qow94vCc7o=
 
-SUNSET REMOTE: sunset_%[1]s.jpg|/sunset_%[1]s.a9bf1d944e19c0f382e0d8f51de690f7d0bc8fa97390c4242a86c3e5c0737e71.jpg|900|90587
-FIT REMOTE: sunset_%[1]s.jpg|/sunset_%[1]s_hu59e56ffff1bc1d8d122b1403d34e039f_0_200x200_fit_q75_box.jpg|200
+SUNSET REMOTE: /sunset_%[1]s.jpg|/sunset_%[1]s.a9bf1d944e19c0f382e0d8f51de690f7d0bc8fa97390c4242a86c3e5c0737e71.jpg|900|90587
+FIT REMOTE: /sunset_%[1]s.jpg|/sunset_%[1]s_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x200_fit_q75_box.jpg|200
 REMOTE NOT FOUND: OK
 LOCAL NOT FOUND: OK
 PRINT PROTOCOL ERROR DETAILS: Err: error calling resources.GetRemote: Get "gopher://example.org": unsupported protocol scheme "gopher"||
-FAILED REMOTE ERROR DETAILS CONTENT: |failed to fetch remote resource: Internal Server Error|Body: { msg: failed }
-|StatusCode: 500|ContentLength: 16|ContentType: text/plain; charset=utf-8|
+FAILED REMOTE ERROR DETAILS CONTENT: |failed to fetch remote resource: Not Implemented|Body: { msg: failed }
+|StatusCode: 501|ContentLength: 16|ContentType: text/plain; charset=utf-8|
 
 
 `, identity.HashString(ts.URL+"/sunset.jpg", map[string]any{})))
@@ -125,18 +124,15 @@ FAILED REMOTE ERROR DETAILS CONTENT: |failed to fetch remote resource: Internal 
 		b.AssertFileContent("public/styles.min.a1df58687c3c9cc38bf26532f7b4b2f2c2b0315dcde212376959995c04f11fef.css", "body{background-color:#add8e6}")
 		b.AssertFileContent("public//styles2.min.1cfc52986836405d37f9998a63fd6dd8608e8c410e5e3db1daaa30f78bc273ba.css", "body{background-color:orange}")
 
-		b.EditFiles("page1.md", `
+		b.EditFiles("content/_index.md", `
 ---
-title: "Page 1 edit"
+title: "Home edit"
 summary: "Edited summary"
 ---
 
 Edited content.
 
 `)
-
-		b.Assert(b.Fs.WorkingDirWritable.Remove("public"), qt.IsNil)
-		b.H.ResourceSpec.ClearCaches()
 
 	}
 }
@@ -147,7 +143,9 @@ func TestResourceChainPostProcess(t *testing.T) {
 	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	b := newTestSitesBuilder(t)
-	b.WithConfigFile("toml", `[minify]
+	b.WithConfigFile("toml", `
+disableLiveReload = true
+[minify]
   minifyOutput = true
   [minify.tdewolff]
     [minify.tdewolff.html]
@@ -184,7 +182,7 @@ End.`)
 	b.AssertFileContent("public/index.html",
 		`Start.
 HELLO: /hello.min.a2d1cb24f24b322a7dad520414c523e9.html|Integrity: md5-otHLJPJLMip9rVIEFMUj6Q==|MediaType: text/html
-HELLO2: Name: hello.html|Content: <h1>Hello World!</h1>|Title: hello.html|ResourceType: text
+HELLO2: Name: /hello.html|Content: <h1>Hello World!</h1>|Title: /hello.html|ResourceType: text
 <a href=hugo.rocks>foo</a>
 <a href="/hello.min.a2d1cb24f24b322a7dad520414c523e9.html" integrity="md5-otHLJPJLMip9rVIEFMUj6Q==">Hello</a>
 End.`)
@@ -317,7 +315,6 @@ func TestResourceChains(t *testing.T) {
 		}
 
 		http.Error(w, "Not found", http.StatusNotFound)
-		return
 	}))
 	t.Cleanup(func() {
 		ts.Close()
@@ -588,7 +585,7 @@ XML: {{ $xml.body }}
 			}
 			t.Parallel()
 
-			b := newTestSitesBuilder(t).WithLogger(loggers.NewErrorLogger())
+			b := newTestSitesBuilder(t).WithLogger(loggers.NewDefault())
 			b.WithContent("_index.md", `
 ---
 title: Home
@@ -678,22 +675,6 @@ $color: #333;
 			test.verify(b)
 		})
 	}
-}
-
-func TestMultiSiteResource(t *testing.T) {
-	t.Parallel()
-	c := qt.New(t)
-
-	b := newMultiSiteTestDefaultBuilder(t)
-
-	b.CreateSites().Build(BuildCfg{})
-
-	// This build is multilingual, but not multihost. There should be only one pipes.txt
-	b.AssertFileContent("public/fr/index.html", "French Home Page", "String Resource: /blog/text/pipes.txt")
-	c.Assert(b.CheckExists("public/fr/text/pipes.txt"), qt.Equals, false)
-	c.Assert(b.CheckExists("public/en/text/pipes.txt"), qt.Equals, false)
-	b.AssertFileContent("public/en/index.html", "Default Home Page", "String Resource: /blog/text/pipes.txt")
-	b.AssertFileContent("public/text/pipes.txt", "Hugo Pipes")
 }
 
 func TestResourcesMatch(t *testing.T) {

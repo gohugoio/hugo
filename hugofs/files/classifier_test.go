@@ -14,32 +14,10 @@
 package files
 
 import (
-	"path/filepath"
-	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
 )
-
-func TestIsContentFile(t *testing.T) {
-	c := qt.New(t)
-
-	c.Assert(IsContentFile(filepath.FromSlash("my/file.md")), qt.Equals, true)
-	c.Assert(IsContentFile(filepath.FromSlash("my/file.ad")), qt.Equals, true)
-	c.Assert(IsContentFile(filepath.FromSlash("textfile.txt")), qt.Equals, false)
-	c.Assert(IsContentExt("md"), qt.Equals, true)
-	c.Assert(IsContentExt("json"), qt.Equals, false)
-}
-
-func TestIsHTMLContent(t *testing.T) {
-	c := qt.New(t)
-
-	c.Assert(isHTMLContent(strings.NewReader("   <html>")), qt.Equals, true)
-	c.Assert(isHTMLContent(strings.NewReader("   <!--\n---")), qt.Equals, false)
-	c.Assert(isHTMLContent(strings.NewReader("   <!--")), qt.Equals, true)
-	c.Assert(isHTMLContent(strings.NewReader("   ---<")), qt.Equals, false)
-	c.Assert(isHTMLContent(strings.NewReader(" foo  <")), qt.Equals, false)
-}
 
 func TestComponentFolders(t *testing.T) {
 	c := qt.New(t)

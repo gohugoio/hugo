@@ -62,8 +62,22 @@ func (p *pageMenus) init() {
 			p.p,
 		)
 
+		params := p.p.Params()
+
+		var menus any
+		var ok bool
+
+		if p.p.m.pageConfig.Menus != nil {
+			menus = p.p.m.pageConfig.Menus
+		} else {
+			menus, ok = params["menus"]
+			if !ok {
+				menus = params["menu"]
+			}
+		}
+
 		var err error
-		p.pm, err = navigation.PageMenusFromPage(p.p)
+		p.pm, err = navigation.PageMenusFromPage(menus, p.p)
 		if err != nil {
 			p.p.s.Log.Errorln(p.p.wrapError(err))
 		}

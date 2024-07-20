@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,8 +19,6 @@ import (
 	"github.com/gohugoio/hugo/common/htime"
 )
 
-var _ Dated = Dates{}
-
 // Dated wraps a "dated resource". These are the 4 dates that makes
 // the date logic in Hugo.
 type Dated interface {
@@ -35,23 +33,6 @@ type Dated interface {
 
 	// ExpiryDate returns the expiration date of the resource.
 	ExpiryDate() time.Time
-}
-
-// Dates holds the 4 Hugo dates.
-type Dates struct {
-	FDate        time.Time
-	FLastmod     time.Time
-	FPublishDate time.Time
-	FExpiryDate  time.Time
-}
-
-func (d *Dates) UpdateDateAndLastmodIfAfter(in Dated) {
-	if in.Date().After(d.Date()) {
-		d.FDate = in.Date()
-	}
-	if in.Lastmod().After(d.Lastmod()) {
-		d.FLastmod = in.Lastmod()
-	}
 }
 
 // IsFuture returns whether the argument represents the future.
@@ -74,20 +55,4 @@ func IsExpired(d Dated) bool {
 // IsZeroDates returns true if all of the dates are zero.
 func IsZeroDates(d Dated) bool {
 	return d.Date().IsZero() && d.Lastmod().IsZero() && d.ExpiryDate().IsZero() && d.PublishDate().IsZero()
-}
-
-func (p Dates) Date() time.Time {
-	return p.FDate
-}
-
-func (p Dates) Lastmod() time.Time {
-	return p.FLastmod
-}
-
-func (p Dates) PublishDate() time.Time {
-	return p.FPublishDate
-}
-
-func (p Dates) ExpiryDate() time.Time {
-	return p.FExpiryDate
 }

@@ -64,7 +64,7 @@ func (ns *Namespace) doIndex(item any, args ...any) (any, error) {
 
 	lowerm, ok := item.(maps.Params)
 	if ok {
-		return lowerm.Get(cast.ToStringSlice(indices)...), nil
+		return lowerm.GetNested(cast.ToStringSlice(indices)...), nil
 	}
 
 	for _, i := range indices {

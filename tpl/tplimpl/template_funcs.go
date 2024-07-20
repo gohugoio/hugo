@@ -22,6 +22,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/tpl"
 
 	template "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
@@ -42,6 +43,7 @@ import (
 	_ "github.com/gohugoio/hugo/tpl/diagrams"
 	_ "github.com/gohugoio/hugo/tpl/encoding"
 	_ "github.com/gohugoio/hugo/tpl/fmt"
+	_ "github.com/gohugoio/hugo/tpl/hash"
 	_ "github.com/gohugoio/hugo/tpl/hugo"
 	_ "github.com/gohugoio/hugo/tpl/images"
 	_ "github.com/gohugoio/hugo/tpl/inflect"
@@ -65,21 +67,22 @@ import (
 )
 
 var (
-	_                texttemplate.ExecHelper = (*templateExecHelper)(nil)
-	zero             reflect.Value
-	contextInterface = reflect.TypeOf((*context.Context)(nil)).Elem()
+	_    texttemplate.ExecHelper = (*templateExecHelper)(nil)
+	zero reflect.Value
 )
 
 type templateExecHelper struct {
-	running bool // whether we're in server mode.
-	funcs   map[string]reflect.Value
+	watching   bool // whether we're in server/watch mode.
+	site       reflect.Value
+	siteParams reflect.Value
+	funcs      map[string]reflect.Value
 }
 
 func (t *templateExecHelper) GetFunc(ctx context.Context, tmpl texttemplate.Preparer, name string) (fn reflect.Value, firstArg reflect.Value, found bool) {
 	if fn, found := t.funcs[name]; found {
 		if fn.Type().NumIn() > 0 {
 			first := fn.Type().In(0)
-			if first.Implements(contextInterface) {
+			if hreflect.IsContextType(first) {
 				// TODO(bep) check if we can void this conversion every time -- and if that matters.
 				// The first argument may be context.Context. This is never provided by the end user, but it's used to pass down
 				// contextual information, e.g. the top level data context (e.g. Page).
@@ -93,6 +96,13 @@ func (t *templateExecHelper) GetFunc(ctx context.Context, tmpl texttemplate.Prep
 }
 
 func (t *templateExecHelper) Init(ctx context.Context, tmpl texttemplate.Preparer) {
+	if t.watching {
+		_, ok := tmpl.(identity.IdentityProvider)
+		if ok {
+			t.trackDependencies(ctx, tmpl, "", reflect.Value{})
+		}
+
+	}
 }
 
 func (t *templateExecHelper) GetMapValue(ctx context.Context, tmpl texttemplate.Preparer, receiver, key reflect.Value) (reflect.Value, bool) {
@@ -111,16 +121,17 @@ func (t *templateExecHelper) GetMapValue(ctx context.Context, tmpl texttemplate.
 	return v, v.IsValid()
 }
 
+var typeParams = reflect.TypeOf(maps.Params{})
+
 func (t *templateExecHelper) GetMethod(ctx context.Context, tmpl texttemplate.Preparer, receiver reflect.Value, name string) (method reflect.Value, firstArg reflect.Value) {
-	if t.running {
-		switch name {
-		case "GetPage", "Render":
-			if info, ok := tmpl.(tpl.Info); ok {
-				if m := receiver.MethodByName(name + "WithTemplateInfo"); m.IsValid() {
-					return m, reflect.ValueOf(info)
-				}
-			}
-		}
+	if strings.EqualFold(name, "mainsections") && receiver.Type() == typeParams && receiver.Pointer() == t.siteParams.Pointer() {
+		// Moved to site.MainSections in Hugo 0.112.0.
+		receiver = t.site
+		name = "MainSections"
+	}
+
+	if t.watching {
+		ctx = t.trackDependencies(ctx, tmpl, name, receiver)
 	}
 
 	fn := hreflect.GetMethodByName(receiver, name)
@@ -130,7 +141,7 @@ func (t *templateExecHelper) GetMethod(ctx context.Context, tmpl texttemplate.Pr
 
 	if fn.Type().NumIn() > 0 {
 		first := fn.Type().In(0)
-		if first.Implements(contextInterface) {
+		if hreflect.IsContextType(first) {
 			// The first argument may be context.Context. This is never provided by the end user, but it's used to pass down
 			// contextual information, e.g. the top level data context (e.g. Page).
 			return fn, reflect.ValueOf(ctx)
@@ -138,6 +149,67 @@ func (t *templateExecHelper) GetMethod(ctx context.Context, tmpl texttemplate.Pr
 	}
 
 	return fn, zero
+}
+
+func (t *templateExecHelper) OnCalled(ctx context.Context, tmpl texttemplate.Preparer, name string, args []reflect.Value, result reflect.Value) {
+	if !t.watching {
+		return
+	}
+
+	// This switch is mostly for speed.
+	switch name {
+	case "Unmarshal":
+	default:
+		return
+	}
+	idm := tpl.Context.GetDependencyManagerInCurrentScope(ctx)
+	if idm == nil {
+		return
+	}
+
+	for _, arg := range args {
+		identity.WalkIdentitiesShallow(arg.Interface(), func(level int, id identity.Identity) bool {
+			idm.AddIdentity(id)
+			return false
+		})
+	}
+}
+
+func (t *templateExecHelper) trackDependencies(ctx context.Context, tmpl texttemplate.Preparer, name string, receiver reflect.Value) context.Context {
+	if tmpl == nil {
+		panic("must provide a template")
+	}
+
+	idm := tpl.Context.GetDependencyManagerInCurrentScope(ctx)
+	if idm == nil {
+		return ctx
+	}
+
+	if info, ok := tmpl.(identity.IdentityProvider); ok {
+		idm.AddIdentity(info.GetIdentity())
+	}
+
+	// The receive is the "." in the method execution or map lookup, e.g. the Page in .Resources.
+	if hreflect.IsValid(receiver) {
+		in := receiver.Interface()
+
+		if idlp, ok := in.(identity.ForEeachIdentityByNameProvider); ok {
+			// This will skip repeated .RelPermalink usage on transformed resources
+			// which is not fingerprinted, e.g. to
+			// prevent all HTML pages to be re-rendered on a small CSS change.
+			idlp.ForEeachIdentityByName(name, func(id identity.Identity) bool {
+				idm.AddIdentity(id)
+				return false
+			})
+		} else {
+			identity.WalkIdentitiesShallow(in, func(level int, id identity.Identity) bool {
+				idm.AddIdentity(id)
+				return false
+			})
+		}
+	}
+
+	return ctx
 }
 
 func newTemplateExecuter(d *deps.Deps) (texttemplate.Executer, map[string]reflect.Value) {
@@ -167,8 +239,10 @@ func newTemplateExecuter(d *deps.Deps) (texttemplate.Executer, map[string]reflec
 	}
 
 	exeHelper := &templateExecHelper{
-		running: d.Running,
-		funcs:   funcsv,
+		watching:   d.Conf.Watching(),
+		funcs:      funcsv,
+		site:       reflect.ValueOf(d.Site),
+		siteParams: reflect.ValueOf(d.Site.Params()),
 	}
 
 	return texttemplate.NewExecuter(
@@ -179,6 +253,9 @@ func newTemplateExecuter(d *deps.Deps) (texttemplate.Executer, map[string]reflec
 func createFuncMap(d *deps.Deps) map[string]any {
 	funcMap := template.FuncMap{}
 
+	nsMap := make(map[string]any)
+	var onCreated []func(namespaces map[string]any)
+
 	// Merge the namespace funcs
 	for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
 		ns := nsf(d)
@@ -186,6 +263,11 @@ func createFuncMap(d *deps.Deps) map[string]any {
 			panic(ns.Name + " is a duplicate template func")
 		}
 		funcMap[ns.Name] = ns.Context
+		contextV, err := ns.Context(context.Background())
+		if err != nil {
+			panic(err)
+		}
+		nsMap[ns.Name] = contextV
 		for _, mm := range ns.MethodMappings {
 			for _, alias := range mm.Aliases {
 				if _, exists := funcMap[alias]; exists {
@@ -194,6 +276,14 @@ func createFuncMap(d *deps.Deps) map[string]any {
 				funcMap[alias] = mm.Method
 			}
 		}
+
+		if ns.OnCreated != nil {
+			onCreated = append(onCreated, ns.OnCreated)
+		}
+	}
+
+	for _, f := range onCreated {
+		f(nsMap)
 	}
 
 	if d.OverloadedTemplateFuncs != nil {

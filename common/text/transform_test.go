@@ -57,7 +57,6 @@ line 3`
 	c := qt.New(t)
 
 	c.Assert(collected, qt.DeepEquals, []string{"line 1\n", "line 2\n", "\n", "line 3"})
-
 }
 
 func BenchmarkVisitLinesAfter(b *testing.B) {
@@ -68,9 +67,6 @@ func BenchmarkVisitLinesAfter(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		VisitLinesAfter(lines, func(s string) {
-
 		})
-
 	}
-
 }

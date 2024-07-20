@@ -1,0 +1,15 @@
+hugo mod get
+stderr 'withhugotoml.*v1.1.0'
+
+-- hugo.toml --
+title = "Hugo Modules Test"
+[module]
+[[module.imports]]
+path="github.com/gohugoio/hugo-mod-integrationtests/withconfigtoml"
+disable = true
+[[module.imports]]
+path="github.com/gohugoio/hugo-mod-integrationtests/withhugotoml"
+-- go.mod --
+module foo
+go 1.20
+

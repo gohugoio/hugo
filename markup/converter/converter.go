@@ -30,13 +30,15 @@ import (
 
 // ProviderConfig configures a new Provider.
 type ProviderConfig struct {
-	MarkupConfig markup_config.Config
-
-	Cfg       config.Provider // Site config
+	Conf      config.AllProvider // Site config
 	ContentFs afero.Fs
 	Logger    loggers.Logger
 	Exec      *hexec.Exec
 	highlight.Highlighter
+}
+
+func (p ProviderConfig) MarkupConfig() markup_config.Config {
+	return p.Conf.GetConfigSection("markup").(markup_config.Config)
 }
 
 // ProviderProvider creates converter providers.
@@ -87,7 +89,6 @@ func (nopConverter) Supports(feature identity.Identity) bool {
 // another format, e.g. Markdown to HTML.
 type Converter interface {
 	Convert(ctx RenderContext) (ResultRender, error)
-	Supports(feature identity.Identity) bool
 }
 
 // ParseRenderer is an optional interface.
@@ -134,10 +135,11 @@ func (b Bytes) Bytes() []byte {
 
 // DocumentContext holds contextual information about the document to convert.
 type DocumentContext struct {
-	Document     any // May be nil. Usually a page.Page
-	DocumentID   string
-	DocumentName string
-	Filename     string
+	Document       any              // May be nil. Usually a page.Page
+	DocumentLookup func(uint64) any // May be nil.
+	DocumentID     string
+	DocumentName   string
+	Filename       string
 }
 
 // RenderContext holds contextual information about the content to render.
@@ -154,5 +156,3 @@ type RenderContext struct {
 	// GerRenderer provides hook renderers on demand.
 	GetRenderer hooks.GetRendererFunc
 }
-
-var FeatureRenderHooks = identity.NewPathIdentity("markup", "renderingHooks")

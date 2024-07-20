@@ -18,16 +18,15 @@ import (
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/identity"
-	"github.com/gohugoio/hugo/markup/internal"
 
 	"github.com/gohugoio/hugo/markup/converter"
+	"github.com/gohugoio/hugo/markup/internal"
 )
 
 // Provider is the package entry point.
 var Provider converter.ProviderProvider = provider{}
 
-type provider struct {
-}
+type provider struct{}
 
 func (p provider) New(cfg converter.ProviderConfig) (converter.Provider, error) {
 	return converter.NewProvider("pandoc", func(ctx converter.DocumentContext) (converter.Converter, error) {

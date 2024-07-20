@@ -22,6 +22,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/maps"
 
 	qt "github.com/frankban/quicktest"
@@ -71,7 +72,6 @@ func TestGetCSV(t *testing.T) {
 			false,
 		},
 	} {
-
 		c.Run(test.url, func(c *qt.C) {
 			msg := qt.Commentf("Test %d", i)
 
@@ -98,7 +98,7 @@ func TestGetCSV(t *testing.T) {
 
 			// Setup local test file for schema-less URLs
 			if !strings.Contains(test.url, ":") && !strings.HasPrefix(test.url, "fail/") {
-				f, err := ns.deps.Fs.Source.Create(filepath.Join(ns.deps.Cfg.GetString("workingDir"), test.url))
+				f, err := ns.deps.Fs.Source.Create(filepath.Join(ns.deps.Conf.BaseConfig().WorkingDir, test.url))
 				c.Assert(err, qt.IsNil, msg)
 				f.WriteString(test.content)
 				f.Close()
@@ -108,17 +108,16 @@ func TestGetCSV(t *testing.T) {
 			got, err := ns.GetCSV(test.sep, test.url)
 
 			if _, ok := test.expect.(bool); ok {
-				c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 1)
+				c.Assert(int(ns.deps.Log.LoggCount(logg.LevelError)), qt.Equals, 1)
 				c.Assert(got, qt.IsNil)
 				return
 			}
 
 			c.Assert(err, qt.IsNil, msg)
-			c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 0)
+			c.Assert(int(ns.deps.Log.LoggCount(logg.LevelError)), qt.Equals, 0)
 			c.Assert(got, qt.Not(qt.IsNil), msg)
 			c.Assert(got, qt.DeepEquals, test.expect, msg)
 		})
-
 	}
 }
 
@@ -163,9 +162,7 @@ func TestGetJSON(t *testing.T) {
 			map[string]any{"gomeetup": []any{"Sydney", "San Francisco", "Stockholm"}},
 		},
 	} {
-
 		c.Run(test.url, func(c *qt.C) {
-
 			msg := qt.Commentf("Test %d", i)
 			ns := newTestNs()
 
@@ -190,7 +187,7 @@ func TestGetJSON(t *testing.T) {
 
 			// Setup local test file for schema-less URLs
 			if !strings.Contains(test.url, ":") && !strings.HasPrefix(test.url, "fail/") {
-				f, err := ns.deps.Fs.Source.Create(filepath.Join(ns.deps.Cfg.GetString("workingDir"), test.url))
+				f, err := ns.deps.Fs.Source.Create(filepath.Join(ns.deps.Conf.BaseConfig().WorkingDir, test.url))
 				c.Assert(err, qt.IsNil, msg)
 				f.WriteString(test.content)
 				f.Close()
@@ -200,14 +197,13 @@ func TestGetJSON(t *testing.T) {
 			got, _ := ns.GetJSON(test.url)
 
 			if _, ok := test.expect.(bool); ok {
-				c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 1)
+				c.Assert(int(ns.deps.Log.LoggCount(logg.LevelError)), qt.Equals, 1)
 				return
 			}
 
-			c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 0, msg)
+			c.Assert(int(ns.deps.Log.LoggCount(logg.LevelError)), qt.Equals, 0, msg)
 			c.Assert(got, qt.Not(qt.IsNil), msg)
 			c.Assert(got, qt.DeepEquals, test.expect)
-
 		})
 	}
 }
@@ -262,9 +258,7 @@ func TestHeaders(t *testing.T) {
 			},
 		},
 	} {
-
 		c.Run(test.name, func(c *qt.C) {
-
 			ns := newTestNs()
 
 			// Setup HTTP test server
@@ -274,7 +268,6 @@ func TestHeaders(t *testing.T) {
 				c.Assert(r.URL.String(), qt.Equals, "http://gohugo.io/api?foo")
 				w.Write([]byte("{}"))
 				r.Header.Write(&headers)
-
 			})
 			defer func() { srv.Close() }()
 
@@ -283,7 +276,7 @@ func TestHeaders(t *testing.T) {
 				err := fn("http://example.org/api", "?foo", test.headers)
 
 				c.Assert(err, qt.IsNil)
-				c.Assert(int(ns.deps.Log.LogCounters().ErrorCounter.Count()), qt.Equals, 0)
+				c.Assert(int(ns.deps.Log.LoggCount(logg.LevelError)), qt.Equals, 0)
 				test.assert(c, headers.String())
 			}
 
@@ -295,9 +288,7 @@ func TestHeaders(t *testing.T) {
 				_, err := ns.GetCSV(",", args...)
 				return err
 			})
-
 		})
-
 	}
 }
 

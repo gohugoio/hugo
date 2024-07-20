@@ -1,20 +1,20 @@
 ---
 title: BSD
-linkTitle: BSD
 description: Install Hugo on BSD derivatives.
 categories: [installation]
+keywords: []
 menu:
   docs:
     parent: installation
     weight: 50
-toc: true
 weight: 50
+toc: true
 ---
-{{% readfile file="/installation/common/01-editions.md" %}}
+{{% include "installation/_common/01-editions.md" %}}
 
-{{% readfile file="/installation/common/02-prerequisites.md" %}}
+{{% include "installation/_common/02-prerequisites.md" %}}
 
-{{% readfile file="/installation/common/03-prebuilt-binaries.md" %}}
+{{% include "installation/_common/03-prebuilt-binaries.md" %}}
 
 ## Repository packages
 
@@ -24,7 +24,7 @@ Most BSD derivatives maintain a repository for commonly installed applications. 
 
 ### DragonFly BSD
 
-[DragonFly BSD] includes Hugo in its package repository. This will install the extended edition of Hugo:
+[DragonFly BSD] includes Hugo in its package repository. To install the extended edition of Hugo:
 
 ```sh
 sudo pkg install gohugo
@@ -34,7 +34,7 @@ sudo pkg install gohugo
 
 ### FreeBSD
 
-[FreeBSD] includes Hugo in its package repository. This will install the extended edition of Hugo:
+[FreeBSD] includes Hugo in its package repository. To install the extended edition of Hugo:
 
 ```sh
 sudo pkg install gohugo
@@ -44,7 +44,7 @@ sudo pkg install gohugo
 
 ### NetBSD
 
-[NetBSD] includes Hugo in its package repository. This will install the extended edition of Hugo:
+[NetBSD] includes Hugo in its package repository. To install the extended edition of Hugo:
 
 ```sh
 sudo pkgin install go-hugo
@@ -62,7 +62,7 @@ doas pkg_add hugo
 
 [OpenBSD]: https://www.openbsd.org/
 
-{{% readfile file="/installation/common/05-build-from-source.md" %}}
+{{% include "installation/_common/04-build-from-source.md" %}}
 
 ## Comparison
 

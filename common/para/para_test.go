@@ -32,8 +32,9 @@ func TestPara(t *testing.T) {
 		t.Skipf("skip para test, CPU count is %d", runtime.NumCPU())
 	}
 
-	if !htesting.IsCI() {
-		t.Skip("skip para test when not running on CI")
+	// TODO(bep)
+	if htesting.IsCI() {
+		t.Skip("skip para test when running on CI")
 	}
 
 	c := qt.New(t)

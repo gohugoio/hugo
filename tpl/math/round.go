@@ -20,19 +20,20 @@ const (
 // Round returns the nearest integer, rounding half away from zero.
 //
 // Special cases are:
+//
 //	Round(±0) = ±0
 //	Round(±Inf) = ±Inf
 //	Round(NaN) = NaN
 func _round(x float64) float64 {
 	// Round is a faster implementation of:
 	//
-	// func Round(x float64) float64 {
-	//   t := Trunc(x)
-	//   if Abs(x-t) >= 0.5 {
-	//     return t + Copysign(1, x)
-	//   }
-	//   return t
-	// }
+	//	func Round(x float64) float64 {
+	//		t := Trunc(x)
+	//		if Abs(x-t) >= 0.5 {
+	//			return t + Copysign(1, x)
+	//		}
+	//		return t
+	//	}
 	const (
 		signMask = 1 << 63
 		fracMask = 1<<shift - 1

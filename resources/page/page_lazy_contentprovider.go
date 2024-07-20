@@ -77,7 +77,6 @@ func (lcp *LazyContentProvider) Reset() {
 func (lcp *LazyContentProvider) TableOfContents(ctx context.Context) template.HTML {
 	lcp.init.Do(ctx)
 	return lcp.cp.TableOfContents(ctx)
-
 }
 
 func (lcp *LazyContentProvider) Fragments(ctx context.Context) *tableofcontents.Fragments {
@@ -131,7 +130,7 @@ func (lcp *LazyContentProvider) Len(ctx context.Context) int {
 }
 
 func (lcp *LazyContentProvider) Render(ctx context.Context, layout ...string) (template.HTML, error) {
-	lcp.init.Do(context.TODO())
+	lcp.init.Do(ctx)
 	return lcp.cp.Render(ctx, layout...)
 }
 
@@ -149,6 +148,7 @@ func (lcp *LazyContentProvider) ParseContent(ctx context.Context, content []byte
 	lcp.init.Do(ctx)
 	return lcp.cp.ParseContent(ctx, content)
 }
+
 func (lcp *LazyContentProvider) RenderContent(ctx context.Context, content []byte, doc any) (converter.ResultRender, bool, error) {
 	lcp.init.Do(ctx)
 	return lcp.cp.RenderContent(ctx, content, doc)

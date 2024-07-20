@@ -15,83 +15,13 @@ package hugolib
 
 import (
 	"fmt"
-	"html/template"
 	"path/filepath"
 	"testing"
 
-	"github.com/gohugoio/hugo/resources/page"
-
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/resources/kinds"
 )
-
-const slugDoc1 = "---\ntitle: slug doc 1\nslug: slug-doc-1\naliases:\n - /sd1/foo/\n - /sd2\n - /sd3/\n - /sd4.html\n---\nslug doc 1 content\n"
-
-const slugDoc2 = `---
-title: slug doc 2
-slug: slug-doc-2
----
-slug doc 2 content
-`
-
-var urlFakeSource = [][2]string{
-	{filepath.FromSlash("content/blue/doc1.md"), slugDoc1},
-	{filepath.FromSlash("content/blue/doc2.md"), slugDoc2},
-}
-
-// Issue #1105
-func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
-	t.Parallel()
-	c := qt.New(t)
-
-	for i, this := range []struct {
-		in       string
-		expected string
-	}{
-		{"http://base.com/", "http://base.com/"},
-		{"http://base.com/sub/", "http://base.com/sub/"},
-		{"http://base.com/sub", "http://base.com/sub"},
-		{"http://base.com", "http://base.com"},
-	} {
-
-		cfg, fs := newTestCfg()
-		cfg.Set("baseURL", this.in)
-		d := deps.DepsCfg{Cfg: cfg, Fs: fs}
-		s, err := NewSiteForCfg(d)
-		c.Assert(err, qt.IsNil)
-		c.Assert(s.initializeSiteInfo(), qt.IsNil)
-
-		if s.Info.BaseURL() != template.URL(this.expected) {
-			t.Errorf("[%d] got %s expected %s", i, s.Info.BaseURL(), this.expected)
-		}
-	}
-}
-
-func TestPageCount(t *testing.T) {
-	t.Parallel()
-	cfg, fs := newTestCfg()
-	cfg.Set("uglyURLs", false)
-	cfg.Set("paginate", 10)
-
-	writeSourcesToSource(t, "", fs, urlFakeSource...)
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
-
-	_, err := s.Fs.WorkingDirReadOnly.Open("public/blue")
-	if err != nil {
-		t.Errorf("No indexed rendered.")
-	}
-
-	for _, pth := range []string{
-		"public/sd1/foo/index.html",
-		"public/sd2/index.html",
-		"public/sd3/index.html",
-		"public/sd4.html",
-	} {
-		if _, err := s.Fs.WorkingDirReadOnly.Open(filepath.FromSlash(pth)); err != nil {
-			t.Errorf("No alias rendered: %s", pth)
-		}
-	}
-}
 
 func TestUglyURLsPerSection(t *testing.T) {
 	t.Parallel()
@@ -113,20 +43,22 @@ Do not go gentle into that good night.
 	cfg.Set("uglyURLs", map[string]bool{
 		"sect2": true,
 	})
+	configs, err := loadTestConfigFromProvider(cfg)
+	c.Assert(err, qt.IsNil)
 
 	writeSource(t, fs, filepath.Join("content", "sect1", "p1.md"), dt)
 	writeSource(t, fs, filepath.Join("content", "sect2", "p2.md"), dt)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 2)
 
-	notUgly := s.getPage(page.KindPage, "sect1/p1.md")
+	notUgly := s.getPageOldVersion(kinds.KindPage, "sect1/p1.md")
 	c.Assert(notUgly, qt.Not(qt.IsNil))
 	c.Assert(notUgly.Section(), qt.Equals, "sect1")
 	c.Assert(notUgly.RelPermalink(), qt.Equals, "/sect1/p1/")
 
-	ugly := s.getPage(page.KindPage, "sect2/p2.md")
+	ugly := s.getPageOldVersion(kinds.KindPage, "sect2/p2.md")
 	c.Assert(ugly, qt.Not(qt.IsNil))
 	c.Assert(ugly.Section(), qt.Equals, "sect2")
 	c.Assert(ugly.RelPermalink(), qt.Equals, "/sect2/p2.html")
@@ -159,9 +91,8 @@ Do not go gentle into that good night.
 `
 
 	cfg, fs := newTestCfg()
-	th := newTestHelper(cfg, fs, t)
-
 	cfg.Set("paginate", 1)
+	th, configs := newTestHelperFromProvider(cfg, fs, t)
 
 	writeSource(t, fs, filepath.Join("content", "sect1", "_index.md"), fmt.Sprintf(st, "/ss1/"))
 	writeSource(t, fs, filepath.Join("content", "sect2", "_index.md"), fmt.Sprintf(st, "/ss2/"))
@@ -175,13 +106,30 @@ Do not go gentle into that good night.
 	writeSource(t, fs, filepath.Join("layouts", "_default", "list.html"),
 		"<html><body>P{{.Paginator.PageNumber}}|URL: {{.Paginator.URL}}|{{ if .Paginator.HasNext }}Next: {{.Paginator.Next.URL }}{{ end }}</body></html>")
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
 
 	c.Assert(len(s.RegularPages()), qt.Equals, 10)
 
-	sect1 := s.getPage(page.KindSection, "sect1")
+	sect1 := s.getPageOldVersion(kinds.KindSection, "sect1")
 	c.Assert(sect1, qt.Not(qt.IsNil))
 	c.Assert(sect1.RelPermalink(), qt.Equals, "/ss1/")
 	th.assertFileContent(filepath.Join("public", "ss1", "index.html"), "P1|URL: /ss1/|Next: /ss1/page/2/")
 	th.assertFileContent(filepath.Join("public", "ss1", "page", "2", "index.html"), "P2|URL: /ss1/page/2/|Next: /ss1/page/3/")
+}
+
+func TestSectionsEntries(t *testing.T) {
+	files := `
+-- hugo.toml --
+-- content/withfile/_index.md --
+-- content/withoutfile/p1.md --
+-- layouts/_default/list.html --
+SectionsEntries: {{ .SectionsEntries }}
+
+
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/withfile/index.html", "SectionsEntries: [withfile]")
+	b.AssertFileContent("public/withoutfile/index.html", "SectionsEntries: [withoutfile]")
 }

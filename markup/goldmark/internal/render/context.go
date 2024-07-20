@@ -1,4 +1,4 @@
-// Copyright 2022 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ import (
 	"bytes"
 	"math/bits"
 
-	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/converter"
 )
 
@@ -42,6 +41,7 @@ func (b *BufWriter) Flush() error {
 type Context struct {
 	*BufWriter
 	positions []int
+	pids      []uint64
 	ContextData
 }
 
@@ -56,16 +56,38 @@ func (ctx *Context) PopPos() int {
 	return p
 }
 
+// PushPid pushes a new page ID to the stack.
+func (ctx *Context) PushPid(pid uint64) {
+	ctx.pids = append(ctx.pids, pid)
+}
+
+// PeekPid returns the current page ID without removing it from the stack.
+func (ctx *Context) PeekPid() uint64 {
+	if len(ctx.pids) == 0 {
+		return 0
+	}
+	return ctx.pids[len(ctx.pids)-1]
+}
+
+// PopPid pops the last page ID from the stack.
+func (ctx *Context) PopPid() uint64 {
+	if len(ctx.pids) == 0 {
+		return 0
+	}
+	i := len(ctx.pids) - 1
+	p := ctx.pids[i]
+	ctx.pids = ctx.pids[:i]
+	return p
+}
+
 type ContextData interface {
 	RenderContext() converter.RenderContext
 	DocumentContext() converter.DocumentContext
-	AddIdentity(id identity.Provider)
 }
 
 type RenderContextDataHolder struct {
 	Rctx converter.RenderContext
 	Dctx converter.DocumentContext
-	IDs  identity.Manager
 }
 
 func (ctx *RenderContextDataHolder) RenderContext() converter.RenderContext {
@@ -74,8 +96,4 @@ func (ctx *RenderContextDataHolder) RenderContext() converter.RenderContext {
 
 func (ctx *RenderContextDataHolder) DocumentContext() converter.DocumentContext {
 	return ctx.Dctx
-}
-
-func (ctx *RenderContextDataHolder) AddIdentity(id identity.Provider) {
-	ctx.IDs.Add(id)
 }

@@ -15,24 +15,14 @@ package hugolib
 
 import (
 	"fmt"
-	"strings"
-
-	"github.com/gohugoio/hugo/hugofs/files"
-
-	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/source"
 )
 
-// fileInfo implements the File and ReadableFile interface.
-var (
-	_ source.File = (*fileInfo)(nil)
-)
-
 type fileInfo struct {
-	source.File
+	*source.File
 
 	overriddenLang string
 }
@@ -58,58 +48,4 @@ func (fi *fileInfo) String() string {
 		return ""
 	}
 	return fi.Path()
-}
-
-// TODO(bep) rename
-func newFileInfo(sp *source.SourceSpec, fi hugofs.FileMetaInfo) (*fileInfo, error) {
-	baseFi, err := sp.NewFileInfo(fi)
-	if err != nil {
-		return nil, err
-	}
-
-	f := &fileInfo{
-		File: baseFi,
-	}
-
-	return f, nil
-}
-
-type bundleDirType int
-
-const (
-	bundleNot bundleDirType = iota
-
-	// All from here are bundles in one form or another.
-	bundleLeaf
-	bundleBranch
-)
-
-// Returns the given file's name's bundle type and whether it is a content
-// file or not.
-func classifyBundledFile(name string) (bundleDirType, bool) {
-	if !files.IsContentFile(name) {
-		return bundleNot, false
-	}
-	if strings.HasPrefix(name, "_index.") {
-		return bundleBranch, true
-	}
-
-	if strings.HasPrefix(name, "index.") {
-		return bundleLeaf, true
-	}
-
-	return bundleNot, true
-}
-
-func (b bundleDirType) String() string {
-	switch b {
-	case bundleNot:
-		return "Not a bundle"
-	case bundleLeaf:
-		return "Regular bundle"
-	case bundleBranch:
-		return "Branch bundle"
-	}
-
-	return ""
 }

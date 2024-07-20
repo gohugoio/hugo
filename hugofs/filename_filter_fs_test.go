@@ -36,12 +36,12 @@ func TestFilenameFilterFs(t *testing.T) {
 
 	for _, letter := range []string{"a", "b", "c"} {
 		for i := 1; i <= 3; i++ {
-			c.Assert(afero.WriteFile(fs, filepath.Join(base, letter, fmt.Sprintf("my%d.txt", i)), []byte("some text file for"+letter), 0755), qt.IsNil)
-			c.Assert(afero.WriteFile(fs, filepath.Join(base, letter, fmt.Sprintf("my%d.json", i)), []byte("some json file for"+letter), 0755), qt.IsNil)
+			c.Assert(afero.WriteFile(fs, filepath.Join(base, letter, fmt.Sprintf("my%d.txt", i)), []byte("some text file for"+letter), 0o755), qt.IsNil)
+			c.Assert(afero.WriteFile(fs, filepath.Join(base, letter, fmt.Sprintf("my%d.json", i)), []byte("some json file for"+letter), 0o755), qt.IsNil)
 		}
 	}
 
-	fs = afero.NewBasePathFs(fs, base)
+	fs = NewBasePathFs(fs, base)
 
 	filter, err := glob.NewFilenameFilter(nil, []string{"/b/**.txt"})
 	c.Assert(err, qt.IsNil)
@@ -69,15 +69,16 @@ func TestFilenameFilterFs(t *testing.T) {
 	assertExists("/b/my1.txt", false)
 
 	dirB, err := fs.Open("/b")
-	defer dirB.Close()
 	c.Assert(err, qt.IsNil)
+	defer dirB.Close()
 	dirBEntries, err := dirB.Readdirnames(-1)
+	c.Assert(err, qt.IsNil)
 	c.Assert(dirBEntries, qt.DeepEquals, []string{"my1.json", "my2.json", "my3.json"})
 
 	dirC, err := fs.Open("/c")
-	defer dirC.Close()
 	c.Assert(err, qt.IsNil)
+	defer dirC.Close()
 	dirCEntries, err := dirC.Readdirnames(-1)
+	c.Assert(err, qt.IsNil)
 	c.Assert(dirCEntries, qt.DeepEquals, []string{"my1.json", "my1.txt", "my2.json", "my2.txt", "my3.json", "my3.txt"})
-
 }

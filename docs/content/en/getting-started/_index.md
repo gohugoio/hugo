@@ -1,18 +1,16 @@
 ---
-title: Get Started
-linktitle: Get Started Overview
+title: Getting started
+linkTitle: In this section
 description: Quick start and guides for installing Hugo on your preferred operating system.
-date: 2017-02-01
-publishdate: 2017-02-01
-categories: [getting started]
-keywords: [usage,docs]
+categories: []
+keywords: []
 menu:
   docs:
-    parent: "getting-started"
-    weight: 1
-weight: 0001	#rem
+    identifier: getting-started-in-this-section
+    parent: getting-started
+    weight: 10
+weight: 10
 aliases: [/overview/introduction/]
-toc: false
 ---
 
 If this is your first time using Hugo and you've [already installed Hugo on your machine][installed], we recommend the [quick start]. You can also use [external learning resources] to learn Hugo.

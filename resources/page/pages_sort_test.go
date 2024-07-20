@@ -109,7 +109,6 @@ func TestSortByN(t *testing.T) {
 
 	byLen := func(p Pages) Pages {
 		return p.ByLength(ctx)
-
 	}
 
 	for i, this := range []struct {
@@ -273,7 +272,7 @@ func createSortTestPages(num int) Pages {
 	for i := 0; i < num; i++ {
 		p := newTestPage()
 		p.path = fmt.Sprintf("/x/y/p%d.md", i)
-		p.title = fmt.Sprintf("Title %d", i%(num+1/2))
+		p.title = fmt.Sprintf("Title %d", i%((num+1)/2))
 		p.params = map[string]any{
 			"arbitrarily": map[string]any{
 				"nested": ("xyz" + fmt.Sprintf("%v", 100-i)),

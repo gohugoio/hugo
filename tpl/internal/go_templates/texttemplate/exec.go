@@ -7,12 +7,13 @@ package template
 import (
 	"errors"
 	"fmt"
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/fmtsort"
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 	"io"
 	"reflect"
 	"runtime"
 	"strings"
+
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/fmtsort"
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 )
 
 // maxExecDepth specifies the maximum stack depth of templates within
@@ -361,19 +362,27 @@ func (s *state) walkRange(dot reflect.Value, r *parse.RangeNode) {
 	// mark top of stack before any variables in the body are pushed.
 	mark := s.mark()
 	oneIteration := func(index, elem reflect.Value) {
-		// Set top var (lexically the second if there are two) to the element.
 		if len(r.Pipe.Decl) > 0 {
 			if r.Pipe.IsAssign {
-				s.setVar(r.Pipe.Decl[0].Ident[0], elem)
+				// With two variables, index comes first.
+				// With one, we use the element.
+				if len(r.Pipe.Decl) > 1 {
+					s.setVar(r.Pipe.Decl[0].Ident[0], index)
+				} else {
+					s.setVar(r.Pipe.Decl[0].Ident[0], elem)
+				}
 			} else {
+				// Set top var (lexically the second if there
+				// are two) to the element.
 				s.setTopVar(1, elem)
 			}
 		}
-		// Set next var (lexically the first if there are two) to the index.
 		if len(r.Pipe.Decl) > 1 {
 			if r.Pipe.IsAssign {
-				s.setVar(r.Pipe.Decl[1].Ident[0], index)
+				s.setVar(r.Pipe.Decl[1].Ident[0], elem)
 			} else {
+				// Set next var (lexically the first if there
+				// are two) to the index.
 				s.setTopVar(2, index)
 			}
 		}

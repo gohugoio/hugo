@@ -1,21 +1,22 @@
 ---
 title: Diagrams
-LinkTitle: Diagrams
-description: Use fenced code blocks and markdown render hooks to display diagrams.
+description: Use fenced code blocks and Markdown render hooks to include diagrams in your content.
 categories: [content management]
 keywords: [diagrams,drawing]
 menu:
   docs:
     parent: content-management
-    weight: 50
+    weight: 260
+weight: 260
 toc: true
-weight: 50
 ---
-{{< new-in "0.93.0" >}}
 
-## GoAT Diagrams (Ascii)
+## GoAT diagrams (ASCII)
 
-Hugo supports [GoAT](https://github.com/bep/goat) natively. This means that this code block:
+Hugo natively supports [GoAT] diagrams with an [embedded code block render hook]. This means that this code block:
+
+[GoAT]: https://github.com/bep/goat
+[embedded code block render hook]: {{% eturl render-codeblock-goat %}}
 
 ````txt
 ```goat
@@ -43,23 +44,25 @@ Will be rendered as:
      1   2 3   4    1   2   3   4    1   2   3   4         '--- 4          '-- 4     \ 4
 ```
 
-## Mermaid Diagrams
+## Mermaid diagrams
 
-Hugo currently does not provide default templates for Mermaid diagrams. But you can easily add your own. One way to do it would be to create `layouts/_default/_markup/render-codeblock-mermaid.html`:
+Hugo does not provide a built-in template for Mermaid diagrams. Create your own using a [code block render hook]:
 
-```go-html-template
-<div class="mermaid">
+[code block render hook]: /render-hooks/code-blocks/
+
+{{< code file=layouts/_default/_markup/render-codeblock-mermaid.html >}}
+<pre class="mermaid">
   {{- .Inner | safeHTML }}
-</div>
+</pre>
 {{ .Page.Store.Set "hasMermaid" true }}
-```
+{{< /code >}}
 
-And then include this snippet at the bottom of the content template (**Note**: below `.Content` as the render hook is not processed until `.Content` is executed):
+And then include this snippet at the bottom of the content template:
 
 ```go-html-template
-{{ if .Page.Store.Get "hasMermaid" }}
-  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-  <script>
+{{ if .Store.Get "hasMermaid" }}
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad: true });
   </script>
 {{ end }}
@@ -67,6 +70,7 @@ And then include this snippet at the bottom of the content template (**Note**: b
 
 With that you can use the `mermaid` language in Markdown code blocks:
 
+````text
 ```mermaid
 sequenceDiagram
     participant Alice
@@ -80,8 +84,9 @@ sequenceDiagram
     John->>Bob: How about you?
     Bob-->>John: Jolly good!
 ```
+````
 
-## Goat Ascii Diagram Examples
+## Goat ASCII diagram examples
 
 ### Graphics
 
@@ -164,8 +169,7 @@ Created from <https://arthursonzogni.com/Diagon/#Tree>
          └─Fedora
 ```
 
-
-### Sequence Diagram
+### Sequence diagram
 
 <https://arthursonzogni.com/Diagon/#Sequence>
 
@@ -184,7 +188,6 @@ Created from <https://arthursonzogni.com/Diagon/#Tree>
 └─────┘       └───┘
 
 ```
-
 
 ### Flowchart
 
@@ -230,7 +233,6 @@ Created from <https://arthursonzogni.com/Diagon/#Tree>
                                                              └───────────────────┘
 
 ```
-
 
 ### Table
 

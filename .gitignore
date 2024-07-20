@@ -1,4 +1,3 @@
-public
-hugo
-.hugo_build.lock
+
 *.test
+imports.*

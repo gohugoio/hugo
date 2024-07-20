@@ -69,7 +69,8 @@ func (gc *globCache) GetGlob(pattern string) (glob.Glob, error) {
 	eg = globErr{
 		globDecorator{
 			g:         g,
-			isWindows: gc.isWindows},
+			isWindows: gc.isWindows,
+		},
 		err,
 	}
 
@@ -78,6 +79,31 @@ func (gc *globCache) GetGlob(pattern string) (glob.Glob, error) {
 	gc.Unlock()
 
 	return eg.glob, eg.err
+}
+
+// Or creates a new Glob from the given globs.
+func Or(globs ...glob.Glob) glob.Glob {
+	return globSlice{globs: globs}
+}
+
+// MatchesFunc is a convenience type to create a glob.Glob from a function.
+type MatchesFunc func(s string) bool
+
+func (m MatchesFunc) Match(s string) bool {
+	return m(s)
+}
+
+type globSlice struct {
+	globs []glob.Glob
+}
+
+func (g globSlice) Match(s string) bool {
+	for _, g := range g.globs {
+		if g.Match(s) {
+			return true
+		}
+	}
+	return false
 }
 
 type globDecorator struct {
@@ -94,15 +120,6 @@ func (g globDecorator) Match(s string) bool {
 	}
 	s = strings.ToLower(s)
 	return g.g.Match(s)
-}
-
-type globDecoratorDouble struct {
-	lowerCase    glob.Glob
-	originalCase glob.Glob
-}
-
-func (g globDecoratorDouble) Match(s string) bool {
-	return g.lowerCase.Match(s) || g.originalCase.Match(s)
 }
 
 func GetGlob(pattern string) (glob.Glob, error) {

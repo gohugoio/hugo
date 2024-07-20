@@ -1,0 +1,31 @@
+# Test the hugo server command.
+
+# We run these tests in parallel so let Hugo decide which port to use.
+hugo server --renderToMemory --gc &
+
+waitServer
+
+httpget $HUGOTEST_BASEURL_0 'Title: Hugo Server Test' $HUGOTEST_BASEURL_0 'ServerPort: \d{4,5}' 'myenv: thedevelopment' 'livereload\.js' 'Env: development' 'IsServer: true'
+httpget ${HUGOTEST_BASEURL_0}doesnotexist 'custom 404'
+httpget ${HUGOTEST_BASEURL_0}livereload.js 'function'
+
+# By default, the server renders to memory.
+! exists public/index.html
+
+stopServer
+! stderr .
+
+-- hugo.toml --
+title = "Hugo Server Test"
+baseURL = "https://example.org/"
+disableKinds = ["taxonomy", "term", "sitemap"]
+-- config/production/params.toml --
+myenv = "theproduction"
+-- config/development/params.toml --
+myenv = "thedevelopment"
+-- layouts/index.html --
+<body>
+Title: {{ .Title }}|BaseURL: {{ site.BaseURL }}|ServerPort: {{ site.ServerPort }}|myenv: {{ .Site.Params.myenv }}|Env: {{ hugo.Environment }}|IsServer: {{ site.IsServer }}|
+</body>
+-- layouts/404.html --
+custom 404

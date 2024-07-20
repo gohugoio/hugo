@@ -1,4 +1,4 @@
-// Copyright 2022 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ type ExecHelper interface {
 	GetFunc(ctx context.Context, tmpl Preparer, name string) (reflect.Value, reflect.Value, bool)
 	GetMethod(ctx context.Context, tmpl Preparer, receiver reflect.Value, name string) (method reflect.Value, firstArg reflect.Value)
 	GetMapValue(ctx context.Context, tmpl Preparer, receiver, key reflect.Value) (reflect.Value, bool)
+	OnCalled(ctx context.Context, tmpl Preparer, name string, args []reflect.Value, result reflect.Value)
 }
 
 // Executer executes a given template.
@@ -58,19 +59,6 @@ type executer struct {
 func NewExecuter(helper ExecHelper) Executer {
 	return &executer{helper: helper}
 }
-
-type (
-	pageContextKeyType    string
-	hasLockContextKeyType string
-	stackContextKeyType   string
-)
-
-const (
-	// The data page passed to ExecuteWithContext gets stored with this key.
-	PageContextKey = pageContextKeyType("page")
-	// Used in partialCached to signal to nested templates that a lock is already taken.
-	HasLockContextKey = hasLockContextKeyType("hasLock")
-)
 
 // Note: The context is currently not fully implemented in Hugo. This is a work in progress.
 func (t *executer) ExecuteWithContext(ctx context.Context, p Preparer, wr io.Writer, data any) error {
@@ -369,7 +357,14 @@ func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node
 		s.at(node)
 		s.errorf("error calling %s: %w", name, err)
 	}
-	return unwrap(v)
+	vv := unwrap(v)
+
+	// Added for Hugo
+	if s.helper != nil {
+		s.helper.OnCalled(s.ctx, s.prep, name, argv, vv)
+	}
+
+	return vv
 }
 
 func isTrue(val reflect.Value) (truth, ok bool) {

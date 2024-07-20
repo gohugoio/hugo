@@ -1,46 +1,74 @@
-<meta property="og:title" content="{{ .Title }}" />
-<meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}" />
-<meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}" />
-<meta property="og:url" content="{{ .Permalink }}" />
+<meta property="og:url" content="{{ .Permalink }}">
 
-{{- with $.Params.images -}}
-{{- range first 6 . }}<meta property="og:image" content="{{ . | absURL }}" />{{ end -}}
-{{- else -}}
-{{- $images := $.Resources.ByType "image" -}}
-{{- $featured := $images.GetMatch "*feature*" -}}
-{{- if not $featured }}{{ $featured = $images.GetMatch "{*cover*,*thumbnail*}" }}{{ end -}}
-{{- with $featured -}}
-<meta property="og:image" content="{{ $featured.Permalink }}"/>
-{{- else -}}
-{{- with $.Site.Params.images }}<meta property="og:image" content="{{ index . 0 | absURL }}"/>{{ end -}}
-{{- end -}}
-{{- end -}}
-
-{{- if .IsPage }}
-{{- $iso8601 := "2006-01-02T15:04:05-07:00" -}}
-<meta property="article:section" content="{{ .Section }}" />
-{{ with .PublishDate }}<meta property="article:published_time" {{ .Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />{{ end }}
-{{ with .Lastmod }}<meta property="article:modified_time" {{ .Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />{{ end }}
-{{- end -}}
-
-{{- with .Params.audio }}<meta property="og:audio" content="{{ . }}" />{{ end }}
-{{- with .Params.locale }}<meta property="og:locale" content="{{ . }}" />{{ end }}
-{{- with .Site.Params.title }}<meta property="og:site_name" content="{{ . }}" />{{ end }}
-{{- with .Params.videos }}{{- range . }}
-<meta property="og:video" content="{{ . | absURL }}" />
-{{ end }}{{ end }}
-
-{{- /* If it is part of a series, link to related articles */}}
-{{- $permalink := .Permalink }}
-{{- $siteSeries := .Site.Taxonomies.series }}
-{{- if $siteSeries }}
-{{ with .Params.series }}{{- range $name := . }}
-  {{- $series := index $siteSeries ($name | urlize) }}
-  {{- range $page := first 6 $series.Pages }}
-    {{- if ne $page.Permalink $permalink }}<meta property="og:see_also" content="{{ $page.Permalink }}" />{{ end }}
-  {{- end }}
-{{ end }}{{ end }}
+{{- with or site.Title site.Params.title | plainify }}
+  <meta property="og:site_name" content="{{ . }}">
 {{- end }}
 
-{{- /* Facebook Page Admin ID for Domain Insights */}}
-{{- with .Site.Social.facebook_admin }}<meta property="fb:admins" content="{{ . }}" />{{ end }}
+{{- with or .Title site.Title site.Params.title | plainify }}
+  <meta property="og:title" content="{{ . }}">
+{{- end }}
+
+{{- with or .Description .Summary site.Params.description | plainify | htmlUnescape | chomp }}
+  <meta property="og:description" content="{{ . }}">
+{{- end }}
+
+{{- with or .Params.locale site.Language.LanguageCode }}
+  <meta property="og:locale" content="{{ replace . `-` `_` }}">
+{{- end }}
+
+{{- if .IsPage }}
+  <meta property="og:type" content="article">
+  {{- with .Section }}
+    <meta property="article:section" content="{{ . }}">
+  {{- end }}
+  {{- $ISO8601 := "2006-01-02T15:04:05-07:00" }}
+  {{- with .PublishDate }}
+    <meta property="article:published_time" {{ .Format $ISO8601 | printf "content=%q" | safeHTMLAttr }}>
+  {{- end }}
+  {{- with .Lastmod }}
+    <meta property="article:modified_time" {{ .Format $ISO8601 | printf "content=%q" | safeHTMLAttr }}>
+  {{- end }}
+  {{- range .GetTerms "tags" | first 6 }}
+    <meta property="article:tag" content="{{ .Page.Title | plainify }}">
+  {{- end }}
+{{- else }}
+  <meta property="og:type" content="website">
+{{- end }}
+
+{{- with partial "_funcs/get-page-images" . }}
+  {{- range . | first 6 }}
+    <meta property="og:image" content="{{ .Permalink }}">
+  {{- end }}
+{{- end }}
+
+{{- with .Params.audio }}
+  {{- range . | first 6  }}
+    <meta property="og:audio" content="{{ . | absURL }}">
+  {{- end }}
+{{- end }}
+
+{{- with .Params.videos }}
+  {{- range . | first 6 }}
+    <meta property="og:video" content="{{ . | absURL }}">
+  {{- end }}
+{{- end }}
+
+{{- range .GetTerms "series" }}
+  {{- range .Pages | first 7 }}
+    {{- if ne $ . }}
+      <meta property="og:see_also" content="{{ .Permalink }}">
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- with site.Params.social }}
+  {{- if reflect.IsMap . }}
+    {{- with .facebook_app_id }}
+      <meta property="fb:app_id" content="{{ . }}">
+    {{- else }}
+      {{- with .facebook_admin }}
+        <meta property="fb:admins" content="{{ . }}">
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}

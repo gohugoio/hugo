@@ -1,23 +1,13 @@
 ---
-title: Deployment with Rclone
-linktitle: Deployment with Rclone
+title: Deploy with Rclone
 description: If you have access to your web host with SFTP/FTP/SSH/HTTP(DAV), you can use rclone to incrementally deploy your entire Hugo website.
-date: 2021-08-09
-publishdate: 2021-08-09
-lastmod: 2021-08-09
 categories: [hosting and deployment]
-keywords: [rclone,sftp,deployment]
-authors: [Daniel F. Dickinson]
+keywords: [deployment,rclone,sftp]
 menu:
   docs:
-    parent: "hosting-and-deployment"
-    weight: 80
-weight: 80
-sections_weight: 80
-draft: false
-aliases: [/tutorials/deployment-with-rclone/]
+    parent: hosting-and-deployment
 toc: true
-notesforauthors:
+aliases: [/tutorials/deployment-with-rclone/]
 ---
 
 ## Assumptions
@@ -30,7 +20,7 @@ notesforauthors:
 
 **NB**: You can remove ``--interactive`` in the commands below once you are comfortable with rclone, if you wish. Also, ``--gc`` and ``--minify`` are optional in the ``hugo`` commands below.
 
-## Getting Started
+## Getting started
 
 The spoiler is that you can even deploy your entire website from any compatible OS with no configuration. Using SFTP for example:
 
@@ -39,9 +29,9 @@ hugo --gc --minify
 rclone sync --interactive --sftp-host sftp.example.com --sftp-user www-data --sftp-ask-password public/ :sftp:www/
 ```
 
-## Configure Rclone for Even Easier Usage
+## Configure Rclone for even easier usage
 
-The easiest way is simply to run ``rclone config``.
+The easiest way is simply to run `rclone config`.
 
 The [Rclone docs](https://rclone.org/docs/) provide [an example of configuring Rclone to use SFTP](https://rclone.org/sftp/).
 

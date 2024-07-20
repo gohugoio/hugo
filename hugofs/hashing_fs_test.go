@@ -14,6 +14,8 @@
 package hugofs
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -21,13 +23,13 @@ import (
 )
 
 type testHashReceiver struct {
-	sum  string
 	name string
+	sum  uint64
 }
 
-func (t *testHashReceiver) OnFileClose(name, md5hash string) {
+func (t *testHashReceiver) OnFileClose(name string, checksum uint64) {
 	t.name = name
-	t.sum = md5hash
+	t.sum = checksum
 }
 
 func TestHashingFs(t *testing.T) {
@@ -42,11 +44,34 @@ func TestHashingFs(t *testing.T) {
 	_, err = f.Write([]byte("content"))
 	c.Assert(err, qt.IsNil)
 	c.Assert(f.Close(), qt.IsNil)
-	c.Assert(observer.sum, qt.Equals, "9a0364b9e99bb480dd25e1f0284c8555")
+	c.Assert(observer.sum, qt.Equals, uint64(7807861979271768572))
 	c.Assert(observer.name, qt.Equals, "hashme")
 
 	f, err = ofs.Create("nowrites")
 	c.Assert(err, qt.IsNil)
 	c.Assert(f.Close(), qt.IsNil)
-	c.Assert(observer.sum, qt.Equals, "d41d8cd98f00b204e9800998ecf8427e")
+	c.Assert(observer.sum, qt.Equals, uint64(17241709254077376921))
+}
+
+func BenchmarkHashingFs(b *testing.B) {
+	fs := afero.NewMemMapFs()
+	observer := &testHashReceiver{}
+	ofs := NewHashingFs(fs, observer)
+	content := []byte(strings.Repeat("lorem ipsum ", 1000))
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		f, err := ofs.Create(fmt.Sprintf("file%d", i))
+		if err != nil {
+			b.Fatal(err)
+		}
+		_, err = f.Write(content)
+		if err != nil {
+			b.Fatal(err)
+		}
+		if err := f.Close(); err != nil {
+			b.Fatal(err)
+		}
+	}
 }

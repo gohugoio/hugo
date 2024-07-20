@@ -1,4 +1,4 @@
-// Copyright 2022 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,8 +34,11 @@ func TestHasBytesWriter(t *testing.T) {
 		var b bytes.Buffer
 
 		h := &HasBytesWriter{
-			Pattern: []byte("__foo"),
+			Patterns: []*HasBytesPattern{
+				{Pattern: []byte("__foo")},
+			},
 		}
+
 		return h, io.MultiWriter(&b, h)
 	}
 
@@ -46,19 +49,19 @@ func TestHasBytesWriter(t *testing.T) {
 	for i := 0; i < 22; i++ {
 		h, w := neww()
 		fmt.Fprintf(w, rndStr()+"abc __foobar"+rndStr())
-		c.Assert(h.Match, qt.Equals, true)
+		c.Assert(h.Patterns[0].Match, qt.Equals, true)
 
 		h, w = neww()
 		fmt.Fprintf(w, rndStr()+"abc __f")
 		fmt.Fprintf(w, "oo bar"+rndStr())
-		c.Assert(h.Match, qt.Equals, true)
+		c.Assert(h.Patterns[0].Match, qt.Equals, true)
 
 		h, w = neww()
 		fmt.Fprintf(w, rndStr()+"abc __moo bar")
-		c.Assert(h.Match, qt.Equals, false)
+		c.Assert(h.Patterns[0].Match, qt.Equals, false)
 	}
 
 	h, w := neww()
 	fmt.Fprintf(w, "__foo")
-	c.Assert(h.Match, qt.Equals, true)
+	c.Assert(h.Patterns[0].Match, qt.Equals, true)
 }

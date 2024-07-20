@@ -14,8 +14,6 @@
 package pageparser
 
 func lexIntroSection(l *pageLexer) stateFunc {
-	l.summaryDivider = summaryDivider
-
 LOOP:
 	for {
 		r := l.next()
@@ -35,35 +33,9 @@ LOOP:
 		case r == byteOrderMark:
 			l.emit(TypeIgnore)
 		case !isSpace(r) && !isEndOfLine(r):
-			if r == '<' {
-				l.backup()
-				if l.hasPrefix(htmlCommentStart) {
-					// This may be commented out front matter, which should
-					// still be read.
-					l.consumeToNextLine()
-					l.isInHTMLComment = true
-					l.emit(TypeIgnore)
-					continue LOOP
-				} else {
-					return l.errorf("plain HTML documents not supported")
-				}
-			}
 			break LOOP
 		}
 	}
-
-	// Now move on to the shortcodes.
-	return lexMainSection
-}
-
-func lexEndFrontMatterHTMLComment(l *pageLexer) stateFunc {
-	l.isInHTMLComment = false
-	right := l.index(htmlCommentEnd)
-	if right == -1 {
-		return l.errorf("starting HTML comment with no end")
-	}
-	l.pos += right + len(htmlCommentEnd)
-	l.emit(TypeIgnore)
 
 	// Now move on to the shortcodes.
 	return lexMainSection

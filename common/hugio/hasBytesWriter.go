@@ -1,4 +1,4 @@
-// Copyright 2022 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,15 +17,26 @@ import (
 	"bytes"
 )
 
-// HasBytesWriter is a writer that will set Match to true if the given pattern
-// is found in the stream.
+// HasBytesWriter is a writer will match against a slice of patterns.
 type HasBytesWriter struct {
-	Match   bool
-	Pattern []byte
+	Patterns []*HasBytesPattern
 
 	i    int
 	done bool
 	buff []byte
+}
+
+type HasBytesPattern struct {
+	Match   bool
+	Pattern []byte
+}
+
+func (h *HasBytesWriter) patternLen() int {
+	l := 0
+	for _, p := range h.Patterns {
+		l += len(p.Pattern)
+	}
+	return l
 }
 
 func (h *HasBytesWriter) Write(p []byte) (n int, err error) {
@@ -34,7 +45,7 @@ func (h *HasBytesWriter) Write(p []byte) (n int, err error) {
 	}
 
 	if len(h.buff) == 0 {
-		h.buff = make([]byte, len(h.Pattern)*2)
+		h.buff = make([]byte, h.patternLen()*2)
 	}
 
 	for i := range p {
@@ -46,11 +57,23 @@ func (h *HasBytesWriter) Write(p []byte) (n int, err error) {
 			h.i = len(h.buff) / 2
 		}
 
-		if bytes.Contains(h.buff, h.Pattern) {
-			h.Match = true
-			h.done = true
-			return len(p), nil
+		for _, pp := range h.Patterns {
+			if bytes.Contains(h.buff, pp.Pattern) {
+				pp.Match = true
+				done := true
+				for _, ppp := range h.Patterns {
+					if !ppp.Match {
+						done = false
+						break
+					}
+				}
+				if done {
+					h.done = true
+				}
+				return len(p), nil
+			}
 		}
+
 	}
 
 	return len(p), nil

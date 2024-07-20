@@ -35,7 +35,6 @@ var (
 // A PageGenealogist finds related pages in a page collection. This interface is implemented
 // by Pages and PageGroup, which makes it available as `{{ .RegularRelated . }}` etc.
 type PageGenealogist interface {
-
 	// Template example:
 	// {{ $related := .RegularPages.Related . }}
 	Related(ctx context.Context, opts any) (Pages, error)
@@ -76,7 +75,6 @@ func (p Pages) Related(ctx context.Context, optsv any) (Pages, error) {
 	}
 
 	return result, nil
-
 }
 
 // RelatedIndices searches the given indices with the search keywords from the
@@ -186,6 +184,7 @@ func (s *RelatedDocsHandler) getIndex(p Pages) *related.InvertedIndex {
 	}
 	return nil
 }
+
 func (s *RelatedDocsHandler) getOrCreateIndex(ctx context.Context, p Pages) (*related.InvertedIndex, error) {
 	s.mu.RLock()
 	cachedIndex := s.getIndex(p)

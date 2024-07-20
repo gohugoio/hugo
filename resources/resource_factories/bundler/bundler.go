@@ -18,9 +18,9 @@ import (
 	"fmt"
 	"io"
 	"path"
-	"path/filepath"
 
 	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -81,18 +81,37 @@ func (r *multiReadSeekCloser) Close() error {
 
 // Concat concatenates the list of Resource objects.
 func (c *Client) Concat(targetPath string, r resource.Resources) (resource.Resource, error) {
-	// The CACHE_OTHER will make sure this will be re-created and published on rebuilds.
-	return c.rs.ResourceCache.GetOrCreate(path.Join(resources.CACHE_OTHER, targetPath), func() (resource.Resource, error) {
+	targetPath = path.Clean(targetPath)
+	return c.rs.ResourceCache.GetOrCreate(targetPath, func() (resource.Resource, error) {
 		var resolvedm media.Type
 
 		// The given set of resources must be of the same Media Type.
 		// We may improve on that in the future, but then we need to know more.
-		for i, r := range r {
-			if i > 0 && r.MediaType().Type() != resolvedm.Type() {
-				return nil, fmt.Errorf("resources in Concat must be of the same Media Type, got %q and %q", r.MediaType().Type(), resolvedm.Type())
+		for i, rr := range r {
+			if i > 0 && rr.MediaType().Type != resolvedm.Type {
+				return nil, fmt.Errorf("resources in Concat must be of the same Media Type, got %q and %q", rr.MediaType().Type, resolvedm.Type)
 			}
-			resolvedm = r.MediaType()
+			resolvedm = rr.MediaType()
 		}
+
+		idm := c.rs.Cfg.NewIdentityManager("concat")
+		// Add the concatenated resources as dependencies to the composite resource
+		// so that we can track changes to the individual resources.
+		idm.AddIdentityForEach(identity.ForEeachIdentityProviderFunc(
+			func(f func(identity.Identity) bool) bool {
+				var terminate bool
+				for _, rr := range r {
+					identity.WalkIdentitiesShallow(rr, func(depth int, id identity.Identity) bool {
+						terminate = f(id)
+						return terminate
+					})
+					if terminate {
+						break
+					}
+				}
+				return terminate
+			},
+		))
 
 		concatr := func() (hugio.ReadSeekCloser, error) {
 			var rcsources []hugio.ReadSeekCloser
@@ -115,7 +134,7 @@ func (c *Client) Concat(targetPath string, r resource.Resources) (resource.Resou
 
 			// Arbitrary JavaScript files require a barrier between them to be safely concatenated together.
 			// Without this, the last line of one file can affect the first line of the next file and change how both files are interpreted.
-			if resolvedm.MainType == media.JavascriptType.MainType && resolvedm.SubType == media.JavascriptType.SubType {
+			if resolvedm.MainType == media.Builtin.JavascriptType.MainType && resolvedm.SubType == media.Builtin.JavascriptType.SubType {
 				readers := make([]hugio.ReadSeekCloser, 2*len(rcsources)-1)
 				j := 0
 				for i := 0; i < len(rcsources); i++ {
@@ -132,12 +151,12 @@ func (c *Client) Concat(targetPath string, r resource.Resources) (resource.Resou
 			return newMultiReadSeekCloser(rcsources...), nil
 		}
 
-		composite, err := c.rs.New(
+		composite, err := c.rs.NewResource(
 			resources.ResourceSourceDescriptor{
-				Fs:                 c.rs.FileCaches.AssetsCache().Fs,
 				LazyPublish:        true,
 				OpenReadSeekCloser: concatr,
-				RelTargetFilename:  filepath.Clean(targetPath),
+				TargetPath:         targetPath,
+				DependencyManager:  idm,
 			})
 		if err != nil {
 			return nil, err

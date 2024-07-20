@@ -1,0 +1,55 @@
+# Test the hugo server command when editing content.
+
+# We run these tests in parallel so let Hugo decide which port to use.
+# Render to disk so we can check the /public dir.
+hugo server &
+
+waitServer
+
+httpget ${HUGOTEST_BASEURL_0}p1/ 'Title: P1' $HUGOTEST_BASEURL_0
+
+ls public/p2
+cp stdout lsp2_1.txt
+ls public/staticfiles
+stdout 'static\.txt'
+cp stdout lsstaticfiles_1.txt
+
+replace $WORK/content/p1/index.md 'P1' 'P1 New'
+
+httpget ${HUGOTEST_BASEURL_0}p1/ 'Title: P1 New' $HUGOTEST_BASEURL_0
+
+ls public/p2
+cp stdout lsp2_2.txt
+cmp lsp2_1.txt lsp2_2.txt
+ls public/staticfiles
+cp stdout lsstaticfiles_2.txt
+cmp lsstaticfiles_1.txt lsstaticfiles_2.txt
+
+stopServer
+! stderr .
+
+-- hugo.toml --
+title = "Hugo Server Test"
+baseURL = "https://example.org/"
+disableKinds = ["taxonomy", "term", "sitemap"]
+-- layouts/index.html --
+Title: {{ .Title }}|BaseURL: {{ site.BaseURL }}|
+-- layouts/_default/single.html --
+Title: {{ .Title }}|BaseURL: {{ site.BaseURL }}|
+-- content/_index.md --
+---
+title: Hugo Home
+---
+-- content/p1/index.md --
+---
+title: P1
+---
+-- content/p2/index.md --
+---
+title: P2
+---
+-- static/staticfiles/static.txt --
+static
+
+
+

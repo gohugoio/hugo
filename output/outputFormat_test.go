@@ -23,53 +23,52 @@ import (
 
 func TestDefaultTypes(t *testing.T) {
 	c := qt.New(t)
-	c.Assert(CalendarFormat.Name, qt.Equals, "Calendar")
-	c.Assert(CalendarFormat.MediaType, qt.Equals, media.CalendarType)
+	c.Assert(CalendarFormat.Name, qt.Equals, "calendar")
+	c.Assert(CalendarFormat.MediaType, qt.Equals, media.Builtin.CalendarType)
 	c.Assert(CalendarFormat.Protocol, qt.Equals, "webcal://")
 	c.Assert(CalendarFormat.Path, qt.HasLen, 0)
 	c.Assert(CalendarFormat.IsPlainText, qt.Equals, true)
 	c.Assert(CalendarFormat.IsHTML, qt.Equals, false)
 
-	c.Assert(CSSFormat.Name, qt.Equals, "CSS")
-	c.Assert(CSSFormat.MediaType, qt.Equals, media.CSSType)
+	c.Assert(CSSFormat.Name, qt.Equals, "css")
+	c.Assert(CSSFormat.MediaType, qt.Equals, media.Builtin.CSSType)
 	c.Assert(CSSFormat.Path, qt.HasLen, 0)
 	c.Assert(CSSFormat.Protocol, qt.HasLen, 0) // Will inherit the BaseURL protocol.
 	c.Assert(CSSFormat.IsPlainText, qt.Equals, true)
 	c.Assert(CSSFormat.IsHTML, qt.Equals, false)
 
-	c.Assert(CSVFormat.Name, qt.Equals, "CSV")
-	c.Assert(CSVFormat.MediaType, qt.Equals, media.CSVType)
+	c.Assert(CSVFormat.Name, qt.Equals, "csv")
+	c.Assert(CSVFormat.MediaType, qt.Equals, media.Builtin.CSVType)
 	c.Assert(CSVFormat.Path, qt.HasLen, 0)
 	c.Assert(CSVFormat.Protocol, qt.HasLen, 0)
 	c.Assert(CSVFormat.IsPlainText, qt.Equals, true)
 	c.Assert(CSVFormat.IsHTML, qt.Equals, false)
 	c.Assert(CSVFormat.Permalinkable, qt.Equals, false)
 
-	c.Assert(HTMLFormat.Name, qt.Equals, "HTML")
-	c.Assert(HTMLFormat.MediaType, qt.Equals, media.HTMLType)
+	c.Assert(HTMLFormat.Name, qt.Equals, "html")
+	c.Assert(HTMLFormat.MediaType, qt.Equals, media.Builtin.HTMLType)
 	c.Assert(HTMLFormat.Path, qt.HasLen, 0)
 	c.Assert(HTMLFormat.Protocol, qt.HasLen, 0)
 	c.Assert(HTMLFormat.IsPlainText, qt.Equals, false)
 	c.Assert(HTMLFormat.IsHTML, qt.Equals, true)
 	c.Assert(AMPFormat.Permalinkable, qt.Equals, true)
 
-	c.Assert(AMPFormat.Name, qt.Equals, "AMP")
-	c.Assert(AMPFormat.MediaType, qt.Equals, media.HTMLType)
+	c.Assert(AMPFormat.Name, qt.Equals, "amp")
+	c.Assert(AMPFormat.MediaType, qt.Equals, media.Builtin.HTMLType)
 	c.Assert(AMPFormat.Path, qt.Equals, "amp")
 	c.Assert(AMPFormat.Protocol, qt.HasLen, 0)
 	c.Assert(AMPFormat.IsPlainText, qt.Equals, false)
 	c.Assert(AMPFormat.IsHTML, qt.Equals, true)
 	c.Assert(AMPFormat.Permalinkable, qt.Equals, true)
 
-	c.Assert(RSSFormat.Name, qt.Equals, "RSS")
-	c.Assert(RSSFormat.MediaType, qt.Equals, media.RSSType)
+	c.Assert(RSSFormat.Name, qt.Equals, "rss")
+	c.Assert(RSSFormat.MediaType, qt.Equals, media.Builtin.RSSType)
 	c.Assert(RSSFormat.Path, qt.HasLen, 0)
 	c.Assert(RSSFormat.IsPlainText, qt.Equals, false)
 	c.Assert(RSSFormat.NoUgly, qt.Equals, true)
 	c.Assert(CalendarFormat.IsHTML, qt.Equals, false)
 
 	c.Assert(len(DefaultFormats), qt.Equals, 11)
-
 }
 
 func TestGetFormatByName(t *testing.T) {
@@ -101,10 +100,10 @@ func TestGetFormatByExt(t *testing.T) {
 
 func TestGetFormatByFilename(t *testing.T) {
 	c := qt.New(t)
-	noExtNoDelimMediaType := media.TextType
+	noExtNoDelimMediaType := media.Builtin.TextType
 	noExtNoDelimMediaType.Delimiter = ""
 
-	noExtMediaType := media.TextType
+	noExtMediaType := media.Builtin.TextType
 
 	var (
 		noExtDelimFormat = Format{
@@ -138,117 +137,10 @@ func TestGetFormatByFilename(t *testing.T) {
 	c.Assert(found, qt.Equals, false)
 }
 
-func TestDecodeFormats(t *testing.T) {
-	c := qt.New(t)
-
-	mediaTypes := media.Types{media.JSONType, media.XMLType}
-
-	tests := []struct {
-		name        string
-		maps        []map[string]any
-		shouldError bool
-		assert      func(t *testing.T, name string, f Formats)
-	}{
-		{
-			"Redefine JSON",
-			[]map[string]any{
-				{
-					"JsON": map[string]any{
-						"baseName":    "myindex",
-						"isPlainText": "false",
-					},
-				},
-			},
-			false,
-			func(t *testing.T, name string, f Formats) {
-				msg := qt.Commentf(name)
-				c.Assert(len(f), qt.Equals, len(DefaultFormats), msg)
-				json, _ := f.GetByName("JSON")
-				c.Assert(json.BaseName, qt.Equals, "myindex")
-				c.Assert(json.MediaType, qt.Equals, media.JSONType)
-				c.Assert(json.IsPlainText, qt.Equals, false)
-			},
-		},
-		{
-			"Add XML format with string as mediatype",
-			[]map[string]any{
-				{
-					"MYXMLFORMAT": map[string]any{
-						"baseName":  "myxml",
-						"mediaType": "application/xml",
-					},
-				},
-			},
-			false,
-			func(t *testing.T, name string, f Formats) {
-				c.Assert(len(f), qt.Equals, len(DefaultFormats)+1)
-				xml, found := f.GetByName("MYXMLFORMAT")
-				c.Assert(found, qt.Equals, true)
-				c.Assert(xml.BaseName, qt.Equals, "myxml")
-				c.Assert(xml.MediaType, qt.Equals, media.XMLType)
-
-				// Verify that we haven't changed the DefaultFormats slice.
-				json, _ := f.GetByName("JSON")
-				c.Assert(json.BaseName, qt.Equals, "index")
-			},
-		},
-		{
-			"Add format unknown mediatype",
-			[]map[string]any{
-				{
-					"MYINVALID": map[string]any{
-						"baseName":  "mymy",
-						"mediaType": "application/hugo",
-					},
-				},
-			},
-			true,
-			func(t *testing.T, name string, f Formats) {
-			},
-		},
-		{
-			"Add and redefine XML format",
-			[]map[string]any{
-				{
-					"MYOTHERXMLFORMAT": map[string]any{
-						"baseName":  "myotherxml",
-						"mediaType": media.XMLType,
-					},
-				},
-				{
-					"MYOTHERXMLFORMAT": map[string]any{
-						"baseName": "myredefined",
-					},
-				},
-			},
-			false,
-			func(t *testing.T, name string, f Formats) {
-				c.Assert(len(f), qt.Equals, len(DefaultFormats)+1)
-				xml, found := f.GetByName("MYOTHERXMLFORMAT")
-				c.Assert(found, qt.Equals, true)
-				c.Assert(xml.BaseName, qt.Equals, "myredefined")
-				c.Assert(xml.MediaType, qt.Equals, media.XMLType)
-			},
-		},
-	}
-
-	for _, test := range tests {
-		result, err := DecodeFormats(mediaTypes, test.maps...)
-		msg := qt.Commentf(test.name)
-
-		if test.shouldError {
-			c.Assert(err, qt.Not(qt.IsNil), msg)
-		} else {
-			c.Assert(err, qt.IsNil, msg)
-			test.assert(t, test.name, result)
-		}
-	}
-}
-
 func TestSort(t *testing.T) {
 	c := qt.New(t)
-	c.Assert(DefaultFormats[0].Name, qt.Equals, "HTML")
-	c.Assert(DefaultFormats[1].Name, qt.Equals, "AMP")
+	c.Assert(DefaultFormats[0].Name, qt.Equals, "html")
+	c.Assert(DefaultFormats[1].Name, qt.Equals, "amp")
 
 	json := JSONFormat
 	json.Weight = 1
@@ -261,7 +153,7 @@ func TestSort(t *testing.T) {
 
 	sort.Sort(formats)
 
-	c.Assert(formats[0].Name, qt.Equals, "JSON")
-	c.Assert(formats[1].Name, qt.Equals, "HTML")
-	c.Assert(formats[2].Name, qt.Equals, "AMP")
+	c.Assert(formats[0].Name, qt.Equals, "json")
+	c.Assert(formats[1].Name, qt.Equals, "html")
+	c.Assert(formats[2].Name, qt.Equals, "amp")
 }

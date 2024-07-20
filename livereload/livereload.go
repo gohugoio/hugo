@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ import (
 )
 
 // Prefix to signal to LiveReload that we need to navigate to another path.
+// Do not change this.
 const hugoNavigatePrefix = "__hugo_navigate"
 
 var upgrader = &websocket.Upgrader{
@@ -113,12 +114,6 @@ func ForceRefresh() {
 	RefreshPath("/x.js")
 }
 
-// NavigateToPath tells livereload to navigate to the given path.
-// This translates to `window.location.href = path` in the client.
-func NavigateToPath(path string) {
-	RefreshPath(hugoNavigatePrefix + path)
-}
-
 // NavigateToPathForPort is similar to NavigateToPath but will also
 // set window.location.port to the given port value.
 func NavigateToPathForPort(path string, port int) {
@@ -143,55 +138,15 @@ func refreshPathForPort(s string, port int) {
 	wsHub.broadcast <- []byte(msg)
 }
 
-// ServeJS serves the liverreload.js who's reference is injected into the page.
+// ServeJS serves the livereload.js who's reference is injected into the page.
 func ServeJS(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", media.JavascriptType.Type())
+	w.Header().Set("Content-Type", media.Builtin.JavascriptType.Type)
 	w.Write(liveReloadJS())
 }
 
 func liveReloadJS() []byte {
-	return []byte(livereloadJS + hugoLiveReloadPlugin)
+	return []byte(livereloadJS)
 }
 
-var (
-	// This is a patched version, see https://github.com/livereload/livereload-js/pull/84
-	//go:embed livereload.js
-	livereloadJS         string
-	hugoLiveReloadPlugin = fmt.Sprintf(`
-/*
-Hugo adds a specific prefix, "__hugo_navigate", to the path in certain situations to signal
-navigation to another content page.
-*/
-
-function HugoReload() {}
-
-HugoReload.identifier = 'hugoReloader';
-HugoReload.version = '0.9';
-
-HugoReload.prototype.reload = function(path, options) {
-	var prefix = %q;
-
-	if (path.lastIndexOf(prefix, 0) !== 0) {
-		return false
-	}
-	
-	path = path.substring(prefix.length);
-
-	var portChanged = options.overrideURL && options.overrideURL != window.location.port
-	
-	if (!portChanged && window.location.pathname === path) {
-		window.location.reload();
-	} else {
-		if (portChanged) {
-			window.location = location.protocol + "//" + location.hostname + ":" + options.overrideURL + path;
-		} else {
-			window.location.pathname = path;
-		}
-	}
-
-	return true;
-};
-
-LiveReload.addPlugin(HugoReload)
-`, hugoNavigatePrefix)
-)
+//go:embed livereload.min.js
+var livereloadJS string

@@ -21,14 +21,18 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/langs"
+	"github.com/gohugoio/hugo/config/testconfig"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/output"
+	"github.com/gohugoio/hugo/output/layouts"
 	"github.com/gohugoio/hugo/tpl"
 )
 
 type templateFinder int
+
+func (templateFinder) GetIdentity(string) (identity.Identity, bool) {
+	return identity.StringIdentity("test"), true
+}
 
 func (templateFinder) Lookup(name string) (tpl.Template, bool) {
 	return nil, false
@@ -46,7 +50,7 @@ func (templateFinder) LookupVariants(name string) []tpl.Template {
 	return nil
 }
 
-func (templateFinder) LookupLayout(d output.LayoutDescriptor, f output.Format) (tpl.Template, bool, error) {
+func (templateFinder) LookupLayout(d layouts.LayoutDescriptor, f output.Format) (tpl.Template, bool, error) {
 	return nil, false, nil
 }
 
@@ -69,8 +73,10 @@ func (templateFinder) GetFunc(name string) (reflect.Value, bool) {
 func TestApply(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
-	d := &deps.Deps{Language: langs.NewDefaultLanguage(config.New())}
-	d.SetTmpl(new(templateFinder))
+	d := testconfig.GetTestDeps(nil, nil)
+	d.SetTempl(&tpl.TemplateHandlers{
+		Tmpl: new(templateFinder),
+	})
 	ns := New(d)
 
 	strings := []any{"a\n", "b\n"}

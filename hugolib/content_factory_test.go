@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/hugofs"
 )
 
 func TestContentFactory(t *testing.T) {
@@ -52,7 +53,9 @@ Hello World.
 		b.Assert(p, qt.Not(qt.IsNil))
 
 		var buf bytes.Buffer
-		b.Assert(cf.ApplyArchetypeFilename(&buf, p, "", "post.md"), qt.IsNil)
+		fi, err := b.H.BaseFs.Archetypes.Fs.Stat("post.md")
+		b.Assert(err, qt.IsNil)
+		b.Assert(cf.ApplyArchetypeFi(&buf, p, "", fi.(hugofs.FileMetaInfo)), qt.IsNil)
 
 		b.Assert(buf.String(), qt.Contains, `title: "Mypage"`)
 	})
@@ -72,7 +75,5 @@ theme = 'ipsum'
 		abs, err := cf.CreateContentPlaceHolder(filepath.FromSlash("posts/test.md"), false)
 		b.Assert(err, qt.IsNil)
 		b.Assert(abs, qt.Equals, filepath.FromSlash("content/posts/test.md"))
-
 	})
-
 }

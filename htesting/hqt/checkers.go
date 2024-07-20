@@ -16,6 +16,7 @@ package hqt
 import (
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
 	"strings"
 
@@ -37,6 +38,11 @@ var IsSameString qt.Checker = &stringChecker{
 var IsSameType qt.Checker = &typeChecker{
 	argNames: []string{"got", "want"},
 }
+
+// IsSameFloat64 asserts that two float64 values are equal within a small delta.
+var IsSameFloat64 = qt.CmpEquals(cmp.Comparer(func(a, b float64) bool {
+	return math.Abs(a-b) < 0.0001
+}))
 
 type argNames []string
 

@@ -14,8 +14,10 @@
 package hugolib
 
 import (
+	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 )
 
@@ -30,29 +32,24 @@ func (p *pageData) Data() any {
 	p.dataInit.Do(func() {
 		p.data = make(page.Data)
 
-		if p.Kind() == page.KindPage {
+		if p.Kind() == kinds.KindPage {
 			return
 		}
 
 		switch p.Kind() {
-		case page.KindTerm:
-			b := p.treeRef.n
-			name := b.viewInfo.name
-			termKey := b.viewInfo.termKey
-
-			taxonomy := p.s.Taxonomies()[name.plural].Get(termKey)
-
-			p.data[name.singular] = taxonomy
+		case kinds.KindTerm:
+			path := p.Path()
+			name := p.s.pageMap.cfg.getTaxonomyConfig(path)
+			term := p.s.Taxonomies()[name.plural].Get(strings.TrimPrefix(path, name.pluralTreeKey))
+			p.data[name.singular] = term
 			p.data["Singular"] = name.singular
 			p.data["Plural"] = name.plural
-			p.data["Term"] = b.viewInfo.term()
-		case page.KindTaxonomy:
-			b := p.treeRef.n
-			name := b.viewInfo.name
-
-			p.data["Singular"] = name.singular
-			p.data["Plural"] = name.plural
-			p.data["Terms"] = p.s.Taxonomies()[name.plural]
+			p.data["Term"] = p.m.term
+		case kinds.KindTaxonomy:
+			viewCfg := p.s.pageMap.cfg.getTaxonomyConfig(p.Path())
+			p.data["Singular"] = viewCfg.singular
+			p.data["Plural"] = viewCfg.plural
+			p.data["Terms"] = p.s.Taxonomies()[viewCfg.plural]
 			// keep the following just for legacy reasons
 			p.data["OrderedIndex"] = p.data["Terms"]
 			p.data["Index"] = p.data["Terms"]

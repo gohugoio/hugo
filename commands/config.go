@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -9,129 +9,139 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License.Print the version number of Hug
+// limitations under the License.
 
 package commands
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
-	"reflect"
-	"regexp"
-	"sort"
 	"strings"
 	"time"
 
+	"github.com/bep/simplecobra"
 	"github.com/gohugoio/hugo/common/maps"
-
+	"github.com/gohugoio/hugo/config/allconfig"
+	"github.com/gohugoio/hugo/modules"
 	"github.com/gohugoio/hugo/parser"
 	"github.com/gohugoio/hugo/parser/metadecoders"
-
-	"github.com/gohugoio/hugo/modules"
-
 	"github.com/spf13/cobra"
 )
 
-var _ cmder = (*configCmd)(nil)
-
-type configCmd struct {
-	*baseBuilderCmd
+// newConfigCommand creates a new config command and its subcommands.
+func newConfigCommand() *configCommand {
+	return &configCommand{
+		commands: []simplecobra.Commander{
+			&configMountsCommand{},
+		},
+	}
 }
 
-func (b *commandsBuilder) newConfigCmd() *configCmd {
-	cc := &configCmd{}
-	cmd := &cobra.Command{
-		Use:   "config",
-		Short: "Print the site configuration",
-		Long:  `Print the site configuration, both default and custom settings.`,
-		RunE:  cc.printConfig,
-	}
+type configCommand struct {
+	r *rootCommand
 
-	printMountsCmd := &cobra.Command{
-		Use:   "mounts",
-		Short: "Print the configured file mounts",
-		RunE:  cc.printMounts,
-	}
+	format string
+	lang   string
 
-	cmd.AddCommand(printMountsCmd)
-
-	cc.baseBuilderCmd = b.newBuilderBasicCmd(cmd)
-
-	return cc
+	commands []simplecobra.Commander
 }
 
-func (c *configCmd) printMounts(cmd *cobra.Command, args []string) error {
-	cfg, err := initializeConfig(true, false, false, &c.hugoBuilderCommon, c, nil)
+func (c *configCommand) Commands() []simplecobra.Commander {
+	return c.commands
+}
+
+func (c *configCommand) Name() string {
+	return "config"
+}
+
+func (c *configCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args []string) error {
+	conf, err := c.r.ConfigFromProvider(c.r.configVersionID.Load(), flagsToCfg(cd, nil))
 	if err != nil {
 		return err
 	}
+	var config *allconfig.Config
+	if c.lang != "" {
+		var found bool
+		config, found = conf.configs.LanguageConfigMap[c.lang]
+		if !found {
+			return fmt.Errorf("language %q not found", c.lang)
+		}
+	} else {
+		config = conf.configs.LanguageConfigSlice[0]
+	}
 
-	allModules := cfg.Cfg.Get("allmodules").(modules.Modules)
+	var buf bytes.Buffer
+	dec := json.NewEncoder(&buf)
+	dec.SetIndent("", "  ")
+	dec.SetEscapeHTML(false)
 
-	for _, m := range allModules {
-		if err := parser.InterfaceToConfig(&modMounts{m: m, verbose: c.verbose}, metadecoders.JSON, os.Stdout); err != nil {
+	if err := dec.Encode(parser.ReplacingJSONMarshaller{Value: config, KeysToLower: true, OmitEmpty: true}); err != nil {
+		return err
+	}
+
+	format := strings.ToLower(c.format)
+
+	switch format {
+	case "json":
+		os.Stdout.Write(buf.Bytes())
+	default:
+		// Decode the JSON to a map[string]interface{} and then unmarshal it again to the correct format.
+		var m map[string]interface{}
+		if err := json.Unmarshal(buf.Bytes(), &m); err != nil {
 			return err
 		}
-	}
-	return nil
-}
-
-func (c *configCmd) printConfig(cmd *cobra.Command, args []string) error {
-	cfg, err := initializeConfig(true, false, false, &c.hugoBuilderCommon, c, nil)
-	if err != nil {
-		return err
-	}
-
-	allSettings := cfg.Cfg.Get("").(maps.Params)
-
-	// We need to clean up this, but we store objects in the config that
-	// isn't really interesting to the end user, so filter these.
-	ignoreKeysRe := regexp.MustCompile("client|sorted|filecacheconfigs|allmodules|multilingual")
-
-	separator := ": "
-
-	if len(cfg.configFiles) > 0 && strings.HasSuffix(cfg.configFiles[0], ".toml") {
-		separator = " = "
-	}
-
-	var keys []string
-	for k := range allSettings {
-		if ignoreKeysRe.MatchString(k) {
-			continue
-		}
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	for _, k := range keys {
-		kv := reflect.ValueOf(allSettings[k])
-		if kv.Kind() == reflect.String {
-			fmt.Printf("%s%s\"%+v\"\n", k, separator, allSettings[k])
-		} else {
-			fmt.Printf("%s%s%+v\n", k, separator, allSettings[k])
+		maps.ConvertFloat64WithNoDecimalsToInt(m)
+		switch format {
+		case "yaml":
+			return parser.InterfaceToConfig(m, metadecoders.YAML, os.Stdout)
+		case "toml":
+			return parser.InterfaceToConfig(m, metadecoders.TOML, os.Stdout)
+		default:
+			return fmt.Errorf("unsupported format: %q", format)
 		}
 	}
 
 	return nil
 }
 
-type modMounts struct {
-	verbose bool
-	m       modules.Module
+func (c *configCommand) Init(cd *simplecobra.Commandeer) error {
+	c.r = cd.Root.Command.(*rootCommand)
+	cmd := cd.CobraCommand
+	cmd.Short = "Print the site configuration"
+	cmd.Long = `Print the site configuration, both default and custom settings.`
+	cmd.Flags().StringVar(&c.format, "format", "toml", "preferred file format (toml, yaml or json)")
+	_ = cmd.RegisterFlagCompletionFunc("format", cobra.FixedCompletions([]string{"toml", "yaml", "json"}, cobra.ShellCompDirectiveNoFileComp))
+	cmd.Flags().StringVar(&c.lang, "lang", "", "the language to display config for. Defaults to the first language defined.")
+	_ = cmd.RegisterFlagCompletionFunc("lang", cobra.NoFileCompletions)
+	applyLocalFlagsBuildConfig(cmd, c.r)
+
+	return nil
 }
 
-type modMount struct {
+func (c *configCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
+	return nil
+}
+
+type configModMount struct {
 	Source string `json:"source"`
 	Target string `json:"target"`
 	Lang   string `json:"lang,omitempty"`
 }
 
+type configModMounts struct {
+	verbose bool
+	m       modules.Module
+}
+
 // MarshalJSON is for internal use only.
-func (m *modMounts) MarshalJSON() ([]byte, error) {
-	var mounts []modMount
+func (m *configModMounts) MarshalJSON() ([]byte, error) {
+	var mounts []configModMount
 
 	for _, mount := range m.m.Mounts() {
-		mounts = append(mounts, modMount{
+		mounts = append(mounts, configModMount{
 			Source: mount.Source,
 			Target: mount.Target,
 			Lang:   mount.Lang,
@@ -154,7 +164,7 @@ func (m *modMounts) MarshalJSON() ([]byte, error) {
 			Meta        map[string]any      `json:"meta"`
 			HugoVersion modules.HugoVersion `json:"hugoVersion"`
 
-			Mounts []modMount `json:"mounts"`
+			Mounts []configModMount `json:"mounts"`
 		}{
 			Path:        m.m.Path(),
 			Version:     m.m.Version(),
@@ -168,12 +178,12 @@ func (m *modMounts) MarshalJSON() ([]byte, error) {
 	}
 
 	return json.Marshal(&struct {
-		Path    string     `json:"path"`
-		Version string     `json:"version"`
-		Time    time.Time  `json:"time"`
-		Owner   string     `json:"owner"`
-		Dir     string     `json:"dir"`
-		Mounts  []modMount `json:"mounts"`
+		Path    string           `json:"path"`
+		Version string           `json:"version"`
+		Time    time.Time        `json:"time"`
+		Owner   string           `json:"owner"`
+		Dir     string           `json:"dir"`
+		Mounts  []configModMount `json:"mounts"`
 	}{
 		Path:    m.m.Path(),
 		Version: m.m.Version(),
@@ -182,5 +192,46 @@ func (m *modMounts) MarshalJSON() ([]byte, error) {
 		Dir:     m.m.Dir(),
 		Mounts:  mounts,
 	})
+}
 
+type configMountsCommand struct {
+	r         *rootCommand
+	configCmd *configCommand
+}
+
+func (c *configMountsCommand) Commands() []simplecobra.Commander {
+	return nil
+}
+
+func (c *configMountsCommand) Name() string {
+	return "mounts"
+}
+
+func (c *configMountsCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args []string) error {
+	r := c.configCmd.r
+	conf, err := r.ConfigFromProvider(r.configVersionID.Load(), flagsToCfg(cd, nil))
+	if err != nil {
+		return err
+	}
+
+	for _, m := range conf.configs.Modules {
+		if err := parser.InterfaceToConfig(&configModMounts{m: m, verbose: r.isVerbose()}, metadecoders.JSON, os.Stdout); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *configMountsCommand) Init(cd *simplecobra.Commandeer) error {
+	c.r = cd.Root.Command.(*rootCommand)
+	cmd := cd.CobraCommand
+	cmd.Short = "Print the configured file mounts"
+	cmd.ValidArgsFunction = cobra.NoFileCompletions
+	applyLocalFlagsBuildConfig(cmd, c.r)
+	return nil
+}
+
+func (c *configMountsCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
+	c.configCmd = cd.Parent.Command.(*configCommand)
+	return nil
 }

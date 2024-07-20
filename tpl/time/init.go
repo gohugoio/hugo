@@ -26,10 +26,10 @@ const name = "time"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		if d.Language == nil {
+		if d.Conf.Language() == nil {
 			panic("Language must be set")
 		}
-		ctx := New(langs.GetTimeFormatter(d.Language), langs.GetLocation(d.Language))
+		ctx := New(langs.GetTimeFormatter(d.Conf.Language()), langs.GetLocation(d.Conf.Language()))
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name: name,
@@ -51,7 +51,7 @@ func init() {
 
 				// 3 or more arguments. Currently not supported.
 				default:
-					return nil, errors.New("Invalid arguments supplied to `time`. Refer to time documentation: https://gohugo.io/functions/time/")
+					return nil, errors.New("invalid arguments supplied to `time`")
 				}
 			},
 		}

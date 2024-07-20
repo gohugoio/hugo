@@ -17,14 +17,15 @@ import (
 	"html/template"
 	"testing"
 
-	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/deps"
-
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/config/testconfig"
+	"github.com/gohugoio/hugo/deps"
 	"github.com/spf13/cast"
 )
 
-var ns = New(&deps.Deps{Cfg: config.New()})
+var ns = New(&deps.Deps{
+	Conf: testconfig.GetTestConfig(nil, nil),
+})
 
 type tstNoStringer struct{}
 
@@ -152,17 +153,30 @@ func TestContainsNonSpace(t *testing.T) {
 	for _, test := range []struct {
 		s      any
 		expect bool
+		isErr  bool
 	}{
-		{"", false},
-		{" ", false},
-		{"        ", false},
-		{"\t", false},
-		{"\r", false},
-		{"a", true},
-		{"    a", true},
-		{"a\n", true},
+		{"", false, false},
+		{" ", false, false},
+		{"        ", false, false},
+		{"\t", false, false},
+		{"\r", false, false},
+		{"a", true, false},
+		{"    a", true, false},
+		{"a\n", true, false},
+		// error
+		{tstNoStringer{}, false, true},
 	} {
-		c.Assert(ns.ContainsNonSpace(test.s), qt.Equals, test.expect)
+
+		result, err := ns.ContainsNonSpace(test.s)
+
+		if test.isErr {
+			c.Assert(err, qt.IsNotNil)
+			continue
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+
 	}
 }
 
@@ -804,5 +818,39 @@ func TestRepeat(t *testing.T) {
 
 		c.Assert(err, qt.IsNil)
 		c.Assert(result, qt.Equals, test.expect)
+	}
+}
+
+func TestDiff(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		oldname string
+		old     any
+		newname string
+		new     any
+		expect  any
+	}{
+		{"old", "foo\n", "new", "bar\n", "diff old new\n--- old\n+++ new\n@@ -1,1 +1,1 @@\n-foo\n+bar\n"},
+		{"old", "foo\n", "new", "foo\n", ""},
+		{"old", "foo\n", "new", "", "diff old new\n--- old\n+++ new\n@@ -1,1 +0,0 @@\n-foo\n"},
+		{"old", "foo\n", "new", nil, "diff old new\n--- old\n+++ new\n@@ -1,1 +0,0 @@\n-foo\n"},
+		{"old", "", "new", "", ""},
+		// errors
+		{"old", tstNoStringer{}, "new", "foo", false},
+		{"old", "foo", "new", tstNoStringer{}, false},
+	} {
+
+		result, err := ns.Diff(test.oldname, test.old, test.newname, test.new)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+
 	}
 }

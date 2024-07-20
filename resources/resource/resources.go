@@ -1,4 +1,4 @@
-// Copyright 2023 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs/glob"
 	"github.com/spf13/cast"
 )
@@ -54,16 +55,34 @@ func (r Resources) ByType(typ any) Resources {
 // Get locates the name given in Resources.
 // The search is case insensitive.
 func (r Resources) Get(name any) Resource {
+	if r == nil {
+		return nil
+	}
 	namestr, err := cast.ToStringE(name)
 	if err != nil {
 		panic(err)
 	}
-	namestr = strings.ToLower(namestr)
+
+	namestr = paths.AddLeadingSlash(namestr)
+
+	// First check the Name.
+	// Note that this can be modified by the user in the front matter,
+	// also, it does not contain any language code.
 	for _, resource := range r {
-		if strings.EqualFold(namestr, resource.Name()) {
+		if strings.EqualFold(namestr, paths.AddLeadingSlash(resource.Name())) {
 			return resource
 		}
 	}
+
+	// Finally, check the normalized name.
+	for _, resource := range r {
+		if nop, ok := resource.(NameNormalizedProvider); ok {
+			if strings.EqualFold(namestr, paths.AddLeadingSlash(nop.NameNormalized())) {
+				return resource
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -75,14 +94,23 @@ func (r Resources) GetMatch(pattern any) Resource {
 		panic(err)
 	}
 
-	g, err := glob.GetGlob(patternstr)
+	g, err := glob.GetGlob(paths.AddLeadingSlash(patternstr))
 	if err != nil {
 		panic(err)
 	}
 
 	for _, resource := range r {
-		if g.Match(strings.ToLower(resource.Name())) {
+		if g.Match(paths.AddLeadingSlash(resource.Name())) {
 			return resource
+		}
+	}
+
+	// Finally, check the normalized name.
+	for _, resource := range r {
+		if nop, ok := resource.(NameNormalizedProvider); ok {
+			if g.Match(paths.AddLeadingSlash(nop.NameNormalized())) {
+				return resource
+			}
 		}
 	}
 
@@ -104,15 +132,25 @@ func (r Resources) Match(pattern any) Resources {
 		panic(err)
 	}
 
-	g, err := glob.GetGlob(patternstr)
+	g, err := glob.GetGlob(paths.AddLeadingSlash(patternstr))
 	if err != nil {
 		panic(err)
 	}
 
 	var matches Resources
 	for _, resource := range r {
-		if g.Match(strings.ToLower(resource.Name())) {
+		if g.Match(paths.AddLeadingSlash(resource.Name())) {
 			matches = append(matches, resource)
+		}
+	}
+	if len(matches) == 0 {
+		// 	Fall back to the normalized name.
+		for _, resource := range r {
+			if nop, ok := resource.(NameNormalizedProvider); ok {
+				if g.Match(paths.AddLeadingSlash(nop.NameNormalized())) {
+					matches = append(matches, resource)
+				}
+			}
 		}
 	}
 	return matches
@@ -144,6 +182,7 @@ func (r Resources) MergeByLanguage(r2 Resources) Resources {
 
 // MergeByLanguageInterface is the generic version of MergeByLanguage. It
 // is here just so it can be called from the tpl package.
+// This is for internal use.
 func (r Resources) MergeByLanguageInterface(in any) (any, error) {
 	r2, ok := in.(Resources)
 	if !ok {
@@ -162,7 +201,6 @@ type Source interface {
 // Note that GetRemote (as found in resources.GetRemote) is
 // not covered by this interface, as this is only available as a global template function.
 type ResourceFinder interface {
-
 	// Get locates the Resource with the given name in the current context (e.g. in .Page.Resources).
 	//
 	// It returns nil if no Resource could found, panics if name is invalid.

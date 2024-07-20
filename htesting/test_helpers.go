@@ -20,7 +20,10 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"testing"
 	"time"
+
+	qt "github.com/frankban/quicktest"
 
 	"github.com/spf13/afero"
 )
@@ -38,7 +41,7 @@ func init() {
 }
 
 // CreateTempDir creates a temp dir in the given filesystem and
-// returns the dirnam and a func that removes it when done.
+// returns the dirname and a func that removes it when done.
 func CreateTempDir(fs afero.Fs, prefix string) (string, func(), error) {
 	tempDir, err := afero.TempDir(fs, "", prefix)
 	if err != nil {
@@ -124,6 +127,11 @@ func GoMinorVersion() int {
 	return extractMinorVersionFromGoTag(runtime.Version())
 }
 
+// IsWindows reports whether this runs on Windows.
+func IsWindows() bool {
+	return runtime.GOOS == "windows"
+}
+
 var goMinorVersionRe = regexp.MustCompile(`go1.(\d*)`)
 
 func extractMinorVersionFromGoTag(tag string) int {
@@ -140,5 +148,33 @@ func extractMinorVersionFromGoTag(tag string) int {
 
 	// a commit hash, not useful.
 	return -1
+}
 
+// NewPinnedRunner creates a new runner that will only Run tests matching the given regexp.
+// This is added mostly to use in combination with https://marketplace.visualstudio.com/items?itemName=windmilleng.vscode-go-autotest
+func NewPinnedRunner(t testing.TB, pinnedTestRe string) *PinnedRunner {
+	if pinnedTestRe == "" {
+		pinnedTestRe = ".*"
+	}
+	pinnedTestRe = strings.ReplaceAll(pinnedTestRe, "_", " ")
+	re := regexp.MustCompile("(?i)" + pinnedTestRe)
+	return &PinnedRunner{
+		c:  qt.New(t),
+		re: re,
+	}
+}
+
+type PinnedRunner struct {
+	c  *qt.C
+	re *regexp.Regexp
+}
+
+func (r *PinnedRunner) Run(name string, f func(c *qt.C)) bool {
+	if !r.re.MatchString(name) {
+		if IsGitHubAction() {
+			r.c.Fatal("found pinned test when running in CI")
+		}
+		return true
+	}
+	return r.c.Run(name, f)
 }

@@ -112,6 +112,16 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.XMLEscape,
+			nil,
+			[][2]string{
+				{
+					`{{ transform.XMLEscape "<p>abc</p>" }}`,
+					`&lt;p&gt;abc&lt;/p&gt;`,
+				},
+			},
+		)
+
 		return ns
 	}
 

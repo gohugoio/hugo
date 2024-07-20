@@ -28,7 +28,7 @@ const robotTxtTemplate = `User-agent: Googlebot
 func TestRobotsTXTOutput(t *testing.T) {
 	t.Parallel()
 
-	cfg := config.NewWithTestDefaults()
+	cfg := config.New()
 	cfg.Set("baseURL", "http://auth/bub/")
 	cfg.Set("enableRobotsTXT", true)
 
@@ -38,4 +38,17 @@ func TestRobotsTXTOutput(t *testing.T) {
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent("public/robots.txt", "User-agent: Googlebot")
+}
+
+func TestRobotsTXTDefaultTemplate(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+baseURL = "http://auth/bub/"
+enableRobotsTXT = true
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/robots.txt", "User-agent: *")
 }

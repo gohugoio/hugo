@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html
   class="no-js"
   lang="{{ with $.Site.LanguageCode }}
@@ -95,7 +95,12 @@
     {{- partial "opengraph/twitter_cards.html" . -}}
 
     {{ if hugo.IsProduction }}
-      {{ partial "gtag" . }}
+      {{ partial "gtag.html" . }}
+    {{ end }}
+
+    {{ $hasMath := .Param "math" }}
+    {{ if $hasMath }}
+      {{ partialCached "math.html" . }}
     {{ end }}
 
   </head>
@@ -103,8 +108,8 @@
   <body
     class="ma0 sans-serif bg-primary-color-light{{ with getenv "HUGO_ENV" }}
       {{ . }}
-    {{ end }}">
-    {{ partial "hooks/after-body-start" . }}
+    {{ end }} {{ if $hasMath }}{{ print " dn" }}{{ end }}">
+    {{ partial "hooks/after-body-start.html" . }}
     {{ block "nav" . }}{{ partial "site-nav.html" . }}{{ end }}
     {{ block "header" . }}{{ end }}
     <main role="main" class="content-with-sidebar min-vh-100 pb7 pb0-ns">
@@ -113,7 +118,7 @@
 
     {{ block "footer" . }}{{ partialCached "site-footer.html" . }}{{ end }}
 
-    {{ partial "hooks/before-body-end" . }}
+    {{ partial "hooks/before-body-end.html" . }}
 
   </body>
 </html>

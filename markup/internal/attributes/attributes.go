@@ -1,4 +1,4 @@
-// Copyright 2022 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import (
 )
 
 // Markdown attributes used as options by the Chroma highlighter.
-var chromaHightlightProcessingAttributes = map[string]bool{
+var chromaHighlightProcessingAttributes = map[string]bool{
 	"anchorLineNos":      true,
 	"guessSyntax":        true,
 	"hl_Lines":           true,
@@ -42,8 +42,8 @@ var chromaHightlightProcessingAttributes = map[string]bool{
 }
 
 func init() {
-	for k, v := range chromaHightlightProcessingAttributes {
-		chromaHightlightProcessingAttributes[strings.ToLower(k)] = v
+	for k, v := range chromaHighlightProcessingAttributes {
+		chromaHighlightProcessingAttributes[strings.ToLower(k)] = v
 	}
 }
 
@@ -95,13 +95,13 @@ func New(astAttributes []ast.Attribute, ownerType AttributesOwnerType) *Attribut
 		case []byte:
 			// Note that we don't do any HTML escaping here.
 			// We used to do that, but that changed in #9558.
-			// Noww it's up to the templates to decide.
+			// Now it's up to the templates to decide.
 			vv = string(vvv)
 		default:
 			panic(fmt.Sprintf("not implemented: %T", vvv))
 		}
 
-		if ownerType == AttributesOwnerCodeBlockChroma && chromaHightlightProcessingAttributes[nameLower] {
+		if ownerType == AttributesOwnerCodeBlockChroma && chromaHighlightProcessingAttributes[nameLower] {
 			attr := Attribute{Name: string(v.Name), Value: vv}
 			opts = append(opts, attr)
 		} else {
@@ -136,7 +136,7 @@ type AttributesHolder struct {
 	// Attributes considered to be an option (code blocks)
 	options []Attribute
 
-	// What we send to the the render hooks.
+	// What we send to the render hooks.
 	attributesMapInit sync.Once
 	attributesMap     map[string]any
 	optionsMapInit    sync.Once
@@ -175,7 +175,7 @@ func (a *AttributesHolder) OptionsSlice() []Attribute {
 
 // RenderASTAttributes writes the AST attributes to the given as attributes to an HTML element.
 // This is used by the default HTML renderers, e.g. for headings etc. where no hook template could be found.
-// This performs HTML esacaping of string attributes.
+// This performs HTML escaping of string attributes.
 func RenderASTAttributes(w hugio.FlexiWriter, attributes ...ast.Attribute) {
 	for _, attr := range attributes {
 
@@ -199,7 +199,7 @@ func RenderASTAttributes(w hugio.FlexiWriter, attributes ...ast.Attribute) {
 	}
 }
 
-// Render writes the attributes to the given as attributes to an HTML element.
+// RenderAttributes Render writes the attributes to the given as attributes to an HTML element.
 // This is used for the default codeblock rendering.
 // This performs HTML escaping of string attributes.
 func RenderAttributes(w hugio.FlexiWriter, skipClass bool, attributes ...Attribute) {

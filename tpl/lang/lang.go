@@ -16,17 +16,17 @@ package lang
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math"
 	"strconv"
 	"strings"
 
-	"errors"
-
 	"github.com/gohugoio/locales"
 	translators "github.com/gohugoio/localescompressed"
 
 	"github.com/gohugoio/hugo/common/hreflect"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/spf13/cast"
 )
@@ -58,7 +58,7 @@ func (ns *Namespace) Translate(ctx context.Context, id any, args ...any) (string
 
 	sid, err := cast.ToStringE(id)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	return ns.deps.Translate(ctx, sid, templateData), nil
@@ -133,10 +133,10 @@ func (ns *Namespace) castPrecisionNumber(precision, number any) (uint64, float64
 	return p, n, nil
 }
 
-// FormatNumberCustom formats a number with the given precision using the
-// negative, decimal, and grouping options.  The `options`
-// parameter is a string consisting of `<negative> <decimal> <grouping>`.  The
-// default `options` value is `- . ,`.
+// FormatNumberCustom formats a number with the given precision. The first
+// options parameter is a space-delimited string of characters to represent
+// negativity, the decimal point, and grouping. The default value is `- . ,`.
+// The second options parameter defines an alternate delimiting character.
 //
 // Note that numbers are rounded up at 5 or greater.
 // So, with precision set to 0, 1.5 becomes `2`, and 1.4 becomes `1`.
@@ -165,7 +165,7 @@ func (ns *Namespace) FormatNumberCustom(precision, number any, options ...any) (
 			// custom delimiter
 			s, err := cast.ToStringE(options[1])
 			if err != nil {
-				return "", nil
+				return "", err
 			}
 
 			delim = s
@@ -173,7 +173,7 @@ func (ns *Namespace) FormatNumberCustom(precision, number any, options ...any) (
 
 		s, err := cast.ToStringE(options[0])
 		if err != nil {
-			return "", nil
+			return "", err
 		}
 
 		rs := strings.Split(s, delim)
@@ -240,10 +240,9 @@ func (ns *Namespace) FormatNumberCustom(precision, number any, options ...any) (
 	return string(b), nil
 }
 
-// NumFmt is deprecated, use FormatNumberCustom.
-// We renamed this in Hugo 0.87.
-// Deprecated: Use FormatNumberCustom
+// Deprecated: Use lang.FormatNumberCustom instead.
 func (ns *Namespace) NumFmt(precision, number any, options ...any) (string, error) {
+	hugo.Deprecate("lang.NumFmt", "Use lang.FormatNumberCustom instead.", "v0.120.0")
 	return ns.FormatNumberCustom(precision, number, options...)
 }
 

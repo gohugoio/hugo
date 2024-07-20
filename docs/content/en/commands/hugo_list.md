@@ -11,37 +11,38 @@ Listing out various types of content
 
 Listing out various types of content.
 
-List requires a subcommand, e.g. `hugo list drafts`.
+List requires a subcommand, e.g. hugo list drafts
 
 ### Options
 
 ```
-      --clock string               set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00
-  -e, --environment string         build environment
-  -h, --help                       help for list
-      --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
-  -s, --source string              filesystem path to read files relative from
-      --themesDir string           filesystem path to themes directory
+  -h, --help   help for list
 ```
 
 ### Options inherited from parent commands
 
 ```
-      --config string      config file (default is hugo.yaml|json|toml)
-      --configDir string   config dir (default "config")
-      --debug              debug output
-      --log                enable Logging
-      --logFile string     log File path (if set, logging enabled automatically)
-      --quiet              build in quiet mode
-  -v, --verbose            verbose output
-      --verboseLog         verbose logging
+      --clock string               set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00
+      --config string              config file (default is hugo.yaml|json|toml)
+      --configDir string           config dir (default "config")
+      --debug                      debug output
+  -d, --destination string         filesystem path to write files to
+  -e, --environment string         build environment
+      --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
+      --logLevel string            log level (debug|info|warn|error)
+      --quiet                      build in quiet mode
+  -M, --renderToMemory             render to memory (mostly useful when running the server)
+  -s, --source string              filesystem path to read files relative from
+      --themesDir string           filesystem path to themes directory
+  -v, --verbose                    verbose output
 ```
 
 ### SEE ALSO
 
 * [hugo](/commands/hugo/)	 - hugo builds your site
-* [hugo list all](/commands/hugo_list_all/)	 - List all posts
-* [hugo list drafts](/commands/hugo_list_drafts/)	 - List all drafts
-* [hugo list expired](/commands/hugo_list_expired/)	 - List all posts already expired
-* [hugo list future](/commands/hugo_list_future/)	 - List all posts dated in the future
+* [hugo list all](/commands/hugo_list_all/)	 - List all content
+* [hugo list drafts](/commands/hugo_list_drafts/)	 - List draft content
+* [hugo list expired](/commands/hugo_list_expired/)	 - List expired content
+* [hugo list future](/commands/hugo_list_future/)	 - List future content
+* [hugo list published](/commands/hugo_list_published/)	 - List published content
 
