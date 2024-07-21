@@ -94,6 +94,16 @@ func (ns *Namespace) Atan2(n, m any) (float64, error) {
 	return math.Atan2(afx, afy), nil
 }
 
+// Cbrt returns the cube root of the number n.
+func (ns *Namespace) Cbrt(n any) (float64, error) {
+	af, err := cast.ToFloat64E(n)
+	if err != nil {
+		return 0, errors.New("requires a numeric argument")
+	}
+
+	return math.Cbrt(af), nil
+}
+
 // Ceil returns the least integer value greater than or equal to n.
 func (ns *Namespace) Ceil(n any) (float64, error) {
 	xf, err := cast.ToFloat64E(n)

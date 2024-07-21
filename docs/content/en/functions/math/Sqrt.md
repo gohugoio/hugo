@@ -6,6 +6,7 @@ keywords: []
 action:
   aliases: []
   related:
+    - functions/math/Cbrt
     - functions/math/Pow
   returnType: float64
   signatures: [math.Sqrt VALUE]
