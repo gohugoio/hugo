@@ -60,7 +60,9 @@ func NewSpec(
 	conf := s.Cfg.GetConfig().(*allconfig.Config)
 	imgConfig := conf.Imaging
 
-	imaging, err := images.NewImageProcessor(imgConfig)
+	imagesWarnl := logger.WarnCommand("images")
+
+	imaging, err := images.NewImageProcessor(imagesWarnl, imgConfig)
 	if err != nil {
 		return nil, err
 	}
