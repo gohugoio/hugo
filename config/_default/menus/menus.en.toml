@@ -128,11 +128,11 @@ weight = 10
 identifier = 'themes'
 url = 'https://themes.gohugo.io/'
 
-[[global]]
-name = 'Showcase'
-weight = 20
-identifier = 'showcase'
-pageRef = '/showcase/'
+# [[global]]
+# name = 'Showcase'
+# weight = 20
+# identifier = 'showcase'
+# pageRef = '/showcase/'
 
 # Anything with a weight > 100 gets an external icon
 
