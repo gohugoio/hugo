@@ -1336,6 +1336,7 @@ config:
     minifyOutput: false
     tdewolff:
       css:
+        inline: false
         keepCSS2: true
         precision: 0
       html:
@@ -1358,6 +1359,7 @@ config:
         keepNumbers: false
         precision: 0
       svg:
+        inline: false
         keepComments: false
         precision: 0
       xml:
@@ -1672,6 +1674,7 @@ config:
       allow:
       - ^(dart-)?sass(-embedded)?$
       - ^go$
+      - ^git$
       - ^npx$
       - ^postcss$
       - ^tailwindcss$
@@ -2757,14 +2760,9 @@ tpl:
     crypto:
       FNV32a:
         Aliases: null
-        Args:
-        - v
-        Description: |-
-          FNV32a hashes v using fnv32a algorithm.
-          <docsmeta>{"newIn": "0.98.0" }</docsmeta>
-        Examples:
-        - - '{{ crypto.FNV32a "Hugo Rocks!!" }}'
-          - "1515779328"
+        Args: null
+        Description: ""
+        Examples: null
       HMAC:
         Aliases:
         - hmac
@@ -3051,6 +3049,24 @@ tpl:
         Args: null
         Description: ""
         Examples: null
+    hash:
+      FNV32a:
+        Aliases: null
+        Args:
+        - v
+        Description: FNV32a hashes v using fnv32a algorithm.
+        Examples:
+        - - '{{ hash.FNV32a "Hugo Rocks!!" }}'
+          - "1515779328"
+      XxHash:
+        Aliases:
+        - xxhash
+        Args:
+        - v
+        Description: XxHash returns the xxHash of the input string.
+        Examples:
+        - - '{{ hash.XxHash "The quick brown fox jumps over the lazy dog" }}'
+          - 0b242d361fda71bc
     hugo:
       Deps:
         Aliases: null
@@ -3386,6 +3402,14 @@ tpl:
         Examples:
         - - '{{ math.Abs -2.1 }}'
           - "2.1"
+      Acos:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Acos returns the arccosine, in radians, of n.
+        Examples:
+        - - '{{ math.Acos 1 }}'
+          - "0"
       Add:
         Aliases:
         - add
@@ -3395,6 +3419,32 @@ tpl:
         Examples:
         - - '{{ add 1 2 }}'
           - "3"
+      Asin:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Asin returns the arcsine, in radians, of n.
+        Examples:
+        - - '{{ math.Asin 1 }}'
+          - "1.5707963267948966"
+      Atan:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Atan returns the arctangent, in radians, of n.
+        Examples:
+        - - '{{ math.Atan 1 }}'
+          - "0.7853981633974483"
+      Atan2:
+        Aliases: null
+        Args:
+        - "n"
+        - m
+        Description: Atan2 returns the arc tangent of n/m, using the signs of the
+          two to determine the quadrant of the return value.
+        Examples:
+        - - '{{ math.Atan2 1 2 }}'
+          - "0.4636476090008061"
       Ceil:
         Aliases: null
         Args:
@@ -3404,6 +3454,14 @@ tpl:
         Examples:
         - - '{{ math.Ceil 2.1 }}'
           - "3"
+      Cos:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Cos returns the cosine of the radian argument n.
+        Examples:
+        - - '{{ math.Cos 1 }}'
+          - "0.5403023058681398"
       Counter:
         Aliases: null
         Args: null
@@ -3483,6 +3541,13 @@ tpl:
         Examples:
         - - '{{ mul 2 3 }}'
           - "6"
+      Pi:
+        Aliases: null
+        Args: null
+        Description: Pi returns the mathematical constant pi.
+        Examples:
+        - - '{{ math.Pi }}'
+          - "3.141592653589793"
       Pow:
         Aliases:
         - pow
@@ -3515,6 +3580,14 @@ tpl:
         Examples:
         - - '{{ math.Round 1.5 }}'
           - "2"
+      Sin:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Sin returns the sine of the radian argument n.
+        Examples:
+        - - '{{ math.Sin 1 }}'
+          - "0.8414709848078965"
       Sqrt:
         Aliases: null
         Args:
@@ -3537,6 +3610,30 @@ tpl:
         Args: null
         Description: ""
         Examples: null
+      Tan:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Tan returns the tangent of the radian argument n.
+        Examples:
+        - - '{{ math.Tan 1 }}'
+          - "1.557407724654902"
+      ToDegrees:
+        Aliases: null
+        Args:
+        - "n"
+        Description: ToDegrees converts radians into degrees.
+        Examples:
+        - - '{{ math.ToDegrees 1.5707963267948966 }}'
+          - "90"
+      ToRadians:
+        Aliases: null
+        Args:
+        - "n"
+        Description: ToRadians converts degrees into radians.
+        Examples:
+        - - '{{ math.ToRadians 90 }}'
+          - "1.5707963267948966"
     openapi3:
       Unmarshal:
         Aliases: null
