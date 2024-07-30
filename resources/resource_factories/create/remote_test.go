@@ -121,15 +121,16 @@ func TestRemoteResourceKeys(t *testing.T) {
 	c := qt.New(t)
 
 	check := func(uri string, optionsm map[string]any, expect1, expect2 string) {
+		c.Helper()
 		got1, got2 := remoteResourceKeys(uri, optionsm)
 		c.Assert(got1, qt.Equals, expect1)
 		c.Assert(got2, qt.Equals, expect2)
 	}
 
-	check("foo", nil, "5917621528921068675", "5917621528921068675")
-	check("foo", map[string]any{"bar": "baz"}, "7294498335241413323", "7294498335241413323")
-	check("foo", map[string]any{"key": "1234", "bar": "baz"}, "14904296279238663669", "7294498335241413323")
-	check("foo", map[string]any{"key": "12345", "bar": "baz"}, "12191037851845371770", "7294498335241413323")
-	check("asdf", map[string]any{"key": "1234", "bar": "asdf"}, "14904296279238663669", "3787889110563790121")
-	check("asdf", map[string]any{"key": "12345", "bar": "asdf"}, "12191037851845371770", "3787889110563790121")
+	check("foo", nil, "10276615683545312752", "10276615683545312752")
+	check("foo", map[string]any{"bar": "baz"}, "9898282343037894676", "9898282343037894676")
+	check("foo", map[string]any{"key": "1234", "bar": "baz"}, "14904296279238663669", "9898282343037894676")
+	check("foo", map[string]any{"key": "12345", "bar": "baz"}, "12191037851845371770", "9898282343037894676")
+	check("asdf", map[string]any{"key": "1234", "bar": "asdf"}, "14904296279238663669", "3005610248808565917")
+	check("asdf", map[string]any{"key": "12345", "bar": "asdf"}, "12191037851845371770", "3005610248808565917")
 }
