@@ -18,12 +18,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gohugoio/hugo/helpers"
 	htmltemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 
 	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/mitchellh/mapstructure"
@@ -254,7 +254,7 @@ func (c *templateContext) handleDefer(withNode *parse.WithNode) {
 		c.err = errors.New("resources.PostProcess cannot be used in a deferred template")
 		return
 	}
-	innerHash := helpers.XxHashString(s)
+	innerHash := hashing.XxHashFromStringHexEncoded(s)
 	deferredID := tpl.HugoDeferredTemplatePrefix + innerHash
 
 	c.deferNodes[deferredID] = inner

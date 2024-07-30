@@ -27,12 +27,11 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/cespare/xxhash/v2"
+	bp "github.com/gohugoio/hugo/bufferpool"
+
 	"github.com/spf13/afero"
 
 	"github.com/jdkato/prose/transform"
-
-	bp "github.com/gohugoio/hugo/bufferpool"
 )
 
 // FilePathSeparator as defined by os.Separator.
@@ -258,13 +257,7 @@ func SliceToLower(s []string) []string {
 	return l
 }
 
-// XxHashString takes a string and returns its xxHash hash.
-func XxHashString(f string) string {
-	h := xxhash.New()
-	h.WriteString(f)
-	hash := h.Sum(nil)
-	return hex.EncodeToString(hash)
-}
+// XXHashFromReader creates a xxHash hash from the given reader.
 
 // MD5String takes a string and returns its MD5 hash.
 func MD5String(f string) string {

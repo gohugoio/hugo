@@ -16,10 +16,9 @@ package hash
 
 import (
 	"context"
-	"encoding/hex"
 	"hash/fnv"
 
-	"github.com/cespare/xxhash/v2"
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/tpl/internal"
 	"github.com/spf13/cast"
@@ -51,14 +50,7 @@ func (ns *Namespace) XxHash(v any) (string, error) {
 		return "", err
 	}
 
-	hasher := xxhash.New()
-
-	_, err = hasher.WriteString(conv)
-	if err != nil {
-		return "", err
-	}
-	hash := hasher.Sum(nil)
-	return hex.EncodeToString(hash), nil
+	return hashing.XxHashFromStringHexEncoded(conv), nil
 }
 
 const name = "hash"
