@@ -127,10 +127,10 @@ func TestRemoteResourceKeys(t *testing.T) {
 		c.Assert(got2, qt.Equals, expect2)
 	}
 
-	check("foo", nil, "10276615683545312752", "10276615683545312752")
-	check("foo", map[string]any{"bar": "baz"}, "9898282343037894676", "9898282343037894676")
-	check("foo", map[string]any{"key": "1234", "bar": "baz"}, "14904296279238663669", "9898282343037894676")
-	check("foo", map[string]any{"key": "12345", "bar": "baz"}, "12191037851845371770", "9898282343037894676")
-	check("asdf", map[string]any{"key": "1234", "bar": "asdf"}, "14904296279238663669", "3005610248808565917")
-	check("asdf", map[string]any{"key": "12345", "bar": "asdf"}, "12191037851845371770", "3005610248808565917")
+	check("foo", nil, "7763396052142361238", "7763396052142361238")
+	check("foo", map[string]any{"bar": "baz"}, "5783339285578751849", "5783339285578751849")
+	check("foo", map[string]any{"key": "1234", "bar": "baz"}, "15578353952571222948", "5783339285578751849")
+	check("foo", map[string]any{"key": "12345", "bar": "baz"}, "14335752410685132726", "5783339285578751849")
+	check("asdf", map[string]any{"key": "1234", "bar": "asdf"}, "15578353952571222948", "15615023578599429261")
+	check("asdf", map[string]any{"key": "12345", "bar": "asdf"}, "14335752410685132726", "15615023578599429261")
 }
