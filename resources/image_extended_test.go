@@ -42,6 +42,6 @@ func TestImageResizeWebP(t *testing.T) {
 	resized, err := image.Resize("123x")
 	c.Assert(err, qt.IsNil)
 	c.Assert(image.MediaType(), qt.Equals, media.Builtin.WEBPType)
-	c.Assert(resized.RelPermalink(), qt.Equals, "/a/sunrise_hu6ad68bcbae1b79cbc2f6b451894deaf6_95652_123x0_resize_q68_h2_linear_2.webp")
+	c.Assert(resized.RelPermalink(), qt.Equals, "/a/sunrise_hu544374262273649331.webp")
 	c.Assert(resized.Width(), qt.Equals, 123)
 }
