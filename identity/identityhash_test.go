@@ -14,6 +14,9 @@
 package identity
 
 import (
+	"fmt"
+	"math"
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -41,4 +44,25 @@ func (t tstKeyer) Key() string {
 
 func (t tstKeyer) String() string {
 	return "key: " + t.key
+}
+
+func BenchmarkHashString(b *testing.B) {
+	word := " hello "
+
+	var tests []string
+
+	for i := 1; i <= 5; i++ {
+		sentence := strings.Repeat(word, int(math.Pow(4, float64(i))))
+		tests = append(tests, sentence)
+	}
+
+	b.ResetTimer()
+
+	for _, test := range tests {
+		b.Run(fmt.Sprintf("n%d", len(test)), func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				HashString(test)
+			}
+		})
+	}
 }
