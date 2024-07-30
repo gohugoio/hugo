@@ -18,7 +18,7 @@ import (
 	"sync"
 
 	"github.com/cespare/xxhash/v2"
-	"github.com/mitchellh/hashstructure/v2"
+	"github.com/gohugoio/hashstructure"
 )
 
 // HashString returns a hash from the given elements.
@@ -66,7 +66,7 @@ func HashUint64(vs ...any) uint64 {
 	hashOpts := getHashOpts()
 	defer putHashOpts(hashOpts)
 
-	hash, err := hashstructure.Hash(o, hashstructure.FormatV2, hashOpts)
+	hash, err := hashstructure.Hash(o, hashOpts)
 	if err != nil {
 		panic(err)
 	}
