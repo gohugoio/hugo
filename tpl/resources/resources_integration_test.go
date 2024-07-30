@@ -58,7 +58,7 @@ Copy3: {{ $copy3.RelPermalink}}|{{ $copy3.MediaType }}|{{ $copy3.Content | safeJ
 
 	b.AssertFileContent("public/index.html", `
 Image Orig:  /blog/images/pixel.png|image/png|1|1|
-Image Copy1:  /blog/images/copy_hu8aa3346827e49d756ff4e630147c42b5_70_3x4_resize_box_3.png|image/png|3|4|
+Image Copy1:  /blog/images/copy_hu2891316072287293157.png|image/png|3|4|
 Image Copy2:  /blog/images/copy2.png|image/png|3|4
 Image Copy3:  image/png|3|4|
 Orig: /blog/js/foo.js|text/javascript|let foo;|

@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"math"
 	"strings"
+	"sync"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -30,6 +31,30 @@ func TestXxHashFromReader(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	c.Assert(size, qt.Equals, int64(len(s)))
 	c.Assert(got, qt.Equals, uint64(7148569436472236994))
+}
+
+func TestXxHashFromReaderPara(t *testing.T) {
+	c := qt.New(t)
+
+	var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		i := i
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for j := 0; j < 100; j++ {
+				s := strings.Repeat("Hello ", i+j+1*42)
+				r := strings.NewReader(s)
+				got, size, err := XXHashFromReader(r)
+				c.Assert(size, qt.Equals, int64(len(s)))
+				c.Assert(err, qt.IsNil)
+				expect, _ := XXHashFromString(s)
+				c.Assert(got, qt.Equals, expect)
+			}
+		}()
+	}
+
+	wg.Wait()
 }
 
 func TestXxHashFromString(t *testing.T) {

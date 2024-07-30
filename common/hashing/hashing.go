@@ -27,7 +27,7 @@ import (
 )
 
 // XXHashFromReader calculates the xxHash for the given reader.
-func XXHashFromReader(r io.ReadSeeker) (uint64, int64, error) {
+func XXHashFromReader(r io.Reader) (uint64, int64, error) {
 	h := getXxHashReadFrom()
 	defer putXxHashReadFrom(h)
 

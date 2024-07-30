@@ -123,28 +123,28 @@ func TestImageTransformBasic(t *testing.T) {
 	assertWidthHeight(resizedAndRotated, 125, 200)
 
 	assertWidthHeight(resized, 300, 200)
-	c.Assert(resized.RelPermalink(), qt.Equals, "/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_300x200_resize_q68_linear.jpg")
+	c.Assert(resized.RelPermalink(), qt.Equals, "/a/sunset_hu2082030801149749592.jpg")
 
 	fitted, err := resized.Fit("50x50")
 	c.Assert(err, qt.IsNil)
-	c.Assert(fitted.RelPermalink(), qt.Equals, "/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_625708021e2bb281c9f1002f88e4753f.jpg")
+	c.Assert(fitted.RelPermalink(), qt.Equals, "/a/sunset_hu16263619592447877226.jpg")
 	assertWidthHeight(fitted, 50, 33)
 
 	// Check the MD5 key threshold
 	fittedAgain, _ := fitted.Fit("10x20")
 	fittedAgain, err = fittedAgain.Fit("10x20")
 	c.Assert(err, qt.IsNil)
-	c.Assert(fittedAgain.RelPermalink(), qt.Equals, "/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_3f65ba24dc2b7fba0f56d7f104519157.jpg")
+	c.Assert(fittedAgain.RelPermalink(), qt.Equals, "/a/sunset_hu847809310637164306.jpg")
 	assertWidthHeight(fittedAgain, 10, 7)
 
 	filled, err := image.Fill("200x100 bottomLeft")
 	c.Assert(err, qt.IsNil)
-	c.Assert(filled.RelPermalink(), qt.Equals, "/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x100_fill_q68_linear_bottomleft.jpg")
+	c.Assert(filled.RelPermalink(), qt.Equals, "/a/sunset_hu18289448341423092707.jpg")
 	assertWidthHeight(filled, 200, 100)
 
 	smart, err := image.Fill("200x100 smart")
 	c.Assert(err, qt.IsNil)
-	c.Assert(smart.RelPermalink(), qt.Equals, fmt.Sprintf("/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x100_fill_q68_linear_smart%d.jpg", 1))
+	c.Assert(smart.RelPermalink(), qt.Equals, "/a/sunset_hu11649371610839769766.jpg")
 	assertWidthHeight(smart, 200, 100)
 
 	// Check cache
@@ -154,12 +154,12 @@ func TestImageTransformBasic(t *testing.T) {
 
 	cropped, err := image.Crop("300x300 topRight")
 	c.Assert(err, qt.IsNil)
-	c.Assert(cropped.RelPermalink(), qt.Equals, "/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_300x300_crop_q68_linear_topright.jpg")
+	c.Assert(cropped.RelPermalink(), qt.Equals, "/a/sunset_hu2242042514052853140.jpg")
 	assertWidthHeight(cropped, 300, 300)
 
 	smartcropped, err := image.Crop("200x200 smart")
 	c.Assert(err, qt.IsNil)
-	c.Assert(smartcropped.RelPermalink(), qt.Equals, fmt.Sprintf("/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x200_crop_q68_linear_smart%d.jpg", 1))
+	c.Assert(smartcropped.RelPermalink(), qt.Equals, "/a/sunset_hu12983255101170993571.jpg")
 	assertWidthHeight(smartcropped, 200, 200)
 
 	// Check cache
@@ -226,7 +226,7 @@ func TestImageTransformFormat(t *testing.T) {
 
 	imagePng, err := image.Resize("450x png")
 	c.Assert(err, qt.IsNil)
-	c.Assert(imagePng.RelPermalink(), qt.Equals, "/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_450x0_resize_linear.png")
+	c.Assert(imagePng.RelPermalink(), qt.Equals, "/a/sunset_hu11737890885216583918.png")
 	c.Assert(imagePng.ResourceType(), qt.Equals, "image")
 	assertExtWidthHeight(imagePng, ".png", 450, 281)
 	c.Assert(imagePng.Name(), qt.Equals, "sunset.jpg")
@@ -234,7 +234,7 @@ func TestImageTransformFormat(t *testing.T) {
 
 	imageGif, err := image.Resize("225x gif")
 	c.Assert(err, qt.IsNil)
-	c.Assert(imageGif.RelPermalink(), qt.Equals, "/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_225x0_resize_linear.gif")
+	c.Assert(imageGif.RelPermalink(), qt.Equals, "/a/sunset_hu1431827106749674475.gif")
 	c.Assert(imageGif.ResourceType(), qt.Equals, "image")
 	assertExtWidthHeight(imageGif, ".gif", 225, 141)
 	c.Assert(imageGif.Name(), qt.Equals, "sunset.jpg")
@@ -257,7 +257,7 @@ func TestImagePermalinkPublishOrder(t *testing.T) {
 			}()
 
 			check1 := func(img images.ImageResource) {
-				resizedLink := "/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_100x50_resize_q75_box.jpg"
+				resizedLink := "/a/sunset_hu7919355342577096259.jpg"
 				c.Assert(img.RelPermalink(), qt.Equals, resizedLink)
 				assertImageFile(c, spec.PublishFs, resizedLink, 100, 50)
 			}
@@ -298,12 +298,12 @@ func TestImageBugs(t *testing.T) {
 		c.Assert(err, qt.IsNil)
 		c.Assert(resized, qt.Not(qt.IsNil))
 		c.Assert(resized.Width(), qt.Equals, 200)
-		c.Assert(resized.RelPermalink(), qt.Equals, "/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_65b757a6e14debeae720fe8831f0a9bc.jpg")
+		c.Assert(resized.RelPermalink(), qt.Equals, "/a/1234567890qwertyuiopasdfghjklzxcvbnm5to6eeeeee7via8eleph_hu9514381480012510326.jpg")
 		resized, err = resized.Resize("100x")
 		c.Assert(err, qt.IsNil)
 		c.Assert(resized, qt.Not(qt.IsNil))
 		c.Assert(resized.Width(), qt.Equals, 100)
-		c.Assert(resized.RelPermalink(), qt.Equals, "/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_c876768085288f41211f768147ba2647.jpg")
+		c.Assert(resized.RelPermalink(), qt.Equals, "/a/1234567890qwertyuiopasdfghjklzxcvbnm5to6eeeeee7via8eleph_hu1776700126481066216.jpg")
 	})
 
 	// Issue #6137
@@ -401,7 +401,7 @@ func TestImageResize8BitPNG(t *testing.T) {
 	resized, err := image.Resize("800x")
 	c.Assert(err, qt.IsNil)
 	c.Assert(resized.MediaType().Type, qt.Equals, "image/png")
-	c.Assert(resized.RelPermalink(), qt.Equals, "/a/gohugoio_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_800x0_resize_linear_3.png")
+	c.Assert(resized.RelPermalink(), qt.Equals, "/a/gohugoio_hu8582372628235034388.png")
 	c.Assert(resized.Width(), qt.Equals, 800)
 }
 
@@ -814,10 +814,10 @@ func assetGoldenDirs(c *qt.C, dir1, dir2 string) {
 
 			if !goldenEqual(nrgba1, nrgba2) {
 				switch fi1.Name() {
-				case "gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_73c19c5f80881858a85aa23cd0ca400d.png",
-					"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_ae631e5252bb5d7b92bc766ad1a89069.png",
-					"gohugoio8_hu7f72c00afdf7634587afaa5eff2a25b2_73538_d1bbfa2629bffb90118cacce3fcfb924.png",
-					"giphy_hu3eafc418e52414ace6236bf1d31f82e1_52213_200x0_resize_box_1.gif":
+				case "giphy_hu13007323561585908901.gif",
+					"gohugoio8_hu12690451569630232821.png",
+					"gohugoio8_hu1619987041333606118.png",
+					"gohugoio8_hu18164141965527013334.png":
 					c.Log("expectedly differs from golden due to dithering:", fi1.Name())
 				default:
 					c.Errorf("resulting image differs from golden: %s", fi1.Name())

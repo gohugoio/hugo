@@ -203,9 +203,9 @@ title: mybundle-en
 	b.AssertFileExists("public/de/mybundle/pixel.png", true)
 	b.AssertFileExists("public/en/mybundle/pixel.png", true)
 
-	b.AssertFileExists("public/de/mybundle/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_2x2_resize_box_3.png", true)
+	b.AssertFileExists("public/de/mybundle/pixel_hu8581513846771248023.png", true)
 	// failing test below
-	b.AssertFileExists("public/en/mybundle/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_2x2_resize_box_3.png", true)
+	b.AssertFileExists("public/en/mybundle/pixel_hu8581513846771248023.png", true)
 }
 
 func TestMultihostResourceOneBaseURLWithSuPath(t *testing.T) {

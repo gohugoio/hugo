@@ -27,6 +27,7 @@ func TestImageCache(t *testing.T) {
 
 	files := `
 -- config.toml --
+disableLiveReload = true
 baseURL = "https://example.org"
 -- content/mybundle/index.md --
 ---
@@ -61,9 +62,9 @@ anigif: {{ $anigif.RelPermalink }}|{{ $anigif.Width }}|{{ $anigif.Height }}|{{ $
 
 	assertImages := func() {
 		b.AssertFileContent("public/index.html", `
-		gif: /mybundle/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_1x2_resize_box_3.gif|}|1|2|image/gif|
-		bmp: /mybundle/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_2x3_resize_box_3.bmp|}|2|3|image/bmp|
-		anigif: /mybundle/giphy_hu3eafc418e52414ace6236bf1d31f82e1_52213_4x5_resize_box_1.gif|4|5|image/gif|
+		gif: /mybundle/pixel_hu14657638653019978294.gif|}|1|2|image/gif|
+		bmp: /mybundle/pixel_hu14705577916774115224.bmp|}|2|3|image/bmp|
+		anigif: /mybundle/giphy_hu3665406585348417395.gif|4|5|image/gif|
 		`)
 	}
 
@@ -159,9 +160,9 @@ resize 2|RelPermalink: {{ $image.RelPermalink }}|MediaType: {{ $image.MediaType 
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html",
-		"jpg|RelPermalink: /images/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_filter_1397118720664523257.jpg|MediaType: image/jpeg|Width: 1|Height: 1|",
-		"resize 1|RelPermalink: /images/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_filter_3796633496882814163.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
-		"resize 2|RelPermalink: /images/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_filter_3796633496882814163.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
+		"jpg|RelPermalink: /images/pixel_hu13683954895608450100.jpg|MediaType: image/jpeg|Width: 1|Height: 1|",
+		"resize 1|RelPermalink: /images/pixel_hu3453403302435331853.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
+		"resize 2|RelPermalink: /images/pixel_hu3453403302435331853.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
 	)
 }
 
