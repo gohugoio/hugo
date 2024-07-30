@@ -493,7 +493,7 @@ func (i *imageResource) relTargetPathFromConfig(conf images.ImageConfig) interna
 	}
 
 	h := i.hash()
-	idStr := fmt.Sprintf("_hu%s_%d", h, i.size())
+	idStr := fmt.Sprintf("_hu%d_%d", h, i.size())
 
 	// Do not change for no good reason.
 	const md5Threshold = 100
