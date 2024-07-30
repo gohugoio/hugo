@@ -26,7 +26,6 @@ import (
 	"github.com/bep/logg"
 	"github.com/gohugoio/httpcache"
 	hhttpcache "github.com/gohugoio/hugo/cache/httpcache"
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs/glob"
 	"github.com/gohugoio/hugo/identity"
 
@@ -34,6 +33,7 @@ import (
 
 	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/cache/filecache"
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hcontext"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/tasks"
@@ -226,7 +226,7 @@ func (c *Client) match(name, pattern string, matchFunc func(r resource.Resource)
 // TODO(bep) see #10912; we currently emit a warning for this config scenario.
 func (c *Client) FromString(targetPath, content string) (resource.Resource, error) {
 	targetPath = path.Clean(targetPath)
-	key := dynacache.CleanKey(targetPath) + helpers.MD5String(content)
+	key := dynacache.CleanKey(targetPath) + hashing.MD5FromStringHexEncoded(content)
 	r, err := c.rs.ResourceCache.GetOrCreate(key, func() (resource.Resource, error) {
 		return c.rs.NewResource(
 			resources.ResourceSourceDescriptor{

@@ -25,6 +25,7 @@ import (
 
 	"github.com/bep/lazycache"
 
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/identity"
 
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
@@ -50,7 +51,7 @@ func (k partialCacheKey) Key() string {
 	if k.Variants == nil {
 		return k.Name
 	}
-	return identity.HashString(append([]any{k.Name}, k.Variants...)...)
+	return hashing.HashString(append([]any{k.Name}, k.Variants...)...)
 }
 
 func (k partialCacheKey) templateName() string {

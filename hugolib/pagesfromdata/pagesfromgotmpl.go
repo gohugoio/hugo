@@ -19,6 +19,7 @@ import (
 	"io"
 	"path/filepath"
 
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/helpers"
@@ -219,7 +220,7 @@ type BuildState struct {
 }
 
 func (b *BuildState) hash(v any) uint64 {
-	return identity.HashUint64(v)
+	return hashing.HashUint64(v)
 }
 
 func (b *BuildState) checkHasChangedAndSetSourceInfo(changedPath string, v any) bool {

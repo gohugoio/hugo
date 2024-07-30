@@ -33,13 +33,12 @@ import (
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/resources/images/webp"
 
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/spf13/afero"
 
 	"github.com/disintegration/gift"
-
-	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/images"
@@ -835,9 +834,9 @@ func assetGoldenDirs(c *qt.C, dir1, dir2 string) {
 			_, err = f2.Seek(0, 0)
 			c.Assert(err, qt.IsNil)
 
-			hash1, err := helpers.MD5FromReader(f1)
+			hash1, _, err := hashing.XXHashFromReader(f1)
 			c.Assert(err, qt.IsNil)
-			hash2, err := helpers.MD5FromReader(f2)
+			hash2, _, err := hashing.XXHashFromReader(f2)
 			c.Assert(err, qt.IsNil)
 
 			c.Assert(hash1, qt.Equals, hash2)

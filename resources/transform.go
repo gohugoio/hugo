@@ -24,6 +24,7 @@ import (
 	"sync"
 
 	"github.com/gohugoio/hugo/common/constants"
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/identity"
 
@@ -36,7 +37,6 @@ import (
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources/internal"
 	"github.com/gohugoio/hugo/resources/resource"
 
@@ -397,7 +397,7 @@ func (r *resourceAdapter) TransformationKey() string {
 	for _, tr := range r.transformations {
 		key = key + "_" + tr.Key().Value()
 	}
-	return r.spec.ResourceCache.cleanKey(r.target.Key()) + "_" + helpers.MD5String(key)
+	return r.spec.ResourceCache.cleanKey(r.target.Key()) + "_" + hashing.MD5FromStringHexEncoded(key)
 }
 
 func (r *resourceAdapter) getOrTransform(publish, setContent bool) error {

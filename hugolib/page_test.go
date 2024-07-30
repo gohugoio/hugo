@@ -23,13 +23,13 @@ import (
 	"time"
 
 	"github.com/bep/clocks"
-	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/asciidocext"
 	"github.com/gohugoio/hugo/markup/rst"
 	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/config"
 
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/loggers"
 
@@ -2040,8 +2040,8 @@ title: "p2"
 
 	b.Assert(p1, qt.Not(qt.Equals), p2)
 
-	b.Assert(identity.HashString(p1), qt.Not(qt.Equals), identity.HashString(p2))
-	b.Assert(identity.HashString(sites[0]), qt.Not(qt.Equals), identity.HashString(sites[1]))
+	b.Assert(hashing.HashString(p1), qt.Not(qt.Equals), hashing.HashString(p2))
+	b.Assert(hashing.HashString(sites[0]), qt.Not(qt.Equals), hashing.HashString(sites[1]))
 }
 
 // Issue #11243

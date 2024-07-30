@@ -14,10 +14,11 @@
 package hashing
 
 import (
+	"fmt"
+	"math"
 	"strings"
 	"testing"
 
-	"github.com/cespare/xxhash/v2"
 	qt "github.com/frankban/quicktest"
 )
 
@@ -72,8 +73,47 @@ func BenchmarkXXHashFromStringHexEncoded(b *testing.B) {
 	}
 }
 
-func xxHashFromString(f string) uint64 {
-	h := xxhash.New()
-	h.WriteString(f)
-	return h.Sum64()
+func TestHashString(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(HashString("a", "b"), qt.Equals, "3176555414984061461")
+	c.Assert(HashString("ab"), qt.Equals, "7347350983217793633")
+
+	var vals []any = []any{"a", "b", tstKeyer{"c"}}
+
+	c.Assert(HashString(vals...), qt.Equals, "4438730547989914315")
+	c.Assert(vals[2], qt.Equals, tstKeyer{"c"})
+}
+
+type tstKeyer struct {
+	key string
+}
+
+func (t tstKeyer) Key() string {
+	return t.key
+}
+
+func (t tstKeyer) String() string {
+	return "key: " + t.key
+}
+
+func BenchmarkHashString(b *testing.B) {
+	word := " hello "
+
+	var tests []string
+
+	for i := 1; i <= 5; i++ {
+		sentence := strings.Repeat(word, int(math.Pow(4, float64(i))))
+		tests = append(tests, sentence)
+	}
+
+	b.ResetTimer()
+
+	for _, test := range tests {
+		b.Run(fmt.Sprintf("n%d", len(test)), func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				HashString(test)
+			}
+		})
+	}
 }

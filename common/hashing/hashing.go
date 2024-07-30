@@ -15,11 +15,15 @@
 package hashing
 
 import (
+	"crypto/md5"
 	"encoding/hex"
 	"io"
+	"strconv"
 	"sync"
 
 	"github.com/cespare/xxhash/v2"
+	"github.com/gohugoio/hashstructure"
+	"github.com/gohugoio/hugo/identity"
 )
 
 // XXHashFromReader calculates the xxHash for the given reader.
@@ -48,6 +52,82 @@ func XxHashFromStringHexEncoded(f string) string {
 	h.WriteString(f)
 	hash := h.Sum(nil)
 	return hex.EncodeToString(hash)
+}
+
+// MD5FromStringHexEncoded returns the MD5 hash of the given string.
+func MD5FromStringHexEncoded(f string) string {
+	h := md5.New()
+	h.Write([]byte(f))
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+// HashString returns a hash from the given elements.
+// It will panic if the hash cannot be calculated.
+// Note that this hash should be used primarily for identity, not for change detection as
+// it in the more complex values (e.g. Page) will not hash the full content.
+func HashString(vs ...any) string {
+	hash := HashUint64(vs...)
+	return strconv.FormatUint(hash, 10)
+}
+
+var hashOptsPool = sync.Pool{
+	New: func() any {
+		return &hashstructure.HashOptions{
+			Hasher: xxhash.New(),
+		}
+	},
+}
+
+func getHashOpts() *hashstructure.HashOptions {
+	return hashOptsPool.Get().(*hashstructure.HashOptions)
+}
+
+func putHashOpts(opts *hashstructure.HashOptions) {
+	opts.Hasher.Reset()
+	hashOptsPool.Put(opts)
+}
+
+// HashUint64 returns a hash from the given elements.
+// It will panic if the hash cannot be calculated.
+// Note that this hash should be used primarily for identity, not for change detection as
+// it in the more complex values (e.g. Page) will not hash the full content.
+func HashUint64(vs ...any) uint64 {
+	var o any
+	if len(vs) == 1 {
+		o = toHashable(vs[0])
+	} else {
+		elements := make([]any, len(vs))
+		for i, e := range vs {
+			elements[i] = toHashable(e)
+		}
+		o = elements
+	}
+
+	hashOpts := getHashOpts()
+	defer putHashOpts(hashOpts)
+
+	hash, err := hashstructure.Hash(o, hashOpts)
+	if err != nil {
+		panic(err)
+	}
+	return hash
+}
+
+type keyer interface {
+	Key() string
+}
+
+// For structs, hashstructure.Hash only works on the exported fields,
+// so rewrite the input slice for known identity types.
+func toHashable(v any) any {
+	switch t := v.(type) {
+	case keyer:
+		return t.Key()
+	case identity.IdentityProvider:
+		return t.GetIdentity()
+	default:
+		return v
+	}
 }
 
 type xxhashReadFrom struct {
