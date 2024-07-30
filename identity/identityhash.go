@@ -16,7 +16,7 @@ package identity
 import (
 	"strconv"
 
-	"github.com/mitchellh/hashstructure"
+	"github.com/mitchellh/hashstructure/v2"
 )
 
 // HashString returns a hash from the given elements.
@@ -44,7 +44,7 @@ func HashUint64(vs ...any) uint64 {
 		o = elements
 	}
 
-	hash, err := hashstructure.Hash(o, nil)
+	hash, err := hashstructure.Hash(o, hashstructure.FormatV2, nil)
 	if err != nil {
 		panic(err)
 	}

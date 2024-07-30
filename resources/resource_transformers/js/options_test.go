@@ -44,7 +44,7 @@ func TestOptionKey(t *testing.T) {
 
 	key := (&buildTransformation{optsm: opts}).Key()
 
-	c.Assert(key.Value(), qt.Equals, "jsbuild_7891849149754191852")
+	c.Assert(key.Value(), qt.Equals, "jsbuild_9458638411414195026")
 }
 
 func TestToBuildOptions(t *testing.T) {
