@@ -25,12 +25,12 @@ import (
 func TestHashString(t *testing.T) {
 	c := qt.New(t)
 
-	c.Assert(HashString("a", "b"), qt.Equals, "2712570657419664240")
-	c.Assert(HashString("ab"), qt.Equals, "590647783936702392")
+	c.Assert(HashString("a", "b"), qt.Equals, "3176555414984061461")
+	c.Assert(HashString("ab"), qt.Equals, "7347350983217793633")
 
 	var vals []any = []any{"a", "b", tstKeyer{"c"}}
 
-	c.Assert(HashString(vals...), qt.Equals, "12599484872364427450")
+	c.Assert(HashString(vals...), qt.Equals, "4438730547989914315")
 	c.Assert(vals[2], qt.Equals, tstKeyer{"c"})
 }
 

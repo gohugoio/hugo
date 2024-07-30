@@ -15,7 +15,9 @@ package identity
 
 import (
 	"strconv"
+	"sync"
 
+	"github.com/cespare/xxhash/v2"
 	"github.com/mitchellh/hashstructure/v2"
 )
 
@@ -26,6 +28,23 @@ import (
 func HashString(vs ...any) string {
 	hash := HashUint64(vs...)
 	return strconv.FormatUint(hash, 10)
+}
+
+var hashOptsPool = sync.Pool{
+	New: func() any {
+		return &hashstructure.HashOptions{
+			Hasher: xxhash.New(),
+		}
+	},
+}
+
+func getHashOpts() *hashstructure.HashOptions {
+	return hashOptsPool.Get().(*hashstructure.HashOptions)
+}
+
+func putHashOpts(opts *hashstructure.HashOptions) {
+	opts.Hasher.Reset()
+	hashOptsPool.Put(opts)
 }
 
 // HashUint64 returns a hash from the given elements.
@@ -44,7 +63,10 @@ func HashUint64(vs ...any) uint64 {
 		o = elements
 	}
 
-	hash, err := hashstructure.Hash(o, hashstructure.FormatV2, nil)
+	hashOpts := getHashOpts()
+	defer putHashOpts(hashOpts)
+
+	hash, err := hashstructure.Hash(o, hashstructure.FormatV2, hashOpts)
 	if err != nil {
 		panic(err)
 	}

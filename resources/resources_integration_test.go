@@ -159,9 +159,9 @@ resize 2|RelPermalink: {{ $image.RelPermalink }}|MediaType: {{ $image.MediaType 
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html",
-		"jpg|RelPermalink: /images/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_filter_14347832029652749901.jpg|MediaType: image/jpeg|Width: 1|Height: 1|",
-		"resize 1|RelPermalink: /images/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_filter_14038289290831899195.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
-		"resize 2|RelPermalink: /images/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_filter_14038289290831899195.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
+		"jpg|RelPermalink: /images/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_filter_1397118720664523257.jpg|MediaType: image/jpeg|Width: 1|Height: 1|",
+		"resize 1|RelPermalink: /images/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_filter_3796633496882814163.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
+		"resize 2|RelPermalink: /images/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_filter_3796633496882814163.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
 	)
 }
 

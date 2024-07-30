@@ -82,12 +82,12 @@ SUNSET2: {{ $resized2.RelPermalink }}/{{ $resized2.Width }}/Lat: {{ $resized2.Ex
 	// Check the file cache
 	b.AssertImage(200, 200, "resources/_gen/images/bundle/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x200_resize_q75_box.jpg")
 
-	b.AssertFileContent("resources/_gen/images/bundle/sunset_9750822043026343402.json",
+	b.AssertFileContent("resources/_gen/images/bundle/sunset_2020904703097093419.json",
 		"FocalLengthIn35mmFormat|uint16", "PENTAX")
 
 	b.AssertImage(123, 234, "resources/_gen/images/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_123x234_resize_q75_box.jpg")
 
-	b.AssertFileContent("resources/_gen/images/images/sunset_9750822043026343402.json",
+	b.AssertFileContent("resources/_gen/images/images/sunset_2020904703097093419.json",
 		"FocalLengthIn35mmFormat|uint16", "PENTAX")
 
 	b.AssertNoDuplicateWrites()
