@@ -20,8 +20,8 @@ import (
 	"strconv"
 	"sync/atomic"
 
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/mitchellh/mapstructure"
 )
@@ -83,7 +83,7 @@ func (ns *Namespace) DoDefer(ctx context.Context, id string, optsv any) string {
 	templateName := id
 	var key string
 	if opts.Key != "" {
-		key = helpers.MD5String(opts.Key)
+		key = hashing.MD5FromStringHexEncoded(opts.Key)
 	} else {
 		key = strconv.FormatUint(defferedIDCounter.Add(1), 10)
 	}

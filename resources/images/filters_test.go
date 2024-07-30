@@ -17,7 +17,7 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/common/hashing"
 )
 
 func TestFilterHash(t *testing.T) {
@@ -25,8 +25,8 @@ func TestFilterHash(t *testing.T) {
 
 	f := &Filters{}
 
-	c.Assert(identity.HashString(f.Grayscale()), qt.Equals, identity.HashString(f.Grayscale()))
-	c.Assert(identity.HashString(f.Grayscale()), qt.Not(qt.Equals), identity.HashString(f.Invert()))
-	c.Assert(identity.HashString(f.Gamma(32)), qt.Not(qt.Equals), identity.HashString(f.Gamma(33)))
-	c.Assert(identity.HashString(f.Gamma(32)), qt.Equals, identity.HashString(f.Gamma(32)))
+	c.Assert(hashing.HashString(f.Grayscale()), qt.Equals, hashing.HashString(f.Grayscale()))
+	c.Assert(hashing.HashString(f.Grayscale()), qt.Not(qt.Equals), hashing.HashString(f.Invert()))
+	c.Assert(hashing.HashString(f.Gamma(32)), qt.Not(qt.Equals), hashing.HashString(f.Gamma(33)))
+	c.Assert(hashing.HashString(f.Gamma(32)), qt.Equals, hashing.HashString(f.Gamma(32)))
 }

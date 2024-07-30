@@ -15,8 +15,6 @@ package helpers
 
 import (
 	"bytes"
-	"crypto/md5"
-	"encoding/hex"
 	"fmt"
 	"io"
 	"net"
@@ -255,66 +253,6 @@ func SliceToLower(s []string) []string {
 	}
 
 	return l
-}
-
-// XXHashFromReader creates a xxHash hash from the given reader.
-
-// MD5String takes a string and returns its MD5 hash.
-func MD5String(f string) string {
-	h := md5.New()
-	h.Write([]byte(f))
-	return hex.EncodeToString(h.Sum([]byte{}))
-}
-
-// MD5FromReaderFast creates a MD5 hash from the given file. It only reads parts of
-// the file for speed, so don't use it if the files are very subtly different.
-// It will not close the file.
-// It will return the MD5 hash and the size of r in bytes.
-func MD5FromReaderFast(r io.ReadSeeker) (string, int64, error) {
-	const (
-		// Do not change once set in stone!
-		maxChunks = 8
-		peekSize  = 64
-		seek      = 2048
-	)
-
-	h := md5.New()
-	buff := make([]byte, peekSize)
-
-	for i := 0; i < maxChunks; i++ {
-		if i > 0 {
-			_, err := r.Seek(seek, 0)
-			if err != nil {
-				if err == io.EOF {
-					break
-				}
-				return "", 0, err
-			}
-		}
-
-		_, err := io.ReadAtLeast(r, buff, peekSize)
-		if err != nil {
-			if err == io.EOF || err == io.ErrUnexpectedEOF {
-				h.Write(buff)
-				break
-			}
-			return "", 0, err
-		}
-		h.Write(buff)
-	}
-
-	size, _ := r.Seek(0, io.SeekEnd)
-
-	return hex.EncodeToString(h.Sum(nil)), size, nil
-}
-
-// MD5FromReader creates a MD5 hash from the given reader.
-func MD5FromReader(r io.Reader) (string, error) {
-	h := md5.New()
-	if _, err := io.Copy(h, r); err != nil {
-		return "", nil
-	}
-	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
 // IsWhitespace determines if the given rune is whitespace.

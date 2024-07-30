@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/types"
-	"github.com/gohugoio/hugo/identity"
 )
 
 var (
@@ -49,7 +49,7 @@ func normalize(v reflect.Value) any {
 	k := v.Kind()
 	switch {
 	case !v.Type().Comparable():
-		return identity.HashUint64(v.Interface())
+		return hashing.HashUint64(v.Interface())
 	case isNumber(k):
 		f, err := numberToFloat(v)
 		if err == nil {

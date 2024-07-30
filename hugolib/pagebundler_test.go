@@ -19,11 +19,10 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/config"
-
-	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/hugofs"
 
@@ -701,13 +700,13 @@ bundle min min key: {{ $jsonMinMin.Key }}
 			b.AssertFileContent(index, fmt.Sprintf("data content unmarshaled: v%d", i))
 			b.AssertFileContent(index, fmt.Sprintf("data assets content unmarshaled: v%d", i))
 
-			md5Asset := helpers.MD5String(fmt.Sprintf(`vdata: v%d`, i))
+			md5Asset := hashing.MD5FromStringHexEncoded(fmt.Sprintf(`vdata: v%d`, i))
 			b.AssertFileContent(index, fmt.Sprintf("assets fingerprinted: /data%d/data.%s.yaml", i, md5Asset))
 
 			// The original is not used, make sure it's not published.
 			b.Assert(b.CheckExists(fmt.Sprintf("public/data%d/data.yaml", i)), qt.Equals, false)
 
-			md5Bundle := helpers.MD5String(fmt.Sprintf(`data: v%d`, i))
+			md5Bundle := hashing.MD5FromStringHexEncoded(fmt.Sprintf(`data: v%d`, i))
 			b.AssertFileContent(index, fmt.Sprintf("bundle fingerprinted: /bundle%d/data.%s.yaml", i, md5Bundle))
 
 			b.AssertFileContent(index,

@@ -29,6 +29,7 @@ import (
 	gmaps "maps"
 
 	"github.com/gohugoio/httpcache"
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
@@ -310,10 +311,10 @@ func (c *Client) validateFromRemoteArgs(uri string, options fromRemoteOptions) e
 func remoteResourceKeys(uri string, optionsm map[string]any) (string, string) {
 	var userKey string
 	if key, k, found := maps.LookupEqualFold(optionsm, "key"); found {
-		userKey = identity.HashString(key)
+		userKey = hashing.HashString(key)
 		delete(optionsm, k)
 	}
-	optionsKey := identity.HashString(uri, optionsm)
+	optionsKey := hashing.HashString(uri, optionsm)
 	if userKey == "" {
 		userKey = optionsKey
 	}

@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/bep/gitmap"
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/media"
@@ -26,8 +27,6 @@ import (
 	"github.com/gohugoio/hugo/common/hugio"
 
 	"github.com/gohugoio/hugo/hugofs"
-
-	"github.com/gohugoio/hugo/helpers"
 )
 
 // File describes a source file.
@@ -125,7 +124,7 @@ func (fi *File) IsZero() bool {
 // in some cases that is slightly expensive to construct.
 func (fi *File) init() {
 	fi.lazyInit.Do(func() {
-		fi.uniqueID = helpers.MD5String(filepath.ToSlash(fi.Path()))
+		fi.uniqueID = hashing.MD5FromStringHexEncoded(filepath.ToSlash(fi.Path()))
 	})
 }
 

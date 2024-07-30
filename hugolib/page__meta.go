@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/gobuffalo/flect"
-	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/markup/converter"
 	xmaps "golang.org/x/exp/maps"
@@ -32,6 +31,7 @@ import (
 	"github.com/gohugoio/hugo/source"
 
 	"github.com/gohugoio/hugo/common/constants"
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
@@ -328,7 +328,7 @@ func (ps *pageState) setMetaPost(cascade map[page.PageMatcher]maps.Params) error
 	ps.m.setMetaPostCount++
 	var cascadeHashPre uint64
 	if ps.m.setMetaPostCount > 1 {
-		cascadeHashPre = identity.HashUint64(ps.m.pageConfig.CascadeCompiled)
+		cascadeHashPre = hashing.HashUint64(ps.m.pageConfig.CascadeCompiled)
 		ps.m.pageConfig.CascadeCompiled = xmaps.Clone[map[page.PageMatcher]maps.Params](ps.m.cascadeOriginal)
 
 	}
@@ -360,7 +360,7 @@ func (ps *pageState) setMetaPost(cascade map[page.PageMatcher]maps.Params) error
 	}
 
 	if ps.m.setMetaPostCount > 1 {
-		ps.m.setMetaPostCascadeChanged = cascadeHashPre != identity.HashUint64(ps.m.pageConfig.CascadeCompiled)
+		ps.m.setMetaPostCascadeChanged = cascadeHashPre != hashing.HashUint64(ps.m.pageConfig.CascadeCompiled)
 		if !ps.m.setMetaPostCascadeChanged {
 
 			// No changes, restore any value that may be changed by aggregation.
