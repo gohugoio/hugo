@@ -644,7 +644,7 @@ func (r *resourceHash) init(l hugio.ReadSeekCloserProvider) error {
 			return
 		}
 		defer f.Close()
-		hash, size, err = helpers.MD5FromReaderFast(f)
+		hash, size, err = hashImage(f)
 		if err != nil {
 			initErr = fmt.Errorf("failed to calculate hash: %w", err)
 			return
@@ -654,4 +654,8 @@ func (r *resourceHash) init(l hugio.ReadSeekCloserProvider) error {
 	})
 
 	return initErr
+}
+
+func hashImage(r io.ReadSeeker) (string, int64, error) {
+	return helpers.MD5FromReaderFast(r)
 }
