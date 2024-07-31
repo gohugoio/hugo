@@ -102,6 +102,16 @@ func NewPermalinkExpander(urlize func(uri string) string, patterns map[string]ma
 	return p, nil
 }
 
+// ExpandPattern expands the path in p with the specified expand pattern.
+func (l PermalinkExpander) ExpandPattern(pattern string, p Page) (string, error) {
+	expander, err := l.parsePattern(pattern)
+	if err != nil {
+		return "", err
+	}
+
+	return expander(p)
+}
+
 // Expand expands the path in p according to the rules defined for the given key.
 // If no rules are found for the given key, an empty string is returned.
 func (l PermalinkExpander) Expand(key string, p Page) (string, error) {
@@ -129,56 +139,63 @@ func init() {
 	}
 }
 
+func (l PermalinkExpander) parsePattern(pattern string) (func(Page) (string, error), error) {
+	if !l.validate(pattern) {
+		return nil, &permalinkExpandError{pattern: pattern, err: errPermalinkIllFormed}
+	}
+
+	matches := attributeRegexp.FindAllStringSubmatch(pattern, -1)
+
+	callbacks := make([]pageToPermaAttribute, len(matches))
+	replacements := make([]string, len(matches))
+	for i, m := range matches {
+		replacement := m[0]
+		attr := replacement[1:]
+		replacements[i] = replacement
+		callback, ok := l.callback(attr)
+
+		if !ok {
+			return nil, &permalinkExpandError{pattern: pattern, err: errPermalinkAttributeUnknown}
+		}
+
+		callbacks[i] = callback
+	}
+
+	expander := func(p Page) (string, error) {
+		if matches == nil {
+			return pattern, nil
+		}
+
+		newField := pattern
+
+		for i, replacement := range replacements {
+			attr := replacement[1:]
+			callback := callbacks[i]
+			newAttr, err := callback(p, attr)
+			if err != nil {
+				return "", &permalinkExpandError{pattern: pattern, err: err}
+			}
+
+			newField = strings.Replace(newField, replacement, newAttr, 1)
+		}
+
+		return newField, nil
+	}
+	return expander, nil
+}
+
 func (l PermalinkExpander) parse(patterns map[string]string) (map[string]func(Page) (string, error), error) {
 	expanders := make(map[string]func(Page) (string, error))
 
 	for k, pattern := range patterns {
 		k = strings.Trim(k, sectionCutSet)
 
-		if !l.validate(pattern) {
-			return nil, &permalinkExpandError{pattern: pattern, err: errPermalinkIllFormed}
+		expander, err := l.parsePattern(pattern)
+		if err != nil {
+			return nil, err
 		}
 
-		pattern := pattern
-		matches := attributeRegexp.FindAllStringSubmatch(pattern, -1)
-
-		callbacks := make([]pageToPermaAttribute, len(matches))
-		replacements := make([]string, len(matches))
-		for i, m := range matches {
-			replacement := m[0]
-			attr := replacement[1:]
-			replacements[i] = replacement
-			callback, ok := l.callback(attr)
-
-			if !ok {
-				return nil, &permalinkExpandError{pattern: pattern, err: errPermalinkAttributeUnknown}
-			}
-
-			callbacks[i] = callback
-		}
-
-		expanders[k] = func(p Page) (string, error) {
-			if matches == nil {
-				return pattern, nil
-			}
-
-			newField := pattern
-
-			for i, replacement := range replacements {
-				attr := replacement[1:]
-				callback := callbacks[i]
-				newAttr, err := callback(p, attr)
-				if err != nil {
-					return "", &permalinkExpandError{pattern: pattern, err: err}
-				}
-
-				newField = strings.Replace(newField, replacement, newAttr, 1)
-
-			}
-
-			return newField, nil
-		}
-
+		expanders[k] = expander
 	}
 
 	return expanders, nil

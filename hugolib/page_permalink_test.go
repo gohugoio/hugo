@@ -59,6 +59,8 @@ func TestPermalink(t *testing.T) {
 
 		// test URL overrides
 		{"x/y/z/boofar.md", "", "", "/z/y/q/", false, false, "/z/y/q/", "/z/y/q/"},
+		// test URL override with expands
+		{"x/y/z/boofar.md", "", "test", "/z/:slug/", false, false, "/z/test/", "/z/test/"},
 	}
 
 	for i, test := range tests {
