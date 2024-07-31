@@ -161,6 +161,4 @@ require (
 	software.sslmate.com/src/go-pkcs12 v0.2.0 // indirect
 )
 
-toolchain go1.21.0
-
-go 1.20
+go 1.21
