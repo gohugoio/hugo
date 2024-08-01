@@ -141,6 +141,19 @@ func createTargetPathDescriptor(p *pageState) (page.TargetPathDescriptor, error)
 	desc.PrefixFilePath = s.getLanguageTargetPathLang(alwaysInSubDir)
 	desc.PrefixLink = s.getLanguagePermalinkLang(alwaysInSubDir)
 
+	if desc.URL != "" && strings.IndexByte(desc.URL, ':') >= 0 {
+		// Attempt to parse and expand an url
+		opath, err := d.ResourceSpec.Permalinks.ExpandPattern(desc.URL, p)
+		if err != nil {
+			return desc, err
+		}
+
+		if opath != "" {
+			opath, _ = url.QueryUnescape(opath)
+			desc.URL = opath
+		}
+	}
+
 	opath, err := d.ResourceSpec.Permalinks.Expand(p.Section(), p)
 	if err != nil {
 		return desc, err
