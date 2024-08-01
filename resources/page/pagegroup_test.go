@@ -55,6 +55,11 @@ func preparePageGroupTestPages(t *testing.T) Pages {
 		p.params["custom_param"] = src.param
 		p.params["custom_date"] = cast.ToTime(src.date)
 		p.params["custom_string_date"] = src.date
+		p.params["custom_object"] = map[string]any{
+			"param":       src.param,
+			"date":        cast.ToTime(src.date),
+			"string_date": src.date,
+		}
 		pages = append(pages, p)
 	}
 	return pages
@@ -252,6 +257,25 @@ func TestGroupByParamCalledWithUnavailableParam(t *testing.T) {
 	}
 }
 
+func TestGroupByParamNested(t *testing.T) {
+	t.Parallel()
+	pages := preparePageGroupTestPages(t)
+
+	expect := PagesGroup{
+		{Key: "bar", Pages: Pages{pages[1], pages[3]}},
+		{Key: "baz", Pages: Pages{pages[4]}},
+		{Key: "foo", Pages: Pages{pages[0], pages[2]}},
+	}
+
+	groups, err := pages.GroupByParam("custom_object.param")
+	if err != nil {
+		t.Fatalf("Unable to make PagesGroup array: %s", err)
+	}
+	if !reflect.DeepEqual(groups, expect) {
+		t.Errorf("PagesGroup has unexpected groups. It should be %#v, got %#v", expect, groups)
+	}
+}
+
 func TestGroupByDate(t *testing.T) {
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
@@ -372,6 +396,24 @@ func TestGroupByParamDate(t *testing.T) {
 	}
 }
 
+func TestGroupByParamDateNested(t *testing.T) {
+	t.Parallel()
+	pages := preparePageGroupTestPages(t)
+	expect := PagesGroup{
+		{Key: "2012-04", Pages: Pages{pages[4], pages[2], pages[0]}},
+		{Key: "2012-03", Pages: Pages{pages[3]}},
+		{Key: "2012-01", Pages: Pages{pages[1]}},
+	}
+
+	groups, err := pages.GroupByParamDate("custom_object.date", "2006-01")
+	if err != nil {
+		t.Fatalf("Unable to make PagesGroup array: %s", err)
+	}
+	if !reflect.DeepEqual(groups, expect) {
+		t.Errorf("PagesGroup has unexpected groups. It should be %#v, got %#v", expect, groups)
+	}
+}
+
 // https://github.com/gohugoio/hugo/issues/3983
 func TestGroupByParamDateWithStringParams(t *testing.T) {
 	t.Parallel()
@@ -383,6 +425,24 @@ func TestGroupByParamDateWithStringParams(t *testing.T) {
 	}
 
 	groups, err := pages.GroupByParamDate("custom_string_date", "2006-01")
+	if err != nil {
+		t.Fatalf("Unable to make PagesGroup array: %s", err)
+	}
+	if !reflect.DeepEqual(groups, expect) {
+		t.Errorf("PagesGroup has unexpected groups. It should be %#v, got %#v", expect, groups)
+	}
+}
+
+func TestGroupByParamDateNestedWithStringParams(t *testing.T) {
+	t.Parallel()
+	pages := preparePageGroupTestPages(t)
+	expect := PagesGroup{
+		{Key: "2012-04", Pages: Pages{pages[4], pages[2], pages[0]}},
+		{Key: "2012-03", Pages: Pages{pages[3]}},
+		{Key: "2012-01", Pages: Pages{pages[1]}},
+	}
+
+	groups, err := pages.GroupByParamDate("custom_object.string_date", "2006-01")
 	if err != nil {
 		t.Fatalf("Unable to make PagesGroup array: %s", err)
 	}
