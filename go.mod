@@ -49,7 +49,7 @@ require (
 	github.com/hairyhenderson/go-codeowners v0.5.0
 	github.com/jdkato/prose v1.2.1
 	github.com/kylelemons/godebug v1.1.0
-	github.com/kyokomi/emoji/v2 v2.2.12
+	github.com/kyokomi/emoji/v2 v2.2.13
 	github.com/magefile/mage v1.15.0
 	github.com/makeworld-the-better-one/dither/v2 v2.4.0
 	github.com/marekm4/color-extractor v1.2.1
