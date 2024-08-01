@@ -2,9 +2,6 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build go1.13
-// +build go1.13
-
 package template_test
 
 import (
@@ -18,7 +15,6 @@ import (
 )
 
 func TestTemplateClone(t *testing.T) {
-
 	orig := New("name")
 	clone, err := orig.Clone()
 	if err != nil {

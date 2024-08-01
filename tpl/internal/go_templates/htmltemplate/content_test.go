@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build go1.13 && !windows
-// +build go1.13,!windows
+//go:build !windows
+// +build !windows
 
 package template
 
@@ -428,7 +428,7 @@ func TestStringer(t *testing.T) {
 	if err := tmpl.Execute(b, s); err != nil {
 		t.Fatal(err)
 	}
-	var expect = "string=3"
+	expect := "string=3"
 	if b.String() != expect {
 		t.Errorf("expected %q got %q", expect, b.String())
 	}
