@@ -46,7 +46,7 @@ require (
 	github.com/gohugoio/testmodBuilder/mods v0.0.0-20190520184928-c56af20f2e95
 	github.com/google/go-cmp v0.6.0
 	github.com/gorilla/websocket v1.5.1
-	github.com/hairyhenderson/go-codeowners v0.4.0
+	github.com/hairyhenderson/go-codeowners v0.5.0
 	github.com/jdkato/prose v1.2.1
 	github.com/kylelemons/godebug v1.1.0
 	github.com/kyokomi/emoji/v2 v2.2.12
@@ -161,4 +161,4 @@ require (
 	software.sslmate.com/src/go-pkcs12 v0.2.0 // indirect
 )
 
-go 1.21
+go 1.21.8
