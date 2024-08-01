@@ -142,9 +142,7 @@ func createTargetPathDescriptor(p *pageState) (page.TargetPathDescriptor, error)
 	desc.PrefixLink = s.getLanguagePermalinkLang(alwaysInSubDir)
 
 	if desc.URL != "" && strings.IndexByte(desc.URL, ':') >= 0 {
-		// Attempt to parse and expand an url. Probably it's a good
-		// idea to cache the parsed url to avoid regexp matching and memory allocations.
-
+		// Attempt to parse and expand an url
 		opath, err := d.ResourceSpec.Permalinks.ExpandPattern(desc.URL, p)
 		if err != nil {
 			return desc, err

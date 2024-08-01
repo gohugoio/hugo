@@ -40,6 +40,8 @@ type PermalinkExpander struct {
 	expanders map[string]map[string]func(Page) (string, error)
 
 	urlize func(uri string) string
+
+	patternCache *maps.Cache[string, func(Page) (string, error)]
 }
 
 // Time for checking date formats. Every field is different than the
@@ -71,7 +73,10 @@ func (p PermalinkExpander) callback(attr string) (pageToPermaAttribute, bool) {
 // NewPermalinkExpander creates a new PermalinkExpander configured by the given
 // urlize func.
 func NewPermalinkExpander(urlize func(uri string) string, patterns map[string]map[string]string) (PermalinkExpander, error) {
-	p := PermalinkExpander{urlize: urlize}
+	p := PermalinkExpander{
+		urlize:       urlize,
+		patternCache: maps.NewCache[string, func(Page) (string, error)](),
+	}
 
 	p.knownPermalinkAttributes = map[string]pageToPermaAttribute{
 		"year":           p.pageToPermalinkDate,
@@ -104,7 +109,7 @@ func NewPermalinkExpander(urlize func(uri string) string, patterns map[string]ma
 
 // ExpandPattern expands the path in p with the specified expand pattern.
 func (l PermalinkExpander) ExpandPattern(pattern string, p Page) (string, error) {
-	expander, err := l.parsePattern(pattern)
+	expander, err := l.getOrParsePattern(pattern)
 	if err != nil {
 		return "", err
 	}
@@ -139,7 +144,12 @@ func init() {
 	}
 }
 
-func (l PermalinkExpander) parsePattern(pattern string) (func(Page) (string, error), error) {
+func (l PermalinkExpander) getOrParsePattern(pattern string) (func(Page) (string, error), error) {
+	expander, ok := l.patternCache.Get(pattern)
+	if ok {
+		return expander, nil
+	}
+
 	if !l.validate(pattern) {
 		return nil, &permalinkExpandError{pattern: pattern, err: errPermalinkIllFormed}
 	}
@@ -161,7 +171,7 @@ func (l PermalinkExpander) parsePattern(pattern string) (func(Page) (string, err
 		callbacks[i] = callback
 	}
 
-	expander := func(p Page) (string, error) {
+	expander = func(p Page) (string, error) {
 		if matches == nil {
 			return pattern, nil
 		}
@@ -181,6 +191,7 @@ func (l PermalinkExpander) parsePattern(pattern string) (func(Page) (string, err
 
 		return newField, nil
 	}
+	l.patternCache.Set(pattern, expander)
 	return expander, nil
 }
 
@@ -190,7 +201,7 @@ func (l PermalinkExpander) parse(patterns map[string]string) (map[string]func(Pa
 	for k, pattern := range patterns {
 		k = strings.Trim(k, sectionCutSet)
 
-		expander, err := l.parsePattern(pattern)
+		expander, err := l.getOrParsePattern(pattern)
 		if err != nil {
 			return nil, err
 		}
