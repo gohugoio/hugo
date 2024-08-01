@@ -268,7 +268,8 @@ func IsContextType(tp reflect.Type) bool {
 		return true
 	}
 
-	return isContextCache.GetOrCreate(tp, func() bool {
-		return tp.Implements(contextInterface)
+	isContext, _ := isContextCache.GetOrCreate(tp, func() (bool, error) {
+		return tp.Implements(contextInterface), nil
 	})
+	return isContext
 }

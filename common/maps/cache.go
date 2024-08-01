@@ -40,22 +40,25 @@ func (c *Cache[K, T]) Get(key K) (T, bool) {
 }
 
 // GetOrCreate gets the value for the given key if it exists, or creates it if not.
-func (c *Cache[K, T]) GetOrCreate(key K, create func() T) T {
+func (c *Cache[K, T]) GetOrCreate(key K, create func() (T, error)) (T, error) {
 	c.RLock()
 	v, found := c.m[key]
 	c.RUnlock()
 	if found {
-		return v
+		return v, nil
 	}
 	c.Lock()
 	defer c.Unlock()
 	v, found = c.m[key]
 	if found {
-		return v
+		return v, nil
 	}
-	v = create()
+	v, err := create()
+	if err != nil {
+		return v, err
+	}
 	c.m[key] = v
-	return v
+	return v, nil
 }
 
 // Set sets the given key to the given value.
