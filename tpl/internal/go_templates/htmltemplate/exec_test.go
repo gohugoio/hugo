@@ -4,8 +4,8 @@
 
 // Tests for template execution, copied from text/template.
 
-//go:build go1.13 && !windows
-// +build go1.13,!windows
+//go:build !windows
+// +build !windows
 
 package template
 
