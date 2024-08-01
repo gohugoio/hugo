@@ -15,7 +15,7 @@ package page
 
 import (
 	"context"
-	"reflect"
+	"github.com/google/go-cmp/cmp"
 	"strings"
 	"testing"
 
@@ -65,7 +65,13 @@ func preparePageGroupTestPages(t *testing.T) Pages {
 	return pages
 }
 
+var comparePageGroup = qt.CmpEquals(cmp.Comparer(func(a, b Page) bool {
+	return a == b
+}))
+
 func TestGroupByWithFieldNameArg(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	expect := PagesGroup{
@@ -75,15 +81,13 @@ func TestGroupByWithFieldNameArg(t *testing.T) {
 	}
 
 	groups, err := pages.GroupBy(context.Background(), "Weight")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if !reflect.DeepEqual(groups, expect) {
-		t.Errorf("PagesGroup has unexpected groups. It should be %#v, got %#v", expect, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, comparePageGroup, expect)
 }
 
 func TestGroupByWithMethodNameArg(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	expect := PagesGroup{
@@ -92,15 +96,13 @@ func TestGroupByWithMethodNameArg(t *testing.T) {
 	}
 
 	groups, err := pages.GroupBy(context.Background(), "Type")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if !reflect.DeepEqual(groups, expect) {
-		t.Errorf("PagesGroup has unexpected groups. It should be %#v, got %#v", expect, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, comparePageGroup, expect)
 }
 
 func TestGroupByWithSectionArg(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	expect := PagesGroup{
@@ -109,15 +111,13 @@ func TestGroupByWithSectionArg(t *testing.T) {
 	}
 
 	groups, err := pages.GroupBy(context.Background(), "Section")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if !reflect.DeepEqual(groups, expect) {
-		t.Errorf("PagesGroup has unexpected groups. It should be\n%#v, got\n%#v", expect, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, comparePageGroup, expect)
 }
 
 func TestGroupByInReverseOrder(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	expect := PagesGroup{
@@ -127,47 +127,39 @@ func TestGroupByInReverseOrder(t *testing.T) {
 	}
 
 	groups, err := pages.GroupBy(context.Background(), "Weight", "desc")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if !reflect.DeepEqual(groups, expect) {
-		t.Errorf("PagesGroup has unexpected groups. It should be %#v, got %#v", expect, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, comparePageGroup, expect)
 }
 
 func TestGroupByCalledWithEmptyPages(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	var pages Pages
 	groups, err := pages.GroupBy(context.Background(), "Weight")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if groups != nil {
-		t.Errorf("PagesGroup isn't empty. It should be %#v, got %#v", nil, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, qt.IsNil)
 }
 
 func TestReverse(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 
 	groups1, err := pages.GroupBy(context.Background(), "Weight", "desc")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
+	c.Assert(err, qt.IsNil)
 
 	groups2, err := pages.GroupBy(context.Background(), "Weight")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	groups2 = groups2.Reverse()
+	c.Assert(err, qt.IsNil)
 
-	if !reflect.DeepEqual(groups2, groups1) {
-		t.Errorf("PagesGroup is sorted in unexpected order. It should be %#v, got %#v", groups2, groups1)
-	}
+	groups2 = groups2.Reverse()
+	c.Assert(groups2, comparePageGroup, groups1)
 }
 
 func TestGroupByParam(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	expect := PagesGroup{
@@ -177,15 +169,13 @@ func TestGroupByParam(t *testing.T) {
 	}
 
 	groups, err := pages.GroupByParam("custom_param")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if !reflect.DeepEqual(groups, expect) {
-		t.Errorf("PagesGroup has unexpected groups. It should be %#v, got %#v", expect, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, comparePageGroup, expect)
 }
 
 func TestGroupByParamInReverseOrder(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	expect := PagesGroup{
@@ -195,12 +185,8 @@ func TestGroupByParamInReverseOrder(t *testing.T) {
 	}
 
 	groups, err := pages.GroupByParam("custom_param", "desc")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if !reflect.DeepEqual(groups, expect) {
-		t.Errorf("PagesGroup has unexpected groups. It should be %#v, got %#v", expect, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, comparePageGroup, expect)
 }
 
 func TestGroupByParamCalledWithCapitalLetterString(t *testing.T) {
@@ -213,10 +199,12 @@ func TestGroupByParamCalledWithCapitalLetterString(t *testing.T) {
 	groups, err := pages.GroupByParam("custom_param")
 
 	c.Assert(err, qt.IsNil)
-	c.Assert(groups[0].Key, qt.Equals, testStr)
+	c.Assert(groups[0].Key, qt.DeepEquals, testStr)
 }
 
 func TestGroupByParamCalledWithSomeUnavailableParams(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	delete(pages[1].Params(), "custom_param")
@@ -228,36 +216,32 @@ func TestGroupByParamCalledWithSomeUnavailableParams(t *testing.T) {
 	}
 
 	groups, err := pages.GroupByParam("custom_param")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if !reflect.DeepEqual(groups, expect) {
-		t.Errorf("PagesGroup has unexpected groups. It should be %#v, got %#v", expect, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, comparePageGroup, expect)
 }
 
 func TestGroupByParamCalledWithEmptyPages(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	var pages Pages
 	groups, err := pages.GroupByParam("custom_param")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if groups != nil {
-		t.Errorf("PagesGroup isn't empty. It should be %#v, got %#v", nil, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, qt.IsNil)
 }
 
 func TestGroupByParamCalledWithUnavailableParam(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	_, err := pages.GroupByParam("unavailable_param")
-	if err != nil {
-		t.Errorf("GroupByParam returned an error when it shouldn't")
-	}
+	c.Assert(err, qt.IsNil)
 }
 
 func TestGroupByParamNested(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 
@@ -268,15 +252,13 @@ func TestGroupByParamNested(t *testing.T) {
 	}
 
 	groups, err := pages.GroupByParam("custom_object.param")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if !reflect.DeepEqual(groups, expect) {
-		t.Errorf("PagesGroup has unexpected groups. It should be %#v, got %#v", expect, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, comparePageGroup, expect)
 }
 
 func TestGroupByDate(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	expect := PagesGroup{
@@ -286,15 +268,13 @@ func TestGroupByDate(t *testing.T) {
 	}
 
 	groups, err := pages.GroupByDate("2006-01")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if !reflect.DeepEqual(groups, expect) {
-		t.Errorf("PagesGroup has unexpected groups. It should be %#v, got %#v", expect, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, comparePageGroup, expect)
 }
 
 func TestGroupByDateInReverseOrder(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	expect := PagesGroup{
@@ -304,15 +284,13 @@ func TestGroupByDateInReverseOrder(t *testing.T) {
 	}
 
 	groups, err := pages.GroupByDate("2006-01", "asc")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if !reflect.DeepEqual(groups, expect) {
-		t.Errorf("PagesGroup has unexpected groups. It should be %#v, got %#v", expect, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, comparePageGroup, expect)
 }
 
 func TestGroupByPublishDate(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	expect := PagesGroup{
@@ -322,15 +300,13 @@ func TestGroupByPublishDate(t *testing.T) {
 	}
 
 	groups, err := pages.GroupByPublishDate("2006-01")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if !reflect.DeepEqual(groups, expect) {
-		t.Errorf("PagesGroup has unexpected groups. It should be %#v, got %#v", expect, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, comparePageGroup, expect)
 }
 
 func TestGroupByPublishDateInReverseOrder(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	expect := PagesGroup{
@@ -340,27 +316,23 @@ func TestGroupByPublishDateInReverseOrder(t *testing.T) {
 	}
 
 	groups, err := pages.GroupByDate("2006-01", "asc")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if !reflect.DeepEqual(groups, expect) {
-		t.Errorf("PagesGroup has unexpected groups. It should be %#v, got %#v", expect, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, comparePageGroup, expect)
 }
 
 func TestGroupByPublishDateWithEmptyPages(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	var pages Pages
 	groups, err := pages.GroupByPublishDate("2006-01")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if groups != nil {
-		t.Errorf("PagesGroup isn't empty. It should be %#v, got %#v", nil, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, qt.IsNil)
 }
 
 func TestGroupByExpiryDate(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	expect := PagesGroup{
@@ -370,15 +342,13 @@ func TestGroupByExpiryDate(t *testing.T) {
 	}
 
 	groups, err := pages.GroupByExpiryDate("2006-01")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if !reflect.DeepEqual(groups, expect) {
-		t.Errorf("PagesGroup has unexpected groups. It should be %#v, got %#v", expect, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, comparePageGroup, expect)
 }
 
 func TestGroupByParamDate(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	expect := PagesGroup{
@@ -388,15 +358,13 @@ func TestGroupByParamDate(t *testing.T) {
 	}
 
 	groups, err := pages.GroupByParamDate("custom_date", "2006-01")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if !reflect.DeepEqual(groups, expect) {
-		t.Errorf("PagesGroup has unexpected groups. It should be %#v, got %#v", expect, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, comparePageGroup, expect)
 }
 
 func TestGroupByParamDateNested(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	expect := PagesGroup{
@@ -406,16 +374,14 @@ func TestGroupByParamDateNested(t *testing.T) {
 	}
 
 	groups, err := pages.GroupByParamDate("custom_object.date", "2006-01")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if !reflect.DeepEqual(groups, expect) {
-		t.Errorf("PagesGroup has unexpected groups. It should be %#v, got %#v", expect, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, comparePageGroup, expect)
 }
 
 // https://github.com/gohugoio/hugo/issues/3983
 func TestGroupByParamDateWithStringParams(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	expect := PagesGroup{
@@ -425,15 +391,13 @@ func TestGroupByParamDateWithStringParams(t *testing.T) {
 	}
 
 	groups, err := pages.GroupByParamDate("custom_string_date", "2006-01")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if !reflect.DeepEqual(groups, expect) {
-		t.Errorf("PagesGroup has unexpected groups. It should be %#v, got %#v", expect, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, comparePageGroup, expect)
 }
 
 func TestGroupByParamDateNestedWithStringParams(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	expect := PagesGroup{
@@ -443,15 +407,13 @@ func TestGroupByParamDateNestedWithStringParams(t *testing.T) {
 	}
 
 	groups, err := pages.GroupByParamDate("custom_object.string_date", "2006-01")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if !reflect.DeepEqual(groups, expect) {
-		t.Errorf("PagesGroup has unexpected groups. It should be %#v, got %#v", expect, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, comparePageGroup, expect)
 }
 
 func TestGroupByLastmod(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	expect := PagesGroup{
@@ -461,15 +423,13 @@ func TestGroupByLastmod(t *testing.T) {
 	}
 
 	groups, err := pages.GroupByLastmod("2006-01")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if !reflect.DeepEqual(groups, expect) {
-		t.Errorf("PagesGroup has unexpected groups. It should be %#v, got %#v", expect, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, comparePageGroup, expect)
 }
 
 func TestGroupByLastmodInReverseOrder(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	expect := PagesGroup{
@@ -479,15 +439,13 @@ func TestGroupByLastmodInReverseOrder(t *testing.T) {
 	}
 
 	groups, err := pages.GroupByLastmod("2006-01", "asc")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if !reflect.DeepEqual(groups, expect) {
-		t.Errorf("PagesGroup has unexpected groups. It should be\n%#v, got\n%#v", expect, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, comparePageGroup, expect)
 }
 
 func TestGroupByParamDateInReverseOrder(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	expect := PagesGroup{
@@ -497,22 +455,16 @@ func TestGroupByParamDateInReverseOrder(t *testing.T) {
 	}
 
 	groups, err := pages.GroupByParamDate("custom_date", "2006-01", "asc")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if !reflect.DeepEqual(groups, expect) {
-		t.Errorf("PagesGroup has unexpected groups. It should be %#v, got %#v", expect, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, comparePageGroup, expect)
 }
 
 func TestGroupByParamDateWithEmptyPages(t *testing.T) {
+	c := qt.New(t)
+
 	t.Parallel()
 	var pages Pages
 	groups, err := pages.GroupByParamDate("custom_date", "2006-01")
-	if err != nil {
-		t.Fatalf("Unable to make PagesGroup array: %s", err)
-	}
-	if groups != nil {
-		t.Errorf("PagesGroup isn't empty. It should be %#v, got %#v", nil, groups)
-	}
+	c.Assert(err, qt.IsNil)
+	c.Assert(groups, qt.IsNil)
 }
