@@ -320,6 +320,7 @@ func MustInternalLink(t testing.TB, withCgo bool) {
 // If not, MustHaveBuildMode calls t.Skip with an explanation.
 // Modified by Hugo (not needed)
 func MustHaveBuildMode(t testing.TB, buildmode string) {
+	return
 }
 
 // HasSymlink reports whether the current system can use os.Symlink.
