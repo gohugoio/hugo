@@ -54,7 +54,7 @@ func TestGoToolLocation(t *testing.T) {
 	}
 }
 
-// Modified by Hugo.
+// Modified by Hugo (not needed)
 func TestHasGoBuild(t *testing.T) {
 }
 
