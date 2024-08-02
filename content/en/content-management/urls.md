@@ -94,7 +94,6 @@ You can also use [Permalinks tokens](#tokens) in the `url` front matter. This is
 {{< code-toggle file=content/foo/bar/_index.md fm=true >}}
 title ="Bar"
 [[cascade]]
-[cascade.params]
   url = "/:sections[last]/:slug"
 {{< /code-toggle >}}
 
