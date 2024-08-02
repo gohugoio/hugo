@@ -85,6 +85,20 @@ multilingual|`about`|`https://example.org/de/about/`
 
 If you set both `slug` and `url` in front matter, the `url` value takes precedence.
 
+#### Permalinks tokens in front matter
+
+{{< new-in "0.131.0" >}}
+
+You can also use [Permalinks tokens](#tokens) in the `url` front matter. This is typically used in `cascade` sections:
+
+{{< code-toggle file=content/foo/bar/_index.md fm=true >}}
+title ="Bar"
+[[cascade]]
+[cascade.params]
+  url = "/:sections[last]/:slug"
+{{< /code-toggle >}}
+
+
 ## Site configuration
 
 ### Permalinks
@@ -233,7 +247,9 @@ public/
 
 #### Tokens
 
-Use these tokens when defining the URL pattern.
+Use these tokens when defining the URL pattern. These can both be used in the `permalinks` configuration and in the front matter [url](#permalinks-tokens-in-front-matter).
+
+`:filename`
 
 `:year`
 : The 4-digit year as defined in the front matter `date` field.
