@@ -476,6 +476,11 @@ func (pco *pageContentOutput) initRenderHooks() error {
 				layoutDescriptor.Kind = "render-image"
 			case hooks.HeadingRendererType:
 				layoutDescriptor.Kind = "render-heading"
+			case hooks.PassthroughRendererType:
+				layoutDescriptor.Kind = "render-passthrough"
+				if id != nil {
+					layoutDescriptor.KindVariants = id.(string)
+				}
 			case hooks.CodeBlockRendererType:
 				layoutDescriptor.Kind = "render-codeblock"
 				if id != nil {

@@ -18,6 +18,7 @@ import (
 	"math/bits"
 
 	"github.com/gohugoio/hugo/markup/converter"
+	"github.com/yuin/goldmark/ast"
 )
 
 type BufWriter struct {
@@ -40,9 +41,19 @@ func (b *BufWriter) Flush() error {
 
 type Context struct {
 	*BufWriter
+	ContextData
 	positions []int
 	pids      []uint64
-	ContextData
+	ordinals  map[ast.NodeKind]int
+}
+
+func (ctx *Context) GetAndIncrementOrdinal(kind ast.NodeKind) int {
+	if ctx.ordinals == nil {
+		ctx.ordinals = make(map[ast.NodeKind]int)
+	}
+	i := ctx.ordinals[kind]
+	ctx.ordinals[kind]++
+	return i
 }
 
 func (ctx *Context) PushPos(n int) {

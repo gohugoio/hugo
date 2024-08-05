@@ -101,7 +101,6 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 		attrtp = attributes.AttributesOwnerCodeBlockChroma
 	}
 
-	// IsDefaultCodeBlockRendererProvider
 	attrs, attrStr, err := getAttributes(n.b, info)
 	if err != nil {
 		return ast.WalkStop, &herrors.TextSegmentError{Err: err, Segment: attrStr}
@@ -160,7 +159,7 @@ type codeBlockContext struct {
 	ordinal   int
 
 	// This is only used in error situations and is expensive to create,
-	// to delay creation until needed.
+	// so delay creation until needed.
 	pos       htext.Position
 	posInit   sync.Once
 	createPos func() htext.Position
