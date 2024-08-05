@@ -44,11 +44,6 @@ func New() goldmark.Extender {
 }
 
 func (e *codeBlocksExtension) Extend(m goldmark.Markdown) {
-	m.Parser().AddOptions(
-		parser.WithASTTransformers(
-			util.Prioritized(&Transformer{}, 100),
-		),
-	)
 	m.Renderer().AddOptions(renderer.WithNodeRenderers(
 		util.Prioritized(newHTMLRenderer(), 100),
 	))
@@ -60,7 +55,7 @@ func newHTMLRenderer() renderer.NodeRenderer {
 }
 
 func (r *htmlRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
-	reg.Register(KindCodeBlock, r.renderCodeBlock)
+	reg.Register(ast.KindFencedCodeBlock, r.renderCodeBlock)
 }
 
 func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
@@ -70,28 +65,29 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 		return ast.WalkContinue, nil
 	}
 
-	n := node.(*codeBlock)
-	lang := getLang(n.b, src)
+	n := node.(*ast.FencedCodeBlock)
+
+	lang := getLang(n, src)
 	renderer := ctx.RenderContext().GetRenderer(hooks.CodeBlockRendererType, lang)
 	if renderer == nil {
 		return ast.WalkStop, fmt.Errorf("no code renderer found for %q", lang)
 	}
 
-	ordinal := n.ordinal
+	ordinal := ctx.GetAndIncrementOrdinal(ast.KindFencedCodeBlock)
 
 	var buff bytes.Buffer
 
-	l := n.b.Lines().Len()
+	l := n.Lines().Len()
 	for i := 0; i < l; i++ {
-		line := n.b.Lines().At(i)
+		line := n.Lines().At(i)
 		buff.Write(line.Value(src))
 	}
 
 	s := htext.Chomp(buff.String())
 
 	var info []byte
-	if n.b.Info != nil {
-		info = n.b.Info.Segment.Value(src)
+	if n.Info != nil {
+		info = n.Info.Segment.Value(src)
 	}
 
 	attrtp := attributes.AttributesOwnerCodeBlockCustom
@@ -101,7 +97,7 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 		attrtp = attributes.AttributesOwnerCodeBlockChroma
 	}
 
-	attrs, attrStr, err := getAttributes(n.b, info)
+	attrs, attrStr, err := getAttributes(n, info)
 	if err != nil {
 		return ast.WalkStop, &herrors.TextSegmentError{Err: err, Segment: attrStr}
 	}
