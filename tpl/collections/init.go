@@ -69,9 +69,7 @@ func init() {
 
 		ns.AddMethodMapping(ctx.EchoParam,
 			[]string{"echoParam"},
-			[][2]string{
-				{`{{ echoParam .Params "langCode" }}`, `en`},
-			},
+			[][2]string{},
 		)
 
 		ns.AddMethodMapping(ctx.First,

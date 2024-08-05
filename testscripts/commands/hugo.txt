@@ -11,7 +11,7 @@ grep 'IsServer: false;IsProduction: true'  public/index.html
 baseURL = "http://example.org/"
 disableKinds = ["RSS", "sitemap", "robotsTXT", "404", "taxonomy", "term"]
 -- layouts/index.html --
-Home|IsServer: {{ .Site.IsServer }};IsProduction: {{ hugo.IsProduction }}|
+Home|IsServer: {{ hugo.IsServer }};IsProduction: {{ hugo.IsProduction }}|
 -- layouts/_default/single.html --
 Title: {{ .Title }}
 -- content/p1.md --

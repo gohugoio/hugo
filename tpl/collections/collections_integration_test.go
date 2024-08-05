@@ -202,35 +202,6 @@ foo: bc
 	b.AssertFileContent("public/index.html", "<ul><li>P1</li><li>P2</li></ul>")
 }
 
-// Issue #11498
-func TestEchoParams(t *testing.T) {
-	t.Parallel()
-	files := `
--- hugo.toml --
-[params.footer]
-string = 'foo'
-int = 42
-float = 3.1415
-boolt = true
-boolf = false
--- layouts/index.html --
-{{ echoParam .Site.Params.footer "string" }}
-{{ echoParam .Site.Params.footer "int" }}
-{{ echoParam .Site.Params.footer "float" }}
-{{ echoParam .Site.Params.footer "boolt" }}
-{{ echoParam .Site.Params.footer "boolf" }}
-	`
-
-	b := hugolib.Test(t, files)
-	b.AssertFileContent("public/index.html",
-		"foo",
-		"42",
-		"3.1415",
-		"true",
-		"false",
-	)
-}
-
 func TestTermEntriesCollectionsIssue12254(t *testing.T) {
 	t.Parallel()
 
