@@ -147,6 +147,8 @@ func (r *htmlRenderer) getPageInner(rctx *render.Context) any {
 	return rctx.DocumentContext().Document
 }
 
+var _ hooks.PositionerSourceTargetProvider = (*codeBlockContext)(nil)
+
 type codeBlockContext struct {
 	page      any
 	pageInner any
@@ -188,6 +190,11 @@ func (c *codeBlockContext) Position() htext.Position {
 		c.pos = c.createPos()
 	})
 	return c.pos
+}
+
+// For internal use.
+func (c *codeBlockContext) PositionerSourceTarget() []byte {
+	return []byte(c.code)
 }
 
 func getLang(node *ast.FencedCodeBlock, src []byte) string {

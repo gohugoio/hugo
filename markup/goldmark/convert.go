@@ -18,6 +18,7 @@ import (
 	"bytes"
 
 	"github.com/gohugoio/hugo-goldmark-extensions/extras"
+	"github.com/gohugoio/hugo/markup/goldmark/blockquotes"
 	"github.com/gohugoio/hugo/markup/goldmark/codeblocks"
 	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
 	"github.com/gohugoio/hugo/markup/goldmark/hugocontext"
@@ -107,6 +108,7 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 			hugocontext.New(),
 			newLinks(cfg),
 			newTocExtension(tocRendererOptions),
+			blockquotes.New(),
 		}
 		parserOptions []parser.Option
 	)

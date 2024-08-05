@@ -217,3 +217,10 @@ func (p *passthroughContext) Position() htext.Position {
 	})
 	return p.pos
 }
+
+// For internal use.
+func (p *passthroughContext) PositionerSourceTarget() []byte {
+	return []byte(p.inner)
+}
+
+var _ hooks.PositionerSourceTargetProvider = (*passthroughContext)(nil)

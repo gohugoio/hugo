@@ -440,8 +440,8 @@ func (pco *pageContentOutput) initRenderHooks() error {
 			var offset int
 
 			switch v := ctx.(type) {
-			case hooks.CodeblockContext:
-				offset = bytes.Index(source, []byte(v.Inner()))
+			case hooks.PositionerSourceTargetProvider:
+				offset = bytes.Index(source, v.PositionerSourceTarget())
 			}
 
 			pos := pco.po.p.posFromInput(source, offset)
@@ -478,6 +478,11 @@ func (pco *pageContentOutput) initRenderHooks() error {
 				layoutDescriptor.Kind = "render-heading"
 			case hooks.PassthroughRendererType:
 				layoutDescriptor.Kind = "render-passthrough"
+				if id != nil {
+					layoutDescriptor.KindVariants = id.(string)
+				}
+			case hooks.BlockquoteRendererType:
+				layoutDescriptor.Kind = "render-blockquote"
 				if id != nil {
 					layoutDescriptor.KindVariants = id.(string)
 				}
