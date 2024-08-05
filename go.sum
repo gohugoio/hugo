@@ -235,6 +235,8 @@ github.com/gohugoio/hugo-goldmark-extensions/extras v0.2.0 h1:MNdY6hYCTQEekY0oAf
 github.com/gohugoio/hugo-goldmark-extensions/extras v0.2.0/go.mod h1:oBdBVuiZ0fv9xd8xflUgt53QxW5jOCb1S+xntcN4SKo=
 github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.2.0 h1:PCtO5l++psZf48yen2LxQ3JiOXxaRC6v0594NeHvGZg=
 github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.2.0/go.mod h1:g9CCh+Ci2IMbPUrVJuXbBTrA+rIIx5+hDQ4EXYaQDoM=
+github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.3.0 h1:7PY5PIJ2mck7v6R52yCFvvYHvsPMEbulgRviw3I9lP4=
+github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.3.0/go.mod h1:r8g5S7bHfdj0+9ShBog864ufCsVODKQZNjYYY8OnJpM=
 github.com/gohugoio/locales v0.14.0 h1:Q0gpsZwfv7ATHMbcTNepFd59H7GoykzWJIxi113XGDc=
 github.com/gohugoio/locales v0.14.0/go.mod h1:ip8cCAv/cnmVLzzXtiTpPwgJ4xhKZranqNqtoIu0b/4=
 github.com/gohugoio/localescompressed v1.0.1 h1:KTYMi8fCWYLswFyJAeOtuk/EkXR/KPTHHNN9OS+RTxo=

@@ -915,6 +915,10 @@ func (hr hookRendererTemplate) RenderCodeblock(cctx context.Context, w hugio.Fle
 	return hr.templateHandler.ExecuteWithContext(cctx, hr.templ, w, ctx)
 }
 
+func (hr hookRendererTemplate) RenderPassthrough(cctx context.Context, w io.Writer, ctx hooks.PassthroughContext) error {
+	return hr.templateHandler.ExecuteWithContext(cctx, hr.templ, w, ctx)
+}
+
 func (hr hookRendererTemplate) ResolvePosition(ctx any) text.Position {
 	return hr.resolvePosition(ctx)
 }

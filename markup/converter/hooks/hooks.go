@@ -78,6 +78,19 @@ type CodeblockContext interface {
 	Ordinal() int
 }
 
+// PassThroughContext is the context passed to a passthrough render hook.
+type PassthroughContext interface {
+	AttributesProvider
+	text.Positioner
+	PageProvider
+
+	// Currently one of "inline" or "block".
+	Type() string
+
+	// Zero-based ordinal for all passthrough elements in the document.
+	Ordinal() int
+}
+
 type AttributesOptionsSliceProvider interface {
 	AttributesSlice() []attributes.Attribute
 	OptionsSlice() []attributes.Attribute
@@ -89,6 +102,10 @@ type LinkRenderer interface {
 
 type CodeBlockRenderer interface {
 	RenderCodeblock(cctx context.Context, w hugio.FlexiWriter, ctx CodeblockContext) error
+}
+
+type PassthroughRenderer interface {
+	RenderPassthrough(cctx context.Context, w io.Writer, ctx PassthroughContext) error
 }
 
 type IsDefaultCodeBlockRendererProvider interface {
@@ -143,6 +160,7 @@ const (
 	ImageRendererType
 	HeadingRendererType
 	CodeBlockRendererType
+	PassthroughRendererType
 )
 
 type GetRendererFunc func(t RendererType, id any) any
