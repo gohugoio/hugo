@@ -20,6 +20,8 @@ import (
 	"github.com/gohugoio/hugo/compare"
 
 	"github.com/gohugoio/hugo/resources/resource"
+
+	"github.com/spf13/cast"
 )
 
 // Pages is a slice of Page objects. This is the most common list type in Hugo.
@@ -100,6 +102,20 @@ func (p Pages) Group(key any, in any) (any, error) {
 // Len returns the number of pages in the list.
 func (p Pages) Len() int {
 	return len(p)
+}
+
+// Partition splits a set of items into sets of given length.
+// This implements collections.Partitioner.
+func (p Pages) Partition(n any, in any) (any, error) {
+	nv, err := cast.ToIntE(n)
+	if err != nil {
+		return nil, err
+	}
+	pages, err := ToPages(in)
+	if err != nil {
+		return Pages{}, err
+	}
+	return pages.partition(nv)
 }
 
 // ProbablyEq wraps compare.ProbablyEqer

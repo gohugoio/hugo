@@ -2560,6 +2560,16 @@ tpl:
         - - '{{ $scratch := newScratch }}{{ $scratch.Add "b" 2 }}{{ $scratch.Add "b"
             2 }}{{ $scratch.Get "b" }}'
           - "4"
+      Partition:
+        Aliases:
+        - partition
+        Args:
+        - "n"
+        - items
+        Description: |-
+          Partition splits a set of items into chunks of given maximal length.
+          This is currently only supported for Pages.
+        Examples: []
       Querify:
         Aliases:
         - querify
