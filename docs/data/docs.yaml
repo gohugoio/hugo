@@ -3445,6 +3445,14 @@ tpl:
         Examples:
         - - '{{ math.Atan2 1 2 }}'
           - "0.4636476090008061"
+      Cbrt:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Cbrt returns the cube root of the number n.
+        Examples:
+        - - '{{ math.Cbrt 27 }}'
+          - "3"
       Ceil:
         Aliases: null
         Args:

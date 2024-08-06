@@ -43,7 +43,7 @@ type Namespace struct{}
 func (ns *Namespace) Abs(n any) (float64, error) {
 	af, err := cast.ToFloat64E(n)
 	if err != nil {
-		return 0, errors.New("the math.Abs function requires a numeric argument")
+		return 0, errors.New("requires a numeric argument")
 	}
 
 	return math.Abs(af), nil
@@ -94,11 +94,21 @@ func (ns *Namespace) Atan2(n, m any) (float64, error) {
 	return math.Atan2(afx, afy), nil
 }
 
+// Cbrt returns the cube root of the number n.
+func (ns *Namespace) Cbrt(n any) (float64, error) {
+	af, err := cast.ToFloat64E(n)
+	if err != nil {
+		return 0, errors.New("requires a numeric argument")
+	}
+
+	return math.Cbrt(af), nil
+}
+
 // Ceil returns the least integer value greater than or equal to n.
 func (ns *Namespace) Ceil(n any) (float64, error) {
 	xf, err := cast.ToFloat64E(n)
 	if err != nil {
-		return 0, errors.New("Ceil operator can't be used with non-float value")
+		return 0, errors.New("requires a numeric argument")
 	}
 
 	return math.Ceil(xf), nil
@@ -122,7 +132,7 @@ func (ns *Namespace) Div(inputs ...any) (any, error) {
 func (ns *Namespace) Floor(n any) (float64, error) {
 	xf, err := cast.ToFloat64E(n)
 	if err != nil {
-		return 0, errors.New("Floor operator can't be used with non-float value")
+		return 0, errors.New("requires a numeric argument")
 	}
 
 	return math.Floor(xf), nil
@@ -232,7 +242,7 @@ func (ns *Namespace) Sin(n any) (float64, error) {
 func (ns *Namespace) Sqrt(n any) (float64, error) {
 	af, err := cast.ToFloat64E(n)
 	if err != nil {
-		return 0, errors.New("Sqrt operator can't be used with non integer or float value")
+		return 0, errors.New("requires a numeric argument")
 	}
 
 	return math.Sqrt(af), nil

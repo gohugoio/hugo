@@ -73,6 +73,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Cbrt,
+			nil,
+			[][2]string{
+				{"{{ math.Cbrt 27 }}", "3"},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Ceil,
 			nil,
 			[][2]string{

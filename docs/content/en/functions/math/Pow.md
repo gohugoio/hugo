@@ -7,6 +7,7 @@ action:
   aliases: [pow]
   related:
     - functions/math/Sqrt
+    - functions/math/Cbrt
   returnType: float64
   signatures: [math.Pow VALUE1 VALUE2]
 ---
