@@ -233,6 +233,7 @@ func TestReverse(t *testing.T) {
 }
 
 func TestEchoParam(t *testing.T) {
+	t.Skip("deprecated, will be removed in Hugo 0.133.0")
 	t.Parallel()
 	c := qt.New(t)
 
