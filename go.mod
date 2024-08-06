@@ -40,7 +40,7 @@ require (
 	github.com/gohugoio/hashstructure v0.1.0
 	github.com/gohugoio/httpcache v0.7.0
 	github.com/gohugoio/hugo-goldmark-extensions/extras v0.2.0
-	github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.2.0
+	github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.3.0
 	github.com/gohugoio/locales v0.14.0
 	github.com/gohugoio/localescompressed v1.0.1
 	github.com/gohugoio/testmodBuilder/mods v0.0.0-20190520184928-c56af20f2e95
