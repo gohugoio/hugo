@@ -132,10 +132,44 @@ func (ns *Namespace) Floor(n any) (float64, error) {
 func (ns *Namespace) Log(n any) (float64, error) {
 	af, err := cast.ToFloat64E(n)
 	if err != nil {
-		return 0, errors.New("Log operator can't be used with non integer or float value")
+		return 0, errors.New("requires a numeric argument")
 	}
 
 	return math.Log(af), nil
+}
+
+// Log2 returns the binary logarithm of the number n.
+func (ns *Namespace) Log2(n any) (float64, error) {
+	af, err := cast.ToFloat64E(n)
+	if err != nil {
+		return 0, errors.New("requires a numeric argument")
+	}
+
+	return math.Log2(af), nil
+}
+
+// Log10 returns the decimal logarithm of the number n.
+func (ns *Namespace) Log10(n any) (float64, error) {
+	af, err := cast.ToFloat64E(n)
+	if err != nil {
+		return 0, errors.New("requires a numeric argument")
+	}
+
+	return math.Log10(af), nil
+}
+
+// Returns the mathematical constant e.
+func (ns *Namespace) E() float64 {
+	return math.E
+}
+
+// Exp returns the base-e exponential of n.
+func (ns *Namespace) Exp(n any) (float64, error) {
+	af, err := cast.ToFloat64E(n)
+	if err != nil {
+		return 0, errors.New("requires a numeric argument")
+	}
+	return math.Exp(af), nil
 }
 
 // Max returns the greater of all numbers in inputs. Any slices in inputs are flattened.

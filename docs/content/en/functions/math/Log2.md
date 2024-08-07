@@ -1,19 +1,21 @@
 ---
-title: math.Log
-description: Returns the natural logarithm of the given number.
+title: math.Log2
+description: Returns the binary logarithm of the given number.
 categories: []
 keywords: []
 action:
   aliases: []
   related:
-    - functions/math/Log2
+    - functions/math/Log
     - functions/math/Log10
     - functions/math/E
     - functions/math/Exp
   returnType: float64
-  signatures: [math.Log VALUE]
+  signatures: [math.Log2 VALUE]
 ---
 
+{{< new-in 0.131.0 >}}
+
 ```go-html-template
-{{ math.Log 2.718281828459045 }} → 1
+{{ math.Log2 8 }} → 3
 ```

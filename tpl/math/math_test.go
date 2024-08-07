@@ -155,47 +155,6 @@ func TestFloor(t *testing.T) {
 	}
 }
 
-func TestLog(t *testing.T) {
-	t.Parallel()
-	c := qt.New(t)
-
-	ns := New()
-
-	for _, test := range []struct {
-		a      any
-		expect any
-	}{
-		{1, 0.0},
-		{3, 1.0986},
-		{0, math.Inf(-1)},
-		{1.0, 0.0},
-		{3.1, 1.1314},
-		{"abc", false},
-	} {
-
-		result, err := ns.Log(test.a)
-
-		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
-			continue
-		}
-
-		// we compare only 4 digits behind point if its a real float
-		// otherwise we usually get different float values on the last positions
-		if result != math.Inf(-1) {
-			result = float64(int(result*10000)) / 10000
-		}
-
-		c.Assert(err, qt.IsNil)
-		c.Assert(result, qt.Equals, test.expect)
-	}
-
-	// Separate test for Log(-1) -- returns NaN
-	result, err := ns.Log(-1)
-	c.Assert(err, qt.IsNil)
-	c.Assert(result, qt.Satisfies, math.IsNaN)
-}
-
 func TestSqrt(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
@@ -546,6 +505,182 @@ func TestProduct(t *testing.T) {
 
 	_, err := ns.Product()
 	c.Assert(err, qt.Not(qt.IsNil))
+}
+
+// Test exponential functions
+
+func TestE(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	expect := 2.7182
+	result := ns.E()
+
+	// we compare only 4 digits behind point if its a real float
+	// otherwise we usually get different float values on the last positions
+	result = float64(int(result*10000)) / 10000
+
+	c.Assert(result, qt.Equals, expect)
+}
+
+func TestExp(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	for _, test := range []struct {
+		a      any
+		expect any
+	}{
+		{0, 1.0},
+		{1, 2.7182},
+		{2, 7.3890},
+		{-1.0, 0.3678},
+		{"abc", false},
+	} {
+
+		result, err := ns.Exp(test.a)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		// we compare only 4 digits behind point if its a real float
+		// otherwise we usually get different float values on the last positions
+		if result != math.Inf(-1) {
+			result = float64(int(result*10000)) / 10000
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}
+
+// Test logarithmic functions
+
+func TestLog(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	for _, test := range []struct {
+		a      any
+		expect any
+	}{
+		{1, 0.0},
+		{3, 1.0986},
+		{0, math.Inf(-1)},
+		{1.0, 0.0},
+		{3.1, 1.1314},
+		{"abc", false},
+	} {
+
+		result, err := ns.Log(test.a)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		// we compare only 4 digits behind point if its a real float
+		// otherwise we usually get different float values on the last positions
+		if result != math.Inf(-1) {
+			result = float64(int(result*10000)) / 10000
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+
+	// Separate test for Log(-1) -- returns NaN
+	result, err := ns.Log(-1)
+	c.Assert(err, qt.IsNil)
+	c.Assert(result, qt.Satisfies, math.IsNaN)
+}
+
+func TestLog2(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	for _, test := range []struct {
+		a      any
+		expect any
+	}{
+		{1, 0.0},
+		{2, 1.0},
+		{0, math.Inf(-1)},
+		{8.0, 3.0},
+		{"abc", false},
+	} {
+
+		result, err := ns.Log2(test.a)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		// we compare only 4 digits behind point if its a real float
+		// otherwise we usually get different float values on the last positions
+		if result != math.Inf(-1) {
+			result = float64(int(result*10000)) / 10000
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+
+	// Separate test for Log2(-1) -- returns NaN
+	result, err := ns.Log2(-1)
+	c.Assert(err, qt.IsNil)
+	c.Assert(result, qt.Satisfies, math.IsNaN)
+}
+
+func TestLog10(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	for _, test := range []struct {
+		a      any
+		expect any
+	}{
+		{1, 0.0},
+		{10, 1.0},
+		{0, math.Inf(-1)},
+		{100.0, 2.0},
+		{"abc", false},
+	} {
+
+		result, err := ns.Log10(test.a)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		// we compare only 4 digits behind point if its a real float
+		// otherwise we usually get different float values on the last positions
+		if result != math.Inf(-1) {
+			result = float64(int(result*10000)) / 10000
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+
+	// Separate test for Log10(-1) -- returns NaN
+	result, err := ns.Log10(-1)
+	c.Assert(err, qt.IsNil)
+	c.Assert(result, qt.Satisfies, math.IsNaN)
 }
 
 // Test trigonometric functions
