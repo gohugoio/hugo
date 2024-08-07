@@ -71,7 +71,7 @@ func (ns *Namespace) Unmarshal(args ...any) (any, error) {
 			key += decoder.OptionsKey()
 		}
 
-		v, err := ns.cache.GetOrCreate(key, func(string) (*resources.StaleValue[any], error) {
+		v, err := ns.cacheUnmarshal.GetOrCreate(key, func(string) (*resources.StaleValue[any], error) {
 			f := metadecoders.FormatFromStrings(r.MediaType().Suffixes()...)
 			if f == "" {
 				return nil, fmt.Errorf("MIME %q not supported", r.MediaType())
@@ -119,7 +119,7 @@ func (ns *Namespace) Unmarshal(args ...any) (any, error) {
 
 	key := hashing.MD5FromStringHexEncoded(dataStr)
 
-	v, err := ns.cache.GetOrCreate(key, func(string) (*resources.StaleValue[any], error) {
+	v, err := ns.cacheUnmarshal.GetOrCreate(key, func(string) (*resources.StaleValue[any], error) {
 		f := decoder.FormatFromContentString(dataStr)
 		if f == "" {
 			return nil, errors.New("unknown format")

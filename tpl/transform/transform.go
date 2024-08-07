@@ -18,16 +18,23 @@ import (
 	"bytes"
 	"context"
 	"encoding/xml"
+	"errors"
 	"html"
 	"html/template"
+	"io"
 	"strings"
+	"sync/atomic"
 
 	"github.com/gohugoio/hugo/cache/dynacache"
+	"github.com/gohugoio/hugo/common/hashing"
+	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/internal/warpc"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/highlight"
 	"github.com/gohugoio/hugo/markup/highlight/chromalexers"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/tpl"
+	"github.com/mitchellh/mapstructure"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -42,18 +49,26 @@ func New(deps *deps.Deps) *Namespace {
 
 	return &Namespace{
 		deps: deps,
-		cache: dynacache.GetOrCreatePartition[string, *resources.StaleValue[any]](
+		cacheUnmarshal: dynacache.GetOrCreatePartition[string, *resources.StaleValue[any]](
 			deps.MemCache,
-			"/tmpl/transform",
+			"/tmpl/transform/unmarshal",
 			dynacache.OptionsPartition{Weight: 30, ClearWhen: dynacache.ClearOnChange},
+		),
+		cacheMath: dynacache.GetOrCreatePartition[string, string](
+			deps.MemCache,
+			"/tmpl/transform/math",
+			dynacache.OptionsPartition{Weight: 30, ClearWhen: dynacache.ClearNever},
 		),
 	}
 }
 
 // Namespace provides template functions for the "transform" namespace.
 type Namespace struct {
-	cache *dynacache.Partition[string, *resources.StaleValue[any]]
-	deps  *deps.Deps
+	cacheUnmarshal *dynacache.Partition[string, *resources.StaleValue[any]]
+	cacheMath      *dynacache.Partition[string, string]
+
+	id   atomic.Uint32
+	deps *deps.Deps
 }
 
 // Emojify returns a copy of s with all emoji codes replaced with actual emojis.
@@ -182,7 +197,64 @@ func (ns *Namespace) Plainify(s any) (string, error) {
 	return tpl.StripHTML(ss), nil
 }
 
+// ToMath converts a LaTeX string to math in the given format, default MathML.
+// This uses KaTeX to render the math, see https://katex.org/.
+func (ns *Namespace) ToMath(ctx context.Context, args ...any) (string, error) {
+	if len(args) < 1 {
+		return "", errors.New("must provide at least one argument")
+	}
+	expression, err := cast.ToStringE(args[0])
+	if err != nil {
+		return "", err
+	}
+
+	katexInput := warpc.KatexInput{
+		Expression: expression,
+		Options: warpc.KatexOptions{
+			Output:       "mathml",
+			ThrowOnError: false,
+		},
+	}
+
+	if len(args) > 1 {
+		if err := mapstructure.WeakDecode(args[1], &katexInput); err != nil {
+			return "", err
+		}
+	}
+
+	s := hashing.HashString(args...)
+	key := "tomath/" + s[:2] + "/" + s[2:]
+	fileCache := ns.deps.ResourceSpec.FileCaches.MiscCache()
+
+	return ns.cacheMath.GetOrCreate(key, func(string) (string, error) {
+		_, r, err := fileCache.GetOrCreate(key, func() (io.ReadCloser, error) {
+			message := warpc.Message[warpc.KatexInput]{
+				Header: warpc.Header{
+					Version: "v1",
+					ID:      ns.id.Add(1),
+				},
+				Data: katexInput,
+			}
+
+			k, err := ns.deps.WasmDispatchers.Katex()
+			if err != nil {
+				return nil, err
+			}
+			result, err := k.Execute(ctx, message)
+			if err != nil {
+				return nil, err
+			}
+			return hugio.NewReadSeekerNoOpCloserFromString(result.Data.Output), nil
+		})
+		if err != nil {
+			return "", err
+		}
+
+		return hugio.ReadString(r)
+	})
+}
+
 // For internal use.
 func (ns *Namespace) Reset() {
-	ns.cache.Clear()
+	ns.cacheUnmarshal.Clear()
 }

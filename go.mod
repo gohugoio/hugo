@@ -69,6 +69,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/tdewolff/minify/v2 v2.20.37
 	github.com/tdewolff/parse/v2 v2.7.15
+	github.com/tetratelabs/wazero v1.7.4-0.20240805170331-2b12e189eeec
 	github.com/yuin/goldmark v1.7.4
 	github.com/yuin/goldmark-emoji v1.0.3
 	go.uber.org/automaxprocs v1.5.3

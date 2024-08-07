@@ -133,3 +133,20 @@ Scar,"a "dead cat",11
 [[name description age] [Spot a nice dog 3] [Rover a big dog 5] [Felix a "malicious" cat 7] [Bella an "evil" cat 9] [Scar a "dead cat 11]]
 	`)
 }
+
+func TestToMath(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/index.html --
+{{ $result := transform.ToMath "c = \\pm\\sqrt{a^2 + b^2}" }}
+{{ printf "%v" $result | safeHTML }}
+  `
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", `
+<span class="katex"><math
+	`)
+}

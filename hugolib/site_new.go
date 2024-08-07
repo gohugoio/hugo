@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"html/template"
 	"os"
+	"path/filepath"
 	"sort"
 	"time"
 
@@ -34,6 +35,7 @@ import (
 	"github.com/gohugoio/hugo/hugolib/doctree"
 	"github.com/gohugoio/hugo/hugolib/pagesfromdata"
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/internal/warpc"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/langs/i18n"
 	"github.com/gohugoio/hugo/lazy"
@@ -157,6 +159,15 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 		MemCache:            memCache,
 		TemplateProvider:    tplimpl.DefaultTemplateProvider,
 		TranslationProvider: i18n.NewTranslationProvider(),
+		WasmDispatchers: warpc.AllDispatchers(
+			warpc.Options{
+				CompilationCacheDir: filepath.Join(conf.Dirs().CacheDir, "_warpc"),
+
+				// Katex is relatively slow.
+				PoolSize: 8,
+				Infof:    logger.InfoCommand("wasm").Logf,
+			},
+		),
 	}
 
 	if err := firstSiteDeps.Init(); err != nil {
