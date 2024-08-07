@@ -23,6 +23,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/internal/warpc"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/postpub"
@@ -92,6 +93,10 @@ type Deps struct {
 
 	// This is common/global for all sites.
 	BuildState *BuildState
+
+	// Holds RPC dispatchers for Katex etc.
+	// TODO(bep) rethink this re. a plugin setup, but this will have to do for now.
+	WasmDispatchers *warpc.Dispatchers
 
 	*globalErrHandler
 }
@@ -342,6 +347,9 @@ func (d *Deps) TextTmpl() tpl.TemplateParseFinder {
 func (d *Deps) Close() error {
 	if d.MemCache != nil {
 		d.MemCache.Stop()
+	}
+	if d.WasmDispatchers != nil {
+		d.WasmDispatchers.Close()
 	}
 	return d.BuildClosers.Close()
 }
