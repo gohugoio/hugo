@@ -64,7 +64,7 @@ tags: ["a", "b"]
 -- layouts/_default/list.html --
 Dump: {{ debug.Dump . | safeHTML }}
 Dump Site: {{ debug.Dump site }}
-Dum site.Taxonomies: {{ debug.Dump site.Taxonomies | safeHTML }}
+Dump site.Taxonomies: {{ debug.Dump site.Taxonomies | safeHTML }}
 -- layouts/_default/single.html --
 Dump: {{ debug.Dump . | safeHTML }}
 

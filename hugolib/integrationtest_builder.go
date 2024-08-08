@@ -81,7 +81,7 @@ func TestOptWithNFDOnDarwin() TestOpt {
 	}
 }
 
-// TestOptWithWorkingDir allows setting any config optiona as a function al option.
+// TestOptWithWorkingDir allows setting any config option as a function al option.
 func TestOptWithConfig(fn func(c *IntegrationTestConfig)) TestOpt {
 	return func(c *IntegrationTestConfig) {
 		fn(c)
