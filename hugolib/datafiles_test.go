@@ -44,7 +44,7 @@ d: {{  site.Data.d.v1 }}|
 `
 		b := Test(t, files)
 
-		b.AssertFileContent("public/index.html", "a: a_v1|\nb: b_v1|\ncd: c_d_v1|\nd: d_v1_theme|")
+		b.AssertFileContent("public/index.html", "a: a_v1|\nb: b_v1|\ncd: c_d_v1|\nd: d_v1_theme|") // pragma: codespell-ignore
 	})
 }
 
