@@ -868,7 +868,7 @@ func TestUniq(t *testing.T) {
 
 		// should fail
 		{1, 1, true},
-		{"foo", "fo", true},
+		{"foo", "fo", true}, // pragma: codespell-ignore
 	} {
 		errMsg := qt.Commentf("[%d] %v", i, test)
 

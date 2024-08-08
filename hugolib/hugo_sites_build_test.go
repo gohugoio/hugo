@@ -198,7 +198,7 @@ func checkContent(s *sitesBuilder, filename string, matches ...string) {
 	content := readWorkingDir(s.T, s.Fs, filename)
 	for _, match := range matches {
 		if !strings.Contains(content, match) {
-			s.Fatalf("No match for\n%q\nin content for %s\n%q\nDiff:\n%s", match, filename, content, htesting.DiffStrings(content, match))
+			s.Fatalf("No match for\n%q\nin content for %s\n%q\nDiff:\n%s", match, filename, content, htesting.DiffStrings(content, match)) // pragma: codespell-ignore
 		}
 	}
 }

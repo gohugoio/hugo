@@ -1,6 +1,8 @@
 [codespell]
 # Ref: https://github.com/codespell-project/codespell#using-a-config-file
-skip = .git*,*.pdf,*.svg,go.sum,package-lock.json,*.css,*.min.*,.codespellrc
+skip = .git*,*.pdf,*.svg,go.sum,package-lock.json,*.css,*.min.*,.codespellrc,.cspell.json,time_test.go,_vendor,*.csv,commands_errors.txt,*.cn.*
 check-hidden = true
-# ignore-regex = 
-# ignore-words-list =
+# Lines with regex (duplicated all around and include "TE?MP"), mixed in case words, some German, etc
+ignore-regex = .*TE\?MP.*|.*codespell-ignore.*|[A-Z]?[a-z]*[A-Z][a-zA-Z]*|/extras/crossreferences/|Januar 2023|\\ndoes|.*ä.*
+# Some common short variable names
+ignore-words-list = bu,edn,ot,fromt,varn,trys,classess,wil,te,ue,womens

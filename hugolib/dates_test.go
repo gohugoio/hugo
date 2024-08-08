@@ -55,7 +55,7 @@ Date: {{ .Date | time.Format ":date_long" }}
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent("public/en/index.html", `Date: July 18, 2021`)
-	b.AssertFileContent("public/nn/index.html", `Date: 18. juli 2021`)
+	b.AssertFileContent("public/nn/index.html", `Date: 18. juli 2021`) // pragma: codespell-ignore
 }
 
 func TestTimeZones(t *testing.T) {
