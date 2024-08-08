@@ -145,7 +145,7 @@ func (l *pageLexer) emit(t ItemType) {
 	}()
 
 	if t == tText {
-		// Identify any trailing whitespace/intendation.
+		// Identify any trailing whitespace/indentation.
 		// We currently only care about the last one.
 		for i := l.pos - 1; i >= l.start; i-- {
 			b := l.input[i]

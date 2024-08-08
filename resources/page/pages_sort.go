@@ -85,7 +85,7 @@ var (
 		if o1 != o2 && o1 != -1 && o2 != -1 {
 			return o1 < o2
 		}
-		// Weight0, as by the weight of the taxonomy entrie in the front matter.
+		// Weight0, as by the weight of the taxonomy entry in the front matter.
 		w01, w02 := getWeight0s(p1, p2)
 		if w01 != w02 && w01 != -1 && w02 != -1 {
 			return w01 < w02

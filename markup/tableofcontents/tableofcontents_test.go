@@ -181,7 +181,7 @@ func TestTocMisc(t *testing.T) {
 		toc := newTestToc()
 		m := toc.HeadingsMap
 		c.Assert(m["h1-1"].Title, qt.Equals, "Heading 1")
-		c.Assert(m["doesnot exist"], qt.IsNil)
+		c.Assert(m["doesn't exist"], qt.IsNil)
 	})
 }
 

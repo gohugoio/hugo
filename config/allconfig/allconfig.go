@@ -806,7 +806,7 @@ func (c *Configs) Init() error {
 	}
 
 	if len(c.Modules) == 0 {
-		return errors.New("no modules loaded (ned at least the main module)")
+		return errors.New("no modules loaded (need at least the main module)")
 	}
 
 	// Apply default project mounts.

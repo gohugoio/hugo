@@ -156,7 +156,7 @@ func (e *Exec) new(name string, fullyQualifiedName string, arg ...any) (Runner, 
 }
 
 // Npx will in order:
-// 1. Try fo find the binary in the WORKINGDIR/node_modules/.bin directory.
+// 1. Try to find the binary in the WORKINGDIR/node_modules/.bin directory.
 // 2. If not found, and npx is available, run npx --no-install <name> <args>.
 // 3. Fall back to the PATH.
 func (e *Exec) Npx(name string, arg ...any) (Runner, error) {
