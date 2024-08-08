@@ -397,7 +397,7 @@ func (d *SourceFilesystem) mounts() []hugofs.FileMetaInfo {
 	})
 
 	// Filter out any mounts not belonging to this filesystem.
-	// TODO(bep) I think this is superflous.
+	// TODO(bep) I think this is superfluous.
 	n := 0
 	for _, mm := range m {
 		if mm.Meta().Component == d.Name {

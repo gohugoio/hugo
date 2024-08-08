@@ -1465,7 +1465,7 @@ if (!$Number(' 0o1') || !$Number('0b1') || $Number('+0x1')) {
   for (var keys = require('./_descriptors') ? gOPN(Base) : (
     // ES3:
     'MAX_VALUE,MIN_VALUE,NaN,NEGATIVE_INFINITY,POSITIVE_INFINITY,' +
-    // ES6 (in case, if modules with ES6 Number statics required before):
+    // ES6 (in case, if modules with ES6 Number statistics required before):
     'EPSILON,isFinite,isInteger,isNaN,isSafeInteger,MAX_SAFE_INTEGER,' +
     'MIN_SAFE_INTEGER,parseFloat,parseInt,isInteger'
   ).split(','), j = 0, key; keys.length > j; j++) {
@@ -2761,7 +2761,7 @@ var LiveReload = /*#__PURE__*/function () {
       //   -- required, plugin constructor
       //
       // bool plugin.reload(string path, { bool liveCSS, bool liveImg })
-      //   -- optional, attemp to reload the given path, return true if handled
+      //   -- optional, attempt to reload the given path, return true if handled
       //
       // object plugin.analyze()
       //   -- optional, returns plugin-specific information about the current document (to send to the connected server)

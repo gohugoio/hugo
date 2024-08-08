@@ -43,7 +43,7 @@ type partialCacheKey struct {
 type includeResult struct {
 	name     string
 	result   any
-	mangager identity.Manager
+	manager identity.Manager
 	err      error
 }
 
@@ -239,7 +239,7 @@ func (ns *Namespace) IncludeCached(ctx context.Context, name string, context any
 		}
 		r := ns.includWithTimeout(ctx, key.Name, context)
 		if ns.deps.Conf.Watching() {
-			r.mangager = depsManagerShared
+			r.manager = depsManagerShared
 		}
 		return r, r.err
 	})
@@ -257,8 +257,8 @@ func (ns *Namespace) IncludeCached(ctx context.Context, name string, context any
 		ns.deps.Metrics.TrackValue(key.templateName(), r.result, found)
 	}
 
-	if r.mangager != nil && depsManagerIn != nil {
-		depsManagerIn.AddIdentity(r.mangager)
+	if r.manager != nil && depsManagerIn != nil {
+		depsManagerIn.AddIdentity(r.manager)
 	}
 
 	return r.result, nil

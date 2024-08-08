@@ -305,7 +305,7 @@ func (b *contentBuilder) mapArcheTypeDir() error {
 				// In the regular build, we will filter out the duplicates, but
 				// for archetype folders these are ambiguous and we need to
 				// fail.
-				return fmt.Errorf("duplicate content file found in archetype folder: %q; having both e.g. %s.md and %s.html is ambigous", path, pi.BaseNameNoIdentifier(), pi.BaseNameNoIdentifier())
+				return fmt.Errorf("duplicate content file found in archetype folder: %q; having both e.g. %s.md and %s.html is ambiguous", path, pi.BaseNameNoIdentifier(), pi.BaseNameNoIdentifier())
 			}
 			seen[pathLang] = true
 			m.contentFiles = append(m.contentFiles, fim)
