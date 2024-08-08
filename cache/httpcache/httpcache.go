@@ -52,7 +52,7 @@ type Config struct {
 }
 
 type Cache struct {
-	// Enable HTTP cache behaviour (RFC 9111) for these rsources.
+	// Enable HTTP cache behaviour (RFC 9111) for these resources.
 	For GlobMatcher
 }
 
