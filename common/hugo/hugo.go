@@ -277,7 +277,7 @@ func GetDependencyListNonGo() []string {
 		deps = append(
 			deps,
 			formatDep("github.com/sass/libsass", "3.6.5"),
-			formatDep("github.com/webmproject/libwebp", "v1.3.2"),
+			formatDep("github.com/webmproject/libwebp", "v1.4.0"),
 		)
 	}
 

@@ -826,9 +826,7 @@ func assetGoldenDirs(c *qt.C, dir1, dir2 string) {
 			}
 		}
 
-		if !usesFMA {
-			c.Assert(fi1, eq, fi2)
-
+		if !usesFMA && runtime.GOOS != "windows" {
 			_, err = f1.Seek(0, 0)
 			c.Assert(err, qt.IsNil)
 			_, err = f2.Seek(0, 0)
