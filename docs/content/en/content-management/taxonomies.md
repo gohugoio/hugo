@@ -45,7 +45,7 @@ Then, in each of the movies, you would specify terms for each of these taxonomie
 To continue with the example of a movie site, the following demonstrates content relationships from the perspective of the taxonomy:
 
 ```txt
-Actor                    <- Taxonomy
+Actors                   <- Taxonomy
     Bruce Willis         <- Term
         The Sixth Sense  <- Value
         Unbreakable      <- Value
