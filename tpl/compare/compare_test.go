@@ -14,6 +14,7 @@
 package compare
 
 import (
+	"math"
 	"path"
 	"reflect"
 	"runtime"
@@ -199,6 +200,16 @@ func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b any)
 		{5, 5, 0},
 		{int(5), int64(5), 0},
 		{int32(5), int(5), 0},
+		{int16(4), 4, 0},
+		{uint8(4), 4, 0},
+		{uint16(4), 4, 0},
+		{uint16(4), 4, 0},
+		{uint32(4), uint16(4), 0},
+		{uint32(4), uint16(3), 1},
+		{uint64(4), 4, 0},
+		{4, uint64(4), 0},
+		{uint64(math.MaxUint32), uint32(math.MaxUint32), 0},
+		{uint64(math.MaxUint16), int(math.MaxUint16), 0},
 		{int16(4), int(5), -1},
 		{uint(15), uint64(15), 0},
 		{-2, 1, -1},
