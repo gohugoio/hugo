@@ -12,7 +12,7 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
-      - uses: dessant/lock-threads@08e671be8ac8944d0e132aa71d0ae8ccfb347675
+      - uses: dessant/lock-threads@7de207be1d3ce97a9abe6ff1306222982d1ca9f9 # v5.0.1
         with:
           issue-inactive-days: 21
           add-issue-labels: 'Outdated'
@@ -24,7 +24,7 @@ jobs:
             This pull request has been automatically locked since there
             has not been any recent activity after it was closed.
             Please open a new issue for related bugs.
-      - uses: actions/stale@04a1828bc18ada028d85a0252a47cd2963a91abe
+      - uses: actions/stale@28ca1036281a5e5922ead5184a1bbf96e5fc984e # v9.0.0
         with:
           operations-per-run: 999
           days-before-issue-stale: 365
