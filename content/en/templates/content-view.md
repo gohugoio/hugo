@@ -2,25 +2,24 @@
 title: Content view templates
 description: Hugo can render alternative views of your content, useful in list and summary views.
 categories: [templates]
-keywords: [views]
+keywords: []
 menu:
   docs:
     parent: templates
-    weight: 110
-weight: 110
+    weight: 120
+weight: 120
 toc: true
+aliases: [/templates/views/]
 ---
-
-These alternative **content views** are especially useful in [list templates][lists].
 
 The following are common use cases for content views:
 
-* You want content of every type to be shown on the homepage but only with limited [summary views][summaries].
-* You only want a bulleted list of your content on a [taxonomy list page][taxonomylists]. Views make this very straightforward by delegating the rendering of each different type of content to the content itself.
+* You want content of every type to be shown on the home page but only with limited [summary views][summaries].
+* You only want a bulleted list of your content in a [taxonomy template]. Views make this very straightforward by delegating the rendering of each different type of content to the content itself.
 
 ## Create a content view
 
-To create a new view, create a template in each of your different content type directories with the view name. The following example contains an "li" view and a "summary" view for the `posts` and `project` content types. As you can see, these sit next to the [single content view][single] template, `single.html`. You can even provide a specific view for a given type and continue to use the `_default/single.html` for the primary view.
+To create a new view, create a template in each of your different content type directories with the view name. The following example contains an "li" view and a "summary" view for the `posts` and `project` content types. As you can see, these sit next to the [single template], `single.html`. You can even provide a specific view for a given type and continue to use the `_default/single.html` for the primary view.
 
 ```txt
   ▾ layouts/
@@ -31,31 +30,21 @@ To create a new view, create a template in each of your different content type d
     ▾ project/
         li.html
         single.html
-        summary.html
-```
-
-Hugo also has support for a default content view template to be used in the event that a specific content view template has not been provided for that type. Content views can also be defined in the `_default` directory and will work the same as list and single templates who eventually trickle down to the `_default` directory as a matter of the lookup order.
-
-```txt
-▾ layouts/
-  ▾ _default/
-      li.html
-      single.html
       summary.html
 ```
 
 ## Which template will be rendered?
 
-The following is the [lookup order] for content views:
+The following is the lookup order for content views ordered by specificity.
 
 1. `/layouts/<TYPE>/<VIEW>.html`
-2. `/layouts/_default/<VIEW>.html`
-3. `/themes/<THEME>/layouts/<TYPE>/<VIEW>.html`
-4. `/themes/<THEME>/layouts/_default/<VIEW>.html`
+1. `/layouts/<SECTION>/<VIEW>.html`
+1. `/layouts/_default/<VIEW>.html`
+1. `/themes/<THEME>/layouts/<TYPE>/<VIEW>.html`
+1. `/themes/<THEME>/layouts/<SECTION>/<VIEW>.html`
+1. `/themes/<THEME>/layouts/_default/<VIEW>.html`
 
 ## Example: content view inside a list
-
-The following example demonstrates how to use content views inside your [list templates][lists].
 
 ### `list.html`
 
@@ -74,7 +63,7 @@ In this example, `.Render` is passed into the template to call the [render funct
 
 ### `summary.html`
 
-Hugo passes the page object to the following `summary.html` view template.
+Hugo passes the `Page` object to the following `summary.html` view template.
 
 {{< code file=layouts/_default/summary.html >}}
 <article class="post">
@@ -100,8 +89,7 @@ Continuing on the previous example, we can change our render function to use a s
 </li>
 {{< /code >}}
 
-[lists]: /templates/lists/
 [render]: /methods/page/render/
-[single]: /templates/single-page-templates/
+[single template]: /templates/types/#single
 [summaries]: /content-management/summaries/
-[taxonomylists]: /templates/taxonomy-templates/
+[taxonomy template]: /templates/types/#taxonomy

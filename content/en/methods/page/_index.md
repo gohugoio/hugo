@@ -7,6 +7,7 @@ keywords: []
 menu:
   docs:
     parent: methods
+aliases: [/variables/page/]
 ---
 
 Use these methods with a Page object.

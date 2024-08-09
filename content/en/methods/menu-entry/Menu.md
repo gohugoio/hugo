@@ -21,4 +21,4 @@ Use this method with the [`IsMenuCurrent`] and [`HasMenuCurrent`] methods on a `
 
 [`HasMenuCurrent`]: /methods/page/hasmenucurrent/
 [`IsMenuCurrent`]: /methods/page/ismenucurrent/
-[this example]: /templates/menu-templates/#example
+[this example]: /templates/menu/#example

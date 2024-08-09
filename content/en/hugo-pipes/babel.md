@@ -11,12 +11,12 @@ weight: 70
 function:
   aliases: [babel]
   returnType: resource.Resource
-  signatures: ['resources.Babel [OPTIONS] RESOURCE']
+  signatures: ['js.Babel [OPTIONS] RESOURCE']
 ---
 
 ## Usage
 
-Any JavaScript resource file can be transpiled to another JavaScript version using `resources.Babel` which takes for argument the resource object and an optional dict of options listed below. Babel uses the [babel cli](https://babeljs.io/docs/en/babel-cli).
+Any JavaScript resource file can be transpiled to another JavaScript version using `js.Babel` which takes for argument the resource object and an optional dict of options listed below. Babel uses the [babel cli](https://babeljs.io/docs/en/babel-cli).
 
 {{% note %}}
 Hugo Pipe's Babel requires the `@babel/cli` and `@babel/core` JavaScript packages to be installed in the project or globally (`npm install -g @babel/cli @babel/core`) along with any Babel plugin(s) or preset(s) used (e.g., `npm install @babel/preset-env --save-dev`).

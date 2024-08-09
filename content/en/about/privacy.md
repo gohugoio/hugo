@@ -15,7 +15,7 @@ aliases: [/gdpr/,/about/hugo-and-gdpr/]
 
  General Data Protection Regulation ([GDPR](https://en.wikipedia.org/wiki/General_Data_Protection_Regulation)) is a regulation in EU law on data protection and privacy for all individuals within the European Union and the European Economic Area. It became enforceable on 25 May 2018.
 
- **Hugo is a static site generator. By using Hugo you are already standing on very solid ground. Static HTML files on disk are much easier to reason about compared to server and database driven web sites.**
+ **Hugo is a static site generator. By using Hugo you are already standing on very solid ground. Static HTML files on disk are much easier to reason about compared to server and database driven websites.**
 
  But even static websites can integrate with external services, so from version `0.41`, Hugo provides a **privacy configuration** that covers the relevant built-in templates.
 

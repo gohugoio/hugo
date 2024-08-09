@@ -30,4 +30,4 @@ Use `strings.Diff` to compare two strings and render a highlighted diff:
 
 Rendered:
 
-![sreen capture](diff-screen-capture.png)
+![screen capture](diff-screen-capture.png)

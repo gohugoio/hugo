@@ -59,7 +59,7 @@ A remote resource is a file on a remote server, accessible via HTTP or HTTPS. To
 
 ## Image rendering
 
-Once you have accessed an image as either a page resource or a global resource, render it in your templates using the `Permalink`, `RelPermalink`, `Width`, and `Height` properties.
+Once you have accessed an image as a resource, render it in your templates using the `Permalink`, `RelPermalink`, `Width`, and `Height` properties.
 
 Example 1: Throws an error if the resource is not found.
 
@@ -105,7 +105,7 @@ Example 4: Skips rendering if there's problem accessing a remote resource.
 The `image` resource implements the  [`Process`],  [`Resize`], [`Fit`], [`Fill`], [`Crop`], [`Filter`], [`Colors`] and [`Exif`] methods.
 
 {{% note %}}
-Metadata (EXIF, IPTC, XMP, etc.) is not preserved during image transformation. Use the `Exif` method with the _original_ image to extract EXIF metadata from JPEG or TIFF images.
+Metadata (EXIF, IPTC, XMP, etc.) is not preserved during image transformation. Use the `Exif` method with the _original_ image to extract EXIF metadata from JPEG, PNG, TIFF, and WebP images.
 {{% /note %}}
 
 ### Process
@@ -219,7 +219,7 @@ This method is fast, but if you also scale down your images, it would be good fo
 
 Provides an [EXIF] object containing image metadata.
 
-You may access EXIF data in JPEG and TIFF images. To prevent errors when processing images without EXIF data, wrap the access in a [`with`] statement.
+You may access EXIF data in JPEG, PNG, TIFF, and WebP images. To prevent errors when processing images without EXIF data, wrap the access in a [`with`] statement.
 
 ```go-html-template
 {{ with $image.Exif }}

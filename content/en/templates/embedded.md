@@ -2,12 +2,12 @@
 title: Embedded templates
 description: Hugo provides embedded templates for common use cases.
 categories: [templates]
-keywords: [internal, analytics,]
+keywords: []
 menu:
   docs:
     parent: templates
-    weight: 190
-weight: 190
+    weight: 200
+weight: 200
 toc: true
 aliases: [/templates/internal]
 ---

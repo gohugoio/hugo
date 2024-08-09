@@ -4,16 +4,22 @@ description: Transpiles Sass to CSS.
 categories: []
 keywords: []
 action:
-  aliases: [toCSS]
   related:
     - functions/resources/Fingerprint
     - functions/resources/Minify
-    - functions/resources/PostCSS
+    - functions/css/PostCSS
     - functions/resources/PostProcess
   returnType: resource.Resource
   signatures: ['resources.ToCSS [OPTIONS] RESOURCE']
 toc: true
+expiryDate: 2025-06-24 # deprecated 2024-06-24
 ---
+
+{{% deprecated-in 0.128.0 %}}
+Use [css.Sass] instead.
+
+[css.Sass]: /functions/css/sass/
+{{% /deprecated-in %}}
 
 ```go-html-template
 {{ with resources.Get "sass/main.scss" }}
@@ -76,7 +82,7 @@ includePaths
   "transpiler" "dartsass"
   "targetPath" "css/style.css"
   "vars" site.Params.styles
-  "enableSourceMap" (not hugo.IsProduction) 
+  "enableSourceMap" (not hugo.IsProduction)
   "includePaths" (slice "node_modules/bootstrap/scss")
 }}
 {{ with resources.Get "sass/main.scss" | toCSS $opts | minify | fingerprint }}
@@ -139,8 +145,8 @@ To install Dart Sass for your builds on GitLab Pages, the `.gitlab-ci.yml` file 
 
 ```yaml
 variables:
-  HUGO_VERSION: 0.126.0
-  DART_SASS_VERSION: 1.77.1
+  HUGO_VERSION: 0.128.0
+  DART_SASS_VERSION: 1.77.5
   GIT_DEPTH: 0
   GIT_STRATEGY: clone
   GIT_SUBMODULE_STRATEGY: recursive
@@ -173,8 +179,8 @@ To install Dart Sass for your builds on Netlify, the `netlify.toml` file should 
 
 ```toml
 [build.environment]
-HUGO_VERSION = "0.126.0"
-DART_SASS_VERSION = "1.77.1"
+HUGO_VERSION = "0.128.0"
+DART_SASS_VERSION = "1.77.5"
 TZ = "America/Los_Angeles"
 
 [build]

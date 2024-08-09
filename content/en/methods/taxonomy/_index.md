@@ -7,6 +7,7 @@ menu:
   docs:
     identifier:
     parent: methods
+aliases: [/variables/taxonomy/]
 ---
 
 Use these methods with Taxonomy objects.

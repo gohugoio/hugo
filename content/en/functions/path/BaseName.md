@@ -17,8 +17,6 @@ action:
 aliases: [/functions/path.basename]
 ---
 
-{{< new-in 0.101.0 >}}
-
 ```go-html-template
 {{ path.BaseName "a/news.html" }} → news
 {{ path.BaseName "news.html" }} → news

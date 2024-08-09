@@ -24,7 +24,7 @@ action:
 {{% note %}}
 This function operates on global resources. A global resource is a file within the assets directory, or within any directory mounted to the assets directory.
 
-For page resources, use the [`Resources.Get`] method on the Page object.
+For page resources, use the [`Resources.Get`] method on a `Page` object.
 
 [`Resources.Get`]: /methods/page/resources/
 {{% /note %}}

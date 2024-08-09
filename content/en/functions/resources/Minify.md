@@ -6,11 +6,11 @@ keywords: []
 action:
   aliases: [minify]
   related:
-    - functions/js/Build
-    - functions/resources/Babel
     - functions/resources/Fingerprint
-    - functions/resources/PostCSS
-    - functions/resources/ToCSS
+    - functions/css/Sass
+    - functions/css/TailwindCSS
+    - functions/js/Build
+    - functions/js/Babel
   returnType: resource.Resource
   signatures: [resources.Minify RESOURCE]
 ---

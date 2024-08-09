@@ -103,7 +103,7 @@ To render standalone images within `figure` elements:
     <img src="{{ .Destination | safeURL }}"
       {{- with .Text }} alt="{{ . }}"{{ end -}}
     >
-    <figcaption>{{ .Title }}</figcaption>
+    {{- with .Title }}<figcaption>{{ . }}</figcaption>{{ end -}}
   </figure>
 {{- else -}}
   <img src="{{ .Destination | safeURL }}"

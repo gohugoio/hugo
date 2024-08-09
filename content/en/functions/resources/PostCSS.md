@@ -4,16 +4,22 @@ description: Processes the given resource with PostCSS using any PostCSS plugin.
 categories: []
 keywords: []
 action:
-  aliases: [postCSS]
   related:
     - functions/resources/Fingerprint
     - functions/resources/Minify
     - functions/resources/PostProcess
-    - functions/resources/ToCSS
+    - functions/css/Sass
   returnType: resource.Resource
   signatures: ['resources.PostCSS [OPTIONS] RESOURCE']
 toc: true
+expiryDate: 2025-06-24 # deprecated 2024-06-24
 ---
+
+{{% deprecated-in 0.128.0 %}}
+Use [css.PostCSS] instead.
+
+[css.PostCSS]: /functions/css/postcss/
+{{% /deprecated-in %}}
 
 ```go-html-template
 {{ with resources.Get "css/main.css" | postCSS }}
@@ -126,4 +132,4 @@ module.exports = {
 [node.js]: https://nodejs.org/en/download
 [postcss plugins]: https://www.postcss.parts/
 [supported file name]: https://github.com/postcss/postcss-load-config#usage
-[transpile to CSS]: /functions/resources/tocss.md
+[transpile to CSS]: /functions/css/sass/
