@@ -143,6 +143,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Phi,
+			nil,
+			[][2]string{
+				{"{{ math.Phi }}", "1.618033988749895"},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Pi,
 			nil,
 			[][2]string{

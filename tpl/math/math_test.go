@@ -879,3 +879,19 @@ func TestToRadians(t *testing.T) {
 		c.Assert(result, qt.Equals, test.expect)
 	}
 }
+
+func TestPhi(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	expect := 1.6180
+	result := ns.Phi()
+
+	// we compare only 4 digits behind point if its a real float
+	// otherwise we usually get different float values on the last positions
+	result = float64(int(result*10000)) / 10000
+
+	c.Assert(result, qt.Equals, expect)
+}

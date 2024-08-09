@@ -179,6 +179,11 @@ func (ns *Namespace) Mul(inputs ...any) (any, error) {
 	return ns.doArithmetic(inputs, '*')
 }
 
+// Returns the golden ratio constant phi.
+func (ns *Namespace) Phi() float64 {
+	return math.Phi
+}
+
 // Pi returns the mathematical constant pi.
 func (ns *Namespace) Pi() float64 {
 	return math.Pi
