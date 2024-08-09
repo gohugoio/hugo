@@ -354,7 +354,7 @@ FENCE
 		runBenchmark(filesTemplate, b)
 	})
 
-	b.Run("Hook no higlight", func(b *testing.B) {
+	b.Run("Hook no highlight", func(b *testing.B) {
 		files := filesTemplate + `
 -- layouts/_default/_markup/render-codeblock.html --
 {{ .Inner }}
