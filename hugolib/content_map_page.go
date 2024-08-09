@@ -129,7 +129,7 @@ type pageTrees struct {
 	treeTaxonomyEntries *doctree.TreeShiftTree[*weightedContentNode]
 
 	// Stores the state for _content.gotmpl files.
-	// Mostly releveant for rebuilds.
+	// Mostly relevant for rebuilds.
 	treePagesFromTemplateAdapters *doctree.TreeShiftTree[*pagesfromdata.PagesFromTemplate]
 
 	// A slice of the resource trees.

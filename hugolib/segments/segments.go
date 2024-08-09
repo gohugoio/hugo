@@ -44,7 +44,7 @@ func (e excludeInclude) ShouldExcludeCoarse(fields SegmentMatcherFields) bool {
 }
 
 // ShouldExcludeFine returns whether the given fields should be excluded.
-// This is used for the finer grained checks, e.g. on invididual pages.
+// This is used for the finer grained checks, e.g. on individual pages.
 func (e excludeInclude) ShouldExcludeFine(fields SegmentMatcherFields) bool {
 	if e.exclude != nil && e.exclude(fields) {
 		return true

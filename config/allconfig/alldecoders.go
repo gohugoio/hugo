@@ -276,7 +276,7 @@ var allDecoderSetups = map[string]decodeWeight{
 			var err error
 			m := p.p.GetStringMap(d.key)
 			if len(m) == 1 {
-				// In v0.112.4 we moved this to the language config, but it's very commmon for mono language sites to have this at the top level.
+				// In v0.112.4 we moved this to the language config, but it's very common for mono language sites to have this at the top level.
 				var first maps.Params
 				var ok bool
 				for _, v := range m {

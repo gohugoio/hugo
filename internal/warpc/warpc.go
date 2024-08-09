@@ -272,7 +272,7 @@ type CompiledModule struct {
 	RuntimeName string
 
 	// The main module to instantiate.
-	// This will be insantiated multiple times in a pool,
+	// This will be instantiated multiple times in a pool,
 	// so it does not need a name.
 	Module wazero.CompiledModule
 }
