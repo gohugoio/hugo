@@ -2,26 +2,17 @@
 title: Partial templates
 description: Partials are smaller, context-aware components in your list and page templates that can be used economically to keep your templating DRY.
 categories: [templates]
-keywords: [lists,sections,partials]
+keywords: []
 menu:
   docs:
     parent: templates
-    weight: 120
-weight: 120
+    weight: 110
+weight: 110
 toc: true
-aliases: [/templates/partial/,/layout/chrome/,/extras/analytics/]
+aliases: [/templates/partials/,/layout/chrome/]
 ---
 
 {{< youtube pjS4pOLyB7c >}}
-
-## Partial template lookup order
-
-Partial templates---like [single page templates][singletemps] and [list page templates][listtemps]---have a specific [lookup order]. However, partials are simpler in that Hugo will only check in two places:
-
-1. `layouts/partials/<PARTIALNAME>.html`
-2. `themes/<THEME>/layouts/partials/<PARTIALNAME>.html`
-
-This allows a theme's end user to copy a partial's contents into a file of the same name for [further customization][customize].
 
 ## Use partials in your templates
 
@@ -50,7 +41,7 @@ All partials are called within your templates using the following pattern:
 ```
 
 {{% note %}}
-One of the most common mistakes with new Hugo users is failing to pass a context to the partial call. In the pattern above, note how "the dot" (`.`) is required as the second argument to give the partial context. You can read more about "the dot" in the [Hugo templating introduction](/templates/introduction/).
+One of the most common mistakes with new Hugo users is failing to pass a context to the partial call. In the pattern above, note how "the dot" (`.`) is required as the second argument to give the partial context. You can read more about "the dot" in the [Hugo templating introduction](/templates/introduction/#context).
 {{% /note %}}
 
 {{% note %}}
@@ -175,8 +166,6 @@ The following `footer.html` partial template is used for [spf13.com](https://spf
 
 [context]: /templates/introduction/
 [customize]: /hugo-modules/theme-components/
-[listtemps]: /templates/lists/
 [lookup order]: /templates/lookup-order/
 [partialcached]: /functions/partials/includecached/
-[singletemps]: /templates/single-page-templates/
 [themes]: /themes/

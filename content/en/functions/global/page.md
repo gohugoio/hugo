@@ -58,7 +58,7 @@ content/
 └── _index.md      <-- title is "My Home Page"
 ```
 
-And this code in the home page template:
+And this code in the home template:
 
 ```go-html-template
 {{ range site.Sections }}
@@ -76,7 +76,7 @@ My Home Page
 My Home Page
 ```
 
-In the example above, the global `page` function accesses the `Page` object passed into the home page template; it does not access the `Page` object of the iterated pages.
+In the example above, the global `page` function accesses the `Page` object passed into the home template; it does not access the `Page` object of the iterated pages.
 
 ### Be aware of caching
 

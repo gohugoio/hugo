@@ -27,7 +27,7 @@ There are currently two limitations to this:
 
     ```go-html-template
     {{ $css := resources.Get "css/main.css" }}
-    {{ $css = $css | resources.PostCSS | minify | fingerprint | resources.PostProcess }}
+    {{ $css = $css | css.PostCSS | minify | fingerprint | resources.PostProcess }}
     {{ $css.RelPermalink | upper }}
     ```
 
@@ -70,7 +70,7 @@ Note that in the example above, the "CSS purge step" will only be applied to the
 
 ```go-html-template
 {{ $css := resources.Get "css/main.css" }}
-{{ $css = $css | resources.PostCSS }}
+{{ $css = $css | css.PostCSS }}
 {{ if hugo.IsProduction }}
 {{ $css = $css | minify | fingerprint | resources.PostProcess }}
 {{ end }}

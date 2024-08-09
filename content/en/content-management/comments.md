@@ -74,5 +74,5 @@ Open-source commenting systems:
 [front matter]: /content-management/front-matter/
 [kaijuissue]: https://github.com/spf13/kaiju/issues/new
 [issotutorial]: https://stiobhart.net/2017-02-24-isso-comments/
-[partials]: /templates/partials/
+[partials]: /templates/partial/
 [MongoDB]: https://www.mongodb.com/

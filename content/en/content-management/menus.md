@@ -227,7 +227,7 @@ Hugo provides two methods to localize your menu entries. See [multilingual].
 See [menu templates].
 
 [localize]: /content-management/multilingual/#menus
-[menu templates]: /templates/menu-templates/
+[menu templates]: /templates/menu/
 [multilingual]: /content-management/multilingual/#menus
 [section]: /getting-started/glossary/#section
-[template]: /templates/menu-templates/
+[template]: /templates/menu/

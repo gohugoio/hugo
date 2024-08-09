@@ -13,7 +13,7 @@ weight: 30
 action:
   aliases: [toCSS]
   returnType: resource.Resource
-  signatures: ['resources.ToCSS [OPTIONS] RESOURCE']
+  signatures: ['css.Sass [OPTIONS] RESOURCE']
 toc: true
 aliases: [/hugo-pipes/transform-to-css/]
 ---
@@ -73,7 +73,7 @@ includePaths
   "transpiler" "dartsass"
   "targetPath" "css/style.css"
   "vars" site.Params.styles
-  "enableSourceMap" (not hugo.IsProduction) 
+  "enableSourceMap" (not hugo.IsProduction)
   "includePaths" (slice "node_modules/bootstrap/scss")
 }}
 {{ with resources.Get "sass/main.scss" | toCSS $opts | minify | fingerprint }}
@@ -136,8 +136,8 @@ To install Dart Sass for your builds on GitLab Pages, the `.gitlab-ci.yml` file 
 
 ```yaml
 variables:
-  HUGO_VERSION: 0.126.0
-  DART_SASS_VERSION: 1.77.1
+  HUGO_VERSION: 0.128.0
+  DART_SASS_VERSION: 1.77.5
   GIT_DEPTH: 0
   GIT_STRATEGY: clone
   GIT_SUBMODULE_STRATEGY: recursive
@@ -170,8 +170,8 @@ To install Dart Sass for your builds on Netlify, the `netlify.toml` file should 
 
 ```toml
 [build.environment]
-HUGO_VERSION = "0.122.2"
-DART_SASS_VERSION = "1.77.1"
+HUGO_VERSION = "0.128.0"
+DART_SASS_VERSION = "1.77.5"
 TZ = "America/Los_Angeles"
 
 [build]
@@ -187,7 +187,7 @@ command = """\
 
 ### Example
 
-To transpile with Dart Sass, set `transpiler` to `dartsass` in the options map passed to `resources.ToCSS`. For example:
+To transpile with Dart Sass, set `transpiler` to `dartsass` in the options map passed to `css.Sass`. For example:
 
 ```go-html-template
 {{ $opts := dict "transpiler" "dartsass" "targetPath" "css/style.css" }}

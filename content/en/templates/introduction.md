@@ -403,7 +403,7 @@ Use the [`template`] function to include one or more of Hugo's [embedded templat
 
 Use the [`partial`] or [`partialCached`] function to include one or more [partial templates]:
 
-[partial templates]: /templates/partials
+[partial templates]: /templates/partial
 
 ```go-html-template
 {{ partial "breadcrumbs.html" . }}

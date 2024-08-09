@@ -45,7 +45,7 @@ The "breadcrumbs" partial renders [breadcrumb navigation], and needs to receive 
 The "footer" partial renders the site footer. In this contrived example, the footer does not need access to the current page, so we can omit context:
 
 ```go-html-template
-{{ partial "breadcrumbs.html" }}
+{{ partial "footer.html" }}
 ```
 
 You can pass anything in context: a page, a page collection, a scalar value, a slice, or a map. In this example we pass the current page and three scalar values:
