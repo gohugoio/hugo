@@ -92,7 +92,7 @@ languageName
 : (`string`) The language name, typically used when rendering a language switcher.
 
 title
-: (`string`) The site title for this langauge (optional).
+: (`string`) The site title for this language (optional).
 
 weight
 : (`int`) The language weight. When set to a non-zero value, this is the primary sort criteria for this language.
@@ -322,7 +322,7 @@ To create a list of links to translated content, use a template similar to the f
 {{ end }}
 {{< /code >}}
 
-The above can be put in a `partial` (i.e., inside `layouts/partials/`) and included in any template, whether a [single content page][contenttemplate] or the [homepage]. It will not print anything if there are no translations for a given page.
+The above can be put in a `partial` (i.e., inside `layouts/partials/`) and included in any template. It will not print anything if there are no translations for a given page.
 
 The above also uses the [`i18n` function][i18func] described in the next section.
 
@@ -564,7 +564,7 @@ products = 'Produkte'
 services = 'Leistungen'
 {{< / code-toggle >}}
 
-[example menu template]: /templates/menu-templates/#example
+[example menu template]: /templates/menu/#example
 [automatically]: /content-management/menus/#define-automatically
 [in front matter]: /content-management/menus/#define-in-front-matter
 [in site configuration]: /content-management/menus/#define-in-site-configuration
@@ -615,10 +615,8 @@ hugo new content content/de/post/test.md
 
 [`abslangurl`]: /functions/urls/abslangurl/
 [config]: /getting-started/configuration/
-[contenttemplate]: /templates/single-page-templates/
 [go-i18n-source]: https://github.com/nicksnyder/go-i18n
 [go-i18n]: https://github.com/nicksnyder/go-i18n
-[homepage]: /templates/homepage/
 [Hugo Multilingual Part 1: Content translation]: https://regisphilibert.com/blog/2018/08/hugo-multilingual-part-1-managing-content-translation/
 [i18func]: /functions/lang/translate/
 [lang.FormatAccounting]: /functions/lang/formataccounting/
@@ -630,5 +628,4 @@ hugo new content content/de/post/test.md
 [menus]: /content-management/menus/
 [OS environment]: /getting-started/configuration/#configure-with-environment-variables
 [`rellangurl`]: /functions/urls/rellangurl/
-[single page templates]: /templates/single-page-templates/
 [`time.Format`]: /functions/time/format/

@@ -1,6 +1,6 @@
 ---
 title: IsMenuCurrent
-description: Reports whether the given page object matches the page object associated with the given menu entry in the given menu.
+description: Reports whether the given Page object matches the Page object associated with the given menu entry in the given menu.
 categories: []
 keywords: []
 action:
@@ -26,4 +26,4 @@ aliases: [/functions/ismenucurrent]
 
 See [menu templates] for a complete example.
 
-[menu templates]: /templates/menu-templates/#example
+[menu templates]: /templates/menu/#example

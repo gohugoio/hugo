@@ -1,13 +1,13 @@
 ---
-title: Base templates and blocks
-description: The base and block constructs allow you to define the outer shell of your master templates (i.e., the chrome of the page).
+title: Base templates
+description: The base and block construct allows you to define the outer shell of your master templates (i.e., the chrome of the page).
 categories: [templates,fundamentals]
-keywords: [blocks,base]
+keywords: []
 menu:
   docs:
     parent: templates
-    weight: 40
-weight: 40
+    weight: 50
+weight: 50
 toc: true
 aliases: [/templates/blocks/,/templates/base-templates-and-blocks/]
 ---
@@ -50,7 +50,7 @@ The following defines a simple base template at `_default/baseof.html`. As a def
 
 ## Override the base template
 
-From the above base template, you can define a [default list template][hugolists]. The default list template will inherit all of the code defined above and can then implement its own `"main"` block from:
+The default list template will inherit all of the code defined above and can then implement its own `"main"` block from:
 
 {{< code file=layouts/_default/list.html >}}
 {{ define "main" }}
@@ -78,7 +78,7 @@ Code that you put outside the block definitions *can* break your layout. This ev
 [See this thread from the Hugo discussion forums.](https://discourse.gohugo.io/t/baseof-html-block-templates-and-list-types-results-in-empty-pages/5612/6)
 {{% /note %}}
 
-The following shows how you can override both the `"main"` and `"title"` block areas from the base template with code unique to your [default single page template][singletemplate]:
+The following shows how you can override both the `"main"` and `"title"` block areas from the base template with code unique to your default [single template]:
 
 {{< code file=layouts/_default/single.html >}}
 {{ define "title" }}
@@ -91,7 +91,4 @@ The following shows how you can override both the `"main"` and `"title"` block a
 {{ end }}
 {{< /code >}}
 
-[hugolists]: /templates/lists/
-[lookup]: /templates/lookup-order/
-[rendering the section]: /templates/section-templates/
-[singletemplate]: /templates/single-page-templates/
+[single template]: /templates/types/#single

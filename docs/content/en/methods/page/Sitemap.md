@@ -74,4 +74,4 @@ And this simplistic sitemap template:
 
 The change frequency will be `hourly` for the news page, and `monthly` for other pages.
 
-[sitemap templates]: /templates/sitemap-template/
+[sitemap templates]: /templates/sitemap/

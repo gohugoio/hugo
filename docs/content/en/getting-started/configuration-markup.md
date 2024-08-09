@@ -84,25 +84,45 @@ typographer|[Goldmark Extensions: Typographer]|:heavy_check_mark:
 [PHP Markdown Extra: Definition lists]: https://michelf.ca/projects/php-markdown/extra/#def-list
 [PHP Markdown Extra: Footnotes]: https://michelf.ca/projects/php-markdown/extra/#footnotes
 
-#### Extras extension
+#### Extras
 
 {{< new-in 0.126.0 >}}
 
-Configure the extras extension to enable [inserted text], [mark text], [subscript], and [superscript] elements in Markdown.
+Enable [deleted text], [inserted text], [mark text], [subscript], and [superscript] elements in Markdown.
 
 Element|Markdown|Rendered
 :--|:--|:--
-Inserted text|`++foo++`|`<ins>foo</ins>`
-Mark text|`==bar==`|`<mark>bar</mark>`
+Deleted text|`~~foo~~`|`<del>foo</del>`
+Inserted text|`++bar++`|`<ins>bar</ins>`
+Mark text|`==baz==`|`<mark>baz</mark>`
 Subscript|`H~2~O`|`H<sub>2</sub>O`
 Superscript|`1^st^`|`1<sup>st</sup>`
 
+[deleted text]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del
 [inserted text]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ins
 [mark text]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/mark
 [subscript]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sub
 [superscript]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sup
 
-#### Passthrough extension
+To avoid a conflict when enabling the Hugo Goldmark Extras subscript extension, if you want to render subscript and strikethrough text concurrently you must:
+
+1. Disable the Goldmark strikethrough extension
+2. Enable the Hugo Goldmark Extras delete extension
+
+For example:
+
+{{< code-toggle file=hugo >}}
+[markup.goldmark.extensions]
+strikethrough = false
+
+[markup.goldmark.extensions.extras.delete]
+enable = true
+
+[markup.goldmark.extensions.extras.subscript]
+enable = true
+{{< /code-toggle >}}
+
+#### Passthrough
 
 {{< new-in 0.122.0 >}}
 
@@ -110,7 +130,7 @@ Enable the passthrough extension to include mathematical equations and expressio
 
 [mathematics in Markdown]: content-management/mathematics/
 
-#### Typographer extension
+#### Typographer
 
 The Typographer extension replaces certain character combinations with HTML entities as specified below:
 

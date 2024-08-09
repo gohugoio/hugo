@@ -88,7 +88,7 @@ You will typically render a menu using a partial template. As the active menu en
 
 The example above is simplistic. Please see the [menu templates] section for more information.
 
-[menu templates]: /templates/menu-templates/
+[menu templates]: /templates/menu/
 
 [`partial`]: /functions/partials/include/
 [`partialCached`]: /functions/partials/includecached/

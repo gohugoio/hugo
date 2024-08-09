@@ -28,4 +28,4 @@ aliases: [/functions/group]
 {{ end }}
 ```
 
-The page group you get from `group` is of the same type you get from the built-in [group methods](/templates/lists#group-content) in Hugo. The above example can be [paginated](/templates/pagination/#list-paginator-pages).
+The page group you get from `group` is of the same type you get from the built-in [group methods](/quick-reference/page-collections/#group) in Hugo. The example above can be [paginated](/templates/pagination/).

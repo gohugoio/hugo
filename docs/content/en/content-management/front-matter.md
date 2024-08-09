@@ -207,7 +207,7 @@ path
 
 (`map`) A map of sitemap options. See the [sitemap templates] page for details. Access these values from a template using the [`Sitemap`] method on a `Page` object.
 
-[sitemap templates]: /templates/sitemap-template/
+[sitemap templates]: /templates/sitemap/
 [`sitemap`]: /methods/page/sitemap/
 
 ###### slug

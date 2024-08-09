@@ -1,6 +1,6 @@
 ---
 title: HasMenuCurrent
-description: Reports whether the given page object matches the page object associated with one of the child menu entries under the given menu entry in the given menu.
+description: Reports whether the given Page object matches the Page object associated with one of the child menu entries under the given menu entry in the given menu.
 categories: []
 keywords: []
 action:
@@ -11,7 +11,7 @@ action:
 aliases: [/functions/hasmenucurrent]
 ---
 
-If the page object associated with the menu entry is a section, this method also returns `true` for any descendant of that section.
+If the `Page` object associated with the menu entry is a section, this method also returns `true` for any descendant of that section.
 
 ```go-html-template
 {{ $currentPage := . }}
@@ -28,4 +28,4 @@ If the page object associated with the menu entry is a section, this method also
 
 See [menu templates] for a complete example.
 
-[menu templates]: /templates/menu-templates/#example
+[menu templates]: /templates/menu/#example

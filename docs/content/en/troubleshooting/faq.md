@@ -79,7 +79,7 @@ Use `:=` to initialize a variable, and use `=` to assign a value to a variable t
 
 ###### When I paginate a list page, why is the page collection not filtered as specified?
 
-You are probably invoking the [`Paginate`] or [`Paginator`] method more than once on the same page. See&nbsp;[details](/templates/pagination/#list-paginator-pages).
+You are probably invoking the [`Paginate`] or [`Paginator`] method more than once on the same page. See&nbsp;[details](/templates/pagination/).
 
 ###### Why are there two ways to call a shortcode?
 

@@ -23,7 +23,7 @@ toc: true
 : Render each page of your site to one or more output formats, with granular control by page kind, section, and path. While HTML is the default output format, you can add JSON, RSS, CSV, and more. For example, create a REST API to access content.
 
 [Templates]
-: Create templates usings variables, functions, and methods to transform your content, resources, and data into a published page. While HTML templates are the most common, you can create templates for any output format.
+: Create templates using variables, functions, and methods to transform your content, resources, and data into a published page. While HTML templates are the most common, you can create templates for any output format.
 
 [Themes]
 : Reduce development time and cost by using one of the hundreds of themes contributed by the Hugo community. Themes are available for corporate sites, documentation projects, image portfolios, landing pages, personal and professional blogs, resumes, CVs, and more.
@@ -80,17 +80,19 @@ toc: true
 [URL management]
 : Serve any page from any path via global configuration or on a page-by-page basis.
 
-
 ## Asset pipelines
 
-[CSS bundling]
-: Transpile Sass to CSS, bundle, tree shake, minify, create source maps, perform SRI hashing, and integrate with PostCSS.
+[Image processing]
+: Convert, resize, crop, rotate,  adjust colors, apply filters, overlay text and images, and extract EXIF data.
 
 [JavaScript bundling]
 : Transpile TypeScript and JSX to JavaScript, bundle, tree shake, minify, create source maps, and perform SRI hashing.
 
-[Image processing]
-: Convert, resize, crop, rotate,  adjust colors, apply filters, overlay text and images, and extract EXIF data.
+[Sass processing]
+: Transpile Sass to CSS, bundle, tree shake, minify, create source maps, perform SRI hashing, and integrate with PostCSS.
+
+[Tailwind CSS processing]
+: Compile Tailwind CSS utility classes into standard CSS, bundle, tree shake, optimize, minify, perform SRI hashing, and integrate with PostCSS.
 
 ## Performance
 
@@ -104,7 +106,7 @@ toc: true
 : Minify HTML, CSS, and JavaScript to reduce file size, bandwidth consumption, and loading times.
 
 [CCPA]: https://en.wikipedia.org/wiki/California_Consumer_Privacy_Act
-[CSS bundling]: /functions/resources/tocss/
+[Sass processing]: /functions/css/Sass/
 [Caching]: /functions/partials/includecached/
 [CommonMark]: https://spec.commonmark.org/current/
 [Content adapters]: /content-management/content-adapters/
@@ -130,6 +132,7 @@ toc: true
 [Segmentation]: /getting-started/configuration/#configure-segments
 [Shortcodes]: /content-management/shortcodes/
 [Syntax highlighting]: /content-management/syntax-highlighting/
+[Tailwind CSS processing]: /functions/css/tailwindcss/
 [Taxonomies]: /content-management/taxonomies/
 [Templates]: templates/introduction/
 [Themes]: https://themes.gohugo.io/

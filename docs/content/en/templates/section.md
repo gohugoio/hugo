@@ -1,21 +1,20 @@
 ---
-title: Section page templates
-linkTitle: Section templates
+title: Section templates
 description: Use section templates to list members of a section.
 categories: [templates]
-keywords: [lists,sections,templates]
+keywords: []
 menu:
   docs:
     parent: templates
     weight: 80
 weight: 80
 toc: true
-aliases: [/templates/sections/]
+aliases: [/templates/sections/,/templates/section-templates/]
 ---
 
 ## Add content and front matter to section templates
 
-To effectively leverage section page templates, you should first understand Hugo's [content organization](/content-management/organization/) and, specifically, the purpose of `_index.md` for adding content and front matter to section and other list pages.
+To effectively leverage section templates, you should first understand Hugo's [content organization](/content-management/organization/) and, specifically, the purpose of `_index.md` for adding content and front matter to section and other list pages.
 
 ## Section template lookup order
 
@@ -27,16 +26,15 @@ See [Template Lookup](/templates/lookup-order/).
 {{ define "main" }}
   <main>
     {{ .Content }}
-      <ul class="contents">
-        {{ range .Paginator.Pages }}
-          <li>{{ .Title }}
-            <div>
-              {{ partial "summary.html" . }}
-            </div>
-          </li>
-        {{ end }}
-      </ul>
-    {{ partial "pagination.html" . }}
+
+    {{ $pages := where site.RegularPages "Type" "posts" }}
+    {{ $paginator := .Paginate $pages }}
+
+    {{ range $paginator.Pages }}
+      <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+    {{ end }}
+
+    {{ template "_internal/pagination.html" . }}
   </main>
 {{ end }}
 {{< /code >}}
@@ -83,8 +81,6 @@ Which then returns the following:
 ```
 
 [contentorg]: /content-management/organization/
-[getpage]: /methods/page/getpage/
-[lists]: /templates/lists/
 [lookup]: /templates/lookup-order/
 [`where`]: /functions/collections/where/
 [sections]: /content-management/sections/

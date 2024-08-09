@@ -35,6 +35,19 @@ Use the [`where`] function to filter page collections.
 
 ## Sort
 
+By default, Hugo sorts page collections by:
+
+1. [Weight]
+2. [Date] in descending order
+3. [LinkTitle] falling back to [Title]
+4. [Filename] if the page is backed by a file
+
+[Date]: /methods/page/date/
+[Weight]: /methods/page/weight/
+[LinkTitle]: /methods/page/linktitle/
+[Title]: /methods/page/title/
+[Filename]: /methods/page/file/#filename
+
 Use these methods to sort page collections.
 
 {{< list-pages-in-section path=/methods/pages filter=methods_pages_sort filterType=include titlePrefix=. omitElementIDs=true titlePrefix=PAGES. >}}
