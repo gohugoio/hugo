@@ -41,10 +41,10 @@ type partialCacheKey struct {
 	Variants []any
 }
 type includeResult struct {
-	name     string
-	result   any
+	name    string
+	result  any
 	manager identity.Manager
-	err      error
+	err     error
 }
 
 func (k partialCacheKey) Key() string {
