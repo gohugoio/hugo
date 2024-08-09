@@ -7,7 +7,6 @@ on:
     paths:
       - Dockerfile
       - .github/workflows/image.yml
-  pull_request:
 permissions:
   packages: write
 
