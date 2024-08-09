@@ -978,6 +978,9 @@ config:
     images:
       dir: :resourceDir/_gen
       maxAge: -1
+    misc:
+      dir: :cacheDir/:project
+      maxAge: -1
     modules:
       dir: :cacheDir/modules
       maxAge: -1
@@ -2442,9 +2445,7 @@ tpl:
           EchoParam returns the value in the collection c with key k if is set; otherwise, it returns an
           empty string.
           Deprecated: Use the index function instead.
-        Examples:
-        - - '{{ echoParam .Params "langCode" }}'
-          - en
+        Examples: []
       First:
         Aliases:
         - first
@@ -4673,6 +4674,11 @@ tpl:
             {
                "title": "Hello World"
             }
+      ToMath:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       Unmarshal:
         Aliases:
         - unmarshal
