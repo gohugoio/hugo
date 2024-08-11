@@ -37,6 +37,10 @@ type KatexOptions struct {
 
 	// Specifies a minimum thickness, in ems, for fraction lines.
 	MinRuleThickness float64 `json:"minRuleThickness"`
+
+	// If true, KaTeX will throw a ParseError when it encounters an unsupported command.
+	// For internal use only, for now.
+	ThrowOnError bool `json:"throwOnError"`
 }
 
 type KatexOutput struct {

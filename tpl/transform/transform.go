@@ -223,6 +223,9 @@ func (ns *Namespace) ToMath(ctx context.Context, args ...any) (template.HTML, er
 		}
 	}
 
+	// Make sure this isn't set by the client (for now).
+	katexInput.Options.ThrowOnError = false
+
 	s := hashing.HashString(args...)
 	key := "tomath/" + s[:2] + "/" + s[2:]
 	fileCache := ns.deps.ResourceSpec.FileCaches.MiscCache()
