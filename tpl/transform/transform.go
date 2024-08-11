@@ -28,6 +28,7 @@ import (
 	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/internal/warpc"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/highlight"
@@ -199,13 +200,15 @@ func (ns *Namespace) Plainify(s any) (template.HTML, error) {
 
 // ToMath converts a LaTeX string to math in the given format, default MathML.
 // This uses KaTeX to render the math, see https://katex.org/.
-func (ns *Namespace) ToMath(ctx context.Context, args ...any) (template.HTML, error) {
+func (ns *Namespace) ToMath(ctx context.Context, args ...any) (types.Result[template.HTML], error) {
+	var res types.Result[template.HTML]
+
 	if len(args) < 1 {
-		return "", errors.New("must provide at least one argument")
+		return res, errors.New("must provide at least one argument")
 	}
 	expression, err := cast.ToStringE(args[0])
 	if err != nil {
-		return "", err
+		return res, err
 	}
 
 	katexInput := warpc.KatexInput{
@@ -214,23 +217,21 @@ func (ns *Namespace) ToMath(ctx context.Context, args ...any) (template.HTML, er
 			Output:           "mathml",
 			MinRuleThickness: 0.04,
 			ErrorColor:       "#cc0000",
+			ThrowOnError:     true,
 		},
 	}
 
 	if len(args) > 1 {
 		if err := mapstructure.WeakDecode(args[1], &katexInput.Options); err != nil {
-			return "", err
+			return res, err
 		}
 	}
-
-	// Make sure this isn't set by the client (for now).
-	katexInput.Options.ThrowOnError = false
 
 	s := hashing.HashString(args...)
 	key := "tomath/" + s[:2] + "/" + s[2:]
 	fileCache := ns.deps.ResourceSpec.FileCaches.MiscCache()
 
-	return ns.cacheMath.GetOrCreate(key, func(string) (template.HTML, error) {
+	v, err := ns.cacheMath.GetOrCreate(key, func(string) (template.HTML, error) {
 		_, r, err := fileCache.GetOrCreate(key, func() (io.ReadCloser, error) {
 			message := warpc.Message[warpc.KatexInput]{
 				Header: warpc.Header{
@@ -248,6 +249,9 @@ func (ns *Namespace) ToMath(ctx context.Context, args ...any) (template.HTML, er
 			if err != nil {
 				return nil, err
 			}
+			if result.Header.Err != "" {
+				return nil, errors.New(result.Header.Err)
+			}
 			return hugio.NewReadSeekerNoOpCloserFromString(result.Data.Output), nil
 		})
 		if err != nil {
@@ -258,6 +262,13 @@ func (ns *Namespace) ToMath(ctx context.Context, args ...any) (template.HTML, er
 
 		return template.HTML(s), err
 	})
+
+	res = types.Result[template.HTML]{
+		Value: v,
+		Err:   err,
+	}
+
+	return res, nil
 }
 
 // For internal use.

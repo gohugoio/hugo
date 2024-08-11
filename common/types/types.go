@@ -120,3 +120,27 @@ var InvocationCounter atomic.Int64
 func NewBool(b bool) *bool {
 	return &b
 }
+
+// PrintableValueProvider is implemented by types that can provide a printable value.
+type PrintableValueProvider interface {
+	PrintableValue() any
+}
+
+var _ PrintableValueProvider = Result[any]{}
+
+// Result is a generic result type.
+type Result[T any] struct {
+	// The result value.
+	Value T
+
+	// The error value.
+	Err error
+}
+
+// PrintableValue returns the value or panics if there is an error.
+func (r Result[T]) PrintableValue() any {
+	if r.Err != nil {
+		panic(r.Err)
+	}
+	return r.Value
+}

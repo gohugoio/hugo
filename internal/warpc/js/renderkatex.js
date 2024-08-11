@@ -5,7 +5,14 @@ const render = function (input) {
 	const data = input.data;
 	const expression = data.expression;
 	const options = data.options;
-	writeOutput({ header: input.header, data: { output: katex.renderToString(expression, options) } });
+	const header = input.header;
+	try {
+		const output = katex.renderToString(expression, options);
+		writeOutput({ header: header, data: { output: output } });
+	} catch (e) {
+		header.err = e.message;
+		writeOutput({ header: header });
+	}
 };
 
 readInput(render);
