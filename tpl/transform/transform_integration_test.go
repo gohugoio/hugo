@@ -149,3 +149,24 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 <span class="katex"><math
 	`)
 }
+
+func TestToMathMacros(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/index.html --
+{{ $macros := dict 
+    "\\addBar" "\\bar{#1}"
+	"\\bold" "\\mathbf{#1}"
+}}
+{{ $opts := dict "macros" $macros }}
+{{ transform.ToMath "\\addBar{y} + \\bold{H}" $opts }}
+  `
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", `
+<mi>y</mi>
+	`)
+}
