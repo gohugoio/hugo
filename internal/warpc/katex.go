@@ -13,10 +13,30 @@ type KatexInput struct {
 	Options    KatexOptions `json:"options"`
 }
 
+// KatexOptions defines the options for the KaTeX rendering.
+// See https://katex.org/docs/options.html
 type KatexOptions struct {
-	Output       string `json:"output"` // html, mathml (default), htmlAndMathml
-	DisplayMode  bool   `json:"displayMode"`
-	ThrowOnError bool   `json:"throwOnError"`
+	// html, mathml (default), htmlAndMathml
+	Output string `json:"output"`
+
+	// If true, display math in display mode, false in inline mode.
+	DisplayMode bool `json:"displayMode"`
+
+	// Render \tags on the left side instead of the right.
+	Leqno bool `json:"leqno"`
+
+	// If true,  render flush left with a 2em left margin.
+	Fleqn bool `json:"fleqn"`
+
+	// The color used for typesetting errors.
+	// A color string given in the format "#XXX" or "#XXXXXX"
+	ErrorColor string `json:"errorColor"`
+
+	//  A collection of custom macros.
+	Macros map[string]string `json:"macros,omitempty"`
+
+	// Specifies a minimum thickness, in ems, for fraction lines.
+	MinRuleThickness float64 `json:"minRuleThickness"`
 }
 
 type KatexOutput struct {

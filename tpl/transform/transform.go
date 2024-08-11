@@ -211,13 +211,14 @@ func (ns *Namespace) ToMath(ctx context.Context, args ...any) (template.HTML, er
 	katexInput := warpc.KatexInput{
 		Expression: expression,
 		Options: warpc.KatexOptions{
-			Output:       "mathml",
-			ThrowOnError: false,
+			Output:           "mathml",
+			MinRuleThickness: 0.04,
+			ErrorColor:       "#cc0000",
 		},
 	}
 
 	if len(args) > 1 {
-		if err := mapstructure.WeakDecode(args[1], &katexInput); err != nil {
+		if err := mapstructure.WeakDecode(args[1], &katexInput.Options); err != nil {
 			return "", err
 		}
 	}
