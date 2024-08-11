@@ -141,8 +141,7 @@ func TestToMath(t *testing.T) {
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 -- layouts/index.html --
-{{ $result := transform.ToMath "c = \\pm\\sqrt{a^2 + b^2}" }}
-{{ printf "%v" $result | safeHTML }}
+{{ transform.ToMath "c = \\pm\\sqrt{a^2 + b^2}" }}
   `
 	b := hugolib.Test(t, files)
 

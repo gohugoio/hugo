@@ -54,7 +54,7 @@ func New(deps *deps.Deps) *Namespace {
 			"/tmpl/transform/unmarshal",
 			dynacache.OptionsPartition{Weight: 30, ClearWhen: dynacache.ClearOnChange},
 		),
-		cacheMath: dynacache.GetOrCreatePartition[string, string](
+		cacheMath: dynacache.GetOrCreatePartition[string, template.HTML](
 			deps.MemCache,
 			"/tmpl/transform/math",
 			dynacache.OptionsPartition{Weight: 30, ClearWhen: dynacache.ClearNever},
@@ -65,7 +65,7 @@ func New(deps *deps.Deps) *Namespace {
 // Namespace provides template functions for the "transform" namespace.
 type Namespace struct {
 	cacheUnmarshal *dynacache.Partition[string, *resources.StaleValue[any]]
-	cacheMath      *dynacache.Partition[string, string]
+	cacheMath      *dynacache.Partition[string, template.HTML]
 
 	id   atomic.Uint32
 	deps *deps.Deps
@@ -188,18 +188,18 @@ func (ns *Namespace) Markdownify(ctx context.Context, s any) (template.HTML, err
 }
 
 // Plainify returns a copy of s with all HTML tags removed.
-func (ns *Namespace) Plainify(s any) (string, error) {
+func (ns *Namespace) Plainify(s any) (template.HTML, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", err
 	}
 
-	return tpl.StripHTML(ss), nil
+	return template.HTML(tpl.StripHTML(ss)), nil
 }
 
 // ToMath converts a LaTeX string to math in the given format, default MathML.
 // This uses KaTeX to render the math, see https://katex.org/.
-func (ns *Namespace) ToMath(ctx context.Context, args ...any) (string, error) {
+func (ns *Namespace) ToMath(ctx context.Context, args ...any) (template.HTML, error) {
 	if len(args) < 1 {
 		return "", errors.New("must provide at least one argument")
 	}
@@ -226,7 +226,7 @@ func (ns *Namespace) ToMath(ctx context.Context, args ...any) (string, error) {
 	key := "tomath/" + s[:2] + "/" + s[2:]
 	fileCache := ns.deps.ResourceSpec.FileCaches.MiscCache()
 
-	return ns.cacheMath.GetOrCreate(key, func(string) (string, error) {
+	return ns.cacheMath.GetOrCreate(key, func(string) (template.HTML, error) {
 		_, r, err := fileCache.GetOrCreate(key, func() (io.ReadCloser, error) {
 			message := warpc.Message[warpc.KatexInput]{
 				Header: warpc.Header{
@@ -250,7 +250,9 @@ func (ns *Namespace) ToMath(ctx context.Context, args ...any) (string, error) {
 			return "", err
 		}
 
-		return hugio.ReadString(r)
+		s, err := hugio.ReadString(r)
+
+		return template.HTML(s), err
 	})
 }
 
