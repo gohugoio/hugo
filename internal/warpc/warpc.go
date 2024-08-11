@@ -31,6 +31,9 @@ var quickjsWasm []byte
 type Header struct {
 	Version string `json:"version"`
 	ID      uint32 `json:"id"`
+
+	// Set in the response if there was an error.
+	Err string `json:"err"`
 }
 
 type Message[T any] struct {
@@ -179,7 +182,7 @@ func (d *dispatcher[Q, R]) input() {
 	for d.inOut.dec.More() {
 		var r Message[R]
 		if err := d.inOut.dec.Decode(&r); err != nil {
-			inputErr = err
+			inputErr = fmt.Errorf("decoding response: %w", err)
 			break
 		}
 

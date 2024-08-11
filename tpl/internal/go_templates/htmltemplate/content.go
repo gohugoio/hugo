@@ -29,7 +29,8 @@ const (
 
 // indirect returns the value, after dereferencing as many times
 // as necessary to reach the base type (or nil).
-func indirect(a any) any {
+// Signature modified by Hugo. TODO(bep) script this.
+func doIndirect(a any) any {
 	if a == nil {
 		return nil
 	}

@@ -30,13 +30,23 @@ export function readInput(handle) {
 
 		currentLine = [...currentLine, ...buffer.subarray(0, bytesRead)];
 
+		// Check for newline. If not, we need to read more data.
+		if (!currentLine.includes(10)) {
+			continue;
+		}
+
 		// Split array into chunks by newline.
 		let i = 0;
 		for (let j = 0; i < currentLine.length; i++) {
 			if (currentLine[i] === 10) {
 				const chunk = currentLine.splice(j, i + 1);
 				const arr = new Uint8Array(chunk);
-				const json = JSON.parse(new TextDecoder().decode(arr));
+				let json;
+				try {
+					json = JSON.parse(new TextDecoder().decode(arr));
+				} catch (e) {
+					throw new Error(`Error parsing JSON '${new TextDecoder().decode(arr)}' from stdin: ${e.message}`);
+				}
 				handle(json);
 				j = i + 1;
 			}

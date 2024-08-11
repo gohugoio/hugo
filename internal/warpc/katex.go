@@ -39,7 +39,6 @@ type KatexOptions struct {
 	MinRuleThickness float64 `json:"minRuleThickness"`
 
 	// If true, KaTeX will throw a ParseError when it encounters an unsupported command.
-	// For internal use only, for now.
 	ThrowOnError bool `json:"throwOnError"`
 }
 
