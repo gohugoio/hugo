@@ -43,6 +43,12 @@ block = true
 
 (`page`) A reference to the current page.
 
+###### PageInner
+
+(`page`) A reference to a page nested via the [`RenderShortcodes`] method.
+
+[`RenderShortcodes`]: /methods/page/rendershortcodes
+
 ###### Position
 
 (`string`) The position of the blockquote within the page content.
