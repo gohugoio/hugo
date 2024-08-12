@@ -1,5 +1,5 @@
 {{ define "main" }}
-  {{ $paginator := .Paginate (.Pages | lang.Merge (where .Sites.First.RegularPages "Section" .Section)) }}
+  {{ $paginator := .Paginate (.Pages | lang.Merge (where .Sites.Default.RegularPages "Section" .Section)) }}
   {{ $section_to_display :=  .Sections | default $paginator.Pages }}
   {{ partial "pagelayout.html" (dict "context" . "section_to_display" $section_to_display ) }}
 {{ end }}
