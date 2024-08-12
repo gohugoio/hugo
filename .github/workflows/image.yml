@@ -4,9 +4,11 @@ on:
   push:
     tags:
       - "*"
+  pull_request:
     paths:
       - Dockerfile
       - .github/workflows/image.yml
+
 permissions:
   packages: write
 
