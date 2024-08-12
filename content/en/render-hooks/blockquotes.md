@@ -12,6 +12,8 @@ weight: 30
 toc: true
 ---
 
+{{< new-in 0.132.0 >}}
+
 ## Context
 
 Blockquote render hook templates receive the following [context]:
