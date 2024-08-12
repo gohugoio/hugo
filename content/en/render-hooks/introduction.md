@@ -18,6 +18,7 @@ When rendering Markdown to HTML, render hooks override the conversion. Each rend
 - [Headings](/render-hooks/headings)
 - [Images](/render-hooks/images)
 - [Links](/render-hooks/links)
+- [Passthrough elements](/render-hooks/passthrough)
 
 {{% note %}}
 Hugo supports multiple [content formats] including Markdown, HTML, AsciiDoc, Emacs Org Mode, Pandoc, and reStructuredText.

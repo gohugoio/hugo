@@ -112,6 +112,3 @@ There are 3 ways to handle errors from KaTeX:
 [options]: #options
 [error handling]: #error-handling
 [KaTeX options]: https://katex.org/docs/options.html
-
-
-
