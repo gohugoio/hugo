@@ -110,7 +110,7 @@ func New(opts Options) Logger {
 		logHandler = newStopHandler(logOnce, logHandler)
 	}
 
-	if opts.SuppressStatements != nil && len(opts.SuppressStatements) > 0 {
+	if len(opts.SuppressStatements) > 0 {
 		logHandler = newStopHandler(newSuppressStatementsHandler(opts.SuppressStatements), logHandler)
 	}
 
