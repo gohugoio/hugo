@@ -81,3 +81,23 @@ title: "p1"
 		"Blockquote Alert Page: |<p>This is a tip with attributes.</p>\n|p1|p1|",
 	)
 }
+
+func TestBlockquoteEmptyIssue12756(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- content/p1.md --
+---
+title: "p1"
+---
+
+>
+-- layouts/_default/single.html --
+Content: {{ .Content }}
+
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/p1/index.html", "Content: <blockquote>\n</blockquote>\n")
+}
