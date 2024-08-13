@@ -75,20 +75,6 @@ func (r *htmlRenderer) renderBlockquote(w util.BufWriter, src []byte, node ast.N
 	text := ctx.Buffer.Bytes()[pos:]
 	ctx.Buffer.Truncate(pos)
 
-	// Extract a source sample to use for position information.
-	nn := n.FirstChild()
-	var start, stop int
-	for i := 0; i < nn.Lines().Len() && i < 2; i++ {
-		line := nn.Lines().At(i)
-		if i == 0 {
-			start = line.Start
-		}
-		stop = line.Stop
-	}
-
-	// We do not mutate the source, so this is safe.
-	sourceRef := src[start:stop]
-
 	ordinal := ctx.GetAndIncrementOrdinal(ast.KindBlockquote)
 
 	texts := string(text)
@@ -108,6 +94,22 @@ func (r *htmlRenderer) renderBlockquote(w util.BufWriter, src []byte, node ast.N
 		// We could possibly complicate this by moving this to the parser, but
 		// keep it simple for now.
 		texts = "<p>" + texts[strings.Index(texts, "\n")+1:]
+	}
+
+	var sourceRef []byte
+
+	// Extract a source sample to use for position information.
+	if nn := n.FirstChild(); nn != nil {
+		var start, stop int
+		for i := 0; i < nn.Lines().Len() && i < 2; i++ {
+			line := nn.Lines().At(i)
+			if i == 0 {
+				start = line.Start
+			}
+			stop = line.Stop
+		}
+		// We do not mutate the source, so this is safe.
+		sourceRef = src[start:stop]
 	}
 
 	bqctx := &blockquoteContext{
