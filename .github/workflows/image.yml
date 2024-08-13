@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - "*"
-    branches:
-      - master
 permissions:
   packages: write
 
