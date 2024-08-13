@@ -65,6 +65,7 @@ func newPageOutput(
 		p:                       ps,
 		f:                       f,
 		pagePerOutputProviders:  providers,
+		MarkupProvider:          page.NopPage,
 		ContentProvider:         page.NopPage,
 		PageRenderProvider:      page.NopPage,
 		TableOfContentsProvider: page.NopPage,
@@ -95,6 +96,7 @@ type pageOutput struct {
 	// output format.
 	contentRenderer page.ContentRenderer
 	pagePerOutputProviders
+	page.MarkupProvider
 	page.ContentProvider
 	page.PageRenderProvider
 	page.TableOfContentsProvider
@@ -119,7 +121,7 @@ func (po *pageOutput) isRendered() bool {
 	if po.renderState > 0 {
 		return true
 	}
-	if po.pco != nil && po.pco.contentRendered {
+	if po.pco != nil && po.pco.contentRendered.Load() {
 		return true
 	}
 	return false
@@ -139,6 +141,7 @@ func (p *pageOutput) setContentProvider(cp *pageContentOutput) {
 	}
 	p.contentRenderer = cp
 	p.ContentProvider = cp
+	p.MarkupProvider = cp
 	p.PageRenderProvider = cp
 	p.TableOfContentsProvider = cp
 	p.RenderShortcodesProvider = cp

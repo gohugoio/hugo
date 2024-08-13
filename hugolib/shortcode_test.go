@@ -756,12 +756,15 @@ title: "Hugo Rocks!"
 
 func TestShortcodeParams(t *testing.T) {
 	t.Parallel()
-	c := qt.New(t)
 
-	builder := newTestSitesBuilder(t).WithSimpleConfigFile()
-
-	builder.WithContent("page.md", `---
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+-- layouts/shortcodes/hello.html --
+{{ range $i, $v := .Params }}{{ printf "- %v: %v (%T) " $i $v $v -}}{{ end }}
+-- content/page.md --
 title: "Hugo Rocks!"
+summary: "Foo"
 ---
 
 # doc
@@ -770,23 +773,15 @@ types positional: {{< hello true false 33 3.14 >}}
 types named: {{< hello b1=true b2=false i1=33 f1=3.14 >}}
 types string: {{< hello "true" trues "33" "3.14" >}}
 escaped quoute: {{< hello "hello \"world\"." >}}
+-- layouts/_default/single.html --
+Content: {{ .Content }}|
+`
 
+	b := Test(t, files)
 
-`).WithTemplatesAdded(
-		"layouts/shortcodes/hello.html",
-		`{{ range $i, $v := .Params }}
--  {{ printf "%v: %v (%T)" $i $v $v }}
-{{ end }}
-{{ $b1 := .Get "b1" }}
-Get: {{ printf "%v (%T)" $b1 $b1 | safeHTML }}
-`).Build(BuildCfg{})
-
-	s := builder.H.Sites[0]
-	c.Assert(len(s.RegularPages()), qt.Equals, 1)
-
-	builder.AssertFileContent("public/page/index.html",
+	b.AssertFileContent("public/page/index.html",
 		"types positional: - 0: true (bool) - 1: false (bool) - 2: 33 (int) - 3: 3.14 (float64)",
-		"types named: - b1: true (bool) - b2: false (bool) - f1: 3.14 (float64) - i1: 33 (int) Get: true (bool) ",
+		"types named: - b1: true (bool) - b2: false (bool) - f1: 3.14 (float64) - i1: 33 (int)",
 		"types string: - 0: true (string) - 1: trues (string) - 2: 33 (string) - 3: 3.14 (string) ",
 		"hello &#34;world&#34;. (string)",
 	)

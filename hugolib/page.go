@@ -61,6 +61,7 @@ var (
 	pageTypesProvider = resource.NewResourceTypesProvider(media.Builtin.OctetType, pageResourceType)
 	nopPageOutput     = &pageOutput{
 		pagePerOutputProviders: nopPagePerOutput,
+		MarkupProvider:         page.NopPage,
 		ContentProvider:        page.NopPage,
 	}
 )
@@ -213,11 +214,8 @@ func (p *pageHeadingsFiltered) page() page.Page {
 
 // For internal use by the related content feature.
 func (p *pageState) ApplyFilterToHeadings(ctx context.Context, fn func(*tableofcontents.Heading) bool) related.Document {
-	r, err := p.m.content.contentToC(ctx, p.pageOutput.pco)
-	if err != nil {
-		panic(err)
-	}
-	headings := r.tableOfContents.Headings.FilterBy(fn)
+	fragments := p.pageOutput.pco.c().Fragments(ctx)
+	headings := fragments.Headings.FilterBy(fn)
 	return &pageHeadingsFiltered{
 		pageState: p,
 		headings:  headings,
@@ -719,6 +717,7 @@ func (p *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 			})
 			p.pageOutput.contentRenderer = lcp
 			p.pageOutput.ContentProvider = lcp
+			p.pageOutput.MarkupProvider = lcp
 			p.pageOutput.PageRenderProvider = lcp
 			p.pageOutput.TableOfContentsProvider = lcp
 		}

@@ -149,6 +149,10 @@ func (p *testPage) Content(context.Context) (any, error) {
 	panic("testpage: not implemented")
 }
 
+func (p *testPage) Markup(...any) Markup {
+	panic("testpage: not implemented")
+}
+
 func (p *testPage) ContentBaseName() string {
 	panic("testpage: not implemented")
 }
@@ -175,6 +179,10 @@ func (p *testPage) Date() time.Time {
 
 func (p *testPage) Description() string {
 	return ""
+}
+
+func (p *testPage) ContentWithoutSummary(ctx context.Context) (template.HTML, error) {
+	return "", nil
 }
 
 func (p *testPage) Dir() string {

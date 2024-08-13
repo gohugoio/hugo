@@ -14,6 +14,7 @@
 package hugo
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"os"
@@ -29,6 +30,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 
 	"github.com/bep/godartsass/v2"
+	"github.com/gohugoio/hugo/common/hcontext"
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -69,6 +71,9 @@ type HugoInfo struct {
 
 	conf ConfigProvider
 	deps []*Dependency
+
+	// Context gives access to some of the context scoped variables.
+	Context Context
 }
 
 // Version returns the current version as a comparable version string.
@@ -125,6 +130,26 @@ func (i HugoInfo) IsMultihost() bool {
 // IsMultilingual reports whether there are two or more configured languages.
 func (i HugoInfo) IsMultilingual() bool {
 	return i.conf.IsMultilingual()
+}
+
+type contextKey string
+
+var markupScope = hcontext.NewContextDispatcher[string](contextKey("markupScope"))
+
+type Context struct{}
+
+func (c Context) MarkupScope(ctx context.Context) string {
+	return GetMarkupScope(ctx)
+}
+
+// SetMarkupScope sets the markup scope in the context.
+func SetMarkupScope(ctx context.Context, s string) context.Context {
+	return markupScope.Set(ctx, s)
+}
+
+// GetMarkupScope gets the markup scope from the context.
+func GetMarkupScope(ctx context.Context) string {
+	return markupScope.Get(ctx)
 }
 
 // ConfigProvider represents the config options that are relevant for HugoInfo.

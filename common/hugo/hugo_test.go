@@ -14,6 +14,7 @@
 package hugo
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -62,6 +63,19 @@ func TestDeprecationLogLevelFromVersion(t *testing.T) {
 	c.Assert(deprecationLogLevelFromVersion(ver.String()), qt.Equals, logg.LevelWarn)
 	ver.Minor -= 6
 	c.Assert(deprecationLogLevelFromVersion(ver.String()), qt.Equals, logg.LevelError)
+}
+
+func TestMarkupScope(t *testing.T) {
+	c := qt.New(t)
+
+	conf := testConfig{environment: "production", workingDir: "/mywork", running: false}
+	info := NewInfo(conf, nil)
+
+	ctx := context.Background()
+
+	ctx = SetMarkupScope(ctx, "foo")
+
+	c.Assert(info.Context.MarkupScope(ctx), qt.Equals, "foo")
 }
 
 type testConfig struct {

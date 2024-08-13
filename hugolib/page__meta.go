@@ -821,7 +821,7 @@ func (p *pageMeta) newContentConverter(ps *pageState, markup string) (converter.
 			// This prevents infinite recursion in some cases.
 			return doc
 		}
-		if v, ok := ps.pageOutput.pco.otherOutputs[id]; ok {
+		if v, ok := ps.pageOutput.pco.otherOutputs.Get(id); ok {
 			return v.po.p
 		}
 		return nil

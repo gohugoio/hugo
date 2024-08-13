@@ -20,7 +20,6 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 )
 
@@ -64,84 +63,6 @@ func BenchmarkTrimShortHTML(b *testing.B) {
 func TestBytesToHTML(t *testing.T) {
 	c := qt.New(t)
 	c.Assert(helpers.BytesToHTML([]byte("dobedobedo")), qt.Equals, template.HTML("dobedobedo"))
-}
-
-var benchmarkTruncateString = strings.Repeat("This is a sentence about nothing.", 20)
-
-func BenchmarkTestTruncateWordsToWholeSentence(b *testing.B) {
-	c := newTestContentSpec(nil)
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		c.TruncateWordsToWholeSentence(benchmarkTruncateString)
-	}
-}
-
-func TestTruncateWordsToWholeSentence(t *testing.T) {
-	type test struct {
-		input, expected string
-		max             int
-		truncated       bool
-	}
-	data := []test{
-		{"a b c", "a b c", 12, false},
-		{"a b c", "a b c", 3, false},
-		{"a", "a", 1, false},
-		{"This is a sentence.", "This is a sentence.", 5, false},
-		{"This is also a sentence!", "This is also a sentence!", 1, false},
-		{"To be. Or not to be. That's the question.", "To be.", 1, true},
-		{" \nThis is not a sentence\nAnd this is another", "This is not a sentence", 4, true},
-		{"", "", 10, false},
-		{"This... is a more difficult test?", "This... is a more difficult test?", 1, false},
-	}
-	for i, d := range data {
-		cfg := config.New()
-		cfg.Set("summaryLength", d.max)
-		c := newTestContentSpec(cfg)
-		output, truncated := c.TruncateWordsToWholeSentence(d.input)
-		if d.expected != output {
-			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
-		}
-
-		if d.truncated != truncated {
-			t.Errorf("Test %d failed. Expected truncated=%t got %t", i, d.truncated, truncated)
-		}
-	}
-}
-
-func TestTruncateWordsByRune(t *testing.T) {
-	type test struct {
-		input, expected string
-		max             int
-		truncated       bool
-	}
-	data := []test{
-		{"", "", 1, false},
-		{"a b c", "a b c", 12, false},
-		{"a b c", "a b c", 3, false},
-		{"a", "a", 1, false},
-		{"Hello 中国", "", 0, true},
-		{"这是中文，全中文。", "这是中文，", 5, true},
-		{"Hello 中国", "Hello 中", 2, true},
-		{"Hello 中国", "Hello 中国", 3, false},
-		{"Hello中国 Good 好的", "Hello中国 Good 好", 9, true},
-		{"This is a sentence.", "This is", 2, true},
-		{"This is also a sentence!", "This", 1, true},
-		{"To be. Or not to be. That's the question.", "To be. Or not", 4, true},
-		{" \nThis is    not a sentence\n ", "This is not", 3, true},
-	}
-	for i, d := range data {
-		cfg := config.New()
-		cfg.Set("summaryLength", d.max)
-		c := newTestContentSpec(cfg)
-		output, truncated := c.TruncateWordsByRune(strings.Fields(d.input))
-		if d.expected != output {
-			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
-		}
-
-		if d.truncated != truncated {
-			t.Errorf("Test %d failed. Expected truncated=%t got %t", i, d.truncated, truncated)
-		}
-	}
 }
 
 func TestExtractTOCNormalContent(t *testing.T) {

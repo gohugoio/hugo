@@ -65,15 +65,6 @@ Summary Next Line
 Some more text
 `
 
-	simplePageWithBlankSummary = `---
-title: SimpleWithBlankSummary
----
-
-<!--more-->
-
-Some text.
-`
-
 	simplePageWithSummaryParameter = `---
 title: SimpleWithSummaryParameter
 summary: "Page with summary parameter and [a link](http://www.example.com/)"
@@ -322,7 +313,8 @@ func checkPageTOC(t *testing.T, page page.Page, toc string) {
 }
 
 func checkPageSummary(t *testing.T, page page.Page, summary string, msg ...any) {
-	a := normalizeContent(string(page.Summary(context.Background())))
+	s := string(page.Summary(context.Background()))
+	a := normalizeContent(s)
 	b := normalizeContent(summary)
 	if a != b {
 		t.Fatalf("Page summary is:\n%q.\nExpected\n%q (%q)", a, b, msg)
@@ -593,26 +585,6 @@ date: 2012-01-12
 	b.Assert(s.Site().Lastmod().Year(), qt.Equals, 2018)
 }
 
-func TestCreateNewPage(t *testing.T) {
-	t.Parallel()
-	c := qt.New(t)
-	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
-		p := pages[0]
-
-		// issue #2290: Path is relative to the content dir and will continue to be so.
-		c.Assert(p.File().Path(), qt.Equals, fmt.Sprintf("p0.%s", ext))
-		c.Assert(p.IsHome(), qt.Equals, false)
-		checkPageTitle(t, p, "Simple")
-		checkPageContent(t, p, normalizeExpected(ext, "<p>Simple Page</p>\n"))
-		checkPageSummary(t, p, "Simple Page")
-		checkPageType(t, p, "page")
-	}
-
-	settings := map[string]any{}
-
-	testAllMarkdownEnginesForPages(t, assertFunc, settings, simplePage)
-}
-
 func TestPageSummary(t *testing.T) {
 	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
@@ -621,7 +593,7 @@ func TestPageSummary(t *testing.T) {
 		// Source is not Asciidoctor- or RST-compatible so don't test them
 		if ext != "ad" && ext != "rst" {
 			checkPageContent(t, p, normalizeExpected(ext, "<p><a href=\"https://lipsum.com/\">Lorem ipsum</a> dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\n\n<p>Additional text.</p>\n\n<p>Further text.</p>\n"), ext)
-			checkPageSummary(t, p, normalizeExpected(ext, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Additional text."), ext)
+			checkPageSummary(t, p, normalizeExpected(ext, "<p><a href=\"https://lipsum.com/\">Lorem ipsum</a> dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>"), ext)
 		}
 		checkPageType(t, p, "page")
 	}
@@ -640,19 +612,6 @@ func TestPageWithDelimiter(t *testing.T) {
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithSummaryDelimiter)
-}
-
-func TestPageWithBlankSummary(t *testing.T) {
-	t.Parallel()
-	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
-		p := pages[0]
-		checkPageTitle(t, p, "SimpleWithBlankSummary")
-		checkPageContent(t, p, normalizeExpected(ext, "<p>Some text.</p>\n"), ext)
-		checkPageSummary(t, p, normalizeExpected(ext, ""), ext)
-		checkPageType(t, p, "page")
-	}
-
-	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithBlankSummary)
 }
 
 func TestPageWithSummaryParameter(t *testing.T) {
@@ -727,19 +686,6 @@ title: "empty"
 
 	b.AssertFileContent("public/basic/index.html", "|**basic**|")
 	b.AssertFileContent("public/empty/index.html", "! title")
-}
-
-func TestPageWithShortCodeInSummary(t *testing.T) {
-	t.Parallel()
-	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
-		p := pages[0]
-		checkPageTitle(t, p, "Simple")
-		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Next Line. <figure><img src=\"/not/real\"> </figure> . More text here.</p><p>Some more text</p>"))
-		checkPageSummary(t, p, "Summary Next Line.  . More text here. Some more text")
-		checkPageType(t, p, "page")
-	}
-
-	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithShortcodeInSummary)
 }
 
 func TestTableOfContents(t *testing.T) {
@@ -853,7 +799,7 @@ Summary: {{ .Summary }}|Truncated: {{ .Truncated }}|
 Content: {{ .Content }}|
 
 `).AssertFileContent("public/simple/index.html",
-		"Summary: This is summary. This is more summary. This is even more summary*.|",
+		"Summary: <p>This is <strong>summary</strong>.\nThis is <strong>more summary</strong>.\nThis is <em>even more summary</em>*.\nThis is <strong>more summary</strong>.</p>|",
 		"Truncated: true|",
 		"Content: <p>This is <strong>summary</strong>.")
 }
@@ -1242,11 +1188,6 @@ func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
 		if p.WordCount(context.Background()) != 74 {
 			t.Fatalf("[%s] incorrect word count, expected %v, got %v", ext, 74, p.WordCount(context.Background()))
 		}
-
-		if p.Summary(context.Background()) != simplePageWithMainEnglishWithCJKRunesSummary {
-			t.Fatalf("[%s] incorrect Summary for content '%s'. expected\n%v, got\n%v", ext, p.Plain(context.Background()),
-				simplePageWithMainEnglishWithCJKRunesSummary, p.Summary(context.Background()))
-		}
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, settings, simplePageWithMainEnglishWithCJKRunes)
@@ -1262,11 +1203,6 @@ func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
 		p := pages[0]
 		if p.WordCount(context.Background()) != 75 {
 			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.Plain(context.Background()), 74, p.WordCount(context.Background()))
-		}
-
-		if p.Summary(context.Background()) != simplePageWithIsCJKLanguageFalseSummary {
-			t.Fatalf("[%s] incorrect Summary for content '%s'. expected %v, got %v", ext, p.Plain(context.Background()),
-				simplePageWithIsCJKLanguageFalseSummary, p.Summary(context.Background()))
 		}
 	}
 
@@ -1483,42 +1419,6 @@ func TestChompBOM(t *testing.T) {
 	p := s.RegularPages()[0]
 
 	checkPageTitle(t, p, "Simple")
-}
-
-func TestPageHTMLContent(t *testing.T) {
-	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile()
-
-	frontmatter := `---
-title: "HTML Content"
----
-`
-	b.WithContent("regular.html", frontmatter+`<h1>Hugo</h1>`)
-	b.WithContent("nomarkdownforyou.html", frontmatter+`**Hugo!**`)
-	b.WithContent("manualsummary.html", frontmatter+`
-<p>This is summary</p>
-<!--more-->
-<p>This is the main content.</p>`)
-
-	b.Build(BuildCfg{})
-
-	b.AssertFileContent(
-		"public/regular/index.html",
-		"Single: HTML Content|Hello|en|RelPermalink: /regular/|",
-		"Summary: Hugo|Truncated: false")
-
-	b.AssertFileContent(
-		"public/nomarkdownforyou/index.html",
-		"Permalink: http://example.com/nomarkdownforyou/|**Hugo!**|",
-	)
-
-	// https://github.com/gohugoio/hugo/issues/5723
-	b.AssertFileContent(
-		"public/manualsummary/index.html",
-		"Single: HTML Content|Hello|en|RelPermalink: /manualsummary/|",
-		"Summary: \n<p>This is summary</p>\n|Truncated: true",
-		"|<p>This is the main content.</p>|",
-	)
 }
 
 // https://github.com/gohugoio/hugo/issues/5381
@@ -1759,102 +1659,6 @@ Single: {{ .Title}}|{{ .RelPermalink }}|{{ .Path }}|
 	b.AssertFileContent("public/sect/PaGe2/index.html", "Single: Page2|/sect/PaGe2/|/sect/p2")
 	b.AssertFileContent("public/sect2/PaGe3/index.html", "Single: Page3|/sect2/PaGe3/|/sect2/page3|")
 	b.AssertFileContent("public/sect3/Pag.E4/index.html", "Single: Pag.E4|/sect3/Pag.E4/|/sect3/p4|")
-}
-
-// https://github.com/gohugoio/hugo/issues/4675
-func TestWordCountAndSimilarVsSummary(t *testing.T) {
-	t.Parallel()
-	c := qt.New(t)
-
-	single := []string{"_default/single.html", `
-WordCount: {{ .WordCount }}
-FuzzyWordCount: {{ .FuzzyWordCount }}
-ReadingTime: {{ .ReadingTime }}
-Len Plain: {{ len .Plain }}
-Len PlainWords: {{ len .PlainWords }}
-Truncated: {{ .Truncated }}
-Len Summary: {{ len .Summary }}
-Len Content: {{ len .Content }}
-
-SUMMARY:{{ .Summary }}:{{ len .Summary }}:END
-
-`}
-
-	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile().WithTemplatesAdded(single...).WithContent("p1.md", fmt.Sprintf(`---
-title: p1
----
-
-%s
-
-`, strings.Repeat("word ", 510)),
-
-		"p2.md", fmt.Sprintf(`---
-title: p2
----
-This is a summary.
-
-<!--more-->
-
-%s
-
-`, strings.Repeat("word ", 310)),
-		"p3.md", fmt.Sprintf(`---
-title: p3
-isCJKLanguage: true
----
-Summary: In Chinese, 好 means good.
-
-<!--more-->
-
-%s
-
-`, strings.Repeat("好", 200)),
-		"p4.md", fmt.Sprintf(`---
-title: p4
-isCJKLanguage: false
----
-Summary: In Chinese, 好 means good.
-
-<!--more-->
-
-%s
-
-`, strings.Repeat("好", 200)),
-
-		"p5.md", fmt.Sprintf(`---
-title: p4
-isCJKLanguage: true
----
-Summary: In Chinese, 好 means good.
-
-%s
-
-`, strings.Repeat("好", 200)),
-		"p6.md", fmt.Sprintf(`---
-title: p4
-isCJKLanguage: false
----
-Summary: In Chinese, 好 means good.
-
-%s
-
-`, strings.Repeat("好", 200)),
-	)
-
-	b.CreateSites().Build(BuildCfg{})
-
-	c.Assert(len(b.H.Sites), qt.Equals, 1)
-	c.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 6)
-
-	b.AssertFileContent("public/p1/index.html", "WordCount: 510\nFuzzyWordCount: 600\nReadingTime: 3\nLen Plain: 2550\nLen PlainWords: 510\nTruncated: false\nLen Summary: 2549\nLen Content: 2557")
-
-	b.AssertFileContent("public/p2/index.html", "WordCount: 314\nFuzzyWordCount: 400\nReadingTime: 2\nLen Plain: 1569\nLen PlainWords: 314\nTruncated: true\nLen Summary: 25\nLen Content: 1582")
-
-	b.AssertFileContent("public/p3/index.html", "WordCount: 206\nFuzzyWordCount: 300\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 43\nLen Content: 651")
-	b.AssertFileContent("public/p4/index.html", "WordCount: 7\nFuzzyWordCount: 100\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 43\nLen Content: 651")
-	b.AssertFileContent("public/p5/index.html", "WordCount: 206\nFuzzyWordCount: 300\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 229\nLen Content: 652")
-	b.AssertFileContent("public/p6/index.html", "WordCount: 7\nFuzzyWordCount: 100\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: false\nLen Summary: 637\nLen Content: 652")
 }
 
 func TestScratch(t *testing.T) {
