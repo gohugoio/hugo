@@ -4,9 +4,6 @@ on:
   push:
     tags:
       - "*"
-    paths:
-      - Dockerfile
-      - .github/workflows/image.yml
     branches:
       - master
 permissions:
