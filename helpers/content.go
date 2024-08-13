@@ -22,7 +22,6 @@ import (
 	"html/template"
 	"strings"
 	"unicode"
-	"unicode/utf8"
 
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
@@ -165,75 +164,6 @@ func TotalWords(s string) int {
 	return n
 }
 
-// TruncateWordsByRune truncates words by runes.
-func (c *ContentSpec) TruncateWordsByRune(in []string) (string, bool) {
-	words := make([]string, len(in))
-	copy(words, in)
-
-	count := 0
-	for index, word := range words {
-		if count >= c.Cfg.SummaryLength() {
-			return strings.Join(words[:index], " "), true
-		}
-		runeCount := utf8.RuneCountInString(word)
-		if len(word) == runeCount {
-			count++
-		} else if count+runeCount < c.Cfg.SummaryLength() {
-			count += runeCount
-		} else {
-			for ri := range word {
-				if count >= c.Cfg.SummaryLength() {
-					truncatedWords := append(words[:index], word[:ri])
-					return strings.Join(truncatedWords, " "), true
-				}
-				count++
-			}
-		}
-	}
-
-	return strings.Join(words, " "), false
-}
-
-// TruncateWordsToWholeSentence takes content and truncates to whole sentence
-// limited by max number of words. It also returns whether it is truncated.
-func (c *ContentSpec) TruncateWordsToWholeSentence(s string) (string, bool) {
-	var (
-		wordCount     = 0
-		lastWordIndex = -1
-	)
-
-	for i, r := range s {
-		if unicode.IsSpace(r) {
-			wordCount++
-			lastWordIndex = i
-
-			if wordCount >= c.Cfg.SummaryLength() {
-				break
-			}
-
-		}
-	}
-
-	if lastWordIndex == -1 {
-		return s, false
-	}
-
-	endIndex := -1
-
-	for j, r := range s[lastWordIndex:] {
-		if isEndOfSentence(r) {
-			endIndex = j + lastWordIndex + utf8.RuneLen(r)
-			break
-		}
-	}
-
-	if endIndex == -1 {
-		return s, false
-	}
-
-	return strings.TrimSpace(s[:endIndex]), endIndex < len(s)
-}
-
 // TrimShortHTML removes the outer tags from HTML input where (a) the opening
 // tag is present only once with the input, and (b) the opening and closing
 // tags wrap the input after white space removal.
@@ -255,8 +185,4 @@ func (c *ContentSpec) TrimShortHTML(input []byte, markup string) []byte {
 		}
 	}
 	return input
-}
-
-func isEndOfSentence(r rune) bool {
-	return r == '.' || r == '?' || r == '!' || r == '"' || r == '\n'
 }

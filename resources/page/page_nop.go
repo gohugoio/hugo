@@ -44,6 +44,8 @@ import (
 var (
 	NopPage                 Page            = new(nopPage)
 	NopContentRenderer      ContentRenderer = new(nopContentRenderer)
+	NopMarkup               Markup          = new(nopMarkup)
+	NopContent              Content         = new(nopContent)
 	NopCPageContentRenderer                 = struct {
 		OutputFormatPageContentProvider
 		ContentRenderer
@@ -109,7 +111,15 @@ func (p *nopPage) BundleType() string {
 	return ""
 }
 
+func (p *nopPage) Markup(...any) Markup {
+	return NopMarkup
+}
+
 func (p *nopPage) Content(context.Context) (any, error) {
+	return "", nil
+}
+
+func (p *nopPage) ContentWithoutSummary(ctx context.Context) (template.HTML, error) {
 	return "", nil
 }
 
@@ -546,4 +556,70 @@ func (r *nopContentRenderer) ParseContent(ctx context.Context, content []byte) (
 
 func (r *nopContentRenderer) RenderContent(ctx context.Context, content []byte, doc any) (converter.ResultRender, bool, error) {
 	return nil, false, nil
+}
+
+type (
+	nopMarkup  int
+	nopContent int
+)
+
+var (
+	_ Markup  = (*nopMarkup)(nil)
+	_ Content = (*nopContent)(nil)
+)
+
+func (c *nopMarkup) Render(context.Context) (Content, error) {
+	return NopContent, nil
+}
+
+func (c *nopMarkup) RenderString(ctx context.Context, args ...any) (template.HTML, error) {
+	return "", nil
+}
+
+func (c *nopMarkup) RenderShortcodes(context.Context) (template.HTML, error) {
+	return "", nil
+}
+
+func (c *nopContent) Plain(context.Context) string {
+	return ""
+}
+
+func (c *nopContent) PlainWords(context.Context) []string {
+	return nil
+}
+
+func (c *nopContent) WordCount(context.Context) int {
+	return 0
+}
+
+func (c *nopContent) FuzzyWordCount(context.Context) int {
+	return 0
+}
+
+func (c *nopContent) ReadingTime(context.Context) int {
+	return 0
+}
+
+func (c *nopContent) Len(context.Context) int {
+	return 0
+}
+
+func (c *nopContent) Content(context.Context) (template.HTML, error) {
+	return "", nil
+}
+
+func (c *nopContent) ContentWithoutSummary(context.Context) (template.HTML, error) {
+	return "", nil
+}
+
+func (c *nopMarkup) Fragments(context.Context) *tableofcontents.Fragments {
+	return nil
+}
+
+func (c *nopMarkup) FragmentsHTML(context.Context) template.HTML {
+	return ""
+}
+
+func (c *nopContent) Summary(context.Context) (Summary, error) {
+	return Summary{}, nil
 }

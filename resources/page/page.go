@@ -74,9 +74,16 @@ type ChildCareProvider interface {
 	Resources() resource.Resources
 }
 
+type MarkupProvider interface {
+	Markup(opts ...any) Markup
+}
+
 // ContentProvider provides the content related values for a Page.
 type ContentProvider interface {
 	Content(context.Context) (any, error)
+
+	// ContentWithoutSummary returns the Page Content stripped of the summary.
+	ContentWithoutSummary(ctx context.Context) (template.HTML, error)
 
 	// Plain returns the Page Content stripped of HTML markup.
 	Plain(context.Context) string
@@ -169,6 +176,7 @@ type PageProvider interface {
 
 // Page is the core interface in Hugo and what you get as the top level data context in your templates.
 type Page interface {
+	MarkupProvider
 	ContentProvider
 	TableOfContentsProvider
 	PageWithoutContent
@@ -260,7 +268,7 @@ type PageMetaInternalProvider interface {
 type PageRenderProvider interface {
 	// Render renders the given layout with this Page as context.
 	Render(ctx context.Context, layout ...string) (template.HTML, error)
-	// RenderString renders the first value in args with tPaginatorhe content renderer defined
+	// RenderString renders the first value in args with the content renderer defined
 	// for this Page.
 	// It takes an optional map as a second argument:
 	//
