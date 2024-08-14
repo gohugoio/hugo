@@ -278,9 +278,8 @@ func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node
 	} else if numIn != typ.NumIn() {
 		s.errorf("wrong number of args for %s: want %d got %d", name, typ.NumIn(), numIn)
 	}
-	if !goodFunc(typ) {
-		// TODO: This could still be a confusing error; maybe goodFunc should provide info.
-		s.errorf("can't call method/function %q with %d results", name, typ.NumOut())
+	if err := goodFunc(name, typ); err != nil {
+		s.errorf("%v", err)
 	}
 
 	unwrap := func(v reflect.Value) reflect.Value {
@@ -343,6 +342,14 @@ func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node
 			}
 		}
 		argv[i] = s.validateType(final, t)
+	}
+
+	// Special case for the "call" builtin.
+	// Insert the name of the callee function as the first argument.
+	if isBuiltin && name == "call" {
+		calleeName := args[0].String()
+		argv = append([]reflect.Value{reflect.ValueOf(calleeName)}, argv...)
+		fun = reflect.ValueOf(call)
 	}
 
 	// Added for Hugo

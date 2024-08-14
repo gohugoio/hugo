@@ -55,3 +55,4 @@ path="github.com/gohugoio/hugoTestModule2"
 }
 -- go.mod --
 module github.com/gohugoio/hugoTestModule
+go 1.20
