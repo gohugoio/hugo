@@ -102,7 +102,8 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          # NOTE: You can't use default GITHUB_TOKEN if you want to push container, use Personal Access Token instead. 
+          password: ${{ secrets.GH_PAT }}
 
       - name: Create manifest list and push
         if: ${{ startsWith(github.ref, 'refs/tags') }}
