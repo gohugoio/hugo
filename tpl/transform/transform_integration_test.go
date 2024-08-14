@@ -137,8 +137,6 @@ Scar,"a "dead cat",11
 }
 
 func TestToMath(t *testing.T) {
-	t.Parallel()
-
 	files := `
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
@@ -154,8 +152,6 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 
 func TestToMathError(t *testing.T) {
 	t.Run("Default", func(t *testing.T) {
-		t.Parallel()
-
 		files := `
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
@@ -169,8 +165,6 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 	})
 
 	t.Run("Disable ThrowOnError", func(t *testing.T) {
-		t.Parallel()
-
 		files := `
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
@@ -185,8 +179,6 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 	})
 
 	t.Run("Handle in template", func(t *testing.T) {
-		t.Parallel()
-
 		files := `
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
@@ -207,8 +199,6 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 }
 
 func TestToMathBigAndManyExpressions(t *testing.T) {
-	t.Parallel()
-
 	filesTemplate := `
 -- hugo.toml --
 disableKinds = ['rss','section','sitemap','taxonomy','term']
@@ -251,13 +241,9 @@ $$%s$$
 		<span class="katex"><math
 			`)
 	})
-
-	//
 }
 
 func TestToMathMacros(t *testing.T) {
-	t.Parallel()
-
 	files := `
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
