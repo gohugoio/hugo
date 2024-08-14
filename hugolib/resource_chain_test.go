@@ -115,11 +115,11 @@ FIT REMOTE: /sunset_%[1]s.jpg|/sunset_%[1]s_hu15210517121918042184.jpg|200
 REMOTE NOT FOUND: OK
 LOCAL NOT FOUND: OK
 PRINT PROTOCOL ERROR DETAILS: Err: error calling resources.GetRemote: Get "gopher://example.org": unsupported protocol scheme "gopher"||
-FAILED REMOTE ERROR DETAILS CONTENT: |failed to fetch remote resource: Not Implemented|Body: { msg: failed }
+FAILED REMOTE ERROR DETAILS CONTENT: |failed to fetch remote resource from &#39;%[2]s/fail.jpg&#39;: Not Implemented|Body: { msg: failed }
 |StatusCode: 501|ContentLength: 16|ContentType: text/plain; charset=utf-8|
 
 
-`, hashing.HashString(ts.URL+"/sunset.jpg", map[string]any{})))
+`, hashing.HashString(ts.URL+"/sunset.jpg", map[string]any{}), ts.URL))
 
 		b.AssertFileContent("public/styles.min.a1df58687c3c9cc38bf26532f7b4b2f2c2b0315dcde212376959995c04f11fef.css", "body{background-color:#add8e6}")
 		b.AssertFileContent("public//styles2.min.1cfc52986836405d37f9998a63fd6dd8608e8c410e5e3db1daaa30f78bc273ba.css", "body{background-color:orange}")
