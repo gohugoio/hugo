@@ -125,7 +125,7 @@ var regexpPrecederKeywords = map[string]bool{
 	"void":       true,
 }
 
-var jsonMarshalType = reflect.TypeOf((*json.Marshaler)(nil)).Elem()
+var jsonMarshalType = reflect.TypeFor[json.Marshaler]()
 
 // indirectToJSONMarshaler returns the value, after dereferencing as many times
 // as necessary to reach the base type (or nil) or an implementation of json.Marshal.
@@ -172,7 +172,7 @@ func jsValEscaper(args ...any) string {
 	// cyclic data. This may be an unacceptable DoS risk.
 	b, err := json.Marshal(a)
 	if err != nil {
-		// While the standard JSON marshaller does not include user controlled
+		// While the standard JSON marshaler does not include user controlled
 		// information in the error message, if a type has a MarshalJSON method,
 		// the content of the error message is not guaranteed. Since we insert
 		// the error into the template, as part of a comment, we attempt to
@@ -393,7 +393,6 @@ var jsStrNormReplacementTable = []string{
 	'<':  `\u003c`,
 	'>':  `\u003e`,
 }
-
 var jsRegexpReplacementTable = []string{
 	0:    `\u0000`,
 	'\t': `\t`,

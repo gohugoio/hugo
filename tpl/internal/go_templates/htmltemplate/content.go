@@ -29,7 +29,6 @@ const (
 
 // indirect returns the value, after dereferencing as many times
 // as necessary to reach the base type (or nil).
-// Signature modified by Hugo. TODO(bep) script this.
 func doIndirect(a any) any {
 	if a == nil {
 		return nil
@@ -46,8 +45,8 @@ func doIndirect(a any) any {
 }
 
 var (
-	errorType       = reflect.TypeOf((*error)(nil)).Elem()
-	fmtStringerType = reflect.TypeOf((*fmt.Stringer)(nil)).Elem()
+	errorType       = reflect.TypeFor[error]()
+	fmtStringerType = reflect.TypeFor[fmt.Stringer]()
 )
 
 // indirectToStringerOrError returns the value, after dereferencing as many times

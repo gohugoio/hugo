@@ -365,18 +365,6 @@ func (c *Client) Get(args ...string) error {
 }
 
 func (c *Client) get(args ...string) error {
-	var hasD bool
-	for _, arg := range args {
-		if arg == "-d" {
-			hasD = true
-			break
-		}
-	}
-	if !hasD {
-		// go get without the -d flag does not make sense to us, as
-		// it will try to build and install go packages.
-		args = append([]string{"-d"}, args...)
-	}
 	if err := c.runGo(context.Background(), c.logger.Out(), append([]string{"get"}, args...)...); err != nil {
 		return fmt.Errorf("failed to get %q: %w", args, err)
 	}

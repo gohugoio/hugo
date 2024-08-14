@@ -116,6 +116,20 @@ counter2: 3
 `)
 }
 
+func TestGo23ElseWith(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+title = "Hugo"
+-- layouts/index.html --
+{{ with false }}{{ else with .Site }}{{ .Title }}{{ end }}|
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "Hugo|")
+}
+
 // Issue 10495
 func TestCommentsBeforeBlockDefinition(t *testing.T) {
 	t.Parallel()
