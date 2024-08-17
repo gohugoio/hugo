@@ -117,6 +117,9 @@ func (s *Site) prepareInits() {
 
 	s.init.prevNext = init.Branch(func(context.Context) (any, error) {
 		regularPages := s.RegularPages()
+		if s.conf.Page.NextPrevSortOrder == "asc" {
+			regularPages = regularPages.Reverse()
+		}
 		for i, p := range regularPages {
 			np, ok := p.(nextPrevProvider)
 			if !ok {
@@ -181,7 +184,11 @@ func (s *Site) prepareInits() {
 		)
 
 		for _, section := range sections {
-			setNextPrev(section.RegularPages())
+			ps := section.RegularPages()
+			if s.conf.Page.NextPrevInSectionSortOrder == "asc" {
+				ps = ps.Reverse()
+			}
+			setNextPrev(ps)
 		}
 
 		return nil, nil

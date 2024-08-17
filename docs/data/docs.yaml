@@ -1600,6 +1600,9 @@ config:
     term:
     - html
     - rss
+  page:
+    nextPrevInSectionSortOrder: desc
+    nextPrevSortOrder: desc
   paginate: 0
   paginatePath: ""
   pagination:
@@ -1783,6 +1786,8 @@ config_helpers:
     outputformats:
       _merge: shallow
     outputs:
+      _merge: none
+    page:
       _merge: none
     pagination:
       _merge: none
