@@ -182,6 +182,9 @@ type Config struct {
 	// Pagination configuration.
 	Pagination config.Pagination `mapstructure:"-"`
 
+	// Page configuration.
+	Page config.PageConfig `mapstructure:"-"`
+
 	// Privacy configuration.
 	Privacy privacy.Config `mapstructure:"-"`
 
