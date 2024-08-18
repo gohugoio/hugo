@@ -96,15 +96,6 @@ jobs:
 workflows:
   version: 2
   release:
-      when:
-        and:
-          - matches:
-              pattern: "^release-"
-              value: << pipeline.git.branch >>
-          - not:
-              matches:
-                pattern: "NOCIRCLECI"
-                value: << pipeline.trigger_parameters.github_app.commit_message >>
       jobs:  
         - prepare_release:
             filters:
