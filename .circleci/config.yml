@@ -7,7 +7,7 @@ defaults: &defaults
       - image: bepsays/ci-hugoreleaser:1.22300.20000
 environment: &buildenv
       GOMODCACHE: /root/project/gomodcache
-version: 2.1
+version: 2
 jobs:
   prepare_release:
     <<: *defaults 
