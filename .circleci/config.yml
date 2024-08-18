@@ -98,16 +98,9 @@ workflows:
   release:
       jobs:  
         - prepare_release:
-          when:
-            and:
-              - matches:
-                  pattern: "^release-"
-                  value: << pipeline.git.branch >>
-              - not:
-                - matches:
-                    pattern: "NOCIRCLECI"
-                    value: << pipeline.trigger_parameters.github_app.commit_message >>
-
+            filters:
+              branches:
+                only: /release-.*/
         - build_container1:
             requires:
             - prepare_release
