@@ -101,7 +101,8 @@ func (r *ReleaseHandler) Run() error {
 			return err
 		}
 
-		if _, err := r.git("commit", "-a", "-m", fmt.Sprintf("%s Bump versions for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
+		// About NOCIRCLECI, see issue #12753.
+		if _, err := r.git("commit", "-a", "-m", fmt.Sprintf("%s Bump versions for release of %s\n\nNOCIRCLECI", commitPrefix, newVersion)); err != nil {
 			return err
 		}
 
