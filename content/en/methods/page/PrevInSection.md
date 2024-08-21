@@ -53,20 +53,12 @@ Use the opposite label in your navigation links as shown in the example below.
 {{ end }}
 ```
 
-{{% note %}}
-The navigation sort order may be different than the page collection sort order.
-{{% /note %}}
 
-With the `PrevInSection` and `NextInSection` methods, the navigation sort order is fixed, using Hugo’s default sort order. In order of precedence:
-
-1. Page [weight]
-2. Page [date] (descending)
-3. Page [linkTitle], falling back to page [title]
-4. Page file path if the page is backed by a file
-
-For example, with a page collection sorted by title, the navigation sort order will use Hugo’s default sort order. This is probably not what you want or expect. For this reason, the Next and Prev methods on a Pages object are generally a better choice.
+The `PrevInSection` and `NextInSection` methods uses the default page sort. You can change the sort direction in [Page Config](getting-started/configuration/#configure-page). For more flexibility, use the [Next] and [Prev] methods on the Page object.
 
 [date]: /methods/page/date/
 [weight]: /methods/page/weight/
 [linkTitle]: /methods/page/linktitle/
 [title]: /methods/page/title/
+[Next]: /methods/page/next/
+[Prev]: /methods/page/prev/
