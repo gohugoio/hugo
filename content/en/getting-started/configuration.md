@@ -378,6 +378,10 @@ Module configuration see [module configuration](/hugo-modules/configuration/).
 
 See [custom output formats].
 
+###### page
+
+See [Page Configuration](#configure-page).
+
 ###### pagination
 
 See [configure pagination](/templates/pagination/#configuration).
@@ -495,6 +499,14 @@ which shows output like
 enableemoji: true
 ```
 {{% /note %}}
+
+## Configure page
+
+The `page` configuration section contains [page]-related configuration options.
+
+{{< code-toggle config=page />}}
+
+[page]:/methods/page/
 
 ## Configure build
 
@@ -921,7 +933,6 @@ output
 : The [output format] of the page.
 
 It is recommended to put coarse grained filters (e.g. for language and output format) in the excludes section, e.g.:
-
 
 {{< code-toggle file=hugo >}}
 [segments.segment1]
