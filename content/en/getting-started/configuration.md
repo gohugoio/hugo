@@ -609,8 +609,6 @@ Setting `force=true` will make a redirect even if there is existing content in t
 
 ## 404 server error page {#_404-server-error-page}
 
-{{< new-in 0.103.0 >}}
-
 Hugo will, by default, render all 404 errors when running `hugo server` with the `404.html` template. Note that if you have already added one or more redirects to your [server configuration](#configure-server), you need to add the 404 redirect explicitly, e.g:
 
 {{< code-toggle file=config/development/server >}}
