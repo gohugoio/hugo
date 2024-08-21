@@ -502,6 +502,8 @@ enableemoji: true
 
 ## Configure page
 
+{{< new-in 0.133.0 >}}
+
 The `page` configuration section contains [page]-related configuration options.
 
 {{< code-toggle config=page />}}
