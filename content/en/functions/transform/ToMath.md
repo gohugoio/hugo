@@ -27,47 +27,47 @@ EXPRESSION
 : The math expression to render using KaTeX.
 
 OPTIONS
-: A map of zero or more [options].
+: A map of zero or more options.
 
 ## Options
 
-These are a sub set of the [KaTeX options].
+These are a subset of the [KaTeX options].
 
 output
-: String. Default is `mathml`.\
-`html` Outputs HTML only.\
-`mathml`: Outputs MathML only.\
-`htmlAndMathml`: Outputs HTML for visual rendering and MathML for accessibility.
+: (`string`). Determines the markup language of the output. One of `html`, `mathml`, or `htmlAndMathml`. Default is `mathml`.
+
+    <!-- Indent to prevent spliting the description list. -->
+
+    With `html` and `htmlAndMathml` you must include KaTeX CSS within the `head` element of your base template. For example:
+
+    ```html
+    <head>
+      ...
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+      ...
+    </head>
+    ```
 
 displayMode
-: Boolean. Default is `false`.\
-If `true` the math will be rendered in display mode. If false the math will be rendered in `inline` mode.
+: (`bool`) If `true` render in display mode, else render in inline mode. Default is `false`.
 
 leqno
-: Boolean. Default is `false`.\
-If `true` the math will be rendered with the equation numbers on the left.
+: (`bool`) If `true` render with the equation numbers on the left. Default is `false`.
 
 fleqn
-: Boolean. Default is `false`.\
-If `true`, render flush left with a 2em left margin.
+: (`bool`) If `true` render flush left with a 2em left margin. Default is `false`.
 
 minRuleThickness
-: Float. Default is `0.04`.\
-The minimum thickness of the fraction lines in `em`.
+: (`float`) The minimum thickness of the fraction lines in `em`. Default is `0.04`.
 
 macros
-: Map. Default is `{}`.\
-A map of macros to be used in the math expression.
+: (`map`) A map of macros to be used in the math expression. Default is `{}`.
 
 throwOnError
-: Boolean. Default is `true`.\
-If `true`, KaTeX will throw a `ParseError` when it encounters an unsupported command or invalid LaTex. See [error handling].
+: (`bool`) If `true` throw a `ParseError` when KaTeX encounters an unsupported command or invalid LaTex. See [error handling]. Default is `true`.
 
 errorColor
-: String. Default is `#cc0000`.\
-The color of the error messages.\
-A color string given in the format "#XXX" or "#XXXXXX"
-
+: (`string`) The color of the error messages expressed as an RGB [hexadecimal color]. Default is `#cc0000`.
 
 ## Examples
 
@@ -107,8 +107,6 @@ There are 3 ways to handle errors from KaTeX:
 {{- /* chomp trailing newline */ -}}
 {{< /code >}}
 
-
-
-[options]: #options
 [error handling]: #error-handling
 [KaTeX options]: https://katex.org/docs/options.html
+[hexadecimal color]: https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color
