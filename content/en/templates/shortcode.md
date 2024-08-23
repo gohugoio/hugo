@@ -37,12 +37,29 @@ You can organize your shortcodes in subdirectories, e.g. in `layouts/shortcodes/
 
 Note the forward slash.
 
-### Shortcode template lookup order
+### Template lookup order
 
-Shortcode templates have a simple [lookup order]:
+Hugo selects shortcode templates based on the shortcode name, the current output format, and the current language. The examples below are sorted by specificity in descending order. The least specific path is at the bottom of the list.
 
-1. `/layouts/shortcodes/<SHORTCODE>.html`
-2. `/themes/<THEME>/layouts/shortcodes/<SHORTCODE>.html`
+Shortcode name|Output format|Language|Template path
+:--|:--|:--|:--
+foo|html|en|layouts/shortcodes/foo.en.html
+foo|html|en|layouts/shortcodes/foo.html.html
+foo|html|en|layouts/shortcodes/foo.html
+foo|html|en|layouts/shortcodes/foo.html.en.html
+
+Shortcode name|Output format|Language|Template path
+:--|:--|:--|:--
+foo|rss|en|layouts/shortcodes/foo.en.xml
+foo|rss|en|layouts/shortcodes/foo.rss.xml
+foo|rss|en|layouts/shortcodes/foo.en.html
+foo|rss|en|layouts/shortcodes/foo.rss.en.xml
+foo|rss|en|layouts/shortcodes/foo.xml
+foo|rss|en|layouts/shortcodes/foo.html.en.html
+foo|rss|en|layouts/shortcodes/foo.html.html
+foo|rss|en|layouts/shortcodes/foo.html
+
+Note that templates provided by a theme or module always take precedence.
 
 ### Positional vs. named arguments
 
