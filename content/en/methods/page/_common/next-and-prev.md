@@ -33,7 +33,7 @@ content/
 And these templates:
 
 {{< code file=layouts/_default/list.html >}}
-{{ range .Pages.ByWeight}}
+{{ range .Pages.ByWeight }}
   <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 {{< /code >}}
