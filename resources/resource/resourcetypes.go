@@ -298,3 +298,11 @@ func (r resourceTypesHolder) ResourceType() string {
 func NewResourceTypesProvider(mediaType media.Type, resourceType string) ResourceTypesProvider {
 	return resourceTypesHolder{mediaType: mediaType, resourceType: resourceType}
 }
+
+// NameNormalizedOrName returns the normalized name if available, otherwise the name.
+func NameNormalizedOrName(r Resource) string {
+	if nn, ok := r.(NameNormalizedProvider); ok {
+		return nn.NameNormalized()
+	}
+	return r.Name()
+}

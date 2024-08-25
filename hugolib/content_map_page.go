@@ -560,7 +560,7 @@ func (m *pageMap) getOrCreateResourcesForPage(ps *pageState) resource.Resources 
 				for _, r := range res2 {
 					var found bool
 					for _, r2 := range res {
-						if r2.(resource.NameNormalizedProvider).NameNormalized() == r.(resource.NameNormalizedProvider).NameNormalized() {
+						if resource.NameNormalizedOrName(r2) == resource.NameNormalizedOrName(r) {
 							found = true
 							break
 						}
