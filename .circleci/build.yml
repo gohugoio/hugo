@@ -1,0 +1,120 @@
+version: 2.1
+
+# Passed from config.yml
+parameters:
+  skip:
+    type: boolean
+    default: true
+
+defaults: &defaults
+  resource_class: large
+  docker:
+    - image: bepsays/ci-hugoreleaser:1.22300.20000
+environment: &buildenv
+  GOMODCACHE: /root/project/gomodcache
+jobs:
+  prepare_release:
+    <<: *defaults
+    environment: &buildenv
+      GOMODCACHE: /root/project/gomodcache
+    steps:
+      - &remote-docker
+        setup_remote_docker:
+          version: 20.10.14
+      - checkout:
+          path: hugo
+      - &git-config
+        run:
+          command: |
+            git config --global user.email "bjorn.erik.pedersen+hugoreleaser@gmail.com"
+            git config --global user.name "hugoreleaser"
+      - run:
+          command: |
+            cd hugo
+            go mod download
+            go run -tags release main.go release --step 1
+      - save_cache:
+          key: git-sha-{{ .Revision }}
+          paths:
+            - hugo
+            - gomodcache
+  build_container1:
+    <<: [*defaults]
+    environment:
+      <<: [*buildenv]
+    steps:
+      - &restore-cache
+        restore_cache:
+          key: git-sha-{{ .Revision }}
+      - run:
+          no_output_timeout: 20m
+          command: |
+            mkdir -p /tmp/files/dist1
+            cd hugo
+            hugoreleaser build -paths "builds/container1/**" -workers 3 -dist /tmp/files/dist1 -chunks $CIRCLE_NODE_TOTAL -chunk-index $CIRCLE_NODE_INDEX
+      - &persist-workspace
+        persist_to_workspace:
+          root: /tmp/files
+          paths:
+            - dist1
+            - dist2
+    parallelism: 7
+  build_container2:
+    <<: [*defaults]
+    environment:
+      <<: [*buildenv]
+    docker:
+      - image: bepsays/ci-hugoreleaser-linux-arm64:1.22300.20000
+    steps:
+      - *restore-cache
+      - &attach-workspace
+        attach_workspace:
+          at: /tmp/workspace
+      - run:
+          command: |
+            mkdir -p /tmp/files/dist2
+            cd hugo
+            hugoreleaser build -paths "builds/container2/**" -workers 1 -dist /tmp/files/dist2
+      - *persist-workspace
+  archive_and_release:
+    <<: [*defaults]
+    environment:
+      <<: [*buildenv]
+    steps:
+      - *restore-cache
+      - *attach-workspace
+      - *git-config
+      - run:
+          name: Add github.com to known hosts
+          command: ssh-keyscan github.com >> ~/.ssh/known_hosts
+      - run:
+          command: |
+            cp -a /tmp/workspace/dist1/. ./hugo/dist
+            cp -a /tmp/workspace/dist2/. ./hugo/dist
+      - run:
+          command: |
+            cd hugo
+            hugoreleaser archive
+            hugoreleaser release
+            go run -tags release main.go release --step 2
+workflows:
+  release:
+    when:
+      and:
+        - equal: [false, << pipeline.parameters.skip >>]
+    jobs:
+      - prepare_release:
+          filters:
+            branches:
+              only: /release-.*/
+      - build_container1:
+          requires:
+            - prepare_release
+      - build_container2:
+          requires:
+            - prepare_release
+      - archive_and_release:
+          context: org-global
+          requires:
+            - build_container1
+            - build_container2
