@@ -1865,7 +1865,7 @@ output:
     - layouts/_default/demolayout-baseof.html
     - layouts/_default/single-baseof.html
     - layouts/_default/baseof.html
-  - Example: AMP single page
+  - Example: AMP single page in "posts" section
     Kind: page
     OutputFormat: amp
     Suffix: html
@@ -1874,17 +1874,17 @@ output:
     - layouts/posts/single.html
     - layouts/_default/single.amp.html
     - layouts/_default/single.html
-  - Example: AMP single page, French language
+  - Example: AMP single page in "posts" section, French language
     Kind: page
-    OutputFormat: html
+    OutputFormat: amp
     Suffix: html
     Template Lookup Order:
-    - layouts/posts/single.fr.html.html
-    - layouts/posts/single.html.html
+    - layouts/posts/single.fr.amp.html
+    - layouts/posts/single.amp.html
     - layouts/posts/single.fr.html
     - layouts/posts/single.html
-    - layouts/_default/single.fr.html.html
-    - layouts/_default/single.html.html
+    - layouts/_default/single.fr.amp.html
+    - layouts/_default/single.amp.html
     - layouts/_default/single.fr.html
     - layouts/_default/single.html
   - Example: Home page
