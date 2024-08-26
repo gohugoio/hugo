@@ -46,8 +46,8 @@ func createLayoutExamples() any {
 		{"Base template for single page in \"posts\" section", layouts.LayoutDescriptor{Baseof: true, Kind: "page", Type: "posts", OutputFormatName: "html", Suffix: "html"}},
 		{"Single page in \"posts\" section with layout set to \"demolayout\"", layouts.LayoutDescriptor{Kind: "page", Type: "posts", Layout: demoLayout, OutputFormatName: "html", Suffix: "html"}},
 		{"Base template for single page in \"posts\" section with layout set to \"demolayout\"", layouts.LayoutDescriptor{Baseof: true, Kind: "page", Type: "posts", Layout: demoLayout, OutputFormatName: "html", Suffix: "html"}},
-		{"AMP single page", layouts.LayoutDescriptor{Kind: "page", Type: "posts", OutputFormatName: "amp", Suffix: "html"}},
-		{"AMP single page, French language", layouts.LayoutDescriptor{Kind: "page", Type: "posts", Lang: "fr", OutputFormatName: "html", Suffix: "html"}},
+		{"AMP single page in \"posts\" section", layouts.LayoutDescriptor{Kind: "page", Type: "posts", OutputFormatName: "amp", Suffix: "html"}},
+		{"AMP single page in \"posts\" section, French language", layouts.LayoutDescriptor{Kind: "page", Type: "posts", Lang: "fr", OutputFormatName: "amp", Suffix: "html"}},
 		// Typeless pages get "page" as type
 		{"Home page", layouts.LayoutDescriptor{Kind: "home", Type: "page", OutputFormatName: "html", Suffix: "html"}},
 		{"Base template for home page", layouts.LayoutDescriptor{Baseof: true, Kind: "home", Type: "page", OutputFormatName: "html", Suffix: "html"}},
