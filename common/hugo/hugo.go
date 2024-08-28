@@ -276,7 +276,7 @@ func GetDependencyListNonGo() []string {
 	if IsExtended {
 		deps = append(
 			deps,
-			formatDep("github.com/sass/libsass", "3.6.5"),
+			formatDep("github.com/sass/libsass", "3.6.6"),
 			formatDep("github.com/webmproject/libwebp", "v1.3.2"),
 		)
 	}
