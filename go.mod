@@ -12,7 +12,7 @@ require (
 	github.com/bep/goat v0.5.0
 	github.com/bep/godartsass v1.2.0
 	github.com/bep/godartsass/v2 v2.1.0
-	github.com/bep/golibsass v1.1.1
+	github.com/bep/golibsass v1.2.0
 	github.com/bep/gowebp v0.3.0
 	github.com/bep/helpers v0.4.0
 	github.com/bep/imagemeta v0.8.1
