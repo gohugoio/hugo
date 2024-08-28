@@ -706,3 +706,17 @@ a: {{ $a }}
 
 	b.AssertFileContent("public/index.html", `a: [a b c]`)
 }
+
+func TestOverrideInternalTemplate(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+-- layouts/index.html --
+{{ template "_internal/google_analytics_async.html" . }}
+-- layouts/_internal/google_analytics_async.html --
+Overridden.
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html", "Overridden.")
+}
