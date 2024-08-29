@@ -224,7 +224,7 @@ func (ns *Namespace) Concat(targetPathIn any, r any) (resource.Resource, error) 
 	case resource.ResourcesConverter:
 		rr = v.ToResources()
 	default:
-		return nil, fmt.Errorf("slice %T not supported in concat", r)
+		return nil, fmt.Errorf("expected slice of Resource objects, received %T instead", r)
 	}
 
 	if len(rr) == 0 {
