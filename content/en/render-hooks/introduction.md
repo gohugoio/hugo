@@ -19,6 +19,7 @@ When rendering Markdown to HTML, render hooks override the conversion. Each rend
 - [Images](/render-hooks/images)
 - [Links](/render-hooks/links)
 - [Passthrough elements](/render-hooks/passthrough)
+- [Tables](/render-hooks/tables)
 
 {{% note %}}
 Hugo supports multiple [content formats] including Markdown, HTML, AsciiDoc, Emacs Org Mode, Pandoc, and reStructuredText.
@@ -60,7 +61,9 @@ layouts/
         ├── render-codeblock.html
         ├── render-heading.html
         ├── render-image.html
-        └── render-link.html    
+        ├── render-link.html
+        ├── render-passthrough.html
+        └── render-table.html
 ```
 
 The template lookup order allows you to create different render hooks for each page [type], [kind], language, and [output format]. For example:

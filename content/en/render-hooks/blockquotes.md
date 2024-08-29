@@ -59,7 +59,7 @@ block = true
 
 ###### PageInner
 
-(`page`) A reference to a page nested via the [`RenderShortcodes`] method.
+(`page`) A reference to a page nested via the [`RenderShortcodes`] method. [See details](#pageinner-details).
 
 [`RenderShortcodes`]: /methods/page/rendershortcodes
 
@@ -183,3 +183,5 @@ layouts/
         ├── render-blockquote-alert.html
         └── render-blockquote-regular.html
 ```
+
+{{% include "/render-hooks/_common/pageinner.md" %}}
