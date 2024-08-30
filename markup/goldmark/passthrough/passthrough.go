@@ -15,9 +15,6 @@ package passthrough
 
 import (
 	"bytes"
-	"sync"
-
-	htext "github.com/gohugoio/hugo/common/text"
 
 	"github.com/gohugoio/hugo-goldmark-extensions/passthrough"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
@@ -136,23 +133,10 @@ func (r *htmlRenderer) renderPassthroughBlock(w util.BufWriter, src []byte, node
 	s = s[len(delims.Open) : len(s)-len(delims.Close)]
 
 	pctx := &passthroughContext{
-		ordinal:          ordinal,
-		page:             ctx.DocumentContext().Document,
-		pageInner:        r.getPageInner(ctx),
+		BaseContext:      render.NewBaseContext(ctx, renderer, node, src, nil, ordinal),
 		inner:            s,
 		typ:              typ,
 		AttributesHolder: attributes.New(node.Attributes(), attributes.AttributesOwnerGeneral),
-	}
-
-	pctx.createPos = func() htext.Position {
-		if resolver, ok := renderer.(hooks.ElementPositionResolver); ok {
-			return resolver.ResolvePosition(pctx)
-		}
-		return htext.Position{
-			Filename:     ctx.DocumentContext().Filename,
-			LineNumber:   1,
-			ColumnNumber: 1,
-		}
 	}
 
 	pr := renderer.(hooks.PassthroughRenderer)
@@ -164,39 +148,13 @@ func (r *htmlRenderer) renderPassthroughBlock(w util.BufWriter, src []byte, node
 	return ast.WalkContinue, nil
 }
 
-func (r *htmlRenderer) getPageInner(rctx *render.Context) any {
-	pid := rctx.PeekPid()
-	if pid > 0 {
-		if lookup := rctx.DocumentContext().DocumentLookup; lookup != nil {
-			if v := rctx.DocumentContext().DocumentLookup(pid); v != nil {
-				return v
-			}
-		}
-	}
-	return rctx.DocumentContext().Document
-}
-
 type passthroughContext struct {
-	page      any
-	pageInner any
-	typ       string // inner or block
-	inner     string
-	ordinal   int
+	hooks.BaseContext
 
-	// This is only used in error situations and is expensive to create,
-	// so delay creation until needed.
-	pos       htext.Position
-	posInit   sync.Once
-	createPos func() htext.Position
+	typ   string // inner or block
+	inner string
+
 	*attributes.AttributesHolder
-}
-
-func (p *passthroughContext) Page() any {
-	return p.page
-}
-
-func (p *passthroughContext) PageInner() any {
-	return p.pageInner
 }
 
 func (p *passthroughContext) Type() string {
@@ -206,21 +164,3 @@ func (p *passthroughContext) Type() string {
 func (p *passthroughContext) Inner() string {
 	return p.inner
 }
-
-func (p *passthroughContext) Ordinal() int {
-	return p.ordinal
-}
-
-func (p *passthroughContext) Position() htext.Position {
-	p.posInit.Do(func() {
-		p.pos = p.createPos()
-	})
-	return p.pos
-}
-
-// For internal use.
-func (p *passthroughContext) PositionerSourceTarget() []byte {
-	return []byte(p.inner)
-}
-
-var _ hooks.PositionerSourceTargetProvider = (*passthroughContext)(nil)

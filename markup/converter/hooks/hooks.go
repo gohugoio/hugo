@@ -61,9 +61,8 @@ type ImageLinkContext interface {
 
 // CodeblockContext is the context passed to a code block render hook.
 type CodeblockContext interface {
+	BaseContext
 	AttributesProvider
-	text.Positioner
-	PageProvider
 
 	// Chroma highlighting processing options. This will only be filled if Type is a known Chroma Lexer.
 	Options() map[string]any
@@ -73,19 +72,31 @@ type CodeblockContext interface {
 
 	// The text between the code fences.
 	Inner() string
+}
 
-	// Zero-based ordinal for all code blocks in the current document.
+// TableContext is the context passed to a table render hook.
+type TableContext interface {
+	BaseContext
+	AttributesProvider
+
+	THead() []TableRow
+	TBody() []TableRow
+}
+
+// BaseContext is the base context used in most render hooks.
+type BaseContext interface {
+	text.Positioner
+	PageProvider
+
+	// Zero-based ordinal for all elements of this kind in the current document.
 	Ordinal() int
 }
 
 // BlockquoteContext is the context passed to a blockquote render hook.
 type BlockquoteContext interface {
-	AttributesProvider
-	text.Positioner
-	PageProvider
+	BaseContext
 
-	// Zero-based ordinal for all block quotes in the current document.
-	Ordinal() int
+	AttributesProvider
 
 	// The blockquote text.
 	// If type is "alert", this will be the alert text.
@@ -107,18 +118,14 @@ type PositionerSourceTargetProvider interface {
 
 // PassThroughContext is the context passed to a passthrough render hook.
 type PassthroughContext interface {
+	BaseContext
 	AttributesProvider
-	text.Positioner
-	PageProvider
 
 	// Currently one of "inline" or "block".
 	Type() string
 
 	// The inner content of the passthrough element, excluding the delimiters.
 	Inner() string
-
-	// Zero-based ordinal for all passthrough elements in the document.
-	Ordinal() int
 }
 
 type AttributesOptionsSliceProvider interface {
@@ -136,6 +143,10 @@ type CodeBlockRenderer interface {
 
 type BlockquoteRenderer interface {
 	RenderBlockquote(cctx context.Context, w hugio.FlexiWriter, ctx BlockquoteContext) error
+}
+
+type TableRenderer interface {
+	RenderTable(cctx context.Context, w hugio.FlexiWriter, ctx TableContext) error
 }
 
 type PassthroughRenderer interface {
@@ -196,6 +207,19 @@ const (
 	CodeBlockRendererType
 	PassthroughRendererType
 	BlockquoteRendererType
+	TableRendererType
 )
 
 type GetRendererFunc func(t RendererType, id any) any
+
+type TableCell struct {
+	Text      hstring.RenderedString
+	Alignment string // left, center, or right
+}
+
+type TableRow []TableCell
+
+type Table struct {
+	THead []TableRow
+	TBody []TableRow
+}
