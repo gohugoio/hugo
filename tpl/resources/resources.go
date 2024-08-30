@@ -310,14 +310,14 @@ func (ns *Namespace) Minify(r resources.ResourceTransformer) (resource.Resource,
 // for the converted CSS resource.
 // Deprecated: Moved to the css namespace in Hugo 0.128.0.
 func (ns *Namespace) ToCSS(args ...any) (resource.Resource, error) {
-	hugo.Deprecate("resources.ToCSS", "Use css.SASS.", "v0.128.0")
+	hugo.Deprecate("resources.ToCSS", "Use css.Sass instead.", "v0.128.0")
 	return ns.cssNs.Sass(args...)
 }
 
 // PostCSS processes the given Resource with PostCSS.
 // Deprecated: Moved to the css namespace in Hugo 0.128.0.
 func (ns *Namespace) PostCSS(args ...any) (resource.Resource, error) {
-	hugo.Deprecate("resources.PostCSS", "Use css.PostCSS.", "v0.128.0")
+	hugo.Deprecate("resources.PostCSS", "Use css.PostCSS instead.", "v0.128.0")
 	return ns.cssNs.PostCSS(args...)
 }
 
