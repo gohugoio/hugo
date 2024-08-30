@@ -26,6 +26,7 @@ import (
 	"github.com/gohugoio/hugo/markup/goldmark/internal/extensions/attributes"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
 	"github.com/gohugoio/hugo/markup/goldmark/passthrough"
+	"github.com/gohugoio/hugo/markup/goldmark/tables"
 	"github.com/yuin/goldmark/util"
 
 	"github.com/yuin/goldmark"
@@ -131,6 +132,7 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 
 	if cfg.Extensions.Table {
 		extensions = append(extensions, extension.Table)
+		extensions = append(extensions, tables.New())
 	}
 
 	if cfg.Extensions.Strikethrough {

@@ -18,7 +18,6 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	"sync"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	htext "github.com/gohugoio/hugo/common/text"
@@ -101,24 +100,12 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 	if err != nil {
 		return ast.WalkStop, &herrors.TextSegmentError{Err: err, Segment: attrStr}
 	}
+
 	cbctx := &codeBlockContext{
-		page:             ctx.DocumentContext().Document,
-		pageInner:        r.getPageInner(ctx),
+		BaseContext:      render.NewBaseContext(ctx, renderer, node, src, func() []byte { return []byte(s) }, ordinal),
 		lang:             lang,
 		code:             s,
-		ordinal:          ordinal,
 		AttributesHolder: attributes.New(attrs, attrtp),
-	}
-
-	cbctx.createPos = func() htext.Position {
-		if resolver, ok := renderer.(hooks.ElementPositionResolver); ok {
-			return resolver.ResolvePosition(cbctx)
-		}
-		return htext.Position{
-			Filename:     ctx.DocumentContext().Filename,
-			LineNumber:   1,
-			ColumnNumber: 1,
-		}
 	}
 
 	cr := renderer.(hooks.CodeBlockRenderer)
@@ -129,48 +116,18 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 		cbctx,
 	)
 	if err != nil {
-		return ast.WalkContinue, herrors.NewFileErrorFromPos(err, cbctx.createPos())
+		return ast.WalkContinue, herrors.NewFileErrorFromPos(err, cbctx.Position())
 	}
 
 	return ast.WalkContinue, nil
 }
 
-func (r *htmlRenderer) getPageInner(rctx *render.Context) any {
-	pid := rctx.PeekPid()
-	if pid > 0 {
-		if lookup := rctx.DocumentContext().DocumentLookup; lookup != nil {
-			if v := rctx.DocumentContext().DocumentLookup(pid); v != nil {
-				return v
-			}
-		}
-	}
-	return rctx.DocumentContext().Document
-}
-
-var _ hooks.PositionerSourceTargetProvider = (*codeBlockContext)(nil)
-
 type codeBlockContext struct {
-	page      any
-	pageInner any
-	lang      string
-	code      string
-	ordinal   int
-
-	// This is only used in error situations and is expensive to create,
-	// so delay creation until needed.
-	pos       htext.Position
-	posInit   sync.Once
-	createPos func() htext.Position
+	hooks.BaseContext
+	lang string
+	code string
 
 	*attributes.AttributesHolder
-}
-
-func (c *codeBlockContext) Page() any {
-	return c.page
-}
-
-func (c *codeBlockContext) PageInner() any {
-	return c.pageInner
 }
 
 func (c *codeBlockContext) Type() string {
@@ -179,22 +136,6 @@ func (c *codeBlockContext) Type() string {
 
 func (c *codeBlockContext) Inner() string {
 	return c.code
-}
-
-func (c *codeBlockContext) Ordinal() int {
-	return c.ordinal
-}
-
-func (c *codeBlockContext) Position() htext.Position {
-	c.posInit.Do(func() {
-		c.pos = c.createPos()
-	})
-	return c.pos
-}
-
-// For internal use.
-func (c *codeBlockContext) PositionerSourceTarget() []byte {
-	return []byte(c.code)
 }
 
 func getLang(node *ast.FencedCodeBlock, src []byte) string {

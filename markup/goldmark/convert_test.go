@@ -14,6 +14,7 @@
 package goldmark_test
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"testing"
@@ -30,6 +31,7 @@ import (
 
 	"github.com/gohugoio/hugo/markup/markup_config"
 
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 
@@ -60,9 +62,13 @@ func convert(c *qt.C, conf config.AllProvider, content string) converter.ResultR
 	h := highlight.New(mconf.Highlight)
 
 	getRenderer := func(t hooks.RendererType, id any) any {
-		if t == hooks.CodeBlockRendererType {
+		switch t {
+		case hooks.CodeBlockRendererType:
 			return h
+		case hooks.TableRendererType:
+			return tableRenderer(0)
 		}
+
 		return nil
 	}
 
@@ -168,8 +174,6 @@ unsafe = true
 	b := convert(c, testconfig.GetTestConfig(nil, cfg), content)
 	got := string(b.Bytes())
 
-	fmt.Println(got)
-
 	// Links
 	c.Assert(got, qt.Contains, `<a href="https://docuapi.netlify.com/">Live Demo here!</a>`)
 	c.Assert(got, qt.Contains, `<a href="https://foo.bar/">https://foo.bar/</a>`)
@@ -191,7 +195,7 @@ unsafe = true
 	// Extensions
 	c.Assert(got, qt.Contains, `Autolink: <a href="https://gohugo.io/">https://gohugo.io/</a>`)
 	c.Assert(got, qt.Contains, `Strikethrough:<del>Hi</del> Hello, world`)
-	c.Assert(got, qt.Contains, `<th>foo</th>`)
+	c.Assert(got, qt.Contains, `Table`)
 	c.Assert(got, qt.Contains, `<li><input disabled="" type="checkbox"> Push my commits to GitHub</li>`)
 
 	c.Assert(got, qt.Contains, `Straight double &ldquo;quotes&rdquo; and single &lsquo;quotes&rsquo;`)
@@ -378,7 +382,7 @@ func TestConvertAttributes(t *testing.T) {
 | ------------- |:-------------:| -----:|
 | AV      | BV |
 {.myclass }`,
-			"<table class=\"myclass\">\n<thead>",
+			"Table",
 		},
 		{
 			"Title and Blockquote",
@@ -740,4 +744,12 @@ escapedSpace=true
 	got := string(b.Bytes())
 
 	c.Assert(got, qt.Contains, "<p>私は太郎です。\nプログラミングが好きです。運動が苦手です。</p>\n")
+}
+
+type tableRenderer int
+
+func (hr tableRenderer) RenderTable(cctx context.Context, w hugio.FlexiWriter, ctx hooks.TableContext) error {
+	// This is set up with a render hook in the hugolib package, make it simple here.
+	fmt.Fprintln(w, "Table")
+	return nil
 }

@@ -930,6 +930,10 @@ func (hr hookRendererTemplate) RenderBlockquote(cctx context.Context, w hugio.Fl
 	return hr.templateHandler.ExecuteWithContext(cctx, hr.templ, w, ctx)
 }
 
+func (hr hookRendererTemplate) RenderTable(cctx context.Context, w hugio.FlexiWriter, ctx hooks.TableContext) error {
+	return hr.templateHandler.ExecuteWithContext(cctx, hr.templ, w, ctx)
+}
+
 func (hr hookRendererTemplate) ResolvePosition(ctx any) text.Position {
 	return hr.resolvePosition(ctx)
 }
