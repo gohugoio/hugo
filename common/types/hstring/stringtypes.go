@@ -13,8 +13,22 @@
 
 package hstring
 
-type RenderedString string
+import (
+	"html/template"
 
-func (s RenderedString) String() string {
+	"github.com/gohugoio/hugo/common/types"
+)
+
+var _ types.PrintableValueProvider = RenderedHTML("")
+
+// RenderedHTML is a string that represents rendered HTML.
+// When printed in templates it will be rendered as template.HTML and considered safe.
+type RenderedHTML string
+
+func (s RenderedHTML) String() string {
 	return string(s)
+}
+
+func (s RenderedHTML) PrintableValue() any {
+	return template.HTML(s)
 }

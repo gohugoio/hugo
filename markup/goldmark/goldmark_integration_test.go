@@ -76,7 +76,7 @@ title: "p1"
   {{- range $k, $v := .Attributes -}}
     {{- printf " %s=%q" $k $v | safeHTMLAttr -}}
   {{- end -}}
->{{ .Text | safeHTML }}</h{{ .Level }}>
+>{{ .Text }}</h{{ .Level }}>
 `
 
 	b := hugolib.Test(t, files)
@@ -146,11 +146,11 @@ title: "p1"
 {{ .Content }}
 -- layouts/_default/_markup/render-heading.html --
 <h{{ .Level }} id="{{ .Anchor | safeURL }}">
-  {{ .Text | safeHTML }}
+  {{ .Text }}
   <a class="anchor" href="#{{ .Anchor | safeURL }}">#</a>
 </h{{ .Level }}>
 -- layouts/_default/_markup/render-link.html --
-<a href="{{ .Destination | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}>{{ .Text | safeHTML }}</a>
+<a href="{{ .Destination | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}>{{ .Text }}</a>
 
 `
 
@@ -236,11 +236,11 @@ func BenchmarkRenderHooks(b *testing.B) {
 -- config.toml --
 -- layouts/_default/_markup/render-heading.html --
 <h{{ .Level }} id="{{ .Anchor | safeURL }}">
-	{{ .Text | safeHTML }}
+	{{ .Text }}
 	<a class="anchor" href="#{{ .Anchor | safeURL }}">#</a>
 </h{{ .Level }}>
 -- layouts/_default/_markup/render-link.html --
-<a href="{{ .Destination | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}>{{ .Text | safeHTML }}</a>
+<a href="{{ .Destination | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}>{{ .Text }}</a>
 -- layouts/_default/single.html --
 {{ .Content }}
 `
@@ -452,7 +452,7 @@ Link https procol: https://www.example.org
 
 		if withHook {
 			files += `-- layouts/_default/_markup/render-link.html --
-<a href="{{ .Destination | safeURL }}">{{ .Text | safeHTML }}</a>`
+<a href="{{ .Destination | safeURL }}">{{ .Text }}</a>`
 		}
 
 		return hugolib.NewIntegrationTestBuilder(

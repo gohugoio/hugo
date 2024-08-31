@@ -32,9 +32,9 @@ func TestBlockquoteHook(t *testing.T) {
         block = true
         title = true
 -- layouts/_default/_markup/render-blockquote.html --
-Blockquote: |{{ .Text | safeHTML }}|{{ .Type }}|
+Blockquote: |{{ .Text }}|{{ .Type }}|
 -- layouts/_default/_markup/render-blockquote-alert.html --
-{{ $text := .Text | safeHTML }}
+{{ $text := .Text }}
 Blockquote Alert: |{{ $text }}|{{ .Type }}|
 Blockquote Alert Attributes: |{{ $text }}|{{ .Attributes }}|
 Blockquote Alert Page: |{{ $text }}|{{ .Page.Title }}|{{ .PageInner.Title }}|
