@@ -63,7 +63,7 @@ Each table cell within the slice of slices returned by the `THead` and `TBody` m
 (`string`) The alignment of the text within the table cell, one of `left`, `center`, or `right`.
 
 ###### Text
-(`string`) The text within the table cell.
+(`template.HTML`) The text within the table cell.
 
 ## Example
 
@@ -83,7 +83,7 @@ In its default configuration, Hugo renders Markdown tables according to the [Git
       <tr>
         {{- range . }}
           <th {{ printf "style=%q" (printf "text-align: %s" .Alignment) | safeHTMLAttr }}>
-            {{- .Text | safeHTML -}}
+            {{- .Text -}}
           </th>
         {{- end }}
       </tr>
@@ -94,7 +94,7 @@ In its default configuration, Hugo renders Markdown tables according to the [Git
       <tr>
         {{- range . }}
           <td {{ printf "style=%q" (printf "text-align: %s" .Alignment) | safeHTMLAttr }}>
-            {{- .Text | safeHTML -}}
+            {{- .Text -}}
           </td>
         {{- end }}
       </tr>

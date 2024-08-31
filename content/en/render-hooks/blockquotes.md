@@ -68,7 +68,7 @@ block = true
 (`string`) The position of the blockquote within the page content.
 
 ###### Text
-(`string`) The blockquote text, excluding the alert designator if present. See the [alerts](#alerts) section below.
+(`template.HTML`) The blockquote text, excluding the alert designator if present. See the [alerts](#alerts) section below.
 
 ###### Type
 
@@ -82,7 +82,7 @@ In its default configuration, Hugo renders Markdown blockquotes according to the
 
 {{< code file=layouts/_default/_markup/render-blockquote.html copy=true >}}
 <blockquote>
-  {{ .Text | safeHTML }}
+  {{ .Text }}
 </blockquote>
 {{< /code >}}
 
@@ -91,7 +91,7 @@ To render a blockquote as an HTML `figure` element with an optional citation and
 {{< code file=layouts/_default/_markup/render-blockquote.html copy=true >}}
 <figure>
   <blockquote {{ with .Attributes.cite }}cite="{{ . }}"{{ end }}>
-    {{ .Text | safeHTML }}
+    {{ .Text }}
   </blockquote>
   {{ with .Attributes.caption }}
     <figcaption class="blockquote-caption">
@@ -129,7 +129,6 @@ Also known as _callouts_ or _admonitions_, alerts are blockquotes used to emphas
 > Advises about risks or negative outcomes of certain actions.
 {{< /code >}}
 
-
 {{% note %}}
 This syntax is compatible with both the GitHub Alert Markdown extension and Obsidian's callout syntax. 
 But note that GitHub will not recognize callouts with one of Obsidian's extensions (e.g. callout title or the foldable sign).
@@ -154,11 +153,11 @@ The blockquote render hook below renders a multilingual alert if an alert design
       {{ transform.Emojify (index $emojis .AlertType) }}
       {{ or (i18n .AlertType) (title .AlertType) }}
     </p>
-    {{ .Text | safeHTML }}
+    {{ .Text }}
   </blockquote>
 {{ else }}
   <blockquote>
-    {{ .Text | safeHTML }}
+    {{ .Text }}
   </blockquote>
 {{ end }}
 {{< /code >}}

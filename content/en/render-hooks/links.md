@@ -54,7 +54,7 @@ Link render hook templates receive the following context:
 
 ###### Text
 
-(`string`) The link description.
+(`template.HTML`) The link description.
 
 ###### Title
 
@@ -74,7 +74,7 @@ In its default configuration, Hugo renders Markdown links according to the [Comm
 <a href="{{ .Destination | safeURL }}"
   {{- with .Title }} title="{{ . }}"{{ end -}}
 >
-  {{- with .Text | safeHTML }}{{ . }}{{ end -}}
+  {{- with .Text }}{{ . }}{{ end -}}
 </a>
 {{- /* chomp trailing newline */ -}}
 {{< /code >}}
@@ -87,7 +87,7 @@ To include a `rel` attribute set to `external` for external links:
   {{- with .Title }} title="{{ . }}"{{ end -}}
   {{- if $u.IsAbs }} rel="external"{{ end -}}
 >
-  {{- with .Text | safeHTML }}{{ . }}{{ end -}}
+  {{- with .Text }}{{ . }}{{ end -}}
 </a>
 {{- /* chomp trailing newline */ -}}
 {{< /code >}}
@@ -113,7 +113,7 @@ The embedded link render hook is automatically enabled for multilingual single-h
 [duplication of shared page resources]: /getting-started/configuration-markup/#duplicateresourcefiles
 {{% /note %}}
 
-The embedded link render hook resolves internal Markdown destinations by looking for a matching page, falling back to a matching [page resource], then falling back to a matching [global resource]. Remote destinations are passed through, and the render hook will not throw an error or warning if it is unable to resolve a destination.
+The embedded link render hook resolves internal Markdown destinations by looking for a matching page, falling back to a matching [page resource], then falling back to a matching [global resource]. Remote destinations are passed through, and the render hook will not throw an error or warning if unable to resolve a destination.
 
 [page resource]: /getting-started/glossary/#page-resource
 [global resource]: /getting-started/glossary/#global-resource

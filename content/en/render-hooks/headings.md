@@ -55,7 +55,7 @@ title = true
 
 ###### Text
 
-(`string`) The heading text.
+(`template.HTML`) The heading text.
 
 ## Examples
 
@@ -65,7 +65,7 @@ In its default configuration, Hugo renders Markdown headings according to the [C
 
 {{< code file=layouts/_default/_markup/render-heading.html copy=true >}}
 <h{{ .Level }} id="{{ .Anchor }}">
-  {{- .Text | safeHTML -}}
+  {{- .Text -}}
 </h{{ .Level }}>
 {{< /code >}}
 
@@ -73,7 +73,7 @@ To add an anchor link to the right of each heading:
 
 {{< code file=layouts/_default/_markup/render-heading.html copy=true >}}
 <h{{ .Level }} id="{{ .Anchor }}">
-  {{ .Text | safeHTML }}
+  {{ .Text }}
   <a href="#{{ .Anchor }}">#</a>
 </h{{ .Level }}>
 {{< /code >}}
