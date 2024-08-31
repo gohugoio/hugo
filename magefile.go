@@ -148,7 +148,11 @@ func Check() {
 		fmt.Printf("Skip Test386 on %s and/or %s\n", runtime.GOARCH, runtime.GOOS)
 	}
 
-	mg.Deps(Fmt, Vet)
+	if isCi() && isDarwin() {
+		// Skip on macOS in CI (disk space issues)
+	} else {
+		mg.Deps(Fmt, Vet)
+	}
 
 	// don't run two tests in parallel, they saturate the CPUs anyway, and running two
 	// causes memory issues in CI.
@@ -237,6 +241,14 @@ func Lint() error {
 		return errors.New("errors running golint")
 	}
 	return nil
+}
+
+func isCi() bool {
+	return os.Getenv("CI") != ""
+}
+
+func isDarwin() bool {
+	return runtime.GOOS == "darwin"
 }
 
 // Run go vet linter
