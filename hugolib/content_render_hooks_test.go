@@ -98,8 +98,8 @@ baseURL="https://example.org"
 P1: {{ $p.Content }}
 
 	`,
-		"_default/_markup/render-link.html", `html-link: {{ .Destination | safeURL }}|Text: {{ .Text | safeHTML }}|Plain: {{ .PlainText | safeHTML }}`,
-		"_default/_markup/render-image.html", `html-image: {{ .Destination | safeURL }}|Text: {{ .Text | safeHTML }}|Plain: {{ .PlainText | safeHTML }}`,
+		"_default/_markup/render-link.html", `html-link: {{ .Destination | safeURL }}|Text: {{ .Text }}|Plain: {{ .PlainText | safeHTML }}`,
+		"_default/_markup/render-image.html", `html-image: {{ .Destination | safeURL }}|Text: {{ .Text }}|Plain: {{ .PlainText | safeHTML }}`,
 	)
 
 	b.WithContent("p1.md", `---

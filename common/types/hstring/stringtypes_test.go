@@ -25,6 +25,6 @@ func TestRenderedString(t *testing.T) {
 	c := qt.New(t)
 
 	// Validate that it will behave like a string in Hugo settings.
-	c.Assert(cast.ToString(RenderedString("Hugo")), qt.Equals, "Hugo")
-	c.Assert(template.HTML(RenderedString("Hugo")), qt.Equals, template.HTML("Hugo"))
+	c.Assert(cast.ToString(RenderedHTML("Hugo")), qt.Equals, "Hugo")
+	c.Assert(template.HTML(RenderedHTML("Hugo")), qt.Equals, template.HTML("Hugo"))
 }

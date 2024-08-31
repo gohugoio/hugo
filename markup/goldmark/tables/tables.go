@@ -132,7 +132,7 @@ func (r *htmlRenderer) renderCell(w util.BufWriter, source []byte, node ast.Node
 		alignment = "left"
 	}
 
-	cell := hooks.TableCell{Text: hstring.RenderedString(text), Alignment: alignment}
+	cell := hooks.TableCell{Text: hstring.RenderedHTML(text), Alignment: alignment}
 
 	if node.Parent().Kind() == gast.KindTableHeader {
 		table.THead[len(table.THead)-1] = append(table.THead[len(table.THead)-1], cell)

@@ -32,7 +32,7 @@ title = true
 | Item              | In Stock | Price |
 | :---------------- | :------: | ----: |
 | Python Hat        |   True   | 23.99 |
-| SQL Hat           |   True   | 23.99 |
+| SQL **Hat**           |   True   | 23.99 |
 | Codecademy Tee    |  False   | 19.99 |
 | Codecademy Hoodie |  False   | 42.99 |
 {.foo foo="bar"}
@@ -61,7 +61,7 @@ Attributes: {{ .Attributes }}|
 	b.AssertFileContent("public/p1/index.html",
 		"Attributes: map[class:foo foo:bar]|",
 		"table-0-thead: 0: 0: left: Item| 1: center: In Stock| 2: right: Price|$",
-		"table-0-tbody: 0: 0: left: Python Hat| 1: center: True| 2: right: 23.99| 1: 0: left: SQL Hat| 1: center: True| 2: right: 23.99| 2: 0: left: Codecademy Tee| 1: center: False| 2: right: 19.99| 3: 0: left: Codecademy Hoodie| 1: center: False| 2: right: 42.99|$",
+		"table-0-tbody: 0: 0: left: Python Hat| 1: center: True| 2: right: 23.99| 1: 0: left: SQL <strong>Hat</strong>| 1: center: True| 2: right: 23.99| 2: 0: left: Codecademy Tee| 1: center: False| 2: right: 19.99| 3: 0: left: Codecademy Hoodie| 1: center: False| 2: right: 42.99|$",
 	)
 
 	b.AssertFileContent("public/p1/index.html",
