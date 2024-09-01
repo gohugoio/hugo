@@ -76,7 +76,7 @@ title: "p1"
 `
 
 	b := hugolib.Test(t, files)
-	b.AssertFileContent("public/p1/index.html",
+	b.AssertFileContentExact("public/p1/index.html",
 		"Blockquote Alert: |<p>This is a note with some whitespace after the alert type.</p>\n|alert|",
 		"Blockquote Alert: |<p>This is a tip.</p>",
 		"Blockquote Alert: |<p>This is a caution with some whitespace before the alert type.</p>\n|alert|",
@@ -107,7 +107,7 @@ Content: {{ .Content }}
 `
 
 	b := hugolib.Test(t, files)
-	b.AssertFileContent("public/p1/index.html", "Content: <blockquote>\n</blockquote>\n")
+	b.AssertFileContentExact("public/p1/index.html", "Content: <blockquote>\n</blockquote>\n")
 }
 
 func TestBlockquObsidianWithTitleAndSign(t *testing.T) {
@@ -138,19 +138,16 @@ title: "Home"
 -- layouts/index.html --
 {{ .Content }}
 -- layouts/_default/_markup/render-blockquote.html --
-AlertType: {{ .AlertType }}|
-AlertTitle: {{ .AlertTitle }}|
-AlertSign: {{ .AlertSign | safeHTML }}|
-Text: {{ .Text }}|
+AlertType: {{ .AlertType }}|AlertTitle: {{ .AlertTitle }}|AlertSign: {{ .AlertSign | safeHTML }}|Text: {{ .Text }}|
 	
 	`
 
 	b := hugolib.Test(t, files)
-	b.AssertFileContent("public/index.html",
-		"AlertType: tip|\nAlertTitle: Callouts can have custom titles|\nAlertSign: |",
-		"AlertType: tip|\nAlertTitle: Title-only callout</p>|\nAlertSign: |",
-		"AlertType: faq|\nAlertTitle: Foldable negated callout|\nAlertSign: -|\nText: <p>Yes!",
-		"AlertType: faq|\nAlertTitle: Foldable callout|\nAlertSign: +|",
-		"AlertType: danger|\nAlertTitle: |\nAlertSign: |\nText: <p>Do not approach or handle without protective gear.</p>\n|",
+	b.AssertFileContentExact("public/index.html",
+		"AlertType: tip|AlertTitle: Callouts can have custom titles|AlertSign: |",
+		"AlertType: tip|AlertTitle: Title-only callout</p>|AlertSign: |",
+		"AlertType: faq|AlertTitle: Foldable negated callout|AlertSign: -|Text: <p>Yes!",
+		"AlertType: faq|AlertTitle: Foldable callout|AlertSign: +|",
+		"AlertType: danger|AlertTitle: |AlertSign: |Text: <p>Do not approach or handle without protective gear.</p>\n|",
 	)
 }
