@@ -52,7 +52,7 @@ type linkContext struct {
 	pageInner   any
 	destination string
 	title       string
-	text        hstring.RenderedHTML
+	text        hstring.HTML
 	plainText   string
 	*attributes.AttributesHolder
 }
@@ -69,7 +69,7 @@ func (ctx linkContext) PageInner() any {
 	return ctx.pageInner
 }
 
-func (ctx linkContext) Text() hstring.RenderedHTML {
+func (ctx linkContext) Text() hstring.HTML {
 	return ctx.text
 }
 
@@ -100,7 +100,7 @@ type headingContext struct {
 	pageInner any
 	level     int
 	anchor    string
-	text      hstring.RenderedHTML
+	text      hstring.HTML
 	plainText string
 	*attributes.AttributesHolder
 }
@@ -121,7 +121,7 @@ func (ctx headingContext) Anchor() string {
 	return ctx.anchor
 }
 
-func (ctx headingContext) Text() hstring.RenderedHTML {
+func (ctx headingContext) Text() hstring.HTML {
 	return ctx.text
 }
 
@@ -199,7 +199,7 @@ func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.N
 				pageInner:        pageInner,
 				destination:      string(n.Destination),
 				title:            string(n.Title),
-				text:             hstring.RenderedHTML(text),
+				text:             hstring.HTML(text),
 				plainText:        string(n.Text(source)),
 				AttributesHolder: attributes.New(attrs, attributes.AttributesOwnerGeneral),
 			},
@@ -288,7 +288,7 @@ func (r *hookedRenderer) renderLink(w util.BufWriter, source []byte, node ast.No
 			pageInner:        pageInner,
 			destination:      string(n.Destination),
 			title:            string(n.Title),
-			text:             hstring.RenderedHTML(text),
+			text:             hstring.HTML(text),
 			plainText:        string(n.Text(source)),
 			AttributesHolder: attributes.Empty,
 		},
@@ -355,7 +355,7 @@ func (r *hookedRenderer) renderAutoLink(w util.BufWriter, source []byte, node as
 			page:             page,
 			pageInner:        pageInner,
 			destination:      url,
-			text:             hstring.RenderedHTML(label),
+			text:             hstring.HTML(label),
 			plainText:        label,
 			AttributesHolder: attributes.Empty,
 		},
@@ -442,7 +442,7 @@ func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast
 			pageInner:        pageInner,
 			level:            n.Level,
 			anchor:           string(anchor),
-			text:             hstring.RenderedHTML(text),
+			text:             hstring.HTML(text),
 			plainText:        string(n.Text(source)),
 			AttributesHolder: attributes.New(n.Attributes(), attributes.AttributesOwnerGeneral),
 		},

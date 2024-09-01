@@ -928,7 +928,7 @@ func (c *cachedContentScope) RenderString(ctx context.Context, args ...any) (tem
 
 	contentToRenderv := args[sidx]
 
-	if _, ok := contentToRenderv.(hstring.RenderedHTML); ok {
+	if _, ok := contentToRenderv.(hstring.HTML); ok {
 		// This content is already rendered, this is potentially
 		// a infinite recursion.
 		return "", errors.New("text is already rendered, repeating it may cause infinite recursion")

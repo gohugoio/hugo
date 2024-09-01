@@ -41,7 +41,7 @@ type LinkContext interface {
 	Title() string
 
 	// The rendered (HTML) text.
-	Text() hstring.RenderedHTML
+	Text() hstring.HTML
 
 	// The plain variant of Text.
 	PlainText() string
@@ -100,7 +100,7 @@ type BlockquoteContext interface {
 
 	// The blockquote text.
 	// If type is "alert", this will be the alert text.
-	Text() hstring.RenderedHTML
+	Text() hstring.HTML
 
 	/// Returns the blockquote type, one of "regular" and "alert".
 	// Type "alert" indicates that this is a GitHub type alert.
@@ -166,7 +166,7 @@ type HeadingContext interface {
 	// Anchor is the HTML id assigned to the heading.
 	Anchor() string
 	// Text is the rendered (HTML) heading text, excluding the heading marker.
-	Text() hstring.RenderedHTML
+	Text() hstring.HTML
 	// PlainText is the unrendered version of Text.
 	PlainText() string
 
@@ -213,7 +213,7 @@ const (
 type GetRendererFunc func(t RendererType, id any) any
 
 type TableCell struct {
-	Text      hstring.RenderedHTML
+	Text      hstring.HTML
 	Alignment string // left, center, or right
 }
 

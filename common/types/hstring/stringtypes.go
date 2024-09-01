@@ -19,16 +19,18 @@ import (
 	"github.com/gohugoio/hugo/common/types"
 )
 
-var _ types.PrintableValueProvider = RenderedHTML("")
+var _ types.PrintableValueProvider = HTML("")
 
-// RenderedHTML is a string that represents rendered HTML.
-// When printed in templates it will be rendered as template.HTML and considered safe.
-type RenderedHTML string
+// HTML is a string that represents rendered HTML.
+// When printed in templates it will be rendered as template.HTML and considered safe so no need to pipe it into `safeHTML`.
+// This type was introduced as a wasy to prevent a common case of inifinite recursion in the template rendering
+// when the `linkify` option is enabled with a common (wrong) construct like `{{ .Text | .Page.RenderString }}` in a hook template.
+type HTML string
 
-func (s RenderedHTML) String() string {
+func (s HTML) String() string {
 	return string(s)
 }
 
-func (s RenderedHTML) PrintableValue() any {
+func (s HTML) PrintableValue() any {
 	return template.HTML(s)
 }

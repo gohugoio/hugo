@@ -95,7 +95,7 @@ func (r *htmlRenderer) renderBlockquote(w util.BufWriter, src []byte, node ast.N
 		BaseContext:      render.NewBaseContext(ctx, renderer, n, src, nil, ordinal),
 		typ:              typ,
 		alertType:        alertType,
-		text:             hstring.RenderedHTML(text),
+		text:             hstring.HTML(text),
 		AttributesHolder: attributes.New(n.Attributes(), attributes.AttributesOwnerGeneral),
 	}
 
@@ -134,7 +134,7 @@ func (r *htmlRenderer) renderBlockquoteDefault(
 type blockquoteContext struct {
 	hooks.BaseContext
 
-	text      hstring.RenderedHTML
+	text      hstring.HTML
 	alertType string
 	typ       string
 
@@ -149,7 +149,7 @@ func (c *blockquoteContext) AlertType() string {
 	return c.alertType
 }
 
-func (c *blockquoteContext) Text() hstring.RenderedHTML {
+func (c *blockquoteContext) Text() hstring.HTML {
 	return c.text
 }
 
