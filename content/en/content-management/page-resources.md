@@ -1,6 +1,6 @@
 ---
 title: Page resources
-description: Page resources -- images, other pages, documents, etc. -- have page-relative URLs and their own metadata.
+description: Use page resources to logically associate assets with a page.
 categories: [content management]
 keywords: [bundle,content,resources]
 menu:
@@ -37,82 +37,83 @@ content
         └── index.md (root of page bundle)
 ```
 
-## Properties
+## Examples
 
-ResourceType
-: The main type of the resource's [Media Type](/templates/output-formats/#media-types). For example, a file of MIME type `image/jpeg` has the ResourceType `image`. A `Page` will have `ResourceType` with value `page`.
+Use any of these methods on a `Page` object to capture page resources:
 
-Name
-: Default value is the file name (relative to the owning page). Can be set in front matter.
+ - [`Resources.ByType`]
+ - [`Resources.Get`]
+ - [`Resources.GetMatch`]
+ - [`Resources.Match`]
 
-Title
-: Default value is the same as `.Name`. Can be set in front matter.
+ Once you have captured a resource, use any of the applicable [`Resource`] methods to return a value or perform an action. 
 
-Permalink
-: The absolute URL to the resource. Resources of type `page` will have no value.
+[`Resource`]: /methods/resource
+[`Resources.ByType`]: /methods/page/resources#bytype
+[`Resources.GetMatch`]: /methods/page/resources#getmatch
+[`Resources.Get`]: /methods/page/resources#get
+[`Resources.Match`]: /methods/page/resources#match
 
-RelPermalink
-: The relative URL to the resource. Resources of type `page` will have no value.
+The following examples assume this content structure:
 
-Content
-: The content of the resource itself. For most resources, this returns a string
-with the contents of the file. Use this to create inline resources.
+```text
+content/
+└── example/
+    ├── data/
+    │  └── books.json   <-- page resource
+    ├── images/
+    │  ├── a.jpg        <-- page resource
+    │  └── b.jpg        <-- page resource
+    ├── snippets/
+    │  └── text.md      <-- page resource
+    └── index.md
+```
+
+Render a single image, and throw an error if the file does not exist:
 
 ```go-html-template
-{{ with .Resources.GetMatch "script.js" }}
-  <script>{{ .Content | safeJS }}</script>
-{{ end }}
-
-{{ with .Resources.GetMatch "style.css" }}
-  <style>{{ .Content | safeCSS }}</style>
-{{ end }}
-
-{{ with .Resources.GetMatch "img.png" }}
-  <img src="data:{{ .MediaType.Type }};base64,{{ .Content | base64Encode }}">
+{{ $path := "images/a.jpg" }}
+{{ with .Resources.Get $path }}
+  <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
+{{ else }}
+  {{ errorf "Unable to get page resource %q" $path }}
 {{ end }}
 ```
 
-MediaType.Type
-: The media type (formerly known as a MIME type) of the resource (e.g., `image/jpeg`).
-
-MediaType.MainType
-: The main type of the resource's media type (e.g., `image`).
-
-MediaType.SubType
-: The subtype of the resource's type (e.g., `jpeg`). This may or may not correspond to the file suffix.
-
-MediaType.Suffixes
-: A slice of possible file suffixes for the resource's media type (e.g., `[jpg jpeg jpe jif jfif]`).
-
-## Methods
-
-ByType
-: Returns the page resources of the given type.
+Render all images, resized to 300 px wide:
 
 ```go-html-template
-{{ .Resources.ByType "image" }}
+{{ range .Resources.ByType "image" }}
+  {{ with .Resize "300x" }}
+    <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
+  {{ end }}
+{{ end }}
 ```
-Match
-: Returns all the page resources (as a slice) whose `Name` matches the given Glob pattern ([examples](https://github.com/gobwas/glob/blob/master/readme.md)). The matching is case-insensitive.
+
+Render the markdown snippet:
 
 ```go-html-template
-{{ .Resources.Match "images/*" }}
+{{ with .Resources.Get "snippets/text.md" }}
+  {{ .Content }}
+{{ end }}
 ```
 
-GetMatch
-: Same as `Match` but will return the first match.
+List the titles in the data file, and throw an error if the file does not exist.
 
-### Pattern matching
-
-```go
-// Using Match/GetMatch to find this images/sunset.jpg ?
-.Resources.Match "images/sun*" ✅
-.Resources.Match "**/sunset.jpg" ✅
-.Resources.Match "images/*.jpg" ✅
-.Resources.Match "**.jpg" ✅
-.Resources.Match "*" 🚫
-.Resources.Match "sunset.jpg" 🚫
-.Resources.Match "*sunset.jpg" 🚫
+```go-html-template
+{{ $path := "data/books.json" }}
+{{ with .Resources.Get $path }}
+  {{ with . | transform.Unmarshal }}
+    <p>Books:</p>
+    <ul>
+      {{ range . }}
+        <li>{{ .title }}</li>
+      {{ end }}
+    </ul>
+  {{ end }}
+{{ else }}
+  {{ errorf "Unable to get page resource %q" $path }}
+{{ end }}
 ```
 
 ## Metadata
@@ -124,21 +125,21 @@ Resources of type `page` get `Title` etc. from their own front matter.
 {{% /note %}}
 
 name
-: Sets the value returned in `Name`.
+: (`string`) Sets the value returned in `Name`.
 
 {{% note %}}
 The methods `Match`, `Get` and `GetMatch` use `Name` to match the resources.
 {{% /note %}}
 
 title
-: Sets the value returned in `Title`
+: (`string`) Sets the value returned in `Title`
 
 params
-: A map of custom key-value pairs.
+: (`map`) A map of custom key-value pairs.
 
 ### Resources metadata example
 
-{{< code-toggle >}}
+{{< code-toggle file=content/example.md fm=true >}}
 title: Application
 date : 2018-01-25
 resources :
@@ -173,7 +174,7 @@ From the example above:
 - Every docx in the bundle will receive the `word` icon.
 
 {{% note %}}
-The __order matters__ --- Only the **first set** values of the `title`, `name` and `params`-**keys** will be used. Consecutive parameters will be set only for the ones not already set. In the above example, `.Params.icon` is first set to `"photo"` in `src = "documents/photo_specs.pdf"`. So that would not get overridden to `"pdf"` by the later set `src = "**.pdf"` rule.
+The order matters; only the first set values of the `title`, `name` and `params` keys will be used. Consecutive parameters will be set only for the ones not already set. In the above example, `.Params.icon` is first set to `"photo"` in `src = "documents/photo_specs.pdf"`. So that would not get overridden to `"pdf"` by the later set `src = "**.pdf"` rule.
 {{% /note %}}
 
 ### The `:counter` placeholder in `name` and `title`

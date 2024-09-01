@@ -238,7 +238,7 @@ This is the default configuration for the AsciiDoc renderer:
 
 ###### attributes
 
-(`map`) A map of key-value pairs, each a document attributes,See Asciidoctor’s [attributes].
+(`map`) A map of key-value pairs, each a document attributes. See Asciidoctor’s [attributes].
 
 [attributes]: https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#attributes-and-substitutions
 
@@ -301,6 +301,51 @@ To mitigate security risks, entries in the extension array may not contain forwa
         my-base-url = "https://example.com/"
         my-attribute-name = "my value"
 {{< /code-toggle >}}
+
+### AsciiDoc syntax highlighting
+
+Follow the steps below to enable syntax highlighting.
+
+Step 1
+: Set the `source-highlighter` attribute in your site configuration. For example:
+
+{{< code-toggle file=hugo >}}
+[markup.asciidocExt.attributes]
+source-highlighter = 'rouge'
+{{< /code-toggle >}}
+
+Step 2
+: Generate the highlighter CSS. For example:
+
+```text
+rougify style monokai.sublime > assets/css/syntax.css
+```
+
+Step 3
+: In your base template add a link to the CSS file:
+
+{{< code file=layouts/_default/baseof.html >}}
+<head>
+  ...
+  {{ with resources.Get "css/syntax.css" }}
+    <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
+  {{ end }}
+  ...
+</head>
+{{< /code >}}
+
+Then add the code to be highlighted to your markup:
+
+```text
+[#hello,ruby]
+----
+require 'sinatra'
+
+get '/hi' do
+  "Hello World!"
+end
+----
+```
 
 ### AsciiDoc troubleshooting
 
