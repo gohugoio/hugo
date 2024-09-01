@@ -109,6 +109,16 @@ type BlockquoteContext interface {
 	// The GitHub alert type converted to lowercase, e.g. "note".
 	// Only set if Type is "alert".
 	AlertType() string
+
+	// The alert title.
+	// Currently only relevant for Obsidian alerts.
+	// GitHub does not suport alert titles and will not render alerts with titles.
+	AlertTitle() hstring.HTML
+
+	// The alert sign,  "+" or "-" or "" used to indicate folding.
+	// Currently only relevant for Obsidian alerts.
+	// GitHub does not suport alert signs and will not render alerts with signs.
+	AlertSign() string
 }
 
 type PositionerSourceTargetProvider interface {

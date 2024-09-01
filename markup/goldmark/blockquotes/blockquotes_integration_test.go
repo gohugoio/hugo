@@ -109,3 +109,48 @@ Content: {{ .Content }}
 	b := hugolib.Test(t, files)
 	b.AssertFileContent("public/p1/index.html", "Content: <blockquote>\n</blockquote>\n")
 }
+
+func TestBlockquObsidianWithTitleAndSign(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- content/_index.md --
+---
+title: "Home"
+---
+
+> [!danger]
+> Do not approach or handle without protective gear.
+
+
+> [!tip] Callouts can have custom titles
+> Like this one.
+
+> [!tip] Title-only callout
+
+> [!faq]- Foldable negated callout
+> Yes! In a foldable callout, the contents are hidden when the callout is collapsed
+
+> [!faq]+ Foldable callout
+> Yes! In a foldable callout, the contents are hidden when the callout is collapsed
+
+-- layouts/index.html --
+{{ .Content }}
+-- layouts/_default/_markup/render-blockquote.html --
+AlertType: {{ .AlertType }}|
+AlertTitle: {{ .AlertTitle }}|
+AlertSign: {{ .AlertSign | safeHTML }}|
+Text: {{ .Text }}|
+	
+	`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html",
+		"AlertType: tip|\nAlertTitle: Callouts can have custom titles|\nAlertSign: |",
+		"AlertType: tip|\nAlertTitle: Title-only callout</p>|\nAlertSign: |",
+		"AlertType: faq|\nAlertTitle: Foldable negated callout|\nAlertSign: -|\nText: <p>Yes!",
+		"AlertType: faq|\nAlertTitle: Foldable callout|\nAlertSign: +|",
+		"AlertType: danger|\nAlertTitle: |\nAlertSign: |\nText: <p>Do not approach or handle without protective gear.</p>\n|",
+	)
+}

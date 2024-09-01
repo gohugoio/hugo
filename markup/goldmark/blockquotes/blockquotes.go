@@ -74,8 +74,8 @@ func (r *htmlRenderer) renderBlockquote(w util.BufWriter, src []byte, node ast.N
 	ordinal := ctx.GetAndIncrementOrdinal(ast.KindBlockquote)
 
 	typ := typeRegular
-	alertType := resolveGitHubAlert(string(text))
-	if alertType != "" {
+	alert := resolveBlockQuoteAlert(string(text))
+	if alert.typ != "" {
 		typ = typeAlert
 	}
 
@@ -94,7 +94,7 @@ func (r *htmlRenderer) renderBlockquote(w util.BufWriter, src []byte, node ast.N
 	bqctx := &blockquoteContext{
 		BaseContext:      render.NewBaseContext(ctx, renderer, n, src, nil, ordinal),
 		typ:              typ,
-		alertType:        alertType,
+		alert:            alert,
 		text:             hstring.HTML(text),
 		AttributesHolder: attributes.New(n.Attributes(), attributes.AttributesOwnerGeneral),
 	}
@@ -133,11 +133,9 @@ func (r *htmlRenderer) renderBlockquoteDefault(
 
 type blockquoteContext struct {
 	hooks.BaseContext
-
-	text      hstring.HTML
-	alertType string
-	typ       string
-
+	text  hstring.HTML
+	typ   string
+	alert blockQuoteAlert
 	*attributes.AttributesHolder
 }
 
@@ -146,25 +144,40 @@ func (c *blockquoteContext) Type() string {
 }
 
 func (c *blockquoteContext) AlertType() string {
-	return c.alertType
+	return c.alert.typ
+}
+
+func (c *blockquoteContext) AlertTitle() hstring.HTML {
+	return hstring.HTML(c.alert.title)
+}
+
+func (c *blockquoteContext) AlertSign() string {
+	return c.alert.sign
 }
 
 func (c *blockquoteContext) Text() hstring.HTML {
 	return c.text
 }
 
-// https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#alerts
-// Five types:
-// [!NOTE], [!TIP], [!WARNING], [!IMPORTANT], [!CAUTION]
-// Note that GitHub's implementation is case-insensitive.
-var gitHubAlertRe = regexp.MustCompile(`(?i)^<p>\[!(NOTE|TIP|WARNING|IMPORTANT|CAUTION)\]`)
+var blockQuoteAlertRe = regexp.MustCompile(`^<p>\[!([a-zA-Z]+)\](-|\+)?[^\S\r\n]?([^\n]*)\n?`)
 
-// resolveGitHubAlert returns one of note, tip, warning, important or caution.
-// An empty string if no match.
-func resolveGitHubAlert(s string) string {
-	m := gitHubAlertRe.FindStringSubmatch(s)
-	if len(m) == 2 {
-		return strings.ToLower(m[1])
+func resolveBlockQuoteAlert(s string) blockQuoteAlert {
+	m := blockQuoteAlertRe.FindStringSubmatch(s)
+	if len(m) == 4 {
+		return blockQuoteAlert{
+			typ:   strings.ToLower(m[1]),
+			sign:  m[2],
+			title: m[3],
+		}
 	}
-	return ""
+
+	return blockQuoteAlert{}
+}
+
+// Blockquote alert syntax was introduced by GitHub, but is also used
+// by Obsidian which also support some extended attributes: More types, alert titles and a +/- sign for folding.
+type blockQuoteAlert struct {
+	typ   string
+	sign  string
+	title string
 }
