@@ -24,6 +24,20 @@ Blockquote render hook templates receive the following [context]:
 
 (`string`) Applicable when [`Type`](#type) is `alert`, this is the alert type converted to lowercase. See the [alerts](#alerts) section below.
 
+###### AlertTitle
+
+{{< new-in 0.134.0 >}}
+
+(`hstring.HTML`) Applicable when [`Type`](#type) is `alert` when using [Obsidian callouts] syntax, this is the alert title converted to HTML. 
+
+###### AlertSign
+
+{{< new-in 0.134.0 >}}
+
+(`string`) Applicable when [`Type`](#type) is `alert` when using [Obsidian callouts] syntax, this is one of "+", "-" or "" (empty string) to indicate the presence of a foldable sign.
+
+[Obsidian callouts]: https://help.obsidian.md/Editing+and+formatting/Callouts
+
 ###### Attributes
 
 (`map`) The [Markdown attributes], available if you configure your site as follows:
@@ -117,13 +131,13 @@ Also known as _callouts_ or _admonitions_, alerts are blockquotes used to emphas
 
 
 {{% note %}}
-This syntax is compatible with the GitHub Alert Markdown extension.
+This syntax is compatible with both the GitHub Alert Markdown extension and Obsidian's callout syntax. 
+But note that GitHub will not recognize callouts with one of Obsidian's extensions (e.g. callout title or the foldable sign).
 {{% /note %}}
-
 
 The first line of each alert is an alert designator consisting of an exclamation point followed by the alert type, wrapped within brackets.
 
-The blockquote render hook below renders a multilingual alert if an alert desginator is present, otherwise it renders a blockquote according to the CommonMark specification.
+The blockquote render hook below renders a multilingual alert if an alert designator is present, otherwise it renders a blockquote according to the CommonMark specification.
 
 {{< code file=layouts/_default/_markup/render-blockquote.html copy=true >}}
 {{ $emojis := dict

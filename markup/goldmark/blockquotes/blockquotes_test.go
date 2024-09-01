@@ -19,42 +19,50 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
-func TestResolveGitHubAlert(t *testing.T) {
+func TestResolveBlockQuoteAlert(t *testing.T) {
 	t.Parallel()
 
 	c := qt.New(t)
 
 	tests := []struct {
 		input    string
-		expected string
+		expected blockQuoteAlert
 	}{
 		{
 			input:    "[!NOTE]",
-			expected: "note",
+			expected: blockQuoteAlert{typ: "note"},
 		},
 		{
-			input:    "[!WARNING]",
-			expected: "warning",
+			input:    "[!FaQ]",
+			expected: blockQuoteAlert{typ: "faq"},
 		},
 		{
-			input:    "[!TIP]",
-			expected: "tip",
+			input:    "[!NOTE]+",
+			expected: blockQuoteAlert{typ: "note", sign: "+"},
 		},
 		{
-			input:    "[!IMPORTANT]",
-			expected: "important",
+			input:    "[!NOTE]-",
+			expected: blockQuoteAlert{typ: "note", sign: "-"},
 		},
 		{
-			input:    "[!CAUTION]",
-			expected: "caution",
+			input:    "[!NOTE] This is a note",
+			expected: blockQuoteAlert{typ: "note", title: "This is a note"},
 		},
 		{
-			input:    "[!FOO]",
-			expected: "",
+			input:    "[!NOTE]+ This is a note",
+			expected: blockQuoteAlert{typ: "note", sign: "+", title: "This is a note"},
+		},
+		{
+			input:    "[!NOTE]+ This is a title\nThis is not.",
+			expected: blockQuoteAlert{typ: "note", sign: "+", title: "This is a title"},
+		},
+		{
+			input:    "[!NOTE]\nThis is not.",
+			expected: blockQuoteAlert{typ: "note"},
 		},
 	}
 
-	for _, test := range tests {
-		c.Assert(resolveGitHubAlert("<p>"+test.input), qt.Equals, test.expected)
+	for i, test := range tests {
+		c.Assert(resolveBlockQuoteAlert("<p>"+test.input), qt.Equals, test.expected, qt.Commentf("Test %d", i))
 	}
 }
