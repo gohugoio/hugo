@@ -509,6 +509,20 @@ See documentation for [`with`], [`else`], and [`end`].
 {{ end }}
 ```
 
+To test multiple conditions:
+
+```go-html-template
+{{ $v1 := 0 }}
+{{ $v2 := 42 }}
+{{ with $v1 }}
+  {{ . }}
+{{ else with $v2 }}
+  {{ . }} → 42
+{{ else }}
+  {{ print "v1 and v2 are falsy" }}
+{{ end }}
+```
+
 ### Access site parameters
 
 See documentation for the [`Params`](/methods/site/params/) method on a `Site` object.

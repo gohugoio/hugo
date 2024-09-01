@@ -129,5 +129,5 @@ Hugo provides two methods to localize your menu entries. See [multilingual].
 [localize the menu entries]: /content-management/multilingual/#menus
 [menu entry defined in front matter]: /content-management/menus/#example-front-matter
 [menu entry defined in site configuration]: /content-management/menus/#example-site-configuration
-[menu and methods]: /methods/menu/
+[menu methods]: /methods/menu/
 [multilingual]: /content-management/multilingual/#menus

@@ -125,7 +125,7 @@ Set any [front matter field] in the map passed to the [`AddPage`](#addpage) meth
 
 This table describes the fields most commonly passed to the `AddPage` method.
 
-Key|Descripion|Required
+Key|Description|Required
 :--|:--|:-:
 `content.mediaType`|The content [media type]. Default is `text/markdown`. See [content formats] for examples.|&nbsp;
 `content.value`|The content value as a string.|&nbsp;
@@ -148,7 +148,7 @@ When setting the `path`, Hugo transforms the given string to a logical path. For
 
 Construct the map passed to the [`AddResource`](#addresource) method using the fields below.
 
-Key|Descripion|Required
+Key|Description|Required
 :--|:--|:-:
 `content.mediaType`|The content [media type].|:heavy_check_mark:
 `content.value`|The content value as a string or resource.|:heavy_check_mark:
