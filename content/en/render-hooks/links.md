@@ -7,8 +7,8 @@ keywords: []
 menu:
   docs:
     parent: render-hooks
-    weight: 60
-weight: 60
+    weight: 70
+weight: 70
 toc: true
 ---
 

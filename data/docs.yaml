@@ -978,6 +978,9 @@ config:
     images:
       dir: :resourceDir/_gen
       maxAge: -1
+    misc:
+      dir: :cacheDir/:project
+      maxAge: -1
     modules:
       dir: :cacheDir/modules
       maxAge: -1
@@ -1597,6 +1600,9 @@ config:
     term:
     - html
     - rss
+  page:
+    nextPrevInSectionSortOrder: desc
+    nextPrevSortOrder: desc
   paginate: 0
   paginatePath: ""
   pagination:
@@ -1781,6 +1787,8 @@ config_helpers:
       _merge: shallow
     outputs:
       _merge: none
+    page:
+      _merge: none
     pagination:
       _merge: none
     params:
@@ -1857,7 +1865,7 @@ output:
     - layouts/_default/demolayout-baseof.html
     - layouts/_default/single-baseof.html
     - layouts/_default/baseof.html
-  - Example: AMP single page
+  - Example: AMP single page in "posts" section
     Kind: page
     OutputFormat: amp
     Suffix: html
@@ -1866,17 +1874,17 @@ output:
     - layouts/posts/single.html
     - layouts/_default/single.amp.html
     - layouts/_default/single.html
-  - Example: AMP single page, French language
+  - Example: AMP single page in "posts" section, French language
     Kind: page
-    OutputFormat: html
+    OutputFormat: amp
     Suffix: html
     Template Lookup Order:
-    - layouts/posts/single.fr.html.html
-    - layouts/posts/single.html.html
+    - layouts/posts/single.fr.amp.html
+    - layouts/posts/single.amp.html
     - layouts/posts/single.fr.html
     - layouts/posts/single.html
-    - layouts/_default/single.fr.html.html
-    - layouts/_default/single.html.html
+    - layouts/_default/single.fr.amp.html
+    - layouts/_default/single.amp.html
     - layouts/_default/single.fr.html
     - layouts/_default/single.html
   - Example: Home page
@@ -2442,9 +2450,7 @@ tpl:
           EchoParam returns the value in the collection c with key k if is set; otherwise, it returns an
           empty string.
           Deprecated: Use the index function instead.
-        Examples:
-        - - '{{ echoParam .Params "langCode" }}'
-          - en
+        Examples: []
       First:
         Aliases:
         - first
@@ -4673,6 +4679,11 @@ tpl:
             {
                "title": "Hello World"
             }
+      ToMath:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       Unmarshal:
         Aliases:
         - unmarshal

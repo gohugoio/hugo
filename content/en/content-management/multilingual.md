@@ -21,15 +21,22 @@ This is the default language configuration:
 
 In the above, `en` is the language key.
 
-{{% note %}}
-Each language key must conform to the syntax described in [RFC 5646]. You must use hyphens to separate subtags. For example:
+
+Language keys must conform to the syntax described in [RFC 5646]. For example:
 
 - `en`
-- `en-GB`
-- `pt-BR`
+- `en-US`
+
+Artificial languages with private use subtags as defined in [RFC 5646 § 2.2.7] are also supported. Omit the `art-x-` prefix from the language key. For example:
+
+- `hugolang`
+
+{{% note %}}
+Private use subtags must not exceed 8 alphanumeric characters.
+{{% /note %}}
 
 [RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.1
-{{% /note %}}
+[RFC 5646 § 2.2.7]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.2.7
 
 This is an example of a site configuration for a multilingual project. Any key not defined in a `languages` object will fall back to the global value in the root of your site configuration.
 

@@ -34,7 +34,7 @@ Use with the [`else`] statement:
 {{ end }}
 ```
 
-Use `else if` to check multiple conditions.
+Use `else if` to check multiple conditions:
 
 ```go-html-template
 {{ $var := 12 }}

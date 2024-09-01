@@ -48,7 +48,7 @@ For a complete guide to contributing to Hugo, see the [Contribution Guide].
 To build the extended edition of Hugo from source you must:
 
 1. Install [Git]
-1. Install [Go] version 1.20 or later
+1. Install [Go] version 1.23.0 or later
 1. Install a C compiler, either [GCC] or [Clang]
 1. Update your `PATH` environment variable as described in the [Go documentation]
 
