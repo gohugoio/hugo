@@ -49,7 +49,7 @@ toc: true
 : Leverage the embedded Markdown extensions to create tables, definition lists, footnotes, task lists, inserted text, mark text, subscripts, superscripts, and more.
 
 [Markdown render hooks]
-: Override the conversion of Markdown to HTML when rendering blockquotes, fenced code blocks, headings, images, and links. For example, render every standalone image as an HTML `figure` element.
+: Override the conversion of Markdown to HTML when rendering blockquotes, fenced code blocks, headings, images, links, and tables. For example, render every standalone image as an HTML `figure` element.
 
 [Diagrams]
 : Use fenced code blocks and Markdown render hooks to include diagrams in your content.
