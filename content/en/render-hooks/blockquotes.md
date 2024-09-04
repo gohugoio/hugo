@@ -66,7 +66,7 @@ block = true
 (`string`) The position of the blockquote within the page content.
 
 ###### Text
-(`template.HTML`) The blockquote text, excluding the alert designator if present. See the [alerts](#alerts) section below.
+(`template.HTML`) The blockquote text, excluding the first line if [`Type`](#type) is `alert`. See the [alerts](#alerts) section below.
 
 ###### Type
 
