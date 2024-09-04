@@ -504,7 +504,7 @@ type contentTableOfContents struct {
 }
 
 type contentSummary struct {
-	content               string
+	content               template.HTML
 	contentWithoutSummary template.HTML
 	summary               page.Summary
 }
@@ -612,9 +612,9 @@ func (c *cachedContentScope) contentRendered(ctx context.Context) (contentSummar
 					Truncated: summarized.Truncated(),
 				}
 				result.contentWithoutSummary = template.HTML(summarized.ContentWithoutSummary())
-				result.content = summarized.Content()
+				result.content = template.HTML(summarized.Content())
 			} else {
-				result.content = string(b)
+				result.content = template.HTML(string(b))
 			}
 
 			if !c.pi.hasSummaryDivider && cp.po.p.m.pageConfig.Summary == "" {
@@ -646,6 +646,7 @@ func (c *cachedContentScope) contentRendered(ctx context.Context) (contentSummar
 				Text: helpers.BytesToHTML(html),
 				Type: page.SummaryTypeFrontMatter,
 			}
+			rs.Value.contentWithoutSummary = rs.Value.content
 		}
 
 		return rs, err
@@ -879,7 +880,7 @@ func (c *cachedContentScope) Content(ctx context.Context) (template.HTML, error)
 	if err != nil {
 		return "", err
 	}
-	return template.HTML(cr.content), nil
+	return cr.content, nil
 }
 
 func (c *cachedContentScope) ContentWithoutSummary(ctx context.Context) (template.HTML, error) {
