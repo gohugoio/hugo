@@ -5,11 +5,13 @@ categories: []
 keywords: []
 action:
   related:
-    - methods/page/RenderString
     - methods/page/Content
+    - methods/page/Summary
+    - methods/page/ContentWithoutSummary
     - methods/page/RawContent
     - methods/page/Plain
     - methods/page/PlainWords
+    - methods/page/RenderString
   returnType: template.HTML
   signatures: [PAGE.RenderShortcodes]
 toc: true
