@@ -111,3 +111,18 @@ Render the summary in a template by calling the [`Summary`] method on a `Page` o
   </div>
 {{ end }}
 ```
+
+## Alternative
+
+Instead of calling the `Summary` method on a `Page` object, use the [`strings.Truncate`] function for granular control of the summary length. For example:
+
+[`strings.Truncate`]: /functions/strings/truncate/
+
+```go-html-template
+{{ range site.RegularPages }}
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+  <div class="summary">
+    {{ .Content | strings.Truncate 42 }}
+  </div>
+{{ end }}
+```
