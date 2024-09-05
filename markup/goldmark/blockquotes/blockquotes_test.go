@@ -63,6 +63,6 @@ func TestResolveBlockQuoteAlert(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		c.Assert(resolveBlockQuoteAlert("<p>"+test.input), qt.Equals, test.expected, qt.Commentf("Test %d", i))
+		c.Assert(resolveBlockQuoteAlert("<p>"+test.input+"</p>"), qt.Equals, test.expected, qt.Commentf("Test %d", i))
 	}
 }

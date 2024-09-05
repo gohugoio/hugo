@@ -164,10 +164,12 @@ var blockQuoteAlertRe = regexp.MustCompile(`^<p>\[!([a-zA-Z]+)\](-|\+)?[^\S\r\n]
 func resolveBlockQuoteAlert(s string) blockQuoteAlert {
 	m := blockQuoteAlertRe.FindStringSubmatch(s)
 	if len(m) == 4 {
+		title := strings.TrimSpace(m[3])
+		title = strings.TrimRight(title, "</p>")
 		return blockQuoteAlert{
 			typ:   strings.ToLower(m[1]),
 			sign:  m[2],
-			title: m[3],
+			title: title,
 		}
 	}
 

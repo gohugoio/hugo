@@ -523,7 +523,7 @@ categories: ["cool stuff"]
 	for _, p := range s.Pages() {
 		checkDated(p, p.Kind())
 	}
-	checkDate(s.LastChange(), "site")
+	checkDate(s.Lastmod(), "site")
 }
 
 func TestPageDatesSections(t *testing.T) {

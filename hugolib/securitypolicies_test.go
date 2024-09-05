@@ -188,33 +188,4 @@ mediaTypes=["application/json"]
 `)
 			})
 	})
-
-	c.Run("getJSON, OK", func(c *qt.C) {
-		c.Parallel()
-		httpTestVariant(c, `{{ $json := getJSON "%[1]s/fruits.json" }}{{ $json.Content }}`, "", nil)
-	})
-
-	c.Run("getJSON, denied URL", func(c *qt.C) {
-		c.Parallel()
-		httpTestVariant(c, `{{ $json := getJSON "%[1]s/fruits.json" }}{{ $json.Content }}`, `(?s).*is not whitelisted in policy "security\.http\.urls".*`,
-			func(b *sitesBuilder) {
-				b.WithConfigFile("toml", `
-[security]		
-[security.http]
-urls="none"		
-`)
-			})
-	})
-
-	c.Run("getCSV, denied URL", func(c *qt.C) {
-		c.Parallel()
-		httpTestVariant(c, `{{ $d := getCSV ";" "%[1]s/cities.csv" }}{{ $d.Content }}`, `(?s).*is not whitelisted in policy "security\.http\.urls".*`,
-			func(b *sitesBuilder) {
-				b.WithConfigFile("toml", `
-[security]		
-[security.http]
-urls="none"		
-`)
-			})
-	})
 }
