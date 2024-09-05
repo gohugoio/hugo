@@ -17,30 +17,28 @@ aliases: [/content/summaries/,/content-management/content-summaries/]
 <!-- If you do, you will break its first literal usage on this page. -->
 <!--more-->
 
-You can define a content summary manually, in front matter, or automatically. A manual content summary takes precedence over a front matter summary, and a front matter summary takes precedence over an automatic summary.
+You can define a summary manually, in front matter, or automatically. A manual summary takes precedence over a front matter summary, and a front matter summary takes precedence over an automatic summary.
 
 Review the [comparison table](#comparison) below to understand the characteristics of each summary type.
 
 ## Manual summary
 
-Use a `<!--more-->` divider to indicate the end of the content summary. Hugo will not render the summary divider itself.
+Use a `<!--more-->` divider to indicate the end of the summary. Hugo will not render the summary divider itself.
 
-{{< code file=content/sample.md >}}
+{{< code file=content/example.md >}}
 +++
 title: 'Example'
 date: 2024-05-26T09:10:33-07:00
 +++
 
-Thénardier was not mistaken. The man was sitting there, and letting
-Cosette get somewhat rested.
+This is the first paragraph.
 
 <!--more-->
 
-The inn-keeper walked round the brushwood and presented himself
-abruptly to the eyes of those whom he was in search of.
+This is the second paragraph.
 {{< /code >}}
 
-When using the Emacs Org Mode [content format], use a `# more` divider to indicate the end of the content summary.
+When using the Emacs Org Mode [content format], use a `# more` divider to indicate the end of the summary.
 
 [content format]: /content-management/formats/
 
@@ -48,45 +46,43 @@ When using the Emacs Org Mode [content format], use a `# more` divider to indica
 
 Use front matter to define a summary independent of content.
 
-{{< code file=content/sample.md >}}
+{{< code file=content/example.md >}}
 +++
 title: 'Example'
 date: 2024-05-26T09:10:33-07:00
-summary: 'Learn more about _Les Misérables_ by Victor Hugo.'
+summary: 'This summary is independent of the content.'
 +++
 
-Thénardier was not mistaken. The man was sitting there, and letting
-Cosette get somewhat rested. The inn-keeper walked round the
-brushwood and presented himself abruptly to the eyes of those whom
-he was in search of.
+This is the first paragraph.
+
+This is the second paragraph.
 {{< /code >}}
 
 ## Automatic summary
 
-If you have not defined the summary manually or in front matter, Hugo automatically defines the summary based on the [`summaryLength`] in your site configuration.
+If you do not define the summary manually or in front matter, Hugo automatically defines the summary based on the [`summaryLength`] in your site configuration.
 
 [`summaryLength`]: /getting-started/configuration/#summarylength
 
-{{< code file=content/sample.md >}}
+{{< code file=content/example.md >}}
 +++
 title: 'Example'
 date: 2024-05-26T09:10:33-07:00
 +++
 
-Thénardier was not mistaken. The man was sitting there, and letting
-Cosette get somewhat rested. The inn-keeper walked round the
-brushwood and presented himself abruptly to the eyes of those whom
-he was in search of.
+This is the first paragraph.
+
+This is the second paragraph.
+
+This is the third paragraph.
 {{< /code >}}
 
-For example, with a `summaryLength` of 10, the automatic summary will be:
+For example, with a `summaryLength` of 7, the automatic summary will be:
 
-```text
-Thénardier was not mistaken. The man was sitting there, and letting
-Cosette get somewhat rested.
+```html
+<p>This is the first paragraph.</p>
+<p>This is the second paragraph.</p>
 ```
-
-Note that the `summaryLength` is an approximate number of words.
 
 ## Comparison
 

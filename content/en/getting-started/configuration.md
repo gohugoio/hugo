@@ -446,8 +446,9 @@ Default [sitemap configuration](/templates/sitemap/#configuration).
 
 ###### summaryLength
 
-(`int`) Applicable to automatic summaries, the approximate number of words to render when calling the [`Summary`] method on a `Page` object. Default is `70`.
+(`int`) Applicable to [automatic summaries], the minimum number of words to render when calling the [`Summary`] method on a `Page` object. In this case the `Summary` method returns the content, truncated to the paragraph closest to the `summaryLength`.
 
+[automatic summaries]: /content-management/summaries/#automatic-summary
 [`Summary`]: /methods/page/summary/
 
 ###### taxonomies
