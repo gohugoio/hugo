@@ -228,6 +228,10 @@ See [Configure Build](#configure-build).
 
 See [Configure File Caches](#configure-file-caches).
 
+###### canonifyURLs
+
+(`bool`) See [details](/content-management/urls/#canonical-urls) before enabling this feature. Default is `false`.
+
 ###### capitalizeListTitles
 
 {{< new-in 0.123.3 >}}
@@ -245,10 +249,6 @@ For a website in a single language, define the `[[cascade]]` in [Front Matter](/
 
 To remain consistent and prevent unexpected behavior, do not mix these strategies.
 {{% /note %}}
-
-###### canonifyURLs
-
-(`bool`) See [details](/content-management/urls/#canonical-urls) before enabling this feature. Default is `false`.
 
 ###### cleanDestinationDir
 
@@ -288,6 +288,10 @@ To remain consistent and prevent unexpected behavior, do not mix these strategie
 
 [kinds]: /getting-started/glossary/#page-kind
 
+###### disableLanguages
+
+See [disable a language](/content-management/multilingual/#disable-a-language).
+
 ###### disableLiveReload
 
 (`bool`) Disable automatic live reloading of browser window. Default is `false`.
@@ -312,6 +316,9 @@ To remain consistent and prevent unexpected behavior, do not mix these strategie
 
 (`bool`) Enable generation of `robots.txt` file. Default is `false`.
 
+###### environment
+
+(`string`) Build environment. Default is `production` when running `hugo` and `development` when running `hugo server`. See [Configuration directory](https://gohugo.io/getting-started/configuration/#configuration-directory).
 ###### frontmatter
 
 See [Front matter Configuration](#configure-front-matter).
@@ -319,6 +326,16 @@ See [Front matter Configuration](#configure-front-matter).
 ###### hasCJKLanguage
 
 (`bool`) If true, auto-detect Chinese/Japanese/Korean Languages in the content. This will make `.Summary` and `.WordCount` behave correctly for CJK languages. Default is `false`.
+
+###### ignoreCache
+
+(`bool`) Ignore the cache directory. Default is `false`.
+
+###### ignoreVendorPaths
+
+(`string`) Ignore vendored modules that match the given [Glob] pattern within the `_vendor` directory .
+
+[Glob]: https://github.com/gobwas/glob?tab=readme-ov-file#example]
 
 ###### imaging
 
@@ -338,9 +355,9 @@ When present in the root of the configuration, this value is ignored if one or m
 
 See [Configure Languages](/content-management/multilingual/#configure-languages).
 
-###### disableLanguages
+###### layoutDir
 
-See [Disable a Language](/content-management/multilingual/#disable-a-language)
+(`string`) The directory that contains templates. Default is `layouts`.
 
 ###### markup
 
@@ -366,6 +383,10 @@ Module configuration see [module configuration](/hugo-modules/configuration/).
 
 (`string`) The editor to use when creating new content.
 
+###### noBuildLock
+
+(`bool`) Don't create .hugo_build.lock file. Default is `false`.
+
 ###### noChmod
 
 (`bool`) Don't sync permission mode of files. Default is `false`.
@@ -386,6 +407,10 @@ See [configure page](#configure-page).
 
 See [configure pagination](/templates/pagination/#configuration).
 
+###### panicOnWarning
+
+(`bool`) Whether to panic on first WARNING. Default is `false`.
+
 ###### permalinks
 
 See [Content Management](/content-management/urls/#permalinks).
@@ -393,6 +418,18 @@ See [Content Management](/content-management/urls/#permalinks).
 ###### pluralizeListTitles
 
 (`bool`) Whether to pluralize automatic list titles. Applicable to section pages. Default is `true`.
+
+###### printI18nWarnings
+
+(`bool`) Whether to log WARNINGs for each missing translation. Default is `false`.
+
+###### printPathWarnings
+
+(`bool`) Whether to log WARNINGs when Hugo publishes two or more files to the same path. Default is `false`.
+
+###### printUnusedTemplates
+
+(`bool`) Whether to log WARNINGs for each unused template. Default is `false`.
 
 ###### publishDir
 
@@ -414,12 +451,6 @@ See [Related Content](/content-management/related/#configure-related-content).
 
 (`bool`) See [details](/content-management/urls/#relative-urls) before enabling this feature. Default is `false`.
 
-###### renderSegments
-
-{{< new-in 0.124.0 >}}
-
-(`string slice`) A list of segments to render. If not set, everything will be rendered. This is more commonly set in a CLI flag, e.g. `hugo --renderSegments segment1,segment2`. The segment names must match the names in the [segments](#configure-segments) configuration.
-
 ###### removePathAccents
 
 (`bool`) Removes [non-spacing marks](https://www.compart.com/en/unicode/category/Mn) from [composite characters](https://en.wikipedia.org/wiki/Precomposed_character) in content paths. Default is `false`.
@@ -427,6 +458,12 @@ See [Related Content](/content-management/related/#configure-related-content).
 ```text
 content/post/hügó.md → https://example.org/post/hugo/
 ```
+
+###### renderSegments
+
+{{< new-in 0.124.0 >}}
+
+(`string slice`) A list of segments to render. If not set, everything will be rendered. This is more commonly set in a CLI flag, e.g. `hugo --renderSegments segment1,segment2`. The segment names must match the names in the [segments](#configure-segments) configuration.
 
 ###### sectionPagesMenu
 
@@ -454,6 +491,15 @@ Default [sitemap configuration](/templates/sitemap/#configuration).
 ###### taxonomies
 
 See [Configure Taxonomies](/content-management/taxonomies#configure-taxonomies).
+
+###### templateMetrics
+
+(`bool`) Whether to print template execution metrics to the console. Default is `false.
+See [Template metrics](/troubleshooting/performance/#template-metrics)
+
+###### templateMetricsHints
+
+(`bool`) Whether to print template execution improvement hints to the console. Applicable when `templateMetrics` is `true`. Default is `false`. See [template metrics](/troubleshooting/performance/#template-metrics).
 
 ###### theme
 
