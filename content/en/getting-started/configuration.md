@@ -333,7 +333,7 @@ See [Front matter Configuration](#configure-front-matter).
 
 ###### ignoreVendorPaths
 
-(`string`) Ignore vendored modules that match the given [Glob] pattern within the `_vendor` directory .
+(`string`) Ignore vendored modules that match the given [Glob] pattern within the `_vendor` directory.
 
 [Glob]: https://github.com/gobwas/glob?tab=readme-ov-file#example]
 
@@ -385,7 +385,7 @@ Module configuration see [module configuration](/hugo-modules/configuration/).
 
 ###### noBuildLock
 
-(`bool`) Don't create .hugo_build.lock file. Default is `false`.
+(`bool`) Don't create `.hugo_build.lock` file. Default is `false`.
 
 ###### noChmod
 
@@ -494,12 +494,12 @@ See [Configure Taxonomies](/content-management/taxonomies#configure-taxonomies).
 
 ###### templateMetrics
 
-(`bool`) Whether to print template execution metrics to the console. Default is `false.
+(`bool`) Whether to print template execution metrics to the console. Default is `false`.
 See [Template metrics](/troubleshooting/performance/#template-metrics)
 
 ###### templateMetricsHints
 
-(`bool`) Whether to print template execution improvement hints to the console. Applicable when `templateMetrics` is `true`. Default is `false`. See [template metrics](/troubleshooting/performance/#template-metrics).
+(`bool`) Whether to print template execution improvement hints to the console. Applicable when `templateMetrics` is `true`. Default is `false`. See [Template metrics](/troubleshooting/performance/#template-metrics).
 
 ###### theme
 
