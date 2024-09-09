@@ -331,6 +331,12 @@ See [Front matter Configuration](#configure-front-matter).
 
 (`bool`) Ignore the cache directory. Default is `false`.
 
+###### ignoreLogs
+(`string slice`) A slice of message identifiers corresponding to warnings and errors you wish to suppress. See [`erroridf`] and [`warnidf`].
+
+[`erroridf`]: /functions/fmt/erroridf/
+[`warnidf`]: /functions/fmt/warnidf/
+
 ###### ignoreVendorPaths
 
 (`string`) Ignore vendored modules that match the given [Glob] pattern within the `_vendor` directory.
@@ -494,8 +500,7 @@ See [Configure Taxonomies](/content-management/taxonomies#configure-taxonomies).
 
 ###### templateMetrics
 
-(`bool`) Whether to print template execution metrics to the console. Default is `false`.
-See [Template metrics](/troubleshooting/performance/#template-metrics)
+(`bool`) Whether to print template execution metrics to the console. Default is `false`. See [Template metrics](/troubleshooting/performance/#template-metrics).
 
 ###### templateMetricsHints
 
