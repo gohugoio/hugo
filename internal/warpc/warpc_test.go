@@ -225,6 +225,54 @@ func TestKatexParallel(t *testing.T) {
 	wg.Wait()
 }
 
+func TestSvelte(t *testing.T) {
+	c := qt.New(t)
+
+	todo := `
+<script>
+  let checked = false;
+</script>
+<input type="checkbox" {checked}>
+
+`
+
+	opts := Options{
+		PoolSize: 8,
+		Runtime:  quickjsBinary,
+		Main:     svelteBinary,
+		Infof: func(format string, v ...any) {
+			fmt.Printf(format, v...)
+		},
+	}
+
+	d, err := Start[SvelteInput, SvelteOutput](opts)
+	c.Assert(err, qt.IsNil)
+	defer d.Close()
+
+	message := Message[SvelteInput]{
+		Header: Header{
+			Version: currentVersion,
+			ID:      uint32(32),
+		},
+		Data: SvelteInput{
+			Source: todo,
+			Options: map[string]any{
+				"opts": map[string]any{},
+			},
+		},
+	}
+
+	ctx := context.Background()
+
+	result, err := d.Execute(ctx, message)
+	c.Assert(err, qt.IsNil)
+	c.Assert(result.Header.Err, qt.Equals, "")
+
+	c.Assert(result.GetID(), qt.Equals, message.GetID())
+
+	fmt.Println("====>", result.Data.Result)
+}
+
 func BenchmarkExecuteKatex(b *testing.B) {
 	opts := Options{
 		Runtime: quickjsBinary,
@@ -443,6 +491,11 @@ var (
 	katexBinary = Binary{
 		Name: "renderkatex",
 		Data: katexWasm,
+	}
+
+	svelteBinary = Binary{
+		Name: "buildsvelte",
+		Data: svelteWasm,
 	}
 
 	quickjsBinary = Binary{
