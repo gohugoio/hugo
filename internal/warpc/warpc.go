@@ -525,17 +525,27 @@ func (d *lazyDispatcher[Q, R]) start() (Dispatcher[Q, R], error) {
 
 // Dispatchers holds all the dispatchers for the warpc package.
 type Dispatchers struct {
-	katex *lazyDispatcher[KatexInput, KatexOutput]
+	katex  *lazyDispatcher[KatexInput, KatexOutput]
+	svelte *lazyDispatcher[SvelteInput, SvelteOutput]
 }
 
 func (d *Dispatchers) Katex() (Dispatcher[KatexInput, KatexOutput], error) {
 	return d.katex.start()
 }
 
+func (d *Dispatchers) Svelte() (Dispatcher[SvelteInput, SvelteOutput], error) {
+	return d.svelte.start()
+}
+
 func (d *Dispatchers) Close() error {
 	var errs []error
 	if d.katex.started {
 		if err := d.katex.dispatcher.Close(); err != nil {
+			errs = append(errs, err)
+		}
+	}
+	if d.svelte.started {
+		if err := d.svelte.dispatcher.Close(); err != nil {
 			errs = append(errs, err)
 		}
 	}
@@ -548,21 +558,28 @@ func (d *Dispatchers) Close() error {
 // AllDispatchers creates all the dispatchers for the warpc package.
 // Note that the individual dispatchers are started lazily.
 // Remember to call Close on the returned Dispatchers when done.
-func AllDispatchers(katexOpts Options) *Dispatchers {
-	if katexOpts.Runtime.Data == nil {
-		katexOpts.Runtime = Binary{Name: "javy_quickjs_provider_v2", Data: quickjsWasm}
-	}
-	if katexOpts.Main.Data == nil {
-		katexOpts.Main = Binary{Name: "renderkatex", Data: katexWasm}
+func AllDispatchers(opts Options) *Dispatchers {
+	if opts.Runtime.Data == nil {
+		opts.Runtime = Binary{Name: "javy_quickjs_provider_v2", Data: quickjsWasm}
 	}
 
-	if katexOpts.Infof == nil {
-		katexOpts.Infof = func(format string, v ...any) {
+	if opts.Main.Data != nil {
+		panic("Main.Data must be nil")
+	}
+
+	if opts.Infof == nil {
+		opts.Infof = func(format string, v ...any) {
 			// noop
 		}
 	}
 
+	katexOpts := opts
+	katexOpts.Main = Binary{Name: "renderkatex", Data: katexWasm}
+	svelteOpts := opts
+	svelteOpts.Main = Binary{Name: "buildsvelte", Data: svelteWasm}
+
 	return &Dispatchers{
-		katex: &lazyDispatcher[KatexInput, KatexOutput]{opts: katexOpts},
+		katex:  &lazyDispatcher[KatexInput, KatexOutput]{opts: katexOpts},
+		svelte: &lazyDispatcher[SvelteInput, SvelteOutput]{opts: svelteOpts},
 	}
 }

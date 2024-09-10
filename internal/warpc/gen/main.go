@@ -27,6 +27,7 @@ import (
 var scripts = []string{
 	"greet.js",
 	"renderkatex.js",
+	"buildsvelte.js",
 }
 
 func main() {
@@ -45,6 +46,7 @@ func buildJSBundle(filename string) error {
 		api.BuildOptions{
 			EntryPoints:       []string{filename},
 			Bundle:            true,
+			Inject:            []string{"./shims.js"},
 			MinifyWhitespace:  minify,
 			MinifyIdentifiers: minify,
 			MinifySyntax:      minify,
