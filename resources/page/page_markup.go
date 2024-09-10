@@ -161,6 +161,16 @@ func (s *HtmlSummary) resolveParagraphTagAndSetWrapper(mt media.Type) tagReStart
 	return ptag
 }
 
+// Avoid counting words that are most likely HTML tokens.
+var (
+	isProbablyHTMLTag      = regexp.MustCompile(`^<\/?[A-Za-z]+>?$`)
+	isProablyHTMLAttribute = regexp.MustCompile(`^[A-Za-z]+=["']`)
+)
+
+func isProbablyHTMLToken(s string) bool {
+	return s == ">" || isProbablyHTMLTag.MatchString(s) || isProablyHTMLAttribute.MatchString(s)
+}
+
 // ExtractSummaryFromHTML extracts a summary from the given HTML content.
 func ExtractSummaryFromHTML(mt media.Type, input string, numWords int, isCJK bool) (result HtmlSummary) {
 	result.source = input
@@ -173,6 +183,14 @@ func ExtractSummaryFromHTML(mt media.Type, input string, numWords int, isCJK boo
 	var count int
 
 	countWord := func(word string) int {
+		word = strings.TrimSpace(word)
+		if len(word) == 0 {
+			return 0
+		}
+		if isProbablyHTMLToken(word) {
+			return 0
+		}
+
 		if isCJK {
 			word = tpl.StripHTML(word)
 			runeCount := utf8.RuneCountInString(word)
@@ -193,7 +211,7 @@ func ExtractSummaryFromHTML(mt media.Type, input string, numWords int, isCJK boo
 
 	for j := result.WrapperStart.High; j < high; {
 		s := input[j:]
-		closingIndex := strings.Index(s, "</"+ptag.tagName)
+		closingIndex := strings.Index(s, "</"+ptag.tagName+">")
 
 		if closingIndex == -1 {
 			break
