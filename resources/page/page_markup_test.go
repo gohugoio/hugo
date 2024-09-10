@@ -49,6 +49,46 @@ func TestExtractSummaryFromHTML(t *testing.T) {
 	}
 }
 
+// See https://discourse.gohugo.io/t/automatic-summarys-summarylength-seems-broken-in-the-case-of-plainify/51466/4
+// Also issue 12837
+func TestExtractSummaryFromHTMLLotsOfHTMLInSummary(t *testing.T) {
+	c := qt.New(t)
+
+	input := `
+<p>
+<div>
+  <picture>
+    <img src="imgs/1.jpg" alt="1"/>
+  </picture>
+  <picture>
+    <img src="imgs/2.jpg" alt="2"/>
+  </picture>
+  <picture>
+    <img src="imgs/3.jpg" alt="3"/>
+  </picture>
+  <picture>
+    <img src="imgs/4.jpg" alt="4"/>
+  </picture>
+  <picture>
+    <img src="imgs/5.jpg" alt="5"/>
+  </picture>
+</div>
+</p>
+<p>
+This is a story about a cat.
+</p>
+<p>
+The cat was white and fluffy.
+</p>
+<p>
+And it liked milk.
+</p>
+`
+
+	summary := ExtractSummaryFromHTML(media.Builtin.MarkdownType, input, 10, false)
+	c.Assert(strings.HasSuffix(summary.Summary(), "<p>\nThis is a story about a cat.\n</p>\n<p>\nThe cat was white and fluffy.\n</p>"), qt.IsTrue)
+}
+
 func TestExtractSummaryFromHTMLWithDivider(t *testing.T) {
 	c := qt.New(t)
 
@@ -111,6 +151,23 @@ func TestExpandDivider(t *testing.T) {
 		e, t := expandSummaryDivider(test.input, test.ptag, l)
 		c.Assert(test.input[e.Low:e.High], qt.Equals, test.expect, qt.Commentf("[%d] Test.expect %q", i, test.input))
 		c.Assert(test.input[t.Low:t.High], qt.Equals, test.expectEndMarkup, qt.Commentf("[%d] Test.expectEndMarkup %q", i, test.input))
+	}
+}
+
+func TestIsProbablyHTMLToken(t *testing.T) {
+	c := qt.New(t)
+
+	for i, test := range []struct {
+		input  string
+		expect bool
+	}{
+		{"<p>", true},
+		{"<p", true},
+		{"width=\"32\"", true},
+		{"width='32'", true},
+		{"<p>Æøå", false},
+	} {
+		c.Assert(isProbablyHTMLToken(test.input), qt.Equals, test.expect, qt.Commentf("[%d] Test.expect %q", i, test.input))
 	}
 }
 
