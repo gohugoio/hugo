@@ -45,28 +45,44 @@ func TestKatex(t *testing.T) {
 
 	defer d.Close()
 
-	ctx := context.Background()
+	runExpression := func(c *qt.C, id uint32, expression string) (Message[KatexOutput], error) {
+		c.Helper()
 
-	input := KatexInput{
-		Expression: "c = \\pm\\sqrt{a^2 + b^2}",
-		Options: KatexOptions{
-			Output:      "html",
-			DisplayMode: true,
-		},
+		ctx := context.Background()
+
+		input := KatexInput{
+			Expression: expression,
+			Options: KatexOptions{
+				Output:       "html",
+				DisplayMode:  true,
+				ThrowOnError: true,
+			},
+		}
+
+		message := Message[KatexInput]{
+			Header: Header{
+				Version: currentVersion,
+				ID:      uint32(id),
+			},
+			Data: input,
+		}
+
+		return d.Execute(ctx, message)
 	}
 
-	message := Message[KatexInput]{
-		Header: Header{
-			Version: currentVersion,
-			ID:      uint32(32),
-		},
-		Data: input,
-	}
+	c.Run("Simple", func(c *qt.C) {
+		id := uint32(32)
+		result, err := runExpression(c, id, "c = \\pm\\sqrt{a^2 + b^2}")
+		c.Assert(err, qt.IsNil)
+		c.Assert(result.GetID(), qt.Equals, id)
+	})
 
-	result, err := d.Execute(ctx, message)
-	c.Assert(err, qt.IsNil)
-
-	c.Assert(result.GetID(), qt.Equals, message.GetID())
+	c.Run("Invalid expression", func(c *qt.C) {
+		id := uint32(32)
+		result, err := runExpression(c, id, "c & \\foo\\")
+		c.Assert(err, qt.IsNotNil)
+		c.Assert(result.GetID(), qt.Equals, id)
+	})
 }
 
 func TestGreet(t *testing.T) {
