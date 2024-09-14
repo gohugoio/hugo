@@ -1204,7 +1204,7 @@ func (s *Site) handleContentAdapterChanges(bi pagesfromdata.BuildInfo, buildConf
 
 	for _, p := range bi.DeletedPaths {
 		pp := path.Join(bi.Path.Base(), p)
-		if v, ok := s.pageMap.treePages.Delete(pp); ok {
+		if v, ok := s.m.treePages.Delete(pp); ok {
 			buildConfig.WhatChanged.Add(v.GetIdentity())
 		}
 	}
@@ -1242,7 +1242,7 @@ func (s *HugoSites) processFiles(ctx context.Context, l logg.LevelLogger, buildC
 	sourceSpec := source.NewSourceSpec(s.PathSpec, buildConfig.ContentInclusionFilter, s.BaseFs.Content.Fs)
 
 	// For inserts, we can pick an arbitrary pageMap.
-	pageMap := s.Sites[0].pageMap
+	pageMap := s.Sites[0].m
 
 	c := newPagesCollector(ctx, s.h, sourceSpec, s.Log, l, pageMap, buildConfig, filenames)
 

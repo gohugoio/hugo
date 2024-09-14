@@ -91,7 +91,7 @@ func TestAliasMultipleOutputFormats(t *testing.T) {
 
 	b.CreateSites().Build(BuildCfg{})
 
-	b.H.Sites[0].pageMap.debugPrint("", 999, os.Stdout)
+	b.H.Sites[0].m.debugPrint("", 999, os.Stdout)
 
 	// the real pages
 	b.AssertFileContent("public/blog/page/index.html", "For some moments the old man")

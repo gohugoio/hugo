@@ -79,7 +79,7 @@ type pageSiteAdapter struct {
 }
 
 func (pa pageSiteAdapter) GetPage(ref string) (page.Page, error) {
-	p, err := pa.s.getPage(pa.p, ref)
+	p, err := pa.s.pf.getPage(pa.p, ref)
 
 	if p == nil {
 		// The nil struct has meaning in some situations, mostly to avoid breaking
@@ -250,7 +250,7 @@ func (p *pageState) CodeOwners() []string {
 // GetTerms gets the terms defined on this page in the given taxonomy.
 // The pages returned will be ordered according to the front matter.
 func (p *pageState) GetTerms(taxonomy string) page.Pages {
-	return p.s.pageMap.getTermsForPageInTaxonomy(p.Path(), taxonomy)
+	return p.s.m.getTermsForPageInTaxonomy(p.Path(), taxonomy)
 }
 
 func (p *pageState) MarshalJSON() ([]byte, error) {
@@ -260,7 +260,7 @@ func (p *pageState) MarshalJSON() ([]byte, error) {
 func (p *pageState) RegularPagesRecursive() page.Pages {
 	switch p.Kind() {
 	case kinds.KindSection, kinds.KindHome:
-		return p.s.pageMap.getPagesInSection(
+		return p.s.m.getPagesInSection(
 			pageMapQueryPagesInSection{
 				pageMapQueryPagesBelowPath: pageMapQueryPagesBelowPath{
 					Path:    p.Path(),
@@ -282,7 +282,7 @@ func (p *pageState) RegularPages() page.Pages {
 	switch p.Kind() {
 	case kinds.KindPage:
 	case kinds.KindSection, kinds.KindHome, kinds.KindTaxonomy:
-		return p.s.pageMap.getPagesInSection(
+		return p.s.m.getPagesInSection(
 			pageMapQueryPagesInSection{
 				pageMapQueryPagesBelowPath: pageMapQueryPagesBelowPath{
 					Path:    p.Path(),
@@ -291,7 +291,7 @@ func (p *pageState) RegularPages() page.Pages {
 			},
 		)
 	case kinds.KindTerm:
-		return p.s.pageMap.getPagesWithTerm(
+		return p.s.m.getPagesWithTerm(
 			pageMapQueryPagesBelowPath{
 				Path:    p.Path(),
 				Include: pagePredicates.ShouldListLocal.And(pagePredicates.KindPage),
@@ -307,7 +307,7 @@ func (p *pageState) Pages() page.Pages {
 	switch p.Kind() {
 	case kinds.KindPage:
 	case kinds.KindSection, kinds.KindHome:
-		return p.s.pageMap.getPagesInSection(
+		return p.s.m.getPagesInSection(
 			pageMapQueryPagesInSection{
 				pageMapQueryPagesBelowPath: pageMapQueryPagesBelowPath{
 					Path:    p.Path(),
@@ -319,13 +319,13 @@ func (p *pageState) Pages() page.Pages {
 			},
 		)
 	case kinds.KindTerm:
-		return p.s.pageMap.getPagesWithTerm(
+		return p.s.m.getPagesWithTerm(
 			pageMapQueryPagesBelowPath{
 				Path: p.Path(),
 			},
 		)
 	case kinds.KindTaxonomy:
-		return p.s.pageMap.getPagesInSection(
+		return p.s.m.getPagesInSection(
 			pageMapQueryPagesInSection{
 				pageMapQueryPagesBelowPath: pageMapQueryPagesBelowPath{
 					Path:    p.Path(),
@@ -359,7 +359,7 @@ func (p *pageState) RawContent() string {
 }
 
 func (p *pageState) Resources() resource.Resources {
-	return p.s.pageMap.getOrCreateResourcesForPage(p)
+	return p.s.m.getOrCreateResourcesForPage(p)
 }
 
 func (p *pageState) HasShortcode(name string) bool {
@@ -412,7 +412,7 @@ func (p *pageState) AllTranslations() page.Pages {
 	key := p.Path() + "/" + "translations-all"
 	// This is called from Translations, so we need to use a different partition, cachePages2,
 	// to avoid potential deadlocks.
-	pages, err := p.s.pageMap.getOrCreatePagesFromCache(p.s.pageMap.cachePages2, key, func(string) (page.Pages, error) {
+	pages, err := p.s.m.getOrCreatePagesFromCache(p.s.m.cachePages2, key, func(string) (page.Pages, error) {
 		if p.m.pageConfig.TranslationKey != "" {
 			// translationKey set by user.
 			pas, _ := p.s.h.translationKeyPages.Get(p.m.pageConfig.TranslationKey)
@@ -422,7 +422,7 @@ func (p *pageState) AllTranslations() page.Pages {
 			return pasc, nil
 		}
 		var pas page.Pages
-		p.s.pageMap.treePages.ForEeachInDimension(p.Path(), doctree.DimensionLanguage.Index(),
+		p.s.m.treePages.ForEeachInDimension(p.Path(), doctree.DimensionLanguage.Index(),
 			func(n contentNodeI) bool {
 				if n != nil {
 					pas = append(pas, n.(page.Page))
@@ -445,7 +445,7 @@ func (p *pageState) AllTranslations() page.Pages {
 // Translations returns the translations excluding the current Page.
 func (p *pageState) Translations() page.Pages {
 	key := p.Path() + "/" + "translations"
-	pages, err := p.s.pageMap.getOrCreatePagesFromCache(nil, key, func(string) (page.Pages, error) {
+	pages, err := p.s.m.getOrCreatePagesFromCache(nil, key, func(string) (page.Pages, error) {
 		var pas page.Pages
 		for _, pp := range p.AllTranslations() {
 			if !pp.Eq(p) {

@@ -23,6 +23,6 @@ import (
 func TestTreeShiftTree(t *testing.T) {
 	c := qt.New(t)
 
-	tree := doctree.NewTreeShiftTree[string](0, 10)
+	tree := doctree.NewTreeShiftTree[string](1, []int{10})
 	c.Assert(tree, qt.IsNotNil)
 }

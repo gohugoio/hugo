@@ -460,7 +460,7 @@ func (s *IntegrationTestBuilder) Build() *IntegrationTestBuilder {
 		fmt.Println(s.lastBuildLog)
 		if s.H != nil && err == nil {
 			for _, s := range s.H.Sites {
-				m := s.pageMap
+				m := s.m
 				var buff bytes.Buffer
 				fmt.Fprintf(&buff, "PageMap for site %q\n\n", s.Language().Lang)
 				m.debugPrint("", 999, &buff)

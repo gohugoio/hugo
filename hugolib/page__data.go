@@ -39,14 +39,14 @@ func (p *pageData) Data() any {
 		switch p.Kind() {
 		case kinds.KindTerm:
 			path := p.Path()
-			name := p.s.pageMap.cfg.getTaxonomyConfig(path)
+			name := p.s.m.cfg.getTaxonomyConfig(path)
 			term := p.s.Taxonomies()[name.plural].Get(strings.TrimPrefix(path, name.pluralTreeKey))
 			p.data[name.singular] = term
 			p.data["Singular"] = name.singular
 			p.data["Plural"] = name.plural
 			p.data["Term"] = p.m.term
 		case kinds.KindTaxonomy:
-			viewCfg := p.s.pageMap.cfg.getTaxonomyConfig(p.Path())
+			viewCfg := p.s.m.cfg.getTaxonomyConfig(p.Path())
 			p.data["Singular"] = viewCfg.singular
 			p.data["Plural"] = viewCfg.plural
 			p.data["Terms"] = p.s.Taxonomies()[viewCfg.plural]

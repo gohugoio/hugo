@@ -133,7 +133,7 @@ func (m *pageMeta) newCachedContent(h *HugoSites, pi *contentParseInfo) (*cached
 	}
 
 	c := &cachedContent{
-		pm:             m.s.pageMap,
+		pm:             m.s.m,
 		StaleInfo:      m,
 		shortcodeState: newShortcodeHandler(filename, m.s),
 		pi:             pi,

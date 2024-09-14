@@ -40,6 +40,7 @@ import (
 	"github.com/gohugoio/hugo/config/services"
 	"github.com/gohugoio/hugo/deploy/deployconfig"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/hugolib/roles"
 	"github.com/gohugoio/hugo/hugolib/segments"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/markup/markup_config"
@@ -139,6 +140,9 @@ type Config struct {
 
 	// The outputformats configuration sections maps a format name (a string) to a configuration object for that format.
 	OutputFormats *config.ConfigNamespace[map[string]output.OutputFormatConfig, output.Formats] `mapstructure:"-"`
+
+	// The roles configuration section contains the top level roles configuration options.
+	Roles *config.ConfigNamespace[map[string]roles.RoleConfig, roles.Roles] `mapstructure:"-"`
 
 	// The outputs configuration section maps a Page Kind (a string) to a slice of output formats.
 	// This can be overridden in the front matter.

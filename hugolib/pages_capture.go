@@ -140,7 +140,7 @@ func (c *pagesCollector) Collect() (collectErr error) {
 		collectErr = c.collectDir(nil, false, nil)
 	} else {
 		for _, s := range c.h.Sites {
-			s.pageMap.cfg.isRebuild = true
+			s.m.cfg.isRebuild = true
 		}
 
 		var hasStructuralChange bool

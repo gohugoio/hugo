@@ -310,6 +310,11 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 			return
 		}
 
+		// TODO1
+		if len(p.m.pageConfig.RolesCompiled) > 0 {
+			fmt.Println("Roles:::COMP", p.m.pageConfig.RolesCompiled)
+		}
+
 		m.insertPageWithLock(pi.Base(), p)
 
 	}
@@ -335,7 +340,7 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 	f := source.NewFileInfo(fi)
 	h := s.h
 
-	contentAdapter := s.pageMap.treePagesFromTemplateAdapters.Get(pi.Base())
+	contentAdapter := s.m.treePagesFromTemplateAdapters.Get(pi.Base())
 	var rebuild bool
 	if contentAdapter != nil {
 		// Rebuild
@@ -356,7 +361,7 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 				Watching:          s.Conf.Watching(),
 				HandlePage: func(pt *pagesfromdata.PagesFromTemplate, pc *pagemeta.PageConfig) error {
 					s := pt.Site.(*Site)
-					if err := pc.Compile(pt.GoTmplFi.Meta().PathInfo.Base(), true, "", s.Log, s.conf.MediaTypes.Config); err != nil {
+					if err := pc.Compile(pt.GoTmplFi.Meta().PathInfo.Base(), true, "", s.Log, s.Conf); err != nil {
 						return err
 					}
 
@@ -378,7 +383,7 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 						return nil
 					}
 
-					u, n, replaced := s.pageMap.insertPageWithLock(pi.Base(), ps)
+					u, n, replaced := s.m.insertPageWithLock(pi.Base(), ps)
 
 					if h.isRebuild() {
 						if replaced {
@@ -417,7 +422,7 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 
 					rs := &resourceSource{path: rc.PathInfo, rc: rc, opener: nil, fi: pt.GoTmplFi, langIndex: s.languagei}
 
-					_, n, replaced := s.pageMap.insertResourceWithLock(rc.PathInfo.Base(), rs)
+					_, n, replaced := s.m.insertResourceWithLock(rc.PathInfo.Base(), rs)
 
 					if h.isRebuild() && replaced {
 						pt.AddChange(n.GetIdentity())
@@ -427,7 +432,7 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 			},
 		)
 
-		s.pageMap.treePagesFromTemplateAdapters.Insert(pi.Base(), contentAdapter)
+		s.m.treePagesFromTemplateAdapters.Insert(pi.Base(), contentAdapter)
 
 	}
 
@@ -462,7 +467,7 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 			handleBuildInfo(ss, bi)
 
 			// Insert into the correct language tree so it get rebuilt on changes.
-			ss.pageMap.treePagesFromTemplateAdapters.Insert(pi.Base(), clone)
+			ss.m.treePagesFromTemplateAdapters.Insert(pi.Base(), clone)
 
 		}
 	}

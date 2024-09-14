@@ -165,6 +165,8 @@ func (c ConfigLanguage) GetConfigSection(s string) any {
 		return c.config.MediaTypes.Config
 	case "outputFormats":
 		return c.config.OutputFormats.Config
+	case "roles":
+		return c.config.Roles.Config
 	case "permalinks":
 		return c.config.Permalinks
 	case "minify":

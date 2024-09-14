@@ -86,7 +86,7 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 	cfg := ctx.cfg
 
 	w := &doctree.NodeShiftTreeWalker[contentNodeI]{
-		Tree: s.pageMap.treePages,
+		Tree: s.m.treePages,
 		Handle: func(key string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
 			if p, ok := n.(*pageState); ok {
 				if cfg.shouldRender(ctx.infol, p) {
@@ -269,7 +269,7 @@ func (s *Site) renderPaginator(p *pageState, templ *tplimpl.TemplInfo) error {
 // renderAliases renders shell pages that simply have a redirect in the header.
 func (s *Site) renderAliases() error {
 	w := &doctree.NodeShiftTreeWalker[contentNodeI]{
-		Tree: s.pageMap.treePages,
+		Tree: s.m.treePages,
 		Handle: func(key string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
 			p := n.(*pageState)
 

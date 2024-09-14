@@ -236,6 +236,7 @@ func (t *pageTrees) DeletePageAndResourcesBelow(ss ...string) {
 func (t pageTrees) Shape(d, v int) *pageTrees {
 	t.treePages = t.treePages.Shape(d, v)
 	t.treeResources = t.treeResources.Shape(d, v)
+
 	t.treeTaxonomyEntries = t.treeTaxonomyEntries.Shape(d, v)
 	t.treePagesFromTemplateAdapters = t.treePagesFromTemplateAdapters.Shape(d, v)
 	t.createMutableTrees()
@@ -572,7 +573,7 @@ func (m *pageMap) getOrCreateResourcesForPage(ps *pageState) resource.Resources 
 				}
 				tps := tp.(*pageState)
 				// Make sure we query from the correct language root.
-				res2, err := tps.s.pageMap.getResourcesForPage(tps)
+				res2, err := tps.s.m.getResourcesForPage(tps)
 				if err != nil {
 					return nil, err
 				}
@@ -812,7 +813,13 @@ func (s *contentNodeShifter) ForEeachInDimension(n contentNodeI, d int, f func(c
 }
 
 func (s *contentNodeShifter) InsertInto(old, new contentNodeI, dimension doctree.Dimension) (contentNodeI, contentNodeI, bool) {
-	langi := dimension[doctree.DimensionLanguage.Index()]
+	var (
+		langi = dimension[doctree.DimensionLanguage.Index()]
+		rolei = dimension[doctree.DimensionRole.Index()]
+	)
+	// TODO1
+	fmt.Println("langi", langi, "rolei", rolei)
+
 	switch vv := old.(type) {
 	case *pageState:
 		newp, ok := new.(*pageState)
@@ -911,20 +918,22 @@ func (s *contentNodeShifter) Insert(old, new contentNodeI) (contentNodeI, conten
 	}
 }
 
-func newPageMap(i int, s *Site, mcache *dynacache.Cache, pageTrees *pageTrees) *pageMap {
+func newPageMap(sitei, rolei int, s *Site, mcache *dynacache.Cache, pageTrees *pageTrees) *pageMap {
 	var m *pageMap
+
+	siteRoleKey := fmt.Sprintf("s%d/%d", sitei, rolei)
 
 	var taxonomiesConfig taxonomiesConfig = s.conf.Taxonomies
 
 	m = &pageMap{
-		pageTrees:              pageTrees.Shape(0, i),
-		cachePages1:            dynacache.GetOrCreatePartition[string, page.Pages](mcache, fmt.Sprintf("/pag1/%d", i), dynacache.OptionsPartition{Weight: 10, ClearWhen: dynacache.ClearOnRebuild}),
-		cachePages2:            dynacache.GetOrCreatePartition[string, page.Pages](mcache, fmt.Sprintf("/pag2/%d", i), dynacache.OptionsPartition{Weight: 10, ClearWhen: dynacache.ClearOnRebuild}),
-		cacheGetTerms:          dynacache.GetOrCreatePartition[string, map[string]page.Pages](mcache, fmt.Sprintf("/gett/%d", i), dynacache.OptionsPartition{Weight: 5, ClearWhen: dynacache.ClearOnRebuild}),
-		cacheResources:         dynacache.GetOrCreatePartition[string, resource.Resources](mcache, fmt.Sprintf("/ress/%d", i), dynacache.OptionsPartition{Weight: 60, ClearWhen: dynacache.ClearOnRebuild}),
-		cacheContentRendered:   dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentSummary]](mcache, fmt.Sprintf("/cont/ren/%d", i), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
-		cacheContentPlain:      dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentPlainPlainWords]](mcache, fmt.Sprintf("/cont/pla/%d", i), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
-		contentTableOfContents: dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentTableOfContents]](mcache, fmt.Sprintf("/cont/toc/%d", i), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
+		pageTrees:              pageTrees.Shape(doctree.DimensionLanguage.Index(), sitei).Shape(doctree.DimensionRole.Index(), rolei),
+		cachePages1:            dynacache.GetOrCreatePartition[string, page.Pages](mcache, fmt.Sprintf("/pag1/%s", siteRoleKey), dynacache.OptionsPartition{Weight: 10, ClearWhen: dynacache.ClearOnRebuild}),
+		cachePages2:            dynacache.GetOrCreatePartition[string, page.Pages](mcache, fmt.Sprintf("/pag2/%s", siteRoleKey), dynacache.OptionsPartition{Weight: 10, ClearWhen: dynacache.ClearOnRebuild}),
+		cacheGetTerms:          dynacache.GetOrCreatePartition[string, map[string]page.Pages](mcache, fmt.Sprintf("/gett/%s", siteRoleKey), dynacache.OptionsPartition{Weight: 5, ClearWhen: dynacache.ClearOnRebuild}),
+		cacheResources:         dynacache.GetOrCreatePartition[string, resource.Resources](mcache, fmt.Sprintf("/ress/%s", siteRoleKey), dynacache.OptionsPartition{Weight: 60, ClearWhen: dynacache.ClearOnRebuild}),
+		cacheContentRendered:   dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentSummary]](mcache, fmt.Sprintf("/cont/ren/%s", siteRoleKey), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
+		cacheContentPlain:      dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentPlainPlainWords]](mcache, fmt.Sprintf("/cont/pla/%s", siteRoleKey), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
+		contentTableOfContents: dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentTableOfContents]](mcache, fmt.Sprintf("/cont/toc/%s", siteRoleKey), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
 
 		contentDataFileSeenItems: maps.NewCache[string, map[uint64]bool](),
 
@@ -935,7 +944,7 @@ func newPageMap(i int, s *Site, mcache *dynacache.Cache, pageTrees *pageTrees) *
 			taxonomyTermDisabled: !s.conf.IsKindEnabled(kinds.KindTerm),
 			pageDisabled:         !s.conf.IsKindEnabled(kinds.KindPage),
 		},
-		i: i,
+		i: sitei,
 		s: s,
 	}
 
@@ -1388,12 +1397,12 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 	sectionPageCount := map[string]int{}
 
 	pw := &doctree.NodeShiftTreeWalker[contentNodeI]{
-		Tree:        sa.pageMap.treePages,
+		Tree:        sa.m.treePages,
 		LockType:    doctree.LockTypeRead,
 		WalkContext: &doctree.WalkContext[contentNodeI]{},
 	}
 	rw := pw.Extend()
-	rw.Tree = sa.pageMap.treeResources
+	rw.Tree = sa.m.treeResources
 	sa.lastmod = time.Time{}
 	rebuild := sa.s.h.isRebuild()
 
@@ -1551,7 +1560,7 @@ func (sa *sitePagesAssembler) applyAggregatesToTaxonomiesAndTerms() error {
 	handlePlural := func(key string) error {
 		var pw *doctree.NodeShiftTreeWalker[contentNodeI]
 		pw = &doctree.NodeShiftTreeWalker[contentNodeI]{
-			Tree:        sa.pageMap.treePages,
+			Tree:        sa.m.treePages,
 			Prefix:      key, // We also want to include the root taxonomy nodes, so no trailing slash.
 			LockType:    doctree.LockTypeRead,
 			WalkContext: walkContext,
@@ -1582,9 +1591,9 @@ func (sa *sitePagesAssembler) applyAggregatesToTaxonomiesAndTerms() error {
 						return false, err
 					}
 					if !p.s.shouldBuild(p) {
-						sa.pageMap.treePages.Delete(s)
-						sa.pageMap.treeTaxonomyEntries.DeletePrefix(paths.AddTrailingSlash(s))
-					} else if err := sa.pageMap.treeTaxonomyEntries.WalkPrefix(
+						sa.m.treePages.Delete(s)
+						sa.m.treeTaxonomyEntries.DeletePrefix(paths.AddTrailingSlash(s))
+					} else if err := sa.m.treeTaxonomyEntries.WalkPrefix(
 						doctree.LockTypeRead,
 						paths.AddTrailingSlash(s),
 						func(ss string, wn *weightedContentNode) (bool, error) {
@@ -1621,7 +1630,7 @@ func (sa *sitePagesAssembler) applyAggregatesToTaxonomiesAndTerms() error {
 		return nil
 	}
 
-	for _, viewName := range sa.pageMap.cfg.taxonomyConfig.views {
+	for _, viewName := range sa.m.cfg.taxonomyConfig.views {
 		if err := handlePlural(viewName.pluralTreeKey); err != nil {
 			return err
 		}
@@ -1640,9 +1649,9 @@ func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
 	}
 
 	var (
-		pages   = sa.pageMap.treePages
-		entries = sa.pageMap.treeTaxonomyEntries
-		views   = sa.pageMap.cfg.taxonomyConfig.views
+		pages   = sa.m.treePages
+		entries = sa.m.treeTaxonomyEntries
+		views   = sa.m.cfg.taxonomyConfig.views
 	)
 
 	lockType := doctree.LockTypeWrite
@@ -1653,6 +1662,10 @@ func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
 			ps := n.(*pageState)
 
 			if ps.m.noLink() {
+				return false, nil
+			}
+
+			if sa.m.cfg.taxonomyTermDisabled {
 				return false, nil
 			}
 
@@ -1723,8 +1736,8 @@ func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
 }
 
 func (sa *sitePagesAssembler) assembleResources() error {
-	pagesTree := sa.pageMap.treePages
-	resourcesTree := sa.pageMap.treeResources
+	pagesTree := sa.m.treePages
+	resourcesTree := sa.m.treeResources
 
 	lockType := doctree.LockTypeWrite
 	w := &doctree.NodeShiftTreeWalker[contentNodeI]{
@@ -1751,7 +1764,7 @@ func (sa *sitePagesAssembler) assembleResources() error {
 
 			duplicateResourceFiles = duplicateResourceFiles || ps.s.Conf.IsMultihost()
 
-			err := sa.pageMap.forEachResourceInPage(
+			err := sa.m.forEachResourceInPage(
 				ps, lockType,
 				!duplicateResourceFiles,
 				func(resourceKey string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
@@ -1887,7 +1900,7 @@ func (sa *sitePagesAssembler) removeShouldNotBuild() error {
 	var keys []string
 	w := &doctree.NodeShiftTreeWalker[contentNodeI]{
 		LockType: doctree.LockTypeRead,
-		Tree:     sa.pageMap.treePages,
+		Tree:     sa.m.treePages,
 		Handle: func(key string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
 			p := n.(*pageState)
 			if !s.shouldBuild(p) {
@@ -1911,7 +1924,7 @@ func (sa *sitePagesAssembler) removeShouldNotBuild() error {
 		return nil
 	}
 
-	sa.pageMap.DeletePageAndResourcesBelow(keys...)
+	sa.m.DeletePageAndResourcesBelow(keys...)
 
 	return nil
 }
@@ -1919,7 +1932,7 @@ func (sa *sitePagesAssembler) removeShouldNotBuild() error {
 // // Create the fixed output pages, e.g. sitemap.xml, if not already there.
 func (sa *sitePagesAssembler) addStandalonePages() error {
 	s := sa.Site
-	m := s.pageMap
+	m := s.m
 	tree := m.treePages
 
 	commit := tree.Lock(true)
@@ -2000,7 +2013,7 @@ func (sa *sitePagesAssembler) addMissingRootSections() error {
 	var w *doctree.NodeShiftTreeWalker[contentNodeI]
 	w = &doctree.NodeShiftTreeWalker[contentNodeI]{
 		LockType: doctree.LockTypeWrite,
-		Tree:     sa.pageMap.treePages,
+		Tree:     sa.m.treePages,
 		Handle: func(s string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
 			if n == nil {
 				panic("n is nil")
@@ -2087,16 +2100,16 @@ func (sa *sitePagesAssembler) addMissingRootSections() error {
 }
 
 func (sa *sitePagesAssembler) addMissingTaxonomies() error {
-	if sa.pageMap.cfg.taxonomyDisabled && sa.pageMap.cfg.taxonomyTermDisabled {
+	if sa.m.cfg.taxonomyDisabled && sa.m.cfg.taxonomyTermDisabled {
 		return nil
 	}
 
-	tree := sa.pageMap.treePages
+	tree := sa.m.treePages
 
 	commit := tree.Lock(true)
 	defer commit()
 
-	for _, viewName := range sa.pageMap.cfg.taxonomyConfig.views {
+	for _, viewName := range sa.m.cfg.taxonomyConfig.views {
 		key := viewName.pluralTreeKey
 		if v := tree.Get(key); v == nil {
 			m := &pageMeta{
