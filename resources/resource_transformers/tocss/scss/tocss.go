@@ -105,7 +105,11 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		} else if strings.HasPrefix(name, "_") {
 			namePatterns = []string{"_%s.scss", "_%s.sass"}
 		} else {
-			namePatterns = []string{"_%s.scss", "%s.scss", "_%s.sass", "%s.sass"}
+			namePatterns = []string{
+				"_%s.scss", "%s.scss",
+				"_%s.sass", "%s.sass",
+				"%s/_index.scss", "%s/_index.sass",
+			}
 		}
 
 		name = strings.TrimPrefix(name, "_")
