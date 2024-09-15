@@ -111,7 +111,7 @@ moo {
 
 @import "another.css";
 /* foo */
-        
+
 `)
 }
 
@@ -262,7 +262,7 @@ body {
 	body {
 		background: url($image) no-repeat center/cover;
 		font-family: $font;
-	  }	  
+	  }
 }
 
 p {
@@ -416,4 +416,47 @@ h3 {
 	b.EditFiles("assets/dir/b.scss", `h2 { color: orange; }`).Build()
 
 	b.AssertFileContent("public/index.html", `b.46b2d77c7ffe37ee191678f72df991ecb1319f849957151654362f09b0ef467f.css`)
+}
+
+// Issue 12851
+func TestDirectoryIndexes(t *testing.T) {
+	t.Parallel()
+	if !scss.Supports() {
+		t.Skip()
+	}
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','section','rss','sitemap','taxonomy','term']
+
+[[module.mounts]]
+source = 'assets'
+target = 'assets'
+
+[[module.imports]]
+path = "github.com/gohugoio/hugoTestModule2"
+
+[[module.imports.mounts]]
+source = "miscellaneous/sass"
+target = "assets/sass"
+-- go.mod --
+module hugo-github-issue-12849
+-- layouts/index.html --
+{{ $opts := dict "transpiler" "libsass" "outputStyle" "compressed" }}
+{{ (resources.Get "sass/main.scss" | toCSS $opts).Content }}
+-- assets/sass/main.scss --
+@import "foo"; // directory with index file from OS file system
+@import "bar"; // directory with index file from module mount
+-- assets/sass/foo/_index.scss --
+.foo {color: red;}
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			NeedsOsFS:   true,
+			TxtarString: files,
+		}).Build()
+
+	b.AssertFileContent("public/index.html", ".foo{color:red}.bar{color:green}")
 }

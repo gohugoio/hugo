@@ -566,6 +566,9 @@ Styles: {{ $r.RelPermalink }}
 // Issue 12849
 func TestDirectoryIndexes(t *testing.T) {
 	t.Parallel()
+	if !dartsass.Supports() {
+		t.Skip()
+	}
 
 	files := `
 -- hugo.toml --
