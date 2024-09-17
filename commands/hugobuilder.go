@@ -779,6 +779,7 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 		istemp := strings.HasSuffix(ext, "~") ||
 			(ext == ".swp") || // vim
 			(ext == ".swx") || // vim
+			(ext == ".bck") || // helix
 			(ext == ".tmp") || // generic temp file
 			(ext == ".DS_Store") || // OSX Thumbnail
 			baseName == "4913" || // vim
