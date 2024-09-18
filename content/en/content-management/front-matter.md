@@ -167,7 +167,7 @@ lang
 
 ###### menus
 
-(`string`,`string array`, or `map`) If set, Hugo adds the page to the given menu or menus. See the [menus] page for details.
+(`string`, `string array`, or `map`) If set, Hugo adds the page to the given menu or menus. See the [menus] page for details.
 
 [menus]: /content-management/menus/#define-in-front-matter
 
