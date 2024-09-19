@@ -94,7 +94,7 @@ so this may/will change in future versions of Hugo.
 					applyLocalFlagsBuildConfig(cmd, r)
 				},
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
-					h, err := r.Hugo(flagsToCfg(cd, nil))
+					h, err := r.getOrCreateHugo(flagsToCfg(cd, nil), true)
 					if err != nil {
 						return err
 					}
@@ -102,7 +102,11 @@ so this may/will change in future versions of Hugo.
 					if len(args) >= 1 {
 						initPath = args[0]
 					}
-					return h.Configs.ModulesClient.Init(initPath)
+					c := h.Configs.ModulesClient
+					if err := c.Init(initPath); err != nil {
+						return err
+					}
+					return nil
 				},
 			},
 			&simpleCommand{
@@ -115,7 +119,7 @@ so this may/will change in future versions of Hugo.
 					cmd.Flags().BoolVarP(&clean, "clean", "", false, "delete module cache for dependencies that fail verification")
 				},
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
-					conf, err := r.ConfigFromProvider(r.configVersionID.Load(), flagsToCfg(cd, nil))
+					conf, err := r.ConfigFromProvider(configKey{counter: r.configVersionID.Load()}, flagsToCfg(cd, nil))
 					if err != nil {
 						return err
 					}
@@ -135,7 +139,7 @@ Note that for vendored modules, that is the version listed and not the one from 
 					cmd.Flags().BoolVarP(&clean, "clean", "", false, "delete module cache for dependencies that fail verification")
 				},
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
-					conf, err := r.ConfigFromProvider(r.configVersionID.Load(), flagsToCfg(cd, nil))
+					conf, err := r.ConfigFromProvider(configKey{counter: r.configVersionID.Load()}, flagsToCfg(cd, nil))
 					if err != nil {
 						return err
 					}
@@ -271,7 +275,7 @@ Run "go help get" for more information. All flags available for "go get" is also
 
 								cfg := config.New()
 								cfg.Set("workingDir", dir)
-								conf, err := r.ConfigFromProvider(r.configVersionID.Add(1), flagsToCfg(cd, cfg))
+								conf, err := r.ConfigFromProvider(configKey{counter: r.configVersionID.Add(1)}, flagsToCfg(cd, cfg))
 								if err != nil {
 									return err
 								}
@@ -284,7 +288,7 @@ Run "go help get" for more information. All flags available for "go get" is also
 						})
 						return nil
 					} else {
-						conf, err := r.ConfigFromProvider(r.configVersionID.Load(), flagsToCfg(cd, nil))
+						conf, err := r.ConfigFromProvider(configKey{counter: r.configVersionID.Load()}, flagsToCfg(cd, nil))
 						if err != nil {
 							return err
 						}
@@ -313,7 +317,7 @@ func (c *modCommands) Name() string {
 }
 
 func (c *modCommands) Run(ctx context.Context, cd *simplecobra.Commandeer, args []string) error {
-	_, err := c.r.ConfigFromProvider(c.r.configVersionID.Load(), nil)
+	_, err := c.r.ConfigFromProvider(configKey{counter: c.r.configVersionID.Load()}, nil)
 	if err != nil {
 		return err
 	}

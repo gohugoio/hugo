@@ -93,7 +93,7 @@ Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
 					cfg.Set("workingDir", createpath)
 					cfg.Set("publishDir", "public")
 
-					conf, err := r.ConfigFromProvider(r.configVersionID.Load(), flagsToCfg(cd, cfg))
+					conf, err := r.ConfigFromProvider(configKey{counter: r.configVersionID.Load()}, flagsToCfg(cd, cfg))
 					if err != nil {
 						return err
 					}
@@ -136,7 +136,7 @@ according to your needs.`,
 					cfg := config.New()
 					cfg.Set("publishDir", "public")
 
-					conf, err := r.ConfigFromProvider(r.configVersionID.Load(), flagsToCfg(cd, cfg))
+					conf, err := r.ConfigFromProvider(configKey{counter: r.configVersionID.Load()}, flagsToCfg(cd, cfg))
 					if err != nil {
 						return err
 					}

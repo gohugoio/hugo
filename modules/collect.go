@@ -699,6 +699,9 @@ func (c *collector) normalizeMounts(owner *moduleAdapter, mounts []Mount) ([]Mou
 }
 
 func (c *collector) wrapModuleNotFound(err error) error {
+	if c.Client.ccfg.IgnoreModuleDoesNotExist {
+		return nil
+	}
 	err = fmt.Errorf(err.Error()+": %w", ErrNotExist)
 	if c.GoModulesFilename == "" {
 		return err
