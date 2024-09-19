@@ -742,6 +742,9 @@ type ClientConfig struct {
 	// This can be nil.
 	IgnoreVendor glob.Glob
 
+	// Ignore any module not found errors.
+	IgnoreModuleDoesNotExist bool
+
 	// Absolute path to the project dir.
 	WorkingDir string
 

@@ -58,7 +58,7 @@ func (c *configCommand) Name() string {
 }
 
 func (c *configCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args []string) error {
-	conf, err := c.r.ConfigFromProvider(c.r.configVersionID.Load(), flagsToCfg(cd, nil))
+	conf, err := c.r.ConfigFromProvider(configKey{counter: c.r.configVersionID.Load()}, flagsToCfg(cd, nil))
 	if err != nil {
 		return err
 	}
@@ -209,7 +209,7 @@ func (c *configMountsCommand) Name() string {
 
 func (c *configMountsCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args []string) error {
 	r := c.configCmd.r
-	conf, err := r.ConfigFromProvider(r.configVersionID.Load(), flagsToCfg(cd, nil))
+	conf, err := r.ConfigFromProvider(configKey{counter: c.r.configVersionID.Load()}, flagsToCfg(cd, nil))
 	if err != nil {
 		return err
 	}

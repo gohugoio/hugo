@@ -88,6 +88,11 @@ type commonConfig struct {
 	fs      *hugofs.Fs
 }
 
+type configKey struct {
+	counter                    int32
+	ignoreModulesDoesNotExists bool
+}
+
 // This is the root command.
 type rootCommand struct {
 	Printf  func(format string, v ...interface{})
@@ -101,8 +106,8 @@ type rootCommand struct {
 
 	// Some, but not all commands need access to these.
 	// Some needs more than one, so keep them in a small cache.
-	commonConfigs *lazycache.Cache[int32, *commonConfig]
-	hugoSites     *lazycache.Cache[int32, *hugolib.HugoSites]
+	commonConfigs *lazycache.Cache[configKey, *commonConfig]
+	hugoSites     *lazycache.Cache[configKey, *hugolib.HugoSites]
 
 	// changesFromBuild received from Hugo in watch mode.
 	changesFromBuild chan []identity.Identity
@@ -160,17 +165,18 @@ func (r *rootCommand) Commands() []simplecobra.Commander {
 	return r.commands
 }
 
-func (r *rootCommand) ConfigFromConfig(key int32, oldConf *commonConfig) (*commonConfig, error) {
-	cc, _, err := r.commonConfigs.GetOrCreate(key, func(key int32) (*commonConfig, error) {
+func (r *rootCommand) ConfigFromConfig(key configKey, oldConf *commonConfig) (*commonConfig, error) {
+	cc, _, err := r.commonConfigs.GetOrCreate(key, func(key configKey) (*commonConfig, error) {
 		fs := oldConf.fs
 		configs, err := allconfig.LoadConfig(
 			allconfig.ConfigSourceDescriptor{
-				Flags:       oldConf.cfg,
-				Fs:          fs.Source,
-				Filename:    r.cfgFile,
-				ConfigDir:   r.cfgDir,
-				Logger:      r.logger,
-				Environment: r.environment,
+				Flags:                    oldConf.cfg,
+				Fs:                       fs.Source,
+				Filename:                 r.cfgFile,
+				ConfigDir:                r.cfgDir,
+				Logger:                   r.logger,
+				Environment:              r.environment,
+				IgnoreModuleDoesNotExist: key.ignoreModulesDoesNotExists,
 			},
 		)
 		if err != nil {
@@ -193,11 +199,11 @@ func (r *rootCommand) ConfigFromConfig(key int32, oldConf *commonConfig) (*commo
 	return cc, err
 }
 
-func (r *rootCommand) ConfigFromProvider(key int32, cfg config.Provider) (*commonConfig, error) {
+func (r *rootCommand) ConfigFromProvider(key configKey, cfg config.Provider) (*commonConfig, error) {
 	if cfg == nil {
 		panic("cfg must be set")
 	}
-	cc, _, err := r.commonConfigs.GetOrCreate(key, func(key int32) (*commonConfig, error) {
+	cc, _, err := r.commonConfigs.GetOrCreate(key, func(key configKey) (*commonConfig, error) {
 		var dir string
 		if r.source != "" {
 			dir, _ = filepath.Abs(r.source)
@@ -220,12 +226,13 @@ func (r *rootCommand) ConfigFromProvider(key int32, cfg config.Provider) (*commo
 		// Load the config first to allow publishDir to be configured in config file.
 		configs, err := allconfig.LoadConfig(
 			allconfig.ConfigSourceDescriptor{
-				Flags:       cfg,
-				Fs:          hugofs.Os,
-				Filename:    r.cfgFile,
-				ConfigDir:   r.cfgDir,
-				Environment: r.environment,
-				Logger:      r.logger,
+				Flags:                    cfg,
+				Fs:                       hugofs.Os,
+				Filename:                 r.cfgFile,
+				ConfigDir:                r.cfgDir,
+				Environment:              r.environment,
+				Logger:                   r.logger,
+				IgnoreModuleDoesNotExist: key.ignoreModulesDoesNotExists,
 			},
 		)
 		if err != nil {
@@ -307,7 +314,8 @@ func (r *rootCommand) ConfigFromProvider(key int32, cfg config.Provider) (*commo
 }
 
 func (r *rootCommand) HugFromConfig(conf *commonConfig) (*hugolib.HugoSites, error) {
-	h, _, err := r.hugoSites.GetOrCreate(r.configVersionID.Load(), func(key int32) (*hugolib.HugoSites, error) {
+	k := configKey{counter: r.configVersionID.Load()}
+	h, _, err := r.hugoSites.GetOrCreate(k, func(key configKey) (*hugolib.HugoSites, error) {
 		depsCfg := r.newDepsConfig(conf)
 		return hugolib.NewHugoSites(depsCfg)
 	})
@@ -315,7 +323,12 @@ func (r *rootCommand) HugFromConfig(conf *commonConfig) (*hugolib.HugoSites, err
 }
 
 func (r *rootCommand) Hugo(cfg config.Provider) (*hugolib.HugoSites, error) {
-	h, _, err := r.hugoSites.GetOrCreate(r.configVersionID.Load(), func(key int32) (*hugolib.HugoSites, error) {
+	return r.getOrCreateHugo(cfg, false)
+}
+
+func (r *rootCommand) getOrCreateHugo(cfg config.Provider, ignoreModuleDoesNotExist bool) (*hugolib.HugoSites, error) {
+	k := configKey{counter: r.configVersionID.Load(), ignoreModulesDoesNotExists: ignoreModuleDoesNotExist}
+	h, _, err := r.hugoSites.GetOrCreate(k, func(key configKey) (*hugolib.HugoSites, error) {
 		conf, err := r.ConfigFromProvider(key, cfg)
 		if err != nil {
 			return nil, err
@@ -418,11 +431,11 @@ func (r *rootCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 
 	r.changesFromBuild = make(chan []identity.Identity, 10)
 
-	r.commonConfigs = lazycache.New(lazycache.Options[int32, *commonConfig]{MaxEntries: 5})
+	r.commonConfigs = lazycache.New(lazycache.Options[configKey, *commonConfig]{MaxEntries: 5})
 	// We don't want to keep stale HugoSites in memory longer than needed.
-	r.hugoSites = lazycache.New(lazycache.Options[int32, *hugolib.HugoSites]{
+	r.hugoSites = lazycache.New(lazycache.Options[configKey, *hugolib.HugoSites]{
 		MaxEntries: 1,
-		OnEvict: func(key int32, value *hugolib.HugoSites) {
+		OnEvict: func(key configKey, value *hugolib.HugoSites) {
 			value.Close()
 			runtime.GC()
 		},
