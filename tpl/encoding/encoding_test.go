@@ -14,6 +14,7 @@
 package encoding
 
 import (
+	"encoding/base64"
 	"html/template"
 	"math"
 	"testing"
@@ -117,5 +118,34 @@ func TestJsonify(t *testing.T) {
 
 		c.Assert(err, qt.IsNil)
 		c.Assert(result, qt.Equals, test.expect, qt.Commentf("#%d", i))
+	}
+}
+
+func TestZlibCompress(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	for _, test := range []struct {
+		v      any
+		lvl    any
+		expect any // base64 URL encoding result or false
+	}{
+		{"foobar", 9, "eNpKy89PSiwCBAAA__8IqwJ6"},
+		{"Hello world!", "1", "eAEADADz_0hlbGxvIHdvcmxkIQEAAP__HQkEXg=="},
+		// errors
+		{"", 100, false},
+	} {
+
+		result, err := ns.ZlibCompress(test.v, test.lvl)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(base64.URLEncoding.EncodeToString([]byte(result)), qt.Equals, test.expect)
 	}
 }

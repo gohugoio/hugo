@@ -15,6 +15,8 @@
 package encoding
 
 import (
+	"bytes"
+	"compress/zlib"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -113,4 +115,46 @@ type jsonifyOpts struct {
 	Prefix       string
 	Indent       string
 	NoHTMLEscape bool
+}
+
+// ZlibCompress returns the compressed data of the given content and optional level.
+func (ns *Namespace) ZlibCompress(args ...any) (string, error) {
+	var (
+		input string
+		err   error
+	)
+	level := 9
+	switch len(args) {
+	case 0:
+		return "", nil
+	case 1:
+		input, err = cast.ToStringE(args[0])
+	case 2:
+		input, err = cast.ToStringE(args[0])
+		if err != nil {
+			break
+		}
+
+		level, err = cast.ToIntE(args[1])
+	default:
+		err = errors.New("too many arguments to ZlibCompress")
+	}
+
+	if err != nil {
+		return "", err
+	}
+
+	var buffer bytes.Buffer
+	writer, err := zlib.NewWriterLevel(&buffer, level)
+	if err != nil {
+		return "", err
+	}
+
+	_, err = writer.Write([]byte(input))
+	writer.Close()
+	if err != nil {
+		return "", err
+	}
+
+	return buffer.String(), nil
 }
