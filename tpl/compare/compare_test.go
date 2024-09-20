@@ -21,10 +21,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gohugoio/hugo/htesting/hqt"
-
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/htesting/hqt"
 	"github.com/spf13/cast"
 )
 
@@ -447,12 +446,35 @@ func TestTimeUnix(t *testing.T) {
 }
 
 func TestConditional(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
-	n := New(time.UTC, false)
-	a, b := "a", "b"
+	ns := New(time.UTC, false)
 
-	c.Assert(n.Conditional(true, a, b), qt.Equals, a)
-	c.Assert(n.Conditional(false, a, b), qt.Equals, b)
+	type args struct {
+		cond any
+		v1   any
+		v2   any
+	}
+	tests := []struct {
+		name string
+		args args
+		want any
+	}{
+		{"a", args{cond: true, v1: "true", v2: "false"}, "true"},
+		{"b", args{cond: false, v1: "true", v2: "false"}, "false"},
+		{"c", args{cond: 1, v1: "true", v2: "false"}, "true"},
+		{"d", args{cond: 0, v1: "true", v2: "false"}, "false"},
+		{"e", args{cond: "foo", v1: "true", v2: "false"}, "true"},
+		{"f", args{cond: "", v1: "true", v2: "false"}, "false"},
+		{"g", args{cond: []int{6, 7}, v1: "true", v2: "false"}, "true"},
+		{"h", args{cond: []int{}, v1: "true", v2: "false"}, "false"},
+		{"i", args{cond: nil, v1: "true", v2: "false"}, "false"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c.Assert(ns.Conditional(tt.args.cond, tt.args.v1, tt.args.v2), qt.Equals, tt.want)
+		})
+	}
 }
 
 // Issue 9462
