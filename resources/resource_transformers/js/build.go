@@ -105,7 +105,12 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	}
 
 	if buildOptions.Sourcemap != api.SourceMapNone {
-		buildOptions.Stdin.Sourcefile = filepath.Join("assets", ctx.SourcePath)
+		m := resolveComponentInAssets(t.c.rs.Assets.Fs, ctx.SourcePath)
+		filename, err := filepath.Rel(opts.resolveDir, m.Filename)
+		if err != nil {
+			return fmt.Errorf("failed to resolve filename: %w", err)
+		}
+		buildOptions.Stdin.Sourcefile = filename
 	}
 
 	if opts.Inject != nil {
