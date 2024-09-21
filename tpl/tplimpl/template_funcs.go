@@ -33,6 +33,7 @@ import (
 	"github.com/gohugoio/hugo/tpl/internal"
 
 	// Init the namespaces
+	_ "github.com/gohugoio/hugo/tpl/bit"
 	_ "github.com/gohugoio/hugo/tpl/cast"
 	_ "github.com/gohugoio/hugo/tpl/collections"
 	_ "github.com/gohugoio/hugo/tpl/compare"

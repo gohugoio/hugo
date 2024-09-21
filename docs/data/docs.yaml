@@ -2343,6 +2343,119 @@ output:
     - layouts/_internal/_default/rss.xml
 tpl:
   funcs:
+    bit:
+      And:
+        Aliases:
+        - band
+        Args:
+        - inputs
+        Description: And returns the bitwise AND of n1 and n2 or more values.
+        Examples:
+        - - '{{ bit.And 0b0011 0b0110 }}'
+          - "2"
+      Clear:
+        Aliases:
+        - bandn
+        - bclear
+        Args:
+        - inputs
+        Description: Clear returns the bitwise AND of n1 with the NOT of n2 or following values.
+        Examples:
+        - - '{{ bit.Clear 0xFF 0x0F }}'
+          - "240"
+      Extract:
+        Aliases: null
+        Args:
+        - "n"
+        - "l"
+        - "s"
+        Description: Extract returns the last l bits of (n >> s).
+        Examples:
+        - - '{{ bit.Extract 0x170F 4 8 }}'
+          - "7"
+      LeadingZeros:
+        Aliases:
+        - clz
+        Args:
+        - "n"
+        Description: LeadingZeros returns the number of leading 0 bits in n (when cast to uint64).
+        Examples:
+        - - '{{ bit.LeadingZeros 0b11 }}'
+          - "62"
+      Not:
+        Aliases:
+        - bnot
+        Args:
+        - inputs
+        Description: Not returns the bitwise NOT (over 64 bits) of n.
+        Examples:
+        - - '{{ bit.Not 0xFF }}'
+          - "-256"
+      OnesCount:
+        Aliases:
+        - popcnt
+        Args:
+        - "n"
+        Description: OnesCount returns the number of bits set to 1 (known as population count) in n.
+        Examples:
+        - - '{{ bit.OnesCount 0b1101011 }}'
+          - "5"
+      Or:
+        Aliases:
+        - bor
+        Args:
+        - inputs
+        Description: Or returns the bitwise OR of n1 and n2 or more values.
+        Examples:
+        - - '{{ bit.Or 0b0011 0b0110 }}'
+          - "7"
+      ShiftLeft:
+        Aliases:
+        - lsl
+        Args:
+        - "n"
+        - "s"
+        Description: ShiftLeft returns n shifted s bits to the left.
+        Examples:
+        - - '{{ bit.ShiftLeft 0b1001011 2 }}'
+          - "300"
+      ShiftRight:
+        Aliases:
+        - asr
+        Args:
+        - "n"
+        - "s"
+        Description: ShiftRight returns n (arethmetically) shifted s bits to the right.
+        Examples:
+        - - '{{ bit.ShiftRight 0b1001011 2 }}'
+          - "18"
+      TrailingZeros:
+        Aliases:
+        - ctz
+        Args:
+        - "n"
+        Description: TrailingZeros returns the number of trailing 0 bits in n (when cast to uint64).
+        Examples:
+        - - '{{ bit.TrailingZeros 0b100000 }}'
+          - "5"
+      Xnor:
+        Aliases:
+        - bxnor
+        Args:
+        - inputs
+        Description: Xnor returns the bitwise XNOR (Exclusive Not-OR) of n1 and n2 or more values. Equivalent to Not (Xor inputs...).
+        Examples:
+        - - '{{ bit.Xnor 0b0011 0b0110 }}'
+          - "-6"
+      Xor:
+        Aliases:
+        - bxor
+        Args:
+        - inputs
+        Description: Xor returns the bitwise XOR (Exclusive OR) of n1 and n2 or more values.
+        Examples:
+        - - '{{ bit.Xor 0b0011 0b0110 }}'
+          - "5"
     cast:
       ToFloat:
         Aliases:
