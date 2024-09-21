@@ -93,7 +93,7 @@ Level 6 headings are styled as `dt` elements. This was implemented to support a 
 
 #### Function and method descriptions
 
-When adding a page to the [functions] or [methods] section, begin the description with the word "Returns". With functions and methods that return a boolean value, beging the description with the phrase "Reports whether".
+When adding a page to the [functions] or [methods] section, begin the description with the word "Returns". With functions and methods that return a boolean value, begin the description with the phrase "Reports whether".
 
 For example:
 
