@@ -448,9 +448,6 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 
 		Tsconfig: opts.tsConfig,
 
-		// Note: We're not passing Sourcefile to ESBuild.
-		// This makes ESBuild pass `stdin` as the Importer to the import
-		// resolver, which is what we need/expect.
 		Stdin: &api.StdinOptions{
 			Contents:   opts.contents,
 			ResolveDir: opts.resolveDir,
