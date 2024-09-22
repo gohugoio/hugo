@@ -106,6 +106,10 @@ type Options struct {
 	// TODO(bep) remove. See https://github.com/evanw/esbuild/commit/869e8117b499ca1dbfc5b3021938a53ffe934dba
 	AvoidTDZ bool
 
+	// Code shared between multiple entry points is split off into a separate shared file that both entry points import.
+	// See https://esbuild.github.io/api/#splitting
+	Splitting bool
+
 	mediaType  media.Type
 	outDir     string
 	contents   string
@@ -378,7 +382,13 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 	var format api.Format
 	// One of: iife, cjs, esm
 	switch opts.Format {
-	case "", "iife":
+	case "":
+		if opts.Splitting {
+			format = api.FormatESModule
+		} else {
+			format = api.FormatIIFE
+		}
+	case "iife":
 		format = api.FormatIIFE
 	case "esm":
 		format = api.FormatESModule
@@ -453,6 +463,8 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 			ResolveDir: opts.resolveDir,
 			Loader:     loader,
 		},
+
+		Splitting: opts.Splitting,
 	}
 	return
 }

@@ -96,7 +96,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		return err
 	}
 
-	if buildOptions.Sourcemap == api.SourceMapExternal && buildOptions.Outdir == "" {
+	if (buildOptions.Sourcemap == api.SourceMapExternal || buildOptions.Splitting) && buildOptions.Outdir == "" {
 		buildOptions.Outdir, err = os.MkdirTemp(os.TempDir(), "compileOutput")
 		if err != nil {
 			return err
@@ -200,24 +200,66 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		return errors[0]
 	}
 
+	// If we are splitting, then there will be multiple output files,
+	// and we need to figure out which is the "main" one.
+	var (
+		outFile    string
+		outputFile api.OutputFile
+	)
+	if buildOptions.Sourcemap == api.SourceMapExternal || buildOptions.Splitting {
+		outFile = filepath.Join(buildOptions.Outdir, "stdin.js")
+
+		for _, f := range result.OutputFiles {
+			if f.Path == outFile {
+				outputFile = f
+				break
+			}
+		}
+	}
+
+	if buildOptions.Splitting {
+		// "Publish" the additional files that were created so the imports work
+		for _, f := range result.OutputFiles {
+			if f.Path == outFile {
+				continue
+			}
+
+			relPath, err := filepath.Rel(filepath.Dir(outputFile.Path), f.Path)
+			if err != nil {
+				return err
+			}
+			relPath = filepath.Join(filepath.Dir(ctx.OutPath), relPath)
+
+			if err = ctx.Publish(relPath, string(f.Contents)); err != nil {
+				return err
+			}
+		}
+	}
+
 	if buildOptions.Sourcemap == api.SourceMapExternal {
-		content := string(result.OutputFiles[1].Contents)
+		content := string(outputFile.Contents)
 		symPath := path.Base(ctx.OutPath) + ".map"
 		content += "\n//# sourceMappingURL=" + symPath + "\n"
 
-		if err = ctx.PublishSourceMap(string(result.OutputFiles[0].Contents)); err != nil {
-			return err
+		for _, f := range result.OutputFiles {
+			if f.Path == outFile+".map" {
+				if err = ctx.PublishSourceMap(string(f.Contents)); err != nil {
+					return err
+				}
+				break
+			}
 		}
 		_, err := ctx.To.Write([]byte(content))
 		if err != nil {
 			return err
 		}
 	} else {
-		_, err := ctx.To.Write(result.OutputFiles[0].Contents)
+		_, err := ctx.To.Write(outputFile.Contents)
 		if err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 

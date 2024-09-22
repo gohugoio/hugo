@@ -139,10 +139,8 @@ func (ctx *ResourceTransformationCtx) AddOutPathIdentifier(identifier string) {
 	ctx.OutPath = ctx.addPathIdentifier(ctx.InPath, identifier)
 }
 
-// PublishSourceMap writes the content to the target folder of the main resource
-// with the ".map" extension added.
-func (ctx *ResourceTransformationCtx) PublishSourceMap(content string) error {
-	target := ctx.OutPath + ".map"
+// Publish writes the content to the target folder of the main resource.
+func (ctx *ResourceTransformationCtx) Publish(target string, content string) error {
 	f, err := ctx.OpenResourcePublisher(target)
 	if err != nil {
 		return err
@@ -150,6 +148,13 @@ func (ctx *ResourceTransformationCtx) PublishSourceMap(content string) error {
 	defer f.Close()
 	_, err = f.Write([]byte(content))
 	return err
+}
+
+// PublishSourceMap writes the content to the target folder of the main resource
+// with the ".map" extension added.
+func (ctx *ResourceTransformationCtx) PublishSourceMap(content string) error {
+	target := ctx.OutPath + ".map"
+	return ctx.Publish(target, content)
 }
 
 // ReplaceOutPathExtension transforming InPath to OutPath replacing the file
