@@ -28,8 +28,8 @@ func TestContentMapSite(t *testing.T) {
 	pageTempl := `
 ---
 title: "Page %d"
-date: "2019-06-0%d"
-lastMod: "2019-06-0%d"
+date: "2019-06-%02d"
+lastMod: "2019-06-%02d"
 categories: [%q]
 ---
 
@@ -55,7 +55,6 @@ draft: true
 title: "Hugo Home"
 cascade:
     description: "Common Description"
-
 ---
 
 Home Content.
@@ -64,24 +63,24 @@ Home Content.
 	b.WithContent("blog/page1.md", createPage(1))
 	b.WithContent("blog/page2.md", createPage(2))
 	b.WithContent("blog/page3.md", createPage(3))
-	b.WithContent("blog/bundle/index.md", createPage(12))
+	b.WithContent("blog/bundle/index.md", createPage(4))
 	b.WithContent("blog/bundle/data.json", "data")
-	b.WithContent("blog/bundle/page.md", createPage(99))
-	b.WithContent("blog/subsection/_index.md", createPage(3))
+	b.WithContent("blog/bundle/page.md", createPage(5))
+	b.WithContent("blog/subsection/_index.md", createPage(6))
 	b.WithContent("blog/subsection/subdata.json", "data")
-	b.WithContent("blog/subsection/page4.md", createPage(8))
-	b.WithContent("blog/subsection/page5.md", createPage(10))
+	b.WithContent("blog/subsection/page4.md", createPage(7))
+	b.WithContent("blog/subsection/page5.md", createPage(8))
 	b.WithContent("blog/subsection/draft/index.md", draftTemplate)
 	b.WithContent("blog/subsection/draft/data.json", "data")
 	b.WithContent("blog/draftsection/_index.md", draftTemplate)
-	b.WithContent("blog/draftsection/page/index.md", createPage(12))
+	b.WithContent("blog/draftsection/page/index.md", createPage(9))
 	b.WithContent("blog/draftsection/page/folder/data.json", "data")
-	b.WithContent("blog/draftsection/sub/_index.md", createPage(12))
-	b.WithContent("blog/draftsection/sub/page.md", createPage(13))
-	b.WithContent("docs/page6.md", createPage(11))
-	b.WithContent("tags/_index.md", createPageInCategory(32, "sad"))
-	b.WithContent("overlap/_index.md", createPageInCategory(33, "sad"))
-	b.WithContent("overlap2/_index.md", createPage(34))
+	b.WithContent("blog/draftsection/sub/_index.md", createPage(10))
+	b.WithContent("blog/draftsection/sub/page.md", createPage(11))
+	b.WithContent("docs/page6.md", createPage(12))
+	b.WithContent("tags/_index.md", createPageInCategory(13, "sad"))
+	b.WithContent("overlap/_index.md", createPageInCategory(14, "sad"))
+	b.WithContent("overlap2/_index.md", createPage(15))
 
 	b.WithTemplatesAdded("layouts/index.html", `
 Num Regular: {{ len .Site.RegularPages }}|{{ range .Site.RegularPages }}{{ .RelPermalink }}|{{ end }}$
@@ -118,7 +117,7 @@ Pages: {{ range $blog.Pages }}{{ .RelPermalink }}|{{ end }}
 Sections: {{ range $home.Sections }}{{ .RelPermalink }}|{{ end }}:END
 Categories: {{ range .Site.Taxonomies.categories }}{{ .Page.RelPermalink }}; {{ .Page.Title }}; {{ .Count }}|{{ end }}:END
 Category Terms:  {{ $categories.Kind}}: {{ range $categories.Data.Terms.Alphabetical }}{{ .Page.RelPermalink }}; {{ .Page.Title }}; {{ .Count }}|{{ end }}:END
-Category Funny:  {{ $funny.Kind}}; {{ $funny.Data.Term }}: {{ range $funny.Pages }}{{ .RelPermalink }};|{{ end }}:END
+Category Funny:  {{ $funny.Kind}}; {{ $funny.Data.Term }}: {{ range $funny.Pages }}{{ .RelPermalink }}|{{ end }}:END
 Pag Num Pages: {{ len .Paginator.Pages }}
 Pag Blog Num Pages: {{ len $blog.Paginator.Pages }}
 Blog Num RegularPages: {{ len $blog.RegularPages }}|{{ range $blog.RegularPages }}P: {{ .RelPermalink }}|{{ end }}
@@ -142,11 +141,11 @@ Draft5: {{ if (.Site.GetPage "blog/draftsection/sub/page") }}FOUND{{ end }}|
         Main Sections: [blog]
         Pag Num Pages: 9
 
-      Home: Hugo Home|/|2019-06-08|Current Section: /|Resources:
-        Blog Section: Blogs|/blog/|2019-06-08|Current Section: /blog|Resources:
-        Blog Sub Section: Page 3|/blog/subsection/|2019-06-03|Current Section: /blog/subsection|Resources: application: /blog/subsection/subdata.json|
+      Home: Hugo Home|/|2019-06-15|Current Section: /|Resources:
+        Blog Section: Blogs|/blog/|2019-06-11|Current Section: /blog|Resources:
+        Blog Sub Section: Page 6|/blog/subsection/|2019-06-06|Current Section: /blog/subsection|Resources: application: /blog/subsection/subdata.json|
         Page: Page 1|/blog/page1/|2019-06-01|Current Section: /blog|Resources:
-        Bundle: Page 12|/blog/bundle/|0001-01-01|Current Section: /blog|Resources: application: /blog/bundle/data.json|page: |
+        Bundle: Page 4|/blog/bundle/|2019-06-04|Current Section: /blog|Resources: application: /blog/bundle/data.json|page: |
         IsDescendant: true: true true: true true: true true: true true: true false: false false: false
         IsAncestor: true: true true: true true: true true: true true: true true: true false: false false: false false: false  false: false
         IsDescendant overlap1: false: false
@@ -157,11 +156,11 @@ Draft5: {{ if (.Site.GetPage "blog/draftsection/sub/page") }}FOUND{{ end }}|
         InSection: true: true false: false
         Next: /blog/page3/
         NextInSection: /blog/page3/
-        Pages: /blog/page3/|/blog/subsection/|/blog/page2/|/blog/page1/|/blog/bundle/|
-        Sections: /blog/|/docs/|/overlap/|/overlap2/|:END
+		Pages: /blog/subsection/|/blog/bundle/|/blog/page3/|/blog/page2/|/blog/page1/|
+		Sections: /overlap2/|/overlap/|/docs/|/blog/|:END
 		Categories: /categories/funny/; Funny; 12|/categories/sad/; Sad; 2|:END
         Category Terms:  taxonomy: /categories/funny/; Funny; 12|/categories/sad/; Sad; 2|:END
-		Category Funny:  term; funny: /blog/subsection/page4/;|/blog/page3/;|/blog/subsection/;|/blog/page2/;|/blog/page1/;|/blog/subsection/page5/;|/docs/page6/;|/blog/bundle/;|/blog/draftsection/page/;|/blog/draftsection/sub/;|/blog/draftsection/sub/page/;|/overlap2/;|:END
+		Category Funny:  term; funny: /overlap2/|/docs/page6/|/blog/draftsection/sub/page/|/blog/draftsection/sub/|/blog/draftsection/page/|/blog/subsection/page5/|/blog/subsection/page4/|/blog/subsection/|/blog/bundle/|/blog/page3/|/blog/page2/|/blog/page1/|:END
  		Pag Num Pages: 9
         Pag Blog Num Pages: 4
         Blog Num RegularPages: 4
