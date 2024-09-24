@@ -800,7 +800,7 @@ HUGO_NUMWORKERMULTIPLIER
 
 ## Configure with environment variables
 
-In addition to the 3 configuration options already mentioned, configuration key-values can be defined through operating system environment variables.
+Configuration key-values can be defined through operating system environment variables.
 
 For example, the following command will effectively set a website's title on Unix-like systems:
 
