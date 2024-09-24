@@ -45,9 +45,18 @@ import (
 )
 
 type Batcher interface {
-	UseScript(id string) BatcherScript
-	UseScriptGroup(id string) BatcherScriptMany
+	UseScriptGroup(id string) BatcherScriptGroup
 	Build() (*Package, error)
+}
+
+type BatcherScriptGroup interface {
+	BatcherScriptGroupOps
+	types.Closer
+}
+
+type BatcherScriptGroupOps interface {
+	CallbackGetSetter
+	UseScript(id string) BatcherScript
 }
 
 type BatcherScript interface {
@@ -60,24 +69,14 @@ type BatcherScriptOps interface {
 	AddInstance(id string, opts any) string
 }
 
-type BatcherScriptMany interface {
-	BatcherScriptManyOps
-	types.Closer
-}
-
-type BatcherScriptManyOps interface {
-	CallbackGetSetter
-	UseScript(id string) BatcherScript
+type ResourceGetSetter interface {
+	GetResource() resource.Resource
+	SetResource(r resource.Resource) string
 }
 
 type CallbackGetSetter interface {
 	GetCallback() resource.Resource
 	SetCallback(r resource.Resource) string
-}
-
-type ResourceGetSetter interface {
-	GetResource() resource.Resource
-	SetResource(r resource.Resource) string
 }
 
 func (ns *Namespace) Batch(id string, store *maps.Scratch) (Batcher, error) {
@@ -122,7 +121,7 @@ func (b *batcher) UseScript(id string) BatcherScript {
 	}
 }
 
-func (b *batcher) UseScriptGroup(id string) BatcherScriptMany {
+func (b *batcher) UseScriptGroup(id string) BatcherScriptGroup {
 	b.mu.Lock()
 
 	many, found := b.scriptManys[id]
@@ -139,7 +138,7 @@ func (b *batcher) UseScriptGroup(id string) BatcherScriptMany {
 	var closeOnce sync.Once
 
 	return struct {
-		BatcherScriptManyOps
+		BatcherScriptGroupOps
 		types.Closer
 	}{
 		many,
@@ -159,9 +158,9 @@ func (c close) Close() error {
 }
 
 var (
-	_ Batcher              = (*batcher)(nil)
-	_ BatcherScriptOps     = (*scriptOne)(nil)
-	_ BatcherScriptManyOps = (*scriptMany)(nil)
+	_ Batcher               = (*batcher)(nil)
+	_ BatcherScriptOps      = (*scriptOne)(nil)
+	_ BatcherScriptGroupOps = (*scriptMany)(nil)
 )
 
 func (b *scriptOne) AddInstance(id string, opts any) string {
@@ -601,12 +600,17 @@ func (b *batcher) build() (*Package, error) {
 			AllowOverwrite: true,
 			Splitting:      true,
 			ImportOnResolveFunc: func(imp string) string {
+				fmt.Println("ImportOnResolveFunc", imp) // TODO1
+				for k, v := range importResource {
+					fmt.Println("   ", k, v.RelPermalink())
+				}
 				if _, found := importResource[imp]; found {
 					return imp
 				}
 				return ""
 			},
 			ImportOnLoadFunc: func(imp string) string {
+				fmt.Println("ImportOnLoadFunc", imp) // TODO1
 				if r, found := importResource[imp]; found {
 					content, err := r.(resource.ContentProvider).Content(context.Background()) // TODO1
 					if err != nil {

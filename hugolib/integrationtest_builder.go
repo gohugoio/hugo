@@ -81,6 +81,13 @@ func TestOptWithNFDOnDarwin() TestOpt {
 	}
 }
 
+// TestOptWithOSFs enables the real file system.
+func TestOptWithOSFs() TestOpt {
+	return func(c *IntegrationTestConfig) {
+		c.NeedsOsFS = true
+	}
+}
+
 // TestOptWithWorkingDir allows setting any config optiona as a function al option.
 func TestOptWithConfig(fn func(c *IntegrationTestConfig)) TestOpt {
 	return func(c *IntegrationTestConfig) {

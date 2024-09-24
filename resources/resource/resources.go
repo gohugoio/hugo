@@ -29,6 +29,11 @@ var _ ResourceFinder = (*Resources)(nil)
 // I.e. both pages and images etc.
 type Resources []Resource
 
+type ResourcesProvider interface {
+	// Resources returns a list of all resources.
+	Resources() Resources
+}
+
 // var _ resource.ResourceFinder = (*Namespace)(nil)
 // ResourcesConverter converts a given slice of Resource objects to Resources.
 type ResourcesConverter interface {
@@ -197,14 +202,18 @@ type Source interface {
 	Publish() error
 }
 
-// ResourceFinder provides methods to find Resources.
-// Note that GetRemote (as found in resources.GetRemote) is
-// not covered by this interface, as this is only available as a global template function.
-type ResourceFinder interface {
+type ResourceGetter interface {
 	// Get locates the Resource with the given name in the current context (e.g. in .Page.Resources).
 	//
 	// It returns nil if no Resource could found, panics if name is invalid.
 	Get(name any) Resource
+}
+
+// ResourceFinder provides methods to find Resources.
+// Note that GetRemote (as found in resources.GetRemote) is
+// not covered by this interface, as this is only available as a global template function.
+type ResourceFinder interface {
+	ResourceGetter
 
 	// GetMatch finds the first Resource matching the given pattern, or nil if none found.
 	//
@@ -234,4 +243,43 @@ type ResourceFinder interface {
 	// ByType returns resources of a given resource type (e.g. "image").
 	// It returns nil if no Resources could found, panics if typ is invalid.
 	ByType(typ any) Resources
+}
+
+// NewResourceGetter creates a new ResourceGetter from the given objects.
+// If multiple objects are provided, they are merged into one where
+// the first match wins.
+func NewResourceGetter(os ...any) ResourceGetter {
+	var getters multiResourceGetter
+	for _, o := range os {
+		if g, ok := unwrapResourceGetter(o); ok {
+			getters = append(getters, g)
+		}
+	}
+	return getters
+}
+
+type multiResourceGetter []ResourceGetter
+
+func (m multiResourceGetter) Get(name any) Resource {
+	for _, g := range m {
+		if res := g.Get(name); res != nil {
+			return res
+		}
+	}
+	return nil
+}
+
+func unwrapResourceGetter(v any) (ResourceGetter, bool) {
+	if v == nil {
+		return nil, false
+	}
+	if g, ok := v.(ResourceGetter); ok {
+		return g, ok
+	}
+
+	if rp, ok := v.(ResourcesProvider); ok {
+		return rp.Resources(), ok
+	}
+
+	return nil, false
 }

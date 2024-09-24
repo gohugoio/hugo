@@ -97,18 +97,6 @@ console.log('main2.React', React)
 -- layouts/index.html --
 Home.
 {{ $bundle := (js.Batch "mybundle" .Store) }}
-{{ with $bundle.UseScript "main1" }}
-	{{ if not .GetResource }}
-		{{ .SetResource (resources.Get "js/main1.js") }}
-	{{ end }}
-	{{ .AddInstance "foo" (dict "title" "Main1 Instance") }}
-{{ end }}
- {{ with $bundle.UseScript "main2" }}
-	{{ if not .GetResource }}
-		{{ .SetResource (resources.Get "js/main2.js") }}
-	{{ end }}
-	{{ .AddInstance "foo" (dict "title" "Main2 Instance") }}
-{{ end }}
 {{ with $bundle.UseScriptGroup "reactbatch" }}
  	{{ if not .GetCallback }}
 		{{ .SetCallback (resources.Get "js/reactcallback.js") }}
@@ -153,4 +141,42 @@ Home.
 	`)
 }
 
-// TODO1 make instance into a map with params as only key (for now)
+func TestEsBuildResolvePageBundle(t *testing.T) {
+	files := `
+-- hugo.toml --
+-- content/mybundle/index.md --
+---
+title: "My Bundle"
+---
+-- content/mybundle/mystyles.css --
+button {
+	background-color: red;
+}
+-- content/mybundle/myscript.js --
+import "./mystyles.css";
+console.log('Hello, world!');
+-- layouts/_default/single.html --
+Single.
+{{ $bundle := (js.Batch "mybundle" .Store) }}
+{{ $js := .Resources.GetMatch "*.js" }}
+{{ with $bundle.UseScriptGroup "g1" }}
+	{{ with .UseScript "s1" }}
+	 	{{ if not .GetResource }}
+		  {{ .SetResource $js }}
+		{{ end }}
+	{{ end }}
+{{ end }}
+{{ range $bundle.Build.Groups }}
+ {{ range $i, $e := . }}
+	{{ $i }}: {{ $e.RelPermalink }}|
+ {{ end }}
+{{ end }}
+
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptWithOSFs())
+
+	b.AssertFileContent("public/mybundle/index.html", `asdf`)
+}
+
+// TODO1  executing "_default/single.html" at <$bundle.Build.Groups>: error calling Build: Could not resolve "./mystyles.css"` error file source.
