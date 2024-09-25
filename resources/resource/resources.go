@@ -16,6 +16,7 @@ package resource
 
 import (
 	"fmt"
+	"path"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/paths"
@@ -28,6 +29,50 @@ var _ ResourceFinder = (*Resources)(nil)
 // Resources represents a slice of resources, which can be a mix of different types.
 // I.e. both pages and images etc.
 type Resources []Resource
+
+// TODO1
+func (r Resources) Mount(basev any) ResourceGetter {
+	base, err := cast.ToStringE(basev)
+	if err != nil {
+		panic(err)
+	}
+	if base == "." || base == "./" {
+		base = ""
+	}
+
+	if base != "" {
+		base = paths.AddLeadingSlash(base)
+	}
+
+	return resourceGetterFunc(func(namev any) Resource {
+		name, err := cast.ToStringE(namev)
+		if err != nil {
+			panic(err)
+		}
+
+		if !strings.HasPrefix(name, "./") {
+			name = paths.AddLeadingSlash(name)
+		}
+
+		name = strings.TrimPrefix(name, base)
+
+		for _, resource := range r {
+			rname := path.Base(resource.Name())
+			if !strings.HasPrefix(rname, ".") {
+				rname = paths.AddLeadingSlash(rname)
+			}
+			if strings.HasSuffix(name, ".css") {
+				fmt.Println(rname, "vs", name)
+			}
+			if strings.EqualFold(name, rname) {
+				fmt.Println("found", rname)
+				return resource
+			}
+		}
+
+		return nil
+	})
+}
 
 type ResourcesProvider interface {
 	// Resources returns a list of all resources.
@@ -68,13 +113,25 @@ func (r Resources) Get(name any) Resource {
 		panic(err)
 	}
 
-	namestr = paths.AddLeadingSlash(namestr)
+	isDotCurrent := strings.HasPrefix(namestr, "./")
+	if isDotCurrent {
+		namestr = strings.TrimPrefix(namestr, "./")
+	} else {
+		namestr = paths.AddLeadingSlash(namestr)
+	}
+
+	check := func(name string) bool {
+		if !isDotCurrent {
+			name = paths.AddLeadingSlash(name)
+		}
+		return strings.EqualFold(namestr, name)
+	}
 
 	// First check the Name.
 	// Note that this can be modified by the user in the front matter,
 	// also, it does not contain any language code.
 	for _, resource := range r {
-		if strings.EqualFold(namestr, paths.AddLeadingSlash(resource.Name())) {
+		if check(resource.Name()) {
 			return resource
 		}
 	}
@@ -82,7 +139,7 @@ func (r Resources) Get(name any) Resource {
 	// Finally, check the normalized name.
 	for _, resource := range r {
 		if nop, ok := resource.(NameNormalizedProvider); ok {
-			if strings.EqualFold(namestr, paths.AddLeadingSlash(nop.NameNormalized())) {
+			if check(nop.NameNormalized()) {
 				return resource
 			}
 		}
@@ -209,6 +266,12 @@ type ResourceGetter interface {
 	Get(name any) Resource
 }
 
+type resourceGetterFunc func(name any) Resource
+
+func (f resourceGetterFunc) Get(name any) Resource {
+	return f(name)
+}
+
 // ResourceFinder provides methods to find Resources.
 // Note that GetRemote (as found in resources.GetRemote) is
 // not covered by this interface, as this is only available as a global template function.
@@ -255,6 +318,7 @@ func NewResourceGetter(os ...any) ResourceGetter {
 			getters = append(getters, g)
 		}
 	}
+	// TODO1 slice of any etc. + tests.
 	return getters
 }
 

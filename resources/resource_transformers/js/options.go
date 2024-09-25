@@ -71,8 +71,8 @@ type InternalOptions struct {
 	Splitting           bool
 	TsConfig            string
 	EntryPoints         []string
-	ImportOnResolveFunc func(string) string
-	ImportOnLoadFunc    func(string) string
+	ImportOnResolveFunc func(string, api.OnResolveArgs) string
+	ImportOnLoadFunc    func(api.OnLoadArgs) string
 	Stdin               bool
 }
 
@@ -255,7 +255,7 @@ func createBuildPlugins(c *Client, depsManager identity.Manager, opts Options) (
 		}
 
 		if opts.ImportOnResolveFunc != nil {
-			if s := opts.ImportOnResolveFunc(impPath); s != "" {
+			if s := opts.ImportOnResolveFunc(impPath, args); s != "" {
 				return api.OnResolveResult{Path: s, Namespace: nsImportHugo}, nil
 			}
 		}
@@ -327,7 +327,7 @@ func createBuildPlugins(c *Client, depsManager identity.Manager, opts Options) (
 				func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 					var c string
 					if opts.ImportOnLoadFunc != nil {
-						if s := opts.ImportOnLoadFunc(args.Path); s != "" {
+						if s := opts.ImportOnLoadFunc(args); s != "" {
 							c = s
 						}
 					}

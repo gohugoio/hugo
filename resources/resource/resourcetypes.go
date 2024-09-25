@@ -108,6 +108,7 @@ type MediaTypeProvider interface {
 	MediaType() media.Type
 }
 
+// TODO1 consider removing.s
 type PathProvider interface {
 	// Path is the relative path to this resource.
 	// In most cases this will be the same as the RelPermalink(),
