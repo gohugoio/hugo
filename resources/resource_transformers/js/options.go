@@ -435,7 +435,7 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 	if opts.Loaders != nil {
 		loaders = make(map[string]api.Loader)
 		for k, v := range opts.Loaders {
-			// use the same stings as the esbuild cli.
+			// Use the same strings as the esbuild cli.
 			// See https://github.com/evanw/esbuild/blob/d34e79e2a998c21bb71d57b92b0017ca11756912/internal/config/config.go#L208
 			switch strings.ToLower(v) {
 			case "none":
