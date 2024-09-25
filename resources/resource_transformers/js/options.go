@@ -94,6 +94,14 @@ type Options struct {
 	// See https://esbuild.github.io/api/#jsx-import-source
 	JSXImportSource string
 
+	// Configuring a loader for a given file type lets you load that file type with an
+	// import statement or a require call. For example, configuring the .png file extension
+	// to use the data URL loader means importing a .png file gives you a data URL
+	// containing the contents of that image
+	//
+	// See https://esbuild.github.io/api/#loader
+	Loaders map[string]string
+
 	// There is/was a bug in WebKit with severe performance issue with the tracking
 	// of TDZ checks in JavaScriptCore.
 	//
@@ -423,6 +431,53 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 		return
 	}
 
+	var loaders map[string]api.Loader
+	if opts.Loaders != nil {
+		loaders = make(map[string]api.Loader)
+		for k, v := range opts.Loaders {
+			// use the same stings as the esbuild cli.
+			// See https://github.com/evanw/esbuild/blob/d34e79e2a998c21bb71d57b92b0017ca11756912/internal/config/config.go#L208
+			switch strings.ToLower(v) {
+			case "none":
+				loaders[k] = api.LoaderNone
+			case "base64":
+				loaders[k] = api.LoaderBase64
+			case "binary":
+				loaders[k] = api.LoaderBinary
+			case "copy":
+				loaders[k] = api.LoaderFile
+			case "css":
+				loaders[k] = api.LoaderCSS
+			case "dataurl":
+				loaders[k] = api.LoaderDataURL
+			case "default":
+				loaders[k] = api.LoaderDefault
+			case "empty":
+				loaders[k] = api.LoaderEmpty
+			case "file":
+				loaders[k] = api.LoaderFile
+			case "global-css":
+				loaders[k] = api.LoaderGlobalCSS
+			case "js":
+				loaders[k] = api.LoaderJS
+			case "json":
+				loaders[k] = api.LoaderJSON
+			case "jsx":
+				loaders[k] = api.LoaderJSX
+			case "local-css":
+				loaders[k] = api.LoaderLocalCSS
+			case "text":
+				loaders[k] = api.LoaderText
+			case "ts":
+				loaders[k] = api.LoaderTS
+			case "tsx":
+				loaders[k] = api.LoaderTSX
+			default:
+				err = fmt.Errorf("unsupported loader type: %q", v)
+			}
+		}
+	}
+
 	buildOptions = api.BuildOptions{
 		Outfile: outFile,
 		Bundle:  true,
@@ -447,6 +502,8 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 		JSXImportSource: opts.JSXImportSource,
 
 		Tsconfig: opts.tsConfig,
+
+		Loader: loaders,
 
 		// Note: We're not passing Sourcefile to ESBuild.
 		// This makes ESBuild pass `stdin` as the Importer to the import
