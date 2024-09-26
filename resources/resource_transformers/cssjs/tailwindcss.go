@@ -16,6 +16,7 @@ package cssjs
 import (
 	"bytes"
 	"io"
+	"os"
 	"regexp"
 	"strings"
 
@@ -115,12 +116,11 @@ func (t *tailwindcssTransformation) Transform(ctx *resources.ResourceTransformat
 		return err
 	}
 
-	stdin, err := cmd.StdinPipe()
+	// See https://github.com/gohugoio/hugo/issues/12880
+	/*stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return err
-	}
-
-	src := ctx.From
+	}*/
 
 	imp := newImportResolver(
 		ctx.From,
@@ -129,15 +129,29 @@ func (t *tailwindcssTransformation) Transform(ctx *resources.ResourceTransformat
 		t.rs.Assets.Fs, t.rs.Logger, ctx.DependencyManager,
 	)
 
-	src, err = imp.resolve()
+	src, err := imp.resolve()
 	if err != nil {
 		return err
 	}
 
-	go func() {
+	tmpFile, err := os.CreateTemp("", "hugo-tailwindcss-*")
+	if err != nil {
+		return err
+	}
+	defer func() {
+		tmpFile.Close()
+		os.Remove(tmpFile.Name())
+	}()
+
+	_, err = io.Copy(tmpFile, src)
+	if err != nil {
+		return err
+	}
+
+	/*go func() {
 		defer stdin.Close()
 		io.Copy(stdin, src)
-	}()
+	}()*/
 
 	err = cmd.Run()
 	if err != nil {

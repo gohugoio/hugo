@@ -36,8 +36,8 @@ func TestTailwindV4Basic(t *testing.T) {
     "url": "https://github.com/bep/hugo-starter-tailwind-basic.git"
   },
   "devDependencies": {
-    "@tailwindcss/cli": "^4.0.0-alpha.16",
-    "tailwindcss": "^4.0.0-alpha.16"
+    "@tailwindcss/cli": "^4.0.0-alpha.25",
+    "tailwindcss": "^4.0.0-alpha.25"
   },
   "name": "hugo-starter-tailwind-basic",
   "version": "0.1.0"

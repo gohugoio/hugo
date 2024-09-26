@@ -1,3 +1,4 @@
 
 *.test
 imports.*
+debug.log
