@@ -31,42 +31,49 @@ var _ ResourceFinder = (*Resources)(nil)
 type Resources []Resource
 
 // TODO1
-func (r Resources) Mount(basev any) ResourceGetter {
-	base, err := cast.ToStringE(basev)
-	if err != nil {
-		panic(err)
-	}
-	if base == "." || base == "./" {
-		base = ""
-	}
-
-	if base != "" {
-		base = paths.AddLeadingSlash(base)
-	}
-
+// TODO1 move to a func + template func. Maybe.
+func (r Resources) Mount(from, to string) ResourceGetter {
 	return resourceGetterFunc(func(namev any) Resource {
-		name, err := cast.ToStringE(namev)
+		name1, err := cast.ToStringE(namev)
 		if err != nil {
 			panic(err)
 		}
 
-		if !strings.HasPrefix(name, "./") {
-			name = paths.AddLeadingSlash(name)
+		if from == "" {
+			from = "/"
 		}
 
-		name = strings.TrimPrefix(name, base)
+		nameOrig := name1
 
-		for _, resource := range r {
-			rname := path.Base(resource.Name())
-			if !strings.HasPrefix(rname, ".") {
-				rname = paths.AddLeadingSlash(rname)
+		isName1Abs := strings.HasPrefix(name1, "/")
+
+		if !isName1Abs {
+			name1 = path.Join(to, strings.TrimPrefix(name1, from))
+		}
+
+		fmt.Println("nameOrig", nameOrig, "name1", name1, "from", from, "to", to)
+		// nameOrig b/c.txt name1 /a/b/c.txt from / to /a
+
+		for _, res := range r {
+			// TODO1 normalized.
+			name2 := res.Name()
+
+			fmt.Println("1", "name2", name2, "vs", name1, isName1Abs, to)
+
+			if from != "/" {
+				name2 = strings.TrimPrefix(name2, from)
+			} else if !isName1Abs {
+				// name2 = path.Base(name2)
 			}
-			if strings.HasSuffix(name, ".css") {
-				fmt.Println(rname, "vs", name)
+
+			if !isName1Abs {
+				// name2 = path.Join(to, name2)
 			}
-			if strings.EqualFold(name, rname) {
-				fmt.Println("found", rname)
-				return resource
+
+			fmt.Println("2", "name2", name2, "vs", name1, isName1Abs)
+
+			if strings.EqualFold(name2, name1) {
+				return res
 			}
 		}
 

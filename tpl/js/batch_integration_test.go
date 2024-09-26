@@ -237,6 +237,7 @@ Text 1.
 resources:text/txt1.txt:{{ with resources.Get "text/txt1.txt" }}{{ .Name }}{{ end }}|
 resources:text/txt2.txt:{{ with resources.Get "text/txt2.txt" }}{{ .Name }}{{ end }}|
 resources:text/sub/txt3.txt:{{ with resources.Get "text/sub/txt3.txt" }}{{ .Name }}{{ end }}|
+subResources.range:{{ range $subResources }}{{ .Name }}|{{ end }}|
 subResources:"text/sub/txt3.txt:{{ with $subResources.Get "text/sub/txt3.txt" }}{{ .Name }}{{ end }}|
 subResourcesMount:newroot/txt3.txt:{{ with $subResourcesMount.Get "newroot/txt3.txt" }}{{ .Name }}{{ end }}|
 page:txt1.txt:{{ with $mybundle.Resources.Get "txt1.txt" }}{{ .Name }}{{ end }}|
@@ -246,6 +247,7 @@ page:sub/txt2.txt:{{ with $mybundle.Resources.Get "sub/txt2.txt" }}{{ .Name }}{{
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
+	asdf
 resources:text/txt1.txt:/text/txt1.txt|
 resources:text/txt2.txt:/text/txt2.txt|
 resources:text/sub/txt3.txt:/text/sub/txt3.txt|
