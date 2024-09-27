@@ -19,5 +19,5 @@ var CurrentVersion = Version{
 	Major:      0,
 	Minor:      135,
 	PatchLevel: 0,
-	Suffix:     "-DEV",
+	Suffix:     "",
 }
