@@ -34,6 +34,8 @@ To use this function you must install the Tailwind CSS CLI v4.0 or later. You ma
 Use npm to install the CLI prior to the v4.0 release of Tailwind CSS.
 
 `npm install --save-dev tailwindcss@next @tailwindcss/cli@next`
+
+**Note:** The TailwindCSS v4 alpha 25 is broken and should not be used, see https://github.com/tailwindlabs/tailwindcss/issues/14521. This will be fixed in the next alpha release.
 {{% /note %}}
 
 ## Options
