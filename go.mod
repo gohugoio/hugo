@@ -76,7 +76,7 @@ require (
 	gocloud.dev v0.39.0
 	golang.org/x/exp v0.0.0-20221031165847-c99f073a8326
 	golang.org/x/image v0.20.0
-	golang.org/x/mod v0.19.0
+	golang.org/x/mod v0.21.0
 	golang.org/x/net v0.29.0
 	golang.org/x/sync v0.8.0
 	golang.org/x/text v0.18.0
