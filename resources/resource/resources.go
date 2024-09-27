@@ -32,49 +32,40 @@ type Resources []Resource
 
 // TODO1
 // TODO1 move to a func + template func. Maybe.
-func (r Resources) Mount(from, to string) ResourceGetter {
+func (r Resources) Mount(base, target string) ResourceGetter {
 	return resourceGetterFunc(func(namev any) Resource {
 		name1, err := cast.ToStringE(namev)
 		if err != nil {
 			panic(err)
 		}
 
-		if from == "" {
-			from = "/"
+		isTargetAbs := strings.HasPrefix(target, "/")
+
+		if target != "" {
+			name1 = strings.TrimPrefix(name1, target)
+			if !isTargetAbs {
+				name1 = paths.TrimLeading(name1)
+			}
 		}
 
-		nameOrig := name1
-
-		isName1Abs := strings.HasPrefix(name1, "/")
-
-		if !isName1Abs {
-			name1 = path.Join(to, strings.TrimPrefix(name1, from))
+		if base != "" && isTargetAbs {
+			name1 = path.Join(base, name1)
 		}
-
-		fmt.Println("nameOrig", nameOrig, "name1", name1, "from", from, "to", to)
-		// nameOrig b/c.txt name1 /a/b/c.txt from / to /a
 
 		for _, res := range r {
-			// TODO1 normalized.
 			name2 := res.Name()
 
-			fmt.Println("1", "name2", name2, "vs", name1, isName1Abs, to)
-
-			if from != "/" {
-				name2 = strings.TrimPrefix(name2, from)
-			} else if !isName1Abs {
-				// name2 = path.Base(name2)
+			if base != "" && !isTargetAbs {
+				name2 = paths.TrimLeading(strings.TrimPrefix(name2, base))
 			}
 
-			if !isName1Abs {
-				// name2 = path.Join(to, name2)
-			}
+			// TODO1 remove.
+			// fmt.Println("name1", name1, "name2", name2, "base", base)
 
-			fmt.Println("2", "name2", name2, "vs", name1, isName1Abs)
-
-			if strings.EqualFold(name2, name1) {
+			if strings.EqualFold(name1, name2) {
 				return res
 			}
+
 		}
 
 		return nil

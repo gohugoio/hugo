@@ -541,10 +541,6 @@ func (b *batcher) build() (*Package, error) {
 			AllowOverwrite: true,
 			Splitting:      true,
 			ImportOnResolveFunc: func(imp string, args api.OnResolveArgs) string {
-				dodebug := strings.Contains(imp, ".css")
-				if dodebug {
-					fmt.Println("ImportOnResolveFunc", args.Importer, "=>", imp)
-				}
 				if _, found := importResource[imp]; found {
 					return imp
 				}

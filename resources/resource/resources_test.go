@@ -23,12 +23,8 @@ func TestResourcesMount(t *testing.T) {
 	c := qt.New(t)
 	c.Assert(true, qt.IsTrue)
 
-	r := Resources{
-		testResource{name: "/a/b/c.txt"},
-		// testResource{name: "/a/b/d.txt"},
-	}
-
 	var m ResourceGetter
+	var r Resources
 
 	check := func(in, expect string) {
 		c.Helper()
@@ -37,36 +33,82 @@ func TestResourcesMount(t *testing.T) {
 		c.Assert(r.Name(), qt.Equals, expect)
 	}
 
-	m = r.Mount("", "/b")
-
-	check("/b/c.txt", "/a/b/c.txt")
-	c.Assert(m.Get("b/c.txt"), qt.IsNil)
-
-	if true {
-		return
+	checkNil := func(in string) {
+		c.Helper()
+		r := m.Get(in)
+		c.Assert(r, qt.IsNil)
 	}
 
-	m = r.Mount("", "/a")
+	// Misc tests.
+	r = Resources{
+		testResource{name: "/foo/theme.css"},
+	}
 
-	check("b/c.txt", "/a/b/c.txt")
-	check("/a/b/c.txt", "/a/b/c.txt")
+	m = r.Mount("/foo", ".")
+	check("./theme.css", "/foo/theme.css")
 
-	m = r.Mount("/", "/a/b")
-	c.Assert(m.Get("c.txt").Name(), qt.Equals, "/a/b/c.txt")
-	c.Assert(m.Get("./c.txt").Name(), qt.Equals, "/a/b/c.txt")
-	c.Assert(m.Get("../b/c.txt").Name(), qt.Equals, "/a/b/c.txt")
-	c.Assert(m.Get("../b/d.txt").Name(), qt.Equals, "/a/b/d.txt")
-	c.Assert(m.Get("../b/e.txt"), qt.IsNil)
+	// Relative target.
+	r = Resources{
+		testResource{name: "/a/b/c/d.txt"},
+		testResource{name: "/a/b/c/e/f.txt"},
+		testResource{name: "/a/b/d.txt"},
+		testResource{name: "/a/b/e.txt"},
+	}
 
-	m = r.Mount("/a", "/e")
-	c.Assert(m.Get("/e/b/c.txt").Name(), qt.Equals, "/a/b/c.txt")
+	// namvev ./theme.css base /js/hugoheadlessui/components target . name /js/hugoheadlessui/components/theme.css name1 theme.css name2 .
 
-	m = r.Mount("/", "/a/b/")
-	c.Assert(m.Get("c.txt").Name(), qt.Equals, "/a/b/c.txt")
-	c.Assert(m.Get("./c.txt").Name(), qt.Equals, "/a/b/c.txt")
-	c.Assert(m.Get("../b/c.txt").Name(), qt.Equals, "/a/b/c.txt")
-	c.Assert(m.Get("../b/d.txt").Name(), qt.Equals, "/a/b/d.txt")
-	c.Assert(m.Get("../b/e.txt"), qt.IsNil)
+	m = r.Mount("/a/b/c", "z")
+	check("z/d.txt", "/a/b/c/d.txt")
+	// check("./z/d.txt", "/a/b/c/d.txt")
+	check("z/e/f.txt", "/a/b/c/e/f.txt")
+
+	m = r.Mount("/a/b", "")
+	check("d.txt", "/a/b/d.txt")
+	m = r.Mount("/a/b", ".")
+	check("d.txt", "/a/b/d.txt")
+	m = r.Mount("/a/b", "./")
+	check("d.txt", "/a/b/d.txt")
+	check("./d.txt", "/a/b/d.txt")
+
+	m = r.Mount("/a/b", ".")
+	check("./d.txt", "/a/b/d.txt")
+
+	// Absolute target.
+	m = r.Mount("/a/b/c", "/z")
+	check("/z/d.txt", "/a/b/c/d.txt")
+	check("/z/e/f.txt", "/a/b/c/e/f.txt")
+	checkNil("/z/f.txt")
+
+	m = r.Mount("/a/b", "/z")
+	check("/z/c/d.txt", "/a/b/c/d.txt")
+	check("/z/c/e/f.txt", "/a/b/c/e/f.txt")
+	check("/z/d.txt", "/a/b/d.txt")
+	checkNil("/z/f.txt")
+
+	m = r.Mount("", "")
+	check("/a/b/c/d.txt", "/a/b/c/d.txt")
+	check("/a/b/c/e/f.txt", "/a/b/c/e/f.txt")
+	check("/a/b/d.txt", "/a/b/d.txt")
+	checkNil("/a/b/f.txt")
+
+	m = r.Mount("/a/b", "/a/b")
+	check("/a/b/c/d.txt", "/a/b/c/d.txt")
+	check("/a/b/c/e/f.txt", "/a/b/c/e/f.txt")
+	check("/a/b/d.txt", "/a/b/d.txt")
+	checkNil("/a/b/f.txt")
+
+	// Resources with relative paths.
+	r = Resources{
+		testResource{name: "a/b/c/d.txt"},
+		testResource{name: "a/b/c/e/f.txt"},
+		testResource{name: "a/b/d.txt"},
+		testResource{name: "a/b/e.txt"},
+		testResource{name: "n.txt"},
+	}
+
+	m = r.Mount("a/b", "z")
+	check("z/d.txt", "a/b/d.txt")
+	checkNil("/z/d.txt")
 }
 
 type testResource struct {
