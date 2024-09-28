@@ -107,10 +107,13 @@ func TestSmoke(t *testing.T) {
 baseURL = "https://example.com"
 title = "Smoke Site"
 rssLimit = 3
-paginate = 1
 defaultContentLanguage = "en"
 defaultContentLanguageInSubdir = true
 enableRobotsTXT = true
+
+[pagination]
+pagerSize = 1
+
 [taxonomies]
 category = 'categories'
 tag = 'tags'
@@ -434,10 +437,10 @@ func TestDataRace(t *testing.T) {
 ---
 title: "The Page"
 outputs: ["HTML", "JSON"]
----	
+---
 
 The content.
-	
+
 
 	`
 
@@ -450,10 +453,10 @@ The content.
 ---
 title: "The Home"
 outputs: ["HTML", "JSON", "CSV", "RSS"]
----	
+---
 
 The content.
-	
+
 
 `)
 

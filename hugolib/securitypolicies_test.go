@@ -123,7 +123,7 @@ func TestSecurityPolicies(t *testing.T) {
 			c.Skip()
 		}
 		cb := func(b *sitesBuilder) {
-			b.WithTemplatesAdded("index.html", `{{ $scss := "body { color: #333; }" | resources.FromString "foo.scss"  | resources.ToCSS (dict "transpiler" "dartsass") }}`)
+			b.WithTemplatesAdded("index.html", `{{ $scss := "body { color: #333; }" | resources.FromString "foo.scss"  | css.Sass (dict "transpiler" "dartsass") }}`)
 		}
 		testVariant(c, cb, "")
 	})
@@ -137,10 +137,10 @@ func TestSecurityPolicies(t *testing.T) {
 			b.WithConfigFile("toml", `
 [security]
 [security.exec]
-allow="none"	
-		
+allow="none"
+
 			`)
-			b.WithTemplatesAdded("index.html", `{{ $scss := "body { color: #333; }" | resources.FromString "foo.scss"  | resources.ToCSS (dict "transpiler" "dartsass") }}`)
+			b.WithTemplatesAdded("index.html", `{{ $scss := "body { color: #333; }" | resources.FromString "foo.scss"  | css.Sass (dict "transpiler" "dartsass") }}`)
 		}
 		testVariant(c, cb, `(?s).*sass(-embedded)?" is not whitelisted in policy "security\.exec\.allow".*`)
 	})
@@ -160,7 +160,7 @@ allow="none"
 		httpTestVariant(c, `{{ $json := resources.GetRemote "%[1]s/fruits.json" }}{{ $json.Content }}`, `(?s).*is not whitelisted in policy "security\.http\.urls".*`,
 			func(b *sitesBuilder) {
 				b.WithConfigFile("toml", `
-[security]		
+[security]
 [security.http]
 urls="none"
 `)
@@ -181,7 +181,7 @@ urls="none"
 		httpTestVariant(c, `{{ $json := resources.GetRemote "%[1]s/fakejson.json" }}{{ $json.Content }}`, ``,
 			func(b *sitesBuilder) {
 				b.WithConfigFile("toml", `
-[security]		
+[security]
 [security.http]
 mediaTypes=["application/json"]
 
