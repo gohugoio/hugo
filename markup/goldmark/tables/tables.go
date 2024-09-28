@@ -129,7 +129,7 @@ func (r *htmlRenderer) renderCell(w util.BufWriter, source []byte, node ast.Node
 	case gast.AlignCenter:
 		alignment = "center"
 	default:
-		alignment = "left"
+		alignment = ""
 	}
 
 	cell := hooks.TableCell{Text: hstring.HTML(text), Alignment: alignment}
