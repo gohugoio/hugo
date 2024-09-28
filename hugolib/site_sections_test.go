@@ -115,7 +115,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 {{ $sections := (.Site.GetPage "section" .Section).Sections.ByWeight }}
 </html>`)
 
-	cfg.Set("paginate", 2)
+	cfg.Set("pagination.pagerSize", 2)
 
 	th, configs := newTestHelperFromProvider(cfg, fs, t)
 

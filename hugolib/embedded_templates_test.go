@@ -100,7 +100,7 @@ func TestEmbeddedPaginationTemplate(t *testing.T) {
 
 	test := func(variant string, expectedOutput string) {
 		b := newTestSitesBuilder(t)
-		b.WithConfigFile("toml", `paginate = 1`)
+		b.WithConfigFile("toml", `pagination.pagerSize = 1`)
 		b.WithContent(
 			"s1/p01.md", "---\ntitle: p01\n---",
 			"s1/p02.md", "---\ntitle: p02\n---",

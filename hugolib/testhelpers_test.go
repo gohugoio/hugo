@@ -292,10 +292,12 @@ func (s *sitesBuilder) WithDefaultMultiSiteConfig() *sitesBuilder {
 	defaultMultiSiteConfig := `
 baseURL = "http://example.com/blog"
 
-paginate = 1
 disablePathToLower = true
 defaultContentLanguage = "en"
 defaultContentLanguageInSubdir = true
+
+[pagination]
+pagerSize = 1
 
 [permalinks]
 other = "/somewhere/else/:filename"
@@ -324,7 +326,8 @@ plaque = "plaques"
 weight = 30
 title = "På nynorsk"
 languageName = "Nynorsk"
-paginatePath = "side"
+[Languages.nn.pagination]
+path = "side"
 [Languages.nn.Taxonomies]
 lag = "lag"
 [[Languages.nn.menu.main]]
@@ -336,7 +339,8 @@ weight = 1
 weight = 40
 title = "På bokmål"
 languageName = "Bokmål"
-paginatePath = "side"
+[Languages.nb.pagination]
+path = "side"
 [Languages.nb.Taxonomies]
 lag = "lag"
 ` + commonConfigSections

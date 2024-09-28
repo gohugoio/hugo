@@ -396,7 +396,7 @@ h3 {
 
 
 {{ range $stylesheets }}
-  {{ with . | resources.ToCSS | fingerprint }}
+  {{ with . | css.Sass | fingerprint }}
     <link as="style"  href="{{ .RelPermalink }}" rel="preload stylesheet">
   {{ end }}
 {{ end }}

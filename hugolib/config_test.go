@@ -276,11 +276,13 @@ func TestLoadMultiConfig(t *testing.T) {
 	// Add a random config variable for testing.
 	// side = page in Norwegian.
 	configContentBase := `
-	Paginate = 32
-	PaginatePath = "side"
+	[pagination]
+	pagerSize = 32
+	path = "side"
 	`
 	configContentSub := `
-	PaginatePath = "top"
+	[pagination]
+	path = "top"
 	`
 	mm := afero.NewMemMapFs()
 
@@ -292,8 +294,8 @@ func TestLoadMultiConfig(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	cfg := all.Base
 
-	c.Assert(cfg.PaginatePath, qt.Equals, "top")
-	c.Assert(cfg.Paginate, qt.Equals, 32)
+	c.Assert(cfg.Pagination.Path, qt.Equals, "top")
+	c.Assert(cfg.Pagination.PagerSize, qt.Equals, 32)
 }
 
 func TestLoadConfigFromThemes(t *testing.T) {
@@ -698,10 +700,6 @@ func TestHugoConfig(t *testing.T) {
 	filesTemplate := `
 -- hugo.toml --
 theme = "mytheme"
-[social]
-twitter = "bepsays"
-[author]
-name = "bep"
 [params]
 rootparam = "rootvalue"
 -- config/_default/hugo.toml --
@@ -718,9 +716,6 @@ rootparam: {{ site.Params.rootparam }}
 rootconfigparam: {{ site.Params.rootconfigparam }}
 themeparam: {{ site.Params.themeparam }}
 themeconfigdirparam: {{ site.Params.themeconfigdirparam }}
-social: {{ site.Social }}
-author: {{ site.Author }}
-
 
 `
 
@@ -744,8 +739,6 @@ author: {{ site.Author }}
 				"rootconfigparam: rootconfigvalue",
 				"themeparam: themevalue",
 				"themeconfigdirparam: themeconfigdirvalue",
-				"social: map[twitter:bepsays]",
-				"author: map[name:bep]",
 			)
 		})
 	}
@@ -918,10 +911,8 @@ title: "My Swedish Section"
 -- layouts/index.html --
 LanguageCode: {{ eq site.LanguageCode site.Language.LanguageCode }}|{{ site.Language.LanguageCode }}|
 {{ range $i, $e := (slice site .Site) }}
-{{ $i }}|AllPages: {{ len .AllPages }}|Sections: {{ if .Sections }}true{{ end }}| Author: {{ .Authors }}|BuildDrafts: {{ .BuildDrafts }}|IsMultilingual: {{ .IsMultiLingual }}|Param: {{ .Language.Params.myparam }}|Language string: {{ .Language }}|Languages: {{ .Languages }}
+{{ $i }}|AllPages: {{ len .AllPages }}|Sections: {{ if .Sections }}true{{ end }}|BuildDrafts: {{ .BuildDrafts }}|Param: {{ .Language.Params.myparam }}|Language string: {{ .Language }}|Languages: {{ .Languages }}
 {{ end }}
-
-
 
 `
 	b := NewIntegrationTestBuilder(
@@ -940,7 +931,6 @@ AllPages: 4|
 Sections: true|
 Param: enParamValue
 Param: enParamValue
-IsMultilingual: true
 LanguageCode: true|en-US|
 `)
 

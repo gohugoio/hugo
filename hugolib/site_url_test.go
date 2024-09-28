@@ -91,7 +91,7 @@ Do not go gentle into that good night.
 `
 
 	cfg, fs := newTestCfg()
-	cfg.Set("paginate", 1)
+	cfg.Set("pagination.pagerSize", 1)
 	th, configs := newTestHelperFromProvider(cfg, fs, t)
 
 	writeSource(t, fs, filepath.Join("content", "sect1", "_index.md"), fmt.Sprintf(st, "/ss1/"))

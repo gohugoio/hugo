@@ -32,8 +32,10 @@ func TestSiteStats(t *testing.T) {
 	siteConfig := `
 baseURL = "http://example.com/blog"
 
-paginate = 1
 defaultContentLanguage = "nn"
+
+[pagination]
+pagerSize = 1
 
 [languages]
 [languages.nn]
