@@ -32,7 +32,7 @@ title = true
 | Item              | In Stock | Price |
 | :---------------- | :------: | ----: |
 | Python Hat        |   True   | 23.99 |
-| SQL **Hat**           |   True   | 23.99 |
+| SQL **Hat**       |   True   | 23.99 |
 | Codecademy Tee    |  False   | 19.99 |
 | Codecademy Hoodie |  False   | 42.99 |
 {.foo foo="bar"}
@@ -65,8 +65,8 @@ Attributes: {{ .Attributes }}|
 	)
 
 	b.AssertFileContent("public/p1/index.html",
-		"table-1-thead: 0: 0: left: Month| 1: left: Savings|$",
-		"table-1-tbody: 0: 0: left: January| 1: left: $250| 1: 0: left: February| 1: left: $80| 2: 0: left: March| 1: left: $420|$",
+		"table-1-thead: 0: 0: : Month| 1: : Savings|$",
+		"table-1-tbody: 0: 0: : January| 1: : $250| 1: 0: : February| 1: : $80| 2: 0: : March| 1: : $420|$",
 	)
 }
 
