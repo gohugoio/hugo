@@ -15,16 +15,26 @@
 package js_test
 
 import (
+	"fmt"
 	"testing"
 
+	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/hugolib"
 )
 
 func TestBatch(t *testing.T) {
 	files := `
 -- hugo.toml --
-disableKinds = ["taxonomy", "term", "page"]
+disableKinds = ["taxonomy", "term"]
+disableLiveReload = true
 baseURL = "https://example.com"
+
+# TOOD1
+[build]
+    [[build.cachebusters]]
+        source = '.*'
+        target = '.*'
+
 -- package.json --
 {
   "devDependencies": {
@@ -32,6 +42,29 @@ baseURL = "https://example.com"
     "react-dom": "^18.3.1"
   }
 }
+-- content/mybundle/index.md --
+---
+title: "My Bundle"
+---
+-- content/mybundle/bundlestyles.css --
+import './bar.css'
+.bundlestyles {
+	background-color: blue;
+}
+-- content/mybundle/bundlereact.jsx --
+import * as React from "react";
+import './foo.css'
+import './bundlestyles.css'
+window.React1 = React;
+
+let text = 'Click me, too!'
+
+export default function MyBundleButton() {
+    return (
+        <button>${text}</button>
+    )
+}
+
 -- assets/js/reactcallback.js --
 import * as ReactDOM from 'react-dom/client';
 import * as React from 'react';
@@ -53,7 +86,8 @@ export default function Callback(modules) {
 	}
 }
 -- assets/other/foo.css --
-import './bar.css'
+@import './bar.css';
+
 .foo {
 	background-color: blue;
 }
@@ -65,11 +99,18 @@ import './bar.css'
 button {
 	background-color: red;
 }
+-- assets/js/helper.js --
+import './bar.css'
+
+export function helper() {
+	console.log('helper');
+}	
+
 -- assets/js/react1.jsx --
 import * as React from "react";
 import './button.css'
 import './foo.css'
-
+import './bundlestyles.css'
 
 window.React1 = React;
 
@@ -83,6 +124,8 @@ export default function MyButton() {
 	
 -- assets/js/react2.jsx --
 import * as React from "react";
+import { helper } from './helper.js'
+import './foo.css'
 
 window.React2 = React;
 
@@ -95,44 +138,84 @@ export default function MyOtherButton() {
 }
 -- assets/js/main1.js --
 import * as React from "react";
+import * as params from '@params';
 
 console.log('main1.React', React)
+console.log('main1.params', params)
+
+// TODO1 make it work without this.
+export default function Main1() {};
 
 -- assets/js/main2.js --
 import * as React from "react";
 
-console.log('main2.React', React)
-
+-- layouts/_default/single.html --
+Single.
+{{ $r := .Resources.GetMatch "*.jsx" }}
+{{ $batch := (js.Batch "mybundle" site.Home.Store) }}
+{{ $otherCSS := (resources.Match "/other/*.css").Mount "/other" "." }}
+{{ with $batch.UseScriptGroup "reactbatch" }}
+	{{ with .UseScript "r3" }}
+	 	{{ if not .GetImportContext }}
+			{{ .SetImportContext $ $otherCSS }}
+		{{ end }}
+		{{ if not .GetResource }}
+			{{ .SetResource $r }}
+		{{ end }}
+		{{ .AddInstance "r2i1" (dict "title" "r2 instance 1") }}
+	{{ end }}
+{{ end }}
 -- layouts/index.html --
 Home.
-{{ $bundle := (js.Batch "mybundle" .Store) }}
-{{ $otherCSS := (resources.Match "other/*.css").Mount "." }}
-{{ with $bundle.UseScriptGroup "reactbatch" }}
+{{ with (templates.Defer (dict "key" "global")) }}
+{{ $batch := (js.Batch "mybundle" site.Home.Store) }}
+{{ range $k, $v := $batch.Build.Groups }}
+ {{ $k }}:
+ {{ range . }}
+	{{ .RelPermalink }}
+  {{ end }}
+ {{ end }}
+{{ end }}
+{{ $myContentBundle := site.GetPage "mybundle" }}
+{{ $batch := (js.Batch "mybundle" site.Home.Store) }}
+{{ $otherCSS := (resources.Match "/other/*.css").Mount "/other" "." }}
+{{ with $batch.UseScriptGroup "mains" }}
+  {{ with .UseScript "main1" }}
+	{{ if not .GetResource }}
+		{{ .SetResource (resources.Get "js/main1.js") }}
+	{{ end }}
+		{{/* TODO1 make the import above work + test.  */}}
+	{{ .AddInstance "m1i1" (dict "title" "Main1 Instance 1") }}
+	{{ .AddInstance "m1i2" (dict "title" "Main1 Instance 2") }}
+  {{ end }}
+{{ end }}
+{{ with $batch.UseScriptGroup "reactbatch" }}
  	{{ if not .GetCallback }}
 		{{ .SetCallback (resources.Get "js/reactcallback.js") }}
 	{{ end }}
+	
 	{{ with .UseScript "r1" }}
 	 	{{ if not .GetImportContext }}
-			{{ .SetImportContext $otherCSS }}
+			{{ .SetImportContext $myContentBundle $otherCSS }}
 		{{ end }}
 		{{ if not .GetResource }}
 		  {{ .SetResource (resources.Get "js/react1.jsx") }}
 		{{ end }}
+		
 		{{ .AddInstance "i1" (dict "title" "Instance 1") }}
 		{{ .AddInstance "i2" (dict "title" "Instance 2") }}
 	{{ end }}
-	 {{ with .UseScript "r2" }}
+	{{ with .UseScript "r2" }}
+	  	{{ if not .GetImportContext }}
+			{{ .SetImportContext $otherCSS }}
+		{{ end }}
 		{{ if not .GetResource }}
 		  {{ .SetResource (resources.Get "js/react2.jsx") }}
 		{{ end }}
 		{{ .AddInstance "i1" (dict "title" "Instance 2-1") }}
 	{{ end }}
 {{ end }}
-{{ range $k, $v := $bundle.Build.Groups }}
- {{ range . }}
-	{{ $k }}: {{ .RelPermalink }}
-{{ end }}
-{{ end }}}
+ 
 `
 
 	b := hugolib.NewIntegrationTestBuilder(
@@ -141,17 +224,30 @@ Home.
 			NeedsOsFS:       true,
 			NeedsNpmInstall: true,
 			TxtarString:     files,
+			Running:         true,
+			LogLevel:        logg.LevelWarn,
 			// PrintAndKeepTempDir: true,
 		}).Build()
 
-	// b.AssertPublishDir("sadf")
+	fmt.Println(b.LogString())
+
+	// b.AssertFileContent("public/index.html", `asdf`)
+
+	b.AssertFileContent("public/mybundle_reactbatch.css", ".bar {")
+	// b.AssertFileContent("public/mybundle_mains.js", `adfasdf`)
 
 	b.AssertFileContent("public/mybundle_reactbatch.js", `
 "mod": MyButton, "id": "r1"
 "mod": MyOtherButton, "id": "r2"
-
+"mod": MyBundleButton, "id": "r3"
 
 	`)
+
+	b.EditFileReplaceAll("content/mybundle/bundlestyles.css", ".bundlestyles", ".bundlestyles-edit").Build()
+	b.AssertFileContent("public/mybundle_reactbatch.css", ".bundlestyles-edit {")
+
+	b.EditFileReplaceAll("assets/other/bar.css", ".bar", ".bar-edit").Build()
+	b.AssertFileContent("public/mybundle_reactbatch.css", ".bar-edit {")
 }
 
 func TestEsBuildResolvePageBundle(t *testing.T) {
@@ -179,9 +275,9 @@ export default {};
 -- layouts/_default/single.html --
 Single.
 TODO1 directory structure vs ID:
-{{ $bundle := (js.Batch "myjsbundle" .Store) }}
+{{ $batch := (js.Batch "myjsbundle" .Store) }}
 {{ $js := .Resources.GetMatch "*.js" }}
-{{ with $bundle.UseScriptGroup "g1" }}
+{{ with $batch.UseScriptGroup "g1" }}
 	{{ with .UseScript "s1" }}
 	 	{{ if not .GetImportContext }}
 			{{ .SetImportContext $ }}
@@ -192,7 +288,7 @@ TODO1 directory structure vs ID:
 		{{ .AddInstance "i1" (dict "title" "Instance s1-1") }}
 	{{ end }}
 {{ end }}
-{{ range $bundle.Build.Groups }}
+{{ range $batch.Build.Groups }}
  {{ range $i, $e := . }}
 	{{ $i }}: {{ $e.RelPermalink }}|
  {{ end }}
@@ -208,7 +304,7 @@ TODO1 directory structure vs ID:
 	b.AssertFileContent("public/myjsbundle_g1.js", `Hello, world!`)
 }
 
-// TODO1  executing "_default/single.html" at <$bundle.Build.Groups>: error calling Build: Could not resolve "./mystyles.css"` error file source.
+// TODO1  executing "_default/single.html" at <$batch.Build.Groups>: error calling Build: Could not resolve "./mystyles.css"` error file source.
 
 // TODO1 move this.
 func TestResourcesGet(t *testing.T) {
@@ -260,3 +356,4 @@ page:sub/txt2.txt:sub/txt2.txt|
 }
 
 // TODO1 check .Name in bundles on renames.
+// TODO1 https://esbuild.github.io/content-types/#local-css

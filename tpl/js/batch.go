@@ -272,20 +272,46 @@ type scriptManyItem struct {
 }
 
 type scriptMany struct {
-	mu sync.Mutex
+	mu sync.Mutex // CHECK if needed.
 	id string
 
 	callback resource.Resource
 
-	items map[string]*scriptManyItem
+	items scripts
 
 	client *Namespace
+}
+
+type scripts map[string]*scriptManyItem
+
+func (s scripts) Sorted() []*scriptManyItem {
+	var a []*scriptManyItem
+	for _, v := range s {
+		a = append(a, v)
+	}
+	sort.Slice(a, func(i, j int) bool {
+		return a[i].id < a[j].id
+	})
+	return a
+}
+
+type scriptGroups map[string]*scriptMany
+
+func (s scriptGroups) Sorted() []*scriptMany {
+	var a []*scriptMany
+	for _, v := range s {
+		a = append(a, v)
+	}
+	sort.Slice(a, func(i, j int) bool {
+		return a[i].id < a[j].id
+	})
+	return a
 }
 
 type batcher struct {
 	mu          sync.Mutex
 	id          string
-	scriptManys map[string]*scriptMany
+	scriptManys scriptGroups
 
 	client *Namespace
 }
@@ -378,7 +404,7 @@ func (p *Package) IsProbablyDependency(other identity.Identity) bool {
 }
 
 func (p *Package) forEeachResource(f func(r resource.Resource) bool) {
-	for _, v := range p.b.scriptManys {
+	for _, v := range p.b.scriptManys.Sorted() {
 		if b := func() bool {
 			v.mu.Lock()
 			defer v.mu.Unlock()
@@ -387,7 +413,7 @@ func (p *Package) forEeachResource(f func(r resource.Resource) bool) {
 					return true
 				}
 			}
-			for _, vv := range v.items {
+			for _, vv := range v.items.Sorted() {
 				vv.mu.Lock()
 				defer vv.mu.Unlock()
 				if f(vv.r) {
@@ -430,8 +456,21 @@ func (b *batcher) Build() (*Package, error) {
 	return p, nil
 }
 
+// TODO1 remove.
+func deb(what string, v ...any) {
+	fmt.Println(what, v)
+}
+
+type namedResourceGetter struct {
+	name string
+	resource.ResourceGetter
+}
+
+func (n namedResourceGetter) IsZero() bool {
+	return n.ResourceGetter == nil
+}
+
 func (b *batcher) build() (*Package, error) {
-	defer herrors.Recover() // TODO1
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
@@ -439,7 +478,8 @@ func (b *batcher) build() (*Package, error) {
 
 	importResource := make(map[string]resource.Resource)
 	resultResource := make(map[string]resource.Resource)
-	importerImportContext := make(map[string]resource.ResourceGetter)
+	importerImportContext := make(map[string]namedResourceGetter)
+	// importerImportContextStack := collections.NewStack[map[string]resource.ResourceGetter]()
 	pathGroup := make(map[string]string)
 
 	var entryPoints []string
@@ -471,18 +511,19 @@ func (b *batcher) build() (*Package, error) {
 				CallbackImportPath: callbackImpPath,
 			}
 
-			for kk, vv := range v.items {
+			for _, vv := range v.items.Sorted() {
 				if vv.r == nil {
 					// TODO1 others.
-					return nil, fmt.Errorf("resource not set for %q", kk)
+					return nil, fmt.Errorf("resource not set for %q", vv.id)
 				}
-				keyPath := keyPath + "_" + kk
+				keyPath := keyPath + "_" + vv.id
 
 				impPath := path.Join(hugoVirtualNS, vv.Dir(), keyPath+vv.r.MediaType().FirstSuffix.FullSuffix)
-				importerImportContext[impPath] = vv.importContextGetSet.GetImportContext()
+				impCtx := vv.GetImportContext()
+				importerImportContext[impPath] = namedResourceGetter{name: impPath, ResourceGetter: impCtx}
 
 				bt := batchTemplateExecutionsContext{
-					ID:         kk,
+					ID:         vv.id,
 					r:          vv.r,
 					ImportPath: impPath,
 				}
@@ -509,13 +550,10 @@ func (b *batcher) build() (*Package, error) {
 
 	target := "es2018"
 
-	conf := b.client.d.Conf
 	absPublishDir := b.client.d.AbsPublishDir
 	mediaTypes := b.client.d.ResourceSpec.MediaTypes()
 	cssMt, _, _ := mediaTypes.GetFirstBySuffix("css")
 
-	// TODO1 remove on close?
-	fmt.Println(conf.Dirs().CacheDir)
 	cacheDir := filepath.Join(b.client.d.SourceSpec.Cfg.Dirs().CacheDir, "_jsbatch")
 	if err := os.Mkdir(cacheDir, 0o777); err != nil && !herrors.IsExist(err) {
 		return nil, err
@@ -525,7 +563,8 @@ func (b *batcher) build() (*Package, error) {
 		return nil, err
 	}
 
-	var importContext resource.ResourceGetter = nil
+	var importContext namedResourceGetter
+	var importResulveMu sync.Mutex
 
 	jopts := js.Options{
 		ExternalOptions: js.ExternalOptions{
@@ -541,28 +580,49 @@ func (b *batcher) build() (*Package, error) {
 			AllowOverwrite: true,
 			Splitting:      true,
 			ImportOnResolveFunc: func(imp string, args api.OnResolveArgs) string {
+				importResulveMu.Lock()
+				defer importResulveMu.Unlock()
+
+				if strings.Contains(imp, "params") {
+					fmt.Println("params", imp, args.Importer)
+				}
+
 				if _, found := importResource[imp]; found {
 					return imp
 				}
 
+				isCSS := strings.Contains(imp, "css")
+
 				if ictx, found := importerImportContext[args.Importer]; found {
 					importContext = ictx
+					// deb("new", args.Importer, imp, ictx.name)
+				} else if !importContext.IsZero() && isCSS {
+					// deb("existing", args.Importer, imp, importContext.name)
+
+					// @hugo-virtual/other/foo.css ./bar.css @hugo-virtual/js/mybundle_reactbatch_r1.jsx
+				} else if isCSS {
+					// deb("no context:", args.Importer, imp)
 				}
 
-				if importContext != nil {
+				if !importContext.IsZero() {
 					resolved := importContext.Get(imp)
+
 					if resolved != nil {
 						imp := hugoVirtualNS + resolved.(resource.PathProvider).Path()
+						// TODO1 mu
 						importResource[imp] = resolved
 						return imp
 
 					}
 				}
-
 				return ""
 			},
 			ImportOnLoadFunc: func(args api.OnLoadArgs) string {
+				importResulveMu.Lock()
+				defer importResulveMu.Unlock()
+
 				imp := args.Path
+
 				if r, found := importResource[imp]; found {
 					content, err := r.(resource.ContentProvider).Content(context.Background()) // TODO1
 					if err != nil {
@@ -762,10 +822,6 @@ func (e *esBuildResultMeta) Compile(cwd string) error {
 	for _, v := range e.Outputs {
 		if v.CSSBundle != "" {
 			e.cssBundleEntryPoint[v.CSSBundle] = v
-		}
-		if v.Exports != nil {
-			// TODO1
-			fmt.Println("   ", v.EntryPoint, " exports", v.Exports)
 		}
 	}
 	return nil
