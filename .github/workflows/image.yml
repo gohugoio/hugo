@@ -3,6 +3,7 @@ name: Build Docker image
 on:
   release:
     types: [published]
+  pull_request:
 permissions:
   packages: write
 
@@ -41,7 +42,7 @@ jobs:
           context: .
           provenance: mode=max
           sbom: true
-          push: ${{ startsWith(github.ref, 'refs/tags') }}
+          push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
