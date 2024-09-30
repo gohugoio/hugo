@@ -329,8 +329,8 @@ github.com/googleapis/gax-go/v2 v2.13.0/go.mod h1:Z/fvTZXF8/uw7Xu5GuslPw+bplx6SS
 github.com/googleapis/google-cloud-go-testing v0.0.0-20200911160855-bcd43fbb19e8/go.mod h1:dvDLG8qkwmyD9a/MJJN3XJcT3xFxOKAvTZGvuZmac9g=
 github.com/gorilla/websocket v1.5.3 h1:saDtZ6Pbx/0u+bgYQ3q96pZgCzfhKXGPqt7kZ72aNNg=
 github.com/gorilla/websocket v1.5.3/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
-github.com/hairyhenderson/go-codeowners v0.5.0 h1:dpQB+hVHiRc2VVvc2BHxkuM+tmu9Qej/as3apqUbsWc=
-github.com/hairyhenderson/go-codeowners v0.5.0/go.mod h1:R3uW1OQXEj2Gu6/OvZ7bt6hr0qdkLvUWPiqNaWnexpo=
+github.com/hairyhenderson/go-codeowners v0.6.0 h1:cRCtmNf9Ni1GIeiAAlHX5IEEB2gr61813Kx5JmXxAAk=
+github.com/hairyhenderson/go-codeowners v0.6.0/go.mod h1:RFWbGcjlXhRKNezt7AQHmJucY0alk4osN0+RKOsIAa8=
 github.com/hashicorp/golang-lru v0.5.0/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
 github.com/hashicorp/golang-lru v0.5.1/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
 github.com/hashicorp/golang-lru/v2 v2.0.7 h1:a+bsQ5rvGLjzHuww6tVxozPZFVghXaHOwFs4luLUK2k=
