@@ -499,15 +499,25 @@ func (r *rootCommand) IsTestRun() bool {
 }
 
 func (r *rootCommand) Init(cd *simplecobra.Commandeer) error {
+	return r.initRootCommand("", cd)
+}
+
+func (r *rootCommand) initRootCommand(subCommandName string, cd *simplecobra.Commandeer) error {
 	cmd := cd.CobraCommand
-	cmd.Use = "hugo [flags]"
-	cmd.Short = "hugo builds your site"
-	cmd.Long = `hugo is the main command, used to build your Hugo site.
+	commandName := "hugo"
+	if subCommandName != "" {
+		commandName = subCommandName
+	}
+	cmd.Use = fmt.Sprintf("%s [flags]", commandName)
+	cmd.Short = fmt.Sprintf("%s builds your site", commandName)
+	cmd.Long = `COMMAND_NAME is the main command, used to build your Hugo site.
 
 Hugo is a Fast and Flexible Static Site Generator
 built with love by spf13 and friends in Go.
 
 Complete documentation is available at https://gohugo.io/.`
+
+	cmd.Long = strings.ReplaceAll(cmd.Long, "COMMAND_NAME", commandName)
 
 	// Configure persistent flags
 	cmd.PersistentFlags().StringVarP(&r.source, "source", "s", "", "filesystem path to read files relative from")
