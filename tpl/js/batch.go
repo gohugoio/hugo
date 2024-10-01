@@ -46,7 +46,10 @@ import (
 )
 
 // TODO1 move/consolidate.
-const hugoVirtualNS = "@hugo-virtual"
+const (
+	hugoVirtualNS = "@hugo-virtual"
+	paramsNS      = "@params"
+)
 
 type Batcher interface {
 	UseScriptGroup(id string) BatcherScriptGroup
@@ -59,40 +62,46 @@ type BatcherScriptGroup interface {
 }
 
 type BatcherScriptGroupOps interface {
-	CallbackGetSetter
-	UseScript(id string) BatcherScript
+	CallbackOptionsGetSetter
+	Script(id string) BatcherScript
 }
 
 type BatcherScript interface {
-	BatcherScriptOps
-	types.Closer
-}
-
-type BatcherScriptOps interface {
-	ImportContextGetSetter
-	ResourceGetSetter
+	ScriptOptionsGetSetter
 	AddInstance(id string, opts any) string
 }
 
-type ResourceGetSetter interface {
-	GetResource() resource.Resource
-	SetResource(r resource.Resource) string
+type ScriptOptions struct {
+	// The script to build.
+	// TODO1 handle stale.
+	Resource resource.Resource
+
+	// The import context to use.
+	// Note that we will always fall back to the resource's own import context.
+	ImportContext resource.ResourceGetter
+
+	// Params marshaled to JSON.
+	Params string
 }
 
-type ImportContextGetSetter interface {
-	GetImportContext() resource.ResourceGetter
-	SetImportContext(ctxs ...any) string
+func (o *ScriptOptions) Dir() string {
+	return path.Dir(o.Resource.(resource.PathProvider).Path())
 }
 
-type CallbackGetSetter interface {
-	GetCallback() resource.Resource
-	SetCallback(r resource.Resource) string
+type ScriptOptionsGetSetter interface {
+	GetOptions() *ScriptOptions
+	SetOptions(map[string]any) string
+}
+
+type CallbackOptionsGetSetter interface {
+	GetCallbackOptions() *ScriptOptions
+	SetCallbackOptions(map[string]any) string
 }
 
 func (ns *Namespace) Batch(id string, store *maps.Scratch) (Batcher, error) {
 	key := path.Join(nsBundle, id)
 	b := store.GetOrCreate(key, func() any {
-		return &batcher{id: id, scriptManys: make(map[string]*scriptMany), client: ns}
+		return &batcher{id: id, scriptGroups: make(map[string]*scriptGroup), client: ns}
 	})
 	return b.(*batcher), nil
 }
@@ -100,14 +109,15 @@ func (ns *Namespace) Batch(id string, store *maps.Scratch) (Batcher, error) {
 func (b *batcher) UseScriptGroup(id string) BatcherScriptGroup {
 	b.mu.Lock()
 
-	many, found := b.scriptManys[id]
+	group, found := b.scriptGroups[id]
 	if !found {
-		many = &scriptMany{id: id, client: b.client, items: make(map[string]*scriptManyItem)}
-		b.scriptManys[id] = many
+		group = &scriptGroup{id: id, client: b.client, items: make(map[string]*scriptGroupItem)}
+		b.scriptGroups[id] = group
 	}
 
+	// Aquire a more fine grained lock.
 	b.mu.Unlock()
-	many.mu.Lock()
+	group.mu.Lock()
 
 	// This will be auto closed if used in a with statement.
 	// But the caller may also call Close, so make sure we only do it once.
@@ -117,10 +127,10 @@ func (b *batcher) UseScriptGroup(id string) BatcherScriptGroup {
 		BatcherScriptGroupOps
 		types.Closer
 	}{
-		many,
+		group,
 		close(func() error {
 			closeOnce.Do(func() {
-				many.mu.Unlock()
+				group.mu.Unlock()
 			})
 			return nil
 		}),
@@ -135,7 +145,7 @@ func (c close) Close() error {
 
 var (
 	_ Batcher               = (*batcher)(nil)
-	_ BatcherScriptGroupOps = (*scriptMany)(nil)
+	_ BatcherScriptGroupOps = (*scriptGroup)(nil)
 )
 
 func decodeScriptInstance(opts any) scriptInstance {
@@ -146,32 +156,16 @@ func decodeScriptInstance(opts any) scriptInstance {
 	return inst
 }
 
-func (b *scriptManyItem) AddInstance(id string, opts any) string {
+func (b *scriptGroupItem) AddInstance(id string, opts any) string {
 	b.instances[id] = decodeScriptInstance(opts)
 	return ""
 }
 
-func (b *scriptMany) GetCallback() resource.Resource {
-	if resource.StaleVersion(b.callback) > 0 {
-		// Allow the client to set a new resource.
-		return nil
-	}
-	return b.callback
-}
-
-func (b *scriptMany) SetCallback(r resource.Resource) string {
-	if r == nil {
-		// TODO1 apply this to all Setters.
-		panic("resource not set")
-	}
-	b.callback = r
-	return ""
-}
-
-func (b *scriptMany) UseScript(id string) BatcherScript {
+func (b *scriptGroup) Script(id string) BatcherScript {
+	// The script group is locked at this point.
 	item, found := b.items[id]
 	if !found {
-		item = &scriptManyItem{
+		item = &scriptGroupItem{
 			id:        id,
 			instances: make(map[string]scriptInstance),
 			client:    b.client,
@@ -179,24 +173,7 @@ func (b *scriptMany) UseScript(id string) BatcherScript {
 		b.items[id] = item
 	}
 
-	item.mu.Lock()
-
-	// This will be auto closed if used in a with statement.
-	// But the caller may also call Close, so make sure we only do it once.
-	var closeOnce sync.Once
-
-	return struct {
-		BatcherScriptOps
-		types.Closer
-	}{
-		item,
-		close(func() error {
-			closeOnce.Do(func() {
-				item.mu.Unlock()
-			})
-			return nil
-		}),
-	}
+	return item
 }
 
 type batchTemplateContext struct {
@@ -242,7 +219,7 @@ type batchTemplateExecution struct {
 }
 
 type batchBuildOpts struct {
-	Callback           resource.Resource
+	Callback           *ScriptOptions
 	js.ExternalOptions `mapstructure:",squash"`
 }
 
@@ -251,7 +228,7 @@ type scriptsMany struct {
 
 	id string
 
-	batches map[string]*scriptMany
+	batches map[string]*scriptGroup
 
 	client *Namespace
 }
@@ -260,32 +237,35 @@ type scriptInstance struct {
 	Params map[string]any
 }
 
-type scriptManyItem struct {
-	mu sync.Mutex
+type scriptGroupItem struct {
 	id string
-
-	importContextGetSet
-	resourceGetSet
+	optionsGetSet
 	instances map[string]scriptInstance
 
 	client *Namespace
 }
 
-type scriptMany struct {
-	mu sync.Mutex // CHECK if needed.
-	id string
-
-	callback resource.Resource
-
-	items scripts
+type scriptGroup struct {
+	mu              sync.Mutex
+	id              string
+	callBackOptions optionsGetSet
+	items           scripts
 
 	client *Namespace
 }
 
-type scripts map[string]*scriptManyItem
+func (s *scriptGroup) GetCallbackOptions() *ScriptOptions {
+	return s.callBackOptions.GetOptions()
+}
 
-func (s scripts) Sorted() []*scriptManyItem {
-	var a []*scriptManyItem
+func (s *scriptGroup) SetCallbackOptions(m map[string]any) string {
+	return s.callBackOptions.SetOptions(m)
+}
+
+type scripts map[string]*scriptGroupItem
+
+func (s scripts) Sorted() []*scriptGroupItem {
+	var a []*scriptGroupItem
 	for _, v := range s {
 		a = append(a, v)
 	}
@@ -295,10 +275,10 @@ func (s scripts) Sorted() []*scriptManyItem {
 	return a
 }
 
-type scriptGroups map[string]*scriptMany
+type scriptGroups map[string]*scriptGroup
 
-func (s scriptGroups) Sorted() []*scriptMany {
-	var a []*scriptMany
+func (s scriptGroups) Sorted() []*scriptGroup {
+	var a []*scriptGroup
 	for _, v := range s {
 		a = append(a, v)
 	}
@@ -309,48 +289,42 @@ func (s scriptGroups) Sorted() []*scriptMany {
 }
 
 type batcher struct {
-	mu          sync.Mutex
-	id          string
-	scriptManys scriptGroups
+	mu           sync.Mutex
+	id           string
+	scriptGroups scriptGroups
 
 	client *Namespace
 }
 
-type resourceGetSet struct {
-	r resource.Resource
+type optionsGetSet struct {
+	Resource      resource.Resource
+	ImportContext any
+	Params        map[string]any
+
+	// Compiled values
+	compiled *ScriptOptions
 }
 
-func (r *resourceGetSet) Dir() string {
-	return path.Dir(r.r.(resource.PathProvider).Path())
+func (s *optionsGetSet) GetOptions() *ScriptOptions {
+	return s.compiled
 }
 
-func (r *resourceGetSet) GetResource() resource.Resource {
-	if resource.StaleVersion(r.r) > 0 {
-		// Allow the client to set a new resource.
-		return nil
+func (s *optionsGetSet) SetOptions(m map[string]any) string {
+	if err := mapstructure.WeakDecode(m, &s); err != nil {
+		panic(err)
 	}
-	return r.r
-}
 
-type importContextGetSet struct {
-	ctx resource.ResourceGetter
-}
-
-func (i *importContextGetSet) GetImportContext() resource.ResourceGetter {
-	return i.ctx
-}
-
-func (i *importContextGetSet) SetImportContext(ctxs ...any) string {
-	// TODO1 dependency manager.
-	i.ctx = resource.NewResourceGetter(ctxs...)
-	return ""
-}
-
-func (r *resourceGetSet) SetResource(res resource.Resource) string {
-	if res == nil {
-		panic("resource not set")
+	paramsJSON, err := json.Marshal(s.Params)
+	if err != nil {
+		panic(err)
 	}
-	r.r = res
+
+	s.compiled = &ScriptOptions{
+		Resource:      s.Resource,
+		ImportContext: resource.NewResourceGetter(s.ImportContext),
+		Params:        string(paramsJSON),
+	}
+
 	return ""
 }
 
@@ -404,19 +378,18 @@ func (p *Package) IsProbablyDependency(other identity.Identity) bool {
 }
 
 func (p *Package) forEeachResource(f func(r resource.Resource) bool) {
-	for _, v := range p.b.scriptManys.Sorted() {
+	for _, v := range p.b.scriptGroups.Sorted() {
 		if b := func() bool {
 			v.mu.Lock()
 			defer v.mu.Unlock()
-			if v.callback != nil {
-				if f(v.callback) {
+			callbackOptions := v.GetCallbackOptions() // TODO1 validate.
+			if callbackOptions != nil {
+				if f(callbackOptions.Resource) { // TODO1 options.
 					return true
 				}
 			}
 			for _, vv := range v.items.Sorted() {
-				vv.mu.Lock()
-				defer vv.mu.Unlock()
-				if f(vv.r) {
+				if f(vv.Resource) {
 					return true
 				}
 			}
@@ -461,24 +434,21 @@ func deb(what string, v ...any) {
 	fmt.Println(what, v)
 }
 
-type namedResourceGetter struct {
-	name string
-	resource.ResourceGetter
-}
-
-func (n namedResourceGetter) IsZero() bool {
-	return n.ResourceGetter == nil
-}
-
 func (b *batcher) build() (*Package, error) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
 	keyPath := b.id
 
+	type importContext struct {
+		name           string
+		resourceGetter resource.ResourceGetter
+		scriptOptions  *ScriptOptions // TODO1 remove resourceGetter?
+	}
+
 	importResource := make(map[string]resource.Resource)
 	resultResource := make(map[string]resource.Resource)
-	importerImportContext := make(map[string]namedResourceGetter)
+	importerImportContext := make(map[string]importContext)
 	// importerImportContextStack := collections.NewStack[map[string]resource.ResourceGetter]()
 	pathGroup := make(map[string]string)
 
@@ -492,17 +462,17 @@ func (b *batcher) build() (*Package, error) {
 		entryPoints = append(entryPoints, pth)
 	}
 
-	if len(b.scriptManys) > 0 {
-		for k, v := range b.scriptManys {
+	if len(b.scriptGroups) > 0 {
+		for k, v := range b.scriptGroups {
 			keyPath := keyPath + "_" + k
 
 			bopts := batchBuildOpts{
-				Callback: v.callback,
+				Callback: v.GetCallbackOptions(),
 			}
 			var callbackImpPath string
 			if bopts.Callback != nil {
-				callbackImpPath = paths.AddLeadingSlash(keyPath + "_callback" + bopts.Callback.MediaType().FirstSuffix.FullSuffix)
-				addResource(k, callbackImpPath, bopts.Callback, false)
+				callbackImpPath = paths.AddLeadingSlash(keyPath + "_callback" + bopts.Callback.Resource.MediaType().FirstSuffix.FullSuffix)
+				addResource(k, callbackImpPath, bopts.Callback.Resource, false)
 			}
 
 			t := &batchTemplateContext{
@@ -512,22 +482,27 @@ func (b *batcher) build() (*Package, error) {
 			}
 
 			for _, vv := range v.items.Sorted() {
-				if vv.r == nil {
-					// TODO1 others.
+				if vv.Resource == nil {
+					// TODO1 others, init.
 					return nil, fmt.Errorf("resource not set for %q", vv.id)
 				}
+				//  /mybundle_mains.js
 				keyPath := keyPath + "_" + vv.id
-
-				impPath := path.Join(hugoVirtualNS, vv.Dir(), keyPath+vv.r.MediaType().FirstSuffix.FullSuffix)
-				impCtx := vv.GetImportContext()
-				importerImportContext[impPath] = namedResourceGetter{name: impPath, ResourceGetter: impCtx}
+				opts := vv.GetOptions()
+				impPath := path.Join(hugoVirtualNS, opts.Dir(), keyPath+opts.Resource.MediaType().FirstSuffix.FullSuffix)
+				impCtx := opts.ImportContext
+				importerImportContext[impPath] = importContext{
+					name:           keyPath,
+					resourceGetter: impCtx,
+					scriptOptions:  opts,
+				}
 
 				bt := batchTemplateExecutionsContext{
 					ID:         vv.id,
-					r:          vv.r,
+					r:          vv.Resource,
 					ImportPath: impPath,
 				}
-				importResource[bt.ImportPath] = vv.r
+				importResource[bt.ImportPath] = vv.Resource
 				for kkk, vvv := range vv.instances {
 					bt.Instances = append(bt.Instances, batchTemplateExecution{ID: kkk, Params: vvv.Params})
 					sort.Slice(bt.Instances, func(i, j int) bool {
@@ -536,6 +511,7 @@ func (b *batcher) build() (*Package, error) {
 				}
 				t.Modules = append(t.Modules, bt)
 			}
+
 			sort.Slice(t.Modules, func(i, j int) bool {
 				return t.Modules[i].ID < t.Modules[j].ID
 			})
@@ -543,6 +519,12 @@ func (b *batcher) build() (*Package, error) {
 			r, s, err := b.client.buildBatch(t)
 			if err != nil {
 				return nil, err
+			}
+			fmt.Println("add batch B", v.id, s)
+			importerImportContext[s] = importContext{
+				name:           s,
+				resourceGetter: nil,
+				scriptOptions:  nil,
 			}
 			addResource(v.id, s, r, true)
 		}
@@ -563,7 +545,8 @@ func (b *batcher) build() (*Package, error) {
 		return nil, err
 	}
 
-	var importContext namedResourceGetter
+	var currentImportContext importContext
+
 	var importResulveMu sync.Mutex
 
 	jopts := js.Options{
@@ -583,29 +566,24 @@ func (b *batcher) build() (*Package, error) {
 				importResulveMu.Lock()
 				defer importResulveMu.Unlock()
 
-				if strings.Contains(imp, "params") {
-					fmt.Println("params", imp, args.Importer)
+				var found bool
+				currentImportContext, found = importerImportContext[imp]
+				if !found {
+					currentImportContext = importerImportContext[args.Importer]
 				}
+
+				fmt.Println("ImportOnResolveFunc", "importer.base", path.Base(args.Importer), "path", args.Path)
 
 				if _, found := importResource[imp]; found {
 					return imp
 				}
 
-				isCSS := strings.Contains(imp, "css")
-
-				if ictx, found := importerImportContext[args.Importer]; found {
-					importContext = ictx
-					// deb("new", args.Importer, imp, ictx.name)
-				} else if !importContext.IsZero() && isCSS {
-					// deb("existing", args.Importer, imp, importContext.name)
-
-					// @hugo-virtual/other/foo.css ./bar.css @hugo-virtual/js/mybundle_reactbatch_r1.jsx
-				} else if isCSS {
-					// deb("no context:", args.Importer, imp)
+				if imp == "./foo.css" {
+					fmt.Println("foo.css:", currentImportContext.name)
 				}
 
-				if !importContext.IsZero() {
-					resolved := importContext.Get(imp)
+				if currentImportContext.resourceGetter != nil {
+					resolved := currentImportContext.resourceGetter.Get(imp)
 
 					if resolved != nil {
 						imp := hugoVirtualNS + resolved.(resource.PathProvider).Path()
@@ -629,6 +607,12 @@ func (b *batcher) build() (*Package, error) {
 						panic(err)
 					}
 					return cast.ToString(content)
+				}
+				return ""
+			},
+			ImportParamsOnLoadFunc: func(args api.OnLoadArgs) string {
+				if currentImportContext.scriptOptions != nil {
+					return currentImportContext.scriptOptions.Params
 				}
 				return ""
 			},

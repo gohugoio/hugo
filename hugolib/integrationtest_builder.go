@@ -312,7 +312,8 @@ func (s *IntegrationTestBuilder) AssertFileContentExact(filename string, matches
 	s.Helper()
 	content := s.FileContent(filename)
 	for _, m := range matches {
-		s.Assert(content, qt.Contains, m, qt.Commentf(m))
+		cm := qt.Commentf("File: %s Match %s\nContent:\n%s", filename, m, content)
+		s.Assert(content, qt.Contains, m, cm)
 	}
 }
 

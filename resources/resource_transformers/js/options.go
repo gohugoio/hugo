@@ -66,14 +66,15 @@ type InternalOptions struct {
 	DependencyManager identity.Manager
 
 	// TODO1
-	Write               bool // Set to false to write to memory.
-	AllowOverwrite      bool
-	Splitting           bool
-	TsConfig            string
-	EntryPoints         []string
-	ImportOnResolveFunc func(string, api.OnResolveArgs) string
-	ImportOnLoadFunc    func(api.OnLoadArgs) string
-	Stdin               bool
+	Write                  bool // Set to false to write to memory.
+	AllowOverwrite         bool
+	Splitting              bool
+	TsConfig               string
+	EntryPoints            []string
+	ImportOnResolveFunc    func(string, api.OnResolveArgs) string
+	ImportOnLoadFunc       func(api.OnLoadArgs) string
+	ImportParamsOnLoadFunc func(args api.OnLoadArgs) string
+	Stdin                  bool
 }
 
 // ExternalOptions holds user facing options for the js.Build template function.
@@ -375,8 +376,14 @@ func createBuildPlugins(c *Client, depsManager identity.Manager, opts Options) (
 				})
 			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: nsParams},
 				func(args api.OnLoadArgs) (api.OnLoadResult, error) {
+					contents := bs
+					if opts.ImportParamsOnLoadFunc != nil {
+						if s := opts.ImportParamsOnLoadFunc(args); s != "" {
+							contents = s
+						}
+					}
 					return api.OnLoadResult{
-						Contents: &bs,
+						Contents: &contents,
 						Loader:   api.LoaderJSON,
 					}, nil
 				})

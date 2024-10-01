@@ -335,12 +335,21 @@ func unwrapResourceGetter(v any) (ResourceGetter, bool) {
 	if v == nil {
 		return nil, false
 	}
-	if g, ok := v.(ResourceGetter); ok {
-		return g, ok
-	}
-
-	if rp, ok := v.(ResourcesProvider); ok {
-		return rp.Resources(), ok
+	switch vv := v.(type) {
+	case ResourceGetter:
+		return vv, true
+	case ResourcesProvider:
+		return vv.Resources(), true
+	case func(name any) Resource:
+		return resourceGetterFunc(vv), true
+	case []any:
+		var getters multiResourceGetter
+		for _, vv := range vv {
+			if g, ok := unwrapResourceGetter(vv); ok {
+				getters = append(getters, g)
+			}
+		}
+		return getters, len(getters) > 0
 	}
 
 	return nil, false

@@ -155,12 +155,14 @@ Single.
 {{ $batch := (js.Batch "mybundle" site.Home.Store) }}
 {{ $otherCSS := (resources.Match "/other/*.css").Mount "/other" "." }}
 {{ with $batch.UseScriptGroup "reactbatch" }}
-	{{ with .UseScript "r3" }}
-	 	{{ if not .GetImportContext }}
-			{{ .SetImportContext $ $otherCSS }}
-		{{ end }}
-		{{ if not .GetResource }}
-			{{ .SetResource $r }}
+	{{ with .Script "r3" }}
+	 	{{ if not .GetOptions }}
+		 	{{ .SetOptions (dict
+			 	"resource" $r
+ 				"importContext" (slice $ $otherCSS)
+				"params" (dict "foo" "r3")
+               )
+			}}
 		{{ end }}
 		{{ .AddInstance "r2i1" (dict "title" "r2 instance 1") }}
 	{{ end }}
@@ -180,38 +182,41 @@ Home.
 {{ $batch := (js.Batch "mybundle" site.Home.Store) }}
 {{ $otherCSS := (resources.Match "/other/*.css").Mount "/other" "." }}
 {{ with $batch.UseScriptGroup "mains" }}
-  {{ with .UseScript "main1" }}
-	{{ if not .GetResource }}
-		{{ .SetResource (resources.Get "js/main1.js") }}
-	{{ end }}
-		{{/* TODO1 make the import above work + test.  */}}
+  {{ with .Script "main1" }}
+	{{ .SetOptions (dict
+			 	"resource" (resources.Get "js/main1.js")
+				"params" (dict "id" "main1")
+            )
+	}}
 	{{ .AddInstance "m1i1" (dict "title" "Main1 Instance 1") }}
 	{{ .AddInstance "m1i2" (dict "title" "Main1 Instance 2") }}
   {{ end }}
 {{ end }}
 {{ with $batch.UseScriptGroup "reactbatch" }}
- 	{{ if not .GetCallback }}
-		{{ .SetCallback (resources.Get "js/reactcallback.js") }}
+ 	{{ if not .GetCallbackOptions }}
+		{{ .SetCallbackOptions ( dict "resource"  (resources.Get "js/reactcallback.js") )}}
 	{{ end }}
-	
-	{{ with .UseScript "r1" }}
-	 	{{ if not .GetImportContext }}
-			{{ .SetImportContext $myContentBundle $otherCSS }}
-		{{ end }}
-		{{ if not .GetResource }}
-		  {{ .SetResource (resources.Get "js/react1.jsx") }}
-		{{ end }}
-		
+	{{ with .Script "r1" }}
+	 	{{ if not .GetOptions }}
+		 	{{ .SetOptions (dict
+			 	"resource" (resources.Get "js/react1.jsx")
+ 				"importContext" (slice $myContentBundle $otherCSS)
+				"params" (dict "id" "r1")
+               )
+			}}
+		{{ end }}	
 		{{ .AddInstance "i1" (dict "title" "Instance 1") }}
 		{{ .AddInstance "i2" (dict "title" "Instance 2") }}
 	{{ end }}
-	{{ with .UseScript "r2" }}
-	  	{{ if not .GetImportContext }}
-			{{ .SetImportContext $otherCSS }}
-		{{ end }}
-		{{ if not .GetResource }}
-		  {{ .SetResource (resources.Get "js/react2.jsx") }}
-		{{ end }}
+	{{ with .Script "r2" }}
+	 	{{ if not .GetOptions }}
+		 	{{ .SetOptions (dict
+			 	"resource" (resources.Get "js/react2.jsx")
+ 				"importContext" $otherCSS
+				"params" (dict "id" "r2")
+               )
+			}}
+		{{ end }}	
 		{{ .AddInstance "i1" (dict "title" "Instance 2-1") }}
 	{{ end }}
 {{ end }}
@@ -234,7 +239,9 @@ Home.
 	// b.AssertFileContent("public/index.html", `asdf`)
 
 	b.AssertFileContent("public/mybundle_reactbatch.css", ".bar {")
-	// b.AssertFileContent("public/mybundle_mains.js", `adfasdf`)
+
+	// Verify params resolution.
+	b.AssertFileContentExact("public/mybundle_mains.js", "var id = \"main1\";\nvar params_default = { id };")
 
 	b.AssertFileContent("public/mybundle_reactbatch.js", `
 "mod": MyButton, "id": "r1"
@@ -246,8 +253,11 @@ Home.
 	b.EditFileReplaceAll("content/mybundle/bundlestyles.css", ".bundlestyles", ".bundlestyles-edit").Build()
 	b.AssertFileContent("public/mybundle_reactbatch.css", ".bundlestyles-edit {")
 
-	b.EditFileReplaceAll("assets/other/bar.css", ".bar", ".bar-edit").Build()
+	b.EditFileReplaceAll("assets/other/bar.css", ".bar {", ".bar-edit {").Build()
 	b.AssertFileContent("public/mybundle_reactbatch.css", ".bar-edit {")
+
+	b.EditFileReplaceAll("assets/other/bar.css", ".bar-edit {", ".bar-edit2 {").Build()
+	b.AssertFileContent("public/mybundle_reactbatch.css", ".bar-edit2 {")
 }
 
 func TestEsBuildResolvePageBundle(t *testing.T) {
@@ -278,7 +288,7 @@ TODO1 directory structure vs ID:
 {{ $batch := (js.Batch "myjsbundle" .Store) }}
 {{ $js := .Resources.GetMatch "*.js" }}
 {{ with $batch.UseScriptGroup "g1" }}
-	{{ with .UseScript "s1" }}
+	{{ with .Script "s1" }}
 	 	{{ if not .GetImportContext }}
 			{{ .SetImportContext $ }}
 		{{ end }}
