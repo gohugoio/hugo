@@ -10,8 +10,8 @@
   <meta name="twitter:title" content="{{ . }}">
 {{- end }}
 
-{{- with or .Description .Summary site.Params.description | plainify | htmlUnescape | chomp }}
-  <meta name="twitter:description" content="{{ . }}">
+{{- with or .Description .Summary site.Params.description | plainify | htmlUnescape }}
+  <meta name="twitter:description" content="{{ trim . "\n\r\t " }}">
 {{- end }}
 
 {{- $twitterSite := "" }}
