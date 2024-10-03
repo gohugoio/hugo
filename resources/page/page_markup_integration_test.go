@@ -171,7 +171,7 @@ includecontent: {{ hugo.Context.MarkupScope }}|{{ $p.Markup.Render.Content }}|
 	)
 }
 
-func TestPageMarkupWithoutSummary(t *testing.T) {
+func TestPageContentWithoutSummary(t *testing.T) {
 	t.Parallel()
 
 	files := `
@@ -195,6 +195,13 @@ This is some content about a summary and more.
 Another paragraph.
 
 Third paragraph.
+-- content/p3.md --
+---
+title: "Post 3"
+date: "2020-01-01"
+summary: "This is summary in front matter."
+---
+This is content.
 -- layouts/_default/single.html --
 Single.
 Page.Summary: {{ .Summary }}|
@@ -228,6 +235,11 @@ Summary Truncated: {{ .Truncated }}|
 		"FuzzyWordCount: 100|",
 		"Summary Type: auto",
 		"Summary Truncated: true",
+	)
+
+	b.AssertFileContentExact("public/p3/index.html",
+		"Summary: This is summary in front matter.|",
+		"ContentWithoutSummary: <p>This is content.</p>\n|",
 	)
 }
 

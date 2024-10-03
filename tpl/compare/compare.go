@@ -231,8 +231,8 @@ func (n *Namespace) checkComparisonArgCount(min int, others ...any) bool {
 // Conditional can be used as a ternary operator.
 //
 // It returns v1 if cond is true, else v2.
-func (n *Namespace) Conditional(cond bool, v1, v2 any) any {
-	if cond {
+func (n *Namespace) Conditional(cond any, v1, v2 any) any {
+	if hreflect.IsTruthful(cond) {
 		return v1
 	}
 	return v2

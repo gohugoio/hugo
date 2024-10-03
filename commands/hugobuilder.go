@@ -779,6 +779,7 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 		istemp := strings.HasSuffix(ext, "~") ||
 			(ext == ".swp") || // vim
 			(ext == ".swx") || // vim
+			(ext == ".bck") || // helix
 			(ext == ".tmp") || // generic temp file
 			(ext == ".DS_Store") || // OSX Thumbnail
 			baseName == "4913" || // vim
@@ -1046,7 +1047,7 @@ func (c *hugoBuilder) loadConfig(cd *simplecobra.Commandeer, running bool) error
 		"fastRenderMode": c.fastRenderMode,
 	})
 
-	conf, err := c.r.ConfigFromProvider(c.r.configVersionID.Load(), flagsToCfg(cd, cfg))
+	conf, err := c.r.ConfigFromProvider(configKey{counter: c.r.configVersionID.Load()}, flagsToCfg(cd, cfg))
 	if err != nil {
 		return err
 	}
@@ -1115,7 +1116,7 @@ func (c *hugoBuilder) reloadConfig() error {
 
 	if err := c.withConfE(func(conf *commonConfig) error {
 		oldConf := conf
-		newConf, err := c.r.ConfigFromConfig(c.r.configVersionID.Load(), conf)
+		newConf, err := c.r.ConfigFromConfig(configKey{counter: c.r.configVersionID.Load()}, conf)
 		if err != nil {
 			return err
 		}

@@ -123,7 +123,6 @@ title: "Home"
 > [!danger]
 > Do not approach or handle without protective gear.
 
-
 > [!tip] Callouts can have custom titles
 > Like this one.
 
@@ -135,6 +134,10 @@ title: "Home"
 > [!faq]+ Foldable callout
 > Yes! In a foldable callout, the contents are hidden when the callout is collapsed
 
+> [!info] Can callouts be nested?
+> > [!important] Yes!, they can.
+> > > [!tip] You can even use multiple layers of nesting.
+
 -- layouts/index.html --
 {{ .Content }}
 -- layouts/_default/_markup/render-blockquote.html --
@@ -145,9 +148,11 @@ AlertType: {{ .AlertType }}|AlertTitle: {{ .AlertTitle }}|AlertSign: {{ .AlertSi
 	b := hugolib.Test(t, files)
 	b.AssertFileContentExact("public/index.html",
 		"AlertType: tip|AlertTitle: Callouts can have custom titles|AlertSign: |",
-		"AlertType: tip|AlertTitle: Title-only callout</p>|AlertSign: |",
-		"AlertType: faq|AlertTitle: Foldable negated callout|AlertSign: -|Text: <p>Yes!",
-		"AlertType: faq|AlertTitle: Foldable callout|AlertSign: +|",
+		"AlertType: tip|AlertTitle: Title-only callout|AlertSign: |",
+		"AlertType: faq|AlertTitle: Foldable negated callout|AlertSign: -|Text: <p>Yes! In a foldable callout, the contents are hidden when the callout is collapsed</p>\n|",
+		"AlertType: faq|AlertTitle: Foldable callout|AlertSign: +|Text: <p>Yes! In a foldable callout, the contents are hidden when the callout is collapsed</p>\n|",
 		"AlertType: danger|AlertTitle: |AlertSign: |Text: <p>Do not approach or handle without protective gear.</p>\n|",
+		"AlertTitle: Can callouts be nested?|",
+		"AlertTitle: You can even use multiple layers of nesting.|",
 	)
 }

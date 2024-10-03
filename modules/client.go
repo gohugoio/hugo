@@ -633,7 +633,7 @@ func (c *Client) runGo(
 
 	argsv := collections.StringSliceToInterfaceSlice(args)
 	argsv = append(argsv, hexec.WithEnviron(c.environ))
-	argsv = append(argsv, hexec.WithStderr(io.MultiWriter(stderr, os.Stderr)))
+	argsv = append(argsv, hexec.WithStderr(goOutputReplacerWriter{w: io.MultiWriter(stderr, os.Stderr)}))
 	argsv = append(argsv, hexec.WithStdout(stdout))
 	argsv = append(argsv, hexec.WithDir(c.ccfg.WorkingDir))
 	argsv = append(argsv, hexec.WithContext(ctx))
@@ -677,6 +677,24 @@ If you then run 'hugo mod graph' it should resolve itself to the most recent ver
 	}
 
 	return nil
+}
+
+var goOutputReplacer = strings.NewReplacer(
+	"go: to add module requirements and sums:", "hugo: to add module requirements and sums:",
+	"go mod tidy", "hugo mod tidy",
+)
+
+type goOutputReplacerWriter struct {
+	w io.Writer
+}
+
+func (w goOutputReplacerWriter) Write(p []byte) (n int, err error) {
+	s := goOutputReplacer.Replace(string(p))
+	_, err = w.w.Write([]byte(s))
+	if err != nil {
+		return 0, err
+	}
+	return len(p), nil
 }
 
 func (c *Client) tidy(mods Modules, goModOnly bool) error {
@@ -741,6 +759,9 @@ type ClientConfig struct {
 	// Ignore any _vendor directory for module paths matching the given pattern.
 	// This can be nil.
 	IgnoreVendor glob.Glob
+
+	// Ignore any module not found errors.
+	IgnoreModuleDoesNotExist bool
 
 	// Absolute path to the project dir.
 	WorkingDir string

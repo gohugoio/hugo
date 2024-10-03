@@ -330,6 +330,9 @@ type FrontMatterDescriptor struct {
 	// if page is a leaf bundle, the bundle folder name (ContentBaseName).
 	BaseFilename string
 
+	// The Page's path if the page is backed by a file, else its title.
+	PathOrTitle string
+
 	// The content file's mod time.
 	ModTime time.Time
 
@@ -736,7 +739,7 @@ func (f *frontmatterFieldHandlers) newDateFieldHandler(key string, setter func(d
 			var err error
 			date, err = htime.ToTimeInDefaultLocationE(v, d.Location)
 			if err != nil {
-				return false, nil
+				return false, fmt.Errorf("invalid front matter: %s: %s: see %s", key, v, d.PathOrTitle)
 			}
 			d.PageConfig.Params[key] = date
 		}

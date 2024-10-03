@@ -562,3 +562,46 @@ Styles: {{ $r.RelPermalink }}
 
 	b.AssertFileContent("public/index.html", "Styles: /scss/main.css")
 }
+
+// Issue 12849
+func TestDirectoryIndexes(t *testing.T) {
+	t.Parallel()
+	if !dartsass.Supports() {
+		t.Skip()
+	}
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','section','rss','sitemap','taxonomy','term']
+
+[[module.mounts]]
+source = 'assets'
+target = 'assets'
+
+[[module.imports]]
+path = "github.com/gohugoio/hugoTestModule2"
+
+[[module.imports.mounts]]
+source = "miscellaneous/sass"
+target = "assets/sass"
+-- go.mod --
+module hugo-github-issue-12849
+-- layouts/index.html --
+{{ $opts := dict "transpiler" "dartsass" "outputStyle" "compressed" }}
+{{ (resources.Get "sass/main.scss" | toCSS $opts).Content }}
+-- assets/sass/main.scss --
+@use "foo"; // directory with index file from OS file system
+@use "bar"; // directory with index file from module mount
+-- assets/sass/foo/_index.scss --
+.foo {color: red;}
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			NeedsOsFS:   true,
+			TxtarString: files,
+		}).Build()
+
+	b.AssertFileContent("public/index.html", ".foo{color:red}.bar{color:green}")
+}

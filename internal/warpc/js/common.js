@@ -41,13 +41,21 @@ export function readInput(handle) {
 			if (currentLine[i] === 10) {
 				const chunk = currentLine.splice(j, i + 1);
 				const arr = new Uint8Array(chunk);
-				let json;
+				let message;
 				try {
-					json = JSON.parse(new TextDecoder().decode(arr));
+					message = JSON.parse(new TextDecoder().decode(arr));
 				} catch (e) {
 					throw new Error(`Error parsing JSON '${new TextDecoder().decode(arr)}' from stdin: ${e.message}`);
 				}
-				handle(json);
+
+				try {
+					handle(message);
+				} catch (e) {
+					let header = message.header;
+					header.err = e.message;
+					writeOutput({ header: header });
+				}
+
 				j = i + 1;
 			}
 		}

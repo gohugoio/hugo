@@ -6,8 +6,11 @@ keywords: []
 action:
   related:
     - methods/page/Content
+    - methods/page/Summary
+    - methods/page/ContentWithoutSummary
     - methods/page/RawContent
     - methods/page/Plain
+    - methods/page/RenderShortcodes
   returnType: '[]string'
   signatures: [PAGE.PlainWords]
 ---

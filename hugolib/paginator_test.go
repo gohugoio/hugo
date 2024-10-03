@@ -24,8 +24,10 @@ import (
 func TestPaginator(t *testing.T) {
 	configFile := `
 baseURL = "https://example.com/foo/"
-paginate = 3
-paginatepath = "thepage"
+
+[pagination]
+pagerSize = 3
+path = "thepage"
 
 [languages.en]
 weight = 1
@@ -161,10 +163,11 @@ Len Pag: {{ len $pag.Pages }}
 func TestPaginatorNodePagesOnly(t *testing.T) {
 	files := `
 -- hugo.toml --
-paginate = 1
+[pagination]
+pagerSize = 1
 -- content/p1.md --
 -- layouts/_default/single.html --
-Paginator: {{ .Paginator }}	
+Paginator: {{ .Paginator }}
 `
 	b, err := TestE(t, files)
 	b.Assert(err, qt.IsNotNil)

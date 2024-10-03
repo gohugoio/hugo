@@ -377,7 +377,7 @@ func TestTemplateFuncs(t *testing.T) {
 	b := newTestSitesBuilder(t).WithDefaultMultiSiteConfig()
 
 	homeTpl := `Site: {{ site.Language.Lang }} / {{ .Site.Language.Lang }} / {{ site.BaseURL }}
-Sites: {{ site.Sites.First.Home.Language.Lang }}
+Sites: {{ site.Sites.Default.Home.Language.Lang }}
 Hugo: {{ hugo.Generator }}
 `
 
@@ -460,7 +460,7 @@ complex: 80: 80
 func TestPartialWithZeroedArgs(t *testing.T) {
 	b := newTestSitesBuilder(t)
 	b.WithTemplatesAdded("index.html",
-		` 
+		`
 X{{ partial "retval" dict }}X
 X{{ partial "retval" slice }}X
 X{{ partial "retval" "" }}X
@@ -696,7 +696,7 @@ func TestApplyWithNamespace(t *testing.T) {
 
 	b.WithTemplates(
 		"index.html", `
-{{ $b := slice " a " "     b "   "       c" }}		
+{{ $b := slice " a " "     b "   "       c" }}
 {{ $a := apply $b "strings.Trim" "." " " }}
 a: {{ $a }}
 `,

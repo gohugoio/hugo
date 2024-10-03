@@ -5,6 +5,8 @@ categories: []
 keywords: []
 action:
   related:
+    - methods/page/Summary
+    - methods/page/ContentWithoutSummary
     - methods/page/RawContent
     - methods/page/Plain
     - methods/page/PlainWords
@@ -13,9 +15,7 @@ action:
   signatures: [PAGE.Content]
 ---
 
-The `Content` method on a `Page` object renders Markdown and shortcodes to HTML. The content does not include front matter.
-
-[shortcodes]: /getting-started/glossary/#shortcode
+The `Content` method on a `Page` object renders Markdown and shortcodes to HTML.
 
 ```go-html-template
 {{ .Content }}

@@ -35,15 +35,19 @@ import (
 	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
 )
 
-const currentVersion = "v1"
+const currentVersion = 1
 
 //go:embed wasm/quickjs.wasm
 var quickjsWasm []byte
 
 // Header is in both the request and response.
 type Header struct {
-	Version string `json:"version"`
-	ID      uint32 `json:"id"`
+	// Major version of the protocol.
+	Version uint16 `json:"version"`
+
+	// Unique ID for the request.
+	// Note that this only needs to be unique within the current request set time window.
+	ID uint32 `json:"id"`
 
 	// Set in the response if there was an error.
 	Err string `json:"err"`
@@ -150,7 +154,11 @@ func (p *dispatcherPool[Q, R]) Execute(ctx context.Context, q Message[Q]) (Messa
 		return d.zero, call.err
 	}
 
-	return call.response, p.Err()
+	resp, err := call.response, p.Err()
+	if err == nil && resp.Header.Err != "" {
+		err = errors.New(resp.Header.Err)
+	}
+	return resp, err
 }
 
 func (d *dispatcher[Q, R]) newCall(q Message[Q]) (*call[Q, R], error) {

@@ -126,9 +126,10 @@ func TestShortcodeMultipleOutputFormats(t *testing.T) {
 	siteConfig := `
 baseURL = "http://example.com/blog"
 
-paginate = 1
-
 disableKinds = ["section", "term", "taxonomy", "RSS", "sitemap", "robotsTXT", "404"]
+
+[pagination]
+pagerSize = 1
 
 [outputs]
 home = [ "HTML", "AMP", "Calendar" ]

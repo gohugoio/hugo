@@ -425,6 +425,7 @@ func (p *pageState) setMetaPostParams() error {
 		ModTime:       mtime,
 		GitAuthorDate: gitAuthorDate,
 		Location:      langs.GetLocation(pm.s.Language()),
+		PathOrTitle:   p.pathOrTitle(),
 	}
 
 	// Handle the date separately

@@ -235,7 +235,7 @@ func (ns *Namespace) ToMath(ctx context.Context, args ...any) (types.Result[temp
 		_, r, err := fileCache.GetOrCreate(key, func() (io.ReadCloser, error) {
 			message := warpc.Message[warpc.KatexInput]{
 				Header: warpc.Header{
-					Version: "v1",
+					Version: 1,
 					ID:      ns.id.Add(1),
 				},
 				Data: katexInput,
@@ -248,9 +248,6 @@ func (ns *Namespace) ToMath(ctx context.Context, args ...any) (types.Result[temp
 			result, err := k.Execute(ctx, message)
 			if err != nil {
 				return nil, err
-			}
-			if result.Header.Err != "" {
-				return nil, errors.New(result.Header.Err)
 			}
 			return hugio.NewReadSeekerNoOpCloserFromString(result.Data.Output), nil
 		})

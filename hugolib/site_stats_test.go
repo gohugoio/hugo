@@ -32,8 +32,10 @@ func TestSiteStats(t *testing.T) {
 	siteConfig := `
 baseURL = "http://example.com/blog"
 
-paginate = 1
 defaultContentLanguage = "nn"
+
+[pagination]
+pagerSize = 1
 
 [languages]
 [languages.nn]
@@ -121,11 +123,10 @@ date: 2023-04-01
 ---
 -- layouts/index.html --
 site.Lastmod: {{ .Site.Lastmod.Format "2006-01-02" }}
-site.LastChange: {{ .Site.LastChange.Format "2006-01-02" }}
 home.Lastmod: {{ site.Home.Lastmod.Format "2006-01-02" }}
 
 `
 	b := Test(t, files)
 
-	b.AssertFileContent("public/index.html", "site.Lastmod: 2023-04-01\nsite.LastChange: 2023-04-01\nhome.Lastmod: 2023-01-01")
+	b.AssertFileContent("public/index.html", "site.Lastmod: 2023-04-01\nhome.Lastmod: 2023-01-01")
 }

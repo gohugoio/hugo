@@ -147,8 +147,8 @@ func TestLastChange(t *testing.T) {
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
 
-	c.Assert(s.LastChange().IsZero(), qt.Equals, false)
-	c.Assert(s.LastChange().Year(), qt.Equals, 2017)
+	c.Assert(s.Lastmod().IsZero(), qt.Equals, false)
+	c.Assert(s.Lastmod().Year(), qt.Equals, 2017)
 }
 
 // Issue #_index

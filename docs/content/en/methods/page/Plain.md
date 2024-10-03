@@ -6,6 +6,8 @@ keywords: []
 action:
   related:
     - methods/page/Content
+    - methods/page/Summary
+    - methods/page/ContentWithoutSummary
     - methods/page/RawContent
     - methods/page/PlainWords
     - methods/page/RenderShortcodes
@@ -13,7 +15,7 @@ action:
   signatures: [PAGE.Plain]
 ---
 
-The `Plain` method on a `Page` object renders Markdown and [shortcodes] to HTML, then strips the HTML [tags]. It does not strip HTML [entities]. The plain content does not include front matter.
+The `Plain` method on a `Page` object renders Markdown and [shortcodes] to HTML, then strips the HTML [tags]. It does not strip HTML [entities].
 
 To prevent Go's [html/template] package from escaping HTML entities, pass the result through the [`htmlUnescape`] function.
 

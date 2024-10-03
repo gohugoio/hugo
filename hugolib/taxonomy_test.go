@@ -80,8 +80,9 @@ func doTestTaxonomiesWithAndWithoutContentFile(t *testing.T, uglyURLs bool) {
 baseURL = "http://example.com/blog"
 titleCaseStyle = "firstupper"
 uglyURLs = %t
-paginate = 1
 defaultContentLanguage = "en"
+[pagination]
+pagerSize = 1
 [Taxonomies]
 tag = "tags"
 category = "categories"

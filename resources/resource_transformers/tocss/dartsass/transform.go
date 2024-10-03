@@ -165,7 +165,12 @@ func (t importResolver) CanonicalizeURL(url string) (string, error) {
 	} else if strings.HasPrefix(name, "_") {
 		namePatterns = []string{"_%s.scss", "_%s.sass", "_%s.css"}
 	} else {
-		namePatterns = []string{"_%s.scss", "%s.scss", "_%s.sass", "%s.sass", "_%s.css", "%s.css"}
+		namePatterns = []string{
+			"_%s.scss", "%s.scss",
+			"_%s.sass", "%s.sass",
+			"_%s.css", "%s.css",
+			"%s/_index.scss", "%s/_index.sass",
+		}
 	}
 
 	name = strings.TrimPrefix(name, "_")

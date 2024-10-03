@@ -6,6 +6,8 @@ keywords: []
 action:
   related:
     - methods/page/Content
+    - methods/page/Summary
+    - methods/page/ContentWithoutSummary
     - methods/page/Plain
     - methods/page/PlainWords
     - methods/page/RenderShortcodes

@@ -11,11 +11,13 @@ func TestMultihost(t *testing.T) {
 
 	files := `
 -- hugo.toml --
-paginate = 1
 defaultContentLanguage = "fr"
 defaultContentLanguageInSubdir = false
 staticDir = ["s1", "s2"]
 enableRobotsTXT = true
+
+[pagination]
+pagerSize = 1
 
 [permalinks]
 other = "/somewhere/else/:filename"

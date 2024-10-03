@@ -14,7 +14,7 @@ require (
 	github.com/bep/godartsass/v2 v2.1.0
 	github.com/bep/golibsass v1.2.0
 	github.com/bep/gowebp v0.3.0
-	github.com/bep/helpers v0.4.0
+	github.com/bep/helpers v0.5.0
 	github.com/bep/imagemeta v0.8.1
 	github.com/bep/lazycache v0.4.0
 	github.com/bep/logg v0.4.0
@@ -34,7 +34,7 @@ require (
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/getkin/kin-openapi v0.123.0
 	github.com/ghodss/yaml v1.0.0
-	github.com/gobuffalo/flect v1.0.2
+	github.com/gobuffalo/flect v1.0.3
 	github.com/gobwas/glob v0.2.3
 	github.com/gohugoio/go-i18n/v2 v2.1.3-0.20230805085216-e63c13218d0e
 	github.com/gohugoio/hashstructure v0.1.0
@@ -75,11 +75,11 @@ require (
 	go.uber.org/automaxprocs v1.5.3
 	gocloud.dev v0.39.0
 	golang.org/x/exp v0.0.0-20221031165847-c99f073a8326
-	golang.org/x/image v0.19.0
-	golang.org/x/mod v0.19.0
-	golang.org/x/net v0.28.0
+	golang.org/x/image v0.20.0
+	golang.org/x/mod v0.21.0
+	golang.org/x/net v0.29.0
 	golang.org/x/sync v0.8.0
-	golang.org/x/text v0.17.0
+	golang.org/x/text v0.18.0
 	golang.org/x/tools v0.23.0
 	google.golang.org/api v0.191.0
 	gopkg.in/yaml.v2 v2.4.0
@@ -154,9 +154,9 @@ require (
 	go.opentelemetry.io/otel v1.28.0 // indirect
 	go.opentelemetry.io/otel/metric v1.28.0 // indirect
 	go.opentelemetry.io/otel/trace v1.28.0 // indirect
-	golang.org/x/crypto v0.26.0 // indirect
+	golang.org/x/crypto v0.27.0 // indirect
 	golang.org/x/oauth2 v0.22.0 // indirect
-	golang.org/x/sys v0.24.0 // indirect
+	golang.org/x/sys v0.25.0 // indirect
 	golang.org/x/time v0.6.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
 	google.golang.org/genproto v0.0.0-20240812133136-8ffd90a71988 // indirect

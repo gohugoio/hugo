@@ -15,7 +15,6 @@ package hugolib
 
 import (
 	"fmt"
-	"html/template"
 	"strings"
 	"testing"
 
@@ -45,10 +44,12 @@ func doTestSiteWithPageOutputs(t *testing.T, outputs []string) {
 	siteConfig := `
 baseURL = "http://example.com/blog"
 
-paginate = 1
 defaultContentLanguage = "en"
 
 disableKinds = ["section", "term", "taxonomy", "RSS", "sitemap", "robotsTXT", "404"]
+
+[pagination]
+pagerSize = 1
 
 [Taxonomies]
 tag = "tags"
@@ -221,10 +222,12 @@ func TestRedefineRSSOutputFormat(t *testing.T) {
 	siteConfig := `
 baseURL = "http://example.com/blog"
 
-paginate = 1
 defaultContentLanguage = "en"
 
 disableKinds = ["page", "section", "term", "taxonomy", "sitemap", "robotsTXT", "404"]
+
+[pagination]
+pagerSize = 1
 
 [outputFormats]
 [outputFormats.RSS]
@@ -249,7 +252,7 @@ baseName = "feed"
 	s := h.Sites[0]
 
 	// Issue #3450
-	c.Assert(s.RSSLink(), qt.Equals, template.URL("http://example.com/blog/feed.xml"))
+	c.Assert(s.Home().OutputFormats().Get("rss").Permalink(), qt.Equals, "http://example.com/blog/feed.xml")
 }
 
 // Issue #3614
@@ -257,10 +260,12 @@ func TestDotLessOutputFormat(t *testing.T) {
 	siteConfig := `
 baseURL = "http://example.com/blog"
 
-paginate = 1
 defaultContentLanguage = "en"
 
 disableKinds = ["page", "section", "term", "taxonomy", "sitemap", "robotsTXT", "404"]
+
+[pagination]
+pagerSize = 1
 
 [mediaTypes]
 [mediaTypes."text/nodot"]

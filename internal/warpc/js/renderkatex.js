@@ -6,13 +6,9 @@ const render = function (input) {
 	const expression = data.expression;
 	const options = data.options;
 	const header = input.header;
-	try {
-		const output = katex.renderToString(expression, options);
-		writeOutput({ header: header, data: { output: output } });
-	} catch (e) {
-		header.err = e.message;
-		writeOutput({ header: header });
-	}
+	// Any error thrown here will be caught by the common.js readInput function.
+	const output = katex.renderToString(expression, options);
+	writeOutput({ header: header, data: { output: output } });
 };
 
 readInput(render);

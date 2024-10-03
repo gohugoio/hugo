@@ -559,7 +559,8 @@ baseURL = "https://example.com"
 disableKinds = ["term", "taxonomy"]
 disableLiveReload = true
 defaultContentLanguage = "nn"
-paginate = 20
+[pagination]
+pagerSize = 20
 [security]
 enableInlineShortcodes = true
 [languages]
@@ -1431,7 +1432,7 @@ title: "My Sect"
 ---
 title: "P%d"
 ---
-P%d Content.	
+P%d Content.
 `
 
 	for i := 0; i < count; i++ {
