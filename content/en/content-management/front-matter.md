@@ -171,6 +171,10 @@ lang
 
 [menus]: /content-management/menus/#define-in-front-matter
 
+###### modified
+
+Alias to [lastmod](#lastmod).
+
 ###### outputs
 
 (`string array`) The [output formats] to render.
@@ -191,11 +195,19 @@ path
 
 [page parameters]: #parameters
 
+###### pubdate
+
+Alias to [publishDate](#publishdate).
+
 ###### publishDate
 
 (`string`) The page publication date. Before the publication date, the page will not be rendered unless you pass the `--buildFuture` flag to the `hugo` command. Note that the TOML format also supports date/time values using unquoted strings. Access this value from a template using the [`PublishDate`] method on a `Page` object.
 
 [`publishdate`]: /methods/page/publishdate/
+
+###### published
+
+Alias to [publishDate](#publishdate).
 
 ###### resources
 
@@ -241,6 +253,10 @@ path
 
 [content type]: /getting-started/glossary/#content-type
 [`type`]: /methods/page/type/
+
+###### unpublishdate
+
+Alias to [expirydate](#expirydate).
 
 ###### url
 
