@@ -99,6 +99,10 @@ export default function Callback(modules) {
 button {
 	background-color: red;
 }
+-- assets/js/bar.css --
+.bar-assets {
+	background-color: red;
+}
 -- assets/js/helper.js --
 import './bar.css'
 
@@ -106,11 +110,21 @@ export function helper() {
 	console.log('helper');
 }	
 
+-- assets/js/react1styles_nested.css --
+.react1styles_nested {
+	background-color: red;
+}
+-- assets/js/react1styles.css --
+@import './react1styles_nested.css';
+.react1styles {
+	background-color: red;
+}
 -- assets/js/react1.jsx --
 import * as React from "react";
 import './button.css'
 import './foo.css'
 import './bundlestyles.css'
+import './react1styles.css'
 
 window.React1 = React;
 
@@ -141,30 +155,51 @@ import * as React from "react";
 import * as params from '@params';
 
 console.log('main1.React', React)
-console.log('main1.params', params)
+console.log('main1.params.id', params.id)
 
 // TODO1 make it work without this.
 export default function Main1() {};
 
 -- assets/js/main2.js --
 import * as React from "react";
+import * as params from '@params';
+
+console.log('main2.React', React)
+console.log('main2.params.id', params.id)
+
+export default function Main2() {};
+
+-- assets/js/main3.js --
+import * as React from "react";
+import * as params from '@params';
+
+console.log('main3.params.id', params.id)
+
+export default function Main3() {};
 
 -- layouts/_default/single.html --
 Single.
 {{ $r := .Resources.GetMatch "*.jsx" }}
 {{ $batch := (js.Batch "mybundle" site.Home.Store) }}
 {{ $otherCSS := (resources.Match "/other/*.css").Mount "/other" "." }}
-{{ with $batch.UseScriptGroup "reactbatch" }}
+ {{ with $batch.Config }}
+      {{ .SetOptions (dict 
+           "target" "es2018"
+           "params" (dict "id" "config")
+	     )
+      }}
+{{ end }}
+{{ with $batch.Group "reactbatch" }}
 	{{ with .Script "r3" }}
-	 	{{ if not .GetOptions }}
 		 	{{ .SetOptions (dict
 			 	"resource" $r
  				"importContext" (slice $ $otherCSS)
-				"params" (dict "foo" "r3")
+				"params" (dict "id" "r3")
                )
 			}}
-		{{ end }}
-		{{ .AddInstance "r2i1" (dict "title" "r2 instance 1") }}
+	{{ end }}
+	{{ with .Instance "r3" "r2i1" }}
+	 	{{ .SetOptions  (dict "title" "r2 instance 1")}}
 	{{ end }}
 {{ end }}
 -- layouts/index.html --
@@ -181,44 +216,53 @@ Home.
 {{ $myContentBundle := site.GetPage "mybundle" }}
 {{ $batch := (js.Batch "mybundle" site.Home.Store) }}
 {{ $otherCSS := (resources.Match "/other/*.css").Mount "/other" "." }}
-{{ with $batch.UseScriptGroup "mains" }}
+{{ with $batch.Group "mains" }}
   {{ with .Script "main1" }}
 	{{ .SetOptions (dict
 			 	"resource" (resources.Get "js/main1.js")
 				"params" (dict "id" "main1")
             )
 	}}
-	{{ .AddInstance "m1i1" (dict "title" "Main1 Instance 1") }}
-	{{ .AddInstance "m1i2" (dict "title" "Main1 Instance 2") }}
   {{ end }}
+  {{ with .Script "main2" }}
+   {{ .SetOptions (dict
+			 	"resource" (resources.Get "js/main2.js")
+				"params" (dict "id" "main2")
+            )
+  }}
+  {{ end }}
+ {{ with .Script "main3" }}
+   {{ .SetOptions (dict
+			 	"resource" (resources.Get "js/main3.js")
+            )
+  }}
+  {{ end }}
+{{ with .Instance "main1" "m1i1" }}{{ .SetOptions (dict "title" "Main1 Instance 1")}}{{ end }}
+{{ with .Instance "main1" "m1i2" }}{{ .SetOptions (dict "title" "Main1 Instance 2")}}{{ end }}
 {{ end }}
-{{ with $batch.UseScriptGroup "reactbatch" }}
- 	{{ if not .GetCallbackOptions }}
-		{{ .SetCallbackOptions ( dict "resource"  (resources.Get "js/reactcallback.js") )}}
+{{ with $batch.Group "reactbatch" }}
+ 	{{ with .Callback "reactcallback" }}
+		{{ .SetOptions ( dict "resource"  (resources.Get "js/reactcallback.js") )}}
 	{{ end }}
 	{{ with .Script "r1" }}
-	 	{{ if not .GetOptions }}
-		 	{{ .SetOptions (dict
-			 	"resource" (resources.Get "js/react1.jsx")
- 				"importContext" (slice $myContentBundle $otherCSS)
-				"params" (dict "id" "r1")
-               )
-			}}
-		{{ end }}	
-		{{ .AddInstance "i1" (dict "title" "Instance 1") }}
-		{{ .AddInstance "i2" (dict "title" "Instance 2") }}
+		{{ .SetOptions (dict
+			"resource" (resources.Get "js/react1.jsx")
+			"importContext" (slice $myContentBundle $otherCSS)
+			"params" (dict "id" "r1")
+			)
+		}}
 	{{ end }}
+	{{ with .Instance "r1" "i1" }}{{ .SetOptions (dict "title" "Instance 1")}}{{ end }}
+	{{ with .Instance "r1" "i2" }}{{ .SetOptions (dict "title" "Instance 2")}}{{ end }}
 	{{ with .Script "r2" }}
-	 	{{ if not .GetOptions }}
-		 	{{ .SetOptions (dict
-			 	"resource" (resources.Get "js/react2.jsx")
- 				"importContext" $otherCSS
-				"params" (dict "id" "r2")
-               )
-			}}
-		{{ end }}	
-		{{ .AddInstance "i1" (dict "title" "Instance 2-1") }}
+		{{ .SetOptions (dict
+			"resource" (resources.Get "js/react2.jsx")
+			"importContext" $otherCSS
+			"params" (dict "id" "r2")
+			)
+		}}
 	{{ end }}
+	{{ with .Instance "r2" "i1" }}{{ .SetOptions (dict "title" "Instance 2-1")}}{{ end }}
 {{ end }}
  
 `
@@ -236,12 +280,23 @@ Home.
 
 	fmt.Println(b.LogString())
 
-	// b.AssertFileContent("public/index.html", `asdf`)
-
-	b.AssertFileContent("public/mybundle_reactbatch.css", ".bar {")
+	b.AssertFileContent("public/mybundle_reactbatch.css",
+		".bar {",
+		"asdf",
+	)
 
 	// Verify params resolution.
-	b.AssertFileContentExact("public/mybundle_mains.js", "var id = \"main1\";\nvar params_default = { id };")
+	b.AssertFileContent("public/mybundle_mains.js",
+		`
+var id = "main1";
+console.log("main1.params.id", id);
+var id2 = "main2";
+console.log("main2.params.id", id2);
+
+# Params from top level config.
+var id3 = "config";
+console.log("main3.params.id", id3);
+`)
 
 	b.AssertFileContent("public/mybundle_reactbatch.js", `
 "mod": MyButton, "id": "r1"

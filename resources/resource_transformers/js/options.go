@@ -21,6 +21,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/identity"
@@ -66,15 +67,22 @@ type InternalOptions struct {
 	DependencyManager identity.Manager
 
 	// TODO1
-	Write                  bool // Set to false to write to memory.
-	AllowOverwrite         bool
-	Splitting              bool
-	TsConfig               string
-	EntryPoints            []string
-	ImportOnResolveFunc    func(string, api.OnResolveArgs) string
-	ImportOnLoadFunc       func(api.OnLoadArgs) string
-	ImportParamsOnLoadFunc func(args api.OnLoadArgs) string
-	Stdin                  bool
+	Write                   bool // Set to false to write to memory.
+	AllowOverwrite          bool
+	Splitting               bool
+	TsConfig                string
+	EntryPoints             []string
+	ImportOnResolveFunc     func(string, api.OnResolveArgs) string
+	ImportOnLoadFunc        func(api.OnLoadArgs) string
+	ImportParamsOnLoadFunc  func(args api.OnLoadArgs) string
+	ErrorMessageResolveFunc func(api.Message) *ErrorMessageResolved
+	Stdin                   bool
+}
+
+type ErrorMessageResolved struct {
+	Path    string
+	Message string
+	Content hugio.ReadSeekCloser
 }
 
 // ExternalOptions holds user facing options for the js.Build template function.
@@ -145,7 +153,7 @@ type ExternalOptions struct {
 	AvoidTDZ bool
 }
 
-func decodeOptions(m map[string]any) (ExternalOptions, error) {
+func DecodeExternalOptions(m map[string]any) (ExternalOptions, error) {
 	var opts ExternalOptions
 
 	if err := mapstructure.WeakDecode(m, &opts); err != nil {
@@ -370,18 +378,20 @@ func createBuildPlugins(c *Client, depsManager identity.Manager, opts Options) (
 			build.OnResolve(api.OnResolveOptions{Filter: `^@params$`},
 				func(args api.OnResolveArgs) (api.OnResolveResult, error) {
 					return api.OnResolveResult{
-						Path:      args.Path,
+						Path:      args.Importer,
 						Namespace: nsParams,
 					}, nil
 				})
 			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: nsParams},
 				func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 					contents := bs
+
 					if opts.ImportParamsOnLoadFunc != nil {
 						if s := opts.ImportParamsOnLoadFunc(args); s != "" {
 							contents = s
 						}
 					}
+
 					return api.OnLoadResult{
 						Contents: &contents,
 						Loader:   api.LoaderJSON,

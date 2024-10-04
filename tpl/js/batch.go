@@ -33,7 +33,6 @@ import (
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
-	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/media"
@@ -52,23 +51,15 @@ const (
 )
 
 type Batcher interface {
-	UseScriptGroup(id string) BatcherScriptGroup
+	Config() OptionsSetter
+	Group(id string) BatcherGroup
 	Build() (*Package, error)
 }
 
-type BatcherScriptGroup interface {
-	BatcherScriptGroupOps
-	types.Closer
-}
-
-type BatcherScriptGroupOps interface {
-	CallbackOptionsGetSetter
-	Script(id string) BatcherScript
-}
-
-type BatcherScript interface {
-	ScriptOptionsGetSetter
-	AddInstance(id string, opts any) string
+type BatcherGroup interface {
+	Callback(id string) OptionsSetter
+	Script(id string) OptionsSetter
+	Instance(sid, iid string) OptionsSetter
 }
 
 type ScriptOptions struct {
@@ -84,8 +75,31 @@ type ScriptOptions struct {
 	Params string
 }
 
+func (o ScriptOptions) Compile(m map[string]any) (*ScriptOptions, error) {
+	var s optionsGetSet // TODO1 type.
+	if err := mapstructure.WeakDecode(m, &s); err != nil {
+		return nil, err
+	}
+
+	paramsJSON, err := json.Marshal(s.Params)
+	if err != nil {
+		panic(err)
+	}
+
+	return &ScriptOptions{
+		Resource:      s.Resource,
+		ImportContext: resource.NewResourceGetter(s.ImportContext),
+		Params:        string(paramsJSON),
+	}, nil
+}
+
 func (o *ScriptOptions) Dir() string {
 	return path.Dir(o.Resource.(resource.PathProvider).Path())
+}
+
+type ParamsOptions struct {
+	// Params marshaled to JSON.
+	Params string
 }
 
 type ScriptOptionsGetSetter interface {
@@ -93,60 +107,42 @@ type ScriptOptionsGetSetter interface {
 	SetOptions(map[string]any) string
 }
 
-type CallbackOptionsGetSetter interface {
-	GetCallbackOptions() *ScriptOptions
-	SetCallbackOptions(map[string]any) string
+type OptionsSetter interface {
+	SetOptions(map[string]any) string
 }
 
 func (ns *Namespace) Batch(id string, store *maps.Scratch) (Batcher, error) {
 	key := path.Join(nsBundle, id)
 	b := store.GetOrCreate(key, func() any {
-		return &batcher{id: id, scriptGroups: make(map[string]*scriptGroup), client: ns}
+		return &batcher{
+			id:            id,
+			scriptGroups:  make(map[string]*scriptGroup),
+			client:        ns,
+			configOptions: newOptions(),
+		}
 	})
 	return b.(*batcher), nil
 }
 
-func (b *batcher) UseScriptGroup(id string) BatcherScriptGroup {
+func (b *batcher) Group(id string) BatcherGroup {
 	b.mu.Lock()
+	defer b.mu.Unlock()
 
 	group, found := b.scriptGroups[id]
 	if !found {
-		group = &scriptGroup{id: id, client: b.client, items: make(map[string]*scriptGroupItem)}
+		group = &scriptGroup{
+			id: id, client: b.client,
+			scriptsOptions:   make(map[string]*options),
+			instancesOptions: make(map[instanceID]*options),
+			callbacksOptions: make(map[string]*options),
+		}
 		b.scriptGroups[id] = group
 	}
 
-	// Aquire a more fine grained lock.
-	b.mu.Unlock()
-	group.mu.Lock()
-
-	// This will be auto closed if used in a with statement.
-	// But the caller may also call Close, so make sure we only do it once.
-	var closeOnce sync.Once
-
-	return struct {
-		BatcherScriptGroupOps
-		types.Closer
-	}{
-		group,
-		close(func() error {
-			closeOnce.Do(func() {
-				group.mu.Unlock()
-			})
-			return nil
-		}),
-	}
+	return group
 }
 
-type close func() error
-
-func (c close) Close() error {
-	return c()
-}
-
-var (
-	_ Batcher               = (*batcher)(nil)
-	_ BatcherScriptGroupOps = (*scriptGroup)(nil)
-)
+var _ Batcher = (*batcher)(nil)
 
 func decodeScriptInstance(opts any) scriptInstance {
 	var inst scriptInstance
@@ -154,26 +150,6 @@ func decodeScriptInstance(opts any) scriptInstance {
 		panic(err)
 	}
 	return inst
-}
-
-func (b *scriptGroupItem) AddInstance(id string, opts any) string {
-	b.instances[id] = decodeScriptInstance(opts)
-	return ""
-}
-
-func (b *scriptGroup) Script(id string) BatcherScript {
-	// The script group is locked at this point.
-	item, found := b.items[id]
-	if !found {
-		item = &scriptGroupItem{
-			id:        id,
-			instances: make(map[string]scriptInstance),
-			client:    b.client,
-		}
-		b.items[id] = item
-	}
-
-	return item
 }
 
 type batchTemplateContext struct {
@@ -246,33 +222,143 @@ type scriptGroupItem struct {
 }
 
 type scriptGroup struct {
-	mu              sync.Mutex
-	id              string
-	callBackOptions optionsGetSet
-	items           scripts
+	mu sync.Mutex
+
+	id string
 
 	client *Namespace
+
+	scriptsOptions   map[string]*options
+	instancesOptions map[instanceID]*options
+	callbacksOptions map[string]*options
+
+	// Compiled.
+	scripts   scriptMap
+	instances instanceMap
+	callbacks scriptMap
 }
 
-func (s *scriptGroup) GetCallbackOptions() *ScriptOptions {
-	return s.callBackOptions.GetOptions()
+type script struct {
+	ID string
+	*ScriptOptions
 }
 
-func (s *scriptGroup) SetCallbackOptions(m map[string]any) string {
-	return s.callBackOptions.SetOptions(m)
+type instance struct {
+	instanceID
+	*ParamsOptions
 }
 
-type scripts map[string]*scriptGroupItem
+type (
+	instanceMap map[instanceID]*ParamsOptions
+	instances   []*instance
+)
 
-func (s scripts) Sorted() []*scriptGroupItem {
-	var a []*scriptGroupItem
-	for _, v := range s {
-		a = append(a, v)
+func (i instances) ByScriptID(id string) instances {
+	var a instances
+	for _, v := range i {
+		if v.instanceID.scriptID == id {
+			a = append(a, v)
+		}
+	}
+	return a
+}
+
+func (p instanceMap) Sorted() instances {
+	var a []*instance
+	for k, v := range p {
+		a = append(a, &instance{instanceID: k, ParamsOptions: v})
 	}
 	sort.Slice(a, func(i, j int) bool {
-		return a[i].id < a[j].id
+		ai := a[i]
+		aj := a[j]
+		if ai.instanceID.scriptID != aj.instanceID.scriptID {
+			return ai.instanceID.scriptID < aj.instanceID.scriptID
+		}
+		return ai.instanceID.instanceID < aj.instanceID.instanceID
 	})
 	return a
+}
+
+type scriptMap map[string]*ScriptOptions
+
+func (s scriptMap) Sorted() []*script {
+	var a []*script
+	for k, v := range s {
+		a = append(a, &script{ID: k, ScriptOptions: v})
+	}
+	sort.Slice(a, func(i, j int) bool {
+		return a[i].ID < a[j].ID
+	})
+	return a
+}
+
+func (s *scriptGroup) compile() error {
+	// TODO1 lock?
+	s.scripts = make(map[string]*ScriptOptions)
+	s.instances = make(map[instanceID]*ParamsOptions)
+	s.callbacks = make(map[string]*ScriptOptions)
+
+	for k, v := range s.scriptsOptions {
+		compiled, err := compileScriptOptions(v)
+		if err != nil {
+			return err
+		}
+		s.scripts[k] = compiled
+	}
+
+	for k, v := range s.instancesOptions {
+		compiled, err := compileParamsOptions(v)
+		if err != nil {
+			return err
+		}
+		s.instances[k] = compiled
+	}
+
+	for k, v := range s.callbacksOptions {
+		compiled, err := compileScriptOptions(v)
+		if err != nil {
+			return err
+		}
+		s.callbacks[k] = compiled
+	}
+
+	return nil
+}
+
+type instanceID struct {
+	scriptID   string
+	instanceID string
+}
+
+func (s *scriptGroup) Script(id string) OptionsSetter {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if v, found := s.scriptsOptions[id]; found {
+		return v.Get()
+	}
+	s.scriptsOptions[id] = newOptions()
+	return s.scriptsOptions[id].Get()
+}
+
+func (s *scriptGroup) Instance(sid, iid string) OptionsSetter {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	id := instanceID{scriptID: sid, instanceID: iid}
+	if v, found := s.instancesOptions[id]; found {
+		return v.Get()
+	}
+	s.instancesOptions[id] = newOptions()
+	return s.instancesOptions[id].Get()
+}
+
+func (s *scriptGroup) Callback(id string) OptionsSetter {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if v, found := s.callbacksOptions[id]; found {
+		return v.Get()
+	}
+	s.callbacksOptions[id] = newOptions()
+	return s.callbacksOptions[id].Get()
 }
 
 type scriptGroups map[string]*scriptGroup
@@ -294,6 +380,129 @@ type batcher struct {
 	scriptGroups scriptGroups
 
 	client *Namespace
+
+	configOptions *options
+
+	// Compiled.
+	config js.ExternalOptions
+}
+
+func (b *batcher) compile() error {
+	var err error
+	b.config, err = js.DecodeExternalOptions(b.configOptions.commit().opts)
+	if err != nil {
+		return err
+	}
+
+	for _, v := range b.scriptGroups {
+		if err := v.compile(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (b *batcher) Config() OptionsSetter {
+	return b.configOptions.Get()
+}
+
+type options struct {
+	getOnce[*optionsSetter]
+}
+
+// func (o ScriptOptions) Compile(m map[string]any) (*ScriptOptions, error) {
+
+func newOptions() *options {
+	return &options{getOnce[*optionsSetter]{
+		v: &optionsSetter{},
+	}}
+}
+
+type optionsSetter struct {
+	opts map[string]any
+}
+
+func (o *optionsSetter) SetOptions(m map[string]any) string {
+	o.opts = m
+	return ""
+}
+
+type getOnce[T any] struct {
+	v    T
+	once sync.Once
+}
+
+func (g *getOnce[T]) Get() T {
+	var v T
+	g.once.Do(func() {
+		v = g.v
+	})
+	return v
+}
+
+func (g *getOnce[T]) commit() T {
+	g.once.Do(func() {})
+	return g.v
+}
+
+type scriptOptions struct {
+	*options
+
+	compiled   *ScriptOptions
+	compileErr error
+	once       sync.Once
+}
+
+func compileParamsOptions(o *options) (*ParamsOptions, error) {
+	v := struct {
+		Params map[string]any
+	}{}
+
+	m := o.commit().opts
+
+	if err := mapstructure.WeakDecode(m, &v); err != nil {
+		panic(err)
+	}
+
+	paramsJSON, err := json.Marshal(v.Params)
+	if err != nil {
+		panic(err)
+	}
+
+	return &ParamsOptions{
+		Params: string(paramsJSON),
+	}, nil
+}
+
+func compileScriptOptions(o *options) (*ScriptOptions, error) {
+	v := struct {
+		Resource      resource.Resource
+		ImportContext any
+		Params        map[string]any
+	}{}
+
+	m := o.commit().opts
+
+	if err := mapstructure.WeakDecode(m, &v); err != nil {
+		panic(err)
+	}
+
+	var paramsJSON []byte
+	if v.Params != nil {
+		var err error
+		paramsJSON, err = json.Marshal(v.Params)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	compiled := &ScriptOptions{
+		Resource:      v.Resource,
+		ImportContext: resource.NewResourceGetter(v.ImportContext),
+		Params:        string(paramsJSON),
+	}
+
+	return compiled, nil
 }
 
 type optionsGetSet struct {
@@ -382,13 +591,14 @@ func (p *Package) forEeachResource(f func(r resource.Resource) bool) {
 		if b := func() bool {
 			v.mu.Lock()
 			defer v.mu.Unlock()
-			callbackOptions := v.GetCallbackOptions() // TODO1 validate.
+			/*callbackOptions := v.GetCallbackOptions() // TODO1 validate.
 			if callbackOptions != nil {
 				if f(callbackOptions.Resource) { // TODO1 options.
 					return true
 				}
 			}
-			for _, vv := range v.items.Sorted() {
+			*/
+			for _, vv := range v.scripts.Sorted() {
 				if f(vv.Resource) {
 					return true
 				}
@@ -449,7 +659,6 @@ func (b *batcher) build() (*Package, error) {
 	importResource := make(map[string]resource.Resource)
 	resultResource := make(map[string]resource.Resource)
 	importerImportContext := make(map[string]importContext)
-	// importerImportContextStack := collections.NewStack[map[string]resource.ResourceGetter]()
 	pathGroup := make(map[string]string)
 
 	var entryPoints []string
@@ -462,75 +671,78 @@ func (b *batcher) build() (*Package, error) {
 		entryPoints = append(entryPoints, pth)
 	}
 
-	if len(b.scriptGroups) > 0 {
-		for k, v := range b.scriptGroups {
-			keyPath := keyPath + "_" + k
-
-			bopts := batchBuildOpts{
-				Callback: v.GetCallbackOptions(),
-			}
-			var callbackImpPath string
-			if bopts.Callback != nil {
-				callbackImpPath = paths.AddLeadingSlash(keyPath + "_callback" + bopts.Callback.Resource.MediaType().FirstSuffix.FullSuffix)
-				addResource(k, callbackImpPath, bopts.Callback.Resource, false)
-			}
-
-			t := &batchTemplateContext{
-				keyPath:            keyPath,
-				ID:                 v.id,
-				CallbackImportPath: callbackImpPath,
-			}
-
-			for _, vv := range v.items.Sorted() {
-				if vv.Resource == nil {
-					// TODO1 others, init.
-					return nil, fmt.Errorf("resource not set for %q", vv.id)
-				}
-				//  /mybundle_mains.js
-				keyPath := keyPath + "_" + vv.id
-				opts := vv.GetOptions()
-				impPath := path.Join(hugoVirtualNS, opts.Dir(), keyPath+opts.Resource.MediaType().FirstSuffix.FullSuffix)
-				impCtx := opts.ImportContext
-				importerImportContext[impPath] = importContext{
-					name:           keyPath,
-					resourceGetter: impCtx,
-					scriptOptions:  opts,
-				}
-
-				bt := batchTemplateExecutionsContext{
-					ID:         vv.id,
-					r:          vv.Resource,
-					ImportPath: impPath,
-				}
-				importResource[bt.ImportPath] = vv.Resource
-				for kkk, vvv := range vv.instances {
-					bt.Instances = append(bt.Instances, batchTemplateExecution{ID: kkk, Params: vvv.Params})
-					sort.Slice(bt.Instances, func(i, j int) bool {
-						return bt.Instances[i].ID < bt.Instances[j].ID
-					})
-				}
-				t.Modules = append(t.Modules, bt)
-			}
-
-			sort.Slice(t.Modules, func(i, j int) bool {
-				return t.Modules[i].ID < t.Modules[j].ID
-			})
-
-			r, s, err := b.client.buildBatch(t)
-			if err != nil {
-				return nil, err
-			}
-			fmt.Println("add batch B", v.id, s)
-			importerImportContext[s] = importContext{
-				name:           s,
-				resourceGetter: nil,
-				scriptOptions:  nil,
-			}
-			addResource(v.id, s, r, true)
-		}
+	if err := b.compile(); err != nil {
+		return nil, err
 	}
 
-	target := "es2018"
+	for k, v := range b.scriptGroups {
+		keyPath := keyPath + "_" + k
+
+		bopts := batchBuildOpts{
+			Callback: nil, // TODO1
+		}
+		var callbackImpPath string
+		if bopts.Callback != nil {
+			callbackImpPath = paths.AddLeadingSlash(keyPath + "_callback" + bopts.Callback.Resource.MediaType().FirstSuffix.FullSuffix)
+			addResource(k, callbackImpPath, bopts.Callback.Resource, false)
+		}
+
+		t := &batchTemplateContext{
+			keyPath:            keyPath,
+			ID:                 v.id,
+			CallbackImportPath: callbackImpPath,
+		}
+
+		instances := v.instances.Sorted()
+
+		for _, vv := range v.scripts.Sorted() {
+			if vv.Resource == nil {
+				// TODO1 others, init.
+				return nil, fmt.Errorf("resource not set for %q", vv.ID)
+			}
+			keyPath := keyPath + "_" + vv.ID
+			opts := vv.ScriptOptions
+			impPath := path.Join(hugoVirtualNS, opts.Dir(), keyPath+opts.Resource.MediaType().FirstSuffix.FullSuffix)
+			impCtx := opts.ImportContext
+
+			importerImportContext[impPath] = importContext{
+				name:           keyPath,
+				resourceGetter: impCtx,
+				scriptOptions:  opts,
+			}
+
+			bt := batchTemplateExecutionsContext{
+				ID:         vv.ID,
+				r:          vv.Resource,
+				ImportPath: impPath,
+			}
+			importResource[bt.ImportPath] = vv.Resource
+			for _, vvv := range instances.ByScriptID(vv.ID) {
+				bt.Instances = append(bt.Instances, batchTemplateExecution{ID: vvv.instanceID.instanceID, Params: vvv.Params})
+				sort.Slice(bt.Instances, func(i, j int) bool {
+					return bt.Instances[i].ID < bt.Instances[j].ID
+				})
+			}
+			t.Modules = append(t.Modules, bt)
+		}
+
+		sort.Slice(t.Modules, func(i, j int) bool {
+			return t.Modules[i].ID < t.Modules[j].ID
+		})
+
+		r, s, err := b.client.buildBatch(t)
+		if err != nil {
+			return nil, err
+		}
+
+		importerImportContext[s] = importContext{
+			name:           s,
+			resourceGetter: nil,
+			scriptOptions:  nil,
+		}
+
+		addResource(v.id, s, r, true)
+	}
 
 	absPublishDir := b.client.d.AbsPublishDir
 	mediaTypes := b.client.d.ResourceSpec.MediaTypes()
@@ -545,18 +757,13 @@ func (b *batcher) build() (*Package, error) {
 		return nil, err
 	}
 
-	var currentImportContext importContext
-
 	var importResulveMu sync.Mutex
 
+	externalOptions := b.config
+	externalOptions.Format = "esm" // Maybe allow other formats for simple 1 script setups. Also consider splitting below.
+
 	jopts := js.Options{
-		ExternalOptions: js.ExternalOptions{
-			Format:  "esm",
-			Target:  target,
-			Defines: map[string]any{
-				//"process.env.NODE_ENV": `"development"`,
-			},
-		},
+		ExternalOptions: externalOptions,
 		InternalOptions: js.InternalOptions{
 			OutDir:         outDir,
 			Write:          true,
@@ -566,24 +773,20 @@ func (b *batcher) build() (*Package, error) {
 				importResulveMu.Lock()
 				defer importResulveMu.Unlock()
 
-				var found bool
-				currentImportContext, found = importerImportContext[imp]
-				if !found {
-					currentImportContext = importerImportContext[args.Importer]
-				}
-
-				fmt.Println("ImportOnResolveFunc", "importer.base", path.Base(args.Importer), "path", args.Path)
-
 				if _, found := importResource[imp]; found {
 					return imp
 				}
 
-				if imp == "./foo.css" {
-					fmt.Println("foo.css:", currentImportContext.name)
+				var importContextPath string
+				if args.Kind == api.ResolveEntryPoint {
+					importContextPath = args.Path
+				} else {
+					importContextPath = args.Importer
 				}
+				importContext := importerImportContext[importContextPath]
 
-				if currentImportContext.resourceGetter != nil {
-					resolved := currentImportContext.resourceGetter.Get(imp)
+				if importContext.resourceGetter != nil {
+					resolved := importContext.resourceGetter.Get(imp)
 
 					if resolved != nil {
 						imp := hugoVirtualNS + resolved.(resource.PathProvider).Path()
@@ -611,10 +814,32 @@ func (b *batcher) build() (*Package, error) {
 				return ""
 			},
 			ImportParamsOnLoadFunc: func(args api.OnLoadArgs) string {
-				if currentImportContext.scriptOptions != nil {
-					return currentImportContext.scriptOptions.Params
+				if importContext, found := importerImportContext[args.Path]; found {
+					if importContext.scriptOptions != nil {
+						return importContext.scriptOptions.Params
+					}
 				}
 				return ""
+			},
+			ErrorMessageResolveFunc: func(args api.Message) *js.ErrorMessageResolved {
+				if loc := args.Location; loc != nil {
+					path := strings.TrimPrefix(loc.File, "ns-hugo:") // TODO1
+					if r, found := importResource[path]; found {
+						path = strings.TrimPrefix(path, hugoVirtualNS)
+						var contentr hugio.ReadSeekCloser
+						if cp, ok := r.(hugio.ReadSeekCloserProvider); ok {
+							contentr, _ = cp.ReadSeekCloser()
+						}
+						return &js.ErrorMessageResolved{
+							Content: contentr,
+							Path:    path,
+							Message: args.Text,
+						}
+
+					}
+
+				}
+				return nil
 			},
 			EntryPoints: entryPoints,
 		},
@@ -831,3 +1056,5 @@ type esBuildResultMetaOutputImport struct {
 	Path string
 	Kind string
 }
+
+// TODO1 remove the now superflous Close harness in the template package.

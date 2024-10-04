@@ -42,7 +42,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	ctx.OutMediaType = media.Builtin.JavascriptType
 
 	if t.optsm != nil {
-		optsExt, err := decodeOptions(t.optsm)
+		optsExt, err := DecodeExternalOptions(t.optsm)
 		if err != nil {
 			return err
 		}

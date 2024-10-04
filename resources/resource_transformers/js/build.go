@@ -24,11 +24,11 @@ import (
 
 	"github.com/evanw/esbuild/pkg/api"
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 	"github.com/gohugoio/hugo/identity"
-	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -126,46 +126,60 @@ func (c *Client) build(opts Options, transformCtx *resources.ResourceTransformat
 	result := api.Build(buildOptions)
 
 	if len(result.Errors) > 0 {
-
 		createErr := func(msg api.Message) error {
-			loc := msg.Location
-			if loc == nil {
+			if msg.Location == nil {
 				return errors.New(msg.Text)
 			}
-			path := loc.File
-			if path == stdinImporter {
-				path = transformCtx.SourcePath
-			}
-
-			errorMessage := msg.Text
-			errorMessage = strings.ReplaceAll(errorMessage, nsImportHugo+":", "")
-
 			var (
-				f   afero.File
-				err error
+				contentr     hugio.ReadSeekCloser
+				errorMessage string
+				loc          = msg.Location
+				errorPath    = loc.File
+				err          error
 			)
 
-			if strings.HasPrefix(path, nsImportHugo) {
-				path = strings.TrimPrefix(path, nsImportHugo+":")
-				f, err = hugofs.Os.Open(path)
-			} else {
-				var fi os.FileInfo
-				fi, err = c.sfs.Fs.Stat(path)
-				if err == nil {
-					m := fi.(hugofs.FileMetaInfo).Meta()
-					path = m.Filename
-					f, err = m.Open()
+			var resolvedError *ErrorMessageResolved
+
+			if opts.ErrorMessageResolveFunc != nil {
+				resolvedError = opts.ErrorMessageResolveFunc(msg)
+			}
+
+			if resolvedError == nil {
+				if errorPath == stdinImporter {
+					errorPath = transformCtx.SourcePath
 				}
 
+				errorMessage := msg.Text
+				errorMessage = strings.ReplaceAll(errorMessage, nsImportHugo+":", "")
+
+				if strings.HasPrefix(errorPath, nsImportHugo) {
+					errorPath = strings.TrimPrefix(errorPath, nsImportHugo+":")
+					contentr, err = hugofs.Os.Open(errorPath)
+				} else {
+					var fi os.FileInfo
+					fi, err = c.sfs.Fs.Stat(errorPath)
+					if err == nil {
+						m := fi.(hugofs.FileMetaInfo).Meta()
+						errorPath = m.Filename
+						contentr, err = m.Open()
+					}
+				}
+			} else {
+				contentr = resolvedError.Content
+				errorPath = resolvedError.Path
+				errorMessage = resolvedError.Message
+			}
+
+			if contentr != nil {
+				defer contentr.Close()
 			}
 
 			if err == nil {
 				fe := herrors.
-					NewFileErrorFromName(errors.New(errorMessage), path).
+					NewFileErrorFromName(errors.New(errorMessage), errorPath).
 					UpdatePosition(text.Position{Offset: -1, LineNumber: loc.Line, ColumnNumber: loc.Column}).
-					UpdateContent(f, nil)
+					UpdateContent(contentr, nil)
 
-				f.Close()
 				return fe
 			}
 
