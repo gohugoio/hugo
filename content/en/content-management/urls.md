@@ -248,8 +248,6 @@ public/
 
 Use these tokens when defining the URL pattern. These can both be used in the `permalinks` configuration and in the front matter [url](#permalinks-tokens-in-front-matter).
 
-`:filename`
-
 `:year`
 : The 4-digit year as defined in the front matter `date` field.
 
