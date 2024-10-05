@@ -520,7 +520,11 @@ See [module configuration](/hugo-modules/configuration/#module-configuration-imp
 
 ###### timeZone
 
-(`string`) The time zone (or location), e.g. `Europe/Oslo`, used to parse front matter dates without such information and in the [`time`] function. The list of valid values may be system dependent, but should include `UTC`, `Local`, and any location in the [IANA Time Zone database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+(`string`) The time zone used to parse dates without time zone offsets, including front matter date fields and values passed to the [`time.AsTime`] and [`time.Format`] template functions. The list of valid values may be system dependent, but should include `UTC`, `Local`, and any location in the [IANA Time Zone Database]. For example, `America/Los_Angeles` and `Europe/Oslo` are valid time zones.
+
+[`time.AsTime`]: /functions/time/astime/
+[`time.Format`]: /functions/time/format/
+[IANA Time Zone Database]: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
 ###### title
 
@@ -937,7 +941,6 @@ If this is not set, Hugo will use, in order of preference:
 
 If you want to know the current value of `cacheDir`, you can run `hugo config`, e.g: `hugo config | grep cachedir`.
 
-[`time`]: /functions/time/astime/
 [`.Site.Params`]: /method/site/params/
 [directory structure]: /getting-started/directory-structure/
 [lookup order]: /templates/lookup-order/
