@@ -728,7 +728,7 @@ func (f *frontmatterFieldHandlers) newDateFieldHandler(key string, setter func(d
 	return func(d *FrontMatterDescriptor) (bool, error) {
 		v, found := d.PageConfig.Params[key]
 
-		if !found {
+		if !found || v == "" {
 			return false, nil
 		}
 
@@ -739,7 +739,7 @@ func (f *frontmatterFieldHandlers) newDateFieldHandler(key string, setter func(d
 			var err error
 			date, err = htime.ToTimeInDefaultLocationE(v, d.Location)
 			if err != nil {
-				return false, fmt.Errorf("invalid front matter: %s: %s: see %s", key, v, d.PathOrTitle)
+				return false, fmt.Errorf("the %q front matter field is not a parsable date: see %s", key, d.PathOrTitle)
 			}
 			d.PageConfig.Params[key] = date
 		}
