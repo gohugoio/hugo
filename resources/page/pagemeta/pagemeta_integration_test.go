@@ -52,47 +52,91 @@ func TestDateValidation(t *testing.T) {
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 -- content/_index.md --
-+++
-date = DATE
-+++
+FRONT_MATTER
 -- layouts/index.html --
 {{ .Date.UTC.Format "2006-01-02" }}
 --
 `
 	errorMsg := `ERROR the "date" front matter field is not a parsable date`
 
-	// Valid (TOML)
-	f := strings.ReplaceAll(files, "DATE", "2024-10-01")
+	// TOML: unquoted date/time (valid)
+	f := strings.ReplaceAll(files, "FRONT_MATTER", `
++++
+date = 2024-10-01
++++
+	`)
 	b := hugolib.Test(t, f)
 	b.AssertFileContent("public/index.html", "2024-10-01")
 
-	// Valid (string)
-	f = strings.ReplaceAll(files, "DATE", `"2024-10-01"`)
+	// TOML: string (valid)
+	f = strings.ReplaceAll(files, "FRONT_MATTER", `
++++
+date = "2024-10-01"
++++
+	`)
 	b = hugolib.Test(t, f)
 	b.AssertFileContent("public/index.html", "2024-10-01")
 
-	// Valid (empty string)
-	f = strings.ReplaceAll(files, "DATE", `""`)
+	// TOML: empty string (valid)
+	f = strings.ReplaceAll(files, "FRONT_MATTER", `
++++
+date = ""
++++
+	`)
 	b = hugolib.Test(t, f)
 	b.AssertFileContent("public/index.html", "0001-01-01")
 
-	// Valid (int)
-	f = strings.ReplaceAll(files, "DATE", "0")
+	// TOML: int (valid)
+	f = strings.ReplaceAll(files, "FRONT_MATTER", `
++++
+date = 0
++++
+	`)
 	b = hugolib.Test(t, f)
 	b.AssertFileContent("public/index.html", "1970-01-01")
 
-	// Invalid (string)
-	f = strings.ReplaceAll(files, "DATE", `"2024-42-42"`)
+	// TOML: string (invalid)
+	f = strings.ReplaceAll(files, "FRONT_MATTER", `
++++
+date = "2024-42-42"
++++
+	`)
 	b, _ = hugolib.TestE(t, f)
 	b.AssertLogContains(errorMsg)
 
-	// Invalid (bool)
-	f = strings.ReplaceAll(files, "DATE", "true")
+	// TOML: bool (invalid)
+	f = strings.ReplaceAll(files, "FRONT_MATTER", `
++++
+date = true
++++
+	`)
 	b, _ = hugolib.TestE(t, f)
 	b.AssertLogContains(errorMsg)
 
-	// Invalid (float)
-	f = strings.ReplaceAll(files, "DATE", "6.7")
+	// TOML: float (invalid)
+	f = strings.ReplaceAll(files, "FRONT_MATTER", `
++++
+date = 6.7
++++
+	`)
 	b, _ = hugolib.TestE(t, f)
 	b.AssertLogContains(errorMsg)
+
+	// JSON: null (valid)
+	f = strings.ReplaceAll(files, "FRONT_MATTER", `
+{
+  "date": null
+}
+	`)
+	b = hugolib.Test(t, f)
+	b.AssertFileContent("public/index.html", "0001-01-01")
+
+	// YAML: null (valid)
+	f = strings.ReplaceAll(files, "FRONT_MATTER", `
+---
+date:
+---
+	`)
+	b = hugolib.Test(t, f)
+	b.AssertFileContent("public/index.html", "0001-01-01")
 }
