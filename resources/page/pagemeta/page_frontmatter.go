@@ -728,7 +728,7 @@ func (f *frontmatterFieldHandlers) newDateFieldHandler(key string, setter func(d
 	return func(d *FrontMatterDescriptor) (bool, error) {
 		v, found := d.PageConfig.Params[key]
 
-		if !found || v == "" {
+		if !found || v == "" || v == nil {
 			return false, nil
 		}
 
