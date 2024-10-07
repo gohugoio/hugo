@@ -10,7 +10,7 @@ menu:
 weight: 20
 toc: true
 aliases: [/quickstart/,/overview/quickstart/]
-minVersion: v0.112.0
+minVersion: v0.128.0
 ---
 
 In this tutorial you will:
