@@ -20,7 +20,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"github.com/spf13/afero"
@@ -103,6 +102,15 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 			return err
 		}
 		defer os.Remove(buildOptions.Outdir)
+	}
+
+	if buildOptions.Sourcemap != api.SourceMapNone {
+		m := resolveComponentInAssets(t.c.rs.Assets.Fs, ctx.SourcePath)
+		filename, err := filepath.Rel(opts.resolveDir, m.Filename)
+		if err != nil {
+			return fmt.Errorf("failed to resolve filename: %w", err)
+		}
+		buildOptions.Stdin.Sourcefile = filename
 	}
 
 	if opts.Inject != nil {
@@ -195,8 +203,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	if buildOptions.Sourcemap == api.SourceMapExternal {
 		content := string(result.OutputFiles[1].Contents)
 		symPath := path.Base(ctx.OutPath) + ".map"
-		re := regexp.MustCompile(`//# sourceMappingURL=.*\n?`)
-		content = re.ReplaceAllString(content, "//# sourceMappingURL="+symPath+"\n")
+		content += "\n//# sourceMappingURL=" + symPath + "\n"
 
 		if err = ctx.PublishSourceMap(string(result.OutputFiles[0].Contents)); err != nil {
 			return err
