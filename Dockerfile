@@ -2,56 +2,94 @@
 # Twitter:      https://twitter.com/gohugoio
 # Website:      https://gohugo.io/
 
-FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.5.0 AS xx
+ARG GO_VERSION="1.23.2"
+ARG ALPINE_VERSION=3.20
 
-FROM --platform=$BUILDPLATFORM golang:1.22.6-alpine AS build
+FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.5.0 AS xx
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS gobuild
+FROM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS gorun
+
+
+FROM gobuild AS build
+
+RUN apk add clang lld
 
 # Set up cross-compilation helpers
 COPY --from=xx / /
-RUN apk add clang lld
 
-# Optionally set HUGO_BUILD_TAGS to "extended" or "nodeploy" when building like so:
-#   docker build --build-arg HUGO_BUILD_TAGS=extended .
-ARG HUGO_BUILD_TAGS="none"
+ARG TARGETPLATFORM
+RUN xx-apk add musl-dev gcc g++ 
 
-ARG CGO=1
-ENV CGO_ENABLED=${CGO}
-ENV GOOS=linux
-ENV GO111MODULE=on
+# Optionally set HUGO_BUILD_TAGS to "none" or "nodeploy" when building like so:
+# docker build --build-arg HUGO_BUILD_TAGS=nodeploy .
+#
+# We build the extended version by default.
+ARG HUGO_BUILD_TAGS="extended"
+ENV CGO_ENABLED=1
+ENV GOPROXY=https://proxy.golang.org
+ENV GOCACHE=/root/.cache/go-build
+ENV GOMODCACHE=/go/pkg/mod
+ARG TARGETPLATFORM
 
 WORKDIR /go/src/github.com/gohugoio/hugo
 
-RUN --mount=src=go.mod,target=go.mod \
-    --mount=src=go.sum,target=go.sum \
-    --mount=type=cache,target=/go/pkg/mod \
-    go mod download
-
-ARG TARGETPLATFORM
-# gcc/g++ are required to build SASS libraries for extended version
-RUN xx-apk add --no-scripts --no-cache gcc g++ musl-dev git
+# For  --mount=type=cache the value of target is the default cache id, so
+# for the go mod cache it would be good if we could share it with other Go images using the same setup,
+# but the go build cache needs to be per platform.
+# See this comment: https://github.com/moby/buildkit/issues/1706#issuecomment-702238282
 RUN --mount=target=. \
-    --mount=type=cache,target=/go/pkg/mod <<EOT
+    --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build,id=go-build-$TARGETPLATFORM <<EOT
     set -ex
-    xx-go build -tags "$HUGO_BUILD_TAGS" -o /usr/bin/hugo
+    xx-go build -tags "$HUGO_BUILD_TAGS" -ldflags "-s -w -X github.com/gohugoio/hugo/common/hugo.vendorInfo=docker" -o /usr/bin/hugo
     xx-verify /usr/bin/hugo
 EOT
 
-# ---
-
-FROM alpine:3.18
+FROM gorun AS final
 
 COPY --from=build /usr/bin/hugo /usr/bin/hugo
 
-# libc6-compat & libstdc++ are required for extended SASS libraries
-# ca-certificates are required to fetch outside resources (like Twitter oEmbeds)
-RUN apk update && \
-    apk add --no-cache ca-certificates libc6-compat libstdc++ git
+# libc6-compat  are required for extended libraries (libsass, libwebp).
+RUN apk add --no-cache \
+    libc6-compat \
+    git \
+    runuser \
+    curl \
+    nodejs \
+    npm
 
-VOLUME /site
-WORKDIR /site
+RUN mkdir -p /var/hugo/bin && \
+    addgroup -Sg 1000 hugo && \
+    adduser -Sg hugo -u 1000 -h /var/hugo hugo && \
+    chown -R hugo: /var/hugo && \
+    # For the Hugo's Git integration to work.
+    runuser -u hugo -- git config --global --add safe.directory /project && \ 
+    # See https://github.com/gohugoio/hugo/issues/9810
+    runuser -u hugo -- git config --global core.quotepath false
+
+VOLUME /project
+WORKDIR /project
+USER hugo:hugo
+ENV HUGO_CACHEDIR=/cache
+ARG BUILDARCH
+ENV BUILDARCH=${BUILDARCH}
+ENV PATH="/var/hugo/bin:$PATH"
+
+COPY scripts/docker scripts/docker
+COPY scripts/docker/entrypoint.sh /entrypoint.sh
+
+# Install default dependencies.
+RUN scripts/docker/install_runtimedeps_default.sh
+# Update PATH to reflect the new dependencies.
+# For more complex setups, we should probably find a way to
+# delegate this to the script itself, but this will have to do for now.
+# Also, the dart-sass binary is a little special, other binaries can be put/linked
+# directly in /var/hugo/bin.
+ENV PATH="/var/hugo/bin/dart-sass:$PATH"
 
 # Expose port for live server
 EXPOSE 1313
 
-ENTRYPOINT ["hugo"]
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["--help"]
+
