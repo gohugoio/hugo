@@ -3,55 +3,76 @@
 # Website:      https://gohugo.io/
 
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.5.0 AS xx
-
-FROM --platform=$BUILDPLATFORM golang:1.22.6-alpine AS build
+FROM --platform=$BUILDPLATFORM golang:1.23.2-alpine AS base
+FROM base AS build
 
 # Set up cross-compilation helpers
 COPY --from=xx / /
-RUN apk add clang lld
 
-# Optionally set HUGO_BUILD_TAGS to "extended" or "nodeploy" when building like so:
-#   docker build --build-arg HUGO_BUILD_TAGS=extended .
-ARG HUGO_BUILD_TAGS="none"
+# gcc/g++ are required to build libsass and libwebp libraries for the extended version.
+RUN xx-apk add --no-scripts --no-cache gcc g++
 
-ARG CGO=1
-ENV CGO_ENABLED=${CGO}
-ENV GOOS=linux
-ENV GO111MODULE=on
+# Optionally set HUGO_BUILD_TAGS to "none" or "nodeploy" when building like so:
+# docker build --build-arg HUGO_BUILD_TAGS=nodeploy .
+#
+# We build the extended version by default.
+ARG HUGO_BUILD_TAGS="extended"
+ENV GOPROXY=https://proxy.golang.org
+ENV GOCACHE=/root/.cache/go-build
+ENV GOMODCACHE=/go/pkg/mod
 
 WORKDIR /go/src/github.com/gohugoio/hugo
 
-RUN --mount=src=go.mod,target=go.mod \
-    --mount=src=go.sum,target=go.sum \
-    --mount=type=cache,target=/go/pkg/mod \
-    go mod download
-
-ARG TARGETPLATFORM
-# gcc/g++ are required to build SASS libraries for extended version
-RUN xx-apk add --no-scripts --no-cache gcc g++ musl-dev git
 RUN --mount=target=. \
-    --mount=type=cache,target=/go/pkg/mod <<EOT
+    --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build <<EOT
     set -ex
-    xx-go build -tags "$HUGO_BUILD_TAGS" -o /usr/bin/hugo
+    xx-go build -tags "$HUGO_BUILD_TAGS" -ldflags "-s -w -X github.com/gohugoio/hugo/common/hugo.vendorInfo=docker" -o /usr/bin/hugo
     xx-verify /usr/bin/hugo
 EOT
 
-# ---
-
-FROM alpine:3.18
+FROM base AS final
 
 COPY --from=build /usr/bin/hugo /usr/bin/hugo
 
-# libc6-compat & libstdc++ are required for extended SASS libraries
-# ca-certificates are required to fetch outside resources (like Twitter oEmbeds)
-RUN apk update && \
-    apk add --no-cache ca-certificates libc6-compat libstdc++ git
+# libc6-compat & libstdc++ are required for extended libraries (libsass, libwebp).
+RUN apk add --no-cache \
+    libc6-compat \
+    libstdc++ \
+    git \
+    runuser \
+    curl \
+    nodejs \
+    npm
 
-VOLUME /site
-WORKDIR /site
+RUN mkdir -p /var/hugo/bin && \
+    addgroup -Sg 1000 hugo && \
+    adduser -Sg hugo -u 1000 -h /var/hugo hugo && \
+    chown -R hugo: /var/hugo && \
+    runuser -u hugo -- git config --global --add safe.directory /project
+
+VOLUME /project
+WORKDIR /project
+USER hugo:hugo
+ENV HUGO_CACHEDIR=/cache
+ARG BUILDARCH
+ENV BUILDARCH=${BUILDARCH}
+
+COPY scripts/docker scripts/docker
+
+# Install default dependencies.
+RUN scripts/docker/install_runtimedeps_default.sh
+
+COPY scripts/docker/entrypoint.sh /entrypoint.sh
+
+ENV PATH="/var/hugo/bin:/var/hugo/bin/dart-sass:$PATH"
+
+RUN sass --version
+RUN hugo version
 
 # Expose port for live server
 EXPOSE 1313
 
-ENTRYPOINT ["hugo"]
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["--help"]
+
