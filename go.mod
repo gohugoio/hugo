@@ -60,7 +60,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58
 	github.com/pelletier/go-toml/v2 v2.2.3
-	github.com/rogpeppe/go-internal v1.12.0
+	github.com/rogpeppe/go-internal v1.13.1
 	github.com/sanity-io/litter v1.5.5
 	github.com/spf13/afero v1.11.0
 	github.com/spf13/cast v1.7.0
