@@ -8,8 +8,8 @@
   <meta property="og:title" content="{{ . }}">
 {{- end }}
 
-{{- with or .Description .Summary site.Params.description | plainify | htmlUnescape | chomp }}
-  <meta property="og:description" content="{{ . }}">
+{{- with or .Description .Summary site.Params.description | plainify | htmlUnescape }}
+  <meta property="og:description" content="{{ trim . "\n\r\t " }}">
 {{- end }}
 
 {{- with or .Params.locale site.Language.LanguageCode }}
