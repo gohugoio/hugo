@@ -17,9 +17,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/identity"
@@ -39,8 +41,52 @@ const (
 	stdinImporter = "<stdin>"
 )
 
-// Options esbuild configuration
 type Options struct {
+	ExternalOptions
+	InternalOptions
+}
+
+func (opts *Options) validate() error {
+	if opts.ImportOnResolveFunc != nil && opts.ImportOnLoadFunc == nil {
+		return fmt.Errorf("ImportOnLoadFunc must be set if ImportOnResolveFunc is set")
+	}
+	if opts.ImportOnResolveFunc == nil && opts.ImportOnLoadFunc != nil {
+		return fmt.Errorf("ImportOnResolveFunc must be set if ImportOnLoadFunc is set")
+	}
+	return nil
+}
+
+// InternalOptions holds internal options for the js.Build template function.
+type InternalOptions struct {
+	MediaType  media.Type
+	OutDir     string
+	Contents   string
+	SourceDir  string
+	ResolveDir string
+
+	DependencyManager identity.Manager
+
+	// TODO1
+	Write                   bool // Set to false to write to memory.
+	AllowOverwrite          bool
+	Splitting               bool
+	TsConfig                string
+	EntryPoints             []string
+	ImportOnResolveFunc     func(string, api.OnResolveArgs) string
+	ImportOnLoadFunc        func(api.OnLoadArgs) string
+	ImportParamsOnLoadFunc  func(args api.OnLoadArgs) string
+	ErrorMessageResolveFunc func(api.Message) *ErrorMessageResolved
+	Stdin                   bool
+}
+
+type ErrorMessageResolved struct {
+	Path    string
+	Message string
+	Content hugio.ReadSeekCloser
+}
+
+// ExternalOptions holds user facing options for the js.Build template function.
+type ExternalOptions struct {
 	// If not set, the source path will be used as the base target path.
 	// Note that the target path's extension may change if the target MIME type
 	// is different, e.g. when the source is TypeScript.
@@ -105,17 +151,10 @@ type Options struct {
 	// Deprecated: This no longer have any effect and will be removed.
 	// TODO(bep) remove. See https://github.com/evanw/esbuild/commit/869e8117b499ca1dbfc5b3021938a53ffe934dba
 	AvoidTDZ bool
-
-	mediaType  media.Type
-	outDir     string
-	contents   string
-	sourceDir  string
-	resolveDir string
-	tsConfig   string
 }
 
-func decodeOptions(m map[string]any) (Options, error) {
-	var opts Options
+func DecodeExternalOptions(m map[string]any) (ExternalOptions, error) {
+	var opts ExternalOptions
 
 	if err := mapstructure.WeakDecode(m, &opts); err != nil {
 		return opts, err
@@ -212,7 +251,7 @@ func resolveComponentInAssets(fs afero.Fs, impPath string) *hugofs.FileMeta {
 	return m
 }
 
-func createBuildPlugins(depsManager identity.Manager, c *Client, opts Options) ([]api.Plugin, error) {
+func createBuildPlugins(c *Client, depsManager identity.Manager, opts Options) ([]api.Plugin, error) {
 	fs := c.rs.Assets
 
 	resolveImport := func(args api.OnResolveArgs) (api.OnResolveResult, error) {
@@ -223,26 +262,49 @@ func createBuildPlugins(depsManager identity.Manager, c *Client, opts Options) (
 				impPath = override
 			}
 		}
-		isStdin := args.Importer == stdinImporter
-		var relDir string
-		if !isStdin {
-			rel, found := fs.MakePathRelative(args.Importer, true)
-			if !found {
-				// Not in any of the /assets folders.
-				// This is an import from a node_modules, let
-				// ESBuild resolve this.
-				return api.OnResolveResult{}, nil
-			}
 
-			relDir = filepath.Dir(rel)
-		} else {
-			relDir = opts.sourceDir
+		if opts.ImportOnResolveFunc != nil {
+			if s := opts.ImportOnResolveFunc(impPath, args); s != "" {
+				return api.OnResolveResult{Path: s, Namespace: nsImportHugo}, nil
+			}
 		}
 
-		// Imports not starting with a "." is assumed to live relative to /assets.
-		// Hugo makes no assumptions about the directory structure below /assets.
-		if relDir != "" && strings.HasPrefix(impPath, ".") {
-			impPath = filepath.Join(relDir, impPath)
+		dodebug := strings.Contains(impPath, "css")
+		if dodebug {
+			// impPath = strings.TrimPrefix(impPath, "/")
+		}
+		importer := args.Importer
+		// TODO1 todelido.
+		if false && dodebug {
+			impPath = path.Join("js/hugoheadlessui/components", impPath)
+		} else {
+			isStdin := importer == stdinImporter
+			var relDir string
+			if !isStdin {
+				if strings.HasPrefix(importer, "@hugo-virtual") {
+					// TODO1 constants.
+					relDir = filepath.Dir(strings.TrimPrefix(importer, "@hugo-virtual"))
+				} else {
+					rel, found := fs.MakePathRelative(importer, true)
+
+					if !found {
+						// Not in any of the /assets folders.
+						// This is an import from a node_modules, let
+						// ESBuild resolve this.
+						return api.OnResolveResult{}, nil
+					}
+
+					relDir = filepath.Dir(rel)
+				}
+			} else {
+				relDir = opts.SourceDir
+			}
+
+			// Imports not starting with a "." is assumed to live relative to /assets.
+			// Hugo makes no assumptions about the directory structure below /assets.
+			if relDir != "" && strings.HasPrefix(impPath, ".") {
+				impPath = filepath.Join(relDir, impPath)
+			}
 		}
 
 		m := resolveComponentInAssets(fs.Fs, impPath)
@@ -272,16 +334,26 @@ func createBuildPlugins(depsManager identity.Manager, c *Client, opts Options) (
 				})
 			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: nsImportHugo},
 				func(args api.OnLoadArgs) (api.OnLoadResult, error) {
-					b, err := os.ReadFile(args.Path)
-					if err != nil {
-						return api.OnLoadResult{}, fmt.Errorf("failed to read %q: %w", args.Path, err)
+					var c string
+					if opts.ImportOnLoadFunc != nil {
+						if s := opts.ImportOnLoadFunc(args); s != "" {
+							c = s
+						}
 					}
-					c := string(b)
+
+					if c == "" {
+						b, err := os.ReadFile(args.Path)
+						if err != nil {
+							return api.OnLoadResult{}, fmt.Errorf("failed to read %q: %w", args.Path, err)
+						}
+						c = string(b)
+					}
+
 					return api.OnLoadResult{
 						// See https://github.com/evanw/esbuild/issues/502
 						// This allows all modules to resolve dependencies
 						// in the main project's node_modules.
-						ResolveDir: opts.resolveDir,
+						ResolveDir: opts.ResolveDir,
 						Contents:   &c,
 						Loader:     loaderFromFilename(args.Path),
 					}, nil
@@ -306,14 +378,22 @@ func createBuildPlugins(depsManager identity.Manager, c *Client, opts Options) (
 			build.OnResolve(api.OnResolveOptions{Filter: `^@params$`},
 				func(args api.OnResolveArgs) (api.OnResolveResult, error) {
 					return api.OnResolveResult{
-						Path:      args.Path,
+						Path:      args.Importer,
 						Namespace: nsParams,
 					}, nil
 				})
 			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: nsParams},
 				func(args api.OnLoadArgs) (api.OnLoadResult, error) {
+					contents := bs
+
+					if opts.ImportParamsOnLoadFunc != nil {
+						if s := opts.ImportParamsOnLoadFunc(args); s != "" {
+							contents = s
+						}
+					}
+
 					return api.OnLoadResult{
-						Contents: &bs,
+						Contents: &contents,
 						Loader:   api.LoaderJSON,
 					}, nil
 				})
@@ -353,7 +433,7 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 		return
 	}
 
-	mediaType := opts.mediaType
+	mediaType := opts.MediaType
 	if mediaType.IsZero() {
 		mediaType = media.Builtin.JavascriptType
 	}
@@ -371,7 +451,7 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 	case media.Builtin.JSXType.SubType:
 		loader = api.LoaderJSX
 	default:
-		err = fmt.Errorf("unsupported Media Type: %q", opts.mediaType)
+		err = fmt.Errorf("unsupported Media Type: %q", opts.MediaType)
 		return
 	}
 
@@ -408,7 +488,7 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 	}
 
 	// By default we only need to specify outDir and no outFile
-	outDir := opts.outDir
+	outDir := opts.OutDir
 	outFile := ""
 	var sourceMap api.SourceMap
 	switch opts.SourceMap {
@@ -424,8 +504,9 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 	}
 
 	buildOptions = api.BuildOptions{
-		Outfile: outFile,
-		Bundle:  true,
+		Outfile:  outFile,
+		Bundle:   true,
+		Metafile: true,
 
 		Target:    target,
 		Format:    format,
@@ -435,9 +516,12 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 		MinifyIdentifiers: opts.Minify,
 		MinifySyntax:      opts.Minify,
 
-		Outdir: outDir,
-		Define: defines,
+		Outdir:         outDir,
+		Write:          opts.Write,
+		AllowOverwrite: opts.AllowOverwrite,
+		Splitting:      opts.Splitting,
 
+		Define:   defines,
 		External: opts.Externals,
 
 		JSXFactory:  opts.JSXFactory,
@@ -446,16 +530,18 @@ func toBuildOptions(opts Options) (buildOptions api.BuildOptions, err error) {
 		JSX:             jsx,
 		JSXImportSource: opts.JSXImportSource,
 
-		Tsconfig: opts.tsConfig,
+		Tsconfig: opts.TsConfig,
 
-		// Note: We're not passing Sourcefile to ESBuild.
-		// This makes ESBuild pass `stdin` as the Importer to the import
-		// resolver, which is what we need/expect.
-		Stdin: &api.StdinOptions{
-			Contents:   opts.contents,
-			ResolveDir: opts.resolveDir,
+		EntryPoints: opts.EntryPoints,
+	}
+
+	if opts.Stdin {
+		// This makes ESBuild pass `stdin` as the Importer to the import.
+		buildOptions.Stdin = &api.StdinOptions{
+			Contents:   opts.Contents,
+			ResolveDir: opts.ResolveDir,
 			Loader:     loader,
-		},
+		}
 	}
 	return
 }

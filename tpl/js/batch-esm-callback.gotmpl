@@ -1,0 +1,15 @@
+{{ range $i, $e := .Modules -}}
+  import { default as {{ printf "Mod%d" $i }} } from "{{ .ImportPath }}";
+{{ end -}}
+{{ with .CallbackImportPath }}
+  import { default as Callback } from "{{ . }}";
+{{ end }}
+{{/*  */}}
+let mods = [];
+{{ range $i, $e := .Modules -}}
+  mods.push({{ .CallbackJSON $i }});
+{{ end -}}
+{{/*  */}}
+{{ if .CallbackImportPath }}
+  Callback(mods);
+{{ end }}
