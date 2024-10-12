@@ -76,6 +76,11 @@ func CreateSite(createpath string, sourceFs afero.Fs, force bool, format string)
 		return err
 	}
 
+	err = newSiteCreateArchetype(sourceFs, createpath, format)
+	if err != nil {
+		return err
+	}
+
 	return copyFiles(createpath, sourceFs, siteFs)
 }
 
@@ -108,4 +113,20 @@ func newSiteCreateConfig(fs afero.Fs, createpath string, format string) (err err
 	}
 
 	return helpers.WriteToDisk(filepath.Join(createpath, "hugo."+format), &buf, fs)
+}
+
+func newSiteCreateArchetype(fs afero.Fs, createpath string, format string) (err error) {
+	in := map[string]any{
+		"title": "{{ replace .File.ContentBaseName \"-\" \" \" | title }}",
+		"date":  "{{ .Date }}",
+		"draft": true,
+	}
+
+	var buf bytes.Buffer
+	err = parser.InterfaceToConfig(in, metadecoders.FormatFromString(format), &buf)
+	if err != nil {
+		return err
+	}
+
+	return helpers.WriteToDisk(filepath.Join(createpath, "archetypes", "default.md"), &buf, fs)
 }
