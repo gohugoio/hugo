@@ -2,8 +2,8 @@
   <meta itemprop="name" content="{{ . }}">
 {{- end }}
 
-{{- with or .Description .Summary site.Params.description | plainify | htmlUnescape | chomp }}
-  <meta itemprop="description" content="{{ . }}">
+{{- with or .Description .Summary site.Params.description | plainify | htmlUnescape }}
+  <meta itemprop="description" content="{{ trim . "\n\r\t " }}">
 {{- end }}
 
 {{- $ISO8601 := "2006-01-02T15:04:05-07:00" }}
