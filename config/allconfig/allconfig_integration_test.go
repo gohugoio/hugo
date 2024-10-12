@@ -160,3 +160,21 @@ title: "p3"
 	b.AssertFileExists("public/page/1/index.html", false)
 	b.AssertFileContent("public/page/2/index.html", "pagination-default")
 }
+
+
+func TestMapUglyURLs(t *testing.T) {
+	files := `
+-- hugo.toml --
+[uglyurls]
+  posts = true
+`
+
+	b := hugolib.Test(t, files)
+
+	c := b.H.Configs.Base
+
+	mapUglyURLs, isMap := c.UglyURLs.(map[string]bool)
+
+	b.Assert(isMap, qt.Equals, true)
+	b.Assert(mapUglyURLs["posts"], qt.Equals, true)
+}
