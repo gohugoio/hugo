@@ -511,20 +511,20 @@ func (s *Site) Params() maps.Params {
 // Deprecated: Use taxonomies instead.
 func (s *Site) Author() map[string]any {
 	if len(s.conf.Author) != 0 {
-		hugo.Deprecate(".Site.Author", "Use taxonomies instead.", "v0.124.0")
+		hugo.Deprecate(".Site.Author", "Implement taxonomy 'author' or use .Site.Params.Author instead.", "v0.124.0")
 	}
 	return s.conf.Author
 }
 
 // Deprecated: Use taxonomies instead.
 func (s *Site) Authors() page.AuthorList {
-	hugo.Deprecate(".Site.Authors", "Use taxonomies instead.", "v0.124.0")
+	hugo.Deprecate(".Site.Authors", "Implement taxonomy 'authors' or use .Site.Params.Author instead.", "v0.124.0")
 	return page.AuthorList{}
 }
 
 // Deprecated: Use .Site.Params instead.
 func (s *Site) Social() map[string]string {
-	hugo.Deprecate(".Site.Social", "Use .Site.Params instead.", "v0.124.0")
+	hugo.Deprecate(".Site.Social", "Implement taxonomy 'social' or use .Site.Params.Social instead.", "v0.124.0")
 	return s.conf.Social
 }
 
