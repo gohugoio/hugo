@@ -252,6 +252,13 @@ type StaleInfo interface {
 	StaleVersion() uint32
 }
 
+// StaleInfoFunc is a function that returns the StaleVersion for one or more resources.
+type StaleInfoFunc func() uint32
+
+func (f StaleInfoFunc) StaleVersion() uint32 {
+	return f()
+}
+
 // StaleVersion returns the StaleVersion for the given os,
 // or 0 if not set.
 func StaleVersion(os any) uint32 {

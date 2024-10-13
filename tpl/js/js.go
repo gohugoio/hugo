@@ -37,7 +37,8 @@ func New(deps *deps.Deps) *Namespace {
 		bundlesCache: dynacache.GetOrCreatePartition[string, *Package](
 			deps.MemCache,
 			"/jsb1",
-			dynacache.OptionsPartition{ClearWhen: dynacache.ClearOnChange, Weight: 10},
+			// Mark it to clear on rebuild, but each package evaluate itself for changes.
+			dynacache.OptionsPartition{ClearWhen: dynacache.ClearOnRebuild, Weight: 10},
 		),
 		client:       js.New(deps.BaseFs.Assets, deps.ResourceSpec),
 		createClient: create.New(deps.ResourceSpec),

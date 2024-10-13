@@ -17,7 +17,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 
@@ -256,10 +255,12 @@ func createBuildPlugins(c *Client, depsManager identity.Manager, opts Options) (
 
 	resolveImport := func(args api.OnResolveArgs) (api.OnResolveResult, error) {
 		impPath := args.Path
+		shimmed := false
 		if opts.Shims != nil {
 			override, found := opts.Shims[impPath]
 			if found {
 				impPath = override
+				shimmed = true
 			}
 		}
 
@@ -269,42 +270,38 @@ func createBuildPlugins(c *Client, depsManager identity.Manager, opts Options) (
 			}
 		}
 
-		dodebug := strings.Contains(impPath, "css")
-		if dodebug {
-			// impPath = strings.TrimPrefix(impPath, "/")
-		}
 		importer := args.Importer
-		// TODO1 todelido.
-		if false && dodebug {
-			impPath = path.Join("js/hugoheadlessui/components", impPath)
-		} else {
-			isStdin := importer == stdinImporter
-			var relDir string
-			if !isStdin {
-				if strings.HasPrefix(importer, "@hugo-virtual") {
-					// TODO1 constants.
-					relDir = filepath.Dir(strings.TrimPrefix(importer, "@hugo-virtual"))
-				} else {
-					rel, found := fs.MakePathRelative(importer, true)
 
-					if !found {
+		isStdin := importer == stdinImporter
+		var relDir string
+		if !isStdin {
+			if strings.HasPrefix(importer, "@hugo-virtual") {
+				// TODO1 constants.
+				relDir = filepath.Dir(strings.TrimPrefix(importer, "@hugo-virtual"))
+			} else {
+				rel, found := fs.MakePathRelative(importer, true)
+
+				if !found {
+					if shimmed {
+						relDir = opts.SourceDir
+					} else {
 						// Not in any of the /assets folders.
 						// This is an import from a node_modules, let
 						// ESBuild resolve this.
 						return api.OnResolveResult{}, nil
 					}
-
+				} else {
 					relDir = filepath.Dir(rel)
 				}
-			} else {
-				relDir = opts.SourceDir
 			}
+		} else {
+			relDir = opts.SourceDir
+		}
 
-			// Imports not starting with a "." is assumed to live relative to /assets.
-			// Hugo makes no assumptions about the directory structure below /assets.
-			if relDir != "" && strings.HasPrefix(impPath, ".") {
-				impPath = filepath.Join(relDir, impPath)
-			}
+		// Imports not starting with a "." is assumed to live relative to /assets.
+		// Hugo makes no assumptions about the directory structure below /assets.
+		if relDir != "" && strings.HasPrefix(impPath, ".") {
+			impPath = filepath.Join(relDir, impPath)
 		}
 
 		m := resolveComponentInAssets(fs.Fs, impPath)

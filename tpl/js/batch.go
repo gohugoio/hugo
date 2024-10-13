@@ -23,9 +23,11 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"reflect"
 	"sort"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/evanw/esbuild/pkg/api"
@@ -431,13 +433,20 @@ func (b *batcher) Config() OptionsSetter {
 	return b.configOptions.Get()
 }
 
+var _ resource.StaleInfo = (*options)(nil)
+
 type options struct {
 	getOnce[*optionsSetter]
 }
 
 func (o *options) Reset() {
 	mu := o.once.ResetWithLock()
+	o.v.staleVersion.Store(0)
 	defer mu.Unlock()
+}
+
+func (o *options) StaleVersion() uint32 {
+	return o.v.staleVersion.Load()
 }
 
 // func (o ScriptOptions) Compile(m map[string]any) (*ScriptOptions, error) {
@@ -449,11 +458,44 @@ func newOptions() *options {
 }
 
 type optionsSetter struct {
-	opts map[string]any
+	staleVersion atomic.Uint32
+	opts         map[string]any
 }
 
+// TODO1 try to avoid stale page resources when changing the head.
 func (o *optionsSetter) SetOptions(m map[string]any) string {
-	fmt.Println("SetOptions", m) // TODO1
+	if o.opts != nil {
+		if reflect.DeepEqual(o.opts, m) {
+			return ""
+		}
+		var isStale bool
+		for k, v := range m {
+
+			vv, found := o.opts[k]
+			if !found {
+				isStale = true
+			} else {
+				if si, ok := vv.(resource.StaleInfo); ok {
+					isStale = si.StaleVersion() > 0
+				} else {
+					if k == "importContext" {
+						panic("importContext")
+					}
+					isStale = !reflect.DeepEqual(v, vv)
+				}
+			}
+
+			if isStale {
+				break
+			}
+		}
+
+		if !isStale {
+			return ""
+		}
+
+		o.staleVersion.Add(1)
+	}
 	o.opts = m
 	return ""
 }
@@ -590,6 +632,7 @@ func (p *Package) IdentifierBase() string {
 	return p.id
 }
 
+// TODO1 need this? We cannot cache this value for long.
 func (p *Package) StaleVersion() uint32 {
 	p.b.mu.Lock()
 	defer p.b.mu.Unlock()
@@ -606,7 +649,7 @@ func (p *Package) MarkStale() {
 func (p *Package) IsProbablyDependency(other identity.Identity) bool {
 	depsFinder := identity.NewFinder(identity.FinderConfig{})
 	var b bool
-	p.forEeachResource(func(rr resource.Resource) bool {
+	p.forEeachStaleInfo(func(rr resource.StaleInfo) bool {
 		identity.WalkIdentitiesShallow(other, func(level int, left identity.Identity) bool {
 			identity.WalkIdentitiesShallow(rr, func(level int, right identity.Identity) bool {
 				if i := depsFinder.Contains(left, right, -1); i > 0 {
@@ -624,23 +667,38 @@ func (p *Package) IsProbablyDependency(other identity.Identity) bool {
 	return b
 }
 
-func (p *Package) forEeachResource(f func(r resource.Resource) bool) {
-	for _, v := range p.b.scriptGroups.Sorted() {
+// You should not depend on the invocation order when calling this.
+// TODO1 check that this does not get called on first build.
+func (p *Package) forEeachStaleInfo(f func(si resource.StaleInfo) bool) {
+	check := func(v any) bool {
+		if si, ok := v.(resource.StaleInfo); ok {
+			return f(si)
+		}
+		return false
+	}
+	for _, v := range p.b.scriptGroups {
 		if b := func() bool {
 			v.mu.Lock()
 			defer v.mu.Unlock()
-			/*callbackOptions := v.GetCallbackOptions() // TODO1 validate.
-			if callbackOptions != nil {
-				if f(callbackOptions.Resource) { // TODO1 options.
+
+			for _, vv := range v.instancesOptions {
+				if check(vv) {
 					return true
 				}
 			}
-			*/
-			for _, vv := range v.scripts.Sorted() {
-				if f(vv.Resource) {
+
+			for _, vv := range v.scriptsOptions {
+				if check(vv) {
 					return true
 				}
 			}
+
+			for _, vv := range v.callbacksOptions {
+				if check(vv) {
+					return true
+				}
+			}
+
 			return false
 		}(); b {
 			return
@@ -649,10 +707,10 @@ func (p *Package) forEeachResource(f func(r resource.Resource) bool) {
 }
 
 func (p *Package) calculateStaleVersion() uint32 {
-	// Return the first 0 zero value of the resources in this bundle.
+	// Return the first 0 zero value found.
 	var i uint32
-	p.forEeachResource(func(r resource.Resource) bool {
-		if i = resource.StaleVersion(r); i > 0 {
+	p.forEeachStaleInfo(func(si resource.StaleInfo) bool {
+		if i = si.StaleVersion(); i > 0 {
 			return true
 		}
 		return false
@@ -692,7 +750,8 @@ func (b *batcher) build() (*Package, error) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
-	if b.prevBuild != nil {
+	// Use the unexported calculateStaleVersion
+	if b.prevBuild != nil && b.prevBuild.calculateStaleVersion() == 0 {
 		return b.prevBuild, nil
 	}
 

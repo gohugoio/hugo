@@ -264,6 +264,13 @@ type ResourceGetter interface {
 	Get(name any) Resource
 }
 
+// StaleInfoResourceGetter is a ResourceGetter that also provides information about
+// whether the underlying resources are stale.
+type StaleInfoResourceGetter interface {
+	StaleInfo
+	ResourceGetter
+}
+
 type resourceGetterFunc func(name any) Resource
 
 func (f resourceGetterFunc) Get(name any) Resource {
@@ -309,15 +316,32 @@ type ResourceFinder interface {
 // NewResourceGetter creates a new ResourceGetter from the given objects.
 // If multiple objects are provided, they are merged into one where
 // the first match wins.
-func NewResourceGetter(os ...any) ResourceGetter {
+func NewResourceGetter(os ...any) StaleInfoResourceGetter {
 	var getters multiResourceGetter
 	for _, o := range os {
 		if g, ok := unwrapResourceGetter(o); ok {
 			getters = append(getters, g)
 		}
 	}
-	// TODO1 slice of any etc. + tests.
-	return getters
+
+	return struct {
+		StaleInfo
+		ResourceGetter
+	}{
+		StaleInfoFunc(
+			func() uint32 {
+				for _, g := range getters {
+					if s, ok := g.(StaleInfo); ok {
+						if i := s.StaleVersion(); i > 0 {
+							return i
+						}
+					}
+				}
+				return 0
+			},
+		),
+		getters,
+	}
 }
 
 type multiResourceGetter []ResourceGetter

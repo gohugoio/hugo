@@ -22,6 +22,8 @@ import (
 	"github.com/gohugoio/hugo/hugolib"
 )
 
+// TODO1 fix shims vs headlessui.
+
 func TestBatch(t *testing.T) {
 	files := `
 -- hugo.toml --
@@ -42,6 +44,10 @@ baseURL = "https://example.com"
     "react-dom": "^18.3.1"
   }
 }
+-- assets/js/shims/react.js --
+-- assets/js/shims/react-dom.js --
+module.exports = window.ReactDOM;
+module.exports = window.React;
 -- content/mybundle/index.md --
 ---
 title: "My Bundle"
@@ -184,9 +190,11 @@ Single.
 {{ $batch := (js.Batch "mybundle" site.Home.Store) }}
 {{ $otherCSS := (resources.Match "/other/*.css").Mount "/other" "." }}
  {{ with $batch.Config }}
+	  {{ $shims := dict "react" "js/shims/react.js"  "react-dom/client" "js/shims/react-dom.js" }}
       {{ .SetOptions (dict 
            "target" "es2018"
            "params" (dict "id" "config")
+		   "shims" $shims
 	     )
       }}
 {{ end }}
