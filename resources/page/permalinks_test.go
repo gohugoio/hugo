@@ -44,6 +44,8 @@ var testdataPermalinks = []struct {
 	{"/:sections/", true, "/a/b/c/"},                                // Sections
 	{"/:sections[last]/", true, "/c/"},                              // Sections
 	{"/:sections[0]/:sections[last]/", true, "/a/c/"},               // Sections
+	{"/\\:filename", true, "/:filename"},                            // Escape sequence
+	{"/special\\::slug/", true, "/special:the-slug/"},               // Escape sequence
 
 	// Failures
 	{"/blog/:fred", false, ""},
@@ -117,6 +119,7 @@ func TestPermalinkExpansionMultiSection(t *testing.T) {
 			"posts":   "/:slug",
 			"blog":    "/:section/:year",
 			"recipes": "/:slugorfilename",
+			"special": "/special\\::slug",
 		},
 	}
 	expander, err := NewPermalinkExpander(urlize, permalinksConfig)
@@ -137,6 +140,10 @@ func TestPermalinkExpansionMultiSection(t *testing.T) {
 	expanded, err = expander.Expand("recipes", page_slug_fallback)
 	c.Assert(err, qt.IsNil)
 	c.Assert(expanded, qt.Equals, "/page-filename")
+
+	expanded, err = expander.Expand("special", page)
+	c.Assert(err, qt.IsNil)
+	c.Assert(expanded, qt.Equals, "/special:the-slug")
 }
 
 func TestPermalinkExpansionConcurrent(t *testing.T) {

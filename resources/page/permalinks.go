@@ -107,6 +107,10 @@ func NewPermalinkExpander(urlize func(uri string) string, patterns map[string]ma
 	return p, nil
 }
 
+func (l PermalinkExpander) normalizeEscapeSequences(result string) string {
+	return strings.ReplaceAll(result, "\\:", ":")
+}
+
 // ExpandPattern expands the path in p with the specified expand pattern.
 func (l PermalinkExpander) ExpandPattern(pattern string, p Page) (string, error) {
 	expander, err := l.getOrParsePattern(pattern)
@@ -114,7 +118,11 @@ func (l PermalinkExpander) ExpandPattern(pattern string, p Page) (string, error)
 		return "", err
 	}
 
-	return expander(p)
+	result, err := expander(p)
+	if err != nil {
+		return "", err
+	}
+	return l.normalizeEscapeSequences(result), nil
 }
 
 // Expand expands the path in p according to the rules defined for the given key.
@@ -132,7 +140,11 @@ func (l PermalinkExpander) Expand(key string, p Page) (string, error) {
 		return "", nil
 	}
 
-	return expand(p)
+	result, err := expand(p)
+	if err != nil {
+		return "", err
+	}
+	return l.normalizeEscapeSequences(result), nil
 }
 
 // Allow " " and / to represent the root section.
@@ -154,7 +166,7 @@ func (l PermalinkExpander) getOrParsePattern(pattern string) (func(Page) (string
 		callbacks := make([]pageToPermaAttribute, len(matches))
 		replacements := make([]string, len(matches))
 		for i, m := range matches {
-			replacement := m[0]
+			replacement := m[1]
 			attr := replacement[1:]
 			replacements[i] = replacement
 			callback, ok := l.callback(attr)
@@ -210,7 +222,7 @@ func (l PermalinkExpander) parse(patterns map[string]string) (map[string]func(Pa
 // can return a string to go in that position in the page (or an error)
 type pageToPermaAttribute func(Page, string) (string, error)
 
-var attributeRegexp = regexp.MustCompile(`:\w+(\[.+?\])?`)
+var attributeRegexp = regexp.MustCompile(`(?:^|[^\\])(:\w+(?:\[.+?])?)`)
 
 // validate determines if a PathPattern is well-formed
 func (l PermalinkExpander) validate(pp string) bool {
@@ -234,7 +246,7 @@ func (l PermalinkExpander) validate(pp string) bool {
 		}
 
 		for _, match := range matches {
-			k := match[0][1:]
+			k := match[1][1:]
 			if _, ok := l.callback(k); !ok {
 				return false
 			}
