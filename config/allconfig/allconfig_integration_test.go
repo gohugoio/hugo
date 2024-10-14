@@ -161,7 +161,6 @@ title: "p3"
 	b.AssertFileContent("public/page/2/index.html", "pagination-default")
 }
 
-
 func TestMapUglyURLs(t *testing.T) {
 	files := `
 -- hugo.toml --
@@ -173,8 +172,6 @@ func TestMapUglyURLs(t *testing.T) {
 
 	c := b.H.Configs.Base
 
-	mapUglyURLs, isMap := c.UglyURLs.(map[string]bool)
-
-	b.Assert(isMap, qt.Equals, true)
-	b.Assert(mapUglyURLs["posts"], qt.Equals, true)
+	b.Assert(c.C.IsUglyURLSection("posts"), qt.IsTrue)
+	b.Assert(c.C.IsUglyURLSection("blog"), qt.IsFalse)
 }
