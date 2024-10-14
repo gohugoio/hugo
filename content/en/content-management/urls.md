@@ -89,7 +89,7 @@ If you set both `slug` and `url` in front matter, the `url` value takes preceden
 
 {{< new-in "0.131.0" >}}
 
-You can also use [Permalinks tokens](#tokens) in the `url` front matter. This is typically used in `cascade` sections:
+You can also use [tokens](#tokens) when setting the `url` value. This is typically used in `cascade` sections:
 
 {{< code-toggle file=content/foo/bar/_index.md fm=true >}}
 title ="Bar"
@@ -246,7 +246,7 @@ public/
 
 #### Tokens
 
-Use these tokens when defining the URL pattern. These can both be used in the `permalinks` configuration and in the front matter [url](#permalinks-tokens-in-front-matter).
+Use these tokens when defining the URL pattern. You can also use these tokens when setting the [`url`](#permalinks-tokens-in-front-matter) value in front matter.
 
 `:year`
 : The 4-digit year as defined in the front matter `date` field.
