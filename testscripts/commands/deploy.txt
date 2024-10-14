@@ -1,7 +1,7 @@
 # Test the deploy command.
 
 hugo deploy -h
-stdout 'Deploy your site to a Cloud provider\.'
+stdout 'Deploy your site to a cloud provider'
 mkdir mybucket
 hugo deploy --target mydeployment --invalidateCDN=false
 grep 'hello' mybucket/index.html

@@ -199,8 +199,8 @@ func (c *listCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args 
 
 func (c *listCommand) Init(cd *simplecobra.Commandeer) error {
 	cmd := cd.CobraCommand
-	cmd.Short = "Listing out various types of content"
-	cmd.Long = `Listing out various types of content.
+	cmd.Short = "List content"
+	cmd.Long = `List content.
 
 List requires a subcommand, e.g. hugo list drafts`
 

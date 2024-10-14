@@ -509,7 +509,7 @@ func (r *rootCommand) initRootCommand(subCommandName string, cd *simplecobra.Com
 		commandName = subCommandName
 	}
 	cmd.Use = fmt.Sprintf("%s [flags]", commandName)
-	cmd.Short = fmt.Sprintf("%s builds your site", commandName)
+	cmd.Short = "Build your site"
 	cmd.Long = `COMMAND_NAME is the main command, used to build your Hugo site.
 
 Hugo is a Fast and Flexible Static Site Generator

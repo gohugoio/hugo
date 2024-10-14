@@ -40,7 +40,7 @@ func newNewCommand() *newCommand {
 			&simpleCommand{
 				name:  "content",
 				use:   "content [path]",
-				short: "Create new content for your site",
+				short: "Create new content",
 				long: `Create a new content file and automatically set the date and title.
 It will guess which kind of file to create based on the path provided.
 
@@ -181,7 +181,7 @@ func (c *newCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args [
 
 func (c *newCommand) Init(cd *simplecobra.Commandeer) error {
 	cmd := cd.CobraCommand
-	cmd.Short = "Create new content for your site"
+	cmd.Short = "Create new content"
 	cmd.Long = `Create a new content file and automatically set the date and title.
 It will guess which kind of file to create based on the path provided.
 

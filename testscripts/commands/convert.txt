@@ -1,7 +1,7 @@
 # Test the convert commands.
 
 hugo convert -h
-stdout 'Convert your content'
+stdout 'Convert front matter to another format'
 hugo convert toJSON -h
 stdout 'to use JSON for the front matter'
 hugo convert toTOML -h

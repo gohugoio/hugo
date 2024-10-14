@@ -1,7 +1,7 @@
 # Test the config command.
 
 hugo config -h
-stdout 'Print the site configuration'
+stdout 'Display site configuration'
 
 
 hugo config
