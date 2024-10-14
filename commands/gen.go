@@ -273,7 +273,8 @@ func (c *genCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args [
 
 func (c *genCommand) Init(cd *simplecobra.Commandeer) error {
 	cmd := cd.CobraCommand
-	cmd.Short = "A collection of several useful generators."
+	cmd.Short = "Generate documentation and syntax highlighting styles"
+	cmd.Long = "Generate documentation for your project using Hugo's documentation engine, including syntax highlighting for various programming languages."
 
 	cmd.RunE = nil
 	return nil

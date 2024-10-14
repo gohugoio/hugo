@@ -1,7 +1,7 @@
-# Test the import jekyll command.
+# Test the import + import jekyll command.
 
 hugo import -h 
-stdout 'Import your site from other web site generators like Jekyll\.'
+stdout 'Import a site from another system'
 
 hugo import jekyll -h
 stdout 'hugo import from Jekyll\.'

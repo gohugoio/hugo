@@ -508,7 +508,7 @@ func (c *serverCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 
 func (c *serverCommand) Init(cd *simplecobra.Commandeer) error {
 	cmd := cd.CobraCommand
-	cmd.Short = "A high performance webserver"
+	cmd.Short = "Start the embedded web server"
 	cmd.Long = `Hugo provides its own webserver which builds and serves the site.
 While hugo server is high performance, it is a webserver with limited options.
 

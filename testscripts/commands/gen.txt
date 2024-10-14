@@ -3,7 +3,7 @@
 env NUM_COMMANDS=44
 
 hugo gen -h
-stdout 'A collection of several useful generators\.'
+stdout 'Generate documentation for your project using Hugo''s documentation engine, including syntax highlighting for various programming languages\.'
 
 hugo gen doc --dir clidocs
 checkfilecount $NUM_COMMANDS clidocs

@@ -105,8 +105,8 @@ func (c *convertCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, ar
 
 func (c *convertCommand) Init(cd *simplecobra.Commandeer) error {
 	cmd := cd.CobraCommand
-	cmd.Short = "Convert your content to different formats"
-	cmd.Long = `Convert your content (e.g. front matter) to different formats.
+	cmd.Short = "Convert front matter to another format"
+	cmd.Long = `Convert front matter to another format.
 
 See convert's subcommands toJSON, toTOML and toYAML for more information.`
 

@@ -110,8 +110,8 @@ func (c *configCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 func (c *configCommand) Init(cd *simplecobra.Commandeer) error {
 	c.r = cd.Root.Command.(*rootCommand)
 	cmd := cd.CobraCommand
-	cmd.Short = "Print the site configuration"
-	cmd.Long = `Print the site configuration, both default and custom settings.`
+	cmd.Short = "Display site configuration"
+	cmd.Long = `Display site configuration, both default and custom settings.`
 	cmd.Flags().StringVar(&c.format, "format", "toml", "preferred file format (toml, yaml or json)")
 	_ = cmd.RegisterFlagCompletionFunc("format", cobra.FixedCompletions([]string{"toml", "yaml", "json"}, cobra.ShellCompDirectiveNoFileComp))
 	cmd.Flags().StringVar(&c.lang, "lang", "", "the language to display config for. Defaults to the first language defined.")
