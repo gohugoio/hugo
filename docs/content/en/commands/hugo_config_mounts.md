@@ -42,5 +42,5 @@ hugo config mounts [flags] [args]
 
 ### SEE ALSO
 
-* [hugo config](/commands/hugo_config/)	 - Print the site configuration
+* [hugo config](/commands/hugo_config/)	 - Display site configuration
 

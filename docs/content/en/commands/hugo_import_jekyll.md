@@ -44,5 +44,5 @@ hugo import jekyll [flags] [args]
 
 ### SEE ALSO
 
-* [hugo import](/commands/hugo_import/)	 - Import your site from others.
+* [hugo import](/commands/hugo_import/)	 - Import a site from another system
 

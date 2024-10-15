@@ -5,7 +5,7 @@ url: /commands/hugo_build/
 ---
 ## hugo build
 
-build builds your site
+Build your site
 
 ### Synopsis
 
@@ -70,5 +70,5 @@ hugo build [flags]
 
 ### SEE ALSO
 
-* [hugo](/commands/hugo/)	 - hugo builds your site
+* [hugo](/commands/hugo/)	 - Build your site
 
