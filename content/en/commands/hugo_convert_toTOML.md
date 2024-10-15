@@ -44,5 +44,5 @@ hugo convert toTOML [flags] [args]
 
 ### SEE ALSO
 
-* [hugo convert](/commands/hugo_convert/)	 - Convert your content to different formats
+* [hugo convert](/commands/hugo_convert/)	 - Convert front matter to another format
 

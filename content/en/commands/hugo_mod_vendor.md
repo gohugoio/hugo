@@ -48,5 +48,5 @@ hugo mod vendor [flags] [args]
 
 ### SEE ALSO
 
-* [hugo mod](/commands/hugo_mod/)	 - Various Hugo Modules helpers.
+* [hugo mod](/commands/hugo_mod/)	 - Manage modules
 

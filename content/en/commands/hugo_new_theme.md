@@ -44,5 +44,5 @@ hugo new theme [name] [flags]
 
 ### SEE ALSO
 
-* [hugo new](/commands/hugo_new/)	 - Create new content for your site
+* [hugo new](/commands/hugo_new/)	 - Create new content
 
