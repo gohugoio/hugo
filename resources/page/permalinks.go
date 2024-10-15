@@ -107,44 +107,42 @@ func NewPermalinkExpander(urlize func(uri string) string, patterns map[string]ma
 	return p, nil
 }
 
-func (l PermalinkExpander) normalizeEscapeSequences(result string) string {
-	return strings.ReplaceAll(result, "\\:", ":")
+// Escape sequence for colons in permalink patterns.
+const escapePlaceholderColon = "\x00"
+
+func (l PermalinkExpander) normalizeEscapeSequencesIn(s string) (string, bool) {
+	s2 := strings.ReplaceAll(s, "\\:", escapePlaceholderColon)
+	return s2, s2 != s
+}
+
+func (l PermalinkExpander) normalizeEscapeSequencesOut(result string) string {
+	return strings.ReplaceAll(result, escapePlaceholderColon, ":")
 }
 
 // ExpandPattern expands the path in p with the specified expand pattern.
 func (l PermalinkExpander) ExpandPattern(pattern string, p Page) (string, error) {
-	expander, err := l.getOrParsePattern(pattern)
+	expand, err := l.getOrParsePattern(pattern)
 	if err != nil {
 		return "", err
 	}
 
-	result, err := expander(p)
-	if err != nil {
-		return "", err
-	}
-	return l.normalizeEscapeSequences(result), nil
+	return expand(p)
 }
 
 // Expand expands the path in p according to the rules defined for the given key.
 // If no rules are found for the given key, an empty string is returned.
 func (l PermalinkExpander) Expand(key string, p Page) (string, error) {
 	expanders, found := l.expanders[p.Kind()]
-
 	if !found {
 		return "", nil
 	}
 
 	expand, found := expanders[key]
-
 	if !found {
 		return "", nil
 	}
 
-	result, err := expand(p)
-	if err != nil {
-		return "", err
-	}
-	return l.normalizeEscapeSequences(result), nil
+	return expand(p)
 }
 
 // Allow " " and / to represent the root section.
@@ -161,12 +159,24 @@ func (l PermalinkExpander) getOrParsePattern(pattern string) (func(Page) (string
 		if !l.validate(pattern) {
 			return nil, &permalinkExpandError{pattern: pattern, err: errPermalinkIllFormed}
 		}
+		var normalized bool
+		pattern, normalized = l.normalizeEscapeSequencesIn(pattern)
+
 		matches := attributeRegexp.FindAllStringSubmatch(pattern, -1)
+		if matches == nil {
+			result := pattern
+			if normalized {
+				result = l.normalizeEscapeSequencesOut(result)
+			}
+			return func(p Page) (string, error) {
+				return result, nil
+			}, nil
+		}
 
 		callbacks := make([]pageToPermaAttribute, len(matches))
 		replacements := make([]string, len(matches))
 		for i, m := range matches {
-			replacement := m[1]
+			replacement := m[0]
 			attr := replacement[1:]
 			replacements[i] = replacement
 			callback, ok := l.callback(attr)
@@ -179,10 +189,6 @@ func (l PermalinkExpander) getOrParsePattern(pattern string) (func(Page) (string
 		}
 
 		return func(p Page) (string, error) {
-			if matches == nil {
-				return pattern, nil
-			}
-
 			newField := pattern
 
 			for i, replacement := range replacements {
@@ -194,6 +200,10 @@ func (l PermalinkExpander) getOrParsePattern(pattern string) (func(Page) (string
 				}
 
 				newField = strings.Replace(newField, replacement, newAttr, 1)
+			}
+
+			if normalized {
+				newField = l.normalizeEscapeSequencesOut(newField)
 			}
 
 			return newField, nil
@@ -222,7 +232,7 @@ func (l PermalinkExpander) parse(patterns map[string]string) (map[string]func(Pa
 // can return a string to go in that position in the page (or an error)
 type pageToPermaAttribute func(Page, string) (string, error)
 
-var attributeRegexp = regexp.MustCompile(`(?:^|[^\\])(:\w+(?:\[.+?])?)`)
+var attributeRegexp = regexp.MustCompile(`:\w+(\[.+?\])?`)
 
 // validate determines if a PathPattern is well-formed
 func (l PermalinkExpander) validate(pp string) bool {
@@ -246,7 +256,7 @@ func (l PermalinkExpander) validate(pp string) bool {
 		}
 
 		for _, match := range matches {
-			k := match[1][1:]
+			k := match[0][1:]
 			if _, ok := l.callback(k); !ok {
 				return false
 			}

@@ -92,6 +92,10 @@ func TestPermalinkExpansion(t *testing.T) {
 			expanded, err := expander.Expand("posts", page)
 			c.Assert(err, qt.IsNil)
 			c.Assert(expanded, qt.Equals, item.expandsTo)
+
+			expanded, err = expander.ExpandPattern(item.spec, page)
+			c.Assert(err, qt.IsNil)
+			c.Assert(expanded, qt.Equals, item.expandsTo)
 		})
 
 	}
