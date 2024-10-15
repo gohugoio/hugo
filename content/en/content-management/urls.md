@@ -311,6 +311,14 @@ By default, Hugo produces pretty URLs. To generate ugly URLs, change your site c
 uglyURLs = true
 {{< /code-toggle >}}
 
+You can also enable uglyURLs by section. For example, with a site that contains sections for books and films:
+
+{{< code-toggle file=hugo >}}
+[uglyURLs]
+books = true
+films = false
+{{< /code-toggle >}}
+
 ### Post-processing
 
 Hugo provides two mutually exclusive configuration options to alter URLs _after_ it renders a page.

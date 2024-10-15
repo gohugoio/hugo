@@ -536,7 +536,7 @@ See [module configuration](/hugo-modules/configuration/#module-configuration-imp
 
 ###### uglyURLs
 
-(`bool`) When enabled, creates URL of the form `/filename.html` instead of `/filename/`. Default is `false`.
+(`bool` or `map`) Whether to generate uglyURLs. Default is `false`. See [details](/content-management/urls/#appearance).
 
 ###### watch
 
