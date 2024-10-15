@@ -5,7 +5,7 @@ url: /commands/hugo_server/
 ---
 ## hugo server
 
-A high performance webserver
+Start the embedded web server
 
 ### Synopsis
 
@@ -94,6 +94,6 @@ hugo server [command] [flags]
 
 ### SEE ALSO
 
-* [hugo](/commands/hugo/)	 - hugo builds your site
+* [hugo](/commands/hugo/)	 - Build your site
 * [hugo server trust](/commands/hugo_server_trust/)	 - Install the local CA in the system trust store.
 

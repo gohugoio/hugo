@@ -41,5 +41,5 @@ hugo list future [flags] [args]
 
 ### SEE ALSO
 
-* [hugo list](/commands/hugo_list/)	 - Listing out various types of content
+* [hugo list](/commands/hugo_list/)	 - List content
 

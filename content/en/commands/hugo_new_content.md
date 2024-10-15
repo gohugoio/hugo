@@ -5,7 +5,7 @@ url: /commands/hugo_new_content/
 ---
 ## hugo new content
 
-Create new content for your site
+Create new content
 
 ### Synopsis
 
@@ -56,5 +56,5 @@ hugo new content [path] [flags]
 
 ### SEE ALSO
 
-* [hugo new](/commands/hugo_new/)	 - Create new content for your site
+* [hugo new](/commands/hugo_new/)	 - Create new content
 

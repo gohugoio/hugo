@@ -5,7 +5,7 @@ url: /commands/hugo_mod/
 ---
 ## hugo mod
 
-Various Hugo Modules helpers.
+Manage modules
 
 ### Synopsis
 
@@ -48,7 +48,7 @@ See https://gohugo.io/hugo-modules/ for more information.
 
 ### SEE ALSO
 
-* [hugo](/commands/hugo/)	 - hugo builds your site
+* [hugo](/commands/hugo/)	 - Build your site
 * [hugo mod clean](/commands/hugo_mod_clean/)	 - Delete the Hugo Module cache for the current project.
 * [hugo mod get](/commands/hugo_mod_get/)	 - Resolves dependencies in your current Hugo Project.
 * [hugo mod graph](/commands/hugo_mod_graph/)	 - Print a module dependency graph.

@@ -5,7 +5,7 @@ url: /commands/hugo/
 ---
 ## hugo
 
-hugo builds your site
+Build your site
 
 ### Synopsis
 
@@ -70,17 +70,17 @@ hugo [flags]
 
 ### SEE ALSO
 
-* [hugo build](/commands/hugo_build/)	 - build builds your site
+* [hugo build](/commands/hugo_build/)	 - Build your site
 * [hugo completion](/commands/hugo_completion/)	 - Generate the autocompletion script for the specified shell
-* [hugo config](/commands/hugo_config/)	 - Print the site configuration
-* [hugo convert](/commands/hugo_convert/)	 - Convert your content to different formats
-* [hugo deploy](/commands/hugo_deploy/)	 - Deploy your site to a Cloud provider.
-* [hugo env](/commands/hugo_env/)	 - Print Hugo version and environment info
-* [hugo gen](/commands/hugo_gen/)	 - A collection of several useful generators.
-* [hugo import](/commands/hugo_import/)	 - Import your site from others.
-* [hugo list](/commands/hugo_list/)	 - Listing out various types of content
-* [hugo mod](/commands/hugo_mod/)	 - Various Hugo Modules helpers.
-* [hugo new](/commands/hugo_new/)	 - Create new content for your site
-* [hugo server](/commands/hugo_server/)	 - A high performance webserver
-* [hugo version](/commands/hugo_version/)	 - Print Hugo version and environment info
+* [hugo config](/commands/hugo_config/)	 - Display site configuration
+* [hugo convert](/commands/hugo_convert/)	 - Convert front matter to another format
+* [hugo deploy](/commands/hugo_deploy/)	 - Deploy your site to a cloud provider
+* [hugo env](/commands/hugo_env/)	 - Display version and environment info
+* [hugo gen](/commands/hugo_gen/)	 - Generate documentation and syntax highlighting styles
+* [hugo import](/commands/hugo_import/)	 - Import a site from another system
+* [hugo list](/commands/hugo_list/)	 - List content
+* [hugo mod](/commands/hugo_mod/)	 - Manage modules
+* [hugo new](/commands/hugo_new/)	 - Create new content
+* [hugo server](/commands/hugo_server/)	 - Start the embedded web server
+* [hugo version](/commands/hugo_version/)	 - Display version
 
