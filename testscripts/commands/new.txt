@@ -65,6 +65,20 @@ cd myexistingsite
 hugo new post/foo.md -t mytheme
 grep 'Dummy content' content/post/foo.md
 
+cd $WORK
+
+# In the three archetype format tests below, skip Windows testing to avoid
+# newline differences when comparing to golden.
+
+hugo new site json-site --format json
+[!windows] cmp json-site/archetypes/default.md archetype-golden-json.md
+
+hugo new site toml-site --format toml
+[!windows] cmp toml-site/archetypes/default.md archetype-golden-toml.md
+
+hugo new site yaml-site --format yaml
+[!windows] cmp yaml-site/archetypes/default.md archetype-golden-yaml.md
+
 -- myexistingsite/hugo.toml --
 theme = "mytheme"
 -- myexistingsite/content/p1.md --
@@ -80,3 +94,22 @@ draft: true
 ---
 
 Dummy content.
+
+-- archetype-golden-json.md --
+{
+   "date": "{{ .Date }}",
+   "draft": true,
+   "title": "{{ replace .File.ContentBaseName \"-\" \" \" | title }}"
+}
+-- archetype-golden-toml.md --
++++
+date = '{{ .Date }}'
+draft = true
+title = '{{ replace .File.ContentBaseName "-" " " | title }}'
++++
+-- archetype-golden-yaml.md --
+---
+date: '{{ .Date }}'
+draft: true
+title: '{{ replace .File.ContentBaseName "-" " " | title }}'
+---

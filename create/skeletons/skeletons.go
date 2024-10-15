@@ -123,7 +123,7 @@ func newSiteCreateArchetype(fs afero.Fs, createpath string, format string) (err 
 	}
 
 	var buf bytes.Buffer
-	err = parser.InterfaceToConfig(in, metadecoders.FormatFromString(format), &buf)
+	err = parser.InterfaceToFrontMatter(in, metadecoders.FormatFromString(format), &buf)
 	if err != nil {
 		return err
 	}
