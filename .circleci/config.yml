@@ -14,9 +14,7 @@ jobs:
     environment: &buildenv
         GOMODCACHE: /root/project/gomodcache
     steps:
-      - &remote-docker
-        setup_remote_docker: 
-          version: 20.10.14
+      - setup_remote_docker
       - checkout: 
           path: hugo
       - &git-config
