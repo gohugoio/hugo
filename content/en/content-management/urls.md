@@ -43,11 +43,45 @@ https://example.org/posts/my-first-post/
 
 Set the `url` in front matter to override the entire path. Use this with either regular pages or section pages.
 
+{{% note %}}
+Hugo does not sanitize the `url` front matter field, allowing you to generate:
+
+- File paths that contain characters reserved by the operating system. For example, a file path on Windows may not contain a colon (`:`). Hugo throws an error if you include [reserved characters].
+- URLs that contain disallowed characters. For example, the less than sign (`<`) is not allowed in a URL.
+
+[reserved characters]: https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions
+{{% /note %}}
+
+If you set both `slug` and `url` in front matter, the `url` value takes precedence.
+
+#### Include a colon
+
+{{< new-in 0.136.0 >}}
+
+If you need to include a colon in the  `url` front matter field, escape it with backslash characters. Use one backslash if you wrap the string within single quotes, or use two backslashes if you wrap the string within double quotes. With YAML front matter, use a single backslash if you omit quotation marks.
+
+For example, with this front matter:
+
+{{< code-toggle file=content/example.md fm=true >}}
+title: Example
+url: "my\\:example"
+{{< /code-toggle >}}
+
+The resulting URL will be:
+
+```text
+https://example.org/my:example/
+```
+
+As described above, this will fail on Windows because the colon (`:`) is a reserved character.
+
+#### File extensions
+
 With this front matter:
 
 {{< code-toggle file=content/posts/post-1.md fm=true >}}
 title = 'My First Article'
-url = '/articles/my-first-article'
+url = 'articles/my-first-article'
 {{< /code-toggle >}}
 
 The resulting URL will be:
@@ -60,7 +94,7 @@ If you include a file extension:
 
 {{< code-toggle file=content/posts/post-1.md fm=true >}}
 title = 'My First Article'
-url = '/articles/my-first-article.html'
+url = 'articles/my-first-article.html'
 {{< /code-toggle >}}
 
 The resulting URL will be:
@@ -69,12 +103,11 @@ The resulting URL will be:
 https://example.org/articles/my-first-article.html
 ```
 
-In a monolingual site, a `url` value with or without a leading slash is relative to the `baseURL`.
+#### Leading slashes
 
-In a multilingual site:
+With monolingual sites, `url` values with or without a leading slash are relative to the [`baseURL`]. With multilingual sites, `url` values with a leading slash are relative to the `baseURL`, and  `url` values without a leading slash are relative to the `baseURL` plus the language prefix.
 
-- A `url` value with a leading slash is relative to the `baseURL`.
-- A `url` value without a leading slash is relative to the `baseURL` plus the language prefix.
+[`baseURL`]: /getting-started/configuration/#baseurl
 
 Site type|Front matter `url`|Resulting URL
 :--|:--|:--
@@ -82,8 +115,6 @@ monolingual|`/about`|`https://example.org/about/`
 monolingual|`about`|`https://example.org/about/`
 multilingual|`/about`|`https://example.org/about/`
 multilingual|`about`|`https://example.org/de/about/`
-
-If you set both `slug` and `url` in front matter, the `url` value takes precedence.
 
 #### Permalinks tokens in front matter
 
