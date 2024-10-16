@@ -254,7 +254,7 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 
 	// if page URL is explicitly set in frontmatter,
 	// preserve its value without sanitization
-	if d.Kind != kinds.KindPage || d.URL == "" {
+	if d.URL == "" {
 		// Note: MakePathSanitized will lower case the path if
 		// disablePathToLower isn't set.
 		pb.Sanitize()
