@@ -107,6 +107,20 @@ func (c *Scratch) Get(key string) any {
 	return val
 }
 
+// GetOrCreate returns the value for the given key if it exists, or creates it
+// using the given func and stores that value in the map.
+// For internal use.
+func (c *Scratch) GetOrCreate(key string, create func() any) any {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if val, found := c.values[key]; found {
+		return val
+	}
+	val := create()
+	c.values[key] = val
+	return val
+}
+
 // Values returns the raw backing map. Note that you should just use
 // this method on the locally scoped Scratch instances you obtain via newScratch, not
 // .Page.Scratch etc., as that will lead to concurrency issues.
