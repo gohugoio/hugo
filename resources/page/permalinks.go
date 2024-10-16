@@ -156,9 +156,6 @@ func init() {
 
 func (l PermalinkExpander) getOrParsePattern(pattern string) (func(Page) (string, error), error) {
 	return l.patternCache.GetOrCreate(pattern, func() (func(Page) (string, error), error) {
-		if !l.validate(pattern) {
-			return nil, &permalinkExpandError{pattern: pattern, err: errPermalinkIllFormed}
-		}
 		var normalized bool
 		pattern, normalized = l.normalizeEscapeSequencesIn(pattern)
 
@@ -234,37 +231,6 @@ type pageToPermaAttribute func(Page, string) (string, error)
 
 var attributeRegexp = regexp.MustCompile(`:\w+(\[.+?\])?`)
 
-// validate determines if a PathPattern is well-formed
-func (l PermalinkExpander) validate(pp string) bool {
-	if len(pp) == 0 {
-		return false
-	}
-	fragments := strings.Split(pp[1:], "/")
-	bail := false
-	for i := range fragments {
-		if bail {
-			return false
-		}
-		if len(fragments[i]) == 0 {
-			bail = true
-			continue
-		}
-
-		matches := attributeRegexp.FindAllStringSubmatch(fragments[i], -1)
-		if matches == nil {
-			continue
-		}
-
-		for _, match := range matches {
-			k := match[0][1:]
-			if _, ok := l.callback(k); !ok {
-				return false
-			}
-		}
-	}
-	return true
-}
-
 type permalinkExpandError struct {
 	pattern string
 	err     error
@@ -274,10 +240,7 @@ func (pee *permalinkExpandError) Error() string {
 	return fmt.Sprintf("error expanding %q: %s", pee.pattern, pee.err)
 }
 
-var (
-	errPermalinkIllFormed        = errors.New("permalink ill-formed")
-	errPermalinkAttributeUnknown = errors.New("permalink attribute not recognised")
-)
+var errPermalinkAttributeUnknown = errors.New("permalink attribute not recognised")
 
 func (l PermalinkExpander) pageToPermalinkDate(p Page, dateField string) (string, error) {
 	// a Page contains a Node which provides a field Date, time.Time
