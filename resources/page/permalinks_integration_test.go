@@ -18,6 +18,7 @@ import (
 
 	"github.com/bep/logg"
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
 )
 
@@ -231,4 +232,39 @@ slug: custom-recipe-2
 	b.AssertFileContent("public/delicious-recipe/index.html", "List|section|/delicious-recipe/")
 	b.AssertFileContent("public/delicious-recipe/recipe-1/index.html", "Single|page|/delicious-recipe/recipe-1/")
 	b.AssertFileContent("public/delicious-recipe/custom-recipe-2/index.html", "Single|page|/delicious-recipe/custom-recipe-2/")
+}
+
+// Issue 12948.
+func TestPermalinksWithEscapedColons(t *testing.T) {
+	t.Parallel()
+
+	if htesting.IsWindows() {
+		t.Skip("Windows does not support colons in paths")
+	}
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+[permalinks.page]
+s2 = "/c\\:d/:slug/"
+-- content/s1/p1.md --
+---
+title: p1
+url: "/a\\:b/:slug/"
+---
+-- content/s2/p2.md --
+---
+title: p2
+---
+-- layouts/_default/single.html --
+{{ .Title }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileExists("public/a:b/p1/index.html", true)
+
+	// The above URL comes from the URL front matter field where everything is allowed.
+	// We strip colons from paths constructed by Hugo (they are not supported on Windows).
+	b.AssertFileExists("public/cd/p2/index.html", true)
 }
