@@ -202,6 +202,7 @@ TS2: {{ template "print" $ts2 }}
 		}).Build()
 
 	b.AssertFileContent("public/js/myts.js", `//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJz`)
+	b.AssertFileContent("public/js/myts2.js", `//# sourceMappingURL=myts2.js.map`)
 	b.AssertFileContent("public/js/myts2.js.map", `"version": 3,`)
 	b.AssertFileContent("public/index.html", `
 		console.log(&#34;included&#34;);
