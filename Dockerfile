@@ -67,10 +67,10 @@ RUN apk add --no-cache \
     nodejs \
     npm
 
-RUN mkdir -p /var/hugo/bin && \
+RUN mkdir -p /var/hugo/bin /cache && \
     addgroup -Sg 1000 hugo && \
     adduser -Sg hugo -u 1000 -h /var/hugo hugo && \
-    chown -R hugo: /var/hugo && \
+    chown -R hugo: /var/hugo /cache && \
     # For the Hugo's Git integration to work.
     runuser -u hugo -- git config --global --add safe.directory /project && \ 
     # See https://github.com/gohugoio/hugo/issues/9810
