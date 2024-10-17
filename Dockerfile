@@ -3,7 +3,8 @@
 # Website:      https://gohugo.io/
 
 ARG GO_VERSION="1.23.2"
-ARG ALPINE_VERSION=3.20
+ARG ALPINE_VERSION="3.20"
+ARG DART_SASS_VERSION="1.79.3"
 
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.5.0 AS xx
 FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS gobuild
@@ -45,6 +46,15 @@ RUN --mount=target=. \
     xx-verify /usr/bin/hugo
 EOT
 
+# dart-sass downloads the dart-sass runtime dependency
+FROM alpine:${ALPINE_VERSION} AS dart-sass
+ARG TARGETARCH
+ARG DART_SASS_VERSION
+ARG DART_ARCH=${TARGETARCH/amd64/x64}
+WORKDIR /out
+ADD https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-${DART_ARCH}.tar.gz .
+RUN tar -xf dart-sass-${DART_SASS_VERSION}-linux-${DART_ARCH}.tar.gz
+
 FROM gorun AS final
 
 COPY --from=build /usr/bin/hugo /usr/bin/hugo
@@ -54,7 +64,6 @@ RUN apk add --no-cache \
     libc6-compat \
     git \
     runuser \
-    curl \
     nodejs \
     npm
 
@@ -71,15 +80,11 @@ VOLUME /project
 WORKDIR /project
 USER hugo:hugo
 ENV HUGO_CACHEDIR=/cache
-ARG BUILDARCH
-ENV BUILDARCH=${BUILDARCH}
 ENV PATH="/var/hugo/bin:$PATH"
 
-COPY scripts/docker scripts/docker
 COPY scripts/docker/entrypoint.sh /entrypoint.sh
+COPY --link --from=dart-sass /out/dart-sass /var/hugo/bin/dart-sass
 
-# Install default dependencies.
-RUN scripts/docker/install_runtimedeps_default.sh
 # Update PATH to reflect the new dependencies.
 # For more complex setups, we should probably find a way to
 # delegate this to the script itself, but this will have to do for now.
@@ -92,4 +97,3 @@ EXPOSE 1313
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["--help"]
-
