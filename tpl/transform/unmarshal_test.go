@@ -139,6 +139,8 @@ func TestUnmarshal(t *testing.T) {
 a;b;c`, mime: media.Builtin.CSVType}, map[string]any{"DElimiter": ";", "Comment": "%"}, func(r [][]string) {
 			b.Assert([][]string{{"a", "b", "c"}}, qt.DeepEquals, r)
 		}},
+		{``, nil, nil},
+		{`   `, nil, nil},
 		// errors
 		{"thisisnotavaliddataformat", nil, false},
 		{testContentResource{key: "r1", content: `invalid&toml"`, mime: media.Builtin.TOMLType}, nil, false},

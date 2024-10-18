@@ -112,9 +112,10 @@ func (ns *Namespace) Unmarshal(args ...any) (any, error) {
 	if err != nil {
 		return nil, fmt.Errorf("type %T not supported", data)
 	}
+	dataStr = strings.TrimSpace(dataStr)
 
 	if dataStr == "" {
-		return nil, errors.New("no data to transform")
+		return nil, nil
 	}
 
 	key := hashing.MD5FromStringHexEncoded(dataStr)
