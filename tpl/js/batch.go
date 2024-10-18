@@ -804,9 +804,10 @@ func (b *batcher) doBuild() (*Package, error) {
 			})
 
 			bt := batchTemplateExecutionsContext{
-				ID:         vv.ID,
-				r:          vv.Resource,
-				ImportPath: impPath,
+				ID:             vv.ID,
+				r:              vv.Resource,
+				CallbackExport: vv.CallbackExport,
+				ImportPath:     impPath,
 			}
 			state.importResource.Set(bt.ImportPath, vv.Resource)
 			for _, vvv := range instances.ByScriptID(vv.ID) {
