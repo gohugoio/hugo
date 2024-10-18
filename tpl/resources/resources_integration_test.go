@@ -18,6 +18,8 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugolib"
+	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/dartsass"
+	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/scss"
 )
 
 func TestCopy(t *testing.T) {
@@ -237,4 +239,46 @@ match /files/C*: 2|
 	b.AssertFileContent("public/files/a.txt", "I am a.txt")
 	b.AssertFileContent("public/files/b.txt", "I am b.txt")
 	b.AssertFileContent("public/files/C.txt", "I am C.txt")
+}
+
+// Issue #12961
+func TestDartSassVars(t *testing.T) {
+	t.Parallel()
+
+	if !scss.Supports() || !dartsass.Supports() {
+		t.Skip()
+	}
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','section','rss','sitemap','taxonomy','term']
+-- layouts/index.html --
+{{ $opts := dict "transpiler" "dartsass" "outputStyle" "compressed" "vars" (dict "color" "red") }}
+{{ with resources.Get "dartsass.scss" | css.Sass $opts }}
+  {{ .Content }}
+{{ end }}
+
+{{ $opts := dict "transpiler" "libsass" "outputStyle" "compressed" "vars" (dict "color" "blue") }}
+{{ with resources.Get "libsass.scss" | css.Sass $opts }}
+  {{ .Content }}
+{{ end }}
+-- assets/dartsass.scss --
+@use "hugo:vars" as v;
+.dartsass {
+  color: v.$color;
+}
+-- assets/libsass.scss --
+@import "hugo:vars";
+.libsass {
+  color: $color;
+}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
+
+	b.AssertFileContent("public/index.html",
+		".dartsass{color:red}",
+		".libsass{color:blue}",
+	)
+	b.AssertLogContains("! WARN  Dart Sass: hugo:vars")
 }
