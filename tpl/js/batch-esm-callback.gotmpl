@@ -1,5 +1,6 @@
 {{ range $i, $e := .Modules -}}
-  import { default as {{ printf "Mod%d" $i }} } from "{{ .ImportPath }}";
+  import { {{ printf "% as Mod%d" .CallbackExport $i }} } from
+  "{{ .ImportPath }}";
 {{ end -}}
 {{ range $i, $e := .Callbacks }}
   {{ $id := printf "Callback%d" $i }}

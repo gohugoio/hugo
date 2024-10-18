@@ -75,6 +75,10 @@ type ScriptOptions struct {
 	// Note that we will always fall back to the resource's own import context.
 	ImportContext resource.ResourceGetter
 
+	// The export name to use for this script's group's callback
+	// If not set, the default export will be used.
+	CallbackExport string
+
 	// Params marshaled to JSON.
 	Params json.RawMessage
 }
@@ -164,9 +168,10 @@ type batchTemplateContext struct {
 }
 
 type batchTemplateExecutionsContext struct {
-	ID         string                   `json:"id"`
-	ImportPath string                   `json:"-"`
-	Instances  []batchTemplateExecution `json:"instances"`
+	ID             string                   `json:"id"`
+	ImportPath     string                   `json:"-"`
+	CallbackExport string                   `json:"-"`
+	Instances      []batchTemplateExecution `json:"instances"`
 
 	r resource.Resource
 }
@@ -505,9 +510,10 @@ func compileParamsOptions(o *options) (*ParamsOptions, error) {
 
 func compileScriptOptions(o *options) (*ScriptOptions, error) {
 	v := struct {
-		Resource      resource.Resource
-		ImportContext any
-		Params        map[string]any
+		Resource       resource.Resource
+		ImportContext  any
+		CallbackExport string
+		Params         map[string]any
 	}{}
 
 	m := o.commit().opts
@@ -525,10 +531,15 @@ func compileScriptOptions(o *options) (*ScriptOptions, error) {
 		}
 	}
 
+	if v.CallbackExport == "" {
+		v.CallbackExport = "default"
+	}
+
 	compiled := &ScriptOptions{
-		Resource:      v.Resource,
-		ImportContext: resource.NewResourceGetter(v.ImportContext),
-		Params:        paramsJSON,
+		Resource:       v.Resource,
+		CallbackExport: v.CallbackExport,
+		ImportContext:  resource.NewResourceGetter(v.ImportContext),
+		Params:         paramsJSON,
 	}
 
 	return compiled, nil
@@ -1066,7 +1077,7 @@ func (e *esBuildResultMeta) Compile(cwd string) error {
 		if err := v.Compile(filename); err != nil {
 			return err
 		}
-		deb("Output.Exports", k, v.Exports)
+
 		if v.CSSBundle != "" {
 			v.CSSBundle = filepath.Join(cwd, v.CSSBundle)
 		}

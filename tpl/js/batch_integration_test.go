@@ -150,7 +150,7 @@ window.React2 = React;
 
 let text = 'Click me, too!'
 
-export default function MyOtherButton() {
+export function MyOtherButton() {
     return (
         <button>${text}</button>
     )
@@ -264,6 +264,7 @@ Home.
 	{{ with .Script "r2" }}
 		{{ .SetOptions (dict
 			"resource" (resources.Get "js/react2.jsx")
+			"exporrt" "MyOtherButton"
 			"importContext" $otherCSS
 			"params" (dict "id" "r2")
 			)
