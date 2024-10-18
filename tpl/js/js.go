@@ -17,9 +17,11 @@ package js
 import (
 	"errors"
 
+	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
+	"github.com/gohugoio/hugo/resources/resource_factories/create"
 	"github.com/gohugoio/hugo/resources/resource_transformers/babel"
 	"github.com/gohugoio/hugo/resources/resource_transformers/js"
 	"github.com/gohugoio/hugo/tpl/internal/resourcehelpers"
@@ -31,15 +33,28 @@ func New(deps *deps.Deps) *Namespace {
 		return &Namespace{}
 	}
 	return &Namespace{
-		client:      js.New(deps.BaseFs.Assets, deps.ResourceSpec),
-		babelClient: babel.New(deps.ResourceSpec),
+		d: deps,
+		bundlesCache: dynacache.GetOrCreatePartition[string, *Package](
+			deps.MemCache,
+			"/jsb1",
+			// Mark it to clear on rebuild, but each package evaluate itself for changes.
+			dynacache.OptionsPartition{ClearWhen: dynacache.ClearOnRebuild, Weight: 10},
+		),
+		client:       js.New(deps.BaseFs.Assets, deps.ResourceSpec),
+		createClient: create.New(deps.ResourceSpec),
+		babelClient:  babel.New(deps.ResourceSpec),
 	}
 }
 
 // Namespace provides template functions for the "js" namespace.
 type Namespace struct {
-	client      *js.Client
-	babelClient *babel.Client
+	d *deps.Deps
+
+	client       *js.Client
+	createClient *create.Client
+	babelClient  *babel.Client
+
+	bundlesCache *dynacache.Partition[string, *Package]
 }
 
 // Build processes the given Resource with ESBuild.

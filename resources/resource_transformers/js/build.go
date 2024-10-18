@@ -1,4 +1,4 @@
-// Copyright 2020 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,25 +16,20 @@ package js
 import (
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
 
-	"github.com/spf13/afero"
-
-	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/media"
-
-	"github.com/gohugoio/hugo/common/herrors"
-	"github.com/gohugoio/hugo/common/text"
-
-	"github.com/gohugoio/hugo/hugolib/filesystems"
-	"github.com/gohugoio/hugo/resources/internal"
-
 	"github.com/evanw/esbuild/pkg/api"
+	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/common/text"
+	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/hugolib/filesystems"
+	"github.com/gohugoio/hugo/identity"
+
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
 )
@@ -53,54 +48,48 @@ func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) *Client {
 	}
 }
 
-type buildTransformation struct {
-	optsm map[string]any
-	c     *Client
+// Process processes a resource with the user provided options.
+func (c *Client) Process(res resources.ResourceTransformer, opts map[string]any) (resource.Resource, error) {
+	return res.Transform(
+		&buildTransformation{c: c, optsm: opts},
+	)
 }
 
-func (t *buildTransformation) Key() internal.ResourceTransformationKey {
-	return internal.NewResourceTransformationKey("jsbuild", t.optsm)
+func (c *Client) BuildBundle(opts Options) (api.BuildResult, error) {
+	return c.build(opts, nil)
 }
 
-func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
-	ctx.OutMediaType = media.Builtin.JavascriptType
-
-	opts, err := decodeOptions(t.optsm)
-	if err != nil {
-		return err
+// Note that transformCtx may be nil.
+func (c *Client) build(opts Options, transformCtx *resources.ResourceTransformationCtx) (api.BuildResult, error) {
+	dependencyManager := opts.DependencyManager
+	if transformCtx != nil {
+		dependencyManager = transformCtx.DependencyManager // TODO1
+	}
+	if dependencyManager == nil {
+		dependencyManager = identity.NopManager
 	}
 
-	if opts.TargetPath != "" {
-		ctx.OutPath = opts.TargetPath
-	} else {
-		ctx.ReplaceOutPathExtension(".js")
-	}
+	opts.ResolveDir = c.rs.Cfg.BaseConfig().WorkingDir // where node_modules gets resolved
+	opts.TsConfig = c.rs.ResolveJSConfigFile("tsconfig.json")
 
-	src, err := io.ReadAll(ctx.From)
-	if err != nil {
-		return err
+	if err := opts.validate(); err != nil {
+		return api.BuildResult{}, err
 	}
-
-	opts.sourceDir = filepath.FromSlash(path.Dir(ctx.SourcePath))
-	opts.resolveDir = t.c.rs.Cfg.BaseConfig().WorkingDir // where node_modules gets resolved
-	opts.contents = string(src)
-	opts.mediaType = ctx.InMediaType
-	opts.tsConfig = t.c.rs.ResolveJSConfigFile("tsconfig.json")
 
 	buildOptions, err := toBuildOptions(opts)
 	if err != nil {
-		return err
+		return api.BuildResult{}, err
 	}
 
-	buildOptions.Plugins, err = createBuildPlugins(ctx.DependencyManager, t.c, opts)
+	buildOptions.Plugins, err = createBuildPlugins(c, dependencyManager, opts)
 	if err != nil {
-		return err
+		return api.BuildResult{}, err
 	}
 
 	if buildOptions.Sourcemap == api.SourceMapExternal && buildOptions.Outdir == "" {
 		buildOptions.Outdir, err = os.MkdirTemp(os.TempDir(), "compileOutput")
 		if err != nil {
-			return err
+			return api.BuildResult{}, err
 		}
 		defer os.Remove(buildOptions.Outdir)
 	}
@@ -110,13 +99,13 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		for i, ext := range opts.Inject {
 			impPath := filepath.FromSlash(ext)
 			if filepath.IsAbs(impPath) {
-				return fmt.Errorf("inject: absolute paths not supported, must be relative to /assets")
+				return api.BuildResult{}, fmt.Errorf("inject: absolute paths not supported, must be relative to /assets")
 			}
 
-			m := resolveComponentInAssets(t.c.rs.Assets.Fs, impPath)
+			m := resolveComponentInAssets(c.rs.Assets.Fs, impPath)
 
 			if m == nil {
-				return fmt.Errorf("inject: file %q not found", ext)
+				return api.BuildResult{}, fmt.Errorf("inject: file %q not found", ext)
 			}
 
 			opts.Inject[i] = m.Filename
@@ -130,46 +119,60 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	result := api.Build(buildOptions)
 
 	if len(result.Errors) > 0 {
-
 		createErr := func(msg api.Message) error {
-			loc := msg.Location
-			if loc == nil {
+			if msg.Location == nil {
 				return errors.New(msg.Text)
 			}
-			path := loc.File
-			if path == stdinImporter {
-				path = ctx.SourcePath
-			}
-
-			errorMessage := msg.Text
-			errorMessage = strings.ReplaceAll(errorMessage, nsImportHugo+":", "")
-
 			var (
-				f   afero.File
-				err error
+				contentr     hugio.ReadSeekCloser
+				errorMessage string
+				loc          = msg.Location
+				errorPath    = loc.File
+				err          error
 			)
 
-			if strings.HasPrefix(path, nsImportHugo) {
-				path = strings.TrimPrefix(path, nsImportHugo+":")
-				f, err = hugofs.Os.Open(path)
-			} else {
-				var fi os.FileInfo
-				fi, err = t.c.sfs.Fs.Stat(path)
-				if err == nil {
-					m := fi.(hugofs.FileMetaInfo).Meta()
-					path = m.Filename
-					f, err = m.Open()
+			var resolvedError *ErrorMessageResolved
+
+			if opts.ErrorMessageResolveFunc != nil {
+				resolvedError = opts.ErrorMessageResolveFunc(msg)
+			}
+
+			if resolvedError == nil {
+				if errorPath == stdinImporter {
+					errorPath = transformCtx.SourcePath
 				}
 
+				errorMessage = msg.Text
+				errorMessage = strings.ReplaceAll(errorMessage, nsImportHugo+":", "")
+
+				if strings.HasPrefix(errorPath, nsImportHugo) {
+					errorPath = strings.TrimPrefix(errorPath, nsImportHugo+":")
+					contentr, err = hugofs.Os.Open(errorPath)
+				} else {
+					var fi os.FileInfo
+					fi, err = c.sfs.Fs.Stat(errorPath)
+					if err == nil {
+						m := fi.(hugofs.FileMetaInfo).Meta()
+						errorPath = m.Filename
+						contentr, err = m.Open()
+					}
+				}
+			} else {
+				contentr = resolvedError.Content
+				errorPath = resolvedError.Path
+				errorMessage = resolvedError.Message
+			}
+
+			if contentr != nil {
+				defer contentr.Close()
 			}
 
 			if err == nil {
 				fe := herrors.
-					NewFileErrorFromName(errors.New(errorMessage), path).
+					NewFileErrorFromName(errors.New(errorMessage), errorPath).
 					UpdatePosition(text.Position{Offset: -1, LineNumber: loc.Line, ColumnNumber: loc.Column}).
-					UpdateContent(f, nil)
+					UpdateContent(contentr, nil)
 
-				f.Close()
 				return fe
 			}
 
@@ -185,38 +188,37 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		// Return 1, log the rest.
 		for i, err := range errors {
 			if i > 0 {
-				t.c.rs.Logger.Errorf("js.Build failed: %s", err)
+				c.rs.Logger.Errorf("js.Build failed: %s", err)
 			}
 		}
 
-		return errors[0]
+		return result, errors[0]
 	}
 
-	if buildOptions.Sourcemap == api.SourceMapExternal {
-		content := string(result.OutputFiles[1].Contents)
-		symPath := path.Base(ctx.OutPath) + ".map"
-		re := regexp.MustCompile(`//# sourceMappingURL=.*\n?`)
-		content = re.ReplaceAllString(content, "//# sourceMappingURL="+symPath+"\n")
+	// TODO1 option etc.	fmt.Printf("%s", api.AnalyzeMetafile(result.Metafile, api.AnalyzeMetafileOptions{}))
 
-		if err = ctx.PublishSourceMap(string(result.OutputFiles[0].Contents)); err != nil {
-			return err
-		}
-		_, err := ctx.To.Write([]byte(content))
-		if err != nil {
-			return err
-		}
-	} else {
-		_, err := ctx.To.Write(result.OutputFiles[0].Contents)
-		if err != nil {
-			return err
+	if transformCtx != nil {
+		if buildOptions.Sourcemap == api.SourceMapExternal {
+			content := string(result.OutputFiles[1].Contents)
+			symPath := path.Base(transformCtx.OutPath) + ".map"
+			re := regexp.MustCompile(`//# sourceMappingURL=.*\n?`)
+			content = re.ReplaceAllString(content, "//# sourceMappingURL="+symPath+"\n")
+
+			if err = transformCtx.PublishSourceMap(string(result.OutputFiles[0].Contents)); err != nil {
+				return result, err
+			}
+			_, err := transformCtx.To.Write([]byte(content))
+			if err != nil {
+				return result, err
+			}
+		} else {
+			_, err := transformCtx.To.Write(result.OutputFiles[0].Contents)
+			if err != nil {
+				return result, err
+			}
+
 		}
 	}
-	return nil
-}
 
-// Process process esbuild transform
-func (c *Client) Process(res resources.ResourceTransformer, opts map[string]any) (resource.Resource, error) {
-	return res.Transform(
-		&buildTransformation{c: c, optsm: opts},
-	)
+	return result, nil
 }
