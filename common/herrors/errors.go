@@ -137,7 +137,7 @@ var nilPointerErrRe = regexp.MustCompile(`at <(.*)>: error calling (.*?): runtim
 
 const deferredPrefix = "__hdeferred/"
 
-var deferredStringToRemove = regexp.MustCompile(`executing "__hdeferred/.*" `)
+var deferredStringToRemove = regexp.MustCompile(`executing "__hdeferred/.*?" `)
 
 // ImproveRenderErr improves the error message for rendering errors.
 func ImproveRenderErr(inErr error) (outErr error) {
