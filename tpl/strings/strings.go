@@ -450,6 +450,17 @@ func (ns *Namespace) Trim(s, cutset any) (string, error) {
 	return strings.Trim(ss, sc), nil
 }
 
+// TrimSpace returns the given string, removing leading and trailing whitespace
+// as defined by Unicode.
+func (ns *Namespace) TrimSpace(s any) (string, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimSpace(ss), nil
+}
+
 // TrimLeft returns a slice of the string s with all leading characters
 // contained in cutset removed.
 func (ns *Namespace) TrimLeft(cutset, s any) (string, error) {

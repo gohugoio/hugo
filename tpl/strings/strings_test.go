@@ -854,3 +854,30 @@ func TestDiff(t *testing.T) {
 
 	}
 }
+
+func TestTrimSpace(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		s      any
+		expect any
+	}{
+		{"\n\r test \n\r", "test"},
+		{template.HTML("\n\r test \n\r"), "test"},
+		{[]byte("\n\r test \n\r"), "test"},
+		// errors
+		{tstNoStringer{}, false},
+	} {
+
+		result, err := ns.TrimSpace(test.s)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}
