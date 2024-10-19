@@ -126,7 +126,7 @@ type state struct {
 func (s *state) pushWithValue(value reflect.Value) func() {
 	s.withValues = append(s.withValues, value)
 	return func() {
-		// TODO1 integrate with GO 1.23.
+		// TODO1 remove all this.
 		v, _ := indirect(s.withValues[len(s.withValues)-1])
 		if hreflect.IsValid(v) {
 			if closer, ok := v.Interface().(types.Closer); ok {

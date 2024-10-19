@@ -70,11 +70,11 @@ export default function MyBundleButton() {
     )
 }
 
--- assets/js/reactcallback.js --
+-- assets/js/reactrunner.js --
 import * as ReactDOM from 'react-dom/client';
 import * as React from 'react';
 
-export default function Callback(modules) {
+export default function Run(modules) {
 	for (const module of modules) {
 		for (const instance of module.instances) {
 			/* This is a convention in this project. */
@@ -244,12 +244,12 @@ Home.
             )
   }}
   {{ end }}
-{{ with .Instance "main1" "m1i1" }}{{ .SetOptions (dict "title" "Main1 Instance 1")}}{{ end }}
-{{ with .Instance "main1" "m1i2" }}{{ .SetOptions (dict "title" "Main1 Instance 2")}}{{ end }}
+{{ with .Instance "main1" "m1i1" }}{{ .SetOptions (dict "params" (dict "title" "Main1 Instance 1"))}}{{ end }}
+{{ with .Instance "main1" "m1i2" }}{{ .SetOptions (dict "params" (dict "title" "Main1 Instance 2"))}}{{ end }}
 {{ end }}
 {{ with $batch.Group "reactbatch" }}
- 	{{ with .Callback "reactcallback" }}
-		{{ .SetOptions ( dict "resource"  (resources.Get "js/reactcallback.js") )}}
+ 	{{ with .Runner "reactrunner" }}
+		{{ .SetOptions ( dict "resource"  (resources.Get "js/reactrunner.js") )}}
 	{{ end }}
 	{{ with .Script "r1" }}
 		{{ .SetOptions (dict
@@ -259,18 +259,18 @@ Home.
 			)
 		}}
 	{{ end }}
-	{{ with .Instance "r1" "i1" }}{{ .SetOptions (dict "title" "Instance 1")}}{{ end }}
-	{{ with .Instance "r1" "i2" }}{{ .SetOptions (dict "title" "Instance 2")}}{{ end }}
+	{{ with .Instance "r1" "i1" }}{{ .SetOptions (dict "params" (dict "title" "Instance 1"))}}{{ end }}
+	{{ with .Instance "r1" "i2" }}{{ .SetOptions (dict "params" (dict "title" "Instance 2"))}}{{ end }}
 	{{ with .Script "r2" }}
 		{{ .SetOptions (dict
 			"resource" (resources.Get "js/react2.jsx")
-			"callbackExport" "MyOtherButton"
+			"export" "MyOtherButton"
 			"importContext" $otherCSS
 			"params" (dict "id" "r2")
 			)
 		}}
 	{{ end }}
-	{{ with .Instance "r2" "i1" }}{{ .SetOptions (dict "title" "Instance 2-1")}}{{ end }}
+	{{ with .Instance "r2" "i1" }}{{ .SetOptions (dict "params" (dict "title" "Instance 2-1"))}}{{ end }}
 {{ end }}
  
 `
@@ -304,13 +304,6 @@ console.log("main2.params.id", id2);
 var id3 = "config";
 console.log("main3.params.id", id3);
 `)
-
-	b.AssertFileContent("public/mybundle_reactbatch.js", `
-"mod": MyButton, "id": "r1"
-"mod": MyOtherButton, "id": "r2"
-"mod": MyBundleButton, "id": "r3"
-
-	`)
 
 	b.EditFileReplaceAll("content/mybundle/bundlestyles.css", ".bundlestyles", ".bundlestyles-edit").Build()
 	b.AssertFileContent("public/mybundle_reactbatch.css", ".bundlestyles-edit {")

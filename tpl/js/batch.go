@@ -32,7 +32,6 @@ import (
 
 	"github.com/evanw/esbuild/pkg/api"
 	"github.com/gohugoio/hugo/cache/dynacache"
-	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
@@ -61,7 +60,7 @@ type Batcher interface {
 }
 
 type BatcherGroup interface {
-	Callback(id string) OptionsSetter
+	Runner(id string) OptionsSetter
 	Script(id string) OptionsSetter
 	Instance(sid, iid string) OptionsSetter
 }
@@ -75,9 +74,9 @@ type ScriptOptions struct {
 	// Note that we will always fall back to the resource's own import context.
 	ImportContext resource.ResourceGetter
 
-	// The export name to use for this script's group's callback
+	// The export name to use for this script's group's runners (if any).
 	// If not set, the default export will be used.
-	CallbackExport string
+	Export string
 
 	// Params marshaled to JSON.
 	Params json.RawMessage
@@ -150,7 +149,7 @@ func (b *batcher) Group(id string) BatcherGroup {
 			id: id, client: b.client,
 			scriptsOptions:   make(map[string]*options),
 			instancesOptions: make(map[instanceID]*options),
-			callbacksOptions: make(map[string]*options),
+			runnersOptions:   make(map[string]*options),
 		}
 		b.scriptGroups[id] = group
 	}
@@ -161,30 +160,54 @@ func (b *batcher) Group(id string) BatcherGroup {
 var _ Batcher = (*batcher)(nil)
 
 type batchTemplateContext struct {
-	keyPath   string
-	ID        string
-	Callbacks []string
-	Modules   []batchTemplateExecutionsContext
+	keyPath string
+	ID      string
+	Runners []scriptRunnerTemplateContext
+	Scripts []scriptBatchTemplateContext
 }
 
-type batchTemplateExecutionsContext struct {
-	ID             string                   `json:"id"`
-	ImportPath     string                   `json:"-"`
-	CallbackExport string                   `json:"-"`
-	Instances      []batchTemplateExecution `json:"instances"`
-
-	r resource.Resource
+type scriptBatchTemplateContext struct {
+	*script
+	Import    string
+	Instances []scriptInstanceBatchTemplateContext
 }
 
-func (b batchTemplateExecutionsContext) CallbackJSON(i int) string {
-	mod := fmt.Sprintf("Mod%d", i)
+func (c scriptBatchTemplateContext) MarshalJSON() (b []byte, err error) {
+	return json.Marshal(&struct {
+		ID        string                               `json:"id"`
+		Instances []scriptInstanceBatchTemplateContext `json:"instances"`
+	}{
+		ID:        c.ID,
+		Instances: c.Instances,
+	})
+}
+
+type scriptRunnerTemplateContext struct {
+	*script
+	Import string
+}
+
+func (c scriptRunnerTemplateContext) MarshalJSON() (b []byte, err error) {
+	return json.Marshal(&struct {
+		ID string `json:"id"`
+	}{
+		ID: c.ID,
+	})
+}
+
+func (b scriptBatchTemplateContext) RunnerJSON(i int) string {
+	script := fmt.Sprintf("Script%d", i)
 
 	v := struct {
-		Mod string `json:"mod"`
-		batchTemplateExecutionsContext
+		ID string `json:"id"`
+
+		// Read-only live JavaScript binding.
+		Binding   string                               `json:"binding"`
+		Instances []scriptInstanceBatchTemplateContext `json:"instances"`
 	}{
-		mod,
-		b,
+		b.ID,
+		script,
+		b.Instances,
 	}
 
 	bb, err := json.Marshal(v)
@@ -193,14 +216,28 @@ func (b batchTemplateExecutionsContext) CallbackJSON(i int) string {
 	}
 	s := string(bb)
 
-	s = strings.ReplaceAll(s, fmt.Sprintf("%q", mod), mod)
+	// Remove the quotes to make it a valid JS object.
+	s = strings.ReplaceAll(s, fmt.Sprintf("%q", script), script)
 
 	return s
 }
 
-type batchTemplateExecution struct {
-	ID     string          `json:"id"`
-	Params json.RawMessage `json:"params"`
+type scriptInstanceBatchTemplateContext struct {
+	*instance
+}
+
+func (c scriptInstanceBatchTemplateContext) ID() string {
+	return c.instanceID.instanceID
+}
+
+func (c scriptInstanceBatchTemplateContext) MarshalJSON() (b []byte, err error) {
+	return json.Marshal(&struct {
+		ID     string          `json:"id"`
+		Params json.RawMessage `json:"params"`
+	}{
+		ID:     c.instanceID.instanceID,
+		Params: c.Params,
+	})
 }
 
 type scriptGroup struct {
@@ -212,12 +249,12 @@ type scriptGroup struct {
 
 	scriptsOptions   map[string]*options
 	instancesOptions map[instanceID]*options
-	callbacksOptions map[string]*options
+	runnersOptions   map[string]*options
 
 	// Compiled.
 	scripts   scriptMap
 	instances instanceMap
-	callbacks scriptMap
+	runners   scriptMap
 }
 
 func (g *scriptGroup) Reset() {
@@ -227,7 +264,7 @@ func (g *scriptGroup) Reset() {
 	for _, v := range g.instancesOptions {
 		v.Reset()
 	}
-	for _, v := range g.callbacksOptions {
+	for _, v := range g.runnersOptions {
 		v.Reset()
 	}
 }
@@ -290,7 +327,7 @@ func (s *scriptGroup) compile() error {
 	// TODO1 lock?
 	s.scripts = make(map[string]*ScriptOptions)
 	s.instances = make(map[instanceID]*ParamsOptions)
-	s.callbacks = make(map[string]*ScriptOptions)
+	s.runners = make(map[string]*ScriptOptions)
 
 	for k, v := range s.scriptsOptions {
 		compiled, err := compileScriptOptions(v)
@@ -308,12 +345,12 @@ func (s *scriptGroup) compile() error {
 		s.instances[k] = compiled
 	}
 
-	for k, v := range s.callbacksOptions {
+	for k, v := range s.runnersOptions {
 		compiled, err := compileScriptOptions(v)
 		if err != nil {
 			return err
 		}
-		s.callbacks[k] = compiled
+		s.runners[k] = compiled
 	}
 
 	return nil
@@ -345,14 +382,14 @@ func (s *scriptGroup) Instance(sid, iid string) OptionsSetter {
 	return s.instancesOptions[id].Get()
 }
 
-func (s *scriptGroup) Callback(id string) OptionsSetter {
+func (s *scriptGroup) Runner(id string) OptionsSetter {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if v, found := s.callbacksOptions[id]; found {
+	if v, found := s.runnersOptions[id]; found {
 		return v.Get()
 	}
-	s.callbacksOptions[id] = newOptions()
-	return s.callbacksOptions[id].Get()
+	s.runnersOptions[id] = newOptions()
+	return s.runnersOptions[id].Get()
 }
 
 type scriptGroups map[string]*scriptGroup
@@ -419,8 +456,6 @@ func (o *options) Reset() {
 func (o *options) StaleVersion() uint32 {
 	return o.v.staleVersion.Load()
 }
-
-// func (o ScriptOptions) Compile(m map[string]any) (*ScriptOptions, error) {
 
 func newOptions() *options {
 	return &options{getOnce[*optionsSetter]{
@@ -510,10 +545,10 @@ func compileParamsOptions(o *options) (*ParamsOptions, error) {
 
 func compileScriptOptions(o *options) (*ScriptOptions, error) {
 	v := struct {
-		Resource       resource.Resource
-		ImportContext  any
-		CallbackExport string
-		Params         map[string]any
+		Resource      resource.Resource
+		ImportContext any
+		Export        string
+		Params        map[string]any
 	}{}
 
 	m := o.commit().opts
@@ -531,15 +566,20 @@ func compileScriptOptions(o *options) (*ScriptOptions, error) {
 		}
 	}
 
-	if v.CallbackExport == "" {
-		v.CallbackExport = "default"
+	if v.Export == "" {
+		v.Export = "default"
 	}
 
 	compiled := &ScriptOptions{
-		Resource:       v.Resource,
-		CallbackExport: v.CallbackExport,
-		ImportContext:  resource.NewResourceGetter(v.ImportContext),
-		Params:         paramsJSON,
+		Resource:      v.Resource,
+		Export:        v.Export,
+		ImportContext: resource.NewResourceGetter(v.ImportContext),
+		Params:        paramsJSON,
+	}
+
+	if compiled.Resource == nil {
+		// TODO1 error messages.
+		return nil, fmt.Errorf("resource not set")
 	}
 
 	return compiled, nil
@@ -660,7 +700,7 @@ func (p *Package) forEeachStaleInfo(f func(si resource.StaleInfo) bool) {
 				}
 			}
 
-			for _, vv := range v.callbacksOptions {
+			for _, vv := range v.runnersOptions {
 				if check(vv) {
 					return true
 				}
@@ -694,7 +734,7 @@ func logTime(name string, start time.Time) {
 func (b *batcher) Build() (*Package, error) {
 	key := dynacache.CleanKey(b.id + ".js")
 
-	p, err := b.client.bundlesCache.GetOrCreate(key, func(string) (*Package, error) {
+	p, err := b.client.bundlesCache.GetOrCreateWitTimeout(key, b.client.d.Conf.Timeout(), func(string) (*Package, error) {
 		return b.build()
 	})
 	if err != nil {
@@ -771,27 +811,23 @@ func (b *batcher) doBuild() (*Package, error) {
 	for k, v := range b.scriptGroups {
 		keyPath := keyPath + "_" + k
 
-		var callbacks []string
-		for _, vv := range v.callbacks.Sorted() {
-			callbackKeyPath := keyPath + "_" + vv.ID
-			callbackImpPath := paths.AddLeadingSlash(callbackKeyPath + "_callback" + vv.Resource.MediaType().FirstSuffix.FullSuffix)
-			callbacks = append(callbacks, callbackImpPath)
-			addResource(k, callbackImpPath, vv.Resource, false)
+		var runners []scriptRunnerTemplateContext
+		for _, vv := range v.runners.Sorted() {
+			runnerKeyPath := keyPath + "_" + vv.ID
+			runnerImpPath := paths.AddLeadingSlash(runnerKeyPath + "_runner" + vv.Resource.MediaType().FirstSuffix.FullSuffix)
+			runners = append(runners, scriptRunnerTemplateContext{script: vv, Import: runnerImpPath})
+			addResource(k, runnerImpPath, vv.Resource, false)
 		}
 
 		t := &batchTemplateContext{
-			keyPath:   keyPath,
-			ID:        v.id,
-			Callbacks: callbacks,
+			keyPath: keyPath,
+			ID:      v.id,
+			Runners: runners,
 		}
 
 		instances := v.instances.Sorted()
 
 		for _, vv := range v.scripts.Sorted() {
-			if vv.Resource == nil {
-				// TODO1 others, init.
-				return nil, fmt.Errorf("resource not set for %q", vv.ID)
-			}
 			keyPath := keyPath + "_" + vv.ID
 			opts := vv.ScriptOptions
 			impPath := path.Join(hugoVirtualNS, opts.Dir(), keyPath+opts.Resource.MediaType().FirstSuffix.FullSuffix)
@@ -803,24 +839,22 @@ func (b *batcher) doBuild() (*Package, error) {
 				scriptOptions:  opts,
 			})
 
-			bt := batchTemplateExecutionsContext{
-				ID:             vv.ID,
-				r:              vv.Resource,
-				CallbackExport: vv.CallbackExport,
-				ImportPath:     impPath,
+			bt := scriptBatchTemplateContext{
+				script: vv,
+				Import: impPath,
 			}
-			state.importResource.Set(bt.ImportPath, vv.Resource)
+			state.importResource.Set(bt.Import, vv.Resource)
 			for _, vvv := range instances.ByScriptID(vv.ID) {
-				bt.Instances = append(bt.Instances, batchTemplateExecution{ID: vvv.instanceID.instanceID, Params: vvv.Params})
+				bt.Instances = append(bt.Instances, scriptInstanceBatchTemplateContext{instance: vvv})
 				sort.Slice(bt.Instances, func(i, j int) bool {
-					return bt.Instances[i].ID < bt.Instances[j].ID
+					return bt.Instances[i].ID() < bt.Instances[j].ID()
 				})
 			}
-			t.Modules = append(t.Modules, bt)
+			t.Scripts = append(t.Scripts, bt)
 		}
 
-		sort.Slice(t.Modules, func(i, j int) bool {
-			return t.Modules[i].ID < t.Modules[j].ID
+		sort.Slice(t.Scripts, func(i, j int) bool {
+			return t.Scripts[i].ID < t.Scripts[j].ID
 		})
 
 		r, s, err := b.client.buildBatch(t)
@@ -841,11 +875,7 @@ func (b *batcher) doBuild() (*Package, error) {
 	mediaTypes := b.client.d.ResourceSpec.MediaTypes()
 	cssMt, _, _ := mediaTypes.GetFirstBySuffix("css")
 
-	cacheDir := filepath.Join(b.client.d.SourceSpec.Cfg.Dirs().CacheDir, "_jsbatch")
-	if err := os.Mkdir(cacheDir, 0o777); err != nil && !herrors.IsExist(err) {
-		return nil, err
-	}
-	outDir, err := os.MkdirTemp(cacheDir, "jsbatch")
+	outDir, err := b.client.d.MkdirTemp("hugo-jsbatch")
 	if err != nil {
 		return nil, err
 	}
@@ -1028,7 +1058,7 @@ const nsBundle = "__hugo-js-bundle"
 
 func (ns *Namespace) buildBatch(t *batchTemplateContext) (resource.Resource, string, error) {
 	var buf bytes.Buffer
-	if err := batchEsmCallbackTemplate.Execute(&buf, t); err != nil {
+	if err := batchEsmRunnerTemplate.Execute(&buf, t); err != nil {
 		return nil, "", err
 	}
 
@@ -1041,12 +1071,12 @@ func (ns *Namespace) buildBatch(t *batchTemplateContext) (resource.Resource, str
 	return r, s, nil
 }
 
-//go:embed batch-esm-callback.gotmpl
-var batchEsmCallbackTemplateString string
-var batchEsmCallbackTemplate *template.Template
+//go:embed batch-esm-runner.gotmpl
+var batchEsmRunnerTemplateString string
+var batchEsmRunnerTemplate *template.Template
 
 func init() {
-	batchEsmCallbackTemplate = template.Must(template.New("batch-esm-callback").Parse(batchEsmCallbackTemplateString))
+	batchEsmRunnerTemplate = template.Must(template.New("batch-esm-runner").Parse(batchEsmRunnerTemplateString))
 }
 
 func fromJSONToMeta(cwd, s string) esBuildResultMeta {

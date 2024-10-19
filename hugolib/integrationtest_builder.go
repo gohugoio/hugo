@@ -440,6 +440,11 @@ func (s *IntegrationTestBuilder) Build() *IntegrationTestBuilder {
 	return s
 }
 
+func (s *IntegrationTestBuilder) Close() {
+	s.Helper()
+	s.Assert(s.H.Close(), qt.IsNil)
+}
+
 func (s *IntegrationTestBuilder) LogString() string {
 	return s.lastBuildLog
 }
