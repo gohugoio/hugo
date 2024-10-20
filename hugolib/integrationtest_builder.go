@@ -421,6 +421,12 @@ func (s *IntegrationTestBuilder) Build() *IntegrationTestBuilder {
 		s.Assert(err, qt.IsNil)
 	}
 
+	s.Cleanup(func() {
+		if h := s.H; h != nil {
+			s.Assert(h.Close(), qt.IsNil)
+		}
+	})
+
 	return s
 }
 
