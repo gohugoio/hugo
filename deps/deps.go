@@ -98,6 +98,8 @@ type Deps struct {
 	// TODO(bep) rethink this re. a plugin setup, but this will have to do for now.
 	WasmDispatchers *warpc.Dispatchers
 
+	isClosed bool
+
 	*globalErrHandler
 }
 
@@ -345,6 +347,11 @@ func (d *Deps) TextTmpl() tpl.TemplateParseFinder {
 }
 
 func (d *Deps) Close() error {
+	if d.isClosed {
+		return nil
+	}
+	d.isClosed = true
+
 	if d.MemCache != nil {
 		d.MemCache.Stop()
 	}

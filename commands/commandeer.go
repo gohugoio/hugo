@@ -42,6 +42,7 @@ import (
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/deps"
@@ -66,6 +67,12 @@ func Execute(args []string) error {
 	}
 	args = mapLegacyArgs(args)
 	cd, err := x.Execute(context.Background(), args)
+	if cd != nil {
+		if closer, ok := cd.Root.Command.(types.Closer); ok {
+			closer.Close()
+		}
+	}
+
 	if err != nil {
 		if err == errHelp {
 			cd.CobraCommand.Help()
@@ -147,6 +154,18 @@ type rootCommand struct {
 
 func (r *rootCommand) isVerbose() bool {
 	return r.logger.Level() <= logg.LevelInfo
+}
+
+func (r *rootCommand) Close() error {
+	if r.hugoSites != nil {
+		r.hugoSites.DeleteFunc(func(key configKey, value *hugolib.HugoSites) bool {
+			if value != nil {
+				value.Close()
+			}
+			return false
+		})
+	}
+	return nil
 }
 
 func (r *rootCommand) Build(cd *simplecobra.Commandeer, bcfg hugolib.BuildCfg, cfg config.Provider) (*hugolib.HugoSites, error) {

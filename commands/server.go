@@ -1012,10 +1012,6 @@ func (c *serverCommand) serve() error {
 		c.r.Println("Error:", err)
 	}
 
-	if h := c.hugoTry(); h != nil {
-		h.Close()
-	}
-
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	wg2, ctx := errgroup.WithContext(ctx)
