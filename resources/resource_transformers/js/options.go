@@ -34,10 +34,14 @@ import (
 )
 
 const (
-	nsImportHugo = "ns-hugo"
+	NsImportHugo = "ns-hugo"
 	nsParams     = "ns-params"
 
 	stdinImporter = "<stdin>"
+)
+
+const (
+	PrefixHugoVirtual = "@hugo-virtual"
 )
 
 type Options struct {
@@ -266,7 +270,7 @@ func createBuildPlugins(c *Client, depsManager identity.Manager, opts Options) (
 
 		if opts.ImportOnResolveFunc != nil {
 			if s := opts.ImportOnResolveFunc(impPath, args); s != "" {
-				return api.OnResolveResult{Path: s, Namespace: nsImportHugo}, nil
+				return api.OnResolveResult{Path: s, Namespace: NsImportHugo}, nil
 			}
 		}
 
@@ -275,9 +279,8 @@ func createBuildPlugins(c *Client, depsManager identity.Manager, opts Options) (
 		isStdin := importer == stdinImporter
 		var relDir string
 		if !isStdin {
-			if strings.HasPrefix(importer, "@hugo-virtual") {
-				// TODO1 constants.
-				relDir = filepath.Dir(strings.TrimPrefix(importer, "@hugo-virtual"))
+			if strings.HasPrefix(importer, PrefixHugoVirtual) {
+				relDir = filepath.Dir(strings.TrimPrefix(importer, PrefixHugoVirtual))
 			} else {
 				rel, found := fs.MakePathRelative(importer, true)
 
@@ -315,7 +318,7 @@ func createBuildPlugins(c *Client, depsManager identity.Manager, opts Options) (
 			// in server mode, we may get stale entries on renames etc.,
 			// but that shouldn't matter too much.
 			c.rs.JSConfigBuilder.AddSourceRoot(m.SourceRoot)
-			return api.OnResolveResult{Path: m.Filename, Namespace: nsImportHugo}, nil
+			return api.OnResolveResult{Path: m.Filename, Namespace: NsImportHugo}, nil
 		}
 
 		// Fall back to ESBuild's resolve.
@@ -329,7 +332,7 @@ func createBuildPlugins(c *Client, depsManager identity.Manager, opts Options) (
 				func(args api.OnResolveArgs) (api.OnResolveResult, error) {
 					return resolveImport(args)
 				})
-			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: nsImportHugo},
+			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: NsImportHugo},
 				func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 					var c string
 					if opts.ImportOnLoadFunc != nil {

@@ -47,12 +47,6 @@ import (
 	"github.com/spf13/cast"
 )
 
-// TODO1 move/consolidate.
-const (
-	hugoVirtualNS = "@hugo-virtual"
-	paramsNS      = "@params"
-)
-
 type Batcher interface {
 	Config() OptionsSetter
 	Group(id string) BatcherGroup
@@ -115,19 +109,6 @@ type ScriptOptionsGetSetter interface {
 
 type OptionsSetter interface {
 	SetOptions(map[string]any) string
-}
-
-func (ns *Namespace) Batch(id string, store *maps.Scratch) (Batcher, error) {
-	key := path.Join(nsBundle, id)
-	b := store.GetOrCreate(key, func() any {
-		return &batcher{
-			id:            id,
-			scriptGroups:  make(map[string]*scriptGroup),
-			client:        ns,
-			configOptions: newOptions(),
-		}
-	})
-	return b.(*batcher), nil
 }
 
 func (b *batcher) reset() {
@@ -771,15 +752,17 @@ func (b *batcher) build() (*Package, error) {
 }
 
 func (b *batcher) doBuild() (*Package, error) {
-	start := time.Now()
-	defer logTime("build", start) // TODO1 remove.
-
 	keyPath := b.id
 
 	type importContext struct {
 		name           string
 		resourceGetter resource.ResourceGetter
 		scriptOptions  *ScriptOptions // TODO1 remove resourceGetter?
+	}
+
+	type originImportContext struct {
+		importContextPath string
+		importContext     importContext
 	}
 
 	state := struct {
@@ -794,6 +777,7 @@ func (b *batcher) doBuild() (*Package, error) {
 		pathGroup:             maps.NewCache[string, string](),
 	}
 
+	// Entry points passed to ESBuid.
 	var entryPoints []string
 	addResource := func(group, pth string, r resource.Resource, isResult bool) {
 		state.pathGroup.Set(pth, group)
@@ -830,7 +814,7 @@ func (b *batcher) doBuild() (*Package, error) {
 		for _, vv := range v.scripts.Sorted() {
 			keyPath := keyPath + "_" + vv.ID
 			opts := vv.ScriptOptions
-			impPath := path.Join(hugoVirtualNS, opts.Dir(), keyPath+opts.Resource.MediaType().FirstSuffix.FullSuffix)
+			impPath := path.Join(js.PrefixHugoVirtual, opts.Dir(), keyPath+opts.Resource.MediaType().FirstSuffix.FullSuffix)
 			impCtx := opts.ImportContext
 
 			state.importerImportContext.Set(impPath, importContext{
@@ -843,19 +827,14 @@ func (b *batcher) doBuild() (*Package, error) {
 				script: vv,
 				Import: impPath,
 			}
+
 			state.importResource.Set(bt.Import, vv.Resource)
 			for _, vvv := range instances.ByScriptID(vv.ID) {
 				bt.Instances = append(bt.Instances, scriptInstanceBatchTemplateContext{instance: vvv})
-				sort.Slice(bt.Instances, func(i, j int) bool {
-					return bt.Instances[i].ID() < bt.Instances[j].ID()
-				})
 			}
+
 			t.Scripts = append(t.Scripts, bt)
 		}
-
-		sort.Slice(t.Scripts, func(i, j int) bool {
-			return t.Scripts[i].ID < t.Scripts[j].ID
-		})
 
 		r, s, err := b.client.buildBatch(t)
 		if err != nil {
@@ -880,12 +859,15 @@ func (b *batcher) doBuild() (*Package, error) {
 		return nil, err
 	}
 
-	var importResulveMu sync.Mutex
-
 	externalOptions := b.config
-	externalOptions.Format = "esm" // Maybe allow other formats for simple 1 script setups. Also consider splitting below.
+	if externalOptions.Format == "" {
+		externalOptions.Format = "esm"
+	}
+	if externalOptions.Format != "esm" {
+		return nil, fmt.Errorf("only esm format is currently supported")
+	}
 
-	jopts := js.Options{
+	jsOpts := js.Options{
 		ExternalOptions: externalOptions,
 		InternalOptions: js.InternalOptions{
 			OutDir:         outDir,
@@ -893,13 +875,9 @@ func (b *batcher) doBuild() (*Package, error) {
 			AllowOverwrite: true,
 			Splitting:      true,
 			ImportOnResolveFunc: func(imp string, args api.OnResolveArgs) string {
-				importResulveMu.Lock()
-				defer importResulveMu.Unlock()
-
 				if _, found := state.importResource.Get(imp); found {
 					return imp
 				}
-
 				var importContextPath string
 				if args.Kind == api.ResolveEntryPoint {
 					importContextPath = args.Path
@@ -910,11 +888,10 @@ func (b *batcher) doBuild() (*Package, error) {
 
 				if importContext.resourceGetter != nil {
 					resolved := importContext.resourceGetter.Get(imp)
-
 					if resolved != nil {
-						imp := hugoVirtualNS + resolved.(resource.PathProvider).Path()
+						imp := js.PrefixHugoVirtual + resolved.(resource.PathProvider).Path()
 						state.importResource.Set(imp, resolved)
-						state.importerImportContext.Set(imp, importContext) // TODO1 test case (see headlessui)
+						state.importerImportContext.Set(imp, importContext)
 						return imp
 
 					}
@@ -922,9 +899,6 @@ func (b *batcher) doBuild() (*Package, error) {
 				return ""
 			},
 			ImportOnLoadFunc: func(args api.OnLoadArgs) string {
-				importResulveMu.Lock()
-				defer importResulveMu.Unlock()
-
 				imp := args.Path
 
 				if r, found := state.importResource.Get(imp); found {
@@ -946,9 +920,9 @@ func (b *batcher) doBuild() (*Package, error) {
 			},
 			ErrorMessageResolveFunc: func(args api.Message) *js.ErrorMessageResolved {
 				if loc := args.Location; loc != nil {
-					path := strings.TrimPrefix(loc.File, "ns-hugo:") // TODO1
+					path := strings.TrimPrefix(loc.File, js.NsImportHugo+":")
 					if r, found := state.importResource.Get(path); found {
-						path = strings.TrimPrefix(path, hugoVirtualNS)
+						path = strings.TrimPrefix(path, js.PrefixHugoVirtual)
 						var contentr hugio.ReadSeekCloser
 						if cp, ok := r.(hugio.ReadSeekCloserProvider); ok {
 							contentr, _ = cp.ReadSeekCloser()
@@ -968,21 +942,16 @@ func (b *batcher) doBuild() (*Package, error) {
 		},
 	}
 
-	result, err := b.client.client.BuildBundle(jopts)
+	result, err := b.client.client.BuildBundle(jsOpts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build bundle: %w", err)
 	}
 
-	cwd, err := os.Getwd() // TODO1
-	if err != nil {
-		return nil, err
-	}
-	m := fromJSONToMeta(cwd, result.Metafile)
+	m := fromJSONToESBuildResultMeta(b.client.d.Conf.WorkingDir(), result.Metafile)
 
 	groups := make(map[string]resource.Resources)
 
-	// TODO1
-	addFoo := func(filename, targetPath, group string, mt media.Type) error {
+	createAndAddResource := func(filename, targetPath, group string, mt media.Type) error {
 		rd := resources.ResourceSourceDescriptor{
 			LazyPublish: true,
 			OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
@@ -1002,7 +971,7 @@ func (b *batcher) doBuild() (*Package, error) {
 		return nil
 	}
 
-	createAndAddResource3 := func(o esBuildResultMetaOutput) (bool, error) {
+	createAndAddResources := func(o esBuildResultMetaOutput) (bool, error) {
 		p := filepath.ToSlash(strings.TrimPrefix(o.filename, outDir))
 		ext := path.Ext(p)
 		mt, _, found := mediaTypes.GetBySuffix(ext)
@@ -1016,14 +985,13 @@ func (b *batcher) doBuild() (*Package, error) {
 			return false, nil
 		}
 
-		if err := addFoo(o.filename, p, group, mt); err != nil {
-			// TODO1
+		if err := createAndAddResource(o.filename, p, group, mt); err != nil {
 			return false, err
 		}
 
 		if o.CSSBundle != "" {
 			p := filepath.ToSlash(strings.TrimPrefix(o.CSSBundle, outDir))
-			if err := addFoo(o.CSSBundle, p, group, cssMt); err != nil {
+			if err := createAndAddResource(o.CSSBundle, p, group, cssMt); err != nil {
 				return false, err
 			}
 		}
@@ -1032,7 +1000,7 @@ func (b *batcher) doBuild() (*Package, error) {
 	}
 
 	for _, o := range m.Outputs {
-		handled, err := createAndAddResource3(o)
+		handled, err := createAndAddResources(o)
 		if err != nil {
 			return nil, err
 		}
@@ -1079,15 +1047,14 @@ func init() {
 	batchEsmRunnerTemplate = template.Must(template.New("batch-esm-runner").Parse(batchEsmRunnerTemplateString))
 }
 
-func fromJSONToMeta(cwd, s string) esBuildResultMeta {
+func fromJSONToESBuildResultMeta(cwd, jsons string) esBuildResultMeta {
 	var m esBuildResultMeta
-	if err := json.Unmarshal([]byte(s), &m); err != nil {
+	if err := json.Unmarshal([]byte(jsons), &m); err != nil {
 		panic(err)
 	}
 	if err := m.Compile(cwd); err != nil {
 		panic(err)
 	}
-
 	return m
 }
 

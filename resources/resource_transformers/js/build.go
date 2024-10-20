@@ -143,10 +143,10 @@ func (c *Client) build(opts Options, transformCtx *resources.ResourceTransformat
 				}
 
 				errorMessage = msg.Text
-				errorMessage = strings.ReplaceAll(errorMessage, nsImportHugo+":", "")
+				errorMessage = strings.ReplaceAll(errorMessage, NsImportHugo+":", "")
 
-				if strings.HasPrefix(errorPath, nsImportHugo) {
-					errorPath = strings.TrimPrefix(errorPath, nsImportHugo+":")
+				if strings.HasPrefix(errorPath, NsImportHugo) {
+					errorPath = strings.TrimPrefix(errorPath, NsImportHugo+":")
 					contentr, err = hugofs.Os.Open(errorPath)
 				} else {
 					var fi os.FileInfo

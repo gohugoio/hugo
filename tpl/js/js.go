@@ -16,8 +16,10 @@ package js
 
 import (
 	"errors"
+	"path"
 
 	"github.com/gohugoio/hugo/cache/dynacache"
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -81,6 +83,19 @@ func (ns *Namespace) Build(args ...any) (resource.Resource, error) {
 	}
 
 	return ns.client.Process(r, m)
+}
+
+func (ns *Namespace) Batch(id string, store *maps.Scratch) (Batcher, error) {
+	key := path.Join(nsBundle, id)
+	b := store.GetOrCreate(key, func() any {
+		return &batcher{
+			id:            id,
+			scriptGroups:  make(map[string]*scriptGroup),
+			client:        ns,
+			configOptions: newOptions(),
+		}
+	})
+	return b.(Batcher), nil
 }
 
 // Babel processes the given Resource with Babel.

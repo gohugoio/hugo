@@ -50,16 +50,18 @@ module.exports = window.React;
 ---
 title: "My Bundle"
 ---
--- content/mybundle/bundlestyles.css --
-import './foo.css'
-import './bar.css'
-.bundlestyles {
+-- content/mybundle/mybundlestyles.css --
+@import './foo.css';
+@import './bar.css';
+@import './otherbundlestyles.css';
+
+.mybundlestyles {
 	background-color: blue;
 }
 -- content/mybundle/bundlereact.jsx --
 import * as React from "react";
-import './foo.css'
-import './bundlestyles.css'
+import './foo.css';
+import './mybundlestyles.css';
 window.React1 = React;
 
 let text = 'Click me, too!'
@@ -89,6 +91,10 @@ export default function Run(modules) {
 			root.render(reactEl);
 		}
 	}
+}
+-- assets/other/otherbundlestyles.css --
+.otherbundlestyles {
+	background-color: red;
 }
 -- assets/other/foo.css --
 @import './bar.css';
@@ -128,7 +134,6 @@ export function helper() {
 import * as React from "react";
 import './button.css'
 import './foo.css'
-import './bundlestyles.css'
 import './react1styles.css'
 
 window.React1 = React;
@@ -305,8 +310,8 @@ var id3 = "config";
 console.log("main3.params.id", id3);
 `)
 
-	b.EditFileReplaceAll("content/mybundle/bundlestyles.css", ".bundlestyles", ".bundlestyles-edit").Build()
-	b.AssertFileContent("public/mybundle_reactbatch.css", ".bundlestyles-edit {")
+	b.EditFileReplaceAll("content/mybundle/mybundlestyles.css", ".mybundlestyles", ".mybundlestyles-edit").Build()
+	b.AssertFileContent("public/mybundle_reactbatch.css", ".mybundlestyles-edit {")
 
 	b.EditFileReplaceAll("assets/other/bar.css", ".bar {", ".bar-edit {").Build()
 	b.AssertFileContent("public/mybundle_reactbatch.css", ".bar-edit {")
@@ -314,62 +319,6 @@ console.log("main3.params.id", id3);
 	b.EditFileReplaceAll("assets/other/bar.css", ".bar-edit {", ".bar-edit2 {").Build()
 	b.AssertFileContent("public/mybundle_reactbatch.css", ".bar-edit2 {")
 }
-
-func TestEsBuildResolvePageBundle(t *testing.T) {
-	files := `
--- hugo.toml --
--- content/mybundle/index.md --
----
-title: "My Bundle"
----
--- content/mybundle/mystyles1.css --
-body {
-	background-color: blue;
-}
--- content/mybundle/mystyles2.css --
-button {
-	background-color: red;
-}
--- content/mybundle/myscript.js --
-import "./mystyles1.css";
-import "./mystyles2.css";
-console.log('Hello, world!');
-
-// TODO1 make it work without this.
-export default {};
--- layouts/_default/single.html --
-Single.
-TODO1 directory structure vs ID:
-{{ $batch := (js.Batch "myjsbundle" .Store) }}
-{{ $js := .Resources.GetMatch "*.js" }}
-{{ with $batch.UseScriptGroup "g1" }}
-	{{ with .Script "s1" }}
-	 	{{ if not .GetImportContext }}
-			{{ .SetImportContext $ }}
-		{{ end }}
-	 	{{ if not .GetResource }}
-		  {{ .SetResource $js }}
-		{{ end }}
-		{{ .AddInstance "i1" (dict "title" "Instance s1-1") }}
-	{{ end }}
-{{ end }}
-{{ range $batch.Build.Groups }}
- {{ range $i, $e := . }}
-	{{ $i }}: {{ $e.RelPermalink }}|
- {{ end }}
-{{ end }}
-
-`
-
-	// TODO1 check what happens without AddInstance.
-
-	b := hugolib.Test(t, files, hugolib.TestOptWithOSFs())
-
-	b.AssertFileContent("public/myjsbundle_g1.css", "body", "button")
-	b.AssertFileContent("public/myjsbundle_g1.js", `Hello, world!`)
-}
-
-// TODO1  executing "_default/single.html" at <$batch.Build.Groups>: error calling Build: Could not resolve "./mystyles.css"` error file source.
 
 // TODO1 move this.
 func TestResourcesGet(t *testing.T) {
@@ -394,7 +343,7 @@ Text 1.
 -- layouts/index.html --
 {{ $mybundle := site.GetPage "mybundle" }}
 {{ $subResources := resources.Match "text/sub/*.*"  }}
- {{ $subResourcesMount :=  $subResources.Mount "newroot" }}
+{{ $subResourcesMount :=  $subResources.Mount "text/sub" "newroot" }}
 resources:text/txt1.txt:{{ with resources.Get "text/txt1.txt" }}{{ .Name }}{{ end }}|
 resources:text/txt2.txt:{{ with resources.Get "text/txt2.txt" }}{{ .Name }}{{ end }}|
 resources:text/sub/txt3.txt:{{ with resources.Get "text/sub/txt3.txt" }}{{ .Name }}{{ end }}|
