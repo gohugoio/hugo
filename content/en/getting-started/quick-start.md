@@ -30,8 +30,7 @@ Before you begin this tutorial you must:
 You must also be comfortable working from the command line.
 
 {{% note %}}
-The commands below install the [Ananke] theme, which currently does not support Hugo v0.136.0 or later. We expect this to be resolved in the near future. 
-[Ananke]: https://github.com/theNewDynamic/gohugo-theme-ananke
+The commands below install the Ananke theme, which currently does not support Hugo v0.136.0 or later. We expect this to be resolved in the near future.
 {{% /note %}}
 
 ## Create a site
