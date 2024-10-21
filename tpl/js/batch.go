@@ -920,7 +920,7 @@ func (b *batcher) doBuild() (*Package, error) {
 			},
 			ErrorMessageResolveFunc: func(args api.Message) *js.ErrorMessageResolved {
 				if loc := args.Location; loc != nil {
-					path := strings.TrimPrefix(loc.File, js.NsImportHugo+":")
+					path := strings.TrimPrefix(loc.File, js.NsHugoImportResolveFunc+":")
 					if r, found := state.importResource.Get(path); found {
 						path = strings.TrimPrefix(path, js.PrefixHugoVirtual)
 						var contentr hugio.ReadSeekCloser

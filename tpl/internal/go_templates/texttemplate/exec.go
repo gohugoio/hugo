@@ -305,10 +305,7 @@ func (s *state) walkIfOrWith(typ parse.NodeType, dot reflect.Value, pipe *parse.
 	}
 	if truth {
 		if typ == parse.NodeWith {
-			func() {
-				defer s.pushWithValue(val)()
-				s.walk(val, list)
-			}()
+			s.walk(val, list)
 		} else {
 			s.walk(dot, list)
 		}

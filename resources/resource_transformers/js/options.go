@@ -34,8 +34,9 @@ import (
 )
 
 const (
-	NsImportHugo = "ns-hugo"
-	nsParams     = "ns-params"
+	NsHugoImport            = "ns-hugo-import"
+	NsHugoImportResolveFunc = "ns-hugo-import-resolvefunc"
+	nsHugoParams            = "ns-hugo-params"
 
 	stdinImporter = "<stdin>"
 )
@@ -270,7 +271,7 @@ func createBuildPlugins(c *Client, depsManager identity.Manager, opts Options) (
 
 		if opts.ImportOnResolveFunc != nil {
 			if s := opts.ImportOnResolveFunc(impPath, args); s != "" {
-				return api.OnResolveResult{Path: s, Namespace: NsImportHugo}, nil
+				return api.OnResolveResult{Path: s, Namespace: NsHugoImportResolveFunc}, nil
 			}
 		}
 
@@ -318,7 +319,7 @@ func createBuildPlugins(c *Client, depsManager identity.Manager, opts Options) (
 			// in server mode, we may get stale entries on renames etc.,
 			// but that shouldn't matter too much.
 			c.rs.JSConfigBuilder.AddSourceRoot(m.SourceRoot)
-			return api.OnResolveResult{Path: m.Filename, Namespace: NsImportHugo}, nil
+			return api.OnResolveResult{Path: m.Filename, Namespace: NsHugoImport}, nil
 		}
 
 		// Fall back to ESBuild's resolve.
@@ -332,27 +333,31 @@ func createBuildPlugins(c *Client, depsManager identity.Manager, opts Options) (
 				func(args api.OnResolveArgs) (api.OnResolveResult, error) {
 					return resolveImport(args)
 				})
-			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: NsImportHugo},
+			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: NsHugoImport},
 				func(args api.OnLoadArgs) (api.OnLoadResult, error) {
-					var c string
-					if opts.ImportOnLoadFunc != nil {
-						if s := opts.ImportOnLoadFunc(args); s != "" {
-							c = s
-						}
+					b, err := os.ReadFile(args.Path)
+					if err != nil {
+						return api.OnLoadResult{}, fmt.Errorf("failed to read %q: %w", args.Path, err)
 					}
-
-					if c == "" {
-						b, err := os.ReadFile(args.Path)
-						if err != nil {
-							return api.OnLoadResult{}, fmt.Errorf("failed to read %q: %w", args.Path, err)
-						}
-						c = string(b)
-					}
+					c := string(b)
 
 					return api.OnLoadResult{
 						// See https://github.com/evanw/esbuild/issues/502
 						// This allows all modules to resolve dependencies
 						// in the main project's node_modules.
+						ResolveDir: opts.ResolveDir,
+						Contents:   &c,
+						Loader:     loaderFromFilename(args.Path),
+					}, nil
+				})
+			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: NsHugoImportResolveFunc},
+				func(args api.OnLoadArgs) (api.OnLoadResult, error) {
+					c := opts.ImportOnLoadFunc(args)
+					if c == "" {
+						return api.OnLoadResult{}, fmt.Errorf("ImportOnLoadFunc failed to resolve %q", args.Path)
+					}
+
+					return api.OnLoadResult{
 						ResolveDir: opts.ResolveDir,
 						Contents:   &c,
 						Loader:     loaderFromFilename(args.Path),
@@ -378,10 +383,10 @@ func createBuildPlugins(c *Client, depsManager identity.Manager, opts Options) (
 				func(args api.OnResolveArgs) (api.OnResolveResult, error) {
 					return api.OnResolveResult{
 						Path:      args.Importer,
-						Namespace: nsParams,
+						Namespace: nsHugoParams,
 					}, nil
 				})
-			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: nsParams},
+			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: nsHugoParams},
 				func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 					bb := b
 

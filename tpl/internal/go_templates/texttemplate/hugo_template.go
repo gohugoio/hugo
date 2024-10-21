@@ -19,7 +19,6 @@ import (
 	"reflect"
 
 	"github.com/gohugoio/hugo/common/hreflect"
-	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 )
@@ -111,31 +110,14 @@ func (t *Template) executeWithState(state *state, value reflect.Value) (err erro
 // template so that multiple executions of the same template
 // can execute in parallel.
 type state struct {
-	tmpl       *Template
-	ctx        context.Context // Added for Hugo. The original data context.
-	prep       Preparer        // Added for Hugo.
-	helper     ExecHelper      // Added for Hugo.
-	withValues []reflect.Value // Added for Hugo. Push-down stack of values.
-
-	wr    io.Writer
-	node  parse.Node // current node, for errors
-	vars  []variable // push-down stack of variable values.
-	depth int        // the height of the stack of executing templates.
-}
-
-func (s *state) pushWithValue(value reflect.Value) func() {
-	s.withValues = append(s.withValues, value)
-	return func() {
-		// TODO1 remove all this.
-		v, _ := indirect(s.withValues[len(s.withValues)-1])
-		if hreflect.IsValid(v) {
-			if closer, ok := v.Interface().(types.Closer); ok {
-				closer.Close()
-			}
-		}
-
-		s.withValues = s.withValues[:len(s.withValues)-1]
-	}
+	tmpl   *Template
+	ctx    context.Context // Added for Hugo. The original data context.
+	prep   Preparer        // Added for Hugo.
+	helper ExecHelper      // Added for Hugo.
+	wr     io.Writer
+	node   parse.Node // current node, for errors
+	vars   []variable // push-down stack of variable values.
+	depth  int        // the height of the stack of executing templates.
 }
 
 func (s *state) evalFunction(dot reflect.Value, node *parse.IdentifierNode, cmd parse.Node, args []parse.Node, final reflect.Value) reflect.Value {
