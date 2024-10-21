@@ -35,461 +35,33 @@ import (
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/lazy"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
+	"github.com/gohugoio/hugo/resources/resource_factories/create"
 	"github.com/gohugoio/hugo/resources/resource_transformers/js"
-	template "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cast"
 )
 
-type Batcher interface {
-	Config() OptionsSetter
-	Group(id string) BatcherGroup
-	Build() (*Package, error)
-}
-
-type BatcherGroup interface {
-	Runner(id string) OptionsSetter
-	Script(id string) OptionsSetter
-	Instance(sid, iid string) OptionsSetter
-}
-
-type ScriptOptions struct {
-	// The script to build.
-	// TODO1 handle stale.
-	Resource resource.Resource
-
-	// The import context to use.
-	// Note that we will always fall back to the resource's own import context.
-	ImportContext resource.ResourceGetter
-
-	// The export name to use for this script's group's runners (if any).
-	// If not set, the default export will be used.
-	Export string
-
-	// Params marshaled to JSON.
-	Params json.RawMessage
-}
-
-func (o ScriptOptions) Compile(m map[string]any) (*ScriptOptions, error) {
-	var s optionsGetSet // TODO1 type.
-	if err := mapstructure.WeakDecode(m, &s); err != nil {
-		return nil, err
-	}
-
-	paramsJSON, err := json.Marshal(s.Params)
-	if err != nil {
-		panic(err)
-	}
-
-	return &ScriptOptions{
-		Resource:      s.Resource,
-		ImportContext: resource.NewResourceGetter(s.ImportContext),
-		Params:        paramsJSON,
-	}, nil
-}
-
-func (o *ScriptOptions) Dir() string {
-	return path.Dir(o.Resource.(resource.PathProvider).Path())
-}
-
-type ParamsOptions struct {
-	Params json.RawMessage
-}
-
-type ScriptOptionsGetSetter interface {
-	GetOptions() *ScriptOptions
-	SetOptions(map[string]any) string
-}
-
-type OptionsSetter interface {
-	SetOptions(map[string]any) string
-}
-
-func (b *batcher) reset() {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-	for _, v := range b.scriptGroups {
-		// TODO1 check if this is complete.
-		v.Reset()
-	}
-}
-
-func (b *batcher) Group(id string) BatcherGroup {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-
-	group, found := b.scriptGroups[id]
-	if !found {
-		group = &scriptGroup{
-			id: id, client: b.client,
-			scriptsOptions:   make(map[string]*options),
-			instancesOptions: make(map[instanceID]*options),
-			runnersOptions:   make(map[string]*options),
-		}
-		b.scriptGroups[id] = group
-	}
-
-	return group
-}
-
 var _ Batcher = (*batcher)(nil)
-
-type batchTemplateContext struct {
-	keyPath string
-	ID      string
-	Runners []scriptRunnerTemplateContext
-	Scripts []scriptBatchTemplateContext
-}
-
-type scriptBatchTemplateContext struct {
-	*script
-	Import    string
-	Instances []scriptInstanceBatchTemplateContext
-}
-
-func (c scriptBatchTemplateContext) MarshalJSON() (b []byte, err error) {
-	return json.Marshal(&struct {
-		ID        string                               `json:"id"`
-		Instances []scriptInstanceBatchTemplateContext `json:"instances"`
-	}{
-		ID:        c.ID,
-		Instances: c.Instances,
-	})
-}
-
-type scriptRunnerTemplateContext struct {
-	*script
-	Import string
-}
-
-func (c scriptRunnerTemplateContext) MarshalJSON() (b []byte, err error) {
-	return json.Marshal(&struct {
-		ID string `json:"id"`
-	}{
-		ID: c.ID,
-	})
-}
-
-func (b scriptBatchTemplateContext) RunnerJSON(i int) string {
-	script := fmt.Sprintf("Script%d", i)
-
-	v := struct {
-		ID string `json:"id"`
-
-		// Read-only live JavaScript binding.
-		Binding   string                               `json:"binding"`
-		Instances []scriptInstanceBatchTemplateContext `json:"instances"`
-	}{
-		b.ID,
-		script,
-		b.Instances,
-	}
-
-	bb, err := json.Marshal(v)
-	if err != nil {
-		panic(err)
-	}
-	s := string(bb)
-
-	// Remove the quotes to make it a valid JS object.
-	s = strings.ReplaceAll(s, fmt.Sprintf("%q", script), script)
-
-	return s
-}
-
-type scriptInstanceBatchTemplateContext struct {
-	*instance
-}
-
-func (c scriptInstanceBatchTemplateContext) ID() string {
-	return c.instanceID.instanceID
-}
-
-func (c scriptInstanceBatchTemplateContext) MarshalJSON() (b []byte, err error) {
-	return json.Marshal(&struct {
-		ID     string          `json:"id"`
-		Params json.RawMessage `json:"params"`
-	}{
-		ID:     c.instanceID.instanceID,
-		Params: c.Params,
-	})
-}
-
-type scriptGroup struct {
-	mu sync.Mutex
-
-	id string
-
-	client *Namespace
-
-	scriptsOptions   map[string]*options
-	instancesOptions map[instanceID]*options
-	runnersOptions   map[string]*options
-
-	// Compiled.
-	scripts   scriptMap
-	instances instanceMap
-	runners   scriptMap
-}
-
-func (g *scriptGroup) Reset() {
-	for _, v := range g.scriptsOptions {
-		v.Reset()
-	}
-	for _, v := range g.instancesOptions {
-		v.Reset()
-	}
-	for _, v := range g.runnersOptions {
-		v.Reset()
-	}
-}
-
-type script struct {
-	ID string
-	*ScriptOptions
-}
-
-type instance struct {
-	instanceID
-	*ParamsOptions
-}
-
-type (
-	instanceMap map[instanceID]*ParamsOptions
-	instances   []*instance
-)
-
-func (i instances) ByScriptID(id string) instances {
-	var a instances
-	for _, v := range i {
-		if v.instanceID.scriptID == id {
-			a = append(a, v)
-		}
-	}
-	return a
-}
-
-func (p instanceMap) Sorted() instances {
-	var a []*instance
-	for k, v := range p {
-		a = append(a, &instance{instanceID: k, ParamsOptions: v})
-	}
-	sort.Slice(a, func(i, j int) bool {
-		ai := a[i]
-		aj := a[j]
-		if ai.instanceID.scriptID != aj.instanceID.scriptID {
-			return ai.instanceID.scriptID < aj.instanceID.scriptID
-		}
-		return ai.instanceID.instanceID < aj.instanceID.instanceID
-	})
-	return a
-}
-
-type scriptMap map[string]*ScriptOptions
-
-func (s scriptMap) Sorted() []*script {
-	var a []*script
-	for k, v := range s {
-		a = append(a, &script{ID: k, ScriptOptions: v})
-	}
-	sort.Slice(a, func(i, j int) bool {
-		return a[i].ID < a[j].ID
-	})
-	return a
-}
-
-func (s *scriptGroup) compile() error {
-	// TODO1 lock?
-	s.scripts = make(map[string]*ScriptOptions)
-	s.instances = make(map[instanceID]*ParamsOptions)
-	s.runners = make(map[string]*ScriptOptions)
-
-	for k, v := range s.scriptsOptions {
-		compiled, err := compileScriptOptions(v)
-		if err != nil {
-			return err
-		}
-		s.scripts[k] = compiled
-	}
-
-	for k, v := range s.instancesOptions {
-		compiled, err := compileParamsOptions(v)
-		if err != nil {
-			return err
-		}
-		s.instances[k] = compiled
-	}
-
-	for k, v := range s.runnersOptions {
-		compiled, err := compileScriptOptions(v)
-		if err != nil {
-			return err
-		}
-		s.runners[k] = compiled
-	}
-
-	return nil
-}
-
-type instanceID struct {
-	scriptID   string
-	instanceID string
-}
-
-func (s *scriptGroup) Script(id string) OptionsSetter {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if v, found := s.scriptsOptions[id]; found {
-		return v.Get()
-	}
-	s.scriptsOptions[id] = newOptions()
-	return s.scriptsOptions[id].Get()
-}
-
-func (s *scriptGroup) Instance(sid, iid string) OptionsSetter {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	id := instanceID{scriptID: sid, instanceID: iid}
-	if v, found := s.instancesOptions[id]; found {
-		return v.Get()
-	}
-	s.instancesOptions[id] = newOptions()
-	return s.instancesOptions[id].Get()
-}
-
-func (s *scriptGroup) Runner(id string) OptionsSetter {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if v, found := s.runnersOptions[id]; found {
-		return v.Get()
-	}
-	s.runnersOptions[id] = newOptions()
-	return s.runnersOptions[id].Get()
-}
-
-type scriptGroups map[string]*scriptGroup
-
-func (s scriptGroups) Sorted() []*scriptGroup {
-	var a []*scriptGroup
-	for _, v := range s {
-		a = append(a, v)
-	}
-	sort.Slice(a, func(i, j int) bool {
-		return a[i].id < a[j].id
-	})
-	return a
-}
-
-type batcher struct {
-	mu           sync.Mutex
-	id           string
-	scriptGroups scriptGroups
-
-	client            *Namespace
-	dependencyManager identity.Manager
-
-	configOptions *options
-
-	// The last successfully built package.
-	// If this is non-nil and not stale, we can reuse it (e.g. on server rebuilds)
-	prevBuild *Package
-
-	// Compiled.
-	config js.ExternalOptions
-}
-
-func (b *batcher) compile() error {
-	var err error
-	b.config, err = js.DecodeExternalOptions(b.configOptions.commit().opts)
-	if err != nil {
-		return err
-	}
-
-	for _, v := range b.scriptGroups {
-		if err := v.compile(); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (b *batcher) Config() OptionsSetter {
-	return b.configOptions.Get()
-}
 
 var _ resource.StaleInfo = (*options)(nil)
 
-type options struct {
-	getOnce[*optionsSetter]
-}
+var (
+	_ resource.StaleInfo                    = (*Package)(nil)
+	_ identity.IsProbablyDependencyProvider = (*Package)(nil)
+	_ identity.Identity                     = (*Package)(nil)
+)
 
-func (o *options) Reset() {
-	mu := o.once.ResetWithLock()
-	o.v.staleVersion.Store(0)
-	mu.Unlock()
-}
-
-func (o *options) StaleVersion() uint32 {
-	return o.v.staleVersion.Load()
-}
-
-func newOptions() *options {
-	return &options{getOnce[*optionsSetter]{
-		v: &optionsSetter{},
-	}}
-}
-
-type optionsSetter struct {
-	staleVersion atomic.Uint32
-	opts         map[string]any
-}
-
-// TODO1 try to avoid stale page resources when changing the head.
-func (o *optionsSetter) SetOptions(m map[string]any) string {
-	if o.opts != nil {
-		if reflect.DeepEqual(o.opts, m) {
-			return ""
-		}
-		var isStale bool
-		for k, v := range m {
-			vv, found := o.opts[k]
-			if !found {
-				isStale = true
-			} else {
-				if si, ok := vv.(resource.StaleInfo); ok {
-					isStale = si.StaleVersion() > 0
-				} else {
-					isStale = !reflect.DeepEqual(v, vv)
-				}
-			}
-
-			if isStale {
-				break
-			}
-		}
-
-		if !isStale {
-			return ""
-		}
-
-		o.staleVersion.Add(1)
-	}
-
-	o.opts = m
-
-	return ""
-}
-
-type getOnce[T any] struct {
-	v    T
-	once lazy.OnceMore
-}
+const (
+	nsBatch                    = "__hugo-js-batch"
+	batchEsmRunnerTemplateName = "_hugo/build/js/batch-esm-runner.gotmpl"
+)
 
 func (g *getOnce[T]) Get() T {
 	var v T
@@ -499,111 +71,65 @@ func (g *getOnce[T]) Get() T {
 	return v
 }
 
-func (g *getOnce[T]) commit() T {
-	g.once.Do(func() {})
-	return g.v
+func newOptions() *options {
+	return &options{getOnce[*optionsSetter]{
+		v: &optionsSetter{},
+	}}
 }
 
-func compileParamsOptions(o *options) (*ParamsOptions, error) {
-	v := struct {
-		Params map[string]any
-	}{}
+type Batcher interface {
+	Build() (*Package, error)
+	Config() OptionsSetter
+	Group(id string) BatcherGroup
+}
 
-	m := o.commit().opts
+type BatcherClient struct {
+	d            *deps.Deps
+	bundlesCache *dynacache.Partition[string, *Package]
+	createClient *create.Client
+	jsClient     *js.Client
+}
 
-	if err := mapstructure.WeakDecode(m, &v); err != nil {
-		return nil, err
-	}
-
-	paramsJSON, err := json.Marshal(v.Params)
-	if err != nil {
-		return nil, err
-	}
-
-	return &ParamsOptions{
-		Params: paramsJSON,
+func (c *BatcherClient) New(id string) (Batcher, error) {
+	return &batcher{
+		id:                id,
+		scriptGroups:      make(map[string]*scriptGroup),
+		dependencyManager: c.d.Conf.NewIdentityManager("jsbatch"),
+		client:            c,
+		configOptions:     newOptions(),
 	}, nil
 }
 
-func compileScriptOptions(o *options) (*ScriptOptions, error) {
-	v := struct {
-		Resource      resource.Resource
-		ImportContext any
-		Export        string
-		Params        map[string]any
-	}{}
-
-	m := o.commit().opts
-
-	if err := mapstructure.WeakDecode(m, &v); err != nil {
-		panic(err)
+func (c *BatcherClient) buildBatch(t *batchTemplateContext) (resource.Resource, string, error) {
+	var buf bytes.Buffer
+	tmpl, found := c.d.Tmpl().Lookup(batchEsmRunnerTemplateName)
+	if !found {
+		return nil, "", fmt.Errorf("template %q not found", batchEsmRunnerTemplateName)
 	}
 
-	var paramsJSON []byte
-	if v.Params != nil {
-		var err error
-		paramsJSON, err = json.Marshal(v.Params)
-		if err != nil {
-			panic(err)
-		}
+	// TODO1 context.
+	if err := c.d.Tmpl().ExecuteWithContext(context.Background(), tmpl, &buf, t); err != nil {
+		return nil, "", err
 	}
 
-	if v.Export == "" {
-		v.Export = "default"
-	}
-
-	compiled := &ScriptOptions{
-		Resource:      v.Resource,
-		Export:        v.Export,
-		ImportContext: resource.NewResourceGetter(v.ImportContext),
-		Params:        paramsJSON,
-	}
-
-	if compiled.Resource == nil {
-		// TODO1 error messages.
-		return nil, fmt.Errorf("resource not set")
-	}
-
-	return compiled, nil
-}
-
-type optionsGetSet struct {
-	Resource      resource.Resource
-	ImportContext any
-	Params        map[string]any
-
-	// Compiled values
-	compiled *ScriptOptions
-}
-
-func (s *optionsGetSet) GetOptions() *ScriptOptions {
-	return s.compiled
-}
-
-func (s *optionsGetSet) SetOptions(m map[string]any) string {
-	if err := mapstructure.WeakDecode(m, &s); err != nil {
-		panic(err)
-	}
-
-	paramsJSON, err := json.Marshal(s.Params)
+	s := paths.AddLeadingSlash(t.keyPath + ".js")
+	r, err := c.createClient.FromString(s, buf.String())
 	if err != nil {
-		panic(err)
+		return nil, "", err
 	}
 
-	s.compiled = &ScriptOptions{
-		Resource:      s.Resource,
-		ImportContext: resource.NewResourceGetter(s.ImportContext),
-		Params:        paramsJSON,
-	}
-
-	return ""
+	return r, s, nil
 }
 
-var (
-	_ resource.StaleInfo                    = (*Package)(nil)
-	_ identity.IsProbablyDependencyProvider = (*Package)(nil)
-	_ identity.Identity                     = (*Package)(nil)
-)
+type BatcherGroup interface {
+	Instance(sid, iid string) OptionsSetter
+	Runner(id string) OptionsSetter
+	Script(id string) OptionsSetter
+}
+
+type OptionsSetter interface {
+	SetOptions(map[string]any) string
+}
 
 // TODO1 names.
 type Package struct {
@@ -621,16 +147,6 @@ func (b *Package) GetDependencyManager() identity.Manager {
 
 func (p *Package) IdentifierBase() string {
 	return p.id
-}
-
-// TODO1 need this? We cannot cache this value for long.
-func (p *Package) StaleVersion() uint32 {
-	p.b.mu.Lock()
-	defer p.b.mu.Unlock()
-	if p.staleVersion == 0 {
-		p.staleVersion = p.calculateStaleVersion()
-	}
-	return p.staleVersion
 }
 
 func (p *Package) MarkStale() {
@@ -655,6 +171,29 @@ func (p *Package) IsProbablyDependency(other identity.Identity) bool {
 	})
 
 	return b
+}
+
+// TODO1 need this? We cannot cache this value for long.
+func (p *Package) StaleVersion() uint32 {
+	p.b.mu.Lock()
+	defer p.b.mu.Unlock()
+	if p.staleVersion == 0 {
+		p.staleVersion = p.calculateStaleVersion()
+	}
+	return p.staleVersion
+}
+
+func (p *Package) calculateStaleVersion() uint32 {
+	// Return the first  non-zero value found.
+	var i uint32
+	p.forEeachStaleInfo(func(si resource.StaleInfo) bool {
+		if i = si.StaleVersion(); i > 0 {
+			return true
+		}
+		return false
+	})
+
+	return i
 }
 
 // You should not depend on the invocation order when calling this.
@@ -696,27 +235,81 @@ func (p *Package) forEeachStaleInfo(f func(si resource.StaleInfo) bool) {
 	}
 }
 
-func (p *Package) calculateStaleVersion() uint32 {
-	// Return the first  non-zero value found.
-	var i uint32
-	p.forEeachStaleInfo(func(si resource.StaleInfo) bool {
-		if i = si.StaleVersion(); i > 0 {
-			return true
-		}
-		return false
-	})
-
-	return i
+type ParamsOptions struct {
+	Params json.RawMessage
 }
 
-func logTime(name string, start time.Time) {
-	elapsed := time.Since(start)
-	fmt.Printf("%s in %s\n", name, elapsed)
+type ScriptOptions struct {
+	// The script to build.
+	// TODO1 handle stale.
+	Resource resource.Resource
+
+	// The import context to use.
+	// Note that we will always fall back to the resource's own import context.
+	ImportContext resource.ResourceGetter
+
+	// The export name to use for this script's group's runners (if any).
+	// If not set, the default export will be used.
+	Export string
+
+	// Params marshaled to JSON.
+	Params json.RawMessage
+}
+
+func (o ScriptOptions) Compile(m map[string]any) (*ScriptOptions, error) {
+	var s optionsGetSet // TODO1 type.
+	if err := mapstructure.WeakDecode(m, &s); err != nil {
+		return nil, err
+	}
+
+	paramsJSON, err := json.Marshal(s.Params)
+	if err != nil {
+		panic(err)
+	}
+
+	return &ScriptOptions{
+		Resource:      s.Resource,
+		ImportContext: resource.NewResourceGetter(s.ImportContext),
+		Params:        paramsJSON,
+	}, nil
+}
+
+func (o *ScriptOptions) Dir() string {
+	return path.Dir(o.Resource.(resource.PathProvider).Path())
+}
+
+type ScriptOptionsGetSetter interface {
+	GetOptions() *ScriptOptions
+	SetOptions(map[string]any) string
+}
+
+type batchTemplateContext struct {
+	keyPath string
+	ID      string
+	Runners []scriptRunnerTemplateContext
+	Scripts []scriptBatchTemplateContext
+}
+
+type batcher struct {
+	mu           sync.Mutex
+	id           string
+	scriptGroups scriptGroups
+
+	client            *BatcherClient
+	dependencyManager identity.Manager
+
+	configOptions *options
+
+	// The last successfully built package.
+	// If this is non-nil and not stale, we can reuse it (e.g. on server rebuilds)
+	prevBuild *Package
+
+	// Compiled.
+	config js.ExternalOptions
 }
 
 func (b *batcher) Build() (*Package, error) {
 	key := dynacache.CleanKey(b.id + ".js")
-
 	p, err := b.client.bundlesCache.GetOrCreateWitTimeout(key, b.client.d.Conf.Timeout(), func(string) (*Package, error) {
 		return b.build()
 	})
@@ -731,9 +324,26 @@ func (b *batcher) Build() (*Package, error) {
 	return p, nil
 }
 
-// TODO1 remove.
-func deb(what string, v ...any) {
-	fmt.Println(what, v)
+func (b *batcher) Config() OptionsSetter {
+	return b.configOptions.Get()
+}
+
+func (b *batcher) Group(id string) BatcherGroup {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	group, found := b.scriptGroups[id]
+	if !found {
+		group = &scriptGroup{
+			id: id, client: b.client,
+			scriptsOptions:   make(map[string]*options),
+			instancesOptions: make(map[instanceID]*options),
+			runnersOptions:   make(map[string]*options),
+		}
+		b.scriptGroups[id] = group
+	}
+
+	return group
 }
 
 func (b *batcher) build() (*Package, error) {
@@ -751,6 +361,21 @@ func (b *batcher) build() (*Package, error) {
 	}
 	b.prevBuild = p
 	return p, nil
+}
+
+func (b *batcher) compile() error {
+	var err error
+	b.config, err = js.DecodeExternalOptions(b.configOptions.commit().opts)
+	if err != nil {
+		return err
+	}
+
+	for _, v := range b.scriptGroups {
+		if err := v.compile(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (b *batcher) doBuild() (*Package, error) {
@@ -946,7 +571,7 @@ func (b *batcher) doBuild() (*Package, error) {
 		},
 	}
 
-	result, err := b.client.client.BuildBundle(jsOpts)
+	result, err := b.client.jsClient.BuildBundle(jsOpts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build bundle: %w", err)
 	}
@@ -1021,54 +646,18 @@ func (b *batcher) doBuild() (*Package, error) {
 		origin: b,
 		outDir: outDir,
 		b:      b,
-		id:     path.Join(nsBundle, b.id),
+		id:     path.Join(nsBatch, b.id),
 		Groups: groups,
 	}, nil
 }
 
-const (
-	nsBundle                   = "__hugo-js-batch"
-	batchEsmRunnerTemplateName = "_hugo/build/js/batch-esm-runner.gotmpl"
-)
-
-func (ns *Namespace) buildBatch(t *batchTemplateContext) (resource.Resource, string, error) {
-	var buf bytes.Buffer
-	tmpl, found := ns.d.Tmpl().Lookup(batchEsmRunnerTemplateName)
-	if !found {
-		return nil, "", fmt.Errorf("template %q not found", batchEsmRunnerTemplateName)
+func (b *batcher) reset() {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	for _, v := range b.scriptGroups {
+		// TODO1 check if this is complete.
+		v.Reset()
 	}
-
-	// TODO1 context.
-	if err := ns.d.Tmpl().ExecuteWithContext(context.Background(), tmpl, &buf, t); err != nil {
-		return nil, "", err
-	}
-
-	s := paths.AddLeadingSlash(t.keyPath + ".js")
-	r, err := ns.createClient.FromString(s, buf.String())
-	if err != nil {
-		return nil, "", err
-	}
-
-	return r, s, nil
-}
-
-//go:embed batch-esm-runner.gotmpl
-var batchEsmRunnerTemplateString string
-var batchEsmRunnerTemplate *template.Template
-
-func init() {
-	batchEsmRunnerTemplate = template.Must(template.New("batch-esm-runner").Parse(batchEsmRunnerTemplateString))
-}
-
-func fromJSONToESBuildResultMeta(cwd, jsons string) esBuildResultMeta {
-	var m esBuildResultMeta
-	if err := json.Unmarshal([]byte(jsons), &m); err != nil {
-		panic(err)
-	}
-	if err := m.Compile(cwd); err != nil {
-		panic(err)
-	}
-	return m
 }
 
 // https://esbuild.github.io/api/#metafile
@@ -1127,3 +716,423 @@ type esBuildResultMetaOutputImport struct {
 }
 
 // TODO1 remove the now superflous Close harness in the template package.
+
+type getOnce[T any] struct {
+	v    T
+	once lazy.OnceMore
+}
+
+type instance struct {
+	instanceID
+	*ParamsOptions
+}
+
+type instanceID struct {
+	scriptID   string
+	instanceID string
+}
+
+type (
+	instanceMap map[instanceID]*ParamsOptions
+	instances   []*instance
+)
+
+func (p instanceMap) Sorted() instances {
+	var a []*instance
+	for k, v := range p {
+		a = append(a, &instance{instanceID: k, ParamsOptions: v})
+	}
+	sort.Slice(a, func(i, j int) bool {
+		ai := a[i]
+		aj := a[j]
+		if ai.instanceID.scriptID != aj.instanceID.scriptID {
+			return ai.instanceID.scriptID < aj.instanceID.scriptID
+		}
+		return ai.instanceID.instanceID < aj.instanceID.instanceID
+	})
+	return a
+}
+
+func (i instances) ByScriptID(id string) instances {
+	var a instances
+	for _, v := range i {
+		if v.instanceID.scriptID == id {
+			a = append(a, v)
+		}
+	}
+	return a
+}
+
+type options struct {
+	getOnce[*optionsSetter]
+}
+
+func (o *options) Reset() {
+	mu := o.once.ResetWithLock()
+	o.v.staleVersion.Store(0)
+	mu.Unlock()
+}
+
+func (o *options) StaleVersion() uint32 {
+	return o.v.staleVersion.Load()
+}
+
+type optionsGetSet struct {
+	Resource      resource.Resource
+	ImportContext any
+	Params        map[string]any
+
+	// Compiled values
+	compiled *ScriptOptions
+}
+
+func (s *optionsGetSet) GetOptions() *ScriptOptions {
+	return s.compiled
+}
+
+func (s *optionsGetSet) SetOptions(m map[string]any) string {
+	if err := mapstructure.WeakDecode(m, &s); err != nil {
+		panic(err)
+	}
+
+	paramsJSON, err := json.Marshal(s.Params)
+	if err != nil {
+		panic(err)
+	}
+
+	s.compiled = &ScriptOptions{
+		Resource:      s.Resource,
+		ImportContext: resource.NewResourceGetter(s.ImportContext),
+		Params:        paramsJSON,
+	}
+
+	return ""
+}
+
+type optionsSetter struct {
+	staleVersion atomic.Uint32
+	opts         map[string]any
+}
+
+// TODO1 try to avoid stale page resources when changing the head.
+func (o *optionsSetter) SetOptions(m map[string]any) string {
+	if o.opts != nil {
+		if reflect.DeepEqual(o.opts, m) {
+			return ""
+		}
+		var isStale bool
+		for k, v := range m {
+			vv, found := o.opts[k]
+			if !found {
+				isStale = true
+			} else {
+				if si, ok := vv.(resource.StaleInfo); ok {
+					isStale = si.StaleVersion() > 0
+				} else {
+					isStale = !reflect.DeepEqual(v, vv)
+				}
+			}
+
+			if isStale {
+				break
+			}
+		}
+
+		if !isStale {
+			return ""
+		}
+
+		o.staleVersion.Add(1)
+	}
+
+	o.opts = m
+
+	return ""
+}
+
+type script struct {
+	ID string
+	*ScriptOptions
+}
+
+type scriptBatchTemplateContext struct {
+	*script
+	Import    string
+	Instances []scriptInstanceBatchTemplateContext
+}
+
+func (c scriptBatchTemplateContext) MarshalJSON() (b []byte, err error) {
+	return json.Marshal(&struct {
+		ID        string                               `json:"id"`
+		Instances []scriptInstanceBatchTemplateContext `json:"instances"`
+	}{
+		ID:        c.ID,
+		Instances: c.Instances,
+	})
+}
+
+func (b scriptBatchTemplateContext) RunnerJSON(i int) string {
+	script := fmt.Sprintf("Script%d", i)
+
+	v := struct {
+		ID string `json:"id"`
+
+		// Read-only live JavaScript binding.
+		Binding   string                               `json:"binding"`
+		Instances []scriptInstanceBatchTemplateContext `json:"instances"`
+	}{
+		b.ID,
+		script,
+		b.Instances,
+	}
+
+	bb, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	s := string(bb)
+
+	// Remove the quotes to make it a valid JS object.
+	s = strings.ReplaceAll(s, fmt.Sprintf("%q", script), script)
+
+	return s
+}
+
+type scriptGroup struct {
+	mu sync.Mutex
+
+	id string
+
+	client *BatcherClient
+
+	scriptsOptions   map[string]*options
+	instancesOptions map[instanceID]*options
+	runnersOptions   map[string]*options
+
+	// Compiled.
+	scripts   scriptMap
+	instances instanceMap
+	runners   scriptMap
+}
+
+func (s *scriptGroup) Instance(sid, iid string) OptionsSetter {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	id := instanceID{scriptID: sid, instanceID: iid}
+	if v, found := s.instancesOptions[id]; found {
+		return v.Get()
+	}
+	s.instancesOptions[id] = newOptions()
+	return s.instancesOptions[id].Get()
+}
+
+func (g *scriptGroup) Reset() {
+	for _, v := range g.scriptsOptions {
+		v.Reset()
+	}
+	for _, v := range g.instancesOptions {
+		v.Reset()
+	}
+	for _, v := range g.runnersOptions {
+		v.Reset()
+	}
+}
+
+func (s *scriptGroup) Runner(id string) OptionsSetter {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if v, found := s.runnersOptions[id]; found {
+		return v.Get()
+	}
+	s.runnersOptions[id] = newOptions()
+	return s.runnersOptions[id].Get()
+}
+
+func (s *scriptGroup) Script(id string) OptionsSetter {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if v, found := s.scriptsOptions[id]; found {
+		return v.Get()
+	}
+	s.scriptsOptions[id] = newOptions()
+	return s.scriptsOptions[id].Get()
+}
+
+func (s *scriptGroup) compile() error {
+	// TODO1 lock?
+	s.scripts = make(map[string]*ScriptOptions)
+	s.instances = make(map[instanceID]*ParamsOptions)
+	s.runners = make(map[string]*ScriptOptions)
+
+	for k, v := range s.scriptsOptions {
+		compiled, err := compileScriptOptions(v)
+		if err != nil {
+			return err
+		}
+		s.scripts[k] = compiled
+	}
+
+	for k, v := range s.instancesOptions {
+		compiled, err := compileParamsOptions(v)
+		if err != nil {
+			return err
+		}
+		s.instances[k] = compiled
+	}
+
+	for k, v := range s.runnersOptions {
+		compiled, err := compileScriptOptions(v)
+		if err != nil {
+			return err
+		}
+		s.runners[k] = compiled
+	}
+
+	return nil
+}
+
+type scriptGroups map[string]*scriptGroup
+
+func (s scriptGroups) Sorted() []*scriptGroup {
+	var a []*scriptGroup
+	for _, v := range s {
+		a = append(a, v)
+	}
+	sort.Slice(a, func(i, j int) bool {
+		return a[i].id < a[j].id
+	})
+	return a
+}
+
+type scriptInstanceBatchTemplateContext struct {
+	*instance
+}
+
+func (c scriptInstanceBatchTemplateContext) ID() string {
+	return c.instanceID.instanceID
+}
+
+func (c scriptInstanceBatchTemplateContext) MarshalJSON() (b []byte, err error) {
+	return json.Marshal(&struct {
+		ID     string          `json:"id"`
+		Params json.RawMessage `json:"params"`
+	}{
+		ID:     c.instanceID.instanceID,
+		Params: c.Params,
+	})
+}
+
+type scriptMap map[string]*ScriptOptions
+
+func (s scriptMap) Sorted() []*script {
+	var a []*script
+	for k, v := range s {
+		a = append(a, &script{ID: k, ScriptOptions: v})
+	}
+	sort.Slice(a, func(i, j int) bool {
+		return a[i].ID < a[j].ID
+	})
+	return a
+}
+
+type scriptRunnerTemplateContext struct {
+	*script
+	Import string
+}
+
+func (c scriptRunnerTemplateContext) MarshalJSON() (b []byte, err error) {
+	return json.Marshal(&struct {
+		ID string `json:"id"`
+	}{
+		ID: c.ID,
+	})
+}
+
+func (g *getOnce[T]) commit() T {
+	g.once.Do(func() {})
+	return g.v
+}
+
+func compileParamsOptions(o *options) (*ParamsOptions, error) {
+	v := struct {
+		Params map[string]any
+	}{}
+
+	m := o.commit().opts
+
+	if err := mapstructure.WeakDecode(m, &v); err != nil {
+		return nil, err
+	}
+
+	paramsJSON, err := json.Marshal(v.Params)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ParamsOptions{
+		Params: paramsJSON,
+	}, nil
+}
+
+func compileScriptOptions(o *options) (*ScriptOptions, error) {
+	v := struct {
+		Resource      resource.Resource
+		ImportContext any
+		Export        string
+		Params        map[string]any
+	}{}
+
+	m := o.commit().opts
+
+	if err := mapstructure.WeakDecode(m, &v); err != nil {
+		panic(err)
+	}
+
+	var paramsJSON []byte
+	if v.Params != nil {
+		var err error
+		paramsJSON, err = json.Marshal(v.Params)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if v.Export == "" {
+		v.Export = "default"
+	}
+
+	compiled := &ScriptOptions{
+		Resource:      v.Resource,
+		Export:        v.Export,
+		ImportContext: resource.NewResourceGetter(v.ImportContext),
+		Params:        paramsJSON,
+	}
+
+	if compiled.Resource == nil {
+		// TODO1 error messages.
+		return nil, fmt.Errorf("resource not set")
+	}
+
+	return compiled, nil
+}
+
+// TODO1 remove.
+func deb(what string, v ...any) {
+	fmt.Println(what, v)
+}
+
+func fromJSONToESBuildResultMeta(cwd, jsons string) esBuildResultMeta {
+	var m esBuildResultMeta
+	if err := json.Unmarshal([]byte(jsons), &m); err != nil {
+		panic(err)
+	}
+	if err := m.Compile(cwd); err != nil {
+		panic(err)
+	}
+	return m
+}
+
+func logTime(name string, start time.Time) {
+	elapsed := time.Since(start)
+	fmt.Printf("%s in %s\n", name, elapsed)
+}

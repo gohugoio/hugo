@@ -110,15 +110,18 @@ func (c *Scratch) Get(key string) any {
 // GetOrCreate returns the value for the given key if it exists, or creates it
 // using the given func and stores that value in the map.
 // For internal use.
-func (c *Scratch) GetOrCreate(key string, create func() any) any {
+func (c *Scratch) GetOrCreate(key string, create func() (any, error)) (any, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if val, found := c.values[key]; found {
-		return val
+		return val, nil
 	}
-	val := create()
+	val, err := create()
+	if err != nil {
+		return nil, err
+	}
 	c.values[key] = val
-	return val
+	return val, nil
 }
 
 // Values returns the raw backing map. Note that you should just use

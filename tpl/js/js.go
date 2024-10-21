@@ -1,4 +1,4 @@
-// Copyright 2020 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,14 +35,19 @@ func New(deps *deps.Deps) *Namespace {
 		return &Namespace{}
 	}
 	return &Namespace{
-		d: deps,
-		bundlesCache: dynacache.GetOrCreatePartition[string, *Package](
-			deps.MemCache,
-			"/jsb1",
-			// Mark it to clear on rebuild, but each package evaluate itself for changes.
-			dynacache.OptionsPartition{ClearWhen: dynacache.ClearOnRebuild, Weight: 10},
-		),
-		client:       js.New(deps.BaseFs.Assets, deps.ResourceSpec),
+		d:      deps,
+		client: js.New(deps.BaseFs.Assets, deps.ResourceSpec),
+		batcherClient: &BatcherClient{
+			d:            deps,
+			jsClient:     js.New(deps.BaseFs.Assets, deps.ResourceSpec),
+			createClient: create.New(deps.ResourceSpec),
+			bundlesCache: dynacache.GetOrCreatePartition[string, *Package](
+				deps.MemCache,
+				"/jsb1",
+				// Mark it to clear on rebuild, but each package evaluate itself for changes.
+				dynacache.OptionsPartition{ClearWhen: dynacache.ClearOnRebuild, Weight: 10},
+			),
+		},
 		createClient: create.New(deps.ResourceSpec),
 		babelClient:  babel.New(deps.ResourceSpec),
 	}
@@ -52,11 +57,10 @@ func New(deps *deps.Deps) *Namespace {
 type Namespace struct {
 	d *deps.Deps
 
-	client       *js.Client
-	createClient *create.Client
-	babelClient  *babel.Client
-
-	bundlesCache *dynacache.Partition[string, *Package]
+	client        *js.Client
+	createClient  *create.Client
+	babelClient   *babel.Client
+	batcherClient *BatcherClient
 }
 
 // Build processes the given Resource with ESBuild.
@@ -86,17 +90,11 @@ func (ns *Namespace) Build(args ...any) (resource.Resource, error) {
 }
 
 func (ns *Namespace) Batch(id string, store *maps.Scratch) (Batcher, error) {
-	key := path.Join(nsBundle, id)
-	b := store.GetOrCreate(key, func() any {
-		return &batcher{
-			id:                id,
-			scriptGroups:      make(map[string]*scriptGroup),
-			client:            ns,
-			dependencyManager: ns.d.Conf.NewIdentityManager("jsbatch"),
-			configOptions:     newOptions(),
-		}
+	key := path.Join(nsBatch, id)
+	b, err := store.GetOrCreate(key, func() (any, error) {
+		return ns.batcherClient.New(id)
 	})
-	return b.(Batcher), nil
+	return b.(Batcher), err
 }
 
 // Babel processes the given Resource with Babel.
