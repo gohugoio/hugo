@@ -38,7 +38,7 @@ With this shortcode, calling `Inner` instead of `InnerDeindent`:
 
 {{< code file=layouts/shortcodes/gallery.html  >}}
 <div class="gallery">
-  {{ trim .Inner "\r\n" | .Page.RenderString }}
+  {{ .Inner | strings.TrimSpace | .Page.RenderString }}
 </div>
 {{< /code >}}
 
@@ -69,7 +69,7 @@ Although technically correct per the CommonMark specification, this is not what 
 
 {{< code file=layouts/shortcodes/gallery.html  >}}
 <div class="gallery">
-  {{ trim .InnerDeindent "\r\n" | .Page.RenderString }}
+  {{ .InnerDeindent | strings.TrimSpace | .Page.RenderString }}
 </div>
 {{< /code >}}
 
