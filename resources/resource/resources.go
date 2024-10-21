@@ -16,6 +16,7 @@ package resource
 
 import (
 	"fmt"
+	"path"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/paths"
@@ -28,6 +29,53 @@ var _ ResourceFinder = (*Resources)(nil)
 // Resources represents a slice of resources, which can be a mix of different types.
 // I.e. both pages and images etc.
 type Resources []Resource
+
+// TODO1
+// TODO1 move to a func + template func. Maybe.
+func (r Resources) Mount(base, target string) ResourceGetter {
+	return resourceGetterFunc(func(namev any) Resource {
+		name1, err := cast.ToStringE(namev)
+		if err != nil {
+			panic(err)
+		}
+
+		isTargetAbs := strings.HasPrefix(target, "/")
+
+		if target != "" {
+			name1 = strings.TrimPrefix(name1, target)
+			if !isTargetAbs {
+				name1 = paths.TrimLeading(name1)
+			}
+		}
+
+		if base != "" && isTargetAbs {
+			name1 = path.Join(base, name1)
+		}
+
+		for _, res := range r {
+			name2 := res.Name()
+
+			if base != "" && !isTargetAbs {
+				name2 = paths.TrimLeading(strings.TrimPrefix(name2, base))
+			}
+
+			// TODO1 remove.
+			// fmt.Println("name1", name1, "name2", name2, "base", base)
+
+			if strings.EqualFold(name1, name2) {
+				return res
+			}
+
+		}
+
+		return nil
+	})
+}
+
+type ResourcesProvider interface {
+	// Resources returns a list of all resources.
+	Resources() Resources
+}
 
 // var _ resource.ResourceFinder = (*Namespace)(nil)
 // ResourcesConverter converts a given slice of Resource objects to Resources.
@@ -63,13 +111,25 @@ func (r Resources) Get(name any) Resource {
 		panic(err)
 	}
 
-	namestr = paths.AddLeadingSlash(namestr)
+	isDotCurrent := strings.HasPrefix(namestr, "./")
+	if isDotCurrent {
+		namestr = strings.TrimPrefix(namestr, "./")
+	} else {
+		namestr = paths.AddLeadingSlash(namestr)
+	}
+
+	check := func(name string) bool {
+		if !isDotCurrent {
+			name = paths.AddLeadingSlash(name)
+		}
+		return strings.EqualFold(namestr, name)
+	}
 
 	// First check the Name.
 	// Note that this can be modified by the user in the front matter,
 	// also, it does not contain any language code.
 	for _, resource := range r {
-		if strings.EqualFold(namestr, paths.AddLeadingSlash(resource.Name())) {
+		if check(resource.Name()) {
 			return resource
 		}
 	}
@@ -77,7 +137,7 @@ func (r Resources) Get(name any) Resource {
 	// Finally, check the normalized name.
 	for _, resource := range r {
 		if nop, ok := resource.(NameNormalizedProvider); ok {
-			if strings.EqualFold(namestr, paths.AddLeadingSlash(nop.NameNormalized())) {
+			if check(nop.NameNormalized()) {
 				return resource
 			}
 		}
@@ -197,14 +257,31 @@ type Source interface {
 	Publish() error
 }
 
-// ResourceFinder provides methods to find Resources.
-// Note that GetRemote (as found in resources.GetRemote) is
-// not covered by this interface, as this is only available as a global template function.
-type ResourceFinder interface {
+type ResourceGetter interface {
 	// Get locates the Resource with the given name in the current context (e.g. in .Page.Resources).
 	//
 	// It returns nil if no Resource could found, panics if name is invalid.
 	Get(name any) Resource
+}
+
+// StaleInfoResourceGetter is a ResourceGetter that also provides information about
+// whether the underlying resources are stale.
+type StaleInfoResourceGetter interface {
+	StaleInfo
+	ResourceGetter
+}
+
+type resourceGetterFunc func(name any) Resource
+
+func (f resourceGetterFunc) Get(name any) Resource {
+	return f(name)
+}
+
+// ResourceFinder provides methods to find Resources.
+// Note that GetRemote (as found in resources.GetRemote) is
+// not covered by this interface, as this is only available as a global template function.
+type ResourceFinder interface {
+	ResourceGetter
 
 	// GetMatch finds the first Resource matching the given pattern, or nil if none found.
 	//
@@ -234,4 +311,70 @@ type ResourceFinder interface {
 	// ByType returns resources of a given resource type (e.g. "image").
 	// It returns nil if no Resources could found, panics if typ is invalid.
 	ByType(typ any) Resources
+}
+
+// NewResourceGetter creates a new ResourceGetter from the given objects.
+// If multiple objects are provided, they are merged into one where
+// the first match wins.
+func NewResourceGetter(os ...any) StaleInfoResourceGetter {
+	var getters multiResourceGetter
+	for _, o := range os {
+		if g, ok := unwrapResourceGetter(o); ok {
+			getters = append(getters, g)
+		}
+	}
+
+	return struct {
+		StaleInfo
+		ResourceGetter
+	}{
+		StaleInfoFunc(
+			func() uint32 {
+				for _, g := range getters {
+					if s, ok := g.(StaleInfo); ok {
+						if i := s.StaleVersion(); i > 0 {
+							return i
+						}
+					}
+				}
+				return 0
+			},
+		),
+		getters,
+	}
+}
+
+type multiResourceGetter []ResourceGetter
+
+func (m multiResourceGetter) Get(name any) Resource {
+	for _, g := range m {
+		if res := g.Get(name); res != nil {
+			return res
+		}
+	}
+	return nil
+}
+
+func unwrapResourceGetter(v any) (ResourceGetter, bool) {
+	if v == nil {
+		return nil, false
+	}
+	switch vv := v.(type) {
+	case ResourceGetter:
+		return vv, true
+	case ResourcesProvider:
+		return vv.Resources(), true
+	case func(name any) Resource:
+		return resourceGetterFunc(vv), true
+	case []any:
+		var getters multiResourceGetter
+		for _, vv := range vv {
+			if g, ok := unwrapResourceGetter(vv); ok {
+				getters = append(getters, g)
+			}
+		}
+		return getters, len(getters) > 0
+	}
+
+	return nil, false
 }

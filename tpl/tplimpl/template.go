@@ -640,34 +640,30 @@ func (t *templateHandler) addShortcodeVariant(ts *templateState) {
 }
 
 func (t *templateHandler) addTemplateFile(name string, fim hugofs.FileMetaInfo) error {
-	getTemplate := func(fim hugofs.FileMetaInfo) (templateInfo, error) {
-		meta := fim.Meta()
-		f, err := meta.Open()
-		if err != nil {
-			return templateInfo{meta: meta}, err
-		}
-		defer f.Close()
-		b, err := io.ReadAll(f)
-		if err != nil {
-			return templateInfo{meta: meta}, err
-		}
-
-		s := removeLeadingBOM(string(b))
-
-		var isText bool
-		name, isText = t.nameIsText(name)
-
-		return templateInfo{
-			name:     name,
-			isText:   isText,
-			template: s,
-			meta:     meta,
-		}, nil
-	}
-
-	tinfo, err := getTemplate(fim)
+	meta := fim.Meta()
+	f, err := meta.Open()
 	if err != nil {
 		return err
+	}
+	defer f.Close()
+	b, err := io.ReadAll(f)
+	if err != nil {
+		return err
+	}
+	return t.addTemplateString(name, string(b), fim.Meta())
+}
+
+func (t *templateHandler) addTemplateString(name, s string, meta *hugofs.FileMeta) error {
+	s = removeLeadingBOM(s)
+
+	var isText bool
+	name, isText = t.nameIsText(name)
+
+	tinfo := templateInfo{
+		name:     name,
+		isText:   isText,
+		template: s,
+		meta:     meta,
 	}
 
 	if isBaseTemplatePath(name) {
@@ -775,6 +771,18 @@ func (t *templateHandler) applyTemplateTransformers(ns *templateNamespace, ts *t
 var embeddedTemplatesFs embed.FS
 
 func (t *templateHandler) loadEmbedded() error {
+	shouldPrependInternalPrefix := func(path, name string) bool {
+		// For the render hooks and the server and _hugo templates it does not make sense to preserve the
+		// double _internal double book-keeping,
+		// just add it if its now provided by the user.
+		if strings.Contains(path, "_default/_markup") {
+			return false
+		}
+		if strings.HasPrefix(name, "_server/") || strings.HasPrefix(name, "_hugo/") || strings.HasPrefix(name, "partials/_funcs/") {
+			return false
+		}
+		return true
+	}
 	return fs.WalkDir(embeddedTemplatesFs, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -794,11 +802,12 @@ func (t *templateHandler) loadEmbedded() error {
 		name := strings.TrimPrefix(filepath.ToSlash(path), "embedded/templates/")
 		templateName := name
 
-		// For the render hooks and the server templates it does not make sense to preserve the
-		// double _internal double book-keeping,
-		// just add it if its now provided by the user.
-		if !strings.Contains(path, "_default/_markup") && !strings.HasPrefix(name, "_server/") && !strings.HasPrefix(name, "partials/_funcs/") {
+		if shouldPrependInternalPrefix(path, name) {
 			templateName = internalPathPrefix + name
+		}
+
+		if t.isPlainText(templateName) {
+			templateName = textTmplNamePrefix + templateName
 		}
 
 		if _, found := t.Lookup(templateName); !found {
@@ -821,6 +830,12 @@ func (t *templateHandler) loadEmbedded() error {
 	})
 }
 
+func (t *templateHandler) isPlainText(filename string) bool {
+	outputFormats := t.Conf.GetConfigSection("outputFormats").(output.Formats)
+	outputFormat, found := outputFormats.FromFilename(filename)
+	return found && outputFormat.IsPlainText
+}
+
 func (t *templateHandler) loadTemplates() error {
 	walker := func(path string, fi hugofs.FileMetaInfo) error {
 		if fi.IsDir() {
@@ -833,10 +848,8 @@ func (t *templateHandler) loadTemplates() error {
 
 		name := strings.TrimPrefix(filepath.ToSlash(path), "/")
 		filename := filepath.Base(path)
-		outputFormats := t.Conf.GetConfigSection("outputFormats").(output.Formats)
-		outputFormat, found := outputFormats.FromFilename(filename)
 
-		if found && outputFormat.IsPlainText {
+		if t.isPlainText(filename) {
 			name = textTmplNamePrefix + name
 		}
 
