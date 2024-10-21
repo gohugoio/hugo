@@ -1,0 +1,16 @@
+{{ range $i, $e := .Scripts -}}
+  {{ printf "import { %s as Script%d } from %q;" .Export $i .Import }}
+{{ end -}}
+{{ range $i, $e := .Runners }}
+  {{ printf "import { %s as Run%d } from %q;" .Export $i .Import }}
+{{ end }}
+{{/*  */}}
+let scripts = [];
+{{ range $i, $e := .Scripts -}}
+  scripts.push({{ .RunnerJSON $i }});
+{{ end -}}
+{{/*  */}}
+{{ range $i, $e := .Runners }}
+  {{ $id := printf "Run%d" $i }}
+  {{ $id }}(scripts);
+{{ end }}

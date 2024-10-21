@@ -63,7 +63,7 @@ func (c *Client) BuildBundle(opts Options) (api.BuildResult, error) {
 func (c *Client) build(opts Options, transformCtx *resources.ResourceTransformationCtx) (api.BuildResult, error) {
 	dependencyManager := opts.DependencyManager
 	if transformCtx != nil {
-		dependencyManager = transformCtx.DependencyManager // TODO1
+		dependencyManager = transformCtx.DependencyManager
 	}
 	if dependencyManager == nil {
 		dependencyManager = identity.NopManager

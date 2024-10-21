@@ -391,7 +391,8 @@ type batcher struct {
 	id           string
 	scriptGroups scriptGroups
 
-	client *Namespace
+	client            *Namespace
+	dependencyManager identity.Manager
 
 	configOptions *options
 
@@ -614,7 +615,9 @@ type Package struct {
 	Groups       map[string]resource.Resources
 }
 
-// TODO1 add a group.Subscribe (identity) method?
+func (b *Package) GetDependencyManager() identity.Manager {
+	return b.origin.dependencyManager
+}
 
 func (p *Package) IdentifierBase() string {
 	return p.id
@@ -634,6 +637,7 @@ func (p *Package) MarkStale() {
 	p.origin.reset()
 }
 
+// TODO1 need this? Test.
 func (p *Package) IsProbablyDependency(other identity.Identity) bool {
 	depsFinder := identity.NewFinder(identity.FinderConfig{})
 	var b bool
@@ -649,8 +653,6 @@ func (p *Package) IsProbablyDependency(other identity.Identity) bool {
 		})
 		return b
 	})
-
-	// TODO1 why is this called twice on change?
 
 	return b
 }
@@ -870,11 +872,12 @@ func (b *batcher) doBuild() (*Package, error) {
 	jsOpts := js.Options{
 		ExternalOptions: externalOptions,
 		InternalOptions: js.InternalOptions{
-			OutDir:         outDir,
-			Write:          true,
-			AllowOverwrite: true,
-			Splitting:      true,
-			ImportOnResolveFunc: func(imp string, args api.OnResolveArgs) string {
+			DependencyManager: b.dependencyManager,
+			OutDir:            outDir,
+			Write:             true,
+			AllowOverwrite:    true,
+			Splitting:         true,
+			ImportOnResolveFunc: func(depsManager identity.Manager, imp string, args api.OnResolveArgs) string {
 				if _, found := state.importResource.Get(imp); found {
 					return imp
 				}
@@ -889,6 +892,7 @@ func (b *batcher) doBuild() (*Package, error) {
 				if importContext.resourceGetter != nil {
 					resolved := importContext.resourceGetter.Get(imp)
 					if resolved != nil {
+						depsManager.AddIdentity(identity.FirstIdentity(resolved))
 						imp := js.PrefixHugoVirtual + resolved.(resource.PathProvider).Path()
 						state.importResource.Set(imp, resolved)
 						state.importerImportContext.Set(imp, importContext)
@@ -1022,11 +1026,20 @@ func (b *batcher) doBuild() (*Package, error) {
 	}, nil
 }
 
-const nsBundle = "__hugo-js-bundle"
+const (
+	nsBundle                   = "__hugo-js-batch"
+	batchEsmRunnerTemplateName = "_hugo/build/js/batch-esm-runner.gotmpl"
+)
 
 func (ns *Namespace) buildBatch(t *batchTemplateContext) (resource.Resource, string, error) {
 	var buf bytes.Buffer
-	if err := batchEsmRunnerTemplate.Execute(&buf, t); err != nil {
+	tmpl, found := ns.d.Tmpl().Lookup(batchEsmRunnerTemplateName)
+	if !found {
+		return nil, "", fmt.Errorf("template %q not found", batchEsmRunnerTemplateName)
+	}
+
+	// TODO1 context.
+	if err := ns.d.Tmpl().ExecuteWithContext(context.Background(), tmpl, &buf, t); err != nil {
 		return nil, "", err
 	}
 

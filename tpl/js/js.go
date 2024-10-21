@@ -89,10 +89,11 @@ func (ns *Namespace) Batch(id string, store *maps.Scratch) (Batcher, error) {
 	key := path.Join(nsBundle, id)
 	b := store.GetOrCreate(key, func() any {
 		return &batcher{
-			id:            id,
-			scriptGroups:  make(map[string]*scriptGroup),
-			client:        ns,
-			configOptions: newOptions(),
+			id:                id,
+			scriptGroups:      make(map[string]*scriptGroup),
+			client:            ns,
+			dependencyManager: ns.d.Conf.NewIdentityManager("jsbatch"),
+			configOptions:     newOptions(),
 		}
 	})
 	return b.(Batcher), nil

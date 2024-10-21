@@ -29,11 +29,6 @@ disableKinds = ["taxonomy", "term"]
 disableLiveReload = true
 baseURL = "https://example.com"
 
-# TOOD1
-[build]
-    [[build.cachebusters]]
-        source = '.*'
-        target = '.*'
 
 -- package.json --
 {

@@ -70,13 +70,12 @@ type InternalOptions struct {
 
 	DependencyManager identity.Manager
 
-	// TODO1
 	Write                   bool // Set to false to write to memory.
 	AllowOverwrite          bool
 	Splitting               bool
 	TsConfig                string
 	EntryPoints             []string
-	ImportOnResolveFunc     func(string, api.OnResolveArgs) string
+	ImportOnResolveFunc     func(identity.Manager, string, api.OnResolveArgs) string
 	ImportOnLoadFunc        func(api.OnLoadArgs) string
 	ImportParamsOnLoadFunc  func(args api.OnLoadArgs) json.RawMessage
 	ErrorMessageResolveFunc func(api.Message) *ErrorMessageResolved
@@ -270,7 +269,7 @@ func createBuildPlugins(c *Client, depsManager identity.Manager, opts Options) (
 		}
 
 		if opts.ImportOnResolveFunc != nil {
-			if s := opts.ImportOnResolveFunc(impPath, args); s != "" {
+			if s := opts.ImportOnResolveFunc(depsManager, impPath, args); s != "" {
 				return api.OnResolveResult{Path: s, Namespace: NsHugoImportResolveFunc}, nil
 			}
 		}

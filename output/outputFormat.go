@@ -120,6 +120,14 @@ var (
 		Rel:         "alternate",
 	}
 
+	GoTmplFormat = Format{
+		Name:           "gotmpl",
+		MediaType:      media.Builtin.TextType,
+		BaseName:       "index",
+		IsPlainText:    true,
+		NotAlternative: true,
+	}
+
 	HTMLFormat = Format{
 		Name:          "html",
 		MediaType:     media.Builtin.HTMLType,
@@ -215,6 +223,7 @@ var DefaultFormats = Formats{
 	RobotsTxtFormat,
 	RSSFormat,
 	SitemapFormat,
+	GoTmplFormat,
 }
 
 func init() {
