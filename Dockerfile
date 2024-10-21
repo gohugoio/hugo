@@ -76,9 +76,9 @@ RUN mkdir -p /var/hugo/bin /cache && \
     # See https://github.com/gohugoio/hugo/issues/9810
     runuser -u hugo -- git config --global core.quotepath false
 
+USER hugo:hugo
 VOLUME /project
 WORKDIR /project
-USER hugo:hugo
 ENV HUGO_CACHEDIR=/cache
 ENV PATH="/var/hugo/bin:$PATH"
 
