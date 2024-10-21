@@ -43,7 +43,6 @@ import (
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/gohugoio/hugo/resources/resource_factories/create"
-	"github.com/gohugoio/hugo/resources/resource_transformers/js"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cast"
 )
@@ -86,7 +85,7 @@ type Batcher interface {
 func NewBatcherClient(deps *deps.Deps) *BatcherClient {
 	return &BatcherClient{
 		d:            deps,
-		jsClient:     js.New(deps.BaseFs.Assets, deps.ResourceSpec),
+		buildClient:  NewBuildClient(deps.BaseFs.Assets, deps.ResourceSpec),
 		createClient: create.New(deps.ResourceSpec),
 		bundlesCache: dynacache.GetOrCreatePartition[string, *Package](
 			deps.MemCache,
@@ -101,7 +100,7 @@ type BatcherClient struct {
 	d *deps.Deps
 
 	createClient *create.Client
-	jsClient     *js.Client
+	buildClient  *BuildClient
 
 	bundlesCache *dynacache.Partition[string, *Package]
 }
@@ -322,7 +321,7 @@ type batcher struct {
 	prevBuild *Package
 
 	// Compiled.
-	config js.ExternalOptions
+	config ExternalOptions
 }
 
 func (b *batcher) Build() (*Package, error) {
@@ -382,7 +381,7 @@ func (b *batcher) build() (*Package, error) {
 
 func (b *batcher) compile() error {
 	var err error
-	b.config, err = js.DecodeExternalOptions(b.configOptions.commit().opts)
+	b.config, err = DecodeExternalOptions(b.configOptions.commit().opts)
 	if err != nil {
 		return err
 	}
@@ -453,7 +452,7 @@ func (b *batcher) doBuild() (*Package, error) {
 		for _, vv := range v.scripts.Sorted() {
 			keyPath := keyPath + "_" + vv.ID
 			opts := vv.ScriptOptions
-			impPath := path.Join(js.PrefixHugoVirtual, opts.Dir(), keyPath+opts.Resource.MediaType().FirstSuffix.FullSuffix)
+			impPath := path.Join(PrefixHugoVirtual, opts.Dir(), keyPath+opts.Resource.MediaType().FirstSuffix.FullSuffix)
 			impCtx := opts.ImportContext
 
 			state.importerImportContext.Set(impPath, importContext{
@@ -506,9 +505,9 @@ func (b *batcher) doBuild() (*Package, error) {
 		return nil, fmt.Errorf("only esm format is currently supported")
 	}
 
-	jsOpts := js.Options{
+	jsOpts := Options{
 		ExternalOptions: externalOptions,
-		InternalOptions: js.InternalOptions{
+		InternalOptions: InternalOptions{
 			DependencyManager: b.dependencyManager,
 			OutDir:            outDir,
 			Write:             true,
@@ -530,7 +529,7 @@ func (b *batcher) doBuild() (*Package, error) {
 					resolved := importContext.resourceGetter.Get(imp)
 					if resolved != nil {
 						depsManager.AddIdentity(identity.FirstIdentity(resolved))
-						imp := js.PrefixHugoVirtual + resolved.(resource.PathProvider).Path()
+						imp := PrefixHugoVirtual + resolved.(resource.PathProvider).Path()
 						state.importResource.Set(imp, resolved)
 						state.importerImportContext.Set(imp, importContext)
 						return imp
@@ -559,16 +558,16 @@ func (b *batcher) doBuild() (*Package, error) {
 				}
 				return nil
 			},
-			ErrorMessageResolveFunc: func(args api.Message) *js.ErrorMessageResolved {
+			ErrorMessageResolveFunc: func(args api.Message) *ErrorMessageResolved {
 				if loc := args.Location; loc != nil {
-					path := strings.TrimPrefix(loc.File, js.NsHugoImportResolveFunc+":")
+					path := strings.TrimPrefix(loc.File, NsHugoImportResolveFunc+":")
 					if r, found := state.importResource.Get(path); found {
-						path = strings.TrimPrefix(path, js.PrefixHugoVirtual)
+						path = strings.TrimPrefix(path, PrefixHugoVirtual)
 						var contentr hugio.ReadSeekCloser
 						if cp, ok := r.(hugio.ReadSeekCloserProvider); ok {
 							contentr, _ = cp.ReadSeekCloser()
 						}
-						return &js.ErrorMessageResolved{
+						return &ErrorMessageResolved{
 							Content: contentr,
 							Path:    path,
 							Message: args.Text,
@@ -583,7 +582,7 @@ func (b *batcher) doBuild() (*Package, error) {
 		},
 	}
 
-	result, err := b.client.jsClient.BuildBundle(jsOpts)
+	result, err := b.client.buildClient.Build(jsOpts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build bundle: %w", err)
 	}

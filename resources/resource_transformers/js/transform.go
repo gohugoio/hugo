@@ -18,6 +18,7 @@ import (
 	"path"
 	"path/filepath"
 
+	"github.com/gohugoio/hugo/internal/js/esbuild"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/internal"
@@ -35,10 +36,10 @@ func (t *buildTransformation) Key() internal.ResourceTransformationKey {
 func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
 	ctx.OutMediaType = media.Builtin.JavascriptType
 
-	var opts Options
+	var opts esbuild.Options
 
 	if t.optsm != nil {
-		optsExt, err := DecodeExternalOptions(t.optsm)
+		optsExt, err := esbuild.DecodeExternalOptions(t.optsm)
 		if err != nil {
 			return err
 		}

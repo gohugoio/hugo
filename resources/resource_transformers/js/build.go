@@ -14,21 +14,12 @@
 package js
 
 import (
-	"errors"
-	"fmt"
-	"os"
 	"path"
-	"path/filepath"
 	"regexp"
-	"strings"
 
 	"github.com/evanw/esbuild/pkg/api"
-	"github.com/gohugoio/hugo/common/herrors"
-	"github.com/gohugoio/hugo/common/hugio"
-	"github.com/gohugoio/hugo/common/text"
-	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugolib/filesystems"
-	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/internal/js/esbuild"
 
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -36,15 +27,13 @@ import (
 
 // Client context for ESBuild.
 type Client struct {
-	rs  *resources.Spec
-	sfs *filesystems.SourceFilesystem
+	c *esbuild.BuildClient
 }
 
 // New creates a new client context.
 func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) *Client {
 	return &Client{
-		rs:  rs,
-		sfs: fs,
+		c: esbuild.NewBuildClient(fs, rs),
 	}
 }
 
@@ -55,15 +44,11 @@ func (c *Client) Process(res resources.ResourceTransformer, opts map[string]any)
 	)
 }
 
-func (c *Client) BuildBundle(opts Options) (api.BuildResult, error) {
-	return c.build(opts)
-}
-
-func (c *Client) transform(opts Options, transformCtx *resources.ResourceTransformationCtx) (api.BuildResult, error) {
+func (c *Client) transform(opts esbuild.Options, transformCtx *resources.ResourceTransformationCtx) (api.BuildResult, error) {
 	if transformCtx.DependencyManager != nil {
 		opts.DependencyManager = transformCtx.DependencyManager
 	}
-	result, err := c.build(opts)
+	result, err := c.c.Build(opts)
 	if err != nil {
 		return result, err
 	}
@@ -88,141 +73,5 @@ func (c *Client) transform(opts Options, transformCtx *resources.ResourceTransfo
 		}
 
 	}
-	return result, nil
-}
-
-func (c *Client) build(opts Options) (api.BuildResult, error) {
-	dependencyManager := opts.DependencyManager
-	if dependencyManager == nil {
-		dependencyManager = identity.NopManager
-	}
-
-	opts.ResolveDir = c.rs.Cfg.BaseConfig().WorkingDir // where node_modules gets resolved
-	opts.TsConfig = c.rs.ResolveJSConfigFile("tsconfig.json")
-
-	if err := opts.validate(); err != nil {
-		return api.BuildResult{}, err
-	}
-
-	buildOptions, err := toBuildOptions(opts)
-	if err != nil {
-		return api.BuildResult{}, err
-	}
-
-	buildOptions.Plugins, err = createBuildPlugins(c, dependencyManager, opts)
-	if err != nil {
-		return api.BuildResult{}, err
-	}
-
-	if buildOptions.Sourcemap == api.SourceMapExternal && buildOptions.Outdir == "" {
-		buildOptions.Outdir, err = os.MkdirTemp(os.TempDir(), "compileOutput")
-		if err != nil {
-			return api.BuildResult{}, err
-		}
-		defer os.Remove(buildOptions.Outdir)
-	}
-
-	if opts.Inject != nil {
-		// Resolve the absolute filenames.
-		for i, ext := range opts.Inject {
-			impPath := filepath.FromSlash(ext)
-			if filepath.IsAbs(impPath) {
-				return api.BuildResult{}, fmt.Errorf("inject: absolute paths not supported, must be relative to /assets")
-			}
-
-			m := resolveComponentInAssets(c.rs.Assets.Fs, impPath)
-
-			if m == nil {
-				return api.BuildResult{}, fmt.Errorf("inject: file %q not found", ext)
-			}
-
-			opts.Inject[i] = m.Filename
-
-		}
-
-		buildOptions.Inject = opts.Inject
-
-	}
-
-	result := api.Build(buildOptions)
-
-	if len(result.Errors) > 0 {
-		createErr := func(msg api.Message) error {
-			if msg.Location == nil {
-				return errors.New(msg.Text)
-			}
-			var (
-				contentr     hugio.ReadSeekCloser
-				errorMessage string
-				loc          = msg.Location
-				errorPath    = loc.File
-				err          error
-			)
-
-			var resolvedError *ErrorMessageResolved
-
-			if opts.ErrorMessageResolveFunc != nil {
-				resolvedError = opts.ErrorMessageResolveFunc(msg)
-			}
-
-			if resolvedError == nil {
-				if errorPath == stdinImporter {
-					errorPath = "TODO1" // transformCtx.SourcePath
-				}
-
-				errorMessage = msg.Text
-				// TODO1 handle all namespaces, make more general
-				errorMessage = strings.ReplaceAll(errorMessage, NsHugoImport+":", "")
-
-				if strings.HasPrefix(errorPath, NsHugoImport) {
-					errorPath = strings.TrimPrefix(errorPath, NsHugoImport+":")
-					contentr, err = hugofs.Os.Open(errorPath)
-				} else {
-					var fi os.FileInfo
-					fi, err = c.sfs.Fs.Stat(errorPath)
-					if err == nil {
-						m := fi.(hugofs.FileMetaInfo).Meta()
-						errorPath = m.Filename
-						contentr, err = m.Open()
-					}
-				}
-			} else {
-				contentr = resolvedError.Content
-				errorPath = resolvedError.Path
-				errorMessage = resolvedError.Message
-			}
-
-			if contentr != nil {
-				defer contentr.Close()
-			}
-
-			if err == nil {
-				fe := herrors.
-					NewFileErrorFromName(errors.New(errorMessage), errorPath).
-					UpdatePosition(text.Position{Offset: -1, LineNumber: loc.Line, ColumnNumber: loc.Column}).
-					UpdateContent(contentr, nil)
-
-				return fe
-			}
-
-			return fmt.Errorf("%s", errorMessage)
-		}
-
-		var errors []error
-
-		for _, msg := range result.Errors {
-			errors = append(errors, createErr(msg))
-		}
-
-		// Return 1, log the rest.
-		for i, err := range errors {
-			if i > 0 {
-				c.rs.Logger.Errorf("js.Build failed: %s", err)
-			}
-		}
-
-		return result, errors[0]
-	}
-
 	return result, nil
 }

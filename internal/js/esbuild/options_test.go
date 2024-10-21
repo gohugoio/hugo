@@ -1,4 +1,4 @@
-// Copyright 2020 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,56 +11,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package js
+package esbuild
 
 import (
-	"path"
-	"path/filepath"
 	"testing"
 
-	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/config/testconfig"
-	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/hugolib/filesystems"
-	"github.com/gohugoio/hugo/hugolib/paths"
 	"github.com/gohugoio/hugo/media"
-
-	"github.com/spf13/afero"
 
 	"github.com/evanw/esbuild/pkg/api"
 
 	qt "github.com/frankban/quicktest"
 )
 
-// This test is added to test/warn against breaking the "stability" of the
-// cache key. It's sometimes needed to break this, but should be avoided if possible.
-func TestOptionKey(t *testing.T) {
-	c := qt.New(t)
-
-	opts := map[string]any{
-		"TargetPath": "foo",
-		"Target":     "es2018",
-	}
-
-	key := (&buildTransformation{optsm: opts}).Key()
-
-	c.Assert(key.Value(), qt.Equals, "jsbuild_1533819657654811600")
-}
-
 func TestToBuildOptions(t *testing.T) {
 	c := qt.New(t)
 
-	opts, err := toBuildOptions(Options{
-		InternalOptions: InternalOptions{
-			MediaType: media.Builtin.JavascriptType,
+	opts, err := toBuildOptions(
+		Options{
+			InternalOptions: InternalOptions{
+				MediaType: media.Builtin.JavascriptType,
+				Stdin:     true,
+			},
 		},
-	})
+	)
 
 	c.Assert(err, qt.IsNil)
 	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
-		Bundle: true,
-		Target: api.ESNext,
-		Format: api.FormatIIFE,
+		Bundle:   true,
+		Metafile: true,
+		Target:   api.ESNext,
+		Format:   api.FormatIIFE,
 		Stdin: &api.StdinOptions{
 			Loader: api.LoaderJS,
 		},
@@ -76,12 +56,14 @@ func TestToBuildOptions(t *testing.T) {
 			},
 			InternalOptions: InternalOptions{
 				MediaType: media.Builtin.JavascriptType,
+				Stdin:     true,
 			},
 		},
 	)
 	c.Assert(err, qt.IsNil)
 	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
 		Bundle:            true,
+		Metafile:          true,
 		Target:            api.ES2018,
 		Format:            api.FormatCommonJS,
 		MinifyIdentifiers: true,
@@ -100,12 +82,14 @@ func TestToBuildOptions(t *testing.T) {
 			},
 			InternalOptions: InternalOptions{
 				MediaType: media.Builtin.JavascriptType,
+				Stdin:     true,
 			},
 		},
 	)
 	c.Assert(err, qt.IsNil)
 	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
 		Bundle:            true,
+		Metafile:          true,
 		Target:            api.ES2018,
 		Format:            api.FormatCommonJS,
 		MinifyIdentifiers: true,
@@ -125,12 +109,14 @@ func TestToBuildOptions(t *testing.T) {
 			},
 			InternalOptions: InternalOptions{
 				MediaType: media.Builtin.JavascriptType,
+				Stdin:     true,
 			},
 		},
 	)
 	c.Assert(err, qt.IsNil)
 	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
 		Bundle:            true,
+		Metafile:          true,
 		Target:            api.ES2018,
 		Format:            api.FormatCommonJS,
 		MinifyIdentifiers: true,
@@ -150,6 +136,7 @@ func TestToBuildOptions(t *testing.T) {
 			},
 			InternalOptions: InternalOptions{
 				MediaType: media.Builtin.JavascriptType,
+				Stdin:     true,
 			},
 		},
 	)
@@ -157,6 +144,7 @@ func TestToBuildOptions(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
 		Bundle:            true,
+		Metafile:          true,
 		Target:            api.ES2018,
 		Format:            api.FormatCommonJS,
 		MinifyIdentifiers: true,
@@ -175,15 +163,17 @@ func TestToBuildOptions(t *testing.T) {
 			},
 			InternalOptions: InternalOptions{
 				MediaType: media.Builtin.JavascriptType,
+				Stdin:     true,
 			},
 		},
 	)
 
 	c.Assert(err, qt.IsNil)
 	c.Assert(opts, qt.DeepEquals, api.BuildOptions{
-		Bundle: true,
-		Target: api.ESNext,
-		Format: api.FormatIIFE,
+		Bundle:   true,
+		Metafile: true,
+		Target:   api.ESNext,
+		Format:   api.FormatIIFE,
 		Stdin: &api.StdinOptions{
 			Loader: api.LoaderJS,
 		},
@@ -225,63 +215,6 @@ func TestToBuildOptionsTarget(t *testing.T) {
 
 			c.Assert(err, qt.IsNil)
 			c.Assert(opts.Target, qt.Equals, test.expect)
-		})
-	}
-}
-
-func TestResolveComponentInAssets(t *testing.T) {
-	c := qt.New(t)
-
-	for _, test := range []struct {
-		name    string
-		files   []string
-		impPath string
-		expect  string
-	}{
-		{"Basic, extension", []string{"foo.js", "bar.js"}, "foo.js", "foo.js"},
-		{"Basic, no extension", []string{"foo.js", "bar.js"}, "foo", "foo.js"},
-		{"Basic, no extension, typescript", []string{"foo.ts", "bar.js"}, "foo", "foo.ts"},
-		{"Not found", []string{"foo.js", "bar.js"}, "moo.js", ""},
-		{"Not found, double js extension", []string{"foo.js.js", "bar.js"}, "foo.js", ""},
-		{"Index file, folder only", []string{"foo/index.js", "bar.js"}, "foo", "foo/index.js"},
-		{"Index file, folder and index", []string{"foo/index.js", "bar.js"}, "foo/index", "foo/index.js"},
-		{"Index file, folder and index and suffix", []string{"foo/index.js", "bar.js"}, "foo/index.js", "foo/index.js"},
-		{"Index ESM file, folder only", []string{"foo/index.esm.js", "bar.js"}, "foo", "foo/index.esm.js"},
-		{"Index ESM file, folder and index", []string{"foo/index.esm.js", "bar.js"}, "foo/index", "foo/index.esm.js"},
-		{"Index ESM file, folder and index and suffix", []string{"foo/index.esm.js", "bar.js"}, "foo/index.esm.js", "foo/index.esm.js"},
-		// We added these index.esm.js cases in v0.101.0. The case below is unlikely to happen in the wild, but add a test
-		// to document Hugo's behavior. We pick the file with the name index.js; anything else would be breaking.
-		{"Index and Index ESM file, folder only", []string{"foo/index.esm.js", "foo/index.js", "bar.js"}, "foo", "foo/index.js"},
-
-		// Issue #8949
-		{"Check file before directory", []string{"foo.js", "foo/index.js"}, "foo", "foo.js"},
-	} {
-		c.Run(test.name, func(c *qt.C) {
-			baseDir := "assets"
-			mfs := afero.NewMemMapFs()
-
-			for _, filename := range test.files {
-				c.Assert(afero.WriteFile(mfs, filepath.Join(baseDir, filename), []byte("let foo='bar';"), 0o777), qt.IsNil)
-			}
-
-			conf := testconfig.GetTestConfig(mfs, config.New())
-			fs := hugofs.NewFrom(mfs, conf.BaseConfig())
-
-			p, err := paths.New(fs, conf)
-			c.Assert(err, qt.IsNil)
-			bfs, err := filesystems.NewBase(p, nil)
-			c.Assert(err, qt.IsNil)
-
-			got := resolveComponentInAssets(bfs.Assets.Fs, test.impPath)
-
-			gotPath := ""
-			expect := test.expect
-			if got != nil {
-				gotPath = filepath.ToSlash(got.Filename)
-				expect = path.Join(baseDir, test.expect)
-			}
-
-			c.Assert(gotPath, qt.Equals, expect)
 		})
 	}
 }
