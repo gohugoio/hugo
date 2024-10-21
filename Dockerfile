@@ -83,7 +83,7 @@ ENV HUGO_CACHEDIR=/cache
 ENV PATH="/var/hugo/bin:$PATH"
 
 COPY scripts/docker/entrypoint.sh /entrypoint.sh
-COPY --link --from=dart-sass /out/dart-sass /var/hugo/bin/dart-sass
+COPY --from=dart-sass /out/dart-sass /var/hugo/bin/dart-sass
 
 # Update PATH to reflect the new dependencies.
 # For more complex setups, we should probably find a way to
