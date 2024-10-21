@@ -15,6 +15,7 @@ import (
 	"github.com/gohugoio/hugo/resources/resource_transformers/babel"
 	"github.com/gohugoio/hugo/resources/resource_transformers/cssjs"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/dartsass"
+	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/sass"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/scss"
 	"github.com/gohugoio/hugo/tpl/internal"
 	"github.com/gohugoio/hugo/tpl/internal/resourcehelpers"
@@ -84,21 +85,13 @@ func (ns *Namespace) Sass(args ...any) (resource.Resource, error) {
 		return nil, errors.New("must not provide more arguments than resource object and options")
 	}
 
-	const (
-		// Transpiler implementation can be controlled from the client by
-		// setting the 'transpiler' option.
-		// Default is currently 'libsass', but that may change.
-		transpilerDart    = "dartsass"
-		transpilerLibSass = "libsass"
-	)
-
 	var (
 		r          resources.ResourceTransformer
 		m          map[string]any
 		targetPath string
 		err        error
 		ok         bool
-		transpiler = transpilerLibSass
+		transpiler = sass.TranspilerLibSass
 	)
 
 	r, targetPath, ok = resourcehelpers.ResolveIfFirstArgIsString(args)
@@ -113,15 +106,15 @@ func (ns *Namespace) Sass(args ...any) (resource.Resource, error) {
 	if m != nil {
 		if t, _, found := maps.LookupEqualFold(m, "transpiler"); found {
 			switch t {
-			case transpilerDart, transpilerLibSass:
+			case sass.TranspilerDart, sass.TranspilerLibSass:
 				transpiler = cast.ToString(t)
 			default:
-				return nil, fmt.Errorf("unsupported transpiler %q; valid values are %q or %q", t, transpilerLibSass, transpilerDart)
+				return nil, fmt.Errorf("unsupported transpiler %q; valid values are %q or %q", t, sass.TranspilerLibSass, sass.TranspilerDart)
 			}
 		}
 	}
 
-	if transpiler == transpilerLibSass {
+	if transpiler == sass.TranspilerLibSass {
 		var options scss.Options
 		if targetPath != "" {
 			options.TargetPath = paths.ToSlashTrimLeading(targetPath)

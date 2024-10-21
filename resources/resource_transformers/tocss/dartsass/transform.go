@@ -29,7 +29,7 @@ import (
 	"github.com/gohugoio/hugo/resources"
 
 	"github.com/gohugoio/hugo/resources/internal"
-	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/internal/sass"
+	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/sass"
 
 	"github.com/spf13/afero"
 
@@ -85,7 +85,7 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 			c:                 t.c,
 			dependencyManager: ctx.DependencyManager,
 
-			varsStylesheet: godartsass.Import{Content: sass.CreateVarsStyleSheet(opts.Vars)},
+			varsStylesheet: godartsass.Import{Content: sass.CreateVarsStyleSheet(sass.TranspilerDart, opts.Vars)},
 		},
 		OutputStyle:             godartsass.ParseOutputStyle(opts.OutputStyle),
 		EnableSourceMap:         opts.EnableSourceMap,
