@@ -12,7 +12,7 @@
 // limitations under the License.
 
 // Package js provides functions for building JavaScript resources
-package js_test
+package esbuild_test
 
 import (
 	"fmt"

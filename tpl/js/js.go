@@ -18,14 +18,15 @@ import (
 	"errors"
 	"path"
 
-	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/internal/js/esbuild"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/gohugoio/hugo/resources/resource_factories/create"
 	"github.com/gohugoio/hugo/resources/resource_transformers/babel"
 	"github.com/gohugoio/hugo/resources/resource_transformers/js"
+	jstransform "github.com/gohugoio/hugo/resources/resource_transformers/js"
 	"github.com/gohugoio/hugo/tpl/internal/resourcehelpers"
 )
 
@@ -35,21 +36,11 @@ func New(deps *deps.Deps) *Namespace {
 		return &Namespace{}
 	}
 	return &Namespace{
-		d:      deps,
-		client: js.New(deps.BaseFs.Assets, deps.ResourceSpec),
-		batcherClient: &BatcherClient{
-			d:            deps,
-			jsClient:     js.New(deps.BaseFs.Assets, deps.ResourceSpec),
-			createClient: create.New(deps.ResourceSpec),
-			bundlesCache: dynacache.GetOrCreatePartition[string, *Package](
-				deps.MemCache,
-				"/jsb1",
-				// Mark it to clear on rebuild, but each package evaluate itself for changes.
-				dynacache.OptionsPartition{ClearWhen: dynacache.ClearOnRebuild, Weight: 10},
-			),
-		},
-		createClient: create.New(deps.ResourceSpec),
-		babelClient:  babel.New(deps.ResourceSpec),
+		d:                 deps,
+		jsTransformClient: jstransform.New(deps.BaseFs.Assets, deps.ResourceSpec),
+		jsBatcherClient:   esbuild.NewBatcherClient(deps),
+		createClient:      create.New(deps.ResourceSpec),
+		babelClient:       babel.New(deps.ResourceSpec),
 	}
 }
 
@@ -57,10 +48,10 @@ func New(deps *deps.Deps) *Namespace {
 type Namespace struct {
 	d *deps.Deps
 
-	client        *js.Client
-	createClient  *create.Client
-	babelClient   *babel.Client
-	batcherClient *BatcherClient
+	jsTransformClient *js.Client
+	createClient      *create.Client
+	babelClient       *babel.Client
+	jsBatcherClient   *esbuild.BatcherClient
 }
 
 // Build processes the given Resource with ESBuild.
@@ -86,15 +77,15 @@ func (ns *Namespace) Build(args ...any) (resource.Resource, error) {
 		m = map[string]any{"targetPath": targetPath}
 	}
 
-	return ns.client.Process(r, m)
+	return ns.jsTransformClient.Process(r, m)
 }
 
-func (ns *Namespace) Batch(id string, store *maps.Scratch) (Batcher, error) {
-	key := path.Join(nsBatch, id)
+func (ns *Namespace) Batch(id string, store *maps.Scratch) (esbuild.Batcher, error) {
+	key := path.Join(esbuild.NsBatch, id)
 	b, err := store.GetOrCreate(key, func() (any, error) {
-		return ns.batcherClient.New(id)
+		return ns.jsBatcherClient.New(id)
 	})
-	return b.(Batcher), err
+	return b.(esbuild.Batcher), err
 }
 
 // Babel processes the given Resource with Babel.

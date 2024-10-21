@@ -56,15 +56,43 @@ func (c *Client) Process(res resources.ResourceTransformer, opts map[string]any)
 }
 
 func (c *Client) BuildBundle(opts Options) (api.BuildResult, error) {
-	return c.build(opts, nil)
+	return c.build(opts)
 }
 
-// Note that transformCtx may be nil.
-func (c *Client) build(opts Options, transformCtx *resources.ResourceTransformationCtx) (api.BuildResult, error) {
-	dependencyManager := opts.DependencyManager
-	if transformCtx != nil {
-		dependencyManager = transformCtx.DependencyManager
+func (c *Client) transform(opts Options, transformCtx *resources.ResourceTransformationCtx) (api.BuildResult, error) {
+	if transformCtx.DependencyManager != nil {
+		opts.DependencyManager = transformCtx.DependencyManager
 	}
+	result, err := c.build(opts)
+	if err != nil {
+		return result, err
+	}
+
+	if opts.ExternalOptions.SourceMap == "external" {
+		content := string(result.OutputFiles[1].Contents)
+		symPath := path.Base(transformCtx.OutPath) + ".map"
+		re := regexp.MustCompile(`//# sourceMappingURL=.*\n?`)
+		content = re.ReplaceAllString(content, "//# sourceMappingURL="+symPath+"\n")
+
+		if err = transformCtx.PublishSourceMap(string(result.OutputFiles[0].Contents)); err != nil {
+			return result, err
+		}
+		_, err := transformCtx.To.Write([]byte(content))
+		if err != nil {
+			return result, err
+		}
+	} else {
+		_, err := transformCtx.To.Write(result.OutputFiles[0].Contents)
+		if err != nil {
+			return result, err
+		}
+
+	}
+	return result, nil
+}
+
+func (c *Client) build(opts Options) (api.BuildResult, error) {
+	dependencyManager := opts.DependencyManager
 	if dependencyManager == nil {
 		dependencyManager = identity.NopManager
 	}
@@ -139,7 +167,7 @@ func (c *Client) build(opts Options, transformCtx *resources.ResourceTransformat
 
 			if resolvedError == nil {
 				if errorPath == stdinImporter {
-					errorPath = transformCtx.SourcePath
+					errorPath = "TODO1" // transformCtx.SourcePath
 				}
 
 				errorMessage = msg.Text
@@ -194,31 +222,6 @@ func (c *Client) build(opts Options, transformCtx *resources.ResourceTransformat
 		}
 
 		return result, errors[0]
-	}
-
-	// TODO1 option etc.	fmt.Printf("%s", api.AnalyzeMetafile(result.Metafile, api.AnalyzeMetafileOptions{}))
-
-	if transformCtx != nil {
-		if buildOptions.Sourcemap == api.SourceMapExternal {
-			content := string(result.OutputFiles[1].Contents)
-			symPath := path.Base(transformCtx.OutPath) + ".map"
-			re := regexp.MustCompile(`//# sourceMappingURL=.*\n?`)
-			content = re.ReplaceAllString(content, "//# sourceMappingURL="+symPath+"\n")
-
-			if err = transformCtx.PublishSourceMap(string(result.OutputFiles[0].Contents)); err != nil {
-				return result, err
-			}
-			_, err := transformCtx.To.Write([]byte(content))
-			if err != nil {
-				return result, err
-			}
-		} else {
-			_, err := transformCtx.To.Write(result.OutputFiles[0].Contents)
-			if err != nil {
-				return result, err
-			}
-
-		}
 	}
 
 	return result, nil

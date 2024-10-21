@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package js provides functions for building JavaScript resources
-package js
+// Package esbuild provides functions for building JavaScript resources.
+package esbuild
 
 import (
 	"bytes"
@@ -59,7 +59,7 @@ var (
 )
 
 const (
-	nsBatch                    = "__hugo-js-batch"
+	NsBatch                    = "__hugo-js-batch"
 	batchEsmRunnerTemplateName = "_hugo/build/js/batch-esm-runner.gotmpl"
 )
 
@@ -83,13 +83,30 @@ type Batcher interface {
 	Group(id string) BatcherGroup
 }
 
-type BatcherClient struct {
-	d            *deps.Deps
-	bundlesCache *dynacache.Partition[string, *Package]
-	createClient *create.Client
-	jsClient     *js.Client
+func NewBatcherClient(deps *deps.Deps) *BatcherClient {
+	return &BatcherClient{
+		d:            deps,
+		jsClient:     js.New(deps.BaseFs.Assets, deps.ResourceSpec),
+		createClient: create.New(deps.ResourceSpec),
+		bundlesCache: dynacache.GetOrCreatePartition[string, *Package](
+			deps.MemCache,
+			"/jsb1",
+			// Mark it to clear on rebuild, but each package will evaluate itself for changes.
+			dynacache.OptionsPartition{ClearWhen: dynacache.ClearOnRebuild, Weight: 10},
+		),
+	}
 }
 
+type BatcherClient struct {
+	d *deps.Deps
+
+	createClient *create.Client
+	jsClient     *js.Client
+
+	bundlesCache *dynacache.Partition[string, *Package]
+}
+
+// New creates a new Batcher with the given ID.
 func (c *BatcherClient) New(id string) (Batcher, error) {
 	return &batcher{
 		id:                id,
@@ -387,11 +404,6 @@ func (b *batcher) doBuild() (*Package, error) {
 		scriptOptions  *ScriptOptions // TODO1 remove resourceGetter?
 	}
 
-	type originImportContext struct {
-		importContextPath string
-		importContext     importContext
-	}
-
 	state := struct {
 		importResource        *maps.Cache[string, resource.Resource]
 		resultResource        *maps.Cache[string, resource.Resource]
@@ -646,7 +658,7 @@ func (b *batcher) doBuild() (*Package, error) {
 		origin: b,
 		outDir: outDir,
 		b:      b,
-		id:     path.Join(nsBatch, b.id),
+		id:     path.Join(NsBatch, b.id),
 		Groups: groups,
 	}, nil
 }

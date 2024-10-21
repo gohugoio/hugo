@@ -61,7 +61,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	opts.MediaType = ctx.InMediaType
 	opts.Stdin = true
 
-	_, err = t.c.build(opts, ctx)
+	_, err = t.c.transform(opts, ctx)
 
 	return err
 }
