@@ -39,7 +39,7 @@ const (
 	ResourceTransformationFingerprint = "fingerprint"
 )
 
-// IsResourceTransformationLinkChange returns whether the given name is a resource transformation that changes the permalink based on the content.
+// IsResourceTransformationPermalinkHash returns whether the given name is a resource transformation that changes the permalink based on the content.
 func IsResourceTransformationPermalinkHash(name string) bool {
 	return name == ResourceTransformationFingerprint
 }
