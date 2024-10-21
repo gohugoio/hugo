@@ -15,7 +15,7 @@ action:
   signatures: [strings.TrimSpace INPUT]
 ---
 
-{{< new-in 0.137.0 >}}
+{{< new-in 0.136.3 >}}
 
 Whitespace characters include `\t`, `\n`, `\v`, `\f`, `\r`, and characters in the [Unicode Space Separator] category.
 
