@@ -46,7 +46,7 @@ Set the `url` in front matter to override the entire path. Use this with either 
 {{% note %}}
 Hugo does not sanitize the `url` front matter field, allowing you to generate:
 
-- File paths that contain characters reserved by the operating system. For example, a file path on Windows may not contain a colon (`:`). Hugo throws an error if you include [reserved characters].
+- File paths that contain characters reserved by the operating system. For example, file paths on Windows may not contain any of these [reserved characters]. Hugo throws an error if a file path includes a character reserved by the current operating system..
 - URLs that contain disallowed characters. For example, the less than sign (`<`) is not allowed in a URL.
 
 [reserved characters]: https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions
