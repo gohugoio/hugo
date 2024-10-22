@@ -112,9 +112,8 @@ func (ns *Namespace) Unmarshal(args ...any) (any, error) {
 	if err != nil {
 		return nil, fmt.Errorf("type %T not supported", data)
 	}
-	dataStr = strings.TrimSpace(dataStr)
 
-	if dataStr == "" {
+	if strings.TrimSpace(dataStr) == "" {
 		return nil, nil
 	}
 

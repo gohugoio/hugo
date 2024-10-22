@@ -248,7 +248,7 @@ func TestToMathMacros(t *testing.T) {
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 -- layouts/index.html --
-{{ $macros := dict 
+{{ $macros := dict
     "\\addBar" "\\bar{#1}"
 	"\\bold" "\\mathbf{#1}"
 }}
@@ -260,4 +260,22 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 	b.AssertFileContent("public/index.html", `
 <mi>y</mi>
 	`)
+}
+
+// Issue #12977
+func TestUnmarshalWithIndentedYAML(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/index.html --
+{{ $yaml := "\n  a:\n    b: 1\n  c:\n    d: 2\n" }}
+{{ $yaml | transform.Unmarshal | encoding.Jsonify }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileExists("public/index.html", true)
+	b.AssertFileContent("public/index.html", `{"a":{"b":1},"c":{"d":2}}`)
 }
