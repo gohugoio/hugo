@@ -40,7 +40,6 @@ type TemplateManager interface {
 	TemplateHandler
 	TemplateFuncGetter
 	AddTemplate(name, tpl string) error
-	MarkReady() error
 }
 
 // TemplateVariants describes the possible variants of a template.

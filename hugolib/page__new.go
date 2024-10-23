@@ -34,6 +34,15 @@ import (
 var pageIDCounter atomic.Uint64
 
 func (h *HugoSites) newPage(m *pageMeta) (*pageState, *paths.Path, error) {
+	p, pth, err := h.doNewPage(m)
+	if err != nil {
+		// Make sure that any partially created page part is marked as stale.
+		m.MarkStale()
+	}
+	return p, pth, err
+}
+
+func (h *HugoSites) doNewPage(m *pageMeta) (*pageState, *paths.Path, error) {
 	m.Staler = &resources.AtomicStaler{}
 	if m.pageMetaParams == nil {
 		m.pageMetaParams = &pageMetaParams{
@@ -231,10 +240,6 @@ func (h *HugoSites) newPage(m *pageMeta) (*pageState, *paths.Path, error) {
 		}
 		return ps, nil
 	}()
-	// Make sure to evict any cached and now stale data.
-	if err != nil {
-		m.MarkStale()
-	}
 
 	if ps == nil {
 		return nil, nil, err

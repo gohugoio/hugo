@@ -168,6 +168,10 @@ func newTemplateHandlers(d *deps.Deps) (*tpl.TemplateHandlers, error) {
 		return nil, err
 	}
 
+	if err := h.main.createPrototypes(); err != nil {
+		return nil, err
+	}
+
 	e := &templateExec{
 		d:               d,
 		executor:        exec,
@@ -312,27 +316,10 @@ func (t *templateExec) GetFunc(name string) (reflect.Value, bool) {
 	return v, found
 }
 
-func (t *templateExec) MarkReady() error {
-	var err error
-	t.readyInit.Do(func() {
-		// We only need the clones if base templates are in use.
-		if len(t.needsBaseof) > 0 {
-			err = t.main.createPrototypes()
-			if err != nil {
-				return
-			}
-		}
-	})
-
-	return err
-}
-
 type templateHandler struct {
 	main        *templateNamespace
 	needsBaseof map[string]templateInfo
 	baseof      map[string]templateInfo
-
-	readyInit sync.Once
 
 	// This is the filesystem to load the templates from. All the templates are
 	// stored in the root of this filesystem.

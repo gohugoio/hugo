@@ -246,11 +246,6 @@ func (s *IntegrationTestBuilder) AssertBuildCountGitInfo(count int) {
 	s.Assert(s.H.init.gitInfo.InitCount(), qt.Equals, count)
 }
 
-func (s *IntegrationTestBuilder) AssertBuildCountLayouts(count int) {
-	s.Helper()
-	s.Assert(s.H.init.layouts.InitCount(), qt.Equals, count)
-}
-
 func (s *IntegrationTestBuilder) AssertFileCount(dirname string, expected int) {
 	s.Helper()
 	fs := s.fs.WorkingDirReadOnly

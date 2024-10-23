@@ -1,0 +1,42 @@
+# Test the hugo server command when adding a front matter error to a content file
+# and then fixing it.
+
+hugo server &
+
+waitServer
+
+httpget ${HUGOTEST_BASEURL_0}p1/ 'Title: P1'
+
+replace $WORK/content/p1/index.md 'title:' 'titlecolon'
+httpget ${HUGOTEST_BASEURL_0}p1/ 'failed'
+
+replace $WORK/content/p1/index.md 'titlecolon' 'title:'
+httpget ${HUGOTEST_BASEURL_0}p1/ 'Title: P1'
+
+stopServer
+
+-- hugo.toml --
+title = "Hugo Server Test"
+baseURL = "https://example.org/"
+disableKinds = ["taxonomy", "term", "sitemap"]
+-- layouts/index.html --
+Title: {{ .Title }}|BaseURL: {{ site.BaseURL }}|
+-- layouts/_default/single.html --
+Title: {{ .Title }}|BaseURL: {{ site.BaseURL }}|
+-- content/_index.md --
+---
+title: Hugo Home
+---
+-- content/p1/index.md --
+---
+title: P1
+---
+-- content/p2/index.md --
+---
+title: P2
+---
+-- static/staticfiles/static.txt --
+static
+
+
+

@@ -179,9 +179,6 @@ type hugoSitesInit struct {
 	// Loads the data from all of the /data folders.
 	data *lazy.Init
 
-	// Performs late initialization (before render) of the templates.
-	layouts *lazy.Init
-
 	// Loads the Git info and CODEOWNERS for all the pages if enabled.
 	gitInfo *lazy.Init
 }

@@ -250,10 +250,6 @@ func (h *HugoSites) process(ctx context.Context, l logg.LevelLogger, config *Bui
 	l = l.WithField("step", "process")
 	defer loggers.TimeTrackf(l, time.Now(), nil, "")
 
-	if _, err := h.init.layouts.Do(ctx); err != nil {
-		return err
-	}
-
 	if len(events) > 0 {
 		// This is a rebuild triggered from file events.
 		return h.processPartialFileEvents(ctx, l, config, init, events)
@@ -1067,8 +1063,6 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 	}
 
 	if tmplChanged || i18nChanged {
-		// TODO(bep) we should split this, but currently the loading of i18n and layout files are tied together. See #12048.
-		h.init.layouts.Reset()
 		if err := loggers.TimeTrackfn(func() (logg.LevelLogger, error) {
 			// TODO(bep) this could probably be optimized to somehow
 			// only load the changed templates and its dependencies, but that is non-trivial.
@@ -1141,10 +1135,6 @@ func (s *Site) handleContentAdapterChanges(bi pagesfromdata.BuildInfo, buildConf
 }
 
 func (h *HugoSites) processContentAdaptersOnRebuild(ctx context.Context, buildConfig *BuildCfg) error {
-	// Make sure the layouts are initialized.
-	if _, err := h.init.layouts.Do(context.Background()); err != nil {
-		return err
-	}
 	g := rungroup.Run[*pagesfromdata.PagesFromTemplate](ctx, rungroup.Config[*pagesfromdata.PagesFromTemplate]{
 		NumWorkers: h.numWorkers,
 		Handle: func(ctx context.Context, p *pagesfromdata.PagesFromTemplate) error {
