@@ -648,9 +648,8 @@ func (c *serverCommand) setServerInfoInConfig() error {
 }
 
 func (c *serverCommand) getErrorWithContext() any {
-	errCount := c.errCount()
-
-	if errCount == 0 {
+	buildErr := c.errState.buildErr()
+	if buildErr == nil {
 		return nil
 	}
 
@@ -659,7 +658,7 @@ func (c *serverCommand) getErrorWithContext() any {
 	m["Error"] = cleanErrorLog(c.r.logger.Errors())
 
 	m["Version"] = hugo.BuildVersionString()
-	ferrors := herrors.UnwrapFileErrorsWithErrorContext(c.errState.buildErr())
+	ferrors := herrors.UnwrapFileErrorsWithErrorContext(buildErr)
 	m["Files"] = ferrors
 
 	return m
@@ -830,22 +829,25 @@ func (c *serverCommand) fixURL(baseURLFromConfig, baseURLFromFlag string, port i
 	return u.String(), nil
 }
 
-func (c *serverCommand) partialReRender(urls ...string) error {
+func (c *serverCommand) partialReRender(urls ...string) (err error) {
 	defer func() {
 		c.errState.setWasErr(false)
 	}()
-	c.errState.setBuildErr(nil)
 	visited := types.NewEvictingStringQueue(len(urls))
 	for _, url := range urls {
 		visited.Add(url)
 	}
 
-	h, err := c.hugo()
+	var h *hugolib.HugoSites
+	h, err = c.hugo()
 	if err != nil {
-		return err
+		return
 	}
+
 	// Note: We do not set NoBuildLock as the file lock is not acquired at this stage.
-	return h.Build(hugolib.BuildCfg{NoBuildLock: false, RecentlyVisited: visited, PartialReRender: true, ErrRecovery: c.errState.wasErr()})
+	err = h.Build(hugolib.BuildCfg{NoBuildLock: false, RecentlyVisited: visited, PartialReRender: true, ErrRecovery: c.errState.wasErr()})
+
+	return
 }
 
 func (c *serverCommand) serve() error {

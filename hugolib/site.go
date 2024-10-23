@@ -344,7 +344,6 @@ func newHugoSites(cfg deps.DepsCfg, d *deps.Deps, pageTrees *pageTrees, sites []
 		skipRebuildForFilenames: make(map[string]bool),
 		init: &hugoSitesInit{
 			data:    lazy.New(),
-			layouts: lazy.New(),
 			gitInfo: lazy.New(),
 		},
 	}
@@ -396,15 +395,6 @@ func newHugoSites(cfg deps.DepsCfg, d *deps.Deps, pageTrees *pageTrees, sites []
 		err := h.loadData()
 		if err != nil {
 			return nil, fmt.Errorf("failed to load data: %w", err)
-		}
-		return nil, nil
-	})
-
-	h.init.layouts.Add(func(context.Context) (any, error) {
-		for _, s := range h.Sites {
-			if err := s.Tmpl().(tpl.TemplateManager).MarkReady(); err != nil {
-				return nil, err
-			}
 		}
 		return nil, nil
 	})

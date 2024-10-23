@@ -507,7 +507,7 @@ func (r *rootCommand) createLogger(running bool) (loggers.Logger, error) {
 	return loggers.New(optsLogger), nil
 }
 
-func (r *rootCommand) Reset() {
+func (r *rootCommand) resetLogs() {
 	r.logger.Reset()
 	loggers.Log().Reset()
 }
