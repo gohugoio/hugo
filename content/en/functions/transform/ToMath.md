@@ -2,7 +2,7 @@
 title: transform.ToMath
 description: Renders a math expression using KaTeX.
 categories: []
-keywords: []
+keywords: [math]
 action:
   aliases: []
   related:
