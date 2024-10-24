@@ -70,8 +70,7 @@ type ChildCareProvider interface {
 	// section.
 	RegularPagesRecursive() Pages
 
-	// Resources returns a list of all resources.
-	Resources() resource.Resources
+	resource.ResourcesProvider
 }
 
 type MarkupProvider interface {
