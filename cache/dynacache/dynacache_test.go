@@ -14,8 +14,10 @@
 package dynacache
 
 import (
+	"fmt"
 	"path/filepath"
 	"testing"
+	"time"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/loggers"
@@ -163,6 +165,29 @@ func TestClear(t *testing.T) {
 	c.Assert(cache.Keys(predicateAll), qt.HasLen, 3)
 
 	cache.adjustCurrentMaxSize()
+}
+
+func TestPanicInCreate(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	cache := newTestCache(t)
+
+	p1 := GetOrCreatePartition[string, testItem](cache, "/aaaa/bbbb", OptionsPartition{Weight: 30, ClearWhen: ClearOnRebuild})
+
+	for i := 0; i < 3; i++ {
+		for j := 0; j < 3; j++ {
+			_, err := p1.GetOrCreate(fmt.Sprintf("panic1-%d", i), func(string) (testItem, error) {
+				panic("failed")
+			})
+
+			c.Assert(err, qt.Not(qt.IsNil))
+
+			_, err = p1.GetOrCreateWitTimeout(fmt.Sprintf("panic2-%d", i), 10*time.Second, func(string) (testItem, error) {
+				panic("failed")
+			})
+			c.Assert(err, qt.Not(qt.IsNil))
+		}
+	}
 }
 
 func TestAdjustCurrentMaxSize(t *testing.T) {
