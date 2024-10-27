@@ -14,6 +14,7 @@
 package dynacache
 
 import (
+	"errors"
 	"fmt"
 	"path/filepath"
 	"testing"
@@ -174,18 +175,47 @@ func TestPanicInCreate(t *testing.T) {
 
 	p1 := GetOrCreatePartition[string, testItem](cache, "/aaaa/bbbb", OptionsPartition{Weight: 30, ClearWhen: ClearOnRebuild})
 
+	willPanic := func(i int) func() {
+		return func() {
+			p1.GetOrCreate(fmt.Sprintf("panic-%d", i), func(key string) (testItem, error) {
+				panic(errors.New(key))
+			})
+		}
+	}
+
+	// GetOrCreateWitTimeout needs to recover from panics in the create func.
+	willErr := func(i int) error {
+		_, err := p1.GetOrCreateWitTimeout(fmt.Sprintf("error-%d", i), 10*time.Second, func(key string) (testItem, error) {
+			return testItem{}, errors.New(key)
+		})
+		return err
+	}
+
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
-			_, err := p1.GetOrCreate(fmt.Sprintf("panic1-%d", i), func(string) (testItem, error) {
-				panic("failed")
-			})
+			c.Assert(willPanic(i), qt.PanicMatches, fmt.Sprintf("panic-%d", i))
+			c.Assert(willErr(i), qt.ErrorMatches, fmt.Sprintf("error-%d", i))
+		}
+	}
 
-			c.Assert(err, qt.Not(qt.IsNil))
-
-			_, err = p1.GetOrCreateWitTimeout(fmt.Sprintf("panic2-%d", i), 10*time.Second, func(string) (testItem, error) {
-				panic("failed")
+	// Test the same keys again without the panic.
+	for i := 0; i < 3; i++ {
+		for j := 0; j < 3; j++ {
+			v, err := p1.GetOrCreate(fmt.Sprintf("panic-%d", i), func(key string) (testItem, error) {
+				return testItem{
+					name: key,
+				}, nil
 			})
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNil)
+			c.Assert(v.name, qt.Equals, fmt.Sprintf("panic-%d", i))
+
+			v, err = p1.GetOrCreateWitTimeout(fmt.Sprintf("error-%d", i), 10*time.Second, func(key string) (testItem, error) {
+				return testItem{
+					name: key,
+				}, nil
+			})
+			c.Assert(err, qt.IsNil)
+			c.Assert(v.name, qt.Equals, fmt.Sprintf("error-%d", i))
 		}
 	}
 }
