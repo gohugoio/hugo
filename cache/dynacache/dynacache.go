@@ -430,12 +430,25 @@ func (p *Partition[K, V]) doGetOrCreateWitTimeout(key K, duration time.Duration,
 	errch := make(chan error, 1)
 
 	go func() {
-		v, _, err := p.c.GetOrCreate(key, create)
-		if err != nil {
-			errch <- err
-			return
-		}
-		resultch <- v
+		var (
+			v   V
+			err error
+		)
+		defer func() {
+			if r := recover(); r != nil {
+				if rerr, ok := r.(error); ok {
+					err = rerr
+				} else {
+					err = fmt.Errorf("panic: %v", r)
+				}
+			}
+			if err != nil {
+				errch <- err
+			} else {
+				resultch <- v
+			}
+		}()
+		v, _, err = p.c.GetOrCreate(key, create)
 	}()
 
 	select {
