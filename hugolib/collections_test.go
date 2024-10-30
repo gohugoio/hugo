@@ -71,9 +71,9 @@ tags_weight: %d
 {{ $pageGroups := slice $cool $blue }}
 {{ $weighted := slice $wp1 $wp2 }}
 
-{{ printf "pages:%d:%T:%v/%v" (len $pages) $pages (index $pages 0) (index $pages 1) }}
-{{ printf "pageGroups:%d:%T:%v/%v" (len $pageGroups) $pageGroups (index (index $pageGroups 0).Pages 0) (index (index $pageGroups 1).Pages 0)}}
-{{ printf "weightedPages:%d::%T:%v" (len $weighted) $weighted $weighted | safeHTML }}
+{{ printf "pages:%d:%T:%s|%s" (len $pages) $pages (index $pages 0).Path (index $pages 1).Path }}
+{{ printf "pageGroups:%d:%T:%s|%s" (len $pageGroups) $pageGroups (index (index $pageGroups 0).Pages 0).Path (index (index $pageGroups 1).Pages 0).Path}}
+{{ printf "weightedPages:%d:%T" (len $weighted) $weighted | safeHTML }}
 
 `)
 	b.CreateSites().Build(BuildCfg{})
@@ -82,9 +82,9 @@ tags_weight: %d
 	c.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 2)
 
 	b.AssertFileContent("public/index.html",
-		"pages:2:page.Pages:Page(/page1)/Page(/page2)",
-		"pageGroups:2:page.PagesGroup:Page(/page1)/Page(/page2)",
-		`weightedPages:2::page.WeightedPages:[WeightedPage(10,"Page") WeightedPage(20,"Page")]`)
+		"pages:2:page.Pages:/page1|/page2",
+		"pageGroups:2:page.PagesGroup:/page1|/page2",
+		`weightedPages:2:page.WeightedPages`)
 }
 
 func TestUnionFunc(t *testing.T) {
@@ -189,7 +189,7 @@ tags_weight: %d
 {{ $appendStrings := slice "a" "b" | append "c" "d" "e" }}
 {{ $appendStringsSlice := slice "a" "b" "c" | append (slice "c" "d") }}
 
-{{ printf "pages:%d:%T:%v/%v" (len $pages) $pages (index $pages 0) (index $pages 1)  }}
+{{ printf "pages:%d:%T:%s|%s" (len $pages) $pages (index $pages 0).Path (index $pages 1).Path  }}
 {{ printf "appendPages:%d:%T:%v/%v" (len $appendPages) $appendPages (index $appendPages 0).Kind (index $appendPages 8).Kind  }}
 {{ printf "appendStrings:%T:%v"  $appendStrings $appendStrings  }}
 {{ printf "appendStringsSlice:%T:%v"  $appendStringsSlice $appendStringsSlice }}
@@ -207,7 +207,7 @@ tags_weight: %d
 	c.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 2)
 
 	b.AssertFileContent("public/index.html",
-		"pages:2:page.Pages:Page(/page2)/Page(/page1)",
+		"pages:2:page.Pages:/page2|/page1",
 		"appendPages:9:page.Pages:home/page",
 		"appendStrings:[]string:[a b c d e]",
 		"appendStringsSlice:[]string:[a b c c d]",

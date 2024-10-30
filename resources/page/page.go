@@ -17,6 +17,7 @@ package page
 
 import (
 	"context"
+	"fmt"
 	"html/template"
 
 	"github.com/gohugoio/hugo/markup/converter"
@@ -180,6 +181,7 @@ type Page interface {
 	ContentProvider
 	TableOfContentsProvider
 	PageWithoutContent
+	fmt.Stringer
 }
 
 type PageFragment interface {

@@ -16,7 +16,9 @@ package hugolib
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
 	"sync/atomic"
 
@@ -358,7 +360,22 @@ func (p *pageState) Site() page.Site {
 }
 
 func (p *pageState) String() string {
-	return fmt.Sprintf("Page(%s)", p.Path())
+	var sb strings.Builder
+	if p.File() != nil {
+		// The forward slashes even on Windows is motivated by
+		// getting stable tests.
+		// This information is meant for getting positional information in logs,
+		// so the direction of the slashes should not matter.
+		sb.WriteString(filepath.ToSlash(p.File().Filename()))
+		if p.File().IsContentAdapter() {
+			// Also include the path.
+			sb.WriteString(":")
+			sb.WriteString(p.Path())
+		}
+	} else {
+		sb.WriteString(p.Path())
+	}
+	return sb.String()
 }
 
 // IsTranslated returns whether this content file is translated to

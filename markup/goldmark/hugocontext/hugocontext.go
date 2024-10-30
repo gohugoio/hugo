@@ -16,20 +16,24 @@ package hugocontext
 import (
 	"bytes"
 	"fmt"
+	"regexp"
 	"strconv"
 
 	"github.com/gohugoio/hugo/bufferpool"
+	"github.com/gohugoio/hugo/common/constants"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer"
+	"github.com/yuin/goldmark/renderer/html"
 	"github.com/yuin/goldmark/text"
 	"github.com/yuin/goldmark/util"
 )
 
-func New() goldmark.Extender {
-	return &hugoContextExtension{}
+func New(logger loggers.Logger) goldmark.Extender {
+	return &hugoContextExtension{logger: logger}
 }
 
 // Wrap wraps the given byte slice in a Hugo context that used to determine the correct Page
@@ -37,14 +41,19 @@ func New() goldmark.Extender {
 func Wrap(b []byte, pid uint64) string {
 	buf := bufferpool.GetBuffer()
 	defer bufferpool.PutBuffer(buf)
-	buf.Write(prefix)
+	buf.Write(hugoCtxPrefix)
 	buf.WriteString(" pid=")
 	buf.WriteString(strconv.FormatUint(pid, 10))
-	buf.Write(endDelim)
+	buf.Write(hugoCtxEndDelim)
 	buf.WriteByte('\n')
 	buf.Write(b)
-	buf.Write(prefix)
-	buf.Write(closingDelimAndNewline)
+	// To make sure that we're able to parse it, make sure it ends with a newline.
+	if len(b) > 0 && b[len(b)-1] != '\n' {
+		buf.WriteByte('\n')
+	}
+	buf.Write(hugoCtxPrefix)
+	buf.Write(hugoCtxClosingDelim)
+	buf.WriteByte('\n')
 	return buf.String()
 }
 
@@ -89,45 +98,100 @@ func (h *HugoContext) Kind() ast.NodeKind {
 }
 
 var (
-	prefix                 = []byte("{{__hugo_ctx")
-	endDelim               = []byte("}}")
-	closingDelimAndNewline = []byte("/}}\n")
+	hugoCtxPrefix       = []byte("{{__hugo_ctx")
+	hugoCtxEndDelim     = []byte("}}")
+	hugoCtxClosingDelim = []byte("/}}")
+	hugoCtxRe           = regexp.MustCompile(`{{__hugo_ctx( pid=\d+)?/?}}\n?`)
 )
 
 var _ parser.InlineParser = (*hugoContextParser)(nil)
 
 type hugoContextParser struct{}
 
-func (s *hugoContextParser) Parse(parent ast.Node, block text.Reader, pc parser.Context) ast.Node {
-	line, _ := block.PeekLine()
-	if !bytes.HasPrefix(line, prefix) {
+func (a *hugoContextParser) Trigger() []byte {
+	return []byte{'{'}
+}
+
+func (s *hugoContextParser) Parse(parent ast.Node, reader text.Reader, pc parser.Context) ast.Node {
+	line, _ := reader.PeekLine()
+	if !bytes.HasPrefix(line, hugoCtxPrefix) {
 		return nil
 	}
-	end := bytes.Index(line, endDelim)
+	end := bytes.Index(line, hugoCtxEndDelim)
 	if end == -1 {
 		return nil
 	}
 
-	block.Advance(end + len(endDelim) + 1) // +1 for the newline
+	reader.Advance(end + len(hugoCtxEndDelim) + 1) // +1 for the newline
 
 	if line[end-1] == '/' {
 		return &HugoContext{Closing: true}
 	}
 
-	attrBytes := line[len(prefix)+1 : end]
+	attrBytes := line[len(hugoCtxPrefix)+1 : end]
 	h := &HugoContext{}
 	h.parseAttrs(attrBytes)
 	return h
 }
 
-func (a *hugoContextParser) Trigger() []byte {
-	return []byte{'{'}
+type hugoContextRenderer struct {
+	logger loggers.Logger
+	html.Config
 }
 
-type hugoContextRenderer struct{}
+func (r *hugoContextRenderer) SetOption(name renderer.OptionName, value any) {
+	r.Config.SetOption(name, value)
+}
 
 func (r *hugoContextRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
 	reg.Register(kindHugoContext, r.handleHugoContext)
+	reg.Register(ast.KindHTMLBlock, r.renderHTMLBlock)
+}
+
+func (r *hugoContextRenderer) stripHugoCtx(b []byte) ([]byte, bool) {
+	if !bytes.Contains(b, hugoCtxPrefix) {
+		return b, false
+	}
+	return hugoCtxRe.ReplaceAll(b, nil), true
+}
+
+func (r *hugoContextRenderer) renderHTMLBlock(
+	w util.BufWriter, source []byte, node ast.Node, entering bool,
+) (ast.WalkStatus, error) {
+	n := node.(*ast.HTMLBlock)
+	if entering {
+		if r.Unsafe {
+			l := n.Lines().Len()
+			for i := 0; i < l; i++ {
+				line := n.Lines().At(i)
+				linev := line.Value(source)
+				var stripped bool
+				linev, stripped = r.stripHugoCtx(linev)
+				if stripped {
+					var p any
+					ctx, ok := w.(*render.Context)
+					if ok {
+						p, _ = render.GetPageAndPageInner(ctx)
+					}
+					r.logger.Warnidf(constants.WarnRenderShortcodesInHTML, ".RenderShortcodes detected inside HTML block in %q; this may not be what you intended, see https://gohugo.io/methods/page/rendershortcodes/#limitations", p)
+				}
+
+				r.Writer.SecureWrite(w, linev)
+			}
+		} else {
+			_, _ = w.WriteString("<!-- raw HTML omitted -->\n")
+		}
+	} else {
+		if n.HasClosure() {
+			if r.Unsafe {
+				closure := n.ClosureLine
+				r.Writer.SecureWrite(w, closure.Value(source))
+			} else {
+				_, _ = w.WriteString("<!-- raw HTML omitted -->\n")
+			}
+		}
+	}
+	return ast.WalkContinue, nil
 }
 
 func (r *hugoContextRenderer) handleHugoContext(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
@@ -148,7 +212,9 @@ func (r *hugoContextRenderer) handleHugoContext(w util.BufWriter, source []byte,
 	return ast.WalkContinue, nil
 }
 
-type hugoContextExtension struct{}
+type hugoContextExtension struct {
+	logger loggers.Logger
+}
 
 func (a *hugoContextExtension) Extend(m goldmark.Markdown) {
 	m.Parser().AddOptions(
@@ -159,7 +225,12 @@ func (a *hugoContextExtension) Extend(m goldmark.Markdown) {
 
 	m.Renderer().AddOptions(
 		renderer.WithNodeRenderers(
-			util.Prioritized(&hugoContextRenderer{}, 50),
+			util.Prioritized(&hugoContextRenderer{
+				logger: a.logger,
+				Config: html.Config{
+					Writer: html.DefaultWriter,
+				},
+			}, 50),
 		),
 	)
 }

@@ -125,3 +125,7 @@ func newPageForRenderHook(p *pageState) page.Page {
 func (p *pageForRenderHooks) Unwrapv() any {
 	return p.p
 }
+
+func (p *pageForRenderHooks) String() string {
+	return p.p.String()
+}

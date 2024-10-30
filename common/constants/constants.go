@@ -21,6 +21,7 @@ const (
 	ErrRemoteGetCSV  = "error-remote-getcsv"
 
 	WarnFrontMatterParamsOverrides = "warning-frontmatter-params-overrides"
+	WarnRenderShortcodesInHTML     = "warning-rendershortcodes-in-html"
 )
 
 // Field/method names with special meaning.

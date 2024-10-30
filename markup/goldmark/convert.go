@@ -106,7 +106,7 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 		renderer.WithNodeRenderers(util.Prioritized(emoji.NewHTMLRenderer(), 200)))
 	var (
 		extensions = []goldmark.Extender{
-			hugocontext.New(),
+			hugocontext.New(pcfg.Logger),
 			newLinks(cfg),
 			newTocExtension(tocRendererOptions),
 			blockquotes.New(),
