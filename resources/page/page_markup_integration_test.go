@@ -161,13 +161,13 @@ includecontent: {{ hugo.Context.MarkupScope }}|{{ $p.Markup.Render.Content }}|
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/p1/index.html", "Render heading: title: P1 scope: |", "Foo scope: |")
+	b.AssertFileContentExact("public/p1/index.html", "Render heading: title: P1 scope: |", "Foo scope: |")
 
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContentExact("public/index.html",
+		"Begin:\nincludecontent: home|Render heading: title: P3 scope: home|Foo scope: home|\n|\n:End",
 		"Render heading: title: P1 scope: home|",
 		"Foo scope: home|",
 		"Begin:\nincluderendershortcodes: home|</p>\nRender heading: title: P2 scope: home|<p>|:End",
-		"Begin:\nincludecontent: home|Render heading: title: P3 scope: home|Foo scope: home|\n|\n:End",
 	)
 }
 

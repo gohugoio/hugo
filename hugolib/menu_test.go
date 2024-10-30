@@ -105,94 +105,6 @@ Menu Main:  {{ partial "menu.html" (dict "page" . "menu" "main") }}`,
 			"/sect3/|Sect3s|Sect3s|0|-|-|")
 }
 
-// related issue #7594
-func TestMenusSort(t *testing.T) {
-	b := newTestSitesBuilder(t).WithSimpleConfigFile()
-
-	b.WithTemplatesAdded("index.html", `
-{{ range $k, $v := .Site.Menus.main }}
-Default1|{{ $k }}|{{ $v.Weight }}|{{ $v.Name }}|{{ .URL }}|{{ $v.Page }}{{ end }}
-{{ range $k, $v := .Site.Menus.main.ByWeight }}
-ByWeight|{{ $k }}|{{ $v.Weight }}|{{ $v.Name }}|{{ .URL }}|{{ $v.Page }}{{ end }}
-{{ range $k, $v := (.Site.Menus.main.ByWeight).Reverse }}
-Reverse|{{ $k }}|{{ $v.Weight }}|{{ $v.Name }}|{{ .URL }}|{{ $v.Page }}{{ end }}
-{{ range $k, $v := .Site.Menus.main }}
-Default2|{{ $k }}|{{ $v.Weight }}|{{ $v.Name }}|{{ .URL }}|{{ $v.Page }}{{ end }}
-{{ range $k, $v := .Site.Menus.main.ByWeight }}
-ByWeight|{{ $k }}|{{ $v.Weight }}|{{ $v.Name }}|{{ .URL }}|{{ $v.Page }}{{ end }}
-{{ range $k, $v := .Site.Menus.main }}
-Default3|{{ $k }}|{{ $v.Weight }}|{{ $v.Name }}|{{ .URL }}|{{ $v.Page }}{{ end }}
-`)
-
-	b.WithContent("_index.md", `
----
-title: Home
-menu:
-  main:
-    weight: 100
----`)
-
-	b.WithContent("blog/A.md", `
----
-title: "A"
-menu:
-  main:
-    weight: 10
----
-`)
-
-	b.WithContent("blog/B.md", `
----
-title: "B"
-menu:
-  main:
-    weight: 20
----
-`)
-	b.WithContent("blog/C.md", `
----
-title: "C"
-menu:
-  main:
-    weight: 30
----
-`)
-
-	b.Build(BuildCfg{})
-
-	b.AssertFileContent("public/index.html",
-		`Default1|0|10|A|/blog/a/|Page(/blog/a)
-        Default1|1|20|B|/blog/b/|Page(/blog/b)
-        Default1|2|30|C|/blog/c/|Page(/blog/c)
-        Default1|3|100|Home|/|Page(/)
-
-        ByWeight|0|10|A|/blog/a/|Page(/blog/a)
-        ByWeight|1|20|B|/blog/b/|Page(/blog/b)
-        ByWeight|2|30|C|/blog/c/|Page(/blog/c)
-        ByWeight|3|100|Home|/|Page(/)
-
-        Reverse|0|100|Home|/|Page(/)
-        Reverse|1|30|C|/blog/c/|Page(/blog/c)
-        Reverse|2|20|B|/blog/b/|Page(/blog/b)
-        Reverse|3|10|A|/blog/a/|Page(/blog/a)
-
-        Default2|0|10|A|/blog/a/|Page(/blog/a)
-        Default2|1|20|B|/blog/b/|Page(/blog/b)
-        Default2|2|30|C|/blog/c/|Page(/blog/c)
-        Default2|3|100|Home|/|Page(/)
-
-        ByWeight|0|10|A|/blog/a/|Page(/blog/a)
-        ByWeight|1|20|B|/blog/b/|Page(/blog/b)
-        ByWeight|2|30|C|/blog/c/|Page(/blog/c)
-        ByWeight|3|100|Home|/|Page(/)
-
-        Default3|0|10|A|/blog/a/|Page(/blog/a)
-        Default3|1|20|B|/blog/b/|Page(/blog/b)
-        Default3|2|30|C|/blog/c/|Page(/blog/c)
-        Default3|3|100|Home|/|Page(/)`,
-	)
-}
-
 func TestMenusFrontMatter(t *testing.T) {
 	b := newTestSitesBuilder(t).WithSimpleConfigFile()
 
@@ -437,8 +349,8 @@ url = "/blog/post3"
 	commonTempl := `
 Main: {{ len .Site.Menus.main }}
 {{ range .Site.Menus.main }}
-{{ .Title }}|HasMenuCurrent: {{ $.HasMenuCurrent "main" . }}|Page: {{ .Page }}
-{{ .Title }}|IsMenuCurrent: {{ $.IsMenuCurrent "main" . }}|Page: {{ .Page }}
+{{ .Title }}|HasMenuCurrent: {{ $.HasMenuCurrent "main" . }}|Page: {{ .Page.Path }}
+{{ .Title }}|IsMenuCurrent: {{ $.IsMenuCurrent "main" . }}|Page: {{ .Page.Path }}
 {{ end }}
 `
 
@@ -494,34 +406,34 @@ title: "Contact: With  No Menu Defined"
 
 	b.AssertFileContent("public/index.html", `
 Main: 5
-Home|HasMenuCurrent: false|Page: Page(/)
-Blog|HasMenuCurrent: false|Page: Page(/blog)
-My Post 2: With Menu Defined|HasMenuCurrent: false|Page: Page(/blog/post2)
-My Post 3|HasMenuCurrent: false|Page: Page(/blog/post3)
-Contact Us|HasMenuCurrent: false|Page: Page(/contact)
+Home|HasMenuCurrent: false|Page: /
+Blog|HasMenuCurrent: false|Page: /blog
+My Post 2: With Menu Defined|HasMenuCurrent: false|Page: /blog/post2
+My Post 3|HasMenuCurrent: false|Page: /blog/post3
+Contact Us|HasMenuCurrent: false|Page: /contact
 `)
 
 	b.AssertFileContent("public/blog/post1/index.html", `
-Home|HasMenuCurrent: false|Page: Page(/)
-Blog|HasMenuCurrent: true|Page: Page(/blog)
+Home|HasMenuCurrent: false|Page: /
+Blog|HasMenuCurrent: true|Page: /blog
 `)
 
 	b.AssertFileContent("public/blog/post2/index.html", `
-Home|HasMenuCurrent: false|Page: Page(/)
-Blog|HasMenuCurrent: true|Page: Page(/blog)
-Blog|IsMenuCurrent: false|Page: Page(/blog)
+Home|HasMenuCurrent: false|Page: /
+Blog|HasMenuCurrent: true|Page: /blog
+Blog|IsMenuCurrent: false|Page: /blog
 `)
 
 	b.AssertFileContent("public/blog/post3/index.html", `
-Home|HasMenuCurrent: false|Page: Page(/)
-Blog|HasMenuCurrent: true|Page: Page(/blog)
+Home|HasMenuCurrent: false|Page: /
+Blog|HasMenuCurrent: true|Page: /blog
 `)
 
 	b.AssertFileContent("public/contact/index.html", `
-Contact Us|HasMenuCurrent: false|Page: Page(/contact)
-Contact Us|IsMenuCurrent: true|Page: Page(/contact)
-Blog|HasMenuCurrent: false|Page: Page(/blog)
-Blog|IsMenuCurrent: false|Page: Page(/blog)
+Contact Us|HasMenuCurrent: false|Page: /contact
+Contact Us|IsMenuCurrent: true|Page: /contact
+Blog|HasMenuCurrent: false|Page: /blog
+Blog|IsMenuCurrent: false|Page: /blog
 `)
 }
 

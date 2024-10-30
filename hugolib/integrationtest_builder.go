@@ -2,6 +2,7 @@ package hugolib
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -32,6 +33,7 @@ import (
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
+	"github.com/spf13/cast"
 	"golang.org/x/text/unicode/norm"
 	"golang.org/x/tools/txtar"
 )
@@ -294,11 +296,27 @@ func (s *IntegrationTestBuilder) AssertFileContent(filename string, matches ...s
 	}
 }
 
+func (s *IntegrationTestBuilder) AssertFileContentEquals(filename string, match string) {
+	s.Helper()
+	content := s.FileContent(filename)
+	s.Assert(content, qt.Equals, match, qt.Commentf(match))
+}
+
 func (s *IntegrationTestBuilder) AssertFileContentExact(filename string, matches ...string) {
 	s.Helper()
 	content := s.FileContent(filename)
 	for _, m := range matches {
 		s.Assert(content, qt.Contains, m, qt.Commentf(m))
+	}
+}
+
+func (s *IntegrationTestBuilder) AssertNoRenderShortcodesArtifacts() {
+	s.Helper()
+	for _, p := range s.H.Pages() {
+		content, err := p.Content(context.Background())
+		s.Assert(err, qt.IsNil)
+		comment := qt.Commentf("Page: %s\n%s", p.Path(), content)
+		s.Assert(strings.Contains(cast.ToString(content), "__hugo_ctx"), qt.IsFalse, comment)
 	}
 }
 
@@ -835,6 +853,11 @@ type IntegrationTestConfig struct {
 
 	// The files to use on txtar format, see
 	// https://pkg.go.dev/golang.org/x/exp/cmd/txtar
+	// There are some conentions used in this test setup.
+	// - §§§ can be used to wrap code fences.
+	// - §§ can be used to wrap multiline strings.
+	// - filenames prefixed with sourcefilename: will be read from the file system relative to the current dir.
+	// - filenames with a .png or .jpg extension will be treated as binary and base64 decoded.
 	TxtarString string
 
 	// COnfig to use as the base. We will also read the config from the txtar.
