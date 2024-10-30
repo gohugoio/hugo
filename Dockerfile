@@ -21,8 +21,8 @@ COPY --from=xx / /
 ARG TARGETPLATFORM
 RUN xx-apk add musl-dev gcc g++ 
 
-# Optionally set HUGO_BUILD_TAGS to "none" or "nodeploy" when building like so:
-# docker build --build-arg HUGO_BUILD_TAGS=nodeploy .
+# Optionally set HUGO_BUILD_TAGS to "none" or "withdeploy" when building like so:
+# docker build --build-arg HUGO_BUILD_TAGS=withdeploy .
 #
 # We build the extended version by default.
 ARG HUGO_BUILD_TAGS="extended"

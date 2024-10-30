@@ -334,7 +334,7 @@ func buildFlags() []string {
 func buildTags() string {
 	// To build the extended Hugo SCSS/SASS enabled version, build with
 	// HUGO_BUILD_TAGS=extended mage install etc.
-	// To build without `hugo deploy` for smaller binary, use HUGO_BUILD_TAGS=nodeploy
+	// To build with `hugo deploy`, use HUGO_BUILD_TAGS=withdeploy
 	if envtags := os.Getenv("HUGO_BUILD_TAGS"); envtags != "" {
 		return envtags
 	}

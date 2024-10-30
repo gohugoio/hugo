@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build nodeploy
-// +build nodeploy
+//go:build !withdeploy
+// +build !withdeploy
 
 // Copyright 2024 The Hugo Authors. All rights reserved.
 //
@@ -31,6 +31,7 @@ package commands
 
 import (
 	"context"
+	"errors"
 
 	"github.com/bep/simplecobra"
 	"github.com/spf13/cobra"
@@ -40,7 +41,7 @@ func newDeployCommand() simplecobra.Commander {
 	return &simpleCommand{
 		name: "deploy",
 		run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
-			return nil
+			return errors.New("deploy not supported in this version of Hugo; install a release with 'withdeploy' in the archive filename or build yourself with the 'withdeploy' build tag. Also see https://github.com/gohugoio/hugo/pull/12995")
 		},
 		withc: func(cmd *cobra.Command, r *rootCommand) {
 			cmd.Hidden = true

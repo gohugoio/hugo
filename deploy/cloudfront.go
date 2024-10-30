@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build !nodeploy
-// +build !nodeploy
+//go:build withdeploy
+// +build withdeploy
 
 package deploy
 
