@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,12 +11,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build !solaris && withdeploy
-// +build !solaris,withdeploy
+//go:build withdeploy
+// +build withdeploy
 
-package deploy
+package main
 
 import (
-	_ "gocloud.dev/blob"
-	_ "gocloud.dev/blob/azureblob" // import
+	"testing"
+
+	"github.com/rogpeppe/go-internal/testscript"
 )
+
+func TestWithdeploy(t *testing.T) {
+	p := commonTestScriptsParam
+	p.Dir = "testscripts/withdeploy"
+	testscript.Run(t, p)
+}

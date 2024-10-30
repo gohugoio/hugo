@@ -120,6 +120,24 @@ archive_alias_replacements = { "linux-amd64.tar.gz" = "Linux-64bit.tar.gz" }
             goarch = "amd64"
 
 [[builds]]
+    path = "container1/unix/extended-withdeploy"
+
+    [builds.build_settings]
+        flags = ["-buildmode", "exe", "-tags", "extended,withdeploy"]
+        env   = ["CGO_ENABLED=1"]
+
+    [[builds.os]]
+        goos = "darwin"
+        [builds.os.build_settings]
+            env = ["CGO_ENABLED=1", "CC=o64-clang", "CXX=o64-clang++"]
+        [[builds.os.archs]]
+            goarch = "universal"
+    [[builds.os]]
+        goos = "linux"
+        [[builds.os.archs]]
+            goarch = "amd64"
+
+[[builds]]
     path = "container2/linux/extended"
 
     [builds.build_settings]
@@ -173,6 +191,10 @@ archive_alias_replacements = { "linux-amd64.tar.gz" = "Linux-64bit.tar.gz" }
     paths = ["builds/container1/unix/extended/**"]
     [archives.archive_settings]
         name_template = "{{ .Project }}_extended_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
+[[archives]]
+    paths = ["builds/container1/unix/extended-withdeploy/**"]
+    [archives.archive_settings]
+        name_template = "{{ .Project }}_extended_withdeploy_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
 [[archives]]
     # Only extended builds in container2.
     paths = ["builds/container2/**"]

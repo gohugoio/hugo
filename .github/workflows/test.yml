@@ -112,17 +112,17 @@ jobs:
           sass --version;
           mage -v check;
         env:
-          HUGO_BUILD_TAGS: extended
+          HUGO_BUILD_TAGS: extended,withdeploy
       - if: matrix.os == 'windows-latest'
         # See issue #11052. We limit the build to regular test (no -race flag) on Windows for now.
         name: Test
         run: |
           mage -v test;
         env:
-          HUGO_BUILD_TAGS: extended
+          HUGO_BUILD_TAGS: extended,withdeploy
       - name: Build tags
         run: |
-          go install -tags extended,nodeploy
+          go install -tags extended
       - if: matrix.os == 'ubuntu-latest'
         name: Build for dragonfly
         run: |

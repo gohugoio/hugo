@@ -1,3 +1,5 @@
 
 *.test
 imports.*
+dist/
+public/
