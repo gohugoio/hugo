@@ -36,7 +36,7 @@ If you need to access a scratch pad value from a parent template, and the parent
 {{ .Store.Get "mykey" }}
 ```
 
-You can also trigger content rendering with the `FuzzyWordCount`, `Len`, `Plain`, `PlainWords`, `ReadingTime`, `Summary`, `Truncated`, and `WordCount` methods. For example:
+You can also trigger content rendering with the `ContentWithoutSummary`, `FuzzyWordCount`, `Len`, `Plain`, `PlainWords`, `ReadingTime`, `Summary`, `Truncated`, and `WordCount` methods. For example:
 
 ```go-html-template
 {{ $noop := .WordCount }}
