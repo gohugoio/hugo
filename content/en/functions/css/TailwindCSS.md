@@ -55,7 +55,7 @@ skipInlineImportsNotFound
 
 Define a [cache buster] in your site configuration:
 
-[cache buster]: /getting-started/configuration/#configure-cache-busters
+[cache buster]: /getting-started/configuration-build/#configure-cache-busters
 
 {{< code-toggle file=hugo >}}
 [[build.cachebusters]]
