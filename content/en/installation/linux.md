@@ -157,6 +157,14 @@ Derivatives of the [Gentoo] distribution of Linux include [Calculate Linux], [Fu
 [Gentoo]: https://www.gentoo.org/
 [USE]: https://packages.gentoo.org/packages/www-apps/hugo
 
+### NixOS
+
+The NixOS distribution of Linux includes Hugo in its package repository. To install the extended edition of Hugo:
+
+```sh
+nix-env -iA nixos.hugo
+```
+
 ### openSUSE
 
 Derivatives of the [openSUSE] distribution of Linux include [GeckoLinux], [Linux Karmada], and others. To install the extended edition of Hugo:
