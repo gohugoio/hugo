@@ -16,17 +16,17 @@ Hugo’s [forum] is an active community of users and developers who answer quest
 
 These are just a few of the questions most frequently asked by new users.
 
-###### An error message indicates that a feature is not available. Why?
+###### An error message indicates that a feature is not available. Why? {#feature-not-available}
 
-Hugo is available in two editions: standard and extended. With the extended edition you can (a) encode to the WebP format when processing images, and (b) transpile Sass to CSS using the embedded LibSass transpiler. The extended edition is not required to use the Dart Sass transpiler.
+{{% include "installation/_common/01-editions.md" %}}
 
-When you attempt to perform either of the operations above with the standard edition, Hugo throws this error:
+When you attempt to use a feature that is not available in the edition that you installed, Hugo throws this error:
 
 ```go-html-template
-Error: this feature is not available in your current Hugo version
+this feature is not available in this edition of Hugo
 ```
 
-To resolve, uninstall the standard edition, then install the extended edition. See the [installation] section for details.
+To resolve, install a different edition based on the feature table above. See the [installation] section for details.
 
 ###### Why do I see "Page Not Found" when visiting the home page?
 

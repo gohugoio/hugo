@@ -10,7 +10,12 @@ menu:
 weight: 30
 toc: true
 ---
+
+## Editions
+
 {{% include "installation/_common/01-editions.md" %}}
+
+Unless your specific deployment needs require the extended/deploy edition, we recommend the extended edition.
 
 {{% include "installation/_common/02-prerequisites.md" %}}
 
