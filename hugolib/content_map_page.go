@@ -37,6 +37,7 @@ import (
 	"github.com/gohugoio/hugo/hugolib/doctree"
 	"github.com/gohugoio/hugo/hugolib/pagesfromdata"
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/lazy"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources"
@@ -107,6 +108,11 @@ type pageMap struct {
 	contentDataFileSeenItems *maps.Cache[string, map[uint64]bool]
 
 	cfg contentMapConfig
+}
+
+// Invoked on rebuilds.
+func (m *pageMap) Reset() {
+	m.pageReverseIndex.Reset()
 }
 
 // pageTrees holds pages and resources in a tree structure for all sites/languages.
@@ -958,9 +964,7 @@ type contentTreeReverseIndex struct {
 }
 
 func (c *contentTreeReverseIndex) Reset() {
-	c.contentTreeReverseIndexMap = &contentTreeReverseIndexMap{
-		m: make(map[any]contentNodeI),
-	}
+	c.init.ResetWithLock().Unlock()
 }
 
 func (c *contentTreeReverseIndex) Get(key any) contentNodeI {
@@ -972,7 +976,7 @@ func (c *contentTreeReverseIndex) Get(key any) contentNodeI {
 }
 
 type contentTreeReverseIndexMap struct {
-	init sync.Once
+	init lazy.OnceMore
 	m    map[any]contentNodeI
 }
 

@@ -445,3 +445,38 @@ code_p3
 	b.AssertNoRenderShortcodesArtifacts()
 	b.AssertFileContentEquals("public/p1/index.html", "<p>Content p1 id-100.</p>\n<code>codep2</code><p>Foo.\n</p>\n<code>code_p3_edited</code><p></p>\n<code>code_p1</code><code>code_p1_2</code><code>code_p1_3</code>")
 }
+
+// Issue 13004.
+func TestRenderShortcodesIncludeShortRefEdit(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableLiveReload = true
+disableKinds = ["home", "taxonomy", "term", "section", "rss", "sitemap", "robotsTXT", "404"]
+-- content/first/p1.md --
+---
+title: "p1"
+---
+## p1-h1
+{{% include "p2" %}}
+-- content/second/p2.md --
+---
+title: "p2"
+---
+### p2-h1
+
+This is some **markup**.
+-- layouts/shortcodes/include.html --
+{{ $p := site.GetPage (.Get 0) -}}
+{{ $p.RenderShortcodes -}}
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+	b := TestRunning(t, files)
+	b.AssertNoRenderShortcodesArtifacts()
+	b.AssertFileContentEquals("public/first/p1/index.html", "<h2 id=\"p1-h1\">p1-h1</h2>\n<p></p>\n<h3 id=\"p2-h1\">p2-h1</h3>\n<p>This is some <strong>markup</strong>.\n</p>\n")
+	b.EditFileReplaceAll("content/second/p2.md", "p2-h1", "p2-h1-edited").Build()
+	b.AssertNoRenderShortcodesArtifacts()
+	b.AssertFileContentEquals("public/first/p1/index.html", "<h2 id=\"p1-h1\">p1-h1</h2>\n<p></p>\n<h3 id=\"p2-h1-edited\">p2-h1-edited</h3>\n<p>This is some <strong>markup</strong>.\n</p>\n")
+}
