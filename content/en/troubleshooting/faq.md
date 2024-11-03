@@ -61,7 +61,7 @@ A directory with an index.md file is a [leaf bundle]. A directory with an _index
 [branch bundle]: /getting-started/glossary/#branch-bundle
 [leaf bundle]: /getting-started/glossary/#leaf-bundle
 
-###### Why is my partial template not rendered as expected? {#foo}
+###### Why is my partial template not rendered as expected?
 
 You may have neglected to pass the required [context] when calling the partial. For example:
 
