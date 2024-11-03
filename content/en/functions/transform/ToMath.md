@@ -36,7 +36,7 @@ These are a subset of the [KaTeX options].
 output
 : (`string`). Determines the markup language of the output. One of `html`, `mathml`, or `htmlAndMathml`. Default is `mathml`.
 
-    <!-- Indent to prevent spliting the description list. -->
+    <!-- Indent to prevent splitting the description list. -->
 
     With `html` and `htmlAndMathml` you must include KaTeX CSS within the `head` element of your base template. For example:
 
