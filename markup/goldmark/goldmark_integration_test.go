@@ -802,3 +802,28 @@ H~2~0
 		"<p>1<sup>st</sup></p>",
 	)
 }
+
+// Issue 12997.
+func TestGoldmarkRawHTMLWarning(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+markup.goldmark.renderer.unsafe = false
+-- content/p1.md --
+---
+title: "p1"
+---
+<div>Some raw HTML</div>
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
+
+	b.AssertFileContent("public/p1/index.html", "<!-- raw HTML omitted -->")
+	b.AssertLogContains("WARN  Raw HTML omitted from \"/content/p1.md\"; see https://gohugo.io/getting-started/configuration-markup/#rendererunsafe\nYou can suppress this warning by adding the following to your site configuration:\nignoreLogs = ['warning-goldmark-raw-html']")
+
+	b = hugolib.Test(t, strings.ReplaceAll(files, "markup.goldmark.renderer.unsafe = false", "markup.goldmark.renderer.unsafe = true"), hugolib.TestOptWarn())
+	b.AssertFileContent("public/p1/index.html", "! <!-- raw HTML omitted -->")
+	b.AssertLogContains("! WARN")
+}

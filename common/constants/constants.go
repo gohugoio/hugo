@@ -22,6 +22,7 @@ const (
 
 	WarnFrontMatterParamsOverrides = "warning-frontmatter-params-overrides"
 	WarnRenderShortcodesInHTML     = "warning-rendershortcodes-in-html"
+	WarnGoldmarkRawHTML            = "warning-goldmark-raw-html"
 )
 
 // Field/method names with special meaning.
