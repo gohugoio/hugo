@@ -1351,6 +1351,7 @@ func (s *Site) getLanguagePermalinkLang(alwaysInSubDir bool) string {
 func (s *Site) resetBuildState(sourceChanged bool) {
 	s.relatedDocsHandler = s.relatedDocsHandler.Clone()
 	s.init.Reset()
+	s.pageMap.Reset()
 }
 
 func (s *Site) errorCollator(results <-chan error, errs chan<- error) {
