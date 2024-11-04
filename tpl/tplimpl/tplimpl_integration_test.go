@@ -584,3 +584,19 @@ title: p5
 		`<meta name="twitter:description" content="m n and **o** can&#39;t.">`,
 	)
 }
+
+func TestCommentShortcode(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/index.html --
+{{ .Content }}
+-- content/_index.md --
+a{{< comment >}}b{{< /comment >}}c
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html", "<p>ac</p>")
+}
