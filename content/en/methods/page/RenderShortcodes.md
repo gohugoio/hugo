@@ -79,3 +79,14 @@ An *emphasized* word.
 ```
 
 Note that the shortcode within the content file was rendered, but the surrounding Markdown was preserved.
+
+
+## Limitations
+
+The primary use case for `.RenderShortcodes` is inclusion of Markdown content. If you try to use `.RenderShortcodes` inside `HTML` blocks when inside Markdown, you will get a warning similar to this:
+
+```
+WARN .RenderShortcodes detected inside HTML block in "/content/mypost.md"; this may not be what you intended ...
+```
+
+The above warning can be turned off is this is what you really want.
