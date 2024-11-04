@@ -32,9 +32,9 @@ For example:
 Then call the shortcode in your Markdown:
 
 {{< code file=content/about.md lang=md >}}
-{{%/* include "/snippets/services.md" */%}}
-{{%/* include "/snippets/values.md" */%}}
-{{%/* include "/snippets/leadership.md" */%}}
+{{%/* include "/snippets/services" */%}}
+{{%/* include "/snippets/values" */%}}
+{{%/* include "/snippets/leadership" */%}}
 {{< /code >}}
 
 Each of the included Markdown files can contain calls to other shortcodes.
