@@ -246,11 +246,11 @@ func (fs *RootMappingFs) Mounts(base string) ([]FileMetaInfo, error) {
 		return nil, nil
 	}
 
-	fss := make([]FileMetaInfo, len(roots))
-	for i, r := range roots {
+	fss := make([]FileMetaInfo, 0, len(roots))
+	for _, r := range roots {
 		if r.fiSingleFile != nil {
 			// A single file mount.
-			fss[i] = r.fiSingleFile
+			fss = append(fss, r.fiSingleFile)
 			continue
 		}
 		bfs := NewBasePathFs(fs.Fs, r.To)
@@ -261,9 +261,9 @@ func (fs *RootMappingFs) Mounts(base string) ([]FileMetaInfo, error) {
 		fs = decorateDirs(fs, r.Meta)
 		fi, err := fs.Stat("")
 		if err != nil {
-			return nil, fmt.Errorf("RootMappingFs.Dirs: %w", err)
+			continue
 		}
-		fss[i] = fi.(FileMetaInfo)
+		fss = append(fss, fi.(FileMetaInfo))
 	}
 
 	return fss, nil
