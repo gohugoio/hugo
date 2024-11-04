@@ -13,8 +13,10 @@ action:
   signatures: [PAGE.Summary]
 ---
 
-<!-- Do not remove the manual summary divider below. -->
-<!-- If you do, you will break its first literal usage on this page. -->
+{{% comment %}}
+Do not remove the manual summary divider below.
+If you do, you will break its first literal usage on this page.
+{{% /comment %}}
 <!--more-->
 
 You can define a [summary] manually, in front matter, or automatically. A manual summary takes precedence over a front matter summary, and a front matter summary takes precedence over an automatic summary.

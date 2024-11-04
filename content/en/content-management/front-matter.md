@@ -128,6 +128,7 @@ If `true`, the page will not be rendered unless you pass the `--buildDrafts` fla
 [`keywords`]: /methods/page/keywords/
 [taxonomy]: /getting-started/glossary/#taxonomy
 
+{{% comment %}}
 <!-- Added in v0.123.0 but purposefully omitted from documentation. -->
 <!--
 kind
@@ -139,6 +140,7 @@ kind
 lang
 : The language code for this page. This is usually derived from the module mount or filename.
 -->
+{{% /comment %}}
 
 ###### lastmod
 
@@ -182,11 +184,13 @@ Alias to [lastmod](#lastmod).
 
 [output formats]: /templates/output-formats/
 
+{{% comment %}}
 <!-- Added in v0.123.0 but purposefully omitted from documentation. -->
 <!--
 path
 : The canonical page path.
 -->
+{{% /comment %}}
 
 ###### params
 

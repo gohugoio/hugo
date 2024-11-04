@@ -16,7 +16,7 @@ toc: true
 
 {{< new-in 0.128.0 >}}
 
-<!-- TODO remove this admonition when feature is stable. -->
+{{% todo %}}remove this admonition when feature is stable.{{% /todo %}}
 
 {{% note %}}
 This is an experimental feature pending the release of TailwindCSS v4.0.

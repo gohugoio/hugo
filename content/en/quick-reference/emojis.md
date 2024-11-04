@@ -53,7 +53,7 @@ To process an emoji shortcode from within a template, use the [`emojify`] functi
 [`emojify`]: /functions/transform/emojify/
 [`RenderString`]: /methods/page/renderstring/
 
-<!-- 
+{{% comment %}}
 To generate the sections below:
 
     git clone https://github.com/ikatyang/emoji-cheat-sheet
@@ -66,7 +66,7 @@ Then...
     1. Copy and paste from README.md
     2. Search/replace (regex) "^###\s" with "## "
     3. Search/replace "^####\s " with "### "
--->
+{{% /comment %}}
 
 ## Table of Contents
 

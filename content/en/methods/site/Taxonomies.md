@@ -9,12 +9,9 @@ action:
   signatures: [SITE.Taxonomies]
 ---
 
-<!-- TODO
+{{% comment %}}
 Show template example: GetTerms
-
-
-
--->
+{{% /comment %}}
 
 Conceptually, the `Taxonomies` method on a `Site` object returns a data structure such&nbsp;as:
 
