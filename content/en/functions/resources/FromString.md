@@ -24,7 +24,7 @@ Let's say you need to publish a file named "site.json" in the root of your publi
 ```json
 {
   "build_date": "2024-02-19T12:27:05-08:00",
-  "hugo_version": "0.134.2",
+  "hugo_version": "0.137.1",
   "last_modified": "2024-02-19T12:01:42-08:00"
 }
 ```
