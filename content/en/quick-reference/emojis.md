@@ -66,6 +66,7 @@ Then...
     1. Copy and paste from README.md
     2. Search/replace (regex) "^###\s" with "## "
     3. Search/replace "^####\s " with "### "
+    4. Search/replace (regex) "<br />" ""
 {{% /comment %}}
 
 ## Table of Contents
