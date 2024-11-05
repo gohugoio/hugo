@@ -38,7 +38,6 @@ import (
 	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/common/herrors"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/gohugoio/hugo/source"
@@ -149,7 +148,7 @@ func (p *pageState) Key() string {
 }
 
 func (p *pageState) resetBuildState() {
-	p.Scratcher = maps.NewScratcher()
+	// Nothing to do for now.
 }
 
 func (p *pageState) reusePageOutputContent() bool {

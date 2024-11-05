@@ -56,7 +56,6 @@ type pageCommon struct {
 	store *maps.Scratch
 
 	// All of these represents the common parts of a page.Page
-	maps.Scratcher
 	navigation.PageMenusProvider
 	page.AuthorProvider
 	page.AlternativeOutputFormatsProvider
@@ -112,4 +111,9 @@ type pageCommon struct {
 
 func (p *pageCommon) Store() *maps.Scratch {
 	return p.store
+}
+
+// See issue 13016.
+func (p *pageCommon) Scratch() *maps.Scratch {
+	return p.Store()
 }

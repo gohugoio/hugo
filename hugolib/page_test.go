@@ -1688,6 +1688,32 @@ title: Scratch Me!
 	b.AssertFileContent("public/scratchme/index.html", "C: cv")
 }
 
+// Issue 13016.
+func TestScratchAliasToStore(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "page", "section"]
+disableLiveReload = true
+-- layouts/index.html --
+{{ .Scratch.Set "a" "b" }}
+{{ .Store.Set "c" "d" }}
+.Scratch eq .Store: {{ eq .Scratch .Store }}
+a: {{ .Store.Get "a" }}
+c: {{ .Scratch.Get "c" }}
+
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		".Scratch eq .Store: true",
+		"a: b",
+		"c: d",
+	)
+}
+
 func TestPageParam(t *testing.T) {
 	t.Parallel()
 
