@@ -185,6 +185,25 @@ archive_alias_replacements = { "linux-amd64.tar.gz" = "Linux-64bit.tar.gz" }
         [[builds.os.archs]]
             goarch = "amd64"
 
+[[builds]]
+    path = "container1/windows/extended-withdeploy"
+
+    [builds.build_settings]
+        flags = ["-buildmode", "exe", "-tags", "extended,withdeploy"]
+        env = [
+            "CGO_ENABLED=1",
+            "CC=x86_64-w64-mingw32-gcc",
+            "CXX=x86_64-w64-mingw32-g++",
+        ]
+        ldflags = "-s -w -X github.com/gohugoio/hugo/common/hugo.vendorInfo=gohugoio -extldflags '-static'"
+
+    [[builds.os]]
+        goos = "windows"
+        [builds.os.build_settings]
+            binary = "hugo.exe"
+        [[builds.os.archs]]
+            goarch = "amd64"
+
 [[archives]]
     paths = ["builds/container1/unix/regular/**"]
 [[archives]]
@@ -209,6 +228,13 @@ archive_alias_replacements = { "linux-amd64.tar.gz" = "Linux-64bit.tar.gz" }
     paths = ["builds/**/windows/extended/**"]
     [archives.archive_settings]
         name_template = "{{ .Project }}_extended_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
+        [archives.archive_settings.type]
+            format    = "zip"
+            extension = ".zip"
+[[archives]]
+    paths = ["builds/**/windows/extended-withdeploy/**"]
+    [archives.archive_settings]
+        name_template = "{{ .Project }}_extended_withdeploy_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
         [archives.archive_settings.type]
             format    = "zip"
             extension = ".zip"
