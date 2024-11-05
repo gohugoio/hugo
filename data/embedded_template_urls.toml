@@ -24,6 +24,7 @@
 'render-codeblock-goat' = '_default/_markup/render-codeblock-goat.html'
 
 # Shortcodes
+'comment' = 'shortcodes/comment.html'
 'figure' = 'shortcodes/figure.html'
 'gist' = 'shortcodes/gist.html'
 'highlight' = 'shortcodes/highlight.html'
