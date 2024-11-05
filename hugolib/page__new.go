@@ -184,7 +184,6 @@ func (h *HugoSites) doNewPage(m *pageMeta) (*pageState, *paths.Path, error) {
 			pageCommon: &pageCommon{
 				FileProvider:              m,
 				AuthorProvider:            m,
-				Scratcher:                 maps.NewScratcher(),
 				store:                     maps.NewScratch(),
 				Positioner:                page.NopPage,
 				InSectionPositioner:       page.NopPage,

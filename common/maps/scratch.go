@@ -28,25 +28,6 @@ type Scratch struct {
 	mu     sync.RWMutex
 }
 
-// Scratcher provides a scratching service.
-type Scratcher interface {
-	// Scratch returns a "scratch pad" that can be used to store state.
-	Scratch() *Scratch
-}
-
-type scratcher struct {
-	s *Scratch
-}
-
-func (s scratcher) Scratch() *Scratch {
-	return s.s
-}
-
-// NewScratcher creates a new Scratcher.
-func NewScratcher() Scratcher {
-	return scratcher{s: NewScratch()}
-}
-
 // Add will, for single values, add (using the + operator) the addend to the existing addend (if found).
 // Supports numeric values and strings.
 //

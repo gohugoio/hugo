@@ -327,7 +327,9 @@ type PageWithoutContent interface {
 
 	// Scratch returns a Scratch that can be used to store temporary state.
 	// Note that this Scratch gets reset on server rebuilds. See Store() for a variant that survives.
-	maps.Scratcher
+	// Scratch returns a "scratch pad" that can be used to store state.
+	// Deprecated: From Hugo v0.138.0 this is just an alias for Store.
+	Scratch() *maps.Scratch
 
 	// Store returns a Scratch that can be used to store temporary state.
 	// In contrast to Scratch(), this Scratch is not reset on server rebuilds.
