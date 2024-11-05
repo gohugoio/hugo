@@ -145,6 +145,7 @@ func (r *hugoContextRenderer) SetOption(name renderer.OptionName, value any) {
 
 func (r *hugoContextRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
 	reg.Register(kindHugoContext, r.handleHugoContext)
+	reg.Register(ast.KindRawHTML, r.renderRawHTML)
 	reg.Register(ast.KindHTMLBlock, r.renderHTMLBlock)
 }
 
@@ -155,16 +156,25 @@ func (r *hugoContextRenderer) stripHugoCtx(b []byte) ([]byte, bool) {
 	return hugoCtxRe.ReplaceAll(b, nil), true
 }
 
+func (r *hugoContextRenderer) logRawHTMLEmittedWarn(w util.BufWriter) {
+	r.logger.Warnidf(constants.WarnGoldmarkRawHTML, "Raw HTML omitted from %q; see https://gohugo.io/getting-started/configuration-markup/#rendererunsafe", r.getPage(w))
+}
+
+func (r *hugoContextRenderer) getPage(w util.BufWriter) any {
+	var p any
+	ctx, ok := w.(*render.Context)
+	if ok {
+		p, _ = render.GetPageAndPageInner(ctx)
+	}
+	return p
+}
+
+// HTML rendering based on Goldmark implementation.
 func (r *hugoContextRenderer) renderHTMLBlock(
 	w util.BufWriter, source []byte, node ast.Node, entering bool,
 ) (ast.WalkStatus, error) {
 	n := node.(*ast.HTMLBlock)
 	if entering {
-		var p any
-		ctx, ok := w.(*render.Context)
-		if ok {
-			p, _ = render.GetPageAndPageInner(ctx)
-		}
 		if r.Unsafe {
 			l := n.Lines().Len()
 			for i := 0; i < l; i++ {
@@ -173,12 +183,12 @@ func (r *hugoContextRenderer) renderHTMLBlock(
 				var stripped bool
 				linev, stripped = r.stripHugoCtx(linev)
 				if stripped {
-					r.logger.Warnidf(constants.WarnRenderShortcodesInHTML, ".RenderShortcodes detected inside HTML block in %q; this may not be what you intended, see https://gohugo.io/methods/page/rendershortcodes/#limitations", p)
+					r.logger.Warnidf(constants.WarnRenderShortcodesInHTML, ".RenderShortcodes detected inside HTML block in %q; this may not be what you intended, see https://gohugo.io/methods/page/rendershortcodes/#limitations", r.getPage(w))
 				}
 				r.Writer.SecureWrite(w, linev)
 			}
 		} else {
-			r.logger.Warnidf(constants.WarnGoldmarkRawHTML, "Raw HTML omitted from %q; see https://gohugo.io/getting-started/configuration-markup/#rendererunsafe", p)
+			r.logRawHTMLEmittedWarn(w)
 			_, _ = w.WriteString("<!-- raw HTML omitted -->\n")
 		}
 	} else {
@@ -192,6 +202,26 @@ func (r *hugoContextRenderer) renderHTMLBlock(
 		}
 	}
 	return ast.WalkContinue, nil
+}
+
+func (r *hugoContextRenderer) renderRawHTML(
+	w util.BufWriter, source []byte, node ast.Node, entering bool,
+) (ast.WalkStatus, error) {
+	if !entering {
+		return ast.WalkSkipChildren, nil
+	}
+	if r.Unsafe {
+		n := node.(*ast.RawHTML)
+		l := n.Segments.Len()
+		for i := 0; i < l; i++ {
+			segment := n.Segments.At(i)
+			_, _ = w.Write(segment.Value(source))
+		}
+		return ast.WalkSkipChildren, nil
+	}
+	r.logRawHTMLEmittedWarn(w)
+	_, _ = w.WriteString("<!-- raw HTML omitted -->")
+	return ast.WalkSkipChildren, nil
 }
 
 func (r *hugoContextRenderer) handleHugoContext(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
