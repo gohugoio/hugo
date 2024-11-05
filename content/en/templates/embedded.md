@@ -82,7 +82,7 @@ Provide your tracking ID in your configuration file:
 
 {{< code-toggle file=hugo >}}
 [services.googleAnalytics]
-ID = "G-MEASUREMENT_ID"
+id = "G-MEASUREMENT_ID"
 {{</ code-toggle >}}
 
 To use this value in your own template, access the configured ID with `{{ site.Config.Services.GoogleAnalytics.ID }}`.
