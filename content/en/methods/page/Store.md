@@ -13,9 +13,7 @@ toc: true
 aliases: [/functions/store]
 ---
 
-The `Store` method on a `Page` object creates a persistent [scratch pad] to store and manipulate data. In contrast with the [`Scratch`] method, the scratch pad created by the `Store` method is not reset on server rebuilds.
-
-To create a locally scoped scratch pad that is not attached to a `Page` object, use the [`newScratch`] function.
+The `Store` method on a `Page` object creates a persistent [scratch pad] to store and manipulate data. To create a locally scoped scratch pad that is not attached to a `Page` object, use the [`newScratch`] function.
 
 [`Scratch`]: /methods/page/scratch/
 [`newScratch`]: /functions/collections/newscratch/

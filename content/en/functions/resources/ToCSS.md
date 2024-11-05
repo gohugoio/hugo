@@ -16,9 +16,9 @@ expiryDate: 2025-06-24 # deprecated 2024-06-24
 ---
 
 {{% deprecated-in 0.128.0 %}}
-Use [css.Sass] instead.
+Use [`css.Sass`] instead.
 
-[css.Sass]: /functions/css/sass/
+[`css.Sass`]: /functions/css/sass/
 {{% /deprecated-in %}}
 
 ```go-html-template
