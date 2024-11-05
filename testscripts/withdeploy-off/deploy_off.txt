@@ -1,0 +1,3 @@
+! hugo deploy --force
+# Issue 13012
+stderr 'deploy not supported in this version of Hugo'

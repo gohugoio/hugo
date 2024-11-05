@@ -44,6 +44,7 @@ func newDeployCommand() simplecobra.Commander {
 			return errors.New("deploy not supported in this version of Hugo; install a release with 'withdeploy' in the archive filename or build yourself with the 'withdeploy' build tag. Also see https://github.com/gohugoio/hugo/pull/12995")
 		},
 		withc: func(cmd *cobra.Command, r *rootCommand) {
+			applyDeployFlags(cmd, r)
 			cmd.Hidden = true
 		},
 	}
