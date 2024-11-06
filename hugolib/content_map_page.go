@@ -37,7 +37,6 @@ import (
 	"github.com/gohugoio/hugo/hugolib/doctree"
 	"github.com/gohugoio/hugo/hugolib/pagesfromdata"
 	"github.com/gohugoio/hugo/identity"
-	"github.com/gohugoio/hugo/lazy"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources"
@@ -925,59 +924,58 @@ func newPageMap(i int, s *Site, mcache *dynacache.Cache, pageTrees *pageTrees) *
 		s: s,
 	}
 
-	m.pageReverseIndex = &contentTreeReverseIndex{
-		initFn: func(rm map[any]contentNodeI) {
-			add := func(k string, n contentNodeI) {
-				existing, found := rm[k]
-				if found && existing != ambiguousContentNode {
-					rm[k] = ambiguousContentNode
-				} else if !found {
-					rm[k] = n
+	m.pageReverseIndex = newContentTreeTreverseIndex(func(get func(key any) (contentNodeI, bool), set func(key any, val contentNodeI)) {
+		add := func(k string, n contentNodeI) {
+			existing, found := get(k)
+			if found && existing != ambiguousContentNode {
+				set(k, ambiguousContentNode)
+			} else if !found {
+				set(k, n)
+			}
+		}
+
+		w := &doctree.NodeShiftTreeWalker[contentNodeI]{
+			Tree:     m.treePages,
+			LockType: doctree.LockTypeRead,
+			Handle: func(s string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+				p := n.(*pageState)
+				if p.PathInfo() != nil {
+					add(p.PathInfo().BaseNameNoIdentifier(), p)
 				}
-			}
+				return false, nil
+			},
+		}
 
-			w := &doctree.NodeShiftTreeWalker[contentNodeI]{
-				Tree:     m.treePages,
-				LockType: doctree.LockTypeRead,
-				Handle: func(s string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
-					p := n.(*pageState)
-					if p.PathInfo() != nil {
-						add(p.PathInfo().BaseNameNoIdentifier(), p)
-					}
-					return false, nil
-				},
-			}
-
-			if err := w.Walk(context.Background()); err != nil {
-				panic(err)
-			}
-		},
-		contentTreeReverseIndexMap: &contentTreeReverseIndexMap{},
-	}
+		if err := w.Walk(context.Background()); err != nil {
+			panic(err)
+		}
+	})
 
 	return m
 }
 
+func newContentTreeTreverseIndex(init func(get func(key any) (contentNodeI, bool), set func(key any, val contentNodeI))) *contentTreeReverseIndex {
+	return &contentTreeReverseIndex{
+		initFn: init,
+		mm:     maps.NewCache[any, contentNodeI](),
+	}
+}
+
 type contentTreeReverseIndex struct {
-	initFn func(rm map[any]contentNodeI)
-	*contentTreeReverseIndexMap
+	initFn func(get func(key any) (contentNodeI, bool), set func(key any, val contentNodeI))
+	mm     *maps.Cache[any, contentNodeI]
 }
 
 func (c *contentTreeReverseIndex) Reset() {
-	c.init.ResetWithLock().Unlock()
+	c.mm.Reset()
 }
 
 func (c *contentTreeReverseIndex) Get(key any) contentNodeI {
-	c.init.Do(func() {
-		c.m = make(map[any]contentNodeI)
-		c.initFn(c.contentTreeReverseIndexMap.m)
+	v, _ := c.mm.InitAndGet(key, func(get func(key any) (contentNodeI, bool), set func(key any, val contentNodeI)) error {
+		c.initFn(get, set)
+		return nil
 	})
-	return c.m[key]
-}
-
-type contentTreeReverseIndexMap struct {
-	init lazy.OnceMore
-	m    map[any]contentNodeI
+	return v
 }
 
 type sitePagesAssembler struct {

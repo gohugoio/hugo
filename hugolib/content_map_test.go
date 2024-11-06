@@ -17,9 +17,11 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/identity"
 )
 
 func TestContentMapSite(t *testing.T) {
@@ -395,4 +397,78 @@ irrelevant
 		"<loc>https://example.org/de/sitemap.xml</loc>",
 		"<loc>https://example.org/en/sitemap.xml</loc>",
 	)
+}
+
+func TestContentTreeReverseIndex(t *testing.T) {
+	t.Parallel()
+
+	c := qt.New(t)
+
+	pageReverseIndex := newContentTreeTreverseIndex(
+		func(get func(key any) (contentNodeI, bool), set func(key any, val contentNodeI)) {
+			for i := 0; i < 10; i++ {
+				key := fmt.Sprint(i)
+				set(key, &testContentNode{key: key})
+			}
+		},
+	)
+
+	for i := 0; i < 10; i++ {
+		key := fmt.Sprint(i)
+		v := pageReverseIndex.Get(key)
+		c.Assert(v, qt.Not(qt.IsNil))
+		c.Assert(v.Path(), qt.Equals, key)
+	}
+}
+
+// Issue 13019.
+func TestContentTreeReverseIndexPara(t *testing.T) {
+	t.Parallel()
+
+	var wg sync.WaitGroup
+
+	for i := 0; i < 10; i++ {
+		pageReverseIndex := newContentTreeTreverseIndex(
+			func(get func(key any) (contentNodeI, bool), set func(key any, val contentNodeI)) {
+				for i := 0; i < 10; i++ {
+					key := fmt.Sprint(i)
+					set(key, &testContentNode{key: key})
+				}
+			},
+		)
+
+		for j := 0; j < 10; j++ {
+			wg.Add(1)
+			go func(i int) {
+				defer wg.Done()
+				pageReverseIndex.Get(fmt.Sprint(i))
+			}(j)
+		}
+	}
+}
+
+type testContentNode struct {
+	key string
+}
+
+func (n *testContentNode) GetIdentity() identity.Identity {
+	return identity.StringIdentity(n.key)
+}
+
+func (n *testContentNode) ForEeachIdentity(cb func(id identity.Identity) bool) bool {
+	panic("not supported")
+}
+
+func (n *testContentNode) Path() string {
+	return n.key
+}
+
+func (n *testContentNode) isContentNodeBranch() bool {
+	return false
+}
+
+func (n *testContentNode) resetBuildState() {
+}
+
+func (n *testContentNode) MarkStale() {
 }

@@ -13,11 +13,14 @@
 
 package maps
 
-import "sync"
+import (
+	"sync"
+)
 
 // Cache is a simple thread safe cache backed by a map.
 type Cache[K comparable, T any] struct {
-	m map[K]T
+	m                  map[K]T
+	hasBeenInitialized bool
 	sync.RWMutex
 }
 
@@ -34,8 +37,13 @@ func (c *Cache[K, T]) Get(key K) (T, bool) {
 		return zero, false
 	}
 	c.RLock()
-	v, found := c.m[key]
+	v, found := c.get(key)
 	c.RUnlock()
+	return v, found
+}
+
+func (c *Cache[K, T]) get(key K) (T, bool) {
+	v, found := c.m[key]
 	return v, found
 }
 
@@ -61,11 +69,47 @@ func (c *Cache[K, T]) GetOrCreate(key K, create func() (T, error)) (T, error) {
 	return v, nil
 }
 
+// InitAndGet initializes the cache if not already done and returns the value for the given key.
+// The init state will be reset on Reset or Drain.
+func (c *Cache[K, T]) InitAndGet(key K, init func(get func(key K) (T, bool), set func(key K, value T)) error) (T, error) {
+	var v T
+	c.RLock()
+	if !c.hasBeenInitialized {
+		c.RUnlock()
+		if err := func() error {
+			c.Lock()
+			defer c.Unlock()
+			// Double check in case another goroutine has initialized it in the meantime.
+			if !c.hasBeenInitialized {
+				err := init(c.get, c.set)
+				if err != nil {
+					return err
+				}
+				c.hasBeenInitialized = true
+			}
+			return nil
+		}(); err != nil {
+			return v, err
+		}
+		// Reacquire the read lock.
+		c.RLock()
+	}
+
+	v = c.m[key]
+	c.RUnlock()
+
+	return v, nil
+}
+
 // Set sets the given key to the given value.
 func (c *Cache[K, T]) Set(key K, value T) {
 	c.Lock()
-	c.m[key] = value
+	c.set(key, value)
 	c.Unlock()
+}
+
+func (c *Cache[K, T]) set(key K, value T) {
+	c.m[key] = value
 }
 
 // ForEeach calls the given function for each key/value pair in the cache.
@@ -81,6 +125,7 @@ func (c *Cache[K, T]) Drain() map[K]T {
 	c.Lock()
 	m := c.m
 	c.m = make(map[K]T)
+	c.hasBeenInitialized = false
 	c.Unlock()
 	return m
 }
@@ -94,6 +139,7 @@ func (c *Cache[K, T]) Len() int {
 func (c *Cache[K, T]) Reset() {
 	c.Lock()
 	c.m = make(map[K]T)
+	c.hasBeenInitialized = false
 	c.Unlock()
 }
 

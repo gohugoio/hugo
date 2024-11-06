@@ -24,13 +24,13 @@ import (
 // * it can be reset, so the action can be repeated if needed
 // * it has methods to check if it's done or in progress
 
-type OnceMore struct {
+type onceMore struct {
 	mu   sync.Mutex
 	lock uint32
 	done uint32
 }
 
-func (t *OnceMore) Do(f func()) {
+func (t *onceMore) Do(f func()) {
 	if atomic.LoadUint32(&t.done) == 1 {
 		return
 	}
@@ -53,15 +53,15 @@ func (t *OnceMore) Do(f func()) {
 	f()
 }
 
-func (t *OnceMore) InProgress() bool {
+func (t *onceMore) InProgress() bool {
 	return atomic.LoadUint32(&t.lock) == 1
 }
 
-func (t *OnceMore) Done() bool {
+func (t *onceMore) Done() bool {
 	return atomic.LoadUint32(&t.done) == 1
 }
 
-func (t *OnceMore) ResetWithLock() *sync.Mutex {
+func (t *onceMore) ResetWithLock() *sync.Mutex {
 	t.mu.Lock()
 	defer atomic.StoreUint32(&t.done, 0)
 	return &t.mu
