@@ -157,7 +157,7 @@ func (r *hugoContextRenderer) stripHugoCtx(b []byte) ([]byte, bool) {
 }
 
 func (r *hugoContextRenderer) logRawHTMLEmittedWarn(w util.BufWriter) {
-	r.logger.Warnidf(constants.WarnGoldmarkRawHTML, "Raw HTML omitted from %q; see https://gohugo.io/getting-started/configuration-markup/#rendererunsafe", r.getPage(w))
+	r.logger.Warnidf(constants.WarnGoldmarkRawHTML, "Raw HTML omitted white rendering %q; see https://gohugo.io/getting-started/configuration-markup/#rendererunsafe", r.getPage(w))
 }
 
 func (r *hugoContextRenderer) getPage(w util.BufWriter) any {
