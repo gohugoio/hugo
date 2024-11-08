@@ -100,7 +100,7 @@ This front matter menu entry demonstrates some of the available properties:
 
 {{< code-toggle file=content/products/software.md fm=true >}}
 title = 'Software'
-[[menus.main]]
+[menus.main]
 parent = 'Products'
 weight = 20
 pre = '<i class="fa-solid fa-code"></i>'
