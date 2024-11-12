@@ -18,9 +18,7 @@ import (
 	"reflect"
 	"sort"
 
-	"github.com/sanity-io/litter"
 	"encoding/json"
-	"sort"
 	"sync"
 	"time"
 

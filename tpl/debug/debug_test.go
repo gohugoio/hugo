@@ -18,19 +18,18 @@ import (
 	"testing"
 )
 
-type User struct {
-	Name    string
-	Address any
-	foo     string
+type Foo struct {
+	Bar string
+	foo any
 }
 
-func (u *User) M1() string         { return "" }
-func (u *User) M2(v string) string { return "" }
-func (u *User) m3(v string) string { return "" }
+func (f *Foo) M1() string         { return "" }
+func (f *Foo) M2(v string) string { return "" }
+func (f *Foo) m3(v string) string { return "" }
 
 // Non Pointer type methods
-func (u User) M4(v string) string { return "" }
-func (u User) m5(v string) string { return "" }
+func (f Foo) M4(v string) string { return "" }
+func (f Foo) m5(v string) string { return "" }
 
 func TestList(t *testing.T) {
 	t.Parallel()
@@ -46,9 +45,9 @@ func TestList(t *testing.T) {
 		// Map non string keys
 		{map[int]any{1: 1, 2: 2, 3: 3}, []string{"<int Value>", "<int Value>", "<int Value>"}},
 		// Struct
-		{User{}, []string{"Name", "Address", "M1", "M2", "M4"}},
+		{Foo{}, []string{"Bar", "M1", "M2", "M4"}},
 		// Pointer
-		{&User{}, []string{"Name", "Address", "M1", "M2", "M4"}},
+		{&Foo{}, []string{"Bar", "M1", "M2", "M4"}},
 	} {
 		t.Run(fmt.Sprintf("test%d", i), func(t *testing.T) {
 			result := namespace.List(test.val)
