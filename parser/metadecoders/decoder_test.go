@@ -306,3 +306,26 @@ func BenchmarkStringifyMapKeysIntegers(b *testing.B) {
 		stringifyMapKeys(maps[i])
 	}
 }
+
+func BenchmarkDecodeYAMLToMap(b *testing.B) {
+	d := Default
+
+	data := []byte(`
+a:
+  v1: 32
+  v2: 43
+  v3: "foo"
+b:
+  - a
+  - b
+c: "d"
+
+`)
+
+	for i := 0; i < b.N; i++ {
+		_, err := d.UnmarshalToMap(data, YAML)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
