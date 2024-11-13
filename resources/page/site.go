@@ -135,6 +135,8 @@ type Site interface {
 	// Deprecated: Use .Site.Home.OutputFormats.Get "rss" instead.
 	RSSLink() template.URL
 
+	maps.StoreProvider
+
 	// For internal use only.
 	// This will panic if the site is not fully initialized.
 	// This is typically used to inform the user in the content adapter templates,
@@ -327,6 +329,10 @@ func (s *siteWrapper) RSSLink() template.URL {
 	return s.s.RSSLink()
 }
 
+func (s *siteWrapper) Store() *maps.Scratch {
+	return s.s.Store()
+}
+
 // For internal use only.
 func (s *siteWrapper) ForEeachIdentityByName(name string, f func(identity.Identity) bool) {
 	s.s.(identity.ForEeachIdentityByNameProvider).ForEeachIdentityByName(name, f)
@@ -489,6 +495,10 @@ func (s testSite) Param(key any) (any, error) {
 // Deprecated: Use .Site.Home.OutputFormats.Get "rss" instead.
 func (s testSite) RSSLink() template.URL {
 	return ""
+}
+
+func (s testSite) Store() *maps.Scratch {
+	return maps.NewScratch()
 }
 
 func (s testSite) CheckReady() {

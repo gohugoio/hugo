@@ -22,7 +22,13 @@ import (
 	"github.com/gohugoio/hugo/common/math"
 )
 
-// Scratch is a writable context used for stateful operations in Page/Node rendering.
+type StoreProvider interface {
+	// Store returns a Scratch that can be used to store temporary state.
+	// Store is not reset on server rebuilds.
+	Store() *Scratch
+}
+
+// Scratch is a writable context used for stateful build operations
 type Scratch struct {
 	values map[string]any
 	mu     sync.RWMutex
