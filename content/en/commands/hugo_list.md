@@ -5,11 +5,11 @@ url: /commands/hugo_list/
 ---
 ## hugo list
 
-Listing out various types of content
+List content
 
 ### Synopsis
 
-Listing out various types of content.
+List content.
 
 List requires a subcommand, e.g. hugo list drafts
 
@@ -39,7 +39,7 @@ List requires a subcommand, e.g. hugo list drafts
 
 ### SEE ALSO
 
-* [hugo](/commands/hugo/)	 - hugo builds your site
+* [hugo](/commands/hugo/)	 - Build your site
 * [hugo list all](/commands/hugo_list_all/)	 - List all content
 * [hugo list drafts](/commands/hugo_list_drafts/)	 - List draft content
 * [hugo list expired](/commands/hugo_list_expired/)	 - List expired content

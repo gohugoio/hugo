@@ -5,7 +5,11 @@ url: /commands/hugo_gen/
 ---
 ## hugo gen
 
-A collection of several useful generators.
+Generate documentation and syntax highlighting styles
+
+### Synopsis
+
+Generate documentation for your project using Hugo's documentation engine, including syntax highlighting for various programming languages.
 
 ### Options
 
@@ -33,7 +37,7 @@ A collection of several useful generators.
 
 ### SEE ALSO
 
-* [hugo](/commands/hugo/)	 - hugo builds your site
+* [hugo](/commands/hugo/)	 - Build your site
 * [hugo gen chromastyles](/commands/hugo_gen_chromastyles/)	 - Generate CSS stylesheet for the Chroma code highlighter
 * [hugo gen doc](/commands/hugo_gen_doc/)	 - Generate Markdown documentation for the Hugo CLI.
 * [hugo gen man](/commands/hugo_gen_man/)	 - Generate man pages for the Hugo CLI

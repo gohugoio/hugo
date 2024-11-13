@@ -8,6 +8,7 @@ action:
   related:
     - functions/strings/Chomp
     - functions/strings/Trim
+    - functions/strings/TrimSpace
     - functions/strings/TrimPrefix
     - functions/strings/TrimRight
     - functions/strings/TrimSuffix

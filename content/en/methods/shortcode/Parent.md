@@ -21,7 +21,7 @@ Welcome. Today is {{</* now */>}}.
 
 {{< code file=layouts/shortcodes/greeting.html  >}}
 <div class="greeting">
-  {{ trim .Inner "\r\n" | .Page.RenderString }}
+  {{ .Inner | strings.TrimSpace | .Page.RenderString }}
 </div>
 {{< /code >}}
 

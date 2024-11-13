@@ -205,8 +205,6 @@ Sometimes it can be useful to create the filter chain once and then reuse it.
 
 ### Colors
 
-{{< new-in 0.104.0 >}}
-
 `.Colors` returns a slice of hex strings with the dominant colors in the image using a simple histogram method.
 
 ```go-html-template

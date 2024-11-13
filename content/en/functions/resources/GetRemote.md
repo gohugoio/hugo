@@ -102,6 +102,10 @@ The [`Err`] method on a resource returned by the `resources.GetRemote` function 
 
 [`Err`]: /methods/resource/err/
 
+{{% note %}}
+Hugo does not classify an HTTP response with status code 404 as an error. In this case the function returns nil.
+{{% /note %}}
+
 ```go-html-template
 {{ $url := "https://broken-example.org/images/a.jpg" }}
 {{ with resources.GetRemote $url }}

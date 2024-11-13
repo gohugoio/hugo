@@ -11,8 +11,6 @@ toc: true
 math: true
 ---
 
-{{< new-in 0.104.0 >}}
-
 The `Resources.Colors` method returns a slice of the most dominant colors in an image, ordered from most dominant to least dominant. This method is fast, but if you also downsize your image you can improve performance by extracting the colors from the scaled image.
 
 {{% include "methods/resource/_common/global-page-remote-resources.md" %}}

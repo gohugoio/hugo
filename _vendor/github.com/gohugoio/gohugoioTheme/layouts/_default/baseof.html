@@ -106,9 +106,7 @@
   </head>
 
   <body
-    class="ma0 sans-serif bg-primary-color-light{{ with getenv "HUGO_ENV" }}
-      {{ . }}
-    {{ end }} {{ if $hasMath }}{{ print " dn" }}{{ end }}">
+    class="ma0 sans-serif bg-primary-color-light{{ with getenv "HUGO_ENV" }} {{ . }}{{ end }}">
     {{ partial "hooks/after-body-start.html" . }}
     {{ block "nav" . }}{{ partial "site-nav.html" . }}{{ end }}
     {{ block "header" . }}{{ end }}

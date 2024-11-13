@@ -4,13 +4,7 @@ code, .code, pre code, .highlight pre  {
 }
 
 .sans-serif {
-  font-family: 'Muli',
-              avenir,
-               'helvetica neue', helvetica,
-               ubuntu,
-               roboto, noto,
-               'segoe ui', arial,
-               sans-serif;
+  font-family: 'Muli', Avenir, 'Helvetica Neue', Helvetica, Roboto, Noto, 'Segoe UI', Arial, sans-serif;
 }
 
 

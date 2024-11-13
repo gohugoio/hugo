@@ -199,11 +199,11 @@ Remember that the piped value becomes the final argument to the function or meth
 You can split a template action over two or more lines. For example, these are equivalent:
 
 ```go-html-template
-{{ $v := or .Site.Language.LanguageName .Site.Language.Lang }}
+{{ $v := or $arg1 $arg2 }}
 
 {{ $v := or 
-  .Site.Language.LanguageName
-  .Site.Language.Lang
+  $arg1
+  $arg2
 }}
 ```
 

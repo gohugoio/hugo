@@ -91,6 +91,10 @@ Returns the `Site` to which the pages will be added.
 {{ .Site.Title }}
 {{< /code >}}
 
+{{% note %}}
+Note that the `Site` returned isn't fully built when invoked from the content adapters; if you try to call methods that depends on pages, e.g. `.Site.Pages`, you will get an error saying "this method cannot be called before the site is fully initialized".
+{{% /note %}}
+
 ###### Store
 
 Returns a persistent “scratch pad” to store and manipulate data. The main use case for this is to transfer values between executions when [EnableAllLanguages](#enablealllanguages) is set. See [examples](/methods/page/store/).

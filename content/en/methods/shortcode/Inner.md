@@ -29,7 +29,7 @@ With this shortcode:
     <div class="card-title">{{ . }}</div>
   {{ end }}
   <div class="card-content">
-    {{ trim .Inner "\r\n" }}
+    {{ .Inner | strings.TrimSpace }}
   </div>
 </div>
 {{< /code >}}
@@ -46,9 +46,9 @@ Is rendered to:
 ```
 
 {{% note %}}
-Content between opening and closing shortcode tags may include leading and/or trailing newlines, depending on placement within the Markdown. Use the [`trim`] function as shown above to remove both carriage returns and newlines.
+Content between opening and closing shortcode tags may include leading and/or trailing newlines, depending on placement within the Markdown. Use the [`strings.TrimSpace`] function as shown above to remove both carriage returns and newlines.
 
-[`trim`]: /functions/strings/trim/
+[`strings.TrimSpace`]: /functions/strings/trimspace/
 {{% /note %}}
 
 {{% note %}}
@@ -68,7 +68,7 @@ Let's modify the example above to pass the value returned by `Inner` through the
     <div class="card-title">{{ . }}</div>
   {{ end }}
   <div class="card-content">
-    {{ trim .Inner "\r\n" | .Page.RenderString }}
+    {{ .Inner | strings.TrimSpace | .Page.RenderString }}
   </div>
 </div>
 {{< /code >}}
@@ -119,7 +119,7 @@ Second, because we are rendering the entire shortcode as Markdown, we must adher
   {{ end }}
   <div class="card-content">
 
-  {{ trim .Inner "\r\n" }}
+  {{ .Inner | strings.TrimSpace }}
   </div>
 </div>
 {{< /code >}}
@@ -136,9 +136,9 @@ The difference between this and the previous example is subtle but required. Not
 +  <div class="card-title">{{ . }}</div>
    {{ end }}
    <div class="card-content">
--    {{ trim .Inner "\r\n" | .Page.RenderString }}
+-    {{ .Inner | strings.TrimSpace | .Page.RenderString }}
 +
-+  {{ trim .Inner "\r\n" }}
++  {{ .Inner | strings.TrimSpace }}
    </div>
  </div>
 ```

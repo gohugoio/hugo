@@ -45,7 +45,7 @@ For a complete guide to contributing to Hugo, see the [Contribution Guide].
 
 ## Prerequisites
 
-To build the extended edition of Hugo from source you must:
+To build the extended or extended/deploy edition from source you must:
 
 1. Install [Git]
 1. Install [Go] version 1.23.0 or later
@@ -97,10 +97,24 @@ Step 4
 : Make changes.
 
 Step 5
-: Compile and install:
+: Compile and install.
+
+To compile and install the standard edition:
+
+```text
+go install
+```
+
+To compile and install the extended edition:
 
 ```text
 CGO_ENABLED=1 go install -tags extended
+```
+
+To compile and install the extended/deploy edition:
+
+```text
+CGO_ENABLED=1 go install -tags extended,withdeploy
 ```
 
 Step 6
@@ -158,7 +172,7 @@ CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@latest
 To build and install a specific release:
 
 ```sh
-CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@v0.128.0
+CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@v0.137.1
 ```
 
 To build and install at the latest commit on the master branch:

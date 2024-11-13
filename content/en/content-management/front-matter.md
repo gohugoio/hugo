@@ -39,7 +39,7 @@ weight = 10
 author = 'John Smith'
 {{< /code-toggle >}}
 
-Front matter fields may be [scalar], [arrays], or [maps] containing [boolean], [integer], [float], or [string] values. Note that the TOML format also supports date/time values using unquoted strings.
+Front matter fields may be [boolean], [integer], [float], [string], [arrays], or [maps]. Note that the TOML format also supports unquoted date/time values.
 
 [scalar]: /getting-started/glossary/#scalar
 [arrays]: /getting-started/glossary/#array
@@ -80,7 +80,8 @@ The field names below are reserved. For example, you cannot create a custom fiel
 
 ###### date
 
-(`string`) The date associated with the page, typically the creation date. Note that the TOML format also supports date/time values using unquoted strings. Access this value from a template using the [`Date`] method on a `Page` object.
+(`string`) The date associated with the page, typically the creation date. Note that the TOML format also supports unquoted date/time values. See the [dates](#dates) section for examples. Access this value from a template using the [`Date`] method on a `Page` object.
+
 
 [`date`]: /methods/page/date/
 
@@ -99,7 +100,7 @@ If `true`, the page will not be rendered unless you pass the `--buildDrafts` fla
 
 ###### expiryDate
 
-(`string`) The page expiration date. On or after the expiration date, the page will not be rendered unless you pass the `--buildExpired` flag to the `hugo` command. Note that the TOML format also supports date/time values using unquoted strings. Access this value from a template using the [`ExpiryDate`] method on a `Page` object.
+(`string`) The page expiration date. On or after the expiration date, the page will not be rendered unless you pass the `--buildExpired` flag to the `hugo` command. Note that the TOML format also supports unquoted date/time values. See the [dates](#dates) section for examples. Access this value from a template using the [`ExpiryDate`] method on a `Page` object.
 
 [`expirydate`]: /methods/page/expirydate/
 
@@ -127,6 +128,7 @@ If `true`, the page will not be rendered unless you pass the `--buildDrafts` fla
 [`keywords`]: /methods/page/keywords/
 [taxonomy]: /getting-started/glossary/#taxonomy
 
+{{% comment %}}
 <!-- Added in v0.123.0 but purposefully omitted from documentation. -->
 <!--
 kind
@@ -138,10 +140,11 @@ kind
 lang
 : The language code for this page. This is usually derived from the module mount or filename.
 -->
+{{% /comment %}}
 
 ###### lastmod
 
-(`string`) The date that the page was last modified. Note that the TOML format also supports date/time values using unquoted strings. Access this value from a template using the [`Lastmod`] method on a `Page` object.
+(`string`) The date that the page was last modified. Note that the TOML format also supports unquoted date/time values. See the [dates](#dates) section for examples. Access this value from a template using the [`Lastmod`] method on a `Page` object.
 
 [`lastmod`]: /methods/page/date/
 
@@ -167,9 +170,13 @@ lang
 
 ###### menus
 
-(`string`,`string array`, or `map`) If set, Hugo adds the page to the given menu or menus. See the [menus] page for details.
+(`string`, `string array`, or `map`) If set, Hugo adds the page to the given menu or menus. See the [menus] page for details.
 
 [menus]: /content-management/menus/#define-in-front-matter
+
+###### modified
+
+Alias to [lastmod](#lastmod).
 
 ###### outputs
 
@@ -177,11 +184,13 @@ lang
 
 [output formats]: /templates/output-formats/
 
+{{% comment %}}
 <!-- Added in v0.123.0 but purposefully omitted from documentation. -->
 <!--
 path
 : The canonical page path.
 -->
+{{% /comment %}}
 
 ###### params
 
@@ -191,11 +200,19 @@ path
 
 [page parameters]: #parameters
 
+###### pubdate
+
+Alias to [publishDate](#publishdate).
+
 ###### publishDate
 
-(`string`) The page publication date. Before the publication date, the page will not be rendered unless you pass the `--buildFuture` flag to the `hugo` command. Note that the TOML format also supports date/time values using unquoted strings. Access this value from a template using the [`PublishDate`] method on a `Page` object.
+(`string`) The page publication date. Before the publication date, the page will not be rendered unless you pass the `--buildFuture` flag to the `hugo` command. Note that the TOML format also supports unquoted date/time values. See the [dates](#dates) section for examples. Access this value from a template using the [`PublishDate`] method on a `Page` object.
 
 [`publishdate`]: /methods/page/publishdate/
+
+###### published
+
+Alias to [publishDate](#publishdate).
 
 ###### resources
 
@@ -241,6 +258,10 @@ path
 
 [content type]: /getting-started/glossary/#content-type
 [`type`]: /methods/page/type/
+
+###### unpublishdate
+
+Alias to [expirydate](#expirydate).
 
 ###### url
 
@@ -428,3 +449,15 @@ Note that you can also specify array elements on a single line:
 
 [content format]: /content-management/formats/
 [emacs org mode]: https://orgmode.org/
+
+## Dates
+
+When populating a date field, whether a [custom page parameter](#parameters) or one of the four predefined fields ([`date`](#date), [`expiryDate`](#expirydate), [`lastmod`](#lastmod), [`publishDate`](#publishdate)), use one of these parsable formats:
+
+{{% include "functions/time/_common/parsable-date-time-strings.md" %}}
+
+To override the default time zone, set the [`timeZone`](https://gohugo.io/getting-started/configuration/#timezone) in your site configuration. The order of precedence for determining the time zone is:
+
+1. The time zone offset in the date/time string
+2. The time zone specified in your site configuration
+3. The `Etc/UTC` time zone

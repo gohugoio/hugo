@@ -74,6 +74,26 @@ You can call shortcodes within other shortcodes by creating your own templates t
 
 Use these embedded shortcodes as needed.
 
+### comment
+
+{{< new-in "0.137.1" >}}
+
+{{% note %}}
+To override Hugo's embedded `comment` shortcode, copy the [source code] to a file with the same name in the layouts/shortcodes directory.
+
+[source code]: {{% eturl comment %}}
+{{% /note %}}
+
+Use the `comment` shortcode to include comments in your Markdown. Hugo excludes the encapsulated text when rendering your site.
+
+Example usage:
+
+```text
+{{%/* comment */%}} TODO: rewrite the paragraph below. {{%/* /comment */%}}
+```
+
+Although you can call this shortcode using the `{{</* */>}}` notation, computationally it is more efficient to call it using the `{{%/* */%}}` notation as shown above.
+
 ### figure
 
 {{% note %}}

@@ -95,7 +95,7 @@ Hugo populates the `Attributes` map for _block_ passthrough elements. Markdown a
 
 ###### Type
 
-(`bool`) The passthrough element type, either `block` or `inline`.
+(`string`) The passthrough element type, either `block` or `inline`.
 
 ## Example
 
