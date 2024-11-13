@@ -238,7 +238,7 @@ This is the default configuration for the AsciiDoc renderer:
 
 ###### attributes
 
-(`map`) A map of key-value pairs, each a document attributes. See Asciidoctor’s [attributes].
+(`map`) A map of key-value pairs, each a document attribute. See Asciidoctor’s [attributes].
 
 [attributes]: https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#attributes-and-substitutions
 

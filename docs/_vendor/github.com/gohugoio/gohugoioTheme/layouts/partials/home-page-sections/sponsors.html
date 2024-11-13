@@ -25,7 +25,7 @@
             {{ $query_params := .query_params | default "" }}
             {{ $url := .link }}
             {{ if not .no_query_params }}
-              {{ $url = printf "%s?%s%s" .link $query_params (querify "utm_source" (.utm_source | default $utmSource ) "utm_medium" "banner" "utm_campaign" (.utm_campaign | default "hugosponsor") "utm_content" (.utm_content | default "gohugoio")) | safeURL }}
+              {{ $url = printf "%s?%s%s" .link $query_params (querify "utm_source" (.utm_source | default $utmSource ) "utm_medium" (.utm_medium | default "banner") "utm_campaign" (.utm_campaign | default "hugosponsor") "utm_content" (.utm_content | default "gohugoio")) | safeURL }}
             {{ end }}
             {{ $logo := resources.Get .logo }}
             {{ $gtagID := printf "Sponsor %s %s" .name $gtag | title }}

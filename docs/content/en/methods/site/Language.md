@@ -27,36 +27,41 @@ languageName = 'Deutsch'
 weight = 1
 {{< /code-toggle >}}
 
-Lang
-: (`string`) The language tag as defined by [RFC 5646].
+###### Lang
+
+(`string`) The language tag as defined by [RFC 5646].
 
 ```go-html-template
 {{ .Site.Language.Lang }} → de
 ```
 
-LanguageCode
-: (`string`) The language code from the site configuration. Falls back to `Lang` if not defined.
+###### LanguageCode
+
+(`string`) The language code from the site configuration. Falls back to `Lang` if not defined.
 
 ```go-html-template
 {{ .Site.Language.LanguageCode }} → de-DE
 ```
 
-LanguageDirection
-: (`string`) The language direction from the site configuration, either `ltr` or `rtl`.
+###### LanguageDirection
+
+(`string`) The language direction from the site configuration, either `ltr` or `rtl`.
 
 ```go-html-template
 {{ .Site.Language.LanguageDirection }} → ltr
 ```
 
-LanguageName
-: (`string`) The language name from the site configuration.
+###### LanguageName
+
+(`string`) The language name from the site configuration.
 
 ```go-html-template
 {{ .Site.Language.LanguageName }} → Deutsch
 ```
 
-Weight
-: (`int`) The language weight from the site configuration which determines its order in the slice of languages returned by the `Languages` method on a `Site` object.
+###### Weight
+
+(`int`) The language weight from the site configuration which determines its order in the slice of languages returned by the `Languages` method on a `Site` object.
 
 ```go-html-template
 {{ .Site.Language.Weight }} → 1

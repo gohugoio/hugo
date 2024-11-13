@@ -10,7 +10,12 @@ menu:
 weight: 30
 toc: true
 ---
+
+## Editions
+
 {{% include "installation/_common/01-editions.md" %}}
+
+Unless your specific deployment needs require the extended/deploy edition, we recommend the extended edition.
 
 {{% include "installation/_common/02-prerequisites.md" %}}
 
@@ -156,6 +161,14 @@ Derivatives of the [Gentoo] distribution of Linux include [Calculate Linux], [Fu
 [Funtoo]: https://www.funtoo.org/
 [Gentoo]: https://www.gentoo.org/
 [USE]: https://packages.gentoo.org/packages/www-apps/hugo
+
+### NixOS
+
+The NixOS distribution of Linux includes Hugo in its package repository. To install the extended edition of Hugo:
+
+```sh
+nix-env -iA nixos.hugo
+```
 
 ### openSUSE
 

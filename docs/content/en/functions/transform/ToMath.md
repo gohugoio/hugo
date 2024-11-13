@@ -2,7 +2,7 @@
 title: transform.ToMath
 description: Renders a math expression using KaTeX.
 categories: []
-keywords: []
+keywords: [math,katex]
 action:
   aliases: []
   related:
@@ -36,7 +36,7 @@ These are a subset of the [KaTeX options].
 output
 : (`string`). Determines the markup language of the output. One of `html`, `mathml`, or `htmlAndMathml`. Default is `mathml`.
 
-    <!-- Indent to prevent spliting the description list. -->
+    {{% comment %}}Indent to prevent splitting the description list.{{% / comment %}}
 
     With `html` and `htmlAndMathml` you must include KaTeX CSS within the `head` element of your base template. For example:
 
@@ -94,7 +94,7 @@ There are 3 ways to handle errors from KaTeX:
 
 1. Let KaTeX throw an error and make the build fail. This is the default behavior.
 1. Handle the error in your template. See the render hook example below.
-1. Set the `throwOnError` option to `false` to make KaTeX render the expression as an error instead of throwing an error. See [options].
+1. Set the `throwOnError` option to `false` to make KaTeX render the expression as an error instead of throwing an error. See [options](#options).
 
 {{< code file=layouts/_default/_markup/render-passthrough-inline.html copy=true >}}
 {{ with transform.ToMath .Inner }}

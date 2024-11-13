@@ -16,9 +16,9 @@ expiryDate: 2025-06-24 # deprecated 2024-06-24
 ---
 
 {{% deprecated-in 0.128.0 %}}
-Use [css.PostCSS] instead.
+Use [`css.PostCSS`] instead.
 
-[css.PostCSS]: /functions/css/postcss/
+[`css.PostCSS`]: /functions/css/postcss/
 {{% /deprecated-in %}}
 
 ```go-html-template

@@ -136,7 +136,7 @@ In the example above, all settings except `color` below `params` map to predefin
 
 ```go-html-template
 {{ site.Title }}
-{{ site.LanguageCode }}
+{{ site.Language.LanguageCode }}
 {{ site.Params.color }}
 ```
 

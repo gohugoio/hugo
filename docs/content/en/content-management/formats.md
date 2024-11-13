@@ -59,7 +59,7 @@ Create your content in [HTML] preceded by front matter. The content is typically
 
 ### Emacs Org Mode
 
-Create your content in the [Emacs Org Mode] format preceded by front matter. You can use Org Mode keywords for front matter. See [details](/content-management/front-matter/#emacs-org-mode)).
+Create your content in the [Emacs Org Mode] format preceded by front matter. You can use Org Mode keywords for front matter. See [details](/content-management/front-matter/#emacs-org-mode).
 
 ### AsciiDoc
 

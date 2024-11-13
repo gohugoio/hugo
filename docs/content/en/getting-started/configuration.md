@@ -228,6 +228,10 @@ See [Configure Build](#configure-build).
 
 See [Configure File Caches](#configure-file-caches).
 
+###### canonifyURLs
+
+(`bool`) See [details](/content-management/urls/#canonical-urls) before enabling this feature. Default is `false`.
+
 ###### capitalizeListTitles
 
 {{< new-in 0.123.3 >}}
@@ -245,10 +249,6 @@ For a website in a single language, define the `[[cascade]]` in [Front Matter](/
 
 To remain consistent and prevent unexpected behavior, do not mix these strategies.
 {{% /note %}}
-
-###### canonifyURLs
-
-(`bool`) See [details](/content-management/urls/#canonical-urls) before enabling this feature. Default is `false`.
 
 ###### cleanDestinationDir
 
@@ -288,6 +288,10 @@ To remain consistent and prevent unexpected behavior, do not mix these strategie
 
 [kinds]: /getting-started/glossary/#page-kind
 
+###### disableLanguages
+
+See [disable a language](/content-management/multilingual/#disable-a-language).
+
 ###### disableLiveReload
 
 (`bool`) Disable automatic live reloading of browser window. Default is `false`.
@@ -312,6 +316,9 @@ To remain consistent and prevent unexpected behavior, do not mix these strategie
 
 (`bool`) Enable generation of `robots.txt` file. Default is `false`.
 
+###### environment
+
+(`string`) Build environment. Default is `production` when running `hugo` and `development` when running `hugo server`. See [Configuration directory](https://gohugo.io/getting-started/configuration/#configuration-directory).
 ###### frontmatter
 
 See [Front matter Configuration](#configure-front-matter).
@@ -319,6 +326,22 @@ See [Front matter Configuration](#configure-front-matter).
 ###### hasCJKLanguage
 
 (`bool`) If true, auto-detect Chinese/Japanese/Korean Languages in the content. This will make `.Summary` and `.WordCount` behave correctly for CJK languages. Default is `false`.
+
+###### ignoreCache
+
+(`bool`) Ignore the cache directory. Default is `false`.
+
+###### ignoreLogs
+(`string slice`) A slice of message identifiers corresponding to warnings and errors you wish to suppress. See [`erroridf`] and [`warnidf`].
+
+[`erroridf`]: /functions/fmt/erroridf/
+[`warnidf`]: /functions/fmt/warnidf/
+
+###### ignoreVendorPaths
+
+(`string`) Ignore vendored modules that match the given [Glob] pattern within the `_vendor` directory.
+
+[Glob]: https://github.com/gobwas/glob?tab=readme-ov-file#example]
 
 ###### imaging
 
@@ -338,9 +361,9 @@ When present in the root of the configuration, this value is ignored if one or m
 
 See [Configure Languages](/content-management/multilingual/#configure-languages).
 
-###### disableLanguages
+###### layoutDir
 
-See [Disable a Language](/content-management/multilingual/#disable-a-language)
+(`string`) The directory that contains templates. Default is `layouts`.
 
 ###### markup
 
@@ -366,6 +389,10 @@ Module configuration see [module configuration](/hugo-modules/configuration/).
 
 (`string`) The editor to use when creating new content.
 
+###### noBuildLock
+
+(`bool`) Don't create `.hugo_build.lock` file. Default is `false`.
+
 ###### noChmod
 
 (`bool`) Don't sync permission mode of files. Default is `false`.
@@ -386,6 +413,10 @@ See [configure page](#configure-page).
 
 See [configure pagination](/templates/pagination/#configuration).
 
+###### panicOnWarning
+
+(`bool`) Whether to panic on first WARNING. Default is `false`.
+
 ###### permalinks
 
 See [Content Management](/content-management/urls/#permalinks).
@@ -393,6 +424,18 @@ See [Content Management](/content-management/urls/#permalinks).
 ###### pluralizeListTitles
 
 (`bool`) Whether to pluralize automatic list titles. Applicable to section pages. Default is `true`.
+
+###### printI18nWarnings
+
+(`bool`) Whether to log WARNINGs for each missing translation. Default is `false`.
+
+###### printPathWarnings
+
+(`bool`) Whether to log WARNINGs when Hugo publishes two or more files to the same path. Default is `false`.
+
+###### printUnusedTemplates
+
+(`bool`) Whether to log WARNINGs for each unused template. Default is `false`.
 
 ###### publishDir
 
@@ -414,12 +457,6 @@ See [Related Content](/content-management/related/#configure-related-content).
 
 (`bool`) See [details](/content-management/urls/#relative-urls) before enabling this feature. Default is `false`.
 
-###### renderSegments
-
-{{< new-in 0.124.0 >}}
-
-(`string slice`) A list of segments to render. If not set, everything will be rendered. This is more commonly set in a CLI flag, e.g. `hugo --renderSegments segment1,segment2`. The segment names must match the names in the [segments](#configure-segments) configuration.
-
 ###### removePathAccents
 
 (`bool`) Removes [non-spacing marks](https://www.compart.com/en/unicode/category/Mn) from [composite characters](https://en.wikipedia.org/wiki/Precomposed_character) in content paths. Default is `false`.
@@ -427,6 +464,12 @@ See [Related Content](/content-management/related/#configure-related-content).
 ```text
 content/post/hügó.md → https://example.org/post/hugo/
 ```
+
+###### renderSegments
+
+{{< new-in 0.124.0 >}}
+
+(`string slice`) A list of segments to render. If not set, everything will be rendered. This is more commonly set in a CLI flag, e.g. `hugo --renderSegments segment1,segment2`. The segment names must match the names in the [segments](#configure-segments) configuration.
 
 ###### sectionPagesMenu
 
@@ -446,13 +489,22 @@ Default [sitemap configuration](/templates/sitemap/#configuration).
 
 ###### summaryLength
 
-(`int`) Applicable to automatic summaries, the approximate number of words to render when calling the [`Summary`] method on a `Page` object. Default is `70`.
+(`int`) Applicable to [automatic summaries], the minimum number of words to render when calling the [`Summary`] method on a `Page` object. In this case the `Summary` method returns the content, truncated to the paragraph closest to the `summaryLength`.
 
+[automatic summaries]: /content-management/summaries/#automatic-summary
 [`Summary`]: /methods/page/summary/
 
 ###### taxonomies
 
 See [Configure Taxonomies](/content-management/taxonomies#configure-taxonomies).
+
+###### templateMetrics
+
+(`bool`) Whether to print template execution metrics to the console. Default is `false`. See [Template metrics](/troubleshooting/performance/#template-metrics).
+
+###### templateMetricsHints
+
+(`bool`) Whether to print template execution improvement hints to the console. Applicable when `templateMetrics` is `true`. Default is `false`. See [Template metrics](/troubleshooting/performance/#template-metrics).
 
 ###### theme
 
@@ -468,7 +520,11 @@ See [module configuration](/hugo-modules/configuration/#module-configuration-imp
 
 ###### timeZone
 
-(`string`) The time zone (or location), e.g. `Europe/Oslo`, used to parse front matter dates without such information and in the [`time`] function. The list of valid values may be system dependent, but should include `UTC`, `Local`, and any location in the [IANA Time Zone database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+(`string`) The time zone used to parse dates without time zone offsets, including front matter date fields and values passed to the [`time.AsTime`] and [`time.Format`] template functions. The list of valid values may be system dependent, but should include `UTC`, `Local`, and any location in the [IANA Time Zone Database]. For example, `America/Los_Angeles` and `Europe/Oslo` are valid time zones.
+
+[`time.AsTime`]: /functions/time/astime/
+[`time.Format`]: /functions/time/format/
+[IANA Time Zone Database]: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
 ###### title
 
@@ -480,7 +536,7 @@ See [module configuration](/hugo-modules/configuration/#module-configuration-imp
 
 ###### uglyURLs
 
-(`bool`) When enabled, creates URL of the form `/filename.html` instead of `/filename/`. Default is `false`.
+(`bool` or `map`) Whether to generate uglyURLs. Default is `false`. See [details](/content-management/urls/#appearance).
 
 ###### watch
 
@@ -546,69 +602,8 @@ These settings do not apply to the [`Next`] or [`Prev`] methods on a `Pages` obj
 
 ## Configure build
 
-The `build` configuration section contains global build-related configuration options.
+See [Configure Build](/getting-started/configuration-build/).
 
-{{< code-toggle config=build />}}
-
-buildStats {{< new-in 0.115.1 >}}
-: When enabled, creates a `hugo_stats.json` file in the root of your project. This file contains arrays of the `class` attributes, `id` attributes, and tags of every HTML element within your published site. Use this file as data source when [removing unused CSS] from your site. This process is also known as pruning, purging, or tree shaking.
-
-[removing unused CSS]: /hugo-pipes/postprocess/#css-purging-with-postcss
-
-Exclude `class` attributes, `id` attributes, or tags from `hugo_stats.json` with the `disableClasses`, `disableIDs`, and `disableTags` keys.
-
-{{% note %}}
-With v0.115.0 and earlier this feature was enabled by setting `writeStats` to `true`. Although still functional, the `writeStats` key will be deprecated in a future release.
-
-Given that CSS purging is typically limited to production builds, place the `buildStats` object below [config/production].
-
-[config/production]: /getting-started/configuration/#configuration-directory
-
-Built for speed, there may be "false positive" detections (e.g., HTML elements that are not HTML elements) while parsing the published site. These "false positives" are infrequent and inconsequential.
-{{% /note %}}
-
-Due to the nature of partial server builds, new HTML entities are added while the server is running, but old values will not be removed until you restart the server or run a regular `hugo` build.
-
-cachebusters
-: See [Configure Cache Busters](#configure-cache-busters)
-
-noJSConfigInAssets
-: Turn off writing a `jsconfig.json` into your `/assets` folder with mapping of imports from running [js.Build](/hugo-pipes/js). This file is intended to help with intellisense/navigation inside code editors such as [VS Code](https://code.visualstudio.com/). Note that if you do not use `js.Build`, no file will be written.
-
-useResourceCacheWhen
-: When to use the cached resources in `/resources/_gen` for PostCSS and ToCSS. Valid values are `never`, `always` and `fallback`. The last value means that the cache will be tried if PostCSS/extended version is not available.
-
-## Configure cache busters
-
-{{< new-in 0.112.0 >}}
-
-The `build.cachebusters` configuration option was added to support development using Tailwind 3.x's JIT compiler where a `build` configuration may look like this:
-
-{{< code-toggle file=hugo >}}
-[build]
-  [build.buildStats]
-    enable = true
-  [[build.cachebusters]]
-    source = "assets/watching/hugo_stats\\.json"
-    target = "styles\\.css"
-  [[build.cachebusters]]
-    source = "(postcss|tailwind)\\.config\\.js"
-    target = "css"
-  [[build.cachebusters]]
-    source = "assets/.*\\.(js|ts|jsx|tsx)"
-    target = "js"
-  [[build.cachebusters]]
-    source = "assets/.*\\.(.*)$"
-    target = "$1"
-{{< /code-toggle >}}
-
-When `buildStats` {{< new-in 0.115.1 >}} is enabled, Hugo writes a `hugo_stats.json` file on each build with HTML classes etc. that's used in the rendered output. Changes to this file will trigger a rebuild of the `styles.css` file. You also need to add `hugo_stats.json` to Hugo's server watcher. See [Hugo Starter Tailwind Basic](https://github.com/bep/hugo-starter-tailwind-basic) for a running example.
-
-source
-: A regexp matching file(s) relative to one of the virtual component directories in Hugo, typically `assets/...`.
-
-target
-: A regexp matching the keys in the resource cache that should be expired when `source` changes. You can use the matching regexp groups from `source` in the expression, e.g. `$1`.
 
 ## Configure server
 
@@ -748,7 +743,7 @@ HUGO_NUMWORKERMULTIPLIER
 
 ## Configure with environment variables
 
-In addition to the 3 configuration options already mentioned, configuration key-values can be defined through operating system environment variables.
+Configuration key-values can be defined through operating system environment variables.
 
 For example, the following command will effectively set a website's title on Unix-like systems:
 
@@ -885,7 +880,6 @@ If this is not set, Hugo will use, in order of preference:
 
 If you want to know the current value of `cacheDir`, you can run `hugo config`, e.g: `hugo config | grep cachedir`.
 
-[`time`]: /functions/time/astime/
 [`.Site.Params`]: /method/site/params/
 [directory structure]: /getting-started/directory-structure/
 [lookup order]: /templates/lookup-order/
@@ -919,7 +913,7 @@ The caching in Hugo is layered:
 ```
 
 Dynacache
-: A in memory LRU cache that gets evicted on changes, [Cache Buster](#configure-cache-busters) matches and in low memory situations.
+: A in memory LRU cache that gets evicted on changes, [Cache Buster](/getting-started/configuration-build/#configure-cache-busters) matches and in low memory situations.
 
 HTTP Cache
 : Enables HTTP cache behavior (RFC 9111) for remote resources. This works best for resources with properly set up HTTP cache headers. The HTTP cache uses the [file cache] to store and serve cached resources.

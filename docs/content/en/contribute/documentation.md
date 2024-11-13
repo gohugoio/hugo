@@ -85,6 +85,24 @@ Yes → Hugo is fast.
 "It's an adverb, Sam. It's a lazy tool of a weak mind." (Outbreak, 1995).
 {{% /note %}}
 
+#### Level 6 headings
+
+Level 6 headings are styled as `dt` elements. This was implemented to support a [glossary] with linkable terms.
+
+[glossary]: /getting-started/glossary/
+
+#### Function and method descriptions
+
+When adding a page to the [functions] or [methods] section, begin the description with the word "Returns". With functions and methods that return a boolean value, begin the description with the phrase "Reports whether".
+
+For example:
+
+- `Returns the URL aliases as defined in front matter.`
+- `Reports whether the given page is in the given section.`
+
+[functions]: /functions
+[methods]: /methods
+
 #### Miscellaneous
 
 Other guidelines to consider:
@@ -96,12 +114,6 @@ Other guidelines to consider:
 - Shorter is better. If there is more than one way to do something, describe the current best practice. For example, avoid phrases such as "you can also do..." and "in older versions you had to..."
 - When including code samples, use short snippets that demonstrate the concept.
 - The Hugo user community is global; use  [basic english](https://simple.wikipedia.org/wiki/Basic_English) when possible.
-
-#### Level 6 headings
-
-Level 6 headings are styled as `dt` elements. This was implemented to support a [glossary] with linkable terms.
-
-[glossary]: /getting-started/glossary/
 
 ## Code examples
 
