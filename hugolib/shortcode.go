@@ -43,9 +43,10 @@ import (
 )
 
 var (
-	_ urls.RefLinker  = (*ShortcodeWithPage)(nil)
-	_ types.Unwrapper = (*ShortcodeWithPage)(nil)
-	_ text.Positioner = (*ShortcodeWithPage)(nil)
+	_ urls.RefLinker     = (*ShortcodeWithPage)(nil)
+	_ types.Unwrapper    = (*ShortcodeWithPage)(nil)
+	_ text.Positioner    = (*ShortcodeWithPage)(nil)
+	_ maps.StoreProvider = (*ShortcodeWithPage)(nil)
 )
 
 // ShortcodeWithPage is the "." context in a shortcode template.
@@ -72,7 +73,7 @@ type ShortcodeWithPage struct {
 	posOffset int
 	pos       text.Position
 
-	scratch *maps.Scratch
+	store *maps.Scratch
 }
 
 // InnerDeindent returns the (potentially de-indented) inner content of the shortcode.
@@ -124,13 +125,19 @@ func (scp *ShortcodeWithPage) RelRef(args map[string]any) (string, error) {
 	return scp.Page.RelRefFrom(args, scp)
 }
 
+// Store returns this shortcode's Store.
+func (scp *ShortcodeWithPage) Store() *maps.Scratch {
+	if scp.store == nil {
+		scp.store = maps.NewScratch()
+	}
+	return scp.store
+}
+
 // Scratch returns a scratch-pad scoped for this shortcode. This can be used
 // as a temporary storage for variables, counters etc.
+// Deprecated: Use Store instead. Note that from the templates this should be considered a "soft deprecation".
 func (scp *ShortcodeWithPage) Scratch() *maps.Scratch {
-	if scp.scratch == nil {
-		scp.scratch = maps.NewScratch()
-	}
-	return scp.scratch
+	return scp.Store()
 }
 
 // Get is a convenience method to look up shortcode parameters by its key.
@@ -399,7 +406,16 @@ func doRenderShortcode(
 		hasVariants = hasVariants || more
 	}
 
-	data := &ShortcodeWithPage{Ordinal: sc.ordinal, posOffset: sc.pos, indentation: sc.indentation, Params: sc.params, Page: newPageForShortcode(p), Parent: parent, Name: sc.name}
+	data := &ShortcodeWithPage{
+		Ordinal:     sc.ordinal,
+		posOffset:   sc.pos,
+		indentation: sc.indentation,
+		Params:      sc.params,
+		Page:        newPageForShortcode(p),
+		Parent:      parent,
+		Name:        sc.name,
+	}
+
 	if sc.params != nil {
 		data.IsNamedParams = reflect.TypeOf(sc.params).Kind() == reflect.Map
 	}

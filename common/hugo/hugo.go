@@ -33,6 +33,7 @@ import (
 	"github.com/gohugoio/hugo/common/hcontext"
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/spf13/afero"
@@ -55,6 +56,8 @@ var (
 	vendorInfo string
 )
 
+var _ maps.StoreProvider = (*HugoInfo)(nil)
+
 // HugoInfo contains information about the current Hugo environment
 type HugoInfo struct {
 	CommitHash string
@@ -71,6 +74,8 @@ type HugoInfo struct {
 
 	conf ConfigProvider
 	deps []*Dependency
+
+	store *maps.Scratch
 
 	// Context gives access to some of the context scoped variables.
 	Context Context
@@ -114,6 +119,10 @@ func (i HugoInfo) WorkingDir() string {
 // Deps gets a list of dependencies for this Hugo build.
 func (i HugoInfo) Deps() []*Dependency {
 	return i.deps
+}
+
+func (i HugoInfo) Store() *maps.Scratch {
+	return i.store
 }
 
 // Deprecated: Use hugo.IsMultihost instead.
@@ -185,6 +194,7 @@ func NewInfo(conf ConfigProvider, deps []*Dependency) HugoInfo {
 		Environment: conf.Environment(),
 		conf:        conf,
 		deps:        deps,
+		store:       maps.NewScratch(),
 		GoVersion:   goVersion,
 	}
 }

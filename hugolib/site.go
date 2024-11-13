@@ -95,6 +95,7 @@ type Site struct {
 	language  *langs.Language
 	languagei int
 	pageMap   *pageMap
+	store     *maps.Scratch
 
 	// The owning container.
 	h *HugoSites
@@ -248,6 +249,7 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 			language:           language,
 			languagei:          i,
 			frontmatterHandler: frontmatterHandler,
+			store:              maps.NewScratch(),
 		}
 
 		if i == 0 {
@@ -612,6 +614,10 @@ func (s *Site) AllPages() page.Pages {
 func (s *Site) AllRegularPages() page.Pages {
 	s.CheckReady()
 	return s.h.RegularPages()
+}
+
+func (s *Site) Store() *maps.Scratch {
+	return s.store
 }
 
 func (s *Site) CheckReady() {
