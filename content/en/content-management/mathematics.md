@@ -137,7 +137,7 @@ These are block equations:
 a^*=x-b^*
 \]
 
-These are block equations using alternate delimiters:
+These are also block equations:
 
 $$a^*=x-b^*$$
 
