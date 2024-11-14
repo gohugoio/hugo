@@ -193,7 +193,7 @@ func (f *Finder) checkOne(sid *searchID, v Identity, depth int) (r FinderResult)
 			return FinderFoundOneOfManyRepetition
 		}
 
-		r = f.doCheckOne(sid, mi.Identity, depth)
+		r = f.doCheckOne(sid, mi.Identity)
 		if r == 0 {
 			r = f.checkManager(sid, mi.Manager, depth)
 		}
@@ -211,11 +211,11 @@ func (f *Finder) checkOne(sid *searchID, v Identity, depth int) (r FinderResult)
 		}
 		return r
 	} else {
-		return f.doCheckOne(sid, v, depth)
+		return f.doCheckOne(sid, v)
 	}
 }
 
-func (f *Finder) doCheckOne(sid *searchID, v Identity, depth int) FinderResult {
+func (f *Finder) doCheckOne(sid *searchID, v Identity) FinderResult {
 	id2 := Unwrap(v)
 	if id2 == Anonymous {
 		return FinderNotFound
