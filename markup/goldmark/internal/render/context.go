@@ -16,9 +16,13 @@ package render
 import (
 	"bytes"
 	"math/bits"
+	"strings"
 	"sync"
 
+	bp "github.com/gohugoio/hugo/bufferpool"
+
 	htext "github.com/gohugoio/hugo/common/text"
+	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
@@ -257,4 +261,31 @@ func (c *hookBase) Position() htext.Position {
 // For internal use.
 func (c *hookBase) PositionerSourceTarget() []byte {
 	return c.getSourceSample()
+}
+
+// TextPlain returns a plain text representation of the given node.
+// Goldmark's Node.Text was deprecated in 1.7.8.
+func TextPlain(n ast.Node, source []byte) string {
+	buf := bp.GetBuffer()
+	defer bp.PutBuffer(buf)
+
+	for c := n.FirstChild(); c != nil; c = c.NextSibling() {
+		textPlainTo(c, source, buf)
+	}
+	return buf.String()
+}
+
+func textPlainTo(c ast.Node, source []byte, buf *bytes.Buffer) {
+	if c == nil {
+		return
+	}
+	switch c := c.(type) {
+	case *ast.RawHTML:
+		s := strings.TrimSpace(tpl.StripHTML(string(c.Segments.Value(source))))
+		buf.WriteString(s)
+	case *ast.Text:
+		buf.Write(c.Segment.Value(source))
+	default:
+		textPlainTo(c.FirstChild(), source, buf)
+	}
 }

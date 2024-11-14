@@ -43,6 +43,7 @@ import (
 )
 
 const (
+	// Don't change this. This pattern is lso used in the image render hooks.
 	internalAttrPrefix = "_h__"
 )
 
