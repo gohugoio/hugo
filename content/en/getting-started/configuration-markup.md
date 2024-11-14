@@ -21,7 +21,7 @@ Hugo uses [Goldmark] to render Markdown to HTML.
 defaultMarkdownHandler = 'goldmark'
 {{< /code-toggle >}}
 
-Files with the `.md` or `.markdown` extension are processed as Markdown, provided that you have not specified a different [content format] using the `markup` field in front matter.
+Files with a `.md`, `.mdown`, or `.markdown` extension are processed as Markdown, provided that you have not specified a different [content format] using the `markup` field in front matter.
 
 To use a different renderer for Markdown files, specify one of `asciidocext`, `org`, `pandoc`, or `rst` in your site configuration.
 
