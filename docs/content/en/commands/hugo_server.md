@@ -54,6 +54,7 @@ hugo server [command] [flags]
       --noChmod                  don't sync permission mode of files
       --noHTTPCache              prevent HTTP caching
       --noTimes                  don't sync modification time of files
+  -O, --openBrowser              open the site in a browser after server startup
       --panicOnWarning           panic on first WARNING log
       --poll string              set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes
   -p, --port int                 port on which the server will listen (default 1313)
