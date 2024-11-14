@@ -62,7 +62,7 @@ func New(opts Options) Logger {
 	if terminal.PrintANSIColors(os.Stdout) {
 		logHandler = newDefaultHandler(opts.Stdout, opts.Stderr)
 	} else {
-		logHandler = newNoColoursHandler(opts.Stdout, opts.Stderr, false, nil)
+		logHandler = newNoAnsiEscapeHandler(opts.Stdout, opts.Stderr, false, nil)
 	}
 
 	errorsw := &strings.Builder{}
@@ -95,7 +95,7 @@ func New(opts Options) Logger {
 	}
 
 	if opts.StoreErrors {
-		h := newNoColoursHandler(io.Discard, errorsw, true, func(e *logg.Entry) bool {
+		h := newNoAnsiEscapeHandler(io.Discard, errorsw, true, func(e *logg.Entry) bool {
 			return e.Level >= logg.LevelError
 		})
 
