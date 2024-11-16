@@ -39,7 +39,6 @@ import (
 
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/htime"
-	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/types"
@@ -141,8 +140,6 @@ type rootCommand struct {
 
 	logLevel string
 
-	verbose bool
-	debug   bool
 	quiet   bool
 	devMode bool // Hidden flag.
 
@@ -482,17 +479,6 @@ func (r *rootCommand) createLogger(running bool) (loggers.Logger, error) {
 			default:
 				return nil, fmt.Errorf("invalid log level: %q, must be one of debug, warn, info or error", r.logLevel)
 			}
-		} else {
-			if r.verbose {
-				hugo.Deprecate("--verbose", "use --logLevel info", "v0.114.0")
-				hugo.Deprecate("--verbose", "use --logLevel info", "v0.114.0")
-				level = logg.LevelInfo
-			}
-
-			if r.debug {
-				hugo.Deprecate("--debug", "use --logLevel debug", "v0.114.0")
-				level = logg.LevelDebug
-			}
 		}
 	}
 
@@ -560,8 +546,6 @@ Complete documentation is available at https://gohugo.io/.`
 	cmd.PersistentFlags().BoolVar(&r.quiet, "quiet", false, "build in quiet mode")
 	cmd.PersistentFlags().BoolVarP(&r.renderToMemory, "renderToMemory", "M", false, "render to memory (mostly useful when running the server)")
 
-	cmd.PersistentFlags().BoolVarP(&r.verbose, "verbose", "v", false, "verbose output")
-	cmd.PersistentFlags().BoolVarP(&r.debug, "debug", "", false, "debug output")
 	cmd.PersistentFlags().BoolVarP(&r.devMode, "devMode", "", false, "only used for internal testing, flag hidden.")
 	cmd.PersistentFlags().StringVar(&r.logLevel, "logLevel", "", "log level (debug|info|warn|error)")
 	_ = cmd.RegisterFlagCompletionFunc("logLevel", cobra.FixedCompletions([]string{"debug", "info", "warn", "error"}, cobra.ShellCompDirectiveNoFileComp))

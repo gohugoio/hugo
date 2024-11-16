@@ -127,16 +127,6 @@ func (p *testPage) AlternativeOutputFormats() OutputFormats {
 	panic("testpage: not implemented")
 }
 
-// Deprecated: Use taxonomies instead.
-func (p *testPage) Author() Author {
-	return Author{}
-}
-
-// Deprecated: Use taxonomies instead.
-func (p *testPage) Authors() AuthorList {
-	return nil
-}
-
 func (p *testPage) BaseFileName() string {
 	panic("testpage: not implemented")
 }
@@ -199,14 +189,6 @@ func (p *testPage) Eq(other any) bool {
 
 func (p *testPage) ExpiryDate() time.Time {
 	return p.expiryDate
-}
-
-func (p *testPage) Ext() string {
-	panic("testpage: not implemented")
-}
-
-func (p *testPage) Extension() string {
-	panic("testpage: not implemented")
 }
 
 func (p *testPage) File() *source.File {
@@ -457,10 +439,6 @@ func (p *testPage) PrevPage() Page {
 
 func (p *testPage) PublishDate() time.Time {
 	return p.pubDate
-}
-
-func (p *testPage) RSSLink() template.URL {
-	return ""
 }
 
 func (p *testPage) RawContent() string {

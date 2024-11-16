@@ -57,7 +57,6 @@ type pageCommon struct {
 
 	// All of these represents the common parts of a page.Page
 	navigation.PageMenusProvider
-	page.AuthorProvider
 	page.AlternativeOutputFormatsProvider
 	page.ChildCareProvider
 	page.FileProvider

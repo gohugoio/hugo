@@ -232,39 +232,6 @@ func TestReverse(t *testing.T) {
 	c.Assert(err, qt.Not(qt.IsNil))
 }
 
-func TestEchoParam(t *testing.T) {
-	t.Skip("deprecated, will be removed in Hugo 0.133.0")
-	t.Parallel()
-	c := qt.New(t)
-
-	ns := newNs()
-
-	for i, test := range []struct {
-		a      any
-		key    any
-		expect any
-	}{
-		{[]int{1, 2, 3}, 1, int64(2)},
-		{[]uint{1, 2, 3}, 1, uint64(2)},
-		{[]float64{1.1, 2.2, 3.3}, 1, float64(2.2)},
-		{[]string{"foo", "bar", "baz"}, 1, "bar"},
-		{[]TstX{{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"}}, 1, ""},
-		{map[string]int{"foo": 1, "bar": 2, "baz": 3}, "bar", int64(2)},
-		{map[string]uint{"foo": 1, "bar": 2, "baz": 3}, "bar", uint64(2)},
-		{map[string]float64{"foo": 1.1, "bar": 2.2, "baz": 3.3}, "bar", float64(2.2)},
-		{map[string]string{"foo": "FOO", "bar": "BAR", "baz": "BAZ"}, "bar", "BAR"},
-		{map[string]TstX{"foo": {A: "a", B: "b"}, "bar": {A: "c", B: "d"}, "baz": {A: "e", B: "f"}}, "bar", ""},
-		{map[string]any{"foo": nil}, "foo", ""},
-		{(*[]string)(nil), "bar", ""},
-	} {
-		errMsg := qt.Commentf("[%d] %v", i, test)
-
-		result := ns.EchoParam(test.a, test.key)
-
-		c.Assert(result, qt.Equals, test.expect, errMsg)
-	}
-}
-
 func TestFirst(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)

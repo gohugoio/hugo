@@ -26,7 +26,6 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/collections"
-	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/deps"
@@ -187,54 +186,6 @@ func (ns *Namespace) Dictionary(values ...any) (map[string]any, error) {
 	}
 
 	return root, nil
-}
-
-// EchoParam returns the value in the collection c with key k if is set; otherwise, it returns an
-// empty string.
-// Deprecated: Use the index function instead.
-func (ns *Namespace) EchoParam(c, k any) any {
-	hugo.Deprecate("collections.EchoParam", "Use the index function instead.", "v0.120.0")
-	av, isNil := indirect(reflect.ValueOf(c))
-	if isNil {
-		return ""
-	}
-
-	var avv reflect.Value
-	switch av.Kind() {
-	case reflect.Array, reflect.Slice:
-		index, ok := k.(int)
-		if ok && av.Len() > index {
-			avv = av.Index(index)
-		}
-	case reflect.Map:
-		kv := reflect.ValueOf(k)
-		if kv.Type().AssignableTo(av.Type().Key()) {
-			avv = av.MapIndex(kv)
-		}
-	}
-
-	avv, isNil = indirect(avv)
-
-	if isNil {
-		return ""
-	}
-
-	if avv.IsValid() {
-		switch avv.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			return avv.Int()
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			return avv.Uint()
-		case reflect.Float32, reflect.Float64:
-			return avv.Float()
-		case reflect.String:
-			return avv.String()
-		case reflect.Bool:
-			return avv.Bool()
-		}
-	}
-
-	return ""
 }
 
 // First returns the first limit items in list l.
