@@ -242,6 +242,39 @@ func (r *hugoContextRenderer) handleHugoContext(w util.BufWriter, source []byte,
 	return ast.WalkContinue, nil
 }
 
+type hugoContextTransformer struct{}
+
+var _ parser.ASTTransformer = (*hugoContextTransformer)(nil)
+
+func (a *hugoContextTransformer) Transform(n *ast.Document, reader text.Reader, pc parser.Context) {
+	ast.Walk(n, func(n ast.Node, entering bool) (ast.WalkStatus, error) {
+		s := ast.WalkContinue
+		if !entering || n.Kind() != kindHugoContext {
+			return s, nil
+		}
+
+		if p, ok := n.Parent().(*ast.Paragraph); ok {
+			if p.ChildCount() == 1 {
+				// Avoid empty paragraphs.
+				p.Parent().ReplaceChild(p.Parent(), p, n)
+			} else {
+				if t, ok := n.PreviousSibling().(*ast.Text); ok {
+					// Remove the newline produced by the Hugo context markers.
+					if t.SoftLineBreak() {
+						if t.Segment.Len() == 0 {
+							p.RemoveChild(p, t)
+						} else {
+							t.SetSoftLineBreak(false)
+						}
+					}
+				}
+			}
+		}
+
+		return s, nil
+	})
+}
+
 type hugoContextExtension struct {
 	logger loggers.Logger
 }
@@ -251,6 +284,7 @@ func (a *hugoContextExtension) Extend(m goldmark.Markdown) {
 		parser.WithInlineParsers(
 			util.Prioritized(&hugoContextParser{}, 50),
 		),
+		parser.WithASTTransformers(util.Prioritized(&hugoContextTransformer{}, 10)),
 	)
 
 	m.Renderer().AddOptions(

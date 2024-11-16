@@ -434,16 +434,16 @@ code_p3
 	b := TestRunning(t, files, TestOptWarn())
 
 	b.AssertNoRenderShortcodesArtifacts()
-	b.AssertFileContentEquals("public/p1/index.html", "<p>Content p1 id-1000.</p>\n<code>code_p2</code><p>Foo.\n</p>\n<code>code_p3</code><p></p>\n<code>code_p1</code><code>code_p1_2</code><code>code_p1_3</code>")
+	b.AssertFileContentEquals("public/p1/index.html", "<p>Content p1 id-1000.</p>\n<code>code_p2</code><p>Foo.</p>\n<code>code_p3</code><code>code_p1</code><code>code_p1_2</code><code>code_p1_3</code>")
 	b.EditFileReplaceAll("content/p1.md", "id-1000.", "id-100.").Build()
 	b.AssertNoRenderShortcodesArtifacts()
-	b.AssertFileContentEquals("public/p1/index.html", "<p>Content p1 id-100.</p>\n<code>code_p2</code><p>Foo.\n</p>\n<code>code_p3</code><p></p>\n<code>code_p1</code><code>code_p1_2</code><code>code_p1_3</code>")
+	b.AssertFileContentEquals("public/p1/index.html", "<p>Content p1 id-100.</p>\n<code>code_p2</code><p>Foo.</p>\n<code>code_p3</code><code>code_p1</code><code>code_p1_2</code><code>code_p1_3</code>")
 	b.EditFileReplaceAll("content/p2.md", "code_p2", "codep2").Build()
 	b.AssertNoRenderShortcodesArtifacts()
-	b.AssertFileContentEquals("public/p1/index.html", "<p>Content p1 id-100.</p>\n<code>codep2</code><p>Foo.\n</p>\n<code>code_p3</code><p></p>\n<code>code_p1</code><code>code_p1_2</code><code>code_p1_3</code>")
+	b.AssertFileContentEquals("public/p1/index.html", "<p>Content p1 id-100.</p>\n<code>codep2</code><p>Foo.</p>\n<code>code_p3</code><code>code_p1</code><code>code_p1_2</code><code>code_p1_3</code>")
 	b.EditFileReplaceAll("content/p3.md", "code_p3", "code_p3_edited").Build()
 	b.AssertNoRenderShortcodesArtifacts()
-	b.AssertFileContentEquals("public/p1/index.html", "<p>Content p1 id-100.</p>\n<code>codep2</code><p>Foo.\n</p>\n<code>code_p3_edited</code><p></p>\n<code>code_p1</code><code>code_p1_2</code><code>code_p1_3</code>")
+	b.AssertFileContentEquals("public/p1/index.html", "<p>Content p1 id-100.</p>\n<code>codep2</code><p>Foo.</p>\n<code>code_p3_edited</code><code>code_p1</code><code>code_p1_2</code><code>code_p1_3</code>")
 }
 
 // Issue 13004.
@@ -475,8 +475,55 @@ This is some **markup**.
 `
 	b := TestRunning(t, files)
 	b.AssertNoRenderShortcodesArtifacts()
-	b.AssertFileContentEquals("public/first/p1/index.html", "<h2 id=\"p1-h1\">p1-h1</h2>\n<p></p>\n<h3 id=\"p2-h1\">p2-h1</h3>\n<p>This is some <strong>markup</strong>.\n</p>\n")
+	b.AssertFileContentEquals("public/first/p1/index.html", "<h2 id=\"p1-h1\">p1-h1</h2>\n<h3 id=\"p2-h1\">p2-h1</h3>\n<p>This is some <strong>markup</strong>.</p>\n")
 	b.EditFileReplaceAll("content/second/p2.md", "p2-h1", "p2-h1-edited").Build()
 	b.AssertNoRenderShortcodesArtifacts()
-	b.AssertFileContentEquals("public/first/p1/index.html", "<h2 id=\"p1-h1\">p1-h1</h2>\n<p></p>\n<h3 id=\"p2-h1-edited\">p2-h1-edited</h3>\n<p>This is some <strong>markup</strong>.\n</p>\n")
+	b.AssertFileContentEquals("public/first/p1/index.html", "<h2 id=\"p1-h1\">p1-h1</h2>\n<h3 id=\"p2-h1-edited\">p2-h1-edited</h3>\n<p>This is some <strong>markup</strong>.</p>\n")
+}
+
+// Issue 13051.
+func TestRenderShortcodesEmptyParagraph(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['section','rss','sitemap','taxonomy','term']
+-- layouts/_default/home.html --
+{{ .Content }}
+-- layouts/_default/single.html --
+{{ .Content }}
+-- layouts/shortcodes/include.html --
+ {{ with site.GetPage (.Get 0) }}
+  {{ .RenderShortcodes }}
+{{ end }}
+-- content/_index.md --
+---
+title: home
+---
+
+a
+
+{{% include "/snippet" %}}
+
+b
+
+-- content/snippet.md --
+---
+title: snippet
+build:
+  render: never
+  list: never
+---
+
+_emphasized_
+
+not emphasized
+
+`
+
+	b := Test(t, files)
+	b.AssertNoRenderShortcodesArtifacts()
+	b.AssertFileContentEquals("public/index.html",
+		"<p>a</p>\n<p><em>emphasized</em></p>\n<p>not emphasized</p>\n<p>b</p>\n",
+	)
 }
