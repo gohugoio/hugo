@@ -575,7 +575,7 @@ sc3_begin|{{ .Inner }}|sc3_end
 		// Issue #7332
 		"<span>:x:\n</span>",
 		// Issue #11587
-		"<p>&#x2714;&#xfe0f;\n</p>",
+		"<p>&#x2714;&#xfe0f;</p>",
 		// Should not be converted to emoji
 		"sc1_begin|:smiley:|sc1_end",
 		// Should be converted to emoji
