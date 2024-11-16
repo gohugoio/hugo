@@ -155,6 +155,23 @@ archive_alias_replacements = { "linux-amd64.tar.gz" = "Linux-64bit.tar.gz" }
             goarch = "arm64"
 
 [[builds]]
+    path = "container2/linux/extended-withdeploy"
+
+    [builds.build_settings]
+        flags = ["-buildmode", "exe", "-tags", "extended,withdeploy"]
+
+    [[builds.os]]
+        goos = "linux"
+        [builds.os.build_settings]
+            env = [
+                "CGO_ENABLED=1",
+                "CC=aarch64-linux-gnu-gcc",
+                "CXX=aarch64-linux-gnu-g++",
+            ]
+        [[builds.os.archs]]
+            goarch = "arm64"
+
+[[builds]]
     path = "container1/windows/regular"
 
     [[builds.os]]
@@ -215,10 +232,13 @@ archive_alias_replacements = { "linux-amd64.tar.gz" = "Linux-64bit.tar.gz" }
     [archives.archive_settings]
         name_template = "{{ .Project }}_extended_withdeploy_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
 [[archives]]
-    # Only extended builds in container2.
-    paths = ["builds/container2/**"]
+    paths = ["builds/container2/*/extended/**"]
     [archives.archive_settings]
         name_template = "{{ .Project }}_extended_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
+[[archives]]
+    paths = ["builds/container2/*/extended-withdeploy/**"]
+    [archives.archive_settings]
+        name_template = "{{ .Project }}_extended_withdeploy_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
 [[archives]]
     paths = ["builds/**/windows/regular/**"]
     [archives.archive_settings.type]
