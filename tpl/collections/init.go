@@ -67,11 +67,6 @@ func init() {
 			[][2]string{},
 		)
 
-		ns.AddMethodMapping(ctx.EchoParam,
-			[]string{"echoParam"},
-			[][2]string{},
-		)
-
 		ns.AddMethodMapping(ctx.First,
 			[]string{"first"},
 			[][2]string{},

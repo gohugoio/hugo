@@ -17,7 +17,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"html/template"
 	"io"
 	"mime"
 	"net/url"
@@ -412,12 +411,6 @@ func newHugoSites(cfg deps.DepsCfg, d *deps.Deps, pageTrees *pageTrees, sites []
 	return h, nil
 }
 
-// Deprecated: Use hugo.IsServer instead.
-func (s *Site) IsServer() bool {
-	hugo.Deprecate(".Site.IsServer", "Use hugo.IsServer instead.", "v0.120.0")
-	return s.conf.Internal.Running
-}
-
 // Returns the server port.
 func (s *Site) ServerPort() int {
 	return s.conf.C.BaseURL.Port()
@@ -430,13 +423,6 @@ func (s *Site) Title() string {
 
 func (s *Site) Copyright() string {
 	return s.conf.Copyright
-}
-
-// Deprecated: Use .Site.Home.OutputFormats.Get "rss" instead.
-func (s *Site) RSSLink() template.URL {
-	hugo.Deprecate(".Site.RSSLink", "Use the Output Format's Permalink method instead, e.g. .OutputFormats.Get \"RSS\".Permalink", "v0.114.0")
-	rssOutputFormat := s.home.OutputFormats().Get("rss")
-	return template.URL(rssOutputFormat.Permalink())
 }
 
 func (s *Site) Config() page.SiteConfig {
@@ -518,18 +504,6 @@ func (s *Site) Authors() page.AuthorList {
 func (s *Site) Social() map[string]string {
 	hugo.Deprecate(".Site.Social", "Implement taxonomy 'social' or use .Site.Params.Social instead.", "v0.124.0")
 	return s.conf.Social
-}
-
-// Deprecated: Use .Site.Config.Services.Disqus.Shortname instead.
-func (s *Site) DisqusShortname() string {
-	hugo.Deprecate(".Site.DisqusShortname", "Use .Site.Config.Services.Disqus.Shortname instead.", "v0.120.0")
-	return s.Config().Services.Disqus.Shortname
-}
-
-// Deprecated: Use .Site.Config.Services.GoogleAnalytics.ID instead.
-func (s *Site) GoogleAnalytics() string {
-	hugo.Deprecate(".Site.GoogleAnalytics", "Use .Site.Config.Services.GoogleAnalytics.ID instead.", "v0.120.0")
-	return s.Config().Services.GoogleAnalytics.ID
 }
 
 func (s *Site) Param(key any) (any, error) {

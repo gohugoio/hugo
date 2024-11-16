@@ -32,7 +32,6 @@ import (
 
 	"github.com/gohugoio/hugo/common/constants"
 	"github.com/gohugoio/hugo/common/hashing"
-	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
@@ -106,23 +105,6 @@ func (m *pageMetaParams) init(preserveOringal bool) {
 
 func (p *pageMeta) Aliases() []string {
 	return p.pageConfig.Aliases
-}
-
-// Deprecated: Use taxonomies instead.
-func (p *pageMeta) Author() page.Author {
-	hugo.Deprecate(".Page.Author", "Use taxonomies instead.", "v0.98.0")
-	authors := p.Authors()
-
-	for _, author := range authors {
-		return author
-	}
-	return page.Author{}
-}
-
-// Deprecated: Use taxonomies instead.
-func (p *pageMeta) Authors() page.AuthorList {
-	hugo.Deprecate(".Page.Authors", "Use taxonomies instead.", "v0.112.0")
-	return nil
 }
 
 func (p *pageMeta) BundleType() string {

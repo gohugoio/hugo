@@ -888,29 +888,16 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 		var differentRootKeys []string
 		switch x := v.(type) {
 		case maps.Params:
-			var params maps.Params
-			pv, found := x["params"]
-			if found {
-				params = pv.(maps.Params)
-			} else {
-				params = maps.Params{
+			_, found := x["params"]
+			if !found {
+				x["params"] = maps.Params{
 					maps.MergeStrategyKey: maps.ParamsMergeStrategyDeep,
 				}
-				x["params"] = params
 			}
 
 			for kk, vv := range x {
 				if kk == "_merge" {
 					continue
-				}
-				if kk != maps.MergeStrategyKey && !configLanguageKeys[kk] {
-					// This should have been placed below params.
-					// We accidentally allowed it in the past, so we need to support it a little longer,
-					// But log a warning.
-					if _, found := params[kk]; !found {
-						hugo.Deprecate(fmt.Sprintf("config: languages.%s.%s: custom params on the language top level", k, kk), fmt.Sprintf("Put the value below [languages.%s.params]. See https://gohugo.io/content-management/multilingual/#changes-in-hugo-01120", k), "v0.112.0")
-						params[kk] = vv
-					}
 				}
 				if kk == "baseurl" {
 					// baseURL configure don the language level is a multihost setup.

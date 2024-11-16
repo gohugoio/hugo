@@ -183,7 +183,6 @@ func (h *HugoSites) doNewPage(m *pageMeta) (*pageState, *paths.Path, error) {
 			dependencyManager:                 m.s.Conf.NewIdentityManager(m.Path()),
 			pageCommon: &pageCommon{
 				FileProvider:              m,
-				AuthorProvider:            m,
 				store:                     maps.NewScratch(),
 				Positioner:                page.NopPage,
 				InSectionPositioner:       page.NopPage,

@@ -56,13 +56,6 @@ func (fi *File) Dir() string {
 	return fi.pathToDir(fi.p().Dir())
 }
 
-// Extension is an alias to Ext().
-// Deprecated: Use Ext() instead.
-func (fi *File) Extension() string {
-	hugo.Deprecate(".File.Extension", "Use .File.Ext instead.", "v0.96.0")
-	return fi.Ext()
-}
-
 // Ext returns a file's extension without the leading period (e.g. "md").
 func (fi *File) Ext() string { return fi.p().Ext() }
 
