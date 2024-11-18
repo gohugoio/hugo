@@ -86,6 +86,9 @@ includePaths
 {{ end }}
 ```
 
+silenceDeprecations
+: (`slice`) {{< new-in 0.139.0 >}} A slice of deprecation IDs to silence. The deprecation IDs are printed to in the warning message, e.g "import" in `WARN  Dart Sass: DEPRECATED [import] ...`. This is for Dart Sass only.
+
 ## Dart Sass
 
 The extended version of Hugo includes [LibSass] to transpile Sass to CSS. In 2020, the Sass team deprecated LibSass in favor of [Dart Sass].
