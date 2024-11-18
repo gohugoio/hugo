@@ -1595,6 +1595,10 @@ func (sa *sitePagesAssembler) applyAggregatesToTaxonomiesAndTerms() error {
 }
 
 func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
+	if sa.pageMap.cfg.taxonomyTermDisabled {
+		return nil
+	}
+
 	var (
 		pages   = sa.pageMap.treePages
 		entries = sa.pageMap.treeTaxonomyEntries
@@ -1609,10 +1613,6 @@ func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
 			ps := n.(*pageState)
 
 			if ps.m.noLink() {
-				return false, nil
-			}
-
-			if sa.pageMap.cfg.taxonomyTermDisabled {
 				return false, nil
 			}
 
@@ -1674,6 +1674,7 @@ func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
 					})
 				}
 			}
+
 			return false, nil
 		},
 	}

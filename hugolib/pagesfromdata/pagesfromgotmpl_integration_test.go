@@ -678,3 +678,33 @@ summary: {{ .Summary }}|content: {{ .Content}}
 		"<p>aaa</p>|content: <p>aaa</p>\n<p>bbb</p>",
 	)
 }
+
+// Issue 13063.
+func TestPagesFromGoTmplTermIsEmpty(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ['section', 'home', 'rss','sitemap']
+printPathWarnings = true
+[taxonomies]
+tag = "tags"
+-- content/mypost.md --
+---
+title: "My Post"
+tags: ["mytag"]
+---
+-- content/tags/_content.gotmpl --
+{{ .AddPage (dict "path" "mothertag" "title" "My title" "kind" "term") }}
+--
+-- layouts/_default/taxonomy.html --
+Terms: {{ range .Data.Terms.ByCount }}{{ .Name }}: {{ .Count }}|{{ end }}§s
+-- layouts/_default/single.html --
+Single.
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
+
+	b.AssertFileContent("public/tags/index.html", "Terms: mytag: 1|§s")
+}
