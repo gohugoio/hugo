@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 	"sync/atomic"
 
@@ -140,6 +141,7 @@ func (h *HugoSites) doNewPage(m *pageMeta) (*pageState, *paths.Path, error) {
 			}
 		}
 
+		var tc viewName
 		// Identify Page Kind.
 		if m.pageConfig.Kind == "" {
 			m.pageConfig.Kind = kinds.KindSection
@@ -147,20 +149,30 @@ func (h *HugoSites) doNewPage(m *pageMeta) (*pageState, *paths.Path, error) {
 				m.pageConfig.Kind = kinds.KindHome
 			} else if m.pathInfo.IsBranchBundle() {
 				// A section, taxonomy or term.
-				tc := m.s.pageMap.cfg.getTaxonomyConfig(m.Path())
+				tc = m.s.pageMap.cfg.getTaxonomyConfig(m.Path())
 				if !tc.IsZero() {
 					// Either a taxonomy or a term.
 					if tc.pluralTreeKey == m.Path() {
 						m.pageConfig.Kind = kinds.KindTaxonomy
-						m.singular = tc.singular
 					} else {
 						m.pageConfig.Kind = kinds.KindTerm
-						m.term = m.pathInfo.Unnormalized().BaseNameNoIdentifier()
-						m.singular = tc.singular
 					}
 				}
 			} else if m.f != nil {
 				m.pageConfig.Kind = kinds.KindPage
+			}
+		}
+
+		if m.pageConfig.Kind == kinds.KindTerm || m.pageConfig.Kind == kinds.KindTaxonomy {
+			if tc.IsZero() {
+				tc = m.s.pageMap.cfg.getTaxonomyConfig(m.Path())
+			}
+			if tc.IsZero() {
+				return nil, fmt.Errorf("no taxonomy configuration found for %q", m.Path())
+			}
+			m.singular = tc.singular
+			if m.pageConfig.Kind == kinds.KindTerm {
+				m.term = paths.TrimLeading(strings.TrimPrefix(m.pathInfo.Unnormalized().Base(), tc.pluralTreeKey))
 			}
 		}
 
