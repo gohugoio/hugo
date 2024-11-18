@@ -86,9 +86,9 @@ Type
 Site
 : (`page.Site`) The current site object. See [details](/methods/site/).
 
-## Alternate date format
+## Date format
 
-To insert date and time with an alternate format, use the [`time.Now`] function:
+To insert date and time with a different format, use the [`time.Now`] function:
 
 [`time.Now`]: /functions/time/now/
 
@@ -169,9 +169,9 @@ content/
 └── _index.md
 ```
 
-## Use alternate archetype
+## Specify archetype
 
-Use the `--kind` command line flag to specify an alternate archetype when creating content.
+Use the `--kind` command line flag to specify an archetype when creating content.
 
 For example, let's say your site has two sections: articles and tutorials. Create an archetype for each content type:
 
