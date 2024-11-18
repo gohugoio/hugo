@@ -20,7 +20,6 @@ import (
 	"io"
 	"strings"
 
-	godartsassv1 "github.com/bep/godartsass"
 	"github.com/bep/godartsass/v2"
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/herrors"
@@ -52,54 +51,39 @@ func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) (*Client, error) 
 		return nil, fmt.Errorf("no Dart Sass binary found in $PATH")
 	}
 
+	if !hugo.IsDartSassGeV2() {
+		return nil, fmt.Errorf("unsupported Dart Sass version detected, please upgrade to Dart Sass 2.0 or later, see https://gohugo.io/functions/css/sass/#dart-sass")
+	}
+
 	if err := rs.ExecHelper.Sec().CheckAllowedExec(hugo.DartSassBinaryName); err != nil {
 		return nil, err
 	}
 
 	var (
-		transpiler   *godartsass.Transpiler
-		transpilerv1 *godartsassv1.Transpiler
-		err          error
-		infol        = rs.Logger.InfoCommand("Dart Sass")
-		warnl        = rs.Logger.WarnCommand("Dart Sass")
+		transpiler *godartsass.Transpiler
+		err        error
+		infol      = rs.Logger.InfoCommand("Dart Sass")
+		warnl      = rs.Logger.WarnCommand("Dart Sass")
 	)
 
-	if hugo.IsDartSassV2() {
-		transpiler, err = godartsass.Start(godartsass.Options{
-			DartSassEmbeddedFilename: hugo.DartSassBinaryName,
-			LogEventHandler: func(event godartsass.LogEvent) {
-				message := strings.ReplaceAll(event.Message, dartSassStdinPrefix, "")
-				switch event.Type {
-				case godartsass.LogEventTypeDebug:
-					// Log as Info for now, we may adjust this if it gets too chatty.
-					infol.Log(logg.String(message))
-				default:
-					// The rest are either deprecations or @warn statements.
-					warnl.Log(logg.String(message))
-				}
-			},
-		})
-	} else {
-		transpilerv1, err = godartsassv1.Start(godartsassv1.Options{
-			DartSassEmbeddedFilename: hugo.DartSassBinaryName,
-			LogEventHandler: func(event godartsassv1.LogEvent) {
-				message := strings.ReplaceAll(event.Message, dartSassStdinPrefix, "")
-				switch event.Type {
-				case godartsassv1.LogEventTypeDebug:
-					// Log as Info for now, we may adjust this if it gets too chatty.
-					infol.Log(logg.String(message))
-				default:
-					// The rest are either deprecations or @warn statements.
-					warnl.Log(logg.String(message))
-				}
-			},
-		})
-	}
-
+	transpiler, err = godartsass.Start(godartsass.Options{
+		DartSassEmbeddedFilename: hugo.DartSassBinaryName,
+		LogEventHandler: func(event godartsass.LogEvent) {
+			message := strings.ReplaceAll(event.Message, dartSassStdinPrefix, "")
+			switch event.Type {
+			case godartsass.LogEventTypeDebug:
+				// Log as Info for now, we may adjust this if it gets too chatty.
+				infol.Log(logg.String(message))
+			default:
+				// The rest are either deprecations or @warn statements.
+				warnl.Log(logg.String(message))
+			}
+		},
+	})
 	if err != nil {
 		return nil, err
 	}
-	return &Client{sfs: fs, workFs: rs.BaseFs.Work, rs: rs, transpiler: transpiler, transpilerV1: transpilerv1}, nil
+	return &Client{sfs: fs, workFs: rs.BaseFs.Work, rs: rs, transpiler: transpiler}, nil
 }
 
 type Client struct {
@@ -108,9 +92,7 @@ type Client struct {
 	sfs                  *filesystems.SourceFilesystem
 	workFs               afero.Fs
 
-	// One of these are non-nil.
-	transpiler   *godartsass.Transpiler
-	transpilerV1 *godartsassv1.Transpiler
+	transpiler *godartsass.Transpiler
 }
 
 func (c *Client) ToCSS(res resources.ResourceTransformer, args map[string]any) (resource.Resource, error) {
@@ -121,13 +103,7 @@ func (c *Client) ToCSS(res resources.ResourceTransformer, args map[string]any) (
 }
 
 func (c *Client) Close() error {
-	if c.transpilerV1 != nil {
-		return c.transpilerV1.Close()
-	}
-	if c.transpiler != nil {
-		return c.transpiler.Close()
-	}
-	return nil
+	return c.transpiler.Close()
 }
 
 func (c *Client) toCSS(args godartsass.Args, src io.Reader) (godartsass.Result, error) {
@@ -135,26 +111,7 @@ func (c *Client) toCSS(args godartsass.Args, src io.Reader) (godartsass.Result, 
 
 	args.Source = in
 
-	var (
-		err error
-		res godartsass.Result
-	)
-
-	if c.transpilerV1 != nil {
-		var resv1 godartsassv1.Result
-		var argsv1 godartsassv1.Args
-		mapstructure.Decode(args, &argsv1)
-		if args.ImportResolver != nil {
-			argsv1.ImportResolver = importResolverV1{args.ImportResolver}
-		}
-		resv1, err = c.transpilerV1.Execute(argsv1)
-		if err == nil {
-			mapstructure.Decode(resv1, &res)
-		}
-	} else {
-		res, err = c.transpiler.Execute(args)
-	}
-
+	res, err := c.transpiler.Execute(args)
 	if err != nil {
 		if err.Error() == "unexpected EOF" {
 			//lint:ignore ST1005 end user message.
