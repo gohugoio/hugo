@@ -89,6 +89,7 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 		OutputStyle:             godartsass.ParseOutputStyle(opts.OutputStyle),
 		EnableSourceMap:         opts.EnableSourceMap,
 		SourceMapIncludeSources: opts.SourceMapIncludeSources,
+		SilenceDeprecations:     opts.SilenceDeprecations,
 	}
 
 	// Append any workDir relative include paths

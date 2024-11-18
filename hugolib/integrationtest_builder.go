@@ -76,6 +76,13 @@ func TestOptWarn() TestOpt {
 	}
 }
 
+// TestOptOsFs will enable the real file system in integration tests.
+func TestOptOsFs() TestOpt {
+	return func(c *IntegrationTestConfig) {
+		c.NeedsOsFS = true
+	}
+}
+
 // TestOptWithNFDOnDarwin will normalize the Unicode filenames to NFD on Darwin.
 func TestOptWithNFDOnDarwin() TestOpt {
 	return func(c *IntegrationTestConfig) {
