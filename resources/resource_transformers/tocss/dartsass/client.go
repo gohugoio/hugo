@@ -52,7 +52,7 @@ func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) (*Client, error) 
 	}
 
 	if !hugo.IsDartSassGeV2() {
-		return nil, fmt.Errorf("unsupported Dart Sass version detected, please upgrade to Dart Sass 2.0 or later, see https://gohugo.io/functions/css/sass/#dart-sass")
+		return nil, fmt.Errorf("unsupported Dart Sass version detected, please upgrade to Dart Sass 1.63.0 or later, see https://gohugo.io/functions/css/sass/#dart-sass")
 	}
 
 	if err := rs.ExecHelper.Sec().CheckAllowedExec(hugo.DartSassBinaryName); err != nil {
