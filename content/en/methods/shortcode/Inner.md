@@ -11,6 +11,7 @@ action:
     - methods/shortcode/InnerDeindent
   returnType: template.HTML
   signatures: [SHORTCODE.Inner]
+toc: true
 ---
 
 This content:
@@ -56,7 +57,7 @@ In the example above, the value returned by `Inner` is Markdown, but it was rend
 {{% /note %}}
 
 
-## Use the RenderString method
+## Use RenderString
 
 Let's modify the example above to pass the value returned by `Inner` through the [`RenderString`] method on the `Page` object:
 
@@ -89,7 +90,7 @@ You can use the [`markdownify`] function instead of the `RenderString` method, b
 [details]: /methods/page/renderstring/
 [`markdownify`]: /functions/transform/markdownify/
 
-## Use alternate notation
+## Alternative notation
 
 Instead of calling the shortcode with the `{{</* */>}}` notation, use the `{{%/* */%}}` notation:
 
