@@ -35,7 +35,6 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs"
 
-	godartsassv1 "github.com/bep/godartsass"
 	"github.com/bep/godartsass/v2"
 )
 
@@ -205,13 +204,4 @@ func (t importResolver) Load(url string) (godartsass.Import, error) {
 	}
 
 	return godartsass.Import{Content: string(b), SourceSyntax: sourceSyntax}, err
-}
-
-type importResolverV1 struct {
-	godartsass.ImportResolver
-}
-
-func (t importResolverV1) Load(url string) (godartsassv1.Import, error) {
-	res, err := t.ImportResolver.Load(url)
-	return godartsassv1.Import{Content: res.Content, SourceSyntax: godartsassv1.SourceSyntax(res.SourceSyntax)}, err
 }
