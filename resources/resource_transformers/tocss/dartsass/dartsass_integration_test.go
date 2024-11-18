@@ -605,3 +605,38 @@ module hugo-github-issue-12849
 
 	b.AssertFileContent("public/index.html", ".foo{color:red}.bar{color:green}")
 }
+
+func TestIgnoreDeprecationWarnings(t *testing.T) {
+	t.Parallel()
+	if !dartsass.Supports() {
+		t.Skip()
+	}
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','section','rss','sitemap','taxonomy','term']
+-- assets/scss/main.scss --
+@import "moo";
+-- node_modules/foo/_moo.scss --
+$moolor: #fff;
+
+moo {
+  color: $moolor;
+}
+-- config.toml --
+-- layouts/index.html --
+{{ $cssOpts := (dict "includePaths" (slice "node_modules/foo") "transpiler" "dartsass" ) }}
+{{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts  | minify  }}
+T1: {{ $r.Content }}
+	`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs(), hugolib.TestOptWarn())
+	b.AssertLogContains("Dart Sass: DEPRECATED [import]")
+	b.AssertFileContent("public/index.html", `moo{color:#fff}`)
+
+	files = strings.ReplaceAll(files, `"transpiler" "dartsass"`, `"transpiler" "dartsass" "silenceDeprecations" (slice "import")`)
+
+	b = hugolib.Test(t, files, hugolib.TestOptOsFs(), hugolib.TestOptWarn())
+	b.AssertLogContains("! Dart Sass: DEPRECATED [import]")
+	b.AssertFileContent("public/index.html", `moo{color:#fff}`)
+}

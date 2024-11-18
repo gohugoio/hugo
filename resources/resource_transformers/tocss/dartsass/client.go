@@ -74,8 +74,10 @@ func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) (*Client, error) 
 			case godartsass.LogEventTypeDebug:
 				// Log as Info for now, we may adjust this if it gets too chatty.
 				infol.Log(logg.String(message))
+			case godartsass.LogEventTypeDeprecated:
+				warnl.Logf("DEPRECATED [%s]: %s", event.DeprecationType, message)
 			default:
-				// The rest are either deprecations or @warn statements.
+				// The rest are @warn statements.
 				warnl.Log(logg.String(message))
 			}
 		},
@@ -151,6 +153,11 @@ type Options struct {
 	//     @use "hugo:vars";
 	//     $color: vars.$color;
 	Vars map[string]any
+
+	// Deprecations IDs in this slice will be silenced.
+	// The IDs can be found in the Dart Sass log output, e.g. "import" in
+	//    WARN  Dart Sass: DEPRECATED [import].
+	SilenceDeprecations []string
 }
 
 func decodeOptions(m map[string]any) (opts Options, err error) {
