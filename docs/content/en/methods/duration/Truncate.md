@@ -5,7 +5,6 @@ categories: []
 keywords: []
 action:
   related:
-  related:
     - functions/time/Duration
     - functions/time/ParseDuration
   returnType: time.Duration

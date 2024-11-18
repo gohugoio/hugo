@@ -62,7 +62,7 @@ precision
 enableSourceMap
 : (`bool`) If `true`, generates a source map.
 
-sourceMapIncludeSources {{< new-in 0.108.0 >}}
+sourceMapIncludeSources
 : (`bool`) If `true`, embeds sources in the generated source map. Not applicable to LibSass.
 
 includePaths
