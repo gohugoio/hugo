@@ -21,14 +21,21 @@
     {{- $releases = where $releases "draft" false }}
     {{- $releases = where $releases "prerelease" false }}
     {{- range $releases | first 20 }}
+      {{- $publishDate := .published_at | time.AsTime }}
+
+      {{- /* Correct the v0.138.0 release date. See https://github.com/gohugoio/hugo/issues/13066. */}}
+      {{- if eq .name "v0.138.0" }}
+        {{- $publishDate = "2024-11-06T11:22:34Z" | time.AsTime }}
+      {{- end }}
+
       {{- $summary := printf
         "Hugo %s was released on %s. See [release notes](%s) for details."
         .tag_name
-        (.published_at | time.AsTime | time.Format "2 Jan 2006")
+        ($publishDate | time.AsTime | time.Format "2 Jan 2006")
         .html_url
       }}
       {{- $ctx := dict
-        "PublishDate" (.published_at | time.AsTime)
+        "PublishDate" $publishDate
         "Title" (printf "Release %s" .name)
         "Permalink" .html_url
         "Section" "news"
