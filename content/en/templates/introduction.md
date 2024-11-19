@@ -167,7 +167,7 @@ Whitespace includes spaces, horizontal tabs, carriage returns, and newlines.
 
 ### Pipes
 
-Within a template action you may [pipe] a value to function or method. The piped value becomes the final argument to the function or method. For example, these are equivalent:
+Within a template action you may [pipe] a value to a function or method. The piped value becomes the final argument to the function or method. For example, these are equivalent:
 
 [pipe]: /getting-started/glossary/#pipeline
 
