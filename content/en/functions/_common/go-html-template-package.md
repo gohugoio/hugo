@@ -1,5 +1,5 @@
 ---
-# Do not remove front matter.
+_comment: Do not remove front matter.
 ---
 
 Hugo uses Go's [text/template] and [html/template] packages.

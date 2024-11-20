@@ -1,5 +1,5 @@
 ---
-# Do not remove front matter.
+_comment: Do not remove front matter.
 ---
 
 Hugo determines the _next_ and _previous_ page by sorting the current section's regular pages according to this sorting hierarchy:

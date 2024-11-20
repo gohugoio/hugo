@@ -1,5 +1,5 @@
 ---
-# Do not remove front matter.
+_comment: Do not remove front matter.
 ---
 
 The documentation for Go's [fmt] package describes the structure and content of the format string.

@@ -1,5 +1,5 @@
 ---
-# Do not remove front matter.
+_comment: Do not remove front matter.
 ---
 
 An ordered taxonomy is a slice, where each element is an object that contains the term and a slice of its weighted pages.
