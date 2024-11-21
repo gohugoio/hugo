@@ -70,7 +70,7 @@ hello:
    other: "Bonjour"
 -- layouts/index.html --
 {{ $options := dict "inlineImports" true }}
-{{ $styles := resources.Get "css/styles.css" | resources.PostCSS $options }}
+{{ $styles := resources.Get "css/styles.css" | css.PostCSS $options }}
 Styles RelPermalink: {{ $styles.RelPermalink }}
 {{ $cssContent := $styles.Content }}
 Styles Content: Len: {{ len $styles.Content }}|
