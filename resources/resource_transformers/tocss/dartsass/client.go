@@ -44,7 +44,7 @@ const dartSassStdinPrefix = "hugostdin:"
 
 func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) (*Client, error) {
 	if !Supports() {
-		return &Client{dartSassNotAvailable: true}, nil
+		return &Client{}, nil
 	}
 
 	if hugo.DartSassBinaryName == "" {
@@ -89,22 +89,25 @@ func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) (*Client, error) 
 }
 
 type Client struct {
-	dartSassNotAvailable bool
-	rs                   *resources.Spec
-	sfs                  *filesystems.SourceFilesystem
-	workFs               afero.Fs
+	rs     *resources.Spec
+	sfs    *filesystems.SourceFilesystem
+	workFs afero.Fs
 
+	// This may be nil if Dart Sass is not available.
 	transpiler *godartsass.Transpiler
 }
 
 func (c *Client) ToCSS(res resources.ResourceTransformer, args map[string]any) (resource.Resource, error) {
-	if c.dartSassNotAvailable {
+	if c.transpiler == nil {
 		return res.Transform(resources.NewFeatureNotAvailableTransformer(transformationName, args))
 	}
 	return res.Transform(&transform{c: c, optsm: args})
 }
 
 func (c *Client) Close() error {
+	if c.transpiler == nil {
+		return nil
+	}
 	return c.transpiler.Close()
 }
 
