@@ -1,24 +1,22 @@
 ---
 title: Store
-linktitle: PAGE.Store
-description: Returns a persistent "scratch pad" on the given page to store and manipulate data.
+linktitle: site.Store
+description: Returns a persistent "scratch pad" on the given site to store and manipulate data.
 categories: []
 keywords: []
 action:
   related:
-  - methods/page/scratch
-  - methods/site/store
+  - methods/page/store
   - functions/hugo/store
   - functions/collections/NewScratch
   returnType: maps.Scratch
-  signatures: [PAGE.Store]
+  signatures: [site.Store]
 toc: true
-aliases: [/functions/store]
 ---
 
-The `Store` method on a `Page` object creates a persistent [scratch pad] to store and manipulate data. To create a locally scoped scratch pad that is not attached to a `Page` object, use the [`newScratch`] function.
+The `Store` method on a `Site` object creates a persistent [scratch pad] to store and manipulate data. To create a locally scoped scratch pad that is not attached to a `Site` object, use the [`newScratch`] function.
 
-[`Scratch`]: /methods/page/scratch/
+[`Scratch`]: /methods/site/scratch/
 [`newScratch`]: /functions/collections/newscratch/
 [scratch pad]: /getting-started/glossary/#scratch-pad
 
@@ -29,7 +27,7 @@ The `Store` method on a `Page` object creates a persistent [scratch pad] to stor
 Sets the value of a given key.
 
 ```go-html-template
-{{ .Store.Set "greeting" "Hello" }}
+{{ site.Store.Set "greeting" "Hello" }}
 ```
 
 ###### Get
@@ -37,8 +35,8 @@ Sets the value of a given key.
 Gets the value of a given key.
 
 ```go-html-template
-{{ .Store.Set "greeting" "Hello" }}
-{{ .Store.Get "greeting" }} → Hello
+{{ site.Store.Set "greeting" "Hello" }}
+{{ site.Store.Get "greeting" }} → Hello
 ```
 
 ###### Add
@@ -48,21 +46,21 @@ Adds a given value to existing value(s) of the given key.
 For single values, `Add` accepts values that support Go's `+` operator. If the first `Add` for a key is an array or slice, the following adds will be appended to that list.
 
 ```go-html-template
-{{ .Store.Set "greeting" "Hello" }}
-{{ .Store.Add "greeting" "Welcome" }}
-{{ .Store.Get "greeting" }} → HelloWelcome
+{{ site.Store.Set "greeting" "Hello" }}
+{{ site.Store.Add "greeting" "Welcome" }}
+{{ site.Store.Get "greeting" }} → HelloWelcome
 ```
 
 ```go-html-template
-{{ .Store.Set "total" 3 }}
-{{ .Store.Add "total" 7 }}
-{{ .Store.Get "total" }} → 10
+{{ site.Store.Set "total" 3 }}
+{{ site.Store.Add "total" 7 }}
+{{ site.Store.Get "total" }} → 10
 ```
 
 ```go-html-template
-{{ .Store.Set "greetings" (slice "Hello") }}
-{{ .Store.Add "greetings" (slice "Welcome" "Cheers") }}
-{{ .Store.Get "greetings" }} → [Hello Welcome Cheers]
+{{ site.Store.Set "greetings" (slice "Hello") }}
+{{ site.Store.Add "greetings" (slice "Welcome" "Cheers") }}
+{{ site.Store.Get "greetings" }} → [Hello Welcome Cheers]
 ```
 
 ###### SetInMap
@@ -70,9 +68,9 @@ For single values, `Add` accepts values that support Go's `+` operator. If the f
 Takes a `key`, `mapKey` and `value` and adds a map of `mapKey` and `value` to the given `key`.
 
 ```go-html-template
-{{ .Store.SetInMap "greetings" "english" "Hello" }}
-{{ .Store.SetInMap "greetings" "french" "Bonjour" }}
-{{ .Store.Get "greetings" }} → map[english:Hello french:Bonjour]
+{{ site.Store.SetInMap "greetings" "english" "Hello" }}
+{{ site.Store.SetInMap "greetings" "french" "Bonjour" }}
+{{ site.Store.Get "greetings" }} → map[english:Hello french:Bonjour]
 ```
 
 ###### DeleteInMap
@@ -80,10 +78,10 @@ Takes a `key`, `mapKey` and `value` and adds a map of `mapKey` and `value` to th
 Takes a `key` and `mapKey` and removes the map of `mapKey` from the given `key`.
 
 ```go-html-template
-{{ .Store.SetInMap "greetings" "english" "Hello" }}
-{{ .Store.SetInMap "greetings" "french" "Bonjour" }}
-{{ .Store.DeleteInMap "greetings" "english" }}
-{{ .Store.Get "greetings" }} → map[french:Bonjour]
+{{ site.Store.SetInMap "greetings" "english" "Hello" }}
+{{ site.Store.SetInMap "greetings" "french" "Bonjour" }}
+{{ site.Store.DeleteInMap "greetings" "english" }}
+{{ site.Store.Get "greetings" }} → map[french:Bonjour]
 ```
 
 ###### GetSortedMapValues
@@ -91,9 +89,9 @@ Takes a `key` and `mapKey` and removes the map of `mapKey` from the given `key`.
 Returns an array of values from `key` sorted by `mapKey`.
 
 ```go-html-template
-{{ .Store.SetInMap "greetings" "english" "Hello" }}
-{{ .Store.SetInMap "greetings" "french" "Bonjour" }}
-{{ .Store.GetSortedMapValues "greetings" }} → [Hello Bonjour]
+{{ site.Store.SetInMap "greetings" "english" "Hello" }}
+{{ site.Store.SetInMap "greetings" "french" "Bonjour" }}
+{{ site.Store.GetSortedMapValues "greetings" }} → [Hello Bonjour]
 ```
 
 ###### Delete
@@ -101,8 +99,8 @@ Returns an array of values from `key` sorted by `mapKey`.
 Removes the given key.
 
 ```go-html-template
-{{ .Store.Set "greeting" "Hello" }}
-{{ .Store.Delete "greeting" }}
+{{ site.Store.Set "greeting" "Hello" }}
+{{ site.Store.Delete "greeting" }}
 ```
 
 ## Determinate values
@@ -115,12 +113,12 @@ If you need to access a scratch pad value from a parent template, and the parent
 
 ```go-html-template
 {{ $noop := .Content }}
-{{ .Store.Get "mykey" }}
+{{ site.Store.Get "mykey" }}
 ```
 
 You can also trigger content rendering with the `ContentWithoutSummary`, `FuzzyWordCount`, `Len`, `Plain`, `PlainWords`, `ReadingTime`, `Summary`, `Truncated`, and `WordCount` methods. For example:
 
 ```go-html-template
 {{ $noop := .WordCount }}
-{{ .Store.Get "mykey" }}
+{{ site.Store.Get "mykey" }}
 ```
