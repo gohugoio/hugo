@@ -11,6 +11,10 @@ action:
 
 The `Ordinal` method returns the zero-based ordinal of the shortcode in relation to its parent. If the parent is the page itself, the ordinal represents the position of this shortcode in the page content.
 
+{{% note %}}
+Hugo  increments the ordinal with each shortcode call, regardless of the specific shortcode type. This means that the ordinal value is tracked sequentially across all shortcodes within a given page.
+{{% /note %}}
+
 This method is useful for, among other things, assigning unique element IDs when a shortcode is called two or more times from the same page. For example:
 
 {{< code file=content/about.md lang=md >}}
