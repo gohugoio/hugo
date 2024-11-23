@@ -1,6 +1,5 @@
 ---
-title: Store
-linktitle: hugo.Store
+title: hugo.Store
 description: Returns a global, persistent "scratch pad" to store and manipulate data.
 categories: []
 keywords: []
