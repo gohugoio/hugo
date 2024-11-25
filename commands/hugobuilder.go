@@ -966,7 +966,7 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 					pathToRefresh := h.PathSpec.RelURL(paths.ToSlashTrimLeading(otherChanges[0]), false)
 					lrl.Logf("refreshing %q", pathToRefresh)
 					livereload.RefreshPath(pathToRefresh)
-				} else if len(cssChanges) == 0 {
+				} else if len(cssChanges) == 0 || len(otherChanges) > 1 {
 					lrl.Logf("force refresh")
 					livereload.ForceRefresh()
 				}
