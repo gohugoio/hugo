@@ -328,6 +328,10 @@ func prepareShortcode(
 
 	// Allow the caller to delay the rendering of the shortcode if needed.
 	var fn shortcodeRenderFunc = func(ctx context.Context) ([]byte, bool, error) {
+		// A regular page's shortcode may be rendered by e.g. the home page,
+		// so we need to track any changes to this shortcode's page.
+		ctx = tpl.Context.DependencyManagerScopedProvider.Set(ctx, p)
+
 		if p.m.pageConfig.ContentMediaType.IsMarkdown() && sc.doMarkup {
 			// Signal downwards that the content rendered will be
 			// parsed and rendered by Goldmark.

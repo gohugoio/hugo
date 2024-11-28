@@ -863,6 +863,9 @@ type cachedContentScope struct {
 }
 
 func (c *cachedContentScope) prepareContext(ctx context.Context) context.Context {
+	// Make sure we assign any render hook dependencies to the closest page.
+	ctx = tpl.Context.DependencyManagerScopedProvider.Set(ctx, c.pco.po.p)
+
 	// The markup scope is recursive, so if already set to a non zero value, preserve that value.
 	if s := hugo.GetMarkupScope(ctx); s != "" || s == c.scope {
 		return ctx
