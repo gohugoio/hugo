@@ -59,7 +59,7 @@ type (
 )
 
 // NodeShiftTree is the root of a tree that can be shaped using the Shape method.
-// Note that multipled shapes of the same tree is meant to be used concurrently,
+// Note that multiplied shapes of the same tree is meant to be used concurrently,
 // so use the applicable locking when needed.
 type NodeShiftTree[T any] struct {
 	tree *radix.Tree
