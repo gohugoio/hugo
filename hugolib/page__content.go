@@ -863,6 +863,10 @@ type cachedContentScope struct {
 }
 
 func (c *cachedContentScope) prepareContext(ctx context.Context) context.Context {
+	// A regular page's shortcode etc. may be rendered by e.g. the home page,
+	// so we need to track any changes to this content's page.
+	ctx = tpl.Context.DependencyManagerScopedProvider.Set(ctx, c.pco.po.p)
+
 	// The markup scope is recursive, so if already set to a non zero value, preserve that value.
 	if s := hugo.GetMarkupScope(ctx); s != "" || s == c.scope {
 		return ctx

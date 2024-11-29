@@ -172,7 +172,6 @@ type contextKey string
 var Context = struct {
 	DependencyManagerScopedProvider    hcontext.ContextDispatcher[identity.DependencyManagerScopedProvider]
 	GetDependencyManagerInCurrentScope func(context.Context) identity.Manager
-	SetDependencyManagerInCurrentScope func(context.Context, identity.Manager) context.Context
 	DependencyScope                    hcontext.ContextDispatcher[int]
 	Page                               hcontext.ContextDispatcher[page]
 	IsInGoldmark                       hcontext.ContextDispatcher[bool]
