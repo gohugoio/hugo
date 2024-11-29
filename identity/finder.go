@@ -122,17 +122,21 @@ func (f *Finder) Contains(id, in Identity, maxDepth int) FinderResult {
 
 	defer putSearchID(sid)
 
-	if r := f.checkOne(sid, in, 0); r > 0 {
+	r := FinderNotFound
+	if i := f.checkOne(sid, in, 0); i > r {
+		r = i
+	}
+	if r == FinderFound {
 		return r
 	}
 
 	m := GetDependencyManager(in)
 	if m != nil {
-		if r := f.checkManager(sid, m, 0); r > 0 {
-			return r
+		if i := f.checkManager(sid, m, 0); i > r {
+			r = i
 		}
 	}
-	return FinderNotFound
+	return r
 }
 
 func (f *Finder) checkMaxDepth(sid *searchID, level int) FinderResult {
@@ -279,15 +283,18 @@ func (f *Finder) search(sid *searchID, m Manager, depth int) FinderResult {
 	var r FinderResult
 	m.forEeachIdentity(
 		func(v Identity) bool {
-			if r > 0 {
-				panic("should be terminated")
+			i := f.checkOne(sid, v, depth)
+			if i > r {
+				r = i
 			}
-			r = f.checkOne(sid, v, depth)
-			if r > 0 {
+			if r == FinderFound {
 				return true
 			}
 			m := GetDependencyManager(v)
-			if r = f.checkManager(sid, m, depth+1); r > 0 {
+			if i := f.checkManager(sid, m, depth+1); i > r {
+				r = i
+			}
+			if r == FinderFound {
 				return true
 			}
 			return false

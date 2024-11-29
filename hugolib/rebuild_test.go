@@ -21,8 +21,13 @@ const rebuildFilesSimple = `
 baseURL = "https://example.com"
 disableKinds = ["term", "taxonomy", "sitemap", "robotstxt", "404"]
 disableLiveReload = true
+[outputFormats]
+  [outputFormats.rss]
+	weight = 10
+  [outputFormats.html]
+	weight = 20
 [outputs]
-home = ["html"]
+home = ["rss", "html"]
 section = ["html"]
 page = ["html"]
 -- content/mysection/_index.md --
@@ -58,6 +63,21 @@ Home Text Content.
 title: "myothersectionpage"
 ---
 myothersectionpage Content.
+-- content/mythirdsection/mythirdsectionpage.md --
+---
+title: "mythirdsectionpage"
+---
+mythirdsectionpage Content.
+{{< myshortcodetext >}}
+§§§ myothertext
+foo
+§§§
+-- assets/mytext.txt --
+Assets My Text.
+-- assets/myshortcodetext.txt --
+Assets My Shortcode Text.
+-- assets/myothertext.txt --
+Assets My Other Text.
 -- layouts/_default/single.html --
 Single: {{ .Title }}|{{ .Content }}$
 Resources: {{ range $i, $e := .Resources }}{{ $i }}:{{ .RelPermalink }}|{{ .Content }}|{{ end }}$
@@ -68,6 +88,13 @@ Len Resources: {{ len .Resources }}|
 Resources: {{ range $i, $e := .Resources }}{{ $i }}:{{ .RelPermalink }}|{{ .Content }}|{{ end }}$
 -- layouts/shortcodes/foo.html --
 Foo.
+-- layouts/shortcodes/myshortcodetext.html --
+{{ warnf "mytext %s" now}}
+{{ $r := resources.Get "myshortcodetext.txt" }}
+My Shortcode Text: {{ $r.Content }}|{{ $r.Permalink }}|
+-- layouts/_default/_markup/render-codeblock-myothertext.html --
+{{ $r := resources.Get "myothertext.txt" }}
+My Other Text: {{ $r.Content }}|{{ $r.Permalink }}|
 
 `
 
@@ -81,6 +108,34 @@ func TestRebuildEditTextFileInLeafBundle(t *testing.T) {
 		"Text 2 Content Edited")
 	b.AssertRenderCountPage(1)
 	b.AssertRenderCountContent(1)
+}
+
+func TestRebuildEditTextFileInShortcode(t *testing.T) {
+	t.Parallel()
+	for i := 0; i < 3; i++ {
+		b := TestRunning(t, rebuildFilesSimple)
+		b.AssertFileContent("public/mythirdsection/mythirdsectionpage/index.html",
+			"Text: Assets My Shortcode Text.")
+		b.EditFileReplaceAll("assets/myshortcodetext.txt", "My Shortcode Text", "My Shortcode Text Edited").Build()
+		fmt.Println(b.LogString())
+		b.AssertFileContent("public/mythirdsection/mythirdsectionpage/index.html",
+			"Text: Assets My Shortcode Text Edited.")
+
+	}
+}
+
+func TestRebuildEditTextFileInHook(t *testing.T) {
+	t.Parallel()
+	for i := 0; i < 3; i++ {
+		b := TestRunning(t, rebuildFilesSimple)
+		b.AssertFileContent("public/mythirdsection/mythirdsectionpage/index.html",
+			"Text: Assets My Other Text.")
+		b.AssertFileContent("public/myothertext.txt", "Assets My Other Text.")
+		b.EditFileReplaceAll("assets/myothertext.txt", "My Other Text", "My Other Text Edited").Build()
+		b.AssertFileContent("public/mythirdsection/mythirdsectionpage/index.html",
+			"Text: Assets My Other Text Edited.")
+
+	}
 }
 
 func TestRebuiEditUnmarshaledYamlFileInLeafBundle(t *testing.T) {
@@ -140,8 +195,8 @@ func TestRebuildRenameTextFileInLeafBundle(t *testing.T) {
 
 		b.RenameFile("content/mysection/mysectionbundle/mysectionbundletext.txt", "content/mysection/mysectionbundle/mysectionbundletext2.txt").Build()
 		b.AssertFileContent("public/mysection/mysectionbundle/index.html", "mysectionbundletext2", "My Section Bundle Text 2 Content.", "Len Resources: 2|")
-		b.AssertRenderCountPage(5)
-		b.AssertRenderCountContent(6)
+		b.AssertRenderCountPage(8)
+		b.AssertRenderCountContent(8)
 	})
 }
 
@@ -161,8 +216,8 @@ func TestRebuilEditContentFileThenAnother(t *testing.T) {
 
 	b.EditFileReplaceAll("content/myothersection/myothersectionpage.md", "myothersectionpage Content.", "myothersectionpage Content Edited.").Build()
 	b.AssertFileContent("public/myothersection/myothersectionpage/index.html", "myothersectionpage Content Edited")
-	b.AssertRenderCountPage(1)
-	b.AssertRenderCountContent(1)
+	b.AssertRenderCountPage(2)
+	b.AssertRenderCountContent(2)
 }
 
 func TestRebuildRenameTextFileInBranchBundle(t *testing.T) {
@@ -171,7 +226,7 @@ func TestRebuildRenameTextFileInBranchBundle(t *testing.T) {
 
 	b.RenameFile("content/mysection/mysectiontext.txt", "content/mysection/mysectiontext2.txt").Build()
 	b.AssertFileContent("public/mysection/index.html", "mysectiontext2", "My Section")
-	b.AssertRenderCountPage(2)
+	b.AssertRenderCountPage(3)
 	b.AssertRenderCountContent(2)
 }
 
@@ -181,14 +236,14 @@ func TestRebuildRenameTextFileInHomeBundle(t *testing.T) {
 
 	b.RenameFile("content/hometext.txt", "content/hometext2.txt").Build()
 	b.AssertFileContent("public/index.html", "hometext2", "Home Text Content.")
-	b.AssertRenderCountPage(3)
+	b.AssertRenderCountPage(5)
 }
 
 func TestRebuildRenameDirectoryWithLeafBundle(t *testing.T) {
 	b := TestRunning(t, rebuildFilesSimple)
 	b.RenameDir("content/mysection/mysectionbundle", "content/mysection/mysectionbundlerenamed").Build()
 	b.AssertFileContent("public/mysection/mysectionbundlerenamed/index.html", "My Section Bundle")
-	b.AssertRenderCountPage(1)
+	b.AssertRenderCountPage(2)
 }
 
 func TestRebuildRenameDirectoryWithBranchBundle(t *testing.T) {
@@ -197,7 +252,7 @@ func TestRebuildRenameDirectoryWithBranchBundle(t *testing.T) {
 	b.AssertFileContent("public/mysectionrenamed/index.html", "My Section")
 	b.AssertFileContent("public/mysectionrenamed/mysectionbundle/index.html", "My Section Bundle")
 	b.AssertFileContent("public/mysectionrenamed/mysectionbundle/mysectionbundletext.txt", "My Section Bundle Text 2 Content.")
-	b.AssertRenderCountPage(3)
+	b.AssertRenderCountPage(5)
 }
 
 func TestRebuildRenameDirectoryWithRegularPageUsedInHome(t *testing.T) {
@@ -296,7 +351,7 @@ func TestRebuildRenameDirectoryWithBranchBundleFastRender(t *testing.T) {
 	b.AssertFileContent("public/mysectionrenamed/index.html", "My Section")
 	b.AssertFileContent("public/mysectionrenamed/mysectionbundle/index.html", "My Section Bundle")
 	b.AssertFileContent("public/mysectionrenamed/mysectionbundle/mysectionbundletext.txt", "My Section Bundle Text 2 Content.")
-	b.AssertRenderCountPage(3)
+	b.AssertRenderCountPage(5)
 }
 
 func TestRebuilErrorRecovery(t *testing.T) {
@@ -1239,7 +1294,7 @@ Single.
 		return strings.Replace(s, "red", "blue", 1)
 	}).Build()
 
-	b.AssertRenderCountPage(3)
+	b.AssertRenderCountPage(4)
 
 	b.AssertFileContent("public/index.html", "Home.", "<style>body {\n\tbackground: blue;\n}</style>")
 }
