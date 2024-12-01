@@ -14,6 +14,8 @@ action:
 toc: true
 ---
 
+{{< new-in 0.139.0 >}}
+
 The `Store` method on a `Site` object creates a persistent [scratch pad] to store and manipulate data. To create a locally scoped scratch pad that is not attached to a `Site` object, use the [`newScratch`] function.
 
 [`Scratch`]: /methods/site/scratch/

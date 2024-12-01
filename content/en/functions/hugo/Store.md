@@ -9,9 +9,11 @@ action:
   - methods/site/store
   - functions/collections/NewScratch
   returnType: maps.Scratch
-  signatures: [site.Store]
+  signatures: [hugo.Store]
 toc: true
 ---
+
+{{< new-in 0.139.0 >}}
 
 The global `hugo.Store` function creates a persistent [scratch pad] to store and manipulate data. To create a locally scoped, use the [`newScratch`] function.
 
