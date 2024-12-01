@@ -94,6 +94,40 @@ Example usage:
 
 Although you can call this shortcode using the `{{</* */>}}` notation, computationally it is more efficient to call it using the `{{%/* */%}}` notation as shown above.
 
+### details
+
+{{< new-in 0.140.0 >}}
+
+{{% note %}}
+To override Hugo's embedded `details` shortcode, copy the [source code] to a file with the same name in the layouts/shortcodes directory.
+
+This may be useful if you are wanting access to more global HTML attributes. 
+
+[source code]: {{% eturl details %}}
+{{% /note %}}
+
+Use the `details` shortcode to generate a collapsible details HTML element. For example:
+
+```text
+{{</* details summary="Custom Summary Text" */>}}
+Showing custom `summary` text.
+{{</* /details */>}}
+```
+
+Additional examples can be found in the source code. The `details` shortcode can use the following named arguments:
+
+summary
+: (`string`) Optional. Specifies the content of the child summary element. Default is "Details"
+
+open
+: (`bool`) Optional. Whether to initially display the contents of the details element. Default is `false`.
+
+name
+: (`string`) Optional. The value of the element's name attribute.
+
+class
+: (`string`) Optional. The value of the element's class attribute.
+
 ### figure
 
 {{% note %}}
