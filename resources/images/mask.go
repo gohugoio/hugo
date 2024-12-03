@@ -9,8 +9,6 @@ import (
 	"github.com/disintegration/gift"
 )
 
-var _ gift.Filter = (*overlayFilter)(nil)
-
 // maskFilter applies a mask image to a base image.
 type maskFilter struct {
     mask ImageSource
