@@ -25,7 +25,6 @@ require (
 	github.com/clbanning/mxj/v2 v2.7.0
 	github.com/cli/safeexec v1.0.1
 	github.com/disintegration/gift v1.2.1
-	github.com/disintegration/imaging v1.6.2
 	github.com/dustin/go-humanize v1.0.1
 	github.com/evanw/esbuild v0.24.0
 	github.com/fatih/color v1.18.0

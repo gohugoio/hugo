@@ -7,7 +7,6 @@ import (
 	"image/color"
 
 	"github.com/disintegration/gift"
-	"github.com/disintegration/imaging"
 )
 
 var _ gift.Filter = (*overlayFilter)(nil)
@@ -25,21 +24,28 @@ func (f maskFilter) Draw(dst draw.Image, baseImage image.Image, options *gift.Op
 	}
 
 	// Ensure the mask is the same size as the base image
-    baseBounds := baseImage.Bounds()
-    maskBounds := maskImage.Bounds()
+	baseBounds := baseImage.Bounds()
+	maskBounds := maskImage.Bounds()
 	
-
 	// Resize mask to match base image size if necessary
-    if maskBounds.Dx() != baseBounds.Dx() || maskBounds.Dy() != baseBounds.Dy() {
-        maskImage = imaging.Resize(maskImage, baseBounds.Dx(), baseBounds.Dy(), imaging.Lanczos)
-    }
+	if maskBounds.Dx() != baseBounds.Dx() || maskBounds.Dy() != baseBounds.Dy() {
+		g := gift.New(gift.Resize(baseBounds.Dx(), baseBounds.Dy(), gift.LanczosResampling))
+		resizedMask := image.NewRGBA(g.Bounds(maskImage.Bounds()))
+		g.Draw(resizedMask, maskImage)
+		maskImage = resizedMask
+	}
+	
+	// Use gift to convert the resized mask to grayscale
+	g := gift.New(gift.Grayscale())
+	grayscaleMask := image.NewGray(g.Bounds(maskImage.Bounds()))
+	g.Draw(grayscaleMask, maskImage)
 
+	// Convert grayscale mask to alpha mask
 	alphaMask := image.NewAlpha(baseBounds)
 	for y := baseBounds.Min.Y; y < baseBounds.Max.Y; y++ {
 		for x := baseBounds.Min.X; x < baseBounds.Max.X; x++ {
-			r, g, b, _ := maskImage.At(x, y).RGBA()
-			brightness := (r + g + b) / 3 // Average RGB to get brightness
-			alphaMask.SetAlpha(x, y, color.Alpha{A: uint8(brightness >> 8)})
+			grayValue := grayscaleMask.GrayAt(x, y).Y
+			alphaMask.SetAlpha(x, y, color.Alpha{A: grayValue})
 		}
 	}
 
@@ -49,9 +55,8 @@ func (f maskFilter) Draw(dst draw.Image, baseImage image.Image, options *gift.Op
 	// Apply the mask using draw.DrawMask
 	draw.DrawMask(outputImage, baseBounds, baseImage, image.Point{}, alphaMask, image.Point{}, draw.Over)
 
-    // Copy the result to the destination
-	//draw.Draw(dst, dst.Bounds(), outputImage, image.Point{}, draw.Src)
-    gift.New().Draw(dst, outputImage)
+	// Copy the result to the destination
+	gift.New().Draw(dst, outputImage)
 }
 
 // Bounds returns the bounds of the resulting image.
