@@ -90,7 +90,6 @@ frontend:
     build:
       commands:
         - hugo --gc --minify
-        - ./pagefind --site public
   artifacts:
     baseDirectory: public
     files:
