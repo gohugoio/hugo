@@ -38,7 +38,7 @@ touch amplify.yml
 ```
 
 Step 2
-: Copy and paste the YAML below into the file you created. Change the application versions as needed.
+: Copy and paste the YAML below into the file you created. Change the application versions and time zone as needed.
 
 {{< code file=amplify.yml copy=true >}}
 version: 1
