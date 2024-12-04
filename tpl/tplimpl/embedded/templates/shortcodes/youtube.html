@@ -26,7 +26,7 @@ Renders an embedded YouTube video.
 {{- if not $pc.Disable }}
   {{- with $id := or (.Get "id") (.Get 0) }}
 
-    {{/* Set defaults. */}}
+    {{- /* Set defaults. */}}
     {{- $allowFullScreen := "allowfullscreen" }}
     {{- $autoplay := 0 }}
     {{- $class := "" }}
@@ -70,23 +70,8 @@ Renders an embedded YouTube video.
     {{- $start := or ($.Get "start") $start }}
     {{- $title := or ($.Get "title") $title }}
 
-    {{- /* Determine host. */}}
-    {{- $host := cond $pc.PrivacyEnhanced "www.youtube-nocookie.com" "www.youtube.com" }}
-
-    {{- /* Set styles. */}}
-    {{- $divStyle := "position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;" }}
-    {{- $iframeStyle := "position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" }}
-    {{- if $class }}
-      {{- $iframeStyle = "" }}
-    {{- end }}
-
-    {{- /* Set class or style of wrapping div element. */}}
-    {{- $divClassOrStyle := printf "style=%q" $divStyle }}
-    {{- with $class }}
-      {{- $divClassOrStyle = printf "class=%q" $class }}
-    {{- end }}
-
     {{- /* Define src attribute. */}}
+    {{- $host := cond $pc.PrivacyEnhanced "www.youtube-nocookie.com" "www.youtube.com" }}
     {{- $src := printf "https://%s/embed/%s" $host $id }}
     {{- $params := dict
       "autoplay" $autoplay
@@ -108,25 +93,33 @@ Renders an embedded YouTube video.
       {{- $src = printf "%s?%s" $src . }}
     {{- end }}
 
+    {{- /* Set div attributes. */}}
+    {{- $divStyle := "position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;" }}
+    {{- if $class }}
+      {{- $divStyle = "" }}
+    {{- end }}
+
     {{- /* Set iframe attributes. */}}
-    {{- $iframeAttributes := dict
-      "allow" "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      "allowfullscreen" $allowFullScreen
-      "loading" $loading
-      "referrerpolicy" "strict-origin-when-cross-origin"
-      "src" $src
-      "style" $iframeStyle
-      "title" $title
-    }}
+    {{- $iframeStyle := "position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" }}
+    {{- if $class }}
+      {{- $iframeStyle = "" }}
+    {{- end }}
+    {{- $allow := "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" }}
+    {{- $referrerpolicy := "strict-origin-when-cross-origin" }}
 
     {{- /* Render. */}}
-    <div {{ $divClassOrStyle | safeHTMLAttr }}>
+    <div
+      {{- with $class }} class="{{ . }}" {{- end }}
+      {{- with $divStyle }} style="{{ . | safeCSS }}" {{- end -}}
+    >
       <iframe
-        {{- range $k, $v := $iframeAttributes }}
-          {{- if $v }}
-            {{- printf " %s=%q" $k $v | safeHTMLAttr }}
-          {{- end }}
-        {{- end }}
+        {{- with $allow }} allow="{{ . }}" {{- end }}
+        {{- with $allowFullScreen }} allowfullscreen="{{ . }}" {{- end }}
+        {{- with $loading }} loading="{{ . }}" {{- end }}
+        {{- with $referrerpolicy }} referrerpolicy="{{ . }}" {{- end }}
+        {{- with $src }} src="{{ . }}" {{- end }}
+        {{- with $iframeStyle}} style="{{ . | safeCSS }}" {{- end }}
+        {{- with $title }} title="{{ . }}" {{- end -}}
       ></iframe>
     </div>
   {{- else }}

@@ -90,7 +90,7 @@ baseURL="https://example.org"
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true
-    
+
 `)
 
 	b.WithTemplates("index.html", `
@@ -223,16 +223,16 @@ iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAA
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
 -- layouts/_default/single.html --
 {{ .Title }}|{{ .Content }}|$
-	
+
 `
 
 	t.Run("Default multilingual", func(t *testing.T) {
 		b := Test(t, files)
 
 		b.AssertFileContent("public/nn/p1/index.html",
-			"p1|<p><a href=\"/nn/p2/\">P2</a\n></p>", "<img alt=\"Pixel\" src=\"/nn/p1/pixel.nn.png\">")
+			"p1|<p><a href=\"/nn/p2/\">P2</a\n></p>", "<img src=\"/nn/p1/pixel.nn.png\" alt=\"Pixel\">")
 		b.AssertFileContent("public/en/p1/index.html",
-			"p1 en|<p><a href=\"/en/p2/\">P2</a\n></p>", "<img alt=\"Pixel\" src=\"/nn/p1/pixel.nn.png\">")
+			"p1 en|<p><a href=\"/en/p2/\">P2</a\n></p>", "<img src=\"/nn/p1/pixel.nn.png\" alt=\"Pixel\">")
 	})
 
 	t.Run("Disabled", func(t *testing.T) {
@@ -279,7 +279,7 @@ Image: ![alt-"<>&](/destination-"<> 'title-"<>&')
 			if enabled {
 				b.AssertFileContent("public/index.html",
 					"Link: <a href=\"/destination-%22%3C%3E\" title=\"title-&#34;&lt;&gt;&amp;\">text-&quot;&lt;&gt;&amp;</a>",
-					"img alt=\"alt-&quot;&lt;&gt;&amp;\" src=\"/destination-%22%3C%3E\" title=\"title-&#34;&lt;&gt;&amp;\">",
+					"img src=\"/destination-%22%3C%3E\" alt=\"alt-&quot;&lt;&gt;&amp;\" title=\"title-&#34;&lt;&gt;&amp;\">",
 					"&gt;&lt;script&gt;",
 				)
 			} else {

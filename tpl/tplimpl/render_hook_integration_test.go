@@ -91,6 +91,9 @@ title: s1/p3
 [430](p2/)
 [440](/s1/p2/)
 [450](../s1/p2/)
+
+// empty
+[]()
 `
 
 	b := hugolib.Test(t, files)
@@ -122,6 +125,8 @@ title: s1/p3
 		`<a href="/s1/p2/">430</a>`,
 		`<a href="/s1/p2/">440</a>`,
 		`<a href="/s1/p2/">450</a>`,
+
+		`<a href=""></a>`,
 	)
 
 	b.AssertFileContent("public/s1/p2/index.html",
@@ -148,10 +153,17 @@ block = false
 [markup.goldmark.renderHooks.image]
 enableDefault = true
 -- content/p1/index.md --
+![]()
+
 ![alt1](./pixel.png)
 
-![alt2](pixel.png?a=b&c=d#fragment)
+![alt2-&<>'](pixel.png "&<>'")
+
+![alt3](pixel.png?a=b&c=d#fragment)
 {.foo #bar}
+
+![alt4](pixel.png)
+{id="\"><script>alert()</script>"}
 -- content/p1/pixel.png --
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
 -- layouts/_default/single.html --
@@ -160,15 +172,21 @@ iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAA
 
 	b := hugolib.Test(t, files)
 	b.AssertFileContent("public/p1/index.html",
-		`<img alt="alt1" src="/dir/p1/pixel.png">`,
-		`<img alt="alt2" src="/dir/p1/pixel.png?a=b&c=d#fragment">`,
+		`<img src="" alt="">`,
+		`<img src="/dir/p1/pixel.png" alt="alt1">`,
+		`<img src="/dir/p1/pixel.png" alt="alt2-&amp;&lt;&gt;&rsquo;" title="&amp;&lt;&gt;&#39;">`,
+		`<img src="/dir/p1/pixel.png?a=b&amp;c=d#fragment" alt="alt3">`,
+		`<img src="/dir/p1/pixel.png" alt="alt4">`,
 	)
 
 	files = strings.Replace(files, "block = false", "block = true", -1)
 
 	b = hugolib.Test(t, files)
 	b.AssertFileContent("public/p1/index.html",
-		`<img alt="alt1" src="/dir/p1/pixel.png">`,
-		`<img alt="alt2" class="foo" id="bar" src="/dir/p1/pixel.png?a=b&c=d#fragment">`,
+		`<img src="" alt="">`,
+		`<img src="/dir/p1/pixel.png" alt="alt1">`,
+		`<img src="/dir/p1/pixel.png" alt="alt2-&amp;&lt;&gt;&rsquo;" title="&amp;&lt;&gt;&#39;">`,
+		`<img src="/dir/p1/pixel.png?a=b&amp;c=d#fragment" alt="alt3" class="foo" id="bar">`,
+		`<img src="/dir/p1/pixel.png" alt="alt4" id="&#34;&gt;&lt;script&gt;alert()&lt;/script&gt;">`,
 	)
 }

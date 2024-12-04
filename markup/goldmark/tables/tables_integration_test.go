@@ -89,6 +89,12 @@ title = true
 | Codecademy Hoodie |  False   | 42.99 |
 {.foo}
 
+## Table 2
+
+a|b
+---|---
+1|2
+{id="\"><script>alert()</script>"}
 
 -- layouts/_default/single.html --
 Summary: {{ .Summary }}
@@ -97,7 +103,8 @@ Content: {{ .Content }}
 `
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/p1/index.html", "<table class=\"foo\">")
+	b.AssertFileContent("public/p1/index.html", `<table class="foo">`)
+	b.AssertFileContent("public/p1/index.html", `<table id="&#34;&gt;&lt;script&gt;alert()&lt;/script&gt;">`)
 }
 
 // Issue 12811.
@@ -166,14 +173,8 @@ title: "Home"
 | Codecademy Tee    |  False   | 19.99 |
 | Codecademy Hoodie |  False   | 42.99 |
 
-
-
-
-
 -- layouts/index.xml --
 Content: {{ .Content }}
-
-
 `
 	b := hugolib.Test(t, files)
 

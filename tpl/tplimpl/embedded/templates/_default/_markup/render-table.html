@@ -1,7 +1,7 @@
 <table
   {{- range $k, $v := .Attributes }}
     {{- if $v }}
-      {{- printf " %s=%q" $k $v | safeHTMLAttr }}
+      {{- printf " %s=%q" $k ($v | transform.HTMLEscape) | safeHTMLAttr }}
     {{- end }}
   {{- end }}>
   <thead>
