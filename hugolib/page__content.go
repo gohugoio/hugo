@@ -730,16 +730,15 @@ func (c *cachedContentScope) contentToC(ctx context.Context) (contentTableOfCont
 		isHTML := cp.po.p.m.pageConfig.ContentMediaType.IsHTML()
 
 		if !isHTML {
-			createAndSetToC := func(tocProvider converter.TableOfContentsProvider) {
+			createAndSetToC := func(tocProvider converter.TableOfContentsProvider) error {
 				cfg := p.s.ContentSpec.Converters.GetMarkupConfig()
 				ct.tableOfContents = tocProvider.TableOfContents()
-				ct.tableOfContentsHTML = template.HTML(
-					ct.tableOfContents.ToHTML(
-						cfg.TableOfContents.StartLevel,
-						cfg.TableOfContents.EndLevel,
-						cfg.TableOfContents.Ordered,
-					),
+				ct.tableOfContentsHTML, err = ct.tableOfContents.ToHTML(
+					cfg.TableOfContents.StartLevel,
+					cfg.TableOfContents.EndLevel,
+					cfg.TableOfContents.Ordered,
 				)
+				return err
 			}
 
 			// If the converter supports doing the parsing separately, we do that.

@@ -14,6 +14,7 @@
 package tableofcontents_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/hugolib"
@@ -42,4 +43,81 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 		"heading-l3|3|Heading L3",
 		"heading-l5|5|Heading L5",
 	)
+}
+
+// Issue #13107
+func TestToHTMLArgTypes(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','section','rss','sitemap','taxonomy','term']
+-- layouts/_default/single.html --
+{{ .Fragments.ToHTML .Params.toc.startLevel .Params.toc.endLevel false }}
+-- content/json.md --
+{
+  "title": "json",
+  "params": {
+    "toc": {
+      "startLevel": 2,
+      "endLevel": 4
+    }
+  }
+}
+CONTENT
+-- content/toml.md --
++++
+title = 'toml'
+[params.toc]
+startLevel = 2
+endLevel = 4
++++
+CONTENT
+-- content/yaml.md --
+---
+title: yaml
+params:
+  toc:
+    startLevel: 2
+    endLevel: 4
+---
+CONTENT
+`
+
+	content := `
+# Level One
+## Level Two
+### Level Three
+#### Level Four
+##### Level Five
+###### Level Six
+	`
+
+	want := `
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#level-two">Level Two</a>
+      <ul>
+        <li><a href="#level-three">Level Three</a>
+          <ul>
+            <li><a href="#level-four">Level Four</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+`
+
+	files = strings.ReplaceAll(files, "CONTENT", content)
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContentEquals("public/json/index.html", strings.TrimSpace(want))
+	b.AssertFileContentEquals("public/toml/index.html", strings.TrimSpace(want))
+	b.AssertFileContentEquals("public/yaml/index.html", strings.TrimSpace(want))
+
+	files = strings.ReplaceAll(files, `2`, `"x"`)
+
+	b, _ = hugolib.TestE(t, files)
+	b.AssertLogMatches(`error calling ToHTML: startLevel: unable to cast "x" of type string`)
 }
