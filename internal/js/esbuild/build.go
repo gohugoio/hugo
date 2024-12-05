@@ -68,7 +68,7 @@ func (c *BuildClient) Build(opts Options) (api.BuildResult, error) {
 		return api.BuildResult{}, err
 	}
 
-	if opts.compiled.Sourcemap == api.SourceMapExternal && opts.compiled.Outdir == "" {
+	if opts.compiled.Sourcemap == api.SourceMapLinked && opts.compiled.Outdir == "" {
 		opts.compiled.Outdir, err = os.MkdirTemp(os.TempDir(), "compileOutput")
 		if err != nil {
 			return api.BuildResult{}, err

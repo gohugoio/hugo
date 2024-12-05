@@ -678,6 +678,10 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 			return false, nil
 		}
 		groupPath := p
+		if ext == ".map" {
+			// TODO1
+			groupPath = strings.TrimSuffix(groupPath, ".map")
+		}
 		group, found := state.pathGroup.Get(groupPath)
 
 		if !found {

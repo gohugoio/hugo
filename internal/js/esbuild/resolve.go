@@ -29,8 +29,8 @@ import (
 )
 
 const (
-	NsHugoImport            = "ns-hugo-import"
-	NsHugoImportResolveFunc = "ns-hugo-import-resolvefunc"
+	NsHugoImport            = "ns-hugo-imp"
+	NsHugoImportResolveFunc = "ns-hugo-imp-func"
 	nsHugoParams            = "ns-hugo-params"
 	pathHugoConfigParams    = "@params/config"
 
@@ -40,7 +40,7 @@ const (
 var hugoNamespaces = []string{NsHugoImport, NsHugoImportResolveFunc, nsHugoParams}
 
 const (
-	PrefixHugoVirtual = "@hugo-virtual"
+	PrefixHugoVirtual = "__hu_v"
 )
 
 var extensionToLoaderMap = map[string]api.Loader{

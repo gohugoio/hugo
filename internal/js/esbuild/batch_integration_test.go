@@ -196,12 +196,11 @@ func TestBatchSlashInBatchID(t *testing.T) {
 }
 
 func TestBatchExternalSourceMap(t *testing.T) {
-	files := strings.Replace(jsBatchFilesTemplate, `"sourceMap" ""`, `"sourceMap" "external"`, 1)
+	files := strings.Replace(jsBatchFilesTemplate, `"sourceMap" ""`, `"sourceMap" "linked"`, 1)
 	b := hugolib.TestRunning(t, files, hugolib.TestOptWithOSFs())
-	b.AssertPublishDir("mybatch/mygroup.js.map")
-	b.AssertPublishDir("mybatch/mygroup.js.map")
+	b.AssertFileContent("public/mybatch/mygroup.js.map", "import * as params from")
+	b.AssertFileContent("public/mybatch/mygroup.js", "sourceMappingURL")
 	b.AssertFileContent("public/index.html", "asdf")
-	b.AssertFileContent("public/mybatch/mygroup.js.map", "asdf")
 }
 
 func TestBatchErrorRunnerResourceNotSet(t *testing.T) {

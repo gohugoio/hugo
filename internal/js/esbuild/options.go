@@ -295,8 +295,13 @@ func (opts *Options) compile() (err error) {
 	switch opts.SourceMap {
 	case "inline":
 		sourceMap = api.SourceMapInline
+		// TODO1 see https://esbuild.github.io/api/#sourcemap
+		// external vs linked must have changed at some point.
+		// Rethinkg this and update docs.
 	case "external":
 		sourceMap = api.SourceMapExternal
+	case "linked":
+		sourceMap = api.SourceMapLinked
 	case "":
 		sourceMap = api.SourceMapNone
 	default:
