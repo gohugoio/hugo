@@ -476,7 +476,7 @@ line 5
 	errors := herrors.UnwrapFileErrorsWithErrorContext(err)
 
 	b.Assert(errors, qt.HasLen, 3)
-	b.Assert(errors[0].Error(), qt.Contains, filepath.FromSlash(`"/content/_index.md:1:1": "/layouts/_default/_markup/render-heading.html:2:5": execute of template failed`))
+	b.Assert(errors[0].Error(), qt.Contains, filepath.FromSlash(`"/content/_index.md:2:5": "/layouts/_default/_markup/render-heading.html:2:5": execute of template failed`))
 }
 
 func TestErrorRenderHookCodeblock(t *testing.T) {
@@ -644,4 +644,36 @@ Home.
 	b.Assert(err, qt.Not(qt.IsNil))
 	b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`/layouts/index.html:2:3`))
 	b.Assert(err.Error(), qt.Contains, `can't evaluate field ThisDoesNotExist`)
+}
+
+func TestErrorFrontmatterYAMLSyntax(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- content/_index.md --
+
+
+
+
+
+---
+line1: 'value1'
+x
+line2: 'value2'
+line3: 'value3'
+---	
+`
+
+	b, err := TestE(t, files)
+
+	b.Assert(err, qt.Not(qt.IsNil))
+	b.Assert(err.Error(), qt.Contains, ">  3 |")
+	fe := herrors.UnwrapFileError(err)
+	b.Assert(fe, qt.Not(qt.IsNil))
+	pos := fe.Position()
+	b.Assert(pos.Filename, qt.Contains, filepath.FromSlash("content/_index.md"))
+	b.Assert(fe.ErrorContext(), qt.Not(qt.IsNil))
+	b.Assert(pos.LineNumber, qt.Equals, 9)
+	b.Assert(pos.ColumnNumber, qt.Equals, 1)
 }

@@ -8,7 +8,7 @@ waitServer
 httpget ${HUGOTEST_BASEURL_0}p1/ 'Title: P1'
 
 replace $WORK/content/p1/index.md 'title:' 'titlecolon'
-httpget ${HUGOTEST_BASEURL_0}p1/ 'failed'
+httpget ${HUGOTEST_BASEURL_0}p1/ 'Error'
 
 replace $WORK/content/p1/index.md 'titlecolon' 'title:'
 httpget ${HUGOTEST_BASEURL_0}p1/ 'Title: P1'

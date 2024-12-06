@@ -1160,7 +1160,6 @@ func chmodFilter(dst, src os.FileInfo) bool {
 }
 
 func cleanErrorLog(content string) string {
-	content = strings.ReplaceAll(content, "\n", " ")
 	content = logReplacer.Replace(content)
 	content = logDuplicateTemplateExecuteRe.ReplaceAllString(content, "")
 	content = logDuplicateTemplateParseRe.ReplaceAllString(content, "")

@@ -27,6 +27,7 @@ import (
 	"github.com/alecthomas/chroma/v2/formatters/html"
 	"github.com/alecthomas/chroma/v2/styles"
 	"github.com/bep/simplecobra"
+	"github.com/goccy/go-yaml"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/docshelper"
 	"github.com/gohugoio/hugo/helpers"
@@ -35,7 +36,6 @@ import (
 	"github.com/gohugoio/hugo/parser"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
-	"gopkg.in/yaml.v2"
 )
 
 func newGenCommand() *genCommand {
