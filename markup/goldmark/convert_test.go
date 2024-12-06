@@ -208,8 +208,8 @@ unsafe = true
 
 	toc, ok := b.(converter.TableOfContentsProvider)
 	c.Assert(ok, qt.Equals, true)
-	tocString := string(toc.TableOfContents().ToHTML(1, 2, false))
-	c.Assert(tocString, qt.Contains, "TableOfContents")
+	tocHTML, _ := toc.TableOfContents().ToHTML(1, 2, false)
+	c.Assert(string(tocHTML), qt.Contains, "TableOfContents")
 }
 
 func TestConvertAutoIDAsciiOnly(t *testing.T) {

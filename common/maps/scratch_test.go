@@ -185,7 +185,7 @@ func TestScratchSetInMap(t *testing.T) {
 	scratch.SetInMap("key", "zyx", "Zyx")
 	scratch.SetInMap("key", "abc", "Abc (updated)")
 	scratch.SetInMap("key", "def", "Def")
-	c.Assert(scratch.GetSortedMapValues("key"), qt.DeepEquals, []any{0: "Abc (updated)", 1: "Def", 2: "Lux", 3: "Zyx"})
+	c.Assert(scratch.GetSortedMapValues("key"), qt.DeepEquals, any([]any{"Abc (updated)", "Def", "Lux", "Zyx"}))
 }
 
 func TestScratchDeleteInMap(t *testing.T) {
@@ -199,7 +199,7 @@ func TestScratchDeleteInMap(t *testing.T) {
 	scratch.DeleteInMap("key", "abc")
 	scratch.SetInMap("key", "def", "Def")
 	scratch.DeleteInMap("key", "lmn") // Do nothing
-	c.Assert(scratch.GetSortedMapValues("key"), qt.DeepEquals, []any{0: "Def", 1: "Lux", 2: "Zyx"})
+	c.Assert(scratch.GetSortedMapValues("key"), qt.DeepEquals, any([]any{"Def", "Lux", "Zyx"}))
 }
 
 func TestScratchGetSortedMapValues(t *testing.T) {

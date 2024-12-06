@@ -131,6 +131,8 @@ github.com/bep/goat v0.5.0 h1:S8jLXHCVy/EHIoCY+btKkmcxcXFd34a0Q63/0D4TKeA=
 github.com/bep/goat v0.5.0/go.mod h1:Md9x7gRxiWKs85yHlVTvHQw9rg86Bm+Y4SuYE8CTH7c=
 github.com/bep/godartsass/v2 v2.3.1 h1:Lh9v0IxAaB+toyZrZ+XYNYcGXI1PzGzvZ4u8tRWTnLw=
 github.com/bep/godartsass/v2 v2.3.1/go.mod h1:AcP8QgC+OwOXEq6im0WgDRYK7scDsmZCEW62o1prQLo=
+github.com/bep/godartsass/v2 v2.3.2 h1:meuc76J1C1soSCAnlnJRdGqJ5S4m6/GW+8hmOe9tOog=
+github.com/bep/godartsass/v2 v2.3.2/go.mod h1:Qe5WOS9nVJy7G0jHssXPd3c+Pqk/f7+Tm6k/vahbVgs=
 github.com/bep/golibsass v1.2.0 h1:nyZUkKP/0psr8nT6GR2cnmt99xS93Ji82ZD9AgOK6VI=
 github.com/bep/golibsass v1.2.0/go.mod h1:DL87K8Un/+pWUS75ggYv41bliGiolxzDKWJAq3eJ1MA=
 github.com/bep/gowebp v0.3.0 h1:MhmMrcf88pUY7/PsEhMgEP0T6fDUnRTMpN8OclDrbrY=
@@ -852,6 +854,8 @@ google.golang.org/protobuf v1.24.0/go.mod h1:r/3tXBNzIEhYS9I1OUVjXDlt8tc493IdKGj
 google.golang.org/protobuf v1.25.0/go.mod h1:9JNX74DMeImyA3h4bdi1ymwjUzf21/xIlbajtzgsN7c=
 google.golang.org/protobuf v1.35.1 h1:m3LfL6/Ca+fqnjnlqQXNpFPABW1UD7mjh8KO2mKFytA=
 google.golang.org/protobuf v1.35.1/go.mod h1:9fA7Ob0pmnwhb644+1+CVWFRbNajQ6iRojtC/QF5bRE=
+google.golang.org/protobuf v1.35.2 h1:8Ar7bF+apOIoThw1EdZl0p1oWvMqTHmpA2fRTyZO8io=
+google.golang.org/protobuf v1.35.2/go.mod h1:9fA7Ob0pmnwhb644+1+CVWFRbNajQ6iRojtC/QF5bRE=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c h1:Hei/4ADfdWqJk1ZMxUNpqntNwaWcugrBjAiHlqqRiVk=
