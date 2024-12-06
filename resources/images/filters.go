@@ -54,10 +54,10 @@ func (*Filters) Overlay(src ImageSource, x, y any) gift.Filter {
 
 // Mask creates a filter that applies a mask image to the source image.
 func (*Filters) Mask(mask ImageSource) gift.Filter {
-    return filter{
-        Options: newFilterOpts(mask.Key()),
-        Filter:  maskFilter{mask: mask},
-    }
+	return filter{
+		Options: newFilterOpts(mask.Key()),
+		Filter:  maskFilter{mask: mask},
+	}
 }
 
 // Opacity creates a filter that changes the opacity of an image.
