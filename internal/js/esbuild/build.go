@@ -50,6 +50,7 @@ func (c *BuildClient) Build(opts Options) (api.BuildResult, error) {
 		dependencyManager = identity.NopManager
 	}
 
+	opts.OutDir = jsVirtualOutDir
 	opts.ResolveDir = c.rs.Cfg.BaseConfig().WorkingDir // where node_modules gets resolved
 	opts.AbsWorkingDir = opts.ResolveDir
 	opts.TsConfig = c.rs.ResolveJSConfigFile("tsconfig.json")

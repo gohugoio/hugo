@@ -173,7 +173,7 @@ hello:
 hello:
    other: "Bonjour"
 -- layouts/index.html --
-{{ $options := dict "minify" false "externals" (slice "react" "react-dom") }}
+{{ $options := dict "minify" false "externals" (slice "react" "react-dom")  "sourcemap" "linked" }}
 {{ $js := resources.Get "js/main.js" | js.Build $options }}
 JS:  {{ template "print" $js }}
 {{ $jsx := resources.Get "js/myjsx.jsx" | js.Build $options }}
@@ -201,8 +201,9 @@ TS2: {{ template "print" $ts2 }}
 			TxtarString:     files,
 		}).Build()
 
-	b.AssertFileContent("public/js/myts.js", `//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJz`)
-	b.AssertFileContent("public/js/myts2.js.map", `"version": 3,`)
+	b.AssertFileContent("public/js/main.js.map", `"version": 3,asdf`)                                          // linked
+	b.AssertFileContent("public/js/myts.js", `//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJz`) // external
+	b.AssertFileContent("public/js/myts.js.map", `"version": 3,asdf`)
 	b.AssertFileContent("public/index.html", `
 		console.log(&#34;included&#34;);
 		if (hasSpace.test(string))

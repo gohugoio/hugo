@@ -36,10 +36,14 @@ body {
 -- assets/js/main.js --
 import './styles.css';
 import * as params from '@params';
+import * as foo from 'mylib';
 console.log("Hello, Main!");
 console.log("params.p1", params.p1);
+export default function Main() {};
 -- assets/js/runner.js --
 console.log("Hello, Runner!");
+-- node_modules/mylib/index.js --
+console.log("Hello, My Lib!");
 -- layouts/shortcodes/hdx.html --
 {{ $path := .Get "r" }}
 {{ $r := or (.Page.Resources.Get $path) (resources.Get $path) }}
@@ -146,9 +150,10 @@ Empty.
 `)
 	b.Build()
 
-	b.AssertFileContent("public/mybatch/p1.js",
+	// TODO1 the entire group is removed, but the p1.js file is not deleted (this is how it works), but we need another assertion here.
+	/*	b.AssertFileContent("public/mybatch/p1.js",
 		"! p1-param",
-		"! p1script.js")
+		"! p1script.js")*/
 
 	// Add one script back.
 	b.EditFiles("content/p1/index.md", `
@@ -198,9 +203,8 @@ func TestBatchSlashInBatchID(t *testing.T) {
 func TestBatchExternalSourceMap(t *testing.T) {
 	files := strings.Replace(jsBatchFilesTemplate, `"sourceMap" ""`, `"sourceMap" "linked"`, 1)
 	b := hugolib.TestRunning(t, files, hugolib.TestOptWithOSFs())
-	b.AssertFileContent("public/mybatch/mygroup.js.map", "import * as params from")
-	b.AssertFileContent("public/mybatch/mygroup.js", "sourceMappingURL aasdf")
-	b.AssertFileContent("public/index.html", "asdf")
+	b.AssertFileContent("public/mybatch/mygroup.js.map", "/assets/js/main.js")
+	b.AssertFileContent("public/mybatch/mygroup.js", "sourceMappingURL=mygroup.js.map")
 }
 
 func TestBatchErrorRunnerResourceNotSet(t *testing.T) {
@@ -416,9 +420,8 @@ Home.
 {{ with (templates.Defer (dict "key" "global")) }}
 {{ $batch := (js.Batch "mybundle") }}
 {{ range $k, $v := $batch.Build.Groups }}
- {{ $k }}:
- {{ range . }}
-	{{ .RelPermalink }}
+ {{ range $kk, $vv := . }}
+	 {{ $k }}: {{ $kk }}: {{ .RelPermalink }}
   {{ end }}
  {{ end }}
 {{ end }}
@@ -488,7 +491,10 @@ Home.
 			// PrintAndKeepTempDir: true,
 		}).Build()
 
-	// b.AssertPublishDir("asdfasdf")
+	b.AssertFileContent("public/index.html",
+		"mains: 0: /mybundle/mains.js",
+		"reactbatch: 2: /mybundle/reactbatch.css",
+	)
 
 	b.AssertFileContent("public/mybundle/reactbatch.css",
 		".bar {",

@@ -34,6 +34,8 @@ const (
 	nsHugoParams            = "ns-hugo-params"
 	pathHugoConfigParams    = "@params/config"
 
+	jsVirtualOutDir = "/jsoutdir"
+
 	stdinImporter = "<stdin>"
 )
 
@@ -53,6 +55,10 @@ var extensionToLoaderMap = map[string]api.Loader{
 	".css":  api.LoaderCSS,
 	".json": api.LoaderJSON,
 	".txt":  api.LoaderText,
+}
+
+func trimJSVirtualOutDir(s string) string {
+	return strings.TrimPrefix(s, jsVirtualOutDir)
 }
 
 func (o Options) loaderFromFilename(filename string) api.Loader {

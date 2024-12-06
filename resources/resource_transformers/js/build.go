@@ -56,11 +56,13 @@ func (c *Client) transform(opts esbuild.Options, transformCtx *resources.Resourc
 		return result, err
 	}
 
-	if opts.ExternalOptions.SourceMap == "external" {
+	if opts.ExternalOptions.SourceMap == "linked" || opts.ExternalOptions.SourceMap == "external" {
 		content := string(result.OutputFiles[1].Contents)
-		symPath := path.Base(transformCtx.OutPath) + ".map"
-		re := regexp.MustCompile(`//# sourceMappingURL=.*\n?`)
-		content = re.ReplaceAllString(content, "//# sourceMappingURL="+symPath+"\n")
+		if opts.ExternalOptions.SourceMap == "linked" {
+			symPath := path.Base(transformCtx.OutPath) + ".map"
+			re := regexp.MustCompile(`//# sourceMappingURL=.*\n?`)
+			content = re.ReplaceAllString(content, "//# sourceMappingURL="+symPath+"\n")
+		}
 
 		if err = transformCtx.PublishSourceMap(string(result.OutputFiles[0].Contents)); err != nil {
 			return result, err

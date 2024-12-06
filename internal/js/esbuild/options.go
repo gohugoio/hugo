@@ -92,8 +92,10 @@ type ExternalOptions struct {
 	// Whether to minify to output.
 	Minify bool
 
-	// Whether to write mapfiles
+	// One of "inline", "external", "linked" or "none".
 	SourceMap string
+
+	SourcesContent bool
 
 	// The language target.
 	// One of: es2015, es2016, es2017, es2018, es2019, es2020 or esnext.
@@ -159,7 +161,9 @@ type ExternalOptions struct {
 }
 
 func DecodeExternalOptions(m map[string]any) (ExternalOptions, error) {
-	var opts ExternalOptions
+	opts := ExternalOptions{
+		SourcesContent: true,
+	}
 
 	if err := mapstructure.WeakDecode(m, &opts); err != nil {
 		return opts, err
@@ -213,8 +217,6 @@ var (
 		"tsx":        api.LoaderTSX,
 	}
 )
-
-// TODO1 check batch vs source maps.
 
 func (opts *Options) compile() (err error) {
 	target, found := nameTarget[opts.Target]
@@ -295,18 +297,20 @@ func (opts *Options) compile() (err error) {
 	switch opts.SourceMap {
 	case "inline":
 		sourceMap = api.SourceMapInline
-		// TODO1 see https://esbuild.github.io/api/#sourcemap
-		// external vs linked must have changed at some point.
-		// Rethinkg this and update docs.
 	case "external":
 		sourceMap = api.SourceMapExternal
 	case "linked":
 		sourceMap = api.SourceMapLinked
-	case "":
+	case "", "none":
 		sourceMap = api.SourceMapNone
 	default:
 		err = fmt.Errorf("unsupported sourcemap type: %q", opts.SourceMap)
 		return
+	}
+
+	sourcesContent := api.SourcesContentInclude
+	if !opts.SourcesContent {
+		sourcesContent = api.SourcesContentExclude
 	}
 
 	opts.compiled = api.BuildOptions{
@@ -315,9 +319,10 @@ func (opts *Options) compile() (err error) {
 		Metafile:      opts.Metafile,
 		AbsWorkingDir: opts.AbsWorkingDir,
 
-		Target:    target,
-		Format:    format,
-		Sourcemap: sourceMap,
+		Target:         target,
+		Format:         format,
+		Sourcemap:      sourceMap,
+		SourcesContent: sourcesContent,
 
 		Loader: loaders,
 

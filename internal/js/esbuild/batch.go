@@ -34,7 +34,6 @@ import (
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/lazy"
 	"github.com/gohugoio/hugo/media"
@@ -79,7 +78,7 @@ func NewBatcherClient(deps *deps.Deps) (*BatcherClient, error) {
 	return c, nil
 }
 
-func (o optionsMap[K, C]) HasBuildID(id uint32) bool {
+func (o optionsMap[K, C]) isBuilt(id uint32) bool {
 	for _, v := range o {
 		if v.isBuilt(id) {
 			return true
@@ -135,7 +134,7 @@ func (o *opts[K, C]) Get(id uint32) OptionsSetter {
 	var b *optsHolder[C]
 	o.once.Do(func() {
 		b = o.h
-		b.built.Set(id)
+		b.setBuilt(id)
 	})
 	return b
 }
@@ -176,9 +175,9 @@ func newOpts[K any, C optionsCompiler[C]](key K, optionsID string, defaults defa
 	return &opts[K, C]{
 		key: key,
 		h: &optsHolder[C]{
-			optionsID: optionsID,
-			defaults:  defaults,
-			built:     make(buildIDs), touched: make(buildIDs),
+			optionsID:        optionsID,
+			defaults:         defaults,
+			isBuiltOrTouched: newIsBuiltOrTouched(),
 		},
 	}
 }
@@ -272,7 +271,7 @@ func (c *BatcherClient) New(id string) (Batcher, error) {
 						// This handles the removal of the only source for a script group (e.g. all shortcodes in a contnt page).
 						// Note the very shallow search.
 						if r := idFinder.Contains(id2, id3, 0); r > 0 {
-							bt.touchBuild(b.buildCount)
+							bt.setTouched(b.buildCount)
 							return false
 						}
 					}
@@ -320,8 +319,6 @@ type Package struct {
 	id string
 	b  *batcher
 
-	outDir string
-
 	groups map[string]resource.Resources
 }
 
@@ -360,7 +357,7 @@ func (b *batcher) Build(ctx context.Context) (BatchPackage, error) {
 		return b.build(ctx)
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to build Batch %q: %w", b.id, err)
+		return nil, fmt.Errorf("failed to build JS batch %q: %w", b.id, err)
 	}
 	return p, nil
 }
@@ -384,7 +381,7 @@ func (b *batcher) Group(ctx context.Context, id string) BatcherGroup {
 
 		group = &scriptGroup{
 			id: id, b: b,
-			built:             make(buildIDs),
+			isBuiltOrTouched:  newIsBuiltOrTouched(),
 			dependencyManager: idm,
 			scriptsOptions:    make(optionsMap[scriptID, scriptOptions]),
 			instancesOptions:  make(optionsMap[instanceID, paramsOptions]),
@@ -393,7 +390,7 @@ func (b *batcher) Group(ctx context.Context, id string) BatcherGroup {
 		b.scriptGroups[id] = group
 	}
 
-	group.built.Set(b.buildCount)
+	group.setBuilt(b.buildCount)
 
 	return group
 }
@@ -467,7 +464,7 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 	// Entry points passed to ESBuid.
 	var entryPoints []string
 	addResource := func(group, pth string, r resource.Resource, isResult bool) {
-		state.pathGroup.Set(pth, group)
+		state.pathGroup.Set(paths.TrimExt(pth), group)
 		state.importResource.Set(pth, r)
 		if isResult {
 			state.resultResource.Set(pth, r)
@@ -523,7 +520,7 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 
 		r, s, err := b.client.buildBatchGroup(ctx, t)
 		if err != nil {
-			return nil, fmt.Errorf("failed to build batch: %w", err)
+			return nil, fmt.Errorf("failed to build JS batch: %w", err)
 		}
 
 		state.importerImportContext.Set(s, importContext{
@@ -535,14 +532,7 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 		addResource(v.id, s, r, true)
 	}
 
-	absPublishDir := b.client.d.AbsPublishDir
 	mediaTypes := b.client.d.ResourceSpec.MediaTypes()
-	cssMt, _, _ := mediaTypes.GetFirstBySuffix("css")
-	outBaseDirForwardSlashes, err := b.client.d.MkdirTemp("hugo-jsbatch")
-	if err != nil {
-		return nil, err
-	}
-	outBaseDirForwardSlashes = filepath.ToSlash(outBaseDirForwardSlashes)
 
 	externalOptions := b.configOptions.Compiled().Options
 	if externalOptions.Format == "" {
@@ -556,13 +546,11 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 		ExternalOptions: externalOptions,
 		InternalOptions: InternalOptions{
 			DependencyManager: b.dependencyManager,
-			OutDir:            outBaseDirForwardSlashes,
 
 			// We may need to edit some source maps paths, so make ESBuIld write to memory.
 			Write:          false,
 			AllowOverwrite: true,
 			Splitting:      true,
-			Metafile:       true,
 			ImportOnResolveFunc: func(imp string, args api.OnResolveArgs) string {
 				var importContextPath string
 				if args.Kind == api.ResolveEntryPoint {
@@ -647,20 +635,18 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 		return nil, fmt.Errorf("failed to build JS bundle: %w", err)
 	}
 
-	m := fromJSONToESBuildResultMeta(b.client.d.Conf.WorkingDir(), result)
-
 	groups := make(map[string]resource.Resources)
 
-	createAndAddResource := func(filename, targetPath, group string, content []byte, mt media.Type) error {
+	createAndAddResource := func(targetPath, group string, o api.OutputFile, mt media.Type) error {
 		targetPath = path.Join(b.id, targetPath)
 		rd := resources.ResourceSourceDescriptor{
 			LazyPublish: true,
 			OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
-				return hugio.NewReadSeekerNoOpCloserFromBytes(content), nil
+				return hugio.NewReadSeekerNoOpCloserFromBytes(o.Contents), nil
 			},
-			MediaType:            mt,
-			TargetPath:           targetPath,
-			SourceFilenameOrPath: filename,
+			MediaType:  mt,
+			TargetPath: targetPath,
+			// TODO1 SourceFilenameOrPath: filename,
 		}
 		r, err := b.client.d.ResourceSpec.NewResource(rd)
 		if err != nil {
@@ -672,56 +658,58 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 		return nil
 	}
 
-	createAndAddResources := func(o esBuildResultMetaOutput) (bool, error) {
-		p := strings.TrimPrefix(o.filenameForwardSlashes, outBaseDirForwardSlashes)
+	createAndAddResources := func(o api.OutputFile) (bool, error) {
+		p := trimJSVirtualOutDir(o.Path)
 		ext := path.Ext(p)
 		mt, _, found := mediaTypes.GetBySuffix(ext)
 		if !found {
 			return false, nil
 		}
-		groupPath := p
-		if ext == ".map" {
-			// TODO1
-			groupPath = strings.TrimSuffix(groupPath, ".map")
-		}
-		group, found := state.pathGroup.Get(groupPath)
+
+		group, found := state.pathGroup.Get(paths.TrimExt(p))
 
 		if !found {
 			return false, nil
 		}
 
-		if err := createAndAddResource(o.filenameForwardSlashes, p, group, o.content, mt); err != nil {
+		if err := createAndAddResource(p, group, o, mt); err != nil {
 			return false, err
-		}
-
-		if o.CSSBundle != "" {
-			p := strings.TrimPrefix(o.CSSBundle, outBaseDirForwardSlashes)
-			if err := createAndAddResource(o.CSSBundle, p, group, o.content, cssMt); err != nil {
-				return false, err
-			}
 		}
 
 		return true, nil
 	}
 
-	for _, o := range m.Outputs {
+	for _, o := range result.OutputFiles {
+		if err := fixOutputFile(&o, func(s string) string {
+			if !strings.HasPrefix(s, "ns-hugo") {
+				return ""
+			}
+			idxColon := strings.Index(s, ":")
+			s = s[idxColon+1:]
+			if r, found := state.importResource.Get(s); found {
+				return resources.InternalResourceSourcePathBestEffort(r)
+			}
+			return s
+		}); err != nil {
+			return nil, err
+		}
+
 		handled, err := createAndAddResources(o)
 		if err != nil {
 			return nil, err
 		}
+
 		if !handled {
 			//  Copy to destination.
-			p := strings.TrimPrefix(o.filenameForwardSlashes, outBaseDirForwardSlashes)
-			targetFilename := filepath.Join(absPublishDir, b.id, p)
+			p := trimJSVirtualOutDir(o.Path)
+			targetFilename := filepath.Join(b.id, p)
 			fs := b.client.d.BaseFs.PublishFs
 			if err := fs.MkdirAll(filepath.Dir(targetFilename), 0o777); err != nil {
 				return nil, fmt.Errorf("failed to create dir %q: %w", targetFilename, err)
 			}
 
-			if err := afero.WriteFile(fs, targetFilename, o.content, 0o666); err != nil {
+			if err := afero.WriteFile(fs, targetFilename, o.Contents, 0o666); err != nil {
 				return nil, fmt.Errorf("failed to write to %q: %w", targetFilename, err)
-			}
-			if err := hugio.CopyFile(hugofs.Os, filepath.FromSlash(o.filenameForwardSlashes), targetFilename); err != nil {
 			}
 		}
 	}
@@ -729,7 +717,6 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 	p := &Package{
 		id:     path.Join(NsBatch, b.id),
 		b:      b,
-		outDir: outBaseDirForwardSlashes,
 		groups: groups,
 	}
 
@@ -739,7 +726,14 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 func (b *batcher) removeNotSet() bool {
 	// We already have the lock.
 	var removed bool
-	for _, v := range b.scriptGroups {
+	currentBuildID := b.buildCount
+	for k, v := range b.scriptGroups {
+		if !v.isBuilt(currentBuildID) && v.isTouched(currentBuildID) {
+			// Remove entire group.
+			removed = true
+			delete(b.scriptGroups, k)
+			continue
+		}
 		if v.removeTouchedButNotSet() {
 			removed = true
 		}
@@ -771,7 +765,7 @@ func (b buildIDs) Set(buildID uint32) {
 }
 
 type buildToucher interface {
-	touchBuild(buildID uint32)
+	setTouched(buildID uint32)
 }
 
 type configOptions struct {
@@ -795,75 +789,6 @@ func (s configOptions) compileOptions(m map[string]any, defaults defaultOptionVa
 
 type defaultOptionValues struct {
 	defaultExport string
-}
-
-// https://esbuild.github.io/api/#metafile
-type esBuildResultMeta struct {
-	Outputs map[string]esBuildResultMetaOutput
-
-	// Compiled values.
-	cssBundleEntryPoint map[string]esBuildResultMetaOutput
-}
-
-func (e *esBuildResultMeta) Compile(cwd string, result api.BuildResult) error {
-	// Rewrite the paths to be absolute.
-	// See https://github.com/evanw/esbuild/issues/338
-	outputs := make(map[string]esBuildResultMetaOutput)
-	for k, v := range e.Outputs {
-		filename := filepath.Join(cwd, k)
-
-		if err := v.Compile(filename, result); err != nil {
-			return err
-		}
-
-		if v.CSSBundle != "" {
-			v.CSSBundle = filepath.ToSlash(filepath.Join(cwd, v.CSSBundle))
-		}
-		outputs[filename] = v
-	}
-	e.Outputs = outputs
-
-	e.cssBundleEntryPoint = make(map[string]esBuildResultMetaOutput)
-	for _, v := range e.Outputs {
-		if v.CSSBundle != "" {
-			e.cssBundleEntryPoint[v.CSSBundle] = v
-		}
-	}
-	return nil
-}
-
-type esBuildResultMetaOutput struct {
-	Bytes      int64
-	Exports    []string
-	Imports    []esBuildResultMetaOutputImport
-	EntryPoint string
-	CSSBundle  string
-
-	// compiled values.
-	filenameForwardSlashes string // TODO1 remove?
-	content                []byte
-}
-
-func (e *esBuildResultMetaOutput) Compile(filename string, result api.BuildResult) error {
-	var found bool
-	for _, v := range result.OutputFiles {
-		if v.Path == filename {
-			found = true
-			e.content = v.Contents
-			break
-		}
-	}
-
-	if !found {
-		return fmt.Errorf("output file %q not found", filename)
-	}
-	e.filenameForwardSlashes = filepath.ToSlash(filename)
-	return nil
-}
-
-type esBuildResultMetaOutputImport struct {
-	Path string
-	Kind string
 }
 
 type instanceID struct {
@@ -894,10 +819,14 @@ type optionsGetSetter[K, C any] interface {
 	Reset()
 
 	Get(uint32) OptionsSetter
-	isBuilt(uint32) bool
-	isTouched(uint32) bool
+	isBuiltOrTouchedProvider
 	isStale() bool
 	currPrev() (map[string]any, map[string]any)
+}
+
+type isBuiltOrTouchedProvider interface {
+	isBuilt(uint32) bool
+	isTouched(uint32) bool
 }
 
 type optionsGetSetters[K key, C any] []optionsGetSetter[K, C]
@@ -926,8 +855,7 @@ type optsHolder[C optionsCompiler[C]] struct {
 	optsCurr       map[string]any
 	optsPrev       map[string]any
 
-	built   buildIDs
-	touched buildIDs
+	isBuiltOrTouched
 }
 
 type paramsOptions struct {
@@ -1004,18 +932,49 @@ func (b scriptBatchTemplateContext) RunnerJSON(i int) string {
 	return s
 }
 
+var (
+	_ buildToucher             = (*scriptGroup)(nil)
+	_ isBuiltOrTouchedProvider = (*scriptGroup)(nil)
+)
+
 type scriptGroup struct {
 	mu sync.Mutex
-
 	id string
-
-	b                 *batcher
-	built             buildIDs
+	b  *batcher
+	isBuiltOrTouched
 	dependencyManager identity.Manager
 
 	scriptsOptions   optionsMap[scriptID, scriptOptions]
 	instancesOptions optionsMap[instanceID, paramsOptions]
 	runnersOptions   optionsMap[scriptID, scriptOptions]
+}
+
+type isBuiltOrTouched struct {
+	built   buildIDs
+	touched buildIDs
+}
+
+func (i isBuiltOrTouched) setBuilt(id uint32) {
+	i.built.Set(id)
+}
+
+func (i isBuiltOrTouched) setTouched(id uint32) {
+	i.touched.Set(id)
+}
+
+func (i isBuiltOrTouched) isBuilt(id uint32) bool {
+	return i.built.Has(id)
+}
+
+func (i isBuiltOrTouched) isTouched(id uint32) bool {
+	return i.touched.Has(id)
+}
+
+func newIsBuiltOrTouched() isBuiltOrTouched {
+	return isBuiltOrTouched{
+		built:   make(buildIDs),
+		touched: make(buildIDs),
+	}
 }
 
 // For internal use only.
@@ -1146,6 +1105,9 @@ func (s *scriptGroup) isStale() bool {
 func (v *scriptGroup) forEachIdentity(
 	f func(id identity.Identity) bool,
 ) bool {
+	if f(v) {
+		return true
+	}
 	for _, vv := range v.instancesOptions {
 		if f(vv.GetIdentity()) {
 			return true
@@ -1173,13 +1135,13 @@ func (s *scriptGroup) key() string {
 
 func (g *scriptGroup) removeNotSet() bool {
 	currentBuildID := g.b.buildCount
-	if !g.built.Has(currentBuildID) {
+	if !g.isBuilt(currentBuildID) {
 		// This group was never accessed in this build.
 		return false
 	}
 	var removed bool
 
-	if g.instancesOptions.HasBuildID(currentBuildID) {
+	if g.instancesOptions.isBuilt(currentBuildID) {
 		// A new instance has been set in this group for this build.
 		// Remove any instance that has not been set in this build.
 		for k, v := range g.instancesOptions {
@@ -1191,7 +1153,7 @@ func (g *scriptGroup) removeNotSet() bool {
 		}
 	}
 
-	if g.runnersOptions.HasBuildID(currentBuildID) {
+	if g.runnersOptions.isBuilt(currentBuildID) {
 		// A new runner has been set in this group for this build.
 		// Remove any runner that has not been set in this build.
 		for k, v := range g.runnersOptions {
@@ -1203,7 +1165,7 @@ func (g *scriptGroup) removeNotSet() bool {
 		}
 	}
 
-	if g.scriptsOptions.HasBuildID(currentBuildID) {
+	if g.scriptsOptions.isBuilt(currentBuildID) {
 		// A new script has been set in this group for this build.
 		// Remove any script that has not been set in this build.
 		for k, v := range g.scriptsOptions {
@@ -1406,7 +1368,7 @@ func (c scriptRunnerTemplateContext) MarshalJSON() (b []byte, err error) {
 }
 
 func (o *opts[K, C]) isBuilt(id uint32) bool {
-	return o.h.built.Has(id)
+	return o.h.isBuilt(id)
 }
 
 func (o *optsHolder[C]) isStaleOpts() bool {
@@ -1441,7 +1403,7 @@ func (o *optsHolder[C]) isStaleOpts() bool {
 }
 
 func (o *opts[K, C]) isTouched(id uint32) bool {
-	return o.h.touched.Has(id)
+	return o.h.isTouched(id)
 }
 
 func (o *optsHolder[C]) checkCompileErr() {
@@ -1462,22 +1424,6 @@ func (o *opts[K, C]) isStale() bool {
 
 func (o *opts[K, C]) currPrev() (map[string]any, map[string]any) {
 	return o.h.optsCurr, o.h.optsPrev
-}
-
-func fromJSONToESBuildResultMeta(cwd string, result api.BuildResult) esBuildResultMeta {
-	var m esBuildResultMeta
-	jsons := result.Metafile
-	if err := json.Unmarshal([]byte(jsons), &m); err != nil {
-		panic(err)
-	}
-	if err := m.Compile(cwd, result); err != nil {
-		panic(err)
-	}
-	return m
-}
-
-func (o *optsHolder[C]) touchBuild(buildID uint32) {
-	o.touched.Set(buildID)
 }
 
 func init() {

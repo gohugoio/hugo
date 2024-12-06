@@ -201,3 +201,13 @@ func TestToBuildOptionsTarget(t *testing.T) {
 		})
 	}
 }
+
+func TestDecodeExternalOptions(t *testing.T) {
+	c := qt.New(t)
+	m := map[string]any{}
+	opts, err := DecodeExternalOptions(m)
+	c.Assert(err, qt.IsNil)
+	c.Assert(opts, qt.DeepEquals, ExternalOptions{
+		SourcesContent: true,
+	})
+}

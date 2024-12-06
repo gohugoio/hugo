@@ -95,10 +95,6 @@ func (h *Heading) walk(fn func(*Heading)) {
 	}
 }
 
-type number interface {
-	int | float64
-}
-
 // Fragments holds the table of contents for a page.
 type Fragments struct {
 	// Headings holds the top level headings.
