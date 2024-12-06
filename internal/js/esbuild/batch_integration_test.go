@@ -199,7 +199,7 @@ func TestBatchExternalSourceMap(t *testing.T) {
 	files := strings.Replace(jsBatchFilesTemplate, `"sourceMap" ""`, `"sourceMap" "linked"`, 1)
 	b := hugolib.TestRunning(t, files, hugolib.TestOptWithOSFs())
 	b.AssertFileContent("public/mybatch/mygroup.js.map", "import * as params from")
-	b.AssertFileContent("public/mybatch/mygroup.js", "sourceMappingURL")
+	b.AssertFileContent("public/mybatch/mygroup.js", "sourceMappingURL aasdf")
 	b.AssertFileContent("public/index.html", "asdf")
 }
 

@@ -20,7 +20,6 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
-	"os"
 	"path"
 	"path/filepath"
 	"reflect"
@@ -44,6 +43,7 @@ import (
 	"github.com/gohugoio/hugo/resources/resource_factories/create"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/mitchellh/mapstructure"
+	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 )
 
@@ -557,10 +557,12 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 		InternalOptions: InternalOptions{
 			DependencyManager: b.dependencyManager,
 			OutDir:            outBaseDirForwardSlashes,
-			Write:             true,
-			AllowOverwrite:    true,
-			Splitting:         true,
-			Metafile:          true,
+
+			// We may need to edit some source maps paths, so make ESBuIld write to memory.
+			Write:          false,
+			AllowOverwrite: true,
+			Splitting:      true,
+			Metafile:       true,
 			ImportOnResolveFunc: func(imp string, args api.OnResolveArgs) string {
 				var importContextPath string
 				if args.Kind == api.ResolveEntryPoint {
@@ -645,16 +647,16 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 		return nil, fmt.Errorf("failed to build JS bundle: %w", err)
 	}
 
-	m := fromJSONToESBuildResultMeta(b.client.d.Conf.WorkingDir(), result.Metafile)
+	m := fromJSONToESBuildResultMeta(b.client.d.Conf.WorkingDir(), result)
 
 	groups := make(map[string]resource.Resources)
 
-	createAndAddResource := func(filename, targetPath, group string, mt media.Type) error {
+	createAndAddResource := func(filename, targetPath, group string, content []byte, mt media.Type) error {
 		targetPath = path.Join(b.id, targetPath)
 		rd := resources.ResourceSourceDescriptor{
 			LazyPublish: true,
 			OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
-				return os.Open(filename)
+				return hugio.NewReadSeekerNoOpCloserFromBytes(content), nil
 			},
 			MediaType:            mt,
 			TargetPath:           targetPath,
@@ -688,13 +690,13 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 			return false, nil
 		}
 
-		if err := createAndAddResource(o.filenameForwardSlashes, p, group, mt); err != nil {
+		if err := createAndAddResource(o.filenameForwardSlashes, p, group, o.content, mt); err != nil {
 			return false, err
 		}
 
 		if o.CSSBundle != "" {
 			p := strings.TrimPrefix(o.CSSBundle, outBaseDirForwardSlashes)
-			if err := createAndAddResource(o.CSSBundle, p, group, cssMt); err != nil {
+			if err := createAndAddResource(o.CSSBundle, p, group, o.content, cssMt); err != nil {
 				return false, err
 			}
 		}
@@ -710,12 +712,16 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 		if !handled {
 			//  Copy to destination.
 			p := strings.TrimPrefix(o.filenameForwardSlashes, outBaseDirForwardSlashes)
-			targetDir := filepath.Join(absPublishDir, b.id, p)
-			if err := os.MkdirAll(filepath.Dir(targetDir), 0o777); err != nil {
-				return nil, fmt.Errorf("failed to create dir %q: %w", targetDir, err)
+			targetFilename := filepath.Join(absPublishDir, b.id, p)
+			fs := b.client.d.BaseFs.PublishFs
+			if err := fs.MkdirAll(filepath.Dir(targetFilename), 0o777); err != nil {
+				return nil, fmt.Errorf("failed to create dir %q: %w", targetFilename, err)
 			}
-			if err := hugio.CopyFile(hugofs.Os, filepath.FromSlash(o.filenameForwardSlashes), targetDir); err != nil {
-				return nil, fmt.Errorf("failed to copy %q to %q: %w", o.filenameForwardSlashes, targetDir, err)
+
+			if err := afero.WriteFile(fs, targetFilename, o.content, 0o666); err != nil {
+				return nil, fmt.Errorf("failed to write to %q: %w", targetFilename, err)
+			}
+			if err := hugio.CopyFile(hugofs.Os, filepath.FromSlash(o.filenameForwardSlashes), targetFilename); err != nil {
 			}
 		}
 	}
@@ -799,14 +805,14 @@ type esBuildResultMeta struct {
 	cssBundleEntryPoint map[string]esBuildResultMetaOutput
 }
 
-func (e *esBuildResultMeta) Compile(cwd string) error {
+func (e *esBuildResultMeta) Compile(cwd string, result api.BuildResult) error {
 	// Rewrite the paths to be absolute.
 	// See https://github.com/evanw/esbuild/issues/338
 	outputs := make(map[string]esBuildResultMetaOutput)
 	for k, v := range e.Outputs {
 		filename := filepath.Join(cwd, k)
 
-		if err := v.Compile(filename); err != nil {
+		if err := v.Compile(filename, result); err != nil {
 			return err
 		}
 
@@ -834,10 +840,23 @@ type esBuildResultMetaOutput struct {
 	CSSBundle  string
 
 	// compiled values.
-	filenameForwardSlashes string
+	filenameForwardSlashes string // TODO1 remove?
+	content                []byte
 }
 
-func (e *esBuildResultMetaOutput) Compile(filename string) error {
+func (e *esBuildResultMetaOutput) Compile(filename string, result api.BuildResult) error {
+	var found bool
+	for _, v := range result.OutputFiles {
+		if v.Path == filename {
+			found = true
+			e.content = v.Contents
+			break
+		}
+	}
+
+	if !found {
+		return fmt.Errorf("output file %q not found", filename)
+	}
 	e.filenameForwardSlashes = filepath.ToSlash(filename)
 	return nil
 }
@@ -1445,12 +1464,13 @@ func (o *opts[K, C]) currPrev() (map[string]any, map[string]any) {
 	return o.h.optsCurr, o.h.optsPrev
 }
 
-func fromJSONToESBuildResultMeta(cwd, jsons string) esBuildResultMeta {
+func fromJSONToESBuildResultMeta(cwd string, result api.BuildResult) esBuildResultMeta {
 	var m esBuildResultMeta
+	jsons := result.Metafile
 	if err := json.Unmarshal([]byte(jsons), &m); err != nil {
 		panic(err)
 	}
-	if err := m.Compile(cwd); err != nil {
+	if err := m.Compile(cwd, result); err != nil {
 		panic(err)
 	}
 	return m
