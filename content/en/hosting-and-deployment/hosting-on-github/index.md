@@ -55,7 +55,7 @@ Step 4
 {style="max-width: 280px"}
 
 Step 5
-: Create a file named `hugo.yaml` in a directory named `.github/worflows`.
+: Create a file named `hugo.yaml` in a directory named `.github/workflows`.
 
 ```text
 mkdir -p .github/workflows
