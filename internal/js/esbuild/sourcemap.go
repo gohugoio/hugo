@@ -28,7 +28,6 @@ type sourceMap struct {
 	Names          []string `json:"names"`
 }
 
-// TODO1 also add this to the "other" build chain + test.
 func fixOutputFile(o *api.OutputFile, resolve func(string) string) error {
 	if strings.HasSuffix(o.Path, ".map") {
 		b, err := fixSourceMap(o.Contents, resolve)
@@ -62,10 +61,8 @@ func fixSourceMapSources(s []string, resolve func(string) string) []string {
 		if strings.HasPrefix(src, "..") {
 			// Relative to the one level root.
 			src = strings.TrimPrefix(src, "..")
-		} else if strings.HasPrefix(src, "ns-hugo") {
-			if s := resolve(src); s != "" {
-				src = s
-			}
+		} else if s := resolve(src); s != "" {
+			src = s
 		}
 		s[i] = src
 	}

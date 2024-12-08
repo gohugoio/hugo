@@ -626,6 +626,12 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 				}
 				return nil
 			},
+			OutputPathToAbsFilename: func(s string) string {
+				if r, found := state.importResource.Get(s); found {
+					return resources.InternalResourceSourcePathBestEffort(r)
+				}
+				return ""
+			},
 			EntryPoints: entryPoints,
 		},
 	}
@@ -638,15 +644,20 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 	groups := make(map[string]resource.Resources)
 
 	createAndAddResource := func(targetPath, group string, o api.OutputFile, mt media.Type) error {
+		var sourceFilename string
+		if r, found := state.importResource.Get(targetPath); found {
+			sourceFilename = resources.InternalResourceSourcePathBestEffort(r)
+		}
 		targetPath = path.Join(b.id, targetPath)
+
 		rd := resources.ResourceSourceDescriptor{
 			LazyPublish: true,
 			OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
 				return hugio.NewReadSeekerNoOpCloserFromBytes(o.Contents), nil
 			},
-			MediaType:  mt,
-			TargetPath: targetPath,
-			// TODO1 SourceFilenameOrPath: filename,
+			MediaType:            mt,
+			TargetPath:           targetPath,
+			SourceFilenameOrPath: sourceFilename,
 		}
 		r, err := b.client.d.ResourceSpec.NewResource(rd)
 		if err != nil {
@@ -680,20 +691,6 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 	}
 
 	for _, o := range result.OutputFiles {
-		if err := fixOutputFile(&o, func(s string) string {
-			if !strings.HasPrefix(s, "ns-hugo") {
-				return ""
-			}
-			idxColon := strings.Index(s, ":")
-			s = s[idxColon+1:]
-			if r, found := state.importResource.Get(s); found {
-				return resources.InternalResourceSourcePathBestEffort(r)
-			}
-			return s
-		}); err != nil {
-			return nil, err
-		}
-
 		handled, err := createAndAddResources(o)
 		if err != nil {
 			return nil, err

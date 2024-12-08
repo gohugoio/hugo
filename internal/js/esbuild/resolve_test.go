@@ -69,8 +69,9 @@ func TestResolveComponentInAssets(t *testing.T) {
 			c.Assert(err, qt.IsNil)
 			bfs, err := filesystems.NewBase(p, nil)
 			c.Assert(err, qt.IsNil)
+			resolver := newFSResolver(bfs.Assets.Fs)
 
-			got := resolveComponentInAssets(bfs.Assets.Fs, test.impPath)
+			got := resolver.resolveComponent(test.impPath)
 
 			gotPath := ""
 			expect := test.expect

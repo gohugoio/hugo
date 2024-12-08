@@ -18,6 +18,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -54,6 +55,7 @@ func (c *BuildClient) Build(opts Options) (api.BuildResult, error) {
 	opts.ResolveDir = c.rs.Cfg.BaseConfig().WorkingDir // where node_modules gets resolved
 	opts.AbsWorkingDir = opts.ResolveDir
 	opts.TsConfig = c.rs.ResolveJSConfigFile("tsconfig.json")
+	assetsResolver := newFSResolver(c.rs.Assets.Fs)
 
 	if err := opts.validate(); err != nil {
 		return api.BuildResult{}, err
@@ -64,7 +66,7 @@ func (c *BuildClient) Build(opts Options) (api.BuildResult, error) {
 	}
 
 	var err error
-	opts.compiled.Plugins, err = createBuildPlugins(c.rs, dependencyManager, opts)
+	opts.compiled.Plugins, err = createBuildPlugins(c.rs, assetsResolver, dependencyManager, opts)
 	if err != nil {
 		return api.BuildResult{}, err
 	}
@@ -85,7 +87,7 @@ func (c *BuildClient) Build(opts Options) (api.BuildResult, error) {
 				return api.BuildResult{}, fmt.Errorf("inject: absolute paths not supported, must be relative to /assets")
 			}
 
-			m := resolveComponentInAssets(c.rs.Assets.Fs, impPath)
+			m := assetsResolver.resolveComponent(impPath)
 
 			if m == nil {
 				return api.BuildResult{}, fmt.Errorf("inject: file %q not found", ext)
@@ -122,7 +124,7 @@ func (c *BuildClient) Build(opts Options) (api.BuildResult, error) {
 
 			if resolvedError == nil {
 				if errorPath == stdinImporter {
-					errorPath = opts.StdinSourceDir
+					errorPath = opts.StdinSourcePath
 				}
 
 				errorMessage = msg.Text
@@ -185,6 +187,42 @@ func (c *BuildClient) Build(opts Options) (api.BuildResult, error) {
 		}
 
 		return result, errors[0]
+	}
+
+	inOutputPathToAbsFilename := opts.OutputPathToAbsFilename
+	opts.OutputPathToAbsFilename = func(s string) string {
+		if inOutputPathToAbsFilename != nil {
+			if filename := inOutputPathToAbsFilename(s); filename != "" {
+				return filename
+			}
+		}
+
+		if m := assetsResolver.resolveComponent(s); m != nil {
+			return m.Filename
+		}
+
+		return ""
+	}
+
+	for i, o := range result.OutputFiles {
+
+		if err := fixOutputFile(&o, func(s string) string {
+			if s == "<stdin>" {
+				return opts.OutputPathToAbsFilename(opts.StdinSourcePath)
+			}
+			if !strings.HasPrefix(s, "ns-hugo") {
+				return ""
+			}
+			idxColon := strings.Index(s, ":")
+			s = s[idxColon+1:]
+			if path.IsAbs(s) {
+				return s
+			}
+			return opts.OutputPathToAbsFilename(s)
+		}); err != nil {
+			return result, err
+		}
+		result.OutputFiles[i] = o
 	}
 
 	return result, nil

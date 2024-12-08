@@ -49,7 +49,7 @@ func (c *Client) transform(opts esbuild.Options, transformCtx *resources.Resourc
 		opts.DependencyManager = transformCtx.DependencyManager
 	}
 
-	opts.StdinSourceDir = transformCtx.SourcePath
+	opts.StdinSourcePath = transformCtx.SourcePath
 
 	result, err := c.c.Build(opts)
 	if err != nil {

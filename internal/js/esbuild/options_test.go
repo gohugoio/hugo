@@ -35,9 +35,10 @@ func TestToBuildOptions(t *testing.T) {
 
 	c.Assert(opts.compile(), qt.IsNil)
 	c.Assert(opts.compiled, qt.DeepEquals, api.BuildOptions{
-		Bundle: true,
-		Target: api.ESNext,
-		Format: api.FormatIIFE,
+		Bundle:         true,
+		Target:         api.ESNext,
+		Format:         api.FormatIIFE,
+		SourcesContent: 1,
 		Stdin: &api.StdinOptions{
 			Loader: api.LoaderJS,
 		},
@@ -61,6 +62,7 @@ func TestToBuildOptions(t *testing.T) {
 		Bundle:            true,
 		Target:            api.ES2018,
 		Format:            api.FormatCommonJS,
+		SourcesContent:    1,
 		MinifyIdentifiers: true,
 		MinifySyntax:      true,
 		MinifyWhitespace:  true,
@@ -88,6 +90,7 @@ func TestToBuildOptions(t *testing.T) {
 		MinifyIdentifiers: true,
 		MinifySyntax:      true,
 		MinifyWhitespace:  true,
+		SourcesContent:    1,
 		Sourcemap:         api.SourceMapInline,
 		Stdin: &api.StdinOptions{
 			Loader: api.LoaderJS,
@@ -114,6 +117,7 @@ func TestToBuildOptions(t *testing.T) {
 		MinifySyntax:      true,
 		MinifyWhitespace:  true,
 		Sourcemap:         api.SourceMapInline,
+		SourcesContent:    1,
 		Stdin: &api.StdinOptions{
 			Loader: api.LoaderJS,
 		},
@@ -139,6 +143,7 @@ func TestToBuildOptions(t *testing.T) {
 		MinifySyntax:      true,
 		MinifyWhitespace:  true,
 		Sourcemap:         api.SourceMapExternal,
+		SourcesContent:    1,
 		Stdin: &api.StdinOptions{
 			Loader: api.LoaderJS,
 		},
@@ -156,9 +161,10 @@ func TestToBuildOptions(t *testing.T) {
 
 	c.Assert(opts.compile(), qt.IsNil)
 	c.Assert(opts.compiled, qt.DeepEquals, api.BuildOptions{
-		Bundle: true,
-		Target: api.ESNext,
-		Format: api.FormatIIFE,
+		Bundle:         true,
+		Target:         api.ESNext,
+		Format:         api.FormatIIFE,
+		SourcesContent: 1,
 		Stdin: &api.StdinOptions{
 			Loader: api.LoaderJS,
 		},

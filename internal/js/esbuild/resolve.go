@@ -21,6 +21,7 @@ import (
 	"strings"
 
 	"github.com/evanw/esbuild/pkg/api"
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/resources"
@@ -148,18 +149,30 @@ func ResolveComponent[T any](impPath string, resolve func(string) (v T, found, i
 	return
 }
 
-func resolveComponentInAssets(fs afero.Fs, impPath string) *hugofs.FileMeta {
-	resolve := func(name string) (*hugofs.FileMeta, bool, bool) {
-		if fi, err := fs.Stat(name); err == nil {
-			return fi.(hugofs.FileMetaInfo).Meta(), true, fi.IsDir()
+type fsResolver struct {
+	fs       afero.Fs
+	resolved *maps.Cache[string, *hugofs.FileMeta]
+}
+
+func newFSResolver(fs afero.Fs) *fsResolver {
+	return &fsResolver{fs: fs, resolved: maps.NewCache[string, *hugofs.FileMeta]()}
+}
+
+func (r *fsResolver) resolveComponent(impPath string) *hugofs.FileMeta {
+	v, _ := r.resolved.GetOrCreate(impPath, func() (*hugofs.FileMeta, error) {
+		resolve := func(name string) (*hugofs.FileMeta, bool, bool) {
+			if fi, err := r.fs.Stat(name); err == nil {
+				return fi.(hugofs.FileMetaInfo).Meta(), true, fi.IsDir()
+			}
+			return nil, false, false
 		}
-		return nil, false, false
-	}
-	v, _ := ResolveComponent(impPath, resolve)
+		v, _ := ResolveComponent(impPath, resolve)
+		return v, nil
+	})
 	return v
 }
 
-func createBuildPlugins(rs *resources.Spec, depsManager identity.Manager, opts Options) ([]api.Plugin, error) {
+func createBuildPlugins(rs *resources.Spec, assetsResolver *fsResolver, depsManager identity.Manager, opts Options) ([]api.Plugin, error) {
 	fs := rs.Assets
 
 	resolveImport := func(args api.OnResolveArgs) (api.OnResolveResult, error) {
@@ -212,7 +225,7 @@ func createBuildPlugins(rs *resources.Spec, depsManager identity.Manager, opts O
 			impPath = filepath.Join(relDir, impPath)
 		}
 
-		m := resolveComponentInAssets(fs.Fs, impPath)
+		m := assetsResolver.resolveComponent(impPath)
 
 		if m != nil {
 			depsManager.AddIdentity(m.PathInfo)

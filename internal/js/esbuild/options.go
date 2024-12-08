@@ -59,8 +59,7 @@ type InternalOptions struct {
 	AbsWorkingDir string
 	Metafile      bool
 
-	// Used for error logging.
-	StdinSourceDir string
+	StdinSourcePath string
 
 	DependencyManager identity.Manager
 
@@ -73,6 +72,7 @@ type InternalOptions struct {
 	ImportOnLoadFunc        func(api.OnLoadArgs) string
 	ImportParamsOnLoadFunc  func(args api.OnLoadArgs) json.RawMessage
 	ErrorMessageResolveFunc func(api.Message) *ErrorMessageResolved
+	OutputPathToAbsFilename func(string) string
 	Stdin                   bool
 }
 

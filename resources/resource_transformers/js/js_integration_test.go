@@ -201,9 +201,9 @@ TS2: {{ template "print" $ts2 }}
 			TxtarString:     files,
 		}).Build()
 
-	b.AssertFileContent("public/js/main.js.map", `"version": 3,asdf`)                                          // linked
-	b.AssertFileContent("public/js/myts.js", `//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJz`) // external
-	b.AssertFileContent("public/js/myts.js.map", `"version": 3,asdf`)
+	b.AssertFileContent("public/js/main.js", `//# sourceMappingURL=main.js.map`)
+	b.AssertFileContent("public/js/main.js.map", `"version":3`, "! ns-hugo")                                   // linked
+	b.AssertFileContent("public/js/myts.js", `//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJz`) // inline
 	b.AssertFileContent("public/index.html", `
 		console.log(&#34;included&#34;);
 		if (hasSpace.test(string))

@@ -219,7 +219,7 @@ func TestBatchErrorScriptResourceInAssetsSyntaxError(t *testing.T) {
 	files := strings.Replace(jsBatchFilesTemplate, `console.log("Hello, Main!");`, `console.log("Hello, Main!"`, 1)
 	b, err := hugolib.TestE(t, files, hugolib.TestOptWithOSFs())
 	b.Assert(err, qt.IsNotNil)
-	b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`assets/js/main.js:4:0": Expected ")" but found "console"`))
+	b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`assets/js/main.js:5:0": Expected ")" but found "console"`))
 }
 
 func TestBatchErrorScriptResourceInBundleSyntaxError(t *testing.T) {
