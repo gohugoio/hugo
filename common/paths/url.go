@@ -193,3 +193,8 @@ func URLEscape(uri string) string {
 	}
 	return u.String()
 }
+
+// TrimExt trims the extension from a path..
+func TrimExt(in string) string {
+	return strings.TrimSuffix(in, path.Ext(in))
+}
