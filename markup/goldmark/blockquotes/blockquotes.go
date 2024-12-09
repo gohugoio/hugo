@@ -74,7 +74,7 @@ func (r *htmlRenderer) renderBlockquote(w util.BufWriter, src []byte, node ast.N
 	ordinal := ctx.GetAndIncrementOrdinal(ast.KindBlockquote)
 
 	typ := typeRegular
-	alert := resolveBlockQuoteAlert(string(text))
+	alert := resolveBlockQuoteAlert(text)
 	if alert.typ != "" {
 		typ = typeAlert
 	}
@@ -85,10 +85,21 @@ func (r *htmlRenderer) renderBlockquote(w util.BufWriter, src []byte, node ast.N
 	}
 
 	if typ == typeAlert {
-		// Trim preamble: <p>[!NOTE]<br>\n but preserve leading paragraph.
-		// We could possibly complicate this by moving this to the parser, but
-		// keep it simple for now.
-		text = "<p>" + text[strings.Index(text, "\n")+1:]
+		// Parse the blockquote content to determine the alert text. The alert
+		// text begins after the first newline, but we need to add an opening p
+		// tag if the first line of the blockquote content does not have a
+		// closing p tag. At some point we might want to move this to the
+		// parser.
+		before, after, found := strings.Cut(strings.TrimSpace(text), "\n")
+		if found {
+			if strings.HasSuffix(before, "</p>") {
+				text = after
+			} else {
+				text = "<p>" + after
+			}
+		} else {
+			text = ""
+		}
 	}
 
 	bqctx := &blockquoteContext{
@@ -165,7 +176,7 @@ func resolveBlockQuoteAlert(s string) blockQuoteAlert {
 	m := blockQuoteAlertRe.FindStringSubmatch(s)
 	if len(m) == 4 {
 		title := strings.TrimSpace(m[3])
-		title = strings.TrimRight(title, "</p>")
+		title = strings.TrimSuffix(title, "</p>")
 		return blockQuoteAlert{
 			typ:   strings.ToLower(m[1]),
 			sign:  m[2],
