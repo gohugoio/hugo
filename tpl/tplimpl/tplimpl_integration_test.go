@@ -600,3 +600,118 @@ a{{< comment >}}b{{< /comment >}}c
 	b := hugolib.Test(t, files)
 	b.AssertFileContent("public/index.html", "<p>ac</p>")
 }
+
+func TestDetailsShortcode(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['rss','section','sitemap','taxonomy','term']
+defaultContentLanguage = "en"
+[languages]
+  [languages.en]
+    weight = 1
+  [languages.es]
+    weight = 2
+-- i18n/en.toml --
+[shortcodes.details]
+other = "Details"
+-- i18n/es.toml --
+[shortcodes.details]
+other = "Detalles"
+-- layouts/_default/single.html --
+{{ .Content }}
+-- content/d1.md --
+---
+title: Default State Test
+---
+{{< details >}}
+Basic example without summary
+{{< /details >}}
+-- content/d2.md --
+---
+title: Custom Summary Test
+---
+{{< details summary="Custom Summary" >}}
+Example with custom summary text
+{{< /details >}}
+-- content/d3.md --
+---
+title: Open State Test
+---
+{{< details summary="Test Open State" open="true" >}}
+Example with open state
+{{< /details >}}
+-- content/d4.md --
+---
+title: Attributes Test
+---
+{{< details summary="Test Attribute sanitization" style="color: red; font-weight: bold; background-color: #eee" onclick="alert('test')" >}}
+Example testing attribute sanitization
+{{< /details >}}
+-- content/d5.md --
+---
+title: Class Test
+---
+{{< details class="custom-class" >}}
+Example with allowed class attribute
+{{< /details >}}
+-- content/d6.md --
+---
+title: Name Test
+---
+{{< details name="custom-name" >}}
+Example with allowed name attribute
+{{< /details >}}
+-- content/d7.es.md --
+---
+title: Localization Test
+---
+{{< details >}}
+Localization example without summary
+{{< /details >}}
+`
+	b := hugolib.Test(t, files)
+
+	// Test1: default state (closed by default)
+	b.AssertFileContentEquals("public/d1/index.html",
+		"\n<details>\n    <summary>Details</summary>\n    <p>Basic example without summary</p>\n</details>\n",
+	)
+	content1 := b.FileContent("public/d1/index.html")
+	c := qt.New(t)
+	c.Assert(content1, qt.Not(qt.Contains), "open")
+
+	// Test2: custom summary
+	b.AssertFileContentEquals("public/d2/index.html",
+		"\n<details>\n    <summary>Custom Summary</summary>\n    <p>Example with custom summary text</p>\n</details>\n",
+	)
+
+	// Test3: open state
+	b.AssertFileContentEquals("public/d3/index.html",
+		"\n<details open>\n    <summary>Test Open State</summary>\n    <p>Example with open state</p>\n</details>\n",
+	)
+
+	// Test4: Test sanitization
+	b.AssertFileContentEquals("public/d4/index.html",
+		"\n<details>\n    <summary>Test Attribute sanitization</summary>\n    <p>Example testing attribute sanitization</p>\n</details>\n",
+	)
+	content4 := b.FileContent("public/d4/index.html")
+	c.Assert(content4, qt.Not(qt.Contains), "style")
+	c.Assert(content4, qt.Not(qt.Contains), "onclick")
+	c.Assert(content4, qt.Not(qt.Contains), "alert")
+
+	// Test5: class attribute
+	b.AssertFileContentEquals("public/d5/index.html",
+		"\n<details class=\"custom-class\">\n    <summary>Details</summary>\n    <p>Example with allowed class attribute</p>\n</details>\n",
+	)
+
+	// Test6: name attribute
+	b.AssertFileContentEquals("public/d6/index.html",
+		"\n<details name=\"custom-name\">\n    <summary>Details</summary>\n    <p>Example with allowed name attribute</p>\n</details>\n",
+	)
+
+	// Test7: localization
+	b.AssertFileContentEquals("public/es/d7/index.html",
+		"\n<details>\n    <summary>Detalles</summary>\n    <p>Localization example without summary</p>\n</details>\n",
+	)
+}
