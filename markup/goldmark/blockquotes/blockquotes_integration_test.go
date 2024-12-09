@@ -48,9 +48,8 @@ Content: {{ .Content }}
 title: "p1"
 ---
 
-> [!NOTE]  
+> [!NOTE]
 > This is a note with some whitespace after the alert type.
-
 
 > [!TIP]
 > This is a tip.
@@ -64,29 +63,26 @@ title: "p1"
 > This is a tip with attributes.
 {class="foo bar" id="baz"}
 
-> [!NOTE]  
+> [!NOTE]
 > Note triggering showing the position.
 {showpos="true"}
 
-
-> [!nOtE]  
+> [!nOtE]
 > Mixed case alert type.
-
-
 `
 
 	b := hugolib.Test(t, files)
 	b.AssertFileContentExact("public/p1/index.html",
-		"Blockquote Alert: |<p>This is a note with some whitespace after the alert type.</p>\n|alert|",
+		"Blockquote Alert: |<p>This is a note with some whitespace after the alert type.</p>|alert|",
 		"Blockquote Alert: |<p>This is a tip.</p>",
-		"Blockquote Alert: |<p>This is a caution with some whitespace before the alert type.</p>\n|alert|",
+		"Blockquote Alert: |<p>This is a caution with some whitespace before the alert type.</p>|alert|",
 		"Blockquote: |<p>A regular blockquote.</p>\n|regular|",
-		"Blockquote Alert Attributes: |<p>This is a tip with attributes.</p>\n|map[class:foo bar id:baz]|",
-		filepath.FromSlash("/content/p1.md:20:3"),
-		"Blockquote Alert Page: |<p>This is a tip with attributes.</p>\n|p1|p1|",
+		"Blockquote Alert Attributes: |<p>This is a tip with attributes.</p>|map[class:foo bar id:baz]|",
+		filepath.FromSlash("/content/p1.md:19:3"),
+		"Blockquote Alert Page: |<p>This is a tip with attributes.</p>|p1|p1|",
 
 		// Issue 12767.
-		"Blockquote Alert: |<p>Mixed case alert type.</p>\n|alert",
+		"Blockquote Alert: |<p>Mixed case alert type.</p>|alert",
 	)
 }
 
@@ -142,17 +138,113 @@ title: "Home"
 {{ .Content }}
 -- layouts/_default/_markup/render-blockquote.html --
 AlertType: {{ .AlertType }}|AlertTitle: {{ .AlertTitle }}|AlertSign: {{ .AlertSign | safeHTML }}|Text: {{ .Text }}|
-	
+
 	`
 
 	b := hugolib.Test(t, files)
 	b.AssertFileContentExact("public/index.html",
 		"AlertType: tip|AlertTitle: Callouts can have custom titles|AlertSign: |",
 		"AlertType: tip|AlertTitle: Title-only callout|AlertSign: |",
-		"AlertType: faq|AlertTitle: Foldable negated callout|AlertSign: -|Text: <p>Yes! In a foldable callout, the contents are hidden when the callout is collapsed</p>\n|",
-		"AlertType: faq|AlertTitle: Foldable callout|AlertSign: +|Text: <p>Yes! In a foldable callout, the contents are hidden when the callout is collapsed</p>\n|",
-		"AlertType: danger|AlertTitle: |AlertSign: |Text: <p>Do not approach or handle without protective gear.</p>\n|",
+		"AlertType: faq|AlertTitle: Foldable negated callout|AlertSign: -|Text: <p>Yes! In a foldable callout, the contents are hidden when the callout is collapsed</p>|",
+		"AlertType: faq|AlertTitle: Foldable callout|AlertSign: +|Text: <p>Yes! In a foldable callout, the contents are hidden when the callout is collapsed</p>|",
+		"AlertType: danger|AlertTitle: |AlertSign: |Text: <p>Do not approach or handle without protective gear.</p>|",
 		"AlertTitle: Can callouts be nested?|",
 		"AlertTitle: You can even use multiple layers of nesting.|",
+	)
+}
+
+// Issue 12913
+// Issue 13119
+func TestBlockquoteRenderHookTextParsing(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/index.html --
+{{ .Content }}
+-- layouts/_default/_markup/render-blockquote.html --
+AlertType: {{ .AlertType }}|AlertTitle: {{ .AlertTitle }}|Text: {{ .Text }}|
+-- content/_index.md --
+---
+title: home
+---
+
+> [!one]
+
+> [!two] title
+
+> [!three]
+> line 1
+
+> [!four] title
+> line 1
+
+> [!five]
+> line 1
+> line 2
+
+> [!six] title
+> line 1
+> line 2
+
+> [!seven]
+> - list item
+
+> [!eight] title
+> - list item
+
+> [!nine]
+> line 1
+> - list item
+
+> [!ten] title
+> line 1
+> - list item
+
+> [!eleven]
+> line 1
+> - list item
+>
+> line 2
+
+> [!twelve] title
+> line 1
+> - list item
+>
+> line 2
+
+> [!thirteen]
+> ![alt](a.jpg)
+
+> [!fourteen] title
+> ![alt](a.jpg)
+
+> [!fifteen] _title_
+
+> [!sixteen] _title_
+> line one
+
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		"AlertType: one|AlertTitle: |Text: |",
+		"AlertType: two|AlertTitle: title|Text: |",
+		"AlertType: three|AlertTitle: |Text: <p>line 1</p>|",
+		"AlertType: four|AlertTitle: title|Text: <p>line 1</p>|",
+		"AlertType: five|AlertTitle: |Text: <p>line 1\nline 2</p>|",
+		"AlertType: six|AlertTitle: title|Text: <p>line 1\nline 2</p>|",
+		"AlertType: seven|AlertTitle: |Text: <ul>\n<li>list item</li>\n</ul>|",
+		"AlertType: eight|AlertTitle: title|Text: <ul>\n<li>list item</li>\n</ul>|",
+		"AlertType: nine|AlertTitle: |Text: <p>line 1</p>\n<ul>\n<li>list item</li>\n</ul>|",
+		"AlertType: ten|AlertTitle: title|Text: <p>line 1</p>\n<ul>\n<li>list item</li>\n</ul>|",
+		"AlertType: eleven|AlertTitle: |Text: <p>line 1</p>\n<ul>\n<li>list item</li>\n</ul>\n<p>line 2</p>|",
+		"AlertType: twelve|AlertTitle: title|Text: <p>line 1</p>\n<ul>\n<li>list item</li>\n</ul>\n<p>line 2</p>|",
+		"AlertType: thirteen|AlertTitle: |Text: <p><img src=\"a.jpg\" alt=\"alt\"></p>|",
+		"AlertType: fourteen|AlertTitle: title|Text: <p><img src=\"a.jpg\" alt=\"alt\"></p>|",
+		"AlertType: fifteen|AlertTitle: <em>title</em>|Text: |",
+		"AlertType: sixteen|AlertTitle: <em>title</em>|Text: <p>line one</p>|",
 	)
 }
