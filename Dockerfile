@@ -65,7 +65,8 @@ RUN apk add --no-cache \
     git \
     runuser \
     nodejs \
-    npm
+    npm \
+    asciidoctor
 
 RUN mkdir -p /var/hugo/bin /cache && \
     addgroup -Sg 1000 hugo && \
