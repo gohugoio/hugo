@@ -1,4 +1,4 @@
-// Copyright 2021 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -173,7 +173,7 @@ hello:
 hello:
    other: "Bonjour"
 -- layouts/index.html --
-{{ $options := dict "minify" false "externals" (slice "react" "react-dom") }}
+{{ $options := dict "minify" false "externals" (slice "react" "react-dom")  "sourcemap" "linked" }}
 {{ $js := resources.Get "js/main.js" | js.Build $options }}
 JS:  {{ template "print" $js }}
 {{ $jsx := resources.Get "js/myjsx.jsx" | js.Build $options }}
@@ -201,8 +201,9 @@ TS2: {{ template "print" $ts2 }}
 			TxtarString:     files,
 		}).Build()
 
-	b.AssertFileContent("public/js/myts.js", `//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJz`)
-	b.AssertFileContent("public/js/myts2.js.map", `"version": 3,`)
+	b.AssertFileContent("public/js/main.js", `//# sourceMappingURL=main.js.map`)
+	b.AssertFileContent("public/js/main.js.map", `"version":3`, "! ns-hugo")                                   // linked
+	b.AssertFileContent("public/js/myts.js", `//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJz`) // inline
 	b.AssertFileContent("public/index.html", `
 		console.log(&#34;included&#34;);
 		if (hasSpace.test(string))

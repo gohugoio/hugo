@@ -1754,6 +1754,11 @@ func (sa *sitePagesAssembler) assembleResources() error {
 						mt = rs.rc.ContentMediaType
 					}
 
+					var filename string
+					if rs.fi != nil {
+						filename = rs.fi.Meta().Filename
+					}
+
 					rd := resources.ResourceSourceDescriptor{
 						OpenReadSeekCloser:   rs.opener,
 						Path:                 rs.path,
@@ -1762,6 +1767,7 @@ func (sa *sitePagesAssembler) assembleResources() error {
 						TargetBasePaths:      targetBasePaths,
 						BasePathRelPermalink: targetPaths.SubResourceBaseLink,
 						BasePathTargetPath:   baseTarget,
+						SourceFilenameOrPath: filename,
 						NameNormalized:       relPath,
 						NameOriginal:         relPathOriginal,
 						MediaType:            mt,
