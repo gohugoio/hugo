@@ -111,6 +111,10 @@ func (h *HugoSites) ShouldSkipFileChangeEvent(ev fsnotify.Event) bool {
 	return h.skipRebuildForFilenames[ev.Name]
 }
 
+func (h *HugoSites) Close() error {
+	return h.Deps.Close()
+}
+
 func (h *HugoSites) isRebuild() bool {
 	return h.buildCounter.Load() > 0
 }

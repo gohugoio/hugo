@@ -32,6 +32,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -210,16 +211,17 @@ func (f *fileChangeDetector) changed() []string {
 		}
 	}
 
-	return f.filterIrrelevant(c)
+	return f.filterIrrelevantAndSort(c)
 }
 
-func (f *fileChangeDetector) filterIrrelevant(in []string) []string {
+func (f *fileChangeDetector) filterIrrelevantAndSort(in []string) []string {
 	var filtered []string
 	for _, v := range in {
 		if !f.irrelevantRe.MatchString(v) {
 			filtered = append(filtered, v)
 		}
 	}
+	sort.Strings(filtered)
 	return filtered
 }
 

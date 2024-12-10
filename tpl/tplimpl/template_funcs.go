@@ -251,6 +251,9 @@ func newTemplateExecuter(d *deps.Deps) (texttemplate.Executer, map[string]reflec
 }
 
 func createFuncMap(d *deps.Deps) map[string]any {
+	if d.TmplFuncMap != nil {
+		return d.TmplFuncMap
+	}
 	funcMap := template.FuncMap{}
 
 	nsMap := make(map[string]any)
@@ -292,5 +295,7 @@ func createFuncMap(d *deps.Deps) map[string]any {
 		}
 	}
 
-	return funcMap
+	d.TmplFuncMap = funcMap
+
+	return d.TmplFuncMap
 }

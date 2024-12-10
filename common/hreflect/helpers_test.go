@@ -50,6 +50,19 @@ func TestIsContextType(t *testing.T) {
 	c.Assert(IsContextType(reflect.TypeOf(valueCtx)), qt.IsTrue)
 }
 
+func TestToSliceAny(t *testing.T) {
+	c := qt.New(t)
+
+	checkOK := func(in any, expected []any) {
+		out, ok := ToSliceAny(in)
+		c.Assert(ok, qt.Equals, true)
+		c.Assert(out, qt.DeepEquals, expected)
+	}
+
+	checkOK([]any{1, 2, 3}, []any{1, 2, 3})
+	checkOK([]int{1, 2, 3}, []any{1, 2, 3})
+}
+
 func BenchmarkIsContextType(b *testing.B) {
 	type k string
 	b.Run("value", func(b *testing.B) {
