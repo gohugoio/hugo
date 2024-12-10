@@ -14,9 +14,10 @@
 package resource
 
 import (
-	"github.com/gohugoio/hugo/common/maps"
 	"strings"
 	"time"
+
+	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/pelletier/go-toml/v2"

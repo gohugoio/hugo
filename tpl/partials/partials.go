@@ -81,8 +81,9 @@ func New(deps *deps.Deps) *Namespace {
 
 	cache := &partialCache{cache: lru}
 	deps.BuildStartListeners.Add(
-		func() {
+		func(...any) bool {
 			cache.clear()
+			return false
 		})
 
 	return &Namespace{

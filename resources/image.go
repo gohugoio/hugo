@@ -51,6 +51,7 @@ var (
 	_ resource.Source                 = (*imageResource)(nil)
 	_ resource.Cloner                 = (*imageResource)(nil)
 	_ resource.NameNormalizedProvider = (*imageResource)(nil)
+	_ targetPathProvider              = (*imageResource)(nil)
 )
 
 // imageResource represents an image resource.
@@ -158,6 +159,10 @@ func (i *imageResource) Colors() ([]images.Color, error) {
 		}
 	})
 	return i.dominantColors, nil
+}
+
+func (i *imageResource) targetPath() string {
+	return i.TargetPath()
 }
 
 // Clone is for internal use.
