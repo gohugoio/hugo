@@ -109,6 +109,7 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 				"_%s.scss", "%s.scss",
 				"_%s.sass", "%s.sass",
 				"%s/_index.scss", "%s/_index.sass",
+				"%s/index.scss", "%s/index.sass",
 			}
 		}
 
