@@ -39,16 +39,33 @@ const (
 	stdinImporter = "<stdin>"
 )
 
-// There are some known issues with the output paths in ESBuild, especially around getting the paths correct in the source maps.
-// See the comment in https://github.com/evanw/esbuild/issues/2218#issuecomment-1666231520 for the hint that led to the solution below.
-// Note that we never read or write anything to this directory.
-var jsVirtualOutDir = "__h_jsvoutdir"
+type jsVirtualDirSpec struct {
+	volumName string
+	sep       string
+	dir       string
+}
+
+func (v jsVirtualDirSpec) Dir() string {
+	return v.volumName + v.sep + v.dir
+}
+
+func (v jsVirtualDirSpec) TrimDir(s string) string {
+	s = strings.TrimPrefix(s, v.Dir())
+	if v.volumName != "" {
+		s = v.volumName + v.sep + s
+	}
+	if s == "" {
+		return v.sep
+	}
+	return s
+}
+
+var jsVirtualDir jsVirtualDirSpec = jsVirtualDirSpec{dir: "__h_jsvoutdir", sep: "/"}
 
 func init() {
 	if runtime.GOOS == "windows" {
-		jsVirtualOutDir = "C:\\" + jsVirtualOutDir
-	} else {
-		jsVirtualOutDir = "/" + jsVirtualOutDir
+		jsVirtualDir.sep = "\\"
+		jsVirtualDir.volumName = "C:"
 	}
 }
 
@@ -325,8 +342,4 @@ func createBuildPlugins(rs *resources.Spec, assetsResolver *fsResolver, depsMana
 	}
 
 	return []api.Plugin{importResolver, paramsPlugin}, nil
-}
-
-func trimJSVirtualOutDir(s string) string {
-	return strings.TrimPrefix(s, jsVirtualOutDir)
 }

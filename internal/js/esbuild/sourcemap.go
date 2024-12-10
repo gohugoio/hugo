@@ -68,3 +68,12 @@ func fixSourceMapSources(s []string, resolve func(string) string) []string {
 	}
 	return s
 }
+
+// Used in tests.
+func SourcesFromSourceMap(s string) []string {
+	var sm sourceMap
+	if err := json.Unmarshal([]byte(s), &sm); err != nil {
+		return nil
+	}
+	return sm.Sources
+}

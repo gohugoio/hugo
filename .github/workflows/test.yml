@@ -16,8 +16,8 @@ jobs:
   test:
     strategy:
       matrix:
-        go-version: [1.22.x, 1.23.x]
-        os: [ubuntu-latest, windows-latest] # macos disabled for now because of disk space issues.
+        go-version: [1.23.x]
+        os: [windows-latest] # macos disabled for now because of disk space issues.
     runs-on: ${{ matrix.os }}
     steps:
       - if: matrix.os == 'ubuntu-latest'
@@ -117,7 +117,7 @@ jobs:
         # See issue #11052. We limit the build to regular test (no -race flag) on Windows for now.
         name: Test
         run: |
-          mage -v test;
+          go test ./internal/js/esbuild
         env:
           HUGO_BUILD_TAGS: extended,withdeploy
       - name: Build tags

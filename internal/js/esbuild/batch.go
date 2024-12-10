@@ -672,7 +672,7 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 	}
 
 	createAndAddResources := func(o api.OutputFile) (bool, error) {
-		p := filepath.ToSlash(trimJSVirtualOutDir(o.Path))
+		p := filepath.ToSlash(jsVirtualDir.TrimDir(o.Path))
 		ext := path.Ext(p)
 		mt, _, found := mediaTypes.GetBySuffix(ext)
 		if !found {
@@ -700,7 +700,7 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 
 		if !handled {
 			//  Copy to destination.
-			p := trimJSVirtualOutDir(o.Path)
+			p := jsVirtualDir.TrimDir(o.Path)
 			targetFilename := filepath.Join(b.id, p)
 			fs := b.client.d.BaseFs.PublishFs
 			if err := fs.MkdirAll(filepath.Dir(targetFilename), 0o777); err != nil {

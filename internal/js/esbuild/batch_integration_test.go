@@ -15,6 +15,8 @@
 package esbuild_test
 
 import (
+	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -23,6 +25,7 @@ import (
 
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/hugolib"
+	"github.com/gohugoio/hugo/internal/js/esbuild"
 )
 
 // Used to test misc. error situations etc.
@@ -200,6 +203,22 @@ func TestBatchExternalSourceMap(t *testing.T) {
 	b := hugolib.TestRunning(t, files, hugolib.TestOptWithOSFs())
 	b.AssertFileContent("public/mybatch/mygroup.js.map", "main.js", "! ns-hugo")
 	b.AssertFileContent("public/mybatch/mygroup.js", "sourceMappingURL=mygroup.js.map")
+
+	s := b.FileContent("public/mybatch/mygroup.js.map")
+	sources := esbuild.SourcesFromSourceMap(s)
+	// Check that all source files exist.
+	// From the spec:
+	//  If the sources are not absolute URLs after prepending of the “sourceRoot”, the sources are resolved relative to the SourceMap
+	//   (like resolving script src in a html document).
+	// TODO1 add this to the "other" source map test.
+	for _, src := range sources {
+		_, err := os.Stat(src)
+		if err != nil {
+			// Try relative to the source map.
+			_, err = b.H.Fs.WorkingDirReadOnly.Stat(path.Join("public/mybatch", src))
+			b.Assert(err, qt.IsNil, qt.Commentf("source: %q", src))
+		}
+	}
 }
 
 func TestBatchErrorRunnerResourceNotSet(t *testing.T) {
