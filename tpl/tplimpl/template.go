@@ -695,13 +695,13 @@ func (t *templateHandler) applyBaseTemplate(overlay, base templateInfo) (tpl.Tem
 		if !base.IsZero() {
 			templ, err = templ.Parse(base.template)
 			if err != nil {
-				return nil, base.errWithFileContext("parse failed", err)
+				return nil, base.errWithFileContext("text: base: parse failed", err)
 			}
 		}
 
 		templ, err = texttemplate.Must(templ.Clone()).Parse(overlay.template)
 		if err != nil {
-			return nil, overlay.errWithFileContext("parse failed", err)
+			return nil, overlay.errWithFileContext("text: overlay: parse failed", err)
 		}
 
 		// The extra lookup is a workaround, see
@@ -720,13 +720,13 @@ func (t *templateHandler) applyBaseTemplate(overlay, base templateInfo) (tpl.Tem
 	if !base.IsZero() {
 		templ, err = templ.Parse(base.template)
 		if err != nil {
-			return nil, base.errWithFileContext("parse failed", err)
+			return nil, base.errWithFileContext("html: base: parse failed", err)
 		}
 	}
 
 	templ, err = htmltemplate.Must(templ.Clone()).Parse(overlay.template)
 	if err != nil {
-		return nil, overlay.errWithFileContext("parse failed", err)
+		return nil, overlay.errWithFileContext("html: overlay: parse failed", err)
 	}
 
 	// The extra lookup is a workaround, see

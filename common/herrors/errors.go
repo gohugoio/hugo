@@ -133,6 +133,21 @@ func IsNotExist(err error) bool {
 	return false
 }
 
+// IsExist returns true if the error is a file exists error.
+// Unlike os.IsExist, this also considers wrapped errors.
+func IsExist(err error) bool {
+	if os.IsExist(err) {
+		return true
+	}
+
+	// os.IsExist does not consider wrapped errors.
+	if os.IsExist(errors.Unwrap(err)) {
+		return true
+	}
+
+	return false
+}
+
 var nilPointerErrRe = regexp.MustCompile(`at <(.*)>: error calling (.*?): runtime error: invalid memory address or nil pointer dereference`)
 
 const deferredPrefix = "__hdeferred/"

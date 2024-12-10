@@ -41,7 +41,7 @@ func New(d *deps.Deps) *Namespace {
 
 	l := d.Log.InfoCommand("timer")
 
-	d.BuildEndListeners.Add(func() {
+	d.BuildEndListeners.Add(func(...any) bool {
 		type data struct {
 			Name     string
 			Count    int
@@ -84,6 +84,8 @@ func New(d *deps.Deps) *Namespace {
 		}
 
 		ns.timers = make(map[string][]*timer)
+
+		return false
 	})
 
 	return ns

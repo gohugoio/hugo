@@ -143,16 +143,18 @@ func (c *Client) Get(pathname string) (resource.Resource, error) {
 			return nil, err
 		}
 
-		pi := fi.(hugofs.FileMetaInfo).Meta().PathInfo
+		meta := fi.(hugofs.FileMetaInfo).Meta()
+		pi := meta.PathInfo
 
 		return c.rs.NewResource(resources.ResourceSourceDescriptor{
 			LazyPublish: true,
 			OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
 				return c.rs.BaseFs.Assets.Fs.Open(filename)
 			},
-			Path:          pi,
-			GroupIdentity: pi,
-			TargetPath:    pathname,
+			Path:                 pi,
+			GroupIdentity:        pi,
+			TargetPath:           pathname,
+			SourceFilenameOrPath: meta.Filename,
 		})
 	})
 }
@@ -196,10 +198,11 @@ func (c *Client) match(name, pattern string, matchFunc func(r resource.Resource)
 				OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
 					return meta.Open()
 				},
-				NameNormalized: meta.PathInfo.Path(),
-				NameOriginal:   meta.PathInfo.Unnormalized().Path(),
-				GroupIdentity:  meta.PathInfo,
-				TargetPath:     meta.PathInfo.Unnormalized().Path(),
+				NameNormalized:       meta.PathInfo.Path(),
+				NameOriginal:         meta.PathInfo.Unnormalized().Path(),
+				GroupIdentity:        meta.PathInfo,
+				TargetPath:           meta.PathInfo.Unnormalized().Path(),
+				SourceFilenameOrPath: meta.Filename,
 			})
 			if err != nil {
 				return true, err

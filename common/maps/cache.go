@@ -113,11 +113,14 @@ func (c *Cache[K, T]) set(key K, value T) {
 }
 
 // ForEeach calls the given function for each key/value pair in the cache.
-func (c *Cache[K, T]) ForEeach(f func(K, T)) {
+// If the function returns false, the iteration stops.
+func (c *Cache[K, T]) ForEeach(f func(K, T) bool) {
 	c.RLock()
 	defer c.RUnlock()
 	for k, v := range c.m {
-		f(k, v)
+		if !f(k, v) {
+			return
+		}
 	}
 }
 

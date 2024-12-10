@@ -1,4 +1,4 @@
-// Copyright 2021 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,13 +14,16 @@
 package js_test
 
 import (
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
+	"github.com/gohugoio/hugo/internal/js/esbuild"
 )
 
 func TestBuildVariants(t *testing.T) {
@@ -173,7 +176,7 @@ hello:
 hello:
    other: "Bonjour"
 -- layouts/index.html --
-{{ $options := dict "minify" false "externals" (slice "react" "react-dom") }}
+{{ $options := dict "minify" false "externals" (slice "react" "react-dom")  "sourcemap" "linked" }}
 {{ $js := resources.Get "js/main.js" | js.Build $options }}
 JS:  {{ template "print" $js }}
 {{ $jsx := resources.Get "js/myjsx.jsx" | js.Build $options }}
@@ -201,14 +204,31 @@ TS2: {{ template "print" $ts2 }}
 			TxtarString:     files,
 		}).Build()
 
-	b.AssertFileContent("public/js/myts.js", `//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJz`)
-	b.AssertFileContent("public/js/myts2.js.map", `"version": 3,`)
+	b.AssertFileContent("public/js/main.js", `//# sourceMappingURL=main.js.map`)
+	b.AssertFileContent("public/js/main.js.map", `"version":3`, "! ns-hugo")                                   // linked
+	b.AssertFileContent("public/js/myts.js", `//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJz`) // inline
 	b.AssertFileContent("public/index.html", `
 		console.log(&#34;included&#34;);
 		if (hasSpace.test(string))
 		var React = __toESM(__require(&#34;react&#34;));
 		function greeter(person) {
 `)
+
+	checkMap := func(p string, expectLen int) {
+		s := b.FileContent(p)
+		sources := esbuild.SourcesFromSourceMap(s)
+		b.Assert(sources, qt.HasLen, expectLen)
+
+		// Check that all source files exist.
+		for _, src := range sources {
+			filename, ok := paths.UrlStringToFilename(src)
+			b.Assert(ok, qt.IsTrue)
+			_, err := os.Stat(filename)
+			b.Assert(err, qt.IsNil, qt.Commentf("src: %q", src))
+		}
+	}
+
+	checkMap("public/js/main.js.map", 4)
 }
 
 func TestBuildError(t *testing.T) {

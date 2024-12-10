@@ -273,9 +273,13 @@ func (t Types) GetByType(tp string) (Type, bool) {
 	return Type{}, false
 }
 
+func (t Types) normalizeSuffix(s string) string {
+	return strings.ToLower(strings.TrimPrefix(s, "."))
+}
+
 // BySuffix will return all media types matching a suffix.
 func (t Types) BySuffix(suffix string) []Type {
-	suffix = strings.ToLower(suffix)
+	suffix = t.normalizeSuffix(suffix)
 	var types []Type
 	for _, tt := range t {
 		if tt.hasSuffix(suffix) {
@@ -287,7 +291,7 @@ func (t Types) BySuffix(suffix string) []Type {
 
 // GetFirstBySuffix will return the first type matching the given suffix.
 func (t Types) GetFirstBySuffix(suffix string) (Type, SuffixInfo, bool) {
-	suffix = strings.ToLower(suffix)
+	suffix = t.normalizeSuffix(suffix)
 	for _, tt := range t {
 		if tt.hasSuffix(suffix) {
 			return tt, SuffixInfo{
@@ -304,7 +308,7 @@ func (t Types) GetFirstBySuffix(suffix string) (Type, SuffixInfo, bool) {
 // is ambiguous.
 // The lookup is case insensitive.
 func (t Types) GetBySuffix(suffix string) (tp Type, si SuffixInfo, found bool) {
-	suffix = strings.ToLower(suffix)
+	suffix = t.normalizeSuffix(suffix)
 	for _, tt := range t {
 		if tt.hasSuffix(suffix) {
 			if found {
@@ -324,7 +328,7 @@ func (t Types) GetBySuffix(suffix string) (tp Type, si SuffixInfo, found bool) {
 }
 
 func (t Types) IsTextSuffix(suffix string) bool {
-	suffix = strings.ToLower(suffix)
+	suffix = t.normalizeSuffix(suffix)
 	for _, tt := range t {
 		if tt.hasSuffix(suffix) {
 			return tt.IsText()

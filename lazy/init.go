@@ -36,7 +36,7 @@ type Init struct {
 	prev     *Init
 	children []*Init
 
-	init onceMore
+	init OnceMore
 	out  any
 	err  error
 	f    func(context.Context) (any, error)

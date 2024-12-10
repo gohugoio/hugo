@@ -1,4 +1,4 @@
-// Copyright 2021 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ import (
 	"net/url"
 	"path"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -159,9 +160,77 @@ func Uglify(in string) string {
 	return path.Clean(in)
 }
 
+// URLEscape escapes unicode letters.
+func URLEscape(uri string) string {
+	// escape unicode letters
+	u, err := url.Parse(uri)
+	if err != nil {
+		panic(err)
+	}
+	return u.String()
+}
+
+// TrimExt trims the extension from a path..
+func TrimExt(in string) string {
+	return strings.TrimSuffix(in, path.Ext(in))
+}
+
+// From https://github.com/golang/go/blob/e0c76d95abfc1621259864adb3d101cf6f1f90fc/src/cmd/go/internal/web/url.go#L45
+func UrlFromFilename(filename string) (*url.URL, error) {
+	if !filepath.IsAbs(filename) {
+		return nil, fmt.Errorf("filepath must be absolute")
+	}
+
+	// If filename has a Windows volume name, convert the volume to a host and prefix
+	// per https://blogs.msdn.microsoft.com/ie/2006/12/06/file-uris-in-windows/.
+	if vol := filepath.VolumeName(filename); vol != "" {
+		if strings.HasPrefix(vol, `\\`) {
+			filename = filepath.ToSlash(filename[2:])
+			i := strings.IndexByte(filename, '/')
+
+			if i < 0 {
+				// A degenerate case.
+				// \\host.example.com (without a share name)
+				// becomes
+				// file://host.example.com/
+				return &url.URL{
+					Scheme: "file",
+					Host:   filename,
+					Path:   "/",
+				}, nil
+			}
+
+			// \\host.example.com\Share\path\to\file
+			// becomes
+			// file://host.example.com/Share/path/to/file
+			return &url.URL{
+				Scheme: "file",
+				Host:   filename[:i],
+				Path:   filepath.ToSlash(filename[i:]),
+			}, nil
+		}
+
+		// C:\path\to\file
+		// becomes
+		// file:///C:/path/to/file
+		return &url.URL{
+			Scheme: "file",
+			Path:   "/" + filepath.ToSlash(filename),
+		}, nil
+	}
+
+	// /path/to/file
+	// becomes
+	// file:///path/to/file
+	return &url.URL{
+		Scheme: "file",
+		Path:   filepath.ToSlash(filename),
+	}, nil
+}
+
 // UrlToFilename converts the URL s to a filename.
 // If ParseRequestURI fails, the input is just converted to OS specific slashes and returned.
-func UrlToFilename(s string) (string, bool) {
+func UrlStringToFilename(s string) (string, bool) {
 	u, err := url.ParseRequestURI(s)
 	if err != nil {
 		return filepath.FromSlash(s), false
@@ -171,25 +240,34 @@ func UrlToFilename(s string) (string, bool) {
 
 	if p == "" {
 		p, _ = url.QueryUnescape(u.Opaque)
-		return filepath.FromSlash(p), true
+		return filepath.FromSlash(p), false
+	}
+
+	if runtime.GOOS != "windows" {
+		return p, true
+	}
+
+	if len(p) == 0 || p[0] != '/' {
+		return filepath.FromSlash(p), false
 	}
 
 	p = filepath.FromSlash(p)
 
-	if u.Host != "" {
-		// C:\data\file.txt
-		p = strings.ToUpper(u.Host) + ":" + p
+	if len(u.Host) == 1 {
+		// file://c/Users/...
+		return strings.ToUpper(u.Host) + ":" + p, true
 	}
 
-	return p, true
-}
-
-// URLEscape escapes unicode letters.
-func URLEscape(uri string) string {
-	// escape unicode letters
-	u, err := url.Parse(uri)
-	if err != nil {
-		panic(err)
+	if u.Host != "" && u.Host != "localhost" {
+		if filepath.VolumeName(u.Host) != "" {
+			return "", false
+		}
+		return `\\` + u.Host + p, true
 	}
-	return u.String()
+
+	if vol := filepath.VolumeName(p[1:]); vol == "" || strings.HasPrefix(vol, `\\`) {
+		return "", false
+	}
+
+	return p[1:], true
 }
