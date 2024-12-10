@@ -223,6 +223,27 @@ func AsTime(v reflect.Value, loc *time.Location) (time.Time, bool) {
 	return time.Time{}, false
 }
 
+// ToSliceAny converts the given value to a slice of any if possible.
+func ToSliceAny(v any) ([]any, bool) {
+	if v == nil {
+		return nil, false
+	}
+	switch vv := v.(type) {
+	case []any:
+		return vv, true
+	default:
+		vvv := reflect.ValueOf(v)
+		if vvv.Kind() == reflect.Slice {
+			out := make([]any, vvv.Len())
+			for i := 0; i < vvv.Len(); i++ {
+				out[i] = vvv.Index(i).Interface()
+			}
+			return out, true
+		}
+	}
+	return nil, false
+}
+
 func CallMethodByName(cxt context.Context, name string, v reflect.Value) []reflect.Value {
 	fn := v.MethodByName(name)
 	var args []reflect.Value

@@ -30,8 +30,9 @@ func New(d *deps.Deps) *Namespace {
 		logger: d.Log,
 	}
 
-	d.BuildStartListeners.Add(func() {
+	d.BuildStartListeners.Add(func(...any) bool {
 		ns.logger.Reset()
+		return false
 	})
 
 	return ns

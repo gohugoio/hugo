@@ -24,7 +24,10 @@ const name = "js"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		ctx := New(d)
+		ctx, err := New(d)
+		if err != nil {
+			panic(err)
+		}
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,

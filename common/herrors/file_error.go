@@ -384,7 +384,7 @@ func extractPosition(e error) (pos text.Position) {
 	case godartsass.SassError:
 		span := v.Span
 		start := span.Start
-		filename, _ := paths.UrlToFilename(span.Url)
+		filename, _ := paths.UrlStringToFilename(span.Url)
 		pos.Filename = filename
 		pos.Offset = start.Offset
 		pos.ColumnNumber = start.Column

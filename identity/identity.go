@@ -82,9 +82,8 @@ func FirstIdentity(v any) Identity {
 	var result Identity = Anonymous
 	WalkIdentitiesShallow(v, func(level int, id Identity) bool {
 		result = id
-		return true
+		return result != Anonymous
 	})
-
 	return result
 }
 
@@ -146,6 +145,7 @@ func (d DependencyManagerProviderFunc) GetDependencyManager() Manager {
 // DependencyManagerScopedProvider provides a manager for dependencies with a given scope.
 type DependencyManagerScopedProvider interface {
 	GetDependencyManagerForScope(scope int) Manager
+	GetDependencyManagerForScopesAll() []Manager
 }
 
 // ForEeachIdentityProvider provides a way iterate over identities.
@@ -308,11 +308,13 @@ type identityManager struct {
 
 func (im *identityManager) AddIdentity(ids ...Identity) {
 	im.mu.Lock()
+	defer im.mu.Unlock()
 
 	for _, id := range ids {
 		if id == nil || id == Anonymous {
 			continue
 		}
+
 		if _, found := im.ids[id]; !found {
 			if im.onAddIdentity != nil {
 				im.onAddIdentity(id)
@@ -320,7 +322,6 @@ func (im *identityManager) AddIdentity(ids ...Identity) {
 			im.ids[id] = true
 		}
 	}
-	im.mu.Unlock()
 }
 
 func (im *identityManager) AddIdentityForEach(ids ...ForEeachIdentityProvider) {
@@ -353,6 +354,10 @@ func (im *identityManager) Reset() {
 
 func (im *identityManager) GetDependencyManagerForScope(int) Manager {
 	return im
+}
+
+func (im *identityManager) GetDependencyManagerForScopesAll() []Manager {
+	return []Manager{im}
 }
 
 func (im *identityManager) String() string {

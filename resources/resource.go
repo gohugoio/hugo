@@ -47,6 +47,8 @@ var (
 	_ resource.Cloner                    = (*genericResource)(nil)
 	_ resource.ResourcesLanguageMerger   = (*resource.Resources)(nil)
 	_ resource.Identifier                = (*genericResource)(nil)
+	_ targetPathProvider                 = (*genericResource)(nil)
+	_ sourcePathProvider                 = (*genericResource)(nil)
 	_ identity.IdentityGroupProvider     = (*genericResource)(nil)
 	_ identity.DependencyManagerProvider = (*genericResource)(nil)
 	_ identity.Identity                  = (*genericResource)(nil)
@@ -79,6 +81,7 @@ type ResourceSourceDescriptor struct {
 	TargetPath           string
 	BasePathRelPermalink string
 	BasePathTargetPath   string
+	SourceFilenameOrPath string // Used for error logging.
 
 	// The Data to associate with this resource.
 	Data map[string]any
@@ -463,6 +466,17 @@ func (l *genericResource) Key() string {
 	return key
 }
 
+func (l *genericResource) targetPath() string {
+	return l.paths.TargetPath()
+}
+
+func (l *genericResource) sourcePath() string {
+	if p := l.sd.SourceFilenameOrPath; p != "" {
+		return p
+	}
+	return ""
+}
+
 func (l *genericResource) MediaType() media.Type {
 	return l.sd.MediaType
 }
@@ -659,4 +673,44 @@ func (r *resourceHash) init(l hugio.ReadSeekCloserProvider) error {
 
 func hashImage(r io.ReadSeeker) (uint64, int64, error) {
 	return hashing.XXHashFromReader(r)
+}
+
+// InternalResourceTargetPath is used internally to get the target path for a Resource.
+func InternalResourceTargetPath(r resource.Resource) string {
+	return r.(targetPathProvider).targetPath()
+}
+
+// InternalResourceSourcePathBestEffort is used internally to get the source path for a Resource.
+// It returns an empty string if the source path is not available.
+func InternalResourceSourcePath(r resource.Resource) string {
+	if sp, ok := r.(sourcePathProvider); ok {
+		if p := sp.sourcePath(); p != "" {
+			return p
+		}
+	}
+	return ""
+}
+
+// InternalResourceSourcePathBestEffort is used internally to get the source path for a Resource.
+// Used for error messages etc.
+// It will fall back to the target path if the source path is not available.
+func InternalResourceSourcePathBestEffort(r resource.Resource) string {
+	if s := InternalResourceSourcePath(r); s != "" {
+		return s
+	}
+	return InternalResourceTargetPath(r)
+}
+
+type targetPathProvider interface {
+	// targetPath is the relative path to this resource.
+	// In most cases this will be the same as the RelPermalink(),
+	// but it will not trigger any lazy publishing.
+	targetPath() string
+}
+
+// Optional interface implemented by resources that can provide the source path.
+type sourcePathProvider interface {
+	// sourcePath is the source path to this resource's source.
+	// This is used in error messages etc.
+	sourcePath() string
 }

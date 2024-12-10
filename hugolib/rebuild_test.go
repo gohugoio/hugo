@@ -98,6 +98,18 @@ My Other Text: {{ $r.Content }}|{{ $r.Permalink }}|
 
 `
 
+func TestRebuildEditLeafBundleHeaderOnly(t *testing.T) {
+	b := TestRunning(t, rebuildFilesSimple)
+	b.AssertFileContent("public/mysection/mysectionbundle/index.html",
+		"My Section Bundle Content Content.")
+
+	b.EditFileReplaceAll("content/mysection/mysectionbundle/index.md", "My Section Bundle Content.", "My Section Bundle Content Edited.").Build()
+	b.AssertFileContent("public/mysection/mysectionbundle/index.html",
+		"My Section Bundle Content Edited.")
+	b.AssertRenderCountPage(2) // home (rss) + bundle.
+	b.AssertRenderCountContent(1)
+}
+
 func TestRebuildEditTextFileInLeafBundle(t *testing.T) {
 	b := TestRunning(t, rebuildFilesSimple)
 	b.AssertFileContent("public/mysection/mysectionbundle/index.html",
@@ -962,7 +974,7 @@ Single. {{ partial "head.html" . }}$
 RelPermalink: {{ $js.RelPermalink }}|
 `
 
-	b := TestRunning(t, files)
+	b := TestRunning(t, files, TestOptOsFs())
 
 	b.AssertFileContent("public/p1/index.html", "/js/main.712a50b59d0f0dedb4e3606eaa3860b1f1a5305f6c42da30a2985e473ba314eb.js")
 	b.AssertFileContent("public/index.html", "/js/main.712a50b59d0f0dedb4e3606eaa3860b1f1a5305f6c42da30a2985e473ba314eb.js")
@@ -998,7 +1010,7 @@ Base. {{ partial "common/head.html" . }}$
 RelPermalink: {{ $js.RelPermalink }}|
 `
 
-	b := TestRunning(t, files)
+	b := TestRunning(t, files, TestOptOsFs())
 
 	b.AssertFileContent("public/index.html", "/js/main.712a50b59d0f0dedb4e3606eaa3860b1f1a5305f6c42da30a2985e473ba314eb.js")
 

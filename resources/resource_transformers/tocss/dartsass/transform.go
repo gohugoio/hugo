@@ -139,7 +139,7 @@ func (t importResolver) CanonicalizeURL(url string) (string, error) {
 		return url, nil
 	}
 
-	filePath, isURL := paths.UrlToFilename(url)
+	filePath, isURL := paths.UrlStringToFilename(url)
 	var prevDir string
 	var pathDir string
 	if isURL {
@@ -195,7 +195,7 @@ func (t importResolver) Load(url string) (godartsass.Import, error) {
 	if url == sass.HugoVarsNamespace {
 		return t.varsStylesheet, nil
 	}
-	filename, _ := paths.UrlToFilename(url)
+	filename, _ := paths.UrlStringToFilename(url)
 	b, err := afero.ReadFile(hugofs.Os, filename)
 
 	sourceSyntax := godartsass.SourceSyntaxSCSS

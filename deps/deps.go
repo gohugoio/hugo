@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -47,6 +48,9 @@ type Deps struct {
 	// The templates to use. This will usually implement the full tpl.TemplateManager.
 	tmplHandlers *tpl.TemplateHandlers
 
+	// The template funcs.
+	TmplFuncMap map[string]any
+
 	// The file systems to use.
 	Fs *hugofs.Fs `json:"-"`
 
@@ -83,10 +87,13 @@ type Deps struct {
 	Metrics metrics.Provider
 
 	// BuildStartListeners will be notified before a build starts.
-	BuildStartListeners *Listeners
+	BuildStartListeners *Listeners[any]
 
 	// BuildEndListeners will be notified after a build finishes.
-	BuildEndListeners *Listeners
+	BuildEndListeners *Listeners[any]
+
+	// OnChangeListeners will be notified when something changes.
+	OnChangeListeners *Listeners[identity.Identity]
 
 	// Resources that gets closed when the build is done or the server shuts down.
 	BuildClosers *types.Closers
@@ -154,15 +161,19 @@ func (d *Deps) Init() error {
 	}
 
 	if d.BuildStartListeners == nil {
-		d.BuildStartListeners = &Listeners{}
+		d.BuildStartListeners = &Listeners[any]{}
 	}
 
 	if d.BuildEndListeners == nil {
-		d.BuildEndListeners = &Listeners{}
+		d.BuildEndListeners = &Listeners[any]{}
 	}
 
 	if d.BuildClosers == nil {
 		d.BuildClosers = &types.Closers{}
+	}
+
+	if d.OnChangeListeners == nil {
+		d.OnChangeListeners = &Listeners[identity.Identity]{}
 	}
 
 	if d.Metrics == nil && d.Conf.TemplateMetrics() {
@@ -268,6 +279,23 @@ func (d *Deps) Compile(prototype *Deps) error {
 	return nil
 }
 
+// MkdirTemp returns a temporary directory path that will be cleaned up on exit.
+func (d Deps) MkdirTemp(pattern string) (string, error) {
+	filename, err := os.MkdirTemp("", pattern)
+	if err != nil {
+		return "", err
+	}
+	d.BuildClosers.Add(
+		types.CloserFunc(
+			func() error {
+				return os.RemoveAll(filename)
+			},
+		),
+	)
+
+	return filename, nil
+}
+
 type globalErrHandler struct {
 	logger loggers.Logger
 
@@ -306,15 +334,16 @@ func (e *globalErrHandler) StopErrorCollector() {
 }
 
 // Listeners represents an event listener.
-type Listeners struct {
+type Listeners[T any] struct {
 	sync.Mutex
 
 	// A list of funcs to be notified about an event.
-	listeners []func()
+	// If the return value is true, the listener will be removed.
+	listeners []func(...T) bool
 }
 
 // Add adds a function to a Listeners instance.
-func (b *Listeners) Add(f func()) {
+func (b *Listeners[T]) Add(f func(...T) bool) {
 	if b == nil {
 		return
 	}
@@ -324,12 +353,16 @@ func (b *Listeners) Add(f func()) {
 }
 
 // Notify executes all listener functions.
-func (b *Listeners) Notify() {
+func (b *Listeners[T]) Notify(vs ...T) {
 	b.Lock()
 	defer b.Unlock()
+	temp := b.listeners[:0]
 	for _, notify := range b.listeners {
-		notify()
+		if !notify(vs...) {
+			temp = append(temp, notify)
+		}
 	}
+	b.listeners = temp
 }
 
 // ResourceProvider is used to create and refresh, and clone resources needed.
