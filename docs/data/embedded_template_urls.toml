@@ -25,6 +25,7 @@
 
 # Shortcodes
 'comment' = 'shortcodes/comment.html'
+'details' = 'shortcodes/details.html'
 'figure' = 'shortcodes/figure.html'
 'gist' = 'shortcodes/gist.html'
 'highlight' = 'shortcodes/highlight.html'
