@@ -170,6 +170,7 @@ func (t importResolver) CanonicalizeURL(url string) (string, error) {
 			"_%s.sass", "%s.sass",
 			"_%s.css", "%s.css",
 			"%s/_index.scss", "%s/_index.sass",
+			"%s/index.scss", "%s/index.sass",
 		}
 	}
 

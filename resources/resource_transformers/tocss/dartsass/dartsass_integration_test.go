@@ -577,23 +577,25 @@ disableKinds = ['page','section','rss','sitemap','taxonomy','term']
 [[module.mounts]]
 source = 'assets'
 target = 'assets'
-
-[[module.imports]]
-path = "github.com/gohugoio/hugoTestModule2"
-
-[[module.imports.mounts]]
+[[module.mounts]]
 source = "miscellaneous/sass"
 target = "assets/sass"
--- go.mod --
-module hugo-github-issue-12849
 -- layouts/index.html --
 {{ $opts := dict "transpiler" "dartsass" "outputStyle" "compressed" }}
 {{ (resources.Get "sass/main.scss" | toCSS $opts).Content }}
 -- assets/sass/main.scss --
-@use "foo"; // directory with index file from OS file system
-@use "bar"; // directory with index file from module mount
--- assets/sass/foo/_index.scss --
-.foo {color: red;}
+@use "foo1"; // directory with _index file from OS file system
+@use "bar1"; // directory with _index file from module mount
+@use "foo2"; // directory with index file from OS file system
+@use "bar2"; // directory with index file from module mount
+-- assets/sass/foo1/_index.scss --
+.foo1 {color: red;}
+-- miscellaneous/sass/bar1/_index.scss --
+.bar1 {color: blue;}
+-- assets/sass/foo2/index.scss --
+.foo2 {color: red;}
+-- miscellaneous/sass/bar2/index.scss --
+.bar2 {color: blue;}
 `
 
 	b := hugolib.NewIntegrationTestBuilder(
@@ -603,7 +605,7 @@ module hugo-github-issue-12849
 			TxtarString: files,
 		}).Build()
 
-	b.AssertFileContent("public/index.html", ".foo{color:red}.bar{color:green}")
+	b.AssertFileContent("public/index.html", ".foo1{color:red}.bar1{color:blue}.foo2{color:red}.bar2{color:blue}")
 }
 
 func TestIgnoreDeprecationWarnings(t *testing.T) {
