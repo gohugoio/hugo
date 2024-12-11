@@ -122,7 +122,7 @@ For example, to create a code block render hook to render [Mermaid] diagrams:
 
 {{< code file=layouts/_default/_markup/render-codeblock-mermaid.html copy=true >}}
 <pre class="mermaid">
-  {{- .Inner | safeHTML }}
+  {{- .Inner | htmlEscape | safeHTML }}
 </pre>
 {{ .Page.Store.Set "hasMermaid" true }}
 {{< /code >}}

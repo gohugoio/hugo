@@ -52,7 +52,7 @@ Hugo does not provide a built-in template for Mermaid diagrams. Create your own 
 
 {{< code file=layouts/_default/_markup/render-codeblock-mermaid.html >}}
 <pre class="mermaid">
-  {{- .Inner | safeHTML }}
+  {{- .Inner | htmlEscape | safeHTML }}
 </pre>
 {{ .Page.Store.Set "hasMermaid" true }}
 {{< /code >}}

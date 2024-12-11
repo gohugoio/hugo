@@ -133,8 +133,6 @@ Also see the [CLI Doc](/commands/hugo_mod_clean/).
 
 ## Module workspaces
 
-{{< new-in 0.109.0 >}}
-
 Workspace support was added in [Go 1.18](https://go.dev/blog/get-familiar-with-workspaces) and Hugo got solid support for it in the `v0.109.0` version.
 
 A common use case for a workspace is to simplify local development of a site with its theme modules.

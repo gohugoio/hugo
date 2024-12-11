@@ -230,7 +230,7 @@ Let's add a `lang` attribute to the `title` nodes of our RSS feed, and a namespa
     <language>en-US</language>
     <atom:link href="https://example.org/books/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title lang="fr">The Hunchback of Notre Dame</title>
+      <title lang="en">The Hunchback of Notre Dame</title>
       <description>Written by Victor Hugo</description>
       <isbn:number>9780140443530</isbn:number>
       <link>https://example.org/books/the-hunchback-of-notre-dame/</link>
@@ -238,7 +238,7 @@ Let's add a `lang` attribute to the `title` nodes of our RSS feed, and a namespa
       <guid>https://example.org/books/the-hunchback-of-notre-dame/</guid>
     </item>
     <item>
-      <title lang="en">Les Misérables</title>
+      <title lang="fr">Les Misérables</title>
       <description>Written by Victor Hugo</description>
       <isbn:number>9780451419439</isbn:number>
       <link>https://example.org/books/les-miserables/</link>
@@ -266,7 +266,7 @@ Each item node looks like this:
   "pubDate": "Mon, 09 Oct 2023 09:27:12 -0700",
   "title": {
     "#text": "The Hunchback of Notre Dame",
-    "-lang": "fr"
+    "-lang": "en"
   }
 }
 ```
@@ -290,8 +290,8 @@ Hugo renders this to:
 
 ```html
 <ul>
-  <li>The Hunchback of Notre Dame (fr) 9780140443530</li>
-  <li>Les Misérables (en) 9780451419439</li>
+  <li>The Hunchback of Notre Dame (en) 9780140443530</li>
+  <li>Les Misérables (fr) 9780451419439</li>
 </ul>
 ```
 

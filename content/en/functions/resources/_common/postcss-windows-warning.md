@@ -1,5 +1,5 @@
 ---
-# Do not remove front matter.
+_comment: Do not remove front matter.
 ---
 
 If you are a Windows user, and the path to your project contains a space, you must place the PostCSS configuration within the package.json file. See [this example] and issue [#7333].

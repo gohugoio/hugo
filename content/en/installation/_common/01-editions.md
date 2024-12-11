@@ -1,5 +1,5 @@
 ---
-# Do not remove front matter.
+_comment: Do not remove front matter.
 ---
 
 Hugo is available in three editions: standard, extended, and extended/deploy. While the standard edition provides core functionality, the extended and extended/deploy editions offer advanced features.

@@ -28,10 +28,10 @@ This controls the behavior of the `anchorize` function and the generation of hea
 Set `autoHeadingIDType` to one of:
 
 github
-: Compatible with GitHub. This is the default, and strongly recommended.
+: Compatible with GitHub. This is the default.
 
 github-ascii
-: Similar to the "github" setting, but removes non-ASCII characters. 
+: Similar to the `github` setting, but removes non-ASCII characters. 
 
 blackfriday
 : Provided for backwards compatibility with Hugo v0.59.1 and earlier. This option will be removed in a future release.

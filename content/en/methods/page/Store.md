@@ -1,11 +1,14 @@
 ---
 title: Store
+linktitle: PAGE.Store
 description: Returns a persistent "scratch pad" on the given page to store and manipulate data.
 categories: []
 keywords: []
 action:
   related:
   - methods/page/scratch
+  - methods/site/store
+  - functions/hugo/store
   - functions/collections/NewScratch
   returnType: maps.Scratch
   signatures: [PAGE.Store]

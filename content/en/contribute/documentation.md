@@ -37,7 +37,9 @@ Please follow these guidelines:
 
 ### Style
 
-Although we do not strictly adhere to the [Microsoft Writing Style Guide], it is an excellent resource for questions related to style, grammar, and voice.
+Please adhere to Google's [developer documentation style guide].
+
+[developer documentation style guide]: https://developers.google.com/style
 
 #### Terminology
 

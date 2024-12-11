@@ -2440,17 +2440,6 @@ tpl:
           treating values as key-value pairs.  The number of values must be even.
           The keys can be string slices, which will create the needed nested structure.
         Examples: []
-      EchoParam:
-        Aliases:
-        - echoParam
-        Args:
-        - c
-        - k
-        Description: |-
-          EchoParam returns the value in the collection c with key k if is set; otherwise, it returns an
-          empty string.
-          Deprecated: Use the index function instead.
-        Examples: []
       First:
         Aliases:
         - first
@@ -3119,6 +3108,11 @@ tpl:
         Args: null
         Description: ""
         Examples: null
+      Store:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       Version:
         Aliases: null
         Args: null
@@ -3380,11 +3374,6 @@ tpl:
         - - '{{ 512.5032 | lang.FormatPercent 2 }}'
           - 512.50%
       Merge:
-        Aliases: null
-        Args: null
-        Description: ""
-        Examples: null
-      NumFmt:
         Aliases: null
         Args: null
         Description: ""
@@ -4002,22 +3991,12 @@ tpl:
         Args: null
         Description: ""
         Examples: null
-      DisqusShortname:
-        Aliases: null
-        Args: null
-        Description: ""
-        Examples: null
       ForEeachIdentityByName:
         Aliases: null
         Args: null
         Description: ""
         Examples: null
       GetPage:
-        Aliases: null
-        Args: null
-        Description: ""
-        Examples: null
-      GoogleAnalytics:
         Aliases: null
         Args: null
         Description: ""
@@ -4033,11 +4012,6 @@ tpl:
         Description: ""
         Examples: null
       IsMultiLingual:
-        Aliases: null
-        Args: null
-        Description: ""
-        Examples: null
-      IsServer:
         Aliases: null
         Args: null
         Description: ""
@@ -4102,11 +4076,6 @@ tpl:
         Args: null
         Description: ""
         Examples: null
-      RSSLink:
-        Aliases: null
-        Args: null
-        Description: ""
-        Examples: null
       RegularPages:
         Aliases: null
         Args: null
@@ -4128,6 +4097,11 @@ tpl:
         Description: ""
         Examples: null
       Social:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Store:
         Aliases: null
         Args: null
         Description: ""
@@ -4457,6 +4431,11 @@ tpl:
         Examples:
         - - '{{ "aabbaa" | strings.TrimRight "a" }}'
           - aabb
+      TrimSpace:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       TrimSuffix:
         Aliases: null
         Args:

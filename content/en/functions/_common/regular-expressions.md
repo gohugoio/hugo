@@ -1,5 +1,5 @@
 ---
-# Do not remove front matter.
+_comment: Do not remove front matter.
 ---
 
 When specifying the regular expression, use a raw [string literal] (backticks) instead of an interpreted string literal (double quotes) to simplify the syntax. With an interpreted string literal you must escape backslashes.

@@ -141,6 +141,7 @@ Some providers perform deep clones by default, others allow you to configure the
 
 Hosting service | Default clone depth | Configurable
 :-- | :-- | :--
+AWS Amplify | Deep | N/A
 Cloudflare Pages | Shallow | Yes [^CFP]
 DigitalOcean App Platform | Deep | N/A
 GitHub Pages | Shallow | Yes [^GHP]
