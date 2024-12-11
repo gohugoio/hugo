@@ -124,6 +124,6 @@ module.exports = {
 ```
 
 [node.js]: https://nodejs.org/en/download
-[postcss plugins]: https://www.postcss.parts/
+[postcss plugins]: https://postcss.org/docs/postcss-plugins
 [supported file name]: https://github.com/postcss/postcss-load-config#usage
 [transpile to CSS]: /functions/css/sass/

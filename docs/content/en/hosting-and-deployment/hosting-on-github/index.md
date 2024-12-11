@@ -12,6 +12,8 @@ aliases: [/tutorials/github-pages-blog/]
 
 ## Prerequisites
 
+Please complete the following tasks before continuing:
+
 1. [Create a GitHub account]
 2. [Install Git]
 3. [Create a Hugo site] and test it locally with `hugo server`.
@@ -53,10 +55,11 @@ Step 4
 {style="max-width: 280px"}
 
 Step 5
-: Create an empty file in your local repository.
+: Create a file named `hugo.yaml` in a directory named `.github/workflows`.
 
 ```text
-.github/workflows/hugo.yaml
+mkdir -p .github/workflows
+touch hugo.yaml
 ```
 
 Step 6
@@ -144,7 +147,13 @@ jobs:
 {{< /code >}}
 
 Step 7
-: Commit the change to your local repository with a commit message of something like "Add workflow", and push to GitHub.
+: Commit and push the change to your GitHub repository.
+
+```sh
+git add -A
+git commit -m "Create hugo.yaml"
+git push
+```
 
 Step 8
 : From GitHub's main menu, choose **Actions**. You will see something like this:
@@ -181,7 +190,7 @@ You may remove this step if your site, themes, and modules do not transpile Sass
 
 [Dart Sass]: /hugo-pipes/transpile-sass-to-css/#dart-sass
 
-## Additional resources
+## Other resources
 
 - [Learn more about GitHub Actions](https://docs.github.com/en/actions)
 - [Caching dependencies to speed up workflows](https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows)

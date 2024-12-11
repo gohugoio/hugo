@@ -1,5 +1,5 @@
 ---
-# Do not remove front matter.
+_comment: Do not remove front matter.
 ---
 
 Before we can use a `Taxonomy` method, we need to capture a `Taxonomy` object.

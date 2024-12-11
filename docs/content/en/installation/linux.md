@@ -192,6 +192,16 @@ sudo eopkg install hugo
 
 [Solus]: https://getsol.us/
 
+### Void Linux
+
+To install the extended edition of Hugo on [Void Linux]:
+
+```sh
+sudo xbps-install -S hugo
+```
+
+[Void Linux]: https://voidlinux.org/
+
 {{% include "installation/_common/04-build-from-source.md" %}}
 
 ## Comparison

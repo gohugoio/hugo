@@ -1,5 +1,5 @@
 ---
-# Do not remove front matter.
+_comment: Do not remove front matter.
 ---
 
 The [`anchorize`] and [`urlize`] functions are similar: 
