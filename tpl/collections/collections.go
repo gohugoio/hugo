@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
-	"net/url"
 	"reflect"
 	"strings"
 	"time"
@@ -381,47 +380,6 @@ func (ns *Namespace) Last(limit any, l any) (any, error) {
 	}
 
 	return seqv.Slice(seqv.Len()-limitv, seqv.Len()).Interface(), nil
-}
-
-// Querify encodes the given params in URL-encoded form ("bar=baz&foo=quux") sorted by key.
-func (ns *Namespace) Querify(params ...any) (string, error) {
-	qs := url.Values{}
-
-	if len(params) == 1 {
-		switch v := params[0].(type) {
-		case []string:
-			if len(v)%2 != 0 {
-				return "", errors.New("invalid query")
-			}
-
-			for i := 0; i < len(v); i += 2 {
-				qs.Add(v[i], v[i+1])
-			}
-
-			return qs.Encode(), nil
-
-		case []any:
-			params = v
-
-		default:
-			return "", errors.New("query keys must be strings")
-		}
-	}
-
-	if len(params)%2 != 0 {
-		return "", errors.New("invalid query")
-	}
-
-	for i := 0; i < len(params); i += 2 {
-		switch v := params[i].(type) {
-		case string:
-			qs.Add(v, fmt.Sprintf("%v", params[i+1]))
-		default:
-			return "", errors.New("query keys must be strings")
-		}
-	}
-
-	return qs.Encode(), nil
 }
 
 // Reverse creates a copy of the list l and reverses it.
