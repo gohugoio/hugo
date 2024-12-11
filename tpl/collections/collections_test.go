@@ -512,68 +512,6 @@ func TestLast(t *testing.T) {
 	}
 }
 
-func TestQuerify(t *testing.T) {
-	t.Parallel()
-	c := qt.New(t)
-	ns := newNs()
-
-	for i, test := range []struct {
-		params []any
-		expect any
-	}{
-		{[]any{"a", "b"}, "a=b"},
-		{[]any{"a", "b", "c", "d", "f", " &"}, `a=b&c=d&f=+%26`},
-		{[]any{[]string{"a", "b"}}, "a=b"},
-		{[]any{[]string{"a", "b", "c", "d", "f", " &"}}, `a=b&c=d&f=+%26`},
-		{[]any{[]any{"x", "y"}}, `x=y`},
-		{[]any{[]any{"x", 5}}, `x=5`},
-		// errors
-		{[]any{5, "b"}, false},
-		{[]any{"a", "b", "c"}, false},
-		{[]any{[]string{"a", "b", "c"}}, false},
-		{[]any{[]string{"a", "b"}, "c"}, false},
-		{[]any{[]any{"c", "d", "e"}}, false},
-	} {
-		errMsg := qt.Commentf("[%d] %v", i, test.params)
-
-		result, err := ns.Querify(test.params...)
-
-		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
-			continue
-		}
-
-		c.Assert(err, qt.IsNil, errMsg)
-		c.Assert(result, qt.Equals, test.expect, errMsg)
-	}
-}
-
-func BenchmarkQuerify(b *testing.B) {
-	ns := newNs()
-	params := []any{"a", "b", "c", "d", "f", " &"}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_, err := ns.Querify(params...)
-		if err != nil {
-			b.Fatal(err)
-		}
-	}
-}
-
-func BenchmarkQuerifySlice(b *testing.B) {
-	ns := newNs()
-	params := []string{"a", "b", "c", "d", "f", " &"}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_, err := ns.Querify(params)
-		if err != nil {
-			b.Fatal(err)
-		}
-	}
-}
-
 func TestSeq(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
