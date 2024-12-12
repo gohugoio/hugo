@@ -1339,6 +1339,29 @@ Home.
 	b.Assert(len(b.H.Sites), qt.Equals, 1)
 }
 
+func TestDisableDefaultLanguageRedirect(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+defaultContentLanguageInSubdir = true
+disableDefaultLanguageRedirect = true
+[languages]
+[languages.en]
+title = "English Title"
+[languages.sv]
+title = "Swedish Title"
+-- layouts/index.html --
+Home.
+
+
+`
+	b := Test(t, files)
+
+	b.Assert(len(b.H.Sites), qt.Equals, 2)
+	b.AssertFileExists("public/index.html", false)
+}
+
 func TestLoadConfigYamlEnvVar(t *testing.T) {
 	defaultEnv := []string{`HUGO_OUTPUTS=home: ['json']`}
 

@@ -505,6 +505,9 @@ type RootConfig struct {
 	// Set this to true to put all languages below their language ID.
 	DefaultContentLanguageInSubdir bool
 
+	// Disable generation of redirect to the default language when DefaultContentLanguageInSubdir is enabled.
+	DisableDefaultLanguageRedirect bool
+
 	// Disable creation of alias redirect pages.
 	DisableAliases bool
 
