@@ -660,8 +660,8 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 
 		logger := loggers.New(
 			loggers.Options{
-				Stdout:        w,
-				Stderr:        w,
+				StdOut:        w,
+				StdErr:        w,
 				Level:         s.Cfg.LogLevel,
 				DistinctLevel: logg.LevelWarn,
 			},
@@ -685,7 +685,7 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 
 		s.Assert(err, qt.IsNil)
 
-		depsCfg := deps.DepsCfg{Configs: res, Fs: fs, LogLevel: logger.Level(), LogOut: logger.Out()}
+		depsCfg := deps.DepsCfg{Configs: res, Fs: fs, LogLevel: logger.Level(), StdErr: logger.StdErr()}
 		sites, err := NewHugoSites(depsCfg)
 		if err != nil {
 			initErr = err

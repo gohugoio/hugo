@@ -103,7 +103,8 @@ type configKey struct {
 type rootCommand struct {
 	Printf  func(format string, v ...interface{})
 	Println func(a ...interface{})
-	Out     io.Writer
+	StdOut  io.Writer
+	StdErr  io.Writer
 
 	logger loggers.Logger
 
@@ -356,7 +357,7 @@ func (r *rootCommand) getOrCreateHugo(cfg config.Provider, ignoreModuleDoesNotEx
 }
 
 func (r *rootCommand) newDepsConfig(conf *commonConfig) deps.DepsCfg {
-	return deps.DepsCfg{Configs: conf.configs, Fs: conf.fs, LogOut: r.logger.Out(), LogLevel: r.logger.Level(), ChangesFromBuild: r.changesFromBuild}
+	return deps.DepsCfg{Configs: conf.configs, Fs: conf.fs, StdOut: r.logger.StdOut(), StdErr: r.logger.StdErr(), LogLevel: r.logger.Level(), ChangesFromBuild: r.changesFromBuild}
 }
 
 func (r *rootCommand) Name() string {
@@ -421,21 +422,23 @@ func (r *rootCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args 
 }
 
 func (r *rootCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
-	r.Out = os.Stdout
+	r.StdOut = os.Stdout
+	r.StdErr = os.Stderr
 	if r.quiet {
-		r.Out = io.Discard
+		r.StdOut = io.Discard
+		r.StdErr = io.Discard
 	}
 	// Used by mkcert (server).
-	log.SetOutput(r.Out)
+	log.SetOutput(r.StdOut)
 
 	r.Printf = func(format string, v ...interface{}) {
 		if !r.quiet {
-			fmt.Fprintf(r.Out, format, v...)
+			fmt.Fprintf(r.StdOut, format, v...)
 		}
 	}
 	r.Println = func(a ...interface{}) {
 		if !r.quiet {
-			fmt.Fprintln(r.Out, a...)
+			fmt.Fprintln(r.StdOut, a...)
 		}
 	}
 	_, running := runner.Command.(*serverCommand)
@@ -485,8 +488,8 @@ func (r *rootCommand) createLogger(running bool) (loggers.Logger, error) {
 	optsLogger := loggers.Options{
 		DistinctLevel: logg.LevelWarn,
 		Level:         level,
-		Stdout:        r.Out,
-		Stderr:        r.Out,
+		StdOut:        r.StdOut,
+		StdErr:        r.StdErr,
 		StoreErrors:   running,
 	}
 

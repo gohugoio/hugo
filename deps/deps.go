@@ -405,9 +405,11 @@ type DepsCfg struct {
 	// The logging level to use.
 	LogLevel logg.Level
 
-	// Where to write the logs.
-	// Currently we typically write everything to stdout.
-	LogOut io.Writer
+	// Logging output.
+	StdErr io.Writer
+
+	// The console output.
+	StdOut io.Writer
 
 	// The file systems to use
 	Fs *hugofs.Fs

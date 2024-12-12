@@ -40,8 +40,8 @@ func newNoAnsiEscapeHandler(outWriter, errWriter io.Writer, noLevelPrefix bool, 
 
 type noAnsiEscapeHandler struct {
 	mu            sync.Mutex
-	outWriter     io.Writer // Defaults to os.Stdout.
-	errWriter     io.Writer // Defaults to os.Stderr.
+	outWriter     io.Writer
+	errWriter     io.Writer
 	predicate     func(*logg.Entry) bool
 	noLevelPrefix bool
 }

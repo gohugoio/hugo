@@ -365,7 +365,7 @@ func (c *Client) Get(args ...string) error {
 }
 
 func (c *Client) get(args ...string) error {
-	if err := c.runGo(context.Background(), c.logger.Out(), append([]string{"get"}, args...)...); err != nil {
+	if err := c.runGo(context.Background(), c.logger.StdOut(), append([]string{"get"}, args...)...); err != nil {
 		return fmt.Errorf("failed to get %q: %w", args, err)
 	}
 	return nil
@@ -375,7 +375,7 @@ func (c *Client) get(args ...string) error {
 // If path is empty, Go will try to guess.
 // If this succeeds, this project will be marked as Go Module.
 func (c *Client) Init(path string) error {
-	err := c.runGo(context.Background(), c.logger.Out(), "mod", "init", path)
+	err := c.runGo(context.Background(), c.logger.StdOut(), "mod", "init", path)
 	if err != nil {
 		return fmt.Errorf("failed to init modules: %w", err)
 	}

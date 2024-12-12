@@ -57,7 +57,7 @@ func newListCommand() *listCommand {
 			return err
 		}
 
-		writer := csv.NewWriter(r.Out)
+		writer := csv.NewWriter(r.StdOut)
 		defer writer.Flush()
 
 		writer.Write([]string{

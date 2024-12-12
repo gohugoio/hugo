@@ -145,8 +145,11 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 		if cfg.Configs.Base.PanicOnWarning {
 			logHookLast = loggers.PanicOnWarningHook
 		}
-		if cfg.LogOut == nil {
-			cfg.LogOut = os.Stdout
+		if cfg.StdOut == nil {
+			cfg.StdOut = os.Stdout
+		}
+		if cfg.StdErr == nil {
+			cfg.StdErr = os.Stderr
 		}
 		if cfg.LogLevel == 0 {
 			cfg.LogLevel = logg.LevelWarn
@@ -156,8 +159,8 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 			Level:              cfg.LogLevel,
 			DistinctLevel:      logg.LevelWarn, // This will drop duplicate log warning and errors.
 			HandlerPost:        logHookLast,
-			Stdout:             cfg.LogOut,
-			Stderr:             cfg.LogOut,
+			StdOut:             cfg.StdOut,
+			StdErr:             cfg.StdErr,
 			StoreErrors:        conf.Watching(),
 			SuppressStatements: conf.IgnoredLogs(),
 		}
