@@ -38,6 +38,7 @@ func TestToBuildOptions(t *testing.T) {
 		Bundle:         true,
 		Target:         api.ESNext,
 		Format:         api.FormatIIFE,
+		Platform:       api.PlatformBrowser,
 		SourcesContent: 1,
 		Stdin: &api.StdinOptions{
 			Loader: api.LoaderJS,
@@ -62,6 +63,7 @@ func TestToBuildOptions(t *testing.T) {
 		Bundle:            true,
 		Target:            api.ES2018,
 		Format:            api.FormatCommonJS,
+		Platform:          api.PlatformBrowser,
 		SourcesContent:    1,
 		MinifyIdentifiers: true,
 		MinifySyntax:      true,
@@ -87,6 +89,7 @@ func TestToBuildOptions(t *testing.T) {
 		Bundle:            true,
 		Target:            api.ES2018,
 		Format:            api.FormatCommonJS,
+		Platform:          api.PlatformBrowser,
 		MinifyIdentifiers: true,
 		MinifySyntax:      true,
 		MinifyWhitespace:  true,
@@ -113,6 +116,7 @@ func TestToBuildOptions(t *testing.T) {
 		Bundle:            true,
 		Target:            api.ES2018,
 		Format:            api.FormatCommonJS,
+		Platform:          api.PlatformBrowser,
 		MinifyIdentifiers: true,
 		MinifySyntax:      true,
 		MinifyWhitespace:  true,
@@ -139,6 +143,7 @@ func TestToBuildOptions(t *testing.T) {
 		Bundle:            true,
 		Target:            api.ES2018,
 		Format:            api.FormatCommonJS,
+		Platform:          api.PlatformBrowser,
 		MinifyIdentifiers: true,
 		MinifySyntax:      true,
 		MinifyWhitespace:  true,
@@ -164,6 +169,7 @@ func TestToBuildOptions(t *testing.T) {
 		Bundle:         true,
 		Target:         api.ESNext,
 		Format:         api.FormatIIFE,
+		Platform:       api.PlatformBrowser,
 		SourcesContent: 1,
 		Stdin: &api.StdinOptions{
 			Loader: api.LoaderJS,
@@ -210,10 +216,25 @@ func TestToBuildOptionsTarget(t *testing.T) {
 
 func TestDecodeExternalOptions(t *testing.T) {
 	c := qt.New(t)
-	m := map[string]any{}
-	opts, err := DecodeExternalOptions(m)
+	m := map[string]any{
+		"platform": "node",
+	}
+	ext, err := DecodeExternalOptions(m)
 	c.Assert(err, qt.IsNil)
-	c.Assert(opts, qt.DeepEquals, ExternalOptions{
+	c.Assert(ext, qt.DeepEquals, ExternalOptions{
 		SourcesContent: true,
+		Platform:       "node",
+	})
+
+	opts := Options{
+		ExternalOptions: ext,
+	}
+	c.Assert(opts.compile(), qt.IsNil)
+	c.Assert(opts.compiled, qt.DeepEquals, api.BuildOptions{
+		Bundle:         true,
+		Target:         api.ESNext,
+		Format:         api.FormatIIFE,
+		Platform:       api.PlatformNode,
+		SourcesContent: api.SourcesContentInclude,
 	})
 }

@@ -121,6 +121,11 @@ type ExternalOptions struct {
 	// Default is to esm.
 	Format string
 
+	// One of browser, node, neutral.
+	// Default is browser.
+	// See https://esbuild.github.io/api/#platform
+	Platform string
+
 	// External dependencies, e.g. "react".
 	Externals []string
 
@@ -274,6 +279,19 @@ func (opts *Options) compile() (err error) {
 		return
 	}
 
+	var platform api.Platform
+	switch opts.Platform {
+	case "", "browser":
+		platform = api.PlatformBrowser
+	case "node":
+		platform = api.PlatformNode
+	case "neutral":
+		platform = api.PlatformNeutral
+	default:
+		err = fmt.Errorf("unsupported platform type: %q", opts.Platform)
+		return
+	}
+
 	var defines map[string]string
 	if opts.Defines != nil {
 		defines = maps.ToStringMapString(opts.Defines)
@@ -310,6 +328,7 @@ func (opts *Options) compile() (err error) {
 
 		Target:         target,
 		Format:         format,
+		Platform:       platform,
 		Sourcemap:      sourceMap,
 		SourcesContent: sourcesContent,
 
