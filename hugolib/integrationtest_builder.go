@@ -25,6 +25,7 @@ import (
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/config/security"
@@ -466,6 +467,28 @@ func (s *IntegrationTestBuilder) Build() *IntegrationTestBuilder {
 	return s
 }
 
+func (s *IntegrationTestBuilder) BuildPartial(urls ...string) *IntegrationTestBuilder {
+	if _, err := s.BuildPartialE(urls...); err != nil {
+		s.Fatal(err)
+	}
+	return s
+}
+
+func (s *IntegrationTestBuilder) BuildPartialE(urls ...string) (*IntegrationTestBuilder, error) {
+	if s.buildCount == 0 {
+		panic("BuildPartial can only be used after a full build")
+	}
+	if !s.Cfg.Running {
+		panic("BuildPartial can only be used in server mode")
+	}
+	visited := types.NewEvictingStringQueue(len(urls))
+	for _, url := range urls {
+		visited.Add(url)
+	}
+	buildCfg := BuildCfg{RecentlyVisited: visited, PartialReRender: true}
+	return s, s.build(buildCfg)
+}
+
 func (s *IntegrationTestBuilder) Close() {
 	s.Helper()
 	s.Assert(s.H.Close(), qt.IsNil)
@@ -746,10 +769,6 @@ func (s *IntegrationTestBuilder) build(cfg BuildCfg) error {
 	changeEvents := s.changeEvents()
 	s.counters = &buildCounters{}
 	cfg.testCounters = s.counters
-
-	if s.buildCount > 0 && (len(changeEvents) == 0) {
-		return nil
-	}
 
 	s.buildCount++
 
