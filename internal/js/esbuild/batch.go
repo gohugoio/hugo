@@ -474,25 +474,25 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 		entryPoints = append(entryPoints, pth)
 	}
 
-	for k, v := range b.scriptGroups {
-		keyPath := k
+	for _, g := range b.scriptGroups.Sorted() {
+		keyPath := g.id
 		var runners []scriptRunnerTemplateContext
-		for _, vv := range v.runnersOptions.ByKey() {
+		for _, vv := range g.runnersOptions.ByKey() {
 			runnerKeyPath := keyPath + "_" + vv.Key().String()
 			runnerImpPath := paths.AddLeadingSlash(runnerKeyPath + "_runner" + vv.Compiled().Resource.MediaType().FirstSuffix.FullSuffix)
 			runners = append(runners, scriptRunnerTemplateContext{opts: vv, Import: runnerImpPath})
-			addResource(k, runnerImpPath, vv.Compiled().Resource, false)
+			addResource(g.id, runnerImpPath, vv.Compiled().Resource, false)
 		}
 
 		t := &batchGroupTemplateContext{
 			keyPath: keyPath,
-			ID:      v.id,
+			ID:      g.id,
 			Runners: runners,
 		}
 
-		instances := v.instancesOptions.ByKey()
+		instances := g.instancesOptions.ByKey()
 
-		for _, vv := range v.scriptsOptions.ByKey() {
+		for _, vv := range g.scriptsOptions.ByKey() {
 			keyPath := keyPath + "_" + vv.Key().String()
 			opts := vv.Compiled()
 			impPath := path.Join(PrefixHugoVirtual, opts.Dir(), keyPath+opts.Resource.MediaType().FirstSuffix.FullSuffix)
@@ -502,7 +502,7 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 				name:           keyPath,
 				resourceGetter: impCtx,
 				scriptOptions:  opts,
-				dm:             v.dependencyManager,
+				dm:             g.dependencyManager,
 			})
 
 			bt := scriptBatchTemplateContext{
@@ -528,10 +528,10 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 		state.importerImportContext.Set(s, importContext{
 			name:           s,
 			resourceGetter: nil,
-			dm:             v.dependencyManager,
+			dm:             g.dependencyManager,
 		})
 
-		addResource(v.id, s, r, true)
+		addResource(g.id, s, r, true)
 	}
 
 	mediaTypes := b.client.d.ResourceSpec.MediaTypes()
