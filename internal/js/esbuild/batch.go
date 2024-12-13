@@ -506,8 +506,9 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 			})
 
 			bt := scriptBatchTemplateContext{
-				opts:   vv,
-				Import: impPath,
+				opts:      vv,
+				Import:    impPath,
+				Instances: []scriptInstanceBatchTemplateContext{},
 			}
 			state.importResource.Set(bt.Import, vv.Compiled().Resource)
 			predicate := func(k instanceID) bool {
