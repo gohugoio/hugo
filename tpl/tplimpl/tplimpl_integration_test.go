@@ -643,7 +643,7 @@ E: An _emphasized_ word.
 
 	b.AssertFileContent("public/index.html",
 		"<details>\n  <summary>Details</summary>\n  <p>A: An <em>emphasized</em> word.</p>\n</details>",
-		"<details class=\"my-class\" name=\"my-name\" open class=\"my-title\">\n  <summary>A <strong>bold</strong> word</summary>\n  <p>B: An <em>emphasized</em> word.</p>\n</details>",
+		"<details class=\"my-class\" name=\"my-name\" open title=\"my-title\">\n  <summary>A <strong>bold</strong> word</summary>\n  <p>B: An <em>emphasized</em> word.</p>\n</details>",
 		"<details>\n  <summary>Details</summary>\n  <p>C: An <em>emphasized</em> word.</p>\n</details>",
 		"<details>\n  <summary>Details</summary>\n  <p>D: An <em>emphasized</em> word.</p>\n</details>",
 		"<details>\n  <summary>Details</summary>\n  <p>D: An <em>emphasized</em> word.</p>\n</details>",
