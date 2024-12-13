@@ -84,12 +84,7 @@ Renders an embedded YouTube video.
     {{- if $loop }}
       {{- $params = merge $params (dict "playlist" $id) }}
     {{- end }}
-    {{- $s := slice }}
-    {{- range $k, $v := $params }}
-      {{- $s = $s | append $k }}
-      {{- $s = $s | append $v }}
-    {{- end }}
-    {{- with querify $s }}
+    {{- with querify $params }}
       {{- $src = printf "%s?%s" $src . }}
     {{- end }}
 
