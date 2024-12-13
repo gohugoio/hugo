@@ -30,6 +30,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/output/layouts"
 
@@ -191,8 +192,10 @@ func newTemplateHandlers(d *deps.Deps) (*tpl.TemplateHandlers, error) {
 
 func newTemplateNamespace(funcs map[string]any) *templateNamespace {
 	return &templateNamespace{
-		prototypeHTML: htmltemplate.New("").Funcs(funcs),
-		prototypeText: texttemplate.New("").Funcs(funcs),
+		prototypeHTML:           htmltemplate.New("").Funcs(funcs),
+		prototypeText:           texttemplate.New("").Funcs(funcs),
+		prototypeHTMLCloneCache: maps.NewCache[prototypeCloneID, *htmltemplate.Template](),
+		prototypeTextCloneCache: maps.NewCache[prototypeCloneID, *texttemplate.Template](),
 		templateStateMap: &templateStateMap{
 			templates: make(map[string]*templateState),
 		},
@@ -688,7 +691,7 @@ func (t *templateHandler) addTemplateTo(info templateInfo, to *templateNamespace
 func (t *templateHandler) applyBaseTemplate(overlay, base templateInfo) (tpl.Template, error) {
 	if overlay.isText {
 		var (
-			templ = t.main.prototypeTextClone.New(overlay.name)
+			templ = t.main.getPrototypeText(prototypeCloneIDBaseof).New(overlay.name)
 			err   error
 		)
 
@@ -713,7 +716,7 @@ func (t *templateHandler) applyBaseTemplate(overlay, base templateInfo) (tpl.Tem
 	}
 
 	var (
-		templ = t.main.prototypeHTMLClone.New(overlay.name)
+		templ = t.main.getPrototypeHTML(prototypeCloneIDBaseof).New(overlay.name)
 		err   error
 	)
 
@@ -953,27 +956,37 @@ func (t *templateHandler) postTransform() error {
 	return nil
 }
 
+type prototypeCloneID uint16
+
+const (
+	prototypeCloneIDBaseof prototypeCloneID = iota + 1
+	prototypeCloneIDDefer
+)
+
 type templateNamespace struct {
-	prototypeText      *texttemplate.Template
-	prototypeHTML      *htmltemplate.Template
-	prototypeTextClone *texttemplate.Template
-	prototypeHTMLClone *htmltemplate.Template
+	prototypeText *texttemplate.Template
+	prototypeHTML *htmltemplate.Template
+
+	prototypeHTMLCloneCache *maps.Cache[prototypeCloneID, *htmltemplate.Template]
+	prototypeTextCloneCache *maps.Cache[prototypeCloneID, *texttemplate.Template]
 
 	*templateStateMap
 }
 
-func (t *templateNamespace) getPrototypeText() *texttemplate.Template {
-	if t.prototypeTextClone != nil {
-		return t.prototypeTextClone
+func (t *templateNamespace) getPrototypeText(id prototypeCloneID) *texttemplate.Template {
+	v, ok := t.prototypeTextCloneCache.Get(id)
+	if !ok {
+		return t.prototypeText
 	}
-	return t.prototypeText
+	return v
 }
 
-func (t *templateNamespace) getPrototypeHTML() *htmltemplate.Template {
-	if t.prototypeHTMLClone != nil {
-		return t.prototypeHTMLClone
+func (t *templateNamespace) getPrototypeHTML(id prototypeCloneID) *htmltemplate.Template {
+	v, ok := t.prototypeHTMLCloneCache.Get(id)
+	if !ok {
+		return t.prototypeHTML
 	}
-	return t.prototypeHTML
+	return v
 }
 
 func (t *templateNamespace) Lookup(name string) (tpl.Template, bool) {
@@ -989,9 +1002,10 @@ func (t *templateNamespace) Lookup(name string) (tpl.Template, bool) {
 }
 
 func (t *templateNamespace) createPrototypes() error {
-	t.prototypeTextClone = texttemplate.Must(t.prototypeText.Clone())
-	t.prototypeHTMLClone = htmltemplate.Must(t.prototypeHTML.Clone())
-
+	for _, id := range []prototypeCloneID{prototypeCloneIDBaseof, prototypeCloneIDDefer} {
+		t.prototypeHTMLCloneCache.Set(id, htmltemplate.Must(t.prototypeHTML.Clone()))
+		t.prototypeTextCloneCache.Set(id, texttemplate.Must(t.prototypeText.Clone()))
+	}
 	return nil
 }
 
@@ -1021,7 +1035,7 @@ func (t *templateNamespace) addDeferredTemplate(owner *templateState, name strin
 	var templ tpl.Template
 
 	if owner.isText() {
-		prototype := t.getPrototypeText()
+		prototype := t.getPrototypeText(prototypeCloneIDDefer)
 		tt, err := prototype.New(name).Parse("")
 		if err != nil {
 			return fmt.Errorf("failed to parse empty text template %q: %w", name, err)
@@ -1029,7 +1043,7 @@ func (t *templateNamespace) addDeferredTemplate(owner *templateState, name strin
 		tt.Tree.Root = n
 		templ = tt
 	} else {
-		prototype := t.getPrototypeHTML()
+		prototype := t.getPrototypeHTML(prototypeCloneIDDefer)
 		tt, err := prototype.New(name).Parse("")
 		if err != nil {
 			return fmt.Errorf("failed to parse empty HTML template %q: %w", name, err)

@@ -649,3 +649,52 @@ E: An _emphasized_ word.
 		"<details>\n  <summary>Details</summary>\n  <p>D: An <em>emphasized</em> word.</p>\n</details>",
 	)
 }
+
+// Issue 12963
+func TestEditBaseofParseAfterExecute(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+disableKinds = ["taxonomy", "term", "rss", "404", "sitemap"]
+[internal]
+fastRenderMode = true
+-- layouts/_default/baseof.html --
+Baseof!
+{{ block "main" . }}default{{ end }}
+{{ with (templates.Defer (dict "key" "global")) }}
+Now. {{ now }}
+{{ end }}
+-- layouts/_default/single.html --
+{{ define "main" }}
+Single.
+{{ end }}
+-- layouts/_default/list.html --
+{{ define "main" }}
+List.
+{{ .Content }}
+{{ range .Pages }}{{ .Title }}{{ end }}|
+{{ end }}
+-- content/mybundle1/index.md --
+---
+title: "My Bundle 1"
+---
+-- content/mybundle2/index.md --
+---
+title: "My Bundle 2"
+---
+-- content/_index.md --
+---
+title: "Home"
+---
+Home!
+`
+
+	b := hugolib.TestRunning(t, files)
+	b.AssertFileContent("public/index.html", "Home!")
+	b.EditFileReplaceAll("layouts/_default/baseof.html", "Baseof", "Baseof!").Build()
+	b.BuildPartial("/")
+	b.AssertFileContent("public/index.html", "Baseof!!")
+	b.BuildPartial("/mybundle1/")
+	b.AssertFileContent("public/mybundle1/index.html", "Baseof!!")
+}
