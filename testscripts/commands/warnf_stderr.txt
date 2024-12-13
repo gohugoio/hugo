@@ -1,0 +1,13 @@
+# Issue #13074
+
+hugo
+stderr 'warning'
+! stdout 'warning'
+
+-- hugo.toml --
+baseURL = "http://example.org/"
+disableKinds = ["RSS", "page", "sitemap", "robotsTXT", "404", "taxonomy", "term"]
+-- layouts/index.html --
+Home
+{{ warnf "This is a warning" }}
+

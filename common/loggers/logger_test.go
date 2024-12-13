@@ -31,8 +31,8 @@ func TestLogDistinct(t *testing.T) {
 	opts := loggers.Options{
 		DistinctLevel: logg.LevelWarn,
 		StoreErrors:   true,
-		Stdout:        io.Discard,
-		Stderr:        io.Discard,
+		StdOut:        io.Discard,
+		StdErr:        io.Discard,
 	}
 
 	l := loggers.New(opts)
@@ -54,8 +54,8 @@ func TestHookLast(t *testing.T) {
 		HandlerPost: func(e *logg.Entry) error {
 			panic(e.Message)
 		},
-		Stdout: io.Discard,
-		Stderr: io.Discard,
+		StdOut: io.Discard,
+		StdErr: io.Discard,
 	}
 
 	l := loggers.New(opts)
@@ -70,8 +70,8 @@ func TestOptionStoreErrors(t *testing.T) {
 
 	opts := loggers.Options{
 		StoreErrors: true,
-		Stderr:      &sb,
-		Stdout:      &sb,
+		StdErr:      &sb,
+		StdOut:      &sb,
 	}
 
 	l := loggers.New(opts)
@@ -131,8 +131,8 @@ func TestReset(t *testing.T) {
 	opts := loggers.Options{
 		StoreErrors:   true,
 		DistinctLevel: logg.LevelWarn,
-		Stdout:        io.Discard,
-		Stderr:        io.Discard,
+		StdOut:        io.Discard,
+		StdErr:        io.Discard,
 	}
 
 	l := loggers.New(opts)

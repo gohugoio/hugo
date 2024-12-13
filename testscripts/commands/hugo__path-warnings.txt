@@ -1,6 +1,6 @@
 hugo --printPathWarnings
 
-stdout 'Duplicate'
+stderr 'Duplicate'
 
 -- hugo.toml --
 -- assets/css/styles.css --
