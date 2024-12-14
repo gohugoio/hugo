@@ -476,18 +476,10 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 
 	for _, g := range b.scriptGroups.Sorted() {
 		keyPath := g.id
-		var runners []scriptRunnerTemplateContext
-		for _, vv := range g.runnersOptions.ByKey() {
-			runnerKeyPath := keyPath + "_" + vv.Key().String()
-			runnerImpPath := paths.AddLeadingSlash(runnerKeyPath + "_runner" + vv.Compiled().Resource.MediaType().FirstSuffix.FullSuffix)
-			runners = append(runners, scriptRunnerTemplateContext{opts: vv, Import: runnerImpPath})
-			addResource(g.id, runnerImpPath, vv.Compiled().Resource, false)
-		}
 
 		t := &batchGroupTemplateContext{
 			keyPath: keyPath,
 			ID:      g.id,
-			Runners: runners,
 		}
 
 		instances := g.instancesOptions.ByKey()
@@ -519,6 +511,13 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 			}
 
 			t.Scripts = append(t.Scripts, bt)
+		}
+
+		for _, vv := range g.runnersOptions.ByKey() {
+			runnerKeyPath := keyPath + "_" + vv.Key().String()
+			runnerImpPath := paths.AddLeadingSlash(runnerKeyPath + "_runner" + vv.Compiled().Resource.MediaType().FirstSuffix.FullSuffix)
+			t.Runners = append(t.Runners, scriptRunnerTemplateContext{opts: vv, Import: runnerImpPath})
+			addResource(g.id, runnerImpPath, vv.Compiled().Resource, false)
 		}
 
 		r, s, err := b.client.buildBatchGroup(ctx, t)
