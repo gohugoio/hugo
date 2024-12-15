@@ -184,6 +184,20 @@ func TestBatchEditScriptParam(t *testing.T) {
 	b.AssertFileContent("public/mybatch/mygroup.js", "param-p1-main-edited")
 }
 
+func TestBatchRenameBundledScript(t *testing.T) {
+	files := jsBatchFilesTemplate
+	b := hugolib.TestRunning(t, files, hugolib.TestOptWithOSFs())
+	b.AssertFileContent("public/mybatch/p1.js", "P1 Script")
+	b.RenameFile("content/p1/p1script.js", "content/p1/p1script2.js")
+	_, err := b.BuildE()
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, "resource not set")
+
+	// Rename it back.
+	b.RenameFile("content/p1/p1script2.js", "content/p1/p1script.js")
+	b.Build()
+}
+
 func TestBatchErrorScriptResourceNotSet(t *testing.T) {
 	files := strings.Replace(jsBatchFilesTemplate, `(resources.Get "js/main.js")`, `(resources.Get "js/doesnotexist.js")`, 1)
 	b, err := hugolib.TestE(t, files, hugolib.TestOptWithOSFs())
