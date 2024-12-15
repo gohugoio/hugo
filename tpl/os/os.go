@@ -30,7 +30,7 @@ import (
 
 // New returns a new instance of the os-namespaced template functions.
 func New(d *deps.Deps) *Namespace {
-	var readFileFs, workFs afero.Fs
+	var readFileFs, workFs, projectFs afero.Fs
 
 	// The docshelper script does not have or need all the dependencies set up.
 	if d.PathSpec != nil {
@@ -42,11 +42,13 @@ func New(d *deps.Deps) *Namespace {
 		})
 		// See #9599
 		workFs = d.PathSpec.BaseFs.WorkDir
+		projectFs = d.PathSpec.BaseFs.SourceFilesystems.Work
 	}
 
 	return &Namespace{
 		readFileFs: readFileFs,
 		workFs:     workFs,
+		projectFs:	projectFs,
 		deps:       d,
 	}
 }
@@ -55,6 +57,7 @@ func New(d *deps.Deps) *Namespace {
 type Namespace struct {
 	readFileFs afero.Fs
 	workFs     afero.Fs
+	projectFs  afero.Fs
 	deps       *deps.Deps
 }
 
@@ -92,7 +95,7 @@ func readFile(fs afero.Fs, filename string) (string, error) {
 // ReadFile reads the file named by filename relative to the configured WorkingDir.
 // It returns the contents as a string.
 // There is an upper size limit set at 1 megabytes.
-func (ns *Namespace) ReadFile(i any) (string, error) {
+func (ns *Namespace) ReadFile(i any, mode ...any) (string, error) {
 	s, err := cast.ToStringE(i)
 	if err != nil {
 		return "", err
@@ -102,7 +105,18 @@ func (ns *Namespace) ReadFile(i any) (string, error) {
 		s = ns.deps.PathSpec.RelPathify(s)
 	}
 
-	s, err = readFile(ns.readFileFs, s)
+	old := true
+	if (len(mode) != 0) {
+		old, err = cast.ToBoolE(mode[0])
+		if err != nil {
+			return "", err
+		}
+	}
+	if (old) {
+		s, err = readFile(ns.readFileFs, s)
+	} else {
+		s, err = readFile(ns.projectFs, s)
+	}
 	if err != nil && herrors.IsNotExist(err) {
 		return "", nil
 	}
@@ -110,13 +124,25 @@ func (ns *Namespace) ReadFile(i any) (string, error) {
 }
 
 // ReadDir lists the directory contents relative to the configured WorkingDir.
-func (ns *Namespace) ReadDir(i any) ([]_os.FileInfo, error) {
+func (ns *Namespace) ReadDir(i any, mode ...any) ([]_os.FileInfo, error) {
 	path, err := cast.ToStringE(i)
 	if err != nil {
 		return nil, err
 	}
 
-	list, err := afero.ReadDir(ns.workFs, path)
+	old := true
+	if (len(mode) != 0) {
+		old, err = cast.ToBoolE(mode[0])
+		if err != nil {
+			return nil, err
+		}
+	}
+	var list []_os.FileInfo
+	if (old) {
+		list, err = afero.ReadDir(ns.workFs, path)
+	} else {
+		list, err = afero.ReadDir(ns.projectFs, path)
+	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to read directory %q: %s", path, err)
 	}
@@ -125,7 +151,7 @@ func (ns *Namespace) ReadDir(i any) ([]_os.FileInfo, error) {
 }
 
 // FileExists checks whether a file exists under the given path.
-func (ns *Namespace) FileExists(i any) (bool, error) {
+func (ns *Namespace) FileExists(i any, mode ...any) (bool, error) {
 	path, err := cast.ToStringE(i)
 	if err != nil {
 		return false, err
@@ -135,7 +161,19 @@ func (ns *Namespace) FileExists(i any) (bool, error) {
 		return false, errors.New("fileExists needs a path to a file")
 	}
 
-	status, err := afero.Exists(ns.readFileFs, path)
+	old := true
+	if (len(mode) != 0) {
+		old, err = cast.ToBoolE(mode[0])
+		if err != nil {
+			return false, err
+		}
+	}
+	var status bool
+	if (old) {
+		status, err = afero.Exists(ns.readFileFs, path)
+	} else {
+		status, err = afero.Exists(ns.projectFs, path)
+	}
 	if err != nil {
 		return false, err
 	}
@@ -144,7 +182,7 @@ func (ns *Namespace) FileExists(i any) (bool, error) {
 }
 
 // Stat returns the os.FileInfo structure describing file.
-func (ns *Namespace) Stat(i any) (_os.FileInfo, error) {
+func (ns *Namespace) Stat(i any, mode ...any) (_os.FileInfo, error) {
 	path, err := cast.ToStringE(i)
 	if err != nil {
 		return nil, err
@@ -154,7 +192,19 @@ func (ns *Namespace) Stat(i any) (_os.FileInfo, error) {
 		return nil, errors.New("fileStat needs a path to a file")
 	}
 
-	r, err := ns.readFileFs.Stat(path)
+	old := true
+	if (len(mode) != 0) {
+		old, err = cast.ToBoolE(mode[0])
+		if err != nil {
+			return nil, err
+		}
+	}
+	var r _os.FileInfo
+	if (old) {
+		r, err = ns.readFileFs.Stat(path)
+	} else {
+		r, err = ns.projectFs.Stat(path)
+	}
 	if err != nil {
 		return nil, err
 	}
