@@ -42,7 +42,7 @@ func New(d *deps.Deps) *Namespace {
 		})
 		// See #9599
 		workFs = d.PathSpec.BaseFs.WorkDir
-		projectFs = d.PathSpec.BaseFs.SourceFilesystems.Work
+		projectFs = d.PathSpec.BaseFs.OverlayFs()
 	}
 
 	return &Namespace{
