@@ -141,13 +141,6 @@ func (fd *ResourceSourceDescriptor) init(r *Spec) error {
 	}
 
 	fd.TargetPath = paths.ToSlashPreserveLeading(fd.TargetPath)
-	for i, base := range fd.TargetBasePaths {
-		dir := paths.ToSlashPreserveLeading(base)
-		if dir == "/" {
-			dir = ""
-		}
-		fd.TargetBasePaths[i] = dir
-	}
 
 	if fd.NameNormalized == "" {
 		fd.NameNormalized = fd.TargetPath

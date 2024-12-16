@@ -24,6 +24,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/internal/js"
 	"github.com/gohugoio/hugo/internal/warpc"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/page"
@@ -104,6 +105,12 @@ type Deps struct {
 	// Holds RPC dispatchers for Katex etc.
 	// TODO(bep) rethink this re. a plugin setup, but this will have to do for now.
 	WasmDispatchers *warpc.Dispatchers
+
+	// The JS batcher client.
+	JSBatcherClient js.BatcherClient
+
+	// The JS batcher client.
+	// JSBatcherClient *esbuild.BatcherClient
 
 	isClosed bool
 

@@ -67,7 +67,7 @@ func New(fs *hugofs.Fs, cfg config.AllProvider) (*Paths, error) {
 	var multihostTargetBasePaths []string
 	if cfg.IsMultihost() && len(cfg.Languages()) > 1 {
 		for _, l := range cfg.Languages() {
-			multihostTargetBasePaths = append(multihostTargetBasePaths, l.Lang)
+			multihostTargetBasePaths = append(multihostTargetBasePaths, hpaths.ToSlashPreserveLeading(l.Lang))
 		}
 	}
 
