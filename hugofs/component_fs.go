@@ -19,6 +19,7 @@ import (
 	"path"
 	"runtime"
 	"sort"
+	"fmt"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/paths"
@@ -215,7 +216,22 @@ func (fs *componentFs) applyMeta(fi FileNameIsDir, name string) (FileMetaInfo, b
 }
 
 func (f *componentFsDir) Readdir(count int) ([]os.FileInfo, error) {
-	panic("not supported: Use ReadDir")
+	dirnames, err := f.Readdirnames(count)
+	if err != nil {
+		return nil, fmt.Errorf("error readdirnames: %s", err)
+	}
+	files := make([]os.FileInfo, len(dirnames))
+	for i, d := range dirnames {
+		file, e := f.fs.Stat(d)
+		if e != nil {
+			return nil, fmt.Errorf("error reading dir stat %s: %s", d, e)
+		}
+		files[i] = file
+	}
+	return files, nil
+
+//	fmt.Printf("this is error here\n")
+//	panic("not supported: Use ReadDir")
 }
 
 func (f *componentFsDir) Readdirnames(count int) ([]string, error) {

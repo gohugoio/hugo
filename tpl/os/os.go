@@ -24,6 +24,7 @@ import (
 	"github.com/bep/overlayfs"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 )
@@ -134,14 +135,35 @@ func (ns *Namespace) ReadDir(i any, mode ...any) ([]_os.FileInfo, error) {
 	if (len(mode) != 0) {
 		old, err = cast.ToBoolE(mode[0])
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("cannot convert value to bool %s: %s", mode[0], err)
 		}
 	}
 	var list []_os.FileInfo
 	if (old) {
-		list, err = afero.ReadDir(ns.workFs, path)
+		//list, err = afero.ReadDir(ns.workFs, path)
 	} else {
-		list, err = afero.ReadDir(ns.projectFs, path)
+		file, _ := ns.projectFs.Open(path)
+		fmt.Printf("path %s content %T %s", path, file, file)
+		switch item := file.(type) {
+		case *overlayfs.Dir:
+			list, err = item.Readdir(0)
+		case hugofs.DirOnlyOps: // fully virtual directory // hugofs.rootMappingDir
+			fmt.Printf("\ndir only opts!!!!\n")
+			//list, err = item.Readdir(0)
+			//fmt.Printf("\ndir contents %s: %s\n", list, err)
+			items, _ := item.Readdirnames(0)
+			list = make([]_os.FileInfo, len(items))
+			for i, d := range items {
+				file, _ := ns.projectFs.Stat(path + "/" + d)
+				list[i] = file
+			}
+			fmt.Printf("\ndir only opts %s!!!!\n", items)
+		default:
+			//list, err = afero.ReadDir(ns.projectFs, path)
+		}
+		if file != nil {
+			file.Close()
+		}
 	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to read directory %q: %s", path, err)
