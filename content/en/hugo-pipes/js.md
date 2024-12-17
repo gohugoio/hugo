@@ -12,4 +12,4 @@ weight: 60
 ---
 
 
-See [JS functions](http://localhost:1313/functions/js/).
+See [JS functions](/functions/js/).
