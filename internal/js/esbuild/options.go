@@ -45,6 +45,7 @@ var (
 		"es2021": api.ES2021,
 		"es2022": api.ES2022,
 		"es2023": api.ES2023,
+		"es2024": api.ES2024,
 	}
 
 	// source names: https://github.com/evanw/esbuild/blob/9eca46464ed5615cb36a3beb3f7a7b9a8ffbe7cf/internal/config/config.go#L208
