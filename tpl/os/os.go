@@ -31,7 +31,7 @@ import (
 
 // New returns a new instance of the os-namespaced template functions.
 func New(d *deps.Deps) *Namespace {
-	var readFileFs, workFs, projectFs afero.Fs
+	var readFileFs, workFs, mountsFs afero.Fs
 
 	// The docshelper script does not have or need all the dependencies set up.
 	if d.PathSpec != nil {
@@ -43,13 +43,18 @@ func New(d *deps.Deps) *Namespace {
 		})
 		// See #9599
 		workFs = d.PathSpec.BaseFs.WorkDir
-		projectFs = d.PathSpec.BaseFs.OverlayFs()
+		mountsFs = overlayfs.New(overlayfs.Options{
+			Fss: []afero.Fs{
+				d.PathSpec.BaseFs.WorkDir,
+				d.PathSpec.BaseFs.OverlayMountsFs().WithDirsMerger(hugofs.AppendDirsMerger),
+			},
+		})
 	}
 
 	return &Namespace{
 		readFileFs: readFileFs,
 		workFs:     workFs,
-		projectFs:	projectFs,
+		mountsFs:	mountsFs,
 		deps:       d,
 	}
 }
@@ -58,7 +63,7 @@ func New(d *deps.Deps) *Namespace {
 type Namespace struct {
 	readFileFs afero.Fs
 	workFs     afero.Fs
-	projectFs  afero.Fs
+	mountsFs   afero.Fs
 	deps       *deps.Deps
 }
 
@@ -116,7 +121,7 @@ func (ns *Namespace) ReadFile(i any, mode ...any) (string, error) {
 	if (old) {
 		s, err = readFile(ns.readFileFs, s)
 	} else {
-		s, err = readFile(ns.projectFs, s)
+		s, err = readFile(ns.mountsFs, s)
 	}
 	if err != nil && herrors.IsNotExist(err) {
 		return "", nil
@@ -140,26 +145,21 @@ func (ns *Namespace) ReadDir(i any, mode ...any) ([]_os.FileInfo, error) {
 	}
 	var list []_os.FileInfo
 	if (old) {
-		//list, err = afero.ReadDir(ns.workFs, path)
+		list, err = afero.ReadDir(ns.workFs, path)
 	} else {
-		file, _ := ns.projectFs.Open(path)
-		fmt.Printf("path %s content %T %s", path, file, file)
+		file, _ := ns.mountsFs.Open(path)
 		switch item := file.(type) {
-		case *overlayfs.Dir:
-			list, err = item.Readdir(0)
 		case hugofs.DirOnlyOps: // fully virtual directory // hugofs.rootMappingDir
-			fmt.Printf("\ndir only opts!!!!\n")
-			//list, err = item.Readdir(0)
-			//fmt.Printf("\ndir contents %s: %s\n", list, err)
 			items, _ := item.Readdirnames(0)
 			list = make([]_os.FileInfo, len(items))
-			for i, d := range items {
-				file, _ := ns.projectFs.Stat(path + "/" + d)
+			for i, item := range items {
+				file, _ := ns.mountsFs.Stat(path + "/" + item)
 				list[i] = file
 			}
-			fmt.Printf("\ndir only opts %s!!!!\n", items)
+		case *overlayfs.Dir:
+			list, err = item.Readdir(0)
 		default:
-			//list, err = afero.ReadDir(ns.projectFs, path)
+			//list, err = afero.ReadDir(ns.mountsFs, path)
 		}
 		if file != nil {
 			file.Close()
@@ -194,7 +194,7 @@ func (ns *Namespace) FileExists(i any, mode ...any) (bool, error) {
 	if (old) {
 		status, err = afero.Exists(ns.readFileFs, path)
 	} else {
-		status, err = afero.Exists(ns.projectFs, path)
+		status, err = afero.Exists(ns.mountsFs, path)
 	}
 	if err != nil {
 		return false, err
@@ -225,7 +225,7 @@ func (ns *Namespace) Stat(i any, mode ...any) (_os.FileInfo, error) {
 	if (old) {
 		r, err = ns.readFileFs.Stat(path)
 	} else {
-		r, err = ns.projectFs.Stat(path)
+		r, err = ns.mountsFs.Stat(path)
 	}
 	if err != nil {
 		return nil, err
