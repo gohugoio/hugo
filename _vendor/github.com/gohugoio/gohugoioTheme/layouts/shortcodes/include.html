@@ -10,7 +10,7 @@ You must call this shortcode using the {{% %}} notation.
 */}}
 
 {{- with .Get 0 }}
-  {{- with site.GetPage . }}
+  {{- with or (site.GetPage .) ($.Page.GetPage .) }}
     {{- .RenderShortcodes }}
   {{- else }}
     {{- errorf "The %q shortcode was unable to find %q. See %s" $.Name . $.Position }}

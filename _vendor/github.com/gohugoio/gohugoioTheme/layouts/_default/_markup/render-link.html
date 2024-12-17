@@ -98,12 +98,7 @@ either of these shortcodes in conjunction with this render hook.
 {{- end }}
 
 {{- /* Determine content path for warning and error messages. */}}
-{{- $contentPath := "" }}
-{{- with .Page.File }}
-  {{- $contentPath = .Path }}
-{{- else }}
-  {{- $contentPath = .Path }}
-{{- end }}
+{{- $contentPath := print .Page }}
 
 {{- /* Parse destination. */}}
 {{- $u := urls.Parse .Destination }}
