@@ -162,10 +162,16 @@ func TestRootMappingFsDirnames(t *testing.T) {
 	fifm := fif.(FileMetaInfo).Meta()
 	c.Assert(fifm.Filename, qt.Equals, filepath.FromSlash("f2t/myfile.txt"))
 
-	root, err := rfs.Open("static")
+	root, err := rfs.Open(".")
 	c.Assert(err, qt.IsNil)
 
 	dirnames, err := root.Readdirnames(-1)
+	c.Assert(err, qt.IsNil)
+	c.Assert(dirnames, qt.DeepEquals, []string{"static"})
+
+	static, err := rfs.Open("static")
+	c.Assert(err, qt.IsNil)
+	dirnames, err = static.Readdirnames(-1)
 	c.Assert(err, qt.IsNil)
 	c.Assert(dirnames, qt.DeepEquals, []string{"af3", "bf1", "cf2"})
 }
