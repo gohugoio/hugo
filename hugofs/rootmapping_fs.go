@@ -538,6 +538,12 @@ func (rfs *RootMappingFs) collectDirEntries(prefix string) ([]iofs.DirEntry, err
 	seen := make(map[string]bool) // Prevent duplicate directories
 	level := strings.Count(prefix, filepathSeparator)
 
+	// special case requesting root of filesystem
+	if prefix == filepathSeparator {
+		prefix = ""
+		level = 0
+	}
+
 	collectDir := func(rm RootMapping, fi FileMetaInfo) error {
 		f, err := fi.Meta().Open()
 		if err != nil {
@@ -593,10 +599,6 @@ func (rfs *RootMappingFs) collectDirEntries(prefix string) ([]iofs.DirEntry, err
 
 	// Next add any file mounts inside the given directory.
 	prefixInside := prefix + filepathSeparator
-	// When prefix is root then skip filepathSeparator.
-	if prefix == filepathSeparator {
-		prefixInside = prefix
-	}
 	rfs.rootMapToReal.WalkPrefix(prefixInside, func(s string, v any) bool {
 		if (strings.Count(s, filepathSeparator) - level) != 1 {
 			// This directory is not part of the current, but we

@@ -338,6 +338,7 @@ func TestRootMappingFsMountOverlap(t *testing.T) {
 		c.Assert(names, qt.DeepEquals, expect, qt.Commentf(fmt.Sprintf("%#v", names)))
 	}
 
+	checkDirnames(".", []string{"static"})
 	checkDirnames("static", []string{"a.txt", "b", "e"})
 	checkDirnames("static/b", []string{"b.txt", "c"})
 	checkDirnames("static/b/c", []string{"c.txt"})
