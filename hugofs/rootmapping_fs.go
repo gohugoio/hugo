@@ -883,9 +883,7 @@ func (f *rootMappingDir) Readdir(count int) ([]os.FileInfo, error) {
 // Note that Readdirnames preserves the order of the underlying filesystem(s),
 // which is usually directory order.
 func (f *rootMappingDir) Readdirnames(count int) ([]string, error) {
-	fmt.Printf("\nCALLING READDIRNAMES %d\n", count)
 	dirs, err := f.ReadDir(count)
-	fmt.Printf("have %s --- \n", dirs)
 	if err != nil {
 		return nil, err
 	}
