@@ -1224,6 +1224,8 @@ func (s *Site) assembleMenus() error {
 			// If page is still nill, we must make sure that we have a URL that considers baseURL etc.
 			if types.IsNil(me.Page) {
 				me.ConfiguredURL = s.createNodeMenuEntryURL(me.MenuConfig.URL)
+			} else {
+				navigation.SetPageValues(me, me.Page)
 			}
 
 			flat[twoD{name, me.KeyName()}] = me

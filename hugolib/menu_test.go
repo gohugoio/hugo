@@ -252,9 +252,9 @@ menu:
 
 `)
 
-	b.WithTemplatesAdded("index.html", `{{ range .Site.Menus.main }}{{ .Title }}|Children: 
+	b.WithTemplatesAdded("index.html", `{{ range .Site.Menus.main }}{{ .Title }}|Children:
 {{- $children := sort .Children ".Page.Date" "desc" }}{{ range $children }}{{ .Title }}|{{ end }}{{ end }}
-	
+
 `)
 
 	b.Build(BuildCfg{})
@@ -272,11 +272,11 @@ func TestMenuParamsEmptyYaml(t *testing.T) {
 
 	b.WithContent("p1.md", `---
 menus:
-  main: 
+  main:
     identity: journal
     weight: 2
     params:
----	
+---
 `)
 	b.Build(BuildCfg{})
 }
@@ -289,9 +289,9 @@ title = "Contact Us"
 url = "mailto:noreply@example.com"
 weight = 300
 [menus.main.params]
-foo = "foo_config"	
-key2 = "key2_config"	
-camelCase = "camelCase_config"	
+foo = "foo_config"
+key2 = "key2_config"
+camelCase = "camelCase_config"
 `)
 
 	b.WithTemplatesAdded("index.html", `
@@ -343,7 +343,7 @@ weight = 1
 pageRef = "/blog/post3"
 title = "My Post 3"
 url = "/blog/post3"
-	
+
 `)
 
 	commonTempl := `
@@ -519,7 +519,7 @@ Menu Item: {{ $i }}: {{ .Pre }}{{ .Name }}{{ .Post }}|{{ .URL }}|
 	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
-Menu Item: 0: <span>Home</span>|/|	
+Menu Item: 0: <span>Home</span>|/|
 `)
 }
 
@@ -621,4 +621,80 @@ title: p3
 
 	b.AssertFileExists("public/index.html", true)
 	b.AssertFileContent("public/index.html", `<a href="/s1/p2/">p2</a><a href="/s1/">s1</a>`)
+}
+
+// Issue 13161
+func TestMenuNameAndTitleFallback(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['rss','sitemap','taxonomy','term']
+[[menus.main]]
+name = 'P1_ME_Name'
+title = 'P1_ME_Title'
+pageRef = '/p1'
+weight = 10
+[[menus.main]]
+pageRef = '/p2'
+weight = 20
+[[menus.main]]
+pageRef = '/p3'
+weight = 30
+[[menus.main]]
+name = 'S1_ME_Name'
+title = 'S1_ME_Title'
+pageRef = '/s1'
+weight = 40
+[[menus.main]]
+pageRef = '/s2'
+weight = 50
+[[menus.main]]
+pageRef = '/s3'
+weight = 60
+-- content/p1.md  --
+---
+title: P1_Title
+---
+-- content/p2.md  --
+---
+title: P2_Title
+---
+-- content/p3.md  --
+---
+title: P3_Title
+linkTitle: P3_LinkTitle
+---
+-- content/s1/_index.md --
+---
+title: S1_Title
+---
+-- content/s2/_index.md --
+---
+title: S2_Title
+---
+-- content/s3/_index.md --
+---
+title: S3_Title
+linkTitle: S3_LinkTitle
+---
+-- layouts/_default/single.html --
+{{ .Content }}
+-- layouts/_default/list.html --
+{{ .Content }}
+-- layouts/_default/home.html --
+{{- range site.Menus.main }}
+URL: {{ .URL }}| Name: {{ .Name }}| Title: {{ .Title }}| PageRef: {{ .PageRef }}| Page.Title: {{ .Page.Title }}| Page.LinkTitle: {{ .Page.LinkTitle }}|
+{{- end }}
+`
+
+	b := Test(t, files)
+	b.AssertFileContent("public/index.html",
+		`URL: /p1/| Name: P1_ME_Name| Title: P1_ME_Title| PageRef: /p1| Page.Title: P1_Title| Page.LinkTitle: P1_Title|`,
+		`URL: /p2/| Name: P2_Title| Title: P2_Title| PageRef: /p2| Page.Title: P2_Title| Page.LinkTitle: P2_Title|`,
+		`URL: /p3/| Name: P3_LinkTitle| Title: P3_Title| PageRef: /p3| Page.Title: P3_Title| Page.LinkTitle: P3_LinkTitle|`,
+		`URL: /s1/| Name: S1_ME_Name| Title: S1_ME_Title| PageRef: /s1| Page.Title: S1_Title| Page.LinkTitle: S1_Title|`,
+		`URL: /s2/| Name: S2_Title| Title: S2_Title| PageRef: /s2| Page.Title: S2_Title| Page.LinkTitle: S2_Title|`,
+		`URL: /s3/| Name: S3_LinkTitle| Title: S3_Title| PageRef: /s3| Page.Title: S3_Title| Page.LinkTitle: S3_LinkTitle|`,
+	)
 }
