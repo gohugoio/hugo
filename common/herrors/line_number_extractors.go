@@ -19,15 +19,25 @@ import (
 )
 
 var lineNumberExtractors = []lineNumberExtractor{
+	// YAML parse errors.
+	newLineNumberErrHandlerFromRegexp(`\[(\d+):(\d+)\]`),
+
 	// Template/shortcode parse errors
 	newLineNumberErrHandlerFromRegexp(`:(\d+):(\d*):`),
 	newLineNumberErrHandlerFromRegexp(`:(\d+):`),
 
-	// YAML parse errors
-	newLineNumberErrHandlerFromRegexp(`line (\d+):`),
-
 	// i18n bundle errors
 	newLineNumberErrHandlerFromRegexp(`\((\d+),\s(\d*)`),
+}
+
+func commonLineNumberExtractor(e error) (int, int) {
+	for _, handler := range lineNumberExtractors {
+		lno, col := handler(e)
+		if lno > 0 {
+			return lno, col
+		}
+	}
+	return 0, 0
 }
 
 type lineNumberExtractor func(e error) (int, int)
