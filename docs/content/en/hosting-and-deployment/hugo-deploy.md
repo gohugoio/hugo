@@ -55,8 +55,10 @@ URL = "<FILL ME IN>"
 #URL = "gs://<Bucket Name>"
 
 # Amazon Web Services S3; see https://gocloud.dev/howto/blob/#s3
-# For S3-compatible endpoints, see https://gocloud.dev/howto/blob/#s3-compatible
 #URL = "s3://<Bucket Name>?region=<AWS region>"
+
+# For S3-compatible endpoints, see https://gocloud.dev/howto/blob/#s3-compatible
+#URL = "s3://<Bucket Name>?endpoint=https://my.minio.instance&awssdk=v2&use_path_style=true&disable_https=false
 
 # Microsoft Azure Blob Storage; see https://gocloud.dev/howto/blob/#azure
 #URL = "azblob://$web"
