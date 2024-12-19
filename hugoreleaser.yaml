@@ -1,0 +1,274 @@
+project: hugo
+
+# Common definitions.
+definitions:
+  archive_type_zip: &archive_type_zip
+    type:
+      format: zip
+      extension: .zip
+  env_extended_linux: &env_extended_linux
+    - CGO_ENABLED=1
+    - CC=aarch64-linux-gnu-gcc
+    - CXX=aarch64-linux-gnu-g++
+  env_extended_windows: &env_extended_windows
+    - CGO_ENABLED=1
+    - CC=x86_64-w64-mingw32-gcc
+    - CXX=x86_64-w64-mingw32-g++
+  env_extended_darwin: &env_extended_darwin
+    - CGO_ENABLED=1
+    - CC=o64-clang
+    - CXX=o64-clang++
+  name_template_extended_withdeploy: &name_template_extended_withdeploy "{{ .Project }}_extended_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
+  name_template_extended: &name_template_extended "{{ .Project }}_extended_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
+  archive_deb: &archive_deb
+    binary_dir: /usr/local/bin
+    extra_files: []
+    type:
+      format: _plugin
+      extension: .deb
+    plugin:
+      id: deb
+      type: gorun
+      command: github.com/gohugoio/hugoreleaser-archive-plugins/deb@latest
+    custom_settings:
+      vendor: gohugo.io
+      homepage: https://github.com/gohugoio/hugo
+      maintainer: Bjørn Erik Pedersen <bjorn.erik.pedersen@gmail.com>
+      description: A fast and flexible Static Site Generator written in Go.
+      license: Apache-2.0
+archive_alias_replacements:
+  linux-amd64.tar.gz: Linux-64bit.tar.gz
+go_settings:
+  go_proxy: https://proxy.golang.org
+  go_exe: go
+build_settings:
+  binary: hugo
+  flags:
+    - -buildmode
+    - exe
+  env:
+    - CGO_ENABLED=0
+  ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.vendorInfo=gohugoio
+archive_settings:
+  name_template: "{{ .Project }}_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
+  extra_files:
+    - source_path: README.md
+      target_path: README.md
+    - source_path: LICENSE
+      target_path: LICENSE
+  type:
+    format: tar.gz
+    extension: .tar.gz
+release_settings:
+  name: ${HUGORELEASER_TAG}
+  type: github
+  repository: hugo
+  repository_owner: gohugoio
+  draft: true
+  prerelease: false
+  release_notes_settings:
+    generate: true
+    short_threshold: 10
+    short_title: What's Changed
+    groups:
+      - regexp: "Merge commit|Squashed|releaser:"
+        ignore: true
+      - title: Note
+        regexp: (note|deprecated)
+        ordinal: 10
+      - title: Bug fixes
+        regexp: fix
+        ordinal: 15
+      - title: Dependency Updates
+        regexp: deps
+        ordinal: 30
+      - title: Build Setup
+        regexp: (snap|release|update to)
+        ordinal: 40
+      - title: Documentation
+        regexp: (doc|readme)
+        ordinal: 40
+      - title: Improvements
+        regexp: .*
+        ordinal: 20
+builds:
+  - path: container1/unix/regular
+    os:
+      - goos: darwin
+        archs:
+          - goarch: universal
+      - goos: linux
+        archs:
+          - goarch: amd64
+          - goarch: arm64
+          - goarch: arm
+            build_settings:
+              env:
+                - CGO_ENABLED=0
+                - GOARM=7
+      - goos: dragonfly
+        archs:
+          - goarch: amd64
+      - goos: freebsd
+        archs:
+          - goarch: amd64
+      - goos: netbsd
+        archs:
+          - goarch: amd64
+      - goos: openbsd
+        archs:
+          - goarch: amd64
+      - goos: solaris
+        archs:
+          - goarch: amd64
+  - path: container1/unix/extended
+    build_settings:
+      flags:
+        - -buildmode
+        - exe
+        - -tags
+        - extended
+      env:
+        - CGO_ENABLED=1
+    os:
+      - goos: darwin
+        build_settings:
+          env: *env_extended_darwin
+        archs:
+          - goarch: universal
+      - goos: linux
+        archs:
+          - goarch: amd64
+  - path: container1/unix/extended-withdeploy
+    build_settings:
+      flags:
+        - -buildmode
+        - exe
+        - -tags
+        - extended,withdeploy
+      env:
+        - CGO_ENABLED=1
+    os:
+      - goos: darwin
+        build_settings:
+          env: *env_extended_darwin
+        archs:
+          - goarch: universal
+      - goos: linux
+        archs:
+          - goarch: amd64
+  - path: container2/linux/extended
+    build_settings:
+      flags:
+        - -buildmode
+        - exe
+        - -tags
+        - extended
+    os:
+      - goos: linux
+        build_settings:
+          env: *env_extended_linux
+        archs:
+          - goarch: arm64
+  - path: container2/linux/extended-withdeploy
+    build_settings:
+      flags:
+        - -buildmode
+        - exe
+        - -tags
+        - extended,withdeploy
+    os:
+      - goos: linux
+        build_settings:
+          env: *env_extended_linux
+        archs:
+          - goarch: arm64
+  - path: container1/windows/regular
+    os:
+      - goos: windows
+        build_settings:
+          binary: hugo.exe
+        archs:
+          - goarch: amd64
+          - goarch: arm64
+  - path: container1/windows/extended
+    build_settings:
+      flags:
+        - -buildmode
+        - exe
+        - -tags
+        - extended
+      env: *env_extended_windows
+      ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.vendorInfo=gohugoio -extldflags '-static'
+    os:
+      - goos: windows
+        build_settings:
+          binary: hugo.exe
+        archs:
+          - goarch: amd64
+  - path: container1/windows/extended-withdeploy
+    build_settings:
+      flags:
+        - -buildmode
+        - exe
+        - -tags
+        - extended,withdeploy
+      env: *env_extended_windows
+      ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.vendorInfo=gohugoio -extldflags '-static'
+    os:
+      - goos: windows
+        build_settings:
+          binary: hugo.exe
+        archs:
+          - goarch: amd64
+archives:
+  - paths:
+      - builds/container1/unix/regular/**
+  - paths:
+      - builds/container1/unix/extended/**
+    archive_settings:
+      name_template: *name_template_extended
+  - paths:
+      - builds/container1/unix/extended-withdeploy/**
+    archive_settings:
+      name_template: *name_template_extended_withdeploy
+  - paths:
+      - builds/container2/*/extended/**
+    archive_settings:
+      name_template: *name_template_extended
+  - paths:
+      - builds/container2/*/extended-withdeploy/**
+    archive_settings:
+      name_template: *name_template_extended_withdeploy
+  - paths:
+      - builds/**/windows/regular/**
+    archive_settings: *archive_type_zip
+  - paths:
+      - builds/**/windows/extended/**
+    archive_settings:
+      name_template: *name_template_extended
+      <<: *archive_type_zip
+  - paths:
+      - builds/**/windows/extended-withdeploy/**
+    archive_settings:
+      name_template: *name_template_extended_withdeploy
+      type:
+        format: zip
+        extension: .zip
+  - paths:
+      - builds/**/regular/linux/{arm64,amd64}
+    archive_settings: *archive_deb
+  - paths:
+      - builds/**/extended/linux/{arm64,amd64}
+    archive_settings:
+      name_template: *name_template_extended
+      <<: *archive_deb
+  - paths:
+      - builds/**/extended-withdeploy/linux/{arm64,amd64}
+    archive_settings:
+      name_template: *name_template_extended_withdeploy
+      <<: *archive_deb
+releases:
+  - paths:
+      - archives/**
+    path: r1
