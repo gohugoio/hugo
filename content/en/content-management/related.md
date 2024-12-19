@@ -24,7 +24,7 @@ To list up to 5 related pages (which share the same _date_ or _keyword_ paramete
 <h3>See Also</h3>
 <ul>
  {{ range . }}
- <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+   <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
  {{ end }}
 </ul>
 {{ end }}
