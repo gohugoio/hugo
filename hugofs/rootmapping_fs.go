@@ -837,49 +837,11 @@ func (f *rootMappingDir) Stat() (iofs.FileInfo, error) {
 }
 
 func (f *rootMappingDir) Readdir(count int) ([]os.FileInfo, error) {
-	//panic("not supported: use ReadDir")
-	/*
 	dirs, err := f.ReadDir(count)
-	fmt.Printf("collected files are : %s", dirs)
 	if err != nil {
 		return nil, err
 	}
-	return dirEntriesToFileInfo(dirs), nil
-*/
-	
-/*
-	items, err := f.ReadDir(count)
-	fmt.Printf("collected files are : %s", items)
-	if err != nil {
-		return nil, fmt.Errorf("error readdirnames: %s", err)
-	}
-	files := make([]os.FileInfo, len(items))
-	for i, item := range items {
-		file, e := item.Info()
-		if e != nil {
-		//	return nil, fmt.Errorf("error reading dir stat %s: %s", d, e)
-		}
-		files[i] = file
-	}
-	return files, nil
-	*/
-
-	dirnames, err := f.Readdirnames(count)
-	fmt.Printf("collected files are : %s\n", dirnames)
-	if err != nil {
-		return nil, fmt.Errorf("error readdirnames: %s\n", err)
-	}
-	files := make([]os.FileInfo, len(dirnames))
-	for i, d := range dirnames {
-		file, e := f.fs.Stat("layouts")
-		if e != nil {
-			fmt.Printf("cannot state file %s : %s\n", d, e)
-
-		//	return nil, fmt.Errorf("error reading dir stat %s: %s", d, e)
-		}
-		files[i] = file
-	}
-	return files, nil
+	return dirEntriesToFileInfo(dirs)
 }
 
 // Note that Readdirnames preserves the order of the underlying filesystem(s),
@@ -892,13 +854,16 @@ func (f *rootMappingDir) Readdirnames(count int) ([]string, error) {
 	return dirEntriesToNames(dirs), nil
 }
 
-func dirEntriesToFileInfo(fis []iofs.DirEntry) []os.FileInfo {
-	names := make([]os.FileInfo, len(fis))
+func dirEntriesToFileInfo(fis []iofs.DirEntry) ([]os.FileInfo, error) {
+	fileInfos := make([]os.FileInfo, len(fis))
 	for i, d := range fis {
-		info, _ := d.Info()
-		names[i] = info
+		fileInfo, err := d.Info()
+		if err != nil {
+			return nil, err
+		}
+		fileInfos[i] = fileInfo
 	}
-	return names
+	return fileInfos, nil
 }
 
 func dirEntriesToNames(fis []iofs.DirEntry) []string {
