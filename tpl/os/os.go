@@ -147,23 +147,7 @@ func (ns *Namespace) ReadDir(i any, mode ...any) ([]_os.FileInfo, error) {
 	if (old) {
 		list, err = afero.ReadDir(ns.workFs, path)
 	} else {
-		file, _ := ns.mountsFs.Open(path)
-		switch item := file.(type) {
-		case hugofs.DirOnlyOps: // fully virtual directory // hugofs.rootMappingDir
-			items, _ := item.Readdirnames(0)
-			list = make([]_os.FileInfo, len(items))
-			for i, item := range items {
-				file, _ := ns.mountsFs.Stat(path + "/" + item)
-				list[i] = file
-			}
-		case *overlayfs.Dir:
-			list, err = item.Readdir(0)
-		default:
-			//list, err = afero.ReadDir(ns.mountsFs, path)
-		}
-		if file != nil {
-			file.Close()
-		}
+		list, err = afero.ReadDir(ns.mountsFs, path)
 	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to read directory %q: %s", path, err)

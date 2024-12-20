@@ -76,6 +76,7 @@ l2
 	).Build()
 
 	b.AssertFileContent("public/index.html", `
-START:|config.toml|myproject.txt|:END:
+START:|assets|files|hugo.toml|layouts|myproject.txt|themes|:END:
 `)
+	b.AssertFileContent("public/index.html", `START:||:END`)
 }
