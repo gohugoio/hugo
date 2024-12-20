@@ -21,12 +21,12 @@ To list up to 5 related pages (which share the same _date_ or _keyword_ paramete
 {{< code file=layouts/partials/related.html >}}
 {{ $related := .Site.RegularPages.Related . | first 5 }}
 {{ with $related }}
-<h3>See Also</h3>
-<ul>
- {{ range . }}
-   <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
- {{ end }}
-</ul>
+  <h3>See Also</h3>
+  <ul>
+   {{ range . }}
+     <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+   {{ end }}
+  </ul>
 {{ end }}
 {{< /code >}}
 
