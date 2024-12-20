@@ -1,3 +1,26 @@
+security:
+  enableInlineShortcodes: true
+  exec:
+    allow:
+    - ^(dart-)?sass(-embedded)?$
+    - ^go$
+    - ^git$
+    - ^npx$
+    - ^postcss$
+    - ^tailwindcss$
+    osEnv:
+    - (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE)$
+  funcs:
+    getenv:
+    - ^HUGO_
+    - ^CI$
+  http:
+    mediaTypes: null
+    methods:
+    - (?i)GET|POST
+    urls:
+    - .*
+
 ## Security Policy
 
 ### Reporting a Vulnerability
