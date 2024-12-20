@@ -26,7 +26,7 @@ For example:
 {{< code file=layouts/shortcodes/include.html >}}
 {{ with .Get 0 }}
   {{ with $.Page.GetPage . }}
-    {{ .RenderShortcodes }}
+    {{- .RenderShortcodes }}
   {{ else }}
     {{ errorf "The %q shortcode was unable to find %q. See %s" $.Name . $.Position }}
   {{ end }}
