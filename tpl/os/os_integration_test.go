@@ -19,54 +19,24 @@ import (
 	"github.com/gohugoio/hugo/hugolib"
 )
 
-
-func TestReadDirMountDir2(t *testing.T) {
+// Issue 9599
+func TestReadDirWorkDir(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- hugo.toml --
-baseURL = "https://example.com/"
+-- config.toml --
 theme = "mytheme"
-[module]
-	[[module.imports]]
-		path = "module1"
-		[[module.imports.mounts]]
-			source = "assets"
-			target = "assets"
-	[[module.imports]]
-		path = "mytheme"
-		[[module.imports.mounts]]
-			source = "private"
-			target = "assets"
-		[[module.imports.mounts]]
-			source = "private/test"
-			target = "assets"
-
 -- myproject.txt --
 Hello project!
--- themes/module1/hugo.toml --
--- themes/module1/go.mod --
-module github.com/rymut/hugo-issues-mre/hugo-os/hugo-os-module2
-
-go 1.23.2
--- themes/module1/assets/file.json --
-{}
 -- themes/mytheme/mytheme.txt --
 Hello theme!
--- themes/mytheme/data/not.my_content.md --
-test
--- themes/mytheme/layouts/partials/mypartial.html --
-test
--- themes/mytheme/private/test/should_not_mount.txt --
-Empty file
 -- layouts/index.html --
-{{ $entries := (readDir "" false) }}
-START:|{{ range $entry := $entries }}{{ $entry.Name }}|{{ end }}:END:
--- files/layouts/l1.txt --
-l1
--- files/layouts/assets/l2.txt --
-l2
-	`
+{{ $entries := (readDir ".") }}
+START:|{{ range $entry := $entries }}{{ if not $entry.IsDir }}{{ $entry.Name }}|{{ end }}{{ end }}:END:
+
+
+  `
+
 	b := hugolib.NewIntegrationTestBuilder(
 		hugolib.IntegrationTestConfig{
 			T:           t,
@@ -76,7 +46,66 @@ l2
 	).Build()
 
 	b.AssertFileContent("public/index.html", `
-START:|assets|files|hugo.toml|layouts|myproject.txt|themes|:END:
+START:|config.toml|myproject.txt|:END:
 `)
-	b.AssertFileContent("public/index.html", `START:||:END`)
+}
+
+// Issue 9620
+func TestReadFileNotExists(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+-- layouts/index.html --
+{{ $fi := (readFile "doesnotexist") }}
+{{ if $fi }}Failed{{ else }}OK{{ end }}
+
+
+  `
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   true,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `
+OK
+`)
+}
+
+func TestReadDirMountsTopDirectory(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com/"
+[module]
+	[[module.imports]]
+		path = "module1"
+		[[module.imports.mounts]]
+			source = "assets"
+			target = "assets"
+
+-- myproject.txt --
+Hello project!
+-- themes/module1/assets/file.json --
+{}
+-- layouts/index.html --
+{{ $entries := (readDir "" false) }}
+START:|{{ range $entry := $entries }}{{ $entry.Name }}|{{ end }}:END:
+`
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   true,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `
+START:|assets|hugo.toml|layouts|myproject.txt|themes|:END:
+`)
 }
