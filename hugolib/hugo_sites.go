@@ -550,7 +550,7 @@ func (h *HugoSites) handleDataFile(r *source.File) error {
 		return nil
 	}
 
-	// filepath.Walk walks the files in lexical order, '/' comes before '.'
+	// filepath.WalkDir walks the files in lexical order, '/' comes before '.'
 	higherPrecedentData := current[r.BaseFileName()]
 
 	switch data.(type) {

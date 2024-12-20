@@ -21,7 +21,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"os"
+	"io/fs"
 	"path"
 	"path/filepath"
 	"reflect"
@@ -180,9 +180,9 @@ func (c *Inspector) parseSource() {
 		fileExcludes := regexp.MustCompile("autogen")
 		var filenames []string
 
-		filepath.Walk(c.ProjectRootDir, func(path string, info os.FileInfo, err error) error {
-			if info.IsDir() {
-				if dirExcludes.MatchString(info.Name()) {
+		filepath.WalkDir(c.ProjectRootDir, func(path string, d fs.DirEntry, err error) error {
+			if d.IsDir() {
+				if dirExcludes.MatchString(d.Name()) {
 					return filepath.SkipDir
 				}
 			}

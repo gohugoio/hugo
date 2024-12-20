@@ -16,6 +16,7 @@ package commands
 import (
 	"context"
 	"errors"
+	"io/fs"
 	"os"
 	"path/filepath"
 
@@ -265,11 +266,11 @@ Run "go help get" for more information. All flags available for "go get" is also
 							return errors.New("must not be run from the file system root")
 						}
 
-						filepath.Walk(dirname, func(path string, info os.FileInfo, err error) error {
-							if info.IsDir() {
+						filepath.WalkDir(dirname, func(path string, d fs.DirEntry, err error) error {
+							if d.IsDir() {
 								return nil
 							}
-							if info.Name() == "go.mod" {
+							if d.Name() == "go.mod" {
 								// Found a module.
 								dir := filepath.Dir(path)
 
