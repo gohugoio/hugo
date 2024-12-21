@@ -252,9 +252,7 @@ archives:
       - builds/**/windows/extended-withdeploy/**
     archive_settings:
       name_template: *name_template_extended_withdeploy
-      type:
-        format: zip
-        extension: .zip
+      <<: *archive_type_zip
   - paths:
       - builds/**/regular/linux/{arm64,amd64}
     archive_settings: *archive_deb
