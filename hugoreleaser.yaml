@@ -18,7 +18,7 @@ definitions:
     - CGO_ENABLED=1
     - CC=o64-clang
     - CXX=o64-clang++
-  name_template_extended_withdeploy: &name_template_extended_withdeploy "{{ .Project }}_extended_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
+  name_template_extended_withdeploy: &name_template_extended_withdeploy "{{ .Project }}_extended_withdeploy_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
   name_template_extended: &name_template_extended "{{ .Project }}_extended_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
   archive_deb: &archive_deb
     binary_dir: /usr/local/bin
