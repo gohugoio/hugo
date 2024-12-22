@@ -167,6 +167,17 @@ func createBuildPlugins(rs *resources.Spec, assetsResolver *fsResolver, depsMana
 			}
 		}
 
+		for _, ext := range opts.Externals {
+			// ESBuild will do a more thorough check for packages resolved in node_modules,
+			// but we need to make sure that we don't try to resolve these in the /assets folder.
+			if ext == impPath {
+				return api.OnResolveResult{
+					Path:     impPath,
+					External: true,
+				}, nil
+			}
+		}
+
 		if opts.ImportOnResolveFunc != nil {
 			if s := opts.ImportOnResolveFunc(impPath, args); s != "" {
 				return api.OnResolveResult{Path: s, Namespace: NsHugoImportResolveFunc}, nil

@@ -391,3 +391,32 @@ class A {}
 		}).Build()
 	b.AssertFileContent("public/js/main.js", "__decorateClass")
 }
+
+// Issue 13183.
+func TestExternalsInAssets(t *testing.T) {
+	files := `
+-- assets/js/util1.js --
+export function hello1() {
+	return 'abcd';
+}
+-- assets/js/util2.js --
+export function hello2() {
+	return 'efgh';
+}
+-- assets/js/main.js --
+import { hello1 } from './util1.js';
+import { hello2 } from './util2.js';
+
+hello1();
+hello2();
+-- layouts/index.html --
+Home.
+{{ $js := resources.Get "js/main.js" | js.Build (dict "externals" (slice "./util1.js")) }}
+{{ $js.Publish }}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
+
+	b.AssertFileContent("public/js/main.js", "efgh")
+	b.AssertFileContent("public/js/main.js", "! abcd")
+}
