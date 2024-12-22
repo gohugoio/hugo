@@ -857,11 +857,16 @@ func (f *rootMappingDir) Readdirnames(count int) ([]string, error) {
 func dirEntriesToFileInfo(fis []iofs.DirEntry) ([]os.FileInfo, error) {
 	fileInfos := make([]os.FileInfo, len(fis))
 	for i, d := range fis {
-		fileInfo, err := d.Info()
-		if err != nil {
-			return nil, err
+		v, ok := d.(*dirEntryMeta)
+		if ok {
+			fileInfos[i] = v
+		} else {
+			fileInfo, err := d.Info()
+			fileInfos[i] = fileInfo
+			if err != nil {
+				return nil, err
+			}
 		}
-		fileInfos[i] = fileInfo
 	}
 	return fileInfos, nil
 }

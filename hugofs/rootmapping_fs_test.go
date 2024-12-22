@@ -329,46 +329,60 @@ func TestReaddirRootMappingFsMountOverlap(t *testing.T) {
 			From: "/static/e/",
 			To:   "de",
 		},
+		{
+			From: "/static/file.txt",
+			To: "de/e.txt",
+		},
 	}
 
 	rfs, err := NewRootMappingFs(fs, rm...)
 	c.Assert(err, qt.IsNil)
 
-	checkBasicFileInfos := func(name string, expect []iofs.FileInfo) {
+	checkBasicFileInfos := func(name string, expect []string) {
 		c.Helper()
 		name = filepath.FromSlash(name)
 		f, err := rfs.Open(name)
 		c.Assert(err, qt.IsNil)
 		defer f.Close()
-		names, err := f.Readdir(-1)
+		infos, err := f.Readdir(-1)
 		c.Assert(err, qt.IsNil)
+		sortOrderFileInfo := func(i, j int) bool {
+			return infos[i].Name() < infos[j].Name()
+		}
+		sort.Slice(infos, sortOrderFileInfo)
+		actualNames := make([]string, len(infos))
+		for i, info := range infos {
+			actualNames[i] = info.Name()
+		}
+		expectNames := make([]string, len(expect))
+		expectInfos := make([]iofs.FileInfo, len(expect))
+		for i, name := range expect {
+			name = filepath.FromSlash(name)
+			fileInfo, err := rfs.Stat(name)
+			c.Assert(err, qt.IsNil)
+			expectInfos[i] = fileInfo
+
+			_, name = filepath.Split(name)
+			expectNames[i] = name
+		}
 		
+		// check names
+		c.Assert(actualNames, qt.DeepEquals, expectNames, qt.Commentf(fmt.Sprintf("%#v", actualNames)))
+		// check other props
 		comp := func(x iofs.FileInfo, y iofs.FileInfo) bool {
 			if x == nil && y == nil {
 				return true
 			}
-			// &hugofs.dirNameOnlyFileInfo (does not implement Size && Sys is always nil)
 			return x != nil && y != nil && 
-				x.Name() == y.Name() &&
 				x.Mode() == y.Mode() &&
-				x.ModTime() == y.ModTime()
+				x.ModTime() == y.ModTime() &&
+				x.Size() == y.Size() &&
+				x.Sys() == y.Sys()
 		}
-		c.Assert(names, qt.CmpEquals(cmp.Comparer(comp)), expect, qt.Commentf(fmt.Sprintf("%#v", names)))
+		c.Assert(infos, qt.CmpEquals(cmp.Comparer(comp)), expectInfos, qt.Commentf(fmt.Sprintf("%#v", infos)))
 	}
-	getExpectedFileInfos := func(paths []string) []iofs.FileInfo{
-		c.Helper()
-		fileInfos := make([]iofs.FileInfo, len(paths))
-		for i, path := range paths {
-			path = filepath.FromSlash(path)
-			fileInfo, err := rfs.Stat(path)
-			c.Assert(err, qt.IsNil)
-
-			fileInfos[i] = fileInfo
-		}
-		return fileInfos
-	}
-	checkBasicFileInfos("static", getExpectedFileInfos([]string{"static/a.txt", "static/b", "static/e"}))
-	checkBasicFileInfos("", getExpectedFileInfos([]string{"static"}))
+	checkBasicFileInfos("static", []string{"static/a.txt", "static/b", "static/e", "static/file.txt"})
+	checkBasicFileInfos("", []string{"static"})
 }
 
 func TestRootMappingFsMountOverlap(t *testing.T) {

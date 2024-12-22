@@ -261,7 +261,7 @@ func (fi *dirNameOnlyFileInfo) Name() string {
 }
 
 func (fi *dirNameOnlyFileInfo) Size() int64 {
-	panic("not implemented")
+	return 0
 }
 
 func (fi *dirNameOnlyFileInfo) Mode() os.FileMode {
