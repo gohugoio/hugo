@@ -47,6 +47,7 @@ var (
 	_ resource.Cloner                    = (*genericResource)(nil)
 	_ resource.ResourcesLanguageMerger   = (*resource.Resources)(nil)
 	_ resource.Identifier                = (*genericResource)(nil)
+	_ resource.TransientIdentifier       = (*genericResource)(nil)
 	_ targetPathProvider                 = (*genericResource)(nil)
 	_ sourcePathProvider                 = (*genericResource)(nil)
 	_ identity.IdentityGroupProvider     = (*genericResource)(nil)
@@ -359,6 +360,9 @@ func GetTestInfoForResource(r resource.Resource) GenericResourceTestInfo {
 type genericResource struct {
 	publishInit *sync.Once
 
+	key     string
+	keyInit *sync.Once
+
 	sd    ResourceSourceDescriptor
 	paths internal.ResourcePaths
 
@@ -444,19 +448,24 @@ func (l *genericResource) Data() any {
 }
 
 func (l *genericResource) Key() string {
-	basePath := l.spec.Cfg.BaseURL().BasePathNoTrailingSlash
-	var key string
-	if basePath == "" {
-		key = l.RelPermalink()
-	} else {
-		key = strings.TrimPrefix(l.RelPermalink(), basePath)
-	}
+	l.keyInit.Do(func() {
+		basePath := l.spec.Cfg.BaseURL().BasePathNoTrailingSlash
+		if basePath == "" {
+			l.key = l.RelPermalink()
+		} else {
+			l.key = strings.TrimPrefix(l.RelPermalink(), basePath)
+		}
 
-	if l.spec.Cfg.IsMultihost() {
-		key = l.spec.Lang() + key
-	}
+		if l.spec.Cfg.IsMultihost() {
+			l.key = l.spec.Lang() + l.key
+		}
+	})
 
-	return key
+	return l.key
+}
+
+func (l *genericResource) TransientKey() string {
+	return l.Key()
 }
 
 func (l *genericResource) targetPath() string {
@@ -623,6 +632,7 @@ func (rc *genericResource) cloneWithUpdates(u *transformationUpdate) (baseResour
 
 func (l genericResource) clone() *genericResource {
 	l.publishInit = &sync.Once{}
+	l.keyInit = &sync.Once{}
 	return &l
 }
 

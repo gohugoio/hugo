@@ -249,3 +249,32 @@ tags: ['tag-b']
 		"2: Intersect: 1|\n2: Union: 3|\n2: SymDiff: 2|\n2: Uniq: 3|",
 	)
 }
+
+// Issue #13181
+func TestUnionResourcesMatch(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+disableKinds = ['rss','sitemap', 'taxonomy', 'term', 'page']
+-- layouts/index.html --
+{{ $a := resources.Match "*a*" }}
+{{ $b := resources.Match "*b*" }}
+{{ $union := $a | union $b }}
+{{ range $i, $e := $union }}
+{{ $i }}: {{ .Name }}
+{{ end }}$
+-- assets/a1.html --
+<div>file1</div>
+-- assets/a2.html --
+<div>file2</div>
+-- assets/a3_b1.html --
+<div>file3</div>
+-- assets/b2.html --
+<div>file4</div>
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContentExact("public/index.html", "0: /a3_b1.html\n\n1: /b2.html\n\n2: /a1.html\n\n3: /a2.html\n$")
+}

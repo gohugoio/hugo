@@ -170,9 +170,17 @@ type ResourcesLanguageMerger interface {
 
 // Identifier identifies a resource.
 type Identifier interface {
-	// Key is is mostly for internal use and should be considered opaque.
+	// Key is mostly for internal use and should be considered opaque.
 	// This value may change between Hugo versions.
 	Key() string
+}
+
+// TransientIdentifier identifies a transient resource.
+type TransientIdentifier interface {
+	// TransientKey is mostly for internal use and should be considered opaque.
+	// This value is implemented by transient resources where pointers may be short lived and
+	// not suitable for use as a map keys.
+	TransientKey() string
 }
 
 // WeightProvider provides a weight.

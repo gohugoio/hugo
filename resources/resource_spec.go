@@ -187,6 +187,7 @@ func (r *Spec) NewResource(rd ResourceSourceDescriptor) (resource.Resource, erro
 		Staler:      &AtomicStaler{},
 		h:           &resourceHash{},
 		publishInit: &sync.Once{},
+		keyInit:     &sync.Once{},
 		paths:       rp,
 		spec:        r,
 		sd:          rd,
