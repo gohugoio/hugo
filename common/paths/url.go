@@ -228,7 +228,7 @@ func UrlFromFilename(filename string) (*url.URL, error) {
 	}, nil
 }
 
-// UrlToFilename converts the URL s to a filename.
+// UrlStringToFilename converts the URL s to a filename.
 // If ParseRequestURI fails, the input is just converted to OS specific slashes and returned.
 func UrlStringToFilename(s string) (string, bool) {
 	u, err := url.ParseRequestURI(s)
