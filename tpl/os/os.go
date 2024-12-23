@@ -25,6 +25,7 @@ import (
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 )
@@ -188,7 +189,7 @@ func (ns *Namespace) FileExists(i any, mode ...any) (bool, error) {
 }
 
 // Stat returns the os.FileInfo structure describing file.
-func (ns *Namespace) Stat(i any, mode ...any) (_os.FileInfo, error) {
+func (ns *Namespace) Stat(i any) (_os.FileInfo, error) {
 	path, err := cast.ToStringE(i)
 	if err != nil {
 		return nil, err
@@ -197,18 +198,9 @@ func (ns *Namespace) Stat(i any, mode ...any) (_os.FileInfo, error) {
 	if path == "" {
 		return nil, errors.New("fileStat needs a path to a file")
 	}
-
-	old := true
-	if (len(mode) != 0) {
-		old, err = cast.ToBoolE(mode[0])
-		if err != nil {
-			return nil, err
-		}
-	}
-	var r _os.FileInfo
-	if (old) {
-		r, err = ns.readFileFs.Stat(path)
-	} else {
+	r, err := ns.mountsFs.Stat(path)
+	if err != nil {
+		path = filepath.Join(files.ComponentFolderContent, path)
 		r, err = ns.mountsFs.Stat(path)
 	}
 	if err != nil {
