@@ -90,7 +90,13 @@ func readFile(fs afero.Fs, filename string) (string, error) {
 	if filename == "" || filename == "." || filename == string(_os.PathSeparator) {
 		return "", errors.New("invalid filename")
 	}
-
+	stat, err := fs.Stat(filename)
+	if err != nil {
+		return "", err
+	}
+	if stat.IsDir() {
+		return "", errors.New("invalid filename")
+	}
 	b, err := afero.ReadFile(fs, filename)
 	if err != nil {
 		return "", err
@@ -102,27 +108,27 @@ func readFile(fs afero.Fs, filename string) (string, error) {
 // ReadFile reads the file named by filename relative to the configured WorkingDir.
 // It returns the contents as a string.
 // There is an upper size limit set at 1 megabytes.
-func (ns *Namespace) ReadFile(i any, mode ...any) (string, error) {
-	s, err := cast.ToStringE(i)
+func (ns *Namespace) ReadFile(i any) (string, error) {
+	path, err := cast.ToStringE(i)
 	if err != nil {
 		return "", err
 	}
 
 	if ns.deps.PathSpec != nil {
-		s = ns.deps.PathSpec.RelPathify(s)
+		path = ns.deps.PathSpec.RelPathify(path)
 	}
 
-	old := true
-	if (len(mode) != 0) {
-		old, err = cast.ToBoolE(mode[0])
-		if err != nil {
-			return "", err
+	s, err := readFile(ns.mountsFs, path)
+	if err != nil {
+		path = filepath.Join(files.ComponentFolderContent, path)
+		sContent, errContent := readFile(ns.mountsFs, path)
+		if errContent != nil && !herrors.IsNotExist(errContent) {
+			err = errContent
 		}
-	}
-	if (old) {
-		s, err = readFile(ns.readFileFs, s)
-	} else {
-		s, err = readFile(ns.mountsFs, s)
+		if errContent == nil {
+			err = nil
+			s = sContent
+		}
 	}
 	if err != nil && herrors.IsNotExist(err) {
 		return "", nil
@@ -170,7 +176,14 @@ func (ns *Namespace) FileExists(i any) (bool, error) {
 	status, err := afero.Exists(ns.mountsFs, path)
 	if (err != nil) || (status == false) {
 		path = filepath.Join(files.ComponentFolderContent, path)
-		status, err = afero.Exists(ns.mountsFs, path)
+		statusContent, errContent := afero.Exists(ns.mountsFs, path)
+		if errContent != nil && !herrors.IsNotExist(errContent) {
+			err = errContent
+		}
+		if errContent == nil {
+			err = nil
+			status = statusContent
+		}
 	}
 	if err != nil {
 		return false, err
@@ -192,7 +205,15 @@ func (ns *Namespace) Stat(i any) (_os.FileInfo, error) {
 	r, err := ns.mountsFs.Stat(path)
 	if err != nil {
 		path = filepath.Join(files.ComponentFolderContent, path)
-		r, err = ns.mountsFs.Stat(path)
+		rContent, errContent := ns.mountsFs.Stat(path)
+		if errContent != nil && !herrors.IsNotExist(errContent) {
+			err = errContent
+		}
+		if errContent == nil {
+			err = nil
+			r = rContent
+		}
+
 	}
 	if err != nil {
 		return nil, err

@@ -39,7 +39,15 @@ func TestReadFile(t *testing.T) {
 		{filepath.FromSlash("/f/f1.txt"), "f1-content"},
 		{filepath.FromSlash("f/f1.txt"), "f1-content"},
 		{filepath.FromSlash("../f2.txt"), ""},
-		{"", false},
+		{filepath.FromSlash("about.pl.md"), "PL"},
+		{filepath.FromSlash("en/about.md"), "EN"},
+		{filepath.FromSlash("content/en/about.md"), "EN"},
+		{filepath.FromSlash("assets/testing.json"), "file1-content"},
+		{filepath.FromSlash("assets/virtual/file1.json"), "file1-content"},
+		{filepath.FromSlash("assets/file2.json"), "file2-content"},
+		{filepath.FromSlash("assets/files/raw1.txt"), "raw1-content"},
+		{filepath.FromSlash("assets/files/raw-none.txt"), ""},
+		{"assets", false},
 		{"b", ""},
 	} {
 
