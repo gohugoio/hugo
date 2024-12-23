@@ -184,6 +184,83 @@ func TestBatchEditScriptParam(t *testing.T) {
 	b.AssertFileContent("public/mybatch/mygroup.js", "param-p1-main-edited")
 }
 
+func TestBatchMultiHost(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "section"]
+[languages]
+[languages.en]
+weight = 1
+baseURL = "https://example.com/en"
+[languages.fr]
+weight = 2
+baseURL = "https://example.com/fr"
+disableLiveReload = true
+-- assets/js/styles.css --
+body {
+	background-color: red;
+}
+-- assets/js/main.js --
+import * as foo from 'mylib';
+console.log("Hello, Main!");
+-- assets/js/runner.js --
+console.log("Hello, Runner!");
+-- node_modules/mylib/index.js --
+console.log("Hello, My Lib!");
+-- layouts/index.html --
+Home.
+{{ $batch := (js.Batch "mybatch") }}
+ {{ with $batch.Config }}
+	{{ .SetOptions (dict 
+		"params" (dict "id" "config")
+		"sourceMap" ""
+		)
+	}}
+{{ end }}
+{{ with (templates.Defer (dict "key" "global")) }}
+Defer:
+{{ $batch := (js.Batch "mybatch") }}
+{{ range $k, $v := $batch.Build.Groups }}
+	{{ range $kk, $vv := . -}}
+		{{ $k }}: {{ .RelPermalink }}
+	{{ end }}
+{{ end -}}
+{{ end }}
+{{ $batch := (js.Batch "mybatch") }}
+{{ with $batch.Group "mygroup" }}
+ 	{{ with .Runner "run" }}
+		{{ .SetOptions (dict "resource" (resources.Get "js/runner.js")) }}
+	{{ end }}
+	{{ with .Script "main" }}
+		{{ .SetOptions (dict "resource" (resources.Get "js/main.js") "params" (dict "p1" "param-p1-main" )) }}
+	{{ end }}
+	{{ with .Instance "main" "i1" }}
+		{{ .SetOptions (dict "params" (dict "title" "Instance 1")) }}
+	{{ end }}
+{{ end }}
+
+
+`
+	b := hugolib.Test(t, files, hugolib.TestOptWithOSFs())
+	b.AssertPublishDir(
+		"en/mybatch/chunk-TOZKWCDE.js", "en/mybatch/mygroup.js ",
+		"fr/mybatch/mygroup.js", "fr/mybatch/chunk-TOZKWCDE.js")
+}
+
+func TestBatchRenameBundledScript(t *testing.T) {
+	files := jsBatchFilesTemplate
+	b := hugolib.TestRunning(t, files, hugolib.TestOptWithOSFs())
+	b.AssertFileContent("public/mybatch/p1.js", "P1 Script")
+	b.RenameFile("content/p1/p1script.js", "content/p1/p1script2.js")
+	_, err := b.BuildE()
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, "resource not set")
+
+	// Rename it back.
+	b.RenameFile("content/p1/p1script2.js", "content/p1/p1script.js")
+	b.Build()
+}
+
 func TestBatchErrorScriptResourceNotSet(t *testing.T) {
 	files := strings.Replace(jsBatchFilesTemplate, `(resources.Get "js/main.js")`, `(resources.Get "js/doesnotexist.js")`, 1)
 	b, err := hugolib.TestE(t, files, hugolib.TestOptWithOSFs())
@@ -643,44 +720,4 @@ console.log("config.params.id", id3);
 
 	b.EditFileReplaceAll("assets/other/bar.css", ".bar-edit {", ".bar-edit2 {").Build()
 	b.AssertFileContent("public/mybundle/reactbatch.css", ".bar-edit2 {")
-}
-
-func TestEditBaseofManyTimes(t *testing.T) {
-	files := `
--- hugo.toml --
-baseURL = "https://example.com"
-disableLiveReload = true
-disableKinds = ["taxonomy", "term"]
--- layouts/_default/baseof.html --
-Baseof.
-{{ block "main" . }}{{ end }}
-{{ with (templates.Defer (dict "key" "global")) }}
-Now. {{ now }}
-{{ end }}
--- layouts/_default/single.html --
-{{ define "main" }}
-Single.
-{{ end }}
---
--- layouts/_default/list.html --
-{{ define "main" }}
-List.
-{{ end }}
--- content/mybundle/index.md --
----
-title: "My Bundle"
----
--- content/_index.md --
----
-title: "Home"
----
-`
-
-	b := hugolib.TestRunning(t, files)
-	b.AssertFileContent("public/index.html", "Baseof.")
-
-	for i := 0; i < 100; i++ {
-		b.EditFileReplaceAll("layouts/_default/baseof.html", "Now", "Now.").Build()
-		b.AssertFileContent("public/index.html", "Now..")
-	}
 }

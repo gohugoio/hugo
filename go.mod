@@ -63,7 +63,7 @@ require (
 	github.com/rogpeppe/go-internal v1.13.1
 	github.com/sanity-io/litter v1.5.5
 	github.com/spf13/afero v1.11.0
-	github.com/spf13/cast v1.7.0
+	github.com/spf13/cast v1.7.1
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/fsync v0.10.1
 	github.com/spf13/pflag v1.0.5
@@ -73,7 +73,7 @@ require (
 	github.com/yuin/goldmark v1.7.8
 	github.com/yuin/goldmark-emoji v1.0.4
 	go.uber.org/automaxprocs v1.5.3
-	gocloud.dev v0.39.0
+	gocloud.dev v0.40.0
 	golang.org/x/exp v0.0.0-20221031165847-c99f073a8326
 	golang.org/x/image v0.22.0
 	golang.org/x/mod v0.22.0

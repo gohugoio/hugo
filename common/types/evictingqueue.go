@@ -65,6 +65,9 @@ func (q *EvictingStringQueue) Len() int {
 
 // Contains returns whether the queue contains v.
 func (q *EvictingStringQueue) Contains(v string) bool {
+	if q == nil {
+		return false
+	}
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	return q.set[v]

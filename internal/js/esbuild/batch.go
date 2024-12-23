@@ -20,6 +20,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"io"
 	"path"
 	"path/filepath"
 	"reflect"
@@ -34,7 +35,9 @@ import (
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/internal/js"
 	"github.com/gohugoio/hugo/lazy"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources"
@@ -42,11 +45,10 @@ import (
 	"github.com/gohugoio/hugo/resources/resource_factories/create"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/mitchellh/mapstructure"
-	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 )
 
-var _ Batcher = (*batcher)(nil)
+var _ js.Batcher = (*batcher)(nil)
 
 const (
 	NsBatch = "_hugo-js-batch"
@@ -58,7 +60,7 @@ const (
 //go:embed batch-esm-runner.gotmpl
 var runnerTemplateStr string
 
-var _ BatchPackage = (*Package)(nil)
+var _ js.BatchPackage = (*Package)(nil)
 
 var _ buildToucher = (*optsHolder[scriptOptions])(nil)
 
@@ -67,16 +69,17 @@ var (
 	_ isBuiltOrTouchedProvider = (*scriptGroup)(nil)
 )
 
-func NewBatcherClient(deps *deps.Deps) (*BatcherClient, error) {
+func NewBatcherClient(deps *deps.Deps) (js.BatcherClient, error) {
 	c := &BatcherClient{
 		d:            deps,
 		buildClient:  NewBuildClient(deps.BaseFs.Assets, deps.ResourceSpec),
 		createClient: create.New(deps.ResourceSpec),
-		bundlesCache: maps.NewCache[string, BatchPackage](),
+		batcherStore: maps.NewCache[string, js.Batcher](),
+		bundlesStore: maps.NewCache[string, js.BatchPackage](),
 	}
 
 	deps.BuildEndListeners.Add(func(...any) bool {
-		c.bundlesCache.Reset()
+		c.bundlesStore.Reset()
 		return false
 	})
 
@@ -125,7 +128,7 @@ func (o *opts[K, C]) Reset() {
 	o.h.resetCounter++
 }
 
-func (o *opts[K, C]) Get(id uint32) OptionsSetter {
+func (o *opts[K, C]) Get(id uint32) js.OptionsSetter {
 	var b *optsHolder[C]
 	o.once.Do(func() {
 		b = o.h
@@ -184,18 +187,6 @@ func newOpts[K any, C optionsCompiler[C]](key K, optionsID string, defaults defa
 	}
 }
 
-// BatchPackage holds a group of JavaScript resources.
-type BatchPackage interface {
-	Groups() map[string]resource.Resources
-}
-
-// Batcher is used to build JavaScript packages.
-type Batcher interface {
-	Build(context.Context) (BatchPackage, error)
-	Config(ctx context.Context) OptionsSetter
-	Group(ctx context.Context, id string) BatcherGroup
-}
-
 // BatcherClient is a client for building JavaScript packages.
 type BatcherClient struct {
 	d *deps.Deps
@@ -206,12 +197,13 @@ type BatcherClient struct {
 	createClient *create.Client
 	buildClient  *BuildClient
 
-	bundlesCache *maps.Cache[string, BatchPackage]
+	batcherStore *maps.Cache[string, js.Batcher]
+	bundlesStore *maps.Cache[string, js.BatchPackage]
 }
 
 // New creates a new Batcher with the given ID.
 // This will be typically created once and reused across rebuilds.
-func (c *BatcherClient) New(id string) (Batcher, error) {
+func (c *BatcherClient) New(id string) (js.Batcher, error) {
 	var initErr error
 	c.once.Do(func() {
 		// We should fix the initialization order here (or use the Go template package directly), but we need to wait
@@ -288,6 +280,10 @@ func (c *BatcherClient) New(id string) (Batcher, error) {
 	return b, nil
 }
 
+func (c *BatcherClient) Store() *maps.Cache[string, js.Batcher] {
+	return c.batcherStore
+}
+
 func (c *BatcherClient) buildBatchGroup(ctx context.Context, t *batchGroupTemplateContext) (resource.Resource, string, error) {
 	var buf bytes.Buffer
 
@@ -302,18 +298,6 @@ func (c *BatcherClient) buildBatchGroup(ctx context.Context, t *batchGroupTempla
 	}
 
 	return r, s, nil
-}
-
-// BatcherGroup is a group of scripts and instances.
-type BatcherGroup interface {
-	Instance(sid, iid string) OptionsSetter
-	Runner(id string) OptionsSetter
-	Script(id string) OptionsSetter
-}
-
-// OptionsSetter is used to set options for a batch, script or instance.
-type OptionsSetter interface {
-	SetOptions(map[string]any) string
 }
 
 // Package holds a group of JavaScript resources.
@@ -353,9 +337,9 @@ type batcher struct {
 }
 
 // Build builds the batch if not already built or if it's stale.
-func (b *batcher) Build(ctx context.Context) (BatchPackage, error) {
+func (b *batcher) Build(ctx context.Context) (js.BatchPackage, error) {
 	key := dynacache.CleanKey(b.id + ".js")
-	p, err := b.client.bundlesCache.GetOrCreate(key, func() (BatchPackage, error) {
+	p, err := b.client.bundlesStore.GetOrCreate(key, func() (js.BatchPackage, error) {
 		return b.build(ctx)
 	})
 	if err != nil {
@@ -364,11 +348,11 @@ func (b *batcher) Build(ctx context.Context) (BatchPackage, error) {
 	return p, nil
 }
 
-func (b *batcher) Config(ctx context.Context) OptionsSetter {
+func (b *batcher) Config(ctx context.Context) js.OptionsSetter {
 	return b.configOptions.Get(b.buildCount)
 }
 
-func (b *batcher) Group(ctx context.Context, id string) BatcherGroup {
+func (b *batcher) Group(ctx context.Context, id string) js.BatcherGroup {
 	if err := ValidateBatchID(id, false); err != nil {
 		panic(err)
 	}
@@ -419,7 +403,7 @@ func (b *batcher) isStale() bool {
 	return false
 }
 
-func (b *batcher) build(ctx context.Context) (BatchPackage, error) {
+func (b *batcher) build(ctx context.Context) (js.BatchPackage, error) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	defer func() {
@@ -463,6 +447,8 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 		pathGroup:             maps.NewCache[string, string](),
 	}
 
+	multihostBasePaths := b.client.d.ResourceSpec.MultihostTargetBasePaths
+
 	// Entry points passed to ESBuid.
 	var entryPoints []string
 	addResource := func(group, pth string, r resource.Resource, isResult bool) {
@@ -476,18 +462,10 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 
 	for _, g := range b.scriptGroups.Sorted() {
 		keyPath := g.id
-		var runners []scriptRunnerTemplateContext
-		for _, vv := range g.runnersOptions.ByKey() {
-			runnerKeyPath := keyPath + "_" + vv.Key().String()
-			runnerImpPath := paths.AddLeadingSlash(runnerKeyPath + "_runner" + vv.Compiled().Resource.MediaType().FirstSuffix.FullSuffix)
-			runners = append(runners, scriptRunnerTemplateContext{opts: vv, Import: runnerImpPath})
-			addResource(g.id, runnerImpPath, vv.Compiled().Resource, false)
-		}
 
 		t := &batchGroupTemplateContext{
 			keyPath: keyPath,
 			ID:      g.id,
-			Runners: runners,
 		}
 
 		instances := g.instancesOptions.ByKey()
@@ -506,8 +484,9 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 			})
 
 			bt := scriptBatchTemplateContext{
-				opts:   vv,
-				Import: impPath,
+				opts:      vv,
+				Import:    impPath,
+				Instances: []scriptInstanceBatchTemplateContext{},
 			}
 			state.importResource.Set(bt.Import, vv.Compiled().Resource)
 			predicate := func(k instanceID) bool {
@@ -518,6 +497,13 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 			}
 
 			t.Scripts = append(t.Scripts, bt)
+		}
+
+		for _, vv := range g.runnersOptions.ByKey() {
+			runnerKeyPath := keyPath + "_" + vv.Key().String()
+			runnerImpPath := paths.AddLeadingSlash(runnerKeyPath + "_runner" + vv.Compiled().Resource.MediaType().FirstSuffix.FullSuffix)
+			t.Runners = append(t.Runners, scriptRunnerTemplateContext{opts: vv, Import: runnerImpPath})
+			addResource(g.id, runnerImpPath, vv.Compiled().Resource, false)
 		}
 
 		r, s, err := b.client.buildBatchGroup(ctx, t)
@@ -701,15 +687,36 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 
 		if !handled {
 			//  Copy to destination.
-			p := strings.TrimPrefix(o.Path, outDir)
-			targetFilename := filepath.Join(b.id, p)
-			fs := b.client.d.BaseFs.PublishFs
-			if err := fs.MkdirAll(filepath.Dir(targetFilename), 0o777); err != nil {
-				return nil, fmt.Errorf("failed to create dir %q: %w", targetFilename, err)
+			// In a multihost setup, we will have multiple targets.
+			var targetFilenames []string
+			if len(multihostBasePaths) > 0 {
+				for _, base := range multihostBasePaths {
+					p := strings.TrimPrefix(o.Path, outDir)
+					targetFilename := filepath.Join(base, b.id, p)
+					targetFilenames = append(targetFilenames, targetFilename)
+				}
+			} else {
+				p := strings.TrimPrefix(o.Path, outDir)
+				targetFilename := filepath.Join(b.id, p)
+				targetFilenames = append(targetFilenames, targetFilename)
 			}
 
-			if err := afero.WriteFile(fs, targetFilename, o.Contents, 0o666); err != nil {
-				return nil, fmt.Errorf("failed to write to %q: %w", targetFilename, err)
+			fs := b.client.d.BaseFs.PublishFs
+
+			if err := func() error {
+				fw, err := helpers.OpenFilesForWriting(fs, targetFilenames...)
+				if err != nil {
+					return err
+				}
+				defer fw.Close()
+
+				fr := bytes.NewReader(o.Contents)
+
+				_, err = io.Copy(fw, fr)
+
+				return err
+			}(); err != nil {
+				return nil, fmt.Errorf("failed to copy to %q: %w", targetFilenames, err)
 			}
 		}
 	}
@@ -845,7 +852,7 @@ type optionsGetSetter[K, C any] interface {
 	Key() K
 	Reset()
 
-	Get(uint32) OptionsSetter
+	Get(uint32) js.OptionsSetter
 	isStale() bool
 	currPrev() (map[string]any, map[string]any)
 }
@@ -975,7 +982,7 @@ func (b *scriptGroup) IdentifierBase() string {
 	return b.id
 }
 
-func (s *scriptGroup) Instance(sid, id string) OptionsSetter {
+func (s *scriptGroup) Instance(sid, id string) js.OptionsSetter {
 	if err := ValidateBatchID(sid, false); err != nil {
 		panic(err)
 	}
@@ -1014,7 +1021,7 @@ func (g *scriptGroup) Reset() {
 	}
 }
 
-func (s *scriptGroup) Runner(id string) OptionsSetter {
+func (s *scriptGroup) Runner(id string) js.OptionsSetter {
 	if err := ValidateBatchID(id, false); err != nil {
 		panic(err)
 	}
@@ -1043,7 +1050,7 @@ func (s *scriptGroup) Runner(id string) OptionsSetter {
 	return s.runnersOptions[sid].Get(s.b.buildCount)
 }
 
-func (s *scriptGroup) Script(id string) OptionsSetter {
+func (s *scriptGroup) Script(id string) js.OptionsSetter {
 	if err := ValidateBatchID(id, false); err != nil {
 		panic(err)
 	}

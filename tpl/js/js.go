@@ -17,8 +17,8 @@ package js
 import (
 	"errors"
 
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/internal/js"
 	"github.com/gohugoio/hugo/internal/js/esbuild"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -34,16 +34,9 @@ func New(d *deps.Deps) (*Namespace, error) {
 		return &Namespace{}, nil
 	}
 
-	batcherClient, err := esbuild.NewBatcherClient(d)
-	if err != nil {
-		return nil, err
-	}
-
 	return &Namespace{
 		d:                 d,
 		jsTransformClient: jstransform.New(d.BaseFs.Assets, d.ResourceSpec),
-		jsBatcherClient:   batcherClient,
-		jsBatcherStore:    maps.NewCache[string, esbuild.Batcher](),
 		createClient:      create.New(d.ResourceSpec),
 		babelClient:       babel.New(d.ResourceSpec),
 	}, nil
@@ -56,8 +49,6 @@ type Namespace struct {
 	jsTransformClient *jstransform.Client
 	createClient      *create.Client
 	babelClient       *babel.Client
-	jsBatcherClient   *esbuild.BatcherClient
-	jsBatcherStore    *maps.Cache[string, esbuild.Batcher]
 }
 
 // Build processes the given Resource with ESBuild.
@@ -90,12 +81,13 @@ func (ns *Namespace) Build(args ...any) (resource.Resource, error) {
 // Repeated calls with the same ID will return the same Batcher.
 // The ID will be used to name the root directory of the batch.
 // Forward slashes in the ID is allowed.
-func (ns *Namespace) Batch(id string) (esbuild.Batcher, error) {
+func (ns *Namespace) Batch(id string) (js.Batcher, error) {
 	if err := esbuild.ValidateBatchID(id, true); err != nil {
 		return nil, err
 	}
-	b, err := ns.jsBatcherStore.GetOrCreate(id, func() (esbuild.Batcher, error) {
-		return ns.jsBatcherClient.New(id)
+
+	b, err := ns.d.JSBatcherClient.Store().GetOrCreate(id, func() (js.Batcher, error) {
+		return ns.d.JSBatcherClient.New(id)
 	})
 	if err != nil {
 		return nil, err
