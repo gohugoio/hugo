@@ -821,7 +821,7 @@ func (f *rootMappingDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 			meta := fim.Meta()
 			if f.meta.InclusionFilter.Match(strings.TrimPrefix(meta.Filename, meta.SourceRoot), fim.IsDir()) {
 				result = append(result, fim)
-			} 
+			}
 		}
 		return result, nil
 	}

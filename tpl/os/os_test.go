@@ -70,11 +70,11 @@ func TestFileExists(t *testing.T) {
 
 	for _, test := range []struct {
 		filename string
-		expect any
-		comment string
+		expect   any
+		comment  string
 	}{
 		{filepath.FromSlash("f/f1.txt"), true, "must be present in workdir"},
-		{filepath.FromSlash("../f2.txt"), false, "cannot exist" },
+		{filepath.FromSlash("../f2.txt"), false, "cannot exist"},
 		{filepath.FromSlash("about.pl.md"), true, "must be present in contentDir"},
 		{filepath.FromSlash("en/about.md"), true, "must be present in contentDir"},
 		{filepath.FromSlash("assets/testing.json"), true, "mapping must be present"},
@@ -99,7 +99,7 @@ func TestFileExists(t *testing.T) {
 				continue
 			}
 
-			b.Assert(err, qt.IsNil,  qt.Commentf("file '%s' %s", filename, test.comment))
+			b.Assert(err, qt.IsNil, qt.Commentf("file '%s' %s", filename, test.comment))
 			b.Assert(result, qt.Equals, test.expect, qt.Commentf("file '%s' %s", filename, test.comment))
 		}
 	}
@@ -111,14 +111,14 @@ func TestStat(t *testing.T) {
 	ns := os.New(b.H.Deps)
 
 	for _, test := range []struct {
-		filename string
-		expectError  bool
-		expectSize   any
-		expectIsDir  any
-		comment string
+		filename    string
+		expectError bool
+		expectSize  any
+		expectIsDir any
+		comment     string
 	}{
 		{filepath.FromSlash("f/f1.txt"), false, int64(10), false, "must be present in workdir"},
-		{filepath.FromSlash("../f2.txt"), true, nil, nil, "cannot exist" },
+		{filepath.FromSlash("../f2.txt"), true, nil, nil, "cannot exist"},
 		{filepath.FromSlash("about.pl.md"), false, int64(2), false, "must be present in contentDir"},
 		{filepath.FromSlash("en/about.md"), false, int64(2), false, "must be present in contentDir"},
 		{filepath.FromSlash("assets/testing.json"), false, int64(13), false, "mapping must be present"},
@@ -142,13 +142,13 @@ func TestStat(t *testing.T) {
 				b.Assert(err, qt.Not(qt.IsNil), qt.Commentf("file '%s' %s", filename, test.comment))
 				continue
 			}
-	
-			b.Assert(err, qt.IsNil,  qt.Commentf("file '%s' %s", filename, test.comment))
+
+			b.Assert(err, qt.IsNil, qt.Commentf("file '%s' %s", filename, test.comment))
 			if test.expectSize != nil {
 				// size for is dir is platform dependent
 				b.Assert(result.Size(), qt.Equals, test.expectSize, qt.Commentf("file '%s' invalid size", filename))
 			}
-			b.Assert(result.IsDir(), qt.Equals, test.expectIsDir, qt.Commentf("file '%s' must be directory", filename))	
+			b.Assert(result.IsDir(), qt.Equals, test.expectIsDir, qt.Commentf("file '%s' must be directory", filename))
 		}
 	}
 }
@@ -197,7 +197,7 @@ raw1-content
 -- themes/module2/assets/file2.json --
 file2-content
 `
-	
+
 	return hugolib.NewIntegrationTestBuilder(
 		hugolib.IntegrationTestConfig{
 			T:           t,

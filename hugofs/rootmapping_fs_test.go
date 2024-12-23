@@ -25,8 +25,8 @@ import (
 	"github.com/gohugoio/hugo/hugofs/glob"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/google/go-cmp/cmp"
 	"github.com/gohugoio/hugo/htesting"
+	"github.com/google/go-cmp/cmp"
 	"github.com/spf13/afero"
 )
 
@@ -331,7 +331,7 @@ func TestReaddirRootMappingFsMountOverlap(t *testing.T) {
 		},
 		{
 			From: "/static/file.txt",
-			To: "de/e.txt",
+			To:   "de/e.txt",
 		},
 	}
 
@@ -365,7 +365,7 @@ func TestReaddirRootMappingFsMountOverlap(t *testing.T) {
 			_, name = filepath.Split(name)
 			expectNames[i] = name
 		}
-		
+
 		// check names
 		c.Assert(actualNames, qt.DeepEquals, expectNames, qt.Commentf(fmt.Sprintf("%#v", actualNames)))
 		// check other props
@@ -373,7 +373,7 @@ func TestReaddirRootMappingFsMountOverlap(t *testing.T) {
 			if x == nil && y == nil {
 				return true
 			}
-			return x != nil && y != nil && 
+			return x != nil && y != nil &&
 				x.Mode() == y.Mode() &&
 				x.ModTime() == y.ModTime() &&
 				x.Size() == y.Size() &&

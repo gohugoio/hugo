@@ -45,15 +45,15 @@ func New(d *deps.Deps) *Namespace {
 	}
 
 	return &Namespace{
-		mountsFs:	mountsFs,
-		deps:       d,
+		mountsFs: mountsFs,
+		deps:     d,
 	}
 }
 
 // Namespace provides template functions for the "os" namespace.
 type Namespace struct {
-	mountsFs   afero.Fs
-	deps       *deps.Deps
+	mountsFs afero.Fs
+	deps     *deps.Deps
 }
 
 // Getenv retrieves the value of the environment variable named by the key.
