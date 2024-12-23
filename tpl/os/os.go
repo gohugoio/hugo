@@ -158,7 +158,7 @@ func (ns *Namespace) ReadDir(i any, mode ...any) ([]_os.FileInfo, error) {
 }
 
 // FileExists checks whether a file exists under the given path.
-func (ns *Namespace) FileExists(i any, mode ...any) (bool, error) {
+func (ns *Namespace) FileExists(i any) (bool, error) {
 	path, err := cast.ToStringE(i)
 	if err != nil {
 		return false, err
@@ -167,18 +167,9 @@ func (ns *Namespace) FileExists(i any, mode ...any) (bool, error) {
 	if path == "" {
 		return false, errors.New("fileExists needs a path to a file")
 	}
-
-	old := true
-	if (len(mode) != 0) {
-		old, err = cast.ToBoolE(mode[0])
-		if err != nil {
-			return false, err
-		}
-	}
-	var status bool
-	if (old) {
-		status, err = afero.Exists(ns.readFileFs, path)
-	} else {
+	status, err := afero.Exists(ns.mountsFs, path)
+	if (err != nil) || (status == false) {
+		path = filepath.Join(files.ComponentFolderContent, path)
 		status, err = afero.Exists(ns.mountsFs, path)
 	}
 	if err != nil {

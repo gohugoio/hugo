@@ -57,30 +57,43 @@ func TestReadFile(t *testing.T) {
 
 func TestFileExists(t *testing.T) {
 	t.Parallel()
-	c := qt.New(t)
-
 	b := newFileTestBuilder(t).Build()
 	ns := os.New(b.H.Deps)
 
 	for _, test := range []struct {
 		filename string
-		expect   any
+		expect any
+		comment string
 	}{
-		{filepath.FromSlash("/f/f1.txt"), true},
-		{filepath.FromSlash("f/f1.txt"), true},
-		{filepath.FromSlash("../f2.txt"), false},
-		{"b", false},
-		{"", nil},
+		{filepath.FromSlash("f/f1.txt"), true, "must be present in workdir"},
+		{filepath.FromSlash("../f2.txt"), false, "cannot exist" },
+		{filepath.FromSlash("about.pl.md"), true, "must be present in contentDir"},
+		{filepath.FromSlash("en/about.md"), true, "must be present in contentDir"},
+		{filepath.FromSlash("assets/testing.json"), true, "mapping must be present"},
+		{filepath.FromSlash("assets/virtual/file1.json"), true, "mapping to virtual directory must be present"},
+		{filepath.FromSlash("assets/file2.json"), true, "mapping to directory must be present"},
+		{filepath.FromSlash("assets/files/raw1.txt"), true, "mapping to subdirectory must be present"},
+		{filepath.FromSlash("assets/files"), true, "directory mapping to subdirectory must be present"},
+		{filepath.FromSlash("assets/virtual"), true, "directory mapping to virtual directory must be present"},
+		{"b", false, "cannot exist"},
+		{"", nil, "cannot exist"},
+		{".", true, "root directory exist"},
+		{filepath.FromSlash("../content/about.pl.md"), true, "must be present in contentDir (relative to content dir)"},
 	} {
-		result, err := ns.FileExists(test.filename)
+		for _, prefix := range []string{"", filepath.FromSlash("/")} {
+			if prefix != "" && test.filename == "" {
+				continue
+			}
+			filename := prefix + test.filename
+			result, err := ns.FileExists(filename)
+			if test.expect == nil {
+				b.Assert(err, qt.Not(qt.IsNil), qt.Commentf("file '%s' %s result %#v", filename, test.comment, result))
+				continue
+			}
 
-		if test.expect == nil {
-			c.Assert(err, qt.Not(qt.IsNil))
-			continue
+			b.Assert(err, qt.IsNil,  qt.Commentf("file '%s' %s", filename, test.comment))
+			b.Assert(result, qt.Equals, test.expect, qt.Commentf("file '%s' %s", filename, test.comment))
 		}
-
-		c.Assert(err, qt.IsNil)
-		c.Assert(result, qt.Equals, test.expect)
 	}
 }
 
@@ -91,39 +104,13 @@ func TestStat(t *testing.T) {
 
 	for _, test := range []struct {
 		filename string
-		expect   any
-	}{
-		{filepath.FromSlash("/f/f1.txt"), int64(10)},
-		{filepath.FromSlash("f/f1.txt"), int64(10)},
-		{"b", nil},
-		{"", nil},
-	} {
-		result, err := ns.Stat(test.filename)
-
-		if test.expect == nil {
-			b.Assert(err, qt.Not(qt.IsNil))
-			continue
-		}
-
-		b.Assert(err, qt.IsNil)
-		b.Assert(result.Size(), qt.Equals, test.expect)
-	}
-}
-
-
-func TestStatWithMounts(t *testing.T) {
-	t.Parallel()
-	b := newFileTestBuilderWithMounts(t).Build()
-	ns := os.New(b.H.Deps)
-
-	for _, test := range []struct {
-		filename string
 		expectError  bool
 		expectSize   any
 		expectIsDir  any
-		expectHint string
+		comment string
 	}{
 		{filepath.FromSlash("f/f1.txt"), false, int64(10), false, "must be present in workdir"},
+		{filepath.FromSlash("../f2.txt"), true, nil, nil, "cannot exist" },
 		{filepath.FromSlash("about.pl.md"), false, int64(2), false, "must be present in contentDir"},
 		{filepath.FromSlash("en/about.md"), false, int64(2), false, "must be present in contentDir"},
 		{filepath.FromSlash("assets/testing.json"), false, int64(13), false, "mapping must be present"},
@@ -144,11 +131,11 @@ func TestStatWithMounts(t *testing.T) {
 			filename := prefix + test.filename
 			result, err := ns.Stat(filename)
 			if test.expectError == true {
-				b.Assert(err, qt.Not(qt.IsNil), qt.Commentf("file '%s' %s", filename, test.expectHint))
+				b.Assert(err, qt.Not(qt.IsNil), qt.Commentf("file '%s' %s", filename, test.comment))
 				continue
 			}
 	
-			b.Assert(err, qt.IsNil,  qt.Commentf("file '%s' %s", filename, test.expectHint))
+			b.Assert(err, qt.IsNil,  qt.Commentf("file '%s' %s", filename, test.comment))
 			if test.expectSize != nil {
 				// size for is dir is platform dependent
 				b.Assert(result.Size(), qt.Equals, test.expectSize, qt.Commentf("file '%s' invalid size", filename))
@@ -159,23 +146,6 @@ func TestStatWithMounts(t *testing.T) {
 }
 
 func newFileTestBuilder(t *testing.T) *hugolib.IntegrationTestBuilder {
-	files := `
--- f/f1.txt --
-f1-content
--- home/f2.txt --
-f2-content
-	`
-
-	return hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			WorkingDir:  "/mywork",
-		},
-	)
-}
-
-func newFileTestBuilderWithMounts(t *testing.T) *hugolib.IntegrationTestBuilder {
 	files := `
 -- f/f1.txt --
 f1-content
@@ -225,7 +195,6 @@ file2-content
 			T:           t,
 			TxtarString: files,
 			WorkingDir:  "/mywork",
-			//NeedsOsFS: true,
 		},
 	)
 }
