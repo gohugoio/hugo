@@ -92,9 +92,9 @@ target = "assets/testing.json"
 -- themes/module1/assets/file.json --
 {}
 -- layouts/index.html --
-{{ $entries := readDir "assets" false }}
+{{ $entries := readDir "assets" }}
 START:|{{ range $entry := $entries }}{{ $entry.Name }}={{ $entry.Size }}|{{ end }}:END:
-{{ $entries = readDir "assets/virtual" false }}
+{{ $entries = readDir "assets/virtual" }}
 START:|{{ range $entry := $entries }}{{ $entry.Name }}={{ $entry.Size }}|{{ end }}:END:
 `
 	b := hugolib.NewIntegrationTestBuilder(
@@ -128,7 +128,7 @@ Hello project!
 -- themes/module1/assets/file.json --
 {}
 -- layouts/index.html --
-{{ $entries := (readDir "" false) }}
+{{ $entries := (readDir "") }}
 START:|{{ range $entry := $entries }}{{ $entry.Name }}|{{ end }}:END:
 `
 	b := hugolib.NewIntegrationTestBuilder(
@@ -165,7 +165,7 @@ Nothing here
 -- themes/module2/assets/file2.json --
 {}
 -- layouts/index.html --
-{{ $entries := (readDir "assets" false) }}
+{{ $entries := (readDir "assets") }}
 START:|{{ range $entry := $entries }}{{ $entry.Name }}|{{ end }}:END:
 `
 	b := hugolib.NewIntegrationTestBuilder(

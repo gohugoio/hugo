@@ -137,25 +137,13 @@ func (ns *Namespace) ReadFile(i any) (string, error) {
 }
 
 // ReadDir lists the directory contents relative to the configured WorkingDir.
-func (ns *Namespace) ReadDir(i any, mode ...any) ([]_os.FileInfo, error) {
+func (ns *Namespace) ReadDir(i any) ([]_os.FileInfo, error) {
 	path, err := cast.ToStringE(i)
 	if err != nil {
 		return nil, err
 	}
 
-	old := true
-	if (len(mode) != 0) {
-		old, err = cast.ToBoolE(mode[0])
-		if err != nil {
-			return nil, fmt.Errorf("cannot convert value to bool %s: %s", mode[0], err)
-		}
-	}
-	var list []_os.FileInfo
-	if (old) {
-		list, err = afero.ReadDir(ns.workFs, path)
-	} else {
-		list, err = afero.ReadDir(ns.mountsFs, path)
-	}
+	list, err := afero.ReadDir(ns.mountsFs, path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read directory %q: %s", path, err)
 	}
