@@ -32,18 +32,10 @@ import (
 
 // New returns a new instance of the os-namespaced template functions.
 func New(d *deps.Deps) *Namespace {
-	var readFileFs, workFs, mountsFs afero.Fs
+	var mountsFs afero.Fs
 
 	// The docshelper script does not have or need all the dependencies set up.
 	if d.PathSpec != nil {
-		readFileFs = overlayfs.New(overlayfs.Options{
-			Fss: []afero.Fs{
-				d.PathSpec.BaseFs.Work,
-				d.PathSpec.BaseFs.Content.Fs,
-			},
-		})
-		// See #9599
-		workFs = d.PathSpec.BaseFs.WorkDir
 		mountsFs = overlayfs.New(overlayfs.Options{
 			Fss: []afero.Fs{
 				d.PathSpec.BaseFs.WorkDir,
@@ -53,8 +45,6 @@ func New(d *deps.Deps) *Namespace {
 	}
 
 	return &Namespace{
-		readFileFs: readFileFs,
-		workFs:     workFs,
 		mountsFs:	mountsFs,
 		deps:       d,
 	}
@@ -62,8 +52,6 @@ func New(d *deps.Deps) *Namespace {
 
 // Namespace provides template functions for the "os" namespace.
 type Namespace struct {
-	readFileFs afero.Fs
-	workFs     afero.Fs
 	mountsFs   afero.Fs
 	deps       *deps.Deps
 }
