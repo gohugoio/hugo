@@ -20,9 +20,9 @@ import (
 
 	"github.com/gohugoio/hugo/common/paths"
 
+	yaml "github.com/goccy/go-yaml"
 	"github.com/gohugoio/hugo/common/herrors"
 	"golang.org/x/text/language"
-	yaml "gopkg.in/yaml.v2"
 
 	"github.com/gohugoio/go-i18n/v2/i18n"
 	"github.com/gohugoio/hugo/helpers"

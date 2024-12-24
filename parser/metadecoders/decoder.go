@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2024 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,10 +28,10 @@ import (
 	"github.com/niklasfasching/go-org/org"
 
 	xml "github.com/clbanning/mxj/v2"
+	yaml "github.com/goccy/go-yaml"
 	toml "github.com/pelletier/go-toml/v2"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
-	yaml "gopkg.in/yaml.v2"
 )
 
 // Decoder provides some configuration options for the decoders.
@@ -164,35 +164,7 @@ func (d Decoder) UnmarshalTo(data []byte, f Format, v any) error {
 	case TOML:
 		err = toml.Unmarshal(data, v)
 	case YAML:
-		err = yaml.Unmarshal(data, v)
-		if err != nil {
-			return toFileError(f, data, fmt.Errorf("failed to unmarshal YAML: %w", err))
-		}
-
-		// To support boolean keys, the YAML package unmarshals maps to
-		// map[interface{}]interface{}. Here we recurse through the result
-		// and change all maps to map[string]interface{} like we would've
-		// gotten from `json`.
-		var ptr any
-		switch vv := v.(type) {
-		case *map[string]any:
-			ptr = *vv
-		case *any:
-			ptr = *vv
-		default:
-			// Not a map.
-		}
-
-		if ptr != nil {
-			if mm, changed := stringifyMapKeys(ptr); changed {
-				switch vv := v.(type) {
-				case *map[string]any:
-					*vv = mm.(map[string]any)
-				case *any:
-					*vv = mm
-				}
-			}
-		}
+		return yaml.Unmarshal(data, v)
 	case CSV:
 		return d.unmarshalCSV(data, v)
 
@@ -268,51 +240,4 @@ func (d Decoder) unmarshalORG(data []byte, v any) error {
 
 func toFileError(f Format, data []byte, err error) error {
 	return herrors.NewFileErrorFromName(err, fmt.Sprintf("_stream.%s", f)).UpdateContent(bytes.NewReader(data), nil)
-}
-
-// stringifyMapKeys recurses into in and changes all instances of
-// map[interface{}]interface{} to map[string]interface{}. This is useful to
-// work around the impedance mismatch between JSON and YAML unmarshaling that's
-// described here: https://github.com/go-yaml/yaml/issues/139
-//
-// Inspired by https://github.com/stripe/stripe-mock, MIT licensed
-func stringifyMapKeys(in any) (any, bool) {
-	switch in := in.(type) {
-	case []any:
-		for i, v := range in {
-			if vv, replaced := stringifyMapKeys(v); replaced {
-				in[i] = vv
-			}
-		}
-	case map[string]any:
-		for k, v := range in {
-			if vv, changed := stringifyMapKeys(v); changed {
-				in[k] = vv
-			}
-		}
-	case map[any]any:
-		res := make(map[string]any)
-		var (
-			ok  bool
-			err error
-		)
-		for k, v := range in {
-			var ks string
-
-			if ks, ok = k.(string); !ok {
-				ks, err = cast.ToStringE(k)
-				if err != nil {
-					ks = fmt.Sprintf("%v", k)
-				}
-			}
-			if vv, replaced := stringifyMapKeys(v); replaced {
-				res[ks] = vv
-			} else {
-				res[ks] = v
-			}
-		}
-		return res, true
-	}
-
-	return nil, false
 }

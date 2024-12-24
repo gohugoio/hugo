@@ -283,23 +283,20 @@ func (c *contentParseInfo) parseFrontMatter(it pageparser.Item, iter *pageparser
 	var err error
 	c.frontMatter, err = metadecoders.Default.UnmarshalToMap(it.Val(source), f)
 	if err != nil {
-		if fe, ok := err.(herrors.FileError); ok {
-			pos := fe.Position()
-
-			// Offset the starting position of front matter.
-			offset := iter.LineNumber(source) - 1
-			if f == metadecoders.YAML {
-				offset -= 1
-			}
-			pos.LineNumber += offset
-
-			fe.UpdatePosition(pos)
-			fe.SetFilename("") // It will be set later.
-
-			return fe
-		} else {
-			return err
+		fe := herrors.UnwrapFileError(err)
+		if fe == nil {
+			fe = herrors.NewFileError(err)
 		}
+		pos := fe.Position()
+
+		// Offset the starting position of front matter.
+		offset := iter.LineNumber(source) - 1
+
+		pos.LineNumber += offset
+
+		fe.UpdatePosition(pos)
+		fe.SetFilename("") // It will be set later.
+		return fe
 	}
 
 	return nil
