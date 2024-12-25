@@ -202,7 +202,7 @@ func highlight(fw hugio.FlexiWriter, code, lang string, attributes []attributes.
 	}
 
 	if !cfg.Hl_inline {
-		writeDivStart(w, attributes)
+		writeDivStart(w, attributes, cfg.WrapperClass)
 	}
 
 	options := cfg.toHTMLOptions()
@@ -303,8 +303,9 @@ func (s startEnd) End(code bool) string {
 	return s.end(code)
 }
 
-func writeDivStart(w hugio.FlexiWriter, attrs []attributes.Attribute) {
-	w.WriteString(`<div class="highlight`)
+func writeDivStart(w hugio.FlexiWriter, attrs []attributes.Attribute, wrapperClass string) {
+	w.WriteString(`<div class="`)
+	w.WriteString(wrapperClass)
 	if attrs != nil {
 		for _, attr := range attrs {
 			if attr.Name == "class" {
