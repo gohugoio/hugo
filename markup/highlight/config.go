@@ -45,12 +45,17 @@ var DefaultConfig = Config{
 	NoClasses:          true,
 	LineNumbersInTable: true,
 	TabWidth:           4,
+	WrapperClass:       "highlight",
 }
 
 type Config struct {
 	Style string
 
+	// Enable syntax highlighting of fenced code blocks.
 	CodeFences bool
+
+	// The class or classes to use for the outermost element of the highlighted code.
+	WrapperClass string
 
 	// Use inline CSS styles.
 	NoClasses bool
