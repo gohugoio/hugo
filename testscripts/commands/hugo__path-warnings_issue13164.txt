@@ -1,0 +1,15 @@
+hugo --printPathWarnings
+
+! stderr 'Duplicate target paths'
+
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- assets/foo.txt --
+foo
+-- layouts/index.html --
+A: {{ (resources.Get "foo.txt").RelPermalink }}
+B: {{ (resources.GetMatch "foo.txt").RelPermalink }}
+C: {{ (index (resources.Match "foo.txt") 0).RelPermalink }}
+D: {{ (index (resources.ByType "text") 0).RelPermalink }}
+-- layouts/unused/single.html --
+{{ .Title }}

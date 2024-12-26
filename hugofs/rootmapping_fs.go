@@ -311,12 +311,13 @@ func (fs *RootMappingFs) Open(name string) (afero.File, error) {
 
 // Stat returns the os.FileInfo structure describing a given file.  If there is
 // an error, it will be of type *os.PathError.
+// If multiple roots are found, the last one will be used.
 func (fs *RootMappingFs) Stat(name string) (os.FileInfo, error) {
 	fis, err := fs.doStat(name)
 	if err != nil {
 		return nil, err
 	}
-	return fis[0], nil
+	return fis[len(fis)-1], nil
 }
 
 type ComponentPath struct {
