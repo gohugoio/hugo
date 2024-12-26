@@ -143,19 +143,7 @@ func (c *Client) Get(pathname string) (resource.Resource, error) {
 			return nil, err
 		}
 
-		meta := fi.(hugofs.FileMetaInfo).Meta()
-		pi := meta.PathInfo
-
-		return c.rs.NewResource(resources.ResourceSourceDescriptor{
-			LazyPublish: true,
-			OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
-				return c.rs.BaseFs.Assets.Fs.Open(filename)
-			},
-			Path:                 pi,
-			GroupIdentity:        pi,
-			TargetPath:           pathname,
-			SourceFilenameOrPath: meta.Filename,
-		})
+		return c.getOrCreateFileResource(fi.(hugofs.FileMetaInfo))
 	})
 }
 
@@ -181,6 +169,23 @@ func (c *Client) GetMatch(pattern string) (resource.Resource, error) {
 	return res[0], err
 }
 
+func (c *Client) getOrCreateFileResource(info hugofs.FileMetaInfo) (resource.Resource, error) {
+	meta := info.Meta()
+	return c.rs.ResourceCache.GetOrCreateFile(filepath.ToSlash(meta.Filename), func() (resource.Resource, error) {
+		return c.rs.NewResource(resources.ResourceSourceDescriptor{
+			LazyPublish: true,
+			OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
+				return meta.Open()
+			},
+			NameNormalized:       meta.PathInfo.Path(),
+			NameOriginal:         meta.PathInfo.Unnormalized().Path(),
+			GroupIdentity:        meta.PathInfo,
+			TargetPath:           meta.PathInfo.Unnormalized().Path(),
+			SourceFilenameOrPath: meta.Filename,
+		})
+	})
+}
+
 func (c *Client) match(name, pattern string, matchFunc func(r resource.Resource) bool, firstOnly bool) (resource.Resources, error) {
 	pattern = glob.NormalizePath(pattern)
 	partitions := glob.FilterGlobParts(strings.Split(pattern, "/"))
@@ -191,19 +196,7 @@ func (c *Client) match(name, pattern string, matchFunc func(r resource.Resource)
 		var res resource.Resources
 
 		handle := func(info hugofs.FileMetaInfo) (bool, error) {
-			meta := info.Meta()
-
-			r, err := c.rs.NewResource(resources.ResourceSourceDescriptor{
-				LazyPublish: true,
-				OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
-					return meta.Open()
-				},
-				NameNormalized:       meta.PathInfo.Path(),
-				NameOriginal:         meta.PathInfo.Unnormalized().Path(),
-				GroupIdentity:        meta.PathInfo,
-				TargetPath:           meta.PathInfo.Unnormalized().Path(),
-				SourceFilenameOrPath: meta.Filename,
-			})
+			r, err := c.getOrCreateFileResource(info)
 			if err != nil {
 				return true, err
 			}
