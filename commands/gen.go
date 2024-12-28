@@ -75,7 +75,9 @@ See https://xyproto.github.io/splash/docs/all.html for a preview of the availabl
 					return err
 				}
 				formatter := html.New(html.WithAllClasses(true))
-				formatter.WriteCSS(os.Stdout, style)
+				w := os.Stdout
+				fmt.Fprintf(w, "/* Generated using: hugo %s */\n\n", strings.Join(os.Args[1:], " "))
+				formatter.WriteCSS(w, style)
 				return nil
 			},
 			withc: func(cmd *cobra.Command, r *rootCommand) {
