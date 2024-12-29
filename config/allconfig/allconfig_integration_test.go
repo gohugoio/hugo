@@ -175,3 +175,21 @@ func TestMapUglyURLs(t *testing.T) {
 	b.Assert(c.C.IsUglyURLSection("posts"), qt.IsTrue)
 	b.Assert(c.C.IsUglyURLSection("blog"), qt.IsFalse)
 }
+
+// Issue 13199
+func TestInvalidOutputFormat(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+[outputs]
+home = ['html','foo']
+-- layouts/index.html --
+x
+`
+
+	b, err := hugolib.TestE(t, files)
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, `failed to create config: unknown output format "foo" for kind "home"`)
+}

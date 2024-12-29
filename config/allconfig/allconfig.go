@@ -734,7 +734,7 @@ func (c *Configs) Validate(logger loggers.Logger) error {
 
 // transientErr returns the last transient error found during config compilation.
 func (c *Configs) transientErr() error {
-	for _, l := range c.LanguageConfigSlice {
+	for _, l := range c.LanguageConfigMap {
 		if l.C.transientErr != nil {
 			return l.C.transientErr
 		}
