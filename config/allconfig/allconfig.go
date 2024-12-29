@@ -751,7 +751,6 @@ func (c *Configs) Init() error {
 	var languages langs.Languages
 	defaultContentLanguage := c.Base.DefaultContentLanguage
 	for k, v := range c.LanguageConfigMap {
-		c.LanguageConfigSlice = append(c.LanguageConfigSlice, v)
 		languageConf := v.Languages[k]
 		language, err := langs.NewLanguage(k, defaultContentLanguage, v.TimeZone, languageConf)
 		if err != nil {

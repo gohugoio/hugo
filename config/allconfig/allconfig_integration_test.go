@@ -193,3 +193,25 @@ x
 	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, `failed to create config: unknown output format "foo" for kind "home"`)
 }
+
+// Issue 13201
+func TestLanguageConfigSlice(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+[languages.en]
+title = 'TITLE_EN'
+weight = 2
+[languages.de]
+title = 'TITLE_DE'
+weight = 1
+[languages.fr]
+title = 'TITLE_FR'
+weight = 3
+`
+
+	b := hugolib.Test(t, files)
+	b.Assert(b.H.Configs.LanguageConfigSlice[0].Title, qt.Equals, `TITLE_DE`)
+}
