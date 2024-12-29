@@ -18,5 +18,5 @@
     {{- end -}}
   {{- end -}}
 {{- end -}}
-<a href="{{ $href }}" {{- with .Title }} title="{{ . }}" {{- end }}>{{ .Text }}</a>
+<a href="{{ $href }}" {{- with .Title }} title="{{ . }}" {{- end }} {{- if $u.IsAbs }} rel="external" target="_blank"{{ end -}}>{{ .Text }}</a>
 {{- /**/ -}}
