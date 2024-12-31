@@ -10,18 +10,18 @@
 'google_analytics' = 'google_analytics.html'
 'opengraph' = 'opengraph.html'
 'pagination' = 'pagination.html'
-'schema' = 'schema.html'
-'twitter_cards' = 'twitter_cards.html'
-
 'robots' = '_default/robots.txt'
 'rss' = '_default/rss.xml'
+'schema' = 'schema.html'
 'sitemap' = '_default/sitemap.xml'
 'sitemapindex' = '_default/sitemapindex.xml'
+'twitter_cards' = 'twitter_cards.html'
 
 # Render hooks
+'render-codeblock-goat' = '_default/_markup/render-codeblock-goat.html'
 'render-image' = '_default/_markup/render-image.html'
 'render-link' = '_default/_markup/render-link.html'
-'render-codeblock-goat' = '_default/_markup/render-codeblock-goat.html'
+'render-table' = '_default/_markup/render-table.html'
 
 # Shortcodes
 'comment' = 'shortcodes/comment.html'
@@ -31,6 +31,7 @@
 'highlight' = 'shortcodes/highlight.html'
 'instagram' = 'shortcodes/instagram.html'
 'param' = 'shortcodes/param.html'
+'qr' = 'shortcodes/qr.html'
 'ref' = 'shortcodes/ref.html'
 'relref' = 'shortcodes/relref.html'
 'twitter' = 'shortcodes/twitter.html'
