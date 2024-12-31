@@ -14,8 +14,10 @@
 package images_test
 
 import (
+	"strings"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugolib"
 )
 
@@ -48,4 +50,53 @@ imageConfig OK: 1|
 fileExists2 OK: true|
 imageConfig2 OK: 1|
 `)
+}
+
+func TestQR(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/index.html --
+{{- $text := "https://gohugo.io" }}
+{{- $optionMaps := slice
+    (dict "text" $text)
+    (dict "text" $text "level" "medium")
+    (dict "text" $text "level" "medium" "scale" 4)
+    (dict "text" $text "level" "low" "scale" 2)
+    (dict "text" $text "level" "medium" "scale" 3)
+    (dict "text" $text "level" "quartile" "scale" 5)
+    (dict "text" $text "level" "high" "scale" 6)
+    (dict "text" $text "level" "high" "scale" 6 "targetDir" "foo/bar")
+}}
+{{- range $k, $opts := $optionMaps }}
+    {{- with images.QR $opts }}
+<img data-id="{{ $k }}" data-img-hash="{{ .Content | hash.XxHash }}" data-level="{{ $opts.level }}" data-scale="{{ $opts.scale }}" data-targetDir="{{ $opts.targetDir }}" src="{{ .RelPermalink }}">
+    {{- end }}
+{{- end }}
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html",
+		`<img data-id="0" data-img-hash="6ccacf8056c41475" data-level="" data-scale="" data-targetDir="" src="/qr_3891606335523452031.png">`,
+		`<img data-id="1" data-img-hash="6ccacf8056c41475" data-level="medium" data-scale="" data-targetDir="" src="/qr_3891606335523452031.png">`,
+		`<img data-id="2" data-img-hash="6ccacf8056c41475" data-level="medium" data-scale="4" data-targetDir="" src="/qr_3891606335523452031.png">`,
+		`<img data-id="3" data-img-hash="c29338c3d105b156" data-level="low" data-scale="2" data-targetDir="" src="/qr_2532593520456080065.png">`,
+		`<img data-id="4" data-img-hash="8f7a639cea917b0e" data-level="medium" data-scale="3" data-targetDir="" src="/qr_6630115934366238432.png">`,
+		`<img data-id="5" data-img-hash="2d15d6dcb861b5da" data-level="quartile" data-scale="5" data-targetDir="" src="/qr_14167719016579496966.png">`,
+		`<img data-id="6" data-img-hash="113c45f2c091bc4d" data-level="high" data-scale="6" data-targetDir="" src="/qr_1700475212608554630.png">`,
+		`<img data-id="7" data-img-hash="113c45f2c091bc4d" data-level="high" data-scale="6" data-targetDir="foo/bar" src="/foo/bar/qr_12381230670040458986.png">`,
+	)
+
+	files = strings.ReplaceAll(files, "low", "foo")
+
+	b, err := hugolib.TestE(t, files)
+	b.Assert(err.Error(), qt.Contains, "error correction level must be one of low, medium, quartile, or high")
+
+	files = strings.ReplaceAll(files, "foo", "low")
+	files = strings.ReplaceAll(files, "https://gohugo.io", "")
+
+	b, err = hugolib.TestE(t, files)
+	b.Assert(err.Error(), qt.Contains, "cannot encode an empty string")
 }

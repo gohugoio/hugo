@@ -698,3 +698,39 @@ Home!
 	b.BuildPartial("/mybundle1/")
 	b.AssertFileContent("public/mybundle1/index.html", "Baseof!!")
 }
+
+func TestQRShortcode(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/index.html --
+{{ .Content }}
+-- content/_index.md --
+---
+title: home
+---
+{{< qr
+	text="https://gohugo.io"
+	level="high"
+	scale=4
+	targetDir="codes"
+	alt="QR code linking to https://gohugo.io"
+	class="my-class"
+	id="my-id"
+	title="My Title"
+/>}}
+
+{{< qr >}}
+https://gohugo.io"
+{{< /qr >}}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		`<img src="/codes/qr_1933601158373371382.png" width="148" height="148" alt="QR code linking to https://gohugo.io" class="my-class" id="my-id" title="My Title">`,
+		`<img src="/qr_8288684942309665993.png" width="132" height="132">`,
+	)
+}

@@ -1,0 +1,76 @@
+{{- /*
+Encodes the given text into a QR code using the specified options and renders the resulting image.
+
+@param {string} text The text to encode, falling back to the text between the opening and closing shortcode tags.
+@param {string} [level=medium] The error correction level to use when encoding the text, one of low, medium, quartile, or high.
+@param {int} [scale=4] The number of image pixels per QR code module. Must be greater than or equal to 2.
+@param {string} [targetDir] The subdirectory within the publishDir where Hugo will place the generated image.
+@param {string} [alt] The alt attribute of the img element.
+@param {string} [class] The class attribute of the img element.
+@param {string} [id] The id attribute of the img element.
+@param {string} [title] The title attribute of the img element.
+
+@returns {template.HTML}
+
+@examples
+
+  {{< qr text="https://gohugo.io" />}}
+
+  {{< qr >}}
+  https://gohugo.io"
+  {{< /qr >}}
+
+  {{< qr
+    text="https://gohugo.io"
+    level="high"
+    scale=4
+    targetDir="codes"
+    alt="QR code linking to https://gohugo.io"
+    class="my-class"
+    id="my-id"
+    title="My Title"
+  />}}
+
+*/}}
+
+{{- /* Constants. */}}
+{{- $validLevels := slice "low" "medium" "quartile" "high" }}
+{{- $minimumScale := 2 }}
+
+{{- /* Get arguments. */}}
+{{- $text := or (.Get "text") (strings.TrimSpace .Inner) "" }}
+{{- $level := or (.Get "level") "medium" }}
+{{- $scale := or (.Get "scale") 4 }}
+{{- $targetDir := or (.Get "targetDir") "" }}
+{{- $alt := or (.Get "alt") "" }}
+{{- $class := or (.Get "class") "" }}
+{{- $id := or (.Get "id") "" }}
+{{- $title := or (.Get "title") "" }}
+
+{{- /* Validate arguments. */}}
+{{- $errors := false}}
+{{- if not $text }}
+  {{- errorf "The %q shortcode requires a %q argument. See %s" .Name "text" .Position }}
+  {{- $errors = true }}
+{{- end }}
+{{- if not (in $validLevels $level) }}
+  {{- errorf "The %q argument passed to the %q shortcode must be one of %s. See %s" "level" .Name (delimit $validLevels ", " ", or ") .Position }}
+  {{- $errors = true }}
+{{- end }}
+{{- if or (lt $scale $minimumScale) (ne $scale (int $scale)) }}
+  {{- errorf "The %q argument passed to the %q shortcode must be an integer greater than or equal to %d. See %s" "scale" .Name $minimumScale .Position }}
+  {{- $errors = true }}
+{{- end }}
+
+{{- /* Render image. */}}
+{{- if not $errors }}
+  {{- $opts := dict "text" $text "level" $level "scale" $scale "targetDir" $targetDir }}
+  {{- with images.QR $opts -}}
+    <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}"
+      {{- with $alt }} alt="{{ $alt }}" {{- end }}
+      {{- with $class }} class="{{ $class }}" {{- end }}
+      {{- with $id }} id="{{ $id }}" {{- end }}
+      {{- with $title }} title="{{ $title }}" {{- end -}}
+    >
+  {{- end }}
+{{- end -}}
