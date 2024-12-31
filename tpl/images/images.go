@@ -16,11 +16,17 @@ package images
 
 import (
 	"errors"
+	"fmt"
 	"image"
+	"path/filepath"
 	"sync"
 
 	"github.com/bep/overlayfs"
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/resources/images"
+	"github.com/gohugoio/hugo/resources/resource_factories/create"
+	"github.com/mitchellh/mapstructure"
+	"rsc.io/qr"
 
 	// Importing image codecs for image.DecodeConfig
 	_ "image/gif"
@@ -50,21 +56,22 @@ func New(d *deps.Deps) *Namespace {
 	}
 
 	return &Namespace{
-		readFileFs: readFileFs,
-		Filters:    &images.Filters{},
-		cache:      map[string]image.Config{},
-		deps:       d,
+		readFileFs:   readFileFs,
+		Filters:      &images.Filters{},
+		cache:        map[string]image.Config{},
+		deps:         d,
+		createClient: create.New(d.ResourceSpec),
 	}
 }
 
 // Namespace provides template functions for the "images" namespace.
 type Namespace struct {
 	*images.Filters
-	readFileFs afero.Fs
-	cacheMu    sync.RWMutex
-	cache      map[string]image.Config
-
-	deps *deps.Deps
+	readFileFs   afero.Fs
+	cacheMu      sync.RWMutex
+	cache        map[string]image.Config
+	deps         *deps.Deps
+	createClient *create.Client
 }
 
 // Config returns the image.Config for the specified path relative to the
@@ -116,4 +123,61 @@ func (ns *Namespace) Filter(args ...any) (images.ImageResource, error) {
 	filtersv := args[:len(args)-1]
 
 	return img.Filter(filtersv...)
+}
+
+type qrOptions struct {
+	Text      string // text to encode
+	Level     string // error correction level; one of low, medium, quartile, or high
+	TargetDir string // target directory relative to publishDir
+}
+
+var qrErrorCorrectionLevels = map[string]qr.Level{
+	"low":      qr.L,
+	"medium":   qr.M,
+	"quartile": qr.Q,
+	"high":     qr.H,
+}
+
+const qrDefaultErrorCorrectionLevel = "medium"
+
+// QR encodes text to a QR code using the given error correction level,
+// returning an image resource.
+func (ns *Namespace) QR(opts any) (images.ImageResource, error) {
+	qrOptions := qrOptions{
+		Level: qrDefaultErrorCorrectionLevel,
+	}
+
+	err := mapstructure.WeakDecode(opts, &qrOptions)
+	if err != nil {
+		return nil, err
+	}
+
+	if qrOptions.Text == "" {
+		return nil, errors.New("cannot encode an empty string")
+	}
+
+	level, ok := qrErrorCorrectionLevels[qrOptions.Level]
+	if !ok {
+		return nil, errors.New("error correction level must be one of low, medium, quartile, or high")
+	}
+
+	code, err := qr.Encode(qrOptions.Text, level)
+	if err != nil {
+		return nil, err
+	}
+
+	hash := hashing.XxHashFromStringHexEncoded(qrOptions.Text + qrOptions.Level)
+	targetPath := filepath.Join(qrOptions.TargetDir, fmt.Sprintf("qr_%s.png", hash))
+
+	r, err := ns.createClient.FromString(targetPath, string(code.PNG()))
+	if err != nil {
+		return nil, err
+	}
+
+	ir, ok := r.(images.ImageResource)
+	if !ok {
+		panic("bug: resource is not an image resource")
+	}
+
+	return ir, nil
 }

@@ -14,8 +14,10 @@
 package images_test
 
 import (
+	"strings"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugolib"
 )
 
@@ -48,4 +50,51 @@ imageConfig OK: 1|
 fileExists2 OK: true|
 imageConfig2 OK: 1|
 `)
+}
+
+func TestQR(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/index.html --
+{{ $text := "https://gohugo.io" }}
+{{ $optionMaps := slice
+	(dict "text" $text)
+	(dict "text" $text "level" "low")
+	(dict "text" $text "level" "medium")
+	(dict "text" $text "level" "quartile")
+	(dict "text" $text "level" "high")
+	(dict "text" $text "targetDir" "foo")
+	(dict "text" $text "level" "high" "targetDir" "foo/bar")
+}}
+{{ range $k, $opts := $optionMaps }}
+	{{ with images.QR $opts }}
+		<img data-id="{{ $k }}" data-hash="{{ .Content | hash.XxHash }}" data-level="{{ $opts.level }}" data-targetDir="{{ $opts.targetDir }}" src="{{ .RelPermalink }}">
+	{{ end }}
+{{ end }}
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html",
+		`<img data-id="0" data-hash="5c8f15c6a5da74b1" data-level="" data-targetDir="" src="/qr_30596359e57a22d8.png">`,
+		`<img data-id="1" data-hash="863b6fca7913f6ec" data-level="low" data-targetDir="" src="/qr_9fa47d3ceaf0993c.png">`,
+		`<img data-id="2" data-hash="5c8f15c6a5da74b1" data-level="medium" data-targetDir="" src="/qr_30596359e57a22d8.png">`,
+		`<img data-id="3" data-hash="2e6b70fbd4a4442d" data-level="quartile" data-targetDir="" src="/qr_0a5f8db4478f4066.png">`,
+		`<img data-id="4" data-hash="b2d62c862af4e3f6" data-level="high" data-targetDir="" src="/qr_a6f66d8f08c8af75.png">`,
+		`<img data-id="5" data-hash="5c8f15c6a5da74b1" data-level="" data-targetDir="foo" src="/foo/qr_30596359e57a22d8.png">`,
+		`<img data-id="6" data-hash="b2d62c862af4e3f6" data-level="high" data-targetDir="foo/bar" src="/foo/bar/qr_a6f66d8f08c8af75.png">`,
+	)
+
+	files = strings.ReplaceAll(files, "low", "foo")
+
+	b, err := hugolib.TestE(t, files)
+	b.Assert(err.Error(), qt.Contains, "error correction level must be one of low, medium, quartile, or high")
+
+	files = strings.ReplaceAll(files, "foo", "low")
+	files = strings.ReplaceAll(files, "https://gohugo.io", "")
+
+	b, err = hugolib.TestE(t, files)
+	b.Assert(err.Error(), qt.Contains, "cannot encode an empty string")
 }
