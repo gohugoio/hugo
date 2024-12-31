@@ -168,7 +168,7 @@ func highlight(fw hugio.FlexiWriter, code, lang string, attributes []attributes.
 		lexer = chromalexers.Get(lang)
 	}
 
-	if lexer == nil && (cfg.GuessSyntax && !cfg.NoHl) {
+	if lexer == nil && cfg.GuessSyntax {
 		lexer = lexers.Analyse(code)
 		if lexer == nil {
 			lexer = lexers.Fallback
