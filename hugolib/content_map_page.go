@@ -1274,7 +1274,7 @@ func (h *HugoSites) resolveAndResetDependententPageOutputs(ctx context.Context, 
 
 		po.renderState = 0
 		po.p.resourcesPublishInit = &sync.Once{}
-		if r == identity.FinderFoundOneOfMany {
+		if r == identity.FinderFoundOneOfMany || po.f.Name == output.HTTPStatusHTMLFormat.Name {
 			// Will force a re-render even in fast render mode.
 			po.renderOnce = false
 		}
@@ -1310,6 +1310,7 @@ func (h *HugoSites) resolveAndResetDependententPageOutputs(ctx context.Context, 
 				if !po.isRendered() {
 					continue
 				}
+
 				for _, id := range changes {
 					checkedCounter.Add(1)
 					if r := depsFinder.Contains(id, po.dependencyManagerOutput, 50); r > identity.FinderFoundOneOfManyRepetition {

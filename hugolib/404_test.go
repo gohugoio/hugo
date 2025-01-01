@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -81,4 +82,34 @@ Page not found
 	b.AssertFileContent("public/404.html", `
 Base:
 Page not found`)
+}
+
+func Test404EditTemplate(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+disableLiveReload = true
+[internal]
+fastRenderMode = true
+-- layouts/_default/baseof.html --
+Base: {{ block "main" . }}{{ end }}
+-- layouts/404.html --
+{{ define "main" }}
+Not found.
+{{ end }}
+	
+	`
+
+	b := TestRunning(t, files)
+
+	b.AssertFileContent("public/404.html", `Not found.`)
+
+	b.EditFiles("layouts/404.html", `Not found. Updated.`).Build()
+
+	fmt.Println("Rebuilding")
+	b.BuildPartial("/does-not-exist")
+
+	b.AssertFileContent("public/404.html", `Not found. Updated.`)
 }
