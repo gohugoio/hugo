@@ -110,11 +110,11 @@ func (fe *fileError) UpdateContent(r io.Reader, linematcher LineMatcherFn) FileE
 
 	fe.errorContext = ectx
 
-	if ectx.Position.LineNumber > 0 {
+	if ectx.Position.LineNumber > 0 && ectx.Position.LineNumber > fe.position.LineNumber {
 		fe.position.LineNumber = ectx.Position.LineNumber
 	}
 
-	if ectx.Position.ColumnNumber > 0 {
+	if ectx.Position.ColumnNumber > 0 && ectx.Position.ColumnNumber > fe.position.ColumnNumber {
 		fe.position.ColumnNumber = ectx.Position.ColumnNumber
 	}
 
@@ -177,6 +177,7 @@ func NewFileErrorFromName(err error, name string) FileError {
 	// Filetype is used to determine the Chroma lexer to use.
 	fileType, pos := extractFileTypePos(err)
 	pos.Filename = name
+
 	if fileType == "" {
 		_, fileType = paths.FileAndExtNoDelimiter(filepath.Clean(name))
 	}
@@ -234,7 +235,9 @@ func NewFileErrorFromFile(err error, filename string, fs afero.Fs, linematcher L
 		return NewFileErrorFromName(err, realFilename)
 	}
 	defer f.Close()
-	return NewFileErrorFromName(err, realFilename).UpdateContent(f, linematcher)
+	fe := NewFileErrorFromName(err, realFilename)
+	fe = fe.UpdateContent(f, linematcher)
+	return fe
 }
 
 func openFile(filename string, fs afero.Fs) (afero.File, string, error) {
@@ -302,13 +305,9 @@ func extractFileTypePos(err error) (string, text.Position) {
 	}
 
 	// Look in the error message for the line number.
-	for _, handle := range lineNumberExtractors {
-		lno, col := handle(err)
-		if lno > 0 {
-			pos.ColumnNumber = col
-			pos.LineNumber = lno
-			break
-		}
+	if lno, col := commonLineNumberExtractor(err); lno > 0 {
+		pos.ColumnNumber = col
+		pos.LineNumber = lno
 	}
 
 	if fileType == "" && pos.Filename != "" {
