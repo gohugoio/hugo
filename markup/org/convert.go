@@ -17,6 +17,7 @@ package org
 import (
 	"bytes"
 	"log"
+	"strings"
 
 	"github.com/gohugoio/hugo/identity"
 
@@ -50,6 +51,19 @@ func (c *orgConverter) Convert(ctx converter.RenderContext) (converter.ResultRen
 	config.Log = log.Default() // TODO(bep)
 	config.ReadFile = func(filename string) ([]byte, error) {
 		return afero.ReadFile(c.cfg.ContentFs, filename)
+	}
+	config.ResolveLink = func(protocol string, description []org.Node, link string) org.Node {
+		out := org.RegularLink{
+			Protocol:    protocol,
+			Description: description,
+			URL:         link,
+			AutoLink:    false,
+		}
+		if protocol == "denote" {
+			id := strings.TrimPrefix(link, "denote:")
+			out.URL = "../" + strings.ToLower(id) + "/"
+		}
+		return out
 	}
 	writer := org.NewHTMLWriter()
 	writer.HighlightCodeBlock = func(source, lang string, inline bool, params map[string]string) string {
