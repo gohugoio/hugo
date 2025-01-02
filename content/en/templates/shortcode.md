@@ -395,7 +395,7 @@ It is disabled by default for security reasons. The security model used by Hugo'
 And once enabled, you can do this in your content files:
 
  ```go-html-template
-{{< sum.inline 4.3 3.14 8.23 12.4 >}}Sum: {{ math.Sum .Params }}{{< /sum.inline >}}
+{{</* sum.inline 4.3 3.14 8.23 12.4 */>}}Sum: {{ math.Sum .Params }}{{</* /sum.inline */>}}
  ```
 
 The above will print the sum of the numbers given.
@@ -407,7 +407,7 @@ This means that the current page can be accessed via `.Page.Title` etc. This als
 The same inline shortcode can be reused later in the same content file, with different arguments if needed, using the self-closing syntax:
 
  ```go-html-template
-{{< sum.inline 3.14159265359 6.324 />}}
+{{</* sum.inline 3.14159265359 6.324 *//>}}
 ```
 
 [`.Parent`]: /methods/shortcode/parent/
