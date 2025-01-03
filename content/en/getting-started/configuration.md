@@ -445,7 +445,7 @@ See [Content Management](/content-management/urls/#permalinks).
 
 ###### publishDir
 
-(`string`) The directory to where Hugo will write the final static site (the HTML files etc.). Default is `public`.
+(`string`) The directory where Hugo will write the final static site (the HTML files etc.). Default is `public`.
 
 ###### refLinksErrorLevel
 
