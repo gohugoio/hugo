@@ -218,22 +218,83 @@ func (c *Client) match(name, pattern string, matchFunc func(r resource.Resource)
 	})
 }
 
-// FromString creates a new Resource from a string with the given relative target path.
-// TODO(bep) see #10912; we currently emit a warning for this config scenario.
-func (c *Client) FromString(targetPath, content string) (resource.Resource, error) {
-	targetPath = path.Clean(targetPath)
-	key := dynacache.CleanKey(targetPath) + hashing.MD5FromStringHexEncoded(content)
+type Options struct {
+	// The target path relative to the publish directory.
+	// Unix style path, i.e. "images/logo.png".
+	TargetPath string
+
+	// Whether the TargetPath has a hash in it which will change if the resource changes.
+	// If not, we will calculate a hash from the content.
+	TargetPathHasHash bool
+
+	// The content to create the Resource from.
+	CreateContent func() (func() (hugio.ReadSeekCloser, error), error)
+}
+
+// FromOpts creates a new Resource from the given Options.
+// Make sure to set optis.TargetPathHasHash if the TargetPath already contains a hash,
+// as this avoids the need to calculate it.
+// To create a new ReadSeekCloser from a string, use hugio.NewReadSeekerNoOpCloserFromString,
+// or hugio.NewReadSeekerNoOpCloserFromBytes for a byte slice.
+// See FromString.
+func (c *Client) FromOpts(opts Options) (resource.Resource, error) {
+	opts.TargetPath = path.Clean(opts.TargetPath)
+	var hash string
+	var newReadSeeker func() (hugio.ReadSeekCloser, error) = nil
+	if !opts.TargetPathHasHash {
+		var err error
+		newReadSeeker, err = opts.CreateContent()
+		if err != nil {
+			return nil, err
+		}
+		if err := func() error {
+			r, err := newReadSeeker()
+			if err != nil {
+				return err
+			}
+			defer r.Close()
+
+			hash, err = hashing.XxHashFromReaderHexEncoded(r)
+			if err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return nil, err
+		}
+	}
+
+	key := dynacache.CleanKey(opts.TargetPath) + hash
 	r, err := c.rs.ResourceCache.GetOrCreate(key, func() (resource.Resource, error) {
+		if newReadSeeker == nil {
+			var err error
+			newReadSeeker, err = opts.CreateContent()
+			if err != nil {
+				return nil, err
+			}
+		}
 		return c.rs.NewResource(
 			resources.ResourceSourceDescriptor{
 				LazyPublish:   true,
 				GroupIdentity: identity.Anonymous, // All usage of this resource are tracked via its string content.
 				OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
-					return hugio.NewReadSeekerNoOpCloserFromString(content), nil
+					return newReadSeeker()
 				},
-				TargetPath: targetPath,
+				TargetPath: opts.TargetPath,
 			})
 	})
 
 	return r, err
+}
+
+// FromString creates a new Resource from a string with the given relative target path.
+func (c *Client) FromString(targetPath, content string) (resource.Resource, error) {
+	return c.FromOpts(Options{
+		TargetPath: targetPath,
+		CreateContent: func() (func() (hugio.ReadSeekCloser, error), error) {
+			return func() (hugio.ReadSeekCloser, error) {
+				return hugio.NewReadSeekerNoOpCloserFromString(content), nil
+			}, nil
+		},
+	})
 }

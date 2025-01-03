@@ -38,6 +38,19 @@ func XXHashFromReader(r io.Reader) (uint64, int64, error) {
 	return h.Sum64(), size, nil
 }
 
+// XxHashFromReaderHexEncoded calculates the xxHash for the given reader
+// and returns the hash as a hex encoded string.
+func XxHashFromReaderHexEncoded(r io.Reader) (string, error) {
+	h := getXxHashReadFrom()
+	defer putXxHashReadFrom(h)
+	_, err := io.Copy(h, r)
+	if err != nil {
+		return "", err
+	}
+	hash := h.Sum(nil)
+	return hex.EncodeToString(hash), nil
+}
+
 // XXHashFromString calculates the xxHash for the given string.
 func XXHashFromString(s string) (uint64, error) {
 	h := xxhash.New()
