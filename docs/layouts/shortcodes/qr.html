@@ -1,0 +1,45 @@
+{{- /*
+Encodes text to a QR code using the given error correction level and renders
+the resulting image.
+
+@param {string} text The text to encode.
+@param {string} [level=medium] The error correction level to use when encoding the text, one of `low`, `medium`, `quartile`, or `high`.
+@param {string} [targetDir] The subdirectory within the `publishDir` where Hugo will place the generated image.
+@param {string} [class=qr-code] The class attribute of the img element.
+@param {float} [scaleFactor=1] The factor by which to scale the image. Must be a multiple of 0.125.
+
+@returns {template.HTML}
+
+@examples
+
+  {{< qr text="https://gohugo.io" >}}
+  {{< qr text="https://gohugo.io" level="high" targetDir="qrcodes" class="foo" scaleFactor=0.375 >}}
+
+*/}}
+
+{{- $text := or (.Get "text") "" }}
+{{- $level := or (.Get "level") "medium" }}
+{{- $targetDir := or (.Get "targetDir") "" }}
+{{- $class := or (.Get "class") "qr-code" }}
+{{- $scaleFactor := or (.Get "scaleFactor") 1.000 | float }}
+{{- $validLevels := slice "low" "medium" "quartile" "high" }}
+
+{{- with $text }}
+  {{- if in $validLevels $level }}
+    {{- if eq (div $scaleFactor 0.125) (div $scaleFactor 0.125 | int | float) }}
+      {{- $opts := dict "text" . "level" $level "targetDir" $targetDir }}
+      {{- with images.QR $opts}}
+        {{- $width := .Width | mul $scaleFactor | math.Round | int }}
+        {{- with .Resize (printf "%dx" $width) -}}
+          <img src="{{ .RelPermalink }}" style="width: initial;" class="{{ $class }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
+        {{- end }}
+      {{- end }}
+    {{- else }}
+      {{- errorf "The %q argument passed to the %q shortcode must be a multiple of 0.125. See %s" "scaleFactor" $.Name $.Position }}
+    {{- end }}
+  {{- else }}
+    {{- errorf "The %q argument passed to the %q shortcode must be one of %s. See %s" "level" $.Name (delimit $validLevels ", " ", or ") $.Position }}
+  {{- end }}
+{{- else }}
+  {{- errorf "The %q shortcode requires a %q argument. See %s" .Name "text" .Position }}
+{{- end -}}
