@@ -222,7 +222,7 @@ func (c *Client) match(name, pattern string, matchFunc func(r resource.Resource)
 // TODO(bep) see #10912; we currently emit a warning for this config scenario.
 func (c *Client) FromString(targetPath, content string) (resource.Resource, error) {
 	targetPath = path.Clean(targetPath)
-	key := dynacache.CleanKey(targetPath) + hashing.MD5FromStringHexEncoded(content)
+	key := dynacache.CleanKey(targetPath) + hashing.XxHashFromStringHexEncoded(content)
 	r, err := c.rs.ResourceCache.GetOrCreate(key, func() (resource.Resource, error) {
 		return c.rs.NewResource(
 			resources.ResourceSourceDescriptor{
