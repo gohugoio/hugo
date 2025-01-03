@@ -254,7 +254,7 @@ The `Build` method returns an object with the following structure:
 
 Eeach [`Resource`] will be of media type `application/javascript` or `text/css`.
 
- In a template you would typically hande one group with a given `ID` (e.g. scripts for the current section). Because of the concurrent build, this needs to be done in a [`templates.Defer`] block:
+ In a template you would typically handle one group with a given `ID` (e.g. scripts for the current section). Because of the concurrent build, this needs to be done in a [`templates.Defer`] block:
 
 ```go-html-template
 {{ $group := .group }}
@@ -280,7 +280,7 @@ Eeach [`Resource`] will be of media type `application/javascript` or `text/css`.
 
 In the official documentation for [ESBuild's code splitting], there's a warning note in the header. The two issues are:
 
-* `esm` is currently the only implementd output format. This means that it will not work for very old browsers. See [caniuse](https://caniuse.com/?search=ESM).
+* `esm` is currently the only implemented output format. This means that it will not work for very old browsers. See [caniuse](https://caniuse.com/?search=ESM).
 * There's a known import ordering issue.
 
 We have not seen the ordering issue as a problem during our [extensive testing](https://github.com/bep/hugojsbatchdemo) of this new feature with different libraries. There are two main cases:
@@ -288,7 +288,7 @@ We have not seen the ordering issue as a problem during our [extensive testing](
 1. Undefined execution order of imports, see [this comment](https://github.com/evanw/esbuild/issues/399#issuecomment-1458680887)
 2. Only one execution order of imports, see [this comment](https://github.com/evanw/esbuild/issues/399#issuecomment-735355932)
 
-Many would say that both of the above are [code smells](https://en.wikipedia.org/wiki/Code_smell). The first one has a simple workaround in Hugo. Define the import order in its own script and make sure it gets passed early to ESBuild, e.g. by putting it in a script goup with a name that comes early in the alphabet.
+Many would say that both of the above are [code smells](https://en.wikipedia.org/wiki/Code_smell). The first one has a simple workaround in Hugo. Define the import order in its own script and make sure it gets passed early to ESBuild, e.g. by putting it in a script group with a name that comes early in the alphabet.
 
 ```js
 import './lib2.js';
