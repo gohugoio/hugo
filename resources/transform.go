@@ -192,10 +192,6 @@ func (r *resourceAdapter) Content(ctx context.Context) (any, error) {
 	return r.target.Content(ctx)
 }
 
-func (r *resourceAdapter) Err() resource.ResourceError {
-	return nil
-}
-
 func (r *resourceAdapter) GetIdentity() identity.Identity {
 	return identity.FirstIdentity(r.target)
 }

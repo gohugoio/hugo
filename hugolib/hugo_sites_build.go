@@ -343,6 +343,18 @@ func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
 
 	siteRenderContext := &siteRenderContext{cfg: config, multihost: h.Configs.IsMultihost}
 
+	renderErr := func(err error) error {
+		if err == nil {
+			return nil
+		}
+		if strings.Contains(err.Error(), "can't evaluate field Err in type resource.Resource") {
+			// In Hugo 0.141.0 we replaced the special error handling for resources.GetRemote
+			// with the more general try.
+			return fmt.Errorf("%s: Resource.Err was removed in Hugo v0.141.0 and replaced with a new try keyword, see https://gohugo.io/functions/go-template/try/", err)
+		}
+		return err
+	}
+
 	i := 0
 	for _, s := range h.Sites {
 		segmentFilter := s.conf.C.SegmentFilter
@@ -390,7 +402,7 @@ func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
 							}
 						} else {
 							if err := s.render(siteRenderContext); err != nil {
-								return err
+								return renderErr(err)
 							}
 						}
 						loggers.TimeTrackf(ll, start, nil, "")

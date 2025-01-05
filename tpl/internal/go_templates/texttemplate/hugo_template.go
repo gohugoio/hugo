@@ -19,6 +19,7 @@ import (
 	"io"
 	"reflect"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hreflect"
 
 	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
@@ -256,14 +257,34 @@ func (s *state) evalField(dot reflect.Value, fieldName string, node parse.Node, 
 	panic("not reached")
 }
 
+// newErrorWithCause creates a new error with the given cause.
+func newErrorWithCause(err error) *TryError {
+	return &TryError{Err: err, Cause: herrors.Cause(err)}
+}
+
+// TryError wraps an error with a cause.
+type TryError struct {
+	Err   error
+	Cause error
+}
+
+func (e *TryError) Error() string {
+	return e.Err.Error()
+}
+
+func (e *TryError) Unwrap() error {
+	return e.Err
+}
+
 // TryValue is what gets returned when using the "try" keyword.
 type TryValue struct {
 	// Value is the value returned by the function or method wrapped with "try".
 	// This will always be nil if Err is set.
 	Value any
+
 	// Err is the error returned by the function or method wrapped with "try".
 	// This will always be nil if Value is set.
-	Err error
+	Err *TryError
 }
 
 // evalCall executes a function or method call. If it's a method, fun already has the receiver bound, so
@@ -274,10 +295,11 @@ func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node
 	if name == "try" {
 		defer func() {
 			if r := recover(); r != nil {
+				// Cause: herrors.Cause(err)
 				if err, ok := r.(error); ok {
-					val = reflect.ValueOf(TryValue{nil, err})
+					val = reflect.ValueOf(TryValue{Value: nil, Err: newErrorWithCause(err)})
 				} else {
-					val = reflect.ValueOf(TryValue{nil, fmt.Errorf("%v", r)})
+					val = reflect.ValueOf(TryValue{Value: nil, Err: newErrorWithCause(fmt.Errorf("%v", r))})
 				}
 			}
 		}()
@@ -396,7 +418,7 @@ func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node
 
 	// Added for Hugo.
 	if name == "try" {
-		return reflect.ValueOf(TryValue{vv.Interface(), nil})
+		return reflect.ValueOf(TryValue{Value: vv.Interface()})
 	}
 
 	return vv

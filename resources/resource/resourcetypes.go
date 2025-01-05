@@ -43,6 +43,9 @@ type OriginProvider interface {
 
 // NewResourceError creates a new ResourceError.
 func NewResourceError(err error, data any) ResourceError {
+	if data == nil {
+		data = map[string]any{}
+	}
 	return &resourceError{
 		error: err,
 		data:  data,
@@ -65,13 +68,6 @@ type ResourceError interface {
 	ResourceDataProvider
 }
 
-// ErrProvider provides an Err.
-type ErrProvider interface {
-	// Err returns an error if this resource is in an error state.
-	// This will currently only be set for resources obtained from resources.GetRemote.
-	Err() ResourceError
-}
-
 // Resource represents a linkable resource, i.e. a content page, image etc.
 type Resource interface {
 	ResourceWithoutMeta
@@ -83,7 +79,6 @@ type ResourceWithoutMeta interface {
 	MediaTypeProvider
 	ResourceLinksProvider
 	ResourceDataProvider
-	ErrProvider
 }
 
 type ResourceWrapper interface {

@@ -111,10 +111,6 @@ type testPage struct {
 	sectionEntries []string
 }
 
-func (p *testPage) Err() resource.ResourceError {
-	return nil
-}
-
 func (p *testPage) Aliases() []string {
 	panic("testpage: not implemented")
 }

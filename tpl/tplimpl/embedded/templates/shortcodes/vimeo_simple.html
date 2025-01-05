@@ -23,10 +23,10 @@
   {{- $url := urls.JoinPath "https://vimeo.com" .id -}}
   {{- $query := querify "url" $url "dnt" $dnt -}}
   {{- $request := printf "https://vimeo.com/api/oembed.json?%s" $query -}}
-  {{- with resources.GetRemote $request -}}
+  {{- with try (resources.GetRemote $request) -}}
     {{- with .Err -}}
       {{- errorf "%s" . -}}
-    {{- else -}}
+    {{- else with .Value -}}
       {{- with . | transform.Unmarshal -}}
         {{- $class := printf "%s %s" "s_video_simple" "__h_video" -}}
         {{- with $.class -}}
@@ -45,8 +45,8 @@
           </a>
         </div>
       {{- end -}}
+    {{- else -}}
+      {{- warnidf "shortcode-vimeo-simple" "The %q shortcode was unable to retrieve the remote data. See %s" .name .position -}}
     {{- end -}}
-  {{- else -}}
-    {{- warnidf "shortcode-vimeo-simple" "The %q shortcode was unable to retrieve the remote data. See %s" .name .position -}}
   {{- end -}}
 {{- end -}}

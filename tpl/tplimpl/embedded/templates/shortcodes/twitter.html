@@ -17,13 +17,13 @@
   {{- $url := printf "https://twitter.com/%v/status/%v" .user .id -}}
   {{- $query := querify "url" $url "dnt" .dnt -}}
   {{- $request := printf "https://publish.twitter.com/oembed?%s" $query -}}
-  {{- with resources.GetRemote $request -}}
+  {{- with try (resources.GetRemote $request) -}}
     {{- with .Err -}}
       {{- errorf "%s" . -}}
-    {{- else -}}
+    {{- else with .Value -}}
       {{- (. | transform.Unmarshal).html | safeHTML -}}
-    {{- end -}}
-  {{- else -}}
+    {{- else -}}
     {{- warnidf "shortcode-twitter-getremote" "The %q shortcode was unable to retrieve the remote data. See %s" .name .position -}}
+    {{- end -}}
   {{- end -}}
 {{- end -}}

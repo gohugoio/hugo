@@ -14,14 +14,14 @@
   {{- $url := printf "https://twitter.com/%v/status/%v" .user .id -}}
   {{- $query := querify "url" $url "dnt" .dnt "omit_script" true -}}
   {{- $request := printf "https://publish.twitter.com/oembed?%s" $query -}}
-  {{- with resources.GetRemote $request -}}
+  {{- with try (resources.GetRemote $request) -}}
     {{- with .Err -}}
       {{- errorf "%s" . -}}
-    {{- else -}}
+    {{- else with .Value -}}
       {{- (. | transform.Unmarshal).html | safeHTML -}}
+    {{- else -}}
+      {{- warnidf "shortcode-twitter-simple-getremote" "The %q shortcode was unable to retrieve the remote data. See %s" .name .position -}}
     {{- end -}}
-  {{- else -}}
-    {{- warnidf "shortcode-twitter-simple-getremote" "The %q shortcode was unable to retrieve the remote data. See %s" .name .position -}}
   {{- end -}}
 {{- end -}}
 
@@ -31,7 +31,16 @@
     {{- .Page.Scratch.Set "__h_simple_twitter_css" true -}}
     <style type="text/css">
       .twitter-tweet {
-        font: 14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+        font:
+          14px/1.45 -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          Oxygen-Sans,
+          Ubuntu,
+          Cantarell,
+          "Helvetica Neue",
+          sans-serif;
         border-left: 4px solid #2b7bb9;
         padding-left: 1.5em;
         color: #555;

@@ -67,11 +67,11 @@ FIT: {{ $fit.Name }}|{{ $fit.RelPermalink }}|{{ $fit.Width }}
 CSS integrity Data first: {{ $cssFingerprinted1.Data.Integrity }} {{ $cssFingerprinted1.RelPermalink }}
 CSS integrity Data last:  {{ $cssFingerprinted2.RelPermalink }} {{ $cssFingerprinted2.Data.Integrity }}
 
-{{ $failedImg := resources.GetRemote "%[1]s/fail.jpg" }}
+{{ $failedImg := try (resources.GetRemote "%[1]s/fail.jpg") }}
 {{ $rimg := resources.GetRemote "%[1]s/sunset.jpg" }}
 {{ $remotenotfound := resources.GetRemote "%[1]s/notfound.jpg" }}
 {{ $localnotfound := resources.Get "images/notfound.jpg" }}
-{{ $gopherprotocol := resources.GetRemote "gopher://example.org" }}
+{{ $gopherprotocol := try (resources.GetRemote "gopher://example.org") }}
 {{ $rfit := $rimg.Fit "200x200" }}
 {{ $rfit2 := $rfit.Fit "100x200" }}
 {{ $rimg = $rimg | fingerprint }}
@@ -79,10 +79,10 @@ SUNSET REMOTE: {{ $rimg.Name }}|{{ $rimg.RelPermalink }}|{{ $rimg.Width }}|{{ le
 FIT REMOTE: {{ $rfit.Name }}|{{ $rfit.RelPermalink }}|{{ $rfit.Width }}
 REMOTE NOT FOUND: {{ if $remotenotfound }}FAILED{{ else}}OK{{ end }}
 LOCAL NOT FOUND: {{ if $localnotfound }}FAILED{{ else}}OK{{ end }}
-PRINT PROTOCOL ERROR1: {{ with $gopherprotocol }}{{ . | safeHTML }}{{ end }}
+PRINT PROTOCOL ERROR1: {{ with $gopherprotocol }}{{ .Value | safeHTML }}{{ end }}
 PRINT PROTOCOL ERROR2: {{ with $gopherprotocol }}{{ .Err | safeHTML }}{{ end }}
-PRINT PROTOCOL ERROR DETAILS: {{ with $gopherprotocol }}Err: {{ .Err | safeHTML }}{{ with .Err }}|{{ with .Data }}Body: {{ .Body }}|StatusCode: {{ .StatusCode }}{{ end }}|{{ end }}{{ end }}
-FAILED REMOTE ERROR DETAILS CONTENT: {{ with $failedImg.Err }}|{{ . }}|{{ with .Data }}Body: {{ .Body }}|StatusCode: {{ .StatusCode }}|ContentLength: {{ .ContentLength }}|ContentType: {{ .ContentType }}{{ end }}{{ end }}|
+PRINT PROTOCOL ERROR DETAILS: {{ with $gopherprotocol }}{{ with .Err }}Err: {{ . | safeHTML }}{{ with .Cause }}|{{ with .Data }}Body: {{ .Body }}|StatusCode: {{ .StatusCode }}{{ end }}|{{ end }}{{ end }}{{ end }}
+FAILED REMOTE ERROR DETAILS CONTENT: {{ with $failedImg }}{{ with .Err }}{{ with .Cause }}{{ . }}|{{ with .Data }}Body: {{ .Body }}|StatusCode: {{ .StatusCode }}|ContentLength: {{ .ContentLength }}|ContentType: {{ .ContentType }}{{ end }}{{ end }}{{ end }}{{ end }}|
 `, ts.URL))
 
 	fs := b.Fs.Source
@@ -114,8 +114,8 @@ SUNSET REMOTE: /sunset_%[1]s.jpg|/sunset_%[1]s.a9bf1d944e19c0f382e0d8f51de690f7d
 FIT REMOTE: /sunset_%[1]s.jpg|/sunset_%[1]s_hu15210517121918042184.jpg|200
 REMOTE NOT FOUND: OK
 LOCAL NOT FOUND: OK
-PRINT PROTOCOL ERROR DETAILS: Err: error calling resources.GetRemote: Get "gopher://example.org": unsupported protocol scheme "gopher"||
-FAILED REMOTE ERROR DETAILS CONTENT: |failed to fetch remote resource from &#39;%[2]s/fail.jpg&#39;: Not Implemented|Body: { msg: failed }
+PRINT PROTOCOL ERROR DETAILS: Err: template: index.html:22:36: executing "index.html" at <resources.GetRemote>: error calling GetRemote: Get "gopher://example.org": unsupported protocol scheme "gopher"|
+FAILED REMOTE ERROR DETAILS CONTENT: failed to fetch remote resource from &#39;%[2]s/fail.jpg&#39;: Not Implemented|Body: { msg: failed }
 |StatusCode: 501|ContentLength: 16|ContentType: text/plain; charset=utf-8|
 
 
