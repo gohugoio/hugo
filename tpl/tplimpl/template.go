@@ -66,6 +66,8 @@ const (
 // We need this to identify position in templates with base templates applied.
 var identifiersRe = regexp.MustCompile(`at \<(.*?)(\.{3})?\>:`)
 
+// The tweet and twitter shortcodes were deprecated in favor of the x shortcode
+// in v0.141.0. We can remove these aliases in v0.155.0 or later.
 var embeddedTemplatesAliases = map[string][]string{
 	"shortcodes/twitter.html": {"shortcodes/tweet.html"},
 }

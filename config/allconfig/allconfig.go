@@ -402,6 +402,28 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 		c.Pagination.Path = c.PaginatePath
 	}
 
+	// Legacy privacy values.
+	if c.Privacy.Twitter.Disable {
+		hugo.Deprecate("site config key privacy.twitter.disable", "Use privacy.x.disable instead.", "v0.141.0")
+		c.Privacy.X.Disable = c.Privacy.Twitter.Disable
+	}
+
+	if c.Privacy.Twitter.EnableDNT {
+		hugo.Deprecate("site config key privacy.twitter.enableDNT", "Use privacy.x.enableDNT instead.", "v0.141.0")
+		c.Privacy.X.EnableDNT = c.Privacy.Twitter.EnableDNT
+	}
+
+	if c.Privacy.Twitter.Simple {
+		hugo.Deprecate("site config key privacy.twitter.simple", "Use privacy.x.simple instead.", "v0.141.0")
+		c.Privacy.X.Simple = c.Privacy.Twitter.Simple
+	}
+
+	// Legacy services values.
+	if c.Services.Twitter.DisableInlineCSS {
+		hugo.Deprecate("site config key services.twitter.disableInlineCSS", "Use services.x.disableInlineCSS instead.", "v0.141.0")
+		c.Services.X.DisableInlineCSS = c.Services.Twitter.DisableInlineCSS
+	}
+
 	c.C = &ConfigCompiled{
 		Timeout:             timeout,
 		BaseURL:             baseURL,

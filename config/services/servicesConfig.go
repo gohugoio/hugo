@@ -31,7 +31,8 @@ type Config struct {
 	Disqus          Disqus
 	GoogleAnalytics GoogleAnalytics
 	Instagram       Instagram
-	Twitter         Twitter
+	Twitter         Twitter // deprecated in favor of X in v0.141.0
+	X               X
 	RSS             RSS
 }
 
@@ -61,8 +62,17 @@ type Instagram struct {
 }
 
 // Twitter holds the functional configuration settings related to the Twitter shortcodes.
+// Deprecated in favor of X in v0.141.0.
 type Twitter struct {
 	// The Simple variant of Twitter is decorated with a basic set of inline styles.
+	// This means that if you want to provide your own CSS, you want
+	// to disable the inline CSS provided by Hugo.
+	DisableInlineCSS bool
+}
+
+// X holds the functional configuration settings related to the X shortcodes.
+type X struct {
+	// The Simple variant of X is decorated with a basic set of inline styles.
 	// This means that if you want to provide your own CSS, you want
 	// to disable the inline CSS provided by Hugo.
 	DisableInlineCSS bool

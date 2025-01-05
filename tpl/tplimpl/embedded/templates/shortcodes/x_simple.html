@@ -1,37 +1,36 @@
-{{- warnf "The \"twitter\", \"tweet\", and \"twitter_simple\" shortcodes were deprecated in v0.142.0 and will be removed in a future release. Please use the \"x\" shortcode instead." }}
-{{- if not site.Config.Privacy.Twitter.Disable -}}
+{{- if not site.Config.Privacy.X.Disable -}}
   {{- $id := or (.Get "id") "" -}}
   {{- $user := or (.Get "user") "" -}}
   {{- if and $id $user -}}
-    {{- template "render-simple-tweet" (dict "id" $id "user" $user "ctx" .) -}}
+    {{- template "render-simple-x" (dict "id" $id "user" $user "ctx" .) -}}
   {{- else -}}
     {{- errorf "The %q shortcode requires two named parameters: user and id. See %s" .Name .Position -}}
   {{- end -}}
 {{- end -}}
 
-{{- define "render-simple-tweet" -}}
-  {{- $dnt := site.Config.Privacy.Twitter.EnableDNT }}
-  {{- $url := printf "https://twitter.com/%v/status/%v" .user .id -}}
+{{- define "render-simple-x" -}}
+  {{- $dnt := site.Config.Privacy.X.EnableDNT }}
+  {{- $url := printf "https://x.com/%v/status/%v" .user .id -}}
   {{- $query := querify "url" $url "dnt" $dnt "omit_script" true -}}
-  {{- $request := printf "https://publish.twitter.com/oembed?%s" $query -}}
+  {{- $request := printf "https://publish.x.com/oembed?%s" $query -}}
   {{- with try (resources.GetRemote $request) -}}
     {{- with .Err -}}
       {{- errorf "%s" . -}}
     {{- else with .Value -}}
-      {{- if not site.Config.Services.Twitter.DisableInlineCSS }}
-        {{- template "__h_simple_twitter_css" (dict "ctx" $.ctx) }}
+      {{- if not site.Config.Services.X.DisableInlineCSS }}
+        {{- template "__h_simple_x_css" (dict "ctx" $.ctx) }}
       {{- end }}
       {{- (. | transform.Unmarshal).html | safeHTML -}}
     {{- else -}}
-      {{- warnidf "shortcode-twitter-simple-getremote" "The %q shortcode was unable to retrieve the remote data. See %s" .ctx.Name .ctx.Position -}}
+      {{- warnidf "shortcode-x-simple-getremote" "The %q shortcode was unable to retrieve the remote data. See %s" .ctx.Name .ctx.Position -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}
 
-{{- define "__h_simple_twitter_css" -}}
-  {{- if not (.ctx.Page.Store.Get "__h_simple_twitter_css") -}}
+{{- define "__h_simple_x_css" -}}
+  {{- if not (.ctx.Page.Store.Get "__h_simple_x_css") -}}
     {{/* Only include once */}}
-    {{- .ctx.Page.Store.Set "__h_simple_twitter_css" true -}}
+    {{- .ctx.Page.Store.Set "__h_simple_x_css" true -}}
     <style type="text/css">
       .twitter-tweet {
         font:

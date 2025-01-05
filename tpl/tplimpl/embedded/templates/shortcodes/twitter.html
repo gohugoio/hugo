@@ -1,3 +1,4 @@
+{{- warnf "The \"twitter\", \"tweet\", and \"twitter_simple\" shortcodes were deprecated in v0.142.0 and will be removed in a future release. Please use the \"x\" shortcode instead." }}
 {{- $pc := .Page.Site.Config.Privacy.Twitter -}}
 {{- if not $pc.Disable -}}
   {{- if $pc.Simple -}}
