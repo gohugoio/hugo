@@ -193,14 +193,14 @@ Step 3
 {{/* Get remote data. */}}
 {{ $data := dict }}
 {{ $url := "https://gohugo.io/shared/examples/data/books.json" }}
-{{ with resources.GetRemote $url }}
+{{ with try (resources.GetRemote $url) }}
   {{ with .Err }}
     {{ errorf "Unable to get remote resource %s: %s" $url . }}
-  {{ else }}
+  {{ else with .Value }}
     {{ $data = . | transform.Unmarshal }}
+  {{ else }}
+    {{ errorf "Unable to get remote resource %s" $url }}
   {{ end }}
-{{ else }}
-  {{ errorf "Unable to get remote resource %s" $url }}
 {{ end }}
 
 {{/* Add pages and page resources. */}}
@@ -223,10 +223,10 @@ Step 3
   {{/* Add page resource. */}}
   {{ $item := . }}
   {{ with $url := $item.cover }}
-    {{ with resources.GetRemote $url }}
+    {{ with try (resources.GetRemote $url) }}
       {{ with .Err }}
         {{ errorf "Unable to get remote resource %s: %s" $url . }}
-      {{ else }}
+      {{ else with .Value }}
         {{ $content := dict "mediaType" .MediaType.Type "value" .Content }}
         {{ $params := dict "alt" $item.title }}
         {{ $resource := dict
@@ -235,9 +235,9 @@ Step 3
           "path" (printf "%s/cover.%s" $item.title .MediaType.SubType)
         }}
         {{ $.AddResource $resource }}
+      {{ else }}
+        {{ errorf "Unable to get remote resource %s" $url }}
       {{ end }}
-    {{ else }}
-      {{ errorf "Unable to get remote resource %s" $url }}
     {{ end }}
   {{ end }}
 

@@ -134,16 +134,16 @@ Consider using the [`resources.GetRemote`] function with [`transform.Unmarshal`]
 
 ```go-html-template
 {{ $data := dict }}
-{{ $u := "https://example.org/pets.csv" }}
-{{ with resources.GetRemote $u }}
+{{ $url := "https://example.org/pets.csv" }}
+{{ with try (resources.GetRemote $url) }}
   {{ with .Err }}
     {{ errorf "%s" . }}
-  {{ else }}
+  {{ else with .Value }}
     {{ $opts := dict "delimiter" "," }}
     {{ $data = . | transform.Unmarshal $opts }}
+  {{ else }}
+    {{ errorf "Unable to get remote resource %q" $url }}
   {{ end }}
-{{ else }}
-  {{ errorf "Unable to get remote resource %q" $u }}
 {{ end }}
 ```
 

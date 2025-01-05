@@ -9,7 +9,14 @@ action:
     - methods/resource/Data
   returnType: resource.resourceError
   signatures: [RESOURCE.Err]
+expiryDate: 2026-01-31
 ---
+
+{{% deprecated-in 0.141.0 %}}
+Use the `try` statement instead. See [example].
+
+[example]: /functions/go-template/try/#example
+{{% /deprecated-in %}}
 
 The `Err` method on a resource returned by the [`resources.GetRemote`] function returns an error message if the HTTP request fails, else nil. If you do not handle the error yourself, Hugo will fail the build.
 

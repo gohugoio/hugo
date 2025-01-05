@@ -498,8 +498,6 @@ Rendered:
 {{% note %}}
 To override Hugo's embedded `twitter` shortcode, copy the [source code] to a file with the same name in the layouts/shortcodes directory.
 
-You may call the `twitter` shortcode by using its `tweet` alias.
-
 [source code]: {{% eturl twitter %}}
 {{% /note %}}
 

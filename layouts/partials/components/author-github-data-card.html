@@ -1,0 +1,43 @@
+{{ $author := .context.Params.author }}
+{{ if $author }}
+  <aside class="mw5 center bg-white br3 pa3 pa4-ns mv3 ba b--black-10 nested-links">
+
+    {{ $data := "" }}
+    {{ $url := urls.JoinPath "https://api.github.com/users" $author }}
+    {{ with try (resources.GetRemote $url) }}
+      {{ with .Err }}
+        {{ errorf "%s" . }}
+      {{ else with .Value }}
+        {{ $data = . | transform.Unmarshal }}
+      {{ else }}
+        {{ errorf "Unable to get remote resource %q" $url }}
+      {{ end }}
+    {{ end }}
+
+    <div class="tc">
+      {{ with $data }}
+
+        {{ with .avatar_url }}
+          <a href="{{ . }}" class="link  hover-bg-light-gray pa1 br-100">
+            <img src="{{ . }}&size={{ $.size }}" alt="" class="br-100 ba b--light-gray">
+          </a>
+        {{ end }}
+        {{ with .name  }}
+          <h3 class="f4">
+            <a href="{{ $data.html_url }}" class="link dim">
+              {{ . | htmlEscape }}
+            </a>
+          </h3>
+          <hr class="mw3 bb bw1 b--black-10">
+        {{ end }}
+        {{ with .bio }}
+          <p class="lh-copy measure center f6 black-70">
+            {{ . | htmlEscape }}
+          </p>
+        {{ end }}
+
+      {{ end }}
+    </div>
+
+  </aside>
+{{ end }}

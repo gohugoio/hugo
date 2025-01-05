@@ -52,14 +52,14 @@ Capture the font as a resource:
 ```go-html-template
 {{ $font := "" }}
 {{ $path := "https://github.com/google/fonts/raw/main/ofl/lato/Lato-Regular.ttf" }}
-{{ with resources.GetRemote $path }}
+{{ with try (resources.GetRemote $path) }}
   {{ with .Err }}
     {{ errorf "%s" . }}
-  {{ else }}
+  {{ else with .Value }}
     {{ $font = . }}
+  {{ else }}
+    {{ errorf "Unable to get resource %q" $path }}
   {{ end }}
-{{ else }}
-  {{ errorf "Unable to get resource %q" $path }}
 {{ end }}
 ```
 

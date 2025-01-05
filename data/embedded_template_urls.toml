@@ -36,4 +36,5 @@
 'relref' = 'shortcodes/relref.html'
 'twitter' = 'shortcodes/twitter.html'
 'vimeo' = 'shortcodes/vimeo.html'
+'x' = 'shortcodes/x.html'
 'youtube' = 'shortcodes/youtube.html'

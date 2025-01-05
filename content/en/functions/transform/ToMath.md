@@ -97,11 +97,11 @@ There are 3 ways to handle errors from KaTeX:
 1. Set the `throwOnError` option to `false` to make KaTeX render the expression as an error instead of throwing an error. See [options](#options).
 
 {{< code file=layouts/_default/_markup/render-passthrough-inline.html copy=true >}}
-{{ with transform.ToMath .Inner }}
+{{ with try (transform.ToMath .Inner) }}
   {{ with .Err }}
     {{ errorf "Failed to render KaTeX: %q. See %s" . $.Position }}
   {{ else }}
-    {{ . }}
+    {{ .Value }}
   {{ end }}
 {{ end }}
 {{- /* chomp trailing newline */ -}}

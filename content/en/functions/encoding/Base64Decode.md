@@ -25,16 +25,16 @@ https://api.github.com/repos/gohugoio/hugo/readme
 To retrieve and render the content:
 
 ```go-html-template
-{{ $u := "https://api.github.com/repos/gohugoio/hugo/readme" }}
-{{ with resources.GetRemote $u }}
+{{ $url := "https://api.github.com/repos/gohugoio/hugo/readme" }}
+{{ with try (resources.GetRemote $url) }}
   {{ with .Err }}
     {{ errorf "%s" . }}
-  {{ else }}
+  {{ else with .Value}}
     {{ with . | transform.Unmarshal }}
       {{ .content | base64Decode | markdownify }}
     {{ end }}
+  {{ else }}
+    {{ errorf "Unable to get remote resource %q" $url }}
   {{ end }}
-{{ else }}
-  {{ errorf "Unable to get remote resource %q" $u }}
 {{ end }}
 ```

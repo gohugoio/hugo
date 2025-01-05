@@ -9,7 +9,7 @@ byline: "[bep](https://github.com/bep), Hugo Lead"
 
 The **Let’s Encrypt website** has a common set of elements: A landing page and some other static info-pages, a document section, a blog, and a documentation section. Having it moved to Hugo was mostly motivated by a _simpler administration and Hugo's [multilingual support](/content-management/multilingual/)_. They already serve HTTPS to more than 60 million domains, and having the documentation available in more languages will increase that reach.[^1]
 
-{{< tweet user="letsencrypt" id="971755920639307777" >}}
+{{< x user="letsencrypt" id="971755920639307777" >}}
 
 I helped them port the site from Jekyll to Hugo. There are usually very few surprises doing this. I know Hugo very well, but working on sites with a history usually comes up with something new.
 

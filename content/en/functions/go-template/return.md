@@ -13,7 +13,7 @@ action:
 toc: true
 ---
 
-The `return` statement is a custom addition to Go's [text/template] package. Used within partial templates, the `return` statement terminates template execution and returns the given value, if any.
+The `return` statement is a non-standard extension to Go's [text/template package]. Used within partial templates, the `return` statement terminates template execution and returns the given value, if any.
 
 The returned value may be of any data type including, but not limited to, [`bool`], [`float`], [`int`], [`map`], [`resource`], [`slice`], and [`string`].
 

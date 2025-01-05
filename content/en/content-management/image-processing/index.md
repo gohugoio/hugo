@@ -88,15 +88,15 @@ Example 3: A more concise way to skip image rendering if the resource is not fou
 Example 4: Skips rendering if there's problem accessing a remote resource.
 
 ```go-html-template
-{{ $u := "https://gohugo.io/img/hugo-logo.png" }}
-{{ with resources.GetRemote $u }}
+{{ $url := "https://gohugo.io/img/hugo-logo.png" }}
+{{ with try (resources.GetRemote $url) }}
   {{ with .Err }}
     {{ errorf "%s" . }}
-  {{ else }}
+  {{ else with .Value }}
     <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}">
+  {{ else }}
+    {{ errorf "Unable to get remote resource %q" $url }}
   {{ end }}
-{{ else }}
-  {{ errorf "Unable to get remote resource %q" $u }}
 {{ end }}
 ```
 

@@ -266,6 +266,9 @@ To remain consistent and prevent unexpected behavior, do not mix these strategie
 
 (`string`) The directory from where Hugo reads data files. Default is `data`. {{% module-mounts-note %}}
 
+###### defaultOutputFormat
+(`string`) The default output format for the site. If unspecified, the first available format in the defined order (by weight, then alphabetically) will be used.
+
 ###### defaultContentLanguage
 
 (`string`) Content without language indicator will default to this language. Default is `en`.
