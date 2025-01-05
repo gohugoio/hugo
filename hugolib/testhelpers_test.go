@@ -262,6 +262,8 @@ respectDoNotTrack = true
 simple = true
 [privacy.twitter]
 enableDNT = true
+[privacy.x]
+enableDNT = true
 [privacy.vimeo]
 disable = false
 [privacy.youtube]
