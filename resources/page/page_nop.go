@@ -61,10 +61,6 @@ type nopPage int
 
 var noOpPathInfo = media.DefaultPathParser.Parse(files.ComponentFolderContent, "no-op.md")
 
-func (p *nopPage) Err() resource.ResourceError {
-	return nil
-}
-
 func (p *nopPage) Aliases() []string {
 	return nil
 }

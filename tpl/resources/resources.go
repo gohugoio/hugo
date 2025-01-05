@@ -115,14 +115,10 @@ func (ns *Namespace) Get(filename any) resource.Resource {
 //
 // Note: This method does not return any error as a second return value,
 // for any error situations the error can be checked in .Err.
-func (ns *Namespace) GetRemote(args ...any) resource.Resource {
+func (ns *Namespace) GetRemote(args ...any) (resource.Resource, error) {
 	get := func(args ...any) (resource.Resource, error) {
-		if len(args) < 1 {
-			return nil, errors.New("must provide an URL")
-		}
-
-		if len(args) > 2 {
-			return nil, errors.New("must not provide more arguments than URL and options")
+		if len(args) < 1 || len(args) > 2 {
+			return nil, errors.New("must provide an URL and optionally an options map")
 		}
 
 		urlstr, err := cast.ToStringE(args[0])
@@ -146,12 +142,12 @@ func (ns *Namespace) GetRemote(args ...any) resource.Resource {
 	if err != nil {
 		switch v := err.(type) {
 		case *create.HTTPError:
-			return resources.NewErrorResource(resource.NewResourceError(v, v.Data))
+			return nil, resource.NewResourceError(v, v.Data)
 		default:
-			return resources.NewErrorResource(resource.NewResourceError(fmt.Errorf("error calling resources.GetRemote: %w", err), make(map[string]any)))
+			return nil, resource.NewResourceError(err, nil)
 		}
 	}
-	return r
+	return r, nil
 }
 
 // GetMatch finds the first Resource matching the given pattern, or nil if none found.

@@ -31,18 +31,17 @@ func TestGetRemoteHead(t *testing.T) {
   [security.http]
     methods = ['(?i)GET|POST|HEAD']
     urls = ['.*gohugo\.io.*']
-
 -- layouts/index.html --
 {{ $url := "https://gohugo.io/img/hugo.png" }}
 {{ $opts := dict "method" "head" }}
-{{ with resources.GetRemote $url $opts }}
+{{ with try (resources.GetRemote $url $opts) }}
   {{ with .Err }}
     {{ errorf "Unable to get remote resource: %s" . }}
-  {{ else }}
+  {{ else with .Value }}
     Head Content: {{ .Content }}. Head Data: {{ .Data }}
-  {{ end }}
-{{ else }}
+  {{ else }}
   {{ errorf "Unable to get remote resource: %s" $url }}
+  {{ end }}
 {{ end }}
 `
 
@@ -90,14 +89,15 @@ mediaTypes = ['text/plain']
 -- layouts/_default/single.html --
 {{ $url := printf "%s%s" "URL" .RelPermalink}}
 {{ $opts := dict }}
-{{ with resources.GetRemote $url $opts }}
+{{ with try (resources.GetRemote $url $opts) }}
   {{ with .Err }}
-    {{ errorf "Got Err: %s. Data: %v" . .Data }}
-  {{ else }}
+     {{ errorf "Got Err: %s" . }}
+	 {{ with .Cause }}{{ errorf "Data: %s" .Data }}{{ end }}
+  {{ else with .Value }}
     Content: {{ .Content }}
+  {{ else }}
+    {{ errorf "Unable to get remote resource: %s" $url }}
   {{ end }}
-{{ else }}
-  {{ errorf "Unable to get remote resource: %s" $url }}
 {{ end }}
 `
 

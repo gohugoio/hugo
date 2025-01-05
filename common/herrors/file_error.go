@@ -258,8 +258,27 @@ func openFile(filename string, fs afero.Fs) (afero.File, string, error) {
 	return f, realFilename, nil
 }
 
-// Cause returns the underlying error or itself if it does not implement Unwrap.
+// Cause returns the underlying error, that is,
+// it unwraps errors until it finds one that does not implement
+// the Unwrap method.
+// For a shallow variant, see Unwrap.
 func Cause(err error) error {
+	type unwrapper interface {
+		Unwrap() error
+	}
+
+	for err != nil {
+		cause, ok := err.(unwrapper)
+		if !ok {
+			break
+		}
+		err = cause.Unwrap()
+	}
+	return err
+}
+
+// Unwrap returns the underlying error or itself if it does not implement Unwrap.
+func Unwrap(err error) error {
 	if u := errors.Unwrap(err); u != nil {
 		return u
 	}
@@ -267,7 +286,7 @@ func Cause(err error) error {
 }
 
 func extractFileTypePos(err error) (string, text.Position) {
-	err = Cause(err)
+	err = Unwrap(err)
 
 	var fileType string
 
