@@ -259,7 +259,9 @@ Eeach [`Resource`] will be of media type `application/javascript` or `text/css`.
 {{% note %}}
 The [`templates.Defer`] acts as a synchronisation point to handle scripts added concurrently by different templates. If you have a setup with where the batch is created in one go (in one template), you don't need it.
 
-See [this discussion] for more.
+See [this discussion](https://discourse.gohugo.io/t/js-batch-with-simple-global-script/53002/5?u=bep) for more.
+
+[`templates.Defer`]: /functions/templates/defer/
 {{% /note %}}
 
 ```go-html-template
