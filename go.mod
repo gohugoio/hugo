@@ -4,7 +4,7 @@ require (
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
 	github.com/alecthomas/chroma/v2 v2.15.0
 	github.com/armon/go-radix v1.0.1-0.20221118154546-54df44f2176c
-	github.com/aws/aws-sdk-go-v2 v1.32.4
+	github.com/aws/aws-sdk-go-v2 v1.32.7
 	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.41.0
 	github.com/bep/clocks v0.5.0
 	github.com/bep/debounce v1.2.0
@@ -83,6 +83,7 @@ require (
 	golang.org/x/tools v0.28.0
 	google.golang.org/api v0.206.0
 	gopkg.in/yaml.v2 v2.4.0
+	rsc.io/qr v0.2.0
 )
 
 require (
@@ -117,7 +118,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.22.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.26.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.30.3 // indirect
-	github.com/aws/smithy-go v1.22.0 // indirect
+	github.com/aws/smithy-go v1.22.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
 	github.com/dlclark/regexp2 v1.11.4 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
@@ -165,7 +166,6 @@ require (
 	google.golang.org/protobuf v1.35.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	howett.net/plist v1.0.0 // indirect
-	rsc.io/qr v0.2.0 // indirect
 	software.sslmate.com/src/go-pkcs12 v0.2.0 // indirect
 )
 
