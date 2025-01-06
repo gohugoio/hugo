@@ -82,11 +82,13 @@ func NewContent(h *hugolib.HugoSites, kind, targetPath string, force bool) error
 	b.setArcheTypeFilenameToUse(ext)
 
 	withBuildLock := func() (string, error) {
-		unlock, err := h.BaseFs.LockBuild()
-		if err != nil {
-			return "", fmt.Errorf("failed to acquire a build lock: %s", err)
+		if !h.Configs.Base.NoBuildLock {
+			unlock, err := h.BaseFs.LockBuild()
+			if err != nil {
+				return "", fmt.Errorf("failed to acquire a build lock: %s", err)
+			}
+			defer unlock()
 		}
-		defer unlock()
 
 		if b.isDir {
 			return "", b.buildDir()
