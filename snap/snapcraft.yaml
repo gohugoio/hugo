@@ -116,7 +116,7 @@ parts:
   go:
     plugin: nil
     stage-snaps:
-      - go/1.22/stable
+      - go/latest/stable
     prime:
       - bin/go
       - pkg/tool
