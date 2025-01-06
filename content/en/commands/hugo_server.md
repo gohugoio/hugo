@@ -50,7 +50,6 @@ hugo server [command] [flags]
       --liveReloadPort int       port for live reloading (i.e. 443 in HTTPS proxy situations) (default -1)
       --minify                   minify any supported output format (HTML, XML etc.)
   -N, --navigateToChanged        navigate to changed content file on live browser reload
-      --noBuildLock              don't create .hugo_build.lock file
       --noChmod                  don't sync permission mode of files
       --noHTTPCache              prevent HTTP caching
       --noTimes                  don't sync modification time of files
@@ -85,6 +84,7 @@ hugo server [command] [flags]
   -e, --environment string         build environment
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --logLevel string            log level (debug|info|warn|error)
+      --noBuildLock                don't create .hugo_build.lock file
       --quiet                      build in quiet mode
   -M, --renderToMemory             render to memory (mostly useful when running the server)
   -s, --source string              filesystem path to read files relative from
