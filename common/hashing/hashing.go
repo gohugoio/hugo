@@ -83,6 +83,13 @@ func HashString(vs ...any) string {
 	return strconv.FormatUint(hash, 10)
 }
 
+// HashStringHex returns a hash from the given elements as a hex encoded string.
+// See HashString for more information.
+func HashStringHex(vs ...any) string {
+	hash := HashUint64(vs...)
+	return strconv.FormatUint(hash, 16)
+}
+
 var hashOptsPool = sync.Pool{
 	New: func() any {
 		return &hashstructure.HashOptions{
