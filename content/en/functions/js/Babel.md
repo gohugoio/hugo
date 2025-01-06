@@ -3,8 +3,9 @@ title: js.Babel
 description: Compiles the given JavaScript resource with Babel.
 categories: []
 keywords: []
+weight: 100
 action:
-  aliases: [babel]
+  aliases: [babel,/hugo-pipes/babel/]
   related:
     - functions/js/Build
     - functions/resources/Fingerprint

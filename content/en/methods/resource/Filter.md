@@ -6,7 +6,7 @@ keywords: []
 action:
   related:
     - functions/images/Filter
-  returnType: resources.resourceAdapter
+  returnType: images.ImageResource
   signatures: [RESOURCE.Filter FILTER...]
 toc: true
 ---

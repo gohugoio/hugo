@@ -25,53 +25,55 @@ LANG
 : The language of the code to highlight. Choose from one of the [supported languages]. Case-insensitive.
 
 OPTIONS
-: A map, or comma-separated list, of zero or more [options]. Set default values in [site configuration].
+: A map or comma-separated list of zero or more options. Set default values in [site configuration].
 
 ## Options
 
-lineNos
-: Boolean. Default is `false`.\
-Display a number at the beginning of each line.
-
-lineNumbersInTable
-: Boolean. Default is `true`.\
-Render the highlighted code in an HTML table with two cells. The left table cell contains the line numbers. The right table cell contains the code, allowing a user to select and copy the code without line numbers. Irrelevant if `lineNos` is `false`.
-
 anchorLineNos
-: Boolean. Default is `false`.\
-Render each line number as an HTML anchor element, and set the `id` attribute of the surrounding `<span>` to the line number. Irrelevant if `lineNos` is `false`.
+: (`bool`) Whether to render each line number as an HTML anchor element, setting the `id` attribute of the surrounding `span` element to the line number. Irrelevant if `lineNos` is `false`. Default is `false`.
 
-lineAnchors
-: String. Default is `""`.\
-When rendering a line number as an HTML anchor element, prepend this value to the `id` attribute of the surrounding `<span>`. This provides unique `id` attributes when a page contains two or more code blocks. Irrelevant if `lineNos` or `anchorLineNos` is `false`.
-
-lineNoStart
-: Integer. Default is `1`.\
-The number to display at the beginning of the first line. Irrelevant if `lineNos` is `false`.
-
-hl_Lines
-: String. Default is `""`.\
-A space-delimited list of lines to emphasize within the highlighted code. To emphasize lines 2, 3, 4, and 7, set this value to `2-4 7`. This option is independent of the `lineNoStart` option.
-
-hl_inline
-: Boolean. Default is `false`.\
-Render the highlighted code without a wrapping container.
-
-style
-: String. Default is `monokai`.\
-The CSS styles to apply to the highlighted code. See the [style gallery] for examples. Case-sensitive.
-
-noClasses
-: Boolean. Default is `true`.\
-Use inline CSS styles instead of an external CSS file. To use an external CSS file, set this value to `false` and [generate the file with the hugo client][hugo client].
-
-tabWidth
-: Integer. Default is `4`.\
-Substitute this number of spaces for each tab character in your highlighted code. Irrelevant if `noClasses` is `false`.
+codeFences
+: (`bool`) Whether to highlight fenced code blocks. Default is `true`.
 
 guessSyntax
-: Boolean. Default is `false`.\
-If the `LANG` argument is blank or an unrecognized language, auto-detect the language if possible, otherwise use a fallback language.
+: (`bool`) Whether to automatically detect the language if the `LANG` argument is blank or set to a language for which there is no corresponding [lexer]. Falls back to a plain text lexer if unable to automatically detect the language. Default is `false`.
+
+[lexer]: /getting-started/glossary/#lexer
+
+{{% note %}}
+The Chroma syntax highlighter includes lexers for approximately 250 languages, but only 5 of these have implemented automatic language detection.
+{{% /note %}}
+
+hl_Lines
+: (`string`) A space-delimited list of lines to emphasize within the highlighted code. To emphasize lines 2, 3, 4, and 7, set this value to `2-4 7`. This option is independent of the `lineNoStart` option.
+
+hl_inline
+: (`bool`) Whether to render the highlighted code without a wrapping container.Default is `false`.
+
+lineAnchors
+: (`string`) When rendering a line number as an HTML anchor element, prepend this value to the `id` attribute of the surrounding `span` element. This provides unique `id` attributes when a page contains two or more code blocks. Irrelevant if `lineNos` or `anchorLineNos` is `false`.
+
+lineNoStart
+: (`int`) The number to display at the beginning of the first line. Irrelevant if `lineNos` is `false`. Default is `1`.
+
+lineNos
+: (`bool`) Whether to display a number at the beginning of each line. Default is `false`.
+
+lineNumbersInTable
+: (`bool`) Whether to render the highlighted code in an HTML table with two cells. The left table cell contains the line numbers, while the right table cell contains the code. Irrelevant if `lineNos` is `false`. Default is `true`.
+
+noClasses
+: (`bool`) Whether to use inline CSS styles instead of an external CSS file. To use an external CSS file, set this value to `false` and generate the CSS file using the `hugo gen chromastyles` command. Default is `true`.
+
+style
+: (`string`) The CSS styles to apply to the highlighted code. See the [style gallery] for examples. Case-sensitive. Default is `monokai`.
+
+tabWidth
+: (`int`) Substitute this number of spaces for each tab character in your highlighted code. Irrelevant if `noClasses` is `false`. Default is `4`.
+
+wrapperClass
+{{< new-in 0.140.2 >}}
+: (`string`) The class or classes to use for the outermost element of the highlighted code. Default is `highlight`.
 
 {{% note %}}
 Instead of specifying both `lineNos` and `lineNumbersInTable`, you can use the following shorthand notation:
@@ -100,8 +102,6 @@ lineNos=table
 ```
 
 [Chroma]: https://github.com/alecthomas/chroma
-[hugo client]: /commands/hugo_gen_chromastyles
-[options]: #options
 [site configuration]: /getting-started/configuration-markup#highlight
 [style gallery]: https://xyproto.github.io/splash/docs/
 [supported languages]: /content-management/syntax-highlighting#list-of-chroma-highlighting-languages

@@ -278,6 +278,12 @@ To remain consistent and prevent unexpected behavior, do not mix these strategie
 
 (`bool`) Will disable generation of alias redirects. Note that even if `disableAliases` is set, the aliases themselves are preserved on the page. The motivation with this is to be able to generate 301 redirects in an `.htaccess`, a Netlify `_redirects` file or similar using a custom output format. Default is `false`.
 
+###### disableDefaultLanguageRedirect
+
+{{< new-in 0.140.0 >}}
+
+(`bool`) Disables generation of redirect to the default language when DefaultContentLanguageInSubdir is `true`. Default is `false`.
+
 ###### disableHugoGeneratorInject
 
 (`bool`) Hugo will, by default, inject a generator meta tag in the HTML head on the _home page only_. You can turn it off, but we would really appreciate if you don't, as this is a good way to watch Hugo's popularity on the rise. Default is `false`.
@@ -439,7 +445,7 @@ See [Content Management](/content-management/urls/#permalinks).
 
 ###### publishDir
 
-(`string`) The directory to where Hugo will write the final static site (the HTML files etc.). Default is `public`.
+(`string`) The directory where Hugo will write the final static site (the HTML files etc.). Default is `public`.
 
 ###### refLinksErrorLevel
 

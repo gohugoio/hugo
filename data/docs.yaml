@@ -1005,6 +1005,7 @@ config:
     targets: null
     workers: 10
   disableAliases: false
+  disableDefaultLanguageRedirect: false
   disableHugoGeneratorInject: false
   disableKinds: null
   disableLanguages: null
@@ -1148,6 +1149,7 @@ config:
       noHl: false
       style: monokai
       tabWidth: 4
+      wrapperClass: highlight
     tableOfContents:
       endLevel: 3
       ordered: false
@@ -2560,8 +2562,9 @@ tpl:
         - querify
         Args:
         - params
-        Description: Querify encodes the given params in URL-encoded form ("bar=baz&foo=quux")
-          sorted by key.
+        Description: |-
+          Querify returns a URL query string composed of the given key-value pairs,
+          encoded and sorted by key.
         Examples:
         - - '{{ (querify "foo" 1 "bar" 2 "baz" "with spaces" "qux" "this&that=those")
             | safeHTML }}'
@@ -3289,6 +3292,11 @@ tpl:
         - args
         Description: Babel processes the given Resource with Babel.
         Examples: []
+      Batch:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       Build:
         Aliases: null
         Args: null
