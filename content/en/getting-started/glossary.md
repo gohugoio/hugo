@@ -207,6 +207,10 @@ See [template](#template).
 
 A directory that contains an index.md file and zero or more [resources](#resource). Analogous to a physical leaf, a leaf bundle is at the end of a branch. It has no descendants. See&nbsp;[details](/content-management/page-bundles/).
 
+###### lexer
+
+A software component that identifies keywords, identifiers, operators, numbers, and other basic building blocks of a programming language within the input text.
+
 ###### list page
 
 Any [page kind](#page-kind) that receives a page [collection](#collection) in [context](#context). This includes the home page, [section pages](#section-page), [taxonomy pages](#taxonomy-page), and [term pages](#term-page).

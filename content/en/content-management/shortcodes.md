@@ -94,6 +94,50 @@ Example usage:
 
 Although you can call this shortcode using the `{{</* */>}}` notation, computationally it is more efficient to call it using the `{{%/* */%}}` notation as shown above.
 
+### details
+
+{{< new-in 0.140.0 >}}
+
+{{% note %}}
+To override Hugo's embedded `details` shortcode, copy the [source code] to a file with the same name in the layouts/shortcodes directory.
+
+[source code]: {{% eturl details %}}
+{{% /note %}}
+
+Use the `details` shortcode to create a `details` HTML element. For example:
+
+```text
+{{</* details summary="See the details" */>}}
+This is a **bold** word.
+{{</* /details */>}}
+```
+
+Hugo renders this to:
+
+```html
+<details>
+  <summary>See the details</summary>
+  <p>This is a <strong>bold</strong> word.</p>
+</details>
+```
+
+The details shortcode accepts these named arguments:
+
+summary
+: (`string`) The content of the child `summary` element rendered from Markdown to HTML. Default is `Details`.
+
+open
+: (`bool`) Whether to initially display the content of the `details` element. Default is `false`.
+
+class
+: (`string`) The value of the element's `class` attribute.
+
+name
+: (`string`) The value of the element's `name` attribute.
+
+title
+: (`string`) The value of the element's `title` attribute.
+
 ### figure
 
 {{% note %}}

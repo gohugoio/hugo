@@ -99,7 +99,7 @@ To view your site while developing layouts or creating content, `cd` into your p
 hugo server
 ```
 
-The [`hugo server`] command builds your site into memory, and serves your pages using a minimal HTTP server. When you run `hugo server` it will display the URL of your local site:
+The [`hugo server`] command builds your site and serves your pages using a minimal HTTP server. When you run `hugo server` it will display the URL of your local site:
 
 ```text
 Web Server is available at http://localhost:1313/ 
