@@ -169,7 +169,7 @@ func (ns *Namespace) QR(options any) (images.ImageResource, error) {
 		return nil, errors.New("scale must be an integer greater than or equal to 2")
 	}
 
-	targetPath := path.Join(opts.TargetDir, fmt.Sprintf("qr_%s.png", hashing.HashString(opts)))
+	targetPath := path.Join(opts.TargetDir, fmt.Sprintf("qr_%s.png", hashing.HashStringHex(opts)))
 
 	r, err := ns.createClient.FromOpts(
 		create.Options{
