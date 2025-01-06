@@ -18,3 +18,8 @@ h6:first-of-type {
 h6 ~ p {
   margin: 0.5em 0 2em 0;
 }
+
+/* QR codes */
+img.qrcode {
+  width: initial;
+}

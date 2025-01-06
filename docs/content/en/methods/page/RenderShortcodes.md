@@ -24,8 +24,14 @@ Use this method in shortcode templates to compose a page from multiple content f
 For example:
 
 {{< code file=layouts/shortcodes/include.html >}}
-{{ with site.GetPage (.Get 0) }}
-  {{ .RenderShortcodes }}
+{{ with .Get 0 }}
+  {{ with $.Page.GetPage . }}
+    {{- .RenderShortcodes }}
+  {{ else }}
+    {{ errorf "The %q shortcode was unable to find %q. See %s" $.Name . $.Position }}
+  {{ end }}
+{{ else }}
+  {{ errorf "The %q shortcode requires a positional parameter indicating the logical path of the file to include. See %s" .Name .Position }}
 {{ end }}
 {{< /code >}}
 

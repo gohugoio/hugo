@@ -27,16 +27,15 @@ Define your [CI/CD](https://docs.gitlab.com/ee/ci/quick_start/) jobs by creating
 
 {{< code file=.gitlab-ci.yml copy=true >}}
 variables:
-  DART_SASS_VERSION: 1.80.6
-  HUGO_VERSION: 0.137.1
-  NODE_VERSION: 20.x
+  DART_SASS_VERSION: 1.81.1
   GIT_DEPTH: 0
   GIT_STRATEGY: clone
   GIT_SUBMODULE_STRATEGY: recursive
+  HUGO_VERSION: 0.140.2
+  NODE_VERSION: 23.x
   TZ: America/Los_Angeles
-
 image:
-  name: golang:1.22.1-bookworm
+  name: golang:1.23.4-bookworm
 
 pages:
   script:
@@ -59,7 +58,7 @@ pages:
     # Install Node.js dependencies
     - "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
     # Build
-    - hugo --gc --minify
+    - hugo --gc --minify --baseURL ${CI_PAGES_URL}
     # Compress
     - find public -type f -regex '.*\.\(css\|html\|js\|txt\|xml\)$' -exec gzip -f -k {} \;
     - find public -type f -regex '.*\.\(css\|html\|js\|txt\|xml\)$' -exec brotli -f -k {} \;

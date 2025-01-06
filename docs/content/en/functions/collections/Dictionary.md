@@ -7,7 +7,7 @@ action:
   aliases: [dict]
   related:
     - functions/collections/Slice
-  returnType: mapany
+  returnType: map[string]any
   signatures: ['collections.Dictionary [VALUE...]']
 aliases: [/functions/dict]
 ---
