@@ -105,6 +105,12 @@ func TestOptWithOSFs() TestOpt {
 	}
 }
 
+func TestOptWithPrintAndKeepTempDir(b bool) TestOpt {
+	return func(c *IntegrationTestConfig) {
+		c.PrintAndKeepTempDir = b
+	}
+}
+
 // TestOptWithWorkingDir allows setting any config optiona as a function al option.
 func TestOptWithConfig(fn func(c *IntegrationTestConfig)) TestOpt {
 	return func(c *IntegrationTestConfig) {

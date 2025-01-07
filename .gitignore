@@ -3,3 +3,4 @@
 imports.*
 dist/
 public/
+.DS_Store 
