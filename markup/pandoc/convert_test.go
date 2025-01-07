@@ -34,7 +34,7 @@ func TestConvert(t *testing.T) {
 	var err error
 	sc.Exec.Allow, err = security.NewWhitelist("pandoc")
 	c.Assert(err, qt.IsNil)
-	p, err := Provider.New(converter.ProviderConfig{Exec: hexec.New(sc, ""), Logger: loggers.NewDefault()})
+	p, err := Provider.New(converter.ProviderConfig{Exec: hexec.New(sc, "", loggers.NewDefault()), Logger: loggers.NewDefault()})
 	c.Assert(err, qt.IsNil)
 	conv, err := p.New(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)
