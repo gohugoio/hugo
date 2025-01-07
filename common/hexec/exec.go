@@ -26,7 +26,10 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/bep/logg"
 	"github.com/cli/safeexec"
+	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/security"
 )
@@ -86,7 +89,7 @@ var WithEnviron = func(env []string) func(c *commandeer) {
 }
 
 // New creates a new Exec using the provided security config.
-func New(cfg security.Config, workingDir string) *Exec {
+func New(cfg security.Config, workingDir string, log loggers.Logger) *Exec {
 	var baseEnviron []string
 	for _, v := range os.Environ() {
 		k, _ := config.SplitEnvVar(v)
@@ -96,9 +99,11 @@ func New(cfg security.Config, workingDir string) *Exec {
 	}
 
 	return &Exec{
-		sc:          cfg,
-		workingDir:  workingDir,
-		baseEnviron: baseEnviron,
+		sc:                cfg,
+		workingDir:        workingDir,
+		infol:             log.InfoCommand("exec"),
+		baseEnviron:       baseEnviron,
+		newNPXRunnerCache: maps.NewCache[string, func(arg ...any) (Runner, error)](),
 	}
 }
 
@@ -124,12 +129,14 @@ func SafeCommand(name string, arg ...string) (*exec.Cmd, error) {
 type Exec struct {
 	sc         security.Config
 	workingDir string
+	infol      logg.LevelLogger
 
 	// os.Environ filtered by the Exec.OsEnviron whitelist filter.
 	baseEnviron []string
 
-	npxInit      sync.Once
-	npxAvailable bool
+	newNPXRunnerCache *maps.Cache[string, func(arg ...any) (Runner, error)]
+	npxInit           sync.Once
+	npxAvailable      bool
 }
 
 func (e *Exec) New(name string, arg ...any) (Runner, error) {
@@ -155,25 +162,86 @@ func (e *Exec) new(name string, fullyQualifiedName string, arg ...any) (Runner, 
 	return cm.command(arg...)
 }
 
+type binaryLocation int
+
+func (b binaryLocation) String() string {
+	switch b {
+	case binaryLocationNodeModules:
+		return "node_modules/.bin"
+	case binaryLocationNpx:
+		return "npx"
+	case binaryLocationPath:
+		return "PATH"
+	}
+	return "unknown"
+}
+
+const (
+	binaryLocationNodeModules binaryLocation = iota + 1
+	binaryLocationNpx
+	binaryLocationPath
+)
+
 // Npx will in order:
 // 1. Try fo find the binary in the WORKINGDIR/node_modules/.bin directory.
 // 2. If not found, and npx is available, run npx --no-install <name> <args>.
 // 3. Fall back to the PATH.
+// If name is "tailwindcss", we will try the PATH as the second option.
 func (e *Exec) Npx(name string, arg ...any) (Runner, error) {
-	// npx is slow, so first try the common case.
-	nodeBinFilename := filepath.Join(e.workingDir, nodeModulesBinPath, name)
-	_, err := safeexec.LookPath(nodeBinFilename)
-	if err == nil {
-		return e.new(name, nodeBinFilename, arg...)
+	if err := e.sc.CheckAllowedExec(name); err != nil {
+		return nil, err
 	}
-	e.checkNpx()
-	if e.npxAvailable {
-		r, err := e.npx(name, arg...)
-		if err == nil {
-			return r, nil
+
+	newRunner, err := e.newNPXRunnerCache.GetOrCreate(name, func() (func(...any) (Runner, error), error) {
+		type tryFunc func() func(...any) (Runner, error)
+		tryFuncs := map[binaryLocation]tryFunc{
+			binaryLocationNodeModules: func() func(...any) (Runner, error) {
+				nodeBinFilename := filepath.Join(e.workingDir, nodeModulesBinPath, name)
+				_, err := safeexec.LookPath(nodeBinFilename)
+				if err != nil {
+					return nil
+				}
+				return func(arg2 ...any) (Runner, error) {
+					return e.new(name, nodeBinFilename, arg2...)
+				}
+			},
+			binaryLocationNpx: func() func(...any) (Runner, error) {
+				e.checkNpx()
+				if !e.npxAvailable {
+					return nil
+				}
+				return func(arg2 ...any) (Runner, error) {
+					return e.npx(name, arg2...)
+				}
+			},
+			binaryLocationPath: func() func(...any) (Runner, error) {
+				if _, err := safeexec.LookPath(name); err != nil {
+					return nil
+				}
+				return func(arg2 ...any) (Runner, error) {
+					return e.New(name, arg2...)
+				}
+			},
 		}
+
+		locations := []binaryLocation{binaryLocationNodeModules, binaryLocationNpx, binaryLocationPath}
+		if name == "tailwindcss" {
+			// See https://github.com/gohugoio/hugo/issues/13221#issuecomment-2574801253
+			locations = []binaryLocation{binaryLocationNodeModules, binaryLocationPath, binaryLocationNpx}
+		}
+		for _, loc := range locations {
+			if f := tryFuncs[loc](); f != nil {
+				e.infol.Logf("resolve %q using %s", name, loc)
+				return f, nil
+			}
+		}
+		return nil, &NotFoundError{name: name, method: fmt.Sprintf("in %s", locations[len(locations)-1])}
+	})
+	if err != nil {
+		return nil, err
 	}
-	return e.New(name, arg...)
+
+	return newRunner(arg...)
 }
 
 const (

@@ -470,7 +470,7 @@ func (l *configLoader) loadModules(configs *Configs, ignoreModuleDoesNotExist bo
 		ignoreVendor, _ = hglob.GetGlob(hglob.NormalizePath(s))
 	}
 
-	ex := hexec.New(conf.Security, workingDir)
+	ex := hexec.New(conf.Security, workingDir, l.Logger)
 
 	hook := func(m *modules.ModulesConfig) error {
 		for _, tc := range m.AllModules {

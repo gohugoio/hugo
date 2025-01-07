@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config/security"
 	"github.com/gohugoio/hugo/hugofs/glob"
 
@@ -61,7 +62,7 @@ github.com/gohugoio/hugoTestModules1_darwin/modh2_2@v1.4.0 github.com/gohugoio/h
 			WorkingDir: workingDir,
 			ThemesDir:  themesDir,
 			PublishDir: publishDir,
-			Exec:       hexec.New(security.DefaultConfig, ""),
+			Exec:       hexec.New(security.DefaultConfig, "", loggers.NewDefault()),
 		}
 
 		withConfig(&ccfg)

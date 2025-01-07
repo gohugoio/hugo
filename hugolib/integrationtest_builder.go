@@ -729,7 +729,7 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 			sc := security.DefaultConfig
 			sc.Exec.Allow, err = security.NewWhitelist("npm")
 			s.Assert(err, qt.IsNil)
-			ex := hexec.New(sc, s.Cfg.WorkingDir)
+			ex := hexec.New(sc, s.Cfg.WorkingDir, loggers.NewDefault())
 			command, err := ex.New("npm", "install")
 			s.Assert(err, qt.IsNil)
 			s.Assert(command.Run(), qt.IsNil)
