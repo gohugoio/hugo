@@ -229,6 +229,42 @@ Home.
 	runGolden(t, name, files)
 }
 
+func TestGoldenFuncs(t *testing.T) {
+	t.Parallel()
+
+	if skipGolden {
+		t.Skip("Skip golden test on this architecture")
+	}
+
+	// Will be used to generate golden files.
+	name := "funcs"
+
+	files := `
+-- hugo.toml --
+-- assets/sunset.jpg --
+sourcefilename: ../testdata/sunset.jpg
+
+-- layouts/index.html --
+Home.
+
+{{ template "copy" (dict "name" "qr-default.png" "img" (images.QR "https://gohugo.io"))  }}
+{{ template "copy" (dict "name" "qr-level-high_scale-6.png" "img" (images.QR "https://gohugo.io" (dict "level" "high" "scale" 6)))  }}
+
+{{ define "copy"}}
+{{ if lt (len (path.Ext .name)) 4 }}
+	{{ errorf "No extension in %q" .name }}
+{{ end }}
+{{ $img := .img }}
+{{ $name := printf "images/%s" .name  }}
+{{ with $img | resources.Copy $name }}
+{{ .Publish }}
+{{ end }}
+{{ end }}
+`
+
+	runGolden(t, name, files)
+}
+
 func runGolden(t testing.TB, name, files string) *hugolib.IntegrationTestBuilder {
 	t.Helper()
 
