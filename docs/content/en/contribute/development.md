@@ -118,10 +118,11 @@ CGO_ENABLED=1 go install -tags extended,withdeploy
 ```
 
 Step 6
-: Test your changes:
+: Test your changes and check for consistent formatting:
 
 ```text
 go test ./...
+./check_gofmt.sh
 ```
 
 Step 7
