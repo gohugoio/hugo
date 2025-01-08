@@ -6,7 +6,7 @@ action:
   aliases: []
   related: []
   returnType: images.ImageResource
-  signatures: ['images.QR OPTIONS']
+  signatures: ['images.QR TEXT OPTIONS']
 toc: true
 math: true
 ---
@@ -24,9 +24,6 @@ Although the default option values are sufficient for most applications, you sho
 [QR code]: https://en.wikipedia.org/wiki/QR_code
 
 ## Options
-
-text
-: (`string`) The text to encode.
 
 level
 : (`string`) The error correction level to use when encoding the text, one of `low`, `medium`, `quartile`, or `high`. Default is `medium`.
@@ -51,8 +48,8 @@ targetDir
 To create a QR code using the default values for `level` and `scale`:
 
 ```go-html-template
-{{ $opts := dict "text" "https://gohugo.io" }}
-{{ with images.QR $opts }}
+{{ $text := "https://gohugo.io" }}
+{{ with images.QR $text }}
   <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
 {{ end }}
 ```
@@ -62,13 +59,13 @@ To create a QR code using the default values for `level` and `scale`:
 Specify `level`, `scale`, and `targetDir` as needed to achieve the desired result:
 
 ```go-html-template
+{{ $text := "https://gohugo.io" }}
 {{ $opts := dict 
-  "text" "https://gohugo.io"
   "level" "high" 
   "scale" 3
   "targetDir" "codes"
 }}
-{{ with images.QR $opts }}
+{{ with images.QR $text $opts }}
   <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
 {{ end }}
 ```

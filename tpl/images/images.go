@@ -135,14 +135,13 @@ var qrErrorCorrectionLevels = map[string]qr.Level{
 
 // QR encodes the given text into a QR code using the specified options,
 // returning an image resource.
-func (ns *Namespace) QR(options any) (images.ImageResource, error) {
+func (ns *Namespace) QR(args ...any) (images.ImageResource, error) {
 	const (
 		qrDefaultErrorCorrectionLevel = "medium"
 		qrDefaultScale                = 4
 	)
 
 	opts := struct {
-		Text      string // text to encode
 		Level     string // error correction level; one of low, medium, quartile, or high
 		Scale     int    // number of image pixels per QR code module
 		TargetDir string // target directory relative to publishDir
@@ -151,13 +150,24 @@ func (ns *Namespace) QR(options any) (images.ImageResource, error) {
 		Scale: qrDefaultScale,
 	}
 
-	err := mapstructure.WeakDecode(options, &opts)
+	if len(args) == 0 || len(args) > 2 {
+		return nil, errors.New("requires 1 or 2 arguments")
+	}
+
+	text, err := cast.ToStringE(args[0])
 	if err != nil {
 		return nil, err
 	}
 
-	if opts.Text == "" {
+	if text == "" {
 		return nil, errors.New("cannot encode an empty string")
+	}
+
+	if len(args) == 2 {
+		err := mapstructure.WeakDecode(args[1], &opts)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	level, ok := qrErrorCorrectionLevels[opts.Level]
@@ -169,14 +179,14 @@ func (ns *Namespace) QR(options any) (images.ImageResource, error) {
 		return nil, errors.New("scale must be an integer greater than or equal to 2")
 	}
 
-	targetPath := path.Join(opts.TargetDir, fmt.Sprintf("qr_%s.png", hashing.HashStringHex(opts)))
+	targetPath := path.Join(opts.TargetDir, fmt.Sprintf("qr_%s.png", hashing.HashStringHex(text, opts)))
 
 	r, err := ns.createClient.FromOpts(
 		create.Options{
 			TargetPath:        targetPath,
 			TargetPathHasHash: true,
 			CreateContent: func() (func() (hugio.ReadSeekCloser, error), error) {
-				code, err := qr.Encode(opts.Text, level)
+				code, err := qr.Encode(text, level)
 				if err != nil {
 					return nil, err
 				}
