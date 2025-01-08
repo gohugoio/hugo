@@ -730,7 +730,7 @@ https://gohugo.io"
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html",
-		`<img src="/codes/qr_1ad588024620edf6.png" width="148" height="148" alt="QR code linking to https://gohugo.io" class="my-class" id="my-id" title="My Title">`,
-		`<img src="/qr_7307530a297f2cc9.png" width="132" height="132">`,
+		`<img src="/codes/qr_be5d263c2671bcbd.png" width="148" height="148" alt="QR code linking to https://gohugo.io" class="my-class" id="my-id" title="My Title">`,
+		`<img src="/qr_472aab57ec7a6e3d.png" width="132" height="132">`,
 	)
 }

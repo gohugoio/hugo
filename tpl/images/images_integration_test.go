@@ -61,17 +61,17 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 -- layouts/index.html --
 {{- $text := "https://gohugo.io" }}
 {{- $optionMaps := slice
-    (dict "text" $text)
-    (dict "text" $text "level" "medium")
-    (dict "text" $text "level" "medium" "scale" 4)
-    (dict "text" $text "level" "low" "scale" 2)
-    (dict "text" $text "level" "medium" "scale" 3)
-    (dict "text" $text "level" "quartile" "scale" 5)
-    (dict "text" $text "level" "high" "scale" 6)
-    (dict "text" $text "level" "high" "scale" 6 "targetDir" "foo/bar")
+    (dict)
+    (dict "level" "medium")
+    (dict "level" "medium" "scale" 4)
+    (dict "level" "low" "scale" 2)
+    (dict "level" "medium" "scale" 3)
+    (dict "level" "quartile" "scale" 5)
+    (dict "level" "high" "scale" 6)
+    (dict "level" "high" "scale" 6 "targetDir" "foo/bar")
 }}
 {{- range $k, $opts := $optionMaps }}
-    {{- with images.QR $opts }}
+    {{- with images.QR $text $opts }}
 <img data-id="{{ $k }}" data-img-hash="{{ .Content | hash.XxHash }}" data-level="{{ $opts.level }}" data-scale="{{ $opts.scale }}" data-targetDir="{{ $opts.targetDir }}" src="{{ .RelPermalink }}">
     {{- end }}
 {{- end }}
@@ -79,14 +79,14 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 
 	b := hugolib.Test(t, files)
 	b.AssertFileContent("public/index.html",
-		`<img data-id="0" data-img-hash="6ccacf8056c41475" data-level="" data-scale="" data-targetDir="" src="/qr_3601c357f288f47f.png">`,
-		`<img data-id="1" data-img-hash="6ccacf8056c41475" data-level="medium" data-scale="" data-targetDir="" src="/qr_3601c357f288f47f.png">`,
-		`<img data-id="2" data-img-hash="6ccacf8056c41475" data-level="medium" data-scale="4" data-targetDir="" src="/qr_3601c357f288f47f.png">`,
-		`<img data-id="3" data-img-hash="c29338c3d105b156" data-level="low" data-scale="2" data-targetDir="" src="/qr_232594637b3d9ac1.png">`,
-		`<img data-id="4" data-img-hash="8f7a639cea917b0e" data-level="medium" data-scale="3" data-targetDir="" src="/qr_5c02e7507f8e86e0.png">`,
-		`<img data-id="5" data-img-hash="2d15d6dcb861b5da" data-level="quartile" data-scale="5" data-targetDir="" src="/qr_c49dd961bcc47c06.png">`,
-		`<img data-id="6" data-img-hash="113c45f2c091bc4d" data-level="high" data-scale="6" data-targetDir="" src="/qr_17994d3244e3c686.png">`,
-		`<img data-id="7" data-img-hash="113c45f2c091bc4d" data-level="high" data-scale="6" data-targetDir="foo/bar" src="/foo/bar/qr_abd2f7b221eee6ea.png">`,
+		`<img data-id="0" data-img-hash="6ccacf8056c41475" data-level="" data-scale="" data-targetDir="" src="/qr_924bf7d80a564b23.png">`,
+		`<img data-id="1" data-img-hash="6ccacf8056c41475" data-level="medium" data-scale="" data-targetDir="" src="/qr_924bf7d80a564b23.png">`,
+		`<img data-id="2" data-img-hash="6ccacf8056c41475" data-level="medium" data-scale="4" data-targetDir="" src="/qr_924bf7d80a564b23.png">`,
+		`<img data-id="3" data-img-hash="c29338c3d105b156" data-level="low" data-scale="2" data-targetDir="" src="/qr_9bf1ce25c5f2c058.png">`,
+		`<img data-id="4" data-img-hash="8f7a639cea917b0e" data-level="medium" data-scale="3" data-targetDir="" src="/qr_7af14b329dd10af7.png">`,
+		`<img data-id="5" data-img-hash="2d15d6dcb861b5da" data-level="quartile" data-scale="5" data-targetDir="" src="/qr_9600ecb2010c2185.png">`,
+		`<img data-id="6" data-img-hash="113c45f2c091bc4d" data-level="high" data-scale="6" data-targetDir="" src="/qr_bdc74ee7f5c11cc6.png">`,
+		`<img data-id="7" data-img-hash="113c45f2c091bc4d" data-level="high" data-scale="6" data-targetDir="foo/bar" src="/foo/bar/qr_14162f02f2b83fff.png">`,
 	)
 
 	files = strings.ReplaceAll(files, "low", "foo")
