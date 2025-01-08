@@ -133,6 +133,55 @@ Home.
 	runGolden(t, name, files)
 }
 
+func TestGoldenFiltersText(t *testing.T) {
+	t.Parallel()
+
+	if skipGolden {
+		t.Skip("Skip golden test on this architecture")
+	}
+
+	// Will be used to generate golden files.
+	name := "filters_text"
+
+	files := `
+-- hugo.toml --
+-- assets/sunset.jpg --
+sourcefilename: ../testdata/sunset.jpg
+
+-- layouts/index.html --
+Home.
+{{ $sunset := resources.Get "sunset.jpg" }}
+{{ $textOpts := dict
+  "color" "#fbfaf5"
+  "linespacing" 8
+  "size" 28
+  "x" (div $sunset.Width 2 | int)
+  "alignx" "center"
+  "y" 190
+}}
+
+{{ $text := "Pariatur deserunt sunt nisi sunt tempor quis eu. Sint et nulla enim officia sunt cupidatat. Eu amet ipsum qui velit cillum cillum ad Lorem in non ad aute." }}
+{{ template "filters" (dict "name" "text_alignx-center.jpg" "img" $sunset  "filters" (images.Text $text $textOpts )) }}
+{{ $textOpts = (dict "alignx" "right") | merge $textOpts }}
+{{ template "filters" (dict "name" "text_alignx-right.jpg" "img" $sunset  "filters" (images.Text $text $textOpts )) }}
+{{ $textOpts = (dict "alignx" "left") | merge $textOpts }}
+{{ template "filters" (dict "name" "text_alignx-left.jpg" "img" $sunset  "filters" (images.Text $text $textOpts )) }}
+
+{{ define "filters"}}
+{{ if lt (len (path.Ext .name)) 4 }}
+	{{ errorf "No extension in %q" .name }}
+{{ end }}
+{{ $img := .img.Filter .filters }}
+{{ $name := printf "images/%s" .name  }}
+{{ with $img | resources.Copy $name }}
+{{ .Publish }}
+{{ end }}
+{{ end }}
+`
+
+	runGolden(t, name, files)
+}
+
 func TestGoldenProcessMisc(t *testing.T) {
 	t.Parallel()
 
