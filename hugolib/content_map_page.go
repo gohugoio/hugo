@@ -509,8 +509,23 @@ func (m *pageMap) forEachResourceInPage(
 			// A page key points to the logical path of a page, which when sourced from the filesystem
 			// may represent a directory (bundles) or a single content file (e.g. p1.md).
 			// So, to avoid any overlapping ambiguity, we start looking from the owning directory.
-			ownerKey, _ := m.treePages.LongestPrefixAll(path.Dir(resourceKey))
-			if ownerKey != keyPage {
+			s := resourceKey
+
+			for {
+				s = path.Dir(s)
+				ownerKey, found := m.treePages.LongestPrefixAll(s)
+				if !found {
+					return true, nil
+				}
+				if ownerKey == keyPage {
+					break
+				}
+
+				if s != ownerKey && strings.HasPrefix(s, ownerKey) {
+					// Keep looking
+					continue
+				}
+
 				// Stop walking downwards, someone else owns this resource.
 				rw.SkipPrefix(ownerKey + "/")
 				return false, nil
