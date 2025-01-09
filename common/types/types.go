@@ -133,22 +133,3 @@ func NewBool(b bool) *bool {
 type PrintableValueProvider interface {
 	PrintableValue() any
 }
-
-var _ PrintableValueProvider = Result[any]{}
-
-// Result is a generic result type.
-type Result[T any] struct {
-	// The result value.
-	Value T
-
-	// The error value.
-	Err error
-}
-
-// PrintableValue returns the value or panics if there is an error.
-func (r Result[T]) PrintableValue() any {
-	if r.Err != nil {
-		panic(r.Err)
-	}
-	return r.Value
-}
