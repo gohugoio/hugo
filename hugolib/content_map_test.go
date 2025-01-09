@@ -361,6 +361,35 @@ p1-foo.txt
 	b.AssertFileExists("public/s1/p1/index.html", true)
 }
 
+// Issue 13228.
+func TestBranchResourceOverlap(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- content/_index.md --
+---
+title: home
+---
+-- content/s1/_index.md --
+---
+title: s1
+---
+-- content/s1x/a.txt --
+a.txt
+-- layouts/index.html --
+Home.
+{{ range .Resources.Match "**" }}
+  {{ .Name }}|
+{{ end }}
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html", "s1x/a.txt|")
+}
+
 func TestSitemapOverrideFilename(t *testing.T) {
 	t.Parallel()
 
