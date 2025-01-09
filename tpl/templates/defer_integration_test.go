@@ -220,3 +220,30 @@ Home
 	b.Assert(err, qt.Not(qt.IsNil))
 	b.Assert(err.Error(), qt.Contains, "resources.PostProcess cannot be used in a deferred template")
 }
+
+// Issue #13236.
+func TestDeferMultipleInSameTemplate(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/index.html --
+Home.
+...
+{{ with (templates.Defer (dict "data" (dict "a" "b") )) }}
+ Defer 1
+{{ end }}
+...
+{{ with (templates.Defer (dict "data" (dict "a" "c") )) }}
+Defer 2
+{{ end }}
+{{ with (templates.Defer (dict "data" (dict "a" "d") )) }}
+Defer 3
+{{ end }}{{ with (templates.Defer (dict "data" (dict "a" "d") )) }}{{ end }}
+End.
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "Home.", "Defer 1", "Defer 2", "Defer 3", "End.")
+}

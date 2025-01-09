@@ -508,6 +508,7 @@ func (s *Site) executeDeferredTemplates(de *deps.DeferredExecutions) error {
 				}
 
 				content = append(content[:low], append([]byte(deferred.Result), content[high:]...)...)
+				forward = len(deferred.Result)
 				changed = true
 
 				return nil
