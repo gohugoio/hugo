@@ -183,7 +183,27 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 -- layouts/index.html --
-{{ with transform.ToMath "c = \\foo{a^2 + b^2}" }}
+{{ with try (transform.ToMath "c = \\foo{a^2 + b^2}") }}
+	{{ with .Err }}
+	 	{{ warnf "error: %s" . }}
+	{{ else }}
+		{{ .Value }}
+	{{ end }}
+{{ end }}
+  `
+		b, err := hugolib.TestE(t, files, hugolib.TestOptWarn())
+
+		b.Assert(err, qt.IsNil)
+		b.AssertLogContains("WARN  error: template: index.html:1:22: executing \"index.html\" at <transform.ToMath>: error calling ToMath: KaTeX parse error: Undefined control sequence: \\foo at position 5: c = \\̲f̲o̲o̲{a^2 + b^2}")
+	})
+
+	// See issue 13239.
+	t.Run("Handle in template, old Err construct", func(t *testing.T) {
+		files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/index.html --
+{{ with transform.ToMath "c = \\pm\\sqrt{a^2 + b^2}" }}
 	{{ with .Err }}
 	 	{{ warnf "error: %s" . }}
 	{{ else }}
@@ -193,8 +213,8 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
   `
 		b, err := hugolib.TestE(t, files, hugolib.TestOptWarn())
 
-		b.Assert(err, qt.IsNil)
-		b.AssertLogContains("WARN  error: KaTeX parse error: Undefined control sequence: \\foo")
+		b.Assert(err, qt.IsNotNil)
+		b.Assert(err.Error(), qt.Contains, "the return type of transform.ToMath was changed in Hugo v0.141.0 and the error handling replaced with a new try keyword, see https://gohugo.io/functions/go-template/try/")
 	})
 }
 

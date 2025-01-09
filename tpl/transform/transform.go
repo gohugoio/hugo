@@ -28,7 +28,6 @@ import (
 	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hugio"
-	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/internal/warpc"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/highlight"
@@ -200,15 +199,13 @@ func (ns *Namespace) Plainify(s any) (template.HTML, error) {
 
 // ToMath converts a LaTeX string to math in the given format, default MathML.
 // This uses KaTeX to render the math, see https://katex.org/.
-func (ns *Namespace) ToMath(ctx context.Context, args ...any) (types.Result[template.HTML], error) {
-	var res types.Result[template.HTML]
-
+func (ns *Namespace) ToMath(ctx context.Context, args ...any) (template.HTML, error) {
 	if len(args) < 1 {
-		return res, errors.New("must provide at least one argument")
+		return "", errors.New("must provide at least one argument")
 	}
 	expression, err := cast.ToStringE(args[0])
 	if err != nil {
-		return res, err
+		return "", err
 	}
 
 	katexInput := warpc.KatexInput{
@@ -223,7 +220,7 @@ func (ns *Namespace) ToMath(ctx context.Context, args ...any) (types.Result[temp
 
 	if len(args) > 1 {
 		if err := mapstructure.WeakDecode(args[1], &katexInput.Options); err != nil {
-			return res, err
+			return "", err
 		}
 	}
 
@@ -259,13 +256,11 @@ func (ns *Namespace) ToMath(ctx context.Context, args ...any) (types.Result[temp
 
 		return template.HTML(s), err
 	})
-
-	res = types.Result[template.HTML]{
-		Value: v,
-		Err:   err,
+	if err != nil {
+		return "", err
 	}
 
-	return res, nil
+	return v, nil
 }
 
 // For internal use.
