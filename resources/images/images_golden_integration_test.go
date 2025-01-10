@@ -133,6 +133,57 @@ Home.
 	runGolden(t, name, files)
 }
 
+func TestGoldenFiltersMask(t *testing.T) {
+	t.Parallel()
+
+	if skipGolden {
+		t.Skip("Skip golden test on this architecture")
+	}
+
+	// Will be used to generate golden files.
+	name := "filters_mask"
+
+	files := `
+-- hugo.toml --
+[imaging]
+  bgColor = '#ebcc34'
+  hint = 'photo'
+  quality = 75
+  resampleFilter = 'Lanczos'
+-- assets/sunset.jpg --
+sourcefilename: ../testdata/sunset.jpg
+-- assets/mask.png --
+sourcefilename: ../testdata/mask.png
+
+-- layouts/index.html --
+Home.
+{{ $sunset := resources.Get "sunset.jpg" }}
+{{ $mask := resources.Get "mask.png" }}
+
+{{ template "mask" (dict "name" "transparant.png" "base" $sunset  "mask" $mask) }}
+{{ template "mask" (dict "name" "yellow.jpg" "base" $sunset  "mask" $mask) }}
+{{ template "mask" (dict "name" "wide.jpg" "base" $sunset "mask" $mask "spec" "resize 600x200") }}
+
+
+{{ define "mask"}}
+{{ $ext := path.Ext .name }}
+{{ if lt (len (path.Ext .name)) 4 }}
+	{{ errorf "No extension in %q" .name }}
+{{ end }}
+{{ $format := strings.TrimPrefix "." $ext }}
+{{ $spec := .spec | default (printf "resize 300x300 %s" $format) }}
+{{ $filters := slice (images.Process $spec) (images.Mask .mask) }}
+{{ $name := printf "images/%s" .name  }}
+{{ $img := .base.Filter $filters }}
+{{ with $img | resources.Copy $name }}
+{{ .Publish }}
+{{ end }}
+{{ end }}
+`
+
+	runGolden(t, name, files)
+}
+
 func TestGoldenFiltersText(t *testing.T) {
 	t.Parallel()
 
