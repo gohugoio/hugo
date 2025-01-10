@@ -12,7 +12,7 @@
     {{- end -}}
   {{- end -}}
 {{- end -}}
-<img src="{{ $src }}" alt="{{ .Text }}"
+<img src="{{ $src }}" alt="{{ .PlainText }}"
   {{- with .Title }} title="{{ . }}" {{- end -}}
   {{- range $k, $v := .Attributes -}}
     {{- if $v -}}
