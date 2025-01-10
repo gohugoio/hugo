@@ -246,9 +246,10 @@ iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAA
 func TestRenderHooksDefaultEscape(t *testing.T) {
 	files := `
 -- hugo.toml --
-[markup.goldmark.renderHooks]
+[markup.goldmark.extensions.typographer]
+disable = true
 [markup.goldmark.renderHooks.image]
-  enableDefault = ENABLE
+enableDefault = ENABLE
 [markup.goldmark.renderHooks.link]
 enableDefault = ENABLE
 [markup.goldmark.parser]
@@ -256,6 +257,7 @@ wrapStandAloneImageWithinParagraph = false
 [markup.goldmark.parser.attribute]
 block = true
 title = true
+
 -- content/_index.md --
 ---
 title: "Home"
@@ -279,7 +281,7 @@ Image: ![alt-"<>&](/destination-"<> 'title-"<>&')
 			if enabled {
 				b.AssertFileContent("public/index.html",
 					"Link: <a href=\"/destination-%22%3C%3E\" title=\"title-&#34;&lt;&gt;&amp;\">text-&quot;&lt;&gt;&amp;</a>",
-					"img src=\"/destination-%22%3C%3E\" alt=\"alt-&quot;&lt;&gt;&amp;\" title=\"title-&#34;&lt;&gt;&amp;\">",
+					"img src=\"/destination-%22%3C%3E\" alt=\"alt-&#34;&lt;&gt;&amp;\" title=\"title-&#34;&lt;&gt;&amp;\">",
 					"&gt;&lt;script&gt;",
 				)
 			} else {

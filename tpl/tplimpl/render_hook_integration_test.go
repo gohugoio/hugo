@@ -146,6 +146,8 @@ func TestEmbeddedImageRenderHook(t *testing.T) {
 -- config.toml --
 baseURL = 'https://example.org/dir/'
 disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+[markup.goldmark.extensions.typographer]
+disable = true
 [markup.goldmark.parser]
 wrapStandAloneImageWithinParagraph = false
 [markup.goldmark.parser.attribute]
@@ -174,7 +176,7 @@ iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAA
 	b.AssertFileContent("public/p1/index.html",
 		`<img src="" alt="">`,
 		`<img src="/dir/p1/pixel.png" alt="alt1">`,
-		`<img src="/dir/p1/pixel.png" alt="alt2-&amp;&lt;&gt;&rsquo;" title="&amp;&lt;&gt;&#39;">`,
+		`<img src="/dir/p1/pixel.png" alt="alt2-&amp;&lt;&gt;&#39;" title="&amp;&lt;&gt;&#39;">`,
 		`<img src="/dir/p1/pixel.png?a=b&amp;c=d#fragment" alt="alt3">`,
 		`<img src="/dir/p1/pixel.png" alt="alt4">`,
 	)
@@ -185,7 +187,7 @@ iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAA
 	b.AssertFileContent("public/p1/index.html",
 		`<img src="" alt="">`,
 		`<img src="/dir/p1/pixel.png" alt="alt1">`,
-		`<img src="/dir/p1/pixel.png" alt="alt2-&amp;&lt;&gt;&rsquo;" title="&amp;&lt;&gt;&#39;">`,
+		`<img src="/dir/p1/pixel.png" alt="alt2-&amp;&lt;&gt;&#39;" title="&amp;&lt;&gt;&#39;">`,
 		`<img src="/dir/p1/pixel.png?a=b&amp;c=d#fragment" alt="alt3" class="foo" id="bar">`,
 		`<img src="/dir/p1/pixel.png" alt="alt4" id="&#34;&gt;&lt;script&gt;alert()&lt;/script&gt;">`,
 	)
