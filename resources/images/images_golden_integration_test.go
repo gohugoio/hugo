@@ -14,63 +14,22 @@
 package images_test
 
 import (
-	"image"
-	"image/gif"
 	_ "image/jpeg"
-	"io/fs"
-	"os"
-	"path/filepath"
-	"runtime"
-	"strings"
 	"testing"
 
-	"github.com/disintegration/gift"
-	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/common/hashing"
-	"github.com/gohugoio/hugo/common/hugio"
-	"github.com/gohugoio/hugo/htesting"
-	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/hugolib"
-	"github.com/google/go-cmp/cmp"
+	"github.com/gohugoio/hugo/resources/images/imagetesting"
 )
-
-var eq = qt.CmpEquals(
-	cmp.Comparer(func(p1, p2 os.FileInfo) bool {
-		return p1.Name() == p2.Name() && p1.Size() == p2.Size() && p1.IsDir() == p2.IsDir()
-	}),
-	cmp.Comparer(func(d1, d2 fs.DirEntry) bool {
-		p1, err1 := d1.Info()
-		p2, err2 := d2.Info()
-		if err1 != nil || err2 != nil {
-			return false
-		}
-		return p1.Name() == p2.Name() && p1.Size() == p2.Size() && p1.IsDir() == p2.IsDir()
-	}),
-)
-
-var goldenOpts = struct {
-	// Toggle this to write golden files to disk.
-	// Note: Remember to set this to false before committing.
-	writeGoldenFiles bool
-
-	// This will skip any assertions. Useful when adding new golden variants to a test.
-	devMode bool
-}{
-	writeGoldenFiles: false,
-	devMode:          false,
-}
 
 // Note, if you're enabling writeGoldenFiles on a MacOS ARM 64 you need to run the test with GOARCH=amd64, e.g.
-// GOARCH=amd64 go test -count 1 -timeout 30s -run "^TestGolden" ./resources/images
-func TestGoldenFiltersMisc(t *testing.T) {
+func TestImagesGoldenFiltersMisc(t *testing.T) {
 	t.Parallel()
 
-	if skipGolden {
+	if imagetesting.SkipGoldenTests {
 		t.Skip("Skip golden test on this architecture")
 	}
 
-	// Will be used to generate golden files.
-	name := "filters_misc"
+	// Will be used as the base folder for generated images.
+	name := "filters/misc"
 
 	files := `
 -- hugo.toml --
@@ -82,9 +41,9 @@ sourcefilename: ../testdata/sunset.jpg
 sourcefilename: ../testdata/gopher-hero8.png
 -- layouts/index.html --
 Home.
-{{ $sunset := resources.Get "sunset.jpg" }}
+{{ $sunset := (resources.Get "sunset.jpg").Resize "x300" }}
 {{ $sunsetGrayscale := $sunset.Filter (images.Grayscale) }}
-{{ $gopher := resources.Get "gopher.png" }}
+{{ $gopher := (resources.Get "gopher.png").Resize "x80" }}
 {{ $overlayFilter := images.Overlay $gopher 20 20 }}
 
 {{ $textOpts := dict
@@ -130,18 +89,23 @@ Home.
 {{ end }}
 `
 
-	runGolden(t, name, files)
+	opts := imagetesting.DefaultGoldenOpts
+	opts.T = t
+	opts.Name = name
+	opts.Files = files
+
+	imagetesting.RunGolden(opts)
 }
 
-func TestGoldenFiltersMask(t *testing.T) {
+func TestImagesGoldenFiltersMask(t *testing.T) {
 	t.Parallel()
 
-	if skipGolden {
+	if imagetesting.SkipGoldenTests {
 		t.Skip("Skip golden test on this architecture")
 	}
 
-	// Will be used to generate golden files.
-	name := "filters_mask"
+	// Will be used as the base folder for generated images.
+	name := "filters/mask"
 
 	files := `
 -- hugo.toml --
@@ -163,7 +127,12 @@ Home.
 {{ template "mask" (dict "name" "transparant.png" "base" $sunset  "mask" $mask) }}
 {{ template "mask" (dict "name" "yellow.jpg" "base" $sunset  "mask" $mask) }}
 {{ template "mask" (dict "name" "wide.jpg" "base" $sunset "mask" $mask "spec" "resize 600x200") }}
-
+{{/* This looks a little odd, but is correct and the recommended way to do this.
+This will 1. Scale the image to x300, 2. Apply the mask, 3. Create the final image with background color #323ea. 
+It's possible to have multiple images.Process filters in the chain, but for the options for the final image (target format, bgGolor etc.),
+the last entry will win.
+*/}}
+{{ template "mask" (dict "name" "blue.jpg" "base" $sunset "mask" $mask "spec" "resize x300 #323ea8") }}
 
 {{ define "mask"}}
 {{ $ext := path.Ext .name }}
@@ -171,7 +140,7 @@ Home.
 	{{ errorf "No extension in %q" .name }}
 {{ end }}
 {{ $format := strings.TrimPrefix "." $ext }}
-{{ $spec := .spec | default (printf "resize 300x300 %s" $format) }}
+{{ $spec := .spec | default (printf "resize x300 %s" $format) }}
 {{ $filters := slice (images.Process $spec) (images.Mask .mask) }}
 {{ $name := printf "images/%s" .name  }}
 {{ $img := .base.Filter $filters }}
@@ -181,18 +150,23 @@ Home.
 {{ end }}
 `
 
-	runGolden(t, name, files)
+	opts := imagetesting.DefaultGoldenOpts
+	opts.T = t
+	opts.Name = name
+	opts.Files = files
+
+	imagetesting.RunGolden(opts)
 }
 
-func TestGoldenFiltersText(t *testing.T) {
+func TestImagesGoldenFiltersText(t *testing.T) {
 	t.Parallel()
 
-	if skipGolden {
+	if imagetesting.SkipGoldenTests {
 		t.Skip("Skip golden test on this architecture")
 	}
 
-	// Will be used to generate golden files.
-	name := "filters_text"
+	// Will be used as the base folder for generated images.
+	name := "filters/text"
 
 	files := `
 -- hugo.toml --
@@ -230,18 +204,23 @@ Home.
 {{ end }}
 `
 
-	runGolden(t, name, files)
+	opts := imagetesting.DefaultGoldenOpts
+	opts.T = t
+	opts.Name = name
+	opts.Files = files
+
+	imagetesting.RunGolden(opts)
 }
 
-func TestGoldenProcessMisc(t *testing.T) {
+func TestImagesGoldenProcessMisc(t *testing.T) {
 	t.Parallel()
 
-	if skipGolden {
+	if imagetesting.SkipGoldenTests {
 		t.Skip("Skip golden test on this architecture")
 	}
 
-	// Will be used to generate golden files.
-	name := "process_misc"
+	// Will be used as the base folder for generated images.
+	name := "process/misc"
 
 	files := `
 -- hugo.toml --
@@ -277,180 +256,10 @@ Home.
 {{ end }}
 `
 
-	runGolden(t, name, files)
+	opts := imagetesting.DefaultGoldenOpts
+	opts.T = t
+	opts.Name = name
+	opts.Files = files
+
+	imagetesting.RunGolden(opts)
 }
-
-func TestGoldenFuncs(t *testing.T) {
-	t.Parallel()
-
-	if skipGolden {
-		t.Skip("Skip golden test on this architecture")
-	}
-
-	// Will be used to generate golden files.
-	name := "funcs"
-
-	files := `
--- hugo.toml --
--- assets/sunset.jpg --
-sourcefilename: ../testdata/sunset.jpg
-
--- layouts/index.html --
-Home.
-
-{{ template "copy" (dict "name" "qr-default.png" "img" (images.QR "https://gohugo.io"))  }}
-{{ template "copy" (dict "name" "qr-level-high_scale-6.png" "img" (images.QR "https://gohugo.io" (dict "level" "high" "scale" 6)))  }}
-
-{{ define "copy"}}
-{{ if lt (len (path.Ext .name)) 4 }}
-	{{ errorf "No extension in %q" .name }}
-{{ end }}
-{{ $img := .img }}
-{{ $name := printf "images/%s" .name  }}
-{{ with $img | resources.Copy $name }}
-{{ .Publish }}
-{{ end }}
-{{ end }}
-`
-
-	runGolden(t, name, files)
-}
-
-func runGolden(t testing.TB, name, files string) *hugolib.IntegrationTestBuilder {
-	t.Helper()
-
-	c := hugolib.Test(t, files, hugolib.TestOptWithOSFs()) // hugolib.TestOptWithPrintAndKeepTempDir(true))
-	c.AssertFileContent("public/index.html", "Home.")
-
-	outputDir := filepath.Join(c.H.Conf.WorkingDir(), "public", "images")
-	goldenBaseDir := filepath.Join("testdata", "images_golden")
-	goldenDir := filepath.Join(goldenBaseDir, name)
-	if goldenOpts.writeGoldenFiles {
-		c.Assert(htesting.IsRealCI(), qt.IsFalse)
-		c.Assert(os.MkdirAll(goldenBaseDir, 0o777), qt.IsNil)
-		c.Assert(os.RemoveAll(goldenDir), qt.IsNil)
-		c.Assert(hugio.CopyDir(hugofs.Os, outputDir, goldenDir, nil), qt.IsNil)
-		return c
-	}
-
-	if goldenOpts.devMode {
-		c.Assert(htesting.IsRealCI(), qt.IsFalse)
-		return c
-	}
-
-	decodeAll := func(f *os.File) []image.Image {
-		c.Helper()
-
-		var images []image.Image
-
-		if strings.HasSuffix(f.Name(), ".gif") {
-			gif, err := gif.DecodeAll(f)
-			c.Assert(err, qt.IsNil, qt.Commentf(f.Name()))
-			images = make([]image.Image, len(gif.Image))
-			for i, img := range gif.Image {
-				images[i] = img
-			}
-		} else {
-			img, _, err := image.Decode(f)
-			c.Assert(err, qt.IsNil, qt.Commentf(f.Name()))
-			images = append(images, img)
-		}
-		return images
-	}
-
-	entries1, err := os.ReadDir(outputDir)
-	c.Assert(err, qt.IsNil)
-	entries2, err := os.ReadDir(goldenDir)
-	c.Assert(err, qt.IsNil)
-	c.Assert(len(entries1), qt.Equals, len(entries2))
-	for i, e1 := range entries1 {
-		c.Assert(filepath.Ext(e1.Name()), qt.Not(qt.Equals), "")
-		func() {
-			e2 := entries2[i]
-
-			f1, err := os.Open(filepath.Join(outputDir, e1.Name()))
-			c.Assert(err, qt.IsNil)
-			defer f1.Close()
-
-			f2, err := os.Open(filepath.Join(goldenDir, e2.Name()))
-			c.Assert(err, qt.IsNil)
-			defer f2.Close()
-
-			imgs2 := decodeAll(f2)
-			imgs1 := decodeAll(f1)
-			c.Assert(len(imgs1), qt.Equals, len(imgs2))
-
-			if !usesFMA {
-				c.Assert(e1, eq, e2)
-				_, err = f1.Seek(0, 0)
-				c.Assert(err, qt.IsNil)
-				_, err = f2.Seek(0, 0)
-				c.Assert(err, qt.IsNil)
-
-				hash1, _, err := hashing.XXHashFromReader(f1)
-				c.Assert(err, qt.IsNil)
-				hash2, _, err := hashing.XXHashFromReader(f2)
-				c.Assert(err, qt.IsNil)
-
-				c.Assert(hash1, qt.Equals, hash2)
-			}
-
-			for i, img1 := range imgs1 {
-				img2 := imgs2[i]
-				nrgba1 := image.NewNRGBA(img1.Bounds())
-				gift.New().Draw(nrgba1, img1)
-				nrgba2 := image.NewNRGBA(img2.Bounds())
-				gift.New().Draw(nrgba2, img2)
-				c.Assert(goldenEqual(nrgba1, nrgba2), qt.Equals, true, qt.Commentf(e1.Name()))
-			}
-		}()
-	}
-	return c
-}
-
-// goldenEqual compares two NRGBA images.  It is used in golden tests only.
-// A small tolerance is allowed on architectures using "fused multiply and add"
-// (FMA) instruction to accommodate for floating-point rounding differences
-// with control golden images that were generated on amd64 architecture.
-// See https://golang.org/ref/spec#Floating_point_operators
-// and https://github.com/gohugoio/hugo/issues/6387 for more information.
-//
-// Based on https://github.com/disintegration/gift/blob/a999ff8d5226e5ab14b64a94fca07c4ac3f357cf/gift_test.go#L598-L625
-// Copyright (c) 2014-2019 Grigory Dryapak
-// Licensed under the MIT License.
-func goldenEqual(img1, img2 *image.NRGBA) bool {
-	maxDiff := 0
-	if runtime.GOARCH != "amd64" {
-		// The golden files are created using the AMD64 architecture.
-		// Be lenient on other platforms due to floaging point and dithering differences.
-		maxDiff = 15
-	}
-	if !img1.Rect.Eq(img2.Rect) {
-		return false
-	}
-	if len(img1.Pix) != len(img2.Pix) {
-		return false
-	}
-	for i := 0; i < len(img1.Pix); i++ {
-		diff := int(img1.Pix[i]) - int(img2.Pix[i])
-		if diff < 0 {
-			diff = -diff
-		}
-		if diff > maxDiff {
-			return false
-		}
-	}
-	return true
-}
-
-// We don't have a CI test environment for these, and there are known dithering issues that makes these time consuming to maintain.
-var skipGolden = runtime.GOARCH == "ppc64" || runtime.GOARCH == "ppc64le" || runtime.GOARCH == "s390x"
-
-// usesFMA indicates whether "fused multiply and add" (FMA) instruction is
-// used.  The command "grep FMADD go/test/codegen/floats.go" can help keep
-// the FMA-using architecture list updated.
-var usesFMA = runtime.GOARCH == "s390x" ||
-	runtime.GOARCH == "ppc64" ||
-	runtime.GOARCH == "ppc64le" ||
-	runtime.GOARCH == "arm64" ||
-	runtime.GOARCH == "riscv64"
