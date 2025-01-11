@@ -19,6 +19,7 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugolib"
+	"github.com/gohugoio/hugo/resources/images/imagetesting"
 )
 
 func TestImageConfigFromModule(t *testing.T) {
@@ -99,4 +100,45 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 
 	b, err = hugolib.TestE(t, files)
 	b.Assert(err.Error(), qt.Contains, "cannot encode an empty string")
+}
+
+func TestImagesGoldenFuncs(t *testing.T) {
+	t.Parallel()
+
+	if imagetesting.SkipGoldenTests {
+		t.Skip("Skip golden test on this architecture")
+	}
+
+	// Will be used as the base folder for generated images.
+	name := "funcs"
+
+	files := `
+-- hugo.toml --
+-- assets/sunset.jpg --
+sourcefilename: ../../resources/testdata/sunset.jpg
+
+-- layouts/index.html --
+Home.
+
+{{ template "copy" (dict "name" "qr-default.png" "img" (images.QR "https://gohugo.io"))  }}
+{{ template "copy" (dict "name" "qr-level-high_scale-6.png" "img" (images.QR "https://gohugo.io" (dict "level" "high" "scale" 6)))  }}
+
+{{ define "copy"}}
+{{ if lt (len (path.Ext .name)) 4 }}
+	{{ errorf "No extension in %q" .name }}
+{{ end }}
+{{ $img := .img }}
+{{ $name := printf "images/%s" .name  }}
+{{ with $img | resources.Copy $name }}
+{{ .Publish }}
+{{ end }}
+{{ end }}
+`
+
+	opts := imagetesting.DefaultGoldenOpts
+	opts.T = t
+	opts.Name = name
+	opts.Files = files
+
+	imagetesting.RunGolden(opts)
 }
