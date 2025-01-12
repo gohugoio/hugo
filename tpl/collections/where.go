@@ -409,7 +409,6 @@ func (ns *Namespace) checkWhereArray(ctxv, seqv, kv, mv reflect.Value, path []st
 				for i, elemName := range path {
 					var err error
 					vvv, err = evaluateSubElem(ctxv, vvv, elemName)
-
 					if err != nil {
 						continue
 					}
@@ -442,9 +441,12 @@ func (ns *Namespace) checkWhereArray(ctxv, seqv, kv, mv reflect.Value, path []st
 // checkWhereMap handles the where-matching logic when the seqv value is a Map.
 func (ns *Namespace) checkWhereMap(ctxv, seqv, kv, mv reflect.Value, path []string, op string) (any, error) {
 	rv := reflect.MakeMap(seqv.Type())
-	keys := seqv.MapKeys()
-	for _, k := range keys {
-		elemv := seqv.MapIndex(k)
+	k := reflect.New(seqv.Type().Key()).Elem()
+	elemv := reflect.New(seqv.Type().Elem()).Elem()
+	iter := seqv.MapRange()
+	for iter.Next() {
+		k.SetIterKey(iter)
+		elemv.SetIterValue(iter)
 		switch elemv.Kind() {
 		case reflect.Array, reflect.Slice:
 			r, err := ns.checkWhereArray(ctxv, elemv, kv, mv, path, op)
