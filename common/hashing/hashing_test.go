@@ -142,3 +142,16 @@ func BenchmarkHashString(b *testing.B) {
 		})
 	}
 }
+
+func BenchmarkHashMap(b *testing.B) {
+	m := map[string]interface{}{}
+	for i := 0; i < 1000; i++ {
+		m[fmt.Sprintf("key%d", i)] = i
+	}
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		HashString(m)
+	}
+}
