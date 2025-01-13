@@ -902,3 +902,19 @@ func BenchmarkWhereOps(b *testing.B) {
 		}
 	})
 }
+
+func BenchmarkWhereMap(b *testing.B) {
+	ns := newNs()
+	seq := map[string]string{}
+
+	for i := 0; i < 1000; i++ {
+		seq[fmt.Sprintf("key%d", i)] = "value"
+	}
+
+	for i := 0; i < b.N; i++ {
+		_, err := ns.Where(context.Background(), seq, "key", "eq", "value")
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
