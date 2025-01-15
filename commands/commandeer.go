@@ -447,6 +447,8 @@ func (r *rootCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 	if err != nil {
 		return err
 	}
+	// Set up the glboal logger early to allow info deprecations during config load.
+	loggers.InitGlobalLogger(r.logger.Level(), false)
 
 	r.changesFromBuild = make(chan []identity.Identity, 10)
 
