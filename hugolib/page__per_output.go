@@ -318,7 +318,9 @@ func (pco *pageContentOutput) initRenderHooks() error {
 				}
 				if found {
 					if isitp, ok := templ.(tpl.IsInternalTemplateProvider); ok && isitp.IsInternalTemplate() {
+
 						renderHookConfig := pco.po.p.s.conf.Markup.Goldmark.RenderHooks
+
 						switch templ.Name() {
 						case "_default/_markup/render-link.html":
 							if !renderHookConfig.Link.IsEnableDefault() {
@@ -335,17 +337,20 @@ func (pco *pageContentOutput) initRenderHooks() error {
 			}
 
 			templ, found1 := getHookTemplate(pco.po.f)
-
 			if !found1 || pco.po.p.reusePageOutputContent() {
+				defaultOutputFormat := pco.po.p.s.conf.C.DefaultOutputFormat
+
+				candidates := pco.po.p.s.renderFormats
+
 				// Some hooks may only be available in HTML, and if
 				// this site is configured to not have HTML output, we need to
 				// make sure we have a fallback. This should be very rare.
-				candidates := pco.po.p.s.renderFormats
 				if pco.po.f.MediaType.FirstSuffix.Suffix != "html" {
 					if _, found := candidates.GetBySuffix("html"); !found {
 						candidates = append(candidates, output.HTMLFormat)
 					}
 				}
+
 				// Check if some of the other output formats would give a different template.
 				for _, f := range candidates {
 					if f.Name == pco.po.f.Name {
@@ -354,7 +359,7 @@ func (pco *pageContentOutput) initRenderHooks() error {
 					templ2, found2 := getHookTemplate(f)
 
 					if found2 {
-						if !found1 {
+						if !found1 && f.Name == defaultOutputFormat.Name {
 							templ = templ2
 							found1 = true
 							break
@@ -367,6 +372,7 @@ func (pco *pageContentOutput) initRenderHooks() error {
 					}
 				}
 			}
+
 			if !found1 {
 				if tp == hooks.CodeBlockRendererType {
 					// No user provided template for code blocks, so we use the native Go version -- which is also faster.

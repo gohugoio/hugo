@@ -208,7 +208,7 @@ func TestRebuildRenameTextFileInLeafBundle(t *testing.T) {
 		b.RenameFile("content/mysection/mysectionbundle/mysectionbundletext.txt", "content/mysection/mysectionbundle/mysectionbundletext2.txt").Build()
 		b.AssertFileContent("public/mysection/mysectionbundle/index.html", "mysectionbundletext2", "My Section Bundle Text 2 Content.", "Len Resources: 2|")
 		b.AssertRenderCountPage(8)
-		b.AssertRenderCountContent(8)
+		b.AssertRenderCountContent(9)
 	})
 }
 

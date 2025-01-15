@@ -79,6 +79,63 @@ xml-heading: Heading in p2|
 `)
 }
 
+// Issue 13242.
+func TestRenderHooksRSSOnly(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+disableKinds = ["taxonomy", "term"]
+-- layouts/index.html --
+{{ $p := site.GetPage "p1.md" }}
+{{ $p2 := site.GetPage "p2.md" }}
+P1: {{ $p.Content }}
+P2: {{ $p2.Content }}
+-- layouts/index.xml --
+{{ $p2 := site.GetPage "p2.md" }}
+{{ $p3 := site.GetPage "p3.md" }}
+P2: {{ $p2.Content }}
+P3: {{ $p3.Content }}
+-- layouts/_default/_markup/render-link.rss.xml --
+xml-link: {{ .Destination | safeURL }}|
+-- layouts/_default/_markup/render-heading.rss.xml --
+xml-heading: {{ .Text }}|
+-- content/p1.md --
+---
+title: "p1"
+---
+P1. [I'm an inline-style link](https://www.gohugo.io)
+
+# Heading in p1
+
+-- content/p2.md --
+---
+title: "p2"
+---
+P2. [I'm an inline-style link](https://www.bep.is)
+
+# Heading in p2
+
+-- content/p3.md --
+---
+title: "p3"
+outputs: ["rss"]
+---
+P3. [I'm an inline-style link](https://www.example.org)
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html", `
+P1: <p>P1. <a href="https://www.gohugo.io">I&rsquo;m an inline-style link</a></p>
+<h1 id="heading-in-p1">Heading in p1</h1>
+<h1 id="heading-in-p2">Heading in p2</h1>
+`)
+	b.AssertFileContent("public/index.xml", `
+P2: <p>P2. xml-link: https://www.bep.is|</p>
+P3: <p>P3. xml-link: https://www.example.org|</p>
+xml-heading: Heading in p2|
+`)
+}
+
 // https://github.com/gohugoio/hugo/issues/6629
 func TestRenderLinkWithMarkupInText(t *testing.T) {
 	b := newTestSitesBuilder(t)
