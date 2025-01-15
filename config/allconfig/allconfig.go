@@ -301,6 +301,18 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 		}
 	}
 
+	defaultOutputFormat := outputFormats[0]
+	c.DefaultOutputFormat = strings.ToLower(c.DefaultOutputFormat)
+	if c.DefaultOutputFormat != "" {
+		f, found := outputFormats.GetByName(c.DefaultOutputFormat)
+		if !found {
+			return fmt.Errorf("unknown default output format %q", c.DefaultOutputFormat)
+		}
+		defaultOutputFormat = f
+	} else {
+		c.DefaultOutputFormat = defaultOutputFormat.Name
+	}
+
 	disabledLangs := make(map[string]bool)
 	for _, lang := range c.DisableLanguages {
 		disabledLangs[lang] = true
@@ -391,22 +403,23 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 	}
 
 	c.C = &ConfigCompiled{
-		Timeout:           timeout,
-		BaseURL:           baseURL,
-		BaseURLLiveReload: baseURL,
-		DisabledKinds:     disabledKinds,
-		DisabledLanguages: disabledLangs,
-		IgnoredLogs:       ignoredLogIDs,
-		KindOutputFormats: kindOutputFormats,
-		ContentTypes:      media.DefaultContentTypes.FromTypes(c.MediaTypes.Config),
-		CreateTitle:       helpers.GetTitleFunc(c.TitleCaseStyle),
-		IsUglyURLSection:  isUglyURL,
-		IgnoreFile:        ignoreFile,
-		SegmentFilter:     c.Segments.Config.Get(func(s string) { logger.Warnf("Render segment %q not found in configuration", s) }, c.RootConfig.RenderSegments...),
-		MainSections:      c.MainSections,
-		Clock:             clock,
-		HTTPCache:         httpCache,
-		transientErr:      transientErr,
+		Timeout:             timeout,
+		BaseURL:             baseURL,
+		BaseURLLiveReload:   baseURL,
+		DisabledKinds:       disabledKinds,
+		DisabledLanguages:   disabledLangs,
+		IgnoredLogs:         ignoredLogIDs,
+		KindOutputFormats:   kindOutputFormats,
+		DefaultOutputFormat: defaultOutputFormat,
+		ContentTypes:        media.DefaultContentTypes.FromTypes(c.MediaTypes.Config),
+		CreateTitle:         helpers.GetTitleFunc(c.TitleCaseStyle),
+		IsUglyURLSection:    isUglyURL,
+		IgnoreFile:          ignoreFile,
+		SegmentFilter:       c.Segments.Config.Get(func(s string) { logger.Warnf("Render segment %q not found in configuration", s) }, c.RootConfig.RenderSegments...),
+		MainSections:        c.MainSections,
+		Clock:               clock,
+		HTTPCache:           httpCache,
+		transientErr:        transientErr,
 	}
 
 	for _, s := range allDecoderSetups {
@@ -430,22 +443,23 @@ func (c *Config) IsLangDisabled(lang string) bool {
 
 // ConfigCompiled holds values and functions that are derived from the config.
 type ConfigCompiled struct {
-	Timeout           time.Duration
-	BaseURL           urls.BaseURL
-	BaseURLLiveReload urls.BaseURL
-	ServerInterface   string
-	KindOutputFormats map[string]output.Formats
-	ContentTypes      media.ContentTypes
-	DisabledKinds     map[string]bool
-	DisabledLanguages map[string]bool
-	IgnoredLogs       map[string]bool
-	CreateTitle       func(s string) string
-	IsUglyURLSection  func(section string) bool
-	IgnoreFile        func(filename string) bool
-	SegmentFilter     segments.SegmentFilter
-	MainSections      []string
-	Clock             time.Time
-	HTTPCache         httpcache.ConfigCompiled
+	Timeout             time.Duration
+	BaseURL             urls.BaseURL
+	BaseURLLiveReload   urls.BaseURL
+	ServerInterface     string
+	KindOutputFormats   map[string]output.Formats
+	DefaultOutputFormat output.Format
+	ContentTypes        media.ContentTypes
+	DisabledKinds       map[string]bool
+	DisabledLanguages   map[string]bool
+	IgnoredLogs         map[string]bool
+	CreateTitle         func(s string) string
+	IsUglyURLSection    func(section string) bool
+	IgnoreFile          func(filename string) bool
+	SegmentFilter       segments.SegmentFilter
+	MainSections        []string
+	Clock               time.Time
+	HTTPCache           httpcache.ConfigCompiled
 
 	// This is set to the last transient error found during config compilation.
 	// With themes/modules we compute the configuration in multiple passes, and
@@ -504,6 +518,10 @@ type RootConfig struct {
 	// By default, we put the default content language in the root and the others below their language ID, e.g. /no/.
 	// Set this to true to put all languages below their language ID.
 	DefaultContentLanguageInSubdir bool
+
+	// The default output format to use for the site.
+	// If not set, we will use the first output format.
+	DefaultOutputFormat string
 
 	// Disable generation of redirect to the default language when DefaultContentLanguageInSubdir is enabled.
 	DisableDefaultLanguageRedirect bool
