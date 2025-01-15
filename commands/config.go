@@ -43,8 +43,9 @@ func newConfigCommand() *configCommand {
 type configCommand struct {
 	r *rootCommand
 
-	format string
-	lang   string
+	format    string
+	lang      string
+	printZero bool
 
 	commands []simplecobra.Commander
 }
@@ -78,7 +79,7 @@ func (c *configCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 	dec.SetIndent("", "  ")
 	dec.SetEscapeHTML(false)
 
-	if err := dec.Encode(parser.ReplacingJSONMarshaller{Value: config, KeysToLower: true, OmitEmpty: true}); err != nil {
+	if err := dec.Encode(parser.ReplacingJSONMarshaller{Value: config, KeysToLower: true, OmitEmpty: !c.printZero}); err != nil {
 		return err
 	}
 
@@ -115,6 +116,7 @@ func (c *configCommand) Init(cd *simplecobra.Commandeer) error {
 	cmd.Flags().StringVar(&c.format, "format", "toml", "preferred file format (toml, yaml or json)")
 	_ = cmd.RegisterFlagCompletionFunc("format", cobra.FixedCompletions([]string{"toml", "yaml", "json"}, cobra.ShellCompDirectiveNoFileComp))
 	cmd.Flags().StringVar(&c.lang, "lang", "", "the language to display config for. Defaults to the first language defined.")
+	cmd.Flags().BoolVar(&c.printZero, "printZero", false, `include config options with zero values (e.g. false, 0, "") in the output`)
 	_ = cmd.RegisterFlagCompletionFunc("lang", cobra.NoFileCompletions)
 	applyLocalFlagsBuildConfig(cmd, c.r)
 
