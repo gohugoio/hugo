@@ -100,7 +100,7 @@ Instead of failing the build, we can catch the error and emit a warning:
   {{ else with .Value }}
     <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
   {{ else }}
-    {{ errorf "Unable to get remote resource %q" $url }}
+    {{ warnf "Unable to get remote resource %q" $url }}
   {{ end }}
 {{ end }}
 ```
