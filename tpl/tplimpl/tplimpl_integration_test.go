@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/htesting/hqt"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/tpl"
 )
@@ -787,9 +788,8 @@ title: p5
 		b.FileContent("public/p2/index.html"),
 		b.FileContent("public/p3/index.html"),
 	}
-	if !allElementsEqual(htmlFiles) {
-		t.Error("A: expected all files to be equal")
-	}
+
+	b.Assert(htmlFiles, hqt.IsAllElementsEqual)
 
 	// Test x_simple and twitter_simple shortcodes
 	wantSimple := "<style type=\"text/css\">\n      .twitter-tweet {\n        font:\n          14px/1.45 -apple-system,\n          BlinkMacSystemFont,\n          \"Segoe UI\",\n          Roboto,\n          Oxygen-Sans,\n          Ubuntu,\n          Cantarell,\n          \"Helvetica Neue\",\n          sans-serif;\n        border-left: 4px solid #2b7bb9;\n        padding-left: 1.5em;\n        color: #555;\n      }\n      .twitter-tweet a {\n        color: #2b7bb9;\n        text-decoration: none;\n      }\n      blockquote.twitter-tweet a:hover,\n      blockquote.twitter-tweet a:focus {\n        text-decoration: underline;\n      }\n    </style><blockquote class=\"twitter-tweet\"><p lang=\"en\" dir=\"ltr\">Owl bet you&#39;ll lose this staring contest 🦉 <a href=\"https://t.co/eJh4f2zncC\">pic.twitter.com/eJh4f2zncC</a></p>&mdash; San Diego Zoo Wildlife Alliance (@sandiegozoo) <a href=\"https://twitter.com/sandiegozoo/status/1453110110599868418?ref_src=twsrc%5Etfw\">October 26, 2021</a></blockquote>\n--"
@@ -799,9 +799,7 @@ title: p5
 		b.FileContent("public/p4/index.html"),
 		b.FileContent("public/p5/index.html"),
 	}
-	if !allElementsEqual(htmlFiles) {
-		t.Error("B: expected all files to be equal")
-	}
+	b.Assert(htmlFiles, hqt.IsAllElementsEqual)
 
 	filesOriginal := files
 
@@ -813,9 +811,7 @@ title: p5
 		b.FileContent("public/p3/index.html"),
 		b.FileContent("public/p5/index.html"),
 	}
-	if !allElementsEqual(htmlFiles) {
-		t.Error("C: expected all files to be equal")
-	}
+	b.Assert(htmlFiles, hqt.IsAllElementsEqual)
 
 	// Test privacy.x.simple
 	files = strings.ReplaceAll(filesOriginal, "#CONFIG", "privacy.x.simple=true")
@@ -825,16 +821,13 @@ title: p5
 		b.FileContent("public/p4/index.html"),
 		b.FileContent("public/p4/index.html"),
 	}
-	if !allElementsEqual(htmlFiles) {
-		t.Error("D: expected all files to be equal")
-	}
+	b.Assert(htmlFiles, hqt.IsAllElementsEqual)
+
 	htmlFiles = []string{
 		b.FileContent("public/p2/index.html"),
 		b.FileContent("public/p3/index.html"),
 	}
-	if !allElementsEqual(htmlFiles) {
-		t.Error("E: expected all files to be equal")
-	}
+	b.Assert(htmlFiles, hqt.IsAllElementsEqual)
 
 	// Test privacy.twitter.disable
 	files = strings.ReplaceAll(filesOriginal, "#CONFIG", "privacy.twitter.disable = true")
@@ -847,9 +840,7 @@ title: p5
 		b.FileContent("public/p4/index.html"),
 		b.FileContent("public/p4/index.html"),
 	}
-	if !allElementsEqual(htmlFiles) {
-		t.Error("F: expected all files to be equal")
-	}
+	b.Assert(htmlFiles, hqt.IsAllElementsEqual)
 
 	// Test privacy.x.disable
 	files = strings.ReplaceAll(filesOriginal, "#CONFIG", "privacy.x.disable = true")
@@ -859,29 +850,11 @@ title: p5
 		b.FileContent("public/p1/index.html"),
 		b.FileContent("public/p4/index.html"),
 	}
-	if !allElementsEqual(htmlFiles) {
-		t.Error("G: expected all files to be equal")
-	}
+	b.Assert(htmlFiles, hqt.IsAllElementsEqual)
+
 	htmlFiles = []string{
 		b.FileContent("public/p2/index.html"),
 		b.FileContent("public/p3/index.html"),
 	}
-	if !allElementsEqual(htmlFiles) {
-		t.Error("F: expected all files to be equal")
-	}
-}
-
-// allElementsEqual reports whether all elements in the given string slice are
-// equal.
-func allElementsEqual(slice []string) bool {
-	if len(slice) == 0 {
-		return true
-	}
-	first := slice[0]
-	for _, v := range slice[1:] {
-		if v != first {
-			return false
-		}
-	}
-	return true
+	b.Assert(htmlFiles, hqt.IsAllElementsEqual)
 }
