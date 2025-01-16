@@ -25,10 +25,10 @@ import (
 const (
 	// Do not change.
 	smartCropIdentifier = "smart"
-
-	// This is just a increment, starting on 1. If Smart Crop improves its cropping, we
+	SmartCropAnchor     = 1000
+	// This is just a increment, starting on 0. If Smart Crop improves its cropping, we
 	// need a way to trigger a re-generation of the crops in the wild, so increment this.
-	smartCropVersionNumber = 1
+	smartCropVersionNumber = 0
 )
 
 func (p *ImageProcessor) newSmartCropAnalyzer(filter gift.Resampling) smartcrop.Analyzer {

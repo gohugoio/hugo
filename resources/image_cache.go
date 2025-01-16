@@ -37,7 +37,7 @@ func (c *ImageCache) getOrCreate(
 	parent *imageResource, conf images.ImageConfig,
 	createImage func() (*imageResource, image.Image, error),
 ) (*resourceAdapter, error) {
-	relTarget := parent.relTargetPathFromConfig(conf)
+	relTarget := parent.relTargetPathFromConfig(conf, parent.getSpec().imaging.Cfg.SourceHash)
 	relTargetPath := relTarget.TargetPath()
 	memKey := relTargetPath
 

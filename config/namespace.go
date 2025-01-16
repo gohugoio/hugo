@@ -22,7 +22,7 @@ import (
 func DecodeNamespace[S, C any](configSource any, buildConfig func(any) (C, any, error)) (*ConfigNamespace[S, C], error) {
 	// Calculate the hash of the input (not including any defaults applied later).
 	// This allows us to introduce new config options without breaking the hash.
-	h := hashing.HashString(configSource)
+	h := hashing.HashStringHex(configSource)
 
 	// Build the config
 	c, ext, err := buildConfig(configSource)

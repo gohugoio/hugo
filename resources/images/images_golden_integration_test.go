@@ -15,6 +15,7 @@ package images_test
 
 import (
 	_ "image/jpeg"
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/resources/images/imagetesting"
@@ -158,6 +159,76 @@ the last entry will win.
 	imagetesting.RunGolden(opts)
 }
 
+// Issue 13272, 13273.
+func TestImagesGoldenFiltersMaskCacheIssues(t *testing.T) {
+	if imagetesting.SkipGoldenTests {
+		t.Skip("Skip golden test on this architecture")
+	}
+
+	// Will be used as the base folder for generated images.
+	name := "filters/mask2"
+
+	files := `
+-- hugo.toml --
+[caches]
+  [caches.images]
+    dir = ':cacheDir/golden_images'
+	maxAge = "30s"
+[imaging]
+  bgColor = '#33ff44'
+  hint = 'photo'
+  quality = 75
+  resampleFilter = 'Lanczos'
+-- assets/sunset.jpg --
+sourcefilename: ../testdata/sunset.jpg
+-- assets/mask.png --
+sourcefilename: ../testdata/mask.png
+
+-- layouts/index.html --
+Home.
+{{ $sunset := resources.Get "sunset.jpg" }}
+{{ $mask := resources.Get "mask.png" }}
+
+
+{{ template "mask" (dict "name" "green.jpg" "base" $sunset  "mask" $mask) }}
+
+{{ define "mask"}}
+{{ $ext := path.Ext .name }}
+{{ if lt (len (path.Ext .name)) 4 }}
+	{{ errorf "No extension in %q" .name }}
+{{ end }}
+{{ $format := strings.TrimPrefix "." $ext }}
+{{ $spec := .spec | default (printf "resize x300 %s" $format) }}
+{{ $filters := slice (images.Process $spec) (images.Mask .mask) }}
+{{ $name := printf "images/%s" .name  }}
+{{ $img := .base.Filter $filters }}
+{{ with $img | resources.Copy $name }}
+{{ .Publish }}
+{{ end }}
+{{ end }}
+`
+
+	tempDir := t.TempDir()
+
+	opts := imagetesting.DefaultGoldenOpts
+	opts.WorkingDir = tempDir
+	opts.T = t
+	opts.Name = name
+	opts.Files = files
+	opts.SkipAssertions = true
+
+	imagetesting.RunGolden(opts)
+
+	files = strings.Replace(files, "#33ff44", "#a83269", -1)
+	files = strings.Replace(files, "green", "pink", -1)
+	files = strings.Replace(files, "mask.png", "mask2.png", -1)
+	opts.Files = files
+	opts.SkipAssertions = false
+	opts.Rebuild = true
+
+	imagetesting.RunGolden(opts)
+}
+
 func TestImagesGoldenFiltersText(t *testing.T) {
 	t.Parallel()
 
@@ -250,6 +321,77 @@ Home.
 {{ $img := .img.Process .spec }}
 {{ $ext := path.Ext $img.RelPermalink }}
 {{ $name := printf "images/%s%s" (.spec | anchorize) $ext  }}
+{{ with $img | resources.Copy $name }}
+{{ .Publish }}
+{{ end }}
+{{ end }}
+`
+
+	opts := imagetesting.DefaultGoldenOpts
+	opts.T = t
+	opts.Name = name
+	opts.Files = files
+
+	imagetesting.RunGolden(opts)
+}
+
+func TestImagesGoldenMethods(t *testing.T) {
+	t.Parallel()
+
+	if imagetesting.SkipGoldenTests {
+		t.Skip("Skip golden test on this architecture")
+	}
+
+	// Will be used as the base folder for generated images.
+	name := "methods"
+
+	files := `
+-- hugo.toml --
+[imaging]
+  bgColor = '#ebcc34'
+  hint = 'photo'
+  quality = 75
+  resampleFilter = 'MitchellNetravali'
+-- assets/sunset.jpg --
+sourcefilename: ../testdata/sunset.jpg
+-- assets/gopher.png --
+sourcefilename: ../testdata/gopher-hero8.png
+
+-- layouts/index.html --
+Home.
+{{ $sunset := resources.Get "sunset.jpg" }}
+{{ $gopher := resources.Get "gopher.png" }}
+
+
+{{ template "invoke" (dict "copyFormat" "jpg" "base" $sunset "method" "resize"  "spec" "300x" ) }}
+{{ template "invoke" (dict "copyFormat" "jpg" "base" $sunset "method" "resize" "spec" "x200" ) }}
+{{ template "invoke" (dict "copyFormat" "jpg" "base" $sunset "method" "fill"  "spec" "90x120 left" ) }}
+{{ template "invoke" (dict "copyFormat" "jpg" "base" $sunset "method" "fill"  "spec" "90x120 right" ) }}
+{{ template "invoke" (dict "copyFormat" "jpg" "base" $sunset "method" "fit"  "spec" "200x200" ) }}
+{{ template "invoke" (dict "copyFormat" "jpg" "base" $sunset "method" "crop"  "spec" "200x200" ) }}
+{{ template "invoke" (dict "copyFormat" "jpg" "base" $sunset "method" "crop"  "spec" "350x400 center" ) }}
+ {{ template "invoke" (dict "copyFormat" "jpg" "base" $sunset "method" "crop"  "spec" "350x400 smart" ) }}
+{{ template "invoke" (dict "copyFormat" "jpg" "base" $sunset "method" "crop"  "spec" "350x400 center r90" ) }}
+{{ template "invoke" (dict "copyFormat" "jpg" "base" $sunset "method" "crop"  "spec" "350x400 center q20" ) }}
+{{ template "invoke" (dict "copyFormat" "png" "base" $gopher "method" "resize"  "spec" "100x" ) }}
+{{ template "invoke" (dict "copyFormat" "png" "base" $gopher "method" "resize"  "spec" "100x #fc03ec" ) }}
+{{ template "invoke" (dict "copyFormat" "jpg" "base" $gopher "method" "resize"  "spec" "100x #03fc56 jpg" ) }}
+
+{{ define "invoke"}}
+{{ $spec := .spec }}
+{{ $name := printf "images/%s-%s-%s.%s" .method ((trim .base.Name "/") | lower | anchorize) ($spec | anchorize) .copyFormat  }}
+{{ $img := ""}}
+{{ if eq .method "resize" }}
+	{{ $img = .base.Resize $spec }}
+{{ else if eq .method "fill" }}
+	{{ $img = .base.Fill $spec }}
+{{ else if eq .method "fit" }}
+	{{ $img = .base.Fit $spec }}
+{{ else if eq .method "crop" }}
+	{{ $img = .base.Crop $spec }}
+{{ else }}
+	{{ errorf "Unknown method %q" .method }}
+{{ end }}
 {{ with $img | resources.Copy $name }}
 {{ .Publish }}
 {{ end }}
