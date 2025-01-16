@@ -91,7 +91,7 @@ In its default configuration, Hugo renders Markdown images according to the [Com
 
 {{< code file=layouts/_default/_markup/render-image.html copy=true >}}
 <img src="{{ .Destination | safeURL }}"
-  {{- with .Text }} alt="{{ . }}"{{ end -}}
+  {{- with .PlainText }} alt="{{ . }}"{{ end -}}
   {{- with .Title }} title="{{ . }}"{{ end -}}
 >
 {{- /* chomp trailing newline */ -}}
@@ -103,13 +103,13 @@ To render standalone images within `figure` elements:
 {{- if .IsBlock -}}
   <figure>
     <img src="{{ .Destination | safeURL }}"
-      {{- with .Text }} alt="{{ . }}"{{ end -}}
+      {{- with .PlainText }} alt="{{ . }}"{{ end -}}
     >
     {{- with .Title }}<figcaption>{{ . }}</figcaption>{{ end -}}
   </figure>
 {{- else -}}
   <img src="{{ .Destination | safeURL }}"
-    {{- with .Text }} alt="{{ . }}"{{ end -}}
+    {{- with .PlainText }} alt="{{ . }}"{{ end -}}
     {{- with .Title }} title="{{ . }}"{{ end -}}
   >
 {{- end -}}
