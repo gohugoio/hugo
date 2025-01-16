@@ -55,20 +55,26 @@ identifier = 'render-hooks'
 pageRef = '/render-hooks/'
 
 [[docs]]
-name = 'Hugo Modules'
+name = 'Shortcodes'
 weight = 100
+identifier = 'shortcodes'
+pageRef = '/shortcodes/'
+
+[[docs]]
+name = 'Hugo Modules'
+weight = 110
 identifier = 'modules'
 pageRef = '/hugo-modules/'
 
 [[docs]]
 name = 'Hugo Pipes'
-weight = 110
+weight = 120
 identifier = 'hugo-pipes'
 pageRef = '/hugo-pipes/'
 
 [[docs]]
 name = 'CLI'
-weight = 120
+weight = 130
 post = 'break'
 identifier = 'commands'
 pageRef = '/commands/'
@@ -77,25 +83,25 @@ pageRef = '/commands/'
 
 [[docs]]
 name = 'Troubleshooting'
-weight = 130
+weight = 140
 identifier = 'troubleshooting'
 pageRef = '/troubleshooting/'
 
 [[docs]]
 name = 'Developer tools'
-weight = 140
+weight = 150
 identifier = 'developer-tools'
 pageRef = '/tools/'
 
 [[docs]]
 name = 'Hosting and deployment'
-weight = 150
+weight = 160
 identifier = 'hosting-and-deployment'
 pageRef = '/hosting-and-deployment/'
 
 [[docs]]
 name = 'Contribute'
-weight = 160
+weight = 170
 post = 'break'
 identifier = 'contribute'
 pageRef = '/contribute/'

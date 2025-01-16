@@ -112,8 +112,8 @@ Methods|Functions|Shortcodes
 [`urls.RelRef`]: /functions/urls/relref/
 [`Page.GetPage`]: /methods/page/getpage/
 [`Site.GetPage`]: /methods/site/getpage/
-[`ref`]: /content-management/shortcodes/#ref
-[`relref`]: /content-management/shortcodes/#relref
+[`ref`]: /shortcodes/ref/
+[`relref`]: /shortcodes/relref/
 [`Page.Ref`]: /methods/page/ref/
 [`Page.RelRef`]: /methods/page/relref/
 [`Shortcode.Ref`]: /methods/shortcode/ref

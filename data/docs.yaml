@@ -1669,6 +1669,10 @@ config:
       disable: false
       enableDNT: false
       simple: false
+    x:
+      disable: false
+      enableDNT: false
+      simple: false
     youTube:
       disable: false
       privacyEnhanced: false
@@ -1747,6 +1751,8 @@ config:
     rss:
       limit: -1
     twitter:
+      disableInlineCSS: false
+    x:
       disableInlineCSS: false
   sitemap:
     changeFreq: ""

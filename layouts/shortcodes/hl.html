@@ -1,0 +1,4 @@
+{{ $code := .Inner | strings.TrimSpace }}
+{{ $lang := or (.Get 0) "go"  }}
+{{ $opts := dict "hl_inline" true "noClasses" true }}
+{{ transform.Highlight $code $lang $opts }}

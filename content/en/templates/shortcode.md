@@ -415,8 +415,8 @@ The same inline shortcode can be reused later in the same content file, with dif
 [`Name`]: /methods/shortcode/name/
 [`Position`]: /methods/shortcode/position/
 [built-in shortcode]: /content-management/shortcodes/
-[figure]: /content-management/shortcodes/#figure
+[figure]: /shortcodes/figure/
 [lookup order]: /templates/lookup-order/
 [source organization]: /getting-started/directory-structure/
 [vimeoexample]: #single-flexible-example-vimeo
-[youtubeshortcode]: /content-management/shortcodes/#youtube
+[youtubeshortcode]: /shortcodes/youtube/
