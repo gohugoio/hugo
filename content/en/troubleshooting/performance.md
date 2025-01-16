@@ -109,4 +109,4 @@ Note that you can create cached variants of each partial by passing additional a
 
 ## Timers
 
-Use the `debug.Timer` function to determine execution time for a block of code, useful for finding performance bottle necks in templates. See&nbsp;[details](/functions/debug/timer/).
+Use the `debug.Timer` function to determine execution time for a block of code, useful for finding performance bottlenecks in templates. See&nbsp;[details](/functions/debug/timer/).
