@@ -38,7 +38,7 @@ A static website with a dynamic search function? Yes, Hugo provides an alternati
 : A usability and speed update to "GitHub Gist for Fuse.js integration" — global, keyboard-optimized search.
 
 [JS & Fuse.js tutorial](https://makewithhugo.com/add-search-to-a-hugo-site/)
-: A simple client-side search solution, using FuseJS (does not require jQuery).
+: A simple client side search solution, using FuseJS (does not require jQuery).
 
 [Hugo Lyra](https://github.com/paolomainardi/hugo-lyra)
 : Hugo-Lyra is a JavaScript module to integrate [Lyra](https://github.com/LyraSearch/lyra) into a Hugo website. It contains the server-side part to generate the index and the client side library (optional) to bootstrap the search engine easily.
