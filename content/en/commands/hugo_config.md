@@ -24,6 +24,7 @@ hugo config [command] [flags]
       --format string            preferred file format (toml, yaml or json) (default "toml")
   -h, --help                     help for config
       --lang string              the language to display config for. Defaults to the first language defined.
+      --printZero                include config options with zero values (e.g. false, 0, "") in the output
       --renderSegments strings   named segments to render (configured in the segments config)
   -t, --theme strings            themes to use (located in /themes/THEMENAME/)
 ```
