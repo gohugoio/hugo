@@ -24,14 +24,14 @@ Use the `comment` shortcode to include comments in your content. Hugo will ignor
 Use it inline:
 
 ```text
-{{%/* comment */%}} TODO: rewrite the paragraph below. {{%/* /comment */%}}
+{{%/* comment */%}} rewrite the paragraph below {{%/* /comment */%}}
 ```
 
 Or as a block comment:
 
 ```text
 {{%/* comment */%}}
-TODO: rewrite the paragraph below.
+rewrite the paragraph below
 {{%/* /comment */%}}
 ```
 
