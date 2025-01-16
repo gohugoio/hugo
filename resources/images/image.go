@@ -217,7 +217,7 @@ func (p *ImageProcessor) FiltersFromConfig(src image.Image, conf ImageConfig) ([
 	case "resize":
 		filters = append(filters, gift.Resize(conf.Width, conf.Height, conf.Filter))
 	case "crop":
-		if conf.AnchorStr == smartCropIdentifier {
+		if conf.Anchor == SmartCropAnchor {
 			bounds, err := p.smartCrop(src, conf.Width, conf.Height, conf.Filter)
 			if err != nil {
 				return nil, err
@@ -232,7 +232,7 @@ func (p *ImageProcessor) FiltersFromConfig(src image.Image, conf ImageConfig) ([
 			filters = append(filters, gift.CropToSize(conf.Width, conf.Height, conf.Anchor))
 		}
 	case "fill":
-		if conf.AnchorStr == smartCropIdentifier {
+		if conf.Anchor == SmartCropAnchor {
 			bounds, err := p.smartCrop(src, conf.Width, conf.Height, conf.Filter)
 			if err != nil {
 				return nil, err
@@ -329,12 +329,12 @@ func (p *ImageProcessor) doFilter(src image.Image, targetFormat Format, filters 
 	return dst, nil
 }
 
-func GetDefaultImageConfig(action string, defaults *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]) ImageConfig {
+func GetDefaultImageConfig(defaults *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]) ImageConfig {
 	if defaults == nil {
 		defaults = defaultImageConfig
 	}
 	return ImageConfig{
-		Action:  action,
+		Anchor:  -1, // The real values start at 0.
 		Hint:    defaults.Config.Hint,
 		Quality: defaults.Config.Imaging.Quality,
 	}

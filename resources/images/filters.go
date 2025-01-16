@@ -36,10 +36,11 @@ type Filters struct{}
 
 // Process creates a filter that processes an image using the given specification.
 func (*Filters) Process(spec any) gift.Filter {
+	specs := strings.ToLower(cast.ToString(spec))
 	return filter{
-		Options: newFilterOpts(spec),
+		Options: newFilterOpts(specs),
 		Filter: processFilter{
-			spec: cast.ToString(spec),
+			spec: specs,
 		},
 	}
 }

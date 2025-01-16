@@ -363,6 +363,7 @@ type genericResource struct {
 	sd    ResourceSourceDescriptor
 	paths internal.ResourcePaths
 
+	includeHashInKey     bool
 	sourceFilenameIsHash bool
 
 	h *resourceHash // A hash of the source content. Is only calculated in caching situations.
@@ -451,6 +452,10 @@ func (l *genericResource) Key() string {
 
 		if l.spec.Cfg.IsMultihost() {
 			l.key = l.spec.Lang() + l.key
+		}
+
+		if l.includeHashInKey && !l.sourceFilenameIsHash {
+			l.key += fmt.Sprintf("_%d", l.hash())
 		}
 	})
 

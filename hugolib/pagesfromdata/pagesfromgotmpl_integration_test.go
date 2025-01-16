@@ -119,7 +119,7 @@ docs/p1/sub/mymixcasetext2.txt
 		"RelPermalink: /docs/p1/sub/mymixcasetext2.txt|Name: sub/mymixcasetext2.txt|",
 		"RelPermalink: /mydata.yaml|Name: sub/data1.yaml|Title: Sub data|Params: map[]|",
 		"Featured Image: /a/pixel.png|featured.png|",
-		"Resized Featured Image: /a/pixel_hu16809842526914527184.png|10|",
+		"Resized Featured Image: /a/pixel_hu_a32b3e361d55df1.png|10|",
 		// Resource from string
 		"RelPermalink: /docs/p1/mytext.txt|Name: textresource|Title: My Text Resource|Params: map[param1:param1v]|",
 		// Dates

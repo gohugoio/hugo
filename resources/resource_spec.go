@@ -183,29 +183,33 @@ func (r *Spec) NewResource(rd ResourceSourceDescriptor) (resource.Resource, erro
 		TargetBasePaths: rd.TargetBasePaths,
 	}
 
-	gr := &genericResource{
-		Staler:      &AtomicStaler{},
-		h:           &resourceHash{},
-		publishInit: &sync.Once{},
-		keyInit:     &sync.Once{},
-		paths:       rp,
-		spec:        r,
-		sd:          rd,
-		params:      rd.Params,
-		name:        rd.NameOriginal,
-		title:       rd.Title,
+	isImage := rd.MediaType.MainType == "image"
+	var imgFormat images.Format
+	if isImage {
+		imgFormat, isImage = images.ImageFormatFromMediaSubType(rd.MediaType.SubType)
 	}
 
-	if rd.MediaType.MainType == "image" {
-		imgFormat, ok := images.ImageFormatFromMediaSubType(rd.MediaType.SubType)
-		if ok {
-			ir := &imageResource{
-				Image:        images.NewImage(imgFormat, r.imaging, nil, gr),
-				baseResource: gr,
-			}
-			ir.root = ir
-			return newResourceAdapter(gr.spec, rd.LazyPublish, ir), nil
+	gr := &genericResource{
+		Staler:           &AtomicStaler{},
+		h:                &resourceHash{},
+		publishInit:      &sync.Once{},
+		keyInit:          &sync.Once{},
+		includeHashInKey: isImage,
+		paths:            rp,
+		spec:             r,
+		sd:               rd,
+		params:           rd.Params,
+		name:             rd.NameOriginal,
+		title:            rd.Title,
+	}
+
+	if isImage {
+		ir := &imageResource{
+			Image:        images.NewImage(imgFormat, r.imaging, nil, gr),
+			baseResource: gr,
 		}
+		ir.root = ir
+		return newResourceAdapter(gr.spec, rd.LazyPublish, ir), nil
 
 	}
 

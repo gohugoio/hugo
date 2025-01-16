@@ -72,20 +72,20 @@ SUNSET2: {{ $resized2.RelPermalink }}/{{ $resized2.Width }}/Lat: {{ $resized2.Ex
 
 	b.Build(BuildCfg{})
 
-	b.AssertFileContent("public/index.html", "SUNSET FOR: en: /bundle/sunset_hu13235715490294913361.jpg/200/Lat: 36.59744166666667")
-	b.AssertFileContent("public/fr/index.html", "SUNSET FOR: fr: /bundle/sunset_hu13235715490294913361.jpg/200/Lat: 36.59744166666667")
-	b.AssertFileContent("public/index.html", " SUNSET2: /images/sunset_hu1573057890424052540.jpg/123/Lat: 36.59744166666667")
-	b.AssertFileContent("public/nn/index.html", " SUNSET2: /images/sunset_hu1573057890424052540.jpg/123/Lat: 36.59744166666667")
+	b.AssertFileContent("public/index.html", "SUNSET FOR: en: /bundle/sunset_hu_77061c65c31d2244.jpg/200/Lat: 36.59744166666667")
+	b.AssertFileContent("public/fr/index.html", "SUNSET FOR: fr: /bundle/sunset_hu_77061c65c31d2244.jpg/200/Lat: 36.59744166666667")
+	b.AssertFileContent("public/index.html", " SUNSET2: /images/sunset_hu_b52e3343ea6a8764.jpg/123/Lat: 36.59744166666667")
+	b.AssertFileContent("public/nn/index.html", " SUNSET2: /images/sunset_hu_b52e3343ea6a8764.jpg/123/Lat: 36.59744166666667")
 
-	b.AssertImage(200, 200, "public/bundle/sunset_hu13235715490294913361.jpg")
+	b.AssertImage(200, 200, "public/bundle/sunset_hu_77061c65c31d2244.jpg")
 
 	// Check the file cache
-	b.AssertImage(200, 200, "resources/_gen/images/bundle/sunset_hu13235715490294913361.jpg")
+	b.AssertImage(200, 200, "resources/_gen/images/bundle/sunset_hu_77061c65c31d2244.jpg")
 
-	b.AssertFileContent("resources/_gen/images/bundle/sunset_17710516992648092201.json",
+	b.AssertFileContent("resources/_gen/images/bundle/sunset_d209dcdc6b875e26.json",
 		"FocalLengthIn35mmFormat|uint16", "PENTAX")
 
-	b.AssertFileContent("resources/_gen/images/images/sunset_17710516992648092201.json",
+	b.AssertFileContent("resources/_gen/images/images/sunset_d209dcdc6b875e26.json",
 		"FocalLengthIn35mmFormat|uint16", "PENTAX")
 
 	b.AssertNoDuplicateWrites()

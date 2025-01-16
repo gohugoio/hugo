@@ -62,9 +62,9 @@ anigif: {{ $anigif.RelPermalink }}|{{ $anigif.Width }}|{{ $anigif.Height }}|{{ $
 
 	assertImages := func() {
 		b.AssertFileContent("public/index.html", `
-		gif: /mybundle/pixel_hu14657638653019978294.gif|}|1|2|image/gif|
-		bmp: /mybundle/pixel_hu14705577916774115224.bmp|}|2|3|image/bmp|
-		anigif: /mybundle/giphy_hu3665406585348417395.gif|4|5|image/gif|
+ gif: /mybundle/pixel_hu_93429543fc146fce.gif|}|1|2|image/gif|
+bmp: /mybundle/pixel_hu_f9bf2acd6578e2c6.bmp|}|2|3|image/bmp|
+anigif: /mybundle/giphy_hu_652d28653068b48f.gif|4|5|image/gif|
 		`)
 	}
 
@@ -160,9 +160,9 @@ resize 2|RelPermalink: {{ $image.RelPermalink }}|MediaType: {{ $image.MediaType 
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html",
-		"jpg|RelPermalink: /images/pixel_hu13683954895608450100.jpg|MediaType: image/jpeg|Width: 1|Height: 1|",
-		"resize 1|RelPermalink: /images/pixel_hu3453403302435331853.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
-		"resize 2|RelPermalink: /images/pixel_hu3453403302435331853.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
+		"jpg|RelPermalink: /images/pixel_hu_38c3f257174fc757.jpg|MediaType: image/jpeg|Width: 1|Height: 1|",
+		"resize 1|RelPermalink: /images/pixel_hu_b5c2a3d88991f65a.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
+		"resize 2|RelPermalink: /images/pixel_hu_b5c2a3d88991f65a.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
 	)
 }
 

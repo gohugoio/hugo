@@ -63,8 +63,18 @@ type GoldenImageTestOpts struct {
 	// Set to true to write golden files to disk.
 	WriteFiles bool
 
+	// If not set, a temporary directory will be created.
+	WorkingDir string
+
 	// Set to true to skip any assertions. Useful when adding new golden variants to a test.
 	DevMode bool
+
+	// Set to skip any assertions.
+	SkipAssertions bool
+
+	// Whether this represents a rebuild of the same site.
+	// Setting this to true will keep the previous golden image set.
+	Rebuild bool
 }
 
 // To rebuild all Golden image tests, toggle WriteFiles=true and run:
@@ -78,7 +88,10 @@ var DefaultGoldenOpts = GoldenImageTestOpts{
 func RunGolden(opts GoldenImageTestOpts) *hugolib.IntegrationTestBuilder {
 	opts.T.Helper()
 
-	c := hugolib.Test(opts.T, opts.Files, hugolib.TestOptWithOSFs()) // hugolib.TestOptWithPrintAndKeepTempDir(true))
+	c := hugolib.Test(opts.T, opts.Files, hugolib.TestOptWithConfig(func(conf *hugolib.IntegrationTestConfig) {
+		conf.NeedsOsFS = true
+		conf.WorkingDir = opts.WorkingDir
+	}))
 	c.AssertFileContent("public/index.html", "Home.")
 
 	outputDir := filepath.Join(c.H.Conf.WorkingDir(), "public", "images")
@@ -86,9 +99,15 @@ func RunGolden(opts GoldenImageTestOpts) *hugolib.IntegrationTestBuilder {
 	goldenDir := filepath.Join(goldenBaseDir, filepath.FromSlash(opts.Name))
 	if opts.WriteFiles {
 		c.Assert(htesting.IsRealCI(), qt.IsFalse)
-		c.Assert(os.MkdirAll(goldenBaseDir, 0o777), qt.IsNil)
-		c.Assert(os.RemoveAll(goldenDir), qt.IsNil)
+		if !opts.Rebuild {
+			c.Assert(os.MkdirAll(goldenBaseDir, 0o777), qt.IsNil)
+			c.Assert(os.RemoveAll(goldenDir), qt.IsNil)
+		}
 		c.Assert(hugio.CopyDir(hugofs.Os, outputDir, goldenDir, nil), qt.IsNil)
+		return c
+	}
+
+	if opts.SkipAssertions {
 		return c
 	}
 
