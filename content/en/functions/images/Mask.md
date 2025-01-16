@@ -22,7 +22,7 @@ The `images.Mask` filter applies a mask to an image. Black pixels in the mask ma
 Create the filter:
 
 ```go-html-template
-{{ $filter := images.Mak "images/mask.png" }}
+{{ $filter := images.Mask "images/mask.png" }}
 ```
 
 {{% include "functions/images/_common/apply-image-filter.md" %}}
