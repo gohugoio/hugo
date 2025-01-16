@@ -11,8 +11,6 @@ action:
 toc: true
 ---
 
-{{< new-in 0.111.0 >}}
-
 In a URL, whether absolute or relative, the [fragment] links to an `id` attribute of an HTML element on the page.
 
 ```text

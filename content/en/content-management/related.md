@@ -65,8 +65,6 @@ We improved and simplified this feature in Hugo 0.111.0. Before this we had 3 di
 
 ## Index content headings in related content
 
-{{< new-in 0.111.0 >}}
-
 Hugo can index the headings in your content and use this to find related content. You can enable this by adding a index of type `fragments` to your `related` configuration:
 
 {{< code-toggle file=hugo >}}
@@ -140,16 +138,16 @@ toLower
 name
 : (`string`) The index name. This value maps directly to a page parameter. Hugo supports string values (`author` in the example) and lists (`tags`, `keywords` etc.) and time and date objects.
 
-type {{< new-in 0.111.0 >}} 
+type
 : (`string`) One of `basic`(default) or `fragments`.
 
-applyFilter {{< new-in 0.111.0 >}}
+applyFilter
 : (`string`) Apply a `type` specific filter to the result of a search. This is currently only used for the `fragments` type.
 
 weight
 : (`int`) An integer weight that indicates _how important_ this parameter is relative to the other parameters. It can be `0`, which has the effect of turning this index off, or even negative. Test with different values to see what fits your content best.
 
-cardinalityThreshold {{< new-in 0.111.0 >}}
+cardinalityThreshold
 : (`int`) If between 1 and 100, this is a percentage. All keywords that are used in more than this percentage of documents are removed. For example, setting this to `60` will remove all keywords that are used in more than 60% of the documents in the index. If `0`, no keyword is removed from the index. Default is `0`.
 
 pattern
