@@ -172,6 +172,7 @@ To install Dart Sass for your builds on Netlify, the `netlify.toml` file should 
 [build.environment]
 HUGO_VERSION = "0.137.1"
 DART_SASS_VERSION = "1.80.6"
+NODE_VERSION = "22"
 TZ = "America/Los_Angeles"
 
 [build]
