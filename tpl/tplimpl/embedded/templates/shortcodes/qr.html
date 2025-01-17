@@ -9,6 +9,7 @@ Encodes the given text into a QR code using the specified options and renders th
 @param {string} [class] The class attribute of the img element.
 @param {string} [id] The id attribute of the img element.
 @param {string} [title] The title attribute of the img element.
+@param {string} [loading] The loading attribute of the img element, one of lazy, or eager. 
 
 @returns {template.HTML}
 
@@ -46,6 +47,8 @@ Encodes the given text into a QR code using the specified options and renders th
 {{- $class := or (.Get "class") "" }}
 {{- $id := or (.Get "id") "" }}
 {{- $title := or (.Get "title") "" }}
+{{- $loading := or (.Get "loading") "" }}
+
 
 {{- /* Validate arguments. */}}
 {{- $errors := false}}
@@ -71,6 +74,7 @@ Encodes the given text into a QR code using the specified options and renders th
       {{- with $class }} class="{{ $class }}" {{- end }}
       {{- with $id }} id="{{ $id }}" {{- end }}
       {{- with $title }} title="{{ $title }}" {{- end -}}
+      {{- with $loading }} loading="{{ $loading }}" {{- end -}}
     >
   {{- end }}
 {{- end -}}
