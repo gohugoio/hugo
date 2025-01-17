@@ -15,7 +15,7 @@ The value returned by the `Title` method on a `Resource` object depends on the r
 
 ## Global resource
 
-With a [global resource], the `Title` method returns the path to the resource, relative to the assets directory.
+With a [global resource], the `Title` method returns the path to the resource, relative to the `assets` directory.
 
 ```text
 assets/

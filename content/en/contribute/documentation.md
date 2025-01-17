@@ -69,8 +69,8 @@ In software documentation, passive voice is unavoidable in some cases. Please us
 No → With Hugo you can build a static site.\
 Yes → Build a static site with Hugo.
 
-No → This will cause Hugo to generate HTML files in the public directory.\
-Yes → Hugo generates HTML files in the public directory.
+No → This will cause Hugo to generate HTML files in the `public` directory.\
+Yes → Hugo generates HTML files in the `public` directory.
 
 #### Use second person instead of third person
 
@@ -105,10 +105,20 @@ For example:
 [functions]: /functions
 [methods]: /methods
 
+## Directory names, file names, and file paths
+
+Enclose directory names, file names, and file paths within backticks, with the following exceptions:
+
+- Page titles
+- Section headings (h1-h6)
+- Definition list terms
+- The description field in front matter
+
 #### Miscellaneous
 
 Other guidelines to consider:
 
+- Wrap directory names, file names, and file paths within a pair of backticks.
 - Do not place list items directly under a heading; include an introductory sentence or phrase before the list.
 - Avoid use of **bold** text. Use the [note shortcode] to draw attention to important content.
 - Do not place description terms (`dt`) within backticks unless required for syntactic clarity.

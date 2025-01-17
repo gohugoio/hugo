@@ -80,7 +80,7 @@ defaultContentLanguageInSubdir
 : (`bool`)  If `true`, Hugo renders the default language site in a subdirectory matching the `defaultContentLanguage`. Default is `false`.
 
 contentDir
-: (`string`) The content directory for this language. Omit if [translating by file name].
+: (`string`) The `content` directory for this language. Omit if [translating by file name].
 
 disabled
 : (`bool`) If `true`, Hugo will not render content for this language. Default is `false`.
@@ -232,7 +232,7 @@ If a file has no language code, it will be assigned the default language.
 
 ### Translation by content directory
 
-This system uses different content directories for each of the languages. Each language's content directory is set using the `contentDir` parameter.
+This system uses different content directories for each of the languages. Each language's `content` directory is set using the `contentDir` parameter.
 
 {{< code-toggle file=hugo >}}
 languages:
@@ -256,9 +256,9 @@ Considering the following example in conjunction with the configuration above:
 The first file is assigned the English language and is linked to the second.
 The second file is assigned the French language and is linked to the first.
 
-Their language is __assigned__ according to the content directory they are __placed__ in.
+Their language is __assigned__ according to the `content` directory they are __placed__ in.
 
-By having the same **path and basename** (relative to their language content directory), the content pieces are __linked__ together as translated pages.
+By having the same **path and basename** (relative to their language `content` directory), the content pieces are __linked__ together as translated pages.
 
 ### Bypassing default linking
 

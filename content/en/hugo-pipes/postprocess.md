@@ -37,7 +37,7 @@ There are currently two limitations to this:
 There are several ways to set up CSS purging with PostCSS in Hugo. If you have a simple project, you should consider going the simpler route and drop the use of `resources.PostProcess` and just extract keywords from the templates. See the [Tailwind documentation](https://tailwindcss.com/docs/controlling-file-size/#app) for some examples.
 {{% /note %}}
 
-The below configuration will write a `hugo_stats.json` file to the project root as part of the build. If you're only using this for the production build, you should consider placing it below [config/production](/getting-started/configuration/#configuration-directory).
+The below configuration will write a `hugo_stats.json` file to the project root as part of the build. If you're only using this for the production build, you should consider placing it below [`config/production`](/getting-started/configuration/#configuration-directory).
 
 {{< code-toggle file=hugo >}}
 [build.buildStats]
@@ -88,7 +88,7 @@ HUGO_ENVIRONMENT
 : The value e.g. set with `hugo -e production` (defaults to `production` for `hugo` and `development` for `hugo server`).
 
 HUGO_PUBLISHDIR
-: The absolute path to the publish directory (the `public` directory). Note that the value will always point to a directory on disk even when running `hugo server` in memory mode. If you write to this folder from PostCSS when running the server, you could run the server with one of these flags:
+: The absolute path to the publish directory (the `public` directory). Note that the value will always point to a directory on disk even when running `hugo server` in memory mode. If you write to this directory from PostCSS when running the server, you could run the server with one of these flags:
 
 ```sh
 hugo server --renderToDisk

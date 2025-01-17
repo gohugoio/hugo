@@ -26,7 +26,7 @@ See [Configure Cache Busters](#configure-cache-busters).
 
 #### noJSConfigInAssets
 
-(`bool`) If `true`, turns off writing a `jsconfig.json` into your `/assets` folder with mapping of imports from running [js.Build](/hugo-pipes/js). This file is intended to help with intellisense/navigation inside code editors such as [VS Code](https://code.visualstudio.com/). Note that if you do not use `js.Build`, no file will be written.
+(`bool`) If `true`, turns off writing a `jsconfig.json` into your `assets` directory with mapping of imports from running [js.Build](/hugo-pipes/js). This file is intended to help with intellisense/navigation inside code editors such as [VS Code](https://code.visualstudio.com/). Note that if you do not use `js.Build`, no file will be written.
 
 #### useResourceCacheWhen
 
@@ -78,9 +78,9 @@ If `enable` is set to `true`, creates a `hugo_stats.json` file in the root of yo
 Exclude `class` attributes, `id` attributes, or tags from `hugo_stats.json` with the `disableClasses`, `disableIDs`, and `disableTags` keys.
 
 {{% note %}}
-Given that CSS purging is typically limited to production builds, place the `buildStats` object below [config/production].
+Given that CSS purging is typically limited to production builds, place the `buildStats` object below [`config/production`].
 
-[config/production]: /getting-started/configuration/#configuration-directory
+[`config/production`]: /getting-started/configuration/#configuration-directory
 
 Built for speed, there may be "false positive" detections (e.g., HTML elements that are not HTML elements) while parsing the published site. These "false positives" are infrequent and inconsequential.
 {{% /note %}}

@@ -37,7 +37,7 @@ Section
 : Is relevant for `section`, `taxonomy` and `term` types.
 
 {{% note %}}
-Templates can live in either the project's or the themes' layout folders, and the most specific templates will be chosen. Hugo will interleave the lookups listed below, finding the most specific one either in the project or themes.
+Templates can live in either the project's or the themes' `layout` directories, and the most specific templates will be chosen. Hugo will interleave the lookups listed below, finding the most specific one either in the project or themes.
 {{% /note %}}
 
 ## Target a template
@@ -52,7 +52,7 @@ content/
 └── contact.md
 ```
 
-Files in the root of the content directory have a [content type] of `page`. To render these pages with a unique template, create a matching subdirectory:
+Files in the root of the `content` directory have a [content type] of `page`. To render these pages with a unique template, create a matching subdirectory:
 
 [content type]: /getting-started/glossary/#content-type
 

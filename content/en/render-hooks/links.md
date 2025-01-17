@@ -118,7 +118,7 @@ The embedded link render hook resolves internal Markdown destinations by looking
 [page resource]: /getting-started/glossary/#page-resource
 [global resource]: /getting-started/glossary/#global-resource
 
-You must place global resources in the assets directory. If you have placed your resources in the static directory, and you are unable or unwilling to move them, you must mount the static directory to the assets directory by including both of these entries in your site configuration:
+You must place global resources in the `assets` directory. If you have placed your resources in the `static` directory, and you are unable or unwilling to move them, you must mount the `static` directory to the `assets` directory by including both of these entries in your site configuration:
 
 {{< code-toggle file=hugo >}}
 [[module.mounts]]

@@ -17,7 +17,7 @@ toc: true
 
 A content adapter is a template that dynamically creates pages when building a site. For example, use a content adapter to create pages from a remote data source such as JSON, TOML, YAML, or XML.
 
-Unlike templates that reside in the layouts directory, content adapters reside in the content directory, no more than one per directory per language. When a content adapter creates a page, the page's [logical path] will be relative to the content adapter.
+Unlike templates that reside in the `layouts` directory, content adapters reside in the `content` directory, no more than one per directory per language. When a content adapter creates a page, the page's [logical path] will be relative to the content adapter.
 
 ```text
 content/
@@ -33,7 +33,7 @@ content/
     └── _index.md
 ```
 
-Each content adapter is named _content.gotmpl and uses the same [syntax] as templates in the layouts directory. You can use any of the [template functions] within a content adapter, as well as the methods described below.
+Each content adapter is named _content.gotmpl and uses the same [syntax] as templates in the `layouts` directory. You can use any of the [template functions] within a content adapter, as well as the methods described below.
 
 ## Methods
 

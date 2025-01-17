@@ -15,7 +15,7 @@ The `GetPage` method is also available on `Page` objects, allowing you to specif
 
 [details]: /methods/page/getpage/
 
-When using the `GetPage` method on a `Site` object, specify a path relative to the content directory.
+When using the `GetPage` method on a `Site` object, specify a path relative to the `content` directory.
 
 If Hugo cannot resolve the path to a page, the method returns nil.
 

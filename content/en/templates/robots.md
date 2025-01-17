@@ -52,7 +52,7 @@ To create a robots.txt file without using a template:
 1. Set `enableRobotsTXT` to `false` in the site configuration.
 2. Create a robots.txt file in the `static` directory.
 
-Remember that Hugo copies everything in the [static directory][static] to the root of `publishDir` (typically `public`) when you build your site.
+Remember that Hugo copies everything in the [`static` directory][static] to the root of `publishDir` (typically `public`) when you build your site.
 
 [static]: /getting-started/directory-structure/
 {{% /note %}}

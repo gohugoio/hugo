@@ -15,7 +15,7 @@ aliases: [/templates/internal]
 ## Disqus
 
 {{% note %}}
-To override Hugo's embedded Disqus template, copy the [source code] to a file with the same name in the layouts/partials directory, then call it from your templates using the [`partial`] function:
+To override Hugo's embedded Disqus template, copy the [source code] to a file with the same name in the `layouts/partials` directory, then call it from your templates using the [`partial`] function:
 
 `{{ partial "disqus.html" . }}`
 
@@ -58,7 +58,7 @@ You can also set the following in the front matter for a given piece of content:
 ## Google Analytics
 
 {{% note %}}
-To override Hugo's embedded Google Analytics template, copy the [source code] to a file with the same name in the layouts/partials directory, then call it from your templates using the [`partial`] function:
+To override Hugo's embedded Google Analytics template, copy the [source code] to a file with the same name in the `layouts/partials` directory, then call it from your templates using the [`partial`] function:
 
 `{{ partial "google_analytics.html" . }}`
 
@@ -90,7 +90,7 @@ To use this value in your own template, access the configured ID with `{{ site.C
 ## Open Graph
 
 {{% note %}}
-To override Hugo's embedded Open Graph template, copy the [source code] to a file with the same name in the layouts/partials directory, then call it from your templates using the [`partial`] function:
+To override Hugo's embedded Open Graph template, copy the [source code] to a file with the same name in the `layouts/partials` directory, then call it from your templates using the [`partial`] function:
 
 `{{ partial "opengraph.html" . }}`
 
@@ -149,7 +149,7 @@ If using YouTube this will produce a og:video tag like `<meta property="og:video
 ## Schema
 
 {{% note %}}
-To override Hugo's embedded Schema template, copy the [source code] to a file with the same name in the layouts/partials directory, then call it from your templates using the [`partial`] function:
+To override Hugo's embedded Schema template, copy the [source code] to a file with the same name in the `layouts/partials` directory, then call it from your templates using the [`partial`] function:
 
 `{{ partial "schema.html" . }}`
 
@@ -170,7 +170,7 @@ To include the embedded template:
 ## X (Twitter) Cards
 
 {{% note %}}
-To override Hugo's embedded Twitter Cards template, copy the [source code] to a file with the same name in the layouts/partials directory, then call it from your templates using the [`partial`] function:
+To override Hugo's embedded Twitter Cards template, copy the [source code] to a file with the same name in the `layouts/partials` directory, then call it from your templates using the [`partial`] function:
 
 `{{ partial "twitter_cards.html" . }}`
 

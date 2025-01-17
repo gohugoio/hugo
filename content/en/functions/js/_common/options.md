@@ -14,7 +14,7 @@ And then in your JS file:
 import * as params from '@params';
 ```
 
-Note that this is meant for small data sets, e.g. configuration settings. For larger data, please put/mount the files into `/assets` and import them directly.
+Note that this is meant for small data sets, e.g. configuration settings. For larger data, please put/mount the files into `assets` and import them directly.
 
 minify
 : (`bool`)Let `js.Build` handle the minification.

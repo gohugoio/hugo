@@ -12,7 +12,7 @@ toc: true
 
 By default, not all pages are backed by a file, including top level [section] pages, [taxonomy] pages, and [term] pages. By definition, you cannot retrieve file information when the file does not exist.
 
-To back one of the pages above with a file, create an _index.md file in the corresponding directory. For example:
+To back one of the pages above with a file, create an `_index.md` file in the corresponding directory. For example:
 
 ```text
 content/

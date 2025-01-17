@@ -482,7 +482,7 @@ To control tag availability, change the `excludeFields` or `includeFields` setti
 
 ## Smart cropping of images
 
-By default, Hugo uses the [Smartcrop] library when cropping images with the `Crop` or`Fill` methods. You can set the anchor point manually, but in most cases the `Smart` option will make a good choice.
+By default, Hugo uses the [Smartcrop] library when cropping images with the `Crop` or `Fill` methods. You can set the anchor point manually, but in most cases the `Smart` option will make a good choice.
 
 Examples using the sunset image from above:
 

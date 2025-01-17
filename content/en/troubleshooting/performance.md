@@ -90,7 +90,7 @@ total count
 : The number of times the template was executed.
 
 template
-: The path to the template, relative to the layouts directory.
+: The path to the template, relative to the `layouts` directory.
 
 [`partial`]: /functions/partials/include/
 [`partialCached`]: /functions/partials/includecached/

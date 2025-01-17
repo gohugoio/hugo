@@ -60,7 +60,7 @@ A data type with two possible values, either `true` or `false`.
 
 ###### branch bundle
 
-A directory that contains an _index.md file and zero or more [resources](#resource). Analogous to a physical branch, a branch bundle may have descendants including leaf bundles and other branch bundles. Top level directories with or without _index.md files are also branch bundles. This includes the home page. See&nbsp;[details](/content-management/page-bundles/).
+A directory that contains an `_index.md` file and zero or more [resources](#resource). Analogous to a physical branch, a branch bundle may have descendants including leaf bundles and other branch bundles. Top level directories with or without `_index.md` files are also branch bundles. This includes the home page. See&nbsp;[details](/content-management/page-bundles/).
 
 ###### build
 
@@ -100,7 +100,7 @@ A markup language for creating content. Typically Markdown, but may also be HTML
 
 ###### content type
 
-A classification of content inferred from the top-level directory name or the `type` set in [front matter](#front-matter). Pages in the root of the content directory, including the home page, are of type "page". Accessed via `.Page.Type` in [templates](#template). See&nbsp;[details](/content-management/types/).
+A classification of content inferred from the top-level directory name or the `type` set in [front matter](#front-matter). Pages in the root of the `content` directory, including the home page, are of type "page". Accessed via `.Page.Type` in [templates](#template). See&nbsp;[details](/content-management/types/).
 
 ###### content view
 
@@ -158,7 +158,7 @@ Used within a [template action](#template-action), a function takes one or more 
 
 ###### global resource
 
-A file within the assets directory, or within any directory [mounted](/hugo-modules/configuration/#module-configuration-mounts) to the assets directory. Capture one or more global resources using the [`resources.Get`], [`resources.GetMatch`], [`resources.Match`], or [`resources.ByType`] functions.
+A file within the `assets` directory, or within any directory [mounted](/hugo-modules/configuration/#module-configuration-mounts) to the `assets` directory. Capture one or more global resources using the [`resources.Get`], [`resources.GetMatch`], [`resources.Match`], or [`resources.ByType`] functions.
 
 [`resources.Get`]: /functions/resources/get/
 [`resources.GetMatch`]: /functions/resources/getmatch/
@@ -227,7 +227,7 @@ Adaptation of a site to meet language and regional requirements. This includes t
 
 {{< new-in 0.123.0 >}}
 
-A page or page resource identifier derived from the file path, excluding its extension and language identifier. This value is neither a file path nor a URL. Starting with a file path relative to the content directory, Hugo determines the logical path by stripping the file extension and language identifier, converting to lower case, then replacing spaces with hyphens. {{% comment %}}<!-- You may also set this value using the `path` front matter field. -->{{% /comment %}} See [examples](/methods/page/path/#examples).
+A page or page resource identifier derived from the file path, excluding its extension and language identifier. This value is neither a file path nor a URL. Starting with a file path relative to the `content` directory, Hugo determines the logical path by stripping the file extension and language identifier, converting to lower case, then replacing spaces with hyphens. {{% comment %}}<!-- You may also set this value using the `path` front matter field. -->{{% /comment %}} See [examples](/methods/page/path/#examples).
 
 ###### map
 
@@ -377,7 +377,7 @@ Conceptually, a [map](#map) with [methods](#method) to set, get, update, and del
 
 ###### section
 
-A top-level content directory, or any content directory with an&nbsp;_index.md file. A content directory with an&nbsp;_index.md file is also known as a [branch bundle](/getting-started/glossary/#branch-bundle). Section templates receive one or more page [collections](#collection) in [context](#context). See&nbsp;[details](/content-management/sections/).
+A top-level content directory, or any content directory with an&nbsp;`_index.md` file. A content directory with an&nbsp;`_index.md` file is also known as a [branch bundle](/getting-started/glossary/#branch-bundle). Section templates receive one or more page [collections](#collection) in [context](#context). See&nbsp;[details](/content-management/sections/).
 
 ###### section page
 
@@ -421,7 +421,7 @@ Content with the "taxonomy" [page kind](#page-kind). Typically a listing of [ter
 
 ###### template
 
-A file with [template actions](#template-action), located within the layouts directory of a project, theme, or module. See&nbsp;[details](/templates/).
+A file with [template actions](#template-action), located within the `layouts` directory of a project, theme, or module. See&nbsp;[details](/templates/).
 
 ###### template action
 

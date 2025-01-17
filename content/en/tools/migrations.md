@@ -35,7 +35,7 @@ Alternatively, you can use the [Jekyll import command](/commands/hugo_import_jek
 ## DokuWiki
 
 [dokuwiki-to-hugo](https://github.com/wgroeneveld/dokuwiki-to-hugo)
-: Migrates your DokuWiki source pages from [DokuWiki syntax](https://www.dokuwiki.org/wiki:syntax) to Hugo Markdown syntax. Includes extras like the TODO plugin. Written with extensibility in mind using Python 3. Also generates a TOML header for each page. Designed to copy-paste the wiki directory into your /content directory.
+: Migrates your DokuWiki source pages from [DokuWiki syntax](https://www.dokuwiki.org/wiki:syntax) to Hugo Markdown syntax. Includes extras like the TODO plugin. Written with extensibility in mind using Python 3. Also generates a TOML header for each page. Designed to copy-paste the wiki directory into your `content` directory.
 
 ## WordPress
 

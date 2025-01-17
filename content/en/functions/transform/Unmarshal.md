@@ -37,7 +37,7 @@ Use the `transform.Unmarshal` function with global, page, and remote resources.
 
 ### Global resource
 
-A global resource is a file within the assets directory, or within any directory mounted to the assets directory.
+A global resource is a file within the `assets` directory, or within any directory mounted to the `assets` directory.
 
 ```text
 assets/

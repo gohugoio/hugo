@@ -17,7 +17,7 @@ aliases: ['/templates/lists/']
 
 ## Structure
 
-Create templates in the layouts directory in the root of your project.
+Create templates in the `layouts` directory in the root of your project.
 
 Although your site may not require each of these templates, the example below is typical for a site of medium complexity.
 

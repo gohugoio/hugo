@@ -193,7 +193,7 @@ The `terse` format has fewer controls and page slots, consuming less space when 
 ```
 
 {{% note %}}
-To override Hugo's embedded pagination template, copy the [source code] to a file with the same name in the layouts/partials directory, then call it from your templates using the [`partial`] function:
+To override Hugo's embedded pagination template, copy the [source code] to a file with the same name in the `layouts/partials` directory, then call it from your templates using the [`partial`] function:
 
 `{{ partial "pagination.html" . }}`
 

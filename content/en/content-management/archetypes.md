@@ -59,10 +59,10 @@ hugo new content posts/my-first-post.md
 
 The archetype lookup order is:
 
-1. archetypes/posts.md
-1. archetypes/default.md
-1. themes/my-theme/archetypes/posts.md
-1. themes/my-theme/archetypes/default.md
+1. `archetypes/posts.md`
+1. `archetypes/default.md`
+1. `themes/my-theme/archetypes/posts.md`
+1. `themes/my-theme/archetypes/default.md`
 
 If none of these exists, Hugo uses a built-in default archetype.
 

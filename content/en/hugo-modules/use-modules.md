@@ -107,12 +107,12 @@ Also see the [CLI Doc](/commands/hugo_mod_graph/).
 
 ## Vendor your modules
 
-`hugo mod vendor` will write all the module dependencies to a `_vendor` folder, which will then be used for all subsequent builds.
+`hugo mod vendor` will write all the module dependencies to a `_vendor` directory, which will then be used for all subsequent builds.
 
 Note that:
 
 * You can run `hugo mod vendor` on any level in the module tree.
-* Vendoring will not store modules stored in your `themes` folder.
+* Vendoring will not store modules stored in your `themes` directory.
 * Most commands accept a `--ignoreVendorPaths` flag, which will then not use the vendored modules in `_vendor` for the module paths matching the [Glob](https://github.com/gobwas/glob) pattern given.
 
 Also see the [CLI Doc](/commands/hugo_mod_vendor/).

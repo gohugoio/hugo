@@ -79,7 +79,7 @@ module.exports = {
 {{% /note %}}
 
 Step 4
-: Enable creation of the `hugo_stats.json` file when building the site. If you are only using this for the production build, consider placing it below [config/production].
+: Enable creation of the `hugo_stats.json` file when building the site. If you are only using this for the production build, consider placing it below [`config/production`].
 
 {{< code-toggle file=hugo >}}
 [build.buildStats]
@@ -122,7 +122,7 @@ HUGO_ENVIRONMENT
 Default is `production` for `hugo` and `development` for `hugo server`.
 
 HUGO_PUBLISHDIR
-: The absolute path to the publish directory (the `public` directory). Note that the value will always point to a directory on disk even when running `hugo server` in memory mode. If you write to this folder from PostCSS when running the server, you could run the server with one of these flags:
+: The absolute path to the publish directory (the `public` directory). Note that the value will always point to a directory on disk even when running `hugo server` in memory mode. If you write to this directory from PostCSS when running the server, you could run the server with one of these flags:
 
 ```sh
 hugo server --renderToDisk
@@ -153,6 +153,6 @@ You cannot manipulate the values returned from the resource’s methods. For exa
 
 [node.js]: https://nodejs.org/en/download
 [supported file name]: https://github.com/postcss/postcss-load-config#usage
-[config/production]: /getting-started/configuration/#configuration-directory
+[`config/production`]: /getting-started/configuration/#configuration-directory
 [configure build]: /getting-started/configuration/#configure-build
 [purgecss]: https://github.com/FullHuman/purgecss#readme

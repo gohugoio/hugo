@@ -13,7 +13,7 @@ weight: 20
 toc: true
 ---
 
-A template is a file in the layouts directory of a project, theme, or module. Templates use [variables] , [functions], and [methods] to transform your content, resources, and data into a published page.
+A template is a file in the `layouts` directory of a project, theme, or module. Templates use [variables] , [functions], and [methods] to transform your content, resources, and data into a published page.
 
 [functions]: /functions/
 [methods]: /methods/
@@ -317,7 +317,7 @@ Object|Method|Description
 `Page`|[`Date`](methods/page/date/)|Returns the date of the given page.
 `Page`|[`Params`](methods/page/params/)|Returns a map of custom parameters as defined in the front matter of the given page.
 `Page`|[`Title`](methods/page/title/)|Returns the title of the given page.
-`Site`|[`Data`](methods/site/data/)|Returns a data structure composed from the files in the data directory.
+`Site`|[`Data`](methods/site/data/)|Returns a data structure composed from the files in the `data` directory.
 `Site`|[`Params`](methods/site/params/)|Returns a map of custom parameters as defined in the site configuration.
 `Site`|[`Title`](methods/site/title/)|Returns the title as defined in the site configuration.
 

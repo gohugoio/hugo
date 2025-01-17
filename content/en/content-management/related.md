@@ -80,7 +80,7 @@ weight      = 80
 {{< /code-toggle >}}
 
 * The `name` maps to a optional front matter slice attribute that can be used to link from the page level down to the fragment/heading level.
-* If `applyFilter`is enabled, the `.HeadingsFiltered` on each page in the result will reflect the filtered headings. This is useful if you want to show the headings in the related content listing:
+* If `applyFilter` is enabled, the `.HeadingsFiltered` on each page in the result will reflect the filtered headings. This is useful if you want to show the headings in the related content listing:
 
 ```go-html-template
 {{ $related := .Site.RegularPages.Related . | first 5 }}

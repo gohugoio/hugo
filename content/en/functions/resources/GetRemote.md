@@ -103,7 +103,7 @@ Use the [`try`] statement to capture HTTP request errors. If you do not handle t
 [`try`]: /functions/go-template/try
 
 {{% note %}}
-Hugo does not classify an HTTP response with status code 404 as an error. In this case `resources.GetRemtoe`returns nil.
+Hugo does not classify an HTTP response with status code 404 as an error. In this case `resources.GetRemote` returns nil.
 {{% /note %}}
 
 ```go-html-template

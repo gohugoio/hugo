@@ -175,8 +175,8 @@ URL = "<FILL ME IN>"
 # Azure Blob Storage; see https://gocloud.dev/howto/blob/#azure
 #URL = "azblob://$web"
 
-# You can use a "prefix=" query parameter to target a subfolder of the bucket:
-#URL = "gs://<Bucket Name>?prefix=a/subfolder/"
+# You can use a "prefix=" query parameter to target a subdirectory of the bucket:
+#URL = "gs://<Bucket Name>?prefix=a/subdirectory/"
 
 # If you are using a CloudFront CDN, deploy will invalidate the cache as needed.
 #cloudFrontDistributionID = "<FILL ME IN>"

@@ -43,21 +43,21 @@ Hugo selects shortcode templates based on the shortcode name, the current output
 
 Shortcode name|Output format|Language|Template path
 :--|:--|:--|:--
-foo|html|en|layouts/shortcodes/foo.en.html
-foo|html|en|layouts/shortcodes/foo.html.html
-foo|html|en|layouts/shortcodes/foo.html
-foo|html|en|layouts/shortcodes/foo.html.en.html
+foo|html|en|`layouts/shortcodes/foo.en.html`
+foo|html|en|`layouts/shortcodes/foo.html.html`
+foo|html|en|`layouts/shortcodes/foo.html`
+foo|html|en|`layouts/shortcodes/foo.html.en.html`
 
 Shortcode name|Output format|Language|Template path
 :--|:--|:--|:--
-foo|rss|en|layouts/shortcodes/foo.en.xml
-foo|rss|en|layouts/shortcodes/foo.rss.xml
-foo|rss|en|layouts/shortcodes/foo.en.html
-foo|rss|en|layouts/shortcodes/foo.rss.en.xml
-foo|rss|en|layouts/shortcodes/foo.xml
-foo|rss|en|layouts/shortcodes/foo.html.en.html
-foo|rss|en|layouts/shortcodes/foo.html.html
-foo|rss|en|layouts/shortcodes/foo.html
+foo|rss|en|`layouts/shortcodes/foo.en.xml`
+foo|rss|en|`layouts/shortcodes/foo.rss.xml`
+foo|rss|en|`layouts/shortcodes/foo.en.html`
+foo|rss|en|`layouts/shortcodes/foo.rss.en.xml`
+foo|rss|en|`layouts/shortcodes/foo.xml`
+foo|rss|en|`layouts/shortcodes/foo.html.en.html`
+foo|rss|en|`layouts/shortcodes/foo.html.html`
+foo|rss|en|`layouts/shortcodes/foo.html`
 
 Note that templates provided by a theme or module always take precedence.
 

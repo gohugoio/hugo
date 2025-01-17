@@ -30,7 +30,7 @@ To resolve, install a different edition based on the feature table above. See th
 
 ###### Why do I see "Page Not Found" when visiting the home page?
 
-In the content/_index.md file:
+In the `content/_index.md` file:
 
   - Is `draft` set to `true`?
   - Is the `date` in the future?
@@ -41,7 +41,7 @@ If the answer to any of these questions is yes, either change the field values, 
 
 ###### Why is a given page not published?
 
-In the content/section/page.md file, or in the content/section/page/index.md file:
+In the `content/section/page.md` file, or in the `content/section/page/index.md` file:
 
   - Is `draft` set to `true`?
   - Is the `date` in the future?
@@ -52,11 +52,11 @@ If the answer to any of these questions is yes, either change the field values, 
 
 ###### Why can't I see any of a page's descendants?
 
-You may have an index.md file instead of an _index.md file. See&nbsp;[details](/content-management/page-bundles/).
+You may have an `index.md` file instead of an `_index.md` file. See&nbsp;[details](/content-management/page-bundles/).
 
 ###### What is the difference between an index.md file and an _index.md file?
 
-A directory with an index.md file is a [leaf bundle]. A directory with an _index.md file is a [branch bundle]. See&nbsp;[details](/content-management/page-bundles/).
+A directory with an `index.md file` is a [leaf bundle]. A directory with an `_index.md` file is a [branch bundle]. See&nbsp;[details](/content-management/page-bundles/).
 
 [branch bundle]: /getting-started/glossary/#branch-bundle
 [leaf bundle]: /getting-started/glossary/#leaf-bundle

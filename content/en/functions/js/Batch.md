@@ -233,7 +233,7 @@ Hugo will, by default, first try to resolve any import in [assets](/hugo-pipes/i
 
 You can pass any object that implements [Resource.Get](/methods/page/resources/#get). Pass a slice to set multiple contexts.
 
-The example above uses [`Resources.Mount`] to resolve a folder inside `assets` relative to the page bundle.
+The example above uses [`Resources.Mount`] to resolve a directory inside `assets` relative to the page bundle.
 
 ### OptionsSetter
 

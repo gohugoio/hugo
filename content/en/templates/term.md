@@ -63,7 +63,7 @@ Term
 
 ## Display metadata
 
-Display metadata about each term by creating a corresponding branch bundle in the content directory.
+Display metadata about each term by creating a corresponding branch bundle in the `content` directory.
 
 For example, create an "authors" taxonomy:
 

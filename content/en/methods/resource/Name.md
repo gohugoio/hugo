@@ -15,7 +15,7 @@ The value returned by the `Name` method on a `Resource` object depends on the re
 
 ## Global resource
 
-With a [global resource], the `Name` method returns the path to the resource, relative to the assets directory.
+With a [global resource], the `Name` method returns the path to the resource, relative to the `assets` directory.
 
 ```text
 assets/

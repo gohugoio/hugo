@@ -19,7 +19,7 @@ Hugo publishes the resource to the target path when you call its [`Publish`], [`
 [`permalink`]: /methods/resource/permalink/
 [`relpermalink`]: /methods/resource/relpermalink/
 
-Let's say you need to publish a file named "site.json" in the root of your public directory, containing the build date, the Hugo version used to build the site, and the date that the content was last modified. For example:
+Let's say you need to publish a file named "site.json" in the root of your `public` directory, containing the build date, the Hugo version used to build the site, and the date that the content was last modified. For example:
 
 ```json
 {
@@ -50,7 +50,7 @@ The example above:
 1. Creates a map with the relevant key-value pairs using the [`dict`] function
 2. Encodes the map as a JSON string using the [`jsonify`] function
 3. Creates a resource from the JSON string using the `resources.FromString` function
-4. Publishes the file to the root of the public directory using the resource's `.Publish` method
+4. Publishes the file to the root of the `public` directory using the resource's `.Publish` method
 
 Combine `resources.FromString` with [`resources.ExecuteAsTemplate`] if your string contains template actions. Rewriting the example above:
 
