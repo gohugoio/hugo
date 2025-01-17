@@ -858,3 +858,47 @@ title: p5
 	}
 	b.Assert(htmlFiles, hqt.IsAllElementsEqual)
 }
+
+func TestReservedTemplatePaths(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/LAYOUT --
+-- layouts/home.html --
+{{- .Content -}}
+-- layouts/shortcodes/a.html --
+shortcode a
+-- content/_index.md --
+---
+title: home
+---
+a {{< comment >}} b {{< /comment >}} c|{{< a >}}
+`
+
+	filesOriginal := files
+
+	layouts := []string{
+		"shortcodes/comment.html",
+		"shortcodes/comment.html.html",
+		"shortcodes/comment.en.html.html",
+		"shortcodes/comment.de.html.html",
+		"shortcodes/comment.json",
+		"shortcodes/comment.json.json",
+		"shortcodes/comment.en.json.json",
+		"shortcodes/comment.de.json.json",
+	}
+
+	for _, layout := range layouts {
+		files = strings.ReplaceAll(filesOriginal, "LAYOUT", layout)
+		b := hugolib.Test(t, files, hugolib.TestOptInfo())
+		b.AssertLogContains("INFO  template not loaded: the path", layout, "is reserved for embedded templates")
+		b.AssertFileContent("public/index.html", "<p>a  c|shortcode a</p>")
+	}
+
+	files = strings.ReplaceAll(filesOriginal, "LAYOUT", "shortcodes/foo.html")
+	b := hugolib.Test(t, files, hugolib.TestOptInfo())
+	b.AssertLogContains("! INFO  template not loaded: the path", "! is reserved for embedded templates")
+	b.AssertFileContent("public/index.html", "<p>a  c|shortcode a</p>")
+}

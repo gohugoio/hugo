@@ -23,6 +23,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -31,6 +32,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/output/layouts"
 
@@ -70,6 +72,13 @@ var identifiersRe = regexp.MustCompile(`at \<(.*?)(\.{3})?\>:`)
 // in v0.141.0. We can remove these aliases in v0.155.0 or later.
 var embeddedTemplatesAliases = map[string][]string{
 	"shortcodes/twitter.html": {"shortcodes/tweet.html"},
+}
+
+// These paths are reserved for embedded templates. Reserved paths follow the
+// format "directory/name" (no extensions) relative to the layouts directory.
+// Templates with these paths are not loaded from user space.
+var reservedTemplatePaths = []string{
+	"shortcodes/comment",
 }
 
 var (
@@ -825,6 +834,12 @@ func (t *templateHandler) loadTemplates() error {
 
 		name := strings.TrimPrefix(filepath.ToSlash(path), "/")
 		filename := filepath.Base(path)
+
+		if t.isReservedTemplatePath(path) {
+			t.Log.Infof("template not loaded: the path %q is reserved for embedded templates", name)
+			return nil
+		}
+
 		outputFormats := t.Conf.GetConfigSection("outputFormats").(output.Formats)
 		outputFormat, found := outputFormats.FromFilename(filename)
 
@@ -847,6 +862,13 @@ func (t *templateHandler) loadTemplates() error {
 	}
 
 	return nil
+}
+
+// isReservedTemplatePath reports whether the given template path is reserved
+// for embedded templates. Reserved paths follow the format "directory/name"
+// (no extensions) relative to the layouts directory.
+func (t *templateHandler) isReservedTemplatePath(path string) bool {
+	return slices.Contains(reservedTemplatePaths, paths.ToSlashNoExtensions(path))
 }
 
 func (t *templateHandler) nameIsText(name string) (string, bool) {

@@ -428,3 +428,16 @@ func ToSlashPreserveLeading(s string) string {
 func IsSameFilePath(s1, s2 string) bool {
 	return path.Clean(ToSlashTrim(s1)) == path.Clean(ToSlashTrim(s2))
 }
+
+// ToSlashNoExtensions returns the result of replacing each separator character
+// in path s with a slash ('/') character, then removing all file extensions.
+// For example, "/a/b/c.d/e.f.g" becomes "/a/b/c.d/e".
+func ToSlashNoExtensions(s string) string {
+	s = filepath.ToSlash(s)
+	d, f := path.Split(s)
+	i := strings.Index(f, ".")
+	if i >= 0 {
+		f = f[:i]
+	}
+	return path.Join(d, f)
+}

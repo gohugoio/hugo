@@ -15,6 +15,7 @@ package paths
 
 import (
 	"path/filepath"
+	"strconv"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -309,5 +310,43 @@ func TestIsSameFilePath(t *testing.T) {
 		{"/a/b/c", "/a/b/c/././././", true},
 	} {
 		c.Assert(IsSameFilePath(filepath.FromSlash(this.a), filepath.FromSlash(this.b)), qt.Equals, this.expected, qt.Commentf("a: %s b: %s", this.a, this.b))
+	}
+}
+
+func TestToSlashNoExtensions(t *testing.T) {
+	tests := []struct {
+		path string
+		want string
+	}{
+		{"a", "a"},
+		{"a/", "a"},
+		{"/a", "/a"},
+		{"/a/", "/a"},
+		{"a.b", "a"},
+		{"a.b/", "a.b"},
+		{"/a.b", "/a"},
+		{"/a.b/", "/a.b"},
+		{"a/b", "a/b"},
+		{"a/b/", "a/b"},
+		{"a/b", "a/b"},
+		{"/a/b/", "/a/b"},
+		{"a/b/c.d", "a/b/c"},
+		{"a/b/c.d", "a/b/c"},
+		{"a/b/c.d.e", "a/b/c"},
+		{"a/b/c.d/e", "a/b/c.d/e"},
+		{"a/b/c.d/e.f", "a/b/c.d/e"},
+		{"a/b/c.d/e.f.g", "a/b/c.d/e"},
+		{"a.", "a"},
+		{".a", ""},
+		{"/", "/"},
+		{".", ""},
+		{"", ""},
+	}
+	for k, tt := range tests {
+		t.Run(strconv.Itoa(k), func(t *testing.T) {
+			if got := ToSlashNoExtensions(tt.path); got != tt.want {
+				t.Errorf("ToSlashNoExtensions() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
