@@ -9,7 +9,7 @@ action:
     - methods/resource/Data
   returnType: resource.resourceError
   signatures: [RESOURCE.Err]
-expiryDate: 2026-01-31
+expiryDate: 2026-01-16 # deprecated 2025-01-16
 ---
 
 {{% deprecated-in 0.141.0 %}}

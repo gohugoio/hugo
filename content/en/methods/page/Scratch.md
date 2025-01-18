@@ -11,6 +11,7 @@ action:
   signatures: [PAGE.Scratch]
 toc: true
 aliases: [/extras/scratch/,/doc/scratch/,/functions/scratch]
+expiryDate: 2025-11-18 #  deprecated 2024-11-18
 ---
 
 {{% deprecated-in 0.138.0 %}}
