@@ -25,7 +25,7 @@ shortcode.
         {{- continue }}
       {{- end }}
       {{- $anchor := path.BaseName .Path | anchorize }}
-      {{- $m = merge $m (dict $k ($anchor | anchorize)) }}
+      {{- $m = merge $m (dict $k $anchor) }}
     {{- end }}
     {{- range $k, $v := $m }}
 [{{ $k }}](#{{ $v }})&nbsp;{{/* Do not indent. */}}
