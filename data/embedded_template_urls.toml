@@ -30,7 +30,6 @@
 'gist' = 'shortcodes/gist.html'
 'highlight' = 'shortcodes/highlight.html'
 'instagram' = 'shortcodes/instagram.html'
-'instagram_simple' = 'shortcodes/instagram_simple.html'
 'param' = 'shortcodes/param.html'
 'qr' = 'shortcodes/qr.html'
 'ref' = 'shortcodes/ref.html'

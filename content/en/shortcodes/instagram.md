@@ -46,11 +46,3 @@ disable
 
 simple
 : (`bool`) Whether to enable simple mode for image card generation. If `true`, Hugo creates a static card without JavaScript. This mode only supports image cards, and the image is fetched directly from Instagram's servers. Default is `false`.
-
-The source code for the simple version of the shortcode is available [here].
-
-If you enable simple mode you may want to disable the hardcoded inline styles by setting `disableInlineCSS` to `true` in your site configuration. The default value for this setting is `false`.
-
-[here]: {{% eturl instagram_simple %}}
-
-{{< code-toggle config=services.instagram />}}
