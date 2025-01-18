@@ -17,15 +17,44 @@ toc: true
 
 The `images.Mask` filter applies a mask to an image. Black pixels in the mask make the corresponding areas of the base image transparent, while white pixels keep them opaque. Color images are converted to grayscale for masking purposes. The mask is automatically resized to match the dimensions of the base image.
 
+{{% note %}}
+Of the formats supported by Hugo's imaging pipelie, only PNG and WebP have an alpha channel to support transparency. If your source image uses a different format, convert it to either PNG or WebP before applying the mask as shown in the example below.
+
+Applying an image mask to a non-transparent image format such as JPEG will result in masked areas appearing white instead of transparent.
+{{% /note %}}
+
 ## Usage
 
-Create the filter:
+Create a slice of filters, one for WebP conversion and the other for mask application:
 
 ```go-html-template
-{{ $filter := images.Mask "images/mask.png" }}
+{{ $filter1 := images.Process "webp" }}
+{{ $filter2 := images.Mask (resources.Get "images/mask.png") }}
+{{ $filters := slice $filter1 $filter2 }}
 ```
 
-{{% include "functions/images/_common/apply-image-filter.md" %}}
+Apply the filters using the [`images.Filter`] function:
+
+```go-html-template
+{{ with resources.Get "images/original.jpg" }}
+  {{ with . | images.Filter $filters }}
+    <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
+  {{ end }}
+{{ end }}
+```
+
+You can also apply the filter using the [`Filter`] method on a 'Resource' object:
+
+```go-html-template
+{{ with resources.Get "images/original.jpg" }}
+  {{ with .Filter $filters }}
+    <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
+  {{ end }}
+{{ end }}
+```
+
+[`images.Filter`]: /functions/images/filter/
+[`Filter`]: /methods/resource/filter/
 
 ## Example
 
