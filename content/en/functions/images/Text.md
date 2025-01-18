@@ -47,48 +47,72 @@ y
 
 ## Usage
 
+Set the text and paths:
+
+```go-html-template
+{{ $text := "Zion National Park" }}
+{{ $fontPath := "https://github.com/google/fonts/raw/main/ofl/lato/Lato-Regular.ttf" }}
+{{ $imagePath := "images/original.jpg" }}
+```
+
 Capture the font as a resource:
 
 ```go-html-template
 {{ $font := "" }}
-{{ $path := "https://github.com/google/fonts/raw/main/ofl/lato/Lato-Regular.ttf" }}
-{{ with try (resources.GetRemote $path) }}
+{{ with try (resources.GetRemote $fontPath) }}
   {{ with .Err }}
     {{ errorf "%s" . }}
   {{ else with .Value }}
     {{ $font = . }}
   {{ else }}
-    {{ errorf "Unable to get resource %q" $path }}
+    {{ errorf "Unable to get resource %s" $fontPath }}
   {{ end }}
 {{ end }}
 ```
 
-Create the options map:
+Create the filter, centering the text horizontally and vertically:
 
 ```go-html-template
-{{ $opts := dict
-  "color" "#fbfaf5"
-  "font" $font
-  "linespacing" 8
-  "size" 40
-  "x" 25
-  "y" 190
-}}
+{{ $r := "" }}
+{{ $filter := "" }}
+{{ with $r = resources.Get $imagePath }}
+  {{ $opts := dict
+    "alignx" "center"
+    "color" "#fbfaf5"
+    "font" $font
+    "linespacing" 8
+    "size" 60
+    "x" (mul .Width 0.5 | int)
+    "y" (mul .Height 0.5 | int)
+  }}
+  {{ $filter = images.Text $text $opts }}
+{{ else }}
+  {{ errorf "Unable to get resource %s" $imagePath }}
+{{ end }}
 ```
 
-Set the text:
+Apply the filter using the [`images.Filter`] function:
 
 ```go-html-template
-{{ $text := "Zion National Park" }}
+{{ with $r }}
+  {{ with . | images.Filter $filter }}
+    <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
+  {{ end }}
+{{ end }}
 ```
 
-Create the filter:
+You can also apply the filter using the [`Filter`] method on a `Resource` object:
 
 ```go-html-template
-{{ $filter := images.Text $text $opts }}
+{{ with $r }}
+  {{ with .Filter $filter }}
+    <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
+  {{ end }}
+{{ end }}
 ```
 
-{{% include "functions/images/_common/apply-image-filter.md" %}}
+[`images.Filter`]: /functions/images/filter/
+[`Filter`]: /methods/resource/filter/
 
 ## Example
 
