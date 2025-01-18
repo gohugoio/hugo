@@ -448,7 +448,7 @@ public/
 └── index.html
 ```
 
-The alias from the previous URL to the new URL is a client side redirect:
+The alias from the previous URL to the new URL is a client-side redirect:
 
 {{< code file=posts/previous-file-name/index.html >}}
 <!DOCTYPE html>

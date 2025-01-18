@@ -54,6 +54,11 @@ Please link to the [glossary of terms] when necessary, and use the terms consist
 - Capitalize the word "Markdown"
 - Hyphenate the term "open-source" when used an adjective.
 
+Use the [glossary link] (`gl`) shortcode to insert a link to the glossary entry for the given term, and use the [glossary term] (`gt`) shortcode to insert the definition of the given term.
+
+[glossary link]: #glossary-link
+[glossary term]: #glossary-term
+
 #### Page titles and headings
 
 Please follow these guidelines for page titles and headings:
@@ -105,7 +110,7 @@ For example:
 [functions]: /functions
 [methods]: /methods
 
-## Directory names, file names, and file paths
+#### Directory names, file names, and file paths
 
 Enclose directory names, file names, and file paths within backticks, with the following exceptions:
 
@@ -118,7 +123,6 @@ Enclose directory names, file names, and file paths within backticks, with the f
 
 Other guidelines to consider:
 
-- Wrap directory names, file names, and file paths within a pair of backticks.
 - Do not place list items directly under a heading; include an introductory sentence or phrase before the list.
 - Avoid use of **bold** text. Use the [note shortcode] to draw attention to important content.
 - Do not place description terms (`dt`) within backticks unless required for syntactic clarity.
@@ -143,8 +147,6 @@ Always include the language code when using a fenced code block:
 ```
 ````
 
-Rendered:
-
 ```go-html-template
 {{ if eq $foo "bar" }}
   {{ print "foo is bar" }}
@@ -159,8 +161,6 @@ Use this syntax to include shortcodes calls within your code examples:
 {{</*/* foo */*/>}}
 {{%/*/* foo */*/%}}
 ```
-
-Rendered:
 
 ```text
 {{</* foo */>}}
@@ -178,8 +178,6 @@ languageCode = 'en-US'
 title = 'My Site'
 {{</* /code-toggle */>}}
 ```
-
-Rendered:
 
 {{< code-toggle file=hugo >}}
 baseURL = 'https://example.org/'
@@ -199,8 +197,6 @@ draft = false
 {{</* /code-toggle */>}}
 ```
 
-Rendered:
-
 {{< code-toggle file=content/posts/my-first-post.md fm=true >}}
 title = 'My first post'
 date = 2023-11-09T12:56:07-08:00
@@ -219,8 +215,6 @@ Use the [code shortcode] for other code examples that require a file name:
 {{</* /code */>}}
 ```
 
-Rendered:
-
 {{< code file=layouts/_default/single.html >}}
 {{ range .Site.RegularPages }}
   <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
@@ -233,7 +227,7 @@ These shortcodes are commonly used throughout the documentation. Other shortcode
 
 ### code
 
-Use the "code" shortcode for other code examples that require a file name. See the [code examples] above. This shortcode takes these arguments:
+Use the `code` shortcode for other code examples that require a file name. See the [code examples] above. This shortcode takes these arguments:
 
 copy
 : (`bool`) Whether to display a copy-to-clipboard button. Default is `false`.
@@ -244,23 +238,60 @@ file
 lang
 : (`string`) The code language. If you do not provide a `lang` argument, the code language is determined by the file extension. If the file extension is `html`, sets the code language to `go-html-template`. Default is `text`.
 
+```text
+{{</* code file=content/something/foo.md lang=text copy=true */>}}
+Some code here
+{{</* /code */>}}
+```
+
+{{< code file=content/something/foo.md lang=text copy=true >}}
+Some code here
+{{< /code >}}
+
 ### code-toggle
 
-Use the "code-toggle" shortcode to display examples of site configuration, front matter, or data files. See the [code examples] above. This shortcode takes these arguments:
+Use the `code-toggle` shortcode to display examples of site configuration, front matter, or data files. See the [code examples] above. This shortcode takes these arguments:
+
+config
+: (`string`) The section of `site.Data.docs.config` to render.
 
 copy
 : (`bool`) Whether to display a copy-to-clipboard button. Default is `false`.
 
 file
-: (`string`) The file name to display. Omit the file extension for site configuration examples.
+: (`string`) The file name to display. Omit the file extension for site configuration examples. Default is `hugo`
 
 fm
 : (`bool`) Whether the example is front matter. Default is `false`.
 
+skipHeader
+: (`bool`) Whether to omit top level key(s) when rendering a section of `site.Data.docs.config`.
+
+```text
+{{</* code-toggle */>}}
+title: Example
+draft: false
+{{</* /code-toggle */>}}
+```
+
+{{< code-toggle >}}
+title: Example
+draft: false
+{{< /code-toggle >}}
+
+### comment
+
+Use the `comment` shortcode to include comments in your content. Hugo will ignore the text within these comments when rendering your site.
+
+```text
+{{%/* comment */%}}
+This will be hidden when rendering the page.
+{{%/* /comment */%}}
+```
 
 ### deprecated-in
 
-Use the “deprecated-in” shortcode to indicate that a feature is deprecated:
+Use the `deprecated-in` shortcode to indicate that a feature is deprecated:
 
 ```text
 {{%/* deprecated-in 0.127.0 */%}}
@@ -270,8 +301,6 @@ Use [`hugo.IsServer`] instead.
 {{%/* /deprecated-in */%}}
 ```
 
-Rendered:
-
 {{% deprecated-in 0.127.0 %}}
 Use [`hugo.IsServer`] instead.
 
@@ -280,7 +309,7 @@ Use [`hugo.IsServer`] instead.
 
 ### eturl
 
-Use the embedded template URL (eturl) shortcode to insert an absolute URL to the source code for an embedded template. The shortcode takes a single argument, the base file name of the template (omit the file extension).
+Use the embedded template URL (`eturl`) shortcode to insert an absolute URL to the source code for an embedded template. The shortcode takes a single argument, the base file name of the template (omit the file extension).
 
 ```text
 This is a link to the [embedded alias template].
@@ -288,27 +317,51 @@ This is a link to the [embedded alias template].
 [embedded alias template]: {{%/* eturl alias */%}}
 ```
 
-Rendered:
-
 This is a link to the [embedded alias template].
 
 [embedded alias template]: {{% eturl alias %}}
 
+### glossary link
+
+Use the glossary link (`gl`) shortcode to insert a link to the given glossary term.
+
+```text
+{{%/* gl scalar */%}}
+```
+
+{{% gl scalar %}}
+
+### glossary term
+
+Use the glossary term (`gt`) shortcode to insert the definition of the given glossary term.
+
+```text
+{{%/* gt scalar */%}}
+```
+
+{{% gt scalar %}}
+
+### include
+
+Use the `include` shortcode to include content from another page.
+
+```text
+{{%/* include "functions/_common/glob-patterns" */%}}
+```
+
 ### new-in
 
-Use the "new-in" shortcode to indicate a new feature:
+Use the `new-in` shortcode to indicate a new feature:
 
 ```text
 {{</* new-in 0.127.0 */>}}
 ```
 
-Rendered:
-
 {{< new-in 0.127.0 >}}
 
 ### note
 
-Use the "note" shortcode with `{{%/* */%}}` delimiters to call attention to important content:
+Use the `note` shortcode with `{{%/* */%}}` delimiters to call attention to important content:
 
 ```text
 {{%/* note */%}}
@@ -317,8 +370,6 @@ Use the [`math.Mod`] function to control...
 [`math.Mod`]: /functions/math/mod/
 {{%/* /note */%}}
 ```
-
-Rendered:
 
 {{% note %}}
 Use the [`math.Mod`] function to control...
