@@ -7,8 +7,8 @@ keywords: [configuration,toml,yaml,json]
 menu:
   docs:
     parent: getting-started
-    weight: 40
-weight: 40
+    weight: 50
+weight: 50
 toc: true
 aliases: [/overview/source-directory/,/overview/configuration/]
 ---

@@ -6,8 +6,8 @@ keywords: [markup,markdown,goldmark,asciidoc,asciidoctor,highlighting]
 menu:
   docs:
     parent: getting-started
-    weight: 50
-weight: 50
+    weight: 60
+weight: 60
 slug: configuration-markup
 toc: true
 ---

@@ -1,0 +1,19 @@
+{{- /*
+Renders a glossary term.
+
+@param {string} (.Get 0) The glossary term.
+@returns {template.HTML}
+
+@example {{% gt float %}}
+@example {{% gt "floating point" %}}
+*/}}
+{{- with .Get 0 }}
+  {{- $path := printf "/getting-started/glossary/%s" (urlize .) }}
+  {{- with site.GetPage $path }}
+{{ .RenderShortcodes }}{{/* Do not indent this line. */}}
+  {{- else }}
+    {{- errorf "The glossary term (%s) shortcode was unable to find %s: see %s" $.Name $path $.Position }}
+  {{- end }}
+{{- else }}
+  {{- errorf "The glossary term (%s) shortcode requires one positional parameter: see %s" .Name .Position }}
+{{- end }}

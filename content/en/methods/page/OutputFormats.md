@@ -11,7 +11,7 @@ action:
 toc: true
 ---
 
-{{% include "methods/page/_common/output-format-definition.md" %}}
+{{% gt "output format" %}}
 
 The `OutputFormats` method on a `Page` object returns a slice of `OutputFormat` objects, each representing one of the output formats enabled for the given page. See&nbsp;[details](/templates/output-formats/).
 

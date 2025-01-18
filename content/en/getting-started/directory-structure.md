@@ -6,8 +6,8 @@ keywords: [source, organization, directories]
 menu:
   docs:
     parent: getting-started
-    weight: 30
-weight: 30
+    weight: 40
+weight: 40
 toc: true
 aliases: [/overview/source-directory/]
 ---
