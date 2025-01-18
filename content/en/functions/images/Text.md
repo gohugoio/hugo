@@ -17,6 +17,10 @@ toc: true
 
 Although none of the options are required, at a minimum you will want to set the `size` to be some reasonable percentage of the image height.
 
+alignx
+ {{< new-in 0.141.0 >}}
+: (`string`) The horizontal alignment of the text relative to the horizontal offset, one of `left`, `center`, or `right`. Default is `left`.
+
 color
 : (`string`) The font color, either a 3-digit or 6-digit hexadecimal color code. Default is `#ffffff` (white).
 
@@ -36,10 +40,6 @@ x
 
 y
 : (`int`) The vertical offset, in pixels, relative to the top of the image. Default is `10`.
-
-alignx
- {{< new-in 0.141.0 >}}
-: (`string`) The horizontal alignment of the text relative to the `x` position. One of `left`, `center`, or `right`. Default is `left`.
 
 [global resource]: /getting-started/glossary/#global-resource
 [page resource]: /getting-started/glossary/#page-resource
