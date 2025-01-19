@@ -1,6 +1,6 @@
-{{- $pc := .Page.Site.Config.Privacy.Vimeo -}}
+{{- $pc := site.Config.Privacy.Vimeo -}}
 {{- if not $pc.Disable -}}
-  {{- $ctx := dict "page" .Page "pc" $pc "name" .Name "position" .Position }}
+  {{- $ctx := dict "ctx" . }}
   {{- if .IsNamedParams -}}
     {{- with .Get "id" -}}
       {{- $ctx = merge $ctx (dict "id" . "class" ($.Get "class")) -}}
@@ -19,7 +19,7 @@
 {{- end -}}
 
 {{- define "render-vimeo" -}}
-  {{- $dnt := cond .pc.EnableDNT 1 0 -}}
+  {{- $dnt := cond site.Config.Privacy.Vimeo.EnableDNT 1 0 -}}
   {{- $url := urls.JoinPath "https://vimeo.com" .id -}}
   {{- $query := querify "url" $url "dnt" $dnt -}}
   {{- $request := printf "https://vimeo.com/api/oembed.json?%s" $query -}}
@@ -32,7 +32,7 @@
         {{- with $.class -}}
           {{- $class = printf "%s %s" "s_video_simple" . -}}
         {{- else -}}
-          {{ template "__h_simple_css" $.page }}
+          {{ template "__h_simple_css" $.ctx.Page }}
         {{- end -}}
         {{- $thumbnail := .thumbnail_url -}}
         {{- $original := $thumbnail | replaceRE "(_.*\\.)" "." -}}
@@ -40,13 +40,13 @@
           <a href="{{ .provider_url }}{{ .video_id }}" rel="noopener" target="_blank">
             <img src="{{ $thumbnail }}" srcset="{{ $thumbnail }} 1x, {{ $original }} 2x" alt="{{ .title }}">
             <div class="play">
-              {{ template "__h_simple_icon_play" $.page }}
+              {{ template "__h_simple_icon_play" $.ctx.Page }}
             </div>
           </a>
         </div>
       {{- end -}}
     {{- else -}}
-      {{- warnidf "shortcode-vimeo-simple" "The %q shortcode was unable to retrieve the remote data. See %s" .name .position -}}
+      {{- warnidf "shortcode-vimeo-simple" "The %q shortcode was unable to retrieve the remote data. See %s" $.ctx.Name $.ctx.Position -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}

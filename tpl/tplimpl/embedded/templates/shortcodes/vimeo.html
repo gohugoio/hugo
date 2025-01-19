@@ -1,4 +1,4 @@
-{{- $pc := .Page.Site.Config.Privacy.Vimeo -}}
+{{- $pc := site.Config.Privacy.Vimeo -}}
 {{- if not $pc.Disable -}}
 {{- if $pc.Simple -}}
 {{ template "_internal/shortcodes/vimeo_simple.html" . }}

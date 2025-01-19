@@ -1,5 +1,5 @@
 {{- warnf "The \"twitter\", \"tweet\", and \"twitter_simple\" shortcodes were deprecated in v0.142.0 and will be removed in a future release. Please use the \"x\" shortcode instead." }}
-{{- $pc := .Page.Site.Config.Privacy.Twitter -}}
+{{- $pc := site.Config.Privacy.Twitter -}}
 {{- if not $pc.Disable -}}
   {{- if $pc.Simple -}}
     {{- template "_internal/shortcodes/twitter_simple.html" . -}}
@@ -7,7 +7,7 @@
     {{- $id := or (.Get "id") "" -}}
     {{- $user := or (.Get "user") "" -}}
     {{- if and $id $user -}}
-      {{- template "render-tweet" (dict "id" $id "user" $user "dnt" $pc.EnableDNT "name" .Name "position" .Position) -}}
+      {{- template "render-tweet" (dict "id" $id "user" $user "dnt" $pc.EnableDNT "ctx" .) -}}
     {{- else -}}
       {{- errorf "The %q shortcode requires two named parameters: user and id. See %s" .Name .Position -}}
     {{- end -}}
@@ -24,7 +24,7 @@
     {{- else with .Value -}}
       {{- (. | transform.Unmarshal).html | safeHTML -}}
     {{- else -}}
-    {{- warnidf "shortcode-twitter-getremote" "The %q shortcode was unable to retrieve the remote data. See %s" .name .position -}}
+      {{- warnidf "shortcode-twitter-getremote" "The %q shortcode was unable to retrieve the remote data. See %s" $.ctx.Name $.ctx.Position -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}
