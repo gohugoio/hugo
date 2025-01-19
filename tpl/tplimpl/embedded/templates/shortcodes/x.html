@@ -1,4 +1,4 @@
-{{- $pc := .Page.Site.Config.Privacy.X -}}
+{{- $pc := site.Config.Privacy.X -}}
 {{- if not $pc.Disable -}}
   {{- if $pc.Simple -}}
     {{- template "_internal/shortcodes/x_simple.html" . -}}
@@ -6,7 +6,7 @@
     {{- $id := or (.Get "id") "" -}}
     {{- $user := or (.Get "user") "" -}}
     {{- if and $id $user -}}
-      {{- template "render-x" (dict "id" $id "user" $user "dnt" $pc.EnableDNT "name" .Name "position" .Position) -}}
+      {{- template "render-x" (dict "id" $id "user" $user "dnt" $pc.EnableDNT "ctx" .) -}}
     {{- else -}}
       {{- errorf "The %q shortcode requires two named parameters: user and id. See %s" .Name .Position -}}
     {{- end -}}
@@ -23,7 +23,7 @@
     {{- else with .Value -}}
       {{- (. | transform.Unmarshal).html | safeHTML -}}
     {{- else -}}
-    {{- warnidf "shortcode-x-getremote" "The %q shortcode was unable to retrieve the remote data. See %s" .name .position -}}
+      {{- warnidf "shortcode-x-getremote" "The %q shortcode was unable to retrieve the remote data. See %s" $.ctx.Name $.ctx.Position -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}

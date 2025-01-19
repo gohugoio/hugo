@@ -22,7 +22,7 @@
       {{- end }}
       {{- (. | transform.Unmarshal).html | safeHTML -}}
     {{- else -}}
-      {{- warnidf "shortcode-x-simple-getremote" "The %q shortcode was unable to retrieve the remote data. See %s" .ctx.Name .ctx.Position -}}
+      {{- warnidf "shortcode-x-simple-getremote" "The %q shortcode was unable to retrieve the remote data. See %s" $.ctx.Name $.ctx.Position -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}
