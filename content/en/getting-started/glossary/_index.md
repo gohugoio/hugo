@@ -8,7 +8,7 @@ menu:
     parent: getting-started
     weight: 80
 weight: 80
-layout: glossary
+layout: single
 build:
   render: always
   list: always
