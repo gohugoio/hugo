@@ -55,7 +55,7 @@ toc: true
 : Use fenced code blocks and Markdown render hooks to include diagrams in your content.
 
 [Mathematics]
-: Include mathematical equations and expressions in Markdown using LaTeX or TeX typesetting syntax.
+: Include mathematical equations and expressions in Markdown using LaTeX markup.
 
 [Syntax highlighting]
 : Syntactically highlight code examples using Hugo's embedded syntax highlighter, enabled by default for fenced code blocks in Markdown. The syntax highlighter supports hundreds of code languages and dozens of styles.

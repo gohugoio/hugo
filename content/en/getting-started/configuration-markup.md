@@ -126,7 +126,7 @@ enable = true
 
 {{< new-in 0.122.0 >}}
 
-Enable the passthrough extension to include mathematical equations and expressions in Markdown using LaTeX or TeX typesetting syntax. See [mathematics in Markdown] for details.
+Enable the passthrough extension to include mathematical equations and expressions in Markdown using LaTeX markup. See [mathematics in Markdown] for details.
 
 [mathematics in Markdown]: content-management/mathematics/
 
