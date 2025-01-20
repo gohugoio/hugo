@@ -24,9 +24,9 @@ fragment, it points to an entry on the glossary page.
   {{- with $gp :=site.GetPage $basePath }}
 
     {{- /* Validate the given term using its singular and plural forms. */}}
-    {{- if site.GetPage (urls.JoinPath $basePath $termGiven) }}
+    {{- if site.GetPage (urls.JoinPath $basePath ($termGiven | urlize)) }}
       {{- $termActual = $termGiven }}
-    {{- else if site.GetPage (urls.JoinPath $basePath $termSingular) }}
+    {{- else if site.GetPage (urls.JoinPath $basePath ($termSingular | urlize)) }}
       {{- $termActual = $termSingular}}
     {{- else }}
       {{- errorf "The glossary link (%s) shortcode was unable to find a defintion for either the singular or plural form of the term %q: see %s" $.Name $termGiven  $.Position }}

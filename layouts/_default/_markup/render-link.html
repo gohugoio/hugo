@@ -287,9 +287,9 @@ either of these shortcodes in conjunction with this render hook.
   {{- end }}
 
   {{- /* Verify that a glossary term page exists for the given term. */}}
-  {{- if site.GetPage (urls.JoinPath $basePath $termGiven) }}
+  {{- if site.GetPage (urls.JoinPath $basePath ($termGiven | urlize)) }}
     {{- $termActual = $termGiven }}
-  {{- else if site.GetPage (urls.JoinPath $basePath $termSingular) }}
+  {{- else if site.GetPage (urls.JoinPath $basePath ($termSingular | urlize)) }}
     {{- $termActual = $termSingular}}
   {{- else }}
     {{- $msg := printf "The %q render hook was unable to find a defintion for either the singular or plural form of the term %q: see %s" $renderHookName $termGiven $contentPath }}
