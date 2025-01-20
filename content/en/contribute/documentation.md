@@ -331,6 +331,22 @@ Use the glossary link (`gl`) shortcode to insert a link to the given glossary te
 
 {{% gl scalar %}}
 
+Note that this site's link render hook provides a custom syntax to insert a link to the given glossary term. This method of linking to a glossary term is easier to both read and write:
+
+```text
+[scalar](g) <-- the g stands for glossary
+```
+
+[scalar](g)
+
+With both methods you can use either the singular or plural form of the term:
+
+```text
+{{%/* gl scalars */%}} and [scalars](g)
+```
+
+{{% gl scalars %}} and [scalars](g)
+
 ### glossary term
 
 Use the glossary term (`gt`) shortcode to insert the definition of the given glossary term.

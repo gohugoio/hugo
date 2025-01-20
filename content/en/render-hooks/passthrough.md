@@ -124,7 +124,7 @@ Then, in your base template, conditionally include the KaTeX CSS within the head
 </head>
 {{< /code >}}
 
-In the above, note the use of a {{% gl noop %}} statement to force content rendering before we check the value of `hasMath` with the `Store.Get` method.
+In the above, note the use of a [noop](g) statement to force content rendering before we check the value of `hasMath` with the `Store.Get` method.
 
 Although you can use one template with conditional logic as shown above, you can also create separate templates for each [`Type`](#type) of passthrough element:
 

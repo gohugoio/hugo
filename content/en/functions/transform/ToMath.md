@@ -148,7 +148,7 @@ In your base template, conditionally include the KaTeX CSS within the head eleme
 </head>
 {{< /code >}}
 
-In the above, note the use of a {{% gl noop %}} statement to force content rendering before we check the value of `hasMath` with the `Store.Get` method.
+In the above, note the use of a [noop](g) statement to force content rendering before we check the value of `hasMath` with the `Store.Get` method.
 
 #### Step 4
 
