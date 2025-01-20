@@ -27,7 +27,7 @@ The most common templating mistake related to pagination is invoking pagination 
 ## Terminology
 
 paginate
-: To split a [list page] into two or more subsets.
+: To split a [list page](g) into two or more subsets.
 
 pagination
 : The process of paginating a list page.
@@ -37,8 +37,6 @@ pager
 
 paginator
 : A collection of pagers.
-
-[list page]: /getting-started/glossary/#list-page
 
 ## Configuration
 

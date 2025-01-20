@@ -10,7 +10,7 @@ action:
 toc: true
 ---
 
-By default, not all pages are backed by a file, including top level [section] pages, [taxonomy] pages, and [term] pages. By definition, you cannot retrieve file information when the file does not exist.
+By default, not all pages are backed by a file, including top level [section pages](g), [taxonomy pages](g), and [term pages](g). By definition, you cannot retrieve file information when the file does not exist.
 
 To back one of the pages above with a file, create an `_index.md` file in the corresponding directory. For example:
 
@@ -195,7 +195,3 @@ Without a backing file, Hugo will throw an error if you attempt to access a `.Fi
   {{ .ContentBaseName }}
 {{ end }}
 ```
-
-[section]: /getting-started/glossary/#section
-[taxonomy]: /getting-started/glossary/#taxonomy
-[term]: /getting-started/glossary/#term

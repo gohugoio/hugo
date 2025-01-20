@@ -17,7 +17,7 @@ toc: true
 
 A content adapter is a template that dynamically creates pages when building a site. For example, use a content adapter to create pages from a remote data source such as JSON, TOML, YAML, or XML.
 
-Unlike templates that reside in the `layouts` directory, content adapters reside in the `content` directory, no more than one per directory per language. When a content adapter creates a page, the page's [logical path] will be relative to the content adapter.
+Unlike templates that reside in the `layouts` directory, content adapters reside in the `content` directory, no more than one per directory per language. When a content adapter creates a page, the page's [logical path](g)will be relative to the content adapter.
 
 ```text
 content/
@@ -137,9 +137,8 @@ Key|Description|Required
 `dates.expiryDate`|The page expiry date as a `time.Time` value.|&nbsp;
 `dates.lastmod`|The page last modification date as a `time.Time` value.|&nbsp;
 `dates.publishDate`|The page publication date as a `time.Time` value.|&nbsp;
-`kind`|The [page kind]. Default is `page`.|&nbsp;
 `params`|A map of page parameters.|&nbsp;
-`path`|The page's [logical path] relative to the content adapter. Do not include a leading slash or file extension.|:heavy_check_mark:
+`path`|The page's [logical path](g) relative to the content adapter. Do not include a leading slash or file extension.|:heavy_check_mark:
 `title`|The page title.|&nbsp;
 
 {{% note %}}
@@ -158,7 +157,7 @@ Key|Description|Required
 `content.value`|The content value as a string or resource.|:heavy_check_mark:
 `name`|The resource name.|&nbsp;
 `params`|A map of resource parameters.|&nbsp;
-`path`|The resources's [logical path] relative to the content adapter. Do not include a leading slash.|:heavy_check_mark:
+`path`|The resources's [logical path](g) relative to the content adapter. Do not include a leading slash.|:heavy_check_mark:
 `title`|The resource title.|&nbsp;
 
 {{% note %}}
@@ -352,8 +351,6 @@ To detect page collisions, use the `--printPathWarnings` flag when building your
 
 [content formats]: /content-management/formats/#classification
 [front matter field]: /content-management/front-matter/#fields
-[logical path]: /getting-started/glossary/#logical-path
 [media type]: https://en.wikipedia.org/wiki/Media_type
-[page kind]: /getting-started/glossary/#page-kind
 [syntax]: /templates/introduction/
 [template functions]: /functions/

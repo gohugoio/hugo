@@ -26,7 +26,7 @@ display_related = true
 
 The `title` and `date` fields are standard parameters---the other fields are user-defined.
 
-Access the custom parameters by [chaining] the [identifiers]:
+Access the custom parameters by [chaining](g) the [identifiers](g):
 
 ```go-html-template
 {{ .Params.display_related }} → true
@@ -40,5 +40,3 @@ In the template example above, each of the keys is a valid identifier. For examp
 ```
 
 [`index`]: /functions/collections/indexfunction/
-[chaining]: /getting-started/glossary/#chain
-[identifiers]: /getting-started/glossary/#identifier

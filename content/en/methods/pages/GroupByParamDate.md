@@ -13,11 +13,10 @@ action:
   signatures: ['PAGES.GroupByParamDate PARAM LAYOUT [SORT]']
 ---
 
-The [layout string] has the same format as the layout string for the [`time.Format`] function. The resulting group key is [localized] for language and region.
+The [layout string] has the same format as the layout string for the [`time.Format`] function. The resulting group key is [localized](g) for language and region.
 
 [`time.Format`]: /functions/time/format/
 [layout string]: #layout-string
-[localized]: /getting-started/glossary/#localization
 
 {{% include "methods/pages/_common/group-sort-order.md" %}}
 

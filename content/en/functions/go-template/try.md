@@ -104,7 +104,7 @@ Instead of failing the build, we can catch the error and emit a warning:
   {{ end }}
 {{ end }}
 ```
-In the above, note that the [context](/getting-started/glossary/#context) within the last conditional block is the `TryValue` object returned by the `try` statement. At this point neither the `Err` nor `Value` methods returned anything, so the current context is not useful. Use the `$` to access the [template context] if needed.
+In the above, note that the [context](g) within the last conditional block is the `TryValue` object returned by the `try` statement. At this point neither the `Err` nor `Value` methods returned anything, so the current context is not useful. Use the `$` to access the [template context] if needed.
 
 [template context]: /templates/introduction/#template-context
 

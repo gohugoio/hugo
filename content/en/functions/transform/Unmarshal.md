@@ -16,7 +16,7 @@ toc: true
 aliases: [/functions/transform.unmarshal]
 ---
 
-The input can be a string or a [resource].
+The input can be a string or a [resource](g).
 
 ## Unmarshal a string
 
@@ -271,7 +271,7 @@ Each item node looks like this:
 }
 ```
 
-The title keys do not begin with an underscore or a letter---they are not valid [identifiers]. Use the [`index`] function to access the values:
+The title keys do not begin with an underscore or a letter---they are not valid [identifiers](g). Use the [`index`] function to access the values:
 
 ```go-html-template
 {{ with $data.channel.item }}
@@ -296,6 +296,4 @@ Hugo renders this to:
 ```
 
 [`index`]: /functions/collections/indexfunction/
-[identifiers]: https://go.dev/ref/spec#Identifiers
-[resource]: /getting-started/glossary/#resource
 [page bundle]: /content-management/page-bundles/

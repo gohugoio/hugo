@@ -11,9 +11,7 @@ action:
   signatures: [RESOURCE.Permalink]
 ---
 
-The `Permalink` method on a `Resource` object writes the resource to the publish directory, typically `public`, and returns its [permalink].
-
-[permalink]: /getting-started/glossary/#permalink
+The `Permalink` method on a `Resource` object writes the resource to the publish directory, typically `public`, and returns its [permalink](g).
 
 ```go-html-template
 {{ with resources.Get "images/a.jpg" }}

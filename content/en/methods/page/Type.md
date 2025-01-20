@@ -12,7 +12,7 @@ action:
   signatures: [PAGE.Type]
 ---
 
-The `Type` method on a `Page` object returns the [content type] of the given page. The content type is defined by the `type` field in front matter,  or inferred from the top-level directory name if the `type` field in front matter is not defined.
+The `Type` method on a `Page` object returns the [content type](g) of the given page. The content type is defined by the `type` field in front matter,  or inferred from the top-level directory name if the `type` field in front matter is not defined.
 
 With this content structure:
 
@@ -33,7 +33,7 @@ content/
 └── _index.md
 ```
 
-To list the books, regardless of [section]:
+To list the books, regardless of [section](g):
 
 ```go-html-template
 {{ range where .Site.RegularPages.ByTitle "Type" "books" }}
@@ -51,6 +51,4 @@ Hugo renders this to;
 
 The `type` field in front matter is also useful for targeting a template. See&nbsp;[details].
 
-[content type]: /getting-started/glossary/#content-type
 [details]: /templates/lookup-order/#target-a-template
-[section]: /getting-started/glossary/#section

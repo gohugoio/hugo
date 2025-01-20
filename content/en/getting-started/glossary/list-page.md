@@ -2,6 +2,4 @@
 title: list page
 ---
 
-Any [page kind] that receives a page [collection] in [context]. This includes the home page, [section pages][section page], [taxonomy pages][taxonomy page], and [term pages][term page].
-
-{{% include "/getting-started/glossary/_link-reference-definitions" %}}
+Any [page kind](g) that receives a page [collection](g) in [context](g). This includes the home page, [section pages](g), [taxonomy pages](g), and [term pages](g).

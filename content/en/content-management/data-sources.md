@@ -12,15 +12,9 @@ toc: true
 aliases: [/extras/datafiles/,/extras/datadrivencontent/,/doc/datafiles/,/templates/data-templates/]
 ---
 
-Hugo can access and [unmarshal] local and remote data sources including CSV, JSON, TOML, YAML, and XML. Use this data to augment existing content or to create new content.
+Hugo can access and [unmarshal](g) local and remote data sources including CSV, JSON, TOML, YAML, and XML. Use this data to augment existing content or to create new content.
 
-[unmarshal]: /getting-started/glossary/#unmarshal
-
-A data source might be a file in the `data` directory, a [global resource], a [page resource], or a [remote resource].
-
-[global resource]: /getting-started/glossary/#global-resource
-[page resource]: /getting-started/glossary/#page-resource
-[remote resource]: /getting-started/glossary/#remote-resource
+A data source might be a file in the `data` directory, a [global resource](g), a [page resource](g), or a [remote resource](g).
 
 ## Data directory
 

@@ -13,11 +13,7 @@ toc: true
 
 ## Page
 
-Use these `Page` methods when rendering lists on [section] pages, [taxonomy] pages, [term] pages, and the home page.
-
-[section]: /getting-started/glossary/#section
-[taxonomy]: /getting-started/glossary/#taxonomy
-[term]: /getting-started/glossary/#term
+Use these `Page` methods when rendering lists on [section](g) pages, [taxonomy](g) pages, [term](g) pages, and the home page.
 
 {{< list-pages-in-section path=/methods/page filter=methods_page_page_collections filterType=include omitElementIDs=true titlePrefix=PAGE. >}}
 

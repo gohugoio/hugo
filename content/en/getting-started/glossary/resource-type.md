@@ -6,5 +6,3 @@ The main type of a resource's [media type]. Content files such as Markdown, HTML
 
 [media type]: /methods/resource/mediatype/
 [`ResourceType`]: /methods/resource/resourcetype/
-
-{{% include "/getting-started/glossary/_link-reference-definitions" %}}

@@ -12,7 +12,7 @@ action:
   signatures: [PAGE.IsHome]
 ---
 
-The `IsHome` method on a `Page` object returns `true` if the [page kind] is `home`.
+The `IsHome` method on a `Page` object returns `true` if the [page kind](g) is `home`.
 
 ```text
 content/
@@ -27,5 +27,3 @@ content/
 ```go-html-template
 {{ .IsHome }}
 ```
-
-[page kind]: /getting-started/glossary/#page-kind

@@ -22,15 +22,11 @@ A Markdown link has three components: the link text, the link destination, and o
   text    destination       title
 ```
 
-These components are passed into the render hook [context] as shown below.
-
-[context]: /getting-started/glossary/#context
+These components are passed into the render hook [context](g) as shown below.
 
 ## Context
 
 Link render hook templates receive the following context:
-
-[context]: /getting-started/glossary/#context
 
 ###### Destination
 
@@ -113,10 +109,7 @@ The embedded link render hook is automatically enabled for multilingual single-h
 [duplication of shared page resources]: /getting-started/configuration-markup/#duplicateresourcefiles
 {{% /note %}}
 
-The embedded link render hook resolves internal Markdown destinations by looking for a matching page, falling back to a matching [page resource], then falling back to a matching [global resource]. Remote destinations are passed through, and the render hook will not throw an error or warning if unable to resolve a destination.
-
-[page resource]: /getting-started/glossary/#page-resource
-[global resource]: /getting-started/glossary/#global-resource
+The embedded link render hook resolves internal Markdown destinations by looking for a matching page, falling back to a matching [page resource](g), then falling back to a matching [global resource](g). Remote destinations are passed through, and the render hook will not throw an error or warning if unable to resolve a destination.
 
 You must place global resources in the `assets` directory. If you have placed your resources in the `static` directory, and you are unable or unwilling to move them, you must mount the `static` directory to the `assets` directory by including both of these entries in your site configuration:
 

@@ -60,10 +60,7 @@ Which looks like this in your browser:
 ## Arguments
 
 src
-: (`string`) The `src` attribute of the `img` element. Typically this is a [page resource] or a [global resource].
-
-[page resource]: /getting-started/glossary/#page-resource
-[global resource]: /getting-started/glossary/#global-resource
+: (`string`) The `src` attribute of the `img` element. Typically this is a [page resource](g) or a [global resource](g).
 
 alt
 : (`string`) The `alt` attribute of the `img` element.
@@ -103,10 +100,7 @@ attrlink
 
 ## Image location
 
-The `figure` shortcode resolves internal Markdown destinations by looking for a matching [page resource], falling back to a matching [global resource]. Remote destinations are passed through, and the render hook will not throw an error or warning if unable to resolve a destination.
-
-[page resource]: /getting-started/glossary/#page-resource
-[global resource]: /getting-started/glossary/#global-resource
+The `figure` shortcode resolves internal Markdown destinations by looking for a matching [page resource](g), falling back to a matching [global resource](g). Remote destinations are passed through, and the render hook will not throw an error or warning if unable to resolve a destination.
 
 You must place global resources in the `assets` directory. If you have placed your resources in the `static` directory, and you are unable or unwilling to move them, you must mount the `static` directory to the `assets` directory by including both of these entries in your site configuration:
 

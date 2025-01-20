@@ -116,11 +116,11 @@ The `resources` directory contains cached output from Hugo's asset pipelines, ge
 
 ###### static
 
-The `static` directory contains files that will be copied to the `public` directory when you build your site. For example: `favicon.ico`, `robots.txt`, and files that verify site ownership. Before the introduction of [page bundles](/getting-started/glossary/#page-bundle) and [asset pipelines](/hugo-pipes/introduction/), the `static` directory was also used for images, CSS, and JavaScript.
+The `static` directory contains files that will be copied to the `public` directory when you build your site. For example: `favicon.ico`, `robots.txt`, and files that verify site ownership. Before the introduction of [page bundles](g) and [asset pipelines](/hugo-pipes/introduction/), the `static` directory was also used for images, CSS, and JavaScript.
 
 ###### themes
 
-The `themes` directory contains one or more [themes](/getting-started/glossary/#theme), each in its own subdirectory.
+The `themes` directory contains one or more [themes](g), each in its own subdirectory.
 
 ## Union file system
 

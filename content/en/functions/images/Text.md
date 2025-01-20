@@ -25,7 +25,7 @@ color
 : (`string`) The font color, either a 3-digit or 6-digit hexadecimal color code. Default is `#ffffff` (white).
 
 font
-: (`resource.Resource`) The font can be a [global resource], a [page resource], or a [remote resource]. Default is [Go Regular], a proportional sans-serif TrueType font.
+: (`resource.Resource`) The font can be a [global resource](g), a [page resource](g), or a [remote resource](g). Default is [Go Regular], a proportional sans-serif TrueType font.
 
 [Go Regular]: https://go.dev/blog/go-fonts#sans-serif
 
@@ -40,10 +40,6 @@ x
 
 y
 : (`int`) The vertical offset, in pixels, relative to the top of the image. Default is `10`.
-
-[global resource]: /getting-started/glossary/#global-resource
-[page resource]: /getting-started/glossary/#page-resource
-[remote resource]: /getting-started/glossary/#remote-resource
 
 ## Usage
 

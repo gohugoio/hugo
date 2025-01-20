@@ -2,6 +2,4 @@
 title: pager
 ---
 
-Created during [pagination], a pager contains a subset of a list page and navigation links to other pagers.
-
-{{% include "/getting-started/glossary/_link-reference-definitions" %}}
+Created during [pagination](g), a pager contains a subset of a list page and navigation links to other pagers.

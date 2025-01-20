@@ -42,9 +42,8 @@ namedSlices
 : (`slice`) The keywords to search for, expressed as a slice of `KeyValues` using the [`keyVals`] function.
 
 fragments
-: (`slice`) A list of special keywords that is used for indices configured as type "fragments". This will match the [fragment] identifiers of the documents.
+: (`slice`) A list of special keywords that is used for indices configured as type "fragments". This will match the [fragment](g) identifiers of the documents.
 
-[fragment]: /getting-started/glossary/#fragment
 [`keyVals`]: /functions/collections/keyvals/
 
 A fictional example using all of the above options:

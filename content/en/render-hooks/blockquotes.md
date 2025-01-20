@@ -16,9 +16,7 @@ toc: true
 
 ## Context
 
-Blockquote render hook templates receive the following [context]:
-
-[context]: /getting-started/glossary/#context
+Blockquote render hook templates receive the following [context](g):
 
 ###### AlertType
 

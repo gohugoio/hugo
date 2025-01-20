@@ -67,10 +67,9 @@ You can also change the request method and set the request body:
 
 ## Remote data
 
-When retrieving remote data, use the [`transform.Unmarshal`] function to [unmarshal] the response.
+When retrieving remote data, use the [`transform.Unmarshal`] function to [unmarshal](g) the response.
 
 [`transform.Unmarshal`]: /functions/transform/unmarshal/
-[unmarshal]: /getting-started/glossary/#unmarshal
 
 ```go-html-template
 {{ $data := dict }}

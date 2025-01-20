@@ -9,9 +9,7 @@ codeFences
 : (`bool`) Whether to highlight fenced code blocks. Default is `true`.
 
 guessSyntax
-: (`bool`) Whether to automatically detect the language if the `LANG` argument is blank or set to a language for which there is no corresponding [lexer]. Falls back to a plain text lexer if unable to automatically detect the language. Default is `false`.
-
-[lexer]: /getting-started/glossary/#lexer
+: (`bool`) Whether to automatically detect the language if the `LANG` argument is blank or set to a language for which there is no corresponding [lexer](g). Falls back to a plain text lexer if unable to automatically detect the language. Default is `false`.
 
 {{% note %}}
 The Chroma syntax highlighter includes lexers for approximately 250 languages, but only 5 of these have implemented automatic language detection.
@@ -40,6 +38,8 @@ noClasses
 
 style
 : (`string`) The CSS styles to apply to the highlighted code. See the [style gallery] for examples. Case-sensitive. Default is `monokai`.
+
+[style gallery]: https://xyproto.github.io/splash/docs/
 
 tabWidth
 : (`int`) Substitute this number of spaces for each tab character in your highlighted code. Irrelevant if `noClasses` is `false`. Default is `4`.

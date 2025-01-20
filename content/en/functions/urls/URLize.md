@@ -16,7 +16,7 @@ aliases: [/functions/urlize]
 
 ## Example
 
-Use the `urlize` function to create a link to a [term] page.
+Use the `urlize` function to create a link to a [term page](g).
 
 Consider this site configuration:
 
@@ -60,4 +60,3 @@ To create a link to the term page:
 To generate a list of term pages associated with a given content page, use the [`GetTerms`] method on a `Page` object.
 
 [`GetTerms`]: /methods/page/getterms/
-[term]: /getting-started/glossary/#term

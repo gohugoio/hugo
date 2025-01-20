@@ -11,7 +11,7 @@ action:
   signatures: [PAGE.Pages]
 ---
 
-The `Pages` method on a `Page` object is available to these [page kinds]: `home`, `section`, `taxonomy`, and `term`. The templates for these page kinds receive a page [collection] in [context].
+The `Pages` method on a `Page` object is available to these [page kinds](g): `home`, `section`, `taxonomy`, and `term`. The templates for these page kinds receive a page [collection](g) in [context](g).
 
 Range through the page collection in your template:
 
@@ -70,7 +70,7 @@ When rendering lesson-2, the `Pages` method returns:
     lessons/lesson-2/resources/task-list.md
     lessons/lesson-2/resources/worksheet.md
 
-In the last example, the collection includes pages in the resources subdirectory. That directory is not a [section]---it does not contain an `_index.md` file. Its contents are part of the lesson-2 section.
+In the last example, the collection includes pages in the resources subdirectory. That directory is not a [section](g)---it does not contain an `_index.md` file. Its contents are part of the lesson-2 section.
 
 {{% note %}}
 When used with a `Site` object, the `Pages` method recursively returns all pages within the site. See&nbsp;[details].
@@ -83,8 +83,3 @@ When used with a `Site` object, the `Pages` method recursively returns all pages
   <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
 {{ end }}
 ```
-
-[collection]: /getting-started/glossary/#collection
-[context]: /getting-started/glossary/#context
-[page kinds]: /getting-started/glossary/#page-kind
-[section]: /getting-started/glossary/#section

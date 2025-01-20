@@ -10,7 +10,7 @@ action:
   signatures: [PAGE.Kind]
 ---
 
-The [page kind] is one of `home`, `page`, `section`, `taxonomy`, or `term`.
+The [page kind](g) is one of `home`, `page`, `section`, `taxonomy`, or `term`.
 
 ```text
 content/
@@ -31,5 +31,3 @@ To get the value within a template:
 ```go-html-template
 {{ .Kind }}
 ```
-
-[page kind]: /getting-started/glossary/#page-kind

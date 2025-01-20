@@ -14,9 +14,7 @@ toc: true
 
 {{< new-in 0.123.0 >}}
 
-The `Path` method on a `Page` object returns the logical path of the given page, regardless of whether the page is backed by a file.
-
-[logical path]: /getting-started/glossary#logical-path
+The `Path` method on a `Page` object returns the [logical path](g) of the given page, regardless of whether the page is backed by a file.
 
 ```go-html-template
 {{ .Path }} → /posts/post-1

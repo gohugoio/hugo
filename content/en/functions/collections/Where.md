@@ -32,20 +32,14 @@ Hugo will test for equality if you do not provide an `OPERATOR` argument. For ex
 The where function takes three or four arguments. The `OPERATOR` argument is optional.
 
 COLLECTION
-: (`any`) A [page collection] or a [slice] of [maps].
-
-[maps]: /getting-started/glossary/#map
-[page collection]: /getting-started/glossary/#page-collection
-[slice]: /getting-started/glossary/#slice
+: (`any`) A [page collection](g) or a [slice](g) of [maps](g).
 
 KEY
-: (`string`) The key of the page or map value to compare with `VALUE`. With page collections, commonly used comparison keys are `Section`, `Type`, and `Params`. To compare with a member of the page `Params` map, [chain] the subkey as shown below:
+: (`string`) The key of the page or map value to compare with `VALUE`. With page collections, commonly used comparison keys are `Section`, `Type`, and `Params`. To compare with a member of the page `Params` map, [chain](g) the subkey as shown below:
 
 ```go-html-template
 {{ $result := where .Site.RegularPages "Params.foo" "bar" }}
 ```
-
-[chain]: /getting-started/glossary/#chain
 
 OPERATOR
 : (`string`) The logical comparison [operator](#operators).
@@ -102,9 +96,7 @@ The examples below perform comparisons within a page collection, but the same co
 
 ## String comparison
 
-Compare the value of the given field to a [`string`]:
-
-[`string`]: /getting-started/glossary/#string
+Compare the value of the given field to a [`string`](g):
 
 ```go-html-template
 {{ $pages := where .Site.RegularPages "Section" "eq" "books" }}
@@ -113,10 +105,7 @@ Compare the value of the given field to a [`string`]:
 
 ## Numeric comparison
 
-Compare the value of the given field to an [`int`] or [`float`]:
-
-[`int`]: /getting-started/glossary/#int
-[`float`]: /getting-started/glossary/#float
+Compare the value of the given field to an [`int`](g) or [`float`](g):
 
 ```go-html-template
 {{ $books := where site.RegularPages "Section" "eq" "books" }}
@@ -131,9 +120,7 @@ Compare the value of the given field to an [`int`] or [`float`]:
 
 ## Boolean comparison
 
-Compare the value of the given field to a [`bool`]:
-
-[`bool`]: /getting-started/glossary/#bool
+Compare the value of the given field to a [`bool`](g):
 
 ```go-html-template
 {{ $books := where site.RegularPages "Section" "eq" "books" }}
@@ -146,10 +133,7 @@ Compare the value of the given field to a [`bool`]:
 
 ## Member comparison
 
-Compare a [`scalar`] to a [`slice`].
-
-[`scalar`]: /getting-started/glossary/#scalar
-[`slice`]: /getting-started/glossary/#slice
+Compare a [`scalar`](g) to a [`slice`](g).
 
 For example, to return a collection of pages where the `color` page parameter is either "red" or "yellow":
 
@@ -219,7 +203,7 @@ For example, to return a collection of pages that were created before the curren
 
 ### Custom dates
 
-With custom front matter dates, the comparison depends on the front matter data format (TOML, YAML, or JSON). 
+With custom front matter dates, the comparison depends on the front matter data format (TOML, YAML, or JSON).
 
 {{% note %}}
 Using TOML for pages with custom front matter dates enables precise date comparisons.

@@ -23,9 +23,7 @@ taxonomy = ['html']
 term = ['html']
 {{< /code-toggle >}}
 
-To disable feed generation for all [page kinds]:
-
-[page kinds]: /getting-started/glossary/#page-kind
+To disable feed generation for all [page kinds](g):
 
 {{< code-toggle file=hugo >}}
 disableKinds = ['rss']

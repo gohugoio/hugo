@@ -35,7 +35,7 @@ Do not use the global `page` function in shortcodes, partials called by shortcod
 
 Hugo almost always passes a `Page` as the data context into the top level template (e.g., `single.html`). The one exception is the multihost sitemap template. This means that you can access the current page with the `.` in the template.
 
-But when you are deeply nested inside of a [content view], [partial], or [render hook], it is not always practical or possible to access the `Page` object.
+But when you are deeply nested inside of a [content view](g), [partial](g), or [render hook](g), it is not always practical or possible to access the `Page` object.
 
 Use the global `page` function to access the `Page` object from anywhere in any template.
 
@@ -101,7 +101,3 @@ If Hugo renders the section page before a content page, the cached rendered shor
 
 [`Summary`]: /methods/page/summary/
 [`partialCached`]: /functions/partials/includecached/
-[content view]: /getting-started/glossary/#content-view
-[partial]: /getting-started/glossary/#partial
-[render hook]: /getting-started/glossary/#render-hook
-[shortcode]: getting-started/glossary/#shortcode

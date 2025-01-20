@@ -96,7 +96,7 @@ content/
 └── _index.md
 ```
 
-In the home template, use the `GetPage` method on a `Site` object to render all the images in the headless [page bundle]:
+In the home template, use the `GetPage` method on a `Site` object to render all the images in the headless [page bundle](g):
 
 ```go-html-template
 {{ with .Site.GetPage "/headless" }}
@@ -105,5 +105,3 @@ In the home template, use the `GetPage` method on a `Site` object to render all 
   {{ end }}
 {{ end }}
 ```
-
-[page bundle]: /getting-started/glossary/#page-bundle

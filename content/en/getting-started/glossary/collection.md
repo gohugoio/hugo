@@ -2,6 +2,4 @@
 title: collection
 ---
 
-An [array], [slice], or [map].
-
-{{% include "/getting-started/glossary/_link-reference-definitions" %}}
+An [array](g), [slice](g), or [map](g).

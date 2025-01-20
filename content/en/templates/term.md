@@ -11,9 +11,8 @@ weight: 100
 toc: true
 ---
 
-The [term] template below inherits the site's shell from the [base template], and renders a list of pages associated with the current term.
+The [term](g) template below inherits the site's shell from the [base template], and renders a list of pages associated with the current term.
 
-[term]: /getting-started/glossary/#term
 [base template]: /templates/types/
 
 {{< code file=layouts/_default/term.html >}}
@@ -72,9 +71,7 @@ For example, create an "authors" taxonomy:
 author = 'authors'
 {{< /code-toggle >}}
 
-Then create content with one [branch bundle] for each term:
-
-[branch bundle]: /getting-started/glossary/#branch-bundle
+Then create content with one [branch bundle](g) for each term:
 
 ```text
 content/

@@ -55,6 +55,6 @@ When you visit page-2:
 
 To reverse the meaning of _next_ and _previous_ you can change the sort direction in your [site configuration], or use the [`Next`] and [`Prev`] methods on a `Pages` object for more flexibility.
 
-[site configuration]: getting-started/configuration/#configure-page
+[site configuration]: /getting-started/configuration/#configure-page
 [`Next`]: /methods/pages/prev
 [`Prev`]: /methods/pages/prev

@@ -36,12 +36,7 @@ Hugo renders this to:
 <p>We found a red shirt.</p>
 ```
 
-
-
-Access nested values by [chaining] the [identifiers]:
-
-[chaining]: /getting-started/glossary/#chain
-[identifiers]: /getting-started/glossary/#identifier
+Access nested values by [chaining](g) the [identifiers](g):
 
 ```text
 {{</* param my.nested.param */>}}

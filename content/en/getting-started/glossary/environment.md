@@ -9,5 +9,3 @@ When running the built-in development server with the `hugo server` command, the
 To determine the current environment within a template, use the [`hugo.Environment`] function.
 
 [`hugo.Environment`]: /functions/hugo/environment/
-
-{{% include "/getting-started/glossary/_link-reference-definitions" %}}

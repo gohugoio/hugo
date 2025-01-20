@@ -2,6 +2,4 @@
 title: function
 ---
 
-Used within a [template action], a function takes one or more [arguments][argument] and returns a value. Unlike [methods][method], functions are not associated with an [object]. See&nbsp;[details](/functions/).
-
-{{% include "/getting-started/glossary/_link-reference-definitions" %}}
+Used within a [template action](g), a function takes one or more [arguments](g) and returns a value. Unlike [methods](g), functions are not associated with an [object](g). See&nbsp;[details](/functions/).

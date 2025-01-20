@@ -8,5 +8,3 @@ A file within the `assets` directory, or within any directory [mounted](/hugo-mo
 [`resources.GetMatch`]: /functions/resources/getmatch/
 [`resources.Match`]: /functions/resources/match/
 [`resources.ByType`]: /functions/resources/byType/
-
-{{% include "/getting-started/glossary/_link-reference-definitions" %}}

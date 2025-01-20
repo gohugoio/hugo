@@ -53,9 +53,7 @@ To enable custom rendering of passthrough elements, create a passthrough render 
 
 ## Context
 
-Passthrough render hook templates receive the following [context]:
-
-[context]: /getting-started/glossary/#context
+Passthrough render hook templates receive the following [context](g):
 
 ###### Attributes
 

@@ -16,9 +16,7 @@ toc: true
 
 ## Context
 
-Table render hook templates receive the following [context]:
-
-[context]: /getting-started/glossary/#context
+Table render hook templates receive the following [context](g):
 
 ###### Attributes
 

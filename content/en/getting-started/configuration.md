@@ -61,9 +61,7 @@ See the specifications for each file format: [TOML], [YAML], and [JSON].
 
 ## Configuration directory
 
-Instead of a single site configuration file, split your configuration by [environment], root configuration key, and language. For example:
-
-[environment]: /getting-started/glossary/#environment
+Instead of a single site configuration file, split your configuration by [environment](g), root configuration key, and language. For example:
 
 ```text
 my-project/
@@ -293,9 +291,7 @@ To remain consistent and prevent unexpected behavior, do not mix these strategie
 
 ###### disableKinds
 
-(`string slice`) Disable rendering of the specified page [kinds], any of `404`, `home`, `page`, `robotstxt`, `rss`, `section`, `sitemap`, `taxonomy`, or `term`.
-
-[kinds]: /getting-started/glossary/#page-kind
+(`string slice`) Disable rendering of the specified page [kinds](g), any of `404`, `home`, `page`, `robotstxt`, `rss`, `section`, `sitemap`, `taxonomy`, or `term`.
 
 ###### disableLanguages
 
@@ -735,9 +731,7 @@ DART_SASS_BINARY
 : (`string`) The absolute path to the Dart Sass executable. By default, Hugo searches for the executable in each of the paths in the `PATH` environment variable.
 
 HUGO_ENVIRONMENT
-: (`string`) Overrides the default [environment], typically one of `development`, `staging`, or `production`.
-
-[environment]: /getting-started/glossary/#environment
+: (`string`) Overrides the default [environment](g), typically one of `development`, `staging`, or `production`.
 
 HUGO_FILE_LOG_FORMAT
 : (`string`) A format string for the file path, line number, and column number displayed when reporting errors, or when calling the `Position` method from a shortcode or Markdown render hook. Valid tokens are `:file`, `:line`, and `:col`. Default is `:file::line::col`.
@@ -966,10 +960,10 @@ lang
 : The [page language].
 
 kind
-: The [kind] of the page.
+: The [kind](g) of the page.
 
 output
-: The [output format] of the page.
+: The [output format](g) of the page.
 
 It is recommended to put coarse grained filters (e.g. for language and output format) in the excludes section, e.g.:
 
@@ -1003,6 +997,3 @@ Some use cases for this feature:
   
 [path]: /methods/page/path/
 [page language]: /methods/page/language/
-[kind]: /getting-started/glossary/#page-kind
-[output format]: /getting-started/glossary/#output-format
-[type]: /getting-started/glossary/#content-type

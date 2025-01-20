@@ -15,7 +15,7 @@ action:
 toc: true
 ---
 
-The `Resources` method on a `Page` object returns a collection of page resources. A page resource is a file within a [page bundle].
+The `Resources` method on a `Page` object returns a collection of page resources. A page resource is a file within a [page bundle](g).
 
 To work with global or remote resources, see the [`resources`] functions.
 
@@ -96,4 +96,3 @@ With the `GetMatch` and `Match` methods, Hugo determines a match using a case-in
 [`resources`]: /functions/resources/
 [glob pattern]: https://github.com/gobwas/glob#example
 [media type]: https://en.wikipedia.org/wiki/Media_type
-[page bundle]: /getting-started/glossary/#page-bundle

@@ -17,15 +17,12 @@ expiryDate: 2025-02-19 # deprecated 2024-02-19
 ---
 
 {{% deprecated-in 0.123.0 %}}
-Instead, use [`transform.Unmarshal`] with a [global], [page], or [remote] resource.
+Instead, use [`transform.Unmarshal`] with a [global resource](g), [page resource](g), or [remote resource](g).
 
 See the [remote data example].
 
 [`transform.Unmarshal`]: /functions/transform/unmarshal/
-[global]: /getting-started/glossary/#global-resource
-[page]: /getting-started/glossary/#page-resource
 [remote data example]: /functions/resources/getremote/#remote-data
-[remote]: /getting-started/glossary/#remote-resource
 {{% /deprecated-in %}}
 
 Given the following directory structure:

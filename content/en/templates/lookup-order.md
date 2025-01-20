@@ -52,9 +52,7 @@ content/
 └── contact.md
 ```
 
-Files in the root of the `content` directory have a [content type] of `page`. To render these pages with a unique template, create a matching subdirectory:
-
-[content type]: /getting-started/glossary/#content-type
+Files in the root of the `content` directory have a [content type](g) of `page`. To render these pages with a unique template, create a matching subdirectory:
 
 ```text
 layouts/

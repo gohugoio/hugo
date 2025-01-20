@@ -60,7 +60,7 @@ namedSlices
 [`keyVals`]: /functions/collections/keyvals/
 
 fragments
-: (`slice`) A list of special keywords that is used for indices configured as type "fragments". This will match the [fragment] identifiers of the documents.
+: (`slice`) A list of special keywords that is used for indices configured as type "fragments". This will match the [fragment](g) identifiers of the documents.
 
 A contrived example using all of the above:
 
@@ -75,5 +75,4 @@ A contrived example using all of the above:
 ```
 
 [details]: /content-management/related/
-[fragment]: /getting-started/glossary/#fragment
 [related content configuration]: /content-management/related/
