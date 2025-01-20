@@ -21,7 +21,6 @@ This is the default language configuration:
 
 In the above, `en` is the language key.
 
-
 Language keys must conform to the syntax described in [RFC 5646]. For example:
 
 - `en`
@@ -165,7 +164,6 @@ Note that you cannot disable the default content language.
 
 ### Configure multilingual multihost
 
-
 Hugo supports multiple languages in a multihost configuration. This means you can configure a `baseURL` per `language`.
 
 {{% note %}}
@@ -217,7 +215,7 @@ There are two ways to manage your content translations. Both ensure each page is
 Considering the following example:
 
 1. `/content/about.en.md`
-2. `/content/about.fr.md`
+1. `/content/about.fr.md`
 
 The first file is assigned the English language and is linked to the second.
 The second file is assigned the French language and is linked to the first.
@@ -251,7 +249,7 @@ The value of `contentDir` can be any valid path -- even absolute path references
 Considering the following example in conjunction with the configuration above:
 
 1. `/content/english/about.md`
-2. `/content/french/about.md`
+1. `/content/french/about.md`
 
 The first file is assigned the English language and is linked to the second.
 The second file is assigned the French language and is linked to the first.
@@ -267,8 +265,8 @@ Any pages sharing the same `translationKey` set in front matter will be linked a
 Considering the following example:
 
 1. `/content/about-us.en.md`
-2. `/content/om.nn.md`
-3. `/content/presentation/a-propos.fr.md`
+1. `/content/om.nn.md`
+1. `/content/presentation/a-propos.fr.md`
 
 {{< code-toggle >}}
 translationKey: "about"

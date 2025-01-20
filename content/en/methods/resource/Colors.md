@@ -169,7 +169,6 @@ Calculate the contrast ratio to determine WCAG conformance:
 {{ end }}
 ```
 
-
 [WCAG]: https://en.wikipedia.org/wiki/Web_Content_Accessibility_Guidelines
 [contrast ratio]: https://www.w3.org/TR/WCAG21/#dfn-contrast-ratio
 [enhanced]: https://www.w3.org/WAI/WCAG22/quickref/?showtechniques=145#contrast-enhanced

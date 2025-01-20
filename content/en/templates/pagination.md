@@ -114,11 +114,10 @@ To paginate a list page using the `Paginate` method:
 In the example above, we:
 
 1. Build a page collection
-2. Sort the page collection by title
-3. Paginate the page collection, with 7 pages per pager
-4. Range over the paginated page collection, rendering a link to each page
-5. Call the embedded pagination template to create navigation links between pagers
-
+1. Sort the page collection by title
+1. Paginate the page collection, with 7 pages per pager
+1. Range over the paginated page collection, rendering a link to each page
+1. Call the embedded pagination template to create navigation links between pagers
 
 To paginate a list page using the `Paginator` method:
 
@@ -133,8 +132,8 @@ To paginate a list page using the `Paginator` method:
 In the example above, we:
 
 1. Paginate the page collection passed into the template, with the default number of pages per pager
-2. Range over the paginated page collection, rendering a link to each page
-3. Call the embedded pagination template to create navigation links between pagers
+1. Range over the paginated page collection, rendering a link to each page
+1. Call the embedded pagination template to create navigation links between pagers
 
 ## Caching
 

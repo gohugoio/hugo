@@ -51,7 +51,7 @@ OPTIONS
 : (`string`) Zero or more space-separated key-value pairs wrapped in quotation marks. Set default values for each option in your [site configuration]. The key names are case-insensitive.
 
 [site configuration]: /getting-started/configuration-markup#highlight
-[supported languages]: https://gohugo.io/content-management/syntax-highlighting/#list-of-chroma-highlighting-languages
+[supported languages]: /content-management/syntax-highlighting/#list-of-chroma-highlighting-languages
 
 ## Example
 
@@ -101,7 +101,6 @@ Given the verbosity of the example above, if you need to frequently highlight in
 {{ $opts := dict "hl_inline" true "noClasses" true }}
 {{ transform.Highlight $code $lang $opts }}
 {{< /code >}}
-
 
 ```text
 This is some {{</* hl */>}}fmt.Println("inline"){{</* /hl */>}} code.

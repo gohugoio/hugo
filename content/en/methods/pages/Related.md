@@ -45,7 +45,6 @@ To pass an options map:
 {{ end }}
 {{< /code >}}
 
-
 ## Options
 
 indices

@@ -13,7 +13,8 @@ toc: true
 
 ## Page
 
-Use these `Page` methods when rendering lists on [section](g) pages, [taxonomy](g) pages, [term](g) pages, and the home page.
+assets/
+Use these `Page` methods when rendering lists on [section pages](g), [taxonomy pages](g), [term pages](g), and the home page.
 
 {{< list-pages-in-section path=/methods/page filter=methods_page_page_collections filterType=include omitElementIDs=true titlePrefix=PAGE. >}}
 
@@ -34,9 +35,9 @@ Use the [`where`] function to filter page collections.
 By default, Hugo sorts page collections by:
 
 1. [Weight]
-2. [Date] in descending order
-3. [LinkTitle] falling back to [Title]
-4. [Filename] if the page is backed by a file
+1. [Date] in descending order
+1. [LinkTitle] falling back to [Title]
+1. [Filename] if the page is backed by a file
 
 [Date]: /methods/page/date/
 [Weight]: /methods/page/weight/

@@ -46,7 +46,6 @@ A static website with a dynamic search function? Yes, Hugo provides an alternati
 [INFINI Pizza for WebAssembly](https://github.com/infinilabs/pizza-docsearch)
 : Pizza is a super-lightweight yet fully featured search engine written in Rust. You can quickly add offline search functionality to your Hugo website in just five minutes with only three lines of code. For a step-by-step guide on integrating it with Hugo, check out [this blog tutorial](https://dev.to/medcl/adding-search-functionality-to-a-hugo-static-site-based-on-infini-pizza-for-webassembly-4h5e).
 
-
 ## Commercial
 
 [Algolia](https://www.algolia.com/)

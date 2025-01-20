@@ -82,7 +82,6 @@ When working with global resources instead of page resources, use the [`resource
 
 This method is currently only useful in [js.Batch](/functions/js/batch/#import-context).
 
-
 ## Pattern matching
 
 With the `GetMatch` and `Match` methods, Hugo determines a match using a case-insensitive [glob pattern].

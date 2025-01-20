@@ -79,4 +79,4 @@ disableKinds = ['sitemap']
 {{</ code-toggle >}}
 
 [`publishDir`]: /getting-started/configuration#publishdir
-[sitemap protocol]: <https://www.sitemaps.org/protocol.html>
+[sitemap protocol]: https://www.sitemaps.org/protocol.html

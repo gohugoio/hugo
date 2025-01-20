@@ -128,7 +128,6 @@ title ="Bar"
   url = "/:sections[last]/:slug"
 {{< /code-toggle >}}
 
-
 ## Site configuration
 
 ### Permalinks

@@ -38,7 +38,6 @@ We used the [`resources.Copy`] function to change the publishing path. The `Key`
 
 The `Key` method is useful if you need to get the resource's publishing path without publishing the resource. Unlike the `Permalink`, `RelPermalink`, or `Publish` methods, calling `Key` will not publish the resource.
 
-
 {{% include "methods/resource/_common/global-page-remote-resources.md" %}}
 
 [`Permalink`]: /methods/resource/permalink/

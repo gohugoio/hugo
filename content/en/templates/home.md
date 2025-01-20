@@ -14,7 +14,6 @@ aliases: [/layout/homepage/,/templates/homepage-template/,/templates/homepage/]
 
 The home template is the *only* required template for building a site and therefore useful when bootstrapping a new site and template. It is also the only required template if you are developing a single-page website.
 
-
 {{< youtube ut1xtRZ1QOA >}}
 
 ## Home template lookup order

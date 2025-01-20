@@ -19,7 +19,7 @@ action:
 {{% include "methods/page/_common/definition-of-section.md" %}}
 
 {{% note %}}
-The current section of a [section](g) page, [taxonomy](g) page, [term](g) page, or the home page, is itself.
+The current section of a [section page](g), [taxonomy page](g), [term page](g), or the home page, is itself.
 {{% /note %}}
 
 Consider this content structure:

@@ -384,8 +384,8 @@ Is rendered to:
 To exclude a page with an undefined field from a boolean _inequality_ test:
 
 1. Create a collection using a boolean comparison
-2. Create a collection using a nil comparison
-3. Subtract the second collection from the first collection using the [`collections.Complement`] function.
+1. Create a collection using a nil comparison
+1. Subtract the second collection from the first collection using the [`collections.Complement`] function.
 
 [`collections.Complement`]: /functions/collections/complement/
 

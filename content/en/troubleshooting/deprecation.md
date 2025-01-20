@@ -13,8 +13,8 @@ weight: 50
 When a project _deprecates_ something, they are telling its users:
 
 1. Don't use Thing One anymore.
-2. Use Thing Two instead.
-3. We're going to remove Thing One at some point in the future.
+1. Use Thing Two instead.
+1. We're going to remove Thing One at some point in the future.
 
 [reasons for deprecation]: https://en.wikipedia.org/wiki/Deprecation
 
@@ -30,8 +30,8 @@ Common [reasons for deprecation]:
 After the project team deprecates something in code, Hugo will:
 
 1. Log an INFO message for 6 minor releases[^1]
-2. Log a WARN message for another 6 minor releases
-3. Log an ERROR message and fail the build thereafter
+1. Log a WARN message for another 6 minor releases
+1. Log an ERROR message and fail the build thereafter
 
 To see the INFO messages, you must use the `--logLevel` command line flag:
 

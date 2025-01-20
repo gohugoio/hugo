@@ -56,7 +56,6 @@ To list the GET and POST operations for each of the API paths:
 
 Hugo renders this to:
 
-
 ```html
 <p>/pets</p>
 <dl>

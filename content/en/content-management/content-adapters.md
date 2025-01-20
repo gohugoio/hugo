@@ -17,7 +17,7 @@ toc: true
 
 A content adapter is a template that dynamically creates pages when building a site. For example, use a content adapter to create pages from a remote data source such as JSON, TOML, YAML, or XML.
 
-Unlike templates that reside in the `layouts` directory, content adapters reside in the `content` directory, no more than one per directory per language. When a content adapter creates a page, the page's [logical path](g)will be relative to the content adapter.
+Unlike templates that reside in the `layouts` directory, content adapters reside in the `content` directory, no more than one per directory per language. When a content adapter creates a page, the page's [logical path](g) will be relative to the content adapter.
 
 ```text
 content/
@@ -280,7 +280,7 @@ Step 4
 With multilingual sites you can:
 
 1. Create one content adapter for all languages using the [`EnableAllLanguages`](#enablealllanguages) method as described above.
-2. Create content adapters unique to each language. See the examples below.
+1. Create content adapters unique to each language. See the examples below.
 
 ### Translations by file name
 

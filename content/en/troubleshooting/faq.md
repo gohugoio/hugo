@@ -9,7 +9,6 @@ menu:
     parent: troubleshooting
     weight: 70
 weight: 70
-# Use level 6 headings for each question.
 ---
 
 Hugo’s [forum] is an active community of users and developers who answer questions, share knowledge, and provide examples. A quick search of over 20,000 topics will often answer your question. Please be sure to read about [requesting help] before asking your first question.
@@ -43,10 +42,10 @@ If the answer to any of these questions is yes, either change the field values, 
 
 In the `content/section/page.md` file, or in the `content/section/page/index.md` file:
 
-  - Is `draft` set to `true`?
-  - Is the `date` in the future?
-  - Is the `publishDate` in the future?
-  - Is the `expiryDate` in the past?
+- Is `draft` set to `true`?
+- Is the `date` in the future?
+- Is the `publishDate` in the future?
+- Is the `expiryDate` in the past?
 
 If the answer to any of these questions is yes, either change the field values, or use one of these command line flags: `--buildDrafts`, `--buildFuture`, or `--buildExpired`.
 

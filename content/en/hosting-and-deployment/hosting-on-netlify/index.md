@@ -14,10 +14,10 @@ toc: true
 Please complete the following tasks before continuing:
 
 1. [Create a Netlify account]
-2. [Install Git]
-3. [Create a Hugo site] and test it locally with `hugo server`
-4. Commit the changes to your local repository
-5. Push the local repository to your [GitHub], [GitLab], or [Bitbucket] account
+1. [Install Git]
+1. [Create a Hugo site] and test it locally with `hugo server`
+1. Commit the changes to your local repository
+1. Push the local repository to your [GitHub], [GitLab], or [Bitbucket] account
 
 [Bitbucket]: https://bitbucket.org/product
 [Create a Hugo site]: /getting-started/quick-start/

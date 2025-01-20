@@ -32,7 +32,6 @@ Headings
 <pre>{{ debug.Dump .Fragments.Headings }}</pre>
 ```
 
-
 HeadingsMap
 : (`map`) A nested map of all headings on the page. Each map contains the following keys: `ID`, `Level`, `Title` and `Headings`. To inspect the data structure:
 

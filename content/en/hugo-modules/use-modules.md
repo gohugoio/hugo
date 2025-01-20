@@ -31,7 +31,7 @@ Also see the [CLI Doc](/commands/hugo_mod_init/).
 The easiest way to use a Module for a theme is to import it in the configuration.
 
 1. Initialize the hugo module system: `hugo mod init github.com/<your_user>/<your_project>`
-2. Import the theme:
+1. Import the theme:
 
 {{< code-toggle file=hugo >}}
 [module]

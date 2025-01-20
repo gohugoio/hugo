@@ -74,7 +74,6 @@ sourceMap
 sourcesContent {{< new-in 0.140.0 >}}
 : (`bool`) Whether to include the content of the source files in the source map. By default, this is `true`.
 
-
 JSX {{< new-in 0.124.0 >}}
 : (`string`) How to handle/transform JSX syntax. One of: `transform`, `preserve`, `automatic`. Default is `transform`. Notably, the `automatic` transform was introduced in React 17+ and will cause the necessary JSX helper functions to be imported automatically. See https://esbuild.github.io/api/#jsx
 

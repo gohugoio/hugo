@@ -37,7 +37,7 @@ For a complete guide to contributing to Hugo, see the [Contribution Guide].
 [contributing]: CONTRIBUTING.md
 [create a proposal]: https://github.com/gohugoio/hugo/issues/new?labels=Proposal%2C+NeedsTriage&template=feature_request.md
 [documentation repository]: https://github.com/gohugoio/hugoDocs
-[documentation]: https://gohugo.io/documentation
+[documentation]: /documentation
 [forum]: https://discourse.gohugo.io
 [issue queue]: https://github.com/gohugoio/hugo/issues
 [themes]: https://themes.gohugo.io/

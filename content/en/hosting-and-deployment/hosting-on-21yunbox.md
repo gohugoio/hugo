@@ -31,7 +31,7 @@ This guide assumes you already have a Hugo project to deploy. If you need a proj
 You can set up a Hugo site on 21YunBox in two quick steps:
 
 1. Create a new web service on 21YunBox, and give 21YunBox permission to access your GitHub or Gitee repo.
-2. Use the following values during creation:
+1. Use the following values during creation:
 
    |    Field              | Value                                            |
    | --------------------- | ------------------------------------------------ |

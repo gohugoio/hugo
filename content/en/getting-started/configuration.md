@@ -136,7 +136,7 @@ ID = 'G-XXXXXXXXX'
 Now consider the following scenario:
 
 1. You don't want to load the analytics code when running `hugo server`.
-2. You want to use different Google tag IDs for your production and staging environments. For example:
+1. You want to use different Google tag IDs for your production and staging environments. For example:
 
     - `G-PPPPPPPPP` for production
     - `G-SSSSSSSSS` for staging
@@ -149,7 +149,7 @@ To satisfy these requirements, configure your site as follows:
 
     By default, Hugo sets its `environment` to `development` when running `hugo server`. In the absence of a `config/development` directory, Hugo uses the `config/_default` directory.
 
-2. `config/production/hugo.toml`
+1. `config/production/hugo.toml`
 
     Include this section only:
 
@@ -162,7 +162,7 @@ To satisfy these requirements, configure your site as follows:
 
     By default, Hugo sets its `environment` to `production` when running `hugo`. The analytics code will use the `G-PPPPPPPPP` tag ID.
 
-3. `config/staging/hugo.toml`
+1. `config/staging/hugo.toml`
 
     Include this section only:
 
@@ -609,7 +609,6 @@ These settings do not apply to the [`Next`] or [`Prev`] methods on a `Pages` obj
 
 See [Configure Build](/getting-started/configuration-build/).
 
-
 ## Configure server
 
 This is only relevant when running `hugo server`, and it allows to set HTTP headers during development, which allows you to test out your Content Security Policy and similar. The configuration format matches [Netlify's](https://docs.netlify.com/routing/headers/#syntax-for-the-netlify-configuration-file) with slightly more powerful [Glob matching](https://github.com/gobwas/glob):
@@ -697,7 +696,6 @@ from = '/**'
 to = '/en/404.html'
 status = 404
 {{< /code-toggle >}}
-
 
 ## Configure title case
 
@@ -889,7 +887,6 @@ If you want to know the current value of `cacheDir`, you can run `hugo config`, 
 [custom output formats]: /templates/output-formats/
 [templates]: /templates/
 [static-files]: /content-management/static-files/
-
 
 ## Configure HTTP cache
 

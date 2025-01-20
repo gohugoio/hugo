@@ -63,7 +63,7 @@ Hugo provides custom Markdown features including:
 [Goldmark]: https://github.com/yuin/goldmark
 [Markdown]: https://daringfireball.net/projects/markdown/
 [Mathematics]: /content-management/mathematics/
-[Render hooks]: https://gohugo.io/render-hooks/introduction/
+[Render hooks]: /render-hooks/introduction/
 [configure goldmark]: /getting-started/configuration-markup/#goldmark
 
 ### HTML
@@ -100,7 +100,6 @@ hugo --logLevel info
 [AsciiDoc]: https://asciidoc.org/
 [configure the AsciiDoc renderer]: /getting-started/configuration-markup/#asciidoc
 [configure asciidoc]: /getting-started/configuration-markup/#asciidoc
-
 
 ### Pandoc
 

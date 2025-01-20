@@ -37,7 +37,6 @@ Rendered:
 
 {{< x user="SanDiegoZoo" id="1453110110599868418" >}}
 
-
 ## Privacy
 
 Adjust the relevant privacy settings in your site configuration.

@@ -376,7 +376,7 @@ Use the [`template`] function to include one or more of Hugo's [embedded templat
 
 [`partial`]: /functions/partials/include/
 [`partialCached`]: /functions/partials/includecached/
-[`template`]: functions/go-template/template/
+[`template`]: /functions/go-template/template/
 
 Use the [`partial`] or [`partialCached`] function to include one or more [partial templates]:
 

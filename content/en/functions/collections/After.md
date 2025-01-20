@@ -38,7 +38,7 @@ The template above is rendered to:
 You can use `after` in combination with the [`first`] function and Hugo's [powerful sorting methods](/quick-reference/page-collections/#sort). Let's assume you have a `section` page at `example.com/articles`. You have 10 articles, but you want your template to show only two rows:
 
 1. The top row is titled "Featured" and shows only the most recently published article (i.e. by `publishdate` in the content files' front matter).
-2. The second row is titled "Recent Articles" and shows only the 2nd- to 4th-most recently published articles.
+1. The second row is titled "Recent Articles" and shows only the 2nd- to 4th-most recently published articles.
 
 {{< code file=layouts/section/articles.html >}}
 {{ define "main" }}

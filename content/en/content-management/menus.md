@@ -17,8 +17,8 @@ aliases: [/extras/menus/]
 To create a menu for your site:
 
 1. Define the menu entries
-2. [Localize] each entry
-3. Render the menu with a [template]
+1. [Localize] each entry
+1. Render the menu with a [template]
 
 Create multiple menus, either flat or nested. For example, create a main menu for the header, and a separate menu for the footer.
 

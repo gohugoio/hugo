@@ -35,7 +35,6 @@ To format and [localize](g) the value, pass it through the [`time.Format`] funct
 
 The `time.Now` function returns a `time.Time` value, so you can chain any of the [time methods] to the resulting value. For example:
 
-
 ```go-html-template
 {{ time.Now.Year }} → 2023 (int)
 {{ time.Now.Weekday.String }} → Sunday

@@ -49,8 +49,8 @@ Place this in your baseof.html template:
 The example above:
 
 1. Captures the template as a resource
-2. Executes the resource as a template, passing the current page in context
-3. Publishes the resource to css/main.css
+1. Executes the resource as a template, passing the current page in context
+1. Publishes the resource to css/main.css
 
 The result is:
 

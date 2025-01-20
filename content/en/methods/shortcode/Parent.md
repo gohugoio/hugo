@@ -46,5 +46,5 @@ Welcome. Today is {{</* now */>}}.
 The "now" shortcode formats the current time using:
 
 1. The `dateFormat` argument passed to the "now" shortcode, if present
-2. The `dateFormat` argument passed to the "greeting" shortcode, if present
-3. The default layout string defined at the top of the shortcode
+1. The `dateFormat` argument passed to the "greeting" shortcode, if present
+1. The default layout string defined at the top of the shortcode

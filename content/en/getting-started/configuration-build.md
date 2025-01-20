@@ -32,7 +32,6 @@ See [Configure Cache Busters](#configure-cache-busters).
 
 (`string`) When to use the cached resources in `/resources/_gen` for PostCSS and ToCSS. Valid values are `never`, `always` and `fallback`. The last value means that the cache will be tried if PostCSS/extended version is not available.
 
-
 ## Configure cache busters
 
 {{< new-in 0.112.0 >}}

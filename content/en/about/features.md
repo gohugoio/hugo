@@ -123,7 +123,7 @@ toc: true
 [Mathematics]: /content-management/mathematics/
 [Menus]: /content-management/menus/
 [Minification]: /getting-started/configuration/#configure-minify
-[Modules]: https://gohugo.io/hugo-modules/
+[Modules]: /hugo-modules/
 [Multilingual]: /content-management/multilingual/
 [Multiplatform]: /installation/
 [Output formats]: /templates/output-formats/
@@ -134,6 +134,6 @@ toc: true
 [Syntax highlighting]: /content-management/syntax-highlighting/
 [Tailwind CSS processing]: /functions/css/tailwindcss/
 [Taxonomies]: /content-management/taxonomies/
-[Templates]: templates/introduction/
+[Templates]: /templates/introduction/
 [Themes]: https://themes.gohugo.io/
 [URL management]: /content-management/urls/

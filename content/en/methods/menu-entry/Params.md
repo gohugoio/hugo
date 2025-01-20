@@ -32,7 +32,6 @@ weight = 30
 
 With this template:
 
-
 ```go-html-template
 <ul>
   {{ range .Site.Menus.main }}

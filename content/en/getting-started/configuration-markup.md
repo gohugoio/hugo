@@ -107,7 +107,7 @@ Superscript|`1^st^`|`1<sup>st</sup>`
 To avoid a conflict when enabling the Hugo Goldmark Extras subscript extension, if you want to render subscript and strikethrough text concurrently you must:
 
 1. Disable the Goldmark strikethrough extension
-2. Enable the Hugo Goldmark Extras delete extension
+1. Enable the Hugo Goldmark Extras delete extension
 
 For example:
 

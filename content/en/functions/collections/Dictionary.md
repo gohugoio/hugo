@@ -33,7 +33,6 @@ To create an empty map:
 {{ $m := dict }}
 ```
 
-
 Note that the `key` can be either a `string` or a `string slice`. The latter is useful to create a deeply nested structure, e.g.:
 
 ```go-html-template

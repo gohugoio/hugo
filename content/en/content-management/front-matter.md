@@ -74,7 +74,6 @@ The field names below are reserved. For example, you cannot create a custom fiel
 
 (`string`) The date associated with the page, typically the creation date. Note that the TOML format also supports unquoted date/time values. See the [dates](#dates) section for examples. Access this value from a template using the [`Date`] method on a `Page` object.
 
-
 [`date`]: /methods/page/date/
 
 ###### description
@@ -144,7 +143,7 @@ lang
 
 [`layout`]: /methods/page/layout/
 [template lookup order]: /templates/lookup-order/
-[target a specific template]: templates/lookup-order/#target-a-template
+[target a specific template]: /templates/lookup-order/#target-a-template
 
 ###### linkTitle
 
@@ -442,5 +441,5 @@ When populating a date field, whether a [custom page parameter](#parameters) or 
 To override the default time zone, set the [`timeZone`](https://gohugo.io/getting-started/configuration/#timezone) in your site configuration. The order of precedence for determining the time zone is:
 
 1. The time zone offset in the date/time string
-2. The time zone specified in your site configuration
-3. The `Etc/UTC` time zone
+1. The time zone specified in your site configuration
+1. The `Etc/UTC` time zone

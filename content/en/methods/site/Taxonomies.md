@@ -73,7 +73,6 @@ authors:
     - Pride and Prejudice
 {{< /code-toggle >}}
 
-
 To list the "suspense" books:
 
 ```go-html-template
