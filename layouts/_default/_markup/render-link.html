@@ -268,51 +268,49 @@ either of these shortcodes in conjunction with this render hook.
   {{- $contentPath := .contentPath }}
   {{- $errorLevel := .errorLevel }}
   {{- $renderHookName := .renderHookName }}
-  {{- $text := .text }}
+  {{- $text := .text | transform.Plainify | strings.ToLower }}
 
   {{- /* Initialize. */}}
-  {{- $basePath := "/getting-started/glossary" }}
+  {{- $glossaryPath := "/getting-started/glossary" }}
   {{- $termGiven := $text }}
   {{- $termActual := "" }}
   {{- $termSingular := inflect.Singularize $termGiven }}
 
-  {{- /* Validate the base path. */}}
-  {{- if not (site.GetPage $basePath) }}
-    {{- $msg := printf "The %q render hook was unable to find %s: see %s" $renderHookName $basePath $contentPath }}
-    {{- if eq $errorLevel "warning" }}
-      {{- warnf $msg }}
-    {{- else if eq $errorLevel "error" }}
-      {{- errorf $msg }}
+  {{- /* Verify that the glossary page exists. */}}
+  {{- $glossaryPage := site.GetPage $glossaryPath }}
+  {{- if not $glossaryPage }}
+    {{- errorf "The %q render hook was unable to find %s: see %s" $renderHookName $glossaryPath $contentPath }}
+  {{- end }}
+
+  {{- /* Theres a better way to handle this, but it works for now. */}}
+  {{- $cheating := dict
+    "chaining" "chain"
+    "localize" "localization"
+    "localized" "localization"
+    "paginating" "paginate"
+    "walking" "walk"
+  }}
+
+  {{- /* Verify that a glossary term page exists for the given term. */}}
+  {{- if site.GetPage (urls.JoinPath $glossaryPath ($termGiven | urlize)) }}
+    {{- $termActual = $termGiven }}
+  {{- else if site.GetPage (urls.JoinPath $glossaryPath ($termSingular | urlize)) }}
+    {{- $termActual = $termSingular }}
+  {{- else }}
+    {{- $termToTest := index $cheating $termGiven }}
+    {{- if site.GetPage (urls.JoinPath $glossaryPath ($termToTest | urlize)) }}
+      {{- $termActual = $termToTest }}
     {{- end }}
   {{- end }}
 
-  {{- /* Verify that a glossary term page exists for the given term. */}}
-  {{- if site.GetPage (urls.JoinPath $basePath ($termGiven | urlize)) }}
-    {{- $termActual = $termGiven }}
-  {{- else if site.GetPage (urls.JoinPath $basePath ($termSingular | urlize)) }}
-    {{- $termActual = $termSingular}}
-  {{- else }}
-    {{- $msg := printf "The %q render hook was unable to find a defintion for either the singular or plural form of the term %q: see %s" $renderHookName $termGiven $contentPath }}
-    {{- if eq $errorLevel "warning" }}
-      {{- warnf $msg }}
-    {{- else if eq $errorLevel "error" }}
-      {{- errorf $msg }}
-    {{- end }}
+  {{- if not $termActual }}
+    {{- errorf "The %q render hook was unable to find a glossary page for either the singular or plural form of the term %q: see %s" $renderHookName $termGiven $contentPath }}
   {{- end }}
 
   {{- /* Create the href attribute. */}}
   {{- $href := ""}}
   {{- if $termActual }}
-    {{- with site.GetPage $basePath }}
-      {{- $href = fmt.Printf "%s#%s" .RelPermalink (anchorize $termActual) }}
-    {{- else }}
-      {{- $msg := printf "The %q render hook was unable to find heading ID %q in %s. See %s" $renderHookName $basePath $contentPath }}
-      {{- if eq $errorLevel "warning" }}
-        {{- warnf $msg }}
-      {{- else if eq $errorLevel "error" }}
-        {{- errorf $msg }}
-      {{- end }}
-    {{- end }}
+    {{- $href = fmt.Printf "%s#%s" $glossaryPage.RelPermalink (anchorize $termActual) }}
   {{- end }}
 
   {{- return (dict "href" $href) }}

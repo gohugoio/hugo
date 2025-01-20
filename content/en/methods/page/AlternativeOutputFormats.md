@@ -10,7 +10,7 @@ action:
   signatures: [PAGE.AlternativeOutputFormats]
 ---
 
-{{% gt "output format" %}}
+{{% glossary-term "output format" %}}
 
 The `AlternativeOutputFormats` method on a `Page` object returns a slice of `OutputFormat` objects, excluding the current output format, each representing one of the output formats enabled for the given page.. See&nbsp;[details](/templates/output-formats/).
 

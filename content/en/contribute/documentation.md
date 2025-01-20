@@ -22,6 +22,12 @@ For documentation related to a new feature, please include the documentation cha
 
 ## Guidelines
 
+### Style
+
+Please adhere to Google's [developer documentation style guide].
+
+[developer documentation style guide]: https://developers.google.com/style
+
 ### Markdown
 
 Please follow these guidelines:
@@ -29,19 +35,41 @@ Please follow these guidelines:
 - Use [ATX] headings, not [setext] headings, levels 2 through 4
 - Use [fenced code blocks], not [indented code blocks]
 - Use hyphens, not asterisks, with unordered [list items]
-- Use the [note shortcode] instead of blockquotes
+- Use the [note shortcode] instead of blockquotes or bold text
 - Do not mix [raw HTML] within Markdown
 - Do not use bold text instead of a heading or description term (`dt`)
 - Remove consecutive blank lines (maximum of two)
 - Remove trailing spaces
 
-### Style
+### Glossary of terms
 
-Please adhere to Google's [developer documentation style guide].
+Each term in the glossary has its own dedicated page located within the `content/en/getting-started/glossary` directory. While these individual glossary pages are not published as standalone web pages during the build process, their content is included in other pages as needed.
 
-[developer documentation style guide]: https://developers.google.com/style
+To link to a term definition on the glossary page, use this custom link syntax:
 
-#### Terminology
+```text
+[term](g)
+```
+
+Lookups are case-insensitive, ignore formatting, and support both singular and plural forms. For example, all of these variations will link to the same glossary entry:
+
+```text
+[global resource](g)
+[Global Resource](g)
+[Global Resources](g)
+[`Global Resources`](g)
+```
+
+To insert a term definition, use the [`glossary-term`] shortcode:
+
+```text
+{{%/* glossary-term "global resource" */%}}
+```
+
+[glossary of terms]: /getting-started/glossary/
+[`glossary-term`]: #glossary-term
+
+### Terminology
 
 Please link to the [glossary of terms] when necessary, and use the terms consistently throughout the documentation. Of special note:
 
@@ -56,10 +84,7 @@ Please link to the [glossary of terms] when necessary, and use the terms consist
 
 Use the [glossary link] (`gl`) shortcode to insert a link to the glossary entry for the given term, and use the [glossary term] (`gt`) shortcode to insert the definition of the given term.
 
-[glossary link]: #glossary-link
-[glossary term]: #glossary-term
-
-#### Page titles and headings
+### Page titles and headings
 
 Please follow these guidelines for page titles and headings:
 
@@ -67,7 +92,7 @@ Please follow these guidelines for page titles and headings:
 - Avoid formatted strings in headings and page titles
 - Shorter is better
 
-#### Use active voice with present tense
+### Use active voice with present tense
 
 In software documentation, passive voice is unavoidable in some cases. Please use active voice when possible.
 
@@ -77,13 +102,13 @@ Yes → Build a static site with Hugo.
 No → This will cause Hugo to generate HTML files in the `public` directory.\
 Yes → Hugo generates HTML files in the `public` directory.
 
-#### Use second person instead of third person
+### Use second person instead of third person
 
 No → Users should exercise caution when deleting files.\
 Better → You must be cautious when deleting files.\
 Best → Be cautious when deleting files.
 
-#### Avoid adverbs when possible
+### Avoid adverbs when possible
 
 No → Hugo is extremely fast.\
 Yes → Hugo is fast.
@@ -92,13 +117,13 @@ Yes → Hugo is fast.
 "It's an adverb, Sam. It's a lazy tool of a weak mind." (Outbreak, 1995).
 {{% /note %}}
 
-#### Level 6 headings
+### Level 6 headings
 
 Level 6 headings are styled as `dt` elements. This was implemented to support a [glossary] with linkable terms.
 
 [glossary]: /getting-started/glossary/
 
-#### Function and method descriptions
+### Function and method descriptions
 
 When adding a page to the [functions] or [methods] section, begin the description with the word "Returns". With functions and methods that return a boolean value, begin the description with the phrase "Reports whether".
 
@@ -110,7 +135,7 @@ For example:
 [functions]: /functions
 [methods]: /methods
 
-#### Directory names, file names, and file paths
+### Directory names, file names, and file paths
 
 Enclose directory names, file names, and file paths within backticks, with the following exceptions:
 
@@ -119,7 +144,7 @@ Enclose directory names, file names, and file paths within backticks, with the f
 - Definition list terms
 - The description field in front matter
 
-#### Miscellaneous
+### Miscellaneous
 
 Other guidelines to consider:
 
@@ -321,41 +346,15 @@ This is a link to the [embedded alias template].
 
 [embedded alias template]: {{% eturl alias %}}
 
-### glossary link
+### glossary-term
 
-Use the glossary link (`gl`) shortcode to insert a link to the given glossary term.
-
-```text
-{{%/* gl scalar */%}}
-```
-
-{{% gl scalar %}}
-
-Note that this site's link render hook provides a custom syntax to insert a link to the given glossary term. This method of linking to a glossary term is easier to both read and write:
+Use the `glossary-term` shortcode to insert the definition of the given glossary term.
 
 ```text
-[scalar](g) <-- the g stands for glossary
+{{%/* glossary-term scalar */%}}
 ```
 
-[scalar](g)
-
-With both methods you can use either the singular or plural form of the term:
-
-```text
-{{%/* gl scalars */%}} and [scalars](g)
-```
-
-{{% gl scalars %}} and [scalars](g)
-
-### glossary term
-
-Use the glossary term (`gt`) shortcode to insert the definition of the given glossary term.
-
-```text
-{{%/* gt scalar */%}}
-```
-
-{{% gt scalar %}}
+{{% glossary-term scalar %}}
 
 ### include
 
