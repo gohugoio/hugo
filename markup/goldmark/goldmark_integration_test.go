@@ -851,3 +851,54 @@ title: "p1"
 	b.AssertFileContent("public/p1/index.html", "! <!-- raw HTML omitted -->")
 	b.AssertLogContains("! WARN")
 }
+
+// See https://github.com/gohugoio/hugo/issues/13278#issuecomment-2603280548
+func TestGoldmarkRawHTMLCommentNoWarning(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+markup.goldmark.renderer.unsafe = false
+-- content/p1.md --
+---
+title: "p1"
+---
+# HTML comments
+
+## Simple 
+<!-- This is a comment -->
+
+    <!-- This is a comment indented -->
+
+	**Hello**<!-- This is a comment indented with markup surrounding. -->_world_.
+## With HTML
+
+<!-- <p>This is another paragraph </p> -->
+
+## With HTML and JS
+
+<!-- <script>alert('hello');</script> -->
+
+## With Block
+
+<!--
+<p>Look at this cool image:</p>
+<img border="0" src="pic_trulli.jpg" alt="Trulli">
+-->
+
+XSS 
+
+<!-- --><script>alert("I just escaped the HTML comment")</script><!-- -->
+
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
+
+	b.AssertFileContent("public/p1/index.html", "! <!-- raw HTML omitted -->")
+	b.AssertLogContains("! Raw HTML omitted")
+
+	b = hugolib.Test(t, strings.ReplaceAll(files, "markup.goldmark.renderer.unsafe = false", "markup.goldmark.renderer.unsafe = true"), hugolib.TestOptWarn())
+	b.AssertFileContent("public/p1/index.html", "<!-- This is a comment -->")
+	b.AssertLogContains("! WARN")
+}
