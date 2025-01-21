@@ -31,4 +31,18 @@ HugoReload.prototype.reload = function (path, options) {
 	return true;
 };
 
-LiveReload.addPlugin(HugoReload);
+(function () {
+	LiveReload.addPlugin(HugoReload);
+
+	// Close the WebSocket connection  when the user leaves.
+	window.addEventListener('pagehide', () => {
+		console.log('Disconnecting LiveReload');
+		LiveReload.connector.disconnect();
+	});
+
+	// Open the connection when the page is loaded or restored from bfcache.
+	window.addEventListener('pageshow', () => {
+		console.log('Connecting LiveReload');
+		LiveReload.connector.connect();
+	});
+})();
