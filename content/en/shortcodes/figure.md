@@ -57,7 +57,7 @@ Which looks like this in your browser:
   class="ma0 w-75"
 >}}
 
-## Arguments
+## Parameters
 
 src
 : (`string`) The `src` attribute of the `img` element. Typically this is a [page resource](g) or a [global resource](g).

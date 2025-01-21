@@ -44,7 +44,7 @@ Which looks like this in your browser:
 This is a **bold** word.
 {{< /details >}}
 
-## Arguments
+## Parameters
 
 summary
 : (`string`) The content of the child `summary` element rendered from Markdown to HTML. Default is `Details`.

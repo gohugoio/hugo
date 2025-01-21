@@ -35,7 +35,7 @@ Hugo renders this to:
 
 {{< vimeo 55073825 >}}
 
-## Arguments
+## Parameters
 
 class
 : (`string`) The `class` attribute of the wrapping `div` element. Adding one or more CSS classes disables inline styling.

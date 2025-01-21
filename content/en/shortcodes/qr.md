@@ -84,7 +84,7 @@ EMAIL;TYPE=WORK:jsmith@example.org
 END:VCARD
 {{< /qr >}}
 
-## Arguments
+## Parameters
 
 text
 : (`string`) The text to encode, falling back to the text between the opening and closing shortcode tags.

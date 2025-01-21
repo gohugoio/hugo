@@ -35,7 +35,7 @@ Hugo renders this to:
 
 {{< youtube 0RKpf3rK57I >}}
 
-## Arguments
+## Parameters
 
 id
 : (`string`) The video `id`. Optional if the `id` is provided as a positional argument as shown in the example above.
