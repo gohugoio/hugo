@@ -918,7 +918,7 @@ hidden
 		"! <!-- This is a comment -->",
 		"! script",
 	)
-	b.AssertLogContains("! Raw HTML omitted")
+	b.AssertLogContains("! WARN")
 
 	b = hugolib.Test(t, strings.ReplaceAll(files, "markup.goldmark.renderer.unsafe = false", "markup.goldmark.renderer.unsafe = true"), hugolib.TestOptWarn())
 	b.AssertFileContent("public/p1/index.html",
