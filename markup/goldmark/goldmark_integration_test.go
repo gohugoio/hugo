@@ -885,9 +885,26 @@ title: "p1"
 <img border="0" src="pic_trulli.jpg" alt="Trulli">
 -->
 
-XSS 
+## XSS 
 
 <!-- --><script>alert("I just escaped the HTML comment")</script><!-- -->
+
+
+## More
+
+This is a <!--hidden--> word.
+
+This is a <!-- hidden--> word.
+
+This is a <!-- hidden --> word.
+
+This is a <!-- 
+hidden --> word.
+
+This is a <!-- 
+hidden
+--> word.
+
 
 -- layouts/_default/single.html --
 {{ .Content }}
