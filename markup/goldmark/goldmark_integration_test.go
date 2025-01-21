@@ -912,10 +912,19 @@ hidden
 
 	b := hugolib.Test(t, files, hugolib.TestOptWarn())
 
-	b.AssertFileContent("public/p1/index.html", "! <!-- raw HTML omitted -->")
+	b.AssertFileContent("public/p1/index.html",
+		"! <!-- raw HTML omitted -->",
+		"! <!-- hidden -->",
+		"! <!-- This is a comment -->",
+		"! script",
+	)
 	b.AssertLogContains("! Raw HTML omitted")
 
 	b = hugolib.Test(t, strings.ReplaceAll(files, "markup.goldmark.renderer.unsafe = false", "markup.goldmark.renderer.unsafe = true"), hugolib.TestOptWarn())
-	b.AssertFileContent("public/p1/index.html", "<!-- This is a comment -->")
+	b.AssertFileContent("public/p1/index.html",
+		"! <!-- raw HTML omitted -->",
+		"<!-- hidden -->",
+		"<!-- This is a comment -->",
+	)
 	b.AssertLogContains("! WARN")
 }
