@@ -423,7 +423,7 @@ func DeprecateLevel(item, alternative, version string, level logg.Level) {
 		msg = fmt.Sprintf("%s was deprecated in Hugo %s and will be removed in a future release. %s", item, version, alternative)
 	}
 
-	loggers.Log().Logger().WithLevel(level).WithField(loggers.FieldNameCmd, "deprecated").Logf(msg)
+	loggers.Log().Logger().WithLevel(level).WithField(loggers.FieldNameCmd, "deprecated").Logf("%s", msg)
 }
 
 // We usually do about one minor version a month.
