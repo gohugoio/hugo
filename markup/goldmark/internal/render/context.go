@@ -27,6 +27,7 @@ import (
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/yuin/goldmark/ast"
+	"github.com/yuin/goldmark/util"
 )
 
 type BufWriter struct {
@@ -264,6 +265,8 @@ func (c *hookBase) PositionerSourceTarget() []byte {
 }
 
 // TextPlain returns a plain text representation of the given node.
+// This will resolve any lefover HTML entities. This will typically be
+// entities inserted by e.g. the typographer extension.
 // Goldmark's Node.Text was deprecated in 1.7.8.
 func TextPlain(n ast.Node, source []byte) string {
 	buf := bp.GetBuffer()
@@ -272,7 +275,7 @@ func TextPlain(n ast.Node, source []byte) string {
 	for c := n.FirstChild(); c != nil; c = c.NextSibling() {
 		textPlainTo(c, source, buf)
 	}
-	return buf.String()
+	return string(util.ResolveEntityNames(buf.Bytes()))
 }
 
 func textPlainTo(c ast.Node, source []byte, buf *bytes.Buffer) {
@@ -283,6 +286,8 @@ func textPlainTo(c ast.Node, source []byte, buf *bytes.Buffer) {
 	case *ast.RawHTML:
 		s := strings.TrimSpace(tpl.StripHTML(string(c.Segments.Value(source))))
 		buf.WriteString(s)
+	case *ast.String:
+		buf.Write(c.Value)
 	case *ast.Text:
 		buf.Write(c.Segment.Value(source))
 	default:
