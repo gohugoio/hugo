@@ -174,6 +174,9 @@ func (r *hugoContextRenderer) renderHTMLBlock(
 	w util.BufWriter, source []byte, node ast.Node, entering bool,
 ) (ast.WalkStatus, error) {
 	n := node.(*ast.HTMLBlock)
+	isHTMLComment := func(b []byte) bool {
+		return len(b) > 4 && b[0] == '<' && b[1] == '!' && b[2] == '-' && b[3] == '-'
+	}
 	if entering {
 		if r.Unsafe {
 			l := n.Lines().Len()
@@ -188,8 +191,12 @@ func (r *hugoContextRenderer) renderHTMLBlock(
 				r.Writer.SecureWrite(w, linev)
 			}
 		} else {
-			r.logRawHTMLEmittedWarn(w)
-			_, _ = w.WriteString("<!-- raw HTML omitted -->\n")
+			l := n.Lines().At(0)
+			v := l.Value(source)
+			if !isHTMLComment(v) {
+				r.logRawHTMLEmittedWarn(w)
+				_, _ = w.WriteString("<!-- raw HTML omitted -->\n")
+			}
 		}
 	} else {
 		if n.HasClosure() {
@@ -197,7 +204,11 @@ func (r *hugoContextRenderer) renderHTMLBlock(
 				closure := n.ClosureLine
 				r.Writer.SecureWrite(w, closure.Value(source))
 			} else {
-				_, _ = w.WriteString("<!-- raw HTML omitted -->\n")
+				l := n.Lines().At(0)
+				v := l.Value(source)
+				if !isHTMLComment(v) {
+					_, _ = w.WriteString("<!-- raw HTML omitted -->\n")
+				}
 			}
 		}
 	}
