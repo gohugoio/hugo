@@ -527,6 +527,39 @@ a <!-- b --> c
 	)
 }
 
+// Issue 13286
+func TestImageAltApostrophesWithTypographer(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+[markup.goldmark.extensions.typographer]
+disable = false
+ [markup.goldmark.renderHooks.image]
+ enableDefault = true
+-- content/p1.md --
+---
+title: "p1"
+---
+
+## Image
+
+![A's is > than B's](some-image.png)
+
+
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContentExact("public/p1/index.html",
+		// Note that this markup is slightly different than the one produced by the default Goldmark renderer,
+		// see issue 13292.
+		"alt=\"A’s is &gt; than B’s\">",
+	)
+}
+
 // Issue #7332
 // Issue #11587
 func TestGoldmarkEmojiExtension(t *testing.T) {
