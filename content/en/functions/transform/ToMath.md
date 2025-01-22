@@ -57,8 +57,6 @@ fleqn
 macros
 : (`map`) A map of macros to be used in the math expression. Default is `{}`.
 
-    {{% comment %}}Indent to prevent splitting the description list.{{% / comment %}}
-
     ```go-html-template
     {{ $macros := dict
       "\\addBar" "\\bar{#1}"
@@ -73,8 +71,6 @@ minRuleThickness
 
 output
 : (`string`). Determines the markup language of the output, one of `html`, `mathml`, or `htmlAndMathml`. Default is `mathml`.
-
-    {{% comment %}}Indent to prevent splitting the description list.{{% / comment %}}
 
     With `html` and `htmlAndMathml` you must include the KaTeX style sheet within the `head` element of your base template.
 

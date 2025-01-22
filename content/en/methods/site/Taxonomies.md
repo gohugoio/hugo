@@ -9,10 +9,6 @@ action:
   signatures: [SITE.Taxonomies]
 ---
 
-{{% comment %}}
-Show template example: GetTerms
-{{% /comment %}}
-
 Conceptually, the `Taxonomies` method on a `Site` object returns a data structure such&nbsp;as:
 
 {{< code-toggle >}}
