@@ -304,16 +304,6 @@ title: Example
 draft: false
 {{< /code-toggle >}}
 
-### comment
-
-Use the `comment` shortcode to include comments in your content. Hugo will ignore the text within these comments when rendering your site.
-
-```text
-{{%/* comment */%}}
-This will be hidden when rendering the page.
-{{%/* /comment */%}}
-```
-
 ### deprecated-in
 
 Use the `deprecated-in` shortcode to indicate that a feature is deprecated:
