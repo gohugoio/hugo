@@ -33,8 +33,9 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 a{{< comment >}}b{{< /comment >}}c
 `
 
-	b := hugolib.Test(t, files)
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
 	b.AssertFileContent("public/index.html", "<p>ac</p>")
+	b.AssertLogContains(`WARN  The "comment" shortcode was deprecated in v0.143.0 and will be removed in a future release. Please use HTML comments instead.`)
 }
 
 func TestDetailsShortcode(t *testing.T) {
