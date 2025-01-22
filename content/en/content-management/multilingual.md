@@ -109,34 +109,42 @@ weight
 [RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.1
 [translating by file name]: #translation-by-file-name
 
-### Changes in Hugo 0.112.0
+### Site parameters
 
-{{< new-in 0.112.0 >}}
-
-In Hugo `v0.112.0` we consolidated all configuration options, and improved how the languages and their parameters are merged with the main configuration. But while testing this on Hugo sites out there, we received some error reports and reverted some of the changes in favor of deprecation warnings:
-
-1. `site.Language.Params` is deprecated. Use `site.Params` directly.
-1. Adding custom parameters to the top level language configuration is deprecated. Define custom parameters within `languages.xx.params`. See `color` in the example below.
+Set language-specific site parameters under each language's `params` key:
 
 {{< code-toggle file=hugo >}}
-
-title = "My blog"
-languageCode = "en-us"
+[params]
+color = "red"
 
 [languages]
-[languages.sv]
-title = "Min blogg"
-languageCode = "sv"
-[languages.en.params]
-color = "blue"
+  [languages.de]
+    languageCode = 'de-DE'
+    title = 'Projekt Dokumentation'
+    weight = 1
+    [languages.de.params]
+      color = 'blue'
+      subtitle = 'Referenz, Tutorials und Erklärungen'
+  [languages.en]
+    languageCode = 'en-US'
+    title = 'Project Documentation'
+    weight = 2
+    [languages.en.params]
+      subtitle = 'Reference, Tutorials, and Explanations'
 {{< /code-toggle >}}
 
-In the example above, all settings except `color` below `params` map to predefined configuration options in Hugo for the site and its language, and should be accessed via the documented accessors:
+When building the English site:
 
 ```go-html-template
-{{ site.Title }}
-{{ site.Language.LanguageCode }}
-{{ site.Params.color }}
+{{ site.Params.color }} --> red
+{{ site.Params.subtitle }} --> Reference, Tutorials, and Explanations
+```
+
+When building the English site:
+
+```go-html-template
+{{ site.Params.color }} --> blue
+{{ site.Params.subtitle }} --> 'Referenz, Tutorials und Erklärungen'
 ```
 
 ### Disable a language

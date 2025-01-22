@@ -34,8 +34,6 @@ See [Configure Cache Busters](#configure-cache-busters).
 
 ## Configure cache busters
 
-{{< new-in 0.112.0 >}}
-
 The `build.cachebusters` configuration option was added to support development using Tailwind 3.x's JIT compiler where a `build` configuration may look like this:
 
 {{< code-toggle file=hugo >}}
