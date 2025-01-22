@@ -265,7 +265,7 @@ func (c *hookBase) PositionerSourceTarget() []byte {
 }
 
 // TextPlain returns a plain text representation of the given node.
-// This will resolve any lefover HTML entities. This will typically be
+// This will resolve any leftover HTML entities. This will typically be
 // entities inserted by e.g. the typographer extension.
 // Goldmark's Node.Text was deprecated in 1.7.8.
 func TextPlain(n ast.Node, source []byte) string {
