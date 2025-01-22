@@ -114,9 +114,9 @@ type PageConfig struct {
 	Content Source
 
 	// Compiled values.
-	CascadeCompiled      map[page.PageMatcher]maps.Params
-	ContentMediaType     media.Type `mapstructure:"-" json:"-"`
-	IsFromContentAdapter bool       `mapstructure:"-" json:"-"`
+	CascadeCompiled      *maps.Ordered[page.PageMatcher, maps.Params] `mapstructure:"-" json:"-"`
+	ContentMediaType     media.Type                                   `mapstructure:"-" json:"-"`
+	IsFromContentAdapter bool                                         `mapstructure:"-" json:"-"`
 }
 
 var DefaultPageConfig = PageConfig{

@@ -87,8 +87,8 @@ type pageMetaParams struct {
 
 	// These are only set in watch mode.
 	datesOriginal   pagemeta.Dates
-	paramsOriginal  map[string]any                   // contains the original params as defined in the front matter.
-	cascadeOriginal map[page.PageMatcher]maps.Params // contains the original cascade as defined in the front matter.
+	paramsOriginal  map[string]any                               // contains the original params as defined in the front matter.
+	cascadeOriginal *maps.Ordered[page.PageMatcher, maps.Params] // contains the original cascade as defined in the front matter.
 }
 
 // From page front matter.
@@ -96,10 +96,10 @@ type pageMetaFrontMatter struct {
 	configuredOutputFormats output.Formats // outputs defined in front matter.
 }
 
-func (m *pageMetaParams) init(preserveOringal bool) {
-	if preserveOringal {
+func (m *pageMetaParams) init(preserveOriginal bool) {
+	if preserveOriginal {
 		m.paramsOriginal = xmaps.Clone[maps.Params](m.pageConfig.Params)
-		m.cascadeOriginal = xmaps.Clone[map[page.PageMatcher]maps.Params](m.pageConfig.CascadeCompiled)
+		m.cascadeOriginal = m.pageConfig.CascadeCompiled.Clone()
 	}
 }
 
@@ -306,22 +306,22 @@ func (p *pageMeta) setMetaPre(pi *contentParseInfo, logger loggers.Logger, conf 
 	return nil
 }
 
-func (ps *pageState) setMetaPost(cascade map[page.PageMatcher]maps.Params) error {
+func (ps *pageState) setMetaPost(cascade *maps.Ordered[page.PageMatcher, maps.Params]) error {
 	ps.m.setMetaPostCount++
 	var cascadeHashPre uint64
 	if ps.m.setMetaPostCount > 1 {
 		cascadeHashPre = hashing.HashUint64(ps.m.pageConfig.CascadeCompiled)
-		ps.m.pageConfig.CascadeCompiled = xmaps.Clone[map[page.PageMatcher]maps.Params](ps.m.cascadeOriginal)
+		ps.m.pageConfig.CascadeCompiled = ps.m.cascadeOriginal.Clone()
 
 	}
 
 	// Apply cascades first so they can be overridden later.
 	if cascade != nil {
 		if ps.m.pageConfig.CascadeCompiled != nil {
-			for k, v := range cascade {
-				vv, found := ps.m.pageConfig.CascadeCompiled[k]
+			cascade.Range(func(k page.PageMatcher, v maps.Params) bool {
+				vv, found := ps.m.pageConfig.CascadeCompiled.Get(k)
 				if !found {
-					ps.m.pageConfig.CascadeCompiled[k] = v
+					ps.m.pageConfig.CascadeCompiled.Set(k, v)
 				} else {
 					// Merge
 					for ck, cv := range v {
@@ -330,7 +330,8 @@ func (ps *pageState) setMetaPost(cascade map[page.PageMatcher]maps.Params) error
 						}
 					}
 				}
-			}
+				return true
+			})
 			cascade = ps.m.pageConfig.CascadeCompiled
 		} else {
 			ps.m.pageConfig.CascadeCompiled = cascade
@@ -354,16 +355,17 @@ func (ps *pageState) setMetaPost(cascade map[page.PageMatcher]maps.Params) error
 	}
 
 	// Cascade is also applied to itself.
-	for m, v := range cascade {
-		if !m.Matches(ps) {
-			continue
+	cascade.Range(func(k page.PageMatcher, v maps.Params) bool {
+		if !k.Matches(ps) {
+			return true
 		}
 		for kk, vv := range v {
 			if _, found := ps.m.pageConfig.Params[kk]; !found {
 				ps.m.pageConfig.Params[kk] = vv
 			}
 		}
-	}
+		return true
+	})
 
 	if err := ps.setMetaPostParams(); err != nil {
 		return err
