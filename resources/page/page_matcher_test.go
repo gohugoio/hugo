@@ -133,16 +133,8 @@ func TestDecodeCascadeConfig(t *testing.T) {
 
 	c.Assert(err, qt.IsNil)
 	c.Assert(got, qt.IsNotNil)
-	c.Assert(got.Config, qt.DeepEquals,
-		map[PageMatcher]maps.Params{
-			{Path: "", Kind: "page", Lang: "", Environment: ""}: {
-				"b": "bv",
-			},
-			{Path: "", Kind: "page", Lang: "", Environment: "production"}: {
-				"a": "av",
-			},
-		},
-	)
+	c.Assert(got.Config.Keys(), qt.DeepEquals, []PageMatcher{{Kind: "page", Environment: "production"}, {Kind: "page"}})
+	c.Assert(got.Config.Values(), qt.DeepEquals, []maps.Params{{"a": string("av")}, {"b": string("bv")}})
 	c.Assert(got.SourceStructure, qt.DeepEquals, []PageMatcherParamsConfig{
 		{
 			Params: maps.Params{"a": string("av")},

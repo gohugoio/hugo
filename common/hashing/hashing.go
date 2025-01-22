@@ -123,14 +123,22 @@ func HashUint64(vs ...any) uint64 {
 		o = elements
 	}
 
-	hashOpts := getHashOpts()
-	defer putHashOpts(hashOpts)
-
-	hash, err := hashstructure.Hash(o, hashOpts)
+	hash, err := Hash(o)
 	if err != nil {
 		panic(err)
 	}
 	return hash
+}
+
+// Hash returns a hash from vs.
+func Hash(vs ...any) (uint64, error) {
+	hashOpts := getHashOpts()
+	defer putHashOpts(hashOpts)
+	var v any = vs
+	if len(vs) == 1 {
+		v = vs[0]
+	}
+	return hashstructure.Hash(v, hashOpts)
 }
 
 type keyer interface {

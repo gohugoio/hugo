@@ -1387,7 +1387,7 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 		}
 
 		// Handle cascades first to get any default dates set.
-		var cascade map[page.PageMatcher]maps.Params
+		var cascade *maps.Ordered[page.PageMatcher, maps.Params]
 		if keyPage == "" {
 			// Home page gets it's cascade from the site config.
 			cascade = sa.conf.Cascade.Config
@@ -1399,7 +1399,7 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 		} else {
 			_, data := pw.WalkContext.Data().LongestPrefix(keyPage)
 			if data != nil {
-				cascade = data.(map[page.PageMatcher]maps.Params)
+				cascade = data.(*maps.Ordered[page.PageMatcher, maps.Params])
 			}
 		}
 
@@ -1481,11 +1481,11 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 				pageResource := rs.r.(*pageState)
 				relPath := pageResource.m.pathInfo.BaseRel(pageBundle.m.pathInfo)
 				pageResource.m.resourcePath = relPath
-				var cascade map[page.PageMatcher]maps.Params
+				var cascade *maps.Ordered[page.PageMatcher, maps.Params]
 				// Apply cascade (if set) to the page.
 				_, data := pw.WalkContext.Data().LongestPrefix(resourceKey)
 				if data != nil {
-					cascade = data.(map[page.PageMatcher]maps.Params)
+					cascade = data.(*maps.Ordered[page.PageMatcher, maps.Params])
 				}
 				if err := pageResource.setMetaPost(cascade); err != nil {
 					return false, err
@@ -1549,10 +1549,10 @@ func (sa *sitePagesAssembler) applyAggregatesToTaxonomiesAndTerms() error {
 				const eventName = "dates"
 
 				if p.Kind() == kinds.KindTerm {
-					var cascade map[page.PageMatcher]maps.Params
+					var cascade *maps.Ordered[page.PageMatcher, maps.Params]
 					_, data := pw.WalkContext.Data().LongestPrefix(s)
 					if data != nil {
-						cascade = data.(map[page.PageMatcher]maps.Params)
+						cascade = data.(*maps.Ordered[page.PageMatcher, maps.Params])
 					}
 					if err := p.setMetaPost(cascade); err != nil {
 						return false, err

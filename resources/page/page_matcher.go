@@ -104,9 +104,9 @@ func CheckCascadePattern(logger loggers.Logger, m PageMatcher) {
 	}
 }
 
-func DecodeCascadeConfig(logger loggers.Logger, in any) (*config.ConfigNamespace[[]PageMatcherParamsConfig, map[PageMatcher]maps.Params], error) {
-	buildConfig := func(in any) (map[PageMatcher]maps.Params, any, error) {
-		cascade := make(map[PageMatcher]maps.Params)
+func DecodeCascadeConfig(logger loggers.Logger, in any) (*config.ConfigNamespace[[]PageMatcherParamsConfig, *maps.Ordered[PageMatcher, maps.Params]], error) {
+	buildConfig := func(in any) (*maps.Ordered[PageMatcher, maps.Params], any, error) {
+		cascade := maps.NewOrdered[PageMatcher, maps.Params]()
 		if in == nil {
 			return cascade, []map[string]any{}, nil
 		}
@@ -134,7 +134,7 @@ func DecodeCascadeConfig(logger loggers.Logger, in any) (*config.ConfigNamespace
 		for _, cfg := range cfgs {
 			m := cfg.Target
 			CheckCascadePattern(logger, m)
-			c, found := cascade[m]
+			c, found := cascade.Get(m)
 			if found {
 				// Merge
 				for k, v := range cfg.Params {
@@ -143,18 +143,18 @@ func DecodeCascadeConfig(logger loggers.Logger, in any) (*config.ConfigNamespace
 					}
 				}
 			} else {
-				cascade[m] = cfg.Params
+				cascade.Set(m, cfg.Params)
 			}
 		}
 
 		return cascade, cfgs, nil
 	}
 
-	return config.DecodeNamespace[[]PageMatcherParamsConfig](in, buildConfig)
+	return config.DecodeNamespace[[]PageMatcherParamsConfig, *maps.Ordered[PageMatcher, maps.Params]](in, buildConfig)
 }
 
 // DecodeCascade decodes in which could be either a map or a slice of maps.
-func DecodeCascade(logger loggers.Logger, in any) (map[PageMatcher]maps.Params, error) {
+func DecodeCascade(logger loggers.Logger, in any) (*maps.Ordered[PageMatcher, maps.Params], error) {
 	conf, err := DecodeCascadeConfig(logger, in)
 	if err != nil {
 		return nil, err

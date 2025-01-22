@@ -841,3 +841,38 @@ title: p1
 	b.AssertFileExists("public/s1/index.html", false)
 	b.AssertFileExists("public/s1/p1/index.html", false)
 }
+
+// Issue 12594.
+func TestCascadeOrder(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['rss','sitemap','taxonomy','term', 'home']
+-- content/_index.md --
+---
+title: Home
+cascade:
+- _target:
+    path: "**"
+  params:
+    background: yosemite.jpg
+- _target:
+  params:
+    background: goldenbridge.jpg
+---
+-- content/p1.md --
+---
+title: p1
+---
+-- layouts/_default/single.html --
+Background: {{ .Params.background }}|
+-- layouts/_default/list.html --
+{{ .Title }}|
+  `
+
+	for i := 0; i < 10; i++ {
+		b := Test(t, files)
+		b.AssertFileContent("public/p1/index.html", "Background: yosemite.jpg")
+	}
+}
