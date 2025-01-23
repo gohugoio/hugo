@@ -30,6 +30,7 @@ import (
 
 	"github.com/gohugoio/httpcache"
 	"github.com/gohugoio/hugo/common/hashing"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
@@ -51,10 +52,19 @@ type HTTPError struct {
 	Body       string
 }
 
-func responseToData(res *http.Response, readBody bool) map[string]any {
+func responseToData(res *http.Response, readBody bool, includeHeaders []string) map[string]any {
 	var body []byte
 	if readBody {
 		body, _ = io.ReadAll(res.Body)
+	}
+
+	responseHeaders := make(map[string][]string)
+	if true || len(includeHeaders) > 0 {
+		for k, v := range res.Header {
+			if hstrings.InSlicEqualFold(includeHeaders, k) {
+				responseHeaders[k] = v
+			}
+		}
 	}
 
 	m := map[string]any{
@@ -63,6 +73,7 @@ func responseToData(res *http.Response, readBody bool) map[string]any {
 		"TransferEncoding": res.TransferEncoding,
 		"ContentLength":    res.ContentLength,
 		"ContentType":      res.Header.Get("Content-Type"),
+		"Headers":          responseHeaders,
 	}
 
 	if readBody {
@@ -72,7 +83,7 @@ func responseToData(res *http.Response, readBody bool) map[string]any {
 	return m
 }
 
-func toHTTPError(err error, res *http.Response, readBody bool) *HTTPError {
+func toHTTPError(err error, res *http.Response, readBody bool, responseHeaders []string) *HTTPError {
 	if err == nil {
 		panic("err is nil")
 	}
@@ -85,7 +96,7 @@ func toHTTPError(err error, res *http.Response, readBody bool) *HTTPError {
 
 	return &HTTPError{
 		error: err,
-		Data:  responseToData(res, readBody),
+		Data:  responseToData(res, readBody, responseHeaders),
 	}
 }
 
@@ -213,7 +224,7 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 		}
 
 		if res.StatusCode < 200 || res.StatusCode > 299 {
-			return nil, toHTTPError(fmt.Errorf("failed to fetch remote resource from '%s': %s", uri, http.StatusText(res.StatusCode)), res, !isHeadMethod)
+			return nil, toHTTPError(fmt.Errorf("failed to fetch remote resource from '%s': %s", uri, http.StatusText(res.StatusCode)), res, !isHeadMethod, options.ResponseHeaders)
 		}
 
 		var (
@@ -280,7 +291,7 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 		}
 
 		userKey = filename[:len(filename)-len(path.Ext(filename))] + "_" + userKey + mediaType.FirstSuffix.FullSuffix
-		data := responseToData(res, false)
+		data := responseToData(res, false, options.ResponseHeaders)
 
 		return c.rs.NewResource(
 			resources.ResourceSourceDescriptor{
@@ -345,9 +356,10 @@ func hasHeaderKey(m http.Header, key string) bool {
 }
 
 type fromRemoteOptions struct {
-	Method  string
-	Headers map[string]any
-	Body    []byte
+	Method          string
+	Headers         map[string]any
+	Body            []byte
+	ResponseHeaders []string
 }
 
 func (o fromRemoteOptions) BodyReader() io.Reader {
@@ -432,7 +444,7 @@ func (t *transport) RoundTrip(req *http.Request) (resp *http.Response, err error
 				if resp != nil {
 					msg = resp.Status
 				}
-				err := toHTTPError(fmt.Errorf("retry timeout (configured to %s) fetching remote resource: %s", t.Cfg.Timeout(), msg), resp, req.Method != "HEAD")
+				err := toHTTPError(fmt.Errorf("retry timeout (configured to %s) fetching remote resource: %s", t.Cfg.Timeout(), msg), resp, req.Method != "HEAD", nil)
 				return resp, err
 			}
 			time.Sleep(nextSleep)
