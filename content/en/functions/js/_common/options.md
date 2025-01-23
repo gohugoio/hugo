@@ -14,7 +14,7 @@ And then in your JS file:
 import * as params from '@params';
 ```
 
-Note that this is meant for small data sets, e.g. configuration settings. For larger data, please put/mount the files into `/assets` and import them directly.
+Note that this is meant for small data sets, e.g. configuration settings. For larger data, please put/mount the files into `assets` and import them directly.
 
 minify
 : (`bool`)Let `js.Build` handle the minification.
@@ -73,7 +73,6 @@ sourceMap
 
 sourcesContent {{< new-in 0.140.0 >}}
 : (`bool`) Whether to include the content of the source files in the source map. By default, this is `true`.
-
 
 JSX {{< new-in 0.124.0 >}}
 : (`string`) How to handle/transform JSX syntax. One of: `transform`, `preserve`, `automatic`. Default is `transform`. Notably, the `automatic` transform was introduced in React 17+ and will cause the necessary JSX helper functions to be imported automatically. See https://esbuild.github.io/api/#jsx

@@ -37,10 +37,10 @@ Examples of parsable string representations:
 To override the default time zone, set the [`timeZone`] in your site configuration. The order of precedence for determining the time zone is:
 
 1. The time zone offset in the date/time string
-2. The time zone specified in your site configuration
-3. The `Etc/UTC` time zone
+1. The time zone specified in your site configuration
+1. The `Etc/UTC` time zone
 
-[`timeZone`]: https://gohugo.io/getting-started/configuration/#timezone
+[`timeZone`]: /getting-started/configuration/#timezone
 
 ## Layout string
 

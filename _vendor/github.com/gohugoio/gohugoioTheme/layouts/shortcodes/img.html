@@ -120,8 +120,8 @@ Renders the given image using the given filter, if any.
 
 {{- $validFilters := slice
   "autoorient" "brightness" "colorbalance" "colorize" "contrast" "dither"
-  "gamma" "gaussianblur" "grayscale" "hue" "invert" "none" "opacity" "overlay"
-  "padding" "pixelate" "process" "saturation" "sepia" "sigmoid" "text"
+  "gamma" "gaussianblur" "grayscale" "hue" "invert" "mask" "none" "opacity"
+  "overlay" "padding" "pixelate" "process" "saturation" "sepia" "sigmoid" "text"
   "unsharpmask"
 }}
 
@@ -229,6 +229,12 @@ Renders the given image using the given filter, if any.
   {{- $ctx = merge $ctx (dict "argsRequired" 0) }}
   {{- template "validate-arg-count" $ctx }}
   {{- $f = images.Invert }}
+{{- else if eq $filter "mask" }}
+  {{- $ctx = merge $ctx (dict "argsRequired" 1) }}
+  {{- template "validate-arg-count" $ctx }}
+  {{- $ctx := dict "src" (index $filterArgs 0) "name" .Name "position" .Position }}
+  {{- $maskImage := partial "inline/get-resource.html" $ctx }}
+  {{- $f = images.Mask $maskImage }}
 {{- else if eq $filter "opacity" }}
   {{- $ctx = merge $ctx (dict "argsRequired" 1) }}
   {{- template "validate-arg-count" $ctx }}
@@ -322,11 +328,15 @@ Renders the given image using the given filter, if any.
 {{- end }}
 
 {{- /* Render. */}}
+{{- $class := "di va b--black-20" }}
+{{- if eq $filter "mask" }}
+  {{- $class = "di va" }}
+{{- end }}
 {{- if $example }}
   <p>Original</p>
-  <img class='di ba b--black-20' style="width: initial;" src="{{ $i.RelPermalink }}" alt="{{ $alt }}">
+  <img class="{{ $class}}" style="width: initial;" src="{{ $i.RelPermalink }}" alt="{{ $alt }}">
   <p>Processed</p>
-  <img class='di ba b--black-20' style="width: initial;" src="{{ $fi.RelPermalink }}" alt="{{ $alt }}">
+  <img class="{{ $class }}" style="width: initial;" src="{{ $fi.RelPermalink }}" alt="{{ $alt }}">
 {{- else -}}
   <img class='di' style="width: initial;" src="{{ $fi.RelPermalink }}" alt="{{ $alt }}">
 {{- end }}
@@ -354,15 +364,15 @@ Renders the given image using the given filter, if any.
   {{- $u := urls.Parse .src }}
   {{- $msg := "The %q shortcode was unable to resolve %s. See %s" }}
   {{- if $u.IsAbs }}
-    {{- with resources.GetRemote $u.String }}
+    {{- with try (resources.GetRemote $u.String) }}
       {{- with .Err }}
         {{- errorf "%s" . }}
-      {{- else }}
+      {{- else with .Value }}
         {{- /* This is a remote resource. */}}
         {{- $r = . }}
+      {{- else }}
+        {{- errorf $msg $.name $u.String $.position }}
       {{- end }}
-    {{- else }}
-      {{- errorf $msg $.name $u.String $.position }}
     {{- end }}
   {{- else }}
     {{- with .page.Resources.Get (strings.TrimPrefix "./" $u.Path) }}

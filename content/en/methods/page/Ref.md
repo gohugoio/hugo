@@ -15,7 +15,7 @@ action:
 The map of option contains:
 
 path
-: (`string`) The path to the page, relative to the content directory. Required.
+: (`string`) The path to the page, relative to the `content` directory. Required.
 
 lang
 : (`string`) The language (site) to search for the page. Default is the current language. Optional.

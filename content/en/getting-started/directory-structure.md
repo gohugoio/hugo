@@ -6,8 +6,8 @@ keywords: [source, organization, directories]
 menu:
   docs:
     parent: getting-started
-    weight: 30
-weight: 30
+    weight: 40
+weight: 40
 toc: true
 aliases: [/overview/source-directory/]
 ---
@@ -104,7 +104,7 @@ The `i18n` directory contains translation tables for multilingual sites. See&nbs
 
 ###### layouts
 
-The layouts directory contains templates to transform content, data, and resources into a complete website. See&nbsp;[details](/templates/).
+The `layouts` directory contains templates to transform content, data, and resources into a complete website. See&nbsp;[details](/templates/).
 
 ###### public
 
@@ -116,11 +116,11 @@ The `resources` directory contains cached output from Hugo's asset pipelines, ge
 
 ###### static
 
-The `static` directory contains files that will be copied to the public directory when you build your site. For example: `favicon.ico`, `robots.txt`, and files that verify site ownership. Before the introduction of [page bundles](/getting-started/glossary/#page-bundle) and [asset pipelines](/hugo-pipes/introduction/), the `static` directory was also used for images, CSS, and JavaScript.
+The `static` directory contains files that will be copied to the `public` directory when you build your site. For example: `favicon.ico`, `robots.txt`, and files that verify site ownership. Before the introduction of [page bundles](g) and [asset pipelines](/hugo-pipes/introduction/), the `static` directory was also used for images, CSS, and JavaScript.
 
 ###### themes
 
-The `themes` directory contains one or more [themes](/getting-started/glossary/#theme), each in its own subdirectory.
+The `themes` directory contains one or more [themes](g), each in its own subdirectory.
 
 ## Union file system
 
@@ -186,7 +186,7 @@ home/
 ```
 
 {{% note %}}
-When two or more files have the same path, the order of precedence follows the order of the mounts. For example, if the shared content directory contains `books/book-1.md`, it will be ignored because the project's content directory was mounted first.
+When two or more files have the same path, the order of precedence follows the order of the mounts. For example, if the shared content directory contains `books/book-1.md`, it will be ignored because the project's `content` directory was mounted first.
 {{% /note %}}
 
 You can mount directories to `archetypes`, `assets`, `content`, `data`, `i18n`, `layouts`, and `static`. See&nbsp;[details](/hugo-modules/configuration/#module-configuration-mounts).

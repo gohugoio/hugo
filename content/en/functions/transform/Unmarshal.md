@@ -16,7 +16,7 @@ toc: true
 aliases: [/functions/transform.unmarshal]
 ---
 
-The input can be a string or a [resource].
+The input can be a string or a [resource](g).
 
 ## Unmarshal a string
 
@@ -37,7 +37,7 @@ Use the `transform.Unmarshal` function with global, page, and remote resources.
 
 ### Global resource
 
-A global resource is a file within the assets directory, or within any directory mounted to the assets directory.
+A global resource is a file within the `assets` directory, or within any directory mounted to the `assets` directory.
 
 ```text
 assets/
@@ -97,14 +97,14 @@ A remote resource is a file on a remote server, accessible via HTTP or HTTPS.
 ```go-html-template
 {{ $data := dict }}
 {{ $url := "https://example.org/books.json" }}
-{{ with resources.GetRemote $url }}
+{{ with try (resources.GetRemote $url) }}
   {{ with .Err }}
     {{ errorf "%s" . }}
-  {{ else }}
+  {{ else with .Value }}
     {{ $data = . | transform.Unmarshal }}
+  {{ else }}
+    {{ errorf "Unable to get remote resource %q" $url }}
   {{ end }}
-{{ else }}
-  {{ errorf "Unable to get remote resource %q" $url }}
 {{ end }}
 
 {{ range where $data "author" "Victor Hugo" }}
@@ -175,14 +175,14 @@ Get the remote data:
 ```go-html-template
 {{ $data := dict }}
 {{ $url := "https://example.org/books/index.xml" }}
-{{ with resources.GetRemote $url }}
+{{ with try (resources.GetRemote $url) }}
   {{ with .Err }}
     {{ errorf "%s" . }}
-  {{ else }}
+  {{ else with .Value }}
     {{ $data = . | transform.Unmarshal }}
+  {{ else }}
+    {{ errorf "Unable to get remote resource %q" $url }}
   {{ end }}
-{{ else }}
-  {{ errorf "Unable to get remote resource %q" $url }}
 {{ end }}
 ```
 
@@ -271,7 +271,7 @@ Each item node looks like this:
 }
 ```
 
-The title keys do not begin with an underscore or a letter---they are not valid [identifiers]. Use the [`index`] function to access the values:
+The title keys do not begin with an underscore or a letter---they are not valid [identifiers](g). Use the [`index`] function to access the values:
 
 ```go-html-template
 {{ with $data.channel.item }}
@@ -296,6 +296,4 @@ Hugo renders this to:
 ```
 
 [`index`]: /functions/collections/indexfunction/
-[identifiers]: https://go.dev/ref/spec#Identifiers
-[resource]: /getting-started/glossary/#resource
 [page bundle]: /content-management/page-bundles/

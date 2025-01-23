@@ -66,7 +66,7 @@ layouts/
         └── render-table.html
 ```
 
-The template lookup order allows you to create different render hooks for each page [type], [kind], language, and [output format]. For example:
+The template lookup order allows you to create different render hooks for each page [type](g), [kind](g), language, and [output format](g). For example:
 
 ```text
 layouts/
@@ -83,9 +83,5 @@ layouts/
         ├── render-link.html
         └── render-link.rss.xml
 ```
-
-[kind]: /getting-started/glossary/#page-kind
-[output format]: /getting-started/glossary/#output-format
-[type]: /getting-started/glossary/#content-type
 
 The remaining pages in this section describe each type of render hook, including examples and the context received by each template.

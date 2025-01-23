@@ -26,7 +26,7 @@ With this site configuration:
     rfc_3339 = '2006-01-02T15:04:05-07:00'
 {{< /code-toggle >}}
 
-Access the custom parameters by [chaining] the [identifiers]:
+Access the custom parameters by [chaining](g) the [identifiers](g):
 
 ```go-html-template
 {{ .Site.Params.subtitle }} → The Best Widgets on Earth
@@ -43,5 +43,3 @@ In the template example above, each of the keys is a valid identifier. For examp
 ```
 
 [`index`]: /functions/collections/indexfunction/
-[chaining]: /getting-started/glossary/#chain
-[identifiers]: /getting-started/glossary/#identifier

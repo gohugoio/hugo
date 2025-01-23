@@ -19,13 +19,13 @@ Hugo publishes the resource to the target path when you call its [`Publish`], [`
 [`permalink`]: /methods/resource/permalink/
 [`relpermalink`]: /methods/resource/relpermalink/
 
-Let's say you need to publish a file named "site.json" in the root of your public directory, containing the build date, the Hugo version used to build the site, and the date that the content was last modified. For example:
+Let's say you need to publish a file named "site.json" in the root of your `public` directory, containing the build date, the Hugo version used to build the site, and the date that the content was last modified. For example:
 
 ```json
 {
-  "build_date": "2024-02-19T12:27:05-08:00",
-  "hugo_version": "0.137.1",
-  "last_modified": "2024-02-19T12:01:42-08:00"
+  "build_date": "2025-01-16T19:14:41-08:00",
+  "hugo_version": "0.141.0",
+  "last_modified": "2025-01-16T19:14:46-08:00"
 }
 ```
 
@@ -48,9 +48,9 @@ Place this in your baseof.html template:
 The example above:
 
 1. Creates a map with the relevant key-value pairs using the [`dict`] function
-2. Encodes the map as a JSON string using the [`jsonify`] function
-3. Creates a resource from the JSON string using the `resources.FromString` function
-4. Publishes the file to the root of the public directory using the resource's `.Publish` method
+1. Encodes the map as a JSON string using the [`jsonify`] function
+1. Creates a resource from the JSON string using the `resources.FromString` function
+1. Publishes the file to the root of the `public` directory using the resource's `.Publish` method
 
 Combine `resources.FromString` with [`resources.ExecuteAsTemplate`] if your string contains template actions. Rewriting the example above:
 

@@ -16,7 +16,7 @@ Visit [themes.gohugo.io] to browse a collection of themes created by the Hugo co
 To submit your theme:
 
 1. Read the [submission guidelines]
-2. Open a pull request in the [themes repository]
+1. Open a pull request in the [themes repository]
 
 Other useful theme directories:
 

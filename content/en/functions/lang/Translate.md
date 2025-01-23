@@ -31,7 +31,7 @@ To render placeholders for missing and fallback translations, set
 
 ## Translation tables
 
-Create translation tables in the i18n directory, naming each file according to [RFC 5646]. Translation tables may be JSON, TOML, or YAML. For example:
+Create translation tables in the `i18n` directory, naming each file according to [RFC 5646]. Translation tables may be JSON, TOML, or YAML. For example:
 
 ```text
 i18n/en.toml

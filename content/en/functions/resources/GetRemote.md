@@ -20,14 +20,14 @@ toc: true
 
 ```go-html-template
 {{ $url := "https://example.org/images/a.jpg" }}
-{{ with resources.GetRemote $url }}
+{{ with try (resources.GetRemote $url) }}
   {{ with .Err }}
     {{ errorf "%s" . }}
-  {{ else }}
+  {{ else with .Value }}
     <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
+  {{ else }}
+    {{ errorf "Unable to get remote resource %q" $url }}
   {{ end }}
-{{ else }}
-  {{ errorf "Unable to get remote resource %q" $url }}
 {{ end }}
 ```
 
@@ -67,22 +67,21 @@ You can also change the request method and set the request body:
 
 ## Remote data
 
-When retrieving remote data, use the [`transform.Unmarshal`] function to [unmarshal] the response.
+When retrieving remote data, use the [`transform.Unmarshal`] function to [unmarshal](g) the response.
 
 [`transform.Unmarshal`]: /functions/transform/unmarshal/
-[unmarshal]: /getting-started/glossary/#unmarshal
 
 ```go-html-template
 {{ $data := dict }}
 {{ $url := "https://example.org/books.json" }}
-{{ with resources.GetRemote $url }}
+{{ with try (resources.GetRemote $url) }}
   {{ with .Err }}
     {{ errorf "%s" . }}
-  {{ else }}
+  {{ else with .Value }}
     {{ $data = . | transform.Unmarshal }}
+  {{ else }}
+    {{ errorf "Unable to get remote resource %q" $url }}
   {{ end }}
-{{ else }}
-  {{ errorf "Unable to get remote resource %q" $url }}
 {{ end }}
 ```
 
@@ -98,24 +97,24 @@ In these cases, pass the resource `Content` through the `transform.Unmarshal` fu
 
 ## Error handling
 
-The [`Err`] method on a resource returned by the `resources.GetRemote` function returns an error message if the HTTP request fails, else nil. If you do not handle the error yourself, Hugo will fail the build.
+Use the [`try`] statement to capture HTTP request errors. If you do not handle the error yourself, Hugo will fail the build.
 
-[`Err`]: /methods/resource/err/
+[`try`]: /functions/go-template/try
 
 {{% note %}}
-Hugo does not classify an HTTP response with status code 404 as an error. In this case the function returns nil.
+Hugo does not classify an HTTP response with status code 404 as an error. In this case `resources.GetRemote` returns nil.
 {{% /note %}}
 
 ```go-html-template
 {{ $url := "https://broken-example.org/images/a.jpg" }}
-{{ with resources.GetRemote $url }}
+{{ with try (resources.GetRemote $url) }}
   {{ with .Err }}
     {{ errorf "%s" . }}
-  {{ else }}
+  {{ else with .Value }}
     <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
+  {{ else }}
+    {{ errorf "Unable to get remote resource %q" $url }}
   {{ end }}
-{{ else }}
-  {{ errorf "Unable to get remote resource %q" $url }}
 {{ end }}
 ```
 
@@ -123,14 +122,14 @@ To log an error as a warning instead of an error:
 
 ```go-html-template
 {{ $url := "https://broken-example.org/images/a.jpg" }}
-{{ with resources.GetRemote $url }}
+{{ with try (resources.GetRemote $url) }}
   {{ with .Err }}
     {{ warnf "%s" . }}
-  {{ else }}
+  {{ else with .Value }}
     <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
+  {{ else }}
+    {{ warnf "Unable to get remote resource %q" $url }}
   {{ end }}
-{{ else }}
-  {{ errorf "Unable to get remote resource %q" $url }}
 {{ end }}
 ```
 
@@ -142,10 +141,10 @@ The [`Data`] method on a resource returned by the `resources.GetRemote` function
 
 ```go-html-template
 {{ $url := "https://example.org/images/a.jpg" }}
-{{ with resources.GetRemote $url }}
+{{ with try (resources.GetRemote $url) }}
   {{ with .Err }}
     {{ errorf "%s" . }}
-  {{ else }}
+  {{ else with .Value }}
     {{ with .Data }}
       {{ .ContentLength }} → 42764
       {{ .ContentType }} → image/jpeg
@@ -153,9 +152,9 @@ The [`Data`] method on a resource returned by the `resources.GetRemote` function
       {{ .StatusCode }} → 200
       {{ .TransferEncoding }} → []
     {{ end }}
+  {{ else }}
+    {{ errorf "Unable to get remote resource %q" $url }}
   {{ end }}
-{{ else }}
-  {{ errorf "Unable to get remote resource %q" $url }}
 {{ end }}
 ```
 

@@ -12,13 +12,13 @@ action:
 
 {{< new-in 0.121.2 >}}
 
-The `math.Rand` function returns a pseudo-random number in the [half-open interval] [0.0, 1.0).
+The `math.Rand` function returns a pseudo-random number in the half-open [interval](g) [0.0, 1.0).
 
 ```go-html-template
 {{ math.Rand }} → 0.6312770459590062
 ```
 
-To generate a random integer in the [closed interval] [0, 5]:
+To generate a random integer in the closed interval [0, 5]:
 
 ```go-html-template
 {{ math.Rand | mul 6 | math.Floor }}
@@ -41,6 +41,3 @@ To generate a random float, with one digit after the decimal point, in the close
 ```go-html-template
 {{ div (math.Rand | mul 50 | math.Ceil) 10 }}
 ```
-
-[closed interval]: /getting-started/glossary/#interval
-[half-open interval]: /getting-started/glossary/#interval

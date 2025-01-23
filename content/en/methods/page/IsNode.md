@@ -12,7 +12,7 @@ action:
   signatures: [PAGE.IsNode]
 ---
 
-The `IsNode` method on a `Page` object returns `true` if the [page kind] is `home`, `section`, `taxonomy`, or `term`.
+The `IsNode` method on a `Page` object returns `true` if the [page kind](g) is `home`, `section`, `taxonomy`, or `term`.
 
 It returns `false` is the page kind is `page`.
 
@@ -33,4 +33,3 @@ content/
 ```go-html-template
 {{ .IsNode }}
 ```
-[page kind]: /getting-started/glossary/#page-kind

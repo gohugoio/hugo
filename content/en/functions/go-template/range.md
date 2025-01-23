@@ -43,7 +43,7 @@ Within a range block:
 
 ## Understanding context
 
-At the top of a page template, the [context] (the dot) is a `Page` object. Within the `range` block, the context is bound to each successive element.
+At the top of a page template, the [context](g) (the dot) is a `Page` object. Within the `range` block, the context is bound to each successive element.
 
 With this contrived example that uses the [`seq`] function to generate a slice of integers:
 
@@ -76,7 +76,6 @@ Gaining a thorough understanding of context is critical for anyone writing templ
 {{% /note %}}
 
 [`seq`]: /functions/collections/seq/
-[context]: /getting-started/glossary/#context
 
 ## Array or slice of scalars
 

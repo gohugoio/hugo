@@ -1,9 +1,9 @@
 ---
 title: Mathematics in Markdown
 linkTitle: Mathematics
-description: Include mathematical equations and expressions in your Markdown using LaTeX or TeX typesetting syntax.
+description: Include mathematical equations and expressions in Markdown using LaTeX markup.
 categories: [content management]
-keywords: [chemical,chemistry,latex,math,mathjax,tex,typesetting]
+keywords: [katex,latex,math,mathjax,typesetting]
 menu:
   docs:
     parent: content-management
@@ -15,18 +15,11 @@ math: true
 
 {{< new-in 0.122.0 >}}
 
-\[
-\begin{aligned}
-KL(\hat{y} || y) &= \sum_{c=1}^{M}\hat{y}_c \log{\frac{\hat{y}_c}{y_c}} \\
-JS(\hat{y} || y) &= \frac{1}{2}(KL(y||\frac{y+\hat{y}}{2}) + KL(\hat{y}||\frac{y+\hat{y}}{2}))
-\end{aligned}
-\]
-
 ## Overview
 
-Mathematical equations and expressions authored in [LaTeX] or [TeX] are common in academic and scientific publications. Your browser typically renders this mathematical markup using an open-source JavaScript display engine such as [MathJax] or [KaTeX].
+Mathematical equations and expressions written in [LaTeX] are common in academic and scientific publications. Your browser typically renders this mathematical markup using an open-source JavaScript display engine such as [MathJax] or [KaTeX].
 
-For example, this is the mathematical markup for the equations displayed at the top of this page:
+For example, with this LaTeX markup:
 
 ```text
 \[
@@ -37,15 +30,30 @@ JS(\hat{y} || y) &= \frac{1}{2}(KL(y||\frac{y+\hat{y}}{2}) + KL(\hat{y}||\frac{y
 \]
 ```
 
+The MathJax display engine renders this:
+
+\[
+\begin{aligned}
+KL(\hat{y} || y) &= \sum_{c=1}^{M}\hat{y}_c \log{\frac{\hat{y}_c}{y_c}} \\
+JS(\hat{y} || y) &= \frac{1}{2}(KL(y||\frac{y+\hat{y}}{2}) + KL(\hat{y}||\frac{y+\hat{y}}{2}))
+\end{aligned}
+\]
+
 Equations and expressions can be displayed inline with other text, or as standalone blocks. Block presentation is also known as "display" mode.
 
-Whether an equation or expression appears inline, or as a block, depends on the delimiters that surround the mathematical markup. Delimiters are defined in pairs, where each pair consists of an opening and closing delimiter. The opening and closing delimiters may be the same, or different. Common delimiter pairs are shown in [Step 1].
+Whether an equation or expression appears inline, or as a block, depends on the delimiters that surround the mathematical markup. Delimiters are defined in pairs, where each pair consists of an opening and closing delimiter. The opening and closing delimiters may be the same, or different.
 
-The approach described below avoids reliance on platform-specific features like shortcodes or code block render hooks. Instead, it utilizes a standardized markup format for mathematical equations and expressions, compatible with the rendering engines used by GitHub, GitLab, [Microsoft VS Code], [Obsidian], [Typora], and others.
+{{% note %}}
+You can configure Hugo to render mathematical markup on the client-side using the MathJax or KaTeX display engine, or you can render the markup while building your site with the [`transform.ToMath`]function.
+
+The first approach is described below.
+
+[`transform.ToMath`]: /functions/transform/tomath/
+{{% /note %}}
 
 ## Setup
 
-Follow these instructions to include mathematical equations and expressions in your Markdown using LaTeX or TeX typesetting syntax.
+Follow these instructions to include mathematical equations and expressions in your Markdown using LaTeX markup.
 
 ###### Step 1
 
@@ -122,7 +130,7 @@ The example above loads the partial template if you have set the `math` paramete
 
 ###### Step 4
 
-Include mathematical equations and expressions in your Markdown using LaTeX or TeX typesetting syntax.
+Include mathematical equations and expressions in Markdown using LaTeX markup.
 
 {{< code file=content/math-examples.md copy=true >}}
 This is an inline \(a^*=x-b^*\) equation.
@@ -173,7 +181,7 @@ If you use the `$...$` delimiter pair for inline equations, and occasionally use
 
 ## Engines
 
-MathJax and KaTeX are open-source JavaScript display engines. Both engines are fast, but at the time of this writing MathJax v3.2.2 is slightly faster than KaTeX v0.16.9.
+MathJax and KaTeX are open-source JavaScript display engines. Both engines are fast, but at the time of this writing MathJax v3.2.2 is slightly faster than KaTeX v0.16.11.
 
 {{% note %}}
 If you use the `$...$` delimiter pair for inline equations, and occasionally use the&nbsp;`$`&nbsp;symbol outside of math contexts, you must use MathJax instead of KaTeX to avoid unintended formatting caused by [this KaTeX limitation](https://github.com/KaTeX/KaTeX/issues/437).
@@ -184,9 +192,9 @@ See the [inline delimiters](#inline-delimiters) section for details.
 To use KaTeX instead of MathJax, replace the partial template from [Step 2] with this:
 
 {{< code file=layouts/partials/math.html copy=true >}}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     renderMathInElement(document.body, {
@@ -218,11 +226,7 @@ As shown in [Step 2] above, MathJax supports chemical equations without addition
 [KaTeX]: https://katex.org/
 [LaTeX]: https://www.latex-project.org/
 [MathJax]: https://www.mathjax.org/
-[Microsoft VS Code]: https://code.visualstudio.com/
-[Obsidian]: https://obsidian.md/
 [Step 1]: #step-1
 [Step 2]: #step-2
 [Step 3]: #step-3
-[TeX]: https://en.wikipedia.org/wiki/TeX
-[Typora]: https://typora.io/
-[passthrough extension]: https://github.com/gohugoio/hugo-goldmark-extensions
+[passthrough extension]: /getting-started/configuration-markup/#passthrough

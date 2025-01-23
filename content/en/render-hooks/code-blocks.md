@@ -54,9 +54,7 @@ Although `style` is a global HTML attribute, when used in an info string it is a
 
 ## Context
 
-Code block render hook templates receive the following [context]:
-
-[context]: /getting-started/glossary/#context
+Code block render hook templates receive the following [context](g):
 
 ###### Attributes
 

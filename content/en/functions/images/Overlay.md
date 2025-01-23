@@ -27,11 +27,7 @@ Capture the overlay image as a resource:
 {{ end }}
 ```
 
-The overlay image can be a [global resource], a [page resource], or a [remote resource].
-
-[global resource]: /getting-started/glossary/#global-resource
-[page resource]: /getting-started/glossary/#page-resource
-[remote resource]: /getting-started/glossary/#remote-resource
+The overlay image can be a [global resource](g), a [page resource](g), or a [remote resource](g).
 
 Create the filter:
 

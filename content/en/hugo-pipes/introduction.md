@@ -18,7 +18,7 @@ aliases: [/assets/]
 This is about global and remote resources.
 
 global resource
-: A file within the assets directory, or within any directory [mounted] to the assets directory.
+: A file within the `assets` directory, or within any directory [mounted] to the `assets` directory.
 
 remote resource
 : A file on a remote server, accessible via HTTP or HTTPS.
@@ -51,7 +51,7 @@ See the [`resources.Copy`](/functions/resources/copy/) function.
 
 ## Asset directory
 
-Asset files must be stored in the asset directory. This is `/assets` by default, but can be configured via the configuration file's `assetDir` key.
+Asset files must be stored in the asset directory. This is `assets` by default, but can be configured via the configuration file's `assetDir` key.
 
 ## Asset publishing
 

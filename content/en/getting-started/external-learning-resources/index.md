@@ -6,8 +6,8 @@ keywords: [books, tutorials, learning, usage]
 menu:
   docs:
     parent: getting-started
-    weight: 70
-weight: 70
+    weight: 90
+weight: 90
 toc: true
 ---
 
@@ -25,13 +25,11 @@ Publication date: March 2022\
 Length: 488 pages\
 ISBN: 9781617297007
 
-
 ### Build Websites with Hugo
 
 In this book, you'll use Hugo to build a personal portfolio site that you can use to showcase your skills and thoughts to the world. You'll build the basic skeleton, develop a custom theme, and use content templates to generate new pages quickly. You'll use internal and external data sources to embed content into your site, and render some of your content in JSON and RSS. You'll add a blog section with posts and integrate Disqus with your site, and then make your site searchable.
 
 [{{< img src="build-websites-with-hugo.png" alt="Book cover: Build Websites with Hugo" filter="process" filterArgs="resize x350 webp">}}](https://pragprog.com/titles/bhhugo/build-websites-with-hugo/)
-
 
 Author: Brian P. Hogan\
 Publisher: [Pragmatic Bookshelf](https://pragprog.com/titles/bhhugo/build-websites-with-hugo/)\
@@ -59,7 +57,6 @@ Creation date: April 2022
 #### Hugo Static Site Generator
 
 This course covers the basics of using the Hugo static site generator. Work your way through the articles and we'll teach you everything you need to know to create a professional and scalable website or blog!
-
 
 1. [Introduction](https://www.giraffeacademy.com/static-site-generators/hugo/)
 1. [Windows Installation](https://www.giraffeacademy.com/static-site-generators/hugo/installing-hugo-on-windows/)

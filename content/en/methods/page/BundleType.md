@@ -9,7 +9,7 @@ action:
   signatures: [PAGE.BundleType]
 ---
 
-A page bundle is a directory that encapsulates both content and associated [resources]. There are two types of page bundles: [leaf bundles] and [branch bundles]. See&nbsp;[details](/content-management/page-bundles/).
+A page bundle is a directory that encapsulates both content and associated [resources](g). There are two types of page bundles: [leaf bundles](g) and [branch bundles](g). See&nbsp;[details](/content-management/page-bundles/).
 
 The `BundleType` method on a `Page` object returns `branch` for branch bundles, `leaf` for leaf bundles, and an empty string if the page is not a page bundle.
 
@@ -31,7 +31,3 @@ To get the value within a template:
 ```go-html-template
 {{ .BundleType }}
 ```
-
-[resources]: /getting-started/glossary/#resource
-[leaf bundles]: /getting-started/glossary/#leaf-bundle
-[branch bundles]: /getting-started/glossary/#branch-bundle

@@ -4,14 +4,14 @@
 
     {{ $data := "" }}
     {{ $url := urls.JoinPath "https://api.github.com/users" $author }}
-    {{ with resources.GetRemote $url }}
+    {{ with try (resources.GetRemote $url) }}
       {{ with .Err }}
         {{ errorf "%s" . }}
-      {{ else }}
+      {{ else with .Value }}
         {{ $data = . | transform.Unmarshal }}
+      {{ else }}
+        {{ errorf "Unable to get remote resource %q" $url }}
       {{ end }}
-    {{ else }}
-      {{ errorf "Unable to get remote resource %q" $url }}
     {{ end }}
 
     <div class="tc">

@@ -12,7 +12,7 @@ action:
   signatures: [TIME.Truncate DURATION]
 ---
 
-The `Truncate` method operates on TIME as an absolute duration since the [zero time]; it does not operate on the presentation form of the time. If DURATION is a multiple of one hour, `Truncate` may return a time with a non-zero minute, depending on the time zone.
+The `Truncate` method operates on TIME as an absolute duration since the [zero time](g); it does not operate on the presentation form of the time. If DURATION is a multiple of one hour, `Truncate` may return a time with a non-zero minute, depending on the time zone.
 
 ```go-html-template
 {{ $t := time.AsTime "2023-01-27T23:44:58-08:00" }}
@@ -20,5 +20,3 @@ The `Truncate` method operates on TIME as an absolute duration since the [zero t
 
 {{ ($t.Truncate $d).Format "2006-01-02T15:04:05-00:00" }} → 2023-01-27T23:00:00-00:00
 ```
-
-[zero time]: /getting-started/glossary/#zero-time

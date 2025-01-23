@@ -9,9 +9,7 @@ action:
   signatures: [MENU.ByWeight]
 ---
 
-The `ByWeight` method returns the given menu with its entries sorted by [`weight`], then by `name`, then by `identifier`. This is the default sort order.
-
-[`weight`]: /getting-started/glossary/#weight
+The `ByWeight` method returns the given menu with its entries sorted by [`weight`](g), then by `name`, then by `identifier`. This is the default sort order.
 
 Consider this menu definition:
 

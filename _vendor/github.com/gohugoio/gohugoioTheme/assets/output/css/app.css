@@ -4769,9 +4769,9 @@ h6:hover .header-link {
   margin: 0;
 }
 code {
-    padding: 0.2em;
+    padding: 2px 3px;
     margin: 0;
-    font-size: 85%;
+    font-size: 93.75%;
     background-color: rgba(27, 31, 35, .05);
     border-radius: 3px;
 }

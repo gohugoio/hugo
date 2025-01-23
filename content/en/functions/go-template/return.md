@@ -13,20 +13,11 @@ action:
 toc: true
 ---
 
-The `return` statement is a custom addition to Go's [text/template] package. Used within partial templates, the `return` statement terminates template execution and returns the given value, if any.
+The `return` statement is a non-standard extension to Go's [text/template package]. Used within partial templates, the `return` statement terminates template execution and returns the given value, if any.
 
-The returned value may be of any data type including, but not limited to, [`bool`], [`float`], [`int`], [`map`], [`resource`], [`slice`], and [`string`].
+The returned value may be of any data type including, but not limited to, [`bool`](g), [`float`](g), [`int`](g), [`map`](g), [`resource`](g), [`slice`](g), or [`string`](g).
 
 A `return` statement without a value returns an empty string of type `template.HTML`.
-
-[`bool`]: /getting-started/glossary/#bool
-[`float`]: /getting-started/glossary/#float
-[`int`]: /getting-started/glossary/#int
-[`map`]: /getting-started/glossary/#map
-[`resource`]: /getting-started/glossary/#resource
-[`slice`]: /getting-started/glossary/#slice
-[`string`]: /getting-started/glossary/#string
-[text/template]: https://pkg.go.dev/text/template
 
 {{% note %}}
 Unlike `return` statements in other languages, Hugo executes the first occurrence of the `return` statement regardless of its position within logical blocks. See [usage](#usage) notes below.

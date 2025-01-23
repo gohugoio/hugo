@@ -14,7 +14,6 @@ aliases: [/layout/homepage/,/templates/homepage-template/,/templates/homepage/]
 
 The home template is the *only* required template for building a site and therefore useful when bootstrapping a new site and template. It is also the only required template if you are developing a single-page website.
 
-
 {{< youtube ut1xtRZ1QOA >}}
 
 ## Home template lookup order
@@ -23,7 +22,7 @@ See [Template Lookup](/templates/lookup-order/).
 
 ## Add content and front matter to the home page
 
-The home page accepts content and front matter from an `_index.md` file. This file should live at the root of your `content` folder (i.e., `content/_index.md`). You can then add body copy and metadata to your home page the way you would any other content file.
+The home page accepts content and front matter from an `_index.md` file. This file should live at the root of your `content` directory (i.e., `content/_index.md`). You can then add body copy and metadata to your home page the way you would any other content file.
 
 See the home template below or [Content Organization][contentorg] for more information on the role of `_index.md` in adding content and front matter to list pages.
 

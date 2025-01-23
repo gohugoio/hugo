@@ -11,9 +11,7 @@ action:
   signatures: [RESOURCE.RelPermalink]
 ---
 
-The `Permalink` method on a `Resource` object writes the resource to the publish directory, typically `public`, and returns its [relative permalink].
-
-[relative permalink]: /getting-started/glossary/#relative-permalink
+The `Permalink` method on a `Resource` object writes the resource to the publish directory, typically `public`, and returns its [relative permalink](g).
 
 ```go-html-template
 {{ with resources.Get "images/a.jpg" }}

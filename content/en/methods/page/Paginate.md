@@ -41,10 +41,10 @@ You can invoke pagination on the [home template], [section templates], [taxonomy
 In the example above, we:
 
 1. Build a page collection
-2. Sort the collection by title
-3. Paginate the collection, with 7 elements per pager
-4. Range over the paginated page collection, rendering a link to each page
-5. Call the embedded pagination template to create navigation links between pagers
+1. Sort the collection by title
+1. Paginate the collection, with 7 elements per pager
+1. Range over the paginated page collection, rendering a link to each page
+1. Call the embedded pagination template to create navigation links between pagers
 
 {{% note %}}
 Please note that the results of pagination are cached. Once you have invoked either the `Paginator` or `Paginate` method, the paginated collection is immutable. Additional invocations of these methods will have no effect.

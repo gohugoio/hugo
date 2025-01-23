@@ -26,7 +26,6 @@ Use the [`warnidf`] function to allow optional suppression of specific warnings.
 
 To prevent suppression of duplicate messages when using `warnf` for debugging, make each message unique with the [`math.Counter`] function. For example:
 
-
 ```go-html-template
 {{ range site.RegularPages }}
   {{ .Section | warnf "%#[2]v [%[1]d]" math.Counter }}

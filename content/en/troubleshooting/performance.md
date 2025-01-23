@@ -90,7 +90,7 @@ total count
 : The number of times the template was executed.
 
 template
-: The path to the template, relative to the layouts directory.
+: The path to the template, relative to the `layouts` directory.
 
 [`partial`]: /functions/partials/include/
 [`partialCached`]: /functions/partials/includecached/
@@ -109,4 +109,4 @@ Note that you can create cached variants of each partial by passing additional a
 
 ## Timers
 
-Use the `debug.Timer` function to determine execution time for a block of code, useful for finding performance bottle necks in templates. See&nbsp;[details](/functions/debug/timer/).
+Use the `debug.Timer` function to determine execution time for a block of code, useful for finding performance bottlenecks in templates. See&nbsp;[details](/functions/debug/timer/).

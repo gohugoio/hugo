@@ -22,6 +22,12 @@ For documentation related to a new feature, please include the documentation cha
 
 ## Guidelines
 
+### Style
+
+Please adhere to Google's [developer documentation style guide].
+
+[developer documentation style guide]: https://developers.google.com/style
+
 ### Markdown
 
 Please follow these guidelines:
@@ -29,19 +35,41 @@ Please follow these guidelines:
 - Use [ATX] headings, not [setext] headings, levels 2 through 4
 - Use [fenced code blocks], not [indented code blocks]
 - Use hyphens, not asterisks, with unordered [list items]
-- Use the [note shortcode] instead of blockquotes
+- Use the [note shortcode] instead of blockquotes or bold text
 - Do not mix [raw HTML] within Markdown
 - Do not use bold text instead of a heading or description term (`dt`)
 - Remove consecutive blank lines (maximum of two)
 - Remove trailing spaces
 
-### Style
+### Glossary of terms
 
-Please adhere to Google's [developer documentation style guide].
+Each term in the glossary has its own dedicated page located within the `content/en/getting-started/glossary` directory. While these individual glossary pages are not published as standalone web pages during the build process, their content is included in other pages as needed.
 
-[developer documentation style guide]: https://developers.google.com/style
+To link to a term definition on the glossary page, use this custom link syntax:
 
-#### Terminology
+```text
+[term](g)
+```
+
+Lookups are case-insensitive, ignore formatting, and support both singular and plural forms. For example, all of these variations will link to the same glossary entry:
+
+```text
+[global resource](g)
+[Global Resource](g)
+[Global Resources](g)
+[`Global Resources`](g)
+```
+
+To insert a term definition, use the [`glossary-term`] shortcode:
+
+```text
+{{%/* glossary-term "global resource" */%}}
+```
+
+[glossary of terms]: /getting-started/glossary/
+[`glossary-term`]: #glossary-term
+
+### Terminology
 
 Please link to the [glossary of terms] when necessary, and use the terms consistently throughout the documentation. Of special note:
 
@@ -54,7 +82,9 @@ Please link to the [glossary of terms] when necessary, and use the terms consist
 - Capitalize the word "Markdown"
 - Hyphenate the term "open-source" when used an adjective.
 
-#### Page titles and headings
+Use the [glossary link] (`gl`) shortcode to insert a link to the glossary entry for the given term, and use the [glossary term] (`gt`) shortcode to insert the definition of the given term.
+
+### Page titles and headings
 
 Please follow these guidelines for page titles and headings:
 
@@ -62,23 +92,23 @@ Please follow these guidelines for page titles and headings:
 - Avoid formatted strings in headings and page titles
 - Shorter is better
 
-#### Use active voice with present tense
+### Use active voice with present tense
 
 In software documentation, passive voice is unavoidable in some cases. Please use active voice when possible.
 
 No → With Hugo you can build a static site.\
 Yes → Build a static site with Hugo.
 
-No → This will cause Hugo to generate HTML files in the public directory.\
-Yes → Hugo generates HTML files in the public directory.
+No → This will cause Hugo to generate HTML files in the `public` directory.\
+Yes → Hugo generates HTML files in the `public` directory.
 
-#### Use second person instead of third person
+### Use second person instead of third person
 
 No → Users should exercise caution when deleting files.\
 Better → You must be cautious when deleting files.\
 Best → Be cautious when deleting files.
 
-#### Avoid adverbs when possible
+### Avoid adverbs when possible
 
 No → Hugo is extremely fast.\
 Yes → Hugo is fast.
@@ -87,13 +117,13 @@ Yes → Hugo is fast.
 "It's an adverb, Sam. It's a lazy tool of a weak mind." (Outbreak, 1995).
 {{% /note %}}
 
-#### Level 6 headings
+### Level 6 headings
 
 Level 6 headings are styled as `dt` elements. This was implemented to support a [glossary] with linkable terms.
 
 [glossary]: /getting-started/glossary/
 
-#### Function and method descriptions
+### Function and method descriptions
 
 When adding a page to the [functions] or [methods] section, begin the description with the word "Returns". With functions and methods that return a boolean value, begin the description with the phrase "Reports whether".
 
@@ -105,7 +135,16 @@ For example:
 [functions]: /functions
 [methods]: /methods
 
-#### Miscellaneous
+### Directory names, file names, and file paths
+
+Enclose directory names, file names, and file paths within backticks, with the following exceptions:
+
+- Page titles
+- Section headings (h1-h6)
+- Definition list terms
+- The description field in front matter
+
+### Miscellaneous
 
 Other guidelines to consider:
 
@@ -133,8 +172,6 @@ Always include the language code when using a fenced code block:
 ```
 ````
 
-Rendered:
-
 ```go-html-template
 {{ if eq $foo "bar" }}
   {{ print "foo is bar" }}
@@ -149,8 +186,6 @@ Use this syntax to include shortcodes calls within your code examples:
 {{</*/* foo */*/>}}
 {{%/*/* foo */*/%}}
 ```
-
-Rendered:
 
 ```text
 {{</* foo */>}}
@@ -168,8 +203,6 @@ languageCode = 'en-US'
 title = 'My Site'
 {{</* /code-toggle */>}}
 ```
-
-Rendered:
 
 {{< code-toggle file=hugo >}}
 baseURL = 'https://example.org/'
@@ -189,8 +222,6 @@ draft = false
 {{</* /code-toggle */>}}
 ```
 
-Rendered:
-
 {{< code-toggle file=content/posts/my-first-post.md fm=true >}}
 title = 'My first post'
 date = 2023-11-09T12:56:07-08:00
@@ -209,8 +240,6 @@ Use the [code shortcode] for other code examples that require a file name:
 {{</* /code */>}}
 ```
 
-Rendered:
-
 {{< code file=layouts/_default/single.html >}}
 {{ range .Site.RegularPages }}
   <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
@@ -223,7 +252,7 @@ These shortcodes are commonly used throughout the documentation. Other shortcode
 
 ### code
 
-Use the "code" shortcode for other code examples that require a file name. See the [code examples] above. This shortcode takes these arguments:
+Use the `code` shortcode for other code examples that require a file name. See the [code examples] above. This shortcode takes these arguments:
 
 copy
 : (`bool`) Whether to display a copy-to-clipboard button. Default is `false`.
@@ -234,23 +263,50 @@ file
 lang
 : (`string`) The code language. If you do not provide a `lang` argument, the code language is determined by the file extension. If the file extension is `html`, sets the code language to `go-html-template`. Default is `text`.
 
+```text
+{{</* code file=content/something/foo.md lang=text copy=true */>}}
+Some code here
+{{</* /code */>}}
+```
+
+{{< code file=content/something/foo.md lang=text copy=true >}}
+Some code here
+{{< /code >}}
+
 ### code-toggle
 
-Use the "code-toggle" shortcode to display examples of site configuration, front matter, or data files. See the [code examples] above. This shortcode takes these arguments:
+Use the `code-toggle` shortcode to display examples of site configuration, front matter, or data files. See the [code examples] above. This shortcode takes these arguments:
+
+config
+: (`string`) The section of `site.Data.docs.config` to render.
 
 copy
 : (`bool`) Whether to display a copy-to-clipboard button. Default is `false`.
 
 file
-: (`string`) The file name to display. Omit the file extension for site configuration examples.
+: (`string`) The file name to display. Omit the file extension for site configuration examples. Default is `hugo`
 
 fm
 : (`bool`) Whether the example is front matter. Default is `false`.
 
+skipHeader
+: (`bool`) Whether to omit top level key(s) when rendering a section of `site.Data.docs.config`.
+
+```text
+{{</* code-toggle */>}}
+title: Example
+draft: false
+{{</* /code-toggle */>}}
+```
+
+{{< code-toggle >}}
+title: Example
+draft: false
+{{< /code-toggle >}}
 
 ### deprecated-in
 
-Use the “deprecated-in” shortcode to indicate that a feature is deprecated:
+Use the `deprecated-in` shortcode to indicate that a feature is deprecated:
 
 ```text
 {{%/* deprecated-in 0.127.0 */%}}
@@ -260,8 +316,6 @@ Use [`hugo.IsServer`] instead.
 {{%/* /deprecated-in */%}}
 ```
 
-Rendered:
-
 {{% deprecated-in 0.127.0 %}}
 Use [`hugo.IsServer`] instead.
 
@@ -270,7 +324,7 @@ Use [`hugo.IsServer`] instead.
 
 ### eturl
 
-Use the embedded template URL (eturl) shortcode to insert an absolute URL to the source code for an embedded template. The shortcode takes a single argument, the base file name of the template (omit the file extension).
+Use the embedded template URL (`eturl`) shortcode to insert an absolute URL to the source code for an embedded template. The shortcode takes a single argument, the base file name of the template (omit the file extension).
 
 ```text
 This is a link to the [embedded alias template].
@@ -278,27 +332,41 @@ This is a link to the [embedded alias template].
 [embedded alias template]: {{%/* eturl alias */%}}
 ```
 
-Rendered:
-
 This is a link to the [embedded alias template].
 
 [embedded alias template]: {{% eturl alias %}}
 
+### glossary-term
+
+Use the `glossary-term` shortcode to insert the definition of the given glossary term.
+
+```text
+{{%/* glossary-term scalar */%}}
+```
+
+{{% glossary-term scalar %}}
+
+### include
+
+Use the `include` shortcode to include content from another page.
+
+```text
+{{%/* include "functions/_common/glob-patterns" */%}}
+```
+
 ### new-in
 
-Use the "new-in" shortcode to indicate a new feature:
+Use the `new-in` shortcode to indicate a new feature:
 
 ```text
 {{</* new-in 0.127.0 */>}}
 ```
 
-Rendered:
-
 {{< new-in 0.127.0 >}}
 
 ### note
 
-Use the "note" shortcode with `{{%/* */%}}` delimiters to call attention to important content:
+Use the `note` shortcode with `{{%/* */%}}` delimiters to call attention to important content:
 
 ```text
 {{%/* note */%}}
@@ -307,8 +375,6 @@ Use the [`math.Mod`] function to control...
 [`math.Mod`]: /functions/math/mod/
 {{%/* /note */%}}
 ```
-
-Rendered:
 
 {{% note %}}
 Use the [`math.Mod`] function to control...

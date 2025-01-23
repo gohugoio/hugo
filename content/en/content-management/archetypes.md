@@ -15,7 +15,7 @@ aliases: [/content/archetypes/]
 
 ## Overview
 
-A content file consists of [front matter] and markup. The markup is typically Markdown, but Hugo also supports other [content formats]. Front matter can be TOML, YAML, or JSON.
+A content file consists of [front matter](g) and markup. The markup is typically Markdown, but Hugo also supports other [content formats](g). Front matter can be TOML, YAML, or JSON.
 
 The `hugo new content` command creates a new file in the `content` directory, using an archetype as a template. This is the default archetype:
 
@@ -25,7 +25,7 @@ date = '{{ .Date }}'
 draft = true
 {{< /code-toggle >}}
 
-When you create new content, Hugo evaluates the [template actions] within the archetype. For example:
+When you create new content, Hugo evaluates the [template actions](g) within the archetype. For example:
 
 ```sh
 hugo new content posts/my-first-post.md
@@ -39,7 +39,7 @@ date = '2023-08-24T11:49:46-07:00'
 draft = true
 {{< /code-toggle >}}
 
-You can create an archetype for one or more [content types]. For example, use one archetype for posts, and use the default archetype for everything else:
+You can create an archetype for one or more [content types](g). For example, use one archetype for posts, and use the default archetype for everything else:
 
 ```text
 archetypes/
@@ -59,18 +59,18 @@ hugo new content posts/my-first-post.md
 
 The archetype lookup order is:
 
-1. archetypes/posts.md
-1. archetypes/default.md
-1. themes/my-theme/archetypes/posts.md
-1. themes/my-theme/archetypes/default.md
+1. `archetypes/posts.md`
+1. `archetypes/default.md`
+1. `themes/my-theme/archetypes/posts.md`
+1. `themes/my-theme/archetypes/default.md`
 
 If none of these exists, Hugo uses a built-in default archetype.
 
 ## Functions and context
 
-You can use any [template function] within an archetype. As shown above, the default archetype uses the [`replace`](/functions/strings/replace) function to replace hyphens with spaces when populating the title in front matter.
+You can use any template [function](g) within an archetype. As shown above, the default archetype uses the [`replace`](/functions/strings/replace) function to replace hyphens with spaces when populating the title in front matter.
 
-Archetypes receive the following [context]:
+Archetypes receive the following [context](g):
 
 Date
 : (`string`) The current date and time, formatted in compliance with RFC3339.
@@ -79,9 +79,7 @@ File
 : (`hugolib.fileInfo`) Returns file information for the current page. See [details](/methods/page/file).
 
 Type
-: (`string`) The [content type] inferred from the top-level directory name, or as specified by the `--kind` flag passed to the `hugo new content` command.
-
-[content type]: /getting-started/glossary#content-type
+: (`string`) The [content type](g) inferred from the top-level directory name, or as specified by the `--kind` flag passed to the `hugo new content` command.
 
 Site
 : (`page.Site`) The current site object. See [details](/methods/site/).
@@ -130,11 +128,11 @@ One or more practical examples, each within a fenced code block.
 Additional information to clarify as needed.
 {{< /code >}}
 
-Although you can include [template actions] within the content body, remember that Hugo evaluates these once---at the time of content creation. In most cases, place template actions in a [template] where Hugo evaluates the actions every time you [build](/getting-started/glossary/#build) the site.
+Although you can include [template actions](g) within the content body, remember that Hugo evaluates these once---at the time of content creation. In most cases, place template actions in a [template](g) where Hugo evaluates the actions every time you [build](g) the site.
 
 ## Leaf bundles
 
-You can also create archetypes for [leaf bundles](/getting-started/glossary/#leaf-bundle).
+You can also create archetypes for [leaf bundles](g).
 
 For example, in a photography site you might have a section (content type) for galleries. Each gallery is leaf bundle with content and images.
 
@@ -193,11 +191,3 @@ To create an article using the tutorials archetype:
 ```sh
 hugo new content --kind tutorials articles/something.md
 ```
-
-[content formats]: /getting-started/glossary/#content-format
-[content types]: /getting-started/glossary/#content-type
-[context]: /getting-started/glossary/#context
-[front matter]: /getting-started/glossary/#front-matter
-[template actions]: /getting-started/glossary/#template-action
-[template]: /getting-started/glossary/#template
-[template function]: /getting-started/glossary/#function

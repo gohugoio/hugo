@@ -11,5 +11,4 @@ menu:
 weight: 60
 ---
 
-
 See [JS functions](/functions/js/).

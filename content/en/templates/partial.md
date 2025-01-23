@@ -27,8 +27,7 @@ layouts/
     ├── head/
     │   ├── favicons.html
     │   ├── metadata.html
-    │   ├── prerender.html
-    │   └── twitter.html
+    │   └── prerender.html
     └── header/
         ├── site-header.html
         └── site-nav.html

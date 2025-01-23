@@ -39,15 +39,7 @@ weight = 10
 author = 'John Smith'
 {{< /code-toggle >}}
 
-Front matter fields may be [boolean], [integer], [float], [string], [arrays], or [maps]. Note that the TOML format also supports unquoted date/time values.
-
-[scalar]: /getting-started/glossary/#scalar
-[arrays]: /getting-started/glossary/#array
-[maps]: /getting-started/glossary/#map
-[boolean]: /getting-started/glossary/#boolean
-[integer]: /getting-started/glossary/#integer
-[float]: /getting-started/glossary/#float
-[string]: /getting-started/glossary/#string
+Front matter fields may be [boolean](g), [integer](g), [float](g), [string](g), [arrays](g), or [maps](g). Note that the TOML format also supports unquoted date/time values.
 
 ## Fields
 
@@ -82,7 +74,6 @@ The field names below are reserved. For example, you cannot create a custom fiel
 
 (`string`) The date associated with the page, typically the creation date. Note that the TOML format also supports unquoted date/time values. See the [dates](#dates) section for examples. Access this value from a template using the [`Date`] method on a `Page` object.
 
-
 [`date`]: /methods/page/date/
 
 ###### description
@@ -113,22 +104,19 @@ If `true`, the page will not be rendered unless you pass the `--buildDrafts` fla
 
 ###### isCJKLanguage
 
-(`bool`) Set to `true` if the content language is in the [CJK] family. This value determines how Hugo calculates word count, and affects the values returned by the [`WordCount`], [`FuzzyWordCount`], [`ReadingTime`], and [`Summary`] methods on a `Page` object.
+(`bool`) Set to `true` if the content language is in the [CJK](g) family. This value determines how Hugo calculates word count, and affects the values returned by the [`WordCount`], [`FuzzyWordCount`], [`ReadingTime`], and [`Summary`] methods on a `Page` object.
 
 [`fuzzywordcount`]: /methods/page/wordcount/
 [`readingtime`]: /methods/page/readingtime/
 [`summary`]: /methods/page/summary/
 [`wordcount`]: /methods/page/wordcount/
-[cjk]: /getting-started/glossary/#cjk
 
 ###### keywords
 
-(`string array`) An array of keywords, typically rendered within a `meta` element within the `head` element of the published HTML file, or used as a [taxonomy] to classify content. Access these values from a template using the [`Keywords`] method on a `Page` object.
+(`string array`) An array of keywords, typically rendered within a `meta` element within the `head` element of the published HTML file, or used as a [taxonomy](g) to classify content. Access these values from a template using the [`Keywords`] method on a `Page` object.
 
 [`keywords`]: /methods/page/keywords/
-[taxonomy]: /getting-started/glossary/#taxonomy
 
-{{% comment %}}
 <!-- Added in v0.123.0 but purposefully omitted from documentation. -->
 <!--
 kind
@@ -140,7 +128,6 @@ kind
 lang
 : The language code for this page. This is usually derived from the module mount or filename.
 -->
-{{% /comment %}}
 
 ###### lastmod
 
@@ -154,7 +141,7 @@ lang
 
 [`layout`]: /methods/page/layout/
 [template lookup order]: /templates/lookup-order/
-[target a specific template]: templates/lookup-order/#target-a-template
+[target a specific template]: /templates/lookup-order/#target-a-template
 
 ###### linkTitle
 
@@ -184,13 +171,11 @@ Alias to [lastmod](#lastmod).
 
 [output formats]: /templates/output-formats/
 
-{{% comment %}}
 <!-- Added in v0.123.0 but purposefully omitted from documentation. -->
 <!--
 path
 : The canonical page path.
 -->
-{{% /comment %}}
 
 ###### params
 
@@ -254,9 +239,8 @@ Alias to [publishDate](#publishdate).
 
 ###### type
 
-(`string`) The [content type], overriding the value derived from the top level section in which the page resides. Access this value from a template using the [`Type`] method on a `Page` object.
+(`string`) The [content type](g), overriding the value derived from the top level section in which the page resides. Access this value from a template using the [`Type`] method on a `Page` object.
 
-[content type]: /getting-started/glossary/#content-type
 [`type`]: /methods/page/type/
 
 ###### unpublishdate
@@ -268,10 +252,8 @@ Alias to [expirydate](#expirydate).
 (`string`) Overrides the entire URL path. Applicable to regular pages and section pages. See the [URL management] page for details.
 
 ###### weight
-(`int`) The page [weight], used to order the page within a [page collection]. Access this value from a template using the [`Weight`] method on a `Page` object.
+(`int`) The page [weight](g), used to order the page within a [page collection](g). Access this value from a template using the [`Weight`] method on a `Page` object.
 
-[page collection]: /getting-started/glossary/#page-collection
-[weight]: /getting-started/glossary/#weight
 [`weight`]: /methods/page/weight/
 
 ## Parameters
@@ -302,7 +284,7 @@ Parameter|Data type|Used by these embedded templates
 `images`|`[]string`|[`opengraph.html`], [`schema.html`], [`twitter_cards.html`]
 `videos`|`[]string`|[`opengraph.html`]
 
-The embedded templates will skip a parameter if not provided in front matter, but will throw an error if the data type is unexpected. 
+The embedded templates will skip a parameter if not provided in front matter, but will throw an error if the data type is unexpected.
 
 [`opengraph.html`]: {{% eturl opengraph %}}
 [`schema.html`]: {{% eturl schema %}}
@@ -332,15 +314,13 @@ genres = ['mystery','romance']
 author = 'John Smith'
 {{< /code-toggle >}}
 
-You can add taxonomy terms to the front matter of any these [page kinds]:
+You can add taxonomy terms to the front matter of any these [page kinds](g):
 
 - `home`
 - `page`
 - `section`
 - `taxonomy`
 - `term`
-
-[page kinds]: /getting-started/glossary/#page-kind
 
 Access taxonomy terms from a template using the [`Params`] or [`GetTerms`] method on a `Page` object. For example:
 
@@ -360,9 +340,7 @@ Access taxonomy terms from a template using the [`Params`] or [`GetTerms`] metho
 
 ## Cascade
 
-Any [node] can pass down to its descendants a set of front matter values.
-
-[node]: /getting-started/glossary/#node
+Any [node](g) can pass down to its descendants a set of front matter values.
 
 ### Target specific pages
 
@@ -459,5 +437,5 @@ When populating a date field, whether a [custom page parameter](#parameters) or 
 To override the default time zone, set the [`timeZone`](https://gohugo.io/getting-started/configuration/#timezone) in your site configuration. The order of precedence for determining the time zone is:
 
 1. The time zone offset in the date/time string
-2. The time zone specified in your site configuration
-3. The `Etc/UTC` time zone
+1. The time zone specified in your site configuration
+1. The `Etc/UTC` time zone

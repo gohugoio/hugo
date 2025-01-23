@@ -32,11 +32,9 @@ The Batch `ID` is used to create the base directory for this batch. Forward slas
   * [Config]
     * [SetOptions]
 
-
 ## Group
 
 The `Group` method take an `ID` (`string`) as argument. No slashes. It returns an object with these methods:
-
 
 #### Script
 
@@ -69,7 +67,6 @@ The `Instance` method takes two `string` arguments `SCRIPT_ID` and `INSTANCE_ID`
 ```
 
 `SetOptions` takes a [params options] map. The instance options will be passed to any [runner] script in the same group, as JSON.
-
 
 #### Runner
 
@@ -129,7 +126,6 @@ The runner script's export must be a function that takes one argument, the group
 
 Below is an example of a runner script that uses React to render elements. Note that the export (`default`) must match the `export` option in the [script options] (`default` is the default value for runner scripts) (runnable versions of examples on this page can be found at [js.Batch Demo Repo]):
 
-
 ```js
 import * as ReactDOM from 'react-dom/client';
 import * as React from 'react';
@@ -154,13 +150,11 @@ export default function Run(group) {
 }
 ```
 
-
-
 #### Config
 
 Returns an [OptionsSetter] that can be used to set [build options] for the batch.
 
-These are mostly the same as for [js.Build], but note that:
+These are mostly the same as for `js.Build`, but note that:
 
 * `targetPath` is set automatically (there may be multiple outputs).
 * `format` must be `esm`, currently the only format supporting [code splitting].
@@ -233,7 +227,7 @@ Hugo will, by default, first try to resolve any import in [assets](/hugo-pipes/i
 
 You can pass any object that implements [Resource.Get](/methods/page/resources/#get). Pass a slice to set multiple contexts.
 
-The example above uses [`Resources.Mount`] to resolve a folder inside `assets` relative to the page bundle.
+The example above uses [`Resources.Mount`] to resolve a directory inside `assets` relative to the page bundle.
 
 ### OptionsSetter
 
@@ -283,7 +277,6 @@ See [this discussion](https://discourse.gohugo.io/t/js-batch-with-simple-global-
 {{ end }}
 ```
 
-
 ## Known Issues
 
 In the official documentation for [ESBuild's code splitting], there's a warning note in the header. The two issues are:
@@ -294,7 +287,7 @@ In the official documentation for [ESBuild's code splitting], there's a warning 
 We have not seen the ordering issue as a problem during our [extensive testing](https://github.com/bep/hugojsbatchdemo) of this new feature with different libraries. There are two main cases:
 
 1. Undefined execution order of imports, see [this comment](https://github.com/evanw/esbuild/issues/399#issuecomment-1458680887)
-2. Only one execution order of imports, see [this comment](https://github.com/evanw/esbuild/issues/399#issuecomment-735355932)
+1. Only one execution order of imports, see [this comment](https://github.com/evanw/esbuild/issues/399#issuecomment-735355932)
 
 Many would say that both of the above are [code smells](https://en.wikipedia.org/wiki/Code_smell). The first one has a simple workaround in Hugo. Define the import order in its own script and make sure it gets passed early to ESBuild, e.g. by putting it in a script group with a name that comes early in the alphabet.
 
@@ -307,7 +300,7 @@ console.log('entrypoints-workaround.js');
 ```
 
 [build options]: #build-options
-[`Resource`]: https://gohugo.io/methods/resource/
+[`Resource`]: /methods/resource/
 [`Resources`]: /methods/page/resources/
 [`Resources.Mount`]: /methods/page/resources/#mount
 [`templates.Defer`]: /functions/templates/defer/
@@ -319,13 +312,12 @@ console.log('entrypoints-workaround.js');
 [instance]: #instance
 [JavaScript import]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import
 [js.Batch Demo Repo]: https://github.com/bep/hugojsbatchdemo/
-[js.Build]: https://gohugo.io/hugo-pipes/js/#options
-[map]: https://gohugo.io/functions/collections/dictionary/
+[map]: /functions/collections/dictionary/
 [OptionsSetter]: #optionssetter
-[page bundles]: https://gohugo.io/content-management/page-bundles/
+[page bundles]: /content-management/page-bundles/
 [params options]: #params-options
 [runner]: #runner
 [script options]: #script-options
 [script]: #script
 [SetOptions]: #optionssetter
-[with]: https://gohugo.io/functions/go-template/with/
+[with]: /functions/go-template/with/

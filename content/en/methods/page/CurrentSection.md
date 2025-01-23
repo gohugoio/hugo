@@ -19,11 +19,7 @@ action:
 {{% include "methods/page/_common/definition-of-section.md" %}}
 
 {{% note %}}
-The current section of a [section] page, [taxonomy] page, [term] page, or the home page, is itself.
-
-[section]: /getting-started/glossary/#section
-[taxonomy]: /getting-started/glossary/#taxonomy
-[term]: /getting-started/glossary/#term
+The current section of a [section page](g), [taxonomy page](g), [term page](g), or the home page, is itself.
 {{% /note %}}
 
 Consider this content structure:

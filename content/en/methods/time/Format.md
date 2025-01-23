@@ -24,9 +24,8 @@ aliases: [/methods/time/format]
 ```
 
 {{% note %}}
-To [localize] the return value, use the [`time.Format`] function instead.
+To [localize](g) the return value, use the [`time.Format`] function instead.
 
-[localize]: /getting-started/glossary/#localization
 [`time.Format`]: /functions/time/format/
 {{% /note %}}
 

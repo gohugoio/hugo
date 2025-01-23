@@ -34,7 +34,6 @@ This feature requires the Hugo extended/deploy edition. See the [installation] s
   * Amazon S3: [create a bucket](https://docs.aws.amazon.com/AmazonS3/latest/gsg/CreatingABucket.html) and [host a static website](https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html)
   * Microsoft Azure: [create a storage container](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-portal) and [host a static website](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-static-website)
 
-
 ## Configuring your first deployment
 
 In the configuration file for your site, add a `[deployment]` section
@@ -82,7 +81,6 @@ configuration.
 
 See `hugo help deploy` or [the deploy command-line documentation][commandline] for more command-line options.
 
-
 ### How the file list works
 
 The first thing `hugo deploy` does is create file lists for local and remote by
@@ -95,7 +93,6 @@ the [deployment target's configuration][config] --
 * If the configuration specifies an `exclude` pattern, files matching the
   pattern are skipped.
 
-
 {{% note %}}
 When creating the local file list, a few additional skips apply: first, Hugo always
 skips files named `.DS_Store`. 
@@ -106,8 +103,6 @@ traverse into them, except for the special [hidden directory named
 `.well-known`](https://en.wikipedia.org/wiki/Well-known_URI), which is
 traversed if it exists.
 {{% /note %}}
-
-
 
 ### How the local and remote file lists are compared
 
@@ -175,8 +170,8 @@ URL = "<FILL ME IN>"
 # Azure Blob Storage; see https://gocloud.dev/howto/blob/#azure
 #URL = "azblob://$web"
 
-# You can use a "prefix=" query parameter to target a subfolder of the bucket:
-#URL = "gs://<Bucket Name>?prefix=a/subfolder/"
+# You can use a "prefix=" query parameter to target a subdirectory of the bucket:
+#URL = "gs://<Bucket Name>?prefix=a/subdirectory/"
 
 # If you are using a CloudFront CDN, deploy will invalidate the cache as needed.
 #cloudFrontDistributionID = "<FILL ME IN>"

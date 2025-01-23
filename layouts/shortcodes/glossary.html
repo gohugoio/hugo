@@ -1,0 +1,43 @@
+{{- /*
+Renders the glossary of terms.
+
+When you call this shortcode using the {{% %}} notation, the glossary terms are
+Markdown headings (level 6) which means they are members of .Page.Fragments.
+This allows the link render hook to verify links to glossary terms.
+
+Yes, the terms themselves are pages, but we don't want to link to the pages, at
+least not right now. Instead, we want to link to the fragments rendered by this
+shortcode.
+
+@returns {template.HTML}
+
+@example {{% glossary %}}
+*/}}
+{{- $path := "/getting-started/glossary" }}
+{{- with site.GetPage $path }}
+  {{- with $p := .Pages.ByTitle }}
+
+    {{- /* Build and render alphabetical index. */}}
+    {{- $m := dict }}
+    {{- range $p }}
+      {{- $k := substr .Title 0 1 | strings.ToUpper }}
+      {{- if index $m $k }}
+        {{- continue }}
+      {{- end }}
+      {{- $anchor := path.BaseName .Path | anchorize }}
+      {{- $m = merge $m (dict $k $anchor) }}
+    {{- end }}
+    {{- range $k, $v := $m }}
+[{{ $k }}](#{{ $v }})&nbsp;{{/* Do not indent. */}}
+    {{- end }}
+
+    {{- /* Render glossary terms. */}}
+    {{- range $p }}
+###### {{ .Title }}{{/* Do not indent. */}}
+{{ .RenderShortcodes }}{{/* Do not indent. */}}
+    {{- end }}
+
+  {{- end }}
+{{- else }}
+  {{- errorf "The %q shortcode was unable to get %s: see %s" .Name $path .Position}}
+{{- end }}

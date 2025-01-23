@@ -32,7 +32,7 @@ Hugo uses two different algorithms to merge the file systems, depending on the f
 * For `i18n` and `data` files, Hugo merges deeply using the translation ID and data key inside the files.
 * For `static`, `layouts` (templates), and `archetypes` files, these are merged on file level. So the left-most file will be chosen.
 
-The name used in the `theme` definition above must match a folder in `/your-site/themes`, e.g. `/your-site/themes/my-shortcodes`. There are plans to improve on this and get a URL scheme so this can be resolved automatically.
+The name used in the `theme` definition above must match a directory in `/your-site/themes`, e.g. `/your-site/themes/my-shortcodes`. There are plans to improve on this and get a URL scheme so this can be resolved automatically.
 
 Also note that a component that is part of a theme can have its own configuration file, e.g. `hugo.toml`. There are currently some restrictions to what a theme component can configure:
 

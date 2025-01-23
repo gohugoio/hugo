@@ -49,6 +49,5 @@ This is similar to using the [`Type`] method with the `where` function
 
 However, if the `type` field in front matter has been defined on one or more pages, the page collection based on `Type` will be different than the page collection based on `Section`.
 
-
 [`where`]: /functions/collections/where/
 [`Type`]: /methods/page/type/

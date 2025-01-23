@@ -56,7 +56,6 @@ Content between opening and closing shortcode tags may include leading and/or tr
 In the example above, the value returned by `Inner` is Markdown, but it was rendered as plain text. Use either of the following approaches to render Markdown to HTML.
 {{% /note %}}
 
-
 ## Use RenderString
 
 Let's modify the example above to pass the value returned by `Inner` through the [`RenderString`] method on the `Page` object:

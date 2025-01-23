@@ -12,21 +12,15 @@ toc: true
 aliases: [/extras/datafiles/,/extras/datadrivencontent/,/doc/datafiles/,/templates/data-templates/]
 ---
 
-Hugo can access and [unmarshal] local and remote data sources including CSV, JSON, TOML, YAML, and XML. Use this data to augment existing content or to create new content.
+Hugo can access and [unmarshal](g) local and remote data sources including CSV, JSON, TOML, YAML, and XML. Use this data to augment existing content or to create new content.
 
-[unmarshal]: /getting-started/glossary/#unmarshal
-
-A data source might be a file in the data directory, a [global resource], a [page resource], or a [remote resource].
-
-[global resource]: /getting-started/glossary/#global-resource
-[page resource]: /getting-started/glossary/#page-resource
-[remote resource]: /getting-started/glossary/#remote-resource
+A data source might be a file in the `data` directory, a [global resource](g), a [page resource](g), or a [remote resource](g).
 
 ## Data directory
 
-The data directory in the root of your project may contain one or more data files, in either a flat or nested tree. Hugo merges the data files to create a single data structure, accessible with the `Data` method on a `Site` object.
+The `data` directory in the root of your project may contain one or more data files, in either a flat or nested tree. Hugo merges the data files to create a single data structure, accessible with the `Data` method on a `Site` object.
 
-Hugo also merges data directories from themes and modules into this single data structure, where the data directory in the root of your project takes precedence.
+Hugo also merges data directories from themes and modules into this single data structure, where the `data` directory in the root of your project takes precedence.
 
 {{% note %}}
 Hugo reads the combined data structure into memory and keeps it there for the entire build. For data that is infrequently accessed, use global or page resources instead.
@@ -42,7 +36,7 @@ project/
 ```
 
 {{% note %}}
-Do not place CSV files in the data directory. Access CSV files as page, global, or remote resources.
+Do not place CSV files in the `data` directory. Access CSV files as page, global, or remote resources.
 {{% /note %}}
 
 See the documentation for the [`Data`] method on a `Site` object for details and examples.
