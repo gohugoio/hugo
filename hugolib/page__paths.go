@@ -71,11 +71,12 @@ func newPagePaths(ps *pageState) (pagePaths, error) {
 		// Use the main format for permalinks, usually HTML.
 		permalinksIndex := 0
 		if f.Permalinkable {
-			// Unless it's permalinkable
+			// Unless it's permalinkable.
 			permalinksIndex = i
 		}
 
 		targets[f.Name] = targetPathsHolder{
+			relURL:       relPermalink,
 			paths:        paths,
 			OutputFormat: pageOutputFormats[permalinksIndex],
 		}

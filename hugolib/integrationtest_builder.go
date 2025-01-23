@@ -487,11 +487,11 @@ func (s *IntegrationTestBuilder) BuildPartialE(urls ...string) (*IntegrationTest
 	if !s.Cfg.Running {
 		panic("BuildPartial can only be used in server mode")
 	}
-	visited := types.NewEvictingStringQueue(len(urls))
+	visited := types.NewEvictingQueue[string](len(urls))
 	for _, url := range urls {
 		visited.Add(url)
 	}
-	buildCfg := BuildCfg{RecentlyVisited: visited, PartialReRender: true}
+	buildCfg := BuildCfg{RecentlyTouched: visited, PartialReRender: true}
 	return s, s.build(buildCfg)
 }
 

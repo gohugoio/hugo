@@ -20,6 +20,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/hugolib/doctree"
 
@@ -32,6 +33,8 @@ import (
 
 type siteRenderContext struct {
 	cfg *BuildCfg
+
+	infol logg.LevelLogger
 
 	// languageIdx is the zero based index of the site.
 	languageIdx int
@@ -86,7 +89,7 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 		Tree: s.pageMap.treePages,
 		Handle: func(key string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
 			if p, ok := n.(*pageState); ok {
-				if cfg.shouldRender(p) {
+				if cfg.shouldRender(ctx.infol, p) {
 					select {
 					case <-s.h.Done():
 						return true, nil
