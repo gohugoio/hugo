@@ -322,6 +322,7 @@ func lexInsideShortcode(l *pageLexer) stateFunc {
 		}
 		l.closingState++
 		l.isInline = false
+		l.elementStepNum = 0
 		l.emit(tScClose)
 	case r == '\\':
 		l.ignore()
