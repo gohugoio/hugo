@@ -341,7 +341,7 @@ func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
 		loggers.TimeTrackf(l, start, h.buildCounters.loggFields(), "")
 	}()
 
-	siteRenderContext := &siteRenderContext{cfg: config, multihost: h.Configs.IsMultihost}
+	siteRenderContext := &siteRenderContext{cfg: config, infol: l, multihost: h.Configs.IsMultihost}
 
 	renderErr := func(err error) error {
 		if err == nil {
@@ -902,12 +902,12 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 
 			needsPagesAssemble = true
 
-			if config.RecentlyVisited != nil {
+			if config.RecentlyTouched != nil {
 				// Fast render mode. Adding them to the visited queue
 				// avoids rerendering them on navigation.
 				for _, id := range changes {
 					if p, ok := id.(page.Page); ok {
-						config.RecentlyVisited.Add(p.RelPermalink())
+						config.RecentlyTouched.Add(p.RelPermalink())
 					}
 				}
 			}

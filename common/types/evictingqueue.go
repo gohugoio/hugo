@@ -18,24 +18,24 @@ import (
 	"sync"
 )
 
-// EvictingStringQueue is a queue which automatically evicts elements from the head of
+// EvictingQueue is a queue which automatically evicts elements from the head of
 // the queue when attempting to add new elements onto the queue and it is full.
 // This queue orders elements LIFO (last-in-first-out). It throws away duplicates.
-// Note: This queue currently does not contain any remove (poll etc.) methods.
-type EvictingStringQueue struct {
+type EvictingQueue[T comparable] struct {
 	size int
-	vals []string
-	set  map[string]bool
+	vals []T
+	set  map[T]bool
 	mu   sync.Mutex
+	zero T
 }
 
-// NewEvictingStringQueue creates a new queue with the given size.
-func NewEvictingStringQueue(size int) *EvictingStringQueue {
-	return &EvictingStringQueue{size: size, set: make(map[string]bool)}
+// NewEvictingQueue creates a new queue with the given size.
+func NewEvictingQueue[T comparable](size int) *EvictingQueue[T] {
+	return &EvictingQueue[T]{size: size, set: make(map[T]bool)}
 }
 
 // Add adds a new string to the tail of the queue if it's not already there.
-func (q *EvictingStringQueue) Add(v string) *EvictingStringQueue {
+func (q *EvictingQueue[T]) Add(v T) *EvictingQueue[T] {
 	q.mu.Lock()
 	if q.set[v] {
 		q.mu.Unlock()
@@ -54,7 +54,7 @@ func (q *EvictingStringQueue) Add(v string) *EvictingStringQueue {
 	return q
 }
 
-func (q *EvictingStringQueue) Len() int {
+func (q *EvictingQueue[T]) Len() int {
 	if q == nil {
 		return 0
 	}
@@ -64,7 +64,7 @@ func (q *EvictingStringQueue) Len() int {
 }
 
 // Contains returns whether the queue contains v.
-func (q *EvictingStringQueue) Contains(v string) bool {
+func (q *EvictingQueue[T]) Contains(v T) bool {
 	if q == nil {
 		return false
 	}
@@ -74,12 +74,12 @@ func (q *EvictingStringQueue) Contains(v string) bool {
 }
 
 // Peek looks at the last element added to the queue.
-func (q *EvictingStringQueue) Peek() string {
+func (q *EvictingQueue[T]) Peek() T {
 	q.mu.Lock()
 	l := len(q.vals)
 	if l == 0 {
 		q.mu.Unlock()
-		return ""
+		return q.zero
 	}
 	elem := q.vals[l-1]
 	q.mu.Unlock()
@@ -87,9 +87,12 @@ func (q *EvictingStringQueue) Peek() string {
 }
 
 // PeekAll looks at all the elements in the queue, with the newest first.
-func (q *EvictingStringQueue) PeekAll() []string {
+func (q *EvictingQueue[T]) PeekAll() []T {
+	if q == nil {
+		return nil
+	}
 	q.mu.Lock()
-	vals := make([]string, len(q.vals))
+	vals := make([]T, len(q.vals))
 	copy(vals, q.vals)
 	q.mu.Unlock()
 	for i, j := 0, len(vals)-1; i < j; i, j = i+1, j-1 {
@@ -99,9 +102,9 @@ func (q *EvictingStringQueue) PeekAll() []string {
 }
 
 // PeekAllSet returns PeekAll as a set.
-func (q *EvictingStringQueue) PeekAllSet() map[string]bool {
+func (q *EvictingQueue[T]) PeekAllSet() map[T]bool {
 	all := q.PeekAll()
-	set := make(map[string]bool)
+	set := make(map[T]bool)
 	for _, v := range all {
 		set[v] = true
 	}

@@ -85,9 +85,9 @@ const (
 )
 
 func newHugoBuilder(r *rootCommand, s *serverCommand, onConfigLoaded ...func(reloaded bool) error) *hugoBuilder {
-	var visitedURLs *types.EvictingStringQueue
+	var visitedURLs *types.EvictingQueue[string]
 	if s != nil && !s.disableFastRender {
-		visitedURLs = types.NewEvictingStringQueue(20)
+		visitedURLs = types.NewEvictingQueue[string](20)
 	}
 	return &hugoBuilder{
 		r:              r,
@@ -364,7 +364,10 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 			}
 
 			if f.c.fastRenderMode && f.c.errState.buildErr() == nil {
-				if strings.HasSuffix(requestURI, "/") || strings.HasSuffix(requestURI, "html") || strings.HasSuffix(requestURI, "htm") {
+				// Sec-Fetch-Mode should be sent by all recent browser versions, see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Sec-Fetch-Mode#navigate
+				// Fall back to the file extension if not set.
+				// The main take here is that we don't want to have CSS/JS files etc. partake in this logic.
+				if r.Header.Get("Sec-Fetch-Mode") == "navigate" || strings.HasSuffix(requestURI, "/") || strings.HasSuffix(requestURI, "html") || strings.HasSuffix(requestURI, "htm") {
 					if !f.c.visitedURLs.Contains(requestURI) {
 						// If not already on stack, re-render that single page.
 						if err := f.c.partialReRender(requestURI); err != nil {
@@ -838,7 +841,7 @@ func (c *serverCommand) partialReRender(urls ...string) (err error) {
 	defer func() {
 		c.errState.setWasErr(false)
 	}()
-	visited := types.NewEvictingStringQueue(len(urls))
+	visited := types.NewEvictingQueue[string](len(urls))
 	for _, url := range urls {
 		visited.Add(url)
 	}
@@ -850,7 +853,7 @@ func (c *serverCommand) partialReRender(urls ...string) (err error) {
 	}
 
 	// Note: We do not set NoBuildLock as the file lock is not acquired at this stage.
-	err = h.Build(hugolib.BuildCfg{NoBuildLock: false, RecentlyVisited: visited, PartialReRender: true, ErrRecovery: c.errState.wasErr()})
+	err = h.Build(hugolib.BuildCfg{NoBuildLock: false, RecentlyTouched: visited, PartialReRender: true, ErrRecovery: c.errState.wasErr()})
 
 	return
 }

@@ -62,7 +62,7 @@ type hugoBuilder struct {
 
 	// Currently only set when in "fast render mode".
 	changeDetector *fileChangeDetector
-	visitedURLs    *types.EvictingStringQueue
+	visitedURLs    *types.EvictingQueue[string]
 
 	fullRebuildSem *semaphore.Weighted
 	debounce       func(f func())
@@ -1103,7 +1103,7 @@ func (c *hugoBuilder) rebuildSites(events []fsnotify.Event) (err error) {
 	if err != nil {
 		return
 	}
-	err = h.Build(hugolib.BuildCfg{NoBuildLock: true, RecentlyVisited: c.visitedURLs, ErrRecovery: c.errState.wasErr()}, events...)
+	err = h.Build(hugolib.BuildCfg{NoBuildLock: true, RecentlyTouched: c.visitedURLs, ErrRecovery: c.errState.wasErr()}, events...)
 	return
 }
 
@@ -1119,7 +1119,7 @@ func (c *hugoBuilder) rebuildSitesForChanges(ids []identity.Identity) (err error
 	}
 	whatChanged := &hugolib.WhatChanged{}
 	whatChanged.Add(ids...)
-	err = h.Build(hugolib.BuildCfg{NoBuildLock: true, WhatChanged: whatChanged, RecentlyVisited: c.visitedURLs, ErrRecovery: c.errState.wasErr()})
+	err = h.Build(hugolib.BuildCfg{NoBuildLock: true, WhatChanged: whatChanged, RecentlyTouched: c.visitedURLs, ErrRecovery: c.errState.wasErr()})
 
 	return
 }

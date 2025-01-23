@@ -469,11 +469,19 @@ type pagePerOutputProviders interface {
 
 type targetPather interface {
 	targetPaths() page.TargetPaths
+	getRelURL() string
 }
 
 type targetPathsHolder struct {
-	paths page.TargetPaths
+	// relURL is usually the same as OutputFormat.RelPermalink, but can be different
+	// for non-permalinkable output formats. These shares RelPermalink with the main (first) output format.
+	relURL string
+	paths  page.TargetPaths
 	page.OutputFormat
+}
+
+func (t targetPathsHolder) getRelURL() string {
+	return t.relURL
 }
 
 func (t targetPathsHolder) targetPaths() page.TargetPaths {
