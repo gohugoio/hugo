@@ -126,6 +126,9 @@ var shortCodeLexerTests = []lexerTest{
 	{"self-closing with param", `{{< sc1 param1 />}}`, []typeText{
 		tstLeftNoMD, tstSC1, tstParam1, tstSCClose, tstRightNoMD, tstEOF,
 	}, nil},
+	{"self-closing with extra keyword", `{{< sc1 / keyword>}}`, []typeText{
+		tstLeftNoMD, tstSC1, tstSCClose, nti(tError, "closing tag for shortcode 'keyword' does not match start tag"),
+	}, nil},
 	{"multiple self-closing with param", `{{< sc1 param1 />}}{{< sc1 param1 />}}`, []typeText{
 		tstLeftNoMD, tstSC1, tstParam1, tstSCClose, tstRightNoMD,
 		tstLeftNoMD, tstSC1, tstParam1, tstSCClose, tstRightNoMD, tstEOF,
