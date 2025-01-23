@@ -30,6 +30,9 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 -- layouts/index.html --
 {{ .Content }}
 -- content/_index.md --
+---
+title: home
+---
 a{{< comment >}}b{{< /comment >}}c
 `
 
@@ -85,6 +88,26 @@ E: An _emphasized_ word.
 		"<details>\n  <summary>Details</summary>\n  <p>D: An <em>emphasized</em> word.</p>\n</details>",
 		"<details>\n  <summary>Details</summary>\n  <p>D: An <em>emphasized</em> word.</p>\n</details>",
 	)
+}
+
+func TestGistShortcode(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/index.html --
+{{ .Content }}
+-- content/_index.md --
+---
+title: home
+---
+{{< gist jmooring 23932424365401ffa5e9d9810102a477 >}}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
+	b.AssertFileContent("public/index.html", `<script src="https://gist.github.com/jmooring/23932424365401ffa5e9d9810102a477.js"></script>`)
+	b.AssertLogContains(`WARN  The "gist" shortcode was deprecated in v0.143.0 and will be removed in a future release. See https://gohugo.io/shortcodes/gist for instructions to create a replacement.`)
 }
 
 func TestInstagramShortcode(t *testing.T) {
