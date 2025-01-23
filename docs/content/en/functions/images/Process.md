@@ -72,7 +72,6 @@ hint
 
 [`cwebp`]: https://developers.google.com/speed/webp/docs/cwebp
 
-
 ```go-html-template
 {{ $filter := images.Process "webp" "icon" }}
 {{ $filter := images.Process "crop 200x200 center r90 webp q50 icon" }}

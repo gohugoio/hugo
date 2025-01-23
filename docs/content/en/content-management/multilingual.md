@@ -21,7 +21,6 @@ This is the default language configuration:
 
 In the above, `en` is the language key.
 
-
 Language keys must conform to the syntax described in [RFC 5646]. For example:
 
 - `en`
@@ -80,7 +79,7 @@ defaultContentLanguageInSubdir
 : (`bool`)  If `true`, Hugo renders the default language site in a subdirectory matching the `defaultContentLanguage`. Default is `false`.
 
 contentDir
-: (`string`) The content directory for this language. Omit if [translating by file name].
+: (`string`) The `content` directory for this language. Omit if [translating by file name].
 
 disabled
 : (`bool`) If `true`, Hugo will not render content for this language. Default is `false`.
@@ -110,34 +109,42 @@ weight
 [RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.1
 [translating by file name]: #translation-by-file-name
 
-### Changes in Hugo 0.112.0
+### Site parameters
 
-{{< new-in 0.112.0 >}}
-
-In Hugo `v0.112.0` we consolidated all configuration options, and improved how the languages and their parameters are merged with the main configuration. But while testing this on Hugo sites out there, we received some error reports and reverted some of the changes in favor of deprecation warnings:
-
-1. `site.Language.Params` is deprecated. Use `site.Params` directly.
-1. Adding custom parameters to the top level language configuration is deprecated. Define custom parameters within `languages.xx.params`. See `color` in the example below.
+Set language-specific site parameters under each language's `params` key:
 
 {{< code-toggle file=hugo >}}
-
-title = "My blog"
-languageCode = "en-us"
+[params]
+color = "red"
 
 [languages]
-[languages.sv]
-title = "Min blogg"
-languageCode = "sv"
-[languages.en.params]
-color = "blue"
+  [languages.de]
+    languageCode = 'de-DE'
+    title = 'Projekt Dokumentation'
+    weight = 1
+    [languages.de.params]
+      color = 'blue'
+      subtitle = 'Referenz, Tutorials und Erklärungen'
+  [languages.en]
+    languageCode = 'en-US'
+    title = 'Project Documentation'
+    weight = 2
+    [languages.en.params]
+      subtitle = 'Reference, Tutorials, and Explanations'
 {{< /code-toggle >}}
 
-In the example above, all settings except `color` below `params` map to predefined configuration options in Hugo for the site and its language, and should be accessed via the documented accessors:
+When building the English site:
 
 ```go-html-template
-{{ site.Title }}
-{{ site.Language.LanguageCode }}
-{{ site.Params.color }}
+{{ site.Params.color }} --> red
+{{ site.Params.subtitle }} --> Reference, Tutorials, and Explanations
+```
+
+When building the English site:
+
+```go-html-template
+{{ site.Params.color }} --> blue
+{{ site.Params.subtitle }} --> 'Referenz, Tutorials und Erklärungen'
 ```
 
 ### Disable a language
@@ -164,7 +171,6 @@ HUGO_DISABLELANGUAGES="es fr" hugo
 Note that you cannot disable the default content language.
 
 ### Configure multilingual multihost
-
 
 Hugo supports multiple languages in a multihost configuration. This means you can configure a `baseURL` per `language`.
 
@@ -217,7 +223,7 @@ There are two ways to manage your content translations. Both ensure each page is
 Considering the following example:
 
 1. `/content/about.en.md`
-2. `/content/about.fr.md`
+1. `/content/about.fr.md`
 
 The first file is assigned the English language and is linked to the second.
 The second file is assigned the French language and is linked to the first.
@@ -232,7 +238,7 @@ If a file has no language code, it will be assigned the default language.
 
 ### Translation by content directory
 
-This system uses different content directories for each of the languages. Each language's content directory is set using the `contentDir` parameter.
+This system uses different content directories for each of the languages. Each language's `content` directory is set using the `contentDir` parameter.
 
 {{< code-toggle file=hugo >}}
 languages:
@@ -251,14 +257,14 @@ The value of `contentDir` can be any valid path -- even absolute path references
 Considering the following example in conjunction with the configuration above:
 
 1. `/content/english/about.md`
-2. `/content/french/about.md`
+1. `/content/french/about.md`
 
 The first file is assigned the English language and is linked to the second.
 The second file is assigned the French language and is linked to the first.
 
-Their language is __assigned__ according to the content directory they are __placed__ in.
+Their language is __assigned__ according to the `content` directory they are __placed__ in.
 
-By having the same **path and basename** (relative to their language content directory), the content pieces are __linked__ together as translated pages.
+By having the same **path and basename** (relative to their language `content` directory), the content pieces are __linked__ together as translated pages.
 
 ### Bypassing default linking
 
@@ -267,8 +273,8 @@ Any pages sharing the same `translationKey` set in front matter will be linked a
 Considering the following example:
 
 1. `/content/about-us.en.md`
-2. `/content/om.nn.md`
-3. `/content/presentation/a-propos.fr.md`
+1. `/content/om.nn.md`
+1. `/content/presentation/a-propos.fr.md`
 
 {{< code-toggle >}}
 translationKey: "about"

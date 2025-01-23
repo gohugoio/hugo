@@ -15,7 +15,7 @@ The value returned by the `Name` method on a `Resource` object depends on the re
 
 ## Global resource
 
-With a [global resource], the `Name` method returns the path to the resource, relative to the assets directory.
+With a [global resource](g), the `Name` method returns the path to the resource, relative to the `assets` directory.
 
 ```text
 assets/
@@ -31,7 +31,7 @@ assets/
 
 ## Page resource
 
-With a [page resource], if you create an element in the `resources` array in front matter, the `Name` method returns the value of the `name` parameter.
+With a [page resource](g), if you create an element in the `resources` array in front matter, the `Name` method returns the value of the `name` parameter.
 
 ```text
 content/
@@ -81,15 +81,10 @@ content/
 ```
 ## Remote resource
 
-With a [remote resource], the `Name` method returns a hashed file name.
+With a [remote resource](g), the `Name` method returns a hashed file name.
 
 ```go-html-template
 {{ with resources.GetRemote "https://example.org/images/a.jpg" }}
   {{ .Name }} → /a_18432433023265451104.jpg
 {{ end }}
 ```
-
-[global resource]: /getting-started/glossary/#global-resource
-[logical path]: /getting-started/glossary/#logical-path
-[page resource]: /getting-started/glossary/#page-resource
-[remote resource]: /getting-started/glossary/#remote-resource

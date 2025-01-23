@@ -21,7 +21,7 @@ Finding a tool that will make your customers, writers, designers, _and_ DevOps t
 
 **Hugo is FAST**. Our previous static site generator took nearly a minute to compile our (then much smaller) site. Developers might be used to this, but it wasn't cutting it for writers who wanted to see live previews of their work. Hugo did the same job in milliseconds, and to this day compiles 400 pages in five languages in the blink of an eye.
 
-**Hugo is flexible**. Thanks to Hugo's content and layout system, we were able to preserve our existing file and folder structure and port our entire production site in a few days. We could then create new content types that weren't possible before, like these snazzy [showcases](https://support.1password.com/explore/extension/).
+**Hugo is flexible**. Thanks to Hugo's content and layout system, we were able to preserve our existing file and directory structure and port our entire production site in a few days. We could then create new content types that weren't possible before, like these snazzy [showcases](https://support.1password.com/explore/extension/).
 
 **Hugo is great for writers**. Our documentation team was already comfortable with Markdown and Git and could start creating content for Hugo with zero downtime. Once we added shortcodes, our writers were able to dress up articles with features like  [platform boxes](https://support.1password.com/get-the-apps/) with just a bit of new syntax.
 

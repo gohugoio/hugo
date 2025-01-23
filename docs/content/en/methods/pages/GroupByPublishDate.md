@@ -15,11 +15,10 @@ action:
 
 When grouping by publish date, the value is determined by your [site configuration], defaulting to the `publishDate` field in front matter.
 
-The [layout string] has the same format as the layout string for the [`time.Format`] function. The resulting group key is [localized] for language and region.
+The [layout string] has the same format as the layout string for the [`time.Format`] function. The resulting group key is [localized](g) for language and region.
 
 [`time.Format`]: /functions/time/format/
 [layout string]: #layout-string
-[localized]: /getting-started/glossary/#localization
 [site configuration]: /getting-started/configuration/#configure-dates
 
 {{% include "methods/pages/_common/group-sort-order.md" %}}

@@ -13,7 +13,7 @@ weight: 20
 toc: true
 ---
 
-A template is a file in the layouts directory of a project, theme, or module. Templates use [variables] , [functions], and [methods] to transform your content, resources, and data into a published page.
+A template is a file in the `layouts` directory of a project, theme, or module. Templates use [variables] , [functions], and [methods] to transform your content, resources, and data into a published page.
 
 [functions]: /functions/
 [methods]: /methods/
@@ -44,10 +44,7 @@ While HTML templates are the most common, you can create templates for any [outp
 
 ## Context
 
-The most important concept to understand before creating a template is _context_, the data passed into each template. The data may be a simple value, or more commonly [objects] and associated [methods].
-
-[objects]: /getting-started/glossary/#object
-[methods]: /getting-started/glossary/#method
+The most important concept to understand before creating a template is _context_, the data passed into each template. The data may be a simple value, or more commonly [objects](g) and associated [methods](g).
 
 For example, a template for a single page receives a `Page` object, and the `Page` object provides methods to return values or perform actions.
 
@@ -81,9 +78,7 @@ The current context may change within a template. For example, at the top of a t
 {{ end }}
 {{< /code >}}
 
-In the example above, the context changes as we `range` through the [slice] of values. In the first iteration the context is "foo", and in the second iteration the context is "bar". Inside of the `with` block the context is "baz". Hugo renders the above to:
-
-[slice]: /getting-started/glossary/#slice
+In the example above, the context changes as we `range` through the [slice](g) of values. In the first iteration the context is "foo", and in the second iteration the context is "bar". Inside of the `with` block the context is "baz". Hugo renders the above to:
 
 ```html
 <h2>My Page Title</h2>
@@ -116,12 +111,7 @@ Make sure that you thoroughly understand the concept of _context_ before you con
 
 In the examples above the paired opening and closing braces represent the beginning and end of a template action, a data evaluation or control structure within a template.
 
-A template action may contain literal values ([boolean], [string], [integer], and [float]), variables, functions, and methods.
-
-[boolean]: /getting-started/glossary/#boolean
-[string]: /getting-started/glossary/#string
-[integer]: /getting-started/glossary/#integer
-[float]: /getting-started/glossary/#float
+A template action may contain literal values ([boolean](g), [string](g), [integer](g), and [float](g)), variables, functions, and methods.
 
 {{< code file=layouts/_default/single.html >}}
 {{ $convertToLower := true }}
@@ -167,9 +157,7 @@ Whitespace includes spaces, horizontal tabs, carriage returns, and newlines.
 
 ### Pipes
 
-Within a template action you may [pipe] a value to a function or method. The piped value becomes the final argument to the function or method. For example, these are equivalent:
-
-[pipe]: /getting-started/glossary/#pipeline
+Within a template action you may [pipe](g) a value to a function or method. The piped value becomes the final argument to the function or method. For example, these are equivalent:
 
 ```go-html-template
 {{ strings.ToLower "Hugo" }} → hugo
@@ -207,9 +195,7 @@ You can split a template action over two or more lines. For example, these are e
 }}
 ```
 
-You can also split [raw string literals] over two or more lines. For example, these are equivalent:
-
-[raw string literals]: /getting-started/glossary/#string-literal-raw
+You can also split [raw string literals](g) over two or more lines. For example, these are equivalent:
 
 ```go-html-template
 {{ $msg := "This is line one.\nThis is line two." }}
@@ -221,16 +207,9 @@ This is line two.`
 
 ## Variables
 
-A variable is a user-defined [identifier] prepended with a dollar sign (`$`), representing a value of any data type, initialized or assigned within a template action. For example, `$foo` and `$bar` are variables.
+A variable is a user-defined [identifier](g) prepended with a dollar sign (`$`), representing a value of any data type, initialized or assigned within a template action. For example, `$foo` and `$bar` are variables.
 
-[identifier]: /getting-started/glossary/#identifier
-
-Variables may contain [scalars], [slices], [maps], or [objects].
-
-[scalars]: /getting-started/glossary/#scalar
-[slices]: /getting-started/glossary/#slice
-[maps]: /getting-started/glossary/#map
-[objects]: /getting-started/glossary/#object
+Variables may contain [scalars](g), [slices](g), [maps](g), or [objects](g).
 
 Use `:=` to initialize a variable, and use `=` to assign a value to a variable that has been previously initialized. For example:
 
@@ -260,9 +239,7 @@ With variables that represent a slice or map, use the [`index`] function to retu
 Slices and arrays are zero-based; element 0 is the first element.
 {{% /note %}}
 
-With variables that represent a map or object, [chain] identifiers to return the desired value or to access the desired method.
-
-[chain]: /getting-started/glossary/#chain
+With variables that represent a map or object, [chain](g) identifiers to return the desired value or to access the desired method.
 
 ```go-html-template
 {{ $map := dict "a" "foo" "b" "bar" "c" "baz" }}
@@ -317,7 +294,7 @@ Object|Method|Description
 `Page`|[`Date`](methods/page/date/)|Returns the date of the given page.
 `Page`|[`Params`](methods/page/params/)|Returns a map of custom parameters as defined in the front matter of the given page.
 `Page`|[`Title`](methods/page/title/)|Returns the title of the given page.
-`Site`|[`Data`](methods/site/data/)|Returns a data structure composed from the files in the data directory.
+`Site`|[`Data`](methods/site/data/)|Returns a data structure composed from the files in the `data` directory.
 `Site`|[`Params`](methods/site/params/)|Returns a map of custom parameters as defined in the site configuration.
 `Site`|[`Title`](methods/site/title/)|Returns the title as defined in the site configuration.
 
@@ -399,7 +376,7 @@ Use the [`template`] function to include one or more of Hugo's [embedded templat
 
 [`partial`]: /functions/partials/include/
 [`partialCached`]: /functions/partials/includecached/
-[`template`]: functions/go-template/template/
+[`template`]: /functions/go-template/template/
 
 Use the [`partial`] or [`partialCached`] function to include one or more [partial templates]:
 

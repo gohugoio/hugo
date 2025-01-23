@@ -16,7 +16,6 @@ The `Param` method on a `Site` object is a convenience method to return the valu
 display_toc = true
 {{< /code-toggle >}}
 
-
 ```go-html-template
 {{ .Site.Param "display_toc" }} → true
 ```

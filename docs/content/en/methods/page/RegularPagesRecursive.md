@@ -11,7 +11,7 @@ action:
   signatures: [PAGE.RegularPagesRecursive]
 ---
 
-The `RegularPagesRecursive` method on a `Page` object is available to these [page kinds]: `home`, `section`, `taxonomy`, and `term`. The templates for these page kinds receive a page [collection] in [context].
+The `RegularPagesRecursive` method on a `Page` object is available to these [page kinds](g): `home`, `section`, `taxonomy`, and `term`. The templates for these page kinds receive a page [collection](g) in [context](g).
 
 Range through the page collection in your template:
 
@@ -84,7 +84,3 @@ When rendering lesson-2, the `RegularPagesRecursive` method returns:
 {{% note %}}
 The `RegularPagesRecursive` method in not available on a `Site` object.
 {{% /note %}}
-
-[collection]: /getting-started/glossary/#collection
-[context]: /getting-started/glossary/#context
-[page kinds]: /getting-started/glossary/#page-kind

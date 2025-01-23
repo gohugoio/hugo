@@ -109,4 +109,4 @@ https://gohugo.io
 
 The `qr` shortcode accepts several arguments including `level` and `scale`. See the [related documentation] for details.
 
-[related documentation]: /content-management/shortcodes/#qr
+[related documentation]: /shortcodes/qr/

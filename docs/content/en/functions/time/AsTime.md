@@ -42,13 +42,12 @@ The list of valid time zones may be system dependent, but should include `UTC`, 
 The order of precedence for determining the time zone is:
 
 1. The time zone offset in the date/time string
-2. The time zone provided as the second argument to the `time.AsTime` function
-3. The time zone specified in your site configuration
-4. The `Etc/UTC` time zone
-
+1. The time zone provided as the second argument to the `time.AsTime` function
+1. The time zone specified in your site configuration
+1. The `Etc/UTC` time zone
 
 [IANA Time Zone database]: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 [`time.Time`]: https://pkg.go.dev/time#Time
-[`timeZone`]: https://gohugo.io/getting-started/configuration/#timezone
+[`timeZone`]: /getting-started/configuration/#timezone
 [functions]: /functions/time/
 [methods]: /methods/time/

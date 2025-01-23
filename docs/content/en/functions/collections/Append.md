@@ -14,7 +14,7 @@ action:
 aliases: [/functions/append]
 ---
 
-This function appends all elements, excluding the last, to the last element. This allows [pipe](/getting-started/glossary/#pipeline) constructs as shown below.
+This function appends all elements, excluding the last, to the last element. This allows [pipe](g) constructs as shown below.
 
 Append a single element to a slice:
 

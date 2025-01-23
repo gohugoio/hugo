@@ -72,7 +72,6 @@ hugo [flags]
 * [hugo completion](/commands/hugo_completion/)	 - Generate the autocompletion script for the specified shell
 * [hugo config](/commands/hugo_config/)	 - Display site configuration
 * [hugo convert](/commands/hugo_convert/)	 - Convert front matter to another format
-* [hugo deploy](/commands/hugo_deploy/)	 - Deploy your site to a cloud provider
 * [hugo env](/commands/hugo_env/)	 - Display version and environment info
 * [hugo gen](/commands/hugo_gen/)	 - Generate documentation and syntax highlighting styles
 * [hugo import](/commands/hugo_import/)	 - Import a site from another system

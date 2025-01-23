@@ -14,9 +14,7 @@ toc: true
 
 ## Context
 
-Heading render hook templates receive the following [context]:
-
-[context]: /getting-started/glossary/#context
+Heading render hook templates receive the following [context](g):
 
 ###### Anchor
 

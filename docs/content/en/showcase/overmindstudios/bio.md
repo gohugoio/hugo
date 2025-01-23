@@ -4,4 +4,3 @@
 The site is built by:
 
 * [Tobias Kummer](https://www.overmind-studios.de/about/)
-

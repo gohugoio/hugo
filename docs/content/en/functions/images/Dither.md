@@ -117,10 +117,9 @@ This example uses the default dithering options.
 Regardless of dithering method, do both of the following to obtain the best results:
 
 1. Scale the image _before_ dithering
-2. Output the image to a lossless format such as GIF or PNG
+1. Output the image to a lossless format such as GIF or PNG
 
 The example below does both of these, and it sets the dithering palette to the three most dominant colors in the image.
-
 
 ```go-html-template
 {{ with resources.Get "original.jpg" }}
@@ -157,6 +156,6 @@ For best results, if the dithering palette is grayscale, convert the image to gr
 The example above:
 
 1. Resizes the image to be 800 px wide
-2. Converts the image to grayscale
-3. Dithers the image using the default (`FloydSteinberg`) dithering method with a grayscale palette
-4. Converts the image to the PNG format
+1. Converts the image to grayscale
+1. Dithers the image using the default (`FloydSteinberg`) dithering method with a grayscale palette
+1. Converts the image to the PNG format

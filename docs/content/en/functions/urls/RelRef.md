@@ -42,7 +42,7 @@ Code|baseURL|Permalink
 Instead of specifying a path, you can also provide an options map:
 
 path
-: (`string`) The path to the page, relative to the content directory. Required.
+: (`string`) The path to the page, relative to the `content` directory. Required.
 
 lang
 : (`string`) The language (site) to search for the page. Default is the current language. Optional.

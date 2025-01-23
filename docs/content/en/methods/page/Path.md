@@ -14,9 +14,7 @@ toc: true
 
 {{< new-in 0.123.0 >}}
 
-The `Path` method on a `Page` object returns the logical path of the given page, regardless of whether the page is backed by a file.
-
-[logical path]: /getting-started/glossary#logical-path
+The `Path` method on a `Page` object returns the [logical path](g) of the given page, regardless of whether the page is backed by a file.
 
 ```go-html-template
 {{ .Path }} → /posts/post-1
@@ -33,12 +31,12 @@ The meaning of, and value returned by, the `Path` method on a `Page` object chan
 [v0.123.0]: https://github.com/gohugoio/hugo/releases/tag/v0.123.0
 {{% /note %}}
 
-To determine the logical path for pages backed by a file, Hugo starts with the file path, relative to the content directory, and then:
+To determine the logical path for pages backed by a file, Hugo starts with the file path, relative to the `content` directory, and then:
 
 1. Strips the file extension
-2. Strips the language identifier
-3. Converts the result to lower case
-4. Replaces spaces with hyphens
+1. Strips the language identifier
+1. Converts the result to lower case
+1. Replaces spaces with hyphens
 
 The value returned by the `Path` method on a `Page` object is independent of content format, language, and URL modifiers such as the `slug` and `url` front matter fields.
 
@@ -112,8 +110,8 @@ Methods|Functions|Shortcodes
 [`urls.RelRef`]: /functions/urls/relref/
 [`Page.GetPage`]: /methods/page/getpage/
 [`Site.GetPage`]: /methods/site/getpage/
-[`ref`]: /content-management/shortcodes/#ref
-[`relref`]: /content-management/shortcodes/#relref
+[`ref`]: /shortcodes/ref/
+[`relref`]: /shortcodes/relref/
 [`Page.Ref`]: /methods/page/ref/
 [`Page.RelRef`]: /methods/page/relref/
 [`Shortcode.Ref`]: /methods/shortcode/ref
@@ -122,7 +120,6 @@ Methods|Functions|Shortcodes
 {{% note %}}
 Specify the logical path when using any of these methods, functions, or shortcodes. If you include a file extension or language identifier, Hugo will strip these values before finding the page in the logical tree.
 {{% /note %}}
-
 
 ## Logical tree
 

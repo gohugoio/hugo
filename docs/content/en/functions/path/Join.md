@@ -23,7 +23,6 @@ See Go's [`path.Join`] and [`path.Clean`] documentation for details.
 [`path.Clean`]: https://pkg.go.dev/path#Clean
 [`path.Join`]: https://pkg.go.dev/path#Join
 
-
 ```go-html-template
 {{ path.Join "partial" "news.html" }} → partial/news.html
 {{ path.Join "partial/" "news.html" }} → partial/news.html

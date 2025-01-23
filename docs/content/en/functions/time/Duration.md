@@ -32,7 +32,6 @@ There are 86400 seconds in one day.
 
 The time unit must be one of the following:
 
-
 Duration|Valid time units
 :--|:--
 hours|`hour`, `h`

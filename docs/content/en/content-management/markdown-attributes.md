@@ -45,7 +45,6 @@ title = true # default is true
 block = true # default is false
 {{< /code-toggle >}}
 
-
 ## Standalone images
 
 By default, when the [Goldmark] Markdown renderer encounters a standalone image element (no other elements or text on the same line), it wraps the image element within a paragraph element per the [CommonMark specification].

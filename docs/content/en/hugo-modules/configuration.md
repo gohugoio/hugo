@@ -91,7 +91,7 @@ extended
 {{< /code-toggle >}}
 
 path
-: Can be either a valid Go Module module path, e.g. `github.com/gohugoio/myShortcodes`, or the directory name for the module as stored in your themes folder.
+: Can be either a valid Go Module module path, e.g. `github.com/gohugoio/myShortcodes`, or the directory name for the module as stored in your `themes` directory.
 
 ignoreConfig
 : If enabled, any module configuration file, e.g. `hugo.toml`, will not be loaded. Note that this will also stop the loading of any transitive module dependencies.
@@ -103,7 +103,7 @@ disable
 : Set to `true` to disable the module while keeping any version info in the `go.*` files.
 
 noMounts
-:  Do not mount any folder in this import.
+:  Do not mount any directory in this import.
 
 noVendor
 :  Never vendor this import (only allowed in main project).
@@ -151,7 +151,7 @@ source
 : (`string`) The source directory of the mount. For the main project, this can be either project-relative or absolute. For other modules it must be project-relative.
 
 target
-: (`string`) Where it should be mounted into Hugo's virtual filesystem. It must start with one of Hugo's component folders: `static`, `content`, `layouts`, `data`, `assets`, `i18n`, or `archetypes`. E.g. `content/blog`.
+: (`string`) Where it should be mounted into Hugo's virtual filesystem. It must start with one of Hugo's component directories: `static`, `content`, `layouts`, `data`, `assets`, `i18n`, or `archetypes`. E.g. `content/blog`.
 
 disableWatch
 {{< new-in 0.128.0 >}}

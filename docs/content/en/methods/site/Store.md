@@ -16,11 +16,10 @@ toc: true
 
 {{< new-in 0.139.0 >}}
 
-The `Store` method on a `Site` object creates a persistent [scratch pad] to store and manipulate data. To create a locally scoped scratch pad that is not attached to a `Site` object, use the [`newScratch`] function.
+The `Store` method on a `Site` object creates a persistent [scratch pad](g) to store and manipulate data. To create a locally scoped scratch pad that is not attached to a `Site` object, use the [`newScratch`] function.
 
 [`Scratch`]: /methods/site/scratch/
 [`newScratch`]: /functions/collections/newscratch/
-[scratch pad]: /getting-started/glossary/#scratch-pad
 
 ## Methods
 
@@ -109,9 +108,7 @@ Removes the given key.
 
 The `Store` method is often used to set scratch pad values within a shortcode, a partial template called by a shortcode, or by a Markdown render hook. In all three cases, the scratch pad values are indeterminate until Hugo renders the page content.
 
-If you need to access a scratch pad value from a parent template, and the parent template has not yet rendered the page content, you can trigger content rendering by assigning the returned value to a [noop] variable:
-
-[noop]: /getting-started/glossary/#noop
+If you need to access a scratch pad value from a parent template, and the parent template has not yet rendered the page content, you can trigger content rendering by assigning the returned value to a [noop](g) variable:
 
 ```go-html-template
 {{ $noop := .Content }}

@@ -20,7 +20,7 @@ byline: "[bep](https://github.com/bep), Hugo Lead"
 To complete this showcase:
 
 1. Write the story about your site in this file.
-2. Add a summary to the `bio.md` file in this folder.
+2. Add a summary to the `bio.md` file in this directory.
 3. Replace the `featured-template.png` with a screenshot of your site. You can rename it, but it must contain the word `featured`.
 4. Create a new pull request in https://github.com/gohugoio/hugoDocs/pulls
 

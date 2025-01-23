@@ -12,9 +12,7 @@ action:
   signatures: [SITE.RegularPages]
 ---
 
-The `RegularPages` method on a `Site` object returns a collection of all [regular pages].
-
-[regular pages]: /getting-started/glossary/#regular-page
+The `RegularPages` method on a `Site` object returns a collection of all [regular pages](g).
 
 ```go-html-template
 {{ range .Site.RegularPages }}

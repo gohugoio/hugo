@@ -54,7 +54,6 @@ In almost also scenarios you should use the [`URL`] method instead.
 [`URL`]: /methods/menu-entry/url/
 {{% /note %}}
 
-
 Consider this content structure:
 
 ```text
@@ -98,7 +97,6 @@ Hugo render this HTML:
 In the above note that the `href` attribute of the second `anchor` element is blank because Hugo was unable to find the "services" page.
 
 With this template code:
-
 
 {{< code file=layouts/partials/menu.html >}}
 <ul>

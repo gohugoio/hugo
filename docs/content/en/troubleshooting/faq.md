@@ -9,7 +9,6 @@ menu:
     parent: troubleshooting
     weight: 70
 weight: 70
-# Use level 6 headings for each question.
 ---
 
 Hugo’s [forum] is an active community of users and developers who answer questions, share knowledge, and provide examples. A quick search of over 20,000 topics will often answer your question. Please be sure to read about [requesting help] before asking your first question.
@@ -30,7 +29,7 @@ To resolve, install a different edition based on the feature table above. See th
 
 ###### Why do I see "Page Not Found" when visiting the home page?
 
-In the content/_index.md file:
+In the `content/_index.md` file:
 
   - Is `draft` set to `true`?
   - Is the `date` in the future?
@@ -41,29 +40,26 @@ If the answer to any of these questions is yes, either change the field values, 
 
 ###### Why is a given page not published?
 
-In the content/section/page.md file, or in the content/section/page/index.md file:
+In the `content/section/page.md` file, or in the `content/section/page/index.md` file:
 
-  - Is `draft` set to `true`?
-  - Is the `date` in the future?
-  - Is the `publishDate` in the future?
-  - Is the `expiryDate` in the past?
+- Is `draft` set to `true`?
+- Is the `date` in the future?
+- Is the `publishDate` in the future?
+- Is the `expiryDate` in the past?
 
 If the answer to any of these questions is yes, either change the field values, or use one of these command line flags: `--buildDrafts`, `--buildFuture`, or `--buildExpired`.
 
 ###### Why can't I see any of a page's descendants?
 
-You may have an index.md file instead of an _index.md file. See&nbsp;[details](/content-management/page-bundles/).
+You may have an `index.md` file instead of an `_index.md` file. See&nbsp;[details](/content-management/page-bundles/).
 
 ###### What is the difference between an index.md file and an _index.md file?
 
-A directory with an index.md file is a [leaf bundle]. A directory with an _index.md file is a [branch bundle]. See&nbsp;[details](/content-management/page-bundles/).
-
-[branch bundle]: /getting-started/glossary/#branch-bundle
-[leaf bundle]: /getting-started/glossary/#leaf-bundle
+A directory with an `index.md file` is a [leaf bundle](g). A directory with an `_index.md` file is a [branch bundle](g). See&nbsp;[details](/content-management/page-bundles/).
 
 ###### Why is my partial template not rendered as expected?
 
-You may have neglected to pass the required [context] when calling the partial. For example:
+You may have neglected to pass the required [context](g) when calling the partial. For example:
 
 ```go-html-template
 {{/* incorrect */}}
@@ -106,13 +102,9 @@ In these cases, instead of monitoring native file system events, use the `--poll
 
 ###### Why is my page Scratch or Store missing a value?
 
-The [`Scratch`] and [`Store`] methods on a `Page` object allow you to create a [scratch pad] on the given page to store and manipulate data. Values are often set within a shortcode, a partial template called by a shortcode, or by a Markdown render hook. In all three cases, the scratch pad values are not determinate until Hugo renders the page content.
+The [`Scratch`] and [`Store`] methods on a `Page` object allow you to create a [scratch pad](g) on the given page to store and manipulate data. Values are often set within a shortcode, a partial template called by a shortcode, or by a Markdown render hook. In all three cases, the scratch pad values are not determinate until Hugo renders the page content.
 
-[scratch pad]: /getting-started/glossary/#scratch-pad
-
-If you need to access a scratch pad value from a parent template, and the parent template has not yet rendered the page content, you can trigger content rendering by assigning the returned value to a [noop] variable:
-
-[noop]: /getting-started/glossary/#noop
+If you need to access a scratch pad value from a parent template, and the parent template has not yet rendered the page content, you can trigger content rendering by assigning the returned value to a [noop](g) variable:
 
 ```go-html-template
 {{ $noop := .Content }}
@@ -137,7 +129,6 @@ For other questions please visit the [forum]. A quick search of over 20,000 topi
 
 [`Paginate`]: /methods/page/paginate/
 [`Paginator`]: /methods/page/paginator/
-[context]: /getting-started/glossary/#context
 [forum]: https://discourse.gohugo.io
 [installation]: /installation/
 [requesting help]: https://discourse.gohugo.io/t/requesting-help/9132

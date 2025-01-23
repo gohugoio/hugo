@@ -10,7 +10,7 @@ action:
 toc: true
 ---
 
-The `Count` method on a `Taxonomy` object returns the number of number of [weighted pages] to which the given [term] has been assigned.
+The `Count` method on a `Taxonomy` object returns the number of number of [weighted pages](g) to which the given [term](g) has been assigned.
 
 {{% include "methods/taxonomy/_common/get-a-taxonomy-object.md" %}}
 
@@ -21,6 +21,3 @@ Now that we have captured the "genres" `Taxonomy` object, let's count the number
 ```go-html-template
 {{ $taxonomyObject.Count "suspense" }} → 3
 ```
-
-[weighted pages]: /getting-started/glossary/#weighted-page
-[term]: /getting-started/glossary/#term

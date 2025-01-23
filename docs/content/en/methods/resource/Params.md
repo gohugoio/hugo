@@ -9,11 +9,7 @@ action:
   signatures: [RESOURCE.Params]
 ---
 
-Use the `Params` method with [page resources]. It is not applicable to either [global] or [remote] resources.
-
-[global]: /getting-started/glossary/#global-resource
-[page resources]: /getting-started/glossary/#page-resource
-[remote]: /getting-started/glossary/#remote-resource
+Use the `Params` method with [page resources](g). It is not applicable to either [global resources](g) or [remote resources](g).
 
 With this content structure:
 

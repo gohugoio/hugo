@@ -17,8 +17,8 @@ aliases: [/extras/menus/]
 To create a menu for your site:
 
 1. Define the menu entries
-2. [Localize] each entry
-3. Render the menu with a [template]
+1. [Localize] each entry
+1. Render the menu with a [template]
 
 Create multiple menus, either flat or nested. For example, create a main menu for the header, and a separate menu for the footer.
 
@@ -34,7 +34,7 @@ Although you can use these methods in combination when defining a menu, the menu
 
 ## Define automatically
 
-To automatically define a menu entry for each top-level [section] of your site, enable the section pages menu in your site configuration.
+To automatically define a menu entry for each top-level [section](g) of your site, enable the section pages menu in your site configuration.
 
 {{< code-toggle file=hugo >}}
 sectionPagesMenu = "main"
@@ -229,5 +229,4 @@ See [menu templates].
 [localize]: /content-management/multilingual/#menus
 [menu templates]: /templates/menu/
 [multilingual]: /content-management/multilingual/#menus
-[section]: /getting-started/glossary/#section
 [template]: /templates/menu/

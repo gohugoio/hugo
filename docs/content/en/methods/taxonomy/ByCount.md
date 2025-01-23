@@ -11,9 +11,9 @@ action:
 toc: true
 ---
 
-The `ByCount` method on a `Taxonomy` object returns an [ordered taxonomy], sorted by the number of pages associated with each [term].
+The `ByCount` method on a `Taxonomy` object returns an [ordered taxonomy](g), sorted by the number of pages associated with each [term](g).
 
-While a `Taxonomy` object is a [map], an ordered taxonomy is a [slice], where each element is an object that contains the term and a slice of its [weighted pages].
+While a `Taxonomy` object is a [map](g), an ordered taxonomy is a [slice](g), where each element is an object that contains the term and a slice of its [weighted pages](g).
 
 {{% include "methods/taxonomy/_common/get-a-taxonomy-object.md" %}}
 
@@ -69,10 +69,3 @@ Hugo renders:
   <li><a href="/books/pride-and-prejudice/">Pride and prejudice</a></li>
 </ul>
 ```
-
-[ordered taxonomy]: /getting-started/glossary/#ordered-taxonomy
-[term]: /getting-started/glossary/#term
-[map]: /getting-started/glossary/#map
-[slice]: /getting-started/glossary/#slice
-[term]: /getting-started/glossary/#term
-[weighted pages]: /getting-started/glossary/#weighted-page

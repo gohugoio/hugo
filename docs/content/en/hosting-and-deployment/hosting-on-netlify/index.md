@@ -14,10 +14,10 @@ toc: true
 Please complete the following tasks before continuing:
 
 1. [Create a Netlify account]
-2. [Install Git]
-3. [Create a Hugo site] and test it locally with `hugo server`
-4. Commit the changes to your local repository
-5. Push the local repository to your [GitHub], [GitLab], or [Bitbucket] account
+1. [Install Git]
+1. [Create a Hugo site] and test it locally with `hugo server`
+1. Commit the changes to your local repository
+1. Push the local repository to your [GitHub], [GitLab], or [Bitbucket] account
 
 [Bitbucket]: https://bitbucket.org/product
 [Create a Hugo site]: /getting-started/quick-start/
@@ -103,7 +103,8 @@ Create a new file named netlify.toml in the root of your project directory. In i
 
 {{< code file=netlify.toml >}}
 [build.environment]
-HUGO_VERSION = "0.137.1"
+HUGO_VERSION = "0.141.0"
+NODE_VERSION = "22"
 TZ = "America/Los_Angeles"
 
 [build]
@@ -115,8 +116,9 @@ If your site requires Dart Sass to transpile Sass to CSS, the configuration file
 
 {{< code file=netlify.toml >}}
 [build.environment]
-HUGO_VERSION = "0.137.1"
-DART_SASS_VERSION = "1.80.6"
+HUGO_VERSION = "0.141.0"
+DART_SASS_VERSION = "1.83.4"
+NODE_VERSION = "22"
 TZ = "America/Los_Angeles"
 
 [build]

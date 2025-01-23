@@ -33,7 +33,7 @@ Search engines that honor the Robots Exclusion Protocol will interpret this as p
 You may overwrite the internal template with a custom template. Hugo selects the template using this lookup order:
 
 1. `/layouts/robots.txt`
-2. `/themes/<THEME>/layouts/robots.txt`
+1. `/themes/<THEME>/layouts/robots.txt`
 
 ## robots.txt template example
 
@@ -50,9 +50,9 @@ This template creates a robots.txt file with a `Disallow` directive for each pag
 To create a robots.txt file without using a template:
 
 1. Set `enableRobotsTXT` to `false` in the site configuration.
-2. Create a robots.txt file in the `static` directory.
+1. Create a robots.txt file in the `static` directory.
 
-Remember that Hugo copies everything in the [static directory][static] to the root of `publishDir` (typically `public`) when you build your site.
+Remember that Hugo copies everything in the [`static` directory][static] to the root of `publishDir` (typically `public`) when you build your site.
 
 [static]: /getting-started/directory-structure/
 {{% /note %}}

@@ -28,7 +28,7 @@ Although similar to the [`partial`] function, there are key differences.
 `Render` method|`partial` function|
 :--|:--
 The `Page` object is automatically passed to the given template. You cannot pass additional context.| You must specify the context, allowing you to pass a combination of objects, slices, maps, and scalars.
-The path to the template is determined by the [content type].|You must specify the path to the template, relative to the layouts/partials directory.
+The path to the template is determined by the [content type](g).|You must specify the path to the template, relative to the `layouts/partials` directory.
 
 Consider this layout structure:
 
@@ -72,4 +72,3 @@ See [content views] for more examples.
 
 [content views]: /templates/content-view/
 [`partial`]: /functions/partials/include/
-[content type]: /getting-started/glossary/#content-type

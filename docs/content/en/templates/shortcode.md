@@ -43,21 +43,21 @@ Hugo selects shortcode templates based on the shortcode name, the current output
 
 Shortcode name|Output format|Language|Template path
 :--|:--|:--|:--
-foo|html|en|layouts/shortcodes/foo.en.html
-foo|html|en|layouts/shortcodes/foo.html.html
-foo|html|en|layouts/shortcodes/foo.html
-foo|html|en|layouts/shortcodes/foo.html.en.html
+foo|html|en|`layouts/shortcodes/foo.en.html`
+foo|html|en|`layouts/shortcodes/foo.html.html`
+foo|html|en|`layouts/shortcodes/foo.html`
+foo|html|en|`layouts/shortcodes/foo.html.en.html`
 
 Shortcode name|Output format|Language|Template path
 :--|:--|:--|:--
-foo|rss|en|layouts/shortcodes/foo.en.xml
-foo|rss|en|layouts/shortcodes/foo.rss.xml
-foo|rss|en|layouts/shortcodes/foo.en.html
-foo|rss|en|layouts/shortcodes/foo.rss.en.xml
-foo|rss|en|layouts/shortcodes/foo.xml
-foo|rss|en|layouts/shortcodes/foo.html.en.html
-foo|rss|en|layouts/shortcodes/foo.html.html
-foo|rss|en|layouts/shortcodes/foo.html
+foo|rss|en|`layouts/shortcodes/foo.en.xml`
+foo|rss|en|`layouts/shortcodes/foo.rss.xml`
+foo|rss|en|`layouts/shortcodes/foo.en.html`
+foo|rss|en|`layouts/shortcodes/foo.rss.en.xml`
+foo|rss|en|`layouts/shortcodes/foo.xml`
+foo|rss|en|`layouts/shortcodes/foo.html.en.html`
+foo|rss|en|`layouts/shortcodes/foo.html.html`
+foo|rss|en|`layouts/shortcodes/foo.html`
 
 Note that templates provided by a theme or module always take precedence.
 
@@ -415,8 +415,8 @@ The same inline shortcode can be reused later in the same content file, with dif
 [`Name`]: /methods/shortcode/name/
 [`Position`]: /methods/shortcode/position/
 [built-in shortcode]: /content-management/shortcodes/
-[figure]: /content-management/shortcodes/#figure
+[figure]: /shortcodes/figure/
 [lookup order]: /templates/lookup-order/
 [source organization]: /getting-started/directory-structure/
 [vimeoexample]: #single-flexible-example-vimeo
-[youtubeshortcode]: /content-management/shortcodes/#youtube
+[youtubeshortcode]: /shortcodes/youtube/

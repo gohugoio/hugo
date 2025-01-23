@@ -21,7 +21,6 @@ publishResources = true
 render = 'always'
 {{< /code-toggle >}}
 
-
 list
 : When to include the page within page collections. Specify one of:
   
@@ -115,7 +114,7 @@ public/
 In the example above, note that:
 
 1. Hugo did not publish an HTML file for the page.
-2. Despite setting `publishResources` to `false` in front matter, Hugo published the [page resources] because we invoked the [`RelPermalink`] method on each resource. This is the expected behavior.
+1. Despite setting `publishResources` to `false` in front matter, Hugo published the [page resources] because we invoked the [`RelPermalink`] method on each resource. This is the expected behavior.
 
 ## Example -- headless section
 
@@ -181,7 +180,7 @@ public/
 In the example above, note that:
 
 1. Hugo did not publish an HTML file for the page.
-2. Despite setting `publishResources` to `false` in front matter, Hugo correctly published the [page resources] because we invoked the [`RelPermalink`] method on each resource. This is the expected behavior.
+1. Despite setting `publishResources` to `false` in front matter, Hugo correctly published the [page resources] because we invoked the [`RelPermalink`] method on each resource. This is the expected behavior.
 
 ## Example -- list without publishing
 

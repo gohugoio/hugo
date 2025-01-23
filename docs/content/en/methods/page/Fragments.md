@@ -11,9 +11,7 @@ action:
 toc: true
 ---
 
-{{< new-in 0.111.0 >}}
-
-In a URL, whether absolute or relative, the [fragment] links to an `id` attribute of an HTML element on the page.
+In a URL, whether absolute or relative, the [fragment](g) links to an `id` attribute of an HTML element on the page.
 
 ```text
 /articles/article-1#section-2
@@ -21,9 +19,9 @@ In a URL, whether absolute or relative, the [fragment] links to an `id` attribut
        path         fragment
 ```
 
-Hugo assigns an `id` attribute to each Markdown [ATX] and [setext] heading within the page content. You can override the `id` with a [Markdown attribute] as needed. This creates the relationship between an entry in the [table of contents] (TOC) and a heading on the page.
+Hugo assigns an `id` attribute to each Markdown [ATX] and [setext] heading within the page content. You can override the `id` with a [Markdown attribute](g) as needed. This creates the relationship between an entry in the [table of contents] (TOC) and a heading on the page.
 
-Use the `Fragments` method on a `Page` object to create a table of contents with the `Fragments.ToHTML` method, or by [walking] the `Fragments.Map` data structure.
+Use the `Fragments` method on a `Page` object to create a table of contents with the `Fragments.ToHTML` method, or by [walking](g) the `Fragments.Map` data structure.
 
 ## Methods
 
@@ -33,7 +31,6 @@ Headings
 ```go-html-template
 <pre>{{ debug.Dump .Fragments.Headings }}</pre>
 ```
-
 
 HeadingsMap
 : (`map`) A nested map of all headings on the page. Each map contains the following keys: `ID`, `Level`, `Title` and `Headings`. To inspect the data structure:
@@ -50,7 +47,7 @@ Identifiers
 ```
 
 Identifiers.Contains ID
-: (`bool`) Reports whether one or more headings on the page has the given `id` attribute, useful for validating fragments within a link [render hook].
+: (`bool`) Reports whether one or more headings on the page has the given `id` attribute, useful for validating fragments within a link [render hook](g).
 
 ```go-html-template
 {{ .Fragments.Identifiers.Contains "section-2" }} → true
@@ -98,10 +95,6 @@ When using the `Fragments` methods within a shortcode, call the shortcode using 
 {{% /note %}}
 
 [atx]: https://spec.commonmark.org/0.30/#atx-headings
-[fragment]: /getting-started/glossary/#fragment
-[markdown attribute]: /getting-started/glossary/#markdown-attribute
 [setext]: https://spec.commonmark.org/0.30/#setext-headings
 [table of contents]: /methods/page/tableofcontents/
-[walking]: /getting-started/glossary/#walk
 [`tableofcontents`]: /methods/page/tableofcontents/
-[render hook]: /getting-started/glossary/#render-hook

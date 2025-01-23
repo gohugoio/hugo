@@ -42,9 +42,8 @@ namedSlices
 : (`slice`) The keywords to search for, expressed as a slice of `KeyValues` using the [`keyVals`] function.
 
 fragments
-: (`slice`) A list of special keywords that is used for indices configured as type "fragments". This will match the [fragment] identifiers of the documents.
+: (`slice`) A list of special keywords that is used for indices configured as type "fragments". This will match the [fragment](g) identifiers of the documents.
 
-[fragment]: /getting-started/glossary/#fragment
 [`keyVals`]: /functions/collections/keyvals/
 
 A fictional example using all of the above options:
@@ -65,8 +64,6 @@ We improved and simplified this feature in Hugo 0.111.0. Before this we had 3 di
 
 ## Index content headings in related content
 
-{{< new-in 0.111.0 >}}
-
 Hugo can index the headings in your content and use this to find related content. You can enable this by adding a index of type `fragments` to your `related` configuration:
 
 {{< code-toggle file=hugo >}}
@@ -82,7 +79,7 @@ weight      = 80
 {{< /code-toggle >}}
 
 * The `name` maps to a optional front matter slice attribute that can be used to link from the page level down to the fragment/heading level.
-* If `applyFilter`is enabled, the `.HeadingsFiltered` on each page in the result will reflect the filtered headings. This is useful if you want to show the headings in the related content listing:
+* If `applyFilter` is enabled, the `.HeadingsFiltered` on each page in the result will reflect the filtered headings. This is useful if you want to show the headings in the related content listing:
 
 ```go-html-template
 {{ $related := .Site.RegularPages.Related . | first 5 }}
@@ -140,16 +137,16 @@ toLower
 name
 : (`string`) The index name. This value maps directly to a page parameter. Hugo supports string values (`author` in the example) and lists (`tags`, `keywords` etc.) and time and date objects.
 
-type {{< new-in 0.111.0 >}} 
+type
 : (`string`) One of `basic`(default) or `fragments`.
 
-applyFilter {{< new-in 0.111.0 >}}
+applyFilter
 : (`string`) Apply a `type` specific filter to the result of a search. This is currently only used for the `fragments` type.
 
 weight
 : (`int`) An integer weight that indicates _how important_ this parameter is relative to the other parameters. It can be `0`, which has the effect of turning this index off, or even negative. Test with different values to see what fits your content best.
 
-cardinalityThreshold {{< new-in 0.111.0 >}}
+cardinalityThreshold
 : (`int`) If between 1 and 100, this is a percentage. All keywords that are used in more than this percentage of documents are removed. For example, setting this to `60` will remove all keywords that are used in more than 60% of the documents in the index. If `0`, no keyword is removed from the index. Default is `0`.
 
 pattern
@@ -157,22 +154,3 @@ pattern
 
 toLower
 : (`bool`) See above.
-
-## Performance considerations
-
-**Fast is Hugo's middle name** and we would not have released this feature had it not been blistering fast.
-
-This feature has been in the back log and requested by many for a long time. The development got this recent kick start from this Twitter thread:
-
-{{< tweet user="scott_lowe" id="898398437527363585" >}}
-
-Scott S. Lowe removed the "Related Content" section built using the `intersect` template function on tags, and the build time dropped from 30 seconds to less than 2 seconds on his 1700 content page sized blog.
-
-He should now be able to add an improved version of that "Related Content" section without giving up the fast live-reloads. But it's worth noting that:
-
-* If you don't use any of the `Related` methods, you will not use the Relate Content feature, and performance will be the same as before.
-* Calling `.RegularPages.Related` etc. will create one inverted index, also sometimes named posting list, that will be reused for any lookups in that same page collection. Doing that in addition to, as an example, calling `.Pages.Related` will work as expected, but will create one additional inverted index. This should still be very fast, but worth having in mind, especially for bigger sites.
-
-{{% note %}}
-We currently do not index **Page content**. We thought we would release something that will make most people happy before we start solving [Sherlock's last case](https://github.com/joearms/sherlock).
-{{% /note %}}

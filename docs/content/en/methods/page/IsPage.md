@@ -12,7 +12,7 @@ action:
   signatures: [PAGE.IsPage]
 ---
 
-The `IsPage` method on a `Page` object returns `true` if the [page kind] is `page`.
+The `IsPage` method on a `Page` object returns `true` if the [page kind](g) is `page`.
 
 ```text
 content/
@@ -27,5 +27,3 @@ content/
 ```go-html-template
 {{ .IsPage }}
 ```
-
-[page kind]: /getting-started/glossary/#page-kind

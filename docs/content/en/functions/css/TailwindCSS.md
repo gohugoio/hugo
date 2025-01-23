@@ -80,7 +80,7 @@ Process the resource:
 {{ end }}
 ```
 
-The example above publishes the minified CSS file to public/css/main.css.
+The example above publishes the minified CSS file to `public/css/main.css`.
 
 See [this repository] for more information about the integration with Tailwind CSS v4.0.
 

@@ -15,10 +15,8 @@ action:
   signatures: [math.Mul VALUE VALUE...]
 ---
 
-If one of the numbers is a [`float`], the result is a `float`.
+If one of the numbers is a [`float`](g), the result is a `float`.
 
 ```go-html-template
 {{ mul 12 3 2 }} → 72
 ```
-
-[`float`]: /getting-started/glossary/#float

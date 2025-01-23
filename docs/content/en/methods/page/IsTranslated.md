@@ -46,13 +46,13 @@ content/
 └── _index.md
 ```
 
-When rendering content/en/books/book-1.md:
+When rendering `content/en/books/book-1.md`:
 
 ```go-html-template
 {{ .IsTranslated }} → true
 ```
 
-When rendering content/en/books/book-2.md:
+When rendering `content/en/books/book-2.md`:
 
 ```go-html-template
 {{ .IsTranslated }} → false

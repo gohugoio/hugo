@@ -7,8 +7,8 @@ keywords: [configuration,toml,yaml,json]
 menu:
   docs:
     parent: getting-started
-    weight: 40
-weight: 40
+    weight: 50
+weight: 50
 toc: true
 aliases: [/overview/source-directory/,/overview/configuration/]
 ---
@@ -61,9 +61,7 @@ See the specifications for each file format: [TOML], [YAML], and [JSON].
 
 ## Configuration directory
 
-Instead of a single site configuration file, split your configuration by [environment], root configuration key, and language. For example:
-
-[environment]: /getting-started/glossary/#environment
+Instead of a single site configuration file, split your configuration by [environment](g), root configuration key, and language. For example:
 
 ```text
 my-project/
@@ -138,7 +136,7 @@ ID = 'G-XXXXXXXXX'
 Now consider the following scenario:
 
 1. You don't want to load the analytics code when running `hugo server`.
-2. You want to use different Google tag IDs for your production and staging environments. For example:
+1. You want to use different Google tag IDs for your production and staging environments. For example:
 
     - `G-PPPPPPPPP` for production
     - `G-SSSSSSSSS` for staging
@@ -151,7 +149,7 @@ To satisfy these requirements, configure your site as follows:
 
     By default, Hugo sets its `environment` to `development` when running `hugo server`. In the absence of a `config/development` directory, Hugo uses the `config/_default` directory.
 
-2. `config/production/hugo.toml`
+1. `config/production/hugo.toml`
 
     Include this section only:
 
@@ -164,7 +162,7 @@ To satisfy these requirements, configure your site as follows:
 
     By default, Hugo sets its `environment` to `production` when running `hugo`. The analytics code will use the `G-PPPPPPPPP` tag ID.
 
-3. `config/staging/hugo.toml`
+1. `config/staging/hugo.toml`
 
     Include this section only:
 
@@ -266,6 +264,9 @@ To remain consistent and prevent unexpected behavior, do not mix these strategie
 
 (`string`) The directory from where Hugo reads data files. Default is `data`. {{% module-mounts-note %}}
 
+###### defaultOutputFormat
+(`string`) The default output format for the site. If unspecified, the first available format in the defined order (by weight, then alphabetically) will be used.
+
 ###### defaultContentLanguage
 
 (`string`) Content without language indicator will default to this language. Default is `en`.
@@ -290,9 +291,7 @@ To remain consistent and prevent unexpected behavior, do not mix these strategie
 
 ###### disableKinds
 
-(`string slice`) Disable rendering of the specified page [kinds], any of `404`, `home`, `page`, `robotstxt`, `rss`, `section`, `sitemap`, `taxonomy`, or `term`.
-
-[kinds]: /getting-started/glossary/#page-kind
+(`string slice`) Disable rendering of the specified page [kinds](g), any of `404`, `home`, `page`, `robotstxt`, `rss`, `section`, `sitemap`, `taxonomy`, or `term`.
 
 ###### disableLanguages
 
@@ -610,7 +609,6 @@ These settings do not apply to the [`Next`] or [`Prev`] methods on a `Pages` obj
 
 See [Configure Build](/getting-started/configuration-build/).
 
-
 ## Configure server
 
 This is only relevant when running `hugo server`, and it allows to set HTTP headers during development, which allows you to test out your Content Security Policy and similar. The configuration format matches [Netlify's](https://docs.netlify.com/routing/headers/#syntax-for-the-netlify-configuration-file) with slightly more powerful [Glob matching](https://github.com/gobwas/glob):
@@ -699,7 +697,6 @@ to = '/en/404.html'
 status = 404
 {{< /code-toggle >}}
 
-
 ## Configure title case
 
 By default, Hugo follows the capitalization rules published in the [Associated Press Stylebook] when creating automatic section titles, and when transforming strings with the [`strings.Title`] function.
@@ -732,9 +729,7 @@ DART_SASS_BINARY
 : (`string`) The absolute path to the Dart Sass executable. By default, Hugo searches for the executable in each of the paths in the `PATH` environment variable.
 
 HUGO_ENVIRONMENT
-: (`string`) Overrides the default [environment], typically one of `development`, `staging`, or `production`.
-
-[environment]: /getting-started/glossary/#environment
+: (`string`) Overrides the default [environment](g), typically one of `development`, `staging`, or `production`.
 
 HUGO_FILE_LOG_FORMAT
 : (`string`) A format string for the file path, line number, and column number displayed when reporting errors, or when calling the `Position` method from a shortcode or Markdown render hook. Valid tokens are `:file`, `:line`, and `:col`. Default is `:file::line::col`.
@@ -893,7 +888,6 @@ If you want to know the current value of `cacheDir`, you can run `hugo config`, 
 [templates]: /templates/
 [static-files]: /content-management/static-files/
 
-
 ## Configure HTTP cache
 
 {{< new-in 0.127.0 >}}
@@ -963,10 +957,10 @@ lang
 : The [page language].
 
 kind
-: The [kind] of the page.
+: The [kind](g) of the page.
 
 output
-: The [output format] of the page.
+: The [output format](g) of the page.
 
 It is recommended to put coarse grained filters (e.g. for language and output format) in the excludes section, e.g.:
 
@@ -1000,6 +994,3 @@ Some use cases for this feature:
   
 [path]: /methods/page/path/
 [page language]: /methods/page/language/
-[kind]: /getting-started/glossary/#page-kind
-[output format]: /getting-started/glossary/#output-format
-[type]: /getting-started/glossary/#content-type

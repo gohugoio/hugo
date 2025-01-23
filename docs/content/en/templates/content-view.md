@@ -22,15 +22,15 @@ The following are common use cases for content views:
 To create a new view, create a template in each of your different content type directories with the view name. The following example contains an "li" view and a "summary" view for the `posts` and `project` content types. As you can see, these sit next to the [single template], `single.html`. You can even provide a specific view for a given type and continue to use the `_default/single.html` for the primary view.
 
 ```txt
-  ▾ layouts/
-    ▾ posts/
-        li.html
-        single.html
-        summary.html
-    ▾ project/
-        li.html
-        single.html
-      summary.html
+layouts/
+├── posts/
+│   ├── li.html
+│   ├── single.html
+│   └── summary.html
+├── project/
+│   ├── li.html
+│   └── single.html
+└── summary.html
 ```
 
 ## Which template will be rendered?

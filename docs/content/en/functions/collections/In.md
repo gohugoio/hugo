@@ -16,11 +16,7 @@ action:
 aliases: [/functions/in]
 ---
 
-The `SET` can be an [array], [slice], or [string].
-
-[array]: /getting-started/glossary/#array
-[slice]: /getting-started/glossary/#slice
-[string]: /getting-started/glossary/#string
+The `SET` can be an [array](g), [slice](g), or [string](g).
 
 ```go-html-template
 {{ $s := slice "a" "b" "c" }}

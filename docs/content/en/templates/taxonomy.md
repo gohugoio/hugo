@@ -12,10 +12,8 @@ toc: true
 aliases: [/taxonomies/displaying/,/templates/terms/,/indexes/displaying/,/taxonomies/templates/,/indexes/ordering/, /templates/taxonomies/, /templates/taxonomy-templates/]
 ---
 
-The [taxonomy] template below inherits the site's shell from the [base template], and renders a list of [terms] in the current taxonomy.
+The [taxonomy](g) template below inherits the site's shell from the [base template], and renders a list of [terms](g) in the current taxonomy.
 
-[taxonomy]: /getting-started/glossary/#taxonomy
-[terms]: /getting-started/glossary/#term
 [base template]: /templates/types/
 
 {{< code file=layouts/_default/taxonomy.html >}}
@@ -57,9 +55,7 @@ Plural
 ```
 
 Terms
-: (`page.Taxonomy`) Returns the `Taxonomy` object, consisting of a map of terms and the [weighted pages] associated with each term.
-
-[weighted pages]: /getting-started/glossary/#weighted-page
+: (`page.Taxonomy`) Returns the `Taxonomy` object, consisting of a map of terms and the [weighted pages](g) associated with each term.
 
 ```go-html-template
 {{ $taxonomyObject := .Data.Terms }} 
@@ -99,9 +95,8 @@ The taxonomy template below inherits the site's shell from the base template, an
 
 ## Include content links
 
-The [`Alphabetical`] and [`ByCount`] methods used in the previous examples return an [ordered taxonomy], so we can also list the content to which each term is assigned.
+The [`Alphabetical`] and [`ByCount`] methods used in the previous examples return an [ordered taxonomy](g), so we can also list the content to which each term is assigned.
 
-[ordered taxonomy]: /getting-started/glossary/#ordered-taxonomy
 [`Alphabetical`]: /methods/taxonomy/alphabetical/
 [`ByCount`]: /methods/taxonomy/bycount/
 
@@ -124,7 +119,7 @@ The taxonomy template below inherits the site's shell from the base template, an
 
 ## Display metadata
 
-Display metadata about each term by creating a corresponding branch bundle in the content directory.
+Display metadata about each term by creating a corresponding branch bundle in the `content` directory.
 
 For example, create an "authors" taxonomy:
 
@@ -133,9 +128,7 @@ For example, create an "authors" taxonomy:
 author = 'authors'
 {{< /code-toggle >}}
 
-Then create content with one [branch bundle] for each term:
-
-[branch bundle]: /getting-started/glossary/#branch-bundle
+Then create content with one [branch bundle](g) for each term:
 
 ```text
 content/

@@ -10,11 +10,8 @@ action:
   signatures: ['openapi3.Unmarshal RESOURCE']
 ---
 
-Use the `openapi3.Unmarshal` function with [global], [page], or [remote] resources.
+Use the `openapi3.Unmarshal` function with [global resources](g), [page resources](g), or [remote resources](g).
 
-[global]: /getting-started/glossary/#global-resource
-[page]: /getting-started/glossary/#page-resource
-[remote]: /getting-started/glossary/#remote-resource
 [OpenAPI]: https://www.openapis.org/
 
 For example, to work with a remote [OpenAPI] definition:
@@ -22,14 +19,14 @@ For example, to work with a remote [OpenAPI] definition:
 ```go-html-template
 {{ $url := "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.0/petstore.json" }}
 {{ $api := "" }}
-{{ with resources.GetRemote $url }}
+{{ with try (resources.GetRemote $url) }}
   {{ with .Err }}
     {{ errorf "%s" . }}
-  {{ else }}
+  {{ else with .Value }}
     {{ $api = . | openapi3.Unmarshal }}
+  {{ else }}
+    {{ errorf "Unable to get remote resource %q" $url }}
   {{ end }}
-{{ else }}
-  {{ errorf "Unable to get remote resource %q" $url }}
 {{ end }}
 ```
 
@@ -58,7 +55,6 @@ To list the GET and POST operations for each of the API paths:
 ```
 
 Hugo renders this to:
-
 
 ```html
 <p>/pets</p>

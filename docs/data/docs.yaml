@@ -55,6 +55,9 @@ chroma:
     - armasm
     Name: ArmAsm
   - Aliases:
+    - atl
+    Name: ATL
+  - Aliases:
     - autohotkey
     - ahk
     Name: AutoHotkey
@@ -88,6 +91,9 @@ chroma:
     - dosbatch
     - winbatch
     Name: Batchfile
+  - Aliases:
+    - beef
+    Name: Beef
   - Aliases:
     - bib
     - bibtex
@@ -190,6 +196,9 @@ chroma:
   - Aliases:
     - css
     Name: CSS
+  - Aliases:
+    - csv
+    Name: CSV
   - Aliases:
     - cue
     Name: CUE
@@ -308,7 +317,7 @@ chroma:
     - Gherkin
     Name: Gherkin
   - Aliases:
-    - gleam>
+    - gleam
     Name: Gleam
   - Aliases:
     - glsl
@@ -415,6 +424,12 @@ chroma:
     - json
     Name: JSON
   - Aliases:
+    - jsonata
+    Name: JSONata
+  - Aliases:
+    - jsonnet
+    Name: Jsonnet
+  - Aliases:
     - julia
     - jl
     Name: Julia
@@ -464,7 +479,8 @@ chroma:
     Name: Matlab
   - Aliases:
     - mcfunction
-    Name: mcfunction
+    - mcf
+    Name: MCFunction
   - Aliases:
     - meson
     - meson.build
@@ -521,6 +537,11 @@ chroma:
     - nixos
     - nix
     Name: Nix
+  - Aliases:
+    - nsis
+    - nsi
+    - nsh
+    Name: NSIS
   - Aliases:
     - objective-c
     - objectivec
@@ -753,6 +774,9 @@ chroma:
     - smarty
     Name: Smarty
   - Aliases:
+    - snbt
+    Name: SNBT
+  - Aliases:
     - snobol
     Name: Snobol
   - Aliases:
@@ -862,6 +886,9 @@ chroma:
   - Aliases:
     - typoscripthtmldata
     Name: TypoScriptHtmlData
+  - Aliases:
+    - typst
+    Name: Typst
   - Aliases: null
     Name: ucode
   - Aliases:
@@ -904,6 +931,9 @@ chroma:
   - Aliases:
     - wgsl
     Name: WebGPU Shading Language
+  - Aliases:
+    - vtt
+    Name: WebVTT
   - Aliases:
     - whiley
     Name: Whiley
@@ -993,6 +1023,7 @@ config:
   dataDir: data
   defaultContentLanguage: en
   defaultContentLanguageInSubdir: false
+  defaultOutputFormat: html
   deployment:
     confirm: false
     dryRun: false
@@ -1146,7 +1177,6 @@ config:
       lineNos: false
       lineNumbersInTable: true
       noClasses: true
-      noHl: false
       style: monokai
       tabWidth: 4
       wrapperClass: highlight
@@ -1639,6 +1669,10 @@ config:
       disable: false
       enableDNT: false
       simple: false
+    x:
+      disable: false
+      enableDNT: false
+      simple: false
     youTube:
       disable: false
       privacyEnhanced: false
@@ -1717,6 +1751,8 @@ config:
     rss:
       limit: -1
     twitter:
+      disableInlineCSS: false
+    x:
       disableInlineCSS: false
   sitemap:
     changeFreq: ""
@@ -3196,6 +3232,11 @@ tpl:
         Args: null
         Description: ""
         Examples: null
+      Mask:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       Opacity:
         Aliases: null
         Args: null
@@ -3217,6 +3258,11 @@ tpl:
         Description: ""
         Examples: null
       Process:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      QR:
         Aliases: null
         Args: null
         Description: ""

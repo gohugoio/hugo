@@ -17,7 +17,7 @@ aliases: ['/templates/lists/']
 
 ## Structure
 
-Create templates in the layouts directory in the root of your project.
+Create templates in the `layouts` directory in the root of your project.
 
 Although your site may not require each of these templates, the example below is typical for a site of medium complexity.
 
@@ -142,9 +142,7 @@ Learn more about [section templates](/templates/section/).
 
 ## Taxonomy
 
-A taxonomy template renders a list of terms in a [taxonomy].
-
-[taxonomy]: /getting-started/glossary/#taxonomy
+A taxonomy template renders a list of terms in a [taxonomy](g).
 
 For example, the taxonomy template below inherits the site's shell from the base template, and renders a list of terms in the current taxonomy.
 
@@ -164,9 +162,7 @@ Learn more about [taxonomy templates](/templates/taxonomy/).
 
 ## Term
 
-A term template renders a list of pages associated with a [term].
-
-[term]: /getting-started/glossary/#term
+A term template renders a list of pages associated with a [term](g).
 
 For example, the term template below inherits the site's shell from the base template, and renders a list of pages associated with the current term.
 
@@ -256,9 +252,7 @@ Learn more about [render hook templates](/render-hooks/).
 
 A shortcode template is used to render a component of your site. Unlike partial templates, shortcode templates are called from content pages.
 
-For example, the shortcode template below renders an audio element from a [global resource].
-
-[global resource]: /getting-started/glossary/#global-resource
+For example, the shortcode template below renders an audio element from a [global resource](g).
 
 {{< code file=layouts/shortcodes/audio.html >}}
 {{ with resources.Get (.Get "src") }}
