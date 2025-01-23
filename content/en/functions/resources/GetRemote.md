@@ -44,6 +44,39 @@ Use the [`try`] statement instead, as shown in the [error handling] example belo
 
 The `resources.GetRemote` function takes an optional map of options.
 
+###### body
+
+(`string`) The data you want to transmit to the server.
+
+###### headers
+
+(`map[string][]string`) The collection of key-value pairs that provide additional information about the request.
+
+###### key
+
+(`string`) The cache key. Hugo derives the default value from the URL and options map. See [caching](#caching).
+
+###### method
+
+(`string`) The action to perform on the requested resource, typically one of `GET`, `POST`, or `HEAD`.
+
+###### responseHeaders
+{{< new-in 0.143.0 >}}
+
+(`[]string`) The headers to extract from the server's response, accessible through the resource's [`Data.Headers`] method. Header name matching is case-insensitive.
+
+[`Data.Headers`]: /methods/resource/data/#headers
+
+## Options examples
+
+{{% note %}}
+For brevity, the examples below do not include [error handling].
+
+[error handling]: #error-handling
+{{% /note %}}
+
+To include a header:
+
 ```go-html-template
 {{ $url := "https://example.org/api" }}
 {{ $opts := dict
@@ -52,7 +85,7 @@ The `resources.GetRemote` function takes an optional map of options.
 {{ $resource := resources.GetRemote $url $opts }}
 ```
 
-If you need multiple values for the same header key, use a slice:
+To specify more than one value for the same header key, use a slice:
 
 ```go-html-template
 {{ $url := "https://example.org/api" }}
@@ -62,7 +95,7 @@ If you need multiple values for the same header key, use a slice:
 {{ $resource := resources.GetRemote $url $opts }}
 ```
 
-You can also change the request method and set the request body:
+To post data:
 
 ```go-html-template
 {{ $url := "https://example.org/api" }}
@@ -70,6 +103,27 @@ You can also change the request method and set the request body:
   "method" "post"
   "body" `{"complete": true}` 
   "headers" (dict  "Content-Type" "application/json")
+}}
+{{ $resource := resources.GetRemote $url $opts }}
+```
+
+To override the default cache key:
+
+```go-html-template
+{{ $url := "https://example.org/images/a.jpg" }}
+{{ $opts := dict 
+  "key" (print $url (now.Format "2006-01-02"))
+}}
+{{ $resource := resources.GetRemote $url $opts }}
+```
+
+To extract specific headers from the server's response:
+
+```go-html-template
+{{ $url := "https://example.org/images/a.jpg" }}
+{{ $opts := dict
+  "method" "HEAD"
+  "responseHeaders" (slice "X-Frame-Options" "Server")
 }}
 {{ $resource := resources.GetRemote $url $opts }}
 ```
@@ -148,40 +202,6 @@ The [`Data`] method on a resource returned by the `resources.GetRemote` function
 
 [`Data`]: /methods/resource/data/
 
-```go-html-template
-{{ $url := "https://example.org/images/a.jpg" }}
-{{ with try (resources.GetRemote $url) }}
-  {{ with .Err }}
-    {{ errorf "%s" . }}
-  {{ else with .Value }}
-    {{ with .Data }}
-      {{ .ContentLength }} → 42764
-      {{ .ContentType }} → image/jpeg
-      {{ .Status }} → 200 OK
-      {{ .StatusCode }} → 200
-      {{ .TransferEncoding }} → []
-    {{ end }}
-  {{ else }}
-    {{ errorf "Unable to get remote resource %q" $url }}
-  {{ end }}
-{{ end }}
-```
-
-ContentLength
-: (`int`) The content length in bytes.
-
-ContentType
-: (`string`) The content type.
-
-Status
-: (`string`) The HTTP status text.
-
-StatusCode
-: (`int`) The HTTP status code.
-
-TransferEncoding
-: (`string`) The transfer encoding.
-
 ## Caching
 
 Resources returned from `resources.GetRemote` are cached to disk. See [configure file caches] for details.
@@ -193,7 +213,8 @@ Override the cache key by setting a `key` in the options map. Use this approach 
 ```go-html-template
 {{ $url := "https://example.org/images/a.jpg" }}
 {{ $cacheKey := print $url (now.Format "2006-01-02") }}
-{{ $resource := resources.GetRemote $url (dict "key" $cacheKey) }}
+{{ $opts := dict "key" $cacheKey }}
+{{ $resource := resources.GetRemote $url $opts }}
 ```
 
 [configure file caches]: /getting-started/configuration/#configure-file-caches
