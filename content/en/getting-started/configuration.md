@@ -291,7 +291,7 @@ To remain consistent and prevent unexpected behavior, do not mix these strategie
 
 ###### disableKinds
 
-(`string slice`) Disable rendering of the specified page [kinds](g), any of `404`, `home`, `page`, `robotstxt`, `rss`, `section`, `sitemap`, `taxonomy`, or `term`.
+(`[]string`) Disable rendering of the specified page [kinds](g), any of `404`, `home`, `page`, `robotstxt`, `rss`, `section`, `sitemap`, `taxonomy`, or `term`.
 
 ###### disableLanguages
 
@@ -337,7 +337,7 @@ See [Front matter Configuration](#configure-front-matter).
 (`bool`) Ignore the cache directory. Default is `false`.
 
 ###### ignoreLogs
-(`string slice`) A slice of message identifiers corresponding to warnings and errors you wish to suppress. See [`erroridf`] and [`warnidf`].
+(`[]string`) A slice of message identifiers corresponding to warnings and errors you wish to suppress. See [`erroridf`] and [`warnidf`].
 
 [`erroridf`]: /functions/fmt/erroridf/
 [`warnidf`]: /functions/fmt/warnidf/
@@ -474,7 +474,7 @@ content/post/hügó.md → https://example.org/post/hugo/
 
 {{< new-in 0.124.0 >}}
 
-(`string slice`) A list of segments to render. If not set, everything will be rendered. This is more commonly set in a CLI flag, e.g. `hugo --renderSegments segment1,segment2`. The segment names must match the names in the [segments](#configure-segments) configuration.
+(`[]string`) A list of segments to render. If not set, everything will be rendered. This is more commonly set in a CLI flag, e.g. `hugo --renderSegments segment1,segment2`. The segment names must match the names in the [segments](#configure-segments) configuration.
 
 ###### sectionPagesMenu
 
