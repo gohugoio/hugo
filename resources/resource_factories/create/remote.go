@@ -59,7 +59,7 @@ func responseToData(res *http.Response, readBody bool, includeHeaders []string) 
 	}
 
 	responseHeaders := make(map[string][]string)
-	if true || len(includeHeaders) > 0 {
+	if len(includeHeaders) > 0 {
 		for k, v := range res.Header {
 			if hstrings.InSlicEqualFold(includeHeaders, k) {
 				responseHeaders[k] = v
