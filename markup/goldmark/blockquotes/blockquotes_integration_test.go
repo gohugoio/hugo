@@ -76,7 +76,7 @@ title: "p1"
 		"Blockquote Alert: |<p>This is a note with some whitespace after the alert type.</p>|alert|",
 		"Blockquote Alert: |<p>This is a tip.</p>",
 		"Blockquote Alert: |<p>This is a caution with some whitespace before the alert type.</p>|alert|",
-		"Blockquote: |<p>A regular blockquote.</p>\n|regular|",
+		"Blockquote: |<p>A regular blockquote.</p>|regular|",
 		"Blockquote Alert Attributes: |<p>This is a tip with attributes.</p>|map[class:foo bar id:baz]|",
 		filepath.FromSlash("/content/p1.md:19:3"),
 		"Blockquote Alert Page: |<p>This is a tip with attributes.</p>|p1|p1|",
@@ -155,6 +155,7 @@ AlertType: {{ .AlertType }}|AlertTitle: {{ .AlertTitle }}|AlertSign: {{ .AlertSi
 
 // Issue 12913
 // Issue 13119
+// Issue 13302
 func TestBlockquoteRenderHookTextParsing(t *testing.T) {
 	t.Parallel()
 
@@ -225,6 +226,7 @@ title: home
 > [!sixteen] _title_
 > line one
 
+> seventeen
 `
 
 	b := hugolib.Test(t, files)
@@ -246,5 +248,6 @@ title: home
 		"AlertType: fourteen|AlertTitle: title|Text: <p><img src=\"a.jpg\" alt=\"alt\"></p>|",
 		"AlertType: fifteen|AlertTitle: <em>title</em>|Text: |",
 		"AlertType: sixteen|AlertTitle: <em>title</em>|Text: <p>line one</p>|",
+		"AlertType: |AlertTitle: |Text: <p>seventeen</p>|",
 	)
 }
