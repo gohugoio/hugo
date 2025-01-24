@@ -69,7 +69,7 @@ func (r *htmlRenderer) renderBlockquote(w util.BufWriter, src []byte, node ast.N
 		return ast.WalkContinue, nil
 	}
 
-	text := ctx.PopRenderedString()
+	text := strings.TrimSpace(ctx.PopRenderedString())
 
 	ordinal := ctx.GetAndIncrementOrdinal(ast.KindBlockquote)
 
@@ -90,7 +90,7 @@ func (r *htmlRenderer) renderBlockquote(w util.BufWriter, src []byte, node ast.N
 		// tag if the first line of the blockquote content does not have a
 		// closing p tag. At some point we might want to move this to the
 		// parser.
-		before, after, found := strings.Cut(strings.TrimSpace(text), "\n")
+		before, after, found := strings.Cut(text, "\n")
 		if found {
 			if strings.HasSuffix(before, "</p>") {
 				text = after
