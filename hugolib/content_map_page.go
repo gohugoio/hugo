@@ -1397,7 +1397,7 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 				pw.WalkContext.Data().Insert(keyPage, cascade)
 			}
 		} else {
-			_, data := pw.WalkContext.Data().LongestPrefix(keyPage)
+			_, data := pw.WalkContext.Data().LongestPrefix(paths.Dir(keyPage))
 			if data != nil {
 				cascade = data.(*maps.Ordered[page.PageMatcher, maps.Params])
 			}
