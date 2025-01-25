@@ -6,7 +6,7 @@ action:
   aliases: []
   related: []
   returnType: images.ImageResource
-  signatures: ['images.QR TEXT OPTIONS']
+  signatures: ['images.QR TEXT [OPTIONS]']
 toc: true
 math: true
 ---
@@ -71,6 +71,40 @@ Specify `level`, `scale`, and `targetDir` as needed to achieve the desired resul
 ```
 
 {{< qr text="https://gohugo.io" level="high" scale=3 targetDir="codes" class="qrcode" />}}
+
+To include a QR code that points to the `Permalink` of the current page:
+
+{{< code file=layouts/_default/single.html >}}
+{{ with images.QR .Permalink }}
+  <img
+    src="{{ .RelPermalink }}"
+    width="{{ .Width }}"
+    height="{{ .Height }}"
+    alt="QR code linking to {{ $.Permalink }}"
+    class="qr-code"
+    loading="lazy"
+  >
+{{ end }}
+{{< /code >}}
+
+Then hide the QR code with CSS unless printing the page:
+
+```css
+/* Hide QR code by default */
+.qr-code {
+  display: none;
+}
+
+/* Show QR code when printing */
+@media print {
+  .qr-code {
+    display: block; 
+  }
+}
+```
+
+
+
 
 ## Scale
 
