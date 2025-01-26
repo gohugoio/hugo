@@ -109,6 +109,11 @@ func (i HugoInfo) IsExtended() bool {
 	return IsExtended
 }
 
+// IsVendor returns whether we're running as `hugo vendor`.
+func (i HugoInfo) IsVendor() bool {
+	return i.conf.Vendor()
+}
+
 // WorkingDir returns the project working directory.
 func (i HugoInfo) WorkingDir() string {
 	return i.conf.WorkingDir()
@@ -166,6 +171,7 @@ type ConfigProvider interface {
 	WorkingDir() string
 	IsMultihost() bool
 	IsMultilingual() bool
+	Vendor() bool
 }
 
 // NewInfo creates a new Hugo Info object.

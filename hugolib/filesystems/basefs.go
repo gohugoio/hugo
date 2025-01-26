@@ -235,13 +235,16 @@ type SourceFilesystems struct {
 	Archetypes *SourceFilesystem
 	Assets     *SourceFilesystem
 
+	// Note that this can not be mounted. It's currently fixed at the project root.
+	Vendor *SourceFilesystem
+
 	AssetsWithDuplicatesPreserved *SourceFilesystem
 
 	RootFss []*hugofs.RootMappingFs
 
 	// Writable filesystem on top the project's resources directory,
 	// with any sub module's resource fs layered below.
-	ResourcesCache afero.Fs
+	ResourcesCache afero.Fs // TODO1 remove this.
 
 	// The work folder (may be a composite of project and theme components).
 	Work afero.Fs
@@ -575,6 +578,7 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 	overlayMountsPreserveDupes := b.theBigFs.overlayMounts.WithDirsMerger(hugofs.AppendDirsMerger)
 	b.result.Data = createView(files.ComponentFolderData, overlayMountsPreserveDupes)
 	b.result.I18n = createView(files.ComponentFolderI18n, overlayMountsPreserveDupes)
+	b.result.Vendor = createView(files.FolderVendor, overlayMountsPreserveDupes)
 	b.result.AssetsWithDuplicatesPreserved = createView(files.ComponentFolderAssets, overlayMountsPreserveDupes)
 
 	contentFs := hugofs.NewComponentFs(

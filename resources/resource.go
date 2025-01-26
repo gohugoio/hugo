@@ -570,7 +570,9 @@ func (l *genericResource) getResourcePaths() internal.ResourcePaths {
 }
 
 func (r *genericResource) tryTransformedFileCache(key string, u *transformationUpdate) io.ReadCloser {
-	fi, f, meta, found := r.spec.ResourceCache.getFromFile(key)
+	panic("not implemented")
+	// TOODO1 remove this, but make _vendor use the file cache API (maybe)
+	/*fi, f, meta, found := r.spec.ResourceCache.getFromFile(key)
 	if !found {
 		return nil
 	}
@@ -579,7 +581,7 @@ func (r *genericResource) tryTransformedFileCache(key string, u *transformationU
 	u.mediaType = mt
 	u.data = meta.MetaData
 	u.targetPath = meta.Target
-	return f
+	return f*/
 }
 
 func (r *genericResource) mergeData(in map[string]any) {
@@ -600,23 +602,10 @@ func (rc *genericResource) cloneWithUpdates(u *transformationUpdate) (baseResour
 	r := rc.clone()
 
 	if u.content != nil {
-		r.sd.OpenReadSeekCloser = func() (hugio.ReadSeekCloser, error) {
-			return hugio.NewReadSeekerNoOpCloserFromString(*u.content), nil
-		}
+		r.sd.OpenReadSeekCloser = u.content
 	}
 
 	r.sd.MediaType = u.mediaType
-
-	if u.sourceFilename != nil {
-		if u.sourceFs == nil {
-			return nil, errors.New("sourceFs is nil")
-		}
-		r.setOpenSource(func() (hugio.ReadSeekCloser, error) {
-			return u.sourceFs.Open(*u.sourceFilename)
-		})
-	} else if u.sourceFs != nil {
-		return nil, errors.New("sourceFs is set without sourceFilename")
-	}
 
 	if u.targetPath == "" {
 		return nil, errors.New("missing targetPath")

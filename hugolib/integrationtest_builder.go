@@ -350,14 +350,18 @@ func (s *IntegrationTestBuilder) AssertNoRenderShortcodesArtifacts() {
 	}
 }
 
-func (s *IntegrationTestBuilder) AssertPublishDir(matches ...string) {
-	s.AssertFs(s.fs.PublishDir, matches...)
+func (s *IntegrationTestBuilder) AssertWorkingDir(root string, matches ...string) {
+	s.AssertFs(s.fs.WorkingDirReadOnly, root, matches...)
 }
 
-func (s *IntegrationTestBuilder) AssertFs(fs afero.Fs, matches ...string) {
+func (s *IntegrationTestBuilder) AssertPublishDir(matches ...string) {
+	s.AssertFs(s.fs.PublishDir, "", matches...)
+}
+
+func (s *IntegrationTestBuilder) AssertFs(fs afero.Fs, root string, matches ...string) {
 	s.Helper()
 	var buff bytes.Buffer
-	s.Assert(s.printAndCheckFs(fs, "", &buff), qt.IsNil)
+	s.Assert(s.printAndCheckFs(fs, root, &buff), qt.IsNil)
 	printFsLines := strings.Split(buff.String(), "\n")
 	sort.Strings(printFsLines)
 	content := strings.TrimSpace((strings.Join(printFsLines, "\n")))
@@ -665,16 +669,17 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 			flags = config.New()
 		}
 
+		internal := make(maps.Params)
+
 		if s.Cfg.Running {
-			flags.Set("internal", maps.Params{
-				"running": s.Cfg.Running,
-				"watch":   s.Cfg.Running,
-			})
+			internal["running"] = true
+			internal["watch"] = true
+
 		} else if s.Cfg.Watching {
-			flags.Set("internal", maps.Params{
-				"watch": s.Cfg.Watching,
-			})
+			internal["watch"] = true
 		}
+
+		flags.Set("internal", internal)
 
 		if s.Cfg.WorkingDir != "" {
 			flags.Set("workingDir", s.Cfg.WorkingDir)

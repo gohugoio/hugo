@@ -64,6 +64,7 @@ func (c *Client) transform(opts esbuild.Options, transformCtx *resources.Resourc
 			content = re.ReplaceAllString(content, "//# sourceMappingURL="+symPath+"\n")
 		}
 
+		// TODO1 vendor.
 		if err = transformCtx.PublishSourceMap(string(result.OutputFiles[0].Contents)); err != nil {
 			return result, err
 		}

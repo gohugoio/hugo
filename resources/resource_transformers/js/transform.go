@@ -22,11 +22,22 @@ import (
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/internal"
+	"github.com/gohugoio/hugo/resources/internal/vendor"
 )
 
 type buildTransformation struct {
 	optsm map[string]any
 	c     *Client
+}
+
+var _ vendor.Vendorable = (*buildTransformation)(nil)
+
+func (t *buildTransformation) VendorName() string {
+	return "js/build"
+}
+
+func (t *buildTransformation) VendorKey() string {
+	return vendor.VendorKeyFromOpts(t.optsm)
 }
 
 func (t *buildTransformation) Key() internal.ResourceTransformationKey {

@@ -34,14 +34,14 @@ import (
 // NewBuildClient creates a new BuildClient.
 func NewBuildClient(fs *filesystems.SourceFilesystem, rs *resources.Spec) *BuildClient {
 	return &BuildClient{
-		rs:  rs,
+		Rs:  rs,
 		sfs: fs,
 	}
 }
 
 // BuildClient is a client for building JavaScript resources using esbuild.
 type BuildClient struct {
-	rs  *resources.Spec
+	Rs  *resources.Spec
 	sfs *filesystems.SourceFilesystem
 }
 
@@ -52,11 +52,11 @@ func (c *BuildClient) Build(opts Options) (api.BuildResult, error) {
 		dependencyManager = identity.NopManager
 	}
 
-	opts.OutDir = c.rs.AbsPublishDir
-	opts.ResolveDir = c.rs.Cfg.BaseConfig().WorkingDir // where node_modules gets resolved
+	opts.OutDir = c.Rs.AbsPublishDir
+	opts.ResolveDir = c.Rs.Cfg.BaseConfig().WorkingDir // where node_modules gets resolved
 	opts.AbsWorkingDir = opts.ResolveDir
-	opts.TsConfig = c.rs.ResolveJSConfigFile("tsconfig.json")
-	assetsResolver := newFSResolver(c.rs.Assets.Fs)
+	opts.TsConfig = c.Rs.ResolveJSConfigFile("tsconfig.json")
+	assetsResolver := newFSResolver(c.Rs.Assets.Fs)
 
 	if err := opts.validate(); err != nil {
 		return api.BuildResult{}, err
@@ -67,7 +67,7 @@ func (c *BuildClient) Build(opts Options) (api.BuildResult, error) {
 	}
 
 	var err error
-	opts.compiled.Plugins, err = createBuildPlugins(c.rs, assetsResolver, dependencyManager, opts)
+	opts.compiled.Plugins, err = createBuildPlugins(c.Rs, assetsResolver, dependencyManager, opts)
 	if err != nil {
 		return api.BuildResult{}, err
 	}
@@ -175,7 +175,7 @@ func (c *BuildClient) Build(opts Options) (api.BuildResult, error) {
 		// Return 1, log the rest.
 		for i, err := range errors {
 			if i > 0 {
-				c.rs.Logger.Errorf("js.Build failed: %s", err)
+				c.Rs.Logger.Errorf("js.Build failed: %s", err)
 			}
 		}
 

@@ -30,7 +30,7 @@ import (
 
 	"github.com/gohugoio/hugo/resources/images"
 	"github.com/gohugoio/hugo/resources/images/exif"
-	"github.com/spf13/afero"
+	"github.com/gohugoio/hugo/resources/internal/vendor"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
 
@@ -431,8 +431,6 @@ func (r *resourceAdapter) getOrTransform(publish, setContent bool) error {
 }
 
 func (r *resourceAdapter) transform(key string, publish, setContent bool) (*resourceAdapterInner, error) {
-	cache := r.spec.ResourceCache
-
 	b1 := bp.GetBuffer()
 	b2 := bp.GetBuffer()
 	defer bp.PutBuffer(b1)
@@ -467,18 +465,12 @@ func (r *resourceAdapter) transform(key string, publish, setContent bool) (*reso
 	tctx.SourcePath = strings.TrimPrefix(tctx.InPath, "/")
 
 	counter := 0
-	writeToFileCache := false
-
-	var transformedContentr io.Reader
+	isVendorMode := r.spec.Cfg.Vendor()
+	vendorer := r.spec.Vendorer
 
 	for i, tr := range r.transformations {
 		if i != 0 {
 			tctx.InMediaType = tctx.OutMediaType
-		}
-
-		mayBeCachedOnDisk := transformationsToCacheOnDisk[tr.Key().Name]
-		if !writeToFileCache {
-			writeToFileCache = mayBeCachedOnDisk
 		}
 
 		if i > 0 {
@@ -525,38 +517,67 @@ func (r *resourceAdapter) transform(key string, publish, setContent bool) (*reso
 			return fmt.Errorf(msg+": %w", err)
 		}
 
-		bcfg := r.spec.BuildConfig()
-		var tryFileCache bool
-		if mayBeCachedOnDisk && bcfg.UseResourceCache(nil) {
-			tryFileCache = true
+		if isVendorMode {
+			err = func() error {
+				to := tctx.To
+				var buff bytes.Buffer
+				if vendorable, ok := tr.(vendor.Vendorable); ok {
+					vendorOpts := vendor.ResourceVendorOptions{
+						Target: vendorable,
+						InPath: tctx.InPath, // TODO1
+					}
+					f, open, err := vendorer.OpenVendoredFileForWriting(vendorOpts)
+					if err != nil {
+						return err
+					}
+					updates.content = open
+					defer f.Close()
+
+					tctx.To = io.MultiWriter(to, f, &buff)
+				}
+
+				defer func() {
+					tctx.To = to
+				}()
+
+				if err := tr.Transform(tctx); err != nil {
+					return err
+				}
+
+				return nil
+			}()
+			if err != nil {
+				return nil, newErr(err)
+			}
 		} else {
-			err = tr.Transform(tctx)
-			if err != nil && err != herrors.ErrFeatureNotAvailable {
-				return nil, newErr(err)
-			}
-
-			if mayBeCachedOnDisk {
-				tryFileCache = bcfg.UseResourceCache(err)
-			}
-			if err != nil && !tryFileCache {
-				return nil, newErr(err)
-			}
-		}
-
-		if tryFileCache {
-			f := r.target.tryTransformedFileCache(key, updates)
-			if f == nil {
+			var handled bool
+			if vendorable, ok := tr.(vendor.Vendorable); ok {
+				// TODO1 metadata + folder.
+				vendorOpts := vendor.ResourceVendorOptions{
+					Target: vendorable,
+					Name:   "TODO1 remove me.", // TODO1
+					InPath: tctx.InPath,        // TODO1
+				}
+				f, open, err := vendorer.OpenVendoredFile(vendorOpts)
 				if err != nil {
 					return nil, newErr(err)
 				}
-				return nil, newErr(fmt.Errorf("resource %q not found in file cache", key))
+				updates.content = open
+				if f != nil {
+					handled = true
+					_, err = io.Copy(tctx.To, f)
+					f.Close()
+					if err != nil {
+						return nil, newErr(err)
+					}
+				}
 			}
-			transformedContentr = f
-			updates.sourceFs = cache.fileCache.Fs
-			defer f.Close()
-
-			// The reader above is all we need.
-			break
+			if !handled {
+				err = tr.Transform(tctx)
+				if err != nil {
+					return nil, newErr(err)
+				}
+			}
 		}
 
 		if tctx.OutPath != "" {
@@ -565,13 +586,15 @@ func (r *resourceAdapter) transform(key string, publish, setContent bool) (*reso
 		}
 	}
 
-	if transformedContentr == nil {
-		updates.updateFromCtx(tctx)
-	}
+	// TODO1
+	updates.updateFromCtx(tctx)
 
 	var publishwriters []io.WriteCloser
 
 	if publish {
+		if updates.targetPath == "" {
+			panic("no target path set")
+		}
 		publicw, err := r.target.openPublishFileForWriting(updates.targetPath)
 		if err != nil {
 			return nil, err
@@ -579,32 +602,20 @@ func (r *resourceAdapter) transform(key string, publish, setContent bool) (*reso
 		publishwriters = append(publishwriters, publicw)
 	}
 
-	if transformedContentr == nil {
-		if writeToFileCache {
-			// Also write it to the cache
-			fi, metaw, err := cache.writeMeta(key, updates.toTransformedResourceMetadata())
-			if err != nil {
-				return nil, err
-			}
-			updates.sourceFilename = &fi.Name
-			updates.sourceFs = cache.fileCache.Fs
-			publishwriters = append(publishwriters, metaw)
-		}
-
-		// Any transformations reading from From must also write to To.
-		// This means that if the target buffer is empty, we can just reuse
-		// the original reader.
-		if b, ok := tctx.To.(*bytes.Buffer); ok && b.Len() > 0 {
-			transformedContentr = tctx.To.(*bytes.Buffer)
-		} else {
-			transformedContentr = contentrc
-		}
+	var transformedContentr io.Reader
+	// Any transformations reading from From must also write to To.
+	// This means that if the target buffer is empty, we can just reuse
+	// the original reader.
+	if b, ok := tctx.To.(*bytes.Buffer); ok && b.Len() > 0 {
+		transformedContentr = tctx.To.(*bytes.Buffer)
+	} else {
+		transformedContentr = contentrc
 	}
+
+	setContent = setContent || updates.content == nil
 
 	// Also write it to memory
 	var contentmemw *bytes.Buffer
-
-	setContent = setContent || !writeToFileCache
 
 	if setContent {
 		contentmemw = bp.GetBuffer()
@@ -621,7 +632,7 @@ func (r *resourceAdapter) transform(key string, publish, setContent bool) (*reso
 
 	if setContent {
 		s := contentmemw.String()
-		updates.content = &s
+		updates.content = hugio.NewOpenReadSeekCloser(hugio.NewReadSeekerNoOpCloserFromString(s))
 	}
 
 	newTarget, err := r.target.cloneWithUpdates(updates)
@@ -716,18 +727,16 @@ type transformableResource interface {
 }
 
 type transformationUpdate struct {
-	content        *string
-	sourceFilename *string
-	sourceFs       afero.Fs
-	targetPath     string
-	mediaType      media.Type
-	data           map[string]any
+	content    hugio.OpenReadSeekCloser
+	targetPath string
+	mediaType  media.Type
+	data       map[string]any
 
 	startCtx ResourceTransformationCtx
 }
 
 func (u *transformationUpdate) isContentChanged() bool {
-	return u.content != nil || u.sourceFilename != nil
+	return u.content != nil
 }
 
 func (u *transformationUpdate) toTransformedResourceMetadata() transformedResourceMetadata {

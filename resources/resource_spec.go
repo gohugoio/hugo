@@ -22,6 +22,7 @@ import (
 	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources/internal"
+	"github.com/gohugoio/hugo/resources/internal/vendor"
 	"github.com/gohugoio/hugo/resources/jsconfig"
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
 
@@ -103,6 +104,7 @@ func NewSpec(
 			memCache,
 			s,
 		),
+		Vendorer:   vendor.NewVendorer(s.SourceFs, s.Cfg.WorkingDir()),
 		ExecHelper: execHelper,
 
 		Permalinks: permalinks,
@@ -122,6 +124,7 @@ type Spec struct {
 	ErrorSender  herrors.ErrorSender
 	BuildClosers types.CloseAdder
 	Rebuilder    identity.SignalRebuilder
+	Vendorer     *vendor.Vendorer
 
 	TextTemplates tpl.TemplateParseFinder
 
