@@ -1,6 +1,6 @@
 ---
 title: hugo.IsExtended
-description: Reports whether the Hugo binary is the extended version.
+description: Reports whether the Hugo binary is either the extended or extended/deploy edition.
 categories: []
 keywords: []
 action:

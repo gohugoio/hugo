@@ -75,7 +75,7 @@ max
 : (`string`) The maximum Hugo version supported, e.g. `0.55.0`
 
 extended
-: (`bool`) Whether the extended version of Hugo is required.
+: (`bool`) Whether the extended edition of Hugo is required, satisfied by installing either the extended or extended/deploy edition.
 
 ## Module configuration: imports
 

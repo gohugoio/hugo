@@ -83,7 +83,7 @@ includePaths
 
 ## Dart Sass
 
-The extended version of Hugo includes [LibSass] to transpile Sass to CSS. In 2020, the Sass team deprecated LibSass in favor of [Dart Sass].
+Hugo's extended and extended/deploy editions include [LibSass] to transpile Sass to CSS. In 2020, the Sass team deprecated LibSass in favor of [Dart Sass].
 
 Use the latest features of the Sass language by installing Dart Sass in your development and production environments.
 
