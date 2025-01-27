@@ -28,14 +28,18 @@ The `js.Build` function uses the [evanw/esbuild] package to:
 
 ```go-html-template
 {{ with resources.Get "js/main.js" }}
-  {{ if hugo.IsDevelopment }}
-    {{ with . | js.Build }}
+  {{ $opts := dict
+    "minify" hugo.IsProduction
+    "sourceMap" (cond hugo.IsProduction "" "external")
+    "targetPath" "js/main.js"
+  }}
+  {{ with . | js.Build $opts }}
+    {{ if hugo.IsProduction }}
+      {{ with . | fingerprint }}
+        <script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous"></script>
+      {{ end }}
+    {{ else }}
       <script src="{{ .RelPermalink }}"></script>
-    {{ end }}
-  {{ else }}
-    {{ $opts := dict "minify" true }}
-    {{ with . | js.Build $opts | fingerprint }}
-      <script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous"></script>
     {{ end }}
   {{ end }}
 {{ end }}
@@ -43,16 +47,18 @@ The `js.Build` function uses the [evanw/esbuild] package to:
 
 ## Options
 
-targetPath
-: (`string`) If not set, the source path will be used as the base target path.
+###### targetPath
+
+(`string`) If not set, the source path will be used as the base target path.
 Note that the target path's extension may change if the target MIME type is different, e.g. when the source is TypeScript.
 
-format
-: (`string`) The output format. One of: `iife`, `cjs`, `esm`. Default is `iife`, a self-executing function, suitable for inclusion as a `<script>` tag.
+###### format
+
+(`string`) The output format. One of: `iife`, `cjs`, `esm`. Default is `iife`, a self-executing function, suitable for inclusion as a `<script>` tag.
 
 {{% include "./_common/options.md" %}}
 
-### Import JS code from the assets directory
+## Import JS code from the assets directory
 
 `js.Build` has full support for the virtual union file system in [Hugo Modules](/hugo-modules/). You can see some simple examples in this [test project](https://github.com/gohugoio/hugoTestProjectJSModImports), but in short this means that you can do this:
 
@@ -68,7 +74,7 @@ import { hello3 } from 'my/module/hello3';
 
 Will resolve to `hello3.{js,ts,tsx,jsx}` inside `assets/my/module`.
 
-Any imports starting with `.` is resolved relative to the current file:
+Any imports starting with `.` are resolved relative to the current file:
 
 ```js
 import { hello4 } from './lib';
