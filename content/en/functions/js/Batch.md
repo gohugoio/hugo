@@ -1,7 +1,6 @@
 ---
 title: js.Batch
 description: Build JavaScript bundle groups with global code splitting and flexible hooks/runners setup.
-weight: 50
 categories: []
 keywords: []
 action:
@@ -13,6 +12,7 @@ action:
     - functions/resources/Minify
   returnType: js.Batcher
   signatures: ['js.Batch [ID]']
+weight: 20
 toc: true
 ---
 

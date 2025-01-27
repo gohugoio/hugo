@@ -1,17 +1,18 @@
 ---
 title: js.Build
 description: Bundles, transpiles, tree shakes, and minifies JavaScript resources.
-weight: 30
 categories: []
 keywords: []
 action:
   aliases: []
   related:
+    - functions/js/Batch
     - functions/js/Babel
     - functions/resources/Fingerprint
     - functions/resources/Minify
   returnType: resource.Resource
   signatures: ['js.Build [OPTIONS] RESOURCE']
+weight: 10
 toc: true
 ---
 
