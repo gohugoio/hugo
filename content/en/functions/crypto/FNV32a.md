@@ -21,7 +21,3 @@ Use [`hash.FNV32a`] instead.
 
 [`hash.FNV32a`]: /functions/hash/FNV32a/
 {{% /deprecated-in %}}
-
-```go-html-template
-{{ crypto.FNV32a "Hello world" }} → 1498229191
-```

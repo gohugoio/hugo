@@ -15,7 +15,3 @@ Use [`hugo.IsDevelopment`] instead.
 
 [`hugo.IsDevelopment`]: /functions/hugo/isdevelopment/
 {{% /deprecated-in %}}
-
-```go-html-template
-{{ .Site.IsDevelopment }} → true/false
-```

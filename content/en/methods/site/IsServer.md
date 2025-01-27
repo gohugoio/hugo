@@ -15,7 +15,3 @@ Use [`hugo.IsServer`] instead.
 
 [`hugo.IsServer`]: /functions/hugo/isserver/
 {{% /deprecated-in %}}
-
-```go-html-template
-{{ .Site.IsServer }} → true/false
-```

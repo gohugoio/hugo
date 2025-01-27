@@ -15,14 +15,3 @@ Use [`.Site.Lastmod`] instead.
 
 [`.Site.Lastmod`]: /methods/site/lastmod/
 {{% /deprecated-in %}}
-
-The `LastChange` method on a `Site` object returns a [`time.Time`] value. Use this with time [functions] and [methods]. For example:
-
-```go-html-template
-{{ .Site.LastChange | time.Format ":date_long" }} → January 31, 2024
-
-```
-
-[`time.Time`]: https://pkg.go.dev/time#Time
-[functions]: /functions/time/
-[methods]: /methods/time/
