@@ -19,14 +19,19 @@ toc: true
 
 ```go-html-template
 {{ with resources.Get "sass/main.scss" }}
-  {{ $opts := dict "transpiler" "libsass" "targetPath" "css/style.css" }}
+  {{ $opts := dict
+    "enableSourceMap" (not hugo.IsProduction)
+    "outputStyle" (cond hugo.IsProduction "compressed" "expanded")
+    "targetPath" "css/main.css"
+    "transpiler" "libsass"
+  }}
   {{ with . | toCSS $opts }}
-    {{ if hugo.IsDevelopment }}
-      <link rel="stylesheet" href="{{ .RelPermalink }}">
-    {{ else }}
-      {{ with . | minify | fingerprint }}
+    {{ if hugo.IsProduction }}
+      {{ with . | fingerprint }}
         <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
       {{ end }}
+    {{ else }}
+      <link rel="stylesheet" href="{{ .RelPermalink }}">
     {{ end }}
   {{ end }}
 {{ end }}
@@ -200,14 +205,19 @@ To transpile with Dart Sass, set `transpiler` to `dartsass` in the options map p
 
 ```go-html-template
 {{ with resources.Get "sass/main.scss" }}
-  {{ $opts := dict "transpiler" "dartsass" "targetPath" "css/style.css" }}
+  {{ $opts := dict
+    "enableSourceMap" (not hugo.IsProduction)
+    "outputStyle" (cond hugo.IsProduction "compressed" "expanded")
+    "targetPath" "css/main.css"
+    "transpiler" "dartsass"
+  }}
   {{ with . | toCSS $opts }}
-    {{ if hugo.IsDevelopment }}
-      <link rel="stylesheet" href="{{ .RelPermalink }}">
-    {{ else }}
-      {{ with . | minify | fingerprint }}
+    {{ if hugo.IsProduction }}
+      {{ with . | fingerprint }}
         <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
       {{ end }}
+    {{ else }}
+      <link rel="stylesheet" href="{{ .RelPermalink }}">
     {{ end }}
   {{ end }}
 {{ end }}

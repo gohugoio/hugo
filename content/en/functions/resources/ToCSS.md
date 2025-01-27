@@ -23,14 +23,19 @@ Use [`css.Sass`] instead.
 
 ```go-html-template
 {{ with resources.Get "sass/main.scss" }}
-  {{ $opts := dict "transpiler" "libsass" "targetPath" "css/style.css" }}
+  {{ $opts := dict
+    "enableSourceMap" (not hugo.IsProduction)
+    "outputStyle" (cond hugo.IsProduction "compressed" "expanded")
+    "targetPath" "css/main.css"
+    "transpiler" "libsass"
+  }}
   {{ with . | toCSS $opts }}
-    {{ if hugo.IsDevelopment }}
-      <link rel="stylesheet" href="{{ .RelPermalink }}">
-    {{ else }}
-      {{ with . | minify | fingerprint }}
+    {{ if hugo.IsProduction }}
+      {{ with . | fingerprint }}
         <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
       {{ end }}
+    {{ else }}
+      <link rel="stylesheet" href="{{ .RelPermalink }}">
     {{ end }}
   {{ end }}
 {{ end }}
@@ -89,6 +94,9 @@ includePaths
   <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
 {{ end }}
 ```
+
+silenceDeprecations
+: (`slice`) {{< new-in 0.139.0 >}} A slice of deprecation IDs to silence. The deprecation IDs are printed to in the warning message, e.g "import" in `WARN  Dart Sass: DEPRECATED [import] ...`. This is for Dart Sass only.
 
 ## Dart Sass
 
@@ -197,18 +205,23 @@ command = """\
 
 ### Example
 
-To transpile with Dart Sass, set `transpiler` to `dartsass` in the options map passed to `resources.ToCSS`. For example:
+To transpile with Dart Sass, set `transpiler` to `dartsass` in the options map passed to `css.Sass`. For example:
 
 ```go-html-template
 {{ with resources.Get "sass/main.scss" }}
-  {{ $opts := dict "transpiler" "dartsass" "targetPath" "css/style.css" }}
+  {{ $opts := dict
+    "enableSourceMap" (not hugo.IsProduction)
+    "outputStyle" (cond hugo.IsProduction "compressed" "expanded")
+    "targetPath" "css/main.css"
+    "transpiler" "dartsass"
+  }}
   {{ with . | toCSS $opts }}
-    {{ if hugo.IsDevelopment }}
-      <link rel="stylesheet" href="{{ .RelPermalink }}">
-    {{ else }}
-      {{ with . | minify | fingerprint }}
+    {{ if hugo.IsProduction }}
+      {{ with . | fingerprint }}
         <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
       {{ end }}
+    {{ else }}
+      <link rel="stylesheet" href="{{ .RelPermalink }}">
     {{ end }}
   {{ end }}
 {{ end }}
