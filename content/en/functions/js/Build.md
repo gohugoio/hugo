@@ -1,6 +1,6 @@
 ---
 title: js.Build
-description: Bundles, transpiles, tree shakes, and minifies JavaScript resources.
+description: Bundle, transpile, tree shake, and minify JavaScript resources.
 categories: []
 keywords: []
 action:

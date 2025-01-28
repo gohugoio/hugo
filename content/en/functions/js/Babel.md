@@ -1,6 +1,6 @@
 ---
 title: js.Babel
-description: Compiles the given JavaScript resource with Babel.
+description: Compile the given JavaScript resource with Babel.
 categories: []
 keywords: []
 action:

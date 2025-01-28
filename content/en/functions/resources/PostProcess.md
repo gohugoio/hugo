@@ -31,7 +31,7 @@ Call `resources.PostProcess` when one or more of the steps in the transformation
 
 A prime use case for this is purging unused CSS rules using the [PurgeCSS] plugin for the PostCSS Node.js package.
 
-## CSS Purging
+## CSS purging
 
 {{% note %}}
 There are several ways to set up CSS purging with PostCSS in Hugo. If you have a simple project, you should consider going the simpler route and drop the use of `resources.PostProcess` and just extract keywords from the templates. See the [Tailwind documentation](https://tailwindcss.com/docs/controlling-file-size/#app) for examples.
