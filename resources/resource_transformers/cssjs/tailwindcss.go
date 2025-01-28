@@ -63,8 +63,8 @@ func (t *tailwindcssTransformation) VendorName() string {
 	return "css/tailwindcss"
 }
 
-func (t *tailwindcssTransformation) VendorKey() string {
-	return vendor.VendorKeyFromOpts(t.optionsm)
+func (t *tailwindcssTransformation) VendorScope() map[string]any {
+	return vendor.VendorScopeFromOpts(t.optionsm)
 }
 
 func (t *tailwindcssTransformation) Key() internal.ResourceTransformationKey {

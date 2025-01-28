@@ -47,8 +47,7 @@ const (
 	ComponentFolderAssets     = "assets"
 	ComponentFolderI18n       = "i18n"
 
-	FolderVendor = "_vendor"
-
+	FolderVendor    = "_vendor"
 	FolderResources = "resources" // TODO1 remove.
 	FolderJSConfig  = "_jsconfig" // Mounted below /assets with postcss.config.js etc.
 

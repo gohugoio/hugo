@@ -14,11 +14,12 @@
 package cssjs_test
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
-	qt "github.com/frankban/quicktest"
-
 	"github.com/bep/logg"
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
 )
@@ -73,16 +74,16 @@ CSS: {{ $css.RelPermalink }}|{{ $css.Content | safeCSS }}|
 	b.AssertFileContent("public/index.html", "/*! tailwindcss v4.0.0")
 }
 
-func TestTailwindV4BasicVendor(t *testing.T) {
+func TestTailwindV4BasicVendorRoundTrip(t *testing.T) {
 	if !htesting.IsCI() {
 		t.Skip("Skip long running test when running locally")
 	}
 
-	files := `
+	filesTemplate := `
 -- hugo.toml --
 baseURL = "https://example.org/"
 [internal]
-vendor = true
+vendor = VENDOR
 -- package.json --
 {
   "license": "MIT",
@@ -110,23 +111,35 @@ vendor = true
   --color-neon-cyan: oklch(91.3% 0.139 195.8);
 }
 -- layouts/index.html --
-{{ $css := resources.Get "css/styles.css" | css.TailwindCSS }}
+{{ $css := resources.Get "css/styles.css" | css.TailwindCSS (dict "vendorScope" (dict "key" "foobar" ) ) }}
 CSS: {{ $css.RelPermalink }}|{{ $css.Content | safeCSS }}|
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:                   t,
-			TxtarString:         files,
-			NeedsOsFS:           true,
-			NeedsNpmInstall:     true,
-			PrintAndKeepTempDir: false,
-			LogLevel:            logg.LevelError,
-		}).Build()
+	workinDir := t.TempDir()
 
-	b.Assert(b.H.Conf.Vendor(), qt.IsTrue)
+	for _, vendor := range []bool{true, false} {
+		files := strings.Replace(filesTemplate, "VENDOR", fmt.Sprint(vendor), 1)
 
-	b.AssertWorkingDir("_vendor", "_vendor/res/_all/css/tailwindcss/css/styles.css")
+		b := hugolib.NewIntegrationTestBuilder(
+			hugolib.IntegrationTestConfig{
+				T:               t,
+				TxtarString:     files,
+				NeedsOsFS:       true,
+				NeedsNpmInstall: true,
+				WorkingDir:      workinDir,
+				LogLevel:        logg.LevelError,
+			}).Build()
 
-	b.AssertFileContent("public/index.html", "/*! tailwindcss v4.0.0")
+		b.Assert(b.H.Conf.Vendor(), qt.Equals, vendor)
+
+		b.AssertWorkingDir("_vendor", "_vendor/resources/css/tailwindcss/22ae68a32f191359/css/styles.css")
+
+		// b.AssertWorkingDir("_vendor", "_vendor/resources/_all/css/tailwindcss/css/styles.css")
+
+		b.AssertFileContent("public/index.html", "/*! tailwindcss v4.0.0")
+		b.AssertFileContent("_vendor/resources/resources.json", "22ae68a32f191359")
+
+		b.RemovePublic()
+
+	}
 }

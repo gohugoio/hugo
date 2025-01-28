@@ -33,6 +33,15 @@ func NewOrdered[K comparable, T any]() *Ordered[K, T] {
 	return &Ordered[K, T]{values: make(map[K]T)}
 }
 
+// Contains returns whether the map contains the given key.
+func (m *Ordered[K, T]) Contains(key K) bool {
+	if m == nil {
+		return false
+	}
+	_, found := m.values[key]
+	return found
+}
+
 // Set sets the value for the given key.
 // Note that insertion order is not affected if a key is re-inserted into the map.
 func (m *Ordered[K, T]) Set(key K, value T) {

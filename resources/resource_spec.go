@@ -92,6 +92,11 @@ func NewSpec(
 		}
 	}
 
+	vend, err := vendor.NewVendorer(s.BaseFs.VendorFs, s.BaseFs.SourceFs, conf.Environment)
+	if err != nil {
+		return nil, err
+	}
+
 	rs := &Spec{
 		PathSpec:     s,
 		Logger:       logger,
@@ -104,7 +109,7 @@ func NewSpec(
 			memCache,
 			s,
 		),
-		Vendorer:   vendor.NewVendorer(s.SourceFs, s.Cfg.WorkingDir()),
+		Vendorer:   vend,
 		ExecHelper: execHelper,
 
 		Permalinks: permalinks,
@@ -124,7 +129,7 @@ type Spec struct {
 	ErrorSender  herrors.ErrorSender
 	BuildClosers types.CloseAdder
 	Rebuilder    identity.SignalRebuilder
-	Vendorer     *vendor.Vendorer
+	Vendorer     *vendor.ResourceVendorer
 
 	TextTemplates tpl.TemplateParseFinder
 

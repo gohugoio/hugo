@@ -709,10 +709,6 @@ func (h *HugoSites) writeVendor(l logg.LevelLogger) error {
 		return err
 	}
 
-	for _, vf := range v.VendoredResources {
-		fmt.Println("=== ==", vf.Path, vf.Hash)
-	}
-
 	return nil
 }
 

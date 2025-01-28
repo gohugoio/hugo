@@ -572,6 +572,11 @@ func (s *IntegrationTestBuilder) AddFiles(filenameContent ...string) *Integratio
 	return s
 }
 
+func (s *IntegrationTestBuilder) RemovePublic() *IntegrationTestBuilder {
+	s.Assert(s.fs.WorkingDirWritable.RemoveAll("public"), qt.IsNil)
+	return s
+}
+
 func (s *IntegrationTestBuilder) RemoveFiles(filenames ...string) *IntegrationTestBuilder {
 	for _, filename := range filenames {
 		absFilename := s.absFilename(filename)

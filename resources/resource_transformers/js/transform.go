@@ -36,8 +36,8 @@ func (t *buildTransformation) VendorName() string {
 	return "js/build"
 }
 
-func (t *buildTransformation) VendorKey() string {
-	return vendor.VendorKeyFromOpts(t.optsm)
+func (t *buildTransformation) VendorScope() map[string]any {
+	return vendor.VendorScopeFromOpts(t.optsm)
 }
 
 func (t *buildTransformation) Key() internal.ResourceTransformationKey {
