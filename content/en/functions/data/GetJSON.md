@@ -5,11 +5,7 @@ categories: []
 keywords: []
 action:
   aliases: [getJSON]
-  related:
-    - functions/data/GetCSV
-    - functions/resources/Get
-    - functions/resources/GetRemote
-    - methods/page/Resources
+  related: []
   returnType: any
   signatures: ['data.GetJSON INPUT... [OPTIONS]']
 toc: true

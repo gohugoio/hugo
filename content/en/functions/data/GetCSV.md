@@ -5,11 +5,7 @@ categories: []
 keywords: []
 action:
   aliases: [getCSV]
-  related:
-    - functions/data/GetJSON
-    - functions/resources/Get
-    - functions/resources/GetRemote
-    - methods/page/Resources
+  related: []
   returnType: '[][]string'
   signatures: ['data.GetCSV SEPARATOR INPUT... [OPTIONS]']
 toc: true

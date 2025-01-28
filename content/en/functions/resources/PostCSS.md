@@ -4,11 +4,7 @@ description: Processes the given resource with PostCSS using any PostCSS plugin.
 categories: []
 keywords: []
 action:
-  related:
-    - functions/resources/Fingerprint
-    - functions/resources/Minify
-    - functions/resources/PostProcess
-    - functions/css/Sass
+  related: []
   returnType: resource.Resource
   signatures: ['resources.PostCSS [OPTIONS] RESOURCE']
 toc: true

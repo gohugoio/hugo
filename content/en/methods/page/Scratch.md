@@ -4,9 +4,7 @@ description: Returns a "scratch pad" on the given page to store and manipulate d
 categories: []
 keywords: []
 action:
-  related:
-    - methods/page/Store
-    - functions/collections/NewScratch
+  related: []
   returnType: maps.Scratch
   signatures: [PAGE.Scratch]
 toc: true

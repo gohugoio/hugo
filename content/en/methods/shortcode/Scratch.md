@@ -4,8 +4,7 @@ description: Returns a "scratch pad" scoped to the shortcode to store and manipu
 categories: []
 keywords: []
 action:
-  related:
-    - functions/collections/NewScratch
+  related: []
   returnType: maps.Scratch
   signatures: [SHORTCODE.Scratch]
 expiryDate: 2025-11-18 #  deprecated 2024-11-18

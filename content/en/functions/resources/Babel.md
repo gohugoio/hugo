@@ -4,11 +4,7 @@ description: Compiles the given JavaScript resource with Babel.
 categories: []
 keywords: []
 action:
-  related:
-    - functions/js/Batch
-    - functions/js/Build
-    - functions/resources/Fingerprint
-    - functions/resources/Minify
+  related: []
   returnType: resource.Resource
   signatures: ['resources.Babel [OPTIONS] RESOURCE']
 toc: true

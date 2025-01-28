@@ -4,11 +4,7 @@ description: Transpiles Sass to CSS.
 categories: []
 keywords: []
 action:
-  related:
-    - functions/resources/Fingerprint
-    - functions/resources/Minify
-    - functions/css/PostCSS
-    - functions/resources/PostProcess
+  related: []
   returnType: resource.Resource
   signatures: ['resources.ToCSS [OPTIONS] RESOURCE']
 toc: true
