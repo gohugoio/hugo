@@ -70,7 +70,7 @@ target
 
 If `enable` is set to `true`, creates a `hugo_stats.json` file in the root of your project. This file contains arrays of the `class` attributes, `id` attributes, and tags of every HTML element within your published site. Use this file as data source when [removing unused CSS] from your site. This process is also known as pruning, purging, or tree shaking.
 
-[removing unused CSS]: /functions/resources/postprocess/#css-purging
+[removing unused CSS]: /functions/resources/postprocess/
 
 Exclude `class` attributes, `id` attributes, or tags from `hugo_stats.json` with the `disableClasses`, `disableIDs`, and `disableTags` keys.
 

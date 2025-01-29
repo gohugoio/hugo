@@ -25,8 +25,12 @@ toc: true
 
 Follow the steps below to transform CSS using any of the available [PostCSS plugins].
 
+[postcss plugins]: https://postcss.org/docs/postcss-plugins
+
 Step 1
 : Install [Node.js].
+
+[node.js]: https://nodejs.org/en/download
 
 Step 2
 : Install the required Node.js packages in the root of your project. For example, to add vendor prefixes to your CSS rules:
@@ -36,15 +40,15 @@ npm i -D postcss postcss-cli autoprefixer
 ```
 
 Step 3
-: Create a PostCSS configuration file in the root of your project. You must name this file `postcss.config.js` or another [supported file name]. For example:
+: Create a PostCSS configuration file in the root of your project.
 
-```js
+{{< code file=postcss.config.js >}}
 module.exports = {
   plugins: [
     require('autoprefixer')
   ]
 };
-```
+{{< /code >}}
 
 {{% note %}}
 {{% include "functions/resources/_common/postcss-windows-warning.md" %}}
@@ -114,16 +118,9 @@ The current Hugo environment name (set by `--environment` or in configuration or
 
 ```js
 const autoprefixer = require('autoprefixer');
-const purgecss = require('@fullhuman/postcss-purgecss');
 module.exports = {
   plugins: [
-    autoprefixer,
-    process.env.HUGO_ENVIRONMENT !== 'development' ? purgecss : null
+    process.env.HUGO_ENVIRONMENT !== 'development' ? autoprefixer : null
   ]
 }
 ```
-
-[node.js]: https://nodejs.org/en/download
-[postcss plugins]: https://postcss.org/docs/postcss-plugins
-[supported file name]: https://github.com/postcss/postcss-load-config#usage
-[transpile to CSS]: /functions/css/sass/
