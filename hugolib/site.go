@@ -1542,7 +1542,7 @@ func (s *Site) render(ctx *siteRenderContext) (err error) {
 		return err
 	}
 
-	if ctx.outIdx == 0 {
+	if ctx.outIdx == 0 && s.h.buildCounter.Load() == 0 {
 		// Note that even if disableAliases is set, the aliases themselves are
 		// preserved on page. The motivation with this is to be able to generate
 		// 301 redirects in a .htaccess file and similar using a custom output format.
