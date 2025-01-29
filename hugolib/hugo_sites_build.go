@@ -27,6 +27,7 @@ import (
 
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/bufferpool"
+	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -1061,6 +1062,18 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 	}
 
 	resourceFiles := h.fileEventsContentPaths(addedOrChangedContent)
+
+	defer func() {
+		// See issue 13316.
+		h.MemCache.DrainEvictedIdentitiesMatching(func(ki dynacache.KeyIdentity) bool {
+			for _, c := range changes {
+				if c.IdentifierBase() == ki.Identity.IdentifierBase() {
+					return true
+				}
+			}
+			return false
+		})
+	}()
 
 	changed := &WhatChanged{
 		needsPagesAssembly: needsPagesAssemble,
