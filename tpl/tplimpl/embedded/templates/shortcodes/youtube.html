@@ -102,7 +102,7 @@ Renders an embedded YouTube video.
     {{- $allow := "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" }}
     {{- $referrerpolicy := "strict-origin-when-cross-origin" }}
 
-    {{- /* Render. */}}
+    {{- /* Render. */ -}}
     <div
       {{- with $class }} class="{{ . }}" {{- end }}
       {{- with $divStyle }} style="{{ . | safeCSS }}" {{- end -}}
