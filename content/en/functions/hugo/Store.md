@@ -1,13 +1,14 @@
 ---
 title: hugo.Store
-description: Returns a global, persistent "scratch pad" to store and manipulate data.
+description: Returns a globally scoped "scratch pad" to store and manipulate data.
 categories: []
 keywords: []
 action:
   related:
-  - methods/page/store
-  - methods/site/store
-  - functions/collections/NewScratch
+    - methods/page/Store
+    - methods/site/Store
+    - methods/shortcode/Store
+    - functions/collections/NewScratch
   returnType: maps.Scratch
   signatures: [hugo.Store]
 toc: true
@@ -15,16 +16,13 @@ toc: true
 
 {{< new-in 0.139.0 >}}
 
-The global `hugo.Store` function creates a persistent [scratch pad](g) to store and manipulate data. To create a locally scoped, use the [`newScratch`] function.
-
-[`Scratch`]: /functions/hugo/scratch/
-[`newScratch`]: /functions/collections/newscratch/
+Use the `hugo.Store` function to create a globally scoped [scratch pad](g) to store and manipulate data. To create a scratch pad with a different [scope](g), refer to the [scope](#scope) section below.
 
 ## Methods
 
 ###### Set
 
-Sets the value of a given key.
+Sets the value of the given key.
 
 ```go-html-template
 {{ hugo.Store.Set "greeting" "Hello" }}
@@ -32,7 +30,7 @@ Sets the value of a given key.
 
 ###### Get
 
-Gets the value of a given key.
+Gets the value of the given key.
 
 ```go-html-template
 {{ hugo.Store.Set "greeting" "Hello" }}
@@ -41,7 +39,7 @@ Gets the value of a given key.
 
 ###### Add
 
-Adds a given value to existing value(s) of the given key.
+Adds the given value to the existing value(s) of the given key.
 
 For single values, `Add` accepts values that support Go's `+` operator. If the first `Add` for a key is an array or slice, the following adds will be appended to that list.
 
@@ -102,6 +100,8 @@ Removes the given key.
 {{ hugo.Store.Set "greeting" "Hello" }}
 {{ hugo.Store.Delete "greeting" }}
 ```
+
+{{% include "_common/scratch-pad-scope.md" %}}
 
 ## Determinate values
 

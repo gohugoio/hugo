@@ -79,6 +79,7 @@ Please link to the [glossary of terms] when necessary, and use the terms consist
 - The term "standalone" is one word, not hyphenated
 - Use the word "map" instead of "dictionary"
 - Use the word "flag" instead of "option" when referring to a command line flag
+- Use "client side" as a noun, and "client-side" as an adjective
 - Capitalize the word "Markdown"
 - Hyphenate the term "open-source" when used an adjective.
 

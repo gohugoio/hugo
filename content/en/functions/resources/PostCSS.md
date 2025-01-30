@@ -7,7 +7,6 @@ action:
   related: []
   returnType: resource.Resource
   signatures: ['resources.PostCSS [OPTIONS] RESOURCE']
-toc: true
 expiryDate: 2025-06-24 # deprecated 2024-06-24
 ---
 
