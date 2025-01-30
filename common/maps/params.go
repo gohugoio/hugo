@@ -303,7 +303,7 @@ func toMergeStrategy(v any) ParamsMergeStrategy {
 }
 
 // PrepareParams
-// * makes all the keys in the given map lower cased and will do so
+// * makes all the keys in the given map lower cased and will do so recursively.
 // * This will modify the map given.
 // * Any nested map[interface{}]interface{}, map[string]interface{},map[string]string  will be converted to Params.
 // * Any _merge value will be converted to proper type and value.
@@ -342,4 +342,43 @@ func PrepareParams(m Params) {
 			m[lKey] = v
 		}
 	}
+}
+
+// PrepareParamsClone is like PrepareParams, but it does not modify the input.
+func PrepareParamsClone(m Params) Params {
+	m2 := make(Params)
+	for k, v := range m {
+		var retyped bool
+		lKey := strings.ToLower(k)
+		if lKey == MergeStrategyKey {
+			v = toMergeStrategy(v)
+			retyped = true
+		} else {
+			switch vv := v.(type) {
+			case map[any]any:
+				var p Params = cast.ToStringMap(v)
+				v = PrepareParamsClone(p)
+				retyped = true
+			case map[string]any:
+				var p Params = v.(map[string]any)
+				v = PrepareParamsClone(p)
+				retyped = true
+			case map[string]string:
+				p := make(Params)
+				for k, v := range vv {
+					p[k] = v
+				}
+				v = p
+				PrepareParams(p)
+				retyped = true
+			}
+		}
+
+		if retyped || k != lKey {
+			m2[lKey] = v
+		} else {
+			m2[k] = v
+		}
+	}
+	return m2
 }
