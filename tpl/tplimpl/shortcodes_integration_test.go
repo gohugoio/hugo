@@ -675,12 +675,12 @@ title: p2
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/p1/index.html", "515600e76b272f51")
-	b.AssertFileContent("public/p2/index.html", "b5ceeace7dfa797a")
+	b.AssertFileContent("public/p1/index.html", "a0a6f5ade9cc3a9f")
+	b.AssertFileContent("public/p2/index.html", "289c655e727e596c")
 
 	files = strings.ReplaceAll(files, "privacy.youtube.privacyEnhanced = false", "privacy.youtube.privacyEnhanced = true")
 
 	b = hugolib.Test(t, files)
-	b.AssertFileContent("public/p1/index.html", "e92c7f4b768d7e23")
-	b.AssertFileContent("public/p2/index.html", "c384e83e035b71d9")
+	b.AssertFileContent("public/p1/index.html", "b76d790c20d2bd04")
+	b.AssertFileContent("public/p2/index.html", "a6db910a9cf54bc1")
 }
