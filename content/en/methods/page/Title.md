@@ -33,7 +33,7 @@ You can change the capitalization style in your site configuration to one of `ap
 titleCaseStyle = "firstupper"
 {{< /code-toggle >}}
 
- See [details].
+ See&nbsp;[details].
 
 [`capitalizeListTitles`]: /getting-started/configuration/#capitalizelisttitles
 [`pluralizeListTitles`]: /getting-started/configuration/#pluralizelisttitles

@@ -43,7 +43,9 @@ Please follow these guidelines:
 
 ### Glossary of terms
 
-Each term in the glossary has its own dedicated page located within the `content/en/getting-started/glossary` directory. While these individual glossary pages are not published as standalone web pages during the build process, their content is included in other pages as needed.
+Glossary terms are maintained on individual pages. While not directly accessible to site visitors, these pages act as a central repository for term definitions.
+
+Definitions must be presented in complete sentences, with the first sentence always introducing the term being defined. To enhance readability and consistency, the first occurrence of the term and any other referenced glossary terms should be italicized.
 
 To link to a term definition on the glossary page, use this custom link syntax:
 

@@ -228,13 +228,13 @@ See [Configure File Caches](#configure-file-caches).
 
 ###### canonifyURLs
 
-(`bool`) See [details](/content-management/urls/#canonical-urls) before enabling this feature. Default is `false`.
+(`bool`) See&nbsp;[details](/content-management/urls/#canonical-urls) before enabling this feature. Default is `false`.
 
 ###### capitalizeListTitles
 
 {{< new-in 0.123.3 >}}
 
-(`bool`) Whether to capitalize automatic list titles. Applicable to section, taxonomy, and term pages. Default is `true`. You can change the capitalization style in your site configuration to one of `ap`, `chicago`, `go`, `firstupper`, or `none`. See [details].
+(`bool`) Whether to capitalize automatic list titles. Applicable to section, taxonomy, and term pages. Default is `true`. You can change the capitalization style in your site configuration to one of `ap`, `chicago`, `go`, `firstupper`, or `none`. See&nbsp;[details].
 
 [details]: /getting-started/configuration/#configure-title-case
 
@@ -460,7 +460,7 @@ See [Related Content](/content-management/related/#configure-related-content).
 
 ###### relativeURLs
 
-(`bool`) See [details](/content-management/urls/#relative-urls) before enabling this feature. Default is `false`.
+(`bool`) See&nbsp;[details](/content-management/urls/#relative-urls) before enabling this feature. Default is `false`.
 
 ###### removePathAccents
 
@@ -541,7 +541,7 @@ See [module configuration](/hugo-modules/configuration/#module-configuration-imp
 
 ###### uglyURLs
 
-(`bool` or `map`) Whether to generate uglyURLs. Default is `false`. See [details](/content-management/urls/#appearance).
+(`bool` or `map`) Whether to generate uglyURLs. Default is `false`. See&nbsp;[details](/content-management/urls/#appearance).
 
 ###### watch
 

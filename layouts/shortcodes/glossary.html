@@ -35,6 +35,11 @@ shortcode.
     {{- range $p }}
 ###### {{ .Title }}{{/* Do not indent. */}}
 {{ .RenderShortcodes }}{{/* Do not indent. */}}
+      {{- with .Params.reference }}
+        {{- with site.GetPage . -}}
+&#32;See&nbsp;[details]({{ .RelPermalink }}).{{/* Do not indent. */}}
+        {{- end }}
+      {{- end }}
     {{- end }}
 
   {{- end }}

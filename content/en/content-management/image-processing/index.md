@@ -17,7 +17,7 @@ To process an image you must access the file as a page resource, global resource
 
 ### Page resource
 
-A page resource is a file within a [page bundle]. A page bundle is a directory with an `index.md` or `_index.md` file at its root.
+A page resource is a file within a [page bundle]. A page bundle is a directory with an `index.md` or `_index.md`&nbsp;file at its root.
 
 ```text
 content/

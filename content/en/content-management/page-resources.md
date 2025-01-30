@@ -12,7 +12,7 @@ toc: true
 ---
 
 Page resources are only accessible from [page bundles](/content-management/page-bundles), those directories with `index.md` or
-`_index.md` files at their root. Page resources are only available to the
+`_index.md`&nbsp;files at their root. Page resources are only available to the
 page with which they are bundled.
 
 In this example, `first-post` is a page bundle with access to 10 page resources including audio, data, documents, images, and video. Although `second-post` is also a page bundle, it has no page resources and is unable to directly access the page resources associated with `first-post`.
