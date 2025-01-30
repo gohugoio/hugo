@@ -106,7 +106,9 @@ Create a partial template to load MathJax or KaTeX. The example below loads Math
       displayMath: [['\\[', '\\]'], ['$$', '$$']],  // block
       inlineMath: [['\\(', '\\)']]                  // inline
     },
-    loader: {load: ['ui/safe']},
+    loader:{
+      load: ['ui/safe']
+    },
   };
 </script>
 {{< /code >}}
