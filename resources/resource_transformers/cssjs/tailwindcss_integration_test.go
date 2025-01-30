@@ -36,8 +36,8 @@ func TestTailwindV4Basic(t *testing.T) {
     "url": "https://github.com/bep/hugo-starter-tailwind-basic.git"
   },
   "devDependencies": {
-    "@tailwindcss/cli": "^4.0.0-alpha.26",
-    "tailwindcss": "^4.0.0-alpha.26"
+    "@tailwindcss/cli": "^4.0.1",
+    "tailwindcss": "^4.0.1"
   },
   "name": "hugo-starter-tailwind-basic",
   "version": "0.1.0"
@@ -68,5 +68,5 @@ CSS: {{ $css.Content | safeCSS }}|
 			LogLevel:        logg.LevelInfo,
 		}).Build()
 
-	b.AssertFileContent("public/index.html", "/*! tailwindcss v4.0.0")
+	b.AssertFileContent("public/index.html", "/*! tailwindcss v4.")
 }
