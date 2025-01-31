@@ -147,13 +147,13 @@ func TestClear(t *testing.T) {
 
 	c.Assert(cache.Keys(predicateAll), qt.HasLen, 4)
 
-	cache.ClearOnRebuild()
+	cache.ClearOnRebuild(nil)
 
 	// Stale items are always cleared.
 	c.Assert(cache.Keys(predicateAll), qt.HasLen, 2)
 
 	cache = newTestCache(t)
-	cache.ClearOnRebuild(identity.StringIdentity("changed"))
+	cache.ClearOnRebuild(nil, identity.StringIdentity("changed"))
 
 	c.Assert(cache.Keys(nil), qt.HasLen, 1)
 

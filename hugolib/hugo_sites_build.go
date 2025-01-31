@@ -27,7 +27,6 @@ import (
 
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/bufferpool"
-	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -828,6 +827,11 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 		addedContentPaths []*paths.Path
 	)
 
+	var (
+		addedOrChangedContent []pathChange
+		changes               []identity.Identity
+	)
+
 	for _, ev := range eventInfos {
 		cpss := h.BaseFs.ResolvePaths(ev.Name)
 		pss := make([]*paths.Path, len(cpss))
@@ -854,6 +858,13 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 			if err == nil && g != nil {
 				cacheBusters = append(cacheBusters, g)
 			}
+
+			if ev.added {
+				changes = append(changes, identity.StructuralChangeAdd)
+			}
+			if ev.removed {
+				changes = append(changes, identity.StructuralChangeRemove)
+			}
 		}
 
 		if ev.removed {
@@ -864,11 +875,6 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 			changedPaths.changedFiles = append(changedPaths.changedFiles, pss...)
 		}
 	}
-
-	var (
-		addedOrChangedContent []pathChange
-		changes               []identity.Identity
-	)
 
 	// Find the most specific identity possible.
 	handleChange := func(pathInfo *paths.Path, delete, isDir bool) {
@@ -1062,18 +1068,6 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 	}
 
 	resourceFiles := h.fileEventsContentPaths(addedOrChangedContent)
-
-	defer func() {
-		// See issue 13316.
-		h.MemCache.DrainEvictedIdentitiesMatching(func(ki dynacache.KeyIdentity) bool {
-			for _, c := range changes {
-				if c.IdentifierBase() == ki.Identity.IdentifierBase() {
-					return true
-				}
-			}
-			return false
-		})
-	}()
 
 	changed := &WhatChanged{
 		needsPagesAssembly: needsPagesAssemble,
