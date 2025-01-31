@@ -1,6 +1,6 @@
 ---
 title: Scratch
-description: Returns a "scratch pad" scoped to the shortcode to store and manipulate data. 
+description: Returns a "scratch pad" to store and manipulate data, scoped to the current shortcode.
 categories: []
 keywords: []
 action:

@@ -1,6 +1,6 @@
 ---
 title: Scratch
-description: Returns a "scratch pad" on the given page to store and manipulate data.
+description: Returns a "scratch pad" to store and manipulate data, scoped to the current page.
 categories: []
 keywords: []
 action:
