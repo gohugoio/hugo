@@ -33,6 +33,9 @@ const (
 
 	// GenghisKhan is an Identity everyone relates to.
 	GenghisKhan = StringIdentity("__genghiskhan")
+
+	StructuralChangeAdd    = StringIdentity("__structural_change_add")
+	StructuralChangeRemove = StringIdentity("__structural_change_remove")
 )
 
 var NopManager = new(nopManager)

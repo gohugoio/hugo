@@ -95,6 +95,10 @@ func (c *Client) Concat(targetPath string, r resource.Resources) (resource.Resou
 		}
 
 		idm := c.rs.Cfg.NewIdentityManager("concat")
+
+		// Re-create on structural changes.
+		idm.AddIdentity(identity.StructuralChangeAdd, identity.StructuralChangeRemove)
+
 		// Add the concatenated resources as dependencies to the composite resource
 		// so that we can track changes to the individual resources.
 		idm.AddIdentityForEach(identity.ForEeachIdentityProviderFunc(
