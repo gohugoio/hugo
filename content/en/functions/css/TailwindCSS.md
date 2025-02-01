@@ -14,7 +14,7 @@ action:
 toc: true
 ---
 
-{{< new-in 0.128.0 >}}
+{{< new-in 0.128.0 />}}
 
 ## Prerequisites
 

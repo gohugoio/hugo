@@ -154,7 +154,7 @@ target
 : (`string`) Where it should be mounted into Hugo's virtual filesystem. It must start with one of Hugo's component directories: `static`, `content`, `layouts`, `data`, `assets`, `i18n`, or `archetypes`. E.g. `content/blog`.
 
 disableWatch
-{{< new-in 0.128.0 >}}
+{{< new-in 0.128.0 />}}
 : (`bool`) Whether to disable watching in watch mode for this mount. Default is `false`.
 
 lang

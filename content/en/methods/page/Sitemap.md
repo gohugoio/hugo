@@ -21,7 +21,7 @@ changefreq
 {{ .Sitemap.ChangeFreq }}
 ```
 
-disable {{< new-in 0.125.0 >}}
+disable {{< new-in 0.125.0 />}}
 : (`bool`) Whether to disable page inclusion. Default is `false`. Set to `true` in front matter to exclude the page.
 
 ```go-html-template

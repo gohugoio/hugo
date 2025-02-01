@@ -20,11 +20,11 @@ The `Resources.Colors` method returns a slice of the most dominant colors in an 
 Each color is an object with the following methods:
 
 ColorHex
-{{< new-in 0.125.0 >}}
+{{< new-in 0.125.0 />}}
 : (`string`) Returns the [hexadecimal color] value, prefixed with a hash sign.
 
 Luminance
-{{< new-in 0.125.0 >}}
+{{< new-in 0.125.0 />}}
 : (`float64`) Returns the [relative luminance] of the color in the sRGB colorspace in the range [0, 1]. A value of `0` represents the darkest black, while a value of `1` represents the lightest white.
 
 {{% note %}}

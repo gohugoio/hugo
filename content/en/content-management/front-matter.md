@@ -179,7 +179,7 @@ path
 
 ###### params
 
-{{< new-in 0.123.0 >}}
+{{< new-in 0.123.0 />}}
 
 (`map`) A map of custom [page parameters].
 
@@ -258,7 +258,7 @@ Alias to [expirydate](#expirydate).
 
 ## Parameters
 
-{{< new-in 0.123.0 >}}
+{{< new-in 0.123.0 />}}
 
 Specify custom page parameters under the `params` key in front matter:
 

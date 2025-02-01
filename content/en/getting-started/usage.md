@@ -65,7 +65,7 @@ Hugo allows you to set `draft`, `date`, `publishDate`, and `expiryDate` in the [
 - The `publishDate` is in the future
 - The `expiryDate` is in the past
 
-{{< new-in 0.123.0 >}}
+{{< new-in 0.123.0 />}}
 
 {{% note %}}
 Hugo publishes descendants of draft, future, and expired [node](g) pages. To prevent publication of these descendants, use the [`cascade`] front matter field to cascade [build options] to the descendant pages.

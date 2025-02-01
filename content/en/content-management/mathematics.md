@@ -13,7 +13,7 @@ toc: true
 math: true
 ---
 
-{{< new-in 0.122.0 >}}
+{{< new-in 0.122.0 />}}
 
 ## Overview
 

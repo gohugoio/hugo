@@ -54,7 +54,7 @@ The `build.cachebusters` configuration option was added to support development u
     target = "$1"
 {{< /code-toggle >}}
 
-When `buildStats` {{< new-in 0.115.1 >}} is enabled, Hugo writes a `hugo_stats.json` file on each build with HTML classes etc. that's used in the rendered output. Changes to this file will trigger a rebuild of the `styles.css` file. You also need to add `hugo_stats.json` to Hugo's server watcher. See [Hugo Starter Tailwind Basic](https://github.com/bep/hugo-starter-tailwind-basic) for a running example.
+When `buildStats` {{< new-in 0.115.1 />}} is enabled, Hugo writes a `hugo_stats.json` file on each build with HTML classes etc. that's used in the rendered output. Changes to this file will trigger a rebuild of the `styles.css` file. You also need to add `hugo_stats.json` to Hugo's server watcher. See [Hugo Starter Tailwind Basic](https://github.com/bep/hugo-starter-tailwind-basic) for a running example.
 
 source
 : A regexp matching file(s) relative to one of the virtual component directories in Hugo, typically `assets/...`.
@@ -66,7 +66,7 @@ target
 
 {{< code-toggle config=build.buildStats />}}
 
-{{< new-in 0.115.1 >}}
+{{< new-in 0.115.1 />}}
 
 If `enable` is set to `true`, creates a `hugo_stats.json` file in the root of your project. This file contains arrays of the `class` attributes, `id` attributes, and tags of every HTML element within your published site. Use this file as data source when [removing unused CSS] from your site. This process is also known as pruning, purging, or tree shaking.
 

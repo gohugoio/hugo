@@ -12,7 +12,7 @@ action:
 toc: true
 ---
 
-{{< new-in 0.123.0 >}}
+{{< new-in 0.123.0 />}}
 
 The `Path` method on a `Page` object returns the [logical path](g) of the given page, regardless of whether the page is backed by a file.
 

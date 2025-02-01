@@ -11,7 +11,7 @@ toc: true
 math: true
 ---
 
-{{< new-in 0.141.0 >}}
+{{< new-in 0.141.0 />}}
 
 The `images.QR` function encodes the given text into a [QR code] using the specified options, returning an image resource. The size of the generated image depends on three factors:
 

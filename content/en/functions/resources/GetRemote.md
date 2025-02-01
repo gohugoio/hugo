@@ -18,6 +18,15 @@ action:
 toc: true
 ---
 
+{{< new-in 0.141.0 >}}
+The `Err` method on the returned resource was removed in v0.141.0.
+
+Use the [`try`] statement instead, as shown in the [error handling] example below.
+
+[`try`]: /functions/go-template/try
+[error handling]: #error-handling
+{{< /new-in >}}
+
 ```go-html-template
 {{ $url := "https://example.org/images/a.jpg" }}
 {{ with try (resources.GetRemote $url) }}

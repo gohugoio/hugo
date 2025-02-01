@@ -18,7 +18,7 @@ To override Hugo's embedded `comment` shortcode, copy the [source code] to a fil
 [source code]: {{% eturl comment %}}
 {{% /note %}}
 
-{{< new-in "0.137.1" >}}
+{{< new-in 0.137.1 />}}
 
 Use the `comment` shortcode to include comments in your content. Hugo will ignore the text within these comments when rendering your site.
 

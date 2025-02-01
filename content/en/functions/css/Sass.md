@@ -15,7 +15,7 @@ action:
 toc: true
 ---
 
-{{< new-in 0.128.0 >}}
+{{< new-in 0.128.0 />}}
 
 ```go-html-template
 {{ with resources.Get "sass/main.scss" }}
@@ -92,7 +92,7 @@ includePaths
 ```
 
 silenceDeprecations
-: (`slice`) {{< new-in 0.139.0 >}} A slice of deprecation IDs to silence. The deprecation IDs are printed to in the warning message, e.g "import" in `WARN  Dart Sass: DEPRECATED [import] ...`. This is for Dart Sass only.
+: (`slice`) {{< new-in 0.139.0 />}} A slice of deprecation IDs to silence. The deprecation IDs are printed to in the warning message, e.g "import" in `WARN  Dart Sass: DEPRECATED [import] ...`. This is for Dart Sass only.
 
 ## Dart Sass
 

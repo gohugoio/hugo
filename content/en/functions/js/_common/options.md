@@ -23,7 +23,7 @@ Note that this is meant for small data sets, e.g. configuration settings. For la
 
 ###### loaders
 
-{{< new-in "0.140.0" >}}
+{{< new-in 0.140.0 />}}
 
 (`map`) Configuring a loader for a given file type lets you load that file type with an import statement or a require call. For example configuring the .png file extension to use the data URL loader means importing a .png file gives you a data URLcontaining the contents of that image. Loaders available are `none`, `base64`, `binary`, `copy`,  `css`,  `dataurl`, `default`, `empty`, `file`, `global-css`, `js`, `json`, `jsx`, `local-css`,  `text`, `ts`, `tsx`. See https://esbuild.github.io/api/#loader.
 
@@ -65,7 +65,7 @@ import * as ReactDOM from 'react-dom/client';
 
 ###### platform
 
-{{< new-in 0.140.0 >}}
+{{< new-in 0.140.0 />}}
 
 (`string`) One of `browser`, `node`, `neutral`.  Default is `browser`. See https://esbuild.github.io/api/#platform.
 
@@ -87,19 +87,19 @@ import * as ReactDOM from 'react-dom/client';
 
 ###### sourcesContent
 
-{{< new-in 0.140.0 >}}
+{{< new-in 0.140.0 />}}
 
 (`bool`) Whether to include the content of the source files in the source map. By default, this is `true`.
 
 ###### JSX
 
-{{< new-in 0.124.0 >}}
+{{< new-in 0.124.0 />}}
 
 (`string`) How to handle/transform JSX syntax. One of: `transform`, `preserve`, `automatic`. Default is `transform`. Notably, the `automatic` transform was introduced in React 17+ and will cause the necessary JSX helper functions to be imported automatically. See https://esbuild.github.io/api/#jsx.
 
 ###### JSXImportSource
 
-{{< new-in 0.124.0 >}}
+{{< new-in 0.124.0 />}}
 
 (`string`) Which library to use to automatically import its JSX helper functions from. This only works if `JSX` is set to `automatic`. The specified library needs to be installed through npm and expose certain exports. See https://esbuild.github.io/api/#jsx-import-source.
 

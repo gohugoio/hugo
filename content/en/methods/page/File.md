@@ -84,7 +84,7 @@ The path separators (slash or backslash) in `Path`, `Dir`, and `Filename` depend
 
 ###### IsContentAdapter
 
-{{< new-in 0.126.0 >}}
+{{< new-in 0.126.0 />}}
 
 (`bool`) Reports whether the file is a [content adapter].
 

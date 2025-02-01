@@ -14,7 +14,7 @@ action:
 toc: true
 ---
 
-{{< new-in 0.139.0 >}}
+{{< new-in 0.139.0 />}}
 
 Use the `hugo.Store` function to create a globally scoped [scratch pad](g) to store and manipulate data. To create a scratch pad with a different [scope](g), refer to the [scope](#scope) section below.
 

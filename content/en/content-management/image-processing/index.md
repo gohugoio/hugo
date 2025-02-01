@@ -110,7 +110,7 @@ Metadata (EXIF, IPTC, XMP, etc.) is not preserved during image transformation. U
 
 ### Process
 
-{{< new-in 0.119.0 >}}
+{{< new-in 0.119.0 />}}
 
 {{% note %}}
 The `Process` method is also available as a filter, which is more effective if you need to apply multiple filters to an image. See [Process filter](/functions/images/process).

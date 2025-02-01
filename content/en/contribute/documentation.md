@@ -365,7 +365,7 @@ Use the `new-in` shortcode to indicate a new feature:
 {{</* new-in 0.127.0 */>}}
 ```
 
-{{< new-in 0.127.0 >}}
+{{< new-in 0.127.0 />}}
 
 ### note
 

@@ -35,7 +35,7 @@ These are the default sitemap configuration values. They apply to all pages unle
 changefreq
 : (`string`) How frequently a page is likely to change. Valid values are `always`, `hourly`, `daily`, `weekly`, `monthly`, `yearly`, and `never`. With the default value of `""` Hugo will omit this field from the sitemap. See&nbsp;[details](https://www.sitemaps.org/protocol.html#changefreqdef).
 
-disable {{< new-in 0.125.0 >}}
+disable {{< new-in 0.125.0 />}}
 : (`bool`) Whether to disable page inclusion. Default is `false`. Set to `true` in front matter to exclude the page.
 
 filename

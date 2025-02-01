@@ -13,7 +13,7 @@ action:
 toc: true
 ---
 
-{{< new-in 0.128.0 >}}
+{{< new-in 0.128.0 />}}
 
 ```go-html-template
 {{ with resources.Get "css/main.css" | postCSS }}
