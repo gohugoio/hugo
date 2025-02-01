@@ -61,7 +61,7 @@ The `resources.GetRemote` function takes an optional map of options.
 (`string`) The action to perform on the requested resource, typically one of `GET`, `POST`, or `HEAD`.
 
 ###### responseHeaders
-{{< new-in 0.143.0 >}}
+{{< new-in 0.143.0 />}}
 
 (`[]string`) The headers to extract from the server's response, accessible through the resource's [`Data.Headers`] method. Header name matching is case-insensitive.
 
