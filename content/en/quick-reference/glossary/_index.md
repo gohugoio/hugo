@@ -1,13 +1,14 @@
 ---
-title: Glossary of terms
+title: Glossary
 description: Terms commonly used throughout the documentation.
-categories: [getting started]
+categories: [quick-reference]
 keywords: [glossary]
 menu:
   docs:
-    parent: getting-started
-    weight: 80
-weight: 80
+    parent: quick-reference
+    weight: 40
+aliases: [/getting-started/glossary/]
+weight: 40
 layout: single
 build:
   render: always

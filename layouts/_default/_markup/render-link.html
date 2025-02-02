@@ -271,7 +271,7 @@ either of these shortcodes in conjunction with this render hook.
   {{- $text := .text | transform.Plainify | strings.ToLower }}
 
   {{- /* Initialize. */}}
-  {{- $glossaryPath := "/getting-started/glossary" }}
+  {{- $glossaryPath := "/quick-reference/glossary" }}
   {{- $termGiven := $text }}
   {{- $termActual := "" }}
   {{- $termSingular := inflect.Singularize $termGiven }}
