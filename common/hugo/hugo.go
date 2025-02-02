@@ -418,7 +418,7 @@ func Deprecate(item, alternative string, version string) {
 func DeprecateLevel(item, alternative, version string, level logg.Level) {
 	var msg string
 	if level == logg.LevelError {
-		msg = fmt.Sprintf("%s was deprecated in Hugo %s and will be removed in Hugo %s. %s", item, version, CurrentVersion.Next().ReleaseVersion(), alternative)
+		msg = fmt.Sprintf("%s was deprecated in Hugo %s and subsequently removed. %s", item, version, alternative)
 	} else {
 		msg = fmt.Sprintf("%s was deprecated in Hugo %s and will be removed in a future release. %s", item, version, alternative)
 	}
@@ -434,11 +434,11 @@ func deprecationLogLevelFromVersion(ver string) logg.Level {
 	to := CurrentVersion
 	minorDiff := to.Minor - from.Minor
 	switch {
-	case minorDiff >= 12:
-		// Start failing the build after about a year.
+	case minorDiff >= 15:
+		// Start failing the build after about 15 months.
 		return logg.LevelError
-	case minorDiff >= 6:
-		// Start printing warnings after about six months.
+	case minorDiff >= 3:
+		// Start printing warnings after about 3 months.
 		return logg.LevelWarn
 	default:
 		return logg.LevelInfo

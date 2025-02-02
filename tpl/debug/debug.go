@@ -171,7 +171,7 @@ func (ns *Namespace) TestDeprecationInfo(item, alternative string) string {
 // Internal template func, used in tests only.
 func (ns *Namespace) TestDeprecationWarn(item, alternative string) string {
 	v := hugo.CurrentVersion
-	v.Minor -= 6
+	v.Minor -= 3
 	hugo.Deprecate(item, alternative, v.String())
 	return ""
 }
@@ -179,7 +179,7 @@ func (ns *Namespace) TestDeprecationWarn(item, alternative string) string {
 // Internal template func, used in tests only.
 func (ns *Namespace) TestDeprecationErr(item, alternative string) string {
 	v := hugo.CurrentVersion
-	v.Minor -= 12
+	v.Minor -= 15
 	hugo.Deprecate(item, alternative, v.String())
 	return ""
 }
