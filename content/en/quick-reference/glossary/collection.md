@@ -2,4 +2,4 @@
 title: collection
 ---
 
-An [array](g), [slice](g), or [map](g).
+A _collection_ is an [_array_](g), [_slice_](g), or [_map_](g).

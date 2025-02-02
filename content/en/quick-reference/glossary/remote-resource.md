@@ -2,4 +2,4 @@
 title: remote resource
 ---
 
-A file on a remote server, accessible via HTTP or HTTPS with the [`resources.GetRemote`](/functions/resources/getremote) function.
+A _remote resource_ is a file on a remote server, accessible via HTTP or HTTPS.

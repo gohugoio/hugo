@@ -1,5 +1,6 @@
 ---
 title: marshal
+reference: /functions/transform/remarshal/
 ---
 
-To transform a data structure into a serialized object. For example, transforming a [map](g) into a JSON string. See [unmarshal](g).
+To _marshal_ is to transform a data structure into a serialized object. For example, transforming a [_map_](g) into a JSON string.

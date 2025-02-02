@@ -2,4 +2,4 @@
 title: section page
 ---
 
-Content with the "section" [page kind](g). Typically a listing of [regular pages](g) and/or other section pages within the current [section](g).
+A _section page_ is a page with the "section" [_page kind_](g). Typically a listing of [_regular pages_](g) and/or other section pages within the current [_section_](g).

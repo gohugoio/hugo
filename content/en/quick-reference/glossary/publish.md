@@ -2,4 +2,4 @@
 title: publish
 ---
 
-See [build](g).
+See [_build_](g).

@@ -2,4 +2,4 @@
 title: layout
 ---
 
-See [template](g).
+See [_template_](g).

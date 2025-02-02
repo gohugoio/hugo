@@ -2,4 +2,4 @@
 title: page collection
 ---
 
-A slice of `Page` objects.
+A _page collection_ is a slice of `Page` objects.

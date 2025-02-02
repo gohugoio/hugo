@@ -2,4 +2,4 @@
 title: CLI
 ---
 
-Command line interface.
+_CLI_ is an abbreviation of Command Line Interface.

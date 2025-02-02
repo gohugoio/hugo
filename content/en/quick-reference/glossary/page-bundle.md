@@ -1,5 +1,6 @@
 ---
 title: page bundle
+reference: /content-management/page-bundles/
 ---
 
-A directory that encapsulates both content and associated [resources](g). There are two types of page bundles: [leaf bundles](g) and [branch bundles](g). See&nbsp;[details](/content-management/page-bundles/).
+A _page bundle_ is a directory that encapsulates both content and associated [_resources_](g). There are two types of page bundles: [_leaf bundles_](g) and [_branch bundles_](g).

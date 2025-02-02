@@ -2,4 +2,4 @@
 title: pipe
 ---
 
-See [pipeline](g).
+See [_pipeline_](g).

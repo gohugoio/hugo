@@ -3,4 +3,4 @@ title: Markdown attribute
 reference: /content-management/markdown-attributes/
 ---
 
-A list of attributes, containing one or more key-value pairs, separated by spaces or commas, and wrapped by braces. Apply Markdown attributes to images and block-level elements including blockquotes, fenced code blocks, headings, horizontal rules, lists, paragraphs, and tables.
+A _Markdown attribute_ is a key-value pair attached to a Markdown element.  These attributes are commonly used to add HTML attributes, like `class` and `id`, to the element when it's rendered into HTML.  They provide a way to extend the basic Markdown syntax and add more semantic meaning or styling hooks to your content.

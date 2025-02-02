@@ -2,4 +2,4 @@
 title: paginator
 ---
 
-A collection of [pagers](g).
+A _paginator_ is a collection of [_pagers_](g).

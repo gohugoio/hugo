@@ -2,4 +2,4 @@
 title: term page
 ---
 
-Content with the "term" [page kind](g). Typically a listing of [regular pages](g) and [section pages](g) with a given [term](g).
+A _term page_ is a page with the "term" [_page kind_](g). Typically a listing of [_regular pages_](g) and [_section pages_](g) with a given [_term_](g).

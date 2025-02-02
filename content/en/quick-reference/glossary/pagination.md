@@ -3,4 +3,4 @@ title: pagination
 reference: /templates/pagination
 ---
 
-The process of [paginating](g) a list page.
+The term _pagination_ refers to the process of [_paginating_](g) a list page.

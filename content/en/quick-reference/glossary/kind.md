@@ -2,4 +2,4 @@
 title: kind
 ---
 
-See [page kind](g).
+See [_page kind_](g).

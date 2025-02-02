@@ -3,4 +3,4 @@ title: function
 reference: /functions
 ---
 
-Used within a [template action](g), a function takes one or more [arguments](g) and returns a value. Unlike [methods](g), functions are not associated with an [object](g). 
+Used within a [_template action_](g), a _function_ takes one or more [_arguments_](g) and returns a value. Unlike [_methods_](g), functions are not associated with an [_object_](g).

@@ -2,4 +2,4 @@
 title: paginate
 ---
 
-To split a list page into two or more subsets.
+To _paginate_ is to split a list page into two or more subsets.

@@ -2,4 +2,4 @@
 title: bool
 ---
 
-See [boolean](g).
+See [_boolean_](g).

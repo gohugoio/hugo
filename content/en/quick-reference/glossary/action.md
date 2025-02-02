@@ -2,4 +2,4 @@
 title: action
 ---
 
-See [template action](g).
+See [_template action_](g).

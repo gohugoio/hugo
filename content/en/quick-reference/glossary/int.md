@@ -2,4 +2,4 @@
 title: int
 ---
 
-See [integer](g).
+See [_integer_](g).

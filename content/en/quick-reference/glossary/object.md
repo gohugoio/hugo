@@ -2,4 +2,4 @@
 title: object
 ---
 
-A data structure with or without associated [methods](g).
+An _object_ is a data structure with or without associated [_methods_](g).
