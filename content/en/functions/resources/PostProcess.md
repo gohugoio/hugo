@@ -13,7 +13,7 @@ action:
 toc: true
 ---
 
-The `resources.PostProces`s function delays resource transformation steps until the build is complete, primarily for tasks like removing unused CSS rules.
+The `resources.PostProcess` function delays resource transformation steps until the build is complete, primarily for tasks like removing unused CSS rules.
 
 ## Example
 

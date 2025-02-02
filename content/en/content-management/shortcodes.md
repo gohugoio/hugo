@@ -236,6 +236,6 @@ Shortcodes (excluding [inline](#inline) shortcodes) can be nested, creating pare
 {{</* /gallery */>}}
 {{< /code >}}
 
-The [shortcode templates][nesting] section provides a detailed explantion and examples.
+The [shortcode templates][nesting] section provides a detailed explanation and examples.
 
 [nesting]: /templates/shortcode/#nesting

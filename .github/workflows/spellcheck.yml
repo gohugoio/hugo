@@ -20,3 +20,8 @@ jobs:
           incremental_files_only: true
           inline: warning
           strict: false
+      - uses: codespell-project/actions-codespell@v2
+        with:
+          check_filenames: true
+          check_hidden: true
+          # by default, codespell uses configuration from the .codespellrc

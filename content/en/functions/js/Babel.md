@@ -103,4 +103,4 @@ module.exports = {
 
 ###### verbose
 
-(`bool`) Whether to enable verbose logging. Default is `fasle`
+(`bool`) Whether to enable verbose logging. Default is `false`
