@@ -143,7 +143,7 @@ branch-bundle-2
 : This branch bundle contains an index file and a leaf bundle.
 
 {{% note %}}
-Create branch bundles at any depth within the `content` directory, but a leaf bundle may not contain another bundle. Leaf bundles do not have descendants.
+Create branch bundles at any depth within the `content` directory. Branch bundles may have descendants.
 {{% /note %}}
 
 ## Headless bundles
