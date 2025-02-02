@@ -57,11 +57,11 @@ func TestDeprecationLogLevelFromVersion(t *testing.T) {
 	c.Assert(deprecationLogLevelFromVersion("0.55.0"), qt.Equals, logg.LevelError)
 	ver := CurrentVersion
 	c.Assert(deprecationLogLevelFromVersion(ver.String()), qt.Equals, logg.LevelInfo)
-	ver.Minor -= 1
-	c.Assert(deprecationLogLevelFromVersion(ver.String()), qt.Equals, logg.LevelInfo)
-	ver.Minor -= 6
+	ver.Minor -= 3
 	c.Assert(deprecationLogLevelFromVersion(ver.String()), qt.Equals, logg.LevelWarn)
-	ver.Minor -= 6
+	ver.Minor -= 4
+	c.Assert(deprecationLogLevelFromVersion(ver.String()), qt.Equals, logg.LevelWarn)
+	ver.Minor -= 13
 	c.Assert(deprecationLogLevelFromVersion(ver.String()), qt.Equals, logg.LevelError)
 
 	// Added just to find the threshold for where we can remove deprecated items.
