@@ -1124,7 +1124,7 @@ func (h *HugoSites) resolveAndClearStateForIdentities(
 	cachebuster func(s string) bool, changes []identity.Identity,
 ) error {
 	// Drain the cache eviction stack to start fresh.
-	h.Deps.MemCache.DrainEvictedIdentities()
+	evictedStart := h.Deps.MemCache.DrainEvictedIdentities()
 
 	h.Log.Debug().Log(logg.StringFunc(
 		func() string {
@@ -1199,6 +1199,27 @@ func (h *HugoSites) resolveAndClearStateForIdentities(
 	if len(evicted) < 200 {
 		for _, c := range evicted {
 			changes = append(changes, c.Identity)
+		}
+
+		if len(evictedStart) > 0 {
+			// In low memory situations and/or very big sites, there can be a lot of unrelated evicted items,
+			// but there's a chance that some of them are related to the changes we are about to process,
+			// so check.
+			depsFinder := identity.NewFinder(identity.FinderConfig{})
+			var addends []identity.Identity
+			for _, ev := range evictedStart {
+				for _, id := range changes {
+					if cachebuster != nil && cachebuster(ev.Key.(string)) {
+						addends = append(addends, ev.Identity)
+						break
+					}
+					if r := depsFinder.Contains(id, ev.Identity, -1); r > 0 {
+						addends = append(addends, ev.Identity)
+						break
+					}
+				}
+			}
+			changes = append(changes, addends...)
 		}
 	} else {
 		// Mass eviction, we might as well invalidate everything.
