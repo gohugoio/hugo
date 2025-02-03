@@ -17,7 +17,7 @@ action:
 toc: true
 ---
 
-{{% include "methods/page/_common/definition-of-section.md" %}}
+{{% glossary-term section %}}
 
 With this content structure:
 
