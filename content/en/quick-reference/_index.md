@@ -1,7 +1,7 @@
 ---
 title: Quick reference guides
 linkTitle: In this section
-description: Quick reference guides to Hugo's features, functions, and methods.
+description: Use these quick reference guides for quick access to key information.
 categories: []
 keywords: []
 menu:
@@ -13,4 +13,4 @@ weight: 10
 showSectionMenu: false
 ---
 
-Quick reference guides to Hugo's features, functions, and methods.
+{{% param description %}}
