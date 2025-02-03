@@ -100,6 +100,9 @@ var shortCodeLexerTests = []lexerTest{
 	{"non-alphanumerics param quoted", `{{< sc1 "-ziL-.%QigdO-4" >}}`, []typeText{
 		tstLeftNoMD, tstSC1, nti(tScParam, "-ziL-.%QigdO-4"), tstRightNoMD, tstEOF,
 	}, nil},
+	{"non-alphanumerics param non quoted", `{{< sc1 param1=% >}}`, []typeText{
+		tstLeftNoMD, tstSC1, tstParam1, nti(tScParamVal, ""), nti(tError, "unrecognized character in shortcode action: U+0025 '%'. Note: Parameters with non-alphanumeric args must be quoted"),
+	}, nil},
 	{"raw string", `{{< sc1` + "`" + "Hello World" + "`" + ` >}}`, []typeText{
 		tstLeftNoMD, tstSC1, nti(tScParam, "Hello World"), tstRightNoMD, tstEOF,
 	}, nil},

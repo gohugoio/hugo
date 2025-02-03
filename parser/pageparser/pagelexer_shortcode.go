@@ -139,7 +139,13 @@ func lexShortcodeParam(l *pageLexer, escapedQuoteStart bool) stateFunc {
 }
 
 func lexShortcodeParamVal(l *pageLexer) stateFunc {
-	l.consumeToSpace()
+	for {
+		r := l.next()
+		if r == eof || isSpace(r) || (!isAlphaNumericOrHyphen(r) && r != '.') {
+			l.backup()
+			break
+		}
+	}
 	l.emit(tScParamVal)
 	return lexInsideShortcode
 }
