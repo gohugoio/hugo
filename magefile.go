@@ -1,11 +1,9 @@
 //go:build mage
-// +build mage
 
 package main
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -36,10 +34,6 @@ func init() {
 	if exe := os.Getenv("GOEXE"); exe != "" {
 		goexe = exe
 	}
-
-	// We want to use Go 1.11 modules even if the source lives inside GOPATH.
-	// The default is "auto".
-	os.Setenv("GO111MODULE", "on")
 }
 
 func runWith(env map[string]string, cmd string, inArgs ...any) error {
@@ -122,10 +116,10 @@ func HugoNoGitInfo() error {
 	return Hugo()
 }
 
-var docker = sh.RunCmd("docker")
-
 // Build hugo Docker container
 func Docker() error {
+	docker := sh.RunCmd("docker")
+
 	if err := docker("build", "-t", "hugo", "."); err != nil {
 		return err
 	}
@@ -148,7 +142,7 @@ func Check() {
 		fmt.Printf("Skip Test386 on %s and/or %s\n", runtime.GOARCH, runtime.GOOS)
 	}
 
-	if isCi() && isDarwin() {
+	if isCI() && isDarwin() {
 		// Skip on macOS in CI (disk space issues)
 	} else {
 		mg.Deps(Fmt, Vet)
@@ -200,56 +194,19 @@ func Fmt() error {
 	return nil
 }
 
-var (
-	pkgPrefixLen = len("github.com/gohugoio/hugo")
-	pkgs         []string
-	pkgsInit     sync.Once
-)
+const pkgPrefixLen = len("github.com/gohugoio/hugo")
 
-func hugoPackages() ([]string, error) {
-	var err error
-	pkgsInit.Do(func() {
-		var s string
-		s, err = sh.Output(goexe, "list", "./...")
-		if err != nil {
-			return
-		}
-		pkgs = strings.Split(s, "\n")
-		for i := range pkgs {
-			pkgs[i] = "." + pkgs[i][pkgPrefixLen:]
-		}
-	})
-	return pkgs, err
-}
-
-// Run golint linter
-func Lint() error {
-	pkgs, err := hugoPackages()
+var hugoPackages = sync.OnceValues(func() ([]string, error) {
+	s, err := sh.Output(goexe, "list", "./...")
 	if err != nil {
-		return err
+		return nil, err
 	}
-	failed := false
-	for _, pkg := range pkgs {
-		// We don't actually want to fail this target if we find golint errors,
-		// so we don't pass -set_exit_status, but we still print out any failures.
-		if _, err := sh.Exec(nil, os.Stderr, nil, "golint", pkg); err != nil {
-			fmt.Printf("ERROR: running go lint on %q: %v\n", pkg, err)
-			failed = true
-		}
+	pkgs := strings.Split(s, "\n")
+	for i := range pkgs {
+		pkgs[i] = "." + pkgs[i][pkgPrefixLen:]
 	}
-	if failed {
-		return errors.New("errors running golint")
-	}
-	return nil
-}
-
-func isCi() bool {
-	return os.Getenv("CI") != ""
-}
-
-func isDarwin() bool {
-	return runtime.GOOS == "darwin"
-}
+	return pkgs, nil
+})
 
 // Run go vet linter
 func Vet() error {
@@ -270,7 +227,7 @@ func TestCoverHTML() error {
 		return err
 	}
 	defer f.Close()
-	if _, err := f.Write([]byte("mode: count")); err != nil {
+	if _, err := f.WriteString("mode: count"); err != nil {
 		return err
 	}
 	pkgs, err := hugoPackages()
@@ -318,6 +275,10 @@ func isGoLatest() bool {
 
 func isUnix() bool {
 	return runtime.GOOS != "windows"
+}
+
+func isDarwin() bool {
+	return runtime.GOOS == "darwin"
 }
 
 func isCI() bool {
