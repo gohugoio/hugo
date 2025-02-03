@@ -69,6 +69,7 @@ type InternalConfig struct {
 	Watch          bool
 	FastRenderMode bool
 	LiveReloadPort int
+	Vendor         bool
 }
 
 // All non-params config keys for language.

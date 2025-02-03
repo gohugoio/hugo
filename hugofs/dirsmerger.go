@@ -63,3 +63,41 @@ var AppendDirsMerger overlayfs.DirsMerger = func(lofi, bofi []fs.DirEntry) []fs.
 
 	return lofi
 }
+
+// DirsMergerPreserveDuplicateFunc returns a DirsMerger that will preserve any duplicate
+// as defined by the given func.
+func DirsMergerPreserveDuplicateFunc(preserveDuplicate func(fs.DirEntry) bool) overlayfs.DirsMerger {
+	return func(lofi, bofi []fs.DirEntry) []fs.DirEntry {
+		for _, fi1 := range bofi {
+			var found bool
+			if !preserveDuplicate(fi1) {
+				for _, fi2 := range lofi {
+					if fi1.Name() == fi2.Name() {
+						found = true
+						break
+					}
+				}
+			}
+			if !found {
+				lofi = append(lofi, fi1)
+			}
+		}
+		return lofi
+	}
+}
+
+var FuncDirsMerger2 overlayfs.DirsMerger = func(lofi, bofi []fs.DirEntry) []fs.DirEntry {
+	for _, bofi := range bofi {
+		var found bool
+		for _, lofi := range lofi {
+			if bofi.Name() == lofi.Name() {
+				found = true
+				break
+			}
+		}
+		if !found {
+			lofi = append(lofi, bofi)
+		}
+	}
+	return lofi
+}

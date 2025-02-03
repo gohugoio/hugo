@@ -25,6 +25,7 @@ import (
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/internal"
+	"github.com/gohugoio/hugo/resources/internal/vendor"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/mitchellh/mapstructure"
 )
@@ -51,9 +52,19 @@ func (c *TailwindCSSClient) Process(res resources.ResourceTransformer, options m
 	return res.Transform(&tailwindcssTransformation{rs: c.rs, optionsm: options})
 }
 
+var _ vendor.Vendorable = (*tailwindcssTransformation)(nil)
+
 type tailwindcssTransformation struct {
 	optionsm map[string]any
 	rs       *resources.Spec
+}
+
+func (t *tailwindcssTransformation) VendorName() string {
+	return "css/tailwindcss"
+}
+
+func (t *tailwindcssTransformation) VendorScope() map[string]any {
+	return vendor.VendorScopeFromOpts(t.optionsm)
 }
 
 func (t *tailwindcssTransformation) Key() internal.ResourceTransformationKey {
@@ -120,8 +131,6 @@ func (t *tailwindcssTransformation) Transform(ctx *resources.ResourceTransformat
 		return err
 	}
 
-	src := ctx.From
-
 	imp := newImportResolver(
 		ctx.From,
 		ctx.InPath,
@@ -129,7 +138,7 @@ func (t *tailwindcssTransformation) Transform(ctx *resources.ResourceTransformat
 		t.rs.Assets.Fs, t.rs.Logger, ctx.DependencyManager,
 	)
 
-	src, err = imp.resolve()
+	src, err := imp.resolve()
 	if err != nil {
 		return err
 	}

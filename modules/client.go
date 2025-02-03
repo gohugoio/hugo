@@ -270,6 +270,7 @@ func (c *Client) Vendor() error {
 		}
 
 		// Include the resource cache if present.
+		// TODO1 remove
 		resourcesDir := filepath.Join(dir, files.FolderResources)
 		_, err := c.fs.Stat(resourcesDir)
 		if err == nil {

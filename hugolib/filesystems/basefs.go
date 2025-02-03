@@ -18,6 +18,7 @@ package filesystems
 import (
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -241,7 +242,11 @@ type SourceFilesystems struct {
 
 	// Writable filesystem on top the project's resources directory,
 	// with any sub module's resource fs layered below.
-	ResourcesCache afero.Fs
+	ResourcesCache afero.Fs // TODO1 remove this.
+
+	// A writable filesystem on top of the project's vendor directory
+	// with any sub module's vendor fs layered.
+	VendorFs afero.Fs
 
 	// The work folder (may be a composite of project and theme components).
 	Work afero.Fs
@@ -569,6 +574,7 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 	b.result.Layouts = createView(files.ComponentFolderLayouts, b.theBigFs.overlayMounts)
 	b.result.Assets = createView(files.ComponentFolderAssets, b.theBigFs.overlayMounts)
 	b.result.ResourcesCache = b.theBigFs.overlayResources
+	b.result.VendorFs = b.theBigFs.overlayVendor
 	b.result.RootFss = b.theBigFs.rootFss
 
 	// data and i18n  needs a different merge strategy.
@@ -628,6 +634,9 @@ func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesys
 		overlayMountsStatic:  overlayfs.New(overlayfs.Options{DirsMerger: hugofs.LanguageDirsMerger}),
 		overlayFull:          overlayfs.New(overlayfs.Options{}),
 		overlayResources:     overlayfs.New(overlayfs.Options{FirstWritable: true}),
+		overlayVendor: overlayfs.New(overlayfs.Options{FirstWritable: true, DirsMerger: hugofs.DirsMergerPreserveDuplicateFunc(func(fi fs.DirEntry) bool {
+			return fi.Name() == "resources.json"
+		})}),
 	}
 
 	mods := p.AllModules()
@@ -678,6 +687,7 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 		collector.overlayMountsFull = appendNopIfEmpty(collector.overlayMountsFull)
 		collector.overlayFull = appendNopIfEmpty(collector.overlayFull)
 		collector.overlayResources = appendNopIfEmpty(collector.overlayResources)
+		collector.overlayVendor = appendNopIfEmpty(collector.overlayVendor)
 
 		return nil
 	}
@@ -696,7 +706,16 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 			return md.dir, hpaths.AbsPathify(md.dir, path)
 		}
 
+		modBase := collector.sourceProject
+		if !md.isMainProject {
+			modBase = collector.sourceModules
+		}
+
 		for i, mount := range md.Mounts() {
+			if mount.Target == files.FolderVendor {
+				collector.overlayVendor = collector.overlayVendor.Append(hugofs.NewBasePathFs(modBase, mount.Source))
+				continue
+			}
 			// Add more weight to early mounts.
 			// When two mounts contain the same filename,
 			// the first entry wins.
@@ -742,11 +761,6 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 			} else {
 				fromTo = append(fromTo, rm)
 			}
-		}
-
-		modBase := collector.sourceProject
-		if !md.isMainProject {
-			modBase = collector.sourceModules
 		}
 
 		sourceStatic := modBase
@@ -831,7 +845,8 @@ type filesystemsCollector struct {
 	overlayMountsStatic  *overlayfs.OverlayFs
 	overlayMountsFull    *overlayfs.OverlayFs
 	overlayFull          *overlayfs.OverlayFs
-	overlayResources     *overlayfs.OverlayFs
+	overlayResources     *overlayfs.OverlayFs // TODO1 remove
+	overlayVendor        *overlayfs.OverlayFs
 
 	rootFss []*hugofs.RootMappingFs
 

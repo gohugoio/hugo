@@ -73,6 +73,8 @@ type hugoBuilder struct {
 	showErrorInBrowser bool
 
 	errState hugoBuilderErrState
+
+	vendor bool
 }
 
 var errConfigNotSet = errors.New("config not set")
@@ -1046,11 +1048,11 @@ func (c *hugoBuilder) loadConfig(cd *simplecobra.Commandeer, running bool) error
 		}
 	}
 	cfg.Set("environment", c.r.environment)
-
 	cfg.Set("internal", maps.Params{
 		"running":        running,
 		"watch":          watch,
 		"verbose":        c.r.isVerbose(),
+		"vendor":         c.vendor,
 		"fastRenderMode": c.fastRenderMode,
 	})
 

@@ -365,7 +365,11 @@ func (r *rootCommand) Name() string {
 }
 
 func (r *rootCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args []string) error {
-	b := newHugoBuilder(r, nil)
+	var vendor bool
+	if vendorCmd, ok := cd.Command.(vendoredCommand); ok {
+		vendor = vendorCmd.IsVendorCommand()
+	}
+	b := newHugoBuilder(r, nil, vendor)
 
 	if !r.buildWatch {
 		defer b.postBuild("Total", time.Now())

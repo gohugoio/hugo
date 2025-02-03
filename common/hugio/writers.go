@@ -50,6 +50,17 @@ func NewMultiWriteCloser(writeClosers ...io.WriteCloser) io.WriteCloser {
 	return multiWriteCloser{Writer: io.MultiWriter(writers...), closers: writeClosers}
 }
 
+// NewWriteCloser creates a new io.WriteCloser with the given writer and closer.
+func NewWriteCloser(w io.Writer, closer io.Closer) io.WriteCloser {
+	return struct {
+		io.Writer
+		io.Closer
+	}{
+		w,
+		closer,
+	}
+}
+
 // ToWriteCloser creates an io.WriteCloser from the given io.Writer.
 // If it's not already, one will be created with a Close method that does nothing.
 func ToWriteCloser(w io.Writer) io.WriteCloser {
@@ -57,13 +68,7 @@ func ToWriteCloser(w io.Writer) io.WriteCloser {
 		return rw
 	}
 
-	return struct {
-		io.Writer
-		io.Closer
-	}{
-		w,
-		io.NopCloser(nil),
-	}
+	return NewWriteCloser(w, io.NopCloser(nil))
 }
 
 // ToReadCloser creates an io.ReadCloser from the given io.Reader.

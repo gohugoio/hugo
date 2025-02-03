@@ -187,6 +187,10 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		if err := h.postProcess(infol); err != nil {
 			h.SendError(fmt.Errorf("postProcess: %w", err))
 		}
+
+		if err := h.writeVendor(infol); err != nil {
+			h.SendError(fmt.Errorf("writeVendor: %w", err))
+		}
 	}
 
 	if h.Metrics != nil {
@@ -691,6 +695,21 @@ func (h *HugoSites) postProcess(l logg.LevelLogger) error {
 	}
 
 	return g.Wait()
+}
+
+func (h *HugoSites) writeVendor(l logg.LevelLogger) error {
+	if !h.Conf.Vendor() {
+		return nil
+	}
+	l = l.WithField("step", "writeVendor")
+	defer loggers.TimeTrackf(l, time.Now(), nil, "")
+
+	v := h.ResourceSpec.Vendorer
+	if err := v.Finalize(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (h *HugoSites) writeBuildStats() error {

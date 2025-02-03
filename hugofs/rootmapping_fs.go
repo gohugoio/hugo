@@ -60,6 +60,10 @@ func NewRootMappingFs(fs afero.Fs, rms ...RootMapping) (*RootMappingFs, error) {
 	for _, rm := range rms {
 		(&rm).clean()
 
+		if rm.From == files.FolderVendor {
+			continue
+		}
+
 		rm.FromBase = files.ResolveComponentFolder(rm.From)
 
 		if len(rm.To) < 2 {

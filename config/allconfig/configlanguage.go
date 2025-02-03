@@ -137,6 +137,10 @@ func (c ConfigLanguage) Watching() bool {
 	return c.m.Base.Internal.Watch
 }
 
+func (c ConfigLanguage) Vendor() bool {
+	return c.m.Base.Internal.Vendor
+}
+
 func (c ConfigLanguage) NewIdentityManager(name string, opts ...identity.ManagerOption) identity.Manager {
 	if !c.Watching() {
 		return identity.NopManager

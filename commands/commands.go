@@ -23,7 +23,8 @@ import (
 func newExec() (*simplecobra.Exec, error) {
 	rootCmd := &rootCommand{
 		commands: []simplecobra.Commander{
-			newHugoBuildCmd(),
+			newHugoBuildCmd(false),
+			newHugoBuildCmd(true),
 			newVersionCmd(),
 			newEnvCommand(),
 			newServerCommand(),
@@ -42,13 +43,16 @@ func newExec() (*simplecobra.Exec, error) {
 	return simplecobra.New(rootCmd)
 }
 
-func newHugoBuildCmd() simplecobra.Commander {
-	return &hugoBuildCommand{}
+func newHugoBuildCmd(vendor bool) simplecobra.Commander {
+	return &hugoBuildCommand{
+		vendor: vendor,
+	}
 }
 
 // hugoBuildCommand just delegates to the rootCommand.
 type hugoBuildCommand struct {
 	rootCmd *rootCommand
+	vendor  bool
 }
 
 func (c *hugoBuildCommand) Commands() []simplecobra.Commander {
@@ -56,12 +60,23 @@ func (c *hugoBuildCommand) Commands() []simplecobra.Commander {
 }
 
 func (c *hugoBuildCommand) Name() string {
+	if c.vendor {
+		return "vendor"
+	}
 	return "build"
+}
+
+type vendoredCommand interface {
+	IsVendorCommand() bool
+}
+
+func (c *hugoBuildCommand) IsVendorCommand() bool {
+	return c.vendor
 }
 
 func (c *hugoBuildCommand) Init(cd *simplecobra.Commandeer) error {
 	c.rootCmd = cd.Root.Command.(*rootCommand)
-	return c.rootCmd.initRootCommand("build", cd)
+	return c.rootCmd.initRootCommand(c.Name(), cd)
 }
 
 func (c *hugoBuildCommand) PreRun(cd, runner *simplecobra.Commandeer) error {

@@ -131,6 +131,7 @@ func (b BuildConfig) clone() BuildConfig {
 	return b
 }
 
+// TODO1 remove, but first add a deprecation warning somewhere.
 func (b BuildConfig) UseResourceCache(err error) bool {
 	if b.UseResourceCacheWhen == "never" {
 		return false

@@ -400,6 +400,11 @@ func (c *collector) applyMounts(moduleImport Import, mod *moduleAdapter) error {
 		return err
 	}
 
+	mounts, err = c.mountVendorDir(mod, mounts)
+	if err != nil {
+		return err
+	}
+
 	mod.mounts = mounts
 	return nil
 }
@@ -596,6 +601,26 @@ func (c *collector) loadModules() error {
 
 // Matches postcss.config.js etc.
 var commonJSConfigs = regexp.MustCompile(`(babel|postcss|tailwind)\.config\.js`)
+
+func (c *collector) mountVendorDir(owner *moduleAdapter, mounts []Mount) ([]Mount, error) {
+	dir := filepath.Join(owner.Dir(), files.FolderVendor)
+
+	add := owner.projectMod
+	if !add {
+		if _, err := c.fs.Stat(files.FolderVendor); err == nil {
+			add = true
+		}
+	}
+
+	if add {
+		mounts = append(mounts, Mount{
+			Source: dir,
+			Target: files.FolderVendor,
+		})
+	}
+
+	return mounts, nil
+}
 
 func (c *collector) mountCommonJSConfig(owner *moduleAdapter, mounts []Mount) ([]Mount, error) {
 	for _, m := range mounts {

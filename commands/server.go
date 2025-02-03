@@ -84,7 +84,7 @@ const (
 	configChangeGoWork = "go work file"
 )
 
-func newHugoBuilder(r *rootCommand, s *serverCommand, onConfigLoaded ...func(reloaded bool) error) *hugoBuilder {
+func newHugoBuilder(r *rootCommand, s *serverCommand, vendor bool, onConfigLoaded ...func(reloaded bool) error) *hugoBuilder {
 	var visitedURLs *types.EvictingQueue[string]
 	if s != nil && !s.disableFastRender {
 		visitedURLs = types.NewEvictingQueue[string](20)
@@ -92,6 +92,7 @@ func newHugoBuilder(r *rootCommand, s *serverCommand, onConfigLoaded ...func(rel
 	return &hugoBuilder{
 		r:              r,
 		s:              s,
+		vendor:         vendor,
 		visitedURLs:    visitedURLs,
 		fullRebuildSem: semaphore.NewWeighted(1),
 		debounce:       debounce.New(4 * time.Second),
@@ -563,6 +564,7 @@ func (c *serverCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 	c.hugoBuilder = newHugoBuilder(
 		c.r,
 		c,
+		false,
 		func(reloaded bool) error {
 			if !reloaded {
 				if err := c.createServerPorts(cd); err != nil {
