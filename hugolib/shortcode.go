@@ -650,7 +650,11 @@ Loop:
 						// return that error, more specific
 						continue
 					}
-					return nil, fmt.Errorf("%s: shortcode %q does not evaluate .Inner or .InnerDeindent, yet a closing tag was provided", errorPrefix, next.ValStr(source))
+					name := sc.name
+					if name == "" {
+						name = next.ValStr(source)
+					}
+					return nil, fmt.Errorf("%s: shortcode %q does not evaluate .Inner or .InnerDeindent, yet a closing tag was provided", errorPrefix, name)
 				}
 			}
 			if next.IsRightShortcodeDelim() {

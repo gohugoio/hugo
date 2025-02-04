@@ -831,19 +831,35 @@ title: "Hugo Rocks!"
 func TestShortcodeNoInner(t *testing.T) {
 	t.Parallel()
 
-	b := newTestSitesBuilder(t)
-
-	b.WithContent("mypage.md", `---
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+disableKinds = ["term", "taxonomy", "home", "section"]
+-- content/mypage.md --
+---
 title: "No Inner!"
 ---
+
 {{< noinner >}}{{< /noinner >}}
 
+-- layouts/shortcodes/noinner.html --
+No inner here.
+-- layouts/_default/single.html --
+Content: {{ .Content }}|
 
-`).WithTemplatesAdded(
-		"layouts/shortcodes/noinner.html", `No inner here.`)
+`
 
-	err := b.BuildE(BuildCfg{})
-	b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`"content/mypage.md:4:16": failed to extract shortcode: shortcode "noinner" does not evaluate .Inner or .InnerDeindent, yet a closing tag was provided`))
+	b, err := TestE(t, files)
+
+	assert := func() {
+		b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`failed to extract shortcode: shortcode "noinner" does not evaluate .Inner or .InnerDeindent, yet a closing tag was provided`))
+	}
+
+	assert()
+
+	b, err = TestE(t, strings.Replace(files, `{{< noinner >}}{{< /noinner >}}`, `{{< noinner />}}`, 1))
+
+	assert()
 }
 
 func TestShortcodeStableOutputFormatTemplates(t *testing.T) {
