@@ -29,8 +29,8 @@ Common [reasons for deprecation]:
 
 After the project team deprecates something in code, Hugo will:
 
-1. Log an INFO message for 6 minor releases[^1]
-1. Log a WARN message for another 6 minor releases
+1. Log an INFO message for 3 minor releases[^1]
+1. Log a WARN message for another 12 minor releases
 1. Log an ERROR message and fail the build thereafter
 
 To see the INFO messages, you must use the `--logLevel` command line flag:
