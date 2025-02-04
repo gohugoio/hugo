@@ -84,6 +84,10 @@ const (
 	configChangeGoWork = "go work file"
 )
 
+const (
+	hugoHeaderRedirect = "X-Hugo-Redirect"
+)
+
 func newHugoBuilder(r *rootCommand, s *serverCommand, onConfigLoaded ...func(reloaded bool) error) *hugoBuilder {
 	var visitedURLs *types.EvictingQueue[string]
 	if s != nil && !s.disableFastRender {
@@ -307,67 +311,65 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 				w.Header().Set(header.Key, header.Value)
 			}
 
-			if redirect := serverConfig.MatchRedirect(requestURI); !redirect.IsZero() {
-				// fullName := filepath.Join(dir, filepath.FromSlash(path.Clean("/"+name)))
-				doRedirect := true
-				// This matches Netlify's behavior and is needed for SPA behavior.
-				// See https://docs.netlify.com/routing/redirects/rewrites-proxies/
-				if !redirect.Force {
-					path := filepath.Clean(strings.TrimPrefix(requestURI, baseURL.Path()))
-					if root != "" {
-						path = filepath.Join(root, path)
-					}
-					var fs afero.Fs
-					f.c.withConf(func(conf *commonConfig) {
-						fs = conf.fs.PublishDirServer
-					})
-
-					fi, err := fs.Stat(path)
-
-					if err == nil {
-						if fi.IsDir() {
-							// There will be overlapping directories, so we
-							// need to check for a file.
-							_, err = fs.Stat(filepath.Join(path, "index.html"))
-							doRedirect = err != nil
-						} else {
-							doRedirect = false
+			if canRedirect(requestURI, r) {
+				if redirect := serverConfig.MatchRedirect(requestURI, r.Header); !redirect.IsZero() {
+					doRedirect := true
+					// This matches Netlify's behavior and is needed for SPA behavior.
+					// See https://docs.netlify.com/routing/redirects/rewrites-proxies/
+					if !redirect.Force {
+						path := filepath.Clean(strings.TrimPrefix(requestURI, baseURL.Path()))
+						if root != "" {
+							path = filepath.Join(root, path)
 						}
-					}
-				}
+						var fs afero.Fs
+						f.c.withConf(func(conf *commonConfig) {
+							fs = conf.fs.PublishDirServer
+						})
 
-				if doRedirect {
-					switch redirect.Status {
-					case 404:
-						w.WriteHeader(404)
-						file, err := fs.Open(strings.TrimPrefix(redirect.To, baseURL.Path()))
+						fi, err := fs.Stat(path)
+
 						if err == nil {
-							defer file.Close()
-							io.Copy(w, file)
-						} else {
-							fmt.Fprintln(w, "<h1>Page Not Found</h1>")
+							if fi.IsDir() {
+								// There will be overlapping directories, so we
+								// need to check for a file.
+								_, err = fs.Stat(filepath.Join(path, "index.html"))
+								doRedirect = err != nil
+							} else {
+								doRedirect = false
+							}
 						}
-						return
-					case 200:
-						if r2 := f.rewriteRequest(r, strings.TrimPrefix(redirect.To, baseURL.Path())); r2 != nil {
-							requestURI = redirect.To
-							r = r2
-						}
-					default:
-						w.Header().Set("Content-Type", "")
-						http.Redirect(w, r, redirect.To, redirect.Status)
-						return
+					}
 
+					if doRedirect {
+						w.Header().Set(hugoHeaderRedirect, "true")
+						switch redirect.Status {
+						case 404:
+							w.WriteHeader(404)
+							file, err := fs.Open(strings.TrimPrefix(redirect.To, baseURL.Path()))
+							if err == nil {
+								defer file.Close()
+								io.Copy(w, file)
+							} else {
+								fmt.Fprintln(w, "<h1>Page Not Found</h1>")
+							}
+							return
+						case 200:
+							if r2 := f.rewriteRequest(r, strings.TrimPrefix(redirect.To, baseURL.Path())); r2 != nil {
+								requestURI = redirect.To
+								r = r2
+							}
+						default:
+							w.Header().Set("Content-Type", "")
+							http.Redirect(w, r, redirect.To, redirect.Status)
+							return
+
+						}
 					}
 				}
-
 			}
 
 			if f.c.fastRenderMode && f.c.errState.buildErr() == nil {
-				// Sec-Fetch-Mode should be sent by all recent browser versions, see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Sec-Fetch-Mode#navigate
-				// Fall back to the file extension if not set.
-				// The main take here is that we don't want to have CSS/JS files etc. partake in this logic.
-				if r.Header.Get("Sec-Fetch-Mode") == "navigate" || strings.HasSuffix(requestURI, "/") || strings.HasSuffix(requestURI, "html") || strings.HasSuffix(requestURI, "htm") {
+				if isNavigation(requestURI, r) {
 					if !f.c.visitedURLs.Contains(requestURI) {
 						// If not already on stack, re-render that single page.
 						if err := f.c.partialReRender(requestURI); err != nil {
@@ -1232,4 +1234,25 @@ func formatByteCount(b uint64) string {
 	}
 	return fmt.Sprintf("%.1f %cB",
 		float64(b)/float64(div), "kMGTPE"[exp])
+}
+
+func canRedirect(requestURIWithoutQuery string, r *http.Request) bool {
+	if r.Header.Get(hugoHeaderRedirect) != "" {
+		return false
+	}
+	return isNavigation(requestURIWithoutQuery, r)
+}
+
+// Sec-Fetch-Mode should be sent by all recent browser versions, see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Sec-Fetch-Mode#navigate
+// Fall back to the file extension if not set.
+// The main take here is that we don't want to have CSS/JS files etc. partake in this logic.
+func isNavigation(requestURIWithoutQuery string, r *http.Request) bool {
+	return r.Header.Get("Sec-Fetch-Mode") == "navigate" || isPropablyHTMLRequest(requestURIWithoutQuery)
+}
+
+func isPropablyHTMLRequest(requestURIWithoutQuery string) bool {
+	if strings.HasSuffix(requestURIWithoutQuery, "/") || strings.HasSuffix(requestURIWithoutQuery, "html") || strings.HasSuffix(requestURIWithoutQuery, "htm") {
+		return true
+	}
+	return !strings.Contains(requestURIWithoutQuery, ".")
 }

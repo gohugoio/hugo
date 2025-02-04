@@ -71,17 +71,33 @@ X-Content-Type-Options = "nosniff"
 
 [[server.redirects]]
 from = "/foo/**"
-to = "/foo/index.html"
+to = "/baz/index.html"
+status = 200
+
+[[server.redirects]]
+from = "/loop/**"
+to = "/loop/foo/"
+status = 200
+
+[[server.redirects]]
+from = "/b/**"
+fromRe = "/b/(.*)/"
+to = "/baz/$1/"
+status = 200
+
+[[server.redirects]]
+fromRe = "/c/(.*)/"
+to = "/boo/$1/"
+status = 200
+
+[[server.redirects]]
+fromRe = "/d/(.*)/"
+to = "/boo/$1/"
 status = 200
 
 [[server.redirects]]
 from = "/google/**"
 to = "https://google.com/"
-status = 301
-
-[[server.redirects]]
-from = "/**"
-to = "/default/index.html"
 status = 301
 
 
@@ -100,45 +116,35 @@ status = 301
 		{Key: "X-XSS-Protection", Value: "1; mode=block"},
 	})
 
-	c.Assert(s.MatchRedirect("/foo/bar/baz"), qt.DeepEquals, Redirect{
+	c.Assert(s.MatchRedirect("/foo/bar/baz", nil), qt.DeepEquals, Redirect{
 		From:   "/foo/**",
-		To:     "/foo/",
+		To:     "/baz/",
 		Status: 200,
 	})
 
-	c.Assert(s.MatchRedirect("/someother"), qt.DeepEquals, Redirect{
-		From:   "/**",
-		To:     "/default/",
-		Status: 301,
+	c.Assert(s.MatchRedirect("/foo/bar/", nil), qt.DeepEquals, Redirect{
+		From:   "/foo/**",
+		To:     "/baz/",
+		Status: 200,
 	})
 
-	c.Assert(s.MatchRedirect("/google/foo"), qt.DeepEquals, Redirect{
+	c.Assert(s.MatchRedirect("/b/c/", nil), qt.DeepEquals, Redirect{
+		From:   "/b/**",
+		FromRe: "/b/(.*)/",
+		To:     "/baz/c/",
+		Status: 200,
+	})
+
+	c.Assert(s.MatchRedirect("/c/d/", nil).To, qt.Equals, "/boo/d/")
+	c.Assert(s.MatchRedirect("/c/d/e/", nil).To, qt.Equals, "/boo/d/e/")
+
+	c.Assert(s.MatchRedirect("/someother", nil), qt.DeepEquals, Redirect{})
+
+	c.Assert(s.MatchRedirect("/google/foo", nil), qt.DeepEquals, Redirect{
 		From:   "/google/**",
 		To:     "https://google.com/",
 		Status: 301,
 	})
-
-	// No redirect loop, please.
-	c.Assert(s.MatchRedirect("/default/index.html"), qt.DeepEquals, Redirect{})
-	c.Assert(s.MatchRedirect("/default/"), qt.DeepEquals, Redirect{})
-
-	for _, errorCase := range []string{
-		`[[server.redirects]]
-from = "/**"
-to = "/file"
-status = 301`,
-		`[[server.redirects]]
-from = "/**"
-to = "/foo/file.html"
-status = 301`,
-	} {
-
-		cfg, err := FromConfigString(errorCase, "toml")
-		c.Assert(err, qt.IsNil)
-		_, err = DecodeServer(cfg)
-		c.Assert(err, qt.Not(qt.IsNil))
-
-	}
 }
 
 func TestBuildConfigCacheBusters(t *testing.T) {
