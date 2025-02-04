@@ -15,6 +15,7 @@ package config
 
 import (
 	"fmt"
+	"net/http"
 	"regexp"
 	"sort"
 	"strings"
@@ -226,7 +227,22 @@ type Server struct {
 	Redirects []Redirect
 
 	compiledHeaders   []glob.Glob
-	compiledRedirects []glob.Glob
+	compiledRedirects []redirect
+}
+
+type redirect struct {
+	from    glob.Glob
+	fromRe  *regexp.Regexp
+	headers map[string]glob.Glob
+}
+
+func (r redirect) matchHeader(header http.Header) bool {
+	for k, v := range r.headers {
+		if !v.Match(header.Get(k)) {
+			return false
+		}
+	}
+	return true
 }
 
 func (s *Server) CompileConfig(logger loggers.Logger) error {
@@ -234,10 +250,41 @@ func (s *Server) CompileConfig(logger loggers.Logger) error {
 		return nil
 	}
 	for _, h := range s.Headers {
-		s.compiledHeaders = append(s.compiledHeaders, glob.MustCompile(h.For))
+		g, err := glob.Compile(h.For)
+		if err != nil {
+			return fmt.Errorf("failed to compile Headers glob %q: %w", h.For, err)
+		}
+		s.compiledHeaders = append(s.compiledHeaders, g)
 	}
 	for _, r := range s.Redirects {
-		s.compiledRedirects = append(s.compiledRedirects, glob.MustCompile(r.From))
+		if r.From == "" && r.FromRe == "" {
+			return fmt.Errorf("redirects must have either From or FromRe set")
+		}
+		rd := redirect{
+			headers: make(map[string]glob.Glob),
+		}
+		if r.From != "" {
+			g, err := glob.Compile(r.From)
+			if err != nil {
+				return fmt.Errorf("failed to compile Redirect glob %q: %w", r.From, err)
+			}
+			rd.from = g
+		}
+		if r.FromRe != "" {
+			re, err := regexp.Compile(r.FromRe)
+			if err != nil {
+				return fmt.Errorf("failed to compile Redirect regexp %q: %w", r.FromRe, err)
+			}
+			rd.fromRe = re
+		}
+		for k, v := range r.FromHeaders {
+			g, err := glob.Compile(v)
+			if err != nil {
+				return fmt.Errorf("failed to compile Redirect header glob %q: %w", v, err)
+			}
+			rd.headers[k] = g
+		}
+		s.compiledRedirects = append(s.compiledRedirects, rd)
 	}
 
 	return nil
@@ -266,22 +313,42 @@ func (s *Server) MatchHeaders(pattern string) []types.KeyValueStr {
 	return matches
 }
 
-func (s *Server) MatchRedirect(pattern string) Redirect {
+func (s *Server) MatchRedirect(pattern string, header http.Header) Redirect {
 	if s.compiledRedirects == nil {
 		return Redirect{}
 	}
 
 	pattern = strings.TrimSuffix(pattern, "index.html")
 
-	for i, g := range s.compiledRedirects {
+	for i, r := range s.compiledRedirects {
 		redir := s.Redirects[i]
 
-		// No redirect to self.
-		if redir.To == pattern {
-			return Redirect{}
+		var found bool
+
+		if r.from != nil {
+			if r.from.Match(pattern) {
+				found = header == nil || r.matchHeader(header)
+				// We need to do regexp group replacements if needed.
+			}
 		}
 
-		if g.Match(pattern) {
+		if r.fromRe != nil {
+			m := r.fromRe.FindStringSubmatch(pattern)
+			if m != nil {
+				if !found {
+					found = header == nil || r.matchHeader(header)
+				}
+
+				if found {
+					// Replace $1, $2 etc. in To.
+					for i, g := range m[1:] {
+						redir.To = strings.ReplaceAll(redir.To, fmt.Sprintf("$%d", i+1), g)
+					}
+				}
+			}
+		}
+
+		if found {
 			return redir
 		}
 	}
@@ -295,8 +362,22 @@ type Headers struct {
 }
 
 type Redirect struct {
+	// From is the Glob pattern to match.
+	// One of From or FromRe must be set.
 	From string
-	To   string
+
+	// FromRe is the regexp to match.
+	// This regexp can contain group matches (e.g. $1) that can be used in the To field.
+	// One of From or FromRe must be set.
+	FromRe string
+
+	// To is the target URL.
+	To string
+
+	// Headers to match for the redirect.
+	// This maps the HTTP header name to a Glob pattern with values to match.
+	// If the map is empty, the redirect will always be triggered.
+	FromHeaders map[string]string
 
 	// HTTP status code to use for the redirect.
 	// A status code of 200 will trigger a URL rewrite.
@@ -383,17 +464,7 @@ func DecodeServer(cfg Provider) (Server, error) {
 	_ = mapstructure.WeakDecode(cfg.GetStringMap("server"), s)
 
 	for i, redir := range s.Redirects {
-		// Get it in line with the Hugo server for OK responses.
-		// We currently treat the 404 as a special case, they are always "ugly", so keep them as is.
-		if redir.Status != 404 {
-			redir.To = strings.TrimSuffix(redir.To, "index.html")
-			if !strings.HasPrefix(redir.To, "https") && !strings.HasSuffix(redir.To, "/") {
-				// There are some tricky infinite loop situations when dealing
-				// when the target does not have a trailing slash.
-				// This can certainly be handled better, but not time for that now.
-				return Server{}, fmt.Errorf("unsupported redirect to value %q in server config; currently this must be either a remote destination or a local folder, e.g. \"/blog/\" or \"/blog/index.html\"", redir.To)
-			}
-		}
+		redir.To = strings.TrimSuffix(redir.To, "index.html")
 		s.Redirects[i] = redir
 	}
 
@@ -401,7 +472,7 @@ func DecodeServer(cfg Provider) (Server, error) {
 		// Set up a default redirect for 404s.
 		s.Redirects = []Redirect{
 			{
-				From:   "**",
+				From:   "/**",
 				To:     "/404.html",
 				Status: 404,
 			},
