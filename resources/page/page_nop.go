@@ -21,7 +21,6 @@ import (
 	"html/template"
 	"time"
 
-	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 
@@ -58,8 +57,6 @@ var (
 
 // PageNop implements Page, but does nothing.
 type nopPage int
-
-var noOpPathInfo = media.DefaultPathParser.Parse(files.ComponentFolderContent, "no-op.md")
 
 func (p *nopPage) Aliases() []string {
 	return nil
@@ -338,7 +335,7 @@ func (p *nopPage) Path() string {
 }
 
 func (p *nopPage) PathInfo() *paths.Path {
-	return noOpPathInfo
+	return nil
 }
 
 func (p *nopPage) Permalink() string {

@@ -145,7 +145,7 @@ func (c ConfigLanguage) NewIdentityManager(name string, opts ...identity.Manager
 }
 
 func (c ConfigLanguage) ContentTypes() config.ContentTypesProvider {
-	return c.config.C.ContentTypes
+	return c.config.ContentTypes.Config
 }
 
 // GetConfigSection is mostly used in tests. The switch statement isn't complete, but what's in use.
