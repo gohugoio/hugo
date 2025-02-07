@@ -170,10 +170,6 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 			h.SendError(fmt.Errorf("render: %w", err))
 		}
 
-		if err := h.postRenderOnce(); err != nil {
-			h.SendError(fmt.Errorf("postRenderOnce: %w", err))
-		}
-
 		// Make sure to write any build stats to disk first so it's available
 		// to the post processors.
 		if err := h.writeBuildStats(); err != nil {
@@ -182,6 +178,10 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 
 		if err := h.renderDeferred(infol); err != nil {
 			h.SendError(fmt.Errorf("renderDeferred: %w", err))
+		}
+
+		if err := h.postRenderOnce(); err != nil {
+			h.SendError(fmt.Errorf("postRenderOnce: %w", err))
 		}
 
 		if err := h.postProcess(infol); err != nil {
