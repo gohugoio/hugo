@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build withdeploy
-// +build withdeploy
 
 package deploy
 

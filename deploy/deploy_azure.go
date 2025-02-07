@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !solaris && withdeploy
-// +build !solaris,withdeploy
 
 package deploy
 
