@@ -21,6 +21,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/alecthomas/chroma/v2"
@@ -60,6 +61,10 @@ func newGenCommand() *genCommand {
 See https://xyproto.github.io/splash/docs/all.html for a preview of the available styles`,
 
 			run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
+				style = strings.ToLower(style)
+				if !slices.Contains(styles.Names(), style) {
+					return fmt.Errorf("invalid style: %s", style)
+				}
 				builder := styles.Get(style).Builder()
 				if highlightStyle != "" {
 					builder.Add(chroma.LineHighlight, highlightStyle)

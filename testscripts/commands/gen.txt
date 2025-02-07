@@ -11,4 +11,6 @@ hugo gen man --dir manpages
 hugo gen chromastyles -h
 stdout 'Generate CSS stylesheet for the Chroma code highlighter'
 hugo gen chromastyles --style monokai
-stdout '/\* LineHighlight \*/ \.chroma \.hl \{ background-color:#3c3d38 \}'
+stdout 'Generated using: hugo gen chromastyles --style monokai'
+! hugo gen chromastyles --style __invalid_style__
+stderr 'invalid style: __invalid_style__'
