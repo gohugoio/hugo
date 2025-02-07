@@ -74,6 +74,16 @@ func IsTruthful(in any) bool {
 	}
 }
 
+// IsMap reports whether v is a map.
+func IsMap(v any) bool {
+	return reflect.ValueOf(v).Kind() == reflect.Map
+}
+
+// IsSlice reports whether v is a slice.
+func IsSlice(v any) bool {
+	return reflect.ValueOf(v).Kind() == reflect.Slice
+}
+
 var zeroType = reflect.TypeOf((*types.Zeroer)(nil)).Elem()
 
 // IsTruthfulValue returns whether the given value has a meaningful truth value.

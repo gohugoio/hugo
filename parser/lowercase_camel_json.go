@@ -107,7 +107,7 @@ func (c ReplacingJSONMarshaller) MarshalJSON() ([]byte, error) {
 		var removeZeroVAlues func(m map[string]any)
 		removeZeroVAlues = func(m map[string]any) {
 			for k, v := range m {
-				if !hreflect.IsTruthful(v) {
+				if !hreflect.IsMap(v) && !hreflect.IsTruthful(v) {
 					delete(m, k)
 				} else {
 					switch vv := v.(type) {

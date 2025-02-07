@@ -214,11 +214,3 @@ func BenchmarkTypeOps(b *testing.B) {
 
 	}
 }
-
-func TestIsContentFile(t *testing.T) {
-	c := qt.New(t)
-
-	c.Assert(DefaultContentTypes.IsContentFile(filepath.FromSlash("my/file.md")), qt.Equals, true)
-	c.Assert(DefaultContentTypes.IsContentFile(filepath.FromSlash("my/file.ad")), qt.Equals, true)
-	c.Assert(DefaultContentTypes.IsContentFile(filepath.FromSlash("textfile.txt")), qt.Equals, false)
-}

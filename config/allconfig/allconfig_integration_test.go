@@ -7,6 +7,7 @@ import (
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/hugolib"
+	"github.com/gohugoio/hugo/media"
 )
 
 func TestDirsMount(t *testing.T) {
@@ -97,7 +98,7 @@ suffixes = ["html", "xhtml"]
 	b := hugolib.Test(t, files)
 
 	conf := b.H.Configs.Base
-	contentTypes := conf.C.ContentTypes
+	contentTypes := conf.ContentTypes.Config
 
 	b.Assert(contentTypes.HTML.Suffixes(), qt.DeepEquals, []string{"html", "xhtml"})
 	b.Assert(contentTypes.Markdown.Suffixes(), qt.DeepEquals, []string{"md", "mdown", "markdown"})
@@ -214,4 +215,22 @@ weight = 3
 
 	b := hugolib.Test(t, files)
 	b.Assert(b.H.Configs.LanguageConfigSlice[0].Title, qt.Equals, `TITLE_DE`)
+}
+
+func TestContentTypesDefault(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+
+
+`
+
+	b := hugolib.Test(t, files)
+
+	ct := b.H.Configs.Base.ContentTypes
+	c := ct.Config
+	s := ct.SourceStructure.(map[string]media.ContentTypeConfig)
+
+	b.Assert(c.IsContentFile("foo.md"), qt.Equals, true)
+	b.Assert(len(s), qt.Equals, 6)
 }

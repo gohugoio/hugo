@@ -501,3 +501,51 @@ func (n *testContentNode) resetBuildState() {
 
 func (n *testContentNode) MarkStale() {
 }
+
+// Issue 12274.
+func TestHTMLNotContent(t *testing.T) {
+	filesTemplate := `
+-- hugo.toml.temp --
+[contentTypes]
+[contentTypes."text/markdown"]
+# Emopty for now.
+-- hugo.yaml.temp --
+contentTypes:
+  text/markdown: {}
+-- hugo.json.temp --
+{
+  "contentTypes": {
+    "text/markdown": {}
+  }
+}
+-- content/p1/index.md --
+---
+title: p1
+---
+-- content/p1/a.html --
+<p>a</p>
+-- content/p1/b.html --
+<p>b</p>
+-- content/p1/c.html --
+<p>c</p>
+-- layouts/_default/single.html --
+|{{ (.Resources.Get "a.html").RelPermalink -}}
+|{{ (.Resources.Get "b.html").RelPermalink -}}
+|{{ (.Resources.Get "c.html").Publish }}
+`
+
+	for _, format := range []string{"toml", "yaml", "json"} {
+		format := format
+		t.Run(format, func(t *testing.T) {
+			t.Parallel()
+
+			files := strings.Replace(filesTemplate, format+".temp", format, 1)
+			b := Test(t, files)
+
+			b.AssertFileContent("public/p1/index.html", "|/p1/a.html|/p1/b.html|")
+			b.AssertFileContent("public/p1/a.html", "<p>a</p>")
+			b.AssertFileContent("public/p1/b.html", "<p>b</p>")
+			b.AssertFileContent("public/p1/c.html", "<p>c</p>")
+		})
+	}
+}

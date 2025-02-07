@@ -128,6 +128,9 @@ type Config struct {
 	// <docsmeta>{"identifiers": ["markup"] }</docsmeta>
 	Markup markup_config.Config `mapstructure:"-"`
 
+	// ContentTypes are the media types that's considered content in Hugo.
+	ContentTypes *config.ConfigNamespace[map[string]media.ContentTypeConfig, media.ContentTypes] `mapstructure:"-"`
+
 	// The mediatypes configuration section maps the MIME type (a string) to a configuration object for that type.
 	// <docsmeta>{"identifiers": ["mediatypes"], "refs": ["types:media:type"] }</docsmeta>
 	MediaTypes *config.ConfigNamespace[map[string]media.MediaTypeConfig, media.Types] `mapstructure:"-"`
@@ -433,7 +436,6 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 		IgnoredLogs:         ignoredLogIDs,
 		KindOutputFormats:   kindOutputFormats,
 		DefaultOutputFormat: defaultOutputFormat,
-		ContentTypes:        media.DefaultContentTypes.FromTypes(c.MediaTypes.Config),
 		CreateTitle:         helpers.GetTitleFunc(c.TitleCaseStyle),
 		IsUglyURLSection:    isUglyURL,
 		IgnoreFile:          ignoreFile,
@@ -471,7 +473,6 @@ type ConfigCompiled struct {
 	ServerInterface     string
 	KindOutputFormats   map[string]output.Formats
 	DefaultOutputFormat output.Format
-	ContentTypes        media.ContentTypes
 	DisabledKinds       map[string]bool
 	DisabledLanguages   map[string]bool
 	IgnoredLogs         map[string]bool
@@ -839,7 +840,7 @@ func (c *Configs) Init() error {
 	c.Languages = languages
 	c.LanguagesDefaultFirst = languagesDefaultFirst
 
-	c.ContentPathParser = &paths.PathParser{LanguageIndex: languagesDefaultFirst.AsIndexSet(), IsLangDisabled: c.Base.IsLangDisabled, IsContentExt: c.Base.C.ContentTypes.IsContentSuffix}
+	c.ContentPathParser = &paths.PathParser{LanguageIndex: languagesDefaultFirst.AsIndexSet(), IsLangDisabled: c.Base.IsLangDisabled, IsContentExt: c.Base.ContentTypes.Config.IsContentSuffix}
 
 	c.configLangs = make([]config.AllProvider, len(c.Languages))
 	for i, l := range c.LanguagesDefaultFirst {

@@ -132,6 +132,7 @@ func (fi *File) p() *paths.Path {
 	return fi.fim.Meta().PathInfo.Unnormalized()
 }
 
+// Used in tests.
 func NewFileInfoFrom(path, filename string) *File {
 	meta := &hugofs.FileMeta{
 		Filename: filename,

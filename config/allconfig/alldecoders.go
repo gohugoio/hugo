@@ -163,6 +163,15 @@ var allDecoderSetups = map[string]decodeWeight{
 			return err
 		},
 	},
+	"contenttypes": {
+		key:    "contenttypes",
+		weight: 100, // This needs to be decoded after media types.
+		decode: func(d decodeWeight, p decodeConfig) error {
+			var err error
+			p.c.ContentTypes, err = media.DecodeContentTypes(p.p.GetStringMap(d.key), p.c.MediaTypes.Config)
+			return err
+		},
+	},
 	"mediatypes": {
 		key: "mediatypes",
 		decode: func(d decodeWeight, p decodeConfig) error {
