@@ -1,6 +1,6 @@
 ---
 title: Getting started
-linkTitle: In this section
+
 description: Quick start and guides for installing Hugo on your preferred operating system.
 categories: []
 keywords: []

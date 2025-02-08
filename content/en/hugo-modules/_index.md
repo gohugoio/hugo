@@ -1,6 +1,6 @@
 ---
 title: Hugo Modules
-linkTitle: In this section
+
 description: How to use Hugo Modules.
 categories: []
 keywords: []

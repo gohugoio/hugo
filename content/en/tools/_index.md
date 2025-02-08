@@ -1,6 +1,6 @@
 ---
 title: Developer tools
-linkTitle: In this section
+
 description: In addition to Hugo's powerful CLI, there is a large number of community-developed tool chains for Hugo developers.
 categories: []
 keywords: []

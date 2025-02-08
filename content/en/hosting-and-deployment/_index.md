@@ -1,6 +1,6 @@
 ---
 title: Hosting and deployment
-linkTitle: In this section
+
 description: Site builds, automated deployments, and popular hosting solutions.
 categories: []
 keywords: []

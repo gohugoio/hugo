@@ -1,6 +1,6 @@
 ---
 title: Hugo Pipes
-linkTitle: In this section
+
 categories: []
 keywords: []
 menu:

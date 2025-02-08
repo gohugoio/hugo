@@ -6,7 +6,7 @@ menu:
   main:
     weight: 1
 weight: 1
-layout: documentation-home
+layout: list
 ---
 
 A fast and flexible [static site generator] built with love by [bep], [spf13], and [friends] in [Go].

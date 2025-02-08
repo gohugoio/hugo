@@ -1,6 +1,6 @@
 ---
 title: Templates
-linkTitle: In this section
+
 description: Go templating, template types and lookup order, shortcodes, and data.
 categories: []
 keywords: []

@@ -1,6 +1,6 @@
 ---
 title: Functions
-linkTitle: In this section
+
 description: A list of Hugo template functions including examples.
 categories: []
 keywords: []

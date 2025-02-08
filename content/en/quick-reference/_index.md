@@ -1,6 +1,6 @@
 ---
 title: Quick reference guides
-linkTitle: In this section
+
 description: Use these quick reference guides for quick access to key information.
 categories: []
 keywords: []
