@@ -1,0 +1,37 @@
+{{- /*
+Renders the given image using the given process specification.
+
+@param {string} (positional parameter 0) The path to the image, relative to the current page. The image must be a page resource.
+@param {string}} (positional parameter 1) The image processing specification.
+
+@returns template.HTML
+
+@example {{< imgproc "sunset.jpg" "resize 300x" />}}
+*/}}
+
+{{- with $.Get 0 }}
+  {{- with $i := $.Page.Resources.Get . }}
+    {{- with $spec := $.Get 1 }}
+      {{- with $i.Process . }}
+        <figure style="padding: 0.25rem; margin: 2rem 0; background-color: #cccc">
+          <img style="max-width: 100%; width: auto; height: auto;" src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
+          <figcaption>
+            <small>
+              {{- with $.Inner }}
+                {{ . }}
+              {{- else }}
+                {{ $spec }}
+              {{- end }}
+            </small>
+          </figcaption>
+        </figure>
+      {{- end }}
+    {{- else }}
+      {{- errorf "The %q shortcode requires a positional parameter (1) containing the image processing specification. See %s" $.Name $.Position }}
+    {{- end }}
+  {{- else }}
+    {{- errorf "The %q shortcode was unable to find %q. See %s" $.Name . $.Position }}
+  {{- end }}
+{{- else }}
+  {{- errorf "The %q shortcode requires a positional parameter (0) indicating the image path, relative to the current page. See %s" $.Name $.Position }}
+{{- end }}

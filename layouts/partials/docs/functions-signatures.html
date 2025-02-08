@@ -1,0 +1,12 @@
+{{- with .Params.action.signatures }}
+  <p class="font-bold text-dark dark:text-light">Syntax</p>
+  {{- range . }}
+    {{- $signature := . }}
+    {{- if $.Params.function.returnType }}
+      {{- $signature = printf "%s ⟼ %s" . $.Params.function.returnType }}
+    {{- end }}
+    <div class="font-sm font-mono px-3 p-2 ml-4 sm:ml-8 mt-0 sm:mt-2">
+      {{- $signature -}}
+    </div>
+  {{- end }}
+{{- end -}}

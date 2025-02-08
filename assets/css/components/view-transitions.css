@@ -1,0 +1,22 @@
+/* Global slight fade */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 200ms;
+}
+
+::view-transition-old(qr),
+::view-transition-new(qr) {
+  animation-duration: 800ms;
+  animation-delay: 250ms;
+}
+
+.view-transition-qr {
+  view-transition-name: qr;
+}
+
+/* Turbo styles */
+.turbo-progress-bar {
+  @apply bg-blue-500;
+  opacity: 0.35;
+  height: 3px;
+}

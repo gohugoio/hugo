@@ -1,0 +1,12 @@
+{{- with .Params.action.aliases }}
+  {{- $label := "Alias" }}
+  {{- if gt (len .) 1 }}
+    {{- $label = "Aliases" }}
+  {{- end }}
+  <p class="font-bold text-dark dark:text-light mt-2">{{ $label }}</p>
+  {{- range . }}
+    <div class="font-sm font-mono px-3 p-2 ml-4 sm:ml-8 mt-0 sm:mt-2">
+      {{- . -}}
+    </div>
+  {{- end }}
+{{- end -}}

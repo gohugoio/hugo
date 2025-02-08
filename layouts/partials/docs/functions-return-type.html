@@ -1,0 +1,6 @@
+{{- with .Params.action.returnType }}
+  <p class="font-bold text-dark dark:text-light mt-2">Returns</p>
+  <div class="font-sm font-mono px-3 p-2 ml-4 sm:ml-8 mt-0 sm:mt-2">
+    {{- . -}}
+  </div>
+{{- end -}}

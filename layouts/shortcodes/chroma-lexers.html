@@ -1,0 +1,7 @@
+<dl>
+    {{ range .Site.Data.docs.chroma.lexers }}
+      <dt>{{ .Name }}</dt>
+      <dd>{{ with .Aliases }}{{ delimit . ", " }}{{ end }}</dd>
+    {{ end }}
+  </dl>
+  

@@ -1,0 +1,29 @@
+<div x-data="{open: false}">
+  <div @click="open = true">
+    {{ .modal_button }}
+  </div>
+  <div
+    x-cloak
+    x-show="open"
+    x-transition.opacity.duration.200ms
+    x-trap.inert.noscroll="open"
+    @keydown.esc.window="open = false"
+    @click.self="open = false"
+    class="fixed inset-0 z-30 flex items-end justify-center bg-black/50 pb-8 backdrop-blur-md sm:items-center"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Modal">
+    <div
+      x-show="open"
+      x-transition:enter.opacity.scale.60.origin.top.right.duration.300ms.delay.200ms
+      class="flex content-center items-center justify-center max-w-lg flex-col overflow-hidden bg-white dark:bg-blue-950 border-2 border-gray-300 dark:border-gray-800 shadow-lg sm:shadow-xl">
+      <div
+        class="border-b border-outline border-gray-300 dark:border-gray-800 p-2 lg:p-4">
+        <h3 class="text-sm font-semibold">
+          {{ .modal_title }}
+        </h3>
+      </div>
+      {{ .modal_content }}
+    </div>
+  </div>
+</div>

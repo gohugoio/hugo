@@ -1,0 +1,7 @@
+{{ $_hugo_config := `{ "version": 1 }` }}
+{{ partial "layouts/blocks/alert.html" (dict
+  "text" .Inner
+  "color" "blue"
+  "icon" "exclamation"
+  )
+}}

@@ -1,0 +1,52 @@
+{{ define "main" }}
+  <div class="flex flex-col w-full p-0 m-0">
+    {{ partial "layouts/home/opensource.html" . }}
+    <hr class="border-t border-gray-200 dark:border-gray-800 my-10 lg:my-14" />
+    {{ partial "layouts/home/sponsors.html"  (dict "ctx" . "gtag" "home" ) }}
+    <hr class="border-t border-gray-200 dark:border-gray-800 my-10 lg:my-14" />
+    {{ partial "layouts/home/features.html" . }}
+  </div>
+{{ end }}
+
+{{ define "hero" }}
+  <div class="relative isolate px-6 lg:px-8">
+    <div class="mx-auto max-w-2xl pt-16">
+      <div class="text-center">
+        <img
+          src="{{ `images/hugo-logo-wide.svg`| relURL }}"
+          alt="Hugo Logo"
+          class="w-64 aspect-3/1 mx-auto mb-8" />
+        <h1
+          class="text-4xl font-bold tracking-tight text-balance text-gray-900 dark:text-gray-300 sm:text-6xl">
+          The world’s fastest framework for building websites
+        </h1>
+        <div
+          class="mt-8 text-lg font-medium text-pretty text-gray-800 dark:text-gray-400  sm:text-xl/8">
+          Hugo is one of the most popular open-source static site generators.
+          With its amazing speed and flexibility, Hugo makes building websites
+          fun again.
+        </div>
+        <div class="mt-10 flex items-center justify-center gap-x-6">
+          {{ with site.GetPage "/getting-started" }}
+            <a
+              href="{{ .RelPermalink }}"
+              class="rounded-md uppercase tracking-wide bg-blue-600  hover:bg-blue-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+              >{{ .LinkTitle }}</a
+            >
+          {{ end }}
+          <div class="-my-5 mr-6 sm:mr-8 md:mr-0">
+            {{ partial "layouts/search/input-standalone.html" . }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{{ end }}
+
+{{ define "rightsidebar" }}
+  {{ printf "%c" '\u00A0' }}
+{{ end }}
+
+{{ define "leftsidebar" }}
+  {{ printf "%c" '\u00A0' }}
+{{ end }}

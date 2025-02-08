@@ -1,0 +1,32 @@
+{{- $heading := "See also" | title }}
+{{- $related := site.RegularPages.Related . | first 5 }}
+
+{{- if .Params.action.related }}
+  {{- $related = slice }}
+  {{- range .Params.action.related }}
+    {{- $path := . | lower }}
+    {{- with or (site.GetPage $path) ($.GetPage $path) }}
+      {{- $related = $related | append . }}
+    {{- else }}
+      {{/* TODO1 make error */}}
+      {{- warnf "The 'related' partial was unable to get page %s" . }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- with $related }}
+  <h2
+    class="text-base font-semibold tracking-tight text-gray-600  dark:text-gray-400">
+    {{ $heading }}
+  </h2>
+  <ul class="mb-10 mt-2">
+    {{- range . }}
+      <li>
+        <a
+          class="text-sm text-blue-600 hover:text-blue-500"
+          href="{{ .RelPermalink }}"
+          >{{ .LinkTitle }}</a
+        >
+      </li>
+    {{- end }}
+  </ul>
+{{- end }}

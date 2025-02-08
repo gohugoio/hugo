@@ -1,0 +1,22 @@
+<hr class="border-t border-gray-200 dark:border-gray-800 my-10 lg:my-16" />
+
+<div class="text-gray-800 font-semibold">
+  Last updated:
+  {{ .Lastmod.Format "January 2, 2006" }}{{ with .GitInfo }}
+    :
+    <a
+      class="text-blue-600 hover:text-blue-500"
+      href="{{ $.Site.Params.ghrepo }}commit/{{ .Hash }}"
+      >{{ .Subject }} ({{ .AbbreviatedHash }})</a
+    >
+  {{ end }}
+</div>
+
+{{ with .File }}
+  {{ $href := printf "%sedit/master/content/%s/%s" site.Params.ghrepo $.Lang .Path }}
+  <a
+    href="{{ $href }}"
+    class="mt-4 inline-block not-prose bg-blue-600 hover:bg-blue-800 text-white hover:text-white font-bold py-2 px-4 rounded">
+    Improve this page
+  </a>
+{{ end }}

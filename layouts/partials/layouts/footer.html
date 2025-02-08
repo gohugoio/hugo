@@ -1,0 +1,72 @@
+<footer class="bg-blue-950 mt-8 sm:mt-24 border-t-1 border-gray-800">
+  <div class="mx-auto max-w-7xl pt-16 pb-8 sm:pt-18 lg:pt-20">
+    <div class="xl:grid xl:grid-cols-3 xl:gap-8">
+      {{/* Column 1 */}}
+      <div class="flex flex-col items-center justify-between space-y-8">
+        <div class="text-gray-200">
+          By the
+          <a
+            href="https://github.com/gohugoio/hugo/graphs/contributors"
+            class="text-blue-300 hover:underline"
+            >Hugo Authors</a
+          ><br />
+        </div>
+
+        <img
+          src="/images/hugo-logo-wide.svg"
+          alt="Hugo Logo"
+          class="aspect-3/1 w-40" />
+
+        <ul class="space-y-2 text-gray-200">
+          <li class="hover:text-white">
+            <a href="https://fosstodon.org/@gohugoio" class="">@GoHugoIO</a>
+          </li>
+          <li class="hover:text-white">
+            <a href="https://twitter.com/spf13" class="">@spf13</a>
+          </li>
+          <li class="hover:text-white">
+            <a href="https://twitter.com/bepsays" class="">@bepsays</a>
+          </li>
+          <li class="mt-6">
+            <a
+              href="https://github.com/gohugoio/hugo/issues/new"
+              class="text-sm/6 text-gray-200 hover:text-white"
+              >File an issue</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://discourse.gohugo.io/"
+              class="text-sm/6 text-gray-200 hover:text-white"
+              >Get help</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://themes.gohugo.io/"
+              class="text-sm/6 text-gray-200 hover:text-white"
+              >Find a theme</a
+            >
+          </li>
+        </ul>
+      </div>
+
+      {{/* Sponsors */}}
+      <div
+        class="mt-16 xl:mt-0 col-span-2 text-gray-200 max-w-3xl flex items-center content-center justify-center mx-auto">
+        {{ partial "layouts/home/sponsors.html"  (dict
+          "ctx" .
+          "gtag" "footer"
+
+          )
+        }}
+      </div>
+    </div>
+    <div class="mt-16 border-t border-white/10 pt-8 sm:mt-20 lg:mt-24">
+      <p class="text-sm/6 text-gray-200">
+        The Hugo logos are copyright © Steve Francia 2013–{{ now.Year }}. The
+        Hugo Gopher is based on an original work by Renée French.
+      </p>
+    </div>
+  </div>
+</footer>

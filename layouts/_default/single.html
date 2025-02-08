@@ -1,0 +1,64 @@
+{{ define "main" }}
+  {{ $ttop := debug.Timer "single" }}
+  <article class="max-w-5xl lg:max-w-3xl">
+    {{ partial "layouts/docsheader.html" . }}
+    <div class="content" id="content">
+      {{ with .Params.description }}
+        <div class="lead">
+          {{ . | markdownify }}
+        </div>
+      {{ end }}
+
+      {{ $t := debug.Timer "single.categories" }}
+      {{ $tags := .GetTerms "categories" }}
+      {{ range $tags }}
+        {{ $text := .LinkTitle }}
+        {{ $class := "" }}
+        {{ range (slice true false ) }}
+          {{ $color := partial "helpers/funcs/color-from-string.html" (dict "text" $text "dark" . ) }}
+
+          {{ $prefix := "" }}
+          {{ if . }}
+            {{ $prefix = "dark:" }}
+          {{ end }}
+          {{ $class = printf "%sbg-%s-%d %stext-%s-%d border %sborder-%s-%d"
+            $prefix $color.color $color.shade1
+            $prefix $color.color $color.shade2
+            $prefix $color.color $color.shade2
+            }}
+        {{ end }}
+
+
+        <a
+          href="{{ .RelPermalink }}"
+          class="{{ $class }} not-prose text-xs font-semibold no-underline inline-block py-1 px-2 rounded-sm uppercase last:mr-0 mr-1 hover:opacity-75 hover:shadow-none">
+          {{ .LinkTitle | upper }}
+        </a>
+      {{ end }}
+      {{ $t.Stop }}
+
+      {{ if .Params.action.signatures }}
+        <div class="mb-6 sm:mb-8 not-prose">
+          {{- partial "docs/functions-signatures.html" . -}}
+          {{- partial "docs/functions-return-type.html" . -}}
+          {{- partial "docs/functions-aliases.html" . -}}
+        </div>
+      {{ end }}
+      {{ $t := debug.Timer "single.content" }}
+      {{ .Content }}
+      {{ $t.Stop }}
+      {{ $t := debug.Timer "single.page-edit" }}
+      {{ partial "layouts/page-edit.html" . }}
+      {{ $t.Stop }}
+    </div>
+  </article>
+  {{ $ttop.Stop }}
+{{ end }}
+
+{{ define "rightsidebar_content" }}
+  {{ if not .Params.hide_in_this_section }}
+    {{ partial "layouts/in-this-section.html" . }}
+  {{ end }}
+  {{ partial "layouts/related.html" . }}
+  {{ partial "layouts/toc.html" . }}
+{{ end }}

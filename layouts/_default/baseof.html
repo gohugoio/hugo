@@ -1,0 +1,67 @@
+<!doctype html>
+<html
+  class="h-full antialiased scheme-light dark:scheme-dark"
+  lang="{{ with site.Language.LanguageCode }}
+    {{ . }}
+  {{ else }}
+    en-us
+  {{ end }}
+">
+  <head>
+    <meta charset="utf-8" />
+    <title>
+      {{ .Title }}
+    </title>
+    <style>
+      [x-cloak] {
+        display: none;
+      }
+    </style>
+    <meta
+      name="description"
+      content="{{ .Description | default site.Params.description }}" />
+    {{ partial "layouts/head/head-js.html" . }}
+    {{ with (templates.Defer (dict "key" "global")) }}
+      {{ $t := debug.Timer "tailwindcss" }}
+      {{ with resources.Get "css/styles.css" }}
+        {{ $opts := dict
+          "inlineImports" true
+          "minify" (not hugo.IsDevelopment)
+        }}
+        {{ with . | css.TailwindCSS $opts }}
+          {{ partial "helpers/linkcss.html" (dict "r" .) }}
+        {{ end }}
+      {{ end }}
+      {{ $t.Stop }}
+    {{ end }}
+    {{ partial "layouts/head/head.html" . }}
+  </head>
+  <body class="flex flex-col min-h-full bg-white dark:bg-blue-950">
+    {{ partial "layouts/hooks/body-start.html" . }}
+    {{/* Layout. */}}
+    {{ block "header" . }}
+      {{ partial "layouts/header/header.html" . }}
+    {{ end }}
+    {{ block "hero" . }}
+    {{ end }}
+    <div class="flex w-full xl:w-6xl h-full flex-auto mx-auto">
+      <main
+        class="flex-1 mx-auto lg:mx-0 w-full max-w-3x lg:max-w-3x py-8 lg:py-14 px-main">
+        {{ block "main" . }}{{ end }}
+      </main>
+      {{ block "rightsidebar" . }}
+        <aside
+          class="py-15 ml-4 xl:ml-12 w-60 hidden lg:relative lg:block lg:flex-none">
+          {{ block "rightsidebar_content" . }}{{ end }}
+        </aside>
+      {{ end }}
+    </div>
+    {{/* Common icons. */}}
+    {{ partial "layouts/icons.html" . }}
+    {{/* Footer. */}}
+    {{ block "footer" . }}
+      {{ partial "layouts/footer.html" . }}
+    {{ end }}
+    {{ partial "layouts/hooks/body-end.html" . }}
+  </body>
+</html>

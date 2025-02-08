@@ -1,0 +1,30 @@
+{{ $documentation := site.GetPage "/documentation" }}
+
+
+<nav aria-label="breadcrumb" class="flex">
+  <ol class="inline-flex items-center flex-wrap tracking-tight">
+    {{ range $i, $p := .Ancestors.Reverse }}
+      {{/* We currently have a slightly odd structure. */}}
+      {{ if eq $p site.Home }}
+        {{ $p = $documentation }}
+      {{ end }}
+      <li class="flex items-center">
+        <a
+          href="{{ $p.RelPermalink }}"
+          class="truncate text-blue-600 hover:text-blue-500"
+          >{{ $p.LinkTitle }}</a
+        >
+        {{ template "breadcrumbs-arrow" . }}
+      </li>
+    {{ end }}
+    <li class="truncate text-gray-700 dark:text-gray-300">
+      {{ $.LinkTitle | title }}
+    </li>
+  </ol>
+</nav>
+
+{{ define "breadcrumbs-arrow" }}
+  <svg class="fill-gray-500 dark:fill-gray-100 w-3 h-3 mx-2">
+    <use href="#icon--chevron-right"></use>
+  </svg>
+{{ end }}

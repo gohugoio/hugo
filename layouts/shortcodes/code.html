@@ -1,0 +1,30 @@
+{{ $codeLang := "go-html-template" }}
+<div
+  x-data
+  class="shortcode-code font-mono not-prose relative bg-gray-200 dark:bg-blue-900 text-gray-500 p-[1px] dark:text-gray-400 mt-6 mb-8">
+  {{- with .Get "file" -}}
+    <div class="san-serif text-sm inline-block leading-none pl-2 py-3">
+      {{ . }}
+    </div>
+  {{- end -}}
+
+  {{ if ne (.Get "copy") "false" }}
+    <svg
+      class="absolute right-0 top-2 pr-3 z-30 text-blue-600 hover:text-blue-500 cursor-pointer w-10"
+      @click="$copy($refs.code)">
+      <use href="#icon--copy"></use>
+    </svg>
+  {{ end }}
+  <div class="" x-ref="code">
+    {{ $inner := trim .Inner "\n" | safeHTML }}
+    {{ if .Get "nocode" }}
+      {{ $inner }}
+    {{ else }}
+      {{ with $codeLang }}
+        {{ highlight $inner . "" }}
+      {{ else }}
+        <pre><code>{{ $inner }}</code></pre>
+      {{ end }}
+    {{ end }}
+  </div>
+</div>

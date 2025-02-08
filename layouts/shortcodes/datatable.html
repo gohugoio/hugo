@@ -1,0 +1,33 @@
+{{ $package := (index .Params 0) }}
+{{ $listname := (index .Params 1) }}
+{{ $list := (index (index .Site.Data.docs $package) $listname) }}
+{{ $fields := after 2 .Params }}
+
+
+<table class="table table-bordered">
+  <tr>
+    {{ range $fields }}
+      {{ $s := . }}
+      {{ if eq $s "_key" }}
+        {{ $s = "Type" }}
+      {{ end }}
+      <th>{{ $s }}</th>
+    {{ end }}
+  </tr>
+  {{ range $k1, $v1 := $list }}
+    <tr>
+      {{ range $k2, $v2 := . }}
+        {{ $.Scratch.Set $k2 $v2 }}
+      {{ end }}
+      {{ range $fields }}
+        {{ $s := "" }}
+        {{ if eq . "_key" }}
+          {{ $s = $k1 }}
+        {{ else }}
+          {{ $s = $.Scratch.Get . }}
+        {{ end }}
+        <td>{{ $s }}</td>
+      {{ end }}
+    </tr>
+  {{ end }}
+</table>

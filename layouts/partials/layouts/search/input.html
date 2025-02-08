@@ -1,0 +1,15 @@
+<div x-data="search">
+  <div
+    class="group relative flex h-12"
+    x-show="!open"
+    x-transition.opacity.duration.500ms>
+    <svg
+      class="pointer-events-none lg:absolute left-4 top-0 h-full w-5 fill-slate-400 dark:fill-slate-500">
+      <use href="#icon--search"></use>
+    </svg>
+    <input
+      class="hidden lg:block flex-auto appearance-none bg-transparent pl-12 text-slate-900 outline-none placeholder:text-slate-200 focus:w-full focus:flex-none sm:text-sm dark:text-white [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden [&::-webkit-search-results-button]:hidden [&::-webkit-search-results-decoration]:hidden"
+      placeholder="Search the Docs..." />
+  </div>
+  {{ partial "layouts/search/results.html" . }}
+</div>

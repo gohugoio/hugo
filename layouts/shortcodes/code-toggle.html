@@ -1,0 +1,100 @@
+{{- /*
+  Renders syntax-highlighted configuration data in JSON, TOML, and YAML formats.
+
+  @param {string} [config] The section of site.Data.docs.config to render.
+  @param {bool} [copy=false] If true, display a copy to clipboard button.
+  @param {string} [file] The file name to display above the rendered code.
+  @param {bool} [fm=false] If true, render the code as front matter.
+  @param {bool} [skipHeader=false] If false, omit top level key(s) when rendering a section of site.Data.docs.config.
+
+  @returns {template.HTML}
+*/}}
+
+{{- /* Initialize. */}}
+{{- $config := "" }}
+{{- $dataKey := "" }}
+{{- $copy := false }}
+{{- $file := "" }}
+{{- $fm := false }}
+{{- $skipHeader := false }}
+
+{{- /* Get parameters. */}}
+{{- $config = .Get "config" }}
+{{- $dataKey = .Get "dataKey" }}
+{{- $file = .Get "file" }}
+{{- if in (slice "false" false 0) (.Get "copy") }}
+  {{- $copy = false }}
+{{- else if in (slice "true" true 1) (.Get "copy") }}
+  {{- $copy = true }}
+{{- end }}
+{{- if in (slice "false" false 0) (.Get "fm") }}
+  {{- $fm = false }}
+{{- else if in (slice "true" true 1) (.Get "fm") }}
+  {{- $fm = true }}
+{{- end }}
+{{- if in (slice "false" false 0) (.Get "skipHeader") }}
+  {{- $skipHeader = false }}
+{{- else if in (slice "true" true 1) (.Get "skipHeader") }}
+  {{- $skipHeader = true }}
+{{- end }}
+
+{{- /* Define constants. */}}
+{{- $delimiters := dict "toml" "+++" "yaml" "---" }}
+{{- $langs := slice "yaml" "toml" "json" }}
+{{- $placeHolder := "#-hugo-placeholder-#" }}
+
+{{- /* Render. */}}
+{{- $code := "" }}
+{{- if $config }}
+  {{- $file = $file | default "hugo" }}
+  {{- $sections := (split $config ".") }}
+  {{- $configSection := index $.Site.Data.docs.config $sections }}
+  {{- $code = dict $sections $configSection }}
+  {{- if $skipHeader }}
+    {{- $code = $configSection }}
+  {{- end }}
+{{- else if $dataKey }}
+  {{- $file = $file | default $dataKey }}
+  {{- $sections := (split $dataKey ".") }}
+  {{- $code = index $.Site.Data.docs $sections }}
+{{- else }}
+  {{- $code = $.Inner }}
+{{- end }}
+{{ $langs := (slice "yaml" "toml" "json") }}
+<div
+  x-data
+  class="shortcode-code not-prose relative border-1 border-gray-300 dark:border-gray-900 p-0 my-2 sm:my-6 min-h-30">
+  <div>
+    <svg
+      class="absolute right-0 top-2 pr-3 z-30 text-blue-600 hover:text-blue-500 cursor-pointer w-10"
+      @click="$copy($refs[$store.nav.userSettings.settings.configFileType])">
+      <use href="#icon--copy"></use>
+    </svg>
+    <nav class="relative flex" aria-label="Tabs">
+      {{ range $i, $lang := $langs }}
+        <button
+          x-on:click="$store.nav.userSettings.settings.configFileType = '{{ index $langs $i }}'"
+          aria-label="{{ printf `Toggle %s` . }}"
+          class="p-3 text-white font-semibold dark:text-gray-300 hover:text-gray-100 dark:hover:text-gray-100 bg-blue-500 dark:bg-blue-900 hover:bg-blue-300 dark:hover:bg-slate-700 cursor-pointer relative min-w-0 flex-1 overflow-hidden text-sm no-underline text-center focus:z-10 overflow-x-auto">
+          <span>
+            {{ printf "%s.%s" $file . }}
+          </span>
+          <span
+            aria-hidden="true"
+            class="absolute inset-x-0 bottom-0 h-0.75"
+            :class="$store.nav.userSettings.settings.configFileType === '{{ index $langs $i }}' ? 'bg-accent dark:bg-accent-dark' : 'bg-transparent'"></span>
+        </button>
+      {{ end }}
+    </nav>
+    {{ if $code }}
+      {{ range $i, $lang := $langs }}
+        <div
+          class="max-h-96  overflow-y-auto"
+          x-ref="{{ $lang }}"
+          :class="$store.nav.userSettings.settings.configFileType === '{{ index $langs $i }}' ? 'block' : 'hidden'">
+          {{ highlight ($code | transform.Remarshal . | safeHTML) . "" }}
+        </div>
+      {{ end }}
+    {{ end }}
+  </div>
+</div>
