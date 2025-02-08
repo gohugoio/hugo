@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !withdeploy
-// +build !withdeploy
 
 // Copyright 2024 The Hugo Authors. All rights reserved.
 //
