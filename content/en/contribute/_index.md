@@ -1,6 +1,6 @@
 ---
 title: Contribute to the Hugo project
-
+linktitle: Contribute
 description: Contribute to Hugo development, documentation, and themes.
 categories: []
 keywords: []

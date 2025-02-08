@@ -14,7 +14,7 @@
     </title>
     <style>
       [x-cloak] {
-        display: none;
+        display: none !important;
       }
     </style>
     <meta
@@ -46,7 +46,7 @@
     {{ end }}
     <div class="flex w-full xl:w-6xl h-full flex-auto mx-auto">
       <main
-        class="flex-1 mx-auto lg:mx-0 w-full max-w-3x lg:max-w-3x py-8 lg:py-14 px-main">
+        class="flex-1 mx-auto lg:mx-0 w-full max-w-3x lg:max-w-3x pt-8 lg:pt-14 pb-20 px-main">
         {{ block "main" . }}{{ end }}
       </main>
       {{ block "rightsidebar" . }}

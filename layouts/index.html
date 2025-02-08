@@ -35,7 +35,7 @@
             >
           {{ end }}
           <div class="-my-5 mr-6 sm:mr-8 md:mr-0">
-            {{ partial "layouts/search/input-standalone.html" . }}
+            {{ partial "layouts/search/button.html" (dict "page" . "standalone" true) }}
           </div>
         </div>
       </div>

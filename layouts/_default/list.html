@@ -2,7 +2,7 @@
   {{ $pages := "" }}
   {{ $showDate := false }}
   {{ if .IsPage }}
-    {{/* We currently have a slightly odd content structure with no top level /docs sectin. */}}
+    {{/* We currently have a slightly odd content structure with no top level /docs section. */}}
     {{ $pages = .CurrentSection.Pages }}
   {{ else }}
     {{ if eq .Section "news" }}

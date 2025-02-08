@@ -12,7 +12,7 @@ export const explorer = (Alpine) => ({
 		// The state of each node in the tree.
 		nodes: {},
 
-		// We currenty only list the sections, not regular pages, in the side bar.
+		// We currently only list the sections, not regular pages, in the side bar.
 		// This strikes me as the right balance. The pages gets listed on the section pages.
 		// This array is sorted by length, so we can find the longest prefix of the current page
 		// without having to iterate over all the keys.

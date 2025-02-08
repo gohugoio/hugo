@@ -5,7 +5,7 @@
     {{- if $.Params.function.returnType }}
       {{- $signature = printf "%s ⟼ %s" . $.Params.function.returnType }}
     {{- end }}
-    <div class="font-sm font-mono px-3 p-2 ml-4 sm:ml-8 mt-0 sm:mt-2">
+    <div class="font-sm font-mono ml-3 sm:ml-6 mt-0 sm:mt-1">
       {{- $signature -}}
     </div>
   {{- end }}

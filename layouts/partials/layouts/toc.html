@@ -1,10 +1,11 @@
 {{ with .Fragments.Headings }}
+  {{ $.Store.Set "hasToc" true }}
   <div
     x-data="toc"
     class="sticky top-[8rem] h-screen overflow-y-auto overflow-x-hidden">
     <h2
       class="text-base font-semibold tracking-tight text-gray-600  dark:text-gray-400">
-      {{ "On this page" | title }}
+      On this page
     </h2>
     <nav class="w-56 mt-2">
       <ul>

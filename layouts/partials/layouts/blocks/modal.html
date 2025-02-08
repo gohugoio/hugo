@@ -5,11 +5,12 @@
   <div
     x-cloak
     x-show="open"
-    x-transition.opacity.duration.200ms
+    x-transition:enter.opacity.duration.200ms
+    x-transition:leave.opacity.duration.300ms
     x-trap.inert.noscroll="open"
     @keydown.esc.window="open = false"
     @click.self="open = false"
-    class="fixed inset-0 z-30 flex items-end justify-center bg-black/50 pb-8 backdrop-blur-md sm:items-center"
+    class="fixed inset-0 z-30 flex items-end justify-center bg-black/50 pb-8 backdrop-blur-xs sm:items-center"
     role="dialog"
     aria-modal="true"
     aria-label="Modal">

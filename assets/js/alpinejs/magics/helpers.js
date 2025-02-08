@@ -6,10 +6,17 @@ export function registerMagics(Alpine) {
 			if (!el) {
 				el = currentEl;
 			}
-			let lntds = el.querySelectorAll('.lntable .lntd');
-			if (lntds && lntds.length === 2) {
-				el = lntds[1];
-			}
+
+			// Select the element to copy.
+			let range = document.createRange();
+			range.selectNode(el);
+			window.getSelection().removeAllRanges();
+			window.getSelection().addRange(range);
+
+			// Remove the selection after some time.
+			setTimeout(() => {
+				window.getSelection().removeAllRanges();
+			}, 500);
 
 			// Trim whitespace.
 			let text = el.textContent.trim();

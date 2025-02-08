@@ -1,20 +1,26 @@
-{{ $codeLang := "go-html-template" }}
+{{- $codeLang := or (.Get "lang") "" }}
 <div
   x-data
-  class="shortcode-code font-mono not-prose relative bg-gray-200 dark:bg-blue-900 text-gray-500 p-[1px] dark:text-gray-400 mt-6 mb-8">
-  {{- with .Get "file" -}}
-    <div class="san-serif text-sm inline-block leading-none pl-2 py-3">
-      {{ . }}
-    </div>
-  {{- end -}}
-
-  {{ if ne (.Get "copy") "false" }}
+  class="shortcode-code font-mono not-prose relative mt-6 mb-8 border-1 border-gray-200 bg-light">
+  {{ if (.Get "copy") }}
     <svg
-      class="absolute right-0 top-2 pr-3 z-30 text-blue-600 hover:text-blue-500 cursor-pointer w-10"
+      class="absolute right-2 top-2 z-30 text-blue-600 hover:text-blue-500 cursor-pointer w-6 h-6"
       @click="$copy($refs.code)">
       <use href="#icon--copy"></use>
     </svg>
   {{ end }}
+  {{- with .Get "file" -}}
+    {{- if not $codeLang }}
+      {{- $ext := strings.TrimPrefix "." (path.Ext .) }}
+      {{- $codeLang = cond (eq $ext "html") "go-html-template" $ext }}
+    {{- end }}
+    <div
+      class="san-serif text-sm inline-block leading-none pl-2 py-3 bg-gray-100 w-full">
+      {{ . }}
+    </div>
+  {{- end -}}
+
+
   <div class="" x-ref="code">
     {{ $inner := trim .Inner "\n" | safeHTML }}
     {{ if .Get "nocode" }}
@@ -23,7 +29,8 @@
       {{ with $codeLang }}
         {{ highlight $inner . "" }}
       {{ else }}
-        <pre><code>{{ $inner }}</code></pre>
+        <pre class="overflow-x-auto p-2 w-[93%]"><code>{{ $inner }}</code>
+        </pre>
       {{ end }}
     {{ end }}
   </div>

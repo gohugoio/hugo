@@ -1,15 +1,18 @@
 {{- with .CurrentSection.RegularPages }}
-  <h2
-    class="text-base font-semibold tracking-tight text-gray-600  dark:text-gray-400">
-    {{ "In this section" | title }}
-  </h2>
+  {{ $hasTocOrRelated := or  ($.Store.Get "hasToc") ($.Store.Get "hasRelated") }}
   <div
-    class="relative my-2
-    after:absolute after:bottom-0 after:left-0 after:w-full after:h-8 after:bg-gradient-to-t after:from-white dark:after:from-blue-950">
-    <ul
-      id="in-sthis-section"
-      class="max-h-96 pb-8 overflow-y-auto"
-      data-turbo-preserve-scroll-container="in-this-section">
+    class="overflow-y-auto {{ if $hasTocOrRelated }}
+      max-h-96
+    {{ else }}
+      sticky top-[8rem] max-h-[70vh]
+    {{ end }} relative mt-2 mb-8"
+    data-turbo-preserve-scroll-container="in-this-section">
+    <h2
+      class="text-base font-semibold tracking-tight text-gray-600  dark:text-gray-400">
+      In this section
+    </h2>
+
+    <ul id="in-sthis-section" class="mt-2">
       {{- range . }}
         <li>
           <a

@@ -1,7 +1,7 @@
 <header
   x-data="navbar"
   class="sticky top-0 z-50 bg-blue-950 flex flex-none flex-wrap items-center justify-between px-4 py-5 shadow-md shadow-slate-900/5 transition duration-500 sm:px-6 lg:px-8 dark:shadow-none"
-  :class="atTop ? '': 'bg-blue-950/80'">
+  :class="$store.nav.scroll.atTop ? '': 'bg-blue-950/80'">
   <div class="relative flex basis-0 items-cente mr-2 lg:mr-8">
     {{ with site.Home }}
       <a
@@ -36,7 +36,7 @@
 
     {{/* Social. */}}
     <div
-      class="hidden sm:block ml-8 h-6 fill-slate-400 group-hover:fill-slate-500 dark:group-hover:fill-slate-300">
+      class="hidden sm:block ml-2 sm:ml-6 h-6 fill-slate-400 group-hover:fill-slate-500 dark:group-hover:fill-slate-300">
       {{ partial "layouts/header/githubstars.html" . }}
     </div>
   </div>

@@ -11,34 +11,38 @@
 
       {{ $t := debug.Timer "single.categories" }}
       {{ $tags := .GetTerms "categories" }}
-      {{ range $tags }}
-        {{ $text := .LinkTitle }}
-        {{ $class := "" }}
-        {{ range (slice true false ) }}
-          {{ $color := partial "helpers/funcs/color-from-string.html" (dict "text" $text "dark" . ) }}
+      {{ with $tags }}
+        <div class="mb-4 sm:mb-6 flex flex-wrap gap-2">
+          {{ range . }}
+            {{ $text := .LinkTitle }}
+            {{ $class := "" }}
+            {{ range (slice true false ) }}
+              {{ $color := partial "helpers/funcs/color-from-string.html" (dict "text" $text "dark" . "--single" "green" ) }}
 
-          {{ $prefix := "" }}
-          {{ if . }}
-            {{ $prefix = "dark:" }}
+              {{ $prefix := "" }}
+              {{ if . }}
+                {{ $prefix = "dark:" }}
+              {{ end }}
+              {{ $class = printf "%sbg-%s-%d %stext-%s-%d border %sborder-%s-%d"
+                $prefix $color.color $color.shade1
+                $prefix $color.color $color.shade2
+                $prefix $color.color $color.shade3
+              }}
+            {{ end }}
+
+
+            <a
+              href="{{ .RelPermalink }}"
+              class="{{ $class }} text-xs h-auto tracking-widest uppercase font-light not-prose no-underline inline-block py-1 px-3 rounded-xl shadow-xs hover:opacity-80 hover:shadow-none">
+              {{ .LinkTitle }}
+            </a>
           {{ end }}
-          {{ $class = printf "%sbg-%s-%d %stext-%s-%d border %sborder-%s-%d"
-            $prefix $color.color $color.shade1
-            $prefix $color.color $color.shade2
-            $prefix $color.color $color.shade2
-            }}
-        {{ end }}
-
-
-        <a
-          href="{{ .RelPermalink }}"
-          class="{{ $class }} not-prose text-xs font-semibold no-underline inline-block py-1 px-2 rounded-sm uppercase last:mr-0 mr-1 hover:opacity-75 hover:shadow-none">
-          {{ .LinkTitle | upper }}
-        </a>
+        </div>
       {{ end }}
       {{ $t.Stop }}
 
       {{ if .Params.action.signatures }}
-        <div class="mb-6 sm:mb-8 not-prose">
+        <div class="mb-4 not-prose">
           {{- partial "docs/functions-signatures.html" . -}}
           {{- partial "docs/functions-return-type.html" . -}}
           {{- partial "docs/functions-aliases.html" . -}}
@@ -56,9 +60,12 @@
 {{ end }}
 
 {{ define "rightsidebar_content" }}
+  {{/* in-this-section.html depends on these being reneredc first. */}}
+  {{ $related := partial "layouts/related.html" . }}
+  {{ $toc := partial "layouts/toc.html" . }}
   {{ if not .Params.hide_in_this_section }}
     {{ partial "layouts/in-this-section.html" . }}
   {{ end }}
-  {{ partial "layouts/related.html" . }}
-  {{ partial "layouts/toc.html" . }}
+  {{ $related }}
+  {{ $toc }}
 {{ end }}

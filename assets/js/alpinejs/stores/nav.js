@@ -27,6 +27,10 @@ export const navStore = (Alpine) => ({
 
 	destroy() {},
 
+	scroll: {
+		atTop: true,
+	},
+
 	userSettings: {
 		// settings gets persisted between page navigations.
 		settings: Alpine.$persist({

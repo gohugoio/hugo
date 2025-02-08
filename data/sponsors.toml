@@ -1,0 +1,22 @@
+[[banners]]
+    name         = "Linode"
+    link         = "https://www.linode.com/"
+    logo         = "images/sponsors/linode-logo.svg"
+    utm_campaign = "hugosponsor"
+    bgcolor      = "#ffffff"
+
+[[banners]]
+    name            = "GoLand"
+    title           = "The complete IDE crafted for professional Go developers."
+    no_query_params = true
+    link            = "https://www.jetbrains.com/go/?utm_source=OSS&utm_medium=referral&utm_campaign=hugo"
+    logo            = "images/sponsors/goland.svg"
+    bgcolor         = "#f4f4f4"
+
+[[banners]]
+    name          = "Your Company?"
+    link          = "https://bep.is/en/hugo-sponsor-2023-01/"
+    utm_campaign  = "hugosponsor"
+    show_on_hover = true
+    bgcolor       = "#4e4f4f"
+    link_attr     = "style='color: #ffffff; font-weight: bold; text-decoration: none; text-align: center'"

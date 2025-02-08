@@ -14,12 +14,16 @@
           class="truncate text-blue-600 hover:text-blue-500"
           >{{ $p.LinkTitle }}</a
         >
-        {{ template "breadcrumbs-arrow" . }}
+        {{ if ne $ $documentation }}
+          {{ template "breadcrumbs-arrow" . }}
+        {{ end }}
       </li>
     {{ end }}
-    <li class="truncate text-gray-700 dark:text-gray-300">
-      {{ $.LinkTitle | title }}
-    </li>
+    {{ if ne $ $documentation }}
+      <li class="truncate text-gray-700 dark:text-gray-300">
+        {{ $.LinkTitle }}
+      </li>
+    {{ end }}
   </ol>
 </nav>
 

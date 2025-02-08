@@ -1,5 +1,6 @@
 ---
 title: External learning resources
+linkTitle: External resources
 description: Use these third-party resources to learn Hugo.
 categories: [getting started]
 keywords: [books, tutorials, learning, usage]

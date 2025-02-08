@@ -16,6 +16,12 @@ export const toc = (Alpine) => ({
 	},
 
 	init() {
+		this.$watch('$store.nav.scroll.atTop', (value) => {
+			if (!value) return;
+			this.activeHeading = '';
+			this.$root.scrollTop = 0;
+		});
+
 		return this.$nextTick(() => {
 			let contentEl = document.getElementById('content');
 			if (contentEl) {
