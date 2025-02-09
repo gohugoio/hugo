@@ -251,6 +251,10 @@ func (d Decoder) unmarshalORG(data []byte, v any) error {
 			frontMatter[k[:len(k)-2]] = strings.Fields(v)
 		} else if strings.Contains(v, "\n") {
 			frontMatter[k] = strings.Split(v, "\n")
+		} else if k == "filetags" {
+			trimmed := strings.TrimPrefix(v, ":")
+			trimmed = strings.TrimSuffix(trimmed, ":")
+			frontMatter[k] = strings.Split(trimmed, ":")
 		} else if k == "date" || k == "lastmod" || k == "publishdate" || k == "expirydate" {
 			frontMatter[k] = parseORGDate(v)
 		} else {
