@@ -8,7 +8,7 @@ action:
   related: []
   returnType: int
   signatures: [crypto.FNV32a STRING]
-expiryDate: 2025-07-31 # deprecated 2024-07-31
+expiryDate: 2026-07-31 # deprecated 2024-07-31 in v0.129.0
 ---
 
 {{% deprecated-in 0.129.0 %}}

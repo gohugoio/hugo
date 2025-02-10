@@ -8,7 +8,7 @@ menu:
     parent: shortcodes
     weight:
 weight:
-expiryDate: 2027-01-31 # Deprecated in v0.143.0. Keep this around for a couple of years because it contains instructions for creating a replacement.
+expiryDate: 2027-02-01 # deprecated 2025-02-01 in v0.143.0
 ---
 
 {{% deprecated-in 0.143.0 %}}

@@ -9,7 +9,7 @@ action:
   returnType: '[][]string'
   signatures: ['data.GetCSV SEPARATOR INPUT... [OPTIONS]']
 toc: true
-expiryDate: 2025-02-19 # deprecated 2024-02-19
+expiryDate: 2026-02-19 # deprecated 2024-02-19 in v0.123.0
 ---
 
 {{% deprecated-in 0.123.0 %}}

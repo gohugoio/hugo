@@ -7,7 +7,7 @@ action:
   related: []
   returnType: maps.Scratch
   signatures: [SHORTCODE.Scratch]
-expiryDate: 2025-11-18 #  deprecated 2024-11-18
+expiryDate: 2026-11-18 # deprecated 2024-11-18 (soft)
 ---
 
 {{% deprecated-in 0.139.0 %}}

@@ -9,7 +9,7 @@ menu:
     parent: shortcodes
     weight:
 weight:
-expiryDate: 2025-01-22 # Deprecated in v0.143.0. Use HTML comments instead
+expiryDate: 2025-01-22 # deprecated 2025-02-01 in v0.143.0 and immediately removed from the documentation
 ---
 
 {{% note %}}

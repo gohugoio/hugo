@@ -400,13 +400,13 @@ Use [`hugo.IsServer`] instead.
 {{%/* /deprecated-in */%}}
 {{< /code >}}
 
-When deprecating a function or method, add this to front matter:
+When deprecating a function or method, add something like this to front matter:
 
 {{< code-toggle file=content/something/foo.md fm=true >}}
-expiryDate: 2024-10-30
+expiryDate: 2024-10-30 # deprecated 2022-10-30 in v0.123.0
 {{< /code-toggle >}}
 
-Set the `expiryDate` to one year from the date of deprecation, and add a brief front matter comment to explain the setting.
+Set the `expiryDate` to two years from the date of deprecation, and add a brief front matter comment to explain the setting.
 
 ## GitHub workflow
 
