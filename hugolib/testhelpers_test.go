@@ -260,8 +260,6 @@ disable = false
 respectDoNotTrack = true
 [privacy.instagram]
 simple = true
-[privacy.twitter]
-enableDNT = true
 [privacy.x]
 enableDNT = true
 [privacy.vimeo]

@@ -414,6 +414,15 @@ func Deprecate(item, alternative string, version string) {
 	DeprecateLevel(item, alternative, version, level)
 }
 
+// DeprecateLevelMin informs about a deprecation starting at the given version, but with a minimum log level.
+func DeprecateLevelMin(item, alternative string, version string, minLevel logg.Level) {
+	level := deprecationLogLevelFromVersion(version)
+	if level < minLevel {
+		level = minLevel
+	}
+	DeprecateLevel(item, alternative, version, level)
+}
+
 // DeprecateLevel informs about a deprecation logging at the given level.
 func DeprecateLevel(item, alternative, version string, level logg.Level) {
 	var msg string

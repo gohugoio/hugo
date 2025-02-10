@@ -91,7 +91,7 @@ func LoadConfig(d ConfigSourceDescriptor) (*Configs, error) {
 		return nil, fmt.Errorf("failed to init config: %w", err)
 	}
 
-	loggers.InitGlobalLogger(d.Logger.Level(), configs.Base.PanicOnWarning)
+	loggers.SetGlobalLogger(d.Logger)
 
 	return configs, nil
 }

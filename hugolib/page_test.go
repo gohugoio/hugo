@@ -1942,3 +1942,29 @@ Hugo: h-Home|
 `,
 	)
 }
+
+// See #12484
+func TestPageFrontMatterDeprecatePathKindLang(t *testing.T) {
+	// This cannot be parallel as it depends on output from the global logger.
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "home", "section"]
+-- content/p1.md --
+---
+title: "p1"
+kind: "page"
+lang: "en"
+path: "mypath"
+---
+-- layouts/_default/single.html --
+Title: {{ .Title }}
+`
+	b := Test(t, files, TestOptWarn())
+	b.AssertFileContent("public/mypath/index.html", "p1")
+	b.AssertLogContains(
+		"deprecated: kind in front matter was deprecated",
+		"deprecated: lang in front matter was deprecated",
+		"deprecated: path in front matter was deprecated",
+	)
+}
