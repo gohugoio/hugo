@@ -21,6 +21,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bep/logg"
 	"github.com/gobuffalo/flect"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/markup/converter"
@@ -32,6 +33,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/constants"
 	"github.com/gohugoio/hugo/common/hashing"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
@@ -484,6 +486,11 @@ params:
 
 		if pm.s.frontmatterHandler.IsDateKey(loki) {
 			continue
+		}
+
+		if loki == "path" || loki == "kind" || loki == "lang" {
+			// See issue 12484.
+			hugo.DeprecateLevelMin(loki+" in front matter", "", "v0.144.0", logg.LevelWarn)
 		}
 
 		switch loki {

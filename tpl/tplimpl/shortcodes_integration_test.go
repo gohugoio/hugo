@@ -22,7 +22,7 @@ import (
 )
 
 func TestCommentShortcode(t *testing.T) {
-	t.Parallel()
+	// This cannot be parallel as it depends on output from the global logger.
 
 	files := `
 -- hugo.toml --
