@@ -27,6 +27,9 @@ disableAliases = true
     description = "The world’s fastest framework for building websites"
     ghrepo      = "https://github.com/gohugoio/hugoDocs/"
 
+    [params.render_hooks.link]
+        errorLevel = 'warning' # ignore (default), warning, or error (fails the build)
+
 [languages]
     [languages.en]
         languageName = "English"
@@ -136,7 +139,7 @@ disableAliases = true
             keepSpecialComments = true
             keepWhitespace      = false
 
-######## GLOBAL ITEMS TO BE SHARED WITH THE HUGO SITES ######## 
+######## GLOBAL ITEMS TO BE SHARED WITH THE HUGO SITES ########
 [menus]
     [[menus.global]]
         name       = 'News'
