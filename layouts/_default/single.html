@@ -10,8 +10,8 @@
       {{ end }}
 
       {{ $t := debug.Timer "single.categories" }}
-      {{ $tags := .GetTerms "categories" }}
-      {{ with $tags }}
+      {{ $categories := .GetTerms "categories" }}
+      {{ with $categories }}
         <div class="mb-4 sm:mb-6 flex flex-wrap gap-2">
           {{ range . }}
             {{ $text := .LinkTitle }}

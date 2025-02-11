@@ -1,17 +1,21 @@
 {{ $documentation := site.GetPage "/documentation" }}
 
 
-<nav aria-label="breadcrumb" class="flex">
+<nav aria-label="breadcrumb" class="flex breadcrumbs">
   <ol class="inline-flex items-center flex-wrap tracking-tight">
-    {{ range $i, $p := .Ancestors.Reverse }}
+    {{ $ancestors := .Ancestors.Reverse }}
+    {{ range $i, $p := $ancestors }}
       {{/* We currently have a slightly odd structure. */}}
       {{ if eq $p site.Home }}
         {{ $p = $documentation }}
       {{ end }}
       <li class="flex items-center">
+        {{ $isLast := eq $i (sub (len $ancestors) 1) }}
         <a
           href="{{ $p.RelPermalink }}"
-          class="truncate text-blue-600 hover:text-blue-500"
+          class="truncate text-blue-600 hover:text-blue-500 {{ if $isLast }}
+            current-section
+          {{ end }}"
           >{{ $p.LinkTitle }}</a
         >
         {{ if ne $ $documentation }}
