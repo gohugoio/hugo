@@ -60,7 +60,7 @@ target = "css"
 Step 3
 : Create a CSS entry file:
 
-{{< code file=assets/css/main.css >}}
+{{< code file=assets/css/main.css copy=true >}}
 @import "tailwindcss";
 @source "hugo_stats.json";
 {{< /code >}}
@@ -71,18 +71,20 @@ Step 4
 : Create a partial template to process the CSS with the Tailwind CSS CLI:
 
 {{< code file=layouts/partials/css.html copy=true >}}
-{{ with resources.Get "css/main.css" }}
-  {{ $opts := dict
-    "minify" hugo.IsProduction
-    "inlineImports" true
-  }}
-  {{ with . | css.TailwindCSS $opts }}
-    {{ if hugo.IsProduction }}
-      {{ with . | fingerprint }}
-        <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
+{{ with (templates.Defer (dict "key" "global")) }}
+  {{ with resources.Get "css/main.css" }}
+    {{ $opts := dict
+      "minify" hugo.IsProduction
+      "inlineImports" true
+    }}
+    {{ with . | css.TailwindCSS $opts }}
+      {{ if hugo.IsProduction }}
+        {{ with . | fingerprint }}
+          <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
+        {{ end }}
+      {{ else }}
+        <link rel="stylesheet" href="{{ .RelPermalink }}">
       {{ end }}
-    {{ else }}
-      <link rel="stylesheet" href="{{ .RelPermalink }}">
     {{ end }}
   {{ end }}
 {{ end }}
