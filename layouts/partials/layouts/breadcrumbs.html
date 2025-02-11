@@ -3,8 +3,10 @@
 
 <nav aria-label="breadcrumb" class="flex breadcrumbs">
   <ol class="inline-flex items-center flex-wrap tracking-tight">
+    {{ $currentSection := .CurrentSection }}
     {{ $ancestors := .Ancestors.Reverse }}
     {{ range $i, $p := $ancestors }}
+      {{ $isCurrentSection := eq $p $currentSection }}
       {{/* We currently have a slightly odd structure. */}}
       {{ if eq $p site.Home }}
         {{ $p = $documentation }}
@@ -13,7 +15,7 @@
         {{ $isLast := eq $i (sub (len $ancestors) 1) }}
         <a
           href="{{ $p.RelPermalink }}"
-          class="truncate text-blue-600 hover:text-blue-500 {{ if $isLast }}
+          class="truncate text-blue-600 hover:text-blue-500 {{ if $isCurrentSection }}
             current-section
           {{ end }}"
           >{{ $p.LinkTitle }}</a
@@ -24,7 +26,11 @@
       </li>
     {{ end }}
     {{ if ne $ $documentation }}
-      <li class="truncate text-gray-700 dark:text-gray-300">
+      {{ $isCurrentSection := eq $ $currentSection }}
+      <li
+        class="truncate text-gray-700 dark:text-gray-300 {{ if $isCurrentSection }}
+          current-section
+        {{ end }}">
         {{ $.LinkTitle }}
       </li>
     {{ end }}
