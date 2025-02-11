@@ -14,13 +14,19 @@ const applyHelperFuncs = (array) => {
 		item.getHeadingHTML = function () {
 			let lvl2 = this._highlightResult.hierarchy.lvl2;
 			let lvl3 = this._highlightResult.hierarchy.lvl3;
-			if (!lvl2) {
+
+			if (!lvl3) {
+				if (lvl2) {
+					return lvl2.value;
+				}
 				return '';
 			}
-			if (lvl3) {
-				return `${lvl2.value} <span class="text-gray-500">&nbsp;>&nbsp;</span> ${lvl3.value}`;
+
+			if (!lvl2) {
+				return lvl3.value;
 			}
-			return lvl2.value;
+
+			return `${lvl2.value} <span class="text-gray-500">&nbsp;>&nbsp;</span> ${lvl3.value}`;
 		};
 		return item;
 	});
