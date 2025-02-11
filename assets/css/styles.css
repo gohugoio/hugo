@@ -117,4 +117,7 @@ body {
   }
 }
 
-/* flex-1 mx-auto lg:mx-0 px-4 md:px-8 lg:px-12 w-full max-w-3x lg:max-w-3x py-8 sm:py-14 */
+/* Algolia DocSearch */
+.algolia-docsearch-suggestion--highlight {
+  color: var(--color-primary);
+}

@@ -8,6 +8,24 @@ const groupByLvl0 = (array) => {
 	}, {});
 };
 
+const applyHelperFuncs = (array) => {
+	if (!array) return [];
+	return array.map((item) => {
+		item.getHeadingHTML = function () {
+			let lvl2 = this._highlightResult.hierarchy.lvl2;
+			let lvl3 = this._highlightResult.hierarchy.lvl3;
+			if (!lvl2) {
+				return '';
+			}
+			if (lvl3) {
+				return `${lvl2.value} <span class="text-gray-500">&nbsp;>&nbsp;</span> ${lvl3.value}`;
+			}
+			return lvl2.value;
+		};
+		return item;
+	});
+};
+
 export const search = (Alpine, cfg) => ({
 	query: designMode ? 'shortcodes' : '',
 	open: designMode,
@@ -66,7 +84,7 @@ export const search = (Alpine, cfg) => ({
 		})
 			.then((response) => response.json())
 			.then((data) => {
-				this.result = groupByLvl0(data.results[0].hits);
+				this.result = groupByLvl0(applyHelperFuncs(data.results[0].hits));
 			});
 	},
 	root: {
