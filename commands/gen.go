@@ -149,7 +149,7 @@ url: %s
 
 		return &simpleCommand{
 			name:  "doc",
-			short: "Generate Markdown documentation for the Hugo CLI.",
+			short: "Generate Markdown documentation for the Hugo CLI",
 			long: `Generate Markdown documentation for the Hugo CLI.
 			This command is, mostly, used to create up-to-date documentation
 	of Hugo's command-line interface for https://gohugo.io/.
@@ -201,7 +201,7 @@ url: %s
 	newDocsHelper := func() simplecobra.Commander {
 		return &simpleCommand{
 			name:  "docshelper",
-			short: "Generate some data files for the Hugo docs.",
+			short: "Generate some data files for the Hugo docs",
 
 			run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 				r.Println("Generate docs data to", docsHelperTarget)

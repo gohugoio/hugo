@@ -119,7 +119,7 @@ func newServerCommand() *serverCommand {
 		commands: []simplecobra.Commander{
 			&simpleCommand{
 				name:  "trust",
-				short: "Install the local CA in the system trust store.",
+				short: "Install the local CA in the system trust store",
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					action := "-install"
 					if uninstall {

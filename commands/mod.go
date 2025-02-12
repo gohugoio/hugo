@@ -44,16 +44,16 @@ func newModCommands() *modCommands {
 
 	npmCommand := &simpleCommand{
 		name:  "npm",
-		short: "Various npm helpers.",
+		short: "Various npm helpers",
 		long:  `Various npm (Node package manager) helpers.`,
 		commands: []simplecobra.Commander{
 			&simpleCommand{
 				name:  "pack",
-				short: "Experimental: Prepares and writes a composite package.json file for your project.",
+				short: "Experimental: Prepares and writes a composite package.json file for your project",
 				long: `Prepares and writes a composite package.json file for your project.
 
 On first run it creates a "package.hugo.json" in the project root if not already there. This file will be used as a template file
-with the base dependency set. 
+with the base dependency set.
 
 This set will be merged with all "package.hugo.json" files found in the dependency tree, picking the version closest to the project.
 
@@ -80,12 +80,12 @@ so this may/will change in future versions of Hugo.
 		commands: []simplecobra.Commander{
 			&simpleCommand{
 				name:  "init",
-				short: "Initialize this project as a Hugo Module.",
+				short: "Initialize this project as a Hugo Module",
 				long: `Initialize this project as a Hugo Module.
 	It will try to guess the module path, but you may help by passing it as an argument, e.g:
-	
+
 		hugo mod init github.com/gohugoio/testshortcodes
-	
+
 	Note that Hugo Modules supports multi-module projects, so you can initialize a Hugo Module
 	inside a subfolder on GitHub, as one example.
 	`,
@@ -111,7 +111,7 @@ so this may/will change in future versions of Hugo.
 			},
 			&simpleCommand{
 				name:  "verify",
-				short: "Verify dependencies.",
+				short: "Verify dependencies",
 				long:  `Verify checks that the dependencies of the current module, which are stored in a local downloaded source cache, have not been modified since being downloaded.`,
 				withc: func(cmd *cobra.Command, r *rootCommand) {
 					cmd.ValidArgsFunction = cobra.NoFileCompletions
@@ -129,7 +129,7 @@ so this may/will change in future versions of Hugo.
 			},
 			&simpleCommand{
 				name:  "graph",
-				short: "Print a module dependency graph.",
+				short: "Print a module dependency graph",
 				long: `Print a module dependency graph with information about module status (disabled, vendored).
 Note that for vendored modules, that is the version listed and not the one from go.mod.
 `,
@@ -149,7 +149,7 @@ Note that for vendored modules, that is the version listed and not the one from 
 			},
 			&simpleCommand{
 				name:  "clean",
-				short: "Delete the Hugo Module cache for the current project.",
+				short: "Delete the Hugo Module cache for the current project",
 				long:  `Delete the Hugo Module cache for the current project.`,
 				withc: func(cmd *cobra.Command, r *rootCommand) {
 					cmd.ValidArgsFunction = cobra.NoFileCompletions
@@ -175,7 +175,7 @@ Note that for vendored modules, that is the version listed and not the one from 
 			},
 			&simpleCommand{
 				name:  "tidy",
-				short: "Remove unused entries in go.mod and go.sum.",
+				short: "Remove unused entries in go.mod and go.sum",
 				withc: func(cmd *cobra.Command, r *rootCommand) {
 					cmd.ValidArgsFunction = cobra.NoFileCompletions
 					applyLocalFlagsBuildConfig(cmd, r)
@@ -190,7 +190,7 @@ Note that for vendored modules, that is the version listed and not the one from 
 			},
 			&simpleCommand{
 				name:  "vendor",
-				short: "Vendor all module dependencies into the _vendor directory.",
+				short: "Vendor all module dependencies into the _vendor directory",
 				long: `Vendor all module dependencies into the _vendor directory.
 	If a module is vendored, that is where Hugo will look for it's dependencies.
 	`,
@@ -209,16 +209,16 @@ Note that for vendored modules, that is the version listed and not the one from 
 
 			&simpleCommand{
 				name:  "get",
-				short: "Resolves dependencies in your current Hugo Project.",
+				short: "Resolves dependencies in your current Hugo project",
 				long: `
-Resolves dependencies in your current Hugo Project.
+Resolves dependencies in your current Hugo project.
 
 Some examples:
 
 Install the latest version possible for a given module:
 
     hugo mod get github.com/gohugoio/testshortcodes
-    
+
 Install a specific version:
 
     hugo mod get github.com/gohugoio/testshortcodes@v0.3.0
