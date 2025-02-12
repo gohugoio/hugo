@@ -15,7 +15,8 @@
       {{- $codeLang = cond (eq $ext "html") "go-html-template" $ext }}
     {{- end }}
     <div
-      class="san-serif text-sm inline-block leading-none pl-2 py-3 bg-slate-700 dark: w-full">
+      class="san-serif text-sm inline-block leading-none pl-2 py-3 bg-gray-300 dark:bg-slate-700 dark: w-full select-none
+">
       {{ . }}
     </div>
   {{- end -}}
