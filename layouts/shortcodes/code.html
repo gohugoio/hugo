@@ -1,7 +1,7 @@
 {{- $codeLang := or (.Get "lang") "" }}
 <div
   x-data
-  class="shortcode-code font-mono not-prose relative mt-6 mb-8 border-1 border-gray-200 bg-light">
+  class="shortcode-code font-mono not-prose relative mt-6 mb-8 border-1 border-gray-200 dark:border-gray-800 bg-light dark:bg-dark">
   {{ if (.Get "copy") }}
     <svg
       class="absolute right-2 top-2 z-30 text-blue-600 hover:text-blue-500 cursor-pointer w-6 h-6"
@@ -15,7 +15,7 @@
       {{- $codeLang = cond (eq $ext "html") "go-html-template" $ext }}
     {{- end }}
     <div
-      class="san-serif text-sm inline-block leading-none pl-2 py-3 bg-gray-100 w-full">
+      class="san-serif text-sm inline-block leading-none pl-2 py-3 bg-slate-700 dark: w-full">
       {{ . }}
     </div>
   {{- end -}}

@@ -1,9 +1,8 @@
 <button
   {{ if .standalone }}
     x-data @click="$dispatch('search-toggle')"
-  {{ else }}
-    type="button" x-show="!open" x-transition.opacity.duration.500ms
   {{ end }}
+  type="button"
   class="grid cursor-pointer w-full text-gray-500 sm:w-40 lg:w-56 grid-cols-[auto_1fr_auto] items-center gap-3 rounded-md px-2 sm:px-4 py-2 text-left text-xs/6 lg:text-sm/6 outline-0 sm:outline-1 -outline-offset-1 outline-gray-600">
   <svg
     class="pointer-events-none -ml-0.5 size-5 sm:size-4 fill-slate-400 dark:fill-slate-500">

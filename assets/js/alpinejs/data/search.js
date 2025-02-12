@@ -102,7 +102,7 @@ export const search = (Alpine, cfg) => ({
 		['@search-toggle.window']() {
 			this.toggleOpen();
 		},
-		['@keydown.meta.k.window']() {
+		['@keydown.meta.k.window.prevent']() {
 			this.toggleOpen();
 		},
 	},
