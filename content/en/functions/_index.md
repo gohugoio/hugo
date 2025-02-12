@@ -1,7 +1,7 @@
 ---
 title: Functions
 
-description: A list of Hugo template functions including examples.
+description: Use these functions within your templates and archetypes.
 categories: []
 keywords: []
 menu:

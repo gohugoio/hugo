@@ -1,7 +1,7 @@
 ---
 title: Templates
 
-description: Go templating, template types and lookup order, shortcodes, and data.
+description: Create templates to render your content, resources, and data.
 categories: []
 keywords: []
 menu:

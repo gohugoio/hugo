@@ -1,7 +1,7 @@
 ---
 title: About Hugo
 linktitle: About
-description: Learn about Hugo and its features, security model, and privacy protections.
+description: Learn about Hugo and its features, privacy protections, and security model.
 categories: []
 keywords: []
 menu:
