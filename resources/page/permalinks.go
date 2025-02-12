@@ -93,7 +93,7 @@ func NewPermalinkExpander(urlize func(uri string) string, patterns map[string]ma
 		"slugorfilename":        p.pageToPermalinkSlugElseFilename,
 		"filename":              p.pageToPermalinkFilename,
 		"contentbasename":       p.pageToPermalinkContentBaseName,
-		"contentbasenameorslug": p.pageToPermalinkContentBaseNameOrSlug,
+		"slugorcontentbasename": p.pageToPermalinkSlugOrContentBaseName,
 	}
 
 	p.expanders = make(map[string]map[string]func(Page) (string, error))
@@ -311,22 +311,19 @@ func (l PermalinkExpander) pageToPermalinkSections(p Page, _ string) (string, er
 
 // pageToPermalinkContentBaseName returns the URL-safe form of the content base name.
 func (l PermalinkExpander) pageToPermalinkContentBaseName(p Page, _ string) (string, error) {
-	if p.File() == nil {
-		return "", nil
-	}
-	return l.urlize(p.File().ContentBaseName()), nil
+	return l.urlize(p.PathInfo().BaseNameNoIdentifier()), nil
 }
 
-// pageToPermalinkContentBaseNameOrSlug returns the URL-safe form of the content base name, or the slug.
-func (l PermalinkExpander) pageToPermalinkContentBaseNameOrSlug(p Page, a string) (string, error) {
+// pageToPermalinkSlugOrContentBaseName returns the URL-safe form of the slug, content base name.
+func (l PermalinkExpander) pageToPermalinkSlugOrContentBaseName(p Page, a string) (string, error) {
+	if p.Slug() != "" {
+		return l.urlize(p.Slug()), nil
+	}
 	name, err := l.pageToPermalinkContentBaseName(p, a)
 	if err != nil {
 		return "", nil
 	}
-	if name != "" {
-		return name, nil
-	}
-	return l.pageToPermalinkSlugElseTitle(p, a)
+	return name, nil
 }
 
 func (l PermalinkExpander) translationBaseName(p Page) string {

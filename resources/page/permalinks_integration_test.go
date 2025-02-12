@@ -277,3 +277,69 @@ title: p2
 	// We strip colons from paths constructed by Hugo (they are not supported on Windows).
 	b.AssertFileExists("public/cd/p2/index.html", true)
 }
+
+func TestPermalinksContentbasenameContentAdapter(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+[permalinks]
+[permalinks.page]
+a = "/:slugorcontentbasename/"
+b = "/:sections/:contentbasename/"
+-- content/_content.gotmpl --
+{{ $.AddPage  (dict "kind" "page" "path" "a/b/contentbasename1" "title" "My A Page No Slug")  }}
+{{ $.AddPage (dict "kind" "page" "path" "a/b/contentbasename2" "slug" "myslug"  "title" "My A Page With Slug")  }}
+ {{ $.AddPage  (dict "kind" "section" "path" "b/c" "title" "My B Section")  }}
+{{ $.AddPage  (dict "kind" "page" "path" "b/c/contentbasename3" "title" "My B Page No Slug")  }}
+-- layouts/_default/single.html --
+{{ .Title }}|{{ .RelPermalink }}|{{ .Kind }}|
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/contentbasename1/index.html", "My A Page No Slug|/contentbasename1/|page|")
+	b.AssertFileContent("public/myslug/index.html", "My A Page With Slug|/myslug/|page|")
+}
+
+func TestPermalinksContentbasenameWithAndWithoutFile(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+[permalinks.section]
+a = "/mya/:contentbasename/"
+[permalinks.page]
+a = "/myapage/:contentbasename/"
+[permalinks.term]
+categories = "/myc/:slugorcontentbasename/"
+-- content/b/c/_index.md --
+---
+title: "C section"
+---
+-- content/a/b/index.md --
+---
+title: "My Title"
+categories: ["c1", "c2"]
+---
+-- content/categories/c2/_index.md --
+---
+title: "C2"
+slug: "c2slug"
+---
+-- layouts/_default/single.html --
+{{ .Title }}|{{ .RelPermalink }}|{{ .Kind }}|
+-- layouts/_default/list.html --
+{{ .Title }}|{{ .RelPermalink }}|{{ .Kind }}|
+`
+	b := hugolib.Test(t, files)
+
+	// Sections.
+	b.AssertFileContent("public/mya/a/index.html", "As|/mya/a/|section|")
+
+	// Pages.
+	b.AssertFileContent("public/myapage/b/index.html", "My Title|/myapage/b/|page|")
+
+	// Taxonomies.
+	b.AssertFileContent("public/myc/c1/index.html", "C1|/myc/c1/|term|")
+	b.AssertFileContent("public/myc/c2slug/index.html", "C2|/myc/c2slug/|term|")
+}

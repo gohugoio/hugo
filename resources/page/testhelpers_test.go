@@ -52,7 +52,7 @@ func newTestPage() *testPage {
 
 func newTestPageWithFile(filename string) *testPage {
 	filename = filepath.FromSlash(filename)
-	file := source.NewFileInfoFrom(filename, filename)
+	file := source.NewContentFileInfoFrom(filename, filename)
 
 	l, err := langs.NewLanguage(
 		"en",
@@ -67,9 +67,10 @@ func newTestPageWithFile(filename string) *testPage {
 	}
 
 	return &testPage{
-		params: make(map[string]any),
-		data:   make(map[string]any),
-		file:   file,
+		params:   make(map[string]any),
+		data:     make(map[string]any),
+		file:     file,
+		pathInfo: file.FileInfo().Meta().PathInfo,
 		currentSection: &testPage{
 			sectionEntries: []string{"a", "b", "c"},
 		},
@@ -90,7 +91,8 @@ type testPage struct {
 
 	fuzzyWordCount int
 
-	path string
+	path     string
+	pathInfo *paths.Path
 
 	slug string
 
@@ -406,7 +408,7 @@ func (p *testPage) Path() string {
 }
 
 func (p *testPage) PathInfo() *paths.Path {
-	panic("testpage: not implemented")
+	return p.pathInfo
 }
 
 func (p *testPage) Permalink() string {
