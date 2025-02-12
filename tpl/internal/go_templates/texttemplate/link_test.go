@@ -2,16 +2,18 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build go1.13
+// +build go1.13
+
 package template_test
 
 import (
 	"bytes"
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/testenv"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"testing"
-
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/testenv"
 )
 
 // Issue 36021: verify that text/template doesn't prevent the linker from removing
@@ -42,7 +44,7 @@ func main() {
 `
 	td := t.TempDir()
 
-	if err := os.WriteFile(filepath.Join(td, "x.go"), []byte(prog), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(td, "x.go"), []byte(prog), 0644); err != nil {
 		t.Fatal(err)
 	}
 	cmd := exec.Command(testenv.GoToolPath(t), "build", "-o", "x.exe", "x.go")

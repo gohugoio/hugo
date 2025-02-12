@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build go1.13
+// +build go1.13
+
 package template_test
 
 import (
@@ -80,6 +83,7 @@ func Example() {
 	// 		<div><strong>no rows</strong></div>
 	// 	</body>
 	// </html>
+
 }
 
 func Example_autoescaping() {
@@ -120,6 +124,7 @@ func Example_escape() {
 	// \"Fran \u0026 Freddie\'s Diner\" \u003Ctasty@example.com\u003E
 	// \"Fran \u0026 Freddie\'s Diner\"32\u003Ctasty@example.com\u003E
 	// %22Fran+%26+Freddie%27s+Diner%2232%3Ctasty%40example.com%3E
+
 }
 
 func ExampleTemplate_Delims() {

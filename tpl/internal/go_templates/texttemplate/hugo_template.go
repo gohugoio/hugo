@@ -304,14 +304,14 @@ func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node
 			}
 		}()
 	}
+
 	if args != nil {
 		args = args[1:] // Zeroth arg is function name/node; not passed to function.
 	}
-
 	typ := fun.Type()
-	numFirst := len(first)
+	numFirst := len(first)        // Added for Hugo
 	numIn := len(args) + numFirst // Added for Hugo
-	if final != missingVal {
+	if !isMissing(final) {
 		numIn++
 	}
 	numFixed := len(args) + len(first) // Adjusted for Hugo
@@ -346,7 +346,7 @@ func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node
 				return v
 			}
 		}
-		if final != missingVal {
+		if !final.Equal(missingVal) {
 			// The last argument to and/or is coming from
 			// the pipeline. We didn't short circuit on an earlier
 			// argument, so we are going to return this one.
@@ -373,7 +373,7 @@ func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node
 		}
 	}
 	// Add final value if necessary.
-	if final != missingVal {
+	if !isMissing(final) {
 		t := typ.In(typ.NumIn() - 1)
 		if typ.IsVariadic() {
 			if numIn-1 < numFixed {
@@ -392,7 +392,13 @@ func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node
 	// Special case for the "call" builtin.
 	// Insert the name of the callee function as the first argument.
 	if isBuiltin && name == "call" {
-		calleeName := args[0].String()
+		var calleeName string
+		if len(args) == 0 {
+			// final must be present or we would have errored out above.
+			calleeName = final.String()
+		} else {
+			calleeName = args[0].String()
+		}
 		argv = append([]reflect.Value{reflect.ValueOf(calleeName)}, argv...)
 		fun = reflect.ValueOf(call)
 	}

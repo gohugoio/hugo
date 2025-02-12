@@ -12,7 +12,6 @@ package testenv
 
 import (
 	"bytes"
-	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -43,15 +42,22 @@ func Builder() string {
 
 // HasGoBuild reports whether the current system can build programs with “go build”
 // and then run them with os.StartProcess or exec.Command.
-// Modified by Hugo (not needed)
 func HasGoBuild() bool {
-	return false
+	if os.Getenv("GO_GCFLAGS") != "" {
+		// It's too much work to require every caller of the go command
+		// to pass along "-gcflags="+os.Getenv("GO_GCFLAGS").
+		// For now, if $GO_GCFLAGS is set, report that we simply can't
+		// run go build.
+		return false
+	}
+
+	return tryGoBuild() == nil
 }
 
-var (
-	goBuildOnce sync.Once
-	goBuildErr  error
-)
+var tryGoBuild = sync.OnceValue(func() error {
+	// Removed by Hugo, not used.
+	return nil
+})
 
 // MustHaveGoBuild checks that the current system can build programs with “go build”
 // and then run them with os.StartProcess or exec.Command.
@@ -63,7 +69,7 @@ func MustHaveGoBuild(t testing.TB) {
 	}
 	if !HasGoBuild() {
 		t.Helper()
-		t.Skipf("skipping test: 'go build' unavailable: %v", goBuildErr)
+		t.Skipf("skipping test: 'go build' unavailable: %v", tryGoBuild())
 	}
 }
 
@@ -77,6 +83,7 @@ func HasGoRun() bool {
 // If not, MustHaveGoRun calls t.Skip with an explanation.
 func MustHaveGoRun(t testing.TB) {
 	if !HasGoRun() {
+		t.Helper()
 		t.Skipf("skipping test: 'go run' not available on %s/%s", runtime.GOOS, runtime.GOARCH)
 	}
 }
@@ -96,6 +103,7 @@ func HasParallelism() bool {
 // threads in parallel. If not, MustHaveParallelism calls t.Skip with an explanation.
 func MustHaveParallelism(t testing.TB) {
 	if !HasParallelism() {
+		t.Helper()
 		t.Skipf("skipping test: no parallelism available on %s/%s", runtime.GOOS, runtime.GOARCH)
 	}
 }
@@ -119,82 +127,67 @@ func GoToolPath(t testing.TB) string {
 	return path
 }
 
-var (
-	gorootOnce sync.Once
-	gorootPath string
-	gorootErr  error
-)
+var findGOROOT = sync.OnceValues(func() (path string, err error) {
+	if path := runtime.GOROOT(); path != "" {
+		// If runtime.GOROOT() is non-empty, assume that it is valid.
+		//
+		// (It might not be: for example, the user may have explicitly set GOROOT
+		// to the wrong directory. But this case is
+		// rare, and if that happens the user can fix what they broke.)
+		return path, nil
+	}
 
-func findGOROOT() (string, error) {
-	gorootOnce.Do(func() {
-		gorootPath = runtime.GOROOT()
-		if gorootPath != "" {
-			// If runtime.GOROOT() is non-empty, assume that it is valid.
-			//
-			// (It might not be: for example, the user may have explicitly set GOROOT
-			// to the wrong directory. But this case is
-			// rare, and if that happens the user can fix what they broke.)
-			return
+	// runtime.GOROOT doesn't know where GOROOT is (perhaps because the test
+	// binary was built with -trimpath).
+	//
+	// Since this is internal/testenv, we can cheat and assume that the caller
+	// is a test of some package in a subdirectory of GOROOT/src. ('go test'
+	// runs the test in the directory containing the packaged under test.) That
+	// means that if we start walking up the tree, we should eventually find
+	// GOROOT/src/go.mod, and we can report the parent directory of that.
+	//
+	// Notably, this works even if we can't run 'go env GOROOT' as a
+	// subprocess.
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "", fmt.Errorf("finding GOROOT: %w", err)
+	}
+
+	dir := cwd
+	for {
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			// dir is either "." or only a volume name.
+			return "", fmt.Errorf("failed to locate GOROOT/src in any parent directory")
 		}
 
-		// runtime.GOROOT doesn't know where GOROOT is (perhaps because the test
-		// binary was built with -trimpath).
-		//
-		// Since this is internal/testenv, we can cheat and assume that the caller
-		// is a test of some package in a subdirectory of GOROOT/src. ('go test'
-		// runs the test in the directory containing the packaged under test.) That
-		// means that if we start walking up the tree, we should eventually find
-		// GOROOT/src/go.mod, and we can report the parent directory of that.
-		//
-		// Notably, this works even if we can't run 'go env GOROOT' as a
-		// subprocess.
+		if base := filepath.Base(dir); base != "src" {
+			dir = parent
+			continue // dir cannot be GOROOT/src if it doesn't end in "src".
+		}
 
-		cwd, err := os.Getwd()
+		b, err := os.ReadFile(filepath.Join(dir, "go.mod"))
 		if err != nil {
-			gorootErr = fmt.Errorf("finding GOROOT: %w", err)
-			return
-		}
-
-		dir := cwd
-		for {
-			parent := filepath.Dir(dir)
-			if parent == dir {
-				// dir is either "." or only a volume name.
-				gorootErr = fmt.Errorf("failed to locate GOROOT/src in any parent directory")
-				return
-			}
-
-			if base := filepath.Base(dir); base != "src" {
+			if os.IsNotExist(err) {
 				dir = parent
-				continue // dir cannot be GOROOT/src if it doesn't end in "src".
+				continue
 			}
+			return "", fmt.Errorf("finding GOROOT: %w", err)
+		}
+		goMod := string(b)
 
-			b, err := os.ReadFile(filepath.Join(dir, "go.mod"))
-			if err != nil {
-				if os.IsNotExist(err) {
-					dir = parent
-					continue
-				}
-				gorootErr = fmt.Errorf("finding GOROOT: %w", err)
-				return
-			}
-			goMod := string(b)
-
-			for goMod != "" {
-				var line string
-				line, goMod, _ = strings.Cut(goMod, "\n")
-				fields := strings.Fields(line)
-				if len(fields) >= 2 && fields[0] == "module" && fields[1] == "std" {
-					// Found "module std", which is the module declaration in GOROOT/src!
-					gorootPath = parent
-					return
-				}
+		for goMod != "" {
+			var line string
+			line, goMod, _ = strings.Cut(goMod, "\n")
+			fields := strings.Fields(line)
+			if len(fields) >= 2 && fields[0] == "module" && fields[1] == "std" {
+				// Found "module std", which is the module declaration in GOROOT/src!
+				return parent, nil
 			}
 		}
-	})
-
-	return gorootPath, gorootErr
-}
+	}
+})
 
 // GOROOT reports the path to the directory containing the root of the Go
 // project source tree. This is normally equivalent to runtime.GOROOT, but
@@ -217,28 +210,22 @@ func GOROOT(t testing.TB) string {
 
 // GoTool reports the path to the Go tool.
 func GoTool() (string, error) {
-	if !HasGoBuild() {
-		return "", errors.New("platform cannot run go tool")
-	}
-	goToolOnce.Do(func() {
-		goToolPath, goToolErr = exec.LookPath("go")
-	})
-	return goToolPath, goToolErr
+	// Removed by Hugo, not used.
+	return "", nil
 }
 
-var (
-	goToolOnce sync.Once
-	goToolPath string
-	goToolErr  error
-)
+var goTool = sync.OnceValues(func() (string, error) {
+	return exec.LookPath("go")
+})
 
-// HasSrc reports whether the entire source tree is available under GOROOT.
-func HasSrc() bool {
+// MustHaveSource checks that the entire source tree is available under GOROOT.
+// If not, it calls t.Skip with an explanation.
+func MustHaveSource(t testing.TB) {
 	switch runtime.GOOS {
 	case "ios":
-		return false
+		t.Helper()
+		t.Skip("skipping test: no source tree on " + runtime.GOOS)
 	}
-	return true
 }
 
 // HasExternalNetwork reports whether the current system can use
@@ -263,41 +250,39 @@ func MustHaveExternalNetwork(t testing.TB) {
 
 // HasCGO reports whether the current system can use cgo.
 func HasCGO() bool {
-	hasCgoOnce.Do(func() {
-		goTool, err := GoTool()
-		if err != nil {
-			return
-		}
-		cmd := exec.Command(goTool, "env", "CGO_ENABLED")
-		cmd.Env = origEnv
-		out, err := cmd.Output()
-		if err != nil {
-			panic(fmt.Sprintf("%v: %v", cmd, out))
-		}
-		hasCgo, err = strconv.ParseBool(string(bytes.TrimSpace(out)))
-		if err != nil {
-			panic(fmt.Sprintf("%v: non-boolean output %q", cmd, out))
-		}
-	})
-	return hasCgo
+	return hasCgo()
 }
 
-var (
-	hasCgoOnce sync.Once
-	hasCgo     bool
-)
+var hasCgo = sync.OnceValue(func() bool {
+	goTool, err := goTool()
+	if err != nil {
+		return false
+	}
+	cmd := exec.Command(goTool, "env", "CGO_ENABLED")
+	cmd.Env = origEnv
+	out, err := cmd.Output()
+	if err != nil {
+		panic(fmt.Sprintf("%v: %v", cmd, out))
+	}
+	ok, err := strconv.ParseBool(string(bytes.TrimSpace(out)))
+	if err != nil {
+		panic(fmt.Sprintf("%v: non-boolean output %q", cmd, out))
+	}
+	return ok
+})
 
 // MustHaveCGO calls t.Skip if cgo is not available.
 func MustHaveCGO(t testing.TB) {
 	if !HasCGO() {
+		t.Helper()
 		t.Skipf("skipping test: no cgo")
 	}
 }
 
 // CanInternalLink reports whether the current system can link programs with
 // internal linking.
-// Modified by Hugo (not needed)
 func CanInternalLink(withCgo bool) bool {
+	// Removed by Hugo, not used.
 	return false
 }
 
@@ -306,6 +291,7 @@ func CanInternalLink(withCgo bool) bool {
 // If not, MustInternalLink calls t.Skip with an explanation.
 func MustInternalLink(t testing.TB, withCgo bool) {
 	if !CanInternalLink(withCgo) {
+		t.Helper()
 		if withCgo && CanInternalLink(false) {
 			t.Skipf("skipping test: internal linking on %s/%s is not supported with cgo", runtime.GOOS, runtime.GOARCH)
 		}
@@ -316,15 +302,15 @@ func MustInternalLink(t testing.TB, withCgo bool) {
 // MustInternalLinkPIE checks whether the current system can link PIE binary using
 // internal linking.
 // If not, MustInternalLinkPIE calls t.Skip with an explanation.
-// Modified by Hugo (not needed)
 func MustInternalLinkPIE(t testing.TB) {
+	// Removed by Hugo, not used.
 }
 
 // MustHaveBuildMode reports whether the current system can build programs in
 // the given build mode.
 // If not, MustHaveBuildMode calls t.Skip with an explanation.
-// Modified by Hugo (not needed)
 func MustHaveBuildMode(t testing.TB, buildmode string) {
+	// Removed by Hugo, not used.
 }
 
 // HasSymlink reports whether the current system can use os.Symlink.
@@ -338,6 +324,7 @@ func HasSymlink() bool {
 func MustHaveSymlink(t testing.TB) {
 	ok, reason := hasSymlink()
 	if !ok {
+		t.Helper()
 		t.Skipf("skipping test: cannot make symlinks on %s/%s: %s", runtime.GOOS, runtime.GOARCH, reason)
 	}
 }
@@ -354,6 +341,7 @@ func HasLink() bool {
 // If not, MustHaveLink calls t.Skip with an explanation.
 func MustHaveLink(t testing.TB) {
 	if !HasLink() {
+		t.Helper()
 		t.Skipf("skipping test: hardlinks are not supported on %s/%s", runtime.GOOS, runtime.GOARCH)
 	}
 }
@@ -361,15 +349,15 @@ func MustHaveLink(t testing.TB) {
 var flaky = flag.Bool("flaky", false, "run known-flaky tests too")
 
 func SkipFlaky(t testing.TB, issue int) {
-	t.Helper()
 	if !*flaky {
+		t.Helper()
 		t.Skipf("skipping known flaky test without the -flaky flag; see golang.org/issue/%d", issue)
 	}
 }
 
 func SkipFlakyNet(t testing.TB) {
-	t.Helper()
 	if v, _ := strconv.ParseBool(os.Getenv("GO_BUILDER_FLAKY_NET")); v {
+		t.Helper()
 		t.Skip("skipping test on builder known to have frequent network failures")
 	}
 }
@@ -455,6 +443,6 @@ func SyscallIsNotSupported(err error) bool {
 // ParallelOn64Bit calls t.Parallel() unless there is a case that cannot be parallel.
 // This function should be used when it is necessary to avoid t.Parallel on
 // 32-bit machines, typically because the test uses lots of memory.
-// Disabled by Hugo.
 func ParallelOn64Bit(t *testing.T) {
+	// Removed by Hugo, not used.
 }
