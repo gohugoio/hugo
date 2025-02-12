@@ -20,7 +20,7 @@ menu:
 
 The first step will be to log in to your KeyCDN account and create a new zone. Name this whatever you like and select the [Pull Zone](https://www.keycdn.com/support/create-a-pull-zone/) option. As for the origin URL, your site will be running on [GitLab Pages](https://docs.gitlab.com/ee/user/project/pages/getting_started_part_one.html) with a URL of `https://youruser.gitlab.io/reponame/`. Use this as the Origin URL.
 
-![Screenshot of KeyCDN's pull zone creation page](/images/hosting-and-deployment/hosting-on-keycdn/keycdn-pull-zone.png)
+![Screenshot of KeyCDN's pull zone creation page](keycdn-pull-zone.png)
 
 While the origin location doesn’t exist yet, you will need to use your new Zone URL address (or [Zone Alias](https://www.keycdn.com/support/create-a-zone-alias/)) in the `.gitlab-ci.yml` file that will be uploaded to your GitLab project.
 
@@ -64,17 +64,17 @@ Using this integration method,  you will have to specify the Zone ID and your [K
 
 The Secret Variable for your Zone ID should look similar to:
 
-![Screenshot of setting the Zone ID secret variable](/images/hosting-and-deployment/hosting-on-keycdn/secret-zone-id.png)
+![Screenshot of setting the Zone ID secret variable](secret-zone-id.png)
 
 While the Secret Variable for your API Key will look similar to:
 
-![Screenshot of setting the API Key secret variable](/images/hosting-and-deployment/hosting-on-keycdn/secret-api-key.png)
+![Screenshot of setting the API Key secret variable](secret-api-key.png)
 
 The Zone ID and API key are used to purge your zone – it’s not strictly needed but otherwise, the CDN might deliver older versions of your assets for quite a while.
 
 ## Push your changes to GitLab
 
-Now it’s time to push the newly created repository to GitLab:
+Now it's time to push the newly created repository to GitLab:
 
 ```sh
 git remote add origin git@gitlab.com:youruser/ci-example.git
