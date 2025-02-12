@@ -317,14 +317,6 @@ Use these tokens when defining the URL pattern. You can also use these tokens wh
 `:slugorfilename`
 : The slug as defined in front matter, else the content's file name without extension, applicable to the `page` page kind.
 
-`:contentbasename`
-: The content base name, as defined in [`File.ContentBaseName`], applicable to pages backed by a file.
-
-`:contentbasenameorslug`
-: The content base name, else the slug as defined above.
-
-[`File.ContentBaseName`]: /methods/page/file/#contentbasename
-
 For time-related values, you can also use the layout string components defined in Go's [time package]. For example:
 
 [time package]: https://pkg.go.dev/time#pkg-constants

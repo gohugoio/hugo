@@ -22,7 +22,7 @@ import (
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/paths"
-	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/gohugoio/hugo/common/hugio"
 
@@ -132,11 +132,17 @@ func (fi *File) p() *paths.Path {
 	return fi.fim.Meta().PathInfo.Unnormalized()
 }
 
+var contentPathParser = &paths.PathParser{
+	IsContentExt: func(ext string) bool {
+		return true
+	},
+}
+
 // Used in tests.
-func NewFileInfoFrom(path, filename string) *File {
+func NewContentFileInfoFrom(path, filename string) *File {
 	meta := &hugofs.FileMeta{
 		Filename: filename,
-		PathInfo: media.DefaultPathParser.Parse("", filepath.ToSlash(path)),
+		PathInfo: contentPathParser.Parse(files.ComponentFolderContent, filepath.ToSlash(path)),
 	}
 
 	return NewFileInfo(hugofs.NewFileMetaInfo(nil, meta))
