@@ -5,7 +5,7 @@ url: /commands/hugo_mod_vendor/
 ---
 ## hugo mod vendor
 
-Vendor all module dependencies into the _vendor directory.
+Vendor all module dependencies into the _vendor directory
 
 ### Synopsis
 

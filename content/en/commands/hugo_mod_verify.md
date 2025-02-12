@@ -5,7 +5,7 @@ url: /commands/hugo_mod_verify/
 ---
 ## hugo mod verify
 
-Verify dependencies.
+Verify dependencies
 
 ### Synopsis
 

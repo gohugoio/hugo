@@ -5,7 +5,7 @@ url: /commands/hugo_gen_doc/
 ---
 ## hugo gen doc
 
-Generate Markdown documentation for the Hugo CLI.
+Generate Markdown documentation for the Hugo CLI
 
 ### Synopsis
 

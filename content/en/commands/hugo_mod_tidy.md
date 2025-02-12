@@ -5,7 +5,7 @@ url: /commands/hugo_mod_tidy/
 ---
 ## hugo mod tidy
 
-Remove unused entries in go.mod and go.sum.
+Remove unused entries in go.mod and go.sum
 
 ```
 hugo mod tidy [flags] [args]
