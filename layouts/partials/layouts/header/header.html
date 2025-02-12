@@ -24,11 +24,12 @@
 
   </div>
 
-  <div class="-my-5 pl-2 sm:mr-8">
+  <div class="-my-5 pl-2 grow-0">
     {{/* Search. */}}
     {{ partial "layouts/search/input.html" . }}
   </div>
-  <div class="relative flex basis-0 justify-end gap-6 sm:gap-1 md:flex-grow">
+  <div
+    class="relative ml-0 md:ml-8 flex basis-0 justify-end gap-0 sm:gap-1 xl:grow-1">
     {{/* QR code. */}}
     {{ partial "layouts/header/qr.html" . }}
     {{/* Theme selector. */}}
