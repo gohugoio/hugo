@@ -2,7 +2,7 @@
 
 # The hugo mod get command handles flags a little special, but the -h flag should print the help.
 hugo mod get -h
-stdout 'Resolves dependencies in your current Hugo Project'
+stdout 'Resolves dependencies in your current Hugo project'
 
 # Invalid flag. Should print an error message to stderr and the help to stdout.
 ! hugo --asdf
