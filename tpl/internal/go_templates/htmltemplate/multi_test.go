@@ -4,8 +4,8 @@
 
 // Tests for multiple-template execution, copied from text/template.
 
-//go:build !windows
-// +build !windows
+//go:build go1.13 && !windows
+// +build go1.13,!windows
 
 package template
 
@@ -268,7 +268,7 @@ func TestIssue19294(t *testing.T) {
 	// by the contents of "stylesheet", but if the internal map associating
 	// names with templates is built in the wrong order, the empty block
 	// looks non-empty and this doesn't happen.
-	inlined := map[string]string{
+	var inlined = map[string]string{
 		"stylesheet": `{{define "stylesheet"}}stylesheet{{end}}`,
 		"xhtml":      `{{block "stylesheet" .}}{{end}}`,
 	}

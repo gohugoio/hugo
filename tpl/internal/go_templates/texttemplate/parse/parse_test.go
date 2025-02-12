@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build go1.13
+// +build go1.13
+
 package parse
 
 import (
@@ -33,9 +36,9 @@ var numberTests = []numberTest{
 	{"7_3", true, true, true, false, 73, 73, 73, 0},
 	{"0b10_010_01", true, true, true, false, 73, 73, 73, 0},
 	{"0B10_010_01", true, true, true, false, 73, 73, 73, 0},
-	{"073", true, true, true, false, 0o73, 0o73, 0o73, 0},
-	{"0o73", true, true, true, false, 0o73, 0o73, 0o73, 0},
-	{"0O73", true, true, true, false, 0o73, 0o73, 0o73, 0},
+	{"073", true, true, true, false, 073, 073, 073, 0},
+	{"0o73", true, true, true, false, 073, 073, 073, 0},
+	{"0O73", true, true, true, false, 073, 073, 073, 0},
 	{"0x73", true, true, true, false, 0x73, 0x73, 0x73, 0},
 	{"0X73", true, true, true, false, 0x73, 0x73, 0x73, 0},
 	{"0x7_3", true, true, true, false, 0x73, 0x73, 0x73, 0},
@@ -61,7 +64,7 @@ var numberTests = []numberTest{
 	{"-12+0i", true, false, true, true, -12, 0, -12, -12},
 	{"13+0i", true, true, true, true, 13, 13, 13, 13},
 	// funny bases
-	{"0123", true, true, true, false, 0o123, 0o123, 0o123, 0},
+	{"0123", true, true, true, false, 0123, 0123, 0123, 0},
 	{"-0x0", true, true, true, false, 0, 0, 0, 0},
 	{"0xdeadbeef", true, true, true, false, 0xdeadbeef, 0xdeadbeef, 0xdeadbeef, 0},
 	// character constants
@@ -176,150 +179,78 @@ const (
 )
 
 var parseTests = []parseTest{
-	{
-		"empty", "", noError,
-		``,
-	},
-	{
-		"comment", "{{/*\n\n\n*/}}", noError,
-		``,
-	},
-	{
-		"spaces", " \t\n", noError,
-		`" \t\n"`,
-	},
-	{
-		"text", "some text", noError,
-		`"some text"`,
-	},
-	{
-		"emptyAction", "{{}}", hasError,
-		`{{}}`,
-	},
-	{
-		"field", "{{.X}}", noError,
-		`{{.X}}`,
-	},
-	{
-		"simple command", "{{printf}}", noError,
-		`{{printf}}`,
-	},
-	{
-		"$ invocation", "{{$}}", noError,
-		"{{$}}",
-	},
-	{
-		"variable invocation", "{{with $x := 3}}{{$x 23}}{{end}}", noError,
-		"{{with $x := 3}}{{$x 23}}{{end}}",
-	},
-	{
-		"variable with fields", "{{$.I}}", noError,
-		"{{$.I}}",
-	},
-	{
-		"multi-word command", "{{printf `%d` 23}}", noError,
-		"{{printf `%d` 23}}",
-	},
-	{
-		"pipeline", "{{.X|.Y}}", noError,
-		`{{.X | .Y}}`,
-	},
-	{
-		"pipeline with decl", "{{$x := .X|.Y}}", noError,
-		`{{$x := .X | .Y}}`,
-	},
-	{
-		"nested pipeline", "{{.X (.Y .Z) (.A | .B .C) (.E)}}", noError,
-		`{{.X (.Y .Z) (.A | .B .C) (.E)}}`,
-	},
-	{
-		"field applied to parentheses", "{{(.Y .Z).Field}}", noError,
-		`{{(.Y .Z).Field}}`,
-	},
-	{
-		"simple if", "{{if .X}}hello{{end}}", noError,
-		`{{if .X}}"hello"{{end}}`,
-	},
-	{
-		"if with else", "{{if .X}}true{{else}}false{{end}}", noError,
-		`{{if .X}}"true"{{else}}"false"{{end}}`,
-	},
-	{
-		"if with else if", "{{if .X}}true{{else if .Y}}false{{end}}", noError,
-		`{{if .X}}"true"{{else}}{{if .Y}}"false"{{end}}{{end}}`,
-	},
-	{
-		"if else chain", "+{{if .X}}X{{else if .Y}}Y{{else if .Z}}Z{{end}}+", noError,
-		`"+"{{if .X}}"X"{{else}}{{if .Y}}"Y"{{else}}{{if .Z}}"Z"{{end}}{{end}}{{end}}"+"`,
-	},
-	{
-		"simple range", "{{range .X}}hello{{end}}", noError,
-		`{{range .X}}"hello"{{end}}`,
-	},
-	{
-		"chained field range", "{{range .X.Y.Z}}hello{{end}}", noError,
-		`{{range .X.Y.Z}}"hello"{{end}}`,
-	},
-	{
-		"nested range", "{{range .X}}hello{{range .Y}}goodbye{{end}}{{end}}", noError,
-		`{{range .X}}"hello"{{range .Y}}"goodbye"{{end}}{{end}}`,
-	},
-	{
-		"range with else", "{{range .X}}true{{else}}false{{end}}", noError,
-		`{{range .X}}"true"{{else}}"false"{{end}}`,
-	},
-	{
-		"range over pipeline", "{{range .X|.M}}true{{else}}false{{end}}", noError,
-		`{{range .X | .M}}"true"{{else}}"false"{{end}}`,
-	},
-	{
-		"range []int", "{{range .SI}}{{.}}{{end}}", noError,
-		`{{range .SI}}{{.}}{{end}}`,
-	},
-	{
-		"range 1 var", "{{range $x := .SI}}{{.}}{{end}}", noError,
-		`{{range $x := .SI}}{{.}}{{end}}`,
-	},
-	{
-		"range 2 vars", "{{range $x, $y := .SI}}{{.}}{{end}}", noError,
-		`{{range $x, $y := .SI}}{{.}}{{end}}`,
-	},
-	{
-		"range with break", "{{range .SI}}{{.}}{{break}}{{end}}", noError,
-		`{{range .SI}}{{.}}{{break}}{{end}}`,
-	},
-	{
-		"range with continue", "{{range .SI}}{{.}}{{continue}}{{end}}", noError,
-		`{{range .SI}}{{.}}{{continue}}{{end}}`,
-	},
-	{
-		"constants", "{{range .SI 1 -3.2i true false 'a' nil}}{{end}}", noError,
-		`{{range .SI 1 -3.2i true false 'a' nil}}{{end}}`,
-	},
-	{
-		"template", "{{template `x`}}", noError,
-		`{{template "x"}}`,
-	},
-	{
-		"template with arg", "{{template `x` .Y}}", noError,
-		`{{template "x" .Y}}`,
-	},
-	{
-		"with", "{{with .X}}hello{{end}}", noError,
-		`{{with .X}}"hello"{{end}}`,
-	},
-	{
-		"with with else", "{{with .X}}hello{{else}}goodbye{{end}}", noError,
-		`{{with .X}}"hello"{{else}}"goodbye"{{end}}`,
-	},
-	{
-		"with with else with", "{{with .X}}hello{{else with .Y}}goodbye{{end}}", noError,
-		`{{with .X}}"hello"{{else}}{{with .Y}}"goodbye"{{end}}{{end}}`,
-	},
-	{
-		"with else chain", "{{with .X}}X{{else with .Y}}Y{{else with .Z}}Z{{end}}", noError,
-		`{{with .X}}"X"{{else}}{{with .Y}}"Y"{{else}}{{with .Z}}"Z"{{end}}{{end}}{{end}}`,
-	},
+	{"empty", "", noError,
+		``},
+	{"comment", "{{/*\n\n\n*/}}", noError,
+		``},
+	{"spaces", " \t\n", noError,
+		`" \t\n"`},
+	{"text", "some text", noError,
+		`"some text"`},
+	{"emptyAction", "{{}}", hasError,
+		`{{}}`},
+	{"field", "{{.X}}", noError,
+		`{{.X}}`},
+	{"simple command", "{{printf}}", noError,
+		`{{printf}}`},
+	{"$ invocation", "{{$}}", noError,
+		"{{$}}"},
+	{"variable invocation", "{{with $x := 3}}{{$x 23}}{{end}}", noError,
+		"{{with $x := 3}}{{$x 23}}{{end}}"},
+	{"variable with fields", "{{$.I}}", noError,
+		"{{$.I}}"},
+	{"multi-word command", "{{printf `%d` 23}}", noError,
+		"{{printf `%d` 23}}"},
+	{"pipeline", "{{.X|.Y}}", noError,
+		`{{.X | .Y}}`},
+	{"pipeline with decl", "{{$x := .X|.Y}}", noError,
+		`{{$x := .X | .Y}}`},
+	{"nested pipeline", "{{.X (.Y .Z) (.A | .B .C) (.E)}}", noError,
+		`{{.X (.Y .Z) (.A | .B .C) (.E)}}`},
+	{"field applied to parentheses", "{{(.Y .Z).Field}}", noError,
+		`{{(.Y .Z).Field}}`},
+	{"simple if", "{{if .X}}hello{{end}}", noError,
+		`{{if .X}}"hello"{{end}}`},
+	{"if with else", "{{if .X}}true{{else}}false{{end}}", noError,
+		`{{if .X}}"true"{{else}}"false"{{end}}`},
+	{"if with else if", "{{if .X}}true{{else if .Y}}false{{end}}", noError,
+		`{{if .X}}"true"{{else}}{{if .Y}}"false"{{end}}{{end}}`},
+	{"if else chain", "+{{if .X}}X{{else if .Y}}Y{{else if .Z}}Z{{end}}+", noError,
+		`"+"{{if .X}}"X"{{else}}{{if .Y}}"Y"{{else}}{{if .Z}}"Z"{{end}}{{end}}{{end}}"+"`},
+	{"simple range", "{{range .X}}hello{{end}}", noError,
+		`{{range .X}}"hello"{{end}}`},
+	{"chained field range", "{{range .X.Y.Z}}hello{{end}}", noError,
+		`{{range .X.Y.Z}}"hello"{{end}}`},
+	{"nested range", "{{range .X}}hello{{range .Y}}goodbye{{end}}{{end}}", noError,
+		`{{range .X}}"hello"{{range .Y}}"goodbye"{{end}}{{end}}`},
+	{"range with else", "{{range .X}}true{{else}}false{{end}}", noError,
+		`{{range .X}}"true"{{else}}"false"{{end}}`},
+	{"range over pipeline", "{{range .X|.M}}true{{else}}false{{end}}", noError,
+		`{{range .X | .M}}"true"{{else}}"false"{{end}}`},
+	{"range []int", "{{range .SI}}{{.}}{{end}}", noError,
+		`{{range .SI}}{{.}}{{end}}`},
+	{"range 1 var", "{{range $x := .SI}}{{.}}{{end}}", noError,
+		`{{range $x := .SI}}{{.}}{{end}}`},
+	{"range 2 vars", "{{range $x, $y := .SI}}{{.}}{{end}}", noError,
+		`{{range $x, $y := .SI}}{{.}}{{end}}`},
+	{"range with break", "{{range .SI}}{{.}}{{break}}{{end}}", noError,
+		`{{range .SI}}{{.}}{{break}}{{end}}`},
+	{"range with continue", "{{range .SI}}{{.}}{{continue}}{{end}}", noError,
+		`{{range .SI}}{{.}}{{continue}}{{end}}`},
+	{"constants", "{{range .SI 1 -3.2i true false 'a' nil}}{{end}}", noError,
+		`{{range .SI 1 -3.2i true false 'a' nil}}{{end}}`},
+	{"template", "{{template `x`}}", noError,
+		`{{template "x"}}`},
+	{"template with arg", "{{template `x` .Y}}", noError,
+		`{{template "x" .Y}}`},
+	{"with", "{{with .X}}hello{{end}}", noError,
+		`{{with .X}}"hello"{{end}}`},
+	{"with with else", "{{with .X}}hello{{else}}goodbye{{end}}", noError,
+		`{{with .X}}"hello"{{else}}"goodbye"{{end}}`},
+	{"with with else with", "{{with .X}}hello{{else with .Y}}goodbye{{end}}", noError,
+		`{{with .X}}"hello"{{else}}{{with .Y}}"goodbye"{{end}}{{end}}`},
+	{"with else chain", "{{with .X}}X{{else with .Y}}Y{{else with .Z}}Z{{end}}", noError,
+		`{{with .X}}"X"{{else}}{{with .Y}}"Y"{{else}}{{with .Z}}"Z"{{end}}{{end}}{{end}}`},
 	// Trimming spaces.
 	{"trim left", "x \r\n\t{{- 3}}", noError, `"x"{{3}}`},
 	{"trim right", "{{3 -}}\n\n\ty", noError, `{{3}}"y"`},
@@ -328,24 +259,18 @@ var parseTests = []parseTest{
 	{"comment trim left", "x \r\n\t{{- /* hi */}}", noError, `"x"`},
 	{"comment trim right", "{{/* hi */ -}}\n\n\ty", noError, `"y"`},
 	{"comment trim left and right", "x \r\n\t{{- /* */ -}}\n\n\ty", noError, `"x""y"`},
-	{
-		"block definition", `{{block "foo" .}}hello{{end}}`, noError,
-		`{{template "foo" .}}`,
-	},
+	{"block definition", `{{block "foo" .}}hello{{end}}`, noError,
+		`{{template "foo" .}}`},
 
 	{"newline in assignment", "{{ $x \n := \n 1 \n }}", noError, "{{$x := 1}}"},
 	{"newline in empty action", "{{\n}}", hasError, "{{\n}}"},
 	{"newline in pipeline", "{{\n\"x\"\n|\nprintf\n}}", noError, `{{"x" | printf}}`},
 	{"newline in comment", "{{/*\nhello\n*/}}", noError, ""},
 	{"newline in comment", "{{-\n/*\nhello\n*/\n-}}", noError, ""},
-	{
-		"spaces around continue", "{{range .SI}}{{.}}{{ continue }}{{end}}", noError,
-		`{{range .SI}}{{.}}{{continue}}{{end}}`,
-	},
-	{
-		"spaces around break", "{{range .SI}}{{.}}{{ break }}{{end}}", noError,
-		`{{range .SI}}{{.}}{{break}}{{end}}`,
-	},
+	{"spaces around continue", "{{range .SI}}{{.}}{{ continue }}{{end}}", noError,
+		`{{range .SI}}{{.}}{{continue}}{{end}}`},
+	{"spaces around break", "{{range .SI}}{{.}}{{ break }}{{end}}", noError,
+		`{{range .SI}}{{.}}{{break}}{{end}}`},
 
 	// Errors.
 	{"unclosed action", "hello{{range", hasError, ""},
@@ -487,7 +412,7 @@ func TestKeywordsAndFuncs(t *testing.T) {
 	{
 		// 'break' is a defined function, don't treat it as a keyword: it should
 		// accept an argument successfully.
-		funcsWithKeywordFunc := map[string]any{
+		var funcsWithKeywordFunc = map[string]any{
 			"break": func(in any) any { return in },
 		}
 		tmpl, err := New("").Parse(inp, "", "", make(map[string]*Tree), funcsWithKeywordFunc)
@@ -574,168 +499,104 @@ func TestErrorContextWithTreeCopy(t *testing.T) {
 // All failures, and the result is a string that must appear in the error message.
 var errorTests = []parseTest{
 	// Check line numbers are accurate.
-	{
-		"unclosed1",
+	{"unclosed1",
 		"line1\n{{",
-		hasError, `unclosed1:2: unclosed action`,
-	},
-	{
-		"unclosed2",
+		hasError, `unclosed1:2: unclosed action`},
+	{"unclosed2",
 		"line1\n{{define `x`}}line2\n{{",
-		hasError, `unclosed2:3: unclosed action`,
-	},
-	{
-		"unclosed3",
+		hasError, `unclosed2:3: unclosed action`},
+	{"unclosed3",
 		"line1\n{{\"x\"\n\"y\"\n",
-		hasError, `unclosed3:4: unclosed action started at unclosed3:2`,
-	},
-	{
-		"unclosed4",
+		hasError, `unclosed3:4: unclosed action started at unclosed3:2`},
+	{"unclosed4",
 		"{{\n\n\n\n\n",
-		hasError, `unclosed4:6: unclosed action started at unclosed4:1`,
-	},
-	{
-		"var1",
+		hasError, `unclosed4:6: unclosed action started at unclosed4:1`},
+	{"var1",
 		"line1\n{{\nx\n}}",
-		hasError, `var1:3: function "x" not defined`,
-	},
+		hasError, `var1:3: function "x" not defined`},
 	// Specific errors.
-	{
-		"function",
+	{"function",
 		"{{foo}}",
-		hasError, `function "foo" not defined`,
-	},
-	{
-		"comment1",
+		hasError, `function "foo" not defined`},
+	{"comment1",
 		"{{/*}}",
-		hasError, `comment1:1: unclosed comment`,
-	},
-	{
-		"comment2",
+		hasError, `comment1:1: unclosed comment`},
+	{"comment2",
 		"{{/*\nhello\n}}",
-		hasError, `comment2:1: unclosed comment`,
-	},
-	{
-		"lparen",
+		hasError, `comment2:1: unclosed comment`},
+	{"lparen",
 		"{{.X (1 2 3}}",
-		hasError, `unclosed left paren`,
-	},
-	{
-		"rparen",
+		hasError, `unclosed left paren`},
+	{"rparen",
 		"{{.X 1 2 3 ) }}",
-		hasError, "unexpected right paren",
-	},
-	{
-		"rparen2",
+		hasError, "unexpected right paren"},
+	{"rparen2",
 		"{{(.X 1 2 3",
-		hasError, `unclosed action`,
-	},
-	{
-		"space",
+		hasError, `unclosed action`},
+	{"space",
 		"{{`x`3}}",
-		hasError, `in operand`,
-	},
-	{
-		"idchar",
+		hasError, `in operand`},
+	{"idchar",
 		"{{a#}}",
-		hasError, `'#'`,
-	},
-	{
-		"charconst",
+		hasError, `'#'`},
+	{"charconst",
 		"{{'a}}",
-		hasError, `unterminated character constant`,
-	},
-	{
-		"stringconst",
+		hasError, `unterminated character constant`},
+	{"stringconst",
 		`{{"a}}`,
-		hasError, `unterminated quoted string`,
-	},
-	{
-		"rawstringconst",
+		hasError, `unterminated quoted string`},
+	{"rawstringconst",
 		"{{`a}}",
-		hasError, `unterminated raw quoted string`,
-	},
-	{
-		"number",
+		hasError, `unterminated raw quoted string`},
+	{"number",
 		"{{0xi}}",
-		hasError, `number syntax`,
-	},
-	{
-		"multidefine",
+		hasError, `number syntax`},
+	{"multidefine",
 		"{{define `a`}}a{{end}}{{define `a`}}b{{end}}",
-		hasError, `multiple definition of template`,
-	},
-	{
-		"eof",
+		hasError, `multiple definition of template`},
+	{"eof",
 		"{{range .X}}",
-		hasError, `unexpected EOF`,
-	},
-	{
-		"variable",
+		hasError, `unexpected EOF`},
+	{"variable",
 		// Declare $x so it's defined, to avoid that error, and then check we don't parse a declaration.
 		"{{$x := 23}}{{with $x.y := 3}}{{$x 23}}{{end}}",
-		hasError, `unexpected ":="`,
-	},
-	{
-		"multidecl",
+		hasError, `unexpected ":="`},
+	{"multidecl",
 		"{{$a,$b,$c := 23}}",
-		hasError, `too many declarations`,
-	},
-	{
-		"undefvar",
+		hasError, `too many declarations`},
+	{"undefvar",
 		"{{$a}}",
-		hasError, `undefined variable`,
-	},
-	{
-		"wrongdot",
+		hasError, `undefined variable`},
+	{"wrongdot",
 		"{{true.any}}",
-		hasError, `unexpected . after term`,
-	},
-	{
-		"wrongpipeline",
+		hasError, `unexpected . after term`},
+	{"wrongpipeline",
 		"{{12|false}}",
-		hasError, `non executable command in pipeline`,
-	},
-	{
-		"emptypipeline",
+		hasError, `non executable command in pipeline`},
+	{"emptypipeline",
 		`{{ ( ) }}`,
-		hasError, `missing value for parenthesized pipeline`,
-	},
-	{
-		"multilinerawstring",
+		hasError, `missing value for parenthesized pipeline`},
+	{"multilinerawstring",
 		"{{ $v := `\n` }} {{",
-		hasError, `multilinerawstring:2: unclosed action`,
-	},
-	{
-		"rangeundefvar",
+		hasError, `multilinerawstring:2: unclosed action`},
+	{"rangeundefvar",
 		"{{range $k}}{{end}}",
-		hasError, `undefined variable`,
-	},
-	{
-		"rangeundefvars",
+		hasError, `undefined variable`},
+	{"rangeundefvars",
 		"{{range $k, $v}}{{end}}",
-		hasError, `undefined variable`,
-	},
-	{
-		"rangemissingvalue1",
+		hasError, `undefined variable`},
+	{"rangemissingvalue1",
 		"{{range $k,}}{{end}}",
-		hasError, `missing value for range`,
-	},
-	{
-		"rangemissingvalue2",
+		hasError, `missing value for range`},
+	{"rangemissingvalue2",
 		"{{range $k, $v := }}{{end}}",
-		hasError, `missing value for range`,
-	},
-	{
-		"rangenotvariable1",
+		hasError, `missing value for range`},
+	{"rangenotvariable1",
 		"{{range $k, .}}{{end}}",
-		hasError, `range can only initialize variables`,
-	},
-	{
-		"rangenotvariable2",
+		hasError, `range can only initialize variables`},
+	{"rangenotvariable2",
 		"{{range $k, 123 := .}}{{end}}",
-		hasError, `range can only initialize variables`,
-	},
+		hasError, `range can only initialize variables`},
 }
 
 func TestErrors(t *testing.T) {

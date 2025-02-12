@@ -15,6 +15,7 @@ import (
 )
 
 func TestGoToolLocation(t *testing.T) {
+	t.Skip("This test is not relevant for Hugo")
 	testenv.MustHaveGoBuild(t)
 
 	var exeSuffix string
@@ -54,8 +55,83 @@ func TestGoToolLocation(t *testing.T) {
 	}
 }
 
-// Modified by Hugo (not needed)
 func TestHasGoBuild(t *testing.T) {
+	if !testenv.HasGoBuild() {
+		switch runtime.GOOS {
+		case "js", "wasip1":
+			// No exec syscall, so these shouldn't be able to 'go build'.
+			t.Logf("HasGoBuild is false on %s", runtime.GOOS)
+			return
+		}
+
+		b := testenv.Builder()
+		if b == "" {
+			// We shouldn't make assumptions about what kind of sandbox or build
+			// environment external Go users may be running in.
+			t.Skipf("skipping: 'go build' unavailable")
+		}
+
+		// Since we control the Go builders, we know which ones ought
+		// to be able to run 'go build'. Check that they can.
+		//
+		// (Note that we don't verify that any builders *can't* run 'go build'.
+		// If a builder starts running 'go build' tests when it shouldn't,
+		// we will presumably find out about it when those tests fail.)
+		switch runtime.GOOS {
+		case "ios":
+			if isCorelliumBuilder(b) {
+				// The corellium environment is self-hosting, so it should be able
+				// to build even though real "ios" devices can't exec.
+			} else {
+				// The usual iOS sandbox does not allow the app to start another
+				// process. If we add builders on stock iOS devices, they presumably
+				// will not be able to exec, so we may as well allow that now.
+				t.Logf("HasGoBuild is false on %s", b)
+				return
+			}
+		case "android":
+			panic("Removed by Hugo, should not be used")
+		}
+
+		if strings.Contains(b, "-noopt") {
+			// The -noopt builder sets GO_GCFLAGS, which causes tests of 'go build' to
+			// be skipped.
+			t.Logf("HasGoBuild is false on %s", b)
+			return
+		}
+
+		t.Fatalf("HasGoBuild unexpectedly false on %s", b)
+	}
+
+	t.Logf("HasGoBuild is true; checking consistency with other functions")
+
+	hasExec := false
+	hasExecGo := false
+	t.Run("MustHaveExec", func(t *testing.T) {
+		testenv.MustHaveExec(t)
+		hasExec = true
+	})
+	t.Run("MustHaveExecPath", func(t *testing.T) {
+		testenv.MustHaveExecPath(t, "go")
+		hasExecGo = true
+	})
+	if !hasExec {
+		t.Errorf(`MustHaveExec(t) skipped unexpectedly`)
+	}
+	if !hasExecGo {
+		t.Errorf(`MustHaveExecPath(t, "go") skipped unexpectedly`)
+	}
+
+	dir := t.TempDir()
+	mainGo := filepath.Join(dir, "main.go")
+	if err := os.WriteFile(mainGo, []byte("package main\nfunc main() {}\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	cmd := testenv.Command(t, "go", "build", "-o", os.DevNull, mainGo)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("%v: %v\n%s", cmd, err, out)
+	}
 }
 
 func TestMustHaveExec(t *testing.T) {

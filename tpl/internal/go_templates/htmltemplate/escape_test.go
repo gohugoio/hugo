@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build !windows
-// +build !windows
+//go:build go1.13 && !windows
+// +build go1.13,!windows
 
 package template
 
@@ -944,6 +944,7 @@ func TestEscapeSet(t *testing.T) {
 			t.Errorf("want\n\t%q\ngot\n\t%q", test.want, got)
 		}
 	}
+
 }
 
 func TestErrors(t *testing.T) {
@@ -1063,6 +1064,10 @@ func TestErrors(t *testing.T) {
 		{
 			"{{range .Items}}<a{{if .X}}{{continue}}{{end}}>{{end}}",
 			"z:1:29: at range loop continue: {{range}} branches end in different contexts",
+		},
+		{
+			"{{range .Items}}{{if .X}}{{break}}{{end}}<a{{if .Y}}{{continue}}{{end}}>{{if .Z}}{{continue}}{{end}}{{end}}",
+			"z:1:54: at range loop continue: {{range}} branches end in different contexts",
 		},
 		{
 			"<a b=1 c={{.H}}",
@@ -1193,6 +1198,7 @@ func TestErrors(t *testing.T) {
 		// Check that we get the same error if we call Execute again.
 		if err := tmpl.Execute(buf, nil); err == nil || err.Error() != got {
 			t.Errorf("input=%q: unexpected error on second call %q", test.input, err)
+
 		}
 	}
 }

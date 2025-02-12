@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	// The current is built with  6885bad7dd86880be6929c02085e5c7a67ff2887 go1.23.0
+	// The current is built with 3901409b5d [release-branch.go1.24] go1.24.0
 	// TODO(bep) preserve the staticcheck.conf file.
 	fmt.Println("Forking ...")
 	defer fmt.Println("Done ...")
@@ -216,6 +216,7 @@ func rewrite(filename, rule string) {
 }
 
 func goimports(dir string) {
+	// Needs go install golang.org/x/tools/cmd/goimports@latest
 	cmf, _ := hexec.SafeCommand("goimports", "-w", dir)
 	out, err := cmf.CombinedOutput()
 	if err != nil {

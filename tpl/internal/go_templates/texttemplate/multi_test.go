@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build !windows
-// +build !windows
+//go:build go1.13 && !windows
+// +build go1.13,!windows
 
 package template
 
@@ -11,11 +11,10 @@ package template
 
 import (
 	"fmt"
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 	"os"
 	"strings"
 	"testing"
-
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 )
 
 const (
@@ -32,32 +31,22 @@ type multiParseTest struct {
 }
 
 var multiParseTests = []multiParseTest{
-	{
-		"empty", "", noError,
+	{"empty", "", noError,
 		nil,
-		nil,
-	},
-	{
-		"one", `{{define "foo"}} FOO {{end}}`, noError,
+		nil},
+	{"one", `{{define "foo"}} FOO {{end}}`, noError,
 		[]string{"foo"},
-		[]string{" FOO "},
-	},
-	{
-		"two", `{{define "foo"}} FOO {{end}}{{define "bar"}} BAR {{end}}`, noError,
+		[]string{" FOO "}},
+	{"two", `{{define "foo"}} FOO {{end}}{{define "bar"}} BAR {{end}}`, noError,
 		[]string{"foo", "bar"},
-		[]string{" FOO ", " BAR "},
-	},
+		[]string{" FOO ", " BAR "}},
 	// errors
-	{
-		"missing end", `{{define "foo"}} FOO `, hasError,
+	{"missing end", `{{define "foo"}} FOO `, hasError,
 		nil,
+		nil},
+	{"malformed name", `{{define "foo}} FOO `, hasError,
 		nil,
-	},
-	{
-		"malformed name", `{{define "foo}} FOO `, hasError,
-		nil,
-		nil,
-	},
+		nil},
 }
 
 func TestMultiParse(t *testing.T) {
@@ -443,7 +432,7 @@ func TestIssue19294(t *testing.T) {
 	// by the contents of "stylesheet", but if the internal map associating
 	// names with templates is built in the wrong order, the empty block
 	// looks non-empty and this doesn't happen.
-	inlined := map[string]string{
+	var inlined = map[string]string{
 		"stylesheet": `{{define "stylesheet"}}stylesheet{{end}}`,
 		"xhtml":      `{{block "stylesheet" .}}{{end}}`,
 	}
