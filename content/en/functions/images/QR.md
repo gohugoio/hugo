@@ -54,7 +54,7 @@ To create a QR code using the default values for `level` and `scale`:
 {{ end }}
 ```
 
-{{< qr text="https://gohugo.io" class="qrcode" />}}
+{{< qr text="https://gohugo.io" class="qrcode" targetDir="images/qr" />}}
 
 Specify `level`, `scale`, and `targetDir` as needed to achieve the desired result:
 
@@ -63,14 +63,14 @@ Specify `level`, `scale`, and `targetDir` as needed to achieve the desired resul
 {{ $opts := dict 
   "level" "high" 
   "scale" 3
-  "targetDir" "codes"
+  "targetDir" "images/qr"
 }}
 {{ with images.QR $text $opts }}
   <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
 {{ end }}
 ```
 
-{{< qr text="https://gohugo.io" level="high" scale=3 targetDir="codes" class="qrcode" />}}
+{{< qr text="https://gohugo.io" level="high" scale=3 targetDir="codes" class="qrcode" targetDir="images/qr" />}}
 
 To include a QR code that points to the `Permalink` of the current page:
 
@@ -102,9 +102,6 @@ Then hide the QR code with CSS unless printing the page:
   }
 }
 ```
-
-
-
 
 ## Scale
 
