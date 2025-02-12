@@ -52,7 +52,7 @@ func newTestPage() *testPage {
 
 func newTestPageWithFile(filename string) *testPage {
 	filename = filepath.FromSlash(filename)
-	file := source.NewFileInfoFrom(filename, filename)
+	file := source.NewContentFileInfoFrom(filename, filename)
 
 	l, err := langs.NewLanguage(
 		"en",
