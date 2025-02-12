@@ -46,6 +46,8 @@ var testdataPermalinks = []struct {
 	{"/:sections[0]/:sections[last]/", true, "/a/c/"},               // Sections
 	{"/\\:filename", true, "/:filename"},                            // Escape sequence
 	{"/special\\::slug/", true, "/special:the-slug/"},               // Escape sequence
+	{"/:contentbasename/", true, "/index/"},                         // Content base name
+	{"/:contentbasenameorslug/", true, "/index/"},                   // Content base name or slug
 
 	// Failures
 	{"/blog/:fred", false, ""},
