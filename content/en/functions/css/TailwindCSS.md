@@ -24,8 +24,9 @@ Use the `css.TailwindCSS` function to process your Tailwind CSS files.  This fun
 
 ## Setup
 
-Step 1
-: Install the Tailwind CSS CLI v4.0 or later:
+###### Step 1
+
+Install the Tailwind CSS CLI v4.0 or later:
 
 ```sh
 npm install --save-dev tailwindcss @tailwindcss/cli
@@ -35,8 +36,9 @@ The TailwindCSS CLI is also available as a [standalone executable] if you want t
 
 [standalone executable]: https://github.com/tailwindlabs/tailwindcss/releases/latest
 
-Step 2
-: Add this to your site configuration:
+###### Step 2
+
+Add this to your site configuration:
 
 {{< code-toggle file=hugo copy=true >}}
 [[module.mounts]]
@@ -57,8 +59,9 @@ target = "css"
 {{< /code-toggle >}}
 
 
-Step 3
-: Create a CSS entry file:
+###### Step 3
+
+Create a CSS entry file:
 
 {{< code file=assets/css/main.css copy=true >}}
 @import "tailwindcss";
@@ -67,8 +70,9 @@ Step 3
 
 Tailwind CSS respects `.gitignore` files. This means that if `hugo_stats.json` is listed in your `.gitignore` file, Tailwind CSS will ignore it. To make `hugo_stats.json` available to Tailwind CSS you must explicitly source it as shown in the example above.
 
-Step 4
-: Create a partial template to process the CSS with the Tailwind CSS CLI:
+###### Step 4
+
+Create a partial template to process the CSS with the Tailwind CSS CLI:
 
 {{< code file=layouts/partials/css.html copy=true >}}
 {{ with (templates.Defer (dict "key" "global")) }}
@@ -90,8 +94,9 @@ Step 4
 {{ end }}
 {{< /code >}}
 
-Step 5
-: Call the partial template from your base template:
+###### Step 5
+
+Call the partial template from your base template:
 
 {{< code file=layouts/default/baseof.html >}}
 <head>
@@ -101,8 +106,9 @@ Step 5
 <head>
 {{< /code >}}
 
-Step 6
-: Optionally create a `tailwind.config.js` file in the root of your project as shown below. This is necessary if you use the [Tailwind CSS IntelliSense
+###### Step 6
+
+Optionally create a `tailwind.config.js` file in the root of your project as shown below. This is necessary if you use the [Tailwind CSS IntelliSense
 extension] for Visual Studio Code.
 
 [Tailwind CSS IntelliSense
